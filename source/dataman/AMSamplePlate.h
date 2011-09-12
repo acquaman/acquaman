@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -109,6 +109,9 @@ public:
 
 	/// When this sample plate was first created
 	QDateTime dateTime() const { return dateTime_; }
+
+	/// Returns the sample id at the given position. If no sample is at the given position, -1 is returned. Can optionally take a list of alternate tolerance (rather than the motion tolerances) for the controls.
+	int sampleIdAtPosition(const AMControlInfoList &position, const QList<double> tolerances = QList<double>()) const;
 
 
 signals:

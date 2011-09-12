@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -232,6 +232,9 @@ public:
 
 	/// This is fast because it doesn't require a memory copy, thanks to Qt's implicit sharing on QVectors and other container types.
 	QVector<double> lastFloatingPointValues() const {  return data_dbl_; }
+
+	/// Returns the sum of the values from lowIndex to highIndex (inclusive). If the lowIndex or highIndex is out of range, any valid subrange is returned
+	double binFloatingPointValues(int lowIndex, int highIndex) const;
 
 	/// error reporting: returns the last error code that occurred:
 	int lastError() const {  return lastError_; }

@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "CustomizeRegionsOfInterest.h"
 #include "util/AMElement.h"
 #include "util/AMPeriodicTable.h"
@@ -36,8 +56,8 @@ RegionOfInterestView::RegionOfInterestView(AMROI *roi, QWidget *parent)
 
 	connect(roi, SIGNAL(scalerChanged(double)), this, SLOT(onScalerChanged(double)));
 
-	QLabel *value = new QLabel;
-	connect(roi, SIGNAL(valueUpdate(double)), value, SLOT(setNum(double)));
+	value_ = new QLabel;
+	connect(roi, SIGNAL(valueUpdate(double)), value_, SLOT(setNum(double)));
 
 	QHBoxLayout *roiLayout = new QHBoxLayout;
 	roiLayout->addWidget(name_, 0, Qt::AlignCenter);
@@ -45,7 +65,7 @@ RegionOfInterestView::RegionOfInterestView(AMROI *roi, QWidget *parent)
 	roiLayout->addWidget(low_);
 	roiLayout->addWidget(new QLabel("High: "), 0, Qt::AlignRight);
 	roiLayout->addWidget(high_);
-	roiLayout->addWidget(value, 0, Qt::AlignCenter);
+	roiLayout->addWidget(value_, 0, Qt::AlignCenter);
 
 	setLayout(roiLayout);
 	setMinimumWidth(420);

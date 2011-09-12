@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef AMBEAMLINEPARALLELACTIONSLIST_H
 #define AMBEAMLINEPARALLELACTIONSLIST_H
 
@@ -22,7 +42,10 @@ class AMBeamlineParallelActionsList : public QObject
 		int stageCount();
 		int count();
 		int countAt(int stageIndex);
-		#warning "Hey David, check the const - ness of these"
+		/* NTBA - August 25th, 2011 (David Chevrier)
+		   Need to check on how constant this function really is.
+		   Should be address with the const * const question.
+		 */
 		QList<AMBeamlineActionItem*>* stage(int stageIndex) const;
 		AMBeamlineActionItem* action(int stageIndex, int index) const;
 		int stageIndexOf(QList<AMBeamlineActionItem*> *iList);

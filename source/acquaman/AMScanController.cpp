@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -184,6 +184,8 @@ bool AMScanController::changeState(ScanState newState){
 	bool canTransition = false;
 	// Check the permissible transitions
 	switch (newState) {
+	case AMScanController::Constructed :
+		break;
 	case AMScanController::Initializing :
 		if(state_ == AMScanController::Constructed)
 			canTransition = true;
@@ -271,6 +273,7 @@ bool AMScanControllerSupervisor::setCurrentScanController(AMScanController *newS
 		return false;
 	connect(currentScanController_, SIGNAL(finished()), this, SLOT(onCurrentScanControllerFinished()));
 	connect(currentScanController_, SIGNAL(started()), this, SIGNAL(currentScanControllerStarted()));
+	connect(currentScanController_, SIGNAL(cancelled()), this, SLOT(onCurrentScanControllerFinished()));
 	emit currentScanControllerCreated();
 	return true;
 }
@@ -286,6 +289,7 @@ void AMScanControllerSupervisor::onCurrentScanControllerFinished(){
 	emit currentScanControllerDestroyed();
 	disconnect(currentScanController_, SIGNAL(finished()), this, SLOT(onCurrentScanControllerFinished()));
 	disconnect(currentScanController_, SIGNAL(started()), this, SIGNAL(currentScanControllerStarted()));
+	disconnect(currentScanController_, SIGNAL(cancelled()), this, SLOT(onCurrentScanControllerFinished()));
 	currentScanController_->deleteLater();
 	currentScanController_ = 0;
 }

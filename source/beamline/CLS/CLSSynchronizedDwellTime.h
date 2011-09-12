@@ -1,9 +1,30 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef CLSSYNCHRONIZEDDWELLTIME_H
 #define CLSSYNCHRONIZEDDWELLTIME_H
 
 #include <QObject>
 
-#include "beamline/AMProcessVariable.h"
+#include "beamline/AMControl.h"
+#include <beamline/AMBeamlineControlMoveAction.h>
 
 /*!
   This class encapulates the process variables used for the detectors as a synchronized dwell element.  It assumes a standardized naming convention for the elements and builds all the
@@ -29,15 +50,22 @@ public:
 	/// Returns the scan status.  True means scanning, false means idle.
 	bool status() const { return status_->getInt() == 1 ? true : false; }
 	/// Returns the time in the units given by units().
-	double time() const { return time_->getDouble(); }
+	double time() const { return time_->value(); }
 	/// Returns whether the dwell element is enabled.
-	bool isEnabled() const { return enable_->getInt() == 1 ? true : false; }
+	bool isEnabled() const { return ((int)enable_->value()) == 1 ? true : false; }
+	/// Returns whether all the controls are connected.
+	bool isConnected() const { return name_->isConnected() && enable_->isConnected() && status_->isConnected() && time_->isConnected(); }
+
+	/// Returns a newly created action that sets the time to \param time.  Returns 0 if not connected.
+	AMBeamlineActionItem *createTimeAction(double time);
+	/// Returns a newly created action that enables/disables the dwell time element.  Returns 0 if not connected.
+	AMBeamlineActionItem *createEnableAction(bool enable);
 
 public slots:
 	/// Set the time (in seconds).  This will automatically be converted to match whatever the units of the element are.
-	void setTime(double time) { time_->setValue(units() == "ms" ? time*1000 : time); }
+	void setTime(double time) { time_->move(units() == "ms" ? time*1000 : time); }
 	/// Enable/Disable the detector.
-	void setEnabled(bool enable) { enable_->setValue(enable ? 1 : 0); }
+	void setEnabled(bool enable) { enable_->move(enable ? 1.0 : 0.0); }
 
 signals:
 	/// Notifier that the name changed.
@@ -51,7 +79,7 @@ signals:
 
 protected slots:
 	/// Transforms the int value for the enable status into a bool.
-	void onEnabledChanged(int status) { emit enabledChanged(status == 1 ? true : false); }
+	void onEnabledChanged(double status) { emit enabledChanged(((int)status) == 1 ? true : false); }
 	/// Transforms the int value for the scan status into a bool.
 	void onStatusChanged(int status) { emit statusChanged(status == 1 ? true : false); }
 
@@ -59,11 +87,11 @@ protected:
 	/// The process variable that holds the name.
 	AMProcessVariable *name_;
 	/// The process variable that holds the enabled status.
-	AMProcessVariable *enable_;
+	AMControl *enable_;
 	/// The process variable that holds the scan status.
 	AMProcessVariable *status_;
 	/// The process variable that holds the time.
-	AMProcessVariable *time_;
+	AMControl *time_;
 };
 
 /*!
@@ -89,7 +117,7 @@ public:
 	explicit CLSSynchronizedDwellTime(QString baseName, QObject *parent = 0);
 
 	/// Return the overall dwell time.  Value is in seconds.
-	double time() const { return dwellTime_->getDouble(); }
+	double time() const { return dwellTime_->value(); }
 	/// Returns the scan status.  True is scanning, false is idle.
 	bool status() const
 	{
@@ -100,29 +128,46 @@ public:
 		return false;
 	}
 	/// Returns the current mode.
-	Mode mode() const { return mode_->getInt() == 0 ? Continuous : SingleShot; }
+	Mode mode() const { return ((int)mode_->value()) == 0 ? Continuous : SingleShot; }
 	/// Returns whether the dwell time is scanning.
-	bool isScanning() const { return startScan_->getInt() == 1 ? true : false; }
+	bool isScanning() const { return ((int)startScan_->value()) == 1 ? true : false; }
+	/// Returns whether all the controls are connected.
+	bool isConnected() const
+	{
+		bool connected = dwellTime_->isConnected() && startScan_->isConnected() && mode_->isConnected();
+
+		for (int i = 0; i < elementCount(); i++)
+			connected = connected && elementAt(i);
+
+		return connected;
+	}
 
 	/// Convenience getter.  Returns the time in an individual element.  May or may not be the same as time().  \param index must be between 0 and elementCount()-1.
 	double timeAt(int index) const { return elements_.at(index)->time(); }
 	/// Convenience getter.  Returns the status of an individual element.  May or may not be the same as status().  \param index must be between 0 and elementCount()-1.
 	bool statusAt(int index) const { return elements_.at(index)->status(); }
 	/// Convenience getter.  Returns the enabled state of an individual element.  \param index must be between 0 and elementCount()-1.
-	bool enabedAt(int index) const { return elements_.at(index)->isEnabled(); }
+	bool enabledAt(int index) const { return elements_.at(index)->isEnabled(); }
 	/// Convenience getter.  Returns the name of an individual element.  \param index must be between 0 and elementCount()-1.
 	QString nameAt(int index) const { return elements_.at(index)->name(); }
 
 	/// Returns the number of elements in the dwell time list.
 	int elementCount() const { return elements_.size(); }
-	/// Adds an element based on the given \param index and the existing base name.  Assumes the the index given is valid because there is no way of knowing a priori how many have been configured.
+	/// Adds an element based on the given \param index and the existing base name.  Assumes that the index given is valid because there is no way of knowing a priori how many have been configured.
 	void addElement(int index);
 	/// Returns the element at \param index.
 	CLSSynchronizedDwellTimeElement *elementAt(int index) const { return elements_.at(index); }
 
+	/// Returns a newly created action that sets the master time for the synchronized dwell time to \param time.  Returns 0 if not connected.
+	AMBeamlineActionItem *createMasterTimeAction(double time);
+	/// Returns a newly created action that starts or stops the synchronized dwell time scan based on \param scan.  Returns 0 if not connected.
+	AMBeamlineActionItem *createScanningAction(bool scan);
+	/// Returns a newly created action that changes the mode of the synchronized dwell time based on \param mode.  Returns 0 if not connected.
+	AMBeamlineActionItem *createModeAction(CLSSynchronizedDwellTime::Mode mode);
+
 signals:
 	/// Notifier that the Mode has changed.
-	void modeChanged(Mode);
+	void modeChanged(CLSSynchronizedDwellTime::Mode);
 	/// Notifier that the time has changed.
 	void timeChanged(double);
 	/// Notifier that the scan status has changed.
@@ -132,32 +177,34 @@ signals:
 
 public slots:
 	/*! Sets the time for the entire synchronized dwell time.  Needs to be in seconds.  \note Implementation detail: due to the way that the PVs are hooked up, this function does not have to write the new value
-	 to each individual element.  The PVs are already hooked up to handle propogate the change.  */
-	void setTime(double time) { dwellTime_->setValue(time); }
+	 to each individual element.  The PVs are already hooked up to propogate the change.  */
+	void setTime(double time) { dwellTime_->move(time); }
+	/// Sets the synchronized dwell time scanning based on the \param scan.  If true, it starts scanning, false stops scanning.
+	void startScanning(bool scan) { startScan_->move(scan == true ? 1.0 : 0.0); }
 	/// Start scanning.
-	void start() { startScan_->setValue(1); }
+	void start() { startScan_->move(1.0); }
 	/// Stop scanning.
-	void stop() { startScan_->setValue(0); }
+	void stop() { startScan_->move(0.0); }
 	/// Set the scan mode.
-	void setMode(Mode mode) { mode_->setValue(mode == Continuous ? 0 : 1); }
+	void setMode(Mode mode) { mode_->move(mode == Continuous ? 0.0 : 1.0); }
 
 protected slots:
 	/// Handles changes in the startScan PV and turns the int into a bool.  True is scanning, false is idle.
-	void onScanningChanged(int status) { emit scanningChanged(status == 1 ? true : false); }
+	void onScanningChanged(double status) { emit scanningChanged((int)status == 1 ? true : false); }
 	/// Handles changes in the status.
 	void onStatusChanged() { emit statusChanged(status()); }
 	/// Handles changes in Mode.  Turns the int into the Mode enum.
-	void onModeChanged(int mode) { emit modeChanged(mode == 0 ? Continuous : SingleShot); }
+	void onModeChanged(double mode) { emit modeChanged((int)mode == 0 ? Continuous : SingleShot); }
 
 protected:
 	/// List holding the individual elements.
 	QList<CLSSynchronizedDwellTimeElement *> elements_;
 	/// Process variable holding the overall dwell time.
-	AMProcessVariable *dwellTime_;
+	AMControl *dwellTime_;
 	/// Process variable holding the the scan trigger.
-	AMProcessVariable *startScan_;
+	AMControl *startScan_;
 	/// Process variable holding the scan mode.
-	AMProcessVariable *mode_;
+	AMControl *mode_;
 
 	/// Holds the base name.  Used to build extra elements.
 	QString baseName_;

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -102,8 +102,14 @@ int AMAcqScanSpectrumOutput::endRecord( acqKey_t key, int eventno)
 	}
 	QMap<int, QList<double> >::const_iterator j = to->spectraPackage_.constBegin();
 	while(j != to->spectraPackage_.constEnd()){
+		//qDebug() << "In dacq " << j.value();
 		ae->spectraPackage_.insert(j.key(), j.value());
 		j++;
+	}
+	QMap<int, double>::const_iterator k = to->extraPackage_.constBegin();
+	while(k != to->extraPackage_.constEnd()){
+		ae->extraPackage_.insert(k.key(), k.value());
+		k++;
 	}
 	QCoreApplication::postEvent(to->scanController_, ae);
 	return acqTextSpectrumOutput::endRecord(key, eventno);
@@ -156,6 +162,7 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 		}
 	}
 	else{
+		qDebug() << "Spectrum of count " << count;
 		for(int x = 0; x < count; x++){
 			switch( pvpr->colp->columnType)
 			{
@@ -175,9 +182,15 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 			case DBF_CHAR:
 				dataVal = (double)*(char *)value;
 				break;
-			case DBF_LONG:
-				dataVal = (double)*(long *)value;
+			case DBF_LONG:{
+				/* NTBA May 8th, 2011 David Chevrier
+				   There seems to be an issue with the DBF_LONG being saved as int (size 4)
+				   rather than as long (size 8). Probably a 64bit problem.
+				*/
+				//dataVal = (double)*(long *)value;
+				dataVal = (double)*(int *)value;
 				break;
+			}
 			case DBF_DOUBLE:
 				dataVal = *(double *)value;
 				break;
@@ -187,7 +200,14 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 			spectraVal.append(dataVal);
 			if(dataVal > specMax)
 				specMax = dataVal;
-			value = (char  *)value + pvpr->colp->dataSize;
+			/* NTBA May 8th, 2011 David Chevrier
+			   There seems to be an issue with the DBF_LONG being saved as int (size 4)
+			   rather than as long (size 8). Probably a 64bit problem.
+			 */
+			if(pvpr->colp->columnType == DBF_LONG)
+				value = (char  *)value + 4;
+			else
+				value = (char  *)value + pvpr->colp->dataSize;
 		}
 	}
 	if((eventno == 1) && !pvpr->isSpectrum){
@@ -195,6 +215,9 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 			to->dataPackage_.insert(0, dataVal);
 		else
 			to->dataPackage_.insert(to->pvnoToColumn_[pvno]+1, dataVal);
+	}
+	else if( (eventno == 2) && (pvno == 1) && !pvpr->isSpectrum){
+		to->extraPackage_.insert(2, dataVal);
 	}
 	else if( (eventno == 1) && pvpr->isSpectrum ){
 		to->spectraPackage_.insert(to->pvnoToColumn_[pvno]+1, spectraVal);

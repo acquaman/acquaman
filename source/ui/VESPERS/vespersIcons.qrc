@@ -13,5 +13,8 @@
         <file>RED.png</file>
         <file>reset.png</file>
         <file>greencheck.png</file>
+        <file>FaucetIcon.png</file>
+        <file>PressureIcon.png</file>
+        <file>ThermometerIcon.png</file>
     </qresource>
 </RCC>

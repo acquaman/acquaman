@@ -1,14 +1,36 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "MCPDetector.h"
 
-MCPDetector::MCPDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMDetector::ReadMethod readMethod, QObject *parent) :
+MCPDetector::MCPDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod, QObject *parent) :
 		MCPDetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
 	ownsControlSets_ = false;
+	toggleOnAction_ = toggleOnAction;
+	toggleOffAction_ = toggleOffAction;
 	initializeFromControlSet(readingsControls, settingsControls);
 }
 
 
-MCPDetector::MCPDetector(const QString &name, AMControl *reading, AMControl *hv, AMDetector::ReadMethod readMethod, QObject *parent) :
+MCPDetector::MCPDetector(const QString &name, AMControl *reading, AMControl *hv, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod, QObject *parent) :
 		MCPDetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
 	ownsControlSets_ = true;
@@ -16,6 +38,8 @@ MCPDetector::MCPDetector(const QString &name, AMControl *reading, AMControl *hv,
 	readingsControls->addControl(reading);
 	AMControlSet *settingsControls = new AMControlSet(this);
 	settingsControls->addControl(hv);
+	toggleOnAction_ = toggleOnAction;
+	toggleOffAction_ = toggleOffAction;
 	initializeFromControlSet(readingsControls, settingsControls);
 }
 
@@ -73,6 +97,15 @@ bool MCPDetector::setFromInfo(const MCPDetectorInfo& info){
 	return true;
 }
 
+bool MCPDetector::activate(){
+	hvCtrl()->move(1600);
+	return true;
+}
+
+AMBeamlineActionItem* MCPDetector::turnOnAction(){
+	return toggleOnAction_->createCopy();
+}
+
 bool MCPDetector::settingsMatchFbk(MCPDetectorInfo *settings){
 	bool rVal = false;
 	if( fabs(settings->hvSetpoint() - hvCtrl()->value()) > hvCtrl()->tolerance())
@@ -88,7 +121,7 @@ QString MCPDetector::description() const{
 }
 
 bool MCPDetector::setControls(MCPDetectorInfo *mcpSettings){
-	hvCtrl()->move( mcpSettings->hvSetpoint() );
+//	hvCtrl()->move( mcpSettings->hvSetpoint() );
 	return true;
 }
 

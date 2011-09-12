@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -166,10 +166,12 @@ public:
 
 	QButtonGroup* modeButtons_;
 
+	QCheckBox *logCheckBox_;
 	QCheckBox* normalizationCheckBox_, *waterfallCheckBox_;
 	QDoubleSpinBox* waterfallAmount_;
 
 signals:
+	void logScaleEnabled(bool);
 	void normalizationEnabled(bool);
 	void waterfallOffsetEnabled(bool);
 	void waterfallOffsetChanged(double);
@@ -233,6 +235,8 @@ public:
 	explicit AMScanViewInternal(AMScanView* masterView);
 
 public slots:
+	/// Must re-implement in subclasses: turn on log scale on the y-axis.
+	virtual void enableLogScale(bool logScaleOn = true) { logScaleEnabled_ = logScaleOn; }
 	/// Must re-implement in subclasses: turn on axis normalization on the y-axis
 	virtual void enableNormalization(bool normalizationOn = true, double min = 0, double max = 1) { normalizationEnabled_ = normalizationOn; normMin_ = min, normMax_ = max;}
 	/// Must re-implement in subclasses: set the waterfall amount
@@ -259,6 +263,7 @@ protected:
 	AMScanSetModel* model() const;
 
 	double waterfallOffset_, normMin_, normMax_;
+	bool logScaleEnabled_;
 	bool normalizationEnabled_, waterfallEnabled_;
 
 	MPlotGW* createDefaultPlot();
@@ -335,6 +340,8 @@ public:
 
 public slots:
 
+	/// Re-implementing enabling the log scale.
+	virtual void enableLogScale(bool logScaleOn);
 	virtual void enableNormalization(bool normalizationOn, double min = 0, double max = 1);
 	virtual void setWaterfallOffset(double offset);
 	virtual void enableWaterfallOffset(bool waterfallOn);
@@ -353,17 +360,6 @@ protected slots:
 	void onExclusiveDataSourceChanged(const QString& exclusiveDataSource);
 
 protected:
-	/// A list of MPlotItem*... one item for each scan. If we don't have a plot item shown for this scan, this list stores a null pointer.
-	/*! A null pointer in plotItems_ means that the scan at that index doesn't have a data source matching the exclusive data source... or there is a data source, but we're unable to display it (ex: unsupported dimensionality, etc.).*/
-	QList<MPlotItem*> plotItems_;
-	/// This list is a parallel to plotItems_, but it holds a pointer to the data source that we're displaying for this plot.
-	/*! A null pointer in plotItemDataSources_ means that the scan at that index doesn't have a data source matching the exclusive data source. */
-	QList<AMDataSource*> plotItemDataSources_;
-
-
-	/// Our plot.
-	MPlotGW* plot_;
-
 	/// Helper function to handle adding a scan (at row scanIndex in the model)
 	void addScan(int scanIndex);
 
@@ -373,6 +369,18 @@ protected:
 	/// Helper function to review how many scans are actually displayed (ie: how many have the exclusive data source), and update the plot legend title
 	void refreshTitle();
 
+	/// Sets the preset data constraints for the given axis scale. \note This method currently only changes the dataRangeConstraint for MPlot::Left.  As other axis scales need calibration, they will be added as well.
+	void setDataRangeConstraint(int id);
+
+	/// A list of MPlotItem*... one item for each scan. If we don't have a plot item shown for this scan, this list stores a null pointer.
+	/*! A null pointer in plotItems_ means that the scan at that index doesn't have a data source matching the exclusive data source... or there is a data source, but we're unable to display it (ex: unsupported dimensionality, etc.).*/
+	QList<MPlotItem*> plotItems_;
+	/// This list is a parallel to plotItems_, but it holds a pointer to the data source that we're displaying for this plot.
+	/*! A null pointer in plotItemDataSources_ means that the scan at that index doesn't have a data source matching the exclusive data source. */
+	QList<AMDataSource*> plotItemDataSources_;
+
+	/// Our plot.
+	MPlotGW* plot_;
 };
 
 
@@ -385,6 +393,8 @@ public:
 	virtual ~AMScanViewMultiView();
 
 public slots:
+	/// Re-implementing enabling the log scale.
+	virtual void enableLogScale(bool logScaleOn);
 	virtual void enableNormalization(bool normalizationOn, double min = 0, double max = 1);
 	virtual void setWaterfallOffset(double offset);
 	virtual void enableWaterfallOffset(bool waterfallOn);
@@ -402,18 +412,19 @@ protected slots:
 
 
 protected:
-	/// A list of a list of MPlotItem*... In each scan, one for each data source
-	QList<QList<MPlotItem*> > plotItems_;
-	/// Our plot.
-	MPlotGW* plot_;
-
-
 	/// helper function: adds the scan at \c scanIndex
 	void addScan(int scanIndex);
 
 	/// helper function: sets legend and title according to scans in the model
 	void refreshTitles();
 
+	/// Sets the preset data constraints for the given axis scale. \note This method currently only changes the dataRangeConstraint for MPlot::Left.  As other axis scales need calibration, they will be added as well.
+	void setDataRangeConstraint(int id);
+
+	/// A list of a list of MPlotItem*... In each scan, one for each data source
+	QList<QList<MPlotItem*> > plotItems_;
+	/// Our plot.
+	MPlotGW* plot_;
 };
 
 
@@ -427,6 +438,8 @@ public:
 	virtual ~AMScanViewMultiScansView();
 
 public slots:
+	/// Re-implementing enabling the log scale.
+	virtual void enableLogScale(bool logScaleOn);
 	virtual void enableNormalization(bool normalizationOn, double min = 0, double max = 1);
 	virtual void setWaterfallOffset(double offset);
 	virtual void enableWaterfallOffset(bool waterfallOn);
@@ -443,18 +456,8 @@ protected slots:
 
 
 protected:
-	/// A list of a list of MPlotItem*... In each scan, one for each data source
-	QList<QList<MPlotItem*> > plotItems_;
-	/// A list of a list of legend strings... In each scan, one for each data source
-	QList<QStringList> plotLegendText_;
-
-	/// Our plots
-	QList<MPlotGW*> plots_;
-	/// A grid-layout within which to put our plots:
-	QGraphicsGridLayout* layout_;
-
-	/// true if the first plot in plots_ exists already, but isn't used:
-	bool firstPlotEmpty_;
+	/// Sets the preset data constraints for the given axis scale. \note This method currently only changes the dataRangeConstraint for MPlot::Left.  As other axis scales need calibration, they will be added as well.
+	void setDataRangeConstraint(int id);
 
 	/// helper function: adds the scan at \c scanIndex
 	void addScan(int scanIndex);
@@ -467,6 +470,18 @@ protected:
 	/// re-do the layout of our plots
 	void reLayout();
 
+	/// A list of a list of MPlotItem*... In each scan, one for each data source
+	QList<QList<MPlotItem*> > plotItems_;
+	/// A list of a list of legend strings... In each scan, one for each data source
+	QList<QStringList> plotLegendText_;
+
+	/// Our plots
+	QList<MPlotGW*> plots_;
+	/// A grid-layout within which to put our plots:
+	QGraphicsGridLayout* layout_;
+
+	/// true if the first plot in plots_ exists already, but isn't used:
+	bool firstPlotEmpty_;
 };
 
 
@@ -479,6 +494,8 @@ public:
 	virtual ~AMScanViewMultiSourcesView();
 
 public slots:
+	/// Re-implementing enabling the log scale.
+	virtual void enableLogScale(bool logScaleOn);
 	virtual void enableNormalization(bool normalizationOn, double min = 0, double max = 1);
 	virtual void setWaterfallOffset(double offset);
 	virtual void enableWaterfallOffset(bool waterfallOn);
@@ -495,7 +512,14 @@ protected slots:
 
 
 protected:
+	/// Sets the preset data constraints for the given axis scale. \note This method currently only changes the dataRangeConstraint for MPlot::Left.  As other axis scales need calibration, they will be added as well.
+	void setDataRangeConstraint(int id);
 
+	/// helper function: reviews the data sources that exist/are visible, and ensures plots correspond. Returns true if data source plots were created or deleted (which would require a reLayout()).
+	bool reviewDataSources();
+
+	/// re-do the layout of our plots
+	void reLayout();
 
 	/// Our plots (one for each data source), indexed by data source name
 	QMap<QString, MPlotGW*> dataSource2Plot_;
@@ -510,13 +534,6 @@ protected:
 	bool firstPlotEmpty_;
 	/// When dataSource2Plot_ is empty, we keep a single plot here, to make sure that there's always at least one shown.
 	MPlotGW* firstPlot_;
-
-	/// helper function: reviews the data sources that exist/are visible, and ensures plots correspond. Returns true if data source plots were created or deleted (which would require a reLayout()).
-	bool reviewDataSources();
-
-	/// re-do the layout of our plots
-	void reLayout();
-
 };
 
 

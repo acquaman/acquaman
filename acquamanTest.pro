@@ -16,5 +16,7 @@ SOURCES += \
 # Additional files from SGM for testing SGM scan controllers and configurations
 # FORMS += 	source/ui/SGMXASScanConfigurationViewer.ui
 
-HEADERS += 	source/beamline/SGM/SGMBeamline.h
-SOURCES += source/beamline/SGM/SGMBeamline.cpp
+HEADERS += 	source/beamline/SGM/SGMBeamline.h \
+	source/beamline/SGM/SGMBeamlineInfo.h
+SOURCES += source/beamline/SGM/SGMBeamline.cpp \
+	source/beamline/SGM/SGMBeamlineInfo.cpp

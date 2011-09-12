@@ -132,6 +132,8 @@ output_scan_action_list( FILE *fp, int type_idx, acqAction_t *head)
 			break;
 		case AA_NEXT_OUTPUT:
 			break;
+		case AA_NO_ACTION:
+			break;
 		}
 	}
 }
@@ -316,7 +318,8 @@ input_configuration(FILE *fp , acqMaster_t *master)
 			{
 			char typebuf[100], valuebuf[100];
 			char startbuf[100], deltabuf[100], finalbuf[100];
-			double delay;
+			// Commented out because it's redeclared in a sub statment (David Chevrier, Aug 25 2011)
+			//double delay;
 			int active;
 			int offset = 0;	/* used to index the scanned string */
 
@@ -536,6 +539,11 @@ input_configuration(FILE *fp , acqMaster_t *master)
 				if( sscanf( il, "# Property \"%[^=]=\"%[^\"]\"", namebuf, valuebuf) > 1)
 				{
 				}
+			}
+
+			case IN_ACTION:
+			{
+				//Added to avoid compiler warning (David Chevrier, Aug 25 2011)
 			}
 
 			inputState = IN_UNKNOWN;

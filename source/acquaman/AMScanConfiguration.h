@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -74,9 +74,19 @@ public:
 		return "Generic Scan";
 	}
 
-	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to provide more details. Used by AMBeamlineScanAction to set the main text in the action view.
 	virtual QString detailedDescription() const{
 		return "Generic Scan Details";
+	}
+
+	/// The auto-generated scan name. Can be re-implemented to customize for each scan type.
+	virtual QString autoScanName() const{
+		return "Generic Scan";
+	}
+
+	/// The user-defined name for this scan. If left blank, the auto-generated version will be used
+	QString userScanName() const{
+		return userScanName_;
 	}
 
 	// Virtual functions which must be re-implemented:
@@ -91,9 +101,24 @@ public:
 		return 0; //NULL
 	}
 
+public slots:
+	/// Sets the user-defined scan name. If set to an empty string, the auto-generated scan name will be used.
+	void setUserScanName(const QString &userScanName){
+		if(userScanName_ != userScanName){
+			userScanName_ = userScanName;
+			emit userScanNameChanged(userScanName_);
+		}
+	}
+
 signals:
 	/// General signal that something about the configuration has changed
 	void configurationChanged();
+	/// Signal that the user-defined scan name has changed
+	void userScanNameChanged(const QString &userScanName);
+
+protected:
+	/// A user-defined name for this scan. If left blank an auto-generated name will be used.
+	QString userScanName_;
 };
 
 #endif // ACQMAN_SCANCONFIGURATION_H

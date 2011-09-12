@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -64,6 +64,8 @@ public slots:
 
 	bool insertRegion(){ return regions_->addRegionSqueeze(insertIndex_); }
 	bool removeRegion(){ return regions_->deleteRegionSqueeze(removeIndex_); }
+
+	void setDisabled(bool disabled);
 
 protected:
 	void resizeEvent(QResizeEvent *event);

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -25,16 +25,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMDateTimeUtils.h"
 
 #include <QPushButton>
+#include <QToolButton>
 #include <QPalette>
 #include <QApplication>
+#include <QStyle>
+#include <QMessageBox>
 
 AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *parent) :
 	AMBeamlineActionItem(true, parent)
 {
 	cfg_ = cfg;
+	lastSampleDescription_ = "<Unknown Sample>";
 	if(cfg_){
 		connect(cfg_, SIGNAL(configurationChanged()), this, SLOT(onConfigurationChanged()));
-		setDescription(cfg_->description());
+		setDescription(cfg_->description()+" on "+lastSampleDescription_);
 	}
 	ctrl_ = NULL;
 	keepOnCancel_ = false;
@@ -65,6 +69,10 @@ bool AMBeamlineScanAction::isPaused() const{
 	return ctrl_->isPaused();
 }
 
+QString AMBeamlineScanAction::lastSampleDescription() const{
+	return lastSampleDescription_;
+}
+
 void AMBeamlineScanAction::start(){
 	if(!isReady()){
 		if(VERBOSE_ACTION_ITEMS)
@@ -79,21 +87,39 @@ void AMBeamlineScanAction::start(){
 		ctrl_ = cfg_->createController();
 		if(!ctrl_) {
 			AMErrorMon::report(AMErrorReport(this,
-											 AMErrorReport::Alert,
-											 AMBEAMLINEACTIONITEM_CANT_CREATE_CONTROLLER,
-											 "Error, could not create scan controller. Please report this bug to the Acquaman developers."));
+					AMErrorReport::Alert,
+					AMBEAMLINEACTIONITEM_CANT_CREATE_CONTROLLER,
+					"Error, could not create scan controller. Please report this bug to the Acquaman developers."));
 			setFailed(true, AMBEAMLINEACTIONITEM_CANT_CREATE_CONTROLLER);
 			return;
 		}
 
 		if( !AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_) ){
-			delete ctrl_;
-			AMErrorMon::report(AMErrorReport(this,
-											 AMErrorReport::Alert,
-											 AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER,
-											 "Error, could not set current scan controller. Please report this bug to the Acquaman developers."));
-			setFailed(true, AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER);
-			return;
+
+			QMessageBox currentScanControllerChoice;
+			currentScanControllerChoice.setText(QString("Well this is embarressing"));
+			currentScanControllerChoice.setInformativeText(QString("Acquaman thinks you're already running a scan, if you're not press Ok to continue"));
+			currentScanControllerChoice.setIcon(QMessageBox::Question);
+			currentScanControllerChoice.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+			currentScanControllerChoice.setDefaultButton(QMessageBox::Ok);
+			currentScanControllerChoice.setEscapeButton(QMessageBox::Cancel);
+			bool requestFail = false;
+			if(currentScanControllerChoice.exec() == QMessageBox::Ok){
+				AMScanControllerSupervisor::scanControllerSupervisor()->deleteCurrentScanController();
+				if(!AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_))
+					requestFail = true;
+			}
+			else
+				requestFail = true;
+			if(requestFail){
+				delete ctrl_;
+				AMErrorMon::report(AMErrorReport(this,
+								 AMErrorReport::Alert,
+								 AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER,
+								 "Error, could not set current scan controller. Please report this bug to the Acquaman developers."));
+				setFailed(true, AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER);
+				return;
+			}
 		}
 		connect(ctrl_, SIGNAL(finished()), this, SLOT(onScanSucceeded()));
 		connect(ctrl_, SIGNAL(cancelled()), this, SLOT(onScanCancelled()));
@@ -105,6 +131,10 @@ void AMBeamlineScanAction::start(){
 		qDebug() << "Reinitialized, no controller creation";
 	}
 
+	//Moved from onScanStarted. This action is started once we start initializing
+	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Initializing]");
+	emit descriptionChanged();
+	setStarted(true);
 
 	// should this connection happen all the time, even if controller re-initialized?
 	//connect(ctrl_, SIGNAL(initialized()), ctrl_, SLOT(start()));
@@ -129,10 +159,16 @@ void AMBeamlineScanAction::cleanup(){
 		AMScanControllerSupervisor::scanControllerSupervisor()->deleteCurrentScanController();
 }
 
+void AMBeamlineScanAction::setLastSampleDescription(const QString &lastSampleDescription){
+	lastSampleDescription_ = lastSampleDescription;
+	setDescription(cfg_->description()+" on "+lastSampleDescription_);
+	emit descriptionChanged();
+}
+
 void AMBeamlineScanAction::pause(bool pause){
 
 	if(pause){
-		setDescription(cfg_->description()+" [Paused]");
+		setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Paused]");
 		emit descriptionChanged();
 		ctrl_->pause();
 	}
@@ -165,21 +201,33 @@ void AMBeamlineScanAction::onScanInitialized(){
 }
 
 void AMBeamlineScanAction::onScanStarted(){
-	setDescription(cfg_->description()+" [Running]");
+	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Running]");
 	emit descriptionChanged();
+	//Moving to the start call. This action is started once the scan starts initializing
+	/*
 	setStarted(true);
+	*/
+	ctrl_->scan()->storeToDb(AMDatabase::userdb());
+	if(!ctrl_->scan()->database()){
+		AMErrorMon::report(AMErrorReport(this,
+				AMErrorReport::Alert,
+				AMBEAMLINEACTIONITEM_CANT_SAVE_TO_DB,
+				"Error, could not save scan to database. Please report this bug to the Acquaman developers."));
+	}
 }
 
 void AMBeamlineScanAction::onScanCancelled(){
-	setDescription(cfg_->description()+" [Cancelled]");
+	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Cancelled]");
 	emit descriptionChanged();
 	setFailed(true, AMBEAMLINEACTIONITEM_SCAN_CANCELLED);
 }
 
 void AMBeamlineScanAction::onScanSucceeded(){
-	setDescription(cfg_->description()+" [Completed "+AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())+"]");
+	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Completed "+AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())+"]");
 	emit descriptionChanged();
 	setSucceeded(true);
+	if(ctrl_->scan()->database())
+		ctrl_->scan()->storeToDb(ctrl_->scan()->database());
 }
 
 void AMBeamlineScanAction::onScanFailed(){
@@ -191,7 +239,7 @@ void AMBeamlineScanAction::onBeamlineScanningChanged(bool isScanning){
 }
 
 void AMBeamlineScanAction::onConfigurationChanged(){
-	setDescription(cfg_->description());
+	setDescription(cfg_->description()+" on "+lastSampleDescription_);
 	emit descriptionChanged();
 }
 
@@ -236,21 +284,29 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	playPauseButton_->setFixedWidth(25);
 	playPauseButton_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
 	playPauseButton_->setEnabled(false);
+	moveActionUpButton_ = new QToolButton();
+	moveActionUpButton_->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowUp));
+	moveActionUpButton_->setEnabled(false);
+	moveActionDownButton_ = new QToolButton();
+	moveActionDownButton_->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowDown));
+	moveActionDownButton_->setEnabled(false);
 	connect(stopCancelButton_, SIGNAL(clicked()), this, SLOT(onStopCancelButtonClicked()));
 	connect(playPauseButton_, SIGNAL(clicked()), this, SLOT(onPlayPauseButtonClicked()));
+	connect(moveActionUpButton_, SIGNAL(clicked()), this, SLOT(onMoveUpButtonClicked()));
+	connect(moveActionDownButton_, SIGNAL(clicked()), this, SLOT(onMoveDownButtonClicked()));
 	hl_ = new QHBoxLayout();
 	hl_->addWidget(scanNameLabel_, 0, Qt::AlignTop | Qt::AlignLeft);
 	hl_->addLayout(progressVL);
 	hl_->addWidget(playPauseButton_, 0, Qt::AlignTop | Qt::AlignRight);
 	hl_->addWidget(stopCancelButton_, 0, Qt::AlignTop | Qt::AlignRight);
+	QVBoxLayout *swapVL = new QVBoxLayout();
+	swapVL->addWidget(moveActionUpButton_);
+	swapVL->addWidget(moveActionDownButton_);
+	swapVL->setContentsMargins(0,0,0,0);
+	swapVL->setSpacing(0);
+	hl_->addLayout(swapVL);
 	setLayout(hl_);
-
-	/*
- setAutoFillBackground(true);
- QPalette newPalette(palette());
- newPalette.setColor(QPalette::Window, QColor(255, 255, 255));
- setPalette(newPalette);
- */
+	onPreviousNextChanged();
 }
 
 void AMBeamlineScanActionView::setIndex(int index){
@@ -265,6 +321,8 @@ void AMBeamlineScanActionView::setAction(AMBeamlineActionItem *action){
 		disconnect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
 		disconnect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
 		disconnect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
+		disconnect(scanAction_, SIGNAL(previousChanged()), this, SLOT(onPreviousNextChanged()));
+		disconnect(scanAction_, SIGNAL(nextChanged()), this, SLOT(onPreviousNextChanged()));
 	}
 	scanAction_ = scanAction;
 	if(scanAction_){
@@ -273,7 +331,10 @@ void AMBeamlineScanActionView::setAction(AMBeamlineActionItem *action){
 		connect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
 		connect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
 		connect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
+		connect(scanAction_, SIGNAL(previousChanged()), this, SLOT(onPreviousNextChanged()));
+		connect(scanAction_, SIGNAL(nextChanged()), this, SLOT(onPreviousNextChanged()));
 	}
+	onPreviousNextChanged();
 }
 
 void AMBeamlineScanActionView::onInfoChanged(){
@@ -307,6 +368,10 @@ void AMBeamlineScanActionView::updateProgressBar(double elapsed, double total){
 
 void AMBeamlineScanActionView::onScanStarted(){
 	cancelLatch_ = false;
+	disconnect(moveActionUpButton_, SIGNAL(clicked()), this, SLOT(onMoveUpButtonClicked()));
+	disconnect(moveActionDownButton_, SIGNAL(clicked()), this, SLOT(onMoveDownButtonClicked()));
+	moveActionUpButton_->setEnabled(false);
+	moveActionDownButton_->setEnabled(false);
 	stopCancelButton_->setIcon(stopIcon_);
 	playPauseButton_->setIcon(pauseIcon_);
 	playPauseButton_->setEnabled(true);
@@ -333,6 +398,22 @@ void AMBeamlineScanActionView::onScanFinished(){
 
 void AMBeamlineScanActionView::onScanFailed(int explanation){
 	cancelLatch_ = true;
+	progressBar_->setMaximum(100);
+	progressBar_->setValue(100);
+	if(explanation == 102)//102 is scan cancelled
+		timeRemainingLabel_->setText("Scan Cancelled");
+	else
+		timeRemainingLabel_->setText("Scan Failed");
+	disconnect(stopCancelButton_, SIGNAL(clicked()), this, SLOT(onStopCancelButtonClicked()));
+	disconnect(playPauseButton_, SIGNAL(clicked()), this, SLOT(onPlayPauseButtonClicked()));
+	hl_->removeWidget(stopCancelButton_);
+	hl_->removeWidget(playPauseButton_);
+	stopCancelButton_->hide();
+	playPauseButton_->hide();
+
+	updateLook();
+	/* NTBD David Chevrier May 16, 2011
+	cancelLatch_ = true;
 	stopCancelButton_->setIcon(closeIcon_);
 	playPauseButton_->setIcon(startIcon_);
 	playPauseButton_->setEnabled(false);
@@ -341,12 +422,14 @@ void AMBeamlineScanActionView::onScanFailed(int explanation){
 	else
 		timeRemainingLabel_->setText("Scan Failed");
 	updateLook();
+	*/
 }
 
 void AMBeamlineScanActionView::onStopCancelButtonClicked(){
 	/// \todo isRunning is not true if paused (or stopped). In this case, we should do this check for any scans that have been started but not finished. How to determine that from states?
 	if(scanAction_->isRunning()){
 		scanAction_->pause(true);
+		/*
 		QMessageBox msgBox;
 		msgBox.setText("You're cancelling a scan in progress.");
 		msgBox.setInformativeText("Do you want to keep the data from this partially collected scan?");
@@ -369,6 +452,8 @@ void AMBeamlineScanActionView::onStopCancelButtonClicked(){
 			// should never be reached
 			break;
 		}
+		*/
+		scanAction_->cancel();
 	}
 	else{
 		emit removeRequested(scanAction_);
@@ -388,17 +473,35 @@ void AMBeamlineScanActionView::onPlayPauseButtonClicked(){
 	}
 }
 
+void AMBeamlineScanActionView::onPreviousNextChanged(){
+	if(scanAction_ && !scanAction_->hasFinished() && scanAction_->previous() && !scanAction_->previous()->isRunning() && !scanAction_->previous()->hasFinished())
+		moveActionUpButton_->setEnabled(true);
+	else
+		moveActionUpButton_->setEnabled(false);
+	if(scanAction_ && !scanAction_->hasFinished() && scanAction_->next())
+		moveActionDownButton_->setEnabled(true);
+	else
+		moveActionDownButton_->setEnabled(false);
+}
+
+void AMBeamlineScanActionView::onMoveUpButtonClicked(){
+	emit moveUpRequested(scanAction_);
+}
+
+void AMBeamlineScanActionView::onMoveDownButtonClicked(){
+	emit moveDownRequested(scanAction_);
+}
+
 #include "ui/AMScanConfigurationView.h"
 
 void AMBeamlineScanActionView::mouseDoubleClickEvent(QMouseEvent *){
 	// if we don't have a configuration view yet, try to create one.  (This might fail, if no default view is defined for this scan configuration.)
-	if(!configurationView_) {
+	if(!configurationView_)
 		configurationView_ = scanAction_->cfg()->createView();
-	}
-
-	// if we got one, show it:
-	if(configurationView_) {
-		configurationView_->setWindowModality(Qt::WindowModal);
-		configurationView_->show();
-	}
+	if(configurationView_ == 0)
+		return;
+	if(scanAction_->hasFinished())
+		configurationView_->setDisabled(true);
+	configurationView_->setWindowModality(Qt::WindowModal);
+	configurationView_->show();
 }

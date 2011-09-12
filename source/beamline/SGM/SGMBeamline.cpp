@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -21,8 +21,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "SGMBeamline.h"
 
 #include "dataman/AMSamplePlate.h"
+#include "dataman/AMUser.h"
 #include "beamline/CLS/CLSVMEMotor.h"
-
+#include "beamline/CLS/CLSCAEN2527HVChannel.h"
+#include "beamline/CLS/CLSPGT8000HVChannel.h"
 
 void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("energy", "BL1611-ID-1:Energy");
@@ -48,6 +50,7 @@ void SGMBeamline::usingSGMBeamline(){
 	// Old harmonic PV is DBR_DOUBLE for some reason, AddOn is enum
 	//amNames2pvNames_.set("harmonic", "BL1611-ID-1:harmonic");
 	amNames2pvNames_.set("harmonic", "BL1611-ID-1:AddOns:harmonic");
+	amNames2pvNames_.set("undulatorMotor", "SMTR1411-01");
 	amNames2pvNames_.set("undulatorTracking", "UND1411-01:Energy:track");
 	amNames2pvNames_.set("monoTracking", "SG16114I1001:Energy:track");
 	amNames2pvNames_.set("exitSlitTracking", "PSL16114I1003:Energy:track");
@@ -56,10 +59,13 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("tfyPico", "A1611-4-16:A:fbk");
 	amNames2pvNames_.set("tfyScaler", "BL1611-ID-1:mcs02:fbk");
 	amNames2pvNames_.set("tfyHV", "PS1611401:109");
+	amNames2pvNames_.set("pgtBase", "MCA1611-01");
 	amNames2pvNames_.set("pgt", "MCA1611-01:GetChannels");
 	amNames2pvNames_.set("pgtHV", "MCA1611-01:Bias:Volt");
 	amNames2pvNames_.set("pgtIntegrationTime", "MCA1611-01:Preset:Live");
 	amNames2pvNames_.set("pgtIntegrationMode", "MCA1611-01:Preset:Live");
+	amNames2pvNames_.set("oos65000", "SA0000-03:DarkCorrectedSpectra");
+	amNames2pvNames_.set("oos65000IntegrationTime", "SA0000-03:IntegrationTime:Value");
 	amNames2pvNames_.set("I0Pico", "A1611-4-14:A:fbk");
 	amNames2pvNames_.set("I0Scaler", "BL1611-ID-1:mcs01:fbk");
 	amNames2pvNames_.set("photodiodePico", "A1611-4-13:A:fbk");
@@ -68,10 +74,12 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("encoderDown", "BL1611-ID-1:mcs05:fbk");
 	amNames2pvNames_.set("loadlockCCG", "CCG1611-4-I10-09:vac:p");
 	amNames2pvNames_.set("loadlockTCG", "TCGC1611-426:pressure:fbk");
-	amNames2pvNames_.set("ssaManipulatorX", "BL1611-ID-1:EA2:x");
-	amNames2pvNames_.set("ssaManipulatorY", "BL1611-ID-1:EA2:z");
-	amNames2pvNames_.set("ssaManipulatorZ", "BL1611-ID-1:EA2:y");
-	amNames2pvNames_.set("ssaManipulatorRot", "BL1611-ID-1:EA2:r");
+
+	amNames2pvNames_.set("ssaManipulatorX", "SMTR16114I1022");
+	amNames2pvNames_.set("ssaManipulatorY", "SMTR16114I1023");
+	amNames2pvNames_.set("ssaManipulatorZ", "SMTR16114I1024");
+	amNames2pvNames_.set("ssaManipulatorRot", "SMTR16114I1025");
+
 	amNames2pvNames_.set("beamlineScanning", "BL1611-ID-1:scanning");
 	amNames2pvNames_.set("beamlineReady", "BL1611-ID-1:beam:status");
 	amNames2pvNames_.set("energyMovingStatus", "BL1611-ID-1:ready");
@@ -88,12 +96,12 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("ea1CloseVacuum1", "VVR1611-4-I10-05:opr:close");
 	amNames2pvNames_.set("ea1CloseVacuum2", "VVR1611-4-I10-06:opr:close");
 	amNames2pvNames_.set("ea2CloseVacuum", "VVR1611-4-I10-08:opr:close");
-	//amNames2pvNames_.set("beamOn", "BL1611-ID-1:beam:turnon");
-	amNames2pvNames_.set("beamOn", "david:beamon:trigger");
+	amNames2pvNames_.set("beamOn", "BL1611-ID-1:AddOns:beamon:trigger");
 	amNames2pvNames_.set("visibleLightToggle", "BL1611-ID-1:visible");
 	amNames2pvNames_.set("visibleLightStatus", "BL1611-ID-1:visible:cal");
-	amNames2pvNames_.set("activeEndstation", "david:endstation:active");
+	amNames2pvNames_.set("activeEndstation", "BL1611-ID-1:AddOns:endstation:active");
 	amNames2pvNames_.set("detectorSignalSource", "BL1611-ID-1:AddOns:signalSource");
+	amNames2pvNames_.set("ssaIllumination", "ILC1611-4-I10-02");
 
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", "PCT1402-01:mA:fbk", this);
 	addChildControl(ringCurrent_);
@@ -104,6 +112,7 @@ void SGMBeamline::usingSGMBeamline(){
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, "BL1611-ID-1:ready", sgmPVName, this, 0.05);
+	energy_->setDescription("Energy");
 	sgmPVName = amNames2pvNames_.valueF("energySpacingParam");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
@@ -129,14 +138,18 @@ void SGMBeamline::usingSGMBeamline(){
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	AMPVwStatusControl *mono = new AMPVwStatusControl("mono", sgmPVName+":enc:fbk", sgmPVName+":encTarget", sgmPVName+":moving", "SMTR16114I1002:stop", energy_, 5);
+	mono->setDescription("Monochromator");
 	sgmPVName = amNames2pvNames_.valueF("undulator");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	AMPVwStatusControl *undulator = new AMPVwStatusControl("undulator", sgmPVName+":gap:mm:fbk", sgmPVName+":gap:mm", sgmPVName+":moveStatus", "UND1411-01:stop", energy_, 0.1);
+	undulator->setDescription("Undulator");
 	sgmPVName = amNames2pvNames_.valueF("exitSlit");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-	AMPVwStatusControl *exitSlit = new AMPVwStatusControl("exitSlit", sgmPVName+":Y:mm:encsp", "SMTR16114I1003:mm", "SMTR16114I1003:moving", "SMTR16114I1003:stop", energy_, 0.1);
+	//AMPVwStatusControl *exitSlit = new AMPVwStatusControl("exitSlit", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1003:moving", "SMTR16114I1003:stop", energy_, 0.1);
+	AMPVwStatusControl *exitSlit = new AMPVwStatusControl("exitSlit", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1003:status", "SMTR16114I1003:stop", energy_, 0.1, 2.0, new AMControlStatusCheckerDefault(1));
+	exitSlit->setDescription("Exit Slit Position");
 	energy_->addChildControl(mono);
 	energy_->addChildControl(undulator);
 	energy_->addChildControl(exitSlit);
@@ -145,27 +158,32 @@ void SGMBeamline::usingSGMBeamline(){
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1017:status", "SMTR16114I1017:stop", this, 0.1);
+	exitSlitGap_->setDescription("Exit Slit Gap");
 	sgmPVName = amNames2pvNames_.valueF("entranceSlitGap");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	entranceSlitGap_ = new AMPVwStatusControl("entranceSlitGap", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1001:status", "SMTR16114I1001:stop", this, 0.1);
+	entranceSlitGap_->setDescription("Entrance Slit Gap");
 	sgmPVName = amNames2pvNames_.valueF("M4");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	m4_ = new AMReadOnlyPVwStatusControl("M4", sgmPVName, sgmPVName, this);
+	m4_->setDescription("M4 Mirror");
 	sgmPVName = amNames2pvNames_.valueF("M4Inboard");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	AMPVwStatusControl *m4inboard = new AMPVwStatusControl("M4Inboard", sgmPVName, sgmPVName, sgmPVName, "", this, 0.1);
+	m4inboard->setDescription("M4 Inboard");
 	sgmPVName = amNames2pvNames_.valueF("M4Outboard");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	AMPVwStatusControl *m4outboard = new AMPVwStatusControl("M4Outboard", sgmPVName, sgmPVName, sgmPVName, "", this, 0.1);
+	m4outboard->setDescription("M4 Outboard");
 	sgmPVName = amNames2pvNames_.valueF("M4Downstream");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-
 	AMPVwStatusControl *m4downstream = new AMPVwStatusControl("M4Downstream", sgmPVName, sgmPVName, sgmPVName, "", this, 0.1);
+	m4downstream->setDescription("M4 Downstream");
 	m4_->addChildControl(m4inboard);
 	m4_->addChildControl(m4outboard);
 	m4_->addChildControl(m4downstream);
@@ -174,214 +192,291 @@ void SGMBeamline::usingSGMBeamline(){
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	grating_ = new AMPVwStatusControl("grating", sgmPVName+":fbk", sgmPVName, "SMTR16114I1016:state", "SMTR16114I1016:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
+	grating_->setDescription("Grating Selection");
 	sgmPVName = amNames2pvNames_.valueF("harmonic");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	harmonic_ = new AMPVwStatusControl("harmonic", sgmPVName, sgmPVName, "UND1411-01:moveStatus", "", this, 0.1);
+	harmonic_->setDescription("Harmonic");
+
+	sgmPVName = amNames2pvNames_.valueF("undulatorMotor");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	undulatorStep_ = new AMPVControl("undulatorStep", sgmPVName+":step:sp", sgmPVName+":step", QString(), this, 20 );
+	undulatorRelativeStepStorage_ = new AMPVControl("undulatorRelativeStepStorage", "BL1611-ID-1:AddOns:UndulatorRelativeStorage", "BL1611-ID-1:AddOns:UndulatorRelativeStorage", QString(), this, 1);
+	undulatorVelocity_ = new AMPVControl("undulatorVelocity", sgmPVName+":velo:sp", sgmPVName+":velo", QString(), this, 1);
+	undulatorFastTracking_ = new AMPVControl("undulatorFastTracking", "BL1611-ID-1:AddOns:UndulatorTrigger", "BL1611-ID-1:AddOns:UndulatorTrigger", QString(), this, 0.5);
+
 	sgmPVName = amNames2pvNames_.valueF("undulatorTracking");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	undulatorTracking_ = new AMPVControl("undulatorTracking", sgmPVName, sgmPVName, "", this, 0.1);
+	undulatorTracking_->setDescription("Undulator Tracking");
+	undulatorTracking_->setContextKnownDescription("Undulator");
 	sgmPVName = amNames2pvNames_.valueF("monoTracking");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	monoTracking_ = new AMPVControl("monoTracking", sgmPVName, sgmPVName, "", this, 0.1, 10);
+	monoTracking_->setDescription("Mono Tracking");
+	monoTracking_->setContextKnownDescription("Mono");
 	sgmPVName = amNames2pvNames_.valueF("exitSlitTracking");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	exitSlitTracking_ = new AMPVControl("exitSlitTracking", sgmPVName, sgmPVName, "", this, 0.1);
+	exitSlitTracking_->setDescription("Exit Slit Tracking");
+	exitSlitTracking_->setContextKnownDescription("Exit Slit");
 
 	sgmPVName = amNames2pvNames_.valueF("teyPico");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	teyPico_ = new AMReadOnlyPVControl("teyPico", sgmPVName, this);
+	teyPico_->setDescription("TEY");
 	sgmPVName = amNames2pvNames_.valueF("teyScaler");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	teyScaler_ = new AMReadOnlyPVControl("teyScaler", sgmPVName, this);
+	teyScaler_->setDescription("TEY");
 	sgmPVName = amNames2pvNames_.valueF("tfyPico");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	tfyPico_ = new AMReadOnlyPVControl("tfyPico", sgmPVName, this);
+	tfyPico_->setDescription("TFY");
 	sgmPVName = amNames2pvNames_.valueF("tfyScaler");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	tfyScaler_ = new AMReadOnlyPVControl("tfyScaler", sgmPVName, this);
+	tfyScaler_->setDescription("TFY");
 
 	sgmPVName = amNames2pvNames_.valueF("tfyHV");
-	tfyHV_ = new AMPVControl("tfyHV", sgmPVName+":vmon", sgmPVName+":v0set", QString(), this, 0.5);
+	tfyHV_ = new AMPVControl("tfyHV", sgmPVName+":vmon", sgmPVName+":v0set", QString(), this, 5.0);
+	tfyHV_->setDescription("TFY High Voltage");
+	tfyHV_->setContextKnownDescription("Voltage");
+
+	tfyHVToggle_ = new AMPVControl("tfyHVToggle", sgmPVName+":status", sgmPVName+":pwonoff", QString(), this, 0.1);
+	tfyHVToggle_->setDescription("TFY High Voltage Toggle");
+	tfyHVToggle_->setContextKnownDescription("Toggle");
+
+	hvChannel106_ = new CLSCAEN2527HVChannel("Ch 6+", "PS1611401:106", AMHighVoltageChannel::positive, this);
+	hvChannel109_ = new CLSCAEN2527HVChannel("Ch 9-", "PS1611401:109", AMHighVoltageChannel::negative, this);
+	hvChannelPGT_ = new CLSPGT8000HVChannel("SGM PGT", "MCA1611-01", this);
 
 	sgmPVName = amNames2pvNames_.valueF("pgt");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-	pgt_ = new AMReadOnlyPVControl("pgt", sgmPVName, this);
+	//pgt_ = new AMReadOnlyPVControl("pgt", sgmPVName, this);
+	pgt_ = new AMReadOnlyWaveformBinningPVControl("pgt", sgmPVName, 0, 1024, this);
+	pgt_->setDescription("SDD");
 
 	sgmPVName = amNames2pvNames_.valueF("pgtHV");
 	pgtHV_ = new AMPVControl("pgtHV", sgmPVName+"Actual:fbk", sgmPVName, QString(), this, 0.5);
+	pgtHV_->setDescription("SDD High Voltage");
+	pgtHV_->setContextKnownDescription("Voltage");
 
 	sgmPVName = amNames2pvNames_.valueF("pgtIntegrationTime");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	pgtIntegrationTime_ = new AMPVControl("pgtIntegrationTime", sgmPVName, sgmPVName, "", this, 0.1);
+	pgtIntegrationTime_->setDescription("SDD Integration Time");
+	pgtIntegrationTime_->setContextKnownDescription("Integration Time");
 	sgmPVName = amNames2pvNames_.valueF("pgtIntegrationMode");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	pgtIntegrationMode_ = new AMPVControl("pgtIntegrationMode", sgmPVName, sgmPVName, "", this, 0.1);
+	pgtIntegrationMode_->setDescription("SDD Integration Mode");
+	pgtIntegrationMode_->setContextKnownDescription("Integration Mode");
+
+	sgmPVName = amNames2pvNames_.valueF("oos65000");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	//pgt_ = new AMReadOnlyPVControl("pgt", sgmPVName, this);
+	oos65000_ = new AMReadOnlyWaveformBinningPVControl("oos65000", sgmPVName, 0, 1024, this);
+	oos65000_->setDescription("OceanOptics 65000");
+
+	sgmPVName = amNames2pvNames_.valueF("oos65000IntegrationTime");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	oos65000IntegrationTime_ = new AMPVControl("oos65000IntegrationTime", sgmPVName, sgmPVName, "", this, 0.1);
+	oos65000IntegrationTime_->setDescription("OceanOptics 65000 Integration Time");
+	oos65000IntegrationTime_->setContextKnownDescription("Integration Time");
 
 	sgmPVName = amNames2pvNames_.valueF("I0Pico");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	i0Pico_ = new AMReadOnlyPVControl("I0Pico", sgmPVName, this);
+	i0Pico_->setDescription("I0");
 	sgmPVName = amNames2pvNames_.valueF("I0Scaler");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	i0Scaler_ = new AMReadOnlyPVControl("I0Scaler", sgmPVName, this);
+	i0Scaler_->setDescription("I0");
 
 	sgmPVName = amNames2pvNames_.valueF("eVFbk");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	eVFbk_ = new AMReadOnlyPVControl("eVFbk", sgmPVName, this);
+	eVFbk_->setDescription("Energy Feedback");
 	sgmPVName = amNames2pvNames_.valueF("photodiodePico");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	photodiodePico_ = new AMReadOnlyPVControl("photodiodePico", sgmPVName, this);
+	photodiodePico_->setDescription("Photodiode");
 	sgmPVName = amNames2pvNames_.valueF("photodiodeScaler");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	photodiodeScaler_ = new AMReadOnlyPVControl("photodiodeScaler", sgmPVName, this);
+	photodiodeScaler_->setDescription("Photodiode");
 
 	sgmPVName = amNames2pvNames_.valueF("encoderUp");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	encoderUp_ = new AMReadOnlyPVControl("encoderUp", sgmPVName, this);
+	encoderUp_->setDescription("Encoder Up Counts");
 	sgmPVName = amNames2pvNames_.valueF("encoderDown");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	encoderDown_ = new AMReadOnlyPVControl("encoderDown", sgmPVName, this);
+	encoderDown_->setDescription("Encoder Down Counts");
 
 	sgmPVName = amNames2pvNames_.valueF("loadlockCCG");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	loadlockCCG_ = new AMReadOnlyPVControl("loadlockCCG", sgmPVName, this);
+	loadlockCCG_->setDescription("SSA Loadlock CCG Pressure");
+	loadlockCCG_->setContextKnownDescription("Loadlock CCG");
 	sgmPVName = amNames2pvNames_.valueF("loadlockTCG");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	loadlockTCG_ = new AMReadOnlyPVControl("loadlockTCG", sgmPVName, this);
+	loadlockTCG_->setDescription("SSA Loadlock TCG Pressure");
+	loadlockTCG_->setContextKnownDescription("Loadlock TCG");
 
+	ssaManipulatorX_ = new CLSVMEMotor("ssaManipulatorX", amNames2pvNames_.valueF("ssaManipulatorX"), "SSA Inboard/Outboard", true, 0.2, 2.0, this);
+	ssaManipulatorX_->setContextKnownDescription("X");
 
-	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorX");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	/// \todo Now that we have stop integrated into the AMControls... Remove separate stop PVs.
-	ssaManipulatorX_ = new AMPVwStatusControl("ssaManipulatorX", sgmPVName+":fbk", sgmPVName+":sp", "SMTR16114I1018:state", "SMTR16114I1018:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
-	/*
-	ssaManipulatorX_ = new AMPVwStatusControl("ssaManipulatorX", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":sp", "", this, 0.1);
-	ssaManipulatorXStop_ = new AMPVControl("ssaManipulatorXStop", "SMTR16114I1012:emergStop", "SMTR16114I1012:emergStop", "", this, 0.1);
-	*/
-	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorY");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	ssaManipulatorY_ = new AMPVwStatusControl("ssaManipulatorY", sgmPVName+":fbk", sgmPVName+":sp", "SMTR16114I1019:state", "SMTR16114I1019:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
-	/*
-	ssaManipulatorY_ = new AMPVwStatusControl("ssaManipulatorY", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":sp", "", this, 0.1);
-	ssaManipulatorYStop_ = new AMPVControl("ssaManipulatorYStop", "SMTR16114I1013:emergStop", "SMTR16114I1013:emergStop", "", this, 0.1);
-	*/
-	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorZ");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	ssaManipulatorZ_ = new AMPVwStatusControl("ssaManipulatorZ", sgmPVName+":fbk", sgmPVName+":sp", "SMTR16114I1020:state", "SMTR16114I1020:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
-	/*
-	ssaManipulatorZ_ = new AMPVwStatusControl("ssaManipulatorZ", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":sp", "", this, 0.1);
-	ssaManipulatorZStop_ = new AMPVControl("ssaManipulatorZStop", "SMTR16114I1014:emergStop", "SMTR16114I1014:emergStop", "", this, 0.1);
-	*/
+	ssaManipulatorY_ = new CLSVMEMotor("ssaManipulatorY", amNames2pvNames_.valueF("ssaManipulatorY"), "SSA Upstream/Downstream", true, 0.2, 2.0, this);
+	ssaManipulatorY_->setContextKnownDescription("Y");
 
-	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorRot");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	ssaManipulatorRot_ = new AMPVwStatusControl("ssaManipulatorRot", sgmPVName+":fbk", sgmPVName+":sp", "SMTR16114I1021:state", "SMTR16114I1021:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
-	/*
-	ssaManipulatorRot_ = new AMPVwStatusControl("ssaManipulatorRot", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":sp", "", this, 0.1);
-	ssaManipulatorRotStop_ = new AMPVControl("ssaManipulatorRotStop", "SMTR16114I1015:emergStop", "SMTR16114I1015:emergStop", "", this, 0.1);
-	*/
+	ssaManipulatorZ_ = new CLSVMEMotor("ssaManipulatorZ", amNames2pvNames_.valueF("ssaManipulatorZ"), "SSA Up/Down", true, 0.2, 2.0, this);
+	ssaManipulatorZ_->setContextKnownDescription("Z");
+
+	ssaManipulatorRot_ = new CLSVMEMotor("ssaManipulatorRot", amNames2pvNames_.valueF("ssaManipulatorRot"), "SSA Rotation", false, 0.2, 2.0, this);
+	ssaManipulatorRot_->setContextKnownDescription("R");
+
 
 	sgmPVName = amNames2pvNames_.valueF("beamlineScanning");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	beamlineScanning_ = new AMPVControl("beamlineScanning", sgmPVName, sgmPVName, "", this, 0.1);
+	beamlineScanning_->setDescription("Beamline Scanning");
 	sgmPVName = amNames2pvNames_.valueF("beamlineReady");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	beamlineReady_ = new AMReadOnlyPVControl("beamlineReady", sgmPVName, this);
+	beamlineReady_->setDescription("Beamline Status");
 	sgmPVName = amNames2pvNames_.valueF("energyMovingStatus");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	energyMovingStatus_ = new AMReadOnlyPVControl("energyMovingStatus", sgmPVName, this);
+	energyMovingStatus_->setDescription("Energy Status");
 	sgmPVName = amNames2pvNames_.valueF("fastShutterVoltage");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-	fastShutterVoltage_ = new AMPVControl("fastShutterVoltage", sgmPVName, sgmPVName, "", this);
+	fastShutterVoltage_ = new AMPVControl("fastShutterVoltage", sgmPVName, sgmPVName, "", this, 0.1);
+	fastShutterVoltage_->setDescription("Fast Shutter Voltage");
 	sgmPVName = amNames2pvNames_.valueF("gratingVelocity");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	gratingVelocity_ = new AMPVControl("gratingVelocity", sgmPVName, sgmPVName, "", this, 1);
+	gratingVelocity_->setDescription("Grating Motor Velocity");
 	sgmPVName = amNames2pvNames_.valueF("gratingBaseVelocity");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	gratingBaseVelocity_ = new AMPVControl("gratingBaseVelocity", sgmPVName, sgmPVName, "", this, 1);
+	gratingBaseVelocity_->setDescription("Grating Motor Base Velocity");
 	sgmPVName = amNames2pvNames_.valueF("gratingAcceleration");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	gratingAcceleration_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, "", this, 1);
+	gratingAcceleration_->setDescription("Grating Motor Acceleration");
 	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum1");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	ea1CloseVacuum1_ = new AMPVControl("ea1CloseVacuum1", sgmPVName, sgmPVName, "", this);
+	ea1CloseVacuum1_->setDescription("XPS Upstream Close Vacuum Valve");
 	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum2");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	ea1CloseVacuum2_ = new AMPVControl("ea1CloseVacuum2", sgmPVName, sgmPVName, "", this);
+	ea1CloseVacuum2_->setDescription("XPS Downstream Close Vacuum Valve");
 	sgmPVName = amNames2pvNames_.valueF("ea2CloseVacuum");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	ea2CloseVacuum_ = new AMPVControl("ea2CloseVacuum", sgmPVName, sgmPVName, "", this);
+	ea2CloseVacuum_->setDescription("SSA Close Vacuum Valve");
 	sgmPVName = amNames2pvNames_.valueF("beamOn");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-	beamOn_ = new AMPVControl("beamOn", sgmPVName, sgmPVName, "", this);
+	beamOn_ = new AMPVControl("beamOn", sgmPVName, sgmPVName, "", this, 0.5);
+	beamOn_->setDescription("Beam On");
 	sgmPVName = amNames2pvNames_.valueF("visibleLightToggle");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	visibleLightToggle_ = new AMPVControl("visibleLightToggle", sgmPVName, sgmPVName, "", this);
+	visibleLightToggle_->setDescription("Visible Light On/Off");
 	sgmPVName = amNames2pvNames_.valueF("visibleLightStatus");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	visibleLightStatus_ = new AMReadOnlyPVControl("visibleLightStatus", sgmPVName, this);
+	visibleLightStatus_->setDescription("Visible Light Status");
 	sgmPVName = amNames2pvNames_.valueF("activeEndstation");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	activeEndstation_ = new AMPVControl("activeEndstation", sgmPVName, sgmPVName, "", this);
+	activeEndstation_->setDescription("Endstation Selection");
+
+	sgmPVName = amNames2pvNames_.valueF("scalerStart");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	scalerStart_ = new AMPVControl("scalerStart", sgmPVName, sgmPVName, "", this, 0.1);
+	scalerStart_->setDescription("Scaler Start");
+	scalerStart_->setContextKnownDescription("Start");
 
 	sgmPVName = amNames2pvNames_.valueF("scalerIntegrationTime");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	scalerIntegrationTime_ = new AMPVControl("scalerIntegrationTime", sgmPVName, sgmPVName, "", this, 0.1);
+	scalerIntegrationTime_->setDescription("Scaler Integration Time");
+	scalerIntegrationTime_->setContextKnownDescription("Integration Time");
 	sgmPVName = amNames2pvNames_.valueF("scalerMode");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	scalerMode_ = new AMPVControl("scalerMode", sgmPVName, sgmPVName, "", this, 0.5);
+	scalerMode_->setDescription("Scaler Mode");
+	scalerMode_->setContextKnownDescription("Mode");
 	sgmPVName = amNames2pvNames_.valueF("scalerTotalNumberOfScans");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	scalerTotalNumberOfScans_ = new AMPVControl("scalerTotalNumberOfScans", sgmPVName, sgmPVName, "", this, 0.5);
+	scalerTotalNumberOfScans_->setDescription("Scaler Number of Scans");
+	scalerTotalNumberOfScans_->setContextKnownDescription("Number of Scans");
 	sgmPVName = amNames2pvNames_.valueF("scalerScansPerBuffer");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	scalerScansPerBuffer_ = new AMPVControl("scalerScansPerBuffer", sgmPVName, sgmPVName, "", this, 0.5);
+	scalerScansPerBuffer_->setDescription("Scaler Scan per Buffer");
+	scalerScansPerBuffer_->setContextKnownDescription("Scans per Buffer");
 
 	sgmPVName = amNames2pvNames_.valueF("detectorSignalSource");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	detectorSignalSource_ = new AMPVControl("detectorSignalSource", sgmPVName, sgmPVName, "", this, 0.5);
+	detectorSignalSource_->setDescription("Detector Sources Selection");
+
+	sgmPVName = amNames2pvNames_.valueF("ssaIllumination");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	ssaIllumination_ = new AMPVControl("ssaIllumination", sgmPVName, sgmPVName, "", this, 0.5);
+	ssaIllumination_->setDescription("SSA Illumination");
 
 	qDebug() << "\nPV Name Look Ups Failed: " << pvNameLookUpFail << "\n";
 }
@@ -575,6 +670,8 @@ void SGMBeamline::usingFakeBeamline(){
 }
 
 SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
+	infoObject_ = new SGMBeamlineInfo(this);
+
 	//usingFakeBeamline();
 	usingSGMBeamline();
 
@@ -604,19 +701,17 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	addChildControl(pgtHV_);
 	addChildControl(pgtIntegrationTime_);
 	addChildControl(pgtIntegrationMode_);
+	addChildControl(oos65000_);
+	addChildControl(oos65000IntegrationTime_);
 	addChildControl(i0Pico_);
 	addChildControl(i0Scaler_);
 	addChildControl(eVFbk_);
 	addChildControl(encoderUp_);
 	addChildControl(encoderDown_);
 	addChildControl(ssaManipulatorX_);
-//	addChildControl(ssaManipulatorXStop_);
 	addChildControl(ssaManipulatorY_);
-//	addChildControl(ssaManipulatorYStop_);
 	addChildControl(ssaManipulatorZ_);
-//	addChildControl(ssaManipulatorZStop_);
 	addChildControl(ssaManipulatorRot_);
-//	addChildControl(ssaManipulatorRotStop_);
 	addChildControl(beamlineScanning_);
 	connect(beamlineScanning_, SIGNAL(valueChanged(double)), this, SLOT(onBeamlineScanningValueChanged(double)));
 
@@ -640,6 +735,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	addChildControl(scalerMode_);
 	addChildControl(detectorSignalSource_);
 	connect(detectorSignalSource_, SIGNAL(valueChanged(double)), this, SLOT(onDetectorSignalSourceChanged(double)));
+	connect(activeEndstation_, SIGNAL(valueChanged(double)), this, SLOT(onActiveEndstationChanged(double)));
+	addChildControl(ssaIllumination_);
 
 	criticalControlsSet_ = new AMControlSet(this);
 	criticalControlsSet_->setName("Critical Beamline Controls");
@@ -680,13 +777,13 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	teyPicoControlSet_ = new AMControlSet(this);
 	teyPicoControlSet_->setName("TEY Pico Controls");
 	teyPicoControlSet_->addControl(teyPico_);
-	teyPicoDetector_ = NULL;
+	teyPicoDetector_ = 0; //NULL
 	unconnectedSets_.append(teyPicoControlSet_);
 	connect(teyPicoControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 	teyScalerControlSet_ = new AMControlSet(this);
 	teyScalerControlSet_->setName("TEY Scaler Controls");
 	teyScalerControlSet_->addControl(teyScaler_);
-	teyScalerDetector_ = NULL;
+	teyScalerDetector_ = 0; //NULL
 	unconnectedSets_.append(teyScalerControlSet_);
 	connect(teyScalerControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -694,14 +791,16 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	tfyPicoControlSet_->setName("TFY Pico Controls");
 	tfyPicoControlSet_->addControl(tfyPico_);
 	tfyPicoControlSet_->addControl(tfyHV_);
-	tfyPicoDetector_ = NULL;
+	tfyPicoControlSet_->addControl(tfyHVToggle_);
+	tfyPicoDetector_ = 0; //NULL
 	unconnectedSets_.append(tfyPicoControlSet_);
 	connect(tfyPicoControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 	tfyScalerControlSet_ = new AMControlSet(this);
 	tfyScalerControlSet_->setName("TFY Scaler Controls");
 	tfyScalerControlSet_->addControl(tfyScaler_);
 	tfyScalerControlSet_->addControl(tfyHV_);
-	tfyScalerDetector_ = NULL;
+	tfyScalerControlSet_->addControl(tfyHVToggle_);
+	tfyScalerDetector_ = 0; //NULL
 	unconnectedSets_.append(tfyScalerControlSet_);
 	connect(tfyScalerControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -711,40 +810,48 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	pgtControlSet_->addControl(pgtHV_);
 	pgtControlSet_->addControl(pgtIntegrationTime_);
 	pgtControlSet_->addControl(pgtIntegrationMode_);
-	pgtDetector_ = NULL;
+	pgtDetector_ = 0; //NULL
 	unconnectedSets_.append(pgtControlSet_);
 	connect(pgtControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
+
+	oos65000ControlSet_ = new AMControlSet(this);
+	oos65000ControlSet_->setName("OOS65000 Controls");
+	oos65000ControlSet_->addControl(oos65000_);
+	oos65000ControlSet_->addControl(oos65000IntegrationTime_);
+	oos65000Detector_ = 0; //NULL
+	unconnectedSets_.append(oos65000ControlSet_);
+	connect(oos65000ControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
 	i0PicoControlSet_ = new AMControlSet(this);
 	i0PicoControlSet_->setName("I0 Pico Controls");
 	i0PicoControlSet_->addControl(i0Pico_);
-	i0PicoDetector_ = NULL;
+	i0PicoDetector_ = 0; //NULL
 	unconnectedSets_.append(i0PicoControlSet_);
 	connect(i0PicoControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 	i0ScalerControlSet_ = new AMControlSet(this);
 	i0ScalerControlSet_->setName("I0 Scaler Controls");
 	i0ScalerControlSet_->addControl(i0Scaler_);
-	i0ScalerDetector_ = NULL;
+	i0ScalerDetector_ = 0; //NULL
 	unconnectedSets_.append(i0ScalerControlSet_);
 	connect(i0ScalerControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
 	eVFbkControlSet_ = new AMControlSet(this);
 	eVFbkControlSet_->setName("Energy Feedback Controls");
 	eVFbkControlSet_->addControl(eVFbk_);
-	eVFbkDetector_ = NULL;
+	eVFbkDetector_ = 0; //NULL
 	unconnectedSets_.append(eVFbkControlSet_);
 	connect(eVFbkControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
 	photodiodePicoControlSet_ = new AMControlSet(this);
 	photodiodePicoControlSet_->setName("Photodiode Pico Controls");
 	photodiodePicoControlSet_->addControl(photodiodePico_);
-	photodiodePicoDetector_ = NULL;
+	photodiodePicoDetector_ = 0; //NULL
 	unconnectedSets_.append(photodiodePicoControlSet_);
 	connect(photodiodePicoControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 	photodiodeScalerControlSet_ = new AMControlSet(this);
 	photodiodeScalerControlSet_->setName("Photodiode Scaler Controls");
 	photodiodeScalerControlSet_->addControl(photodiodeScaler_);
-	photodiodeScalerDetector_ = NULL;
+	photodiodeScalerDetector_ = 0; //NULL
 	unconnectedSets_.append(photodiodeScalerControlSet_);
 	connect(photodiodeScalerControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -752,14 +859,14 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	encoderUpControlSet_ = new AMControlSet(this);
 	encoderUpControlSet_->setName("Encoder Up Controls");
 	encoderUpControlSet_->addControl(encoderUp_);
-	encoderUpDetector_ = NULL;
+	encoderUpDetector_ = 0; //NULL
 	unconnectedSets_.append(encoderUpControlSet_);
 	connect(encoderUpControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
 	encoderDownControlSet_ = new AMControlSet(this);
 	encoderDownControlSet_->setName("Encoder Down Controls");
 	encoderDownControlSet_->addControl(encoderDown_);
-	encoderDownDetector_ = NULL;
+	encoderDownDetector_ = 0; //NULL
 	unconnectedSets_.append(encoderDownControlSet_);
 	connect(encoderDownControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -791,6 +898,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	ssaManipulatorSet_->addControl(ssaManipulatorY_);
 	ssaManipulatorSet_->addControl(ssaManipulatorZ_);
 	ssaManipulatorSet_->addControl(ssaManipulatorRot_);
+	ssaManipulatorSampleTolerances_ << 1.0 << 1.0 << 1.0 << 15.0;
 	unconnectedSets_.append(ssaManipulatorSet_);
 	connect(ssaManipulatorSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -803,7 +911,11 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	XASDetectors_ = new AMDetectorSet(this);
 	XASDetectors_->setName("XAS Detectors");
 
-	currentSamplePlate_ = new AMSamplePlate(this);
+	FastDetectors_ = new AMDetectorSet(this);
+	FastDetectors_->setName("Fast Scan Detectors");
+
+	//currentSamplePlate_ = new AMSamplePlate(this);
+	currentSamplePlate_ = 0;//NULL
 
 	transferLoadLockOutAction1Help_.append(QPixmap(":/LoadLockOut/action1Image1.jpg"), "1");
 	transferLoadLockOutAction1Help_.append(QPixmap(":/LoadLockOut/action1Image2.jpg"), "2");
@@ -876,6 +988,14 @@ QString SGMBeamline::sgmGratingDescription(SGMBeamline::sgmGrating grating) cons
 		return "ERROR";
 }
 
+SGMEnergyParameters* SGMBeamline::energyParametersForGrating(SGMBeamline::sgmGrating grating) const{
+	return infoObject_->standardEnergyParametersByName(sgmGratingName(grating));
+}
+
+SGMBeamline::sgmGrating SGMBeamline::currentGrating() const{
+	return (SGMBeamline::sgmGrating)grating()->value();
+}
+
 QString SGMBeamline::sgmHarmonicName(SGMBeamline::sgmHarmonic harmonic) const {
 	if(harmonic == SGMBeamline::firstHarmonic)
 		return "firstHarmonic";
@@ -890,6 +1010,24 @@ QString SGMBeamline::sgmHarmonicDescription(SGMBeamline::sgmHarmonic harmonic) c
 		return "First";
 	else if(harmonic == SGMBeamline::thirdHarmonic)
 		return "Third";
+	else
+		return "ERROR";
+}
+
+QString SGMBeamline::sgmDetectorSignalSourceName(SGMBeamline::sgmDetectorSignalSource dss) const{
+	if(dss == SGMBeamline::picoammeters)
+		return "Picoammeters";
+	else if(dss == SGMBeamline::scaler)
+		return "Scaler";
+	else
+		return "ERROR";
+}
+
+QString SGMBeamline::sgmEndstationName(SGMBeamline::sgmEndstation endstation) const{
+	if(endstation == SGMBeamline::scienta)
+		return "Scienta";
+	else if(endstation == SGMBeamline::ssa)
+		return "SSA";
 	else
 		return "ERROR";
 }
@@ -942,6 +1080,20 @@ bool SGMBeamline::usingScalerSource(){
 	return false;
 }
 
+int SGMBeamline::currentSampleId(){
+	if(currentSamplePlate_)
+		return currentSamplePlate_->sampleIdAtPosition(currentSamplePositioner()->toInfoList(), ssaManipulatorSampleTolerances_);
+	return -1;
+}
+
+QString SGMBeamline::currentSampleDescription(){
+	int currentId = currentSampleId();
+	if(currentId == -1)
+		return "<Unknown Sample>";
+	else
+		return AMSample(currentId, AMUser::user()->database()).name();
+}
+
 AMBeamlineListAction* SGMBeamline::createBeamOnActions(){
 	if(!beamOnControlSet_->isConnected())
 		return 0;// NULL
@@ -956,8 +1108,8 @@ AMBeamlineListAction* SGMBeamline::createBeamOnActions(){
 	beamOnAction2->setSetpoint(0);
 
 	beamOnActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	beamOnActionsList->appendAction(beamOnActionsList->stageCount(), beamOnAction1);
-	beamOnActionsList->appendAction(beamOnActionsList->stageCount(), beamOnAction2);
+	beamOnActionsList->appendAction(0, beamOnAction1);
+	beamOnActionsList->appendAction(0, beamOnAction2);
 	return beamOnAction;
 }
 
@@ -985,9 +1137,9 @@ AMBeamlineListAction* SGMBeamline::createGoToTransferPositionActions(){
 	AMBeamlineControlMoveAction *gotoTransferPositionAction1 = new AMBeamlineControlMoveAction(ssaManipulatorX());
 	gotoTransferPositionAction1->setSetpoint(0.0);
 	AMBeamlineControlMoveAction *gotoTransferPositionAction2 = new AMBeamlineControlMoveAction(ssaManipulatorY());
-	gotoTransferPositionAction2->setSetpoint(-5.0);
+	gotoTransferPositionAction2->setSetpoint(-6.58);
 	AMBeamlineControlMoveAction *gotoTransferPositionAction3 = new AMBeamlineControlMoveAction(ssaManipulatorZ());
-	gotoTransferPositionAction3->setSetpoint(-77.44);
+	gotoTransferPositionAction3->setSetpoint(-77.0);
 	AMBeamlineControlMoveAction *gotoTransferPositionAction4 = new AMBeamlineControlMoveAction(ssaManipulatorRot());
 	gotoTransferPositionAction4->setSetpoint(0.0);
 
@@ -1213,6 +1365,42 @@ AMBeamlineListAction* SGMBeamline::createTransferChamberInActions(){
 	return transferChamberInAction;
 }
 
+AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHV106OnActions(){
+	AMBeamlineHighVoltageChannelToggleAction *onAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel106());
+	onAction->setSetpoint(AMHighVoltageChannel::isPowerOn);
+	return onAction;
+}
+
+AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHV106OffActions(){
+	AMBeamlineHighVoltageChannelToggleAction *offAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel106());
+	offAction->setSetpoint(AMHighVoltageChannel::isPowerOff);
+	return offAction;
+}
+
+AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHV109OnActions(){
+	AMBeamlineHighVoltageChannelToggleAction *onAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel109());
+	onAction->setSetpoint(AMHighVoltageChannel::isPowerOn);
+	return onAction;
+}
+
+AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHV109OffActions(){
+	AMBeamlineHighVoltageChannelToggleAction *offAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel109());
+	offAction->setSetpoint(AMHighVoltageChannel::isPowerOff);
+	return offAction;
+}
+
+AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHVPGTOnActions(){
+	AMBeamlineHighVoltageChannelToggleAction *onAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannelPGT());
+	onAction->setSetpoint(AMHighVoltageChannel::isPowerOn);
+	return onAction;
+}
+
+AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHVPGTOffActions(){
+	AMBeamlineHighVoltageChannelToggleAction *offAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannelPGT());
+	offAction->setSetpoint(AMHighVoltageChannel::isPowerOff);
+	return offAction;
+}
+
 bool SGMBeamline::isBeamlineScanning(){
 	if( fabs(beamlineScanning_->value() -1.0) < beamlineScanning_->tolerance() )
 		return true;
@@ -1331,6 +1519,14 @@ QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> SGMBeamline::forBestRes
 		return QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>(SGMBeamline::highGrating, SGMBeamline::thirdHarmonic);
 }
 
+void SGMBeamline::setCurrentSamplePlate(AMSamplePlate *newSamplePlate){
+	if(currentSamplePlate_ != newSamplePlate){
+		currentSamplePlate_ = newSamplePlate;
+		qDebug() << "SGM got a new sample plate";
+		emit currentSamplePlateChanged(currentSamplePlate_);
+	}
+}
+
 void SGMBeamline::visibleLightOn(){
 	visibleLightToggle_->move(1);
 }
@@ -1364,67 +1560,116 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 		unconnectedSets_.removeAll(ctrlSet);
 		if(!teyPicoDetector_ && ctrlSet->name() == "TEY Pico Controls"){
 			teyPicoDetector_ = new AMSingleControlDetector(teyPico_->name(), teyPico_, AMDetector::WaitRead, this);
-			teyPicoDetector_->setDescription("TEY");
+			teyPicoDetector_->setDescription(teyPico_->description());
 			allDetectors_->addDetector(teyPicoDetector_);
 			XASDetectors_->addDetector(teyPicoDetector_, true);
 		}
 		else if(!teyScalerDetector_ && ctrlSet->name() == "TEY Scaler Controls"){
 			teyScalerDetector_ = new AMSingleControlDetector(teyScaler_->name(), teyScaler_, AMDetector::WaitRead, this);
-			teyScalerDetector_->setDescription("TEY");
+			teyScalerDetector_->setDescription(teyScaler_->description());
 			allDetectors_->addDetector(teyScalerDetector_);
 			XASDetectors_->addDetector(teyScalerDetector_, true);
+			FastDetectors_->addDetector(teyScalerDetector_, true);
 		}
 		else if(!tfyPicoDetector_ && ctrlSet->name() == "TFY Pico Controls"){
-			tfyPicoDetector_ = new MCPDetector(tfyPico_->name(), tfyPico_, tfyHV_, AMDetector::WaitRead, this);
-			tfyPicoDetector_->setDescription("TFY");
+			tfyPicoDetector_ = new MCPDetector(tfyPico_->name(), tfyPico_, tfyHV_, createHV109OnActions(), createHV109OffActions(), AMDetector::WaitRead, this);
+			tfyPicoDetector_->setDescription(tfyPico_->description());
 			allDetectors_->addDetector(tfyPicoDetector_);
 			XASDetectors_->addDetector(tfyPicoDetector_, true);
+			connect(tfyHVToggle_, SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
+			connect( ((MCPDetector*)tfyPicoDetector_)->hvCtrl(), SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
+			emit detectorHVChanged();
 		}
 		else if(!tfyScalerDetector_ && ctrlSet->name() == "TFY Scaler Controls"){
-			tfyScalerDetector_ = new MCPDetector(tfyScaler_->name(), tfyScaler_, tfyHV_, AMDetector::WaitRead, this);
-			tfyScalerDetector_->setDescription("TFY");
+			tfyScalerDetector_ = new MCPDetector(tfyScaler_->name(), tfyScaler_, tfyHV_, createHV109OnActions(), createHV109OffActions(), AMDetector::WaitRead, this);
+			tfyScalerDetector_->setDescription(tfyScaler_->description());
 			allDetectors_->addDetector(tfyScalerDetector_);
 			XASDetectors_->addDetector(tfyScalerDetector_, true);
+			FastDetectors_->addDetector(tfyScalerDetector_, true);
+			connect(tfyHVToggle_, SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
+			connect( ((MCPDetector*)tfyScalerDetector_)->hvCtrl(), SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()) );
+			emit detectorHVChanged();
 		}
 		else if(!pgtDetector_ && ctrlSet->name() == "SDD Controls"){
-			pgtDetector_ = new PGTDetector(pgt_->name(), pgt_, pgtHV_, pgtIntegrationTime_, pgtIntegrationMode_, AMDetector::WaitRead, this);
+			pgtDetector_ = new PGTDetector(pgt_->name(), pgt_, pgtHV_, pgtIntegrationTime_, pgtIntegrationMode_, createHVPGTOnActions(), createHVPGTOffActions(), AMDetector::WaitRead, this);
+			pgtDetector_->setDescription(pgt_->description());
 			allDetectors_->addDetector(pgtDetector_);
 			XASDetectors_->addDetector(pgtDetector_);
 		}
+		else if(!oos65000Detector_ && ctrlSet->name() == "OOS65000 Controls"){
+			oos65000Detector_ = new OceanOptics65000Detector(oos65000_->name(), oos65000_, oos65000IntegrationTime_, AMDetector::WaitRead, this);
+			oos65000Detector_->setDescription(oos65000_->description());
+			allDetectors_->addDetector(oos65000Detector_);
+			XASDetectors_->addDetector(oos65000Detector_);
+		}
 		else if(!i0PicoDetector_ && ctrlSet->name() == "I0 Pico Controls"){
 			i0PicoDetector_ = new AMSingleControlDetector(i0Pico_->name(), i0Pico_, AMDetector::WaitRead, this);
-			i0PicoDetector_->setDescription("I0");
+			i0PicoDetector_->setDescription(i0Pico_->description());
 			allDetectors_->addDetector(i0PicoDetector_);
 			feedbackDetectors_->addDetector(i0PicoDetector_);
 		}
 		else if(!i0ScalerDetector_ && ctrlSet->name() == "I0 Scaler Controls"){
 			i0ScalerDetector_ = new AMSingleControlDetector(i0Scaler_->name(), i0Scaler_, AMDetector::WaitRead, this);
-			i0ScalerDetector_->setDescription("I0");
+			i0ScalerDetector_->setDescription(i0Scaler_->description());
 			allDetectors_->addDetector(i0ScalerDetector_);
 			feedbackDetectors_->addDetector(i0ScalerDetector_);
 		}
 		else if(!eVFbkDetector_ && ctrlSet->name() == "Energy Feedback Controls"){
 			eVFbkDetector_ = new AMSingleControlDetector(eVFbk_->name(), eVFbk_, AMDetector::ImmediateRead, this);
+			eVFbkDetector_->setDescription(eVFbk_->description());
 			allDetectors_->addDetector(eVFbkDetector_);
 			feedbackDetectors_->addDetector(eVFbkDetector_);
 		}
 		else if(!photodiodePicoDetector_ && ctrlSet->name() == "Photodiode Pico Controls"){
 			photodiodePicoDetector_ = new AMSingleControlDetector(photodiodePico_->name(), photodiodePico_, AMDetector::WaitRead, this);
-			photodiodePicoDetector_->setDescription("Photodiode");
+			photodiodePicoDetector_->setDescription(photodiodePico_->description());
 			allDetectors_->addDetector(photodiodePicoDetector_);
 		}
 		else if(!photodiodeScalerDetector_ && ctrlSet->name() == "Photodiode Scaler Controls"){
 			photodiodeScalerDetector_ = new AMSingleControlDetector(photodiodeScaler_->name(), photodiodeScaler_, AMDetector::WaitRead, this);
-			photodiodeScalerDetector_->setDescription("Photodiode");
+			photodiodeScalerDetector_->setDescription(photodiodeScaler_->description());
 			allDetectors_->addDetector(photodiodeScalerDetector_);
 		}
 		else if(!encoderUpDetector_ && ctrlSet->name() == "Encoder Up Controls"){
 			encoderUpDetector_ = new AMSingleControlDetector(encoderUp_->name(), encoderUp_, AMDetector::WaitRead, this);
+			encoderUpDetector_->setDescription(encoderUp_->description());
 			allDetectors_->addDetector(encoderUpDetector_);
 		}
 		else if(!encoderDownDetector_ && ctrlSet->name() == "Encoder Down Controls"){
 			encoderDownDetector_ = new AMSingleControlDetector(encoderDown_->name(), encoderDown_, AMDetector::WaitRead, this);
+			encoderDownDetector_->setDescription(encoderDown_->description());
 			allDetectors_->addDetector(encoderDownDetector_);
+		}
+		else if(ctrlSet->name() == "SSA Manipulator"){
+			AMControlInfoList ssaInfoList = ssaManipulatorSet_->toInfoList();
+			ssaInfoList[0].setValue(-1.0);
+			ssaInfoList[1].setValue( 0.0);
+			ssaInfoList[2].setValue(-1.0);
+			ssaFiducializations_.append(AMControlInfoList(ssaInfoList));
+			ssaInfoList[0].setValue( 0.0);
+			ssaInfoList[2].setValue(-1.0);
+			ssaFiducializations_.append(AMControlInfoList(ssaInfoList));
+			ssaInfoList[0].setValue( 1.0);
+			ssaInfoList[2].setValue(-1.0);
+			ssaFiducializations_.append(AMControlInfoList(ssaInfoList));
+			ssaInfoList[0].setValue(-1.0);
+			ssaInfoList[2].setValue( 0.0);
+			ssaFiducializations_.append(AMControlInfoList(ssaInfoList));
+			ssaInfoList[0].setValue( 0.0);
+			ssaInfoList[2].setValue( 0.0);
+			ssaFiducializations_.append(AMControlInfoList(ssaInfoList));
+			ssaInfoList[0].setValue( 1.0);
+			ssaInfoList[2].setValue( 0.0);
+			ssaFiducializations_.append(AMControlInfoList(ssaInfoList));
+			ssaInfoList[0].setValue(-1.0);
+			ssaInfoList[2].setValue( 1.0);
+			ssaFiducializations_.append(AMControlInfoList(ssaInfoList));
+			ssaInfoList[0].setValue( 0.0);
+			ssaInfoList[2].setValue( 1.0);
+			ssaFiducializations_.append(AMControlInfoList(ssaInfoList));
+			ssaInfoList[0].setValue( 1.0);
+			ssaInfoList[2].setValue( 1.0);
+			ssaFiducializations_.append(AMControlInfoList(ssaInfoList));
 		}
 		if(detectorSignalSource_->isConnected())
 			onDetectorSignalSourceChanged(detectorSignalSource_->value());
@@ -1454,6 +1699,9 @@ void SGMBeamline::onDetectorSignalSourceChanged(double value){
 			XASDetectors_->removeDetector(teyScalerDetector_);
 		if(XASDetectors_->indexOf(teyPicoDetector_) < 0)
 			XASDetectors_->addDetector(teyPicoDetector_);
+		if(FastDetectors_->indexOf(teyScalerDetector_) >= 0)
+			FastDetectors_->removeDetector(teyScalerDetector_);
+
 		if(allDetectors_->indexOf(tfyScalerDetector_) >= 0)
 			allDetectors_->removeDetector(tfyScalerDetector_);
 		if(allDetectors_->indexOf(tfyPicoDetector_) < 0)
@@ -1462,6 +1710,9 @@ void SGMBeamline::onDetectorSignalSourceChanged(double value){
 			XASDetectors_->removeDetector(tfyScalerDetector_);
 		if(XASDetectors_->indexOf(tfyPicoDetector_) < 0)
 			XASDetectors_->addDetector(tfyPicoDetector_);
+		if(FastDetectors_->indexOf(tfyScalerDetector_) >= 0)
+			FastDetectors_->removeDetector(tfyScalerDetector_);
+
 		if(allDetectors_->indexOf(i0ScalerDetector_) >= 0)
 			allDetectors_->removeDetector(i0ScalerDetector_);
 		if(allDetectors_->indexOf(i0PicoDetector_) < 0)
@@ -1470,6 +1721,7 @@ void SGMBeamline::onDetectorSignalSourceChanged(double value){
 			feedbackDetectors_->removeDetector(i0ScalerDetector_);
 		if(feedbackDetectors_->indexOf(i0PicoDetector_) < 0)
 			feedbackDetectors_->addDetector(i0PicoDetector_);
+
 		if(allDetectors_->indexOf(photodiodeScalerDetector_) >= 0)
 			allDetectors_->removeDetector(photodiodeScalerDetector_);
 		if(allDetectors_->indexOf(photodiodePicoDetector_) < 0)
@@ -1488,6 +1740,9 @@ void SGMBeamline::onDetectorSignalSourceChanged(double value){
 			XASDetectors_->addDetector(teyScalerDetector_);
 		if(XASDetectors_->indexOf(teyPicoDetector_) >= 0)
 			XASDetectors_->removeDetector(teyPicoDetector_);
+		if(FastDetectors_->indexOf(teyScalerDetector_) < 0)
+			FastDetectors_->addDetector(teyScalerDetector_);
+
 		if(allDetectors_->indexOf(tfyScalerDetector_) < 0)
 			allDetectors_->addDetector(tfyScalerDetector_);
 		if(allDetectors_->indexOf(tfyPicoDetector_) >= 0)
@@ -1496,6 +1751,9 @@ void SGMBeamline::onDetectorSignalSourceChanged(double value){
 			XASDetectors_->addDetector(tfyScalerDetector_);
 		if(XASDetectors_->indexOf(tfyPicoDetector_) >= 0)
 			XASDetectors_->removeDetector(tfyPicoDetector_);
+		if(FastDetectors_->indexOf(tfyScalerDetector_) < 0)
+			FastDetectors_->addDetector(tfyScalerDetector_);
+
 		if(allDetectors_->indexOf(i0ScalerDetector_) < 0)
 			allDetectors_->addDetector(i0ScalerDetector_);
 		if(allDetectors_->indexOf(i0PicoDetector_) >= 0)
@@ -1504,6 +1762,7 @@ void SGMBeamline::onDetectorSignalSourceChanged(double value){
 			feedbackDetectors_->addDetector(i0ScalerDetector_);
 		if(feedbackDetectors_->indexOf(i0PicoDetector_) >= 0)
 			feedbackDetectors_->removeDetector(i0PicoDetector_);
+
 		if(allDetectors_->indexOf(photodiodeScalerDetector_) < 0)
 			allDetectors_->addDetector(photodiodeScalerDetector_);
 		if(allDetectors_->indexOf(photodiodePicoDetector_) >= 0)
@@ -1513,6 +1772,11 @@ void SGMBeamline::onDetectorSignalSourceChanged(double value){
 		if(feedbackDetectors_->indexOf(photodiodePicoDetector_) >= 0)
 			feedbackDetectors_->removeDetector(photodiodePicoDetector_);
 	}
+	emit detectorSignalSourceChanged((SGMBeamline::sgmDetectorSignalSource)value);
+}
+
+void SGMBeamline::onActiveEndstationChanged(double value){
+	emit currentEndstationChanged((SGMBeamline::sgmEndstation)value);
 }
 
 void SGMBeamline::recomputeWarnings(){
@@ -1777,7 +2041,7 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 	gsl_multifit_linear_workspace * work
 			= gsl_multifit_linear_alloc (n, 3);
 	gsl_multifit_wlinear (X, w, y, c, cov,
-						  &chisq, work);
+			      &chisq, work);
 	gsl_multifit_linear_free (work);
 
 #define C(i) (gsl_vector_get(c,(i)))

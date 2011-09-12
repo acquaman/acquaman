@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -42,6 +42,7 @@ public:
 	explicit AMSampleManagementWidget(AMSampleManipulatorView *manipulatorView, const QUrl& sampleCameraUrl, AMSamplePlate* samplePlate, QWidget *parent = 0);
 
 signals:
+	void newSamplePlateSelected(AMSamplePlate *selectedPlate);
 
 public slots:
 	void onNewSamplePlateSelected();

@@ -1,15 +1,38 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef SGMSAMPLEMANIPULATORVIEW_H
 #define SGMSAMPLEMANIPULATORVIEW_H
 
 #include "ui/AMSampleManipulatorView.h"
 
+class QCheckBox;
+
 class AMBeamlineListAction;
+class CLSVMEMotor;
 
 class SGMSampleManipulatorView : public AMSampleManipulatorView
 {
 Q_OBJECT
 public:
-	SGMSampleManipulatorView(QWidget *parent = 0);
+	SGMSampleManipulatorView(bool bigButtons = false, QWidget *parent = 0);
 
 protected slots:
 	void onMUpButtonPressed();
@@ -30,8 +53,19 @@ protected slots:
 	void onMCCWButtonReleased();
 
 	void onStopAllButtonClicked();
+	void onJogButtonChecked(bool checked);
+	void onJogSettingComboBoxChanged(int index);
+
 	void onTransferPositionButtonClicked();
 	void onMeasurePositionButtonClicked();
+
+	void onHVButtonClicked();
+	void onHVStateChanged();
+
+	void onIlluminatorSliderValueMoved(int newValue);
+	void onIlluminatorFeedbackChanged(double newValue);
+	void onIlluminatorPreset(int presetIndex);
+
 
 protected:
 	QPushButton *mUpButton_;
@@ -42,26 +76,47 @@ protected:
 	QPushButton *mDownstreamButton_;
 	QPushButton *mCWButton_;
 	QPushButton *mCCWButton_;
+	QCheckBox *jogBox_;
+	QComboBox *jogSettingComboBox_;
 
 	QPushButton *stopAllButton_;
 	QPushButton *transferPositionButton_;
 	AMBeamlineListAction *transferPositionActions_;
 	QPushButton *measurePositionButton_;
 	AMBeamlineListAction *measurementPositionActions_;
+	QPushButton *hvButton_;
 
+	/*
 	AMControl *mVerticalCtrl_;
 	AMControl *mHorizontalCtrl_;
 	AMControl *mInPlaneCtrl_;
 	AMControl *mRotationCtrl_;
+	*/
+	CLSVMEMotor *mVerticalCtrl_;
+	CLSVMEMotor *mHorizontalCtrl_;
+	CLSVMEMotor *mInPlaneCtrl_;
+	CLSVMEMotor *mRotationCtrl_;
 
 	AMControlEditor *mVerticalNC_;
 	AMControlEditor *mHorizontalNC_;
 	AMControlEditor *mInPlaneNC_;
 	AMControlEditor *mRotationNC_;
 
+	QSlider *illuminatorSlider_;
+	QButtonGroup *illuminatorPresets_;
+	QToolButton *illuminatorOff_;
+	QToolButton *illuminatorDim_;
+	QToolButton *illuminatorMid_;
+	QToolButton *illuminatorOn_;
+
 	QIcon upIcon_, downIcon_, inboardIcon_, outboardIcon_, upstreamIcon_, downstreamIcon_, cwIcon_, ccwIcon_;
 
 	QGridLayout *gl_;
+
+	double lastHVValue_;
+
+	bool isJogging_;
+	double jogStep_;
 };
 
 #endif // SGMSAMPLEMANIPULATORVIEW_H

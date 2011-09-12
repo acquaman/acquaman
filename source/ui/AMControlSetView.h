@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -93,6 +93,8 @@ public slots:
 	   Need something to setFromInfo, should be able to just pass along to controlSet
 	   */
 	void setFromInfoList(const AMControlInfoList &infoList);
+
+	void setDisabled(bool disabled);
 
 protected slots:
 	void onControlSetValuesChanged(AMControlInfoList infoList);

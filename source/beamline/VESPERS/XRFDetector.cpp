@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "XRFDetector.h"
 #include "analysis/AMDeadTimeAB.h"
 #include "analysis/AM1DSummingAB.h"
@@ -5,10 +25,11 @@
 XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *parent)
 	: XRFDetectorInfo(name, name, parent), AMDetector(name)
 {
+	connect(signalSource(), SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
+
 	setElements(elements);
 
 	wasConnected_ = false;
-	detectorConnected_ = false;
 	timer_.setInterval(6000);
 	connect(&timer_, SIGNAL(timeout()), this, SLOT(onUpdateTimer()));
 
@@ -191,15 +212,15 @@ void XRFDetector::fromXRFInfo(const XRFDetectorInfo &info)
 
 void XRFDetector::isDetectorConnected()
 {
-	wasConnected_ = detectorConnected_;
+	wasConnected_ = isConnected();
 
-	bool connected = true;
+	bool currentlyConnected = true;
 
-	connected = connected && startPV_->isConnected() && stopPV_->isConnected();
+	currentlyConnected = currentlyConnected && startPV_->isConnected() && stopPV_->isConnected();
 
 	for (int i = 0; i < elements_; i++){
 
-		connected = connected && statusPV_.at(i)->isConnected()
+		currentlyConnected = currentlyConnected && statusPV_.at(i)->isConnected()
 					&& mcaUpdateRatePV_.at(i)->isConnected()
 					&& statusUpdateRatePV_.at(i)->isConnected()
 					&& peakingTimePV_.at(i)->isConnected()
@@ -212,11 +233,10 @@ void XRFDetector::isDetectorConnected()
 					&& spectraPV_.at(i)->isConnected();
 	}
 
-	if (detectorConnected_ != connected){
+	if (isConnected() != currentlyConnected){
 
-		detectorConnected_ = connected;
-		onConnectedChanged(connected);
-		emit detectorConnected(detectorConnected_);
+		onConnectedChanged(currentlyConnected);
+		AMDetector::setConnected(currentlyConnected);
 	}
 }
 

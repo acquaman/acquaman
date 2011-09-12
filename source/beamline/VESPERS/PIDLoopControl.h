@@ -1,9 +1,30 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef PIDLOOPCONTROL_H
 #define PIDLOOPCONTROL_H
 
 #include <QObject>
 
 #include "beamline/AMControl.h"
+#include "beamline/AMBeamlineActionItem.h"
 
 /*!
 	This class monitors the PID feedback loops for the sample stage or wire stage.  The motor behaves erratically when the loops are off, and thus there should be a mechanism to turn them back on.
@@ -27,6 +48,16 @@ public:
 	/// Returns the overall state of all three PID loops together.
 	bool state() { return isOnX() && isOnY() && isOnZ(); }
 
+	// Actions to turn them on and off.
+	/// Returns a newly created action that turns the PID X loop control on or off depending on \param turnOn.  Returns 0 if not connected.
+	AMBeamlineActionItem *createPIDXChangeStateAction(bool turnOn);
+	/// Returns a newly created action that turns the PID Y loop control on or off depending on \param turnOn.  Returns 0 if not connected.
+	AMBeamlineActionItem *createPIDYChangeStateAction(bool turnOn);
+	/// Returns a newly created action that turns the PID Z loop control on or off depending on \param turnOn.  Returns 0 if not connected.
+	AMBeamlineActionItem *createPIDZChangeStateAction(bool turnOn);
+	/// Returns a newly created action that turns all the PID loop controls on or off depending on \param turnOn.  Returns 0 if not all of the PID loop controls are connected.
+	AMBeamlineActionItem *createPIDChangeStateAction(bool turnOn);
+
 signals:
 	/// Notifies if the overall state of the three PID loops changes.
 	void stateChanged(bool);
@@ -40,6 +71,8 @@ public slots:
 	void turnOnZ() { if (!isOnZ()) z_->move(1); }
 	/// Turn on all PID loops.
 	void turnOn() { turnOnX(); turnOnY(); turnOnZ(); }
+	/// Repairs the sample stage.  Combines stopping the motors (if they haven't stopped yet) and turns on all the PID loop controls.  Due to the real time nature of these events, actions are used instead of setters.
+	void repair();
 
 protected slots:
 	/// Handles when the x value changes.
@@ -48,16 +81,18 @@ protected slots:
 	void onYStateChanged() { emit stateChanged(state()); }
 	/// Handles when the z value changes.
 	void onZStateChanged() { emit stateChanged(state()); }
+	/// Handles what happens when the repair action fails.
+	void onRepairFailed() { AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "The PID loop repair has failed.  Either try again or contact the beamline staff")); }
 
 protected:
 
 	QString name_;
 	/// Pointer to the PID control for the x motor.
-	AMPVControl *x_;
+	AMControl *x_;
 	/// Pointer to the PID control for the y motor.
-	AMPVControl *y_;
+	AMControl *y_;
 	/// Pointer to the PID control for the z motor.
-	AMPVControl *z_;
+	AMControl *z_;
 
 };
 

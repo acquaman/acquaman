@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -43,9 +43,14 @@ protected:
 	AMnDIndex toScanIndex(QMap<int, double> aeData);
 
 protected slots:
+	// Re-implementing to intercept finished() signal and do cleanup
+	void onDacqStop();
+
 	void onInitializationActionsSucceeded();
 	void onInitializationActionsFailed(int explanation);
 	void onInitializationActionsProgress(double elapsed, double total);
+
+	void onScanFinished();
 
 private:
 	/// \todo Why the double pointers?

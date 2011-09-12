@@ -10,10 +10,12 @@
 
 #include "acquisitionLib.internal.h"
 
+#define UNUSED(x) (void)(x)
 /*
  * number of monitor callbacks, and milliseconds between each callback
  */
-static char * valid_scanRecord_settings( acqScan_t *as);
+// Commented out to avoid compiler warning (David Chevrier, Aug 25 2011)
+//static char * valid_scanRecord_settings( acqScan_t *as);
 
 static void defaultProgress(acqMaster_t *master, const char *title, double percent);
 static void defaultonStop(acqMaster_t *master);
@@ -130,7 +132,9 @@ acqMonitor_status(acqMaster_t *master)
 		master->RunupDelay--;
 		/* if all threads started successfully, then initialization is complete
 		 */
-		if( stateCount[AS_STANDBY] >= numItems)		/* safety check: if numItems is 0, consider this done (avoids later divide by zero */
+		//if( stateCount[AS_STANDBY] >= numItems)		/* safety check: if numItems is 0, consider this done (avoids later divide by zero */
+		// Cast to unsigned to fix compiler warning (David Chevrier, Aug 25 2011)
+		if( stateCount[AS_STANDBY] >= (unsigned)numItems)		/* safety check: if numItems is 0, consider this done (avoids later divide by zero */
 			master->RunupDelay = 0;
 		
 		if( master->RunupDelay)
@@ -239,7 +243,9 @@ acqMonitor_status(acqMaster_t *master)
 	 */
 	if( num_active > 0 && stateCount[AS_OFF] > 0)
 		state = AS_STANDBY;
-	else if( num_active > 0 && num_active == stateCount[AS_RUN] )
+	//else if( num_active > 0 && num_active == stateCount[AS_RUN] )
+	// Cast to unsigned to avoid compiler warning (David Chevrier, Aug 25 2011)
+	else if( num_active > 0 && (unsigned)num_active == stateCount[AS_RUN] )
 		state = AS_RUN;
 	else
 		state = AS_STANDBY;
@@ -378,6 +384,8 @@ acqSetShowProgress( progress_t f, acqMaster_t *master)
 static void
 defaultProgress(acqMaster_t * master, const char *title, double percent)
 {
+	// Unused parameter to avoid compiler warning (David Chevrier, Aug 25 2011)
+	UNUSED(master);
 	printf("state %s completion %g\n", title, percent);
 }
 
@@ -396,6 +404,8 @@ acqSetOnStop( onStop_t f, acqMaster_t *master)
 static void
 defaultonStop(acqMaster_t *master)
 {
+	// Unused parameter to avoid compiler warning (David Chevrier, Aug 25 2011)
+	UNUSED(master);
 	printf("Stopped\n");
 }
 

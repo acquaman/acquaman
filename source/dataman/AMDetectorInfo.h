@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -79,7 +79,11 @@ public:
 
 	/// Returns (or casts) this AMDetectorInfo as an AMMeasurementInfo, which contains the bare-bones dimensional information.
 	operator AMMeasurementInfo() {
-		return AMMeasurementInfo(name(), description(), units(), axes());
+		//return AMMeasurementInfo(name(), description(), units(), axes());
+		if(!description().isEmpty())
+			return AMMeasurementInfo(description().remove(" "), description(), units(), axes());
+		else
+			return AMMeasurementInfo(name(), name(), units(), axes());
 	}
 
 	friend QDebug operator<<(QDebug d, const AMDetectorInfo& di);

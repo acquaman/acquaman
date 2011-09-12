@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "AMDetectorSetView.h"
 
 AMDetectorSetView::AMDetectorSetView(AMDetectorSet *viewSet, bool configureOnly, QWidget *parent) :
@@ -84,7 +104,6 @@ bool AMDetectorSetView::checkedAt(int row) const{
 		return false;
 	if(checkBoxes_.at(row))
 		return checkBoxes_.at(row)->isChecked();
-
 	return false;
 }
 
@@ -115,6 +134,14 @@ QDebug operator<<(QDebug d, const AMDetectorSetView& dsv){
 			d << *(dsv.detailAt(x)->configurationSettings());
 	}
 	return d;
+}
+
+void AMDetectorSetView::setDisabled(bool disabled){
+	for(int x = checkBoxes_.count()-1; x >= 0; x--){
+		checkBoxes_[x]->setDisabled(disabled);
+		if(detectorDetails_[x])
+			gl_->itemAtPosition(x, 3)->widget()->setDisabled(disabled);
+	}
 }
 
 void AMDetectorSetView::onDetectorAddedToSet(int index){
@@ -159,7 +186,9 @@ void AMDetectorSetView::onDetectorAddedToSet(int index){
 	gl_->setRowStretch(viewSet_->count(), 10);
 }
 
-#warning "Hey David: Working, but SUPER INNEFFICIENT. Redraws the whole thing every time"
+/* NTBA - August 25th, 2011 (David Chevrier)
+		Working, but SUPER INNEFFICIENT. Redraws the whole thing every time"
+*/
 void AMDetectorSetView::onDetectorRemovedFromSet(int index){
 	Q_UNUSED(index)
 	for(int x = gl_->rowCount()-1; x >= 0; x--){
@@ -256,5 +285,6 @@ void AMDetectorSetView::onDetectorSetSettingsChanged(){
 }
 
 void AMDetectorSetView::onDetectorSetConfigurationRequested(){
+	qDebug() << "Heard a check?";
 	emit configValuesChanged();
 }

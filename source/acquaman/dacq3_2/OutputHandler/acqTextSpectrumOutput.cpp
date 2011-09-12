@@ -344,7 +344,14 @@ int acqTextSpectrumOutput::pvTSPrivate::output( acqKey_t key, int dataType, cons
 				continue;
 			}
 			to->sendSpectrumLine( "%s", result);
-			value = (char  *)value + colp->dataSize;
+			/* NTBA May 8th, 2011 David Chevrier
+			   There seems to be an issue with the DBF_LONG being saved as int (size 4)
+			   rather than as long (size 8). Probably a 64bit problem.
+			 */
+			if(colp->columnType == DBF_LONG)
+				value = (char  *)value + 4;
+			else
+				value = (char  *)value + colp->dataSize;
 		}
 
 		break;
