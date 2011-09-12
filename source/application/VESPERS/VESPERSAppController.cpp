@@ -136,12 +136,12 @@ bool VESPERSAppController::startup() {
 		XRFMapSetup *ndMapSetup = new XRFMapSetup;
 
 		// Setup XAS for the beamline.  Builds the config, view, and view holder.
-	//	VESPERSXASScanConfiguration *xasScanConfig = new VESPERSXASScanConfiguration();
-		//xasScanConfig->addRegion(0, 0, 1, 10);
-		//VESPERSXASScanConfigurationView *xasConfigView = new VESPERSXASScanConfigurationView(xasScanConfig);
-		//AMScanConfigurationViewHolder *xasConfigViewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, xasConfigView);
+		VESPERSXASScanConfiguration *xasScanConfig = new VESPERSXASScanConfiguration();
+		xasScanConfig->addRegion(0, 0, 1, 10);
+		VESPERSXASScanConfigurationView *xasConfigView = new VESPERSXASScanConfigurationView(xasScanConfig);
+		AMScanConfigurationViewHolder *xasConfigViewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, xasConfigView);
 		/// \todo this can likely be somewhere else in the framework.
-		//connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
+		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
 
 		mw_->insertHeading("Scans", 2);
 		mw_->addPane(experimentConfigurationView, "Scans", "Experiment Setup", ":/utilities-system-monitor.png");
