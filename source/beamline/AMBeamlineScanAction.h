@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -21,6 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMBEAMLINESCANACTION_H
 #define AMBEAMLINESCANACTION_H
 
+class QToolButton;
+
 #include <QHBoxLayout>
 #include <QProgressBar>
 #include <QLabel>
@@ -34,6 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER 27103
 #define AMBEAMLINEACTIONITEM_CANT_INITIALIZE_CONTROLLER 27104
 #define AMBEAMLINEACTIONITEM_CANT_START_CONTROLLER 27105
+#define AMBEAMLINEACTIONITEM_CANT_SAVE_TO_DB 27106
 
 class AMBeamlineScanAction : public AMBeamlineActionItem
 {
@@ -48,6 +51,8 @@ public:
 	AMScanConfiguration* cfg() const { return cfg_;}
 	virtual bool isRunning() const;
 	virtual bool isPaused() const;
+
+	QString lastSampleDescription() const;
 
 signals:
 	void progress(double, double);
@@ -64,6 +69,8 @@ public slots:
 
 	virtual void cleanup();
 
+	void setLastSampleDescription(const QString &lastSampleDescription);
+
 protected slots:
 	virtual void initialize();
 	void delayedStart(bool ready);
@@ -79,6 +86,7 @@ protected:
 	AMScanConfiguration *cfg_;
 	AMScanController *ctrl_;
 	bool keepOnCancel_;
+	QString lastSampleDescription_;
 };
 
 class AMBeamlineScanActionView : public AMBeamlineActionItemView
@@ -102,6 +110,9 @@ protected slots:
 	void onScanFailed(int explanation);
 	void onStopCancelButtonClicked();
 	void onPlayPauseButtonClicked();
+	void onPreviousNextChanged();
+	void onMoveUpButtonClicked();
+	void onMoveDownButtonClicked();
 
 protected:
 	void mouseDoubleClickEvent(QMouseEvent *);
@@ -115,6 +126,8 @@ protected:
 	QLabel *timeRemainingLabel_;
 	QPushButton *stopCancelButton_;
 	QPushButton *playPauseButton_;
+	QToolButton *moveActionUpButton_;
+	QToolButton *moveActionDownButton_;
 	QHBoxLayout *hl_;
 
 	AMScanConfigurationView *configurationView_;

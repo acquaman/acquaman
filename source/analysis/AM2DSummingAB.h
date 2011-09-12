@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -39,6 +39,7 @@ public:
 	/// This constructor is used to reload analysis blocks directly out of the database
 	Q_INVOKABLE AM2DSummingAB(AMDatabase* db, int id);
 
+	QString infoDescription() const { return QString("(Axis %1 from %2 to %3)").arg(sumAxis_).arg(sumRangeMin_).arg(sumRangeMax_); }
 
 	/// Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, our specific requirements are...
 	/*! - there must be a single input source

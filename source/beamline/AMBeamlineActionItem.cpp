@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -148,12 +148,18 @@ void AMBeamlineActionItem::reset(bool delayInitialize){
 }
 
 bool AMBeamlineActionItem::setPrevious(AMBeamlineActionItem *previous){
-	previous_ = previous;
+	if(previous_ != previous){
+		previous_ = previous;
+		emit previousChanged();
+	}
 	return true;
 }
 
 bool AMBeamlineActionItem::setNext(AMBeamlineActionItem *next){
-	next_ = next;
+	if(next_ != next){
+		next_ = next;
+		emit nextChanged();
+	}
 	return true;
 }
 
@@ -241,9 +247,11 @@ AMBeamlineActionItemView::AMBeamlineActionItemView(AMBeamlineActionItem *action,
 {
 	//action_ = action;
 	action_ = 0;//NULL
+	oldHeight_ = 0;
 	setAction(action);
 	index_ = index;
 	inFocus_ = false;
+	movable_ = false;
 	optionsMenu_ = 0; //NULL
 	setLineWidth(2);
 	setMidLineWidth(0);
@@ -260,6 +268,10 @@ AMBeamlineActionItem* AMBeamlineActionItemView::action(){
 	return action_;
 }
 
+bool AMBeamlineActionItemView::movable() const{
+	return movable_;
+}
+
 void AMBeamlineActionItemView::setIndex(int index){
 	index_ = index;
 }
@@ -270,6 +282,8 @@ void AMBeamlineActionItemView::setAction(AMBeamlineActionItem *action){
 		disconnect(action_, SIGNAL(started()), this, SLOT(updateLook()));
 		disconnect(action_, SIGNAL(failed(int)), this, SLOT(updateLook()));
 		disconnect(action_, SIGNAL(succeeded()), this, SLOT(updateLook()));
+		disconnect(action_, SIGNAL(previousChanged()), this, SLOT(onPreviousNextChanged()));
+		disconnect(action_, SIGNAL(nextChanged()), this, SLOT(onPreviousNextChanged()));
 	}
 	action_ = action;
 	if(action_){
@@ -277,12 +291,19 @@ void AMBeamlineActionItemView::setAction(AMBeamlineActionItem *action){
 		connect(action_, SIGNAL(started()), this, SLOT(updateLook()));
 		connect(action_, SIGNAL(failed(int)), this, SLOT(updateLook()));
 		connect(action_, SIGNAL(succeeded()), this, SLOT(updateLook()));
+		connect(action_, SIGNAL(previousChanged()), this, SLOT(onPreviousNextChanged()));
+		connect(action_, SIGNAL(nextChanged()), this, SLOT(onPreviousNextChanged()));
 	}
+	onPreviousNextChanged();
 }
 
 void AMBeamlineActionItemView::defocusItem(){
 	inFocus_ = false;
 	updateLook();
+}
+
+void AMBeamlineActionItemView::setMovable(bool movable){
+	movable_ = movable;
 }
 
 void AMBeamlineActionItemView::onCreateCopyClicked(){
@@ -294,11 +315,11 @@ void AMBeamlineActionItemView::onCreateCopyClicked(){
 }
 
 void AMBeamlineActionItemView::mousePressEvent(QMouseEvent *event){
-	/*if (event->button() != Qt::LeftButton) {
+	if (event->button() == Qt::LeftButton) {
 		event->ignore();
 		return;
-	}*/
-	if(event->button() == Qt::LeftButton){
+	}
+	/*if(event->button() == Qt::LeftButton){
 		if(inFocus_)
 			defocusItem();
 		else{
@@ -306,7 +327,7 @@ void AMBeamlineActionItemView::mousePressEvent(QMouseEvent *event){
 			updateLook();
 			emit focusRequested(action_);
 		}
-	}
+	}*/
 	else if(event->button() == Qt::RightButton){
 		if(optionsMenu_)
 			delete optionsMenu_;
@@ -321,6 +342,15 @@ void AMBeamlineActionItemView::mousePressEvent(QMouseEvent *event){
 	else{
 		event->ignore();
 		return;
+	}
+}
+
+void AMBeamlineActionItemView::paintEvent(QPaintEvent *event){
+	QFrame::paintEvent(event);
+	if(oldHeight_ != height()){
+		oldHeight_ = height();
+		//qDebug() << "New height is " << height();
+		emit heightChanged(height());
 	}
 }
 
@@ -348,6 +378,17 @@ void AMBeamlineActionItemView::updateLook(){
 	setPalette(newPalette);
 }
 
+void AMBeamlineActionItemView::onPreviousNextChanged(){
+
+}
+
+void AMBeamlineActionItemView::onMoveUpButtonClicked(){
+
+}
+
+void AMBeamlineActionItemView::onMoveDownButtonClicked(){
+
+}
 
 
 AMImageListView::AMImageListView(const AMOrderedSet<QString, QPixmap> &images, QWidget *parent) :

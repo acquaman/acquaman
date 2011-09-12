@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -69,11 +69,11 @@ private:
 	QMap<int, QList<double> > spectraDelayList_;
 	QMap<int, double> dataPackage_;
 	QMap<int, QList<double> > spectraPackage_;
+	QMap<int, double> extraPackage_;
 	QHash<int, int> pvnoToColumn_;
 	int colNo_, specColNo_;
 	bool lockHash_;
 	bool dataDelay_;
-
 };
 
 #endif /* __cplusplus */

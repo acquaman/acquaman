@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -32,7 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 /// Adds all items to form layout.
 /// \todo Connect add and delete to something.
 AMXASRegionsView::AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent) :
-	QWidget(parent)
+		QWidget(parent)
 {
 	addButton_ = new QPushButton("Add Region", this);
 	deleteButton_ = new QPushButton("Delete Region", this);
@@ -118,6 +118,12 @@ void AMXASRegionsView::setRemoveIndex(){
 	QAction *tmpAction;
 	tmpAction = deleteRegionMenu_->activeAction();
 	removeIndex_ = tmpAction->data().toInt();
+}
+
+void AMXASRegionsView::setDisabled(bool disabled){
+	tv_->setDisabled(disabled);
+	addButton_->setDisabled(disabled);
+	deleteButton_->setDisabled(disabled);
 }
 
 void AMXASRegionsView::resizeEvent(QResizeEvent *event){

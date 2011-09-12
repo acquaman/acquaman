@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -20,6 +20,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "VESPERSBeamline.h"
 #include "beamline/CLS/CLSVMEMotor.h"
 #include "beamline/AMSingleControlDetector.h"
+#include "beamline/AMBeamlineControlMoveAction.h"
+#include "beamline/AMBeamlineParallelActionsList.h"
+#include "beamline/AMBeamlineListAction.h"
+
 
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
@@ -30,6 +34,7 @@ VESPERSBeamline::VESPERSBeamline()
 	setupDetectors();
 	setupControlSets();
 	setupMono();
+	setupExperimentStatus();
 }
 
 void VESPERSBeamline::setupDiagnostics()
@@ -148,16 +153,6 @@ void VESPERSBeamline::setupDiagnostics()
 	fltInterimSlits2_ = new AMReadOnlyPVwStatusControl("Flow Transducer Interim Slits 2", "FLT1607-1-B21-03", "FLT1607-1-B21-03:lowflow", this, new AMControlStatusCheckerDefault(0));
 	fltPoeSsh1_ = new AMReadOnlyPVwStatusControl("Flow Transducer POE SSH1", "FLT1607-1-B21-04", "FLT1607-1-B21-04:lowflow", this, new AMControlStatusCheckerDefault(0));
 	fltPoeSsh2_ = new AMReadOnlyPVwStatusControl("Flow Transducer POE SSH2", "FLT1607-1-B22-02", "FLT1607-1-B22-02:lowflow", this, new AMControlStatusCheckerDefault(0));
-
-	// The beam attenuation filters.
-	filter250umA_ = new AMPVControl("Filter 250um A", "07B2_PLC_PFIL_01_F1_Ctrl", "07B2_PLC_PFIL_01_F1_Toggle", QString(), this);
-	filter250umB_ = new AMPVControl("Filter 250um B", "07B2_PLC_PFIL_01_F2_Ctrl", "07B2_PLC_PFIL_01_F2_Toggle", QString(), this);
-	filter100umA_ = new AMPVControl("Filter 100um A", "07B2_PLC_PFIL_02_F3_Ctrl", "07B2_PLC_PFIL_02_F3_Toggle", QString(), this);
-	filter100umB_ = new AMPVControl("Filter 100um B", "07B2_PLC_PFIL_02_F4_Ctrl", "07B2_PLC_PFIL_02_F4_Toggle", QString(), this);
-	filter50umA_ = new AMPVControl("Filter 50um A", "07B2_PLC_PFIL_02_F1_Ctrl", "07B2_PLC_PFIL_02_F1_Toggle", QString(), this);
-	filter50umB_ = new AMPVControl("Filter 50um B", "07B2_PLC_PFIL_02_F2_Ctrl", "07B2_PLC_PFIL_02_F2_Toggle", QString(), this);
-	filterShutterUpper_ = new AMPVControl("Filter Shutter Upper", "07B2_PLC_PFIL_01_F3_Ctrl", "07B2_PLC_PFIL_01_F3_Toggle", QString(), this);
-	filterShutterLower_ = new AMPVControl("Filter Shutter Lower", "07B2_PLC_PFIL_01_F4_Ctrl", "07B2_PLC_PFIL_01_F4_Toggle", QString(), this);
 }
 
 void VESPERSBeamline::setupSampleStage()
@@ -195,63 +190,47 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStagePidZ_ = new AMPVControl("Sample Stage PID Z", "SVM1607-2-B21-01:hold:sp", "SVM1607-2-B21-01:hold", QString(), this);
 
 	sampleStagePID_ = new PIDLoopControl("PID - Sample Stage", sampleStagePidX_, sampleStagePidY_, sampleStagePidZ_, this);
-
-	resetPseudoMotors_ = new AMProcessVariable("TS1607-2-B21-01:HNV:loadOffsets.PROC", false, this);
 }
 
 void VESPERSBeamline::setupEndstation()
 {
-	// The controls used for the control window.
-	ccdMotor_ = new CLSVMEMotor("CCD Motor", "SMTR1607-2-B21-18", "CCD motor", false, 1.0, 2.0, this);
-	microscopeMotor_ = new CLSVMEMotor("Microscope motor", "SMTR1607-2-B21-17", "Microscope motor", false, 1.0, 2.0, this);
-	fourElMotor_ = new CLSVMEMotor("4-Element Vortex motor", "SMTR1607-2-B21-27", "4-Element Vortex motor", false, 1.0, 2.0, this);
-	singleElMotor_ = new CLSVMEMotor("1-Element Vortex motor", "SMTR1607-2-B21-15", "1-Element Vortex motor", false, 1.0, 2.0, this);
-
-	// Microscope light PV.
-	micLight_ = new AMProcessVariable("07B2_PLC_Mic_Light_Inten", true, this);
-	micLight_->disablePutCallbackMode(true);
-
-	// Laser on/off control.
-	laserPower_ = new AMPVControl("Laser Power Control", "07B2_PLC_LaserDistON", "07B2_PLC_LaserDistON_Tog", QString(), this);
-
-	// Various CCD file path PVs.
-	ccdPath_ = new AMProcessVariable("IOC1607-003:det1:FilePath", true, this);
-	ccdFile_ = new AMProcessVariable("IOC1607-003:det1:FileName", true, this);
-	ccdNumber_ = new AMProcessVariable("IOC1607-003:det1:FileNumber", true, this);
+	endstation_ = new VESPERSEndstation(pseudoSampleStage_->norm(), this);
 }
 
 void VESPERSBeamline::setupDetectors()
 {
-	amNames2pvNames_.set("IonChamberSplit1", "BL1607-B2-1:mcs05:fbk");
-	amNames2pvNames_.set("IonChamberSplit2", "BL1607-B2-1:mcs06:fbk");
-	amNames2pvNames_.set("IonChamberPreKB", "BL1607-B2-1:mcs07:fbk");
-	amNames2pvNames_.set("IonChamberMini", "BL1607-B2-1:mcs08:fbk");
-	amNames2pvNames_.set("IonChamberPost", "BL1607-B2-1:mcs09:fbk");
+	amNames2pvNames_.set("Isplit", "BL1607-B2-1:AddOns:Isplit");
+	amNames2pvNames_.set("Iprekb", "BL1607-B2-1:mcs07:fbk");
+	amNames2pvNames_.set("Imini", "BL1607-B2-1:mcs08:fbk");
+	amNames2pvNames_.set("Ipost", "BL1607-B2-1:mcs09:fbk");
 
-	iSplit1Control_ = new AMReadOnlyPVControl("IonChamberSplit1", amNames2pvNames_.valueF("IonChamberSplit1"), this, "Split Ion Chamber 1");
-	iSplit2Control_ = new AMReadOnlyPVControl("IonChamberSplit2", amNames2pvNames_.valueF("IonChamberSplit2"), this, "Split Ion Chamber 2");
-	iPreKBControl_ = new AMReadOnlyPVControl("IonChamberPreKB", amNames2pvNames_.valueF("IonChamberPreKB"), this, "Pre-KB Ion Chamber");
-	iMiniControl_ = new AMReadOnlyPVControl("IonChamberMini", amNames2pvNames_.valueF("IonChamberMini"), this, "Mini Ion Chamber");
-	iPostControl_ = new AMReadOnlyPVControl("IonChamberPost", amNames2pvNames_.valueF("IonChamberPost"), this, "Post Sample Ion Chamber");
+	iSplitControl_ = new AMReadOnlyPVControl("Isplit", amNames2pvNames_.valueF("Isplit"), this, "Split Ion Chamber");
+	iPreKBControl_ = new AMReadOnlyPVControl("Iprekb", amNames2pvNames_.valueF("Iprekb"), this, "Pre-KB Ion Chamber");
+	iMiniControl_ = new AMReadOnlyPVControl("Imini", amNames2pvNames_.valueF("Imini"), this, "Mini Ion Chamber");
+	iPostControl_ = new AMReadOnlyPVControl("Ipost", amNames2pvNames_.valueF("Ipost"), this, "Post Sample Ion Chamber");
 
-	iSplit1_ = new AMSingleControlDetector(iSplit1Control_->name(), iSplit1Control_, AMDetector::RequestRead, this);
-	iSplit2_ = new AMSingleControlDetector(iSplit2Control_->name(), iSplit2Control_, AMDetector::RequestRead, this);
+	iSplit_ = new AMSingleControlDetector(iSplitControl_->name(), iSplitControl_, AMDetector::RequestRead, this);
 	iPreKB_ = new AMSingleControlDetector(iPreKBControl_->name(), iPreKBControl_, AMDetector::RequestRead, this);
 	iMini_ = new AMSingleControlDetector(iMiniControl_->name(), iMiniControl_, AMDetector::RequestRead, this);
 	iPost_ = new AMSingleControlDetector(iPostControl_->name(), iPostControl_, AMDetector::RequestRead, this);
 
 	ionChambers_ = new AMDetectorSet(this);
-	ionChambers_->addDetector(iSplit1_);
-	ionChambers_->addDetector(iSplit2_);
+	ionChambers_->addDetector(iSplit_);
 	ionChambers_->addDetector(iPreKB_);
 	ionChambers_->addDetector(iMini_);
 	ionChambers_->addDetector(iPost_);
 
+	ionChamberCalibration_ = new VESPERSIonChamberCalibration(this);
+	ionChamberCalibration_->addSplitIonChamber(new VESPERSSplitIonChamber("Split", "PS1607-201:c2:Voltage", "AMP1607-202", "AMP1607-203", "BL1607-B2-1:mcs05:userRate", "BL1607-B2-1:mcs06:userRate", "BL1607-B2-1:mcs05:fbk", "BL1607-B2-1:mcs06:fbk", this));
+	ionChamberCalibration_->addIonChamber(new VESPERSIonChamber("Pre-KB", "PS1607-202:c1:Voltage", "AMP1607-204", "BL1607-B2-1:mcs07:userRate", "BL1607-B2-1:mcs07:fbk", this));
+	ionChamberCalibration_->addIonChamber(new VESPERSIonChamber("Mini", "PS1607-202:c2:Voltage", "AMP1607-205", "BL1607-B2-1:mcs08:userRate", "BL1607-B2-1:mcs08:fbk", this));
+	ionChamberCalibration_->addIonChamber(new VESPERSIonChamber("Post", "PS1607-203:c1:Voltage", "AMP1607-206", "BL1607-B2-1:mcs09:userRate", "BL1607-B2-1:mcs09:fbk", this));
+
 	vortex1E_ = new XRFDetector("1-el Vortex", 1, "IOC1607-004", this);
-	connect(vortexXRF1E(), SIGNAL(detectorConnected(bool)), this, SLOT(singleElVortexError(bool)));
+	connect(vortexXRF1E(), SIGNAL(connected(bool)), this, SLOT(singleElVortexError(bool)));
 
 	vortex4E_ = new XRFDetector("4-el Vortex", 4, "dxp1607-B21-04", this);
-	connect(vortexXRF4E(), SIGNAL(detectorConnected(bool)), this, SLOT(fourElVortexError(bool)));
+	connect(vortexXRF4E(), SIGNAL(connected(bool)), this, SLOT(fourElVortexError(bool)));
 }
 
 void VESPERSBeamline::setupControlSets()
@@ -391,37 +370,142 @@ void VESPERSBeamline::setupControlSets()
 	flowTransducerSet_->addControl(fltPoeSsh2_);
 
 	connect(flowTransducerSet_, SIGNAL(connected(bool)), this, SLOT(flowTransducerConnected(bool)));
-
-	// Grouping the enstation motors together.
-	endstationMotorSet_ = new AMControlSet(this);
-	endstationMotorSet_->addControl(ccdMotor_);
-	endstationMotorSet_->addControl(microscopeMotor_);
-	endstationMotorSet_->addControl(fourElMotor_);
-	endstationMotorSet_->addControl(singleElMotor_);
-	endstationMotorSet_->addControl(sampleStageNormal_);
-
-	// Beam attenuation filters.  Only contains the filters of a certain size.  The upper and lower are used independently of these six.
-	filterSet_ = new AMControlSet(this);
-	filterSet_->addControl(filter250umA_);
-	filterSet_->addControl(filter250umB_);
-	filterSet_->addControl(filter100umA_);
-	filterSet_->addControl(filter100umB_);
-	filterSet_->addControl(filter50umA_);
-	filterSet_->addControl(filter50umB_);
-	filterSet_->addControl(filterShutterUpper_);
-	filterSet_->addControl(filterShutterLower_);
 }
 
 void VESPERSBeamline::setupMono()
 {
 	energyRelative_ = new AMPVwStatusControl("Relative Energy Movement", "07B2_Mono_SineB_delE", "07B2_Mono_SineB_delE", "SMTR1607-1-B20-20:status", "SMTR1607-1-B20-20:stop", this, 0.1, 2.0, new AMControlStatusCheckerDefault(0), 1);
+	mono_ = new VESPERSMonochromator(this);
+	intermediateSlits_ = new VESPERSIntermediateSlits(this);
+
+	synchronizedDwellTime_ = new CLSSynchronizedDwellTime("BL1607-B2-1:dwell", this);
+	synchronizedDwellTime_->addElement(0);
+	synchronizedDwellTime_->addElement(1);
+	synchronizedDwellTime_->addElement(2);
+	synchronizedDwellTime_->addElement(3);
+	synchronizedDwellTime_->addElement(4);
+
+	beamPositions_.insert(Pink, 0);
+	beamPositions_.insert(TenPercent, -12.5);
+	beamPositions_.insert(Si, -17.5);
+	beamPositions_.insert(OnePointSixPercent, -22.5);
+
+	beamSelectionMotor_ = new CLSVMEMotor("MonoBeamSelectionMotor", "SMTR1607-1-B20-21", "Motor that controls which beam makes it down the pipe.", false, 0.1, 2.0, this);
+	connect(beamSelectionMotor_, SIGNAL(movingChanged(bool)), this, SLOT(determineBeam()));
+	connect(beamSelectionMotor_, SIGNAL(valueChanged(double)), this, SLOT(onBeamSelectionMotorConnected()));
+}
+
+void VESPERSBeamline::setupExperimentStatus()
+{
+	poeBeamStatus_ = new AMReadOnlyPVControl("POE Beam Status", "07B2:POE_BeamStatus", this);
+	poeBeamStatusEnable_ = new AMSinglePVControl("POE Beam Status Enable", "07B2:EnablePOEStat", this, 0.1);
+	soeBeamStatus_ = new AMReadOnlyPVControl("SOE Beam Status", "07B2:SOE_BeamStatus", this);
+	soeBeamStatusEnable_ = new AMSinglePVControl("SOE Beam Status Enable", "07B2:EnableSOEStat", this, 0.1);
+	fastShutterReady_ = new AMReadOnlyPVControl("Fast Shutter Ready", "DIO1607-01:CCD:NotReady:fbk", this);
+	ccdStatus_ = new AMReadOnlyPVControl("CCD Status", "IOC1607-003:det1:DetectorState_RBV", this);
+
+	usePOE_ = false;
+	useSOE_ = false;
+	useFastShutter_ = false;
+	useCCD_ = false;
+	useSampleStage_ = false;
+	useSingleEl_ = false;
+	useFourEl_ = false;
+
+	connect(poeBeamStatus_, SIGNAL(valueChanged(double)), this, SLOT(determineExperimentStatus()));
+	connect(soeBeamStatus_, SIGNAL(valueChanged(double)), this, SLOT(determineExperimentStatus()));
+	connect(fastShutterReady_, SIGNAL(valueChanged(double)), this, SLOT(determineExperimentStatus()));
+	connect(ccdStatus_, SIGNAL(valueChanged(double)), this, SLOT(determineExperimentStatus()));
+	connect(pseudoSampleStage_, SIGNAL(connected(bool)), this, SLOT(determineExperimentStatus()));
+	connect(((XRFDetector *)vortex1E_), SIGNAL(connected(bool)), this, SLOT(determineExperimentStatus()));
+	connect(((XRFDetector *)vortex4E_), SIGNAL(connected(bool)), this, SLOT(determineExperimentStatus()));
+}
+
+void VESPERSBeamline::determineExperimentStatus()
+{
+	bool ready = true;
+
+	if (usePOE_ && (int)poeBeamStatus_->value() == 0)
+		ready = false;
+	if (useSOE_ && (int)soeBeamStatus_->value() == 0)
+		ready = false;
+	if (useFastShutter_ && fastShutterReady_->value() == 0)
+		ready = false;
+	if (useCCD_ && !ccdStatus_->isConnected())
+		ready = false;
+	if (useSampleStage_ && !pseudoSampleStage_->isConnected())
+		ready = false;
+	if (useSingleEl_ && !vortex1E_->isConnected())
+		ready = false;
+	if (useFourEl_ && !vortex4E_->isConnected())
+		ready = false;
+
+	emit experimentReady(ready);
+}
+
+AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(Beam beam)
+{
+	// If we are already at the new beam position and the internal state of the beam is the same, then don't do anything.
+	if (beam_ == beam && beamSelectionMotor_->withinTolerance(beamPositions_.value(beam)))
+		return 0;
+
+	// To change beams, it is either a two or three stage process.
+	/*
+		First: Turn off the ability to scan.  This ensures that the mono motor doesn't swing wildly around while switching between beams.
+		Second: Move to the chosen beam.
+		Third (if applicable): If the new beam is a monochromatic beam, turn on the ability to scan the energy.
+	 */
+	AMBeamlineParallelActionsList *changeBeamActionsList = new AMBeamlineParallelActionsList;
+	AMBeamlineListAction *changeBeamAction = new AMBeamlineListAction(changeBeamActionsList);
+
+	changeBeamActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+	changeBeamActionsList->appendAction(0, mono()->createAllowScanningAction(false));
+
+	changeBeamActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+	AMBeamlineControlMoveAction *moveBeamAction = new AMBeamlineControlMoveAction(beamSelectionMotor());
+	moveBeamAction->setSetpoint(beamPositions_.value(beam));
+	changeBeamActionsList->appendAction(1, moveBeamAction);
+
+	if (beam != Pink){
+
+		changeBeamActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+		changeBeamActionsList->appendAction(2, mono()->createAllowScanningAction(true));
+	}
+
+	return changeBeamAction;
+}
+
+void VESPERSBeamline::determineBeam()
+{
+	Beam temp;
+
+	if (beamSelectionMotor_->withinTolerance(beamPositions_.value(Pink)))
+		temp = Pink;
+	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(TenPercent)))
+		temp = TenPercent;
+	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(OnePointSixPercent)))
+		temp = OnePointSixPercent;
+	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(Si)))
+		temp = Si;
+	else
+		temp = None;
+
+	if (temp != beam_){
+
+		beam_ = temp;
+		emit currentBeamChanged(beam_);
+	}
 }
 
 void VESPERSBeamline::pressureConnected(bool connected)
 {
-	if (connected)
+	if (connected) {
+
 		for (int i = 0; i < pressureSet_->count(); i++)
 			connect(qobject_cast<AMReadOnlyPVwStatusControl *>(pressureSet_->at(i)), SIGNAL(movingChanged(bool)), this, SLOT(pressureError()));
+
+		pressureError();
+	}
 }
 
 void VESPERSBeamline::valveConnected(bool connected)
@@ -438,9 +522,13 @@ void VESPERSBeamline::ionPumpConnected(bool connected)
 
 void VESPERSBeamline::temperatureConnected(bool connected)
 {
-	if (connected)
+	if (connected) {
+
 		for (int i = 0; i < temperatureSet_->count(); i++)
 			connect(qobject_cast<AMReadOnlyPVwStatusControl *>(temperatureSet_->at(i)), SIGNAL(movingChanged(bool)), this, SLOT(temperatureError()));
+
+		temperatureError();
+	}
 }
 
 void VESPERSBeamline::flowSwitchConnected(bool connected)
@@ -451,9 +539,13 @@ void VESPERSBeamline::flowSwitchConnected(bool connected)
 
 void VESPERSBeamline::flowTransducerConnected(bool connected)
 {
-	if (connected)
+	if (connected) {
+
 		for (int i = 0; i < flowTransducerSet_->count(); i++)
 			connect(qobject_cast<AMReadOnlyPVwStatusControl *>(flowTransducerSet_->at(i)), SIGNAL(movingChanged(bool)), this, SLOT(flowTransducerError()));
+
+		flowTransducerError();
+	}
 }
 
 void VESPERSBeamline::pressureError()
@@ -477,6 +569,8 @@ void VESPERSBeamline::pressureError()
 		error.prepend("The following pressure readings are at a critical level:\n");
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
 	}
+
+	emit pressureStatus(error.isEmpty());
 }
 
 void VESPERSBeamline::valveError()
@@ -500,6 +594,8 @@ void VESPERSBeamline::valveError()
 		error.prepend("The following valves are closed:\n");
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
 	}
+
+	emit valveStatus(error.isEmpty());
 }
 
 void VESPERSBeamline::ionPumpError()
@@ -523,6 +619,8 @@ void VESPERSBeamline::ionPumpError()
 		error.prepend("The following ion pumps are no longer operating correctly:\n");
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
 	}
+
+	emit ionPumpStatus(error.isEmpty());
 }
 
 void VESPERSBeamline::temperatureError()
@@ -546,6 +644,8 @@ void VESPERSBeamline::temperatureError()
 		error.prepend("The following temperature sensors are reading too high:\n");
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
 	}
+
+	emit temperatureStatus(error.isEmpty());
 }
 
 void VESPERSBeamline::flowSwitchError()
@@ -569,6 +669,8 @@ void VESPERSBeamline::flowSwitchError()
 		error.prepend("The following flow switches have tripped:\n");
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
 	}
+
+	emit flowSwitchStatus(error.isEmpty());
 }
 
 void VESPERSBeamline::flowTransducerError()
@@ -592,6 +694,8 @@ void VESPERSBeamline::flowTransducerError()
 		error.prepend("The following flow transducers are measuring too low:\n");
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
 	}
+
+	emit flowTransducerStatus(error.isEmpty());
 }
 
 void VESPERSBeamline::singleElVortexError(bool isConnected)

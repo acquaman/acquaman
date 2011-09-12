@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -21,6 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMSamplePlate.h"
 #include "util/AMErrorMonitor.h"
 #include "ui/AMDateTimeUtils.h"
+
+#include "math.h"
 
 AMSamplePlate::AMSamplePlate(QObject *parent) : AMDbObject(parent), AMOrderedList<AMSamplePosition>() {
 
@@ -46,7 +48,32 @@ AMSamplePlate::AMSamplePlate(const AMSamplePlate& other) : AMDbObject(), AMOrder
 
 // Using auto-generated assignment operator is fine
 
-
+int AMSamplePlate::sampleIdAtPosition(const AMControlInfoList &position, const QList<double> tolerances) const{
+	if(tolerances.count() == 0){
+		for(int x = count()-1; x >= 0; x--)
+			if( at(x).position() == position )
+				return at(x).sampleId();
+	}
+	else{
+		double rmsDistance = 10000;
+		double tmpRMS;
+		int closestIndex = -1;
+		for(int x = count()-1; x >= 0; x--){
+			tmpRMS = 0;
+			if( at(x).position().compareWithinTolerance(position, tolerances)){
+				for(int y = 0; y < position.count(); y++)
+					tmpRMS += fabs(at(x).position().at(y).value() - position.at(y).value()) * fabs(at(x).position().at(y).value() - position.at(y).value());
+				tmpRMS = sqrt(tmpRMS);
+				if(tmpRMS < rmsDistance){
+					rmsDistance = tmpRMS;
+					closestIndex = x;
+				}
+			}
+		}
+		return at(closestIndex).sampleId();
+	}
+	return -1;
+}
 
 
 

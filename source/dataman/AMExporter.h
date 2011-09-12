@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef AMEXPORTER_H
 #define AMEXPORTER_H
 
@@ -40,7 +60,7 @@ For example: AMExporterGeneralAscii::exporterOptionClassName() would probably re
 	virtual bool isValidFor(const AMScan* scan, const AMExporterOption* option) const = 0;
 
 	/// Exports the given \c scan object, using the option set \c option.  The file name is given inside \c option, but should be placed within the folder \c destinationFolderPath.  Returns the name of the file that was written, or a null QString on error.
-	virtual QString exportScan(const AMScan* scan, const QString& destinationFolderPath, const AMExporterOption* option) = 0;
+	virtual QString exportScan(const AMScan* scan, const QString& destinationFolderPath, const AMExporterOption* option, int autoIndex = 0) = 0;
 
 	/// create an "exporter option" (an instance of an AMExporterOption subclass) that is a valid default for this type of exporter
 	virtual AMExporterOption* createDefaultOption() const = 0;
@@ -92,6 +112,9 @@ protected:
 
 	AMTagReplacementParser* keywordParser_;
 
+	/// Helper function: set the current export controller index (if the user wishes to auto-increment the files just by the order the export writes them)
+	void setCurrentAutoIndex(int autoIndex) { autoIndex_ = autoIndex; }
+	int autoIndex_;
 
 
 	///////////////////////////////
@@ -134,11 +157,14 @@ protected:
 	QString krDataSourceDescription(const QString& dataSourceName = QString());	// returns description if it has one, otherwise defaults to name
 	QString krDataSourceUnits(const QString& dataSourceName = QString());
 	QString krDataSourceSize(const QString& dataSourceName = QString());
+	QString krDataSourceInfoDescription(const QString& dataSourceName = QString()); // returns info description if it has one, otherwise nothing4
 
 	/// can only be used on the current data source, and only on 2D sources. Referring to the second dimension here (Columns in our output table)
 	QString krDataSourceAxisValue(const QString& unused = QString());
 	/// can only be used on the current data source, and only on 2D sources. Referring to the second dimension here (Columns in our output table)
 	QString krDataSourceAxisUnits(const QString& unused = QString());
+
+	QString krExporterAutoIncrement(const QString& arg = QString());
 
 };
 

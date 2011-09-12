@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -42,7 +42,10 @@ AMProcessVariableSupport::AMProcessVariableSupport() : QObject() {
 
 	qWarning("Starting up channel access...");
 
-	putenv("EPICS_CA_MAX_ARRAY_BYTES=" AMPROCESSVARIABLE_MAX_CA_ARRAY_BYTES);
+	// Trying this, might work, might not. Trying to avoid conversion compiler warning (David Chevrier, Aug 25 2011)
+	//putenv(QString("EPICS_CA_MAX_ARRAY_BYTES=%1").arg(AMPROCESSVARIABLE_MAX_CA_ARRAY_BYTES).toAscii().data());
+	// Trying this, should work. Seems like setenv is better than putenv for this purpose (David Chevrier, Aug 29, 2011)
+	setenv(QString("EPICS_CA_MAX_ARRAY_BYTES").toAscii().data(), QString("%1").arg(AMPROCESSVARIABLE_MAX_CA_ARRAY_BYTES).toAscii().data(), 1);
 
 	int lastError = ca_context_create(ca_enable_preemptive_callback);
 	if(lastError != ECA_NORMAL )
@@ -379,13 +382,13 @@ void AMProcessVariable::controlInfoCB(struct event_handler_args eventArgs) {
 	case DBR_CTRL_DOUBLE:
 		ctrlValue =  (struct dbr_ctrl_double*)eventArgs.dbr;
 		emit internal_controlInfoChanged(DBR_CTRL_DOUBLE,
-										 QString(ctrlValue->units),
-										 ctrlValue->precision,
-										 ctrlValue->upper_disp_limit,
-										 ctrlValue->lower_disp_limit,
-										 ctrlValue->upper_ctrl_limit,
-										 ctrlValue->lower_ctrl_limit,
-										 QStringList());
+						 QString(ctrlValue->units),
+						 ctrlValue->precision,
+						 ctrlValue->upper_disp_limit,
+						 ctrlValue->lower_disp_limit,
+						 ctrlValue->upper_ctrl_limit,
+						 ctrlValue->lower_ctrl_limit,
+						 QStringList());
 		break;
 
 		// Is this enum count/string information?
@@ -394,20 +397,20 @@ void AMProcessVariable::controlInfoCB(struct event_handler_args eventArgs) {
 		for(int i=0; i<enumCtrlValue->no_str; i++)
 			enumStrings << QString(enumCtrlValue->strs[i]);
 		emit internal_controlInfoChanged(DBR_CTRL_ENUM,
-										 "[choice]",
-										 0,
-										 enumCtrlValue->no_str - 1, 0,
-										 enumCtrlValue->no_str - 1, 0,
-										 enumStrings);
+						 "[choice]",
+						 0,
+						 enumCtrlValue->no_str - 1, 0,
+						 enumCtrlValue->no_str - 1, 0,
+						 enumStrings);
 		break;
 
 	case DBR_CTRL_STRING:
 		emit internal_controlInfoChanged(DBR_CTRL_STRING,
-										 QString(),
-										 0,
-										 DBL_MAX,	-DBL_MAX,
-										 DBL_MAX, -DBL_MAX,
-										 QStringList());
+						 QString(),
+						 0,
+						 DBL_MAX,	-DBL_MAX,
+						 DBL_MAX, -DBL_MAX,
+						 QStringList());
 		break;
 	}
 }
@@ -853,6 +856,23 @@ int AMProcessVariable::binIntegerValues(int lowIndex, int highIndex) const{
 		rVal += lastInts.at(x);
 	return rVal;
 }
+
+double AMProcessVariable::binFloatingPointValues(int lowIndex, int highIndex) const{
+	QVector<double> lastDoubles = lastFloatingPointValues();
+	int lIndex = lowIndex;
+	int hIndex = highIndex;
+	double rVal = 0.0;
+	if(hIndex < lIndex)
+		return rVal;
+	if(lIndex < 0)
+		lIndex = 0;
+	if(hIndex > lastDoubles.count())
+		hIndex = lastDoubles.count();
+	for(int x = lIndex; x < hIndex; x++)
+		rVal += lastDoubles.at(x);
+	return rVal;
+}
+
 
 // double AMProcessVariable::getDouble() is just a synonym for lastValue().
 

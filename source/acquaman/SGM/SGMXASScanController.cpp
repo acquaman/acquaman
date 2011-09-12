@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -21,7 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "SGMXASScanController.h"
 
 #include "dataman/SGM2004FileLoader.h"
+#include "dataman/SGM2011XASFileLoader.h"
 #include "analysis/AM1DExpressionAB.h"
+#include "analysis/AM2DSummingAB.h"
 #include "dataman/AMRawDataSource.h"
 #include "dataman/AMUser.h"
 
@@ -30,21 +32,33 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	specificCfg_ = cfg;
 	_pCfg_ = & specificCfg_;
-	initializationActions_ = NULL;
+	initializationActions_ = 0; //NULL
+	cleanUpActions_ = 0; //NULL
 	beamlineInitialized_ = false;
 
 	specificScan_ = new AMXASScan();
 	_pScan_ = &specificScan_;
-	pScan_()->setName("SGM XAS Scan");
-	pScan_()->setFileFormat("sgm2004");
+	pScan_()->setFileFormat("sgm2011XAS");
 	pScan_()->setRunId(AMUser::user()->currentRunId());
 	pScan_()->setScanConfiguration(pCfg_());
+	pScan_()->setSampleId(SGMBeamline::sgm()->currentSampleId());
+	QString scanName;
+	QString sampleName;
+	if(pCfg_()->userScanName() == "")
+		scanName = pCfg_()->autoScanName();
+	else
+		scanName = pCfg_()->userScanName();
+	if(pScan_()->sampleId() == -1)
+		sampleName = "Unknown Sample";
+	else
+		sampleName = AMSample(pScan_()->sampleId(), AMUser::user()->database()).name();
+	pScan_()->setName(QString("%1 - %2").arg(sampleName).arg(scanName));
 
 	// Create space in raw data store, and create raw data channels, for each detector.
-
 	for(int i = 0; i < pCfg_()->allDetectorConfigurations().count(); i++){
 		AMDetectorInfo* detectorInfo = pCfg_()->allDetectorConfigurations().detectorInfoAt(i);
 		if(pCfg_()->allDetectorConfigurations().isActiveAt(i)){
+
 			if(pScan_()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo)))
 				pScan_()->addRawDataSource(new AMRawDataSource(pScan_()->rawData(), pScan_()->rawData()->measurementCount()-1));
 			else
@@ -57,26 +71,76 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 		if(pScan_()->rawDataSources()->at(i)->rank() == 1)
 			raw1DDataSources << pScan_()->rawDataSources()->at(i);
 
-	int rawTeyIndex = pScan_()->rawDataSources()->indexOfKey("tey");
-	int rawTfyIndex = pScan_()->rawDataSources()->indexOfKey("tfy");
-	int rawI0Index = pScan_()->rawDataSources()->indexOfKey("I0");
+	int rawTeyIndex = pScan_()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->teyDetector()->description());
+	int rawTfyIndex = pScan_()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->tfyDetector()->description());
+	int rawI0Index = pScan_()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->i0Detector()->description());
 
 	if(rawTeyIndex != -1 && rawI0Index != -1) {
-		AM1DExpressionAB* teyChannel = new AM1DExpressionAB("tey_n");
+		AM1DExpressionAB* teyChannel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->teyDetector()->description()));
 		teyChannel->setDescription("Normalized TEY");
 		teyChannel->setInputDataSources(raw1DDataSources);
-		teyChannel->setExpression("tey/I0");
+		teyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->teyDetector()->description()).arg(SGMBeamline::sgm()->i0Detector()->description()));
 
 		pScan_()->addAnalyzedDataSource(teyChannel);
 	}
 
 	if(rawTfyIndex != -1 && rawI0Index != -1) {
-		AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("tfy_n");
+		AM1DExpressionAB* tfyChannel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->tfyDetector()->description()));
 		tfyChannel->setDescription("Normalized TFY");
 		tfyChannel->setInputDataSources(raw1DDataSources);
-		tfyChannel->setExpression("-tfy/I0");
+		tfyChannel->setExpression(QString("-%1/%2").arg(SGMBeamline::sgm()->tfyDetector()->description()).arg(SGMBeamline::sgm()->i0Detector()->description()));
 
 		pScan_()->addAnalyzedDataSource(tfyChannel);
+	}
+
+	if(SGMBeamline::sgm()->pgtDetector()){
+		int rawSddIndex = pScan_()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->pgtDetector()->description());
+		if(rawSddIndex != -1) {
+			AMRawDataSource* sddRaw = pScan_()->rawDataSources()->at(rawSddIndex);
+			AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
+			QList<AMDataSource*> pfySource;
+			pfySource << sddRaw;
+			pfy->setInputDataSources(pfySource);
+			pfy->setSumAxis(1);
+			pfy->setSumRangeMax(sddRaw->size(1)-1);
+			pScan_()->addAnalyzedDataSource(pfy);
+			if(rawSddIndex != -1 && rawI0Index != -1) {
+				AM1DExpressionAB* ipfyChannel = new AM1DExpressionAB(QString("IPFY"));
+				ipfyChannel->setDescription("IPFY");
+				QList<AMDataSource*> ipfySources;
+				ipfySources.append(raw1DDataSources);
+				ipfySources.append(pfy);
+				ipfyChannel->setInputDataSources(ipfySources);
+				ipfyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->i0Detector()->description()).arg("PFY"));
+
+				pScan_()->addAnalyzedDataSource(ipfyChannel);
+			}
+		}
+	}
+
+	if(SGMBeamline::sgm()->oos65000Detector()){
+		int rawOOSIndex = pScan_()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->oos65000Detector()->description().remove('\n'));
+		if(rawOOSIndex != -1) {
+			AMRawDataSource* oosRaw = pScan_()->rawDataSources()->at(rawOOSIndex);
+			AM2DSummingAB* ply = new AM2DSummingAB("PLY");
+			QList<AMDataSource*> plySource;
+			plySource << oosRaw;
+			ply->setInputDataSources(plySource);
+			ply->setSumAxis(1);
+			ply->setSumRangeMax(oosRaw->size(1)-1);
+			pScan_()->addAnalyzedDataSource(ply);
+			if(rawOOSIndex != -1 && rawI0Index != -1) {
+				AM1DExpressionAB* plyNormChannel = new AM1DExpressionAB(QString("PLYNorm"));
+				plyNormChannel->setDescription("PLYNorm");
+				QList<AMDataSource*> plyNormSources;
+				plyNormSources.append(raw1DDataSources);
+				plyNormSources.append(ply);
+				plyNormChannel->setInputDataSources(plyNormSources);
+				plyNormChannel->setExpression(QString("%1/%2").arg("PLY").arg(SGMBeamline::sgm()->i0Detector()->description()));
+
+				pScan_()->addAnalyzedDataSource(plyNormChannel);
+			}
+		}
 	}
 }
 
@@ -86,7 +150,28 @@ bool SGMXASScanController::isBeamlineInitialized() {
 
 bool SGMXASScanController::beamlineInitialize(){
 	AMBeamlineControlMoveAction *tmpAction = NULL;
-	#warning "Hey David, who's going to delete the list and the actions?"
+
+	cleanUpActions_ = new AMBeamlineParallelActionsList();
+	cleanUpActions_->appendStage(new QList<AMBeamlineActionItem*>());
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerMode());
+	tmpAction->setSetpoint(SGMBeamline::sgm()->scalerMode()->value());
+	cleanUpActions_->appendAction(0, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerStart());
+	tmpAction->setSetpoint(SGMBeamline::sgm()->scalerStart()->value());
+	cleanUpActions_->appendAction(0, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerTotalNumberOfScans());
+	tmpAction->setSetpoint(SGMBeamline::sgm()->scalerTotalNumberOfScans()->value());
+	cleanUpActions_->appendAction(0, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerScansPerBuffer());
+	tmpAction->setSetpoint(SGMBeamline::sgm()->scalerScansPerBuffer()->value());
+	cleanUpActions_->appendAction(0, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->fastShutterVoltage());
+	tmpAction->setSetpoint(SGMBeamline::sgm()->fastShutterVoltage()->value());
+	cleanUpActions_->appendAction(0, tmpAction);
+
+	/* NTBA - August 25th, 2011 (David Chevrier)
+			Who's going to delete the list and the actions?"
+	*/
 	initializationActions_ = new AMBeamlineParallelActionsList();
 
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
@@ -98,9 +183,45 @@ bool SGMXASScanController::beamlineInitialize(){
 	tmpSetAction->setSetpoint(pCfg_()->trackingGroup());
 	initializationActions_->appendAction(0, tmpSetAction);
 
-	for(int x = 0; x < pCfg_()->allDetectors()->count(); x++)
-		if(pCfg_()->allDetectorConfigurations().isActiveAt(x))
+//	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
+/*
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
+	tmpAction->setSetpoint(pCfg_()->startEnergy());
+	initializationActions_->appendAction(0, tmpAction);
+*/
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerMode());
+	tmpAction->setSetpoint(0);
+	initializationActions_->appendAction(0, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerStart());
+	tmpAction->setSetpoint(0);
+	initializationActions_->appendAction(0, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerTotalNumberOfScans());
+	tmpAction->setSetpoint(1);
+	initializationActions_->appendAction(0, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerScansPerBuffer());
+	tmpAction->setSetpoint(1);
+	initializationActions_->appendAction(0, tmpAction);
+
+
+	for(int x = 0; x < pCfg_()->allDetectors()->count(); x++){
+		if(pCfg_()->allDetectorConfigurations().isActiveAt(x)){
 			pCfg_()->allDetectors()->detectorAt(x)->setFromInfo(pCfg_()->allDetectorConfigurations().detectorInfoAt(x));
+			pCfg_()->allDetectors()->detectorAt(x)->activate();
+			if(pCfg_()->allDetectors()->detectorAt(x)->turnOnAction()){
+				qDebug() << "Adding HV turn on to initialization actions";
+				initializationActions_->appendAction(0, pCfg_()->allDetectors()->detectorAt(x)->turnOnAction());
+			}
+		}
+	}
+
+	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
+
+        tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
+        tmpAction->setSetpoint(pCfg_()->startEnergy());
+        initializationActions_->appendAction(1, tmpAction);
+
+	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
+	initializationActions_->appendAction(2, SGMBeamline::sgm()->createBeamOnActions());
 
 	beamlineInitialized_ = true;
 	return beamlineInitialized_;

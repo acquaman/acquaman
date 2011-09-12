@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -23,5 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMScanConfiguration::AMScanConfiguration(QObject *parent) :
 	AMDbObject(parent)
 {
+	userScanName_ = "";
 }
 

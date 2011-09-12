@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMSampleManagementWidget::AMSampleManagementWidget(AMSampleManipulatorView *manipulatorView, const QUrl& sampleCameraUrl, AMSamplePlate* samplePlate, QWidget *parent) :
 	QWidget(parent)
 {
+	Q_UNUSED(sampleCameraUrl);
 	// cam_ = new AMBeamlineCameraWidget("Sample Camera", sampleCameraUrl);
 	// cam_->addSource("Camera 2", source2);
 
@@ -73,5 +74,6 @@ AMSampleManagementWidget::AMSampleManagementWidget(AMSampleManipulatorView *mani
 }
 
 void AMSampleManagementWidget::onNewSamplePlateSelected() {
-	// qDebug() << "I heard that the current sample plate changed";
+	qDebug() << "I heard that the current sample plate changed";
+	emit newSamplePlateSelected(plateView_->samplePlate());
 }

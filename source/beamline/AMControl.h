@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -220,7 +220,7 @@ public:
 		TimeoutFailure,			///< The move did not complete within a timeout period specified
 		WasStoppedFailure,		///< The move was prematurely stopped with the stop() command.
 		OtherFailure 			///<  an error code defined by the specific control implementation
-};
+	};
 
 	/// This enum type is used to describe problematic states the control can be in
 	/*! Possible explanation codes are:
@@ -241,6 +241,7 @@ public:
 		setObjectName(name);
 		wasConnected_ = false;
 		tolerance_ = AMCONTROL_TOLERANCE_DONT_CARE;
+		contextKnownDescription_ = "";
 	}
 
 	/// \name Accessing childControls() subcontrols:
@@ -268,6 +269,9 @@ public:
 
 	/// Returns a human-readable description for this control
 	QString description() const { return description_;}
+
+	/// Returns a short human-readable description for when the context is known or is implicit
+	QString contextKnownDescription() const { return contextKnownDescription_;}
 
 	/// This value defines how close the final measure()d position must be to the setpoint(), for the move() to have succeeded.
 	double tolerance() const { return tolerance_; }
@@ -395,6 +399,12 @@ public slots:
 	/// This sets the tolerance level: the required level of accuracy for successful move()s.
 	void setTolerance(double newTolerance) { tolerance_ = newTolerance; }
 
+	/// This sets the human-readable description for the control
+	void setDescription(const QString &description) { description_ = description; }
+
+	/// This sets the short form of a human-readable description for when the context is known or implicit
+	void setContextKnownDescription(const QString &contextKnownDescription) { contextKnownDescription_= contextKnownDescription; }
+
 	/// This is used to cancel or stop a move in progress. Must reimplement for actual controls.  It will be successful only if canStop() is true.  Returns true if the stop command was successfully sent.  (Note: this DOES NOT guarantee that the motor actually stopped!)
 	virtual bool stop() { return false; }
 
@@ -472,6 +482,7 @@ private:
 	QString units_;
 	QStringList enumNames_;
 	QString description_; //Human-readable description
+	QString contextKnownDescription_; //Human-readable description. Very short, for when the context is known. Might be "X" as opposed to "SSA Manipulator X"
 
 };
 
@@ -614,14 +625,14 @@ public:
 		\param stopPVname The EPICS channel-access name for the process variable to write to cancel a move in progress. If empty (default), shouldStop() and canStop() both return false, and calls to stop() will not work.
 		*/
 	AMPVControl(const QString& name,
-				const QString& readPVname,
-				const QString& writePVname,
-				const QString& stopPVname = QString(),
-				QObject* parent = 0,
-				double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
-				double completionTimeoutSeconds = 10.0,
-				int stopValue = 1,
-				const QString &description = "");
+			const QString& readPVname,
+			const QString& writePVname,
+			const QString& stopPVname = QString(),
+			QObject* parent = 0,
+			double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
+			double completionTimeoutSeconds = 10.0,
+			int stopValue = 1,
+			const QString &description = "");
 
 	/// \name Reimplemented Public Functions:
 	//@{
@@ -744,6 +755,32 @@ protected slots:
 
 };
 
+/// This class is a convenience construction class for AMPVControl.
+/*!
+  There are many controls that use AMPVControl that only talk to a single process variable.  The read and write PVs are the same and they have no stop PV.  Therefore,
+  there is a lot of superfluous information in the constructor that can lead to confusion implementation for new user-programmers and is quite unintuitive.  In the end,
+  this class behaves \em IDENTICALLY to AMPVControl.  It merely offers a more intuitive constructor.
+  */
+
+class AMSinglePVControl : public AMPVControl {
+
+	Q_OBJECT
+
+public:
+	/// Constructor.
+	/*! \param name A unique description of this control
+		\param PVname The EPICS channel-access name for the setpoint AND feedback Process Variable
+		\param tolerance The accuracy required for a move() to count as having reached its setpoint() and emit moveSucceeded().
+		\param completionTimeoutSeconds Maximum time allowed for the value() to get within tolerance() of the setpoint() after a move().
+		\param parent QObject parent class
+		*/
+	AMSinglePVControl(const QString& name,
+					  const QString& PVname,
+					  QObject* parent = 0,
+					  double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
+					  double completionTimeoutSeconds = 10.0,
+					  const QString &description = "");
+};
 
 /// Subclass this to create an object that specifies how to interpret a control's status value.  With this mechanism, we can accept arbitrarily complex algorithms to determine if an AMPVwStatusControl's status value means that it's moving.  For example, if your motor driver returns 4, 5, or 6 to mean that it's moving, create a subclass whose operator()() function returns true in these three cases.
 class AMAbstractControlStatusChecker {
@@ -821,11 +858,11 @@ public:
 		\param parent QObject parent class
 		*/
 	AMReadOnlyPVwStatusControl(const QString& name,
-					const QString& readPVname,
-					const QString& movingPVname,
-					QObject* parent = 0,
-					AMAbstractControlStatusChecker* statusChecker = new AMControlStatusCheckerDefault(1),
-					const QString &description = "");
+				   const QString& readPVname,
+				   const QString& movingPVname,
+				   QObject* parent = 0,
+				   AMAbstractControlStatusChecker* statusChecker = new AMControlStatusCheckerDefault(1),
+				   const QString &description = "");
 
 	/// Destructor
 	virtual ~AMReadOnlyPVwStatusControl() { delete statusChecker_; }
@@ -942,16 +979,16 @@ public:
 		\param parent QObject parent class
 		*/
 	AMPVwStatusControl(const QString& name,
-					   const QString& readPVname,
-					   const QString& writePVname,
-					   const QString& movingPVname,
-					   const QString& stopPVname = QString(),
-					   QObject* parent = 0,
-					   double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
-					   double moveStartTimeoutSeconds = 2.0,
-					   AMAbstractControlStatusChecker* statusChecker = new AMControlStatusCheckerDefault(1),
-					   int stopValue = 1,
-					   const QString &description = "");
+			   const QString& readPVname,
+			   const QString& writePVname,
+			   const QString& movingPVname,
+			   const QString& stopPVname = QString(),
+			   QObject* parent = 0,
+			   double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
+			   double moveStartTimeoutSeconds = 2.0,
+			   AMAbstractControlStatusChecker* statusChecker = new AMControlStatusCheckerDefault(1),
+			   int stopValue = 1,
+			   const QString &description = "");
 
 	/// \name Reimplemented Public Functions:
 	//@{
@@ -1090,11 +1127,11 @@ public:
 		\param parent QObject parent class
 		*/
 	AMReadOnlyWaveformBinningPVControl(const QString& name,
-						const QString& readPVname,
-						int lowIndex = 0,
-						int highIndex = 1,
-						QObject* parent = 0,
-						const QString &description = "");
+					   const QString& readPVname,
+					   int lowIndex = 0,
+					   int highIndex = 1,
+					   QObject* parent = 0,
+					   const QString &description = "");
 
 	/// \name Reimplemented Public Functions:
 	//@{

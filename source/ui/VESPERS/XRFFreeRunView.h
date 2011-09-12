@@ -1,8 +1,29 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef XRFFREERUNVIEW_H
 #define XRFFREERUNVIEW_H
 
 #include <QWidget>
 #include <QToolButton>
+#include <QCheckBox>
 
 #include "ui/VESPERS/XRFDetectorView.h"
 #include "acquaman/AMScanController.h"
@@ -44,6 +65,15 @@ protected slots:
 	/// Handles new values set from the peaking time spin box and passes it along to the configuration.
 	void onPeakingTimeUpdate() { detector_->setPeakingTimeControl(peakingTime_->value()); }
 
+	/// Handles what happens when the show pile up peaks is toggled.
+	void onShowSelfPileUpPeaks(bool showPeaks);
+	/// Handles what happens when the show combination peaks is toggled.
+	void onShowCombinationPileUpPeaks(bool showPeaks);
+	/// Handles the changes when the current element changes.
+	void onCurrentElementChanged(XRFElement *el) { selfPileUpLabel_->setText("Using: "+el->symbol()); }
+	/// Handles getting the combination element for combination pile up peak calculation.
+	void getCombinationElement();
+
 protected:
 
 	/// Pointer to the XRFPeriodicTable inside configuration.
@@ -75,6 +105,15 @@ protected:
 	QLabel *peakingTimeLabel_;
 	/// The peaking time for the detector.  Value is in us.
 	QDoubleSpinBox *peakingTime_;
+
+	/// The label that shows what element is being used for self pile up peak visualization.
+	QLabel *selfPileUpLabel_;
+	/// The check box that enables the the combination pile up peaks.
+	QCheckBox *combinationPeakCheckBox_;
+	/// The label for showing the combination pile up peak element.
+	QLabel *combinationPileUpLabel_;
+	/// The button used to change the element for the second element in combination pile up peaks.
+	QToolButton *combinationPileUpChoiceButton_;
 };
 
 #endif // XRFFREERUNVIEW_H

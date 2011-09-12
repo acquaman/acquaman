@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -22,10 +22,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define ACQMAN_SGMBEAMLINE_H
 
 #include "beamline/AMBeamline.h"
+#include "beamline/SGM/SGMBeamlineInfo.h"
+
 #include "beamline/AMDetector.h"
 #include "beamline/AMSingleControlDetector.h"
 #include "beamline/MCPDetector.h"
 #include "beamline/PGTDetector.h"
+#include "beamline/OceanOptics65000Detector.h"
 #include "beamline/AMControlSet.h"
 #include "util/AMBiHash.h"
 #include "beamline/AMBeamlineControlAction.h"
@@ -34,6 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamlineControlWaitAction.h"
 #include "beamline/AMBeamlineControlStopAction.h"
 #include "beamline/AMBeamlineUserConfirmAction.h"
+#include "beamline/AMBeamlineHighVoltageChannelToggleAction.h"
 #include "beamline/AMBeamlineActionsList.h"
 #include "beamline/AMBeamlineParallelActionsList.h"
 #include "beamline/AMBeamlineListAction.h"
@@ -45,6 +49,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class SGMGratingAction;
 class AMSamplePlate;
+class CLSVMEMotor;
+class CLSCAEN2527HVChannel;
+class CLSPGT8000HVChannel;
 
 class SGMBeamline : public AMBeamline
 {
@@ -58,6 +65,8 @@ public:
 	};
 	QString sgmGratingName(SGMBeamline::sgmGrating grating) const;
 	QString sgmGratingDescription(SGMBeamline::sgmGrating grating) const;
+	SGMEnergyParameters* energyParametersForGrating(SGMBeamline::sgmGrating grating) const;
+	SGMBeamline::sgmGrating currentGrating() const;
 
 	enum sgmHarmonic{
 		firstHarmonic = 0,
@@ -65,6 +74,18 @@ public:
 	};
 	QString sgmHarmonicName(SGMBeamline::sgmHarmonic harmonic) const;
 	QString sgmHarmonicDescription(SGMBeamline::sgmHarmonic harmonic) const;
+
+	enum sgmDetectorSignalSource{
+		picoammeters = 0,
+		scaler = 1
+	};
+	QString sgmDetectorSignalSourceName(SGMBeamline::sgmDetectorSignalSource dss) const;
+
+	enum sgmEndstation{
+		scienta = 0,
+		ssa = 1
+	};
+	QString sgmEndstationName(SGMBeamline::sgmEndstation endstation) const;
 
 	enum sgmTransferType{
 		loadlockOut = 1,
@@ -105,9 +126,31 @@ public:
 	AMControl* m4() const { return m4_;}
 	AMControl* grating() const { return grating_;}
 	AMControl* harmonic() const { return harmonic_;}
+	AMControl* undulatorStep() const { return undulatorStep_;}
+	AMControl* undulatorRelativeStepStorage() const { return undulatorRelativeStepStorage_;}
+	AMControl* undulatorVelocity() const { return undulatorVelocity_;}
+	AMControl* undulatorFastTracking() const { return undulatorFastTracking_;}
 	AMControl* undulatorTracking() const { return undulatorTracking_;}
 	AMControl* monoTracking() const { return monoTracking_;}
 	AMControl* exitSlitTracking() const { return exitSlitTracking_;}
+
+	QString detectorSignalSource() const {
+		if(detectorSignalSource_->value() == 0)
+			return sgmDetectorSignalSourceName(SGMBeamline::picoammeters);
+		else if(detectorSignalSource_->value() == 1)
+			return sgmDetectorSignalSourceName(SGMBeamline::scaler);
+		else
+			return sgmDetectorSignalSourceName((SGMBeamline::sgmDetectorSignalSource)272727);
+	}
+
+	QString currentEndstation() const{
+		if(activeEndstation_->value() == 0)
+			return sgmEndstationName(SGMBeamline::scienta);
+		else if(activeEndstation_->value() == 1)
+			return sgmEndstationName(SGMBeamline::ssa);
+		else
+			return sgmEndstationName((SGMBeamline::sgmEndstation)272727);
+	}
 
 	AMDetector* teyDetector() const {
 		if(detectorSignalSource_->value() == 0)
@@ -122,6 +165,7 @@ public:
 			return tfyScalerDetector_;
 	}
 	AMDetector* pgtDetector() const { return pgtDetector_;}
+	AMDetector* oos65000Detector() const { return oos65000Detector_;}
 	AMDetector* i0Detector() const {
 		if(detectorSignalSource_->value() == 0)
 			return i0PicoDetector_;
@@ -145,10 +189,10 @@ public:
 
 	AMControl* loadlockCCG() const { return loadlockCCG_;}
 	AMControl* loadlockTCG() const { return loadlockTCG_;}
-	AMControl* ssaManipulatorX() const { return ssaManipulatorX_;}
-	AMControl* ssaManipulatorY() const { return ssaManipulatorY_;}
-	AMControl* ssaManipulatorZ() const { return ssaManipulatorZ_;}
-	AMControl* ssaManipulatorRot() const { return ssaManipulatorRot_;}
+	CLSVMEMotor* ssaManipulatorX() const { return ssaManipulatorX_;}
+	CLSVMEMotor* ssaManipulatorY() const { return ssaManipulatorY_;}
+	CLSVMEMotor* ssaManipulatorZ() const { return ssaManipulatorZ_;}
+	CLSVMEMotor* ssaManipulatorRot() const { return ssaManipulatorRot_;}
 	AMControl* beamlineScanning() const { return beamlineScanning_;}
 	AMControl* beamlineReady() const { return beamlineReady_;}
 	AMControl* energyMovingStatus() const { return energyMovingStatus_;}
@@ -163,21 +207,31 @@ public:
 	AMControl* visibleLightToggle() const { return visibleLightToggle_;}
 	AMControl* visibleLightStatus() const { return visibleLightStatus_;}
 	AMControl* activeEndstation() const { return activeEndstation_;}
+	AMControl* scalerStart() const { return scalerStart_;}
 	AMControl* scalerIntegrationTime() const { return scalerIntegrationTime_;}
 	AMControl* scalerScansPerBuffer() const { return scalerScansPerBuffer_;}
 	AMControl* scalerTotalNumberOfScans() const { return scalerTotalNumberOfScans_;}
 	AMControl* scalerMode() const { return scalerMode_;}
+	AMControl* ssaIllumination() const { return ssaIllumination_;}
+	AMControl* tfyHVToggle() const { return tfyHVToggle_;}
+	CLSCAEN2527HVChannel* hvChannel106() const { return hvChannel106_;}
+	CLSCAEN2527HVChannel* hvChannel109() const { return hvChannel109_;}
+	CLSPGT8000HVChannel* hvChannelPGT() const { return hvChannelPGT_;}
 
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet* trackingSet() const { return trackingSet_;}
 	AMControlSet* ssaManipulatorSet() const { return ssaManipulatorSet_; }
+	QList<AMControlInfoList> ssaFiducializations() const { return ssaFiducializations_; }
 
 	AMDetectorSet* allDetectors() const { return allDetectors_;}
 	AMDetectorSet* feedbackDetectors() const { return feedbackDetectors_;}
 	AMDetectorSet* XASDetectors() const { return XASDetectors_;}
+	AMDetectorSet* FastDetectors() const { return FastDetectors_;}
 
 	AMSamplePlate* currentSamplePlate() const { return currentSamplePlate_; }
+	int currentSampleId();
+	QString currentSampleDescription();
 
 	AMBeamlineListAction* createBeamOnActions();
 	AMBeamlineListAction* createStopMotorsAction();
@@ -191,7 +245,17 @@ public:
 	AMBeamlineListAction* createTransferChamberOutActions();
 	AMBeamlineListAction* createTransferChamberInActions();
 
+	AMBeamlineHighVoltageChannelToggleAction* createHV106OnActions();
+	AMBeamlineHighVoltageChannelToggleAction* createHV106OffActions();
+	AMBeamlineHighVoltageChannelToggleAction* createHV109OnActions();
+	AMBeamlineHighVoltageChannelToggleAction* createHV109OffActions();
+	AMBeamlineHighVoltageChannelToggleAction* createHVPGTOnActions();
+	AMBeamlineHighVoltageChannelToggleAction* createHVPGTOffActions();
+
 	bool isBeamlineScanning();
+
+	virtual AMControlSet* currentSamplePositioner() { return ssaManipulatorSet(); }
+	virtual QList<AMControlInfoList> currentFiducializations() { return ssaFiducializations(); }
 
 	bool isVisibleLightOn();
 
@@ -204,6 +268,30 @@ public:
 	QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> forBestFlux(double minEnergy, double maxEnergy) const;
 	QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> forBestResolution(double minEnergy, double maxEnergy) const;
 
+public slots:
+	void setCurrentSamplePlate(AMSamplePlate *newSamplePlate);
+
+	void visibleLightOn();
+	void visibleLightOff();
+
+	void closeVacuum();
+
+	void setDetectorSignalSource(SGMBeamline::sgmDetectorSignalSource detectorSignalSource){
+		if(detectorSignalSource == SGMBeamline::picoammeters)
+			detectorSignalSource_->move(0);
+		else if(detectorSignalSource == SGMBeamline::scaler)
+			detectorSignalSource_->move(1);
+		return;
+	}
+
+	void setCurrentEndstation(SGMBeamline::sgmEndstation endstation){
+		if(endstation == SGMBeamline::scienta)
+			activeEndstation_->move(0);
+		else if(endstation == SGMBeamline::ssa)
+			activeEndstation_->move(1);
+		return;
+	}
+
 signals:
 	void beamlineScanningChanged(bool scanning);
 	void controlSetConnectionsChanged();
@@ -213,11 +301,12 @@ signals:
 
 	void beamlineWarningsChanged(const QString& warnings);
 
-public slots:
-	void visibleLightOn();
-	void visibleLightOff();
+	void currentSamplePlateChanged(AMSamplePlate *newSamplePlate);
 
-	void closeVacuum();
+	void detectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource);
+	void currentEndstationChanged(SGMBeamline::sgmEndstation);
+
+	void detectorHVChanged();
 
 protected slots:
 	void onBeamlineScanningValueChanged(double value);
@@ -225,6 +314,7 @@ protected slots:
 	void onCriticalControlsConnectedChanged(bool isConnected, AMControl *controll);
 
 	void onDetectorSignalSourceChanged(double value);
+	void onActiveEndstationChanged(double value);
 
 	void recomputeWarnings();
 
@@ -233,6 +323,8 @@ protected slots:
 protected:
 	// Singleton implementation:
 	SGMBeamline();					// protected constructor... only access through Beamline::bl()
+
+	SGMBeamlineInfo *infoObject_;
 
 	// Parts of this beamline:
 	///////////////////////////////
@@ -249,6 +341,10 @@ protected:
 	AMControl *m4_;
 	AMControl *grating_;
 	AMControl *harmonic_;
+	AMControl *undulatorStep_;
+	AMControl *undulatorRelativeStepStorage_;
+	AMControl *undulatorVelocity_;
+	AMControl *undulatorFastTracking_;
 	AMControl *undulatorTracking_;
 	AMControl *monoTracking_;
 	AMControl *exitSlitTracking_;
@@ -257,10 +353,16 @@ protected:
 	AMControl *tfyPico_;
 	AMControl *tfyScaler_;
 	AMControl *tfyHV_;
+	AMControl *tfyHVToggle_;
+	CLSCAEN2527HVChannel *hvChannel106_;
+	CLSCAEN2527HVChannel *hvChannel109_;
+	CLSPGT8000HVChannel *hvChannelPGT_;
 	AMControl *pgt_;
 	AMControl *pgtHV_;
 	AMControl *pgtIntegrationTime_;
 	AMControl *pgtIntegrationMode_;
+	AMControl *oos65000_;
+	AMControl *oos65000IntegrationTime_;
 	AMControl *i0Pico_;
 	AMControl *i0Scaler_;
 	AMControl *eVFbk_;
@@ -270,10 +372,10 @@ protected:
 	AMControl *encoderDown_;
 	AMControl *loadlockCCG_;
 	AMControl *loadlockTCG_;
-	AMControl *ssaManipulatorX_;
-	AMControl *ssaManipulatorY_;
-	AMControl *ssaManipulatorZ_;
-	AMControl *ssaManipulatorRot_;
+	CLSVMEMotor *ssaManipulatorX_;
+	CLSVMEMotor *ssaManipulatorY_;
+	CLSVMEMotor *ssaManipulatorZ_;
+	CLSVMEMotor *ssaManipulatorRot_;
 	AMControl *beamlineScanning_;
 	AMControl *beamlineReady_;
 	AMControl *energyMovingStatus_;
@@ -288,11 +390,13 @@ protected:
 	AMControl *visibleLightToggle_;
 	AMControl *visibleLightStatus_;
 	AMControl *activeEndstation_;
+	AMControl *scalerStart_;
 	AMControl *scalerIntegrationTime_;
 	AMControl *scalerScansPerBuffer_;
 	AMControl *scalerTotalNumberOfScans_;
 	AMControl *scalerMode_;
 	AMControl *detectorSignalSource_;
+	AMControl *ssaIllumination_;
 
 	AMControlSet *teyPicoControlSet_;
 	AMDetector *teyPicoDetector_;
@@ -304,6 +408,8 @@ protected:
 	AMDetector *tfyScalerDetector_;
 	AMControlSet *pgtControlSet_;
 	AMDetector *pgtDetector_;
+	AMControlSet *oos65000ControlSet_;
+	AMDetector *oos65000Detector_;
 	AMDetector *i0PicoDetector_;
 	AMControlSet *i0PicoControlSet_;
 	AMDetector *i0ScalerDetector_;
@@ -330,10 +436,13 @@ protected:
 
 	AMControlSet *trackingSet_;
 	AMControlSet *ssaManipulatorSet_;
+	QList<double> ssaManipulatorSampleTolerances_;
+	QList<AMControlInfoList> ssaFiducializations_;
 
 	AMDetectorSet *allDetectors_;
 	AMDetectorSet *feedbackDetectors_;
 	AMDetectorSet *XASDetectors_;
+	AMDetectorSet *FastDetectors_;
 
 	QList<AMControlSet*> unconnectedSets_;
 

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -24,7 +24,7 @@ AMBeamlineActionsList::AMBeamlineActionsList(QObject *parent) :
 		QObject(parent)
 {
 	insertRowLatch_ = -1;
-	actions_ = NULL;
+	actions_ = 0;//NULL
 	setupModel();
 }
 
@@ -41,7 +41,7 @@ AMBeamlineActionItem* AMBeamlineActionsList::action(int index) const{
 	QVariant retVal = actions_->data(actions_->index(index, 0), Qt::DisplayRole);
 	if(retVal.isValid())
 		return (AMBeamlineActionItem*) retVal.value<void*>();
-	return NULL;
+	return 0;//NULL
 }
 
 int AMBeamlineActionsList::indexOf(AMBeamlineActionItem *iAction){
@@ -54,8 +54,8 @@ int AMBeamlineActionsList::indexOf(AMBeamlineActionItem *iAction){
 //HEY DAVE, CHECK THE ORDERING ON THIS, RETURN STATEMENT SEEMS ODD
 bool AMBeamlineActionsList::setAction(int index, AMBeamlineActionItem *action){
 	AMBeamlineActionItem *oldAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index, 0), Qt::DisplayRole ).value<void*>();
-	AMBeamlineActionItem *prevAction = NULL;
-	AMBeamlineActionItem *nextAction = NULL;
+	AMBeamlineActionItem *prevAction = 0;//NULL
+	AMBeamlineActionItem *nextAction = 0;//NULL
 	if( (int)index != 0)
 		prevAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index-1, 0), Qt::DisplayRole ).value<void*>();
 	if( (int)index != (count() -1) )
@@ -73,8 +73,8 @@ bool AMBeamlineActionsList::setAction(int index, AMBeamlineActionItem *action){
 			nextAction->setPrevious(action);
 			connect(action, SIGNAL(succeeded()), nextAction, SLOT(start()));
 		}
-		oldAction->setPrevious(NULL);
-		oldAction->setNext(NULL);
+		oldAction->setPrevious(0);//NULL
+		oldAction->setNext(0);//NULL
 	}
 	else{ //insert
 		if(prevAction && nextAction)
@@ -112,8 +112,8 @@ bool AMBeamlineActionsList::deleteAction(int index){
 	if(count() == 0)
 		return false;
 	AMBeamlineActionItem *oldAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index, 0), Qt::DisplayRole ).value<void*>();
-	AMBeamlineActionItem *prevAction = NULL;
-	AMBeamlineActionItem *nextAction = NULL;
+	AMBeamlineActionItem *prevAction = 0;//NULL
+	AMBeamlineActionItem *nextAction = 0;//NULL
 	if( (int)index != 0)
 		prevAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index-1, 0), Qt::DisplayRole ).value<void*>();
 	if( (int)index != (count() -1) )
@@ -130,13 +130,46 @@ bool AMBeamlineActionsList::deleteAction(int index){
 		}
 		if(prevAction && nextAction)
 			connect(prevAction, SIGNAL(succeeded()), nextAction, SLOT(start()));
-		oldAction->setPrevious(NULL);
-		oldAction->setNext(NULL);
+		oldAction->setPrevious(0);//NULL
+		oldAction->setNext(0);//NULL
 		disconnect(oldAction, SIGNAL(started()), this, SLOT(onActionStarted()));
 		disconnect(oldAction, SIGNAL(succeeded()), this, SLOT(onActionSucceeded()));
 		disconnect(oldAction, SIGNAL(ready(bool)), this, SLOT(onActionReady(bool)));
 		disconnect(oldAction, SIGNAL(failed(int)), this, SLOT(onActionFailed(int)));
 		oldAction->cleanup();
+	}
+	return retVal;
+}
+
+bool AMBeamlineActionsList::swapActions(int indexOfFirst){
+	if(count() < 2)
+		return false;
+	AMBeamlineActionItem *firstAction = (AMBeamlineActionItem*)actions_->data( actions_->index(indexOfFirst, 0), Qt::DisplayRole ).value<void*>();
+	AMBeamlineActionItem *secondAction = (AMBeamlineActionItem*)actions_->data( actions_->index(indexOfFirst+1, 0), Qt::DisplayRole ).value<void*>();
+	AMBeamlineActionItem *beforeFirst = firstAction->previous();
+	AMBeamlineActionItem *afterSecond = secondAction->next();
+	bool retVal = actions_->swapData(indexOfFirst);
+	if(retVal){
+		disconnect(firstAction, SIGNAL(succeeded()), secondAction, SLOT(start()));
+		if(beforeFirst){
+			disconnect(beforeFirst, SIGNAL(succeeded()), firstAction, SLOT(start()));
+			beforeFirst->setNext(secondAction);
+			secondAction->setPrevious(beforeFirst);
+			connect(beforeFirst, SIGNAL(succeeded()), secondAction, SLOT(start()));
+		}
+		else
+			secondAction->setPrevious(0);//NULL
+		if(afterSecond){
+			disconnect(secondAction, SIGNAL(succeeded()), afterSecond, SLOT(start()));
+			afterSecond->setPrevious(firstAction);
+			firstAction->setNext(afterSecond);
+			connect(firstAction, SIGNAL(succeeded()), afterSecond, SLOT(start()));
+		}
+		else
+			firstAction->setNext(0);//NULL
+		secondAction->setNext(firstAction);
+		firstAction->setPrevious(secondAction);
+		connect(secondAction, SIGNAL(succeeded()), firstAction, SLOT(start()));
 	}
 	return retVal;
 }
@@ -268,6 +301,16 @@ bool AMBeamlineActionListModel::removeRows(int position, int rows, const QModelI
 	return false;
 }
 
+bool AMBeamlineActionListModel::swapData(int positionOfFirst){
+	if(positionOfFirst >= 0 && positionOfFirst < actions_->count()-1){
+		beginMoveRows(QModelIndex(), positionOfFirst+1, positionOfFirst+1, QModelIndex(), positionOfFirst);
+		actions_->swap(positionOfFirst, positionOfFirst+1);
+		endMoveRows();
+		return true;
+	}
+	return false;
+}
+
 Qt::ItemFlags AMBeamlineActionListModel::flags(const QModelIndex &index) const{
 	Qt::ItemFlags flags;
 	if (index.isValid() && index.row() < actions_->count() && index.column()<4)
@@ -384,8 +427,10 @@ void AMBeamlineActionsQueue::onActionRemoved(int index){
 
 void AMBeamlineActionsQueue::onActionStarted(int index){
 	Q_UNUSED(index)
-	queueRunning_ = true;
-	emit isRunningChanged(true);
+	if(!queueRunning_){
+		queueRunning_ = true;
+		emit isRunningChanged(true);
+	}
 }
 
 void AMBeamlineActionsQueue::onActionSucceeded(int index){
@@ -410,4 +455,13 @@ void AMBeamlineActionsQueue::onActionFailed(int index, int explanation){
 	Q_UNUSED(explanation)
 	queueRunning_ = false;
 	emit isRunningChanged(false);
+
+	//try this?
+	if(fullList_->count() == index+1){
+		headIndex_ = -1;
+		emit isEmptyChanged(true);
+	}
+	else
+		headIndex_ = index+1;
+	emit headChanged();
 }

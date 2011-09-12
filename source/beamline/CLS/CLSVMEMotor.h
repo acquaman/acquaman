@@ -1,7 +1,37 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef CLSVMEMOTOR_H
 #define CLSVMEMOTOR_H
 
 #include "beamline/AMControl.h"
+
+/// This function object provides the moving check for the CLSVMEMotors
+class AMControlStatusCheckerCLSVME : public AMAbstractControlStatusChecker {
+public:
+	/// Status values will be compare to \c isStoppedValue, and return true if the status value is not equal to isStoppedValue (something that isn't stopped is moving)
+	AMControlStatusCheckerCLSVME() {}
+
+	/// Return true (moving) if the \c statusValue is not 0 (STOPPED) and is not 3 (FORCED STOP) and is not 4 (ERROR)
+	virtual bool operator()(quint32 statusValue) { return (statusValue != 0) && (statusValue != 3) && (statusValue != 4); }
+};
 
 /*!
   This class encapsulates many of the standard components found in a CLS VME motor.  Unlike standard AMControls, the CLS VME motors can set other things such as the velocity, acceleration, or directly access the steps

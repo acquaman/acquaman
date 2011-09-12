@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -61,7 +61,7 @@ AMControlInfoList AMControlSetView::configValues(){
 	int numControls = viewSet_->count();
 	for(int i=0; i<numControls; i++) {
 		AMControl* c = boxAt(i)->control();
-		rv.append( AMControlInfo(c->name(), boxAt(i)->setpoint(), c->minimumValue(), c->maximumValue(), c->units(), c->tolerance(), c->description()) );
+		rv.append( AMControlInfo(c->name(), boxAt(i)->setpoint(), c->minimumValue(), c->maximumValue(), c->units(), c->tolerance(), c->description(), c->contextKnownDescription()) );
 	}
 
 	return rv;
@@ -77,6 +77,11 @@ void AMControlSetView::setFromInfoList(const AMControlInfoList &infoList){
 	for(int x = 0; x < numControls; x++)
 		if(boxAt(x)->setpoint() != infoList.at(x).value())
 			boxAt(x)->setSetpoint(infoList.at(x).value());
+}
+
+void AMControlSetView::setDisabled(bool disabled){
+	for(int x = controlBoxes_.count()-1; x >= 0; x--)
+		controlBoxes_[x]->setReadOnly(disabled);
 }
 
 void AMControlSetView::onControlSetValuesChanged(AMControlInfoList infoList){

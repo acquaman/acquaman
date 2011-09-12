@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "XRFFreeRunView.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "acquaman/VESPERS/VESPERSXRFScanController.h"
@@ -6,6 +26,7 @@
 #include "util/VESPERS/XRFElement.h"
 #include "ui/VESPERS/XRFPeriodicTableView.h"
 #include "ui/VESPERS/VESPERSXRFElementView.h"
+#include "ui/AMPeriodicTableDialog.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -25,22 +46,28 @@ XRFFreeRunView::XRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowManagerView *wo
 
 	connect(detector_, SIGNAL(statusChanged(bool)), this, SLOT(onStatusChanged(bool)));
 
+	// Build the detector view.
 	view_ = new XRFDetailedDetectorView(detector_);
 	view_->setMinimumEnergy(xrfTable_->minimumEnergy());
 	view_->setMaximumEnergy(xrfTable_->maximumEnergy());
-	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
-	connect(xrfTable_, SIGNAL(currentElementChanged(XRFElement*)), view_, SLOT(showEmissionLines(XRFElement*)));
-	connect(xrfTable_, SIGNAL(currentElementChanged(XRFElement*)), view_, SLOT(highlightMarkers(XRFElement*)));
+	view_->setROIMarkersHighlighted(true);
+	view_->setEmissionLinesVisible(true);
+	view_->setPileUpPeaksVisible(false);
+	view_->setCombinationPileUpPeaksVisible(false);
+	connect(detector_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
+	connect(xrfTable_, SIGNAL(currentElementChanged(XRFElement*)), view_, SLOT(setCurrentElement(XRFElement*)));
 	connect(xrfTable_, SIGNAL(minimumEnergyChanged(double)), view_, SLOT(setMinimumEnergy(double)));
 	connect(xrfTable_, SIGNAL(maximumEnergyChanged(double)), view_, SLOT(setMaximumEnergy(double)));
 	connect(xrfTable_, SIGNAL(removedAllRegionsOfInterest()), view_, SLOT(removeAllRegionsOfInterestMarkers()));
 
+	// The periodic table view.
 	XRFPeriodicTableView *tableView = new XRFPeriodicTableView(xrfTable_);
 	QPalette palette = tableView->palette();
 	palette.setColor(QPalette::Window, QColor(79, 148, 205));
 	tableView->setPalette(palette);
 	tableView->setAutoFillBackground(true);
 
+	// The element view.
 	VESPERSXRFElementView *elView = new VESPERSXRFElementView(xrfTable_->currentElement());
 	palette = elView->palette();
 	palette.setColor(QPalette::Window, QColor(110, 139, 61));
@@ -117,6 +144,45 @@ XRFFreeRunView::XRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowManagerView *wo
 	connect(peakingTime_, SIGNAL(editingFinished()), this, SLOT(onPeakingTimeUpdate()));
 	connect(detector_, SIGNAL(peakingTimeChanged(double)), peakingTime_, SLOT(setValue(double)));
 
+	// Set up GUI elements to enable/disable showing pile up peaks.
+	QCheckBox *selfPileUpBox = new QCheckBox("Self");
+	connect(selfPileUpBox, SIGNAL(toggled(bool)), this, SLOT(onShowSelfPileUpPeaks(bool)));
+
+	selfPileUpLabel_ = new QLabel("Using: ");
+	selfPileUpLabel_->hide();
+	connect(xrfTable_, SIGNAL(currentElementChanged(XRFElement*)), this, SLOT(onCurrentElementChanged(XRFElement*)));
+
+	combinationPeakCheckBox_ = new QCheckBox("Combination");
+	combinationPeakCheckBox_->hide();
+	connect(combinationPeakCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onShowCombinationPileUpPeaks(bool)));
+
+	combinationPileUpLabel_ = new QLabel("Using: ");
+	combinationPileUpLabel_->hide();
+
+	combinationPileUpChoiceButton_ = new QToolButton;
+	combinationPileUpChoiceButton_->setText("Ca");
+	combinationPileUpChoiceButton_->hide();
+	connect(combinationPileUpChoiceButton_, SIGNAL(clicked()), this, SLOT(getCombinationElement()));
+
+	view_->setSecondaryElement(xrfTable_->elementBySymbol("Ca"));
+
+	QHBoxLayout *combinationLayout = new QHBoxLayout;
+	combinationLayout->addSpacing(20);
+	combinationLayout->addWidget(combinationPileUpLabel_);
+	combinationLayout->addWidget(combinationPileUpChoiceButton_);
+
+	QVBoxLayout *pileUpLayout = new QVBoxLayout;
+	pileUpLayout->addWidget(selfPileUpBox, 0, Qt::AlignLeft);
+	pileUpLayout->addWidget(selfPileUpLabel_, 0, Qt::AlignCenter);
+	pileUpLayout->addWidget(combinationPeakCheckBox_, 0, Qt::AlignLeft);
+	pileUpLayout->addLayout(combinationLayout);
+
+	QGroupBox *pileUpGroupBox = new QGroupBox("Pile Up Peaks");
+	pileUpGroupBox->setLayout(pileUpLayout);
+	pileUpGroupBox->setFixedWidth(120);
+	pileUpGroupBox->setFlat(true);
+
+	// General layout management.
 	QFont font(this->font());
 	font.setBold(true);
 
@@ -151,6 +217,7 @@ XRFFreeRunView::XRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowManagerView *wo
 	controlLayout->addWidget(maxEnergy_);
 	controlLayout->addWidget(peakingTimeLabel_);
 	controlLayout->addWidget(peakingTime_);
+	controlLayout->addWidget(pileUpGroupBox);
 	controlLayout->addStretch();
 	controlLayout->addWidget(sortButton);
 	controlLayout->addWidget(configureButton);
@@ -192,4 +259,31 @@ void XRFFreeRunView::onAdvancedSettingsChanged(bool advanced)
 	maxEnergy_->setVisible(advanced);
 	peakingTimeLabel_->setVisible(advanced);
 	peakingTime_->setVisible(advanced);
+}
+
+void XRFFreeRunView::onShowSelfPileUpPeaks(bool showPeaks)
+{
+	view_->setPileUpPeaksVisible(showPeaks);
+	selfPileUpLabel_->setVisible(showPeaks);
+	combinationPeakCheckBox_->setVisible(showPeaks);
+	combinationPeakCheckBox_->setChecked(false);
+	onShowCombinationPileUpPeaks(false);
+}
+
+void XRFFreeRunView::onShowCombinationPileUpPeaks(bool showPeaks)
+{
+	view_->setCombinationPileUpPeaksVisible(showPeaks);
+	combinationPileUpLabel_->setVisible(showPeaks);
+	combinationPileUpChoiceButton_->setVisible(showPeaks);
+}
+
+void XRFFreeRunView::getCombinationElement()
+{
+	AMElement *el = AMPeriodicTableDialog::getElement(this);
+
+	if (el){
+
+		combinationPileUpChoiceButton_->setText(el->symbol());
+		view_->setSecondaryElement(xrfTable_->elementByAtomicNumber(el->atomicNumber()));
+	}
 }

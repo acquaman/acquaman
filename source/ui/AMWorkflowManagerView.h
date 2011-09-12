@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -22,6 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMWORKFLOWMANAGERVIEW_H
 
 #include <QWidget>
+
+class AMSamplePlate;
+class AMSamplePlateItemModel;
 
 class QPushButton;
 class QVBoxLayout;
@@ -68,20 +71,33 @@ public slots:
 	/// Responds to requests from existing actions to place a new action (often a copy of themselves) at the end of the workflow
 	void onCopyActionRequested(AMBeamlineActionItem *action);
 
-// removed for now. Do we need these?
-//	void onAddActionRequested();
-//	void onAddScanRequested(AMScanConfiguration *cfg, bool startNow = false);
-//	void onCancelAddScanRequest();
-//	void onInsertActionRequested(AMBeamlineActionItem *action, int index);
-//	void onBeamlineScanningChanged(bool scanning);
+	void onMoveUpActionRequested(AMBeamlineActionItem *aciton);
+	void onMoveDownActionRequested(AMBeamlineActionItem *action);
+
+	/// Sets the current sample plate for populating the actions list
+	void setCurrentSamplePlate(AMSamplePlate *newSamplePlate);
 
 protected slots:
 	/// Triggered by changes in the beamline scanning status, queue size, and queue running state. Emits actionItemCountChanged(), runningChanged(), and workflowStatusChanged().
 	void reviewWorkflowStatus();
 
+	/// Populate and popup menu of addable actions
+	void onAddActionButtonClicked();
+	/// Internally sets which sample on the plate is being referred to right now
+	void setSampleHoverIndex();
+	/// Internally sets which fiducialization mark is being referred to right now
+	void setFiducializationHoverIndex();
+	/// Handles when a sample from the sample plate is selected for an add action
+	void onSamplePlateAddActionClicked();
+	/// Handles when a fiducialization makr is selected for an add action
+	void onFiducializationMarkAddActionClicked();
+
 protected:
 	QPushButton *startWorkflowButton_;
 	QPushButton *addActionButton_;
+	QMenu *addActionMenu_;
+	QMenu *samplePlateAddActionMenu_, *fiducializationMarkAddActionMenu_;
+	int samplePlateHoverIndex_, fiducializationMarkHoverIndex_;
 	AMTopFrame *topFrame_;
 	QVBoxLayout *vl_;
 
@@ -89,25 +105,28 @@ protected:
 	AMBeamlineActionsQueue *workflowQueue_;
 	AMBeamlineActionsListView *workflowView_;
 
+	AMSamplePlate *currentSamplePlate_;
+	AMSamplePlateItemModel *samplePlateModel_;
+
 	// disabled for now: AMBeamlineActionAdder *adder_;
 };
 
+#include "AMVerticalStackWidget.h"
 class AMBeamlineActionsListView : public QWidget
 {
 	Q_OBJECT
 public:
 	AMBeamlineActionsListView(AMBeamlineActionsList *actionsList, AMBeamlineActionsQueue *actionsQueue, QWidget *parent = 0);
 
-	/*
-	AMBeamlineActionItem* firstInQueue();
-	int indexOfFirst();
-	int visibleIndexOfFirst();
-	*/
+	bool swap(int indexOfFirst);
+
+	void forceUpdate();
 
 signals:
 	void queueUpdated(int count);
 	void copyRequested(AMBeamlineActionItem *itemCopy);
-
+	void moveUpRequested(AMBeamlineActionItem *itemMoveUp);
+	void moveDownRequested(AMBeamlineActionItem *itemMoveDown);
 
 protected slots:
 	void onActionChanged(int index);
@@ -115,22 +134,11 @@ protected slots:
 	void onActionRemoved(int index);
 
 	void onActionRemoveRequested(AMBeamlineActionItem *item);
-	/*
-	void handleDataChanged(QModelIndex topLeft, QModelIndex bottomRight);
-	void handleRowsInsert(const QModelIndex &parent, int start, int end);
-	void handleRowsRemoved(const QModelIndex &parent, int start, int end);
-	void redrawBeamlineActionsList();
-	*/
 
-	/*
-	void onFocusRequested(AMBeamlineActionItem *action);
-	void onRemoveRequested(AMBeamlineActionItem *action);
-	void onHideRequested(AMBeamlineActionItem *action);
-	void onExpandRequested(AMBeamlineActionItem *action);
-	void onActionStarted(AMBeamlineActionItem *action);
-	void onActionSucceeded(AMBeamlineActionItem *action);
-
-	*/
+	void onRunningChanged();
+	void onActionStarted();
+	void onActionSucceeded();
+	void onActionFailed();
 	void reindexViews();
 
 protected:
@@ -139,19 +147,6 @@ protected:
 
 	AMVerticalStackWidget *actionsViewList_;
 	int focusAction_;
-
-	/*
-	QQueue<AMBeamlineActionItem*> actionsQueue_;
-	QList<AMBeamlineActionView*> fullViewList_;
-	QList<AMBeamlineActionView*> visibleViewList_;
-	QQueue<AMBeamlineActionView*> viewQueue_;
-	int focusAction_;
-	QGroupBox *gb_;
-	QScrollArea *sa_;
-	QVBoxLayout *iib;
-
-	int insertRowIndex_;
-	*/
 };
 
 

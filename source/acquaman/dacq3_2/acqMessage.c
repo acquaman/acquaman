@@ -9,6 +9,7 @@
 
 #include "acquisitionLib.internal.h"
 
+#define UNUSED(x) (void)(x)
 void defaultMessageAdd(acqMaster_t *,char *fmt, ...);
 static void defaultMessageBoxClear(acqMaster_t *);
 static void defaultPutMode(acqMaster_t *, acqState mode);
@@ -18,6 +19,8 @@ static void defaultPutMode(acqMaster_t *, acqState mode);
  */
 void defaultMessageAdd(acqMaster_t *master, char *fmt, ...)
 {
+	//Added to fix compiler warning (David Chevrier, Aug 25 2011)
+	UNUSED(master);
 	va_list ap;
 
 	va_start(ap, fmt);
@@ -26,11 +29,17 @@ void defaultMessageAdd(acqMaster_t *master, char *fmt, ...)
 	printf("\n");
 }
 static
-void defaultMessageBoxClear(acqMaster_t *master) {}
+void defaultMessageBoxClear(acqMaster_t *master)
+{
+	//Added to fix compiler warning (David Chevrier, Aug 25 2011)
+	UNUSED(master);
+}
 
 static void
 defaultPutMode(acqMaster_t *master, acqState mode)
 {
+	//Added to fix compiler warning (David Chevrier, Aug 25 2011)
+	UNUSED(master);
 	printf("Mode: %s", curState(mode) );
 }
 
