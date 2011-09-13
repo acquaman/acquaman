@@ -108,6 +108,7 @@ QT += core gui sql opengl
 # video using Multimedia module from QtMobility, if we have it. (This will only be activated if you set the CONFIG += mobility line at the top of this file)
 CONFIG(mobility) {
 		MOBILITY += multimedia
+}
 
 DESTDIR = build
 DEPENDPATH += . source
