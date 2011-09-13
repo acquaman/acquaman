@@ -177,6 +177,19 @@ bool VESPERSXASDacqScanController::initializeImplementation()
 	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::SingleShot));
 	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(config_->accumulationTime()));
 
+	// Integrity check.  Make sure no actions are null.
+	for (int i = 0; i < setupXASActionsList->stageCount(); i++){
+
+		for (int j = 0; j < setupXASActionsList->stage(i)->size(); j++){
+
+			if (setupXASActionsList->action(i, j) == 0){
+
+				onInitializationActionsFailed(0);
+				return false;
+			}
+		}
+	}
+
 	connect(setupXASAction, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
 	connect(setupXASAction, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
 	connect(setupXASAction, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
