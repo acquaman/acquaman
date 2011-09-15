@@ -11,10 +11,12 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
-VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(QWidget *parent) :
-	QWidget(parent)
+VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(VESPERSExperimentConfiguration *experimentConfiguration, QWidget *parent)
+	: QWidget(parent)
 {
 	AMTopFrame *frame = new AMTopFrame("VESPERS Experimental Setup");
+
+	experimentConfiguration_ = experimentConfiguration;
 
 	configurations_ = new QButtonGroup;
 	QVBoxLayout *configLayout = new QVBoxLayout;
@@ -101,8 +103,8 @@ VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(QWidget *
 	QGroupBox *compBox = new QGroupBox("Components");
 	compBox->setLayout(compLayout);
 
-	configurations_->button(4)->setChecked(true);
-	onConfigurationsChanged(4);
+	configurations_->button(0)->setChecked(true);
+	onConfigurationsChanged(0);
 
 	QString message("Use the lists below to select what kind of experiment you are going to perform.  \nThis will automatically set some of the important beamline parameters for you.  \nYou should return to this screen every time you decide to change experiments.");
 
