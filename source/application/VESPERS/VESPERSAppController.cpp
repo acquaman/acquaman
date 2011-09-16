@@ -130,7 +130,7 @@ bool VESPERSAppController::startup() {
 		mw_->addPane(xrf4EFreeRunView, "Free run", "XRF 4-el", ":/utilities-system-monitor.png");
 
 		// Setup page that auto-enables detectors.
-		VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView;
+		VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
 
 		// Setup page to launch the nDMapper software with correct options.
 		XRFMapSetup *ndMapSetup = new XRFMapSetup;

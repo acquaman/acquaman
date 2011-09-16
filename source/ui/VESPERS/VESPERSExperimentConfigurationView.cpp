@@ -1,6 +1,5 @@
 #include "VESPERSExperimentConfigurationView.h"
 
-#include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/AMTopFrame.h"
 
 #include <QButtonGroup>
@@ -53,7 +52,7 @@ VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(VESPERSEx
 	configurations_->addButton(types, 7);
 	configLayout->addWidget(types);
 
-	connect(configurations_, SIGNAL(buttonClicked(int)), this, SLOT(onConfigurationsChanged(int)));
+	connect(configurations_, SIGNAL(buttonClicked(int)), experimentConfiguration_, SLOT(setType(int)));
 
 	QGroupBox *configBox = new QGroupBox("Configurations");
 	configBox->setLayout(configLayout);
@@ -65,37 +64,44 @@ VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(VESPERSEx
 
 	QCheckBox *component = new QCheckBox("POE");
 	components_->addButton(component, 0);
-	connect(component, SIGNAL(toggled(bool)), VESPERSBeamline::vespers(), SLOT(usePOEStatus(bool)));
+	connect(experimentConfiguration_, SIGNAL(POEStatusChanged(bool)), component, SLOT(setChecked(bool)));
+	connect(component, SIGNAL(toggled(bool)), experimentConfiguration_, SLOT(usePOEStatus(bool)));
 	compLayout->addWidget(component);
 
 	component = new QCheckBox("SOE");
 	components_->addButton(component, 1);
-	connect(component, SIGNAL(toggled(bool)), VESPERSBeamline::vespers(), SLOT(useSOEStatus(bool)));
+	connect(experimentConfiguration_, SIGNAL(SOEStatusChanged(bool)), component, SLOT(setChecked(bool)));
+	connect(component, SIGNAL(toggled(bool)), experimentConfiguration_, SLOT(useSOEStatus(bool)));
 	compLayout->addWidget(component);
 
 	component = new QCheckBox("1-el Vortex");
 	components_->addButton(component, 2);
-	connect(component, SIGNAL(toggled(bool)), VESPERSBeamline::vespers(), SLOT(useSingleElementVortex(bool)));
+	connect(experimentConfiguration_, SIGNAL(singleElementVortexStatusChanged(bool)), component, SLOT(setChecked(bool)));
+	connect(component, SIGNAL(toggled(bool)), experimentConfiguration_, SLOT(useSingleElementVortex(bool)));
 	compLayout->addWidget(component);
 
 	component = new QCheckBox("4-el Vortex");
 	components_->addButton(component, 3);
-	connect(component, SIGNAL(toggled(bool)), VESPERSBeamline::vespers(), SLOT(useFourElementVortex(bool)));
+	connect(experimentConfiguration_, SIGNAL(fourElementVortexStatusChanged(bool)), component, SLOT(setChecked(bool)));
+	connect(component, SIGNAL(toggled(bool)), experimentConfiguration_, SLOT(useFourElementVortex(bool)));
 	compLayout->addWidget(component);
 
 	component = new QCheckBox("CCD");
 	components_->addButton(component, 4);
-	connect(component, SIGNAL(toggled(bool)), VESPERSBeamline::vespers(), SLOT(useCCDStatus(bool)));
+	connect(experimentConfiguration_, SIGNAL(CCDStatusChanged(bool)), component, SLOT(setChecked(bool)));
+	connect(component, SIGNAL(toggled(bool)), experimentConfiguration_, SLOT(useCCDStatus(bool)));
 	compLayout->addWidget(component);
 
 	component = new QCheckBox("Fast Shutter");
 	components_->addButton(component, 5);
-	connect(component, SIGNAL(toggled(bool)), VESPERSBeamline::vespers(), SLOT(useFastShutterStatus(bool)));
+	connect(experimentConfiguration_, SIGNAL(fastShutterStatusChanged(bool)), component, SLOT(setChecked(bool)));
+	connect(component, SIGNAL(toggled(bool)), experimentConfiguration_, SLOT(useFastShutterStatus(bool)));
 	compLayout->addWidget(component);
 
 	component = new QCheckBox("Sample Stage");
 	components_->addButton(component, 6);
-	connect(component, SIGNAL(toggled(bool)), VESPERSBeamline::vespers(), SLOT(useSampleStageStatus(bool)));
+	connect(experimentConfiguration_, SIGNAL(sampleStageStatusChanged(bool)), component, SLOT(setChecked(bool)));
+	connect(component, SIGNAL(toggled(bool)), experimentConfiguration_, SLOT(useSampleStageStatus(bool)));
 	compLayout->addWidget(component);
 
 	connect(components_, SIGNAL(buttonClicked(int)), this, SLOT(onComponentsChanged()));
@@ -104,7 +110,7 @@ VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(VESPERSEx
 	compBox->setLayout(compLayout);
 
 	configurations_->button(0)->setChecked(true);
-	onConfigurationsChanged(0);
+	experimentConfiguration_->setType(VESPERSExperimentConfiguration::Custom);
 
 	QString message("Use the lists below to select what kind of experiment you are going to perform.  \nThis will automatically set some of the important beamline parameters for you.  \nYou should return to this screen every time you decide to change experiments.");
 
@@ -122,90 +128,4 @@ VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(VESPERSEx
 	mainLayout->addStretch();
 
 	setLayout(mainLayout);
-}
-
-void VESPERSExperimentConfigurationView::onConfigurationsChanged(int id)
-{
-	switch(id){
-
-	case 0: // Custom.  No changes.
-		break;
-
-	case 1:
-		// XAS.  Enable: POE, SOE, and Sample Stage
-		components_->button(0)->setChecked(true);
-		components_->button(1)->setChecked(true);
-		components_->button(2)->setChecked(false);
-		components_->button(3)->setChecked(false);
-		components_->button(4)->setChecked(false);
-		components_->button(5)->setChecked(false);
-		components_->button(6)->setChecked(true);
-		break;
-
-	case 2:
-		// XAS w/ 1-el Vortex.  Enable: POE, SOE, 1-el Vortex, and Sample Stage
-		components_->button(0)->setChecked(true);
-		components_->button(1)->setChecked(true);
-		components_->button(2)->setChecked(true);
-		components_->button(3)->setChecked(false);
-		components_->button(4)->setChecked(false);
-		components_->button(5)->setChecked(false);
-		components_->button(6)->setChecked(true);
-		break;
-
-	case 3:
-		// XAS w/ 4-el Vortex.  Enable: POE, SOE, 4-el Vortex, and Sample Stage
-		components_->button(0)->setChecked(true);
-		components_->button(1)->setChecked(true);
-		components_->button(2)->setChecked(false);
-		components_->button(3)->setChecked(true);
-		components_->button(4)->setChecked(false);
-		components_->button(5)->setChecked(false);
-		components_->button(6)->setChecked(true);
-		break;
-
-	case 4:
-		// XRF w/ 1-el Vortex.  Enable: POE, SOE, 1-el Vortex, and Sample Stage
-		components_->button(0)->setChecked(true);
-		components_->button(1)->setChecked(true);
-		components_->button(2)->setChecked(true);
-		components_->button(3)->setChecked(false);
-		components_->button(4)->setChecked(false);
-		components_->button(5)->setChecked(false);
-		components_->button(6)->setChecked(true);
-		break;
-
-	case 5:
-		// XRF w/ 1-el Vortex + CCD.  Enable: POE, SOE, 1-el Vortex, CCD, Fast Shutter, and Sample Stage
-		components_->button(0)->setChecked(true);
-		components_->button(1)->setChecked(true);
-		components_->button(2)->setChecked(true);
-		components_->button(3)->setChecked(false);
-		components_->button(4)->setChecked(true);
-		components_->button(5)->setChecked(true);
-		components_->button(6)->setChecked(true);
-		break;
-
-	case 6:
-		// XRF w/ 4-el Vortex.  Enable: POE, SOE, 4-el Vortex, and Sample Stage
-		components_->button(0)->setChecked(true);
-		components_->button(1)->setChecked(true);
-		components_->button(2)->setChecked(false);
-		components_->button(3)->setChecked(true);
-		components_->button(4)->setChecked(false);
-		components_->button(5)->setChecked(false);
-		components_->button(6)->setChecked(true);
-		break;
-
-	case 7:
-		// XRF w/ 4-el Vortex.  Enable: POE, SOE, 4-el Vortex, CCD, Fast Shutter, and Sample Stage
-		components_->button(0)->setChecked(true);
-		components_->button(1)->setChecked(true);
-		components_->button(2)->setChecked(false);
-		components_->button(3)->setChecked(true);
-		components_->button(4)->setChecked(true);
-		components_->button(5)->setChecked(true);
-		components_->button(6)->setChecked(true);
-		break;
-	}
 }

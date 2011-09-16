@@ -21,8 +21,6 @@ signals:
 public slots:
 
 protected slots:
-	/// Slot that handles which components will be set.
-	void onConfigurationsChanged(int id);
 	/// Slot that sets the configurations to "custom" if any of the components are changed manually.
 	void onComponentsChanged() { if (configurations_->checkedId() != 0) configurations_->button(0)->setChecked(true); }
 

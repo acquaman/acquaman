@@ -133,7 +133,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	// The Experiment Ready Status
 	experimentReady_ = new QLabel;
 	experimentReady_->setPixmap(QIcon(":/RED.png").pixmap(25));
-	connect(VESPERSBeamline::vespers(), SIGNAL(experimentReady(bool)), this, SLOT(onExperimentStatusChanged(bool)));
+	connect(VESPERSBeamline::vespers()->experimentConfiguration(), SIGNAL(experimentReady(bool)), this, SLOT(onExperimentStatusChanged(bool)));
 
 	QFormLayout *experimentReadyLayout = new QFormLayout;
 	experimentReadyLayout->addRow(experimentReady_, new QLabel("Status"));

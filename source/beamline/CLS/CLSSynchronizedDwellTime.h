@@ -76,12 +76,16 @@ signals:
 	void timeChanged(double);
 	/// Notifier that the status has changed.
 	void statusChanged(bool);
+	/// Notifier that the element is fully connected or not.
+	void connected(bool);
 
 protected slots:
 	/// Transforms the int value for the enable status into a bool.
 	void onEnabledChanged(double status) { emit enabledChanged(((int)status) == 1 ? true : false); }
 	/// Transforms the int value for the scan status into a bool.
 	void onStatusChanged(int status) { emit statusChanged(status == 1 ? true : false); }
+	/// Handles changes to the connectivity of the element.
+	void onConnectedChanged() { emit connected(isConnected()); }
 
 protected:
 	/// The process variable that holds the name.
@@ -137,7 +141,7 @@ public:
 		bool connected = dwellTime_->isConnected() && startScan_->isConnected() && mode_->isConnected();
 
 		for (int i = 0; i < elementCount(); i++)
-			connected = connected && elementAt(i);
+			connected &= elements_.at(i)->isConnected();
 
 		return connected;
 	}
@@ -174,6 +178,8 @@ signals:
 	void scanningChanged(bool);
 	/// Notifier if the overall status has changed.
 	void statusChanged(bool);
+	/// Notifier that the synchronized dwell time is connected or not.
+	void connected(bool);
 
 public slots:
 	/*! Sets the time for the entire synchronized dwell time.  Needs to be in seconds.  \note Implementation detail: due to the way that the PVs are hooked up, this function does not have to write the new value
@@ -195,6 +201,8 @@ protected slots:
 	void onStatusChanged() { emit statusChanged(status()); }
 	/// Handles changes in Mode.  Turns the int into the Mode enum.
 	void onModeChanged(double mode) { emit modeChanged((int)mode == 0 ? Continuous : SingleShot); }
+	/// Determines whether or not the synchronized dwell time is connected.
+	void onConnectedChanged() { emit connected(isConnected()); }
 
 protected:
 	/// List holding the individual elements.

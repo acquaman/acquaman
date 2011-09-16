@@ -397,7 +397,7 @@ void VESPERSBeamline::setupMono()
 
 void VESPERSBeamline::setupExperimentStatus()
 {
-	experimentConfiguration_ = new VESPERSExperimentConfiguration(synchronizedDwellTime_, this);
+	experimentConfiguration_ = new VESPERSExperimentConfiguration(synchronizedDwellTime_, pseudoSampleStage_, (XRFDetector *)vortex1E_, (XRFDetector *)vortex4E_, this);
 }
 
 AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(Beam beam)
