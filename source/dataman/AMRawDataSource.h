@@ -141,8 +141,11 @@ public:
 			return AMNumber(AMNumber::InvalidError);
 		if(axisNumber < scanAxesCount_)
 			return dataStore_->axisValue(axisNumber, index, doBoundsChecking);	// value along a scan axis
-		else if (axisNumber < rank() )	// value along a measurement axis. Unsupported so far... All we have is the direct value
-			return index;	/// \todo Implement scaled and non-uniform measurement axes
+		else if (axisNumber < rank() ){
+
+			const AMAxisInfo& axis = axes_.at(axisNumber);
+			return (double)axis.start + (double)axis.increment*index;	/// \todo Implement non-uniform measurement axes
+		}
 		else
 			return AMNumber(AMNumber::DimensionError);	// no such axis.
 
