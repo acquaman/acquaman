@@ -109,6 +109,12 @@ CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellT
 	connect(dwellTime_, SIGNAL(timeChanged(double)), masterTime_, SLOT(setValue(double)));
 	connect(masterTime_, SIGNAL(editingFinished()), this, SLOT(setTime()));
 
+	scanning_ = new QPushButton;
+	scanning_->setCheckable(true);
+	scanning_->setChecked(false);
+	connect(dwellTime_, SIGNAL(scanningChanged(bool)), this, SLOT(onScanningChanged(bool)));
+	connect(scanning_, SIGNAL(clicked()), this, SLOT(toggleScanning()));
+
 	QHBoxLayout *topRow = new QHBoxLayout;
 	topRow->addWidget(overallStatus_, 0, Qt::AlignCenter);
 	topRow->addWidget(mode_);
@@ -120,13 +126,15 @@ CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellT
 	for (int i = 0; i < dwellTime_->elementCount(); i++)
 		groupBoxLayout->addWidget(new CLSSynchronizedDwellTimeElementView(dwellTime_->elementAt(i)));
 
+	groupBoxLayout->addWidget(scanning_, 0, Qt::AlignLeft);
+
 	QGroupBox *dwellTimeBox = new QGroupBox("Synchronized Dwell Time");
 	dwellTimeBox->setLayout(groupBoxLayout);
 
 	QVBoxLayout *dwellTimeLayout = new QVBoxLayout;
 	dwellTimeLayout->addWidget(dwellTimeBox);
 
-	setMaximumSize(420, 80 + 50*dwellTime_->elementCount());
+	setMaximumSize(420, 105 + 50*dwellTime_->elementCount());
 	setLayout(dwellTimeLayout);
 }
 
