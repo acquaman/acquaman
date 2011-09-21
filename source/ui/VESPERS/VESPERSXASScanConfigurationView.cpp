@@ -20,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSXASScanConfigurationView.h"
 #include "ui/AMTopFrame.h"
+#include "ui/AMPeriodicTableDialog.h"
+#include "util/AMPeriodicTable.h"
 
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -27,7 +29,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGroupBox>
 #include <QButtonGroup>
 #include <QRadioButton>
-#include <QToolButton>
 
 VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanConfiguration *config, QWidget *parent)
 	: AMScanConfigurationView(parent)
@@ -55,8 +56,9 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	tempButton = new QRadioButton("Four Element Vortex");
 	fluorescenceButtonGroup->addButton(tempButton, 2);
 	fluorescenceDetectorLayout->addWidget(tempButton);
-	tempButton->setChecked(true);
 	connect(fluorescenceButtonGroup, SIGNAL(buttonClicked(int)), config_, SLOT(setFluorescenceDetectorChoice(int)));
+
+	fluorescenceButtonGroup->button((int)config_->fluorescenceDetectorChoice())->setChecked(true);
 
 	QGroupBox *fluorescenceDetectorGroupBox = new QGroupBox("Fluorescence Detector");
 	fluorescenceDetectorGroupBox->setLayout(fluorescenceDetectorLayout);
@@ -120,8 +122,8 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	ItI0Layout->addStretch();
 	connect(ItI0ButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(onItI0Toggled(int)));
 
-	I0Group_->button(2)->click();
-	ItGroup_->button(3)->click();
+	I0Group_->button((int)config_->incomingChoice())->click();
+	ItGroup_->button((int)config_->transmissionChoice())->click();
 
 	QHBoxLayout *ionChambersLayout = new QHBoxLayout;
 	ionChambersLayout->addLayout(I0GroupLayout);
@@ -135,7 +137,7 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 
 	// Scan name selection
 	scanName_ = new QLineEdit;
-	scanName_->setText("XAS Scan");
+	scanName_->setText(config_->name());
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	onScanNameEdited();
 
@@ -147,11 +149,22 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	energy_->setSuffix(" eV");
 	energy_->setMinimum(0);
 	energy_->setMaximum(30000);
+	energy_->setValue(config_->energy());
 	connect(energy_, SIGNAL(editingFinished()), this, SLOT(setEnergy()));
-	connect(VESPERSBeamline::vespers()->mono(), SIGNAL(EoChanged(double)), this, SLOT(onEnergyChanged(double)));
 
-	QFormLayout *energyLayout = new QFormLayout;
-	energyLayout->addRow("Energy:", energy_);
+	elementChoice_ = new QToolButton;
+	elementChoice_->setText("Cu");
+	connect(elementChoice_, SIGNAL(clicked()), this, SLOT(onElementChoiceClicked()));
+
+	lineChoice_ = new QComboBox;
+	connect(lineChoice_, SIGNAL(currentIndexChanged(int)), this, SLOT(onLinesComboBoxIndexChanged(int)));
+	fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol("Cu"));
+
+	QHBoxLayout *energyLayout = new QHBoxLayout;
+	energyLayout->addWidget(new QLabel("Energy:"));
+	energyLayout->addWidget(energy_, 0, Qt::AlignLeft);
+	energyLayout->addWidget(elementChoice_);
+	energyLayout->addWidget(lineChoice_);
 
 	// Setting the time.
 	QDoubleSpinBox *time = new QDoubleSpinBox;
@@ -159,7 +172,7 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	time->setMinimum(0);
 	time->setMaximum(100000);
 	connect(time, SIGNAL(valueChanged(double)), config_, SLOT(setAccumulationTime(double)));
-	time->setValue(1.0);
+	time->setValue(config_->accumulationTime());
 
 	QFormLayout *timeLayout = new QFormLayout;
 	timeLayout->addRow("Time:", time);
@@ -168,8 +181,8 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	contentsLayout->addWidget(regionsView_, 3, 0, 1, 2);
 	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 2, 0);
 	contentsLayout->addLayout(scanNameLayout, 0, 0);
-	contentsLayout->addLayout(energyLayout, 1, 0);
-	contentsLayout->addLayout(timeLayout, 1, 1);
+	contentsLayout->addLayout(energyLayout, 1, 0, 1, 2);
+	contentsLayout->addLayout(timeLayout, 0, 1);
 	contentsLayout->addWidget(ionChambersGroupBox, 2, 1);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
@@ -185,6 +198,41 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	configViewLayout->addWidget(regionsLineView_, 0, Qt::AlignCenter);
 
 	setLayout(configViewLayout);
+}
+
+void VESPERSXASScanConfigurationView::onElementChoiceClicked()
+{
+	AMElement *el = AMPeriodicTableDialog::getElement(this);
+
+	if (el){
+
+		elementChoice_->setText(el->symbol());
+		fillLinesComboBox(el);
+		onLinesComboBoxIndexChanged(0);
+	}
+}
+
+void VESPERSXASScanConfigurationView::fillLinesComboBox(AMElement *el)
+{
+	QPair<QString, QString> edge;
+	lineChoice_->clear();
+
+	for (int i = 0; i < el->edges().size(); i++){
+
+		edge = el->edges().at(i);
+
+		if (edge.second.toDouble() <= 30000 && edge.second.toDouble() >= 6700)
+			lineChoice_->addItem(edge.first+": "+edge.second+" eV", edge.second.toDouble());
+	}
+}
+
+void VESPERSXASScanConfigurationView::onLinesComboBoxIndexChanged(int index)
+{
+	if (lineChoice_->count() == 0)
+		return;
+
+	energy_->setValue(lineChoice_->itemData(index).toDouble());
+	setEnergy();
 }
 
 void VESPERSXASScanConfigurationView::onItI0Toggled(int id)

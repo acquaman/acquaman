@@ -32,6 +32,7 @@ VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(QObject *parent)
 	ionChamberNames_.insert(Ipost, "Ipost");
 
 	regions_->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
+	setName("XAS Scan");
 	fluorescenceDetectorChoice_ = FourElement;
 	It_ = Ipost;
 	I0_ = Imini;
