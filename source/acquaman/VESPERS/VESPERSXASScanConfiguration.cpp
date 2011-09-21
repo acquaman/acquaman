@@ -36,6 +36,10 @@ VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(QObject *parent)
 	It_ = Ipost;
 	I0_ = Imini;
 	time_ = 1.0;
+	energy_ = 0.0;
+
+	goToPosition_ = false;
+	position_ = qMakePair(0.0, 0.0);
 }
 
 VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(const VESPERSXASScanConfiguration &original)
@@ -55,6 +59,10 @@ VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(const VESPERSXASScanCon
 	It_ = original.transmissionChoice();
 	I0_ = original.incomingChoice();
 	time_ = original.accumulationTime();
+	energy_ = original.energy();
+
+	goToPosition_ = original.goToPosition();
+	position_ = original.position();
 }
 
 AMScanConfiguration *VESPERSXASScanConfiguration::createCopy() const
