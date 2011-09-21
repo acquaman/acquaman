@@ -59,7 +59,7 @@ protected slots:
 	/// Handles new values set from the minimum energy spin box and passes it along to the configuration.
 	void onMinimumEnergyUpdate() { xrfTable_->setMinimumEnergy(minEnergy_->value()*1000); }
 	/// Handles new values set from the maximum energy spin box and passes it along to the configuration.
-	void onMaximumEnergyUpdate() { detector_->setMaximumEnergyControl(maxEnergy_->value()); xrfTable_->setMaximumEnergy(maxEnergy_->value()*1000); }
+	void onMaximumEnergyUpdate() { detector_->setMaximumEnergyControl(maxEnergy_->value()*1000); xrfTable_->setMaximumEnergy(maxEnergy_->value()*1000); }
 	/// Handles new values for the maximum energy from the detector.
 	void onMaximumEnergyChanged(double val) { xrfTable_->setMaximumEnergy(val*1000); }
 	/// Handles new values set from the peaking time spin box and passes it along to the configuration.
