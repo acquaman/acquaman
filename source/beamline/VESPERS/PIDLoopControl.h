@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 
 #include "beamline/AMControl.h"
-#include "beamline/AMBeamlineActionItem.h"
+#include "actions/AMBeamlineActionItem.h"
 
 /*!
 	This class monitors the PID feedback loops for the sample stage or wire stage.  The motor behaves erratically when the loops are off, and thus there should be a mechanism to turn them back on.

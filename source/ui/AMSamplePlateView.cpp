@@ -576,7 +576,7 @@ void AMSamplePlateView::onRowMarkPressed(int row) {
 }
 
 
-// #include "beamline/AMBeamlineControlSetMoveAction.h"
+// #include "actions/AMBeamlineControlSetMoveAction.h"
 
 // called by the delegate when the editor buttons (Mark, Move To, Remove) are clicked
 void AMSamplePlateView::onRowMoveToPressed(int row) {

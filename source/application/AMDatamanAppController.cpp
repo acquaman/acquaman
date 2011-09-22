@@ -37,6 +37,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMDataViewWithActionButtons.h"
 #include "ui/AMRunExperimentInsert.h"
 #include "ui/AMGenericScanEditor.h"
+#include "ui/AMSettingsView.h"
+
+#include "dataman/AMFileLoaderInterface.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -62,7 +65,6 @@ bool AMDatamanAppController::startup() {
 	// ensure user data folder and database are ready for use, if this is the first time the program is ever run.
 	if(!AMFirstTimeController::firstTimeCheck())
 		return false;
-
 	//Create the main tab window:
 	mw_ = new AMMainWindow();
 	mw_->setWindowTitle("Acquaman");
@@ -137,6 +139,13 @@ bool AMDatamanAppController::startup() {
 	importAction->setStatusTip("Import outside data files into the library");
 	connect(importAction, SIGNAL(triggered()), this, SLOT(onActionImport()));
 
+	QAction* amSettingsAction = new QAction("Acquaman Settings", mw_);
+	amSettingsAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_S));
+	amSettingsAction->setStatusTip("View or Change Settings");
+	connect(amSettingsAction, SIGNAL(triggered()), this, SLOT(onActionSettings()));
+
+	settingsMasterView_ = 0; //NULL
+
 	//install menu bar, and add actions
 	//////////////////////////////////////
 #ifdef Q_WS_MAC
@@ -148,8 +157,7 @@ bool AMDatamanAppController::startup() {
 
 	fileMenu_ = menuBar_->addMenu("File");
 	fileMenu_->addAction(importAction);
-
-
+	fileMenu_->addAction(amSettingsAction);
 
 	// show main window
 	mw_->show();
@@ -185,6 +193,12 @@ void AMDatamanAppController::onActionImport() {
 
 	new AMImportController();
 
+}
+
+void AMDatamanAppController::onActionSettings(){
+	if(!settingsMasterView_)
+		settingsMasterView_ = new AMSettingsMasterView();
+	settingsMasterView_->show();
 }
 
 void AMDatamanAppController::onCurrentPaneChanged(QWidget *pane) {

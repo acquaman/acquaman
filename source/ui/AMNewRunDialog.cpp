@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMNewRunDialog.h"
 #include "util/AMErrorMonitor.h"
+#include "dataman/AMDbObjectSupport.h"
 
 //Constructor:
 
@@ -76,11 +77,12 @@ void AMNewRunDialog::addFacility(){
 
 	// searching database for the required components
 	QSqlQuery q = database_->query();
-#warning "Hard-coded database table names. This is not future-compatible code."
-	q.prepare(QString("SELECT AMFacility_table.description,AMFacility_table.name,AMDbObjectThumbnails_table.thumbnail,AMDbObjectThumbnails_table.type,AMFacility_table.id "
-					  "FROM AMFacility_table,AMDbObjectThumbnails_table WHERE AMFacility_table.thumbnailFirstId = AMDbObjectThumbnails_table.id "
-					  "ORDER BY AMFacility_table.id DESC"));
-
+	/* NTBA - September 1st, 2011 (David Chevrier)
+	"Hard-coded database table names. Down to only AMDbObjectThumbnails_table."
+	*/
+	q.prepare(QString("SELECT %1.description,%1.name,AMDbObjectThumbnails_table.thumbnail,AMDbObjectThumbnails_table.type,%1.id "
+			  "FROM %1,AMDbObjectThumbnails_table WHERE %1.thumbnailFirstId = AMDbObjectThumbnails_table.id "
+			  "ORDER BY %1.id DESC").arg(AMDbObjectSupport::tableNameForClass<AMFacility>()));
 	int i = 0;
 	if (q.exec()) {
 		while (q.next()) {

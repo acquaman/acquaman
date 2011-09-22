@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMUser.h"
 
 #include "dataman/REIXS/REIXSXESCalibration.h"
-#include "beamline/AMBeamlineControlMoveAction.h"
+#include "actions/AMBeamlineControlMoveAction.h"
 #include "util/AMSettings.h"
 
 REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* configuration, QObject *parent) :

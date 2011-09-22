@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 
 #include "beamline/AMControl.h"
-#include <beamline/AMBeamlineControlMoveAction.h>
+#include "actions/AMBeamlineControlMoveAction.h"
 
 /*!
   This class encapulates the process variables used for the detectors as a synchronized dwell element.  It assumes a standardized naming convention for the elements and builds all the

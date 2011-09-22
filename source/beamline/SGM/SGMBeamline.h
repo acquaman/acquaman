@@ -31,20 +31,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/OceanOptics65000Detector.h"
 #include "beamline/AMControlSet.h"
 #include "util/AMBiHash.h"
-#include "beamline/AMBeamlineControlAction.h"
-#include "beamline/AMBeamlineControlMoveAction.h"
-#include "beamline/AMBeamlineControlSetMoveAction.h"
-#include "beamline/AMBeamlineControlWaitAction.h"
-#include "beamline/AMBeamlineControlStopAction.h"
-#include "beamline/AMBeamlineUserConfirmAction.h"
-#include "beamline/AMBeamlineHighVoltageChannelToggleAction.h"
-#include "beamline/AMBeamlineActionsList.h"
-#include "beamline/AMBeamlineParallelActionsList.h"
-#include "beamline/AMBeamlineListAction.h"
+#include "actions/AMBeamlineControlAction.h"
+#include "actions/AMBeamlineControlMoveAction.h"
+#include "actions/AMBeamlineControlSetMoveAction.h"
+#include "actions/AMBeamlineControlWaitAction.h"
+#include "actions/AMBeamlineControlStopAction.h"
+#include "actions/AMBeamlineUserConfirmAction.h"
+#include "actions/AMBeamlineHighVoltageChannelToggleAction.h"
+#include "actions/AMBeamlineActionsList.h"
+#include "actions/AMBeamlineParallelActionsList.h"
+#include "actions/AMBeamlineListAction.h"
 
 #include "beamline/AMDetectorSet.h"
 
-#include "acquaman/AMControlOptimization.h"
+#include "beamline/AMControlOptimization.h"
 
 
 class SGMGratingAction;

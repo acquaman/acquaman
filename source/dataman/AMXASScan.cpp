@@ -29,14 +29,26 @@ AMXASScan::AMXASScan(QObject *parent)
 }
 
 
-#include "dataman/SGM2004FileLoader.h"
+#include "dataman/SGM/SGM2004FileLoader.h"
 #include "dataman/ALSBL8XASFileLoader.h"
-#include "dataman/SGM2011XASFileLoader.h"
-#include "dataman/VESPERSXASDataLoader.h"
+#include "dataman/SGM/SGM2011XASFileLoader.h"
+#include "dataman/VESPERS/VESPERSXASDataLoader.h"
 #include <QFileInfo>
+#include <QDir>
+#include <QPluginLoader>
 #include "util/AMSettings.h"
 
+#include "dataman/AMFileLoaderInterface.h"
+
 bool AMXASScan::loadDataImplementation() {
+	qDebug() << "\n\nLOAD DATA IMPLEMENTATION";
+
+	for(int x = 0; x < AMSettings::availableFileLoaders.count(); x++){
+		AMFileLoaderInterface *fileloader = AMSettings::availableFileLoaders.at(x);
+		if(fileloader->accepts(this))
+			return fileloader->load(this, AMUserSettings::userDataFolder);
+
+	}
 
 	SGM2004FileLoader sgmLoader(this);
 

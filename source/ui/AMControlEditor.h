@@ -31,7 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QToolButton>
 
 #include "beamline/AMControl.h"
-#include "beamline/AMBeamlineParallelActionsList.h"
+#include "actions/AMBeamlineParallelActionsList.h"
 
 class QLabel;
 class QDoubleSpinBox;

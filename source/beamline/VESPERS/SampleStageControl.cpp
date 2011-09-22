@@ -20,10 +20,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SampleStageControl.h"
 
-#include "beamline/AMBeamlineControlMoveAction.h"
-#include "beamline/AMBeamlineControlStopAction.h"
-#include "beamline/AMBeamlineParallelActionsList.h"
-#include "beamline/AMBeamlineListAction.h"
+#include "actions/AMBeamlineControlMoveAction.h"
+#include "actions/AMBeamlineControlStopAction.h"
+#include "actions/AMBeamlineParallelActionsList.h"
+#include "actions/AMBeamlineListAction.h"
 
 SampleStageControl::SampleStageControl(AMControl *horiz, AMControl *vert, AMControl *norm, QObject *parent)
 	: QObject(parent)

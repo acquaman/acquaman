@@ -6,7 +6,7 @@
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/VESPERS/SampleStageControl.h"
 #include "beamline/VESPERS/XRFDetector.h"
-#include "beamline/AMBeamlineActionItem.h"
+#include "actions/AMBeamlineActionItem.h"
 
 /*!
   The following is the model for the experiment configuration for VESPERS.  It handles enabling some of the key components that users need to worry about when setting up

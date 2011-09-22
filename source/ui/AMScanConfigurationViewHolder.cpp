@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QButtonGroup>
 
 #include "AMScanConfigurationViewHolder.h"
-#include "beamline/AMBeamlineScanAction.h"
+#include "actions/AMBeamlineScanAction.h"
 #include "acquaman/AMScanConfiguration.h"
 #include "ui/AMScanConfigurationView.h"
 #include "ui/AMWorkflowManagerView.h"

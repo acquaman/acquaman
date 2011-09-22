@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMCONTROLOPTIMIZATIONVIEW_H
 
 #include "ui/AMControlSetView.h"
-#include "acquaman/AMControlOptimization.h"
+#include "beamline/AMControlOptimization.h"
 
 
 class AMQuickDataSet : public QObject

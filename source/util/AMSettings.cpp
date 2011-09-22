@@ -26,6 +26,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDebug>
 #include <QDateTime>
 
+#include "dataman/AMFileLoaderInterface.h"
+#include "dataman/AMAnalysisBlockInterface.h"
+#include <QDir>
+#include <QPluginLoader>
+
 /// User Settings:
 // ========================================
 
@@ -124,10 +129,19 @@ void AMUserSettings::save() {
 QString AMSettings::publicDataFolder;
 /// This is the public database filename:
 QString AMSettings::publicDatabaseFilename;
+/// This is the location of the folder that contains the file loader plugins
+QString AMSettings::fileLoaderPluginsFolder;
+/// This is where the file loader plugins are located
+QList<AMFileLoaderInterface*> AMSettings::availableFileLoaders;
+/// This is the location of the folder that contains the analysis block plugins
+QString AMSettings::analysisBlockPluginsFolder;
+/// This is where the analysis block plugins are located
+QList<AMAnalysisBlockInterface*> AMSettings::availableAnalysisBlocks;
 
 
 /// Load settings from disk:
 void AMSettings::load() {
+	qDebug() << "Doing load";
 	QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "Acquaman", "Acquaman");
 
 	// All settings variables are loaded here from disk. Default values must be provided -- they will be used if the particular setting doesn't exist yet.
@@ -137,17 +151,54 @@ void AMSettings::load() {
 
 	publicDataFolder = settings.value("publicDataFolder", "/home/acquaman/data/").toString();
 	publicDatabaseFilename = settings.value("publicDatabaseFilename", "publicdata.db").toString();
+        //fileLoaderPluginsFolder = settings.value("fileLoaderPluginsFolder", "/Users/fawkes/dev/acquaman/plugins/FileLoaders").toString();
+        fileLoaderPluginsFolder = settings.value("fileLoaderPluginsFolder", QDir::homePath()+"/dev/acquaman/plugins/FileLoaders").toString();
+	analysisBlockPluginsFolder = settings.value("analysisBlockPluginsFolder", QDir::homePath()+"/dev/acquaman/plugins/AnalysisBlocks").toString();
 
+	qDebug() << publicDataFolder << publicDatabaseFilename << fileLoaderPluginsFolder << analysisBlockPluginsFolder;
+
+	availableFileLoaders.clear();
+	// Load file loader plugins
+	QDir fileLoaderPluginsDirectory(fileLoaderPluginsFolder);
+	foreach (QString fileName, fileLoaderPluginsDirectory.entryList(QDir::Files)) {
+		QPluginLoader pluginLoader(fileLoaderPluginsDirectory.absoluteFilePath(fileName));
+		QObject *plugin = pluginLoader.instance();
+		if (plugin) {
+			AMFileLoaderInterface *tmpfl = qobject_cast<AMFileLoaderInterface *>(plugin);
+			if (tmpfl){
+				availableFileLoaders.append(tmpfl);
+				qDebug() << "Found a file loader";
+			}
+		}
+	}
+
+	availableAnalysisBlocks.clear();
+	// Load analysis block plugins
+	QDir analysisBlockPluginsDirectory(analysisBlockPluginsFolder);
+	foreach (QString fileName, analysisBlockPluginsDirectory.entryList(QDir::Files)) {
+		QPluginLoader pluginLoader(analysisBlockPluginsDirectory.absoluteFilePath(fileName));
+		QObject *plugin = pluginLoader.instance();
+		if (plugin) {
+			AMAnalysisBlockInterface *tmpab = qobject_cast<AMAnalysisBlockInterface *>(plugin);
+			if (tmpab){
+				availableAnalysisBlocks.append(tmpab);
+				qDebug() << "Found an analysis block";
+			}
+		}
+	}
 }
 
 /// Save settings to disk:
 void AMSettings::save() {
 	QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "Acquaman", "Acquaman");
+	qDebug() << "Doing save";
+	qDebug() << publicDataFolder << publicDatabaseFilename << fileLoaderPluginsFolder;
 
 	// All settings variables are saved here to the user-specific file.
 	// Don't forget to add here if you add new user options.
 
 	settings.setValue("publicDataFolder", publicDataFolder);
 	settings.setValue("publicDatabaseFilename", publicDatabaseFilename);
+	settings.setValue("fileLoaderPluginsFolder", fileLoaderPluginsFolder);
 }
 

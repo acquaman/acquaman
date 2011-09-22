@@ -28,10 +28,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMSamplePlateView.h"
 
 #include "acquaman/AMScanConfiguration.h"
-#include "beamline/AMBeamlineScanAction.h"
-//#include "beamline/AMBeamlineControlSetMoveAction.h"
-#include "beamline/AMBeamlineSamplePlateMoveAction.h"
-#include "beamline/AMBeamlineFiducializationMoveAction.h"
+#include "actions/AMBeamlineScanAction.h"
+//#include "actions/AMBeamlineControlSetMoveAction.h"
+#include "actions/AMBeamlineSamplePlateMoveAction.h"
+#include "actions/AMBeamlineFiducializationMoveAction.h"
 
 #include "beamline/AMBeamline.h"
 #include "ui/AMVerticalStackWidget.h"
@@ -297,8 +297,8 @@ bool AMBeamlineActionsListView::swap(int indexOfFirst){
 	return retVal;
 }
 
-#include "beamline/AMBeamlineControlMoveAction.h"
-#include "beamline/AMBeamlineControlSetMoveAction.h"
+#include "actions/AMBeamlineControlMoveAction.h"
+#include "actions/AMBeamlineControlSetMoveAction.h"
 
 /// \bug What happens if the action at \c index has changed type? This assumes the subclass of view is correct for the subclass of actionItem
 /*NTBA April 21, 2011 David Chevrier

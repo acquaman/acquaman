@@ -22,13 +22,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/SGM/SGMBeamline.h"
 
-#include "ui/SGMSampleTransferView.h"
+#include "ui/SGM/SGMSampleTransferView.h"
 #include "ui/SGM/SGMSampleManipulatorView.h"
 #include "ui/AMSampleManagementWidget.h"
 #include "ui/AMScanConfigurationViewHolder.h"
-#include "ui/SGMXASScanConfigurationView.h"
-#include "ui/SGMFastScanConfigurationView.h"
-#include "ui/SGMSidebar.h"
+#include "ui/SGM/SGMXASScanConfigurationView.h"
+#include "ui/SGM/SGMFastScanConfigurationView.h"
+#include "ui/SGM/SGMSidebar.h"
 #include "acquaman/AMScanController.h"
 #include "ui/AMDetectorView.h"
 #include "ui/AMSingleControlDetectorView.h"

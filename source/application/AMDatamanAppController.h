@@ -31,7 +31,7 @@ class BottomBar;
 class AMDataViewWithActionButtons;
 class AMRunExperimentInsert;
 class AMGenericScanEditor;
-
+class AMSettingsMasterView;
 
 class QMenuBar;
 class QMenu;
@@ -73,6 +73,9 @@ signals:
 public slots:
 	/// Calling this slot activates the Import Data wizard.
 	void onActionImport();
+
+	/// Calling this slot activates the Settings View
+	void onActionSettings();
 
 	/// this slot is called when the "add something" button is pushed. For now, it just creates a new experiment. This could be expanded to a drop-down menu that offers creating a new experiment, a new scan, a new run...
 	void onAddButtonClicked();
@@ -127,13 +130,14 @@ protected:
 	AMDataViewWithActionButtons* dataView_;
 	AMRunExperimentInsert* runExperimentInsert_;
 
+	/// Persistent view for AMSettings
+	AMSettingsMasterView *settingsMasterView_;
 
 	/// The parent item for all runs and experiments we'll place in the window pane model
 	QStandardItem* runsParentItem_, *experimentsParentItem_;
 
 	/// The parent item of all scan editors we'll placed in the window pane model.
 	QStandardItem* scanEditorsParentItem_;
-
 
 	/// Application state:
 	bool isStarting_, isShuttingDown_;
