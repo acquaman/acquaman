@@ -21,8 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMScanView.h"
 #include <QGraphicsWidget>
 #include "dataman/AMScan.h"
-#include "dataman/AMDataSourceSeriesData.h"
-#include "dataman/AMDataSourceImageData.h"
+#include "dataman/datasource/AMDataSourceSeriesData.h"
+#include "dataman/datasource/AMDataSourceImageData.h"
 #include "MPlot/MPlotImage.h"
 #include "MPlot/MPlotSeries.h"
 #include <QScrollBar>

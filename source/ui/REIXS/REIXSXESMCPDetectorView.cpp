@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "QBoxLayout"
 
 #include <cmath>
-#include "dataman/AMDataSourceImageData.h"
+#include "dataman/datasource/AMDataSourceImageData.h"
 
 #include "MPlot/MPlotTools.h"
 #include "ui/AMImagePropertyEditor.h"

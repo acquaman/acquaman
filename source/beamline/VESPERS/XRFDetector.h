@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMROI.h"
 #include "util/VESPERS/XRFElement.h"
 #include "util/VESPERS/GeneralUtilities.h"
-#include "dataman/AMProcessVariableDataSource.h"
+#include "dataman/datasource/AMProcessVariableDataSource.h"
 #include "beamline/AMProcessVariable.h"
 
 #include <QTimer>

@@ -62,12 +62,12 @@ HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/dataman/AMnDIndex.h \
 		$$AM_INCLUDE_DIR/dataman/AMDbObjectSupport.h \
 		$$AM_INCLUDE_DIR/dataman/AMControlInfoList.h \
-		$$AM_INCLUDE_DIR/dataman/AMDataSource.h \
-		$$AM_INCLUDE_DIR/dataman/AMRawDataSource.h \
+		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSource.h \
+		$$AM_INCLUDE_DIR/dataman/datasource/AMRawDataSource.h \
 		$$AM_INCLUDE_DIR/dataman/AMDataStore.h \
 		$$AM_INCLUDE_DIR/dataman/AMInMemoryDataStore.h \
-		$$AM_INCLUDE_DIR/dataman/AMDataSourceImageData.h \
-		$$AM_INCLUDE_DIR/dataman/AMDataSourceSeriesData.h \
+		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceImageData.h \
+		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceSeriesData.h \
 		$$AM_INCLUDE_DIR/dataman/AMAnalysisBlock.h \
 		$$AM_INCLUDE_DIR/dataman/AMAxisInfo.h \
 		$$AM_INCLUDE_DIR/dataman/AMNumber.h \
@@ -96,12 +96,12 @@ SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMnDIndex.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMDbObjectSupport.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMControlInfoList.cpp \
-		$$AM_INCLUDE_DIR/dataman/AMDataSource.cpp \
-		$$AM_INCLUDE_DIR/dataman/AMRawDataSource.cpp \
+		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSource.cpp \
+		$$AM_INCLUDE_DIR/dataman/datasource/AMRawDataSource.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMDataStore.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMInMemoryDataStore.cpp \
-		$$AM_INCLUDE_DIR/dataman/AMDataSourceImageData.cpp \
-		$$AM_INCLUDE_DIR/dataman/AMDataSourceSeriesData.cpp \
+		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceImageData.cpp \
+		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceSeriesData.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMAnalysisBlock.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMAxisInfo.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMNumber.cpp \

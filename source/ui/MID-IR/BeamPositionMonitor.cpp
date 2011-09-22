@@ -19,7 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "BeamPositionMonitor.h"
-#include "dataman/AMDataSourceSeriesData.h"
+#include "dataman/datasource/AMDataSourceSeriesData.h"
 
 #include <QVBoxLayout>
 

@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/SGM/SGM2011XASFileLoader.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
-#include "dataman/AMRawDataSource.h"
+#include "dataman/datasource/AMRawDataSource.h"
 #include "dataman/AMUser.h"
 
 #include "dataman/AMSamplePlate.h"

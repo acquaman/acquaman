@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "XRFDetectorView.h"
 #include "DeadTimeButton.h"
 #include "MPlot/MPlotAxisScale.h"
-#include "dataman/AMDataSourceSeriesData.h"
+#include "dataman/datasource/AMDataSourceSeriesData.h"
 #include "util/AMPeriodicTable.h"
 #include "util/VESPERS/GeneralUtilities.h"
 

@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMRAWDATASOURCE_H
 
 #include "dataman/AMDbObject.h"
-#include "dataman/AMDataSource.h"
+#include "dataman/datasource/AMDataSource.h"
 #include "dataman/AMDataStore.h"
 
 /// This class exposes one channel of an AMScan's raw data through the AMDataSource interface. It uses the scan's AMDataStore to access the data.  It also implements AMDbObject, so that it can be easily stored to the database.  The dimensions of its output include (first) the scan dimensions, then the detector dimensions.

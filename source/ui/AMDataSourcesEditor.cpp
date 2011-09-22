@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMCloseItemDelegate.h"
 #include <QRegExpValidator>
 
-#include "dataman/AMDataSource.h"
+#include "dataman/datasource/AMDataSource.h"
 #include "dataman/AMScan.h"
 
 AMDataSourcesEditor::AMDataSourcesEditor(AMScanSetModel* model, QWidget *parent) :

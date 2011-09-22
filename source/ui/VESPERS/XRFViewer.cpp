@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/DeadTimeButton.h"
 #include "MPlot/MPlotAxisScale.h"
 #include "util/VESPERS/GeneralUtilities.h"
-#include "dataman/AMDataSourceSeriesData.h"
+#include "dataman/datasource/AMDataSourceSeriesData.h"
 #include "MPlot/MPlotTools.h"
 
 #include <QString>

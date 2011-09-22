@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 #include "MPlot/MPlotImageData.h"
-#include "dataman/AMDataSource.h"
+#include "dataman/datasource/AMDataSource.h"
 
 /// This class wraps any AMDataSource for use as 2-dimensional (XY scatter) series data.  The rank() of the underlying data source must be 2; if the dimensionality is not correct, the wrapper will report a count() of 0.  It only supports data sources with uniform axis scales for now.
 class AMDataSourceImageData : public QObject, public MPlotAbstractImageData

@@ -307,19 +307,19 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/ALSBL8XASFileLoader.h \
 	source/ui/AMWindowPaneModel.h \
 	source/dataman/AMScanEditorModelItem.h \
-	source/dataman/AMDataSource.h \
+	source/dataman/datasource/AMDataSource.h \
 	source/dataman/AMAxisInfo.h \
 	source/dataman/AMNumber.h \
 	source/dataman/AMnDIndex.h \
 	source/dataman/AMDataStore.h \
 	source/dataman/AMAnalysisBlock.h \
-	source/dataman/AMDataSourceSeriesData.h \
-	source/dataman/AMDataSourceImageData.h \
+	source/dataman/datasource/AMDataSourceSeriesData.h \
+	source/dataman/datasource/AMDataSourceImageData.h \
 	source/analysis/AM1DExpressionAB.h \
 	source/dataman/AMDbObjectSupport.h \
 	source/util/AMOrderedSetSignalSource.h \
 	source/util/AMOrderedSet.h \
-	source/dataman/AMRawDataSource.h \
+	source/dataman/datasource/AMRawDataSource.h \
 	source/analysis/AM1DExpressionABEditor.h \
 	source/dataman/AMMeasurementInfo.h \
 	source/dataman/AMInMemoryDataStore.h \
@@ -393,7 +393,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/analysis/AMExternalScanDataSourceAB.h \
 	source/analysis/AM1DSummingAB.h \
 	source/analysis/AMDeadTimeAB.h \
-	source/dataman/AMProcessVariableDataSource.h \
+	source/dataman/datasource/AMProcessVariableDataSource.h \
 	source/ui/AMChooseScanDialog.h \
 	source/application/AMDatamanAppController.h \
 	source/ui/AMColorPickerButton.h \
@@ -402,7 +402,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMLinePropertyEditor.h \
 	source/ui/AMImagePropertyEditor.h \
 	source/beamline/CLS/CLSSynchronizedDwellTime.h \
-	source/dataman/AMXYScatterPVDataSource.h \
+	source/dataman/datasource/AMXYScatterPVDataSource.h \
 	source/beamline/AMCompositeControl.h \
 	source/ui/CLS/CLSSynchronizedDwellTimeView.h \
 	source/analysis/AM2DDeadTimeAB.h \
@@ -562,19 +562,19 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/ALSBL8XASFileLoader.cpp \
 	source/ui/AMWindowPaneModel.cpp \
 	source/dataman/AMScanEditorModelItem.cpp \
-	source/dataman/AMDataSource.cpp \
+	source/dataman/datasource/AMDataSource.cpp \
 	source/dataman/AMAxisInfo.cpp \
 	source/dataman/AMNumber.cpp \
 	source/dataman/AMnDIndex.cpp \
 	source/dataman/AMDataStore.cpp \
 	source/dataman/AMAnalysisBlock.cpp \
-	source/dataman/AMDataSourceSeriesData.cpp \
-	source/dataman/AMDataSourceImageData.cpp \
+	source/dataman/datasource/AMDataSourceSeriesData.cpp \
+	source/dataman/datasource/AMDataSourceImageData.cpp \
 	source/analysis/AM1DExpressionAB.cpp \
 	source/dataman/AMDbObjectSupport.cpp \
 	source/acquaman.cpp \
 	source/util/AMOrderedSetSignalSource.cpp \
-	source/dataman/AMRawDataSource.cpp \
+	source/dataman/datasource/AMRawDataSource.cpp \
 	source/analysis/AM1DExpressionABEditor.cpp \
 	source/dataman/AMInMemoryDataStore.cpp \
 	source/acquaman/AMFastScanConfiguration.cpp \
@@ -647,7 +647,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AMExternalScanDataSourceAB.cpp \
 	source/analysis/AM1DSummingAB.cpp \
 	source/analysis/AMDeadTimeAB.cpp \
-	source/dataman/AMProcessVariableDataSource.cpp \
+	source/dataman/datasource/AMProcessVariableDataSource.cpp \
 	source/ui/AMChooseScanDialog.cpp \
 	source/application/AMDatamanAppController.cpp \
 	source/ui/AMColorPickerButton.cpp \
@@ -656,7 +656,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMLinePropertyEditor.cpp \
 	source/ui/AMImagePropertyEditor.cpp \
 	source/beamline/CLS/CLSSynchronizedDwellTime.cpp \
-	source/dataman/AMXYScatterPVDataSource.cpp \
+	source/dataman/datasource/AMXYScatterPVDataSource.cpp \
 	source/beamline/AMCompositeControl.cpp \
 	source/ui/CLS/CLSSynchronizedDwellTimeView.cpp \
 	source/analysis/AM2DDeadTimeAB.cpp \

@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSXRFScanController.h"
 #include "dataman/AMUser.h"
-#include "dataman/AMRawDataSource.h"
+#include "dataman/datasource/AMRawDataSource.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "dataman/VESPERS/VESPERSXRFDataLoader.h"
 #include "analysis/AMDeadTimeAB.h"

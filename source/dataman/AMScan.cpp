@@ -380,8 +380,8 @@ void AMScan::dbLoadScanConfiguration(AMDbObject* newObject) {
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotSeries.h"
 #include "MPlot/MPlotImage.h"
-#include "dataman/AMDataSourceSeriesData.h"
-#include "dataman/AMDataSourceImageData.h"
+#include "dataman/datasource/AMDataSourceSeriesData.h"
+#include "dataman/datasource/AMDataSourceImageData.h"
 
 // Return a thumbnail picture for thumbnail number \c index. For now, we use the following decision: Normally we provide thumbnails for all the analyzed data sources.  If there are no analyzed data sources, we provide thumbnails for all the raw data sources.
 AMDbThumbnail AMScan::thumbnail(int index) const {

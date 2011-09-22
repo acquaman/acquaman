@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMDbObject.h"
 #include "dataman/AMDataStore.h"
 #include "util/AMOrderedSet.h"
-#include "dataman/AMRawDataSource.h"
+#include "dataman/datasource/AMRawDataSource.h"
 #include "dataman/AMAnalysisBlock.h"
 #include "dataman/AMControlInfoList.h"	/// \todo change to AMControlInfoSet, using standard set API.
 

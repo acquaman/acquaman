@@ -63,8 +63,8 @@ HEADERS         = \
 		$$AM_INCLUDE_DIR/dataman/AMnDIndex.h \
 		$$AM_INCLUDE_DIR/dataman/AMAxisInfo.h \
 		$$AM_INCLUDE_DIR/dataman/AMNumber.h \
-		$$AM_INCLUDE_DIR/dataman/AMDataSource.h \
-		$$AM_INCLUDE_DIR/dataman/AMDataSourceImageData.h \
+		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSource.h \
+		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceImageData.h \
 		$$AM_INCLUDE_DIR/analysis/AMStandardAnalysisBlock.h \
 		$$AM_INCLUDE_DIR/util/AMSettings.h \
 		$$AM_INCLUDE_DIR/util/AMErrorMonitor.h \
@@ -91,8 +91,8 @@ SOURCES         = \
 		$$AM_INCLUDE_DIR/dataman/AMnDIndex.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMAxisInfo.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMNumber.cpp \
-		$$AM_INCLUDE_DIR/dataman/AMDataSource.cpp \
-		$$AM_INCLUDE_DIR/dataman/AMDataSourceImageData.cpp \
+		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSource.cpp \
+		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceImageData.cpp \
 		$$AM_INCLUDE_DIR/analysis/AMStandardAnalysisBlock.cpp \
 		$$AM_INCLUDE_DIR/util/AMSettings.cpp \
 		$$AM_INCLUDE_DIR/util/AMErrorMonitor.cpp \
