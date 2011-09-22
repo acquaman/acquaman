@@ -27,13 +27,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <dataman/AMRun.h>
 #include <dataman/AMSample.h>
 #include <dataman/AMExperiment.h>
-#include <dataman/AMControlInfoList.h>
-#include <dataman/AMDetectorInfoList.h>
+#include <dataman/info/AMControlInfoList.h>
+#include <dataman/info/AMDetectorInfoList.h>
 #include <dataman/AMSamplePlate.h>
-#include <dataman/AMSpectralOutputDetectorInfo.h>
+#include <dataman/info/AMSpectralOutputDetectorInfo.h>
 #include "dataman/AMUser.h"
 #include "dataman/AMXESScan.h"
-#include "dataman/AMROIInfo.h"
+#include "dataman/info/AMROIInfo.h"
 
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"

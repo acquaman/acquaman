@@ -230,7 +230,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMPVNames.h \
 	source/dataman/AMDatabase.h \
 	source/dataman/AMDbObject.h \
-	source/dataman/AMDetectorInfo.h \
+	source/dataman/info/AMDetectorInfo.h \
 	source/dataman/AMExperiment.h \
 	source/dataman/AMFirstTimeController.h \
 	source/dataman/AMImportController.h \
@@ -284,7 +284,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMSampleManagementWidget.h \
 	source/ui/AMSampleManipulatorView.h \
 	source/ui/AMSamplePlateView.h \
-	source/dataman/AMControlInfoList.h \
+	source/dataman/info/AMControlInfoList.h \
 	source/dataman/AMSamplePlate.h \
 	source/ui/AMGenericScanEditor.h \
 	source/ui/AMDetailedItemDelegate.h \
@@ -303,7 +303,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMUser.h \
 	#deprecated: source/ui/AMVideoPlayerWidget.h \
 	source/dataman/AMXESScan.h \
-	source/dataman/ALSBL8XESDetectorInfo.h \
+	source/dataman/info/ALSBL8XESDetectorInfo.h \
 	source/dataman/ALSBL8XASFileLoader.h \
 	source/ui/AMWindowPaneModel.h \
 	source/dataman/AMScanEditorModelItem.h \
@@ -332,7 +332,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/util/AMOrderedList.h \
 	source/actions/AMBeamlineParallelActionsList.h \
 	source/beamline/AMControlOptimization.h \
-	source/dataman/AMDetectorInfoList.h \
+	source/dataman/info/AMDetectorInfoList.h \
 	source/ui/AMControlOptimizationView.h \
 	source/actions/AMBeamlineControlStopAction.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
@@ -342,9 +342,9 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMPeriodicTableView.h \
 	source/util/AMPeriodicTable.h \
 	source/util/AMElement.h \
-	source/dataman/AMSpectralOutputDetectorInfo.h \
-	source/dataman/MCPDetectorInfo.h \
-	source/dataman/PGTDetectorInfo.h \
+	source/dataman/info/AMSpectralOutputDetectorInfo.h \
+	source/dataman/info/MCPDetectorInfo.h \
+	source/dataman/info/PGTDetectorInfo.h \
 	source/beamline/AMSingleControlDetector.h \
 	source/beamline/AMSpectralOutputDetector.h \
 	source/beamline/PGTDetector.h \
@@ -355,7 +355,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/PGTDetectorView.h \
 	source/ui/AMDetectorSetView.h \
 	source/beamline/AMDetectorSet.h \
-	source/dataman/AMROIInfo.h \
+	source/dataman/info/AMROIInfo.h \
 	source/beamline/AMROI.h \
 	source/ui/AMSamplePositionViewActionsWidget.h \
 	source/actions/AMBeamlineListAction.h \
@@ -376,7 +376,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMTopFrame.h \
 	source/actions/AMBeamlineSamplePlateMoveAction.h \
 	source/actions/AMBeamlineFiducializationMoveAction.h \
-	source/dataman/OceanOptics65000DetectorInfo.h \
+	source/dataman/info/OceanOptics65000DetectorInfo.h \
 	source/beamline/OceanOptics65000Detector.h \
 	source/ui/OceanOptics65000DetectorView.h \
 	source/dataman/SGM/SGM2011XASFileLoader.h \
@@ -494,7 +494,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/AMPVNames.cpp \
 	source/dataman/AMDatabase.cpp \
 	source/dataman/AMDbObject.cpp \
-	source/dataman/AMDetectorInfo.cpp \
+	source/dataman/info/AMDetectorInfo.cpp \
 	source/dataman/AMExperiment.cpp \
 	source/dataman/AMFirstTimeController.cpp \
 	source/dataman/AMImportController.cpp \
@@ -539,7 +539,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMSampleManagementWidget.cpp \
 	source/ui/AMSampleManipulatorView.cpp \
 	source/ui/AMSamplePlateView.cpp \
-	source/dataman/AMControlInfoList.cpp \
+	source/dataman/info/AMControlInfoList.cpp \
 	source/dataman/AMSamplePlate.cpp \
 	source/ui/AMGenericScanEditor.cpp \
 	source/ui/AMDetailedItemDelegate.cpp \
@@ -558,7 +558,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/AMUser.cpp \
 	#deprecated: source/ui/AMVideoPlayerWidget.cpp \
 	source/dataman/AMXESScan.cpp \
-	source/dataman/ALSBL8XESDetectorInfo.cpp \
+	source/dataman/info/ALSBL8XESDetectorInfo.cpp \
 	source/dataman/ALSBL8XASFileLoader.cpp \
 	source/ui/AMWindowPaneModel.cpp \
 	source/dataman/AMScanEditorModelItem.cpp \
@@ -585,7 +585,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AM2DSummingABEditor.cpp \
 	source/actions/AMBeamlineParallelActionsList.cpp \
 	source/beamline/AMControlOptimization.cpp \
-	source/dataman/AMDetectorInfoList.cpp \
+	source/dataman/info/AMDetectorInfoList.cpp \
 	source/ui/AMControlOptimizationView.cpp \
 	source/actions/AMBeamlineControlStopAction.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
@@ -594,9 +594,9 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMPeriodicTableView.cpp \
 	source/util/AMPeriodicTable.cpp \
 	source/util/AMElement.cpp \
-	source/dataman/AMSpectralOutputDetectorInfo.cpp \
-	source/dataman/MCPDetectorInfo.cpp \
-	source/dataman/PGTDetectorInfo.cpp \
+	source/dataman/info/AMSpectralOutputDetectorInfo.cpp \
+	source/dataman/info/MCPDetectorInfo.cpp \
+	source/dataman/info/PGTDetectorInfo.cpp \
 	source/beamline/AMSingleControlDetector.cpp \
 	source/beamline/AMSpectralOutputDetector.cpp \
 	source/beamline/PGTDetector.cpp \
@@ -607,7 +607,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/PGTDetectorView.cpp \
 	source/ui/AMDetectorSetView.cpp \
 	source/beamline/AMDetectorSet.cpp \
-	source/dataman/AMROIInfo.cpp \
+	source/dataman/info/AMROIInfo.cpp \
 	source/beamline/AMROI.cpp \
 	#deprecated: source/ui/AMVideoWidget.cpp \
 	#source/beamline/AMBeamlineListAction.cpp
@@ -630,7 +630,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 #	source/ui/AM3dDataSourceView.cpp \
 	source/actions/AMBeamlineSamplePlateMoveAction.cpp \
 	source/actions/AMBeamlineFiducializationMoveAction.cpp \
-	source/dataman/OceanOptics65000DetectorInfo.cpp \
+	source/dataman/info/OceanOptics65000DetectorInfo.cpp \
 	source/beamline/OceanOptics65000Detector.cpp \
 	source/ui/OceanOptics65000DetectorView.cpp \
 	source/dataman/SGM/SGM2011XASFileLoader.cpp \

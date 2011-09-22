@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define ACQMAN_AMDETECTOR_H
 
 #include <QObject>
-#include "dataman/AMDetectorInfo.h"
+#include "dataman/info/AMDetectorInfo.h"
 #include "AMControl.h"
 #include "actions/AMBeamlineActionItem.h"
 

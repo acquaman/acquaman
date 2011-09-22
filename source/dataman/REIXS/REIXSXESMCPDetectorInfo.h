@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef REIXSXESMCPDETECTORINFO_H
 #define REIXSXESMCPDETECTORINFO_H
 
-#include "dataman/AMDetectorInfo.h"
+#include "dataman/info/AMDetectorInfo.h"
 
 /// This class contains the run-time configuration parameters for the MCP detector in the REIXS XES Spectrometer
 class REIXSXESMCPDetectorInfo : public AMDetectorInfo

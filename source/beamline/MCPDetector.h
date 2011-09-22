@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define MCPDETECTOR_H
 
 #include "AMDetector.h"
-#include "dataman/MCPDetectorInfo.h"
+#include "dataman/info/MCPDetectorInfo.h"
 #include "AMControlSet.h"
 #include "actions/AMBeamlineActionItem.h"
 

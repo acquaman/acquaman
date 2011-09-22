@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMAbstractFileLoader.h"
 #include "util/AMBiHash.h"
-#include "dataman/AMDetectorInfo.h"
+#include "dataman/info/AMDetectorInfo.h"
 
 
 class AMXASScan;

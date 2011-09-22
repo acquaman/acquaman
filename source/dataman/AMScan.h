@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMOrderedSet.h"
 #include "dataman/datasource/AMRawDataSource.h"
 #include "dataman/AMAnalysisBlock.h"
-#include "dataman/AMControlInfoList.h"	/// \todo change to AMControlInfoSet, using standard set API.
+#include "dataman/info/AMControlInfoList.h"	/// \todo change to AMControlInfoSet, using standard set API.
 
 #include "dataman/AMFileLoaderInterface.h"
 

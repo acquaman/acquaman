@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 #include <QDebug>
-#include "dataman/AMROIInfo.h"
+#include "dataman/info/AMROIInfo.h"
 #include "beamline/AMProcessVariable.h"
 
 /*! This class is used to set PVs based on either an AMROIInfo class or through other means (ex: a detector view).  It is meant to encapsulate the different pieces of an ROI into a single class.  For instance, the energy, the low limit, the high limit, and the name are all useful to group together.

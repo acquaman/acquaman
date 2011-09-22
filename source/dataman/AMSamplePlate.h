@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDateTime>
 
 #include "AMSample.h"
-#include "AMControlInfoList.h"
+#include "dataman/info/AMControlInfoList.h"
 #include "AMDbObject.h"
 #include "acquaman.h"
 

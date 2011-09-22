@@ -274,7 +274,7 @@ QString AMExporter::krScanConfiguration(const QString& propertyName) {
 	return v.toString();
 }
 
-#include "dataman/AMControlInfoList.h"
+#include "dataman/info/AMControlInfoList.h"
 
 QString AMExporter::krControl(const QString& controlName) {
 	if(!currentScan_)
