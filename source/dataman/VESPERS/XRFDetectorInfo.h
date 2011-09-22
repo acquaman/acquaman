@@ -58,7 +58,7 @@ public:
 	/// Returns a list of AMAxisInfo describing the size and nature of each detector axis, in order.
 	virtual QList<AMAxisInfo> axes() const {
 		QList<AMAxisInfo> axisInfo;
-		AMAxisInfo ai("XRF Scan", channels(), "Energy", "eV");
+		AMAxisInfo ai("Energy", channels(), "Energy", "eV");
 		ai.increment = AMNumber(scale());
 		ai.start = AMNumber(0);
 		ai.isUniform = true;

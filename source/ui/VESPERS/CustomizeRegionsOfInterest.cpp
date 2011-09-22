@@ -56,8 +56,8 @@ RegionOfInterestView::RegionOfInterestView(AMROI *roi, QWidget *parent)
 
 	connect(roi, SIGNAL(scalerChanged(double)), this, SLOT(onScalerChanged(double)));
 
-	QLabel *value = new QLabel;
-	connect(roi, SIGNAL(valueUpdate(double)), value, SLOT(setNum(double)));
+	value_ = new QLabel;
+	connect(roi, SIGNAL(valueUpdate(double)), value_, SLOT(setNum(double)));
 
 	QHBoxLayout *roiLayout = new QHBoxLayout;
 	roiLayout->addWidget(name_, 0, Qt::AlignCenter);
@@ -65,7 +65,7 @@ RegionOfInterestView::RegionOfInterestView(AMROI *roi, QWidget *parent)
 	roiLayout->addWidget(low_);
 	roiLayout->addWidget(new QLabel("High: "), 0, Qt::AlignRight);
 	roiLayout->addWidget(high_);
-	roiLayout->addWidget(value, 0, Qt::AlignCenter);
+	roiLayout->addWidget(value_, 0, Qt::AlignCenter);
 
 	setLayout(roiLayout);
 	setMinimumWidth(420);

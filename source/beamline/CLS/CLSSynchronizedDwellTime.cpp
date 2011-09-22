@@ -25,19 +25,57 @@ CLSSynchronizedDwellTime::CLSSynchronizedDwellTime(QString baseName, QObject *pa
 {
 	baseName_ = baseName;
 
-	dwellTime_ = new AMProcessVariable(baseName+":setTime", true, this);
-	startScan_ = new AMProcessVariable(baseName+":startScan", true, this);
-	mode_ = new AMProcessVariable(baseName+":setMode", true, this);
+	dwellTime_ = new AMSinglePVControl("Dwell Time", baseName+":setTime", this, 0.1);
+	startScan_ = new AMSinglePVControl("Start Scan", baseName+":startScan", this, 0.1);
+	mode_ = new AMSinglePVControl("Dwell Mode", baseName+":setMode", this, 0.1);
+
+	connect(dwellTime_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+	connect(startScan_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+	connect(mode_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 
 	connect(dwellTime_, SIGNAL(valueChanged(double)), this, SIGNAL(timeChanged(double)));
-	connect(startScan_, SIGNAL(valueChanged(int)), this, SLOT(onScanningChanged(int)));
-	connect(mode_, SIGNAL(valueChanged(int)), this, SLOT(onModeChanged(int)));
+	connect(startScan_, SIGNAL(valueChanged(double)), this, SLOT(onScanningChanged(double)));
+	connect(mode_, SIGNAL(valueChanged(double)), this, SLOT(onModeChanged(double)));
 }
 
 void CLSSynchronizedDwellTime::addElement(int index)
 {
 	elements_ << new CLSSynchronizedDwellTimeElement(baseName_, index, this);
 	connect(elements_.last(), SIGNAL(statusChanged(bool)), this, SLOT(onStatusChanged()));
+	connect(elements_.last(), SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+}
+
+AMBeamlineActionItem *CLSSynchronizedDwellTime::createMasterTimeAction(double time)
+{
+	if (dwellTime_->isConnected())
+		return 0;
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(dwellTime_);
+	action->setSetpoint(time);
+
+	return action;
+}
+
+AMBeamlineActionItem *CLSSynchronizedDwellTime::createScanningAction(bool scan)
+{
+	if (startScan_->isConnected())
+		return 0;
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(startScan_);
+	action->setSetpoint(scan == true ? 1.0 : 0.0);
+
+	return action;
+}
+
+AMBeamlineActionItem *CLSSynchronizedDwellTime::createModeAction(CLSSynchronizedDwellTime::Mode mode)
+{
+	if (mode_->isConnected())
+		return 0;
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(mode_);
+	action->setSetpoint(mode == Continuous ? 0.0 : 1.0);
+
+	return action;
 }
 
 CLSSynchronizedDwellTimeElement::CLSSynchronizedDwellTimeElement(QString baseName, int index, QObject *parent)
@@ -45,12 +83,39 @@ CLSSynchronizedDwellTimeElement::CLSSynchronizedDwellTimeElement(QString baseNam
 {
 	// 65 is 'A' in ascii.  Therefore the index offset will give the appropriate letter for the PV name since they are named 'A', 'B', 'C', etc.
 	name_ = new AMProcessVariable(baseName+":device"+QChar(65+index), true, this);
-	enable_ = new AMProcessVariable(baseName+":enable"+QChar(65+index), true, this);
-	time_ = new AMProcessVariable(baseName+":set"+QChar(65+index), true, this);
+	enable_ = new AMSinglePVControl("Dwell Element Enable", baseName+":enable"+QChar(65+index), this, 0.1);
+	time_ = new AMSinglePVControl("Dwell Element Time", baseName+":set"+QChar(65+index), this, 0.1);
 	status_ = new AMProcessVariable(baseName+":status"+QChar(65+index), true, this);
+
+	connect(name_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
+	connect(time_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+	connect(enable_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+	connect(status_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
 
 	connect(name_, SIGNAL(valueChanged(QString)), this, SIGNAL(nameChanged(QString)));
 	connect(time_, SIGNAL(valueChanged(double)), this, SIGNAL(timeChanged(double)));
-	connect(enable_, SIGNAL(valueChanged(int)), this, SLOT(onEnabledChanged(int)));
+	connect(enable_, SIGNAL(valueChanged(double)), this, SLOT(onEnabledChanged(double)));
 	connect(status_, SIGNAL(valueChanged(int)), this, SLOT(onStatusChanged(int)));
+}
+
+AMBeamlineActionItem *CLSSynchronizedDwellTimeElement::createTimeAction(double time)
+{
+	if (time_->isConnected())
+		return 0;
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(time_);
+	action->setSetpoint(time);
+
+	return action;
+}
+
+AMBeamlineActionItem *CLSSynchronizedDwellTimeElement::createEnableAction(bool enable)
+{
+	if (enable_->isConnected())
+		return 0;
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(enable_);
+	action->setSetpoint(enable == true ? 1.0 : 0.0);
+
+	return action;
 }

@@ -113,6 +113,8 @@ void VESPERSXRFScanController::onDetectorAcquisitionFinished()
 	disconnect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onProgressUpdate()));
 
 
+	//scan_->rawData()->setAxisValue();
+
 	for (int i = 0; i < detector_->elements(); i++){
 
 		QVector<int> currSpectra(detector_->spectraValues(i));

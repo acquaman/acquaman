@@ -32,9 +32,16 @@ VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(QObject *parent)
 	ionChamberNames_.insert(Ipost, "Ipost");
 
 	regions_->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
-	fluorescenceDetectorChoice_ = FourElement;
+	setName("XAS Scan");
+	fluorescenceDetectorChoice_ = None;
 	It_ = Ipost;
 	I0_ = Imini;
+	time_ = 1.0;
+	edge_ = "";
+	energy_ = 0.0;
+
+	goToPosition_ = false;
+	position_ = qMakePair(0.0, 0.0);
 }
 
 VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(const VESPERSXASScanConfiguration &original)
@@ -53,6 +60,12 @@ VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(const VESPERSXASScanCon
 	fluorescenceDetectorChoice_ = original.fluorescenceDetectorChoice();
 	It_ = original.transmissionChoice();
 	I0_ = original.incomingChoice();
+	time_ = original.accumulationTime();
+	edge_ = original.edge();
+	energy_ = original.energy();
+
+	goToPosition_ = original.goToPosition();
+	position_ = original.position();
 }
 
 AMScanConfiguration *VESPERSXASScanConfiguration::createCopy() const

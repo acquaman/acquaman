@@ -20,9 +20,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SampleStageControl.h"
 
+#include "beamline/AMBeamlineControlMoveAction.h"
+#include "beamline/AMBeamlineControlStopAction.h"
+#include "beamline/AMBeamlineParallelActionsList.h"
+#include "beamline/AMBeamlineListAction.h"
+
 SampleStageControl::SampleStageControl(AMControl *horiz, AMControl *vert, AMControl *norm, QObject *parent)
 	: QObject(parent)
 {
+	connected_ = false;
+
 	// The limits.
 	xRange_ = qMakePair(0, 0);
 	yRange_ = qMakePair(0, 0);
@@ -112,4 +119,78 @@ void SampleStageControl::onZStepChanged(double step)
 		emit verticalMoveError(true);
 		emit normalMoveError(true);
 	}
+}
+
+AMBeamlineActionItem *SampleStageControl::createHorizontalMoveAction(double position)
+{
+	if (!horiz_->isConnected())
+		return 0;
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(horiz_);
+	action->setSetpoint(position);
+
+	return action;
+}
+
+AMBeamlineActionItem *SampleStageControl::createHorizontalStopAction()
+{
+	if (!horiz_->isConnected())
+		return 0;
+
+	return new AMBeamlineControlStopAction(horiz_);
+}
+
+AMBeamlineActionItem *SampleStageControl::createVerticalMoveAction(double position)
+{
+	if (!vert_->isConnected())
+		return 0;
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(vert_);
+	action->setSetpoint(position);
+
+	return action;
+}
+
+AMBeamlineActionItem *SampleStageControl::createVerticalStopAction()
+{
+	if (!vert_->isConnected())
+		return 0;
+
+	return new AMBeamlineControlStopAction(vert_);
+}
+
+AMBeamlineActionItem *SampleStageControl::createNormalMoveAction(double position)
+{
+	if (!norm_->isConnected())
+		return 0;
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(norm_);
+	action->setSetpoint(position);
+
+	return action;
+
+}
+
+AMBeamlineActionItem *SampleStageControl::createNormalStopAction()
+{
+	if (!norm_->isConnected())
+		return 0;
+
+	return new AMBeamlineControlStopAction(norm_);
+}
+
+AMBeamlineActionItem *SampleStageControl::createStopAllAction()
+{
+	if (!isConnected())
+		return 0;
+
+	AMBeamlineParallelActionsList *stopAllActionsList = new AMBeamlineParallelActionsList;
+	AMBeamlineListAction *stopAllAction = new AMBeamlineListAction(stopAllActionsList);
+
+	stopAllActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+	stopAllActionsList->appendAction(0, new AMBeamlineControlStopAction(horiz_));
+	stopAllActionsList->appendAction(0, new AMBeamlineControlStopAction(vert_));
+	stopAllActionsList->appendAction(0, new AMBeamlineControlStopAction(norm_));
+
+	return stopAllAction;
 }

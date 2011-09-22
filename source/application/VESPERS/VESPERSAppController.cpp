@@ -35,6 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/XRFMapSetup.h"
 #include "ui/VESPERS/VESPERSDeviceStatusView.h"
 #include "ui/VESPERS/VESPERSXASScanConfigurationView.h"
+#include "ui/VESPERS/VESPERSExperimentConfigurationView.h"
 
 #include "dataman/AMScanEditorModelItem.h"
 #include "ui/AMGenericScanEditor.h"
@@ -75,13 +76,13 @@ bool VESPERSAppController::startup() {
 		}
 	}
 
-	// Initialize central beamline object
-	VESPERSBeamline::vespers();
-	// Initialize the periodic table object.
-	AMPeriodicTable::table();
-
 	// Start up the main program.
 	if(AMAppController::startup()) {
+
+		// Initialize central beamline object
+		VESPERSBeamline::vespers();
+		// Initialize the periodic table object.
+		AMPeriodicTable::table();
 
 		AMDbObjectSupport::registerClass<XRFDetectorInfo>();
 		AMDbObjectSupport::registerClass<VESPERSXRFScanConfiguration>();
@@ -110,14 +111,14 @@ bool VESPERSAppController::startup() {
 		scanControllerActiveEditor_ = 0;
 
 		// Setup the general endstation control view.
-		VESPERSEndstationView *endstationView = new VESPERSEndstationView;
+		VESPERSEndstationView *endstationView = new VESPERSEndstationView(VESPERSBeamline::vespers()->endstation());
 		VESPERSBeamlineView *beamlineView = new VESPERSBeamlineView;
-		//VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
+		VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
 
 		mw_->insertHeading("Beamline Control", 0);
 		mw_->addPane(endstationView, "Beamline Control", "Endstation", ":/system-software-update.png");
 		mw_->addPane(beamlineView, "Beamline Control", "Beamline", ":/system-software-update.png");
-		//mw_->addPane(statusPage, "Beamline Control", "Device Status", ":/system-software-update.png");
+		mw_->addPane(statusPage, "Beamline Control", "Device Status", ":/system-software-update.png");
 
 		// Setup the XRF views for the single element vortex and the four element vortex detectors.  Since they have scans that are added to the workflow, it gets the workflow manager view passed into it as well.
 		// This means that the FreeRunView kind of doubles as a regular detector view and a configuration view holder.
@@ -127,6 +128,9 @@ bool VESPERSAppController::startup() {
 		mw_->insertHeading("Free run", 1);
 		mw_->addPane(xrf1EFreeRunView, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");
 		mw_->addPane(xrf4EFreeRunView, "Free run", "XRF 4-el", ":/utilities-system-monitor.png");
+
+		// Setup page that auto-enables detectors.
+		VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
 
 		// Setup page to launch the nDMapper software with correct options.
 		XRFMapSetup *ndMapSetup = new XRFMapSetup;
@@ -140,6 +144,7 @@ bool VESPERSAppController::startup() {
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
 
 		mw_->insertHeading("Scans", 2);
+		mw_->addPane(experimentConfigurationView, "Scans", "Experiment Setup", ":/utilities-system-monitor.png");
 		mw_->addPane(ndMapSetup, "Scans", "Map Setup", ":/utilities-system-monitor.png");
 		mw_->addPane(xasConfigViewHolder, "Scans", "XAS", ":/utilities-system-monitor.png");
 
@@ -148,7 +153,7 @@ bool VESPERSAppController::startup() {
 		mw_->addRightWidget(persistentView);
 
 		// Show the endstation control view first.
-		mw_->setCurrentPane(endstationView);
+		mw_->setCurrentPane(experimentConfigurationView);
 
 		/// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
 		ROIHelper *roiHelper = new ROIHelper(this);

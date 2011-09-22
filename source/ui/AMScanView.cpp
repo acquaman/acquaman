@@ -129,7 +129,7 @@ void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int 
 	AMScan* source = model_->scanAt(scanIndex_);
 	// note: AMScanSetModel guarantees only one row inserted at a time, but we don't depend on that...
 	for(int i=start; i<=end; i++) {
-		QToolButton* newButton = new QToolButton();
+		AMColoredTextToolButton *newButton = new AMColoredTextToolButton(model_->plotColor(scanIndex_, i));
 		newButton->setText(source->dataSourceAt(i)->name());
 		newButton->setCheckable(true);
 		newButton->setMaximumHeight(18);
@@ -396,6 +396,9 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 	hl->addLayout(hl2);
 	hl->addStretch(1);
 
+	logCheckBox_ = new QCheckBox("Log Scale");
+	logCheckBox_->setChecked(false);
+	hl->addWidget(logCheckBox_);
 	normalizationCheckBox_ = new QCheckBox("Show at same scale");
 	normalizationCheckBox_->setChecked(true);
 	hl->addWidget(normalizationCheckBox_);
@@ -419,6 +422,7 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
   "border-bottom: 1px solid black;"
   "}");*/
 
+	connect(logCheckBox_, SIGNAL(clicked(bool)), this, SIGNAL(logScaleEnabled(bool)));
 	connect(normalizationCheckBox_, SIGNAL(clicked(bool)), this, SIGNAL(normalizationEnabled(bool)));
 	connect(waterfallCheckBox_, SIGNAL(clicked(bool)), this, SIGNAL(waterfallOffsetEnabled(bool)));
 	connect(waterfallAmount_, SIGNAL(valueChanged(double)), this, SIGNAL(waterfallOffsetChanged(double)));
@@ -492,6 +496,7 @@ void AMScanView::setupUI() {
 
 	for(int i=0; i<views_.count(); i++) {
 		AMScanViewInternal* v = views_.at(i);
+		v->enableLogScale(false);
 		v->enableNormalization(true);
 		v->setWaterfallOffset(0.2);
 		v->enableWaterfallOffset(true);
@@ -531,6 +536,7 @@ void AMScanView::makeConnections() {
 	// connect enabling/disabling normalization and waterfall to each view
 	for(int i=0; i<views_.count(); i++) {
 		AMScanViewInternal* v = views_.at(i);
+		connect(modeBar_, SIGNAL(logScaleEnabled(bool)), v, SLOT(enableLogScale(bool)));
 		connect(modeBar_, SIGNAL(normalizationEnabled(bool)), v, SLOT(enableNormalization(bool)));
 		connect(modeBar_, SIGNAL(waterfallOffsetEnabled(bool)), v, SLOT(enableWaterfallOffset(bool)));
 		connect(modeBar_, SIGNAL(waterfallOffsetChanged(double)), v, SLOT(setWaterfallOffset(double)));
@@ -589,6 +595,7 @@ AMScanViewInternal::AMScanViewInternal(AMScanView* masterView)
 	setSizePolicy(sp);
 	// note that the _widget_'s size policy will be meaningless after a top-level layout is set. (the sizePolicy() of the layout is used instead.)  Therefore, subclasses with top-level layouts need to copy this sizePolicy() to their layout before setting it.
 
+	logScaleEnabled_ = false;
 	normalizationEnabled_ = false;
 	waterfallEnabled_ = false;
 	waterfallOffset_  = 0;
@@ -882,10 +889,18 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 	}
 }
 
+void AMScanViewExclusiveView::enableLogScale(bool logScaleOn)
+{
+	AMScanViewInternal::enableLogScale(logScaleOn);
+
+	setDataRangeConstraint(MPlot::Left);
+	plot_->plot()->enableLogScale(MPlot::Left, logScaleOn);
+}
 
 void AMScanViewExclusiveView::enableNormalization(bool normalizationOn, double min, double max) {
 	AMScanViewInternal::enableNormalization(normalizationOn, min, max);
 
+	setDataRangeConstraint(MPlot::Left);
 	plot_->plot()->enableAxisNormalization(MPlot::Left, normalizationOn, MPlotAxisRange(min, max));
 
 }
@@ -906,6 +921,31 @@ void AMScanViewExclusiveView::setWaterfallOffset(double offset) {
 	if(waterfallEnabled_)
 		plot_->plot()->setAxisScaleWaterfall(MPlot::Left, waterfallOffset_);
 
+}
+
+void AMScanViewExclusiveView::setDataRangeConstraint(int id)
+{
+	switch(id){
+
+	case MPlot::Left:
+
+		if (logScaleEnabled_ && !normalizationEnabled_){
+
+			double min = plot_->plot()->minimumSeriesValue();
+
+			if (min != 0)
+				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(min, MPLOT_POS_INFINITY));
+			else
+				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
+
+		}
+		else if (logScaleEnabled_ && normalizationEnabled_)
+			plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(1e-4, MPLOT_POS_INFINITY));
+		else
+			plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(MPLOT_NEG_INFINITY, MPLOT_POS_INFINITY));
+
+		break;
+	}
 }
 
 /////////////////////////////
@@ -1121,10 +1161,18 @@ void AMScanViewMultiView::refreshTitles() {
 	plot_->plot()->legend()->setBodyText(model()->scanNames().join("<br>"));
 }
 
+void AMScanViewMultiView::enableLogScale(bool logScaleOn)
+{
+	AMScanViewInternal::enableLogScale(logScaleOn);
+
+	setDataRangeConstraint(MPlot::Left);
+	plot_->plot()->enableLogScale(MPlot::Left, logScaleOn);
+}
 
 void AMScanViewMultiView::enableNormalization(bool normalizationOn, double min, double max) {
 	AMScanViewInternal::enableNormalization(normalizationOn, min, max);
 
+	setDataRangeConstraint(MPlot::Left);
 	plot_->plot()->enableAxisNormalization(MPlot::Left, normalizationOn, min, max);
 }
 
@@ -1144,6 +1192,30 @@ void AMScanViewMultiView::setWaterfallOffset(double offset) {
 		plot_->plot()->setAxisScaleWaterfall(MPlot::Left, offset);
 }
 
+void AMScanViewMultiView::setDataRangeConstraint(int id)
+{
+	switch(id){
+
+	case MPlot::Left:
+
+		if (logScaleEnabled_ && !normalizationEnabled_){
+
+			double min = plot_->plot()->minimumSeriesValue();
+
+			if (min != 0)
+				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(min, MPLOT_POS_INFINITY));
+			else
+				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
+
+		}
+		else if (logScaleEnabled_ && normalizationEnabled_)
+			plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(1e-4, MPLOT_POS_INFINITY));
+		else
+			plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(MPLOT_NEG_INFINITY, MPLOT_POS_INFINITY));
+
+		break;
+	}
+}
 
 ///////////////////////////////////////////////////
 
@@ -1430,11 +1502,20 @@ void AMScanViewMultiScansView::reLayout() {
 	}
 }
 
+void AMScanViewMultiScansView::enableLogScale(bool logScaleOn)
+{
+	AMScanViewInternal::enableLogScale(logScaleOn);
 
+	setDataRangeConstraint(MPlot::Left);
 
+	for (int i = 0; i < plots_.count(); i++)
+		plots_.at(i)->plot()->enableLogScale(MPlot::Left, logScaleOn);
+}
 
 void AMScanViewMultiScansView::enableNormalization(bool normalizationOn, double min, double max) {
 	AMScanViewInternal::enableNormalization(normalizationOn, min, max);
+
+	setDataRangeConstraint(MPlot::Left);
 
 	for(int i=0; i<plots_.count(); i++) {
 		plots_.at(i)->plot()->enableAxisNormalization(MPlot::Left, normalizationOn,  min,  max);
@@ -1461,7 +1542,39 @@ void AMScanViewMultiScansView::setWaterfallOffset(double offset) {
 			plots_.at(i)->plot()->setAxisScaleWaterfall(MPlot::Left, offset);
 }
 
+void AMScanViewMultiScansView::setDataRangeConstraint(int id)
+{
+	switch(id){
 
+	case MPlot::Left:
+
+		double val;
+
+		if (logScaleEnabled_ && !normalizationEnabled_){
+
+			double min = MPLOT_POS_INFINITY;
+			for (int i = 0; i < plots_.count(); i++){
+
+				if (plots_.at(i)->plot()->minimumSeriesValue() < min)
+					min = plots_.at(i)->plot()->minimumSeriesValue();
+			}
+
+			if (min != 0)
+				val = min;
+			else
+				val = 1;
+		}
+		else if (logScaleEnabled_ && normalizationEnabled_)
+			val = 1e-4;
+		else
+			val = MPLOT_NEG_INFINITY;
+
+		for (int i = 0; i < plots_.count(); i++)
+			plots_.at(i)->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(val, MPLOT_POS_INFINITY));
+
+		break;
+	}
+}
 
 
 
@@ -1771,9 +1884,25 @@ bool AMScanViewMultiSourcesView::reviewDataSources() {
 	return areChanges;
 }
 
+void AMScanViewMultiSourcesView::enableLogScale(bool logScaleOn)
+{
+	AMScanViewInternal::enableLogScale(logScaleOn);
+
+	setDataRangeConstraint(MPlot::Left);
+
+	if(firstPlotEmpty_)
+		firstPlot_->plot()->enableLogScale(MPlot::Left, logScaleOn);
+	QMapIterator<QString, MPlotGW*> i(dataSource2Plot_);
+	while(i.hasNext()) {
+		i.next();
+		i.value()->plot()->enableLogScale(MPlot::Left, logScaleOn);
+	}
+}
 
 void AMScanViewMultiSourcesView::enableNormalization(bool normalizationOn, double min, double max) {
 	AMScanViewInternal::enableNormalization(normalizationOn, min, max);
+
+	setDataRangeConstraint(MPlot::Left);
 
 	if(firstPlotEmpty_)
 		firstPlot_->plot()->enableAxisNormalization(MPlot::Left, normalizationOn,  min,  max);
@@ -1819,6 +1948,50 @@ void AMScanViewMultiSourcesView::setWaterfallOffset(double offset) {
 			i.next();
 			i.value()->plot()->setAxisScaleWaterfall(MPlot::Left, offset);
 		}
+	}
+}
+
+void AMScanViewMultiSourcesView::setDataRangeConstraint(int id)
+{
+	switch(id){
+
+	case MPlot::Left:
+
+		double val;
+
+		if (logScaleEnabled_ && !normalizationEnabled_){
+
+			double min = MPLOT_POS_INFINITY;
+
+			if(firstPlotEmpty_)
+				val = MPLOT_NEG_INFINITY;
+			QMapIterator<QString, MPlotGW*> i(dataSource2Plot_);
+			while(i.hasNext()) {
+				i.next();
+
+				if (i.value()->plot()->minimumSeriesValue() < min)
+					min = i.value()->plot()->minimumSeriesValue();
+			}
+
+			if (min != 0)
+				val = min;
+			else
+				val = 1;
+		}
+		else if (logScaleEnabled_ && normalizationEnabled_)
+			val = 1e-4;
+		else
+			val = MPLOT_NEG_INFINITY;
+
+		if(firstPlotEmpty_)
+			firstPlot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(val, MPLOT_POS_INFINITY));
+		QMapIterator<QString, MPlotGW*> i(dataSource2Plot_);
+		while(i.hasNext()) {
+			i.next();
+			i.value()->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(val, MPLOT_POS_INFINITY));
+		}
+
+		break;
 	}
 }
 

@@ -25,10 +25,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *parent)
 	: XRFDetectorInfo(name, name, parent), AMDetector(name)
 {
+	connect(signalSource(), SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
+
 	setElements(elements);
 
 	wasConnected_ = false;
-	detectorConnected_ = false;
 	timer_.setInterval(6000);
 	connect(&timer_, SIGNAL(timeout()), this, SLOT(onUpdateTimer()));
 
@@ -211,15 +212,15 @@ void XRFDetector::fromXRFInfo(const XRFDetectorInfo &info)
 
 void XRFDetector::isDetectorConnected()
 {
-	wasConnected_ = detectorConnected_;
+	wasConnected_ = isConnected();
 
-	bool connected = true;
+	bool currentlyConnected = true;
 
-	connected = connected && startPV_->isConnected() && stopPV_->isConnected();
+	currentlyConnected = currentlyConnected && startPV_->isConnected() && stopPV_->isConnected();
 
 	for (int i = 0; i < elements_; i++){
 
-		connected = connected && statusPV_.at(i)->isConnected()
+		currentlyConnected = currentlyConnected && statusPV_.at(i)->isConnected()
 					&& mcaUpdateRatePV_.at(i)->isConnected()
 					&& statusUpdateRatePV_.at(i)->isConnected()
 					&& peakingTimePV_.at(i)->isConnected()
@@ -232,11 +233,10 @@ void XRFDetector::isDetectorConnected()
 					&& spectraPV_.at(i)->isConnected();
 	}
 
-	if (detectorConnected_ != connected){
+	if (isConnected() != currentlyConnected){
 
-		detectorConnected_ = connected;
-		onConnectedChanged(connected);
-		emit detectorConnected(detectorConnected_);
+		onConnectedChanged(currentlyConnected);
+		AMDetector::setConnected(currentlyConnected);
 	}
 }
 

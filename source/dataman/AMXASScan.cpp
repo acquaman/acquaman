@@ -32,7 +32,7 @@ AMXASScan::AMXASScan(QObject *parent)
 #include "dataman/SGM2004FileLoader.h"
 #include "dataman/ALSBL8XASFileLoader.h"
 #include "dataman/SGM2011XASFileLoader.h"
-#include "dataman/VESPERS/VESPERSXASDataLoader.h"
+#include "dataman/VESPERSXASDataLoader.h"
 #include <QFileInfo>
 #include "util/AMSettings.h"
 

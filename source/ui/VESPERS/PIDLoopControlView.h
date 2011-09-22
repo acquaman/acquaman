@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 
-//#include <QPropertyAnimation>
 #include <QTimer>
 #include <QPushButton>
 
@@ -37,9 +36,6 @@ public:
 	explicit PIDLoopControlView(PIDLoopControl *pid, QWidget *parent = 0);
 	/// Destructor.
 	~PIDLoopControlView();
-
-	/// Returns a pointer to the PID control being used by this view.
-	PIDLoopControl *pid() const { return pid_; }
 
 signals:
 

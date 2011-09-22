@@ -53,7 +53,7 @@ protected:
 
 	/// The list of the selected lines.
 	QStringList selected_;
-	/// Maps the line energy to the name.  This is meant as a convenience rather than searching through emission lines manuall.
+	/// Maps the line energy to the name.  This is meant as a convenience rather than searching through emission lines manually.
 	QMap<QString, double> lineMap_;
 
 private:
