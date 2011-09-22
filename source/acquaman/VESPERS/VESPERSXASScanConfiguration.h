@@ -33,6 +33,7 @@ class VESPERSXASScanConfiguration : public AMXASScanConfiguration
 	Q_PROPERTY(int transmissionChoice READ transmissionChoice WRITE setTransmissionChoice)
 	Q_PROPERTY(int incomingChoice READ incomingChoice WRITE setIncomingChoice)
 	Q_PROPERTY(double accumulationTime READ accumulationTime WRITE setAccumulationTime)
+	Q_PROPERTY(QString edge READ edge WRITE setEdge)
 	Q_PROPERTY(double edgeEnergy READ energy WRITE setEnergy)
 	Q_PROPERTY(bool goToPosition READ goToPosition WRITE setGoToPosition)
 	Q_PROPERTY(double xPosition READ x WRITE setX)
@@ -72,6 +73,8 @@ public:
 	IonChamber incomingChoice() const { return I0_; }
 	/// Returns the current time for accumulation.
 	double accumulationTime() const { return time_; }
+	/// Returns the name of the current edge.
+	QString edge() const { return edge_; }
 	/// Returns the edge energy for the scan.
 	double energy() const { return energy_; }
 
@@ -105,6 +108,8 @@ public slots:
 	void setIncomingChoice(int I0) { setIncomingChoice((IonChamber)I0); }
 	/// Sets the accumulation time.
 	void setAccumulationTime(double time) { time_ = time; setModified(true); }
+	/// Sets the current edge for the scan.
+	void setEdge(QString edgeName) { edge_ = edgeName; setModified(true); }
 	/// Sets the edge energy.
 	void setEnergy(double edgeEnergy) { energy_ = edgeEnergy; setModified(true); }
 
@@ -112,6 +117,8 @@ public slots:
 	void setGoToPosition(bool state) { goToPosition_ = state; setModified(true); }
 	/// Sets the position the scan should move to before starting.
 	void setPosition(QPair<double, double> pos) { position_ = pos; setModified(true); }
+	/// Overloaded.  Takes the x and y position explicitly.
+	void setPosition(double xPos, double yPos) { setPosition(qMakePair(xPos, yPos)); }
 	/// Sets the x coordinate of the starting position of the scan.
 	void setX(double xPos) { position_.first = xPos; setModified(true); }
 	/// Sets the y coordinate of the starting position of the scan.
@@ -126,6 +133,9 @@ protected:
 	IonChamber I0_;
 	/// The time for accumulation. \todo This will likely change to an array or something in the event of doing EXAFS.  Currently this is only meaningful for XANES.
 	double time_;
+
+	/// The edge being scanned.
+	QString edge_;
 	/// The edge energy for the scan.
 	double energy_;
 

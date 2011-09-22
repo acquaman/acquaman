@@ -27,7 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMRegionsLineView.h"
 #include "acquaman/VESPERS/VESPERSXASDacqScanController.h"
 #include "acquaman/VESPERS/VESPERSXASScanConfiguration.h"
-#include "beamline/VESPERS/VESPERSBeamline.h"
 #include "util/AMElement.h"
 
 #include <QLineEdit>
@@ -57,6 +56,8 @@ protected slots:
 	void onItClicked(int id);
 	/// Passes on the selection for I0 to the configuration.
 	void onI0Clicked(int id) { config_->setIncomingChoice(id); }
+	/// Handles changes to the fluorescence detector choice.
+	void onFluorescenceChoiceChanged(int id);
 	/// Sets the new energy.
 	void setEnergy() { config_->setEnergy(energy_->value()); }
 	/// Handles choosing a new element when the element button is clicked.
@@ -65,6 +66,8 @@ protected slots:
 	void fillLinesComboBox(AMElement *el);
 	/// Handles changes in the combo box index.
 	void onLinesComboBoxIndexChanged(int index);
+	/// Sets the current horizontal and vertical positions and saves them in the configuration.
+	void setScanPosition() { config_->setPosition(xPosition_->value(), yPosition_->value()); }
 
 protected:
 	/// Pointer to the specific scan config the view is modifying.
@@ -83,6 +86,11 @@ protected:
 	QToolButton *elementChoice_;
 	/// The combo box that holds all the lines that can be chosen to scan over.
 	QComboBox *lineChoice_;
+
+	/// The spin box that holds the x coordinate for the scan position.
+	QDoubleSpinBox *xPosition_;
+	/// The spin box htat holds the y coordinate for the scan position.
+	QDoubleSpinBox *yPosition_;
 
 	/// Button group for the It ion chamber selection.
 	QButtonGroup *ItGroup_;

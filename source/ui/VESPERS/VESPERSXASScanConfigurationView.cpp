@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMTopFrame.h"
 #include "ui/AMPeriodicTableDialog.h"
 #include "util/AMPeriodicTable.h"
+#include "beamline/VESPERS/VESPERSBeamline.h"
 
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -29,6 +30,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGroupBox>
 #include <QButtonGroup>
 #include <QRadioButton>
+#include <QCheckBox>
+#include <QPushButton>
 
 VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanConfiguration *config, QWidget *parent)
 	: AMScanConfigurationView(parent)
@@ -56,7 +59,7 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	tempButton = new QRadioButton("Four Element Vortex");
 	fluorescenceButtonGroup->addButton(tempButton, 2);
 	fluorescenceDetectorLayout->addWidget(tempButton);
-	connect(fluorescenceButtonGroup, SIGNAL(buttonClicked(int)), config_, SLOT(setFluorescenceDetectorChoice(int)));
+	connect(fluorescenceButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
 
 	fluorescenceButtonGroup->button((int)config_->fluorescenceDetectorChoice())->setChecked(true);
 
@@ -149,22 +152,77 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	energy_->setSuffix(" eV");
 	energy_->setMinimum(0);
 	energy_->setMaximum(30000);
-	energy_->setValue(config_->energy());
 	connect(energy_, SIGNAL(editingFinished()), this, SLOT(setEnergy()));
 
 	elementChoice_ = new QToolButton;
-	elementChoice_->setText("Cu");
 	connect(elementChoice_, SIGNAL(clicked()), this, SLOT(onElementChoiceClicked()));
 
 	lineChoice_ = new QComboBox;
 	connect(lineChoice_, SIGNAL(currentIndexChanged(int)), this, SLOT(onLinesComboBoxIndexChanged(int)));
-	fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol("Cu"));
+
+	if (config_->edge().isEmpty()){
+
+		elementChoice_->setText("Cu");
+		fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol("Cu"));
+		onLinesComboBoxIndexChanged(0);
+	}
+	// Resets the view for the view to what it should be.  Using the saved for the energy in case it is different from the original line energy.
+	else {
+
+		double energy = config_->energy();
+		QString edgeName(config_->edge());
+
+		elementChoice_->setText(config_->edge().split(" ").first());
+		fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol(elementChoice_->text()));
+		config_->setEdge(edgeName);
+		lineChoice_->setCurrentIndex(lineChoice_->findText(config_->edge().split(" ").last(), Qt::MatchStartsWith | Qt::MatchCaseSensitive));
+
+		if (energy_->value() != energy)
+			energy_->setValue(energy);
+	}
+
+	QFormLayout *energySetpointLayout = new QFormLayout;
+	energySetpointLayout->addRow("Energy:", energy_);
 
 	QHBoxLayout *energyLayout = new QHBoxLayout;
-	energyLayout->addWidget(new QLabel("Energy:"));
-	energyLayout->addWidget(energy_, 0, Qt::AlignLeft);
+	energyLayout->addLayout(energySetpointLayout);
 	energyLayout->addWidget(elementChoice_);
 	energyLayout->addWidget(lineChoice_);
+
+	// Setting the scan position.
+	QCheckBox *goToPosition = new QCheckBox("Choose Position");
+	goToPosition->setChecked(config_->goToPosition());
+
+	QPushButton *setCurrentPosition = new QPushButton("Set Position");
+	setCurrentPosition->setEnabled(goToPosition->isChecked());
+	connect(setCurrentPosition, SIGNAL(clicked()), this, SLOT(setScanPosition()));
+
+	xPosition_ = new QDoubleSpinBox;
+	xPosition_->setEnabled(goToPosition->isChecked());
+	xPosition_->setDecimals(3);
+	xPosition_->setRange(-100, 100);
+	xPosition_->setValue(config_->x());
+	xPosition_->setSuffix(" mm");
+	connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
+
+	yPosition_ = new QDoubleSpinBox;
+	yPosition_->setEnabled(goToPosition->isChecked());
+	yPosition_->setDecimals(3);
+	yPosition_->setRange(-100, 100);
+	yPosition_->setValue(config_->y());
+	yPosition_->setSuffix(" mm");
+	connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
+
+	connect(goToPosition, SIGNAL(toggled(bool)), config_, SLOT(setGoToPosition(bool)));
+	connect(goToPosition, SIGNAL(toggled(bool)), setCurrentPosition, SLOT(setEnabled(bool)));
+	connect(goToPosition, SIGNAL(toggled(bool)), xPosition_, SLOT(setEnabled(bool)));
+	connect(goToPosition, SIGNAL(toggled(bool)), yPosition_, SLOT(setEnabled(bool)));
+
+	QFormLayout *positionLayout = new QFormLayout;
+	positionLayout->addRow(goToPosition);
+	positionLayout->addRow(setCurrentPosition);
+	positionLayout->addRow("x:", xPosition_);
+	positionLayout->addRow("y:", yPosition_);
 
 	// Setting the time.
 	QDoubleSpinBox *time = new QDoubleSpinBox;
@@ -183,6 +241,7 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	contentsLayout->addLayout(scanNameLayout, 0, 0);
 	contentsLayout->addLayout(energyLayout, 1, 0, 1, 2);
 	contentsLayout->addLayout(timeLayout, 0, 1);
+	contentsLayout->addLayout(positionLayout, 2, 2);
 	contentsLayout->addWidget(ionChambersGroupBox, 2, 1);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
@@ -198,6 +257,11 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	configViewLayout->addWidget(regionsLineView_, 0, Qt::AlignCenter);
 
 	setLayout(configViewLayout);
+}
+
+void VESPERSXASScanConfigurationView::onFluorescenceChoiceChanged(int id)
+{
+	config_->setFluorescenceDetectorChoice(id);
 }
 
 void VESPERSXASScanConfigurationView::onElementChoiceClicked()
@@ -228,11 +292,12 @@ void VESPERSXASScanConfigurationView::fillLinesComboBox(AMElement *el)
 
 void VESPERSXASScanConfigurationView::onLinesComboBoxIndexChanged(int index)
 {
-	if (lineChoice_->count() == 0)
+	if (lineChoice_->count() == 0 || index == -1)
 		return;
 
 	energy_->setValue(lineChoice_->itemData(index).toDouble());
 	setEnergy();
+	config_->setEdge(elementChoice_->text()+" "+lineChoice_->itemText(index).split(":").first());
 }
 
 void VESPERSXASScanConfigurationView::onItI0Toggled(int id)
