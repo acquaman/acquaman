@@ -79,6 +79,7 @@ public:
 
 
 class AMFileLoaderInterface;
+class AMAnalysisBlockInterface;
 
 /// This class encapsulates application-wide settings and options that are persistent over many runs of the program.
 class AMSettings {
@@ -97,6 +98,11 @@ public:
 	static QString fileLoaderPluginsFolder;
 	/// A list of available file loader plugins
 	static QList<AMFileLoaderInterface*> availableFileLoaders;
+
+	/// This is the location of the folder that contains the analysis block plugins
+	static QString analysisBlockPluginsFolder;
+	/// A list of available analysis block plugins
+	static QList<AMAnalysisBlockInterface*> availableAnalysisBlocks;
 
 	/// Load settings from disk:
 	static void load();

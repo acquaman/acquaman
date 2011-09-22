@@ -3,7 +3,8 @@
 # #####################################################################
 
 TEMPLATE = subdirs
-SUBDIRS +=	pluginProjects/AMFileLoaderPlugins.pro \
+SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
+	pluginProjects/AnalysisBlocks/AMAnalysisBlockPlugins.pro \
         REIXSTest.pro \
 	REIXSAcquaman.pro \
 	SGMAcquaman.pro \

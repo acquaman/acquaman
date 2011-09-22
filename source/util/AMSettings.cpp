@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDateTime>
 
 #include "dataman/AMFileLoaderInterface.h"
+#include "dataman/AMAnalysisBlockInterface.h"
 #include <QDir>
 #include <QPluginLoader>
 
@@ -132,6 +133,10 @@ QString AMSettings::publicDatabaseFilename;
 QString AMSettings::fileLoaderPluginsFolder;
 /// This is where the file loader plugins are located
 QList<AMFileLoaderInterface*> AMSettings::availableFileLoaders;
+/// This is the location of the folder that contains the analysis block plugins
+QString AMSettings::analysisBlockPluginsFolder;
+/// This is where the analysis block plugins are located
+QList<AMAnalysisBlockInterface*> AMSettings::availableAnalysisBlocks;
 
 
 /// Load settings from disk:
@@ -148,20 +153,36 @@ void AMSettings::load() {
 	publicDatabaseFilename = settings.value("publicDatabaseFilename", "publicdata.db").toString();
         //fileLoaderPluginsFolder = settings.value("fileLoaderPluginsFolder", "/Users/fawkes/dev/acquaman/plugins/FileLoaders").toString();
         fileLoaderPluginsFolder = settings.value("fileLoaderPluginsFolder", QDir::homePath()+"/dev/acquaman/plugins/FileLoaders").toString();
+	analysisBlockPluginsFolder = settings.value("analysisBlockPluginsFolder", QDir::homePath()+"/dev/acquaman/plugins/AnalysisBlocks").toString();
 
-	qDebug() << publicDataFolder << publicDatabaseFilename << fileLoaderPluginsFolder;
+	qDebug() << publicDataFolder << publicDatabaseFilename << fileLoaderPluginsFolder << analysisBlockPluginsFolder;
 
 	availableFileLoaders.clear();
 	// Load file loader plugins
-	QDir pluginsDirectory(fileLoaderPluginsFolder);
-	foreach (QString fileName, pluginsDirectory.entryList(QDir::Files)) {
-		QPluginLoader pluginLoader(pluginsDirectory.absoluteFilePath(fileName));
+	QDir fileLoaderPluginsDirectory(fileLoaderPluginsFolder);
+	foreach (QString fileName, fileLoaderPluginsDirectory.entryList(QDir::Files)) {
+		QPluginLoader pluginLoader(fileLoaderPluginsDirectory.absoluteFilePath(fileName));
 		QObject *plugin = pluginLoader.instance();
 		if (plugin) {
 			AMFileLoaderInterface *tmpfl = qobject_cast<AMFileLoaderInterface *>(plugin);
 			if (tmpfl){
 				availableFileLoaders.append(tmpfl);
 				qDebug() << "Found a file loader";
+			}
+		}
+	}
+
+	availableAnalysisBlocks.clear();
+	// Load analysis block plugins
+	QDir analysisBlockPluginsDirectory(analysisBlockPluginsFolder);
+	foreach (QString fileName, analysisBlockPluginsDirectory.entryList(QDir::Files)) {
+		QPluginLoader pluginLoader(analysisBlockPluginsDirectory.absoluteFilePath(fileName));
+		QObject *plugin = pluginLoader.instance();
+		if (plugin) {
+			AMAnalysisBlockInterface *tmpab = qobject_cast<AMAnalysisBlockInterface *>(plugin);
+			if (tmpab){
+				availableAnalysisBlocks.append(tmpab);
+				qDebug() << "Found an analysis block";
 			}
 		}
 	}

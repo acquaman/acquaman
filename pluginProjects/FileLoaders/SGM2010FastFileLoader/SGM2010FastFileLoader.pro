@@ -7,7 +7,7 @@ TARGET          = $$qtLibraryTarget(SGM2010FastFileLoaderPlugin)
 DESTDIR         = $$HOME_FOLDER/$$DEV_PATH/acquaman/plugins/FileLoaders
 
 # install
-target.path = $$HOME_FOLDER/$$DEV_PATH/acquaman/pluginProjects/SGM2010FastFileLoader
+target.path = $$HOME_FOLDER/$$DEV_PATH/acquaman/pluginProjects/FileLoaders/SGM2010FastFileLoader
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS SGM2010FastFileLoader.pro
-sources.path = $$HOME_FOLDER/$$DEV_PATH/acquaman/pluginProjects/SGM2010FastFileLoader
+sources.path = $$HOME_FOLDER/$$DEV_PATH/acquaman/pluginProjects/FileLoaders/SGM2010FastFileLoader
 INSTALLS += target sources
