@@ -295,7 +295,7 @@ void AMImportController::setupNextFile() {
 }
 
 #include <QMessageBox>
-#include "dataman/AMDatabase.h"
+#include "dataman/database/AMDatabase.h"
 
 void AMImportController::finalizeImport() {
 	// error loading:

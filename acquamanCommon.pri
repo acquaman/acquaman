@@ -228,8 +228,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMDetector.h \
 	source/beamline/AMProcessVariable.h \
 	source/beamline/AMPVNames.h \
-	source/dataman/AMDatabase.h \
-	source/dataman/AMDbObject.h \
+	source/dataman/database/AMDatabase.h \
+	source/dataman/database/AMDbObject.h \
 	source/dataman/info/AMDetectorInfo.h \
 	source/dataman/AMExperiment.h \
 	source/dataman/AMFirstTimeController.h \
@@ -316,7 +316,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/datasource/AMDataSourceSeriesData.h \
 	source/dataman/datasource/AMDataSourceImageData.h \
 	source/analysis/AM1DExpressionAB.h \
-	source/dataman/AMDbObjectSupport.h \
+	source/dataman/database/AMDbObjectSupport.h \
 	source/util/AMOrderedSetSignalSource.h \
 	source/util/AMOrderedSet.h \
 	source/dataman/datasource/AMRawDataSource.h \
@@ -492,8 +492,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/AMControlState.cpp \
 	source/beamline/AMProcessVariable.cpp \
 	source/beamline/AMPVNames.cpp \
-	source/dataman/AMDatabase.cpp \
-	source/dataman/AMDbObject.cpp \
+	source/dataman/database/AMDatabase.cpp \
+	source/dataman/database/AMDbObject.cpp \
 	source/dataman/info/AMDetectorInfo.cpp \
 	source/dataman/AMExperiment.cpp \
 	source/dataman/AMFirstTimeController.cpp \
@@ -571,7 +571,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/datasource/AMDataSourceSeriesData.cpp \
 	source/dataman/datasource/AMDataSourceImageData.cpp \
 	source/analysis/AM1DExpressionAB.cpp \
-	source/dataman/AMDbObjectSupport.cpp \
+	source/dataman/database/AMDbObjectSupport.cpp \
 	source/acquaman.cpp \
 	source/util/AMOrderedSetSignalSource.cpp \
 	source/dataman/datasource/AMRawDataSource.cpp \

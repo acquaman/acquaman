@@ -31,7 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMWorkflowManagerView.h"
 
 #include "util/AMErrorMonitor.h"
-#include "dataman/AMDbObjectSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
 
 // For database registration:
 #include "dataman/REIXS/REIXSXESCalibration.h"

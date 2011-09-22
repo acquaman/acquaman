@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHash>
 #include <QSet>
 #include "acquaman.h"
-#include "dataman/AMDatabase.h"
+#include "dataman/database/AMDatabase.h"
 #include "util/AMErrorMonitor.h"
 
 

@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMANALYSISBLOCK_H
 #define AMANALYSISBLOCK_H
 
-#include "dataman/AMDbObject.h"
+#include "dataman/database/AMDbObject.h"
 #include "dataman/datasource/AMDataSource.h"
 
 class QWidget;

@@ -32,7 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMDetailedItemDelegate.h"
 
-#include "dataman/AMDbObjectSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
 
 AMRunSelector:: AMRunSelector(AMDatabase* db, QWidget *parent)
 	: QComboBox(parent)
@@ -184,7 +184,7 @@ void AMRunSelector::onAddRunDialogClosed(int newRunId){
 	}
 }
 
-#include "dataman/AMDbObjectSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
 #include <QTimer>
 void AMRunSelector::onDatabaseUpdate(const QString & tableName, int id) {
 

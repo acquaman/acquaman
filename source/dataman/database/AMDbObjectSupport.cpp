@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDbObjectSupport.h"
 
-#include "dataman/AMDbObject.h"
+#include "dataman/database/AMDbObject.h"
 
 #include <QMetaObject>
 #include <QMetaProperty>

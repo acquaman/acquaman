@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporter.h"
 #include "dataman/export/AMExporterOption.h"
-#include "dataman/AMDbObjectSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
 
 #include <QHashIterator>
 #include <QFormLayout>

@@ -25,8 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QString>
 #include <QList>
 #include <QVBoxLayout>
-#include <dataman/AMRun.h>
-#include "dataman/AMDatabase.h"
+#include "dataman/AMRun.h"
+#include "dataman/database/AMDatabase.h"
 #include "ui/AMNewRunDialog.h"
 
 

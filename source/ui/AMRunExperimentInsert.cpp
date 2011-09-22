@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMRunExperimentInsert.h"
 #include "dataman/AMRunExperimentItems.h"
-#include "dataman/AMDatabase.h"
+#include "dataman/database/AMDatabase.h"
 #include "util/AMErrorMonitor.h"
 #include <QDateTime>
 #include <QTimer>
@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTreeView>
 
 #include "ui/AMWindowPaneModel.h"
-#include "dataman/AMDbObjectSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMRun.h"
 #include "dataman/AMExperiment.h"
 

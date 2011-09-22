@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMSample.h"
 #include "dataman/info/AMControlInfoList.h"
-#include "AMDbObject.h"
+#include "dataman/database/AMDbObject.h"
 #include "acquaman.h"
 
 /// This is a small helper class for AMSamplePlate, which stores a set of samples and their associated positions on the sample plate/manipulator

@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMSCANQUERYMODEL_H
 
 #include <QSqlQueryModel>
-#include "dataman/AMDatabase.h"
+#include "dataman/database/AMDatabase.h"
 #include <QStringList>
 
 /// A helper class for AMScanQueryModel, this class encapsulates the lookup information for a column in that model.

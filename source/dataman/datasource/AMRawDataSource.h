@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMRAWDATASOURCE_H
 #define AMRAWDATASOURCE_H
 
-#include "dataman/AMDbObject.h"
+#include "dataman/database/AMDbObject.h"
 #include "dataman/datasource/AMDataSource.h"
 #include "dataman/datastore/AMDataStore.h"
 

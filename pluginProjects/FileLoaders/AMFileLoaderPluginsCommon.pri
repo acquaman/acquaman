@@ -57,10 +57,10 @@ INCLUDEPATH    += $$AM_INCLUDE_DIR \
 HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/dataman/AMScan.h \
 		$$AM_INCLUDE_DIR/dataman/AMRun.h \
-		$$AM_INCLUDE_DIR/dataman/AMDbObject.h \
-		$$AM_INCLUDE_DIR/dataman/AMDatabase.h \
+		$$AM_INCLUDE_DIR/dataman/database/AMDbObject.h \
+		$$AM_INCLUDE_DIR/dataman/database/AMDatabase.h \
 		$$AM_INCLUDE_DIR/dataman/AMnDIndex.h \
-		$$AM_INCLUDE_DIR/dataman/AMDbObjectSupport.h \
+		$$AM_INCLUDE_DIR/dataman/database/AMDbObjectSupport.h \
 		$$AM_INCLUDE_DIR/dataman/info/AMControlInfoList.h \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSource.h \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMRawDataSource.h \
@@ -91,10 +91,10 @@ HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarker.h
 SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMRun.cpp \
-		$$AM_INCLUDE_DIR/dataman/AMDbObject.cpp \
-		$$AM_INCLUDE_DIR/dataman/AMDatabase.cpp \
+		$$AM_INCLUDE_DIR/dataman/database/AMDbObject.cpp \
+		$$AM_INCLUDE_DIR/dataman/database/AMDatabase.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMnDIndex.cpp \
-		$$AM_INCLUDE_DIR/dataman/AMDbObjectSupport.cpp \
+		$$AM_INCLUDE_DIR/dataman/database/AMDbObjectSupport.cpp \
 		$$AM_INCLUDE_DIR/dataman/info/AMControlInfoList.cpp \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSource.cpp \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMRawDataSource.cpp \

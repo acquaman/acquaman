@@ -25,13 +25,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 
 #include "dataman/AMSample.h"
-#include "dataman/AMDatabase.h"
+#include "dataman/database/AMDatabase.h"
 
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QTimer>
 
-#include "dataman/AMDbObjectSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
 #include "ui/AMDetailedItemDelegate.h"
 
 //#include "ui/AMElementListEdit.h"

@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMROIINFO_H
 #define AMROIINFO_H
 
-#include "dataman/AMDbObject.h"
+#include "dataman/database/AMDbObject.h"
 #include "util/AMOrderedList.h"
 
 /// This class can be used to store the essential information of an AMROI that is used for spectral detectors (ex: Silicon Drift Detectors), without actually needing to have a live control object. This information includes the the name, centre energy and width of the region.

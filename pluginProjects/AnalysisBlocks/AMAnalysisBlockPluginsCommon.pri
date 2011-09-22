@@ -56,9 +56,9 @@ INCLUDEPATH    += $$AM_INCLUDE_DIR \
 		$$MPLOT_INCLUDE_DIR
 HEADERS         = \
 		$$AM_INCLUDE_DIR/dataman/AMAnalysisBlockInterface.h \
-		$$AM_INCLUDE_DIR/dataman/AMDbObject.h \
-		$$AM_INCLUDE_DIR/dataman/AMDbObjectSupport.h \
-		$$AM_INCLUDE_DIR/dataman/AMDatabase.h \
+		$$AM_INCLUDE_DIR/dataman/database/AMDbObject.h \
+		$$AM_INCLUDE_DIR/dataman/database/AMDbObjectSupport.h \
+		$$AM_INCLUDE_DIR/dataman/database/AMDatabase.h \
 		$$AM_INCLUDE_DIR/dataman/AMAnalysisBlock.h \
 		$$AM_INCLUDE_DIR/dataman/AMnDIndex.h \
 		$$AM_INCLUDE_DIR/dataman/AMAxisInfo.h \
@@ -84,9 +84,9 @@ HEADERS         = \
 		$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorMap.h \
 		$$MPLOT_INCLUDE_DIR/MPlot/MPlotLegend.h
 SOURCES         = \
-		$$AM_INCLUDE_DIR/dataman/AMDbObject.cpp \
-		$$AM_INCLUDE_DIR/dataman/AMDbObjectSupport.cpp \
-		$$AM_INCLUDE_DIR/dataman/AMDatabase.cpp \
+		$$AM_INCLUDE_DIR/dataman/database/AMDbObject.cpp \
+		$$AM_INCLUDE_DIR/dataman/database/AMDbObjectSupport.cpp \
+		$$AM_INCLUDE_DIR/dataman/database/AMDatabase.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMAnalysisBlock.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMnDIndex.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMAxisInfo.cpp \

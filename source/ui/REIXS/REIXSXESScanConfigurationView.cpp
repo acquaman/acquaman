@@ -129,7 +129,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(QWidget *parent) :
 }
 
 
-#include "dataman/AMDatabase.h"
+#include "dataman/database/AMDatabase.h"
 #include "ui/AMDateTimeUtils.h"
 void REIXSXESScanConfigurationView::onLoadCalibrations() {
 

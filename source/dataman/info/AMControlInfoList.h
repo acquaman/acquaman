@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMCONTROLSETINFO_H
 #define AMCONTROLSETINFO_H
 
-#include "dataman/AMDbObject.h"
+#include "dataman/database/AMDbObject.h"
 #include "util/AMOrderedList.h"
 #include <QDebug>
 

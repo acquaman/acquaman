@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMExternalScanDataSourceAB.h"
 #include "dataman/AMScan.h"
-#include "dataman/AMDbObjectSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
 
 #include "util/AMErrorMonitor.h"
 #include <QTimer>

@@ -19,7 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMSamplePlateView.h"
-#include "dataman/AMDbObjectSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
 #include "ui/AMSamplePositionViewActionsWidget.h"
 
 #include "ui/AMDetailedItemDelegate.h"

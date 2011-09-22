@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman.h"
 #include "beamline/AMPVNames.h"
 
-#include "dataman/AMDatabase.h"
+#include "dataman/database/AMDatabase.h"
 #include "dataman/AMFirstTimeController.h"
 #include "dataman/AMImportController.h"
 

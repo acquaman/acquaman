@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 
-#include "dataman/AMDbObject.h"
+#include "dataman/database/AMDbObject.h"
 #include "dataman/datastore/AMDataStore.h"
 #include "util/AMOrderedSet.h"
 #include "dataman/datasource/AMRawDataSource.h"

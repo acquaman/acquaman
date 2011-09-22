@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMDetectorInfo_H
 
 #include "acquaman.h"
-#include "dataman/AMDbObject.h"
+#include "dataman/database/AMDbObject.h"
 #include "dataman/AMMeasurementInfo.h"
 
 class QStringList;

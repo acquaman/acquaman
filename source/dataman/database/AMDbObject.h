@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include <QDateTime>
 #include <QStringList>
-#include "dataman/AMDatabase.h"
+#include "dataman/database/AMDatabase.h"
 
 #include <QSet>
 #include <QPixmap>
