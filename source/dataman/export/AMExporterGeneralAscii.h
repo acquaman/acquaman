@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMEXPORTERGENERALASCII_H
 #define AMEXPORTERGENERALASCII_H
 
-#include "dataman/AMExporter.h"
+#include "dataman/export/AMExporter.h"
 
 class AMExporterOptionGeneralAscii;
 

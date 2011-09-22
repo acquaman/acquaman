@@ -28,8 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMFirstTimeController.h"
 #include "dataman/AMImportController.h"
 
-#include "dataman/AMExportController.h"
-#include "dataman/AMExporterGeneralAscii.h"
+#include "dataman/export/AMExportController.h"
+#include "dataman/export/AMExporterGeneralAscii.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
@@ -310,7 +310,7 @@ void AMDatamanAppController::onWindowPaneCloseButtonClicked(const QModelIndex& i
 	}
 }
 
-#include "dataman/AMExportController.h"
+#include "dataman/export/AMExportController.h"
 #include "ui/AMExportWizard.h"
 
 void AMDatamanAppController::onDataViewItemsExported(const QList<QUrl> &itemUrls)

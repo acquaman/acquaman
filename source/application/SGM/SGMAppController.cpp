@@ -41,7 +41,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMDbObjectSupport.h"
 #include "dataman/AMRun.h"
-#include "dataman/AMExporterOptionGeneralAscii.h"
+#include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "ui/AMStartScreen.h"
 
 SGMAppController::SGMAppController(QObject *parent) :

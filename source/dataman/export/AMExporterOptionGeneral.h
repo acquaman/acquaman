@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMEXPORTEROPTIONGENERAL_H
 
 
-#include "dataman/AMExporterOption.h"
+#include "dataman/export/AMExporterOption.h"
 
 /// An exporter object (AMExporter) writes a scan to file according to a set of "export options".  This class specifies the export options for the "general" class of file exporters, which are designed to be as flexible as possible in the data that they can write.  See AMExporterOptionGeneralAscii for a complete example.
 class AMExporterOptionGeneral : public AMExporterOption

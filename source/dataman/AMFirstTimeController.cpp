@@ -42,7 +42,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DSummingAB.h"
 #include "analysis/AMDeadTimeAB.h"
 
-#include "dataman/AMExporterOptionGeneralAscii.h"
+#include "dataman/export/AMExporterOptionGeneralAscii.h"
 
 
 #include "dataman/AMDbObjectSupport.h"

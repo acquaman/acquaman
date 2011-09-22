@@ -28,8 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStandardItemModel>
 #include <QStringBuilder>
 
-#include "dataman/AMExporter.h"
-#include "dataman/AMExporterOption.h"
+#include "dataman/export/AMExporter.h"
+#include "dataman/export/AMExporterOption.h"
 #include "dataman/AMUser.h"
 
 #include "util/AMErrorMonitor.h"

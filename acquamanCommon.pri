@@ -362,12 +362,12 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/actions/AMBeamlineControlWaitAction.h \
 	source/actions/AMBeamlineUserConfirmAction.h \
 	source/ui/AMScanQueryModel.h \
-	source/dataman/AMExportController.h \
-	source/dataman/AMExporter.h \
-	source/dataman/AMExporterOption.h \
-	source/dataman/AMExporterOptionGeneral.h \
-	source/dataman/AMExporterOptionGeneralAscii.h \
-	source/dataman/AMExporterGeneralAscii.h \
+	source/dataman/export/AMExportController.h \
+	source/dataman/export/AMExporter.h \
+	source/dataman/export/AMExporterOption.h \
+	source/dataman/export/AMExporterOptionGeneral.h \
+	source/dataman/export/AMExporterOptionGeneralAscii.h \
+	source/dataman/export/AMExporterGeneralAscii.h \
 	source/ui/AMExportWizard.h \
 	source/ui/AMFolderPathLineEdit.h \
 	source/util/AMTagReplacementParser.h \
@@ -616,17 +616,17 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/actions/AMBeamlineControlWaitAction.cpp \
 	source/actions/AMBeamlineUserConfirmAction.cpp \
 	source/ui/AMScanQueryModel.cpp \
-	source/dataman/AMExportController.cpp \
-	source/dataman/AMExporterOption.cpp \
-	source/dataman/AMExporterOptionGeneral.cpp \
-	source/dataman/AMExporterOptionGeneralAscii.cpp \
-	source/dataman/AMExporterGeneralAscii.cpp \
+	source/dataman/export/AMExportController.cpp \
+	source/dataman/export/AMExporterOption.cpp \
+	source/dataman/export/AMExporterOptionGeneral.cpp \
+	source/dataman/export/AMExporterOptionGeneralAscii.cpp \
+	source/dataman/export/AMExporterGeneralAscii.cpp \
 	source/ui/AMExportWizard.cpp \
 	source/ui/AMFolderPathLineEdit.cpp \
 	source/util/AMTagReplacementParser.cpp \
 	source/ui/AMExporterOptionGeneralAsciiView.cpp \
 	source/ui/AMTopFrame.cpp \
-	source/dataman/AMExporter.cpp \
+	source/dataman/export/AMExporter.cpp \
 #	source/ui/AM3dDataSourceView.cpp \
 	source/actions/AMBeamlineSamplePlateMoveAction.cpp \
 	source/actions/AMBeamlineFiducializationMoveAction.cpp \

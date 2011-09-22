@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMExporterOptionGeneralAsciiView.h"
 #include "ui_AMExporterOptionGeneralAsciiView.h"
 
-#include "dataman/AMExporterOptionGeneralAscii.h"
+#include "dataman/export/AMExporterOptionGeneralAscii.h"
 
 #include <QButtonGroup>
 #include <QInputDialog>

@@ -19,9 +19,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMExportWizard.h"
-#include "dataman/AMExportController.h"
-#include "dataman/AMExporter.h"
-#include "dataman/AMExporterOption.h"
+#include "dataman/export/AMExportController.h"
+#include "dataman/export/AMExporter.h"
+#include "dataman/export/AMExporterOption.h"
 #include "dataman/AMDbObjectSupport.h"
 
 #include <QHashIterator>
