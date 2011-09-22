@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMRun.h"
 #include "dataman/AMSample.h"
 #include "dataman/AMDbObjectSupport.h"
-#include "dataman/AMInMemoryDataStore.h"
+#include "dataman/datastore/AMInMemoryDataStore.h"
 #include "acquaman/AMScanConfiguration.h"
 
 

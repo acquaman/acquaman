@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "dataman/AMDbObjectSupport.h"
 #include "analysis/AM1DExpressionAB.h"
-#include "dataman/AMInMemoryDataStore.h"
+#include "dataman/datastore/AMInMemoryDataStore.h"
 #include "dataman/AMSamplePlate.h"
 #include "util/AMOrderedSet.h"
 

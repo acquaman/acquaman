@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QVector>
 #include "dataman/AMNumber.h"
-#include "dataman/AMDataStore.h"
+#include "dataman/datastore/AMDataStore.h"
 #include "util/AMOrderedSet.h"
 
 

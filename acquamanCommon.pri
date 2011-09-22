@@ -311,7 +311,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMAxisInfo.h \
 	source/dataman/AMNumber.h \
 	source/dataman/AMnDIndex.h \
-	source/dataman/AMDataStore.h \
+	source/dataman/datastore/AMDataStore.h \
 	source/dataman/AMAnalysisBlock.h \
 	source/dataman/datasource/AMDataSourceSeriesData.h \
 	source/dataman/datasource/AMDataSourceImageData.h \
@@ -322,7 +322,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/datasource/AMRawDataSource.h \
 	source/analysis/AM1DExpressionABEditor.h \
 	source/dataman/AMMeasurementInfo.h \
-	source/dataman/AMInMemoryDataStore.h \
+	source/dataman/datastore/AMInMemoryDataStore.h \
 	source/acquaman/AMFastScanConfiguration.h \
 	source/ui/AMScanConfigurationViewer.h \
 	source/dataman/AMFastScan.h \
@@ -566,7 +566,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/AMAxisInfo.cpp \
 	source/dataman/AMNumber.cpp \
 	source/dataman/AMnDIndex.cpp \
-	source/dataman/AMDataStore.cpp \
+	source/dataman/datastore/AMDataStore.cpp \
 	source/dataman/AMAnalysisBlock.cpp \
 	source/dataman/datasource/AMDataSourceSeriesData.cpp \
 	source/dataman/datasource/AMDataSourceImageData.cpp \
@@ -576,7 +576,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/util/AMOrderedSetSignalSource.cpp \
 	source/dataman/datasource/AMRawDataSource.cpp \
 	source/analysis/AM1DExpressionABEditor.cpp \
-	source/dataman/AMInMemoryDataStore.cpp \
+	source/dataman/datastore/AMInMemoryDataStore.cpp \
 	source/acquaman/AMFastScanConfiguration.cpp \
 	source/ui/AMScanConfigurationViewer.cpp \
 	source/dataman/AMFastScan.cpp \
