@@ -36,7 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMScanSetModel.h"
 
-#include "ui/AMCramBarHorizontal.h"
+#include "ui/dataman/AMCramBarHorizontal.h"
 #include <QMenu>
 
 class AMScanViewSourceSelector;

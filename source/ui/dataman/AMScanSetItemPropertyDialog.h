@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDialog>
 #include <QPersistentModelIndex>
 #include "ui/AMLinePropertyEditor.h"
-#include "ui/AMImagePropertyEditor.h"
+#include "ui/dataman/AMImagePropertyEditor.h"
 
 class AMScanSetModel;
 

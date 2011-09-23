@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QPushButton>
-#include "ui/AMRunSelector.h"
+#include "ui/dataman/AMRunSelector.h"
 #include "dataman/database/AMDatabase.h"
 
 class AMStartScreen : public QWidget

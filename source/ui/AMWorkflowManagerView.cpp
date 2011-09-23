@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 
 #include "dataman/AMSamplePlate.h"
-#include "ui/AMSamplePlateView.h"
+#include "ui/dataman/AMSamplePlateView.h"
 
 #include "acquaman/AMScanConfiguration.h"
 #include "actions/AMBeamlineScanAction.h"

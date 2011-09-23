@@ -62,7 +62,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 **
 ****************************************************************************/
 
-#include "ui/AMFlowGraphicsLayout.h"
+#include "ui/dataman/AMFlowGraphicsLayout.h"
 #include <QtGui/qwidget.h>
 #include <QtCore/qmath.h>
 

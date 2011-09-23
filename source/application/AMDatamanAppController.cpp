@@ -34,9 +34,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
 #include "ui/BottomBar.h"
-#include "ui/AMDataViewWithActionButtons.h"
-#include "ui/AMRunExperimentInsert.h"
-#include "ui/AMGenericScanEditor.h"
+#include "ui/dataman/AMDataViewWithActionButtons.h"
+#include "ui/dataman/AMRunExperimentInsert.h"
+#include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/AMSettingsView.h"
 
 #include "dataman/AMFileLoaderInterface.h"
@@ -311,7 +311,7 @@ void AMDatamanAppController::onWindowPaneCloseButtonClicked(const QModelIndex& i
 }
 
 #include "dataman/export/AMExportController.h"
-#include "ui/AMExportWizard.h"
+#include "ui/dataman/AMExportWizard.h"
 
 void AMDatamanAppController::onDataViewItemsExported(const QList<QUrl> &itemUrls)
 {

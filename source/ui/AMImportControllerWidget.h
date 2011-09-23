@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 #include "ui_AMImportControllerWidget.h"
 #include "ui/AMThumbnailScrollViewer.h"
-#include "ui/AMRunSelector.h"
+#include "ui/dataman/AMRunSelector.h"
 
 class AMImportControllerWidget : public QWidget, public Ui::AMImportControllerWidget {
 public:

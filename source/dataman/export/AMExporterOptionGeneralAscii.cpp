@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMExporterOptionGeneralAscii.h"
 #include <QPushButton>
-#include "ui/AMExporterOptionGeneralAsciiView.h"
+#include "ui/dataman/AMExporterOptionGeneralAsciiView.h"
 
 AMExporterOptionGeneralAscii::AMExporterOptionGeneralAscii(QObject *parent) :
 	AMExporterOptionGeneral(parent)

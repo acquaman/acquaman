@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlotImage.h"
 #include "MPlot/MPlotSeries.h"
 #include <QScrollBar>
-#include "ui/AMColoredTextToolButton.h"
+#include "ui/dataman/AMColoredTextToolButton.h"
 
 #include <QAction>
 
@@ -2074,7 +2074,7 @@ void AMScanViewScanBarContextMenu::showAll()
 {
 }
 
-#include "ui/AMScanSetItemPropertyDialog.h"
+#include "ui/dataman/AMScanSetItemPropertyDialog.h"
 void AMScanViewScanBarContextMenu::editColorAndStyle()
 {
 	if(pi_.isValid()) {

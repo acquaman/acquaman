@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SGMSAMPLEMANIPULATORVIEW_H
 #define SGMSAMPLEMANIPULATORVIEW_H
 
-#include "ui/AMSampleManipulatorView.h"
+#include "ui/dataman/AMSampleManipulatorView.h"
 
 class QCheckBox;
 

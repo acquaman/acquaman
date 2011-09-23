@@ -1077,7 +1077,7 @@ int AMDataViewSection::countResults() {
 
 #include <QGraphicsScene>
 #include <QGraphicsWidget>
-#include "ui/AMFlowGraphicsLayout.h"
+#include "ui/dataman/AMFlowGraphicsLayout.h"
 
 AMDataViewSectionThumbnailView::AMDataViewSectionThumbnailView(AMDatabase* db, const QString& dbTableName, const QString& whereClause, QGraphicsItem* parent, double initialWidthConstraint, int initialItemSize)
 	: AMAbstractDataViewSection(parent) {

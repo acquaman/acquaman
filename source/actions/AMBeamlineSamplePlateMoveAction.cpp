@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMBeamlineSamplePlateMoveAction.h"
 
-#include "ui/AMSamplePlateView.h"
+#include "ui/dataman/AMSamplePlateView.h"
 #include "beamline/AMBeamline.h"
 #include "util/AMErrorMonitor.h"
 

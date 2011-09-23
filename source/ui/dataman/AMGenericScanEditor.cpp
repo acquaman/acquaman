@@ -31,12 +31,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMScan.h"
 
 #include "ui/AMDetailedItemDelegate.h"
-#include "ui/AMScanView.h"
+#include "ui/dataman/AMScanView.h"
 #include "ui/AMVerticalStackWidget.h"
-#include "ui/AMRunSelector.h"
-#include "ui/AMSampleEditor.h"
-#include "ui/AMDataSourcesEditor.h"
-#include "ui/AMChooseScanDialog.h"
+#include "ui/dataman/AMRunSelector.h"
+#include "ui/dataman/AMSampleEditor.h"
+#include "ui/dataman/AMDataSourcesEditor.h"
+#include "ui/dataman/AMChooseScanDialog.h"
 
 AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 		QWidget(parent)

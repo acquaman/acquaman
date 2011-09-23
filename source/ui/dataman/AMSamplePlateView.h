@@ -32,7 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/database/AMDatabase.h"
 
 #include "ui_AMSamplePlateSelector.h"
-#include "ui/AMSampleEditor.h"
+#include "ui/dataman/AMSampleEditor.h"
 
 #include "util/AMDeferredFunctionCall.h"
 #include "beamline/AMControlSet.h"

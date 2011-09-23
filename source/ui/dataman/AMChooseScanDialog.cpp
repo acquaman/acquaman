@@ -19,7 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMChooseScanDialog.h"
-#include "ui/AMDataView.h"
+#include "ui/dataman/AMDataView.h"
 #include "dataman/database/AMDatabase.h"
 #include <QPushButton>
 #include <QButtonGroup>

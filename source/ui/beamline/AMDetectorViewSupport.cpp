@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDetectorViewSupport.h"
 
-#include "ui/AMDetectorView.h"
+#include "ui/beamline/AMDetectorView.h"
 
 AMDetectorViewObjectInfo::AMDetectorViewObjectInfo(AMDetectorView *prototypeView, AMDetector *prototypeDetector){
 	initWithMetaObject(prototypeView->metaObject(), prototypeDetector->getMetaObject());

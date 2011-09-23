@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMDATAVIEWWITHACTIONBUTTONS_H
 #define AMDATAVIEWWITHACTIONBUTTONS_H
 
-#include "ui/AMDataView.h"
+#include "ui/dataman/AMDataView.h"
 #include "ui_AMDataViewActionsBar.h"
 
 /// This class adds buttons for editing, comparing, and exporting the selected scans in an AMDataView.

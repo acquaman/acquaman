@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 #include "dataman/AMRun.h"
 #include "dataman/database/AMDatabase.h"
-#include "ui/AMNewRunDialog.h"
+#include "ui/dataman/AMNewRunDialog.h"
 
 
 /// author: Rachel Si (August 2010)

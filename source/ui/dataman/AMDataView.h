@@ -34,7 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGraphicsWidget>
 #include <QGraphicsLinearLayout>
 #include <QUrl>
-#include "ui/AMFlowGraphicsLayout.h"
+#include "ui/dataman/AMFlowGraphicsLayout.h"
 
 
 
@@ -388,7 +388,7 @@ public:
 	virtual bool event(QEvent *event);
 };
 
-#include "ui/AMScanQueryModel.h"
+#include "ui/dataman/AMScanQueryModel.h"
 
 /// This widget is used inside an AMDataViewSection to show the section's items in a table (list, or detail) view.
 class AMDataViewSectionListView : public AMAbstractDataViewSection {

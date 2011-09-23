@@ -251,19 +251,19 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/muParser/muParserStack.h \
 	source/muParser/muParserToken.h \
 	source/muParser/muParserTokenReader.h \
-	source/ui/AMRunSelector.h \
+	source/ui/dataman/AMRunSelector.h \
 	source/ui/beamline/AMControlSetView.h \
-	source/ui/AMCramBarHorizontal.h \
-	source/ui/AMDataView.h \
-	source/ui/AMDataViewWithActionButtons.h \
+	source/ui/dataman/AMCramBarHorizontal.h \
+	source/ui/dataman/AMDataView.h \
+	source/ui/dataman/AMDataViewWithActionButtons.h \
 	source/ui/AMFirstTimeWidget.h \
-	source/ui/AMFlowGraphicsLayout.h \
+	source/ui/dataman/AMFlowGraphicsLayout.h \
 	source/ui/AMImportControllerWidget.h \
 	source/ui/AMMainWindow.h \
 	source/ui/AMRegionsLineView.h \
-	source/ui/AMRunExperimentInsert.h \
+	source/ui/dataman/AMRunExperimentInsert.h \
 	source/ui/AMScanConfigurationView.h \
-	source/ui/AMScanView.h \
+	source/ui/dataman/AMScanView.h \
 	source/ui/AMSidebar.h \
 	source/ui/AMStatusView.h \
 	source/ui/AMThumbnailScrollViewer.h \
@@ -272,7 +272,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	#deprecated: source/ui/AMBeamlineCameraWidget.h \
 	source/ui/beamline/AMControlEditor.h \
 	source/acquaman.h \
-	source/ui/AMNewRunDialog.h \
+	source/ui/dataman/AMNewRunDialog.h \
 	source/ui/beamline/AMDetectorView.h \
 	source/ui/AMWorkflowManagerView.h \
 	source/actions/AMBeamlineScanAction.h \
@@ -281,20 +281,20 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMPrefixSuffixLineEdit.h \
 	source/ui/AMDragDropItemModel.h \
 	source/dataman/AMRunExperimentItems.h \
-	source/ui/AMSampleManagementWidget.h \
-	source/ui/AMSampleManipulatorView.h \
-	source/ui/AMSamplePlateView.h \
+	source/ui/dataman/AMSampleManagementWidget.h \
+	source/ui/dataman/AMSampleManipulatorView.h \
+	source/ui/dataman/AMSamplePlateView.h \
 	source/dataman/info/AMControlInfoList.h \
 	source/dataman/AMSamplePlate.h \
-	source/ui/AMGenericScanEditor.h \
+	source/ui/dataman/AMGenericScanEditor.h \
 	source/ui/AMDetailedItemDelegate.h \
 	source/ui/AMVerticalStackWidget.h \
 	source/ui/AMHeaderButton.h \
-	source/ui/AMSampleEditor.h \
+	source/ui/dataman/AMSampleEditor.h \
 	source/ui/AMDateTimeUtils.h \
 	source/ui/AMElementListEdit.h \
 	source/ui/AMCloseItemDelegate.h \
-	source/ui/AMDataSourcesEditor.h \
+	source/ui/dataman/AMDataSourcesEditor.h \
 	source/actions/AMBeamlineActionsList.h \
 	source/ui/AMWrappingLineEdit.h \
 	source/actions/AMBeamlineControlSetMoveAction.h \
@@ -357,21 +357,21 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMDetectorSet.h \
 	source/dataman/info/AMROIInfo.h \
 	source/beamline/AMROI.h \
-	source/ui/AMSamplePositionViewActionsWidget.h \
+	source/ui/dataman/AMSamplePositionViewActionsWidget.h \
 	source/actions/AMBeamlineListAction.h \
 	source/actions/AMBeamlineControlWaitAction.h \
 	source/actions/AMBeamlineUserConfirmAction.h \
-	source/ui/AMScanQueryModel.h \
+	source/ui/dataman/AMScanQueryModel.h \
 	source/dataman/export/AMExportController.h \
 	source/dataman/export/AMExporter.h \
 	source/dataman/export/AMExporterOption.h \
 	source/dataman/export/AMExporterOptionGeneral.h \
 	source/dataman/export/AMExporterOptionGeneralAscii.h \
 	source/dataman/export/AMExporterGeneralAscii.h \
-	source/ui/AMExportWizard.h \
+	source/ui/dataman/AMExportWizard.h \
 	source/ui/AMFolderPathLineEdit.h \
 	source/util/AMTagReplacementParser.h \
-	source/ui/AMExporterOptionGeneralAsciiView.h \
+	source/ui/dataman/AMExporterOptionGeneralAsciiView.h \
 #	source/ui/AM3dDataSourceView.h \
 	source/ui/AMTopFrame.h \
 	source/actions/AMBeamlineSamplePlateMoveAction.h \
@@ -394,13 +394,13 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/analysis/AM1DSummingAB.h \
 	source/analysis/AMDeadTimeAB.h \
 	source/dataman/datasource/AMProcessVariableDataSource.h \
-	source/ui/AMChooseScanDialog.h \
+	source/ui/dataman/AMChooseScanDialog.h \
 	source/application/AMDatamanAppController.h \
-	source/ui/AMColorPickerButton.h \
-	source/ui/AMScanSetItemPropertyDialog.h \
-	source/ui/AMColoredTextToolButton.h \
+	source/ui/dataman/AMColorPickerButton.h \
+	source/ui/dataman/AMScanSetItemPropertyDialog.h \
+	source/ui/dataman/AMColoredTextToolButton.h \
 	source/ui/AMLinePropertyEditor.h \
-	source/ui/AMImagePropertyEditor.h \
+	source/ui/dataman/AMImagePropertyEditor.h \
 	source/beamline/CLS/CLSSynchronizedDwellTime.h \
 	source/dataman/datasource/AMXYScatterPVDataSource.h \
 	source/beamline/AMCompositeControl.h \
@@ -411,26 +411,26 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMSettingsView.h
 
 CONFIG(mobility) {
-HEADERS +=	source/ui/AMCrosshairOverlayVideoWidget.h \
-		source/ui/AMOverlayVideoWidget.h \
-		source/ui/AMBeamlineCameraBrowser.h
+HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
+	source/ui/AMOverlayVideoWidget.h \
+	source/ui/AMBeamlineCameraBrowser.h
 }
 
-FORMS +=	source/ui/AMDataView.ui \
-		source/ui/AMDataViewEmptyHeader.ui \
-		source/ui/AMDataViewSectionHeader.ui \
-		source/ui/AMImportControllerWidget.ui \
-		source/ui/AMScanConfigurationView.ui \
-		source/ui/BottomBar.ui \
-		source/ui/AMGenericScanEditor.ui \
-		source/ui/AMDataSourcesEditor.ui \
-		source/ui/AMSamplePlateSelector.ui \
-		source/ui/AMSamplePositionViewActionsWidget.ui \
-		source/ui/AMExporterOptionGeneralAsciiView.ui \
-		source/ui/AMDataViewActionsBar.ui \
-		source/ui/AMChooseScanDialog.ui \
-		source/ui/AMLinePropertyEditor.ui \
-		source/ui/AMImagePropertyEditor.ui
+FORMS += source/ui/dataman/AMDataView.ui \
+	source/ui/dataman/AMDataViewEmptyHeader.ui \
+	source/ui/dataman/AMDataViewSectionHeader.ui \
+	source/ui/AMImportControllerWidget.ui \
+	source/ui/AMScanConfigurationView.ui \
+	source/ui/BottomBar.ui \
+	source/ui/dataman/AMGenericScanEditor.ui \
+	source/ui/dataman/AMDataSourcesEditor.ui \
+	source/ui/dataman/AMSamplePlateSelector.ui \
+	source/ui/dataman/AMSamplePositionViewActionsWidget.ui \
+	source/ui/dataman/AMExporterOptionGeneralAsciiView.ui \
+	source/ui/dataman/AMDataViewActionsBar.ui \
+	source/ui/dataman/AMChooseScanDialog.ui \
+	source/ui/AMLinePropertyEditor.ui \
+	source/ui/dataman/AMImagePropertyEditor.ui
 SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	../MPlot/src/MPlot/MPlotAbstractTool.cpp \
 	../MPlot/src/MPlot/MPlotAxis.cpp \
@@ -511,16 +511,16 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/muParser/muParserCallback.cpp \
 	source/muParser/muParserError.cpp \
 	source/muParser/muParserTokenReader.cpp \
-	source/ui/AMRunSelector.cpp \
+	source/ui/dataman/AMRunSelector.cpp \
 	source/ui/beamline/AMControlSetView.cpp \
-	source/ui/AMCramBarHorizontal.cpp \
-	source/ui/AMDataView.cpp \
-	source/ui/AMDataViewWithActionButtons.cpp \
-	source/ui/AMFlowGraphicsLayout.cpp \
+	source/ui/dataman/AMCramBarHorizontal.cpp \
+	source/ui/dataman/AMDataView.cpp \
+	source/ui/dataman/AMDataViewWithActionButtons.cpp \
+	source/ui/dataman/AMFlowGraphicsLayout.cpp \
 	source/ui/AMMainWindow.cpp \
 	source/ui/AMRegionsLineView.cpp \
-	source/ui/AMRunExperimentInsert.cpp \
-	source/ui/AMScanView.cpp \
+	source/ui/dataman/AMRunExperimentInsert.cpp \
+	source/ui/dataman/AMScanView.cpp \
 	source/ui/AMSidebar.cpp \
 	source/ui/AMStatusView.cpp \
 	source/ui/AMThumbnailScrollViewer.cpp \
@@ -529,27 +529,27 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	#deprecated: source/ui/AMBeamlineCameraWidget.cpp \
 	source/ui/beamline/AMControlEditor.cpp \
 	source/ui/beamline/AMDetectorView.cpp \
-	source/ui/AMNewRunDialog.cpp \
+	source/ui/dataman/AMNewRunDialog.cpp \
 	source/ui/AMWorkflowManagerView.cpp \
 	source/actions/AMBeamlineScanAction.cpp \
 	source/actions/AMBeamlineControlMoveAction.cpp \
 	source/ui/AMPrefixSuffixLineEdit.cpp \
 	source/ui/AMDragDropItemModel.cpp \
 	source/dataman/AMRunExperimentItems.cpp \
-	source/ui/AMSampleManagementWidget.cpp \
-	source/ui/AMSampleManipulatorView.cpp \
-	source/ui/AMSamplePlateView.cpp \
+	source/ui/dataman/AMSampleManagementWidget.cpp \
+	source/ui/dataman/AMSampleManipulatorView.cpp \
+	source/ui/dataman/AMSamplePlateView.cpp \
 	source/dataman/info/AMControlInfoList.cpp \
 	source/dataman/AMSamplePlate.cpp \
-	source/ui/AMGenericScanEditor.cpp \
+	source/ui/dataman/AMGenericScanEditor.cpp \
 	source/ui/AMDetailedItemDelegate.cpp \
 	source/ui/AMVerticalStackWidget.cpp \
 	source/ui/AMHeaderButton.cpp \
-	source/ui/AMSampleEditor.cpp \
+	source/ui/dataman/AMSampleEditor.cpp \
 	source/ui/AMDateTimeUtils.cpp \
 	source/ui/AMElementListEdit.cpp \
 	source/ui/AMCloseItemDelegate.cpp \
-	source/ui/AMDataSourcesEditor.cpp \
+	source/ui/dataman/AMDataSourcesEditor.cpp \
 	source/actions/AMBeamlineActionsList.cpp \
 	source/ui/AMWrappingLineEdit.cpp \
 	source/actions/AMBeamlineControlSetMoveAction.cpp \
@@ -611,20 +611,20 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/AMROI.cpp \
 	#deprecated: source/ui/AMVideoWidget.cpp \
 	#source/beamline/AMBeamlineListAction.cpp
-	source/ui/AMSamplePositionViewActionsWidget.cpp \
+	source/ui/dataman/AMSamplePositionViewActionsWidget.cpp \
 	source/actions/AMBeamlineListAction.cpp \
 	source/actions/AMBeamlineControlWaitAction.cpp \
 	source/actions/AMBeamlineUserConfirmAction.cpp \
-	source/ui/AMScanQueryModel.cpp \
+	source/ui/dataman/AMScanQueryModel.cpp \
 	source/dataman/export/AMExportController.cpp \
 	source/dataman/export/AMExporterOption.cpp \
 	source/dataman/export/AMExporterOptionGeneral.cpp \
 	source/dataman/export/AMExporterOptionGeneralAscii.cpp \
 	source/dataman/export/AMExporterGeneralAscii.cpp \
-	source/ui/AMExportWizard.cpp \
+	source/ui/dataman/AMExportWizard.cpp \
 	source/ui/AMFolderPathLineEdit.cpp \
 	source/util/AMTagReplacementParser.cpp \
-	source/ui/AMExporterOptionGeneralAsciiView.cpp \
+	source/ui/dataman/AMExporterOptionGeneralAsciiView.cpp \
 	source/ui/AMTopFrame.cpp \
 	source/dataman/export/AMExporter.cpp \
 #	source/ui/AM3dDataSourceView.cpp \
@@ -648,13 +648,13 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AM1DSummingAB.cpp \
 	source/analysis/AMDeadTimeAB.cpp \
 	source/dataman/datasource/AMProcessVariableDataSource.cpp \
-	source/ui/AMChooseScanDialog.cpp \
+	source/ui/dataman/AMChooseScanDialog.cpp \
 	source/application/AMDatamanAppController.cpp \
-	source/ui/AMColorPickerButton.cpp \
-	source/ui/AMScanSetItemPropertyDialog.cpp \
-	source/ui/AMColoredTextToolButton.cpp \
+	source/ui/dataman/AMColorPickerButton.cpp \
+	source/ui/dataman/AMScanSetItemPropertyDialog.cpp \
+	source/ui/dataman/AMColoredTextToolButton.cpp \
 	source/ui/AMLinePropertyEditor.cpp \
-	source/ui/AMImagePropertyEditor.cpp \
+	source/ui/dataman/AMImagePropertyEditor.cpp \
 	source/beamline/CLS/CLSSynchronizedDwellTime.cpp \
 	source/dataman/datasource/AMXYScatterPVDataSource.cpp \
 	source/beamline/AMCompositeControl.cpp \
