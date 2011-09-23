@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMSingleControlDetector.h"
 #include "beamline/MCPDetector.h"
 #include "beamline/PGTDetector.h"
-#include "ui/AMControlEditor.h"
+#include "ui/beamline/AMControlEditor.h"
 #include "QMessageBox"
 #include "QMetaMethod"
 

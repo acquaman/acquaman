@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "QLineEdit"
 #include "QPushButton"
 #include "QVBoxLayout"
-#include "ui/AMControlEditor.h"
+#include "ui/beamline/AMControlEditor.h"
 #include "beamline/CLS/CLSCAEN2527HVChannel.h"
 
 CLSCAEN2527ChannelBasicView::CLSCAEN2527ChannelBasicView(CLSCAEN2527HVChannel *hvChannel, QWidget *parent) :

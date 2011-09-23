@@ -28,7 +28,7 @@ class QVBoxLayout;
 class QGridLayout;
 class QRadioButton;
 
-#include "ui/AMControlEditor.h"
+#include "ui/beamline/AMControlEditor.h"
 #include "beamline/SGM/SGMBeamline.h"
 #include "actions/AMBeamlineParallelActionsList.h"
 #include "MPlot/MPlotWidget.h"

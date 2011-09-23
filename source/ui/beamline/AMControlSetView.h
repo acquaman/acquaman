@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMCONTROLSETVIEW_H
 
 #include "beamline/AMControlSet.h"
-#include "ui/AMControlEditor.h"
+#include "ui/beamline/AMControlEditor.h"
 
 #include <QWidget>
 #include <QGroupBox>

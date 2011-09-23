@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMCONTROLOPTIMIZATIONVIEW_H
 #define AMCONTROLOPTIMIZATIONVIEW_H
 
-#include "ui/AMControlSetView.h"
+#include "ui/beamline/AMControlSetView.h"
 #include "beamline/AMControlOptimization.h"
 
 
