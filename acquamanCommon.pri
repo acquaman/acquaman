@@ -256,18 +256,18 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/dataman/AMCramBarHorizontal.h \
 	source/ui/dataman/AMDataView.h \
 	source/ui/dataman/AMDataViewWithActionButtons.h \
-	source/ui/AMFirstTimeWidget.h \
+	source/ui/dataman/AMFirstTimeWidget.h \
 	source/ui/dataman/AMFlowGraphicsLayout.h \
-	source/ui/AMImportControllerWidget.h \
+	source/ui/dataman/AMImportControllerWidget.h \
 	source/ui/AMMainWindow.h \
-	source/ui/AMRegionsLineView.h \
+	source/ui/acquaman/AMRegionsLineView.h \
 	source/ui/dataman/AMRunExperimentInsert.h \
-	source/ui/AMScanConfigurationView.h \
+	source/ui/acquaman/AMScanConfigurationView.h \
 	source/ui/dataman/AMScanView.h \
 	source/ui/AMSidebar.h \
 	source/ui/AMStatusView.h \
 	source/ui/AMThumbnailScrollViewer.h \
-	source/ui/AMXASRegionsView.h \
+	source/ui/acquaman/AMXASRegionsView.h \
 	source/ui/BottomBar.h \
 	#deprecated: source/ui/AMBeamlineCameraWidget.h \
 	source/ui/beamline/AMControlEditor.h \
@@ -338,7 +338,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
 	source/util/AMDeferredFunctionCall.h \
 	#deprecated: source/ui/AMVideoWidget.h \
-	source/ui/AMScanConfigurationViewHolder.h \
+	source/ui/acquaman/AMScanConfigurationViewHolder.h \
 	source/ui/util/AMPeriodicTableView.h \
 	source/util/AMPeriodicTable.h \
 	source/util/AMElement.h \
@@ -419,8 +419,8 @@ HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
 FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/dataman/AMDataViewEmptyHeader.ui \
 	source/ui/dataman/AMDataViewSectionHeader.ui \
-	source/ui/AMImportControllerWidget.ui \
-	source/ui/AMScanConfigurationView.ui \
+	source/ui/dataman/AMImportControllerWidget.ui \
+	source/ui/acquaman/AMScanConfigurationView.ui \
 	source/ui/BottomBar.ui \
 	source/ui/dataman/AMGenericScanEditor.ui \
 	source/ui/dataman/AMDataSourcesEditor.ui \
@@ -518,13 +518,13 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/dataman/AMDataViewWithActionButtons.cpp \
 	source/ui/dataman/AMFlowGraphicsLayout.cpp \
 	source/ui/AMMainWindow.cpp \
-	source/ui/AMRegionsLineView.cpp \
+	source/ui/acquaman/AMRegionsLineView.cpp \
 	source/ui/dataman/AMRunExperimentInsert.cpp \
 	source/ui/dataman/AMScanView.cpp \
 	source/ui/AMSidebar.cpp \
 	source/ui/AMStatusView.cpp \
 	source/ui/AMThumbnailScrollViewer.cpp \
-	source/ui/AMXASRegionsView.cpp \
+	source/ui/acquaman/AMXASRegionsView.cpp \
 	source/ui/BottomBar.cpp \
 	#deprecated: source/ui/AMBeamlineCameraWidget.cpp \
 	source/ui/beamline/AMControlEditor.cpp \
@@ -590,7 +590,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/actions/AMBeamlineControlStopAction.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
 	source/util/AMDeferredFunctionCall.cpp \
-	source/ui/AMScanConfigurationViewHolder.cpp \
+	source/ui/acquaman/AMScanConfigurationViewHolder.cpp \
 	source/ui/util/AMPeriodicTableView.cpp \
 	source/util/AMPeriodicTable.cpp \
 	source/util/AMElement.cpp \

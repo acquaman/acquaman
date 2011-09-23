@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSEndstationView.h"
 #include "ui/AMMainWindow.h"
 #include "ui/AMStartScreen.h"
-#include "ui/AMScanConfigurationViewHolder.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder.h"
 #include "ui/VESPERS/VESPERSBeamlineView.h"
 
 #include "ui/VESPERS/XRFDetectorView.h"

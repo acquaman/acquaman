@@ -21,10 +21,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERSXASSCANCONFIGURATIONVIEW_H
 #define VESPERSXASSCANCONFIGURATIONVIEW_H
 
-#include "ui/AMScanConfigurationView.h"
+#include "ui/acquaman/AMScanConfigurationView.h"
 
-#include "ui/AMXASRegionsView.h"
-#include "ui/AMRegionsLineView.h"
+#include "ui/acquaman/AMXASRegionsView.h"
+#include "ui/acquaman/AMRegionsLineView.h"
 #include "acquaman/VESPERS/VESPERSXASDacqScanController.h"
 #include "acquaman/VESPERS/VESPERSXASScanConfiguration.h"
 #include "util/AMElement.h"

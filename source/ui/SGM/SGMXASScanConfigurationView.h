@@ -30,11 +30,11 @@ class QSpacerItem;
 
 #include "ui/beamline/AMControlSetView.h"
 #include "ui/beamline/AMDetectorSetView.h"
-#include "ui/AMXASRegionsView.h"
-#include "ui/AMRegionsLineView.h"
+#include "ui/acquaman/AMXASRegionsView.h"
+#include "ui/acquaman/AMRegionsLineView.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMXASDacqScanController.h"
-#include "ui/AMScanConfigurationView.h"
+#include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/beamline/AMControlOptimizationView.h"
 #include "ui/AMTopFrame.h"
 

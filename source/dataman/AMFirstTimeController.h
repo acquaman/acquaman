@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "util/AMSettings.h"
 #include "dataman/database/AMDatabase.h"
-#include "ui/AMFirstTimeWidget.h"
+#include "ui/dataman/AMFirstTimeWidget.h"
 
 
 

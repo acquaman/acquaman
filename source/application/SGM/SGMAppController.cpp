@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMSampleTransferView.h"
 #include "ui/SGM/SGMSampleManipulatorView.h"
 #include "ui/dataman/AMSampleManagementWidget.h"
-#include "ui/AMScanConfigurationViewHolder.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder.h"
 #include "ui/SGM/SGMXASScanConfigurationView.h"
 #include "ui/SGM/SGMFastScanConfigurationView.h"
 #include "ui/SGM/SGMSidebar.h"

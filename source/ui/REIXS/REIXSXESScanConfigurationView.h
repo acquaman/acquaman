@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef REIXSXESSCANCONFIGURATIONVIEW_H
 #define REIXSXESSCANCONFIGURATIONVIEW_H
 
-#include "ui/AMScanConfigurationView.h"
+#include "ui/acquaman/AMScanConfigurationView.h"
 #include "acquaman/REIXS/REIXSXESScanConfiguration.h"
 #include "dataman/REIXS/REIXSXESCalibration.h"
 

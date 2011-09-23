@@ -34,7 +34,7 @@ class AMTopFrame;
 
 #include <algorithm>
 
-#include "ui/AMScanConfigurationView.h"
+#include "ui/acquaman/AMScanConfigurationView.h"
 #include "acquaman/SGM/SGMFastScanConfiguration.h"
 
 class SGMFastScanConfigurationView : public AMScanConfigurationView

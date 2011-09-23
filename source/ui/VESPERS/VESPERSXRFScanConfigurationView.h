@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERSXRFSCANCONFIGURATIONVIEW_H
 #define VESPERSXRFSCANCONFIGURATIONVIEW_H
 
-#include "ui/AMScanConfigurationView.h"
+#include "ui/acquaman/AMScanConfigurationView.h"
 #include "acquaman/VESPERS/VESPERSXRFScanConfiguration.h"
 
 #include <QDoubleSpinBox>

@@ -492,7 +492,7 @@ void AMBeamlineScanActionView::onMoveDownButtonClicked(){
 	emit moveDownRequested(scanAction_);
 }
 
-#include "ui/AMScanConfigurationView.h"
+#include "ui/acquaman/AMScanConfigurationView.h"
 
 void AMBeamlineScanActionView::mouseDoubleClickEvent(QMouseEvent *){
 	// if we don't have a configuration view yet, try to create one.  (This might fail, if no default view is defined for this scan configuration.)

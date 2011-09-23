@@ -22,8 +22,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/REIXS/REIXSBeamline.h"
 
-#include "ui/AMScanConfigurationView.h"
-#include "ui/AMScanConfigurationViewHolder.h"
+#include "ui/acquaman/AMScanConfigurationView.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder.h"
 #include "ui/REIXS/REIXSXESScanConfigurationDetailedView.h"
 #include "acquaman/AMScanController.h"
 

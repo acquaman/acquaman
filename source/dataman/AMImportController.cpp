@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMXASScan.h"
 #include "dataman/SGM/SGM2004FileLoader.h"
 #include "dataman/ALSBL8XASFileLoader.h"
-#include "ui/AMImportControllerWidget.h"
+#include "ui/dataman/AMImportControllerWidget.h"
 #include "util/AMErrorMonitor.h"
 
 #include <QDir>
