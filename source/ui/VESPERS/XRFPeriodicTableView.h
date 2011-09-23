@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 
-#include "ui/AMPeriodicTableView.h"
+#include "ui/util/AMPeriodicTableView.h"
 #include "util/VESPERS/XRFPeriodicTable.h"
 
 class XRFPeriodicTableView : public QWidget

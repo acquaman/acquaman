@@ -19,7 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMScanSetModel.h"
-#include "ui/AMDateTimeUtils.h"
+#include "util/AMDateTimeUtils.h"
 
 #include "dataman/datasource/AMDataSource.h"
 #include "dataman/AMScan.h"

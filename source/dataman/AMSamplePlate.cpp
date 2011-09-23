@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMSamplePlate.h"
 #include "util/AMErrorMonitor.h"
-#include "ui/AMDateTimeUtils.h"
+#include "util/AMDateTimeUtils.h"
 
 #include "math.h"
 

@@ -309,7 +309,7 @@ void AMBeamlineActionsListView::onActionChanged(int index){
 	((AMBeamlineActionItemView*)actionsViewList_->widget(index))->setAction(tmpItem);
 }
 
-#include "ui/AMDateTimeUtils.h"
+#include "util/AMDateTimeUtils.h"
 void AMBeamlineActionsListView::onActionAdded(int index){
 	AMBeamlineActionItem *tmpItem = actionsList_->action(index);
 	AMBeamlineActionItemView *tmpView = tmpItem->createView(index);

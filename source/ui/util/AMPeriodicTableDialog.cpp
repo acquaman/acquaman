@@ -1,6 +1,6 @@
-#include "AMPeriodicTableDialog.h"
+#include "ui/util/AMPeriodicTableDialog.h"
 
-#include "ui/AMPeriodicTableView.h"
+#include "ui/util/AMPeriodicTableView.h"
 
 #include <QHBoxLayout>
 

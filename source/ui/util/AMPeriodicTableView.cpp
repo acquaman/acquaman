@@ -18,7 +18,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "ui/AMPeriodicTableView.h"
+#include "ui/util/AMPeriodicTableView.h"
 
 #include <QToolButton>
 #include <QGridLayout>

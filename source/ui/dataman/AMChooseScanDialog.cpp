@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/database/AMDatabase.h"
 #include <QPushButton>
 #include <QButtonGroup>
-#include "ui/AMDateTimeUtils.h"
+#include "util/AMDateTimeUtils.h"
 #include <QStringBuilder>
 
 AMChooseScanDialog::AMChooseScanDialog(AMDatabase* db, const QString& title, const QString& prompt, bool multipleSelectionAllowed, QWidget *parent) :

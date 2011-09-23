@@ -291,7 +291,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMVerticalStackWidget.h \
 	source/ui/AMHeaderButton.h \
 	source/ui/dataman/AMSampleEditor.h \
-	source/ui/AMDateTimeUtils.h \
+	source/util/AMDateTimeUtils.h \
 	source/ui/AMElementListEdit.h \
 	source/ui/AMCloseItemDelegate.h \
 	source/ui/dataman/AMDataSourcesEditor.h \
@@ -339,7 +339,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/util/AMDeferredFunctionCall.h \
 	#deprecated: source/ui/AMVideoWidget.h \
 	source/ui/AMScanConfigurationViewHolder.h \
-	source/ui/AMPeriodicTableView.h \
+	source/ui/util/AMPeriodicTableView.h \
 	source/util/AMPeriodicTable.h \
 	source/util/AMElement.h \
 	source/dataman/info/AMSpectralOutputDetectorInfo.h \
@@ -408,7 +408,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/analysis/AM2DDeadTimeAB.h \
 	source/dataman/VESPERS/VESPERSXASDataLoader.h \
 	source/dataman/AMFileLoaderInterface.h \
-	source/ui/AMSettingsView.h
+	source/ui/util/AMSettingsView.h
 
 CONFIG(mobility) {
 HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
@@ -546,7 +546,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMVerticalStackWidget.cpp \
 	source/ui/AMHeaderButton.cpp \
 	source/ui/dataman/AMSampleEditor.cpp \
-	source/ui/AMDateTimeUtils.cpp \
+	source/util/AMDateTimeUtils.cpp \
 	source/ui/AMElementListEdit.cpp \
 	source/ui/AMCloseItemDelegate.cpp \
 	source/ui/dataman/AMDataSourcesEditor.cpp \
@@ -591,7 +591,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
 	source/util/AMDeferredFunctionCall.cpp \
 	source/ui/AMScanConfigurationViewHolder.cpp \
-	source/ui/AMPeriodicTableView.cpp \
+	source/ui/util/AMPeriodicTableView.cpp \
 	source/util/AMPeriodicTable.cpp \
 	source/util/AMElement.cpp \
 	source/dataman/info/AMSpectralOutputDetectorInfo.cpp \
@@ -661,7 +661,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/CLS/CLSSynchronizedDwellTimeView.cpp \
 	source/analysis/AM2DDeadTimeAB.cpp \
 	source/dataman/VESPERS/VESPERSXASDataLoader.cpp \
-	source/ui/AMSettingsView.cpp
+	source/ui/util/AMSettingsView.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \

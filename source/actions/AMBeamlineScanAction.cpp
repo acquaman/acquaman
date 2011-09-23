@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMScanController.h"
 
 #include "beamline/AMBeamline.h"
-#include "ui/AMDateTimeUtils.h"
+#include "util/AMDateTimeUtils.h"
 
 #include <QPushButton>
 #include <QToolButton>

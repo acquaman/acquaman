@@ -37,7 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMDeferredFunctionCall.h"
 #include "beamline/AMControlSet.h"
 
-#include "ui/AMDateTimeUtils.h"
+#include "util/AMDateTimeUtils.h"
 
 
 /* Classes

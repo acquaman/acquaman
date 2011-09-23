@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/database/AMDatabase.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "util/AMErrorMonitor.h"
-#include "ui/AMDateTimeUtils.h"
+#include "util/AMDateTimeUtils.h"
 #include "dataman/AMUser.h"
 #include "dataman/AMScan.h"
 

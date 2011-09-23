@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMScanQueryModel.h"
 #include "dataman/database/AMDbObjectSupport.h"
-#include "ui/AMDateTimeUtils.h"
+#include "util/AMDateTimeUtils.h"
 
 #include "dataman/AMScan.h"
 #include "dataman/AMSample.h"

@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSXASScanConfigurationView.h"
 #include "ui/AMTopFrame.h"
-#include "ui/AMPeriodicTableDialog.h"
+#include "ui/util/AMPeriodicTableDialog.h"
 #include "util/AMPeriodicTable.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 

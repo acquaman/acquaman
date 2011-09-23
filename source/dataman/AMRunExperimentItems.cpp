@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMRunExperimentItems.h"
 #include "dataman/database/AMDatabase.h"
-#include "ui/AMDateTimeUtils.h"
+#include "util/AMDateTimeUtils.h"
 
 #include <QMimeData>
 #include <QUrl>

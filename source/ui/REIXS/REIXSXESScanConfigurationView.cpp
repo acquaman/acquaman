@@ -130,7 +130,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(QWidget *parent) :
 
 
 #include "dataman/database/AMDatabase.h"
-#include "ui/AMDateTimeUtils.h"
+#include "util/AMDateTimeUtils.h"
 void REIXSXESScanConfigurationView::onLoadCalibrations() {
 
 	calibrationSelector_->blockSignals(true);

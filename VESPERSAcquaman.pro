@@ -55,7 +55,7 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/beamline/VESPERS/VESPERSSplitIonChamber.h \
 	source/ui/VESPERS/VESPERSDiagnosticsView.h \
     source/ui/VESPERS/VESPERSExperimentConfigurationView.h \
-    source/ui/AMPeriodicTableDialog.h \
+    source/ui/util/AMPeriodicTableDialog.h \
     source/beamline/VESPERS/VESPERSExperimentConfiguration.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
@@ -109,7 +109,7 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/beamline/VESPERS/VESPERSSplitIonChamber.cpp \
 	source/ui/VESPERS/VESPERSDiagnosticsView.cpp \
     source/ui/VESPERS/VESPERSExperimentConfigurationView.cpp \
-    source/ui/AMPeriodicTableDialog.cpp \
+    source/ui/util/AMPeriodicTableDialog.cpp \
     source/beamline/VESPERS/VESPERSExperimentConfiguration.cpp
 
 RESOURCES += \

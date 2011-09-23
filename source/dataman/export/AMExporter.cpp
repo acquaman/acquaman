@@ -170,7 +170,7 @@ QString AMExporter::krDateTime(const QString& arg) {
 		return currentScan_->dateTime().toString(arg);
 }
 
-#include "ui/AMDateTimeUtils.h"
+#include "util/AMDateTimeUtils.h"
 #include "dataman/AMRun.h"
 
 QString AMExporter::krRun(const QString& arg) {

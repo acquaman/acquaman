@@ -1,4 +1,4 @@
-#include "AMSettingsView.h"
+#include "ui/util/AMSettingsView.h"
 
 #include <QLineEdit>
 #include <QFormLayout>

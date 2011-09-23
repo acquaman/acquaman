@@ -37,7 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMDataViewWithActionButtons.h"
 #include "ui/dataman/AMRunExperimentInsert.h"
 #include "ui/dataman/AMGenericScanEditor.h"
-#include "ui/AMSettingsView.h"
+#include "ui/util/AMSettingsView.h"
 
 #include "dataman/AMFileLoaderInterface.h"
 
