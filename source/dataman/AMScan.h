@@ -214,7 +214,7 @@ public:
 		bool success = false;
 		for(int x = 0; x < AMSettings::availableFileLoaders.count(); x++){
 			AMFileLoaderInterface *fileloader = AMSettings::availableFileLoaders.at(x);
-			if(accepts = fileloader->accepts(this)){
+			if((accepts = fileloader->accepts(this))){
 				success = fileloader->load(this, AMUserSettings::userDataFolder);
 				break;
 			}
