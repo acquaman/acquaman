@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMElement.h"
 
 #include <QLineEdit>
+#include <QTextEdit>
 #include <QButtonGroup>
 #include <QDoubleSpinBox>
 #include <QToolButton>
@@ -96,6 +97,9 @@ protected:
 	QButtonGroup *ItGroup_;
 	/// Button group for the I0 ion chamber selection.
 	QButtonGroup *I0Group_;
+
+	/// The text edit that holds all the names of the regions of interest.
+	QTextEdit *roiText_;
 };
 
 #endif // VESPERSXASSCANCONFIGURATIONVIEW_H
