@@ -350,7 +350,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/PGTDetector.h \
 	source/beamline/MCPDetector.h \
 	source/ui/beamline/AMDetectorViewSupport.h \
-	source/ui/AMSingleControlDetectorView.h \
+	source/ui/beamline/AMSingleControlDetectorView.h \
 	source/ui/beamline/MCPDetectorView.h \
 	source/ui/beamline/PGTDetectorView.h \
 	source/ui/beamline/AMDetectorSetView.h \
@@ -372,7 +372,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMFolderPathLineEdit.h \
 	source/util/AMTagReplacementParser.h \
 	source/ui/dataman/AMExporterOptionGeneralAsciiView.h \
-#	source/ui/AM3dDataSourceView.h \
+#	source/ui/dataman/AM3dDataSourceView.h \
 	source/ui/AMTopFrame.h \
 	source/actions/AMBeamlineSamplePlateMoveAction.h \
 	source/actions/AMBeamlineFiducializationMoveAction.h \
@@ -602,7 +602,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/PGTDetector.cpp \
 	source/beamline/MCPDetector.cpp \
 	source/ui/beamline/AMDetectorViewSupport.cpp \
-	source/ui/AMSingleControlDetectorView.cpp \
+	source/ui/beamline/AMSingleControlDetectorView.cpp \
 	source/ui/beamline/MCPDetectorView.cpp \
 	source/ui/beamline/PGTDetectorView.cpp \
 	source/ui/beamline/AMDetectorSetView.cpp \
@@ -627,7 +627,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/dataman/AMExporterOptionGeneralAsciiView.cpp \
 	source/ui/AMTopFrame.cpp \
 	source/dataman/export/AMExporter.cpp \
-#	source/ui/AM3dDataSourceView.cpp \
+#	source/ui/dataman/AM3dDataSourceView.cpp \
 	source/actions/AMBeamlineSamplePlateMoveAction.cpp \
 	source/actions/AMBeamlineFiducializationMoveAction.cpp \
 	source/dataman/info/OceanOptics65000DetectorInfo.cpp \

@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMScanConfigurationViewHolder.h"
 #include "actions/AMBeamlineScanAction.h"
 #include "acquaman/AMScanConfiguration.h"
-#include "ui/AMScanConfigurationView.h"
+#include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/AMWorkflowManagerView.h"
 
 

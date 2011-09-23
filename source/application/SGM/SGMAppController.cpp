@@ -31,7 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMSidebar.h"
 #include "acquaman/AMScanController.h"
 #include "ui/beamline/AMDetectorView.h"
-#include "ui/AMSingleControlDetectorView.h"
+#include "ui/beamline/AMSingleControlDetectorView.h"
 #include "ui/beamline/MCPDetectorView.h"
 #include "ui/beamline/PGTDetectorView.h"
 #include "ui/beamline/OceanOptics65000DetectorView.h"
