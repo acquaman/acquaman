@@ -113,14 +113,6 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
     source/beamline/VESPERS/VESPERSExperimentConfiguration.cpp
 
 RESOURCES += \
-	source/ui/VESPERS/EndstationPictures.qrc \
-	source/ui/VESPERS/vespersIcons.qrc \
-	source/ui/StopButton.qrc
-
-
-
-
-
-
+    source/icons/VESPERS/vespersIcons.qrc
 
 

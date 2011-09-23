@@ -13,7 +13,3 @@ SOURCES += \
 	source/ui/VESPERS/XRFViewer.cpp \
 	source/ui/VESPERS/DeadTimeButton.cpp
 
-RESOURCES += \
-	source/ui/VESPERS/EndstationPictures.qrc \
-	source/ui/VESPERS/vespersIcons.qrc \
-	source/ui/StopButton.qrc

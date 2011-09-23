@@ -102,7 +102,7 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	QGroupBox *controlGB = new QGroupBox;
 	controlGB->setObjectName("Control");
 	controlGB->setFixedSize(640, 400);
-	controlGB->setStyleSheet("QGroupBox#Control { background-image: url(:/Endstation-background.png); }");
+	controlGB->setStyleSheet("QGroupBox#Control { background-image: url(:/VESPERS/Endstation-background.png); }");
 	QGridLayout *controlGBLayout = new QGridLayout;
 	for (int i = 0; i < 20; i++){
 
@@ -352,7 +352,7 @@ VESPERSEndstationConfigurationView::VESPERSEndstationConfigurationView(QWidget *
 	vortex4Layout->addRow("Home Position", vortex4HomeLayout);
 	vortex4GB->setLayout(vortex4Layout);
 
-	QPushButton *saveButton = new QPushButton(QIcon(":/Save.png"), tr("Save"));
+	QPushButton *saveButton = new QPushButton(QIcon(":/save.png"), tr("Save"));
 	connect(saveButton, SIGNAL(clicked()), this, SLOT(saveFile()));
 	QHBoxLayout *saveButtonLayout = new QHBoxLayout;
 	saveButtonLayout->addWidget(saveButton, 0, Qt::AlignRight);
