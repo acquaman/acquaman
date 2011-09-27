@@ -789,8 +789,10 @@ void AMScanViewExclusiveView::addScan(int scanIndex) {
 MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* dataSource, const AMDataSourcePlotSettings& plotSettings) {
 	MPlotItem* rv = 0;
 
-	if(dataSource == 0)
+	if(dataSource == 0) {
+		qWarning() << "WARNING: AMScanViewInternal: Asked to create a plot item for a null data source.";
 		return 0;
+	}
 
 	switch(dataSource->rank()) {	// depending on the rank, we'll need an XY-series or an image to display it. 3D and 4D, etc. we don't handle for now.
 
@@ -810,6 +812,7 @@ MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* d
 		rv = image;
 		break; }
 	default:
+		qWarning() << "WARNING: AMScanViewInternal: Asked to create a plot item for a rank that we don't handle.";
 		rv = 0;
 		break;
 	}
@@ -841,9 +844,12 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 
 		// need to create new plot item for this scan. (Don't have one yet)
 		if(plotItems_.at(scanIndex) == 0) {
-			plotItems_[scanIndex] = createPlotItemForDataSource(dataSource, model()->plotSettings(scanIndex, dataSourceIndex));
-			plotItems_.at(scanIndex)->setDescription(model()->scanAt(scanIndex)->fullName());
-			plot_->plot()->addItem(plotItems_.at(scanIndex), (dataSource->rank() == 2? MPlot::Right : MPlot::Left));
+			MPlotItem* newItem;
+			plotItems_[scanIndex] = newItem = createPlotItemForDataSource(dataSource, model()->plotSettings(scanIndex, dataSourceIndex));
+			if(newItem) {
+				newItem->setDescription(model()->scanAt(scanIndex)->fullName());
+				plot_->plot()->addItem(newItem, (dataSource->rank() == 2? MPlot::Right : MPlot::Left));
+			}
 			/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
 			// testing 3D
 			//			if(dataSource->rank() == 2) {
