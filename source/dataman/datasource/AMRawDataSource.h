@@ -35,6 +35,8 @@ class AMRawDataSource : public AMDbObject, public AMDataSource
 	Q_PROPERTY(int scanRank READ scanRank WRITE dbLoadScanRank)
 	Q_PROPERTY(int measurementRank READ measurementRank WRITE dbLoadMeasurementRank)
 	Q_PROPERTY(int rank READ rank WRITE dbLoadRank)
+	Q_PROPERTY(bool visibleInPlots READ visibleInPlots WRITE setVisibleInPlots)
+	Q_PROPERTY(bool hiddenFromUsers READ hiddenFromUsers WRITE setHiddenFromUsers)
 
 	Q_CLASSINFO("measurementId", "hidden=true")
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Data Source")

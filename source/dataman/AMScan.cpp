@@ -368,6 +368,24 @@ void AMScan::dbLoadScanConfiguration(AMDbObject* newObject) {
 		setScanConfiguration(sc);
 }
 
+// This overloaded function calls addRawDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
+bool AMScan::addRawDataSource(AMRawDataSource* newRawDataSource, bool visibleInPlots, bool hiddenFromUsers) {
+	if(newRawDataSource) {
+		newRawDataSource->setHiddenFromUsers(hiddenFromUsers);
+		newRawDataSource->setVisibleInPlots(visibleInPlots);
+	}
+
+	return addRawDataSource(newRawDataSource);
+}
+
+// This overloaded function calls addAnalyzedDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
+bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource, bool visibleInPlots, bool hiddenFromUsers) {
+	if(newAnalyzedDataSource) {
+		newAnalyzedDataSource->setHiddenFromUsers(hiddenFromUsers);
+		newAnalyzedDataSource->setVisibleInPlots(visibleInPlots);
+	}
+	return addAnalyzedDataSource(newAnalyzedDataSource);
+}
 
 
 #include <QPixmap>

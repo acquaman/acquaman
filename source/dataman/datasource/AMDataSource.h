@@ -174,6 +174,17 @@ public:
 	virtual QWidget* createEditorWidget() {	return 0; }
 
 
+	/// Hint to indicate that this data source should be visible (in plots and graphical displays).  Users are free to toggle this visibility.
+	bool visibleInPlots() const { return visibleInPlots_; }
+	/// Specify that this data source should be visible (in plots and graphical displays).  Users are free to toggle this visibility.
+	void setVisibleInPlots(bool isVisible) { visibleInPlots_ = isVisible; emitInfoChanged(); }
+
+	/// Hint to indicate that this data source should be hidden from users by default. (ie: it contains some programming internals). This means that users shouldn't see it, or be able to toggle its visibility.
+	bool hiddenFromUsers() const { return hiddenFromUsers_; }
+	/// Specify that this data source should be hidden from users by default. (ie: it contains some programming internals). This means that users shouldn't see it, or be able to toggle its visibility.
+	void setHiddenFromUsers(bool isHidden = true) { hiddenFromUsers_ = isHidden; emitInfoChanged(); }
+
+
 protected:
 
 	/// Subclasses must call this when the data has changed (in value, or validity). It allows connected plots and analysis blocks to update / re-analyze. \c start and \c end specify the range of values that have changed. Use an invalid index (AMnDIndex()) for \c start to specify all data might have changed.
@@ -182,7 +193,7 @@ protected:
 	void emitSizeChanged(int axisNumber = -1) { signalSource_->emitSizeChanged(axisNumber); }
 	/// Subclasses must call this when the descriptions of the axes have changed (units, description, etc.). \c axisNumber specifies which axis changed, or -1 to indicate they all might have.
 	void emitAxisInfoChanged(int axisNumber = -1) { signalSource_->emitAxisInfoChanged(axisNumber); }
-	/// This is emitted when the meta-info changes. (Right now, this only includes a data source's description() )
+	/// This is emitted when the meta-info changes. (Right now, this only includes a data source's description(), and the visibleInPlots() and hiddenFromUsers() attributes. )
 	void emitInfoChanged() { signalSource_->emitInfoChanged(); }
 	/// Subclasses must call this when the state() of the data changes
 	void emitStateChanged(int newDataState) { signalSource_->emitStateChanged(newDataState); }
@@ -196,10 +207,16 @@ protected:
 	/// Set of observers
 	QSet<void*> observers_;
 
+	/// Hint to indicate that this data source should be visible (in plots and graphical displays).  Users are free to toggle this visibility.
+	bool visibleInPlots_;
+	/// Hint to indicate that this data source should be hidden from users by default. (ie: it contains some programming internals). This means that users shouldn't see it, or be able to toggle its visibility.
+	bool hiddenFromUsers_;
+
 
 private:
 	/// QObject proxy for emitting signals. (This interface class can't emit directly, because it doesn't want to inherit QObject.)
 	AMDataSourceSignalSource* signalSource_;
+
 };
 
 Q_DECLARE_METATYPE(AMDataSource*)

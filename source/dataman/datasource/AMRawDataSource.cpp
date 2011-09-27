@@ -51,7 +51,10 @@ AMRawDataSource::AMRawDataSource(const AMDataStore* dataStore, int measurementId
 
 	// create connections to datastore:
 	connect(dataStore_->signalSource(), SIGNAL(dataChanged(AMnDIndex,AMnDIndex,int)), this, SLOT(onDataChanged(AMnDIndex, AMnDIndex,int)) );
-	connect(dataStore->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onScanAxisSizeChanged(int)));
+	connect(dataStore_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onScanAxisSizeChanged(int)));
+
+	// raw data sources shouldn't be visible in plots, usually.  This is just a default; programmers can always call setVisibleInPlots(), or use the AMScan::addRawDataSource() version which calls this internally.
+	visibleInPlots_ = false;
 }
 
 

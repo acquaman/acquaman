@@ -70,18 +70,27 @@ QModelIndex AMScanSetModel::parent ( const QModelIndex & index ) const {
 
 Qt::ItemFlags AMScanSetModel::flags ( const QModelIndex & index ) const  {
 
+	if (!index.isValid())
+		return Qt::ItemIsEnabled;
+
 	// Scans:
 	if(index.internalId() == -1)
 		return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 
 	// Data Sources:
-	if(index.internalId() >= 0)
-		return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
+	if(index.internalId() >= 0) {
+
+		bool hiddenFromUsers = false;
+		if(index.internalId() < scans_.count() && index.row() < scans_.at(index.internalId())->dataSourceCount())	 // makes sure index is in range; Qt might call flags() on out-of-range model indices.
+			hiddenFromUsers = isHiddenFromUsers(index.internalId(), index.row());
+
+		return Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | (hiddenFromUsers ? Qt::NoItemFlags : Qt::ItemIsEnabled);
+	}
 
 	return Qt::NoItemFlags;
 }
 
-QVariant AMScanSetModel::data ( const QModelIndex & index, int role) const {
+QVariant AMScanSetModel::data(const QModelIndex & index, int role) const {
 	if(!index.isValid())
 		return QVariant();
 
@@ -159,8 +168,11 @@ QVariant AMScanSetModel::data ( const QModelIndex & index, int role) const {
 																scan->name(),
 																dataSource->typeDescription());
 				break;
-			case Qt::CheckStateRole:
-				return sourcePlotSettings_.at(index.internalId()).at(index.row()).visible ? Qt::Checked : Qt::Unchecked;
+			case Qt::CheckStateRole:	// this controls visibility on plots. If the data source is hidden from users, it should not be visible regardless of the user's visibility setting.
+				if(dataSource->hiddenFromUsers() || !dataSource->visibleInPlots())
+					return Qt::Unchecked;
+				else
+					return Qt::Checked;
 				break;
 			case AM::PointerRole:
 				return qVariantFromValue(dataSource);
@@ -259,18 +271,7 @@ void AMScanSetModel::addScan(AMScan* newScan) {
 	QList<AMDataSourcePlotSettings> plotSettings;
 	for(int i=0; i<newScan->dataSourceCount(); i++) {
 		AMDataSourcePlotSettings ps; /// \todo set up nicer default colors (related within scans)
-
-		/// \todo More refined behaviour for which blocks are visible by default. For now: show analyzed data sources, if some exist; otherwise show first two raw data sources.
-		if(newScan->analyzedDataSourceCount()) {
-			// don't show raw data sources
-			if(i<newScan->rawDataSourceCount())
-				ps.visible = false;
-		}
-		else {
-			if(i >= 2)	// don't show more than two raw data sources. Just want to provide the users a hint that they can use this display to see more than one.
-				ps.visible = false;
-		}
-
+		// Previously here: decided how many/which data sources to make visible.  Visibility is now controlled in AMDataSource::visibleInPlots().  Scan controllers can initialize this, and it will be saved in the database.
 		plotSettings.append(ps);
 	}
 	sourcePlotSettings_.append(plotSettings);
@@ -336,8 +337,9 @@ bool AMScanSetModel::setData ( const QModelIndex & index, const QVariant & value
 			emit dataChanged(index, index);
 			return true;
 		case Qt::CheckStateRole:
-			sourcePlotSettings_[index.internalId()][index.row()].visible = value.toBool();
-			emit dataChanged(index, index);
+			scans_.at(index.internalId())->dataSourceAt(index.row())->setVisibleInPlots(value.toBool());
+			// This won't be necessary when the data source's infoChanged() signal is propagated up to us:
+				emit dataChanged(index, index);
 			return true;
 		case AM::PriorityRole:
 			sourcePlotSettings_[index.internalId()][index.row()].priority = value.toDouble();
@@ -464,8 +466,37 @@ QStringList AMScanSetModel::visibleDataSourceNames() const {
 	QSet<QString> rv;
 	for(int si = 0; si<scans_.count(); si++)
 		for(int ci = 0; ci<scans_.at(si)->dataSourceCount(); ci++)
-			if(sourcePlotSettings_.at(si).at(ci).visible)
+			if(isVisible(si,ci))
 				rv << scans_.at(si)->dataSourceAt(ci)->name();
 	return rv.toList();
+}
+
+void AMScanSetModel::setVisible(int scanIndex, int dataSourceIndex, bool isVisible)  {
+
+	// previously: sourcePlotSettings_[scanIndex][dataSourceIndex].visible = isVisible;
+	scans_.at(scanIndex)->dataSourceAt(dataSourceIndex)->setVisibleInPlots(isVisible);
+
+	// This won't be necessary when the data source's infoChanged() signal is propagated up to us.
+	QModelIndex i = indexForDataSource(scanIndex, dataSourceIndex);
+	emit dataChanged(i, i);
+}
+
+bool AMScanSetModel::isVisible(int scanIndex, int dataSourceIndex) const
+{
+	return scans_.at(scanIndex)->dataSourceAt(dataSourceIndex)->visibleInPlots();
+}
+
+void AMScanSetModel::setHiddenFromUsers(int scanIndex, int dataSourceIndex, bool isHiddenFromUsers)
+{
+	scans_.at(scanIndex)->dataSourceAt(dataSourceIndex)->setHiddenFromUsers(isHiddenFromUsers);
+
+	// This won't be necessary when the data source's infoChanged() signal is propagated up to us.
+	QModelIndex i = indexForDataSource(scanIndex, dataSourceIndex);
+	emit dataChanged(i,i);
+}
+
+bool AMScanSetModel::isHiddenFromUsers(int scanIndex, int dataSourceIndex) const
+{
+	return scans_.at(scanIndex)->dataSourceAt(dataSourceIndex)->hiddenFromUsers();
 }
 
