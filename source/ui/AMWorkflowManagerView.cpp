@@ -229,7 +229,10 @@ void AMWorkflowManagerView::onAddActionButtonClicked(){
 		samplePlateAddActionMenu_->addAction("<No Sample Plate Selected>");
 	addActionMenu_->addMenu(samplePlateAddActionMenu_);
 
-	QList<AMControlInfoList> fiducializations = AMBeamline::bl()->currentFiducializations();
+	QList<AMControlInfoList> fiducializations;
+	if(AMBeamline::bl())
+		fiducializations = AMBeamline::bl()->currentFiducializations();
+
 	if(fiducializations.count() > 0){
 		fiducializationMarkAddActionMenu_ = new QMenu();
 		fiducializationMarkAddActionMenu_->setTitle("Fiducialization Marks");

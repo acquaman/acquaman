@@ -46,8 +46,7 @@ void AMBeamline::releaseBl() {
 AMBeamline * AMBeamline::bl()
 {
 	 if(!instance_) {
-		 instance_ = new AMBeamline("UnconfiguredBeamline");
-		 qWarning() << "WARNING: AMBeamline: First initialized by creating a default AMBeamline object. You need to call YourBeamline::bl() before calling AMBeamline::bl().";
+		 qWarning() << "WARNING: AMBeamline: No beamline created yet.  You need to call YourBeamline::bl() before calling AMBeamline::bl().";
 	 }
 
 	return instance_;
