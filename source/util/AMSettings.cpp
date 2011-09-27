@@ -151,9 +151,9 @@ void AMSettings::load() {
 
 	publicDataFolder = settings.value("publicDataFolder", "/home/acquaman/data/").toString();
 	publicDatabaseFilename = settings.value("publicDatabaseFilename", "publicdata.db").toString();
-        //fileLoaderPluginsFolder = settings.value("fileLoaderPluginsFolder", "/Users/fawkes/dev/acquaman/plugins/FileLoaders").toString();
-        fileLoaderPluginsFolder = settings.value("fileLoaderPluginsFolder", QDir::homePath()+"/dev/acquaman/plugins/FileLoaders").toString();
-	analysisBlockPluginsFolder = settings.value("analysisBlockPluginsFolder", QDir::homePath()+"/dev/acquaman/plugins/AnalysisBlocks").toString();
+		//fileLoaderPluginsFolder = settings.value("fileLoaderPluginsFolder", "/Users/fawkes/dev/acquaman/plugins/FileLoaders").toString();
+		fileLoaderPluginsFolder = settings.value("fileLoaderPluginsFolder", QDir::homePath()+"/beamline/programming/acquaman/plugins/FileLoaders").toString();
+	analysisBlockPluginsFolder = settings.value("analysisBlockPluginsFolder", QDir::homePath()+"/beamline/programming/acquaman/plugins/AnalysisBlocks").toString();
 
 	qDebug() << publicDataFolder << publicDatabaseFilename << fileLoaderPluginsFolder << analysisBlockPluginsFolder;
 
