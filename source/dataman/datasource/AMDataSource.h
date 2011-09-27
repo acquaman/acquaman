@@ -175,14 +175,14 @@ public:
 
 
 	/// Hint to indicate that this data source should be visible (in plots and graphical displays).  Users are free to toggle this visibility.
-	bool visibleInPlots() const { return visibleInPlots_; }
+	virtual bool visibleInPlots() const { return visibleInPlots_; }
 	/// Specify that this data source should be visible (in plots and graphical displays).  Users are free to toggle this visibility.
-	void setVisibleInPlots(bool isVisible) { visibleInPlots_ = isVisible; emitInfoChanged(); }
+	virtual void setVisibleInPlots(bool isVisible) { visibleInPlots_ = isVisible; emitInfoChanged(); }
 
 	/// Hint to indicate that this data source should be hidden from users by default. (ie: it contains some programming internals). This means that users shouldn't see it, or be able to toggle its visibility.
-	bool hiddenFromUsers() const { return hiddenFromUsers_; }
+	virtual bool hiddenFromUsers() const { return hiddenFromUsers_; }
 	/// Specify that this data source should be hidden from users by default. (ie: it contains some programming internals). This means that users shouldn't see it, or be able to toggle its visibility.
-	void setHiddenFromUsers(bool isHidden = true) { hiddenFromUsers_ = isHidden; emitInfoChanged(); }
+	virtual void setHiddenFromUsers(bool isHidden = true) { hiddenFromUsers_ = isHidden; emitInfoChanged(); }
 
 
 protected:

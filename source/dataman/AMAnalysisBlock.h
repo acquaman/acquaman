@@ -115,6 +115,14 @@ public:
 	/// If implementing classes don't use the setState() method to notify of changes in their current output state, they must re-implement this function to reflect their actual current state.
 	virtual int state() const { return state_;	}
 
+	/// Specify that this data source should be visible (in plots and graphical displays).  Users are free to toggle this visibility.
+	/*! Re-implemented from AMDataSource to call setModified().  */
+	virtual void setVisibleInPlots(bool isVisible) { AMDataSource::setVisibleInPlots(isVisible); setModified(true); }
+
+	/// Specify that this data source should be hidden from users by default. (ie: it contains some programming internals). This means that users shouldn't see it, or be able to toggle its visibility.
+	/*! Re-implemented from AMDataSource to call setModified().  */
+	virtual void setHiddenFromUsers(bool isHidden = true) { AMDataSource::setHiddenFromUsers(isHidden); setModified(true); }
+
 
 protected slots:
 	/// called automatically when a current input source is deleted. The default response is to discard ALL input sources and go into the invalid/inactive state. The base class implementation of this function is effectively the same as calling setInputDataSources() with an empty list. setInputDataSourcesImplementation() will be called with an empty list to tell the subclass to put itself in the invalid/inactive state.
