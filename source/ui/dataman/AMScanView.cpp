@@ -933,7 +933,7 @@ void AMScanViewExclusiveView::setDataRangeConstraint(int id)
 
 			double min = plot_->plot()->minimumSeriesValue();
 
-			if (min != 0)
+			if (min <= 0)
 				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(min, MPLOT_POS_INFINITY));
 			else
 				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
@@ -1202,7 +1202,7 @@ void AMScanViewMultiView::setDataRangeConstraint(int id)
 
 			double min = plot_->plot()->minimumSeriesValue();
 
-			if (min != 0)
+			if (min <= 0)
 				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(min, MPLOT_POS_INFINITY));
 			else
 				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
@@ -1559,7 +1559,7 @@ void AMScanViewMultiScansView::setDataRangeConstraint(int id)
 					min = plots_.at(i)->plot()->minimumSeriesValue();
 			}
 
-			if (min != 0)
+			if (min <= 0)
 				val = min;
 			else
 				val = 1;
@@ -1973,7 +1973,7 @@ void AMScanViewMultiSourcesView::setDataRangeConstraint(int id)
 					min = i.value()->plot()->minimumSeriesValue();
 			}
 
-			if (min != 0)
+			if (min <= 0)
 				val = min;
 			else
 				val = 1;
