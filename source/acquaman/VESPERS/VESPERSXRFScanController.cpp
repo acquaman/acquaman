@@ -43,7 +43,7 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 	scan_->setName(QString("XRF Scan - %1 el").arg(detector_->elements()));
 
 	scan_->setFilePath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()) + ".dat");
-	scan_->setFileFormat("vespersXRF");
+	scan_->setFileFormat("vespers2011XRF");
 	scan_->setRunId(AMUser::user()->currentRunId());
 
 	int elements = detector_->elements();
