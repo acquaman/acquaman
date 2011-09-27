@@ -77,9 +77,9 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 			sourceButton->setChecked(model->isVisible(scanIndex, i));
 			sourceButtons_.addButton(sourceButton, i);
 			cramBar_->addWidget(sourceButton);
-			/// \todo this is a bit of a hack for scalar data sources: hidden because people don't want to see them. [Who added 0D data sources anyway?]
-			if (source->dataSourceAt(i)->rank() == 0)
-				sourceButton->hide();
+			// hide the button if this data source should be hidden from users:
+			sourceButton->setHidden(model->isHiddenFromUsers(scanIndex, i));
+
 			sourceButton->setContextMenuPolicy(Qt::CustomContextMenu);
 			connect(sourceButton, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onDataSourceButtonRightClicked(QPoint)));
 		}
@@ -141,8 +141,8 @@ void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int 
 			newButton->setChecked( (model_->exclusiveDataSourceName() == source->dataSourceAt(i)->name()) );
 		else
 			newButton->setChecked(model_->isVisible(scanIndex_, i));
-		/// \todo this is a bit of a hack for scalar data sources: hidden because people don't want to see them. [Who added 0D data sources anyway?]
-		if (source->dataSourceAt(i)->rank() == 0)
+		// If this data source should be hidden from users, don't show the button to toggle its visibility.  (Above, isVisible() will automatically return false if hiddenFromUsers() is true.)
+		if (source->dataSourceAt(i)->hiddenFromUsers())
 			newButton->hide();
 
 		// qDebug() << "added a data source. exclusiveModeOn is: " << exclusiveModeOn_ << ", source name is:" << source->dataSourceAt(i)->name() << ", exclusiveDataSourceName is:" << model_->exclusiveDataSourceName();
@@ -192,14 +192,18 @@ void AMScanViewScanBar::onModelDataChanged(const QModelIndex& topLeft, const QMo
 
 		int dataSourceIndex = topLeft.row();
 		AMDataSource* dataSource = model_->dataSourceAt(scanIndex_, dataSourceIndex);
-		sourceButtons_.button(dataSourceIndex)->setText(dataSource->name());
+		QAbstractButton* button = sourceButtons_.button(dataSourceIndex);
+		button->setText(dataSource->name());
 		// setting visibility: depends on whether exclusiveMode is on or not
 		if(exclusiveModeOn_)
-			sourceButtons_.button(dataSourceIndex)->setChecked( (model_->exclusiveDataSourceName() == dataSource->name()) );
+			button->setChecked( (model_->exclusiveDataSourceName() == dataSource->name()) );
 		else
-			sourceButtons_.button(dataSourceIndex)->setChecked(model_->isVisible(scanIndex_, dataSourceIndex));
+			button->setChecked(model_->isVisible(scanIndex_, dataSourceIndex));
 
-		qobject_cast<AMColoredTextToolButton*>(sourceButtons_.button(dataSourceIndex))->setTextColor( model_->plotColor(scanIndex_, dataSourceIndex) );
+		// hide the button to toggle visibility, if this data source should be hidden from users.
+		button->setHidden(model_->isHiddenFromUsers(scanIndex_, dataSourceIndex));
+
+		qobject_cast<AMColoredTextToolButton*>(button)->setTextColor( model_->plotColor(scanIndex_, dataSourceIndex) );
 	}
 }
 
@@ -933,7 +937,7 @@ void AMScanViewExclusiveView::setDataRangeConstraint(int id)
 
 			double min = plot_->plot()->minimumSeriesValue();
 
-			if (min != 0)
+			if (min <= 0)
 				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(min, MPLOT_POS_INFINITY));
 			else
 				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
@@ -1202,7 +1206,7 @@ void AMScanViewMultiView::setDataRangeConstraint(int id)
 
 			double min = plot_->plot()->minimumSeriesValue();
 
-			if (min != 0)
+			if (min <= 0)
 				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(min, MPLOT_POS_INFINITY));
 			else
 				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
@@ -1559,7 +1563,7 @@ void AMScanViewMultiScansView::setDataRangeConstraint(int id)
 					min = plots_.at(i)->plot()->minimumSeriesValue();
 			}
 
-			if (min != 0)
+			if (min <= 0)
 				val = min;
 			else
 				val = 1;
@@ -1973,7 +1977,7 @@ void AMScanViewMultiSourcesView::setDataRangeConstraint(int id)
 					min = i.value()->plot()->minimumSeriesValue();
 			}
 
-			if (min != 0)
+			if (min <= 0)
 				val = min;
 			else
 				val = 1;

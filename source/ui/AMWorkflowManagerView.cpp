@@ -74,7 +74,8 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	scrollArea->setWidget(workflowView_);
 	scrollArea->setWidgetResizable(true);
 
-	connect(AMBeamline::bl(), SIGNAL(beamlineScanningChanged(bool)), this, SLOT(reviewWorkflowStatus()));
+	/// \bug Github issue GH-193: reviewWorkflowStatus() is never called, because the beamline may not be initiated yet here. Removing the connection, since in this case it was doing nothing anyways.
+	// Removed: connect(AMBeamline::bl(), SIGNAL(beamlineScanningChanged(bool)), this, SLOT(reviewWorkflowStatus()));
 	connect(workflowQueue_, SIGNAL(isRunningChanged(bool)), this, SLOT(reviewWorkflowStatus()));
 	connect(workflowQueue_, SIGNAL(isEmptyChanged(bool)), this, SLOT(reviewWorkflowStatus()));
 
@@ -228,7 +229,10 @@ void AMWorkflowManagerView::onAddActionButtonClicked(){
 		samplePlateAddActionMenu_->addAction("<No Sample Plate Selected>");
 	addActionMenu_->addMenu(samplePlateAddActionMenu_);
 
-	QList<AMControlInfoList> fiducializations = AMBeamline::bl()->currentFiducializations();
+	QList<AMControlInfoList> fiducializations;
+	if(AMBeamline::bl())
+		fiducializations = AMBeamline::bl()->currentFiducializations();
+
 	if(fiducializations.count() > 0){
 		fiducializationMarkAddActionMenu_ = new QMenu();
 		fiducializationMarkAddActionMenu_->setTitle("Fiducialization Marks");
