@@ -87,6 +87,7 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 		for (int i = 0; i < scan->rawDataSourceCount()-1; i++)
 			scan->rawData()->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description()));
 
+		// Note!  Not general!
 		QList<AMAxisInfo> axisInfo;
 		AMAxisInfo ai("Energy", 2048, "Energy", "eV");
 		ai.increment = 10;

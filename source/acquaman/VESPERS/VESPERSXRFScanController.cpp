@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMUser.h"
 #include "dataman/datasource/AMRawDataSource.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
-#include "dataman/VESPERS/VESPERSXRFDataLoader.h"
 #include "analysis/AMDeadTimeAB.h"
 #include "analysis/AM1DSummingAB.h"
 
@@ -134,7 +133,36 @@ void VESPERSXRFScanController::onDetectorAcquisitionFinished()
 
 void VESPERSXRFScanController::saveData()
 {
-	VESPERSXRFDataLoader exporter(scan_);
-	if (!exporter.saveToFile(AMUserSettings::userDataFolder + "/" + scan_->filePath()))
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, QString("Could not save XRF data.")));
+	QFile file(AMUserSettings::userDataFolder + "/" + scan_->filePath());
+	if(!file.open(QIODevice::WriteOnly)) {
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "Could not save XRF data."));
+		return;
+	}
+
+	QTextStream out(&file);
+
+	// There are two types of raw data sources.  The spectra of rank 1 and the dead time of rank 0.
+	for (int i = 0; i < scan_->rawDataSources()->count(); i++){
+
+		if (scan_->rawDataSources()->at(i)->rank() == 1){
+
+			qint32 counts = scan_->rawData()->value(AMnDIndex(), i, AMnDIndex(0));
+			out << counts;
+
+			for (int j = 1; j < scan_->rawData()->measurementAt(i).size(0); j++){
+
+				qint32 counts = scan_->rawData()->value(AMnDIndex(), i, AMnDIndex(j));
+				out << "," << counts;
+			}
+		}
+		else {
+
+			double counts = scan_->rawData()->value(AMnDIndex(), i, AMnDIndex());
+			out << counts;
+		}
+
+		out << "\n";
+	}
+
+	file.close();
 }
