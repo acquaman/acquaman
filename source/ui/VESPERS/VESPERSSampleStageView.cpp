@@ -57,6 +57,8 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	h->setFont(font);
 	QLabel *v = new QLabel("V :");
 	v->setFont(font);
+	QLabel *jog = new QLabel("Jog :");
+	jog->setFont(font);
 
 	QGridLayout *hLayout = new QGridLayout;
 	hLayout->addWidget(horizontal_, 0, 1, 1, 4, Qt::AlignCenter);
@@ -106,18 +108,22 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	arrowLayout->addWidget(goLeft_, 1, 0);
 	arrowLayout->addWidget(goRight_, 1, 2);
 	arrowLayout->addWidget(stop, 1, 1);
+	arrowLayout->addWidget(status_, 0, 0);
 
-	QHBoxLayout *jogAndStatusLayout = new QHBoxLayout;
-	jogAndStatusLayout->addWidget(status_, 0, Qt::AlignLeft);
-	jogAndStatusLayout->addWidget(jog_);
+	QHBoxLayout *jogLayout = new QHBoxLayout;
+	jogLayout->addWidget(jog);
+	jogLayout->addWidget(jog_);
 
-	QVBoxLayout *holderLayout = new QVBoxLayout;
-	holderLayout->addLayout(arrowLayout);
-	holderLayout->addLayout(jogAndStatusLayout);
-	holderLayout->addLayout(hLayout);
-	holderLayout->addLayout(vLayout);
+	QVBoxLayout *absoluteValueLayout = new QVBoxLayout;
+	absoluteValueLayout->addLayout(hLayout);
+	absoluteValueLayout->addLayout(vLayout);
+	absoluteValueLayout->addLayout(jogLayout);
 
-	setLayout(holderLayout);
+	QHBoxLayout *sampleStageLayout = new QHBoxLayout;
+	sampleStageLayout->addLayout(arrowLayout);
+	sampleStageLayout->addLayout(absoluteValueLayout);
+
+	setLayout(sampleStageLayout);
 }
 
 void VESPERSSampleStageView::onUpClicked()
