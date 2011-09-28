@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "VESPERSBeamlineView.h"
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
-#include "ui/VESPERS/VESPERSIntermediateSlitsView.h"
 #include "ui/VESPERS/VESPERSIonChamberCalibrationView.h"
 #include "ui/CLS/CLSSynchronizedDwellTimeView.h"
 #include "ui/AMTopFrame.h"
@@ -35,12 +34,10 @@ VESPERSBeamlineView::VESPERSBeamlineView(QWidget *parent) :
 	AMTopFrame *top = new AMTopFrame("Beamline Components");
 	top->setIcon(QIcon(":/system-software-update.png"));
 
-	VESPERSIntermediateSlitsView *slitsView = new VESPERSIntermediateSlitsView(VESPERSBeamline::vespers()->intermediateSlits());
 	VESPERSIonChamberCalibrationView *ionCalibrationView = new VESPERSIonChamberCalibrationView(VESPERSBeamline::vespers()->ionChamberCalibration());
 	CLSSynchronizedDwellTimeView *dwellTimeView = new CLSSynchronizedDwellTimeView(VESPERSBeamline::vespers()->synchronizedDwellTime());
 
 	QVBoxLayout *current = new QVBoxLayout;
-	current->addWidget(slitsView, 0, Qt::AlignCenter);
 	current->addWidget(ionCalibrationView, 0, Qt::AlignCenter);
 
 	QHBoxLayout *next = new QHBoxLayout;
