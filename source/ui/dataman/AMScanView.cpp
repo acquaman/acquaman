@@ -941,7 +941,7 @@ void AMScanViewExclusiveView::setDataRangeConstraint(int id)
 
 		if (logScaleEnabled_ && !normalizationEnabled_){
 
-			double min = plot_->plot()->minimumSeriesValue();
+			double min = plot_->plot()->minimumYSeriesValue();
 
 			if (min <= 0)
 				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(min, MPLOT_POS_INFINITY));
@@ -1210,7 +1210,7 @@ void AMScanViewMultiView::setDataRangeConstraint(int id)
 
 		if (logScaleEnabled_ && !normalizationEnabled_){
 
-			double min = plot_->plot()->minimumSeriesValue();
+			double min = plot_->plot()->minimumYSeriesValue();
 
 			if (min <= 0)
 				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(min, MPLOT_POS_INFINITY));
@@ -1565,8 +1565,8 @@ void AMScanViewMultiScansView::setDataRangeConstraint(int id)
 			double min = MPLOT_POS_INFINITY;
 			for (int i = 0; i < plots_.count(); i++){
 
-				if (plots_.at(i)->plot()->minimumSeriesValue() < min)
-					min = plots_.at(i)->plot()->minimumSeriesValue();
+				if (plots_.at(i)->plot()->minimumYSeriesValue() < min)
+					min = plots_.at(i)->plot()->minimumYSeriesValue();
 			}
 
 			if (min <= 0)
@@ -1979,8 +1979,8 @@ void AMScanViewMultiSourcesView::setDataRangeConstraint(int id)
 			while(i.hasNext()) {
 				i.next();
 
-				if (i.value()->plot()->minimumSeriesValue() < min)
-					min = i.value()->plot()->minimumSeriesValue();
+				if (i.value()->plot()->minimumYSeriesValue() < min)
+					min = i.value()->plot()->minimumYSeriesValue();
 			}
 
 			if (min <= 0)
