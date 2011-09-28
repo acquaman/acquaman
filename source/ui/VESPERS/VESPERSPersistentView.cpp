@@ -210,7 +210,18 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	waterIcon->setPixmap(QIcon(":/FaucetIcon.png").pixmap(25));
 	waterIcon->setToolTip("Water Indicator");
 
-	QFormLayout *statusLayout = new QFormLayout;
+	QGridLayout *statusLayout = new QGridLayout;
+	statusLayout->addWidget(temperatureIcon, 0, 0);
+	statusLayout->addWidget(pressureIcon, 0, 1);
+	statusLayout->addWidget(waterIcon, 0, 2);
+	statusLayout->addWidget(tempLabel_, 1, 0);
+	statusLayout->addWidget(pressureLabel_, 1, 1);
+	statusLayout->addWidget(waterLabel_, 1, 2);
+	statusLayout->addWidget(valvesStatus_, 2, 0);
+	statusLayout->addWidget(valvesButton_, 2, 1, 1, 2);
+	statusLayout->setContentsMargins(15, 7, 11, 7);
+
+	/*QFormLayout *statusLayout = new QFormLayout;
 	statusLayout->setHorizontalSpacing(20);
 	statusLayout->addRow(valvesStatus_, valvesButton_);
 	statusLayout->addRow(tempLabel_, temperatureIcon);
@@ -219,7 +230,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 
 	QHBoxLayout *adjustedStatusLayout = new QHBoxLayout;
 	adjustedStatusLayout->addSpacing(25);
-	adjustedStatusLayout->addLayout(statusLayout);
+	adjustedStatusLayout->addLayout(statusLayout);*/
 
 	QVBoxLayout *persistentLayout = new QVBoxLayout;
 	persistentLayout->addLayout(frontEndShutterLayout);
@@ -233,7 +244,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	persistentLayout->addWidget(endstationShutterLabel);
 	persistentLayout->addLayout(adjustedFilterLayout);
 	persistentLayout->addWidget(statusLabel);
-	persistentLayout->addLayout(adjustedStatusLayout);
+	persistentLayout->addLayout(statusLayout);
 	persistentLayout->addStretch();
 
 	QGroupBox *vespersBox = new QGroupBox;
