@@ -115,6 +115,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	energySetpointLayout->addWidget(new QLabel("Energy:"));
 	energySetpointLayout->addWidget(energySetpoint_);
 	energySetpointLayout->addWidget(energyFeedback_);
+	energySetpointLayout->setContentsMargins(15, 11, 11, 11);
 
 	QVBoxLayout *beamSelectionLayout = new QVBoxLayout;
 	beamSelectionLayout->addWidget(beamSelectionLabel);
@@ -179,6 +180,10 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	valvesStatus_->setPixmap(QIcon(":/RED.png").pixmap(25));
 	connect(valves_, SIGNAL(statusChanged(bool)), this, SLOT(onValvesStateChanged()));
 
+	QLabel *valveIcon = new QLabel;
+	valveIcon->setPixmap(QIcon(":/valveIcon.png").pixmap(25));
+	valveIcon->setToolTip("Valve Indicator");
+
 	// Temp, water, and pressure labels.
 	tempLabel_ = new QLabel;
 	tempLabel_->setPixmap(QIcon(":/RED.png").pixmap(25));
@@ -202,6 +207,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	statusLayout->addWidget(temperatureIcon, 0, 0);
 	statusLayout->addWidget(pressureIcon, 0, 1);
 	statusLayout->addWidget(waterIcon, 0, 2);
+	statusLayout->addWidget(valveIcon, 0, 3);
 	statusLayout->addWidget(tempLabel_, 1, 0);
 	statusLayout->addWidget(pressureLabel_, 1, 1);
 	statusLayout->addWidget(waterLabel_, 1, 2);
