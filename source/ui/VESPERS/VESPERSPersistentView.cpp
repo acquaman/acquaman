@@ -78,6 +78,8 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	sshShutterLabel->setFont(font);
 	QLabel *beamSelectionLabel = new QLabel("Beam Selection");
 	beamSelectionLabel->setFont(font);
+	QLabel *slitsLabel = new QLabel("Intermediate Slit Gaps");
+	slitsLabel->setFont(font);
 	QLabel *endstationShutterLabel = new QLabel("Endstation");
 	endstationShutterLabel->setFont(font);
 	QLabel *statusLabel = new QLabel("Beamline Status");
@@ -122,6 +124,30 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	beamSelectionLayout->addWidget(beamSelectorView, 0, Qt::AlignCenter);
 	beamSelectionLayout->addLayout(energySetpointLayout);
 
+	// The intermediate slits.
+	slits_ = VESPERSBeamline::vespers()->intermediateSlits();
+
+	xSlit_ = new QDoubleSpinBox;
+	xSlit_->setSuffix(" mm");
+	xSlit_->setDecimals(3);
+	xSlit_->setSingleStep(0.001);
+	connect(slits_, SIGNAL(gapXChanged(double)), xSlit_, SLOT(setValue(double)));
+	connect(xSlit_, SIGNAL(editingFinished()), this, SLOT(setXGap()));
+
+	zSlit_ = new QDoubleSpinBox;
+	zSlit_->setSuffix(" mm");
+	zSlit_->setDecimals(3);
+	zSlit_->setSingleStep(0.001);
+	connect(slits_, SIGNAL(gapZChanged(double)), zSlit_, SLOT(setValue(double)));
+	connect(zSlit_, SIGNAL(editingFinished()), this, SLOT(setZGap()));
+
+	QHBoxLayout *slitsLayout = new QHBoxLayout;
+	slitsLayout->addWidget(new QLabel("H:"), 0, Qt::AlignRight);
+	slitsLayout->addWidget(xSlit_);
+	slitsLayout->addWidget(new QLabel("V:"), 0, Qt::AlignRight);
+	slitsLayout->addWidget(zSlit_);
+	slitsLayout->setContentsMargins(15, 11, 11, 11);
+
 	// The Experiment Ready Status
 	experimentReady_ = new QLabel;
 	experimentReady_->setPixmap(QIcon(":/RED.png").pixmap(25));
@@ -130,6 +156,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QHBoxLayout *experimentReadyLayout = new QHBoxLayout;
 	experimentReadyLayout->addWidget(experimentReady_);
 	experimentReadyLayout->addWidget(experimentReadyLabel);
+	experimentReadyLayout->setSpacing(10);
 	experimentReadyLayout->setContentsMargins(15, 11, 11, 11);
 	experimentReadyLayout->addStretch();
 
@@ -218,6 +245,8 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QVBoxLayout *persistentLayout = new QVBoxLayout;
 	persistentLayout->addLayout(shutterLayout);
 	persistentLayout->addLayout(beamSelectionLayout);
+	persistentLayout->addWidget(slitsLabel);
+	persistentLayout->addLayout(slitsLayout);
 	persistentLayout->addWidget(sampleStageLabel);
 	persistentLayout->addWidget(motors);
 	persistentLayout->addWidget(pidView);
