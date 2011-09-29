@@ -216,8 +216,9 @@ public:
 //		bool success = loadDataImplementation();
 		bool accepts = false;
 		bool success = false;
-		for(int x = 0; x < AMSettings::availableFileLoaders.count(); x++){
+		for(int x = 0; x < AMSettings::availableFileLoaders.count(); x++) {
 			AMFileLoaderInterface *fileloader = AMSettings::availableFileLoaders.at(x);
+			qDebug() << "ZZZZZZ: File loader attempted:" << x;
 			if((accepts = fileloader->accepts(this))){
 				success = fileloader->load(this, AMUserSettings::userDataFolder);
 				break;

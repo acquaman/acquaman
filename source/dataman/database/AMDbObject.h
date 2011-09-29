@@ -132,7 +132,7 @@ Q_CLASSINFO("AMDbObject_Attributes", "keyword1=value1;keyword2=value2;...")
 \endcode
 	where the supported keywords are:
 	- \c description: if provided, gives a human-readable string description for this class. (ex: "XRay Absorption Scan").
-	- \c version: if provided, gives the version number (integer) of this class, for the purpose of software upgrades. If not specified, the default version is 1.  If you upgrade a class for which users have existing stored objects in their database, increase the version number (> 1), so that existing databases know that they must be upgraded.
+	- \c version: if provided, gives the version number (integer) of this class, for the purpose of software upgrades. [This is currently unused, but might be in the future].  If not specified, the default version is 1.  If you upgrade a class for which users have existing stored objects in their database, increase the version number (> 1), so that existing databases know that they must be upgraded.  One problem: up'ing the version number of a base class may or may not up the version number of a subclass, depending on whether the subclass re-defines the AMDbObject_Attributes class info. Therefore, this version number is currently unused; we use a different upgrade technique for now.
 	- \c doNotReuseIds: if equal to "true", the auto-increment property on the primary key will be set so that new objects will never reuse the ids of old deleted ones.  Otherwise, after a table has had rows created and deleted, the ids of previously deleted rows may be re-used.
 	- \c shareTableWithClass=[\c className]: if defined, uses the same database table for storage as [\c className].  Note that [\c className] must be registered with the AMDbObject system prior to registering this class.
 

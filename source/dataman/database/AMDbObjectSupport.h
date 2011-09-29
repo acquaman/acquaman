@@ -53,8 +53,9 @@ public:
 	const QMetaObject* metaObject;	///< QMetaObject pointer with the complete class meta-information. The remaining values can be determined by parsing the metaObject's classInfo parameters, but are stored here for efficiency.
 
 	QString classDescription;	///< human-readable description for this class. Defined with Q_CLASSINFO("AMDbObject_Attributes", "description=Your Description")
-	// Removing because it doesn't carry on well to subclasses?  If the base class is upgraded, all the subclasses need to be upgraded too, but they won't see a version number change unless someone goes through all ofthem.
-	int version;///< The database version number of this class. Defined with Q_CLASSINFO("AMDbObject_Attributes", "version=2").  If not specified, the default version is 1. Integers only.
+	/// The database version number of this class. Defined with Q_CLASSINFO("AMDbObject_Attributes", "version=2").  If not specified, the default version is 1. Integers only.
+	/*! One problem: up'ing the version number of a base class may or may not up the version number of a subclass, depending on whether the subclass re-defines the AMDbObject_Attributes class info. Therefore, this version number is currently unused; we use a different upgrade technique for now.*/
+	int version;
 
 	bool doNotReuseIds;	///< indicates that row ids should not be reused when objects are deleted.
 
