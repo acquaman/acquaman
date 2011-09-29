@@ -66,6 +66,9 @@ AMRawDataSource::AMRawDataSource(AMDatabase* db, int id)
 	measurementId_ = 0;
 	stateFlags_ = AMDataSource::InvalidFlag;
 
+	// raw data sources shouldn't be visible in plots, usually.  This is just a default; programmers can always call setVisibleInPlots(), or use the AMScan::addRawDataSource() version which calls this internally.
+	visibleInPlots_ = false;
+
 	// restore the description(), rank(), measurementId(), scanRank(), and measurementRank() as stored in the database.  Our state() will remain Invalid until you call setDataStore() with a valid datastore that matches these dimensions.
 	loadFromDb(db, id);
 	AMDataSource::name_ = AMDbObject::name();
