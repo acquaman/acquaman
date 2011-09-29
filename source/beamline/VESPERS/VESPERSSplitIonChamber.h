@@ -76,6 +76,11 @@ public:
 	/// Returns the count feedback for the second half of the ion chamber.
 	double countsB() const { return countsB_->getDouble(); }
 
+	/// Returns whether the ion chamber is at maximum senstivity.
+	bool atMaximumSensitivity() const { return atMaximumSensitivity_; }
+	/// Returns whether the ion chamber is at minimum sensitivity.
+	bool atMinimumSensitivity() const { return atMinimumSensitivity_; }
+
 signals:
 	/// Notifier that the high voltage has changed.  Passes the new value.
 	void highVoltageChanged(int);
@@ -83,6 +88,10 @@ signals:
 	void sensitivityValueChanged(int);
 	/// Notifier that the sensitivity units have changed.  Passes the new value.
 	void sensitivityUnitsChanged(QString);
+	/// Notifier that the ion chamber is at the minimum sensitivity.  Passes the truth value.
+	void minimumSensitivity(bool);
+	/// Notifier that the ion chamber is at the maximums sensitivity.  Passes the truth value.
+	void maximumSensitivity(bool);
 	/// Notifier that the voltage feedback for the first half of the ion chamber has been updated.  Passes the new value.
 	void voltageAChanged(double);
 	/// Notifier that the voltage feedback for the second half of the ion chamber has been updated.  Passes the new value.
@@ -116,11 +125,18 @@ public slots:
 		}
 	}
 
+	/// Increases the sensitivity of the ion chamber by one step.
+	void increaseSensitivity();
+	/// Decreases the sensitivity of the ion chamber by one step.
+	void decreaseSensitivity();
+
 protected slots:
 	/// Passes on the new overall counts after one of the counts is updated.
 	void onCountsChanged() { emit countsChanged(countsA_->getDouble()+countsB_->getDouble()); }
 	/// Turns the sensitivity value from an index to the value.
 	void onSensitivityValueChanged(int index);
+	/// Determines whether the new state of the ion chamber is at either the minimum or maximum sensitivity.
+	void onSensitivityChanged();
 
 protected:
 	/// Determines if the new sensitivity value is acceptable.
@@ -144,6 +160,11 @@ protected:
 	/// The name of the ion chamber.
 	QString name_;
 
+	/// Holds the state of whether the ion chamber is at its maximum sensitivity.
+	bool atMaximumSensitivity_;
+	/// Holds the state of whether the ion chamber is at its minimum sensitivity.
+	bool atMinimumSensitivity_;
+
 	/// The process variable that holds the high voltage of the ion chamber.
 	AMProcessVariable *hv_;
 	/// The process variable that holds the value of the sensitivity of the first half of the ion chamber.
@@ -162,6 +183,12 @@ protected:
 	AMProcessVariable *countsA_;
 	/// The process variable that holds the counts of the second half of the ion chamber.
 	AMProcessVariable *countsB_;
+
+private:
+	/// Helper function that returns the next sensitivity value.  Uses the bool \param increase to determine whether it should look up or down.  Returns -1 not possible to move or 0 if the given number is invalid.
+	int nextSensitivityValue(bool increase, int current);
+	/// Helper function that returns the next sensitivity units.  Uses the bool \param increase to determine whether it should look up or down.  Returns a null string if not possible to move or the given unit is invalid.
+	QString nextSensitivityUnits(bool increase, QString current);
 };
 
 #endif // VESPERSSPLITIONCHAMBER_H
