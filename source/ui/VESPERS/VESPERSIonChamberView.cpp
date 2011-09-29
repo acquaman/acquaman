@@ -20,9 +20,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSIonChamberView.h"
 
-#include <QLabel>
 #include <QHBoxLayout>
 #include <QStringList>
+#include <QPushButton>
 
 VESPERSIonChamberView::VESPERSIonChamberView(VESPERSIonChamber *ionChamber, QWidget *parent)
 	: QWidget(parent)
@@ -105,6 +105,47 @@ void VESPERSIonChamberView::onUnitsChanged(QString units)
 		units_->setCurrentIndex(3);
 
 	ionChamber_->blockSignals(false);
+}
+
+VESPERSIonChamberBasicView::VESPERSIonChamberBasicView(VESPERSIonChamber *ionChamber, double min, double max, QWidget *parent)
+	: QWidget(parent)
+{
+	ionChamber_ = ionChamber;
+	minimumVoltage_ = min;
+	maximumVoltage_ = max;
+
+	QLabel *name = new QLabel(ionChamber_->name());
+
+	QPushButton *minus = new QPushButton(QIcon("22x22/list-remove.png"), "");
+	connect(minus, SIGNAL(clicked()), ionChamber_, SLOT(increaseSensitivity()));
+
+	QPushButton *plus = new QPushButton(QIcon("22x22/list-add.png"), "");
+	connecct(plus, SIGNAL(clicked()), ionChamber_, SLOT(decreaseSensitivity()));
+
+	feedback_ = new QLabel;
+	connect(ionChamber_, SIGNAL(voltageChanged(double)), this, SLOT(onIonChamberChanged()));
+
+	QHBoxLayout *layout = new QHBoxLayout;
+	layout->addWidget(name);
+	layout->addWidget(minus);
+	layout->addWidget(plus);
+	layout->addWidget(feedback_);
+
+	setLayout(layout);
+}
+
+void VESPERSIonChamberBasicView::onIonChamberChanged()
+{
+	double val = ionChamber_->voltage();
+
+	if (val > minimumVoltage_ && val < maximumVoltage_)
+		feedback_->setText("Good");
+	else if (val <= minimumVoltage_)
+		feedback_->setText("Too Low");
+	else if (val >= maximumVoltage_)
+		feedback_->setText("Too High");
+	else
+		feedback_->setText("--");
 }
 
 VESPERSSplitIonChamberView::VESPERSSplitIonChamberView(VESPERSSplitIonChamber *ionChamber, QWidget *parent)
@@ -194,4 +235,45 @@ void VESPERSSplitIonChamberView::onUnitsChanged(QString units)
 		units_->setCurrentIndex(3);
 
 	ionChamber_->blockSignals(false);
+}
+
+VESPERSSplitIonChamberBasicView::VESPERSSplitIonChamberBasicView(VESPERSSplitIonChamber *ionChamber, double min, double max, QWidget *parent)
+	: QWidget(parent)
+{
+	ionChamber_ = ionChamber;
+	minimumVoltage_ = min;
+	maximumVoltage_ = max;
+
+	QLabel *name = new QLabel(ionChamber_->name());
+
+	QPushButton *minus = new QPushButton(QIcon("22x22/list-remove.png"), "");
+	connect(minus, SIGNAL(clicked()), ionChamber_, SLOT(increaseSensitivity()));
+
+	QPushButton *plus = new QPushButton(QIcon("22x22/list-add.png"), "");
+	connecct(plus, SIGNAL(clicked()), ionChamber_, SLOT(decreaseSensitivity()));
+
+	feedback_ = new QLabel;
+	connect(ionChamber_, SIGNAL(voltageChanged(double)), this, SLOT(onIonChamberChanged()));
+
+	QHBoxLayout *layout = new QHBoxLayout;
+	layout->addWidget(name);
+	layout->addWidget(minus);
+	layout->addWidget(plus);
+	layout->addWidget(feedback_);
+
+	setLayout(layout);
+}
+
+void VESPERSSplitIonChamberBasicView::onIonChamberChanged()
+{
+	double val = ionChamber_->voltage();
+
+	if (val > minimumVoltage_ && val < maximumVoltage_)
+		feedback_->setText("Good");
+	else if (val <= minimumVoltage_)
+		feedback_->setText("Too Low");
+	else if (val >= maximumVoltage_)
+		feedback_->setText("Too High");
+	else
+		feedback_->setText("--");
 }
