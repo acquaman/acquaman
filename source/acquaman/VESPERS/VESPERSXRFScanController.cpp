@@ -51,26 +51,26 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 	for (int i = 0; i < elements; i++){
 
 		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("raw%1").arg(i+1), QString("Element %1").arg(i+1), "eV", detector_->axes()));
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i));
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i), true, false);
 	}
 
 	for (int i = 0; i < elements; i++){
 
 		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("icr%1").arg(i+1), QString("Input count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+elements));
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+elements), false, true);
 	}
 
 	for (int i = 0; i < elements; i++){
 
 		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("ocr%1").arg(i+1), QString("Output count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+2*elements));
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+2*elements), false, true);
 	}
 
 	for (int i = 0; i < elements; i++){
 
 		AMDeadTimeAB *temp = new AMDeadTimeAB(QString("Corrected %1").arg(i+1));
 		temp->setInputDataSourcesImplementation(QList<AMDataSource *>() << (AMDataSource *)scan_->rawDataSources()->at(i) << (AMDataSource *)scan_->rawDataSources()->at(i+elements) << (AMDataSource *)scan_->rawDataSources()->at(i+2*elements));
-		scan_->addAnalyzedDataSource(temp);
+		scan_->addAnalyzedDataSource(temp, true, false);
 	}
 
 	if (elements > 1){
@@ -80,7 +80,7 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 		for (int i = 0; i < scan_->analyzedDataSourceCount(); i++)
 			list << (AMDataSource *)scan_->analyzedDataSources()->at(i);
 		corr->setInputDataSourcesImplementation(list);
-		scan_->addAnalyzedDataSource(corr);
+		scan_->addAnalyzedDataSource(corr, true, false);
 	}
 }
 

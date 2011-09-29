@@ -44,11 +44,11 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 	AMMeasurementInfo temp(*(ionChambers->detectorAt((int)config_->incomingChoice())->toInfo()));
 	temp.name = "I0";
 	xasScan_->rawData()->addMeasurement(temp);
-	xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), 0));
+	xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), 0), true, false);
 	temp = AMMeasurementInfo(*(ionChambers->detectorAt((int)config_->transmissionChoice())->toInfo()));
 	temp.name = "It";
 	xasScan_->rawData()->addMeasurement(temp);
-	xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), 1));
+	xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), 1), true, false);
 
 	if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::SingleElement){
 
@@ -58,11 +58,11 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
 			xasScan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
-			xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), i+2));
+			xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), i+2), true, false);
 		}
 
 		xasScan_->rawData()->addMeasurement(AMMeasurementInfo(detector->toXRFInfo()));
-		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), true, false);
 	}
 	else if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::FourElement){
 
@@ -72,11 +72,11 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
 			xasScan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
-			xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), i+2));
+			xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), i+2), true, false);
 		}
 
 		xasScan_->rawData()->addMeasurement(AMMeasurementInfo(detector->toXRFInfo()));
-		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), true, false);
 	}
 
 	AM1DExpressionAB* transmission = new AM1DExpressionAB("trans");
@@ -84,7 +84,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 	transmission->setInputDataSources(QList<AMDataSource *>() << xasScan_->rawDataSources()->at(0) << xasScan_->rawDataSources()->at(1));
 	transmission->setExpression(QString("ln(%1/%2)").arg(xasScan_->rawDataSources()->at(0)->name()).arg(xasScan_->rawDataSources()->at(1)->name()));
 
-	xasScan_->addAnalyzedDataSource(transmission);
+	xasScan_->addAnalyzedDataSource(transmission, true, false);
 
 	if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::SingleElement){
 
@@ -94,7 +94,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 		pfy->setInputDataSources(pfySource);
 		pfy->setSumAxis(1);
 		pfy->setSumRangeMax(xasScan_->rawDataSources()->at(xasScan_->rawDataSourceCount()-1)->size(1)-1);
-		xasScan_->addAnalyzedDataSource(pfy);
+		xasScan_->addAnalyzedDataSource(pfy, true, false);
 
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF1E();
 
@@ -103,7 +103,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 		normPFY->setDescription("Normalized PFY");
 		normPFY->setInputDataSources(QList<AMDataSource *>() << xasScan_->rawDataSources()->at(0) << xasScan_->analyzedDataSources()->at(1));
 		normPFY->setExpression(QString("%1/%2").arg(xasScan_->analyzedDataSources()->at(1)->name()).arg(xasScan_->rawDataSources()->at(0)->name()));
-		xasScan_->addAnalyzedDataSource(normPFY);
+		xasScan_->addAnalyzedDataSource(normPFY, true, false);
 
 		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
@@ -111,7 +111,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 			normPFY->setDescription("Normalized "+detector->roiInfoList()->at(i).name());
 			normPFY->setInputDataSources(QList<AMDataSource *>() << xasScan_->rawDataSources()->at(0) << xasScan_->rawDataSources()->at(i+2));
 			normPFY->setExpression(QString("%1/%2").arg(xasScan_->rawDataSources()->at(i+2)->name()).arg(xasScan_->rawDataSources()->at(0)->name()));
-			xasScan_->addAnalyzedDataSource(normPFY);
+			xasScan_->addAnalyzedDataSource(normPFY, true, false);
 		}
 	}
 	else if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::FourElement){
@@ -122,7 +122,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 		pfy->setInputDataSources(pfySource);
 		pfy->setSumAxis(1);
 		pfy->setSumRangeMax(xasScan_->rawDataSources()->at(xasScan_->rawDataSourceCount()-1)->size(1)-1);
-		xasScan_->addAnalyzedDataSource(pfy);
+		xasScan_->addAnalyzedDataSource(pfy, true, false);
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF4E();
 
 		AM1DExpressionAB *normPFY;
@@ -130,7 +130,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 		normPFY->setDescription("Normalized PFY");
 		normPFY->setInputDataSources(QList<AMDataSource *>() << xasScan_->rawDataSources()->at(0) << xasScan_->analyzedDataSources()->at(1));
 		normPFY->setExpression(QString("%1/%2").arg(xasScan_->analyzedDataSources()->at(1)->name()).arg(xasScan_->rawDataSources()->at(0)->name()));
-		xasScan_->addAnalyzedDataSource(normPFY);
+		xasScan_->addAnalyzedDataSource(normPFY, true, false);
 
 		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
@@ -138,7 +138,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 			normPFY->setDescription("Normalized "+detector->roiInfoList()->at(i).name());
 			normPFY->setInputDataSources(QList<AMDataSource *>() << xasScan_->rawDataSources()->at(0) << xasScan_->rawDataSources()->at(i+2));
 			normPFY->setExpression(QString("%1/%2").arg(xasScan_->rawDataSources()->at(i+2)->name()).arg(xasScan_->rawDataSources()->at(0)->name()));
-			xasScan_->addAnalyzedDataSource(normPFY);
+			xasScan_->addAnalyzedDataSource(normPFY, true, false);
 		}
 	}
 }
