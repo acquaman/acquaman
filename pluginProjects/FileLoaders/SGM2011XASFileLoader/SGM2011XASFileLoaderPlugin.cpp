@@ -42,16 +42,20 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		columns2pvNames_.set("OceanOptics65000", "SA0000-03:DarkCorrectedSpectra");
 	}
 
-	offsets2MeasurementInfos_ << "SDD";
-	offsets2MeasurementInfos_ << "OceanOptics65000";
+	if(offsets2MeasurementInfos_.isEmpty()) {
+		offsets2MeasurementInfos_ << "SDD";
+		offsets2MeasurementInfos_ << "OceanOptics65000";
+	}
 
-	defaultUserVisibleColumns_ << "TEY";
-	defaultUserVisibleColumns_ << "TFY";
-	defaultUserVisibleColumns_ << "I0";
-	defaultUserVisibleColumns_ << "Photodiode";
-	defaultUserVisibleColumns_ << "EnergyFeedback";
-	defaultUserVisibleColumns_ << "SDD";
-	defaultUserVisibleColumns_ << "OceanOptics65000";
+	if(defaultUserVisibleColumns_.isEmpty()) {
+		defaultUserVisibleColumns_ << "TEY";
+		defaultUserVisibleColumns_ << "TFY";
+		defaultUserVisibleColumns_ << "I0";
+		defaultUserVisibleColumns_ << "Photodiode";
+		defaultUserVisibleColumns_ << "EnergyFeedback";
+		defaultUserVisibleColumns_ << "SDD";
+		defaultUserVisibleColumns_ << "OceanOptics65000";
+	}
 
 	if(!scan)
 		return false;
