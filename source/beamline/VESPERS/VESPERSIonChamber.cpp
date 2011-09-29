@@ -24,6 +24,8 @@ VESPERSIonChamber::VESPERSIonChamber(QString name, QString hvName, QString sensi
 	: QObject(parent)
 {
 	name_ = name;
+	atMinimumSensitivity_ = false;
+	atMaximumSensitivity_ = false;
 
 	hv_ = new AMProcessVariable(hvName, true, this);
 	sensitivityValue_ = new AMProcessVariable(sensitivityBaseName+":sens_num.VAL", true, this);
@@ -36,6 +38,9 @@ VESPERSIonChamber::VESPERSIonChamber(QString name, QString hvName, QString sensi
 	connect(sensitivityUnits_, SIGNAL(valueChanged(QString)), this, SIGNAL(sensitivityUnitsChanged(QString)));
 	connect(voltage_, SIGNAL(valueChanged(double)), this, SIGNAL(voltageChanged(double)));
 	connect(counts_, SIGNAL(valueChanged(double)), this, SIGNAL(countsChanged(double)));
+
+	connect(sensitivityValue_, SIGNAL(valueChanged()), this, SLOT(onSensitivityChanged()));
+	connect(sensitivityUnits_, SIGNAL(valueChanged()), this, SLOT(onSensitivityChanged()));
 }
 
 void VESPERSIonChamber::onSensitivityValueChanged(int index)
@@ -70,4 +75,111 @@ void VESPERSIonChamber::onSensitivityValueChanged(int index)
 		emit sensitivityValueChanged(500);
 		break;
 	}
+}
+
+void VESPERSIonChamber::increaseSensitivity()
+{
+	// Don't do anything if we are already at the maximum sensitivity.
+	if (atMaximumSensitivity_)
+		return;
+
+	int current = sensitivityValue_->getInt();
+
+	// If possible to just move to the next lower value, do so.
+	if (current != 1)
+		sensitivityValue_->setValue(nextSensitivityValue(true, current));
+
+	// Otherwise, we need to move the sensitivity unit to the next more sensitive value.
+	else {
+
+		sensitivityUnits_->setValue(nextSensitivityUnits(true, sensitivityUnits_->getString()));
+		sensitivityValue_->setValue(500);
+	}
+}
+
+void VESPERSIonChamber::decreaseSensitivity()
+{
+	// Don't do anything if we are already at the minimum sensitivity.
+	if (atMinimumSensitivity_)
+		return;
+
+	int current = sensitivityValue_->getInt();
+
+	// If possible to just move to the next higher value, do so.
+	if (current != 500)
+		sensitivityValue_->setValue(nextSensitivityValue(false, current));
+
+	// Otherwise, we need to move the sensitivity unit to the next less sensitive value.
+	else {
+
+		sensitivityUnits_->setValue(nextSensitivityUnits(false, sensitivityUnits_->getString()));
+		sensitivityValue_->setValue(1);
+	}
+}
+
+int VESPERSIonChamber::nextSensitivityValue(bool increase, int current)
+{
+	int next = 0;
+
+	switch(current){
+	case 1:
+		next = (increase == true) ? -1 : 2;
+		break;
+	case 2:
+		next = (increase == true) ? 1 : 5;
+		break;
+	case 5:
+		next = (increase == true) ? 2 : 10;
+		break;
+	case 10:
+		next = (increase == true) ? 5 : 20;
+		break;
+	case 20:
+		next = (increase == true) ? 10 : 50;
+		break;
+	case 50:
+		next = (increase == true) ? 20 : 100;
+		break;
+	case 100:
+		next = (increase == true) ? 50 : 200;
+		break;
+	case 200:
+		next = (increase == true) ? 100 : 500;
+		break;
+	case 500:
+		next = (increase == true) ? 200 : -1;
+		break;
+	}
+
+	return next;
+}
+
+QString VESPERSIonChamber::nextSensitivityUnits(bool increase, QString current)
+{
+	QString next;
+
+	if (current == "pA/V")
+		next = (increase == true) ? QString() : QString("nA/V");
+	else if (current == "nA/V")
+		next = (increase == true) ? QString("pA/V") : QString("uA/V");
+	else if (current == "uA/V")
+		next = (increase == true) ? QString("nA/V") : QString("mA/V");
+	else if (current == "mA/V")
+		next = (increase == true) ? QString("uA/V") : QString();
+	else
+		next = QString();
+
+	return next;
+}
+
+void VESPERSIonChamber::onSensitivityChanged()
+{
+	if (!atMaximumSensitivity_ && (sensitivityValue_->getInt() == 1 && sensitivityUnits_->getString() == "pA/V"))
+		emit maximumSensitivity(atMaximumSensitivity_ = true);
+	else if (atMaximumSensitivity_ && (sensitivityValue_->getInt() != 1 || sensitivityUnits_->getString() != "pA/V"))
+		emit maximumSensitivity(atMaximumSensitivity_ = false);
+	else if (!atMinimumSensitivity_ && (sensitivityValue_->getInt() == 500 && sensitivityUnits_->getString() == "mA/V"))
+		emit minimumSensitivity(atMinimumSensitivity_ = true);
+	else if (atMinimumSensitivity_ && (sensitivityValue_->getInt() != 500 || sensitivityUnits_->getString() != "mA/V"))
+		emit minimumSensitivity(atMinimumSensitivity_ = false);
 }
