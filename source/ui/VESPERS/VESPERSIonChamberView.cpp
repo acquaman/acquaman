@@ -116,11 +116,13 @@ VESPERSIonChamberBasicView::VESPERSIonChamberBasicView(VESPERSIonChamber *ionCha
 
 	QLabel *name = new QLabel(ionChamber_->name());
 
-	QPushButton *minus = new QPushButton(QIcon("22x22/list-remove.png"), "");
+	QPushButton *minus = new QPushButton(QIcon(":/22x22/list-remove.png"), "");
+	minus->setMaximumSize(40, 40);
 	connect(minus, SIGNAL(clicked()), ionChamber_, SLOT(increaseSensitivity()));
 
-	QPushButton *plus = new QPushButton(QIcon("22x22/list-add.png"), "");
-	connecct(plus, SIGNAL(clicked()), ionChamber_, SLOT(decreaseSensitivity()));
+	QPushButton *plus = new QPushButton(QIcon(":/22x22/list-add.png"), "");
+	plus->setMaximumSize(40, 40);
+	connect(plus, SIGNAL(clicked()), ionChamber_, SLOT(decreaseSensitivity()));
 
 	feedback_ = new QLabel;
 	connect(ionChamber_, SIGNAL(voltageChanged(double)), this, SLOT(onIonChamberChanged()));
@@ -246,14 +248,17 @@ VESPERSSplitIonChamberBasicView::VESPERSSplitIonChamberBasicView(VESPERSSplitIon
 
 	QLabel *name = new QLabel(ionChamber_->name());
 
-	QPushButton *minus = new QPushButton(QIcon("22x22/list-remove.png"), "");
+	QPushButton *minus = new QPushButton(QIcon(":/22x22/list-remove.png"), "");
+	minus->setMaximumSize(40, 40);
 	connect(minus, SIGNAL(clicked()), ionChamber_, SLOT(increaseSensitivity()));
 
-	QPushButton *plus = new QPushButton(QIcon("22x22/list-add.png"), "");
-	connecct(plus, SIGNAL(clicked()), ionChamber_, SLOT(decreaseSensitivity()));
+	QPushButton *plus = new QPushButton(QIcon(":/22x22/list-add.png"), "");
+	plus->setMaximumSize(40, 40);
+	connect(plus, SIGNAL(clicked()), ionChamber_, SLOT(decreaseSensitivity()));
 
 	feedback_ = new QLabel;
-	connect(ionChamber_, SIGNAL(voltageChanged(double)), this, SLOT(onIonChamberChanged()));
+	connect(ionChamber_, SIGNAL(voltageAChanged(double)), this, SLOT(onIonChamberChanged()));
+	connect(ionChamber_, SIGNAL(voltageBChanged(double)), this, SLOT(onIonChamberChanged()));
 
 	QHBoxLayout *layout = new QHBoxLayout;
 	layout->addWidget(name);
@@ -266,13 +271,14 @@ VESPERSSplitIonChamberBasicView::VESPERSSplitIonChamberBasicView(VESPERSSplitIon
 
 void VESPERSSplitIonChamberBasicView::onIonChamberChanged()
 {
-	double val = ionChamber_->voltage();
+	double valA = ionChamber_->voltageA();
+	double valB = ionChamber_->voltageB();
 
-	if (val > minimumVoltage_ && val < maximumVoltage_)
+	if ((valA > minimumVoltage_ && valA < maximumVoltage_) && (valB > minimumVoltage_ && valB < maximumVoltage_))
 		feedback_->setText("Good");
-	else if (val <= minimumVoltage_)
+	else if (valA <= minimumVoltage_ || valB <= minimumVoltage_)
 		feedback_->setText("Too Low");
-	else if (val >= maximumVoltage_)
+	else if (valA >= maximumVoltage_ || valB >= maximumVoltage_)
 		feedback_->setText("Too High");
 	else
 		feedback_->setText("--");
