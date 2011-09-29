@@ -31,6 +31,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDir>
 #include <QPluginLoader>
 
+#include <QStringBuilder>
+
 /// User Settings:
 // ========================================
 
@@ -141,8 +143,12 @@ QList<AMAnalysisBlockInterface*> AMSettings::availableAnalysisBlocks;
 
 /// Load settings from disk:
 void AMSettings::load() {
-	qDebug() << "Doing load";
+	// changing to NativeFormat; IniFormat is broken on Mac OS X Lion for SystemScope.  Filed Qt Bug: https://bugreports.qt.nokia.com/browse/QTBUG-21744
+#ifdef Q_WS_MAC
+	QSettings settings(QSettings::NativeFormat, QSettings::SystemScope, "Acquaman", "Acquaman");
+#else
 	QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "Acquaman", "Acquaman");
+#endif
 
 	// All settings variables are loaded here from disk. Default values must be provided -- they will be used if the particular setting doesn't exist yet.
 	// Don't forget to add here if you add new user options.
@@ -151,30 +157,58 @@ void AMSettings::load() {
 
 	publicDataFolder = settings.value("publicDataFolder", "/home/acquaman/data/").toString();
 	publicDatabaseFilename = settings.value("publicDatabaseFilename", "publicdata.db").toString();
-		//fileLoaderPluginsFolder = settings.value("fileLoaderPluginsFolder", "/Users/fawkes/dev/acquaman/plugins/FileLoaders").toString();
-		fileLoaderPluginsFolder = settings.value("fileLoaderPluginsFolder", QDir::homePath()+"/beamline/programming/acquaman/plugins/FileLoaders").toString();
-	analysisBlockPluginsFolder = settings.value("analysisBlockPluginsFolder", QDir::homePath()+"/beamline/programming/acquaman/plugins/AnalysisBlocks").toString();
 
-	qDebug() << publicDataFolder << publicDatabaseFilename << fileLoaderPluginsFolder << analysisBlockPluginsFolder;
+#ifdef Q_WS_MAC
+	QString defaultBasePath(QDir::homePath() % "/dev");
+#else
+	QString defaultBasePath(QDir::homePath() % "/beamline/programming");
+#endif
+	fileLoaderPluginsFolder = settings.value("fileLoaderPluginsFolder", QString(defaultBasePath % "/acquaman/plugins/FileLoaders")).toString();
+	analysisBlockPluginsFolder = settings.value("analysisBlockPluginsFolder", QString(defaultBasePath % "/acquaman/plugins/AnalysisBlocks")).toString();
 
-	availableFileLoaders.clear();
+	// move this out of here? Might not want to do automatically every time settings are re-loaded.
+	loadApplicationPlugins();
+}
+
+/// Save settings to disk:
+void AMSettings::save() {
+	// changing to NativeFormat; IniFormat is broken on Mac OS X Lion for SystemScope.  Filed Qt Bug: https://bugreports.qt.nokia.com/browse/QTBUG-21744
+#ifdef Q_WS_MAC
+	QSettings settings(QSettings::NativeFormat, QSettings::SystemScope, "Acquaman", "Acquaman");
+#else
+	QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "Acquaman", "Acquaman");
+#endif
+
+	// All settings variables are saved here to the user-specific file.
+	// Don't forget to add here if you add new user options.
+
+	settings.setValue("publicDataFolder", publicDataFolder);
+	settings.setValue("publicDatabaseFilename", publicDatabaseFilename);
+	settings.setValue("fileLoaderPluginsFolder", fileLoaderPluginsFolder);
+	settings.setValue("analysisBlockPluginsFolder", analysisBlockPluginsFolder);
+}
+
+
+void AMSettings::loadApplicationPlugins() {
+
 	// Load file loader plugins
-	QDir fileLoaderPluginsDirectory(fileLoaderPluginsFolder);
+	AMSettings::availableFileLoaders.clear();
+	QDir fileLoaderPluginsDirectory(AMSettings::fileLoaderPluginsFolder);
 	foreach (QString fileName, fileLoaderPluginsDirectory.entryList(QDir::Files)) {
 		QPluginLoader pluginLoader(fileLoaderPluginsDirectory.absoluteFilePath(fileName));
 		QObject *plugin = pluginLoader.instance();
 		if (plugin) {
 			AMFileLoaderInterface *tmpfl = qobject_cast<AMFileLoaderInterface *>(plugin);
 			if (tmpfl){
-				availableFileLoaders.append(tmpfl);
+				AMSettings::availableFileLoaders.append(tmpfl);
 				qDebug() << "Found a file loader";
 			}
 		}
 	}
 
-	availableAnalysisBlocks.clear();
 	// Load analysis block plugins
-	QDir analysisBlockPluginsDirectory(analysisBlockPluginsFolder);
+	AMSettings::availableAnalysisBlocks.clear();
+	QDir analysisBlockPluginsDirectory(AMSettings::analysisBlockPluginsFolder);
 	foreach (QString fileName, analysisBlockPluginsDirectory.entryList(QDir::Files)) {
 		QPluginLoader pluginLoader(analysisBlockPluginsDirectory.absoluteFilePath(fileName));
 		QObject *plugin = pluginLoader.instance();
@@ -187,19 +221,3 @@ void AMSettings::load() {
 		}
 	}
 }
-
-/// Save settings to disk:
-void AMSettings::save() {
-	QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "Acquaman", "Acquaman");
-	qDebug() << "Doing save";
-	qDebug() << publicDataFolder << publicDatabaseFilename << fileLoaderPluginsFolder;
-
-	// All settings variables are saved here to the user-specific file.
-	// Don't forget to add here if you add new user options.
-
-	settings.setValue("publicDataFolder", publicDataFolder);
-	settings.setValue("publicDatabaseFilename", publicDatabaseFilename);
-	settings.setValue("fileLoaderPluginsFolder", fileLoaderPluginsFolder);
-	settings.setValue("analysisBlockPluginsFolder", analysisBlockPluginsFolder);
-}
-

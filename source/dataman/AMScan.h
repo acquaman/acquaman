@@ -210,29 +210,11 @@ public:
 
 	// Role 4: Loading/Clearing Raw Data
 	////////////////////////////
-	/// Load raw data into memory from storage. Returns true on success.
-	/*! Subclasses should not reimplement this function, but must provide an implementation for loadDataImplementation(), which attempts to use the scan's current filePath() and fileFormat() as the source, and handles their set of readable file formats.  This function calls loadDataImplementation(), and then calls setDataStore() on all the raw data sources, to hopefully restore them to a valid state, now that there is valid raw data.*/
-	bool loadData() {
-//		bool success = loadDataImplementation();
-		bool accepts = false;
-		bool success = false;
-		for(int x = 0; x < AMSettings::availableFileLoaders.count(); x++) {
-			AMFileLoaderInterface *fileloader = AMSettings::availableFileLoaders.at(x);
-			qDebug() << "ZZZZZZ: File loader attempted:" << x;
-			if((accepts = fileloader->accepts(this))){
-				success = fileloader->load(this, AMUserSettings::userDataFolder);
-				break;
-			}
+	/// Load raw data into memory from storage, using the AMFileLoaderInterface plugin system to find the appropriate file loader based on fileFormat(). Returns true on success.
+	/*! DEPRECATED: Subclasses should not reimplement this function, but must provide an implementation for loadDataImplementation(), which attempts to use the scan's current filePath() and fileFormat() as the source, and handles their set of readable file formats.  This function calls loadDataImplementation(), and then calls setDataStore() on all the raw data sources, to hopefully restore them to a valid state, now that there is valid raw data.*/
+	bool loadData();
 
-		}
-		if(!accepts)
-			qDebug() << "NO USABLE FILE LOADERS FOUND";
-		if(success)
-			for(int i=rawDataSources_.count()-1; i>=0; i--)
-				rawDataSources_.at(i)->setDataStore(rawData());
-		return success;
-	}
-	/// Scan subclassses must provide an implementation of this function, which uses the scan's current filePath() and fileFormat() as the source, and handles their own set of readable file formats, to fill the dataStore() with appropriate raw data. Return true on success. This base class implementation does nothing and returns true.
+	/// This function is deprecated in favour of the plugin system for AMFileLoaderInterface.  It will never be called.
 	virtual bool loadDataImplementation() {
 		return true;
 	}
