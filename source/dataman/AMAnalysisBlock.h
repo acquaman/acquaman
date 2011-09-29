@@ -62,6 +62,8 @@ class AMAnalysisBlock : public AMDbObject, public AMDataSource
 	Q_PROPERTY(bool hiddenFromUsers READ hiddenFromUsers WRITE setHiddenFromUsers)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Analysis Block")
+	Q_CLASSINFO("visibleInPlots", "upgradeDefault=true")
+	Q_CLASSINFO("hiddenFromUsers", "upgradeDefault=false")
 
 public:
 	/// Create a new AMAnalysisBlock. The block is an AMDataSource of output data; \c outputName is the name for this AMDataSource.

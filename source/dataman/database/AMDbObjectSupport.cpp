@@ -408,7 +408,7 @@ bool isUpgradeRequiredForClass(AMDatabase* db, const AMDbObjectInfo& info, int t
 			//					return true;
 			//				}
 			// Ok, let's try this way.  This will simply fail if the auxiliary table doesn't exist...
-			q.prepare("SELECT COUNT(1) FROM " % auxTableName % " LIMIT 1;");	// as high-performance of a query as we can make on that table;
+			q.prepare("SELECT COUNT(1) FROM " % auxTableName % " WHERE 1=0;");	// as high-performance of a query as we can make on that table;
 			if(!q.exec()) {
 				return true;
 			}
@@ -461,7 +461,7 @@ bool upgradeDatabaseForClass(AMDatabase* db, const AMDbObjectInfo& info, int typ
 		if( info.columnTypes.at(i) == qMetaTypeId<AMDbObjectList>() ) {
 			QString auxTableName = info.tableName % "_" % info.columns.at(i);
 			// Does the table exist?
-			q.prepare("SELECT COUNT(1) FROM " % auxTableName % " LIMIT 1;");	// as high-performance of a query as we can make on that table;
+			q.prepare("SELECT COUNT(1) FROM " % auxTableName % " WHERE 1=0;");	// as high-performance of a query as we can make on that table;
 			if(!q.exec()) {	// fails if table doesn't exist.
 				// therefore, we need to create the table:
 				if( !db->ensureTable(auxTableName,
@@ -502,6 +502,18 @@ bool upgradeDatabaseForClass(AMDatabase* db, const AMDbObjectInfo& info, int typ
 							AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -103, QString("Database support: There was an error trying to create an index (%1) in the database while upgrading class %2.").arg(info.columns.at(i)).arg(info.className)));
 							return false;
 						}
+					}
+				}
+
+				// 3b-3) Fill existing rows with default value, if an upgrade default is provided.
+				QString defaultValue = dbPropertyAttribute(info.metaObject, info.columns.at(i), "upgradeDefault");
+				if(!defaultValue.isEmpty()) {
+					QSqlQuery q = db->query();
+					q.prepare(QString("UPDATE %1 SET %2 = ?;").arg(info.tableName).arg(info.columns.at(i)));
+					q.bindValue(0, QVariant(defaultValue));
+
+					if(!q.exec()) {
+						AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -403, QString("AMDbObjectSupport: Could not insert default value '%1' for column '%2'").arg(defaultValue).arg(info.columns.at(i))));
 					}
 				}
 
