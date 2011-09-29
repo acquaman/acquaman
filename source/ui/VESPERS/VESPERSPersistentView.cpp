@@ -78,30 +78,23 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	sshShutterLabel->setFont(font);
 	QLabel *beamSelectionLabel = new QLabel("Beam Selection");
 	beamSelectionLabel->setFont(font);
+	QLabel *slitsLabel = new QLabel("Intermediate Slit Gaps");
+	slitsLabel->setFont(font);
 	QLabel *endstationShutterLabel = new QLabel("Endstation");
 	endstationShutterLabel->setFont(font);
 	QLabel *statusLabel = new QLabel("Beamline Status");
 	statusLabel->setFont(font);
-	QLabel *experimentReadyLabel = new QLabel("Experiment Ready");
+	QLabel *experimentReadyLabel = new QLabel("Experiment Ready Status");
 	experimentReadyLabel->setFont(font);
 
 	// Shutter layout.
-	QHBoxLayout *frontEndShutters = new QHBoxLayout;
-	frontEndShutters->addWidget(psh1_);
-	frontEndShutters->addWidget(ssh1_);
-
-	QVBoxLayout *frontEndShutterLayout = new QVBoxLayout;
-	frontEndShutterLayout->setSpacing(1);
-	frontEndShutterLayout->addWidget(pshShutterLabel, 0, Qt::AlignLeft);
-	frontEndShutterLayout->addLayout(frontEndShutters);
-
-	QHBoxLayout *beamlineShutters = new QHBoxLayout;
-	beamlineShutters->addWidget(psh2_);
-	beamlineShutters->addWidget(ssh2_);
-
-	QVBoxLayout *beamlineShutterLayout = new QVBoxLayout;
-	beamlineShutterLayout->addWidget(sshShutterLabel);
-	beamlineShutterLayout->addLayout(beamlineShutters);
+	QGridLayout *shutterLayout = new QGridLayout;
+	shutterLayout->addWidget(pshShutterLabel, 0, 0, 1, 2);
+	shutterLayout->addWidget(sshShutterLabel, 0, 2, 1, 2);
+	shutterLayout->addWidget(psh1_);
+	shutterLayout->addWidget(ssh1_);
+	shutterLayout->addWidget(psh2_);
+	shutterLayout->addWidget(ssh2_);
 
 	// Beam selection and mono energy setting.
 	VESPERSBeamSelectorView *beamSelectorView = new VESPERSBeamSelectorView;
@@ -123,25 +116,49 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QHBoxLayout *energySetpointLayout = new QHBoxLayout;
 	energySetpointLayout->addWidget(new QLabel("Energy:"));
 	energySetpointLayout->addWidget(energySetpoint_);
+	energySetpointLayout->addWidget(energyFeedback_);
+	energySetpointLayout->setContentsMargins(15, 11, 11, 11);
 
 	QVBoxLayout *beamSelectionLayout = new QVBoxLayout;
 	beamSelectionLayout->addWidget(beamSelectionLabel);
-	beamSelectionLayout->addLayout(energySetpointLayout);
-	beamSelectionLayout->addWidget(energyFeedback_, 0, Qt::AlignCenter);
 	beamSelectionLayout->addWidget(beamSelectorView, 0, Qt::AlignCenter);
+	beamSelectionLayout->addLayout(energySetpointLayout);
+
+	// The intermediate slits.
+	slits_ = VESPERSBeamline::vespers()->intermediateSlits();
+
+	xSlit_ = new QDoubleSpinBox;
+	xSlit_->setSuffix(" mm");
+	xSlit_->setDecimals(3);
+	xSlit_->setSingleStep(0.001);
+	connect(slits_, SIGNAL(gapXChanged(double)), xSlit_, SLOT(setValue(double)));
+	connect(xSlit_, SIGNAL(editingFinished()), this, SLOT(setXGap()));
+
+	zSlit_ = new QDoubleSpinBox;
+	zSlit_->setSuffix(" mm");
+	zSlit_->setDecimals(3);
+	zSlit_->setSingleStep(0.001);
+	connect(slits_, SIGNAL(gapZChanged(double)), zSlit_, SLOT(setValue(double)));
+	connect(zSlit_, SIGNAL(editingFinished()), this, SLOT(setZGap()));
+
+	QHBoxLayout *slitsLayout = new QHBoxLayout;
+	slitsLayout->addWidget(new QLabel("H:"), 0, Qt::AlignRight);
+	slitsLayout->addWidget(xSlit_);
+	slitsLayout->addWidget(new QLabel("V:"), 0, Qt::AlignRight);
+	slitsLayout->addWidget(zSlit_);
+	slitsLayout->setContentsMargins(15, 11, 11, 11);
 
 	// The Experiment Ready Status
 	experimentReady_ = new QLabel;
 	experimentReady_->setPixmap(QIcon(":/RED.png").pixmap(25));
 	connect(VESPERSBeamline::vespers()->experimentConfiguration(), SIGNAL(experimentReady(bool)), this, SLOT(onExperimentStatusChanged(bool)));
 
-	QFormLayout *experimentReadyLayout = new QFormLayout;
-	experimentReadyLayout->addRow(experimentReady_, new QLabel("Status"));
-	experimentReadyLayout->setHorizontalSpacing(20);
-
-	QHBoxLayout *experimentReadyFinalLayout = new QHBoxLayout;
-	experimentReadyFinalLayout->addSpacing(25);
-	experimentReadyFinalLayout->addLayout(experimentReadyLayout);
+	QHBoxLayout *experimentReadyLayout = new QHBoxLayout;
+	experimentReadyLayout->addWidget(experimentReady_);
+	experimentReadyLayout->addWidget(experimentReadyLabel);
+	experimentReadyLayout->setSpacing(10);
+	experimentReadyLayout->setContentsMargins(15, 11, 11, 11);
+	experimentReadyLayout->addStretch();
 
 	// Endstation shutter control.
 	filterLowerButton_ = new QPushButton("Open Shutter");
@@ -174,14 +191,13 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	connect(filterComboBox_, SIGNAL(currentIndexChanged(int)), VESPERSBeamline::vespers()->endstation(), SLOT(setFilterThickness(int)));
 	connect(VESPERSBeamline::vespers()->endstation(), SIGNAL(filterThicknessChanged(int)), this, SLOT(onFiltersChanged(int)));
 
-	QFormLayout *filterLayout = new QFormLayout;
-	filterLayout->addRow(filterLabel_, filterLowerButton_);
-	filterLayout->addRow("Filters:", filterComboBox_);
-	filterLayout->setHorizontalSpacing(5);
-
-	QHBoxLayout *adjustedFilterLayout = new QHBoxLayout;
-	adjustedFilterLayout->addSpacing(25);
-	adjustedFilterLayout->addLayout(filterLayout);
+	QHBoxLayout *filterLayout = new QHBoxLayout;
+	filterLayout->addWidget(filterLabel_);
+	filterLayout->addWidget(filterLowerButton_);
+	filterLayout->addWidget(new QLabel("Filters:"));
+	filterLayout->addWidget(filterComboBox_);
+	filterLayout->setSpacing(5);
+	filterLayout->setContentsMargins(15, 11, 11, 11);
 
 	// The valve control.
 	valvesButton_ = new QPushButton("Open Valves");
@@ -190,6 +206,10 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	valvesStatus_ = new QLabel;
 	valvesStatus_->setPixmap(QIcon(":/RED.png").pixmap(25));
 	connect(valves_, SIGNAL(statusChanged(bool)), this, SLOT(onValvesStateChanged()));
+
+	QLabel *valveIcon = new QLabel;
+	valveIcon->setPixmap(QIcon(":/valveIcon.png").pixmap(25));
+	valveIcon->setToolTip("Valve Indicator");
 
 	// Temp, water, and pressure labels.
 	tempLabel_ = new QLabel;
@@ -210,30 +230,31 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	waterIcon->setPixmap(QIcon(":/FaucetIcon.png").pixmap(25));
 	waterIcon->setToolTip("Water Indicator");
 
-	QFormLayout *statusLayout = new QFormLayout;
-	statusLayout->setHorizontalSpacing(20);
-	statusLayout->addRow(valvesStatus_, valvesButton_);
-	statusLayout->addRow(tempLabel_, temperatureIcon);
-	statusLayout->addRow(pressureLabel_, pressureIcon);
-	statusLayout->addRow(waterLabel_, waterIcon);
-
-	QHBoxLayout *adjustedStatusLayout = new QHBoxLayout;
-	adjustedStatusLayout->addSpacing(25);
-	adjustedStatusLayout->addLayout(statusLayout);
+	QGridLayout *statusLayout = new QGridLayout;
+	statusLayout->addWidget(temperatureIcon, 0, 0);
+	statusLayout->addWidget(pressureIcon, 0, 1);
+	statusLayout->addWidget(waterIcon, 0, 2);
+	statusLayout->addWidget(valveIcon, 0, 3);
+	statusLayout->addWidget(tempLabel_, 1, 0);
+	statusLayout->addWidget(pressureLabel_, 1, 1);
+	statusLayout->addWidget(waterLabel_, 1, 2);
+	statusLayout->addWidget(valvesStatus_, 1, 3);
+	statusLayout->addWidget(valvesButton_, 1, 4, 1, 2);
+	statusLayout->setContentsMargins(15, 7, 11, 7);
 
 	QVBoxLayout *persistentLayout = new QVBoxLayout;
-	persistentLayout->addLayout(frontEndShutterLayout);
-	persistentLayout->addLayout(beamlineShutterLayout);
+	persistentLayout->addLayout(shutterLayout);
 	persistentLayout->addLayout(beamSelectionLayout);
+	persistentLayout->addWidget(slitsLabel);
+	persistentLayout->addLayout(slitsLayout);
 	persistentLayout->addWidget(sampleStageLabel);
 	persistentLayout->addWidget(motors);
 	persistentLayout->addWidget(pidView);
-	persistentLayout->addWidget(experimentReadyLabel);
-	persistentLayout->addLayout(experimentReadyFinalLayout);
+	persistentLayout->addLayout(experimentReadyLayout);
 	persistentLayout->addWidget(endstationShutterLabel);
-	persistentLayout->addLayout(adjustedFilterLayout);
+	persistentLayout->addLayout(filterLayout);
 	persistentLayout->addWidget(statusLabel);
-	persistentLayout->addLayout(adjustedStatusLayout);
+	persistentLayout->addLayout(statusLayout);
 	persistentLayout->addStretch();
 
 	QGroupBox *vespersBox = new QGroupBox;
@@ -243,7 +264,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	vespersLayout->addWidget(vespersBox);
 
 	setLayout(vespersLayout);
-	setFixedWidth(200);
+	setFixedWidth(325);
 }
 
 void VESPERSPersistentView::onBeamChanged(VESPERSBeamline::Beam beam)
