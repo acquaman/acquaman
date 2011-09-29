@@ -80,9 +80,6 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), true, false);
 	}
 
-	// Add all the extra data sources.
-	addExtraDatasources();
-
 	// Add all the necessary analysis blocks.
 	AM1DExpressionAB* transmission = new AM1DExpressionAB("trans");
 	transmission->setDescription("Transmission");
@@ -146,6 +143,9 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 			xasScan_->addAnalyzedDataSource(normPFY, true, false);
 		}
 	}
+
+	// Add all the extra data sources.
+	addExtraDatasources();
 }
 
 void VESPERSXASDacqScanController::addExtraDatasources()
@@ -290,6 +290,10 @@ bool VESPERSXASDacqScanController::initializeImplementation()
 
 bool VESPERSXASDacqScanController::startImplementation()
 {
+	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
+	while (advAcq_->deleteRecord(1)){}
+
+	// Setup the real config.
 	switch(config_->fluorescenceDetectorChoice()){
 
 	case VESPERSXASScanConfiguration::None:
