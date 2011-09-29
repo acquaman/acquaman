@@ -52,8 +52,9 @@ public:
 	bool sharedTable;	///< true if this class does not create a table of its own, but shares another class's table. (Note: this is only true for secondary classes that share an existing table; NOT for the first/original class which makes its own.)
 	const QMetaObject* metaObject;	///< QMetaObject pointer with the complete class meta-information. The remaining values can be determined by parsing the metaObject's classInfo parameters, but are stored here for efficiency.
 
-	QString classDescription;	///< human-readable description for this class. Defined with AM_DBOBJECTINFO("description=_____")
-	int version;///< The database version number of this class. If you upgrade
+	QString classDescription;	///< human-readable description for this class. Defined with Q_CLASSINFO("AMDbObject_Attributes", "description=Your Description")
+	// Removing because it doesn't carry on well to subclasses?  If the base class is upgraded, all the subclasses need to be upgraded too, but they won't see a version number change unless someone goes through all ofthem.
+	int version;///< The database version number of this class. Defined with Q_CLASSINFO("AMDbObject_Attributes", "version=2").  If not specified, the default version is 1. Integers only.
 
 	bool doNotReuseIds;	///< indicates that row ids should not be reused when objects are deleted.
 
@@ -115,11 +116,18 @@ namespace AMDbObjectSupport
 
 
 
-	/// ensure that a database \c db is ready to hold objects of the class described by \c info
+	/// ensure that a database \c db is ready to hold objects of the class described by \c info. Will call initializeDatabaseForClass() or upgradeDatabaseForClass() if required.
 	bool getDatabaseReadyForClass(AMDatabase* db, const AMDbObjectInfo& info);
 
-	/// upgrade an existing database from supporting an old version of a class to supporting a new version.
-	bool upgradeDatabaseForClass(AMDatabase* db, const AMDbObjectInfo& info, int existingVersion);
+	/// Helper function: Creates table and columns for a class which has never been stored in the database before.
+	bool initializeDatabaseForClass(AMDatabase* db, const AMDbObjectInfo& info);
+
+	/// Helper function: checks if a class can be stored in the database as-is, or if the DB needs to be upgraded.
+	/*! Confirms that all columns and auxiliary tables exist, although not necessarily in the order specified. (Since upgrading a base class will tack on the new base class members at the end of the original subclass members.) */
+	bool isUpgradeRequiredForClass(AMDatabase* db, const AMDbObjectInfo& info, int typeIdInDatabase);
+
+	/// Helper function: Upgrades an existing database from supporting an old version of a class to supporting a new version.  If new columns exist, they will be created and filled with the default value specified in AMDbObjectInfo.
+	bool upgradeDatabaseForClass(AMDatabase* db, const AMDbObjectInfo& info, int typeIdInDatabase);
 
 
 	/// Ensure that a table exists with the required basic fields for holding any AMDbObject
