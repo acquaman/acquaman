@@ -200,5 +200,6 @@ void AMSettings::save() {
 	settings.setValue("publicDataFolder", publicDataFolder);
 	settings.setValue("publicDatabaseFilename", publicDatabaseFilename);
 	settings.setValue("fileLoaderPluginsFolder", fileLoaderPluginsFolder);
+	settings.setValue("analysisBlockPluginsFolder", analysisBlockPluginsFolder);
 }
 
