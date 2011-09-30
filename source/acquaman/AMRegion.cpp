@@ -226,7 +226,9 @@ bool AMRegionsListModel::insertRows(int position, int rows, const QModelIndex &i
 		beginInsertRows(QModelIndex(), position, position+rows-1);
 
 		AMRegion *tmpRegion;
+
 		for (int row = 0; row < rows; ++row) {
+
 			tmpRegion = new AMRegion(this);
 			tmpRegion->setControl(defaultControl_);
 			regions_->insert(position, tmpRegion); // Order doesn't matter because they are all identical, empty regions.
@@ -271,17 +273,22 @@ Qt::ItemFlags AMRegionsListModel::flags(const QModelIndex &index) const{
 ////////////////////////////////////////////////////////
 
 bool AMXASRegionsListModel::insertRows(int position, int rows, const QModelIndex &index){
-	if (index.row() <= regions_->count() && defaultControl_) {
+
+	if (index.row() <= regions_->count() && position <= regions_->count() && defaultControl_) {
+
 		beginInsertRows(QModelIndex(), position, position+rows-1);
 
 		AMXASRegion *tmpRegion;
+
 		for (int row = 0; row < rows; ++row) {
+
 			tmpRegion = new AMXASRegion(defaultControl_, this);
-			regions_->insert(position, tmpRegion);
+			regions_->insert(position, tmpRegion); // Order doesn't matter because they are all identical, empty regions.
 		}
 
 		endInsertRows();
 		return true;
 	}
+
 	return false;
 }

@@ -137,11 +137,11 @@ public:
 	/// This allows editing of values within range (for ex: in a QTableView)
 	Qt::ItemFlags flags(const QModelIndex &index) const;
 	/// Returns the current list of AMRegions in the model.
-	QList<AMRegion*> *regions(){ return regions_; }
+	QList<AMRegion*> *regions() { return regions_; }
 
 public slots:
 	/// Sets the default control.  It is used for setting the control when inserting rows.
-	void setDefaultControl(AMControl* defaultControl){ defaultControl_ = defaultControl; }
+	void setDefaultControl(AMControl* defaultControl) { defaultControl_ = defaultControl; }
 
 protected:
 	/// Internal pointer to the list of AMRegion.
@@ -166,27 +166,28 @@ public:
 
 public slots:
 	/// Castrated function, does nothing and returns false.
-	bool setControl(AMControl *ctrl){ Q_UNUSED(ctrl); return false; }
+	bool setControl(AMControl *ctrl) { Q_UNUSED(ctrl); return false; }
 };
 
 /// An AMXASRegionModel is used as an interface between any default model viewer in Qt and a list of AMXASRegion.
 /*!
-  Simply pass a pointer to a list of AMXASRegion into the constructor and the model will be automatically set up.
-  \todo Move this up one level to ALL AMRegions and/or combine with the AMScanConfiguration classes (so they can be the model direclty).
+  This model reimplements the insert rows function to build AMXASRegions instead of generic AMRegions.
+  \todo Move this up one level to ALL AMRegions and/or combine with the AMScanConfiguration classes (so they can be the model directly).
   */
 
 class AMXASRegionsListModel : public AMRegionsListModel{
 Q_OBJECT
 
 public:
+	/// Constructor.  Builds a model that is identical to AMRegionsListModel.  No new features added.
 	AMXASRegionsListModel(QObject *parent = 0) : AMRegionsListModel(parent) {}
 
+	/// Inserts an AMXASRegion into the model.  It builds a default AMXASRegion, sets the control to whatever the energy control is at the time.
 	bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex());
 
 public slots:
-	void setEnergyControl(AMControl* energyControl){setDefaultControl(energyControl);}
-
-protected:
+	/// Sets the energy control that is used for scanning the energy in an XAS scan.
+	void setEnergyControl(AMControl* energyControl) { setDefaultControl(energyControl); }
 };
 
 #endif // ACQMAN_AMREGION_H
