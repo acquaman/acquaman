@@ -1,7 +1,7 @@
 #ifndef AMFILELOADERINTERFACE_H
 #define AMFILELOADERINTERFACE_H
 
-//#include "dataman/AMScan.h"
+#include <QtPlugin>
 
 class AMScan;
 

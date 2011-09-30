@@ -1,6 +1,8 @@
 #ifndef AMANALYSISBLOCKINTERFACE_H
 #define AMANALYSISBLOCKINTERFACE_H
 
+#include <QtPlugin>
+
 class AMAnalysisBlockInterface
 {
 public:
