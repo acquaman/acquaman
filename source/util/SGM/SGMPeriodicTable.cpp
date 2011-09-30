@@ -30,16 +30,16 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 {
 	//CARBON INFO
 	SGMElementInfo *tmpElementInfo = new SGMElementInfo(AMPeriodicTable::table()->elementBySymbol("C"), this);
-	SGMEdgeInfo carbonK(AMPeriodicTable::table()->elementBySymbol("C")->KEdge(), SGMScanRangeInfo(SGMEnergyPosition(280.0, -397720, -145629, 286.63, 0),
+	SGMEdgeInfo carbonK(AMPeriodicTable::table()->elementBySymbol("C")->KEdge(), SGMScanRangeInfo(SGMEnergyPosition(270.0, -397720, -149991, 286.63, 0),
 												      SGMEnergyPosition(295.0, -377497, -140470, 200.46, 0),
-												      SGMEnergyPosition(320.0, -348005, -132290, 100.54, 0)));
+												      SGMEnergyPosition(320.0, -348005, -133061, 100.54, 0)));
 	tmpElementInfo->addEdgeInfo(carbonK);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
 									5.0, 24000, 5.0, 200, 4000 ));
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
-									20.0, 4800, 20.0, 200, 820));
+									20.0, 5800, 20.0, 200, 970));
 	sgmPeriodicTableInfo_.append(tmpElementInfo, tmpElementInfo->element());
 
 	//NITROGEN INFO
