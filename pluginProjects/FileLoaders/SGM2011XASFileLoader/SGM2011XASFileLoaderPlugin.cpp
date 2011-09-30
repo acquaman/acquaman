@@ -1,5 +1,3 @@
-#include <QtGui>
-
 #include "SGM2011XASFileLoaderPlugin.h"
 
 AMBiHash<QString, QString> SGM2011XASFileLoaderPlugin::columns2pvNames_;
