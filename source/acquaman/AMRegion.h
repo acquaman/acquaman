@@ -54,37 +54,43 @@ Q_PROPERTY(double delta READ delta WRITE setDelta)
 Q_PROPERTY(double end READ end WRITE setEnd)
 
 public:
-	/// Constructor, only requires a QObject for a parent
+	/// Constructor, only requires a QObject for a parent and defaults elastic start and end to false.
 	AMRegion(QObject *parent = 0);
 	/// Returns the stored start value as a double
-	virtual double start() const { return start_;}
+	virtual double start() const { return start_; }
 	/// Returns the stored delta value as a double
-	virtual double delta() const { return delta_;}
+	virtual double delta() const { return delta_; }
 	/// Returns the stored end value as a double
-	virtual double end() const { return end_;}
+	virtual double end() const { return end_; }
 	/// Returns a pointer the AMControl this region is operating on
-	virtual AMControl* control() const { return ctrl_;}
-	virtual bool elasticStart() const { return elasticStart_;}
-	virtual bool elasticEnd() const { return elasticEnd_;}
+	virtual AMControl* control() const { return ctrl_; }
+	/// Returns the state of whether or not the start value of the region can be adjusted by the end of the adjacent region being changed.
+	virtual bool elasticStart() const { return elasticStart_; }
+	/// Returns the state of whether or not the end value of the region can be adjusted by the start of the adjacent region being changed.
+	virtual bool elasticEnd() const { return elasticEnd_; }
 
 public slots:
-	/// Sets the start value from the double passed in. Does not affect the AMControl directly.
-	/// \todo A check on the limits of the AMControl?
-	virtual bool setStart(double start);// { start_ = start; return TRUE;}
+	/// Sets the start value from the double passed in. Makes sure the energy is within the allowable range, otherwise returns false.  Does not affect the AMControl directly.
+	virtual bool setStart(double start);
 	/// Sets the delta value from the double passed in. The value MUST BE non-zero, or function will return false. Does not affect the AMControl direclty.
 	virtual bool setDelta(double delta);
-	/// Sets the end value from the double passed in. Does not affect the AMControl directly.
-	/// \todo A check on the limits of the AMControl?
-	virtual bool setEnd(double end);// { end_ = end; return TRUE;}
+	/// Sets the end value from the double passed in. Makes sure the energy is within the allowable range, otherwise returns false.	Does not affect the AMControl directly.
+	virtual bool setEnd(double end);
+	/// This changes the start value of the region.  If the start value is already in the process of changing this function does nothing.
 	virtual bool adjustStart(double start);
+	/// This changes the end value of the region.  If the end value is already in the process of changing this function does nothing.
 	virtual bool adjustEnd(double end);
 	/// Sets the AMControl for the region.
-	virtual bool setControl(AMControl* ctrl) { ctrl_ = ctrl; return true;}
-	virtual bool setElasticStart(bool elastic) { elasticStart_ = elastic; return true;}
-	virtual bool setElasticEnd(bool elastic) { elasticEnd_ = elastic; return true;}
+	virtual bool setControl(AMControl* ctrl) { ctrl_ = ctrl; return true; }
+	/// Sets the state of whether the start value can be adjusted through changes to the end of its adjacent region.
+	virtual bool setElasticStart(bool elastic) { elasticStart_ = elastic; return true; }
+	/// Sets the state of whether the end value can be adjusted through changes to the start of its adjacent region.
+	virtual bool setElasticEnd(bool elastic) { elasticEnd_ = elastic; return true; }
 
 signals:
+	/// Notifier that the start value has changed.  Only used if elastic start is enabled.
 	void startChanged(double start);
+	/// Notifier that the end value has changed.  Only used if elastic end is enabled.
 	void endChanged(double end);
 
 protected:
@@ -96,9 +102,13 @@ protected:
 	double end_;
 	/// AMControl for the region to step through.
 	AMControl *ctrl_;
+	/// Flag used to determine if the start value can be adjusted through changes to other regions.
 	bool elasticStart_;
+	/// Flag used to determine if the end value can be adjusted through changes to other regions.
 	bool elasticEnd_;
+	/// Flag used to determine if the start value is about to be changed by another region.
 	bool initiatedStartAdjust_;
+	/// Flag used to determine if the end vallue is about to be changed by another region.
 	bool initiatedEndAdjust_;
 };
 

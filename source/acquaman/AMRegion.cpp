@@ -20,6 +20,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMRegion.h"
 
+// AMRegion
+/////////////////////////////////////////////////////////
+
 AMRegion::AMRegion(QObject *parent) :
 	QObject(parent)
 {
@@ -29,31 +32,31 @@ AMRegion::AMRegion(QObject *parent) :
 	initiatedEndAdjust_ = false;
 }
 
-/// Sets the start value from the double passed in. Makes sure the energy is within the allowable range, otherwise returns false.
+// Sets the start value from the double passed in. Makes sure the energy is within the allowable range, otherwise returns false.
 bool AMRegion::setStart(double start) {
 	if(ctrl_->valueOutOfRange(start))
-		return FALSE;
+		return false;
 	start_ = start;
 	if(elasticStart_){
 		initiatedStartAdjust_ = true;
 		emit startChanged(start_);
 	}
-	return TRUE;
+	return true;
 }
 
-/// Sets the end value from the double passed in. Makes sure the energy is within the allowable range, otherwise returns false.
+// Sets the end value from the double passed in. Makes sure the energy is within the allowable range, otherwise returns false.
 bool AMRegion::setEnd(double end) {
 	if(ctrl_->valueOutOfRange(end))
-		return FALSE;
+		return false;
 	end_ = end;
 	if(elasticEnd_){
 		initiatedEndAdjust_ = true;
-	}
 		emit endChanged(end_);
-	return TRUE;
+	}
+	return true;
 }
 
-/// Sets the delta value from the double passed in. Makes sure the value is non-zero, otherwise it returns false.
+// Sets the delta value from the double passed in. Makes sure the value is non-zero, otherwise it returns false.
 bool AMRegion::setDelta(double delta) {
 	if(delta == 0)
 		return false;
@@ -82,6 +85,9 @@ bool AMRegion::adjustEnd(double end){
 	}
 	return true;
 }
+
+// AMRegionsListModel
+/////////////////////////////////////////////////////////////////////////////
 
 AMRegionsListModel::AMRegionsListModel(QObject *parent) : QAbstractTableModel(parent) {
 	regions_ = new QList<AMRegion*>();
