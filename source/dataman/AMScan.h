@@ -86,6 +86,8 @@ public:
 
 	// Role 1: Meta Data Elements
 	////////////////////////////////
+	/// Returns the name of the technique used
+	virtual QString technique() { return "General Scan";}
 	/// Returns a user-given number
 	int number() const { return number_;}
 	/// Returns creation time / scan start time

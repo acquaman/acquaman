@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMSCANCONFIGURATIONVIEWHOLDER_H
 
 #include <QWidget>
+#include <QLineEdit>
 
 class QRadioButton;
 class QPushButton;
@@ -31,6 +32,11 @@ class QVBoxLayout;
 class AMScanConfiguration;
 class AMScanConfigurationView;
 class AMWorkflowManagerView;
+
+class AMScan;
+class AMScanDictionary;
+
+class AMDictionaryLineEdit;
 
 /// This widget holds a scan configuration widget, and provides user controls to start the configured scan within the workflow.  It can be constructed to surround any AMScanConfigurationView. Below the widget, it adds buttons to start the configured scan or add it to the queue.
 /*! This widget takes ownership of the view specifified in its constructor.
@@ -69,9 +75,17 @@ protected slots:
 	/*! If the scan configuration view or scan configuration are invalid, sets the button disabled with a message. If the workflow cannot be started because the beamline is busy (ie: one of your scans, or someone else's scan, is running), sets the button disabled with a message. Otherwise enables the button. */
 	void reviewStartScanButtonState();
 
+	void onScanNameLineEditTextEdited(const QString &text);
+
+	void delayedDbLoad();
+
 protected:
 
 	/// UI elements
+	QLabel *scanNameLabel_;
+	AMDictionaryLineEdit *scanNameLineEdit_;
+	QLabel *scanNameExampleLabel_;
+
 	QLabel *whenDoneLabel_;
 	QPushButton* startScanButton_, *addToQueueButton_;
 	QRadioButton* goToWorkflowOption_, *setupAnotherScanOption_;
@@ -82,6 +96,18 @@ protected:
 	/// This is a pointer to the workflow manager (view, for now). We use it to add scan actions to the workflow
 	AMWorkflowManagerView* workflow_;
 
+	AMScan *testDefaultScan_;
+	AMScanDictionary *testDictionary_;
+};
+
+class AMDictionaryLineEdit : public QLineEdit
+{
+Q_OBJECT
+public:
+	AMDictionaryLineEdit(QWidget *parent = 0);
+
+protected:
+	void keyPressEvent(QKeyEvent *);
 };
 
 #endif // AMSCANCONFIGURATIONVIEWHOLDER_H

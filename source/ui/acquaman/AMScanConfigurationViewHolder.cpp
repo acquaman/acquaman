@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QRadioButton>
 #include <QPushButton>
 #include <QLabel>
+#include <QLineEdit>
 #include <QVBoxLayout>
 #include <QButtonGroup>
 
@@ -30,12 +31,24 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/AMWorkflowManagerView.h"
 
+#include "dataman/AMXASScan.h"
+#include "dataman/AMScanDictionary.h"
+#include <QTimer>
+
 
 AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerView* workflow, AMScanConfigurationView* view, QWidget *parent) :
-		QWidget(parent)
+	QWidget(parent)
 {
 	view_ = view;
 	workflow_ = workflow;
+
+	testDefaultScan_ = 0; //NULL
+	testDictionary_ = 0; //NULL
+
+	scanNameLabel_ = new QLabel("Scan Name:");
+	//scanNameLineEdit_ = new QLineEdit();
+	scanNameLineEdit_ = new AMDictionaryLineEdit();
+	scanNameExampleLabel_ = new QLabel("ex,, ");
 
 	whenDoneLabel_ = new QLabel("When I'm done here:");
 
@@ -44,6 +57,7 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 
 	goToWorkflowOption_ = new QRadioButton("Show me the workflow");
 	setupAnotherScanOption_ = new QRadioButton("Setup another scan");
+
 	QButtonGroup* bg = new QButtonGroup(this);
 	bg->addButton(goToWorkflowOption_, 0);
 	bg->addButton(setupAnotherScanOption_, 1);
@@ -54,17 +68,25 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 	if(view_)
 		layout_->addWidget(view_);
 
-	QHBoxLayout* hl = new QHBoxLayout();
+	QVBoxLayout *vl = new QVBoxLayout();
+	QHBoxLayout *hl1 = new QHBoxLayout();
+	hl1->addWidget(scanNameLabel_);
+	hl1->addWidget(scanNameLineEdit_);
+	vl->addLayout(hl1);
+	vl->addWidget(scanNameExampleLabel_);
+	vl->setContentsMargins(10, 10, 10, 0);
 
-	hl->addWidget(whenDoneLabel_);
-	hl->addWidget(goToWorkflowOption_);
-	hl->addWidget(setupAnotherScanOption_);
-	hl->addStretch();
-	hl->addWidget(addToQueueButton_);
-	hl->addWidget(startScanButton_);
-	hl->setContentsMargins(10, 10, 10, 20);
+	QHBoxLayout* hl2 = new QHBoxLayout();
+	hl2->addWidget(whenDoneLabel_);
+	hl2->addWidget(goToWorkflowOption_);
+	hl2->addWidget(setupAnotherScanOption_);
+	hl2->addStretch();
+	hl2->addWidget(addToQueueButton_);
+	hl2->addWidget(startScanButton_);
+	hl2->setContentsMargins(10, 0, 10, 20);
 
-	layout_->addLayout(hl);
+	layout_->addLayout(vl);
+	layout_->addLayout(hl2);
 	layout_->setContentsMargins(0,0,0,0);
 
 	setLayout(layout_);
@@ -75,8 +97,11 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 	connect(workflow_, SIGNAL(workflowStatusChanged(bool,bool,bool)), this, SLOT(reviewStartScanButtonState()));
 
 
+	connect(scanNameLineEdit_, SIGNAL(textEdited(QString)), this, SLOT(onScanNameLineEditTextEdited(QString)));
 
 	reviewStartScanButtonState();
+
+	QTimer::singleShot(500, this, SLOT(delayedDbLoad()));
 }
 
 
@@ -191,4 +216,59 @@ void AMScanConfigurationViewHolder::onAddToQueueRequested() {
 
 	if(goToWorkflowOption_->isChecked())
 		emit showWorkflowRequested();
+}
+
+void AMScanConfigurationViewHolder::onScanNameLineEditTextEdited(const QString &text){
+	scanNameExampleLabel_->setText("ex,, "+testDictionary_->parseKeywordString(text)+".dat");
+}
+
+void AMScanConfigurationViewHolder::delayedDbLoad(){
+	testDefaultScan_ = new AMXASScan(this);
+	testDefaultScan_->loadFromDb(AMDatabase::userdb(), 1);
+	testDictionary_ = new AMScanDictionary(testDefaultScan_, this);
+
+	scanNameLineEdit_->setText(view_->configuration()->userScanName());
+	onScanNameLineEditTextEdited(scanNameLineEdit_->text());
+}
+
+AMDictionaryLineEdit::AMDictionaryLineEdit(QWidget *parent) :
+	QLineEdit(parent)
+{
+
+}
+
+#include <QKeyEvent>
+
+void AMDictionaryLineEdit::keyPressEvent(QKeyEvent *e){
+	if(e->key() == Qt::Key_BracketLeft){
+		int lastCursorPosition = cursorPosition();
+		setText(text().insert(lastCursorPosition, "[]"));
+		setCursorPosition(lastCursorPosition+1);
+	}
+	else if(e->key() == Qt::Key_BracketRight && cursorPosition() != text().length() && text().at(cursorPosition()) == ']')
+		setCursorPosition(cursorPosition()+1);
+	else if(e->key() == Qt::Key_Backspace){
+		if(hasSelectedText())
+			QLineEdit::keyPressEvent(e);
+		else if(text().length() >= 2 && cursorPosition() != 0 && text().at(cursorPosition()-1) == ']' && text().at(cursorPosition()-2) == '[')
+			setText(text().remove(cursorPosition()-2,2));
+		else if(text().length() >= 2 && cursorPosition() != 0 && text().at(cursorPosition()-1) == '[' && cursorPosition() != text().length() && text().at(cursorPosition()) == ']')
+			setText(text().remove(cursorPosition()-1,2));
+		else if(text().length() >= 3 && cursorPosition() != 0 && text().at(cursorPosition()-1) == ']'){
+			int otherBracket = text().lastIndexOf('[', cursorPosition()-1);
+			int difference = cursorPosition()-otherBracket;
+			if(otherBracket != -1)
+				setSelection(otherBracket, difference);
+		}
+		else if(text().length() >= 3 && cursorPosition() != 0 && text().at(cursorPosition()-1) == '['){
+			int otherBracket = text().indexOf(']', cursorPosition()-1);
+			int difference = otherBracket-(cursorPosition()-1)+1;
+			if(otherBracket != -1)
+				setSelection(cursorPosition()-1, difference);
+		}
+		else
+			QLineEdit::keyPressEvent(e);
+	}
+	else
+		QLineEdit::keyPressEvent(e);
 }

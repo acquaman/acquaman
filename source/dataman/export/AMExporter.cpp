@@ -478,15 +478,15 @@ QString AMExporter::krDataSourceInfoDescription(const QString &dataSourceName) {
 	AMDataSource* ds = currentScan_->dataSourceAt(dataSourceIndex);
 	return ds->infoDescription();
 	/*
-	if(ds->infoDescription().isEmpty()){
-		qDebug() << "No info description, using name";
-		return ds->name();
-	}
-	else{
-		qDebug() << "Found info description";
-		return ds->infoDescription();
-	}
-	*/
+ if(ds->infoDescription().isEmpty()){
+  qDebug() << "No info description, using name";
+  return ds->name();
+ }
+ else{
+  qDebug() << "Found info description";
+  return ds->infoDescription();
+ }
+ */
 }
 
 QString AMExporter::krDataSourceAxisValue(const QString& dataSourceName) {
