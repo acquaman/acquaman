@@ -24,16 +24,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtGui/QWidget>
 #include <QTime>
 #include <QDebug>
-#include "ui_BottomBar.h"
+#include "ui_AMBottomBar.h"
 #include "AMStatusView.h"
 
-class BottomBar : public QWidget, private Ui::BottomBarClass {
+class AMBottomBar : public QWidget, private Ui::AMBottomBarClass {
 	Q_OBJECT
 
 public:
-	BottomBar(QWidget *parent = 0);
+	AMBottomBar(QWidget *parent = 0);
 
-	~BottomBar();
+	~AMBottomBar();
 
 public slots:
 	void updateScanProgress(double secondsElapsed, double secondsTotal);
@@ -61,7 +61,7 @@ protected slots:
 	void addButtonClicked();
 };
 
-#endif // BOTTOMBAR_H
+#endif // AMBOTTOMBAR_H
 
 /*
 QWidget#BottomBarClass {

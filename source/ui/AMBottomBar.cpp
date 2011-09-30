@@ -18,9 +18,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "BottomBar.h"
+#include "AMBottomBar.h"
 
-BottomBar::BottomBar(QWidget *parent) : QWidget(parent)
+AMBottomBar::AMBottomBar(QWidget *parent) : QWidget(parent)
 {
 	setupUi(this);
 
@@ -38,19 +38,19 @@ BottomBar::BottomBar(QWidget *parent) : QWidget(parent)
 
 }
 
-BottomBar::~BottomBar()
+AMBottomBar::~AMBottomBar()
 {
 
 }
 
-void BottomBar::makeConnections()
+void AMBottomBar::makeConnections()
 {
 	connect(pauseScanButton, SIGNAL(clicked()), this, SIGNAL(pauseScanIssued()));
 	connect(stopScanButton, SIGNAL(clicked()), this, SIGNAL(stopScanIssued()));
 	connect(addButton, SIGNAL(clicked()), this, SIGNAL(addButtonClicked()));
 }
 
-void BottomBar::updateScanProgress(double secondsElapsed, double secondsTotal){
+void AMBottomBar::updateScanProgress(double secondsElapsed, double secondsTotal){
 	progressBar->setMaximum((int)secondsTotal);
 	progressBar->setValue((int)secondsElapsed);
 	double secondsRemaining = secondsTotal - secondsElapsed;

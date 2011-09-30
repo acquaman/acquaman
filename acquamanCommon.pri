@@ -268,7 +268,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMStatusView.h \
 	source/ui/AMThumbnailScrollViewer.h \
 	source/ui/acquaman/AMXASRegionsView.h \
-	source/ui/BottomBar.h \
+	source/ui/AMBottomBar.h \
 	#deprecated: source/ui/AMBeamlineCameraWidget.h \
 	source/ui/beamline/AMControlEditor.h \
 	source/acquaman.h \
@@ -421,7 +421,7 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/dataman/AMDataViewSectionHeader.ui \
 	source/ui/dataman/AMImportControllerWidget.ui \
 	source/ui/acquaman/AMScanConfigurationView.ui \
-	source/ui/BottomBar.ui \
+	source/ui/AMBottomBar.ui \
 	source/ui/dataman/AMGenericScanEditor.ui \
 	source/ui/dataman/AMDataSourcesEditor.ui \
 	source/ui/dataman/AMSamplePlateSelector.ui \
@@ -525,7 +525,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMStatusView.cpp \
 	source/ui/AMThumbnailScrollViewer.cpp \
 	source/ui/acquaman/AMXASRegionsView.cpp \
-	source/ui/BottomBar.cpp \
+	source/ui/AMBottomBar.cpp \
 	#deprecated: source/ui/AMBeamlineCameraWidget.cpp \
 	source/ui/beamline/AMControlEditor.cpp \
 	source/ui/beamline/AMDetectorView.cpp \
