@@ -130,26 +130,30 @@ public:
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 	/// Sets the data value at an index (row and column). Only valid role is Qt::DisplayRole right now.
 	bool setData(const QModelIndex &index, const QVariant &value, int role);
+	/// Inserts an AMRegion into the model.  It builds a default AMRegion, sets the control to whatever the default control is at the time.
 	bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex());
+	/// Removes an AMRegion from the model.
 	bool removeRows(int position, int rows, const QModelIndex &index = QModelIndex());
 	/// This allows editing of values within range (for ex: in a QTableView)
 	Qt::ItemFlags flags(const QModelIndex &index) const;
-
-	QList<AMRegion*> *regions(){return regions_;}
+	/// Returns the current list of AMRegions in the model.
+	QList<AMRegion*> *regions(){ return regions_; }
 
 public slots:
-	void setDefaultControl(AMControl* defaultControl){defaultControl_ = defaultControl;}
+	/// Sets the default control.  It is used for setting the control when inserting rows.
+	void setDefaultControl(AMControl* defaultControl){ defaultControl_ = defaultControl; }
 
 protected:
-	/// Internal pointer to the list of AMXASRegion.
+	/// Internal pointer to the list of AMRegion.
 	QList<AMRegion*> *regions_;
+	/// Pointer to the default control used to create AMRegions.
 	AMControl *defaultControl_;
 };
 
-/// AMXASRegion is an impementation of AMRegion designed to scan energy regions; therefore, the AMControl is passed into the constructor and must be a beamline energy control.
+/// AMXASRegion is an implementation of AMRegion designed to scan energy regions; therefore, the AMControl is passed into the constructor and must be a beamline energy control.
 /*!
   Simply pass an AMControl pointer into the constructor, and this child class will always refer to the beamline energy.
-  The setStart() and setEnd() are reimplemented to ensure that the energy passed into the region is within the energy limits of the beamline.
+  \todo The setStart() and setEnd() are reimplemented to ensure that the energy passed into the region is within the energy limits of the beamline.
   The setControl(AMControl*) function has been castrated, it will always return false and no change will be made.
   */
 class AMXASRegion : public AMRegion
@@ -158,11 +162,11 @@ Q_OBJECT
 
 public:
 	/// Constructor, takes an AMControl to act as the perminant control for this region, must be the beamline energy control.
-	AMXASRegion(AMControl* beamlineEnergy, QObject *parent = 0) : AMRegion(parent) {ctrl_ = beamlineEnergy;}
+	AMXASRegion(AMControl* beamlineEnergy, QObject *parent = 0) : AMRegion(parent) { ctrl_ = beamlineEnergy; }
 
 public slots:
 	/// Castrated function, does nothing and returns false.
-	bool setControl(AMControl *ctrl){Q_UNUSED(ctrl); return false;}
+	bool setControl(AMControl *ctrl){ Q_UNUSED(ctrl); return false; }
 };
 
 /// An AMXASRegionModel is used as an interface between any default model viewer in Qt and a list of AMXASRegion.
