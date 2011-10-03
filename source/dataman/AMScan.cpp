@@ -48,6 +48,8 @@ AMScan::AMScan(QObject *parent)
 
 	sampleNameLoaded_ = false;
 
+	nameDictionary_ = new AMScanDictionary(this, this);
+
 	// Connect added/removed signals from rawDataSources_ and analyzedDataSources_, to provide a model of all data sources:
 	connect(rawDataSources_.signalSource(), SIGNAL(itemAboutToBeAdded(int)), this, SLOT(onDataSourceAboutToBeAdded(int)));
 	connect(rawDataSources_.signalSource(), SIGNAL(itemAdded(int)), this, SLOT(onDataSourceAdded(int)));
@@ -121,7 +123,6 @@ void AMScan::setSampleId(int newSampleId) {
 
 // Convenience function: returns the name of the sample (if a sample is set)
 QString AMScan::sampleName() const {
-
 	if(!sampleNameLoaded_)
 		retrieveSampleName();
 
@@ -132,7 +133,6 @@ QString AMScan::sampleName() const {
 
 
 void AMScan::retrieveSampleName() const {
-
 	if(sampleId() <1 || database() == 0)
 		sampleName_ = "[no sample]";
 
@@ -187,6 +187,8 @@ bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
 		if(!loadData())
 			return false;
 	}
+
+	nameDictionary_ = new AMScanDictionary(this, this);
 
 	// no longer necessary: setModified(false);
 	return true;

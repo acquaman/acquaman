@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QLabel>
 #include <QLineEdit>
+#include <QCheckBox>
 #include <QVBoxLayout>
 #include <QButtonGroup>
 
@@ -50,6 +51,18 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 	scanNameLineEdit_ = new AMDictionaryLineEdit();
 	scanNameExampleLabel_ = new QLabel("ex,, ");
 
+	autoExportLabel_ = new QLabel("---->");
+	doExportNameCheckBox_ = new QCheckBox("Set Name");
+	doAutoExportCheckBox_ = new QCheckBox("Auto Export");
+
+	exportNameLabel_ = new QLabel("Export Name:");
+	exportNameDictionaryLineEdit_ = new AMDictionaryLineEdit();
+	exportNameExampleLabel_ = new QLabel("ex,, ");
+
+	doExportNameCheckBox_->setChecked(false);
+	doAutoExportCheckBox_->setChecked(true);
+	exportNameDictionaryLineEdit_->setEnabled(false);
+
 	whenDoneLabel_ = new QLabel("When I'm done here:");
 
 	startScanButton_ = new QPushButton("Start Scan");
@@ -68,25 +81,48 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 	if(view_)
 		layout_->addWidget(view_);
 
-	QVBoxLayout *vl = new QVBoxLayout();
+	QVBoxLayout *vl1 = new QVBoxLayout();
 	QHBoxLayout *hl1 = new QHBoxLayout();
 	hl1->addWidget(scanNameLabel_);
 	hl1->addWidget(scanNameLineEdit_);
-	vl->addLayout(hl1);
-	vl->addWidget(scanNameExampleLabel_);
-	vl->setContentsMargins(10, 10, 10, 0);
+	vl1->addLayout(hl1);
+	vl1->addWidget(scanNameExampleLabel_);
+	vl1->setContentsMargins(10, 10, 0, 0);
 
-	QHBoxLayout* hl2 = new QHBoxLayout();
-	hl2->addWidget(whenDoneLabel_);
-	hl2->addWidget(goToWorkflowOption_);
-	hl2->addWidget(setupAnotherScanOption_);
-	hl2->addStretch();
-	hl2->addWidget(addToQueueButton_);
-	hl2->addWidget(startScanButton_);
-	hl2->setContentsMargins(10, 0, 10, 20);
+	QVBoxLayout *vl2 = new QVBoxLayout();
+	QHBoxLayout *hl2 = new QHBoxLayout();
+	hl2->addWidget(exportNameLabel_);
+	hl2->addWidget(exportNameDictionaryLineEdit_);
+	vl2->addLayout(hl2);
+	vl2->addWidget(exportNameExampleLabel_);
+	vl2->setContentsMargins(0, 10, 10, 0);
 
-	layout_->addLayout(vl);
-	layout_->addLayout(hl2);
+	QHBoxLayout *hl3 = new QHBoxLayout();
+	QVBoxLayout *vl3 = new QVBoxLayout();
+	vl3->addWidget(doExportNameCheckBox_);
+	vl3->addWidget(doAutoExportCheckBox_);
+	QVBoxLayout *vl4 = new QVBoxLayout();
+	vl4->addWidget(new QLabel());
+	vl4->addWidget(autoExportLabel_);
+	hl3->addLayout(vl4);
+	hl3->addLayout(vl3);
+
+	QHBoxLayout *namingHL = new QHBoxLayout();
+	namingHL->addLayout(vl1);
+	namingHL->addLayout(hl3);
+	namingHL->addLayout(vl2);
+
+	QHBoxLayout* optionsHL = new QHBoxLayout();
+	optionsHL->addWidget(whenDoneLabel_);
+	optionsHL->addWidget(goToWorkflowOption_);
+	optionsHL->addWidget(setupAnotherScanOption_);
+	optionsHL->addStretch();
+	optionsHL->addWidget(addToQueueButton_);
+	optionsHL->addWidget(startScanButton_);
+	optionsHL->setContentsMargins(10, 0, 10, 20);
+
+	layout_->addLayout(namingHL);
+	layout_->addLayout(optionsHL);
 	layout_->setContentsMargins(0,0,0,0);
 
 	setLayout(layout_);
@@ -202,7 +238,10 @@ void AMScanConfigurationViewHolder::onStartScanRequested(){
 		}
 	}
 
-	AMBeamlineScanAction* action = new AMBeamlineScanAction(view_->configuration()->createCopy());
+	AMScanConfiguration *config = view_->configuration()->createCopy();
+	config->setUserScanName(scanNameLineEdit_->text());
+	//AMBeamlineScanAction* action = new AMBeamlineScanAction(view_->configuration()->createCopy());
+	AMBeamlineScanAction* action = new AMBeamlineScanAction(config);
 	workflow_->insertBeamlineAction(position, action, startNow);
 }
 
@@ -211,7 +250,10 @@ void AMScanConfigurationViewHolder::onAddToQueueRequested() {
 	if(!view_ || !view_->configuration())
 		return;
 
-	AMBeamlineScanAction* action = new AMBeamlineScanAction(view_->configuration()->createCopy());
+	AMScanConfiguration *config = view_->configuration()->createCopy();
+	config->setUserScanName(scanNameLineEdit_->text());
+	//AMBeamlineScanAction* action = new AMBeamlineScanAction(view_->configuration()->createCopy());
+	AMBeamlineScanAction* action = new AMBeamlineScanAction(config);
 	workflow_->insertBeamlineAction(-1, action);
 
 	if(goToWorkflowOption_->isChecked())

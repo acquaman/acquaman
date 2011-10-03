@@ -56,6 +56,9 @@ INCLUDEPATH    += $$AM_INCLUDE_DIR \
 		$$MPLOT_INCLUDE_DIR
 HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/dataman/AMScan.h \
+		$$AM_INCLUDE_DIR/dataman/AMScanDictionary.h \
+		$$AM_INCLUDE_DIR/util/AMTagReplacementParser.h \
+		$$AM_INCLUDE_DIR/util/AMDateTimeUtils.h \
 		$$AM_INCLUDE_DIR/dataman/AMRun.h \
 		$$AM_INCLUDE_DIR/dataman/database/AMDbObject.h \
 		$$AM_INCLUDE_DIR/dataman/database/AMDatabase.h \
@@ -90,6 +93,9 @@ HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$MPLOT_INCLUDE_DIR/MPlot/MPlotImageData.h \
 		$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarker.h
 SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
+		$$AM_INCLUDE_DIR/dataman/AMScanDictionary.cpp \
+		$$AM_INCLUDE_DIR/util/AMTagReplacementParser.cpp \
+		$$AM_INCLUDE_DIR/util/AMDateTimeUtils.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMRun.cpp \
 		$$AM_INCLUDE_DIR/dataman/database/AMDbObject.cpp \
 		$$AM_INCLUDE_DIR/dataman/database/AMDatabase.cpp \

@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/info/AMControlInfoList.h"	/// \todo change to AMControlInfoSet, using standard set API.
 
 #include "dataman/AMFileLoaderInterface.h"
+#include "dataman/AMScanDictionary.h"
 
 typedef AMOrderedSet<QString, AMRawDataSource*> AMRawDataSourceSet;
 typedef AMOrderedSet<QString, AMAnalysisBlock*> AMAnalyzedDataSourceSet;
@@ -108,8 +109,10 @@ public:
 
 	// Convenience functions on meta-data:
 	/////////////////////////
+	QString evaluatedName() const {return nameDictionary_->parseKeywordString(name());}
 	/// Returns the full scan name: number appended to name
-	QString fullName() const {return QString("%1 #%2").arg(name()).arg(number()); }
+	//QString fullName() const {return QString("%1 #%2").arg(name()).arg(number()); }
+	QString fullName() const {return QString("%1 #%2").arg(evaluatedName()).arg(number()); }
 	/// Returns the name of the sample (if a sample is set, otherwise returns "[no sample]")
 	QString sampleName() const;
 
@@ -400,6 +403,8 @@ protected:
 	QString filePath_, fileFormat_;
 	/// Any additional files of raw data that need to be referenced.
 	QStringList additionalFilePaths_;
+
+	AMScanDictionary *nameDictionary_;
 
 	/// Caches the sample name
 	mutable QString sampleName_;

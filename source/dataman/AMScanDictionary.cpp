@@ -56,10 +56,10 @@ void AMScanDictionary::loadKeywordReplacementDictionary()
 
 /*
 QString AMScanDictionary::krName(const QString& arg) {
-	Q_UNUSED(arg)
-	if(scan_)
-		return scan_->name();
-	return "[??]";
+ Q_UNUSED(arg)
+ if(scan_)
+  return scan_->name();
+ return "[??]";
 }
 */
 
@@ -211,7 +211,24 @@ QString AMScanDictionary::krScanConfiguration(const QString& propertyName) {
 	if(!scanConfig)
 		return "[??]";
 
-	QVariant v =  scanConfig->property(propertyName.toLatin1().constData());
+	QStringList propertyArgs = propertyName.split('%');
+	QVariant v =  scanConfig->property(propertyArgs.at(0).toLatin1().constData());
+	if(propertyArgs.count() > 1){
+		if(propertyArgs.at(1) == "double" && v.canConvert<double>()){
+			double value = v.toDouble();
+			QString retVal;
+			int precision = 0;
+			bool conversionOk;
+			if(propertyArgs.count() > 2){
+				precision = propertyArgs.at(2).toInt(&conversionOk);
+				if(!conversionOk)
+					precision = 0;
+			}
+			retVal.setNum(value, 'f', precision);
+			return retVal;
+		}
+
+	}
 	if(!v.isValid())
 		return "[??]";
 

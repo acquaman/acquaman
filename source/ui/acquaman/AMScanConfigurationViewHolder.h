@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class QRadioButton;
 class QPushButton;
 class QLabel;
+class QCheckBox;
 class QVBoxLayout;
 
 class AMScanConfiguration;
@@ -85,6 +86,14 @@ protected:
 	QLabel *scanNameLabel_;
 	AMDictionaryLineEdit *scanNameLineEdit_;
 	QLabel *scanNameExampleLabel_;
+
+	QLabel *autoExportLabel_;
+	QCheckBox *doExportNameCheckBox_;
+	QCheckBox *doAutoExportCheckBox_;
+
+	QLabel *exportNameLabel_;
+	AMDictionaryLineEdit *exportNameDictionaryLineEdit_;
+	QLabel *exportNameExampleLabel_;
 
 	QLabel *whenDoneLabel_;
 	QPushButton* startScanButton_, *addToQueueButton_;
