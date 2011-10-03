@@ -38,18 +38,22 @@ public:
 	/// Constructor.  Can choose to setup the model.  Valuable when you want subclases to setup their own model.
 	AMRegionsList(QObject *parent = 0, bool setup = true);
 
-	/// Returns the start value of the region refered to by index. If an invalid index is given, returns -1 (not a valid energy value).
+	/// Returns the start value of the region referred to by index. If an invalid index is given, returns -1 (not a valid energy value).
 	double start(int index) const;
-	/// Returns the delta value of the region refered to by index. If an invalid index is given, returns 0 (not a valid delta value).
+	/// Returns the delta value of the region referred to by index. If an invalid index is given, returns 0 (not a valid delta value).
 	double delta(int index) const;
-	/// Returns the end value of the region refered to by index. If an invalid index is given, returns -1 (not a valid energy value).
+	/// Returns the end value of the region referred to by index. If an invalid index is given, returns -1 (not a valid energy value).
 	double end(int index) const;
+	/// Returns the time value of the region referred to by \param index.  If an invalid index is given, returns -1 (not a valid time value).
+	double time(int index) const;
 	/// Returns the model being managed by this list.
 	AMRegionsListModel* model() { return regions_; }
 	/// Returns the number of elements in the list.
 	int count() { return regions_->rowCount(QModelIndex()); }
 	/// Returns the default control used by this list to move from the start to the end of the region.
 	AMControl* defaultControl() { return defaultControl_; }
+	/// Returns the default time control used by this list for the dwell time of each point.
+	AMControl *defaultTimeControl() { return defaultTimeControl_; }
 
 	/// Returns the sensible start position.
 	double sensibleStart() const { return sensibleStart_; }
@@ -66,12 +70,19 @@ public slots:
 	/// Sets the end value of the region refered to by index. Returns true if succesful, returns false if the index is invalid or the energy is out of range.
 	bool setEnd(int index, double end) { return regions_->setData(regions_->index(index, 3), end, Qt::EditRole); }
 
-	/// Creates a new region using start, delta, and end values then calls addRegion(index, *region).
-	virtual bool addRegion(int index, double start, double delta, double end);
+	/// Sets the time value for the region referred to by index.  Returns true if successful, returns false if the index is invalid or the time is negative.
+	bool setTime(int index, double time) { return regions_->setData(regions_->index(index, 7), time, Qt::EditRole); }
+
+	/// Creates a new region using start, delta, end, and time values then calls addRegion(index, *region).
+	virtual bool addRegion(int index, double start, double delta, double end, double time);
+	/// Overloaded.  Creates a new region using start, delta, and end values.  It sets the time to the previous region's time or 1 second if this is the first region to be added.
+	virtual bool addRegion(int index, double start, double delta, double end) { return count() == 0 ? addRegion(index, start, delta, end, 1) : addRegion(index, start, delta, end, time(index - 1)); }
 	/// Creates a new region at \param index and auto fills the start and end values to start and end values of the regions that surround it.  Uses values defined by sensibleStart() and sensibleEnd() when the new region is prepended or appended to the current list.
 	virtual bool addRegionSqueeze(int index);
-	/// Creates a new region using start,  delta, and end values and adds it to the end of the current list.
-	virtual bool appendRegion(double start, double delta, double end) { return addRegion(count(), start, delta, end); }
+	/// Creates a new region using start,  delta, end, and time values and adds it to the end of the current list.
+	virtual bool appendRegion(double start, double delta, double end, double time) { return addRegion(count(), start, delta, end, time); }
+	/// Overloaded.  Creates a new region using start, delta, and end values.  It sets the time to the previous region's time or 1 second if this is the first region to be appended.
+	virtual bool appendRegion(double start, double delta, double end) { return count() == 0 ? addRegion(0, start, delta, end, 1) : addRegion(count(), start, delta, end, time(count() - 1)); }
 
 	/// Deletes the region referred to by \param index and renumbers subsequent regions accordingly. Returns true if successful, return false if index is invalid.
 	bool deleteRegion(int index);
@@ -79,6 +90,8 @@ public slots:
 	bool deleteRegionSqueeze(int index);
 	/// Sets the default control used for moving through the regions and also passes the control to the model it is managing.
 	void setDefaultControl(AMControl* defaultControl) { defaultControl_ = defaultControl; regions_->setDefaultControl(defaultControl); }
+	/// Sets the default time control used for time dwelling on each point and also passes the control to the model it is managing.
+	void setDefaultTimeControl(AMControl *defaultTimeControl) { defaultTimeControl_ = defaultTimeControl; regions_->setDefaultTimeControl(defaultTimeControl); }
 
 	/// Sets the value for sensible start values.
 	void setSensibleStart(double val) { sensibleStart_ = val; }
@@ -103,6 +116,8 @@ protected:
 
 	/// Pointer to the control used by these regions.
 	AMControl *defaultControl_;
+	/// Pointer to the control used for setting the time in these regions.
+	AMControl *defaultTimeControl_;
 	/// Pointer to the general model this list manages.
 	AMRegionsListModel *regions_;
 

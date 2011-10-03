@@ -70,9 +70,19 @@ double AMRegionsList::end(int index) const
 	return -1;
 }
 
-bool AMRegionsList::addRegion(int index, double start, double delta, double end){
+double AMRegionsList::time(int index) const
+{
+	QVariant retVal = regions_->data(regions_->index(index, 7), Qt::DisplayRole);
 
-	if(!defaultControl_)
+	if(retVal.isValid())
+		return retVal.toDouble();
+
+	return -1;
+}
+
+bool AMRegionsList::addRegion(int index, double start, double delta, double end, double time)
+{
+	if(!defaultControl_ || !defaultTimeControl_)
 		return false;
 
 	bool retVal;
@@ -80,7 +90,7 @@ bool AMRegionsList::addRegion(int index, double start, double delta, double end)
 	if(!regions_->insertRows(index, 1))
 		return false;
 
-	retVal = setStart(index, start) && setDelta(index, delta) && setEnd(index, end);
+	retVal = setStart(index, start) && setDelta(index, delta) && setEnd(index, end) && setTime(index, time);
 
 	if(retVal){
 
@@ -126,7 +136,8 @@ bool AMRegionsList::addRegion(int index, double start, double delta, double end)
 		}
 	}
 
-	if(!retVal)
+	// If we couldn't setup the region, take it out.
+	else
 		regions_->removeRows(index, 1);
 
 	return retVal;
