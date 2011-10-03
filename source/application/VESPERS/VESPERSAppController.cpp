@@ -137,7 +137,7 @@ bool VESPERSAppController::startup() {
 
 		// Setup XAS for the beamline.  Builds the config, view, and view holder.
 		VESPERSXASScanConfiguration *xasScanConfig = new VESPERSXASScanConfiguration();
-		xasScanConfig->addRegion(0, 0, 1, 10);
+		xasScanConfig->addRegion(0, -30, 1, 40);
 		VESPERSXASScanConfigurationView *xasConfigView = new VESPERSXASScanConfigurationView(xasScanConfig);
 		AMScanConfigurationViewHolder *xasConfigViewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, xasConfigView);
 		/// \todo this can likely be somewhere else in the framework.

@@ -137,8 +137,8 @@ public:
 
 	/// Returns the number of regions in the list to generate the number of rows in a table or list
 	int rowCount(const QModelIndex & /*parent*/) const { return regions_->count(); }
-	/// Returns "3" statically. There are always three fields in the region: start, delta, and end.
-	int columnCount(const QModelIndex & /*parent*/) const { return 6; }
+	/// Returns "4" statically. There are always three fields in the region: start, delta, end, and time.  However, the total number is 8.
+	int columnCount(const QModelIndex & /*parent*/) const { return 8; }
 	/// Retrieves the data from an index (row and column) and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
 	QVariant data(const QModelIndex &index, int role) const;
 	/// Retrieves the header data for a column or row and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
@@ -157,12 +157,16 @@ public:
 public slots:
 	/// Sets the default control.  It is used for setting the control when inserting rows.
 	void setDefaultControl(AMControl* defaultControl) { defaultControl_ = defaultControl; }
+	/// Sets the default time control.  It is used for setting the time control when inserting rows.
+	void setDefaultTimeControl(AMControl *defaultTimeControl) { defaultTimeControl_ = defaultTimeControl; }
 
 protected:
 	/// Internal pointer to the list of AMRegion.
 	QList<AMRegion*> *regions_;
 	/// Pointer to the default control used to create AMRegions.
 	AMControl *defaultControl_;
+	/// Pointer to the default time control used to create AMRegions.
+	AMControl *defaultTimeControl_;
 };
 
 /// AMXASRegion is an implementation of AMRegion designed to scan energy regions; therefore, the AMControl is passed into the constructor and must be a beamline energy control.

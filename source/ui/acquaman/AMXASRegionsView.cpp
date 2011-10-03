@@ -46,6 +46,7 @@ AMXASRegionsView::AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent) :
 	tv_->hideColumn(0);
 	tv_->hideColumn(4);
 	tv_->hideColumn(5);
+	tv_->hideColumn(6);
 	tv_->verticalHeader()->setVisible(false);
 	tv_->resize(tv_->sizeHint());
 

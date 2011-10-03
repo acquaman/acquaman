@@ -104,6 +104,7 @@ AMRegionsListModel::AMRegionsListModel(QObject *parent)
 {
 	regions_ = new QList<AMRegion*>();
 	defaultControl_ = NULL;
+	defaultTimeControl_ = NULL;
 }
 
 QVariant AMRegionsListModel::data(const QModelIndex &index, int role) const{
@@ -118,24 +119,38 @@ QVariant AMRegionsListModel::data(const QModelIndex &index, int role) const{
 	// Out of range: (Just checking for too big.  isValid() checked for < 0)
 	if(index.row() >= regions_->count())
 		return QVariant();
-	// Return Control:
-	if(index.column() == 0)
-		return QVariant(); // Doing nothing
-	// Return Start:
-	if(index.column() == 1)
-		return regions_->at(index.row())->start();
-	// Return Delta:
-	if(index.column() == 2)
-		return regions_->at(index.row())->delta();
-	if(index.column() == 3)
-		return regions_->at(index.row())->end();
-	if(index.column() == 4)
-		return regions_->at(index.row())->elasticStart();
-	if(index.column() == 5)
-		return regions_->at(index.row())->elasticEnd();
 
-	// Anything else:
-	return QVariant();
+	QVariant dataVal = QVariant();
+
+	switch(index.column()){
+
+	case 0: // The control.
+		break; // Doing nothing.
+	case 1: // The start value.
+		dataVal = regions_->at(index.row())->start();
+		break;
+	case 2: // The delta value.
+		dataVal = regions_->at(index.row())->delta();
+		break;
+	case 3: // The end value.
+		dataVal = regions_->at(index.row())->end();
+		break;
+	case 4: // The state of whether the region has an elastic start value.
+		dataVal = regions_->at(index.row())->elasticStart();
+		break;
+	case 5: // The state of whether the region has an elastic end value.
+		dataVal = regions_->at(index.row())->elasticEnd();
+		break;
+	case 6: // The time control.
+		break; // Doing nothing.
+	case 7: // The time value.
+		dataVal = regions_->at(index.row())->time();
+		break;
+	default:
+		break; // Return null if not a specific case.
+	}
+
+	return dataVal;
 }
 
 // Retrieves the header data for a column or row and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
@@ -150,21 +165,37 @@ QVariant AMRegionsListModel::headerData(int section, Qt::Orientation orientation
 	}
 
 	// Horizontal Headers: (Column labels)
-	else {
-		if(section == 0)
-			return "Control";
-		if(section == 1)
-			return "Start";
-		if(section == 2)
-			return "Delta";
-		if(section == 3)
-			return "End";
-		if(section == 4)
-			return "Elastic Start";
-		if(section == 5)
-			return "Elastic End";
+	QVariant header = QVariant();
+
+	switch(section){
+
+	case 0:
+		header = "Control";
+		break;
+	case 1:
+		header = "Start";
+		break;
+	case 2:
+		header = "Delta";
+		break;
+	case 3:
+		header = "End";
+		break;
+	case 4:
+		header = "Elastic Start";
+		break;
+	case 5:
+		header = "Elastic End";
+		break;
+	case 6:
+		header = "Time Control";
+		break;
+	case 7:
+		header = "Time";
+		break;
 	}
-	return QVariant();
+
+	return header;
 }
 
 // Sets the data value at an index (row and column). Only valid role is Qt::DisplayRole right now.
@@ -177,7 +208,7 @@ bool AMRegionsListModel::setData(const QModelIndex &index, const QVariant &value
 		double dval;
 		bool bval;
 
-		if(index.column() == 1 || index.column() == 2 || index.column() == 3)
+		if(index.column() == 1 || index.column() == 2 || index.column() == 3 || index.column() == 7)
 			dval  = value.toDouble(&conversionOK);
 		else if(index.column() == 4 || index.column() == 5){
 			bval = value.toBool();
@@ -214,6 +245,14 @@ bool AMRegionsListModel::setData(const QModelIndex &index, const QVariant &value
 			retVal = regions_->at(index.row())->setElasticEnd(bval);
 			break;
 
+		case 6: // Setting the time time control?
+			retVal = false; // Doing nothing right now.
+			break;
+
+		case 7: // Setting a time value?
+			retVal = regions_->at(index.row())->setTime(dval);
+			break;
+
 		default: // Not a valid index.
 			retVal = false;
 			break;
@@ -231,7 +270,7 @@ bool AMRegionsListModel::setData(const QModelIndex &index, const QVariant &value
 
 bool AMRegionsListModel::insertRows(int position, int rows, const QModelIndex &index){
 
-	if (index.row() <= regions_->count() && position <= regions_->count() && defaultControl_) {
+	if (index.row() <= regions_->count() && position <= regions_->count() && defaultControl_ && defaultTimeControl_) {
 
 		beginInsertRows(QModelIndex(), position, position+rows-1);
 
@@ -241,6 +280,7 @@ bool AMRegionsListModel::insertRows(int position, int rows, const QModelIndex &i
 
 			tmpRegion = new AMRegion(this);
 			tmpRegion->setControl(defaultControl_);
+			tmpRegion->setTimeControl(defaultTimeControl_);
 			regions_->insert(position, tmpRegion); // Order doesn't matter because they are all identical, empty regions.
 		}
 
@@ -273,7 +313,9 @@ Qt::ItemFlags AMRegionsListModel::flags(const QModelIndex &index) const{
 
 	Qt::ItemFlags flags = Qt::NoItemFlags;
 
-	if (index.isValid() && index.row() < regions_->count() && index.column() != 0 && index.column() < 4)
+	if (index.isValid() && index.row() < regions_->count()
+			&& index.column() != 0 && index.column() != 4 && index.column() != 5 && index.column() != 6
+			&& index.column() < 8)
 		flags = Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 
 	return flags;
@@ -284,7 +326,7 @@ Qt::ItemFlags AMRegionsListModel::flags(const QModelIndex &index) const{
 
 bool AMXASRegionsListModel::insertRows(int position, int rows, const QModelIndex &index){
 
-	if (index.row() <= regions_->count() && position <= regions_->count() && defaultControl_) {
+	if (index.row() <= regions_->count() && position <= regions_->count() && defaultControl_ && defaultTimeControl_) {
 
 		beginInsertRows(QModelIndex(), position, position+rows-1);
 
