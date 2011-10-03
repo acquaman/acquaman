@@ -64,6 +64,16 @@ bool AMRegion::setDelta(double delta) {
 	return true;
 }
 
+bool AMRegion::setTime(double time)
+{
+	if (time < 0)
+		return false;
+
+	time_ = time;
+
+	return true;
+}
+
 bool AMRegion::adjustStart(double start){
 	if(initiatedStartAdjust_){
 		initiatedStartAdjust_ = false;

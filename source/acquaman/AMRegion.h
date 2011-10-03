@@ -42,16 +42,19 @@ public:
   The AMRegion class provides the basic interface to a particular region in a scan. Most scans are made up of a list of back to back regions.
   As such, an AMRegion holds only a pointer to an AMControl (the device being scanned) as well as start, delta, and end values.
   The region should begin at the "start" value and move in discrete steps of "delta" until it hits the "end" value.
+  It is imaginable that the amount of time spent per point in each region is highly configurable.  For now, you can set a certain dwell time for each region.
   The actual implementation is up to the scan library being used.
   Checks like making sure that the delta moves in the right direction (positive if end > start OR negative if end < start) is NOT taken care of here.
   Responsibility for such checks is passed onto higher level classes (like AMScanConfiguration).
   */
 class AMRegion: public QObject
 {
-Q_OBJECT
-Q_PROPERTY(double start READ start WRITE setStart)
-Q_PROPERTY(double delta READ delta WRITE setDelta)
-Q_PROPERTY(double end READ end WRITE setEnd)
+	Q_OBJECT
+
+	Q_PROPERTY(double start READ start WRITE setStart)
+	Q_PROPERTY(double delta READ delta WRITE setDelta)
+	Q_PROPERTY(double end READ end WRITE setEnd)
+	Q_PROPERTY(double time READ time WRITE setTime)
 
 public:
 	/// Constructor, only requires a QObject for a parent and defaults elastic start and end to false.
@@ -62,8 +65,12 @@ public:
 	virtual double delta() const { return delta_; }
 	/// Returns the stored end value as a double
 	virtual double end() const { return end_; }
+	/// Returns the time spent per point in the region.
+	virtual double time() const { return time_; }
 	/// Returns a pointer the AMControl this region is operating on
 	virtual AMControl* control() const { return ctrl_; }
+	/// Returns a pointer to the AMControl this region uses to set the time.
+	virtual AMControl *timeControl() const { return timeControl_; }
 	/// Returns the state of whether or not the start value of the region can be adjusted by the end of the adjacent region being changed.
 	virtual bool elasticStart() const { return elasticStart_; }
 	/// Returns the state of whether or not the end value of the region can be adjusted by the start of the adjacent region being changed.
@@ -76,12 +83,16 @@ public slots:
 	virtual bool setDelta(double delta);
 	/// Sets the end value from the double passed in. Makes sure the energy is within the allowable range, otherwise returns false.	Does not affect the AMControl directly.
 	virtual bool setEnd(double end);
+	/// Sets the time value to \param time.  Makes sure the time given is not negative and returns false if it is.  Does not affect the time AMControl directly.
+	virtual bool setTime(double time);
 	/// This changes the start value of the region.  If the start value is already in the process of changing this function does nothing.
 	virtual bool adjustStart(double start);
 	/// This changes the end value of the region.  If the end value is already in the process of changing this function does nothing.
 	virtual bool adjustEnd(double end);
 	/// Sets the AMControl for the region.
 	virtual bool setControl(AMControl* ctrl) { ctrl_ = ctrl; return true; }
+	/// Sets the time AMControl for the region.
+	virtual bool setTimeControl(AMControl *control) { timeControl_ = control; return true; }
 	/// Sets the state of whether the start value can be adjusted through changes to the end of its adjacent region.
 	virtual bool setElasticStart(bool elastic) { elasticStart_ = elastic; return true; }
 	/// Sets the state of whether the end value can be adjusted through changes to the start of its adjacent region.
@@ -100,8 +111,12 @@ protected:
 	double delta_;
 	/// Value for the end of the region.
 	double end_;
+	/// Value for the time spent per point in the region.
+	double time_;
 	/// AMControl for the region to step through.
 	AMControl *ctrl_;
+	/// AMControl for the time of the region.
+	AMControl *timeControl_;
 	/// Flag used to determine if the start value can be adjusted through changes to other regions.
 	bool elasticStart_;
 	/// Flag used to determine if the end value can be adjusted through changes to other regions.
