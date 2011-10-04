@@ -70,12 +70,32 @@ double AMRegionsList::end(int index) const
 	return -1;
 }
 
-double AMRegionsList::time(int index) const
+bool AMRegionsList::elasticStart(int index) const
 {
-	QVariant retVal = regions_->data(regions_->index(index, 7), Qt::DisplayRole);
+	QVariant retVal = regions_->data(regions_->index(index, 3), Qt::DisplayRole);
 
 	if(retVal.isValid())
 		return retVal.toDouble();
+
+	return false;
+}
+
+bool AMRegionsList::elasticEnd(int index) const
+{
+	QVariant retVal = regions_->data(regions_->index(index, 4), Qt::DisplayRole);
+
+	if(retVal.isValid())
+		return retVal.toBool();
+
+	return false;
+}
+
+double AMRegionsList::time(int index) const
+{
+	QVariant retVal = regions_->data(regions_->index(index, 5), Qt::DisplayRole);
+
+	if(retVal.isValid())
+		return retVal.toBool();
 
 	return -1;
 }
@@ -155,6 +175,7 @@ bool AMRegionsList::addRegionSqueeze(int index){
 	else if(index == 0){
 
 		nextStart = start(index);
+
 		return addRegion(index, sensibleStart, 1, nextStart);
 	}
 

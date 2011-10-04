@@ -46,6 +46,10 @@ public:
 	double end(int index) const;
 	/// Returns the time value of the region referred to by \param index.  If an invalid index is given, returns -1 (not a valid time value).
 	double time(int index) const;
+	/// Returns whether elastic start is enabled for the region referred to by \param region.  False is returned if an invalid index is given as well as if it is not enabled.
+	bool elasticStart(int index) const;
+	/// Returns whether elastic end is enabled for the region referred to by \param region.  False is returned if an invalid index is given as well as if it is not enabled.
+	bool elasticEnd(int index) const;
 	/// Returns the model being managed by this list.
 	AMRegionsListModel* model() { return regions_; }
 	/// Returns the number of elements in the list.
@@ -63,15 +67,16 @@ public:
 public slots:
 	/// Sets the start value of the region refered to by index. Returns true if sucessful, returns false if the index is invalid or the energy is out of range.
 	bool setStart(int index, double start) { return regions_->setData(regions_->index(index, 1), start, Qt::EditRole); }
-
 	/// Sets the delta value of the region refered to by index. Returns true if sucessful, return false if the index is invalid or the delta is 0.
 	bool setDelta(int index, double delta) { return regions_->setData(regions_->index(index, 2), delta, Qt::EditRole); }
-
 	/// Sets the end value of the region refered to by index. Returns true if succesful, returns false if the index is invalid or the energy is out of range.
 	bool setEnd(int index, double end) { return regions_->setData(regions_->index(index, 3), end, Qt::EditRole); }
-
 	/// Sets the time value for the region referred to by index.  Returns true if successful, returns false if the index is invalid or the time is negative.
 	bool setTime(int index, double time) { return regions_->setData(regions_->index(index, 7), time, Qt::EditRole); }
+	/// Sets the elastic start state for the region referred to by \param index. Returns true if successful, returns false if the index is invalid.
+	bool setElasticStart(int index, bool state) { return regions_->setData(regions_->index(index, 4), state, Qt::EditRole); }
+	/// Sets the elastic end state for the region referred to by \param index.  Returns true if successful, returns false if the index is invalid.
+	bool setElasticEnd(int index, bool state) { return regions_->setData(regions_->index(index, 5), state, Qt::EditRole); }
 
 	/// Creates a new region using start, delta, end, and time values then calls addRegion(index, *region).
 	virtual bool addRegion(int index, double start, double delta, double end, double time);
@@ -138,6 +143,9 @@ public:
 public slots:
 	/// Sets the energy control for the AMXASRegions.  Also sets the default control for the regions list.
 	virtual void setEnergyControl(AMControl* energyControl) { defaultControl_ = energyControl; ((AMXASRegionsListModel*)regions_)->setEnergyControl(energyControl); }
+	/// Sets the time control for the AMXASRegions.  Also sets the default time control for the regions list.
+	virtual void setTimeControl(AMControl *timeControl) { defaultTimeControl_ = timeControl; ((AMXASRegionsListModel *)regions_)->setTimeControl(timeControl); }
+
 	/// Returns the maximum energy from all the regions.
 	virtual double maxEnergy(){
 

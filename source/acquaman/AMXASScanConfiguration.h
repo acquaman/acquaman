@@ -52,6 +52,12 @@ public:
 	double regionDelta(int index) const { return regions_->delta(index); }
 	/// Returns the end value of the region refered to by index. If an invalid index is given, returns -1 (not a valid energy value).
 	double regionEnd(int index) const { return regions_->end(index); }
+	/// Returns the time value of the region referred to by \param index.  If an invalid index is given, returns -1 (not a valid time value).
+	double regionTime(int index) const { return regions_->time(index); }
+	/// Returns whether elastic start is enabled for the region referred to by \param index.
+	bool regionElasticStart(int index) const { return regions_->elasticStart(index); }
+	/// Returns whether elastic end is enabled for the reigon referred to by \param index.
+	bool regionElasticEnd(int index) const { return regions_->elasticEnd(index); }
 	/// Returns the number of regions current in the scan configuration.
 	int regionCount() const { return regions_->count(); }
 	/// Returns the regions list.
@@ -92,6 +98,10 @@ public slots:
 	bool setRegionEnd(int index, double end) { return regions_->setEnd(index, end); }
 	/// Sets the time value for the region referred to by \param index.  Returns true if successful, returns false if the index is invalid or the time is negative.
 	bool setRegionTime(int index, double time) { return regions_->setTime(index, time); }
+	/// Sets the elastic start state for the region referred to by \param index.  Returns true if successful, returns false if the index is invalid.
+	bool setRegionElasticStart(int index, bool state) { return regions_->setElasticStart(index, state); }
+	/// Sets the elastic end state for the region referred to by \param index.  Returns true if successful, returns false if the index is invalid.
+	bool setRegionElasticEnd(int index, bool state) { return regions_->setElasticEnd(index, state); }
 	/// Creates a new region using start, delta, end, and time values.
 	virtual bool addRegion(int index, double start, double delta, double end, double time) { return regions_->addRegion(index, start, delta, end, time); }
 	/// Overloaded.  Creates a new region using start, delta, and end values then calls addRegion(index, *region).

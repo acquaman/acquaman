@@ -404,8 +404,11 @@ public:
 	/// Returns the sample stage motor control set.
 	AMControlSet *sampleStageMotorSet() const { return sampleStageMotorSet_; }
 
-	// This is where the controls and PVs for mono settings exits.
+	// This is where the controls and PVs for scanning are.  They are reproduced somewhat because my encapsulation classes don't return AMControls.
+	/// Returns the relative energy control.
 	AMControl *energyRelative() const { return energyRelative_; }
+	/// Returns the master dwell time control.
+	AMControl *masterDwellTime() const { return masterDwellTime_; }
 
 	/// Returns the control to the split ion chamber #1.
 	AMControl *iSplitControl() const { return iSplitControl_; }
@@ -702,8 +705,9 @@ protected:
 
 	// End sample stage controls.
 
-	// Mono settings.
+	// Scanning settings.
 	AMControl *energyRelative_;
+	AMControl *masterDwellTime_;
 
 	// AM names bihash to/from PV names.
 	AMBiHash<QString, QString> amNames2pvNames_;

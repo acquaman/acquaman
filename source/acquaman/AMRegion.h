@@ -207,6 +207,8 @@ public:
 public slots:
 	/// Sets the energy control that is used for scanning the energy in an XAS scan.
 	void setEnergyControl(AMControl* energyControl) { setDefaultControl(energyControl); }
+	/// Sets the time control that is used for dwelling on each point in an XAS scan.
+	void setTimeControl(AMControl *timeControl) { setDefaultTimeControl(timeControl); }
 };
 
 #endif // ACQMAN_AMREGION_H
