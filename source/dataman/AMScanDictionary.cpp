@@ -9,6 +9,8 @@ AMScanDictionary::AMScanDictionary(AMScan *scan, QObject *parent) :
 	QObject(parent)
 {
 	scan_ = scan;
+	useAsName_ = "";
+	useAsNameEnabled_ = false;
 	keywordParser_ = new AMTagReplacementParser();
 
 	loadKeywordReplacementDictionary();
@@ -21,9 +23,18 @@ QString AMScanDictionary::parseKeywordString(const QString &inputString) {
 	return keywordParser_->getReplacedText();
 }
 
+void AMScanDictionary::useAsName(const QString &name){
+	if(name == "")
+		useAsNameEnabled_ = false;
+	else{
+		useAsName_ = name;
+		useAsNameEnabled_ = true;
+	}
+}
+
 void AMScanDictionary::loadKeywordReplacementDictionary()
 {
-	//keywordDictionary_.insert("name", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krName));
+	keywordDictionary_.insert("name", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krName));
 	keywordDictionary_.insert("technique", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krTechnique));
 	keywordDictionary_.insert("number", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krNumber));
 	keywordDictionary_.insert("notes", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krNotes));
@@ -54,14 +65,17 @@ void AMScanDictionary::loadKeywordReplacementDictionary()
 	keywordDictionary_.insert("sampleNotes", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krSampleNotes));
 }
 
-/*
+
 QString AMScanDictionary::krName(const QString& arg) {
- Q_UNUSED(arg)
- if(scan_)
-  return scan_->name();
- return "[??]";
+	Q_UNUSED(arg)
+	if(scan_){
+		if(useAsNameEnabled_)
+			return useAsName_;
+		return scan_->name();
+	}
+	return "[??]";
 }
-*/
+
 
 QString AMScanDictionary::krTechnique(const QString& arg) {
 	Q_UNUSED(arg)

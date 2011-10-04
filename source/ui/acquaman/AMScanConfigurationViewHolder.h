@@ -77,6 +77,8 @@ protected slots:
 	void reviewStartScanButtonState();
 
 	void onScanNameLineEditTextEdited(const QString &text);
+	void onExportNameDictionaryLineEditTextEdited(const QString &text);
+	void onDoExportNameCheckBoxStatedChanged(int state);
 
 	void delayedDbLoad();
 

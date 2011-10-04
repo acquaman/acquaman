@@ -49,7 +49,7 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 	scanNameLabel_ = new QLabel("Scan Name:");
 	//scanNameLineEdit_ = new QLineEdit();
 	scanNameLineEdit_ = new AMDictionaryLineEdit();
-	scanNameExampleLabel_ = new QLabel("ex,, ");
+	scanNameExampleLabel_ = new QLabel("   ex,, ");
 
 	autoExportLabel_ = new QLabel("---->");
 	doExportNameCheckBox_ = new QCheckBox("Set Name");
@@ -57,10 +57,11 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 
 	exportNameLabel_ = new QLabel("Export Name:");
 	exportNameDictionaryLineEdit_ = new AMDictionaryLineEdit();
-	exportNameExampleLabel_ = new QLabel("ex,, ");
+	exportNameExampleLabel_ = new QLabel("   ex,, ");
 
 	doExportNameCheckBox_->setChecked(false);
 	doAutoExportCheckBox_->setChecked(true);
+	exportNameLabel_->setEnabled(false);
 	exportNameDictionaryLineEdit_->setEnabled(false);
 
 	whenDoneLabel_ = new QLabel("When I'm done here:");
@@ -81,36 +82,90 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 	if(view_)
 		layout_->addWidget(view_);
 
-	QVBoxLayout *vl1 = new QVBoxLayout();
+	QGridLayout *gl = new QGridLayout();
+	/**/
+	QHBoxLayout *hl0 = new QHBoxLayout();
+	hl0->addWidget(scanNameLabel_);
+	hl0->setContentsMargins(0,0,0,0);
 	QHBoxLayout *hl1 = new QHBoxLayout();
-	hl1->addWidget(scanNameLabel_);
-	hl1->addWidget(scanNameLineEdit_);
-	vl1->addLayout(hl1);
-	vl1->addWidget(scanNameExampleLabel_);
-	vl1->setContentsMargins(10, 10, 0, 0);
-
-	QVBoxLayout *vl2 = new QVBoxLayout();
+	hl1->setContentsMargins(0,0,0,0);
 	QHBoxLayout *hl2 = new QHBoxLayout();
-	hl2->addWidget(exportNameLabel_);
-	hl2->addWidget(exportNameDictionaryLineEdit_);
-	vl2->addLayout(hl2);
-	vl2->addWidget(exportNameExampleLabel_);
-	vl2->setContentsMargins(0, 10, 10, 0);
-
+	hl2->addWidget(scanNameLineEdit_);
+	hl2->setContentsMargins(0,0,0,0);
 	QHBoxLayout *hl3 = new QHBoxLayout();
-	QVBoxLayout *vl3 = new QVBoxLayout();
-	vl3->addWidget(doExportNameCheckBox_);
-	vl3->addWidget(doAutoExportCheckBox_);
-	QVBoxLayout *vl4 = new QVBoxLayout();
-	vl4->addWidget(new QLabel());
-	vl4->addWidget(autoExportLabel_);
-	hl3->addLayout(vl4);
-	hl3->addLayout(vl3);
-
-	QHBoxLayout *namingHL = new QHBoxLayout();
-	namingHL->addLayout(vl1);
-	namingHL->addLayout(hl3);
-	namingHL->addLayout(vl2);
+	hl3->setContentsMargins(0,0,0,0);
+	QHBoxLayout *hl4 = new QHBoxLayout();
+	hl4->setContentsMargins(0,0,0,0);
+	QHBoxLayout *hl5 = new QHBoxLayout();
+	hl5->setContentsMargins(0,0,0,0);
+	QHBoxLayout *hl6 = new QHBoxLayout();
+	hl6->addWidget(doExportNameCheckBox_);
+	hl6->setContentsMargins(0,0,0,0);
+	QHBoxLayout *hl7 = new QHBoxLayout();
+	hl7->setContentsMargins(0,0,0,0);
+	QHBoxLayout *hl8 = new QHBoxLayout();
+	hl8->addWidget(exportNameLabel_);
+	hl8->setContentsMargins(0,0,0,0);
+	QHBoxLayout *hl9 = new QHBoxLayout();
+	hl9->setContentsMargins(0,0,0,0);
+	QHBoxLayout *hl10 = new QHBoxLayout();
+	hl10->addWidget(exportNameDictionaryLineEdit_);
+	hl10->setContentsMargins(0,0,0,0);
+	QHBoxLayout *hl11 = new QHBoxLayout();
+	hl11->addWidget(scanNameExampleLabel_);
+	hl11->setContentsMargins(0,0,0,0);
+	QHBoxLayout *hl12 = new QHBoxLayout();
+	hl12->setContentsMargins(0,0,0,0);
+	QHBoxLayout *hl13 = new QHBoxLayout();
+	hl13->addWidget(autoExportLabel_);
+	hl13->setContentsMargins(0,0,0,0);
+	QHBoxLayout *hl14 = new QHBoxLayout();
+	hl14->setContentsMargins(0,0,0,0);
+	QHBoxLayout *hl15 = new QHBoxLayout();
+	hl15->addWidget(doAutoExportCheckBox_);
+	hl15->setContentsMargins(0,0,0,0);
+	QHBoxLayout *hl16 = new QHBoxLayout();
+	hl16->setContentsMargins(0,0,0,0);
+	QHBoxLayout *hl17 = new QHBoxLayout();
+	hl17->addWidget(exportNameExampleLabel_);
+	hl17->setContentsMargins(0,0,0,0);
+	gl->addLayout(hl0,	0, 0, 1, 1, Qt::AlignLeft);
+	gl->addLayout(hl1,	0, 1, 1, 1, Qt::AlignLeft);
+	gl->addLayout(hl2,	0, 2, 1, 1, Qt::AlignLeft);
+	gl->addLayout(hl3,	0, 3, 1, 1, Qt::AlignLeft);
+	gl->addLayout(hl4,	0, 4, 1, 1, Qt::AlignLeft);
+	gl->addLayout(hl4,	0, 5, 1, 1, Qt::AlignLeft);
+	gl->addLayout(hl6,	0, 6, 1, 1, Qt::AlignLeft);
+	gl->addLayout(hl7,	0, 7, 1, 1, Qt::AlignLeft);
+	gl->addLayout(hl8,	0, 8, 1, 1, Qt::AlignLeft);
+	gl->addLayout(hl9,	0, 9, 1, 1, Qt::AlignLeft);
+	gl->addLayout(hl10,	0, 10, 1, 1, Qt::AlignLeft);
+	gl->addLayout(hl11,	1, 0, 1, 3, Qt::AlignLeft);
+	gl->addLayout(hl12,	0, 3, 1, 1, Qt::AlignLeft);
+	gl->addLayout(hl13,	1, 4, 1, 1, Qt::AlignLeft);
+	gl->addLayout(hl14,	0, 5, 1, 1, Qt::AlignLeft);
+	gl->addLayout(hl15,	1, 6, 1, 1, Qt::AlignLeft);
+	gl->addLayout(hl16,	0, 7, 1, 1, Qt::AlignLeft);
+	gl->addLayout(hl17,	1, 8, 1, 3, Qt::AlignLeft);
+	gl->setContentsMargins(10, 10, 10, 0);
+	gl->setSpacing(1);
+	gl->setColumnMinimumWidth(1, 3);
+	gl->setColumnMinimumWidth(3, 3);
+	gl->setColumnMinimumWidth(4, 7);
+	gl->setColumnMinimumWidth(5, 3);
+	gl->setColumnMinimumWidth(7, 3);
+	gl->setColumnMinimumWidth(9, 3);
+	gl->setColumnStretch(0, 2);
+	gl->setColumnStretch(1, 0);
+	gl->setColumnStretch(2, 10);
+	gl->setColumnStretch(3, 0);
+	gl->setColumnStretch(4, 1);
+	gl->setColumnStretch(5, 0);
+	gl->setColumnStretch(6, 2);
+	gl->setColumnStretch(7, 0);
+	gl->setColumnStretch(8, 2);
+	gl->setColumnStretch(9, 0);
+	gl->setColumnStretch(10, 10);
 
 	QHBoxLayout* optionsHL = new QHBoxLayout();
 	optionsHL->addWidget(whenDoneLabel_);
@@ -121,7 +176,7 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 	optionsHL->addWidget(startScanButton_);
 	optionsHL->setContentsMargins(10, 0, 10, 20);
 
-	layout_->addLayout(namingHL);
+	layout_->addLayout(gl);
 	layout_->addLayout(optionsHL);
 	layout_->setContentsMargins(0,0,0,0);
 
@@ -134,6 +189,8 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 
 
 	connect(scanNameLineEdit_, SIGNAL(textEdited(QString)), this, SLOT(onScanNameLineEditTextEdited(QString)));
+	connect(exportNameDictionaryLineEdit_, SIGNAL(textEdited(QString)), this, SLOT(onExportNameDictionaryLineEditTextEdited(QString)));
+	connect(doExportNameCheckBox_, SIGNAL(stateChanged(int)), this, SLOT(onDoExportNameCheckBoxStatedChanged(int)));
 
 	reviewStartScanButtonState();
 
@@ -261,7 +318,24 @@ void AMScanConfigurationViewHolder::onAddToQueueRequested() {
 }
 
 void AMScanConfigurationViewHolder::onScanNameLineEditTextEdited(const QString &text){
-	scanNameExampleLabel_->setText("ex,, "+testDictionary_->parseKeywordString(text)+".dat");
+	testDictionary_->useAsName(testDictionary_->parseKeywordString(text));
+	scanNameExampleLabel_->setText("   ex,, "+testDictionary_->parseKeywordString(text));
+	onExportNameDictionaryLineEditTextEdited(exportNameDictionaryLineEdit_->text());
+}
+
+void AMScanConfigurationViewHolder::onExportNameDictionaryLineEditTextEdited(const QString &text){
+	exportNameExampleLabel_->setText("   ex,, "+testDictionary_->parseKeywordString(text));
+}
+
+void AMScanConfigurationViewHolder::onDoExportNameCheckBoxStatedChanged(int state){
+	if(state == Qt::Unchecked){
+		exportNameLabel_->setEnabled(false);
+		exportNameDictionaryLineEdit_->setEnabled(false);
+	}
+	else if(state == Qt::Checked){
+		exportNameLabel_->setEnabled(true);
+		exportNameDictionaryLineEdit_->setEnabled(true);
+	}
 }
 
 void AMScanConfigurationViewHolder::delayedDbLoad(){
@@ -271,6 +345,9 @@ void AMScanConfigurationViewHolder::delayedDbLoad(){
 
 	scanNameLineEdit_->setText(view_->configuration()->userScanName());
 	onScanNameLineEditTextEdited(scanNameLineEdit_->text());
+
+	exportNameDictionaryLineEdit_->setText("$name.dat");
+	onExportNameDictionaryLineEditTextEdited(exportNameDictionaryLineEdit_->text());
 }
 
 AMDictionaryLineEdit::AMDictionaryLineEdit(QWidget *parent) :

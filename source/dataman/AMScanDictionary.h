@@ -18,6 +18,8 @@ public:
 	/// Parse an input string for recognizable "$keyword" tags, and return a converted string. The results depend on the currentScan_ and currentDataSourceIndex_;
 	QString parseKeywordString(const QString& inputString);
 
+	void useAsName(const QString &name);
+
 protected:
 	/// Initializes the keywordDictionary_ with the functions you see below. You can always add more directly to keywordDictionary_.
 	void loadKeywordReplacementDictionary();
@@ -26,7 +28,7 @@ protected:
 	// functions to implement the keyword replacement system
 	///////////////////////////////
 
-	//QString krName(const QString& arg = QString());
+	QString krName(const QString& arg = QString());
 	QString krTechnique(const QString &arg = QString());
 	QString krNumber(const QString& arg = QString());
 	QString krNotes(const QString& arg = QString());
@@ -66,6 +68,9 @@ protected:
 	QHash<QString, AMAbstractTagReplacementFunctor*> keywordDictionary_;
 
 	AMTagReplacementParser* keywordParser_;
+
+	QString useAsName_;
+	bool useAsNameEnabled_;
 };
 
 #endif // AMSCANDICTIONARY_H
