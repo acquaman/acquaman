@@ -60,8 +60,9 @@ AMControlInfoList AMControlSetView::configValues(){
 
 	int numControls = viewSet_->count();
 	for(int i=0; i<numControls; i++) {
-		AMControl* c = boxAt(i)->control();
-		rv.append( AMControlInfo(c->name(), boxAt(i)->setpoint(), c->minimumValue(), c->maximumValue(), c->units(), c->tolerance(), c->description(), c->contextKnownDescription()) );
+		AMControlInfo info = boxAt(i)->control()->toInfo();
+		info.setValue(boxAt(i)->setpoint());
+		rv.append(info);
 	}
 
 	return rv;

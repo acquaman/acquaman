@@ -98,6 +98,11 @@ public:
 	/// Returns the ROI list.  The list is empty if not using a fluorescence detector.
 	AMROIInfoList roiList() const { return roiInfoList_; }
 
+	/// Returns the AMControlInfo for the energy control.
+	AMControlInfo energyControlInfo() const { return regions_->defaultControl()->toInfo(); }
+	/// Returns the AMControlInfo for the time control.
+	AMControlInfo timeControlInfo() const { return regions_->defaultTimeControl()->toInfo(); }
+
 	// Database loading and storing
 	///////////////////////
 
@@ -107,8 +112,6 @@ public:
 	void dbLoadROIInfoList(AMDbObject *) {}
 
 public slots:
-	/// Adds a region to the XAS scan.  \param index is the region you are adding and \param start, \param delta, and \param end define the region.
-	virtual bool addRegion(int index, double start, double delta, double end) { return regions_->addRegion(index, start, delta, end); }
 
 	/// Sets the choice for the fluorescence detector.
 	void setFluorescenceDetectorChoice(FluorescenceDetector detector) { fluorescenceDetectorChoice_ = detector; setModified(true); }

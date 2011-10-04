@@ -212,7 +212,8 @@ void SGMFluxResolutionPickerView::onSetpointsChanged(){
 	newSettings << gratingCE_->setpoint() << harmonicCE_->setpoint() << exitSlitGapCE_->setpoint();
 	for(int x = 0; x < originals.count(); x++){
 		AMControlInfo tmpCI = originals.at(x);
-		setpoints.append( AMControlInfo(tmpCI.name(), newSettings.at(x), tmpCI.minimum(), tmpCI.maximum(), tmpCI.units(), tmpCI.tolerance(), tmpCI.description(), tmpCI.contextKnownDescription()));
+		tmpCI.setValue(newSettings.at(x));
+		setpoints.append(tmpCI);
 	}
 	emit configValuesChanged(setpoints);
 }

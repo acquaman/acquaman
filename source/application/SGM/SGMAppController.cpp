@@ -182,7 +182,7 @@ void SGMAppController::onSGMBeamlineConnected(){
 		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
 		//sxsc->addRegion(0, 950, 1, 960);
 		double goodEnergy = 10 * floor(SGMBeamline::sgm()->energy()->value() / 10);
-		sxsc->addRegion(0, goodEnergy, 1, goodEnergy+10);
+		sxsc->addRegion(0, goodEnergy, 1, goodEnergy+10, 1);
 		xasScanConfigurationView_ = new SGMXASScanConfigurationView(sxsc);
 		xasScanConfigurationHolder_->setView(xasScanConfigurationView_);
 
