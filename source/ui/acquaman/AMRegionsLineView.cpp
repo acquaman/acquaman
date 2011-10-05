@@ -53,6 +53,7 @@ void RegionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 	QChar deltaChar(0x0394);
 	deltaVal.prepend(" = ");
 	deltaVal.prepend(deltaChar);
+	deltaVal.append(" eV");
 	QRectF box(0, -15, width_, 30);
 	painter->drawText(box, Qt::AlignHCenter, deltaVal, &box);
 }
@@ -117,7 +118,7 @@ EnergyIndexItem::EnergyIndexItem(double energy, double min, double max, int pixR
 	min_ = min;
 	max_ = max;
 	pixRange_ = pixRange;
-	width_ = 33;
+	width_ = 45;
 	textBox_ = new QRectF(0, -15, width_, 30);
 }
 
@@ -133,7 +134,7 @@ void EnergyIndexItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 	painter->setBrush(Qt::gray);
 	QString energyVal;
 	QRectF box(boundingRect());
-	painter->drawText(box, Qt::AlignHCenter, energyVal.setNum(energy_), textBox_);
+	painter->drawText(box, Qt::AlignHCenter, energyVal.setNum(energy_) + " eV", textBox_);
 }
 
 AMRegionsLineView::AMRegionsLineView(AMXASRegionsList *regions, QWidget *parent) : QWidget(parent)
