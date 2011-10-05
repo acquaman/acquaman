@@ -163,6 +163,16 @@ bool AMRegionsList::addRegion(int index, double start, double delta, double end,
 	return retVal;
 }
 
+bool AMRegionsList::addRegion(int index, double start, double delta, double end)
+{
+	if (count() == 0)
+		return addRegion(index, start, delta, end, 1);
+	else if (index == 0 && count() != 0)
+		return addRegion(index, start, delta, end, time(index));
+	else
+		return addRegion(index, start, delta, end, time(index - 1));
+}
+
 bool AMRegionsList::addRegionSqueeze(int index){
 
 	double nextStart, nextEnd, prevStart, prevEnd;
@@ -176,13 +186,20 @@ bool AMRegionsList::addRegionSqueeze(int index){
 
 		nextStart = start(index);
 
-		return addRegion(index, sensibleStart, 1, nextStart);
+		if (sensibleStart == nextStart)
+			return addRegion(index, sensibleStart - 10, 1, nextStart);
+		else
+			return addRegion(index, sensibleStart, 1, nextStart);
 	}
 
 	else if(index == count()){
 
 		prevEnd = end(index-1);
-		return addRegion(index, prevEnd, 1, sensibleEnd);
+
+		if (sensibleEnd == prevEnd)
+			return addRegion(index, prevEnd, 1, sensibleEnd + 10);
+		else
+			return addRegion(index, prevEnd, 1, sensibleEnd);
 	}
 
 	else{

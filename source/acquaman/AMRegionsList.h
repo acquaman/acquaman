@@ -81,7 +81,7 @@ public slots:
 	/// Creates a new region using start, delta, end, and time values then calls addRegion(index, *region).
 	virtual bool addRegion(int index, double start, double delta, double end, double time);
 	/// Overloaded.  Creates a new region using start, delta, and end values.  It sets the time to the previous region's time or 1 second if this is the first region to be added.
-	virtual bool addRegion(int index, double start, double delta, double end) { return count() == 0 ? addRegion(index, start, delta, end, 1) : addRegion(index, start, delta, end, time(index - 1)); }
+	virtual bool addRegion(int index, double start, double delta, double end);
 	/// Creates a new region at \param index and auto fills the start and end values to start and end values of the regions that surround it.  Uses values defined by sensibleStart() and sensibleEnd() when the new region is prepended or appended to the current list.
 	virtual bool addRegionSqueeze(int index);
 	/// Creates a new region using start,  delta, end, and time values and adds it to the end of the current list.
