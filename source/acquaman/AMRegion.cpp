@@ -112,6 +112,10 @@ QVariant AMRegionsListModel::data(const QModelIndex &index, int role) const{
 	if(!index.isValid())
 		return QVariant();
 
+	// If handling the alignment.
+	if (role == Qt::TextAlignmentRole)
+		return Qt::AlignCenter;
+
 	// We only answer to Qt::DisplayRole right now
 	if(role != Qt::DisplayRole)
 		return QVariant();
