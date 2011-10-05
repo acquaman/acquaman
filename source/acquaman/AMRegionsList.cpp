@@ -165,10 +165,13 @@ bool AMRegionsList::addRegion(int index, double start, double delta, double end,
 
 bool AMRegionsList::addRegion(int index, double start, double delta, double end)
 {
+	// Default the time at 1 second if no regions exist currently.
 	if (count() == 0)
 		return addRegion(index, start, delta, end, 1);
+	// If appending to the first region, look at the old front for the time value.
 	else if (index == 0 && count() != 0)
 		return addRegion(index, start, delta, end, time(index));
+	// If adding to any other part of the list, use the previous regions time value.
 	else
 		return addRegion(index, start, delta, end, time(index - 1));
 }
