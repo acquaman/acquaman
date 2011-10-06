@@ -193,15 +193,36 @@ void AMRegionsLineView::redrawRegionsLine(){
 	scene->clear();
 	double range = regions_->maxEnergy() - regions_->minEnergy();
 	double ratio = range/(nlSize-60);
-	for (int i = 0; i < regions_->count(); ++i) {
-		RegionItem *item = new RegionItem(regions_->start(i), regions_->delta(i), regions_->end(i), regions_->minEnergy(), regions_->maxEnergy(), nlSize-60);
-		item->setPos( 10+(int)floor((regions_->start(i)-regions_->minEnergy())/ratio), 0);
-		scene->addItem(item);
-		EnergyIndexItem *eItem = new EnergyIndexItem(regions_->start(i), regions_->minEnergy(), regions_->maxEnergy(), nlSize-60);
-		eItem->setPos(10+(int)floor((regions_->start(i)-regions_->minEnergy())/ratio), 30);
+
+	if (regions_->isValid()){
+
+		for (int i = 0; i < regions_->count(); ++i) {
+			RegionItem *item = new RegionItem(regions_->start(i), regions_->delta(i), regions_->end(i), regions_->minEnergy(), regions_->maxEnergy(), nlSize-60);
+			item->setPos( 10+(int)floor((regions_->start(i)-regions_->minEnergy())/ratio), 0);
+			scene->addItem(item);
+			EnergyIndexItem *eItem = new EnergyIndexItem(regions_->start(i), regions_->minEnergy(), regions_->maxEnergy(), nlSize-60);
+			eItem->setPos(10+(int)floor((regions_->start(i)-regions_->minEnergy())/ratio), 30);
+			scene->addItem(eItem);
+		}
+		EnergyIndexItem *eItem = new EnergyIndexItem(regions_->end(regions_->count()-1), regions_->minEnergy(), regions_->maxEnergy(), nlSize-60);
+		eItem->setPos(10+(int)floor((regions_->end(regions_->count()-1)-regions_->minEnergy())/ratio) - eItem->boundingRect().width(), 30);
 		scene->addItem(eItem);
 	}
-	EnergyIndexItem *eItem = new EnergyIndexItem(regions_->end(regions_->count()-1), regions_->minEnergy(), regions_->maxEnergy(), nlSize-60);
-	eItem->setPos(10+(int)floor((regions_->end(regions_->count()-1)-regions_->minEnergy())/ratio) - eItem->boundingRect().width(), 30);
-	scene->addItem(eItem);
+
+	else{
+
+		for (int i = 0; i < regions_->count(); ++i) {
+			RegionItem *item = new RegionItem(regions_->start(i), regions_->delta(i), regions_->end(i), regions_->minEnergy(), regions_->maxEnergy(), nlSize-60);
+			item->setPos( 10+(int)floor((regions_->start(i)-regions_->minEnergy())/ratio), 0);
+			scene->addItem(item);
+		}
+
+		QRectF rect(scene->itemsBoundingRect());
+		scene->addRect(rect, QPen(Qt::black), QBrush(Qt::red));
+		QFont font(this->font());
+		font.setBold(true);
+		font.setPointSize(12);
+		QGraphicsTextItem *text = scene->addText("Regions Are Invalid!", font);
+		text->moveBy(rect.width()/2 - text->sceneBoundingRect().width()/2, -text->sceneBoundingRect().height()/2);
+	}
 }

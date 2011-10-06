@@ -102,7 +102,7 @@ double AMRegionsList::time(int index) const
 
 bool AMRegionsList::isValid() const
 {
-	for (int i = 0; i < count(); i++)
+	for (int i = 0; i < regions_->regions()->size(); i++)
 		if (!isValid(i))
 			return false;
 
