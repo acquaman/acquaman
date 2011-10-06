@@ -50,6 +50,10 @@ public:
 	bool elasticStart(int index) const;
 	/// Returns whether elastic end is enabled for the region referred to by \param region.  False is returned if an invalid index is given as well as if it is not enabled.
 	bool elasticEnd(int index) const;
+	/// Returns whether the region referred to by \param index is valid.
+	bool isValid(int index) const { return regions_->regions()->at(index)->isValid(); }
+	/// Returns whether the regions list is valid or not.  Returns true only when ALL regions are valid, returns false otherwise.
+	bool isValid() const;
 	/// Returns the model being managed by this list.
 	AMRegionsListModel* model() { return regions_; }
 	/// Returns the number of elements in the list.

@@ -100,6 +100,15 @@ double AMRegionsList::time(int index) const
 	return -1;
 }
 
+bool AMRegionsList::isValid() const
+{
+	for (int i = 0; i < count(); i++)
+		if (!isValid(i))
+			return false;
+
+	return true;
+}
+
 bool AMRegionsList::addRegion(int index, double start, double delta, double end, double time)
 {
 	if(!defaultControl_ || !defaultTimeControl_)

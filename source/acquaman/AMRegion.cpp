@@ -96,6 +96,15 @@ bool AMRegion::adjustEnd(double end){
 	return true;
 }
 
+bool AMRegion::isValid() const
+{
+	if (start_ < end_ && delta_ > 0)
+		return true;
+	else if (start_ > end_ && delta_ < 0)
+		return true;
+
+	return false;
+}
 // AMRegionsListModel
 /////////////////////////////////////////////////////////////////////////////
 
@@ -115,6 +124,12 @@ QVariant AMRegionsListModel::data(const QModelIndex &index, int role) const{
 	// If handling the alignment.
 	if (role == Qt::TextAlignmentRole)
 		return Qt::AlignCenter;
+
+	// If handling the background color.
+	if (role == Qt::BackgroundRole && regions_->at(index.row())->isValid())
+		return Qt::white;
+	else if (role == Qt::BackgroundRole && !regions_->at(index.row())->isValid())
+		return Qt::red;
 
 	// We only answer to Qt::DisplayRole right now
 	if(role != Qt::DisplayRole)

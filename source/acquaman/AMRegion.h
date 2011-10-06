@@ -75,6 +75,8 @@ public:
 	virtual bool elasticStart() const { return elasticStart_; }
 	/// Returns the state of whether or not the end value of the region can be adjusted by the start of the adjacent region being changed.
 	virtual bool elasticEnd() const { return elasticEnd_; }
+	/// Returns whether this region is valid or not.  Invalid regions are those that cannot be completed based on current start, delta, and end values.
+	virtual bool isValid() const;
 
 public slots:
 	/// Sets the start value from the double passed in. Makes sure the energy is within the allowable range, otherwise returns false.  Does not affect the AMControl directly.
@@ -182,6 +184,8 @@ Q_OBJECT
 public:
 	/// Constructor, takes an AMControl to act as the perminant control for this region, must be the beamline energy control.
 	AMXASRegion(AMControl* beamlineEnergy, QObject *parent = 0) : AMRegion(parent) { ctrl_ = beamlineEnergy; }
+	/// Re-implemented.  Forcing XAS scans to start from lower energy and go to higher energy.
+	virtual bool isValid() const { return (start_ < end_ && delta_ > 0) ? true : false; }
 
 public slots:
 	/// Castrated function, does nothing and returns false.

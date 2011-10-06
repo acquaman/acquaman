@@ -130,8 +130,8 @@ void AMXASRegionsView::setDisabled(bool disabled){
 void AMXASRegionsView::resizeEvent(QResizeEvent *event){
 	Q_UNUSED(event)
 	int totalWidth = tv_->size().width();
-	tv_->setColumnWidth(1, totalWidth/3);
-	tv_->setColumnWidth(2, totalWidth/6);
-	tv_->setColumnWidth(3, totalWidth/3);
-	tv_->setColumnWidth(7, totalWidth/6);
+	tv_->setColumnWidth(1, totalWidth/3-1);
+	tv_->setColumnWidth(2, totalWidth/6-1);
+	tv_->setColumnWidth(3, totalWidth/3-1);
+	tv_->setColumnWidth(7, totalWidth/6-1);
 }
