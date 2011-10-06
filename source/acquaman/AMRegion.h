@@ -215,4 +215,36 @@ public slots:
 	void setTimeControl(AMControl *timeControl) { setDefaultTimeControl(timeControl); }
 };
 
+/// An AMEXAFSRegion is an implementation of AMRegion designed to scan energy regions using either energy-space or k-space; therefore, the two AMControls that are passed into the constructor must be a beamline energy control and a beamline k-space energy control.
+/*!
+  Pass an AMControl pointer for both energy and k-space into the constructor and this child class will always refer to the appropriate control.
+  Like AMXASRegion, the setControl(AMControl *) function remains castrated.  It will always return false and no change will be made.
+  Because it extends the functionality of AMXASRegion, it subclasses it instead of AMRegion.
+  Region has a type that defaults to Energy.
+  */
+class AMEXAFSRegion : public AMXASRegion
+{
+	Q_OBJECT
+
+public:
+	/// Enum that defines what type of region it is.  Possibilities are Energy and kSpace.
+	enum RegionType { Energy, kSpace };
+
+	/// Constructor.  Takes two AMControls to act as the perminant energy and k-space control for this region.  Must be the beamline energy and beamline k-space control.
+	AMEXAFSRegion(AMControl *beamlineEnergy, AMControl *beamlineK, QObject *parent = 0) : AMXASRegion(beamlineEnergy, parent) { type_ = Energy; controlK_ = beamlineK; }
+
+	/// Returns the region type.
+	RegionType type() const { return type_; }
+
+public slots:
+	/// Sets the reigon type.
+	void setType(RegionType type);
+
+protected:
+	/// The pointer to the k-space energy control.
+	AMControl *controlK_;
+	/// The type of region this is.
+	RegionType type_;
+};
+
 #endif // ACQMAN_AMREGION_H

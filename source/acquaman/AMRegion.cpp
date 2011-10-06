@@ -363,3 +363,17 @@ bool AMXASRegionsListModel::insertRows(int position, int rows, const QModelIndex
 
 	return false;
 }
+
+// AMEXAFSRegion
+///////////////////////////////////////////////////
+
+bool AMEXAFSRegion::setType(RegionType type)
+{
+	if (type == Energy || type == kSpace){
+
+		type_ = type;
+		return true;
+	}
+
+	return false;
+}
