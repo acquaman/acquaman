@@ -377,3 +377,11 @@ bool AMEXAFSRegion::setType(RegionType type)
 
 	return false;
 }
+
+// AMEXAFSRegionsListModel
+////////////////////////////////////////////////////////
+
+bool AMEXAFSRegionsListModel::insertRows(int position, int rows, const QModelIndex &index)
+{
+	return false;
+}
