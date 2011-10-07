@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 #include <beamline/AMDetector.h>
-//#include <util/AMOrderedList.h>
 #include <util/AMOrderedSet.h>
 
 #define AMDETECTORSET_CONTROL_TIMEOUT_MS 5000
