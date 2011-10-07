@@ -189,4 +189,25 @@ protected:
 	virtual bool setupModel();
 };
 
+/// This class subclasses the AMXASRegionsList class to add even more functionality specific to AMEXAFSRegions.  Calls its own setupModel() to setup AMEXAFSRegions instead of AMXASRegions.
+class AMEXAFSRegionsList : public AMXASRegionsList{
+Q_OBJECT
+
+public:
+	/// Constructor.  Sets up its own regions model.
+	AMEXAFSRegionsList(QObject *parent = 0, bool setup = true) : AMXASRegionsList(parent, false) { if(setup) setupModel(); }
+
+public slots:
+	/// Sets the k-space control for the AMEXAFSRegions.  Also sets the default control for the regions list.
+	virtual void setKControl(AMControl* kControl) { defaultKControl_ = kControl; ((AMEXAFSRegionsListModel*)regions_)->setKSpaceControl(kControl); }
+
+protected:
+	/// Function used to setup the model that the list should manage.  When subclassed, call in the constructor to build your own custom model.
+	virtual bool setupModel();
+
+	/// Pointer to the control that moves regions through k-space.
+	AMControl *defaultKControl_;
+};
+
+
 #endif // AMREGIONSLIST_H

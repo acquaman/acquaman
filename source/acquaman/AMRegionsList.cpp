@@ -315,3 +315,19 @@ bool AMXASRegionsList::setupModel(){
 
 	return false;
 }
+
+// AMEXAFSRegionsList
+///////////////////////////////////////////
+
+bool AMEXAFSRegionsList::setupModel()
+{
+	regions_ = new AMEXAFSRegionsListModel(this);
+
+	if (regions_){
+
+		connect(regions_, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onDataChanged(QModelIndex,QModelIndex)));
+		return true;
+	}
+
+	return false;
+}
