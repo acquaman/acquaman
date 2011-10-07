@@ -1,6 +1,6 @@
 #include "CLSIonChamber.h"
 
-CLSIonChamber::CLSIonChamber(const QString &name, const QString &description, const QString &countsPV, const QString &voltagePV, QObject * parent())
+CLSIonChamber::CLSIonChamber(const QString &name, const QString &description, const QString &countsPV, const QString &voltagePV, QObject *parent)
 	: AMIonChamber(name, description, parent)
 {
 	counts_ = new AMReadOnlyPVControl(name+" counts", countsPV, this);

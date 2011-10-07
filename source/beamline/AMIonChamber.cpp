@@ -5,20 +5,14 @@ AMIonChamber::AMIonChamber(const QString &name, const QString &description, QObj
 {
 }
 
-void AMIonChamber::toInfo()
-{
-	AMIonChamberInfo info(name());
-	info.setVoltagRange();
-}
-
 bool AMIonChamber::setFromInfo(const AMDetectorInfo *info)
 {
-	AMIonChamberInfo *info = qobject_cast<AMIonChamberInfo *>(info);
+	const AMIonChamberInfo *ionChamberInfo = qobject_cast<const AMIonChamberInfo *>(info);
 
-	if (!info)
+	if (!ionChamberInfo)
 		return false;
 
-	setVoltagRange(info->voltageRange());
+	setVoltagRange(ionChamberInfo->voltageRange());
 
 	return true;
 }

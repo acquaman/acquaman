@@ -14,12 +14,12 @@ class CLSIonChamber : public AMIonChamber
 
 public:
 	/// Constructor.  Takes a the name of the counts PV and the voltage PV.
-	CLSIonChamber(const QString &name, const QString &description, const QString &countsPV, const QString &voltagePV, QObject *parent() = 0);
+	CLSIonChamber(const QString &name, const QString &description, const QString &countsPV, const QString &voltagePV, QObject *parent = 0);
 
 	/// Implements the pure virtual function.  Returns the current counts for the ion chamber.
-	double counts() { return counts_->value(); }
+	double counts() const { return counts_->value(); }
 	/// Implements the pure virtual function.  Returns the voltage for the ion chamber.
-	double voltage() { return voltage_->value(); }
+	double voltage() const { return voltage_->value(); }
 
 public slots:
 	/// Pure virtual function.  Increases the sensitivity of the ion chamber.  How this is done is implementation specific.

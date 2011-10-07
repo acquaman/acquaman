@@ -33,9 +33,9 @@ public:
 	bool setFromIonChamberInfo(const AMIonChamberInfo &info);
 
 	/// Pure virtual function.  Returns the current counts for the ion chamber.
-	double counts() = 0;
+	virtual double counts() const = 0;
 	/// Pure virtual function.  Returns the voltage for the ion chamber.
-	double voltage() = 0;
+	virtual double voltage() const = 0;
 
 signals:
 	/// Notifier that the ion chamber is connected.  True only when all the components of the ion chamber are connected.
@@ -49,9 +49,9 @@ signals:
 
 public slots:
 	/// Pure virtual function.  Increases the sensitivity of the ion chamber.  How this is done is implementation specific.
-	bool increaseSensitivity() = 0;
+	virtual bool increaseSensitivity() = 0;
 	/// Pure virtual function.  Decreases the sensitivity of the ion chamber.  How this is done is implementation specific.
-	bool decreaseSensitivity() = 0;
+	virtual bool decreaseSensitivity() = 0;
 
 protected:
 	/// The description of the ion chamber.
