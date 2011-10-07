@@ -410,7 +410,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMFileLoaderInterface.h \
 	source/ui/util/AMSettingsView.h \
     source/beamline/AMIonChamber.h \
-    source/dataman/info/AMIonChamberInfo.h
+    source/dataman/info/AMIonChamberInfo.h \
+    source/beamline/CLS/CLSIonChamber.h
 
 CONFIG(mobility) {
 HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
@@ -665,7 +666,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/VESPERS/VESPERSXASDataLoader.cpp \
 	source/ui/util/AMSettingsView.cpp \
     source/beamline/AMIonChamber.cpp \
-    source/dataman/info/AMIonChamberInfo.cpp
+    source/dataman/info/AMIonChamberInfo.cpp \
+    source/beamline/CLS/CLSIonChamber.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
@@ -682,6 +684,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 

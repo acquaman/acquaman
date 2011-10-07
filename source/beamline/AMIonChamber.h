@@ -3,7 +3,6 @@
 
 #include "dataman/info/AMIonChamberInfo.h"
 #include "beamline/AMDetector.h"
-#include "beamline/AMControl.h"
 
 /*!
   This class is an abstraction for general ion chambers.
@@ -39,6 +38,8 @@ public:
 	double voltage() = 0;
 
 signals:
+	/// Notifier that the ion chamber is connected.  True only when all the components of the ion chamber are connected.
+	void connected(bool);
 	/// Notifier that the counts have changed.
 	void countsChanged(double);
 	/// Notifier that the voltage has changed.
