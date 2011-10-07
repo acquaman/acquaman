@@ -18,12 +18,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AMDETECTORINFOLIST_H
-#define AMDETECTORINFOLIST_H
+#ifndef AMDETECTORINFOSET_H
+#define AMDETECTORINFOSET_H
 
 #include <QObject>
 #include <beamline/AMDetector.h>
-#include <util/AMOrderedList.h>
+//#include <util/AMOrderedList.h>
 #include <util/AMOrderedSet.h>
 
 #define AMDETECTORSET_CONTROL_TIMEOUT_MS 5000
@@ -117,4 +117,4 @@ protected:
 
 };
 
-#endif // AMDETECTORINFOLIST_H
+#endif // AMDETECTORINFOSET_H
