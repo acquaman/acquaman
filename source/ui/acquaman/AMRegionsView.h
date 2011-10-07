@@ -52,20 +52,29 @@ public:
 	~AMRegionsView();
 
 signals:
+	/// Notifier that the add region button has been clicked.
 	void addRegionClicked();
 
 public slots:
+	/// Slot that builds a popup menu to determine where you want to add another region.  Sets up the necessary connections such that the model is informed with the choice.
 	bool addRegion();
+	/// Slot that builds a popup menu to determine which region should be removed.  Sets up the necessary connections to pass on the choice to the model.
 	bool deleteRegion();
+	/// Sets the index where the model needs to insert the new region.
 	void setInsertIndex();
+	/// Sets the index where the model needs to remove a region.
 	void setRemoveIndex();
 
-	bool insertRegion(){ return regions_->addRegionSqueeze(insertIndex_); }
-	bool removeRegion(){ return regions_->deleteRegionSqueeze(removeIndex_); }
+	/// Slot that adds a region to the model.
+	bool insertRegion() { return regions_->addRegionSqueeze(insertIndex_); }
+	/// Slot that removes a region from the model.
+	bool removeRegion() { return regions_->deleteRegionSqueeze(removeIndex_); }
 
+	/// Slot that disables the add and remove region buttons.
 	void setDisabled(bool disabled);
 
 protected:
+	/// Reimplemented.  Defines how wide the columns need to be to fit nicely within the current width of the table without needing a horizontal scroll bar.
 	void resizeEvent(QResizeEvent *event);
 
 protected:
@@ -78,9 +87,13 @@ protected:
 	QPushButton *deleteButton_;
 	/// The model created from the AMRegion group to be used with the table view.
 	AMRegionsList *regions_;
+	/// The pointer holding the menu used for creating the add region menu.
 	QMenu *addRegionMenu_;
+	/// The pointer holding the menu used for creating the remove region menu.
 	QMenu *deleteRegionMenu_;
+	/// Index used to hold where the model should add another region.
 	int insertIndex_;
+	/// Index used to tell the model which region needs to be removed.
 	int removeIndex_;
 };
 
