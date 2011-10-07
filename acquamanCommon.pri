@@ -324,7 +324,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMMeasurementInfo.h \
 	source/dataman/datastore/AMInMemoryDataStore.h \
 	source/acquaman/AMFastScanConfiguration.h \
-	source/ui/AMScanConfigurationViewer.h \
 	source/dataman/AMFastScan.h \
 	source/analysis/AM2DSummingAB.h \
 	source/analysis/AMStandardAnalysisBlock.h \
@@ -578,7 +577,6 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AM1DExpressionABEditor.cpp \
 	source/dataman/datastore/AMInMemoryDataStore.cpp \
 	source/acquaman/AMFastScanConfiguration.cpp \
-	source/ui/AMScanConfigurationViewer.cpp \
 	source/dataman/AMFastScan.cpp \
 	source/analysis/AM2DSummingAB.cpp \
 	source/analysis/AMStandardAnalysisBlock.cpp \
