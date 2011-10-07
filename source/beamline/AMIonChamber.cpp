@@ -1,7 +1,7 @@
 #include "AMIonChamber.h"
 
-AMIonChamber::AMIonChamber(QObject *parent)
-	: AMIonChamberInfo(""), AMDetector("")
+AMIonChamber::AMIonChamber(const QString &name, const QString &description, QObject *parent)
+	: AMIonChamberInfo(name, description, parent), AMDetector(name)
 {
 }
 

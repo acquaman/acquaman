@@ -12,7 +12,8 @@ class AMIonChamber : public AMIonChamberInfo, public AMDetector
 {
     Q_OBJECT
 public:
-	explicit AMIonChamber(QObject *parent = 0);
+	/// Constructor.  Builds an ion chamber.
+	explicit AMIonChamber(const QString &name, const QString &description, QObject *parent = 0);
 
 	/// Get the current reading
 	virtual double reading() const { return counts(); }
