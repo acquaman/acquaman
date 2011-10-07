@@ -4,3 +4,9 @@ AMIonChamberInfo::AMIonChamberInfo(const QString &name, const QString &descripti
 	: AMDetectorInfo(name, description, parent)
 {
 }
+
+AMIonChamberInfo::AMIonChamberInfo(const AMIonChamberInfo &original)
+	: AMDetectorInfo(original.name(), original.description(), original.parent())
+{
+	retreiveAndSetProperties(original);
+}

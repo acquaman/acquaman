@@ -14,21 +14,17 @@ class AMIonChamberInfo : public AMDetectorInfo
 {
 	Q_OBJECT
 
-	Q_PROPERTY(int counts READ counts WRITE setCounts)
-	Q_PROPERTY(double voltage READ voltage WRITE setVoltage)
 	Q_PROPERTY(double minimumVoltage READ minimumVoltage WRITE setMinimumVoltage)
 	Q_PROPERTY(double maximumVoltage READ maximumVoltage WRITE setMaximumVoltage)
 
-	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Detector")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=Ion Chamber Detector")
 
 public:
 	/// Constructor.  Provide the name and description for the ion chamber.
 	Q_INVOKABLE AMIonChamberInfo(const QString& name = "ionChamber", const QString& description = "Ion Chamber", QObject *parent = 0);
+	/// Constructor that takes in a detector info and retrieves all the settings.
+	AMIonChamberInfo(const AMIonChamberInfo &original);
 
-	/// Returns the current counts for the ion chamber.
-	int counts() const { return counts_; }
-	/// Returns the voltage for the ion chamber.
-	double voltage() const { return voltage_; }
 	/// Returns the minimum voltage range for the ion chamber.
 	double minimumVoltage() const { return voltageRange_.first; }
 	/// Returns the maximum voltage range for the ion chamber.
@@ -37,10 +33,6 @@ public:
 	QPair<double, double> voltageRange() const { return voltageRange_; }
 
 public slots:
-	/// Sets the counts for the ion chamber.
-	void setCounts(int counts) { counts_ = counts; setModified(true); }
-	/// Sets the voltage for the ion chamber.
-	void setVoltage(double voltage) { voltage_ = voltage; setModified(true); }
 	/// Sets the minimum voltage for the linear range for the detector.
 	void setMinimumVoltage(double min) { voltageRange_.first = min; setModified(true); }
 	/// Sets the maximum voltage for the linear range for the detector.
@@ -49,10 +41,6 @@ public slots:
 	void setVoltagRange(QPair<double, double> range) { setMinimumVoltage(range.first); setMaximumVoltage(range.second); }
 
 protected:
-	/// The counts.
-	int counts_;
-	/// The voltage.
-	double voltage_;
 	/// The linear voltage range of the detector.
 	QPair<double, double> voltageRange_;
 };
