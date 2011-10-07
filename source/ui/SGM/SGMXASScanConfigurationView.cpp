@@ -34,10 +34,11 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 
 		topFrame_ = new AMTopFrame("Configure an XAS Scan to Run Later");
 		topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
-		regionsLineView_ = new AMRegionsLineView(sxsc->regions(), this);
 
+		sxsc->regions()->setEnergyControl(SGMBeamline::sgm()->energy());
+
+		regionsLineView_ = new AMRegionsLineView(sxsc->regions(), this);
 		regionsView_ = new AMXASRegionsView(sxsc->regions(), this);
-		regionsView_->setBeamlineEnergy(SGMBeamline::sgm()->energy());
 
 		fluxResolutionView_ = new SGMFluxResolutionPickerView(sxsc->regions(), this);
 		fluxResolutionView_->setFromInfoList(sxsc->fluxResolutionGroup());

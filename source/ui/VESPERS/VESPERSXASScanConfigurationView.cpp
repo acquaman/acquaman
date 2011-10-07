@@ -42,9 +42,9 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 
 	// Regions setup
 	config_->regions()->setSensibleRange(-30, 40);
-	regionsView_ = new AMXASRegionsView(config_->regions());
-	regionsView_->setBeamlineEnergy(VESPERSBeamline::vespers()->energyRelative());
+	config_->regions()->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
 
+	regionsView_ = new AMXASRegionsView(config_->regions());
 	regionsLineView_ = new AMRegionsLineView(config_->regions());
 
 	// The fluorescence detector setup

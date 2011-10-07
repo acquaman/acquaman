@@ -56,7 +56,6 @@ signals:
 	void addRegionClicked();
 
 public slots:
-	void setBeamlineEnergy(AMControl *beamlineEnergy){regions_->setEnergyControl(beamlineEnergy);}
 	bool addRegion();
 	bool deleteRegion();
 	void setInsertIndex();
