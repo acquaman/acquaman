@@ -367,7 +367,7 @@ bool AMXASRegionsListModel::insertRows(int position, int rows, const QModelIndex
 // AMEXAFSRegion
 ///////////////////////////////////////////////////
 
-bool AMEXAFSRegion::setType(RegionType type)
+bool AMEXAFSRegion::setType(AMEXAFSRegion::RegionType type)
 {
 	if (type == Energy || type == kSpace){
 
@@ -383,5 +383,238 @@ bool AMEXAFSRegion::setType(RegionType type)
 
 bool AMEXAFSRegionsListModel::insertRows(int position, int rows, const QModelIndex &index)
 {
+	if (index.row() <= regions_->count() && position <= regions_->count()
+			&& defaultControl_ && defaultKControl_ && defaultTimeControl_) {
+
+		beginInsertRows(QModelIndex(), position, position+rows-1);
+
+		AMEXAFSRegion *tmpRegion;
+
+		for (int row = 0; row < rows; ++row) {
+
+			tmpRegion = new AMEXAFSRegion(defaultControl_, defaultKControl_, this);
+			regions_->insert(position, tmpRegion); // Order doesn't matter because they are all identical, empty regions.
+		}
+
+		endInsertRows();
+		return true;
+	}
+
 	return false;
+}
+
+QVariant AMEXAFSRegionsListModel::data(const QModelIndex &index, int role) const{
+	// Invalid index:
+	if(!index.isValid())
+		return QVariant();
+
+	// If handling the alignment.
+	if (role == Qt::TextAlignmentRole)
+		return Qt::AlignCenter;
+
+	// If handling the background color.
+	if (role == Qt::BackgroundRole && regions_->at(index.row())->isValid())
+		return Qt::white;
+	else if (role == Qt::BackgroundRole && !regions_->at(index.row())->isValid())
+		return Qt::red;
+
+	// We only answer to Qt::DisplayRole right now
+	if(role != Qt::DisplayRole)
+		return QVariant();
+
+	// Out of range: (Just checking for too big.  isValid() checked for < 0)
+	if(index.row() >= regions_->count())
+		return QVariant();
+
+	AMEXAFSRegion *region = qobject_cast<AMEXAFSRegion *>(regions_->at(index.row()));
+
+	// If this region is not an AMEXAFSRegion, then we are in trouble.
+	if (!region)
+		return QVariant();
+
+	QVariant dataVal = QVariant();
+
+	switch(index.column()){
+
+	case 0: // The control.
+		break; // Doing nothing.
+	case 1: // The start value.
+		dataVal = region->type() == AMEXAFSRegion::Energy ? QString::number(region->start()) : QString::number(region->start()) + "k";
+		break;
+	case 2: // The delta value.
+		dataVal = region->type() == AMEXAFSRegion::Energy ? QString::number(region->delta()) : QString::number(region->delta()) + "k";
+		break;
+	case 3: // The end value.
+		dataVal = region->type() == AMEXAFSRegion::Energy ? QString::number(region->end()) : QString::number(region->end()) + "k";
+		break;
+	case 4: // The state of whether the region has an elastic start value.
+		dataVal = regions_->at(index.row())->elasticStart();
+		break;
+	case 5: // The state of whether the region has an elastic end value.
+		dataVal = regions_->at(index.row())->elasticEnd();
+		break;
+	case 6: // The time control.
+		break; // Doing nothing.
+	case 7: // The time value.
+		dataVal = regions_->at(index.row())->time();
+		break;
+	default:
+		break; // Return null if not a specific case.
+	}
+
+	return dataVal;
+}
+
+// Sets the data value at an index (row and column). Only valid role is Qt::DisplayRole right now.
+bool AMEXAFSRegionsListModel::setData(const QModelIndex &index, const QVariant &value, int role){
+
+	if (index.isValid() && index.row() < regions_->count() && role == Qt::EditRole) {
+
+		bool conversionOK = false;
+		bool retVal;
+		double dval;
+		bool bval;
+
+		if(index.column() == 1 || index.column() == 2 || index.column() == 3){
+
+			QString energy = value.toString();
+
+			if (energy.contains("k"))
+				energy.chop(1);
+
+			dval = energy.toDouble(&conversionOK);
+		}
+
+		else if (index.column() == 7)
+			dval  = value.toDouble(&conversionOK);
+
+		else if(index.column() == 4 || index.column() == 5){
+			bval = value.toBool();
+			conversionOK = true;
+		}
+
+		// Check if any data is invalid.
+		if(!conversionOK)
+			return false;
+
+		QString energy;
+		AMEXAFSRegion *region = qobject_cast<AMEXAFSRegion *>(regions_->at(index.row()));
+
+		// Need to be using an AMEXAFSRegion.
+		if (!region)
+			return false;
+
+		switch(index.column()){
+
+		case 0: // Setting a control?
+			retVal = false; // Doing nothing right now.
+			break;
+
+		case 1: // Setting a start value?
+			energy = value.toString();
+
+			if (energy.contains("k") && region->type() == AMEXAFSRegion::Energy){
+
+				region->setType(AMEXAFSRegion::kSpace);
+
+				retVal = region->setStart(dval) && region->setDelta(0.1) && region->setEnd(toKSpace(region->end()));
+			}
+
+			else if (!energy.contains("k") && region->type() == AMEXAFSRegion::kSpace){
+
+				region->setType(AMEXAFSRegion::Energy);
+
+				retVal = region->setStart(dval) && region->setDelta(1) && region->setEnd(toEnergy(region->end()));
+			}
+
+			else
+				retVal = regions_->at(index.row())->setStart(dval);
+
+			break;
+
+		case 2: // Setting a delta value?
+			energy = value.toString();
+
+			if (energy.contains("k") && region->type() == AMEXAFSRegion::Energy){
+
+				region->setType(AMEXAFSRegion::kSpace);
+
+				retVal = region->setStart(toKSpace(region->start())) && region->setDelta(dval) && region->setEnd(toKSpace(region->end()));
+			}
+
+			else if (!energy.contains("k") && region->type() == AMEXAFSRegion::kSpace){
+
+				region->setType(AMEXAFSRegion::Energy);
+
+				retVal = region->setStart(toEnergy(region->start())) && region->setDelta(dval) && region->setEnd(toEnergy(region->end()));
+			}
+
+			else
+				retVal = regions_->at(index.row())->setDelta(dval);
+
+			break;
+
+		case 3: // Setting an end value?
+			energy = value.toString();
+
+			if (energy.contains("k") && region->type() == AMEXAFSRegion::Energy){
+
+				region->setType(AMEXAFSRegion::kSpace);
+
+				retVal = region->setStart(toKSpace(region->start())) && region->setDelta(0.1) && region->setEnd(dval);
+			}
+
+			else if (!energy.contains("k") && region->type() == AMEXAFSRegion::kSpace){
+
+				region->setType(AMEXAFSRegion::Energy);
+
+				retVal = region->setStart(toEnergy(region->start())) && region->setDelta(1) && region->setEnd(dval);
+			}
+
+			else
+				retVal = regions_->at(index.row())->setEnd(dval);
+
+			break;
+
+		case 4: // Setting the start elasticity?
+			retVal = regions_->at(index.row())->setElasticStart(bval);
+			break;
+
+		case 5: // Setting the end elasticity?
+			retVal = regions_->at(index.row())->setElasticEnd(bval);
+			break;
+
+		case 6: // Setting the time time control?
+			retVal = false; // Doing nothing right now.
+			break;
+
+		case 7: // Setting a time value?
+			retVal = regions_->at(index.row())->setTime(dval);
+			break;
+
+		default: // Not a valid index.
+			retVal = false;
+			break;
+		}
+
+		// If something actually changed, we need to notify others.
+		if (retVal)
+			emit dataChanged(index, index);
+
+		return retVal;
+	}
+
+	return false;	// no value set
+}
+
+double AMEXAFSRegionsListModel::toKSpace(double energy)
+{
+	// k = sqrt((E - E0)/a) ; a = 3.810 945 497 eV * Angstrom
+	return sqrt((energy-edgeEnergy_)/3.810945497);
+}
+
+double AMEXAFSRegionsListModel::toEnergy(double kSpace)
+{
+	// E = E0 + a*k^2 ; a = 3.810 945 497 eV * Angstrom
+	return edgeEnergy_ + 3.810945497*kSpace*kSpace;
 }

@@ -234,17 +234,61 @@ public:
 	AMEXAFSRegion(AMControl *beamlineEnergy, AMControl *beamlineK, QObject *parent = 0) : AMXASRegion(beamlineEnergy, parent) { type_ = Energy; controlK_ = beamlineK; }
 
 	/// Returns the region type.
-	RegionType type() const { return type_; }
+	AMEXAFSRegion::RegionType type() const { return type_; }
+	/// Returns the control this region is using for scanning based on the current region type.
+	AMControl *control() const { return (type_ == Energy) ? ctrl_ : controlK_; }
 
 public slots:
 	/// Sets the reigon type.
-	void setType(RegionType type);
+	bool setType(AMEXAFSRegion::RegionType type);
 
 protected:
 	/// The pointer to the k-space energy control.
 	AMControl *controlK_;
 	/// The type of region this is.
 	RegionType type_;
+};
+
+/// An AMEXAFSRegionModel is used as an interface between any default model viewer in Qt and a list of AMEXAFSRegion.
+/*!
+  This model reimplements the insert rows function to build AMEXAFSRegions instead of generic AMRegions.
+  \todo Move this up one level to ALL AMRegions and/or combine with the AMScanConfiguration classes (so they can be the model directly).
+  */
+
+class AMEXAFSRegionsListModel : public AMXASRegionsListModel{
+Q_OBJECT
+
+public:
+	/// Constructor.  Builds a model that is identical to AMRegionsListModel.  No new features added.
+	AMEXAFSRegionsListModel(QObject *parent = 0) : AMXASRegionsListModel(parent) {}
+
+	/// Inserts an AMEXAFSRegion into the model.  It builds a default AMEXAFSRegion, sets the control to whatever the energy control is at the time.
+	bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex());
+	/// Retrieves the data from an index (row and column) and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
+	QVariant data(const QModelIndex &index, int role) const;
+	/// Sets the data value at an index (row and column). Only valid role is Qt::DisplayRole right now.
+	bool setData(const QModelIndex &index, const QVariant &value, int role);
+
+	/// Returns the edge energy for the list model.  Used when computing k <-> eV.
+	double edgeEnergy() const { return edgeEnergy_; }
+
+	/// Returns the k-space value from \param energy using the current edge energy.
+	double toKSpace(double energy);
+	/// Returns the energy value fromm \param kSpace using the current edge energy.
+	double toEnergy(double kSpace);
+
+public slots:
+	/// Sets the k-space control that is used for scanning the energy in an EXAFS scan.  \note This sets the default control for the region.  If setEnergyControl was used previously, then it will be overwritten.
+	void setKSpaceControl(AMControl* kSpaceControl) { defaultKControl_ = kSpaceControl; }
+
+	/// Sets the edge energy for the list model.  Used when computing k <-> eV.
+	void setEdgeEnergy(double energy) { edgeEnergy_ = energy; }
+
+protected:
+	/// Pointer to the k-space control used to build AMEXAFSRegions.
+	AMControl *defaultKControl_;
+	/// The edge energy for the list.
+	double edgeEnergy_;
 };
 
 #endif // ACQMAN_AMREGION_H
