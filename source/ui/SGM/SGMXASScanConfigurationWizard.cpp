@@ -124,7 +124,7 @@ AMXASRegionsWizardPage::AMXASRegionsWizardPage(AMXASRegionsList *regionsList, QS
 		QWizardPage(parent)
 {
 	regionsList_ = regionsList;
-	regionsView_ = new AMXASRegionsView(regionsList_, this);
+	regionsView_ = new AMRegionsView(regionsList_, this);
 	regionsLineView_ = new AMRegionsLineView(regionsList_, this);
 	gl_ = new QGridLayout();
 	textLabel_ = new QLabel(subTitle);

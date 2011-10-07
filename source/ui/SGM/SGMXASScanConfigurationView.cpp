@@ -38,7 +38,7 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 		sxsc->regions()->setEnergyControl(SGMBeamline::sgm()->energy());
 
 		regionsLineView_ = new AMRegionsLineView(sxsc->regions(), this);
-		regionsView_ = new AMXASRegionsView(sxsc->regions(), this);
+		regionsView_ = new AMRegionsView(sxsc->regions(), this);
 
 		fluxResolutionView_ = new SGMFluxResolutionPickerView(sxsc->regions(), this);
 		fluxResolutionView_->setFromInfoList(sxsc->fluxResolutionGroup());

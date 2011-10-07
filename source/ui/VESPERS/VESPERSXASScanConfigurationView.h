@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/acquaman/AMScanConfigurationView.h"
 
-#include "ui/acquaman/AMXASRegionsView.h"
+#include "ui/acquaman/AMRegionsView.h"
 #include "ui/acquaman/AMRegionsLineView.h"
 #include "acquaman/VESPERS/VESPERSXASDacqScanController.h"
 #include "acquaman/VESPERS/VESPERSXASScanConfiguration.h"
@@ -75,7 +75,7 @@ protected:
 	VESPERSXASScanConfiguration *config_;
 
 	/// This lets you setup regions.
-	AMXASRegionsView *regionsView_;
+	AMRegionsView *regionsView_;
 	/// Visual box that shows the current regions.
 	AMRegionsLineView *regionsLineView_;
 

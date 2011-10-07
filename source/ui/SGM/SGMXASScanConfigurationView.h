@@ -30,7 +30,7 @@ class QSpacerItem;
 
 #include "ui/beamline/AMControlSetView.h"
 #include "ui/beamline/AMDetectorSetView.h"
-#include "ui/acquaman/AMXASRegionsView.h"
+#include "ui/acquaman/AMRegionsView.h"
 #include "ui/acquaman/AMRegionsLineView.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMXASDacqScanController.h"
@@ -61,7 +61,7 @@ protected:
 	SGMXASScanConfiguration *cfg_;
 
 	AMTopFrame *topFrame_;
-	AMXASRegionsView *regionsView_;
+	AMRegionsView *regionsView_;
 	AMRegionsLineView *regionsLineView_;
 	SGMFluxResolutionPickerView *fluxResolutionView_;
 	AMControlSetView *trackingView_;

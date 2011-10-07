@@ -267,7 +267,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMSidebar.h \
 	source/ui/AMStatusView.h \
 	source/ui/AMThumbnailScrollViewer.h \
-	source/ui/acquaman/AMXASRegionsView.h \
+	source/ui/acquaman/AMRegionsView.h \
 	source/ui/BottomBar.h \
 	#deprecated: source/ui/AMBeamlineCameraWidget.h \
 	source/ui/beamline/AMControlEditor.h \
@@ -524,7 +524,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMSidebar.cpp \
 	source/ui/AMStatusView.cpp \
 	source/ui/AMThumbnailScrollViewer.cpp \
-	source/ui/acquaman/AMXASRegionsView.cpp \
+	source/ui/acquaman/AMRegionsView.cpp \
 	source/ui/BottomBar.cpp \
 	#deprecated: source/ui/AMBeamlineCameraWidget.cpp \
 	source/ui/beamline/AMControlEditor.cpp \

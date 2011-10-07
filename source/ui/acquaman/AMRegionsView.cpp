@@ -18,7 +18,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMXASRegionsView.h"
+#include "AMRegionsView.h"
 
 #include <QTableView>
 #include <QPushButton>
@@ -31,7 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 /// Defines a new model and views using table view.
 /// Adds all items to form layout.
 /// \todo Connect add and delete to something.
-AMXASRegionsView::AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent) :
+AMRegionsView::AMRegionsView(AMRegionsList *regions, QWidget *parent) :
 		QWidget(parent)
 {
 	addButton_ = new QPushButton("Add Region", this);
@@ -61,13 +61,13 @@ AMXASRegionsView::AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent) :
 	connect(deleteButton_, SIGNAL(clicked()), this, SLOT(deleteRegion()));
 }
 
-AMXASRegionsView::~AMXASRegionsView(){
+AMRegionsView::~AMRegionsView(){
 	disconnect(addButton_, SIGNAL(clicked()), this, SIGNAL(addRegionClicked()));
 	disconnect(deleteButton_, SIGNAL(clicked()), this, SLOT(deleteRegion()));
 	regions_ = NULL;
 }
 
-bool AMXASRegionsView::addRegion(){
+bool AMRegionsView::addRegion(){
 	if(addRegionMenu_)
 		delete addRegionMenu_;
 	addRegionMenu_ = new QMenu(this);
@@ -90,7 +90,7 @@ bool AMXASRegionsView::addRegion(){
 	return true;
 }
 
-bool AMXASRegionsView::deleteRegion(){
+bool AMRegionsView::deleteRegion(){
 	if(deleteRegionMenu_)
 		delete deleteRegionMenu_;
 	deleteRegionMenu_ = new QMenu(this);
@@ -109,25 +109,25 @@ bool AMXASRegionsView::deleteRegion(){
 	return true;
 }
 
-void AMXASRegionsView::setInsertIndex(){
+void AMRegionsView::setInsertIndex(){
 	QAction *tmpAction;
 	tmpAction = addRegionMenu_->activeAction();
 	insertIndex_ = tmpAction->data().toInt();
 }
 
-void AMXASRegionsView::setRemoveIndex(){
+void AMRegionsView::setRemoveIndex(){
 	QAction *tmpAction;
 	tmpAction = deleteRegionMenu_->activeAction();
 	removeIndex_ = tmpAction->data().toInt();
 }
 
-void AMXASRegionsView::setDisabled(bool disabled){
+void AMRegionsView::setDisabled(bool disabled){
 	tv_->setDisabled(disabled);
 	addButton_->setDisabled(disabled);
 	deleteButton_->setDisabled(disabled);
 }
 
-void AMXASRegionsView::resizeEvent(QResizeEvent *event){
+void AMRegionsView::resizeEvent(QResizeEvent *event){
 	Q_UNUSED(event)
 	int totalWidth = tv_->size().width();
 	tv_->setColumnWidth(1, totalWidth/3-1);

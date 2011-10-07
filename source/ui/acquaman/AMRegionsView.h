@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AMXASREGIONSVIEW_H
-#define AMXASREGIONSVIEW_H
+#ifndef AMREGIONSVIEW_H
+#define AMREGIONSVIEW_H
 
 #include <QWidget>
 #include <QtGui>
@@ -31,16 +31,15 @@ class QMenu;
 
 #include "acquaman/AMRegionsList.h"
 
-/// An AMXASRegionsView is a means of generating a default view for a group of AMXASRegion
+/// An AMRegionsView is a means of generating a default view for a group of AMRegion
 /*!
-  This default view utilizes a QTableView to interface with a group of AMXASRegion.
-  By calling the constructor while passing a QList of AMXASRegion, the AMXASRegionsView:
+  This default view utilizes a QTableView to interface with a group of AMRegion.
+  By calling the constructor while passing a QList of AMRegion, the AMRegionsView:
   - creates add region and delete region buttons; and, \todo Hook these buttons up to something
-  - uses the QList of AMXASRegion to make an AMXASRegionModel (the programmer need not do this nor understand how it works); and,
+  - uses the QList of AMRegion to make an AMRegionModel (the programmer need not do this nor understand how it works); and,
   - creates a table view on the newly created model.
-  \todo This should most likely be an AMRegionsView ... there's no real need to have it at the AMXASRegion level. I'll fix this, I just needed to figure out if it would work in the first place.
   */
-class AMXASRegionsView : public QWidget
+class AMRegionsView : public QWidget
 {
 Q_OBJECT
 public:
@@ -49,8 +48,8 @@ public:
 	  \param regions Pointer to a QList of AMXASRegions. Can be easily retreived using regionsPtr() function on an AMXASScanConfiguration or child.
 	  \param parent Pointer to QWidget to act as parent.
 	  */
-	explicit AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent = 0);
-	~AMXASRegionsView();
+	explicit AMRegionsView(AMRegionsList *regions, QWidget *parent = 0);
+	~AMRegionsView();
 
 signals:
 	void addRegionClicked();
@@ -77,8 +76,8 @@ protected:
 	QPushButton *addButton_;
 	/// Button to delete a region. \todo Figure out interface and hook up to something.
 	QPushButton *deleteButton_;
-	/// The model created from the AMXASRegion group to be used with the table view.
-	AMXASRegionsList *regions_;
+	/// The model created from the AMRegion group to be used with the table view.
+	AMRegionsList *regions_;
 	QMenu *addRegionMenu_;
 	QMenu *deleteRegionMenu_;
 	int insertIndex_;
