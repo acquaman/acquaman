@@ -28,6 +28,8 @@ SGMXASDacqScanController::SGMXASDacqScanController(SGMXASScanConfiguration *cfg,
 {
 	_pCfg_ = &specificCfg_;
 	_pScan_ = &specificScan_;
+
+	useDwellTimes(SGMBeamline::sgm()->nextDwellTimeTrigger(), SGMBeamline::sgm()->nextDwellTimeConfirmed());
 }
 
 bool SGMXASDacqScanController::initializeImplementation(){
@@ -154,6 +156,28 @@ void SGMXASDacqScanController::onDacqStop(){
 		AMDacqScanController::onDacqStop();
 	else
 		onScanFinished();
+}
+
+void SGMXASDacqScanController::onDwellTimeTriggerChanged(double newValue){
+	qDebug() << "Looks like dwell time trigger has changed to " << newValue << " in SGM version";
+	if( fabs(newValue - 1.0) < 0.1 ){
+		qDebug() << "Confirm dwell time has been set and reset trigger";
+		int curDwell = ceil(SGMBeamline::sgm()->picoammeterDwellTime()->value());
+		switch(curDwell){
+		case 1:
+			SGMBeamline::sgm()->picoammeterDwellTime()->move(2);
+			break;
+		case 2:
+			SGMBeamline::sgm()->picoammeterDwellTime()->move(2.5);
+			break;
+		case 3:
+			SGMBeamline::sgm()->picoammeterDwellTime()->move(1);
+			break;
+		}
+
+		dwellTimeTrigger_->move(0);
+		dwellTimeConfirmed_->move(1);
+	}
 }
 
 void SGMXASDacqScanController::onInitializationActionsSucceeded(){

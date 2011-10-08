@@ -82,6 +82,9 @@ void SGMBeamline::usingSGMBeamline(){
 
 	amNames2pvNames_.set("beamlineScanning", "BL1611-ID-1:scanning");
 	amNames2pvNames_.set("beamlineReady", "BL1611-ID-1:beam:status");
+	amNames2pvNames_.set("nextDwellTimeTrigger", "BL1611-ID-1:addOns:trigger:dwellTime");
+	amNames2pvNames_.set("nextDwellTimeConfirmed", "BL1611-ID-1:addOns:confirmed:dwellTime");
+	amNames2pvNames_.set("picoammeterDwellTime", "A1611I1:cont_interval");
 	amNames2pvNames_.set("energyMovingStatus", "BL1611-ID-1:ready");
 	amNames2pvNames_.set("fastShutterVoltage", "PSH16114I1001:V");
 	amNames2pvNames_.set("scalerMode", "BL1611-ID-1:mcs:continuous");
@@ -373,6 +376,23 @@ void SGMBeamline::usingSGMBeamline(){
 		pvNameLookUpFail = true;
 	beamlineReady_ = new AMReadOnlyPVControl("beamlineReady", sgmPVName, this);
 	beamlineReady_->setDescription("Beamline Status");
+	sgmPVName = amNames2pvNames_.valueF("nextDwellTimeTrigger");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	nextDwellTimeTrigger_ = new AMPVControl("nextDwellTimeTrigger", sgmPVName, sgmPVName, "", this, 0.1 );
+	nextDwellTimeTrigger_->setDescription("Next Dwell Time Trigger");
+	sgmPVName = amNames2pvNames_.valueF("nextDwellTimeConfirmed");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	nextDwellTimeConfirmed_ = new AMPVControl("nextDwellTimeConfirmed", sgmPVName, sgmPVName, "", this, 0.1 );
+	nextDwellTimeConfirmed_->setDescription("Next Dwell Time Confirmed");
+	sgmPVName = amNames2pvNames_.valueF("picoammeterDwellTime");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	picoammeterDwellTime_ = new AMPVControl("picoammeterDwellTime", sgmPVName, sgmPVName, "", this, 0.1 );
+	picoammeterDwellTime_->setDescription("Picoammeter Dwell Time");
+
+
 	sgmPVName = amNames2pvNames_.valueF("energyMovingStatus");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
@@ -716,6 +736,9 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	connect(beamlineScanning_, SIGNAL(valueChanged(double)), this, SLOT(onBeamlineScanningValueChanged(double)));
 
 	addChildControl(beamlineReady_);
+	addChildControl(nextDwellTimeTrigger_);
+	addChildControl(nextDwellTimeConfirmed_);
+	addChildControl(picoammeterDwellTime_);
 	addChildControl(energyMovingStatus_);
 	addChildControl(fastShutterVoltage_);
 	addChildControl(gratingVelocity_);
