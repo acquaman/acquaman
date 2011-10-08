@@ -52,6 +52,7 @@ class AMSamplePlate;
 class CLSVMEMotor;
 class CLSCAEN2527HVChannel;
 class CLSPGT8000HVChannel;
+class CLSSynchronizedDwellTime;
 
 class SGMBeamline : public AMBeamline
 {
@@ -198,7 +199,6 @@ public:
 	AMControl* nextDwellTimeTrigger() const { return nextDwellTimeTrigger_;}
 	AMControl* nextDwellTimeConfirmed() const { return nextDwellTimeConfirmed_;}
 	AMControl* picoammeterDwellTime() const { return picoammeterDwellTime_;}
-	AMControl* synchronizedDwellTime() const { return synchronizedDwellTime_;}
 	AMControl* energyMovingStatus() const { return energyMovingStatus_;}
 	AMControl* fastShutterVoltage() const { return fastShutterVoltage_;}
 	AMControl* gratingVelocity() const { return gratingVelocity_;}
@@ -221,6 +221,7 @@ public:
 	CLSCAEN2527HVChannel* hvChannel106() const { return hvChannel106_;}
 	CLSCAEN2527HVChannel* hvChannel109() const { return hvChannel109_;}
 	CLSPGT8000HVChannel* hvChannelPGT() const { return hvChannelPGT_;}
+	CLSSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_;}
 
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
@@ -361,6 +362,7 @@ protected:
 	CLSCAEN2527HVChannel *hvChannel106_;
 	CLSCAEN2527HVChannel *hvChannel109_;
 	CLSPGT8000HVChannel *hvChannelPGT_;
+	CLSSynchronizedDwellTime *synchronizedDwellTime_;
 	AMControl *pgt_;
 	AMControl *pgtHV_;
 	AMControl *pgtIntegrationTime_;
@@ -385,7 +387,6 @@ protected:
 	AMControl *nextDwellTimeTrigger_;
 	AMControl *nextDwellTimeConfirmed_;
 	AMControl *picoammeterDwellTime_;
-	AMControl *synchronizedDwellTime_;
 	AMControl *energyMovingStatus_;
 	AMControl *fastShutterVoltage_;
 	AMControl *gratingVelocity_;

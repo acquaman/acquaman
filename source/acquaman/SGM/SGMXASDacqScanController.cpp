@@ -158,20 +158,22 @@ void SGMXASDacqScanController::onDacqStop(){
 		onScanFinished();
 }
 
+#include "beamline/CLS/CLSSynchronizedDwellTime.h"
+
 void SGMXASDacqScanController::onDwellTimeTriggerChanged(double newValue){
 	qDebug() << "Looks like dwell time trigger has changed to " << newValue << " in SGM version";
 	if( fabs(newValue - 1.0) < 0.1 ){
 		qDebug() << "Confirm dwell time has been set and reset trigger";
-		int curDwell = ceil(SGMBeamline::sgm()->synchronizedDwellTime()->value());
+		int curDwell = ceil(SGMBeamline::sgm()->synchronizedDwellTime()->time());
 		switch(curDwell){
 		case 1:
-			SGMBeamline::sgm()->synchronizedDwellTime()->move(2);
+			SGMBeamline::sgm()->synchronizedDwellTime()->setTime(2);
 			break;
 		case 2:
-			SGMBeamline::sgm()->synchronizedDwellTime()->move(2.5);
+			SGMBeamline::sgm()->synchronizedDwellTime()->setTime(2.5);
 			break;
 		case 3:
-			SGMBeamline::sgm()->synchronizedDwellTime()->move(1);
+			SGMBeamline::sgm()->synchronizedDwellTime()->setTime(1);
 			break;
 		}
 
