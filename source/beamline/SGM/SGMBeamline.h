@@ -198,6 +198,7 @@ public:
 	AMControl* nextDwellTimeTrigger() const { return nextDwellTimeTrigger_;}
 	AMControl* nextDwellTimeConfirmed() const { return nextDwellTimeConfirmed_;}
 	AMControl* picoammeterDwellTime() const { return picoammeterDwellTime_;}
+	AMControl* synchronizedDwellTime() const { return synchronizedDwellTime_;}
 	AMControl* energyMovingStatus() const { return energyMovingStatus_;}
 	AMControl* fastShutterVoltage() const { return fastShutterVoltage_;}
 	AMControl* gratingVelocity() const { return gratingVelocity_;}
@@ -384,6 +385,7 @@ protected:
 	AMControl *nextDwellTimeTrigger_;
 	AMControl *nextDwellTimeConfirmed_;
 	AMControl *picoammeterDwellTime_;
+	AMControl *synchronizedDwellTime_;
 	AMControl *energyMovingStatus_;
 	AMControl *fastShutterVoltage_;
 	AMControl *gratingVelocity_;

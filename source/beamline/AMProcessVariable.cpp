@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstdlib>
 
 
-
 ///////////////////////////////
 // AMProcessVariableSupport
 ///////////////////////////////
@@ -34,7 +33,6 @@ AMProcessVariableSupport* AMProcessVariableSupport::instance_ = 0;
 
 // constructor: initializes channel access, starts the ca_poll timer, and installs us as the global exception handler.
 AMProcessVariableSupport::AMProcessVariableSupport() : QObject() {
-
 	qRegisterMetaType<AMProcessVariableDoubleVector>();
 	qRegisterMetaType<AMProcessVariableIntVector>();
 

@@ -20,6 +20,230 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PGTDetector.h"
 
+/*
+CLSPGTDwellTimeCoordinator::CLSPGTDwellTimeCoordinator(QObject *parent) :
+	QObject(parent)
+{
+	connectedOnce_ = false;
+	internalRealTimeSet_ = false;
+	internalLiveTimeSet_ = false;
+	internalPeakTimeSet_ = false;
+	internalDwellTimeSet_ = false;
+	internalDwellModeSet_ = false;
+	dwellMode_ = 3;
+	dwellTime_ = 0;
+
+	realTimeControl_ = new AMPVControl("PGTRealTime", "MCA1611-01:Preset:Real", "MCA1611-01:Preset:Real", "", this, 0.1);
+	liveTimeControl_ = new AMPVControl("PGTLiveTime", "MCA1611-01:Preset:Live", "MCA1611-01:Preset:Live", "", this, 0.1);
+	peakTimeControl_ = new AMPVControl("PGTPeakTime", "MCA1611-01:Preset:Peak", "MCA1611-01:Preset:Peak", "", this, 0.1);
+	dwellTimeControl_ = new AMPVControl("PGTDwellTime", "BL1611-ID-1:addOns:PGTDwellTime", "BL1611-ID-1:addOns:PGTDwellTime", "", this, 0.1);
+	dwellModeControl_ = new AMPVControl("PGTDwellMode", "BL1611-ID-1:addOns:PGTDwellMode", "BL1611-ID-1:addOns:PGTDwellMode", "", this, 0.1);
+
+	allControls_ = new AMControlSet(this);
+	allControls_->addControl(realTimeControl_);
+	allControls_->addControl(liveTimeControl_);
+	allControls_->addControl(peakTimeControl_);
+	allControls_->addControl(dwellTimeControl_);
+	allControls_->addControl(dwellModeControl_);
+
+	connect(realTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(onRealTimeControlChanged(double)));
+	connect(liveTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(onLiveTimeControlChanged(double)));
+	connect(peakTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(onPeakTimeControlChanged(double)));
+	connect(dwellTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(onDwellTimeControlChanged(double)));
+	connect(dwellModeControl_, SIGNAL(valueChanged(double)), this, SLOT(onDwellTimeModeChanged(double)));
+	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onAllControlsConnected(bool)));
+}
+
+void CLSPGTDwellTimeCoordinator::onRealTimeControlChanged(double realTime){
+	Q_UNUSED(realTime);
+	if(!connectedOnce_ || internalRealTimeSet_){
+		internalRealTimeSet_ = false;
+		return;
+	}
+	dwellMode_ = determineMode();
+	dwellTime_ = determineTime();
+	//qDebug() << "Real time says mode " << dwellMode_ << " time " << dwellTime_;
+	internalSetDwellMode(dwellMode_);
+	internalSetDwellTime(dwellTime_);
+}
+
+void CLSPGTDwellTimeCoordinator::onLiveTimeControlChanged(double liveTime){
+	Q_UNUSED(liveTime);
+	if(!connectedOnce_ || internalLiveTimeSet_){
+		internalLiveTimeSet_ = false;
+		return;
+	}
+	dwellMode_ = determineMode();
+	dwellTime_ = determineTime();
+	//qDebug() << "Live time says mode " << dwellMode_ << " time " << dwellTime_;
+	internalSetDwellMode(dwellMode_);
+	internalSetDwellTime(dwellTime_);
+}
+
+void CLSPGTDwellTimeCoordinator::onPeakTimeControlChanged(double peakTime){
+	Q_UNUSED(peakTime);
+	if(!connectedOnce_ || internalPeakTimeSet_){
+		internalPeakTimeSet_ = false;
+		return;
+	}
+	dwellMode_ = determineMode();
+	dwellTime_ = determineTime();
+	//qDebug() << "Peak time says mode " << dwellMode_ << " time " << dwellTime_;
+	internalSetDwellMode(dwellMode_);
+	internalSetDwellTime(dwellTime_);
+}
+
+void CLSPGTDwellTimeCoordinator::onDwellTimeControlChanged(double dwellTime){
+	if(!connectedOnce_ || internalDwellTimeSet_){
+		internalDwellTimeSet_ = false;
+		return;
+	}
+	//qDebug() << "Dwell time changing from " << dwellTime_ << " to " << dwellTime;
+	dwellTime_ = dwellTime;
+	switch(dwellMode_){
+	case 0:
+		internalSetRealTime(dwellTime_);
+		break;
+	case 1:
+		internalSetLiveTime(dwellTime_);
+		break;
+	case 2:
+		internalSetPeakTime(dwellTime_);
+		break;
+	case 3:
+		break;
+	}
+}
+
+void CLSPGTDwellTimeCoordinator::onDwellTimeModeChanged(double dwellMode){
+	if(!connectedOnce_ || internalDwellModeSet_){
+		internalDwellModeSet_ = false;
+		return;
+	}
+	//qDebug() << "Switch dwell mode from " << dwellMode_ << " to " << dwellMode << " with time " << dwellTime_;
+	switch(dwellMode_){
+	case 0:
+		internalSetRealTime(0.0);
+		break;
+	case 1:
+		internalSetLiveTime(0.0);
+		break;
+	case 2:
+		internalSetPeakTime(0.0);
+		break;
+	case 3:
+		if(dwellMode != 0)
+			internalSetRealTime(0.0);
+		if(dwellMode != 1)
+			internalSetLiveTime(0.0);
+		if(dwellMode != 2)
+			internalSetPeakTime(0.0);
+		break;
+	}
+	dwellMode_ = dwellMode;
+	switch(dwellMode_){
+	case 0:
+		internalSetRealTime(dwellTime_);
+		break;
+	case 1:
+		internalSetLiveTime(dwellTime_);
+		break;
+	case 2:
+		internalSetPeakTime(dwellTime_);
+		break;
+	case 3:
+		break;
+	}
+}
+
+void CLSPGTDwellTimeCoordinator::onAllControlsConnected(bool connected){
+	//qDebug() << "Checking all PGT dwells";
+	if(connected){
+		connectedOnce_ = true;
+		//qDebug() << "All PGT dwells connected";
+		dwellMode_ = determineMode();
+		dwellTime_ = determineTime();
+		internalSetDwellMode(dwellMode_);
+		internalSetDwellTime(dwellTime_);
+	}
+}
+
+void CLSPGTDwellTimeCoordinator::internalSetRealTime(double realTime){
+	if(realTimeControl_->withinTolerance(realTime))
+		return;
+	internalRealTimeSet_ = true;
+	realTimeControl_->move(realTime);
+}
+
+void CLSPGTDwellTimeCoordinator::internalSetLiveTime(double liveTime){
+	if(liveTimeControl_->withinTolerance(liveTime))
+		return;
+	internalLiveTimeSet_ = true;
+	liveTimeControl_->move(liveTime);
+}
+
+void CLSPGTDwellTimeCoordinator::internalSetPeakTime(double peakTime){
+	if(peakTimeControl_->withinTolerance(peakTime))
+		return;
+	internalPeakTimeSet_ = true;
+	peakTimeControl_->move(peakTime);
+}
+
+void CLSPGTDwellTimeCoordinator::internalSetDwellTime(double dwellTime){
+	if(dwellTimeControl_->withinTolerance(dwellTime))
+		return;
+	internalDwellTimeSet_ = true;
+	dwellTimeControl_->move(dwellTime);
+}
+
+void CLSPGTDwellTimeCoordinator::internalSetDwellMode(int dwellMode){
+	if(dwellModeControl_->withinTolerance(dwellMode))
+		return;
+	internalDwellModeSet_ = true;
+	dwellModeControl_->move(dwellMode);
+}
+
+int CLSPGTDwellTimeCoordinator::determineMode() const{
+	if(allControls_->isConnected()){
+		double realTime = realTimeControl_->value();
+		double liveTime = liveTimeControl_->value();
+		double peakTime = peakTimeControl_->value();
+
+		if( (realTime > 0.1 && liveTime > 0.1) || (realTime > 0.1 && peakTime > 0.1) || (peakTime > 0.1 && liveTime > 0.1) )
+			return 3;
+		else if(realTime > 0.1)
+			return 0;
+		else if(liveTime > 0.1)
+			return 1;
+		else if(peakTime > 0.1)
+			return 2;
+		else
+			return 3;
+	}
+	return 3;
+}
+
+double CLSPGTDwellTimeCoordinator::determineTime() const{
+	if(allControls_->isConnected()){
+		double realTime = realTimeControl_->value();
+		double liveTime = liveTimeControl_->value();
+		double peakTime = peakTimeControl_->value();
+
+		if( (realTime > 0.1 && liveTime > 0.1) || (realTime > 0.1 && peakTime > 0.1) || (peakTime > 0.1 && liveTime > 0.1) )
+			return 0.0;
+		else if(realTime > 0.1)
+			return realTime;
+		else if(liveTime > 0.1)
+			return liveTime;
+		else if(peakTime > 0.1)
+			return peakTime;
+		else
+			return 0.0;
+	}
+	return 0.0;
+}
+*/
+
 PGTDetector::PGTDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod, QObject *parent) :
 		PGTDetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {

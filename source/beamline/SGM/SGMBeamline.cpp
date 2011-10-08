@@ -85,6 +85,7 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("nextDwellTimeTrigger", "BL1611-ID-1:addOns:trigger:dwellTime");
 	amNames2pvNames_.set("nextDwellTimeConfirmed", "BL1611-ID-1:addOns:confirmed:dwellTime");
 	amNames2pvNames_.set("picoammeterDwellTime", "A1611I1:cont_interval");
+	amNames2pvNames_.set("synchronizedDwellTime", "BL1611-ID-1:dwell:setTime");
 	amNames2pvNames_.set("energyMovingStatus", "BL1611-ID-1:ready");
 	amNames2pvNames_.set("fastShutterVoltage", "PSH16114I1001:V");
 	amNames2pvNames_.set("scalerMode", "BL1611-ID-1:mcs:continuous");
@@ -391,7 +392,11 @@ void SGMBeamline::usingSGMBeamline(){
 		pvNameLookUpFail = true;
 	picoammeterDwellTime_ = new AMPVControl("picoammeterDwellTime", sgmPVName, sgmPVName, "", this, 0.1 );
 	picoammeterDwellTime_->setDescription("Picoammeter Dwell Time");
-
+	sgmPVName = amNames2pvNames_.valueF("synchronizedDwellTime");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	synchronizedDwellTime_ = new AMPVControl("synchronizedDwellTime", sgmPVName, sgmPVName, "", this, 0.1 );
+	synchronizedDwellTime_->setDescription("Synchronized Dwell Time");
 
 	sgmPVName = amNames2pvNames_.valueF("energyMovingStatus");
 	if(sgmPVName.isEmpty())
@@ -739,6 +744,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	addChildControl(nextDwellTimeTrigger_);
 	addChildControl(nextDwellTimeConfirmed_);
 	addChildControl(picoammeterDwellTime_);
+	addChildControl(synchronizedDwellTime_);
 	addChildControl(energyMovingStatus_);
 	addChildControl(fastShutterVoltage_);
 	addChildControl(gratingVelocity_);
