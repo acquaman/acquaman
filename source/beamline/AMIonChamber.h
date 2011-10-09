@@ -16,6 +16,8 @@ public:
 
 	/// Get the current reading
 	virtual double reading() const { return counts(); }
+	/// Returns whether the detector is connected.
+	virtual bool isConnected() const { return false; }
 
 	/// AMDetector sub classes need to reimplement this to return their own detectorInfo class. NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.
 	virtual AMDetectorInfo* toInfo() const { return new AMIonChamberInfo(*this); }

@@ -9,5 +9,12 @@ CLSIonChamber::CLSIonChamber(const QString &name, const QString &description, co
 	connect(counts_, SIGNAL(valueChanged(double)), this, SIGNAL(countsChanged(double)));
 	connect(voltage_, SIGNAL(valueChanged(double)), this, SIGNAL(voltageChanged(double)));
 
-	/// ADD ION CHAMBER IS CONNECTED.  ALSO ADD TO AMIONCHAMBER!!!!!!!!
+	connect(counts_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+	connect(voltage_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+}
+
+bool CLSIonChamber::onConnectedChanged()
+{
+	if ((counts_->isConnected() && voltage_->isConnected()) != connected_)
+		emit connected(connected_ = (counts_->isConnected() && voltage_->isConnected()));
 }
