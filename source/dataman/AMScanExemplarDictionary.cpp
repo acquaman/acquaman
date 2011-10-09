@@ -1,6 +1,5 @@
 #include "AMScanExemplarDictionary.h"
 
-#include <QDebug>
 #include <QStringBuilder>
 #include <QStringList>
 #include <QVariant>
@@ -14,6 +13,8 @@ AMScanExemplarDictionary::AMScanExemplarDictionary(AMScanExemplar *exemplar, QOb
 	AMScanParametersDictionary(parent)
 {
 	exemplar_ = exemplar;
+	if(exemplar_)
+		connect(exemplar_, SIGNAL(settingsChanged()), this, SLOT(reoperate()));
 	loadKeywordReplacementDictionary();
 }
 
@@ -50,6 +51,8 @@ void AMScanExemplarDictionary::operateImplementation(const QString &input){
 
 QString AMScanExemplarDictionary::krName(const QString& arg) {
 	Q_UNUSED(arg)
+	if(operatingOnName())
+		return "Circular Reference @name";
 	return exemplar_->name();
 }
 
@@ -168,4 +171,11 @@ QString AMScanExemplarDictionary::krSampleCreationDate(const QString& arg) {
 		return exemplar_->sampleDateTime().toString("yyyy MM dd hh:mm:ss");
 	else
 		return exemplar_->sampleDateTime().toString(arg);
+}
+
+QString AMScanExemplarDictionary::krExportName(const QString &arg){
+	Q_UNUSED(arg);
+	if(operatingOnName() || operatingOnExportName())
+		return "Circular Reference @exportName";
+	return exemplar_->exportName();
 }

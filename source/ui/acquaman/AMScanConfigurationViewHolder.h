@@ -77,8 +77,6 @@ protected slots:
 
 	void onDoExportNameCheckBoxStatedChanged(int state);
 
-	void delayedDbLoad();
-
 protected:
 
 	/// UI elements

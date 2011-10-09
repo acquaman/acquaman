@@ -14,10 +14,6 @@ public:
 
 public slots:
 	void setTextAndOperate(const QString &text);
-	void operate();
-
-signals:
-	void operated();
 
 protected slots:
 	void onTextEdited(const QString &text);

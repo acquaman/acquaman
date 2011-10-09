@@ -5,7 +5,19 @@
 AMScanExemplar::AMScanExemplar(QObject *parent) :
 	QObject(parent)
 {
+	name_ = "";
+	number_ = "";
+	dateTime_ = QDateTime::currentDateTime();
+	runName_ = "";
+	runStartDateTime_ = QDateTime::currentDateTime();
+	runEndDateTime_ = QDateTime::currentDateTime();
+	facilityName_ = "";
+	facilityDescription_ = "";
 	scanConfiguration_ = 0; //NULL
+	sampleName_ = "";
+	sampleElements_ = "";
+	sampleDateTime_ = QDateTime::currentDateTime();
+	exportName_ = "";
 }
 
 QString AMScanExemplar::name() const{
@@ -13,7 +25,9 @@ QString AMScanExemplar::name() const{
 }
 
 QString AMScanExemplar::technique() const{
-	return technique_;
+	if(scanConfiguration())
+		return scanConfiguration()->technique();
+	return "";
 }
 
 QString AMScanExemplar::number() const{
@@ -61,13 +75,12 @@ QDateTime AMScanExemplar::sampleDateTime() const{
 }
 
 QString AMScanExemplar::exportName() const{
-	return exportName();
+	return exportName_;
 }
 
 AMScanExemplar& AMScanExemplar::operator =(const AMScanExemplar &other){
 	if(this != &other){
 		setName(other.name());
-		setTechnique(other.technique());
 		setDateTime(other.dateTime());
 		setRunName(other.runName());
 		setRunStartDateTime(other.runStartDateTime());
@@ -79,58 +92,91 @@ AMScanExemplar& AMScanExemplar::operator =(const AMScanExemplar &other){
 		setSampleElements(other.sampleElements());
 		setSampleDateTime(other.sampleDateTime());
 		setExportName(other.exportName());
+		emit settingsChanged();
 	}
 	return *this;
 }
 
 void AMScanExemplar::setName(const QString &name){
-	name_ = name;
-}
-
-void AMScanExemplar::setTechnique(const QString &technique){
-	technique_ = technique;
+	if(name_ != name){
+		name_ = name;
+		emit settingsChanged();
+	}
 }
 
 void AMScanExemplar::setDateTime(const QDateTime &dateTime){
-	dateTime_ = dateTime;
+	if(dateTime_ != dateTime){
+		dateTime_ = dateTime;
+		emit settingsChanged();
+	}
 }
 
 void AMScanExemplar::setRunName(const QString &runName){
-	runName_ = runName;
+	if(runName_ != runName){
+		runName_ = runName;
+		emit settingsChanged();
+	}
 }
 
 void AMScanExemplar::setRunStartDateTime(const QDateTime &runStartDateTime){
-	runStartDateTime_ = runStartDateTime;
+	if(runStartDateTime_ != runStartDateTime){
+		runStartDateTime_ = runStartDateTime;
+		emit settingsChanged();
+	}
 }
 
 void AMScanExemplar::setRunEndDateTime(const QDateTime &runEndDateTime){
-	runEndDateTime_ = runEndDateTime;
+	if(runEndDateTime_ != runEndDateTime){
+		runEndDateTime_ = runEndDateTime;
+		emit settingsChanged();
+	}
 }
 
 void AMScanExemplar::setFacilityName(const QString &facilityName){
-	facilityName_ = facilityName;
+	if(facilityName_ != facilityName){
+		facilityName_ = facilityName;
+		emit settingsChanged();
+	}
 }
 
 void AMScanExemplar::setFacilityDescription(const QString &facilityDescription){
-	facilityDescription_ = facilityDescription;
+	if(facilityDescription_ != facilityDescription){
+		facilityDescription_ = facilityDescription;
+		emit settingsChanged();
+	}
 }
 
 void AMScanExemplar::setScanConfiguration(const AMScanConfiguration *scanConfiguration){
-	scanConfiguration_ = scanConfiguration;
+	if(scanConfiguration_ != scanConfiguration){
+		scanConfiguration_ = scanConfiguration;
+		emit settingsChanged();
+	}
 }
 
 void AMScanExemplar::setSampleName(const QString &sampleName){
-	sampleName_ = sampleName;
+	if(sampleName_ != sampleName){
+		sampleName_ = sampleName;
+		emit settingsChanged();
+	}
 }
 
 void AMScanExemplar::setSampleElements(const QString &sampleElements){
-	sampleElements_ = sampleElements;
+	if(sampleElements_ != sampleElements){
+		sampleElements_ = sampleElements;
+		emit settingsChanged();
+	}
 }
 
 void AMScanExemplar::setSampleDateTime(const QDateTime &sampleDateTime){
-	sampleDateTime_ = sampleDateTime;
+	if(sampleDateTime_ != sampleDateTime){
+		sampleDateTime_ = sampleDateTime;
+		emit settingsChanged();
+	}
 }
 
 void AMScanExemplar::setExportName(const QString &exportName){
-	exportName_ = exportName;
+	if(exportName_ != exportName){
+		exportName_ = exportName;
+		emit settingsChanged();
+	}
 }

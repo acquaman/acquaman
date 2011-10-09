@@ -3,6 +3,12 @@
 #include "dataman/AMScan.h"
 #include "util/AMTagReplacementParser.h"
 
+#include "acquaman/AMScanConfiguration.h"	/// \todo Move to dataman!
+#include "util/AMDateTimeUtils.h"
+#include "dataman/AMRun.h"
+#include "dataman/info/AMControlInfoList.h"
+#include "dataman/AMSample.h"
+
 AMScanDictionary::AMScanDictionary(AMScan *scan, QObject *parent) :
 	AMScanParametersDictionary(parent)
 {
@@ -57,8 +63,8 @@ QString AMScanDictionary::krName(const QString& arg) {
 
 QString AMScanDictionary::krTechnique(const QString& arg) {
 	Q_UNUSED(arg)
-	if(scan_)
-		return scan_->technique();
+	if(scan_ && scan_->scanConfiguration())
+		return scan_->scanConfiguration()->technique();
 	return "[??]";
 }
 
@@ -106,9 +112,6 @@ QString AMScanDictionary::krDateTime(const QString& arg) {
 	else
 		return scan_->dateTime().toString(arg);
 }
-
-#include "util/AMDateTimeUtils.h"
-#include "dataman/AMRun.h"
 
 QString AMScanDictionary::krRun(const QString& arg) {
 	Q_UNUSED(arg)
@@ -194,8 +197,6 @@ QString AMScanDictionary::krFacilityDescription(const QString& arg) {
 	return f.description();
 }
 
-#include "acquaman/AMScanConfiguration.h"	/// \todo Move to dataman!
-
 QString AMScanDictionary::krScanConfiguration(const QString& propertyName) {
 	if(!scan_)
 		return "[??]";
@@ -227,8 +228,6 @@ QString AMScanDictionary::krScanConfiguration(const QString& propertyName) {
 
 	return v.toString();
 }
-
-#include "dataman/info/AMControlInfoList.h"
 
 QString AMScanDictionary::krControl(const QString& controlName) {
 	if(!scan_)
@@ -301,8 +300,6 @@ QString AMScanDictionary::krSampleName(const QString& arg) {
 
 	return scan_->sampleName();
 }
-
-#include "dataman/AMSample.h"
 
 QString AMScanDictionary::krSampleElements(const QString& arg) {
 	Q_UNUSED(arg)

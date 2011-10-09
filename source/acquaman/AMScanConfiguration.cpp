@@ -24,5 +24,55 @@ AMScanConfiguration::AMScanConfiguration(QObject *parent) :
 	AMDbObject(parent)
 {
 	userScanName_ = "";
+	userExportName_ = "$name.dat";
+	autoExportEnabled_ = true;
 }
 
+QString AMScanConfiguration::description() const {
+	return "Generic Scan";
+}
+
+QString AMScanConfiguration::detailedDescription() const{
+	return "Generic Scan Details";
+}
+
+QString AMScanConfiguration::autoScanName() const{
+	return "Generic Scan";
+}
+
+QString AMScanConfiguration::userScanName() const{
+	return userScanName_;
+}
+
+QString AMScanConfiguration::userExportName() const{
+	return userExportName_;
+}
+
+QString AMScanConfiguration::technique() const{
+	return "[None]";
+}
+
+bool AMScanConfiguration::autoExportEnabled() const{
+	return autoExportEnabled_;
+}
+
+void AMScanConfiguration::setUserScanName(const QString &userScanName){
+	if(userScanName_ != userScanName){
+		userScanName_ = userScanName;
+		emit userScanNameChanged(userScanName_);
+	}
+}
+
+void AMScanConfiguration::setUserExportNmae(const QString &userExportName){
+	if(userExportName_ != userExportName){
+		userExportName_ = userExportName;
+		emit userExportNameChanged(userExportName_);
+	}
+}
+
+void AMScanConfiguration::setAutoExportEnabled(bool autoExportEnabled){
+	if(autoExportEnabled_ != autoExportEnabled){
+		autoExportEnabled_ = autoExportEnabled;
+		emit autoExportEnabledChanged(autoExportEnabled_);
+	}
+}

@@ -36,6 +36,8 @@ bool AMAppController::startup() {
 		mw_->insertHeading("Experiment Tools", 1);
 		mw_->addPane(workflowManagerView_, "Experiment Tools", "Workflow", ":/user-away.png");
 
+		connect(workflowManagerView_, SIGNAL(exportOne(QList<QUrl>)), this, SLOT(onDataViewItemsExported(QList<QUrl>)));
+
 		return true;
 	}
 

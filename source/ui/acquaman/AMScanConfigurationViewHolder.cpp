@@ -45,7 +45,6 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 	workflow_ = workflow;
 
 	testExemplar_.setName("");
-	testExemplar_.setTechnique("XAS");
 	testExemplar_.setDateTime(QDateTime::currentDateTime());
 	testExemplar_.setRunName("SGM");
 	testExemplar_.setRunStartDateTime(QDateTime::currentDateTime());
@@ -202,12 +201,9 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 
 	connect(workflow_, SIGNAL(workflowStatusChanged(bool,bool,bool)), this, SLOT(reviewStartScanButtonState()));
 
-	connect(scanNameDictionaryLineEdit_, SIGNAL(operated()), exportNameDictionaryLineEdit_, SLOT(operate()));
 	connect(doExportNameCheckBox_, SIGNAL(stateChanged(int)), this, SLOT(onDoExportNameCheckBoxStatedChanged(int)));
 
 	reviewStartScanButtonState();
-
-	QTimer::singleShot(500, this, SLOT(delayedDbLoad()));
 }
 
 
@@ -224,8 +220,11 @@ void AMScanConfigurationViewHolder::setView(AMScanConfigurationView *view) {
 	view_ = view;
 	if(view_) {
 		layout_->insertWidget(0, view_);
-		if(view_->configuration())
-			testExemplar_.setScanConfiguration(view->configuration());
+		if(view_->configuration()){
+			testExemplar_.setScanConfiguration(view_->configuration());
+			scanNameDictionaryLineEdit_->setTextAndOperate(view_->configuration()->userScanName());
+			exportNameDictionaryLineEdit_->setTextAndOperate(view_->configuration()->userExportName());
+		}
 	}
 
 	reviewStartScanButtonState();
@@ -312,6 +311,7 @@ void AMScanConfigurationViewHolder::onStartScanRequested(){
 
 	AMScanConfiguration *config = view_->configuration()->createCopy();
 	config->setUserScanName(scanNameDictionaryLineEdit_->text());
+	config->setUserExportNmae(exportNameDictionaryLineEdit_->text());
 	AMBeamlineScanAction* action = new AMBeamlineScanAction(config);
 	workflow_->insertBeamlineAction(position, action, startNow);
 }
@@ -323,6 +323,7 @@ void AMScanConfigurationViewHolder::onAddToQueueRequested() {
 
 	AMScanConfiguration *config = view_->configuration()->createCopy();
 	config->setUserScanName(scanNameDictionaryLineEdit_->text());
+	config->setUserExportNmae(exportNameDictionaryLineEdit_->text());
 	AMBeamlineScanAction* action = new AMBeamlineScanAction(config);
 	workflow_->insertBeamlineAction(-1, action);
 
@@ -339,9 +340,4 @@ void AMScanConfigurationViewHolder::onDoExportNameCheckBoxStatedChanged(int stat
 		exportNameLabel_->setEnabled(true);
 		exportNameDictionaryLineEdit_->setEnabled(true);
 	}
-}
-
-void AMScanConfigurationViewHolder::delayedDbLoad(){
-	scanNameDictionaryLineEdit_->setTextAndOperate(view_->configuration()->userScanName());
-	exportNameDictionaryLineEdit_->setTextAndOperate("$name.dat");
 }

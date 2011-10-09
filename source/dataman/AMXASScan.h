@@ -39,7 +39,7 @@ public:
 	/// Re-implemented from AMScan. Currently only the SGM2004 and ALS Bl8.0.1 file formats are supported.
 	virtual bool loadDataImplementation();
 
-	virtual QString technique() {return "XAS";}
+	//virtual QString technique() {return "XAS";}
 
 signals:
 

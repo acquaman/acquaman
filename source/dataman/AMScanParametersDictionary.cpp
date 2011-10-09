@@ -9,6 +9,8 @@ AMScanParametersDictionary::AMScanParametersDictionary(QObject *parent) :
 {
 	operatingOnName_ = false;
 	operatingOnExportName_ = false;
+	operatingNow_ = false;
+	lastInputString_ = "";
 	keywordParser_ = new AMTagReplacementParser();
 }
 
@@ -20,16 +22,27 @@ bool AMScanParametersDictionary::operatingOnExportName() const{
 	return operatingOnExportName_;
 }
 
+void AMScanParametersDictionary::reoperate(){
+	parseKeywordStringAndOperate(lastInputString_);
+}
+
 QString AMScanParametersDictionary::parseKeywordString(const QString &inputString) {
+	lastInputString_ = inputString;
 	keywordParser_->setInitialText(inputString);
 	keywordParser_->replaceAllUsingDictionary(keywordDictionary_);
-	return keywordParser_->getReplacedText();
+	QString parsedString = keywordParser_->getReplacedText();
+	if(!operatingNow_)
+		emit parsed(parsedString);
+	return parsedString;
 }
 
 QString AMScanParametersDictionary::parseKeywordStringAndOperate(const QString &inputString){
-	QString parsed = parseKeywordString(inputString);
-	operateImplementation(parsed);
-	return parsed;
+	operatingNow_ = true;
+	QString parsedString = parseKeywordString(inputString);
+	operateImplementation(parsedString);
+	operatingNow_ = false;
+	emit parsed(parsedString);
+	return parsedString;
 }
 
 void AMScanParametersDictionary::loadKeywordReplacementDictionary()
@@ -54,6 +67,8 @@ void AMScanParametersDictionary::loadKeywordReplacementDictionary()
 	keywordDictionary_.insert("sampleName", new AMTagReplacementFunctor<AMScanParametersDictionary>(this, &AMScanParametersDictionary::krSampleName));
 	keywordDictionary_.insert("sampleElements", new AMTagReplacementFunctor<AMScanParametersDictionary>(this, &AMScanParametersDictionary::krSampleElements));
 	keywordDictionary_.insert("sampleCreationDate", new AMTagReplacementFunctor<AMScanParametersDictionary>(this, &AMScanParametersDictionary::krSampleCreationDate));
+
+	keywordDictionary_.insert("exportName", new AMTagReplacementFunctor<AMScanParametersDictionary>(this, &AMScanParametersDictionary::krExportName));
 	loadKeywordReplacementDictionaryImplementation();
 }
 
@@ -137,6 +152,11 @@ QString AMScanParametersDictionary::krSampleElements(const QString& arg){
 }
 
 QString AMScanParametersDictionary::krSampleCreationDate(const QString& arg){
+	Q_UNUSED(arg);
+	return QString();
+}
+
+QString AMScanParametersDictionary::krExportName(const QString &arg){
 	Q_UNUSED(arg);
 	return QString();
 }

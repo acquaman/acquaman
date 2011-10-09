@@ -6,6 +6,8 @@
 class AMScanConfiguration;
 class AMScanExemplar;
 
+/// Can operate on name and exportName (but assumes $exportName can't be used in $name in addition to normal circular references)
+
 class AMScanExemplarDictionary : public AMScanParametersDictionary
 {
 Q_OBJECT
@@ -44,6 +46,8 @@ protected:
 	QString krSampleName(const QString& arg = QString());
 	QString krSampleElements(const QString& arg = QString());
 	QString krSampleCreationDate(const QString& arg = QString());
+
+	QString krExportName(const QString &arg = QString());
 
 protected:
 	AMScanExemplar *exemplar_;

@@ -170,6 +170,10 @@ void AMWorkflowManagerView::insertBeamlineAction(int index, AMBeamlineActionItem
 	else
 		workflowActions_->addAction(workflowQueue_->indexOfHead()+index, action);
 
+	AMBeamlineScanAction *scanAction = qobject_cast<AMBeamlineScanAction*>(action);
+	if(scanAction)
+		connect(scanAction, SIGNAL(exportMe(QList<QUrl>)), this, SIGNAL(exportOne(QList<QUrl>)));
+
 	if(startNow)
 		startQueue();
 

@@ -50,6 +50,9 @@ AMScan::AMScan(QObject *parent)
 	sampleNameLoaded_ = false;
 
 	nameDictionary_ = new AMScanDictionary(this, this);
+	nameDictionary_->setOperatingOnName(true);
+	exportNameDictionary_ = new AMScanDictionary(this, this);
+	exportNameDictionary_->setOperatingOnExportName(true);
 
 	// Connect added/removed signals from rawDataSources_ and analyzedDataSources_, to provide a model of all data sources:
 	connect(rawDataSources_.signalSource(), SIGNAL(itemAboutToBeAdded(int)), this, SLOT(onDataSourceAboutToBeAdded(int)));

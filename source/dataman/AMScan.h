@@ -88,7 +88,7 @@ public:
 	// Role 1: Meta Data Elements
 	////////////////////////////////
 	/// Returns the name of the technique used
-	virtual QString technique() { return "General Scan";}
+	//virtual QString technique() { return "General Scan";}
 	/// Returns a user-given number
 	int number() const { return number_;}
 	/// Returns creation time / scan start time
@@ -405,6 +405,7 @@ protected:
 	QStringList additionalFilePaths_;
 
 	AMScanDictionary *nameDictionary_;
+	AMScanDictionary *exportNameDictionary_;
 
 	/// Caches the sample name
 	mutable QString sampleName_;

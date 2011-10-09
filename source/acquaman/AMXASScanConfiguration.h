@@ -74,6 +74,11 @@ public:
 		return QString("XAS").arg(regionStart(0)).arg(regionEnd(regionCount()-1));
 	}
 
+	/// The scientific technique this configuration is for
+	virtual QString technique() const{
+		return "XAS";
+	}
+
 public slots:
 	/// Sets the start value of the region refered to by index. Returns true if sucessful, returns false if the index is invalid or the energy is out of range.
 	bool setRegionStart(int index, double start) { return regions_->setStart(index, start);}

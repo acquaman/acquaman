@@ -11,22 +11,17 @@ AMDictionaryLineEdit::AMDictionaryLineEdit(AMScanParametersDictionary *dictionar
 	dictionary_ = dictionary;
 	exampleLabel_ = exampleLabel;
 	connect(this, SIGNAL(textEdited(QString)), this, SLOT(onTextEdited(QString)));
+	if(exampleLabel_)
+		connect(dictionary_, SIGNAL(parsed(QString)), exampleLabel_, SLOT(setText(QString)));
 }
 
 void AMDictionaryLineEdit::setTextAndOperate(const QString &text){
 	setText(text);
-	operate();
-}
-
-void AMDictionaryLineEdit::operate(){
-	onTextEdited(text());
+	onTextEdited(text);
 }
 
 void AMDictionaryLineEdit::onTextEdited(const QString &text){
-	if(exampleLabel_)
-		exampleLabel_->setText("   ex,, "+dictionary_->parseKeywordStringAndOperate(text));
-	if(dictionary_->operatingOnName() || dictionary_->operatingOnExportName())
-		emit operated();
+	dictionary_->parseKeywordStringAndOperate(text);
 }
 
 void AMDictionaryLineEdit::keyPressEvent(QKeyEvent *e){

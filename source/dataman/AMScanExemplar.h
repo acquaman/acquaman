@@ -31,7 +31,6 @@ public:
 
 public slots:
 	void setName(const QString &name);
-	void setTechnique(const QString &technique);
 	void setDateTime(const QDateTime &dateTime);
 	void setRunName(const QString &runName);
 	void setRunStartDateTime(const QDateTime &runStartDateTime);
@@ -44,9 +43,11 @@ public slots:
 	void setSampleDateTime(const QDateTime &sampleDateTime);
 	void setExportName(const QString &exportName);
 
+signals:
+	void settingsChanged();
+
 protected:
 	QString name_;
-	QString technique_;
 	QString number_;
 	QDateTime dateTime_;
 	QString runName_;

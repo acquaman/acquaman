@@ -38,10 +38,18 @@ public slots:
 	/// Sets this dictionary (if possible) to operate on the exportName field ($exportName). This is mutually exclusive to setOperatingOnName().
 	virtual void setOperatingOnExportName(bool operateOnExportName) = 0;
 
+	/// Operate again on the last input string that was parsed
+	virtual void reoperate();
+
+signals:
+	/// Emitted when text is parsed by this dictionary
+	void parsed(const QString &parsed);
+
 protected:
 	/// Initializes the keywordDictionary_ with the functions you see below. You can always add more directly to keywordDictionary_.
 	virtual void loadKeywordReplacementDictionary();
 	virtual void loadKeywordReplacementDictionaryImplementation() = 0;
+	/// If your dictionary is operating on something, you should probably have some checks to make sure that you're not parsing what you're operating on
 	virtual void operateImplementation(const QString &input) = 0;
 
 	///////////////////////////////
@@ -70,6 +78,8 @@ protected:
 	virtual QString krSampleElements(const QString& arg = QString());
 	virtual QString krSampleCreationDate(const QString& arg = QString());
 
+	virtual QString krExportName(const QString& arg = QString());
+
 protected:
 	/// A dictionary of function pointers we've built to support the "$keyword" replacement system. The functors return the replacement text for a given keyword tag, possibly depending on the argument.  If you want to add more keywords to the parsing system, add them to this.
 	QHash<QString, AMAbstractTagReplacementFunctor*> keywordDictionary_;
@@ -78,6 +88,10 @@ protected:
 
 	bool operatingOnName_;
 	bool operatingOnExportName_;
+	bool operatingNow_;
+
+	/// The last string that was parsed
+	QString lastInputString_;
 };
 
 #endif // AMSCANPARAMETERSDICTIONARY_H
