@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/datastore/AMInMemoryDataStore.h"
 #include "acquaman/AMScanConfiguration.h"
+#include "dataman/AMScanDictionary.h"
 
 
 AMScan::AMScan(QObject *parent)
@@ -120,6 +121,9 @@ void AMScan::setSampleId(int newSampleId) {
 	emit sampleIdChanged(sampleId_);
 }
 
+QString AMScan::evaluatedName() const {
+	return nameDictionary_->parseKeywordString(name());
+}
 
 // Convenience function: returns the name of the sample (if a sample is set)
 QString AMScan::sampleName() const {

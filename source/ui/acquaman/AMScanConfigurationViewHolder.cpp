@@ -31,9 +31,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMScanConfiguration.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/AMWorkflowManagerView.h"
+#include "ui/dataman/AMDictionaryLineEdit.h"
 
 #include "dataman/AMXASScan.h"
-#include "dataman/AMScanDictionary.h"
+#include "dataman/AMScanExemplarDictionary.h"
 #include <QTimer>
 
 
@@ -43,21 +44,36 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 	view_ = view;
 	workflow_ = workflow;
 
-	testDefaultScan_ = 0; //NULL
-	testDictionary_ = 0; //NULL
+	testExemplar_.setName("");
+	testExemplar_.setTechnique("XAS");
+	testExemplar_.setDateTime(QDateTime::currentDateTime());
+	testExemplar_.setRunName("SGM");
+	testExemplar_.setRunStartDateTime(QDateTime::currentDateTime());
+	testExemplar_.setRunEndDateTime(QDateTime::currentDateTime());
+	testExemplar_.setFacilityName("SGM");
+	testExemplar_.setFacilityDescription("CLS SGM Beamline");
+	if(view_ && view_->configuration())
+		testExemplar_.setScanConfiguration(view->configuration());
+	testExemplar_.setSampleName("Eu Doped ZnO");
+	testExemplar_.setSampleElements("Eu Zn O");
+	testExemplar_.setSampleDateTime(QDateTime::currentDateTime());
+	exemplarNameDictionary_ = new AMScanExemplarDictionary(&testExemplar_, this);
+	exemplarNameDictionary_->setOperatingOnName(true);
+	exemplarExportNameDictionary_ = new AMScanExemplarDictionary(&testExemplar_, this);
+	exemplarExportNameDictionary_->setOperatingOnExportName(true);
+
 
 	scanNameLabel_ = new QLabel("Scan Name:");
-	//scanNameLineEdit_ = new QLineEdit();
-	scanNameLineEdit_ = new AMDictionaryLineEdit();
 	scanNameExampleLabel_ = new QLabel("   ex,, ");
+	scanNameDictionaryLineEdit_ = new AMDictionaryLineEdit(exemplarNameDictionary_, scanNameExampleLabel_);
 
 	autoExportLabel_ = new QLabel("---->");
 	doExportNameCheckBox_ = new QCheckBox("Set Name");
 	doAutoExportCheckBox_ = new QCheckBox("Auto Export");
 
 	exportNameLabel_ = new QLabel("Export Name:");
-	exportNameDictionaryLineEdit_ = new AMDictionaryLineEdit();
 	exportNameExampleLabel_ = new QLabel("   ex,, ");
+	exportNameDictionaryLineEdit_ = new AMDictionaryLineEdit(exemplarExportNameDictionary_, exportNameExampleLabel_);
 
 	doExportNameCheckBox_->setChecked(false);
 	doAutoExportCheckBox_->setChecked(true);
@@ -83,14 +99,13 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 		layout_->addWidget(view_);
 
 	QGridLayout *gl = new QGridLayout();
-	/**/
 	QHBoxLayout *hl0 = new QHBoxLayout();
 	hl0->addWidget(scanNameLabel_);
 	hl0->setContentsMargins(0,0,0,0);
 	QHBoxLayout *hl1 = new QHBoxLayout();
 	hl1->setContentsMargins(0,0,0,0);
 	QHBoxLayout *hl2 = new QHBoxLayout();
-	hl2->addWidget(scanNameLineEdit_);
+	hl2->addWidget(scanNameDictionaryLineEdit_);
 	hl2->setContentsMargins(0,0,0,0);
 	QHBoxLayout *hl3 = new QHBoxLayout();
 	hl3->setContentsMargins(0,0,0,0);
@@ -187,9 +202,7 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 
 	connect(workflow_, SIGNAL(workflowStatusChanged(bool,bool,bool)), this, SLOT(reviewStartScanButtonState()));
 
-
-	connect(scanNameLineEdit_, SIGNAL(textEdited(QString)), this, SLOT(onScanNameLineEditTextEdited(QString)));
-	connect(exportNameDictionaryLineEdit_, SIGNAL(textEdited(QString)), this, SLOT(onExportNameDictionaryLineEditTextEdited(QString)));
+	connect(scanNameDictionaryLineEdit_, SIGNAL(operated()), exportNameDictionaryLineEdit_, SLOT(operate()));
 	connect(doExportNameCheckBox_, SIGNAL(stateChanged(int)), this, SLOT(onDoExportNameCheckBoxStatedChanged(int)));
 
 	reviewStartScanButtonState();
@@ -211,6 +224,8 @@ void AMScanConfigurationViewHolder::setView(AMScanConfigurationView *view) {
 	view_ = view;
 	if(view_) {
 		layout_->insertWidget(0, view_);
+		if(view_->configuration())
+			testExemplar_.setScanConfiguration(view->configuration());
 	}
 
 	reviewStartScanButtonState();
@@ -296,8 +311,7 @@ void AMScanConfigurationViewHolder::onStartScanRequested(){
 	}
 
 	AMScanConfiguration *config = view_->configuration()->createCopy();
-	config->setUserScanName(scanNameLineEdit_->text());
-	//AMBeamlineScanAction* action = new AMBeamlineScanAction(view_->configuration()->createCopy());
+	config->setUserScanName(scanNameDictionaryLineEdit_->text());
 	AMBeamlineScanAction* action = new AMBeamlineScanAction(config);
 	workflow_->insertBeamlineAction(position, action, startNow);
 }
@@ -308,23 +322,12 @@ void AMScanConfigurationViewHolder::onAddToQueueRequested() {
 		return;
 
 	AMScanConfiguration *config = view_->configuration()->createCopy();
-	config->setUserScanName(scanNameLineEdit_->text());
-	//AMBeamlineScanAction* action = new AMBeamlineScanAction(view_->configuration()->createCopy());
+	config->setUserScanName(scanNameDictionaryLineEdit_->text());
 	AMBeamlineScanAction* action = new AMBeamlineScanAction(config);
 	workflow_->insertBeamlineAction(-1, action);
 
 	if(goToWorkflowOption_->isChecked())
 		emit showWorkflowRequested();
-}
-
-void AMScanConfigurationViewHolder::onScanNameLineEditTextEdited(const QString &text){
-	testDictionary_->useAsName(testDictionary_->parseKeywordString(text));
-	scanNameExampleLabel_->setText("   ex,, "+testDictionary_->parseKeywordString(text));
-	onExportNameDictionaryLineEditTextEdited(exportNameDictionaryLineEdit_->text());
-}
-
-void AMScanConfigurationViewHolder::onExportNameDictionaryLineEditTextEdited(const QString &text){
-	exportNameExampleLabel_->setText("   ex,, "+testDictionary_->parseKeywordString(text));
 }
 
 void AMScanConfigurationViewHolder::onDoExportNameCheckBoxStatedChanged(int state){
@@ -339,55 +342,6 @@ void AMScanConfigurationViewHolder::onDoExportNameCheckBoxStatedChanged(int stat
 }
 
 void AMScanConfigurationViewHolder::delayedDbLoad(){
-	testDefaultScan_ = new AMXASScan(this);
-	testDefaultScan_->loadFromDb(AMDatabase::userdb(), 1);
-	testDictionary_ = new AMScanDictionary(testDefaultScan_, this);
-
-	scanNameLineEdit_->setText(view_->configuration()->userScanName());
-	onScanNameLineEditTextEdited(scanNameLineEdit_->text());
-
-	exportNameDictionaryLineEdit_->setText("$name.dat");
-	onExportNameDictionaryLineEditTextEdited(exportNameDictionaryLineEdit_->text());
-}
-
-AMDictionaryLineEdit::AMDictionaryLineEdit(QWidget *parent) :
-	QLineEdit(parent)
-{
-
-}
-
-#include <QKeyEvent>
-
-void AMDictionaryLineEdit::keyPressEvent(QKeyEvent *e){
-	if(e->key() == Qt::Key_BracketLeft){
-		int lastCursorPosition = cursorPosition();
-		setText(text().insert(lastCursorPosition, "[]"));
-		setCursorPosition(lastCursorPosition+1);
-	}
-	else if(e->key() == Qt::Key_BracketRight && cursorPosition() != text().length() && text().at(cursorPosition()) == ']')
-		setCursorPosition(cursorPosition()+1);
-	else if(e->key() == Qt::Key_Backspace){
-		if(hasSelectedText())
-			QLineEdit::keyPressEvent(e);
-		else if(text().length() >= 2 && cursorPosition() != 0 && text().at(cursorPosition()-1) == ']' && text().at(cursorPosition()-2) == '[')
-			setText(text().remove(cursorPosition()-2,2));
-		else if(text().length() >= 2 && cursorPosition() != 0 && text().at(cursorPosition()-1) == '[' && cursorPosition() != text().length() && text().at(cursorPosition()) == ']')
-			setText(text().remove(cursorPosition()-1,2));
-		else if(text().length() >= 3 && cursorPosition() != 0 && text().at(cursorPosition()-1) == ']'){
-			int otherBracket = text().lastIndexOf('[', cursorPosition()-1);
-			int difference = cursorPosition()-otherBracket;
-			if(otherBracket != -1)
-				setSelection(otherBracket, difference);
-		}
-		else if(text().length() >= 3 && cursorPosition() != 0 && text().at(cursorPosition()-1) == '['){
-			int otherBracket = text().indexOf(']', cursorPosition()-1);
-			int difference = otherBracket-(cursorPosition()-1)+1;
-			if(otherBracket != -1)
-				setSelection(cursorPosition()-1, difference);
-		}
-		else
-			QLineEdit::keyPressEvent(e);
-	}
-	else
-		QLineEdit::keyPressEvent(e);
+	scanNameDictionaryLineEdit_->setTextAndOperate(view_->configuration()->userScanName());
+	exportNameDictionaryLineEdit_->setTextAndOperate("$name.dat");
 }

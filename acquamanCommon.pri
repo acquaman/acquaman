@@ -409,7 +409,11 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/VESPERS/VESPERSXASDataLoader.h \
 	source/dataman/AMFileLoaderInterface.h \
 	source/ui/util/AMSettingsView.h \
-    source/dataman/AMScanDictionary.h
+    source/dataman/AMScanDictionary.h \
+    source/dataman/AMScanParametersDictionary.h \
+    source/dataman/AMScanExemplarDictionary.h \
+    source/dataman/AMScanExemplar.h \
+    source/ui/dataman/AMDictionaryLineEdit.h
 
 CONFIG(mobility) {
 HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
@@ -663,7 +667,11 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AM2DDeadTimeAB.cpp \
 	source/dataman/VESPERS/VESPERSXASDataLoader.cpp \
 	source/ui/util/AMSettingsView.cpp \
-    source/dataman/AMScanDictionary.cpp
+    source/dataman/AMScanDictionary.cpp \
+    source/dataman/AMScanParametersDictionary.cpp \
+    source/dataman/AMScanExemplarDictionary.cpp \
+    source/dataman/AMScanExemplar.cpp \
+    source/ui/dataman/AMDictionaryLineEdit.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
@@ -680,5 +688,13 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
+
+
 
 

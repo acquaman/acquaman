@@ -32,12 +32,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/info/AMControlInfoList.h"	/// \todo change to AMControlInfoSet, using standard set API.
 
 #include "dataman/AMFileLoaderInterface.h"
-#include "dataman/AMScanDictionary.h"
 
 typedef AMOrderedSet<QString, AMRawDataSource*> AMRawDataSourceSet;
 typedef AMOrderedSet<QString, AMAnalysisBlock*> AMAnalyzedDataSourceSet;
 
 class AMScanConfiguration;
+class AMScanDictionary;
 
 /// This class is the base of all objects that represent a single 'scan' on a beamline.  It's also used as the standard container for a set of raw and/or processed AMDataSources, which can be visualized together in
 class AMScan : public AMDbObject {
@@ -109,7 +109,7 @@ public:
 
 	// Convenience functions on meta-data:
 	/////////////////////////
-	QString evaluatedName() const {return nameDictionary_->parseKeywordString(name());}
+	QString evaluatedName() const;
 	/// Returns the full scan name: number appended to name
 	//QString fullName() const {return QString("%1 #%2").arg(name()).arg(number()); }
 	QString fullName() const {return QString("%1 #%2").arg(evaluatedName()).arg(number()); }

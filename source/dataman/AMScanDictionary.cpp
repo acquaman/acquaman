@@ -1,78 +1,56 @@
 #include "AMScanDictionary.h"
-
 #include <QStringBuilder>
-
-#include "util/AMTagReplacementParser.h"
 #include "dataman/AMScan.h"
+#include "util/AMTagReplacementParser.h"
 
 AMScanDictionary::AMScanDictionary(AMScan *scan, QObject *parent) :
-	QObject(parent)
+	AMScanParametersDictionary(parent)
 {
 	scan_ = scan;
-	useAsName_ = "";
-	useAsNameEnabled_ = false;
-	keywordParser_ = new AMTagReplacementParser();
 
 	loadKeywordReplacementDictionary();
 }
 
-
-QString AMScanDictionary::parseKeywordString(const QString &inputString) {
-	keywordParser_->setInitialText(inputString);
-	keywordParser_->replaceAllUsingDictionary(keywordDictionary_);
-	return keywordParser_->getReplacedText();
+bool AMScanDictionary::canOperateOnName() const{
+	return true;
 }
 
-void AMScanDictionary::useAsName(const QString &name){
-	if(name == "")
-		useAsNameEnabled_ = false;
-	else{
-		useAsName_ = name;
-		useAsNameEnabled_ = true;
-	}
+bool AMScanDictionary::canOperateOnExportName() const{
+	return true;
 }
 
-void AMScanDictionary::loadKeywordReplacementDictionary()
+void AMScanDictionary::setOperatingOnName(bool operatingOnName){
+	if(operatingOnName && operatingOnExportName())
+		operatingOnExportName_ = false;
+	operatingOnName_ = operatingOnName;
+}
+
+void AMScanDictionary::setOperatingOnExportName(bool operatingOnExportName){
+	if(operatingOnExportName && operatingOnName())
+		operatingOnName_ = false;
+	operatingOnExportName_ = operatingOnExportName;
+}
+
+void AMScanDictionary::loadKeywordReplacementDictionaryImplementation()
 {
-	keywordDictionary_.insert("name", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krName));
-	keywordDictionary_.insert("technique", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krTechnique));
-	keywordDictionary_.insert("number", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krNumber));
 	keywordDictionary_.insert("notes", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krNotes));
-	keywordDictionary_.insert("date", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krDate));
-	keywordDictionary_.insert("time", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krTime));
-	keywordDictionary_.insert("dateTime", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krDateTime));
-
-	keywordDictionary_.insert("run", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krRun));
-	keywordDictionary_.insert("runName", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krRunName));
-	keywordDictionary_.insert("runStartDate", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krRunStartDate));
-	keywordDictionary_.insert("runEndDate", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krRunEndDate));
 	keywordDictionary_.insert("runNotes", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krRunNotes));
-	keywordDictionary_.insert("facilityName", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krFacilityName));
-	keywordDictionary_.insert("facilityDescription", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krFacilityDescription));
-
-	keywordDictionary_.insert("scanConfiguration", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krScanConfiguration));
-
 	keywordDictionary_.insert("control", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krControl));
 	keywordDictionary_.insert("controlDescription", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krControlDescription));
 	keywordDictionary_.insert("controlValue", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krControlValue));
 	keywordDictionary_.insert("controlUnits", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krControlUnits));
 	keywordDictionary_.insert("allControls", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krAllControls));
-
-	keywordDictionary_.insert("sample", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krSample));
-	keywordDictionary_.insert("sampleName", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krSampleName));
-	keywordDictionary_.insert("sampleElements", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krSampleElements));
-	keywordDictionary_.insert("sampleCreationDate", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krSampleCreationDate));
 	keywordDictionary_.insert("sampleNotes", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krSampleNotes));
 }
 
+void AMScanDictionary::operateImplementation(const QString &input){
+
+}
 
 QString AMScanDictionary::krName(const QString& arg) {
 	Q_UNUSED(arg)
-	if(scan_){
-		if(useAsNameEnabled_)
-			return useAsName_;
+	if(scan_)
 		return scan_->name();
-	}
 	return "[??]";
 }
 
@@ -83,6 +61,7 @@ QString AMScanDictionary::krTechnique(const QString& arg) {
 		return scan_->technique();
 	return "[??]";
 }
+
 
 QString AMScanDictionary::krNumber(const QString& arg) {
 	Q_UNUSED(arg)

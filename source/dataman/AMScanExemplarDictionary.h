@@ -1,13 +1,16 @@
-#ifndef AMSCANDICTIONARY_H
-#define AMSCANDICTIONARY_H
+#ifndef AMSCANEXEMPLARDICTIONARY_H
+#define AMSCANEXEMPLARDICTIONARY_H
 
 #include "dataman/AMScanParametersDictionary.h"
 
-class AMScanDictionary : public AMScanParametersDictionary
+class AMScanConfiguration;
+class AMScanExemplar;
+
+class AMScanExemplarDictionary : public AMScanParametersDictionary
 {
-	Q_OBJECT
+Q_OBJECT
 public:
-	AMScanDictionary(AMScan *scan, QObject *parent = 0);
+	AMScanExemplarDictionary(AMScanExemplar *exemplar, QObject *parent = 0);
 
 	bool canOperateOnName() const;
 	bool canOperateOnExportName() const;
@@ -17,18 +20,12 @@ public slots:
 	void setOperatingOnExportName(bool operatingOnExportName);
 
 protected:
-	/// Initializes the keywordDictionary_ with the functions you see below. You can always add more directly to keywordDictionary_.
 	void loadKeywordReplacementDictionaryImplementation();
 	void operateImplementation(const QString &input);
-
-	///////////////////////////////
-	// functions to implement the keyword replacement system
-	///////////////////////////////
 
 	QString krName(const QString& arg = QString());
 	QString krTechnique(const QString &arg = QString());
 	QString krNumber(const QString& arg = QString());
-	QString krNotes(const QString& arg = QString());
 	QString krDate(const QString& arg = QString());
 	QString krTime(const QString& arg = QString());
 	QString krDateTime(const QString& arg = QString());
@@ -37,29 +34,19 @@ protected:
 	QString krRunName(const QString& arg = QString());
 	QString krRunStartDate(const QString& arg = QString());
 	QString krRunEndDate(const QString& arg = QString());
-	QString krRunNotes(const QString& arg = QString());
 
 	QString krFacilityName(const QString& arg = QString());
 	QString krFacilityDescription(const QString& arg = QString());
 
 	QString krScanConfiguration(const QString& propertyName);
 
-	QString krControl(const QString& controlName);
-	QString krControlDescription(const QString& controlName);
-	QString krControlValue(const QString& controlName);
-	QString krControlUnits(const QString& controlName);
-
-	QString krAllControls(const QString& arg = QString());
-
 	QString krSample(const QString& arg = QString());
 	QString krSampleName(const QString& arg = QString());
 	QString krSampleElements(const QString& arg = QString());
 	QString krSampleCreationDate(const QString& arg = QString());
-	QString krSampleNotes(const QString& arg = QString());
 
 protected:
-	/// The scan this dictionary is going to operate on
-	AMScan *scan_;
+	AMScanExemplar *exemplar_;
 };
 
-#endif // AMSCANDICTIONARY_H
+#endif // AMSCANEXEMPLARDICTIONARY_H
