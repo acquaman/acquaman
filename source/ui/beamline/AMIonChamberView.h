@@ -44,8 +44,13 @@ protected slots:
 	void onDecreaseSensitivityClicked() { chamber_->decreaseSensitivity(); }
 	/// Handles the display of the output string based on the current voltage/counts output and displays the appropriate output based on the current view choice (counts, voltage, status string).
 	void onReadingsChanged();
+	/// Builds a popup menu for switching view modes.
+	void onCustomContextMenuRequested(QPoint pos);
 
 protected:
+	/// Enum that holds the display state.
+	enum Display { Counts, Voltage, Status };
+
 	/// Pointer to the ion chamber being viewed.
 	AMIonChamber *chamber_;
 
@@ -55,6 +60,9 @@ protected:
 	QString tooLow_;
 	/// Format string for being within the correct range.
 	QString withinRange_;
+
+	/// State flag that holds what state the ion chamber is currently in.
+	Display state_;
 
 	/// The label that the format strings and the counts are displayed.
 	QLabel *output_;
