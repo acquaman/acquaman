@@ -18,12 +18,12 @@ AMIonChamberView::AMIonChamberView(AMIonChamber *chamber, QWidget *parent)
 
 	QToolButton *minus = new QToolButton;
 	minus->setIcon(QIcon(":/22x22/list-remove.png"));
-	connect(minus, SIGNAL(clicked()), this, SLOT(onDecreaseSensitivityClicked()));
+	connect(minus, SIGNAL(clicked()), chamber_, SLOT(decreaseSensitivity()));
 	connect(chamber_, SIGNAL(minimumSensitivity(bool)), minus, SLOT(setDisabled(bool)));
 
 	QToolButton *plus = new QToolButton;
 	plus->setIcon(QIcon(":/22x22/list-add.png"));
-	connect(plus, SIGNAL(clicked()), this, SLOT(onIncreaseSensitivityClicked()));
+	connect(plus, SIGNAL(clicked()), chamber_, SLOT(increaseSensitivity()));
 	connect(chamber_, SIGNAL(maximumSensitivity(bool)), plus, SLOT(setDisabled(bool)));
 
 	output_ = new QLabel;

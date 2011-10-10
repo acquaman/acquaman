@@ -38,10 +38,6 @@ signals:
 public slots:
 
 protected slots:
-	/// Handles increasing the sensitivity when the plus button is clicked.
-	void onIncreaseSensitivityClicked() { chamber_->increaseSensitivity(); }
-	/// Handles decreasing the sensitivity when the minum button is clicked.
-	void onDecreaseSensitivityClicked() { chamber_->decreaseSensitivity(); }
 	/// Handles the display of the output string based on the current voltage/counts output and displays the appropriate output based on the current view choice (counts, voltage, status string).
 	void onReadingsChanged();
 	/// Builds a popup menu for switching view modes.
