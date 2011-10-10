@@ -25,6 +25,10 @@ public:
 	double counts() const { return counts_->value(); }
 	/// Implements the pure virtual function.  Returns the voltage for the ion chamber.
 	double voltage() const { return voltage_->value(); }
+	/// Implements the pure virtual function.  Returns whether the ion chamber is at its maximum sensitivity.
+	virtual bool atMaximumSensitivity() const{ return sensitivity_->atMaximumSensitivity(); }
+	/// Implements the pure virtual function.  Returns whether the ion chamber is at its minimum sensitivity.
+	virtual bool atMinimumSensitivity() const{ return sensitivity_->atMinimumSensitivity(); }
 
 public slots:
 	/// Reimplemented.  Increases the sensitivity of the ion chamber.  How this is done is implementation specific.

@@ -28,9 +28,9 @@ public:
 	bool isConnected() const { return connected_; }
 
 	/// Returns whether the ion chamber is at maximum senstivity.
-	bool atMaximumSensitivity() const { return atMaximumSensitivity_; }
+	virtual bool atMaximumSensitivity() const { return atMaximumSensitivity_; }
 	/// Returns whether the ion chamber is at minimum sensitivity.
-	bool atMinimumSensitivity() const { return atMinimumSensitivity_; }
+	virtual bool atMinimumSensitivity() const { return atMinimumSensitivity_; }
 
 signals:
 	/// General notifier.  Emitted if either the value or the units have changed.

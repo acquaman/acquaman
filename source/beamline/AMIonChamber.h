@@ -46,15 +46,26 @@ public:
 	/// Specific helper function that returns whether the voltage is too high.  Returns false if withinLinearRange is true.
 	bool voltageTooHigh() const { return !withinLinearRange() && voltage() > maximumVoltage(); }
 
+	/// Pure-virtual function.  Returns whether the ion chamber is at maximum senstivity.
+	virtual bool atMaximumSensitivity() const = 0;
+	/// Pure-virtual function.  Returns whether the ion chamber is at minimum sensitivity.
+	virtual bool atMinimumSensitivity() const = 0;
+
 signals:
 	/// Notifier that the ion chamber is connected.  True only when all the components of the ion chamber are connected.
 	void connected(bool);
+	/// General notifier that the reading (output) has changed.  Emitted when either counts or voltage has changed.
+	void readingsChanged();
 	/// Notifier that the counts have changed.
 	void countsChanged(double);
 	/// Notifier that the voltage has changed.
 	void voltageChanged(double);
 	/// Notifier that the sensitivity has changed.
 	void sensitivityChanged();
+	/// Notifier that the ion chamber is at the minimum sensitivity.  Passes the truth value.
+	void minimumSensitivity(bool);
+	/// Notifier that the ion chamber is at the maximums sensitivity.  Passes the truth value.
+	void maximumSensitivity(bool);
 
 public slots:
 	/// Pure virtual function.  Increases the sensitivity of the ion chamber.  How this is done is implementation specific.

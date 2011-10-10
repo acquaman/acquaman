@@ -16,6 +16,9 @@ CLSIonChamber::CLSIonChamber(const QString &name, const QString &description, co
 	connect(counts_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 	connect(voltage_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 	connect(sensitivity_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+
+	connect(counts_, SIGNAL(valueChanged(double)), this, SIGNAL(readingsChanged()));
+	connect(voltage_, SIGNAL(valueChanged(double)), this, SIGNAL(readingsChanged()));
 }
 
 void CLSIonChamber::onConnectedChanged()
