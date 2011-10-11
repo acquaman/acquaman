@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define VESPERSXASSCANCONFIGURATION_H
 
 #include "acquaman/AMXASScanConfiguration.h"
+#include "dataman/info/AMROIInfo.h"
 
 #include  <QMap>
 
@@ -29,15 +30,19 @@ class VESPERSXASScanConfiguration : public AMXASScanConfiguration
 {
 	Q_OBJECT
 
-	Q_PROPERTY(int fluorescenceDetectorChoice READ fluorescenceDetectorChoice WRITE setFluorescenceDetectorChoice)
-	Q_PROPERTY(int transmissionChoice READ transmissionChoice WRITE setTransmissionChoice)
-	Q_PROPERTY(int incomingChoice READ incomingChoice WRITE setIncomingChoice)
+	Q_PROPERTY(FluorescenceDetector fluorescenceDetectorChoice READ fluorescenceDetectorChoice WRITE setFluorescenceDetectorChoice)
+	Q_PROPERTY(IonChamber transmissionChoice READ transmissionChoice WRITE setTransmissionChoice)
+	Q_PROPERTY(IonChamber incomingChoice READ incomingChoice WRITE setIncomingChoice)
 	Q_PROPERTY(double accumulationTime READ accumulationTime WRITE setAccumulationTime)
 	Q_PROPERTY(QString edge READ edge WRITE setEdge)
 	Q_PROPERTY(double edgeEnergy READ energy WRITE setEnergy)
 	Q_PROPERTY(bool goToPosition READ goToPosition WRITE setGoToPosition)
 	Q_PROPERTY(double xPosition READ x WRITE setX)
 	Q_PROPERTY(double yPosition READ y WRITE setY)
+	Q_PROPERTY(AMDbObject* roiInfoList READ dbGetROIInfoList WRITE dbLoadROIInfoList)
+
+	Q_ENUMS(FluorescenceDetector)
+	Q_ENUMS(IonChamber)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS XAS Scan Configuration")
 
@@ -90,6 +95,17 @@ public:
 	/// Returns the ion chamber name from its corresponding enum.
 	QString ionChamberName(IonChamber chamber) { return ionChamberNames_.value(chamber); }
 
+	/// Returns the ROI list.  The list is empty if not using a fluorescence detector.
+	AMROIInfoList roiList() const { return roiInfoList_; }
+
+	// Database loading and storing
+	///////////////////////
+
+	/// The database reading member function.
+	AMDbObject *dbGetROIInfoList() { return &roiInfoList_; }
+	/// Don't need to do anything because dbGetROIList always returns a valid AMDbObject.
+	void dbLoadROIInfoList(AMDbObject *) {}
+
 public slots:
 	/// Adds a region to the XAS scan.  \param index is the region you are adding and \param start, \param delta, and \param end define the region.
 	virtual bool addRegion(int index, double start, double delta, double end) { return regions_->addRegion(index, start, delta, end); }
@@ -124,6 +140,9 @@ public slots:
 	/// Sets the y coordinate of the starting position of the scan.
 	void setY(double yPos) { position_.second = yPos; setModified(true); }
 
+	/// Sets the ROI list.
+	void setRoiInfoList(const AMROIInfoList &list) { roiInfoList_ = list; setModified(true); }
+
 protected:
 	/// Fluorescence detector choice.
 	FluorescenceDetector fluorescenceDetectorChoice_;
@@ -146,6 +165,9 @@ protected:
 
 	/// Mapping between Ion chambers and their names.
 	QMap<IonChamber, QString> ionChamberNames_;
+
+	/// The list holding all the current ROIs for the detector.
+	AMROIInfoList roiInfoList_;
 };
 
 #endif // VESPERSXASSCANCONFIGURATION_H

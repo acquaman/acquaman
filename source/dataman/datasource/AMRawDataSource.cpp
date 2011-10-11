@@ -51,7 +51,10 @@ AMRawDataSource::AMRawDataSource(const AMDataStore* dataStore, int measurementId
 
 	// create connections to datastore:
 	connect(dataStore_->signalSource(), SIGNAL(dataChanged(AMnDIndex,AMnDIndex,int)), this, SLOT(onDataChanged(AMnDIndex, AMnDIndex,int)) );
-	connect(dataStore->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onScanAxisSizeChanged(int)));
+	connect(dataStore_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onScanAxisSizeChanged(int)));
+
+	// raw data sources shouldn't be visible in plots, usually.  This is just a default; programmers can always call setVisibleInPlots(), or use the AMScan::addRawDataSource() version which calls this internally.
+	visibleInPlots_ = false;
 }
 
 
@@ -62,6 +65,9 @@ AMRawDataSource::AMRawDataSource(AMDatabase* db, int id)
 	dataStore_ = 0;
 	measurementId_ = 0;
 	stateFlags_ = AMDataSource::InvalidFlag;
+
+	// raw data sources shouldn't be visible in plots, usually.  This is just a default; programmers can always call setVisibleInPlots(), or use the AMScan::addRawDataSource() version which calls this internally.
+	visibleInPlots_ = false;
 
 	// restore the description(), rank(), measurementId(), scanRank(), and measurementRank() as stored in the database.  Our state() will remain Invalid until you call setDataStore() with a valid datastore that matches these dimensions.
 	loadFromDb(db, id);

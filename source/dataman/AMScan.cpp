@@ -305,9 +305,9 @@ void AMScan::dbLoadAnalyzedDataSourcesConnections(const QString& connectionStrin
 
 		if(!analyzedDataSources_.at(i)->setInputDataSources(inputs))
 			AMErrorMon::report(AMErrorReport(	this,
-											 AMErrorReport::Alert,
-											 0,
-											 QString("There was an error re-connecting the inputs for the analysis component '%1: %2', when reloading this scan from the database. Your database might be corrupted. Please report this bug to the Acquaman developers.").arg(analyzedDataSources_.at(i)->name()).arg(analyzedDataSources_.at(i)->description())));
+												AMErrorReport::Alert,
+												0,
+												QString("There was an error re-connecting the inputs for the analysis component '%1: %2', when reloading this scan from the database. Your database might be corrupted. Please report this bug to the Acquaman developers.").arg(analyzedDataSources_.at(i)->name()).arg(analyzedDataSources_.at(i)->description())));
 	}
 }
 
@@ -368,6 +368,24 @@ void AMScan::dbLoadScanConfiguration(AMDbObject* newObject) {
 		setScanConfiguration(sc);
 }
 
+// This overloaded function calls addRawDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
+bool AMScan::addRawDataSource(AMRawDataSource* newRawDataSource, bool visibleInPlots, bool hiddenFromUsers) {
+	if(newRawDataSource) {
+		newRawDataSource->setHiddenFromUsers(hiddenFromUsers);
+		newRawDataSource->setVisibleInPlots(visibleInPlots);
+	}
+
+	return addRawDataSource(newRawDataSource);
+}
+
+// This overloaded function calls addAnalyzedDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
+bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource, bool visibleInPlots, bool hiddenFromUsers) {
+	if(newAnalyzedDataSource) {
+		newAnalyzedDataSource->setHiddenFromUsers(hiddenFromUsers);
+		newAnalyzedDataSource->setVisibleInPlots(visibleInPlots);
+	}
+	return addAnalyzedDataSource(newAnalyzedDataSource);
+}
 
 
 #include <QPixmap>
@@ -389,9 +407,9 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 	bool useRawSources = (analyzedDataSources_.count() == 0);
 
 	if( index < 0 ||
-		(useRawSources && index >= rawDataSources_.count()) ||
-		(!useRawSources && index >= analyzedDataSources_.count())
-		)
+			(useRawSources && index >= rawDataSources_.count()) ||
+			(!useRawSources && index >= analyzedDataSources_.count())
+			)
 		return AMDbThumbnail(QString(), QString(), AMDbThumbnail::InvalidType, QByteArray());
 
 	// convert index into a proper index for dataSourceAt(). If we're using raw sources, leave as-is. If we're using analyzed data sources, add the rawDataSources_.count() offset.
@@ -448,3 +466,26 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 	return AMDbThumbnail(dataSource->description(), dataSource->name(), pixmap);
 
 }
+
+bool AMScan::loadData()
+
+{
+	//		bool success = loadDataImplementation();
+	bool accepts = false;
+	bool success = false;
+	for(int x = 0; x < AMSettings::availableFileLoaders.count(); x++) {
+		AMFileLoaderInterface *fileloader = AMSettings::availableFileLoaders.at(x);
+		if((accepts = fileloader->accepts(this))){
+			success = fileloader->load(this, AMUserSettings::userDataFolder);
+			break;
+		}
+
+	}
+	if(!accepts)
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -47, QString("Could not find a suitable plugin for loading the file format '%1'.  Check the Acquaman preferences for the correct plugin locations, and contact the Acquaman developers for assistance.").arg(fileFormat())));
+	if(success)
+		for(int i=rawDataSources_.count()-1; i>=0; i--)
+			rawDataSources_.at(i)->setDataStore(rawData());
+	return success;
+}
+

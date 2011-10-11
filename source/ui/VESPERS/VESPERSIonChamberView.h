@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 #include <QComboBox>
+#include <QLabel>
 
 #include "beamline/VESPERS/VESPERSIonChamber.h"
 
@@ -61,6 +62,32 @@ protected:
 
 };
 
+/// This class is a simpler, more user friendly view than VESPERSIonChamberView.  It hides away the sensitivity choices and replaces them with - and + buttons with simple feedback of whether you're on target.
+class VESPERSIonChamberBasicView : public QWidget
+{
+	Q_OBJECT
+
+public:
+	/// Constructor.  Takes in a VESPERSIonChamber and builds a view around it.  It also requires the acceptable voltage range to determine whether the ion chamber sensitivity is correct.
+	explicit VESPERSIonChamberBasicView(VESPERSIonChamber *ionChamber, double min, double max, QWidget *parent = 0);
+
+protected slots:
+	/// Handles updates to the value of the ion chamber.
+	void onIonChamberChanged();
+
+protected:
+	/// Pointer to the ion chamber being viewed.
+	VESPERSIonChamber *ionChamber_;
+
+	/// The minimum voltage for good sensitivity.
+	double minimumVoltage_;
+	/// The maximum voltage for good sensitivity.
+	double maximumVoltage_;
+
+	/// The visual feedback.  This will be either counts, voltage, or a word to tell you whether you are doing okay.
+	QLabel *feedback_;
+};
+
 #include "beamline/VESPERS/VESPERSSplitIonChamber.h"
 
 /// This class is a view that is meant to look like VESPERSIonChamberView but the only different is that it is for the split ion chamber.  Because they are not general yet, it needs it's own view class.
@@ -90,6 +117,32 @@ protected:
 	QComboBox *value_;
 	/// Combo box holding the units for the sensitivity.
 	QComboBox *units_;
+};
+
+/// This class is a view that is meant to look like VESPERSIonChamberBasicView but the only different is that it is for the split ion chamber.  Because they are not general yet, it needs it's own view class.
+class VESPERSSplitIonChamberBasicView : public QWidget
+{
+	Q_OBJECT
+
+public:
+	/// Constructor.  Takes in a VESPERSIonChamber and builds a view around it.  It also requires the acceptable voltage range to determine whether the ion chamber sensitivity is correct.
+	explicit VESPERSSplitIonChamberBasicView(VESPERSSplitIonChamber *ionChamber, double min, double max, QWidget *parent = 0);
+
+protected slots:
+	/// Handles updates to the value of the ion chamber.
+	void onIonChamberChanged();
+
+protected:
+	/// Pointer to the ion chamber being viewed.
+	VESPERSSplitIonChamber *ionChamber_;
+
+	/// The minimum voltage for good sensitivity.
+	double minimumVoltage_;
+	/// The maximum voltage for good sensitivity.
+	double maximumVoltage_;
+
+	/// The visual feedback.  This will be either counts, voltage, or a word to tell you whether you are doing okay.
+	QLabel *feedback_;
 };
 
 #endif // VESPERSIONCHAMBERVIEW_H

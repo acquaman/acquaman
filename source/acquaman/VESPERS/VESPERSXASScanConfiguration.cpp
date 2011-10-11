@@ -66,6 +66,8 @@ VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(const VESPERSXASScanCon
 
 	goToPosition_ = original.goToPosition();
 	position_ = original.position();
+
+	roiInfoList_ = original.roiList();
 }
 
 AMScanConfiguration *VESPERSXASScanConfiguration::createCopy() const

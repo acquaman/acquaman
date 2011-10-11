@@ -202,7 +202,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	connect(waterfallButton_, SIGNAL(toggled(bool)), waterfallSeparation_, SLOT(setEnabled(bool)));
 
 	/// \todo Save button hack.  Once auto-export works, redo this if need be.
-	QPushButton *saveSpectraButton = new QPushButton(QIcon(":/Save.png"), "Save Spectra");
+	QPushButton *saveSpectraButton = new QPushButton(QIcon(":/save.png"), "Save Spectra");
 	connect(saveSpectraButton, SIGNAL(clicked()), this, SLOT(saveSpectra()));
 
 	QHBoxLayout *statusLayout = new QHBoxLayout;

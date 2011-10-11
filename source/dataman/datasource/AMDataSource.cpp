@@ -29,6 +29,9 @@ AMDataSource::AMDataSource(const QString& name)
 	: name_(name)
 {
 	signalSource_ = new AMDataSourceSignalSource(this);
+
+	visibleInPlots_ = true;
+	hiddenFromUsers_ = false;
 }
 
 AMDataSource::~AMDataSource() {

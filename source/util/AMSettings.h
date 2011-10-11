@@ -110,6 +110,9 @@ public:
 	/// Save settings to disk:
 	static void save();
 
+	/// Load application plugins  (Should we move this to AM(Dataman)AppController, since it's part of the app lifecycle process? Then it could be virtual and re-defined by apps if necessary. Also, loading plugins turns out to be an expensive operation; we might not want tie it automatically to re-loading the settings.
+	static void loadApplicationPlugins();
+
 };
 
 

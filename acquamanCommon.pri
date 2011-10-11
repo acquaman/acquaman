@@ -16,9 +16,9 @@ macx {
 		DEV_PATH = dev
 
 		# EPICS Dependencies:
-		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/include \
-				$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/include/os/Darwin
-		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/lib/darwin-x86
+				EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include \
+								$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include/os/Darwin
+				EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/lib/darwin-x86
 
 		# MPlot Source
 		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
@@ -407,7 +407,12 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/analysis/AM2DDeadTimeAB.h \
 	source/dataman/VESPERS/VESPERSXASDataLoader.h \
 	source/dataman/AMFileLoaderInterface.h \
-	source/ui/util/AMSettingsView.h
+	source/ui/util/AMSettingsView.h \
+    source/beamline/AMIonChamber.h \
+    source/dataman/info/AMIonChamberInfo.h \
+    source/beamline/CLS/CLSIonChamber.h \
+    source/beamline/CLS/CLSSR570.h \
+    source/ui/beamline/AMIonChamberView.h
 
 CONFIG(mobility) {
 HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
@@ -659,7 +664,12 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/CLS/CLSSynchronizedDwellTimeView.cpp \
 	source/analysis/AM2DDeadTimeAB.cpp \
 	source/dataman/VESPERS/VESPERSXASDataLoader.cpp \
-	source/ui/util/AMSettingsView.cpp
+	source/ui/util/AMSettingsView.cpp \
+    source/beamline/AMIonChamber.cpp \
+    source/dataman/info/AMIonChamberInfo.cpp \
+    source/beamline/CLS/CLSIonChamber.cpp \
+    source/beamline/CLS/CLSSR570.cpp \
+    source/ui/beamline/AMIonChamberView.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
@@ -676,3 +686,13 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
+
+
+
+

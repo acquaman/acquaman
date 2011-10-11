@@ -37,9 +37,9 @@ class AMDataSource;
 class AMDataSourcePlotSettings {
 public:
 	/// Default Constructor
-	AMDataSourcePlotSettings(double Priority = 1, const QPen& LinePen = QPen(nextColor()), bool Visible = true)
+	AMDataSourcePlotSettings(double Priority = 1, const QPen& LinePen = QPen(nextColor()))
 		: priority(Priority),
-		  visible(Visible),
+		  // visible(Visible),
 		  linePen(LinePen),
 		  colorMap(MPlotColorMap::Jet)
 	{
@@ -55,8 +55,8 @@ public:
 
 	/// Priority level for this data source (used for ordering... lower numbers appear first.)
 	double priority;
-	/// Whether this data source is shown/enabled in non-exclusive views.
-	bool visible;
+	/// Whether this data source is shown/enabled in non-exclusive views. This option is available to users; they can toggle it on or off.
+	// Now stored in AMDataSource::visibleInPlots(). bool visible;
 
 	// 1D plot settings:
 	/// Pen used for this data source (dots, dashes, etc.), as well as width and color
@@ -106,7 +106,7 @@ Data Roles:
  Qt::TooltipRole: QString			- detailed information (Scan's name, number, dateTime and sample name; or data source description() )
  AM::DescriptionRole: QString		- detailed information (Scan sample name and dateTime; or data source description() )
 
- Qt::CheckStateRole: Qt::CheckState	- Data sources only: whether visible or not. (Qt::Checked or Qt::Unchecked)
+ Qt::CheckStateRole: Qt::CheckState	- Data sources only: Whether user wants to be visible in plots or not. (Qt::Checked or Qt::Unchecked)
 
  // custom roles:
  AM::PointerRole: AMScan* or AMDataSource*	- the pointer to the object
@@ -158,9 +158,9 @@ public:
 		return sourcePlotSettings_.at(scanIndex).at(dataSourceIndex);
 	}
 	/// Indicates whether the data source at \c dataSourceIndex within the scan at \c scanIndex should be visible on plots.
-	bool isVisible(int scanIndex, int dataSourceIndex) const {
-		return sourcePlotSettings_.at(scanIndex).at(dataSourceIndex).visible;
-	}
+	bool isVisible(int scanIndex, int dataSourceIndex) const;
+	/// Indicates whether the data source at \c dataSourceIndex within the scan at \c scanIndex should be hidden completely from users (ie: it shouldn't be visible, and they shouldn't be able to toggle its visibility)
+	bool isHiddenFromUsers(int scanIndex, int dataSourceIndex) const;
 	/// Returns the color to use for data source at \c dataSourceIndex within the scan at \c scanIndex
 	QColor plotColor(int si, int di) const {	return sourcePlotSettings_.at(si).at(di).linePen.color(); }
 	/// Returns the pen that should be used to draw the data source at \c dataSourceIndex within the scan at \c scanIndex
@@ -268,11 +268,8 @@ public:
 public slots:
 	// Convenience functions for setting plot-settings parameters
 	//////////////////////////////////////////////////////////////
-	void setVisible(int scanIndex, int dataSourceIndex, bool isVisible) {
-		sourcePlotSettings_[scanIndex][dataSourceIndex].visible = isVisible;
-		QModelIndex i = indexForDataSource(scanIndex, dataSourceIndex);
-		emit dataChanged(i, i);
-	}
+	void setVisible(int scanIndex, int dataSourceIndex, bool isVisible);
+	void setHiddenFromUsers(int scanIndex, int dataSourceIndex, bool isHiddenFromUsers);
 
 signals:
 	void exclusiveDataSourceChanged(QString exclusiveDataSourceName);

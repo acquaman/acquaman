@@ -45,13 +45,15 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	}
 
 
-	defaultUserVisibleColumns_ << "TEY";
-	defaultUserVisibleColumns_ << "TFY";
-	defaultUserVisibleColumns_ << "I0";
-	defaultUserVisibleColumns_ << "Photodiode";
-	defaultUserVisibleColumns_ << "EnergyFeedback";
-	defaultUserVisibleColumns_ << "ringCurrent";
-	defaultUserVisibleColumns_ << "SDD";
+	if(defaultUserVisibleColumns_.isEmpty()) {
+		defaultUserVisibleColumns_ << "TEY";
+		defaultUserVisibleColumns_ << "TFY";
+		defaultUserVisibleColumns_ << "I0";
+		defaultUserVisibleColumns_ << "Photodiode";
+		defaultUserVisibleColumns_ << "EnergyFeedback";
+		defaultUserVisibleColumns_ << "ringCurrent";
+		defaultUserVisibleColumns_ << "SDD";
+	}
 
 	if(!scan)
 		return false;

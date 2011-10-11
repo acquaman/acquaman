@@ -46,6 +46,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenuBar>
 #include <QMessageBox>
 
+#include "util/AMSettings.h"
+
 AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	QObject(parent)
 {
@@ -322,3 +324,5 @@ void AMDatamanAppController::onDataViewItemsExported(const QList<QUrl> &itemUrls
 
 	Q_UNUSED(exportController)
 }
+
+

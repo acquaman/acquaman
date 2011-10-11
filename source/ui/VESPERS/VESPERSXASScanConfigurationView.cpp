@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/util/AMPeriodicTableDialog.h"
 #include "util/AMPeriodicTable.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
+#include "util/VESPERS/GeneralUtilities.h"
 
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -235,6 +236,22 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	QFormLayout *timeLayout = new QFormLayout;
 	timeLayout->addRow("Time:", time);
 
+	// The roi text edit.
+	roiText_ = new QTextEdit;
+	roiText_->setReadOnly(true);
+
+	if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::None)
+		roiText_->hide();
+
+	else{
+
+		roiText_->insertPlainText("Name\tLow (eV)\tHigh(eV)\n");
+
+		for (int i = 0; i < config_->roiList().count(); i++)
+			roiText_->insertPlainText(GeneralUtilities::addGreek(config_->roiList().at(i).name())+"\t" + QString::number(config_->roiList().at(i).low()) + "\t" + QString::number(config_->roiList().at(i).high()) +"\n");
+	}
+
+	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(regionsView_, 3, 0, 1, 2);
 	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 2, 0);
@@ -243,6 +260,7 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	contentsLayout->addLayout(timeLayout, 0, 1);
 	contentsLayout->addLayout(positionLayout, 2, 2);
 	contentsLayout->addWidget(ionChambersGroupBox, 2, 1);
+	contentsLayout->addWidget(roiText_, 3, 2, 2, 2);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
@@ -262,6 +280,30 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 void VESPERSXASScanConfigurationView::onFluorescenceChoiceChanged(int id)
 {
 	config_->setFluorescenceDetectorChoice(id);
+	roiText_->clear();
+
+	switch(id){
+
+	case 0:
+		config_->setRoiInfoList(AMROIInfoList());
+		roiText_->hide();
+		break;
+
+	case 1:
+		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
+		roiText_->show();
+		break;
+
+	case 2:
+		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
+		roiText_->show();
+		break;
+	}
+
+	roiText_->insertPlainText("Name\tLow (eV)\tHigh(eV)\n");
+
+	for (int i = 0; i < config_->roiList().count(); i++)
+		roiText_->insertPlainText(GeneralUtilities::addGreek(config_->roiList().at(i).name())+"\t" + QString::number(config_->roiList().at(i).low()) + "\t" + QString::number(config_->roiList().at(i).high()) +"\n");
 }
 
 void VESPERSXASScanConfigurationView::onElementChoiceClicked()

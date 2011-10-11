@@ -1,0 +1,107 @@
+#ifndef CLSSR570_H
+#define CLSSR570_H
+
+#include <QObject>
+
+#include "beamline/AMControl.h"
+
+/*!
+  This class encapuslats the SR570's that are used at the CLS for gain sensitivity control.  They have the ability for
+  setting the value and units to a reasonably high level.  It allows customizability in value: 1, 2, 5, 10, 20, 50, 100,
+  200, and 500, and in units: pA/V, nA/V, uA/V, mA/V.
+
+  As an implementation detail, the implementation always uses two PVs; one for the value and one for the units.
+  */
+class CLSSR570 : public QObject
+{
+    Q_OBJECT
+public:
+	/// Constructor.  Builds a SR570 model based on \param valueName and \param untisName.
+	explicit CLSSR570(const QString &valueName, const QString &unitsName, QObject *parent = 0);
+
+	/// Returns the value of the sensitivity.
+	int value() const { return value_->getInt(); }
+	/// Returns the units of the sensitivity.
+	QString units() const { return units_->getString(); }
+
+	/// Returns whether the SR570 is connected.
+	bool isConnected() const { return connected_; }
+
+	/// Returns whether the ion chamber is at maximum senstivity.
+	virtual bool atMaximumSensitivity() const { return atMaximumSensitivity_; }
+	/// Returns whether the ion chamber is at minimum sensitivity.
+	virtual bool atMinimumSensitivity() const { return atMinimumSensitivity_; }
+
+signals:
+	/// General notifier.  Emitted if either the value or the units have changed.
+	void sensitivityChanged();
+	/// Notifier that the sensitivity value has changed.  Passes the new value.
+	void valueChanged(int);
+	/// Notifier that the sensitivity units have changed.  Passes the new value.
+	void unitsChanged(QString);
+	/// Notifier that the ion chamber is at the minimum sensitivity.  Passes the truth value.
+	void minimumSensitivity(bool);
+	/// Notifier that the ion chamber is at the maximums sensitivity.  Passes the truth value.
+	void maximumSensitivity(bool);
+	/// Notifier that the connectivity of the SR570 has changed.  Passes the value.
+	void connected(bool);
+
+public slots:
+	/// Sets the sensitivity value.  Must be 1, 2, 5, 10, 20, 50, 100, 200, or 500.  Does nothing otherwise.
+	void setValue(int value) { if (valueOkay(value)) value_->setValue(value); }
+	/// Sets the sensitivity units.  Must be pA/V, nA/V, uA/V, or mA/V.  Does nothing otherwise.
+	void setUnits(QString units) { if (unitsOkay(units)) units_->setValue(units); }
+
+	/// Increases the sensitivity of the ion chamber by one step.
+	bool increaseSensitivity();
+	/// Decreases the sensitivity of the ion chamber by one step.
+	bool decreaseSensitivity();
+
+protected slots:
+	/// Turns the sensitivity value from an index to the value.
+	void onValueChanged(int index);
+	/// Determines whether the new state of the ion chamber is at either the minimum or maximum sensitivity.
+	void onSensitivityChanged();
+	/// Helper function that determines if the SR570 is connected.
+	void onConnectedChanged();
+
+protected:
+	/// Determines if the new sensitivity value is acceptable.
+	bool valueOkay(int value)
+	{
+		if (value >= 0 && value <= 8)
+			return true;
+
+		return false;
+	}
+
+	/// Determines if the new sensitivity units are acceptable.
+	bool unitsOkay(QString units)
+	{
+		if (units == "pA/V" || units == "nA/V" || units == "uA/V" || units == "mA/V")
+			return true;
+
+		return false;
+	}
+
+	/// Pointer to the value PV.  This is a specific implementation for the CLS and maybe should be migrated to an AMControl at the same time the units PV is migrated to an AMControl.
+	AMProcessVariable *value_;
+	/// Pointer to the units PV.  This can be migrated to an AMControl once it has string functionality.
+	AMProcessVariable *units_;
+
+	/// Holds the state of whether the ion chamber is at its maximum sensitivity.
+	bool atMaximumSensitivity_;
+	/// Holds the state of whether the ion chamber is at its minimum sensitivity.
+	bool atMinimumSensitivity_;
+
+	/// Holds the current connectivity of the SR570.
+	bool connected_;
+
+private:
+	/// Helper function that returns the next sensitivity value.  Uses the bool \param increase to determine whether it should look up or down.  Returns -1 not possible to move or 0 if the given number is invalid.
+	int nextValue(bool increase, int current);
+	/// Helper function that returns the next sensitivity units.  Uses the bool \param increase to determine whether it should look up or down.  Returns a null string if not possible to move or the given unit is invalid.
+	QString nextUnits(bool increase, QString current);
+};
+
+#endif // CLSSR570_H

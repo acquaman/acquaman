@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtPlugin>
 
 class AMScan;
+class QString;
 
 class AMFileLoaderInterface
 {
@@ -35,7 +36,7 @@ public:
 
 QT_BEGIN_NAMESPACE
 Q_DECLARE_INTERFACE(AMFileLoaderInterface,
-		    "AMFileLoaderInterface/1.0");
+			"AMFileLoaderInterface/1.0");
 QT_END_NAMESPACE
 
 #endif // AMFILELOADERINTERFACE_H

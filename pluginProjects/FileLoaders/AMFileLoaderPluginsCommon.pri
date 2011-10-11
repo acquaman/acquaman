@@ -2,53 +2,69 @@ HOME_FOLDER = $$system(echo $HOME)
 
 macx {
 
-        # Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-        DEV_PATH = dev
+		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
+		DEV_PATH = dev
 
-        # Where the acquaman source is
-        AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/source
+		# Where the acquaman source is
+		AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/source
 
-        # EPICS Dependencies:
-        EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/include \
-                $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/include/os/Darwin
-        EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/lib/darwin-x86
+		# EPICS Dependencies:
+		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/include \
+				$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/include/os/Darwin
+		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/lib/darwin-x86
 
-        # MPlot Source
-        MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+		# MPlot Source
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
 }
 linux-g++ {
 
-        # Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-        DEV_PATH = beamline/programming
+		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
+		DEV_PATH = beamline/programming
 
-        # Where the acquaman source is
-        AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/source
+		# Where the acquaman source is
+		AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/source
 
-        # EPICS Dependencies:
-        EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/epics/base/include \
-                $$HOME_FOLDER/$$DEV_PATH/epics/base/include/os/Linux
-        EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/epics/base/lib/linux-x86
+		# EPICS Dependencies:
+		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/epics/base/include \
+				$$HOME_FOLDER/$$DEV_PATH/epics/base/include/os/Linux
+		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/epics/base/lib/linux-x86
 
-        # MPlot Source
-        MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+		# MPlot Source
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+}
+linux-g++-32 {
+
+		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
+		DEV_PATH = beamline/programming
+
+		# Where the acquaman source is
+		AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/source
+
+		# EPICS Dependencies:
+		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/epics/base/include \
+				$$HOME_FOLDER/$$DEV_PATH/epics/base/include/os/Linux
+		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/epics/base/lib/linux-x86
+
+		# MPlot Source
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
 }
 # The following works well for CLS beamline OPI machines, built using VMSL54.cs.clsi.ca
 
 linux-g++-64 {
 
-        # Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-        DEV_PATH = Sandbox/Acquaman2011/dev
+		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
+		DEV_PATH = Sandbox/Acquaman2011/dev
 
-        # Where the acquaman source is
-        AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/source
+		# Where the acquaman source is
+		AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/source
 
-        # EPICS Dependencies:
-        EPICS_INCLUDE_DIRS = /home/epics/src/R3.14.12/base/include \
-                /home/epics/src/R3.14.12/base/include/os/Linux
-        EPICS_LIB_DIR = /home/epics/src/R3.14.12/base/lib/linux-x86_64
+		# EPICS Dependencies:
+		EPICS_INCLUDE_DIRS = /home/epics/src/R3.14.12/base/include \
+				/home/epics/src/R3.14.12/base/include/os/Linux
+		EPICS_LIB_DIR = /home/epics/src/R3.14.12/base/lib/linux-x86_64
 
-        # MPlot Source
-        MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+		# MPlot Source
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
 }
 
 QT +=		sql
