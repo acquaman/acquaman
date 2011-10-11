@@ -43,6 +43,8 @@ public:
 	Q_INVOKABLE explicit SGMXASScanConfiguration(QObject *parent=0);
 	SGMXASScanConfiguration(const SGMXASScanConfiguration &original);
 
+	const QMetaObject* getMetaObject();
+
 	AMControlSet *fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet *trackingSet() const { return trackingSet_;}
 

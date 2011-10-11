@@ -34,6 +34,10 @@ AMExporterOptionGeneralAscii::AMExporterOptionGeneralAscii(QObject *parent) :
 	setModified(false);
 }
 
+const QMetaObject* AMExporterOptionGeneralAscii::getMetaObject(){
+	return metaObject();
+}
+
 QWidget * AMExporterOptionGeneralAscii::createEditorWidget()
 {
 	return new AMExporterOptionGeneralAsciiView(this, availableDataSourcesModel_);

@@ -28,6 +28,10 @@ AMScanConfiguration::AMScanConfiguration(QObject *parent) :
 	autoExportEnabled_ = true;
 }
 
+const QMetaObject* AMScanConfiguration::getMetaObject(){
+	return metaObject();
+}
+
 QString AMScanConfiguration::description() const {
 	return "Generic Scan";
 }

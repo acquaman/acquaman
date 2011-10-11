@@ -47,6 +47,8 @@ public:
 	AMXASScanConfiguration(QObject *parent = 0);
 	AMXASScanConfiguration(const AMXASScanConfiguration &original);
 
+	const QMetaObject* getMetaObject();
+
 	/// Returns the start value of the region refered to by index. If an invalid index is given, returns -1 (not a valid energy value).
 	double regionStart(int index) const { return regions_->start(index);}
 	/// Returns the delta value of the region refered to by index. If an invalid index is given, returns 0 (not a valid delta value).

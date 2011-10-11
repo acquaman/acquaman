@@ -22,6 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMWorkflowManagerView.h"
 #include "ui/AMMainWindow.h"
+#include "dataman/export/AMExporter.h"
+#include "dataman/export/AMExporterOption.h"
+
 
 AMAppController::AMAppController(QObject *parent)
 	: AMDatamanAppController(parent)

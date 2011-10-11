@@ -41,6 +41,8 @@ public:
 	explicit AMExporter(QObject *parent = 0);
 	virtual ~AMExporter();
 
+	virtual const QMetaObject* getMetaObject();
+
 	/// A human-readable description of this file format (Will be used to let the user choose an exporter from the set of available ones.)
 	virtual QString description() const = 0;
 

@@ -69,6 +69,8 @@ public:
 	/// Empty Destructor
 	virtual ~AMScanConfiguration() {}
 
+	virtual const QMetaObject* getMetaObject();
+
 	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by AMBeamlineScanAction to set the title for the action view.
 	virtual QString description() const;
 

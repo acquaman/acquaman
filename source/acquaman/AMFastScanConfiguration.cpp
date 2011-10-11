@@ -27,6 +27,10 @@ AMFastScanConfiguration::AMFastScanConfiguration(QObject *parent) :
 	endEnergy_ = -1;
 }
 
+const QMetaObject* AMFastScanConfiguration::getMetaObject(){
+	return metaObject();
+}
+
 bool AMFastScanConfiguration::setStartEnergy(double startEnergy) {
 	if(startEnergy != startEnergy_){
 		startEnergy_ = startEnergy;

@@ -65,6 +65,10 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(const SGMXASScanConfiguration &
 	setDetectorConfigurations(original.detectorChoiceConfigurations());
 }
 
+const QMetaObject* SGMXASScanConfiguration::getMetaObject(){
+	return metaObject();
+}
+
 AMDetectorInfoSet SGMXASScanConfiguration::allDetectorConfigurations() const{
 	AMDetectorInfoSet allConfigurations;
 	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectors()->count(); x++)

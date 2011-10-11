@@ -31,6 +31,10 @@ AMExporterGeneralAscii::AMExporterGeneralAscii(QObject *parent) :
 {
 }
 
+const QMetaObject* AMExporterGeneralAscii::getMetaObject(){
+	return metaObject();
+}
+
 AMExporterOption * AMExporterGeneralAscii::createDefaultOption() const {
 	return new AMExporterOptionGeneralAscii();
 }

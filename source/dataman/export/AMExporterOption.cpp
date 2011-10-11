@@ -26,3 +26,7 @@ AMExporterOption::AMExporterOption(QObject *parent) :
 	fileName_ = "$name_$number_$dateTime[yyyyMMdd_hhmmss].dat";
 	availableDataSourcesModel_ = 0;
 }
+
+const QMetaObject* AMExporterOption::getMetaObject(){
+	return metaObject();
+}

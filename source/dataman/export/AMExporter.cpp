@@ -46,6 +46,10 @@ AMExporter::~AMExporter() {
 	delete keywordParser_;
 }
 
+const QMetaObject* AMExporter::getMetaObject(){
+	return metaObject();
+}
+
 bool AMExporter::openFile(const QString &filePath)
 {
 	return openFile(file_, filePath);

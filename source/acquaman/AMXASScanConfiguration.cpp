@@ -41,6 +41,10 @@ AMXASScanConfiguration::AMXASScanConfiguration(const AMXASScanConfiguration &ori
 	setUserScanName(original.userScanName());
 }
 
+const QMetaObject* AMXASScanConfiguration::getMetaObject(){
+	return metaObject();
+}
+
 double AMXASScanConfiguration::startEnergy() const{
 	if(regions_->count() > 0)
 		return regionStart(0);
