@@ -54,7 +54,9 @@ VESPERSBeamlineView::VESPERSBeamlineView(QWidget *parent) :
 	QVBoxLayout *current = new QVBoxLayout;
 	current->addLayout(basicLayout);
 	current->addWidget(ionCalibrationView, 0, Qt::AlignCenter);
-	current->addWidget(new AMIonChamberView(new CLSIonChamber("Pre-KB", "Pre-KB", "BL1607-B2-1:mcs07:fbk", "BL1607-B2-1:mcs07:userRate", "AMP1607-204:sens_num.VAL", "AMP1607-204:sens_unit.VAL", this)));
+	AMIonChamber *amic = new CLSIonChamber("Pre-KB", "Pre-KB", "BL1607-B2-1:mcs07:fbk", "BL1607-B2-1:mcs07:userRate", "AMP1607-204:sens_num.VAL", "AMP1607-204:sens_unit.VAL", this);
+	amic->setVoltagRange(2, 4.5);
+	current->addWidget(new AMIonChamberView(amic));
 
 	QHBoxLayout *next = new QHBoxLayout;
 	next->addStretch();

@@ -34,10 +34,10 @@ AMIonChamberView::AMIonChamberView(AMIonChamber *chamber, QWidget *parent)
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
 	QHBoxLayout *ionChamberViewLayout = new QHBoxLayout;
-	ionChamberViewLayout->addWidget(name);
+	ionChamberViewLayout->addWidget(name, 0, Qt::AlignRight);
 	ionChamberViewLayout->addWidget(minus);
 	ionChamberViewLayout->addWidget(plus);
-	ionChamberViewLayout->addWidget(output_);
+	ionChamberViewLayout->addWidget(output_, 0, Qt::AlignCenter);
 
 	setLayout(ionChamberViewLayout);
 }
@@ -45,20 +45,20 @@ AMIonChamberView::AMIonChamberView(AMIonChamber *chamber, QWidget *parent)
 void AMIonChamberView::onReadingsChanged()
 {
 	QFont font(this->font());
-	font.setPointSize(12);
-
 	QPalette palette(this->palette());
 
 	switch(state_){
 
 	case Counts:
 		font.setBold(false);
+		font.setPointSize(9);
 		palette.setColor(QPalette::WindowText, Qt::black);
 		output_->setText(QString::number(chamber_->counts()) + " counts");
 		break;
 
 	case Voltage:
 		font.setBold(false);
+		font.setPointSize(9);
 		palette.setColor(QPalette::WindowText, Qt::black);
 		output_->setText(QString::number(chamber_->voltage()) + " V");
 		break;
@@ -66,10 +66,11 @@ void AMIonChamberView::onReadingsChanged()
 	case Status:
 
 		font.setBold(true);
+		font.setPointSize(12);
 
 		if (chamber_->withinLinearRange()){
 
-			palette.setColor(QPalette::WindowText, Qt::green);
+			palette.setColor(QPalette::WindowText, Qt::darkGreen);
 			output_->setText(withinRange_);
 		}
 		else if (chamber_->voltageTooHigh()){

@@ -39,6 +39,8 @@ public slots:
 	void setMaximumVoltage(double max) { voltageRange_.second = max; setModified(true); }
 	/// Sets the linear voltage range.
 	void setVoltagRange(QPair<double, double> range) { setMinimumVoltage(range.first); setMaximumVoltage(range.second); }
+	/// Overloaded.  Sets the linear voltage range.
+	void setVoltagRange(double min, double max) { setVoltagRange(qMakePair(min, max)); }
 
 protected:
 	/// The linear voltage range of the detector.
