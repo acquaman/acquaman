@@ -242,6 +242,10 @@ void AMBeamlineScanAction::onScanCancelled(){
 }
 
 #include <QUrl>
+#include "dataman/export/AMExportController.h"
+#include "dataman/export/AMExporter.h"
+#include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/export/AMExporterOption.h"
 void AMBeamlineScanAction::onScanSucceeded(){
 	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Completed "+AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())+"]");
 	emit descriptionChanged();
@@ -249,12 +253,44 @@ void AMBeamlineScanAction::onScanSucceeded(){
 	if(ctrl_->scan()->database()){
 		bool saveSucceeded = ctrl_->scan()->storeToDb(ctrl_->scan()->database());
 		if(saveSucceeded && cfg_->autoExportEnabled()){
+
 			QString urlString = QString("amd://%1/%2/%3").arg(ctrl_->scan()->database()->connectionName()).arg(ctrl_->scan()->dbTableName()).arg(ctrl_->scan()->id());
 			qDebug() << "This one wants to auto export as " << urlString;
 			QUrl url = QUrl(urlString);
 			QList<QUrl> urlList;
 			urlList << url;
+			/*
 			emit exportMe(urlList);
+			*/
+			AMExportController* exportController = new AMExportController(urlList);
+			qDebug() << "Registered exporters are ";
+			QHashIterator<QString, AMExporterInfo> iRegisteredExporters(AMExportController::registeredExporters());
+			QStringList exporters;
+			while(iRegisteredExporters.hasNext()) {
+				iRegisteredExporters.next();
+				const AMExporterInfo& exporter = iRegisteredExporters.value();
+				qDebug() << exporter.description << iRegisteredExporters.key();
+				exporters << iRegisteredExporters.key();
+			}
+			exportController->setDestinationFolderPath("/Users/fawkes/Documents/CLS/SGM/exportTesting");
+			exportController->chooseExporter(exporters.first());
+			QSqlQuery q = AMDbObjectSupport::select(AMDatabase::userdb(), exportController->exporter()->exporterOptionClassName(), "id, name");
+			QStringList names;
+			QList<int> ids;
+			while(q.next()) {
+				names << q.value(1).toString();
+				ids << q.value(0).toInt();
+			}
+			qDebug() << "Options are :";
+			qDebug() << names;
+			qDebug() << ids;
+			AMExporterOption *option = qobject_cast<AMExporterOption*>(
+						AMDbObjectSupport::createAndLoadObjectAt(
+							AMDatabase::userdb(),
+							AMDbObjectSupport::tableNameForClass(exportController->exporter()->exporterOptionClassName()),
+							ids.at(0)));
+			exportController->setOption(option);
+			exportController->start();
 		}
 	}
 }

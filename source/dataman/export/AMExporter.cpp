@@ -122,7 +122,8 @@ void AMExporter::loadKeywordReplacementDictionary()
 QString AMExporter::krName(const QString& arg) {
 	Q_UNUSED(arg)
 	if(currentScan_)
-		return currentScan_->name();
+		return currentScan_->evaluatedName();
+		//return currentScan_->name();
 	return "[??]";
 }
 
