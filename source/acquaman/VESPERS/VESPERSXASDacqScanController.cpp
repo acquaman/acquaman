@@ -273,7 +273,7 @@ bool VESPERSXASDacqScanController::initializeImplementation()
 		for (int j = 0; j < setupXASActionsList->stage(i)->size(); j++){
 
 			if (setupXASActionsList->action(i, j) == 0){
-
+				qDebug() << setupXASActionsList->action(i, j)->description();
 				onInitializationActionsFailed(0);
 				return false;
 			}

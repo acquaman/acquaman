@@ -14,19 +14,22 @@ AMIonChamberView::AMIonChamberView(AMIonChamber *chamber, QWidget *parent)
 	tooLow_ = "Too Low!";
 	withinRange_ = "Good!";
 
-	QLabel *name = new QLabel(chamber_->name());
+	QLabel *name = new QLabel(chamber_->description());
 
 	QToolButton *minus = new QToolButton;
+	minus->setMaximumSize(25, 25);
 	minus->setIcon(QIcon(":/22x22/list-remove.png"));
 	connect(minus, SIGNAL(clicked()), chamber_, SLOT(decreaseSensitivity()));
 	connect(chamber_, SIGNAL(minimumSensitivity(bool)), minus, SLOT(setDisabled(bool)));
 
 	QToolButton *plus = new QToolButton;
+	plus->setMaximumSize(25, 25);
 	plus->setIcon(QIcon(":/22x22/list-add.png"));
 	connect(plus, SIGNAL(clicked()), chamber_, SLOT(increaseSensitivity()));
 	connect(chamber_, SIGNAL(maximumSensitivity(bool)), plus, SLOT(setDisabled(bool)));
 
 	output_ = new QLabel;
+	output_->setFixedWidth(100);
 
 	connect(chamber_, SIGNAL(readingsChanged()), this, SLOT(onReadingsChanged()));
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
@@ -34,7 +37,7 @@ AMIonChamberView::AMIonChamberView(AMIonChamber *chamber, QWidget *parent)
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
 	QHBoxLayout *ionChamberViewLayout = new QHBoxLayout;
-	ionChamberViewLayout->addWidget(name, 0, Qt::AlignRight);
+	ionChamberViewLayout->addWidget(name, 0, Qt::AlignCenter);
 	ionChamberViewLayout->addWidget(minus);
 	ionChamberViewLayout->addWidget(plus);
 	ionChamberViewLayout->addWidget(output_, 0, Qt::AlignCenter);

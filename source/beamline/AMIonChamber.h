@@ -9,7 +9,7 @@
   */
 class AMIonChamber : public AMIonChamberInfo, public AMDetector
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	/// Constructor.  Builds an ion chamber.
 	explicit AMIonChamber(const QString &name, const QString &description, QObject *parent = 0);
@@ -25,9 +25,9 @@ public:
 	AMIonChamberInfo toIonChamberInfo() const { return AMIonChamberInfo(*this); }
 
 	/// The description() of a detector is a human-readable, free-form string.
-	virtual QString description() const { return description_; }
+	virtual QString description() const { return AMIonChamberInfo::description(); }
 	/// Descriptions can be changed at will, and the detector will emit infoChanged() when this happens.
-	virtual void setDescription(const QString& description) { description_ = description; }
+	virtual void setDescription(const QString& description) { AMIonChamberInfo::setDescription(description); }
 
 	/// Sets the current detector from the given detector info.
 	virtual bool setFromInfo(const AMDetectorInfo *info);
@@ -72,10 +72,6 @@ public slots:
 	virtual bool increaseSensitivity() = 0;
 	/// Pure virtual function.  Decreases the sensitivity of the ion chamber.  How this is done is implementation specific.
 	virtual bool decreaseSensitivity() = 0;
-
-protected:
-	/// The description of the ion chamber.
-	QString description_;
 };
 
 #endif // AMIONCHAMBER_H

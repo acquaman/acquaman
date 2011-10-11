@@ -36,6 +36,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions/AMBeamlineActionItem.h"
 #include "beamline/VESPERS/VESPERSEndstation.h"
 #include "beamline/VESPERS/VESPERSExperimentConfiguration.h"
+#include "beamline/AMIonChamber.h"
+#include "beamline/CLS/CLSIonChamber.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -84,13 +86,21 @@ public:
 	XRFDetector *vortexXRF4E() const { return (XRFDetector *)vortex4E_; }
 
 	/// Returns a general AMDetector pointer to the split ion chamber.
-	AMDetector *iSplit() const { return iSplit_; }
+	AMDetector *iSplitDetector() const { return iSplit_; }
+	/// Returns a CLSIonChamber pointer to the split ion chamber.
+	CLSIonChamber *iSplit() const { return (CLSIonChamber *)iSplit_; }
 	/// Returns a general AMDetector pointer to the pre-KB ion chamber.
-	AMDetector *iPreKB() const { return iPreKB_; }
+	AMDetector *iPreKBDetector() const { return iPreKB_; }
+	/// Returns a CLSIonChamber pointer to the split ion chamber.
+	CLSIonChamber *iPreKB() const { return (CLSIonChamber *)iPreKB_; }
 	/// Returns a general AMDetector pointer to the mini ion chamber.
-	AMDetector *iMini() const { return iMini_; }
+	AMDetector *iMiniDetector() const { return iMini_; }
+	/// Returns a CLSIonChamber pointer to the split ion chamber.
+	CLSIonChamber *iMini() const { return (CLSIonChamber *)iMini_; }
 	/// Returns a general AMDetector pointer to the post sample ion chamber.
-	AMDetector *iPost() const { return iPost_; }
+	AMDetector *iPostDetector() const { return iPost_; }
+	/// Returns a CLSIonChamber pointer to the split ion chamber.
+	CLSIonChamber *iPost() const { return (CLSIonChamber *)iPost_; }
 	/// Returns the ion chamber detector set.
 	AMDetectorSet *ionChambers() const { return ionChambers_; }
 
@@ -410,15 +420,6 @@ public:
 	/// Returns the master dwell time control.
 	AMControl *masterDwellTime() const { return masterDwellTime_; }
 
-	/// Returns the control to the split ion chamber #1.
-	AMControl *iSplitControl() const { return iSplitControl_; }
-	/// Returns the control to the pre-KB ion chamber.
-	AMControl *iPreKBControl() const { return iPreKBControl_; }
-	/// Returns the control to the mini ion chamber.
-	AMControl *iMiniControl() const { return iMiniControl_; }
-	/// Returns the control to the post sample ion chamber.
-	AMControl *iPostControl() const { return iPostControl_; }
-
 	//////////////////////////////////////////////////////////////////////////////////////
 	// Actions
 	/// Creates an action that changes the beam.  Returns 0 if unable to create.
@@ -672,12 +673,6 @@ protected:
 	AMControlSet *sampleStageMotorSet_;
 
 	// End General Controls.
-
-	// Ion chamber controls.
-	AMControl *iSplitControl_;
-	AMControl *iPreKBControl_;
-	AMControl *iMiniControl_;
-	AMControl *iPostControl_;
 
 	// End ion chamber controls.
 

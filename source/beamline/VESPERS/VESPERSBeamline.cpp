@@ -24,7 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions/AMBeamlineParallelActionsList.h"
 #include "actions/AMBeamlineListAction.h"
 
-
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
 {
@@ -204,21 +203,27 @@ void VESPERSBeamline::setupDetectors()
 	amNames2pvNames_.set("Imini", "BL1607-B2-1:mcs08:fbk");
 	amNames2pvNames_.set("Ipost", "BL1607-B2-1:mcs09:fbk");
 
-	iSplitControl_ = new AMReadOnlyPVControl("Isplit", amNames2pvNames_.valueF("Isplit"), this, "Split Ion Chamber");
-	iPreKBControl_ = new AMReadOnlyPVControl("Iprekb", amNames2pvNames_.valueF("Iprekb"), this, "Pre-KB Ion Chamber");
-	iMiniControl_ = new AMReadOnlyPVControl("Imini", amNames2pvNames_.valueF("Imini"), this, "Mini Ion Chamber");
-	iPostControl_ = new AMReadOnlyPVControl("Ipost", amNames2pvNames_.valueF("Ipost"), this, "Post Sample Ion Chamber");
-
-	iSplit_ = new AMSingleControlDetector(iSplitControl_->name(), iSplitControl_, AMDetector::RequestRead, this);
-	iPreKB_ = new AMSingleControlDetector(iPreKBControl_->name(), iPreKBControl_, AMDetector::RequestRead, this);
-	iMini_ = new AMSingleControlDetector(iMiniControl_->name(), iMiniControl_, AMDetector::RequestRead, this);
-	iPost_ = new AMSingleControlDetector(iPostControl_->name(), iPostControl_, AMDetector::RequestRead, this);
-
 	ionChambers_ = new AMDetectorSet(this);
-	ionChambers_->addDetector(iSplit_);
-	ionChambers_->addDetector(iPreKB_);
-	ionChambers_->addDetector(iMini_);
-	ionChambers_->addDetector(iPost_);
+
+	CLSIonChamber *temp = new CLSIonChamber("Isplit", "Split", "", "", "", "", this);
+	temp->setVoltagRange(2.0, 4.5);
+	ionChambers_->addDetector(temp);
+	iSplit_ = temp;
+
+	temp = new CLSIonChamber("Iprekb", "Pre-KB", "BL1607-B2-1:mcs07:fbk", "BL1607-B2-1:mcs07:userRate", "AMP1607-204:sens_num.VAL", "AMP1607-204:sens_unit.VAL", this);
+	temp->setVoltagRange(2.0, 4.5);
+	ionChambers_->addDetector(temp);
+	iPreKB_ = temp;
+
+	temp = new CLSIonChamber("Imini", "Mini", "BL1607-B2-1:mcs08:fbk", "BL1607-B2-1:mcs08:userRate", "AMP1607-205:sens_num.VAL", "AMP1607-205:sens_unit.VAL", this);
+	temp->setVoltagRange(2.0, 4.5);
+	ionChambers_->addDetector(temp);
+	iMini_ = temp;
+
+	temp = new CLSIonChamber("Ipost", "Post", "BL1607-B2-1:mcs09:fbk", "BL1607-B2-1:mcs09:userRate", "AMP1607-206:sens_num.VAL", "AMP1607-206:sens_unit.VAL", this);
+	temp->setVoltagRange(2.0, 4.5);
+	ionChambers_->addDetector(temp);
+	iPost_ = temp;
 
 	ionChamberCalibration_ = new VESPERSIonChamberCalibration(this);
 	ionChamberCalibration_->addSplitIonChamber(new VESPERSSplitIonChamber("Split", "PS1607-201:c2:Voltage", "AMP1607-202", "AMP1607-203", "BL1607-B2-1:mcs05:userRate", "BL1607-B2-1:mcs06:userRate", "BL1607-B2-1:mcs05:fbk", "BL1607-B2-1:mcs06:fbk", this));

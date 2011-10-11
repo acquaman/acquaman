@@ -39,24 +39,20 @@ VESPERSBeamlineView::VESPERSBeamlineView(QWidget *parent) :
 	AMTopFrame *top = new AMTopFrame("Beamline Components");
 	top->setIcon(QIcon(":/system-software-update.png"));
 
-	QVBoxLayout *basicLayout = new QVBoxLayout;
-	basicLayout->addWidget(new VESPERSSplitIonChamberBasicView(VESPERSBeamline::vespers()->ionChamberCalibration()->splitIonChamber(), 2, 4.5));
-
-	for (int i = 0; i < VESPERSBeamline::vespers()->ionChamberCalibration()->ionChamberCount(); i++)
-		basicLayout->addWidget(new VESPERSIonChamberBasicView(VESPERSBeamline::vespers()->ionChamberCalibration()->ionChamberAt(i), 2, 4.5));
-
 	VESPERSIonChamberCalibrationView *ionCalibrationView = new VESPERSIonChamberCalibrationView(VESPERSBeamline::vespers()->ionChamberCalibration());
 	CLSSynchronizedDwellTimeView *dwellTimeView = new CLSSynchronizedDwellTimeView(VESPERSBeamline::vespers()->synchronizedDwellTime());
 
-
-
+	QGroupBox *ionChambers = new QGroupBox("Ion Chamber Calibration");
+	QVBoxLayout *ionChamberLayout = new QVBoxLayout;
+	ionChamberLayout->addWidget(new AMIonChamberView((AMIonChamber *)VESPERSBeamline::vespers()->iPreKB()));
+	ionChamberLayout->addWidget(new AMIonChamberView((AMIonChamber *)VESPERSBeamline::vespers()->iMini()));
+	ionChamberLayout->addWidget(new AMIonChamberView((AMIonChamber *)VESPERSBeamline::vespers()->iPost()));
+	ionChambers->setLayout(ionChamberLayout);
+	ionChambers->setMaximumSize(260, 200);
 
 	QVBoxLayout *current = new QVBoxLayout;
-	current->addLayout(basicLayout);
 	current->addWidget(ionCalibrationView, 0, Qt::AlignCenter);
-	AMIonChamber *amic = new CLSIonChamber("Pre-KB", "Pre-KB", "BL1607-B2-1:mcs07:fbk", "BL1607-B2-1:mcs07:userRate", "AMP1607-204:sens_num.VAL", "AMP1607-204:sens_unit.VAL", this);
-	amic->setVoltagRange(2, 4.5);
-	current->addWidget(new AMIonChamberView(amic));
+	current->addWidget(ionChambers);
 
 	QHBoxLayout *next = new QHBoxLayout;
 	next->addStretch();
