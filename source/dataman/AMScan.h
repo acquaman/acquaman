@@ -45,6 +45,7 @@ class AMScan : public AMDbObject {
 	Q_OBJECT
 
 	/// Database Persistent Properties
+	Q_PROPERTY(QString unEvaluatedName READ unEvaluatedName WRITE setUnEvaluatedName)
 	Q_PROPERTY(int number READ number WRITE setNumber NOTIFY numberChanged)
 	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime NOTIFY dateTimeChanged)
 	Q_PROPERTY(int runId READ runId WRITE setRunId)
@@ -68,6 +69,7 @@ class AMScan : public AMDbObject {
 	Q_CLASSINFO("scanInitialConditions", "hidden=true")
 	Q_CLASSINFO("analyzedDataSourcesConnections", "hidden=true")
 	Q_CLASSINFO("scanConfiguration", "hidden=true")
+	Q_CLASSINFO("unEvaluatedName", "upgradeDefault=<none>")
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Scan")
 
@@ -87,8 +89,7 @@ public:
 
 	// Role 1: Meta Data Elements
 	////////////////////////////////
-	/// Returns the name of the technique used
-	//virtual QString technique() { return "General Scan";}
+
 	/// Returns a user-given number
 	int number() const { return number_;}
 	/// Returns creation time / scan start time
@@ -109,10 +110,9 @@ public:
 
 	// Convenience functions on meta-data:
 	/////////////////////////
-	QString evaluatedName() const;
+	QString unEvaluatedName() const;
 	/// Returns the full scan name: number appended to name
-	//QString fullName() const {return QString("%1 #%2").arg(name()).arg(number()); }
-	QString fullName() const {return QString("%1 #%2").arg(evaluatedName()).arg(number()); }
+	QString fullName() const {return QString("%1 #%2").arg(name()).arg(number()); }
 	/// Returns the name of the sample (if a sample is set, otherwise returns "[no sample]")
 	QString sampleName() const;
 
@@ -137,6 +137,8 @@ public:
 	// AMRawDataSourceSet* rawDataSources() { return &rawDataSources_; }
 	/// Publicly expose part of the rawData(), by adding a new AMRawDataSource to the scan. The new data source \c newRawDataSource should be valid, initialized and connected to the data store already.  The scan takes ownership of \c newRawDataSource.  This function returns false if raw data source already exists with the same name as the \c newRawDataSource.
 	bool addRawDataSource(AMRawDataSource* newRawDataSource) { if(newRawDataSource) return rawDataSources_.append(newRawDataSource, newRawDataSource->name()); return false; }
+	/// This overloaded function calls addRawDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
+	bool addRawDataSource(AMRawDataSource* newRawDataSource, bool visibleInPlots, bool hiddenFromUsers);
 	/// Delete and remove an existing raw data source.  \c id is the idnex of the source in rawDataSources().
 	bool deleteRawDataSource(int id) { if((unsigned)id >= (unsigned)rawDataSources_.count()) return false; delete rawDataSources_.takeAt(id); return true; }
 
@@ -146,6 +148,8 @@ public:
 	// AMAnalyzedDataSourceSet* analyzedDataSources() { return &analyzedDataSources_; }
 	/// Add an new analysis block to the scan.  The scan takes ownership of the \c newAnalysisBlock and exposes it as one of the analyzed data sources.
 	bool addAnalyzedDataSource(AMAnalysisBlock* newAnalyzedDataSource) { if(newAnalyzedDataSource) return analyzedDataSources_.append(newAnalyzedDataSource, newAnalyzedDataSource->name()); return false; }
+	/// This overloaded function calls addAnalyzedDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
+	bool addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource, bool visibleInPlots, bool hiddenFromUsers);
 	/// Delete and remove an existing analysis block. \c id is the index of the source in analyzedDataSources().
 	bool deleteAnalyzedDataSource(int id) { if((unsigned)id >= (unsigned)analyzedDataSources_.count()) return false; delete analyzedDataSources_.takeAt(id); return true; }
 
@@ -211,28 +215,11 @@ public:
 
 	// Role 4: Loading/Clearing Raw Data
 	////////////////////////////
-	/// Load raw data into memory from storage. Returns true on success.
-	/*! Subclasses should not reimplement this function, but must provide an implementation for loadDataImplementation(), which attempts to use the scan's current filePath() and fileFormat() as the source, and handles their set of readable file formats.  This function calls loadDataImplementation(), and then calls setDataStore() on all the raw data sources, to hopefully restore them to a valid state, now that there is valid raw data.*/
-	bool loadData() {
-//		bool success = loadDataImplementation();
-		bool accepts = false;
-		bool success = false;
-		for(int x = 0; x < AMSettings::availableFileLoaders.count(); x++){
-			AMFileLoaderInterface *fileloader = AMSettings::availableFileLoaders.at(x);
-			if(accepts = fileloader->accepts(this)){
-				success = fileloader->load(this, AMUserSettings::userDataFolder);
-				break;
-			}
+	/// Load raw data into memory from storage, using the AMFileLoaderInterface plugin system to find the appropriate file loader based on fileFormat(). Returns true on success.
+	/*! DEPRECATED: Subclasses should not reimplement this function, but must provide an implementation for loadDataImplementation(), which attempts to use the scan's current filePath() and fileFormat() as the source, and handles their set of readable file formats.  This function calls loadDataImplementation(), and then calls setDataStore() on all the raw data sources, to hopefully restore them to a valid state, now that there is valid raw data.*/
+	bool loadData();
 
-		}
-		if(!accepts)
-			qDebug() << "NO USABLE FILE LOADERS FOUND";
-		if(success)
-			for(int i=rawDataSources_.count()-1; i>=0; i--)
-				rawDataSources_.at(i)->setDataStore(rawData());
-		return success;
-	}
-	/// Scan subclassses must provide an implementation of this function, which uses the scan's current filePath() and fileFormat() as the source, and handles their own set of readable file formats, to fill the dataStore() with appropriate raw data. Return true on success. This base class implementation does nothing and returns true.
+	/// This function is deprecated in favour of the plugin system for AMFileLoaderInterface.  It will never be called.
 	virtual bool loadDataImplementation() {
 		return true;
 	}
@@ -328,10 +315,11 @@ public slots:
 	// Role 1: Setting Meta-Data
 	///////////////////////////////
 
+	void setUnEvaluatedName(QString unEvaluatedName);
 	/// Sets appended number
-	void setNumber(int number) { number_ = number; setModified(true); emit numberChanged(number_); }
+	void setNumber(int number);
 	/// set the date/time:
-	void setDateTime(const QDateTime& dt) { dateTime_ = dt; setModified(true); emit dateTimeChanged(dateTime_); }
+	void setDateTime(const QDateTime& dt);
 	/// associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
 	/*! This will also tell the new run (and the old run, if it exists) to update their date ranges */
 	void setRunId(int newRunId);
@@ -355,6 +343,7 @@ signals:
 	void dateTimeChanged(const QDateTime& newDateTime);
 	void sampleIdChanged(int sampleId);
 	void numberChanged(int number);
+	void scanConfigurationChanged();
 
 
 	// Combined Data Source Model: Signals
@@ -391,6 +380,7 @@ protected:
 	// meta data values
 	//////////////////////
 
+	QString unEvaluatedName_;
 	/// user-given number for this scan
 	int number_;
 	/// Scan start time

@@ -38,26 +38,14 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 
 	specificScan_ = new AMXASScan();
 	_pScan_ = &specificScan_;
+
 	pScan_()->setFileFormat("sgm2011XAS");
 	pScan_()->setRunId(AMUser::user()->currentRunId());
 	pScan_()->setScanConfiguration(pCfg_());
 	pScan_()->setSampleId(SGMBeamline::sgm()->currentSampleId());
-	/*
-	QString scanName;
-	QString sampleName;
-	if(pCfg_()->userScanName() == "")
-		scanName = pCfg_()->autoScanName();
-	else
-		scanName = pCfg_()->userScanName();
-	if(pScan_()->sampleId() == -1)
-		sampleName = "Unknown Sample";
-	else
-		sampleName = AMSample(pScan_()->sampleId(), AMUser::user()->database()).name();
-	pScan_()->setName(QString("%1 - %2").arg(sampleName).arg(scanName));
-	*/
-	pScan_()->setName(pCfg_()->userScanName());
+
+	pScan_()->setUnEvaluatedName(pCfg_()->userScanName());
 	pScan_()->storeToDb(AMDatabase::userdb());
-	qDebug() << "Scan name will be " << pScan_()->evaluatedName();
 
 	// Create space in raw data store, and create raw data channels, for each detector.
 	for(int i = 0; i < pCfg_()->allDetectorConfigurations().count(); i++){

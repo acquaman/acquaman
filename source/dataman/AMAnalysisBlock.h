@@ -58,8 +58,12 @@ class AMAnalysisBlock : public AMDbObject, public AMDataSource
 
 	Q_PROPERTY(QString description READ description WRITE setDescription)
 	Q_PROPERTY(int rank READ rank)
+	Q_PROPERTY(bool visibleInPlots READ visibleInPlots WRITE setVisibleInPlots)
+	Q_PROPERTY(bool hiddenFromUsers READ hiddenFromUsers WRITE setHiddenFromUsers)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Analysis Block")
+	Q_CLASSINFO("visibleInPlots", "upgradeDefault=true")
+	Q_CLASSINFO("hiddenFromUsers", "upgradeDefault=false")
 
 public:
 	/// Create a new AMAnalysisBlock. The block is an AMDataSource of output data; \c outputName is the name for this AMDataSource.
@@ -112,6 +116,14 @@ public:
 	//////////////////////////////
 	/// If implementing classes don't use the setState() method to notify of changes in their current output state, they must re-implement this function to reflect their actual current state.
 	virtual int state() const { return state_;	}
+
+	/// Specify that this data source should be visible (in plots and graphical displays).  Users are free to toggle this visibility.
+	/*! Re-implemented from AMDataSource to call setModified().  */
+	virtual void setVisibleInPlots(bool isVisible) { AMDataSource::setVisibleInPlots(isVisible); setModified(true); }
+
+	/// Specify that this data source should be hidden from users by default. (ie: it contains some programming internals). This means that users shouldn't see it, or be able to toggle its visibility.
+	/*! Re-implemented from AMDataSource to call setModified().  */
+	virtual void setHiddenFromUsers(bool isHidden = true) { AMDataSource::setHiddenFromUsers(isHidden); setModified(true); }
 
 
 protected slots:

@@ -77,9 +77,9 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 			sourceButton->setChecked(model->isVisible(scanIndex, i));
 			sourceButtons_.addButton(sourceButton, i);
 			cramBar_->addWidget(sourceButton);
-			/// \todo this is a bit of a hack for scalar data sources: hidden because people don't want to see them. [Who added 0D data sources anyway?]
-			if (source->dataSourceAt(i)->rank() == 0)
-				sourceButton->hide();
+			// hide the button if this data source should be hidden from users:
+			sourceButton->setHidden(model->isHiddenFromUsers(scanIndex, i));
+
 			sourceButton->setContextMenuPolicy(Qt::CustomContextMenu);
 			connect(sourceButton, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onDataSourceButtonRightClicked(QPoint)));
 		}
@@ -141,8 +141,8 @@ void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int 
 			newButton->setChecked( (model_->exclusiveDataSourceName() == source->dataSourceAt(i)->name()) );
 		else
 			newButton->setChecked(model_->isVisible(scanIndex_, i));
-		/// \todo this is a bit of a hack for scalar data sources: hidden because people don't want to see them. [Who added 0D data sources anyway?]
-		if (source->dataSourceAt(i)->rank() == 0)
+		// If this data source should be hidden from users, don't show the button to toggle its visibility.  (Above, isVisible() will automatically return false if hiddenFromUsers() is true.)
+		if (source->dataSourceAt(i)->hiddenFromUsers())
 			newButton->hide();
 
 		// qDebug() << "added a data source. exclusiveModeOn is: " << exclusiveModeOn_ << ", source name is:" << source->dataSourceAt(i)->name() << ", exclusiveDataSourceName is:" << model_->exclusiveDataSourceName();
@@ -192,14 +192,18 @@ void AMScanViewScanBar::onModelDataChanged(const QModelIndex& topLeft, const QMo
 
 		int dataSourceIndex = topLeft.row();
 		AMDataSource* dataSource = model_->dataSourceAt(scanIndex_, dataSourceIndex);
-		sourceButtons_.button(dataSourceIndex)->setText(dataSource->name());
+		QAbstractButton* button = sourceButtons_.button(dataSourceIndex);
+		button->setText(dataSource->name());
 		// setting visibility: depends on whether exclusiveMode is on or not
 		if(exclusiveModeOn_)
-			sourceButtons_.button(dataSourceIndex)->setChecked( (model_->exclusiveDataSourceName() == dataSource->name()) );
+			button->setChecked( (model_->exclusiveDataSourceName() == dataSource->name()) );
 		else
-			sourceButtons_.button(dataSourceIndex)->setChecked(model_->isVisible(scanIndex_, dataSourceIndex));
+			button->setChecked(model_->isVisible(scanIndex_, dataSourceIndex));
 
-		qobject_cast<AMColoredTextToolButton*>(sourceButtons_.button(dataSourceIndex))->setTextColor( model_->plotColor(scanIndex_, dataSourceIndex) );
+		// hide the button to toggle visibility, if this data source should be hidden from users.
+		button->setHidden(model_->isHiddenFromUsers(scanIndex_, dataSourceIndex));
+
+		qobject_cast<AMColoredTextToolButton*>(button)->setTextColor( model_->plotColor(scanIndex_, dataSourceIndex) );
 	}
 }
 
@@ -785,8 +789,10 @@ void AMScanViewExclusiveView::addScan(int scanIndex) {
 MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* dataSource, const AMDataSourcePlotSettings& plotSettings) {
 	MPlotItem* rv = 0;
 
-	if(dataSource == 0)
+	if(dataSource == 0) {
+		qWarning() << "WARNING: AMScanViewInternal: Asked to create a plot item for a null data source.";
 		return 0;
+	}
 
 	switch(dataSource->rank()) {	// depending on the rank, we'll need an XY-series or an image to display it. 3D and 4D, etc. we don't handle for now.
 
@@ -806,6 +812,7 @@ MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* d
 		rv = image;
 		break; }
 	default:
+		qWarning() << "WARNING: AMScanViewInternal: Asked to create a plot item for a rank that we don't handle.";
 		rv = 0;
 		break;
 	}
@@ -837,9 +844,12 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 
 		// need to create new plot item for this scan. (Don't have one yet)
 		if(plotItems_.at(scanIndex) == 0) {
-			plotItems_[scanIndex] = createPlotItemForDataSource(dataSource, model()->plotSettings(scanIndex, dataSourceIndex));
-			plotItems_.at(scanIndex)->setDescription(model()->scanAt(scanIndex)->fullName());
-			plot_->plot()->addItem(plotItems_.at(scanIndex), (dataSource->rank() == 2? MPlot::Right : MPlot::Left));
+			MPlotItem* newItem;
+			plotItems_[scanIndex] = newItem = createPlotItemForDataSource(dataSource, model()->plotSettings(scanIndex, dataSourceIndex));
+			if(newItem) {
+				newItem->setDescription(model()->scanAt(scanIndex)->fullName());
+				plot_->plot()->addItem(newItem, (dataSource->rank() == 2? MPlot::Right : MPlot::Left));
+			}
 			/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
 			// testing 3D
 			//			if(dataSource->rank() == 2) {
@@ -931,9 +941,9 @@ void AMScanViewExclusiveView::setDataRangeConstraint(int id)
 
 		if (logScaleEnabled_ && !normalizationEnabled_){
 
-			double min = plot_->plot()->minimumSeriesValue();
+			double min = plot_->plot()->minimumYSeriesValue();
 
-			if (min != 0)
+			if (min <= 0)
 				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(min, MPLOT_POS_INFINITY));
 			else
 				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
@@ -1200,9 +1210,9 @@ void AMScanViewMultiView::setDataRangeConstraint(int id)
 
 		if (logScaleEnabled_ && !normalizationEnabled_){
 
-			double min = plot_->plot()->minimumSeriesValue();
+			double min = plot_->plot()->minimumYSeriesValue();
 
-			if (min != 0)
+			if (min <= 0)
 				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(min, MPLOT_POS_INFINITY));
 			else
 				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
@@ -1555,11 +1565,11 @@ void AMScanViewMultiScansView::setDataRangeConstraint(int id)
 			double min = MPLOT_POS_INFINITY;
 			for (int i = 0; i < plots_.count(); i++){
 
-				if (plots_.at(i)->plot()->minimumSeriesValue() < min)
-					min = plots_.at(i)->plot()->minimumSeriesValue();
+				if (plots_.at(i)->plot()->minimumYSeriesValue() < min)
+					min = plots_.at(i)->plot()->minimumYSeriesValue();
 			}
 
-			if (min != 0)
+			if (min <= 0)
 				val = min;
 			else
 				val = 1;
@@ -1969,11 +1979,11 @@ void AMScanViewMultiSourcesView::setDataRangeConstraint(int id)
 			while(i.hasNext()) {
 				i.next();
 
-				if (i.value()->plot()->minimumSeriesValue() < min)
-					min = i.value()->plot()->minimumSeriesValue();
+				if (i.value()->plot()->minimumYSeriesValue() < min)
+					min = i.value()->plot()->minimumYSeriesValue();
 			}
 
-			if (min != 0)
+			if (min <= 0)
 				val = min;
 			else
 				val = 1;

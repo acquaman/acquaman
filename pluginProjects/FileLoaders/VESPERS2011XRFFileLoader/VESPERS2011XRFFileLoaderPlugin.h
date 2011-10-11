@@ -18,30 +18,27 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMDateTimeModifier.h"
-#include <QDateTime>
+#ifndef VESPERS2011XRFFILELOADERPLUGIN_H
+#define VESPERS2011XRFFILELOADERPLUGIN_H
 
-AMDateTimeModifier::AMDateTimeModifier()
+#include <QObject>
+
+#include "dataman/AMFileLoaderInterface.h"
+
+/*! This class implements loading and saving of XRF data in a custom way.  This is because this data is typically not saved currently.
+	It consists of columns with the raw data from each element of the detector.
+*/
+class VESPERS2011XRFFileLoaderPlugin : public QObject, AMFileLoaderInterface
 {
+	Q_OBJECT
+	Q_INTERFACES(AMFileLoaderInterface)
 
-}
+public:
+	/// Format tag. a unique string identifying this format.
+	virtual bool accepts(AMScan *scan);
 
-//Is dateTime always stored in description role?
-//How/where do I get the original dateTime?
-//
-QString AMDateTimeModifier::checkAndModifyDate(const QDateTime &dateTime){
-	QDateTime &currentDT = currentDateTime();
-	if (dateTime.daysTo(currentDT)==0)
-		//change the date to "today"
-		return QString("today at");
-	else if (dateTime.daysTo(currentDT) == 1)
-		//change the date to "yesterday"
-		return QString("yesterday at");
-		else if (dateTime.daysTo(currentDT)== 2)
-			//change the date to "two days ago"
-			return QString("two days ago at");
-			else if (dateTime.daysTo(currentDt) == 3)
-				//change the date to three days ago
-				return QString("three days ago at")
+	/// Loads data from \param filepath into the target scan.
+	virtual bool load(AMScan *scan, const QString &userDataFolder);
+};
 
-}
+#endif // VESPERS2011XRFFILELOADERPLUGIN_H

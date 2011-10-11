@@ -36,6 +36,16 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	connect(sampleStage_, SIGNAL(verticalMoveError(bool)), this, SLOT(onVerticalMoveError(bool)));
 	connect(sampleStage_, SIGNAL(normalMoveError(bool)), this, SLOT(onNormalMoveError(bool)));
 
+	QFont font(this->font());
+	font.setBold(true);
+
+	QLabel *h = new QLabel("H :");
+	h->setFont(font);
+	QLabel *v = new QLabel("V :");
+	v->setFont(font);
+	QLabel *jog = new QLabel("Jog :");
+	jog->setFont(font);
+
 	jog_ = new QDoubleSpinBox;
 	jog_->setSuffix(" mm");
 	jog_->setSingleStep(0.001);
@@ -44,34 +54,39 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	jog_->setValue(0.050);
 	jog_->setDecimals(3);
 	jog_->setAlignment(Qt::AlignCenter);
+	jog_->setFixedWidth(110);
 
-	horizontal_ = new QLineEdit;
+	QHBoxLayout *jogLayout = new QHBoxLayout;
+	jogLayout->addWidget(jog, 0, Qt::AlignRight);
+	jogLayout->addWidget(jog_);
+
+	horizontal_ = new QDoubleSpinBox;
+	horizontal_->setSuffix(" mm");
+	horizontal_->setSingleStep(0.001);
+	horizontal_->setRange(-100, 100);
+	horizontal_->setDecimals(3);
 	horizontal_->setAlignment(Qt::AlignCenter);
-	connect(horizontal_, SIGNAL(returnPressed()), this, SLOT(onHorizontalSetpoint()));
-	connect(sampleStage_, SIGNAL(horizontalSetpointChanged(double)), this, SLOT(onHorizontalChanged(double)));
+	horizontal_->setFixedWidth(110);
+	connect(horizontal_, SIGNAL(editingFinished()), this, SLOT(onHorizontalSetpoint()));
+	connect(sampleStage_, SIGNAL(horizontalSetpointChanged(double)), horizontal_, SLOT(setValue(double)));
 
-	QFont font(this->font());
-	font.setBold(true);
+	QHBoxLayout *hLayout = new QHBoxLayout;
+	hLayout->addWidget(h, 0, Qt::AlignRight);
+	hLayout->addWidget(horizontal_);
 
-	QLabel *h = new QLabel("H :");
-	h->setFont(font);
-	QLabel *v = new QLabel("V :");
-	v->setFont(font);
-
-	QGridLayout *hLayout = new QGridLayout;
-	hLayout->addWidget(horizontal_, 0, 1, 1, 4, Qt::AlignCenter);
-	hLayout->addWidget(h, 0, 0, 1, 1, Qt::AlignCenter);
-	hLayout->addWidget(new QLabel("mm"), 0, 4, 1, 1);
-
-	vertical_ = new QLineEdit;
+	vertical_ = new QDoubleSpinBox;
+	vertical_->setSuffix(" mm");
+	vertical_->setSingleStep(0.001);
+	vertical_->setRange(-100, 100);
+	vertical_->setDecimals(3);
 	vertical_->setAlignment(Qt::AlignCenter);
-	connect(vertical_, SIGNAL(returnPressed()), this, SLOT(onVerticalSetpoint()));
-	connect(sampleStage_, SIGNAL(verticalSetpointChanged(double)), this, SLOT(onVerticalChanged(double)));
+	vertical_->setFixedWidth(110);
+	connect(vertical_, SIGNAL(editingFinished()), this, SLOT(onVerticalSetpoint()));
+	connect(sampleStage_, SIGNAL(verticalSetpointChanged(double)), vertical_, SLOT(setValue(double)));
 
-	QGridLayout *vLayout = new QGridLayout;
-	vLayout->addWidget(vertical_, 0, 1, 1, 4, Qt::AlignCenter);
-	vLayout->addWidget(v, 0, 0, 1, 1, Qt::AlignCenter);
-	vLayout->addWidget(new QLabel("mm"), 0, 4, 1, 1);
+	QHBoxLayout *vLayout = new QHBoxLayout;
+	vLayout->addWidget(v, 0, Qt::AlignRight);
+	vLayout->addWidget(vertical_);
 
 	status_ = new QLabel;
 	status_->setPixmap(QIcon(":/OFF.png").pixmap(25));
@@ -106,18 +121,18 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	arrowLayout->addWidget(goLeft_, 1, 0);
 	arrowLayout->addWidget(goRight_, 1, 2);
 	arrowLayout->addWidget(stop, 1, 1);
+	arrowLayout->addWidget(status_, 0, 0);
 
-	QHBoxLayout *jogAndStatusLayout = new QHBoxLayout;
-	jogAndStatusLayout->addWidget(status_, 0, Qt::AlignLeft);
-	jogAndStatusLayout->addWidget(jog_);
+	QVBoxLayout *absoluteValueLayout = new QVBoxLayout;
+	absoluteValueLayout->addLayout(hLayout);
+	absoluteValueLayout->addLayout(vLayout);
+	absoluteValueLayout->addLayout(jogLayout);
 
-	QVBoxLayout *holderLayout = new QVBoxLayout;
-	holderLayout->addLayout(arrowLayout);
-	holderLayout->addLayout(jogAndStatusLayout);
-	holderLayout->addLayout(hLayout);
-	holderLayout->addLayout(vLayout);
+	QHBoxLayout *sampleStageLayout = new QHBoxLayout;
+	sampleStageLayout->addLayout(arrowLayout);
+	sampleStageLayout->addLayout(absoluteValueLayout);
 
-	setLayout(holderLayout);
+	setLayout(sampleStageLayout);
 }
 
 void VESPERSSampleStageView::onUpClicked()
@@ -153,22 +168,12 @@ void VESPERSSampleStageView::onMovingChanged(bool isMoving)
 
 void VESPERSSampleStageView::onHorizontalSetpoint()
 {
-	sampleStage_->moveHorizontal(horizontal_->text().toDouble());
+	sampleStage_->moveHorizontal(horizontal_->value());
 }
 
 void VESPERSSampleStageView::onVerticalSetpoint()
 {
-	sampleStage_->moveVertical(vertical_->text().toDouble());
-}
-
-void VESPERSSampleStageView::onHorizontalChanged(double val)
-{
-	horizontal_->setText(QString::number(val, 'f', 3));
-}
-
-void VESPERSSampleStageView::onVerticalChanged(double val)
-{
-	vertical_->setText(QString::number(val, 'f', 3));
+	sampleStage_->moveVertical(vertical_->value());
 }
 
 void VESPERSSampleStageView::onHorizontalMoveError(bool direction)

@@ -16,9 +16,9 @@ macx {
 		DEV_PATH = dev
 
 		# EPICS Dependencies:
-		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/include \
-				$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/include/os/Darwin
-		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/lib/darwin-x86
+				EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include \
+								$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include/os/Darwin
+				EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/lib/darwin-x86
 
 		# MPlot Source
 		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
@@ -268,7 +268,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMStatusView.h \
 	source/ui/AMThumbnailScrollViewer.h \
 	source/ui/acquaman/AMXASRegionsView.h \
-	source/ui/BottomBar.h \
+	source/ui/AMBottomBar.h \
 	#deprecated: source/ui/AMBeamlineCameraWidget.h \
 	source/ui/beamline/AMControlEditor.h \
 	source/acquaman.h \
@@ -324,7 +324,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMMeasurementInfo.h \
 	source/dataman/datastore/AMInMemoryDataStore.h \
 	source/acquaman/AMFastScanConfiguration.h \
-	source/ui/AMScanConfigurationViewer.h \
 	source/dataman/AMFastScan.h \
 	source/analysis/AM2DSummingAB.h \
 	source/analysis/AMStandardAnalysisBlock.h \
@@ -332,7 +331,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/util/AMOrderedList.h \
 	source/actions/AMBeamlineParallelActionsList.h \
 	source/beamline/AMControlOptimization.h \
-	source/dataman/info/AMDetectorInfoList.h \
+	source/dataman/info/AMDetectorInfoSet.h \
 	source/ui/beamline/AMControlOptimizationView.h \
 	source/actions/AMBeamlineControlStopAction.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
@@ -409,11 +408,16 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/VESPERS/VESPERSXASDataLoader.h \
 	source/dataman/AMFileLoaderInterface.h \
 	source/ui/util/AMSettingsView.h \
-    source/dataman/AMScanDictionary.h \
-    source/dataman/AMScanParametersDictionary.h \
-    source/dataman/AMScanExemplarDictionary.h \
-    source/dataman/AMScanExemplar.h \
-    source/ui/dataman/AMDictionaryLineEdit.h
+	source/dataman/AMScanDictionary.h \
+	source/dataman/AMScanParametersDictionary.h \
+	source/dataman/AMScanExemplarDictionary.h \
+	source/dataman/AMScanExemplar.h \
+	source/ui/dataman/AMDictionaryLineEdit.h \
+	source/beamline/AMIonChamber.h \
+	source/dataman/info/AMIonChamberInfo.h \
+	source/beamline/CLS/CLSIonChamber.h \
+	source/beamline/CLS/CLSSR570.h \
+	source/ui/beamline/AMIonChamberView.h
 
 CONFIG(mobility) {
 HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
@@ -426,7 +430,7 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/dataman/AMDataViewSectionHeader.ui \
 	source/ui/dataman/AMImportControllerWidget.ui \
 	source/ui/acquaman/AMScanConfigurationView.ui \
-	source/ui/BottomBar.ui \
+	source/ui/AMBottomBar.ui \
 	source/ui/dataman/AMGenericScanEditor.ui \
 	source/ui/dataman/AMDataSourcesEditor.ui \
 	source/ui/dataman/AMSamplePlateSelector.ui \
@@ -530,7 +534,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMStatusView.cpp \
 	source/ui/AMThumbnailScrollViewer.cpp \
 	source/ui/acquaman/AMXASRegionsView.cpp \
-	source/ui/BottomBar.cpp \
+	source/ui/AMBottomBar.cpp \
 	#deprecated: source/ui/AMBeamlineCameraWidget.cpp \
 	source/ui/beamline/AMControlEditor.cpp \
 	source/ui/beamline/AMDetectorView.cpp \
@@ -583,14 +587,13 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AM1DExpressionABEditor.cpp \
 	source/dataman/datastore/AMInMemoryDataStore.cpp \
 	source/acquaman/AMFastScanConfiguration.cpp \
-	source/ui/AMScanConfigurationViewer.cpp \
 	source/dataman/AMFastScan.cpp \
 	source/analysis/AM2DSummingAB.cpp \
 	source/analysis/AMStandardAnalysisBlock.cpp \
 	source/analysis/AM2DSummingABEditor.cpp \
 	source/actions/AMBeamlineParallelActionsList.cpp \
 	source/beamline/AMControlOptimization.cpp \
-	source/dataman/info/AMDetectorInfoList.cpp \
+	source/dataman/info/AMDetectorInfoSet.cpp \
 	source/ui/beamline/AMControlOptimizationView.cpp \
 	source/actions/AMBeamlineControlStopAction.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
@@ -667,11 +670,16 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AM2DDeadTimeAB.cpp \
 	source/dataman/VESPERS/VESPERSXASDataLoader.cpp \
 	source/ui/util/AMSettingsView.cpp \
-    source/dataman/AMScanDictionary.cpp \
-    source/dataman/AMScanParametersDictionary.cpp \
-    source/dataman/AMScanExemplarDictionary.cpp \
-    source/dataman/AMScanExemplar.cpp \
-    source/ui/dataman/AMDictionaryLineEdit.cpp
+	source/dataman/AMScanDictionary.cpp \
+	source/dataman/AMScanParametersDictionary.cpp \
+	source/dataman/AMScanExemplarDictionary.cpp \
+	source/dataman/AMScanExemplar.cpp \
+	source/ui/dataman/AMDictionaryLineEdit.cpp \
+	source/beamline/AMIonChamber.cpp \
+	source/dataman/info/AMIonChamberInfo.cpp \
+	source/beamline/CLS/CLSIonChamber.cpp \
+	source/beamline/CLS/CLSSR570.cpp \
+	source/ui/beamline/AMIonChamberView.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \

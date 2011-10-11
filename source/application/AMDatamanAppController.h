@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QModelIndex>
 
 class AMMainWindow;
-class BottomBar;
+class AMBottomBar;
 class AMDataViewWithActionButtons;
 class AMRunExperimentInsert;
 class AMGenericScanEditor;
@@ -55,11 +55,16 @@ public:
 	/// This destructor automatically calls shutdown() if required. (ie: if startup() has run successfully, and shutdown() hasn't been called yet.)
 	virtual ~AMDatamanAppController();
 
+	// 1. Lifecycle control
+	//////////////////////////////
 	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
 	virtual bool startup();
 
 	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
 	virtual void shutdown();
+
+	// 2. Lifecycle status
+	//////////////////////////
 
 	/// Returns true when the application is starting up (ie: true prior to startup() finishing successfully, false afterwards)
 	bool isStarting() { return isStarting_; }
@@ -67,6 +72,13 @@ public:
 	bool isShuttingDown() { return isShuttingDown_; }
 	/// Returns true when the application is running normally (ie: after startup() finishes succesfully, and before shutdown() is called)
 	bool isRunning() { return isStarting_ == false && isShuttingDown_ == false; }
+
+	// 3. Helper functions
+	/////////////////////////
+
+	/// Load/re-load all dynamic plugins (file loaders, analysis blocks, exporters, importers, etc.)
+	// Should we move this here? Currently in AMSettings, but not desireable to re-load all plugins every time settings are loaded (really expensive).
+	// virtual void loadApplicationPlugins();
 
 signals:
 
@@ -126,7 +138,7 @@ protected:
 	QMenu* fileMenu_;
 
 	/// Top-level panes in the main window
-	BottomBar* bottomBar_;
+	AMBottomBar* bottomBar_;
 	AMDataViewWithActionButtons* dataView_;
 	AMRunExperimentInsert* runExperimentInsert_;
 

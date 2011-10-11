@@ -18,10 +18,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMScanConfigurationViewer.h"
+#include <QApplication>
+#include "beamline/CLS/CLSPGTDwellTimeCoordinator.h"
 
-AMScanConfigurationViewer::AMScanConfigurationViewer(AMScanConfiguration *cfg, QWidget *parent) :
-		QWidget(parent)
+int main(int argc, char *argv[])
 {
-	cfg_ = cfg;
+
+	// =================================
+	QApplication app(argc, argv);
+	app.setApplicationName("CLS PGT Dwell Time Coordinator");
+
+	CLSPGTDwellTimeCoordinator *coordinator = new CLSPGTDwellTimeCoordinator("MCA1611-01", "BL1611-ID-1");
+
+	return app.exec();
 }

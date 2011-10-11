@@ -13,7 +13,14 @@ AMScanDictionary::AMScanDictionary(AMScan *scan, QObject *parent) :
 	AMScanParametersDictionary(parent)
 {
 	scan_ = scan;
-
+	if(scan_){
+		connect(scan_, SIGNAL(nameChanged(QString)), this, SLOT(reoperate()));
+		connect(scan_, SIGNAL(numberChanged(int)), this, SLOT(reoperate()));
+		connect(scan_, SIGNAL(dateTimeChanged(QDateTime)), this, SLOT(reoperate()));
+		connect(scan_, SIGNAL(sampleIdChanged(int)), this, SLOT(reoperate()));
+		connect(scan_, SIGNAL(scanConfigurationChanged()), this, SLOT(reoperate()));
+		connect(scan_, SIGNAL(loadedFromDb()), this, SLOT(reoperate()));
+	}
 	loadKeywordReplacementDictionary();
 }
 
@@ -23,6 +30,10 @@ bool AMScanDictionary::canOperateOnName() const{
 
 bool AMScanDictionary::canOperateOnExportName() const{
 	return true;
+}
+
+bool AMScanDictionary::canOperate() const{
+	return !scan_->isReloading();
 }
 
 void AMScanDictionary::setOperatingOnName(bool operatingOnName){
@@ -49,8 +60,14 @@ void AMScanDictionary::loadKeywordReplacementDictionaryImplementation()
 	keywordDictionary_.insert("sampleNotes", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krSampleNotes));
 }
 
+#include <inttypes.h>
 void AMScanDictionary::operateImplementation(const QString &input){
+	if(operatingOnName())
+		if(scan_->name() != input)
+			scan_->setName(input);
+	else if(operatingOnExportName()){
 
+	}
 }
 
 QString AMScanDictionary::krName(const QString& arg) {

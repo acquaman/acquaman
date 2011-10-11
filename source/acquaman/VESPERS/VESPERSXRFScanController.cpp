@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMUser.h"
 #include "dataman/datasource/AMRawDataSource.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
-#include "dataman/VESPERS/VESPERSXRFDataLoader.h"
 #include "analysis/AMDeadTimeAB.h"
 #include "analysis/AM1DSummingAB.h"
 
@@ -44,7 +43,7 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 	scan_->setName(QString("XRF Scan - %1 el").arg(detector_->elements()));
 
 	scan_->setFilePath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()) + ".dat");
-	scan_->setFileFormat("vespersXRF");
+	scan_->setFileFormat("vespers2011XRF");
 	scan_->setRunId(AMUser::user()->currentRunId());
 
 	int elements = detector_->elements();
@@ -52,26 +51,26 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 	for (int i = 0; i < elements; i++){
 
 		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("raw%1").arg(i+1), QString("Element %1").arg(i+1), "eV", detector_->axes()));
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i));
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i), true, false);
 	}
 
 	for (int i = 0; i < elements; i++){
 
 		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("icr%1").arg(i+1), QString("Input count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+elements));
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+elements), false, true);
 	}
 
 	for (int i = 0; i < elements; i++){
 
 		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("ocr%1").arg(i+1), QString("Output count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+2*elements));
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+2*elements), false, true);
 	}
 
 	for (int i = 0; i < elements; i++){
 
 		AMDeadTimeAB *temp = new AMDeadTimeAB(QString("Corrected %1").arg(i+1));
 		temp->setInputDataSourcesImplementation(QList<AMDataSource *>() << (AMDataSource *)scan_->rawDataSources()->at(i) << (AMDataSource *)scan_->rawDataSources()->at(i+elements) << (AMDataSource *)scan_->rawDataSources()->at(i+2*elements));
-		scan_->addAnalyzedDataSource(temp);
+		scan_->addAnalyzedDataSource(temp, true, false);
 	}
 
 	if (elements > 1){
@@ -81,7 +80,7 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 		for (int i = 0; i < scan_->analyzedDataSourceCount(); i++)
 			list << (AMDataSource *)scan_->analyzedDataSources()->at(i);
 		corr->setInputDataSourcesImplementation(list);
-		scan_->addAnalyzedDataSource(corr);
+		scan_->addAnalyzedDataSource(corr, true, false);
 	}
 }
 
@@ -134,7 +133,36 @@ void VESPERSXRFScanController::onDetectorAcquisitionFinished()
 
 void VESPERSXRFScanController::saveData()
 {
-	VESPERSXRFDataLoader exporter(scan_);
-	if (!exporter.saveToFile(AMUserSettings::userDataFolder + "/" + scan_->filePath()))
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, QString("Could not save XRF data.")));
+	QFile file(AMUserSettings::userDataFolder + "/" + scan_->filePath());
+	if(!file.open(QIODevice::WriteOnly)) {
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "Could not save XRF data."));
+		return;
+	}
+
+	QTextStream out(&file);
+
+	// There are two types of raw data sources.  The spectra of rank 1 and the dead time of rank 0.
+	for (int i = 0; i < scan_->rawDataSources()->count(); i++){
+
+		if (scan_->rawDataSources()->at(i)->rank() == 1){
+
+			qint32 counts = scan_->rawData()->value(AMnDIndex(), i, AMnDIndex(0));
+			out << counts;
+
+			for (int j = 1; j < scan_->rawData()->measurementAt(i).size(0); j++){
+
+				qint32 counts = scan_->rawData()->value(AMnDIndex(), i, AMnDIndex(j));
+				out << "," << counts;
+			}
+		}
+		else {
+
+			double counts = scan_->rawData()->value(AMnDIndex(), i, AMnDIndex());
+			out << counts;
+		}
+
+		out << "\n";
+	}
+
+	file.close();
 }

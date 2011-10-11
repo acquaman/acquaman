@@ -16,6 +16,7 @@ public:
 
 	bool canOperateOnName() const;
 	bool canOperateOnExportName() const;
+	bool canOperate() const;
 
 public slots:
 	void setOperatingOnName(bool operatingOnName);

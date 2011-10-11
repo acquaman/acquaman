@@ -114,5 +114,6 @@
         <file>configure.png</file>
         <file>lightbulb.png</file>
         <file>stop.png</file>
+        <file>valveIcon.png</file>
     </qresource>
 </RCC>

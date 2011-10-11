@@ -51,8 +51,8 @@ AMScan::AMScan(QObject *parent)
 
 	nameDictionary_ = new AMScanDictionary(this, this);
 	nameDictionary_->setOperatingOnName(true);
-	exportNameDictionary_ = new AMScanDictionary(this, this);
-	exportNameDictionary_->setOperatingOnExportName(true);
+	//exportNameDictionary_ = new AMScanDictionary(this, this);
+	//exportNameDictionary_->setOperatingOnExportName(true);
 
 	// Connect added/removed signals from rawDataSources_ and analyzedDataSources_, to provide a model of all data sources:
 	connect(rawDataSources_.signalSource(), SIGNAL(itemAboutToBeAdded(int)), this, SLOT(onDataSourceAboutToBeAdded(int)));
@@ -93,6 +93,29 @@ AMScan::~AMScan() {
 }
 
 
+void AMScan::setUnEvaluatedName(QString unEvaluatedName){
+	if(unEvaluatedName_ != unEvaluatedName){
+		unEvaluatedName_ = unEvaluatedName;
+		nameDictionary_->parseKeywordStringAndOperate(unEvaluatedName_);
+	}
+}
+
+void AMScan::setNumber(int number) {
+	if(number_ != number){
+		number_ = number;
+		setModified(true);
+		emit numberChanged(number_);
+	}
+}
+
+void AMScan::setDateTime(const QDateTime& dt)
+{
+	if(dateTime_ != dt){
+		dateTime_ = dt;
+		setModified(true);
+		emit dateTimeChanged(dateTime_);
+	}
+}
 
 // associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
 /* This will also tell the new run (and the old run, if it exists) to update their date ranges */
@@ -116,17 +139,25 @@ void AMScan::setRunId(int newRunId) {
 
 // Sets name of sample
 void AMScan::setSampleId(int newSampleId) {
-	sampleNameLoaded_ = false;	// invalidate the sample name cache
-	if(newSampleId <= 0) sampleId_ = -1;
-	else sampleId_ = newSampleId;
+	if(sampleId_ != newSampleId){
+		sampleNameLoaded_ = false;	// invalidate the sample name cache
+		if(newSampleId <= 0)
+			sampleId_ = -1;
+		else
+			sampleId_ = newSampleId;
 
-	setModified(true);
-	emit sampleIdChanged(sampleId_);
+		setModified(true);
+		emit sampleIdChanged(sampleId_);
+	}
 }
 
-QString AMScan::evaluatedName() const {
-	return nameDictionary_->parseKeywordString(name());
+QString AMScan::unEvaluatedName() const{
+	return unEvaluatedName_;
 }
+
+//QString AMScan::evaluatedName() const {
+//	return nameDictionary_->parseKeywordString(name());
+//}
 
 // Convenience function: returns the name of the sample (if a sample is set)
 QString AMScan::sampleName() const {
@@ -163,6 +194,7 @@ void AMScan::retrieveSampleName() const {
 bool AMScan::storeToDb(AMDatabase* db) {
 
 	bool isFirstTimeStored = (database() != db || id() < 1);
+	bool noSampleNameLoaded = !sampleNameLoaded_;
 
 	// Call the base class implementation
 	// Return false if it fails.
@@ -172,6 +204,10 @@ bool AMScan::storeToDb(AMDatabase* db) {
 	// (Once we've been stored in the db, we'll notify the old run and new run each time our runId changes)
 	if(success && isFirstTimeStored && runId() > 0 ) {
 		AMRun::scheduleDateRangeUpdate(runId(), database(), dateTime());
+	}
+	// if no sample name was loaded before this save we should be helpful and notify the dictionaries just in case
+	if(success && noSampleNameLoaded){
+		nameDictionary_->reoperate();
 	}
 
 	return success;
@@ -314,9 +350,9 @@ void AMScan::dbLoadAnalyzedDataSourcesConnections(const QString& connectionStrin
 
 		if(!analyzedDataSources_.at(i)->setInputDataSources(inputs))
 			AMErrorMon::report(AMErrorReport(	this,
-											 AMErrorReport::Alert,
-											 0,
-											 QString("There was an error re-connecting the inputs for the analysis component '%1: %2', when reloading this scan from the database. Your database might be corrupted. Please report this bug to the Acquaman developers.").arg(analyzedDataSources_.at(i)->name()).arg(analyzedDataSources_.at(i)->description())));
+								AMErrorReport::Alert,
+								0,
+								QString("There was an error re-connecting the inputs for the analysis component '%1: %2', when reloading this scan from the database. Your database might be corrupted. Please report this bug to the Acquaman developers.").arg(analyzedDataSources_.at(i)->name()).arg(analyzedDataSources_.at(i)->description())));
 	}
 }
 
@@ -360,10 +396,13 @@ void AMScan::onDataSourceRemoved(int index) {
 void AMScan::setScanConfiguration(AMScanConfiguration* newConfiguration) {
 	if(!newConfiguration)
 		return;
+	if(configuration_ == newConfiguration)
+		return;
 	if(configuration_)
 		delete configuration_;
 	configuration_ = newConfiguration;
 	setModified(true);
+	emit scanConfigurationChanged();
 }
 
 
@@ -377,6 +416,24 @@ void AMScan::dbLoadScanConfiguration(AMDbObject* newObject) {
 		setScanConfiguration(sc);
 }
 
+// This overloaded function calls addRawDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
+bool AMScan::addRawDataSource(AMRawDataSource* newRawDataSource, bool visibleInPlots, bool hiddenFromUsers) {
+	if(newRawDataSource) {
+		newRawDataSource->setHiddenFromUsers(hiddenFromUsers);
+		newRawDataSource->setVisibleInPlots(visibleInPlots);
+	}
+
+	return addRawDataSource(newRawDataSource);
+}
+
+// This overloaded function calls addAnalyzedDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
+bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource, bool visibleInPlots, bool hiddenFromUsers) {
+	if(newAnalyzedDataSource) {
+		newAnalyzedDataSource->setHiddenFromUsers(hiddenFromUsers);
+		newAnalyzedDataSource->setVisibleInPlots(visibleInPlots);
+	}
+	return addAnalyzedDataSource(newAnalyzedDataSource);
+}
 
 
 #include <QPixmap>
@@ -398,9 +455,9 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 	bool useRawSources = (analyzedDataSources_.count() == 0);
 
 	if( index < 0 ||
-		(useRawSources && index >= rawDataSources_.count()) ||
-		(!useRawSources && index >= analyzedDataSources_.count())
-		)
+			(useRawSources && index >= rawDataSources_.count()) ||
+			(!useRawSources && index >= analyzedDataSources_.count())
+			)
 		return AMDbThumbnail(QString(), QString(), AMDbThumbnail::InvalidType, QByteArray());
 
 	// convert index into a proper index for dataSourceAt(). If we're using raw sources, leave as-is. If we're using analyzed data sources, add the rawDataSources_.count() offset.
@@ -457,3 +514,26 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 	return AMDbThumbnail(dataSource->description(), dataSource->name(), pixmap);
 
 }
+
+bool AMScan::loadData()
+
+{
+	//		bool success = loadDataImplementation();
+	bool accepts = false;
+	bool success = false;
+	for(int x = 0; x < AMSettings::availableFileLoaders.count(); x++) {
+		AMFileLoaderInterface *fileloader = AMSettings::availableFileLoaders.at(x);
+		if((accepts = fileloader->accepts(this))){
+			success = fileloader->load(this, AMUserSettings::userDataFolder);
+			break;
+		}
+
+	}
+	if(!accepts)
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -47, QString("Could not find a suitable plugin for loading the file format '%1'.  Check the Acquaman preferences for the correct plugin locations, and contact the Acquaman developers for assistance.").arg(fileFormat())));
+	if(success)
+		for(int i=rawDataSources_.count()-1; i>=0; i--)
+			rawDataSources_.at(i)->setDataStore(rawData());
+	return success;
+}
+

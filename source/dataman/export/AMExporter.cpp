@@ -122,8 +122,7 @@ void AMExporter::loadKeywordReplacementDictionary()
 QString AMExporter::krName(const QString& arg) {
 	Q_UNUSED(arg)
 	if(currentScan_)
-		return currentScan_->evaluatedName();
-		//return currentScan_->name();
+		return currentScan_->name();
 	return "[??]";
 }
 
@@ -259,7 +258,7 @@ QString AMExporter::krFacilityDescription(const QString& arg) {
 }
 
 #include "acquaman/AMScanConfiguration.h"	/// \todo Move to dataman!
-
+#include "QMetaProperty"
 QString AMExporter::krScanConfiguration(const QString& propertyName) {
 	if(!currentScan_)
 		return "[??]";

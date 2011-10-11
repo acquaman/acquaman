@@ -26,6 +26,10 @@ bool AMScanExemplarDictionary::canOperateOnExportName() const{
 	return true;
 }
 
+bool AMScanExemplarDictionary::canOperate() const{
+	return true;
+}
+
 void AMScanExemplarDictionary::setOperatingOnName(bool operatingOnName){
 	if(operatingOnName && operatingOnExportName())
 		operatingOnExportName_ = false;

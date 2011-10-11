@@ -35,9 +35,14 @@ class AMRawDataSource : public AMDbObject, public AMDataSource
 	Q_PROPERTY(int scanRank READ scanRank WRITE dbLoadScanRank)
 	Q_PROPERTY(int measurementRank READ measurementRank WRITE dbLoadMeasurementRank)
 	Q_PROPERTY(int rank READ rank WRITE dbLoadRank)
+	Q_PROPERTY(bool visibleInPlots READ visibleInPlots WRITE setVisibleInPlots)
+	Q_PROPERTY(bool hiddenFromUsers READ hiddenFromUsers WRITE setHiddenFromUsers)
 
 	Q_CLASSINFO("measurementId", "hidden=true")
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Data Source")
+	Q_CLASSINFO("visibleInPlots", "upgradeDefault=false")
+	Q_CLASSINFO("hiddenFromUsers", "upgradeDefault=false")
+
 public:
 	/// Construct a raw data source which exposes measurement number \c measurementId of the specified \c dataStore. Both \c dataStore and \c measurementId must be valid.
 	AMRawDataSource(const AMDataStore* dataStore, int measurementId, QObject* parent = 0);
@@ -182,6 +187,15 @@ public:
 			//axes_ << AMAxisInfo("invalid", 0);
 	}
 
+
+
+	/// Specify that this data source should be visible (in plots and graphical displays).  Users are free to toggle this visibility.
+	/*! Re-implemented from AMDataSource to call setModified().  */
+	virtual void setVisibleInPlots(bool isVisible) { AMDataSource::setVisibleInPlots(isVisible); setModified(true); }
+
+	/// Specify that this data source should be hidden from users by default. (ie: it contains some programming internals). This means that users shouldn't see it, or be able to toggle its visibility.
+	/*! Re-implemented from AMDataSource to call setModified().  */
+	virtual void setHiddenFromUsers(bool isHidden = true) { AMDataSource::setHiddenFromUsers(isHidden); setModified(true); }
 
 
 protected slots:

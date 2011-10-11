@@ -22,8 +22,10 @@ bool AMScanParametersDictionary::operatingOnExportName() const{
 	return operatingOnExportName_;
 }
 
+#include <QDebug>
 void AMScanParametersDictionary::reoperate(){
-	parseKeywordStringAndOperate(lastInputString_);
+	if(canOperate())
+		parseKeywordStringAndOperate(lastInputString_);
 }
 
 QString AMScanParametersDictionary::parseKeywordString(const QString &inputString) {

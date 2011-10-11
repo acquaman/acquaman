@@ -1,5 +1,3 @@
-#include <QtGui>
-
 #include "SGM2010FastFileLoaderPlugin.h"
 
 AMBiHash<QString, QString> SGM2010FastFileLoaderPlugin::columns2pvNames_;
@@ -33,10 +31,12 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 		columns2pvNames_.set("encoder", "SMTR16114I1002:enc:fbk");
 	}
 
-	defaultUserVisibleColumns_ << "TEY";
-	defaultUserVisibleColumns_ << "TFY";
-	defaultUserVisibleColumns_ << "I0";
-	defaultUserVisibleColumns_ << "Photodiode";
+	if(defaultUserVisibleColumns_.isEmpty()) {
+		defaultUserVisibleColumns_ << "TEY";
+		defaultUserVisibleColumns_ << "TFY";
+		defaultUserVisibleColumns_ << "I0";
+		defaultUserVisibleColumns_ << "Photodiode";
+	}
 
 	if(!scan)
 		return false;

@@ -39,8 +39,17 @@ void AMBeamline::releaseBl() {
 	if(instance_) {
 		delete instance_;
 		instance_ = 0;
-	}
+		}
 
+}
+
+AMBeamline * AMBeamline::bl()
+{
+	 if(!instance_) {
+		 qWarning() << "WARNING: AMBeamline: No beamline created yet.  You need to call YourBeamline::bl() before calling AMBeamline::bl().";
+	 }
+
+	return instance_;
 }
 
 

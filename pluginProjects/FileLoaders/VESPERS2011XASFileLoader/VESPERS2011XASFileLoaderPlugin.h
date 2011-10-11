@@ -18,18 +18,28 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AMOBSERVER_H
-#define AMOBSERVER_H
+#ifndef VESPERS2011XASFILELOADERPLUGIN_H
+#define VESPERS2011XASFILELOADERPLUGIN_H
 
-class AMObservable;
+#include <QObject>
 
-/// The AMObserver defines the interface for classes that can receive updates from AMObservables.  It's up to you to implement onObservableChanged(), and you can interpret the arguments as you like.  THIS CLASS IS NOT CURRENTLY USED.
-class AMObserver {
+#include "dataman/AMFileLoaderInterface.h"
+
+/*!
+  This class implements loading of the raw XAS data files that are outputted from the Dacq library.
+  The file type is the standard CLS output file.
+  */
+class VESPERS2011XASFileLoaderPlugin : public QObject, AMFileLoaderInterface
+{
+	Q_OBJECT
+	Q_INTERFACES(AMFileLoaderInterface)
+
 public:
-	AMObserver() {}
+	/// Format tag. a unique string identifying this format.
+	virtual bool accepts(AMScan *scan);
 
-	virtual void onObservableChanged(AMObservable* source, int code, const char* msg, int payload = 0) = 0;
-
+	/// Loads data from \param filepath into the target scan.
+	virtual bool load(AMScan *scan, const QString &userDataFolder);
 };
 
-#endif // AMOBSERVER_H
+#endif // VESPERS2011XASFILELOADERPLUGIN_H

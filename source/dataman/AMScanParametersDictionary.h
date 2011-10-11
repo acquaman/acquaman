@@ -26,6 +26,9 @@ public:
 	/// Returns whether or not the dictionary can set the exportName of the object it operates on ($exportName)
 	virtual bool canOperateOnExportName() const = 0;
 
+	/// Return whether or not the dictionary can currently operate at (will stop any parsing from being executed in reoperate)
+	virtual bool canOperate() const = 0;
+
 	/// Returns whether or not this dictionary is currently operating on the name field ($name). This and operatingOnExportName() are mutually exclusive.
 	virtual bool operatingOnName() const;
 
