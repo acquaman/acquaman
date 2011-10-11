@@ -241,11 +241,11 @@ void AMBeamlineScanAction::onScanCancelled(){
 	setFailed(true, AMBEAMLINEACTIONITEM_SCAN_CANCELLED);
 }
 
-#include <QUrl>
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporter.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExporterOption.h"
+
 void AMBeamlineScanAction::onScanSucceeded(){
 	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Completed "+AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())+"]");
 	emit descriptionChanged();
@@ -253,16 +253,9 @@ void AMBeamlineScanAction::onScanSucceeded(){
 	if(ctrl_->scan()->database()){
 		bool saveSucceeded = ctrl_->scan()->storeToDb(ctrl_->scan()->database());
 		if(saveSucceeded && cfg_->autoExportEnabled()){
-
-			QString urlString = QString("amd://%1/%2/%3").arg(ctrl_->scan()->database()->connectionName()).arg(ctrl_->scan()->dbTableName()).arg(ctrl_->scan()->id());
-			qDebug() << "This one wants to auto export as " << urlString;
-			QUrl url = QUrl(urlString);
-			QList<QUrl> urlList;
-			urlList << url;
-			/*
-			emit exportMe(urlList);
-			*/
-			AMExportController* exportController = new AMExportController(urlList);
+			QList<AMScan*> toExport;
+			toExport << ctrl_->scan();
+			AMExportController *exportController = new AMExportController(toExport);
 			QHashIterator<QString, AMExporterInfo> iRegisteredExporters(AMExportController::registeredExporters());
 			QStringList exporters;
 			while(iRegisteredExporters.hasNext()) {
@@ -283,6 +276,7 @@ void AMBeamlineScanAction::onScanSucceeded(){
 							AMDatabase::userdb(),
 							AMDbObjectSupport::tableNameForClass(exportController->exporter()->exporterOptionClassName()),
 							ids.at(0)));
+			option->setFileName(cfg_->userExportName());
 			exportController->setOption(option);
 			exportController->start();
 		}

@@ -31,6 +31,16 @@ AMXASScanConfiguration::AMXASScanConfiguration(QObject *parent) : AMScanConfigur
 	connect(regions_, SIGNAL(regionsChanged()), this, SIGNAL(configurationChanged()));
 }
 
+AMXASScanConfiguration::AMXASScanConfiguration(const AMXASScanConfiguration &original) :
+	AMScanConfiguration(original.parent())
+{
+	qDebug() << "Using AMXASScanConfiguration copy constructor";
+	regions_ = new AMXASRegionsList(this);
+	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
+	connect(regions_, SIGNAL(regionsChanged()), this, SIGNAL(configurationChanged()));
+	setUserScanName(original.userScanName());
+}
+
 double AMXASScanConfiguration::startEnergy() const{
 	if(regions_->count() > 0)
 		return regionStart(0);

@@ -60,8 +60,6 @@ signals:
 	/// Signals changes in the status of the workflow: \c beamlineBusy means that it's impossible to start running the workflow because another program, etc. has exclusive access to it. \c queueEmpty means that there are no items (except for possibly the currently-running action) in the workflow. \c workflowRunning means that we are executing actions right now.
 	void workflowStatusChanged(bool beamlineBusy, bool queueEmpty, bool workflowRunning);
 
-	void exportOne(const QList<QUrl> &itemUrls);
-
 public slots:
 
 	/// Start running the actions in the queue (if not already running)

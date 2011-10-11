@@ -24,7 +24,7 @@ AMScanConfiguration::AMScanConfiguration(QObject *parent) :
 	AMDbObject(parent)
 {
 	userScanName_ = "";
-	userExportName_ = "$name.dat";
+	userExportName_ = "$name.txt";
 	autoExportEnabled_ = true;
 }
 
