@@ -26,8 +26,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSSynchronizedDwellTimeView.h"
 #include "ui/AMTopFrame.h"
 
+#include "beamline/CLS/CLSIonChamber.h"
+#include "ui/beamline/AMIonChamberView.h"
+
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QGroupBox>
 
 VESPERSBeamlineView::VESPERSBeamlineView(QWidget *parent) :
 	QWidget(parent)
@@ -44,9 +48,13 @@ VESPERSBeamlineView::VESPERSBeamlineView(QWidget *parent) :
 	VESPERSIonChamberCalibrationView *ionCalibrationView = new VESPERSIonChamberCalibrationView(VESPERSBeamline::vespers()->ionChamberCalibration());
 	CLSSynchronizedDwellTimeView *dwellTimeView = new CLSSynchronizedDwellTimeView(VESPERSBeamline::vespers()->synchronizedDwellTime());
 
+
+
+
 	QVBoxLayout *current = new QVBoxLayout;
 	current->addLayout(basicLayout);
 	current->addWidget(ionCalibrationView, 0, Qt::AlignCenter);
+	current->addWidget(new AMIonChamberView(new CLSIonChamber("Pre-KB", "Pre-KB", "BL1607-B2-1:mcs07:fbk", "BL1607-B2-1:mcs07:userRate", "AMP1607-204:sens_num.VAL", "AMP1607-204:sens_unit.VAL", this)));
 
 	QHBoxLayout *next = new QHBoxLayout;
 	next->addStretch();
