@@ -265,7 +265,7 @@ bool VESPERSXASDacqScanController::initializeImplementation()
 	// Second stage.
 	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
 	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::SingleShot));
-	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(config_->accumulationTime()));
+	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(config_->regionTime(0)));
 
 	// Integrity check.  Make sure no actions are null.
 	for (int i = 0; i < setupXASActionsList->stageCount(); i++){
