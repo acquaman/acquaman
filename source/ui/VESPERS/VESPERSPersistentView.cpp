@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSSampleStageView.h"
 #include "ui/VESPERS/PIDLoopControlView.h"
 #include "ui/VESPERS/VESPERSBeamSelectorView.h"
+#include "ui/beamline/AMIonChamberView.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -86,6 +87,8 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	statusLabel->setFont(font);
 	QLabel *experimentReadyLabel = new QLabel("Experiment Ready Status");
 	experimentReadyLabel->setFont(font);
+	QLabel *ionChamberLabel = new QLabel("Ion Chamber Calibration");
+	ionChamberLabel->setFont(font);
 
 	// Shutter layout.
 	QGridLayout *shutterLayout = new QGridLayout;
@@ -230,6 +233,11 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	waterIcon->setPixmap(QIcon(":/FaucetIcon.png").pixmap(25));
 	waterIcon->setToolTip("Water Indicator");
 
+	QVBoxLayout *ionChamberLayout = new QVBoxLayout;
+	ionChamberLayout->addWidget(new AMIonChamberView((AMIonChamber *)VESPERSBeamline::vespers()->iPreKB()));
+	ionChamberLayout->addWidget(new AMIonChamberView((AMIonChamber *)VESPERSBeamline::vespers()->iMini()));
+	ionChamberLayout->addWidget(new AMIonChamberView((AMIonChamber *)VESPERSBeamline::vespers()->iPost()));
+
 	QGridLayout *statusLayout = new QGridLayout;
 	statusLayout->addWidget(temperatureIcon, 0, 0);
 	statusLayout->addWidget(pressureIcon, 0, 1);
@@ -253,6 +261,8 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	persistentLayout->addLayout(experimentReadyLayout);
 	persistentLayout->addWidget(endstationShutterLabel);
 	persistentLayout->addLayout(filterLayout);
+	persistentLayout->addWidget(ionChamberLabel);
+	persistentLayout->addLayout(ionChamberLayout);
 	persistentLayout->addWidget(statusLabel);
 	persistentLayout->addLayout(statusLayout);
 	persistentLayout->addStretch();

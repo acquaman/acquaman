@@ -20,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/VESPERS/VESPERSEndstationView.h"
 #include "ui/AMTopFrame.h"
+#include "ui/CLS/CLSSynchronizedDwellTimeView.h"
+#include "beamline/VESPERS/VESPERSBeamline.h"
 
 #include <QGridLayout>
 #include <QDebug>
@@ -157,28 +159,26 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	extrasGroupBoxLayout->addWidget(startMicroscopeButton);
 	extrasGroupBoxLayout->addWidget(resetPseudoMotorsButton);
 
-	QGroupBox *ExtrasGroupBox = new QGroupBox("Extras");
-	ExtrasGroupBox->setLayout(extrasGroupBoxLayout);
+	QGroupBox *extrasGroupBox = new QGroupBox("Extras");
+	extrasGroupBox->setLayout(extrasGroupBoxLayout);
 
-	QVBoxLayout *extrasLayout = new QVBoxLayout;
-	extrasLayout->addStretch();
-	extrasLayout->addWidget(ExtrasGroupBox);
-	extrasLayout->addWidget(windowGB);
-	extrasLayout->addWidget(ccdGB);
-	extrasLayout->addStretch();
+	CLSSynchronizedDwellTimeView *dwellTimeView = new CLSSynchronizedDwellTimeView(VESPERSBeamline::vespers()->synchronizedDwellTime());
 
-	QHBoxLayout *layout = new QHBoxLayout;
-	layout->addStretch();
-	layout->addWidget(controlGB);
-	layout->addLayout(extrasLayout);
-	layout->addStretch();
+	QGridLayout *endstationLayout = new QGridLayout;
+	endstationLayout->addWidget(controlGB, 0, 0, 2, 3);
+	endstationLayout->addWidget(windowGB, 0, 3);
+	endstationLayout->addWidget(dwellTimeView, 1, 3, 2, 1);
+	endstationLayout->addWidget(ccdGB, 2, 0);
+	endstationLayout->addWidget(extrasGroupBox, 2, 1);
 
 	QVBoxLayout *masterLayout = new QVBoxLayout;
 	masterLayout->addWidget(topFrame);
-	masterLayout->addLayout(layout);
+	masterLayout->addStretch();
+	masterLayout->addLayout(endstationLayout);
+	masterLayout->addStretch();
 
 	setLayout(masterLayout);
-	setMinimumSize(1000, 465);
+	setMinimumSize(1100, 465);
 }
 
 VESPERSEndstationView::~VESPERSEndstationView()

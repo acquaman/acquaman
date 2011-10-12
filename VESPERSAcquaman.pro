@@ -6,7 +6,6 @@ FORMS +=
 
 HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/beamline/VESPERS/VESPERSBeamline.h \
-	source/ui/VESPERS/VESPERSBeamlineView.h \
 	source/ui/AMShutterButton.h \
 	source/ui/AMStopButton.h \
 	source/ui/VESPERS/VESPERSMotorView.h \
@@ -61,7 +60,6 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
 	source/beamline/VESPERS/VESPERSBeamline.cpp \
-	source/ui/VESPERS/VESPERSBeamlineView.cpp \
 	source/ui/AMShutterButton.cpp \
 	source/ui/VESPERS/VESPERSMotorView.cpp \
 	source/dataman/VESPERS/XRFDetectorInfo.cpp \
@@ -114,6 +112,8 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
 
 
 
