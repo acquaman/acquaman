@@ -32,7 +32,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSPersistentView.h"
 #include "dataman/VESPERS/AMXRFScan.h"
 #include "util/AMPeriodicTable.h"
-#include "ui/VESPERS/XRFMapSetup.h"
 #include "ui/VESPERS/VESPERSDeviceStatusView.h"
 #include "ui/VESPERS/VESPERSXASScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSExperimentConfigurationView.h"
@@ -132,9 +131,6 @@ bool VESPERSAppController::startup() {
 		// Setup page that auto-enables detectors.
 		VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
 
-		// Setup page to launch the nDMapper software with correct options.
-		XRFMapSetup *ndMapSetup = new XRFMapSetup;
-
 		// Setup XAS for the beamline.  Builds the config, view, and view holder.
 		VESPERSXASScanConfiguration *xasScanConfig = new VESPERSXASScanConfiguration();
 		xasScanConfig->addRegion(0, -30, 1, 40, 1);
@@ -145,7 +141,6 @@ bool VESPERSAppController::startup() {
 
 		mw_->insertHeading("Scans", 2);
 		mw_->addPane(experimentConfigurationView, "Scans", "Experiment Setup", ":/utilities-system-monitor.png");
-		mw_->addPane(ndMapSetup, "Scans", "Map Setup", ":/utilities-system-monitor.png");
 		mw_->addPane(xasConfigViewHolder, "Scans", "XAS", ":/utilities-system-monitor.png");
 
 		// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
@@ -155,10 +150,10 @@ bool VESPERSAppController::startup() {
 		// Show the endstation control view first.
 		mw_->setCurrentPane(experimentConfigurationView);
 
-		/// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
+		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
 		ROIHelper *roiHelper = new ROIHelper(this);
 		Q_UNUSED(roiHelper)
-		/// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE MCA AND DXP STATUS UPDATE PVS THAT DON'T SEEM TO FOLLOW THE STANDARD NAMING CONVENTIONS.
+		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE MCA AND DXP STATUS UPDATE PVS THAT DON'T SEEM TO FOLLOW THE STANDARD NAMING CONVENTIONS.
 		VortexDetectorStatusHelper *statusHelper = new VortexDetectorStatusHelper(this);
 		Q_UNUSED(statusHelper)
 

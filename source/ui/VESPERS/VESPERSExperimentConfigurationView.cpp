@@ -1,6 +1,7 @@
 #include "VESPERSExperimentConfigurationView.h"
 
 #include "ui/AMTopFrame.h"
+#include "ui/VESPERS/VESPERSMapSetupView.h"
 
 #include <QButtonGroup>
 #include <QGroupBox>
@@ -13,7 +14,10 @@
 VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(VESPERSExperimentConfiguration *experimentConfiguration, QWidget *parent)
 	: QWidget(parent)
 {
-	AMTopFrame *frame = new AMTopFrame("VESPERS Experimental Setup");
+	AMTopFrame *frame = new AMTopFrame("VESPERS Experiment Setup");
+
+	mapSetup_ = new VESPERSMapSetup;
+	VESPERSMapSetupView *mapSetupView = new VESPERSMapSetupView(mapSetup_, this);
 
 	experimentConfiguration_ = experimentConfiguration;
 
@@ -52,7 +56,7 @@ VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(VESPERSEx
 	configurations_->addButton(types, 7);
 	configLayout->addWidget(types);
 
-	connect(configurations_, SIGNAL(buttonClicked(int)), experimentConfiguration_, SLOT(setType(int)));
+	connect(configurations_, SIGNAL(buttonClicked(int)), this, SLOT(onConfiguraitonChanged(int)));
 
 	QGroupBox *configBox = new QGroupBox("Configurations");
 	configBox->setLayout(configLayout);
@@ -120,12 +124,58 @@ VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(VESPERSEx
 	experimentConfigurationLayout->addWidget(compBox);
 	experimentConfigurationLayout->addStretch();
 
-	QVBoxLayout *mainLayout = new QVBoxLayout;
-	mainLayout->addWidget(frame);
-	mainLayout->addStretch();
-	mainLayout->addWidget(new QLabel(message), 0, Qt::AlignCenter);
-	mainLayout->addLayout(experimentConfigurationLayout);
-	mainLayout->addStretch();
+	QVBoxLayout *experimentLayout = new QVBoxLayout;
+	experimentLayout->addStretch();
+	experimentLayout->addWidget(new QLabel(message), 0, Qt::AlignCenter);
+	experimentLayout->addLayout(experimentConfigurationLayout);
+	experimentLayout->addStretch();
 
-	setLayout(mainLayout);
+	QHBoxLayout *mainLayout = new QHBoxLayout;
+	mainLayout->addLayout(experimentLayout);
+	mainLayout->addWidget(mapSetupView);
+
+	QVBoxLayout *frameLayout = new QVBoxLayout;
+	frameLayout->addWidget(frame);
+	frameLayout->addLayout(mainLayout);
+
+	setLayout(frameLayout);
+}
+
+void VESPERSExperimentConfigurationView::onConfiguraitonChanged(int id)
+{
+	experimentConfiguration_->setType(id);
+
+	switch(id){
+
+	case VESPERSExperimentConfiguration::XRFw1el:
+		mapSetup_->set2D();
+		mapSetup_->useSingleElement();
+		mapSetup_->useCCD(false);
+		mapSetup_->useMultiImages(false);
+		break;
+
+	case VESPERSExperimentConfiguration::XRFw1elAndXRD:
+		mapSetup_->set2D();
+		mapSetup_->useSingleElement();
+		mapSetup_->useCCD(true);
+		mapSetup_->useMultiImages(false);
+		break;
+
+	case VESPERSExperimentConfiguration::XRFw4el:
+		mapSetup_->set2D();
+		mapSetup_->useFourElement();
+		mapSetup_->useCCD(false);
+		mapSetup_->useMultiImages(false);
+		break;
+
+	case VESPERSExperimentConfiguration::XRFw4elAndXRD:
+		mapSetup_->set2D();
+		mapSetup_->useFourElement();
+		mapSetup_->useCCD(true);
+		mapSetup_->useMultiImages(false);
+		break;
+
+	default:
+		break;
+	}
 }

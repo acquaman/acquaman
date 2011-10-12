@@ -18,9 +18,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "XRFMapSetup.h"
-
-#include "ui/AMTopFrame.h"
+#include "VESPERSMapSetupView.h"
 
 #include <QPushButton>
 #include <QGroupBox>
@@ -29,17 +27,22 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QButtonGroup>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QCheckBox>
 #include <QDebug>
 
-XRFMapSetup::XRFMapSetup(QWidget *parent) :
-	QWidget(parent)
+VESPERSMapSetupView::VESPERSMapSetupView(VESPERSMapSetup *mapSetup, QWidget *parent)
+	: QWidget(parent)
 {
+	mapSetup_ = mapSetup;
+
 	dim2D_ = new QRadioButton("2D");
 	dim3D_ = new QRadioButton("3D");
 	QButtonGroup *dimGroup = new QButtonGroup;
 	dimGroup->addButton(dim2D_);
 	dimGroup->addButton(dim3D_);
 	dimGroup->setExclusive(true);
+	connect(mapSetup_, SIGNAL(dimensionChanged(bool)), this, SLOT(onDimensionChanged(bool)));
+	connect(dim2D_, SIGNAL(toggled(bool)), this, SLOT(setDimension(bool)));
 
 	QVBoxLayout *dimLayout = new QVBoxLayout;
 	dimLayout->addWidget(dim2D_, 0, Qt::AlignCenter);
@@ -53,6 +56,8 @@ XRFMapSetup::XRFMapSetup(QWidget *parent) :
 	detectorGroup->addButton(vortex1El_);
 	detectorGroup->addButton(vortex4El_);
 	detectorGroup->setExclusive(true);
+	connect(mapSetup_, SIGNAL(detectorChanged(bool)), this, SLOT(onDetectorChanged(bool)));
+	connect(vortex1El_, SIGNAL(toggled(bool)), this, SLOT(setDetector(bool)));
 
 	QVBoxLayout *vortexLayout = new QVBoxLayout;
 	vortexLayout->addWidget(vortex1El_, 0, Qt::AlignCenter);
@@ -60,18 +65,23 @@ XRFMapSetup::XRFMapSetup(QWidget *parent) :
 	QGroupBox *vortexBox = new QGroupBox("XRF Detector Choice");
 	vortexBox->setLayout(vortexLayout);
 
-	ccd_ = new QCheckBox("Use Roper CCD");
-	multipleImages_ = new QCheckBox("Multiple Images per File");
-	multipleImages_->setEnabled(false);
+	QCheckBox *ccd = new QCheckBox("Use Roper CCD");
+	connect(mapSetup_, SIGNAL(ccdBeingUsed(bool)), ccd, SLOT(setChecked(bool)));
+	connect(ccd, SIGNAL(toggled(bool)), mapSetup_, SLOT(useCCD(bool)));
+
+	QCheckBox *multipleImages = new QCheckBox("Multiple Images per File");
+	multipleImages->setEnabled(false);
+	connect(mapSetup_, SIGNAL(multipleImagesUsed(bool)), multipleImages, SLOT(setChecked(bool)));
+	connect(multipleImages, SIGNAL(toggled(bool)), mapSetup_, SLOT(useMultiImages(bool)));
 
 	QVBoxLayout *ccdLayout = new QVBoxLayout;
-	ccdLayout->addWidget(ccd_);
-	ccdLayout->addWidget(multipleImages_);
+	ccdLayout->addWidget(ccd);
+	ccdLayout->addWidget(multipleImages);
 	QGroupBox *ccdBox = new QGroupBox("CCD options");
 	ccdBox->setLayout(ccdLayout);
 
 	QPushButton *start = new QPushButton("Launch Mapping Software");
-	connect(start, SIGNAL(clicked()), this, SLOT(launchNDMapper()));
+	connect(start, SIGNAL(clicked()), mapSetup_, SLOT(launchNDMapper()));
 
 	QVBoxLayout *optionsLayout = new QVBoxLayout;
 	optionsLayout->addWidget(dimBox);
@@ -94,11 +104,7 @@ XRFMapSetup::XRFMapSetup(QWidget *parent) :
 	setupLayout->addWidget(message);
 	setupLayout->addStretch();
 
-	AMTopFrame *topFrame = new AMTopFrame("Mapping Software Setup");
-	topFrame->setIcon(QIcon(":/utilities-system-monitor.png"));
-
 	QVBoxLayout *masterLayout = new QVBoxLayout;
-	masterLayout->addWidget(topFrame);
 	masterLayout->addStretch();
 	masterLayout->addLayout(setupLayout);
 	masterLayout->addStretch();
@@ -106,52 +112,10 @@ XRFMapSetup::XRFMapSetup(QWidget *parent) :
 	setLayout(masterLayout);
 
 	// Some auto connections based on choices.
-	connect(dim3D_, SIGNAL(toggled(bool)), ccd_, SLOT(setChecked(bool)));
-	connect(dim3D_, SIGNAL(toggled(bool)), ccd_, SLOT(setDisabled(bool)));
-	connect(ccd_, SIGNAL(toggled(bool)), multipleImages_, SLOT(setEnabled(bool)));
+	connect(dim3D_, SIGNAL(toggled(bool)), ccd, SLOT(setChecked(bool)));
+	connect(dim3D_, SIGNAL(toggled(bool)), ccd, SLOT(setDisabled(bool)));
+	connect(ccd, SIGNAL(toggled(bool)), multipleImages, SLOT(setEnabled(bool)));
 
 	dim2D_->setChecked(true);
 	vortex1El_->setChecked(true);
-}
-
-void XRFMapSetup::launchNDMapper()
-{
-	if (dim2D_->isChecked() && !ccd_->isChecked()){
-
-		if (vortex1El_->isChecked())
-			QProcess::startDetached("konsole -vt_sz 5x5 -e /home/vespers/bin/runNDMapper 2 1 --useCCD=n --multiImage=n");
-		else
-			QProcess::startDetached("konsole -vt_sz 5x5 -e /home/vespers/bin/runNDMapper 2 2 --useCCD=n --multiImage=n");
-	}
-	else if (dim2D_->isChecked() && ccd_->isChecked()){
-
-		if (vortex1El_->isChecked()){
-
-			if (multipleImages_->isChecked())
-				QProcess::startDetached("konsole -vt_sz 5x5 -e /home/vespers/bin/runNDMapper 2 1 --useCCD=y --multiImage=y");
-			else
-				QProcess::startDetached("konsole -vt_sz 5x5 -e /home/vespers/bin/runNDMapper 2 1 --useCCD=y --multiImage=n");
-		}
-		else{
-
-			if (multipleImages_->isChecked())
-				QProcess::startDetached("konsole -vt_sz 5x5 -e /home/vespers/bin/runNDMapper 2 2 --useCCD=y --multiImage=y");
-			else
-				QProcess::startDetached("konsole -vt_sz 5x5 -e /home/vespers/bin/runNDMapper 2 2 --useCCD=y --multiImage=n");
-		}
-	}
-	else if (dim3D_->isChecked() && vortex1El_->isChecked()){
-
-		if (multipleImages_->isChecked())
-			QProcess::startDetached("konsole -vt_sz 5x5 -e /home/vespers/bin/runNDMapper 3 1 --useCCD=y --multiImage=y");
-		else
-			QProcess::startDetached("konsole -vt_sz 5x5 -e /home/vespers/bin/runNDMapper 3 1 --useCCD=y --multiImage=n");
-	}
-	else if (dim3D_->isChecked() && vortex4El_->isChecked()){
-
-		if (multipleImages_->isChecked())
-			QProcess::startDetached("konsole -vt_sz 5x5 -e /home/vespers/bin/runNDMapper 3 2 --useCCD=y --multiImage=y");
-		else
-			QProcess::startDetached("konsole -vt_sz 5x5 -e /home/vespers/bin/runNDMapper 3 2 --useCCD=y --multiImage=n");
-	}
 }

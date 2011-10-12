@@ -32,7 +32,7 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/beamline/VESPERS/VESPERSValveGroupControl.h \
 	source/beamline/VESPERS/PIDLoopControl.h \
 	source/ui/VESPERS/PIDLoopControlView.h \
-	source/ui/VESPERS/XRFMapSetup.h \
+	source/ui/VESPERS/VESPERSMapSetupView.h \
 	source/ui/VESPERS/VESPERSDeviceStatusView.h \
 	source/util/VESPERS/GeneralUtilities.h \
 	source/util/VESPERS/XRFElement.h \
@@ -53,9 +53,10 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/ui/VESPERS/VESPERSBeamSelectorView.h \
 	source/beamline/VESPERS/VESPERSSplitIonChamber.h \
 	source/ui/VESPERS/VESPERSDiagnosticsView.h \
-    source/ui/VESPERS/VESPERSExperimentConfigurationView.h \
-    source/ui/util/AMPeriodicTableDialog.h \
-    source/beamline/VESPERS/VESPERSExperimentConfiguration.h
+	source/ui/VESPERS/VESPERSExperimentConfigurationView.h \
+	source/ui/util/AMPeriodicTableDialog.h \
+	source/beamline/VESPERS/VESPERSExperimentConfiguration.h \
+	source/util/VESPERS/VESPERSMapSetup.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -85,7 +86,7 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/beamline/VESPERS/VESPERSValveGroupControl.cpp \
 	source/beamline/VESPERS/PIDLoopControl.cpp \
 	source/ui/VESPERS/PIDLoopControlView.cpp \
-	source/ui/VESPERS/XRFMapSetup.cpp \
+	source/ui/VESPERS/VESPERSMapSetupView.cpp \
 	source/ui/VESPERS/VESPERSDeviceStatusView.cpp \
 	source/util/VESPERS/GeneralUtilities.cpp \
 	source/util/VESPERS/XRFElement.cpp \
@@ -106,12 +107,15 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/ui/VESPERS/VESPERSBeamSelectorView.cpp \
 	source/beamline/VESPERS/VESPERSSplitIonChamber.cpp \
 	source/ui/VESPERS/VESPERSDiagnosticsView.cpp \
-    source/ui/VESPERS/VESPERSExperimentConfigurationView.cpp \
-    source/ui/util/AMPeriodicTableDialog.cpp \
-    source/beamline/VESPERS/VESPERSExperimentConfiguration.cpp
+	source/ui/VESPERS/VESPERSExperimentConfigurationView.cpp \
+	source/ui/util/AMPeriodicTableDialog.cpp \
+	source/beamline/VESPERS/VESPERSExperimentConfiguration.cpp \
+	source/util/VESPERS/VESPERSMapSetup.cpp
 
 RESOURCES += \
-    source/icons/VESPERS/vespersIcons.qrc
+	source/icons/VESPERS/vespersIcons.qrc
+
+
 
 
 
