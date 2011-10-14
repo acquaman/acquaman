@@ -32,9 +32,9 @@ public:
 
 public slots:
 	/// Reimplemented.  Increases the sensitivity of the ion chamber.  How this is done is implementation specific.
-	bool increaseSensitivity() { return sensitivity_->increaseSensitivity(); }
+	virtual bool increaseSensitivity() { return sensitivity_->increaseSensitivity(); }
 	/// Reimplemented.  Decreases the sensitivity of the ion chamber.  How this is done is implementation specific.
-	bool decreaseSensitivity() { return sensitivity_->decreaseSensitivity(); }
+	virtual bool decreaseSensitivity() { return sensitivity_->decreaseSensitivity(); }
 
 	/// Sets the value for the sensitivity directly.  Must be a valid SR570 input.
 	void setSensitivityValue(int value) { sensitivity_->setValue(value); }
