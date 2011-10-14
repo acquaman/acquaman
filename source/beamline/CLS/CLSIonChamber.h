@@ -41,6 +41,12 @@ public slots:
 	/// Sets the units for the sensitivity directly.  Must be a valid SR570 input.
 	void setSensitivityUnits(QString units) { sensitivity_->setUnits(units); }
 
+signals:
+	/// Notifier that the sensitivity value has changed.  Passes the new value.
+	void sensitivityValueChanged(int);
+	/// Notifier that the sensitivity units have changed.  Passes the new value.
+	void sensitivityUnitsChanged(QString);
+
 protected slots:
 	/// Helper slot that determines whether the ion chamber is connected or not.  Is called every time the connected status of any of the controls changes.
 	void onConnectedChanged();

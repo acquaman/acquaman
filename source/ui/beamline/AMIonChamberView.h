@@ -4,6 +4,8 @@
 #include <QWidget>
 
 #include <QLabel>
+#include <QToolButton>
+#include <QHBoxLayout>
 
 #include "beamline/AMIonChamber.h"
 
@@ -14,7 +16,7 @@
 */
 class AMIonChamberView : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
 	/// Constructor.  Builds a view around the AMIonChamber \param chamber.
@@ -33,6 +35,9 @@ public:
 	/// Sets the within range status string for the voltage being within the acceptable range.
 	void setWithinRangeStatus(const QString &name) { withinRange_ = name; }
 
+	/// Returns a pointer to the chamber being viewed as an AMIonChamber.
+	AMIonChamber *ionChamberAM() const { return chamber_; }
+
 signals:
 
 public slots:
@@ -41,7 +46,7 @@ protected slots:
 	/// Handles the display of the output string based on the current voltage/counts output and displays the appropriate output based on the current view choice (counts, voltage, status string).
 	void onReadingsChanged();
 	/// Builds a popup menu for switching view modes.
-	void onCustomContextMenuRequested(QPoint pos);
+	virtual void onCustomContextMenuRequested(QPoint pos);
 
 protected:
 	/// Enum that holds the display state.
@@ -60,8 +65,17 @@ protected:
 	/// State flag that holds what state the ion chamber is currently in.
 	Display state_;
 
+	/// The label that holds the name.
+	QLabel *name_;
+	/// The tool button for the minus button.
+	QToolButton *minus_;
+	/// The tool button for the plus button.
+	QToolButton *plus_;
 	/// The label that the format strings and the counts are displayed.
 	QLabel *output_;
+
+	/// The overall layout for the view.  This is so that subclasses can easily extend the view if they desired.
+	QHBoxLayout *ionChamberViewLayout_;
 };
 
 #endif // AMIONCHAMBERVIEW_H

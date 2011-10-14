@@ -1,7 +1,5 @@
 #include "AMIonChamberView.h"
 
-#include <QToolButton>
-#include <QHBoxLayout>
 #include <QMenu>
 #include <QAction>
 
@@ -14,19 +12,19 @@ AMIonChamberView::AMIonChamberView(AMIonChamber *chamber, QWidget *parent)
 	tooLow_ = "Too Low!";
 	withinRange_ = "Good!";
 
-	QLabel *name = new QLabel(chamber_->description());
+	name_ = new QLabel(chamber_->description());
 
-	QToolButton *minus = new QToolButton;
-	minus->setMaximumSize(25, 25);
-	minus->setIcon(QIcon(":/22x22/list-remove.png"));
-	connect(minus, SIGNAL(clicked()), chamber_, SLOT(decreaseSensitivity()));
-	connect(chamber_, SIGNAL(minimumSensitivity(bool)), minus, SLOT(setDisabled(bool)));
+	minus_ = new QToolButton;
+	minus_->setMaximumSize(25, 25);
+	minus_->setIcon(QIcon(":/22x22/list-remove.png"));
+	connect(minus_, SIGNAL(clicked()), chamber_, SLOT(decreaseSensitivity()));
+	connect(chamber_, SIGNAL(minimumSensitivity(bool)), minus_, SLOT(setDisabled(bool)));
 
-	QToolButton *plus = new QToolButton;
-	plus->setMaximumSize(25, 25);
-	plus->setIcon(QIcon(":/22x22/list-add.png"));
-	connect(plus, SIGNAL(clicked()), chamber_, SLOT(increaseSensitivity()));
-	connect(chamber_, SIGNAL(maximumSensitivity(bool)), plus, SLOT(setDisabled(bool)));
+	plus_ = new QToolButton;
+	plus_->setMaximumSize(25, 25);
+	plus_->setIcon(QIcon(":/22x22/list-add.png"));
+	connect(plus_, SIGNAL(clicked()), chamber_, SLOT(increaseSensitivity()));
+	connect(chamber_, SIGNAL(maximumSensitivity(bool)), plus_, SLOT(setDisabled(bool)));
 
 	output_ = new QLabel;
 	output_->setFixedWidth(100);
@@ -36,13 +34,13 @@ AMIonChamberView::AMIonChamberView(AMIonChamber *chamber, QWidget *parent)
 
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
-	QHBoxLayout *ionChamberViewLayout = new QHBoxLayout;
-	ionChamberViewLayout->addWidget(name, 0, Qt::AlignCenter);
-	ionChamberViewLayout->addWidget(minus);
-	ionChamberViewLayout->addWidget(plus);
-	ionChamberViewLayout->addWidget(output_, 0, Qt::AlignCenter);
+	ionChamberViewLayout_ = new QHBoxLayout;
+	ionChamberViewLayout_->addWidget(name_, 0, Qt::AlignCenter);
+	ionChamberViewLayout_->addWidget(minus_);
+	ionChamberViewLayout_->addWidget(plus_);
+	ionChamberViewLayout_->addWidget(output_, 0, Qt::AlignCenter);
 
-	setLayout(ionChamberViewLayout);
+	setLayout(ionChamberViewLayout_);
 }
 
 void AMIonChamberView::onReadingsChanged()
