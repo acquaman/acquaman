@@ -54,7 +54,7 @@ void AMIonChamberView::onReadingsChanged()
 		font.setBold(false);
 		font.setPointSize(9);
 		palette.setColor(QPalette::WindowText, Qt::black);
-		output_->setText(QString::number(chamber_->counts()) + " counts");
+		output_->setText(QString::number(chamber_->reading()) + " counts");
 		break;
 
 	case Voltage:
