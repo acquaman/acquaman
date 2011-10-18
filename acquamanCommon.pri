@@ -415,7 +415,9 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
     source/beamline/CLS/CLSSR570.h \
     source/ui/beamline/AMIonChamberView.h \
     source/ui/CLS/CLSIonChamberView.h \
-    source/beamline/CLS/CLSBiStateControl.h
+    source/beamline/CLS/CLSBiStateControl.h \
+    source/beamline/AMSplitIonChamber.h \
+    source/beamline/CLS/CLSSplitIonChamber.h
 
 CONFIG(mobility) {
 HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
@@ -675,7 +677,9 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
     source/beamline/CLS/CLSSR570.cpp \
     source/ui/beamline/AMIonChamberView.cpp \
     source/ui/CLS/CLSIonChamberView.cpp \
-    source/beamline/CLS/CLSBiStateControl.cpp
+    source/beamline/CLS/CLSBiStateControl.cpp \
+    source/beamline/AMSplitIonChamber.cpp \
+    source/beamline/CLS/CLSSplitIonChamber.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
@@ -692,6 +696,10 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
 
 
 

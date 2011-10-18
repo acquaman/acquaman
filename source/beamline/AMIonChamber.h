@@ -40,11 +40,11 @@ public:
 	virtual double voltage() const = 0;
 
 	/// Returns whether the voltage is within the linear range of the ion chamber.
-	bool withinLinearRange() const { return voltage() <= maximumVoltage() && voltage() >= minimumVoltage(); }
+	virtual bool withinLinearRange() const { return voltage() <= maximumVoltage() && voltage() >= minimumVoltage(); }
 	/// Specific helper function that returns whether the voltage is too low.  Returns false if withinLinearRange is true.
-	bool voltageTooLow() const { return !withinLinearRange() && voltage() < minimumVoltage(); }
+	virtual bool voltageTooLow() const { return !withinLinearRange() && voltage() < minimumVoltage(); }
 	/// Specific helper function that returns whether the voltage is too high.  Returns false if withinLinearRange is true.
-	bool voltageTooHigh() const { return !withinLinearRange() && voltage() > maximumVoltage(); }
+	virtual bool voltageTooHigh() const { return !withinLinearRange() && voltage() > maximumVoltage(); }
 
 	/// Pure-virtual function.  Returns whether the ion chamber is at maximum senstivity.
 	virtual bool atMaximumSensitivity() const = 0;
