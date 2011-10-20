@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/PIDLoopControlView.h"
 #include "ui/VESPERS/VESPERSBeamSelectorView.h"
 #include "ui/CLS/CLSIonChamberView.h"
+#include "ui/CLS/CLSSplitIonChamberView.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -233,11 +234,14 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	waterIcon->setPixmap(QIcon(":/FaucetIcon.png").pixmap(25));
 	waterIcon->setToolTip("Water Indicator");
 
+	// Ion chambers.
 	QVBoxLayout *ionChamberLayout = new QVBoxLayout;
+	ionChamberLayout->addWidget(new CLSSplitIonChamberView(VESPERSBeamline::vespers()->iSplit()));
 	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPreKB()));
 	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iMini()));
 	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPost()));
 
+	// Layout.
 	QGridLayout *statusLayout = new QGridLayout;
 	statusLayout->addWidget(temperatureIcon, 0, 0);
 	statusLayout->addWidget(pressureIcon, 0, 1);

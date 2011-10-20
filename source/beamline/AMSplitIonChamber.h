@@ -58,6 +58,20 @@ public:
 	/// Pure-virtual function.  Returns whether side B of the ion chamber is at minimum sensitivity.
 	virtual bool atMinimumSensitivityB() const = 0;
 
+signals:
+	/// Notifier that the counts have changed on one side of the ion chamber (A).  Passes the value.
+	void countsAChanged(double);
+	/// Notifier that the counts have changed on the other side of the ion chamber (B).  Passes the new value.
+	void countsBChanged(double);
+	/// Notifier that the voltage has changed on one side of the ion chamber (A).  Passes the value.
+	void voltageAChanged(double);
+	/// Notifier that the voltage has changed on the other side of the ion chamber (B).  Passes the new value.
+	void voltageBChanged(double);
+	/// Notifier that the sensitivity has changed on one side of the ion chamber (A).
+	void sensitivityAChanged();
+	/// Notifier that the sensitivity has changed on the other side of the ion chamber (B).
+	void sensitivityBChanged();
+
 public slots:
 	/// Pure virtual function.  Increases the sensitivity of side A of the ion chamber.  How this is done is implementation specific.
 	virtual bool increaseSensitivityA() = 0;

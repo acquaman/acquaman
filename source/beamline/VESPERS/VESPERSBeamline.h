@@ -38,6 +38,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSExperimentConfiguration.h"
 #include "beamline/AMIonChamber.h"
 #include "beamline/CLS/CLSIonChamber.h"
+#include "beamline/CLS/CLSSplitIonChamber.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -88,7 +89,7 @@ public:
 	/// Returns a general AMDetector pointer to the split ion chamber.
 	AMDetector *iSplitDetector() const { return iSplit_; }
 	/// Returns a CLSIonChamber pointer to the split ion chamber.
-	CLSIonChamber *iSplit() const { return (CLSIonChamber *)iSplit_; }
+	CLSSplitIonChamber *iSplit() const { return (CLSSplitIonChamber *)iSplit_; }
 	/// Returns a general AMDetector pointer to the pre-KB ion chamber.
 	AMDetector *iPreKBDetector() const { return iPreKB_; }
 	/// Returns a CLSIonChamber pointer to the split ion chamber.

@@ -44,7 +44,7 @@ public slots:
 
 protected slots:
 	/// Handles the display of the output string based on the current voltage/counts output and displays the appropriate output based on the current view choice (counts, voltage, status string).
-	void onReadingsChanged();
+	virtual void onReadingsChanged();
 	/// Builds a popup menu for switching view modes.
 	virtual void onCustomContextMenuRequested(QPoint pos);
 

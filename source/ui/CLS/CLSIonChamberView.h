@@ -34,7 +34,7 @@ protected slots:
 	/// Builds a popup menu for switching view modes.
 	virtual void onCustomContextMenuRequested(QPoint pos);
 	/// Switches the view from basic to advanced or advanced to basic based on the current state of view flag.
-	void onModeViewChanged();
+	virtual void onModeViewChanged();
 
 protected:
 	/// Combo box holding the value for the sensitivity.

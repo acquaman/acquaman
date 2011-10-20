@@ -205,23 +205,23 @@ void VESPERSBeamline::setupDetectors()
 
 	ionChambers_ = new AMDetectorSet(this);
 
-	CLSIonChamber *temp = new CLSIonChamber("Isplit", "Split", "", "", "", "", this);
-	temp->setVoltagRange(2.0, 4.5);
-	ionChambers_->addDetector(temp);
-	iSplit_ = temp;
+	CLSSplitIonChamber *tempSplit = new CLSSplitIonChamber("Isplit", "Split", "BL1607-B2-1:mcs05:fbk", "BL1607-B2-1:mcs06:fbk", "BL1607-B2-1:mcs05:userRate", "BL1607-B2-1:mcs06:userRate", "AMP1607-202:sens_num.VAL", "AMP1607-203:sens_num.VAL", "AMP1607-202:sens_unit.VAL", "AMP1607-203:sens_unit.VAL", this);
+	tempSplit->setVoltagRange(1.0, 4.5);
+	ionChambers_->addDetector(tempSplit);
+	iSplit_ = tempSplit;
 
-	temp = new CLSIonChamber("Iprekb", "Pre-KB", "BL1607-B2-1:mcs07:fbk", "BL1607-B2-1:mcs07:userRate", "AMP1607-204:sens_num.VAL", "AMP1607-204:sens_unit.VAL", this);
-	temp->setVoltagRange(2.0, 4.5);
+	CLSIonChamber *temp = new CLSIonChamber("Iprekb", "Pre-KB", "BL1607-B2-1:mcs07:fbk", "BL1607-B2-1:mcs07:userRate", "AMP1607-204:sens_num.VAL", "AMP1607-204:sens_unit.VAL", this);
+	temp->setVoltagRange(1.0, 4.5);
 	ionChambers_->addDetector(temp);
 	iPreKB_ = temp;
 
 	temp = new CLSIonChamber("Imini", "Mini", "BL1607-B2-1:mcs08:fbk", "BL1607-B2-1:mcs08:userRate", "AMP1607-205:sens_num.VAL", "AMP1607-205:sens_unit.VAL", this);
-	temp->setVoltagRange(2.0, 4.5);
+	temp->setVoltagRange(1.0, 4.5);
 	ionChambers_->addDetector(temp);
 	iMini_ = temp;
 
 	temp = new CLSIonChamber("Ipost", "Post", "BL1607-B2-1:mcs09:fbk", "BL1607-B2-1:mcs09:userRate", "AMP1607-206:sens_num.VAL", "AMP1607-206:sens_unit.VAL", this);
-	temp->setVoltagRange(2.0, 4.5);
+	temp->setVoltagRange(1.0, 4.5);
 	ionChambers_->addDetector(temp);
 	iPost_ = temp;
 

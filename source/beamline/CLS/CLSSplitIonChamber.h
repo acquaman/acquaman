@@ -51,6 +51,15 @@ public:
 	/// Pure-virtual function.  Returns whether side B of the ion chamber is at minimum sensitivity.
 	virtual bool atMinimumSensitivityB() const { return sensitivityB_->atMinimumSensitivity(); }
 
+signals:
+	/// Notifier that the sensitivity value on one side of the ion chamber (A) has changed.  Passes the new value.
+	void sensitivityValueAChanged(int);
+	/// Notifier that the sensitivity units on one side of the ion chamber (A) have changed.  Passes the new value.
+	void sensitivityUnitsAChanged(QString);
+	/// Notifier that the sensitivity value on the other side of the ion chamber (B) has changed.  Passes the new value.
+	void sensitivityValueBChanged(int);
+	/// Notifier that the sensitivity units on the other side of the ion chamber (B) have changed.  Passes the new value.
+	void sensitivityUnitsBChanged(QString);
 
 public slots:
 	/// Pure virtual function.  Increases the sensitivity of the ion chamber.  How this is done is implementation specific.
@@ -68,22 +77,36 @@ public slots:
 	/// Pure virtual function.  Decreases the sensitivity of side B of the ion chamber.  How this is done is implementation specific.
 	virtual bool decreaseSensitivityB() { return sensitivityB_->decreaseSensitivity(); }
 
+	/// Sets the value for the sensitivity directly for one side of the ion chamber (A).  Must be a valid SR570 input.
+	void setSensitivityValueA(int value) { sensitivityA_->setValue(value); }
+	/// Sets the units for the sensitivity directly for one side of the ion chamber (A).  Must be a valid SR570 input.
+	void setSensitivityUnitsA(QString units) { sensitivityA_->setUnits(units); }
+
+	/// Sets the value for the sensitivity directly for the other side of the ion chamber (B).  Must be a valid SR570 input.
+	void setSensitivityValueB(int value) { sensitivityB_->setValue(value); }
+	/// Sets the units for the sensitivity directly for the other side of the ion chamber (B).  Must be a valid SR570 input.
+	void setSensitivityUnitsB(QString units) { sensitivityB_->setUnits(units); }
+
 protected slots:
 	/// Helper slot that determines whether the ion chamber is connected or not.  Is called every time the connected status of any of the controls changes.
 	void onConnectedChanged();
+	/// Helper slot that emits various signals based on the changes in the counts.
+	void onCountsChanged();
+	/// Helper slot that emits various signals based on the changes in the voltage.
+	void onVoltageChanged();
 
 protected:
-	/// Pointer to the counts control.
+	/// Pointer to the counts control for one side of the ion chamber (A).
 	AMControl *countsA_;
-	/// Pointer to the counts control.
+	/// Pointer to the counts control for the other side of the ion chamber (B).
 	AMControl *countsB_;
-	/// Pointer to the voltage control.
+	/// Pointer to the voltage control for one side of the ion chamber (A).
 	AMControl *voltageA_;
-	/// Pointer to the voltage control.
+	/// Pointer to the voltage control for the other side of the ion chamber (B).
 	AMControl *voltageB_;
-	/// Pointer to the SR570 used to control the sensitivity.
+	/// Pointer to the SR570 used to control the sensitivity for one side of the ion chamber (A).
 	CLSSR570 *sensitivityA_;
-	/// Pointer to the SR570 used to control the sensitivity.
+	/// Pointer to the SR570 used to control the sensitivity for the other side of the ion chamber (B).
 	CLSSR570 *sensitivityB_;
 
 	/// Bool holding the current state of connectivity for the ion chamber.

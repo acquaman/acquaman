@@ -57,8 +57,12 @@ signals:
 	/// General notifier that the reading (output) has changed.  Emitted when either counts or voltage has changed.
 	void readingsChanged();
 	/// Notifier that the counts have changed.
+	void countsChanged();
+	/// Notifier that the counts have changed.  Passes the new value.
 	void countsChanged(double);
 	/// Notifier that the voltage has changed.
+	void voltageChanged();
+	/// Notifier that the voltage has changed.  Passes the new value.
 	void voltageChanged(double);
 	/// Notifier that the sensitivity has changed.
 	void sensitivityChanged();
