@@ -29,7 +29,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/SampleStageControl.h"
 #include "beamline/VESPERS/VESPERSValveGroupControl.h"
 #include "beamline/VESPERS/PIDLoopControl.h"
-#include "beamline/VESPERS/VESPERSIonChamberCalibration.h"
 #include "beamline/VESPERS/VESPERSMonochromator.h"
 #include "beamline/VESPERS/VESPERSIntermediateSlits.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
@@ -106,12 +105,6 @@ public:
 	AMDetectorSet *ionChambers() const { return ionChambers_; }
 
 	// Accessing control elements:
-
-	// Ion chamber calibration.
-	/// Returns the ion chamber calibration.  This is used for changing the high voltage and sensitivity of the ion chambers.
-	VESPERSIonChamberCalibration *ionChamberCalibration() const { return ionChamberCalibration_; }
-
-	// End of Ion chamber calibration.
 
 	// The monochromator abstraction.
 	/// Returns the monochromator abstraction for the VESPERS beamline.
@@ -517,9 +510,6 @@ protected:
 	AMDetectorSet *ionChambers_;
 
 	// End detector sets.
-
-	// Ion chamber calibration.
-	VESPERSIonChamberCalibration *ionChamberCalibration_;
 
 	// VESPERS monochromator.
 	VESPERSMonochromator *mono_;
