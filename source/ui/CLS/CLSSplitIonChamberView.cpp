@@ -180,36 +180,28 @@ void CLSSplitIonChamberView::onUnitsBChanged(QString units)
 
 void CLSSplitIonChamberView::onModeViewChanged()
 {
+	value_->hide();
+	units_->hide();
+
+	minusA_->hide();
+	plusA_->hide();
+	minusB_->hide();
+	plusB_->hide();
+
+	valueA_->hide();
+	unitsA_->hide();
+	valueB_->hide();
+	unitsB_->hide();
+
+	plus_->hide();
+	minus_->hide();
+
 	if (isBasic_ && isLocked_){
-
-		value_->hide();
-		units_->hide();
-
-		minusA_->hide();
-		plusA_->hide();
-		minusB_->hide();
-		plusB_->hide();
-
-		valueA_->hide();
-		unitsA_->hide();
-		valueB_->hide();
-		unitsB_->hide();
 
 		plus_->show();
 		minus_->show();
 	}
 	else if (isBasic_ && !isLocked_){
-
-		value_->hide();
-		units_->hide();
-
-		plus_->hide();
-		minus_->hide();
-
-		valueA_->hide();
-		unitsA_->hide();
-		valueB_->hide();
-		unitsB_->hide();
 
 		minusA_->show();
 		plusA_->show();
@@ -218,35 +210,11 @@ void CLSSplitIonChamberView::onModeViewChanged()
 	}
 	else if (!isBasic_ && isLocked_){
 
-		plus_->hide();
-		minus_->hide();
-
-		minusA_->hide();
-		plusA_->hide();
-		minusB_->hide();
-		plusB_->hide();
-
-		valueA_->hide();
-		unitsA_->hide();
-		valueB_->hide();
-		unitsB_->hide();
-
 		value_->show();
 		units_->show();
 
 	}
 	else{
-
-		value_->hide();
-		units_->hide();
-
-		plus_->hide();
-		minus_->hide();
-
-		minusA_->hide();
-		plusA_->hide();
-		minusB_->hide();
-		plusB_->hide();
 
 		valueA_->show();
 		unitsA_->show();
@@ -320,7 +288,14 @@ void CLSSplitIonChamberView::onCustomContextMenuRequested(QPoint pos)
 		else if (temp->text() == "Lock Sensitivity"){
 
 			isLocked_ = temp->isChecked();
-			onLockSensitivityChanged(isLocked_);
+
+			if (isLocked_){
+
+				onValueChanged(splitIonChamberCLS()->sensitivityValueA());
+				onUnitsChanged(splitIonChamberCLS()->sensitivityUnitsA());
+			}
+
+			onModeViewChanged();
 		}
 	}
 }

@@ -30,6 +30,11 @@ public:
 	/// Implements the pure virtual function.  Returns whether the ion chamber is at its minimum sensitivity.
 	virtual bool atMinimumSensitivity() const{ return sensitivity_->atMinimumSensitivity(); }
 
+	/// Returns the current sensitivity value.
+	int sensitivityValue() const { return sensitivity_->value(); }
+	/// Returns the current sensitivity units.
+	QString sensitivityUnits() const { return sensitivity_->units(); }
+
 public slots:
 	/// Reimplemented.  Increases the sensitivity of the ion chamber.  How this is done is implementation specific.
 	virtual bool increaseSensitivity() { return sensitivity_->increaseSensitivity(); }

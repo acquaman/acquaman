@@ -51,6 +51,15 @@ public:
 	/// Pure-virtual function.  Returns whether side B of the ion chamber is at minimum sensitivity.
 	virtual bool atMinimumSensitivityB() const { return sensitivityB_->atMinimumSensitivity(); }
 
+	/// Returns the sensitivity value for one side of the ion chamber (A).
+	int sensitivityValueA() const { return sensitivityA_->value(); }
+	/// Returns the sensitivity units for one side of the ion chamber (A).
+	QString sensitivityUnitsA() const { return sensitivityA_->units(); }
+	/// Returns the sensitivity value for the other side of the ion chamber (B).
+	int sensitivityValueB() const { return sensitivityB_->value(); }
+	/// Returns the sensitivity units for the other side of the ion chamber (B).
+	QString sensitivityUnitsB() const { return sensitivityB_->units(); }
+
 signals:
 	/// Notifier that the sensitivity value on one side of the ion chamber (A) has changed.  Passes the new value.
 	void sensitivityValueAChanged(int);

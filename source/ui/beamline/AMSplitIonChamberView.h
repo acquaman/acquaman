@@ -30,7 +30,7 @@ protected slots:
 	/// Handles the display of the output string based on the current voltage/counts output and displays the appropriate output based on the current view choice (counts, voltage, status string).
 	virtual void onReadingsChanged();
 	/// Handles showing either the locked sensitivity or each ion chamber separately.  Both views are still just plus and minus buttons.
-	virtual void onLockSensitivityChanged(bool lock);
+	virtual void onModeViewChanged();
 	/// Builds a popup menu for switching view modes.
 	virtual void onCustomContextMenuRequested(QPoint pos);
 

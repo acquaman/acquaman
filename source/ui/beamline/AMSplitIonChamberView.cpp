@@ -101,9 +101,9 @@ void AMSplitIonChamberView::onReadingsChanged()
 	output_->setFont(font);
 }
 
-void AMSplitIonChamberView::onLockSensitivityChanged(bool lock)
+void AMSplitIonChamberView::onModeViewChanged()
 {
-	if (lock){
+	if (isLocked_){
 
 		minusA_->hide();
 		plusA_->hide();
@@ -170,7 +170,7 @@ void AMSplitIonChamberView::onCustomContextMenuRequested(QPoint pos)
 		else if (temp->text() == "Lock Sensitivity"){
 
 			isLocked_ = temp->isChecked();
-			onLockSensitivityChanged(isLocked_);
+			onModeViewChanged();
 		}
 	}
 }
