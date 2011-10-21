@@ -3,6 +3,8 @@
 
 #include "dataman/AMScanParametersDictionary.h"
 
+class AMScan;
+
 class AMScanDictionary : public AMScanParametersDictionary
 {
 	Q_OBJECT

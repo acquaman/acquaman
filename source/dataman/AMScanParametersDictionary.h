@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QHash>
 
-class AMScan;
 class AMTagReplacementParser;
 class AMAbstractTagReplacementFunctor;
 
