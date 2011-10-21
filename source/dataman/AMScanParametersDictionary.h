@@ -11,7 +11,107 @@ class AMScanParametersDictionary : public QObject
 {
 Q_OBJECT
 public:
-	AMScanParametersDictionary(QObject *parent = 0);
+	/// Enum for what parameter this dictionary is operating on, if any
+	enum OperatingParameter { OperateOnNone = 0,
+				  OperateOnName = 1,
+				  OperateOnExportName = 2,
+				  OperateOnNotes = 3 };
+
+	AMScanParametersDictionary(AMScanParametersDictionary::OperatingParameter operatingOn,  QObject *parent = 0);
+
+	/// Returns the input string (the unparsed keyword string)
+	const QString& input() const;
+
+	/// Returns the output string (empty string if no input string). If underlying changes have been made, you may need to call reOperate().
+	const QString& output() const;
+
+	/// Returns the output string after making sure it is up to date (empty string if no input string). Not a const function.
+	const QString& reOperateOutput();
+
+	/// Returns whether or not this particular dictionary can operate on a given parameter (ALL dictionaries can ALWAYS operate on "None")
+	virtual bool canOperateOn(AMScanParametersDictionary::OperatingParameter operatingOn) const;
+
+	/// Return whether or not the dictionary can currently operate at all (in case your dictionary is reparsing when another object changes and you want to stop it from parsing until the end of a reload, for example)
+	virtual bool canOperate() const = 0;
+
+	/// Returns which parameter this dictionary is operating on (the default is "None")
+	AMScanParametersDictionary::OperatingParameter operatingOn() const;
+
+public slots:
+	/// Sets the input string (the keyword string) and forces the dictionary to parse the output again
+	virtual void setInput(const QString &input);
+
+	/// Sets the parameter this scan is operating on (dictionaries should only respond to parameters they canOperate() on ... all dictionaries should respond to "None")
+	virtual void setOperatingOn(AMScanParametersDictionary::OperatingParameter operatingOn);
+
+	/// Forces this dictionary to parse the same input (in case the underlying parameters changed) ... most dictionaries should do this for themselves
+	virtual void reOperate();
+
+signals:
+	/// Emitted when the user sets a new input (keyword) string
+	void inputChanged(const QString &input);
+
+	/// Emitted when there is a new output (either the input changed, the dictionary reparsed because an underlying parameter changed, or reoperate was called and the output changed)
+	void outputChanged(const QString &output);
+
+	/// Emitted when the user sets a new operating parameter
+	void operatingParameterChanged(AMScanParametersDictionary::OperatingParameter operatingOn);
+
+protected:
+	/// Initializes the keywordDictionary_ with the functions you see below. You can always add more directly to keywordDictionary_.
+	virtual void loadKeywordReplacementDictionary();
+	virtual void loadKeywordReplacementDictionaryImplementation() = 0;
+	/// If your dictionary is operating on something, you should probably have some checks to make sure that you're not parsing what you're operating on
+	virtual void operateImplementation(const QString &input) = 0;
+
+	///////////////////////////////
+	// functions to implement the keyword replacement system
+	///////////////////////////////
+
+	virtual QString krName(const QString& arg = QString());
+	virtual QString krTechnique(const QString &arg = QString());
+	virtual QString krNumber(const QString& arg = QString());
+	virtual QString krDate(const QString& arg = QString());
+	virtual QString krTime(const QString& arg = QString());
+	virtual QString krDateTime(const QString& arg = QString());
+
+	virtual QString krRun(const QString& arg = QString());
+	virtual QString krRunName(const QString& arg = QString());
+	virtual QString krRunStartDate(const QString& arg = QString());
+	virtual QString krRunEndDate(const QString& arg = QString());
+
+	virtual QString krFacilityName(const QString& arg = QString());
+	virtual QString krFacilityDescription(const QString& arg = QString());
+
+	virtual QString krScanConfiguration(const QString& propertyName);
+
+	virtual QString krSample(const QString& arg = QString());
+	virtual QString krSampleName(const QString& arg = QString());
+	virtual QString krSampleElements(const QString& arg = QString());
+	virtual QString krSampleCreationDate(const QString& arg = QString());
+
+	virtual QString krExportName(const QString& arg = QString());
+
+protected:
+	/// A dictionary of function pointers we've built to support the "$keyword" replacement system. The functors return the replacement text for a given keyword tag, possibly depending on the argument.  If you want to add more keywords to the parsing system, add them to this.
+	QHash<QString, AMAbstractTagReplacementFunctor*> keywordDictionary_;
+
+	AMTagReplacementParser* keywordParser_;
+
+	/// Stores which parameter this dictionary is operating on
+	AMScanParametersDictionary::OperatingParameter operatingOn_;
+
+	/// The input string that is parsed
+	QString input_;
+	/// The output string after parsing
+	QString output_;
+};
+
+class AMOldScanParametersDictionary : public QObject
+{
+Q_OBJECT
+public:
+	AMOldScanParametersDictionary(QObject *parent = 0);
 
 	/// Parse an input string for recognizable "$keyword" tags, and return a converted string. The results depend on the currentScan_ and currentDataSourceIndex_;
 	QString parseKeywordString(const QString& inputString);

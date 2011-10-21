@@ -4,13 +4,13 @@
 #include <QLineEdit>
 
 class QLabel;
-class AMScanParametersDictionary;
+class AMOldScanParametersDictionary;
 
 class AMDictionaryLineEdit : public QLineEdit
 {
 Q_OBJECT
 public:
-	AMDictionaryLineEdit(AMScanParametersDictionary *dictionary, QLabel *exampleLabel = 0, QWidget *parent = 0);
+	AMDictionaryLineEdit(AMOldScanParametersDictionary *dictionary, QLabel *exampleLabel = 0, QWidget *parent = 0);
 
 public slots:
 	void setTextAndOperate(const QString &text);
@@ -22,7 +22,7 @@ protected:
 	void keyPressEvent(QKeyEvent *);
 
 protected:
-	AMScanParametersDictionary *dictionary_;
+	AMOldScanParametersDictionary *dictionary_;
 	QLabel *exampleLabel_;
 };
 

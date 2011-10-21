@@ -5,7 +5,7 @@
 
 class AMScan;
 
-class AMScanDictionary : public AMScanParametersDictionary
+class AMScanDictionary : public AMOldScanParametersDictionary
 {
 	Q_OBJECT
 public:

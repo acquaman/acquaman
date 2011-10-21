@@ -10,7 +10,7 @@
 #include "dataman/AMSample.h"
 
 AMScanDictionary::AMScanDictionary(AMScan *scan, QObject *parent) :
-	AMScanParametersDictionary(parent)
+	AMOldScanParametersDictionary(parent)
 {
 	scan_ = scan;
 	if(scan_){

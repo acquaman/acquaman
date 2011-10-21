@@ -10,7 +10,7 @@
 #include "acquaman/AMScanConfiguration.h"
 
 AMScanExemplarDictionary::AMScanExemplarDictionary(AMScanExemplar *exemplar, QObject *parent) :
-	AMScanParametersDictionary(parent)
+	AMOldScanParametersDictionary(parent)
 {
 	exemplar_ = exemplar;
 	if(exemplar_)

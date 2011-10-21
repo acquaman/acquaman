@@ -8,7 +8,7 @@ class AMScanExemplar;
 
 /// Can operate on name and exportName (but assumes $exportName can't be used in $name in addition to normal circular references)
 
-class AMScanExemplarDictionary : public AMScanParametersDictionary
+class AMScanExemplarDictionary : public AMOldScanParametersDictionary
 {
 Q_OBJECT
 public:

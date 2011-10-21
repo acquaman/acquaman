@@ -5,7 +5,7 @@
 
 #include "dataman/AMScanParametersDictionary.h"
 
-AMDictionaryLineEdit::AMDictionaryLineEdit(AMScanParametersDictionary *dictionary, QLabel *exampleLabel, QWidget *parent) :
+AMDictionaryLineEdit::AMDictionaryLineEdit(AMOldScanParametersDictionary *dictionary, QLabel *exampleLabel, QWidget *parent) :
 	QLineEdit(parent)
 {
 	dictionary_ = dictionary;
