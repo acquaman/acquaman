@@ -13,25 +13,25 @@ AMSplitIonChamberView::AMSplitIonChamberView(AMSplitIonChamber *chamber, QWidget
 	minusA_->setMaximumSize(25, 25);
 	minusA_->setIcon(QIcon(":/22x22/list-remove.png"));
 	connect(minusA_, SIGNAL(clicked()), splitIonChamberAM(), SLOT(decreaseSensitivityA()));
-	connect(chamber_, SIGNAL(minimumSensitivity(bool)), minusA_, SLOT(setDisabled(bool)));
+	connect(splitIonChamberAM(), SIGNAL(minimumSensitivityA(bool)), minusA_, SLOT(setDisabled(bool)));
 
 	plusA_ = new QToolButton;
 	plusA_->setMaximumSize(25, 25);
 	plusA_->setIcon(QIcon(":/22x22/list-add.png"));
 	connect(plusA_, SIGNAL(clicked()), splitIonChamberAM(), SLOT(increaseSensitivityA()));
-	connect(chamber_, SIGNAL(maximumSensitivity(bool)), plusA_, SLOT(setDisabled(bool)));
+	connect(splitIonChamberAM(), SIGNAL(maximumSensitivityA(bool)), plusA_, SLOT(setDisabled(bool)));
 
 	minusB_ = new QToolButton;
 	minusB_->setMaximumSize(25, 25);
 	minusB_->setIcon(QIcon(":/22x22/list-remove.png"));
 	connect(minusB_, SIGNAL(clicked()), splitIonChamberAM(), SLOT(decreaseSensitivityB()));
-	connect(chamber_, SIGNAL(minimumSensitivity(bool)), minusB_, SLOT(setDisabled(bool)));
+	connect(splitIonChamberAM(), SIGNAL(minimumSensitivityB(bool)), minusB_, SLOT(setDisabled(bool)));
 
 	plusB_ = new QToolButton;
 	plusB_->setMaximumSize(25, 25);
 	plusB_->setIcon(QIcon(":/22x22/list-add.png"));
 	connect(plusB_, SIGNAL(clicked()), splitIonChamberAM(), SLOT(increaseSensitivityA()));
-	connect(chamber_, SIGNAL(maximumSensitivity(bool)), plusB_, SLOT(setDisabled(bool)));
+	connect(splitIonChamberAM(), SIGNAL(maximumSensitivityB(bool)), plusB_, SLOT(setDisabled(bool)));
 
 	minusA_->hide();
 	plusA_->hide();

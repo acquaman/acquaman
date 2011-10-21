@@ -69,16 +69,21 @@ bool CLSSR570::increaseSensitivity()
 		return false;
 
 	int current = value_->getInt();
+	int next = nextValue(true, current);
+	QString units = nextUnits(true, units_->getString());
+
+	if (next == -1 && units.isEmpty())
+		return false;
 
 	// If possible to just move to the next lower value, do so.
-	if (current != 1)
-		value_->setValue(nextValue(true, current));
+	if (current != 0 && next != -1)
+		value_->setValue(next);
 
 	// Otherwise, we need to move the sensitivity unit to the next more sensitive value.
 	else {
 
-		units_->setValue(nextUnits(true, units_->getString()));
-		value_->setValue(500);
+		units_->setValue(units);
+		value_->setValue(8);
 	}
 
 	return true;
@@ -91,16 +96,21 @@ bool CLSSR570::decreaseSensitivity()
 		return false;
 
 	int current = value_->getInt();
+	int next = nextValue(false, current);
+	QString units = nextUnits(false, units_->getString());
+
+	if (next == -1 && units.isEmpty())
+		return false;
 
 	// If possible to just move to the next higher value, do so.
-	if (current != 500)
-		value_->setValue(nextValue(false, current));
+	if (current != 8 && next != -1)
+		value_->setValue(next);
 
 	// Otherwise, we need to move the sensitivity unit to the next less sensitive value.
 	else {
 
-		units_->setValue(nextUnits(false, units_->getString()));
-		value_->setValue(1);
+		units_->setValue(units);
+		value_->setValue(0);
 	}
 
 	return true;
@@ -108,39 +118,12 @@ bool CLSSR570::decreaseSensitivity()
 
 int CLSSR570::nextValue(bool increase, int current)
 {
-	int next = 0;
-
-	switch(current){
-	case 1:
-		next = (increase == true) ? -1 : 2;
-		break;
-	case 2:
-		next = (increase == true) ? 1 : 5;
-		break;
-	case 5:
-		next = (increase == true) ? 2 : 10;
-		break;
-	case 10:
-		next = (increase == true) ? 5 : 20;
-		break;
-	case 20:
-		next = (increase == true) ? 10 : 50;
-		break;
-	case 50:
-		next = (increase == true) ? 20 : 100;
-		break;
-	case 100:
-		next = (increase == true) ? 50 : 200;
-		break;
-	case 200:
-		next = (increase == true) ? 100 : 500;
-		break;
-	case 500:
-		next = (increase == true) ? 200 : -1;
-		break;
-	}
-
-	return next;
+	if (increase)
+		return current == 0 ? -1 : current - 1;
+	else if (!increase)
+		return current == 8 ? -1 : current + 1;
+	else
+		return -1;
 }
 
 QString CLSSR570::nextUnits(bool increase, QString current)
@@ -163,12 +146,12 @@ QString CLSSR570::nextUnits(bool increase, QString current)
 
 void CLSSR570::onSensitivityChanged()
 {
-	if (!atMaximumSensitivity_ && (value_->getInt() == 1 && units_->getString() == "pA/V"))
+	if (!atMaximumSensitivity_ && (value_->getInt() == 0 && units_->getString() == "pA/V"))
 		emit maximumSensitivity(atMaximumSensitivity_ = true);
-	else if (atMaximumSensitivity_ && (value_->getInt() != 1 || units_->getString() != "pA/V"))
+	else if (atMaximumSensitivity_ && (value_->getInt() != 0 || units_->getString() != "pA/V"))
 		emit maximumSensitivity(atMaximumSensitivity_ = false);
-	else if (!atMinimumSensitivity_ && (value_->getInt() == 500 && units_->getString() == "mA/V"))
+	else if (!atMinimumSensitivity_ && (value_->getInt() == 8 && units_->getString() == "mA/V"))
 		emit minimumSensitivity(atMinimumSensitivity_ = true);
-	else if (atMinimumSensitivity_ && (value_->getInt() != 500 || units_->getString() != "mA/V"))
+	else if (atMinimumSensitivity_ && (value_->getInt() != 8 || units_->getString() != "mA/V"))
 		emit minimumSensitivity(atMinimumSensitivity_ = false);
 }

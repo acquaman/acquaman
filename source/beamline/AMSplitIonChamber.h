@@ -48,6 +48,11 @@ public:
 	/// Re-implemented.  Specific helper function that returns whether the voltage is too high.  Returns false if withinLinearRange is true.
 	virtual bool voltageTooHigh() const { return !withinLinearRange() && (voltageB() > maximumVoltage() || voltageB() > minimumVoltage()); }
 
+	/// Implemented pure-virtual function.  Returns true if either of the sides of the ion chamber are at their maximum sensitivity.
+	virtual bool atMaximumSensitivity() const { return atMaximumSensitivityA() || atMaximumSensitivityB(); }
+	/// Implemented pure-virtual function.  Returns true if either of the sides of the ion chamber are at their minimum sensitivity.
+	virtual bool atMinimumSensitivity() const { return atMinimumSensitivityA() || atMinimumSensitivityB(); }
+
 	/// Pure-virtual function.  Returns whether side A of the ion chamber is at maximum senstivity.
 	virtual bool atMaximumSensitivityA() const = 0;
 	/// Pure-virtual function.  Returns whether side A of the ion chamber is at minimum sensitivity.
@@ -71,6 +76,14 @@ signals:
 	void sensitivityAChanged();
 	/// Notifier that the sensitivity has changed on the other side of the ion chamber (B).
 	void sensitivityBChanged();
+	/// Notifier that one side of the ion chamber (A) is at the minimum sensitivity.  Passes the truth value.
+	void minimumSensitivityA(bool);
+	/// Notifier that one side of the ion chamber (A) is at the maximums sensitivity.  Passes the truth value.
+	void maximumSensitivityA(bool);
+	/// Notifier that the other side of the ion chamber (B) is at the minimum sensitivity.  Passes the truth value.
+	void minimumSensitivityB(bool);
+	/// Notifier that the other side of the ion chamber (B) is at the maximums sensitivity.  Passes the truth value.
+	void maximumSensitivityB(bool);
 
 public slots:
 	/// Pure virtual function.  Increases the sensitivity of side A of the ion chamber.  How this is done is implementation specific.

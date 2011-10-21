@@ -168,7 +168,9 @@ void VESPERSAppController::shutdown() {
 
 void VESPERSAppController::onCurrentScanControllerStarted()
 {
-	if (AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat() == "vespersXRF")
+	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
+
+	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
 		return;
 
 	// Build a generic scan editor and put it the scan editors location.

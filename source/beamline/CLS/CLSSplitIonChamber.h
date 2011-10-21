@@ -36,11 +36,6 @@ public:
 	/// Pure-virtual function. Returns the voltage from the other side of the ion chamber (B).
 	virtual double voltageB() const { return voltageB_->value(); }
 
-	/// Pure-virtual function.  Returns whether the ion chamber is at maximum senstivity.
-	virtual bool atMaximumSensitivity() const { return atMaximumSensitivityA() || atMaximumSensitivityB(); }
-	/// Pure-virtual function.  Returns whether the ion chamber is at minimum sensitivity.
-	virtual bool atMinimumSensitivity() const { return atMinimumSensitivityA() || atMinimumSensitivityB(); }
-
 	/// Pure-virtual function.  Returns whether side A of the ion chamber is at maximum senstivity.
 	virtual bool atMaximumSensitivityA() const { return sensitivityA_->atMaximumSensitivity(); }
 	/// Pure-virtual function.  Returns whether side A of the ion chamber is at minimum sensitivity.

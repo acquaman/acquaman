@@ -26,6 +26,10 @@ CLSSplitIonChamber::CLSSplitIonChamber(const QString &name, const QString &descr
 	connect(sensitivityB_, SIGNAL(valueChanged(int)), this, SIGNAL(sensitivityValueBChanged(int)));
 	connect(sensitivityA_, SIGNAL(unitsChanged(QString)), this, SIGNAL(sensitivityUnitsAChanged(QString)));
 	connect(sensitivityB_, SIGNAL(unitsChanged(QString)), this, SIGNAL(sensitivityUnitsBChanged(QString)));
+	connect(sensitivityA_, SIGNAL(minimumSensitivity(bool)), this, SIGNAL(minimumSensitivityA(bool)));
+	connect(sensitivityB_, SIGNAL(minimumSensitivity(bool)), this, SIGNAL(minimumSensitivityB(bool)));
+	connect(sensitivityA_, SIGNAL(maximumSensitivity(bool)), this, SIGNAL(maximumSensitivityA(bool)));
+	connect(sensitivityB_, SIGNAL(maximumSensitivity(bool)), this, SIGNAL(maximumSensitivityB(bool)));
 
 	connect(sensitivityA_, SIGNAL(sensitivityChanged()), this, SIGNAL(sensitivityAChanged()));
 	connect(sensitivityB_, SIGNAL(sensitivityChanged()), this, SIGNAL(sensitivityBChanged()));

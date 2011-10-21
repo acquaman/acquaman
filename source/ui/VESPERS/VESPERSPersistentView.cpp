@@ -25,6 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSIonChamberView.h"
 #include "ui/CLS/CLSSplitIonChamberView.h"
 
+#include "ui/beamline/AMIonChamberView.h"
+
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QFormLayout>
@@ -237,7 +239,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	// Ion chambers.
 	QVBoxLayout *ionChamberLayout = new QVBoxLayout;
 	ionChamberLayout->addWidget(new CLSSplitIonChamberView(VESPERSBeamline::vespers()->iSplit()));
-	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPreKB()));
+	ionChamberLayout->addWidget(new AMIonChamberView(VESPERSBeamline::vespers()->iPreKB()));
 	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iMini()));
 	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPost()));
 
