@@ -342,12 +342,10 @@ void VESPERSPersistentView::onValvesStateChanged()
 void VESPERSPersistentView::onPressureStateChanged()
 {
 	bool allGood = true;
-	AMReadOnlyPVwStatusControl *temp;
 
 	for (int i = 0; i < pressure_->count(); i++){
 
-		temp = qobject_cast<AMReadOnlyPVwStatusControl *>(pressure_->at(i));
-		if (temp && temp->isMoving())
+		if (pressure_->at(i)->isMoving())
 			allGood = false;
 	}
 
@@ -360,12 +358,10 @@ void VESPERSPersistentView::onPressureStateChanged()
 void VESPERSPersistentView::onTemperatureStateChanged()
 {
 	bool allGood = true;
-	AMReadOnlyPVControl *temp;
 
 	for (int i = 0; i < temperature_->count(); i++){
 
-		temp = qobject_cast<AMReadOnlyPVControl *>(temperature_->at(i));
-		if (temp && temp->value() == 0)
+		if (temperature_->at(i)->isMoving())
 			allGood = false;
 	}
 
@@ -378,19 +374,16 @@ void VESPERSPersistentView::onTemperatureStateChanged()
 void VESPERSPersistentView::onWaterStateChanged()
 {
 	bool allGood = true;
-	AMReadOnlyPVControl *temp;
 
 	for (int i = 0; i < flowSwitches_->count(); i++){
 
-		temp = qobject_cast<AMReadOnlyPVControl *>(flowSwitches_->at(i));
-		if (temp && temp->value() == 0)
+		if (flowSwitches_->at(i)->value() == 0)
 			allGood = false;
 	}
 
 	for (int i = 0; i < flowTransducers_->count(); i++){
 
-		temp = qobject_cast<AMReadOnlyPVControl *>(flowTransducers_->at(i));
-		if (temp && temp->value() == 0)
+		if (flowTransducers_->at(i)->isMoving())
 			allGood = false;
 	}
 
