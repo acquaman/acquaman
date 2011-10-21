@@ -19,7 +19,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "VESPERSSampleStageView.h"
-#include "ui/AMStopButton.h"
 
 #include <QGroupBox>
 #include <QGridLayout>
@@ -113,7 +112,9 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	buttons_->addButton(goLeft_, 2);
 	buttons_->addButton(goRight_, 3);
 
-	AMGroupStopButton *stop = new AMGroupStopButton(VESPERSBeamline::vespers()->sampleStageMotorSet()->toList().mid(0, 3));
+	QToolButton *stop = new QToolButton;
+	stop->setIcon(QIcon(":/stop.png"));
+	connect(stop, SIGNAL(clicked()), sampleStage_, SLOT(stopAll()));
 
 	QGridLayout *arrowLayout = new QGridLayout;
 	arrowLayout->addWidget(goUp_, 0, 1);

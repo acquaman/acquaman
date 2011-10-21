@@ -93,6 +93,7 @@ XRFFreeRunView::XRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowManagerView *wo
 	scroll->setMinimumWidth(480);
 
 	connect(configureButton, SIGNAL(clicked()), scroll, SLOT(show()));
+	connect(configureButton, SIGNAL(clicked()), scroll, SLOT(raise()));
 
 	// Control options for the detector.
 	start_ = new QToolButton;

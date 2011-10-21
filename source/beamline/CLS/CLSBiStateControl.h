@@ -30,11 +30,11 @@ public:
 					  AMAbstractControlStatusChecker* statusChecker = new AMControlStatusCheckerDefault(2),
 					  QObject *parent = 0);
 
-	/// This represents the current value/position of the control. Must reimplement for actual controls.
-	virtual double value() const { return statePV_->getDouble(); }
+	/// This represents the current value/position of the control. Returns one of three values: 0 (closed), 1 (open), and 2 (between).  Synonomous with state().
+	virtual double value() const { return state(); }
 
 	/// this is the "setpoint": the last place the control was told to go:
-	virtual double setpoint() const { return -1; }
+	virtual double setpoint() const { return setpoint_; }
 
 	/// this indicates whether a control is "in position" (ie: its value is within tolerance of the setpoint)
 	virtual bool inPosition() const { return fabs(value()-setpoint()) < tolerance(); }
@@ -73,12 +73,51 @@ public:
 	/// Due to the binary nature of these controls, I enforce that the maximum must be one.  This is because there is no guarantee that the PVs will be set or that there is any preconceived setup done for the controls.
 	virtual double maximumValue() const { return 1; }
 
+	/// Get the current status of the control. 0 is closed, 1 is open, and 2 is between.
+	int state() const
+	{
+		switch(statePV_->getInt()){
+		case 1:
+			return 1;
+		case 4:
+			return 0;
+		default:
+			return 2;
+		}
+	}
+	/// Same as state() but returns a QString. Passes Open, Between, or Closed.
+	QString stateString() const
+	{
+
+		switch(statePV_->getInt()){
+		case 1:
+			return QString("Open");
+		case 4:
+			return QString("Closed");
+		default:
+			return QString("Between");
+		}
+	}
+
+signals:
+	/// Notifies that the status has changed and passes on the state.
+	void stateChanged(int);
+
 public slots:
 	/// This is used to move the control to a setpoint.  Must reimplement for actual controls
-	virtual void move(double setpoint) {
-		Q_UNUSED(setpoint);
-		emit moveFailed(AMControl::NotConnectedFailure);  // The default implementation cannot move.
+	virtual void move(double setpoint)
+	{
+		if ((int)setpoint == 1)
+			open();
+		else if ((int)setpoint == 0)
+			close();
+		else
+			emit moveFailed(AMControl::OtherFailure);
 	}
+	/// Opens the control.  This activates the control and moves it to the "Open" state.  Synonomous with move(1).
+	void open() { setpoint_ = 1; openPV_->setValue(1); }
+	/// Closes the control.  This deactivates the control and moves it to the "Closed" state.  Synonomous with move(0).
+	void close() { setpoint_ = 0; closePV_->setValue(1); }
 
 	/// This is used to cancel or stop a move in progress. Does not do anything for this type of control.
 	virtual bool stop() { return false; }
@@ -93,6 +132,9 @@ protected:
 
 	/// An evaluator object used to determine if the status value indicates moving
 	AMAbstractControlStatusChecker* statusChecker_;
+
+	/// Holds the setpoint for the control.
+	int setpoint_;
 };
 
 #endif // CLSBISTATECONTROL_H
