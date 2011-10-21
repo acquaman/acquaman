@@ -349,10 +349,7 @@ void VESPERSPersistentView::onPressureStateChanged()
 			allGood = false;
 	}
 
-	if (allGood)
-		pressureLabel_->setPixmap(QIcon(":/ON.png").pixmap(25));
-	else
-		pressureLabel_->setPixmap(QIcon(":/RED.png").pixmap(25));
+	pressureLabel_->setPixmap(QIcon(allGood ? ":/ON.png" : ":/RED.png").pixmap(25));
 }
 
 void VESPERSPersistentView::onTemperatureStateChanged()
@@ -365,10 +362,7 @@ void VESPERSPersistentView::onTemperatureStateChanged()
 			allGood = false;
 	}
 
-	if (allGood)
-		tempLabel_->setPixmap(QIcon(":/ON.png").pixmap(25));
-	else
-		tempLabel_->setPixmap(QIcon(":/RED.png").pixmap(25));
+	tempLabel_->setPixmap(QIcon(allGood ? ":/ON.png" : ":/RED.png").pixmap(25));
 }
 
 void VESPERSPersistentView::onWaterStateChanged()
@@ -387,10 +381,7 @@ void VESPERSPersistentView::onWaterStateChanged()
 			allGood = false;
 	}
 
-	if (allGood)
-		waterLabel_->setPixmap(QIcon(":/ON.png").pixmap(25));
-	else
-		waterLabel_->setPixmap(QIcon(":/RED.png").pixmap(25));
+	waterLabel_->setPixmap(QIcon(allGood ? ":/ON.png" : ":/RED.png").pixmap(25));
 }
 
 void VESPERSPersistentView::onPSH1Clicked()
