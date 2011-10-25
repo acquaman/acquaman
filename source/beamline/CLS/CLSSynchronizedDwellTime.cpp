@@ -47,7 +47,7 @@ void CLSSynchronizedDwellTime::addElement(int index)
 
 AMBeamlineActionItem *CLSSynchronizedDwellTime::createMasterTimeAction(double time)
 {
-	if (dwellTime_->isConnected())
+	if (!dwellTime_->isConnected())
 		return 0;
 
 	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(dwellTime_);
@@ -58,7 +58,7 @@ AMBeamlineActionItem *CLSSynchronizedDwellTime::createMasterTimeAction(double ti
 
 AMBeamlineActionItem *CLSSynchronizedDwellTime::createScanningAction(bool scan)
 {
-	if (startScan_->isConnected())
+	if (!startScan_->isConnected())
 		return 0;
 
 	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(startScan_);
@@ -69,7 +69,7 @@ AMBeamlineActionItem *CLSSynchronizedDwellTime::createScanningAction(bool scan)
 
 AMBeamlineActionItem *CLSSynchronizedDwellTime::createModeAction(CLSSynchronizedDwellTime::Mode mode)
 {
-	if (mode_->isConnected())
+	if (!mode_->isConnected())
 		return 0;
 
 	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(mode_);
@@ -100,7 +100,7 @@ CLSSynchronizedDwellTimeElement::CLSSynchronizedDwellTimeElement(QString baseNam
 
 AMBeamlineActionItem *CLSSynchronizedDwellTimeElement::createTimeAction(double time)
 {
-	if (time_->isConnected())
+	if (!time_->isConnected())
 		return 0;
 
 	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(time_);
@@ -111,7 +111,7 @@ AMBeamlineActionItem *CLSSynchronizedDwellTimeElement::createTimeAction(double t
 
 AMBeamlineActionItem *CLSSynchronizedDwellTimeElement::createEnableAction(bool enable)
 {
-	if (enable_->isConnected())
+	if (!enable_->isConnected())
 		return 0;
 
 	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(enable_);
