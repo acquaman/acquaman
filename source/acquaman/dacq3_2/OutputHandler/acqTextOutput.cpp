@@ -93,14 +93,14 @@ int acqTextOutput::startRepeat( acqKey_t key, int passno)
 	// a 'startRepeat' and 'endRepeat'.
 	for( acqOutputEvent_t *evp = to->first(); evp ; evp=to->next(evp) )
 	{
-		//for(int colno=0; colno < evp->nColumn; colno++)
-			//to->pvInfo[makeuid(evp->eventNo,colno)]->colp = &evp->column[colno];
 		for(int colno=0; colno < evp->nColumn; colno++)
+			to->pvInfo[makeuid(evp->eventNo,colno)]->colp = &evp->column[colno];
+		/*for(int colno=0; colno < evp->nColumn; colno++)
 		{
 			int uid = makeuid(evp->eventNo, colno);
 			if( to->pvInfo.find(uid) != to->pvInfo.end() )
 				to->pvInfo[uid]->colp = &evp->column[colno];
-		}
+		}*/
 	}
 
 	return 0;
