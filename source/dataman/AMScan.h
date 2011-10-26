@@ -24,12 +24,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 
-#include "dataman/AMDbObject.h"
-#include "dataman/AMDataStore.h"
+#include "dataman/database/AMDbObject.h"
+#include "dataman/datastore/AMDataStore.h"
 #include "util/AMOrderedSet.h"
-#include "dataman/AMRawDataSource.h"
+#include "dataman/datasource/AMRawDataSource.h"
 #include "dataman/AMAnalysisBlock.h"
-#include "dataman/AMControlInfoList.h"	/// \todo change to AMControlInfoSet, using standard set API.
+#include "dataman/info/AMControlInfoList.h"	/// \todo change to AMControlInfoSet, using standard set API.
+
+#include "dataman/AMFileLoaderInterface.h"
 
 typedef AMOrderedSet<QString, AMRawDataSource*> AMRawDataSourceSet;
 typedef AMOrderedSet<QString, AMAnalysisBlock*> AMAnalyzedDataSourceSet;
@@ -130,6 +132,8 @@ public:
 	// AMRawDataSourceSet* rawDataSources() { return &rawDataSources_; }
 	/// Publicly expose part of the rawData(), by adding a new AMRawDataSource to the scan. The new data source \c newRawDataSource should be valid, initialized and connected to the data store already.  The scan takes ownership of \c newRawDataSource.  This function returns false if raw data source already exists with the same name as the \c newRawDataSource.
 	bool addRawDataSource(AMRawDataSource* newRawDataSource) { if(newRawDataSource) return rawDataSources_.append(newRawDataSource, newRawDataSource->name()); return false; }
+	/// This overloaded function calls addRawDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
+	bool addRawDataSource(AMRawDataSource* newRawDataSource, bool visibleInPlots, bool hiddenFromUsers);
 	/// Delete and remove an existing raw data source.  \c id is the idnex of the source in rawDataSources().
 	bool deleteRawDataSource(int id) { if((unsigned)id >= (unsigned)rawDataSources_.count()) return false; delete rawDataSources_.takeAt(id); return true; }
 
@@ -139,6 +143,8 @@ public:
 	// AMAnalyzedDataSourceSet* analyzedDataSources() { return &analyzedDataSources_; }
 	/// Add an new analysis block to the scan.  The scan takes ownership of the \c newAnalysisBlock and exposes it as one of the analyzed data sources.
 	bool addAnalyzedDataSource(AMAnalysisBlock* newAnalyzedDataSource) { if(newAnalyzedDataSource) return analyzedDataSources_.append(newAnalyzedDataSource, newAnalyzedDataSource->name()); return false; }
+	/// This overloaded function calls addAnalyzedDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
+	bool addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource, bool visibleInPlots, bool hiddenFromUsers);
 	/// Delete and remove an existing analysis block. \c id is the index of the source in analyzedDataSources().
 	bool deleteAnalyzedDataSource(int id) { if((unsigned)id >= (unsigned)analyzedDataSources_.count()) return false; delete analyzedDataSources_.takeAt(id); return true; }
 
@@ -204,16 +210,11 @@ public:
 
 	// Role 4: Loading/Clearing Raw Data
 	////////////////////////////
-	/// Load raw data into memory from storage. Returns true on success.
-	/*! Subclasses should not reimplement this function, but must provide an implementation for loadDataImplementation(), which attempts to use the scan's current filePath() and fileFormat() as the source, and handles their set of readable file formats.  This function calls loadDataImplementation(), and then calls setDataStore() on all the raw data sources, to hopefully restore them to a valid state, now that there is valid raw data.*/
-	bool loadData() {
-		bool success = loadDataImplementation();
-		if(success)
-			for(int i=rawDataSources_.count()-1; i>=0; i--)
-				rawDataSources_.at(i)->setDataStore(rawData());
-		return success;
-	}
-	/// Scan subclassses must provide an implementation of this function, which uses the scan's current filePath() and fileFormat() as the source, and handles their own set of readable file formats, to fill the dataStore() with appropriate raw data. Return true on success. This base class implementation does nothing and returns true.
+	/// Load raw data into memory from storage, using the AMFileLoaderInterface plugin system to find the appropriate file loader based on fileFormat(). Returns true on success.
+	/*! DEPRECATED: Subclasses should not reimplement this function, but must provide an implementation for loadDataImplementation(), which attempts to use the scan's current filePath() and fileFormat() as the source, and handles their set of readable file formats.  This function calls loadDataImplementation(), and then calls setDataStore() on all the raw data sources, to hopefully restore them to a valid state, now that there is valid raw data.*/
+	bool loadData();
+
+	/// This function is deprecated in favour of the plugin system for AMFileLoaderInterface.  It will never be called.
 	virtual bool loadDataImplementation() {
 		return true;
 	}

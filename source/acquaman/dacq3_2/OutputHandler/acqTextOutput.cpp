@@ -70,7 +70,7 @@ acqTextOutput_setComment(void *key, char *comment)
 void
 acqTextOutput_setVerbose( void *key, int verbose)
 {
-	
+
 	acqTextOutput *to = (acqTextOutput *)key;
 	to->setVerbose(verbose);
 }
@@ -95,8 +95,14 @@ int acqTextOutput::startRepeat( acqKey_t key, int passno)
 	{
 		for(int colno=0; colno < evp->nColumn; colno++)
 			to->pvInfo[makeuid(evp->eventNo,colno)]->colp = &evp->column[colno];
+		/*for(int colno=0; colno < evp->nColumn; colno++)
+		{
+			int uid = makeuid(evp->eventNo, colno);
+			if( to->pvInfo.find(uid) != to->pvInfo.end() )
+				to->pvInfo[uid]->colp = &evp->column[colno];
+		}*/
 	}
-	
+
 	return 0;
 }
 
@@ -115,11 +121,11 @@ int acqTextOutput::eventFlags(acqKey_t key, int eventno, const char *eflags)
 {
 	acqTextOutput *to = (acqTextOutput *)key;
 	acqBaseOutput::default_eventFlags( key, eventno, eflags);
-	
+
 	acqOutputEvent_t *aoep = to->find_event_number(eventno);
 	if( aoep == NULL)
 		return -1;
-	
+
 	if( aoep->private_data == NULL)
 		aoep->private_data = calloc(1, sizeof (eventPrivate) );
 
@@ -135,7 +141,7 @@ int acqTextOutput::eventFlags(acqKey_t key, int eventno, const char *eflags)
 		else if( flags[i] == "absTime")
 			evpr->timeStamp = TRUE;
 		else if( flags[i] == "relTime")
-                        evpr->relTimeStamp = TRUE;
+						evpr->relTimeStamp = TRUE;
 		else if( flags[i] == "rel0Time")
 			evpr->rel0TimeStamp = TRUE;
 		else if( flags[i] == "commentPrefix")
@@ -143,14 +149,14 @@ int acqTextOutput::eventFlags(acqKey_t key, int eventno, const char *eflags)
 		// ignore unknown flags: other handlers may use them
 	}
 	return 0;
-	
+
 }
 
 // this is a virtual function - derived classes may build a derived pvPrivate entry
 void acqTextOutput::getPrivate(int eventID, int pvID)
 {
 	int uid = makeuid(eventID, pvID);
-	
+
 	if( pvInfo[uid] == NULL)
 		pvInfo[uid] = new pvPrivate;
 }
@@ -173,7 +179,7 @@ int acqTextOutput::pvFlags( acqKey_t key, int eventno, int pvno, const char *efl
 				to->pvInfo[uid]->format = strdup(flags[i+1].c_str() );
 			i++;
 		}
-	}	
+	}
 	return 0;
 }
 
@@ -265,13 +271,13 @@ int acqTextOutput::fileHeaderVerboseEvents()
 			sendOutputLine( "# column %d: Relative-Start-Time\n", column++);
 		if( evpr->relTimeStamp)
 			sendOutputLine( "# column %d: Relative-Last-Event\n", column++);
-		
+
 
 		for(int col=0; col < ev->nColumn; col++)
 		{
 			acqOutputColumn *colp = &ev->column[col];
 			sendOutputLine( "# column %d: %s %s %s\n", column++, colp->description?colp->description:colp->columnName, colp->columnName, colp->valid?"":"NO CONNECTION");
-			
+
 		}
 	}
 	return 0;
@@ -362,7 +368,7 @@ int acqTextOutput::nextOutput( acqKey_t key)
 	to->fileHeaderTerseEvents();
 	to->fileHeaderDescribeEvents();
 	to->fileHeaderEnd();
-	
+
 	to->acq_flush();
 	return 0;
 }
@@ -427,7 +433,7 @@ int acqTextOutput::endRecord( acqKey_t key, int /*eventno*/)
 	to->sendOutputLine( "\n");
 	to->acq_flush();
 	to->needDelimiter = 0;
-	
+
 	return 0;
 }
 string
@@ -450,14 +456,14 @@ int acqTextOutput::pvPrivate::output( acqKey_t key, int dataType, const void *va
 {
 	acqTextOutput *to = (acqTextOutput *)key;
 	char result[100];
-	
+
 	DEBUG(to) printf("output( %p, %d, %p, %d)\n", key, dataType, value, count);
 
 	for(int i=0; i < count; i++)
 	{
 		if( to->needDelimiter)
 			to->sendOutputLine( "%s", to->delimiter.c_str() );
-			
+
 		if( value == NULL)
 		{
 			to->sendOutputLine( "<No Connection>");
@@ -515,7 +521,7 @@ acqTextOutput::userComment( acqKey_t key, const char * newComment)
 	return 0;
 }
 
-// 
+//
 ///
 // Property manipulation.
 // If a property is not in this list, it is still assigned in the base property list.

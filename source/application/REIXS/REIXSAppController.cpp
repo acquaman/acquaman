@@ -22,8 +22,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/REIXS/REIXSBeamline.h"
 
-#include "ui/AMScanConfigurationView.h"
-#include "ui/AMScanConfigurationViewHolder.h"
+#include "ui/acquaman/AMScanConfigurationView.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder.h"
 #include "ui/REIXS/REIXSXESScanConfigurationDetailedView.h"
 #include "acquaman/AMScanController.h"
 
@@ -31,7 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMWorkflowManagerView.h"
 
 #include "util/AMErrorMonitor.h"
-#include "dataman/AMDbObjectSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
 
 // For database registration:
 #include "dataman/REIXS/REIXSXESCalibration.h"
@@ -41,7 +41,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/REIXS/REIXSXESHexapodControlEditor.h"
 #include "ui/REIXS/REIXSXESSpectrometerControlEditor.h"
 
-#include "ui/AMSamplePlateView.h"
+#include "ui/dataman/AMSamplePlateView.h"
 #include "dataman/AMRun.h"
 #include "ui/AMStartScreen.h"
 
@@ -200,7 +200,7 @@ void REIXSAppController::onCurrentPaneChanged(QWidget *pane) {
 
 
 #include "dataman/AMScanEditorModelItem.h"
-#include "ui/AMGenericScanEditor.h"
+#include "ui/dataman/AMGenericScanEditor.h"
 
 void REIXSAppController::onCurrentScanControllerCreated(){
 	qDebug() << "Detected creation of " << AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();

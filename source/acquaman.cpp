@@ -19,7 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "acquaman.h"
-#include "dataman/AMDbObject.h"
+#include "dataman/database/AMDbObject.h"
 
 /*!
 

@@ -96,6 +96,8 @@ protected slots:
 	void setTime();
 	/// Sets the mode for the dwell time.  If the mode is true, then set the Mode to Continuous, otherwise set it to Single Shot.
 	void setMode(bool mode);
+	/// Toggles the scanning state for the synchronized dwell time.
+	void toggleScanning() { dwellTime_->startScanning(!dwellTime_->isScanning()); }
 
 	/// Handles changes to the status.
 	void onStatusChanged(bool active) { overallStatus_->setPixmap(QIcon((active == true) ? ":/ON.png" : ":/OFF.png").pixmap(30, 30)); }
@@ -113,12 +115,30 @@ protected slots:
 			mode_->setChecked(true);
 		}
 	}
+	/// Handles changes to the scanning status.
+	void onScanningChanged(bool scanning)
+	{
+		if (scanning){
+
+			scanning_->setText("Scanning");
+			scanning_->setPalette(QPalette(Qt::green));
+		}
+		else{
+
+			scanning_->setText("Stopped");
+			scanning_->setPalette(QPalette(Qt::red));
+		}
+
+		scanning_->setChecked(scanning);
+	}
 
 protected:
 	/// The status icon label.
 	QLabel *overallStatus_;
 	/// The mode selection button.
 	QPushButton *mode_;
+	/// The scanning button.
+	QPushButton *scanning_;
 	/// The master time double spin box.
 	QDoubleSpinBox *masterTime_;
 

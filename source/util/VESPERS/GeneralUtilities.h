@@ -27,9 +27,9 @@ class GeneralUtilities
 {
 public:
 
-	/// Takes a emission line name and turns the greek letter into a roman equivalent and returns the result (ie: alpha -> a).
+	/// Takes an emission line name and turns the greek letter into a roman equivalent and returns the result (ie: alpha -> a).
 	static QString removeGreek(QString name);
-	/// Takes a ASCII plain text emission line name and adds the corresponding greek letter to it (ie: Ka1 -> Kalpha1).
+	/// Takes an ASCII plain text emission line name and adds the corresponding greek letter to it (ie: Ka1 -> Kalpha1).
 	static QString addGreek(QString name);
 };
 

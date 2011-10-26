@@ -24,8 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QList>
 
-#include "dataman/AMDbObject.h"
-#include "dataman/AMDatabase.h"
+#include "dataman/database/AMDbObject.h"
+#include "dataman/database/AMDatabase.h"
 
 /// This widget shows a single thumbnail, either from an AMDbObject or accessed directly from the database. However, by placing the mouse over the thumbnail, one can scroll through a related set of thumbnails.  The thumbnail title and subtitle are super-posed over top of the thumbnail image.
 /*! \todo Implement deferred database lookups for displayThumbnail(AMDatabase* db, int id) as done in AMThumbnailScrollGraphicsWidget*/

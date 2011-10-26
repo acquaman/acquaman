@@ -20,12 +20,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSXASDacqScanController.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
-#include "beamline/AMBeamlineActionsList.h"
+#include "actions/AMBeamlineActionsList.h"
 #include "dataman/AMUser.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
-#include "beamline/AMBeamlineListAction.h"
-#include "beamline/AMBeamlineParallelActionsList.h"
+#include "actions/AMBeamlineListAction.h"
+#include "actions/AMBeamlineParallelActionsList.h"
 
 #include <QDir>
 
@@ -35,20 +35,21 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 	config_ = cfg;
 	xasScan_ = new AMXASScan();
 	xasScan_->setName(config_->name());
-	xasScan_->setFileFormat("vespersXAS");
+	xasScan_->setFileFormat("vespers2011XAS");
 	xasScan_->setScanConfiguration(config_);
 	xasScan_->setRunId(AMUser::user()->currentRunId());
 
 	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
+	// Add all the raw datasources.
 	AMMeasurementInfo temp(*(ionChambers->detectorAt((int)config_->incomingChoice())->toInfo()));
 	temp.name = "I0";
 	xasScan_->rawData()->addMeasurement(temp);
-	xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), 0));
+	xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), 0), true, false);
 	temp = AMMeasurementInfo(*(ionChambers->detectorAt((int)config_->transmissionChoice())->toInfo()));
 	temp.name = "It";
 	xasScan_->rawData()->addMeasurement(temp);
-	xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), 1));
+	xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), 1), true, false);
 
 	if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::SingleElement){
 
@@ -58,11 +59,11 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
 			xasScan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
-			xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), i+2));
+			xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), i+2), true, false);
 		}
 
 		xasScan_->rawData()->addMeasurement(AMMeasurementInfo(detector->toXRFInfo()));
-		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), true, false);
 	}
 	else if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::FourElement){
 
@@ -72,19 +73,20 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
 			xasScan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
-			xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), i+2));
+			xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), i+2), true, false);
 		}
 
 		xasScan_->rawData()->addMeasurement(AMMeasurementInfo(detector->toXRFInfo()));
-		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), true, false);
 	}
 
+	// Add all the necessary analysis blocks.
 	AM1DExpressionAB* transmission = new AM1DExpressionAB("trans");
 	transmission->setDescription("Transmission");
 	transmission->setInputDataSources(QList<AMDataSource *>() << xasScan_->rawDataSources()->at(0) << xasScan_->rawDataSources()->at(1));
 	transmission->setExpression(QString("ln(%1/%2)").arg(xasScan_->rawDataSources()->at(0)->name()).arg(xasScan_->rawDataSources()->at(1)->name()));
 
-	xasScan_->addAnalyzedDataSource(transmission);
+	xasScan_->addAnalyzedDataSource(transmission, true, false);
 
 	if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::SingleElement){
 
@@ -94,7 +96,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 		pfy->setInputDataSources(pfySource);
 		pfy->setSumAxis(1);
 		pfy->setSumRangeMax(xasScan_->rawDataSources()->at(xasScan_->rawDataSourceCount()-1)->size(1)-1);
-		xasScan_->addAnalyzedDataSource(pfy);
+		xasScan_->addAnalyzedDataSource(pfy, true, false);
 
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF1E();
 
@@ -103,7 +105,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 		normPFY->setDescription("Normalized PFY");
 		normPFY->setInputDataSources(QList<AMDataSource *>() << xasScan_->rawDataSources()->at(0) << xasScan_->analyzedDataSources()->at(1));
 		normPFY->setExpression(QString("%1/%2").arg(xasScan_->analyzedDataSources()->at(1)->name()).arg(xasScan_->rawDataSources()->at(0)->name()));
-		xasScan_->addAnalyzedDataSource(normPFY);
+		xasScan_->addAnalyzedDataSource(normPFY, true, false);
 
 		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
@@ -111,7 +113,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 			normPFY->setDescription("Normalized "+detector->roiInfoList()->at(i).name());
 			normPFY->setInputDataSources(QList<AMDataSource *>() << xasScan_->rawDataSources()->at(0) << xasScan_->rawDataSources()->at(i+2));
 			normPFY->setExpression(QString("%1/%2").arg(xasScan_->rawDataSources()->at(i+2)->name()).arg(xasScan_->rawDataSources()->at(0)->name()));
-			xasScan_->addAnalyzedDataSource(normPFY);
+			xasScan_->addAnalyzedDataSource(normPFY, true, false);
 		}
 	}
 	else if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::FourElement){
@@ -122,7 +124,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 		pfy->setInputDataSources(pfySource);
 		pfy->setSumAxis(1);
 		pfy->setSumRangeMax(xasScan_->rawDataSources()->at(xasScan_->rawDataSourceCount()-1)->size(1)-1);
-		xasScan_->addAnalyzedDataSource(pfy);
+		xasScan_->addAnalyzedDataSource(pfy, true, false);
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF4E();
 
 		AM1DExpressionAB *normPFY;
@@ -130,7 +132,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 		normPFY->setDescription("Normalized PFY");
 		normPFY->setInputDataSources(QList<AMDataSource *>() << xasScan_->rawDataSources()->at(0) << xasScan_->analyzedDataSources()->at(1));
 		normPFY->setExpression(QString("%1/%2").arg(xasScan_->analyzedDataSources()->at(1)->name()).arg(xasScan_->rawDataSources()->at(0)->name()));
-		xasScan_->addAnalyzedDataSource(normPFY);
+		xasScan_->addAnalyzedDataSource(normPFY, true, false);
 
 		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
@@ -138,17 +140,106 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 			normPFY->setDescription("Normalized "+detector->roiInfoList()->at(i).name());
 			normPFY->setInputDataSources(QList<AMDataSource *>() << xasScan_->rawDataSources()->at(0) << xasScan_->rawDataSources()->at(i+2));
 			normPFY->setExpression(QString("%1/%2").arg(xasScan_->rawDataSources()->at(i+2)->name()).arg(xasScan_->rawDataSources()->at(0)->name()));
-			xasScan_->addAnalyzedDataSource(normPFY);
+			xasScan_->addAnalyzedDataSource(normPFY, true, false);
 		}
+	}
+
+	// Add all the extra data sources.
+	addExtraDatasources();
+}
+
+void VESPERSXASDacqScanController::addExtraDatasources()
+{
+	// Common to all three types are Ea, K, dwell time and ring current.
+	xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Ea", "Energy Setpoint", "eV"));
+	xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+	xasScan_->rawData()->addMeasurement(AMMeasurementInfo("K", "K Setpoint"));
+	xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+	xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Dwell Time", "Dwell Time", "s"));
+	xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+	xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Ring Current", "Ring Current", "mA"));
+	xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+
+	if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::SingleElement){
+
+		// Dead time, real time, live time, fast peaks, slow peaks, spectrum index.
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Dead Time", "Dead Time", "%"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Real Time", "Real Time", "s"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Live Time", "Live Time", "s"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Fast Peaks", "Fast Peaks"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Slow Peaks", "Slow Peaks"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Spectrum Index", "Spectrum Index"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+	}
+
+	else if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::FourElement){
+
+		// Real time (x4), Live time (x4), fast peaks (x4), slow peaks (x4), dead time (x4), corrected sum index, raw index (x4)
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Dead Time 1", "Dead Time 1", "%"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Dead Time 2", "Dead Time 2", "%"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Dead Time 3", "Dead Time 3", "%"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Dead Time 4", "Dead Time 4", "%"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Real Time 1", "Real Time 1", "s"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Real Time 2", "Real Time 2", "s"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Real Time 3", "Real Time 3", "s"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Real Time 4", "Real Time 4", "s"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Live Time 1", "Live Time 1", "s"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Live Time 2", "Live Time 2", "s"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Live Time 3", "Live Time 3", "s"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Live Time 4", "Live Time 4", "s"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Fast Peaks 1", "Fast Peaks 1"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Fast Peaks 2", "Fast Peaks 2"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Fast Peaks 3", "Fast Peaks 3"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Fast Peaks 4", "Fast Peaks 4"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Slow Peaks 1", "Slow Peaks 1"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Slow Peaks 2", "Slow Peaks 2"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Slow Peaks 3", "Slow Peaks 3"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Slow Peaks 4", "Slow Peaks 4"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Corrected Spectrum Index", "Corrected Spectrum Index"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Raw Spectrum Index 1", "Raw Spectrum Index 1"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Spectrum Index 2", "Raw Spectrum Index 2"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Raw Spectrum Index 3", "Raw Spectrum Index 3"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo("Raw Spectrum Index 4", "Raw Spectrum Index 4"));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1), false, true);
 	}
 }
 
 bool VESPERSXASDacqScanController::initializeImplementation()
 {
-	// To initialize the XAS scan, there are two stages.
+	// To initialize the XAS scan, there are three stages.
 	/*
 		First: Enable/Disable all the pertinent detectors.  The scalar is ALWAYS enabled.
 		Second: Set the mode to single shot and set the time on the synchronized dwell time.
+		Third: Move the mono to the correct energy and move the sample stage to the correct location (if enabled).
 	 */
 	AMBeamlineParallelActionsList *setupXASActionsList = new AMBeamlineParallelActionsList;
 	AMBeamlineListAction *setupXASAction = new AMBeamlineListAction(setupXASActionsList);
@@ -175,7 +266,29 @@ bool VESPERSXASDacqScanController::initializeImplementation()
 	// Second stage.
 	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
 	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::SingleShot));
-	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(config_->accumulationTime()));
+	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(config_->regionTime(0)));
+
+	// Third stage.
+	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+	setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->mono()->createEoAction(config_->energy()));
+	if (config_->goToPosition()){
+
+		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(config_->x()));
+		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(config_->y()));
+	}
+
+	// Integrity check.  Make sure no actions are null.
+	for (int i = 0; i < setupXASActionsList->stageCount(); i++){
+
+		for (int j = 0; j < setupXASActionsList->stage(i)->size(); j++){
+
+			if (setupXASActionsList->action(i, j) == 0){
+
+				onInitializationActionsFailed(0);
+				return false;
+			}
+		}
+	}
 
 	connect(setupXASAction, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
 	connect(setupXASAction, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
@@ -187,6 +300,10 @@ bool VESPERSXASDacqScanController::initializeImplementation()
 
 bool VESPERSXASDacqScanController::startImplementation()
 {
+	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
+	while (advAcq_->deleteRecord(1)){}
+
+	// Setup the real config.
 	switch(config_->fluorescenceDetectorChoice()){
 
 	case VESPERSXASScanConfiguration::None:
@@ -403,7 +520,7 @@ bool VESPERSXASDacqScanController::setupFourElementXAS()
 	advAcq_->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
 	advAcq_->appendRecord("07B2_Mono_SineB_K", true, false, 0);
 	advAcq_->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);
-	//advAcq_->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
+	advAcq_->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
 	advAcq_->appendRecord("dxp1607-B21-04:mca1.ERTM", true, false, 0);
 	advAcq_->appendRecord("dxp1607-B21-04:mca2.ERTM", true, false, 0);
 	advAcq_->appendRecord("dxp1607-B21-04:mca3.ERTM", true, false, 0);

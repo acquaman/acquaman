@@ -191,7 +191,7 @@
   <customwidget>
    <class>AMColorPickerButton</class>
    <extends>QToolButton</extends>
-   <header>ui/AMColorPickerButton.h</header>
+   <header>ui/dataman/AMColorPickerButton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

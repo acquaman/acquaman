@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlotSeries.h"
 #include "MPlot/MPlotMarker.h"
 
-#include "dataman/AMXYScatterPVDataSource.h"
+#include "dataman/datasource/AMXYScatterPVDataSource.h"
 
 
 class BeamPositionMonitor : public QWidget

@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "XRFDetectorView.h"
 #include "DeadTimeButton.h"
 #include "MPlot/MPlotAxisScale.h"
-#include "dataman/AMDataSourceSeriesData.h"
+#include "dataman/datasource/AMDataSourceSeriesData.h"
 #include "util/AMPeriodicTable.h"
 #include "util/VESPERS/GeneralUtilities.h"
 
@@ -202,7 +202,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	connect(waterfallButton_, SIGNAL(toggled(bool)), waterfallSeparation_, SLOT(setEnabled(bool)));
 
 	/// \todo Save button hack.  Once auto-export works, redo this if need be.
-	QPushButton *saveSpectraButton = new QPushButton(QIcon(":/Save.png"), "Save Spectra");
+	QPushButton *saveSpectraButton = new QPushButton(QIcon(":/save.png"), "Save Spectra");
 	connect(saveSpectraButton, SIGNAL(clicked()), this, SLOT(saveSpectra()));
 
 	QHBoxLayout *statusLayout = new QHBoxLayout;
@@ -325,13 +325,13 @@ void XRFDetailedDetectorView::onComboBoxUpdate(int index)
 	switch(index){
 
 	case 0:
-		detector_->setRefreshRate(XRFDetector::Passive);
+		detector_->setSpectraRefreshRate(XRFDetector::Passive);
 		break;
 	case 1:
-		detector_->setRefreshRate(XRFDetector::Slow);
+		detector_->setSpectraRefreshRate(XRFDetector::Slow);
 		break;
 	case 2:
-		detector_->setRefreshRate(XRFDetector::Fast);
+		detector_->setSpectraRefreshRate(XRFDetector::Fast);
 		break;
 	}
 }

@@ -246,26 +246,21 @@ void XRFDetector::onConnectedChanged(bool isConnected)
 	if (isConnected){
 
 		connect(statusPV_.first(), SIGNAL(valueChanged()), this, SLOT(onStatusChanged()));
-		if (elements_ == 4){
-
-			connect(mcaUpdateRatePV_.first(), SIGNAL(valueChanged(int)), this, SLOT(onRefreshRateChanged(int)));
-			connect(statusUpdateRatePV_.first(), SIGNAL(valueChanged(int)), this, SLOT(onRefreshRateChanged(int)));
-		}
+		connect(mcaUpdateRatePV_.first(), SIGNAL(valueChanged(int)), this, SLOT(onRefreshRateChanged(int)));
 		connect(peakingTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onPeakingTimeChanged(double)));
 		connect(maximumEnergyPV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onMaximumEnergyChanged(double)));
 		connect(integrationTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onIntegrationTimeChanged(double)));
 		connect(elapsedTimePV_.first(), SIGNAL(valueChanged(double)), this, SIGNAL(elapsedTimeChanged(double)));
 		connect(icrPV_.first(), SIGNAL(valueChanged()), this, SIGNAL(deadTimeChanged()));
 		connect(ocrPV_.first(), SIGNAL(valueChanged()), this, SIGNAL(deadTimeChanged()));
+
+		onStatusUpdateRateInitialized();
+		setSpectraRefreshRate(Slow);
 	}
 	else{
 
 		disconnect(statusPV_.first(), SIGNAL(valueChanged()), this, SLOT(onStatusChanged()));
-		if (elements_ == 4){
-		
-			disconnect(mcaUpdateRatePV_.first(), SIGNAL(valueChanged(int)), this, SLOT(onRefreshRateChanged(int)));
-			disconnect(statusUpdateRatePV_.first(), SIGNAL(valueChanged(int)), this, SLOT(onRefreshRateChanged(int)));
-		}
+		disconnect(mcaUpdateRatePV_.first(), SIGNAL(valueChanged(int)), this, SLOT(onRefreshRateChanged(int)));
 		disconnect(peakingTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onPeakingTimeChanged(double)));
 		disconnect(maximumEnergyPV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onMaximumEnergyChanged(double)));
 		disconnect(integrationTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onIntegrationTimeChanged(double)));

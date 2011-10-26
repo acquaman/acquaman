@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMScanEditorModelItem.h"
 
 #include "ui/AMWindowPaneModel.h"
-#include "ui/AMGenericScanEditor.h"
+#include "ui/dataman/AMGenericScanEditor.h"
 
 #include <QUrl>
 #include <QList>

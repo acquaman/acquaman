@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMROI.h"
 #include "util/VESPERS/XRFElement.h"
 #include "util/VESPERS/GeneralUtilities.h"
-#include "dataman/AMProcessVariableDataSource.h"
+#include "dataman/datasource/AMProcessVariableDataSource.h"
 #include "beamline/AMProcessVariable.h"
 
 #include <QTimer>
@@ -267,6 +267,8 @@ protected slots:
 			break;
 		}
 	}
+	/// Helper slot.  Sets the status update rate to Fast once it is connected.
+	void onStatusUpdateRateInitialized() { setStatusRefreshRate(Fast); }
 	/// Handles changes to the peaking time.
 	void onPeakingTimeChanged(double pktime){ setPeakingTime(pktime); emit peakingTimeChanged(pktime); }
 	/// Handles changes to the maximum energy.

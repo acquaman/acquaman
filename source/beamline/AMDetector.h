@@ -22,9 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define ACQMAN_AMDETECTOR_H
 
 #include <QObject>
-#include "dataman/AMDetectorInfo.h"
+#include "dataman/info/AMDetectorInfo.h"
 #include "AMControl.h"
-#include "AMBeamlineActionItem.h"
+#include "actions/AMBeamlineActionItem.h"
 
 class AMDetector;
 
@@ -69,7 +69,7 @@ public:
 	enum ReadMethod {
 		ImmediateRead = 1,	///< Just reports the current value (cached) for the readings (call value() for an AMControl)
 		RequestRead,		///< Should request a new value before reporting (probably need to set a trigger AMControl)
-		WaitRead,		///< Should wait for a new value before reporting (connect to valueChanged() for an AMControl)
+		WaitRead		///< Should wait for a new value before reporting (connect to valueChanged() for an AMControl)
 	};
 
 	AMDetector(const QString& name, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead);

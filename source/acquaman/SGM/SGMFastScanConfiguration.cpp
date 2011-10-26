@@ -48,7 +48,7 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 }
 
 SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguration &original) :
-		AMFastScanConfiguration(original)
+		AMFastScanConfiguration(original), SGMScanConfiguration()
 {
 	currentSettings_ = 0; //NULL
 	currentEnergyParameters_ = 0; //NULL

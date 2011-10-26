@@ -20,14 +20,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <QtTest/QtTest>
-#include "dataman/AMDatabase.h"
+#include "dataman/database/AMDatabase.h"
 #include "dataman/AMScan.h"
 #include "dataman/AMXASScan.h"
-#include "dataman/SGM2004FileLoader.h"
+#include "dataman/SGM/SGM2004FileLoader.h"
 #include "util/AMErrorMonitor.h"
-#include "dataman/AMDbObjectSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
 #include "analysis/AM1DExpressionAB.h"
-#include "dataman/AMInMemoryDataStore.h"
+#include "dataman/datastore/AMInMemoryDataStore.h"
 #include "dataman/AMSamplePlate.h"
 #include "util/AMOrderedSet.h"
 

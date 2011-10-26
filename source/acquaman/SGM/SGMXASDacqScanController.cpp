@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDir>
 
-#include "beamline/AMBeamlineListAction.h"
+#include "actions/AMBeamlineListAction.h"
 
 SGMXASDacqScanController::SGMXASDacqScanController(SGMXASScanConfiguration *cfg, QObject *parent) :
 		AMDacqScanController(cfg, parent) , SGMXASScanController(cfg)

@@ -20,11 +20,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMXASScanController.h"
 
-#include "dataman/SGM2004FileLoader.h"
-#include "dataman/SGM2011XASFileLoader.h"
+#include "dataman/SGM/SGM2004FileLoader.h"
+#include "dataman/SGM/SGM2011XASFileLoader.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
-#include "dataman/AMRawDataSource.h"
+#include "dataman/datasource/AMRawDataSource.h"
 #include "dataman/AMUser.h"
 
 #include "dataman/AMSamplePlate.h"

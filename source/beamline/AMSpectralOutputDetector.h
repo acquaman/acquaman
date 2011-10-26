@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMSPECTRALOUTPUTDETECTOR_H
 
 #include "AMDetector.h"
-#include "dataman/AMSpectralOutputDetectorInfo.h"
+#include "dataman/info/AMSpectralOutputDetectorInfo.h"
 
 class AMSpectralOutputDetector : public AMSpectralOutputDetectorInfo, public AMDetector
 {

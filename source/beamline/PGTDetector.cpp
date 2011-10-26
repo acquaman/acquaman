@@ -81,6 +81,7 @@ bool PGTDetector::setFromInfo(const AMDetectorInfo *info){
 }
 
 bool PGTDetector::setFromInfo(const PGTDetectorInfo& info){
+	Q_UNUSED(info)
 	//integrationTimeCtrl()->move(info.integrationTime());
 	//integrationModeCtrl()->move(integrationModeCtrl()->enumNames().indexOf(info.integrationMode()));
 	//hvCtrl()->move(info.hvSetpoint());
@@ -153,6 +154,7 @@ void PGTDetector::setDescription(const QString &description){
 }
 
 bool PGTDetector::setControls(PGTDetectorInfo *pgtSettings){
+	Q_UNUSED(pgtSettings)
 //	hvCtrl()->move( pgtSettings->hvSetpoint() );
 //	integrationTimeCtrl()->move( pgtSettings->integrationTime() );
 //	integrationModeCtrl()->move( integrationModeCtrl()->enumNames().indexOf(pgtSettings->integrationMode()) );

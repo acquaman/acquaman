@@ -21,8 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef REIXSXESCALIBRATION_H
 #define REIXSXESCALIBRATION_H
 
-#include "dataman/AMDbObject.h"
-#include "dataman/AMControlInfoList.h"
+#include "dataman/database/AMDbObject.h"
+#include "dataman/info/AMControlInfoList.h"
 #include "acquaman/REIXS/REIXSXESScanConfiguration.h"
 #include "acquaman.h"
 

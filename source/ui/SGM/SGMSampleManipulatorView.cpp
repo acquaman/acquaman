@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QCheckBox>
 #include <QComboBox>
 
-#include "beamline/AMBeamlineListAction.h"
+#include "actions/AMBeamlineListAction.h"
 #include "beamline/CLS/CLSVMEMotor.h"
 
 SGMSampleManipulatorView::SGMSampleManipulatorView(bool bigButtons, QWidget *parent) :

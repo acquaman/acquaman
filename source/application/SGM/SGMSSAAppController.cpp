@@ -22,15 +22,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/SGM/SGMBeamline.h"
 
-#include "ui/SGMSampleTransferView.h"
+#include "ui/SGM/SGMSampleTransferView.h"
 #include "ui/SGM/SGMSampleManipulatorView.h"
-#include "ui/AMSampleManagementWidget.h"
-#include "ui/SGMSidebar.h"
+#include "ui/dataman/AMSampleManagementWidget.h"
+#include "ui/SGM/SGMSidebar.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
 
-#include "dataman/AMDbObjectSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMRun.h"
 #include "ui/AMStartScreen.h"
 

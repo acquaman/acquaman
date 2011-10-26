@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMDETECTORSET_H
 #define AMDETECTORSET_H
 
-#include "dataman/AMDetectorInfoList.h"
+#include "dataman/info/AMDetectorInfoList.h"
 
 class AMDetectorSet : public QObject, public AMOrderedSet<QString, QPair<AMDetector*, bool> >
 {

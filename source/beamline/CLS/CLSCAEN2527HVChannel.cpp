@@ -86,7 +86,7 @@ double CLSCAEN2527HVChannel::voltage() const{
 
 QString CLSCAEN2527HVChannel::status() const{
 	if(isConnected()){
-		status_->enumNameAt(status_->value());
+		return status_->enumNameAt(status_->value());
 	}
 	else
 		return "UNCONNECTED";
@@ -182,6 +182,7 @@ void CLSCAEN2527HVChannel::onVoltageChanged(double voltage){
 }
 
 void CLSCAEN2527HVChannel::onToggleChanged(double toggle){
+	Q_UNUSED(toggle)
 	if(!isConnected())
 		return;
 	if(toggle_->withinTolerance(1)){

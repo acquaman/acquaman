@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define PGTDETECTOR_H
 
 #include "AMDetector.h"
-#include "dataman/PGTDetectorInfo.h"
+#include "dataman/info/PGTDetectorInfo.h"
 #include "AMControlSet.h"
 
 class PGTDetector : public PGTDetectorInfo, public AMDetector

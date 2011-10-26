@@ -59,6 +59,9 @@ protected:
 
 	AMnDIndex toScanIndex(QMap<int, double> aeData);
 
+	/// Adds all the data sources that are still important but not visualized.
+	void addExtraDatasources();
+
 	/// Sets up the XAS scan based on no fluorescence detectors selected.
 	bool setupTransmissionXAS();
 	/// Sets up the XAS scan based on the single element vortex detector being selected.

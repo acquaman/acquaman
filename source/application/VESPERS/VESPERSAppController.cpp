@@ -24,27 +24,25 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSEndstationView.h"
 #include "ui/AMMainWindow.h"
 #include "ui/AMStartScreen.h"
-#include "ui/AMScanConfigurationViewHolder.h"
-#include "ui/VESPERS/VESPERSBeamlineView.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder.h"
 
 #include "ui/VESPERS/XRFDetectorView.h"
 #include "ui/VESPERS/XRFFreeRunView.h"
 #include "ui/VESPERS/VESPERSPersistentView.h"
 #include "dataman/VESPERS/AMXRFScan.h"
 #include "util/AMPeriodicTable.h"
-#include "ui/VESPERS/XRFMapSetup.h"
 #include "ui/VESPERS/VESPERSDeviceStatusView.h"
 #include "ui/VESPERS/VESPERSXASScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSExperimentConfigurationView.h"
 
 #include "dataman/AMScanEditorModelItem.h"
-#include "ui/AMGenericScanEditor.h"
+#include "ui/dataman/AMGenericScanEditor.h"
 
 // Helper classes that technically shouldn't need to exist.
 #include "util/VESPERS/ROIHelper.h"
 #include "util/VESPERS/VortexDetectorStatusHelper.h"
 
-#include "dataman/AMDbObjectSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
 
 #include <QFileDialog>
 
@@ -112,12 +110,10 @@ bool VESPERSAppController::startup() {
 
 		// Setup the general endstation control view.
 		VESPERSEndstationView *endstationView = new VESPERSEndstationView(VESPERSBeamline::vespers()->endstation());
-		VESPERSBeamlineView *beamlineView = new VESPERSBeamlineView;
 		VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
 
 		mw_->insertHeading("Beamline Control", 0);
 		mw_->addPane(endstationView, "Beamline Control", "Endstation", ":/system-software-update.png");
-		mw_->addPane(beamlineView, "Beamline Control", "Beamline", ":/system-software-update.png");
 		mw_->addPane(statusPage, "Beamline Control", "Device Status", ":/system-software-update.png");
 
 		// Setup the XRF views for the single element vortex and the four element vortex detectors.  Since they have scans that are added to the workflow, it gets the workflow manager view passed into it as well.
@@ -130,14 +126,11 @@ bool VESPERSAppController::startup() {
 		mw_->addPane(xrf4EFreeRunView, "Free run", "XRF 4-el", ":/utilities-system-monitor.png");
 
 		// Setup page that auto-enables detectors.
-		VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView;
-
-		// Setup page to launch the nDMapper software with correct options.
-		XRFMapSetup *ndMapSetup = new XRFMapSetup;
+		VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
 
 		// Setup XAS for the beamline.  Builds the config, view, and view holder.
 		VESPERSXASScanConfiguration *xasScanConfig = new VESPERSXASScanConfiguration();
-		xasScanConfig->addRegion(0, 0, 1, 10);
+		xasScanConfig->addRegion(0, -30, 1, 40, 1);
 		VESPERSXASScanConfigurationView *xasConfigView = new VESPERSXASScanConfigurationView(xasScanConfig);
 		AMScanConfigurationViewHolder *xasConfigViewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, xasConfigView);
 		/// \todo this can likely be somewhere else in the framework.
@@ -145,7 +138,6 @@ bool VESPERSAppController::startup() {
 
 		mw_->insertHeading("Scans", 2);
 		mw_->addPane(experimentConfigurationView, "Scans", "Experiment Setup", ":/utilities-system-monitor.png");
-		mw_->addPane(ndMapSetup, "Scans", "Map Setup", ":/utilities-system-monitor.png");
 		mw_->addPane(xasConfigViewHolder, "Scans", "XAS", ":/utilities-system-monitor.png");
 
 		// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
@@ -155,10 +147,10 @@ bool VESPERSAppController::startup() {
 		// Show the endstation control view first.
 		mw_->setCurrentPane(experimentConfigurationView);
 
-		/// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
+		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
 		ROIHelper *roiHelper = new ROIHelper(this);
 		Q_UNUSED(roiHelper)
-		/// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE MCA AND DXP STATUS UPDATE PVS THAT DON'T SEEM TO FOLLOW THE STANDARD NAMING CONVENTIONS.
+		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE MCA AND DXP STATUS UPDATE PVS THAT DON'T SEEM TO FOLLOW THE STANDARD NAMING CONVENTIONS.
 		VortexDetectorStatusHelper *statusHelper = new VortexDetectorStatusHelper(this);
 		Q_UNUSED(statusHelper)
 
@@ -176,7 +168,9 @@ void VESPERSAppController::shutdown() {
 
 void VESPERSAppController::onCurrentScanControllerStarted()
 {
-	if (AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat() == "vespersXRF")
+	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
+
+	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
 		return;
 
 	// Build a generic scan editor and put it the scan editors location.

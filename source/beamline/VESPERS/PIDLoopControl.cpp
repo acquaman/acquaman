@@ -20,9 +20,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PIDLoopControl.h"
 
-#include "beamline/AMBeamlineControlMoveAction.h"
-#include "beamline/AMBeamlineParallelActionsList.h"
-#include "beamline/AMBeamlineListAction.h"
+#include "actions/AMBeamlineControlMoveAction.h"
+#include "actions/AMBeamlineParallelActionsList.h"
+#include "actions/AMBeamlineListAction.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 
 PIDLoopControl::PIDLoopControl(QString name, AMControl *pidX, AMControl *pidY, AMControl *pidZ, QObject *parent)

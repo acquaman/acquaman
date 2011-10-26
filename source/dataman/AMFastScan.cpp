@@ -32,8 +32,7 @@ AMFastScan::AMFastScan(QObject *parent) :
 	autoExportFilePath_ = "";
 }
 
-#include "dataman/SGM2010FastFileLoader.h"
-#include "dataman/SGM2010FastSensibleFileLoader.h"
+#include "dataman/SGM/SGM2010FastFileLoader.h"
 
 bool AMFastScan::loadDataImplementation(){
 	SGM2010FastFileLoader sgmLoader(this);
@@ -59,29 +58,6 @@ bool AMFastScan::loadDataImplementation(){
 
 bool AMFastScan::storeToDb(AMDatabase *db){
 	bool succeeded = AMScan::storeToDb(db);
-	if(succeeded){
-		SGM2010FastSensibleFileLoader sgmLoader(this);
-		if(!autoExportFilePath_.isEmpty()){
-			if(QFile::exists(autoExportFilePath_)){
-				autoExportFilePath_.truncate(autoExportFilePath_.indexOf('_'));
-				QString path = autoExportFilePath_.section('/', 0, -2);
-				QString file = autoExportFilePath_.section('/', -1);
-				QDir dir(path);
-				QStringList filefilters, likeFiles;
-				filefilters << QString("%1_*.dat").arg(file);
-				likeFiles = dir.entryList(filefilters, QDir::Files);
-				int pIndex, aIndex, maxIndex;
-				maxIndex = 0;
-				foreach(QString f, likeFiles){
-					pIndex = f.indexOf('_');
-					aIndex = f.indexOf(".dat");
-					maxIndex = std::max(f.mid(pIndex+1, aIndex-(pIndex+1)).toInt(), maxIndex);
-				}
-				autoExportFilePath_.append(QString("_%2.dat").arg(maxIndex+1));
-			}
-			sgmLoader.saveToFile(autoExportFilePath_);
-		}
-	}
 	return succeeded;
 }
 

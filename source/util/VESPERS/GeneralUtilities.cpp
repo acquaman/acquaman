@@ -23,13 +23,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 QString GeneralUtilities::removeGreek(QString name)
 {
 	if (name.contains(QString::fromUtf8("α")))
-		return name.replace(QString::fromUtf8("α"), "a");
+		return name.replace(name.lastIndexOf(QString::fromUtf8("α")), 1, "a");
 
 	else if (name.contains(QString::fromUtf8("β")))
-		return name.replace(QString::fromUtf8("β"), "b");
+		return name.replace(name.lastIndexOf(QString::fromUtf8("β")), 1, "b");
 
 	else if (name.contains(QString::fromUtf8("γ")))
-		return name.replace(QString::fromUtf8("γ"), "g");
+		return name.replace(name.lastIndexOf(QString::fromUtf8("γ")), 1, "g");
 
 	return name;
 }
@@ -37,13 +37,13 @@ QString GeneralUtilities::removeGreek(QString name)
 QString GeneralUtilities::addGreek(QString name)
 {
 	if (name.contains("a"))
-		return name.replace("a", QString::fromUtf8("α"));
+		return name.replace(name.lastIndexOf("a"), 1, QString::fromUtf8("α"));
 
 	else if (name.contains("b"))
-		return name.replace("b", QString::fromUtf8("β"));
+		return name.replace(name.lastIndexOf("b"), 1, QString::fromUtf8("β"));
 
 	else if (name.contains("g"))
-		return name.replace("g", QString::fromUtf8("γ"));
+		return name.replace(name.lastIndexOf("g"), 1, QString::fromUtf8("γ"));
 
 	return name;
 }

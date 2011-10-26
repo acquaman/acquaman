@@ -67,13 +67,17 @@ protected slots:
 	/// Handles changes to the energy from outside the program.
 	void onEnergyChanged(double energy) { energySetpoint_->blockSignals(true); energySetpoint_->setValue(energy); energySetpoint_->blockSignals(false); }
 	/// Sets the new energy.
-	void setEnergy() { VESPERSBeamline::vespers()->mono()->setEo(energySetpoint_->value()); }
+	void setEnergy() { VESPERSBeamline::vespers()->mono()->setEa(energySetpoint_->value()); }
 	/// Handles changes to the energy feedback.
 	void onEnergyFeedbackChanged(double energy) { energyFeedback_->setText(QString::number(energy, 'f', 2)+" eV"); }
 	/// Handles enabling and disabling the energy setpoint if the beam is either Pink or None.
 	void onBeamChanged(VESPERSBeamline::Beam beam);
 	/// Sets the filter combo box based on original values at start up and if they are changed outside of the program.
 	void onFiltersChanged(int index) { filterComboBox_->blockSignals(true); filterComboBox_->setCurrentIndex(index); filterComboBox_->blockSignals(false); }
+	/// If a new value for the X slit gap, passes it down to the slits model.
+	void setXGap() { if (xSlit_->value() != slits_->gapX()) slits_->setGapX(xSlit_->value()); }
+	/// If a new value for the Z slit gap, passes it down to the slits model.
+	void setZGap() { if (zSlit_->value() != slits_->gapZ()) slits_->setGapZ(zSlit_->value()); }
 
 protected:
 	/// Button and label for the valves.
@@ -99,6 +103,11 @@ protected:
 	QDoubleSpinBox *energySetpoint_;
 	QLabel *energyFeedback_;
 
+	/// Spin box handling the X slit gap.
+	QDoubleSpinBox *xSlit_;
+	/// Spin box handling the Z slit gap.
+	QDoubleSpinBox *zSlit_;
+
 	/// The valve control.
 	VESPERSValveGroupControl *valves_;
 	/// The temperature control.
@@ -114,6 +123,9 @@ protected:
 	AMShutterButton *psh2_;
 	AMShutterButton *ssh1_;
 	AMShutterButton *ssh2_;
+
+	/// Pointer to the slits.
+	VESPERSIntermediateSlits *slits_;
 };
 
 #endif // VESPERSPERSISTENTVIEW_H

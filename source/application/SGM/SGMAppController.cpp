@@ -22,26 +22,26 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/SGM/SGMBeamline.h"
 
-#include "ui/SGMSampleTransferView.h"
+#include "ui/SGM/SGMSampleTransferView.h"
 #include "ui/SGM/SGMSampleManipulatorView.h"
-#include "ui/AMSampleManagementWidget.h"
-#include "ui/AMScanConfigurationViewHolder.h"
-#include "ui/SGMXASScanConfigurationView.h"
-#include "ui/SGMFastScanConfigurationView.h"
-#include "ui/SGMSidebar.h"
+#include "ui/dataman/AMSampleManagementWidget.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder.h"
+#include "ui/SGM/SGMXASScanConfigurationView.h"
+#include "ui/SGM/SGMFastScanConfigurationView.h"
+#include "ui/SGM/SGMSidebar.h"
 #include "acquaman/AMScanController.h"
-#include "ui/AMDetectorView.h"
-#include "ui/AMSingleControlDetectorView.h"
-#include "ui/MCPDetectorView.h"
-#include "ui/PGTDetectorView.h"
-#include "ui/OceanOptics65000DetectorView.h"
+#include "ui/beamline/AMDetectorView.h"
+#include "ui/beamline/AMSingleControlDetectorView.h"
+#include "ui/beamline/MCPDetectorView.h"
+#include "ui/beamline/PGTDetectorView.h"
+#include "ui/beamline/OceanOptics65000DetectorView.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
 
-#include "dataman/AMDbObjectSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMRun.h"
-#include "dataman/AMExporterOptionGeneralAscii.h"
+#include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "ui/AMStartScreen.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
@@ -182,7 +182,7 @@ void SGMAppController::onSGMBeamlineConnected(){
 		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
 		//sxsc->addRegion(0, 950, 1, 960);
 		double goodEnergy = 10 * floor(SGMBeamline::sgm()->energy()->value() / 10);
-		sxsc->addRegion(0, goodEnergy, 1, goodEnergy+10);
+		sxsc->addRegion(0, goodEnergy, 1, goodEnergy+10, 1);
 		xasScanConfigurationView_ = new SGMXASScanConfigurationView(sxsc);
 		xasScanConfigurationHolder_->setView(xasScanConfigurationView_);
 
@@ -193,7 +193,7 @@ void SGMAppController::onSGMBeamlineConnected(){
 }
 
 #include "dataman/AMScanEditorModelItem.h"
-#include "ui/AMGenericScanEditor.h"
+#include "ui/dataman/AMGenericScanEditor.h"
 
 void SGMAppController::onCurrentScanControllerCreated(){
 	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));

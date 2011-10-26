@@ -13,15 +13,15 @@ HEADERS += 	source/application/SGM/SGMAppController.h \
 	source/acquaman/SGM/SGMFastDacqScanController.h \
 	source/acquaman/SGM/SGMFastScanController.h \
 	source/beamline/SGM/SGMBeamline.h \
-	source/ui/SGMSampleTransferView.h \
-	source/ui/SGMXASScanConfigurationView.h \
-	source/ui/SGMXASScanConfigurationWizard.h \
-	source/ui/SGMSidebar.h \
-	source/ui/SGMFastScanConfigurationView.h \
+	source/ui/SGM/SGMSampleTransferView.h \
+	source/ui/SGM/SGMXASScanConfigurationView.h \
+	source/ui/SGM/SGMXASScanConfigurationWizard.h \
+	source/ui/SGM/SGMSidebar.h \
+	source/ui/SGM/SGMFastScanConfigurationView.h \
 	source/ui/SGM/SGMSampleManipulatorView.h \
-    source/beamline/SGM/SGMBeamlineInfo.h \
-    source/util/SGM/SGMElementInfo.h \
-    source/util/SGM/SGMPeriodicTable.h #\
+	source/beamline/SGM/SGMBeamlineInfo.h \
+	source/util/SGM/SGMElementInfo.h \
+	source/util/SGM/SGMPeriodicTable.h #\
 #    source/analysis/SGM/SGM1DFastScanFilterAB.h
 
 SOURCES +=	source/application/SGM/SGMMain.cpp \
@@ -34,15 +34,15 @@ SOURCES +=	source/application/SGM/SGMMain.cpp \
 	source/acquaman/SGM/SGMFastScanController.cpp \
 	source/acquaman/SGM/SGMFastDacqScanController.cpp \
 	source/beamline/SGM/SGMBeamline.cpp \
-	source/ui/SGMSampleTransferView.cpp \
-	source/ui/SGMXASScanConfigurationView.cpp \
-	source/ui/SGMXASScanConfigurationWizard.cpp \
-	source/ui/SGMSidebar.cpp \
-	source/ui/SGMFastScanConfigurationView.cpp \
+	source/ui/SGM/SGMSampleTransferView.cpp \
+	source/ui/SGM/SGMXASScanConfigurationView.cpp \
+	source/ui/SGM/SGMXASScanConfigurationWizard.cpp \
+	source/ui/SGM/SGMSidebar.cpp \
+	source/ui/SGM/SGMFastScanConfigurationView.cpp \
 	source/ui/SGM/SGMSampleManipulatorView.cpp \
-    source/beamline/SGM/SGMBeamlineInfo.cpp \
-    source/util/SGM/SGMElementInfo.cpp \
-    source/util/SGM/SGMPeriodicTable.cpp #\
+	source/beamline/SGM/SGMBeamlineInfo.cpp \
+	source/util/SGM/SGMElementInfo.cpp \
+	source/util/SGM/SGMPeriodicTable.cpp #\
 #    source/analysis/SGM/SGM1DFastScanFilterAB.cpp
 
 RESOURCES += \

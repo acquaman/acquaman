@@ -32,6 +32,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <float.h>
 
+#include "dataman/info/AMControlInfoList.h"
+
 /**
  * \defgroup control Beamline Control with AMControl and AMProcessVariable
  @{
@@ -229,7 +231,7 @@ public:
 		CannotConnectError = 1, ///< Cannot connect to part of the control
 		CannotReadError,	///< Cannot read when we are connected and expect to be able to
 		CannotWriteError,	///< Cannot write when we are connected and expect to be able to
-		CannotGetStatusError,	///< Cannot read the status when we are connected
+		CannotGetStatusError	///< Cannot read the status when we are connected
 	};
 
 	/// Base Class Constructor
@@ -243,6 +245,10 @@ public:
 		tolerance_ = AMCONTROL_TOLERANCE_DONT_CARE;
 		contextKnownDescription_ = "";
 	}
+
+	/// \name Control info
+	/// One feature of a control is that it can create a snapshot of its current state and pass it on as an AMControlInfo.
+	AMControlInfo toInfo() { return AMControlInfo(name(), value(), minimumValue(), maximumValue(), units(), tolerance(), description(), contextKnownDescription()); }
 
 	/// \name Accessing childControls() subcontrols:
 	/// One additional feature of Controls is the ability to logically group sets of sub-controls together. (For example, a Monochromator control could consist of a Grating angle control, exit slit position control, and grating selector.)  Every Control therefore has a list of subcontrols.

@@ -22,12 +22,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMSettings.h"
 #include "dataman/AMXASScan.h"
-#include "dataman/SGM2004FileLoader.h"
+#include "dataman/SGM/SGM2004FileLoader.h"
 
-#include "ui/AMScanView.h"
+#include "ui/dataman/AMScanView.h"
 #include "ui/AMSidebar.h"
 #include "ui/AMStartScreen.h"
-#include "ui/AMNewRunDialog.h"
+#include "ui/dataman/AMNewRunDialog.h"
 #include "dataman/AMRun.h"
 #include "ui/AMThumbnailScrollViewer.h"
 
@@ -37,7 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DExpressionAB.h"
 #include <QTreeView>
 
-#include "ui/AMChooseScanDialog.h"
+#include "ui/dataman/AMChooseScanDialog.h"
 
 class TestUi: public QObject
 {

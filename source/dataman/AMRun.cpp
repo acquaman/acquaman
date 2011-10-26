@@ -95,7 +95,7 @@ void AMRun::scheduleDateRangeUpdate(const QDateTime &alteredDateTime) {
 	}
 }
 
-#include "dataman/AMDbObjectSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMScan.h"
 void AMRun::doDateRangeUpdate() {
 

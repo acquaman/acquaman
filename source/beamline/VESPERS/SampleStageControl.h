@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPair>
 
 #include "beamline/CLS/CLSVMEMotor.h"
-#include "beamline/AMBeamlineActionItem.h"
+#include "actions/AMBeamlineActionItem.h"
 
 /*!
 	This class offers an encapsulated way of using a tri-motor sample stage.  It uses the steps from the base motors for determining if the sample stage is going to over the limit.

@@ -19,15 +19,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMRunExperimentItems.h"
-#include "dataman/AMDatabase.h"
-#include "ui/AMDateTimeUtils.h"
+#include "dataman/database/AMDatabase.h"
+#include "util/AMDateTimeUtils.h"
 
 #include <QMimeData>
 #include <QUrl>
 #include <QList>
 #include <QStringList>
 
-#include "dataman/AMDbObjectSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMScan.h"
 
 QVariant AMRunModelItem::data(int role) const {

@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 #include "beamline/AMControl.h"
-#include "dataman/AMDataSource.h"
+#include "dataman/datasource/AMDataSource.h"
 #include "dataman/REIXS/REIXSXESMCPDetectorInfo.h"
 
 /// This class exposes an array process variable as an AMDataSource, for use with REIXSXESMCPDetector.

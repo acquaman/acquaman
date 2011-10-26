@@ -27,7 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDoubleSpinBox>
 #include <QButtonGroup>
 #include <QLabel>
-#include <QLineEdit>
 #include <QMessageBox>
 #include <QToolButton>
 
@@ -63,10 +62,6 @@ protected slots:
 	void onMovingChanged(bool isMoving);
 	/// Handles if the motors time out.
 	void onTimedOut() { setEnabled(false); }
-	/// Handles changes from the horizontal motor from the sample stage.
-	void onHorizontalChanged(double val);
-	/// Handles changes from the vertical motor from the sample stage.
-	void onVerticalChanged(double val);
 	/// Handles the error message from a horizontal move error from the sample stage.
 	void onHorizontalMoveError(bool direction);
 	/// Handles the error message from a vertical move error from the sample stage.
@@ -82,9 +77,9 @@ protected:
 	/// The status label that shows whether the sample stage is moving or not.
 	QLabel *status_;
 	/// Holds the horizontal setpoint.
-	QLineEdit *horizontal_;
+	QDoubleSpinBox *horizontal_;
 	/// Holds the vertical setpoint.
-	QLineEdit *vertical_;
+	QDoubleSpinBox *vertical_;
 
 	// Jog buttons.
 	/// The jog up button.

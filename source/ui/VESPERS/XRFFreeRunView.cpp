@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/VESPERS/XRFElement.h"
 #include "ui/VESPERS/XRFPeriodicTableView.h"
 #include "ui/VESPERS/VESPERSXRFElementView.h"
-#include "ui/AMPeriodicTableDialog.h"
+#include "ui/util/AMPeriodicTableDialog.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -93,6 +93,7 @@ XRFFreeRunView::XRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowManagerView *wo
 	scroll->setMinimumWidth(480);
 
 	connect(configureButton, SIGNAL(clicked()), scroll, SLOT(show()));
+	connect(configureButton, SIGNAL(clicked()), scroll, SLOT(raise()));
 
 	// Control options for the detector.
 	start_ = new QToolButton;
