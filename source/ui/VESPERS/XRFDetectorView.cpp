@@ -325,13 +325,13 @@ void XRFDetailedDetectorView::onComboBoxUpdate(int index)
 	switch(index){
 
 	case 0:
-		detector_->setRefreshRate(XRFDetector::Passive);
+		detector_->setSpectraRefreshRate(XRFDetector::Passive);
 		break;
 	case 1:
-		detector_->setRefreshRate(XRFDetector::Slow);
+		detector_->setSpectraRefreshRate(XRFDetector::Slow);
 		break;
 	case 2:
-		detector_->setRefreshRate(XRFDetector::Fast);
+		detector_->setSpectraRefreshRate(XRFDetector::Fast);
 		break;
 	}
 }

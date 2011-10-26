@@ -267,6 +267,8 @@ protected slots:
 			break;
 		}
 	}
+	/// Helper slot.  Sets the status update rate to Fast once it is connected.
+	void onStatusUpdateRateInitialized() { setStatusRefreshRate(Fast); }
 	/// Handles changes to the peaking time.
 	void onPeakingTimeChanged(double pktime){ setPeakingTime(pktime); emit peakingTimeChanged(pktime); }
 	/// Handles changes to the maximum energy.
