@@ -150,7 +150,7 @@ bool VESPERSXASDacqScanController::initializeImplementation()
 		First: Enable/Disable all the pertinent detectors.  The scalar is ALWAYS enabled.
 		Second: Set the mode to single shot and set the time on the synchronized dwell time.
 	 */
-	AMBeamlineParallelActionsList *setupXASActionsList = new AMBeamlineParallelActionsList;
+	/*AMBeamlineParallelActionsList *setupXASActionsList = new AMBeamlineParallelActionsList;
 	AMBeamlineListAction *setupXASAction = new AMBeamlineListAction(setupXASActionsList);
 
 	// First stage.
@@ -181,7 +181,7 @@ bool VESPERSXASDacqScanController::initializeImplementation()
 	connect(setupXASAction, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
 	connect(setupXASAction, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
 	setupXASAction->start();
-
+*/setInitialized();
 	return true;
 }
 

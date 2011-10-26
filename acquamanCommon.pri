@@ -83,7 +83,7 @@ linux-g++-32 {
 linux-g++-64 {
 
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = Sandbox/Acquaman2011/dev
+		DEV_PATH = dev
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = /home/epics/src/R3.14.12/base/include \
@@ -105,15 +105,9 @@ linux-g++-64 {
 
 QT += core gui sql opengl
 
-<<<<<<< HEAD
 # video using Multimedia module from QtMobility, if we have it
 CONFIG(mobility) {
 	MOBILITY += multimedia
-=======
-# video using Multimedia module from QtMobility, if we have it. (This will only be activated if you set the CONFIG += mobility line at the top of this file)
-CONFIG(mobility) {
-		MOBILITY += multimedia
->>>>>>> 2f0ab1062025b84537318753578c716ea6b72903
 }
 
 DESTDIR = build
