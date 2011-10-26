@@ -67,7 +67,7 @@ protected slots:
 	/// Handles changes to the energy from outside the program.
 	void onEnergyChanged(double energy) { energySetpoint_->blockSignals(true); energySetpoint_->setValue(energy); energySetpoint_->blockSignals(false); }
 	/// Sets the new energy.
-	void setEnergy() { VESPERSBeamline::vespers()->mono()->setEo(energySetpoint_->value()); }
+	void setEnergy() { VESPERSBeamline::vespers()->mono()->setEa(energySetpoint_->value()); }
 	/// Handles changes to the energy feedback.
 	void onEnergyFeedbackChanged(double energy) { energyFeedback_->setText(QString::number(energy, 'f', 2)+" eV"); }
 	/// Handles enabling and disabling the energy setpoint if the beam is either Pink or None.

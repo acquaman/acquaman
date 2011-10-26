@@ -235,10 +235,11 @@ void VESPERSXASDacqScanController::addExtraDatasources()
 
 bool VESPERSXASDacqScanController::initializeImplementation()
 {
-	// To initialize the XAS scan, there are two stages.
+	// To initialize the XAS scan, there are three stages.
 	/*
 		First: Enable/Disable all the pertinent detectors.  The scalar is ALWAYS enabled.
 		Second: Set the mode to single shot and set the time on the synchronized dwell time.
+		Third: Move the mono to the correct energy and move the sample stage to the correct location (if enabled).
 	 */
 	AMBeamlineParallelActionsList *setupXASActionsList = new AMBeamlineParallelActionsList;
 	AMBeamlineListAction *setupXASAction = new AMBeamlineListAction(setupXASActionsList);
@@ -266,6 +267,15 @@ bool VESPERSXASDacqScanController::initializeImplementation()
 	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
 	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::SingleShot));
 	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(config_->regionTime(0)));
+
+	// Third stage.
+	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+	setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->mono()->createEoAction(config_->energy()));
+	if (config_->goToPosition()){
+
+		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(config_->x()));
+		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(config_->y()));
+	}
 
 	// Integrity check.  Make sure no actions are null.
 	for (int i = 0; i < setupXASActionsList->stageCount(); i++){
