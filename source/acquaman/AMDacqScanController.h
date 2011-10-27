@@ -30,9 +30,9 @@ class QDir;
 #include "AMScanController.h"
 #include "qdebug.h"
 
-#include "dacq3_2/OutputHandler/acqFactory.h"
+#include "dacq3_3/OutputHandler/acqFactory.h"
 #include "AMAcqScanSpectrumOutput.h"
-#include "dacq3_2/qepicsadvacq.h"
+#include "dacq3_3/qepicsadvacq.h"
 
 #include "dataman/AMnDIndex.h"
 

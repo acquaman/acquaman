@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMAcqScanSpectrumOutput.h"
 
-#include "acquaman/dacq3_2/OutputHandler/acqFactory.h"
+#include "acquaman/dacq3_3/OutputHandler/acqFactory.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
