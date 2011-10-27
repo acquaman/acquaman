@@ -117,6 +117,7 @@ CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellT
 
 	QHBoxLayout *topRow = new QHBoxLayout;
 	topRow->addWidget(overallStatus_, 0, Qt::AlignCenter);
+	topRow->addWidget(scanning_);
 	topRow->addWidget(mode_);
 	topRow->addWidget(masterTime_);
 
@@ -126,7 +127,7 @@ CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellT
 	for (int i = 0; i < dwellTime_->elementCount(); i++)
 		groupBoxLayout->addWidget(new CLSSynchronizedDwellTimeElementView(dwellTime_->elementAt(i)));
 
-	groupBoxLayout->addWidget(scanning_, 0, Qt::AlignLeft);
+	//groupBoxLayout->addWidget(scanning_, 0, Qt::AlignLeft);
 
 	QGroupBox *dwellTimeBox = new QGroupBox("Synchronized Dwell Time");
 	dwellTimeBox->setLayout(groupBoxLayout);
@@ -147,8 +148,18 @@ void CLSSynchronizedDwellTimeView::setTime()
 
 void CLSSynchronizedDwellTimeView::setMode(bool mode)
 {
-	if (mode && dwellTime_->mode() != CLSSynchronizedDwellTime::Continuous)
+	dwellTime_->blockSignals(true);
+
+	if (mode && dwellTime_->mode() != CLSSynchronizedDwellTime::Continuous){
+
 		dwellTime_->setMode(CLSSynchronizedDwellTime::Continuous);
-	else if (!mode && dwellTime_->mode() != CLSSynchronizedDwellTime::SingleShot)
+		onModeChanged(CLSSynchronizedDwellTime::Continuous);
+	}
+	else if (!mode && dwellTime_->mode() != CLSSynchronizedDwellTime::SingleShot){
+
 		dwellTime_->setMode(CLSSynchronizedDwellTime::SingleShot);
+		onModeChanged(CLSSynchronizedDwellTime::SingleShot);
+	}
+
+	dwellTime_->blockSignals(false);
 }
