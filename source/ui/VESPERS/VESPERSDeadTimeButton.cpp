@@ -18,11 +18,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "DeadTimeButton.h"
+#include "VESPERSDeadTimeButton.h"
 #include <QPainter>
 #include <QStyleOption>
 
-DeadTimeButton::DeadTimeButton(double good, double bad, QWidget *parent)
+VESPERSDeadTimeButton::VESPERSDeadTimeButton(double good, double bad, QWidget *parent)
 	: QToolButton(parent)
 {
 	good_ = good;
@@ -30,7 +30,7 @@ DeadTimeButton::DeadTimeButton(double good, double bad, QWidget *parent)
 	current_ = 0;
 }
 
-void DeadTimeButton::paintEvent(QPaintEvent *e)
+void VESPERSDeadTimeButton::paintEvent(QPaintEvent *e)
 {
 	Q_UNUSED(e)
 

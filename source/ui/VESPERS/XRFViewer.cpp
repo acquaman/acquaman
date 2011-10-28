@@ -47,14 +47,14 @@ XRFViewer::XRFViewer(QWidget *parent) :
 	deadTimeGroup_ = new QButtonGroup(this);
 	deadTimeGroup_->setExclusive(false);
 
-	DeadTimeButton *temp;
+	VESPERSDeadTimeButton *temp;
 	deadTimeLayout_ = new QHBoxLayout;
 	deadTimeLayout_->setSpacing(0);
 	deadTimeLayout_->addStretch();
 
 	for (int i = 0; i < 4; i++){
 
-		temp = new DeadTimeButton(30.0, 60.0);
+		temp = new VESPERSDeadTimeButton(30.0, 60.0);
 		temp->setCheckable(false);
 		temp->setCurrent(0);
 		temp->setFixedSize(20, 20);
@@ -514,7 +514,7 @@ void XRFViewer::loadAcquamanXRFFile(QString filename)
 	double ocr = 0;
 	double worstDeadTime = 0;
 	double dt = 0;
-	DeadTimeButton *temp;
+	VESPERSDeadTimeButton *temp;
 
 	for (int i = 0; i < elements; i++){
 
@@ -525,7 +525,7 @@ void XRFViewer::loadAcquamanXRFFile(QString filename)
 		if (dt > worstDeadTime)
 			worstDeadTime = dt;
 
-		temp = qobject_cast<DeadTimeButton *>(deadTimeGroup_->button(i));
+		temp = qobject_cast<VESPERSDeadTimeButton *>(deadTimeGroup_->button(i));
 		temp->setCurrent(dt);
 		temp->show();
 	}

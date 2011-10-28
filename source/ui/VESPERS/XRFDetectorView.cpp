@@ -132,7 +132,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	connect(detector_, SIGNAL(deadTimeChanged()), this, SLOT(onDeadTimeUpdate()));
 
 	// Using a button group so I know which element I need to disable.
-	DeadTimeButton *temp;
+	VESPERSDeadTimeButton *temp;
 	deadTimeGroup_ = new QButtonGroup(this);
 	deadTimeGroup_->setExclusive(false);
 	QHBoxLayout *deadTimeLayout = new QHBoxLayout;
@@ -140,7 +140,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 
 	for (int i = 0; i < detector_->elements(); i++){
 
-		temp = new DeadTimeButton(30.0, 60.0);
+		temp = new VESPERSDeadTimeButton(30.0, 60.0);
 		temp->setCheckable(true);
 		temp->setFixedSize(20, 20);
 		deadTimeLayout->addWidget(temp);
@@ -248,11 +248,11 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 
 void XRFDetailedDetectorView::onDeadTimeChanged()
 {
-	DeadTimeButton *temp;
+	VESPERSDeadTimeButton *temp;
 
 	for (int i = 0; i < detector_->elements(); i++){
 
-		temp = qobject_cast<DeadTimeButton *>(deadTimeGroup_->button(i));
+		temp = qobject_cast<VESPERSDeadTimeButton *>(deadTimeGroup_->button(i));
 		temp->setCurrent(detector_->deadTimeAt(i));
 	}
 }

@@ -25,7 +25,7 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/beamline/VESPERS/AMValveControl.h \
 	source/ui/VESPERS/ROIPlotMarker.h \
 	source/util/VESPERS/ROIHelper.h \
-	source/ui/VESPERS/CustomizeRegionsOfInterest.h \
+	source/ui/VESPERS/VESPERSCustomizeRegionsOfInterest.h \
 	source/beamline/VESPERS/SampleStageControl.h \
 	source/beamline/VESPERS/VESPERSValveGroupControl.h \
 	source/beamline/VESPERS/PIDLoopControl.h \
@@ -73,7 +73,7 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/beamline/VESPERS/AMValveControl.cpp \
 	source/ui/VESPERS/ROIPlotMarker.cpp \
 	source/util/VESPERS/ROIHelper.cpp \
-	source/ui/VESPERS/CustomizeRegionsOfInterest.cpp \
+	source/ui/VESPERS/VESPERSCustomizeRegionsOfInterest.cpp \
 	source/beamline/VESPERS/SampleStageControl.cpp \
 	source/beamline/VESPERS/VESPERSValveGroupControl.cpp \
 	source/beamline/VESPERS/PIDLoopControl.cpp \
