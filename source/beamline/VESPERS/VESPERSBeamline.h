@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/AMValveControl.h"
 #include "beamline/VESPERS/XRFDetector.h"
 #include "beamline/AMROI.h"
-#include "beamline/VESPERS/SampleStageControl.h"
+#include "beamline/VESPERS/VESPERSSampleStageControl.h"
 #include "beamline/VESPERS/VESPERSValveGroupControl.h"
 #include "beamline/VESPERS/VESPERSPIDLoopControl.h"
 #include "beamline/VESPERS/VESPERSMonochromator.h"

@@ -155,7 +155,7 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	QPushButton *startMicroscopeButton = new QPushButton("Microscope Display");
 	connect(startMicroscopeButton, SIGNAL(clicked()), this, SLOT(startMicroscope()));
 
-	QHBoxLayout *extrasGroupBoxLayout = new QHBoxLayout;
+	QVBoxLayout *extrasGroupBoxLayout = new QVBoxLayout;
 	extrasGroupBoxLayout->addWidget(startMicroscopeButton);
 	extrasGroupBoxLayout->addWidget(resetPseudoMotorsButton);
 
@@ -165,16 +165,21 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	CLSSynchronizedDwellTimeView *dwellTimeView = new CLSSynchronizedDwellTimeView(VESPERSBeamline::vespers()->synchronizedDwellTime());
 
 	QGridLayout *endstationLayout = new QGridLayout;
-	endstationLayout->addWidget(controlGB, 0, 0, 2, 3);
+	endstationLayout->addWidget(controlGB, 0, 0, 3, 3);
 	endstationLayout->addWidget(windowGB, 0, 3);
-	endstationLayout->addWidget(dwellTimeView, 1, 3, 2, 1);
-	endstationLayout->addWidget(ccdGB, 2, 0);
-	endstationLayout->addWidget(extrasGroupBox, 2, 1);
+	endstationLayout->addWidget(dwellTimeView, 3, 0);
+	endstationLayout->addWidget(ccdGB, 2, 3);
+	endstationLayout->addWidget(extrasGroupBox, 1, 3);
+
+	QHBoxLayout *squishLayout = new QHBoxLayout;
+	squishLayout->addStretch();
+	squishLayout->addLayout(endstationLayout);
+	squishLayout->addStretch();
 
 	QVBoxLayout *masterLayout = new QVBoxLayout;
 	masterLayout->addWidget(topFrame);
 	masterLayout->addStretch();
-	masterLayout->addLayout(endstationLayout);
+	masterLayout->addLayout(squishLayout);
 	masterLayout->addStretch();
 
 	setLayout(masterLayout);
