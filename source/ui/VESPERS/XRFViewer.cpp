@@ -19,7 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "XRFViewer.h"
-#include "ui/VESPERS/DeadTimeButton.h"
+#include "ui/VESPERS/VESPERSDeadTimeButton.h"
 #include "MPlot/MPlotAxisScale.h"
 #include "util/VESPERS/GeneralUtilities.h"
 #include "dataman/datasource/AMDataSourceSeriesData.h"

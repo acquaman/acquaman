@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/VESPERS/XRFDetectorView.h"
 #include "acquaman/AMScanController.h"
-#include "ui/VESPERS/CustomizeRegionsOfInterest.h"
+#include "ui/VESPERS/VESPERSCustomizeRegionsOfInterest.h"
 #include "ui/VESPERS/VESPERSXRFScanConfigurationView.h"
 #include "acquaman/VESPERS/XRFFreeRun.h"
 #include "ui/AMWorkflowManagerView.h"

@@ -419,7 +419,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMSplitIonChamber.h \
 	source/beamline/CLS/CLSSplitIonChamber.h \
 	source/ui/beamline/AMSplitIonChamberView.h \
-	source/ui/CLS/CLSSplitIonChamberView.h
+	source/ui/CLS/CLSSplitIonChamberView.h \
+    ../MPlot/src/MPlot/MPlotMarkerTransparentVerticalRectangle.h
 
 CONFIG(mobility) {
 HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
@@ -683,7 +684,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/AMSplitIonChamber.cpp \
 	source/beamline/CLS/CLSSplitIonChamber.cpp \
 	source/ui/beamline/AMSplitIonChamberView.cpp \
-	source/ui/CLS/CLSSplitIonChamberView.cpp
+	source/ui/CLS/CLSSplitIonChamberView.cpp \
+    ../MPlot/src/MPlot/MPlotMarkerTransparentVerticalRectangle.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
@@ -700,6 +702,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 

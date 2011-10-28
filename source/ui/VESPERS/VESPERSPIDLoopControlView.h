@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 #include <QPushButton>
 
-#include "beamline/VESPERS/PIDLoopControl.h"
+#include "beamline/VESPERS/VESPERSPIDLoopControl.h"
 
 class VESPERSPIDLoopControlView : public QWidget
 {

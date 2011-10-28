@@ -19,7 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "XRFDetectorView.h"
-#include "DeadTimeButton.h"
+#include "VESPERSDeadTimeButton.h"
 #include "MPlot/MPlotAxisScale.h"
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 #include "util/AMPeriodicTable.h"
@@ -260,7 +260,7 @@ void XRFDetailedDetectorView::onDeadTimeChanged()
 void XRFDetailedDetectorView::roiWidthUpdate(AMROI *roi)
 {
 	// Find the marker associated with the ROI and then change it.
-	ROIPlotMarker *temp;
+	MPlotMarkerTransparentVerticalRectangle *temp;
 
 	for (int i = 0; i < markers_.size(); i++){
 
@@ -452,7 +452,7 @@ void XRFDetailedDetectorView::addRegionOfInterestMarker(AMROIInfo info)
 	QString symbol = info.name().split(" ").first();
 	QString line = GeneralUtilities::addGreek(info.name().split(" ").last());
 
-	ROIPlotMarker *newMarker = new ROIPlotMarker(symbol+" "+line, info.energy(), info.low(), info.high());
+	MPlotMarkerTransparentVerticalRectangle *newMarker = new MPlotMarkerTransparentVerticalRectangle(symbol+" "+line, info.energy(), info.low(), info.high());
 	plot_->insertItem(newMarker);
 	newMarker->setYAxisTarget(plot_->axisScale(MPlot::VerticalRelative));
 	markers_ << newMarker;
@@ -461,7 +461,7 @@ void XRFDetailedDetectorView::addRegionOfInterestMarker(AMROIInfo info)
 void XRFDetailedDetectorView::removeRegionOfInterestMarker(AMROIInfo info)
 {
 	MPlotItem *removeMe = 0;
-	ROIPlotMarker *temp;
+	MPlotMarkerTransparentVerticalRectangle *temp;
 
 	for (int i = 0; i < markers_.size(); i++){
 
@@ -683,7 +683,7 @@ void XRFDetailedDetectorView::highlightMarkers()
 
 	if (highlightMarkers_){
 
-		ROIPlotMarker *temp;
+		MPlotMarkerTransparentVerticalRectangle *temp;
 
 		for (int i = 0; i < markers_.size(); i++){
 
