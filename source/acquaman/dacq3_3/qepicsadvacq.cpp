@@ -835,6 +835,13 @@ bool QEpicsAdvAcq::setQuickInputs(QString inputs)
 	return TRUE;
 }
 
+void QEpicsAdvAcq::saveConfigFile(const QString &infile)
+{
+	//char* SAVEFILE = const_cast<char*>(infile.toAscii().constData());
+	const char* SAVEFILE = infile.toAscii().constData();
+	acq_file_save_as(strdup(SAVEFILE), getMaster());
+}
+
 void QEpicsAdvAcq::spit()
 {
 	/*

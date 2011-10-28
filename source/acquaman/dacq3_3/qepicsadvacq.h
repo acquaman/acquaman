@@ -114,7 +114,7 @@ class QEpicsAdvAcq : public QObject
 		void setEnable(int region, bool enable);
 		void setHasStart(int region, int val){if(sp){(sp->acqControlList[region]).haveStartVal=val;}}
 		bool setQuickInputs(QString inputs);
-		void saveConfigFile(const QString &infile){char* SAVEFILE = const_cast<char*>(infile.toAscii().data()); acq_file_save_as(strdup(SAVEFILE), getMaster());}
+		void saveConfigFile(const QString &infile);
 
 		bool setConfigFile( const QString &filename) {
 			_acq->setConfigFile(filename);
