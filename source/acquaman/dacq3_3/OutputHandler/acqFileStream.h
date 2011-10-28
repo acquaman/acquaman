@@ -1,5 +1,6 @@
 #ifndef DACQLIB_ACQFILESTREAM_H
 #define DACQLIB_ACQFILESTREAM_H
+// Added define statements (David Chevrier, Oct 27 2011)
 // Copyright 2008 Canadian Light Source, Inc. All Rights Reserved
 //
 #include <string>

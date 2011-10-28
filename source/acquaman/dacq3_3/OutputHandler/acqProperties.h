@@ -1,4 +1,4 @@
-// $Header:$
+// $Header: OutputHandler/acqProperties.h 1.1 2009/12/18 11:14:37CST Ru Igarashi (igarasr) Exp  $
 //
 // Copyright 2009 Canadian Light Source, Inc. All Rights Reserved
 //

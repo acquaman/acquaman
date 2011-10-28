@@ -7,6 +7,7 @@
  *
  */
 
+// Changed to ifndef and appended DACQLIB_ prefix (David Chevrier, Oct 27 2011)
 //#if !defined(CHANNEL_H)
 #ifndef DACQLIB_CHANNEL_H
 #define DACQLIB_CHANNEL_H 1

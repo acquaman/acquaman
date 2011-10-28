@@ -33,7 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QToolButton>
 #include <QPushButton>
 
-VESPERSVESPERSXRFFreeRunView::VESPERSVESPERSXRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowManagerView *workflow, QWidget *parent)
+VESPERSXRFFreeRunView::VESPERSXRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowManagerView *workflow, QWidget *parent)
 	: QWidget(parent)
 {
 	xrfFreeRun_ = xrfFreeRun;
@@ -54,7 +54,7 @@ VESPERSVESPERSXRFFreeRunView::VESPERSVESPERSXRFFreeRunView(XRFFreeRun *xrfFreeRu
 	view_->setEmissionLinesVisible(true);
 	view_->setPileUpPeaksVisible(false);
 	view_->setCombinationPileUpPeaksVisible(false);
-	connect(detector_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
+	connect(detector_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged(bool)));
 	connect(xrfTable_, SIGNAL(currentElementChanged(XRFElement*)), view_, SLOT(setCurrentElement(XRFElement*)));
 	connect(xrfTable_, SIGNAL(minimumEnergyChanged(double)), view_, SLOT(setMinimumEnergy(double)));
 	connect(xrfTable_, SIGNAL(maximumEnergyChanged(double)), view_, SLOT(setMaximumEnergy(double)));
@@ -244,7 +244,19 @@ VESPERSVESPERSXRFFreeRunView::VESPERSVESPERSXRFFreeRunView(XRFFreeRun *xrfFreeRu
 	setLayout(masterLayout);
 }
 
-void VESPERSVESPERSXRFFreeRunView::onStopClicked()
+void VESPERSXRFFreeRunView::onConnectionChanged(bool isConnected)
+{
+	setEnabled(isConnected);
+
+	if (isConnected){
+
+		integrationTime_->setValue(detector_->integrationTime());
+		maxEnergy_->setValue(detector_->maximumEnergy());
+		peakingTime_->setValue(detector_->peakingTime());
+	}
+}
+
+void VESPERSXRFFreeRunView::onStopClicked()
 {
 	VESPERSXRFScanController *current = qobject_cast<VESPERSXRFScanController *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController());
 
@@ -252,7 +264,7 @@ void VESPERSVESPERSXRFFreeRunView::onStopClicked()
 		current->finish();
 }
 
-void VESPERSVESPERSXRFFreeRunView::onAdvancedSettingsChanged(bool advanced)
+void VESPERSXRFFreeRunView::onAdvancedSettingsChanged(bool advanced)
 {
 	minEnergyLabel_->setVisible(advanced);
 	minEnergy_->setVisible(advanced);
@@ -262,7 +274,7 @@ void VESPERSVESPERSXRFFreeRunView::onAdvancedSettingsChanged(bool advanced)
 	peakingTime_->setVisible(advanced);
 }
 
-void VESPERSVESPERSXRFFreeRunView::onShowSelfPileUpPeaks(bool showPeaks)
+void VESPERSXRFFreeRunView::onShowSelfPileUpPeaks(bool showPeaks)
 {
 	view_->setPileUpPeaksVisible(showPeaks);
 	selfPileUpLabel_->setVisible(showPeaks);
@@ -271,14 +283,14 @@ void VESPERSVESPERSXRFFreeRunView::onShowSelfPileUpPeaks(bool showPeaks)
 	onShowCombinationPileUpPeaks(false);
 }
 
-void VESPERSVESPERSXRFFreeRunView::onShowCombinationPileUpPeaks(bool showPeaks)
+void VESPERSXRFFreeRunView::onShowCombinationPileUpPeaks(bool showPeaks)
 {
 	view_->setCombinationPileUpPeaksVisible(showPeaks);
 	combinationPileUpLabel_->setVisible(showPeaks);
 	combinationPileUpChoiceButton_->setVisible(showPeaks);
 }
 
-void VESPERSVESPERSXRFFreeRunView::getCombinationElement()
+void VESPERSXRFFreeRunView::getCombinationElement()
 {
 	AMElement *el = AMPeriodicTableDialog::getElement(this);
 

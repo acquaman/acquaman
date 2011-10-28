@@ -18,11 +18,15 @@
 
 static acqFactory registerMe("local", QEpicsAcqLocal::buildMe);
 
+static bool tryCopy(char **c_ptr, const QString &str);
+static bool trySet( double *var, double val);
+static acqControl_t * setupControlLine(acqScan_t *, int);
+
 // return a base class pointer for this derived class
 QEpicsAcqClass *
-QEpicsAcqLocal::buildMe( QWidget *parent, const char *widgetName)
+QEpicsAcqLocal::buildMe( QWidget *parent)
 {
-	return new QEpicsAcqLocal(parent, widgetName);
+	return new QEpicsAcqLocal(parent);
 }
 
 void
@@ -96,7 +100,8 @@ QEpicsAcqLocal::localOnStop( acqMaster_t *master)
 //
 // class QEpicsAcqLocal methods
 //
-QEpicsAcqLocal::QEpicsAcqLocal( QWidget *parent, const char *name ) : QEpicsAcqClass(parent, name ), running(0), config_file()
+// Removed the NULL argument, QString can't instantiate from NULL (David Chevrier, Oct 27 2011)
+QEpicsAcqLocal::QEpicsAcqLocal( QWidget *parent) : QEpicsAcqClass(parent), running(0), config_file()
 {
 	signalOnNewConfig = 0;
 	signalOnPause = 0;
@@ -272,7 +277,7 @@ QEpicsAcqLocal::setConfigFile( const QString &cfname)
 		return;
 	char expand[512];
 	config_file = cfname;
-		macro_expand(cfname.toAscii(), expand, NULL);
+	macro_expand(cfname.toAscii().constData(), expand, NULL);
 	acq_file_load( expand, master);
 	showMode(AS_OFF);
 	threadTimerLock.lock();
@@ -312,6 +317,7 @@ QEpicsAcqLocal::Start()
 	showMode(AS_RUN);
 
 	monitorTimer.start(master->MsecDelay);
+
 }
 
 //
@@ -361,7 +367,7 @@ QEpicsAcqLocal::Toggle(bool state)
 void
 QEpicsAcqLocal::setVariable( const QString &varName, const QString &value)
 {
-	setVariable(varName.toAscii().data(), value.toAscii().data() );
+	setVariable(varName.toAscii().constData(), value.toAscii().constData() );
 }
 
 //
@@ -372,12 +378,11 @@ QEpicsAcqLocal::setVariable(  const QString &varName, const double value)
 {
 	QString str;
 	str.sprintf("%.12g", value);
-	setVariable(varName.toAscii().data(), str.toAscii().data() );
+	setVariable(varName.toAscii().constData(), str.toAscii().constData() );
 }
 
 //
 // SLOT
-// define a double variable.
 // Effect: change the macro expansion referenced by a control entry to the named variable.
 //
 void
@@ -385,10 +390,11 @@ QEpicsAcqLocal::defVariable(  const QString &varName, const QString &scan, const
 {
 	acqScan_t *sc;
 	char **nameAddr = NULL;
-		macroTable *ptr = find_macro(varName.toAscii(), NULL);
-	if( ptr)
+	if( master == NULL)
 		return;
-		sc = lookup_acqScan( scan.toAscii(), master);
+
+
+	sc = lookup_acqScan( scan.toAscii().constData(), master);
 	if( sc == NULL)
 		return;
 	if( type == "first" || type == "start" )
@@ -531,7 +537,7 @@ int QEpicsAcqLocal::pvIndex(const char *event, const char *pvname)
 	if( dap)
 		alternate = dap->getPvName();
 	if( !alternate.isEmpty() )
-				pvname = alternate.toAscii();
+		pvname = alternate.toAscii().constData();
 	return getPVcolumn(event, pvname, master);
 }
 
@@ -558,7 +564,7 @@ int QEpicsAcqLocal::setVariable( const char *name, const char *value)
 	//
 	displayAlias *dap = displayAlias::find(value);
 	if( dap)
-				alternate = dap->getPvName().toAscii();
+		alternate = dap->getPvName().toAscii().constData();
 
 	// printf("setVariable(%s,%s,%s)\n", name, value, alternate?alternate:"(NULL)");
 	if( alternate)
@@ -653,12 +659,117 @@ QEpicsAcqLocal::~QEpicsAcqLocal()
 {
 }
 
-bool
-QEpicsAcqLocal::setControlLine(char*, int, double, double, double)
+bool QEpicsAcqLocal::setControlLine(const char* scan, int ctl_idx, const QString &varName, double first, double last, double increment)
 {
+	acqScan_t *scp;
+	acqControl_t *ctlp;
+	scp = lookup_acqScan(scan, master);
+	if( scp == NULL)		// scan doesn't exist?
+		return 0;
+
+	ctlp = setupControlLine( scp, ctl_idx);
+
+	tryCopy( &ctlp->controlPV, varName);
+	trySet( &ctlp->startVal, first);
+	trySet( &ctlp->deltaVal, increment);
+	trySet( &ctlp->finalVal, last);
+
 	return 0;
 }
 
+bool QEpicsAcqLocal::setControlLine(const QString&scan, int ctl_idx, const QString &varName, double first, double last, double increment)
+{
+	return setControlLine( scan.toAscii().data(), ctl_idx, varName, first, last, increment);
+}
+
+static bool tryCopy(char **c_ptr, const QString &str)
+{
+	if( str.isNull() )	// if a NULL entry, then don't do any work
+		return 1;
+	if( *c_ptr != NULL)
+		free(*c_ptr);
+	*c_ptr = NULL;
+	if( str.isEmpty())
+		return 1;
+	*c_ptr = strdup( str.toAscii().data() );
+	return 1;
+
+}
+
+static acqControl_t * setupControlLine(acqScan_t *scp, int ctl_idx)
+{
+	acqControl_t *ctlp;
+	if( ctl_idx < 0)		// inserting a new control entry
+	{
+		memmove( &scp->acqControlList[1], &scp->acqControlList[0], sizeof( *ctlp) * scp->numControlPV);
+		scp->numControlPV++;
+		ctlp = &scp->acqControlList[0];
+		memset( ctlp, '\0', sizeof *ctlp);
+	}
+	else
+	if( ctl_idx >= scp->numControlPV)	// appending a new control entry
+	{
+		addScanControl(scp, NULL);
+		ctlp = &scp->acqControlList[scp->numControlPV-1];
+	}
+	else
+		ctlp = &scp->acqControlList[ctl_idx];
+
+	return ctlp;
+}
+
+bool QEpicsAcqLocal::setControlLine(const char* scan, int ctl_idx, const QString &varName, const QString& first, const QString& last, const QString& increment)
+{
+	acqScan_t *scp;
+	acqControl_t *ctlp;
+	scp = lookup_acqScan(scan, master);
+	if( scp == NULL)		// scan doesn't exist?
+		return 0;
+
+	ctlp = setupControlLine( scp, ctl_idx);
+
+	tryCopy( &ctlp->controlPV, varName);
+	tryCopy( &ctlp->startMacro, first);
+	tryCopy( &ctlp->deltaMacro, increment);
+	tryCopy( &ctlp->finalMacro, last);
+
+	return 0;
+}
+
+static bool trySet( double *var, double val)
+{
+
+	if( val == NAN)
+		return 0;
+	*var = val;
+	return 1;
+}
+
+bool QEpicsAcqLocal::setControlLine(const QString&scan, int ctl_idx, const QString &varName, const QString& first, const QString& last, const QString& increment)
+{
+	return setControlLine( scan.toAscii().data(), ctl_idx, varName, first, last, increment);
+}
+
+QStringList QEpicsAcqLocal::getScanID()
+{
+	return QStringList();
+}
+bool QEpicsAcqLocal::setEventLine(char*, int, const QString&)
+{
+	return 0;
+}
+bool QEpicsAcqLocal::setEventLine(const QString&, int, const QString&)
+{
+	return 0;
+}
+QStringList QEpicsAcqLocal::getEventID()
+{
+	return QStringList();
+}
+void QEpicsAcqLocal::outputHandlerRegister(const QString&, const QString&)
+{
+	return;
+}
 
 // $Log: qepicsacq.cpp  $
 // Revision 1.5.1.1 2007/05/19 12:25:35CST Glen Wright (wrightg)

@@ -10,8 +10,13 @@
  * references make sense.
  */
 
-#if !defined(ACQTEXTSPECTRUMOUTPUT_H)
-#define ACQTEXTSPECTRUMOUTPUT_H 1
+// Changed to ifndef and appened DACQLIB_ prefix (David Chevrier, Oct 27 2011)
+#ifndef DACQLIB_ACQTEXTSPECTRUMOUTPUT_H
+#define DACQLIB_ACQTEXTSPECTRUMOUTPUT_H 1
+//#if !defined(ACQTEXTSPECTRUMOUTPUT_H)
+//#define ACQTEXTSPECTRUMOUTPUT_H 1
+// Changed the locash so this is up one directory (David Chevrier, Oct 27 2011)
+//#include "acqDataHandler.h"
 #include "../acqDataHandler.h"
 
 #if defined(__cplusplus)
@@ -52,6 +57,7 @@ private:
 	spectrumFileEnum spectrumFormat;		// 0=no file, 1=binary, 2=text
 	acqBaseStream *spectrumStream;	// supports anadditional output stream.
 	enum tsoh_outputState ts_outputState;
+// Declared protected to use in a subclass (David Chevrier, Oct 27 2011)
 protected:
 	spectrumSplitEnum spectrumSplit;	// output file splitting - undefined results for none-file output
 private:

@@ -1,4 +1,4 @@
-/* $Header: epicsConnectApp/src/channel.c 1.2 2009/12/23 09:58:56CST Glen Wright (wrightg) Exp  $
+/* $Header: epicsConnectApp/src/channel.c 1.3.1 2011/10/27 21:18:56CST David Chevrier (chevrid) Exp  $
  * Copyright Canadian Light Source, Inc. All rights reserved.
  *
  * Description:
@@ -120,6 +120,7 @@ end_CA()
 /*
  * callback from connection handler: change the state of the channel valid
  * flag depending on the connection being up or down.
+ * ASSUMPTIONS: chan_id is valid.
  */
 static void
 connect_callback(struct connection_handler_args args)
@@ -308,6 +309,8 @@ channel_put_acks(Channel *chan, int severity)
 	short s_severity = severity;
 	int status;
 
+	if(! chan->valid)
+		return -1;
 	status = ca_array_put( DBR_PUT_ACKS, 1, chan->chan_id, &s_severity);
 	SEVCHK(status, "channel_put : ca_array_put ACKS failed");
 	ca_flush_io();
@@ -320,6 +323,8 @@ channel_put_ackt(Channel *chan, int acknowledge)
 	short s_acknowledge = acknowledge;
 	int status;
 
+	if(! chan->valid)
+		return -1;
 	status = ca_array_put( DBR_PUT_ACKT, 1, chan->chan_id, &s_acknowledge);
 	SEVCHK(status, "channel_put : ca_array_put ACKT failed");
 	ca_flush_io();
@@ -551,6 +556,9 @@ epicsConnectUnlock()
 
 /*
  * $Log: epicsConnectApp/src/channel.c  $
+ * Revision 1.3.1 2011/10/27 21:18:56CST David Chevrier (chevrid)
+ * Revision 1.3 2010/11/02 11:45:39CST Glen Wright (wrightg)
+ * Fix close of channel that had error return from ca_subscription()
  * Revision 1.2 2009/12/23 09:58:56CST Glen Wright (wrightg) 
  * Compilation messages cleanup;
  * more cautious cleanup on removal of a connector and channel;

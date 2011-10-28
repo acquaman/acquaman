@@ -9,6 +9,7 @@
 
 #include "acquisitionLib.internal.h"
 
+// Added macro to avoid unused variable compiler warnings (David Chevrier, Oct 27 2011)
 #define UNUSED(x) (void)(x)
 void defaultMessageAdd(acqMaster_t *,char *fmt, ...);
 static void defaultMessageBoxClear(acqMaster_t *);

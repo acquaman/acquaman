@@ -115,7 +115,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	showCombinationPileUpPeaks_ = false;
 
 	detector_ = static_cast<XRFDetector *>(detector);
-	connect(detector_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
+	connect(detector_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged(bool)));
 	connect(detector_, SIGNAL(addedRegionOfInterest(AMROIInfo)), this, SLOT(addRegionOfInterestMarker(AMROIInfo)));
 	connect(detector_, SIGNAL(removedRegionOfInterest(AMROIInfo)), this, SLOT(removeRegionOfInterestMarker(AMROIInfo)));
 	connect(detector_, SIGNAL(externalRegionsOfInterestChanged()), this, SLOT(onExternalRegionsOfInterestChanged()));
@@ -244,6 +244,20 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	setLayout(detectorLayout);
 
 	return true;
+}
+
+void XRFDetailedDetectorView::onConnectionChanged(bool isConnected)
+{
+	setEnabled(isConnected);
+
+	if (isConnected){
+
+		onStatusChanged(detector_->status());
+		onElapsedTimeUpdate(detector_->elapsedTime());
+		onDeadTimeUpdate();
+		onDeadTimeChanged();
+		onUpdateRateChanged((int)detector_->refreshRate());
+	}
 }
 
 void XRFDetailedDetectorView::onDeadTimeChanged()

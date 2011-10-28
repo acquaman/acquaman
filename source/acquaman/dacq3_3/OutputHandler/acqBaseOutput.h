@@ -3,10 +3,13 @@
  * All rights reserved
  */
 
+// Changed to ifndef and appended DACQLIB_ prefix (David Chevrier, Oct 27 2011)
 //#if !defined(ACQBASEOUTPUT_H)
 #ifndef DACQLIB_ACQBASEOUTPUT_H
 #define DACQLIB_ACQBASEOUTPUT_H 1
 
+// Changed the locash and now this is up one directory (David Chevrier, Oct 27 2011)
+//#include "acqDataHandler.h"
 #include "../acqDataHandler.h"
 #include <stdio.h>
 

@@ -1,4 +1,4 @@
-/* $Header: epicsConnectApp/src/channel_hash.c 1.2 2009/12/23 09:58:55CST Glen Wright (wrightg) Exp  $
+/* $Header: epicsConnectApp/src/channel_hash.c 1.3 2010/11/02 11:45:38CST Glen Wright (wrightg) Exp  $
  * Copyright Canadian Light Source, Inc. All rights reserved.
  *
  * Description:
@@ -194,7 +194,11 @@ unref_channel( channel_hash_t * tableEntry)
 	if( tableEntry->chan->valid == 1)
 		ca_clear_event( tableEntry->chan->eventId);
 
-	ca_clear_channel( tableEntry->chan->chan_id);
+	/*
+	 * a chan can be non-null and have a null ID.
+	 */
+	if( tableEntry->chan->chan_id != 0)
+		ca_clear_channel( tableEntry->chan->chan_id);
 	ca_flush_io();
 	tableEntry->chan->eventId = 0;
 
@@ -239,6 +243,8 @@ unref_channel( channel_hash_t * tableEntry)
 
 /*
  * $Log: epicsConnectApp/src/channel_hash.c  $
+ * Revision 1.3 2010/11/02 11:45:38CST Glen Wright (wrightg)
+ * Fix close of channel that had error return from ca_subscription()
  * Revision 1.2 2009/12/23 09:58:55CST Glen Wright (wrightg) 
  * Compilation messages cleanup;
  * more cautious cleanup on removal of a connector and channel;

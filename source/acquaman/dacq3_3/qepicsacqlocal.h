@@ -5,14 +5,18 @@
 //
 //
 
+// Appended DACQLIB_ Prefix (David Chevrier, Oct 27 2011)
 #ifndef DACQLIB_QEPICSACQ_H
 #define DACQLIB_QEPICSACQ_H
 #include <qwidget.h>
 #include <qlabel.h>
 #include <qtimer.h>
 #include <qmutex.h>
+// Changed to local search (David Chevrier, Oct 27 2011)
+//#include <epicsConnect.h>
 #include "epicsConnect.h"
 #include "acquisitionLib.h"
+// Changed to a subfolder (David Chevrier, Oct 27 2011)
 //#include "acqTextOutput.h"
 #include "OutputHandler/acqTextOutput.h"
 #include "qepicsacqclass.h"
@@ -25,8 +29,8 @@ class QEpicsAcqLocal : public QEpicsAcqClass
 	Q_OBJECT
 
 public:
-	static QEpicsAcqClass *buildMe( QWidget *parent, const char *name);
-	QEpicsAcqLocal( QWidget *parent = 0, const char *name = 0);
+	static QEpicsAcqClass *buildMe( QWidget *parent);
+	QEpicsAcqLocal( QWidget *parent = 0);
 	virtual ~QEpicsAcqLocal();
 
 	virtual QString ConfigFile() const;
@@ -41,11 +45,20 @@ public:
 	virtual const char * getVariable(const char *);
 	virtual int setVariable( const char *, const char*);
 	virtual bool deleteControlLine( char *, int);
-	virtual bool deleteControl(char *);
+	virtual bool deleteControl(char *);		// remove all control lines in the named element
 	virtual int addControlLine( char *);
-	virtual bool setControlLine( char *, int, double first=NAN, double last=NAN, double increment=NAN);
+	virtual bool setControlLine( const char *, int, const QString &varName=QString(), double first=NAN, double last=NAN, double increment=NAN);
+	virtual bool setControlLine( const QString&, int, const QString &varName=QString(), double first=NAN, double last=NAN, double increment=NAN);
+	virtual bool setControlLine( const char *, int, const QString &varName=QString(), const QString &first=QString(), const QString&last=QString(), const QString&increment=QString());
+	virtual bool setControlLine(const QString&, int, const QString &varName=QString(), const QString&first=QString(), const QString&last=QString(), const QString&increment=QString());
+	virtual QStringList getScanID();
+	virtual QStringList getEventID();		// get the list of Events
+	virtual bool setEventLine(char*, int, const QString&);
+	virtual bool setEventLine(const QString&, int, const QString&);
+
 	virtual void outputHandlerRegister( eventDataHandler *, const acqKey_t);
 	virtual void outputHandlerRemove(const acqKey_t);
+	virtual void outputHandlerRegister(const QString&, const QString&);
 
 	virtual acqMaster_t *getMaster() { return master; };
 

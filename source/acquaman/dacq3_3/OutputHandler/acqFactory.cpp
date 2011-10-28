@@ -85,10 +85,8 @@ acqBaseOutput *acqOutputHandlerFactoryRegister::new_acqOutput( const string hand
 acqOutputHandlerFactoryRegister::factoryRegister * acqOutputHandlerFactoryRegister::find(const string handler)
 {
 	for(unsigned int i=0; i < registered().size(); i++)
-            {
 		if(registered()[i].name == handler)
 			return &registered()[i];
-            }
 	return NULL;
 }
 
