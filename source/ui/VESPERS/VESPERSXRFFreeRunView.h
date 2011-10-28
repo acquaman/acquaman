@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef XRFFREERUNVIEW_H
-#define XRFFREERUNVIEW_H
+#ifndef VESPERSVESPERSXRFFreeRunView_H
+#define VESPERSVESPERSXRFFreeRunView_H
 
 #include <QWidget>
 #include <QToolButton>
@@ -33,12 +33,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMWorkflowManagerView.h"
 #include "actions/AMBeamlineScanAction.h"
 
-class XRFFreeRunView : public QWidget
+class VESPERSVESPERSXRFFreeRunView : public QWidget
 {
 	Q_OBJECT
 public:
 	/// Constructor.
-	explicit XRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowManagerView *workflow, QWidget *parent = 0);
+	explicit VESPERSVESPERSXRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowManagerView *workflow, QWidget *parent = 0);
 
 protected slots:
 	/// Handles what happens when the start button is clicked.
@@ -116,4 +116,4 @@ protected:
 	QToolButton *combinationPileUpChoiceButton_;
 };
 
-#endif // XRFFREERUNVIEW_H
+#endif // VESPERSVESPERSXRFFreeRunView_H

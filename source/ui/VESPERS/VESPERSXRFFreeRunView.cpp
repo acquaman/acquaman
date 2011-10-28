@@ -18,7 +18,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "XRFFreeRunView.h"
+#include "VESPERSXRFFreeRunView.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "acquaman/VESPERS/VESPERSXRFScanController.h"
 #include "ui/AMTopFrame.h"
@@ -33,7 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QToolButton>
 #include <QPushButton>
 
-XRFFreeRunView::XRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowManagerView *workflow, QWidget *parent)
+VESPERSVESPERSXRFFreeRunView::VESPERSVESPERSXRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowManagerView *workflow, QWidget *parent)
 	: QWidget(parent)
 {
 	xrfFreeRun_ = xrfFreeRun;
@@ -244,7 +244,7 @@ XRFFreeRunView::XRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowManagerView *wo
 	setLayout(masterLayout);
 }
 
-void XRFFreeRunView::onStopClicked()
+void VESPERSVESPERSXRFFreeRunView::onStopClicked()
 {
 	VESPERSXRFScanController *current = qobject_cast<VESPERSXRFScanController *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController());
 
@@ -252,7 +252,7 @@ void XRFFreeRunView::onStopClicked()
 		current->finish();
 }
 
-void XRFFreeRunView::onAdvancedSettingsChanged(bool advanced)
+void VESPERSVESPERSXRFFreeRunView::onAdvancedSettingsChanged(bool advanced)
 {
 	minEnergyLabel_->setVisible(advanced);
 	minEnergy_->setVisible(advanced);
@@ -262,7 +262,7 @@ void XRFFreeRunView::onAdvancedSettingsChanged(bool advanced)
 	peakingTime_->setVisible(advanced);
 }
 
-void XRFFreeRunView::onShowSelfPileUpPeaks(bool showPeaks)
+void VESPERSVESPERSXRFFreeRunView::onShowSelfPileUpPeaks(bool showPeaks)
 {
 	view_->setPileUpPeaksVisible(showPeaks);
 	selfPileUpLabel_->setVisible(showPeaks);
@@ -271,14 +271,14 @@ void XRFFreeRunView::onShowSelfPileUpPeaks(bool showPeaks)
 	onShowCombinationPileUpPeaks(false);
 }
 
-void XRFFreeRunView::onShowCombinationPileUpPeaks(bool showPeaks)
+void VESPERSVESPERSXRFFreeRunView::onShowCombinationPileUpPeaks(bool showPeaks)
 {
 	view_->setCombinationPileUpPeaksVisible(showPeaks);
 	combinationPileUpLabel_->setVisible(showPeaks);
 	combinationPileUpChoiceButton_->setVisible(showPeaks);
 }
 
-void XRFFreeRunView::getCombinationElement()
+void VESPERSVESPERSXRFFreeRunView::getCombinationElement()
 {
 	AMElement *el = AMPeriodicTableDialog::getElement(this);
 
