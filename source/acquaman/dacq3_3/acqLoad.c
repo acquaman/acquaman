@@ -1,5 +1,5 @@
 /**
- ** $Header: acqLoad.c 1.3.1.3 2009/03/04 15:13:46CST Glen Wright (wrightg) Exp  $
+ ** $Header: acqLoad.c 1.3.1.5 2011/10/27 20:42:46CST David Chevrier (chevrid) Exp  $
  ** Copyright Canadian Light Source, Inc. All rights reserved.
  **
  ** support loading and saving of configuration files.
@@ -141,6 +141,7 @@ output_scan_action_list( FILE *fp, int type_idx, acqAction_t *head)
 		case AA_NEXT_OUTPUT:
 			break;
 		case AA_NO_ACTION:
+		// Added to avoid compiler warning (David Chevrier, Oct 27 2011)
 			break;
 		}
 	}

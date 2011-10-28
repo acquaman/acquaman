@@ -6,11 +6,9 @@
  *
  */
 
-//#if !defined(ACQTEXTOUTPUT_H)
-#ifndef DACQLIB_ACQTEXTOUTPUT_H
-#define DACQLIB_ACQTEXTOUTPUT_H 1
-//#include "acqDataHandler.h"
-#include "../acqDataHandler.h"
+#if !defined(ACQTEXTOUTPUT_H)
+#define ACQTEXTOUTPUT_H 1
+#include "acqDataHandler.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -33,7 +31,6 @@ acqKey_t new_acqTextOutput(void);
 #include <string>
 #include <vector>
 #include <map>
-#include <sys/time.h>
 
 using namespace std;
 
@@ -48,8 +45,7 @@ enum toh_outputState { TOH_INIT, TOH_EMPTY, TOH_HAS_CONTENT };
 class acqTextOutput : public acqBaseOutput {
 public:
 	enum spectrumFileEnum { SF_DEFAULT, SF_BINARY, SF_TEXT };
-//private:
-public:
+private:
 	string comment;			// this gets inserted into the file header
 	string delimiter;		// output delimiter in text files
 	int needDelimiter;		// true when the next output should be preceded by a delimiter
@@ -63,7 +59,7 @@ public:
 
 	string const &getComment() { return comment; };
 	string const &getDelimiter() { return delimiter; } ;
-
+	
 	// using the file path and template, generate the
 	// next sequence number to be used.
 	bool getVerbose() {return verbose; };
@@ -83,7 +79,7 @@ public:
 	static int userComment( acqKey_t key, const char * commentString);
 	static int eventFlags(acqKey_t key, int eventno, const char *flags);
 	static int pvFlags( acqKey_t key, int eventno, int pvno, const char *flags);
-
+	
 	int sendOutputLine(const char * format, ...);
 	// routines to output file header sections
 	virtual int fileHeaderStart();
@@ -127,11 +123,11 @@ protected:
 
 		// WARNING: this points to some memory that can get reallocated!
 		acqOutputColumn *colp;		// pointer to matching structure from baseHandler
-
+		
 		typedef std::map<std::string,std::string> pvproperties_t;
 		typedef pvproperties_t::iterator pvproperties_iter;
 		pvproperties_t pvproperties;
-
+		
 		unsigned int first, last;
 		int ready;
 		char *format;			// keep the output format quickly available
@@ -151,7 +147,7 @@ protected:
 			return &evp->column[pvID];
 		return NULL;
 	};
-
+			
 };
 
 #endif

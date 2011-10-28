@@ -1,5 +1,5 @@
 /**
- ** $Header: acqAction.c 1.5.1.4 2009/12/23 10:37:06CST Glen Wright (wrightg) Exp  $
+ ** $Header: acqAction.c 1.5.1.6 2011/10/27 7:55:00CST David Chevrier (chevrid) Exp  $
  ** Copyright Canadian Light Source, Inc. All rights reserved.
  **
  ** generate the threads for running the scans and events.
@@ -258,6 +258,7 @@ checkScanConnections(acqScan_t *acq)
 	for( controlCount=0; controlCount < acq->numControlPV; controlCount++)
 	{
 		acqControl_t *ctlp;	/* pointer to control PV structure */
+		// Commented out because unused to avoid compiler warning (David Chevrier, Oct 27 2011)
 		//Connector *conp;
 		Channel *ch;
 		
@@ -428,7 +429,7 @@ runAcqAction( acqScan_t *acq, acqAction_t *aap, Channel *chan, double outval)
 			ca->au.wpv.waitFlag = 1;
 			channel_async_get( ca->au.wpv.connector->chan->chan, channelDataReady, ca);
 			ca_flush_io();
-			(void) WaitForEvent( ca->au.wpv.endDelay, NULL, NULL, ca->master);
+			(void) WaitForEvent( ca->au.wpv.endDelay, NULL, NULL, ca->master);	/* in case of an error, for now, just continue */
 			ca->au.wpv.waitFlag = 0;
 			DEBUGM(ca->master,1) printf(" done AA_WAIT_PV\n");
 			break;
@@ -508,14 +509,16 @@ runAcqAction( acqScan_t *acq, acqAction_t *aap, Channel *chan, double outval)
 			HANDLERS(acq->master, odh->nextOutput_cb(key) );
 			break;
 
+		// Added in to avoid compiler warning (David Chevrier, Oct 27 2011)
 		case AA_NO_ACTION:
 			break;
-			
+
 
 		}
 	}
 }
 
+// Commented out because unused to avoid compiler warning (David Chevrier, Oct 27 2011)
 //static int countColumns( acqEvent_t *ev);
 /*
  * run an event request. Note: Each event runs in its own thread. When receiving a start
@@ -534,6 +537,7 @@ runAcqAction( acqScan_t *acq, acqAction_t *aap, Channel *chan, double outval)
 void
 runEvent( acqEvent_t *ev)
 {
+	// Commented out because unused to avoid compiler warning (David Chevrier, Oct 27 2011)
 	int i;//, nchar;
 	int Done;
 	//char result[50];
@@ -675,7 +679,8 @@ runEvent( acqEvent_t *ev)
 			else
 			{
 				int dr_idx;
-//				int ch_idx;
+				// Commented out because unused to avoid compiler warning (David Chevrier, Oct 27 2011)
+				//int ch_idx;
 				void *base = chan->dataval;
 				unsigned int size = dbr_value_size[chan->chan_type];
 				void * offset;
@@ -769,6 +774,7 @@ checkEventConnections(acqEvent_t *ev)
 	return 2;			/* all PV's are in a connected state */
 }	
 
+// Commented out because unused to avoid compiler warning (David Chevrier, Oct 27 2011)
 //static int
 //countColumns( acqEvent_t *ev)
 //{
@@ -832,7 +838,7 @@ checkEventConnections(acqEvent_t *ev)
 //				/* Danger: it is quite possible that the channel is not open
 //				 * at this point, and that the maxelement is not correct.
 //				 */
-//				if( (unsigned)ch->maxelement > drp->firstIdx)
+//				if( ch->maxelement > drp->firstIdx)
 //					colnum += 1 + ch->maxelement - drp->firstIdx;
 //				break;
 //			}
@@ -1003,7 +1009,8 @@ callback_eventPVstate(Connector *conp)
 	Channel *chan;
 	acqPv_t *ap;
 	acqEvent_t *ev;
-//	acqMaster_t *master;
+	// Commented out because unused to avoid compiler warning (David Chevrier, Oct 27 2011)
+	//acqMaster_t *master;
 	int pvID;
 
 	chan = conp->chan->chan;
@@ -1040,7 +1047,8 @@ test_delay_result( Connector *conp, struct acqAction_waitPV *delay, acqMaster_t 
 	double val;
 	double cval;	/* comparison precision */
 	int precision;
-//	int debugflag;
+	// Commented out because unused to avoid compiler warning (David Chevrier, Oct 27 2011)
+	//int debugflag;
 
 	DEBUGM(master,1) printf("test_delay_result(%p, %p)\n", conp, delay);
 	chan = conp->chan->chan;
@@ -1305,6 +1313,7 @@ destroy_acqAction( acqAction_t **head, acqAction_t *ap)
 		break;
 	case AA_NEXT_OUTPUT:
 		break;
+	// Added in to avoid compiler warning (David Chevrier, Oct 27 2011)
 	case AA_NO_ACTION:
 		break;
 	}
@@ -1318,7 +1327,8 @@ static char * actionNames[] = { "Delay", "SetPV", "WaitPV", "WaitMotor", "CallEv
 char *
 getActionName( acqActionType_t aat)
 {
-//	if( aat >= 0 && aat < sizeof actionNames/sizeof actionNames[0] )
+	// Removed check to avoid compiler warning (David Chevrier, Oct 27 2011)
+	//if( aat >= 0 && aat < sizeof actionNames/sizeof actionNames[0] )
 	if( aat < sizeof actionNames/sizeof actionNames[0] )
 		return actionNames[aat];
 	return "Unknown";
@@ -1327,6 +1337,7 @@ getActionName( acqActionType_t aat)
 acqActionType_t
 getActionType( const char *name)
 {
+	// Added unsigned avoid compiler warning (David Chevrier, Oct 27 2011)
 	unsigned int i;
 	for(i=0; i < sizeof actionNames/sizeof actionNames[0]; i++)
 		if( strcasecmp( name, actionNames[i]) == 0)
@@ -1338,7 +1349,8 @@ static char * PvReadyNames[] = { "Immediate", "Read-back", "Wait", "Unknown" };
 char *
 getPvReadyName( acqPvReady_t pva)
 {
-//	if( pva >= 0 && pva <=2 )
+	// Removed check to avoid compiler warning (David Chevrier, Oct 27 2011)
+	//if( pva >= 0 && pva <=2 )
 	if( pva <=2 )
 		return PvReadyNames[pva];
 	return PvReadyNames[3];
@@ -1348,6 +1360,7 @@ getPvReadyName( acqPvReady_t pva)
 acqPvReady_t
 getPvReadyType( char *name)
 {
+	// Added unsigned avoid compiler warning (David Chevrier, Oct 27 2011)
 	unsigned int i;
 	for(i=0; i < sizeof PvReadyNames/sizeof PvReadyNames[0]; i++)
 		if( strcasecmp( name, PvReadyNames[i]) == 0)

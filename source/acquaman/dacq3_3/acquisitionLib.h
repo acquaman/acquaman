@@ -1,16 +1,15 @@
 /*
- * $Header: acquisitionLib.h 1.3.1.4 2009/03/04 15:13:46CST Glen Wright (wrightg) Exp  $
+ * $Header: acquisitionLib.h 1.3.1.6 2011/10/27 20:55:27CST David Chevrier (chevrid) Exp  $
  * Copyright Canadian Light Source, Inc. All rights reserved.
  *
  * Description:
  *    data structures for acquisition control.
  */
 
-/**/
+// Changed to ifndef and added DACQLIB_ prefix (David Chevrier, Oct 27 2011)
 //#if !defined(ACQUISITIONLIB_H)
 #ifndef DACQLIB_ACQUISITIONLIB_H
 #define DACQLIB_ACQUISITIONLIB_H 1
-/**/
 /*
 #ifndef ACQUISITIONLIB_H
 #define ACQUISITIONLIB_H
@@ -40,6 +39,7 @@ typedef struct acqMaster acqMaster_t;
 // MB removed to build on mac os x: #include <malloc.h>
 #include <string.h>
 
+// Not sure why this was included here (David Chevrier, Oct 27 2011)
 //?#include "acqDataHandler.h"
 
 #if defined(__cplusplus)
@@ -237,7 +237,6 @@ enum acqControlIndex {	CONTROL_PV, HAVE_START, HAVE_DELTA, HAVE_FINAL,
 			START_VAL, DELTA_VAL, FINAL_VAL,
 			START_MACRO, DELTA_MACRO, FINAL_MACRO,
 			USE_INITIAL, USE_FINAL, END_LIST};
-	
 
 struct acqScan {
 	acqMaster_t *master;
@@ -565,6 +564,9 @@ void setCharPointerFromEntry( char **ptr, const char *str);
 
 /*
  * $Log: acquisitionLib.h  $
+ * Revision 1.3.1.6 2011/10/27 20:55:27CST David Chevrier (chevrid)
+ * Revision 1.3.1.5 2011/08/12 14:30:33CST Glen Wright (wrightg)
+ * Added support for partial configuration file loading
  * Revision 1.3.1.4 2009/03/04 15:13:46CST Glen Wright (wrightg) 
  * Revisions for caller-defined output streams
  * Revision 1.3.1.3 2008/05/28 13:53:11CST Glen Wright (wrightg) 
