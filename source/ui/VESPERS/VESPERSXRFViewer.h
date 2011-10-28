@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef XRFVIEWER_H
-#define XRFVIEWER_H
+#ifndef VESPERSXRFVIEWER_H
+#define VESPERSXRFVIEWER_H
 
 #include <QWidget>
 
@@ -33,12 +33,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHBoxLayout>
 #include <QTextEdit>
 
-class XRFViewer : public QWidget
+class VESPERSXRFViewer : public QWidget
 {
 	Q_OBJECT
 public:
 	/// Builds the viewer.  The general layout, control buttons and information is built here.
-	explicit XRFViewer(QWidget *parent = 0);
+	explicit VESPERSXRFViewer(QWidget *parent = 0);
 
 signals:
 

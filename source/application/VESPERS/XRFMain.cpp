@@ -19,7 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <QApplication>
-#include "ui/VESPERS/XRFViewer.h"
+#include "ui/VESPERS/VESPERSXRFViewer.h"
 
 int main(int argc, char *argv[])
 {
