@@ -267,8 +267,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMSidebar.h \
 	source/ui/AMStatusView.h \
 	source/ui/AMThumbnailScrollViewer.h \
+	source/ui/AMBottomBar.h \
 	source/ui/acquaman/AMRegionsView.h \
-	source/ui/BottomBar.h \
 	#deprecated: source/ui/AMBeamlineCameraWidget.h \
 	source/ui/beamline/AMControlEditor.h \
 	source/acquaman.h \
@@ -324,7 +324,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMMeasurementInfo.h \
 	source/dataman/datastore/AMInMemoryDataStore.h \
 	source/acquaman/AMFastScanConfiguration.h \
-	source/ui/AMScanConfigurationViewer.h \
 	source/dataman/AMFastScan.h \
 	source/analysis/AM2DSummingAB.h \
 	source/analysis/AMStandardAnalysisBlock.h \
@@ -332,7 +331,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/util/AMOrderedList.h \
 	source/actions/AMBeamlineParallelActionsList.h \
 	source/beamline/AMControlOptimization.h \
-	source/dataman/info/AMDetectorInfoList.h \
+	source/dataman/info/AMDetectorInfoSet.h \
 	source/ui/beamline/AMControlOptimizationView.h \
 	source/actions/AMBeamlineControlStopAction.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
@@ -433,7 +432,7 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/dataman/AMDataViewSectionHeader.ui \
 	source/ui/dataman/AMImportControllerWidget.ui \
 	source/ui/acquaman/AMScanConfigurationView.ui \
-	source/ui/BottomBar.ui \
+	source/ui/AMBottomBar.ui \
 	source/ui/dataman/AMGenericScanEditor.ui \
 	source/ui/dataman/AMDataSourcesEditor.ui \
 	source/ui/dataman/AMSamplePlateSelector.ui \
@@ -536,8 +535,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMSidebar.cpp \
 	source/ui/AMStatusView.cpp \
 	source/ui/AMThumbnailScrollViewer.cpp \
+	source/ui/AMBottomBar.cpp \
 	source/ui/acquaman/AMRegionsView.cpp \
-	source/ui/BottomBar.cpp \
 	#deprecated: source/ui/AMBeamlineCameraWidget.cpp \
 	source/ui/beamline/AMControlEditor.cpp \
 	source/ui/beamline/AMDetectorView.cpp \
@@ -590,14 +589,13 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AM1DExpressionABEditor.cpp \
 	source/dataman/datastore/AMInMemoryDataStore.cpp \
 	source/acquaman/AMFastScanConfiguration.cpp \
-	source/ui/AMScanConfigurationViewer.cpp \
 	source/dataman/AMFastScan.cpp \
 	source/analysis/AM2DSummingAB.cpp \
 	source/analysis/AMStandardAnalysisBlock.cpp \
 	source/analysis/AM2DSummingABEditor.cpp \
 	source/actions/AMBeamlineParallelActionsList.cpp \
 	source/beamline/AMControlOptimization.cpp \
-	source/dataman/info/AMDetectorInfoList.cpp \
+	source/dataman/info/AMDetectorInfoSet.cpp \
 	source/ui/beamline/AMControlOptimizationView.cpp \
 	source/actions/AMBeamlineControlStopAction.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \

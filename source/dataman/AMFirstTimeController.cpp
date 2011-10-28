@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <dataman/AMSample.h>
 #include <dataman/AMExperiment.h>
 #include <dataman/info/AMControlInfoList.h>
-#include <dataman/info/AMDetectorInfoList.h>
+#include <dataman/info/AMDetectorInfoSet.h>
 #include <dataman/AMSamplePlate.h>
 #include <dataman/info/AMSpectralOutputDetectorInfo.h>
 #include "dataman/AMUser.h"

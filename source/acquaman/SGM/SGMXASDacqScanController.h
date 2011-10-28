@@ -46,6 +46,9 @@ protected slots:
 	// Re-implementing to intercept finished() signal and do cleanup
 	void onDacqStop();
 
+	// Re-implementing to change actual dwell times for the SGM Beamline
+	void onDwellTimeTriggerChanged(double newValue);
+
 	void onInitializationActionsSucceeded();
 	void onInitializationActionsFailed(int explanation);
 	void onInitializationActionsProgress(double elapsed, double total);

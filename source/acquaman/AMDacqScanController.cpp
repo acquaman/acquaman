@@ -30,6 +30,10 @@ AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *pa
 	_pCfg_ = &generalCfg_;
 	_pScan_ = &generalScan_;
 
+	useDwellTimes_ = false;
+	dwellTimeTrigger_ = 0; //NULL
+	dwellTimeConfirmed_ = 0; //NULL
+
 	dacqCancelled_ = false;
 	QEpicsAcqLocal *lAcq = new QEpicsAcqLocal((QWidget*)parent);
 	advAcq_ = new QEpicsAdvAcq(lAcq);
@@ -41,10 +45,32 @@ AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *pa
 	usingSpectraDotDatFile_ = false;
 }
 
+// Pass a pair of controls to be used as the dwell time trigger and dwell time confirmation.
+// Expectation is that the dacq file will include lines like:
+//  # Action StartPass SetPV "<Dwell Time Confirmed PV>" "0"
+//  # Action StartPass SetPV "<Dwell Time Trigger PV>" "1"
+//  # Action StartPass Delay 0.5
+//  # Action StartPass WaitPV "<Dwell Time Confirmed PV>" "1"
+// Basically, reset the confirmation, then trigger a request for change, then wait someone to confirm that the change has been made
+// On this side, we will connect to the trigger, look to see it has changed to "1", do what changes we need to, and then reset the trigger and set the confirm to "1"
+// Check SGMXASDacqScanController for more information, tested with that model.
+void AMDacqScanController::useDwellTimes(AMControl *dwellTimeTrigger, AMControl *dwellTimeConfirmed){
+	if(dwellTimeTrigger && dwellTimeConfirmed && dwellTimeTrigger->isConnected() && dwellTimeConfirmed->isConnected()){
+		useDwellTimes_ = true;
+		dwellTimeTrigger_ = dwellTimeTrigger;
+		dwellTimeConfirmed_ = dwellTimeConfirmed;
+	}
+	else
+		useDwellTimes_ = false;
+}
+
 bool AMDacqScanController::startImplementation(){
 		acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScanSpectrum", "File");
 		if( abop)
 		{
+			if(useDwellTimes_)
+				connect(dwellTimeTrigger_, SIGNAL(valueChanged(double)), this, SLOT(onDwellTimeTriggerChanged(double)));
+
 			acqRegisterOutputHandler( advAcq_->getMaster(), (acqKey_t) abop, &abop->handler);                // register the handler with the acquisition
 
 			QFileInfo fullPath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()));	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
@@ -171,4 +197,13 @@ void AMDacqScanController::onDacqSendCompletion(int completion){
 
 void AMDacqScanController::onDacqState(const QString& state){
 	Q_UNUSED(state)//qDebug() << "State of dacq is " << state;
+}
+
+void AMDacqScanController::onDwellTimeTriggerChanged(double newValue){
+	qDebug() << "Looks like dwell time trigger has changed to " << newValue;
+	if( fabs(newValue - 1.0) < 0.1 ){
+		qDebug() << "Confirm dwell time has been set and reset trigger";
+		dwellTimeTrigger_->move(0);
+		dwellTimeConfirmed_->move(1);
+	}
 }
