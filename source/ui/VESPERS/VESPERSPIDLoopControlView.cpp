@@ -18,13 +18,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "PIDLoopControlView.h"
+#include "VESPERSPIDLoopControlView.h"
 
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QFont>
 
-PIDLoopControlView::PIDLoopControlView(PIDLoopControl *pid, QWidget *parent)
+VESPERSPIDLoopControlView::VESPERSPIDLoopControlView(PIDLoopControl *pid, QWidget *parent)
 	: QWidget(parent)
 {
 	pid_ = pid;
@@ -54,12 +54,12 @@ PIDLoopControlView::PIDLoopControlView(PIDLoopControl *pid, QWidget *parent)
 	connect(timer_, SIGNAL(timeout()), this, SLOT(toggleButtonColor()));
 }
 
-PIDLoopControlView::~PIDLoopControlView()
+VESPERSPIDLoopControlView::~VESPERSPIDLoopControlView()
 {
 	delete timer_;
 }
 
-void PIDLoopControlView::toggleButtonColor()
+void VESPERSPIDLoopControlView::toggleButtonColor()
 {
 	highlight_ = !highlight_;
 
@@ -73,7 +73,7 @@ void PIDLoopControlView::toggleButtonColor()
 		fix_->setPalette(this->palette());
 }
 
-void PIDLoopControlView::onHiddenChanged(bool hidden)
+void VESPERSPIDLoopControlView::onHiddenChanged(bool hidden)
 {
 	setHidden(hidden);
 

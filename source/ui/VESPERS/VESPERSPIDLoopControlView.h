@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef PIDLOOPCONTROLVIEW_H
-#define PIDLOOPCONTROLVIEW_H
+#ifndef VESPERSPIDLOOPCONTROLVIEW_H
+#define VESPERSPIDLOOPCONTROLVIEW_H
 
 #include <QWidget>
 
@@ -28,14 +28,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/VESPERS/PIDLoopControl.h"
 
-class PIDLoopControlView : public QWidget
+class VESPERSPIDLoopControlView : public QWidget
 {
 	Q_OBJECT
 public:
 	/// Constructor.  Requires a valid PID loop control.
-	explicit PIDLoopControlView(PIDLoopControl *pid, QWidget *parent = 0);
+	explicit VESPERSPIDLoopControlView(PIDLoopControl *pid, QWidget *parent = 0);
 	/// Destructor.
-	~PIDLoopControlView();
+	~VESPERSPIDLoopControlView();
 
 signals:
 
@@ -59,4 +59,4 @@ protected:
 	QPushButton *fix_;
 };
 
-#endif // PIDLOOPCONTROLVIEW_H
+#endif // VESPERSPIDLOOPCONTROLVIEW_H

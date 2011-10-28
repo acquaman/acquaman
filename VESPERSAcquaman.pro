@@ -11,7 +11,7 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/dataman/VESPERS/XRFDetectorInfo.h \
 	source/beamline/VESPERS/XRFDetector.h \
 	source/ui/VESPERS/XRFDetectorView.h \
-	source/ui/VESPERS/DeadTimeButton.h \
+	source/ui/VESPERS/VESPERSDeadTimeButton.h \
 	source/dataman/VESPERS/AMXRFScan.h \
 	source/dataman/VESPERS/VESPERSXRFDataLoader.h \
 	source/acquaman/VESPERS/VESPERSXRFScanConfiguration.h \
@@ -59,7 +59,7 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/dataman/VESPERS/XRFDetectorInfo.cpp \
 	source/beamline/VESPERS/XRFDetector.cpp \
 	source/ui/VESPERS/XRFDetectorView.cpp \
-	source/ui/VESPERS/DeadTimeButton.cpp \
+	source/ui/VESPERS/VESPERSDeadTimeButton.cpp \
 	source/dataman/VESPERS/AMXRFScan.cpp \
 	source/dataman/VESPERS/VESPERSXRFDataLoader.cpp \
 	source/acquaman/VESPERS/VESPERSXRFScanConfiguration.cpp \
