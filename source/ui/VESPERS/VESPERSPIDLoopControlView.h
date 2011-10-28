@@ -33,7 +33,7 @@ class VESPERSPIDLoopControlView : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor.  Requires a valid PID loop control.
-	explicit VESPERSPIDLoopControlView(PIDLoopControl *pid, QWidget *parent = 0);
+	explicit VESPERSPIDLoopControlView(VESPERSPIDLoopControl *pid, QWidget *parent = 0);
 	/// Destructor.
 	~VESPERSPIDLoopControlView();
 
@@ -49,7 +49,7 @@ protected slots:
 
 protected:
 	/// The pointer to the PID control.
-	PIDLoopControl *pid_;
+	VESPERSPIDLoopControl *pid_;
 
 	/// The timer.
 	QTimer *timer_;

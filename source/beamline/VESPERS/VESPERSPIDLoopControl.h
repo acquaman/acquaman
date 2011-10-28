@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef PIDLOOPCONTROL_H
-#define PIDLOOPCONTROL_H
+#ifndef VESPERSPIDLOOPCONTROL_H
+#define VESPERSPIDLOOPCONTROL_H
 
 #include <QObject>
 
@@ -29,12 +29,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 /*!
 	This class monitors the PID feedback loops for the sample stage or wire stage.  The motor behaves erratically when the loops are off, and thus there should be a mechanism to turn them back on.
   */
-class PIDLoopControl : public QObject
+class VESPERSPIDLoopControl : public QObject
 {
 	Q_OBJECT
 public:
 	/// Constructor.  Takes in the three PID loops for each motor as well as a description.
-	explicit PIDLoopControl(QString name, AMControl *pidX, AMControl *pidY, AMControl *pidZ, QObject *parent = 0);
+        explicit VESPERSPIDLoopControl(QString name, AMControl *pidX, AMControl *pidY, AMControl *pidZ, QObject *parent = 0);
 
 	/// Returns the name of the PID control.
 	QString name() const { return name_; }
@@ -96,4 +96,4 @@ protected:
 
 };
 
-#endif // PIDLOOPCONTROL_H
+#endif // VESPERSPIDLOOPCONTROL_H

@@ -18,14 +18,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "PIDLoopControl.h"
+#include "VESPERSPIDLoopControl.h"
 
 #include "actions/AMBeamlineControlMoveAction.h"
 #include "actions/AMBeamlineParallelActionsList.h"
 #include "actions/AMBeamlineListAction.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 
-PIDLoopControl::PIDLoopControl(QString name, AMControl *pidX, AMControl *pidY, AMControl *pidZ, QObject *parent)
+VESPERSPIDLoopControl::VESPERSPIDLoopControl(QString name, AMControl *pidX, AMControl *pidY, AMControl *pidZ, QObject *parent)
 	: QObject(parent)
 {
 	name_ = name;
@@ -40,7 +40,7 @@ PIDLoopControl::PIDLoopControl(QString name, AMControl *pidX, AMControl *pidY, A
 	connect(z_, SIGNAL(valueChanged(double)), this, SLOT(onZStateChanged()));
 }
 
-AMBeamlineActionItem *PIDLoopControl::createPIDXChangeStateAction(bool turnOn)
+AMBeamlineActionItem *VESPERSPIDLoopControl::createPIDXChangeStateAction(bool turnOn)
 {
 	if (!x_->isConnected())
 		return 0;
@@ -51,7 +51,7 @@ AMBeamlineActionItem *PIDLoopControl::createPIDXChangeStateAction(bool turnOn)
 	return action;
 }
 
-AMBeamlineActionItem *PIDLoopControl::createPIDYChangeStateAction(bool turnOn)
+AMBeamlineActionItem *VESPERSPIDLoopControl::createPIDYChangeStateAction(bool turnOn)
 {
 	if (!y_->isConnected())
 		return 0;
@@ -62,7 +62,7 @@ AMBeamlineActionItem *PIDLoopControl::createPIDYChangeStateAction(bool turnOn)
 	return action;
 }
 
-AMBeamlineActionItem *PIDLoopControl::createPIDZChangeStateAction(bool turnOn)
+AMBeamlineActionItem *VESPERSPIDLoopControl::createPIDZChangeStateAction(bool turnOn)
 {
 	if (!z_->isConnected())
 		return 0;
@@ -73,7 +73,7 @@ AMBeamlineActionItem *PIDLoopControl::createPIDZChangeStateAction(bool turnOn)
 	return action;
 }
 
-AMBeamlineActionItem *PIDLoopControl::createPIDChangeStateAction(bool turnOn)
+AMBeamlineActionItem *VESPERSPIDLoopControl::createPIDChangeStateAction(bool turnOn)
 {
 	if (!(x_->isConnected() && y_->isConnected() && z_->isConnected()))
 		return 0;
@@ -89,7 +89,7 @@ AMBeamlineActionItem *PIDLoopControl::createPIDChangeStateAction(bool turnOn)
 	return turnOnAllAction;
 }
 
-void PIDLoopControl::repair()
+void VESPERSPIDLoopControl::repair()
 {
 	if (VESPERSBeamline::vespers()->pseudoSampleStage()->isConnected() && !(x_->isConnected() && y_->isConnected() && z_->isConnected()))
 		return;

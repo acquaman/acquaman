@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 #include <QFont>
 
-VESPERSPIDLoopControlView::VESPERSPIDLoopControlView(PIDLoopControl *pid, QWidget *parent)
+VESPERSPIDLoopControlView::VESPERSPIDLoopControlView(VESPERSPIDLoopControl *pid, QWidget *parent)
 	: QWidget(parent)
 {
 	pid_ = pid;

@@ -389,7 +389,7 @@ public:
 	AMControl *sampleStagPidZ() const { return sampleStagePidZ_; }
 
 	/// Returns the sample stage PID control.
-	PIDLoopControl *sampleStagePID() const { return sampleStagePID_; }
+	VESPERSPIDLoopControl *sampleStagePID() const { return sampleStagePID_; }
 
 	// These Control Sets are logical groups of controls that are commonly used by different Acquaman components
 
@@ -687,7 +687,7 @@ protected:
 	AMControl *sampleStagePidY_;
 	AMControl *sampleStagePidZ_;
 
-	PIDLoopControl *sampleStagePID_;
+	VESPERSPIDLoopControl *sampleStagePID_;
 
 	// End sample stage controls.
 

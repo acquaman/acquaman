@@ -28,8 +28,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/ui/VESPERS/VESPERSCustomizeRegionsOfInterest.h \
 	source/beamline/VESPERS/SampleStageControl.h \
 	source/beamline/VESPERS/VESPERSValveGroupControl.h \
-	source/beamline/VESPERS/PIDLoopControl.h \
-	source/ui/VESPERS/PIDLoopControlView.h \
+	source/beamline/VESPERS/VESPERSPIDLoopControl.h \
+	source/ui/VESPERS/VESPERSPIDLoopControlView.h \
 	source/ui/VESPERS/VESPERSMapSetupView.h \
 	source/ui/VESPERS/VESPERSDeviceStatusView.h \
 	source/util/VESPERS/GeneralUtilities.h \
@@ -76,8 +76,8 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/ui/VESPERS/VESPERSCustomizeRegionsOfInterest.cpp \
 	source/beamline/VESPERS/SampleStageControl.cpp \
 	source/beamline/VESPERS/VESPERSValveGroupControl.cpp \
-	source/beamline/VESPERS/PIDLoopControl.cpp \
-	source/ui/VESPERS/PIDLoopControlView.cpp \
+	source/beamline/VESPERS/VESPERSPIDLoopControl.cpp \
+	source/ui/VESPERS/VESPERSPIDLoopControlView.cpp \
 	source/ui/VESPERS/VESPERSMapSetupView.cpp \
 	source/ui/VESPERS/VESPERSDeviceStatusView.cpp \
 	source/util/VESPERS/GeneralUtilities.cpp \

@@ -188,7 +188,7 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStagePidY_ = new AMPVControl("Sample Stage PID Y", "SVM1607-2-B21-03:hold:sp", "SVM1607-2-B21-03:hold", QString(), this);
 	sampleStagePidZ_ = new AMPVControl("Sample Stage PID Z", "SVM1607-2-B21-01:hold:sp", "SVM1607-2-B21-01:hold", QString(), this);
 
-	sampleStagePID_ = new PIDLoopControl("PID - Sample Stage", sampleStagePidX_, sampleStagePidY_, sampleStagePidZ_, this);
+	sampleStagePID_ = new VESPERSPIDLoopControl("PID - Sample Stage", sampleStagePidX_, sampleStagePidY_, sampleStagePidZ_, this);
 }
 
 void VESPERSBeamline::setupEndstation()
