@@ -1,7 +1,5 @@
 #include "AMIonChamberView.h"
 
-#include <QToolButton>
-#include <QHBoxLayout>
 #include <QMenu>
 #include <QAction>
 
@@ -14,51 +12,54 @@ AMIonChamberView::AMIonChamberView(AMIonChamber *chamber, QWidget *parent)
 	tooLow_ = "Too Low!";
 	withinRange_ = "Good!";
 
-	QLabel *name = new QLabel(chamber_->name());
+	name_ = new QLabel(chamber_->description());
 
-	QToolButton *minus = new QToolButton;
-	minus->setIcon(QIcon(":/22x22/list-remove.png"));
-	connect(minus, SIGNAL(clicked()), chamber_, SLOT(decreaseSensitivity()));
-	connect(chamber_, SIGNAL(minimumSensitivity(bool)), minus, SLOT(setDisabled(bool)));
+	minus_ = new QToolButton;
+	minus_->setMaximumSize(25, 25);
+	minus_->setIcon(QIcon(":/22x22/list-remove.png"));
+	connect(minus_, SIGNAL(clicked()), chamber_, SLOT(decreaseSensitivity()));
+	connect(chamber_, SIGNAL(minimumSensitivity(bool)), minus_, SLOT(setDisabled(bool)));
 
-	QToolButton *plus = new QToolButton;
-	plus->setIcon(QIcon(":/22x22/list-add.png"));
-	connect(plus, SIGNAL(clicked()), chamber_, SLOT(increaseSensitivity()));
-	connect(chamber_, SIGNAL(maximumSensitivity(bool)), plus, SLOT(setDisabled(bool)));
+	plus_ = new QToolButton;
+	plus_->setMaximumSize(25, 25);
+	plus_->setIcon(QIcon(":/22x22/list-add.png"));
+	connect(plus_, SIGNAL(clicked()), chamber_, SLOT(increaseSensitivity()));
+	connect(chamber_, SIGNAL(maximumSensitivity(bool)), plus_, SLOT(setDisabled(bool)));
 
 	output_ = new QLabel;
+	output_->setFixedWidth(100);
 
 	connect(chamber_, SIGNAL(readingsChanged()), this, SLOT(onReadingsChanged()));
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
 
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
-	QHBoxLayout *ionChamberViewLayout = new QHBoxLayout;
-	ionChamberViewLayout->addWidget(name);
-	ionChamberViewLayout->addWidget(minus);
-	ionChamberViewLayout->addWidget(plus);
-	ionChamberViewLayout->addWidget(output_);
+	ionChamberViewLayout_ = new QHBoxLayout;
+	ionChamberViewLayout_->addWidget(name_, 0, Qt::AlignCenter);
+	ionChamberViewLayout_->addWidget(minus_);
+	ionChamberViewLayout_->addWidget(plus_);
+	ionChamberViewLayout_->addWidget(output_, 0, Qt::AlignCenter);
 
-	setLayout(ionChamberViewLayout);
+	setLayout(ionChamberViewLayout_);
 }
 
 void AMIonChamberView::onReadingsChanged()
 {
 	QFont font(this->font());
-	font.setPointSize(12);
-
 	QPalette palette(this->palette());
 
 	switch(state_){
 
 	case Counts:
 		font.setBold(false);
+		font.setPointSize(9);
 		palette.setColor(QPalette::WindowText, Qt::black);
-		output_->setText(QString::number(chamber_->counts()) + " counts");
+		output_->setText(QString::number(chamber_->reading()) + " counts");
 		break;
 
 	case Voltage:
 		font.setBold(false);
+		font.setPointSize(9);
 		palette.setColor(QPalette::WindowText, Qt::black);
 		output_->setText(QString::number(chamber_->voltage()) + " V");
 		break;
@@ -66,10 +67,11 @@ void AMIonChamberView::onReadingsChanged()
 	case Status:
 
 		font.setBold(true);
+		font.setPointSize(12);
 
 		if (chamber_->withinLinearRange()){
 
-			palette.setColor(QPalette::WindowText, Qt::green);
+			palette.setColor(QPalette::WindowText, Qt::darkGreen);
 			output_->setText(withinRange_);
 		}
 		else if (chamber_->voltageTooHigh()){

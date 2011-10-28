@@ -20,8 +20,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSPersistentView.h"
 #include "ui/VESPERS/VESPERSSampleStageView.h"
-#include "ui/VESPERS/PIDLoopControlView.h"
+#include "ui/VESPERS/VESPERSPIDLoopControlView.h"
 #include "ui/VESPERS/VESPERSBeamSelectorView.h"
+#include "ui/CLS/CLSIonChamberView.h"
+#include "ui/CLS/CLSSplitIonChamberView.h"
+
+#include "ui/beamline/AMIonChamberView.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -46,7 +50,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	VESPERSSampleStageView *motors = new VESPERSSampleStageView;
 
 	// PID control view widget.
-	PIDLoopControlView *pidView = new PIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());
+	VESPERSPIDLoopControlView *pidView = new VESPERSPIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());
 	connect(VESPERSBeamline::vespers()->sampleStagePID(), SIGNAL(stateChanged(bool)), motors, SLOT(setEnabled(bool)));
 
 	// Valve group.
@@ -86,6 +90,8 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	statusLabel->setFont(font);
 	QLabel *experimentReadyLabel = new QLabel("Experiment Ready Status");
 	experimentReadyLabel->setFont(font);
+	QLabel *ionChamberLabel = new QLabel("Ion Chamber Calibration");
+	ionChamberLabel->setFont(font);
 
 	// Shutter layout.
 	QGridLayout *shutterLayout = new QGridLayout;
@@ -230,6 +236,14 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	waterIcon->setPixmap(QIcon(":/FaucetIcon.png").pixmap(25));
 	waterIcon->setToolTip("Water Indicator");
 
+	// Ion chambers.
+	QVBoxLayout *ionChamberLayout = new QVBoxLayout;
+	ionChamberLayout->addWidget(new CLSSplitIonChamberView(VESPERSBeamline::vespers()->iSplit()));
+	ionChamberLayout->addWidget(new AMIonChamberView(VESPERSBeamline::vespers()->iPreKB()));
+	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iMini()));
+	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPost()));
+
+	// Layout.
 	QGridLayout *statusLayout = new QGridLayout;
 	statusLayout->addWidget(temperatureIcon, 0, 0);
 	statusLayout->addWidget(pressureIcon, 0, 1);
@@ -253,6 +267,8 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	persistentLayout->addLayout(experimentReadyLayout);
 	persistentLayout->addWidget(endstationShutterLabel);
 	persistentLayout->addLayout(filterLayout);
+	persistentLayout->addWidget(ionChamberLabel);
+	persistentLayout->addLayout(ionChamberLayout);
 	persistentLayout->addWidget(statusLabel);
 	persistentLayout->addLayout(statusLayout);
 	persistentLayout->addStretch();
@@ -328,62 +344,46 @@ void VESPERSPersistentView::onValvesStateChanged()
 void VESPERSPersistentView::onPressureStateChanged()
 {
 	bool allGood = true;
-	AMReadOnlyPVwStatusControl *temp;
 
 	for (int i = 0; i < pressure_->count(); i++){
 
-		temp = qobject_cast<AMReadOnlyPVwStatusControl *>(pressure_->at(i));
-		if (temp && temp->isMoving())
+		if (pressure_->at(i)->isMoving())
 			allGood = false;
 	}
 
-	if (allGood)
-		pressureLabel_->setPixmap(QIcon(":/ON.png").pixmap(25));
-	else
-		pressureLabel_->setPixmap(QIcon(":/RED.png").pixmap(25));
+	pressureLabel_->setPixmap(QIcon(allGood ? ":/ON.png" : ":/RED.png").pixmap(25));
 }
 
 void VESPERSPersistentView::onTemperatureStateChanged()
 {
 	bool allGood = true;
-	AMReadOnlyPVControl *temp;
 
 	for (int i = 0; i < temperature_->count(); i++){
 
-		temp = qobject_cast<AMReadOnlyPVControl *>(temperature_->at(i));
-		if (temp && temp->value() == 0)
+		if (temperature_->at(i)->isMoving())
 			allGood = false;
 	}
 
-	if (allGood)
-		tempLabel_->setPixmap(QIcon(":/ON.png").pixmap(25));
-	else
-		tempLabel_->setPixmap(QIcon(":/RED.png").pixmap(25));
+	tempLabel_->setPixmap(QIcon(allGood ? ":/ON.png" : ":/RED.png").pixmap(25));
 }
 
 void VESPERSPersistentView::onWaterStateChanged()
 {
 	bool allGood = true;
-	AMReadOnlyPVControl *temp;
 
 	for (int i = 0; i < flowSwitches_->count(); i++){
 
-		temp = qobject_cast<AMReadOnlyPVControl *>(flowSwitches_->at(i));
-		if (temp && temp->value() == 0)
+		if (flowSwitches_->at(i)->value() == 0)
 			allGood = false;
 	}
 
 	for (int i = 0; i < flowTransducers_->count(); i++){
 
-		temp = qobject_cast<AMReadOnlyPVControl *>(flowTransducers_->at(i));
-		if (temp && temp->value() == 0)
+		if (flowTransducers_->at(i)->isMoving())
 			allGood = false;
 	}
 
-	if (allGood)
-		waterLabel_->setPixmap(QIcon(":/ON.png").pixmap(25));
-	else
-		waterLabel_->setPixmap(QIcon(":/RED.png").pixmap(25));
+	waterLabel_->setPixmap(QIcon(allGood ? ":/ON.png" : ":/RED.png").pixmap(25));
 }
 
 void VESPERSPersistentView::onPSH1Clicked()

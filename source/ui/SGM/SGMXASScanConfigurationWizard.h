@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/beamline/AMControlSetView.h"
 #include "ui/beamline/AMControlOptimizationView.h"
 #include "ui/beamline/AMDetectorSetView.h"
-#include "ui/acquaman/AMXASRegionsView.h"
+#include "ui/acquaman/AMRegionsView.h"
 #include "ui/acquaman/AMRegionsLineView.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMXASDacqScanController.h"
@@ -87,7 +87,7 @@ protected slots:
 protected:
 	AMXASRegionsList* regionsList_;
 
-	AMXASRegionsView *regionsView_;
+	AMRegionsView *regionsView_;
 	AMRegionsLineView *regionsLineView_;
 	QGridLayout *gl_;
 	QLabel *textLabel_;

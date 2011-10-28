@@ -28,7 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QToolButton>
 #include <QMessageBox>
 
-#include "ui/AMStopButton.h"
 #include "beamline/AMControl.h"
 
 class VESPERSMotorView : public QWidget
@@ -120,7 +119,7 @@ private:
 	// The two setpoint buttons when the simple layout is used.
 	QToolButton *firstSetpointButton_, *secondSetpointButton_;
 	// The stop button.
-	AMStopButton *stop_;
+	QToolButton *stop_;
 	// Flag for determining which layout we need.
 	Type type_;
 

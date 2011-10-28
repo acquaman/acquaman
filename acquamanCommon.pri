@@ -196,25 +196,25 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/acquaman/AMScanConfiguration.h \
 	source/acquaman/AMScanController.h \
 	source/acquaman/AMXASScanConfiguration.h \
-	source/acquaman/dacq3_2/acqDataHandler.h \
-	source/acquaman/dacq3_2/acqLibHelper.h \
-	source/acquaman/dacq3_2/acquisitionLib.h \
-	source/acquaman/dacq3_2/acquisitionLib.internal.h \
-	source/acquaman/dacq3_2/acquisitionLib.main.h \
-	source/acquaman/dacq3_2/displayAlias.h \
-	source/acquaman/dacq3_2/epicsConnect.h \
-	source/acquaman/dacq3_2/epicsConnect.main.h \
-	source/acquaman/dacq3_2/factoryQtTemplate.h \
-	source/acquaman/dacq3_2/OutputHandler/acqBaseOutput.h \
-	source/acquaman/dacq3_2/OutputHandler/acqBaseStream.h \
-	source/acquaman/dacq3_2/OutputHandler/acqFactory.h \
-	source/acquaman/dacq3_2/OutputHandler/acqFileStream.h \
-	source/acquaman/dacq3_2/OutputHandler/acqProperties.h \
-	source/acquaman/dacq3_2/OutputHandler/acqTextOutput.h \
-	source/acquaman/dacq3_2/OutputHandler/acqTextSpectrumOutput.h \
-	source/acquaman/dacq3_2/qepicsacqclass.h \
-	source/acquaman/dacq3_2/qepicsacqlocal.h \
-	source/acquaman/dacq3_2/qepicsadvacq.h \
+	source/acquaman/dacq3_3/acqDataHandler.h \
+	source/acquaman/dacq3_3/acqLibHelper.h \
+	source/acquaman/dacq3_3/acquisitionLib.h \
+	source/acquaman/dacq3_3/acquisitionLib.internal.h \
+	source/acquaman/dacq3_3/acquisitionLib.main.h \
+	source/acquaman/dacq3_3/displayAlias.h \
+	source/acquaman/dacq3_3/epicsConnect.h \
+	source/acquaman/dacq3_3/epicsConnect.main.h \
+	source/acquaman/dacq3_3/factoryQtTemplate.h \
+	source/acquaman/dacq3_3/OutputHandler/acqBaseOutput.h \
+	source/acquaman/dacq3_3/OutputHandler/acqBaseStream.h \
+	source/acquaman/dacq3_3/OutputHandler/acqFactory.h \
+	source/acquaman/dacq3_3/OutputHandler/acqFileStream.h \
+	source/acquaman/dacq3_3/OutputHandler/acqProperties.h \
+	source/acquaman/dacq3_3/OutputHandler/acqTextOutput.h \
+	source/acquaman/dacq3_3/OutputHandler/acqTextSpectrumOutput.h \
+	source/acquaman/dacq3_3/qepicsacqclass.h \
+	source/acquaman/dacq3_3/qepicsacqlocal.h \
+	source/acquaman/dacq3_3/qepicsadvacq.h \
 	source/application/AMAppController.h \
 	source/util/AMBiHash.h \
 	source/util/AMErrorMonitor.h \
@@ -267,8 +267,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMSidebar.h \
 	source/ui/AMStatusView.h \
 	source/ui/AMThumbnailScrollViewer.h \
-	source/ui/acquaman/AMXASRegionsView.h \
 	source/ui/AMBottomBar.h \
+	source/ui/acquaman/AMRegionsView.h \
 	#deprecated: source/ui/AMBeamlineCameraWidget.h \
 	source/ui/beamline/AMControlEditor.h \
 	source/acquaman.h \
@@ -408,11 +408,18 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/VESPERS/VESPERSXASDataLoader.h \
 	source/dataman/AMFileLoaderInterface.h \
 	source/ui/util/AMSettingsView.h \
-    source/beamline/AMIonChamber.h \
-    source/dataman/info/AMIonChamberInfo.h \
-    source/beamline/CLS/CLSIonChamber.h \
-    source/beamline/CLS/CLSSR570.h \
-    source/ui/beamline/AMIonChamberView.h
+	source/beamline/AMIonChamber.h \
+	source/dataman/info/AMIonChamberInfo.h \
+	source/beamline/CLS/CLSIonChamber.h \
+	source/beamline/CLS/CLSSR570.h \
+	source/ui/beamline/AMIonChamberView.h \
+	source/ui/CLS/CLSIonChamberView.h \
+	source/beamline/CLS/CLSBiStateControl.h \
+	source/beamline/AMSplitIonChamber.h \
+	source/beamline/CLS/CLSSplitIonChamber.h \
+	source/ui/beamline/AMSplitIonChamberView.h \
+	source/ui/CLS/CLSSplitIonChamberView.h \
+    ../MPlot/src/MPlot/MPlotMarkerTransparentVerticalRectangle.h
 
 CONFIG(mobility) {
 HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
@@ -459,31 +466,31 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/acquaman/AMScanConfiguration.cpp \
 	source/acquaman/AMScanController.cpp \
 	source/acquaman/AMXASScanConfiguration.cpp \
-	source/acquaman/dacq3_2/acqAction.c \
-	source/acquaman/dacq3_2/acqActSetup.c \
-	source/acquaman/dacq3_2/acqExtern.c \
-	source/acquaman/dacq3_2/acqLibHelper.c \
-	source/acquaman/dacq3_2/acqLoad.c \
-	source/acquaman/dacq3_2/acqMessage.c \
-	source/acquaman/dacq3_2/acqMonitor.c \
-	source/acquaman/dacq3_2/acqMotor.c \
-	source/acquaman/dacq3_2/channel_hash.c \
-	source/acquaman/dacq3_2/channel.c \
-	source/acquaman/dacq3_2/connector.c \
-	source/acquaman/dacq3_2/displayAlias.cpp \
-	source/acquaman/dacq3_2/macro.c \
-	source/acquaman/dacq3_2/OutputHandler/acqBaseOutput.cpp \
-	source/acquaman/dacq3_2/OutputHandler/acqBaseStream.cpp \
-	source/acquaman/dacq3_2/OutputHandler/acqFactory.cpp \
-	source/acquaman/dacq3_2/OutputHandler/acqFileStream.cpp \
-	source/acquaman/dacq3_2/OutputHandler/acqTextOutput.cpp \
-	source/acquaman/dacq3_2/OutputHandler/acqTextSpectrumOutput.cpp \
-	source/acquaman/dacq3_2/qepicsacqclass.cpp \
-	source/acquaman/dacq3_2/qepicsacqlocal.cpp \
-	source/acquaman/dacq3_2/qepicsadvacq.cpp \
-	source/acquaman/dacq3_2/update.c \
-	source/acquaman/dacq3_2/xmlRead.cpp \
-	source/acquaman/dacq3_2/xmlWrite.cpp \
+	source/acquaman/dacq3_3/acqAction.c \
+	source/acquaman/dacq3_3/acqActSetup.c \
+	source/acquaman/dacq3_3/acqExtern.c \
+	source/acquaman/dacq3_3/acqLibHelper.c \
+	source/acquaman/dacq3_3/acqLoad.c \
+	source/acquaman/dacq3_3/acqMessage.c \
+	source/acquaman/dacq3_3/acqMonitor.c \
+	source/acquaman/dacq3_3/acqMotor.c \
+	source/acquaman/dacq3_3/channel_hash.c \
+	source/acquaman/dacq3_3/channel.c \
+	source/acquaman/dacq3_3/connector.c \
+	source/acquaman/dacq3_3/displayAlias.cpp \
+	source/acquaman/dacq3_3/macro.c \
+	source/acquaman/dacq3_3/OutputHandler/acqBaseOutput.cpp \
+	source/acquaman/dacq3_3/OutputHandler/acqBaseStream.cpp \
+	source/acquaman/dacq3_3/OutputHandler/acqFactory.cpp \
+	source/acquaman/dacq3_3/OutputHandler/acqFileStream.cpp \
+	source/acquaman/dacq3_3/OutputHandler/acqTextOutput.cpp \
+	source/acquaman/dacq3_3/OutputHandler/acqTextSpectrumOutput.cpp \
+	source/acquaman/dacq3_3/qepicsacqclass.cpp \
+	source/acquaman/dacq3_3/qepicsacqlocal.cpp \
+	source/acquaman/dacq3_3/qepicsadvacq.cpp \
+	source/acquaman/dacq3_3/update.c \
+	source/acquaman/dacq3_3/xmlRead.cpp \
+	source/acquaman/dacq3_3/xmlWrite.cpp \
 	source/application/AMAppController.cpp \
 	source/util/AMErrorMonitor.cpp \
 	source/util/AMSettings.cpp \
@@ -528,8 +535,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMSidebar.cpp \
 	source/ui/AMStatusView.cpp \
 	source/ui/AMThumbnailScrollViewer.cpp \
-	source/ui/acquaman/AMXASRegionsView.cpp \
 	source/ui/AMBottomBar.cpp \
+	source/ui/acquaman/AMRegionsView.cpp \
 	#deprecated: source/ui/AMBeamlineCameraWidget.cpp \
 	source/ui/beamline/AMControlEditor.cpp \
 	source/ui/beamline/AMDetectorView.cpp \
@@ -665,11 +672,18 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AM2DDeadTimeAB.cpp \
 	source/dataman/VESPERS/VESPERSXASDataLoader.cpp \
 	source/ui/util/AMSettingsView.cpp \
-    source/beamline/AMIonChamber.cpp \
-    source/dataman/info/AMIonChamberInfo.cpp \
-    source/beamline/CLS/CLSIonChamber.cpp \
-    source/beamline/CLS/CLSSR570.cpp \
-    source/ui/beamline/AMIonChamberView.cpp
+	source/beamline/AMIonChamber.cpp \
+	source/dataman/info/AMIonChamberInfo.cpp \
+	source/beamline/CLS/CLSIonChamber.cpp \
+	source/beamline/CLS/CLSSR570.cpp \
+	source/ui/beamline/AMIonChamberView.cpp \
+	source/ui/CLS/CLSIonChamberView.cpp \
+	source/beamline/CLS/CLSBiStateControl.cpp \
+	source/beamline/AMSplitIonChamber.cpp \
+	source/beamline/CLS/CLSSplitIonChamber.cpp \
+	source/ui/beamline/AMSplitIonChamberView.cpp \
+	source/ui/CLS/CLSSplitIonChamberView.cpp \
+    ../MPlot/src/MPlot/MPlotMarkerTransparentVerticalRectangle.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
@@ -686,6 +700,20 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

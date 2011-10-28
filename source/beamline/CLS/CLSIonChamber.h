@@ -30,16 +30,27 @@ public:
 	/// Implements the pure virtual function.  Returns whether the ion chamber is at its minimum sensitivity.
 	virtual bool atMinimumSensitivity() const{ return sensitivity_->atMinimumSensitivity(); }
 
+	/// Returns the current sensitivity value.
+	int sensitivityValue() const { return sensitivity_->value(); }
+	/// Returns the current sensitivity units.
+	QString sensitivityUnits() const { return sensitivity_->units(); }
+
 public slots:
 	/// Reimplemented.  Increases the sensitivity of the ion chamber.  How this is done is implementation specific.
-	bool increaseSensitivity() { return sensitivity_->increaseSensitivity(); }
+	virtual bool increaseSensitivity() { return sensitivity_->increaseSensitivity(); }
 	/// Reimplemented.  Decreases the sensitivity of the ion chamber.  How this is done is implementation specific.
-	bool decreaseSensitivity() { return sensitivity_->decreaseSensitivity(); }
+	virtual bool decreaseSensitivity() { return sensitivity_->decreaseSensitivity(); }
 
 	/// Sets the value for the sensitivity directly.  Must be a valid SR570 input.
 	void setSensitivityValue(int value) { sensitivity_->setValue(value); }
 	/// Sets the units for the sensitivity directly.  Must be a valid SR570 input.
 	void setSensitivityUnits(QString units) { sensitivity_->setUnits(units); }
+
+signals:
+	/// Notifier that the sensitivity value has changed.  Passes the new value.
+	void sensitivityValueChanged(int);
+	/// Notifier that the sensitivity units have changed.  Passes the new value.
+	void sensitivityUnitsChanged(QString);
 
 protected slots:
 	/// Helper slot that determines whether the ion chamber is connected or not.  Is called every time the connected status of any of the controls changes.

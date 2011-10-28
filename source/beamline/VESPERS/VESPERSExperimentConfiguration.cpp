@@ -19,7 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSExperimentConfiguration.h"
 
-VESPERSExperimentConfiguration::VESPERSExperimentConfiguration(CLSSynchronizedDwellTime *dwellTime, SampleStageControl *pseudoSampleStage, XRFDetector *vortex1E, XRFDetector *vortex4E, QObject *parent)
+VESPERSExperimentConfiguration::VESPERSExperimentConfiguration(CLSSynchronizedDwellTime *dwellTime, VESPERSSampleStageControl *pseudoSampleStage, XRFDetector *vortex1E, XRFDetector *vortex4E, QObject *parent)
 	: QObject(parent)
 {
 	synchronizedDwellTime_ = dwellTime;
