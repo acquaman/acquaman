@@ -18,14 +18,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "SampleStageControl.h"
+#include "VESPERSSampleStageControl.h"
 
 #include "actions/AMBeamlineControlMoveAction.h"
 #include "actions/AMBeamlineControlStopAction.h"
 #include "actions/AMBeamlineParallelActionsList.h"
 #include "actions/AMBeamlineListAction.h"
 
-SampleStageControl::SampleStageControl(AMControl *horiz, AMControl *vert, AMControl *norm, QObject *parent)
+VESPERSSampleStageControl::VESPERSSampleStageControl(AMControl *horiz, AMControl *vert, AMControl *norm, QObject *parent)
 	: QObject(parent)
 {
 	connected_ = false;
@@ -75,7 +75,7 @@ SampleStageControl::SampleStageControl(AMControl *horiz, AMControl *vert, AMCont
 	}
 }
 
-void SampleStageControl::onXStepChanged(double step)
+void VESPERSSampleStageControl::onXStepChanged(double step)
 {
 	if (step < xRange_.first){
 
@@ -89,7 +89,7 @@ void SampleStageControl::onXStepChanged(double step)
 	}
 }
 
-void SampleStageControl::onYStepChanged(double step)
+void VESPERSSampleStageControl::onYStepChanged(double step)
 {
 	if (step < yRange_.first){
 
@@ -105,7 +105,7 @@ void SampleStageControl::onYStepChanged(double step)
 	}
 }
 
-void SampleStageControl::onZStepChanged(double step)
+void VESPERSSampleStageControl::onZStepChanged(double step)
 {
 	if (step < zRange_.first){
 
@@ -121,7 +121,7 @@ void SampleStageControl::onZStepChanged(double step)
 	}
 }
 
-AMBeamlineActionItem *SampleStageControl::createHorizontalMoveAction(double position)
+AMBeamlineActionItem *VESPERSSampleStageControl::createHorizontalMoveAction(double position)
 {
 	if (!horiz_->isConnected())
 		return 0;
@@ -132,7 +132,7 @@ AMBeamlineActionItem *SampleStageControl::createHorizontalMoveAction(double posi
 	return action;
 }
 
-AMBeamlineActionItem *SampleStageControl::createHorizontalStopAction()
+AMBeamlineActionItem *VESPERSSampleStageControl::createHorizontalStopAction()
 {
 	if (!horiz_->isConnected())
 		return 0;
@@ -140,7 +140,7 @@ AMBeamlineActionItem *SampleStageControl::createHorizontalStopAction()
 	return new AMBeamlineControlStopAction(horiz_);
 }
 
-AMBeamlineActionItem *SampleStageControl::createVerticalMoveAction(double position)
+AMBeamlineActionItem *VESPERSSampleStageControl::createVerticalMoveAction(double position)
 {
 	if (!vert_->isConnected())
 		return 0;
@@ -151,7 +151,7 @@ AMBeamlineActionItem *SampleStageControl::createVerticalMoveAction(double positi
 	return action;
 }
 
-AMBeamlineActionItem *SampleStageControl::createVerticalStopAction()
+AMBeamlineActionItem *VESPERSSampleStageControl::createVerticalStopAction()
 {
 	if (!vert_->isConnected())
 		return 0;
@@ -159,7 +159,7 @@ AMBeamlineActionItem *SampleStageControl::createVerticalStopAction()
 	return new AMBeamlineControlStopAction(vert_);
 }
 
-AMBeamlineActionItem *SampleStageControl::createNormalMoveAction(double position)
+AMBeamlineActionItem *VESPERSSampleStageControl::createNormalMoveAction(double position)
 {
 	if (!norm_->isConnected())
 		return 0;
@@ -171,7 +171,7 @@ AMBeamlineActionItem *SampleStageControl::createNormalMoveAction(double position
 
 }
 
-AMBeamlineActionItem *SampleStageControl::createNormalStopAction()
+AMBeamlineActionItem *VESPERSSampleStageControl::createNormalStopAction()
 {
 	if (!norm_->isConnected())
 		return 0;
@@ -179,7 +179,7 @@ AMBeamlineActionItem *SampleStageControl::createNormalStopAction()
 	return new AMBeamlineControlStopAction(norm_);
 }
 
-AMBeamlineActionItem *SampleStageControl::createStopAllAction()
+AMBeamlineActionItem *VESPERSSampleStageControl::createStopAllAction()
 {
 	if (!isConnected())
 		return 0;

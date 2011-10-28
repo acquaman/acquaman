@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef SAMPLESTAGECONTROL_H
-#define SAMPLESTAGECONTROL_H
+#ifndef VESPERSSAMPLESTAGECONTROL_H
+#define VESPERSSAMPLESTAGECONTROL_H
 
 #include <QObject>
 #include <QPair>
@@ -38,7 +38,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 	The ability to change what motors are the horizontal, vertical, and normal directions is also offered.  However, you must ensure that the scalers are set to the appropriate
 	values because they are reset to 1 for all directions.  The ranges are left as they were because they might not have been set or the step motors wouldn't have been changed.
   */
-class SampleStageControl : public QObject
+class VESPERSSampleStageControl : public QObject
 {
 	Q_OBJECT
 public:
@@ -46,7 +46,7 @@ public:
 	enum MotorStatus { MoveDone = 0, MoveActive, AtLimit, ForcedStop, Error };
 
 	/// Default constructor.  Takes in the 3 motor controls and their count readout controls.
-	explicit SampleStageControl(AMControl *horiz, AMControl *vert, AMControl *norm, QObject *parent = 0);
+	explicit VESPERSSampleStageControl(AMControl *horiz, AMControl *vert, AMControl *norm, QObject *parent = 0);
 
 	/// Returns the connected state of the sample stage.
 	bool isConnected() const { return connected_; }
@@ -181,4 +181,4 @@ protected:
 	bool connected_;
 };
 
-#endif // SAMPLESTAGECONTROL_H
+#endif // VESPERSSAMPLESTAGECONTROL_H

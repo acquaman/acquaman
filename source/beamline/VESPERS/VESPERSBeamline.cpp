@@ -164,12 +164,12 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStageY_ = new CLSVMEMotor("yMotorSampleStage", "SVM1607-2-B21-03", "Y Motor Sample Stage", true, 0.01, 10.0, this);
 	sampleStageZ_ = new CLSVMEMotor("zMotorSampleStage", "SVM1607-2-B21-01", "Z Motor Sample Stage", true, 0.01, 10.0, this);
 
-	pseudoSampleStage_ = new SampleStageControl(sampleStageHorizontal_, sampleStageVertical_, sampleStageNormal_, this);
+	pseudoSampleStage_ = new VESPERSSampleStageControl(sampleStageHorizontal_, sampleStageVertical_, sampleStageNormal_, this);
 	pseudoSampleStage_->setXRange(-700000, 700000);
 	pseudoSampleStage_->setYRange(-200000, 200000);
 	pseudoSampleStage_->setZRange(-200000, 200000);
 
-	realSampleStage_ = new SampleStageControl(sampleStageX_, sampleStageY_, sampleStageZ_, this);
+	realSampleStage_ = new VESPERSSampleStageControl(sampleStageX_, sampleStageY_, sampleStageZ_, this);
 	realSampleStage_->setXRange(-700000, 700000);
 	realSampleStage_->setYRange(-200000, 200000);
 	realSampleStage_->setZRange(-200000, 200000);

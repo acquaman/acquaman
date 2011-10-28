@@ -92,7 +92,7 @@ protected:
 	QToolButton *goRight_;
 
 	/// The control for the sample stage.
-	SampleStageControl *sampleStage_;
+	VESPERSSampleStageControl *sampleStage_;
 };
 
 #endif // VESPERSSAMPLESTAGEVIEW_H

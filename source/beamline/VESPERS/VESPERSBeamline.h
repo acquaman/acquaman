@@ -378,7 +378,7 @@ public:
 
 	// The sample stage.
 	/// Returns the sample stage control built with the pseudo-motors.
-	SampleStageControl *pseudoSampleStage() const { return pseudoSampleStage_; }
+	VESPERSSampleStageControl *pseudoSampleStage() const { return pseudoSampleStage_; }
 
 	// Sample stage PID controls.
 	/// Returns the PID control for the x-direction of the sample stage.
@@ -679,8 +679,8 @@ protected:
 	AMControl *sampleStageZ_;
 
 	// The sample stage encapsulation.
-	SampleStageControl *pseudoSampleStage_;
-	SampleStageControl *realSampleStage_;
+	VESPERSSampleStageControl *pseudoSampleStage_;
+	VESPERSSampleStageControl *realSampleStage_;
 
 	// The PID loop controls.
 	AMControl *sampleStagePidX_;
