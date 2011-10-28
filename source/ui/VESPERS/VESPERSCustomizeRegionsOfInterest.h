@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef CUSTOMIZEREGIONSOFINTEREST_H
-#define CUSTOMIZEREGIONSOFINTEREST_H
+#ifndef VESPERSCUSTOMIZEREGIONSOFINTEREST_H
+#define VESPERSCUSTOMIZEREGIONSOFINTEREST_H
 
 #include <QWidget>
 #include <QDoubleSpinBox>
@@ -27,13 +27,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMROI.h"
 
-class RegionOfInterestView : public QWidget
+class VESPERSRegionOfInterestView : public QWidget
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.  Takes an AMROI and gives access to customizing the low and high values.
-	explicit RegionOfInterestView(AMROI *roi, QWidget *parent = 0);
+	explicit VESPERSRegionOfInterestView(AMROI *roi, QWidget *parent = 0);
 
 public slots:
 	/// Sets the low value to the AMROI.
@@ -97,12 +97,12 @@ private:
 };
 
 /// This class builds a list that can be used to modify the high and low values for a region of interest.
-class CustomizeRegionsOfInterest : public QWidget
+class VESPERSCustomizeRegionsOfInterest : public QWidget
 {
 	Q_OBJECT
 public:
 	/// Constructor.  Takes in a list of AMROIs and displays the ones that are valid.
-	explicit CustomizeRegionsOfInterest(QList<AMROI *> rois, QWidget *parent = 0);
+	explicit VESPERSCustomizeRegionsOfInterest(QList<AMROI *> rois, QWidget *parent = 0);
 
 signals:
 
@@ -110,4 +110,4 @@ public slots:
 
 };
 
-#endif // CUSTOMIZEREGIONSOFINTEREST_H
+#endif // VESPERSCUSTOMIZEREGIONSOFINTEREST_H

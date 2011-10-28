@@ -18,7 +18,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "CustomizeRegionsOfInterest.h"
+#include "VESPERSCustomizeRegionsOfInterest.h"
 #include "util/AMElement.h"
 #include "util/AMPeriodicTable.h"
 #include "util/VESPERS/GeneralUtilities.h"
@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHBoxLayout>
 #include <cmath>
 
-RegionOfInterestView::RegionOfInterestView(AMROI *roi, QWidget *parent)
+VESPERSRegionOfInterestView::VESPERSRegionOfInterestView(AMROI *roi, QWidget *parent)
 	: QWidget(parent)
 {
 	roi_ = roi;
@@ -71,7 +71,7 @@ RegionOfInterestView::RegionOfInterestView(AMROI *roi, QWidget *parent)
 	setMinimumWidth(420);
 }
 
-void RegionOfInterestView::nameUpdate(QString name)
+void VESPERSRegionOfInterestView::nameUpdate(QString name)
 {
 	if (name.isEmpty()){
 
@@ -84,13 +84,13 @@ void RegionOfInterestView::nameUpdate(QString name)
 	show();
 }
 
-CustomizeRegionsOfInterest::CustomizeRegionsOfInterest(QList<AMROI *> rois, QWidget *parent)
+VESPERSCustomizeRegionsOfInterest::VESPERSCustomizeRegionsOfInterest(QList<AMROI *> rois, QWidget *parent)
 	: QWidget(parent)
 {
 	QVBoxLayout *listLayout = new QVBoxLayout;
 
 	for (int i = 0; i < rois.size(); i++)
-		listLayout->addWidget(new RegionOfInterestView(rois.at(i)));
+		listLayout->addWidget(new VESPERSRegionOfInterestView(rois.at(i)));
 
 	listLayout->addStretch();
 

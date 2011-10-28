@@ -83,7 +83,7 @@ protected:
 	/// The pointer to the detector.
 	XRFDetector *detector_;
 	/// The pointer to the customize view.
-	CustomizeRegionsOfInterest *customize_;
+	VESPERSCustomizeRegionsOfInterest *customize_;
 	/// The pointer to the xrf free run model.
 	XRFFreeRun *xrfFreeRun_;
 	/// The pointer to the workflow.neh
