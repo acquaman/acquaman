@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 	QApplication app(argc, argv);
 	app.setApplicationName("VESPERS XRF Spectra Viewer");
 
-	XRFViewer viewer;
+	VESPERSXRFViewer viewer;
 	viewer.show();
 
 	return app.exec();

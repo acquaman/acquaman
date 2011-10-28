@@ -18,7 +18,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "XRFViewer.h"
+#include "VESPERSXRFViewer.h"
 #include "ui/VESPERS/VESPERSDeadTimeButton.h"
 #include "MPlot/MPlotAxisScale.h"
 #include "util/VESPERS/GeneralUtilities.h"
@@ -35,7 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include <QGroupBox>
 
-XRFViewer::XRFViewer(QWidget *parent) :
+VESPERSXRFViewer::VESPERSXRFViewer(QWidget *parent) :
 	QWidget(parent)
 {
 	corrSum_ = 0;
@@ -149,7 +149,7 @@ XRFViewer::XRFViewer(QWidget *parent) :
 	setLayout(fullLayout);
 }
 
-void XRFViewer::setupPlot()
+void VESPERSXRFViewer::setupPlot()
 {
 	// Create the plot window.
 	view_ = new MPlotWidget;
@@ -190,13 +190,13 @@ void XRFViewer::setupPlot()
 	plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
 }
 
-void XRFViewer::onLogEnabled(bool logged)
+void VESPERSXRFViewer::onLogEnabled(bool logged)
 {
 	logged ? logButton_->setText("Linear") : logButton_->setText("Log");
 	plot_->axisScaleLeft()->setLogScaleEnabled(logged);
 }
 
-void XRFViewer::onSpectraGroupClicked(int id)
+void VESPERSXRFViewer::onSpectraGroupClicked(int id)
 {
 	if ((corrSum_ == 0 && id == 0) || (corrDataSeries_.isEmpty() && id == 1) || (rawDataSeries_.isEmpty() && id == 2))
 		return;
@@ -226,7 +226,7 @@ void XRFViewer::onSpectraGroupClicked(int id)
 	}
 }
 
-double XRFViewer::getMaximumHeight(MPlotItem *data)
+double VESPERSXRFViewer::getMaximumHeight(MPlotItem *data)
 {
 	double max = 0;
 	MPlotAbstractSeries *temp = qgraphicsitem_cast<MPlotAbstractSeries *>(data);
@@ -245,7 +245,7 @@ double XRFViewer::getMaximumHeight(MPlotItem *data)
 	return max;
 }
 
-QColor XRFViewer::getColor(int index)
+QColor VESPERSXRFViewer::getColor(int index)
 {
 	int i = index%10;
 
@@ -275,7 +275,7 @@ QColor XRFViewer::getColor(int index)
 	return QColor(100, 100, 100);
 }
 
-void XRFViewer::loadFile()
+void VESPERSXRFViewer::loadFile()
 {
 	// Clean up first.
 	for (int i = 0; i < deadTimeGroup_->buttons().size(); i++)
@@ -319,7 +319,7 @@ void XRFViewer::loadFile()
 	}
 }
 
-XRFViewer::FileType XRFViewer::checkDataFile(QString filename)
+VESPERSXRFViewer::FileType VESPERSXRFViewer::checkDataFile(QString filename)
 {
 	QFile file(filename);
 
@@ -349,7 +349,7 @@ XRFViewer::FileType XRFViewer::checkDataFile(QString filename)
 	return type;
 }
 
-void XRFViewer::loadSpectrumSnapshotFile(QString filename)
+void VESPERSXRFViewer::loadSpectrumSnapshotFile(QString filename)
 {
 	QFile file(filename);
 
@@ -402,7 +402,7 @@ void XRFViewer::loadSpectrumSnapshotFile(QString filename)
 	onSpectraGroupClicked(0);
 }
 
-void XRFViewer::loadVespersXRFFile(QString filename)
+void VESPERSXRFViewer::loadVespersXRFFile(QString filename)
 {
 	QFile file(filename);
 
@@ -492,7 +492,7 @@ void XRFViewer::loadVespersXRFFile(QString filename)
 	file.close();
 }
 
-void XRFViewer::loadAcquamanXRFFile(QString filename)
+void VESPERSXRFViewer::loadAcquamanXRFFile(QString filename)
 {
 	QFile file(filename);
 
