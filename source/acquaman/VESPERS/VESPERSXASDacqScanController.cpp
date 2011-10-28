@@ -146,6 +146,8 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 
 	// Add all the extra data sources.
 	addExtraDatasources();
+
+	useDwellTimes(VESPERSBeamline::vespers()->dwellTimeTrigger(), VESPERSBeamline::vespers()->dwellTimeConfirmed());
 }
 
 void VESPERSXASDacqScanController::addExtraDatasources()
@@ -300,8 +302,7 @@ bool VESPERSXASDacqScanController::initializeImplementation()
 
 bool VESPERSXASDacqScanController::startImplementation()
 {
-	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
-	while (advAcq_->deleteRecord(1)){}
+	currentRegionIndex_ = 0;
 
 	// Setup the real config.
 	switch(config_->fluorescenceDetectorChoice()){
@@ -361,9 +362,17 @@ bool VESPERSXASDacqScanController::startImplementation()
 
 	generalScan_ = xasScan_;
 
-	advAcq_->saveConfigFile("/home/hunterd/beamline/programming/acquaman/devConfigurationFiles/VESPERS/writeTest.cfg");
-
 	return AMDacqScanController::startImplementation();
+}
+
+void VESPERSXASDacqScanController::onDwellTimeTriggerChanged(double newValue)
+{
+	if( fabs(newValue - 1.0) < 0.1 ){
+
+		VESPERSBeamline::vespers()->synchronizedDwellTime()->setTime(config_->regionTime(currentRegionIndex_++));
+		dwellTimeTrigger_->move(0);
+		dwellTimeConfirmed_->move(1);
+	}
 }
 
 AMnDIndex VESPERSXASDacqScanController::toScanIndex(QMap<int, double> aeData)
@@ -417,6 +426,9 @@ bool VESPERSXASDacqScanController::setupTransmissionXAS()
 		return false;
 	}
 
+	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
+	while (advAcq_->deleteRecord(1)){}
+
 	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
 	advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt((int)config_->incomingChoice())->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt((int)config_->incomingChoice())->readMethod()));
@@ -449,6 +461,9 @@ bool VESPERSXASDacqScanController::setupSingleElementXAS()
 				"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
 		return false;
 	}
+
+	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
+	while (advAcq_->deleteRecord(1)){}
 
 	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
@@ -497,6 +512,9 @@ bool VESPERSXASDacqScanController::setupFourElementXAS()
 				"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
 		return false;
 	}
+
+	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
+	while (advAcq_->deleteRecord(1)){}
 
 	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 

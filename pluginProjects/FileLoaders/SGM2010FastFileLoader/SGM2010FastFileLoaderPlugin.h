@@ -4,8 +4,8 @@
 #include <QObject>
 #include <QStringList>
 #include <QDebug>
-#include "SGM2010FastFileLoaderPlugin.h"
 #include "dataman/AMFileLoaderInterface.h"
+#include "SGM2010FastFileLoaderPlugin.h"
 #include "util/AMBiHash.h"
 
 class SGM2010FastFileLoaderPlugin : public QObject, AMFileLoaderInterface

@@ -131,6 +131,8 @@ protected slots:
 
 		scanning_->setChecked(scanning);
 	}
+	/// Builds a popup menu for switching view modes.
+	void onCustomContextMenuRequested(QPoint pos);
 
 protected:
 	/// The status icon label.
@@ -141,6 +143,12 @@ protected:
 	QPushButton *scanning_;
 	/// The master time double spin box.
 	QDoubleSpinBox *masterTime_;
+
+	/// Flag handling the visibility.
+	bool advancedView_;
+
+	/// List of the individual element views.
+	QList<CLSSynchronizedDwellTimeElementView *> elViews_;
 
 	/// Pointer to the synchronized dwell time object.
 	CLSSynchronizedDwellTime *dwellTime_;

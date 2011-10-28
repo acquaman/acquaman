@@ -26,9 +26,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/AMValveControl.h"
 #include "beamline/VESPERS/XRFDetector.h"
 #include "beamline/AMROI.h"
-#include "beamline/VESPERS/SampleStageControl.h"
+#include "beamline/VESPERS/VESPERSSampleStageControl.h"
 #include "beamline/VESPERS/VESPERSValveGroupControl.h"
-#include "beamline/VESPERS/PIDLoopControl.h"
+#include "beamline/VESPERS/VESPERSPIDLoopControl.h"
 #include "beamline/VESPERS/VESPERSMonochromator.h"
 #include "beamline/VESPERS/VESPERSIntermediateSlits.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
@@ -137,6 +137,12 @@ public:
 	// The experiment configuration.
 	/// Returns the experiment configuration model.
 	VESPERSExperimentConfiguration *experimentConfiguration() const { return experimentConfiguration_; }
+
+	// The helper controls for changing the dwell time for each region.
+	/// Returns the control in charge of changing the dwell time trigger for changing the dwell time between regions.
+	AMControl *dwellTimeTrigger() const { return dwellTimeTrigger_; }
+	/// Returns the control holding the confirmed flag while setting the dwell time between regions.
+	AMControl *dwellTimeConfirmed() const { return dwellTimeConfirmed_; }
 
 	// Pressure
 	/// Returns the pressure control for Front End section 1.
@@ -378,7 +384,7 @@ public:
 
 	// The sample stage.
 	/// Returns the sample stage control built with the pseudo-motors.
-	SampleStageControl *pseudoSampleStage() const { return pseudoSampleStage_; }
+	VESPERSSampleStageControl *pseudoSampleStage() const { return pseudoSampleStage_; }
 
 	// Sample stage PID controls.
 	/// Returns the PID control for the x-direction of the sample stage.
@@ -389,7 +395,7 @@ public:
 	AMControl *sampleStagPidZ() const { return sampleStagePidZ_; }
 
 	/// Returns the sample stage PID control.
-	PIDLoopControl *sampleStagePID() const { return sampleStagePID_; }
+	VESPERSPIDLoopControl *sampleStagePID() const { return sampleStagePID_; }
 
 	// These Control Sets are logical groups of controls that are commonly used by different Acquaman components
 
@@ -525,6 +531,10 @@ protected:
 
 	// Experiment Configuration
 	VESPERSExperimentConfiguration *experimentConfiguration_;
+
+	// Dwell time control helper functions for the dwell time.
+	AMControl *dwellTimeTrigger_;
+	AMControl *dwellTimeConfirmed_;
 
 	// Beam selection members.
 	// The current beam in use by the beamline.
@@ -679,15 +689,15 @@ protected:
 	AMControl *sampleStageZ_;
 
 	// The sample stage encapsulation.
-	SampleStageControl *pseudoSampleStage_;
-	SampleStageControl *realSampleStage_;
+	VESPERSSampleStageControl *pseudoSampleStage_;
+	VESPERSSampleStageControl *realSampleStage_;
 
 	// The PID loop controls.
 	AMControl *sampleStagePidX_;
 	AMControl *sampleStagePidY_;
 	AMControl *sampleStagePidZ_;
 
-	PIDLoopControl *sampleStagePID_;
+	VESPERSPIDLoopControl *sampleStagePID_;
 
 	// End sample stage controls.
 

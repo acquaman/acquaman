@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSPersistentView.h"
 #include "ui/VESPERS/VESPERSSampleStageView.h"
-#include "ui/VESPERS/PIDLoopControlView.h"
+#include "ui/VESPERS/VESPERSPIDLoopControlView.h"
 #include "ui/VESPERS/VESPERSBeamSelectorView.h"
 #include "ui/CLS/CLSIonChamberView.h"
 #include "ui/CLS/CLSSplitIonChamberView.h"
@@ -50,7 +50,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	VESPERSSampleStageView *motors = new VESPERSSampleStageView;
 
 	// PID control view widget.
-	PIDLoopControlView *pidView = new PIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());
+	VESPERSPIDLoopControlView *pidView = new VESPERSPIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());
 	connect(VESPERSBeamline::vespers()->sampleStagePID(), SIGNAL(stateChanged(bool)), motors, SLOT(setEnabled(bool)));
 
 	// Valve group.

@@ -164,12 +164,12 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStageY_ = new CLSVMEMotor("yMotorSampleStage", "SVM1607-2-B21-03", "Y Motor Sample Stage", true, 0.01, 10.0, this);
 	sampleStageZ_ = new CLSVMEMotor("zMotorSampleStage", "SVM1607-2-B21-01", "Z Motor Sample Stage", true, 0.01, 10.0, this);
 
-	pseudoSampleStage_ = new SampleStageControl(sampleStageHorizontal_, sampleStageVertical_, sampleStageNormal_, this);
+	pseudoSampleStage_ = new VESPERSSampleStageControl(sampleStageHorizontal_, sampleStageVertical_, sampleStageNormal_, this);
 	pseudoSampleStage_->setXRange(-700000, 700000);
 	pseudoSampleStage_->setYRange(-200000, 200000);
 	pseudoSampleStage_->setZRange(-200000, 200000);
 
-	realSampleStage_ = new SampleStageControl(sampleStageX_, sampleStageY_, sampleStageZ_, this);
+	realSampleStage_ = new VESPERSSampleStageControl(sampleStageX_, sampleStageY_, sampleStageZ_, this);
 	realSampleStage_->setXRange(-700000, 700000);
 	realSampleStage_->setYRange(-200000, 200000);
 	realSampleStage_->setZRange(-200000, 200000);
@@ -188,7 +188,7 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStagePidY_ = new AMPVControl("Sample Stage PID Y", "SVM1607-2-B21-03:hold:sp", "SVM1607-2-B21-03:hold", QString(), this);
 	sampleStagePidZ_ = new AMPVControl("Sample Stage PID Z", "SVM1607-2-B21-01:hold:sp", "SVM1607-2-B21-01:hold", QString(), this);
 
-	sampleStagePID_ = new PIDLoopControl("PID - Sample Stage", sampleStagePidX_, sampleStagePidY_, sampleStagePidZ_, this);
+	sampleStagePID_ = new VESPERSPIDLoopControl("PID - Sample Stage", sampleStagePidX_, sampleStagePidY_, sampleStagePidZ_, this);
 }
 
 void VESPERSBeamline::setupEndstation()
@@ -385,6 +385,10 @@ void VESPERSBeamline::setupMono()
 	synchronizedDwellTime_->addElement(2);
 	synchronizedDwellTime_->addElement(3);
 	synchronizedDwellTime_->addElement(4);
+
+	// Helper functions for setting the dwell time between regions.
+	dwellTimeTrigger_ = new AMSinglePVControl("Dwell Time Trigger", "BL1607-B2-1:AddOns:dwellTime:trigger", this, 0.1);
+	dwellTimeConfirmed_ = new AMSinglePVControl("Dwell Time Confirmed", "BL1607-B2-1:AddOns:dwellTime:confirmed", this, 0.1);
 
 	beamPositions_.insert(Pink, 0);
 	beamPositions_.insert(TenPercent, -12.5);

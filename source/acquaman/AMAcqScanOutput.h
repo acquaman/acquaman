@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMACQSCANOUTPUT_H
 #define AMACQSCANOUTPUT_H
 
-#include "acquaman/dacq3_2/acqDataHandler.h"
+#include "acquaman/dacq3_3/acqDataHandler.h"
 #include "dataman/AMScan.h"
 
 #if defined(__cplusplus)
@@ -37,7 +37,7 @@ acqKey_t new_AMAcqScanOutput(void);
 
 #if defined(__cplusplus)
 
-#include "acquaman/dacq3_2/OutputHandler/acqTextOutput.h"
+#include "acquaman/dacq3_3/OutputHandler/acqTextOutput.h"
 #include <qdebug.h>
 #include <qmap.h>
 #include <string>

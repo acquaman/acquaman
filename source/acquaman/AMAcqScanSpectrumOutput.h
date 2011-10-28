@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMACQSCANSPECTRUMOUTPUT_H
 #define AMACQSCANSPECTRUMOUTPUT_H
 
-#include "acquaman/dacq3_2/acqDataHandler.h"
+#include "acquaman/dacq3_3/acqDataHandler.h"
 #include "dataman/AMScan.h"
 
 
@@ -38,7 +38,7 @@ acqKey_t new_AMAcqScanOutput(void);
 
 #if defined(__cplusplus)
 
-#include "acquaman/dacq3_2/OutputHandler/acqTextSpectrumOutput.h"
+#include "acquaman/dacq3_3/OutputHandler/acqTextSpectrumOutput.h"
 #include <qdebug.h>
 #include <qmap.h>
 #include <QCoreApplication>

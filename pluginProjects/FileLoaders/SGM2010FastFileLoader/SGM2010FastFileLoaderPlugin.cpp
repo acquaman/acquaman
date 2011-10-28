@@ -1,5 +1,3 @@
-#include <QtGui>
-
 #include "SGM2010FastFileLoaderPlugin.h"
 
 AMBiHash<QString, QString> SGM2010FastFileLoaderPlugin::columns2pvNames_;
