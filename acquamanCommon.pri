@@ -114,7 +114,7 @@ CONFIG(jenkins_build) {
 		EPICS_LIB_DIR = /home/mark/dev/epics/base/lib/linux-x86
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlot on Linux - master branch/workspace/src"
+		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/src"
 }
 
 

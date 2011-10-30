@@ -73,7 +73,7 @@ CONFIG(jenkins_build) {
 		message("Detected Jenkins auto-build... Specifying dependency paths for the build server.")
 
 		# Where the acquaman source is
-		AM_INCLUDE_DIR = "/var/lib/jenkins/jobs/Acquaman on Linux - master branch/workspace/source"
+		AM_INCLUDE_DIR = "/var/lib/jenkins/jobs/AcquamanOnLinux_MasterBranch/workspace/source"
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = /home/mark/dev/epics/base/include \
@@ -81,7 +81,7 @@ CONFIG(jenkins_build) {
 		EPICS_LIB_DIR = /home/mark/dev/epics/base/lib/linux-x86
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlot on Linux - master branch/workspace/src"
+		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/src"
 }
 
 
