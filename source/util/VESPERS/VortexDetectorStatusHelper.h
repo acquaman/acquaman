@@ -43,8 +43,12 @@ protected slots:
 	void setSingleDXP(int val) { if (singleDXPto_->getInt() != singleDXPfrom_->getInt()) singleDXPfrom_->setValue(val); }
 	/// Determines if the new four element MCA status value needs to be propogated.
 	void setFourMCA(int val) { if (fourMCAto_->getInt() != fourMCAfrom_->getInt()) fourMCAfrom_->setValue(val); }
-	/// Determines if the new four element DXp status value needs to be propogated.
+	/// Determines if the new four element DXP status value needs to be propogated.
 	void setFourDXP(int val) { if (fourDXPto_->getInt() != fourDXPfrom_->getInt()) fourDXPfrom_->setValue(val); }
+	/// Determines if the new four element Emax value needs to be propogated.
+	void setFourEMax(double val) { if (fourEMaxTo_->getDouble() != fourEMaxFrom_->getDouble()) fourEMaxTo_->setValue(val); }
+	/// Determines if the new four element peaking time value needs to be propogated.
+	void setFourPeakTime(double val) { if (fourPeakTimeTo_->getDouble() != fourPeakTimeFrom_->getDouble()) fourPeakTimeTo_->setValue(val); }
 
 protected:
 	/// PVs for the different things that need connection.
@@ -59,6 +63,12 @@ protected:
 
 	AMProcessVariable *fourDXPto_;
 	AMProcessVariable *fourDXPfrom_;
+
+	AMProcessVariable *fourEMaxTo_;
+	AMProcessVariable *fourEMaxFrom_;
+
+	AMProcessVariable *fourPeakTimeTo_;
+	AMProcessVariable *fourPeakTimeFrom_;
 };
 
 #endif // VORTEXDETECTORSTATUSHELPER_H

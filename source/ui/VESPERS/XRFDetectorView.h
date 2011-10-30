@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/beamline/AMDetectorView.h"
 #include "beamline/VESPERS/XRFDetector.h"
 #include "util/VESPERS/XRFElement.h"
-#include "ui/VESPERS/ROIPlotMarker.h"
+#include "MPlot/MPlotMarkerTransparentVerticalRectangle.h"
 
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotWidget.h"
@@ -113,7 +113,7 @@ public slots:
 	void removeAllRegionsOfInterestMarkers();
 	/// Slot that sorts all the regions of interst.
 	void sortRegionsOfInterest();
-	/// Handles resizing the ROIPlotMarkers to a new width.
+	/// Handles resizing the MPlotMarkerTransparentVerticalRectangles to a new width.
 	void roiWidthUpdate(AMROI *roi);
 	/// Sets the minimum energy used by this view.
 	void setMinimumEnergy(double energy) { minimumEnergy_ = energy; }
@@ -176,6 +176,8 @@ protected slots:
 	void onExternalRegionsOfInterestChanged();
 	/// Handles changing the indicator light when status changes.
 	void onStatusChanged(bool status) { status == true ? status_->setPixmap(QIcon(":/ON.png").pixmap(20)) : status_->setPixmap(QIcon(":/OFF.png").pixmap(20)); }
+	/// Handles resetting everything in the view after the detector reconnects.
+	void onConnectionChanged(bool isConnected);
 
 	/// Hack to save the spectra.  For four element it will print out the four raw data and the corrected sum.
 	void saveSpectra();
@@ -247,7 +249,7 @@ protected:
 	double maximumEnergy_;
 
 	/// Holds the list of current markers.
-	QList<ROIPlotMarker *> markers_;
+	QList<MPlotMarkerTransparentVerticalRectangle *> markers_;
 	/// This holds the plot markers for showing emission lines.
 	QList<MPlotPoint *> lines_;
 	/// This holds the plot markers for showing pile up peaks.

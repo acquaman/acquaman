@@ -1,10 +1,29 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #ifndef VESPERSEXPERIMENTCONFIGURATION_H
 #define VESPERSEXPERIMENTCONFIGURATION_H
 
 #include <QObject>
 
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
-#include "beamline/VESPERS/SampleStageControl.h"
+#include "beamline/VESPERS/VESPERSSampleStageControl.h"
 #include "beamline/VESPERS/XRFDetector.h"
 #include "actions/AMBeamlineActionItem.h"
 
@@ -22,7 +41,7 @@ public:
 	enum ExperimentType { Custom = 0, XAS, XASw1el, XASw4el, XRFw1el, XRFw1elAndXRD, XRFw4el, XRFw4elAndXRD };
 
 	/// Constructor.  Builds the configuration from the synchronized dwell time and some internal controls.
-	explicit VESPERSExperimentConfiguration(CLSSynchronizedDwellTime *dwellTime, SampleStageControl *pseudoSampleStage, XRFDetector *vortex1E, XRFDetector *vortex4E, QObject *parent = 0);
+	explicit VESPERSExperimentConfiguration(CLSSynchronizedDwellTime *dwellTime, VESPERSSampleStageControl *pseudoSampleStage, XRFDetector *vortex1E, XRFDetector *vortex4E, QObject *parent = 0);
 
 	/// Returns the experiment type.
 	ExperimentType type() const { return type_; }
@@ -82,7 +101,7 @@ protected:
 	/// The pointer to the dwell time.
 	CLSSynchronizedDwellTime *synchronizedDwellTime_;
 	/// The pointer to the sample stage.
-	SampleStageControl *pseudoSampleStage_;
+	VESPERSSampleStageControl *pseudoSampleStage_;
 	/// The pointer to the single element vortex.
 	XRFDetector *vortex1E_;
 	/// The pointer to the four element vortex.

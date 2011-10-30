@@ -41,9 +41,10 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	AMTopFrame *frame = new AMTopFrame("VESPERS XAS Configuration");
 
 	// Regions setup
-	regionsView_ = new AMXASRegionsView(config_->regions());
-	regionsView_->setBeamlineEnergy(VESPERSBeamline::vespers()->energyRelative());
+	config_->regions()->setSensibleRange(-30, 40);
+	config_->regions()->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
 
+	regionsView_ = new AMRegionsView(config_->regions());
 	regionsLineView_ = new AMRegionsLineView(config_->regions());
 
 	// The fluorescence detector setup
@@ -225,17 +226,6 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	positionLayout->addRow("x:", xPosition_);
 	positionLayout->addRow("y:", yPosition_);
 
-	// Setting the time.
-	QDoubleSpinBox *time = new QDoubleSpinBox;
-	time->setSuffix(" s");
-	time->setMinimum(0);
-	time->setMaximum(100000);
-	connect(time, SIGNAL(valueChanged(double)), config_, SLOT(setAccumulationTime(double)));
-	time->setValue(config_->accumulationTime());
-
-	QFormLayout *timeLayout = new QFormLayout;
-	timeLayout->addRow("Time:", time);
-
 	// The roi text edit.
 	roiText_ = new QTextEdit;
 	roiText_->setReadOnly(true);
@@ -257,7 +247,6 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 2, 0);
 	contentsLayout->addLayout(scanNameLayout, 0, 0);
 	contentsLayout->addLayout(energyLayout, 1, 0, 1, 2);
-	contentsLayout->addLayout(timeLayout, 0, 1);
 	contentsLayout->addLayout(positionLayout, 2, 2);
 	contentsLayout->addWidget(ionChambersGroupBox, 2, 1);
 	contentsLayout->addWidget(roiText_, 3, 2, 2, 2);

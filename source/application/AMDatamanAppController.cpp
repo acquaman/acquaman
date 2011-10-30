@@ -33,7 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
-#include "ui/BottomBar.h"
+#include "ui/AMBottomBar.h"
 #include "ui/dataman/AMDataViewWithActionButtons.h"
 #include "ui/dataman/AMRunExperimentInsert.h"
 #include "ui/dataman/AMGenericScanEditor.h"
@@ -72,7 +72,7 @@ bool AMDatamanAppController::startup() {
 	mw_->setWindowTitle("Acquaman");
 	connect(mw_, SIGNAL(itemCloseButtonClicked(QModelIndex)), this, SLOT(onWindowPaneCloseButtonClicked(QModelIndex)));
 
-	bottomBar_ = new BottomBar();
+	bottomBar_ = new AMBottomBar();
 	mw_->addBottomWidget(bottomBar_);
 	connect(bottomBar_, SIGNAL(addButtonClicked()), this, SLOT(onAddButtonClicked()));
 

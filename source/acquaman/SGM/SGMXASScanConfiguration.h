@@ -67,9 +67,12 @@ public:
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
-public slots:
-	virtual bool addRegion(int index, double start, double delta, double end) { return regions_->addRegion(index, start, delta, end);}
+	/// Returns the AMControlInfo for the energy control.
+	AMControlInfo energyControlInfo() const { return regions_->defaultControl()->toInfo(); }
+	/// Returns the AMControlInfo for the time control.
+	AMControlInfo timeControlInfo() const { return regions_->defaultTimeControl()->toInfo(); }
 
+public slots:
 	bool setTrackingGroup(AMControlInfoList trackingList);
 	bool setFluxResolutionGroup(AMControlInfoList fluxResolutionList);
 

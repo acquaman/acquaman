@@ -1,6 +1,26 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "VESPERSExperimentConfigurationView.h"
 
 #include "ui/AMTopFrame.h"
+#include "ui/VESPERS/VESPERSMapSetupView.h"
 
 #include <QButtonGroup>
 #include <QGroupBox>
@@ -13,7 +33,10 @@
 VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(VESPERSExperimentConfiguration *experimentConfiguration, QWidget *parent)
 	: QWidget(parent)
 {
-	AMTopFrame *frame = new AMTopFrame("VESPERS Experimental Setup");
+	AMTopFrame *frame = new AMTopFrame("VESPERS Experiment Setup");
+
+	mapSetup_ = new VESPERSMapSetup;
+	VESPERSMapSetupView *mapSetupView = new VESPERSMapSetupView(mapSetup_, this);
 
 	experimentConfiguration_ = experimentConfiguration;
 
@@ -52,7 +75,7 @@ VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(VESPERSEx
 	configurations_->addButton(types, 7);
 	configLayout->addWidget(types);
 
-	connect(configurations_, SIGNAL(buttonClicked(int)), experimentConfiguration_, SLOT(setType(int)));
+	connect(configurations_, SIGNAL(buttonClicked(int)), this, SLOT(onConfiguraitonChanged(int)));
 
 	QGroupBox *configBox = new QGroupBox("Configurations");
 	configBox->setLayout(configLayout);
@@ -120,12 +143,58 @@ VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(VESPERSEx
 	experimentConfigurationLayout->addWidget(compBox);
 	experimentConfigurationLayout->addStretch();
 
-	QVBoxLayout *mainLayout = new QVBoxLayout;
-	mainLayout->addWidget(frame);
-	mainLayout->addStretch();
-	mainLayout->addWidget(new QLabel(message), 0, Qt::AlignCenter);
-	mainLayout->addLayout(experimentConfigurationLayout);
-	mainLayout->addStretch();
+	QVBoxLayout *experimentLayout = new QVBoxLayout;
+	experimentLayout->addStretch();
+	experimentLayout->addWidget(new QLabel(message), 0, Qt::AlignCenter);
+	experimentLayout->addLayout(experimentConfigurationLayout);
+	experimentLayout->addStretch();
 
-	setLayout(mainLayout);
+	QHBoxLayout *mainLayout = new QHBoxLayout;
+	mainLayout->addLayout(experimentLayout);
+	mainLayout->addWidget(mapSetupView);
+
+	QVBoxLayout *frameLayout = new QVBoxLayout;
+	frameLayout->addWidget(frame);
+	frameLayout->addLayout(mainLayout);
+
+	setLayout(frameLayout);
+}
+
+void VESPERSExperimentConfigurationView::onConfiguraitonChanged(int id)
+{
+	experimentConfiguration_->setType(id);
+
+	switch(id){
+
+	case VESPERSExperimentConfiguration::XRFw1el:
+		mapSetup_->set2D();
+		mapSetup_->useSingleElement();
+		mapSetup_->useCCD(false);
+		mapSetup_->useMultiImages(false);
+		break;
+
+	case VESPERSExperimentConfiguration::XRFw1elAndXRD:
+		mapSetup_->set2D();
+		mapSetup_->useSingleElement();
+		mapSetup_->useCCD(true);
+		mapSetup_->useMultiImages(false);
+		break;
+
+	case VESPERSExperimentConfiguration::XRFw4el:
+		mapSetup_->set2D();
+		mapSetup_->useFourElement();
+		mapSetup_->useCCD(false);
+		mapSetup_->useMultiImages(false);
+		break;
+
+	case VESPERSExperimentConfiguration::XRFw4elAndXRD:
+		mapSetup_->set2D();
+		mapSetup_->useFourElement();
+		mapSetup_->useCCD(true);
+		mapSetup_->useMultiImages(false);
+		break;
+
+	default:
+		break;
+	}
 }

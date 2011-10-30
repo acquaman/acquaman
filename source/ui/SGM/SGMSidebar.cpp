@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QRadioButton>
 #include <QButtonGroup>
 
+#include "ui/CLS/CLSSynchronizedDwellTimeView.h"
+
 SGMSidebar::SGMSidebar(QWidget *parent) :
 	QWidget(parent)
 {
@@ -238,6 +240,9 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
 
 	scanningResetButton_->setContentsMargins(2,2,2,2);
+
+	CLSSynchronizedDwellTimeView *synchronizedDwellTimeView = new CLSSynchronizedDwellTimeView(SGMBeamline::sgm()->synchronizedDwellTime());
+	synchronizedDwellTimeView->show();
 }
 
 SGMSidebar::~SGMSidebar() {

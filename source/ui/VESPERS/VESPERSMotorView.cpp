@@ -51,7 +51,8 @@ VESPERSMotorView::VESPERSMotorView(QWidget *parent) :
 	secondSetpointButton_ = new QToolButton;
 	secondSetpointButton_->setMinimumSize(100, 63);
 	secondSetpointButton_->setFont(QFont("Times New Roman", 28, 50));
-	stop_ = new AMStopButton;
+	stop_ = new QToolButton;
+	stop_->setIcon(QIcon(":/stop.png"));
 	lowLimit_ = 0;
 	highLimit_ = 0;
 
@@ -88,11 +89,11 @@ void VESPERSMotorView::setControl(AMControl *control)
 		units_->setText(control_->units());
 		jogUnits_->setText(control_->units());
 	}
-	stop_->setControl(control_);
 	title_->setText(control_->name());
 	setpoint_->setText(QString::number(control_->value(), 'f', 3));
 	jog_->setText(QString::number(0, 'f', 3));
 
+	connect(stop_, SIGNAL(clicked()), control_, SLOT(stop()));
 	connect(control_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
 	connect(control_, SIGNAL(unitsChanged(QString)), units_, SLOT(setText(QString)));
 	connect(control_, SIGNAL(unitsChanged(QString)), jogUnits_, SLOT(setText(QString)));
@@ -149,11 +150,11 @@ void VESPERSMotorView::setControl(AMControl *control, double lowLimit, double hi
 		units_->setText(control_->units());
 		jogUnits_->setText(control_->units());
 	}
-	stop_->setControl(control_);
 	title_->setText(control_->name());
 	setpoint_->setText(QString::number(control_->value(), 'f', 3));
 	jog_->setText(QString::number(0, 'f', 3));
 
+	connect(stop_, SIGNAL(clicked()), control_, SLOT(stop()));
 	connect(control_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
 	connect(control_, SIGNAL(unitsChanged(QString)), units_, SLOT(setText(QString)));
 	connect(control_, SIGNAL(unitsChanged(QString)), jogUnits_, SLOT(setText(QString)));
@@ -201,13 +202,13 @@ void VESPERSMotorView::setControl(AMControl *control, double firstSetpoint, doub
 	lowLimit_ = 0;
 	highLimit_ = 0;
 	units_->setText(control_->units());
-	stop_->setControl(control_);
 	title_->setText(control_->name());
 	firstSetpointButton_->setText(firstLabel);
 	secondSetpointButton_->setText(secondLabel);
 	firstSetpoint_ = firstSetpoint;
 	secondSetpoint_ = secondSetpoint;
 
+	connect(stop_, SIGNAL(clicked()), control_, SLOT(stop()));
 	connect(control_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
 	connect(control_, SIGNAL(unitsChanged(QString)), units_, SLOT(setText(QString)));
 	connect(control_, SIGNAL(unitsChanged(QString)), jogUnits_, SLOT(setText(QString)));
@@ -237,6 +238,7 @@ void VESPERSMotorView::hideAndDisconnect()
 	// If no control has been set yet, then don't touch connections that don't exist.
 	if (control_){
 
+		disconnect(stop_, SIGNAL(clicked()), control_, SLOT(stop()));
 		disconnect(control_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
 		disconnect(control_, SIGNAL(unitsChanged(QString)), units_, SLOT(setText(QString)));
 		disconnect(control_, SIGNAL(unitsChanged(QString)), jogUnits_, SLOT(setText(QString)));

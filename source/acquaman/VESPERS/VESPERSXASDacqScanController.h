@@ -51,6 +51,9 @@ protected slots:
 	/// Slot that handles the initialization progress of the scan.
 	void onInitializationActionsProgress(double elapsed, double total);
 
+	// Re-implementing to change actual dwell times for the VESPERS Beamline
+	void onDwellTimeTriggerChanged(double newValue);
+
 protected:
 	/// Specific implementation of the scan initialization.
 	bool initializeImplementation();
@@ -77,6 +80,8 @@ protected:
 	/// Pointer to the scan used by this controller.
 	AMXASScan *xasScan_;
 
+	/// A counter holding the current region index being scanned.
+	int currentRegionIndex_;
 };
 
 #endif // VESPERSXASDACQSCANCONTROLLER_H

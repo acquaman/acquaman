@@ -33,7 +33,6 @@ class VESPERSXASScanConfiguration : public AMXASScanConfiguration
 	Q_PROPERTY(FluorescenceDetector fluorescenceDetectorChoice READ fluorescenceDetectorChoice WRITE setFluorescenceDetectorChoice)
 	Q_PROPERTY(IonChamber transmissionChoice READ transmissionChoice WRITE setTransmissionChoice)
 	Q_PROPERTY(IonChamber incomingChoice READ incomingChoice WRITE setIncomingChoice)
-	Q_PROPERTY(double accumulationTime READ accumulationTime WRITE setAccumulationTime)
 	Q_PROPERTY(QString edge READ edge WRITE setEdge)
 	Q_PROPERTY(double edgeEnergy READ energy WRITE setEnergy)
 	Q_PROPERTY(bool goToPosition READ goToPosition WRITE setGoToPosition)
@@ -76,8 +75,6 @@ public:
 	IonChamber transmissionChoice() const { return It_; }
 	/// Returns the current I0 ion chamber choice.
 	IonChamber incomingChoice() const { return I0_; }
-	/// Returns the current time for accumulation.
-	double accumulationTime() const { return time_; }
 	/// Returns the name of the current edge.
 	QString edge() const { return edge_; }
 	/// Returns the edge energy for the scan.
@@ -98,6 +95,11 @@ public:
 	/// Returns the ROI list.  The list is empty if not using a fluorescence detector.
 	AMROIInfoList roiList() const { return roiInfoList_; }
 
+	/// Returns the AMControlInfo for the energy control.
+	AMControlInfo energyControlInfo() const { return regions_->defaultControl()->toInfo(); }
+	/// Returns the AMControlInfo for the time control.
+	AMControlInfo timeControlInfo() const { return regions_->defaultTimeControl()->toInfo(); }
+
 	// Database loading and storing
 	///////////////////////
 
@@ -107,8 +109,6 @@ public:
 	void dbLoadROIInfoList(AMDbObject *) {}
 
 public slots:
-	/// Adds a region to the XAS scan.  \param index is the region you are adding and \param start, \param delta, and \param end define the region.
-	virtual bool addRegion(int index, double start, double delta, double end) { return regions_->addRegion(index, start, delta, end); }
 
 	/// Sets the choice for the fluorescence detector.
 	void setFluorescenceDetectorChoice(FluorescenceDetector detector) { fluorescenceDetectorChoice_ = detector; setModified(true); }
@@ -122,8 +122,6 @@ public slots:
 	void setIncomingChoice(IonChamber I0) { I0_ = I0; setModified(true); }
 	/// Overloaded.  Used for database loading.
 	void setIncomingChoice(int I0) { setIncomingChoice((IonChamber)I0); }
-	/// Sets the accumulation time.
-	void setAccumulationTime(double time) { time_ = time; setModified(true); }
 	/// Sets the current edge for the scan.
 	void setEdge(QString edgeName) { edge_ = edgeName; setModified(true); }
 	/// Sets the edge energy.
@@ -150,8 +148,6 @@ protected:
 	IonChamber It_;
 	/// I0 ion chamber choice.
 	IonChamber I0_;
-	/// The time for accumulation. \todo This will likely change to an array or something in the event of doing EXAFS.  Currently this is only meaningful for XANES.
-	double time_;
 
 	/// The edge being scanned.
 	QString edge_;
