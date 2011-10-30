@@ -203,7 +203,7 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeriesData.h \
 	$$MPLOT_INCLUDE_DIR/MPlot/MPlotTools.h \
 	$$MPLOT_INCLUDE_DIR/MPlot/MPlotWidget.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarkerTransparentVerticalRectangle.h
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarkerTransparentVerticalRectangle.h \
 	source/acquaman/AMAcqScanOutput.h \
 	source/acquaman/AMAcqScanSpectrumOutput.h \
 	source/acquaman/AMDacqScanController.h \
@@ -473,7 +473,7 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeriesData.cpp \
 	$$MPLOT_INCLUDE_DIR/MPlot/MPlotTools.cpp \
 	$$MPLOT_INCLUDE_DIR/MPlot/MPlotWidget.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarkerTransparentVerticalRectangle.cpp
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarkerTransparentVerticalRectangle.cpp \
 	source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/AMAcqScanSpectrumOutput.cpp \
 	source/acquaman/AMDacqScanController.cpp \
