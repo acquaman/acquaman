@@ -103,6 +103,23 @@ linux-g++-64 {
 		XML_INCLUDE_DIR = /usr/include/libxml2
 }
 
+# Special build paths and options for running on the Jenkins auto-build server (currently at http://beamteam.usask.ca:8080)
+CONFIG(jenkins_build) {
+
+		message("Detected Jenkins auto-build... Specifying dependency paths for the build server.")
+		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
+		DEV_PATH = "jobs/Acquaman on Linux - master branch/workspace"
+
+		# EPICS Dependencies:
+		EPICS_INCLUDE_DIRS = /home/mark/dev/epics/base/include \
+				/home/mark/dev/epics/base/include/os/Linux
+		EPICS_LIB_DIR = /home/mark/dev/epics/base/lib/linux-x86
+
+		# MPlot Source
+		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlot on Linux - master branch/workspace"
+}
+
+
 QT += core gui sql opengl
 
 # video using Multimedia module from QtMobility, if we have it. (This will only be activated if you set the CONFIG += mobility line at the top of this file)
@@ -172,22 +189,27 @@ linux-g++-64 {
 # Source Files (Acquaman Framework Common)
 #######################
 
-HEADERS += ../MPlot/src/MPlot/MPlot.h \
-	../MPlot/src/MPlot/MPlotAbstractTool.h \
-	../MPlot/src/MPlot/MPlotAxis.h \
-	../MPlot/src/MPlot/MPlotAxisScale.h \
-	../MPlot/src/MPlot/MPlotColorMap.h \
-	../MPlot/src/MPlot/MPlotImage.h \
-	../MPlot/src/MPlot/MPlotImageData.h \
-	../MPlot/src/MPlot/MPlotItem.h \
-	../MPlot/src/MPlot/MPlotLegend.h \
-	../MPlot/src/MPlot/MPlotMarker.h \
-	../MPlot/src/MPlot/MPlotPoint.h \
-	../MPlot/src/MPlot/MPlotRectangle.h \
-	../MPlot/src/MPlot/MPlotSeries.h \
-	../MPlot/src/MPlot/MPlotSeriesData.h \
-	../MPlot/src/MPlot/MPlotTools.h \
-	../MPlot/src/MPlot/MPlotWidget.h \
+MPLOT_SRC_DIR = ../MPlot/src
+CONFIG(jenkins_build) {
+	MPLOT_SRC_DIR = "/var/lib/jenkins/jobs/MPlot on Linux - master branch/workspace/src"
+}
+
+HEADERS += $$MPLOT_SRC_DIR/MPlot/MPlot.h \
+	$$MPLOT_SRC_DIR/MPlot/MPlotAbstractTool.h \
+	$$MPLOT_SRC_DIR/MPlot/MPlotAxis.h \
+	$$MPLOT_SRC_DIR/MPlot/MPlotAxisScale.h \
+	$$MPLOT_SRC_DIR/MPlot/MPlotColorMap.h \
+	$$MPLOT_SRC_DIR/MPlot/MPlotImage.h \
+	$$MPLOT_SRC_DIR/MPlot/MPlotImageData.h \
+	$$MPLOT_SRC_DIR/MPlot/MPlotItem.h \
+	$$MPLOT_SRC_DIR/MPlot/MPlotLegend.h \
+	$$MPLOT_SRC_DIR/MPlot/MPlotMarker.h \
+	$$MPLOT_SRC_DIR/MPlot/MPlotPoint.h \
+	$$MPLOT_SRC_DIR/MPlot/MPlotRectangle.h \
+	$$MPLOT_SRC_DIR/MPlot/MPlotSeries.h \
+	$$MPLOT_SRC_DIR/MPlot/MPlotSeriesData.h \
+	$$MPLOT_SRC_DIR/MPlot/MPlotTools.h \
+	$$MPLOT_SRC_DIR/MPlot/MPlotWidget.h \
 	source/acquaman/AMAcqScanOutput.h \
 	source/acquaman/AMAcqScanSpectrumOutput.h \
 	source/acquaman/AMDacqScanController.h \
@@ -431,22 +453,22 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/dataman/AMChooseScanDialog.ui \
 	source/ui/AMLinePropertyEditor.ui \
 	source/ui/dataman/AMImagePropertyEditor.ui
-SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
-	../MPlot/src/MPlot/MPlotAbstractTool.cpp \
-	../MPlot/src/MPlot/MPlotAxis.cpp \
-	../MPlot/src/MPlot/MPlotAxisScale.cpp \
-	../MPlot/src/MPlot/MPlotColorMap.cpp \
-	../MPlot/src/MPlot/MPlotImage.cpp \
-	../MPlot/src/MPlot/MPlotImageData.cpp \
-	../MPlot/src/MPlot/MPlotItem.cpp \
-	../MPlot/src/MPlot/MPlotLegend.cpp \
-	../MPlot/src/MPlot/MPlotMarker.cpp \
-	../MPlot/src/MPlot/MPlotPoint.cpp \
-	../MPlot/src/MPlot/MPlotRectangle.cpp \
-	../MPlot/src/MPlot/MPlotSeries.cpp \
-	../MPlot/src/MPlot/MPlotSeriesData.cpp \
-	../MPlot/src/MPlot/MPlotTools.cpp \
-	../MPlot/src/MPlot/MPlotWidget.cpp \
+SOURCES += $$MPLOT_SRC_DIR/MPlot/MPlot.cpp \
+	$$MPLOT_SRC_DIR/MPlot/MPlotAbstractTool.cpp \
+	$$MPLOT_SRC_DIR/MPlot/MPlotAxis.cpp \
+	$$MPLOT_SRC_DIR/MPlot/MPlotAxisScale.cpp \
+	$$MPLOT_SRC_DIR/MPlot/MPlotColorMap.cpp \
+	$$MPLOT_SRC_DIR/MPlot/MPlotImage.cpp \
+	$$MPLOT_SRC_DIR/MPlot/MPlotImageData.cpp \
+	$$MPLOT_SRC_DIR/MPlot/MPlotItem.cpp \
+	$$MPLOT_SRC_DIR/MPlot/MPlotLegend.cpp \
+	$$MPLOT_SRC_DIR/MPlot/MPlotMarker.cpp \
+	$$MPLOT_SRC_DIR/MPlot/MPlotPoint.cpp \
+	$$MPLOT_SRC_DIR/MPlot/MPlotRectangle.cpp \
+	$$MPLOT_SRC_DIR/MPlot/MPlotSeries.cpp \
+	$$MPLOT_SRC_DIR/MPlot/MPlotSeriesData.cpp \
+	$$MPLOT_SRC_DIR/MPlot/MPlotTools.cpp \
+	$$MPLOT_SRC_DIR/MPlot/MPlotWidget.cpp \
 	source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/AMAcqScanSpectrumOutput.cpp \
 	source/acquaman/AMDacqScanController.cpp \
