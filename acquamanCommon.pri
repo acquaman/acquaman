@@ -114,7 +114,7 @@ CONFIG(jenkins_build) {
 		EPICS_LIB_DIR = /home/mark/dev/epics/base/lib/linux-x86
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlot on Linux - master branch/workspace"
+		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlot on Linux - master branch/workspace/src"
 }
 
 
@@ -187,27 +187,23 @@ linux-g++-64 {
 # Source Files (Acquaman Framework Common)
 #######################
 
-MPLOT_SRC_DIR = ../MPlot/src
-CONFIG(jenkins_build) {
-	MPLOT_SRC_DIR = "/var/lib/jenkins/jobs/MPlot on Linux - master branch/workspace/src"
-}
-
-HEADERS += $$MPLOT_SRC_DIR/MPlot/MPlot.h \
-	$$MPLOT_SRC_DIR/MPlot/MPlotAbstractTool.h \
-	$$MPLOT_SRC_DIR/MPlot/MPlotAxis.h \
-	$$MPLOT_SRC_DIR/MPlot/MPlotAxisScale.h \
-	$$MPLOT_SRC_DIR/MPlot/MPlotColorMap.h \
-	$$MPLOT_SRC_DIR/MPlot/MPlotImage.h \
-	$$MPLOT_SRC_DIR/MPlot/MPlotImageData.h \
-	$$MPLOT_SRC_DIR/MPlot/MPlotItem.h \
-	$$MPLOT_SRC_DIR/MPlot/MPlotLegend.h \
-	$$MPLOT_SRC_DIR/MPlot/MPlotMarker.h \
-	$$MPLOT_SRC_DIR/MPlot/MPlotPoint.h \
-	$$MPLOT_SRC_DIR/MPlot/MPlotRectangle.h \
-	$$MPLOT_SRC_DIR/MPlot/MPlotSeries.h \
-	$$MPLOT_SRC_DIR/MPlot/MPlotSeriesData.h \
-	$$MPLOT_SRC_DIR/MPlot/MPlotTools.h \
-	$$MPLOT_SRC_DIR/MPlot/MPlotWidget.h \
+HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAbstractTool.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxis.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxisScale.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorMap.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotImage.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotImageData.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotItem.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotLegend.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarker.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotPoint.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotRectangle.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeries.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeriesData.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotTools.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotWidget.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarkerTransparentVerticalRectangle.h
 	source/acquaman/AMAcqScanOutput.h \
 	source/acquaman/AMAcqScanSpectrumOutput.h \
 	source/acquaman/AMDacqScanController.h \
@@ -438,8 +434,7 @@ HEADERS += $$MPLOT_SRC_DIR/MPlot/MPlot.h \
 	source/beamline/AMSplitIonChamber.h \
 	source/beamline/CLS/CLSSplitIonChamber.h \
 	source/ui/beamline/AMSplitIonChamberView.h \
-	source/ui/CLS/CLSSplitIonChamberView.h \
-    ../MPlot/src/MPlot/MPlotMarkerTransparentVerticalRectangle.h
+	source/ui/CLS/CLSSplitIonChamberView.h
 
 CONFIG(mobility) {
 HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
@@ -462,22 +457,23 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/dataman/AMChooseScanDialog.ui \
 	source/ui/AMLinePropertyEditor.ui \
 	source/ui/dataman/AMImagePropertyEditor.ui
-SOURCES += $$MPLOT_SRC_DIR/MPlot/MPlot.cpp \
-	$$MPLOT_SRC_DIR/MPlot/MPlotAbstractTool.cpp \
-	$$MPLOT_SRC_DIR/MPlot/MPlotAxis.cpp \
-	$$MPLOT_SRC_DIR/MPlot/MPlotAxisScale.cpp \
-	$$MPLOT_SRC_DIR/MPlot/MPlotColorMap.cpp \
-	$$MPLOT_SRC_DIR/MPlot/MPlotImage.cpp \
-	$$MPLOT_SRC_DIR/MPlot/MPlotImageData.cpp \
-	$$MPLOT_SRC_DIR/MPlot/MPlotItem.cpp \
-	$$MPLOT_SRC_DIR/MPlot/MPlotLegend.cpp \
-	$$MPLOT_SRC_DIR/MPlot/MPlotMarker.cpp \
-	$$MPLOT_SRC_DIR/MPlot/MPlotPoint.cpp \
-	$$MPLOT_SRC_DIR/MPlot/MPlotRectangle.cpp \
-	$$MPLOT_SRC_DIR/MPlot/MPlotSeries.cpp \
-	$$MPLOT_SRC_DIR/MPlot/MPlotSeriesData.cpp \
-	$$MPLOT_SRC_DIR/MPlot/MPlotTools.cpp \
-	$$MPLOT_SRC_DIR/MPlot/MPlotWidget.cpp \
+SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAbstractTool.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxis.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxisScale.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorMap.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotImage.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotImageData.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotItem.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotLegend.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarker.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotPoint.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotRectangle.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeries.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeriesData.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotTools.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotWidget.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarkerTransparentVerticalRectangle.cpp
 	source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/AMAcqScanSpectrumOutput.cpp \
 	source/acquaman/AMDacqScanController.cpp \
@@ -702,8 +698,7 @@ SOURCES += $$MPLOT_SRC_DIR/MPlot/MPlot.cpp \
 	source/beamline/AMSplitIonChamber.cpp \
 	source/beamline/CLS/CLSSplitIonChamber.cpp \
 	source/ui/beamline/AMSplitIonChamberView.cpp \
-	source/ui/CLS/CLSSplitIonChamberView.cpp \
-    ../MPlot/src/MPlot/MPlotMarkerTransparentVerticalRectangle.cpp
+	source/ui/CLS/CLSSplitIonChamberView.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
