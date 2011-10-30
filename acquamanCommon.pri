@@ -107,8 +107,6 @@ linux-g++-64 {
 CONFIG(jenkins_build) {
 
 		message("Detected Jenkins auto-build... Specifying dependency paths for the build server.")
-		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = "jobs/Acquaman on Linux - master branch/workspace"
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = /home/mark/dev/epics/base/include \
