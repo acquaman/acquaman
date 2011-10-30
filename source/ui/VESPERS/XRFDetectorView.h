@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlotSeries.h"
+#include "MPlot/MPlotPoint.h"
 
 #include <QLabel>
 #include <QDoubleSpinBox>
