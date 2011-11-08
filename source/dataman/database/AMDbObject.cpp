@@ -228,7 +228,7 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 		else if(columnType == qMetaTypeId<AMDbObject*>()) {
 			AMDbObject* obj = property(columnName).value<AMDbObject*>();
 			if(obj && obj!=this) {	// if its a valid object, and not ourself (avoid recursion)
-				if(!obj->modified() && obj->database()==db && obj->id() >1)	// if it's not modified, and already part of this database... don't need to store it. Just remember where it is...
+				if(!obj->modified() && obj->database()==db && obj->id() >=1)	// if it's not modified, and already part of this database... don't need to store it. Just remember where it is...
 					values << QString("%1%2%3").arg(obj->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(obj->id());
 				else {
 					if(obj->storeToDb(db))
@@ -297,7 +297,7 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 			vlist << id() << myInfo->tableName << int(0) << "tableName2";	// int(0) and "tableName2" are dummy variables for now.
 			foreach(AMDbObject* obj, objList) {
 				if(obj && obj!=this) {	// verify that this is a valid object, and not ourself (to avoid infinite recursion)
-					if(  (!obj->modified() && obj->database() == db && obj->id() >1) ) {	// if this object is unmodified and already stored in the database, just remember its location. (This avoids storeToDb()'ing objects that are unmodified and do not need re-saving.)
+					if(  (!obj->modified() && obj->database() == db && obj->id() >=1) ) {	// if this object is unmodified and already stored in the database, just remember its location. (This avoids storeToDb()'ing objects that are unmodified and do not need re-saving.)
 						vlist[2] = obj->id();
 						vlist[3] = obj->dbTableName();
 						db->insertOrUpdate(0, auxTableName, clist, vlist);
