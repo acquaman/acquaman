@@ -260,6 +260,7 @@ bool AMDbObjectSupport::registerDatabase(AMDatabase* db) {
 
 	if(success) {
 		registeredDatabases_.insert(db);
+		connect(db, SIGNAL(destroyed()), this, SLOT(onRegisteredDatabaseDeleted()));
 		return true;
 	}
 	else
@@ -708,6 +709,13 @@ bool AMDbObjectSupport::inheritsAMDbObject(const QMetaObject* mo) {
 QSqlQuery AMDbObjectSupport::select(AMDatabase* db, const QString& className, const QString& columnNames, const QString& whereClause) {
 
 	return db->select(tableNameForClass(className), columnNames, whereClause);
+}
+
+void AMDbObjectSupport::onRegisteredDatabaseDeleted()
+{
+	AMDatabase* db = static_cast<AMDatabase*>(sender());
+	if(registeredDatabases_.contains(db))
+		registeredDatabases_.remove(db);
 }
 
 

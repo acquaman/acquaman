@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMDBOBJECTSUPPORT_H
 #define AMDBOBJECTSUPPORT_H
 
+#include <QObject>
 #include <QString>
 #include <QMetaObject>
 #include <QHash>
@@ -80,8 +81,7 @@ When you register a new class with registerClass<Class>(), the class is added to
 
 When you register a new database with registerDatabase(), it is added to the database registry. Tables are created retroactively for previously registered classes, so you can register databases and classes in any order.
 */
-class AMDbObjectSupport
-{
+class AMDbObjectSupport : public QObject {
 
 public:
 
@@ -215,9 +215,13 @@ private:
 	QSet<AMDatabase*> registeredDatabases_;
 
 	/// This is a singleton class, so the constructor is private.
-	AMDbObjectSupport() {}
+	AMDbObjectSupport() : QObject() {}
 	/// Single instance of this class.
 	static AMDbObjectSupport* instance_;
+
+private slots:
+	/// We retain pointers to databases so that when new classes are registered, we can add the retro-actively. Therefore, we need to know when these are no longer accessible.
+	void onRegisteredDatabaseDeleted();
 
 };
 
