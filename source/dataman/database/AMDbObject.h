@@ -139,10 +139,12 @@ Q_CLASSINFO("AMDbObject_Attributes", "keyword1=value1;keyword2=value2;...")
 	Note that subclasses inherit the base class definition for the whole attribute string, unless re-defined.  You can only specify the AMDbObject_Attributes once per class; multiple Q_CLASSINFO definitions are not allowed.
 
 
-- Register the class on every database you wish to use it in by calling AMDbObjectSupport::registerClass<Class>(AMDatabase* database) at runtime.  It's harmless to register a class multiple times, but it must be registered before calling storeToDb() or loadFromDb().
+- Register the class with the system by calling AMDbObjectSupport::registerClass<Class>() at runtime.  It's harmless to register a class multiple times, but it must be registered before calling storeToDb() or loadFromDb().
 \code
 AMDatabase* myWorkingDatabase;
-AMDbObjectSupport::registerClass<MyDbObject>(myWorkingDatabase);
+// The following two lines can be done in either order:
+AMDbObjectSupport::registerDatabase(myWorkingDatabase);
+AMDbObjectSupport::registerClass<MyDbObject>();
 \endcode
 
 - Finally, all database objects have the optional functionality of providing one or more thumbnails to describe themselves. If you want to have non-blank thumbnails, you must provide thumbnailCount() and thumbnail(int index). The default is to have no thumbnails.

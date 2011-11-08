@@ -161,8 +161,46 @@ QString tableNameForClass(const QString& className) {
 }
 
 
+// register a new class with the database system. This is all you need to do enable an AMDbObect subclass. Returns false if the initialization failed; true if it was completed successfully, or if the object is already registered.
+bool registerClass(const QMetaObject* mo) {
+
+	// is this a subclass of AMDbObject? (Or an AMDbObject itself?)
+	if(!inheritsAMDbObject(mo))
+		return false;	// can't register a non AMDbObject subclass.
+
+	// is it already registered? return true.
+	QString className(mo->className());
+	if(registeredClasses_.contains(className)) {
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, 0, QString("Database Support: The class '%1' has already been registered in the database. Skipping duplicate registration.").arg(className)));
+		return true;
+	}
+
+	AMDbObjectInfo newInfo(mo);
+
+	bool success = true;
+	QSetIterator<AMDatabase*> iDatabases(registeredDatabases_);
+	while(iDatabases.hasNext()) {
+		success = success && getDatabaseReadyForClass(iDatabases.next(), newInfo);
+	}
+
+	if(success) {
+		registeredClasses_.insert(className, newInfo);
+		return true;
+	}
+	else
+		return false;
+}
+
 
 bool registerDatabase(AMDatabase* db) {
+
+	// is it already registered? return true.
+	if(registeredDatabases_.contains(db)) {
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, 0, QString("Database Support: The database '%1' has already been registered in the system. Skipping duplicate registration.").arg(db->connectionName())));
+		return true;
+	}
+
+
 	// ensure type-metaInfo table
 	if( db->ensureTable(	typeTableName(),
 							QString("AMDbObjectType,tableName,description,version").split(','),
@@ -212,9 +250,22 @@ bool registerDatabase(AMDatabase* db) {
 	db->createIndex(controlSetEntriesTableName(), "csiId");
 	/////////////////////////////////
 
+/// \todo error checking on creating these previous tables.
 
-	registeredDatabases_.insert(db);
-	return true;	// \todo error checking on creating type table
+
+	// Retro-actively add all previously registered classes.
+	bool success = true;
+	QHashIterator<QString, AMDbObjectInfo> iClasses(registeredClasses_);
+	while(iClasses.hasNext()) {
+		success = success && getDatabaseReadyForClass(db, iClasses.next().value());
+	}
+
+	if(success) {
+		registeredDatabases_.insert(db);
+		return true;
+	}
+	else
+		return false;
 }
 
 bool getDatabaseReadyForClass(AMDatabase* db, const AMDbObjectInfo& info) {
@@ -643,6 +694,17 @@ AMDbObject* createAndLoadObjectAt(AMDatabase* db, const QString& tableName, int 
 }
 
 
+// Helper function to check if a class inherits AMDbObject.  \c mo is the Qt QMetaObject representing the class.
+bool inheritsAMDbObject(const QMetaObject* mo) {
+	const QMetaObject* superClass = mo;
+	bool inheritsDbObject;
+	do {
+		inheritsDbObject = (superClass->className() == QString("AMDbObject"));
+	}
+	while( (superClass=superClass->superClass()) && inheritsDbObject == false );
+
+	return inheritsDbObject;
+}
 
 
 QSqlQuery select(AMDatabase* db, const QString& className, const QString& columnNames, const QString& whereClause) {
