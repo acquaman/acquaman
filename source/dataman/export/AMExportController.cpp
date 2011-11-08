@@ -222,7 +222,7 @@ void AMExportController::continueScanExport()
 			 ))
 			throw QString("The export system couldn't understand the scan URL '" % url.toString() % "', so this scan has not been exported.");
 
-		AMDbObject* databaseObject = AMDbObjectSupport::createAndLoadObjectAt(db, tableName, id);
+		AMDbObject* databaseObject = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
 		AMScan* scan = qobject_cast<AMScan*>(databaseObject);
 		if(!scan) {
 			delete databaseObject;

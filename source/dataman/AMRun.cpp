@@ -105,7 +105,7 @@ void AMRun::doDateRangeUpdate() {
 		return;
 
 	QSqlQuery q = database()->query();
-	QString scanTableName = AMDbObjectSupport::tableNameForClass<AMScan>();
+	QString scanTableName = AMDbObjectSupport::s()->tableNameForClass<AMScan>();
 
 	q.prepare(QString("SELECT MAX(dateTime) FROM %1 WHERE runId = ?").arg(scanTableName));
 	q.bindValue(0, id());

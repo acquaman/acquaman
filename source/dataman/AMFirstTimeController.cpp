@@ -152,43 +152,43 @@ bool AMFirstTimeController::onEveryTime() {
 /// create structures and tables for a new user database, from scratch
 bool AMFirstTimeController::databaseInitialization(bool newUser) {
 
-	AMDbObjectSupport::registerDatabase(AMDatabase::userdb());
+	AMDbObjectSupport::s()->registerDatabase(AMDatabase::userdb());
 
-	AMDbObjectSupport::registerClass<AMDbObject>();
-	AMDbObjectSupport::registerClass<AMScan>();
-	AMDbObjectSupport::registerClass<AMXASScan>();
-	AMDbObjectSupport::registerClass<AMFastScan>();
-	AMDbObjectSupport::registerClass<AMXESScan>();
+	AMDbObjectSupport::s()->registerClass<AMDbObject>();
+	AMDbObjectSupport::s()->registerClass<AMScan>();
+	AMDbObjectSupport::s()->registerClass<AMXASScan>();
+	AMDbObjectSupport::s()->registerClass<AMFastScan>();
+	AMDbObjectSupport::s()->registerClass<AMXESScan>();
 
-	AMDbObjectSupport::registerClass<AMRun>();
-	AMDbObjectSupport::registerClass<AMExperiment>();
-	AMDbObjectSupport::registerClass<AMSample>();
-	AMDbObjectSupport::registerClass<AMFacility>();
+	AMDbObjectSupport::s()->registerClass<AMRun>();
+	AMDbObjectSupport::s()->registerClass<AMExperiment>();
+	AMDbObjectSupport::s()->registerClass<AMSample>();
+	AMDbObjectSupport::s()->registerClass<AMFacility>();
 
-	AMDbObjectSupport::registerClass<AMRawDataSource>();
-	AMDbObjectSupport::registerClass<AMAnalysisBlock>();
-	AMDbObjectSupport::registerClass<AM1DExpressionAB>();
-	AMDbObjectSupport::registerClass<AM2DSummingAB>();
-	AMDbObjectSupport::registerClass<AM1DDerivativeAB>();
-	AMDbObjectSupport::registerClass<AMExternalScanDataSourceAB>();
-	AMDbObjectSupport::registerClass<AM1DSummingAB>();
-	AMDbObjectSupport::registerClass<AMDeadTimeAB>();
+	AMDbObjectSupport::s()->registerClass<AMRawDataSource>();
+	AMDbObjectSupport::s()->registerClass<AMAnalysisBlock>();
+	AMDbObjectSupport::s()->registerClass<AM1DExpressionAB>();
+	AMDbObjectSupport::s()->registerClass<AM2DSummingAB>();
+	AMDbObjectSupport::s()->registerClass<AM1DDerivativeAB>();
+	AMDbObjectSupport::s()->registerClass<AMExternalScanDataSourceAB>();
+	AMDbObjectSupport::s()->registerClass<AM1DSummingAB>();
+	AMDbObjectSupport::s()->registerClass<AMDeadTimeAB>();
 
 
-	AMDbObjectSupport::registerClass<AMDetectorInfo>();
-	AMDbObjectSupport::registerClass<AMSpectralOutputDetectorInfo>();
-	AMDbObjectSupport::registerClass<AMControlInfo>();
-	AMDbObjectSupport::registerClass<AMControlInfoList>();
-	AMDbObjectSupport::registerClass<AMDetectorInfo>();
-	AMDbObjectSupport::registerClass<AMDetectorInfoSet>();
-	AMDbObjectSupport::registerClass<AMSamplePosition>();
-	AMDbObjectSupport::registerClass<AMSamplePlate>();
-	AMDbObjectSupport::registerClass<AMROIInfo>();
-	AMDbObjectSupport::registerClass<AMROIInfoList>();
+	AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
+	AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
+	AMDbObjectSupport::s()->registerClass<AMControlInfo>();
+	AMDbObjectSupport::s()->registerClass<AMControlInfoList>();
+	AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
+	AMDbObjectSupport::s()->registerClass<AMDetectorInfoSet>();
+	AMDbObjectSupport::s()->registerClass<AMSamplePosition>();
+	AMDbObjectSupport::s()->registerClass<AMSamplePlate>();
+	AMDbObjectSupport::s()->registerClass<AMROIInfo>();
+	AMDbObjectSupport::s()->registerClass<AMROIInfoList>();
 
-	AMDbObjectSupport::registerClass<AMExporterOptionGeneralAscii>();
+	AMDbObjectSupport::s()->registerClass<AMExporterOptionGeneralAscii>();
 
-	AMDbObjectSupport::registerClass<AMUser>();
+	AMDbObjectSupport::s()->registerClass<AMUser>();
 
 	if(newUser)
 		AMUser::user()->storeToDb(AMDatabase::userdb());	// insert the user into the database, if new.

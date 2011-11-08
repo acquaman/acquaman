@@ -313,9 +313,9 @@ void AMExportWizardOptionPage::onOptionSelectorIndexChanged(int index)
 	// or load saved option
 	else {
 		option_ = qobject_cast<AMExporterOption*>(
-					AMDbObjectSupport::createAndLoadObjectAt(
+					AMDbObjectSupport::s()->createAndLoadObjectAt(
 						AMDatabase::userdb(),
-						AMDbObjectSupport::tableNameForClass(exporter_->exporterOptionClassName()),
+						AMDbObjectSupport::s()->tableNameForClass(exporter_->exporterOptionClassName()),
 						optionSelector_->itemData(optionSelector_->currentIndex()).toInt()));
 		controller_->setOption(option_); // will delete the previous option_
 		saveOptionButton_->setText("Save");
@@ -340,7 +340,7 @@ void AMExportWizardOptionPage::populateOptionSelector()
 	optionSelector_->addItem("New Template", -1);
 
 	// fill option combo box
-	QSqlQuery q = AMDbObjectSupport::select(AMDatabase::userdb(), exporter_->exporterOptionClassName(), "id, name");
+	QSqlQuery q = AMDbObjectSupport::s()->select(AMDatabase::userdb(), exporter_->exporterOptionClassName(), "id, name");
 	while(q.next()) {
 		optionSelector_->addItem(q.value(1).toString(),
 								 q.value(0).toInt());	// note: putting the database id in Qt::UserRole.

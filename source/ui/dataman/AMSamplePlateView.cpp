@@ -29,7 +29,7 @@ AMSamplePlateItemModel::AMSamplePlateItemModel(AMSamplePlate* plate, QObject* pa
 {
 	plate_ = plate;
 
-	sampleTableName_ = AMDbObjectSupport::tableNameForClass<AMSample>();
+	sampleTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMSample>();
 
 	connect(plate_, SIGNAL(samplePositionAboutToBeAdded(int)), this, SLOT(onSamplePositionAboutToBeAdded(int)));
 	connect(plate_, SIGNAL(samplePositionAdded(int)), this, SLOT(onSamplePositionAdded(int)));
@@ -283,7 +283,7 @@ void AMSamplePlateItemDelegate::setModelData(QWidget *editor, QAbstractItemModel
 AMSamplePlateSelector::AMSamplePlateSelector(AMSamplePlate* sourcePlate, QWidget *parent)
 	: QWidget(parent) {
 
-	samplePlateTableName_ = AMDbObjectSupport::tableNameForClass<AMSamplePlate>();
+	samplePlateTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMSamplePlate>();
 	// Either use an external plate (if specified in sourcePlate), or make an internal one.
 	plate_ = sourcePlate ? sourcePlate : new AMSamplePlate(this);
 

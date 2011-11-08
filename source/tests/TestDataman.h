@@ -504,7 +504,7 @@ private slots:
 
 		// Load same scan back:
 		AMDbObject* dbo2 = 0;
-		dbo2 = AMDbObjectSupport::createAndLoadObjectAt(AMDatabase::userdb(), dbo.dbTableName(), dbo.id());
+		dbo2 = AMDbObjectSupport::s()->createAndLoadObjectAt(AMDatabase::userdb(), dbo.dbTableName(), dbo.id());
 
 
 		//qDebug() << "Confirming object was dynamically loaded: pointer is: " << dbo2;
@@ -573,7 +573,7 @@ private slots:
 		// Load same scan back:
 		AMDbObject* dbo2d = 0;
 		QString typeString;
-		dbo2d = AMDbObjectSupport::createAndLoadObjectAt(dbo.database(), dbo.dbTableName(), dbo.id());
+		dbo2d = AMDbObjectSupport::s()->createAndLoadObjectAt(dbo.database(), dbo.dbTableName(), dbo.id());
 
 		//qDebug() << "Confirming object was dynamically loaded: pointer is: " << dbo2d;
 		QVERIFY(dbo2d != 0);
@@ -768,7 +768,7 @@ private slots:
 
 
 	void testDbObjectComposition() {
-		AMDbObjectSupport::registerClass<AMTestDbObject>();
+		AMDbObjectSupport::s()->registerClass<AMTestDbObject>();
 
 		AMTestDbObject* t1 = new AMTestDbObject();
 		t1->storeToDb(AMDatabase::userdb());

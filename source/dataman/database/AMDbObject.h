@@ -139,12 +139,12 @@ Q_CLASSINFO("AMDbObject_Attributes", "keyword1=value1;keyword2=value2;...")
 	Note that subclasses inherit the base class definition for the whole attribute string, unless re-defined.  You can only specify the AMDbObject_Attributes once per class; multiple Q_CLASSINFO definitions are not allowed.
 
 
-- Register the class with the system by calling AMDbObjectSupport::registerClass<Class>() at runtime.  It's harmless to register a class multiple times, but it must be registered before calling storeToDb() or loadFromDb().
+- Register the class with the system by calling AMDbObjectSupport::s()->registerClass<Class>() at runtime.  It's harmless to register a class multiple times, but it must be registered before calling storeToDb() or loadFromDb().
 \code
 AMDatabase* myWorkingDatabase;
 // The following two lines can be done in either order:
-AMDbObjectSupport::registerDatabase(myWorkingDatabase);
-AMDbObjectSupport::registerClass<MyDbObject>();
+AMDbObjectSupport::s()->registerDatabase(myWorkingDatabase);
+AMDbObjectSupport::s()->registerClass<MyDbObject>();
 \endcode
 
 - Finally, all database objects have the optional functionality of providing one or more thumbnails to describe themselves. If you want to have non-blank thumbnails, you must provide thumbnailCount() and thumbnail(int index). The default is to have no thumbnails.
@@ -170,7 +170,7 @@ where \c id is the row to load the object from.
 
 If you want to reload an object from the database, but you don't know its exact detailed type, you can use the dynamic loader. It will create and loadFromDb() the appropriate object for a given database, id, and table name:
 \code
-AMDbObject* newSomeKindaObject = AMDbObjectSupport::createAndLoadObjectAt(myWorkingDatabase, tableName, id);
+AMDbObject* newSomeKindaObject = AMDbObjectSupport::s()->createAndLoadObjectAt(myWorkingDatabase, tableName, id);
 \endcode
 You can then use qobject_cast<>() or type() to test the type of the newly-created object.
 
@@ -196,7 +196,7 @@ When you call storeToDb() on the parent object,
 
 Calling loadFromDb() could behave in two different ways:
 	- The read property is used again to access a pointer to the member object. If it receives a valid pointer, and the type() of the existing object matches the type of the stored object, we call loadFromDb() on the existing object. setProperty() is never called.
-	- If the read property returns a null pointer, or if the type() of the existing object does NOT match the type of the object stored in the database, we cannot call loadFromDb().  Instead, we create a brand new object using AMDbObjectSupport::createAndLoadObjectAt() based on the stored object. Then we call setProperty() with a pointer to the newly created object.  (Note that if createAndLoadObjectAt() fails, setProperty() will pass in a null pointer, and you should check for this.)  \note It's the responsibility of the setProperty() write function to delete the old existing object (if required), take ownership of the new object, and re-connect any signal/slot connections to the newly created object.
+	- If the read property returns a null pointer, or if the type() of the existing object does NOT match the type of the object stored in the database, we cannot call loadFromDb().  Instead, we create a brand new object using AMDbObjectSupport::s()->createAndLoadObjectAt() based on the stored object. Then we call setProperty() with a pointer to the newly created object.  (Note that if createAndLoadObjectAt() fails, setProperty() will pass in a null pointer, and you should check for this.)  \note It's the responsibility of the setProperty() write function to delete the old existing object (if required), take ownership of the new object, and re-connect any signal/slot connections to the newly created object.
 
 	In normal usage, where the type of the member AMDbObject is constant, the second version of the loadFromDb() behaviour will only occur when re-loading the parent object from the database for the first time (if the member object hasn't been created by the constructor, and the read property returns a null pointer). In all subsequent storeToDb()/loadFromDb() calls, the existing member object will simply be stored and loaded transparently with the parent.
 
@@ -207,7 +207,7 @@ storeToDb() and loadFromDb() work the same as in the case of single variables.
 	- The read property is used to access a list of pointers to member objects. Each valid object is storeToDb()'d, and the table and id locations for each are stored with the parent object for future reference. (Here we use an auxilliary table called 'MainTableName_propertyName' to remember the stored locations.)
 
 	- loadFromDb() also starts by calling the read property function to get a list of the existing member objects.  If the number of existing objects matches the number of stored objects, AND all the existing objects are valid, AND the types match for all pairs of (existing,stored) objects, then loadFromDb() is called on each.
-	- Otherwise, if there are any discrepencies, a whole new set of objects is created with AMDbObjectSupport::createAndLoadObjectAt() based on the stored versions, and setProperty() is called with the list of new objects.  (Note that if createAndLoadObjectAt() fails, there may be null pointers in this list.)  It's the responsibility of the setPropert() write function to delete the old existing objects (if required) and re-establish connections to the new objects.   Note that it is NOT possible to reuse some of the existing objects in the list, but not others.
+	- Otherwise, if there are any discrepencies, a whole new set of objects is created with AMDbObjectSupport::s()->createAndLoadObjectAt() based on the stored versions, and setProperty() is called with the list of new objects.  (Note that if createAndLoadObjectAt() fails, there may be null pointers in this list.)  It's the responsibility of the setPropert() write function to delete the old existing objects (if required) and re-establish connections to the new objects.   Note that it is NOT possible to reuse some of the existing objects in the list, but not others.
 
 */
 class AMDbObject : public QObject

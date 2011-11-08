@@ -138,7 +138,7 @@ void AMScan::retrieveSampleName() const {
 
 	else {
 		sampleNameLoaded_ = true;	// don't set sampleNameLoaded_ in the case above. That way we will keep checking until there's a valid database() (for ex: we get saved/stored.) The sampleNameLoaded_ cache is meant to speed up this database call.
-		QVariant vSampleName = database()->retrieve(sampleId(), AMDbObjectSupport::tableNameForClass<AMSample>(), QString("name"));
+		QVariant vSampleName = database()->retrieve(sampleId(), AMDbObjectSupport::s()->tableNameForClass<AMSample>(), QString("name"));
 		if(vSampleName.isValid())
 			sampleName_ =  vSampleName.toString();
 		else

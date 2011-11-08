@@ -82,9 +82,9 @@ bool VESPERSAppController::startup() {
 		// Initialize the periodic table object.
 		AMPeriodicTable::table();
 
-		AMDbObjectSupport::registerClass<XRFDetectorInfo>();
-		AMDbObjectSupport::registerClass<VESPERSXRFScanConfiguration>();
-		AMDbObjectSupport::registerClass<AMXRFScan>();
+		AMDbObjectSupport::s()->registerClass<XRFDetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<VESPERSXRFScanConfiguration>();
+		AMDbObjectSupport::s()->registerClass<AMXRFScan>();
 
 		AMDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
 		AMDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();

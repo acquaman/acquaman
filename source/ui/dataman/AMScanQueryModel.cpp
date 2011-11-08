@@ -43,7 +43,7 @@ AMScanQueryModel::AMScanQueryModel(AMDatabase* db,
 	whereClause_ = whereClause;
 
 	if(tableName.isEmpty())
-		tableName_ = AMDbObjectSupport::tableNameForClass<AMScan>();
+		tableName_ = AMDbObjectSupport::s()->tableNameForClass<AMScan>();
 	else
 		tableName_ = tableName;
 
@@ -54,10 +54,10 @@ AMScanQueryModel::AMScanQueryModel(AMDatabase* db,
 				<< AMScanQueryModelColumnInfo("#", "number")
 				<< AMScanQueryModelColumnInfo("When", "dateTime")
 				   // << AMScanQueryModelColumnInfo("About", "scanInfo")
-				<< AMScanQueryModelColumnInfo("Sample", "sampleId", true, AMDbObjectSupport::tableNameForClass<AMSample>(), "name")
+				<< AMScanQueryModelColumnInfo("Sample", "sampleId", true, AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "name")
 				<< AMScanQueryModelColumnInfo("Technique", "AMDbObjectType", true, "AMDbObjectTypes_table", "description", "AMDbObjectType")
-				   // << AMScanQueryModelColumnInfo("Where", "facilityId", true, AMDbObjectSupport::tableNameForClass<AMFacility>(), "description")
-				<< AMScanQueryModelColumnInfo("Where", "runId", true, AMDbObjectSupport::tableNameForClass<AMRun>(), "name")
+				   // << AMScanQueryModelColumnInfo("Where", "facilityId", true, AMDbObjectSupport::s()->tableNameForClass<AMFacility>(), "description")
+				<< AMScanQueryModelColumnInfo("Where", "runId", true, AMDbObjectSupport::s()->tableNameForClass<AMRun>(), "name")
 				<< AMScanQueryModelColumnInfo("Notes", "notes");
 
 		orderClause_ = "dateTime ASC";

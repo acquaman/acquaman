@@ -58,11 +58,11 @@ bool SGMAppController::startup() {
 	if(AMAppController::startup()) {
 		SGMBeamline::sgm();
 
-		AMDbObjectSupport::registerClass<MCPDetectorInfo>();
-		AMDbObjectSupport::registerClass<PGTDetectorInfo>();
-		AMDbObjectSupport::registerClass<OceanOptics65000DetectorInfo>();
-		AMDbObjectSupport::registerClass<SGMXASScanConfiguration>();
-		AMDbObjectSupport::registerClass<SGMFastScanConfiguration>();
+		AMDbObjectSupport::s()->registerClass<MCPDetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<PGTDetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<OceanOptics65000DetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
+		AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration>();
 
 		AMDetectorViewSupport::registerClass<AMSingleControlBriefDetectorView, AMSingleControlDetector>();
 		AMDetectorViewSupport::registerClass<MCPBriefDetectorView, MCPDetector>();

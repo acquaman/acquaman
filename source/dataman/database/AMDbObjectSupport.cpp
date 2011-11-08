@@ -44,7 +44,7 @@ AMDbObjectInfo::AMDbObjectInfo(const QMetaObject* classMetaObject) {
 void AMDbObjectInfo::initWithMetaObject(const QMetaObject *classMetaObject) {
 	metaObject = classMetaObject;
 	className = metaObject->className();
-	tableName = AMDbObjectSupport::tableNameForClass(metaObject);
+	tableName = AMDbObjectSupport::s()->tableNameForClass(metaObject);
 
 	doNotReuseIds = ( AMDbObjectSupport::dbObjectAttribute(metaObject, "doNotReuseIds") == QString("true") );
 	classDescription = AMDbObjectSupport::dbObjectAttribute(metaObject, "description");
@@ -80,18 +80,16 @@ void AMDbObjectInfo::initWithMetaObject(const QMetaObject *classMetaObject) {
 	}
 }
 
-namespace AMDbObjectSupport {
 
-QHash<QString, AMDbObjectInfo> registeredClasses_;
-QSet<AMDatabase*> registeredDatabases_;
+AMDbObjectSupport* AMDbObjectSupport::instance_;
 
 
-const QHash<QString, AMDbObjectInfo>* registeredClasses() {
+const QHash<QString, AMDbObjectInfo>* AMDbObjectSupport::registeredClasses() {
 	return &registeredClasses_;
 }
 
 // Retrieve the AMDbObjectAttribute for a given \c object and \c key
-QString dbObjectAttribute(const QMetaObject* mo, const QString& key) {
+QString AMDbObjectSupport::dbObjectAttribute(const QMetaObject* mo, const QString& key) {
 	int i = mo->indexOfClassInfo("AMDbObject_Attributes");
 	if(i < 0) {
 		//qDebug() << "AMDBOBJECT" << mo->className() << ": no dbobject attributes set";
@@ -109,7 +107,7 @@ QString dbObjectAttribute(const QMetaObject* mo, const QString& key) {
 }
 
 // Retrieve an object's property attribute for a given \c object, \c propertyName, and \c key. Returns empty string if not set.
-QString dbPropertyAttribute(const QMetaObject* mo, const QString& propertyName, const QString& key) {
+QString AMDbObjectSupport::dbPropertyAttribute(const QMetaObject* mo, const QString& propertyName, const QString& key) {
 	int i = mo->indexOfClassInfo(propertyName.toAscii().constData());
 	if(i < 0) {
 		//qDebug() << "AMDBOBJECT" << mo->className() << ": no property attributes set for " << propertyName;
@@ -129,7 +127,7 @@ QString dbPropertyAttribute(const QMetaObject* mo, const QString& propertyName, 
 
 
 // Returns the name of the table that should be used to store this class. If the class is registered already, it returns the registered name. If it's not registered, but it has the dbObjectProperty 'shareTableWithClass' set to another registered class, then it returns the table used by that class. Otherwise, it provides a default table name of 'className' + '_table'.
-QString tableNameForClass(const QMetaObject* classMetaObject) {
+QString AMDbObjectSupport::tableNameForClass(const QMetaObject* classMetaObject) {
 	QString className = classMetaObject->className();
 
 	// if we're registered already, let's just look this up in the registry.
@@ -152,7 +150,7 @@ QString tableNameForClass(const QMetaObject* classMetaObject) {
 
 
 
-QString tableNameForClass(const QString& className) {
+QString AMDbObjectSupport::tableNameForClass(const QString& className) {
 	QHash<QString, AMDbObjectInfo>::const_iterator iInfo = registeredClasses()->find(className);
 	if(iInfo != registeredClasses()->end())
 		return iInfo.value().tableName;
@@ -162,7 +160,7 @@ QString tableNameForClass(const QString& className) {
 
 
 // register a new class with the database system. This is all you need to do enable an AMDbObect subclass. Returns false if the initialization failed; true if it was completed successfully, or if the object is already registered.
-bool registerClass(const QMetaObject* mo) {
+bool AMDbObjectSupport::registerClass(const QMetaObject* mo) {
 
 	// is this a subclass of AMDbObject? (Or an AMDbObject itself?)
 	if(!inheritsAMDbObject(mo))
@@ -192,7 +190,7 @@ bool registerClass(const QMetaObject* mo) {
 }
 
 
-bool registerDatabase(AMDatabase* db) {
+bool AMDbObjectSupport::registerDatabase(AMDatabase* db) {
 
 	// is it already registered? return true.
 	if(registeredDatabases_.contains(db)) {
@@ -268,7 +266,7 @@ bool registerDatabase(AMDatabase* db) {
 		return false;
 }
 
-bool getDatabaseReadyForClass(AMDatabase* db, const AMDbObjectInfo& info) {
+bool AMDbObjectSupport::getDatabaseReadyForClass(AMDatabase* db, const AMDbObjectInfo& info) {
 
 	// have the tables already been created in this database for this class? check the types table:
 	QList<int> foundRows = db->objectsMatching(typeTableName(), "AMDbObjectType", info.className );
@@ -322,7 +320,7 @@ bool getDatabaseReadyForClass(AMDatabase* db, const AMDbObjectInfo& info) {
 
 
 
-bool initializeDatabaseForClass(AMDatabase* db, const AMDbObjectInfo& info) {
+bool AMDbObjectSupport::initializeDatabaseForClass(AMDatabase* db, const AMDbObjectInfo& info) {
 	db->startTransaction();	// exiting this function for any error should roll back to here.
 
 	// create table...
@@ -428,7 +426,7 @@ bool initializeDatabaseForClass(AMDatabase* db, const AMDbObjectInfo& info) {
 
 // Helper function: checks if a class can be stored in the database as-is, or if the DB needs to be upgraded.
 /* Confirms that all columns and auxiliary tables exist, although not necessarily in the order specified. (Since upgrading a base class will tack on the new base class members at the end of the original subclass members.) */
-bool isUpgradeRequiredForClass(AMDatabase* db, const AMDbObjectInfo& info, int typeIdInDatabase) {
+bool AMDbObjectSupport::isUpgradeRequiredForClass(AMDatabase* db, const AMDbObjectInfo& info, int typeIdInDatabase) {
 
 	// what columns does the database have?  This is kept up-to-date in the table allColumnsTableName().
 	QSet<QString> existingColumns;
@@ -476,7 +474,7 @@ bool isUpgradeRequiredForClass(AMDatabase* db, const AMDbObjectInfo& info, int t
 }
 
 // upgrade an existing database from supporting an old version of a class to supporting a new version.
-bool upgradeDatabaseForClass(AMDatabase* db, const AMDbObjectInfo& info, int typeIdInDatabase) {
+bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObjectInfo& info, int typeIdInDatabase) {
 
 
 	// 1) what columns does the database have?  This is kept up-to-date in the table allColumnsTableName().
@@ -596,15 +594,15 @@ bool upgradeDatabaseForClass(AMDatabase* db, const AMDbObjectInfo& info, int typ
 
 
 // Support table names: (AMDbObject___ prefix ensures they don't collide with potential class table names)
-QString thumbnailTableName() { return "AMDbObjectThumbnails_table"; }
+QString AMDbObjectSupport::thumbnailTableName() { return "AMDbObjectThumbnails_table"; }
 // name of the table that stores meta-type information for all the registered classes.
-QString typeTableName() { return "AMDbObjectTypes_table"; }
-QString allColumnsTableName() { return "AMDbObjectTypes_allColumns"; }
-QString visibleColumnsTableName() { return "AMDbObjectTypes_visibleColumns"; }
-QString loadColumnsTableName() { return "AMDbObjectTypes_loadColumns"; }
+QString AMDbObjectSupport::typeTableName() { return "AMDbObjectTypes_table"; }
+QString AMDbObjectSupport::allColumnsTableName() { return "AMDbObjectTypes_allColumns"; }
+QString AMDbObjectSupport::visibleColumnsTableName() { return "AMDbObjectTypes_visibleColumns"; }
+QString AMDbObjectSupport::loadColumnsTableName() { return "AMDbObjectTypes_loadColumns"; }
 
 
-bool ensureTableForDbObjects(const QString& tableName, AMDatabase* db, bool reuseDeletedIds) {
+bool AMDbObjectSupport::ensureTableForDbObjects(const QString& tableName, AMDatabase* db, bool reuseDeletedIds) {
 
 	return db->ensureTable(tableName, QString("AMDbObjectType,thumbnailCount,thumbnailFirstId").split(','), QString("TEXT,INTEGER,INTEGER").split(','), reuseDeletedIds);
 }
@@ -612,24 +610,24 @@ bool ensureTableForDbObjects(const QString& tableName, AMDatabase* db, bool reus
 
 
 // Separator used between strings when exporting a StringList to the database
-QString stringListSeparator() { return "|@^@|"; }
+QString AMDbObjectSupport::stringListSeparator() { return "|@^@|"; }
 // Separator used between items when exporting all other lists to the database (changed from comma to support french localizations which use une virgule for the decimal point. maybe this needs to be fully localized.)
-QString listSeparator() { return ";"; }
+QString AMDbObjectSupport::listSeparator() { return ";"; }
 
 
 // Temporary tables (to be generalized)
 ///////////////////////
-QString elementTableName() { return "Elements"; }
+QString AMDbObjectSupport::elementTableName() { return "Elements"; }
 
-QString experimentEntriesTableName() { return "ObjectExperimentEntries"; }
-QString sampleElementEntriesTableName() { return "SampleElementEntries"; }
-QString controlSetEntriesTableName() { return "ControlSetEntries"; }
+QString AMDbObjectSupport::experimentEntriesTableName() { return "ObjectExperimentEntries"; }
+QString AMDbObjectSupport::sampleElementEntriesTableName() { return "SampleElementEntries"; }
+QString AMDbObjectSupport::controlSetEntriesTableName() { return "ControlSetEntries"; }
 ///////////////////////////
 
 
 
 // Useful for database introspection, this returns the type() (ie: class name) of the object stored in database \c db, under table \c tableName, at row \c id.
-QString typeOfObjectAt(AMDatabase* db, const QString& tableName, int id) {
+QString AMDbObjectSupport::typeOfObjectAt(AMDatabase* db, const QString& tableName, int id) {
 
 	if(!db || id<1)
 		return QString();
@@ -642,7 +640,7 @@ QString typeOfObjectAt(AMDatabase* db, const QString& tableName, int id) {
 }
 
 // returns a pointer to the object info for a given class with \c className, or 0 if the class has not been registered in the database system.
-const AMDbObjectInfo* objectInfoForClass(const QString& className) {
+const AMDbObjectInfo* AMDbObjectSupport::objectInfoForClass(const QString& className) {
 	QHash<QString, AMDbObjectInfo>::const_iterator iInfo = registeredClasses()->find(className);
 	if(iInfo != registeredClasses()->end())
 		return &(iInfo.value());
@@ -652,7 +650,7 @@ const AMDbObjectInfo* objectInfoForClass(const QString& className) {
 
 // Useful for database introspection, this creates and dynamically loads an object stored in database \c db, under table \c tableName, at row \c id. You can use qobject_cast<>() or type() to find out the detailed type of the new object.  Returns 0 if no object found.
 /* Ownership of the newly-created object becomes the responsibility of the caller. */
-AMDbObject* createAndLoadObjectAt(AMDatabase* db, const QString& tableName, int id) {
+AMDbObject* AMDbObjectSupport::createAndLoadObjectAt(AMDatabase* db, const QString& tableName, int id) {
 
 	QString className = typeOfObjectAt(db, tableName, id);
 	if(className.isEmpty()) {
@@ -695,7 +693,7 @@ AMDbObject* createAndLoadObjectAt(AMDatabase* db, const QString& tableName, int 
 
 
 // Helper function to check if a class inherits AMDbObject.  \c mo is the Qt QMetaObject representing the class.
-bool inheritsAMDbObject(const QMetaObject* mo) {
+bool AMDbObjectSupport::inheritsAMDbObject(const QMetaObject* mo) {
 	const QMetaObject* superClass = mo;
 	bool inheritsDbObject;
 	do {
@@ -707,10 +705,9 @@ bool inheritsAMDbObject(const QMetaObject* mo) {
 }
 
 
-QSqlQuery select(AMDatabase* db, const QString& className, const QString& columnNames, const QString& whereClause) {
+QSqlQuery AMDbObjectSupport::select(AMDatabase* db, const QString& className, const QString& columnNames, const QString& whereClause) {
 
 	return db->select(tableNameForClass(className), columnNames, whereClause);
 }
 
-}	// END OF NAMESPACE AMDbObjectSupport
 

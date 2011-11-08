@@ -72,141 +72,153 @@ private:
 
 };
 
-/// The functions in the AMDbObjectSupport namespace provides support for registering AMDbObject classes into the AMDbObject system.
+class AMDbObject;
+
+/// The functions in the AMDbObjectSupport class provide support for registering AMDbObject classes into the AMDbObject system.
 /*!
 When you register a new class with registerClass<Class>(), the class is added to the class registry, and tables are made for it (if necessary) in all registered databases.
 
 When you register a new database with registerDatabase(), it is added to the database registry. Tables are created retroactively for previously registered classes, so you can register databases and classes in any order.
 */
-
-class AMDbObject;
-
-namespace AMDbObjectSupport
+class AMDbObjectSupport
 {
 
-// Public Functions: Registration
-////////////////////////////////
+public:
 
-/// register a new database with the object-database system. This must be done before trying to save or load any AMDbObject database objects into it/from it.
-bool registerDatabase(AMDatabase* db);
+	// Singleton class accessor:
+	/////////////////////////////////
+	/// AMDbObjectSupport is a singleton class; access the only instance of it using AMDbObjectSupport::s().
+	static AMDbObjectSupport* s() { if(!instance_) instance_ = new AMDbObjectSupport(); return instance_; }
 
-/// register a new class with the database system. This is all you need to do enable an AMDbObect subclass. Returns false if the initialization failed; true if it was completed successfully, or if the object is already registered.
-template <class T>
-bool registerClass() {	return registerClass(&(T::staticMetaObject)); }
-/// register a new class with the database system. This is all you need to do enable an AMDbObect subclass. Returns false if the initialization failed; true if it was completed successfully, or if the object is already registered.
-bool registerClass(const QMetaObject* mo);
+	// Public Functions: Registration
+	////////////////////////////////
 
+	/// register a new database with the object-database system. This must be done before trying to save or load any AMDbObject database objects into it/from it.
+	bool registerDatabase(AMDatabase* db);
 
-
-// Public Functions: Database Introspection
-////////////////////////
-
-/// Returns the name of the table that should be used to store this class. If the class is registered already, it returns the registered name. If it's not registered, but it has the dbObjectProperty 'shareTableWithClass' set to another registered class, then it returns the table used by that class. Otherwise, it provides a default table name of 'className' + '_table'.
-QString tableNameForClass(const QMetaObject* object);
-/// Returns the name of the database table where this class is stored.  Only works for classes that are ALREADY REGISTERED using registerClass()
-QString tableNameForClass(const QString& className);
-/// Convenient alternative for tableNameForClass() when you have the class type (but not an instance)
-template <class T>
-QString tableNameForClass() {
-	return tableNameForClass( &(T::staticMetaObject) );
-}
-
-
-/// Useful for database introspection, this returns the type() (ie: class name) of the object stored in database \c db, under table \c tableName, at row \c id.
-QString typeOfObjectAt(AMDatabase* db, const QString& tableName, int id);
-
-// Public Functions: Dynamic Loading
-////////////////////////////////////
-
-/// Useful for database introspection, this creates and dynamically loads an object stored in database \c db, under table \c tableName, at row \c id. You can use qobject_cast<>() or type() to find out the detailed type of the new object.  Returns 0 if no object found.
-/*! Ownership of the newly-created object becomes the responsibility of the caller. */
-AMDbObject* createAndLoadObjectAt(AMDatabase* db, const QString& tableName, int id);
-
-// Public Functions: Searching at the SQL level
-////////////////////////////////////
-
-/// Convenience function for doing a select query on only some of the fields that an AMDbObject table has.
-QSqlQuery select(AMDatabase* db, const QString& className, const QString& columnNames, const QString& whereClause = QString());
-/// Overloaded version of select(), useful when you know the class type but don't have its name.
-template <class T>
-QSqlQuery select(AMDatabase* db, const QString& columnNames, const QString& whereClause = QString()) {
-	QString className = (T::staticMetaObject)->className();
-	return select(db, className, columnNames, whereClause);
-}
+	/// register a new class with the database system. This is all you need to do enable an AMDbObect subclass. Returns false if the initialization failed; true if it was completed successfully, or if the object is already registered.
+	template <class T>
+	bool registerClass() {	return registerClass(&(T::staticMetaObject)); }
+	/// register a new class with the database system. This is all you need to do enable an AMDbObect subclass. Returns false if the initialization failed; true if it was completed successfully, or if the object is already registered.
+	bool registerClass(const QMetaObject* mo);
 
 
 
+	// Public Functions: Database Introspection
+	////////////////////////
+
+	/// Returns the name of the table that should be used to store this class. If the class is registered already, it returns the registered name. If it's not registered, but it has the dbObjectProperty 'shareTableWithClass' set to another registered class, then it returns the table used by that class. Otherwise, it provides a default table name of 'className' + '_table'.
+	QString tableNameForClass(const QMetaObject* object);
+	/// Returns the name of the database table where this class is stored.  Only works for classes that are ALREADY REGISTERED using registerClass()
+	QString tableNameForClass(const QString& className);
+	/// Convenient alternative for tableNameForClass() when you have the class type (but not an instance)
+	template <class T>
+	QString tableNameForClass() {
+		return tableNameForClass( &(T::staticMetaObject) );
+	}
 
 
-// Internal Helper functions
-//////////////////////////////
+	/// Useful for database introspection, this returns the type() (ie: class name) of the object stored in database \c db, under table \c tableName, at row \c id.
+	QString typeOfObjectAt(AMDatabase* db, const QString& tableName, int id);
 
-/// Helper function to check if a class inherits AMDbObject.  \c mo is the Qt QMetaObject representing the class.
-bool inheritsAMDbObject(const QMetaObject* mo);
+	// Public Functions: Dynamic Loading
+	////////////////////////////////////
 
-/// Retrieve the AMDbObjectAttribute for a given \c object and \c key. Returns empty string if not set.
-QString dbObjectAttribute(const QMetaObject* object, const QString& key);
-/// Retrieve an object's property attribute for a given \c object, \c propertyName, and \c key. Returns empty string if not set.
-QString dbPropertyAttribute(const QMetaObject* object, const QString& propertyName, const QString& key);
+	/// Useful for database introspection, this creates and dynamically loads an object stored in database \c db, under table \c tableName, at row \c id. You can use qobject_cast<>() or type() to find out the detailed type of the new object.  Returns 0 if no object found.
+	/*! Ownership of the newly-created object becomes the responsibility of the caller. */
+	AMDbObject* createAndLoadObjectAt(AMDatabase* db, const QString& tableName, int id);
 
-/// returns a const pointer to the hash of registered AMDbObject classes
-const QHash<QString, AMDbObjectInfo>* registeredClasses();
+	// Public Functions: Searching at the SQL level
+	////////////////////////////////////
 
-/// returns a pointer to the object info for a given class with \c className, or 0 if the class has not yet been registered in the database system.
-const AMDbObjectInfo* objectInfoForClass(const QString& classsName);
-/// \todo Overloads for objectInfoForClass<Class>().
-
-
-/// ensure that a database \c db is ready to hold objects of the class described by \c info. Will call initializeDatabaseForClass() or upgradeDatabaseForClass() if required.
-bool getDatabaseReadyForClass(AMDatabase* db, const AMDbObjectInfo& info);
-/// Helper function: Creates table and columns for a class which has never been stored in the database before.
-bool initializeDatabaseForClass(AMDatabase* db, const AMDbObjectInfo& info);
-/// Helper function: checks if a class can be stored in the database as-is, or if the DB needs to be upgraded.
-/*! Confirms that all columns and auxiliary tables exist, although not necessarily in the order specified. (Since upgrading a base class will tack on the new base class members at the end of the original subclass members.) */
-bool isUpgradeRequiredForClass(AMDatabase* db, const AMDbObjectInfo& info, int typeIdInDatabase);
-/// Helper function: Upgrades an existing database from supporting an old version of a class to supporting a new version.  If new columns exist, they will be created and filled with the default value specified in AMDbObjectInfo.
-bool upgradeDatabaseForClass(AMDatabase* db, const AMDbObjectInfo& info, int typeIdInDatabase);
-
-/// Ensure that a table exists with the required basic fields for holding any AMDbObject
-bool ensureTableForDbObjects(const QString& tableName, AMDatabase* db, bool reuseDeletedIds = true);
-
-
-/// Separator used between strings when exporting a StringList to the database
-QString stringListSeparator();
-/// Separator used between items when exporting all other lists to the database (changed from comma to support french localizations which use une virgule for the decimal point. maybe this needs to be fully localized.)
-QString listSeparator();
-
-
-// Support table names:
-///////////////////////////
-
-/// Stores thumbnails for all AMDbObjects that use thumbnails
-QString thumbnailTableName();
-/// name of the table that stores meta-type information for all the registered classes.
-QString typeTableName();
-QString allColumnsTableName();
-QString visibleColumnsTableName();
-QString loadColumnsTableName();
-
-
-// Temporary tables (to be generalized?)
-///////////////////////
-QString elementTableName();
-
-QString experimentEntriesTableName();
-QString sampleElementEntriesTableName();
-QString controlSetEntriesTableName();
+	/// Convenience function for doing a select query on only some of the fields that an AMDbObject table has.
+	QSqlQuery select(AMDatabase* db, const QString& className, const QString& columnNames, const QString& whereClause = QString());
+	/// Overloaded version of select(), useful when you know the class type but don't have its name.
+	template <class T>
+	QSqlQuery select(AMDatabase* db, const QString& columnNames, const QString& whereClause = QString()) {
+		QString className = (T::staticMetaObject)->className();
+		return select(db, className, columnNames, whereClause);
+	}
 
 
 
-// Internal Variables
-////////////////////////////////
 
-/// This should not be considered part of the public interface.
-extern QHash<QString, AMDbObjectInfo> registeredClasses_;
-/// This should not be considered part of the public interface.
-extern QSet<AMDatabase*> registeredDatabases_;
 
-}
+	// Internal Helper functions
+	//////////////////////////////
+
+	/// Helper function to check if a class inherits AMDbObject.  \c mo is the Qt QMetaObject representing the class.
+	static bool inheritsAMDbObject(const QMetaObject* mo);
+
+	/// Retrieve the AMDbObjectAttribute for a given \c object and \c key. Returns empty string if not set.
+	static QString dbObjectAttribute(const QMetaObject* object, const QString& key);
+	/// Retrieve an object's property attribute for a given \c object, \c propertyName, and \c key. Returns empty string if not set.
+	static QString dbPropertyAttribute(const QMetaObject* object, const QString& propertyName, const QString& key);
+
+	/// returns a const pointer to the hash of registered AMDbObject classes
+	const QHash<QString, AMDbObjectInfo>* registeredClasses();
+
+	/// returns a pointer to the object info for a given class with \c className, or 0 if the class has not yet been registered in the database system.
+	const AMDbObjectInfo* objectInfoForClass(const QString& classsName);
+	/// \todo Overloads for objectInfoForClass<Class>().
+
+
+	/// ensure that a database \c db is ready to hold objects of the class described by \c info. Will call initializeDatabaseForClass() or upgradeDatabaseForClass() if required.
+	bool getDatabaseReadyForClass(AMDatabase* db, const AMDbObjectInfo& info);
+	/// Helper function: Creates table and columns for a class which has never been stored in the database before.
+	bool initializeDatabaseForClass(AMDatabase* db, const AMDbObjectInfo& info);
+	/// Helper function: checks if a class can be stored in the database as-is, or if the DB needs to be upgraded.
+	/*! Confirms that all columns and auxiliary tables exist, although not necessarily in the order specified. (Since upgrading a base class will tack on the new base class members at the end of the original subclass members.) */
+	bool isUpgradeRequiredForClass(AMDatabase* db, const AMDbObjectInfo& info, int typeIdInDatabase);
+	/// Helper function: Upgrades an existing database from supporting an old version of a class to supporting a new version.  If new columns exist, they will be created and filled with the default value specified in AMDbObjectInfo.
+	bool upgradeDatabaseForClass(AMDatabase* db, const AMDbObjectInfo& info, int typeIdInDatabase);
+
+	/// Ensure that a table exists with the required basic fields for holding any AMDbObject
+	bool ensureTableForDbObjects(const QString& tableName, AMDatabase* db, bool reuseDeletedIds = true);
+
+
+	/// Separator used between strings when exporting a StringList to the database
+	static QString stringListSeparator();
+	/// Separator used between items when exporting all other lists to the database (changed from comma to support french localizations which use une virgule for the decimal point. maybe this needs to be fully localized.)
+	static QString listSeparator();
+
+
+	// Support table names:
+	///////////////////////////
+
+	/// Stores thumbnails for all AMDbObjects that use thumbnails
+	static QString thumbnailTableName();
+	/// name of the table that stores meta-type information for all the registered classes.
+	static QString typeTableName();
+	static QString allColumnsTableName();
+	static QString visibleColumnsTableName();
+	static QString loadColumnsTableName();
+
+
+	// Temporary tables (to be generalized?)
+	///////////////////////
+	static QString elementTableName();
+
+	static QString experimentEntriesTableName();
+	static QString sampleElementEntriesTableName();
+	static QString controlSetEntriesTableName();
+
+
+
+	// Internal Variables
+	////////////////////////////////
+
+private:
+	/// This should not be considered part of the public interface.
+	QHash<QString, AMDbObjectInfo> registeredClasses_;
+	/// This should not be considered part of the public interface.
+	QSet<AMDatabase*> registeredDatabases_;
+
+	/// This is a singleton class, so the constructor is private.
+	AMDbObjectSupport() {}
+	/// Single instance of this class.
+	static AMDbObjectSupport* instance_;
+
+};
 
 #endif // AMDBOBJECTSUPPORT_H

@@ -61,9 +61,9 @@ bool REIXSAppController::startup() {
 
 	if(AMAppController::startup()) {
 
-		AMDbObjectSupport::registerClass<REIXSXESScanConfiguration>();
-		AMDbObjectSupport::registerClass<REIXSXESMCPDetectorInfo>();
-		AMDbObjectSupport::registerClass<REIXSXESCalibration>();
+		AMDbObjectSupport::s()->registerClass<REIXSXESScanConfiguration>();
+		AMDbObjectSupport::s()->registerClass<REIXSXESMCPDetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<REIXSXESCalibration>();
 
 
 		// Testing and making the first run in the database, if there isn't one already.  Make this it's own function if you think startup() is getting too big ; )

@@ -41,7 +41,7 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 
 	db_ = database;
 	runId_ = experimentId_ = -1;
-	scansTableName_ = AMDbObjectSupport::tableNameForClass<AMScan>();
+	scansTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMScan>();
 	selectedUrlsUpdateRequired_ = true;
 
 	itemSize_ = 50;
@@ -960,12 +960,12 @@ void AMDataViewSection::expand(bool expanded) {
 
 		switch(viewMode_) {
 		case AMDataViews::ListView:
-			subview_ = new AMDataViewSectionListView(db_, AMDbObjectSupport::tableNameForClass<AMScan>(), whereClause_, this, widthConstraint_, itemSize_);
+			subview_ = new AMDataViewSectionListView(db_, AMDbObjectSupport::s()->tableNameForClass<AMScan>(), whereClause_, this, widthConstraint_, itemSize_);
 			break;
 
 		case AMDataViews::ThumbnailView:
 		default:
-			subview_ = new AMDataViewSectionThumbnailView(db_, AMDbObjectSupport::tableNameForClass<AMScan>(), whereClause_, this, widthConstraint_, itemSize_);
+			subview_ = new AMDataViewSectionThumbnailView(db_, AMDbObjectSupport::s()->tableNameForClass<AMScan>(), whereClause_, this, widthConstraint_, itemSize_);
 			break;
 		}
 		connect(subview_, SIGNAL(selectionChanged()), this, SIGNAL(selectionChanged()));
@@ -1064,7 +1064,7 @@ void AMDataViewSection::layoutContents() {
 
 int AMDataViewSection::countResults() {
 	QSqlQuery q = db_->query();
-	QString query = QString("SELECT COUNT(1) FROM %1").arg(AMDbObjectSupport::tableNameForClass<AMScan>());
+	QString query = QString("SELECT COUNT(1) FROM %1").arg(AMDbObjectSupport::s()->tableNameForClass<AMScan>());
 	if(!whereClause_.isEmpty())
 		query.append(" WHERE ").append(whereClause_);
 	q.prepare(query);

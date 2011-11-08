@@ -48,7 +48,7 @@ AMSample::AMSample(int databaseId, AMDatabase* database, QObject* parent)
 void AMSample::destroySample(AMDatabase* db, int id) {
 	if(db == 0)
 		return;
-	db->deleteRow(id, AMDbObjectSupport::tableNameForClass<AMSample>());
+	db->deleteRow(id, AMDbObjectSupport::s()->tableNameForClass<AMSample>());
 }
 
 #include "util/AMPeriodicTable.h"

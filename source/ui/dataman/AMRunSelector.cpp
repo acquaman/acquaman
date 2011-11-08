@@ -92,7 +92,7 @@ void AMRunSelector::populateRuns() {
 	q.prepare(QString("SELECT %1.id,%1.name,%1.dateTime,%2.description,AMDbObjectThumbnails_table.type,AMDbObjectThumbnails_table.thumbnail,%1.endDateTime "
 			  "FROM %1,%2,AMDbObjectThumbnails_table "
 			  "WHERE %1.facilityId = %2.id AND AMDbObjectThumbnails_table.id = %2.thumbnailFirstId "
-			  "ORDER BY %1.dateTime DESC").arg(AMDbObjectSupport::tableNameForClass<AMRun>()).arg(AMDbObjectSupport::tableNameForClass<AMFacility>()));
+			  "ORDER BY %1.dateTime DESC").arg(AMDbObjectSupport::s()->tableNameForClass<AMRun>()).arg(AMDbObjectSupport::s()->tableNameForClass<AMFacility>()));
 
 	if (q.exec()) {
 		while (q.next()){
@@ -190,7 +190,7 @@ void AMRunSelector::onDatabaseUpdate(const QString & tableName, int id) {
 
 	Q_UNUSED(id)
 
-	if(tableName == AMDbObjectSupport::tableNameForClass<AMRun>()) {
+	if(tableName == AMDbObjectSupport::s()->tableNameForClass<AMRun>()) {
 		if(!runUpdateScheduled_) {
 			runUpdateScheduled_ = true;
 			QTimer::singleShot(0, this, SLOT(populateRuns()));

@@ -368,11 +368,11 @@ bool AMGenericScanEditor::dropScanURLs(const QList<QUrl>& urls) {
 			break;
 
 		/// \todo Evaluate if this is still necessary: Only store things that belong in the scans table for now.
-		if(tableName != AMDbObjectSupport::tableNameForClass<AMScan>())
+		if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
 			break;
 
 		/// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
-		AMDbObject* dbo = AMDbObjectSupport::createAndLoadObjectAt(db, tableName, id);
+		AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
 		if(!dbo)
 			break;
 

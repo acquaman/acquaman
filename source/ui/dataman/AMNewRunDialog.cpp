@@ -82,7 +82,7 @@ void AMNewRunDialog::addFacility(){
 	*/
 	q.prepare(QString("SELECT %1.description,%1.name,AMDbObjectThumbnails_table.thumbnail,AMDbObjectThumbnails_table.type,%1.id "
 			  "FROM %1,AMDbObjectThumbnails_table WHERE %1.thumbnailFirstId = AMDbObjectThumbnails_table.id "
-			  "ORDER BY %1.id DESC").arg(AMDbObjectSupport::tableNameForClass<AMFacility>()));
+			  "ORDER BY %1.id DESC").arg(AMDbObjectSupport::s()->tableNameForClass<AMFacility>()));
 	int i = 0;
 	if (q.exec()) {
 		while (q.next()) {
