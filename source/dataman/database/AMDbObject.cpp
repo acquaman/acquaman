@@ -117,10 +117,10 @@ const AMDbObjectInfo* AMDbObject::dbObjectInfo() const {
 }
 /*
 const AMDbObjectInfo* AMDbObject::dbObjectInfo() const {
-	if( AMDbObjectSupport::registeredClasses()->contains( type() ) ) {
-		return &((AMDbObjectInfo&)((*AMDbObjectSupport::registeredClasses())[ type() ]));
-	}
-	return 0;
+ if( AMDbObjectSupport::registeredClasses()->contains( type() ) ) {
+  return &((AMDbObjectInfo&)((*AMDbObjectSupport::registeredClasses())[ type() ]));
+ }
+ return 0;
 }*/
 
 #include <QDebug>
@@ -535,4 +535,37 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 AMDatabase& operator<<(AMDatabase& db, AMDbObject& s) {
 	s.storeToDb(&db);
 	return db;
+}
+
+void AMDbObject::dissociateFromDb(bool shouldDissociateChildren)
+{
+	id_ = 0;
+	database_ = 0;
+
+	const AMDbObjectInfo* myInfo = dbObjectInfo();
+	if(!myInfo)
+		return;	// class has not been registered yet in the database system. Nothing to do.
+
+	if(shouldDissociateChildren) {
+
+		// Dissociating children. Go through all columns...
+		for(int i=0; i<myInfo->columnCount; i++) {
+
+			QByteArray columnNameBA = myInfo->columns.at(i).toAscii();
+			const char* columnName = columnNameBA.constData();
+
+			if(myInfo->columnTypes.at(i) == qMetaTypeId<AMDbObject*>()) {	// single child objects
+				AMDbObject* obj = property(columnName).value<AMDbObject*>();
+				if(obj && obj!=this)
+					obj->dissociateFromDb(true);
+			}
+			if(myInfo->columnTypes.at(i) == qMetaTypeId<AMDbObjectList>()) {	// Lists of child objects
+				AMDbObjectList objList = property(columnName).value<AMDbObjectList>();
+				foreach(AMDbObject* obj, objList) {
+					if(obj && obj!=this)
+						obj->dissociateFromDb(true);
+				}
+			}
+		}
+	}
 }

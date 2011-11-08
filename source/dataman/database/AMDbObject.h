@@ -223,14 +223,14 @@ class AMDbObject : public QObject
 public:
 	/// Default Constructor
 	Q_INVOKABLE explicit AMDbObject(QObject *parent = 0);
-	/// Copy constructor.  QObject parent/child relationships are NOT copied, but the essential characteristics (id, database, and modified state) of the AMDbObject are.  Making a copy will create an independent instance in memory. However, if the original has been previously saved to or loaded from the database, both the original and the copy will store/restore to the same location in the database (ie: they refer to the same persistent object).
+	/// Copy constructor.  QObject parent/child relationships are NOT copied, but the essential characteristics (id, database, and modified state) of the AMDbObject are.  Making a copy will create an independent instance in memory. However, if the original has been previously saved to or loaded from the database, both the original and the copy will store/restore to the same location in the database (ie: they refer to the same persistent object). If you want the copy to be an independent database object, you need to call dissociateFromDb() next.
 	/*! If the original has never been successfully saved or loaded (ie: id() and database() return 0) then the two instances remain fully independent objects (both in memory, and in the database after calling storeToDb() for the first time.)
 
 	  The parent QObject is not set when using this copy constructor; the copy's parent() will be 0.  If you want the copy to share the same parent(), you must call QObject::setParent() afterward.
 	  */
 	AMDbObject(const AMDbObject& original);
 
-	/// Assignment operator. QObject parent/child relationships are NOT copied, but the essential characteristics (id, database, and modified state) of the AMDbObject are.  Making a copy will create an independent instance in memory. However, if the original has been previously saved to or loaded from the database, both the original and the copy will store/restore to the same location in the database (ie: they refer to the same persistent object).
+	/// Assignment operator. QObject parent/child relationships are NOT copied, but the essential characteristics (id, database, and modified state) of the AMDbObject are.  Making a copy will create an independent instance in memory. However, if the original has been previously saved to or loaded from the database, both the original and the copy will store/restore to the same location in the database (ie: they refer to the same persistent object). If you want the copy to be an independent database object, you need to call dissociateFromDb() next.
 	/*! If the original has never been successfully saved or loaded (ie: id() and database() return 0) then the two instances remain fully independent objects (both in memory, and in the database after calling storeToDb() for the first time.)
 
 	  The parent QObject is not set when using this copy operator; the copy's parent() will be 0.  If you want the copy to share the same parent(), you must call QObject::setParent() afterward.
@@ -275,6 +275,15 @@ public:
 	  */
 	virtual bool storeToDb(AMDatabase* db);
 
+	/// Dissociate the database identify of an in-memory object.
+	/** Dis-associates an in-memory object from any database object it might represent.  For example, if the object has been previously stored to the database, it will have a valid database() and id(); calling this function will reset both of those to 0, which means the in-memory object will no longer refer to the persistent object. You can then re-save the object to a new location by calling storeToDb().
+
+		By default, this function also calls itself recursively on all children objects -- ie: properties of type AMDbObject* or AMDbObjectList.  This is according to our policy that children database objects should not be shared between parents.
+
+		If this object has never been stored to the database (ie: database() and id() return 0...), then this function does nothing.
+	*/
+	virtual void dissociateFromDb(bool shouldDissociateChildren = true);
+
 	/// Returns truen when this in-memory object has been modified from the version in the database (or when there is no version in the database).  Subclasses should help keep this correct by calling setModified(true) when their properties are changed.
 	bool modified() const { return modified_; }
 
@@ -284,8 +293,6 @@ public:
 	  - shareTableWithClass
 	  - description
 	  - version
-
-	  /// \todo This is slow -- it probably needs to be optimized.
 	  */
 	QString dbObjectAttribute(const QString& key) const;
 
