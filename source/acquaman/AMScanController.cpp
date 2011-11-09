@@ -91,8 +91,9 @@ bool AMScanController::isFailed() const {
 
 bool AMScanController::initialize(){
 	if(changeState(AMScanController::Initializing)){
-		if(initializeImplementation())
+		if(initializeImplementation()) {
 			return true;
+		}
 		else
 			return false;
 	}
@@ -126,12 +127,15 @@ bool AMScanController::resume(){
 }
 
 void AMScanController::cancel(){
-	if(changeState(AMScanController::Cancelling))
+	if(changeState(AMScanController::Cancelling)) {
 		cancelImplementation();
+	}
 }
 
 bool AMScanController::setInitialized(){
 	if(changeState(AMScanController::Initialized)){
+		if(generalScan_)
+			generalScan_->setScanController(this);
 		emit initialized();
 		return true;
 	}
@@ -163,12 +167,17 @@ bool AMScanController::setResumed(){
 }
 
 void AMScanController::setCancelled(){
-	if(changeState(AMScanController::Cancelled))
+	if(changeState(AMScanController::Cancelled)) {
+		if(generalScan_)
+			generalScan_->setScanController(0);
 		emit cancelled();
+	}
 }
 
 bool AMScanController::setFinished(){
 	if(changeState(AMScanController::Finished)){
+		if(generalScan_)
+			generalScan_->setScanController(0);
 		emit finished();
 		return true;
 	}
@@ -176,8 +185,11 @@ bool AMScanController::setFinished(){
 }
 
 void AMScanController::setFailed(){
-	if(changeState(AMScanController::Failed))
+	if(changeState(AMScanController::Failed)) {
+		if(generalScan_)
+			generalScan_->setScanController(0);
 		emit failed();
+	}
 }
 
 bool AMScanController::changeState(ScanState newState){

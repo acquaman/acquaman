@@ -146,7 +146,7 @@ protected:
 	// Virtual implementation functions.  Implement these as required for relevant transitions between states.  The AMScanController API guarantees that these will only be called from the states indicated.
 	///////////////////
 
-	/// Implement to initialize the beamline and prepare the scan to run.  (ie: transition from Constructed to Initialized). Returns whether or not initialization can occur, not if it is initialized. After initialization is complete, call setInitialized().
+	/// Implement to initialize the beamline and prepare the scan to run.  (ie: transition from Constructed to Initialized). Returns whether or not initialization can occur, not if it is initialized. If you return true, scan object should be a valid object at this point.  After initialization is complete, call setInitialized().
 	virtual bool initializeImplementation() = 0;
 	/// Implement to start a scan (ie: transition from Initialized to Running).  Returns whether or not the scan can be started, not that the scan has started. After the scan is running, call setStarted().
 	virtual bool startImplementation() = 0;
@@ -172,12 +172,6 @@ private:
 private:
 	/// The current state of the scan.  Private because implementations must use the protected notification functions (setStarted(), setFinished(), etc.) to change this, so that signals are properly emitted.
 	ScanState state_;
-
-	// unused: AMScanConfiguration **_pCfg_;
-	// unused: AMScan **_pScan_;
-
-	// unused: AMScanConfiguration* pCfg_() { return *_pCfg_;}
-	// unused: AMScan* pScan_() {return *_pScan_;}
 };
 
 /*!

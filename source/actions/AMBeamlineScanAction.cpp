@@ -207,8 +207,7 @@ void AMBeamlineScanAction::onScanStarted(){
 	/*
 	setStarted(true);
 	*/
-	ctrl_->scan()->storeToDb(AMDatabase::database("user"));
-	if(!ctrl_->scan()->database()){
+	if(!ctrl_->scan()->storeToDb(AMDatabase::database("user"))){
 		AMErrorMon::report(AMErrorReport(this,
 				AMErrorReport::Alert,
 				AMBEAMLINEACTIONITEM_CANT_SAVE_TO_DB,

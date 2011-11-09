@@ -112,6 +112,7 @@ HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/util/AMErrorMonitor.h \
 		$$AM_INCLUDE_DIR/util/AMPeriodicTable.h \
 		$$AM_INCLUDE_DIR/util/AMElement.h \
+		$$AM_INCLUDE_DIR/util/AMDateTimeUtils.h \
 		$$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 		$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorMap.h \
 		$$MPLOT_INCLUDE_DIR/MPlot/MPlotLegend.h \
@@ -146,6 +147,7 @@ SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/util/AMErrorMonitor.cpp \
 		$$AM_INCLUDE_DIR/util/AMPeriodicTable.cpp \
 		$$AM_INCLUDE_DIR/util/AMElement.cpp \
+		$$AM_INCLUDE_DIR/util/AMDateTimeUtils.cpp \
 		$$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 		$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorMap.cpp \
 		$$MPLOT_INCLUDE_DIR/MPlot/MPlotLegend.cpp \

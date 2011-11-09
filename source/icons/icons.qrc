@@ -115,5 +115,6 @@
         <file>lightbulb.png</file>
         <file>stop.png</file>
         <file>valveIcon.png</file>
+        <file>240x180/currentlyScanningThumbnail.png</file>
     </qresource>
 </RCC>

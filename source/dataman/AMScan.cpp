@@ -40,6 +40,7 @@ AMScan::AMScan(QObject *parent)
 	fileFormat_ = "unknown";
 
 	configuration_ = 0;
+	controller_ = 0;
 
 	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured in specific subclasses.
 	//data_ = new AMDataTreeDataStore(AMAxisInfo("eV", 0, "Incidence Energy", "eV"));
@@ -391,6 +392,7 @@ bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource, bool 
 #include <QPixmap>
 #include <QBuffer>
 #include <QByteArray>
+#include <QFile>
 
 /// \todo Hackish... just needed for colors. Move the color table somewhere else besides AMScanSetModel.
 #include "dataman/AMScanSetModel.h"
@@ -400,9 +402,20 @@ bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource, bool 
 #include "MPlot/MPlotImage.h"
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 #include "dataman/datasource/AMDataSourceImageData.h"
+#include "util/AMDateTimeUtils.h"
 
 // Return a thumbnail picture for thumbnail number \c index. For now, we use the following decision: Normally we provide thumbnails for all the analyzed data sources.  If there are no analyzed data sources, we provide thumbnails for all the raw data sources.
 AMDbThumbnail AMScan::thumbnail(int index) const {
+
+	if(currentlyScanning()) {
+		QFile file(":/240x180/currentlyScanningThumbnail.png");
+		file.open(QIODevice::ReadOnly);
+		return AMDbThumbnail("Started",
+							 AMDateTimeUtils::prettyDateTime(dateTime()),
+							 AMDbThumbnail::PNGType,
+							 file.readAll());
+	}
+
 
 	bool useRawSources = (analyzedDataSources_.count() == 0);
 
@@ -487,5 +500,17 @@ bool AMScan::loadData()
 		for(int i=rawDataSources_.count()-1; i>=0; i--)
 			rawDataSources_.at(i)->setDataStore(rawData());
 	return success;
+}
+
+void AMScan::setScanController(AMScanController* scanController)
+{
+	bool wasScanning = currentlyScanning();
+
+	controller_ = scanController;
+
+	if(currentlyScanning() != wasScanning) {
+		setModified(true);
+		emit currentlyScanningChanged(currentlyScanning());
+	}
 }
 

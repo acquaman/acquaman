@@ -37,6 +37,7 @@ typedef AMOrderedSet<QString, AMRawDataSource*> AMRawDataSourceSet;
 typedef AMOrderedSet<QString, AMAnalysisBlock*> AMAnalyzedDataSourceSet;
 
 class AMScanConfiguration;
+class AMScanController;
 
 /// This class is the base of all objects that represent a single 'scan' on a beamline.  It's also used as the standard container for a set of raw and/or processed AMDataSources, which can be visualized together in
 class AMScan : public AMDbObject {
@@ -57,6 +58,7 @@ class AMScan : public AMDbObject {
 	Q_PROPERTY(AMDbObjectList analyzedDataSources READ dbReadAnalyzedDataSources WRITE dbLoadAnalyzedDataSources)
 	Q_PROPERTY(QString analyzedDataSourcesConnections READ dbReadAnalyzedDataSourcesConnections WRITE dbLoadAnalyzedDataSourcesConnections)
 	Q_PROPERTY(AMDbObject* scanConfiguration READ dbGetScanConfiguration WRITE dbLoadScanConfiguration)
+	Q_PROPERTY(bool currentlyScanning READ currentlyScanning NOTIFY currentlyScanningChanged)
 
 	Q_CLASSINFO("dateTime", "createIndex=true")
 	Q_CLASSINFO("sampleId", "createIndex=true")
@@ -273,7 +275,7 @@ public:
 	const AMControlInfoList* scanInitialConditions() const { return &scanInitialConditions_; }
 	AMControlInfoList* scanInitialConditions() { return &scanInitialConditions_; }
 
-	// Role 7: Access to Scan Configuration
+	// Role 7: Access to Scan Configuration and Scan Controller
 	///////////////////////////////
 
 	///  Access the scan's configuration
@@ -283,25 +285,35 @@ public:
 	/// Set the scan configuration. Deletes the existing scanConfiguration() if there is one.  The scan takes ownership of the \c newConfiguration and will delete it when being deleted.
 	void setScanConfiguration(AMScanConfiguration* newConfiguration);
 
+
+
 	// Role 8: Thumbnail system:
 	////////////////////////////////
 
-	/// This is an arbitrary decision, but let's define it like this (for usability): If we have any analyzed data sources, we have a thumbnail for each analyzed data source. Otherwise, rather than showing nothing, we have a thumbnail for each raw data source.
+	/// This is an arbitrary decision, but let's define it like this (for usability): If we have any analyzed data sources, we have a thumbnail for each analyzed data source. Otherwise, rather than showing nothing, we have a thumbnail for each raw data source.  Unless we are currently scanning, in which case we just have one (which visually indicates this).
 	int thumbnailCount() const {
+		if(currentlyScanning())
+			return 1;
+
 		if(analyzedDataSources_.count())
 			return analyzedDataSources_.count();
 		else
 			return rawDataSources_.count();
 	}
 
-	/// Return a thumbnail picture of the channel
+	/// Return a thumbnail picture of the data sources. If we have any analyzed data sources, we have a thumbnail for each analyzed data source. Otherwise, rather than showing nothing, we have a thumbnail for each raw data source.  Unless we are currently scanning, in which case we just have one (which visually indicates this).
 	AMDbThumbnail thumbnail(int index) const;
 
 
 	// Acquisition status, and link to scan controller
 	///////////////////////////////
 
-	/// \todo Acquisition status, and link to scan controller
+	/// If this scan is currently in progress, returns the scan controller that is running it. Otherwise returns 0.
+	AMScanController* scanController() const { return controller_; }
+	/// This function should not be considered part of the public interface, and only be used by AMScanController.
+	void setScanController(AMScanController*);
+	/// Returns true if currently scanning (ie: there is a valid scan controller). This is useful because we want to represent this in the database even while scans are in progress.
+	bool currentlyScanning() const { return (controller_ != 0); }
 
 
 
@@ -337,6 +349,7 @@ signals:
 	void dateTimeChanged(const QDateTime& newDateTime);
 	void sampleIdChanged(int sampleId);
 	void numberChanged(int number);
+	void currentlyScanningChanged(bool currentlyScanning);
 
 
 	// Combined Data Source Model: Signals
@@ -450,6 +463,11 @@ Lines are separated by single '\n', so a full string could look like:
 	////////////////////////
 	/// Controls whether raw data is automatically loaded when restoring this scan from the database (ie: loadData() is called automatically inside loadFromDb().)  This is true by default, but you may want to turn it off for performance reasons when loading a large group of scans just to look at their meta-data.
 	bool autoLoadData_;
+
+	// Other
+	//////////////////////////
+	/// If this scan is currently in progress, the scan controller should set this to refer to itself, and set it back to 0 when finished.
+	AMScanController* controller_;
 
 
 private:
