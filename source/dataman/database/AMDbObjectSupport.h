@@ -220,7 +220,7 @@ private:
 	static AMDbObjectSupport* instance_;
 
 private slots:
-	/// We retain pointers to databases so that when new classes are registered, we can add the retro-actively. Therefore, we need to know when these are no longer accessible.
+	/// We retain pointers to databases so that when new classes are registered, we can add them retro-actively. Therefore, we need to know when these databases are no longer accessible.
 	void onRegisteredDatabaseDeleted();
 
 };
