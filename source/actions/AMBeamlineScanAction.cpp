@@ -207,7 +207,7 @@ void AMBeamlineScanAction::onScanStarted(){
 	/*
 	setStarted(true);
 	*/
-	ctrl_->scan()->storeToDb(AMDatabase::userdb());
+	ctrl_->scan()->storeToDb(AMDatabase::database("user"));
 	if(!ctrl_->scan()->database()){
 		AMErrorMon::report(AMErrorReport(this,
 				AMErrorReport::Alert,

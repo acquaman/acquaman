@@ -124,7 +124,7 @@ class AMDataView : public QWidget, protected Ui::AMDataView
 Q_OBJECT
 public:
 	/// Create an AMDataView widget, where \c database is the database you want to explore.
-	explicit AMDataView(AMDatabase* database = AMDatabase::userdb(), QWidget *parent = 0);
+	explicit AMDataView(AMDatabase* database = AMDatabase::database("user"), QWidget *parent = 0);
 
 
 	/// Access a list of the selected items, in the standard URL format: amd://databaseConnectionName/tableName/objectId

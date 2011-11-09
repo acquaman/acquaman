@@ -83,6 +83,8 @@ When you register a new database with registerDatabase(), it is added to the dat
 */
 class AMDbObjectSupport : public QObject {
 
+	Q_OBJECT
+
 public:
 
 	// Singleton class accessor:

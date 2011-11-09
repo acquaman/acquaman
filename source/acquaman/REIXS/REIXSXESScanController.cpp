@@ -84,7 +84,7 @@ bool REIXSXESScanController::initializeImplementation() {
 
 	else {
 
-		if(!REIXSBeamline::bl()->spectrometer()->loadSpectrometerCalibration(AMDatabase::userdb(), pCfg()->spectrometerCalibrationId())) {
+		if(!REIXSBeamline::bl()->spectrometer()->loadSpectrometerCalibration(AMDatabase::database("user"), pCfg()->spectrometerCalibrationId())) {
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 10, QString("Could not load the spectrometer calibration (%1) that was specified in this scan configuration.").arg(pCfg()->spectrometerCalibrationId())));
 			return false;
 		}

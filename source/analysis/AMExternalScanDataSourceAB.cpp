@@ -347,7 +347,7 @@ bool AMExternalScanDataSourceAB::loadFromDb(AMDatabase *db, int id)
 
 	AMDataSource::name_ = dbLoadOutputDataSourceName_;
 
-	AMDatabase* sourceDb = AMDatabase::dbByName(dbLoadConnectionName_);
+	AMDatabase* sourceDb = AMDatabase::database(dbLoadConnectionName_);
 	if(!sourceDb) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -2, "Couldn't locate the database containing the external scan data to load."));
 		return false;

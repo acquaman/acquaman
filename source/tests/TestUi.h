@@ -59,7 +59,7 @@ private slots:
 
 
 	void testAMChooseScanDialog() {
-		AMChooseScanDialog sd(AMDatabase::userdb(), "Choose a photodiode scan", "Please select the photodiode scan that will be used for normalization");
+		AMChooseScanDialog sd(AMDatabase::database("user"), "Choose a photodiode scan", "Please select the photodiode scan that will be used for normalization");
 		sd.show();
 
 		QTest::qWait(60000);
@@ -170,7 +170,7 @@ private slots:
 		view->setScene(scene);
 
 		AMThumbnailScrollGraphicsWidget* g = new AMThumbnailScrollGraphicsWidget(0);
-		g->setSource(AMDatabase::userdb(), 1, 4);
+		g->setSource(AMDatabase::database("user"), 1, 4);
 		scene->addItem(g);
 		g->setVisible(true);
 		g->setGeometry(QRectF(0,0,240,180));

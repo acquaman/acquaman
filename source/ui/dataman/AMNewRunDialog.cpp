@@ -120,7 +120,7 @@ void AMNewRunDialog::okButtonPressed(){
 	int facilityId = facilitySelectCb->itemData(facilitySelectCb->currentIndex(),AM::IdRole).toInt();
 
 	AMRun newRun(runName, facilityId);
-	bool success = newRun.storeToDb(AMDatabase::userdb());
+	bool success = newRun.storeToDb(AMDatabase::database("user"));
 
 
 	if(success) {

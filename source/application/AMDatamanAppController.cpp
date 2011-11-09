@@ -108,7 +108,7 @@ bool AMDatamanAppController::startup() {
 	dataViewItem->appendRow(experimentsParentItem_);
 
 	// Hook into the sidebar and add Run and Experiment links below these headings.
-	runExperimentInsert_ = new AMRunExperimentInsert(AMDatabase::userdb(), runsParentItem_, experimentsParentItem_, this);
+	runExperimentInsert_ = new AMRunExperimentInsert(AMDatabase::database("user"), runsParentItem_, experimentsParentItem_, this);
 	connect(runExperimentInsert_, SIGNAL(newExperimentAdded(QModelIndex)), this, SLOT(onNewExperimentAdded(QModelIndex)));
 
 	// connect the activated signal from the dataview to our own slot
@@ -185,7 +185,7 @@ void AMDatamanAppController::shutdown() {
 	delete mw_;
 
 	// Close down connection to the user Database
-	AMDatabase::releaseUserDb();
+	AMDatabase::deleteDatabase("user");
 
 
 }
@@ -230,7 +230,7 @@ void AMDatamanAppController::onAddButtonClicked() {
 
 	// For now, we simply create a new experiment. Later on, this could pop up a menu to create a new experiment, run, sample plate, whatever...
 	AMExperiment e("New Experiment");
-	e.storeToDb(AMDatabase::userdb());
+	e.storeToDb(AMDatabase::database("user"));
 }
 
 void AMDatamanAppController::onProgressUpdated(double elapsed, double total){

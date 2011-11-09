@@ -125,7 +125,7 @@ void VESPERSXRFScanController::onDetectorAcquisitionFinished()
 	if(scan()->database())
 		scan()->storeToDb(scan()->database());
 	else
-		scan()->storeToDb(AMDatabase::userdb());
+		scan()->storeToDb(AMDatabase::database("user"));
 	saveData();
 
 	setFinished();

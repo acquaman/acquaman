@@ -163,7 +163,7 @@ private slots:
 	void testAMControlInfoList() {
 
 		AMControlInfo* ci = new AMControlInfo("bob", 5, 1, 10, "pF");
-		QVERIFY(ci->storeToDb(AMDatabase::userdb()));
+		QVERIFY(ci->storeToDb(AMDatabase::database("user")));
 
 		AMControlInfoList* l = new AMControlInfoList();
 
@@ -171,12 +171,12 @@ private slots:
 		l->append(AMControlInfo("david", 5,4,6,"inches"));
 		l->append(AMControlInfo("darren", 30,20,40,"cm"));
 
-		QVERIFY(l->storeToDb(AMDatabase::userdb()));
+		QVERIFY(l->storeToDb(AMDatabase::database("user")));
 		QVERIFY(l->modified() == false);
 
 
 		AMControlInfoList* l2 = new AMControlInfoList();
-		QVERIFY(l2->loadFromDb(AMDatabase::userdb(), l->id()));
+		QVERIFY(l2->loadFromDb(AMDatabase::database("user"), l->id()));
 
 		// test store and reload from db
 		QVERIFY(l2->at(0).name() == "mark");
@@ -219,13 +219,13 @@ private slots:
 
 		p1->append(AMSamplePosition(3, pos, 2));
 
-		int dbId = p1->storeToDb(AMDatabase::userdb());
+		int dbId = p1->storeToDb(AMDatabase::database("user"));
 		QVERIFY(dbId > 0);
 
 		delete p1;
 
 		AMSamplePlate* p2 = new AMSamplePlate();
-		QVERIFY(p2->loadFromDb(AMDatabase::userdb(), dbId) == true);
+		QVERIFY(p2->loadFromDb(AMDatabase::database("user"), dbId) == true);
 		QVERIFY(p2->modified() == false);
 
 		QVERIFY(p2->at(0).position().at(0).name() == "testControl");
@@ -471,7 +471,7 @@ private slots:
 
 
 		// Insert into db:
-		*AMDatabase::userdb() << dbo;
+		*AMDatabase::database("user") << dbo;
 
 		// Was it inserted succesfully?
 		//qDebug() << "Testing DbObject insert into database: id should not be 0:" << dbo.id();
@@ -479,7 +479,7 @@ private slots:
 
 		// Load same scan back:
 		AMDbObject dbo2;
-		dbo2.loadFromDb(AMDatabase::userdb(), dbo.id());
+		dbo2.loadFromDb(AMDatabase::database("user"), dbo.id());
 		//qDebug() << "Retrieving DbObject out of database: comparing all parameters with original:";
 		QCOMPARE(dbo2.id(), dbo.id());
 		QCOMPARE(dbo2.name(), dbo.name());
@@ -496,7 +496,7 @@ private slots:
 		dbo.setName("myTestDbObject" + uniqueName);
 
 		// Insert into db:
-		*AMDatabase::userdb() << dbo;
+		*AMDatabase::database("user") << dbo;
 
 		// Was it inserted succesfully?
 		//qDebug() << "Testing DbObject insert into database: id should not be 0:" << dbo.id();
@@ -504,7 +504,7 @@ private slots:
 
 		// Load same scan back:
 		AMDbObject* dbo2 = 0;
-		dbo2 = AMDbObjectSupport::s()->createAndLoadObjectAt(AMDatabase::userdb(), dbo.dbTableName(), dbo.id());
+		dbo2 = AMDbObjectSupport::s()->createAndLoadObjectAt(AMDatabase::database("user"), dbo.dbTableName(), dbo.id());
 
 
 		//qDebug() << "Confirming object was dynamically loaded: pointer is: " << dbo2;
@@ -532,7 +532,7 @@ private slots:
 		dbo.setNotes("my Comments\n"+uniqueName);
 
 		// Insert into db:
-		*AMDatabase::userdb() << dbo;
+		*AMDatabase::database("user") << dbo;
 
 		// Was it inserted succesfully?
 		//qDebug() << "Testing AMScan insert into database: id should not be 0:" << dbo.id();
@@ -540,7 +540,7 @@ private slots:
 
 		// Load same scan back:
 		AMScan dbo2;
-		dbo2.loadFromDb(AMDatabase::userdb(), dbo.id());
+		dbo2.loadFromDb(AMDatabase::database("user"), dbo.id());
 		//qDebug() << "Retrieving AMScan out of database: comparing all parameters with original:";
 		QCOMPARE(dbo2.id(), dbo.id());
 		QCOMPARE(dbo2.name(), dbo.name());
@@ -564,7 +564,7 @@ private slots:
 		dbo.setNotes("my Comments\n"+uniqueName);
 
 		// Insert into db:
-		*AMDatabase::userdb() << dbo;
+		*AMDatabase::database("user") << dbo;
 
 		// Was it inserted succesfully?
 		//qDebug() << "Testing AMScan insert into database: id should not be 0:" << dbo.id();
@@ -609,7 +609,7 @@ private slots:
 		dbo.setNotes("my Comments\n"+uniqueName);
 
 		// Insert into db:
-		*AMDatabase::userdb() << dbo;
+		*AMDatabase::database("user") << dbo;
 
 		// Was it inserted succesfully?
 		//qDebug() << "Testing AMScan insert into database: id should not be 0:" << dbo.id();
@@ -618,17 +618,17 @@ private slots:
 		QList<int> lr;
 		// Check: all columns: scans matching should be 1:
 		//qDebug() << "Checking objectsMatching finds one matching for each column.";
-		//lr = AMDatabase::userdb()->objectsMatching("id", dbo.id());
+		//lr = AMDatabase::database("user")->objectsMatching("id", dbo.id());
 		//QCOMPARE(lr.count(), 1);
-		lr = AMDatabase::userdb()->objectsMatching(dbo.dbTableName(), "name", dbo.name());
+		lr = AMDatabase::database("user")->objectsMatching(dbo.dbTableName(), "name", dbo.name());
 		QCOMPARE(lr.count(), 1);
-		lr = AMDatabase::userdb()->objectsMatching(dbo.dbTableName(), "number", dbo.number());
+		lr = AMDatabase::database("user")->objectsMatching(dbo.dbTableName(), "number", dbo.number());
 		QCOMPARE(lr.count(), 1);
-		lr = AMDatabase::userdb()->objectsMatching(dbo.dbTableName(), "sampleId", dbo.sampleId());
+		lr = AMDatabase::database("user")->objectsMatching(dbo.dbTableName(), "sampleId", dbo.sampleId());
 		QVERIFY(lr.count() > 1);
-		lr = AMDatabase::userdb()->objectsMatching(dbo.dbTableName(), "notes", dbo.notes());
+		lr = AMDatabase::database("user")->objectsMatching(dbo.dbTableName(), "notes", dbo.notes());
 		QCOMPARE(lr.count(), 1);
-		lr = AMDatabase::userdb()->objectsMatching(dbo.dbTableName(), "dateTime", dbo.dateTime());
+		lr = AMDatabase::database("user")->objectsMatching(dbo.dbTableName(), "dateTime", dbo.dateTime());
 		/// \todo check for 1-minute tolerance on date-time... This fails...
 		QCOMPARE(lr.count(), 1);
 
@@ -771,7 +771,7 @@ private slots:
 		AMDbObjectSupport::s()->registerClass<AMTestDbObject>();
 
 		AMTestDbObject* t1 = new AMTestDbObject();
-		t1->storeToDb(AMDatabase::userdb());
+		t1->storeToDb(AMDatabase::database("user"));
 
 		t1->loadFromDb(t1->database(), t1->id());
 		QVERIFY(t1->myScan() == 0);
@@ -821,11 +821,11 @@ private slots:
 
 		QCOMPARE(t2->numScans(), 3);
 
-		t2->storeToDb(AMDatabase::userdb());
+		t2->storeToDb(AMDatabase::database("user"));
 
 
 		QCOMPARE(t1->numScans(), 0);
-		t1->loadFromDb(AMDatabase::userdb(), t2->id());	// should create brand new objects; t1 didn't have three in the list.
+		t1->loadFromDb(AMDatabase::database("user"), t2->id());	// should create brand new objects; t1 didn't have three in the list.
 
 		// catches a bug where member variable locations weren't being stored in the db if the member object wasn't modified. If it's not modified and already in the db, we don't need to re-storeToDb() it, but we still need remember that we own it, and remember where it is.
 		QVERIFY(t1->myScan());
@@ -856,11 +856,11 @@ private slots:
 		QVERIFY(s.emptyListD().count() == 0);
 		QVERIFY(s.emptyListS().count() == 0);
 
-		int dbId = s.storeToDb(AMDatabase::userdb());
+		int dbId = s.storeToDb(AMDatabase::database("user"));
 
 		QVERIFY(dbId > 0);
 
-		s.loadFromDb(AMDatabase::userdb(), dbId);
+		s.loadFromDb(AMDatabase::database("user"), dbId);
 
 		QVERIFY(s.emptyList().count() == 0);
 		QVERIFY(s.emptyListD().count() == 0);
@@ -868,7 +868,7 @@ private slots:
 
 		AMTestDbObject s2;
 
-		s2.loadFromDb(AMDatabase::userdb(), dbId);
+		s2.loadFromDb(AMDatabase::database("user"), dbId);
 
 		QVERIFY(s2.emptyList().count() == 0);
 		QVERIFY(s2.emptyListD().count() == 0);

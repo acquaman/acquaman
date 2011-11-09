@@ -93,7 +93,7 @@ void AMExportController::continueAvailableDataSourceSearch()
 
 	// parse the URL and make sure it's valid
 	if(url.scheme() == "amd" &&
-			(db = AMDatabase::dbByName(url.host())) &&
+			(db = AMDatabase::database(url.host())) &&
 			(path = url.path().split('/', QString::SkipEmptyParts)).count() == 2 &&
 			(id = path.at(1).toInt(&idOkay)) > 0 &&
 			idOkay == true &&
@@ -214,7 +214,7 @@ void AMExportController::continueScanExport()
 
 		// parse the URL and make sure it's valid
 		if(!(	url.scheme() == "amd" &&
-			 (db = AMDatabase::dbByName(url.host())) &&
+			 (db = AMDatabase::database(url.host())) &&
 			 (path = url.path().split('/', QString::SkipEmptyParts)).count() == 2 &&
 			 (id = path.at(1).toInt(&idOkay)) > 0 &&
 			 idOkay == true &&

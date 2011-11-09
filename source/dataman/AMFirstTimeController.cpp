@@ -107,52 +107,59 @@ bool AMFirstTimeController::onFirstTime() {
 		}
 	}
 
-	/// Find out the user's name:
+	// Find out the user's name:
 	AMUser::user()->setName( ftw.field("userName").toString() );
 
-	/*
-	QString filename = AMUserSettings::userDataFolder + AMUserSettings::userDatabaseFilename;
-	QFile dbFile(filename);
-	if(!dbFile.exists())
-		return databaseInitialization();
-	else
-		return true;
-		*/
+	// create database connection (and actual database): the "user" database:
+	//////////////////////
+	AMDatabase* db = AMDatabase::createDatabase("user", AMUserSettings::userDataFolder + AMUserSettings::userDatabaseFilename);
+	if(!db)
+		return false;
 
-	bool success = databaseInitialization(true);
+	AMDbObjectSupport::s()->registerDatabase(db);
+	registerAllDatabaseClasses();
 
-	if(success) {
 
-		/// On first time only: create facilities. \todo This is app-specific... should probably be moved out of here.
-		AMFacility blank("", "[Other Facility]", ":/128x128/contents.png");
-		blank.storeToDb(AMDatabase::userdb());
-		AMFacility als801("8.0.1", "Advanced Light Source Beamline 8.0.1", ":/alsIcon.png");
-		als801.storeToDb(AMDatabase::userdb());
-		AMFacility sgm("SGM", "CLS SGM Beamline", ":/clsIcon.png");
-		sgm.storeToDb(AMDatabase::userdb());
-		AMFacility vespers("VESPERS", "CLS VESPERS Beamline", ":/clsIcon.png");
-		vespers.storeToDb(AMDatabase::userdb());
-		AMFacility reixs("REIXS", "CLS REIXS Beamline", ":/clsIcon.png");
-		reixs.storeToDb(AMDatabase::userdb());
+	// insert the user into the database, since they are new here.
+	AMUser::user()->storeToDb(db);
 
-	}
+	// On first time only: create facilities. \todo This is app-specific... should probably be moved out of here.
+	AMFacility blank("", "[Other Facility]", ":/128x128/contents.png");
+	blank.storeToDb(db);
+	AMFacility als801("8.0.1", "Advanced Light Source Beamline 8.0.1", ":/alsIcon.png");
+	als801.storeToDb(db);
+	AMFacility sgm("SGM", "CLS SGM Beamline", ":/clsIcon.png");
+	sgm.storeToDb(db);
+	AMFacility vespers("VESPERS", "CLS VESPERS Beamline", ":/clsIcon.png");
+	vespers.storeToDb(db);
+	AMFacility reixs("REIXS", "CLS REIXS Beamline", ":/clsIcon.png");
+	reixs.storeToDb(db);
 
-	return success;
+	return true;
 
 }
 
 bool AMFirstTimeController::onEveryTime() {
 
 	AM::registerTypes();
-	return databaseInitialization(false);
+
+	// create the "user" database connection.
+	AMDatabase* db = AMDatabase::createDatabase("user", AMUserSettings::userDataFolder + AMUserSettings::userDatabaseFilename);
+	if(!db)
+		return false;
+
+	AMDbObjectSupport::s()->registerDatabase(db);
+	registerAllDatabaseClasses();
+
+	// Now that we have a database: load user settings
+	AMUser::user()->loadFromDb(db, 1);
+
+	return true;
 }
 
 
 
-/// create structures and tables for a new user database, from scratch
-bool AMFirstTimeController::databaseInitialization(bool newUser) {
-
-	AMDbObjectSupport::s()->registerDatabase(AMDatabase::userdb());
+void AMFirstTimeController::registerAllDatabaseClasses() {
 
 	AMDbObjectSupport::s()->registerClass<AMDbObject>();
 	AMDbObjectSupport::s()->registerClass<AMScan>();
@@ -189,16 +196,6 @@ bool AMFirstTimeController::databaseInitialization(bool newUser) {
 	AMDbObjectSupport::s()->registerClass<AMExporterOptionGeneralAscii>();
 
 	AMDbObjectSupport::s()->registerClass<AMUser>();
-
-	if(newUser)
-		AMUser::user()->storeToDb(AMDatabase::userdb());	// insert the user into the database, if new.
-	else
-		AMUser::user()->loadFromDb(AMDatabase::userdb(), 1);// otherwise load existing user settings
-
-	/// \bug Better error checking. Complicated because some calls could fail even though the process completes successfully. (ie: creating db table columns that already exist will fail)
-
-
-	return true;
 }
 
 

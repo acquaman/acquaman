@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 
 #include <QStringBuilder>
+#include <QHashIterator>
 
 #include <QDebug>
 
@@ -255,7 +256,9 @@ bool AMDbObjectSupport::registerDatabase(AMDatabase* db) {
 	bool success = true;
 	QHashIterator<QString, AMDbObjectInfo> iClasses(registeredClasses_);
 	while(iClasses.hasNext()) {
-		success = success && getDatabaseReadyForClass(db, iClasses.next().value());
+		AMDbObjectInfo dbo = iClasses.next().value();
+		qDebug() << "AMDbObjectInfo reg:" << dbo.className;
+		success = success && getDatabaseReadyForClass(db, dbo);
 	}
 
 	if(success) {

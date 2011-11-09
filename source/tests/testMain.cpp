@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 	retVal |= QTest::qExec(&tb, argc, argv);
 */
 
-	AMDatabase::releaseUserDb();
+	AMDatabase::deleteDatabase("user");
 
 	return retVal;
 }

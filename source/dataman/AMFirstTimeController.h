@@ -60,8 +60,8 @@ public:
 
 
 protected:
-	/// register the user database and all classes with the AMDbObject system. \c newUser is true if this is the very first time, and no user object exists yet.
-	static bool databaseInitialization(bool newUser) ;
+	/// register all standard database objects with the database system.
+	static void registerAllDatabaseClasses() ;
 
 
 };
