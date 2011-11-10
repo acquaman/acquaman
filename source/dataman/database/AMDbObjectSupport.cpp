@@ -134,78 +134,48 @@ QString AMDbObjectSupport::tableNameForClass(const QMetaObject* classMetaObject)
 
 	QString className = classMetaObject->className();
 
-	// Threading note: this might be called from situations where we have a read lock, or a write lock. Try both:
-	// this could be simplified a lot of we didn't have shared tables in the database system. Once AMScan is merged, maybe we should go to that.
-	if(registryMutex_.tryLockForRead()) {
-		// if we're registered already, let's just look this up in the registry.
-		QHash<QString, AMDbObjectInfo>::const_iterator iInfo = registeredClasses()->find(className);
+	// Threading note: this might be called from situations where we have a read lock, or a write lock. This should work for both (previously holding a read lock or a write lock, because the locks are recursive)
+	/// \todo This could be simplified a lot of we didn't have shared tables in the database system. Once AMScan is merged, maybe we should go to that.
+	if(!registryMutex_.tryLockForRead())
+		registryMutex_.lockForWrite();
+
+	// if we're registered already, let's just look this up in the registry.
+	QHash<QString, AMDbObjectInfo>::const_iterator iInfo = registeredClasses()->find(className);
+	if(iInfo != registeredClasses()->end()) {
+		registryMutex_.unlock();
+		return iInfo.value().tableName;
+	}
+
+	// ok, we're not registered. Instead, let's answer where we SHOULD be stored:
+
+	// are supposed to use the table of another registered class?
+	QString sharedClassName = dbObjectAttribute(classMetaObject, "shareTableWithClass");
+	if( !sharedClassName.isEmpty() ) {
+		iInfo = registeredClasses()->find(sharedClassName);
 		if(iInfo != registeredClasses()->end()) {
 			registryMutex_.unlock();
 			return iInfo.value().tableName;
 		}
-
-		// ok, we're not registered. Instead, let's answer where we SHOULD be stored:
-
-		// are supposed to use the table of another registered class?
-		QString sharedClassName = dbObjectAttribute(classMetaObject, "shareTableWithClass");
-		if( !sharedClassName.isEmpty() ) {
-			iInfo = registeredClasses()->find(sharedClassName);
-			if(iInfo != registeredClasses()->end()) {
-				registryMutex_.unlock();
-				return iInfo.value().tableName;
-			}
-		}
-		// default is to use the class name (which is always unique) plus "_table":
-		registryMutex_.unlock();
-		return className + "_table";
 	}
-	// If that fails, we might be already holding a write lock. (ie: from reigsterClass or registerDatabase)
-	// Try that...
-	else {
-		QWriteLocker wl(&registryMutex_);
-		// if we're registered already, let's just look this up in the registry.
-		QHash<QString, AMDbObjectInfo>::const_iterator iInfo = registeredClasses()->find(className);
-		if(iInfo != registeredClasses()->end()) {
-			return iInfo.value().tableName;
-		}
-
-		// ok, we're not registered. Instead, let's answer where we SHOULD be stored:
-
-		// are supposed to use the table of another registered class?
-		QString sharedClassName = dbObjectAttribute(classMetaObject, "shareTableWithClass");
-		if( !sharedClassName.isEmpty() ) {
-			iInfo = registeredClasses()->find(sharedClassName);
-			if(iInfo != registeredClasses()->end()) {
-				return iInfo.value().tableName;
-			}
-		}
-		// default is to use the class name (which is always unique) plus "_table":
-		return className + "_table";
-	}
+	// default is to use the class name (which is always unique) plus "_table":
+	registryMutex_.unlock();
+	return className + "_table";
 }
 
 
 
 QString AMDbObjectSupport::tableNameForClass(const QString& className) const {
-	// this should work if we're previously holding a read lock or a write lock.
-	if(registryMutex_.tryLockForRead()) {
+	// this should work if our thread is previously holding a read lock or a write lock (because the locks are recursive)
+	if(!registryMutex_.tryLockForRead())
+		registryMutex_.lockForWrite();
 
-		QHash<QString, AMDbObjectInfo>::const_iterator iInfo = registeredClasses()->find(className);
-		if(iInfo != registeredClasses()->end()) {
-			registryMutex_.unlock();
-			return iInfo.value().tableName;
-		}
+	QHash<QString, AMDbObjectInfo>::const_iterator iInfo = registeredClasses()->find(className);
+	if(iInfo != registeredClasses()->end()) {
 		registryMutex_.unlock();
-		return QString();
+		return iInfo.value().tableName;
 	}
-	else {
-		QWriteLocker wl(&registryMutex_);
-		QHash<QString, AMDbObjectInfo>::const_iterator iInfo = registeredClasses()->find(className);
-		if(iInfo != registeredClasses()->end()) {
-			return iInfo.value().tableName;
-		}
-		return QString();
-	}
+	registryMutex_.unlock();
+	return QString();
 }
 
 
@@ -697,10 +667,12 @@ QString AMDbObjectSupport::typeOfObjectAt(AMDatabase* db, const QString& tableNa
 
 // returns a pointer to the object info for a given class with \c className, or 0 if the class has not been registered in the database system.
 const AMDbObjectInfo* AMDbObjectSupport::objectInfoForClass(const QString& className) const {
-	QHash<QString, AMDbObjectInfo>::const_iterator iInfo = registeredClasses()->find(className);
-	if(iInfo != registeredClasses()->end())
-		return &(iInfo.value());
+	QReadLocker rl(&registryMutex_);
 
+	QHash<QString, AMDbObjectInfo>::const_iterator iInfo = registeredClasses()->find(className);
+	if(iInfo != registeredClasses()->end()) {
+		return &(iInfo.value());
+	}
 	return 0;
 }
 
@@ -714,9 +686,7 @@ AMDbObject* AMDbObjectSupport::createAndLoadObjectAt(AMDatabase* db, const QStri
 		return 0;
 	}
 
-	registryMutex_.lockForRead();
 	const AMDbObjectInfo* objInfo = objectInfoForClass(className);
-	registryMutex_.unlock();
 
 	if(!objInfo) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -91, QString("[AMDbObjectSupport] Could not load the object with ID %1 from the table '%2', because the class '%3' hasn't yet been registered in the database system.").arg(id).arg(tableName).arg(className)));

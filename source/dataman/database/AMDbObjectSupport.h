@@ -124,6 +124,10 @@ public:
 	/// Useful for database introspection, this returns the type() (ie: class name) of the object stored in database \c db, under table \c tableName, at row \c id.
 	static QString typeOfObjectAt(AMDatabase* db, const QString& tableName, int id);
 
+	/// returns a pointer to the object info for a given class with \c className, or 0 if the class has not yet been registered in the database system.
+	const AMDbObjectInfo* objectInfoForClass(const QString& classsName) const;
+	/// \todo Overloads for objectInfoForClass<Class>().
+
 	// Public Functions: Dynamic Loading
 	////////////////////////////////////
 
@@ -158,37 +162,13 @@ public:
 	/// Retrieve an object's property attribute for a given \c object, \c propertyName, and \c key. Returns empty string if not set.
 	static QString dbPropertyAttribute(const QMetaObject* object, const QString& propertyName, const QString& key);
 
-	/// returns a const pointer to the hash of registered AMDbObject classes
-	const QHash<QString, AMDbObjectInfo>* registeredClasses() const { return &registeredClasses_; }
-
-	/// returns a pointer to the object info for a given class with \c className, or 0 if the class has not yet been registered in the database system.
-	const AMDbObjectInfo* objectInfoForClass(const QString& classsName) const;
-	/// \todo Overloads for objectInfoForClass<Class>().
-
-
-	/// ensure that a database \c db is ready to hold objects of the class described by \c info. Will call initializeDatabaseForClass() or upgradeDatabaseForClass() if required.
-	static bool getDatabaseReadyForClass(AMDatabase* db, const AMDbObjectInfo& info);
-	/// Helper function: Creates table and columns for a class which has never been stored in the database before.
-	static bool initializeDatabaseForClass(AMDatabase* db, const AMDbObjectInfo& info);
-	/// Helper function: checks if a class can be stored in the database as-is, or if the DB needs to be upgraded.
-	/*! Confirms that all columns and auxiliary tables exist, although not necessarily in the order specified. (Since upgrading a base class will tack on the new base class members at the end of the original subclass members.) */
-	static bool isUpgradeRequiredForClass(AMDatabase* db, const AMDbObjectInfo& info, int typeIdInDatabase);
-	/// Helper function: Upgrades an existing database from supporting an old version of a class to supporting a new version.  If new columns exist, they will be created and filled with the default value specified in AMDbObjectInfo.
-	static bool upgradeDatabaseForClass(AMDatabase* db, const AMDbObjectInfo& info, int typeIdInDatabase);
-
-
-
-	/// Ensure that a table exists with the required basic fields for holding any AMDbObject
-	static bool ensureTableForDbObjects(const QString& tableName, AMDatabase* db, bool reuseDeletedIds = true);
+	// Naming conventions:
+	///////////////////////////
 
 	/// Separator used between strings when exporting a StringList to the database
 	static QString stringListSeparator();
 	/// Separator used between items when exporting all other lists to the database (changed from comma to support french localizations which use une virgule for the decimal point. maybe this needs to be fully localized.)
 	static QString listSeparator();
-
-
-	// Support table names:
-	///////////////////////////
 
 	/// Stores thumbnails for all AMDbObjects that use thumbnails
 	static QString thumbnailTableName();
@@ -207,6 +187,28 @@ public:
 	static QString sampleElementEntriesTableName();
 	static QString controlSetEntriesTableName();
 
+protected:
+
+	// Internal Helper functions
+	//////////////////////////////
+
+	/// returns a const pointer to the hash of registered AMDbObject classes
+	const QHash<QString, AMDbObjectInfo>* registeredClasses() const { return &registeredClasses_; }
+
+	/// ensure that a database \c db is ready to hold objects of the class described by \c info. Will call initializeDatabaseForClass() or upgradeDatabaseForClass() if required.
+	static bool getDatabaseReadyForClass(AMDatabase* db, const AMDbObjectInfo& info);
+	/// Helper function: Creates table and columns for a class which has never been stored in the database before.
+	static bool initializeDatabaseForClass(AMDatabase* db, const AMDbObjectInfo& info);
+	/// Helper function: checks if a class can be stored in the database as-is, or if the DB needs to be upgraded.
+	/*! Confirms that all columns and auxiliary tables exist, although not necessarily in the order specified. (Since upgrading a base class will tack on the new base class members at the end of the original subclass members.) */
+	static bool isUpgradeRequiredForClass(AMDatabase* db, const AMDbObjectInfo& info, int typeIdInDatabase);
+	/// Helper function: Upgrades an existing database from supporting an old version of a class to supporting a new version.  If new columns exist, they will be created and filled with the default value specified in AMDbObjectInfo.
+	static bool upgradeDatabaseForClass(AMDatabase* db, const AMDbObjectInfo& info, int typeIdInDatabase);
+
+
+
+	/// Ensure that a table exists with the required basic fields for holding any AMDbObject
+	static bool ensureTableForDbObjects(const QString& tableName, AMDatabase* db, bool reuseDeletedIds = true);
 
 
 	// Internal Variables
