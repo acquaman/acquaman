@@ -144,6 +144,8 @@ bool AMScanController::setInitialized(){
 
 bool AMScanController::setStarted(){
 	if(changeState(AMScanController::Running)){
+		if(generalScan_)
+			generalScan_->setScanController(this);
 		emit started();
 		return true;
 	}
