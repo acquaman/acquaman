@@ -29,6 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMutexLocker>
 #include <QApplication>
 
+#include <QDebug>
+
 // Internal instance records:
 QHash<QString, AMDatabase*> AMDatabase::connectionName2Instance_;
 QMutex AMDatabase::databaseLookupMutex_;
@@ -92,10 +94,12 @@ void AMDatabase::deleteDatabase(const QString& connectionName) {
 /*! id is the object's row in the database (for updates), or 0 (for inserts).
  table is the database table name
  colNames is a list of the column names that the values will be inserted under
- values is a list of constant pointers to QVariants that provide the values to insert.
- (Note that the const and const& arguments are designed to prevent memory copies, so this should be fast.)
+ values is a list of QVariants that provide the values to insert.
+ (Note that the const& arguments are designed to prevent memory copies, so this should be fast.)
  Return value: (IMPORTANT) returns the id of the row that was inserted into or updated, or 0 on failure.
  When inserting new objects, make sure to set their id to the return value afterwards, otherwise they will be duplicated on next insert.
+
+ Note: This is equivalent to an SQL "INSERT OR REPLACE" (or "REPLACE", in MySQL) command. If a row with \c id exists, it will be replaced completely, so you need to specify ALL column values. To change just some column values, use update().
 */
 int AMDatabase::insertOrUpdate(int id, const QString& table, const QStringList& colNames, const QVariantList& values) {
 
@@ -177,9 +181,49 @@ bool AMDatabase::update(int id, const QString& table, const QString& column, con
 
 	// Run query. Query failed?
 	if(!query.exec()) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("database save failed. Could not execute query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("database update failed. Could not execute query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
 		return false;
 	}
+	// Query succeeded.
+	emit updated(table, id);
+	return true;
+
+}
+
+/// changing multiple column values in the database, at row \c id.
+bool AMDatabase::update(int id, const QString& table, const QStringList& columns, const QVariantList& values) {
+
+	QSqlDatabase db = qdb();
+
+	if(columns.count() != values.count()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -102, "Error trying to update the database: the number of columns provided doesn't match the number of values."));
+		return false;
+	}
+	if(!db.isOpen()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -2, "Could not save to database. (Database is not open.)"));
+		return false;
+	}
+
+	QStringList cols;
+	foreach(QString column, columns) {
+		cols << (column % " = ?");
+	}
+	QString colString = cols.join(", ");
+
+	// Prepare the query. Todo: sanitize column names and table name.
+	QSqlQuery query(db);
+	query.prepare(QString("UPDATE %1 SET %2 WHERE id = ?").arg(table).arg(colString));
+	int i=0;
+	for(i=0; i<values.count(); i++)
+		query.bindValue(i, values.at(i));
+	query.bindValue(i, QVariant(id));
+
+	// Run query. Query failed?
+	if(!query.exec()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("database update failed. Could not execute query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
+		return false;
+	}
+
 	// Query succeeded.
 	emit updated(table, id);
 	return true;

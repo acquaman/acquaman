@@ -103,6 +103,8 @@ The parameters by which to access the database are given in \c dbAccessString. (
 
 	/// changing single values in the database, at row \c id.
 	bool update(int id, const QString& table, const QString& column, const QVariant& value);
+	/// changing multiple column values in the database, at row \c id.
+	bool update(int id, const QString& table, const QStringList& columns, const QVariantList& values);
 
 	/// Changing single values in the database (where the id isn't known).  Will update all rows based on the condition specified; \c whereClause is a string suitable for appending after an SQL "WHERE" term.  Will set the value in \c dataColumn to \c dataValue.
 	bool update(const QString& tableName, const QString& whereClause, const QString& dataColumn, const QVariant& dataValue);

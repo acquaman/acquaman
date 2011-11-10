@@ -228,7 +228,7 @@ bool AMDbObjectSupport::registerDatabase(AMDatabase* db) {
 
 	// This table stores thumbnails for all these object types.  It should not reuse ids, so that a set of thumbnails added will always have sequential ids.
 	db->ensureTable(thumbnailTableName(), QString("objectId,objectTableName,number,type,title,subtitle,thumbnail").split(','), QString("INTEGER,TEXT,INTEGER,TEXT,TEXT,TEXT,BLOB").split(','), false);
-
+	db->createIndex(thumbnailTableName(), "objectId,objectTableName");
 
 	// temporary... this should all be cleaned up and moved and handled generically
 	////////////////////////////

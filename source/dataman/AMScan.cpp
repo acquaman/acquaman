@@ -389,7 +389,7 @@ bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource, bool 
 }
 
 
-#include <QPixmap>
+#include <QImage>
 #include <QBuffer>
 #include <QByteArray>
 #include <QFile>
@@ -429,8 +429,8 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 	if(!useRawSources)
 		index += rawDataSources_.count();
 
-	QPixmap pixmap(240, 180);
-	QPainter painter(&pixmap);
+	QImage image(240, 180, QImage::Format_ARGB32_Premultiplied);
+	QPainter painter(&image);
 	painter.setRenderHint(QPainter::Antialiasing, true);
 	QGraphicsScene gscene(QRectF(0,0,240,180));
 	MPlot* plot = new MPlot(QRectF(0,0,240,180));
@@ -476,7 +476,7 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 
 	delete plot;	// deletes all plot items (series, image) with it.
 
-	return AMDbThumbnail(dataSource->description(), dataSource->name(), pixmap);
+	return AMDbThumbnail(dataSource->description(), dataSource->name(), image);
 
 }
 
