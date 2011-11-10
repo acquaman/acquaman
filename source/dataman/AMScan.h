@@ -58,7 +58,7 @@ class AMScan : public AMDbObject {
 	Q_PROPERTY(AMDbObjectList analyzedDataSources READ dbReadAnalyzedDataSources WRITE dbLoadAnalyzedDataSources)
 	Q_PROPERTY(QString analyzedDataSourcesConnections READ dbReadAnalyzedDataSourcesConnections WRITE dbLoadAnalyzedDataSourcesConnections)
 	Q_PROPERTY(AMDbObject* scanConfiguration READ dbGetScanConfiguration WRITE dbLoadScanConfiguration)
-	Q_PROPERTY(bool currentlyScanning READ currentlyScanning NOTIFY currentlyScanningChanged)
+	Q_PROPERTY(bool currentlyScanning READ currentlyScanning WRITE dbLoadCurrentlyScanning NOTIFY currentlyScanningChanged)
 
 	Q_CLASSINFO("dateTime", "createIndex=true")
 	Q_CLASSINFO("sampleId", "createIndex=true")
@@ -312,8 +312,8 @@ public:
 	AMScanController* scanController() const { return controller_; }
 	/// This function should not be considered part of the public interface, and only be used by AMScanController.
 	void setScanController(AMScanController*);
-	/// Returns true if currently scanning (ie: there is a valid scan controller). This is useful because we want to represent this in the database even while scans are in progress.
-	bool currentlyScanning() const { return (controller_ != 0); }
+	/// Returns true if currently scanning (ie: there is a valid scan controller, or the currentlyScanning column was true when we were loaded out of the database). This is useful because we want to know this at the database level even while scans are in progress.
+	bool currentlyScanning() const { return currentlyScanning_; }
 
 
 
@@ -457,6 +457,8 @@ Lines are separated by single '\n', so a full string could look like:
 	/// When loadFromDb() is called, this receives the string describing the input connections of all the analyzed data sources, and restores their input data connections.
 	void dbLoadAnalyzedDataSourcesConnections(const QString& connectionString);
 
+	/// Used to load the currentlyScanning state from the database. If you call setScanController(0), this will be reset to false.
+	void dbLoadCurrentlyScanning(bool currentlyScanning) { currentlyScanning_ = currentlyScanning; }
 
 
 	// Raw Data Loading
@@ -466,8 +468,10 @@ Lines are separated by single '\n', so a full string could look like:
 
 	// Other
 	//////////////////////////
-	/// If this scan is currently in progress, the scan controller should set this to refer to itself, and set it back to 0 when finished.
+	/// If this scan is currently in progress, the scan controller should set this to refer to itself, and set it back to 0 when finished, using setScanController().
 	AMScanController* controller_;
+	/// This variable is set to true while a scan is in progress (ie: scan controller running), or if the scan was loaded out of the database with the currentlyScanning column true.
+	bool currentlyScanning_;
 
 
 private:

@@ -41,6 +41,7 @@ AMScan::AMScan(QObject *parent)
 
 	configuration_ = 0;
 	controller_ = 0;
+	currentlyScanning_ = false;
 
 	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured in specific subclasses.
 	//data_ = new AMDataTreeDataStore(AMAxisInfo("eV", 0, "Incidence Energy", "eV"));
@@ -504,13 +505,14 @@ bool AMScan::loadData()
 
 void AMScan::setScanController(AMScanController* scanController)
 {
-	bool wasScanning = currentlyScanning();
+	bool wasScanning = currentlyScanning_;
 
 	controller_ = scanController;
+	currentlyScanning_ = (controller_ != 0);
 
-	if(currentlyScanning() != wasScanning) {
+	if(currentlyScanning_ != wasScanning) {
 		setModified(true);
-		emit currentlyScanningChanged(currentlyScanning());
+		emit currentlyScanningChanged(currentlyScanning_);
 	}
 }
 
