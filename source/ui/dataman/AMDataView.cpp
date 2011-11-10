@@ -291,9 +291,11 @@ void AMDataView::refreshView() {
 	viewRequiresRefresh_ = false;
 
 	// delete the old views:
-	foreach(QGraphicsLayoutItem* s, sections_)
-		delete s;
-	sections_.clear();
+		// this disconnect is necessary so that selection changes while we're deleting don't trigger an unnecessary loop through the selected items.
+	disconnect(gscene_, SIGNAL(selectionChanged()), this, SLOT(onScanItemsSelectionChanged()));
+	while(!sections_.isEmpty())
+		delete sections_.takeLast();
+	connect(gscene_, SIGNAL(selectionChanged()), this, SLOT(onScanItemsSelectionChanged()));
 
 	selectedUrlsUpdateRequired_ = true;
 	emit selectionChanged();
