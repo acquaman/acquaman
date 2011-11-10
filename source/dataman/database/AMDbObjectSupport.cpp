@@ -30,7 +30,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 #include <QHashIterator>
 
-#include <QDebug>
+#include <QMutexLocker>
+#include <QReadLocker>
+#include <QWriteLocker>
+#include <QThread>
+#include <QApplication>
 
 // fill the className, tableName, metaObject, columns, columnTypes, isVisible, isLoadable, and doNotReuseIds properties based on a prototype AMDbObject.
 AMDbObjectInfo::AMDbObjectInfo(AMDbObject* prototype) {
@@ -83,11 +87,9 @@ void AMDbObjectInfo::initWithMetaObject(const QMetaObject *classMetaObject) {
 
 
 AMDbObjectSupport* AMDbObjectSupport::instance_;
+QMutex AMDbObjectSupport::instanceMutex_(QMutex::Recursive);
 
 
-const QHash<QString, AMDbObjectInfo>* AMDbObjectSupport::registeredClasses() {
-	return &registeredClasses_;
-}
 
 // Retrieve the AMDbObjectAttribute for a given \c object and \c key
 QString AMDbObjectSupport::dbObjectAttribute(const QMetaObject* mo, const QString& key) {
@@ -128,7 +130,9 @@ QString AMDbObjectSupport::dbPropertyAttribute(const QMetaObject* mo, const QStr
 
 
 // Returns the name of the table that should be used to store this class. If the class is registered already, it returns the registered name. If it's not registered, but it has the dbObjectProperty 'shareTableWithClass' set to another registered class, then it returns the table used by that class. Otherwise, it provides a default table name of 'className' + '_table'.
-QString AMDbObjectSupport::tableNameForClass(const QMetaObject* classMetaObject) {
+QString AMDbObjectSupport::tableNameForClass(const QMetaObject* classMetaObject) const {
+	QReadLocker rl(&registryMutex_);
+
 	QString className = classMetaObject->className();
 
 	// if we're registered already, let's just look this up in the registry.
@@ -151,7 +155,9 @@ QString AMDbObjectSupport::tableNameForClass(const QMetaObject* classMetaObject)
 
 
 
-QString AMDbObjectSupport::tableNameForClass(const QString& className) {
+QString AMDbObjectSupport::tableNameForClass(const QString& className) const {
+	QReadLocker rl(&registryMutex_);
+
 	QHash<QString, AMDbObjectInfo>::const_iterator iInfo = registeredClasses()->find(className);
 	if(iInfo != registeredClasses()->end())
 		return iInfo.value().tableName;
@@ -162,6 +168,8 @@ QString AMDbObjectSupport::tableNameForClass(const QString& className) {
 
 // register a new class with the database system. This is all you need to do enable an AMDbObect subclass. Returns false if the initialization failed; true if it was completed successfully, or if the object is already registered.
 bool AMDbObjectSupport::registerClass(const QMetaObject* mo) {
+
+	QWriteLocker wl(&registryMutex_);
 
 	// is this a subclass of AMDbObject? (Or an AMDbObject itself?)
 	if(!inheritsAMDbObject(mo))
@@ -192,6 +200,8 @@ bool AMDbObjectSupport::registerClass(const QMetaObject* mo) {
 
 
 bool AMDbObjectSupport::registerDatabase(AMDatabase* db) {
+
+	QWriteLocker wl(&registryMutex_);
 
 	// is it already registered? return true.
 	if(registeredDatabases_.contains(db)) {
@@ -257,7 +267,6 @@ bool AMDbObjectSupport::registerDatabase(AMDatabase* db) {
 	QHashIterator<QString, AMDbObjectInfo> iClasses(registeredClasses_);
 	while(iClasses.hasNext()) {
 		AMDbObjectInfo dbo = iClasses.next().value();
-		qDebug() << "AMDbObjectInfo reg:" << dbo.className;
 		success = success && getDatabaseReadyForClass(db, dbo);
 	}
 
@@ -644,7 +653,7 @@ QString AMDbObjectSupport::typeOfObjectAt(AMDatabase* db, const QString& tableNa
 }
 
 // returns a pointer to the object info for a given class with \c className, or 0 if the class has not been registered in the database system.
-const AMDbObjectInfo* AMDbObjectSupport::objectInfoForClass(const QString& className) {
+const AMDbObjectInfo* AMDbObjectSupport::objectInfoForClass(const QString& className) const {
 	QHash<QString, AMDbObjectInfo>::const_iterator iInfo = registeredClasses()->find(className);
 	if(iInfo != registeredClasses()->end())
 		return &(iInfo.value());
@@ -654,7 +663,7 @@ const AMDbObjectInfo* AMDbObjectSupport::objectInfoForClass(const QString& class
 
 // Useful for database introspection, this creates and dynamically loads an object stored in database \c db, under table \c tableName, at row \c id. You can use qobject_cast<>() or type() to find out the detailed type of the new object.  Returns 0 if no object found.
 /* Ownership of the newly-created object becomes the responsibility of the caller. */
-AMDbObject* AMDbObjectSupport::createAndLoadObjectAt(AMDatabase* db, const QString& tableName, int id) {
+AMDbObject* AMDbObjectSupport::createAndLoadObjectAt(AMDatabase* db, const QString& tableName, int id) const {
 
 	QString className = typeOfObjectAt(db, tableName, id);
 	if(className.isEmpty()) {
@@ -662,7 +671,10 @@ AMDbObject* AMDbObjectSupport::createAndLoadObjectAt(AMDatabase* db, const QStri
 		return 0;
 	}
 
+	registryMutex_.lockForRead();
 	const AMDbObjectInfo* objInfo = objectInfoForClass(className);
+	registryMutex_.unlock();
+
 	if(!objInfo) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -91, QString("[AMDbObjectSupport] Could not load the object with ID %1 from the table '%2', because the class '%3' hasn't yet been registered in the database system.").arg(id).arg(tableName).arg(className)));
 		return 0;
@@ -709,16 +721,39 @@ bool AMDbObjectSupport::inheritsAMDbObject(const QMetaObject* mo) {
 }
 
 
-QSqlQuery AMDbObjectSupport::select(AMDatabase* db, const QString& className, const QString& columnNames, const QString& whereClause) {
+QSqlQuery AMDbObjectSupport::select(AMDatabase* db, const QString& className, const QString& columnNames, const QString& whereClause) const {
+	QReadLocker rl(&registryMutex_);
 
-	return db->select(tableNameForClass(className), columnNames, whereClause);
+	QString tableName = tableNameForClass(className);
+	rl.unlock();
+
+	return db->select(tableName, columnNames, whereClause);
 }
 
 void AMDbObjectSupport::onRegisteredDatabaseDeleted()
 {
+	QReadLocker rl(&registryMutex_);
+
 	AMDatabase* db = static_cast<AMDatabase*>(sender());
-	if(registeredDatabases_.contains(db))
+	if(registeredDatabases_.contains(db)) {
+		rl.unlock();
+		registryMutex_.lockForWrite();
 		registeredDatabases_.remove(db);
+		registryMutex_.unlock();
+	}
+}
+
+AMDbObjectSupport * AMDbObjectSupport::s() {
+	QMutexLocker ml(&instanceMutex_);
+
+	if(!instance_) {
+		instance_ = new AMDbObjectSupport();
+		// ensure we're in the main thread...
+		if(QThread::currentThread() != QApplication::instance()->thread()) {
+			instance_->moveToThread(QApplication::instance()->thread());
+		}
+	}
+	return instance_;
 }
 
 

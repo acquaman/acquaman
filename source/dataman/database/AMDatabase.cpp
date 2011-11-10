@@ -33,13 +33,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 // Internal instance records:
 QHash<QString, AMDatabase*> AMDatabase::connectionName2Instance_;
-QMutex AMDatabase::databaseLookupMutex_;
+QMutex AMDatabase::databaseLookupMutex_(QMutex::Recursive);
 
 // This constructor is protected; only access is through AMDatabase::createDatabase().
 AMDatabase::AMDatabase(const QString& connectionName, const QString& dbAccessString) :
 	QObject(),
 	connectionName_(connectionName),
-	dbAccessString_(dbAccessString)
+	dbAccessString_(dbAccessString),
+	qdbMutex_(QMutex::Recursive)
 {
 	// Make sure the database is initialized in the creating thread:
 	qdb();
