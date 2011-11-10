@@ -131,38 +131,81 @@ QString AMDbObjectSupport::dbPropertyAttribute(const QMetaObject* mo, const QStr
 
 // Returns the name of the table that should be used to store this class. If the class is registered already, it returns the registered name. If it's not registered, but it has the dbObjectProperty 'shareTableWithClass' set to another registered class, then it returns the table used by that class. Otherwise, it provides a default table name of 'className' + '_table'.
 QString AMDbObjectSupport::tableNameForClass(const QMetaObject* classMetaObject) const {
-	QReadLocker rl(&registryMutex_);
 
 	QString className = classMetaObject->className();
 
-	// if we're registered already, let's just look this up in the registry.
-	QHash<QString, AMDbObjectInfo>::const_iterator iInfo = registeredClasses()->find(className);
-	if(iInfo != registeredClasses()->end())
-		return iInfo.value().tableName;
-
-	// ok, we're not registered. Instead, let's answer where we SHOULD be stored:
-
-	// are supposed to use the table of another registered class?
-	QString sharedClassName = dbObjectAttribute(classMetaObject, "shareTableWithClass");
-	if( !sharedClassName.isEmpty() ) {
-		iInfo = registeredClasses()->find(sharedClassName);
-		if(iInfo != registeredClasses()->end())
+	// Threading note: this might be called from situations where we have a read lock, or a write lock. Try both:
+	// this could be simplified a lot of we didn't have shared tables in the database system. Once AMScan is merged, maybe we should go to that.
+	if(registryMutex_.tryLockForRead()) {
+		// if we're registered already, let's just look this up in the registry.
+		QHash<QString, AMDbObjectInfo>::const_iterator iInfo = registeredClasses()->find(className);
+		if(iInfo != registeredClasses()->end()) {
+			registryMutex_.unlock();
 			return iInfo.value().tableName;
+		}
+
+		// ok, we're not registered. Instead, let's answer where we SHOULD be stored:
+
+		// are supposed to use the table of another registered class?
+		QString sharedClassName = dbObjectAttribute(classMetaObject, "shareTableWithClass");
+		if( !sharedClassName.isEmpty() ) {
+			iInfo = registeredClasses()->find(sharedClassName);
+			if(iInfo != registeredClasses()->end()) {
+				registryMutex_.unlock();
+				return iInfo.value().tableName;
+			}
+		}
+		// default is to use the class name (which is always unique) plus "_table":
+		registryMutex_.unlock();
+		return className + "_table";
 	}
-	// default is to use the class name (which is always unique) plus "_table":
-	return className + "_table";
+	// If that fails, we might be already holding a write lock. (ie: from reigsterClass or registerDatabase)
+	// Try that...
+	else {
+		QWriteLocker wl(&registryMutex_);
+		// if we're registered already, let's just look this up in the registry.
+		QHash<QString, AMDbObjectInfo>::const_iterator iInfo = registeredClasses()->find(className);
+		if(iInfo != registeredClasses()->end()) {
+			return iInfo.value().tableName;
+		}
+
+		// ok, we're not registered. Instead, let's answer where we SHOULD be stored:
+
+		// are supposed to use the table of another registered class?
+		QString sharedClassName = dbObjectAttribute(classMetaObject, "shareTableWithClass");
+		if( !sharedClassName.isEmpty() ) {
+			iInfo = registeredClasses()->find(sharedClassName);
+			if(iInfo != registeredClasses()->end()) {
+				return iInfo.value().tableName;
+			}
+		}
+		// default is to use the class name (which is always unique) plus "_table":
+		return className + "_table";
+	}
 }
 
 
 
 QString AMDbObjectSupport::tableNameForClass(const QString& className) const {
-	QReadLocker rl(&registryMutex_);
+	// this should work if we're previously holding a read lock or a write lock.
+	if(registryMutex_.tryLockForRead()) {
 
-	QHash<QString, AMDbObjectInfo>::const_iterator iInfo = registeredClasses()->find(className);
-	if(iInfo != registeredClasses()->end())
-		return iInfo.value().tableName;
-
-	return QString();
+		QHash<QString, AMDbObjectInfo>::const_iterator iInfo = registeredClasses()->find(className);
+		if(iInfo != registeredClasses()->end()) {
+			registryMutex_.unlock();
+			return iInfo.value().tableName;
+		}
+		registryMutex_.unlock();
+		return QString();
+	}
+	else {
+		QWriteLocker wl(&registryMutex_);
+		QHash<QString, AMDbObjectInfo>::const_iterator iInfo = registeredClasses()->find(className);
+		if(iInfo != registeredClasses()->end()) {
+			return iInfo.value().tableName;
+		}
+		return QString();
+	}
 }
 
 
@@ -259,7 +302,7 @@ bool AMDbObjectSupport::registerDatabase(AMDatabase* db) {
 	db->createIndex(controlSetEntriesTableName(), "csiId");
 	/////////////////////////////////
 
-/// \todo error checking on creating these previous tables.
+	/// \todo error checking on creating these previous tables.
 
 
 	// Retro-actively add all previously registered classes.
@@ -303,7 +346,7 @@ bool AMDbObjectSupport::getDatabaseReadyForClass(AMDatabase* db, const AMDbObjec
 		}
 	}
 
-		/* REMOVED this version system
+	/* REMOVED this version system
    QStringList typeInfoCols;
    typeInfoCols << "AMDbObjectType" << "tableName" << "version";
    QVariantList typeInfoValues = db->retrieve(id, typeTableName(), typeInfoCols);
@@ -311,14 +354,14 @@ bool AMDbObjectSupport::getDatabaseReadyForClass(AMDatabase* db, const AMDbObjec
    // check for matching version. If not matching, need to upgrade
    int storedVersion = typeInfoValues.at(2).toInt();
    if( storedVersion != info.version ) {
-	return upgradeDatabaseForClass(db, info, storedVersion);
+ return upgradeDatabaseForClass(db, info, storedVersion);
    }
 
    // check for matching table name. If not matching, the database has been corrupted somewhere.
    QString storedTableName = typeInfoValues.at(1).toString();
    if(storedTableName != info.tableName) {
-	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -6, QString("Database support: Your database stores '%1' objects in a table called '%2', but they should be stored under '%3'. This database is not compatible with the current version of Acquaman.").arg(info.className, storedTableName, info.tableName)));
-	return false;
+ AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -6, QString("Database support: Your database stores '%1' objects in a table called '%2', but they should be stored under '%3'. This database is not compatible with the current version of Acquaman.").arg(info.className, storedTableName, info.tableName)));
+ return false;
    }
  // otherwise, assuming future versions of this function adhere to creating the types table with a version #, and create the allColumns, loadColumns, and visibleColumns tables... we should be good here. Could check for matching columns, but that should be taken care of with the version system. Could check that the entries are created in the allColumns, visibleColumns, and loadColumns tables, but that would only fail if we have a bug in this function.
    */
