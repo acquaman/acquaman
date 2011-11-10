@@ -55,6 +55,9 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	gview_->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
 	gscene_ = new AMSignallingGraphicsScene(this);
+	// This is necessary to avoid Qt bug https://bugreports.qt.nokia.com/browse/QTBUG-18021
+	gscene_->setItemIndexMethod(QGraphicsScene::NoIndex);
+
 	connect(gscene_, SIGNAL(selectionChanged()), this, SLOT(onScanItemsSelectionChanged()));
 	connect(gscene_, SIGNAL(doubleClicked(QPointF)), this, SIGNAL(sceneDoubleClicked()));
 	gview_->setScene(gscene_);
@@ -1329,9 +1332,11 @@ int AMDataViewSectionListView::numberOfSelectedItems() const
 
 void AMDataView::afterDatabaseItemChanged()
 {
-	if(viewRequiresRefresh_)
+	if(viewRequiresRefresh_) {
 		refreshView();
+	}
 }
+
 
 void AMDataView::onDatabaseItemCreatedOrRemoved(const QString &tableName, int id)
 {
