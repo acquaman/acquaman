@@ -37,7 +37,7 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 
 	scanConfig->setDetectorInfo(detector_->toXRFInfo());
 
-	AMScanController::scan_ = scan_ = new AMXRFScan;
+	scan_ = new AMXRFScan;
 	scan_->setScanConfiguration(scanConfig);
 	scan_->setName(QString("XRF Scan - %1 el").arg(detector_->elements()));
 
