@@ -22,40 +22,40 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMSample.h"
 
 SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
-	specificCfg_ = cfg;
+	config_ = cfg;
 	initializationActions_ = 0; //NULL
 	cleanUpActions_ = 0; //NULL
 	beamlineInitialized_ = false;
 
 	specificScan_ = new AMFastScan();
-	pScan()->setName("SGM Fast Scan");
-	pScan()->setFileFormat("sgm2010Fast");
-	pScan()->setRunId(AMUser::user()->currentRunId());
-	pScan()->setScanConfiguration(pCfg());
-	pCfg()->setEnergyParameters(SGMBeamline::sgm()->energyParametersForGrating(SGMBeamline::sgm()->currentGrating()));
-	pScan()->setSampleId(SGMBeamline::sgm()->currentSampleId());
+	specificScan_->setName("SGM Fast Scan");
+	specificScan_->setFileFormat("sgm2010Fast");
+	specificScan_->setRunId(AMUser::user()->currentRunId());
+	specificScan_->setScanConfiguration(config_);
+	config_->setEnergyParameters(SGMBeamline::sgm()->energyParametersForGrating(SGMBeamline::sgm()->currentGrating()));
+	specificScan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
 	QString scanName;
 	QString sampleName;
-	if(pCfg()->userScanName() == "")
-		scanName = pCfg()->autoScanName();
+	if(config_->userScanName() == "")
+		scanName = config_->autoScanName();
 	else
-		scanName = pCfg()->userScanName();
-	if(pScan()->sampleId() == -1)
+		scanName = config_->userScanName();
+	if(specificScan_->sampleId() == -1)
 		sampleName = "Unknown Sample";
 	else
-		sampleName = AMSample(pScan()->sampleId(), AMUser::user()->database()).name();
-	pScan()->setName(QString("%1 - %2").arg(sampleName).arg(scanName));
+		sampleName = AMSample(specificScan_->sampleId(), AMUser::user()->database()).name();
+	specificScan_->setName(QString("%1 - %2").arg(sampleName).arg(scanName));
 
 	// Create space in raw data store, and create raw data channels, for each detector.
 
 	/*
 	//for(int i=0; i<scanDetectors.count(); i++) {
-	for(int i = 0; i < pCfg()->allDetectors()->count(); i++) {
-		AMDetectorInfo* detectorInfo = pCfg()->allDetectors()->detectorAt(i)->toInfo();
-		qDebug() << "Detector named " << pCfg()->allDetectors()->detectorAt(i)->detectorName();
-		if(pCfg()->allDetectors()->isDefaultAt(i)){
-			if(pScan()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo)))
-				pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), i));
+	for(int i = 0; i < config_->allDetectors()->count(); i++) {
+		AMDetectorInfo* detectorInfo = config_->allDetectors()->detectorAt(i)->toInfo();
+		qDebug() << "Detector named " << config_->allDetectors()->detectorAt(i)->detectorName();
+		if(config_->allDetectors()->isDefaultAt(i)){
+			if(specificScan_->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo)))
+				specificScan_->addRawDataSource(new AMRawDataSource(specificScan_->rawData(), i));
 			else{
 				/// \todo send out and errorMon?
 				qDebug() << "BIG PROBLEM!!!!!! WHAT JUST HAPPENED?!?!?" << detectorInfo->name();
@@ -66,24 +66,24 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 
 	if(SGMBeamline::sgm()->usingScalerSource()){
 		qDebug() << "In here, setting measurements";
-		pScan()->rawData()->addMeasurement(AMMeasurementInfo(* (pCfg()->allDetectors()->detectorNamed("teyScaler")->toInfo()) ));
-		pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), 0));
-		pScan()->rawData()->addMeasurement(AMMeasurementInfo(* (pCfg()->allDetectors()->detectorNamed("I0Scaler")->toInfo()) ));
-		pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), 1));
-		pScan()->rawData()->addMeasurement(AMMeasurementInfo(* (pCfg()->allDetectors()->detectorNamed("tfyScaler")->toInfo()) ));
-		pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), 2));
-		pScan()->rawData()->addMeasurement(AMMeasurementInfo(* (pCfg()->allDetectors()->detectorNamed("photodiodeScaler")->toInfo()) ));
-		pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), 3));
+		specificScan_->rawData()->addMeasurement(AMMeasurementInfo(* (config_->allDetectors()->detectorNamed("teyScaler")->toInfo()) ));
+		specificScan_->addRawDataSource(new AMRawDataSource(specificScan_->rawData(), 0));
+		specificScan_->rawData()->addMeasurement(AMMeasurementInfo(* (config_->allDetectors()->detectorNamed("I0Scaler")->toInfo()) ));
+		specificScan_->addRawDataSource(new AMRawDataSource(specificScan_->rawData(), 1));
+		specificScan_->rawData()->addMeasurement(AMMeasurementInfo(* (config_->allDetectors()->detectorNamed("tfyScaler")->toInfo()) ));
+		specificScan_->addRawDataSource(new AMRawDataSource(specificScan_->rawData(), 2));
+		specificScan_->rawData()->addMeasurement(AMMeasurementInfo(* (config_->allDetectors()->detectorNamed("photodiodeScaler")->toInfo()) ));
+		specificScan_->addRawDataSource(new AMRawDataSource(specificScan_->rawData(), 3));
 	}
 
 	QList<AMDataSource*> raw1DDataSources;
-	for(int i=0; i<pScan()->rawDataSources()->count(); i++)
-		if(pScan()->rawDataSources()->at(i)->rank() == 1)
-			raw1DDataSources << pScan()->rawDataSources()->at(i);
+	for(int i=0; i<specificScan_->rawDataSources()->count(); i++)
+		if(specificScan_->rawDataSources()->at(i)->rank() == 1)
+			raw1DDataSources << specificScan_->rawDataSources()->at(i);
 
-	int rawTeyIndex = pScan()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->teyDetector()->description());
-	int rawTfyIndex = pScan()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->tfyDetector()->description());
-	int rawI0Index = pScan()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->i0Detector()->description());
+	int rawTeyIndex = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->teyDetector()->description());
+	int rawTfyIndex = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->tfyDetector()->description());
+	int rawI0Index = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->i0Detector()->description());
 
 	if(rawTeyIndex != -1 && rawI0Index != -1) {
 		//AM1DExpressionAB* teyChannel = new AM1DExpressionAB("tey_n");
@@ -93,7 +93,7 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 		//teyChannel->setExpression("tey/I0");
 		teyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->teyDetector()->description()).arg(SGMBeamline::sgm()->i0Detector()->description()));
 
-		pScan()->addAnalyzedDataSource(teyChannel);
+		specificScan_->addAnalyzedDataSource(teyChannel);
 	}
 
 	if(rawTfyIndex != -1 && rawI0Index != -1) {
@@ -104,7 +104,7 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 		//tfyChannel->setExpression("tfy/I0");
 		tfyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->tfyDetector()->description()).arg(SGMBeamline::sgm()->i0Detector()->description()));
 
-		pScan()->addAnalyzedDataSource(tfyChannel);
+		specificScan_->addAnalyzedDataSource(tfyChannel);
 	}
 
 
@@ -169,7 +169,7 @@ bool SGMFastScanController::beamlineInitialize(){
 
 
 
-	SGMFastScanParameters *settings = pCfg()->currentParameters();
+	SGMFastScanParameters *settings = config_->currentParameters();
 	/* NTBA - August 25th, 2011 (David Chevrier)
 		Who's going to delete the list and the actions?"
 	*/

@@ -77,11 +77,8 @@ protected:
 
 
 private:
-	/// Shortcut to cast the scan configuration (AMScanController's generalCfg_) back into the REIXSXESScanConfiguration that we know it is.
-	REIXSXESScanConfiguration* pCfg() { return qobject_cast<REIXSXESScanConfiguration*>(generalCfg_); }
-
-	/// Shortcut to cast the scan object (AMScanController's generalScan_ back into the AMXESScan that we know it is.
-	AMXESScan* pScan() { return qobject_cast<AMXESScan*>(generalScan_); }
+	/// Our scan configuration:
+	REIXSXESScanConfiguration* config_;
 
 };
 
