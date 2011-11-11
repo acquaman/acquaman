@@ -28,17 +28,32 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 /*! This class implements loading and saving of XRF data in a custom way.  This is because this data is typically not saved currently.
 	It consists of columns with the raw data from each element of the detector.
 */
-class VESPERS2011XRFFileLoaderPlugin : public QObject, AMFileLoaderInterface
+class VESPERS2011XRFFileLoaderPlugin : public AMFileLoaderInterface
 {
-	Q_OBJECT
-	Q_INTERFACES(AMFileLoaderInterface)
 
 public:
+	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept vespersXRF and vespers2011XRF
+	virtual QStringList acceptedFileFormats() { return (QStringList() << "vespersXRF" << "vespers2011XRF"); }
 	/// Format tag. a unique string identifying this format.
 	virtual bool accepts(AMScan *scan);
 
 	/// Loads data from \param filepath into the target scan.
 	virtual bool load(AMScan *scan, const QString &userDataFolder);
+};
+
+class VESPERS2011XRFFileLoaderFactory : public QObject, public AMFileLoaderFactory
+{
+	Q_OBJECT
+	Q_INTERFACES(AMFileLoaderFactory)
+
+public:
+	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept vespersXRF and vespers2011XRF
+	virtual QStringList acceptedFileFormats() { return (QStringList() << "vespersXRF" << "vespers2011XRF"); }
+	/// This function allows you to do a more detailed check of an AMScan to see whether you can load data for it.
+	virtual bool accepts(AMScan *scan);
+
+	/// This should create an instance of an AMFileLoaderInterface object to do the actual loading.
+	virtual AMFileLoaderInterface* createFileLoader() { return new VESPERS2011XRFFileLoaderPlugin(); }
 };
 
 #endif // VESPERS2011XRFFILELOADERPLUGIN_H

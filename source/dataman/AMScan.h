@@ -213,13 +213,8 @@ public:
 	// Role 4: Loading/Clearing Raw Data
 	////////////////////////////
 	/// Load raw data into memory from storage, using the AMFileLoaderInterface plugin system to find the appropriate file loader based on fileFormat(). Returns true on success.
-	/*! DEPRECATED: Subclasses should not reimplement this function, but must provide an implementation for loadDataImplementation(), which attempts to use the scan's current filePath() and fileFormat() as the source, and handles their set of readable file formats.  This function calls loadDataImplementation(), and then calls setDataStore() on all the raw data sources, to hopefully restore them to a valid state, now that there is valid raw data.*/
 	bool loadData();
 
-	/// This function is deprecated in favour of the plugin system for AMFileLoaderInterface.  It will never be called.
-	virtual bool loadDataImplementation() {
-		return true;
-	}
 
 	/// Controls whether raw data is loaded automatically inside loadFromDb().  If autoLoadData() is true, then whenever loadFromDb() is called and the new filePath() is different than the old filePath(), loadData() will be called as well.  If you want to turn off loading raw data for performance reasons, call setAutoLoadData(false).  Auto-loading is enabled by default.
 	bool autoLoadData() const {

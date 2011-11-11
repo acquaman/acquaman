@@ -32,29 +32,6 @@ AMFastScan::AMFastScan(QObject *parent) :
 	autoExportFilePath_ = "";
 }
 
-#include "dataman/SGM/SGM2010FastFileLoader.h"
-
-bool AMFastScan::loadDataImplementation(){
-	SGM2010FastFileLoader sgmLoader(this);
-
-	QFileInfo sourceFileInfo(filePath());
-	if(sourceFileInfo.isRelative()){
-		qDebug() << "Path IS relative, user data folder is " << AMUserSettings::userDataFolder;
-		sourceFileInfo.setFile(AMUserSettings::userDataFolder + "/" + filePath());
-	}
-	if(fileFormat() == sgmLoader.formatTag()) {
-		if(sgmLoader.loadFromFile(sourceFileInfo.filePath(), false, false, false)) {
-			return true;
-		}
-		else {
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, QString("Could not load raw fast scan data from '%1'").arg(filePath())));
-			return false;
-		}
-	}
-
-	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, QString("Could not load raw fast scan data. The '%1' file format isn't supported.").arg(fileFormat())));
-	return false;
-}
 
 bool AMFastScan::storeToDb(AMDatabase *db){
 	bool succeeded = AMScan::storeToDb(db);

@@ -39,7 +39,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/util/AMSettingsView.h"
 
-#include "dataman/AMFileLoaderInterface.h"
+#include "application/AMPluginsManager.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -60,9 +60,11 @@ bool AMDatamanAppController::startup() {
 	AMErrorMon::enableDebugNotifications(true);
 
 	// Load settings from disk:
-	AMSettings::load();
+	AMSettings::s()->load();
 	AMUserSettings::load();
 	AMPVNames::load();
+	// Load plugins:
+	AMPluginsManager::s()->loadApplicationPlugins();
 
 	// ensure user data folder and database are ready for use, if this is the first time the program is ever run.
 	if(!AMFirstTimeController::firstTimeCheck())

@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 
 #include "util/AMSettings.h"
+#include "application/AMPluginsManager.h"
 
 AMUserSettingsView::AMUserSettingsView(QWidget *parent) :
 	QGroupBox("User Settings", parent)
@@ -66,13 +67,13 @@ AMSettingsView::AMSettingsView(QWidget *parent) :
 	unsavedChanges_ = false;
 
 	publicDataFolderLineEdit_ = new QLineEdit();
-	publicDataFolderLineEdit_->setText(AMSettings::publicDataFolder);
+	publicDataFolderLineEdit_->setText(AMSettings::s()->publicDataFolder());
 	publicDataFolderLineEdit_->setEnabled(false);
 	publicDatabaseFileNameLineEdit_  = new QLineEdit();
-	publicDatabaseFileNameLineEdit_->setText(AMSettings::publicDatabaseFilename);
+	publicDatabaseFileNameLineEdit_->setText(AMSettings::s()->publicDatabaseFilename());
 	publicDatabaseFileNameLineEdit_->setEnabled(false);
 	fileLoaderPluginsFolderLineEdit_ = new QLineEdit();
-	fileLoaderPluginsFolderLineEdit_->setText(AMSettings::fileLoaderPluginsFolder);
+	fileLoaderPluginsFolderLineEdit_->setText(AMSettings::s()->fileLoaderPluginsFolder());
 
 	connect(publicDataFolderLineEdit_, SIGNAL(textEdited(QString)), this, SLOT(onLineEditsChanged()));
 	connect(publicDatabaseFileNameLineEdit_, SIGNAL(textEdited(QString)), this, SLOT(onLineEditsChanged()));
@@ -103,26 +104,32 @@ bool AMSettingsView::hasUnsavedChanges(){
 	return unsavedChanges_;
 }
 
-void AMSettingsView::applyChanges(){
-	if(unsavedChanges_){
-		if(AMSettings::publicDataFolder != publicDataFolderLineEdit_->text())
-			AMSettings::publicDataFolder = publicDataFolderLineEdit_->text();
-		if(AMSettings::publicDatabaseFilename != publicDatabaseFileNameLineEdit_->text())
-			AMSettings::publicDatabaseFilename = publicDatabaseFileNameLineEdit_->text();
-		if(AMSettings::fileLoaderPluginsFolder != fileLoaderPluginsFolderLineEdit_->text())
-			AMSettings::fileLoaderPluginsFolder = fileLoaderPluginsFolderLineEdit_->text();
+void AMSettingsView::applyChanges() {
+	bool shouldReloadPlugins = false;
 
-		AMSettings::save();
-		AMSettings::load();
+	if(unsavedChanges_){
+		if(AMSettings::s()->publicDataFolder() != publicDataFolderLineEdit_->text())
+			AMSettings::s()->setPublicDataFolder(publicDataFolderLineEdit_->text());
+		if(AMSettings::s()->publicDatabaseFilename() != publicDatabaseFileNameLineEdit_->text())
+			AMSettings::s()->setPublicDatabaseFilename(publicDatabaseFileNameLineEdit_->text());
+		if(AMSettings::s()->fileLoaderPluginsFolder() != fileLoaderPluginsFolderLineEdit_->text()) {
+			AMSettings::s()->setFileLoaderPluginsFolder(fileLoaderPluginsFolderLineEdit_->text());
+			shouldReloadPlugins = true;
+		}
+
+		AMSettings::s()->save();
+		if(shouldReloadPlugins)
+			AMPluginsManager::s()->loadApplicationPlugins();
+
 		storeInitialState();
 	}
 }
 
 void AMSettingsView::discardChanges(){
 	if(unsavedChanges_){
-		publicDataFolderLineEdit_->setText(AMSettings::publicDataFolder);
-		publicDatabaseFileNameLineEdit_->setText(AMSettings::publicDatabaseFilename);
-		fileLoaderPluginsFolderLineEdit_->setText(AMSettings::fileLoaderPluginsFolder);
+		publicDataFolderLineEdit_->setText(AMSettings::s()->publicDataFolder());
+		publicDatabaseFileNameLineEdit_->setText(AMSettings::s()->publicDatabaseFilename());
+		fileLoaderPluginsFolderLineEdit_->setText(AMSettings::s()->fileLoaderPluginsFolder());
 		storeInitialState();
 	}
 }
@@ -221,9 +228,9 @@ void AMSettingsMasterView::closeEvent(QCloseEvent *e){
 	else{
 		int ret;
 		ret = QMessageBox::warning(this, tr("Acquaman Settings Changed"),
-					   tr("Acquaman's settings have been changed\n"
-					      "Do you wish to save the changes?"),
-					   QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+								   tr("Acquaman's settings have been changed\n"
+									  "Do you wish to save the changes?"),
+								   QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 		if(ret == QMessageBox::Save){
 			settingsView_->applyChanges();
 			e->accept();

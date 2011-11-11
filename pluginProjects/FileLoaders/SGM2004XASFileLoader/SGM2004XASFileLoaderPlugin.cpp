@@ -1,7 +1,5 @@
 #include "SGM2004XASFileLoaderPlugin.h"
 
-AMBiHash<QString, QString> SGM2004XASFileLoaderPlugin::columns2pvNames_;
-
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
@@ -21,7 +19,7 @@ bool SGM2004XASFileLoaderPlugin::accepts(AMScan *scan){
 
 bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder){
 	qDebug() << "\n\nTRYING TO LOAD WITH SGM2004XAS PLUGIN";
-	// this static storage can be shared across all instances, but if we're the first, need to populate it.
+
 	if(columns2pvNames_.count() == 0) {
 		columns2pvNames_.set("eV", "BL1611-ID-1:Energy");
 		columns2pvNames_.set("ringCurrent", "PCT1402-01:mA:fbk");
@@ -307,4 +305,10 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	return true;
 }
 
-Q_EXPORT_PLUGIN2(SGM2004XASFileLoaderPlugin, SGM2004XASFileLoaderPlugin)
+bool SGM2004XASFileLoaderFactory::accepts(AMScan *scan)
+{
+	return (scan->fileFormat() == "sgm2004");
+}
+
+Q_EXPORT_PLUGIN2(SGM2004XASFileLoaderFactory, SGM2004XASFileLoaderFactory)
+

@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/datastore/AMInMemoryDataStore.h"
 #include "acquaman/AMScanConfiguration.h"
+#include "application/AMPluginsManager.h"
 
 
 AMScan::AMScan(QObject *parent)
@@ -484,19 +485,23 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 bool AMScan::loadData()
 
 {
-	//		bool success = loadDataImplementation();
 	bool accepts = false;
 	bool success = false;
-	for(int x = 0; x < AMSettings::availableFileLoaders.count(); x++) {
-		AMFileLoaderInterface *fileloader = AMSettings::availableFileLoaders.at(x);
-		if((accepts = fileloader->accepts(this))){
-			success = fileloader->load(this, AMUserSettings::userDataFolder);
+
+	// find the available file loaders that claim to work for our fileFormat:
+	QList<AMFileLoaderFactory*> acceptingFileLoaders = AMPluginsManager::s()->availableFileLoaderPlugins().values(fileFormat());
+
+	for(int x = 0; x < acceptingFileLoaders.count(); x++) {
+		if((accepts = acceptingFileLoaders.at(x)->accepts(this))){
+			AMFileLoaderInterface* fileLoader = acceptingFileLoaders.at(x)->createFileLoader();
+			success = fileLoader->load(this, AMUserSettings::userDataFolder);
 			break;
 		}
 
 	}
 	if(!accepts)
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -47, QString("Could not find a suitable plugin for loading the file format '%1'.  Check the Acquaman preferences for the correct plugin locations, and contact the Acquaman developers for assistance.").arg(fileFormat())));
+
 	if(success)
 		for(int i=rawDataSources_.count()-1; i>=0; i--)
 			rawDataSources_.at(i)->setDataStore(rawData());

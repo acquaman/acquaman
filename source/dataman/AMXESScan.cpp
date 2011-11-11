@@ -32,25 +32,25 @@ AMXESScan::AMXESScan(QObject *parent) :
 #include "dataman/REIXS/REIXSXESRawFileLoader.h"
 #include "util/AMErrorMonitor.h"
 
-bool AMXESScan::loadDataImplementation() {
+//bool AMXESScan::loadDataImplementation() {
 
-	REIXSXESRawFileLoader rawLoader(this);
+//	REIXSXESRawFileLoader rawLoader(this);
 
-	if(fileFormat() == rawLoader.formatTag()) {
-		if(rawLoader.loadFromFile(filePath(), false, false, false)) {
-			return true;
-		}
-		else {
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, QString("Could not load raw XES scan data from '%1'").arg(filePath())));
-			return false;
-		}
-	}
+//	if(fileFormat() == rawLoader.formatTag()) {
+//		if(rawLoader.loadFromFile(filePath(), false, false, false)) {
+//			return true;
+//		}
+//		else {
+//			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, QString("Could not load raw XES scan data from '%1'").arg(filePath())));
+//			return false;
+//		}
+//	}
 
 
 
-	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, QString("Could not load raw XES scan data. The '%1' file format isn't supported.").arg(fileFormat())));
-	return false;
-}
+//	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, QString("Could not load raw XES scan data. The '%1' file format isn't supported.").arg(fileFormat())));
+//	return false;
+//}
 
 
 
