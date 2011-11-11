@@ -34,7 +34,7 @@ class AMScan;
 
   \note Threading: This class should be re-entrant, but doesn't need to be thread-safe.  (This means it can have member variables, but shouldn't access static variables or other shared resources without thread protection.)
 
-  - 2) Create "factory" class that inherits AMFileLoaderFactory. This is the plugin class, which will be loaded once and used to create file loaders as required. Inside the class declaration, declare it as a plugin interface with "Q_INTERFACES(AMFileLoaderFactory)".
+  - 2) Create a "factory" class that inherits public QObject and public AMFileLoaderFactory. This is the plugin class, which will be loaded once and used to create file loaders as required. Inside the class declaration, declare it as a plugin interface with "Q_INTERFACES(AMFileLoaderFactory)".  Make sure to include the Q_OBJECT macro as well.
 
  This subclass must also implement the acceptedFileFormats() and accepts() functions to indicate what types of scans it can handle.  It also needs to have a createFileLoader() function that creates and returns an instance of the first object, which will actually be used for loading.
 
