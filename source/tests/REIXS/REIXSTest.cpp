@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
 	REIXSTest td;
 	retVal |= QTest::qExec(&td, argc, argv);
 
-	AMDatabase::releaseUserDb();
+	AMDatabase::deleteDatabase("user");
 
 	return retVal;
 }

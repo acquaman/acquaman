@@ -26,39 +26,41 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
-
-#include <QMap>
-
-
-/// This class encapsulates all access to the user's metadata database.  It is a singleton class like AMBeamline, except that it can provide access to either the user's private database or the public database.
-/*!
-	Access the database instances via public static functions:
-		- AMDatabase::userdb(), or
-		- AMDatabase::publicdb()
+#include <QSet>
+#include <QMutex>
 
 
-	This class provides tools for accessing and working with an arbitrary database.  (The actual schema -- or table structure -- for the user database is defined in AMDatabaseDefinition.)  The objective of this class is to cleanly encapsulate the useful SQL queries, and protect the database integrity by reducing the amount of times anyone requires direct access to run arbitrary queries.
+/// This class provides thread-safe, general access to an SQL database.
+/*! Instances of this class are used to query or modify a database; all of the functions are thread-safe and will operate using a per-thread connection to the same underlying database.
+
+	Access to instances is organized using a "multiton" approach: to create a new instance, use the static AMDatabase::createDatabase() function and include a connection name.  Later, access to the instance can be retrieved using the same connection name with the static AMDatabase::database() function. This ensures unique connection names across the entire program.
+
+	Once you have an instance, you can query, insert rows, create tables, etc. using query(), insertOrUpdate(), update(), retrieve(), ensureTable(), deleteRow(), etc. All of these are thread-safe and can be called from any thread.
+
+	\note Regarding related classes AMDbObject and AMDbObjectSupport: this class only provides tools for accessing and working with an arbitrary SQL database; no specific schema or meaning is implied.  The actual schema -- or table structure -- for an Acquaman user database is defined dynamically by the AMDbObject classes and AMDbObjectSupport.  The objective of this class is just to cleanly encapsulate the useful SQL queries, and protect the database integrity by reducing the amount of times anyone requires direct access to run arbitrary queries.
 */
 class AMDatabase : public QObject {
 	Q_OBJECT
 
 public:
 
-	/// Get access to the user's database. (The constructor is private... This is the only way to access it.)
-	static AMDatabase* userdb();
-	/// Get access to the public database. (The constructor is private... this is the only way in.)
-	static AMDatabase* publicdb();
-	/// Get access to a database based on the connection name. If the connection doesn't exist, returns 0
-	static AMDatabase* dbByName(const QString& connectionName);
+	// Multiton accessor functions: getting access to an AMDatabase instance.
+	/////////////////////////////////////
+	/// Create a new database instance with the given \c connectionName and \c dbAccessString.
+	/*! The AMDatabase constructor is private so that we can enforce unique connection names across the program. This is the only way to access it.
+The \c connectionName will be used to retrieve this instance later using AMDatabase::database(). It needs to be unique (program-wide); this function will return 0 if a connection with that name already exists.
 
-	/// Free the database resources if no longer needed
-	static void releaseUserDb();
-	static void releasePublicDb();
+The parameters by which to access the database are given in \c dbAccessString. (For the current SQLITE database, dbAccessString is just the path to the database file.)
+*/
+	static AMDatabase* createDatabase(const QString& connectionName, const QString& dbAccessString);
+	/// Get access to a database based on the \c connectionName. If the connection doesn't exist, returns 0.
+	static AMDatabase* database(const QString& connectionName);
+	/// Delete a database instance that is not longer required.
+	static void deleteDatabase(const QString& connectionName);
 
-	/// This is the connection name of your database object:
-	QString connectionName() {
-		return qdb().connectionName();
-	}
+
+	// Static functions
+	/////////////////////////////////////
 
 	/// Converts from QVariant::Type to the recommended column type in the database
 	static QString metaType2DbType(QVariant::Type type) {
@@ -77,6 +79,17 @@ public:
 		}
 	}
 
+
+	// Instance Functions
+	///////////////////////////
+
+	/// This is the connection name of this database instance.
+	QString connectionName() {
+		return connectionName_;
+	}
+
+
+
 	/// Inserting or updating a row in the database.
 	/*! \c id is the object's row in the database (for updates), or 0 (for inserts).
 		\c table is the database table name
@@ -90,6 +103,8 @@ public:
 
 	/// changing single values in the database, at row \c id.
 	bool update(int id, const QString& table, const QString& column, const QVariant& value);
+	/// changing multiple column values in the database, at row \c id.
+	bool update(int id, const QString& table, const QStringList& columns, const QVariantList& values);
 
 	/// Changing single values in the database (where the id isn't known).  Will update all rows based on the condition specified; \c whereClause is a string suitable for appending after an SQL "WHERE" term.  Will set the value in \c dataColumn to \c dataValue.
 	bool update(const QString& tableName, const QString& whereClause, const QString& dataColumn, const QVariant& dataValue);
@@ -98,9 +113,6 @@ public:
 	bool deleteRow(int id, const QString& tableName);
 	/// delete all objects/rows in \c tableName that meet a certain condition. \c whereClause is a string suitable for appending after an SQL "WHERE" term. Returns the number of rows deleted.
 	int deleteRows(const QString& tableName, const QString& whereClause);
-
-
-
 
 	/// retrieve the parameters of an object from the database.
 	/*! \c id is the object's row in the database.
@@ -163,21 +175,33 @@ signals:
 	void removed(const QString& tableName, int oldId);
 
 protected:
-	/// Access the QSqlAMDatabase object for this connection.
-	QSqlDatabase qdb() const { return QSqlDatabase::database(connectionName_); }
+	/// Access the QSqlDatabase object for this connection. This function is thread-safe, and will return a connection that can be used safely from the calling thread.
+	QSqlDatabase qdb() const;
 
 
 private:
 	/// Constructor is private.  ConnectionName is a unique connection name (program-wide) for this database. dbAccessString provides the database-engine specific connection details.
-	/// (For the current SQLITE database, dbAccessString is just the path to the database file.)
+	/*! (For the current SQLITE database, dbAccessString is just the path to the database file.)*/
 	AMDatabase(const QString& connectionName, const QString& dbAccessString);
+
+	// Instance variables:
+	///////////////////////////
+
+	/// This is the connection name specified in the constructor: a unique (program-wide) way of referring to this database.
 	QString connectionName_;
+	/// This is the string used to specify how to connect to the database.  (For the current SQLITE database, dbAccessString is just the path to the database file.)
+	QString dbAccessString_;
 
-	/// Internal instance pointers
-	static AMDatabase* userInstance_;
-	static AMDatabase* publicInstance_;
+	/// For every AMDatabase instance, we can actually have multiple connections to the database: one for each thread. All connections are to the same underlying database. This is a set of the thread IDs for which we've already created connections. (The connection name for those is our connectionName_ with the threadId appended.)
+	mutable QSet<Qt::HANDLE> threadIDsOfOpenConnections_;
+	/// This mutex is used in the thread-safe function qdb() to protect access to threadIDsOfOpenConnections_.
+	mutable QMutex qdbMutex_;
 
 
+	// Multiton variables:
+	///////////////////////////
+	static QHash<QString, AMDatabase*> connectionName2Instance_;
+	static QMutex databaseLookupMutex_;
 
 };
 

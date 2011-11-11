@@ -138,6 +138,12 @@ public:
 	/// Returns the experiment configuration model.
 	VESPERSExperimentConfiguration *experimentConfiguration() const { return experimentConfiguration_; }
 
+	// The helper controls for changing the dwell time for each region.
+	/// Returns the control in charge of changing the dwell time trigger for changing the dwell time between regions.
+	AMControl *dwellTimeTrigger() const { return dwellTimeTrigger_; }
+	/// Returns the control holding the confirmed flag while setting the dwell time between regions.
+	AMControl *dwellTimeConfirmed() const { return dwellTimeConfirmed_; }
+
 	// Pressure
 	/// Returns the pressure control for Front End section 1.
 	AMControl *ccgFE1() const { return ccgFE1_; }
@@ -525,6 +531,10 @@ protected:
 
 	// Experiment Configuration
 	VESPERSExperimentConfiguration *experimentConfiguration_;
+
+	// Dwell time control helper functions for the dwell time.
+	AMControl *dwellTimeTrigger_;
+	AMControl *dwellTimeConfirmed_;
 
 	// Beam selection members.
 	// The current beam in use by the beamline.

@@ -51,10 +51,10 @@ bool SGMSSAAppController::startup() {
 		////////////////////////////////////////
 
 		AMRun existingRun;
-		if(!existingRun.loadFromDb(AMDatabase::userdb(), 1)) {
+		if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
 			// no run yet... let's create one.
 			AMRun firstRun("SGM", 3);	/// \todo For now, we know that 5 is the ID of the REIXS facility, but this is a hardcoded hack. See AMFirstTimeController::onFirstTime() for where the facilities are created.
-			firstRun.storeToDb(AMDatabase::userdb());
+			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 
 		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)

@@ -76,7 +76,7 @@ public:
 		if(iconFileName().isEmpty())
 			return AMDbThumbnail(name(), description());
 		else
-			return AMDbThumbnail(name(), description(), QPixmap(iconFileName()));
+			return AMDbThumbnail(name(), description(), QImage(iconFileName()));
 	}
 
 

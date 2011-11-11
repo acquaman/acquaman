@@ -58,11 +58,11 @@ bool SGMAppController::startup() {
 	if(AMAppController::startup()) {
 		SGMBeamline::sgm();
 
-		AMDbObjectSupport::registerClass<MCPDetectorInfo>();
-		AMDbObjectSupport::registerClass<PGTDetectorInfo>();
-		AMDbObjectSupport::registerClass<OceanOptics65000DetectorInfo>();
-		AMDbObjectSupport::registerClass<SGMXASScanConfiguration>();
-		AMDbObjectSupport::registerClass<SGMFastScanConfiguration>();
+		AMDbObjectSupport::s()->registerClass<MCPDetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<PGTDetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<OceanOptics65000DetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
+		AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration>();
 
 		AMDetectorViewSupport::registerClass<AMSingleControlBriefDetectorView, AMSingleControlDetector>();
 		AMDetectorViewSupport::registerClass<MCPBriefDetectorView, MCPDetector>();
@@ -76,10 +76,10 @@ bool SGMAppController::startup() {
 		////////////////////////////////////////
 
 		AMRun existingRun;
-		if(!existingRun.loadFromDb(AMDatabase::userdb(), 1)) {
+		if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
 			// no run yet... let's create one.
 			AMRun firstRun("SGM", 3);	/// \todo For now, we know that 5 is the ID of the REIXS facility, but this is a hardcoded hack. See AMFirstTimeController::onFirstTime() for where the facilities are created.
-			firstRun.storeToDb(AMDatabase::userdb());
+			firstRun.storeToDb(AMDatabase::database("user"));
 			AMExporterOptionGeneralAscii *sgmDefault = new AMExporterOptionGeneralAscii();
 			sgmDefault->setName("SGMDefault");
 			sgmDefault->setFileName("$name_$exportIndex.txt");
@@ -102,7 +102,7 @@ bool SGMAppController::startup() {
 			sgmDefault->addDataSource("IPFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
 			sgmDefault->addDataSource("SDD", false, AMExporterOptionGeneral::SeparateFilesMode, false);
 			sgmDefault->setSeparateSectionFileName("$name_$dataSetName_$exportIndex.txt");
-			sgmDefault->storeToDb(AMDatabase::userdb());
+			sgmDefault->storeToDb(AMDatabase::database("user"));
 		}
 
 		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)

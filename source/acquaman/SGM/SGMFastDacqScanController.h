@@ -35,8 +35,6 @@ class SGMFastDacqScanController : public AMDacqScanController, public SGMFastSca
 public:
 	explicit SGMFastDacqScanController(SGMFastScanConfiguration *cfg, QObject *parent = 0);
 
-	virtual AMScan* scan() { return pScan();}
-
 protected:
 	bool initializeImplementation();
 	bool startImplementation();
@@ -75,9 +73,6 @@ protected slots:
 	void onScanCancelledBeforeInitialized();
 	void onScanCancelledWhileRunning();
 
-private:
-	SGMFastScanConfiguration *pCfg() { return qobject_cast<SGMFastScanConfiguration*>(specificCfg_);}
-	AMFastScan* pScan() { return qobject_cast<AMFastScan*>(specificScan_);}
 };
 
 #endif // SGMFASTDACQSCANCONTROLLER_H

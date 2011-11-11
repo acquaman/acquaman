@@ -10,6 +10,7 @@
 
 #include "acquisitionLib.internal.h"
 
+// Added macro to avoid unused variable compiler warnings (David Chevrier, Oct 27 2011)
 #define UNUSED(x) (void)(x)
 /*
  * number of monitor callbacks, and milliseconds between each callback

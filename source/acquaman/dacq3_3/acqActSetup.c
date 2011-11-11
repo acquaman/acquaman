@@ -1,5 +1,5 @@
 /**
- ** $Header: acqActSetup.c 1.5.1.3 2009/03/04 15:13:44CST Glen Wright (wrightg) Exp  $
+ ** $Header: acqActSetup.c 1.5.1.6 2011/10/27 7:55:00CST David Chevrier (chevrid) Exp  $
  ** Copyright Canadian Light Source, Inc. All rights reserved.
  **
  ** Description:
@@ -11,6 +11,7 @@
 #include "acquisitionLib.internal.h"
 #include <stdlib.h>
 
+// Added macro to avoid unused variable compiler warnings (David Chevrier, Oct 27 2011)
 #define UNUSED(x) (void)(x)
 
 /*
@@ -132,6 +133,7 @@ addEventPv( acqEvent_t *ev, char *name, int norecord, char *fmt, acqPvReady_t re
 
 	idx = ev->numPvList;
 	nbytes = (1+ev->numPvList)* sizeof (*ev->pvList);
+	// Added %ld to address 64 bit issue (David Chevrier, Oct 27 2011)
 	DEBUGM(ev->master,1) printf("adding event %d total bytes %d (%d*%ld)\n", idx, nbytes, ev->numPvList+1, sizeof(*ev->pvList));
 	ev->pvList = realloc(ev->pvList, nbytes);
 
@@ -349,8 +351,10 @@ new_acqScan( const char *scanName, acqMaster_t *master)
 {
 	acqScan_t *scan;
 
+	// Added return NULL to avoid compiler warning (David Chevrier, Oct 27 2011)
 	if( master->globalState != AS_OFF)
-		return;
+		return NULL;
+		//return;
 
 	scan = calloc(1, sizeof (*scan) );
 	if( scan == NULL)
@@ -414,7 +418,6 @@ addScanControl( acqScan_t *scanp, acqControl_t *ctlp)
 
 	if( scanp->master->globalState != AS_OFF)
 		return;
-
 
 	if( scanp->numControlPV == 1 && scanp->acqControlList->controlPV == NULL)
 		i = 0;
@@ -771,10 +774,10 @@ valid_scanRecord_settings( acqScan_t *as)
 				if( actp->au.wm.name == NULL)
 					return "missing Name for motor wait";
 				break;
+
 			case AA_NO_ACTION:
 				//Added to fix warning (David Chevrier, Aug 25 2011)
 				break;
-
 			}
 		}
 	}
@@ -925,8 +928,10 @@ eraseActionList( acqAction_t *act_h)
 			ap->au.ws.scan = NULL;
 			continue;
 		case AA_NEXT_OUTPUT:
+		//Added because of warning (David Chevrier, Aug 25 2011)
 			continue;
 		case AA_NO_ACTION:
+		//Added because of warning (David Chevrier, Aug 25 2011)
 			continue;
 		}
 	}
@@ -1126,7 +1131,8 @@ curState(acqState st)
 char *
 acqCurState(acqState st)
 {
-//	if( st < 0 || st >= AS_NUMBER)
+	//Removed check because of warning (David Chevrier, Aug 25 2011)
+	//if( st < 0 || st >= AS_NUMBER)
 	if( st >= AS_NUMBER)
 		return "unknown";
 	return stateNames[st];
@@ -1135,6 +1141,7 @@ acqCurState(acqState st)
 acqState
 acqGetStateFromName(const char *name)
 {
+	//Added unsigned because of warning (David Chevrier, Aug 25 2011)
 	unsigned int i;
 	for(i=0; i < sizeof stateNames/sizeof stateNames[0]; i++)
 		if( strcmp(name, stateNames[i]) == 0)
@@ -1144,6 +1151,9 @@ acqGetStateFromName(const char *name)
 
 /*
  * $Log: acqActSetup.c  $
+ * Revision 1.5.1.6 2011/10/27 7:55:00CST David Chevrier (chevrid)
+ * Revision 1.5.1.4 2011/08/12 14:32:27CST Glen Wright (wrightg)
+ * New routines for updating scan entries
  * Revision 1.5.1.3 2009/03/04 15:13:44CST Glen Wright (wrightg) 
  * Revisions for caller-defined output streams
  * Revision 1.5.1.2 2008/05/28 13:53:02CST Glen Wright (wrightg) 

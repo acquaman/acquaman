@@ -18,7 +18,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMDetectorInfoList.h"
+#include "AMDetectorInfoSet.h"
 
 AMDetectorInfoSet::AMDetectorInfoSet(QObject *parent)
 	: AMDbObject(parent), AMOrderedSet<QString, QPair<AMDetectorInfo*, bool> >()

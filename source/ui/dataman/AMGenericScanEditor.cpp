@@ -69,14 +69,14 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	ui_.scanListView->setAttribute( Qt::WA_MacShowFocusRect, false);
 
 	// Add run selector:
-	runSelector_ = new AMRunSelector(AMDatabase::userdb());
+	runSelector_ = new AMRunSelector(AMDatabase::database("user"));
 	ui_.scanInfoLayout->insertWidget(1, runSelector_);
 
 
 	// Add detailed editor widgets:
 	QWidget* sampleEditorHolder = new QWidget();	// just used to add a margin around the sample editor itself, which has no margins.
 	sampleEditorHolder->setLayout(new QVBoxLayout);
-	sampleEditor_ = new AMSampleEditor(AMDatabase::userdb());
+	sampleEditor_ = new AMSampleEditor(AMDatabase::database("user"));
 	sampleEditorHolder->layout()->addWidget(sampleEditor_);
 	stackWidget_->addItem("Sample Information", sampleEditorHolder);
 
@@ -291,7 +291,7 @@ bool AMGenericScanEditor::deleteScanWithModifiedCheck(AMScan* scan) {
 		if(scan->database())
 			saveSuccess = scan->storeToDb(scan->database());
 		else
-			saveSuccess = scan->storeToDb(AMDatabase::userdb());
+			saveSuccess = scan->storeToDb(AMDatabase::database("user"));
 
 		if(saveSuccess) {
 			deleteScan(scan);
@@ -352,10 +352,10 @@ bool AMGenericScanEditor::dropScanURLs(const QList<QUrl>& urls) {
 			break;
 
 		// Can we connect to the database?
-		AMDatabase* db = AMDatabase::dbByName(url.host());
+		AMDatabase* db = AMDatabase::database(url.host());
 		if(!db)
 			break;
-		/// \bug This does not verify that the incoming scans came from the user database. In fact, it happily accepts scans from other databases. Check if we assume anywhere else inside AMGenericScanEditor that we're using the AMDatabase::userdb() database. (If we do, this could cause problems.)
+		/// \bug This does not verify that the incoming scans came from the user database. In fact, it happily accepts scans from other databases. Check if we assume anywhere else inside AMGenericScanEditor that we're using the AMDatabase::database("user") database. (If we do, this could cause problems.)
 
 		QStringList path = url.path().split('/', QString::SkipEmptyParts);
 		if(path.count() != 2)
@@ -368,11 +368,11 @@ bool AMGenericScanEditor::dropScanURLs(const QList<QUrl>& urls) {
 			break;
 
 		/// \todo Evaluate if this is still necessary: Only store things that belong in the scans table for now.
-		if(tableName != AMDbObjectSupport::tableNameForClass<AMScan>())
+		if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
 			break;
 
 		/// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
-		AMDbObject* dbo = AMDbObjectSupport::createAndLoadObjectAt(db, tableName, id);
+		AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
 		if(!dbo)
 			break;
 
@@ -406,13 +406,13 @@ void AMGenericScanEditor::onSaveScanButtonClicked() {
 		if(scan->database())
 			scan->storeToDb(scan->database());
 		else
-			scan->storeToDb(AMDatabase::userdb());
+			scan->storeToDb(AMDatabase::database("user"));
 	}
 }
 
 void AMGenericScanEditor::onOpenScanButtonClicked() {
 	if(!chooseScanDialog_) {
-		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::userdb(), "Add an existing scan", "Choose one or more existing scans to open in this editor.", true, this);
+		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Add an existing scan", "Choose one or more existing scans to open in this editor.", true, this);
 		connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onChooseScanDialogAccepted()));
 	}
 

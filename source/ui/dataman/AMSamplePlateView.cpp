@@ -29,7 +29,7 @@ AMSamplePlateItemModel::AMSamplePlateItemModel(AMSamplePlate* plate, QObject* pa
 {
 	plate_ = plate;
 
-	sampleTableName_ = AMDbObjectSupport::tableNameForClass<AMSample>();
+	sampleTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMSample>();
 
 	connect(plate_, SIGNAL(samplePositionAboutToBeAdded(int)), this, SLOT(onSamplePositionAboutToBeAdded(int)));
 	connect(plate_, SIGNAL(samplePositionAdded(int)), this, SLOT(onSamplePositionAdded(int)));
@@ -37,8 +37,8 @@ AMSamplePlateItemModel::AMSamplePlateItemModel(AMSamplePlate* plate, QObject* pa
 	connect(plate_, SIGNAL(samplePositionRemoved(int)), this, SLOT(onSamplePositionRemoved(int)));
 	connect(plate_, SIGNAL(samplePositionChanged(int)), this, SLOT(onSamplePositionChanged(int)));
 
-	connect(AMDatabase::userdb(), SIGNAL(updated(QString,int)), this, SLOT(onDatabaseItemUpdated(QString,int)), Qt::QueuedConnection);
-	connect(AMDatabase::userdb(), SIGNAL(removed(QString,int)), this, SLOT(onDatabaseItemRemoved(QString,int)), Qt::QueuedConnection);
+	connect(AMDatabase::database("user"), SIGNAL(updated(QString,int)), this, SLOT(onDatabaseItemUpdated(QString,int)), Qt::QueuedConnection);
+	connect(AMDatabase::database("user"), SIGNAL(removed(QString,int)), this, SLOT(onDatabaseItemRemoved(QString,int)), Qt::QueuedConnection);
 
 	cachedSamples_.reserve(plate_->count());
 	for(int i=plate_->count()-1; i>=0; i--)
@@ -103,7 +103,7 @@ const AMSample& AMSamplePlateItemModel::getCachedSample(int index) const {
 
 	// we can tell if this one's been loaded by looking at its id. If it's 0 (or a wrong id), it's not the sample info we want.
 	if(cachedSamples_.at(index).id() != correctId) {
-		if(!cachedSamples_[index].loadFromDb(AMDatabase::userdb(), correctId)) {
+		if(!cachedSamples_[index].loadFromDb(AMDatabase::database("user"), correctId)) {
 			cachedSamples_[index].setName("[Unknown Sample]");
 		}
 	}
@@ -121,7 +121,7 @@ void AMSamplePlateItemModel::onDatabaseItemUpdated(const QString &tableName, int
 	for(int i=0; i<cachedSamples_.count(); i++) {
 		if(cachedSamples_.at(i).id() == id) {
 			// it was this sample! reload from db
-			if(!cachedSamples_[i].loadFromDb(AMDatabase::userdb(), id)) {
+			if(!cachedSamples_[i].loadFromDb(AMDatabase::database("user"), id)) {
 				cachedSamples_[i].setName("[Unknown Sample]");
 			}
 			emit dataChanged(index(i), index(i));
@@ -283,7 +283,7 @@ void AMSamplePlateItemDelegate::setModelData(QWidget *editor, QAbstractItemModel
 AMSamplePlateSelector::AMSamplePlateSelector(AMSamplePlate* sourcePlate, QWidget *parent)
 	: QWidget(parent) {
 
-	samplePlateTableName_ = AMDbObjectSupport::tableNameForClass<AMSamplePlate>();
+	samplePlateTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMSamplePlate>();
 	// Either use an external plate (if specified in sourcePlate), or make an internal one.
 	plate_ = sourcePlate ? sourcePlate : new AMSamplePlate(this);
 
@@ -306,9 +306,9 @@ AMSamplePlateSelector::AMSamplePlateSelector(AMSamplePlate* sourcePlate, QWidget
 
 	onSamplePlateChanged(/*plate_->valid()*/);
 
-	connect(AMDatabase::userdb(), SIGNAL(updated(QString,int)), this, SLOT(onDatabaseUpdated(QString,int)), Qt::QueuedConnection);
-	connect(AMDatabase::userdb(), SIGNAL(created(QString,int)), this, SLOT(onDatabaseCreated(QString,int)), Qt::QueuedConnection);
-	connect(AMDatabase::userdb(), SIGNAL(removed(QString,int)), this, SLOT(onDatabaseRemoved(QString,int)), Qt::QueuedConnection);
+	connect(AMDatabase::database("user"), SIGNAL(updated(QString,int)), this, SLOT(onDatabaseUpdated(QString,int)), Qt::QueuedConnection);
+	connect(AMDatabase::database("user"), SIGNAL(created(QString,int)), this, SLOT(onDatabaseCreated(QString,int)), Qt::QueuedConnection);
+	connect(AMDatabase::database("user"), SIGNAL(removed(QString,int)), this, SLOT(onDatabaseRemoved(QString,int)), Qt::QueuedConnection);
 
 	// GUI event connections
 	connect(ui_.plateComboBox, SIGNAL(activated(int)), this, SLOT(onComboBoxActivated(int)));
@@ -355,7 +355,7 @@ void AMSamplePlateSelector::populateSamplePlates() {
 	ui_.plateComboBox->addItem("Create New Sample Plate...");
 	ui_.plateComboBox->setItemData(0, -777);	// as a safety check, this makes sure that the "Sample Plate Id" of the "Create New..." item is an invalid index.
 
-	QSqlQuery q2 = AMDatabase::userdb()->query();
+	QSqlQuery q2 = AMDatabase::database("user")->query();
 	q2.prepare(QString("SELECT id,name,dateTime FROM %1 ORDER BY dateTime ASC").arg(samplePlateTableName_));
 	q2.exec();
 	int id;
@@ -424,7 +424,7 @@ void AMSamplePlateSelector::onFinishCreatingNewPlate() {
 
 	AMSamplePlate newPlate;
 	newPlate.setName(ui_.nameEdit->text());
-	if(newPlate.storeToDb(AMDatabase::userdb()))
+	if(newPlate.storeToDb(AMDatabase::database("user")))
 		changeSamplePlate(newPlate.id());
 
 	// this update will be picked up by our 'onDatabaseUpdated()' slot
@@ -459,7 +459,7 @@ void AMSamplePlateSelector::onDatabaseUpdated(const QString &tableName, int id) 
 	else {
 		AMSamplePlate p;
 		/// \todo optimize to not require a full loadFromDb.  All we care about is the name and the dateTime... don't need to load all the samples and positions.
-		p.loadFromDb(AMDatabase::userdb(), id);
+		p.loadFromDb(AMDatabase::database("user"), id);
 		ui_.plateComboBox->setItemData(index, p.name(), Qt::DisplayRole);
 		ui_.plateComboBox->setItemData(index, p.dateTime(), AM::DateTimeRole);
 		ui_.plateComboBox->setItemData(index, "created " + AMDateTimeUtils::prettyDateTime(p.dateTime()), AM::DescriptionRole);
@@ -501,7 +501,7 @@ AMSamplePlateView::AMSamplePlateView(AMSamplePlate *existingPlate, QWidget *pare
 	QVBoxLayout* vl2 = new QVBoxLayout();
 
 	samplePlateSelector_ = new AMSamplePlateSelector(samplePlate_);
-	sampleSelector_ = new AMSampleEditor(AMDatabase::userdb());
+	sampleSelector_ = new AMSampleEditor(AMDatabase::database("user"));
 	addSampleButton_ = new QPushButton("Add Sample to Plate");
 
 	sampleListView_ = new QListView();
@@ -556,7 +556,7 @@ void AMSamplePlateView::onAddSampleButtonClicked() {
 						0));
 
 	// save the sample plate, because it's been modified.
-	samplePlate_->storeToDb(AMDatabase::userdb());
+	samplePlate_->storeToDb(AMDatabase::database("user"));
 
 }
 
@@ -572,7 +572,7 @@ void AMSamplePlateView::onRowMarkPressed(int row) {
 	}
 
 	// save the sample plate, because it's been modified.
-	samplePlate_->storeToDb(AMDatabase::userdb());
+	samplePlate_->storeToDb(AMDatabase::database("user"));
 }
 
 
@@ -593,7 +593,7 @@ void AMSamplePlateView::onRowRemovePressed(int row) {
 	samplePlate_->remove(row);
 
 	// save the sample plate, because it's been modified.
-	samplePlate_->storeToDb(AMDatabase::userdb());
+	samplePlate_->storeToDb(AMDatabase::database("user"));
 }
 
 void AMSamplePlateItemModel::onSamplePositionChanged(int r)

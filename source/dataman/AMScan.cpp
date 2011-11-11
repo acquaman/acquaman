@@ -40,6 +40,8 @@ AMScan::AMScan(QObject *parent)
 	fileFormat_ = "unknown";
 
 	configuration_ = 0;
+	controller_ = 0;
+	currentlyScanning_ = false;
 
 	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured in specific subclasses.
 	//data_ = new AMDataTreeDataStore(AMAxisInfo("eV", 0, "Incidence Energy", "eV"));
@@ -138,7 +140,7 @@ void AMScan::retrieveSampleName() const {
 
 	else {
 		sampleNameLoaded_ = true;	// don't set sampleNameLoaded_ in the case above. That way we will keep checking until there's a valid database() (for ex: we get saved/stored.) The sampleNameLoaded_ cache is meant to speed up this database call.
-		QVariant vSampleName = database()->retrieve(sampleId(), AMDbObjectSupport::tableNameForClass<AMSample>(), QString("name"));
+		QVariant vSampleName = database()->retrieve(sampleId(), AMDbObjectSupport::s()->tableNameForClass<AMSample>(), QString("name"));
 		if(vSampleName.isValid())
 			sampleName_ =  vSampleName.toString();
 		else
@@ -388,9 +390,10 @@ bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource, bool 
 }
 
 
-#include <QPixmap>
+#include <QImage>
 #include <QBuffer>
 #include <QByteArray>
+#include <QFile>
 
 /// \todo Hackish... just needed for colors. Move the color table somewhere else besides AMScanSetModel.
 #include "dataman/AMScanSetModel.h"
@@ -400,9 +403,20 @@ bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource, bool 
 #include "MPlot/MPlotImage.h"
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 #include "dataman/datasource/AMDataSourceImageData.h"
+#include "util/AMDateTimeUtils.h"
 
 // Return a thumbnail picture for thumbnail number \c index. For now, we use the following decision: Normally we provide thumbnails for all the analyzed data sources.  If there are no analyzed data sources, we provide thumbnails for all the raw data sources.
 AMDbThumbnail AMScan::thumbnail(int index) const {
+
+	if(currentlyScanning()) {
+		QFile file(":/240x180/currentlyScanningThumbnail.png");
+		file.open(QIODevice::ReadOnly);
+		return AMDbThumbnail("Started",
+							 AMDateTimeUtils::prettyDateTime(dateTime()),
+							 AMDbThumbnail::PNGType,
+							 file.readAll());
+	}
+
 
 	bool useRawSources = (analyzedDataSources_.count() == 0);
 
@@ -416,8 +430,8 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 	if(!useRawSources)
 		index += rawDataSources_.count();
 
-	QPixmap pixmap(240, 180);
-	QPainter painter(&pixmap);
+	QImage image(240, 180, QImage::Format_ARGB32_Premultiplied);
+	QPainter painter(&image);
 	painter.setRenderHint(QPainter::Antialiasing, true);
 	QGraphicsScene gscene(QRectF(0,0,240,180));
 	MPlot* plot = new MPlot(QRectF(0,0,240,180));
@@ -463,7 +477,7 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 
 	delete plot;	// deletes all plot items (series, image) with it.
 
-	return AMDbThumbnail(dataSource->description(), dataSource->name(), pixmap);
+	return AMDbThumbnail(dataSource->description(), dataSource->name(), image);
 
 }
 
@@ -487,5 +501,18 @@ bool AMScan::loadData()
 		for(int i=rawDataSources_.count()-1; i>=0; i--)
 			rawDataSources_.at(i)->setDataStore(rawData());
 	return success;
+}
+
+void AMScan::setScanController(AMScanController* scanController)
+{
+	bool wasScanning = currentlyScanning_;
+
+	controller_ = scanController;
+	currentlyScanning_ = (controller_ != 0);
+
+	if(currentlyScanning_ != wasScanning) {
+		setModified(true);
+		emit currentlyScanningChanged(currentlyScanning_);
+	}
 }
 

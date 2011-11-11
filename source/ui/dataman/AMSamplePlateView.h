@@ -226,7 +226,7 @@ public:
 	int samplePlateId() const { return plate_->id(); }
 
 	/// reload the sample plate out of the database to become a different sample plate
-	void changeSamplePlate(int newId) { plate_->loadFromDb(AMDatabase::userdb(), newId); }
+	void changeSamplePlate(int newId) { plate_->loadFromDb(AMDatabase::database("user"), newId); }
 
 signals:
 	/// Emitted when the sample plate is changed

@@ -24,90 +24,83 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 #include <QStringBuilder>
+#include <QThread>
+#include <QSet>
+#include <QMutexLocker>
+#include <QApplication>
 
-/// Internal instance pointers
-AMDatabase* AMDatabase::userInstance_ = 0;
-AMDatabase* AMDatabase::publicInstance_ = 0;
+#include <QDebug>
 
-// This constructor is protected; only access is through AMDatabase::db()
+// Internal instance records:
+QHash<QString, AMDatabase*> AMDatabase::connectionName2Instance_;
+QMutex AMDatabase::databaseLookupMutex_(QMutex::Recursive);
+
+// This constructor is protected; only access is through AMDatabase::createDatabase().
 AMDatabase::AMDatabase(const QString& connectionName, const QString& dbAccessString) :
-		QObject(),
-		connectionName_(connectionName) {
-
-	// Initialize the database:
-	QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", connectionName_);
-	db.setDatabaseName(dbAccessString);
-	bool ok = db.open();
-
-	if(ok) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Connection established to database " + connectionName_));
-	}
-	else {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, QString("error connecting to database (access %1). The SQL reply was: %2").arg(dbAccessString).arg(db.lastError().text())));
-	}
+	QObject(),
+	connectionName_(connectionName),
+	dbAccessString_(dbAccessString),
+	qdbMutex_(QMutex::Recursive)
+{
+	// Make sure the database is initialized in the creating thread:
+	qdb();
 
 }
 
-/// Access (or create, if it doesn't exist) the user database [static]
-AMDatabase* AMDatabase::userdb() {
+AMDatabase* AMDatabase::createDatabase(const QString &connectionName, const QString &dbAccessString) {
+	QMutexLocker ml(&databaseLookupMutex_);
 
-	if(userInstance_ == 0) {
-
-		// create a new AMDatabase object for the user database:
-		QString filename = AMUserSettings::userDataFolder + AMUserSettings::userDatabaseFilename;
-		userInstance_ = new AMDatabase("user", filename);
-
+	if(connectionName2Instance_.contains(connectionName)) {
+		ml.unlock();
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -1, QString("AMDatabase: Could not create new database instance: A database with this connection name '%1' already exists").arg(connectionName)));
+		return 0;
 	}
-	return userInstance_;
+
+	AMDatabase* db = new AMDatabase(connectionName, dbAccessString);
+	// keep this object in the main thread, if not there already:
+	if(QThread::currentThread() != QApplication::instance()->thread())
+		db->moveToThread(QApplication::instance()->thread());
+
+	connectionName2Instance_.insert(connectionName, db);
+	return db;
 }
 
-/// Access (or create, if it doesn't exist) the public database [static]
-AMDatabase* AMDatabase::publicdb() {
+AMDatabase* AMDatabase::database(const QString& connectionName) {
+	QMutexLocker ml(&databaseLookupMutex_);
 
-	if(publicInstance_ == 0) {
-
-		// create a new AMDatabase object for the public database:
-		QString filename = AMSettings::publicDataFolder + AMSettings::publicDatabaseFilename;
-		publicInstance_ = new AMDatabase("public", filename);
-
-	}
-	return publicInstance_;
-}
-
-AMDatabase* AMDatabase::dbByName(const QString& connectionName) {
-	if(connectionName == userdb()->connectionName())
-		return userdb();
-	if(publicInstance_ && connectionName == publicdb()->connectionName())
-		return publicdb();
-	return 0;
+	QHash<QString, AMDatabase*>::const_iterator i = connectionName2Instance_.find(connectionName);
+	if(i == connectionName2Instance_.end())
+		return 0;
+	else
+		return i.value();
 }
 
 /// Shut down database connections and free database resources [static]
-void AMDatabase::releaseUserDb() {
-	if(userInstance_) {
-		userInstance_->qdb().close();
-		delete userInstance_;
-		userInstance_ = 0;
-	}
-}
-void AMDatabase::releasePublicDb() {
-	if(publicInstance_) {
-		publicInstance_->qdb().close();
+void AMDatabase::deleteDatabase(const QString& connectionName) {
+	QMutexLocker ml(&databaseLookupMutex_);
 
-		delete publicInstance_;
-		publicInstance_ = 0;
+	if(connectionName2Instance_.contains(connectionName)) {
+		AMDatabase* db = connectionName2Instance_[connectionName];
+		connectionName2Instance_.remove(connectionName);
+		ml.unlock();
+
+		db->qdb().close();
+		delete db;
 	}
 }
+
 
 
 /// Inserting or updating objects in the database.
 /*! id is the object's row in the database (for updates), or 0 (for inserts).
-	table is the database table name
-	colNames is a list of the column names that the values will be inserted under
-	values is a list of constant pointers to QVariants that provide the values to insert.
-	(Note that the const and const& arguments are designed to prevent memory copies, so this should be fast.)
-	Return value: (IMPORTANT) returns the id of the row that was inserted into or updated, or 0 on failure.
-	When inserting new objects, make sure to set their id to the return value afterwards, otherwise they will be duplicated on next insert.
+ table is the database table name
+ colNames is a list of the column names that the values will be inserted under
+ values is a list of QVariants that provide the values to insert.
+ (Note that the const& arguments are designed to prevent memory copies, so this should be fast.)
+ Return value: (IMPORTANT) returns the id of the row that was inserted into or updated, or 0 on failure.
+ When inserting new objects, make sure to set their id to the return value afterwards, otherwise they will be duplicated on next insert.
+
+ Note: This is equivalent to an SQL "INSERT OR REPLACE" (or "REPLACE", in MySQL) command. If a row with \c id exists, it will be replaced completely, so you need to specify ALL column values. To change just some column values, use update().
 */
 int AMDatabase::insertOrUpdate(int id, const QString& table, const QStringList& colNames, const QVariantList& values) {
 
@@ -189,9 +182,49 @@ bool AMDatabase::update(int id, const QString& table, const QString& column, con
 
 	// Run query. Query failed?
 	if(!query.exec()) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("database save failed. Could not execute query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("database update failed. Could not execute query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
 		return false;
 	}
+	// Query succeeded.
+	emit updated(table, id);
+	return true;
+
+}
+
+/// changing multiple column values in the database, at row \c id.
+bool AMDatabase::update(int id, const QString& table, const QStringList& columns, const QVariantList& values) {
+
+	QSqlDatabase db = qdb();
+
+	if(columns.count() != values.count()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -102, "Error trying to update the database: the number of columns provided doesn't match the number of values."));
+		return false;
+	}
+	if(!db.isOpen()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -2, "Could not save to database. (Database is not open.)"));
+		return false;
+	}
+
+	QStringList cols;
+	foreach(QString column, columns) {
+		cols << (column % " = ?");
+	}
+	QString colString = cols.join(", ");
+
+	// Prepare the query. Todo: sanitize column names and table name.
+	QSqlQuery query(db);
+	query.prepare(QString("UPDATE %1 SET %2 WHERE id = ?").arg(table).arg(colString));
+	int i=0;
+	for(i=0; i<values.count(); i++)
+		query.bindValue(i, values.at(i));
+	query.bindValue(i, QVariant(id));
+
+	// Run query. Query failed?
+	if(!query.exec()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("database update failed. Could not execute query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
+		return false;
+	}
+
 	// Query succeeded.
 	emit updated(table, id);
 	return true;
@@ -300,11 +333,11 @@ int AMDatabase::deleteRows(const QString& tableName, const QString& whereClause)
 
 /// retrieve object information from the database.
 /*! id is the object's row in the database.
-	table is the database table name
-	colNames is a list of the column names that the values will be retrieved from
-	values is a list of pointers to QVariants that will be modified with the retrived values.
-	(Note that the const and & arguments are designed to prevent memory copies, so this should be fast.)
-	Return value: returns true on success.
+ table is the database table name
+ colNames is a list of the column names that the values will be retrieved from
+ values is a list of pointers to QVariants that will be modified with the retrived values.
+ (Note that the const and & arguments are designed to prevent memory copies, so this should be fast.)
+ Return value: returns true on success.
 */
 QVariantList AMDatabase::retrieve(int id, const QString& table, const QStringList& colNames) const {
 
@@ -511,7 +544,7 @@ bool AMDatabase::ensureColumn(const QString& tableName, const QString& columnNam
 	q.prepare(QString("ALTER TABLE %1 ADD COLUMN %2 %3;").arg(tableName).arg(columnName).arg(columnType));
 
 	if(q.exec()) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Adding database column %1 to table %2.").arg(columnName).arg(tableName)));
+		// AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Adding database column %1 to table %2.").arg(columnName).arg(tableName)));
 		return true;
 	}
 	else {
@@ -526,7 +559,7 @@ bool AMDatabase::createIndex(const QString& tableName, const QString& columnName
 	indexName.remove(QRegExp("[\\s\\,\\;]"));// remove whitespace, commas, and semicolons from index name...
 	q.prepare(QString("CREATE INDEX %1 ON %2(%3);").arg(indexName, tableName, columnNames));
 	if(q.exec()) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Added index on columns (%1) to table '%2'.").arg(columnNames).arg(tableName)));
+		// AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Added index on columns (%1) to table '%2'.").arg(columnNames).arg(tableName)));
 		return true;
 	}
 	else {
@@ -546,4 +579,30 @@ QSqlQuery AMDatabase::select(const QString &tableName, const QString &columnName
 	q.exec();
 
 	return q;
+}
+
+
+QSqlDatabase AMDatabase::qdb() const
+{
+	// threadIDsOfOpenConnections_ can be written and read from any thread by this function. Need to mutex it.
+	QMutexLocker ml(&qdbMutex_);
+
+	// Do we have an open connection for this thread already?
+	Qt::HANDLE threadId = QThread::currentThreadId();
+
+	if(threadIDsOfOpenConnections_.contains(threadId)) {
+		return QSqlDatabase::database(QString("%1%2").arg(connectionName_).arg((qulonglong)threadId));
+	}
+
+	else {
+		QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", QString("%1%2").arg(connectionName_).arg((qulonglong)threadId));
+		db.setDatabaseName(dbAccessString_);
+
+		bool ok = db.open();
+		if(!ok) {
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, QString("error connecting to database (access %1). The SQL reply was: %2").arg(dbAccessString_).arg(db.lastError().text())));
+		}
+		threadIDsOfOpenConnections_ << threadId;
+		return db;
+	}
 }

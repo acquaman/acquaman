@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QModelIndex>
 
 class AMMainWindow;
-class BottomBar;
+class AMBottomBar;
 class AMDataViewWithActionButtons;
 class AMRunExperimentInsert;
 class AMGenericScanEditor;
@@ -138,7 +138,7 @@ protected:
 	QMenu* fileMenu_;
 
 	/// Top-level panes in the main window
-	BottomBar* bottomBar_;
+	AMBottomBar* bottomBar_;
 	AMDataViewWithActionButtons* dataView_;
 	AMRunExperimentInsert* runExperimentInsert_;
 

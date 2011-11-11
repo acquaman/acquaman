@@ -41,7 +41,7 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 
 	db_ = database;
 	runId_ = experimentId_ = -1;
-	scansTableName_ = AMDbObjectSupport::tableNameForClass<AMScan>();
+	scansTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMScan>();
 	selectedUrlsUpdateRequired_ = true;
 
 	itemSize_ = 50;
@@ -55,6 +55,9 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	gview_->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
 	gscene_ = new AMSignallingGraphicsScene(this);
+	// This is necessary to avoid Qt bug https://bugreports.qt.nokia.com/browse/QTBUG-18021
+	gscene_->setItemIndexMethod(QGraphicsScene::NoIndex);
+
 	connect(gscene_, SIGNAL(selectionChanged()), this, SLOT(onScanItemsSelectionChanged()));
 	connect(gscene_, SIGNAL(doubleClicked(QPointF)), this, SIGNAL(sceneDoubleClicked()));
 	gview_->setScene(gscene_);
@@ -291,9 +294,11 @@ void AMDataView::refreshView() {
 	viewRequiresRefresh_ = false;
 
 	// delete the old views:
-	foreach(QGraphicsLayoutItem* s, sections_)
-		delete s;
-	sections_.clear();
+		// this disconnect is necessary so that selection changes while we're deleting don't trigger an unnecessary loop through the selected items.
+	disconnect(gscene_, SIGNAL(selectionChanged()), this, SLOT(onScanItemsSelectionChanged()));
+	while(!sections_.isEmpty())
+		delete sections_.takeLast();
+	connect(gscene_, SIGNAL(selectionChanged()), this, SLOT(onScanItemsSelectionChanged()));
 
 	selectedUrlsUpdateRequired_ = true;
 	emit selectionChanged();
@@ -960,12 +965,12 @@ void AMDataViewSection::expand(bool expanded) {
 
 		switch(viewMode_) {
 		case AMDataViews::ListView:
-			subview_ = new AMDataViewSectionListView(db_, AMDbObjectSupport::tableNameForClass<AMScan>(), whereClause_, this, widthConstraint_, itemSize_);
+			subview_ = new AMDataViewSectionListView(db_, AMDbObjectSupport::s()->tableNameForClass<AMScan>(), whereClause_, this, widthConstraint_, itemSize_);
 			break;
 
 		case AMDataViews::ThumbnailView:
 		default:
-			subview_ = new AMDataViewSectionThumbnailView(db_, AMDbObjectSupport::tableNameForClass<AMScan>(), whereClause_, this, widthConstraint_, itemSize_);
+			subview_ = new AMDataViewSectionThumbnailView(db_, AMDbObjectSupport::s()->tableNameForClass<AMScan>(), whereClause_, this, widthConstraint_, itemSize_);
 			break;
 		}
 		connect(subview_, SIGNAL(selectionChanged()), this, SIGNAL(selectionChanged()));
@@ -1064,7 +1069,7 @@ void AMDataViewSection::layoutContents() {
 
 int AMDataViewSection::countResults() {
 	QSqlQuery q = db_->query();
-	QString query = QString("SELECT COUNT(1) FROM %1").arg(AMDbObjectSupport::tableNameForClass<AMScan>());
+	QString query = QString("SELECT COUNT(1) FROM %1").arg(AMDbObjectSupport::s()->tableNameForClass<AMScan>());
 	if(!whereClause_.isEmpty())
 		query.append(" WHERE ").append(whereClause_);
 	q.prepare(query);
@@ -1327,9 +1332,11 @@ int AMDataViewSectionListView::numberOfSelectedItems() const
 
 void AMDataView::afterDatabaseItemChanged()
 {
-	if(viewRequiresRefresh_)
+	if(viewRequiresRefresh_) {
 		refreshView();
+	}
 }
+
 
 void AMDataView::onDatabaseItemCreatedOrRemoved(const QString &tableName, int id)
 {

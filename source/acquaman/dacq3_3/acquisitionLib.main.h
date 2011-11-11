@@ -60,6 +60,7 @@
 #endif /* ACQLIB_VERSION */
 
 /* if no inclusion occured, provide a default entry */
+// Changed to ifndef and added DACQLIB_ prefix (David Chevrier, Oct 27 2011)
 //#if !defined(ACQUISITIONLIB_H)
 #ifndef DACQLIB_ACQUISITIONLIB_H
 #if defined(ACQLIB_VERSION)

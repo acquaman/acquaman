@@ -6,6 +6,7 @@
  *    data structure for registering output methods
  */
 
+// Changed define and label (David Chevrier, Oct 27 2011)
 //#if !defined(ACQ_DATA_HANDLER_H)
 #ifndef DACQLIB_ACQ_DATA_HANDLER_H
 #define DACQLIB_ACQ_DATA_HANDLER_H 1

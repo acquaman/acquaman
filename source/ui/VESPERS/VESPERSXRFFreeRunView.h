@@ -33,12 +33,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMWorkflowManagerView.h"
 #include "actions/AMBeamlineScanAction.h"
 
-class VESPERSVESPERSXRFFreeRunView : public QWidget
+class VESPERSXRFFreeRunView : public QWidget
 {
 	Q_OBJECT
 public:
 	/// Constructor.
-	explicit VESPERSVESPERSXRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowManagerView *workflow, QWidget *parent = 0);
+	explicit VESPERSXRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowManagerView *workflow, QWidget *parent = 0);
 
 protected slots:
 	/// Handles what happens when the start button is clicked.
@@ -64,6 +64,8 @@ protected slots:
 	void onMaximumEnergyChanged(double val) { xrfTable_->setMaximumEnergy(val*1000); }
 	/// Handles new values set from the peaking time spin box and passes it along to the configuration.
 	void onPeakingTimeUpdate() { detector_->setPeakingTimeControl(peakingTime_->value()); }
+	/// Handles resetting everything in the view after the detector reconnects.
+	void onConnectionChanged(bool isConnected);
 
 	/// Handles what happens when the show pile up peaks is toggled.
 	void onShowSelfPileUpPeaks(bool showPeaks);
@@ -86,7 +88,7 @@ protected:
 	VESPERSCustomizeRegionsOfInterest *customize_;
 	/// The pointer to the xrf free run model.
 	XRFFreeRun *xrfFreeRun_;
-	/// The pointer to the workflow.neh
+	/// The pointer to the workflow.
 	AMWorkflowManagerView *workflow_;
 
 	/// The start button.

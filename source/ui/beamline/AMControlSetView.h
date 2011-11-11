@@ -40,13 +40,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QCheckBox>
 #include <QGraphicsItem>
 
-#include "../MPlot/src/MPlot/MPlotWidget.h"
-#include "../MPlot/src/MPlot/MPlotSeriesData.h"
-#include "../MPlot/src/MPlot/MPlotSeries.h"
-#include "../MPlot/src/MPlot/MPlotImageData.h"
-#include "../MPlot/src/MPlot/MPlotImage.h"
-#include "../MPlot/src/MPlot/MPlotTools.h"
-
 #include <QTableView>
 #include <QPen>
 #include <QBrush>

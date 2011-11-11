@@ -141,7 +141,7 @@ CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellT
 	QVBoxLayout *dwellTimeLayout = new QVBoxLayout;
 	dwellTimeLayout->addWidget(dwellTimeBox);
 
-	setMaximumSize(420, 105 + 50*dwellTime_->elementCount());
+	setMaximumSize(400, 105);
 
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
 	setContextMenuPolicy(Qt::CustomContextMenu);
@@ -188,6 +188,11 @@ void CLSSynchronizedDwellTimeView::onCustomContextMenuRequested(QPoint pos)
 	if (temp && temp->text() == "Advanced View"){
 
 		advancedView_ = !advancedView_;
+
+		if (advancedView_)
+			setMaximumHeight(105 + 50*dwellTime_->elementCount());
+		else
+			setMaximumHeight(105);
 
 		for (int i = 0; i < elViews_.size(); i++)
 			elViews_.at(i)->setVisible(advancedView_);

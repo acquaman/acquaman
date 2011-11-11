@@ -235,8 +235,8 @@ process_scan( xmlTextReaderPtr reader, acqMaster_t *master)
 static void
 process_event( xmlTextReaderPtr reader, acqMaster_t *master)
 {
-	char * attributeList[3] = { QString("name").toAscii().data(), QString("id").toAscii().data(), NULL };
 	char * attributeValue[3];
+	char * attributeList[3] = { QString("name").toAscii().data(), QString("id").toAscii().data(), NULL };
 	const char *name;
 	int nodeType;
 	int isEmpty;

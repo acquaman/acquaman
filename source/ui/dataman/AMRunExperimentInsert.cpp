@@ -61,13 +61,13 @@ void AMRunExperimentInsert::onDatabaseUpdated(const QString& table, int id) {
 	Q_UNUSED(id)
 
 	//if(table == "AMRun_table" && !runRefreshScheduled_) {
-	if(table == AMDbObjectSupport::tableNameForClass<AMRun>() && !runRefreshScheduled_) {
+	if(table == AMDbObjectSupport::s()->tableNameForClass<AMRun>() && !runRefreshScheduled_) {
 		runRefreshScheduled_ = true;
 		QTimer::singleShot(0, this, SLOT(refreshRuns()));
 	}
 
 	//if(table == "AMExperiment_table" && !expRefreshScheduled_) {
-	if(table == AMDbObjectSupport::tableNameForClass<AMExperiment>() && !expRefreshScheduled_) {
+	if(table == AMDbObjectSupport::s()->tableNameForClass<AMExperiment>() && !expRefreshScheduled_) {
 		expRefreshScheduled_ = true;
 		QTimer::singleShot(0, this, SLOT(refreshExperiments()));
 	}
@@ -76,7 +76,7 @@ void AMRunExperimentInsert::onDatabaseUpdated(const QString& table, int id) {
 void AMRunExperimentInsert::onDatabaseObjectCreated(const QString& table, int id) {
 	onDatabaseUpdated(table, id);
 
-	if(table == AMDbObjectSupport::tableNameForClass<AMExperiment>())
+	if(table == AMDbObjectSupport::s()->tableNameForClass<AMExperiment>())
 		newExperimentId_ = id;
 }
 
@@ -92,7 +92,7 @@ void AMRunExperimentInsert::refreshRuns() {
 	q.prepare(QString("SELECT %1.name, %1.dateTime, %2.description, AMDbObjectThumbnails_table.thumbnail, AMDbObjectThumbnails_table.type, %1.id, %1.endDateTime "
 			  "FROM %1,%2,AMDbObjectThumbnails_table "
 			  "WHERE %2.id = %1.facilityId AND AMDbObjectThumbnails_table.id = %2.thumbnailFirstId "
-			  "ORDER BY %1.dateTime ASC").arg(AMDbObjectSupport::tableNameForClass<AMRun>()).arg(AMDbObjectSupport::tableNameForClass<AMFacility>()));
+			  "ORDER BY %1.dateTime ASC").arg(AMDbObjectSupport::s()->tableNameForClass<AMRun>()).arg(AMDbObjectSupport::s()->tableNameForClass<AMFacility>()));
 	if(!q.exec())
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Could not retrieve a list of run information from the database."));
 
@@ -134,7 +134,7 @@ void AMRunExperimentInsert::refreshExperiments() {
 	q.setForwardOnly(true);
 	q.prepare(QString("SELECT name,id "
 			  "FROM %1 "
-			  "ORDER BY id ASC").arg(AMDbObjectSupport::tableNameForClass<AMExperiment>()));
+			  "ORDER BY id ASC").arg(AMDbObjectSupport::s()->tableNameForClass<AMExperiment>()));
 	if(!q.exec())
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Could not retrieve a list of experiment information from the database."));
 

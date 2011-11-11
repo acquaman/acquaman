@@ -6,9 +6,11 @@
  *
  */
 
+// Changed to ifndef and appended DACQLIB_ prefix (David Chevrier, Oct 27 2011)
 //#if !defined(ACQTEXTOUTPUT_H)
 #ifndef DACQLIB_ACQTEXTOUTPUT_H
 #define DACQLIB_ACQTEXTOUTPUT_H 1
+// Changed the locash so this is one directory up (David Chevrier, Oct 27 2011)
 //#include "acqDataHandler.h"
 #include "../acqDataHandler.h"
 
@@ -48,6 +50,7 @@ enum toh_outputState { TOH_INIT, TOH_EMPTY, TOH_HAS_CONTENT };
 class acqTextOutput : public acqBaseOutput {
 public:
 	enum spectrumFileEnum { SF_DEFAULT, SF_BINARY, SF_TEXT };
+// Changed to public (David Chevrier, Oct 27 2011)
 //private:
 public:
 	string comment;			// this gets inserted into the file header

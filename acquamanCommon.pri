@@ -103,6 +103,21 @@ linux-g++-64 {
 		XML_INCLUDE_DIR = /usr/include/libxml2
 }
 
+# Special build paths and options for running on the Jenkins auto-build server (currently at http://beamteam.usask.ca:8080)
+CONFIG(jenkins_build) {
+
+		message("Detected Jenkins auto-build... Specifying dependency paths for the build server.")
+
+		# EPICS Dependencies:
+		EPICS_INCLUDE_DIRS = /home/mark/dev/epics/base/include \
+				/home/mark/dev/epics/base/include/os/Linux
+		EPICS_LIB_DIR = /home/mark/dev/epics/base/lib/linux-x86
+
+		# MPlot Source
+		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/src"
+}
+
+
 QT += core gui sql opengl
 
 # video using Multimedia module from QtMobility, if we have it. (This will only be activated if you set the CONFIG += mobility line at the top of this file)
@@ -172,22 +187,23 @@ linux-g++-64 {
 # Source Files (Acquaman Framework Common)
 #######################
 
-HEADERS += ../MPlot/src/MPlot/MPlot.h \
-	../MPlot/src/MPlot/MPlotAbstractTool.h \
-	../MPlot/src/MPlot/MPlotAxis.h \
-	../MPlot/src/MPlot/MPlotAxisScale.h \
-	../MPlot/src/MPlot/MPlotColorMap.h \
-	../MPlot/src/MPlot/MPlotImage.h \
-	../MPlot/src/MPlot/MPlotImageData.h \
-	../MPlot/src/MPlot/MPlotItem.h \
-	../MPlot/src/MPlot/MPlotLegend.h \
-	../MPlot/src/MPlot/MPlotMarker.h \
-	../MPlot/src/MPlot/MPlotPoint.h \
-	../MPlot/src/MPlot/MPlotRectangle.h \
-	../MPlot/src/MPlot/MPlotSeries.h \
-	../MPlot/src/MPlot/MPlotSeriesData.h \
-	../MPlot/src/MPlot/MPlotTools.h \
-	../MPlot/src/MPlot/MPlotWidget.h \
+HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAbstractTool.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxis.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxisScale.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorMap.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotImage.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotImageData.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotItem.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotLegend.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarker.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotPoint.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotRectangle.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeries.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeriesData.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotTools.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotWidget.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarkerTransparentVerticalRectangle.h \
 	source/acquaman/AMAcqScanOutput.h \
 	source/acquaman/AMAcqScanSpectrumOutput.h \
 	source/acquaman/AMDacqScanController.h \
@@ -267,8 +283,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMSidebar.h \
 	source/ui/AMStatusView.h \
 	source/ui/AMThumbnailScrollViewer.h \
+	source/ui/AMBottomBar.h \
 	source/ui/acquaman/AMRegionsView.h \
-	source/ui/BottomBar.h \
 	#deprecated: source/ui/AMBeamlineCameraWidget.h \
 	source/ui/beamline/AMControlEditor.h \
 	source/acquaman.h \
@@ -324,7 +340,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMMeasurementInfo.h \
 	source/dataman/datastore/AMInMemoryDataStore.h \
 	source/acquaman/AMFastScanConfiguration.h \
-	source/ui/AMScanConfigurationViewer.h \
 	source/dataman/AMFastScan.h \
 	source/analysis/AM2DSummingAB.h \
 	source/analysis/AMStandardAnalysisBlock.h \
@@ -332,7 +347,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/util/AMOrderedList.h \
 	source/actions/AMBeamlineParallelActionsList.h \
 	source/beamline/AMControlOptimization.h \
-	source/dataman/info/AMDetectorInfoList.h \
+	source/dataman/info/AMDetectorInfoSet.h \
 	source/ui/beamline/AMControlOptimizationView.h \
 	source/actions/AMBeamlineControlStopAction.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
@@ -419,8 +434,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMSplitIonChamber.h \
 	source/beamline/CLS/CLSSplitIonChamber.h \
 	source/ui/beamline/AMSplitIonChamberView.h \
-	source/ui/CLS/CLSSplitIonChamberView.h \
-    ../MPlot/src/MPlot/MPlotMarkerTransparentVerticalRectangle.h
+	source/ui/CLS/CLSSplitIonChamberView.h
 
 CONFIG(mobility) {
 HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
@@ -433,7 +447,7 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/dataman/AMDataViewSectionHeader.ui \
 	source/ui/dataman/AMImportControllerWidget.ui \
 	source/ui/acquaman/AMScanConfigurationView.ui \
-	source/ui/BottomBar.ui \
+	source/ui/AMBottomBar.ui \
 	source/ui/dataman/AMGenericScanEditor.ui \
 	source/ui/dataman/AMDataSourcesEditor.ui \
 	source/ui/dataman/AMSamplePlateSelector.ui \
@@ -443,22 +457,23 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/dataman/AMChooseScanDialog.ui \
 	source/ui/AMLinePropertyEditor.ui \
 	source/ui/dataman/AMImagePropertyEditor.ui
-SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
-	../MPlot/src/MPlot/MPlotAbstractTool.cpp \
-	../MPlot/src/MPlot/MPlotAxis.cpp \
-	../MPlot/src/MPlot/MPlotAxisScale.cpp \
-	../MPlot/src/MPlot/MPlotColorMap.cpp \
-	../MPlot/src/MPlot/MPlotImage.cpp \
-	../MPlot/src/MPlot/MPlotImageData.cpp \
-	../MPlot/src/MPlot/MPlotItem.cpp \
-	../MPlot/src/MPlot/MPlotLegend.cpp \
-	../MPlot/src/MPlot/MPlotMarker.cpp \
-	../MPlot/src/MPlot/MPlotPoint.cpp \
-	../MPlot/src/MPlot/MPlotRectangle.cpp \
-	../MPlot/src/MPlot/MPlotSeries.cpp \
-	../MPlot/src/MPlot/MPlotSeriesData.cpp \
-	../MPlot/src/MPlot/MPlotTools.cpp \
-	../MPlot/src/MPlot/MPlotWidget.cpp \
+SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAbstractTool.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxis.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxisScale.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorMap.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotImage.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotImageData.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotItem.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotLegend.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarker.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotPoint.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotRectangle.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeries.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeriesData.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotTools.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotWidget.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarkerTransparentVerticalRectangle.cpp \
 	source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/AMAcqScanSpectrumOutput.cpp \
 	source/acquaman/AMDacqScanController.cpp \
@@ -536,8 +551,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMSidebar.cpp \
 	source/ui/AMStatusView.cpp \
 	source/ui/AMThumbnailScrollViewer.cpp \
+	source/ui/AMBottomBar.cpp \
 	source/ui/acquaman/AMRegionsView.cpp \
-	source/ui/BottomBar.cpp \
 	#deprecated: source/ui/AMBeamlineCameraWidget.cpp \
 	source/ui/beamline/AMControlEditor.cpp \
 	source/ui/beamline/AMDetectorView.cpp \
@@ -590,14 +605,13 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AM1DExpressionABEditor.cpp \
 	source/dataman/datastore/AMInMemoryDataStore.cpp \
 	source/acquaman/AMFastScanConfiguration.cpp \
-	source/ui/AMScanConfigurationViewer.cpp \
 	source/dataman/AMFastScan.cpp \
 	source/analysis/AM2DSummingAB.cpp \
 	source/analysis/AMStandardAnalysisBlock.cpp \
 	source/analysis/AM2DSummingABEditor.cpp \
 	source/actions/AMBeamlineParallelActionsList.cpp \
 	source/beamline/AMControlOptimization.cpp \
-	source/dataman/info/AMDetectorInfoList.cpp \
+	source/dataman/info/AMDetectorInfoSet.cpp \
 	source/ui/beamline/AMControlOptimizationView.cpp \
 	source/actions/AMBeamlineControlStopAction.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
@@ -684,8 +698,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/AMSplitIonChamber.cpp \
 	source/beamline/CLS/CLSSplitIonChamber.cpp \
 	source/ui/beamline/AMSplitIonChamberView.cpp \
-	source/ui/CLS/CLSSplitIonChamberView.cpp \
-    ../MPlot/src/MPlot/MPlotMarkerTransparentVerticalRectangle.cpp
+	source/ui/CLS/CLSSplitIonChamberView.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \

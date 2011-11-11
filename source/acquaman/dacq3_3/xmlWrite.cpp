@@ -186,7 +186,6 @@ static void
 xmlOutputEvent( xmlTextWriterPtr writer, acqEvent_t *eventp)
 {
 	int i;
-	int min_scan;
 
 	xmlTextWriterStartElement( writer, (const xmlChar *)"event");
 	putStringAttribute(writer, "name", eventp->eventName);
@@ -199,10 +198,7 @@ xmlOutputEvent( xmlTextWriterPtr writer, acqEvent_t *eventp)
 	putBinaryAttribute( writer, "commentPrefix", eventp->putCommentPrefix);
 	xmlTextWriterEndElement( writer);
 
-	min_scan = NUM_EVENT_PV;
-	if( eventp->numPvList > min_scan)
-		min_scan = eventp->numPvList;
-	for( i=0; i < min_scan ; i++)
+	for( i=0; i < eventp->numPvList ; i++)
 	{
 		acqPv_t *pvp;
 		pvp = &eventp->pvList[i];
@@ -294,7 +290,7 @@ ConvertInput(const char *in, const char *encoding)
 
     size = (int) strlen(in) + 1;
     out_size = size * 2 - 1;
-    out = (unsigned char *) xmlMalloc((int) out_size);
+    out = (unsigned char *) xmlMalloc((size_t) out_size);
 
     if (out != 0) {
         temp = size - 1;

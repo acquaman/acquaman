@@ -82,9 +82,9 @@ bool VESPERSAppController::startup() {
 		// Initialize the periodic table object.
 		AMPeriodicTable::table();
 
-		AMDbObjectSupport::registerClass<XRFDetectorInfo>();
-		AMDbObjectSupport::registerClass<VESPERSXRFScanConfiguration>();
-		AMDbObjectSupport::registerClass<AMXRFScan>();
+		AMDbObjectSupport::s()->registerClass<XRFDetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<VESPERSXRFScanConfiguration>();
+		AMDbObjectSupport::s()->registerClass<AMXRFScan>();
 
 		AMDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
 		AMDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
@@ -93,10 +93,10 @@ bool VESPERSAppController::startup() {
 		////////////////////////////////////////
 
 		AMRun existingRun;
-		if(!existingRun.loadFromDb(AMDatabase::userdb(), 1)) {
+		if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
 			// no run yet... let's create one.
 			AMRun firstRun("VESPERS", 4);	/// \todo For now, we know that 4 is the ID of the VESPERS facility, but this is a hardcoded hack. See AMFirstTimeController::onFirstTime() for where the facilities are created.
-			firstRun.storeToDb(AMDatabase::userdb());
+			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 
 		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
@@ -118,8 +118,8 @@ bool VESPERSAppController::startup() {
 
 		// Setup the XRF views for the single element vortex and the four element vortex detectors.  Since they have scans that are added to the workflow, it gets the workflow manager view passed into it as well.
 		// This means that the FreeRunView kind of doubles as a regular detector view and a configuration view holder.
-		VESPERSVESPERSXRFFreeRunView *xrf1EFreeRunView = new VESPERSVESPERSXRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF1E()), workflowManagerView_);
-		VESPERSVESPERSXRFFreeRunView *xrf4EFreeRunView = new VESPERSVESPERSXRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF4E()), workflowManagerView_);
+		VESPERSXRFFreeRunView *xrf1EFreeRunView = new VESPERSXRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF1E()), workflowManagerView_);
+		VESPERSXRFFreeRunView *xrf4EFreeRunView = new VESPERSXRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF4E()), workflowManagerView_);
 
 		mw_->insertHeading("Free run", 1);
 		mw_->addPane(xrf1EFreeRunView, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");

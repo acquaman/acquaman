@@ -4,6 +4,7 @@
  * In a C++ only world, these would be private entries.
  */
 
+// Changed to ifndef and added DACQ_LIB_ prefix (David Chevrier, Oct 27 2011)
 //#if !defined(ACQUISITIONLIB_INTERNAL_H)
 #ifndef DACQLIB_ACQUISITIONLIB_INTERNAL_H
 #define DACQLIB_ACQUISITIONLIB_INTERNAL_H 1

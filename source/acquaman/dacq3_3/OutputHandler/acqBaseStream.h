@@ -1,6 +1,7 @@
 // Copyright 2008 Canadian Light Source, Inc. All Rights Reserved
 //
 
+// Changed to ifndef and appended DACQLIB_ prefix (David Chevrier, Oct 27 2011)
 //#if !defined(ACQ_BASE_STREAM_H)
 #ifndef DACQLIB_ACQ_BASE_STREAM_H
 #define DACQLIB_ACQ_BASE_STREAM_H 1

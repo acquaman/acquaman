@@ -1,5 +1,6 @@
 #ifndef DACQLIB_FACTORYQTTEMPLATE_H
 #define DACQLIB_FACTORYQTTEMPLATE_H
+// Added define checks (David Chevrier, Oct 27 2011)
 
 #include <map>
 #include <iterator>
@@ -7,7 +8,7 @@
 template <typename BaseClass>
 class genericFactory {
 private:
-	typedef BaseClass * (*factoryCreator)(QWidget *parent , const char *widgetName);
+	typedef BaseClass * (*factoryCreator)(QWidget *parent);
 
 	static std::map<QString,factoryCreator> &registered() {
 				static std::map<QString,factoryCreator> handler;
@@ -26,11 +27,11 @@ public:
 			};
 
 	// create a derived class of BaseClass
-	static BaseClass *Create(const QString &name, QWidget *parent=NULL , const char *widgetName=NULL )
+	static BaseClass *Create(const QString &name, QWidget *parent=NULL )
 			{
 				typename std::map<QString,factoryCreator>::iterator it = registered().find(name);
 				if( it != registered().end() )
-					return it->second(parent, widgetName);
+					return it->second(parent);
 				return NULL;
 			};
 	static std::vector<QString> getFactoryList() {

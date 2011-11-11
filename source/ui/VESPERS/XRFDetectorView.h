@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlotSeries.h"
+#include "MPlot/MPlotPoint.h"
 
 #include <QLabel>
 #include <QDoubleSpinBox>
@@ -176,6 +177,8 @@ protected slots:
 	void onExternalRegionsOfInterestChanged();
 	/// Handles changing the indicator light when status changes.
 	void onStatusChanged(bool status) { status == true ? status_->setPixmap(QIcon(":/ON.png").pixmap(20)) : status_->setPixmap(QIcon(":/OFF.png").pixmap(20)); }
+	/// Handles resetting everything in the view after the detector reconnects.
+	void onConnectionChanged(bool isConnected);
 
 	/// Hack to save the spectra.  For four element it will print out the four raw data and the corrected sum.
 	void saveSpectra();

@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <dataman/AMSample.h>
 #include <dataman/AMExperiment.h>
 #include <dataman/info/AMControlInfoList.h>
-#include <dataman/info/AMDetectorInfoList.h>
+#include <dataman/info/AMDetectorInfoSet.h>
 #include <dataman/AMSamplePlate.h>
 #include <dataman/info/AMSpectralOutputDetectorInfo.h>
 #include "dataman/AMUser.h"
@@ -107,98 +107,95 @@ bool AMFirstTimeController::onFirstTime() {
 		}
 	}
 
-	/// Find out the user's name:
+	// Find out the user's name:
 	AMUser::user()->setName( ftw.field("userName").toString() );
 
-	/*
-	QString filename = AMUserSettings::userDataFolder + AMUserSettings::userDatabaseFilename;
-	QFile dbFile(filename);
-	if(!dbFile.exists())
-		return databaseInitialization();
-	else
-		return true;
-		*/
+	// create database connection (and actual database): the "user" database:
+	//////////////////////
+	AMDatabase* db = AMDatabase::createDatabase("user", AMUserSettings::userDataFolder + AMUserSettings::userDatabaseFilename);
+	if(!db)
+		return false;
 
-	bool success = databaseInitialization(true);
+	AMDbObjectSupport::s()->registerDatabase(db);
+	registerAllDatabaseClasses();
 
-	if(success) {
 
-		/// On first time only: create facilities. \todo This is app-specific... should probably be moved out of here.
-		AMFacility blank("", "[Other Facility]", ":/128x128/contents.png");
-		blank.storeToDb(AMDatabase::userdb());
-		AMFacility als801("8.0.1", "Advanced Light Source Beamline 8.0.1", ":/alsIcon.png");
-		als801.storeToDb(AMDatabase::userdb());
-		AMFacility sgm("SGM", "CLS SGM Beamline", ":/clsIcon.png");
-		sgm.storeToDb(AMDatabase::userdb());
-		AMFacility vespers("VESPERS", "CLS VESPERS Beamline", ":/clsIcon.png");
-		vespers.storeToDb(AMDatabase::userdb());
-		AMFacility reixs("REIXS", "CLS REIXS Beamline", ":/clsIcon.png");
-		reixs.storeToDb(AMDatabase::userdb());
+	// insert the user into the database, since they are new here.
+	AMUser::user()->storeToDb(db);
 
-	}
+	// On first time only: create facilities. \todo This is app-specific... should probably be moved out of here.
+	AMFacility blank("", "[Other Facility]", ":/128x128/contents.png");
+	blank.storeToDb(db);
+	AMFacility als801("8.0.1", "Advanced Light Source Beamline 8.0.1", ":/alsIcon.png");
+	als801.storeToDb(db);
+	AMFacility sgm("SGM", "CLS SGM Beamline", ":/clsIcon.png");
+	sgm.storeToDb(db);
+	AMFacility vespers("VESPERS", "CLS VESPERS Beamline", ":/clsIcon.png");
+	vespers.storeToDb(db);
+	AMFacility reixs("REIXS", "CLS REIXS Beamline", ":/clsIcon.png");
+	reixs.storeToDb(db);
 
-	return success;
+	return true;
 
 }
 
 bool AMFirstTimeController::onEveryTime() {
 
 	AM::registerTypes();
-	return databaseInitialization(false);
+
+	// create the "user" database connection.
+	AMDatabase* db = AMDatabase::createDatabase("user", AMUserSettings::userDataFolder + AMUserSettings::userDatabaseFilename);
+	if(!db)
+		return false;
+
+	AMDbObjectSupport::s()->registerDatabase(db);
+	registerAllDatabaseClasses();
+
+	// Now that we have a database: load user settings
+	AMUser::user()->loadFromDb(db, 1);
+
+	return true;
 }
 
 
 
-/// create structures and tables for a new user database, from scratch
-bool AMFirstTimeController::databaseInitialization(bool newUser) {
+void AMFirstTimeController::registerAllDatabaseClasses() {
 
-	AMDbObjectSupport::registerDatabase(AMDatabase::userdb());
+	AMDbObjectSupport::s()->registerClass<AMDbObject>();
+	AMDbObjectSupport::s()->registerClass<AMScan>();
+	AMDbObjectSupport::s()->registerClass<AMXASScan>();
+	AMDbObjectSupport::s()->registerClass<AMFastScan>();
+	AMDbObjectSupport::s()->registerClass<AMXESScan>();
 
-	AMDbObjectSupport::registerClass<AMDbObject>();
-	AMDbObjectSupport::registerClass<AMScan>();
-	AMDbObjectSupport::registerClass<AMXASScan>();
-	AMDbObjectSupport::registerClass<AMFastScan>();
-	AMDbObjectSupport::registerClass<AMXESScan>();
+	AMDbObjectSupport::s()->registerClass<AMRun>();
+	AMDbObjectSupport::s()->registerClass<AMExperiment>();
+	AMDbObjectSupport::s()->registerClass<AMSample>();
+	AMDbObjectSupport::s()->registerClass<AMFacility>();
 
-	AMDbObjectSupport::registerClass<AMRun>();
-	AMDbObjectSupport::registerClass<AMExperiment>();
-	AMDbObjectSupport::registerClass<AMSample>();
-	AMDbObjectSupport::registerClass<AMFacility>();
-
-	AMDbObjectSupport::registerClass<AMRawDataSource>();
-	AMDbObjectSupport::registerClass<AMAnalysisBlock>();
-	AMDbObjectSupport::registerClass<AM1DExpressionAB>();
-	AMDbObjectSupport::registerClass<AM2DSummingAB>();
-	AMDbObjectSupport::registerClass<AM1DDerivativeAB>();
-	AMDbObjectSupport::registerClass<AMExternalScanDataSourceAB>();
-	AMDbObjectSupport::registerClass<AM1DSummingAB>();
-	AMDbObjectSupport::registerClass<AMDeadTimeAB>();
+	AMDbObjectSupport::s()->registerClass<AMRawDataSource>();
+	AMDbObjectSupport::s()->registerClass<AMAnalysisBlock>();
+	AMDbObjectSupport::s()->registerClass<AM1DExpressionAB>();
+	AMDbObjectSupport::s()->registerClass<AM2DSummingAB>();
+	AMDbObjectSupport::s()->registerClass<AM1DDerivativeAB>();
+	AMDbObjectSupport::s()->registerClass<AMExternalScanDataSourceAB>();
+	AMDbObjectSupport::s()->registerClass<AM1DSummingAB>();
+	AMDbObjectSupport::s()->registerClass<AMDeadTimeAB>();
 
 
-	AMDbObjectSupport::registerClass<AMDetectorInfo>();
-	AMDbObjectSupport::registerClass<AMSpectralOutputDetectorInfo>();
-	AMDbObjectSupport::registerClass<AMControlInfo>();
-	AMDbObjectSupport::registerClass<AMControlInfoList>();
-	AMDbObjectSupport::registerClass<AMDetectorInfo>();
-	AMDbObjectSupport::registerClass<AMDetectorInfoSet>();
-	AMDbObjectSupport::registerClass<AMSamplePosition>();
-	AMDbObjectSupport::registerClass<AMSamplePlate>();
-	AMDbObjectSupport::registerClass<AMROIInfo>();
-	AMDbObjectSupport::registerClass<AMROIInfoList>();
+	AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
+	AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
+	AMDbObjectSupport::s()->registerClass<AMControlInfo>();
+	AMDbObjectSupport::s()->registerClass<AMControlInfoList>();
+	AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
+	AMDbObjectSupport::s()->registerClass<AMDetectorInfoSet>();
+	AMDbObjectSupport::s()->registerClass<AMSamplePosition>();
+	AMDbObjectSupport::s()->registerClass<AMSamplePlate>();
+	AMDbObjectSupport::s()->registerClass<AMROIInfo>();
+	AMDbObjectSupport::s()->registerClass<AMROIInfoList>();
 
-	AMDbObjectSupport::registerClass<AMExporterOptionGeneralAscii>();
+	AMDbObjectSupport::s()->registerClass<AMExporterOptionGeneralAscii>();
 
-	AMDbObjectSupport::registerClass<AMUser>();
-
-	if(newUser)
-		AMUser::user()->storeToDb(AMDatabase::userdb());	// insert the user into the database, if new.
-	else
-		AMUser::user()->loadFromDb(AMDatabase::userdb(), 1);// otherwise load existing user settings
-
-	/// \bug Better error checking. Complicated because some calls could fail even though the process completes successfully. (ie: creating db table columns that already exist will fail)
-
-
-	return true;
+	AMDbObjectSupport::s()->registerClass<AMUser>();
 }
 
 

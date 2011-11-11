@@ -31,17 +31,17 @@ void displayAlias::localUpdate(Connector *conp)
 }
 
 displayAlias * displayAlias::head;
-//
-displayAlias::displayAlias() : pv_name(), alias(), pv_desc(), isIndirect(0), isAlias(0)
+// Removed the NULL parameters, QString can't instantiate from NULL (David Chevrier, Oct 27 2011)
+displayAlias::displayAlias() : pv_name(), alias(), pv_desc(NULL), isIndirect(0), isAlias(0)
 {
 	if( head == NULL)
- head = prevp = nextp = this;
+		head = prevp = nextp = this;
 	else
 	{
- nextp = head;
- prevp = head->prevp;
- nextp->prevp = this;
- prevp->nextp = this;
+		nextp = head;
+		prevp = head->prevp;
+		nextp->prevp = this;
+		prevp->nextp = this;
 	}
 }
 
@@ -49,12 +49,12 @@ displayAlias::~displayAlias()
 {
 	if( head == this)
 	{
- if( head->nextp == this)
- {
-	 head = NULL;
-	 return;
- }
- head = head->nextp;
+		if( head->nextp == this)
+		{
+			head = NULL;
+			return;
+		}
+		head = head->nextp;
 	}
 	nextp->prevp = prevp;
 	prevp->nextp = nextp;
@@ -120,7 +120,6 @@ void displayAlias::setCategory( const QString &category)
 void displayAlias::setCategoryList( const QString &category)
 {
 
-//	QStringList qlist = QStringList::split(",", category);
 	QStringList qlist = category.split(",");
 	for( QStringList::Iterator it = qlist.begin(); it != qlist.end(); ++it)
 	{
@@ -141,10 +140,10 @@ displayAlias  *displayAlias::find(const QString &name, int searchCategory)
 
 	for( ptr=displayAlias::first(searchCategory); ptr; ptr=ptr->next(searchCategory) )
 	{
-	 if( ptr->pv_name == name || ptr->alias == name)
-	 {
-			 return ptr;
-	 }
+		if( ptr->pv_name == name || ptr->alias == name)
+		{
+			return ptr;
+		}
 	}
 	return NULL;
 
@@ -154,19 +153,19 @@ bool
 displayAlias::testCategory(int icat)
 {
 
-	 for(unsigned int idx=0; idx < iCategory.size(); idx++)
-	if( iCategory[idx] == icat)
-		return TRUE;
-	 return FALSE;
+	for(unsigned int idx=0; idx < iCategory.size(); idx++)
+		if( iCategory[idx] == icat)
+			return TRUE;
+	return FALSE;
 }
 
 bool
 displayAlias::testCategory(const QString &scat)
 {
-	 for(unsigned int idx=0; idx < sCategory.size(); idx++)
-	if( sCategory[idx] == scat)
-		return TRUE;
-	 return FALSE;
+	for(unsigned int idx=0; idx < sCategory.size(); idx++)
+		if( sCategory[idx] == scat)
+			return TRUE;
+	return FALSE;
 
 }
 
@@ -176,10 +175,10 @@ displayAlias *displayAlias::find(const QString &name, const QString &searchCateg
 
 	for( ptr=first(searchCategory); ptr; ptr=ptr->next(searchCategory) )
 	{
-	 if( ptr->pv_name == name || ptr->alias == name)
-	 {
-		 return ptr;
-	 }
+		if( ptr->pv_name == name || ptr->alias == name)
+		{
+			return ptr;
+		}
 	}
 	return NULL;
 }
@@ -188,11 +187,11 @@ displayAlias *displayAlias::first(int searchCategory)
 {
 	displayAlias *ptr;
 	if( searchCategory < 0)
- return displayAlias::head;
+		return displayAlias::head;
 	for( ptr=displayAlias::head; ptr ; ptr =(ptr->nextp == displayAlias::head?NULL:ptr->nextp) )
 	{
 		if( ptr->testCategory( searchCategory) )
-		 return ptr;
+			return ptr;
 	}
 	return NULL;
 }
@@ -200,12 +199,12 @@ displayAlias *displayAlias::first(int searchCategory)
 displayAlias *displayAlias::next(int searchCategory)
 {
 	if( searchCategory < 0)
-	 return fastNext();
+		return fastNext();
 
 	for( displayAlias *ptr=fastNext(); ptr ; ptr = ptr->fastNext() )
 	{
 		if( ptr->testCategory(searchCategory))
-		 return ptr;
+			return ptr;
 	}
 	return NULL;
 }
@@ -217,7 +216,7 @@ displayAlias *displayAlias::first(const QString & searchCategory)
 	for( ptr=head; ptr ; ptr = ptr->fastNext() )
 	{
 		if( ptr->testCategory( searchCategory) )
-		 return ptr;
+			return ptr;
 	}
 	return NULL;
 }
@@ -228,7 +227,7 @@ displayAlias *displayAlias::next(const QString & searchCategory)
 	for( displayAlias *ptr=this->fastNext(); ptr ; ptr = ptr->fastNext() )
 	{
 		if( ptr->testCategory(searchCategory))
-		 return ptr;
+			return ptr;
 	}
 	return NULL;
 }
@@ -236,7 +235,7 @@ displayAlias *displayAlias::next(const QString & searchCategory)
 displayAlias *displayAlias::nextInCategory()
 {
 	if( this == NULL)
- return NULL;
+		return NULL;
 
 	return next(this->iCategory[0]);
 }
@@ -244,7 +243,7 @@ displayAlias *displayAlias::nextInCategory()
 QString displayAlias::getName()
 {
 	if( !alias.isEmpty() )
-	 return alias;
+		return alias;
 	return pv_name;
 }
 

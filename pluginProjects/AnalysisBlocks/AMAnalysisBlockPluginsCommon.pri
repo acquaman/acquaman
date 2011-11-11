@@ -67,6 +67,23 @@ linux-g++-64 {
 		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
 }
 
+# Special build paths and options for running on the Jenkins auto-build server (currently at http://beamteam.usask.ca:8080)
+CONFIG(jenkins_build) {
+
+		message("Detected Jenkins auto-build... Specifying dependency paths for the build server.")
+
+		# Where the acquaman source is
+		AM_INCLUDE_DIR = "/var/lib/jenkins/jobs/AcquamanOnLinux_MasterBranch/workspace/source"
+
+		# EPICS Dependencies:
+		EPICS_INCLUDE_DIRS = /home/mark/dev/epics/base/include \
+				/home/mark/dev/epics/base/include/os/Linux
+		EPICS_LIB_DIR = /home/mark/dev/epics/base/lib/linux-x86
+
+		# MPlot Source
+		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/src"
+}
+
 QT +=		sql
 INCLUDEPATH    += $$AM_INCLUDE_DIR \
 		$$MPLOT_INCLUDE_DIR
