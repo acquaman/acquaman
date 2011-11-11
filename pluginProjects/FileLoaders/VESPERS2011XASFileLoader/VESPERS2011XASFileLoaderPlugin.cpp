@@ -151,4 +151,10 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 	return true;
 }
 
-Q_EXPORT_PLUGIN2(VESPERS2011XASFileLoaderPlugin, VESPERS2011XASFileLoaderPlugin)
+bool VESPERS2011XASFileLoaderFactory::accepts(AMScan *scan)
+{
+	return (scan->fileFormat() == "vespersXAS" || scan->fileFormat() == "vespers2011XAS");
+}
+
+Q_EXPORT_PLUGIN2(VESPERS2011XASFileLoaderFactory, VESPERS2011XASFileLoaderFactory)
+
