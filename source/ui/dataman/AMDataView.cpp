@@ -36,8 +36,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QColor>
 #include <QApplication>
 
-#include <QDebug>
-
 AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	QWidget(parent)
 {
@@ -1364,7 +1362,7 @@ void AMDataView::onDatabaseItemCreatedOrRemoved(const QString &tableName, int id
 
 void AMDataView::onDragStarted(const QPoint &startPos, const QPoint &currentPos)
 {
-	qDebug() << "Drag started...";
+	// qDebug() << "Drag started...";
 
 	// we use this to indicate if we're tracking a rubber-band selection drag.
 	if(rubberBand_) {
