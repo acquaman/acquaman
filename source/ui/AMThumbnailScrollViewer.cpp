@@ -270,13 +270,26 @@ void AMThumbnailScrollGraphicsWidget::paint(QPainter *painter, const QStyleOptio
 	if(scaledPixmap_.size() != QSize(width_, height))
 		scaledPixmap_ = pixmap_.scaled(width_, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);	// this caches the scaled version of the pixmap, in case we need it again.
 
+	// Are we selected? Draw a selection background
+	if(isSelected()) {
+		painter->save();
+		painter->setRenderHint(QPainter::Antialiasing);
+		painter->setCompositionMode(QPainter::CompositionMode_Source);
+		painter->setPen(Qt::NoPen);
+		//painter->setBrush(QColor(56,117,215));
+		painter->setBrush(QColor(25,87,172));
+		//painter->setBrush(QColor(48,107,186));
+		painter->drawRoundedRect(QRectF(-10, -10, width_+20, height + textHeight_ + 20), 5, 5);
+		painter->restore();
+	}
+
+	// What matters: draw the thumbnail!
 	painter->drawPixmap(QPointF(0,0), scaledPixmap_);
 
-
+	// draw title and subtitle (thumbnail content)
 	int fontSize = width_ > 180 ? 12 : 10;
 	QFont font = QFont("Lucida Grande", fontSize, QFont::DemiBold);
 
-	// draw title and subtitle (thumbnail content)
 	QRectF tRect;
 
 	painter->setFont(font);
@@ -331,13 +344,6 @@ void AMThumbnailScrollGraphicsWidget::paint(QPainter *painter, const QStyleOptio
 		prepareGeometryChange();
 		textHeight_ = actualTextHeight;
 	}
-
-	if(isSelected()) {
-		painter->drawRect(-10, -10, width_+20, height + textHeight_ + 20);
-
-	}
-
-
 }
 
 

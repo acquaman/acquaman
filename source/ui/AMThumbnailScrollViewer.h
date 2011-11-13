@@ -260,7 +260,9 @@ protected:
 
 	/// re-implemented from QGraphicsItem to change the thumbnail when the mouse is moved over top
 	void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
+	/// re-implemented from QGraphicsItem to change the thumbnail when the mouse is moved over top
 	void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+	/// re-implemented from QGraphicsItem to change the thumbnail when the mouse is moved over top
 	void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
 
 //	/// Re-implemented from QGraphicsItem to be a drag-and-drop source containing the database, table name and id of the object that this thumbnail represents.
