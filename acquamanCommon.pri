@@ -315,7 +315,7 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/ui/AMWrappingLineEdit.h \
 	source/actions/AMBeamlineControlSetMoveAction.h \
 	source/ui/AMStartScreen.h \
-	source/ui/AMSignallingGraphicsScene.h \
+	source/ui/AMSignallingGraphicsView.h \
 	source/dataman/AMUser.h \
 	#deprecated: source/ui/AMVideoPlayerWidget.h \
 	source/dataman/AMXESScan.h \
@@ -582,7 +582,7 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/AMWrappingLineEdit.cpp \
 	source/actions/AMBeamlineControlSetMoveAction.cpp \
 	source/ui/AMStartScreen.cpp \
-	source/ui/AMSignallingGraphicsScene.cpp \
+	source/ui/AMSignallingGraphicsView.cpp \
 	source/dataman/AMUser.cpp \
 	#deprecated: source/ui/AMVideoPlayerWidget.cpp \
 	source/dataman/AMXESScan.cpp \

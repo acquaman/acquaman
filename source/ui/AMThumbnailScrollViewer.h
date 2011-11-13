@@ -168,109 +168,29 @@ public:
 
 
 	/// display the thumbnails from a given AMDbObject
-	void setSource(AMDbObject* source) {
-		sourceIsDb_ = false;
-		sourceObject_ = source;
-
-
-		tIndex_ = 0;
-		if(sourceObject_) {
-			objectId_ = sourceObject_->id();
-			tableName_ = sourceObject_->dbTableName();
-			displayThumbnail(sourceObject_->thumbnail(tIndex_));
-		}
-		else {
-			objectId_ = -1;
-			tableName_.clear();
-			displayThumbnail(AMDbThumbnail());
-		}
-	}
+	void setSource(AMDbObject* source);
 
 	/// Display thumbnails directly out of a database (from the thumbnail table, with id's given in \c ids)
-	void setSource(AMDatabase* db, QList<int> ids) {
-		sourceIsDb_ = true;
-		sourceDb_ = db;
-
-		// We don't know this...
-		objectId_ = -1;
-		tableName_.clear();
-
-		ids_ = ids;
-		tIndex_ = 0;
-		if(ids_.count() > 0)
-			displayThumbnailDeferred(sourceDb_, ids_.at(tIndex_));
-		else
-			displayThumbnailDeferred(0,0);
-	}
+	void setSource(AMDatabase* db, QList<int> ids);
 
 	/// Display \c count thumbnails directly out of a database (from the thumbnail table, with sequential id's starting at \c startId)
-	void setSource(AMDatabase* db, int startId, int count) {
-		sourceIsDb_ = true;
-		sourceDb_ = db;
-
-		// We don't know this...
-		objectId_ = -1;
-		tableName_.clear();
-
-		ids_.clear();
-		for(int i=startId; i<startId+count; i++)
-			ids_ << i;
-		tIndex_ = 0;
-		if(ids_.count() > 0)
-			displayThumbnailDeferred(sourceDb_, ids_.at(tIndex_));
-		else
-			displayThumbnailDeferred(0,0);
-
-	}
+	void setSource(AMDatabase* db, int startId, int count);
 
 	/// Display thumbnails for the object with this \c objectId out of the \c tableName table. For performance, if you know the answers already, you can specify the \c thumbnailStartId and \c count of the thumbnails in the thumbnail table. Otherwise, this information will be retrieved from the Database. This is the preferred usage of setSource(), since it remembers the source object's real location, while avoiding any unnecessary database lookups.
-	void setSource(AMDatabase* db, const QString& tableName, int objectId, int thumbnailStartId = -1, int count = -1) {
-
-		// need to retrieve this from the db:
-		if(thumbnailStartId == -1 || count == -1) {
-
-			thumbnailStartId = 0; count = 0;
-
-			if(db) {
-				QSqlQuery q = db->query();
-				q.prepare(QString("SELECT thumbnailFirstId,thumbnailCount FROM %1 WHERE id = ?").arg(tableName));
-				q.bindValue(0,objectId);
-				if(q.exec() && q.first()) {
-					thumbnailStartId = q.value(0).toInt();
-					count = q.value(1).toInt();
-				}
-			}
-		}
-
-		setSource(db, thumbnailStartId, count);
-		tableName_ = tableName;
-		objectId_ = objectId;
-	}
+	void setSource(AMDatabase* db, const QString& tableName, int objectId, int thumbnailStartId = -1, int count = -1);
 
 	/// Use this to set the size hint that the thumbnail requests within layouts, if a constraint is not provided. You can use this to dynamically resize the thumbnail item in layouts that don't specify a QSizeF constraint when calling sizeHint(int which, QSizeF constraint).
-	void setDefaultWidth(double width) {
-		if(preferredWidth_ == width)
-			return;
-
-		preferredWidth_ = width;
-		updateGeometry();
-	}
+	void setDefaultWidth(double width);
 
 	/// Re-implemented from QGraphicsLayoutItem to respond to size instructions from the layout
-	void setGeometry(const QRectF &rect) {
-		// QGraphicsLayoutItem::setGeometry(rect);
-		prepareGeometryChange();
-		setPos(rect.left(), rect.top());
-		width_ = rect.width();
-		// clear this cache
-		c1_elided_.clear();
-		c2_elided_.clear();
-		update();
-	}
+	void setGeometry(const QRectF &rect);
 
 	static double textLineSpacing() { return 2; }
 	static double marginLeft() { return 10; }
 	static double marginTop() { return 5; }
+
+	/// Returns the pixmap with the original-size thumbnail image. This might not be a valid image at all times... use with caution. It's only guaranteed to be filled properly after painting at least once.
+	QPixmap pixmap() const { return pixmap_; }
 
 public:
 	void setCaption1(const QString& text) {
@@ -343,51 +263,17 @@ protected:
 	void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
 	void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
 
-	/// Re-implemented from QGraphicsItem to be a drag-and-drop source containing the database, table name and id of the object that this thumbnail represents.
-	void mousePressEvent(QGraphicsSceneMouseEvent *event);
-	/// Re-implemented from QGraphicsItem to be a drag-and-drop source containing the database, table name and id of the object that this thumbnail represents.
-	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-	/// Re-implemented from QGraphicsItem to be a drag-and-drop source containing the database, table name and id of the object that this thumbnail represents.
-	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+//	/// Re-implemented from QGraphicsItem to be a drag-and-drop source containing the database, table name and id of the object that this thumbnail represents.
+//	void mousePressEvent(QGraphicsSceneMouseEvent *event);
+//	/// Re-implemented from QGraphicsItem to be a drag-and-drop source containing the database, table name and id of the object that this thumbnail represents.
+//	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+//	/// Re-implemented from QGraphicsItem to be a drag-and-drop source containing the database, table name and id of the object that this thumbnail represents.
+//	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
-	/// This is a helper function that creates a new QDrag object and returns a pointer to it.  The QDrag object has the MIME type "text/uri-list" with one URL: 'amd://databaseName/tableName/id', which describes the object represented by this thumbnail.  It also has image data set (MIME type "image/x-") so that the drag icon is visible.  If it's impossible to determine which object this thumbnail represents (for ex: setSource() hasn't been called yet, or was called with an invalid object), this function returns 0.
-	QDrag* createDragObject(QWidget* dragSourceWidget);
+//	/// This is a helper function that creates a new QDrag object and returns a pointer to it.  The QDrag object has the MIME type "text/uri-list" with one URL: 'amd://databaseName/tableName/id', which describes the object represented by this thumbnail.  It also has image data set (MIME type "image/x-") so that the drag icon is visible.  If it's impossible to determine which object this thumbnail represents (for ex: setSource() hasn't been called yet, or was called with an invalid object), this function returns 0.
+//	QDrag* createDragObject(QWidget* dragSourceWidget);
 
-
-
-
-	QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint) const {
-
-		Q_UNUSED(which)
-
-		if(constraint.width() < 0 && constraint.height() < 0) {
-			return QSizeF(preferredWidth_, preferredWidth_*3/4 + textHeight_);
-		}
-
-		// OK, a constraint has been specified. Assuming either width-constrained or height constrained.
-		QSizeF widthConstrained, heightConstrained;
-
-		if(constraint.width() > 0) {
-			widthConstrained = QSizeF(constraint.width(), constraint.width()*3/4 + textHeight_);
-			if(constraint.height() > 0) {	// constrained in both width and height
-				heightConstrained = QSizeF((constraint.height()-textHeight_)*4/3, constraint.height());
-				if(widthConstrained.height() > constraint.height()) {
-					return heightConstrained;
-				}
-				else {
-					return widthConstrained;
-				}
-			}
-			else {
-				// only width constrained
-				return widthConstrained;
-			}
-		}
-		else {
-			// only height constrained
-			return QSizeF((constraint.height()-textHeight_)*4/3, constraint.height());
-		}
-	}
+	QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint) const;
 
 };
 
