@@ -28,11 +28,13 @@ AMSignallingGraphicsView::AMSignallingGraphicsView(QWidget *parent) :
 	doubleClickInProgress_ = false;
 	dragStartInProgress_ = false;
 	dragInProgress_ = false;
+	connect(&singleClickTimer_, SIGNAL(timeout()), this, SLOT(onSingleClickTimerTimeout()));
 }
 
 void AMSignallingGraphicsView::mousePressEvent(QMouseEvent *event) {
 
 	doubleClickInProgress_ = false;
+
 	if(dragInProgress_) {	// this could happen if the right mousebutton is pressed while holding the left for a drag
 		dragInProgress_ = false;
 		emit dragEnded(buttonDownPos_, event->pos());
@@ -42,6 +44,7 @@ void AMSignallingGraphicsView::mousePressEvent(QMouseEvent *event) {
 	if(event->button() == Qt::LeftButton) {
 		dragStartInProgress_ = true;
 		buttonDownPos_ = event->pos();
+		singleClickTimer_.stop();
 	}
 	QGraphicsView::mousePressEvent(event);
 }
@@ -56,7 +59,10 @@ void AMSignallingGraphicsView::mouseReleaseEvent(QMouseEvent *event) {
 		if(event->button() == Qt::LeftButton) emit doubleClicked(buttonDownPos_);
 	}
 	else {
-		if(event->button() == Qt::LeftButton) emit clicked(buttonDownPos_);
+		if(event->button() == Qt::LeftButton) {
+			emit clicked(buttonDownPos_);
+			singleClickTimer_.start(QApplication::doubleClickInterval()+10);
+		}
 	}
 
 	doubleClickInProgress_ = false;
@@ -67,6 +73,7 @@ void AMSignallingGraphicsView::mouseReleaseEvent(QMouseEvent *event) {
 
 void AMSignallingGraphicsView::mouseDoubleClickEvent(QMouseEvent *event) {
 	doubleClickInProgress_ = true;
+	singleClickTimer_.stop();
 	QGraphicsView::mouseDoubleClickEvent(event);
 }
 
@@ -92,4 +99,10 @@ void AMSignallingGraphicsView::mouseMoveEvent(QMouseEvent *event)
 		}
 	}
 	QGraphicsView::mouseMoveEvent(event);
+}
+
+void AMSignallingGraphicsView::onSingleClickTimerTimeout()
+{
+	singleClickTimer_.stop();
+	emit singleClicked(buttonDownPos_);
 }

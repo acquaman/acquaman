@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMSIGNALLINGGRAPHICSSCENE_H
 
 #include <QGraphicsView>
+#include <QTimer>
 
 /// This class extends QGraphicsScene to deliver some useful events as signals
 class AMSignallingGraphicsView : public QGraphicsView {
@@ -30,8 +31,10 @@ public:
 	explicit AMSignallingGraphicsView(QWidget* parent = 0);
 
 signals:
-	/// Emitted when a point in the scene is clicked (on release). Location is in view coordinates
+	/// Emitted when a point in the scene is clicked (on release). Location is in view coordinates. This could be the first release of a double-click.
 	void clicked(const QPoint& pos);
+	/// Emitted when a point in the scene is clicked, and enough time has passed since release to know that it's not a double-click. Location is in view coordinates.
+	void singleClicked(const QPoint& pos);
 	/// Emitted when a point in the scene is double clicked (on release). Location is in view coordinates
 	void doubleClicked(const QPoint& pos);
 
@@ -48,12 +51,15 @@ protected:
 	virtual void mouseReleaseEvent(QMouseEvent *event);
 	virtual void mouseDoubleClickEvent(QMouseEvent *event);
 
+protected slots:
+	void onSingleClickTimerTimeout();
 
 protected:
 	bool doubleClickInProgress_;
 	QPoint buttonDownPos_;
 	bool dragStartInProgress_;
 	bool dragInProgress_;
+	QTimer singleClickTimer_;
 };
 
 #endif // AMSIGNALLINGGRAPHICSSCENE_H

@@ -63,7 +63,7 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 
 	connect(gscene_, SIGNAL(selectionChanged()), this, SLOT(onScanItemsSelectionChanged()));
 	connect(gview_, SIGNAL(clicked(QPoint)), this, SLOT(onViewClicked(QPoint)));
-	connect(gview_, SIGNAL(doubleClicked(QPoint)), this, SIGNAL(viewDoubleClicked()));
+	connect(gview_, SIGNAL(doubleClicked(QPoint)), this, SLOT(onViewDoubleClicked(QPoint)));
 	connect(gview_, SIGNAL(dragStarted(QPoint, QPoint)), this, SLOT(onDragStarted(QPoint, QPoint)));
 	connect(gview_, SIGNAL(dragMoved(QPoint,QPoint)), this, SLOT(onDragMoved(QPoint,QPoint)));
 	connect(gview_, SIGNAL(dragEnded(QPoint,QPoint)), this, SLOT(onDragEnded(QPoint,QPoint)));
@@ -1481,6 +1481,8 @@ void AMDataView::startDragWithSelectedItems(const QPixmap& optionalPixmap)
 	drag->exec(Qt::CopyAction); // todo: also offer move action if dropping onto runs
 }
 
+#include <QDebug>
+
 void AMDataView::onViewClicked(const QPoint &clickPos)
 {
 	// here we manage scene selection in our own special way.  Command-click/control-click adds the clicked item to the selection.  Shift-click selects all items between the current selection and the clicked item. Normal click clears the selection and selects the item underneath.
@@ -1491,7 +1493,6 @@ void AMDataView::onViewClicked(const QPoint &clickPos)
 
 	if(mods & Qt::ShiftModifier) {
 		// shift-selection: select all items in the rectangle containing the existing selected items and the clicked item.
-		QGraphicsItem* item = gscene_->itemAt(scenePos);
 		if(item && (item->flags() & QGraphicsItem::ItemIsSelectable)) {
 			QRectF newSelectionRect = item->mapRectToScene(item->boundingRect());
 			QList<QGraphicsItem*> selectedItems = gscene_->selectedItems();
@@ -1542,6 +1543,23 @@ bool AMDataView::eventFilter(QObject* object, QEvent* event)
 
 	return false;
 }
+
+void AMDataView::onViewDoubleClicked(const QPoint &clickPos)
+{
+	// one possible use-case is that multiple items are selected, and the user cmd/control-doubleclicks to open all selected items. However, the first single cmd-click will have deselected the item under the cursor, so we want to re-enable that guy.
+	Qt::KeyboardModifiers mods = QApplication::keyboardModifiers();
+
+	if((mods & Qt::ControlModifier)) {
+		QPointF scenePos = gview_->mapToScene(clickPos);
+		QGraphicsItem* item = gscene_->itemAt(scenePos);
+		if(item && (item->flags() & QGraphicsItem::ItemIsSelectable)) {
+			item->setSelected(true);
+		}
+	}
+	// Now we let the regular double-click mechanism run its course.
+	emit viewDoubleClicked();
+}
+
 
 
 

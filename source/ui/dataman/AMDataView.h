@@ -178,11 +178,15 @@ protected slots:
 
 
 
-	// Drag handling:
+	/// Drag handling
 	void onDragStarted(const QPoint& startPos, const QPoint& currentPos);
+	/// Drag handling
 	void onDragMoved(const QPoint& startPos, const QPoint& currentPos);
+	/// Drag handling
 	void onDragEnded(const QPoint& startPos, const QPoint& endPos);
+	/// Click handling: any click
 	void onViewClicked(const QPoint& clickPos);
+	void onViewDoubleClicked(const QPoint& clickPos);
 
 
 
