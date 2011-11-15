@@ -120,6 +120,8 @@ public:
 	/// Construct a new detector object.   \c name is an abitrary name, that will be used for the data sources. \c basePVName is the base of the Process Variable names we use to read and control the detector (ex: [basePVName]:image, [basePVName]:clear, etc.)
 	REIXSXESMCPDetector(const QString& name, const QString& basePVName, QObject *parent = 0);
 
+	virtual ~REIXSXESMCPDetector();
+
 	QString name() const { return name_; }
 	QString description() const { return description_; }
 	void setName(const QString& name) { name_ = name; }

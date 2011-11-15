@@ -55,7 +55,8 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	isShuttingDown_ = false;
 
 	// shutdown is called automatically from the destructor if necessary, but Qt recommends that clean-up be handled in the aboutToQuit() signal. MS Windows doesn't always let the main function finish during logouts.
-	connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(shutdown()));
+	// HOWEVER, we're not doing this for now, since this change could cause some existing applications to crash on shutdown, because they're not ready for events to be delivered during their shutdown process.
+	// connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(shutdown()));
 }
 
 bool AMDatamanAppController::startup() {
