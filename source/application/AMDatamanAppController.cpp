@@ -53,6 +53,9 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 {
 	isStarting_ = true;
 	isShuttingDown_ = false;
+
+	// shutdown is called automatically from the destructor if necessary, but Qt recommends that clean-up be handled in the aboutToQuit() signal. MS Windows doesn't always let the main function finish during logouts.
+	connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(shutdown()));
 }
 
 bool AMDatamanAppController::startup() {
@@ -182,7 +185,6 @@ AMDatamanAppController::~AMDatamanAppController() {
 
 void AMDatamanAppController::shutdown() {
 
-	qDebug() << "AMDatabman: shutdown";
 	isShuttingDown_ = true;
 
 	// destroy the main window. This will delete everything else within it.
@@ -391,6 +393,10 @@ bool AMDatamanAppController::eventFilter(QObject* o, QEvent* e)
 		if(!canCloseScanEditors()) {
 			e->ignore();
 			return true;
+		}
+		else {
+			// They got away with closing the main window. We should quit the application
+			qApp->quit();	//note that this might already be in progress, if an application quit was what triggered this close event.  No harm in asking twice...
 		}
 	}
 	// anything else, allow unfiltered
