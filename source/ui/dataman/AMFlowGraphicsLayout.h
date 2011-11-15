@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QtGui/qgraphicslayout.h>
 
-/// This class implements a "flow"-style layout for a QGraphicsWidget. It is taken from the Qt Flow Layout example (graphicsview/flowlayout/flowlayout.h).
  /****************************************************************************
  **
  ** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
@@ -67,6 +66,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
  **
  ****************************************************************************/
 
+/// This class implements a "flow"-style layout for a QGraphicsWidget. It is taken from the Qt Flow Layout example (graphicsview/flowlayout/flowlayout.h).
  class AMFlowGraphicsLayout : public QGraphicsLayout
  {
  public:

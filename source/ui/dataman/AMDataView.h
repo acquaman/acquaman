@@ -30,7 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMDeferredFunctionCall.h"
 
 #include <QGraphicsView>
-#include "ui/AMSignallingGraphicsScene.h"
+#include "ui/AMSignallingGraphicsView.h"
 #include <QGraphicsWidget>
 #include <QGraphicsLinearLayout>
 #include <QUrl>
@@ -136,8 +136,8 @@ public:
 signals:
 	/// Emitted whenever the selected scans change.  You can then use selectedItems() to get a list of the scan URLs, or numberOfSelectedItems() to find out how many there are.
 	void selectionChanged();
-	/// Emitted when the user double-clicks anywhere in the scene.
-	void sceneDoubleClicked();
+	/// Emitted when the user double-clicks anywhere in the view.
+	void viewDoubleClicked();
 
 
 public slots:
@@ -178,6 +178,15 @@ protected slots:
 
 
 
+	/// Drag handling
+	void onDragStarted(const QPoint& startPos, const QPoint& currentPos);
+	/// Drag handling
+	void onDragMoved(const QPoint& startPos, const QPoint& currentPos);
+	/// Drag handling
+	void onDragEnded(const QPoint& startPos, const QPoint& endPos);
+	/// Click handling: any click
+	void onViewClicked(const QPoint& clickPos);
+	void onViewDoubleClicked(const QPoint& clickPos);
 
 
 
@@ -219,6 +228,16 @@ protected:
 	void updateSelectedUrls() const;
 
 
+	/// Used for drawing a rubber-band area when handling drags.
+	QGraphicsRectItem* rubberBand_;
+	QPainterPath selectionArea_;
+	/// Helper function to start a QDrag with all the selected items. (ie: for dragging scans to the runs, experiments, or trash). \c optionalPixmap is a thumbnail to represent the drag.
+	void startDragWithSelectedItems(const QPixmap& optionalPixmap = QPixmap());
+
+	/// In thumbnail mode, we want to manage selection ourselves... and most of all, we want to stop the scene from selecting objects when the mouse is first pressed. We do this with an event filter installed on the scene.
+	bool eventFilter(QObject *, QEvent *);
+
+
 
 	// UI components:
 	///////////////////
@@ -226,8 +245,8 @@ protected:
 
 	// QGraphicsView UI components:
 	///////////////////
-	QGraphicsView* gview_;
-	AMSignallingGraphicsScene* gscene_;
+	AMSignallingGraphicsView* gview_;
+	QGraphicsScene* gscene_;
 	AMLayoutControlledGraphicsWidget* gwidget_;
 	QGraphicsLinearLayout* sectionLayout_;
 

@@ -30,9 +30,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QApplication>
 
 AMErrorMon* AMErrorMon::instance_ = 0;
-QMutex AMErrorMon::instanceMutex_;
+QMutex AMErrorMon::instanceMutex_(QMutex::Recursive);
 
-AMErrorMon::AMErrorMon() : QObject() {
+AMErrorMon::AMErrorMon() : QObject(), subsMutex_(QReadWriteLock::Recursive) {
 	qRegisterMetaType<AMErrorReport>("AMErrorReport");
 	sicon_ = new QSystemTrayIcon(QIcon(":/utilities-system-monitor.png"), this);
 	sicon_->show();

@@ -35,8 +35,6 @@ Q_OBJECT
 public:
 	explicit SGMXASDacqScanController(SGMXASScanConfiguration *cfg, QObject *parent = 0);
 
-	virtual AMScan* scan() {return pScan_();}
-
 protected:
 	bool initializeImplementation();
 	bool startImplementation();
@@ -55,14 +53,6 @@ protected slots:
 
 	void onScanFinished();
 
-private:
-	/// \todo Why the double pointers?
-	SGMXASScanConfiguration **_pCfg_;
-	/// \todo Why the double pointer system?
-	AMXASScan **_pScan_;
-
-	SGMXASScanConfiguration *pCfg_() { return *_pCfg_;}
-	AMXASScan* pScan_() { return *_pScan_;}
 };
 
 #endif // ACQMAN_SGMXASDACQSCANCONTROLLER_H

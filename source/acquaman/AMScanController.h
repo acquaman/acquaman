@@ -78,8 +78,8 @@ public:
 	bool isFinished() const;
 	bool isFailed() const;
 
-	/// Generic pointer using polymorphism to the scan this instance is controlling.
-	virtual AMScan* scan() { return generalScan_; }
+	/// Pointer to the scan this instance is controlling.
+	virtual AMScan* scan() { return scan_; }
 
 signals:
 	/// This signal provides public notification whenever the scan changes it's state() to \c newState.  The \c oldState that it is transitioning out of is also provided.  The state numbers (typed as integers for easy signal handling) correspond to the enum defined in AMScanController::ScanState.
@@ -160,10 +160,10 @@ protected:
 	virtual void cancelImplementation() = 0;
 
 protected:
-	/// Configuration for this scan
-	AMScanConfiguration *generalCfg_;
-	/// The pointer ot the scan.
-	AMScan *generalScan_;
+	/// Configuration for this scan, typed as the general base class AMScanConfiguration
+	AMScanConfiguration *generalConfig_;
+	/// The pointer to the scan.
+	AMScan *scan_;
 
 private:
 	/// This class is in charge of determining if the new state is acceptable and if so, switching to that state.

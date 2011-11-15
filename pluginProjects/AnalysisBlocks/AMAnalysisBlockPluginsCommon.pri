@@ -101,6 +101,7 @@ HEADERS         = \
 		$$AM_INCLUDE_DIR/analysis/AMStandardAnalysisBlock.h \
 		$$AM_INCLUDE_DIR/util/AMSettings.h \
 		$$AM_INCLUDE_DIR/util/AMErrorMonitor.h \
+		$$AM_INCLUDE_DIR/application/AMPluginsManager.h \
 		$$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 		$$MPLOT_INCLUDE_DIR/MPlot/MPlotItem.h \
 		$$MPLOT_INCLUDE_DIR/MPlot/MPlotWidget.h \
@@ -129,6 +130,7 @@ SOURCES         = \
 		$$AM_INCLUDE_DIR/analysis/AMStandardAnalysisBlock.cpp \
 		$$AM_INCLUDE_DIR/util/AMSettings.cpp \
 		$$AM_INCLUDE_DIR/util/AMErrorMonitor.cpp \
+		$$AM_INCLUDE_DIR/application/AMPluginsManager.cpp \
 		$$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 		$$MPLOT_INCLUDE_DIR/MPlot/MPlotItem.cpp \
 		$$MPLOT_INCLUDE_DIR/MPlot/MPlotWidget.cpp \

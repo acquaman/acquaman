@@ -109,6 +109,7 @@ bool SGMSSAAppController::startup() {
 void SGMSSAAppController::shutdown() {
 	// Make sure we release/clean-up the beamline interface
 	AMBeamline::releaseBl();
+	AMAppController::shutdown();
 }
 
 

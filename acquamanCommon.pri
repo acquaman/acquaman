@@ -315,7 +315,7 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/ui/AMWrappingLineEdit.h \
 	source/actions/AMBeamlineControlSetMoveAction.h \
 	source/ui/AMStartScreen.h \
-	source/ui/AMSignallingGraphicsScene.h \
+	source/ui/AMSignallingGraphicsView.h \
 	source/dataman/AMUser.h \
 	#deprecated: source/ui/AMVideoPlayerWidget.h \
 	source/dataman/AMXESScan.h \
@@ -434,7 +434,8 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/beamline/AMSplitIonChamber.h \
 	source/beamline/CLS/CLSSplitIonChamber.h \
 	source/ui/beamline/AMSplitIonChamberView.h \
-	source/ui/CLS/CLSSplitIonChamberView.h
+	source/ui/CLS/CLSSplitIonChamberView.h \
+    source/application/AMPluginsManager.h
 
 CONFIG(mobility) {
 HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
@@ -581,7 +582,7 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/AMWrappingLineEdit.cpp \
 	source/actions/AMBeamlineControlSetMoveAction.cpp \
 	source/ui/AMStartScreen.cpp \
-	source/ui/AMSignallingGraphicsScene.cpp \
+	source/ui/AMSignallingGraphicsView.cpp \
 	source/dataman/AMUser.cpp \
 	#deprecated: source/ui/AMVideoPlayerWidget.cpp \
 	source/dataman/AMXESScan.cpp \
@@ -698,7 +699,8 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/beamline/AMSplitIonChamber.cpp \
 	source/beamline/CLS/CLSSplitIonChamber.cpp \
 	source/ui/beamline/AMSplitIonChamberView.cpp \
-	source/ui/CLS/CLSSplitIonChamberView.cpp
+	source/ui/CLS/CLSSplitIonChamberView.cpp \
+    source/application/AMPluginsManager.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
@@ -715,6 +717,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 

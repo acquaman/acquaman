@@ -26,19 +26,11 @@ AMScanControllerSupervisor* AMScanControllerSupervisor::instance_ = 0;
 AMScanController::AMScanController(AMScanConfiguration *cfg, QObject *parent) :
 	QObject(parent)
 {
-	generalCfg_ = cfg;
-	// unused: _pCfg_ = & generalCfg_;
-	generalScan_ = 0;
-	// unused: _pScan_ = &generalScan_;
+	generalConfig_ = cfg;
+	scan_ = 0;
 
 	state_ = AMScanController::Constructed;
-	/*
-	running_ = false;
-	paused_ = false;
-	initialized_ = false;
-	failed_ = false;
-	finished_ = false;
-	*/
+
 }
 
 AMScanController::ScanState AMScanController::state() const {
@@ -134,8 +126,8 @@ void AMScanController::cancel(){
 
 bool AMScanController::setInitialized(){
 	if(changeState(AMScanController::Initialized)){
-		if(generalScan_)
-			generalScan_->setScanController(this);
+		if(scan_)
+			scan_->setScanController(this);
 		emit initialized();
 		return true;
 	}
@@ -144,6 +136,8 @@ bool AMScanController::setInitialized(){
 
 bool AMScanController::setStarted(){
 	if(changeState(AMScanController::Running)){
+		if(scan_)
+			scan_->setScanController(this);
 		emit started();
 		return true;
 	}
@@ -168,16 +162,16 @@ bool AMScanController::setResumed(){
 
 void AMScanController::setCancelled(){
 	if(changeState(AMScanController::Cancelled)) {
-		if(generalScan_)
-			generalScan_->setScanController(0);
+		if(scan_)
+			scan_->setScanController(0);
 		emit cancelled();
 	}
 }
 
 bool AMScanController::setFinished(){
 	if(changeState(AMScanController::Finished)){
-		if(generalScan_)
-			generalScan_->setScanController(0);
+		if(scan_)
+			scan_->setScanController(0);
 		emit finished();
 		return true;
 	}
@@ -186,8 +180,8 @@ bool AMScanController::setFinished(){
 
 void AMScanController::setFailed(){
 	if(changeState(AMScanController::Failed)) {
-		if(generalScan_)
-			generalScan_->setScanController(0);
+		if(scan_)
+			scan_->setScanController(0);
 		emit failed();
 	}
 }

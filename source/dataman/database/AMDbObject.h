@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/database/AMDatabase.h"
 
 #include <QSet>
-#include <QPixmap>
+#include <QImage>
 #include <QBuffer>
 
 
@@ -42,8 +42,9 @@ public:
 	/// Default constructor
 	AMDbThumbnail(const QString& Title = QString(), const QString& Subtitle = QString(), ThumbnailType Type = InvalidType, const QByteArray& ThumbnailData = QByteArray());
 
-	/// This constructor takes a pixmap of any size and saves it as a PNG type. (It will be saved at the current size of the pixmap, so if you want to save at a reduced size, pass in pixmap.scaledToWidth(240) or similar.)
-	AMDbThumbnail(const QString& Title, const QString& Subtitle, const QPixmap& pixmap);
+	/// This constructor takes an image of any size and saves it as a PNG type. (It will be saved at the current size of the image, so if you want to save at a reduced size, pass in image.scaledToWidth(240) or similar.)
+	AMDbThumbnail(const QString& Title, const QString& Subtitle, const QImage& image);
+
 
 	QString title, subtitle;
 	ThumbnailType type;
@@ -56,7 +57,7 @@ public:
 class AMDbObjectInfo;
 
 
-/// This is the base class for all persistent user-data objects that can be stored in the database.  A generic AMScan inherits from this class.
+/// This is the base class for all persistent user-data objects that can be stored in the database.  A generic AMScan inherits from this class.  (This class is re-entrant but not thread-safe. You can have AMDbObjects in multiple threads, but you shouldn't access the same instance from multiple threads.)
 /*! <b>Introduction to the AMDbObject persistent object system</b>
 
 The AMDbObject system provides a way to make QObjects persistent, ie: storable and reloadable from a permanent database.  It is highly integrated with the Qt meta object system. Some of the features that set it apart from other C++ ORM (Object-Relational Management) systems:
@@ -344,6 +345,11 @@ private:
 
 	/// stores the name property
 	QString name_;
+
+	/// This is a static helper function that will run in another thread to generate and save thumbnails after a db object is saved.
+	static void updateThumbnails(AMDatabase* db, int id, const QString& dbTableName);
+//	/// This is a static helper function that will delete any old stale thumbnails in another thread. When the new thumbnailCount() is 0, it is more efficient than updateThumbnails() because it doesn't need to load the object.
+//	static void removeAllThumbnails(AMDatabase* db, int id, const QString& dbTableName);
 
 };
 

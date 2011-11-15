@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 
 	AMErrorMon::enableDebugNotifications(true);
 	// Load settings from disk:
-	AMSettings::load();
+	AMSettings::s()->load();
 	AMUserSettings::load();
 	AMPVNames::load();
 	// ensure user data folder and database are ready for use, if this is the first time the program is ever run.

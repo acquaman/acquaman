@@ -82,12 +82,6 @@ protected:
 	AMControl *dwellTimeTrigger_;
 	AMControl *dwellTimeConfirmed_;
 
-private:
-	AMScanConfiguration **_pCfg_;
-	AMScan **_pScan_;
-
-	AMScanConfiguration *pCfg_() { return *_pCfg_;}
-	AMScan *pScan_() { return *_pScan_;}
 };
 
 #endif // ACQMAN_DACQSCANCONTROLLER_H

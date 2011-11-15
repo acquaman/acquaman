@@ -27,9 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *parent) : AMScanController(cfg, parent)
 {
-	_pCfg_ = &generalCfg_;
-	_pScan_ = &generalScan_;
-
 	useDwellTimes_ = false;
 	dwellTimeTrigger_ = 0; //NULL
 	dwellTimeConfirmed_ = 0; //NULL
@@ -81,12 +78,12 @@ bool AMDacqScanController::startImplementation(){
 			abop->setProperty( "File Template", file.toStdString());
 			abop->setProperty( "File Path", (AMUserSettings::userDataFolder + "/" + path).toStdString());	// given an absolute path here
 
-			pScan_()->setFilePath(fullPath.filePath()+".dat");	// relative path and extension (is what the database wants)
+			scan_->setFilePath(fullPath.filePath()+".dat");	// relative path and extension (is what the database wants)
 			if(usingSpectraDotDatFile_){
-				pScan_()->setAdditionalFilePaths( QStringList() << fullPath.filePath()+"_spectra.dat" );
+				scan_->setAdditionalFilePaths( QStringList() << fullPath.filePath()+"_spectra.dat" );
 			}
 
-			((AMAcqScanSpectrumOutput*)abop)->setScan(pScan_());
+			((AMAcqScanSpectrumOutput*)abop)->setScan(scan_);
 			((AMAcqScanSpectrumOutput*)abop)->setScanController(this);
 			advAcq_->Start();
 			return true;
@@ -137,20 +134,20 @@ bool AMDacqScanController::event(QEvent *e){
 		QMap<int, QList<double> >::const_iterator j = aeSpectra.constBegin();
 		if(i.key() == 0 && aeData.count() > 1){
 			AMnDIndex insertIndex = toScanIndex(aeData);
-			pScan_()->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
+			scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
 			/// \bug CRITICAL: This is ASSUMING ONE AXIS, need to fix that somewhere
-			pScan_()->rawData()->setAxisValue(0, insertIndex.row(), i.value());
+			scan_->rawData()->setAxisValue(0, insertIndex.row(), i.value());
 			++i;
 			while(i != aeData.constEnd()){
-				pScan_()->rawData()->setValue(insertIndex, i.key()-1, AMnDIndex(), i.value());
+				scan_->rawData()->setValue(insertIndex, i.key()-1, AMnDIndex(), i.value());
 				++i;
 			}
 			while(j != aeSpectra.constEnd()){
 				for(int x = 0; x < j.value().count(); x++)
-					pScan_()->rawData()->setValue(insertIndex, j.key()-1, AMnDIndex(x), j.value().at(x));
+					scan_->rawData()->setValue(insertIndex, j.key()-1, AMnDIndex(x), j.value().at(x));
 				++j;
 			}
-			pScan_()->rawData()->endInsertRows();
+			scan_->rawData()->endInsertRows();
 		}
 		e->accept();
 		return true;
@@ -162,7 +159,7 @@ bool AMDacqScanController::event(QEvent *e){
 AMnDIndex AMDacqScanController::toScanIndex(QMap<int, double> aeData){
 	//Simple indexer, assumes there is ONLY ONE scan dimension and appends to the end
 	Q_UNUSED(aeData);
-	return AMnDIndex(pScan_()->rawData()->scanSize(0));
+	return AMnDIndex(scan_->rawData()->scanSize(0));
 }
 
 void AMDacqScanController::onDacqStart()

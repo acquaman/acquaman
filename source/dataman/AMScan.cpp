@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/datastore/AMInMemoryDataStore.h"
 #include "acquaman/AMScanConfiguration.h"
+#include "application/AMPluginsManager.h"
 
 
 AMScan::AMScan(QObject *parent)
@@ -40,7 +41,11 @@ AMScan::AMScan(QObject *parent)
 	fileFormat_ = "unknown";
 
 	configuration_ = 0;
+#ifndef ACQUAMAN_NO_ACQUISITION
 	controller_ = 0;
+#endif
+
+	currentlyScanning_ = false;
 
 	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured in specific subclasses.
 	//data_ = new AMDataTreeDataStore(AMAxisInfo("eV", 0, "Incidence Energy", "eV"));
@@ -389,7 +394,7 @@ bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource, bool 
 }
 
 
-#include <QPixmap>
+#include <QImage>
 #include <QBuffer>
 #include <QByteArray>
 #include <QFile>
@@ -429,8 +434,8 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 	if(!useRawSources)
 		index += rawDataSources_.count();
 
-	QPixmap pixmap(240, 180);
-	QPainter painter(&pixmap);
+	QImage image(240, 180, QImage::Format_ARGB32_Premultiplied);
+	QPainter painter(&image);
 	painter.setRenderHint(QPainter::Antialiasing, true);
 	QGraphicsScene gscene(QRectF(0,0,240,180));
 	MPlot* plot = new MPlot(QRectF(0,0,240,180));
@@ -476,41 +481,47 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 
 	delete plot;	// deletes all plot items (series, image) with it.
 
-	return AMDbThumbnail(dataSource->description(), dataSource->name(), pixmap);
+	return AMDbThumbnail(dataSource->description(), dataSource->name(), image);
 
 }
 
 bool AMScan::loadData()
 
 {
-	//		bool success = loadDataImplementation();
 	bool accepts = false;
 	bool success = false;
-	for(int x = 0; x < AMSettings::availableFileLoaders.count(); x++) {
-		AMFileLoaderInterface *fileloader = AMSettings::availableFileLoaders.at(x);
-		if((accepts = fileloader->accepts(this))){
-			success = fileloader->load(this, AMUserSettings::userDataFolder);
+
+	// find the available file loaders that claim to work for our fileFormat:
+	QList<AMFileLoaderFactory*> acceptingFileLoaders = AMPluginsManager::s()->availableFileLoaderPlugins().values(fileFormat());
+
+	for(int x = 0; x < acceptingFileLoaders.count(); x++) {
+		if((accepts = acceptingFileLoaders.at(x)->accepts(this))){
+			AMFileLoaderInterface* fileLoader = acceptingFileLoaders.at(x)->createFileLoader();
+			success = fileLoader->load(this, AMUserSettings::userDataFolder);
 			break;
 		}
 
 	}
 	if(!accepts)
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -47, QString("Could not find a suitable plugin for loading the file format '%1'.  Check the Acquaman preferences for the correct plugin locations, and contact the Acquaman developers for assistance.").arg(fileFormat())));
+
 	if(success)
 		for(int i=rawDataSources_.count()-1; i>=0; i--)
 			rawDataSources_.at(i)->setDataStore(rawData());
 	return success;
 }
 
+#ifndef ACQUAMAN_NO_ACQUISITION
 void AMScan::setScanController(AMScanController* scanController)
 {
-	bool wasScanning = currentlyScanning();
+	bool wasScanning = currentlyScanning_;
 
 	controller_ = scanController;
+	currentlyScanning_ = (controller_ != 0);
 
-	if(currentlyScanning() != wasScanning) {
+	if(currentlyScanning_ != wasScanning) {
 		setModified(true);
-		emit currentlyScanningChanged(currentlyScanning());
+		emit currentlyScanningChanged(currentlyScanning_);
 	}
 }
-
+#endif

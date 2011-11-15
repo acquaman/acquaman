@@ -322,3 +322,4 @@ QModelIndex AMMainWindow::getPreviousSelection(const QModelIndex &current)
 }
 
 
+

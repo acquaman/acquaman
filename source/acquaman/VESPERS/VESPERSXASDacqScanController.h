@@ -40,9 +40,6 @@ public:
 	/// \param cfg is the XAS configuration that the controller will run.
 	VESPERSXASDacqScanController(VESPERSXASScanConfiguration *cfg, QObject *parent = 0);
 
-	/// Returns the scan that this controller is scanning.
-	virtual AMScan *scan() { return xasScan_; }
-
 protected slots:
 	/// Slot that handles the successful initialization of the scan.
 	void onInitializationActionsSucceeded();
@@ -77,8 +74,6 @@ protected:
 
 	/// Pointer to the configuration used by this controller.
 	VESPERSXASScanConfiguration *config_;
-	/// Pointer to the scan used by this controller.
-	AMXASScan *xasScan_;
 
 	/// A counter holding the current region index being scanned.
 	int currentRegionIndex_;

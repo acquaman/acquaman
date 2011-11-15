@@ -3,22 +3,21 @@
 
 #include <QObject>
 #include <QStringList>
-#include "SGM2004XASFileLoaderPlugin.h"
 #include "dataman/AMFileLoaderInterface.h"
 #include "util/AMBiHash.h"
 
-class SGM2004XASFileLoaderPlugin : public QObject, AMFileLoaderInterface
+class SGM2004XASFileLoaderPlugin : public AMFileLoaderInterface
 {
-        Q_OBJECT
-	Q_INTERFACES(AMFileLoaderInterface)
-
 public:
+	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept sgm2004.
+	virtual QStringList acceptedFileFormats() { return (QStringList() << "sgm2004"); }
+
 	virtual bool accepts(AMScan *scan);
 
 	virtual bool load(AMScan *scan, const QString &userDataFolder);
 
 	/// translate a PV string from the file header to a meaningful name, if we recognize it.  Unrecognized PV strings are untouched and false is returned.
-	static bool pv2columnName(QString& pv) {
+	bool pv2columnName(QString& pv) {
 		QString newName = columns2pvNames_.valueR(pv);
 		if(newName.isEmpty())
 			return false;
@@ -28,7 +27,7 @@ public:
 
 protected:
 	/// A forward- and reverse-mapping from meaningful data column names to process variable strings
-	static AMBiHash<QString, QString> columns2pvNames_;
+	AMBiHash<QString, QString> columns2pvNames_;
 
 	/* Want/need to use this ... get some help
 	/// A forward- and reverse-mapping from offset data (for the spectra.dat files) to their measurement infos
@@ -40,6 +39,21 @@ protected:
 
 	/// A list (in order) of the column names that our users might be interested in (ie: those which we should expose the raw data for, by default).  These names should match the column names in columns2pvNames_.
 	QStringList defaultUserVisibleColumns_;
+};
+
+class SGM2004XASFileLoaderFactory : public QObject, public AMFileLoaderFactory
+{
+	Q_OBJECT
+	Q_INTERFACES(AMFileLoaderFactory)
+
+public:
+	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept sgm2004.
+	virtual QStringList acceptedFileFormats() { return (QStringList() << "sgm2004"); }
+	/// This function allows you to do a more detailed check of an AMScan to see whether you can load data for it.
+	virtual bool accepts(AMScan *scan);
+
+	/// This should create an instance of an AMFileLoaderInterface object to do the actual loading.
+	virtual AMFileLoaderInterface* createFileLoader() { return new SGM2004XASFileLoaderPlugin(); }
 };
 
 #endif
