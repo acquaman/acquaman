@@ -41,7 +41,10 @@ AMScan::AMScan(QObject *parent)
 	fileFormat_ = "unknown";
 
 	configuration_ = 0;
+#ifndef ACQUAMAN_NO_ACQUISITION
 	controller_ = 0;
+#endif
+
 	currentlyScanning_ = false;
 
 	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured in specific subclasses.
@@ -508,6 +511,7 @@ bool AMScan::loadData()
 	return success;
 }
 
+#ifndef ACQUAMAN_NO_ACQUISITION
 void AMScan::setScanController(AMScanController* scanController)
 {
 	bool wasScanning = currentlyScanning_;
@@ -520,4 +524,4 @@ void AMScan::setScanController(AMScanController* scanController)
 		emit currentlyScanningChanged(currentlyScanning_);
 	}
 }
-
+#endif

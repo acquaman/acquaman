@@ -57,6 +57,7 @@ public:
 
 	// 1. Lifecycle control
 	//////////////////////////////
+public slots:
 	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
 	virtual bool startup();
 
@@ -65,7 +66,7 @@ public:
 
 	// 2. Lifecycle status
 	//////////////////////////
-
+public:
 	/// Returns true when the application is starting up (ie: true prior to startup() finishing successfully, false afterwards)
 	bool isStarting() { return isStarting_; }
 	/// Returns true when the application is in the process of shutting down (ie: as soon as shutdown() has been called)
@@ -73,12 +74,20 @@ public:
 	/// Returns true when the application is running normally (ie: after startup() finishes succesfully, and before shutdown() is called)
 	bool isRunning() { return isStarting_ == false && isShuttingDown_ == false; }
 
-	// 3. Helper functions
-	/////////////////////////
 
-	/// Load/re-load all dynamic plugins (file loaders, analysis blocks, exporters, importers, etc.)
-	// Should we move this here? Currently in AMSettings, but not desireable to re-load all plugins every time settings are loaded (really expensive).
-	// virtual void loadApplicationPlugins();
+	// 3.  Convenience functions to access the open scan editors
+	///////////////////////
+
+	/// Number of scan editors currently open
+	int scanEditorCount() const;
+	/// Access a scan editor
+	AMGenericScanEditor* scanEditorAt(int index) const;
+	/// Close a scan editor. Returns false if can't be closed.
+	bool closeScanEditor(int index);
+	/// Close a scan editor. Returns false if can't be closed.
+	bool closeScanEditor(AMGenericScanEditor* editor);
+	/// Create and add a new scan editor. Returns the new scan editor
+	AMGenericScanEditor* createNewScanEditor();
 
 signals:
 
@@ -126,6 +135,16 @@ protected slots:
 	/// This is called when the user clicks any of the available "close" buttons in the main window's sidebar. For now, this could involve closing a scan editor window, or deleting an experiment.
 	virtual void onWindowPaneCloseButtonClicked(const QModelIndex& index);
 
+protected:
+	/// Helper function to go through all the scan editors and see if we can close all of them.
+	bool canCloseScanEditors() const;
+	/// Helper function to process all events for \c ms milliseconds, but stay in the calling function.
+	void processEventsFor(int ms);
+
+
+	/// Filters the close-event from the main window, to catch anything we need to check before closing the window.
+	bool eventFilter(QObject *, QEvent *);
+
 
 
 
@@ -148,7 +167,7 @@ protected:
 	/// The parent item for all runs and experiments we'll place in the window pane model
 	QStandardItem* runsParentItem_, *experimentsParentItem_;
 
-	/// The parent item of all scan editors we'll placed in the window pane model.
+	/// The parent item of all scan editors we'll place in the window pane model.
 	QStandardItem* scanEditorsParentItem_;
 
 	/// Application state:

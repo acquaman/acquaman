@@ -322,3 +322,9 @@ QModelIndex AMMainWindow::getPreviousSelection(const QModelIndex &current)
 }
 
 
+void AMMainWindow::closeEvent(QCloseEvent *)
+{
+	qDebug() << "Close Event in MW? WTF?";
+}
+
+

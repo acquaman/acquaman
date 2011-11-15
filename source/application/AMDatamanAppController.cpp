@@ -73,6 +73,7 @@ bool AMDatamanAppController::startup() {
 	mw_ = new AMMainWindow();
 	mw_->setWindowTitle("Acquaman");
 	connect(mw_, SIGNAL(itemCloseButtonClicked(QModelIndex)), this, SLOT(onWindowPaneCloseButtonClicked(QModelIndex)));
+	mw_->installEventFilter(this);
 
 	bottomBar_ = new AMBottomBar();
 	mw_->addBottomWidget(bottomBar_);
@@ -181,6 +182,7 @@ AMDatamanAppController::~AMDatamanAppController() {
 
 void AMDatamanAppController::shutdown() {
 
+	qDebug() << "AMDatabman: shutdown";
 	isShuttingDown_ = true;
 
 	// destroy the main window. This will delete everything else within it.
@@ -246,8 +248,7 @@ void AMDatamanAppController::onDataViewItemsActivated(const QList<QUrl>& itemUrl
 	if(itemUrls.count() == 0)
 		return;
 
-	AMGenericScanEditor* editor = new AMGenericScanEditor();
-	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, ":/applications-science.png"));
+	AMGenericScanEditor* editor = createNewScanEditor();
 	mw_->setCurrentPane(editor);
 
 	editor->dropScanURLs(itemUrls);
@@ -259,8 +260,7 @@ void AMDatamanAppController::onDataViewItemsActivatedSeparateWindows(const QList
 
 	for(int i=0; i<itemUrls.count(); i++) {
 		QList<QUrl> singleUrl;
-		editor = new AMGenericScanEditor();
-		scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, ":/applications-science.png"));
+		editor = createNewScanEditor();
 
 		singleUrl << itemUrls.at(i);
 		editor->dropScanURLs(singleUrl);
@@ -278,16 +278,7 @@ void AMDatamanAppController::onWindowPaneCloseButtonClicked(const QModelIndex& i
 	/////////////////////////////////
 	if(mw_->windowPaneModel()->itemFromIndex(index.parent()) == scanEditorsParentItem_) {
 		AMGenericScanEditor* editor = qobject_cast<AMGenericScanEditor*>(index.data(AM::WidgetRole).value<QWidget*>());
-
-		if(!editor)
-			return;
-
-		// delete all scans in the editor, and ask the user for confirmation. If they 'cancel' on any, give up here and don't close the window.
-		while(editor->scanCount()) {
-			if(!editor->deleteScanWithModifiedCheck(editor->scanAt(editor->scanCount()-1)))
-				return;
-		}
-		mw_->deletePane(editor);
+		closeScanEditor(editor);
 	}
 
 	// is this an experiment asking to be deleted?
@@ -326,5 +317,86 @@ void AMDatamanAppController::onDataViewItemsExported(const QList<QUrl> &itemUrls
 
 	Q_UNUSED(exportController)
 }
+
+int AMDatamanAppController::scanEditorCount() const
+{
+	return scanEditorsParentItem_->rowCount();
+}
+
+AMGenericScanEditor * AMDatamanAppController::scanEditorAt(int index) const
+{
+	if(index<0 || index>=scanEditorCount())
+		return 0;
+
+	return qobject_cast<AMGenericScanEditor*>(scanEditorsParentItem_->child(index)->data(AM::WidgetRole).value<QWidget*>()); // seriously...
+}
+
+bool AMDatamanAppController::closeScanEditor(int index)
+{
+	return closeScanEditor(scanEditorAt(index));
+}
+
+bool AMDatamanAppController::closeScanEditor(AMGenericScanEditor* editor)
+{
+	if(editor && editor->canCloseEditor()) {
+		mw_->deletePane(editor);
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+AMGenericScanEditor * AMDatamanAppController::createNewScanEditor()
+{
+	AMGenericScanEditor* editor = new AMGenericScanEditor();
+	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, ":/applications-science.png"));
+	return editor;
+}
+
+bool AMDatamanAppController::canCloseScanEditors() const
+{
+	//	bool canCloseEditors = true;
+	//	for(int i=0, count = scanEditorCount(); i<count; i++) {
+	//		AMGenericScanEditor* editor = scanEditorAt(i);
+	//		if(editor) canCloseEditors &= editor->canCloseEditor();
+	//	}
+	//	return canCloseEditors;
+
+	// Do we need to check all, or is it okay to stop as soon as we find one that doesn't allow closing?
+	for(int i=0, count = scanEditorCount(); i<count; i++) {
+		AMGenericScanEditor* editor = scanEditorAt(i);
+		if(editor) {
+			mw_->setCurrentPane(editor);
+			if(!editor->canCloseEditor())
+				return false;
+		}
+	}
+	return true;
+}
+
+void AMDatamanAppController::processEventsFor(int ms)
+{
+	QTime t;
+	t.start();
+	while(t.elapsed() <ms) {
+		qApp->sendPostedEvents();
+		qApp->processEvents();
+	}
+}
+
+bool AMDatamanAppController::eventFilter(QObject* o, QEvent* e)
+{
+	if(o == mw_ && e->type() == QEvent::Close) {
+		if(!canCloseScanEditors()) {
+			e->ignore();
+			return true;
+		}
+	}
+	// anything else, allow unfiltered
+	return QObject::eventFilter(o,e);
+}
+
+
 
 

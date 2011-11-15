@@ -51,7 +51,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 REIXSAppController::REIXSAppController(QObject *parent) :
 	AMAppController(parent)
 {
-	scanControllerActiveEditor_ = 0;
 }
 
 bool REIXSAppController::startup() {
@@ -162,9 +161,7 @@ bool REIXSAppController::startup() {
 
 
 
-		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
-		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerDestroyed()));
-		// connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerReinitialized(bool)), this, SLOT(onCurrentScanControllerReinitialized(bool)));
+		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerCreated()));
 
 
 		/*! \todo: hook up bottom-bar signals to the active scan controller.
@@ -186,15 +183,13 @@ bool REIXSAppController::startup() {
 void REIXSAppController::shutdown() {
 	// Make sure we release/clean-up the beamline interface
 	AMBeamline::releaseBl();
+	AMAppController::shutdown();
 }
 
 
 void REIXSAppController::onCurrentPaneChanged(QWidget *pane) {
 
 	Q_UNUSED(pane)
-//	// If the scanConfigurationHolder pane was activated, let it know:
-//	if(pane == scanConfigurationHolder_)
-//		scanConfigurationHolder_->onBecameCurrentWidget();
 
 }
 
@@ -202,97 +197,17 @@ void REIXSAppController::onCurrentPaneChanged(QWidget *pane) {
 #include "dataman/AMScanEditorModelItem.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 
+void REIXSAppController::onCurrentScanControllerStarted(){
+
+	openScanInEditorAndTakeOwnership(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
+}
+
 void REIXSAppController::onCurrentScanControllerCreated(){
-	qDebug() << "Detected creation of " << AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
 
-	AMGenericScanEditor *scanEditor = new AMGenericScanEditor();
-	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(scanEditor, ":/applications-science.png"));
-
-	scanEditor->addScan(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
-	mw_->setCurrentPane(scanEditor);
-
-	scanControllerActiveEditor_ = scanEditor;
-
-	/// \todo add user preference: should new scans open in a new window, or docked?
-	// mw_->undock(scanEditor);
-	// QPoint newPos;
-	// newPos.setX(scanEditor->pos().x()+100);
-	// newPos.setY(scanEditor->pos().y()+150);
-	// scanEditor->move(newPos);
-}
-
-void REIXSAppController::onCurrentScanControllerDestroyed(){
-	qDebug() << "Detected deletion of " << AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
-	scanControllerActiveEditor_ = 0;
-}
-
-void REIXSAppController::onCurrentScanControllerReinitialized(bool removeScan){
-	qDebug() << "Trying to reinitialize with scan editor " << scanControllerActiveEditor_;
-
-	if(!scanControllerActiveEditor_) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -13, "Error while re-initializing the scan controller; there is no active scan editor window. This is a bug and you should report it to the Acquaman developers."));
-		return;
-	}
-
-	/* NTBA - August 25th, 2011 (David Chevrier)
-		How do you know that the last scan in this scan editor is the one to remove?
-		What if they've opened another scan since onCurrentScanControllerCreated()?"
-	*/
-	if(removeScan)
-		scanControllerActiveEditor_->removeScan(scanControllerActiveEditor_->scanAt(scanControllerActiveEditor_->scanCount()-1));
-
-	scanControllerActiveEditor_->addScan(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
+	// hook up bottom-bar. This should be moved up in the framework...
+	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
 }
 
 
-#include "dataman/AMRunExperimentItems.h"
-#include "dataman/AMExperiment.h"
 
-void REIXSAppController::onWindowPaneCloseButtonClicked(const QModelIndex& index) {
 
-	// is this a scan editor to be deleted?
-	/////////////////////////////////
-	if(mw_->windowPaneModel()->itemFromIndex(index.parent()) == scanEditorsParentItem_) {
-		AMGenericScanEditor* editor = qobject_cast<AMGenericScanEditor*>(index.data(AM::WidgetRole).value<QWidget*>());
-
-		if(!editor)
-			return;
-
-		/// \todo Move this functionality into the scan window itself. Also provide more usability... ask if they want to stop the scan
-		if(editor == scanControllerActiveEditor_) {
-			QMessageBox::information(editor, "Cannot close this window while acquiring", "A scan is still acquiring data inside this scan window.\n\nTo close it, stop the scan first.", QMessageBox::Ok);
-			return;
-		}
-
-		// delete all scans in the editor, and ask the user for confirmation. If they 'cancel' on any, give up here and don't close the window.
-		while(editor->scanCount()) {
-			if(!editor->deleteScanWithModifiedCheck(editor->scanAt(editor->scanCount()-1)))
-				return;
-		}
-		mw_->removePane(editor);
-		delete editor;
-	}
-
-	// is this an experiment asking to be deleted?
-	/// \todo bad code; improve this with better architecture and functionality in expItem.  Don't like trusting dynamic_cast; there's no guarantee that someone didn't put a non-AMExperimentModelItem into the model under experimentsParentItem_.
-	else if(mw_->windowPaneModel()->itemFromIndex(index.parent()) == experimentsParentItem_) {
-
-		AMExperimentModelItem* expItem = dynamic_cast<AMExperimentModelItem*>(mw_->windowPaneModel()->itemFromIndex(index));
-		if(!expItem)
-			return;
-
-		AMExperiment experiment(expItem->id(), expItem->database());
-
-		QMessageBox deleteConfirmation(mw_);
-		deleteConfirmation.setText(QString("Are you sure you want to delete the experiment '%1'?").arg(experiment.name()));
-		deleteConfirmation.setInformativeText("The scans in this experiment will remain, but they will no longer be associated with the experiment. You can't undo this action.");
-		deleteConfirmation.setIcon(QMessageBox::Question);
-		deleteConfirmation.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-		deleteConfirmation.setDefaultButton(QMessageBox::Ok);
-		deleteConfirmation.setEscapeButton(QMessageBox::Cancel);
-
-		if(deleteConfirmation.exec() == QMessageBox::Ok) {
-			AMExperiment::deleteExperiment(experiment.id(), expItem->database());
-		}
-	}
-}

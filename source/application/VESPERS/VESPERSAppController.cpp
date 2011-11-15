@@ -106,8 +106,6 @@ bool VESPERSAppController::startup() {
 		// Create panes in the main window:
 		////////////////////////////////////
 
-		scanControllerActiveEditor_ = 0;
-
 		// Setup the general endstation control view.
 		VESPERSEndstationView *endstationView = new VESPERSEndstationView(VESPERSBeamline::vespers()->endstation());
 		VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
@@ -164,6 +162,7 @@ bool VESPERSAppController::startup() {
 void VESPERSAppController::shutdown() {
 	// Make sure we release/clean-up the beamline interface
 	AMBeamline::releaseBl();
+	AMAppController::shutdown();
 }
 
 void VESPERSAppController::onCurrentScanControllerStarted()
@@ -173,14 +172,6 @@ void VESPERSAppController::onCurrentScanControllerStarted()
 	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
 		return;
 
-	// Build a generic scan editor and put it the scan editors location.
-	AMGenericScanEditor *scanEditor = new AMGenericScanEditor();
-	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(scanEditor, ":/applications-science.png"));
-
-	// Add the current scan to the editor and the show the scan editor.
-	scanEditor->addScan(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
-	mw_->setCurrentPane(scanEditor);
-
-	scanControllerActiveEditor_ = scanEditor;
+	openScanInEditorAndTakeOwnership(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
 }
 
