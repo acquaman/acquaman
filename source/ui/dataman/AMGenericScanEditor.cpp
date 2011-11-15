@@ -47,6 +47,7 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 		QWidget(parent)
 {
 	ui_.setupUi(this);
+	setWindowTitle("Scan Editor");
 
 	// Add extra UI components:
 	stackWidget_ = new AMVerticalStackWidget();
@@ -337,7 +338,7 @@ void AMGenericScanEditor::dragEnterEvent(QDragEnterEvent *event) {
 
 
 
-// Overloaded to enable drag-dropping scans.
+ /// Overloaded to enable drag-dropping scans.
 /*! The Drag is accepted when:
   - Drag Action = Qt::CopyAction
   - One of the MIME types is "text/uri-list"... format is "amd://databaseConnectionName/tableName/id"
@@ -386,9 +387,27 @@ bool AMGenericScanEditor::dropScanURLs(const QList<QUrl>& urls) {
 		if(!idOkay || id < 1)
 			break;
 
-		// \todo Evaluate if this is still necessary: Only store things that belong in the scans table for now.
+		// Only open AMScans or subclasses in the AMScans table.
 		if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
 			break;
+
+		// Check if this scan is acquiring, and refuse to open if so.
+		// Use the currentlyScanning column stored in the database.
+		QVariant isScanning = db->retrieve(id, tableName, "currentlyScanning");
+		if(!isScanning.isValid())
+			return false;
+		if(isScanning.toBool()) {
+			QList<QVariant> nameAndNumber = db->retrieve(id, tableName, QStringList() << "name" << "number");
+			QMessageBox stillScanningEnquiry;
+			stillScanningEnquiry.setWindowTitle("This scan is still acquiring.");
+			stillScanningEnquiry.setText(QString("The scan '%1' (#%2) is currently still acquiring data, so you can't open multiple copies of it yet.")
+										 .arg(nameAndNumber.at(0).toString())
+										 .arg(nameAndNumber.at(1).toString()));
+			stillScanningEnquiry.setIcon(QMessageBox::Information);
+			stillScanningEnquiry.addButton(QMessageBox::Ok);
+			stillScanningEnquiry.exec();
+			return false;
+		}
 
 		// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
 		AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);

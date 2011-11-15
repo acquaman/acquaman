@@ -1412,7 +1412,7 @@ void AMDataView::onDragMoved(const QPoint &startPos, const QPoint &currentPos)
 		QPainterPath selectionArea = selectionArea_;
 		selectionArea.addRect(selectionRect);
 		gscene_->setSelectionArea(selectionArea);
-		// TODOZ: if outside of view...scroll into view
+		/// \todo TODOZ: if outside of view...scroll into view
 	}
 }
 

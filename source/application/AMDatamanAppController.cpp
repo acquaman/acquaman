@@ -47,6 +47,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 
 #include "util/AMSettings.h"
+#include "dataman/AMScan.h"
 
 AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	QObject(parent)
@@ -248,29 +249,25 @@ void AMDatamanAppController::onProgressUpdated(double elapsed, double total){
 
 void AMDatamanAppController::onDataViewItemsActivated(const QList<QUrl>& itemUrls) {
 
-	if(itemUrls.count() == 0)
-		return;
-
-	AMGenericScanEditor* editor = createNewScanEditor();
-	mw_->setCurrentPane(editor);
-
-	editor->dropScanURLs(itemUrls);
+	dropScanURLs(itemUrls);
 }
 
 void AMDatamanAppController::onDataViewItemsActivatedSeparateWindows(const QList<QUrl> &itemUrls)
 {
-	AMGenericScanEditor* editor;
+	dropScanURLs(itemUrls, 0, true);
 
-	for(int i=0; i<itemUrls.count(); i++) {
-		QList<QUrl> singleUrl;
-		editor = createNewScanEditor();
+	//	AMGenericScanEditor* editor;
 
-		singleUrl << itemUrls.at(i);
-		editor->dropScanURLs(singleUrl);
-	}
+	//	for(int i=0; i<itemUrls.count(); i++) {
+	//		QList<QUrl> singleUrl;
+	//		editor = createNewScanEditor();
 
-	if(itemUrls.count())
-		mw_->setCurrentPane(editor);
+	//		singleUrl << itemUrls.at(i);
+	//		editor->dropScanURLs(singleUrl);
+	//	}
+
+	//	if(itemUrls.count())
+	//		mw_->setCurrentPane(editor);
 }
 
 #include "dataman/AMRunExperimentItems.h"
@@ -353,7 +350,7 @@ bool AMDatamanAppController::closeScanEditor(AMGenericScanEditor* editor)
 AMGenericScanEditor * AMDatamanAppController::createNewScanEditor()
 {
 	AMGenericScanEditor* editor = new AMGenericScanEditor();
-	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, ":/applications-science.png"));
+	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, this, ":/applications-science.png"));
 	return editor;
 }
 
@@ -378,15 +375,15 @@ bool AMDatamanAppController::canCloseScanEditors() const
 	return true;
 }
 
-void AMDatamanAppController::processEventsFor(int ms)
-{
-	QTime t;
-	t.start();
-	while(t.elapsed() <ms) {
-		qApp->sendPostedEvents();
-		qApp->processEvents();
-	}
-}
+//void AMDatamanAppController::processEventsFor(int ms)
+//{
+//	QTime t;
+//	t.start();
+//	while(t.elapsed() <ms) {
+//		qApp->sendPostedEvents();
+//		qApp->processEvents();
+//	}
+//}
 
 bool AMDatamanAppController::eventFilter(QObject* o, QEvent* e)
 {
@@ -403,6 +400,163 @@ bool AMDatamanAppController::eventFilter(QObject* o, QEvent* e)
 	// anything else, allow unfiltered
 	return QObject::eventFilter(o,e);
 }
+
+AMGenericScanEditor * AMDatamanAppController::isScanOpenForEditing(int id, AMDatabase *db)
+{
+	for(int i=0, editorCount=scanEditorCount(); i<editorCount; i++) {
+		AMGenericScanEditor* editor = scanEditorAt(i);
+		if(editor) {
+			for(int j=0, scanCount=editor->scanCount(); j<scanCount; j++) {
+				AMScan* scan = editor->scanAt(j);
+				if(scan->id() == id && scan->database() == db)
+					return editor;
+			}
+		}
+	}
+	return 0;
+}
+
+bool AMDatamanAppController::dropScanURLs(const QList<QUrl> &urls, AMGenericScanEditor *editor, bool openInIndividualEditors)
+{
+	if(	!urls.count() )
+		return false;
+
+	bool accepted = false;
+	bool madeNewEditor = false;
+
+	// where are they going?
+	if(openInIndividualEditors) {
+		editor = 0;	// create new one for each
+	}
+	else {
+		if(!editor) {
+			editor = createNewScanEditor();
+			madeNewEditor = true;
+		}
+	}
+
+	// loop through all URLs
+	foreach(QUrl url, urls) {
+		if(dropScanURL(url, editor))
+			accepted = true;
+	}
+
+	if(madeNewEditor) {	// if we made a single new editor for these...
+		if(accepted) {
+			mw_->setCurrentPane(editor);
+		}
+		else {
+			mw_->deletePane(editor);	// no need for this guy; he's empty.
+		}
+	}
+
+	return accepted;
+}
+
+#include "dataman/database/AMDbObjectSupport.h"
+
+bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *editor)
+{
+	// scheme correct?
+	if(url.scheme() != "amd") {
+		return false;
+	}
+
+	// Can we connect to the database?
+	AMDatabase* db = AMDatabase::database(url.host());
+	if(!db)
+		return false;
+	// \bug This does not verify that the incoming scans came from the user database. In fact, it happily accepts scans from other databases. Check if we assume anywhere inside AMGenericScanEditor that we're using the AMDatabase::database("user") database. (If we do, this could cause problems when multiple databases exist.)
+
+	QStringList path = url.path().split('/', QString::SkipEmptyParts);
+	if(path.count() != 2)
+		return false;
+
+	QString tableName = path.at(0);
+	bool idOkay;
+	int id = path.at(1).toInt(&idOkay);
+	if(!idOkay || id < 1)
+		return false;
+
+	// Only open scans for now (ie: things in the scans table)
+	if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
+		return false;
+
+	// Check if this scan is scanning... Use the currentlyScanning column stored in the database.
+	QVariant isScanning = db->retrieve(id, tableName, "currentlyScanning");
+	if(!isScanning.isValid())
+		return false;
+	if(isScanning.toBool()) {
+		QList<QVariant> nameAndNumber = db->retrieve(id, tableName, QStringList() << "name" << "number");
+		QMessageBox stillScanningEnquiry;
+		stillScanningEnquiry.setWindowTitle("This scan is still acquiring.");
+		stillScanningEnquiry.setText(QString("The scan '%1' (#%2) is currently still acquiring data, so you can't open multiple copies of it yet.")
+									 .arg(nameAndNumber.at(0).toString())
+									 .arg(nameAndNumber.at(1).toString()));
+		stillScanningEnquiry.setIcon(QMessageBox::Question);
+		QPushButton* showMeNowButton = stillScanningEnquiry.addButton("Show me the scan", QMessageBox::AcceptRole);
+		stillScanningEnquiry.addButton(QMessageBox::Cancel);
+		stillScanningEnquiry.setDefaultButton(showMeNowButton);
+		stillScanningEnquiry.exec();
+		if(stillScanningEnquiry.clickedButton() == showMeNowButton) {
+			AMGenericScanEditor* otherEditor = isScanOpenForEditing(id, db);
+			if(otherEditor)
+				mw_->setCurrentPane(otherEditor);
+			/// \todo What if we don't find it? What if a program crashed and left the currentlyScanning column set in the database? Should we have a way to override this?
+		}
+		return false;
+	}
+
+	// Check if this scan is already open
+	AMGenericScanEditor* otherEditor = isScanOpenForEditing(id, db);
+	if(otherEditor) {
+		QList<QVariant> nameAndNumber = db->retrieve(id, tableName, QStringList() << "name" << "number");
+		QMessageBox alreadyOpenEnquiry;
+		alreadyOpenEnquiry.setWindowTitle("This scan is already open.");
+		alreadyOpenEnquiry.setText(QString("A copy of the scan '%1' (#%2) is already open. Are you sure you want to open multiple copies of it?")
+								   .arg(nameAndNumber.at(0).toString())
+								   .arg(nameAndNumber.at(1).toString()));
+		alreadyOpenEnquiry.setInformativeText("If you open multiple copies of a scan, changes that you make in one view will not show up in the other view. Therefore, you should be careful to only save the version you want to keep.");
+		alreadyOpenEnquiry.setIcon(QMessageBox::Question);
+		QPushButton* showMeNowButton = alreadyOpenEnquiry.addButton("Show me the open scan", QMessageBox::NoRole);
+		QPushButton* openAgainButton = alreadyOpenEnquiry.addButton("Open another copy", QMessageBox::YesRole);
+		alreadyOpenEnquiry.addButton(QMessageBox::Cancel);
+		alreadyOpenEnquiry.setDefaultButton(showMeNowButton);
+		alreadyOpenEnquiry.exec();
+		if(alreadyOpenEnquiry.clickedButton() == openAgainButton) {
+			// do nothing... we'll proceed
+		}
+		else if(alreadyOpenEnquiry.clickedButton() == showMeNowButton) {
+			mw_->setCurrentPane(otherEditor);
+			return false;
+		}
+		else {
+			// user chose to cancel.
+			return false;
+		}
+	}
+
+	// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
+	AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
+	if(!dbo)
+		return false;
+
+	// Is it a scan?
+	AMScan* scan = qobject_cast<AMScan*>( dbo );
+	if(!scan) {
+		delete dbo;
+		return false;
+	}
+
+	// success!
+	if(!editor) {
+		editor = createNewScanEditor();
+	}
+	editor->addScan(scan);
+	return true;
+}
+
+
 
 
 

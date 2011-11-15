@@ -74,13 +74,6 @@ public:
 		return scanSetModel_->scanAt(index);
 	}
 
-
-
-
-	/// Call this function to open a set of scans from the database. The scan information is contained inside a list of "amd://..." URLs.  For more information on the format, see dropEvent().   Returns true if the list contains at least one valid scan that was added.
-	/*! This function is used as a helper function by dropEvent(), but you can also call it directly. */
-	bool dropScanURLs(const QList<QUrl>& urls);
-
 	/// Call this function to find out if this editor can be closed. Checks for scans in progress and prompts the user for what to do with modified scans.  Returns true if the editor can be closed; returns false if any scans are acquiring or if the user responded "cancel" to a save-request.
 	bool canCloseEditor();
 
@@ -117,6 +110,9 @@ protected slots:
 	/// Called when the open scan dialog is accepted with one or more new scans to open.
 	void onChooseScanDialogAccepted();
 
+	/// Call this function to open a set of scans from the database. The scan information is contained inside a list of "amd://..." URLs.  For more information on the format, see dropEvent().   Returns true if the list contains at least one valid scan that was added.
+	/*! This function is used as an internal helper function by dropEvent(); Normally you should use the dropScanURLs function in AMDatamanAppController() since it can check for scans being open in other editors*/
+	bool dropScanURLs(const QList<QUrl>& urls);
 
 protected:
 
@@ -158,6 +154,7 @@ protected:
 
 	/// Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)
 	void dragEnterEvent(QDragEnterEvent *event);
+
 	/// Overloaded to enable drag-dropping scans.
 	/*! The Drag is accepted when:
 	  - Drag Action = Qt::CopyAction
