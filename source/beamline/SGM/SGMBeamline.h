@@ -111,7 +111,7 @@ public:
 	QString pvName(const QString &amName) const { return amNames2pvNames_.valueF(amName);}
 	QString amName(const QString &pvName) const { return amNames2pvNames_.valueR(pvName);}
 
-	AMControl* ringCurrent() const { return ringCurrent_; }
+//	AMControl* ringCurrent() const { return ringCurrent_; }
 	AMControl* energy() const { return energy_;}
 	AMControl* energySpacingParam() const { return energySpacingParam_;}
 	AMControl* energyC1Param() const { return energyC1Param_;}
@@ -181,6 +181,8 @@ public:
 	}
 	AMDetector* encoderUpDetector() const { return encoderUpDetector_;}
 	AMDetector* encoderDownDetector() const { return encoderDownDetector_;}
+	//TOM THIS IS STEP 4.5
+	AMDetector* ringCurrentDetector() const { return ringCurrentDetector_;}
 
 	bool detectorValidForCurrentSignalSource(AMDetector *detector);
 	bool detectorValidForCurrentSignalSource(AMDetectorInfo *detectorInfo);
@@ -214,6 +216,8 @@ public:
 	AMControl* scalerMode() const { return scalerMode_;}
 	AMControl* ssaIllumination() const { return ssaIllumination_;}
 	AMControl* tfyHVToggle() const { return tfyHVToggle_;}
+	//TOM THIS IS STEP 4.3
+	AMControl* ringCurrent() const { return ringCurrent_;}
 	CLSCAEN2527HVChannel* hvChannel106() const { return hvChannel106_;}
 	CLSCAEN2527HVChannel* hvChannel109() const { return hvChannel109_;}
 	CLSPGT8000HVChannel* hvChannelPGT() const { return hvChannelPGT_;}
@@ -329,7 +333,7 @@ protected:
 	// Parts of this beamline:
 	///////////////////////////////
 
-	AMControl *ringCurrent_;
+//	AMControl *ringCurrent_;
 	AMControl *energy_;
 	AMControl *energySpacingParam_;
 	AMControl *energyC1Param_;
@@ -397,6 +401,8 @@ protected:
 	AMControl *scalerMode_;
 	AMControl *detectorSignalSource_;
 	AMControl *ssaIllumination_;
+	//TOM THIS IS STEP 4.2
+	AMControl *ringCurrent_;
 
 	AMControlSet *teyPicoControlSet_;
 	AMDetector *teyPicoDetector_;
@@ -424,6 +430,9 @@ protected:
 	AMControlSet *encoderUpControlSet_;
 	AMDetector *encoderDownDetector_;
 	AMControlSet *encoderDownControlSet_;
+	//TOM THIS IS STEP 4.4
+	AMDetector *ringCurrentDetector_;
+	AMControlSet *ringCurrentControlSet_;
 
 	AMControlSet *criticalControlsSet_;
 	AMControlSet *beamOnControlSet_;

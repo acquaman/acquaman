@@ -50,6 +50,8 @@ SGM2011XASFileLoader::SGM2011XASFileLoader(AMXASScan *scan) :
 		columns2pvNames_.set("TEY_SCALER", "BL1611-ID-1:mcs00:fbk");
 		columns2pvNames_.set("TFY_SCALER", "BL1611-ID-1:mcs02:fbk");
 		columns2pvNames_.set("EnergyFeedback", "BL1611-ID-1:Energy:fbk");
+		//TOM THIS IS STEP 4.15
+		columns2pvNames_.set("RingCurrent", "PCT1402-01:mA:fbk");
 
 		columns2pvNames_.set("SDD", "MCA1611-01:GetChannels");
 		columns2pvNames_.set("OceanOptics65000Old", "SA0000-03:Spectra");
@@ -79,6 +81,8 @@ SGM2011XASFileLoader::SGM2011XASFileLoader(AMXASScan *scan) :
 	defaultUserVisibleColumns_ << "I0";
 	defaultUserVisibleColumns_ << "Photodiode";
 	defaultUserVisibleColumns_ << "EnergyFeedback";
+	//TOM THIS IS STEP 4.16
+	defaultUserVisibleColumns_ << "RingCurrent";
 	defaultUserVisibleColumns_ << "SDD";
 	defaultUserVisibleColumns_ << "OceanOptics65000";
 }

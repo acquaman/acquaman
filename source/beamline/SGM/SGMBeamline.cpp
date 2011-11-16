@@ -102,9 +102,11 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("activeEndstation", "BL1611-ID-1:AddOns:endstation:active");
 	amNames2pvNames_.set("detectorSignalSource", "BL1611-ID-1:AddOns:signalSource");
 	amNames2pvNames_.set("ssaIllumination", "ILC1611-4-I10-02");
+	//TOM THIS IS STEP 4.8
+	amNames2pvNames_.set("ringCurrent", "PCT1402-01:mA:fbk");
 
-	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", "PCT1402-01:mA:fbk", this);
-	addChildControl(ringCurrent_);
+//	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", "PCT1402-01:mA:fbk", this);
+//	addChildControl(ringCurrent_);
 
 	bool pvNameLookUpFail = false;
 
@@ -478,6 +480,13 @@ void SGMBeamline::usingSGMBeamline(){
 	ssaIllumination_ = new AMPVControl("ssaIllumination", sgmPVName, sgmPVName, "", this, 0.5);
 	ssaIllumination_->setDescription("SSA Illumination");
 
+	//TOM THIS IS STEP 4.9
+	sgmPVName = amNames2pvNames_.valueF("ringCurrent");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	ringCurrent_ = new AMPVControl("ringCurrent", sgmPVName, sgmPVName, "", this, 0.1);
+	ringCurrent_->setDescription("Ring Current");
+
 	qDebug() << "\nPV Name Look Ups Failed: " << pvNameLookUpFail << "\n";
 }
 
@@ -737,6 +746,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	connect(detectorSignalSource_, SIGNAL(valueChanged(double)), this, SLOT(onDetectorSignalSourceChanged(double)));
 	connect(activeEndstation_, SIGNAL(valueChanged(double)), this, SLOT(onActiveEndstationChanged(double)));
 	addChildControl(ssaIllumination_);
+	//TOM THIS IS STEP 4.10
+	addChildControl(ringCurrent_);
 
 	criticalControlsSet_ = new AMControlSet(this);
 	criticalControlsSet_->setName("Critical Beamline Controls");
@@ -869,6 +880,14 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	encoderDownDetector_ = 0; //NULL
 	unconnectedSets_.append(encoderDownControlSet_);
 	connect(encoderDownControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
+
+	//TOM THIS IS STEP 4.11
+	ringCurrentControlSet_ = new AMControlSet(this);
+	ringCurrentControlSet_->setName("Ring Current Controls");
+	ringCurrentControlSet_->addControl(ringCurrent_);
+	ringCurrentDetector_ = 0; //NULL
+	unconnectedSets_.append(ringCurrentControlSet_);
+	connect(ringCurrentControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
 	fluxOptimization_ = new SGMFluxOptimization(this);
 	fluxOptimization_->setDescription("Flux");
@@ -1639,6 +1658,13 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			encoderDownDetector_ = new AMSingleControlDetector(encoderDown_->name(), encoderDown_, AMDetector::WaitRead, this);
 			encoderDownDetector_->setDescription(encoderDown_->description());
 			allDetectors_->addDetector(encoderDownDetector_);
+		}
+		//TOM THIS IS STEP 4.12
+		else if(!ringCurrentDetector_ && ctrlSet->name() == "Ring Current Controls"){
+			ringCurrentDetector_ = new AMSingleControlDetector(ringCurrent_->name(), ringCurrent_, AMDetector::WaitRead, this);
+			ringCurrentDetector_->setDescription(ringCurrent_->description());
+			allDetectors_->addDetector(ringCurrentDetector_);    // This adds it to the list of all known detectors
+			feedbackDetectors_->addDetector(ringCurrentDetector_); // This adds it to the list of detectors we use in every XAS Scan by default
 		}
 		else if(ctrlSet->name() == "SSA Manipulator"){
 			AMControlInfoList ssaInfoList = ssaManipulatorSet_->toInfoList();
