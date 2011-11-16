@@ -35,8 +35,6 @@ Q_OBJECT
 public:
 	explicit SGMXASDacqScanController(SGMXASScanConfiguration *cfg, QObject *parent = 0);
 
-	virtual AMScan* scan() {return pScan_();}
-
 protected:
 	bool initializeImplementation();
 	bool startImplementation();
@@ -46,20 +44,15 @@ protected slots:
 	// Re-implementing to intercept finished() signal and do cleanup
 	void onDacqStop();
 
+	// Re-implementing to change actual dwell times for the SGM Beamline
+	void onDwellTimeTriggerChanged(double newValue);
+
 	void onInitializationActionsSucceeded();
 	void onInitializationActionsFailed(int explanation);
 	void onInitializationActionsProgress(double elapsed, double total);
 
 	void onScanFinished();
 
-private:
-	/// \todo Why the double pointers?
-	SGMXASScanConfiguration **_pCfg_;
-	/// \todo Why the double pointer system?
-	AMXASScan **_pScan_;
-
-	SGMXASScanConfiguration *pCfg_() { return *_pCfg_;}
-	AMXASScan* pScan_() { return *_pScan_;}
 };
 
 #endif // ACQMAN_SGMXASDACQSCANCONTROLLER_H

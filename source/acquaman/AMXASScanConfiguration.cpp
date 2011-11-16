@@ -63,7 +63,7 @@ QString AMXASScanConfiguration::dbReadXASRegions() const{
 	QStringList rv;
 
 	for(int x = 0; x < regions_->count(); x++)
-		rv << QString("%1,%2,%3").arg(regionStart(x)).arg(regionDelta(x)).arg(regionEnd(x));
+		rv << QString("xasVersion1.1,%1,%2,%3,%4,%5,%6").arg(regionStart(x)).arg(regionDelta(x)).arg(regionEnd(x)).arg(regionElasticStart(x) == true ? 1 : 0).arg(regionElasticEnd(x) == true ? 1 : 0).arg(regionTime(x));
 	if(rv.isEmpty())
 		return QString("");
 	return rv.join("\n");
@@ -74,10 +74,23 @@ void AMXASScanConfiguration::dbLoadXASRegions(const QString &XASRegionsString){
 		return;
 	QStringList allRegions = XASRegionsString.split("\n", QString::SkipEmptyParts);
 	QStringList oneRegion;
+	bool addRegionSuccess;
 
 	for(int x = 0; x < allRegions.count(); x++){
 		oneRegion = allRegions.at(x).split(",", QString::SkipEmptyParts);
-		if(!addRegion(x, oneRegion.at(0).toDouble(), oneRegion.at(1).toDouble(), oneRegion.at(2).toDouble()))
+
+		// Legacy Acquaman XAS settings (version 1.0)
+		if (oneRegion.count() == 3)
+			addRegionSuccess = addRegion(x, oneRegion.at(0).toDouble(), oneRegion.at(1).toDouble(), oneRegion.at(2).toDouble());
+		// Acquaman XAS settings version 1.1
+		else if (oneRegion.at(0) == "xasVersion1.1"){
+
+			addRegionSuccess = addRegion(x, oneRegion.at(1).toDouble(), oneRegion.at(2).toDouble(), oneRegion.at(3).toDouble(), oneRegion.at(6).toDouble());
+			addRegionSuccess &= setRegionElasticStart(x, oneRegion.at(4).toInt() == 1 ? true : false);
+			addRegionSuccess &= setRegionElasticEnd(x, oneRegion.at(5).toInt() == 1 ? true : false);
+		}
+
+		if (!addRegionSuccess)
 			AMErrorMon::report(AMErrorReport(this,
 							AMErrorReport::Alert,
 							0,

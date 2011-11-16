@@ -121,6 +121,7 @@ QString MCPDetector::description() const{
 }
 
 bool MCPDetector::setControls(MCPDetectorInfo *mcpSettings){
+	Q_UNUSED(mcpSettings)
 //	hvCtrl()->move( mcpSettings->hvSetpoint() );
 	return true;
 }

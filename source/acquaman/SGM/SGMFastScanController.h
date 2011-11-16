@@ -35,15 +35,12 @@ public:
 	virtual bool beamlineInitialize();
 
 protected:
-	SGMFastScanConfiguration *specificCfg_;
+	SGMFastScanConfiguration *config_;
+	AMScan* specificScan_;
 	AMBeamlineParallelActionsList *initializationActions_;
 	AMBeamlineParallelActionsList *cleanUpActions_;
 	bool beamlineInitialized_;
-	AMFastScan *specificScan_;
 
-private:
-	SGMFastScanConfiguration* pCfg() { return qobject_cast<SGMFastScanConfiguration*>(specificCfg_);}
-	AMFastScan* pScan() { return qobject_cast<AMFastScan*>(specificScan_);}
 };
 
 #endif // SGMFASTSCANCONTROLLER_H

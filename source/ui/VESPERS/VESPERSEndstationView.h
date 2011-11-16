@@ -94,7 +94,13 @@ public:
 
 protected slots:
 	/// Used to set the CCD Path when it changes from the program.
-	void ccdPathEdited() { endstation_->setCCDPath(ccdPathEdit_->text()); }
+	void ccdPathEdited()
+	{
+		if (ccdPathEdit_->text().at(ccdPathEdit_->text().size()-1) != '\\')
+			ccdPathEdit_->setText(ccdPathEdit_->text()+"\\");
+
+		endstation_->setCCDPath(ccdPathEdit_->text());
+	}
 	/// Used to set the CCD File name when it changes from the program.
 	void ccdFileEdited() { endstation_->setCCDName(ccdFileEdit_->text()); }
 	/// Used to set the CCD Number when it changes from the program.

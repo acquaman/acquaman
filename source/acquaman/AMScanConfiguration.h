@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ACQMAN_SCANCONFIGURATION_H
 #define ACQMAN_SCANCONFIGURATION_H
 
-#include "dataman/AMDbObject.h"
+#include "dataman/database/AMDbObject.h"
 
 /// Forward declaration of AMScanController.  See note on circular coupling in AMScanConfiguration
 class AMScanController;

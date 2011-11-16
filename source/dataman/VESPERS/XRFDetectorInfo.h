@@ -21,8 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef XRFDETECTORINFO_H
 #define XRFDETECTORINFO_H
 
-#include "dataman/AMDetectorInfo.h"
-#include "dataman/AMROIInfo.h"
+#include "dataman/info/AMDetectorInfo.h"
+#include "dataman/info/AMROIInfo.h"
 
 /// This class contains the run-time configuration parameters for Silicon Drift detectors.
 class XRFDetectorInfo : public AMDetectorInfo

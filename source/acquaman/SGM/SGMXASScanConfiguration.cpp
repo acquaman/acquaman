@@ -84,7 +84,7 @@ AMScanController* SGMXASScanConfiguration::createController(){
 	return new SGMXASDacqScanController(this);
 }
 
-#include "ui/SGMXASScanConfigurationView.h"
+#include "ui/SGM/SGMXASScanConfigurationView.h"
 
 AMScanConfigurationView* SGMXASScanConfiguration::createView(){
 	return new SGMXASScanConfigurationView(this);

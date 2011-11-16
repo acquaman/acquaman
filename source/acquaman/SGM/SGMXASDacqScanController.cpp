@@ -21,13 +21,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDir>
 
-#include "beamline/AMBeamlineListAction.h"
+#include "actions/AMBeamlineListAction.h"
 
 SGMXASDacqScanController::SGMXASDacqScanController(SGMXASScanConfiguration *cfg, QObject *parent) :
 		AMDacqScanController(cfg, parent) , SGMXASScanController(cfg)
 {
-	_pCfg_ = &specificCfg_;
-	_pScan_ = &specificScan_;
+	scan_ = specificScan_; // MB: Moved from startImplementation(). specificScan_ is new'd in SGMXASScanController, outside of the AMScanController inheritance tree.
+
+	useDwellTimes(SGMBeamline::sgm()->nextDwellTimeTrigger(), SGMBeamline::sgm()->nextDwellTimeConfirmed());
 }
 
 bool SGMXASDacqScanController::initializeImplementation(){
@@ -35,7 +36,7 @@ bool SGMXASDacqScanController::initializeImplementation(){
 		/* NTBA - August 25th, 2011 (David Chevrier)
 			Do we need to also clear any raw data sources here, or just the raw data itself?"
 		*/
-		pScan_()->clearRawDataPoints();
+		scan_->clearRawDataPoints();
 
 		AMBeamlineListAction *listAction = new AMBeamlineListAction(initializationActions_);
 		connect(listAction, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
@@ -70,8 +71,8 @@ bool SGMXASDacqScanController::startImplementation(){
 	else if( QDir("/home/sgm/Sandbox/Acquaman2011/dev").exists())
 		homeDir = "/home/sgm/Sandbox/Acquaman2011/dev";
 
-	for(int x = 0; x < pCfg_()->allDetectorConfigurations().count(); x++){
-		if(pCfg_()->allDetectorConfigurations().isActiveAt(x) && !SGMBeamline::sgm()->detectorValidForCurrentSignalSource(pCfg_()->allDetectorConfigurations().detectorInfoAt(x))){
+	for(int x = 0; x < config_->allDetectorConfigurations().count(); x++){
+		if(config_->allDetectorConfigurations().isActiveAt(x) && !SGMBeamline::sgm()->detectorValidForCurrentSignalSource(config_->allDetectorConfigurations().detectorInfoAt(x))){
 			AMErrorMon::report(AMErrorReport(this,
 					AMErrorReport::Alert,
 					SGMXASDACQSCANCONTROLLER_CANT_START_DETECTOR_SOURCE_MISMATCH,
@@ -80,8 +81,8 @@ bool SGMXASDacqScanController::startImplementation(){
 		}
 	}
 
-	if( SGMBeamline::sgm()->pgtDetector() && SGMBeamline::sgm()->oos65000Detector() && pCfg_()->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())
-		&& pCfg_()->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->oos65000Detector()->detectorName())){
+	if( SGMBeamline::sgm()->pgtDetector() && SGMBeamline::sgm()->oos65000Detector() && config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())
+		&& config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->oos65000Detector()->detectorName())){
 		qDebug() << "Using SDD and OOS";
 		if(SGMBeamline::sgm()->usingPicoammeterSource())
 			loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgtxeolAmmeter.cfg"));
@@ -89,7 +90,7 @@ bool SGMXASDacqScanController::startImplementation(){
 			loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgtxeolScaler.cfg"));
 		usingSpectraDotDatFile_ = true;
 	}
-	else if(SGMBeamline::sgm()->pgtDetector() && pCfg_()->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())){
+	else if(SGMBeamline::sgm()->pgtDetector() && config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())){
 		qDebug() << "Using SDD";
 		if(SGMBeamline::sgm()->usingPicoammeterSource())
 			loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgtAmmeter.cfg"));
@@ -97,7 +98,7 @@ bool SGMXASDacqScanController::startImplementation(){
 			loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgtScaler.cfg"));
 		usingSpectraDotDatFile_ = true;
 	}
-	else if(SGMBeamline::sgm()->oos65000Detector() && pCfg_()->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->oos65000Detector()->detectorName())){
+	else if(SGMBeamline::sgm()->oos65000Detector() && config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->oos65000Detector()->detectorName())){
 		qDebug() << "Using OOS";
 		if(SGMBeamline::sgm()->usingPicoammeterSource())
 			loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/xeolAmmeter.cfg"));
@@ -117,9 +118,9 @@ bool SGMXASDacqScanController::startImplementation(){
 		return false;
 	}
 
-	for(int i = 0; i < pCfg_()->allDetectorConfigurations().count(); i++){
-		if(pCfg_()->allDetectorConfigurations().isActiveAt(i)){
-			AMDetector *dtctr = pCfg_()->allDetectors()->detectorNamed(pCfg_()->allDetectorConfigurations().detectorInfoAt(i)->name());
+	for(int i = 0; i < config_->allDetectorConfigurations().count(); i++){
+		if(config_->allDetectorConfigurations().isActiveAt(i)){
+			AMDetector *dtctr = config_->allDetectors()->detectorNamed(config_->allDetectorConfigurations().detectorInfoAt(i)->name());
 			//if(dtctr->detectorName() == SGMBeamline::sgm()->pgtDetector()->detectorName())
 			if(dtctr->toInfo()->rank() > 0)
 				advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->detectorName()), true, true, detectorReadMethodToDacqReadMethod(dtctr->readMethod()));
@@ -127,17 +128,16 @@ bool SGMXASDacqScanController::startImplementation(){
 				advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->detectorName()), true, false, detectorReadMethodToDacqReadMethod(dtctr->readMethod()));
 		}
 	}
-	for(int x = 0; x < pCfg_()->regionCount(); x++){
+	for(int x = 0; x < config_->regionCount(); x++){
 		if(advAcq_->getNumRegions() == x)
-			advAcq_->addRegion(x, pCfg_()->regionStart(x), pCfg_()->regionDelta(x), pCfg_()->regionEnd(x), 1);
+			advAcq_->addRegion(x, config_->regionStart(x), config_->regionDelta(x), config_->regionEnd(x), 1);
 		else{
-			advAcq_->setStart(x, pCfg_()->regionStart(x));
-			advAcq_->setDelta(x, pCfg_()->regionDelta(x));
-			advAcq_->setEnd(x, pCfg_()->regionEnd(x));
+			advAcq_->setStart(x, config_->regionStart(x));
+			advAcq_->setDelta(x, config_->regionDelta(x));
+			advAcq_->setEnd(x, config_->regionEnd(x));
 		}
 	}
 	advAcq_->saveConfigFile("/Users/fawkes/dev/acquaman/devConfigurationFiles/davidTest.cfg");
-	generalScan_ = specificScan_;
 
 	qDebug() << "Calling startImplementation for dacq";
 	return AMDacqScanController::startImplementation();
@@ -146,7 +146,7 @@ bool SGMXASDacqScanController::startImplementation(){
 AMnDIndex SGMXASDacqScanController::toScanIndex(QMap<int, double> aeData){
 	Q_UNUSED(aeData)
 	// SGM XAS Scan has only one dimension (energy), simply append to the end of this
-	return AMnDIndex(pScan_()->rawData()->scanSize(0));
+	return AMnDIndex(scan_->rawData()->scanSize(0));
 }
 
 void SGMXASDacqScanController::onDacqStop(){
@@ -154,6 +154,30 @@ void SGMXASDacqScanController::onDacqStop(){
 		AMDacqScanController::onDacqStop();
 	else
 		onScanFinished();
+}
+
+#include "beamline/CLS/CLSSynchronizedDwellTime.h"
+
+void SGMXASDacqScanController::onDwellTimeTriggerChanged(double newValue){
+	qDebug() << "Looks like dwell time trigger has changed to " << newValue << " in SGM version";
+	if( fabs(newValue - 1.0) < 0.1 ){
+		qDebug() << "Confirm dwell time has been set and reset trigger";
+		int curDwell = ceil(SGMBeamline::sgm()->synchronizedDwellTime()->time());
+		switch(curDwell){
+		case 1:
+			SGMBeamline::sgm()->synchronizedDwellTime()->setTime(2);
+			break;
+		case 2:
+			SGMBeamline::sgm()->synchronizedDwellTime()->setTime(2.5);
+			break;
+		case 3:
+			SGMBeamline::sgm()->synchronizedDwellTime()->setTime(1);
+			break;
+		}
+
+		dwellTimeTrigger_->move(0);
+		dwellTimeConfirmed_->move(1);
+	}
 }
 
 void SGMXASDacqScanController::onInitializationActionsSucceeded(){

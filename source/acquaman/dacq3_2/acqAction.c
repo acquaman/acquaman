@@ -500,7 +500,6 @@ runAcqAction( acqScan_t *acq, acqAction_t *aap, Channel *chan, double outval)
 	}
 }
 
-#warning "Commented out because unused. Function was previously commented out, now try the declaration too"
 //static int countColumns( acqEvent_t *ev);
 /*
  * run an event request. Note: Each event runs in its own thread. When receiving a start

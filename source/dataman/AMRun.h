@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMRUN_H
 
 
-#include "dataman/AMDbObject.h"
+#include "dataman/database/AMDbObject.h"
 #include <QImage>
 
 #include <QBuffer>
@@ -76,7 +76,7 @@ public:
 		if(iconFileName().isEmpty())
 			return AMDbThumbnail(name(), description());
 		else
-			return AMDbThumbnail(name(), description(), QPixmap(iconFileName()));
+			return AMDbThumbnail(name(), description(), QImage(iconFileName()));
 	}
 
 

@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMCONTROLSET_CONTROL_TIMEOUT_MS 4000
 
 #include "beamline/AMControl.h"
-#include "dataman/AMControlInfoList.h"
+#include "dataman/info/AMControlInfoList.h"
 
 #include "util/AMOrderedSet.h"
 

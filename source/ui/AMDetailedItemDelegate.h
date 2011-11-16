@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPainter>
 #include <QPixmap>
 
-#include "AMDateTimeUtils.h"
+#include "util/AMDateTimeUtils.h"
 
 class AMDetailedItemDelegate : public AMCloseItemDelegate
 {

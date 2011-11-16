@@ -129,8 +129,8 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(QWidget *parent) :
 }
 
 
-#include "dataman/AMDatabase.h"
-#include "ui/AMDateTimeUtils.h"
+#include "dataman/database/AMDatabase.h"
+#include "util/AMDateTimeUtils.h"
 void REIXSXESScanConfigurationView::onLoadCalibrations() {
 
 	calibrationSelector_->blockSignals(true);
@@ -139,7 +139,7 @@ void REIXSXESScanConfigurationView::onLoadCalibrations() {
 
 	calibrationSelector_->addItem("Default", -1);
 
-	QSqlQuery q = AMDatabase::userdb()->query();
+	QSqlQuery q = AMDatabase::database("user")->query();
 
 	q.prepare(QString("SELECT id, dateTime FROM %1").arg(calibration_.dbTableName()));
 	q.exec();
@@ -172,7 +172,7 @@ void REIXSXESScanConfigurationView::onCalibrationIndexChanged(int newIndex) {
 	configuration_.setSpectrometerCalibrationId(currentCalibrationId_);
 
 	if(currentCalibrationId_ > 0) {
-		calibration_.loadFromDb(AMDatabase::userdb(), currentCalibrationId_);
+		calibration_.loadFromDb(AMDatabase::database("user"), currentCalibrationId_);
 	}
 	else {
 		calibration_ = REIXSXESCalibration();

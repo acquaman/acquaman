@@ -23,42 +23,55 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSystemTrayIcon>
 #include <QMutableMapIterator>
 #include <QDebug>
+#include <QMutexLocker>
+#include <QReadLocker>
+#include <QWriteLocker>
+#include <QThread>
+#include <QApplication>
 
 AMErrorMon* AMErrorMon::instance_ = 0;
+QMutex AMErrorMon::instanceMutex_(QMutex::Recursive);
 
-AMErrorMon::AMErrorMon() : QObject() {
+AMErrorMon::AMErrorMon() : QObject(), subsMutex_(QReadWriteLock::Recursive) {
 	qRegisterMetaType<AMErrorReport>("AMErrorReport");
 	sicon_ = new QSystemTrayIcon(QIcon(":/utilities-system-monitor.png"), this);
 	sicon_->show();
 
 
-	/// don't display debug notifications by default:
+	// don't display debug notifications by default:
 	debugEnabled_ = false;
+
+	// Set up our signal-based forwarding system to be thread-safe:
+	connect(this, SIGNAL(reportFF(AMErrorReport)), this, SLOT(reportI(AMErrorReport)));
 }
 
 
-/// Subscribe to all errors from object 'originator'
+// Subscribe to all errors from object 'originator'
 void AMErrorMon::subscribeToObjectI(const QObject* originator, QObject* notifyMe, const char* errorSlot) {
 	/// \test Unit test insertions
+	QWriteLocker l(&subsMutex_);
 	objectSubs_.insertMulti(originator, QPair<QObject*,QString>(notifyMe, errorSlot));
 
 }
 
-/// Subscribe to all errors from this class:
+// Subscribe to all errors from this class:
 void AMErrorMon::subscribeToClassI(const QString& className, QObject* notifyMe, const char* errorSlot) {
 	/// \test Unit test insertions
+	QWriteLocker l(&subsMutex_);
 	classSubs_.insertMulti(className, QPair<QObject*,QString>(notifyMe,errorSlot));
 }
 
-/// Subscribe to all errors that have code 'errorCode'
+// Subscribe to all errors that have code 'errorCode'
 void AMErrorMon::subscribeToCodeI(int errorCode, QObject* notifyMe, const char* errorSlot) {
 	/// \test Unit test insertions
+	QWriteLocker l(&subsMutex_);
 	codeSubs_.insertMulti(errorCode, QPair<QObject*,QString>(notifyMe,errorSlot));
 }
 
-/// Unsubscribe <notifyMe, errorSlot> from everything.  If errorSlot==0, unsubscribes all of notifyMe's subscriptions.
+// Unsubscribe <notifyMe, errorSlot> from everything.  If errorSlot==0, unsubscribes all of notifyMe's subscriptions.
 void AMErrorMon::unsubscribeI(QObject* notifyMe, const char* errorSlot) {
 
+	QWriteLocker l(&subsMutex_);
 	/// \test unit test removals (all cases)
 
 	// Iterate through all object subscriptions
@@ -87,7 +100,7 @@ void AMErrorMon::unsubscribeI(QObject* notifyMe, const char* errorSlot) {
 
 
 
-/// Report an error:
+// Handle error reports.
 void AMErrorMon::reportI(const AMErrorReport& e) {
 
 	QString className;
@@ -145,6 +158,7 @@ void AMErrorMon::reportI(const AMErrorReport& e) {
 	}
 
 	// Chapter 2: go through various subscriptions:
+	QReadLocker l(&subsMutex_);
 
 
 	// This looks complicated.  It's a list of object pointers and corresponding slotNames that need to be called.  We fill it using the subscription records.
@@ -166,4 +180,15 @@ void AMErrorMon::reportI(const AMErrorReport& e) {
 		target.first->metaObject()->invokeMethod( target.first, target.second.toAscii().data(), Q_ARG(AMErrorReport, e));
 
 
+}
+
+AMErrorMon * AMErrorMon::mon() {
+	QMutexLocker ml(&instanceMutex_);
+
+	if(!instance_) {
+		instance_ = new AMErrorMon();
+		if(QThread::currentThread() != QApplication::instance()->thread())
+			instance_->moveToThread(QApplication::instance()->thread());
+	}
+	return instance_;
 }

@@ -24,17 +24,23 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 
-#include "dataman/AMDbObject.h"
-#include "dataman/AMDataStore.h"
+#include "dataman/database/AMDbObject.h"
+#include "dataman/datastore/AMDataStore.h"
 #include "util/AMOrderedSet.h"
-#include "dataman/AMRawDataSource.h"
+#include "dataman/datasource/AMRawDataSource.h"
 #include "dataman/AMAnalysisBlock.h"
-#include "dataman/AMControlInfoList.h"	/// \todo change to AMControlInfoSet, using standard set API.
+#include "dataman/info/AMControlInfoList.h"	/// \todo change to AMControlInfoSet, using standard set API.
+
+#include "dataman/AMFileLoaderInterface.h"
 
 typedef AMOrderedSet<QString, AMRawDataSource*> AMRawDataSourceSet;
 typedef AMOrderedSet<QString, AMAnalysisBlock*> AMAnalyzedDataSourceSet;
 
 class AMScanConfiguration;
+
+#ifndef ACQUAMAN_NO_ACQUISITION
+class AMScanController;
+#endif
 
 /// This class is the base of all objects that represent a single 'scan' on a beamline.  It's also used as the standard container for a set of raw and/or processed AMDataSources, which can be visualized together in
 class AMScan : public AMDbObject {
@@ -55,6 +61,7 @@ class AMScan : public AMDbObject {
 	Q_PROPERTY(AMDbObjectList analyzedDataSources READ dbReadAnalyzedDataSources WRITE dbLoadAnalyzedDataSources)
 	Q_PROPERTY(QString analyzedDataSourcesConnections READ dbReadAnalyzedDataSourcesConnections WRITE dbLoadAnalyzedDataSourcesConnections)
 	Q_PROPERTY(AMDbObject* scanConfiguration READ dbGetScanConfiguration WRITE dbLoadScanConfiguration)
+	Q_PROPERTY(bool currentlyScanning READ currentlyScanning WRITE dbLoadCurrentlyScanning NOTIFY currentlyScanningChanged)
 
 	Q_CLASSINFO("dateTime", "createIndex=true")
 	Q_CLASSINFO("sampleId", "createIndex=true")
@@ -130,6 +137,8 @@ public:
 	// AMRawDataSourceSet* rawDataSources() { return &rawDataSources_; }
 	/// Publicly expose part of the rawData(), by adding a new AMRawDataSource to the scan. The new data source \c newRawDataSource should be valid, initialized and connected to the data store already.  The scan takes ownership of \c newRawDataSource.  This function returns false if raw data source already exists with the same name as the \c newRawDataSource.
 	bool addRawDataSource(AMRawDataSource* newRawDataSource) { if(newRawDataSource) return rawDataSources_.append(newRawDataSource, newRawDataSource->name()); return false; }
+	/// This overloaded function calls addRawDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
+	bool addRawDataSource(AMRawDataSource* newRawDataSource, bool visibleInPlots, bool hiddenFromUsers);
 	/// Delete and remove an existing raw data source.  \c id is the idnex of the source in rawDataSources().
 	bool deleteRawDataSource(int id) { if((unsigned)id >= (unsigned)rawDataSources_.count()) return false; delete rawDataSources_.takeAt(id); return true; }
 
@@ -139,6 +148,8 @@ public:
 	// AMAnalyzedDataSourceSet* analyzedDataSources() { return &analyzedDataSources_; }
 	/// Add an new analysis block to the scan.  The scan takes ownership of the \c newAnalysisBlock and exposes it as one of the analyzed data sources.
 	bool addAnalyzedDataSource(AMAnalysisBlock* newAnalyzedDataSource) { if(newAnalyzedDataSource) return analyzedDataSources_.append(newAnalyzedDataSource, newAnalyzedDataSource->name()); return false; }
+	/// This overloaded function calls addAnalyzedDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
+	bool addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource, bool visibleInPlots, bool hiddenFromUsers);
 	/// Delete and remove an existing analysis block. \c id is the index of the source in analyzedDataSources().
 	bool deleteAnalyzedDataSource(int id) { if((unsigned)id >= (unsigned)analyzedDataSources_.count()) return false; delete analyzedDataSources_.takeAt(id); return true; }
 
@@ -204,19 +215,9 @@ public:
 
 	// Role 4: Loading/Clearing Raw Data
 	////////////////////////////
-	/// Load raw data into memory from storage. Returns true on success.
-	/*! Subclasses should not reimplement this function, but must provide an implementation for loadDataImplementation(), which attempts to use the scan's current filePath() and fileFormat() as the source, and handles their set of readable file formats.  This function calls loadDataImplementation(), and then calls setDataStore() on all the raw data sources, to hopefully restore them to a valid state, now that there is valid raw data.*/
-	bool loadData() {
-		bool success = loadDataImplementation();
-		if(success)
-			for(int i=rawDataSources_.count()-1; i>=0; i--)
-				rawDataSources_.at(i)->setDataStore(rawData());
-		return success;
-	}
-	/// Scan subclassses must provide an implementation of this function, which uses the scan's current filePath() and fileFormat() as the source, and handles their own set of readable file formats, to fill the dataStore() with appropriate raw data. Return true on success. This base class implementation does nothing and returns true.
-	virtual bool loadDataImplementation() {
-		return true;
-	}
+	/// Load raw data into memory from storage, using the AMFileLoaderInterface plugin system to find the appropriate file loader based on fileFormat(). Returns true on success.
+	bool loadData();
+
 
 	/// Controls whether raw data is loaded automatically inside loadFromDb().  If autoLoadData() is true, then whenever loadFromDb() is called and the new filePath() is different than the old filePath(), loadData() will be called as well.  If you want to turn off loading raw data for performance reasons, call setAutoLoadData(false).  Auto-loading is enabled by default.
 	bool autoLoadData() const {
@@ -272,7 +273,7 @@ public:
 	const AMControlInfoList* scanInitialConditions() const { return &scanInitialConditions_; }
 	AMControlInfoList* scanInitialConditions() { return &scanInitialConditions_; }
 
-	// Role 7: Access to Scan Configuration
+	// Role 7: Access to Scan Configuration and Scan Controller
 	///////////////////////////////
 
 	///  Access the scan's configuration
@@ -282,25 +283,37 @@ public:
 	/// Set the scan configuration. Deletes the existing scanConfiguration() if there is one.  The scan takes ownership of the \c newConfiguration and will delete it when being deleted.
 	void setScanConfiguration(AMScanConfiguration* newConfiguration);
 
+
+
 	// Role 8: Thumbnail system:
 	////////////////////////////////
 
-	/// This is an arbitrary decision, but let's define it like this (for usability): If we have any analyzed data sources, we have a thumbnail for each analyzed data source. Otherwise, rather than showing nothing, we have a thumbnail for each raw data source.
+	/// This is an arbitrary decision, but let's define it like this (for usability): If we have any analyzed data sources, we have a thumbnail for each analyzed data source. Otherwise, rather than showing nothing, we have a thumbnail for each raw data source.  Unless we are currently scanning, in which case we just have one (which visually indicates this).
 	int thumbnailCount() const {
+		if(currentlyScanning())
+			return 1;
+
 		if(analyzedDataSources_.count())
 			return analyzedDataSources_.count();
 		else
 			return rawDataSources_.count();
 	}
 
-	/// Return a thumbnail picture of the channel
+	/// Return a thumbnail picture of the data sources. If we have any analyzed data sources, we have a thumbnail for each analyzed data source. Otherwise, rather than showing nothing, we have a thumbnail for each raw data source.  Unless we are currently scanning, in which case we just have one (which visually indicates this).
 	AMDbThumbnail thumbnail(int index) const;
 
 
 	// Acquisition status, and link to scan controller
 	///////////////////////////////
 
-	/// \todo Acquisition status, and link to scan controller
+#ifndef ACQUAMAN_NO_ACQUISITION
+	/// If this scan is currently in progress, returns the scan controller that is running it. Otherwise returns 0.
+	AMScanController* scanController() const { return controller_; }
+	/// This function should not be considered part of the public interface, and only be used by AMScanController.
+	void setScanController(AMScanController*);
+#endif
+	/// Returns true if currently scanning (ie: there is a valid scan controller, or the currentlyScanning column was true when we were loaded out of the database). This is useful because we want to know this at the database level even while scans are in progress.
+	bool currentlyScanning() const { return currentlyScanning_; }
 
 
 
@@ -336,6 +349,7 @@ signals:
 	void dateTimeChanged(const QDateTime& newDateTime);
 	void sampleIdChanged(int sampleId);
 	void numberChanged(int number);
+	void currentlyScanningChanged(bool currentlyScanning);
 
 
 	// Combined Data Source Model: Signals
@@ -443,12 +457,24 @@ Lines are separated by single '\n', so a full string could look like:
 	/// When loadFromDb() is called, this receives the string describing the input connections of all the analyzed data sources, and restores their input data connections.
 	void dbLoadAnalyzedDataSourcesConnections(const QString& connectionString);
 
+	/// Used to load the currentlyScanning state from the database. If you call setScanController(0), this will be reset to false.
+	void dbLoadCurrentlyScanning(bool currentlyScanning) { currentlyScanning_ = currentlyScanning; }
 
 
 	// Raw Data Loading
 	////////////////////////
 	/// Controls whether raw data is automatically loaded when restoring this scan from the database (ie: loadData() is called automatically inside loadFromDb().)  This is true by default, but you may want to turn it off for performance reasons when loading a large group of scans just to look at their meta-data.
 	bool autoLoadData_;
+
+	// Other
+	//////////////////////////
+
+#ifndef ACQUAMAN_NO_ACQUISITION
+	/// If this scan is currently in progress, the scan controller should set this to refer to itself, and set it back to 0 when finished, using setScanController().
+	AMScanController* controller_;
+#endif
+	/// This variable is set to true while a scan is in progress (ie: scan controller running), or if the scan was loaded out of the database with the currentlyScanning column true.
+	bool currentlyScanning_;
 
 
 private:

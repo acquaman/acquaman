@@ -156,7 +156,6 @@ protected:
 	/// returns previous index that should be switched to when removing or undocking \c current.
 	QModelIndex getPreviousSelection(const QModelIndex& current);
 
-
 };
 
 #endif // AMMAINWINDOW_H

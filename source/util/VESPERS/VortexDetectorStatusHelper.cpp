@@ -42,4 +42,14 @@ VortexDetectorStatusHelper::VortexDetectorStatusHelper(QObject *parent) :
 	fourDXPfrom_ = new AMProcessVariable("dxp1607-B21-04:dxp1.SCAN", true, this);
 	connect(fourDXPfrom_, SIGNAL(valueChanged(int)), fourDXPto_, SLOT(setValue(int)));
 	connect(fourDXPto_, SIGNAL(valueChanged(int)), this, SLOT(setFourDXP(int)));
+
+	fourEMaxTo_ = new AMProcessVariable("dxp1607-B21-04:mcaEMax", true, this);
+	fourEMaxFrom_ = new AMProcessVariable("dxp1607-B21-04:dxp1.EMAX", true, this);
+	connect(fourEMaxTo_, SIGNAL(valueChanged(double)), fourEMaxFrom_, SLOT(setValue(double)));
+	connect(fourEMaxFrom_, SIGNAL(valueChanged(double)), this, SLOT(setFourEMax(double)));
+
+	fourPeakTimeTo_ = new AMProcessVariable("dxp1607-B21-04:EnergyPkTime", true, this);
+	fourPeakTimeFrom_ = new AMProcessVariable("dxp1607-B21-04:dxp1.PKTIM", true, this);
+	connect(fourPeakTimeTo_, SIGNAL(valueChanged(double)), fourPeakTimeFrom_, SLOT(setValue(double)));
+	connect(fourPeakTimeFrom_, SIGNAL(valueChanged(double)), this, SLOT(setFourPeakTime(double)));
 }

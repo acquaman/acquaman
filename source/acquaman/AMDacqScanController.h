@@ -30,9 +30,9 @@ class QDir;
 #include "AMScanController.h"
 #include "qdebug.h"
 
-#include "dacq3_2/OutputHandler/acqFactory.h"
+#include "dacq3_3/OutputHandler/acqFactory.h"
 #include "AMAcqScanSpectrumOutput.h"
-#include "dacq3_2/qepicsadvacq.h"
+#include "dacq3_3/qepicsadvacq.h"
 
 #include "dataman/AMnDIndex.h"
 
@@ -43,6 +43,9 @@ class AMDacqScanController : public AMScanController
 Q_OBJECT
 public:
 	AMDacqScanController(AMScanConfiguration *cfg, QObject *parent = 0);
+
+	/// Setup the controls to be used for changing dwell time between regions. Short documentation in the CPP.
+	void useDwellTimes(AMControl *dwellTimeTrigger, AMControl *dwellTimeConfirmed);
 
 protected:
 	bool startImplementation();
@@ -58,12 +61,6 @@ protected:
 	bool event(QEvent *e);
 	virtual AMnDIndex toScanIndex(QMap<int, double> aeData);
 
-protected:
-	QEpicsAdvAcq *advAcq_;
-	bool usingSpectraDotDatFile_;
-	bool dacqCancelled_;
-	QTime startTime_;
-
 protected slots:
 	virtual void onDacqStart();
 	virtual void onDacqStop();
@@ -71,12 +68,20 @@ protected slots:
 	virtual void onDacqSendCompletion(int completion);
 	virtual void onDacqState(const QString& state);
 
-private:
-	AMScanConfiguration **_pCfg_;
-	AMScan **_pScan_;
+	/// Virtual function to deal with dwell time changes between regions. Can be re-implemented in subclasses for particular behavior.
+	virtual void onDwellTimeTriggerChanged(double newValue);
 
-	AMScanConfiguration *pCfg_() { return *_pCfg_;}
-	AMScan *pScan_() { return *_pScan_;}
+protected:
+	QEpicsAdvAcq *advAcq_;
+	bool usingSpectraDotDatFile_;
+	bool dacqCancelled_;
+	QTime startTime_;
+
+	/// Controls for triggering and confirming dwell time changes between regions (as well as bool for backwards compatibility)
+	bool useDwellTimes_;
+	AMControl *dwellTimeTrigger_;
+	AMControl *dwellTimeConfirmed_;
+
 };
 
 #endif // ACQMAN_DACQSCANCONTROLLER_H

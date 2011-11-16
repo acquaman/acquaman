@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMExternalScanDataSourceAB.h"
 #include "dataman/AMScan.h"
-#include "dataman/AMDbObjectSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
 
 #include "util/AMErrorMonitor.h"
 #include <QTimer>
@@ -40,8 +40,8 @@ AMExternalScanDataSourceAB::AMExternalScanDataSourceAB(AMDatabase* sourceDatabas
 	// however, we should still get our rank, which means trying to load the scan
 	AMDbObject* dbObject = 0;
 	try {
-		dbObject = AMDbObjectSupport::createAndLoadObjectAt(sourceDb_,
-														 AMDbObjectSupport::tableNameForClass<AMScan>(),
+		dbObject = AMDbObjectSupport::s()->createAndLoadObjectAt(sourceDb_,
+														 AMDbObjectSupport::s()->tableNameForClass<AMScan>(),
 														 sourceScanId_);
 		/// \todo Once we have just one scan class, then we don't need to use the dynamic loader. Then we can do this without having to load the scan's raw data just to get our rank.
 
@@ -108,8 +108,8 @@ bool AMExternalScanDataSourceAB::refreshData()
 	try {
 		// We might have a scan_ loaded already from the constructor. If not, attempt to load ourselves.
 		if(!scan_) {
-			dbObject = AMDbObjectSupport::createAndLoadObjectAt(sourceDb_,
-															 AMDbObjectSupport::tableNameForClass<AMScan>(),
+			dbObject = AMDbObjectSupport::s()->createAndLoadObjectAt(sourceDb_,
+															 AMDbObjectSupport::s()->tableNameForClass<AMScan>(),
 															 sourceScanId_);
 			scan_ = qobject_cast<AMScan*>(dbObject);
 			if(!scan_)
@@ -347,7 +347,7 @@ bool AMExternalScanDataSourceAB::loadFromDb(AMDatabase *db, int id)
 
 	AMDataSource::name_ = dbLoadOutputDataSourceName_;
 
-	AMDatabase* sourceDb = AMDatabase::dbByName(dbLoadConnectionName_);
+	AMDatabase* sourceDb = AMDatabase::database(dbLoadConnectionName_);
 	if(!sourceDb) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -2, "Couldn't locate the database containing the external scan data to load."));
 		return false;

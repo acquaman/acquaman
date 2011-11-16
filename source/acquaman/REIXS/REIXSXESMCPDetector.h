@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 #include "beamline/AMControl.h"
-#include "dataman/AMDataSource.h"
+#include "dataman/datasource/AMDataSource.h"
 #include "dataman/REIXS/REIXSXESMCPDetectorInfo.h"
 
 /// This class exposes an array process variable as an AMDataSource, for use with REIXSXESMCPDetector.
@@ -119,6 +119,8 @@ class REIXSXESMCPDetector : public QObject
 public:
 	/// Construct a new detector object.   \c name is an abitrary name, that will be used for the data sources. \c basePVName is the base of the Process Variable names we use to read and control the detector (ex: [basePVName]:image, [basePVName]:clear, etc.)
 	REIXSXESMCPDetector(const QString& name, const QString& basePVName, QObject *parent = 0);
+
+	virtual ~REIXSXESMCPDetector();
 
 	QString name() const { return name_; }
 	QString description() const { return description_; }

@@ -26,15 +26,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/AMValveControl.h"
 #include "beamline/VESPERS/XRFDetector.h"
 #include "beamline/AMROI.h"
-#include "beamline/VESPERS/SampleStageControl.h"
+#include "beamline/VESPERS/VESPERSSampleStageControl.h"
 #include "beamline/VESPERS/VESPERSValveGroupControl.h"
-#include "beamline/VESPERS/PIDLoopControl.h"
-#include "beamline/VESPERS/VESPERSIonChamberCalibration.h"
+#include "beamline/VESPERS/VESPERSPIDLoopControl.h"
 #include "beamline/VESPERS/VESPERSMonochromator.h"
 #include "beamline/VESPERS/VESPERSIntermediateSlits.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
-#include "beamline/AMBeamlineActionItem.h"
+#include "actions/AMBeamlineActionItem.h"
 #include "beamline/VESPERS/VESPERSEndstation.h"
+#include "beamline/VESPERS/VESPERSExperimentConfiguration.h"
+#include "beamline/AMIonChamber.h"
+#include "beamline/CLS/CLSIonChamber.h"
+#include "beamline/CLS/CLSSplitIonChamber.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -83,23 +86,25 @@ public:
 	XRFDetector *vortexXRF4E() const { return (XRFDetector *)vortex4E_; }
 
 	/// Returns a general AMDetector pointer to the split ion chamber.
-	AMDetector *iSplit() const { return iSplit_; }
+	AMDetector *iSplitDetector() const { return iSplit_; }
+	/// Returns a CLSIonChamber pointer to the split ion chamber.
+	CLSSplitIonChamber *iSplit() const { return (CLSSplitIonChamber *)iSplit_; }
 	/// Returns a general AMDetector pointer to the pre-KB ion chamber.
-	AMDetector *iPreKB() const { return iPreKB_; }
+	AMDetector *iPreKBDetector() const { return iPreKB_; }
+	/// Returns a CLSIonChamber pointer to the split ion chamber.
+	CLSIonChamber *iPreKB() const { return (CLSIonChamber *)iPreKB_; }
 	/// Returns a general AMDetector pointer to the mini ion chamber.
-	AMDetector *iMini() const { return iMini_; }
+	AMDetector *iMiniDetector() const { return iMini_; }
+	/// Returns a CLSIonChamber pointer to the split ion chamber.
+	CLSIonChamber *iMini() const { return (CLSIonChamber *)iMini_; }
 	/// Returns a general AMDetector pointer to the post sample ion chamber.
-	AMDetector *iPost() const { return iPost_; }
+	AMDetector *iPostDetector() const { return iPost_; }
+	/// Returns a CLSIonChamber pointer to the split ion chamber.
+	CLSIonChamber *iPost() const { return (CLSIonChamber *)iPost_; }
 	/// Returns the ion chamber detector set.
 	AMDetectorSet *ionChambers() const { return ionChambers_; }
 
 	// Accessing control elements:
-
-	// Ion chamber calibration.
-	/// Returns the ion chamber calibration.  This is used for changing the high voltage and sensitivity of the ion chambers.
-	VESPERSIonChamberCalibration *ionChamberCalibration() const { return ionChamberCalibration_; }
-
-	// End of Ion chamber calibration.
 
 	// The monochromator abstraction.
 	/// Returns the monochromator abstraction for the VESPERS beamline.
@@ -128,6 +133,16 @@ public:
 	// Beam selection motor.
 	/// Returns the control for the beam selection motor.
 	AMControl *beamSelectionMotor() const { return beamSelectionMotor_; }
+
+	// The experiment configuration.
+	/// Returns the experiment configuration model.
+	VESPERSExperimentConfiguration *experimentConfiguration() const { return experimentConfiguration_; }
+
+	// The helper controls for changing the dwell time for each region.
+	/// Returns the control in charge of changing the dwell time trigger for changing the dwell time between regions.
+	AMControl *dwellTimeTrigger() const { return dwellTimeTrigger_; }
+	/// Returns the control holding the confirmed flag while setting the dwell time between regions.
+	AMControl *dwellTimeConfirmed() const { return dwellTimeConfirmed_; }
 
 	// Pressure
 	/// Returns the pressure control for Front End section 1.
@@ -369,7 +384,7 @@ public:
 
 	// The sample stage.
 	/// Returns the sample stage control built with the pseudo-motors.
-	SampleStageControl *pseudoSampleStage() const { return pseudoSampleStage_; }
+	VESPERSSampleStageControl *pseudoSampleStage() const { return pseudoSampleStage_; }
 
 	// Sample stage PID controls.
 	/// Returns the PID control for the x-direction of the sample stage.
@@ -380,7 +395,7 @@ public:
 	AMControl *sampleStagPidZ() const { return sampleStagePidZ_; }
 
 	/// Returns the sample stage PID control.
-	PIDLoopControl *sampleStagePID() const { return sampleStagePID_; }
+	VESPERSPIDLoopControl *sampleStagePID() const { return sampleStagePID_; }
 
 	// These Control Sets are logical groups of controls that are commonly used by different Acquaman components
 
@@ -399,33 +414,11 @@ public:
 	/// Returns the sample stage motor control set.
 	AMControlSet *sampleStageMotorSet() const { return sampleStageMotorSet_; }
 
-	// This is where the controls and PVs for mono settings exits.
+	// This is where the controls and PVs for scanning are.  They are reproduced somewhat because my encapsulation classes don't return AMControls.
+	/// Returns the relative energy control.
 	AMControl *energyRelative() const { return energyRelative_; }
-
-	/// Returns the control to the split ion chamber #1.
-	AMControl *iSplitControl() const { return iSplitControl_; }
-	/// Returns the control to the pre-KB ion chamber.
-	AMControl *iPreKBControl() const { return iPreKBControl_; }
-	/// Returns the control to the mini ion chamber.
-	AMControl *iMiniControl() const { return iMiniControl_; }
-	/// Returns the control to the post sample ion chamber.
-	AMControl *iPostControl() const { return iPostControl_; }
-
-	// Experiment status
-	/// Returns the control for the POE beam status.
-	AMControl *poeBeamStatus() const { return poeBeamStatus_; }
-	/// Returns the control for the POE beam status enable.
-	AMControl *poeBeamStatusEnable() const { return poeBeamStatusEnable_; }
-	/// Returns the control for the SOE beam status.
-	AMControl *soeBeamStatus() const { return soeBeamStatus_; }
-	/// Returns the control for the SOE beam status enable.
-	AMControl *soeBeamStatusEnable() const { return soeBeamStatusEnable_; }
-	/// Returns the control for the fast shutter ready signal.
-	AMControl *fastShutterReady() const { return fastShutterReady_; }
-	/// Returns the control for the detector status of the CCD .
-	AMControl *ccdStatus() const { return ccdStatus_; }
-
-	// End of experiment status
+	/// Returns the master dwell time control.
+	AMControl *masterDwellTime() const { return masterDwellTime_; }
 
 	//////////////////////////////////////////////////////////////////////////////////////
 	// Actions
@@ -450,8 +443,6 @@ signals:
 	void flowSwitchStatus(bool);
 	/// Notifier of the current state of the flow transducers on the beamline.  Passes false if ANY of the flow rates fall below its setpoint.
 	void flowTransducerStatus(bool);
-	/// Notifier that the beamline is ready for to take experiments.
-	void experimentReady(bool);
 
 public slots:
 
@@ -492,68 +483,6 @@ protected slots:
 	/// Slot used to dead with sample stage motor errors.
 	void sampleStageError();
 
-	/// Determines whether the state of the experiment ready status.
-	void determineExperimentStatus();
-	/// Enables/Disables the POE status from the experiment ready status.
-	void usePOEStatus(bool use)
-	{
-		usePOE_ = use;
-
-		if (poeBeamStatusEnable_->isConnected())
-			poeBeamStatusEnable_->move(use == true ? 0.0 : 1.0);
-
-		determineExperimentStatus();
-	}
-	/// Enables/Disables the SOE status from the experiment ready status.
-	void useSOEStatus(bool use)
-	{
-		useSOE_ = use;
-
-		if (soeBeamStatusEnable_->isConnected())
-			soeBeamStatusEnable_->move(use == true ? 0.0 : 1.0);
-
-		determineExperimentStatus();
-	}
-	/// Enables/Disables the fast shutter from experiment ready status.
-	void useFastShutterStatus(bool use)
-	{
-		useFastShutter_ = use;
-		determineExperimentStatus();
-	}
-	/// Enables/Disables the CCD from the experiment ready status.
-	void useCCDStatus(bool use)
-	{
-		useCCD_ = use;
-		determineExperimentStatus();
-
-		if (synchronizedDwellTime()->isConnected())
-			synchronizedDwellTime_->elementAt(2)->setEnabled(use);
-	}
-	/// Enables/Disables the sample stage from the experiment ready status.
-	void useSampleStageStatus(bool use)
-	{
-		useSampleStage_ = use;
-		determineExperimentStatus();
-	}
-	/// Enables/Disables the single element vortex detector from the experiment ready status.
-	void useSingleElementVortex(bool use)
-	{
-		useSingleEl_ = use;
-		determineExperimentStatus();
-
-		if (synchronizedDwellTime()->isConnected())
-			synchronizedDwellTime_->elementAt(1)->setEnabled(use);
-	}
-	/// Enables/Disables the four element vortex detector from the experiment ready status.
-	void useFourElementVortex(bool use)
-	{
-		useFourEl_ = use;
-		determineExperimentStatus();
-
-		if (synchronizedDwellTime()->isConnected())
-			synchronizedDwellTime_->elementAt(4)->setEnabled(use);
-	}
-
 protected:
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
 	void setupDiagnostics();
@@ -588,9 +517,6 @@ protected:
 
 	// End detector sets.
 
-	// Ion chamber calibration.
-	VESPERSIonChamberCalibration *ionChamberCalibration_;
-
 	// VESPERS monochromator.
 	VESPERSMonochromator *mono_;
 
@@ -602,6 +528,13 @@ protected:
 
 	// Endstation
 	VESPERSEndstation *endstation_;
+
+	// Experiment Configuration
+	VESPERSExperimentConfiguration *experimentConfiguration_;
+
+	// Dwell time control helper functions for the dwell time.
+	AMControl *dwellTimeTrigger_;
+	AMControl *dwellTimeConfirmed_;
 
 	// Beam selection members.
 	// The current beam in use by the beamline.
@@ -742,12 +675,6 @@ protected:
 
 	// End General Controls.
 
-	// Ion chamber controls.
-	AMControl *iSplitControl_;
-	AMControl *iPreKBControl_;
-	AMControl *iMiniControl_;
-	AMControl *iPostControl_;
-
 	// End ion chamber controls.
 
 	// Sample stage controls.
@@ -762,41 +689,24 @@ protected:
 	AMControl *sampleStageZ_;
 
 	// The sample stage encapsulation.
-	SampleStageControl *pseudoSampleStage_;
-	SampleStageControl *realSampleStage_;
+	VESPERSSampleStageControl *pseudoSampleStage_;
+	VESPERSSampleStageControl *realSampleStage_;
 
 	// The PID loop controls.
 	AMControl *sampleStagePidX_;
 	AMControl *sampleStagePidY_;
 	AMControl *sampleStagePidZ_;
 
-	PIDLoopControl *sampleStagePID_;
+	VESPERSPIDLoopControl *sampleStagePID_;
 
 	// End sample stage controls.
 
-	// Mono settings.
+	// Scanning settings.
 	AMControl *energyRelative_;
+	AMControl *masterDwellTime_;
 
 	// AM names bihash to/from PV names.
 	AMBiHash<QString, QString> amNames2pvNames_;
-
-	// Experiment Ready controls and others.
-	AMControl *poeBeamStatus_;
-	AMControl *poeBeamStatusEnable_;
-	AMControl *soeBeamStatus_;
-	AMControl *soeBeamStatusEnable_;
-	AMControl *fastShutterReady_;
-	AMControl *ccdStatus_;
-
-	bool usePOE_;
-	bool useSOE_;
-	bool useFastShutter_;
-	bool useCCD_;
-	bool useSampleStage_;
-	bool useSingleEl_;
-	bool useFourEl_;
-
-	// End of experiment ready controls.
 };
 
 #endif // VESPERSBEAMLINE_H

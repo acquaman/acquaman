@@ -22,32 +22,31 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/SGM/SGMBeamline.h"
 
-#include "ui/SGMSampleTransferView.h"
+#include "ui/SGM/SGMSampleTransferView.h"
 #include "ui/SGM/SGMSampleManipulatorView.h"
-#include "ui/AMSampleManagementWidget.h"
-#include "ui/AMScanConfigurationViewHolder.h"
-#include "ui/SGMXASScanConfigurationView.h"
-#include "ui/SGMFastScanConfigurationView.h"
-#include "ui/SGMSidebar.h"
+#include "ui/dataman/AMSampleManagementWidget.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder.h"
+#include "ui/SGM/SGMXASScanConfigurationView.h"
+#include "ui/SGM/SGMFastScanConfigurationView.h"
+#include "ui/SGM/SGMSidebar.h"
 #include "acquaman/AMScanController.h"
-#include "ui/AMDetectorView.h"
-#include "ui/AMSingleControlDetectorView.h"
-#include "ui/MCPDetectorView.h"
-#include "ui/PGTDetectorView.h"
-#include "ui/OceanOptics65000DetectorView.h"
+#include "ui/beamline/AMDetectorView.h"
+#include "ui/beamline/AMSingleControlDetectorView.h"
+#include "ui/beamline/MCPDetectorView.h"
+#include "ui/beamline/PGTDetectorView.h"
+#include "ui/beamline/OceanOptics65000DetectorView.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
 
-#include "dataman/AMDbObjectSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMRun.h"
-#include "dataman/AMExporterOptionGeneralAscii.h"
+#include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "ui/AMStartScreen.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
 {
-	scanControllerActiveEditor_ = 0;
 }
 
 bool SGMAppController::startup() {
@@ -58,11 +57,11 @@ bool SGMAppController::startup() {
 	if(AMAppController::startup()) {
 		SGMBeamline::sgm();
 
-		AMDbObjectSupport::registerClass<MCPDetectorInfo>();
-		AMDbObjectSupport::registerClass<PGTDetectorInfo>();
-		AMDbObjectSupport::registerClass<OceanOptics65000DetectorInfo>();
-		AMDbObjectSupport::registerClass<SGMXASScanConfiguration>();
-		AMDbObjectSupport::registerClass<SGMFastScanConfiguration>();
+		AMDbObjectSupport::s()->registerClass<MCPDetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<PGTDetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<OceanOptics65000DetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
+		AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration>();
 
 		AMDetectorViewSupport::registerClass<AMSingleControlBriefDetectorView, AMSingleControlDetector>();
 		AMDetectorViewSupport::registerClass<MCPBriefDetectorView, MCPDetector>();
@@ -76,10 +75,10 @@ bool SGMAppController::startup() {
 		////////////////////////////////////////
 
 		AMRun existingRun;
-		if(!existingRun.loadFromDb(AMDatabase::userdb(), 1)) {
+		if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
 			// no run yet... let's create one.
 			AMRun firstRun("SGM", 3);	/// \todo For now, we know that 5 is the ID of the REIXS facility, but this is a hardcoded hack. See AMFirstTimeController::onFirstTime() for where the facilities are created.
-			firstRun.storeToDb(AMDatabase::userdb());
+			firstRun.storeToDb(AMDatabase::database("user"));
 			AMExporterOptionGeneralAscii *sgmDefault = new AMExporterOptionGeneralAscii();
 			sgmDefault->setName("SGMDefault");
 			sgmDefault->setFileName("$name_$exportIndex.txt");
@@ -102,7 +101,7 @@ bool SGMAppController::startup() {
 			sgmDefault->addDataSource("IPFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
 			sgmDefault->addDataSource("SDD", false, AMExporterOptionGeneral::SeparateFilesMode, false);
 			sgmDefault->setSeparateSectionFileName("$name_$dataSetName_$exportIndex.txt");
-			sgmDefault->storeToDb(AMDatabase::userdb());
+			sgmDefault->storeToDb(AMDatabase::database("user"));
 		}
 
 		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
@@ -170,6 +169,7 @@ bool SGMAppController::startup() {
 void SGMAppController::shutdown() {
 	// Make sure we release/clean-up the beamline interface
 	AMBeamline::releaseBl();
+	AMAppController::shutdown();
 }
 
 
@@ -182,7 +182,7 @@ void SGMAppController::onSGMBeamlineConnected(){
 		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
 		//sxsc->addRegion(0, 950, 1, 960);
 		double goodEnergy = 10 * floor(SGMBeamline::sgm()->energy()->value() / 10);
-		sxsc->addRegion(0, goodEnergy, 1, goodEnergy+10);
+		sxsc->addRegion(0, goodEnergy, 1, goodEnergy+10, 1);
 		xasScanConfigurationView_ = new SGMXASScanConfigurationView(sxsc);
 		xasScanConfigurationHolder_->setView(xasScanConfigurationView_);
 
@@ -193,98 +193,17 @@ void SGMAppController::onSGMBeamlineConnected(){
 }
 
 #include "dataman/AMScanEditorModelItem.h"
-#include "ui/AMGenericScanEditor.h"
+#include "ui/dataman/AMGenericScanEditor.h"
 
 void SGMAppController::onCurrentScanControllerCreated(){
 	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
 
-	/// \todo add user preference: should new scans open in a new window, or docked?
-	// mw_->undock(scanEditor);
-	// QPoint newPos;
-	// newPos.setX(scanEditor->pos().x()+100);
-	// newPos.setY(scanEditor->pos().y()+150);
-	// scanEditor->move(newPos);
 }
 
 void SGMAppController::onCurrentScanControllerDestroyed(){
-	scanControllerActiveEditor_ = 0;
 }
 
 void SGMAppController::onCurrentScanControllerStarted(){
-	AMGenericScanEditor *scanEditor = new AMGenericScanEditor();
-	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(scanEditor, ":/applications-science.png"));
-
-	scanEditor->addScan(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
-	mw_->setCurrentPane(scanEditor);
-
-	scanControllerActiveEditor_ = scanEditor;
+	openScanInEditorAndTakeOwnership(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
 }
 
-void SGMAppController::onCurrentScanControllerReinitialized(bool removeScan){
-	if(!scanControllerActiveEditor_) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -13, "Error while re-initializing the scan controller; there is no active scan editor window. This is a bug and you should report it to the Acquaman developers."));
-		return;
-	}
-
-	/* NTBA - August 25th, 2011 (David Chevrier)
-			How do you know that the last scan in this scan editor is the one to remove?
-			What if they've opened another scan since onCurrentScanControllerCreated()?"
-	*/
-	if(removeScan)
-		scanControllerActiveEditor_->removeScan(scanControllerActiveEditor_->scanAt(scanControllerActiveEditor_->scanCount()-1));
-
-	scanControllerActiveEditor_->addScan(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
-}
-
-
-#include "dataman/AMRunExperimentItems.h"
-#include "dataman/AMExperiment.h"
-
-void SGMAppController::onWindowPaneCloseButtonClicked(const QModelIndex& index) {
-
-	// is this a scan editor to be deleted?
-	/////////////////////////////////
-	if(mw_->windowPaneModel()->itemFromIndex(index.parent()) == scanEditorsParentItem_) {
-		AMGenericScanEditor* editor = qobject_cast<AMGenericScanEditor*>(index.data(AM::WidgetRole).value<QWidget*>());
-
-		if(!editor)
-			return;
-
-		/// \todo Move this functionality into the scan window itself. Also provide more usability... ask if they want to stop the scan
-		if(editor == scanControllerActiveEditor_) {
-			QMessageBox::information(editor, "Cannot close this window while acquiring", "A scan is still acquiring data inside this scan window.\n\nTo close it, stop the scan first.", QMessageBox::Ok);
-			return;
-		}
-
-		// delete all scans in the editor, and ask the user for confirmation. If they 'cancel' on any, give up here and don't close the window.
-		while(editor->scanCount()) {
-			if(!editor->deleteScanWithModifiedCheck(editor->scanAt(editor->scanCount()-1)))
-				return;
-		}
-		mw_->removePane(editor);
-		delete editor;
-	}
-
-	// is this an experiment asking to be deleted?
-	/// \todo bad code; improve this with better architecture and functionality in expItem.  Don't like trusting dynamic_cast; there's no guarantee that someone didn't put a non-AMExperimentModelItem into the model under experimentsParentItem_.
-	else if(mw_->windowPaneModel()->itemFromIndex(index.parent()) == experimentsParentItem_) {
-
-		AMExperimentModelItem* expItem = dynamic_cast<AMExperimentModelItem*>(mw_->windowPaneModel()->itemFromIndex(index));
-		if(!expItem)
-			return;
-
-		AMExperiment experiment(expItem->id(), expItem->database());
-
-		QMessageBox deleteConfirmation(mw_);
-		deleteConfirmation.setText(QString("Are you sure you want to delete the experiment '%1'?").arg(experiment.name()));
-		deleteConfirmation.setInformativeText("The scans in this experiment will remain, but they will no longer be associated with the experiment. You can't undo this action.");
-		deleteConfirmation.setIcon(QMessageBox::Question);
-		deleteConfirmation.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-		deleteConfirmation.setDefaultButton(QMessageBox::Ok);
-		deleteConfirmation.setEscapeButton(QMessageBox::Cancel);
-
-		if(deleteConfirmation.exec() == QMessageBox::Ok) {
-			AMExperiment::deleteExperiment(experiment.id(), expItem->database());
-		}
-	}
-}

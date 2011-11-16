@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
 
 	AMErrorMon::enableDebugNotifications(true);
 	// Load settings from disk:
-	AMSettings::load();
+	AMSettings::s()->load();
 	AMUserSettings::load();
 	// ensure user data folder and database are ready for use, if this is the first time the program is ever run.
 	if(!AMFirstTimeController::firstTimeCheck())
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
 	REIXSTest td;
 	retVal |= QTest::qExec(&td, argc, argv);
 
-	AMDatabase::releaseUserDb();
+	AMDatabase::deleteDatabase("user");
 
 	return retVal;
 }

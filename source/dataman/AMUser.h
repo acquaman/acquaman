@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMUSER_H
 #define AMUSER_H
 
-#include "dataman/AMDbObject.h"
+#include "dataman/database/AMDbObject.h"
 
 class AMUser : public AMDbObject
 {

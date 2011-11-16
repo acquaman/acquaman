@@ -25,13 +25,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 
 #include "dataman/AMSamplePlate.h"
-#include "ui/AMSamplePlateView.h"
+#include "ui/dataman/AMSamplePlateView.h"
 
 #include "acquaman/AMScanConfiguration.h"
-#include "beamline/AMBeamlineScanAction.h"
-//#include "beamline/AMBeamlineControlSetMoveAction.h"
-#include "beamline/AMBeamlineSamplePlateMoveAction.h"
-#include "beamline/AMBeamlineFiducializationMoveAction.h"
+#include "actions/AMBeamlineScanAction.h"
+//#include "actions/AMBeamlineControlSetMoveAction.h"
+#include "actions/AMBeamlineSamplePlateMoveAction.h"
+#include "actions/AMBeamlineFiducializationMoveAction.h"
 
 #include "beamline/AMBeamline.h"
 #include "ui/AMVerticalStackWidget.h"
@@ -74,7 +74,8 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	scrollArea->setWidget(workflowView_);
 	scrollArea->setWidgetResizable(true);
 
-	connect(AMBeamline::bl(), SIGNAL(beamlineScanningChanged(bool)), this, SLOT(reviewWorkflowStatus()));
+	/// \bug Github issue GH-193: reviewWorkflowStatus() is never called, because the beamline may not be initiated yet here. Removing the connection, since in this case it was doing nothing anyways.
+	// Removed: connect(AMBeamline::bl(), SIGNAL(beamlineScanningChanged(bool)), this, SLOT(reviewWorkflowStatus()));
 	connect(workflowQueue_, SIGNAL(isRunningChanged(bool)), this, SLOT(reviewWorkflowStatus()));
 	connect(workflowQueue_, SIGNAL(isEmptyChanged(bool)), this, SLOT(reviewWorkflowStatus()));
 
@@ -228,7 +229,10 @@ void AMWorkflowManagerView::onAddActionButtonClicked(){
 		samplePlateAddActionMenu_->addAction("<No Sample Plate Selected>");
 	addActionMenu_->addMenu(samplePlateAddActionMenu_);
 
-	QList<AMControlInfoList> fiducializations = AMBeamline::bl()->currentFiducializations();
+	QList<AMControlInfoList> fiducializations;
+	if(AMBeamline::bl())
+		fiducializations = AMBeamline::bl()->currentFiducializations();
+
 	if(fiducializations.count() > 0){
 		fiducializationMarkAddActionMenu_ = new QMenu();
 		fiducializationMarkAddActionMenu_->setTitle("Fiducialization Marks");
@@ -297,8 +301,8 @@ bool AMBeamlineActionsListView::swap(int indexOfFirst){
 	return retVal;
 }
 
-#include "beamline/AMBeamlineControlMoveAction.h"
-#include "beamline/AMBeamlineControlSetMoveAction.h"
+#include "actions/AMBeamlineControlMoveAction.h"
+#include "actions/AMBeamlineControlSetMoveAction.h"
 
 /// \bug What happens if the action at \c index has changed type? This assumes the subclass of view is correct for the subclass of actionItem
 /*NTBA April 21, 2011 David Chevrier
@@ -309,7 +313,7 @@ void AMBeamlineActionsListView::onActionChanged(int index){
 	((AMBeamlineActionItemView*)actionsViewList_->widget(index))->setAction(tmpItem);
 }
 
-#include "ui/AMDateTimeUtils.h"
+#include "util/AMDateTimeUtils.h"
 void AMBeamlineActionsListView::onActionAdded(int index){
 	AMBeamlineActionItem *tmpItem = actionsList_->action(index);
 	AMBeamlineActionItemView *tmpView = tmpItem->createView(index);

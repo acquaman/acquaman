@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define OCEANOPTICS65000DETECTOR_H
 
 #include "AMDetector.h"
-#include "dataman/OceanOptics65000DetectorInfo.h"
+#include "dataman/info/OceanOptics65000DetectorInfo.h"
 #include "AMControlSet.h"
 
 class OceanOptics65000Detector : public OceanOptics65000DetectorInfo, public AMDetector

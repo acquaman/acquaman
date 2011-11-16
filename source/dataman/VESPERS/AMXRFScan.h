@@ -40,8 +40,6 @@ public:
 	/// Constructor.  Creates a new XRF scan.
 	Q_INVOKABLE explicit AMXRFScan(QObject *parent = 0);
 
-	/// Re-implemented from AMScan.
-	virtual bool loadDataImplementation();
 };
 
 #endif // AMXRFSCAN_H

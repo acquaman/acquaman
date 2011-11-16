@@ -22,9 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "dataman/AMXASScan.h"
-#include "dataman/SGM2004FileLoader.h"
+#include "dataman/SGM/SGM2004FileLoader.h"
 #include "dataman/ALSBL8XASFileLoader.h"
-#include "ui/AMImportControllerWidget.h"
+#include "ui/dataman/AMImportControllerWidget.h"
 #include "util/AMErrorMonitor.h"
 
 #include <QDir>
@@ -295,7 +295,7 @@ void AMImportController::setupNextFile() {
 }
 
 #include <QMessageBox>
-#include "dataman/AMDatabase.h"
+#include "dataman/database/AMDatabase.h"
 
 void AMImportController::finalizeImport() {
 	// error loading:
@@ -350,7 +350,7 @@ void AMImportController::finalizeImport() {
 		}
 		else {
 
-			if( currentScan_->storeToDb(AMDatabase::userdb()) )
+			if( currentScan_->storeToDb(AMDatabase::database("user")) )
 				numSuccess_++;
 			else
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, "The file was loaded correctly, but it could not be saved to the database."));

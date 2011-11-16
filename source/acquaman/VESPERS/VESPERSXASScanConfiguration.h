@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define VESPERSXASSCANCONFIGURATION_H
 
 #include "acquaman/AMXASScanConfiguration.h"
+#include "dataman/info/AMROIInfo.h"
 
 #include  <QMap>
 
@@ -29,10 +30,18 @@ class VESPERSXASScanConfiguration : public AMXASScanConfiguration
 {
 	Q_OBJECT
 
-	Q_PROPERTY(int fluorescenceDetectorChoice READ fluorescenceDetectorChoice WRITE setFluorescenceDetectorChoice)
-	Q_PROPERTY(int transmissionChoice READ transmissionChoice WRITE setTransmissionChoice)
-	Q_PROPERTY(int incomingChoice READ incomingChoice WRITE setIncomingChoice)
-	Q_PROPERTY(double accumulationTime READ accumulationTime WRITE setAccumulationTime)
+	Q_PROPERTY(FluorescenceDetector fluorescenceDetectorChoice READ fluorescenceDetectorChoice WRITE setFluorescenceDetectorChoice)
+	Q_PROPERTY(IonChamber transmissionChoice READ transmissionChoice WRITE setTransmissionChoice)
+	Q_PROPERTY(IonChamber incomingChoice READ incomingChoice WRITE setIncomingChoice)
+	Q_PROPERTY(QString edge READ edge WRITE setEdge)
+	Q_PROPERTY(double edgeEnergy READ energy WRITE setEnergy)
+	Q_PROPERTY(bool goToPosition READ goToPosition WRITE setGoToPosition)
+	Q_PROPERTY(double xPosition READ x WRITE setX)
+	Q_PROPERTY(double yPosition READ y WRITE setY)
+	Q_PROPERTY(AMDbObject* roiInfoList READ dbGetROIInfoList WRITE dbLoadROIInfoList)
+
+	Q_ENUMS(FluorescenceDetector)
+	Q_ENUMS(IonChamber)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS XAS Scan Configuration")
 
@@ -66,15 +75,40 @@ public:
 	IonChamber transmissionChoice() const { return It_; }
 	/// Returns the current I0 ion chamber choice.
 	IonChamber incomingChoice() const { return I0_; }
-	/// Returns the current time for accumulation.
-	double accumulationTime() const { return time_; }
+	/// Returns the name of the current edge.
+	QString edge() const { return edge_; }
+	/// Returns the edge energy for the scan.
+	double energy() const { return energy_; }
+
+	/// Returns the scan should move to a new position before starting the scan.
+	bool goToPosition() const { return goToPosition_; }
+	/// Returns the position that the scan should move to.
+	QPair<double, double> position() const { return position_; }
+	/// Returns the x coordinate of the scan position.
+	double x() const { return position_.first; }
+	/// Returns the y coordinate of the scan position.
+	double y() const { return position_.second; }
 
 	/// Returns the ion chamber name from its corresponding enum.
 	QString ionChamberName(IonChamber chamber) { return ionChamberNames_.value(chamber); }
 
+	/// Returns the ROI list.  The list is empty if not using a fluorescence detector.
+	AMROIInfoList roiList() const { return roiInfoList_; }
+
+	/// Returns the AMControlInfo for the energy control.
+	AMControlInfo energyControlInfo() const { return regions_->defaultControl()->toInfo(); }
+	/// Returns the AMControlInfo for the time control.
+	AMControlInfo timeControlInfo() const { return regions_->defaultTimeControl()->toInfo(); }
+
+	// Database loading and storing
+	///////////////////////
+
+	/// The database reading member function.
+	AMDbObject *dbGetROIInfoList() { return &roiInfoList_; }
+	/// Don't need to do anything because dbGetROIList always returns a valid AMDbObject.
+	void dbLoadROIInfoList(AMDbObject *) {}
+
 public slots:
-	/// Adds a region to the XAS scan.  \param index is the region you are adding and \param start, \param delta, and \param end define the region.
-	virtual bool addRegion(int index, double start, double delta, double end) { return regions_->addRegion(index, start, delta, end); }
 
 	/// Sets the choice for the fluorescence detector.
 	void setFluorescenceDetectorChoice(FluorescenceDetector detector) { fluorescenceDetectorChoice_ = detector; setModified(true); }
@@ -88,8 +122,24 @@ public slots:
 	void setIncomingChoice(IonChamber I0) { I0_ = I0; setModified(true); }
 	/// Overloaded.  Used for database loading.
 	void setIncomingChoice(int I0) { setIncomingChoice((IonChamber)I0); }
-	/// Sets the accumulation time.
-	void setAccumulationTime(double time) { time_ = time; setModified(true); }
+	/// Sets the current edge for the scan.
+	void setEdge(QString edgeName) { edge_ = edgeName; setModified(true); }
+	/// Sets the edge energy.
+	void setEnergy(double edgeEnergy) { energy_ = edgeEnergy; setModified(true); }
+
+	/// Sets whether the scan should move to a new position before starting.
+	void setGoToPosition(bool state) { goToPosition_ = state; setModified(true); }
+	/// Sets the position the scan should move to before starting.
+	void setPosition(QPair<double, double> pos) { position_ = pos; setModified(true); }
+	/// Overloaded.  Takes the x and y position explicitly.
+	void setPosition(double xPos, double yPos) { setPosition(qMakePair(xPos, yPos)); }
+	/// Sets the x coordinate of the starting position of the scan.
+	void setX(double xPos) { position_.first = xPos; setModified(true); }
+	/// Sets the y coordinate of the starting position of the scan.
+	void setY(double yPos) { position_.second = yPos; setModified(true); }
+
+	/// Sets the ROI list.
+	void setRoiInfoList(const AMROIInfoList &list) { roiInfoList_ = list; setModified(true); }
 
 protected:
 	/// Fluorescence detector choice.
@@ -98,11 +148,22 @@ protected:
 	IonChamber It_;
 	/// I0 ion chamber choice.
 	IonChamber I0_;
-	/// The time for accumulation. \todo This will likely change to an array or something in the event of doing EXAFS.  Currently this is only meaningful for XANES.
-	double time_;
+
+	/// The edge being scanned.
+	QString edge_;
+	/// The edge energy for the scan.
+	double energy_;
+
+	/// Bool used to determine if the scan should go to a new location or stay wherever the current position is.
+	bool goToPosition_;
+	/// The position that the scan should go to when goToPosition_ is true.  \note Implementation detail: this currently assumes we are using the pseudomotor sample stage.
+	QPair<double, double> position_;
 
 	/// Mapping between Ion chambers and their names.
 	QMap<IonChamber, QString> ionChamberNames_;
+
+	/// The list holding all the current ROIs for the detector.
+	AMROIInfoList roiInfoList_;
 };
 
 #endif // VESPERSXASSCANCONFIGURATION_H

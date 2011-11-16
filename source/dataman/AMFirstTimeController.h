@@ -24,9 +24,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "util/AMErrorMonitor.h"
-#include <util/AMSettings.h>
-#include <dataman/AMDatabase.h>
-#include <ui/AMFirstTimeWidget.h>
+#include "util/AMSettings.h"
+#include "dataman/database/AMDatabase.h"
+#include "ui/dataman/AMFirstTimeWidget.h"
 
 
 
@@ -60,8 +60,8 @@ public:
 
 
 protected:
-	/// register the user database and all classes with the AMDbObject system. \c newUser is true if this is the very first time, and no user object exists yet.
-	static bool databaseInitialization(bool newUser) ;
+	/// register all standard database objects with the database system.
+	static void registerAllDatabaseClasses() ;
 
 
 };

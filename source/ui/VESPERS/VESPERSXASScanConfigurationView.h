@@ -21,17 +21,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERSXASSCANCONFIGURATIONVIEW_H
 #define VESPERSXASSCANCONFIGURATIONVIEW_H
 
-#include "ui/AMScanConfigurationView.h"
+#include "ui/acquaman/AMScanConfigurationView.h"
 
-#include "ui/AMXASRegionsView.h"
-#include "ui/AMRegionsLineView.h"
+#include "ui/acquaman/AMRegionsView.h"
+#include "ui/acquaman/AMRegionsLineView.h"
 #include "acquaman/VESPERS/VESPERSXASDacqScanController.h"
 #include "acquaman/VESPERS/VESPERSXASScanConfiguration.h"
-#include "beamline/VESPERS/VESPERSBeamline.h"
+#include "util/AMElement.h"
 
 #include <QLineEdit>
+#include <QTextEdit>
 #include <QButtonGroup>
 #include <QDoubleSpinBox>
+#include <QToolButton>
+#include <QComboBox>
 
 class VESPERSXASScanConfigurationView : public AMScanConfigurationView
 {
@@ -54,17 +57,25 @@ protected slots:
 	void onItClicked(int id);
 	/// Passes on the selection for I0 to the configuration.
 	void onI0Clicked(int id) { config_->setIncomingChoice(id); }
+	/// Handles changes to the fluorescence detector choice.
+	void onFluorescenceChoiceChanged(int id);
 	/// Sets the new energy.
-	void setEnergy() { VESPERSBeamline::vespers()->mono()->setEo(energy_->value()); }
-	/// Handles changes to the energy from outside the program.
-	void onEnergyChanged(double energy) { energy_->blockSignals(true); energy_->setValue(energy); energy_->blockSignals(false); }
+	void setEnergy() { config_->setEnergy(energy_->value()); }
+	/// Handles choosing a new element when the element button is clicked.
+	void onElementChoiceClicked();
+	/// Fills in the combo box with lines that can be scanned.
+	void fillLinesComboBox(AMElement *el);
+	/// Handles changes in the combo box index.
+	void onLinesComboBoxIndexChanged(int index);
+	/// Sets the current horizontal and vertical positions and saves them in the configuration.
+	void setScanPosition() { config_->setPosition(xPosition_->value(), yPosition_->value()); }
 
 protected:
 	/// Pointer to the specific scan config the view is modifying.
 	VESPERSXASScanConfiguration *config_;
 
 	/// This lets you setup regions.
-	AMXASRegionsView *regionsView_;
+	AMRegionsView *regionsView_;
 	/// Visual box that shows the current regions.
 	AMRegionsLineView *regionsLineView_;
 
@@ -72,11 +83,23 @@ protected:
 	QLineEdit *scanName_;
 	/// Double spin box for changing the energy.
 	QDoubleSpinBox *energy_;
+	/// Button used to choose an element to scan over.
+	QToolButton *elementChoice_;
+	/// The combo box that holds all the lines that can be chosen to scan over.
+	QComboBox *lineChoice_;
+
+	/// The spin box that holds the x coordinate for the scan position.
+	QDoubleSpinBox *xPosition_;
+	/// The spin box htat holds the y coordinate for the scan position.
+	QDoubleSpinBox *yPosition_;
 
 	/// Button group for the It ion chamber selection.
 	QButtonGroup *ItGroup_;
 	/// Button group for the I0 ion chamber selection.
 	QButtonGroup *I0Group_;
+
+	/// The text edit that holds all the names of the regions of interest.
+	QTextEdit *roiText_;
 };
 
 #endif // VESPERSXASSCANCONFIGURATIONVIEW_H

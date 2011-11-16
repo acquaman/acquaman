@@ -24,30 +24,40 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman.h"
 #include "beamline/AMPVNames.h"
 
-#include "dataman/AMDatabase.h"
+#include "dataman/database/AMDatabase.h"
 #include "dataman/AMFirstTimeController.h"
 #include "dataman/AMImportController.h"
 
-#include "dataman/AMExportController.h"
-#include "dataman/AMExporterGeneralAscii.h"
+#include "dataman/export/AMExportController.h"
+#include "dataman/export/AMExporterGeneralAscii.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
-#include "ui/BottomBar.h"
-#include "ui/AMDataViewWithActionButtons.h"
-#include "ui/AMRunExperimentInsert.h"
-#include "ui/AMGenericScanEditor.h"
+#include "ui/AMBottomBar.h"
+#include "ui/dataman/AMDataViewWithActionButtons.h"
+#include "ui/dataman/AMRunExperimentInsert.h"
+#include "ui/dataman/AMGenericScanEditor.h"
+#include "ui/util/AMSettingsView.h"
+
+#include "application/AMPluginsManager.h"
 
 #include "util/AMErrorMonitor.h"
 
 #include <QMenuBar>
 #include <QMessageBox>
 
+#include "util/AMSettings.h"
+#include "dataman/AMScan.h"
+
 AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	QObject(parent)
 {
 	isStarting_ = true;
 	isShuttingDown_ = false;
+
+	// shutdown is called automatically from the destructor if necessary, but Qt recommends that clean-up be handled in the aboutToQuit() signal. MS Windows doesn't always let the main function finish during logouts.
+	// HOWEVER, we're not doing this for now, since this change could cause some existing applications to crash on shutdown, because they're not ready for events to be delivered during their shutdown process.
+	// connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(shutdown()));
 }
 
 bool AMDatamanAppController::startup() {
@@ -55,20 +65,22 @@ bool AMDatamanAppController::startup() {
 	AMErrorMon::enableDebugNotifications(true);
 
 	// Load settings from disk:
-	AMSettings::load();
+	AMSettings::s()->load();
 	AMUserSettings::load();
 	AMPVNames::load();
+	// Load plugins:
+	AMPluginsManager::s()->loadApplicationPlugins();
 
 	// ensure user data folder and database are ready for use, if this is the first time the program is ever run.
 	if(!AMFirstTimeController::firstTimeCheck())
 		return false;
-
 	//Create the main tab window:
 	mw_ = new AMMainWindow();
 	mw_->setWindowTitle("Acquaman");
 	connect(mw_, SIGNAL(itemCloseButtonClicked(QModelIndex)), this, SLOT(onWindowPaneCloseButtonClicked(QModelIndex)));
+	mw_->installEventFilter(this);
 
-	bottomBar_ = new BottomBar();
+	bottomBar_ = new AMBottomBar();
 	mw_->addBottomWidget(bottomBar_);
 	connect(bottomBar_, SIGNAL(addButtonClicked()), this, SLOT(onAddButtonClicked()));
 
@@ -104,7 +116,7 @@ bool AMDatamanAppController::startup() {
 	dataViewItem->appendRow(experimentsParentItem_);
 
 	// Hook into the sidebar and add Run and Experiment links below these headings.
-	runExperimentInsert_ = new AMRunExperimentInsert(AMDatabase::userdb(), runsParentItem_, experimentsParentItem_, this);
+	runExperimentInsert_ = new AMRunExperimentInsert(AMDatabase::database("user"), runsParentItem_, experimentsParentItem_, this);
 	connect(runExperimentInsert_, SIGNAL(newExperimentAdded(QModelIndex)), this, SLOT(onNewExperimentAdded(QModelIndex)));
 
 	// connect the activated signal from the dataview to our own slot
@@ -137,6 +149,13 @@ bool AMDatamanAppController::startup() {
 	importAction->setStatusTip("Import outside data files into the library");
 	connect(importAction, SIGNAL(triggered()), this, SLOT(onActionImport()));
 
+	QAction* amSettingsAction = new QAction("Acquaman Settings", mw_);
+	amSettingsAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_S));
+	amSettingsAction->setStatusTip("View or Change Settings");
+	connect(amSettingsAction, SIGNAL(triggered()), this, SLOT(onActionSettings()));
+
+	settingsMasterView_ = 0; //NULL
+
 	//install menu bar, and add actions
 	//////////////////////////////////////
 #ifdef Q_WS_MAC
@@ -148,8 +167,7 @@ bool AMDatamanAppController::startup() {
 
 	fileMenu_ = menuBar_->addMenu("File");
 	fileMenu_->addAction(importAction);
-
-
+	fileMenu_->addAction(amSettingsAction);
 
 	// show main window
 	mw_->show();
@@ -175,7 +193,7 @@ void AMDatamanAppController::shutdown() {
 	delete mw_;
 
 	// Close down connection to the user Database
-	AMDatabase::releaseUserDb();
+	AMDatabase::deleteDatabase("user");
 
 
 }
@@ -185,6 +203,12 @@ void AMDatamanAppController::onActionImport() {
 
 	new AMImportController();
 
+}
+
+void AMDatamanAppController::onActionSettings(){
+	if(!settingsMasterView_)
+		settingsMasterView_ = new AMSettingsMasterView();
+	settingsMasterView_->show();
 }
 
 void AMDatamanAppController::onCurrentPaneChanged(QWidget *pane) {
@@ -214,7 +238,7 @@ void AMDatamanAppController::onAddButtonClicked() {
 
 	// For now, we simply create a new experiment. Later on, this could pop up a menu to create a new experiment, run, sample plate, whatever...
 	AMExperiment e("New Experiment");
-	e.storeToDb(AMDatabase::userdb());
+	e.storeToDb(AMDatabase::database("user"));
 }
 
 void AMDatamanAppController::onProgressUpdated(double elapsed, double total){
@@ -225,31 +249,25 @@ void AMDatamanAppController::onProgressUpdated(double elapsed, double total){
 
 void AMDatamanAppController::onDataViewItemsActivated(const QList<QUrl>& itemUrls) {
 
-	if(itemUrls.count() == 0)
-		return;
-
-	AMGenericScanEditor* editor = new AMGenericScanEditor();
-	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, ":/applications-science.png"));
-	mw_->setCurrentPane(editor);
-
-	editor->dropScanURLs(itemUrls);
+	dropScanURLs(itemUrls);
 }
 
 void AMDatamanAppController::onDataViewItemsActivatedSeparateWindows(const QList<QUrl> &itemUrls)
 {
-	AMGenericScanEditor* editor;
+	dropScanURLs(itemUrls, 0, true);
 
-	for(int i=0; i<itemUrls.count(); i++) {
-		QList<QUrl> singleUrl;
-		editor = new AMGenericScanEditor();
-		scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, ":/applications-science.png"));
+	//	AMGenericScanEditor* editor;
 
-		singleUrl << itemUrls.at(i);
-		editor->dropScanURLs(singleUrl);
-	}
+	//	for(int i=0; i<itemUrls.count(); i++) {
+	//		QList<QUrl> singleUrl;
+	//		editor = createNewScanEditor();
 
-	if(itemUrls.count())
-		mw_->setCurrentPane(editor);
+	//		singleUrl << itemUrls.at(i);
+	//		editor->dropScanURLs(singleUrl);
+	//	}
+
+	//	if(itemUrls.count())
+	//		mw_->setCurrentPane(editor);
 }
 
 #include "dataman/AMRunExperimentItems.h"
@@ -260,16 +278,7 @@ void AMDatamanAppController::onWindowPaneCloseButtonClicked(const QModelIndex& i
 	/////////////////////////////////
 	if(mw_->windowPaneModel()->itemFromIndex(index.parent()) == scanEditorsParentItem_) {
 		AMGenericScanEditor* editor = qobject_cast<AMGenericScanEditor*>(index.data(AM::WidgetRole).value<QWidget*>());
-
-		if(!editor)
-			return;
-
-		// delete all scans in the editor, and ask the user for confirmation. If they 'cancel' on any, give up here and don't close the window.
-		while(editor->scanCount()) {
-			if(!editor->deleteScanWithModifiedCheck(editor->scanAt(editor->scanCount()-1)))
-				return;
-		}
-		mw_->deletePane(editor);
+		closeScanEditor(editor);
 	}
 
 	// is this an experiment asking to be deleted?
@@ -296,8 +305,8 @@ void AMDatamanAppController::onWindowPaneCloseButtonClicked(const QModelIndex& i
 	}
 }
 
-#include "dataman/AMExportController.h"
-#include "ui/AMExportWizard.h"
+#include "dataman/export/AMExportController.h"
+#include "ui/dataman/AMExportWizard.h"
 
 void AMDatamanAppController::onDataViewItemsExported(const QList<QUrl> &itemUrls)
 {
@@ -308,3 +317,247 @@ void AMDatamanAppController::onDataViewItemsExported(const QList<QUrl> &itemUrls
 
 	Q_UNUSED(exportController)
 }
+
+int AMDatamanAppController::scanEditorCount() const
+{
+	return scanEditorsParentItem_->rowCount();
+}
+
+AMGenericScanEditor * AMDatamanAppController::scanEditorAt(int index) const
+{
+	if(index<0 || index>=scanEditorCount())
+		return 0;
+
+	return qobject_cast<AMGenericScanEditor*>(scanEditorsParentItem_->child(index)->data(AM::WidgetRole).value<QWidget*>()); // seriously...
+}
+
+bool AMDatamanAppController::closeScanEditor(int index)
+{
+	return closeScanEditor(scanEditorAt(index));
+}
+
+bool AMDatamanAppController::closeScanEditor(AMGenericScanEditor* editor)
+{
+	if(editor && editor->canCloseEditor()) {
+		mw_->deletePane(editor);
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+AMGenericScanEditor * AMDatamanAppController::createNewScanEditor()
+{
+	AMGenericScanEditor* editor = new AMGenericScanEditor();
+	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, this, ":/applications-science.png"));
+	return editor;
+}
+
+bool AMDatamanAppController::canCloseScanEditors() const
+{
+	//	bool canCloseEditors = true;
+	//	for(int i=0, count = scanEditorCount(); i<count; i++) {
+	//		AMGenericScanEditor* editor = scanEditorAt(i);
+	//		if(editor) canCloseEditors &= editor->canCloseEditor();
+	//	}
+	//	return canCloseEditors;
+
+	// Do we need to check all, or is it okay to stop as soon as we find one that doesn't allow closing?
+	for(int i=0, count = scanEditorCount(); i<count; i++) {
+		AMGenericScanEditor* editor = scanEditorAt(i);
+		if(editor) {
+			mw_->setCurrentPane(editor);
+			if(!editor->canCloseEditor())
+				return false;
+		}
+	}
+	return true;
+}
+
+//void AMDatamanAppController::processEventsFor(int ms)
+//{
+//	QTime t;
+//	t.start();
+//	while(t.elapsed() <ms) {
+//		qApp->sendPostedEvents();
+//		qApp->processEvents();
+//	}
+//}
+
+bool AMDatamanAppController::eventFilter(QObject* o, QEvent* e)
+{
+	if(o == mw_ && e->type() == QEvent::Close) {
+		if(!canCloseScanEditors()) {
+			e->ignore();
+			return true;
+		}
+		else {
+			// They got away with closing the main window. We should quit the application
+			qApp->quit();	//note that this might already be in progress, if an application quit was what triggered this close event.  No harm in asking twice...
+		}
+	}
+	// anything else, allow unfiltered
+	return QObject::eventFilter(o,e);
+}
+
+AMGenericScanEditor * AMDatamanAppController::isScanOpenForEditing(int id, AMDatabase *db)
+{
+	for(int i=0, editorCount=scanEditorCount(); i<editorCount; i++) {
+		AMGenericScanEditor* editor = scanEditorAt(i);
+		if(editor) {
+			for(int j=0, scanCount=editor->scanCount(); j<scanCount; j++) {
+				AMScan* scan = editor->scanAt(j);
+				if(scan->id() == id && scan->database() == db)
+					return editor;
+			}
+		}
+	}
+	return 0;
+}
+
+bool AMDatamanAppController::dropScanURLs(const QList<QUrl> &urls, AMGenericScanEditor *editor, bool openInIndividualEditors)
+{
+	if(	!urls.count() )
+		return false;
+
+	bool accepted = false;
+	bool madeNewEditor = false;
+
+	// where are they going?
+	if(openInIndividualEditors) {
+		editor = 0;	// create new one for each
+	}
+	else {
+		if(!editor) {
+			editor = createNewScanEditor();
+			madeNewEditor = true;
+		}
+	}
+
+	// loop through all URLs
+	foreach(QUrl url, urls) {
+		if(dropScanURL(url, editor))
+			accepted = true;
+	}
+
+	if(madeNewEditor) {	// if we made a single new editor for these...
+		if(accepted) {
+			mw_->setCurrentPane(editor);
+		}
+		else {
+			mw_->deletePane(editor);	// no need for this guy; he's empty.
+		}
+	}
+
+	return accepted;
+}
+
+#include "dataman/database/AMDbObjectSupport.h"
+
+bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *editor)
+{
+	// scheme correct?
+	if(url.scheme() != "amd") {
+		return false;
+	}
+
+	// Can we connect to the database?
+	AMDatabase* db = AMDatabase::database(url.host());
+	if(!db)
+		return false;
+	// \bug This does not verify that the incoming scans came from the user database. In fact, it happily accepts scans from other databases. Check if we assume anywhere inside AMGenericScanEditor that we're using the AMDatabase::database("user") database. (If we do, this could cause problems when multiple databases exist.)
+
+	QStringList path = url.path().split('/', QString::SkipEmptyParts);
+	if(path.count() != 2)
+		return false;
+
+	QString tableName = path.at(0);
+	bool idOkay;
+	int id = path.at(1).toInt(&idOkay);
+	if(!idOkay || id < 1)
+		return false;
+
+	// Only open scans for now (ie: things in the scans table)
+	if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
+		return false;
+
+	// Check if this scan is scanning... Use the currentlyScanning column stored in the database.
+	QVariant isScanning = db->retrieve(id, tableName, "currentlyScanning");
+	if(!isScanning.isValid())
+		return false;
+	if(isScanning.toBool()) {
+		QList<QVariant> nameAndNumber = db->retrieve(id, tableName, QStringList() << "name" << "number");
+		QMessageBox stillScanningEnquiry;
+		stillScanningEnquiry.setWindowTitle("This scan is still acquiring.");
+		stillScanningEnquiry.setText(QString("The scan '%1' (#%2) is currently still acquiring data, so you can't open multiple copies of it yet.")
+									 .arg(nameAndNumber.at(0).toString())
+									 .arg(nameAndNumber.at(1).toString()));
+		stillScanningEnquiry.setIcon(QMessageBox::Question);
+		QPushButton* showMeNowButton = stillScanningEnquiry.addButton("Show me the scan", QMessageBox::AcceptRole);
+		stillScanningEnquiry.addButton(QMessageBox::Cancel);
+		stillScanningEnquiry.setDefaultButton(showMeNowButton);
+		stillScanningEnquiry.exec();
+		if(stillScanningEnquiry.clickedButton() == showMeNowButton) {
+			AMGenericScanEditor* otherEditor = isScanOpenForEditing(id, db);
+			if(otherEditor)
+				mw_->setCurrentPane(otherEditor);
+			/// \todo What if we don't find it? What if a program crashed and left the currentlyScanning column set in the database? Should we have a way to override this?
+		}
+		return false;
+	}
+
+	// Check if this scan is already open
+	AMGenericScanEditor* otherEditor = isScanOpenForEditing(id, db);
+	if(otherEditor) {
+		QList<QVariant> nameAndNumber = db->retrieve(id, tableName, QStringList() << "name" << "number");
+		QMessageBox alreadyOpenEnquiry;
+		alreadyOpenEnquiry.setWindowTitle("This scan is already open.");
+		alreadyOpenEnquiry.setText(QString("A copy of the scan '%1' (#%2) is already open. Are you sure you want to open multiple copies of it?")
+								   .arg(nameAndNumber.at(0).toString())
+								   .arg(nameAndNumber.at(1).toString()));
+		alreadyOpenEnquiry.setInformativeText("If you open multiple copies of a scan, changes that you make in one view will not show up in the other view. Therefore, you should be careful to only save the version you want to keep.");
+		alreadyOpenEnquiry.setIcon(QMessageBox::Question);
+		QPushButton* showMeNowButton = alreadyOpenEnquiry.addButton("Show me the open scan", QMessageBox::NoRole);
+		QPushButton* openAgainButton = alreadyOpenEnquiry.addButton("Open another copy", QMessageBox::YesRole);
+		alreadyOpenEnquiry.addButton(QMessageBox::Cancel);
+		alreadyOpenEnquiry.setDefaultButton(showMeNowButton);
+		alreadyOpenEnquiry.exec();
+		if(alreadyOpenEnquiry.clickedButton() == openAgainButton) {
+			// do nothing... we'll proceed
+		}
+		else if(alreadyOpenEnquiry.clickedButton() == showMeNowButton) {
+			mw_->setCurrentPane(otherEditor);
+			return false;
+		}
+		else {
+			// user chose to cancel.
+			return false;
+		}
+	}
+
+	// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
+	AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
+	if(!dbo)
+		return false;
+
+	// Is it a scan?
+	AMScan* scan = qobject_cast<AMScan*>( dbo );
+	if(!scan) {
+		delete dbo;
+		return false;
+	}
+
+	// success!
+	if(!editor) {
+		editor = createNewScanEditor();
+	}
+	editor->addScan(scan);
+	return true;
+}
+
+
+
+
+
+

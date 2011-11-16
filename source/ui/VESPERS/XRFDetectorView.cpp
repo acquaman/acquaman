@@ -19,9 +19,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "XRFDetectorView.h"
-#include "DeadTimeButton.h"
+#include "VESPERSDeadTimeButton.h"
 #include "MPlot/MPlotAxisScale.h"
-#include "dataman/AMDataSourceSeriesData.h"
+#include "MPlot/MPlotTools.h"
+#include "dataman/datasource/AMDataSourceSeriesData.h"
 #include "util/AMPeriodicTable.h"
 #include "util/VESPERS/GeneralUtilities.h"
 
@@ -115,7 +116,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	showCombinationPileUpPeaks_ = false;
 
 	detector_ = static_cast<XRFDetector *>(detector);
-	connect(detector_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
+	connect(detector_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged(bool)));
 	connect(detector_, SIGNAL(addedRegionOfInterest(AMROIInfo)), this, SLOT(addRegionOfInterestMarker(AMROIInfo)));
 	connect(detector_, SIGNAL(removedRegionOfInterest(AMROIInfo)), this, SLOT(removeRegionOfInterestMarker(AMROIInfo)));
 	connect(detector_, SIGNAL(externalRegionsOfInterestChanged()), this, SLOT(onExternalRegionsOfInterestChanged()));
@@ -132,7 +133,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	connect(detector_, SIGNAL(deadTimeChanged()), this, SLOT(onDeadTimeUpdate()));
 
 	// Using a button group so I know which element I need to disable.
-	DeadTimeButton *temp;
+	VESPERSDeadTimeButton *temp;
 	deadTimeGroup_ = new QButtonGroup(this);
 	deadTimeGroup_->setExclusive(false);
 	QHBoxLayout *deadTimeLayout = new QHBoxLayout;
@@ -140,7 +141,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 
 	for (int i = 0; i < detector_->elements(); i++){
 
-		temp = new DeadTimeButton(30.0, 60.0);
+		temp = new VESPERSDeadTimeButton(30.0, 60.0);
 		temp->setCheckable(true);
 		temp->setFixedSize(20, 20);
 		deadTimeLayout->addWidget(temp);
@@ -202,7 +203,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	connect(waterfallButton_, SIGNAL(toggled(bool)), waterfallSeparation_, SLOT(setEnabled(bool)));
 
 	/// \todo Save button hack.  Once auto-export works, redo this if need be.
-	QPushButton *saveSpectraButton = new QPushButton(QIcon(":/Save.png"), "Save Spectra");
+	QPushButton *saveSpectraButton = new QPushButton(QIcon(":/save.png"), "Save Spectra");
 	connect(saveSpectraButton, SIGNAL(clicked()), this, SLOT(saveSpectra()));
 
 	QHBoxLayout *statusLayout = new QHBoxLayout;
@@ -246,13 +247,27 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	return true;
 }
 
+void XRFDetailedDetectorView::onConnectionChanged(bool isConnected)
+{
+	setEnabled(isConnected);
+
+	if (isConnected){
+
+		onStatusChanged(detector_->status());
+		onElapsedTimeUpdate(detector_->elapsedTime());
+		onDeadTimeUpdate();
+		onDeadTimeChanged();
+		onUpdateRateChanged((int)detector_->refreshRate());
+	}
+}
+
 void XRFDetailedDetectorView::onDeadTimeChanged()
 {
-	DeadTimeButton *temp;
+	VESPERSDeadTimeButton *temp;
 
 	for (int i = 0; i < detector_->elements(); i++){
 
-		temp = qobject_cast<DeadTimeButton *>(deadTimeGroup_->button(i));
+		temp = qobject_cast<VESPERSDeadTimeButton *>(deadTimeGroup_->button(i));
 		temp->setCurrent(detector_->deadTimeAt(i));
 	}
 }
@@ -260,7 +275,7 @@ void XRFDetailedDetectorView::onDeadTimeChanged()
 void XRFDetailedDetectorView::roiWidthUpdate(AMROI *roi)
 {
 	// Find the marker associated with the ROI and then change it.
-	ROIPlotMarker *temp;
+	MPlotMarkerTransparentVerticalRectangle *temp;
 
 	for (int i = 0; i < markers_.size(); i++){
 
@@ -325,13 +340,13 @@ void XRFDetailedDetectorView::onComboBoxUpdate(int index)
 	switch(index){
 
 	case 0:
-		detector_->setRefreshRate(XRFDetector::Passive);
+		detector_->setSpectraRefreshRate(XRFDetector::Passive);
 		break;
 	case 1:
-		detector_->setRefreshRate(XRFDetector::Slow);
+		detector_->setSpectraRefreshRate(XRFDetector::Slow);
 		break;
 	case 2:
-		detector_->setRefreshRate(XRFDetector::Fast);
+		detector_->setSpectraRefreshRate(XRFDetector::Fast);
 		break;
 	}
 }
@@ -452,7 +467,7 @@ void XRFDetailedDetectorView::addRegionOfInterestMarker(AMROIInfo info)
 	QString symbol = info.name().split(" ").first();
 	QString line = GeneralUtilities::addGreek(info.name().split(" ").last());
 
-	ROIPlotMarker *newMarker = new ROIPlotMarker(symbol+" "+line, info.energy(), info.low(), info.high());
+	MPlotMarkerTransparentVerticalRectangle *newMarker = new MPlotMarkerTransparentVerticalRectangle(symbol+" "+line, info.energy(), info.low(), info.high());
 	plot_->insertItem(newMarker);
 	newMarker->setYAxisTarget(plot_->axisScale(MPlot::VerticalRelative));
 	markers_ << newMarker;
@@ -461,7 +476,7 @@ void XRFDetailedDetectorView::addRegionOfInterestMarker(AMROIInfo info)
 void XRFDetailedDetectorView::removeRegionOfInterestMarker(AMROIInfo info)
 {
 	MPlotItem *removeMe = 0;
-	ROIPlotMarker *temp;
+	MPlotMarkerTransparentVerticalRectangle *temp;
 
 	for (int i = 0; i < markers_.size(); i++){
 
@@ -683,7 +698,7 @@ void XRFDetailedDetectorView::highlightMarkers()
 
 	if (highlightMarkers_){
 
-		ROIPlotMarker *temp;
+		MPlotMarkerTransparentVerticalRectangle *temp;
 
 		for (int i = 0; i < markers_.size(); i++){
 

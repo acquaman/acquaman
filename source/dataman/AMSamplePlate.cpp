@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMSamplePlate.h"
 #include "util/AMErrorMonitor.h"
-#include "ui/AMDateTimeUtils.h"
+#include "util/AMDateTimeUtils.h"
 
 #include "math.h"
 
@@ -220,7 +220,7 @@ bool AMSamplePlate::loadFromDb(AMDatabase *db, int id)
 //	for( int x = 0; x < sampleIDs_.count(); x++){
 //		tmpSample = new AMSample(this);
 //		tmpPosition = new AMControlInfoList(this);
-//		if( !tmpPosition->loadFromDb(AMDatabase::userdb(), positionIDs_.at(x)) ){
+//		if( !tmpPosition->loadFromDb(AMDatabase::database("user"), positionIDs_.at(x)) ){
 //			qDebug() << "Couldn't load sample plate positions at index " << x << ", CSI id = " << positionIDs_.at(x); /// \todo if this a production-possible error, use AMErrorMon::report()
 //			qDebug() << "  positionIDs_ was" << positionIDs_ << "count was" << positionIDs_.count();
 //			delete tmpSample;
@@ -228,7 +228,7 @@ bool AMSamplePlate::loadFromDb(AMDatabase *db, int id)
 //			emit samplePlateChanged(false);
 //			return false;
 //		}
-//		if( sampleIDs_.at(x) != 0 && !tmpSample->loadFromDb(AMDatabase::userdb(), sampleIDs_.at(x)) ){
+//		if( sampleIDs_.at(x) != 0 && !tmpSample->loadFromDb(AMDatabase::database("user"), sampleIDs_.at(x)) ){
 //			qDebug() << "Couldn't load sample plate sample at index " << x << ", Sample id = " << sampleIDs_.at(x);
 //			qDebug() << "  sampleIDs_ was" << sampleIDs_ << "count was " << sampleIDs_.count();
 //			delete tmpSample;

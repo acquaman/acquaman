@@ -93,5 +93,28 @@
         <file>16x16/brightness.png</file>
         <file>16x16/contrast.png</file>
         <file>16x16/gamma.png</file>
+        <file>black-laser.png</file>
+        <file>dark-lightning.png</file>
+        <file>FaucetIcon.png</file>
+        <file>greencheckmark.png</file>
+        <file>hammer.png</file>
+        <file>lightning.png</file>
+        <file>OFF.png</file>
+        <file>ON.png</file>
+        <file>play_button_green.png</file>
+        <file>PressureIcon.png</file>
+        <file>red-laser.png</file>
+        <file>red-stop-button.png</file>
+        <file>RED.png</file>
+        <file>reset.png</file>
+        <file>ThermometerIcon.png</file>
+        <file>trashcan.png</file>
+        <file>blue_arrows_left.png</file>
+        <file>blue_arrows_right.png</file>
+        <file>configure.png</file>
+        <file>lightbulb.png</file>
+        <file>stop.png</file>
+        <file>valveIcon.png</file>
+        <file>240x180/currentlyScanningThumbnail.png</file>
     </qresource>
 </RCC>

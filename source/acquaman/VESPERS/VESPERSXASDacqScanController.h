@@ -40,9 +40,6 @@ public:
 	/// \param cfg is the XAS configuration that the controller will run.
 	VESPERSXASDacqScanController(VESPERSXASScanConfiguration *cfg, QObject *parent = 0);
 
-	/// Returns the scan that this controller is scanning.
-	virtual AMScan *scan() { return xasScan_; }
-
 protected slots:
 	/// Slot that handles the successful initialization of the scan.
 	void onInitializationActionsSucceeded();
@@ -51,6 +48,9 @@ protected slots:
 	/// Slot that handles the initialization progress of the scan.
 	void onInitializationActionsProgress(double elapsed, double total);
 
+	// Re-implementing to change actual dwell times for the VESPERS Beamline
+	void onDwellTimeTriggerChanged(double newValue);
+
 protected:
 	/// Specific implementation of the scan initialization.
 	bool initializeImplementation();
@@ -58,6 +58,9 @@ protected:
 	bool startImplementation();
 
 	AMnDIndex toScanIndex(QMap<int, double> aeData);
+
+	/// Adds all the data sources that are still important but not visualized.
+	void addExtraDatasources();
 
 	/// Sets up the XAS scan based on no fluorescence detectors selected.
 	bool setupTransmissionXAS();
@@ -71,9 +74,9 @@ protected:
 
 	/// Pointer to the configuration used by this controller.
 	VESPERSXASScanConfiguration *config_;
-	/// Pointer to the scan used by this controller.
-	AMXASScan *xasScan_;
 
+	/// A counter holding the current region index being scanned.
+	int currentRegionIndex_;
 };
 
 #endif // VESPERSXASDACQSCANCONTROLLER_H

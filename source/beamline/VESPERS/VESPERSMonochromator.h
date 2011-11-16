@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 
 #include <beamline/AMControl.h>
-#include <beamline/AMBeamlineControlMoveAction.h>
+#include <actions/AMBeamlineControlMoveAction.h>
 
 /*!
   This class encapsulates the different PVs that make up the monochromator in the VESPERS beamline.  It provides an abstraction from the Mono Application that is

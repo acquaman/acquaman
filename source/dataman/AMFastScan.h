@@ -32,9 +32,6 @@ public:
 	/// create a new Fast scan with the following named \c detectors. Each "detector" is a source of a datapoint, that will be stored/logged, available as a column of raw data, and accessible through channel(s).
 	Q_INVOKABLE explicit AMFastScan(QObject *parent = 0);
 
-	/// Re-implemented from AMScan. Currently only the SGM2004 and ALS Bl8.0.1 file formats are supported.
-	virtual bool loadDataImplementation();
-
 	bool storeToDb(AMDatabase *db);
 
 public slots:
@@ -45,7 +42,6 @@ protected slots:
 protected:
 	QString autoExportFilePath_;
 	friend class SGM2010FastFileLoader;
-	friend class SGM2010FastSensibleFileLoader;
 };
 
 #endif // AMFASTSCAN_H

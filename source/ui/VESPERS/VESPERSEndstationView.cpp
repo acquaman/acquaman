@@ -20,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/VESPERS/VESPERSEndstationView.h"
 #include "ui/AMTopFrame.h"
+#include "ui/CLS/CLSSynchronizedDwellTimeView.h"
+#include "beamline/VESPERS/VESPERSBeamline.h"
 
 #include <QGridLayout>
 #include <QDebug>
@@ -102,7 +104,7 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	QGroupBox *controlGB = new QGroupBox;
 	controlGB->setObjectName("Control");
 	controlGB->setFixedSize(640, 400);
-	controlGB->setStyleSheet("QGroupBox#Control { background-image: url(:/Endstation-background.png); }");
+	controlGB->setStyleSheet("QGroupBox#Control { background-image: url(:/VESPERS/Endstation-background.png); }");
 	QGridLayout *controlGBLayout = new QGridLayout;
 	for (int i = 0; i < 20; i++){
 
@@ -153,32 +155,35 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	QPushButton *startMicroscopeButton = new QPushButton("Microscope Display");
 	connect(startMicroscopeButton, SIGNAL(clicked()), this, SLOT(startMicroscope()));
 
-	QHBoxLayout *extrasGroupBoxLayout = new QHBoxLayout;
+	QVBoxLayout *extrasGroupBoxLayout = new QVBoxLayout;
 	extrasGroupBoxLayout->addWidget(startMicroscopeButton);
 	extrasGroupBoxLayout->addWidget(resetPseudoMotorsButton);
 
-	QGroupBox *ExtrasGroupBox = new QGroupBox("Extras");
-	ExtrasGroupBox->setLayout(extrasGroupBoxLayout);
+	QGroupBox *extrasGroupBox = new QGroupBox("Extras");
+	extrasGroupBox->setLayout(extrasGroupBoxLayout);
 
-	QVBoxLayout *extrasLayout = new QVBoxLayout;
-	extrasLayout->addStretch();
-	extrasLayout->addWidget(ExtrasGroupBox);
-	extrasLayout->addWidget(windowGB);
-	extrasLayout->addWidget(ccdGB);
-	extrasLayout->addStretch();
+	CLSSynchronizedDwellTimeView *dwellTimeView = new CLSSynchronizedDwellTimeView(VESPERSBeamline::vespers()->synchronizedDwellTime());
 
-	QHBoxLayout *layout = new QHBoxLayout;
-	layout->addStretch();
-	layout->addWidget(controlGB);
-	layout->addLayout(extrasLayout);
-	layout->addStretch();
+	QGridLayout *endstationLayout = new QGridLayout;
+	endstationLayout->addWidget(controlGB, 0, 0, 3, 3);
+	endstationLayout->addWidget(windowGB, 0, 3);
+	endstationLayout->addWidget(dwellTimeView, 3, 0);
+	endstationLayout->addWidget(ccdGB, 2, 3);
+	endstationLayout->addWidget(extrasGroupBox, 1, 3);
+
+	QHBoxLayout *squishLayout = new QHBoxLayout;
+	squishLayout->addStretch();
+	squishLayout->addLayout(endstationLayout);
+	squishLayout->addStretch();
 
 	QVBoxLayout *masterLayout = new QVBoxLayout;
 	masterLayout->addWidget(topFrame);
-	masterLayout->addLayout(layout);
+	masterLayout->addStretch();
+	masterLayout->addLayout(squishLayout);
+	masterLayout->addStretch();
 
 	setLayout(masterLayout);
-	setMinimumSize(1000, 465);
+	setMinimumSize(1100, 465);
 }
 
 VESPERSEndstationView::~VESPERSEndstationView()
@@ -352,7 +357,7 @@ VESPERSEndstationConfigurationView::VESPERSEndstationConfigurationView(QWidget *
 	vortex4Layout->addRow("Home Position", vortex4HomeLayout);
 	vortex4GB->setLayout(vortex4Layout);
 
-	QPushButton *saveButton = new QPushButton(QIcon(":/Save.png"), tr("Save"));
+	QPushButton *saveButton = new QPushButton(QIcon(":/save.png"), tr("Save"));
 	connect(saveButton, SIGNAL(clicked()), this, SLOT(saveFile()));
 	QHBoxLayout *saveButtonLayout = new QHBoxLayout;
 	saveButtonLayout->addWidget(saveButton, 0, Qt::AlignRight);

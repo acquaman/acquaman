@@ -27,15 +27,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QModelIndex>
 
 class AMMainWindow;
-class BottomBar;
+class AMBottomBar;
 class AMDataViewWithActionButtons;
 class AMRunExperimentInsert;
 class AMGenericScanEditor;
-
+class AMSettingsMasterView;
 
 class QMenuBar;
 class QMenu;
 class QStandardItem;
+
+class AMDatabase;
 
 /// This class takes the role of the main application controller for your particular version of the Acquaman program. It marshalls communication between separate widgets/objects, handles menus and menu actions, and all other cross-cutting issues that don't reside within a specific view or controller.  It creates and knows about all top-level GUI objects, and manages them within an AMMainWindow.
 /// This is the bare bones version of the GUI framework because it has no acquisition code inside and therefore forms the basis of a take home Dataman program for users.  It contains the ability to scan through the database, create experiments, and view scans using the scan editor.
@@ -55,12 +57,18 @@ public:
 	/// This destructor automatically calls shutdown() if required. (ie: if startup() has run successfully, and shutdown() hasn't been called yet.)
 	virtual ~AMDatamanAppController();
 
+	// 1. Lifecycle control
+	//////////////////////////////
+public slots:
 	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
 	virtual bool startup();
 
 	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
 	virtual void shutdown();
 
+	// 2. Lifecycle status
+	//////////////////////////
+public:
 	/// Returns true when the application is starting up (ie: true prior to startup() finishing successfully, false afterwards)
 	bool isStarting() { return isStarting_; }
 	/// Returns true when the application is in the process of shutting down (ie: as soon as shutdown() has been called)
@@ -68,17 +76,61 @@ public:
 	/// Returns true when the application is running normally (ie: after startup() finishes succesfully, and before shutdown() is called)
 	bool isRunning() { return isStarting_ == false && isShuttingDown_ == false; }
 
+
+	// 3.  Convenience functions to access the open scan editors
+	///////////////////////
+
+	/// Number of scan editors currently open
+	int scanEditorCount() const;
+	/// Access a scan editor
+	AMGenericScanEditor* scanEditorAt(int index) const;
+	/// Close a scan editor. Returns false if can't be closed.
+	bool closeScanEditor(int index);
+	/// Close a scan editor. Returns false if can't be closed.
+	bool closeScanEditor(AMGenericScanEditor* editor);
+	/// Create and add a new scan editor. Returns the new scan editor
+	AMGenericScanEditor* createNewScanEditor();
+
+	/// If a scan with this \c id and \c database are currently open, returns the editor that has it open. Otherwise returns 0.
+	AMGenericScanEditor* isScanOpenForEditing(int id, AMDatabase* db);
+
+
 signals:
 
 public slots:
+	/// Open a list of scans, specified by a database URL, in the given \c editor. (If \c editor is 0, a new editor will be opened.)  The scans are checked to make sure that they're not already open, and that they're not still scanning somewhere else.
+	/*! To open each scan in a new editor, set \c openInIndividualEditors to true. (The \c editor value will be ignored in this case.)
+
+Returns true if at least one scan was opened successfully.
+
+The Drag is accepted when:
+
+	  - Drag Action = Qt::CopyAction
+	  - One of the MIME types is "text/uri-list"... format is "amd://databaseConnectionName/tableName/id"
+	  - There is at least one URL in the uri-list
+	  - The URL scheme is "amd://"
+	  - The database connection name returns a valid database, according to AMDatabase::dbByName(connectionName)
+	  - The table is the main Objects table
+	  - The id of the item can be found in the table
+	  */
+	bool dropScanURLs(const QList<QUrl>& urls, AMGenericScanEditor* editor = 0, bool openInIndividualEditors = false);
+	/// Open a scan specified by a database URL, in the given \c editor. (If \c editor is 0, a new editor will be opened.)  The scans are checked to make sure that they're not already open, and that they're not still scanning somewhere else. Returns true if the scan was opened successfully.
+	bool dropScanURL(const QUrl& url, AMGenericScanEditor* editor = 0);
+
+
 	/// Calling this slot activates the Import Data wizard.
 	void onActionImport();
+
+	/// Calling this slot activates the Settings View
+	void onActionSettings();
 
 	/// this slot is called when the "add something" button is pushed. For now, it just creates a new experiment. This could be expanded to a drop-down menu that offers creating a new experiment, a new scan, a new run...
 	void onAddButtonClicked();
 
 	/// Calling this updates the master progress bar
 	void onProgressUpdated(double elapsed, double total);
+
+
 
 
 protected slots:
@@ -111,6 +163,17 @@ protected slots:
 	/// This is called when the user clicks any of the available "close" buttons in the main window's sidebar. For now, this could involve closing a scan editor window, or deleting an experiment.
 	virtual void onWindowPaneCloseButtonClicked(const QModelIndex& index);
 
+protected:
+	/// Helper function to go through all the scan editors and see if we can close all of them.
+	bool canCloseScanEditors() const;
+
+	/// Filters the close-event from the main window, to catch anything we need to check before closing the window.
+	bool eventFilter(QObject *, QEvent *);
+
+//	/// Helper function to process all events for \c ms milliseconds, but stay in the calling function.
+//	void processEventsFor(int ms);
+
+
 
 
 
@@ -123,17 +186,18 @@ protected:
 	QMenu* fileMenu_;
 
 	/// Top-level panes in the main window
-	BottomBar* bottomBar_;
+	AMBottomBar* bottomBar_;
 	AMDataViewWithActionButtons* dataView_;
 	AMRunExperimentInsert* runExperimentInsert_;
 
+	/// Persistent view for AMSettings
+	AMSettingsMasterView *settingsMasterView_;
 
 	/// The parent item for all runs and experiments we'll place in the window pane model
 	QStandardItem* runsParentItem_, *experimentsParentItem_;
 
-	/// The parent item of all scan editors we'll placed in the window pane model.
+	/// The parent item of all scan editors we'll place in the window pane model.
 	QStandardItem* scanEditorsParentItem_;
-
 
 	/// Application state:
 	bool isStarting_, isShuttingDown_;

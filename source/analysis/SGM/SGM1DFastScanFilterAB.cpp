@@ -126,9 +126,15 @@ AMNumber SGM1DFastScanFilterAB::value(const AMnDIndex& indexes, bool doBoundsChe
 	}
 	return runningAverage/((double)numAvgPoints);
 	*/
+
+	return AMNumber(27.27);
 }
 
+/* NTBA - August 29, 2011 (David Chevrier)
+   This Q_UNUSED probably needs to be fixed.
+  */
 AMNumber SGM1DFastScanFilterAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const{
+	Q_UNUSED(doBoundsChecking)
 
 	if(!isValid() || cacheCompletelyInvalid_)
 		return AMNumber(AMNumber::InvalidError);
