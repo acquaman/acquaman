@@ -4,8 +4,10 @@
 # ####################################################################
 
 # Video Support: Remove this line if you do not have the multimedia module from QtMobility
-
 #CONFIG += mobility
+
+# Debug:
+CONFIG += debug
 
 # Automatically determines a user's home folder
 HOME_FOLDER = $$system(echo $HOME)
