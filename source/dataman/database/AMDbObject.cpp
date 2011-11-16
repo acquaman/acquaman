@@ -289,6 +289,7 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 	// Thumbnail save
 	///////////////////////////////////////////
 
+	// // SSSSSSSSSSSSSSlow?
 	if(thumbnailCount() > 0)
 		QtConcurrent::run(&AMDbObject::updateThumbnails, db, id_, myInfo->tableName);
 
