@@ -120,6 +120,8 @@ void AMExporter::loadKeywordReplacementDictionary()
 	keywordDictionary_.insert("dataSetAxisUnits", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDataSourceAxisUnits));
 
 	keywordDictionary_.insert("exportIndex", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krExporterAutoIncrement));
+
+	keywordDictionary_.insert("fsIndex", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krFileSystemAutoIncrement));
 }
 
 
@@ -552,7 +554,9 @@ QString AMExporter::krExporterAutoIncrement(const QString &arg){
 	return QString("%1").arg(autoIndex_);
 }
 
+QString AMExporter::krFileSystemAutoIncrement(const QString &arg)
+{
+	Q_UNUSED(arg)
 
-
-
-
+	return QString("Wesley");
+}

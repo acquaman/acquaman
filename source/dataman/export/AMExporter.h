@@ -168,6 +168,8 @@ protected:
 
 	QString krExporterAutoIncrement(const QString& arg = QString());
 
+	QString krFileSystemAutoIncrement(const QString &arg = QString());
+
 };
 
 #endif // AMEXPORTER_H
