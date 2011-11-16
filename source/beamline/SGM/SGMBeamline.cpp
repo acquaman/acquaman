@@ -1661,7 +1661,7 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 		}
 		//TOM THIS IS STEP 4.12
 		else if(!ringCurrentDetector_ && ctrlSet->name() == "Ring Current Controls"){
-			ringCurrentDetector_ = new AMSingleControlDetector(ringCurrent_->name(), ringCurrent_, AMDetector::WaitRead, this);
+			ringCurrentDetector_ = new AMSingleControlDetector(ringCurrent_->name(), ringCurrent_, AMDetector::ImmediateRead, this);
 			ringCurrentDetector_->setDescription(ringCurrent_->description());
 			allDetectors_->addDetector(ringCurrentDetector_);    // This adds it to the list of all known detectors
 			feedbackDetectors_->addDetector(ringCurrentDetector_); // This adds it to the list of detectors we use in every XAS Scan by default
