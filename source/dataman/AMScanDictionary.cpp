@@ -62,9 +62,11 @@ void AMScanDictionary::loadKeywordReplacementDictionaryImplementation()
 
 #include <inttypes.h>
 void AMScanDictionary::operateImplementation(const QString &input){
-	if(operatingOnName())
+	if(operatingOnName()){
+
 		if(scan_->name() != input)
 			scan_->setName(input);
+	}
 	else if(operatingOnExportName()){
 
 	}
