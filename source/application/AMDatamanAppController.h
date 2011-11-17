@@ -62,17 +62,21 @@ public:
 public slots:
 	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does, or ensure all base-class functionality is covered:
 	/*!
-	  1) Load AMSettings and AMUserSettings.
-	  2) Load Plugins (using the plugin folder paths in AMSettings)
-	  3) Check if this is the first time a user runs Acquaman (ie: no user database found)
-	  3.1) If no database, prompt for basic new user information and create+open one
-	  3.2) If there is a database, open it and check if substantial upgrades are required
-	  4) Register the user database and database classes with the AMDbObject system
-	  5.1) If this is a new database, give a chance to initialize its contents (ex: storing the AMUser, creating facilities, etc.)
-	  5.2) If this is an existing database, give a chance to retrieve information from it into memory (ex: AMUser() object)
-	  6) Register exporters (\todo Move to plugin system one day?)
-	  7) Create main window and setup connections
-	  8) Install QActions in the menu bar
+	  0) startupBeforeAnything(): Can be overloaded to add anything prior to startup
+	  1) startupLoadSettings(): Load AMSettings and AMUserSettings.
+	  2) startupLoadPlugins(): Load Plugins (using the plugin folder paths in AMSettings)
+	  3) startupIsFirstTime(): Check if this is the first time a user runs Acquaman (ie: no user database found)
+	  3.1) startupOnFirstTime(): If no database, prompt for basic new user information and create+open one
+	  3.2) startupOnEveryTime(): If there is a database, open it and check if substantial upgrades are required
+	  4) startupRegisterDatabases(): Register the user database and database classes with the AMDbObject system
+	  5.1) startupPopulateNewDatabase(): If this is a new database, give a chance to initialize its contents (ex: storing the AMUser, creating facilities, etc.)
+	  5.2) startupLoadFromExistingDatabase(): If this is an existing database, give a chance to retrieve information from it into memory (ex: AMUser() object)
+	  6) startupRegisterExporters(): Register exporters (\todo Move to plugin system one day?)
+	  7) startupBeforeUserInterface(): Can be overloaded to add anything prior to creating the user interface.
+	  8) startupCreateUserInterface(): Create main window and setup connections. Can overload and call base implementation first if you want to add anything.
+	  9) startupAfterUserInterface(): Can be overloaded to add anything after creating the user interface.
+	  10) startupInstallActions(): Install QActions in the menu bar
+	  11) startupAfterEverything():
 
 	  All of these components are in separate virtual functions, so that they may be overriden individually.
 	  */
@@ -81,17 +85,12 @@ public slots:
 	virtual bool startupLoadSettings();
 	virtual bool startupLoadPlugins();
 	virtual bool startupIsFirstTime();
-		/// Run on first time only:
-		virtual bool startupOnFirstTime();
-		/// Run on every time except the first time:
-		virtual bool startupOnEveryTime();
-		/// Run every time except the first time, to see if non-trivial database upgrades are necessary
-		virtual bool startupDatabaseUpgrades();
+		virtual bool startupOnFirstTime(); ///< Run on first time only
+		virtual bool startupOnEveryTime(); ///< Run on every time except the first time
+		virtual bool startupDatabaseUpgrades(); ///< Run every time except the first time, to see if non-trivial database upgrades are necessary
 	virtual bool startupRegisterDatabases();
-		/// Run on first time only
-		virtual bool startupPopulateNewDatabase();
-		/// Run on every time except the first time
-		virtual bool startupLoadFromExistingDatabase();
+		virtual bool startupPopulateNewDatabase(); ///< Run on first time only
+		virtual bool startupLoadFromExistingDatabase(); ///< Run on every time except the first time
 	virtual bool startupRegisterExporters();
 	virtual bool startupBeforeUserInterface()  { return true; }
 	virtual bool startupCreateUserInterface();
