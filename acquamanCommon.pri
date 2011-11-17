@@ -248,7 +248,6 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/dataman/database/AMDbObject.h \
 	source/dataman/info/AMDetectorInfo.h \
 	source/dataman/AMExperiment.h \
-	source/dataman/AMFirstTimeController.h \
 	source/dataman/AMImportController.h \
 	source/dataman/AMRun.h \
 	source/dataman/AMSample.h \
@@ -524,7 +523,6 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/dataman/database/AMDbObject.cpp \
 	source/dataman/info/AMDetectorInfo.cpp \
 	source/dataman/AMExperiment.cpp \
-	source/dataman/AMFirstTimeController.cpp \
 	source/dataman/AMImportController.cpp \
 	source/dataman/AMRun.cpp \
 	source/dataman/AMSample.cpp \

@@ -29,9 +29,9 @@ AMAppController::AMAppController(QObject *parent)
 {
 }
 
-bool AMAppController::startup() {
+bool AMAppController::startupCreateUserInterface() {
 
-	if (AMDatamanAppController::startup()){
+	if (AMDatamanAppController::startupCreateUserInterface()){
 		// a heading for the workflow manager...
 		workflowManagerView_ = new AMWorkflowManagerView();
 		mw_->insertHeading("Experiment Tools", 1);
@@ -48,10 +48,7 @@ AMAppController::~AMAppController() {
 
 }
 
-void AMAppController::shutdown() {
 
-	AMDatamanAppController::shutdown();
-}
 
 void AMAppController::goToWorkflow() {
 	mw_->setCurrentPane(workflowManagerView_);

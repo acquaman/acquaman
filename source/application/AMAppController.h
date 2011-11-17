@@ -39,11 +39,10 @@ public:
 	/// This destructor automatically calls shutdown() if required. (ie: if startup() has run successfully, and shutdown() hasn't been called yet.)
 	virtual ~AMAppController();
 
-	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
-	virtual bool startup();
+	/// Re-implemented from AMDatamanAppController to add the workflow pane
+	virtual bool startupCreateUserInterface();
 
-	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
-	virtual void shutdown();
+	// Not re-implemented: virtual void shutdown();
 
 signals:
 

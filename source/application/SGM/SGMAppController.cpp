@@ -77,7 +77,7 @@ bool SGMAppController::startup() {
 		AMRun existingRun;
 		if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
 			// no run yet... let's create one.
-			AMRun firstRun("SGM", 3);	/// \todo For now, we know that 5 is the ID of the REIXS facility, but this is a hardcoded hack. See AMFirstTimeController::onFirstTime() for where the facilities are created.
+			AMRun firstRun("SGM", 3);	/// \todo For now, we know that 5 is the ID of the REIXS facility, but this is a hardcoded hack.
 			firstRun.storeToDb(AMDatabase::database("user"));
 			AMExporterOptionGeneralAscii *sgmDefault = new AMExporterOptionGeneralAscii();
 			sgmDefault->setName("SGMDefault");
