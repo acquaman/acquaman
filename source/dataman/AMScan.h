@@ -289,15 +289,7 @@ public:
 	////////////////////////////////
 
 	/// This is an arbitrary decision, but let's define it like this (for usability): If we have any analyzed data sources, we have a thumbnail for each analyzed data source. Otherwise, rather than showing nothing, we have a thumbnail for each raw data source.  Unless we are currently scanning, in which case we just have one (which visually indicates this).
-	int thumbnailCount() const {
-		if(currentlyScanning())
-			return 1;
-
-		if(analyzedDataSources_.count())
-			return analyzedDataSources_.count();
-		else
-			return rawDataSources_.count();
-	}
+	int thumbnailCount() const;
 
 	/// Return a thumbnail picture of the data sources. If we have any analyzed data sources, we have a thumbnail for each analyzed data source. Otherwise, rather than showing nothing, we have a thumbnail for each raw data source.  Unless we are currently scanning, in which case we just have one (which visually indicates this).
 	AMDbThumbnail thumbnail(int index) const;

@@ -289,6 +289,7 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 	// Thumbnail save
 	///////////////////////////////////////////
 
+	// // SSSSSSSSSSSSSSlow?
 	if(thumbnailCount() > 0)
 		QtConcurrent::run(&AMDbObject::updateThumbnails, db, id_, myInfo->tableName);
 
@@ -494,6 +495,8 @@ void AMDbObject::dissociateFromDb(bool shouldDissociateChildren)
 }
 
 void AMDbObject::updateThumbnails(AMDatabase *db, int id, const QString& dbTableName) {
+
+	qDebug() << "Running thumbnail save in other thread..." << db->connectionName() << id << dbTableName;
 
 	// Step 1: try to load the object.
 	AMDbObject* object = AMDbObjectSupport::s()->createAndLoadObjectAt(db, dbTableName, id);

@@ -4,8 +4,10 @@
 # ####################################################################
 
 # Video Support: Remove this line if you do not have the multimedia module from QtMobility
+#CONFIG += mobility
 
-# CONFIG += mobility
+# Debug:
+CONFIG += debug
 
 # Automatically determines a user's home folder
 HOME_FOLDER = $$system(echo $HOME)
@@ -83,7 +85,7 @@ linux-g++-32 {
 linux-g++-64 {
 
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = Sandbox/Acquaman2011/dev
+		DEV_PATH = dev
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = /home/epics/src/R3.14.12/base/include \
@@ -120,9 +122,9 @@ CONFIG(jenkins_build) {
 
 QT += core gui sql opengl
 
-# video using Multimedia module from QtMobility, if we have it. (This will only be activated if you set the CONFIG += mobility line at the top of this file)
+# video using Multimedia module from QtMobility, if we have it
 CONFIG(mobility) {
-		MOBILITY += multimedia
+	MOBILITY += multimedia
 }
 
 DESTDIR = build

@@ -147,7 +147,7 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 
 	if (usingVortex)
 		spectra.close();
-
+	qDebug() << "Uh...";
 	return true;
 }
 
