@@ -74,6 +74,7 @@ bool AMExporter::openFile(QFile* file, const QString& filePath) {
 }
 
 QString AMExporter::parseKeywordString(const QString &inputString) {
+	currentlyParsing_ = inputString;
 	keywordParser_->setInitialText(inputString);
 	keywordParser_->replaceAllUsingDictionary(keywordDictionary_);
 	return keywordParser_->getReplacedText();
@@ -555,6 +556,7 @@ QString AMExporter::krExporterAutoIncrement(const QString &arg){
 }
 
 #include <QDir>
+#include <QRegExp>
 QString AMExporter::krFileSystemAutoIncrement(const QString &arg)
 {
 	Q_UNUSED(arg)
@@ -565,25 +567,24 @@ QString AMExporter::krFileSystemAutoIncrement(const QString &arg)
 	if (!currentScan_->scanConfiguration())
 		return "[??]";
 
-	QString newName = filename_;
+	QString newName = currentlyParsing_;
+	newName = newName.mid(newName.lastIndexOf("/")+1);
 
-	for (int i = 0; i < keywordParser_->replacementList().size()-1; i++)
-		newName.replace(keywordParser_->replacementList().at(i).tag, keywordParser_->replacementList().at(i).replacement);
+	for (int i = 0; i < keywordParser_->replacementList().size(); i++)
+		if (keywordParser_->replacementList().at(i).tag != "fsIndex")
+			newName.replace(keywordParser_->replacementList().at(i).tag, keywordParser_->replacementList().at(i).replacement);
 
 	newName.replace("$fsIndex", "*");
 
 	for (int i = 0; i < newName.count("$"); i++)
 		newName.replace("$", "");
 
-	// This is the right code, but using a different path for testing.
+	// The following line of code is the correct code, but using a different path for testing.
 	//QDir dir(destinationFolderPath_);
 	QDir dir("/Users/darrenhunter/dev/export test");
 	dir.setNameFilters(QStringList() << newName);
+	newName.replace("*", "[\\d{0,4}]\\");
+	QStringList filtered = dir.entryList().filter(QRegExp(newName));
 
-	QStringList files(dir.entryList());
-
-	for (int i = 0; i < files.size(); i++)
-		qDebug() << files.at(i);
-
-	return "0";
+	return QString::number(filtered.size());
 }

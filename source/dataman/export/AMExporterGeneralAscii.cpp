@@ -73,6 +73,7 @@ QString AMExporterGeneralAscii::exportScan(const AMScan *scan, const QString &de
 	setCurrentAutoIndex(autoIndex);
 	setCurrentFilename(option->fileName());
 	setDestinationFolderPath(destinationFolderPath);
+
 	// prepare scan and option
 	setCurrentScan(scan);
 	option_ = qobject_cast<const AMExporterOptionGeneralAscii*>(option);
