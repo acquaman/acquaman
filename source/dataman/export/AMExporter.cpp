@@ -592,7 +592,7 @@ QString AMExporter::krFileSystemAutoIncrement(const QString &arg)
 	dir.setNameFilters(QStringList() << QString(finalTest).replace("*", QString::number(filtered.size())));
 
 	while (!dir.entryList().isEmpty())
-		dir.setNameFilters(QStringList() << QString(finalTest).replace("*", QString::number(filtered.size()+incr++)));
+		dir.setNameFilters(QStringList() << QString(finalTest).replace("*", QString::number(filtered.size()+(++incr))));
 
 	return QString::number(filtered.size()+incr);
 }
