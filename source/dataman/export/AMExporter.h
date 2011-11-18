@@ -118,6 +118,13 @@ protected:
 	void setCurrentAutoIndex(int autoIndex) { autoIndex_ = autoIndex; }
 	int autoIndex_;
 
+	/// Helper function: So that Darren doesn't go crazy.  Also returns the filename.
+	void setCurrentFilename(const QString &name) { filename_ = name; }
+	QString filename_;
+
+	/// Helper function: So that Darren AND Dave don't go crazy.  Also returns the destination folder path.
+	void setDestinationFolderPath(const QString &path) { destinationFolderPath_ = path; }
+	QString destinationFolderPath_;
 
 	///////////////////////////////
 	// functions to implement the keyword replacement system

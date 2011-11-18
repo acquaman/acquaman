@@ -71,6 +71,8 @@ bool AMExporterGeneralAscii::isValidFor(const AMScan *scan, const AMExporterOpti
 QString AMExporterGeneralAscii::exportScan(const AMScan *scan, const QString &destinationFolderPath, const AMExporterOption *option, int autoIndex)
 {
 	setCurrentAutoIndex(autoIndex);
+	setCurrentFilename(option->fileName());
+	setDestinationFolderPath(destinationFolderPath);
 	// prepare scan and option
 	setCurrentScan(scan);
 	option_ = qobject_cast<const AMExporterOptionGeneralAscii*>(option);

@@ -87,6 +87,7 @@ bool VESPERSAppController::startup() {
 		AMDbObjectSupport::registerClass<XRFDetectorInfo>();
 		AMDbObjectSupport::registerClass<VESPERSXRFScanConfiguration>();
 		AMDbObjectSupport::registerClass<AMXRFScan>();
+		AMDbObjectSupport::registerClass<VESPERSXASScanConfiguration>();
 
 		AMDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
 		AMDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();

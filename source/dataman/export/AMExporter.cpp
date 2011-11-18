@@ -554,9 +554,36 @@ QString AMExporter::krExporterAutoIncrement(const QString &arg){
 	return QString("%1").arg(autoIndex_);
 }
 
+#include <QDir>
 QString AMExporter::krFileSystemAutoIncrement(const QString &arg)
 {
 	Q_UNUSED(arg)
 
-	return QString("Wesley");
+	if (!currentScan_)
+		return "[??]";
+
+	if (!currentScan_->scanConfiguration())
+		return "[??]";
+
+	QString newName = filename_;
+
+	for (int i = 0; i < keywordParser_->replacementList().size()-1; i++)
+		newName.replace(keywordParser_->replacementList().at(i).tag, keywordParser_->replacementList().at(i).replacement);
+
+	newName.replace("$fsIndex", "*");
+
+	for (int i = 0; i < newName.count("$"); i++)
+		newName.replace("$", "");
+
+	// This is the right code, but using a different path for testing.
+	//QDir dir(destinationFolderPath_);
+	QDir dir("/Users/darrenhunter/dev/export test");
+	dir.setNameFilters(QStringList() << newName);
+
+	QStringList files(dir.entryList());
+
+	for (int i = 0; i < files.size(); i++)
+		qDebug() << files.at(i);
+
+	return "0";
 }
