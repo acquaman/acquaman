@@ -326,7 +326,7 @@ public slots:
 protected:
 
 	/// Subclasses should call this to set or un-set the modified flag.  Handles emission of the modifiedChanged() signal when required.
-	void setModified(bool isModified) {
+	void setModified(bool isModified = true) {
 		if(isModified != modified_)
 			emit modifiedChanged(modified_ = isModified);
 		modified_ = isModified;
