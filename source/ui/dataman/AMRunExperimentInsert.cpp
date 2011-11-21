@@ -89,7 +89,7 @@ void AMRunExperimentInsert::refreshRuns() {
 	/* NTBA - September 1st, 2011 (David Chevrier)
 	"Hard-coded database table names. Down to just AMDbObjectThumbnails_table."
 	*/
-	q.prepare(QString("SELECT %1.name, %1.dateTime, %2.description, AMDbObjectThumbnails_table.thumbnail, AMDbObjectThumbnails_table.type, %1.id, %1.endDateTime "
+	q.prepare(QString("SELECT %1.name, %1.dateTime, %2.description, AMDbObjectThumbnails_table.thumbnail, AMDbObjectThumbnails_table.type, %1.id "
 			  "FROM %1,%2,AMDbObjectThumbnails_table "
 			  "WHERE %2.id = %1.facilityId AND AMDbObjectThumbnails_table.id = %2.thumbnailFirstId "
 			  "ORDER BY %1.dateTime ASC").arg(AMDbObjectSupport::s()->tableNameForClass<AMRun>()).arg(AMDbObjectSupport::s()->tableNameForClass<AMFacility>()));
@@ -101,9 +101,8 @@ void AMRunExperimentInsert::refreshRuns() {
 		/// "editRole" is just the name, because you can't change the date:
 		AMRunModelItem* item = new AMRunModelItem(db_, q.value(5).toInt(), q.value(0).toString());
 
-		/// "displayRole" looks like "[name], [startDate] - [endDate]" or "SGM, Aug 4 - 9 (2010)". We get this by storing the date/time in AM::DateTimeRole, and the endDateTime in AM::EndDateTimeRole
+		/// "displayRole" looks like "[name], [startDate]" or "SGM, Aug 4 (2010)". We get this by storing the date/time in AM::DateTimeRole
 		item->setData(q.value(1).toDateTime(), AM::DateTimeRole);
-		item->setData(q.value(6).toDateTime(), AM::EndDateTimeRole);
 
 		/// "decorationRole" is the icon for the facility:
 		if(q.value(4).toString() == "PNG") {

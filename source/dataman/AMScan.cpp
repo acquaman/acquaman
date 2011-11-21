@@ -95,23 +95,11 @@ AMScan::~AMScan() {
 
 
 // associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
-/* This will also tell the new run (and the old run, if it exists) to update their date ranges */
 void AMScan::setRunId(int newRunId) {
-	// when setting the runId, need to tell our old and new runs to possibly update their date ranges
-	int oldRunId = runId_;
 
 	if(newRunId <= 0) runId_ = -1;
 	else runId_ = newRunId;
 	setModified(true);
-
-	// Do we need to update the scan range on the runs?
-	if(oldRunId != runId_) {
-		if(database() && oldRunId > 0)
-			AMRun::scheduleDateRangeUpdate(oldRunId, database(), dateTime());
-
-		if(database() && runId_ > 0)
-			AMRun::scheduleDateRangeUpdate(runId_, database(), dateTime());
-	}
 }
 
 // Sets name of sample
@@ -153,30 +141,6 @@ void AMScan::retrieveSampleName() const {
 }
 
 
-
-
-
-// Store or update self in the database. (returns true on success)
-/* Re-implemented from AMDbObject::storeToDb(), this version also schedules a date range update of the scan's run when it is insertes into a database for the very first time.
-  */
-bool AMScan::storeToDb(AMDatabase* db) {
-
-	bool isFirstTimeStored = (database() != db || id() < 1);
-
-	// Call the base class implementation
-	// Return false if it fails.
-	bool success = AMDbObject::storeToDb(db);
-
-	// if we have a runId set, and this is the first time we're getting stored to the database, we need to tell that run to update it's date range.
-	// (Once we've been stored in the db, we'll notify the old run and new run each time our runId changes)
-
-	// SSSSSSSSSSSSSSlow?
-	if(success && isFirstTimeStored && runId() > 0 ) {
-		AMRun::scheduleDateRangeUpdate(runId(), database(), dateTime());
-	}
-
-	return success;
-}
 
 
 // Loads a saved scan from the database into self. Returns true on success.

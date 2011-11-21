@@ -87,7 +87,6 @@ void AMExporter::loadKeywordReplacementDictionary()
 	keywordDictionary_.insert("run", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krRun));
 	keywordDictionary_.insert("runName", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krRunName));
 	keywordDictionary_.insert("runStartDate", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krRunStartDate));
-	keywordDictionary_.insert("runEndDate", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krRunEndDate));
 	keywordDictionary_.insert("runNotes", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krRunNotes));
 	keywordDictionary_.insert("facilityName", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krFacilityName));
 	keywordDictionary_.insert("facilityDescription", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krFacilityDescription));
@@ -180,7 +179,7 @@ QString AMExporter::krRun(const QString& arg) {
 
 	AMRun r;
 	r.loadFromDb(currentScan_->database(), currentScan_->runId());
-	return r.name() % " " % AMDateTimeUtils::prettyDateRange(r.dateTime(), r.endDateTime());
+	return r.name() % " " % AMDateTimeUtils::prettyDate(r.dateTime());
 }
 
 
@@ -207,18 +206,7 @@ QString AMExporter::krRunStartDate(const QString& arg) {
 		return r.dateTime().toString(arg);
 }
 
-QString AMExporter::krRunEndDate(const QString& arg) {
-	if(!currentScan_)
-		return "[??]";
 
-	AMRun r;
-	r.loadFromDb(currentScan_->database(), currentScan_->runId());
-
-	if(arg.isEmpty())
-		return r.endDateTime().toString("yyyy MM dd");
-	else
-		return r.endDateTime().toString(arg);
-}
 
 QString AMExporter::krRunNotes(const QString& arg) {
 	Q_UNUSED(arg)
