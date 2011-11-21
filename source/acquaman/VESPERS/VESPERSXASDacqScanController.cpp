@@ -243,7 +243,7 @@ bool VESPERSXASDacqScanController::initializeImplementation()
 		Second: Set the mode to single shot and set the time on the synchronized dwell time.
 		Third: Move the mono to the correct energy and move the sample stage to the correct location (if enabled).
 	 */
-	/*AMBeamlineParallelActionsList *setupXASActionsList = new AMBeamlineParallelActionsList;
+	AMBeamlineParallelActionsList *setupXASActionsList = new AMBeamlineParallelActionsList;
 	AMBeamlineListAction *setupXASAction = new AMBeamlineListAction(setupXASActionsList);
 
 	// First stage.
@@ -296,7 +296,7 @@ bool VESPERSXASDacqScanController::initializeImplementation()
 	connect(setupXASAction, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
 	connect(setupXASAction, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
 	setupXASAction->start();
-*/setInitialized();
+
 	return true;
 }
 
@@ -363,6 +363,28 @@ bool VESPERSXASDacqScanController::startImplementation()
 	return AMDacqScanController::startImplementation();
 }
 
+void VESPERSXASDacqScanController::cleanup()
+{
+	// To cleanup the XAS scan, there is one stage.
+	/*
+		First: Set the dwell time to 1 second.  Set the scan mode to continuous.  Set the relative energy PV to 0.
+	 */
+	AMBeamlineParallelActionsList *cleanupXASActionsList = new AMBeamlineParallelActionsList;
+	AMBeamlineListAction *cleanupXASAction = new AMBeamlineListAction(cleanupXASActionsList);
+
+	// First stage.
+	cleanupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+	// Synchronized dwell time.
+	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(1.0));
+	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::Continuous));
+	// Energy.
+	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->mono()->createDelEAction(0));
+
+	connect(cleanupXASAction, SIGNAL(succeeded()), this, SLOT(onCleanupFinished()));
+	connect(cleanupXASAction, SIGNAL(failed(int)), this, SLOT(onCleanupFinished()));
+	cleanupXASAction->start();
+}
+
 void VESPERSXASDacqScanController::onDwellTimeTriggerChanged(double newValue)
 {
 	if( fabs(newValue - 1.0) < 0.1 ){
@@ -423,9 +445,6 @@ bool VESPERSXASDacqScanController::setupTransmissionXAS()
 				"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
 		return false;
 	}
-
-	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
-	while (advAcq_->deleteRecord(1)){}
 
 	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
