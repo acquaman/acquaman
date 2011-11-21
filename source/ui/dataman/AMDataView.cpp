@@ -31,9 +31,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QApplication>
 #include <QStringBuilder>
 
-#include <QDebug>
-
-
+#include <QPen>
+#include <QBrush>
+#include <QColor>
+#include <QApplication>
 
 AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	QWidget(parent)
@@ -54,14 +55,20 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	gview_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	gview_->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
-	gscene_ = new AMSignallingGraphicsScene(this);
+	gscene_ = new QGraphicsScene(this);
 	// This is necessary to avoid Qt bug https://bugreports.qt.nokia.com/browse/QTBUG-18021
 	gscene_->setItemIndexMethod(QGraphicsScene::NoIndex);
+	// We want to filter out some scene events (mouse press, etc.) so that the scene doesn't mess with our handling of selection in thumbnail view.
+	gscene_->installEventFilter(this);
 
 	connect(gscene_, SIGNAL(selectionChanged()), this, SLOT(onScanItemsSelectionChanged()));
-	connect(gscene_, SIGNAL(doubleClicked(QPointF)), this, SIGNAL(sceneDoubleClicked()));
+	connect(gview_, SIGNAL(clicked(QPoint)), this, SLOT(onViewClicked(QPoint)));
+	connect(gview_, SIGNAL(doubleClicked(QPoint)), this, SLOT(onViewDoubleClicked(QPoint)));
+	connect(gview_, SIGNAL(dragStarted(QPoint, QPoint)), this, SLOT(onDragStarted(QPoint, QPoint)));
+	connect(gview_, SIGNAL(dragMoved(QPoint,QPoint)), this, SLOT(onDragMoved(QPoint,QPoint)));
+	connect(gview_, SIGNAL(dragEnded(QPoint,QPoint)), this, SLOT(onDragEnded(QPoint,QPoint)));
+
 	gview_->setScene(gscene_);
-	gview_->setDragMode(QGraphicsView::RubberBandDrag);
 	gwidget_ = new AMLayoutControlledGraphicsWidget();
 	gscene_->addItem(gwidget_);
 	sectionLayout_ = new QGraphicsLinearLayout(Qt::Vertical);
@@ -70,6 +77,8 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	gwidget_->setLayout(sectionLayout_);
 	gwidget_->setParent(this); 	// this refers to the QObject tree parent, not the QGraphicsItem tree parent
 	connect(gwidget_, SIGNAL(resized()), this, SLOT(adjustViewScrollableArea()));
+
+	rubberBand_ = 0;
 
 	// retrieve user name and set heading:
 	///////////////////////
@@ -245,7 +254,7 @@ void AMDataView::updateSelectedUrls() const {
 		}
 
 	}
-	break;
+		break;
 
 	case AMDataViews::ListView: {
 		foreach(AMAbstractDataViewSection* s, sections_) {
@@ -253,7 +262,7 @@ void AMDataView::updateSelectedUrls() const {
 		}
 
 	}
-	break;
+		break;
 
 
 	default:
@@ -294,7 +303,7 @@ void AMDataView::refreshView() {
 	viewRequiresRefresh_ = false;
 
 	// delete the old views:
-		// this disconnect is necessary so that selection changes while we're deleting don't trigger an unnecessary loop through the selected items.
+	// this disconnect is necessary so that selection changes while we're deleting don't trigger an unnecessary loop through the selected items.
 	disconnect(gscene_, SIGNAL(selectionChanged()), this, SLOT(onScanItemsSelectionChanged()));
 	while(!sections_.isEmpty())
 		delete sections_.takeLast();
@@ -361,7 +370,7 @@ void AMDataView::refreshView() {
 			}
 		}
 
-		break;
+			break;
 
 		case AMDataViews::OrganizeExperiments:
 		{
@@ -391,7 +400,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for experiments. The database might be corrupted."));
 			}
 		}
-		break;
+			break;
 
 		case AMDataViews::OrganizeScanTypes:
 		{
@@ -421,7 +430,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for scan types. The database might be corrupted."));
 			}
 		}
-		break;
+			break;
 
 		case AMDataViews::OrganizeSamples:
 		{
@@ -452,7 +461,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for samples. The database might be corrupted."));
 			}
 		}
-		break;
+			break;
 
 		case AMDataViews::OrganizeElements:
 		{
@@ -483,7 +492,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for elements in samples. The database might be corrupted."));
 			}
 		}
-		break;
+			break;
 
 		}
 	} // end of: showing all runs or all experiments
@@ -525,7 +534,7 @@ void AMDataView::refreshView() {
 
 				sections_ << section;
 				break;
-		}
+			}
 
 
 		case AMDataViews::OrganizeExperiments:
@@ -556,7 +565,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for experiments. The database might be corrupted."));
 			}
 		}
-		break;
+			break;
 
 		case AMDataViews::OrganizeScanTypes:
 		{
@@ -587,7 +596,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for scan types. The database might be corrupted."));
 			}
 		}
-		break;
+			break;
 
 		case AMDataViews::OrganizeSamples:
 		{
@@ -619,7 +628,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for samples. The database might be corrupted."));
 			}
 		}
-		break;
+			break;
 
 		case AMDataViews::OrganizeElements:
 		{
@@ -651,7 +660,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for elements in samples. The database might be corrupted."));
 			}
 		}
-		break;
+			break;
 
 		}
 	} // end of showing a specific run
@@ -689,7 +698,7 @@ void AMDataView::refreshView() {
 
 			sections_ << section;
 		}
-		break;
+			break;
 
 		case AMDataViews::OrganizeRuns:
 		{
@@ -722,7 +731,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for runs. The database might be corrupted."));
 			}
 		}
-		break;
+			break;
 
 
 		case AMDataViews::OrganizeScanTypes:
@@ -757,7 +766,7 @@ void AMDataView::refreshView() {
 			}
 
 		}
-		break;
+			break;
 
 		case AMDataViews::OrganizeSamples:
 		{
@@ -789,7 +798,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for samples. The database might be corrupted."));
 			}
 		}
-		break;
+			break;
 
 		case AMDataViews::OrganizeElements:
 		{
@@ -821,7 +830,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for elements in samples. The database might be corrupted."));
 			}
 		}
-		break;
+			break;
 
 		}
 	} // end of showing just one run
@@ -1350,6 +1359,207 @@ void AMDataView::onDatabaseItemCreatedOrRemoved(const QString &tableName, int id
 		afterDbChangedFnCall_.runLater(5000);
 	}
 }
+
+void AMDataView::onDragStarted(const QPoint &startPos, const QPoint &currentPos)
+{
+	// qDebug() << "Drag started...";
+
+	// we use this to indicate if we're tracking a rubber-band selection drag.
+	if(rubberBand_) {
+		delete rubberBand_;
+		rubberBand_ = 0;
+	}
+
+	// convert to scene pos:
+	QPointF scenePos = gview_->mapToScene(startPos);
+
+	// Possibility 1: is there a selected item under us? Then we should start a drag with all the selected items
+	QGraphicsItem* item = gscene_->itemAt(scenePos);
+	if(item && item->isSelected()) {
+		// start a QDrag with ALL the selected items. Do we have a pixmap to use to represent the drag? We do if we're in thumbnail mode and there's an AMThumbnailScrollGraphicsWidget under us.
+		AMThumbnailScrollGraphicsWidget* gw = qgraphicsitem_cast<AMThumbnailScrollGraphicsWidget*>(item);
+		if(gw)
+			startDragWithSelectedItems(gw->pixmap().scaledToHeight(100, Qt::SmoothTransformation));
+		else
+			startDragWithSelectedItems();
+	}
+
+	// Possibility 2: Else, start drawing a rubber band to select some items.
+	else {
+		QRectF selectionRect  = QRectF(scenePos, gview_->mapToScene(currentPos)).normalized();
+
+		rubberBand_ = gscene_->addRect(selectionRect,
+									   QPen(QColor(167, 167, 167)),
+									   QBrush(QColor(167,167,167,80)));
+
+		// Clear the selection area, unless the command (mac)/control key or shift key is pressed.
+		Qt::KeyboardModifiers mods = QApplication::keyboardModifiers();
+		if(!((mods&Qt::ShiftModifier) || (mods&Qt::ControlModifier)))
+			selectionArea_ = QPainterPath();
+
+		QPainterPath selectionArea = selectionArea_;
+		selectionArea.addRect(selectionRect);
+		gscene_->setSelectionArea(selectionArea);
+	}
+}
+
+void AMDataView::onDragMoved(const QPoint &startPos, const QPoint &currentPos)
+{
+	if(rubberBand_) {
+		QRectF selectionRect = QRectF(gview_->mapToScene(startPos), gview_->mapToScene(currentPos)).normalized();
+		rubberBand_->setRect(selectionRect);
+
+		QPainterPath selectionArea = selectionArea_;
+		selectionArea.addRect(selectionRect);
+		gscene_->setSelectionArea(selectionArea);
+		/// \todo TODOZ: if outside of view...scroll into view
+	}
+}
+
+void AMDataView::onDragEnded(const QPoint &startPos, const QPoint &endPos)
+{
+	if(rubberBand_) {
+		QRectF selectionRect = QRectF(gview_->mapToScene(startPos), gview_->mapToScene(endPos)).normalized();
+
+		// now that we're done... actually remember this selection area for good (in case future shift-drags and control-drags need to add to it)
+		selectionArea_.addRect(selectionRect);
+		gscene_->setSelectionArea(selectionArea_);
+
+		delete rubberBand_;
+		rubberBand_ = 0;
+	}
+}
+
+void AMDataView::startDragWithSelectedItems(const QPixmap& optionalPixmap)
+{
+	QList<QUrl> urls = selectedItems();
+	if(urls.count() == 0)
+		return;
+
+	QDrag* drag = new QDrag(this);
+	QMimeData* mime = new QMimeData();
+	drag->setMimeData(mime);
+	mime->setUrls(urls);
+
+	drag->setHotSpot(QPoint(15,15));
+
+	// generate a pixmap to represent this drag. Draw text "n scans" on top of the one we were provided (if we were).
+	///////////////////////////////////
+	QPixmap pixmap;
+	if(optionalPixmap.isNull()) {
+		pixmap = QPixmap(100, 30);
+		pixmap.fill(Qt::transparent);
+	}
+	else
+		pixmap = optionalPixmap;
+	QRectF textRect;
+	QPainter painter(&pixmap);
+	painter.setRenderHint(QPainter::Antialiasing);
+	painter.setPen(QPen(Qt::white, 2));
+	painter.setBrush(Qt::red);
+	painter.drawText(QRectF(10,10,qMax(1,pixmap.width()-20),qMax(1,pixmap.height()-20)),
+					 Qt::AlignRight | Qt::AlignBottom,
+					 urls.count() == 1 ? QString("1 scan") : QString("%1 scans").arg(urls.count()),
+					 &textRect);
+	QRectF borderBox = textRect.adjusted(-5,-5,5,5);
+	painter.setPen(QPen(QColor(200,200,200), 2));
+	painter.setBrush(QColor(200,200,200));
+	qreal radius = borderBox.height()/2;
+	painter.drawRoundedRect(borderBox.translated(-1,-1), radius, radius);
+	painter.drawRoundedRect(borderBox.translated(2,2), radius, radius);
+	painter.setPen(QPen(Qt::white, 2));
+	painter.setBrush(QColor(100,100,100));
+	painter.drawRoundedRect(borderBox, radius, radius);
+	painter.drawText(QRectF(10,10,qMax(1,pixmap.width()-20),qMax(1,pixmap.height()-20)),
+					 Qt::AlignRight | Qt::AlignBottom,
+					 urls.count() == 1 ? QString("1 scan") : QString("%1 scans").arg(urls.count()),
+					 &textRect);
+	painter.end();
+	drag->setPixmap(pixmap);
+	//////////////////////////////////
+
+	drag->exec(Qt::CopyAction); // todo: also offer move action if dropping onto runs
+}
+
+#include <QDebug>
+
+void AMDataView::onViewClicked(const QPoint &clickPos)
+{
+	// here we manage scene selection in our own special way.  Command-click/control-click adds the clicked item to the selection.  Shift-click selects all items between the current selection and the clicked item. Normal click clears the selection and selects the item underneath.
+	Qt::KeyboardModifiers mods = QApplication::keyboardModifiers();
+	QPointF scenePos = gview_->mapToScene(clickPos);
+
+	QGraphicsItem* item = gscene_->itemAt(scenePos);
+
+	if(mods & Qt::ShiftModifier) {
+		// shift-selection: select all items in the rectangle containing the existing selected items and the clicked item.
+		if(item && (item->flags() & QGraphicsItem::ItemIsSelectable)) {
+			QRectF newSelectionRect = item->mapRectToScene(item->boundingRect());
+			QList<QGraphicsItem*> selectedItems = gscene_->selectedItems();
+			bool otherItems = false;
+			for(int i=0; i<selectedItems.count(); i++) {
+				QGraphicsItem* otherItem = selectedItems.at(i);
+				if(otherItem != item) {
+					otherItems = true;
+					newSelectionRect |= otherItem->mapRectToScene(otherItem->boundingRect());
+				}
+			}
+			if(otherItems) {
+				selectionArea_ = QPainterPath();
+				selectionArea_.addRect(newSelectionRect);
+				gscene_->setSelectionArea(selectionArea_);
+			}
+			else {
+				// no selected items. Just select this item.
+				item->setSelected(true);
+			}
+		}
+	}
+	else if(mods & Qt::ControlModifier) {	// command (mac) or control selection: add clicked item to selection
+		if(item && (item->flags() & QGraphicsItem::ItemIsSelectable)) {
+			// Toggle the selection of this item, but don't clear the selection
+			item->setSelected(!item->isSelected());
+		}
+	}
+	else {
+		// no mods. clear selection
+		gscene_->clearSelection();
+		selectionArea_ = QPainterPath();
+		// if there's an item here, add it to the selection.
+		if(item && (item->flags() & QGraphicsItem::ItemIsSelectable)) {
+			item->setSelected(true);
+		}
+	}
+}
+
+bool AMDataView::eventFilter(QObject* object, QEvent* event)
+{
+	if(object == gscene_ && viewMode_ == AMDataViews::ThumbnailView) {
+		if(event->type() == QEvent::GraphicsSceneMouseDoubleClick
+				|| event->type() == QEvent::GraphicsSceneMousePress
+				|| event->type() == QEvent::GraphicsSceneMouseRelease)
+			return true;
+	}
+
+	return false;
+}
+
+void AMDataView::onViewDoubleClicked(const QPoint &clickPos)
+{
+	// one possible use-case is that multiple items are selected, and the user cmd/control-doubleclicks to open all selected items. However, the first single cmd-click will have deselected the item under the cursor, so we want to re-enable that guy.
+	Qt::KeyboardModifiers mods = QApplication::keyboardModifiers();
+
+	if((mods & Qt::ControlModifier)) {
+		QPointF scenePos = gview_->mapToScene(clickPos);
+		QGraphicsItem* item = gscene_->itemAt(scenePos);
+		if(item && (item->flags() & QGraphicsItem::ItemIsSelectable)) {
+			item->setSelected(true);
+		}
+	}
+	// Now we let the regular double-click mechanism run its course.
+	emit viewDoubleClicked();
+}
+
 
 
 

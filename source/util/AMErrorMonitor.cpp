@@ -99,16 +99,28 @@ void AMErrorMon::unsubscribeI(QObject* notifyMe, const char* errorSlot) {
 }
 
 
-
-// Handle error reports.
-void AMErrorMon::reportI(const AMErrorReport& e) {
+void AMErrorMon::reportF(AMErrorReport e) {
 
 	QString className;
-	if(e.source && e.source->metaObject())
+	if(e.source && e.source->metaObject()) {
 		className = e.source->metaObject()->className();
 
-	QString reportMessage = QString("in [%1]: %2 (code %3)").arg(className).arg(e.description).arg(e.errorCode);
+		e.description.prepend(QString("in [%1]: ").arg(className));
+	}
 
+	// If this is being called from out-of-thread, we need to unset the source object so it isn't looked at in another thread. This means subscriptions (currently unused) only work within the main thread.
+	if(QThread::currentThread() != this->thread()) {
+		e.description.append(" [Message received from out of main thread.]");
+		e.source = 0;
+	}
+
+	emit reportFF(e);
+}
+
+// Handle error reports.
+void AMErrorMon::reportI(AMErrorReport e) {
+
+	QString reportMessage = QString("%1 (code %2)").arg(e.description).arg(e.errorCode);
 
 	// Chapter 0: If we're in debug mode, throw a qDebug() for everything:
 	if(debugEnabled_) {
@@ -139,20 +151,20 @@ void AMErrorMon::reportI(const AMErrorReport& e) {
 	switch(e.level) {
 	case AMErrorReport::Information:
 		emit information(e);
-		sicon_->showMessage(QString("Information from %1: (%2)").arg(className).arg(e.errorCode), e.description, QSystemTrayIcon::Information, 5000);
+		sicon_->showMessage(QString("Information:"), reportMessage, QSystemTrayIcon::Information, 5000);
 		break;
 	case AMErrorReport::Alert:
 		emit alert(e);
-		sicon_->showMessage(QString("Alert from %1: (%2)").arg(className).arg(e.errorCode), e.description, QSystemTrayIcon::Warning, 5000);
+		sicon_->showMessage(QString("Alert:"), reportMessage, QSystemTrayIcon::Warning, 5000);
 		break;
 	case AMErrorReport::Serious:
 		emit serious(e);
-		sicon_->showMessage(QString("Serious Error in %1: (%2)").arg(className).arg(e.errorCode), e.description, QSystemTrayIcon::Critical, 5000);
+		sicon_->showMessage(QString("Serious Error:"), reportMessage, QSystemTrayIcon::Critical, 5000);
 		break;
 	case AMErrorReport::Debug:
 		if(debugEnabled_) {
 			emit debug(e);
-			sicon_->showMessage(QString("Debug message from %1: (%2)").arg(className).arg(e.errorCode), e.description, QSystemTrayIcon::Information, 5000);
+			sicon_->showMessage(QString("Debug Message:"), reportMessage, QSystemTrayIcon::Information, 5000);
 		}
 		break;
 	}

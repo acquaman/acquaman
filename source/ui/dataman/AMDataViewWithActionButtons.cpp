@@ -46,7 +46,7 @@ AMDataViewWithActionButtons::AMDataViewWithActionButtons(AMDatabase* database, Q
 	connect(ui_->openSeparateEditorButton, SIGNAL(clicked()), this, SLOT(onEditScansAction()));
 	connect(ui_->exportButton, SIGNAL(clicked()), this, SLOT(onExportScansAction()));
 
-	connect(dataView_, SIGNAL(sceneDoubleClicked()), this, SLOT(onDoubleClick()));
+	connect(dataView_, SIGNAL(viewDoubleClicked()), this, SLOT(onDoubleClick()));
 	connect(dataView_, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
 }
 

@@ -4,8 +4,11 @@
 # ####################################################################
 
 # Video Support: Remove this line if you do not have the multimedia module from QtMobility
+#CONFIG += mobility
 
-# CONFIG += mobility
+# Debug: Uncomment this to build the program in debug mode (no optimizations; include debugging symbols.)
+# Note that as of November 18, 2011, building in debug mode triggers a failure in the dacq library: the main (eV) PV ends up disabled in the dacq scan config.  This is likely a serious memory error.
+# CONFIG += debug
 
 # Automatically determines a user's home folder
 HOME_FOLDER = $$system(echo $HOME)
@@ -83,7 +86,7 @@ linux-g++-32 {
 linux-g++-64 {
 
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = Sandbox/Acquaman2011/dev
+		DEV_PATH = dev
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = /home/epics/src/R3.14.12/base/include \
@@ -120,9 +123,9 @@ CONFIG(jenkins_build) {
 
 QT += core gui sql opengl
 
-# video using Multimedia module from QtMobility, if we have it. (This will only be activated if you set the CONFIG += mobility line at the top of this file)
+# video using Multimedia module from QtMobility, if we have it
 CONFIG(mobility) {
-		MOBILITY += multimedia
+	MOBILITY += multimedia
 }
 
 DESTDIR = build
@@ -248,7 +251,6 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/dataman/database/AMDbObject.h \
 	source/dataman/info/AMDetectorInfo.h \
 	source/dataman/AMExperiment.h \
-	source/dataman/AMFirstTimeController.h \
 	source/dataman/AMImportController.h \
 	source/dataman/AMRun.h \
 	source/dataman/AMSample.h \
@@ -315,7 +317,7 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/ui/AMWrappingLineEdit.h \
 	source/actions/AMBeamlineControlSetMoveAction.h \
 	source/ui/AMStartScreen.h \
-	source/ui/AMSignallingGraphicsScene.h \
+	source/ui/AMSignallingGraphicsView.h \
 	source/dataman/AMUser.h \
 	#deprecated: source/ui/AMVideoPlayerWidget.h \
 	source/dataman/AMXESScan.h \
@@ -524,7 +526,6 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/dataman/database/AMDbObject.cpp \
 	source/dataman/info/AMDetectorInfo.cpp \
 	source/dataman/AMExperiment.cpp \
-	source/dataman/AMFirstTimeController.cpp \
 	source/dataman/AMImportController.cpp \
 	source/dataman/AMRun.cpp \
 	source/dataman/AMSample.cpp \
@@ -582,7 +583,7 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/AMWrappingLineEdit.cpp \
 	source/actions/AMBeamlineControlSetMoveAction.cpp \
 	source/ui/AMStartScreen.cpp \
-	source/ui/AMSignallingGraphicsScene.cpp \
+	source/ui/AMSignallingGraphicsView.cpp \
 	source/dataman/AMUser.cpp \
 	#deprecated: source/ui/AMVideoPlayerWidget.cpp \
 	source/dataman/AMXESScan.cpp \

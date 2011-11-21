@@ -24,9 +24,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtTest/QtTest>
 #include "util/AMSettings.h"
 #include "beamline/AMPVNames.h"
-#include "dataman/AMFirstTimeController.h"
 #include "tests/TestDataman.h"
 #include "tests/TestUi.h"
+
+#include "application/AMDatamanAppController.h"
 
 /*
 #include "tests/TestAcquaman.h"
@@ -43,12 +44,10 @@ int main(int argc, char *argv[])
 
 
 	AMErrorMon::enableDebugNotifications(true);
-	// Load settings from disk:
-	AMSettings::s()->load();
-	AMUserSettings::load();
-	AMPVNames::load();
+
 	// ensure user data folder and database are ready for use, if this is the first time the program is ever run.
-	if(!AMFirstTimeController::firstTimeCheck())
+	AMDatamanAppController ac;
+	if(!ac.startup())
 		return -1;
 
 

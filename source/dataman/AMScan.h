@@ -37,7 +37,10 @@ typedef AMOrderedSet<QString, AMRawDataSource*> AMRawDataSourceSet;
 typedef AMOrderedSet<QString, AMAnalysisBlock*> AMAnalyzedDataSourceSet;
 
 class AMScanConfiguration;
+
+#ifndef ACQUAMAN_NO_ACQUISITION
 class AMScanController;
+#endif
 
 /// This class is the base of all objects that represent a single 'scan' on a beamline.  It's also used as the standard container for a set of raw and/or processed AMDataSources, which can be visualized together in
 class AMScan : public AMDbObject {
@@ -286,15 +289,7 @@ public:
 	////////////////////////////////
 
 	/// This is an arbitrary decision, but let's define it like this (for usability): If we have any analyzed data sources, we have a thumbnail for each analyzed data source. Otherwise, rather than showing nothing, we have a thumbnail for each raw data source.  Unless we are currently scanning, in which case we just have one (which visually indicates this).
-	int thumbnailCount() const {
-		if(currentlyScanning())
-			return 1;
-
-		if(analyzedDataSources_.count())
-			return analyzedDataSources_.count();
-		else
-			return rawDataSources_.count();
-	}
+	int thumbnailCount() const;
 
 	/// Return a thumbnail picture of the data sources. If we have any analyzed data sources, we have a thumbnail for each analyzed data source. Otherwise, rather than showing nothing, we have a thumbnail for each raw data source.  Unless we are currently scanning, in which case we just have one (which visually indicates this).
 	AMDbThumbnail thumbnail(int index) const;
@@ -303,10 +298,12 @@ public:
 	// Acquisition status, and link to scan controller
 	///////////////////////////////
 
+#ifndef ACQUAMAN_NO_ACQUISITION
 	/// If this scan is currently in progress, returns the scan controller that is running it. Otherwise returns 0.
 	AMScanController* scanController() const { return controller_; }
 	/// This function should not be considered part of the public interface, and only be used by AMScanController.
 	void setScanController(AMScanController*);
+#endif
 	/// Returns true if currently scanning (ie: there is a valid scan controller, or the currentlyScanning column was true when we were loaded out of the database). This is useful because we want to know this at the database level even while scans are in progress.
 	bool currentlyScanning() const { return currentlyScanning_; }
 
@@ -463,8 +460,11 @@ Lines are separated by single '\n', so a full string could look like:
 
 	// Other
 	//////////////////////////
+
+#ifndef ACQUAMAN_NO_ACQUISITION
 	/// If this scan is currently in progress, the scan controller should set this to refer to itself, and set it back to 0 when finished, using setScanController().
 	AMScanController* controller_;
+#endif
 	/// This variable is set to true while a scan is in progress (ie: scan controller running), or if the scan was loaded out of the database with the currentlyScanning column true.
 	bool currentlyScanning_;
 

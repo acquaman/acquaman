@@ -243,7 +243,7 @@ bool VESPERSXASDacqScanController::initializeImplementation()
 		Second: Set the mode to single shot and set the time on the synchronized dwell time.
 		Third: Move the mono to the correct energy and move the sample stage to the correct location (if enabled).
 	 */
-	AMBeamlineParallelActionsList *setupXASActionsList = new AMBeamlineParallelActionsList;
+	/*AMBeamlineParallelActionsList *setupXASActionsList = new AMBeamlineParallelActionsList;
 	AMBeamlineListAction *setupXASAction = new AMBeamlineListAction(setupXASActionsList);
 
 	// First stage.
@@ -296,7 +296,7 @@ bool VESPERSXASDacqScanController::initializeImplementation()
 	connect(setupXASAction, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
 	connect(setupXASAction, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
 	setupXASAction->start();
-
+*/setInitialized();
 	return true;
 }
 

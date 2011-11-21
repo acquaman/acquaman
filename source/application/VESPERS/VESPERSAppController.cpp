@@ -85,6 +85,7 @@ bool VESPERSAppController::startup() {
 		AMDbObjectSupport::s()->registerClass<XRFDetectorInfo>();
 		AMDbObjectSupport::s()->registerClass<VESPERSXRFScanConfiguration>();
 		AMDbObjectSupport::s()->registerClass<AMXRFScan>();
+		AMDbObjectSupport::s()->registerClass<VESPERSXASScanConfiguration>();
 
 		AMDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
 		AMDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
@@ -95,7 +96,7 @@ bool VESPERSAppController::startup() {
 		AMRun existingRun;
 		if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
 			// no run yet... let's create one.
-			AMRun firstRun("VESPERS", 4);	/// \todo For now, we know that 4 is the ID of the VESPERS facility, but this is a hardcoded hack. See AMFirstTimeController::onFirstTime() for where the facilities are created.
+			AMRun firstRun("VESPERS", 4);	/// \todo For now, we know that 4 is the ID of the VESPERS facility, but this is a hardcoded hack.
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 
@@ -105,8 +106,6 @@ bool VESPERSAppController::startup() {
 
 		// Create panes in the main window:
 		////////////////////////////////////
-
-		scanControllerActiveEditor_ = 0;
 
 		// Setup the general endstation control view.
 		VESPERSEndstationView *endstationView = new VESPERSEndstationView(VESPERSBeamline::vespers()->endstation());
@@ -164,6 +163,7 @@ bool VESPERSAppController::startup() {
 void VESPERSAppController::shutdown() {
 	// Make sure we release/clean-up the beamline interface
 	AMBeamline::releaseBl();
+	AMAppController::shutdown();
 }
 
 void VESPERSAppController::onCurrentScanControllerStarted()
@@ -173,14 +173,6 @@ void VESPERSAppController::onCurrentScanControllerStarted()
 	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
 		return;
 
-	// Build a generic scan editor and put it the scan editors location.
-	AMGenericScanEditor *scanEditor = new AMGenericScanEditor();
-	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(scanEditor, ":/applications-science.png"));
-
-	// Add the current scan to the editor and the show the scan editor.
-	scanEditor->addScan(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
-	mw_->setCurrentPane(scanEditor);
-
-	scanControllerActiveEditor_ = scanEditor;
+	openScanInEditorAndTakeOwnership(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
 }
 

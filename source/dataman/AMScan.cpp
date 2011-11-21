@@ -41,7 +41,10 @@ AMScan::AMScan(QObject *parent)
 	fileFormat_ = "unknown";
 
 	configuration_ = 0;
+#ifndef ACQUAMAN_NO_ACQUISITION
 	controller_ = 0;
+#endif
+
 	currentlyScanning_ = false;
 
 	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured in specific subclasses.
@@ -166,6 +169,8 @@ bool AMScan::storeToDb(AMDatabase* db) {
 
 	// if we have a runId set, and this is the first time we're getting stored to the database, we need to tell that run to update it's date range.
 	// (Once we've been stored in the db, we'll notify the old run and new run each time our runId changes)
+
+	// SSSSSSSSSSSSSSlow?
 	if(success && isFirstTimeStored && runId() > 0 ) {
 		AMRun::scheduleDateRangeUpdate(runId(), database(), dateTime());
 	}
@@ -182,13 +187,18 @@ bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
 
 	// always call the base class implementation first. This retrieves/loads all the base-class properties.
 	// return false if it fails:
-	if( !AMDbObject::loadFromDb(db, sourceId))
-		return false;
+	if( !AMDbObject::loadFromDb(db, sourceId)){
 
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -482, "AMScan: Loading from database failed."));
+		return false;
+	}
 	// In auto-load data mode: If the file path is different than the old one, clear and reload the raw data.
-	if( autoLoadData_ && filePath() != oldFilePath ) {
-		if(!loadData())
+	if( !currentlyScanning() && autoLoadData_ && filePath() != oldFilePath ) {
+		if(!loadData()){
+
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -483, "AMScan: Loading data failed."));
 			return false;
+		}
 	}
 
 	// no longer necessary: setModified(false);
@@ -406,10 +416,23 @@ bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource, bool 
 #include "dataman/datasource/AMDataSourceImageData.h"
 #include "util/AMDateTimeUtils.h"
 
+int AMScan::thumbnailCount() const{
+	if(currentlyScanning()){
+		qDebug() << "Thumbnail Count: AMScan knows it's acquiring.";
+		return 1;
+	}
+	if(analyzedDataSources_.count())
+		return analyzedDataSources_.count();
+	else
+		return rawDataSources_.count();
+}
+
 // Return a thumbnail picture for thumbnail number \c index. For now, we use the following decision: Normally we provide thumbnails for all the analyzed data sources.  If there are no analyzed data sources, we provide thumbnails for all the raw data sources.
 AMDbThumbnail AMScan::thumbnail(int index) const {
-
+	qDebug() << scanController() << currentlyScanning_;
 	if(currentlyScanning()) {
+
+		qDebug() << "thumbnail: AMScan knows it's scanning.";
 		QFile file(":/240x180/currentlyScanningThumbnail.png");
 		file.open(QIODevice::ReadOnly);
 		return AMDbThumbnail("Started",
@@ -508,6 +531,7 @@ bool AMScan::loadData()
 	return success;
 }
 
+#ifndef ACQUAMAN_NO_ACQUISITION
 void AMScan::setScanController(AMScanController* scanController)
 {
 	bool wasScanning = currentlyScanning_;
@@ -520,4 +544,4 @@ void AMScan::setScanController(AMScanController* scanController)
 		emit currentlyScanningChanged(currentlyScanning_);
 	}
 }
-
+#endif

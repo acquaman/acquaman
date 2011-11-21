@@ -169,14 +169,14 @@ signals:
 	// internal signals:
 	/////////////////////////
 	/// Internally forwards an error report to make sure we handle it in the main thread.
-	void reportFF(const AMErrorReport& e);
+	void reportFF(AMErrorReport e);
 
 public slots:
 
 
 protected:
 	/// Forward any out-of-thread requests to the main thread, via signals.
-	void reportF(const AMErrorReport& e) { emit reportFF(e); }
+	void reportF(AMErrorReport e);
 
 	/// Subscribe to all errors from object 'originator'
 	void subscribeToObjectI(const QObject* originator, QObject* notifyMe, const char* errorSlot);
@@ -200,7 +200,7 @@ protected:
 
 protected slots:
 	/// Handle an error report in the main thread:
-	void reportI(const AMErrorReport& e);
+	void reportI(AMErrorReport e);
 
 private:
 	/// Singleton class.  Private Constructor:

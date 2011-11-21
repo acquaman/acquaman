@@ -31,7 +31,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMRun.h"
 #include "ui/AMThumbnailScrollViewer.h"
 
-#include "dataman/AMFirstTimeController.h"
 #include "util/AMErrorMonitor.h"
 
 #include "analysis/AM1DExpressionAB.h"

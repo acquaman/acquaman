@@ -22,15 +22,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMWorkflowManagerView.h"
 #include "ui/AMMainWindow.h"
+#include "ui/dataman/AMGenericScanEditor.h"
 
 AMAppController::AMAppController(QObject *parent)
 	: AMDatamanAppController(parent)
 {
 }
 
-bool AMAppController::startup() {
+bool AMAppController::startupCreateUserInterface() {
 
-	if (AMDatamanAppController::startup()){
+	if (AMDatamanAppController::startupCreateUserInterface()){
 		// a heading for the workflow manager...
 		workflowManagerView_ = new AMWorkflowManagerView();
 		mw_->insertHeading("Experiment Tools", 1);
@@ -47,11 +48,25 @@ AMAppController::~AMAppController() {
 
 }
 
-void AMAppController::shutdown() {
 
-	AMDatamanAppController::shutdown();
-}
 
 void AMAppController::goToWorkflow() {
 	mw_->setCurrentPane(workflowManagerView_);
+}
+
+void AMAppController::openScanInEditorAndTakeOwnership(AMScan *scan, bool bringEditorToFront, bool openInExistingEditor)
+{
+	AMGenericScanEditor* editor;
+
+	if(openInExistingEditor && scanEditorCount()) {
+		editor = scanEditorAt(scanEditorCount()-1);
+	}
+	else {
+		editor = createNewScanEditor();
+	}
+
+	editor->addScan(scan);
+
+	if(bringEditorToFront)
+		mw_->setCurrentPane(editor);
 }
