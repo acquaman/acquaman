@@ -597,6 +597,7 @@ QSqlDatabase AMDatabase::qdb() const
 	else {
 		QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", QString("%1%2").arg(connectionName_).arg((qulonglong)threadId));
 		db.setDatabaseName(dbAccessString_);
+		db.setConnectOptions("QSQLITE_BUSY_TIMEOUT=10000");
 
 		bool ok = db.open();
 		if(!ok) {
