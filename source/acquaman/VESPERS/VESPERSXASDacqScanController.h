@@ -48,7 +48,10 @@ protected slots:
 	/// Slot that handles the initialization progress of the scan.
 	void onInitializationActionsProgress(double elapsed, double total);
 
-	// Re-implementing to change actual dwell times for the VESPERS Beamline
+	/// Slot that catches when the cleanup actions are finished.
+	void onCleanupFinished() { AMDacqScanController::onDacqStop(); }
+
+	/// Re-implementing to change actual dwell times for the VESPERS Beamline
 	void onDwellTimeTriggerChanged(double newValue);
 
 protected:
@@ -56,6 +59,11 @@ protected:
 	bool initializeImplementation();
 	/// Specific implmentation of the scan start.
 	bool startImplementation();
+
+	/// Re-implementing to intercept finished() signal and do cleanup
+	void onDacqStop() { cleanup(); }
+	/// Method that cleans up the beamline after a scan is finished.  Makes a list of clean up actions and executes them.
+	void cleanup();
 
 	AMnDIndex toScanIndex(QMap<int, double> aeData);
 
