@@ -25,9 +25,24 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 /// Constructor simply passes arguments up to AMScanConfiguration constructor.
 AMXASScanConfiguration::AMXASScanConfiguration(QObject *parent) : AMScanConfiguration(parent)
 {
+	userScanName_ = "$sample - $technique";
 	regions_ = new AMXASRegionsList(this);
 	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
 	connect(regions_, SIGNAL(regionsChanged()), this, SIGNAL(configurationChanged()));
+}
+
+AMXASScanConfiguration::AMXASScanConfiguration(const AMXASScanConfiguration &original) :
+	AMScanConfiguration(original.parent())
+{
+	qDebug() << "Using AMXASScanConfiguration copy constructor";
+	regions_ = new AMXASRegionsList(this);
+	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
+	connect(regions_, SIGNAL(regionsChanged()), this, SIGNAL(configurationChanged()));
+	setUserScanName(original.userScanName());
+}
+
+const QMetaObject* AMXASScanConfiguration::getMetaObject(){
+	return metaObject();
 }
 
 double AMXASScanConfiguration::startEnergy() const{

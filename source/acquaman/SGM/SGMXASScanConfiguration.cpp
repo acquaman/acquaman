@@ -43,7 +43,7 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 }
 
 
-SGMXASScanConfiguration::SGMXASScanConfiguration(const SGMXASScanConfiguration &original) : AMXASScanConfiguration(original.parent()) , SGMScanConfiguration()
+SGMXASScanConfiguration::SGMXASScanConfiguration(const SGMXASScanConfiguration &original) : AMXASScanConfiguration(original) , SGMScanConfiguration()
 {
 	regions_->setEnergyControl(SGMBeamline::sgm()->energy());
 	for(int x = 0; x < original.regionCount(); x++)
@@ -63,6 +63,10 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(const SGMXASScanConfiguration &
 	setTrackingGroup(original.trackingGroup());
 	setFluxResolutionGroup(original.fluxResolutionGroup());
 	setDetectorConfigurations(original.detectorChoiceConfigurations());
+}
+
+const QMetaObject* SGMXASScanConfiguration::getMetaObject(){
+	return metaObject();
 }
 
 AMDetectorInfoSet SGMXASScanConfiguration::allDetectorConfigurations() const{

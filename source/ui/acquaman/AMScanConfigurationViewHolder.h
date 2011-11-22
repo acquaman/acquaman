@@ -26,11 +26,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class QRadioButton;
 class QPushButton;
 class QLabel;
+class QCheckBox;
 class QVBoxLayout;
 
 class AMScanConfiguration;
 class AMScanConfigurationView;
 class AMWorkflowManagerView;
+
+#include "dataman/AMScanExemplar.h"
+
+class AMScanExemplarDictionary;
+class AMDictionaryLineEdit;
 
 /// This widget holds a scan configuration widget, and provides user controls to start the configured scan within the workflow.  It can be constructed to surround any AMScanConfigurationView. Below the widget, it adds buttons to start the configured scan or add it to the queue.
 /*! This widget takes ownership of the view specifified in its constructor.
@@ -69,9 +75,23 @@ protected slots:
 	/*! If the scan configuration view or scan configuration are invalid, sets the button disabled with a message. If the workflow cannot be started because the beamline is busy (ie: one of your scans, or someone else's scan, is running), sets the button disabled with a message. Otherwise enables the button. */
 	void reviewStartScanButtonState();
 
+	void onDoExportNameCheckBoxStatedChanged(int state);
+
 protected:
 
 	/// UI elements
+	QLabel *scanNameLabel_;
+	AMDictionaryLineEdit *scanNameDictionaryLineEdit_;
+	QLabel *scanNameExampleLabel_;
+
+	QLabel *autoExportLabel_;
+	QCheckBox *doExportNameCheckBox_;
+	QCheckBox *doAutoExportCheckBox_;
+
+	QLabel *exportNameLabel_;
+	AMDictionaryLineEdit *exportNameDictionaryLineEdit_;
+	QLabel *exportNameExampleLabel_;
+
 	QLabel *whenDoneLabel_;
 	QPushButton* startScanButton_, *addToQueueButton_;
 	QRadioButton* goToWorkflowOption_, *setupAnotherScanOption_;
@@ -82,6 +102,9 @@ protected:
 	/// This is a pointer to the workflow manager (view, for now). We use it to add scan actions to the workflow
 	AMWorkflowManagerView* workflow_;
 
+	AMScanExemplar testExemplar_;
+	AMScanExemplarDictionary *exemplarNameDictionary_;
+	AMScanExemplarDictionary *exemplarExportNameDictionary_;
 };
 
 #endif // AMSCANCONFIGURATIONVIEWHOLDER_H

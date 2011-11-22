@@ -54,6 +54,8 @@ public:
 	SGMFastScanConfiguration(const SGMFastScanConfiguration &original);
 	~SGMFastScanConfiguration();
 
+	const QMetaObject* getMetaObject();
+
 	/// Returns an AMDetectorSet that consists of the detectors a user can choose (or choose not) to use. In this case TEY and TFY
 	AMDetectorSet* detectorChoices() const { return fastDetectors_; }
 	/// Returns an AMDetectorSet that consists of all the detectors this scan can/will use (adds detectors that are always collected to the detectorChoices(), such as I0, photodiode, and energy feedback)

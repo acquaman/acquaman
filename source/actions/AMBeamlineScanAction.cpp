@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 #include "util/AMDateTimeUtils.h"
+#include "dataman/AMScanExemplarDictionary.h"
 
 #include <QPushButton>
 #include <QToolButton>
@@ -36,9 +37,18 @@ AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *pa
 {
 	cfg_ = cfg;
 	lastSampleDescription_ = "<Unknown Sample>";
+	exemplar_.setSampleName(lastSampleDescription_);
+	exemplar_.setScanConfiguration(cfg_);
+	nameDictionary_ = new AMScanExemplarDictionary(&exemplar_, this);
+	exportNameDictionary_ = new AMScanExemplarDictionary(&exemplar_, this);
+	nameDictionary_->setOperatingOnName(true);
+	exportNameDictionary_->setOperatingOnExportName(true);
 	if(cfg_){
 		connect(cfg_, SIGNAL(configurationChanged()), this, SLOT(onConfigurationChanged()));
 		setDescription(cfg_->description()+" on "+lastSampleDescription_);
+		nameDictionary_->parseKeywordStringAndOperate(cfg_->userScanName());
+		if(cfg_->autoExportEnabled())
+			exportNameDictionary_->parseKeywordStringAndOperate(cfg_->userExportName());
 	}
 	ctrl_ = NULL;
 	keepOnCancel_ = false;
@@ -71,6 +81,14 @@ bool AMBeamlineScanAction::isPaused() const{
 
 QString AMBeamlineScanAction::lastSampleDescription() const{
 	return lastSampleDescription_;
+}
+
+QString AMBeamlineScanAction::guessScanName() const{
+	return exemplar_.name();
+}
+
+QString AMBeamlineScanAction::guessExportName() const{
+	return exemplar_.exportName();
 }
 
 void AMBeamlineScanAction::start(){
@@ -162,6 +180,7 @@ void AMBeamlineScanAction::cleanup(){
 void AMBeamlineScanAction::setLastSampleDescription(const QString &lastSampleDescription){
 	lastSampleDescription_ = lastSampleDescription;
 	setDescription(cfg_->description()+" on "+lastSampleDescription_);
+	exemplar_.setSampleName(lastSampleDescription_);
 	emit descriptionChanged();
 }
 
@@ -221,12 +240,46 @@ void AMBeamlineScanAction::onScanCancelled(){
 	setFailed(true, AMBEAMLINEACTIONITEM_SCAN_CANCELLED);
 }
 
+#include "dataman/export/AMExportController.h"
+#include "dataman/export/AMExporter.h"
+#include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/export/AMExporterOption.h"
+
 void AMBeamlineScanAction::onScanSucceeded(){
 	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Completed "+AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())+"]");
 	emit descriptionChanged();
 	setSucceeded(true);
-	if(ctrl_->scan()->database())
-		ctrl_->scan()->storeToDb(ctrl_->scan()->database());
+	if(ctrl_->scan()->database()){
+		bool saveSucceeded = ctrl_->scan()->storeToDb(ctrl_->scan()->database());
+		if(saveSucceeded && cfg_->autoExportEnabled()){
+			QList<AMScan*> toExport;
+			toExport << ctrl_->scan();
+			AMExportController *exportController = new AMExportController(toExport);
+			QHashIterator<QString, AMExporterInfo> iRegisteredExporters(AMExportController::registeredExporters());
+			QStringList exporters;
+			while(iRegisteredExporters.hasNext()) {
+				iRegisteredExporters.next();
+				exporters << iRegisteredExporters.key();
+			}
+			exportController->setDestinationFolderPath("/Users/fawkes/Documents/CLS/SGM/exportTesting");
+			exportController->chooseExporter(exporters.first());
+			QSqlQuery q = AMDbObjectSupport::s()->select(AMDatabase::database("user"), exportController->exporter()->exporterOptionClassName(), "id, name");
+			QStringList names;
+			QList<int> ids;
+			while(q.next()) {
+				names << q.value(1).toString();
+				ids << q.value(0).toInt();
+			}
+			AMExporterOption *option = qobject_cast<AMExporterOption*>(
+						AMDbObjectSupport::s()->createAndLoadObjectAt(
+							AMDatabase::database("user"),
+							AMDbObjectSupport::s()->tableNameForClass(exportController->exporter()->exporterOptionClassName()),
+							ids.at(0)));
+			option->setFileName(cfg_->userExportName());
+			exportController->setOption(option);
+			exportController->start();
+		}
+	}
 }
 
 void AMBeamlineScanAction::onScanFailed(){
@@ -257,6 +310,8 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	scanNameLabel_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	scanNameLabel_->setAlignment(Qt::AlignVCenter);
 	updateScanNameLabel();
+
+	exportNameLabel_ = new QLabel("Probably Exporting as: "+scanAction_->guessExportName());
 
 	progressBar_ = new QProgressBar();
 	progressBar_->setMinimum(0);
@@ -304,7 +359,11 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	swapVL->setContentsMargins(0,0,0,0);
 	swapVL->setSpacing(0);
 	hl_->addLayout(swapVL);
-	setLayout(hl_);
+	vl_ = new QVBoxLayout();
+	vl_->addLayout(hl_);
+	vl_->addWidget(exportNameLabel_);
+	//setLayout(hl_);
+	setLayout(vl_);
 	onPreviousNextChanged();
 }
 
