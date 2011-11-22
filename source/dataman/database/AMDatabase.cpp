@@ -137,6 +137,7 @@ int AMDatabase::insertOrUpdate(int id, const QString& table, const QStringList& 
 
 	// Run query. Query failed?
 	if(!query.exec()) {
+		query.finish();	// make sure that sqlite lock is released before emitting signals
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("database save failed. Could not execute query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
 		return 0;
 	}
@@ -145,11 +146,13 @@ int AMDatabase::insertOrUpdate(int id, const QString& table, const QStringList& 
 	// If we don't have one, set the unique id for this object (now that the database has established it)
 	if(id < 1) {
 		QVariant lastId = query.lastInsertId();
+		query.finish();	// make sure that sqlite lock is released before emitting signals
 		if(lastId.isValid()) {
 			emit created(table, lastId.toInt());
 			return lastId.toInt();
 		}
 		else {
+			query.finish();	// make sure that sqlite lock is released before emitting signals
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -4, "Database save completed, but could not get the last id after insert. This should never happen."));
 			emit updated(table, -1);
 			return 0;
@@ -157,6 +160,7 @@ int AMDatabase::insertOrUpdate(int id, const QString& table, const QStringList& 
 	}
 	// else (we already had an id, which was used for successful insert:
 	else {
+		query.finish();	// make sure that sqlite lock is released before emitting signals
 		emit updated(table, id);
 		return id;
 	}
@@ -182,10 +186,12 @@ bool AMDatabase::update(int id, const QString& table, const QString& column, con
 
 	// Run query. Query failed?
 	if(!query.exec()) {
+		query.finish();	// make sure that sqlite lock is released before emitting signals
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("database update failed. Could not execute query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
 		return false;
 	}
 	// Query succeeded.
+	query.finish();	// make sure that sqlite lock is released before emitting signals
 	emit updated(table, id);
 	return true;
 
@@ -221,11 +227,13 @@ bool AMDatabase::update(int id, const QString& table, const QStringList& columns
 
 	// Run query. Query failed?
 	if(!query.exec()) {
+		query.finish();	// make sure that sqlite lock is released before emitting signals
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("database update failed. Could not execute query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
 		return false;
 	}
 
 	// Query succeeded.
+	query.finish();	// make sure that sqlite lock is released before emitting signals
 	emit updated(table, id);
 	return true;
 
@@ -255,10 +263,12 @@ bool AMDatabase::update(const QString& tableName, const QString& whereClause, co
 
 	// Run query. Query failed?
 	if(!query.exec()) {
+		query.finish();	// make sure that sqlite lock is released before emitting signals
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("Failed to update the database. Could not execute the query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
 		return false;
 	}
 	// Query succeeded.
+	query.finish();	// make sure that sqlite lock is released before emitting signals
 	emit updated(tableName, -1);
 	return true;
 
@@ -289,9 +299,11 @@ bool AMDatabase::deleteRow(int id, const QString& tableName) {
 
 	// Run query. Query failed?
 	if(!query.exec()) {
+		query.finish();	// make sure that sqlite lock is released before emitting signals
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("Failed to delete the database object. Could not execute the query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
 		return false;
 	}
+	query.finish();	// make sure that sqlite lock is released before emitting signals
 	emit removed(tableName, id);
 	// Query succeeded.
 	return true;
@@ -320,13 +332,18 @@ int AMDatabase::deleteRows(const QString& tableName, const QString& whereClause)
 
 	// Run query. Query failed?
 	if(!query.exec()) {
+		query.finish();	// make sure that sqlite lock is released before emitting signals
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("Failed to delete the database object(s). Could not execute the query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
 		return 0;
 	}
+
+	int numRowsAffected = query.numRowsAffected();
+
+	query.finish();	// make sure that sqlite lock is released before emitting signals
 	emit removed(tableName, -1);
 
 	// Query succeeded.
-	return query.numRowsAffected();
+	return numRowsAffected;
 }
 
 
@@ -360,6 +377,7 @@ QVariantList AMDatabase::retrieve(int id, const QString& table, const QStringLis
 
 	// run query. Did it succeed?
 	if(!q.exec()) {
+		q.finish();	// make sure that sqlite lock is released before emitting signals
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, QString("database retrieve failed. Could not execute query (%1). The SQL reply was: %2").arg(q.executedQuery()).arg(q.lastError().text())));
 		return values;
 	}
@@ -368,9 +386,8 @@ QVariantList AMDatabase::retrieve(int id, const QString& table, const QStringLis
 		// copy columns to return values:
 		for(int i=0; i<colNames.count(); i++)
 			values << q.value(i);
-
-		q.finish();
 	}
+	q.finish();	// make sure that sqlite lock is released before emitting signals
 	// otherwise: didn't find this id.  That's normal if it's not there; just return empty list
 	return values;
 }
@@ -394,6 +411,7 @@ QVariant AMDatabase::retrieve(int id, const QString& table, const QString& colNa
 
 	// run query. Did it succeed?
 	if(!q.exec()) {
+		q.finish();	// make sure that sqlite lock is released before emitting signals
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, QString("database retrieve failed. Could not execute query (%1). The SQL reply was: %2").arg(q.executedQuery()).arg(q.lastError().text())));
 		return false;
 	}
@@ -530,6 +548,7 @@ bool AMDatabase::ensureTable(const QString& tableName, const QStringList& column
 		return true;
 	}
 	else {
+		q.finish();	// make sure that sqlite lock is released before emitting signals
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -6, QString("database table create failed. Could not execute query (%1). The SQL reply was: %2").arg(q.executedQuery()).arg(q.lastError().text())));
 		return false;
 	}
@@ -544,10 +563,12 @@ bool AMDatabase::ensureColumn(const QString& tableName, const QString& columnNam
 	q.prepare(QString("ALTER TABLE %1 ADD COLUMN %2 %3;").arg(tableName).arg(columnName).arg(columnType));
 
 	if(q.exec()) {
-		// AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Adding database column %1 to table %2.").arg(columnName).arg(tableName)));
+		q.finish();
+		// Error suppressed: this happens all the time if the column exists alread. AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Adding database column %1 to table %2.").arg(columnName).arg(tableName)));
 		return true;
 	}
 	else {
+		q.finish();	// make sure that sqlite lock is released before emitting signals
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Error adding database column %1 to table %2. Maybe it's already there? Sql reply says: %3").arg(columnName).arg(tableName).arg(q.lastError().text())));
 		return false;
 	}
@@ -559,10 +580,12 @@ bool AMDatabase::createIndex(const QString& tableName, const QString& columnName
 	indexName.remove(QRegExp("[\\s\\,\\;]"));// remove whitespace, commas, and semicolons from index name...
 	q.prepare(QString("CREATE INDEX %1 ON %2(%3);").arg(indexName, tableName, columnNames));
 	if(q.exec()) {
-		// AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Added index on columns (%1) to table '%2'.").arg(columnNames).arg(tableName)));
+		q.finish();
+		// Error suppressed: this happens all the time if the index already exists. AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Added index on columns (%1) to table '%2'.").arg(columnNames).arg(tableName)));
 		return true;
 	}
 	else {
+		q.finish();	// make sure that sqlite lock is released before emitting signals
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Error adding index on columns (%1) to table '%2'. Maybe it's already there? Sql reply says: %3").arg(columnNames).arg(tableName).arg(q.lastError().text())));
 		return false;
 	}
@@ -597,6 +620,7 @@ QSqlDatabase AMDatabase::qdb() const
 	else {
 		QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", QString("%1%2").arg(connectionName_).arg((qulonglong)threadId));
 		db.setDatabaseName(dbAccessString_);
+		db.setConnectOptions("QSQLITE_BUSY_TIMEOUT=10000");
 
 		bool ok = db.open();
 		if(!ok) {

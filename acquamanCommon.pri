@@ -378,7 +378,7 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/actions/AMBeamlineListAction.h \
 	source/actions/AMBeamlineControlWaitAction.h \
 	source/actions/AMBeamlineUserConfirmAction.h \
-	source/ui/dataman/AMScanQueryModel.h \
+	source/dataman/database/AMQueryTableModel.h \
 	source/dataman/export/AMExportController.h \
 	source/dataman/export/AMExporter.h \
 	source/dataman/export/AMExporterOption.h \
@@ -643,7 +643,7 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/actions/AMBeamlineListAction.cpp \
 	source/actions/AMBeamlineControlWaitAction.cpp \
 	source/actions/AMBeamlineUserConfirmAction.cpp \
-	source/ui/dataman/AMScanQueryModel.cpp \
+	source/dataman/database/AMQueryTableModel.cpp \
 	source/dataman/export/AMExportController.cpp \
 	source/dataman/export/AMExporterOption.cpp \
 	source/dataman/export/AMExporterOptionGeneral.cpp \
