@@ -43,6 +43,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/VESPERS/VortexDetectorStatusHelper.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
+#include "application/AMAppControllerSupport.h"
+
+#include "dataman/export/AMExporterOptionGeneralAscii.h"
+#include "dataman/export/AMExporterGeneralAscii.h"
 
 #include <QFileDialog>
 
@@ -90,6 +94,8 @@ bool VESPERSAppController::startup() {
 		AMDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
 		AMDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
 
+		AMAppControllerSupport::registerClass<VESPERSXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>();
+
 		// Testing and making the first run in the database, if there isn't one already.  Make this it's own function if you think startup() is getting too big ; )
 		////////////////////////////////////////
 
@@ -98,6 +104,20 @@ bool VESPERSAppController::startup() {
 			// no run yet... let's create one.
 			AMRun firstRun("VESPERS", 4);	/// \todo For now, we know that 4 is the ID of the VESPERS facility, but this is a hardcoded hack.
 			firstRun.storeToDb(AMDatabase::database("user"));
+
+			AMExporterOptionGeneralAscii *vespersDefault = new AMExporterOptionGeneralAscii();
+			vespersDefault->setName("VESPERSDefault");
+			vespersDefault->setFileName("$name_$fsIndex.txt");
+			vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription");
+			vespersDefault->setHeaderIncluded(true);
+			vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
+			vespersDefault->setColumnHeaderIncluded(true);
+			vespersDefault->setColumnHeaderDelimiter("==========");
+			vespersDefault->setSectionHeader("");
+			vespersDefault->setSectionHeaderIncluded(true);
+			vespersDefault->setIncludeAllDataSources(true);
+			vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.txt");
+			vespersDefault->storeToDb(AMDatabase::database("user"));
 		}
 
 		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
