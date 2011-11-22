@@ -99,8 +99,10 @@ void AMNewRunDialog::addFacility(){
 			i++;
 		}
 	}
-	else
+	else {
+		q.finish();
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Error retrieving information from the database."));
+	}
 
 
 }

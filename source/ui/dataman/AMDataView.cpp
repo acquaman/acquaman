@@ -346,11 +346,20 @@ void AMDataView::refreshView() {
 			findRunIds.setForwardOnly(true);
 			findRunIds.prepare(QString("SELECT id, dateTime, name FROM AMRun_table"));
 			if(findRunIds.exec()) {
+				QVector<int> runIds;
+				QVector<QString> runNames;
+				QVector<QDateTime> runDateTimes;
 				while(findRunIds.next()) {
+					runIds << findRunIds.value(0).toInt();
+					runNames << findRunIds.value(2).toString();
+					runDateTimes << findRunIds.value(1).toDateTime();
+				}
+				findRunIds.finish();	// to avoid long db locks, let's finish this query before doing all the section queries
+				for(int i=0, cc=runIds.count(); i<cc; i++) {
 					found = true;
-					int runId = findRunIds.value(0).toInt();
-					QString runName = findRunIds.value(2).toString();
-					QDateTime dateTime = findRunIds.value(1).toDateTime();
+					int runId = runIds.at(i);
+					QString runName = runNames.at(i);
+					QDateTime dateTime = runDateTimes.at(i);
 					QString fullRunName = runName + " (" + AMDateTimeUtils::prettyDate(dateTime) + ")";
 					AMDataViewSection* section = new AMDataViewSection(
 								fullRunName,
@@ -379,10 +388,18 @@ void AMDataView::refreshView() {
 			findExperiments.setForwardOnly(true);
 			findExperiments.prepare(QString("SELECT id, name FROM AMExperiment_table"));
 			if(findExperiments.exec()) {
+				QVector<int> expIds;
+				QVector<QString> expNames;
 				while(findExperiments.next()) {
+					expIds << findExperiments.value(0).toInt();
+					expNames << findExperiments.value(1).toString();
+				}
+				findExperiments.finish();	// to avoid long db locks, let's finish this query before doing all the section queries
+				for(int i=0, cc=expIds.count(); i<cc; i++) {
 					found = true;
-					int expId = findExperiments.value(0).toInt();
-					QString expName = findExperiments.value(1).toString();
+					int expId = expIds.at(i);
+					QString expName = expNames.at(i);
+
 					AMDataViewSection* section = new AMDataViewSection(
 								expName,
 								"Showing all data from this experiment",
@@ -409,10 +426,17 @@ void AMDataView::refreshView() {
 			findTypes.setForwardOnly(true);
 			findTypes.prepare(QString("SELECT AMDbObjectType, description FROM AMDbObjectTypes_table WHERE AMDbObjectType IN (SELECT AMDbObjectType FROM AMScan_table)"));
 			if(findTypes.exec()) {
+				QVector<QString> classNames;
+				QVector<QString> typeDescriptions;
 				while(findTypes.next()) {
+					classNames << findTypes.value(0).toString();
+					typeDescriptions << findTypes.value(1).toString();
+				}
+				findTypes.finish();
+				for(int i=0, cc=classNames.count(); i<cc; i++) {
 					found = true;
-					QString className = findTypes.value(0).toString();
-					QString typeDescription = findTypes.value(1).toString();
+					QString className = classNames.at(i);
+					QString typeDescription = typeDescriptions.at(i);
 					AMDataViewSection* section = new AMDataViewSection(
 								typeDescription,
 								"Showing all " + typeDescription,
@@ -439,11 +463,20 @@ void AMDataView::refreshView() {
 			findSamples.setForwardOnly(true);
 			findSamples.prepare("SELECT id, dateTime, name FROM AMSample_table");	/// \todo thumbnail for samples
 			if(findSamples.exec()) {
+				QVector<int> sampleIds;
+				QVector<QDateTime> sampleDateTimes;
+				QVector<QString> sampleNames;
 				while(findSamples.next()) {
+					sampleIds << findSamples.value(0).toInt();
+					sampleDateTimes << findSamples.value(1).toDateTime();
+					sampleNames << findSamples.value(2).toString();
+				}
+				findSamples.finish();
+				for(int i=0, cc=sampleIds.count(); i<cc; i++) {
 					found = true;
-					int sampleId = findSamples.value(0).toInt();
-					QDateTime dt = findSamples.value(1).toDateTime();
-					QString name = findSamples.value(2).toString();
+					int sampleId = sampleIds.at(i);
+					QDateTime dt = sampleDateTimes.at(i);
+					QString name = sampleNames.at(i);
 					AMDataViewSection* section = new AMDataViewSection(
 								name,
 								"Sample created " + AMDateTimeUtils::prettyDateTime(dt),
@@ -470,11 +503,20 @@ void AMDataView::refreshView() {
 			findElements.setForwardOnly(true);
 			findElements.prepare("SELECT id, symbol, name FROM Elements WHERE id IN (SELECT elementId FROM SampleElementEntries)");
 			if(findElements.exec()) {
+				QVector<int> elementIds;
+				QVector<QString> elementSymbols;
+				QVector<QString> elementNames;
 				while(findElements.next()) {
+					elementIds << findElements.value(0).toInt();
+					elementSymbols << findElements.value(1).toString();
+					elementNames << findElements.value(2).toString();
+				}
+				findElements.finish();
+				for(int i=0, cc=elementIds.count(); i<cc; i++) {
 					found = true;
-					int elementId = findElements.value(0).toInt();
-					QString symbol = findElements.value(1).toString();
-					QString name = findElements.value(2).toString();
+					int elementId = elementIds.at(i);
+					QString symbol = elementSymbols.at(i);
+					QString name = elementNames.at(i);
 					AMDataViewSection* section = new AMDataViewSection(
 								symbol + ": " + name,
 								QString("Showing all data from samples containing %1").arg(name),
@@ -516,7 +558,7 @@ void AMDataView::refreshView() {
 		}
 		else
 			headingLabel_->setText(userName_ + "Data");
-
+		runInfo.finish();
 
 		switch(organizeMode_) {
 		case AMDataViews::OrganizeRuns:
@@ -543,10 +585,17 @@ void AMDataView::refreshView() {
 			findExperiments.setForwardOnly(true);
 			findExperiments.prepare(QString("SELECT id, name FROM AMExperiment_table WHERE id IN (SELECT experimentId FROM ObjectExperimentEntries WHERE objectId IN (SELECT id FROM AMScan_table WHERE runId = '%1'))").arg(runId_));
 			if(findExperiments.exec()) {
+				QVector<int> expIds;
+				QVector<QString> expNames;
 				while(findExperiments.next()) {
+					expIds << findExperiments.value(0).toInt();
+					expNames << findExperiments.value(1).toString();
+				}
+				findExperiments.finish();	// to avoid long db locks, let's finish this query before doing all the section queries
+				for(int i=0, cc=expIds.count(); i<cc; i++) {
 					found = true;
-					int expId = findExperiments.value(0).toInt();
-					QString expName = findExperiments.value(1).toString();
+					int expId = expIds.at(i);
+					QString expName = expNames.at(i);
 					AMDataViewSection* section = new AMDataViewSection(
 								expName,
 								QString("Showing all data from this experiment in the <i>%1</i> run").arg(fullRunName),
@@ -574,10 +623,17 @@ void AMDataView::refreshView() {
 			findTypes.prepare(QString("SELECT AMDbObjectType, description FROM AMDbObjectTypes_table WHERE AMDbObjectType IN (SELECT DISTINCT AMDbObjectType FROM AMScan_table WHERE runId = ?)"));
 			findTypes.bindValue(0, runId_);
 			if(findTypes.exec()) {
+				QVector<QString> classNames;
+				QVector<QString> typeDescriptions;
 				while(findTypes.next()) {
+					classNames << findTypes.value(0).toString();
+					typeDescriptions << findTypes.value(1).toString();
+				}
+				findTypes.finish();
+				for(int i=0, cc=classNames.count(); i<cc; i++) {
 					found = true;
-					QString className = findTypes.value(0).toString();
-					QString typeDescription = findTypes.value(1).toString();
+					QString className = classNames.at(i);
+					QString typeDescription = typeDescriptions.at(i);
 					AMDataViewSection* section = new AMDataViewSection(
 								typeDescription,
 								QString("Showing all data of this type in the <i>%1</i> run").arg(fullRunName),
@@ -605,11 +661,20 @@ void AMDataView::refreshView() {
 			findSamples.prepare("SELECT id, dateTime, name FROM AMSample_table WHERE id IN (SELECT sampleId FROM AMScan_table WHERE runId = ?)");	/// \todo add thumbnail icon!
 			findSamples.bindValue(0, runId_);
 			if(findSamples.exec()) {
+				QVector<int> sampleIds;
+				QVector<QDateTime> sampleDateTimes;
+				QVector<QString> sampleNames;
 				while(findSamples.next()) {
+					sampleIds << findSamples.value(0).toInt();
+					sampleDateTimes << findSamples.value(1).toDateTime();
+					sampleNames << findSamples.value(2).toString();
+				}
+				findSamples.finish();
+				for(int i=0, cc=sampleIds.count(); i<cc; i++) {
 					found = true;
-					int sampleId = findSamples.value(0).toInt();
-					QDateTime dt = findSamples.value(1).toDateTime();
-					QString name = findSamples.value(2).toString();
+					int sampleId = sampleIds.at(i);
+					QDateTime dt = sampleDateTimes.at(i);
+					QString name = sampleNames.at(i);
 					AMDataViewSection* section = new AMDataViewSection(
 								name,
 								QString("Sample created %1.  Showing all data from this sample in the <i>%2</i> run").arg(AMDateTimeUtils::prettyDateTime(dt)).arg(fullRunName),
@@ -637,11 +702,20 @@ void AMDataView::refreshView() {
 			findElements.prepare("SELECT id, symbol, name FROM Elements WHERE id IN (SELECT elementId FROM SampleElementEntries WHERE sampleId IN (SELECT sampleId FROM AMScan_table WHERE runId = ?))");
 			findElements.bindValue(0, runId_);
 			if(findElements.exec()) {
+				QVector<int> elementIds;
+				QVector<QString> elementSymbols;
+				QVector<QString> elementNames;
 				while(findElements.next()) {
+					elementIds << findElements.value(0).toInt();
+					elementSymbols << findElements.value(1).toString();
+					elementNames << findElements.value(2).toString();
+				}
+				findElements.finish();
+				for(int i=0, cc=elementIds.count(); i<cc; i++) {
 					found = true;
-					int elementId = findElements.value(0).toInt();
-					QString symbol = findElements.value(1).toString();
-					QString name = findElements.value(2).toString();
+					int elementId = elementIds.at(i);
+					QString symbol = elementSymbols.at(i);
+					QString name = elementNames.at(i);
 					AMDataViewSection* section = new AMDataViewSection(
 								symbol + ": " + name,
 								QString("Showing all data from samples containing %1 in the <i>%2</i> run").arg(name).arg(fullRunName),
@@ -682,6 +756,8 @@ void AMDataView::refreshView() {
 		else
 			headingLabel_->setText(userName_ + "Data");
 
+		expInfo.finish();
+
 		switch(organizeMode_) {
 		case AMDataViews::OrganizeExperiments:
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "This view is showing a single experiment, but the organize mode is set to organize by experiments. This doesn't make sense and should never happen. Handling as OrganizeNone."));
@@ -706,11 +782,20 @@ void AMDataView::refreshView() {
 			findRuns.setForwardOnly(true);
 			findRuns.prepare(QString("SELECT id, name, dateTime FROM AMRun_table WHERE id IN (SELECT runId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%1'))").arg(experimentId_));
 			if(findRuns.exec()) {
+				QVector<int> runIds;
+				QVector<QString> runNames;
+				QVector<QDateTime> runDateTimes;
 				while(findRuns.next()) {
+					runIds << findRuns.value(0).toInt();
+					runNames << findRuns.value(2).toString();
+					runDateTimes << findRuns.value(1).toDateTime();
+				}
+				findRuns.finish();	// to avoid long db locks, let's finish this query before doing all the section queries
+				for(int i=0, cc=runIds.count(); i<cc; i++) {
 					found = true;
-					int runId = findRuns.value(0).toInt();
-					QString runName = findRuns.value(1).toString();
-					QDateTime runTime = findRuns.value(2).toDateTime();
+					int runId = runIds.at(i);
+					QString runName = runNames.at(i);
+					QDateTime runTime = runDateTimes.at(i);
 					QString fullRunName = runName + " (" + AMDateTimeUtils::prettyDate(runTime) + ")";
 					AMDataViewSection* section = new AMDataViewSection(
 								fullRunName,
@@ -742,10 +827,17 @@ void AMDataView::refreshView() {
 									  "WHERE ObjectExperimentEntries.experimentId = ? AND ObjectExperimentEntries.objectId = AMScan_table.id AND AMDbObjectTypes_table.AMDbObjectType = AMScan_table.AMDbObjectType;"));
 			findTypes.bindValue(0, experimentId_);
 			if(findTypes.exec()) {
+				QVector<QString> classNames;
+				QVector<QString> typeDescriptions;
 				while(findTypes.next()) {
+					classNames << findTypes.value(0).toString();
+					typeDescriptions << findTypes.value(1).toString();
+				}
+				findTypes.finish();
+				for(int i=0, cc=classNames.count(); i<cc; i++) {
 					found = true;
-					QString className = findTypes.value(0).toString();
-					QString typeDescription = findTypes.value(1).toString();
+					QString className = classNames.at(i);
+					QString typeDescription = typeDescriptions.at(i);
 					AMDataViewSection* section = new AMDataViewSection(
 								typeDescription,
 								QString("Showing all data of this type in the <i>%1</i> experiment").arg(expName),
@@ -774,11 +866,20 @@ void AMDataView::refreshView() {
 			findSamples.prepare("SELECT id,dateTime,name FROM AMSample_table WHERE id IN (SELECT sampleId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?));");	/// \todo add thumbnail icon!
 			findSamples.bindValue(0, experimentId_);
 			if(findSamples.exec()) {
+				QVector<int> sampleIds;
+				QVector<QDateTime> sampleDateTimes;
+				QVector<QString> sampleNames;
 				while(findSamples.next()) {
+					sampleIds << findSamples.value(0).toInt();
+					sampleDateTimes << findSamples.value(1).toDateTime();
+					sampleNames << findSamples.value(2).toString();
+				}
+				findSamples.finish();
+				for(int i=0, cc=sampleIds.count(); i<cc; i++) {
 					found = true;
-					int sampleId = findSamples.value(0).toInt();
-					QDateTime dt = findSamples.value(1).toDateTime();
-					QString name = findSamples.value(2).toString();
+					int sampleId = sampleIds.at(i);
+					QDateTime dt = sampleDateTimes.at(i);
+					QString name = sampleNames.at(i);
 					AMDataViewSection* section = new AMDataViewSection(
 								name,
 								QString("Sample created %1.  Showing all data from this sample in the <i>%2</i> experiment").arg(AMDateTimeUtils::prettyDateTime(dt)).arg(expName),
@@ -806,11 +907,20 @@ void AMDataView::refreshView() {
 			findElements.prepare("SELECT id,symbol,name FROM Elements WHERE id IN (SELECT elementId FROM SampleElementEntries WHERE sampleId IN (SELECT sampleId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?)));");
 			findElements.bindValue(0, experimentId_);
 			if(findElements.exec()) {
+				QVector<int> elementIds;
+				QVector<QString> elementSymbols;
+				QVector<QString> elementNames;
 				while(findElements.next()) {
+					elementIds << findElements.value(0).toInt();
+					elementSymbols << findElements.value(1).toString();
+					elementNames << findElements.value(2).toString();
+				}
+				findElements.finish();
+				for(int i=0, cc=elementIds.count(); i<cc; i++) {
 					found = true;
-					int elementId = findElements.value(0).toInt();
-					QString symbol = findElements.value(1).toString();
-					QString name = findElements.value(2).toString();
+					int elementId = elementIds.at(i);
+					QString symbol = elementSymbols.at(i);
+					QString name = elementNames.at(i);
 					AMDataViewSection* section = new AMDataViewSection(
 								symbol + ": " + name,
 								QString("Showing all data from samples containing %1 in the <i>%2</i> experiment").arg(name).arg(expName),
@@ -1136,31 +1246,34 @@ void AMDataViewSectionThumbnailView::populate() {
 
 	//qDebug() << "   prior to executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
 
-	if(!q.exec())
+	if(!q.exec()) {
+		q.finish();
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -1, QString("Error executing database query '%1'. The error was %2").arg(q.executedQuery()).arg(q.lastError().text())));
+	}
 
 	// qDebug() << "   after executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
 
 	// int processEventsBreakCounter = 0;
 
-	while(q.next()) {
+	else {
+		while(q.next()) {
 
-		AMThumbnailScrollGraphicsWidget* w = new AMThumbnailScrollGraphicsWidget(this);
-		w->setSource(db_, dbTableName_, q.value(5).toInt(), q.value(0).toInt(), q.value(1).toInt());
-		QString caption1 = q.value(2).toString();
-		if(q.value(3).toInt() != 0)
-			caption1.append(QString(" #%1").arg(q.value(3).toInt()));
-		w->setCaption1(caption1);
-		w->setCaption2(AMDateTimeUtils::prettyDateTime(q.value(4).toDateTime()));
+			AMThumbnailScrollGraphicsWidget* w = new AMThumbnailScrollGraphicsWidget(this);
+			w->setSource(db_, dbTableName_, q.value(5).toInt(), q.value(0).toInt(), q.value(1).toInt());
+			QString caption1 = q.value(2).toString();
+			if(q.value(3).toInt() != 0)
+				caption1.append(QString(" #%1").arg(q.value(3).toInt()));
+			w->setCaption1(caption1);
+			w->setCaption2(AMDateTimeUtils::prettyDateTime(q.value(4).toDateTime()));
 
-		layout_->addItem(w);
+			layout_->addItem(w);
 
-		/*if(processEventsBreakCounter++ == AMDATAVIEWSECTIONTHUMBNAILVIEW_PROCESS_EVENTS_EVERY_N_ITEMS) {
+			/*if(processEventsBreakCounter++ == AMDATAVIEWSECTIONTHUMBNAILVIEW_PROCESS_EVENTS_EVERY_N_ITEMS) {
    processEventsBreakCounter = 0;
    QApplication::processEvents();
   }*/
 
-		/*
+			/*
   AMThumbnailScrollViewer* w = new AMThumbnailScrollViewer();
   w->setSource(db_, q.value(0).toInt(), q.value(1).toInt());
   QGraphicsProxyWidget* p = new QGraphicsProxyWidget(gWidget_);
@@ -1169,6 +1282,7 @@ void AMDataViewSectionThumbnailView::populate() {
   layout_->addItem(p);
   */
 
+		}
 	}
 
 	// qDebug() << "   ending at " << QTime::currentTime().toString("mm:ss.zzz") << "\n";
@@ -1205,6 +1319,8 @@ void AMLayoutControlledGraphicsWidget::resizeEvent(QGraphicsSceneResizeEvent *ev
 }
 
 #include <QAbstractItemModel>
+#include "dataman/AMSample.h"
+#include "dataman/AMRun.h"
 
 AMDataViewSectionListView::AMDataViewSectionListView(AMDatabase *db, const QString &dbTableName, const QString &whereClause, QGraphicsItem *parent, double initialWidthConstraint, int initialItemSize)
 	: AMAbstractDataViewSection(parent)
@@ -1235,7 +1351,24 @@ AMDataViewSectionListView::AMDataViewSectionListView(AMDatabase *db, const QStri
 	tableView_->setSortingEnabled(true);
 
 
-	tableModel_ = new AMScanQueryModel(db_, this, tableName_, whereClause);
+	tableModel_ = new AMQueryTableModel(db_,
+									   this,
+									   tableName_,
+									   "id",
+									   whereClause,
+									   "dateTime ASC",
+									   QList<AMQueryTableModelColumnInfo>()
+										   << AMQueryTableModelColumnInfo("Row", "id")
+										   << AMQueryTableModelColumnInfo("Name", "name")
+										   << AMQueryTableModelColumnInfo("#", "number")
+										   << AMQueryTableModelColumnInfo("When", "dateTime")
+										   // << AMQueryTableModelColumnInfo("About", "scanInfo")
+										   << AMQueryTableModelColumnInfo("Sample", "sampleId", true, AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "name")
+										   << AMQueryTableModelColumnInfo("Technique", "AMDbObjectType", true, "AMDbObjectTypes_table", "description", "AMDbObjectType")
+										   // << AMQueryTableModelColumnInfo("Where", "facilityId", true, AMDbObjectSupport::s()->tableNameForClass<AMFacility>(), "description")
+										   << AMQueryTableModelColumnInfo("Where", "runId", true, AMDbObjectSupport::s()->tableNameForClass<AMRun>(), "name")
+										   << AMQueryTableModelColumnInfo("Notes", "notes")
+									   );
 	tableModel_->refreshQuery();
 	tableView_->setModel(tableModel_);
 

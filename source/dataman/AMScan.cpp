@@ -422,7 +422,6 @@ bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource, bool 
 
 int AMScan::thumbnailCount() const{
 	if(currentlyScanning()){
-		qDebug() << "Thumbnail Count: AMScan knows it's acquiring.";
 		return 1;
 	}
 	if(analyzedDataSources_.count())
@@ -433,7 +432,6 @@ int AMScan::thumbnailCount() const{
 
 // Return a thumbnail picture for thumbnail number \c index. For now, we use the following decision: Normally we provide thumbnails for all the analyzed data sources.  If there are no analyzed data sources, we provide thumbnails for all the raw data sources.
 AMDbThumbnail AMScan::thumbnail(int index) const {
-	qDebug() << scanController() << currentlyScanning_;
 	if(currentlyScanning()) {
 
 		qDebug() << "thumbnail: AMScan knows it's scanning.";

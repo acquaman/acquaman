@@ -407,7 +407,7 @@ public:
 	virtual bool event(QEvent *event);
 };
 
-#include "ui/dataman/AMScanQueryModel.h"
+#include "dataman/database/AMQueryTableModel.h"
 
 /// This widget is used inside an AMDataViewSection to show the section's items in a table (list, or detail) view.
 class AMDataViewSectionListView : public AMAbstractDataViewSection {
@@ -438,7 +438,7 @@ protected:
 protected:
 	QGraphicsProxyWidget* proxyWidget_;
 	AMIgnoreScrollTableView* tableView_;
-	AMScanQueryModel* tableModel_;
+	AMQueryTableModel* tableModel_;
 
 	QGraphicsLinearLayout* layout_;
 
