@@ -266,7 +266,7 @@ AMNumber AM1DExpressionAB::value(const AMnDIndex& indexes, bool doBoundsChecking
 			return AMNumber(AMNumber::InvalidError);
 		}
 
-		if (rv == std::numeric_limits<qreal>::infinity() || rv == -std::numeric_limits<qreal>::infinity() || rv == std::numeric_limits<qreal>::quiet_NaN() || rv == std::numeric_limits<qreal>::signaling_NaN())
+		if (rv == std::numeric_limits<qreal>::infinity() || rv == -std::numeric_limits<qreal>::infinity() || rv == std::numeric_limits<qreal>::quiet_NaN())
 			return 0;
 
 		return rv;
