@@ -6,7 +6,7 @@
 # Video Support: Remove this line if you do not have the multimedia module from QtMobility
 #CONFIG += mobility
 
-# Debug:
+# Debug: Uncomment this to build debugging symbols into the application. Note that as of Nov. 2011, compiling in debug symbols has been observed to consistently break the dacq library. This is probably a memory error.
 CONFIG += debug
 
 # Automatically determines a user's home folder
