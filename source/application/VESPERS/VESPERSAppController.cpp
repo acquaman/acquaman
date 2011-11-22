@@ -108,7 +108,7 @@ bool VESPERSAppController::startup() {
 			AMExporterOptionGeneralAscii *vespersDefault = new AMExporterOptionGeneralAscii();
 			vespersDefault->setName("VESPERSDefault");
 			vespersDefault->setFileName("$name_$fsIndex.txt");
-			vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription");
+			vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n$scanConfiguration[roiInfoList]");
 			vespersDefault->setHeaderIncluded(true);
 			vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
 			vespersDefault->setColumnHeaderIncluded(true);
