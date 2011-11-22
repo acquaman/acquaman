@@ -111,8 +111,10 @@ void AMRunSelector::populateRuns() {
 			i++;
 		}
 	}
-	else
+	else {
+		q.finish();
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Error retrieving run information from the database."));
+	}
 
 	// restore the previous id. If we didn't have anything selected previously, and we have at least one valid run now, select it, and notify
 	if(oldRunId == -1 && count() > 1) {

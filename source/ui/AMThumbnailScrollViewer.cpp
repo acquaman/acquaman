@@ -402,6 +402,7 @@ void AMThumbnailScrollGraphicsWidget::displayThumbnail(AMDatabase* db, int id) {
 			scaledPixmap_ = QPixmap();
 		}
 		else {
+			q.finish();
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -1, "AMThumbnailScrollViewerGraphicsWidget: Invalid/un-implemented thumbnail type."));
 			pixmap_ = invalidPixmap();
 			scaledPixmap_ = QPixmap();

@@ -149,6 +149,7 @@ void REIXSXESScanConfigurationView::onLoadCalibrations() {
 		QDateTime dateTime = q.value(1).toDateTime();
 		calibrationSelector_->addItem(AMDateTimeUtils::prettyDateTime(dateTime), id);
 	}
+	q.finish();
 
 	// if we had a previously valid calibration, re-set it as current
 	int newIndexForOldId;

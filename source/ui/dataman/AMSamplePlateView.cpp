@@ -372,6 +372,7 @@ void AMSamplePlateSelector::populateSamplePlates() {
 		ui_.plateComboBox->setItemData(index, dateTime, AM::DateTimeRole);
 		ui_.plateComboBox->setItemData(index, "created " + AMDateTimeUtils::prettyDateTime(dateTime), AM::DescriptionRole);
 	}
+	q2.finish();
 
 	// highlight the item corresponding to our current plate index
 	ui_.plateComboBox->setCurrentIndex( ui_.plateComboBox->findData(plate_->id(), AM::IdRole) );
