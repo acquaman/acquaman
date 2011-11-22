@@ -36,7 +36,7 @@ Acquaman is used in various forms to build applications with different functiona
 
   \section programmerDocIntro Introduction For Programmers...
 
-  For an introductory workshop to the Acquaman Framework, see these <a href="http://beamteam.usask.ca/mark/acquaman/AcquamanOrientationWorkshop_March2011.pdf">slides from March 2011</a>, which cover:
+  For an introductory workshop to the Acquaman Framework, see these <a href="http://acquaman.github.com/acquaman/doc/html/AcquamanOrientationWorkshop_March2011.pdf">slides from March 2011</a>, which cover:
 
 
 	- Core principles and programming paradigms
