@@ -344,15 +344,14 @@ void AMDataView::refreshView() {
 			bool found = false;
 			QSqlQuery findRunIds = db_->query();
 			findRunIds.setForwardOnly(true);
-			findRunIds.prepare(QString("SELECT id, dateTime, name, endDateTime FROM AMRun_table"));
+			findRunIds.prepare(QString("SELECT id, dateTime, name FROM AMRun_table"));
 			if(findRunIds.exec()) {
 				while(findRunIds.next()) {
 					found = true;
 					int runId = findRunIds.value(0).toInt();
 					QString runName = findRunIds.value(2).toString();
 					QDateTime dateTime = findRunIds.value(1).toDateTime();
-					QDateTime endDateTime = findRunIds.value(3).toDateTime();
-					QString fullRunName = runName + " (" + AMDateTimeUtils::prettyDateRange(dateTime, endDateTime) + ")";
+					QString fullRunName = runName + " (" + AMDateTimeUtils::prettyDate(dateTime) + ")";
 					AMDataViewSection* section = new AMDataViewSection(
 								fullRunName,
 								"Showing all data from this run",
@@ -507,13 +506,12 @@ void AMDataView::refreshView() {
 		QString runName, fullRunName;
 		QDateTime runTime, runEndTime;
 		QSqlQuery runInfo = db_->query();
-		runInfo.prepare("SELECT name, dateTime, endDateTime FROM AMRun_table where id = ?");
+		runInfo.prepare("SELECT name, dateTime FROM AMRun_table where id = ?");
 		runInfo.bindValue(0, runId_);
 		if(runInfo.exec() && runInfo.next()) {
 			runName = runInfo.value(0).toString();
 			runTime = runInfo.value(1).toDateTime();
-			runEndTime = runInfo.value(2).toDateTime();
-			fullRunName = runName + " (" + AMDateTimeUtils::prettyDateRange(runTime, runEndTime) + ")";
+			fullRunName = runName + " (" + AMDateTimeUtils::prettyDate(runTime) + ")";
 			headingLabel_->setText(userName_ + "Runs: " + fullRunName);
 		}
 		else
@@ -706,15 +704,14 @@ void AMDataView::refreshView() {
 			bool found = false;
 			QSqlQuery findRuns = db_->query();
 			findRuns.setForwardOnly(true);
-			findRuns.prepare(QString("SELECT id, name, dateTime, endDateTime FROM AMRun_table WHERE id IN (SELECT runId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%1'))").arg(experimentId_));
+			findRuns.prepare(QString("SELECT id, name, dateTime FROM AMRun_table WHERE id IN (SELECT runId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%1'))").arg(experimentId_));
 			if(findRuns.exec()) {
 				while(findRuns.next()) {
 					found = true;
 					int runId = findRuns.value(0).toInt();
 					QString runName = findRuns.value(1).toString();
 					QDateTime runTime = findRuns.value(2).toDateTime();
-					QDateTime runEndTime = findRuns.value(3).toDateTime();
-					QString fullRunName = runName + " (" + AMDateTimeUtils::prettyDateRange(runTime, runEndTime) + ")";
+					QString fullRunName = runName + " (" + AMDateTimeUtils::prettyDate(runTime) + ")";
 					AMDataViewSection* section = new AMDataViewSection(
 								fullRunName,
 								QString("Showing all data from this run in the <i>%1</i> experiment").arg(expName),

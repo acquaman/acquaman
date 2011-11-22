@@ -89,7 +89,7 @@ void AMRunSelector::populateRuns() {
 	/* NTBA - September 1st, 2011 (David Chevrier)
 	"Hard-coded database table names. Down to only "AMDbObjectThumbnails_table."
 	*/
-	q.prepare(QString("SELECT %1.id,%1.name,%1.dateTime,%2.description,AMDbObjectThumbnails_table.type,AMDbObjectThumbnails_table.thumbnail,%1.endDateTime "
+	q.prepare(QString("SELECT %1.id,%1.name,%1.dateTime,%2.description,AMDbObjectThumbnails_table.type,AMDbObjectThumbnails_table.thumbnail "
 			  "FROM %1,%2,AMDbObjectThumbnails_table "
 			  "WHERE %1.facilityId = %2.id AND AMDbObjectThumbnails_table.id = %2.thumbnailFirstId "
 			  "ORDER BY %1.dateTime DESC").arg(AMDbObjectSupport::s()->tableNameForClass<AMRun>()).arg(AMDbObjectSupport::s()->tableNameForClass<AMFacility>()));
@@ -97,9 +97,8 @@ void AMRunSelector::populateRuns() {
 	if (q.exec()) {
 		while (q.next()){
 			addItem(QString("%1, started %2").arg(q.value(1).toString()).arg(AMDateTimeUtils::prettyDate(q.value(2).toDateTime())));
-			setItemData(i, q.value(3).toString() + ", " + AMDateTimeUtils::prettyDateRange(q.value(2).toDateTime(), q.value(6).toDateTime()), AM::DescriptionRole);
+			setItemData(i, q.value(3).toString(), AM::DescriptionRole);
 			setItemData(i, q.value(2).toDateTime(), AM::DateTimeRole);
-			setItemData(i, q.value(6).toDateTime(), AM::EndDateTimeRole);
 			if(q.value(4).toString() == "PNG") {
 				QPixmap p;
 				if(p.loadFromData(q.value(5).toByteArray(), "PNG"))

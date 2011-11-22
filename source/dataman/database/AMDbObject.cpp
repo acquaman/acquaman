@@ -71,7 +71,7 @@ QString AMDbThumbnail::typeString() const {
 AMDbObject::AMDbObject(QObject *parent) : QObject(parent) {
 	id_ = 0;
 	database_ = 0;
-	setModified(true);
+	modified_ = true;
 
 	name_ = "Unnamed Object";
 
@@ -115,13 +115,7 @@ QString AMDbObject::dbTableName() const {
 const AMDbObjectInfo* AMDbObject::dbObjectInfo() const {
 	return AMDbObjectSupport::s()->objectInfoForClass( type() );
 }
-/*
-const AMDbObjectInfo* AMDbObject::dbObjectInfo() const {
- if( AMDbObjectSupport::s()->registeredClasses()->contains( type() ) ) {
-  return &((AMDbObjectInfo&)((*AMDbObjectSupport::s()->registeredClasses())[ type() ]));
- }
- return 0;
-}*/
+
 
 #include <QDebug>
 

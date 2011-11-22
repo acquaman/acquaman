@@ -122,10 +122,6 @@ public:
 	/// Loads a saved scan from the database into self. Returns true on success.
 	/*! Re-implemented from AMDbObject::loadFromDb(), this version also loads the scan's raw data if autoLoadData() is set to true, and the stored filePath doesn't match the existing filePath()*/
 	virtual bool loadFromDb(AMDatabase* db, int id);
-	/// Store or update self in the database. (Returns true on success.)
-	/*! Re-implemented from AMDbObject::storeToDb(), this version also schedules a date range update of the scan's run when it is inserted into a database for the very first time.
-	  */
-	virtual bool storeToDb(AMDatabase* db);
 
 
 	// Role 3: Data Sources (Raw and Analyzed)
@@ -319,7 +315,6 @@ public slots:
 	/// set the date/time:
 	void setDateTime(const QDateTime& dt) { dateTime_ = dt; setModified(true); emit dateTimeChanged(dateTime_); }
 	/// associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
-	/*! This will also tell the new run (and the old run, if it exists) to update their date ranges */
 	void setRunId(int newRunId);
 	/// Sets the sample associated with this scan.
 	void setSampleId(int newSampleId);

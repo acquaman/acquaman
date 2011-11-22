@@ -43,9 +43,9 @@ AMExperiment::AMExperiment(int databaseId, AMDatabase* database, QObject* parent
 
 bool AMExperiment::deleteExperiment(int id, AMDatabase *database)
 {
-	database->deleteRow(id, AMDbObjectSupport::s()->tableNameForClass(&staticMetaObject));
 	database->deleteRows(AMDbObjectSupport::experimentEntriesTableName(),
 						 QString("experimentId = %1").arg(id));
+	return database->deleteRow(id, AMDbObjectSupport::s()->tableNameForClass(&staticMetaObject));
 }
 
 

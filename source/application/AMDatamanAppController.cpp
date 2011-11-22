@@ -22,10 +22,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMSettings.h"
 #include "acquaman.h"
-#include "beamline/AMPVNames.h"
 
 #include "dataman/database/AMDatabase.h"
-#include "dataman/AMFirstTimeController.h"
 #include "dataman/AMImportController.h"
 
 #include "dataman/export/AMExportController.h"
@@ -43,11 +41,40 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 
+#include "ui/dataman/AMFirstTimeWidget.h"
+
 #include <QMenuBar>
+#include <QDir>
+#include <QFile>
 #include <QMessageBox>
 
 #include "util/AMSettings.h"
 #include "dataman/AMScan.h"
+
+
+// Necessary for registering database types:
+////////////////////////////
+#include <dataman/AMXASScan.h>
+#include <dataman/AMFastScan.h>
+#include <dataman/AMRun.h>
+#include <dataman/AMSample.h>
+#include <dataman/AMExperiment.h>
+#include <dataman/info/AMControlInfoList.h>
+#include <dataman/info/AMDetectorInfoSet.h>
+#include <dataman/AMSamplePlate.h>
+#include <dataman/info/AMSpectralOutputDetectorInfo.h>
+#include "dataman/AMUser.h"
+#include "dataman/AMXESScan.h"
+#include "dataman/info/AMROIInfo.h"
+#include "analysis/AM1DExpressionAB.h"
+#include "analysis/AM2DSummingAB.h"
+#include "analysis/AM1DDerivativeAB.h"
+#include "analysis/AMExternalScanDataSourceAB.h"
+#include "analysis/AM1DSummingAB.h"
+#include "analysis/AMDeadTimeAB.h"
+#include "dataman/export/AMExporterOptionGeneralAscii.h"
+#include "dataman/database/AMDbObjectSupport.h"
+
 
 AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	QObject(parent)
@@ -64,16 +91,223 @@ bool AMDatamanAppController::startup() {
 
 	AMErrorMon::enableDebugNotifications(true);
 
+	AM::registerTypes();
+
+	if(!startupLoadSettings()) { qWarning() << "Problem with Acquaman startup: loading settings."; return false; }
+	if(!startupLoadPlugins()) { qWarning() << "Problem with Acquaman startup: loading plugins."; return false; }
+
+	if(isFirstTimeRun_ = startupIsFirstTime()) {
+		if(!startupOnFirstTime()) { qWarning() << "Problem with Acquaman startup: handling first-time user."; return false; }
+	}
+	else {
+		if(!startupOnEveryTime()) { qWarning() << "Problem with Acquaman startup: handling non-first-time user."; return false; }
+	}
+
+	if(!startupRegisterDatabases()) { qWarning() << "Problem with Acquaman startup: registering databases."; return false; }
+
+	// Now that we have a database: populate initial settings, or just load user settings
+	if(isFirstTimeRun_) {
+		if(!startupPopulateNewDatabase()) { qWarning() << "Problem with Acquaman startup: populating new user database."; return false; }
+	}
+	else {
+		if(!startupLoadFromExistingDatabase()) { qWarning() << "Problem with Acquaman startup: reviewing existing database."; return false; }
+	}
+
+	if(!startupRegisterExporters()) { qWarning() << "Problem with Acquaman startup: registering exporters"; return false; }
+	if(!startupCreateUserInterface()) { qWarning() << "Problem with Acquaman startup: setting up the user interface."; return false; }
+	if(!startupInstallActions()) { qWarning() << "Problem with Acquaman startup: installing menu actions."; return false; }
+
+	// show main window
+	mw_->show();
+
+	isStarting_ = false;
+	return true;
+}
+
+bool AMDatamanAppController::startupLoadSettings()
+{
 	// Load settings from disk:
 	AMSettings::s()->load();
 	AMUserSettings::load();
-	AMPVNames::load();
+	return true;
+}
+
+bool AMDatamanAppController::startupLoadPlugins()
+{
 	// Load plugins:
 	AMPluginsManager::s()->loadApplicationPlugins();
+	return true;
+}
 
-	// ensure user data folder and database are ready for use, if this is the first time the program is ever run.
-	if(!AMFirstTimeController::firstTimeCheck())
+bool AMDatamanAppController::startupIsFirstTime()
+{
+	bool isFirstTime = false;
+
+	// check for missing user settings:
+	QSettings s(QSettings::IniFormat, QSettings::UserScope, "Acquaman", "Acquaman");
+	if(!s.contains("userDataFolder")) {
+		isFirstTime = true;
+	}
+
+	else {
+
+		// check for existence of user data folder:
+		QDir userDataDir(AMUserSettings::userDataFolder);
+		if(!userDataDir.exists()) {
+			isFirstTime = true;
+		}
+
+		// check for existence of database:
+		QString filename = AMUserSettings::userDataFolder + AMUserSettings::userDatabaseFilename;
+		QFile dbFile(filename);
+		if(!dbFile.exists()) {
+			isFirstTime = true;
+		}
+	}
+
+	return isFirstTime;
+}
+
+bool AMDatamanAppController::startupOnFirstTime()
+{
+	AMFirstTimeWizard ftw;
+
+	// We're pretty forceful here... The user needs to accept this dialog.
+	if(ftw.exec() != QDialog::Accepted)
 		return false;
+
+	AMUserSettings::userDataFolder = ftw.field("userDataFolder").toString();
+	if(!AMUserSettings::userDataFolder.endsWith('/'))
+		AMUserSettings::userDataFolder.append("/");
+
+	AMUserSettings::save();
+
+	// Attempt to create user's data folder, only if it doesn't exist:
+	QDir userDataDir(AMUserSettings::userDataFolder);
+	if(!userDataDir.exists()) {
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Information, 0, "Creating new user data folder: "  + AMUserSettings::userDataFolder));
+		if(!userDataDir.mkpath(AMUserSettings::userDataFolder)) {
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, 0, "Could not create user data folder " + AMUserSettings::userDataFolder));
+			return false;
+		}
+	}
+
+	// Find out the user's name:
+	AMUser::user()->setName( ftw.field("userName").toString() );
+
+	// create database connection (and actual database): the "user" database:
+	//////////////////////
+	AMDatabase* db = AMDatabase::createDatabase("user", AMUserSettings::userDataFolder + AMUserSettings::userDatabaseFilename);
+	if(!db)
+		return false;
+
+	return true;
+}
+
+bool AMDatamanAppController::startupOnEveryTime()
+{
+	// create the "user" database connection.
+	AMDatabase* db = AMDatabase::createDatabase("user", AMUserSettings::userDataFolder + AMUserSettings::userDatabaseFilename);
+	if(!db)
+		return false;
+
+	// check for and run any database upgrades we require...
+	if(!startupDatabaseUpgrades()) return false;
+
+	return true;
+}
+
+bool AMDatamanAppController::startupDatabaseUpgrades()
+{
+	return true;
+}
+
+bool AMDatamanAppController::startupRegisterDatabases()
+{
+	AMDatabase* db = AMDatabase::database("user");
+	if(!db) {
+		return false;
+	}
+
+	AMDbObjectSupport::s()->registerDatabase(db);
+	AMDbObjectSupport::s()->registerClass<AMDbObject>();
+	AMDbObjectSupport::s()->registerClass<AMScan>();
+	AMDbObjectSupport::s()->registerClass<AMXASScan>();
+	AMDbObjectSupport::s()->registerClass<AMFastScan>();
+	AMDbObjectSupport::s()->registerClass<AMXESScan>();
+
+	AMDbObjectSupport::s()->registerClass<AMRun>();
+	AMDbObjectSupport::s()->registerClass<AMExperiment>();
+	AMDbObjectSupport::s()->registerClass<AMSample>();
+	AMDbObjectSupport::s()->registerClass<AMFacility>();
+
+	AMDbObjectSupport::s()->registerClass<AMRawDataSource>();
+	AMDbObjectSupport::s()->registerClass<AMAnalysisBlock>();
+	AMDbObjectSupport::s()->registerClass<AM1DExpressionAB>();
+	AMDbObjectSupport::s()->registerClass<AM2DSummingAB>();
+	AMDbObjectSupport::s()->registerClass<AM1DDerivativeAB>();
+	AMDbObjectSupport::s()->registerClass<AMExternalScanDataSourceAB>();
+	AMDbObjectSupport::s()->registerClass<AM1DSummingAB>();
+	AMDbObjectSupport::s()->registerClass<AMDeadTimeAB>();
+
+
+	AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
+	AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
+	AMDbObjectSupport::s()->registerClass<AMControlInfo>();
+	AMDbObjectSupport::s()->registerClass<AMControlInfoList>();
+	AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
+	AMDbObjectSupport::s()->registerClass<AMDetectorInfoSet>();
+	AMDbObjectSupport::s()->registerClass<AMSamplePosition>();
+	AMDbObjectSupport::s()->registerClass<AMSamplePlate>();
+	AMDbObjectSupport::s()->registerClass<AMROIInfo>();
+	AMDbObjectSupport::s()->registerClass<AMROIInfoList>();
+
+	AMDbObjectSupport::s()->registerClass<AMExporterOptionGeneralAscii>();
+
+	AMDbObjectSupport::s()->registerClass<AMUser>();
+
+	return true;
+}
+
+bool AMDatamanAppController::startupPopulateNewDatabase()
+{
+	AMDatabase* db = AMDatabase::database("user");
+	if(!db)
+		return false;
+
+	// insert the user into the database, since they are new here.
+	AMUser::user()->storeToDb(db);
+
+	// Also on first time only: create facilities.
+	AMFacility blank("", "[Other Facility]", ":/128x128/contents.png");
+	blank.storeToDb(db);
+	AMFacility als801("8.0.1", "Advanced Light Source Beamline 8.0.1", ":/alsIcon.png");
+	als801.storeToDb(db);
+	AMFacility sgm("SGM", "CLS SGM Beamline", ":/clsIcon.png");
+	sgm.storeToDb(db);
+	AMFacility vespers("VESPERS", "CLS VESPERS Beamline", ":/clsIcon.png");
+	vespers.storeToDb(db);
+	AMFacility reixs("REIXS", "CLS REIXS Beamline", ":/clsIcon.png");
+	reixs.storeToDb(db);
+
+	return true;
+}
+
+bool AMDatamanAppController::startupLoadFromExistingDatabase()
+{
+	AMUser::user()->loadFromDb(AMDatabase::database("user"), 1);
+	return true;
+}
+
+bool AMDatamanAppController::startupRegisterExporters()
+{
+	// Install exporters
+	AMExportController::registerExporter<AMExporterGeneralAscii>();
+	return true;
+}
+
+bool AMDatamanAppController::startupCreateUserInterface()
+{
 	//Create the main tab window:
 	mw_ = new AMMainWindow();
 	mw_->setWindowTitle("Acquaman");
@@ -133,15 +367,11 @@ bool AMDatamanAppController::startup() {
 
 	connect(mw_, SIGNAL(currentPaneChanged(QWidget*)), this, SLOT(onCurrentPaneChanged(QWidget*)));
 
+	return true;
+}
 
-
-	// Install exporters
-	////////////////////////////////
-
-	AMExportController::registerExporter<AMExporterGeneralAscii>();
-
-
-
+bool AMDatamanAppController::startupInstallActions()
+{
 	// make/install actions:
 	/////////////////////////////////
 	QAction* importAction = new QAction("Import to Library...", mw_);
@@ -169,13 +399,10 @@ bool AMDatamanAppController::startup() {
 	fileMenu_->addAction(importAction);
 	fileMenu_->addAction(amSettingsAction);
 
-	// show main window
-	mw_->show();
-
-	isStarting_ = false;
 	return true;
-
 }
+
+
 
 
 /// Program shutdown:
@@ -555,6 +782,12 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 	editor->addScan(scan);
 	return true;
 }
+
+
+
+
+
+
 
 
 

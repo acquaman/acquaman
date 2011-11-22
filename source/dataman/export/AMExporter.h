@@ -131,7 +131,6 @@ protected:
 	QString krRun(const QString& arg = QString());
 	QString krRunName(const QString& arg = QString());
 	QString krRunStartDate(const QString& arg = QString());
-	QString krRunEndDate(const QString& arg = QString());
 	QString krRunNotes(const QString& arg = QString());
 
 	QString krFacilityName(const QString& arg = QString());

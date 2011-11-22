@@ -6,8 +6,9 @@
 # Video Support: Remove this line if you do not have the multimedia module from QtMobility
 #CONFIG += mobility
 
-# Debug: Uncomment this to build debugging symbols into the application. Note that as of Nov. 2011, compiling in debug symbols has been observed to consistently break the dacq library. This is probably a memory error.
-CONFIG += debug
+# Debug: Uncomment this to build the program in debug mode (no optimizations; include debugging symbols.)
+# Note that as of November 18, 2011, building in debug mode triggers a failure in the dacq library: the main (eV) PV ends up disabled in the dacq scan config.  This is likely a serious memory error.
+# CONFIG += debug
 
 # Automatically determines a user's home folder
 HOME_FOLDER = $$system(echo $HOME)
@@ -250,7 +251,6 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/dataman/database/AMDbObject.h \
 	source/dataman/info/AMDetectorInfo.h \
 	source/dataman/AMExperiment.h \
-	source/dataman/AMFirstTimeController.h \
 	source/dataman/AMImportController.h \
 	source/dataman/AMRun.h \
 	source/dataman/AMSample.h \
@@ -526,7 +526,6 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/dataman/database/AMDbObject.cpp \
 	source/dataman/info/AMDetectorInfo.cpp \
 	source/dataman/AMExperiment.cpp \
-	source/dataman/AMFirstTimeController.cpp \
 	source/dataman/AMImportController.cpp \
 	source/dataman/AMRun.cpp \
 	source/dataman/AMSample.cpp \

@@ -28,12 +28,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMBiHash.h"
 
+/// This class is not currently used by anyone. If desired, it can be used to provide a map between meaningful names and PV names, which are stored (and editable) in a config file on disk.
 /*! This class provides definitions for all Process Variable names that we use/reference.  They are read from a configuration file on program startup,
     but defaults are provided here in case the file is missing/not created yet.  AMPVNames can also be stored from memory to disk with save(), but this
-    should rarely be used. (Maybe by the developers for creating the file, but that's it ; )
-
-    When adding PVs to this list, don't forget to add the actual declaration to AMPVNames.cpp, and add lines in save() and load() as well.
-
+	should rarely be used. (Maybe by the developers for creating the file, but that's it.)
     */
 
 class AMPVNames {

@@ -32,7 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 QVariant AMRunModelItem::data(int role) const {
 	if(role == Qt::DisplayRole)
-		return QStandardItem::data(Qt::EditRole).toString() + ", " + AMDateTimeUtils::prettyDateRange(QStandardItem::data(AM::DateTimeRole).toDateTime(), QStandardItem::data(AM::EndDateTimeRole).toDateTime());
+		return QStandardItem::data(Qt::EditRole).toString() + ", " + AMDateTimeUtils::prettyDate(QStandardItem::data(AM::DateTimeRole).toDateTime());
 	else
 		return QStandardItem::data(role);
 }
