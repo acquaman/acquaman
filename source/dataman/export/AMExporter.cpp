@@ -570,8 +570,8 @@ QString AMExporter::krFileSystemAutoIncrement(const QString &arg)
 	QString finalTest = newName;
 
 	// The following line of code is the correct code, but using a different path for testing.
-	//QDir dir(destinationFolderPath_);
-	QDir dir("/Users/darrenhunter/dev/export test");
+	QDir dir(destinationFolderPath_);
+	//QDir dir("/Users/darrenhunter/dev/export test");
 	dir.setNameFilters(QStringList() << newName);
 	newName.replace("*", "[\\d{0,4}]\\");
 	QStringList filtered = dir.entryList().filter(QRegExp(newName));

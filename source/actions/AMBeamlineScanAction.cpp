@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QApplication>
 #include <QStyle>
 #include <QMessageBox>
+#include <QDir>
 
 AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *parent) :
 	AMBeamlineActionItem(true, parent)
@@ -261,7 +262,15 @@ void AMBeamlineScanAction::onScanSucceeded(){
 				iRegisteredExporters.next();
 				exporters << iRegisteredExporters.key();
 			}
-			exportController->setDestinationFolderPath("/Users/fawkes/Documents/CLS/SGM/exportTesting");
+			QDir exportDir(AMUserSettings::userDataFolder);
+			exportDir.cdUp();
+			if(!exportDir.entryList(QDir::AllDirs).contains("exportData"))
+				if(!exportDir.mkdir("exportData"))
+					qDebug() << "FAILED MY FOOL HEAD OFF";
+			exportDir.cd("exportData");
+			//exportController->setDestinationFolderPath("/Users/fawkes/Documents/CLS/SGM/exportTesting");
+			exportController->setDestinationFolderPath(exportDir.absolutePath());
+			qDebug() << "Exporting to " << exportController->destinationFolderPath();
 			exportController->chooseExporter(exporters.first());
 			QSqlQuery q = AMDbObjectSupport::s()->select(AMDatabase::database("user"), exportController->exporter()->exporterOptionClassName(), "id, name");
 			QStringList names;
@@ -276,7 +285,6 @@ void AMBeamlineScanAction::onScanSucceeded(){
 							AMDbObjectSupport::s()->tableNameForClass(exportController->exporter()->exporterOptionClassName()),
 							ids.at(names.indexOf("VESPERSDefault"))));
 			//option->setFileName(cfg_->userExportName());
-			qDebug() << "What is the file name? " << option->fileName();
 			exportController->setOption(option);
 			exportController->start();
 		}
