@@ -460,6 +460,7 @@ bool AMDbObjectSupport::isUpgradeRequiredForClass(AMDatabase* db, const AMDbObje
 	QSqlQuery q = db->query();
 	q.prepare("SELECT columnName FROM " % allColumnsTableName() % " WHERE typeId = '" % QString::number(typeIdInDatabase) % "';");
 	if(!q.exec()) {
+		q.finish();
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -205, QString("Database support: There was an error while trying to check if the class '%1' in the database needs an upgrade.").arg(info.className)));
 		return false;
 	}
@@ -538,6 +539,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 			// Does the table exist?
 			q.prepare("SELECT COUNT(1) FROM " % auxTableName % " WHERE 1=0;");	// as high-performance of a query as we can make on that table;
 			if(!q.exec()) {	// fails if table doesn't exist.
+				q.finish();
 				// therefore, we need to create the table:
 				if( !db->ensureTable(auxTableName,
 									 QString("id1,table1,id2,table2").split(','),
@@ -588,6 +590,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 					q.bindValue(0, QVariant(defaultValue));
 
 					if(!q.exec()) {
+						q.finish();
 						AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -403, QString("AMDbObjectSupport: Could not insert default value '%1' for column '%2'").arg(defaultValue).arg(info.columns.at(i))));
 					}
 				}

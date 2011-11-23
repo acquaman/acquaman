@@ -18,79 +18,52 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMScanQueryModel.h"
+#include "AMQueryTableModel.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "util/AMDateTimeUtils.h"
 
-#include "dataman/AMScan.h"
-#include "dataman/AMSample.h"
-#include "dataman/AMRun.h"
-
 #include <QStringBuilder>
 
-#include <QDebug>
 
-
-AMScanQueryModel::AMScanQueryModel(AMDatabase* db,
+AMQueryTableModel::AMQueryTableModel(AMDatabase* db,
 								   QObject *parent,
 								   const QString& tableName,
+								   const QString& idColumnName,
 								   const QString& whereClause,
-								   const QList<AMScanQueryModelColumnInfo> columnsToShow) :
-	QSqlQueryModel(parent)
+								   const QString& orderClause,
+								   const QList<AMQueryTableModelColumnInfo>& columnsToShow) :
+	QAbstractTableModel(parent)
 {
 
+	rowCount_ = 0;
+	columnCount_ = columnsToShow.count();
 	db_ = db;
 	whereClause_ = whereClause;
+	orderClause_  = orderClause;
+	idColumnName_ = idColumnName;
 
-	if(tableName.isEmpty())
-		tableName_ = AMDbObjectSupport::s()->tableNameForClass<AMScan>();
-	else
-		tableName_ = tableName;
-
-	if(columnsToShow.isEmpty()) {
-		columns_ = QList<AMScanQueryModelColumnInfo>()
-				<< AMScanQueryModelColumnInfo("Row", "id")
-				<< AMScanQueryModelColumnInfo("Name", "name")
-				<< AMScanQueryModelColumnInfo("#", "number")
-				<< AMScanQueryModelColumnInfo("When", "dateTime")
-				   // << AMScanQueryModelColumnInfo("About", "scanInfo")
-				<< AMScanQueryModelColumnInfo("Sample", "sampleId", true, AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "name")
-				<< AMScanQueryModelColumnInfo("Technique", "AMDbObjectType", true, "AMDbObjectTypes_table", "description", "AMDbObjectType")
-				   // << AMScanQueryModelColumnInfo("Where", "facilityId", true, AMDbObjectSupport::s()->tableNameForClass<AMFacility>(), "description")
-				<< AMScanQueryModelColumnInfo("Where", "runId", true, AMDbObjectSupport::s()->tableNameForClass<AMRun>(), "name")
-				<< AMScanQueryModelColumnInfo("Notes", "notes");
-
-		orderClause_ = "dateTime ASC";
-		idColumnNumber_ = 0;
-	}
-
-	else {
-		idColumnNumber_ = -1;
-		columns_ = columnsToShow;
-		for(int i=columns_.count()-1; i>=0; i--) {
+	tableName_ = tableName;
+	columns_ = columnsToShow;
+	for(int i=columns_.count()-1; i>=0; i--) {
+		if(columns_.at(i).isForeignKey)
 			columns_[i].foreignKeyCache->clear();
-			if(columns_.at(i).name == "id")
-				idColumnNumber_ = i;
-		}
 	}
-
 
 	setSupportedDragActions(Qt::CopyAction);
-
 }
 
 
 
-QString AMScanQueryModel::columnNames() const
+QString AMQueryTableModel::columnNames() const
 {
 	QStringList rv;
-	foreach(const AMScanQueryModelColumnInfo& col, columns_)
+	foreach(const AMQueryTableModelColumnInfo& col, columns_)
 		rv << col.name;
 
 	return rv.join(", ");
 }
 
-bool AMScanQueryModel::refreshQuery()
+bool AMQueryTableModel::refreshQuery()
 {
 	for(int i=columns_.count()-1; i>=0; i--) {
 		if(columns_.at(i).isForeignKey) {
@@ -103,15 +76,40 @@ bool AMScanQueryModel::refreshQuery()
 	// set the query
 	QString whereString = whereClause_.isEmpty() ? QString() : " WHERE " % whereClause_;
 	QString orderByString = orderClause_.isEmpty() ? QString() : " ORDER BY " % orderClause_;
-	QString queryString = "SELECT " % columnNames() % " FROM " % tableName_ % whereString % orderByString % ";";
+	QString queryString = "SELECT " % idColumnName_ % " FROM " % tableName_ % whereString % orderByString % ";";
 
 	QSqlQuery q = db_->query();
 	q.prepare(queryString);
 	if(q.exec()) {
-		setQuery(q);
+		emit layoutAboutToBeChanged();
+		data_.clear();
+		rowCount_ = 0;
+		int numRows;
+		if((numRows = q.size()) == -1) {
+			// sql driver doesn't support sizes. Need to proceed less efficiently
+			while(q.next()) {
+				QVector<QVariant> row = QVector<QVariant>(columnCount_+1, QVariant(QChar(QChar::Null)));
+				row[0] = q.value(0);	// the row id.
+				data_ << row;
+				rowCount_++;
+			}
+		}
+		else {
+			// sql driver knows the number of rows. Efficient to allocate all at once.
+			data_ = QVector<QVector<QVariant> >(numRows,
+												QVector<QVariant>(columnCount_+1, QVariant(QChar(QChar::Null))));
+			for(int i=0; i<numRows; i++) {
+				q.next();
+				data_[i][0] = q.value(0); // the row id
+			}
+			rowCount_ = numRows;
+		}
+		// We should have all the rows now.
+		emit layoutChanged();
 		return true;
 	}
 	else {
+		q.finish();
 		AMErrorMon::report(AMErrorReport(this,
 										 AMErrorReport::Debug,
 										 -1,
@@ -120,35 +118,57 @@ bool AMScanQueryModel::refreshQuery()
 	}
 }
 
-QVariant AMScanQueryModel::data(const QModelIndex &item, int role) const
+QVariant AMQueryTableModel::data(const QModelIndex &item, int role) const
 {
-	if(!(role == Qt::EditRole || role == Qt::DisplayRole))
-		return QSqlQueryModel::data(item, role);
-
-	QVariant rv;
-
-	if(!item.parent().isValid() && item.column() < columns_.count()) {
-		if(columns_.at(item.column()).isForeignKey)
-			rv = resolveForeignKey(item);
-		else
-			rv = QSqlQueryModel::data(item, role);
+	if(!item.isValid()) {
+		return QVariant();
 	}
-	else
-		rv = QSqlQueryModel::data(item, role);
+	if(item.column() >= columnCount_) {
+		return QVariant();
+	}
+	if(item.row() >= rowCount_) {
+		return QVariant();
+	}
 
-	if(item.column() < columns_.count() && columns_.at(item.column()).name == "dateTime") {
+	// We only return Qt::EditRole or Qt::DisplayRole
+	if(!(role == Qt::EditRole || role == Qt::DisplayRole))
+		return QVariant();
+
+	QVariant rv = data_.at(item.row()).at(item.column()+1);
+	if(rv.type() == QVariant::Char && rv.toChar() == QChar(QChar::Null)) {
+		// a Qchar-type QVariant with a value of QChar::Null we use to indicate that we haven't cached the value yet. Let's grab the whole row at once.
+		QSqlQuery q = db_->query();
+		q.prepare("SELECT " % columnNames() % " FROM " % tableName_ % " WHERE " % idColumnName_ % " = ?");
+		q.bindValue(0, data_.at(item.row()).at(0).toInt());
+		if(q.exec() && q.first()) {
+			// cache the row values
+			for(int i=0, cc=columnCount_; i<cc; i++)
+				data_[item.row()][i+1] = q.value(i);	// remember that the index is in the first row.
+		}
+		q.finish();
+		// todo: what if we failed to find it? Should we repeat database hit every time?
+		rv = data_.at(item.row()).at(item.column()+1);
+	}
+
+
+	// It's valid and been pulled. Just return it.
+
+	if(columns_.at(item.column()).isForeignKey)
+		rv = resolveForeignKey(item);
+
+	// format if it's a dateTime column: (For now we guess because the name of the column is "dateTime". Works for us, but not for everyone.
+	if(columns_.at(item.column()).name == "dateTime") {
 		QDateTime dt = rv.toDateTime();
 		if(dt.isValid())
 			return AMDateTimeUtils::prettyDateTime(dt);
 	}
-
 	return rv;
 }
 
-QVariant AMScanQueryModel::resolveForeignKey(const QModelIndex &item) const {
+QVariant AMQueryTableModel::resolveForeignKey(const QModelIndex &item) const {
 
 	// optimization: check if item.data() is an integer index, and is less than 1.  If so, we know it's an invalid foreign key (at least, that's our convention) and we can save time by not even doing a database search
-	QVariant foreignKey = QSqlQueryModel::data(item);
+	QVariant foreignKey = data_.at(item.row()).at(item.column()+1);
 	QString foreignKeyString = foreignKey.toString();
 
 	bool conversionOk;
@@ -156,7 +176,7 @@ QVariant AMScanQueryModel::resolveForeignKey(const QModelIndex &item) const {
 	if(conversionOk && foreignKeyId < 1)
 		return QVariant();
 
-	const AMScanQueryModelColumnInfo& col = columns_.at(item.column());
+	const AMQueryTableModelColumnInfo& col = columns_.at(item.column());
 
 	// Do we have the value cached already?
 	QHash<QString, QVariant>::const_iterator iForeignKeyCache = col.foreignKeyCache->find(foreignKeyString);
@@ -176,15 +196,18 @@ QVariant AMScanQueryModel::resolveForeignKey(const QModelIndex &item) const {
 	return value;
 }
 
-QVariant AMScanQueryModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant AMQueryTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
 	if(orientation == Qt::Horizontal && section < columns_.count() && role == Qt::DisplayRole)
 		return columns_.at(section).heading;
 
-	return QSqlQueryModel::headerData(section, orientation, role);
+	if(orientation == Qt::Vertical && section < rowCount_ && role == Qt::DisplayRole)
+		return section;
+
+	return QVariant();
 }
 
-void AMScanQueryModel::sort(int column, Qt::SortOrder order)
+void AMQueryTableModel::sort(int column, Qt::SortOrder order)
 {
 	QString orderClause;
 
@@ -202,13 +225,10 @@ void AMScanQueryModel::sort(int column, Qt::SortOrder order)
 #include <QMimeData>
 #include <QUrl>
 
-QMimeData * AMScanQueryModel::mimeData(const QModelIndexList &indexes) const
+QMimeData * AMQueryTableModel::mimeData(const QModelIndexList &indexes) const
 {
 	QMimeData* mimeData = new QMimeData();
 	QList<QUrl> urls;
-
-	if(idColumnNumber_ == -1)
-		return mimeData;	// if we don't have a column which records the id... We can't support drag and drop.
 
 	QSet<int> rowsCompleted;	// indexes will be all the selected indexes...
 	foreach (const QModelIndex &i, indexes) {
@@ -216,7 +236,7 @@ QMimeData * AMScanQueryModel::mimeData(const QModelIndexList &indexes) const
 			rowsCompleted << i.row();
 
 			bool ok;
-			int id = data(index(i.row(),0,i.parent()), Qt::DisplayRole).toInt(&ok);
+			int id = data(index(i.row(),0), Qt::DisplayRole).toInt(&ok);
 
 			if(ok)
 				urls << QUrl("amd://" % db_->connectionName() % "/" % tableName_ % "/" % QString::number(id));
