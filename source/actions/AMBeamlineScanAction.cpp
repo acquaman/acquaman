@@ -25,12 +25,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMDateTimeUtils.h"
 #include "dataman/AMScanExemplarDictionary.h"
 
+#include "dataman/export/AMExportController.h"
+#include "dataman/export/AMExporter.h"
+#include "dataman/export/AMExporterOption.h"
+#include "application/AMAppControllerSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
+
 #include <QPushButton>
 #include <QToolButton>
 #include <QPalette>
 #include <QApplication>
 #include <QStyle>
 #include <QMessageBox>
+#include <QDir>
 
 AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *parent) :
 	AMBeamlineActionItem(true, parent)
@@ -240,11 +247,6 @@ void AMBeamlineScanAction::onScanCancelled(){
 	setFailed(true, AMBEAMLINEACTIONITEM_SCAN_CANCELLED);
 }
 
-#include "dataman/export/AMExportController.h"
-#include "dataman/export/AMExporter.h"
-#include "dataman/database/AMDbObjectSupport.h"
-#include "dataman/export/AMExporterOption.h"
-
 void AMBeamlineScanAction::onScanSucceeded(){
 	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Completed "+AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())+"]");
 	emit descriptionChanged();
@@ -255,28 +257,40 @@ void AMBeamlineScanAction::onScanSucceeded(){
 			QList<AMScan*> toExport;
 			toExport << ctrl_->scan();
 			AMExportController *exportController = new AMExportController(toExport);
-			QHashIterator<QString, AMExporterInfo> iRegisteredExporters(AMExportController::registeredExporters());
-			QStringList exporters;
-			while(iRegisteredExporters.hasNext()) {
-				iRegisteredExporters.next();
-				exporters << iRegisteredExporters.key();
+
+			// This needs to be generalized so the user can set it (on beamlines where this is acceptable)
+			QDir exportDir(AMUserSettings::userDataFolder);
+			exportDir.cdUp();
+			if(!exportDir.entryList(QDir::AllDirs).contains("exportData")){
+				if(!exportDir.mkdir("exportData")){
+					AMErrorMon::report(AMErrorReport(this,
+							AMErrorReport::Alert,
+							AMBEAMLINEACTIONITEM_CANT_CREATE_EXPORT_FOLDER,
+							"Error, could not create the auto-export folder. Please report this bug to the Acquaman developers."));
+					return;
+				}
 			}
-			exportController->setDestinationFolderPath("/Users/fawkes/Documents/CLS/SGM/exportTesting");
-			exportController->chooseExporter(exporters.first());
-			QSqlQuery q = AMDbObjectSupport::s()->select(AMDatabase::database("user"), exportController->exporter()->exporterOptionClassName(), "id, name");
-			QStringList names;
-			QList<int> ids;
-			while(q.next()) {
-				names << q.value(1).toString();
-				ids << q.value(0).toInt();
+			exportDir.cd("exportData");
+			exportController->setDestinationFolderPath(exportDir.absolutePath());
+			AMExporter *autoExporter = AMAppControllerSupport::createExporter(cfg_);
+			if(!autoExporter){
+				AMErrorMon::report(AMErrorReport(this,
+								 AMErrorReport::Alert,
+								 AMBEAMLINEACTIONITEM_NO_REGISTERED_EXPORTER,
+								 "Error, no exporter registered for this scan type. Please report this bug to the Acquaman developers."));
+				return;
 			}
-			AMExporterOption *option = qobject_cast<AMExporterOption*>(
-						AMDbObjectSupport::s()->createAndLoadObjectAt(
-							AMDatabase::database("user"),
-							AMDbObjectSupport::s()->tableNameForClass(exportController->exporter()->exporterOptionClassName()),
-							ids.at(0)));
-			option->setFileName(cfg_->userExportName());
-			exportController->setOption(option);
+			exportController->chooseExporter(autoExporter->metaObject()->className());
+			// This next creation involves a loadFromDb ... I tested it and it seems fast (milliseconds) ... if that's a Mac only thing then we can figure out a caching system, let me know I have a few ideas
+			AMExporterOption *autoExporterOption = AMAppControllerSupport::createExporterOption(cfg_);
+			if(!autoExporterOption){
+				AMErrorMon::report(AMErrorReport(this,
+								 AMErrorReport::Alert,
+								 AMBEAMLINEACTIONITEM_NO_REGISTERED_EXPORTER_OPTION,
+								 "Error, no exporter option registered for this scan type. Please report this bug to the Acquaman developers."));
+				return;
+			}
+			exportController->setOption(autoExporterOption);
 			exportController->start();
 		}
 	}

@@ -303,6 +303,7 @@ void AMExportController::continueScanExport()
 	}
 
 	catch(QString errMsg) {
+		qDebug() << "In the catch";
 		failedCount_++;
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -1, errMsg));
 	}

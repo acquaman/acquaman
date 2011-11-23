@@ -94,8 +94,6 @@ bool VESPERSAppController::startup() {
 		AMDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
 		AMDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
 
-		AMAppControllerSupport::registerClass<VESPERSXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>();
-
 		// Testing and making the first run in the database, if there isn't one already.  Make this it's own function if you think startup() is getting too big ; )
 		////////////////////////////////////////
 
@@ -104,7 +102,16 @@ bool VESPERSAppController::startup() {
 			// no run yet... let's create one.
 			AMRun firstRun("VESPERS", 4);	/// \todo For now, we know that 4 is the ID of the VESPERS facility, but this is a hardcoded hack.
 			firstRun.storeToDb(AMDatabase::database("user"));
+		}
 
+		QSqlQuery q = AMDbObjectSupport::s()->select(AMDatabase::database("user"), "AMExporterOptionGeneralAscii", "id, name");
+		QStringList names;
+		QList<int> ids;
+		while(q.next()) {
+			names << q.value(1).toString();
+			ids << q.value(0).toInt();
+		}
+		if(!names.contains("VESPERSDefault")){
 			AMExporterOptionGeneralAscii *vespersDefault = new AMExporterOptionGeneralAscii();
 			vespersDefault->setName("VESPERSDefault");
 			vespersDefault->setFileName("$name_$fsIndex.txt");
@@ -118,7 +125,13 @@ bool VESPERSAppController::startup() {
 			vespersDefault->setIncludeAllDataSources(true);
 			vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.txt");
 			vespersDefault->storeToDb(AMDatabase::database("user"));
+			qDebug() << "Added the VESPERSDefault to exporter options";
 		}
+
+		// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
+		QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
+		if(matchIDs.count() > 0)
+			AMAppControllerSupport::registerClass<VESPERSXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
 
 		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
 		AMStartScreen* startScreen = new AMStartScreen(0);

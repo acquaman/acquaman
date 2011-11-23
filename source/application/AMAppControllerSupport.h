@@ -17,13 +17,14 @@ public:
 		scanConfigurationMetaObject = 0;
 		exporterMetaObject = 0;
 		exporterOptionMetaObject = 0;
+		exporterOptionId = 0;
 	}
 
 	/// fill the className
-	AMScanConfigurationObjectInfo(AMScanConfiguration *prototypeScanConfiguration, AMExporter *prototypeExporter, AMExporterOption *prototypeExporterOption);
+	AMScanConfigurationObjectInfo(AMScanConfiguration *prototypeScanConfiguration, AMExporter *prototypeExporter, AMExporterOption *prototypeExporterOption, int useExporterOptionId);
 
 	/// fill the className (This version doesn't require an instance. The \c classMetaObject can be retrieved statically with Class::staticMetaObject. )
-	AMScanConfigurationObjectInfo(const QMetaObject *scanConfigurationMetaObject, const QMetaObject *exporterMetaObject, const QMetaObject *exporterOptionMetaObject);
+	AMScanConfigurationObjectInfo(const QMetaObject *useScanConfigurationMetaObject, const QMetaObject *useExporterMetaObject, const QMetaObject *useExporterOptionMetaObject, int useExporterOptionId);
 
 	/// Indicates this AMDbObjectInfo represents a valid object.
 	bool isValid() const {
@@ -36,10 +37,11 @@ public:
 	const QMetaObject *scanConfigurationMetaObject; ///< QMetaObject pointer with the complete meta-object for the scan configuration
 	const QMetaObject *exporterMetaObject; ///< QMetaObject pointer with the complete meta-object for the exporter
 	const QMetaObject *exporterOptionMetaObject; ///< QMetaObject pointer with the complete meta-object for the exporter option
+	int exporterOptionId; ///< Database Id for the exporter option you want to use (right now assumes the userDb)
 
 private:
 	/// used to implement both constructors
-	void initWithMetaObject(const QMetaObject *scanConfigurationMetaObject, const QMetaObject *exporterMetaObject, const QMetaObject *exporterOptionMetaObject);
+	void initWithMetaObject(const QMetaObject *useScanConfigurationMetaObject, const QMetaObject *useExporterMetaObject, const QMetaObject *useExporterOptionMetaObject, int useExporterOptionId);
 
 	/// checks to make sure a QMetaObject inherits AMScanConfiguration
 	bool inheritsScanConfiguration(const QMetaObject *metaObject) const;
@@ -57,7 +59,11 @@ namespace AMAppControllerSupport{
 	// Registers the triplet of a scan configuration class (AMScanConfiguration descendant), an exporter class (AMExporter descendant), and an exporter option class (AMExporterOption descendent)
 	// Class T1 needs to inherit AMScanConfiguration, Class T3 needs to inherit AMExporter, and Class T3 needs to inherit AMExporterOption
 	template <class Ta, class Tb, class Tc>
-	bool registerClass() {
+	bool registerClass(int exporterOptionId) {
+		// make sure this is a valid database id
+		if( exporterOptionId < 1)
+			return false;
+
 		// create the meta object for the scan configuration
 		const QMetaObject *scanConfigurationMo = &(Ta::staticMetaObject);
 		// create the meta object for the exporter
@@ -102,7 +108,7 @@ namespace AMAppControllerSupport{
 			return true;
 		}
 
-		AMScanConfigurationObjectInfo newInfo(scanConfigurationMo, exporterMo, exporterOptionMo);
+		AMScanConfigurationObjectInfo newInfo(scanConfigurationMo, exporterMo, exporterOptionMo, exporterOptionId);
 
 		registeredClasses_.insert(className, newInfo);
 		return true;

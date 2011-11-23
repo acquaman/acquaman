@@ -56,7 +56,7 @@ AMScan::AMScan(QObject *parent)
 	sampleNameLoaded_ = false;
 
 	nameDictionary_ = new AMScanDictionary(this, this);
-	nameDictionary_->setOperatingOnName(true);
+	//nameDictionary_->setOperatingOnName(true);
 	//exportNameDictionary_ = new AMScanDictionary(this, this);
 	//exportNameDictionary_->setOperatingOnExportName(true);
 
