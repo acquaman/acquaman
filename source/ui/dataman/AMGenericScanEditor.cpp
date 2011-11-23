@@ -67,7 +67,6 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	ui_.scanListView->setModel(scanSetModel_);
 	ui_.scanListView->setSelectionMode(QAbstractItemView::SingleSelection);
 
-	qDebug() << "AMGenericScanEditor.cpp 70";
 	AMDetailedItemDelegate* del = new AMDetailedItemDelegate(this);
 	del->setCloseButtonsEnabled(true);
 	connect(del, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onScanModelCloseClicked(QModelIndex)));

@@ -6,27 +6,29 @@
 #include "dataman/export/AMExporter.h"
 #include "dataman/export/AMExporterOption.h"
 
-AMScanConfigurationObjectInfo::AMScanConfigurationObjectInfo(AMScanConfiguration *prototypeScanConfiguration, AMExporter *prototypeExporter, AMExporterOption *prototypeExporterOption){
-	initWithMetaObject(prototypeScanConfiguration->metaObject(), prototypeExporter->metaObject(), prototypeExporterOption->metaObject());
+AMScanConfigurationObjectInfo::AMScanConfigurationObjectInfo(AMScanConfiguration *prototypeScanConfiguration, AMExporter *prototypeExporter, AMExporterOption *prototypeExporterOption, int useExporterOptionId){
+	initWithMetaObject(prototypeScanConfiguration->metaObject(), prototypeExporter->metaObject(), prototypeExporterOption->metaObject(), useExporterOptionId);
 }
 
-AMScanConfigurationObjectInfo::AMScanConfigurationObjectInfo(const QMetaObject *scanConfigurationMetaObject, const QMetaObject *exporterMetaObject, const QMetaObject *exporterOptionMetaObject){
-	if(inheritsScanConfiguration(scanConfigurationMetaObject) && inheritsExporter(exporterMetaObject) && inheritsExporterOption(exporterOptionMetaObject))
-		initWithMetaObject(scanConfigurationMetaObject, exporterMetaObject, exporterOptionMetaObject);
+AMScanConfigurationObjectInfo::AMScanConfigurationObjectInfo(const QMetaObject *useScanConfigurationMetaObject, const QMetaObject *useExporterMetaObject, const QMetaObject *useExporterOptionMetaObject, int useExporterOptionId){
+	if(inheritsScanConfiguration(useScanConfigurationMetaObject) && inheritsExporter(useExporterMetaObject) && inheritsExporterOption(useExporterOptionMetaObject) && (useExporterOptionId >= 1))
+		initWithMetaObject(useScanConfigurationMetaObject, useExporterMetaObject, useExporterOptionMetaObject, useExporterOptionId);
 	else{
 		scanConfigurationMetaObject = 0;
 		exporterMetaObject = 0;
 		exporterOptionMetaObject = 0;
+		exporterOptionId = 0;
 	}
 }
 
-void AMScanConfigurationObjectInfo::initWithMetaObject(const QMetaObject *scanConfigurationMetaObject, const QMetaObject *exporterMetaObject, const QMetaObject *exporterOptionMetaObject){
-	scanConfigurationMetaObject = scanConfigurationMetaObject;
-	exporterMetaObject = exporterMetaObject;
-	exporterOptionMetaObject = exporterOptionMetaObject;
-	scanConfigurationClassName = scanConfigurationMetaObject->className();
-	exporterClassName = exporterMetaObject->className();
-	exporterClassName = exporterOptionMetaObject->className();
+void AMScanConfigurationObjectInfo::initWithMetaObject(const QMetaObject *useScanConfigurationMetaObject, const QMetaObject *useExporterMetaObject, const QMetaObject *useExporterOptionMetaObject, int useExporterOptionId){
+	scanConfigurationMetaObject = useScanConfigurationMetaObject;
+	exporterMetaObject = useExporterMetaObject;
+	exporterOptionMetaObject = useExporterOptionMetaObject;
+	exporterOptionId = useExporterOptionId;
+	scanConfigurationClassName = useScanConfigurationMetaObject->className();
+	exporterClassName = useExporterMetaObject->className();
+	exporterOptionClassName = useExporterOptionMetaObject->className();
 }
 
 bool AMScanConfigurationObjectInfo::inheritsScanConfiguration(const QMetaObject *metaObject) const{
@@ -72,7 +74,6 @@ namespace AMAppControllerSupport{
 	AMExporter* createExporter(AMScanConfiguration *scanConfiguration){
 		if(!scanConfiguration)
 			return 0;
-		//qDebug() << "Trying to create view for detector named " << detector->detectorName();
 		QHash<QString, AMScanConfigurationObjectInfo>::const_iterator i = registeredClasses_.constBegin();
 		while( i != registeredClasses_.constEnd()){
 			if(i.value().scanConfigurationClassName == scanConfiguration->getMetaObject()->className()){
@@ -87,12 +88,11 @@ namespace AMAppControllerSupport{
 	AMExporterOption* createExporterOption(AMScanConfiguration *scanConfiguration){
 		if(!scanConfiguration)
 			return 0;
-		//qDebug() << "Trying to create view for detector named " << detector->detectorName();
 		QHash<QString, AMScanConfigurationObjectInfo>::const_iterator i = registeredClasses_.constBegin();
 		while( i != registeredClasses_.constEnd()){
 			if(i.value().scanConfigurationClassName == scanConfiguration->getMetaObject()->className()){
 				AMExporterOption *exporterOption = qobject_cast<AMExporterOption*>(i.value().exporterOptionMetaObject->newInstance());
-				if(exporterOption)
+				if(exporterOption && exporterOption->loadFromDb(AMDatabase::database("user"), i.value().exporterOptionId))
 					return exporterOption;
 			}
 		}
