@@ -239,7 +239,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	// Ion chambers.
 	QVBoxLayout *ionChamberLayout = new QVBoxLayout;
 	ionChamberLayout->addWidget(new CLSSplitIonChamberView(VESPERSBeamline::vespers()->iSplit()));
-	ionChamberLayout->addWidget(new AMIonChamberView(VESPERSBeamline::vespers()->iPreKB()));
+	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPreKB()));
 	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iMini()));
 	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPost()));
 
