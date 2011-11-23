@@ -50,8 +50,6 @@ AMScan::AMScan(QObject *parent)
 	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured in specific subclasses.
 	//data_ = new AMDataTreeDataStore(AMAxisInfo("eV", 0, "Incidence Energy", "eV"));
 
-	autoLoadData_ = true;
-
 	sampleNameLoaded_ = false;
 
 	// Connect added/removed signals from rawDataSources_ and analyzedDataSources_, to provide a model of all data sources:
@@ -157,15 +155,13 @@ bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
 		return false;
 	}
 	// In auto-load data mode: If the file path is different than the old one, clear and reload the raw data.
-	if( !currentlyScanning() && autoLoadData_ && filePath() != oldFilePath ) {
+	if( !currentlyScanning() && autoLoadData() && filePath() != oldFilePath ) {
 		if(!loadData()){
 
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -483, "AMScan: Loading data failed."));
 			return false;
 		}
 	}
-
-	// no longer necessary: setModified(false);
 	return true;
 }
 
@@ -506,4 +502,24 @@ void AMScan::setScanController(AMScanController* scanController)
 		emit currentlyScanningChanged(currentlyScanning_);
 	}
 }
+
+#include <QThread>
+#include <QMutexLocker>
+
+QMap<Qt::HANDLE, bool> AMScan::threadId2autoLoadData_;
+QMutex AMScan::threadId2autoLoadDataMutex_(QMutex::Recursive);
+
+bool AMScan::autoLoadData()
+{
+	QMutexLocker l(&threadId2autoLoadDataMutex_);
+	return threadId2autoLoadData_.value(QThread::currentThreadId(), true);
+}
+
+void AMScan::setAutoLoadData(bool autoLoadDataOn)
+{
+	threadId2autoLoadDataMutex_.lock();
+	threadId2autoLoadData_[QThread::currentThreadId()] = autoLoadDataOn;
+	threadId2autoLoadDataMutex_.unlock();
+}
+
 #endif

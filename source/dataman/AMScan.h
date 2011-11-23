@@ -23,6 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <QObject>
+#include <QMap>
+#include <QMutex>
 
 #include "dataman/database/AMDbObject.h"
 #include "dataman/datastore/AMDataStore.h"
@@ -215,14 +217,12 @@ public:
 	bool loadData();
 
 
-	/// Controls whether raw data is loaded automatically inside loadFromDb().  If autoLoadData() is true, then whenever loadFromDb() is called and the new filePath() is different than the old filePath(), loadData() will be called as well.  If you want to turn off loading raw data for performance reasons, call setAutoLoadData(false).  Auto-loading is enabled by default.
-	bool autoLoadData() const {
-		return autoLoadData_;
-	}
+	/// Static function: Controls whether raw data is loaded automatically inside loadFromDb().  This function is thread-safe and can be set on a per-thread basis.
+	/*! If autoLoadData() is true, then whenever loadFromDb() is called and the new filePath() is different than the old filePath(), loadData() will be called as well.  If you want to turn off loading raw data for performance reasons, call setAutoLoadData(false).  Auto-loading is enabled by default.*/
+	static bool autoLoadData();
+
 	/// Enables or disables automatically loading raw data inside loadFromDb().
-	void setAutoLoadData(bool autoLoadDataOn) {
-		autoLoadData_ = autoLoadDataOn;
-	}
+	static void setAutoLoadData(bool autoLoadDataOn);
 
 
 	/// Clears the scan's raw data completely, including all measurements configured within the rawData() data store, and all rawDataSources() which expose this data.
@@ -450,8 +450,9 @@ Lines are separated by single '\n', so a full string could look like:
 
 	// Raw Data Loading
 	////////////////////////
-	/// Controls whether raw data is automatically loaded when restoring this scan from the database (ie: loadData() is called automatically inside loadFromDb().)  This is true by default, but you may want to turn it off for performance reasons when loading a large group of scans just to look at their meta-data.
-	bool autoLoadData_;
+	/// Controls whether raw data is automatically loaded when restoring this scan from the database (ie: loadData() is called automatically inside loadFromDb().)  This is true by default, but you may want to turn it off for performance reasons when loading a large group of scans just to look at their meta-data. It can be set on a per-thread basis, so this is a map from thread IDs to bool values.
+	static QMap<Qt::HANDLE, bool> threadId2autoLoadData_;
+	static QMutex threadId2autoLoadDataMutex_;
 
 	// Other
 	//////////////////////////
