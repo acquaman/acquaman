@@ -281,6 +281,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 
 	setLayout(vespersLayout);
 	setFixedWidth(325);
+	setMaximumHeight(900);
 }
 
 void VESPERSPersistentView::onBeamChanged(VESPERSBeamline::Beam beam)
