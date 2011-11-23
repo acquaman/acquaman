@@ -462,15 +462,6 @@ bool VESPERSXASDacqScanController::setupTransmissionXAS()
 	advAcq_->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);
 	advAcq_->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
 
-	acqEvent_t *ev;
-	ev = first_acqEvent(advAcq_->getMaster());
-	if(!ev || !ev->numPvList )
-		qDebug() << "WTF, no ev or no numPvList";
-	int numRecordPVs = ev->numPvList;
-	if(numRecordPVs > 0 && ev->pvList[0].noRecord == 1){
-		ev->pvList[0].noRecord = 0;
-	}
-
 	return loadSuccess;
 }
 

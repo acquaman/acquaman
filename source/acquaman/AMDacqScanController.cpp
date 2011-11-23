@@ -65,6 +65,22 @@ bool AMDacqScanController::startImplementation(){
 		acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScanSpectrum", "File");
 		if( abop)
 		{
+			acqEvent_t *ev;
+			ev = first_acqEvent(advAcq_->getMaster());
+			if(!ev || !ev->numPvList ){
+				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDACQSCANCONTROLLER_DACQ_INITIALIZATION_FAILED, "AMDacqScanController: dacq initialization was unsuccessful."));
+				return false;
+			}
+			if(ev->numPvList < 1){
+				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDACQSCANCONTROLLER_NO_X_COLUMN, "AMDacqScanController: no implied x-column set."));
+				return false;
+			}
+			// Ensure that the dacq hasn't misloaded our x-column and set it to "NoRecord = true"
+			if(ev->pvList[0].noRecord == 1){
+				qDebug() << "Caught the dacq trying to screw up";
+				ev->pvList[0].noRecord = 0;
+			}
+
 			if(useDwellTimes_)
 				connect(dwellTimeTrigger_, SIGNAL(valueChanged(double)), this, SLOT(onDwellTimeTriggerChanged(double)));
 
@@ -89,7 +105,7 @@ bool AMDacqScanController::startImplementation(){
 			return true;
 		}
 		else{
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDacqScanController: could not create output handler."));
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDACQSCANCONTROLLER_CANT_CREATE_OUTPUTHANDLER, "AMDacqScanController: could not create output handler."));
 			return false;
 		}
 }
