@@ -22,10 +22,14 @@
 #define HANDLERS( MASTER, CODE) {int MYidx; \
 				acqKey_t key; \
 				eventDataHandler_t *odh; \
+				epicsMutexId mutex; \
 				for(MYidx=0;MYidx < MASTER->numOutputHandler; MYidx++) { \
 					odh = MASTER->outputHandler[MYidx]; \
 					key = MASTER->outputKeys[MYidx]; \
+					mutex = MASTER->handlerLock[MYidx] ; \
+					epicsMutexLock(mutex); \
 					CODE ; \
+					epicsMutexUnlock(mutex); \
 				} }
 
 /* runup delay is in seconds */

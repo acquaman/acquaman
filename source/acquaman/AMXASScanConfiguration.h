@@ -46,6 +46,10 @@ class AMXASScanConfiguration : public AMScanConfiguration
 public:
 	/// Constructor, needs only a pointer to a QObject to act as a parent.
 	AMXASScanConfiguration(QObject *parent = 0);
+	AMXASScanConfiguration(const AMXASScanConfiguration &original);
+
+	const QMetaObject* getMetaObject();
+
 	/// Returns the start value of the region refered to by index. If an invalid index is given, returns -1 (not a valid energy value).
 	double regionStart(int index) const { return regions_->start(index); }
 	/// Returns the delta value of the region refered to by index. If an invalid index is given, returns 0 (not a valid delta value).
@@ -88,6 +92,11 @@ public:
 	virtual AMControlInfo energyControlInfo() const = 0;
 	/// Returns the AMControlInfo for the time control.
 	virtual AMControlInfo timeControlInfo() const = 0;
+
+	/// The scientific technique this configuration is for
+	virtual QString technique() const{
+		return "XAS";
+	}
 
 public slots:
 	/// Sets the start value of the region refered to by index. Returns true if sucessful, returns false if the index is invalid or the energy is out of range.

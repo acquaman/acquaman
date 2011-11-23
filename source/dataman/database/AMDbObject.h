@@ -236,6 +236,8 @@ public:
 		return this->metaObject()->className();
 	}
 
+	/// Return whether or not this object is currently being reloaded from the database
+	bool isReloading() const;
 
 
 	/// returns the name of the database table where objects like this are stored.
@@ -319,7 +321,13 @@ signals:
 
 public slots:
 	/// Sets user given name
-	void setName(const QString &name) { name_ = name; setModified(true); emit nameChanged(name_); }
+	void setName(const QString &name) {
+		if(name_ != name){
+			name_ = name;
+			setModified(true);
+			emit nameChanged(name_);
+		}
+	}
 
 
 
@@ -350,6 +358,9 @@ private:
 	static void updateThumbnails(AMDatabase* db, int id, const QString& dbTableName);
 //	/// This is a static helper function that will delete any old stale thumbnails in another thread. When the new thumbnailCount() is 0, it is more efficient than updateThumbnails() because it doesn't need to load the object.
 //	static void removeAllThumbnails(AMDatabase* db, int id, const QString& dbTableName);
+
+	/// holds whether this object is currently being reloaded from the database
+	bool isReloading_;
 
 };
 

@@ -37,6 +37,12 @@ class QToolButton;
 #define AMBEAMLINEACTIONITEM_CANT_INITIALIZE_CONTROLLER 27104
 #define AMBEAMLINEACTIONITEM_CANT_START_CONTROLLER 27105
 #define AMBEAMLINEACTIONITEM_CANT_SAVE_TO_DB 27106
+#define AMBEAMLINEACTIONITEM_CANT_CREATE_EXPORT_FOLDER 27107
+#define AMBEAMLINEACTIONITEM_NO_REGISTERED_EXPORTER 27108
+#define AMBEAMLINEACTIONITEM_NO_REGISTERED_EXPORTER_OPTION 27109
+
+class AMScanExemplarDictionary;
+#include "dataman/AMScanExemplar.h"
 
 class AMBeamlineScanAction : public AMBeamlineActionItem
 {
@@ -54,9 +60,14 @@ public:
 
 	QString lastSampleDescription() const;
 
+	QString guessScanName() const;
+	QString guessExportName() const;
+
 signals:
 	void progress(double, double);
 	void descriptionChanged();
+
+	void exportMe(const QList<QUrl> &itemUrls);
 
 public slots:
 	virtual void start();
@@ -87,6 +98,10 @@ protected:
 	AMScanController *ctrl_;
 	bool keepOnCancel_;
 	QString lastSampleDescription_;
+
+	AMScanExemplar exemplar_;
+	AMScanExemplarDictionary *nameDictionary_;
+	AMScanExemplarDictionary *exportNameDictionary_;
 };
 
 class AMBeamlineScanActionView : public AMBeamlineActionItemView
@@ -122,6 +137,7 @@ protected:
 	bool cancelLatch_;
 
 	QLabel *scanNameLabel_;
+	QLabel *exportNameLabel_;
 	QProgressBar *progressBar_;
 	QLabel *timeRemainingLabel_;
 	QPushButton *stopCancelButton_;
@@ -129,6 +145,7 @@ protected:
 	QToolButton *moveActionUpButton_;
 	QToolButton *moveActionDownButton_;
 	QHBoxLayout *hl_;
+	QVBoxLayout *vl_;
 
 	AMScanConfigurationView *configurationView_;
 

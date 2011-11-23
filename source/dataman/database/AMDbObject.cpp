@@ -69,6 +69,7 @@ QString AMDbThumbnail::typeString() const {
 }
 
 AMDbObject::AMDbObject(QObject *parent) : QObject(parent) {
+	isReloading_ = false;
 	id_ = 0;
 	database_ = 0;
 	modified_ = true;
@@ -78,6 +79,7 @@ AMDbObject::AMDbObject(QObject *parent) : QObject(parent) {
 }
 
 AMDbObject::AMDbObject(const AMDbObject &original) : QObject() {
+	isReloading_ = false;
 	id_ = original.id_;
 	database_ = original.database_;
 	modified_ = original.modified_;
@@ -105,6 +107,10 @@ QString AMDbObject::dbPropertyAttribute(const QString& propertyName, const QStri
 	return AMDbObjectSupport::dbPropertyAttribute(this->metaObject(), propertyName, key);
 }
 
+
+bool AMDbObject::isReloading() const{
+	return isReloading_;
+}
 
 // returns the name of the database table where objects like this should be/are stored
 QString AMDbObject::dbTableName() const {
@@ -306,6 +312,7 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 		return false;	// class hasn't been registered yet with the database system.
 
 
+	isReloading_ = true;
 	// Retrieve all columns from the database.
 	// optimization: not necessary to retrieve anything with the doNotLoad attribute set. Also, if the type is AMDbObjectList, there is no actual database column for this "column"... instead, its an auxiliary table.
 	QStringList keys;	// keys is the set of database columns to retrieve; all the columns that are loadable, and are not of type AMDbObjectList.
@@ -441,6 +448,7 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 	// we were just loaded out of the database, so we must be in-sync.
 	setModified(false);
 
+	isReloading_ = false;
 	emit loadedFromDb();
 	return true;
 }

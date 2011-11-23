@@ -24,10 +24,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 
 #include <application/AMDatamanAppController.h>
+#include <QHash>
 
 class AMWorkflowManagerView;
 class AMMainWindow;
 class AMScan;
+class AMScanConfiguration;
+class AMExporter;
+class AMExporterOption;
 
 /// This class extends the base dataman app controller class by adding the workflow.  This is the base class for all beamline acquisition app controllers.  The reason for the distinction between this class and the dataman version is a result for the desire to be able to take the dataman version home with the user whereas this version is meant to reside on beamlines that always have access to beamline components and controls.
 class AMAppController : public AMDatamanAppController
