@@ -120,7 +120,7 @@ const AMDbObjectInfo* AMDbObject::dbObjectInfo() const {
 #include <QDebug>
 
 // This member function updates a scan in the database (if it exists already in that database), otherwise it adds it to the database.
-bool AMDbObject::storeToDb(AMDatabase* db) {
+bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 
 	if(!db)
 		return false;
@@ -283,9 +283,11 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 	// Thumbnail save
 	///////////////////////////////////////////
 
-	// // SSSSSSSSSSSSSSlow?
-	if(thumbnailCount() > 0)
+	if(generateThumbnails && thumbnailCount() > 0)
 		QtConcurrent::run(&AMDbObject::updateThumbnails, db, id_, myInfo->tableName);
+	// TODO: currently there are a few situations where we are "leaking" thumbnails: leaving old stale thumbnails in the database. Ex: When the thumbnailCount() was non-zero on a previous save to this database, and is now 0. When the thumbnailCount() was non-zero on a previous save to the database, and generateThumbnails has been forced to false this time. Todo: garbage-collect stale thumbnails to save database space.  Challenge: performance and database locking.
+//	else
+//		QtConcurrent::run()...
 
 	// we were just stored to the database, so our properties must be in sync with it.
 	setModified(false);
