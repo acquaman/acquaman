@@ -75,11 +75,14 @@ protected slots:
 	/*! If the scan configuration view or scan configuration are invalid, sets the button disabled with a message. If the workflow cannot be started because the beamline is busy (ie: one of your scans, or someone else's scan, is running), sets the button disabled with a message. Otherwise enables the button. */
 	void reviewStartScanButtonState();
 
+	/*
 	void onDoExportNameCheckBoxStatedChanged(int state);
+	*/
 
 protected:
 
 	/// UI elements
+	/*
 	QLabel *scanNameLabel_;
 	AMDictionaryLineEdit *scanNameDictionaryLineEdit_;
 	QLabel *scanNameExampleLabel_;
@@ -91,6 +94,7 @@ protected:
 	QLabel *exportNameLabel_;
 	AMDictionaryLineEdit *exportNameDictionaryLineEdit_;
 	QLabel *exportNameExampleLabel_;
+	*/
 
 	QLabel *whenDoneLabel_;
 	QPushButton* startScanButton_, *addToQueueButton_;
@@ -102,9 +106,11 @@ protected:
 	/// This is a pointer to the workflow manager (view, for now). We use it to add scan actions to the workflow
 	AMWorkflowManagerView* workflow_;
 
+	/*
 	AMScanExemplar testExemplar_;
 	AMScanExemplarDictionary *exemplarNameDictionary_;
 	AMScanExemplarDictionary *exemplarExportNameDictionary_;
+	*/
 };
 
 #endif // AMSCANCONFIGURATIONVIEWHOLDER_H

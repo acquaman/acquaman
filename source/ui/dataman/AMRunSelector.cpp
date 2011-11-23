@@ -40,6 +40,7 @@ AMRunSelector:: AMRunSelector(AMDatabase* db, QWidget *parent)
 
 	QListView* v = new QListView();
 	setView(v);
+	qDebug() << "AMRunSelector 43";
 	v->setItemDelegate(new AMDetailedItemDelegate());
 	v->setResizeMode(QListView::Adjust);
 

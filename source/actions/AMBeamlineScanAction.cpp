@@ -274,8 +274,9 @@ void AMBeamlineScanAction::onScanSucceeded(){
 						AMDbObjectSupport::s()->createAndLoadObjectAt(
 							AMDatabase::database("user"),
 							AMDbObjectSupport::s()->tableNameForClass(exportController->exporter()->exporterOptionClassName()),
-							ids.at(0)));
-			option->setFileName(cfg_->userExportName());
+							ids.at(names.indexOf("VESPERSDefault"))));
+			//option->setFileName(cfg_->userExportName());
+			qDebug() << "What is the file name? " << option->fileName();
 			exportController->setOption(option);
 			exportController->start();
 		}

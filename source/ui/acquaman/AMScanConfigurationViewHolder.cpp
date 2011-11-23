@@ -44,6 +44,7 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 	view_ = view;
 	workflow_ = workflow;
 
+	/*
 	testExemplar_.setName("");
 	testExemplar_.setDateTime(QDateTime::currentDateTime());
 	testExemplar_.setRunName("SGM");
@@ -78,6 +79,7 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 	doAutoExportCheckBox_->setChecked(true);
 	exportNameLabel_->setEnabled(false);
 	exportNameDictionaryLineEdit_->setEnabled(false);
+	*/
 
 	whenDoneLabel_ = new QLabel("When I'm done here:");
 
@@ -97,6 +99,7 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 	if(view_)
 		layout_->addWidget(view_);
 
+	/*
 	QGridLayout *gl = new QGridLayout();
 	QHBoxLayout *hl0 = new QHBoxLayout();
 	hl0->addWidget(scanNameLabel_);
@@ -180,6 +183,7 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 	gl->setColumnStretch(8, 2);
 	gl->setColumnStretch(9, 0);
 	gl->setColumnStretch(10, 10);
+	*/
 
 	QHBoxLayout* optionsHL = new QHBoxLayout();
 	optionsHL->addWidget(whenDoneLabel_);
@@ -190,7 +194,7 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 	optionsHL->addWidget(startScanButton_);
 	optionsHL->setContentsMargins(10, 0, 10, 20);
 
-	layout_->addLayout(gl);
+	//layout_->addLayout(gl);
 	layout_->addLayout(optionsHL);
 	layout_->setContentsMargins(0,0,0,0);
 
@@ -201,7 +205,9 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 
 	connect(workflow_, SIGNAL(workflowStatusChanged(bool,bool,bool)), this, SLOT(reviewStartScanButtonState()));
 
+	/*
 	connect(doExportNameCheckBox_, SIGNAL(stateChanged(int)), this, SLOT(onDoExportNameCheckBoxStatedChanged(int)));
+	*/
 
 	reviewStartScanButtonState();
 }
@@ -221,9 +227,11 @@ void AMScanConfigurationViewHolder::setView(AMScanConfigurationView *view) {
 	if(view_) {
 		layout_->insertWidget(0, view_);
 		if(view_->configuration()){
+			/*
 			testExemplar_.setScanConfiguration(view_->configuration());
 			scanNameDictionaryLineEdit_->setTextAndOperate(view_->configuration()->userScanName());
 			exportNameDictionaryLineEdit_->setTextAndOperate(view_->configuration()->userExportName());
+			*/
 		}
 	}
 
@@ -310,8 +318,10 @@ void AMScanConfigurationViewHolder::onStartScanRequested(){
 	}
 
 	AMScanConfiguration *config = view_->configuration()->createCopy();
+	/*
 	config->setUserScanName(scanNameDictionaryLineEdit_->text());
 	config->setUserExportNmae(exportNameDictionaryLineEdit_->text());
+	*/
 	AMBeamlineScanAction* action = new AMBeamlineScanAction(config);
 	workflow_->insertBeamlineAction(position, action, startNow);
 }
@@ -322,8 +332,10 @@ void AMScanConfigurationViewHolder::onAddToQueueRequested() {
 		return;
 
 	AMScanConfiguration *config = view_->configuration()->createCopy();
+	/*
 	config->setUserScanName(scanNameDictionaryLineEdit_->text());
 	config->setUserExportNmae(exportNameDictionaryLineEdit_->text());
+	*/
 	AMBeamlineScanAction* action = new AMBeamlineScanAction(config);
 	workflow_->insertBeamlineAction(-1, action);
 
@@ -331,6 +343,7 @@ void AMScanConfigurationViewHolder::onAddToQueueRequested() {
 		emit showWorkflowRequested();
 }
 
+/*
 void AMScanConfigurationViewHolder::onDoExportNameCheckBoxStatedChanged(int state){
 	if(state == Qt::Unchecked){
 		exportNameLabel_->setEnabled(false);
@@ -341,3 +354,4 @@ void AMScanConfigurationViewHolder::onDoExportNameCheckBoxStatedChanged(int stat
 		exportNameDictionaryLineEdit_->setEnabled(true);
 	}
 }
+*/
