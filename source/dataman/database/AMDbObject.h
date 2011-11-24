@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/database/AMDatabase.h"
 
 #include <QSet>
-#include <QPixmap>
+#include <QImage>
 #include <QBuffer>
 
 
@@ -42,8 +42,9 @@ public:
 	/// Default constructor
 	AMDbThumbnail(const QString& Title = QString(), const QString& Subtitle = QString(), ThumbnailType Type = InvalidType, const QByteArray& ThumbnailData = QByteArray());
 
-	/// This constructor takes a pixmap of any size and saves it as a PNG type. (It will be saved at the current size of the pixmap, so if you want to save at a reduced size, pass in pixmap.scaledToWidth(240) or similar.)
-	AMDbThumbnail(const QString& Title, const QString& Subtitle, const QPixmap& pixmap);
+	/// This constructor takes an image of any size and saves it as a PNG type. (It will be saved at the current size of the image, so if you want to save at a reduced size, pass in image.scaledToWidth(240) or similar.)
+	AMDbThumbnail(const QString& Title, const QString& Subtitle, const QImage& image);
+
 
 	QString title, subtitle;
 	ThumbnailType type;
@@ -55,28 +56,8 @@ public:
 
 class AMDbObjectInfo;
 
-// Macro for declaring AMDbObject object attributes. \c paramString is set of "key=value;key=value..." arguments
-/* For example:
-  \code
-  AM_DBOBJECTINFO("description=Xray Absorption Scan; version=2; doNotReuseIds=true")
-  \endcode
 
-  It's a bummer this doesn't work. Unfortunately moc runs before the C++ pre-processor, so you can't put moc statements like Q_CLASSINFO() into a macro, or use macros inside Q_CLASSINFO statements.
-  */
-// #define AM_DBOBJECTINFO(paramString) Q_CLASSINFO("AMDbObject_Attributes", paramString)
-
-// Macro for declaring AMDbObject attributes for the property \c propertyName. \c paramString is a set of "key=value;key=value..." arguments
-/* For example:
-  \code
-  AM_DBPROPERTYINFO(numCounts, "doNotLoad=true;hidden=true")
-  AM_DBPROPERTYINFO(sampleId, "createIndex=true")
-  \endcode
-
-  Also doesn't work : (
-  */
-// #define AM_DBPROPERTYINFO(propertyName, paramString) Q_CLASSINFO(#propertyName, paramString)
-
-/// This is the base class for all persistent user-data objects that can be stored in the database.  A generic AMScan inherits from this class.
+/// This is the base class for all persistent user-data objects that can be stored in the database.  A generic AMScan inherits from this class.  (This class is re-entrant but not thread-safe. You can have AMDbObjects in multiple threads, but you shouldn't access the same instance from multiple threads.)
 /*! <b>Introduction to the AMDbObject persistent object system</b>
 
 The AMDbObject system provides a way to make QObjects persistent, ie: storable and reloadable from a permanent database.  It is highly integrated with the Qt meta object system. Some of the features that set it apart from other C++ ORM (Object-Relational Management) systems:
@@ -139,10 +120,12 @@ Q_CLASSINFO("AMDbObject_Attributes", "keyword1=value1;keyword2=value2;...")
 	Note that subclasses inherit the base class definition for the whole attribute string, unless re-defined.  You can only specify the AMDbObject_Attributes once per class; multiple Q_CLASSINFO definitions are not allowed.
 
 
-- Register the class on every database you wish to use it in by calling AMDbObjectSupport::registerClass<Class>(AMDatabase* database) at runtime.  It's harmless to register a class multiple times, but it must be registered before calling storeToDb() or loadFromDb().
+- Register the class with the system by calling AMDbObjectSupport::s()->registerClass<Class>() at runtime.  It's harmless to register a class multiple times, but it must be registered before calling storeToDb() or loadFromDb().
 \code
 AMDatabase* myWorkingDatabase;
-AMDbObjectSupport::registerClass<MyDbObject>(myWorkingDatabase);
+// The following two lines can be done in either order:
+AMDbObjectSupport::s()->registerDatabase(myWorkingDatabase);
+AMDbObjectSupport::s()->registerClass<MyDbObject>();
 \endcode
 
 - Finally, all database objects have the optional functionality of providing one or more thumbnails to describe themselves. If you want to have non-blank thumbnails, you must provide thumbnailCount() and thumbnail(int index). The default is to have no thumbnails.
@@ -168,7 +151,7 @@ where \c id is the row to load the object from.
 
 If you want to reload an object from the database, but you don't know its exact detailed type, you can use the dynamic loader. It will create and loadFromDb() the appropriate object for a given database, id, and table name:
 \code
-AMDbObject* newSomeKindaObject = AMDbObjectSupport::createAndLoadObjectAt(myWorkingDatabase, tableName, id);
+AMDbObject* newSomeKindaObject = AMDbObjectSupport::s()->createAndLoadObjectAt(myWorkingDatabase, tableName, id);
 \endcode
 You can then use qobject_cast<>() or type() to test the type of the newly-created object.
 
@@ -194,7 +177,7 @@ When you call storeToDb() on the parent object,
 
 Calling loadFromDb() could behave in two different ways:
 	- The read property is used again to access a pointer to the member object. If it receives a valid pointer, and the type() of the existing object matches the type of the stored object, we call loadFromDb() on the existing object. setProperty() is never called.
-	- If the read property returns a null pointer, or if the type() of the existing object does NOT match the type of the object stored in the database, we cannot call loadFromDb().  Instead, we create a brand new object using AMDbObjectSupport::createAndLoadObjectAt() based on the stored object. Then we call setProperty() with a pointer to the newly created object.  (Note that if createAndLoadObjectAt() fails, setProperty() will pass in a null pointer, and you should check for this.)  \note It's the responsibility of the setProperty() write function to delete the old existing object (if required), take ownership of the new object, and re-connect any signal/slot connections to the newly created object.
+	- If the read property returns a null pointer, or if the type() of the existing object does NOT match the type of the object stored in the database, we cannot call loadFromDb().  Instead, we create a brand new object using AMDbObjectSupport::s()->createAndLoadObjectAt() based on the stored object. Then we call setProperty() with a pointer to the newly created object.  (Note that if createAndLoadObjectAt() fails, setProperty() will pass in a null pointer, and you should check for this.)  \note It's the responsibility of the setProperty() write function to delete the old existing object (if required), take ownership of the new object, and re-connect any signal/slot connections to the newly created object.
 
 	In normal usage, where the type of the member AMDbObject is constant, the second version of the loadFromDb() behaviour will only occur when re-loading the parent object from the database for the first time (if the member object hasn't been created by the constructor, and the read property returns a null pointer). In all subsequent storeToDb()/loadFromDb() calls, the existing member object will simply be stored and loaded transparently with the parent.
 
@@ -205,7 +188,7 @@ storeToDb() and loadFromDb() work the same as in the case of single variables.
 	- The read property is used to access a list of pointers to member objects. Each valid object is storeToDb()'d, and the table and id locations for each are stored with the parent object for future reference. (Here we use an auxilliary table called 'MainTableName_propertyName' to remember the stored locations.)
 
 	- loadFromDb() also starts by calling the read property function to get a list of the existing member objects.  If the number of existing objects matches the number of stored objects, AND all the existing objects are valid, AND the types match for all pairs of (existing,stored) objects, then loadFromDb() is called on each.
-	- Otherwise, if there are any discrepencies, a whole new set of objects is created with AMDbObjectSupport::createAndLoadObjectAt() based on the stored versions, and setProperty() is called with the list of new objects.  (Note that if createAndLoadObjectAt() fails, there may be null pointers in this list.)  It's the responsibility of the setPropert() write function to delete the old existing objects (if required) and re-establish connections to the new objects.   Note that it is NOT possible to reuse some of the existing objects in the list, but not others.
+	- Otherwise, if there are any discrepencies, a whole new set of objects is created with AMDbObjectSupport::s()->createAndLoadObjectAt() based on the stored versions, and setProperty() is called with the list of new objects.  (Note that if createAndLoadObjectAt() fails, there may be null pointers in this list.)  It's the responsibility of the setPropert() write function to delete the old existing objects (if required) and re-establish connections to the new objects.   Note that it is NOT possible to reuse some of the existing objects in the list, but not others.
 
 */
 class AMDbObject : public QObject
@@ -223,14 +206,14 @@ class AMDbObject : public QObject
 public:
 	/// Default Constructor
 	Q_INVOKABLE explicit AMDbObject(QObject *parent = 0);
-	/// Copy constructor.  QObject parent/child relationships are NOT copied, but the essential characteristics (id, database, and modified state) of the AMDbObject are.  Making a copy will create an independent instance in memory. However, if the original has been previously saved to or loaded from the database, both the original and the copy will store/restore to the same location in the database (ie: they refer to the same persistent object).
+	/// Copy constructor.  QObject parent/child relationships are NOT copied, but the essential characteristics (id, database, and modified state) of the AMDbObject are.  Making a copy will create an independent instance in memory. However, if the original has been previously saved to or loaded from the database, both the original and the copy will store/restore to the same location in the database (ie: they refer to the same persistent object). If you want the copy to be an independent database object, you need to call dissociateFromDb() next.
 	/*! If the original has never been successfully saved or loaded (ie: id() and database() return 0) then the two instances remain fully independent objects (both in memory, and in the database after calling storeToDb() for the first time.)
 
 	  The parent QObject is not set when using this copy constructor; the copy's parent() will be 0.  If you want the copy to share the same parent(), you must call QObject::setParent() afterward.
 	  */
 	AMDbObject(const AMDbObject& original);
 
-	/// Assignment operator. QObject parent/child relationships are NOT copied, but the essential characteristics (id, database, and modified state) of the AMDbObject are.  Making a copy will create an independent instance in memory. However, if the original has been previously saved to or loaded from the database, both the original and the copy will store/restore to the same location in the database (ie: they refer to the same persistent object).
+	/// Assignment operator. QObject parent/child relationships are NOT copied, but the essential characteristics (id, database, and modified state) of the AMDbObject are.  Making a copy will create an independent instance in memory. However, if the original has been previously saved to or loaded from the database, both the original and the copy will store/restore to the same location in the database (ie: they refer to the same persistent object). If you want the copy to be an independent database object, you need to call dissociateFromDb() next.
 	/*! If the original has never been successfully saved or loaded (ie: id() and database() return 0) then the two instances remain fully independent objects (both in memory, and in the database after calling storeToDb() for the first time.)
 
 	  The parent QObject is not set when using this copy operator; the copy's parent() will be 0.  If you want the copy to share the same parent(), you must call QObject::setParent() afterward.
@@ -253,6 +236,8 @@ public:
 		return this->metaObject()->className();
 	}
 
+	/// Return whether or not this object is currently being reloaded from the database
+	bool isReloading() const;
 
 
 	/// returns the name of the database table where objects like this are stored.
@@ -275,6 +260,15 @@ public:
 	  */
 	virtual bool storeToDb(AMDatabase* db);
 
+	/// Dissociate the database identify of an in-memory object.
+	/** Dis-associates an in-memory object from any database object it might represent.  For example, if the object has been previously stored to the database, it will have a valid database() and id(); calling this function will reset both of those to 0, which means the in-memory object will no longer refer to the persistent object. You can then re-save the object to a new location by calling storeToDb().
+
+		By default, this function also calls itself recursively on all children objects -- ie: properties of type AMDbObject* or AMDbObjectList.  This is according to our policy that children database objects should not be shared between parents.
+
+		If this object has never been stored to the database (ie: database() and id() return 0...), then this function does nothing.
+	*/
+	virtual void dissociateFromDb(bool shouldDissociateChildren = true);
+
 	/// Returns truen when this in-memory object has been modified from the version in the database (or when there is no version in the database).  Subclasses should help keep this correct by calling setModified(true) when their properties are changed.
 	bool modified() const { return modified_; }
 
@@ -284,8 +278,6 @@ public:
 	  - shareTableWithClass
 	  - description
 	  - version
-
-	  /// \todo This is slow -- it probably needs to be optimized.
 	  */
 	QString dbObjectAttribute(const QString& key) const;
 
@@ -329,14 +321,20 @@ signals:
 
 public slots:
 	/// Sets user given name
-	void setName(const QString &name) { name_ = name; setModified(true); emit nameChanged(name_); }
+	void setName(const QString &name) {
+		if(name_ != name){
+			name_ = name;
+			setModified(true);
+			emit nameChanged(name_);
+		}
+	}
 
 
 
 protected:
 
 	/// Subclasses should call this to set or un-set the modified flag.  Handles emission of the modifiedChanged() signal when required.
-	virtual void setModified(bool isModified) {
+	void setModified(bool isModified = true) {
 		if(isModified != modified_)
 			emit modifiedChanged(modified_ = isModified);
 		modified_ = isModified;
@@ -355,6 +353,14 @@ private:
 
 	/// stores the name property
 	QString name_;
+
+	/// This is a static helper function that will run in another thread to generate and save thumbnails after a db object is saved.
+	static void updateThumbnails(AMDatabase* db, int id, const QString& dbTableName);
+//	/// This is a static helper function that will delete any old stale thumbnails in another thread. When the new thumbnailCount() is 0, it is more efficient than updateThumbnails() because it doesn't need to load the object.
+//	static void removeAllThumbnails(AMDatabase* db, int id, const QString& dbTableName);
+
+	/// holds whether this object is currently being reloaded from the database
+	bool isReloading_;
 
 };
 

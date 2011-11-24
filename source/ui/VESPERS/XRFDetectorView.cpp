@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "XRFDetectorView.h"
 #include "VESPERSDeadTimeButton.h"
 #include "MPlot/MPlotAxisScale.h"
+#include "MPlot/MPlotTools.h"
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 #include "util/AMPeriodicTable.h"
 #include "util/VESPERS/GeneralUtilities.h"
@@ -159,7 +160,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	updateRate_->addItem("1 sec");
 	updateRate_->addItem("0.2 sec");
 	connect(updateRate_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxUpdate(int)));
-	connect(detector_, SIGNAL(refreshRateChanged(int)), this, SLOT(onUpdateRateChanged(int)));
+	//connect(detector_, SIGNAL(refreshRateChanged(int)), this, SLOT(onUpdateRateChanged(int)));
 
 	isWaterfall_ = false;
 

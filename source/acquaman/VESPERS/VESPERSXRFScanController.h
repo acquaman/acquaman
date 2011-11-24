@@ -59,8 +59,7 @@ protected:
 	// Member variables.
 	/// XRF detector.
 	XRFDetector *detector_;
-	/// An XRF scan.
-	AMXRFScan *scan_;
+
 };
 
 #endif // VESPERSXRFSCANCONTROLLER_H

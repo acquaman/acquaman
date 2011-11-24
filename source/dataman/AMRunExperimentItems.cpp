@@ -32,7 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 QVariant AMRunModelItem::data(int role) const {
 	if(role == Qt::DisplayRole)
-		return QStandardItem::data(Qt::EditRole).toString() + ", " + AMDateTimeUtils::prettyDateRange(QStandardItem::data(AM::DateTimeRole).toDateTime(), QStandardItem::data(AM::EndDateTimeRole).toDateTime());
+		return QStandardItem::data(Qt::EditRole).toString() + ", " + AMDateTimeUtils::prettyDate(QStandardItem::data(AM::DateTimeRole).toDateTime());
 	else
 		return QStandardItem::data(role);
 }
@@ -40,7 +40,7 @@ QVariant AMRunModelItem::data(int role) const {
 #include "dataman/AMRun.h"
 void AMRunModelItem::setData(const QVariant &value, int role) {
 	if(role == Qt::EditRole) {
-		db_->update( data(AM::IdRole).toInt(), AMDbObjectSupport::tableNameForClass<AMRun>(), "name", value);
+		db_->update( data(AM::IdRole).toInt(), AMDbObjectSupport::s()->tableNameForClass<AMRun>(), "name", value);
 	}
 	QStandardItem::setData(value, role);
 }
@@ -48,7 +48,7 @@ void AMRunModelItem::setData(const QVariant &value, int role) {
 #include "dataman/AMExperiment.h"
 void AMExperimentModelItem::setData(const QVariant &value, int role) {
 	if(role == Qt::EditRole) {
-		db_->update( data(AM::IdRole).toInt(), AMDbObjectSupport::tableNameForClass<AMExperiment>(), "name", value);
+		db_->update( data(AM::IdRole).toInt(), AMDbObjectSupport::s()->tableNameForClass<AMExperiment>(), "name", value);
 	}
 	QStandardItem::setData(value, role);
 }
@@ -85,7 +85,7 @@ bool AMExperimentModelItem::dropMimeData(const QMimeData *data, Qt::DropAction a
 				break;
 
 			/// \todo Determine if this is still necessary: Only store things that belong in the main scans table for now.
-			if(tableName != AMDbObjectSupport::tableNameForClass<AMScan>())
+			if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
 				break;
 
 			addObjectToExperiment(id);

@@ -50,9 +50,6 @@ protected slots:
 	/// Helper slot that builds a generic scan editor for the XAS scan.  \todo this seems like something that should be higher up in the framework.
 	void onCurrentScanControllerStarted();
 
-protected:
-	/// A pointer to the current XAS scan editor. \todo this seems like something that should be higher up in the framework.
-	AMGenericScanEditor *scanControllerActiveEditor_;
 };
 
 #endif // VESPERSAPPCONTROLLER_H

@@ -60,7 +60,7 @@ AMChooseScanDialog::AMChooseScanDialog(AMDatabase* db, const QString& title, con
 
 	// connect data view selectionChanged to handler
 	connect(dataView_, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
-	connect(dataView_, SIGNAL(sceneDoubleClicked()), this, SLOT(onDoubleClick()));
+	connect(dataView_, SIGNAL(viewDoubleClicked()), this, SLOT(onDoubleClick()));
 
 	// connect controls for the data view
 	connect(ui_->sizeSlider, SIGNAL(valueChanged(int)), dataView_, SLOT(setItemSize(int)));

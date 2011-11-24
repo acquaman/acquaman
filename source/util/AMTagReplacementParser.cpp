@@ -165,7 +165,13 @@ void AMTagReplacementParser::endTag()
 
 void AMTagReplacementParser::replaceAllUsingDictionary(const QHash<QString, AMAbstractTagReplacementFunctor *> &lookupDictionary) {
 	// loop through all replacement items
-	for(int i=replacementList_.count()-1; i>=0; i--) {
+	//for(int i=replacementList_.count()-1; i>=0; i--) {
+
+	// Dirty hack!!!  I switched the order of this loop because my particular tag replacement requires the rest of the tags to
+	// replaced already and the auto increment index will always be at the end of the name.  This should have no effect on the
+	// rest of the tags because they don't require the name of the exported name to be known already like the auto increment based
+	// on the already existing names in the file system.
+	for (int i = 0; i < replacementList_.size(); i++){
 		QHash<QString, AMAbstractTagReplacementFunctor*>::const_iterator iFunctor = lookupDictionary.find(replacementList_.at(i).tag);
 
 		if(iFunctor != lookupDictionary.end()) {	// if there is a functor for this tag: use it.

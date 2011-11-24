@@ -36,8 +36,8 @@ public:
 	/// create a new XAS scan with the following named \c detectors. Each "detector" is a source of a datapoint, that will be stored/logged, available as a column of raw data, and accessible through channel(s).
 	Q_INVOKABLE explicit AMXESScan(QObject *parent = 0);
 
-	/// Re-implemented from AMScan. Currently only the 'reixsXESRaw' format is supported.
-	virtual bool loadDataImplementation();
+//	/// Re-implemented from AMScan. Currently only the 'reixsXESRaw' format is supported.
+//	virtual bool loadDataImplementation();
 
 
 signals:

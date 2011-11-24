@@ -25,6 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMap>
 #include <QPair>
 #include <QMetaType>
+#include <QMutex>
+#include <QReadWriteLock>
 
 class QSystemTrayIcon;
 
@@ -137,9 +139,9 @@ public:
 	}
 
 
-	/// Report an error:
+	/// Report an error. This function is thread-safe.
 	static void report(const AMErrorReport& e) {
-		mon()->reportI(e);
+		mon()->reportF(e);
 	}
 
 	/// Enable or disable debug-level notifications:
@@ -147,12 +149,8 @@ public:
 		mon()->debugEnabled_ = debugEnabled;
 	}
 
-	/// Get access to the single instance of this class
-	static AMErrorMon* mon() {
-		if(!instance_)
-			instance_ = new AMErrorMon();
-		return instance_;
-	}
+	/// Get access to the single instance of this class. This function is thread-safe.
+	static AMErrorMon* mon();
 
 
 signals:
@@ -167,11 +165,18 @@ signals:
 	/// Emitted for all debug notifications. Can be disabled by calling enableDebugNotifications(false).
 	void debug(const AMErrorReport& e);
 
+
+	// internal signals:
+	/////////////////////////
+	/// Internally forwards an error report to make sure we handle it in the main thread.
+	void reportFF(AMErrorReport e);
+
 public slots:
-	/// Report an error
-	void reportI(const AMErrorReport& e);
+
 
 protected:
+	/// Forward any out-of-thread requests to the main thread, via signals.
+	void reportF(AMErrorReport e);
 
 	/// Subscribe to all errors from object 'originator'
 	void subscribeToObjectI(const QObject* originator, QObject* notifyMe, const char* errorSlot);
@@ -192,6 +197,11 @@ protected:
 	/// Maps subs. from error codes to <QObject, Slot> recipients.
 	QMap<int, QPair<QObject*, QString> > codeSubs_;
 
+
+protected slots:
+	/// Handle an error report in the main thread:
+	void reportI(AMErrorReport e);
+
 private:
 	/// Singleton class.  Private Constructor:
 	explicit AMErrorMon();
@@ -204,6 +214,11 @@ private:
 
 	/// Whether we display debug messages
 	bool debugEnabled_;
+
+	/// This mutex is used to ensure thread-safe access to the instance_ variable.
+	static QMutex instanceMutex_;
+	/// This mutex is used to ensure thread-safe access to the subscription registry.
+	QReadWriteLock subsMutex_;
 };
 
 

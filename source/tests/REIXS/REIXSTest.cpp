@@ -23,9 +23,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMSettings.h"
-#include "dataman/AMFirstTimeController.h"
 
 #include "dataman/REIXS/REIXSXESCalibration.h"
+#include "application/AMDatamanAppController.h"
 
 class REIXSTest : public QObject
 {
@@ -113,11 +113,9 @@ int main(int argc, char *argv[])
 
 
 	AMErrorMon::enableDebugNotifications(true);
-	// Load settings from disk:
-	AMSettings::load();
-	AMUserSettings::load();
-	// ensure user data folder and database are ready for use, if this is the first time the program is ever run.
-	if(!AMFirstTimeController::firstTimeCheck())
+
+	AMDatamanAppController ac;
+	if(!ac.startup())
 		return -1;
 
 
@@ -130,7 +128,8 @@ int main(int argc, char *argv[])
 	REIXSTest td;
 	retVal |= QTest::qExec(&td, argc, argv);
 
-	AMDatabase::releaseUserDb();
+	AMDatabase::deleteDatabase("user");
+	ac.shutdown();
 
 	return retVal;
 }

@@ -37,6 +37,11 @@ typedef AMOrderedSet<QString, AMRawDataSource*> AMRawDataSourceSet;
 typedef AMOrderedSet<QString, AMAnalysisBlock*> AMAnalyzedDataSourceSet;
 
 class AMScanConfiguration;
+class AMScanDictionary;
+
+#ifndef ACQUAMAN_NO_ACQUISITION
+class AMScanController;
+#endif
 
 /// This class is the base of all objects that represent a single 'scan' on a beamline.  It's also used as the standard container for a set of raw and/or processed AMDataSources, which can be visualized together in
 class AMScan : public AMDbObject {
@@ -44,6 +49,7 @@ class AMScan : public AMDbObject {
 	Q_OBJECT
 
 	/// Database Persistent Properties
+	Q_PROPERTY(QString unEvaluatedName READ unEvaluatedName WRITE setUnEvaluatedName)
 	Q_PROPERTY(int number READ number WRITE setNumber NOTIFY numberChanged)
 	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime NOTIFY dateTimeChanged)
 	Q_PROPERTY(int runId READ runId WRITE setRunId)
@@ -57,6 +63,7 @@ class AMScan : public AMDbObject {
 	Q_PROPERTY(AMDbObjectList analyzedDataSources READ dbReadAnalyzedDataSources WRITE dbLoadAnalyzedDataSources)
 	Q_PROPERTY(QString analyzedDataSourcesConnections READ dbReadAnalyzedDataSourcesConnections WRITE dbLoadAnalyzedDataSourcesConnections)
 	Q_PROPERTY(AMDbObject* scanConfiguration READ dbGetScanConfiguration WRITE dbLoadScanConfiguration)
+	Q_PROPERTY(bool currentlyScanning READ currentlyScanning WRITE dbLoadCurrentlyScanning NOTIFY currentlyScanningChanged)
 
 	Q_CLASSINFO("dateTime", "createIndex=true")
 	Q_CLASSINFO("sampleId", "createIndex=true")
@@ -67,6 +74,7 @@ class AMScan : public AMDbObject {
 	Q_CLASSINFO("scanInitialConditions", "hidden=true")
 	Q_CLASSINFO("analyzedDataSourcesConnections", "hidden=true")
 	Q_CLASSINFO("scanConfiguration", "hidden=true")
+	Q_CLASSINFO("unEvaluatedName", "upgradeDefault=<none>")
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Scan")
 
@@ -86,6 +94,7 @@ public:
 
 	// Role 1: Meta Data Elements
 	////////////////////////////////
+
 	/// Returns a user-given number
 	int number() const { return number_;}
 	/// Returns creation time / scan start time
@@ -106,6 +115,7 @@ public:
 
 	// Convenience functions on meta-data:
 	/////////////////////////
+	QString unEvaluatedName() const;
 	/// Returns the full scan name: number appended to name
 	QString fullName() const {return QString("%1 #%2").arg(name()).arg(number()); }
 	/// Returns the name of the sample (if a sample is set, otherwise returns "[no sample]")
@@ -117,10 +127,6 @@ public:
 	/// Loads a saved scan from the database into self. Returns true on success.
 	/*! Re-implemented from AMDbObject::loadFromDb(), this version also loads the scan's raw data if autoLoadData() is set to true, and the stored filePath doesn't match the existing filePath()*/
 	virtual bool loadFromDb(AMDatabase* db, int id);
-	/// Store or update self in the database. (Returns true on success.)
-	/*! Re-implemented from AMDbObject::storeToDb(), this version also schedules a date range update of the scan's run when it is inserted into a database for the very first time.
-	  */
-	virtual bool storeToDb(AMDatabase* db);
 
 
 	// Role 3: Data Sources (Raw and Analyzed)
@@ -211,13 +217,8 @@ public:
 	// Role 4: Loading/Clearing Raw Data
 	////////////////////////////
 	/// Load raw data into memory from storage, using the AMFileLoaderInterface plugin system to find the appropriate file loader based on fileFormat(). Returns true on success.
-	/*! DEPRECATED: Subclasses should not reimplement this function, but must provide an implementation for loadDataImplementation(), which attempts to use the scan's current filePath() and fileFormat() as the source, and handles their set of readable file formats.  This function calls loadDataImplementation(), and then calls setDataStore() on all the raw data sources, to hopefully restore them to a valid state, now that there is valid raw data.*/
 	bool loadData();
 
-	/// This function is deprecated in favour of the plugin system for AMFileLoaderInterface.  It will never be called.
-	virtual bool loadDataImplementation() {
-		return true;
-	}
 
 	/// Controls whether raw data is loaded automatically inside loadFromDb().  If autoLoadData() is true, then whenever loadFromDb() is called and the new filePath() is different than the old filePath(), loadData() will be called as well.  If you want to turn off loading raw data for performance reasons, call setAutoLoadData(false).  Auto-loading is enabled by default.
 	bool autoLoadData() const {
@@ -273,7 +274,7 @@ public:
 	const AMControlInfoList* scanInitialConditions() const { return &scanInitialConditions_; }
 	AMControlInfoList* scanInitialConditions() { return &scanInitialConditions_; }
 
-	// Role 7: Access to Scan Configuration
+	// Role 7: Access to Scan Configuration and Scan Controller
 	///////////////////////////////
 
 	///  Access the scan's configuration
@@ -283,25 +284,29 @@ public:
 	/// Set the scan configuration. Deletes the existing scanConfiguration() if there is one.  The scan takes ownership of the \c newConfiguration and will delete it when being deleted.
 	void setScanConfiguration(AMScanConfiguration* newConfiguration);
 
+
+
 	// Role 8: Thumbnail system:
 	////////////////////////////////
 
-	/// This is an arbitrary decision, but let's define it like this (for usability): If we have any analyzed data sources, we have a thumbnail for each analyzed data source. Otherwise, rather than showing nothing, we have a thumbnail for each raw data source.
-	int thumbnailCount() const {
-		if(analyzedDataSources_.count())
-			return analyzedDataSources_.count();
-		else
-			return rawDataSources_.count();
-	}
+	/// This is an arbitrary decision, but let's define it like this (for usability): If we have any analyzed data sources, we have a thumbnail for each analyzed data source. Otherwise, rather than showing nothing, we have a thumbnail for each raw data source.  Unless we are currently scanning, in which case we just have one (which visually indicates this).
+	int thumbnailCount() const;
 
-	/// Return a thumbnail picture of the channel
+	/// Return a thumbnail picture of the data sources. If we have any analyzed data sources, we have a thumbnail for each analyzed data source. Otherwise, rather than showing nothing, we have a thumbnail for each raw data source.  Unless we are currently scanning, in which case we just have one (which visually indicates this).
 	AMDbThumbnail thumbnail(int index) const;
 
 
 	// Acquisition status, and link to scan controller
 	///////////////////////////////
 
-	/// \todo Acquisition status, and link to scan controller
+#ifndef ACQUAMAN_NO_ACQUISITION
+	/// If this scan is currently in progress, returns the scan controller that is running it. Otherwise returns 0.
+	AMScanController* scanController() const { return controller_; }
+	/// This function should not be considered part of the public interface, and only be used by AMScanController.
+	void setScanController(AMScanController*);
+#endif
+	/// Returns true if currently scanning (ie: there is a valid scan controller, or the currentlyScanning column was true when we were loaded out of the database). This is useful because we want to know this at the database level even while scans are in progress.
+	bool currentlyScanning() const { return currentlyScanning_; }
 
 
 
@@ -310,12 +315,12 @@ public slots:
 	// Role 1: Setting Meta-Data
 	///////////////////////////////
 
+	void setUnEvaluatedName(QString unEvaluatedName);
 	/// Sets appended number
-	void setNumber(int number) { number_ = number; setModified(true); emit numberChanged(number_); }
+	void setNumber(int number);
 	/// set the date/time:
-	void setDateTime(const QDateTime& dt) { dateTime_ = dt; setModified(true); emit dateTimeChanged(dateTime_); }
+	void setDateTime(const QDateTime& dt);
 	/// associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
-	/*! This will also tell the new run (and the old run, if it exists) to update their date ranges */
 	void setRunId(int newRunId);
 	/// Sets the sample associated with this scan.
 	void setSampleId(int newSampleId);
@@ -337,6 +342,8 @@ signals:
 	void dateTimeChanged(const QDateTime& newDateTime);
 	void sampleIdChanged(int sampleId);
 	void numberChanged(int number);
+	void currentlyScanningChanged(bool currentlyScanning);
+	void scanConfigurationChanged();
 
 
 	// Combined Data Source Model: Signals
@@ -373,6 +380,7 @@ protected:
 	// meta data values
 	//////////////////////
 
+	QString unEvaluatedName_;
 	/// user-given number for this scan
 	int number_;
 	/// Scan start time
@@ -385,6 +393,9 @@ protected:
 	QString filePath_, fileFormat_;
 	/// Any additional files of raw data that need to be referenced.
 	QStringList additionalFilePaths_;
+
+	AMScanDictionary *nameDictionary_;
+	AMScanDictionary *exportNameDictionary_;
 
 	/// Caches the sample name
 	mutable QString sampleName_;
@@ -444,12 +455,24 @@ Lines are separated by single '\n', so a full string could look like:
 	/// When loadFromDb() is called, this receives the string describing the input connections of all the analyzed data sources, and restores their input data connections.
 	void dbLoadAnalyzedDataSourcesConnections(const QString& connectionString);
 
+	/// Used to load the currentlyScanning state from the database. If you call setScanController(0), this will be reset to false.
+	void dbLoadCurrentlyScanning(bool currentlyScanning) { currentlyScanning_ = currentlyScanning; }
 
 
 	// Raw Data Loading
 	////////////////////////
 	/// Controls whether raw data is automatically loaded when restoring this scan from the database (ie: loadData() is called automatically inside loadFromDb().)  This is true by default, but you may want to turn it off for performance reasons when loading a large group of scans just to look at their meta-data.
 	bool autoLoadData_;
+
+	// Other
+	//////////////////////////
+
+#ifndef ACQUAMAN_NO_ACQUISITION
+	/// If this scan is currently in progress, the scan controller should set this to refer to itself, and set it back to 0 when finished, using setScanController().
+	AMScanController* controller_;
+#endif
+	/// This variable is set to true while a scan is in progress (ie: scan controller running), or if the scan was loaded out of the database with the currentlyScanning column true.
+	bool currentlyScanning_;
 
 
 private:

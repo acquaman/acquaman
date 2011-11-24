@@ -31,9 +31,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QApplication>
 #include <QStringBuilder>
 
-#include <QDebug>
-
-
+#include <QPen>
+#include <QBrush>
+#include <QColor>
+#include <QApplication>
 
 AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	QWidget(parent)
@@ -41,7 +42,7 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 
 	db_ = database;
 	runId_ = experimentId_ = -1;
-	scansTableName_ = AMDbObjectSupport::tableNameForClass<AMScan>();
+	scansTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMScan>();
 	selectedUrlsUpdateRequired_ = true;
 
 	itemSize_ = 50;
@@ -54,11 +55,20 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	gview_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	gview_->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
-	gscene_ = new AMSignallingGraphicsScene(this);
+	gscene_ = new QGraphicsScene(this);
+	// This is necessary to avoid Qt bug https://bugreports.qt.nokia.com/browse/QTBUG-18021
+	gscene_->setItemIndexMethod(QGraphicsScene::NoIndex);
+	// We want to filter out some scene events (mouse press, etc.) so that the scene doesn't mess with our handling of selection in thumbnail view.
+	gscene_->installEventFilter(this);
+
 	connect(gscene_, SIGNAL(selectionChanged()), this, SLOT(onScanItemsSelectionChanged()));
-	connect(gscene_, SIGNAL(doubleClicked(QPointF)), this, SIGNAL(sceneDoubleClicked()));
+	connect(gview_, SIGNAL(clicked(QPoint)), this, SLOT(onViewClicked(QPoint)));
+	connect(gview_, SIGNAL(doubleClicked(QPoint)), this, SLOT(onViewDoubleClicked(QPoint)));
+	connect(gview_, SIGNAL(dragStarted(QPoint, QPoint)), this, SLOT(onDragStarted(QPoint, QPoint)));
+	connect(gview_, SIGNAL(dragMoved(QPoint,QPoint)), this, SLOT(onDragMoved(QPoint,QPoint)));
+	connect(gview_, SIGNAL(dragEnded(QPoint,QPoint)), this, SLOT(onDragEnded(QPoint,QPoint)));
+
 	gview_->setScene(gscene_);
-	gview_->setDragMode(QGraphicsView::RubberBandDrag);
 	gwidget_ = new AMLayoutControlledGraphicsWidget();
 	gscene_->addItem(gwidget_);
 	sectionLayout_ = new QGraphicsLinearLayout(Qt::Vertical);
@@ -67,6 +77,8 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	gwidget_->setLayout(sectionLayout_);
 	gwidget_->setParent(this); 	// this refers to the QObject tree parent, not the QGraphicsItem tree parent
 	connect(gwidget_, SIGNAL(resized()), this, SLOT(adjustViewScrollableArea()));
+
+	rubberBand_ = 0;
 
 	// retrieve user name and set heading:
 	///////////////////////
@@ -242,7 +254,7 @@ void AMDataView::updateSelectedUrls() const {
 		}
 
 	}
-	break;
+		break;
 
 	case AMDataViews::ListView: {
 		foreach(AMAbstractDataViewSection* s, sections_) {
@@ -250,7 +262,7 @@ void AMDataView::updateSelectedUrls() const {
 		}
 
 	}
-	break;
+		break;
 
 
 	default:
@@ -291,9 +303,11 @@ void AMDataView::refreshView() {
 	viewRequiresRefresh_ = false;
 
 	// delete the old views:
-	foreach(QGraphicsLayoutItem* s, sections_)
-		delete s;
-	sections_.clear();
+	// this disconnect is necessary so that selection changes while we're deleting don't trigger an unnecessary loop through the selected items.
+	disconnect(gscene_, SIGNAL(selectionChanged()), this, SLOT(onScanItemsSelectionChanged()));
+	while(!sections_.isEmpty())
+		delete sections_.takeLast();
+	connect(gscene_, SIGNAL(selectionChanged()), this, SLOT(onScanItemsSelectionChanged()));
 
 	selectedUrlsUpdateRequired_ = true;
 	emit selectionChanged();
@@ -330,15 +344,23 @@ void AMDataView::refreshView() {
 			bool found = false;
 			QSqlQuery findRunIds = db_->query();
 			findRunIds.setForwardOnly(true);
-			findRunIds.prepare(QString("SELECT id, dateTime, name, endDateTime FROM AMRun_table"));
+			findRunIds.prepare(QString("SELECT id, dateTime, name FROM AMRun_table"));
 			if(findRunIds.exec()) {
+				QVector<int> runIds;
+				QVector<QString> runNames;
+				QVector<QDateTime> runDateTimes;
 				while(findRunIds.next()) {
+					runIds << findRunIds.value(0).toInt();
+					runNames << findRunIds.value(2).toString();
+					runDateTimes << findRunIds.value(1).toDateTime();
+				}
+				findRunIds.finish();	// to avoid long db locks, let's finish this query before doing all the section queries
+				for(int i=0, cc=runIds.count(); i<cc; i++) {
 					found = true;
-					int runId = findRunIds.value(0).toInt();
-					QString runName = findRunIds.value(2).toString();
-					QDateTime dateTime = findRunIds.value(1).toDateTime();
-					QDateTime endDateTime = findRunIds.value(3).toDateTime();
-					QString fullRunName = runName + " (" + AMDateTimeUtils::prettyDateRange(dateTime, endDateTime) + ")";
+					int runId = runIds.at(i);
+					QString runName = runNames.at(i);
+					QDateTime dateTime = runDateTimes.at(i);
+					QString fullRunName = runName + " (" + AMDateTimeUtils::prettyDate(dateTime) + ")";
 					AMDataViewSection* section = new AMDataViewSection(
 								fullRunName,
 								"Showing all data from this run",
@@ -356,7 +378,7 @@ void AMDataView::refreshView() {
 			}
 		}
 
-		break;
+			break;
 
 		case AMDataViews::OrganizeExperiments:
 		{
@@ -366,10 +388,18 @@ void AMDataView::refreshView() {
 			findExperiments.setForwardOnly(true);
 			findExperiments.prepare(QString("SELECT id, name FROM AMExperiment_table"));
 			if(findExperiments.exec()) {
+				QVector<int> expIds;
+				QVector<QString> expNames;
 				while(findExperiments.next()) {
+					expIds << findExperiments.value(0).toInt();
+					expNames << findExperiments.value(1).toString();
+				}
+				findExperiments.finish();	// to avoid long db locks, let's finish this query before doing all the section queries
+				for(int i=0, cc=expIds.count(); i<cc; i++) {
 					found = true;
-					int expId = findExperiments.value(0).toInt();
-					QString expName = findExperiments.value(1).toString();
+					int expId = expIds.at(i);
+					QString expName = expNames.at(i);
+
 					AMDataViewSection* section = new AMDataViewSection(
 								expName,
 								"Showing all data from this experiment",
@@ -386,7 +416,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for experiments. The database might be corrupted."));
 			}
 		}
-		break;
+			break;
 
 		case AMDataViews::OrganizeScanTypes:
 		{
@@ -396,10 +426,17 @@ void AMDataView::refreshView() {
 			findTypes.setForwardOnly(true);
 			findTypes.prepare(QString("SELECT AMDbObjectType, description FROM AMDbObjectTypes_table WHERE AMDbObjectType IN (SELECT AMDbObjectType FROM AMScan_table)"));
 			if(findTypes.exec()) {
+				QVector<QString> classNames;
+				QVector<QString> typeDescriptions;
 				while(findTypes.next()) {
+					classNames << findTypes.value(0).toString();
+					typeDescriptions << findTypes.value(1).toString();
+				}
+				findTypes.finish();
+				for(int i=0, cc=classNames.count(); i<cc; i++) {
 					found = true;
-					QString className = findTypes.value(0).toString();
-					QString typeDescription = findTypes.value(1).toString();
+					QString className = classNames.at(i);
+					QString typeDescription = typeDescriptions.at(i);
 					AMDataViewSection* section = new AMDataViewSection(
 								typeDescription,
 								"Showing all " + typeDescription,
@@ -416,7 +453,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for scan types. The database might be corrupted."));
 			}
 		}
-		break;
+			break;
 
 		case AMDataViews::OrganizeSamples:
 		{
@@ -426,11 +463,20 @@ void AMDataView::refreshView() {
 			findSamples.setForwardOnly(true);
 			findSamples.prepare("SELECT id, dateTime, name FROM AMSample_table");	/// \todo thumbnail for samples
 			if(findSamples.exec()) {
+				QVector<int> sampleIds;
+				QVector<QDateTime> sampleDateTimes;
+				QVector<QString> sampleNames;
 				while(findSamples.next()) {
+					sampleIds << findSamples.value(0).toInt();
+					sampleDateTimes << findSamples.value(1).toDateTime();
+					sampleNames << findSamples.value(2).toString();
+				}
+				findSamples.finish();
+				for(int i=0, cc=sampleIds.count(); i<cc; i++) {
 					found = true;
-					int sampleId = findSamples.value(0).toInt();
-					QDateTime dt = findSamples.value(1).toDateTime();
-					QString name = findSamples.value(2).toString();
+					int sampleId = sampleIds.at(i);
+					QDateTime dt = sampleDateTimes.at(i);
+					QString name = sampleNames.at(i);
 					AMDataViewSection* section = new AMDataViewSection(
 								name,
 								"Sample created " + AMDateTimeUtils::prettyDateTime(dt),
@@ -447,7 +493,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for samples. The database might be corrupted."));
 			}
 		}
-		break;
+			break;
 
 		case AMDataViews::OrganizeElements:
 		{
@@ -457,11 +503,20 @@ void AMDataView::refreshView() {
 			findElements.setForwardOnly(true);
 			findElements.prepare("SELECT id, symbol, name FROM Elements WHERE id IN (SELECT elementId FROM SampleElementEntries)");
 			if(findElements.exec()) {
+				QVector<int> elementIds;
+				QVector<QString> elementSymbols;
+				QVector<QString> elementNames;
 				while(findElements.next()) {
+					elementIds << findElements.value(0).toInt();
+					elementSymbols << findElements.value(1).toString();
+					elementNames << findElements.value(2).toString();
+				}
+				findElements.finish();
+				for(int i=0, cc=elementIds.count(); i<cc; i++) {
 					found = true;
-					int elementId = findElements.value(0).toInt();
-					QString symbol = findElements.value(1).toString();
-					QString name = findElements.value(2).toString();
+					int elementId = elementIds.at(i);
+					QString symbol = elementSymbols.at(i);
+					QString name = elementNames.at(i);
 					AMDataViewSection* section = new AMDataViewSection(
 								symbol + ": " + name,
 								QString("Showing all data from samples containing %1").arg(name),
@@ -478,7 +533,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for elements in samples. The database might be corrupted."));
 			}
 		}
-		break;
+			break;
 
 		}
 	} // end of: showing all runs or all experiments
@@ -493,18 +548,17 @@ void AMDataView::refreshView() {
 		QString runName, fullRunName;
 		QDateTime runTime, runEndTime;
 		QSqlQuery runInfo = db_->query();
-		runInfo.prepare("SELECT name, dateTime, endDateTime FROM AMRun_table where id = ?");
+		runInfo.prepare("SELECT name, dateTime FROM AMRun_table where id = ?");
 		runInfo.bindValue(0, runId_);
 		if(runInfo.exec() && runInfo.next()) {
 			runName = runInfo.value(0).toString();
 			runTime = runInfo.value(1).toDateTime();
-			runEndTime = runInfo.value(2).toDateTime();
-			fullRunName = runName + " (" + AMDateTimeUtils::prettyDateRange(runTime, runEndTime) + ")";
+			fullRunName = runName + " (" + AMDateTimeUtils::prettyDate(runTime) + ")";
 			headingLabel_->setText(userName_ + "Runs: " + fullRunName);
 		}
 		else
 			headingLabel_->setText(userName_ + "Data");
-
+		runInfo.finish();
 
 		switch(organizeMode_) {
 		case AMDataViews::OrganizeRuns:
@@ -520,7 +574,7 @@ void AMDataView::refreshView() {
 
 				sections_ << section;
 				break;
-		}
+			}
 
 
 		case AMDataViews::OrganizeExperiments:
@@ -531,10 +585,17 @@ void AMDataView::refreshView() {
 			findExperiments.setForwardOnly(true);
 			findExperiments.prepare(QString("SELECT id, name FROM AMExperiment_table WHERE id IN (SELECT experimentId FROM ObjectExperimentEntries WHERE objectId IN (SELECT id FROM AMScan_table WHERE runId = '%1'))").arg(runId_));
 			if(findExperiments.exec()) {
+				QVector<int> expIds;
+				QVector<QString> expNames;
 				while(findExperiments.next()) {
+					expIds << findExperiments.value(0).toInt();
+					expNames << findExperiments.value(1).toString();
+				}
+				findExperiments.finish();	// to avoid long db locks, let's finish this query before doing all the section queries
+				for(int i=0, cc=expIds.count(); i<cc; i++) {
 					found = true;
-					int expId = findExperiments.value(0).toInt();
-					QString expName = findExperiments.value(1).toString();
+					int expId = expIds.at(i);
+					QString expName = expNames.at(i);
 					AMDataViewSection* section = new AMDataViewSection(
 								expName,
 								QString("Showing all data from this experiment in the <i>%1</i> run").arg(fullRunName),
@@ -551,7 +612,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for experiments. The database might be corrupted."));
 			}
 		}
-		break;
+			break;
 
 		case AMDataViews::OrganizeScanTypes:
 		{
@@ -562,10 +623,17 @@ void AMDataView::refreshView() {
 			findTypes.prepare(QString("SELECT AMDbObjectType, description FROM AMDbObjectTypes_table WHERE AMDbObjectType IN (SELECT DISTINCT AMDbObjectType FROM AMScan_table WHERE runId = ?)"));
 			findTypes.bindValue(0, runId_);
 			if(findTypes.exec()) {
+				QVector<QString> classNames;
+				QVector<QString> typeDescriptions;
 				while(findTypes.next()) {
+					classNames << findTypes.value(0).toString();
+					typeDescriptions << findTypes.value(1).toString();
+				}
+				findTypes.finish();
+				for(int i=0, cc=classNames.count(); i<cc; i++) {
 					found = true;
-					QString className = findTypes.value(0).toString();
-					QString typeDescription = findTypes.value(1).toString();
+					QString className = classNames.at(i);
+					QString typeDescription = typeDescriptions.at(i);
 					AMDataViewSection* section = new AMDataViewSection(
 								typeDescription,
 								QString("Showing all data of this type in the <i>%1</i> run").arg(fullRunName),
@@ -582,7 +650,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for scan types. The database might be corrupted."));
 			}
 		}
-		break;
+			break;
 
 		case AMDataViews::OrganizeSamples:
 		{
@@ -593,11 +661,20 @@ void AMDataView::refreshView() {
 			findSamples.prepare("SELECT id, dateTime, name FROM AMSample_table WHERE id IN (SELECT sampleId FROM AMScan_table WHERE runId = ?)");	/// \todo add thumbnail icon!
 			findSamples.bindValue(0, runId_);
 			if(findSamples.exec()) {
+				QVector<int> sampleIds;
+				QVector<QDateTime> sampleDateTimes;
+				QVector<QString> sampleNames;
 				while(findSamples.next()) {
+					sampleIds << findSamples.value(0).toInt();
+					sampleDateTimes << findSamples.value(1).toDateTime();
+					sampleNames << findSamples.value(2).toString();
+				}
+				findSamples.finish();
+				for(int i=0, cc=sampleIds.count(); i<cc; i++) {
 					found = true;
-					int sampleId = findSamples.value(0).toInt();
-					QDateTime dt = findSamples.value(1).toDateTime();
-					QString name = findSamples.value(2).toString();
+					int sampleId = sampleIds.at(i);
+					QDateTime dt = sampleDateTimes.at(i);
+					QString name = sampleNames.at(i);
 					AMDataViewSection* section = new AMDataViewSection(
 								name,
 								QString("Sample created %1.  Showing all data from this sample in the <i>%2</i> run").arg(AMDateTimeUtils::prettyDateTime(dt)).arg(fullRunName),
@@ -614,7 +691,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for samples. The database might be corrupted."));
 			}
 		}
-		break;
+			break;
 
 		case AMDataViews::OrganizeElements:
 		{
@@ -625,11 +702,20 @@ void AMDataView::refreshView() {
 			findElements.prepare("SELECT id, symbol, name FROM Elements WHERE id IN (SELECT elementId FROM SampleElementEntries WHERE sampleId IN (SELECT sampleId FROM AMScan_table WHERE runId = ?))");
 			findElements.bindValue(0, runId_);
 			if(findElements.exec()) {
+				QVector<int> elementIds;
+				QVector<QString> elementSymbols;
+				QVector<QString> elementNames;
 				while(findElements.next()) {
+					elementIds << findElements.value(0).toInt();
+					elementSymbols << findElements.value(1).toString();
+					elementNames << findElements.value(2).toString();
+				}
+				findElements.finish();
+				for(int i=0, cc=elementIds.count(); i<cc; i++) {
 					found = true;
-					int elementId = findElements.value(0).toInt();
-					QString symbol = findElements.value(1).toString();
-					QString name = findElements.value(2).toString();
+					int elementId = elementIds.at(i);
+					QString symbol = elementSymbols.at(i);
+					QString name = elementNames.at(i);
 					AMDataViewSection* section = new AMDataViewSection(
 								symbol + ": " + name,
 								QString("Showing all data from samples containing %1 in the <i>%2</i> run").arg(name).arg(fullRunName),
@@ -646,7 +732,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for elements in samples. The database might be corrupted."));
 			}
 		}
-		break;
+			break;
 
 		}
 	} // end of showing a specific run
@@ -670,6 +756,8 @@ void AMDataView::refreshView() {
 		else
 			headingLabel_->setText(userName_ + "Data");
 
+		expInfo.finish();
+
 		switch(organizeMode_) {
 		case AMDataViews::OrganizeExperiments:
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "This view is showing a single experiment, but the organize mode is set to organize by experiments. This doesn't make sense and should never happen. Handling as OrganizeNone."));
@@ -684,7 +772,7 @@ void AMDataView::refreshView() {
 
 			sections_ << section;
 		}
-		break;
+			break;
 
 		case AMDataViews::OrganizeRuns:
 		{
@@ -692,15 +780,23 @@ void AMDataView::refreshView() {
 			bool found = false;
 			QSqlQuery findRuns = db_->query();
 			findRuns.setForwardOnly(true);
-			findRuns.prepare(QString("SELECT id, name, dateTime, endDateTime FROM AMRun_table WHERE id IN (SELECT runId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%1'))").arg(experimentId_));
+			findRuns.prepare(QString("SELECT id, name, dateTime FROM AMRun_table WHERE id IN (SELECT runId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%1'))").arg(experimentId_));
 			if(findRuns.exec()) {
+				QVector<int> runIds;
+				QVector<QString> runNames;
+				QVector<QDateTime> runDateTimes;
 				while(findRuns.next()) {
+					runIds << findRuns.value(0).toInt();
+					runNames << findRuns.value(2).toString();
+					runDateTimes << findRuns.value(1).toDateTime();
+				}
+				findRuns.finish();	// to avoid long db locks, let's finish this query before doing all the section queries
+				for(int i=0, cc=runIds.count(); i<cc; i++) {
 					found = true;
-					int runId = findRuns.value(0).toInt();
-					QString runName = findRuns.value(1).toString();
-					QDateTime runTime = findRuns.value(2).toDateTime();
-					QDateTime runEndTime = findRuns.value(3).toDateTime();
-					QString fullRunName = runName + " (" + AMDateTimeUtils::prettyDateRange(runTime, runEndTime) + ")";
+					int runId = runIds.at(i);
+					QString runName = runNames.at(i);
+					QDateTime runTime = runDateTimes.at(i);
+					QString fullRunName = runName + " (" + AMDateTimeUtils::prettyDate(runTime) + ")";
 					AMDataViewSection* section = new AMDataViewSection(
 								fullRunName,
 								QString("Showing all data from this run in the <i>%1</i> experiment").arg(expName),
@@ -717,7 +813,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for runs. The database might be corrupted."));
 			}
 		}
-		break;
+			break;
 
 
 		case AMDataViews::OrganizeScanTypes:
@@ -731,10 +827,17 @@ void AMDataView::refreshView() {
 									  "WHERE ObjectExperimentEntries.experimentId = ? AND ObjectExperimentEntries.objectId = AMScan_table.id AND AMDbObjectTypes_table.AMDbObjectType = AMScan_table.AMDbObjectType;"));
 			findTypes.bindValue(0, experimentId_);
 			if(findTypes.exec()) {
+				QVector<QString> classNames;
+				QVector<QString> typeDescriptions;
 				while(findTypes.next()) {
+					classNames << findTypes.value(0).toString();
+					typeDescriptions << findTypes.value(1).toString();
+				}
+				findTypes.finish();
+				for(int i=0, cc=classNames.count(); i<cc; i++) {
 					found = true;
-					QString className = findTypes.value(0).toString();
-					QString typeDescription = findTypes.value(1).toString();
+					QString className = classNames.at(i);
+					QString typeDescription = typeDescriptions.at(i);
 					AMDataViewSection* section = new AMDataViewSection(
 								typeDescription,
 								QString("Showing all data of this type in the <i>%1</i> experiment").arg(expName),
@@ -752,7 +855,7 @@ void AMDataView::refreshView() {
 			}
 
 		}
-		break;
+			break;
 
 		case AMDataViews::OrganizeSamples:
 		{
@@ -763,11 +866,20 @@ void AMDataView::refreshView() {
 			findSamples.prepare("SELECT id,dateTime,name FROM AMSample_table WHERE id IN (SELECT sampleId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?));");	/// \todo add thumbnail icon!
 			findSamples.bindValue(0, experimentId_);
 			if(findSamples.exec()) {
+				QVector<int> sampleIds;
+				QVector<QDateTime> sampleDateTimes;
+				QVector<QString> sampleNames;
 				while(findSamples.next()) {
+					sampleIds << findSamples.value(0).toInt();
+					sampleDateTimes << findSamples.value(1).toDateTime();
+					sampleNames << findSamples.value(2).toString();
+				}
+				findSamples.finish();
+				for(int i=0, cc=sampleIds.count(); i<cc; i++) {
 					found = true;
-					int sampleId = findSamples.value(0).toInt();
-					QDateTime dt = findSamples.value(1).toDateTime();
-					QString name = findSamples.value(2).toString();
+					int sampleId = sampleIds.at(i);
+					QDateTime dt = sampleDateTimes.at(i);
+					QString name = sampleNames.at(i);
 					AMDataViewSection* section = new AMDataViewSection(
 								name,
 								QString("Sample created %1.  Showing all data from this sample in the <i>%2</i> experiment").arg(AMDateTimeUtils::prettyDateTime(dt)).arg(expName),
@@ -784,7 +896,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for samples. The database might be corrupted."));
 			}
 		}
-		break;
+			break;
 
 		case AMDataViews::OrganizeElements:
 		{
@@ -795,11 +907,20 @@ void AMDataView::refreshView() {
 			findElements.prepare("SELECT id,symbol,name FROM Elements WHERE id IN (SELECT elementId FROM SampleElementEntries WHERE sampleId IN (SELECT sampleId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?)));");
 			findElements.bindValue(0, experimentId_);
 			if(findElements.exec()) {
+				QVector<int> elementIds;
+				QVector<QString> elementSymbols;
+				QVector<QString> elementNames;
 				while(findElements.next()) {
+					elementIds << findElements.value(0).toInt();
+					elementSymbols << findElements.value(1).toString();
+					elementNames << findElements.value(2).toString();
+				}
+				findElements.finish();
+				for(int i=0, cc=elementIds.count(); i<cc; i++) {
 					found = true;
-					int elementId = findElements.value(0).toInt();
-					QString symbol = findElements.value(1).toString();
-					QString name = findElements.value(2).toString();
+					int elementId = elementIds.at(i);
+					QString symbol = elementSymbols.at(i);
+					QString name = elementNames.at(i);
 					AMDataViewSection* section = new AMDataViewSection(
 								symbol + ": " + name,
 								QString("Showing all data from samples containing %1 in the <i>%2</i> experiment").arg(name).arg(expName),
@@ -816,7 +937,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for elements in samples. The database might be corrupted."));
 			}
 		}
-		break;
+			break;
 
 		}
 	} // end of showing just one run
@@ -960,12 +1081,12 @@ void AMDataViewSection::expand(bool expanded) {
 
 		switch(viewMode_) {
 		case AMDataViews::ListView:
-			subview_ = new AMDataViewSectionListView(db_, AMDbObjectSupport::tableNameForClass<AMScan>(), whereClause_, this, widthConstraint_, itemSize_);
+			subview_ = new AMDataViewSectionListView(db_, AMDbObjectSupport::s()->tableNameForClass<AMScan>(), whereClause_, this, widthConstraint_, itemSize_);
 			break;
 
 		case AMDataViews::ThumbnailView:
 		default:
-			subview_ = new AMDataViewSectionThumbnailView(db_, AMDbObjectSupport::tableNameForClass<AMScan>(), whereClause_, this, widthConstraint_, itemSize_);
+			subview_ = new AMDataViewSectionThumbnailView(db_, AMDbObjectSupport::s()->tableNameForClass<AMScan>(), whereClause_, this, widthConstraint_, itemSize_);
 			break;
 		}
 		connect(subview_, SIGNAL(selectionChanged()), this, SIGNAL(selectionChanged()));
@@ -1064,7 +1185,7 @@ void AMDataViewSection::layoutContents() {
 
 int AMDataViewSection::countResults() {
 	QSqlQuery q = db_->query();
-	QString query = QString("SELECT COUNT(1) FROM %1").arg(AMDbObjectSupport::tableNameForClass<AMScan>());
+	QString query = QString("SELECT COUNT(1) FROM %1").arg(AMDbObjectSupport::s()->tableNameForClass<AMScan>());
 	if(!whereClause_.isEmpty())
 		query.append(" WHERE ").append(whereClause_);
 	q.prepare(query);
@@ -1125,31 +1246,34 @@ void AMDataViewSectionThumbnailView::populate() {
 
 	//qDebug() << "   prior to executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
 
-	if(!q.exec())
+	if(!q.exec()) {
+		q.finish();
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -1, QString("Error executing database query '%1'. The error was %2").arg(q.executedQuery()).arg(q.lastError().text())));
+	}
 
 	// qDebug() << "   after executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
 
 	// int processEventsBreakCounter = 0;
 
-	while(q.next()) {
+	else {
+		while(q.next()) {
 
-		AMThumbnailScrollGraphicsWidget* w = new AMThumbnailScrollGraphicsWidget(this);
-		w->setSource(db_, dbTableName_, q.value(5).toInt(), q.value(0).toInt(), q.value(1).toInt());
-		QString caption1 = q.value(2).toString();
-		if(q.value(3).toInt() != 0)
-			caption1.append(QString(" #%1").arg(q.value(3).toInt()));
-		w->setCaption1(caption1);
-		w->setCaption2(AMDateTimeUtils::prettyDateTime(q.value(4).toDateTime()));
+			AMThumbnailScrollGraphicsWidget* w = new AMThumbnailScrollGraphicsWidget(this);
+			w->setSource(db_, dbTableName_, q.value(5).toInt(), q.value(0).toInt(), q.value(1).toInt());
+			QString caption1 = q.value(2).toString();
+			if(q.value(3).toInt() != 0)
+				caption1.append(QString(" #%1").arg(q.value(3).toInt()));
+			w->setCaption1(caption1);
+			w->setCaption2(AMDateTimeUtils::prettyDateTime(q.value(4).toDateTime()));
 
-		layout_->addItem(w);
+			layout_->addItem(w);
 
-		/*if(processEventsBreakCounter++ == AMDATAVIEWSECTIONTHUMBNAILVIEW_PROCESS_EVENTS_EVERY_N_ITEMS) {
+			/*if(processEventsBreakCounter++ == AMDATAVIEWSECTIONTHUMBNAILVIEW_PROCESS_EVENTS_EVERY_N_ITEMS) {
    processEventsBreakCounter = 0;
    QApplication::processEvents();
   }*/
 
-		/*
+			/*
   AMThumbnailScrollViewer* w = new AMThumbnailScrollViewer();
   w->setSource(db_, q.value(0).toInt(), q.value(1).toInt());
   QGraphicsProxyWidget* p = new QGraphicsProxyWidget(gWidget_);
@@ -1158,6 +1282,7 @@ void AMDataViewSectionThumbnailView::populate() {
   layout_->addItem(p);
   */
 
+		}
 	}
 
 	// qDebug() << "   ending at " << QTime::currentTime().toString("mm:ss.zzz") << "\n";
@@ -1194,6 +1319,8 @@ void AMLayoutControlledGraphicsWidget::resizeEvent(QGraphicsSceneResizeEvent *ev
 }
 
 #include <QAbstractItemModel>
+#include "dataman/AMSample.h"
+#include "dataman/AMRun.h"
 
 AMDataViewSectionListView::AMDataViewSectionListView(AMDatabase *db, const QString &dbTableName, const QString &whereClause, QGraphicsItem *parent, double initialWidthConstraint, int initialItemSize)
 	: AMAbstractDataViewSection(parent)
@@ -1224,7 +1351,24 @@ AMDataViewSectionListView::AMDataViewSectionListView(AMDatabase *db, const QStri
 	tableView_->setSortingEnabled(true);
 
 
-	tableModel_ = new AMScanQueryModel(db_, this, tableName_, whereClause);
+	tableModel_ = new AMQueryTableModel(db_,
+									   this,
+									   tableName_,
+									   "id",
+									   whereClause,
+									   "dateTime ASC",
+									   QList<AMQueryTableModelColumnInfo>()
+										   << AMQueryTableModelColumnInfo("Row", "id")
+										   << AMQueryTableModelColumnInfo("Name", "name")
+										   << AMQueryTableModelColumnInfo("#", "number")
+										   << AMQueryTableModelColumnInfo("When", "dateTime")
+										   // << AMQueryTableModelColumnInfo("About", "scanInfo")
+										   << AMQueryTableModelColumnInfo("Sample", "sampleId", true, AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "name")
+										   << AMQueryTableModelColumnInfo("Technique", "AMDbObjectType", true, "AMDbObjectTypes_table", "description", "AMDbObjectType")
+										   // << AMQueryTableModelColumnInfo("Where", "facilityId", true, AMDbObjectSupport::s()->tableNameForClass<AMFacility>(), "description")
+										   << AMQueryTableModelColumnInfo("Where", "runId", true, AMDbObjectSupport::s()->tableNameForClass<AMRun>(), "name")
+										   << AMQueryTableModelColumnInfo("Notes", "notes")
+									   );
 	tableModel_->refreshQuery();
 	tableView_->setModel(tableModel_);
 
@@ -1327,9 +1471,11 @@ int AMDataViewSectionListView::numberOfSelectedItems() const
 
 void AMDataView::afterDatabaseItemChanged()
 {
-	if(viewRequiresRefresh_)
+	if(viewRequiresRefresh_) {
 		refreshView();
+	}
 }
+
 
 void AMDataView::onDatabaseItemCreatedOrRemoved(const QString &tableName, int id)
 {
@@ -1343,6 +1489,207 @@ void AMDataView::onDatabaseItemCreatedOrRemoved(const QString &tableName, int id
 		afterDbChangedFnCall_.runLater(5000);
 	}
 }
+
+void AMDataView::onDragStarted(const QPoint &startPos, const QPoint &currentPos)
+{
+	// qDebug() << "Drag started...";
+
+	// we use this to indicate if we're tracking a rubber-band selection drag.
+	if(rubberBand_) {
+		delete rubberBand_;
+		rubberBand_ = 0;
+	}
+
+	// convert to scene pos:
+	QPointF scenePos = gview_->mapToScene(startPos);
+
+	// Possibility 1: is there a selected item under us? Then we should start a drag with all the selected items
+	QGraphicsItem* item = gscene_->itemAt(scenePos);
+	if(item && item->isSelected()) {
+		// start a QDrag with ALL the selected items. Do we have a pixmap to use to represent the drag? We do if we're in thumbnail mode and there's an AMThumbnailScrollGraphicsWidget under us.
+		AMThumbnailScrollGraphicsWidget* gw = qgraphicsitem_cast<AMThumbnailScrollGraphicsWidget*>(item);
+		if(gw)
+			startDragWithSelectedItems(gw->pixmap().scaledToHeight(100, Qt::SmoothTransformation));
+		else
+			startDragWithSelectedItems();
+	}
+
+	// Possibility 2: Else, start drawing a rubber band to select some items.
+	else {
+		QRectF selectionRect  = QRectF(scenePos, gview_->mapToScene(currentPos)).normalized();
+
+		rubberBand_ = gscene_->addRect(selectionRect,
+									   QPen(QColor(167, 167, 167)),
+									   QBrush(QColor(167,167,167,80)));
+
+		// Clear the selection area, unless the command (mac)/control key or shift key is pressed.
+		Qt::KeyboardModifiers mods = QApplication::keyboardModifiers();
+		if(!((mods&Qt::ShiftModifier) || (mods&Qt::ControlModifier)))
+			selectionArea_ = QPainterPath();
+
+		QPainterPath selectionArea = selectionArea_;
+		selectionArea.addRect(selectionRect);
+		gscene_->setSelectionArea(selectionArea);
+	}
+}
+
+void AMDataView::onDragMoved(const QPoint &startPos, const QPoint &currentPos)
+{
+	if(rubberBand_) {
+		QRectF selectionRect = QRectF(gview_->mapToScene(startPos), gview_->mapToScene(currentPos)).normalized();
+		rubberBand_->setRect(selectionRect);
+
+		QPainterPath selectionArea = selectionArea_;
+		selectionArea.addRect(selectionRect);
+		gscene_->setSelectionArea(selectionArea);
+		/// \todo TODOZ: if outside of view...scroll into view
+	}
+}
+
+void AMDataView::onDragEnded(const QPoint &startPos, const QPoint &endPos)
+{
+	if(rubberBand_) {
+		QRectF selectionRect = QRectF(gview_->mapToScene(startPos), gview_->mapToScene(endPos)).normalized();
+
+		// now that we're done... actually remember this selection area for good (in case future shift-drags and control-drags need to add to it)
+		selectionArea_.addRect(selectionRect);
+		gscene_->setSelectionArea(selectionArea_);
+
+		delete rubberBand_;
+		rubberBand_ = 0;
+	}
+}
+
+void AMDataView::startDragWithSelectedItems(const QPixmap& optionalPixmap)
+{
+	QList<QUrl> urls = selectedItems();
+	if(urls.count() == 0)
+		return;
+
+	QDrag* drag = new QDrag(this);
+	QMimeData* mime = new QMimeData();
+	drag->setMimeData(mime);
+	mime->setUrls(urls);
+
+	drag->setHotSpot(QPoint(15,15));
+
+	// generate a pixmap to represent this drag. Draw text "n scans" on top of the one we were provided (if we were).
+	///////////////////////////////////
+	QPixmap pixmap;
+	if(optionalPixmap.isNull()) {
+		pixmap = QPixmap(100, 30);
+		pixmap.fill(Qt::transparent);
+	}
+	else
+		pixmap = optionalPixmap;
+	QRectF textRect;
+	QPainter painter(&pixmap);
+	painter.setRenderHint(QPainter::Antialiasing);
+	painter.setPen(QPen(Qt::white, 2));
+	painter.setBrush(Qt::red);
+	painter.drawText(QRectF(10,10,qMax(1,pixmap.width()-20),qMax(1,pixmap.height()-20)),
+					 Qt::AlignRight | Qt::AlignBottom,
+					 urls.count() == 1 ? QString("1 scan") : QString("%1 scans").arg(urls.count()),
+					 &textRect);
+	QRectF borderBox = textRect.adjusted(-5,-5,5,5);
+	painter.setPen(QPen(QColor(200,200,200), 2));
+	painter.setBrush(QColor(200,200,200));
+	qreal radius = borderBox.height()/2;
+	painter.drawRoundedRect(borderBox.translated(-1,-1), radius, radius);
+	painter.drawRoundedRect(borderBox.translated(2,2), radius, radius);
+	painter.setPen(QPen(Qt::white, 2));
+	painter.setBrush(QColor(100,100,100));
+	painter.drawRoundedRect(borderBox, radius, radius);
+	painter.drawText(QRectF(10,10,qMax(1,pixmap.width()-20),qMax(1,pixmap.height()-20)),
+					 Qt::AlignRight | Qt::AlignBottom,
+					 urls.count() == 1 ? QString("1 scan") : QString("%1 scans").arg(urls.count()),
+					 &textRect);
+	painter.end();
+	drag->setPixmap(pixmap);
+	//////////////////////////////////
+
+	drag->exec(Qt::CopyAction); // todo: also offer move action if dropping onto runs
+}
+
+#include <QDebug>
+
+void AMDataView::onViewClicked(const QPoint &clickPos)
+{
+	// here we manage scene selection in our own special way.  Command-click/control-click adds the clicked item to the selection.  Shift-click selects all items between the current selection and the clicked item. Normal click clears the selection and selects the item underneath.
+	Qt::KeyboardModifiers mods = QApplication::keyboardModifiers();
+	QPointF scenePos = gview_->mapToScene(clickPos);
+
+	QGraphicsItem* item = gscene_->itemAt(scenePos);
+
+	if(mods & Qt::ShiftModifier) {
+		// shift-selection: select all items in the rectangle containing the existing selected items and the clicked item.
+		if(item && (item->flags() & QGraphicsItem::ItemIsSelectable)) {
+			QRectF newSelectionRect = item->mapRectToScene(item->boundingRect());
+			QList<QGraphicsItem*> selectedItems = gscene_->selectedItems();
+			bool otherItems = false;
+			for(int i=0; i<selectedItems.count(); i++) {
+				QGraphicsItem* otherItem = selectedItems.at(i);
+				if(otherItem != item) {
+					otherItems = true;
+					newSelectionRect |= otherItem->mapRectToScene(otherItem->boundingRect());
+				}
+			}
+			if(otherItems) {
+				selectionArea_ = QPainterPath();
+				selectionArea_.addRect(newSelectionRect);
+				gscene_->setSelectionArea(selectionArea_);
+			}
+			else {
+				// no selected items. Just select this item.
+				item->setSelected(true);
+			}
+		}
+	}
+	else if(mods & Qt::ControlModifier) {	// command (mac) or control selection: add clicked item to selection
+		if(item && (item->flags() & QGraphicsItem::ItemIsSelectable)) {
+			// Toggle the selection of this item, but don't clear the selection
+			item->setSelected(!item->isSelected());
+		}
+	}
+	else {
+		// no mods. clear selection
+		gscene_->clearSelection();
+		selectionArea_ = QPainterPath();
+		// if there's an item here, add it to the selection.
+		if(item && (item->flags() & QGraphicsItem::ItemIsSelectable)) {
+			item->setSelected(true);
+		}
+	}
+}
+
+bool AMDataView::eventFilter(QObject* object, QEvent* event)
+{
+	if(object == gscene_ && viewMode_ == AMDataViews::ThumbnailView) {
+		if(event->type() == QEvent::GraphicsSceneMouseDoubleClick
+				|| event->type() == QEvent::GraphicsSceneMousePress
+				|| event->type() == QEvent::GraphicsSceneMouseRelease)
+			return true;
+	}
+
+	return false;
+}
+
+void AMDataView::onViewDoubleClicked(const QPoint &clickPos)
+{
+	// one possible use-case is that multiple items are selected, and the user cmd/control-doubleclicks to open all selected items. However, the first single cmd-click will have deselected the item under the cursor, so we want to re-enable that guy.
+	Qt::KeyboardModifiers mods = QApplication::keyboardModifiers();
+
+	if((mods & Qt::ControlModifier)) {
+		QPointF scenePos = gview_->mapToScene(clickPos);
+		QGraphicsItem* item = gscene_->itemAt(scenePos);
+		if(item && (item->flags() & QGraphicsItem::ItemIsSelectable)) {
+			item->setSelected(true);
+		}
+	}
+	// Now we let the regular double-click mechanism run its course.
+	emit viewDoubleClicked();
+}
+
 
 
 

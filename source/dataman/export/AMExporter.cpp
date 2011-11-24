@@ -46,6 +46,10 @@ AMExporter::~AMExporter() {
 	delete keywordParser_;
 }
 
+const QMetaObject* AMExporter::getMetaObject(){
+	return metaObject();
+}
+
 bool AMExporter::openFile(const QString &filePath)
 {
 	return openFile(file_, filePath);
@@ -70,6 +74,7 @@ bool AMExporter::openFile(QFile* file, const QString& filePath) {
 }
 
 QString AMExporter::parseKeywordString(const QString &inputString) {
+	currentlyParsing_ = inputString;
 	keywordParser_->setInitialText(inputString);
 	keywordParser_->replaceAllUsingDictionary(keywordDictionary_);
 	return keywordParser_->getReplacedText();
@@ -87,7 +92,6 @@ void AMExporter::loadKeywordReplacementDictionary()
 	keywordDictionary_.insert("run", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krRun));
 	keywordDictionary_.insert("runName", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krRunName));
 	keywordDictionary_.insert("runStartDate", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krRunStartDate));
-	keywordDictionary_.insert("runEndDate", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krRunEndDate));
 	keywordDictionary_.insert("runNotes", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krRunNotes));
 	keywordDictionary_.insert("facilityName", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krFacilityName));
 	keywordDictionary_.insert("facilityDescription", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krFacilityDescription));
@@ -116,6 +120,8 @@ void AMExporter::loadKeywordReplacementDictionary()
 	keywordDictionary_.insert("dataSetAxisUnits", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDataSourceAxisUnits));
 
 	keywordDictionary_.insert("exportIndex", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krExporterAutoIncrement));
+
+	keywordDictionary_.insert("fsIndex", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krFileSystemAutoIncrement));
 }
 
 
@@ -180,7 +186,7 @@ QString AMExporter::krRun(const QString& arg) {
 
 	AMRun r;
 	r.loadFromDb(currentScan_->database(), currentScan_->runId());
-	return r.name() % " " % AMDateTimeUtils::prettyDateRange(r.dateTime(), r.endDateTime());
+	return r.name() % " " % AMDateTimeUtils::prettyDate(r.dateTime());
 }
 
 
@@ -207,18 +213,7 @@ QString AMExporter::krRunStartDate(const QString& arg) {
 		return r.dateTime().toString(arg);
 }
 
-QString AMExporter::krRunEndDate(const QString& arg) {
-	if(!currentScan_)
-		return "[??]";
 
-	AMRun r;
-	r.loadFromDb(currentScan_->database(), currentScan_->runId());
-
-	if(arg.isEmpty())
-		return r.endDateTime().toString("yyyy MM dd");
-	else
-		return r.endDateTime().toString(arg);
-}
 
 QString AMExporter::krRunNotes(const QString& arg) {
 	Q_UNUSED(arg)
@@ -258,7 +253,6 @@ QString AMExporter::krFacilityDescription(const QString& arg) {
 }
 
 #include "acquaman/AMScanConfiguration.h"	/// \todo Move to dataman!
-
 QString AMExporter::krScanConfiguration(const QString& propertyName) {
 	if(!currentScan_)
 		return "[??]";
@@ -267,7 +261,24 @@ QString AMExporter::krScanConfiguration(const QString& propertyName) {
 	if(!scanConfig)
 		return "[??]";
 
-	QVariant v =  scanConfig->property(propertyName.toLatin1().constData());
+	QStringList propertyArgs = propertyName.split('%');
+	QVariant v =  scanConfig->property(propertyArgs.at(0).toLatin1().constData());
+	if(propertyArgs.count() > 1){
+		if(propertyArgs.at(1) == "double" && v.canConvert<double>()){
+			double value = v.toDouble();
+			QString retVal;
+			int precision = 0;
+			bool conversionOk;
+			if(propertyArgs.count() > 2){
+				precision = propertyArgs.at(2).toInt(&conversionOk);
+				if(!conversionOk)
+					precision = 0;
+			}
+			retVal.setNum(value, 'f', precision);
+			return retVal;
+		}
+
+	}
 	if(!v.isValid())
 		return "[??]";
 
@@ -478,15 +489,15 @@ QString AMExporter::krDataSourceInfoDescription(const QString &dataSourceName) {
 	AMDataSource* ds = currentScan_->dataSourceAt(dataSourceIndex);
 	return ds->infoDescription();
 	/*
-	if(ds->infoDescription().isEmpty()){
-		qDebug() << "No info description, using name";
-		return ds->name();
-	}
-	else{
-		qDebug() << "Found info description";
-		return ds->infoDescription();
-	}
-	*/
+ if(ds->infoDescription().isEmpty()){
+  qDebug() << "No info description, using name";
+  return ds->name();
+ }
+ else{
+  qDebug() << "Found info description";
+  return ds->infoDescription();
+ }
+ */
 }
 
 QString AMExporter::krDataSourceAxisValue(const QString& dataSourceName) {
@@ -532,7 +543,44 @@ QString AMExporter::krExporterAutoIncrement(const QString &arg){
 	return QString("%1").arg(autoIndex_);
 }
 
+#include <QDir>
+#include <QRegExp>
+QString AMExporter::krFileSystemAutoIncrement(const QString &arg)
+{
+	Q_UNUSED(arg)
 
+	if (!currentScan_)
+		return "[??]";
 
+	if (!currentScan_->scanConfiguration())
+		return "[??]";
 
+	QString newName = currentlyParsing_;
+	newName = newName.mid(newName.lastIndexOf("/")+1);
 
+	for (int i = 0; i < keywordParser_->replacementList().size(); i++)
+		if (keywordParser_->replacementList().at(i).tag != "fsIndex")
+			newName.replace(keywordParser_->replacementList().at(i).tag, keywordParser_->replacementList().at(i).replacement);
+
+	newName.replace("$fsIndex", "*");
+
+	for (int i = 0; i < newName.count("$"); i++)
+		newName.replace("$", "");
+
+	QString finalTest = newName;
+
+	// The following line of code is the correct code, but using a different path for testing.
+	QDir dir(destinationFolderPath_);
+	//QDir dir("/Users/darrenhunter/dev/export test");
+	dir.setNameFilters(QStringList() << newName);
+	newName.replace("*", "[\\d{0,4}]\\");
+	QStringList filtered = dir.entryList().filter(QRegExp(newName));
+
+	int incr = 0;
+	dir.setNameFilters(QStringList() << QString(finalTest).replace("*", QString::number(filtered.size())));
+
+	while (!dir.entryList().isEmpty())
+		dir.setNameFilters(QStringList() << QString(finalTest).replace("*", QString::number(filtered.size()+(++incr))));
+
+	return QString::number(filtered.size()+incr);
+}

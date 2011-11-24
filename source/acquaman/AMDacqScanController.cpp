@@ -27,9 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *parent) : AMScanController(cfg, parent)
 {
-	_pCfg_ = &generalCfg_;
-	_pScan_ = &generalScan_;
-
 	useDwellTimes_ = false;
 	dwellTimeTrigger_ = 0; //NULL
 	dwellTimeConfirmed_ = 0; //NULL
@@ -68,6 +65,22 @@ bool AMDacqScanController::startImplementation(){
 		acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScanSpectrum", "File");
 		if( abop)
 		{
+			acqEvent_t *ev;
+			ev = first_acqEvent(advAcq_->getMaster());
+			if(!ev || !ev->numPvList ){
+				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDACQSCANCONTROLLER_DACQ_INITIALIZATION_FAILED, "AMDacqScanController: dacq initialization was unsuccessful."));
+				return false;
+			}
+			if(ev->numPvList < 1){
+				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDACQSCANCONTROLLER_NO_X_COLUMN, "AMDacqScanController: no implied x-column set."));
+				return false;
+			}
+			// Ensure that the dacq hasn't misloaded our x-column and set it to "NoRecord = true"
+			if(ev->pvList[0].noRecord == 1){
+				qDebug() << "Caught the dacq trying to screw up";
+				ev->pvList[0].noRecord = 0;
+			}
+
 			if(useDwellTimes_)
 				connect(dwellTimeTrigger_, SIGNAL(valueChanged(double)), this, SLOT(onDwellTimeTriggerChanged(double)));
 
@@ -81,18 +94,18 @@ bool AMDacqScanController::startImplementation(){
 			abop->setProperty( "File Template", file.toStdString());
 			abop->setProperty( "File Path", (AMUserSettings::userDataFolder + "/" + path).toStdString());	// given an absolute path here
 
-			pScan_()->setFilePath(fullPath.filePath()+".dat");	// relative path and extension (is what the database wants)
+			scan_->setFilePath(fullPath.filePath()+".dat");	// relative path and extension (is what the database wants)
 			if(usingSpectraDotDatFile_){
-				pScan_()->setAdditionalFilePaths( QStringList() << fullPath.filePath()+"_spectra.dat" );
+				scan_->setAdditionalFilePaths( QStringList() << fullPath.filePath()+"_spectra.dat" );
 			}
 
-			((AMAcqScanSpectrumOutput*)abop)->setScan(pScan_());
+			((AMAcqScanSpectrumOutput*)abop)->setScan(scan_);
 			((AMAcqScanSpectrumOutput*)abop)->setScanController(this);
 			advAcq_->Start();
 			return true;
 		}
 		else{
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDacqScanController: could not create output handler."));
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDACQSCANCONTROLLER_CANT_CREATE_OUTPUTHANDLER, "AMDacqScanController: could not create output handler."));
 			return false;
 		}
 }
@@ -137,20 +150,20 @@ bool AMDacqScanController::event(QEvent *e){
 		QMap<int, QList<double> >::const_iterator j = aeSpectra.constBegin();
 		if(i.key() == 0 && aeData.count() > 1){
 			AMnDIndex insertIndex = toScanIndex(aeData);
-			pScan_()->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
+			scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
 			/// \bug CRITICAL: This is ASSUMING ONE AXIS, need to fix that somewhere
-			pScan_()->rawData()->setAxisValue(0, insertIndex.row(), i.value());
+			scan_->rawData()->setAxisValue(0, insertIndex.row(), i.value());
 			++i;
 			while(i != aeData.constEnd()){
-				pScan_()->rawData()->setValue(insertIndex, i.key()-1, AMnDIndex(), i.value());
+				scan_->rawData()->setValue(insertIndex, i.key()-1, AMnDIndex(), i.value());
 				++i;
 			}
 			while(j != aeSpectra.constEnd()){
 				for(int x = 0; x < j.value().count(); x++)
-					pScan_()->rawData()->setValue(insertIndex, j.key()-1, AMnDIndex(x), j.value().at(x));
+					scan_->rawData()->setValue(insertIndex, j.key()-1, AMnDIndex(x), j.value().at(x));
 				++j;
 			}
-			pScan_()->rawData()->endInsertRows();
+			scan_->rawData()->endInsertRows();
 		}
 		e->accept();
 		return true;
@@ -162,7 +175,7 @@ bool AMDacqScanController::event(QEvent *e){
 AMnDIndex AMDacqScanController::toScanIndex(QMap<int, double> aeData){
 	//Simple indexer, assumes there is ONLY ONE scan dimension and appends to the end
 	Q_UNUSED(aeData);
-	return AMnDIndex(pScan_()->rawData()->scanSize(0));
+	return AMnDIndex(scan_->rawData()->scanSize(0));
 }
 
 void AMDacqScanController::onDacqStart()

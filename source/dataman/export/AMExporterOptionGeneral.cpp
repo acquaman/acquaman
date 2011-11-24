@@ -44,3 +44,6 @@ AMExporterOptionGeneral::AMExporterOptionGeneral(QObject *parent) :
 	separateSectionFileName_ = "$name_$number_$dataSet_$dateTime[yyyyMMdd_hhmmss].dat";
 }
 
+const QMetaObject* AMExporterOptionGeneral::getMetaObject(){
+	return metaObject();
+}

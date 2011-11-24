@@ -26,7 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMXASDacqScanController.h"
 
-#include "dataman/AMFirstTimeController.h"
 #include "util/AMErrorMonitor.h"
 
 class TestAcquaman: public QObject

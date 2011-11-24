@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMExperiment.h"
+#include "database/AMDbObjectSupport.h"
 
 AMExperiment::AMExperiment(QObject *parent) :
 		AMDbObject(parent)
@@ -37,7 +38,14 @@ AMExperiment::AMExperiment(const QString& experimentName, QObject* parent)
 AMExperiment::AMExperiment(int databaseId, AMDatabase* database, QObject* parent)
 		: AMDbObject(parent)
 {
-		loadFromDb(database, databaseId);
+	loadFromDb(database, databaseId);
+}
+
+bool AMExperiment::deleteExperiment(int id, AMDatabase *database)
+{
+	database->deleteRows(AMDbObjectSupport::experimentEntriesTableName(),
+						 QString("experimentId = %1").arg(id));
+	return database->deleteRow(id, AMDbObjectSupport::s()->tableNameForClass(&staticMetaObject));
 }
 
 

@@ -94,4 +94,10 @@ bool VESPERS2011XRFFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 	return true;
 }
 
-Q_EXPORT_PLUGIN2(VESPERS2011XRFFileLoaderPlugin, VESPERS2011XRFFileLoaderPlugin)
+bool VESPERS2011XRFFileLoaderFactory::accepts(AMScan *scan)
+{
+	return (scan->fileFormat() == "vespersXRF" || scan->fileFormat() == "vespers2011XRF");
+}
+
+Q_EXPORT_PLUGIN2(VESPERS2011XRFFileLoaderFactory, VESPERS2011XRFFileLoaderFactory)
+

@@ -101,7 +101,8 @@ QVariant AMScanSetModel::data(const QModelIndex & index, int role) const {
 
 		switch(role) {
 		case Qt::DisplayRole: {
-				QString rv = scan->name().append(QString(" #%1").arg(scan->number()));
+				//QString rv = scan->name().append(QString(" #%1").arg(scan->number()));
+				QString rv = scan->fullName();
 				if(scan->modified())
 					rv.append( " (modified)");
 				return rv;
@@ -116,6 +117,7 @@ QVariant AMScanSetModel::data(const QModelIndex & index, int role) const {
 			break;
 		case Qt::ToolTipRole:
 			return QString("%1, #%2 (sample: %3): %4").arg(scan->name()).arg(scan->number()).arg(scan->sampleName()).arg(AMDateTimeUtils::prettyDateTime(scan->dateTime(), "h:mm:ssap"));
+			//return QString("%1, #%2 (sample: %3): %4").arg(scan->evaluatedName()).arg(scan->number()).arg(scan->sampleName()).arg(AMDateTimeUtils::prettyDateTime(scan->dateTime(), "h:mm:ssap"));
 			break;
 		case AM::DescriptionRole:
 			return QString("%1, on %2").arg(AMDateTimeUtils::prettyDateTime(scan->dateTime())).arg(scan->sampleName());
@@ -132,7 +134,8 @@ QVariant AMScanSetModel::data(const QModelIndex & index, int role) const {
 		case AM::CanCloseRole:	// allows views to show the 'close' button beside each scan, to delete it. Do we want this on?
 			return true;
 		case AM::NameRole: {
-				return scan->name().append(QString(" #%1").arg(scan->number()));
+				//return scan->name().append(QString(" #%1").arg(scan->number()));
+				return scan->fullName();
 			}
 			break;
 		default:
@@ -166,6 +169,7 @@ QVariant AMScanSetModel::data(const QModelIndex & index, int role) const {
 				return QString("%1 (%2) From scan: %3\n%4").arg(dataSource->description(),
 																dataSource->name(),
 																scan->name(),
+																//scan->evaluatedName(),
 																dataSource->typeDescription());
 				break;
 			case Qt::CheckStateRole:	// this controls visibility on plots. If the data source is hidden from users, it should not be visible regardless of the user's visibility setting.

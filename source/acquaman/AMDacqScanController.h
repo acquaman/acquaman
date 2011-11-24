@@ -38,6 +38,10 @@ class QDir;
 
 #include "beamline/AMDetector.h"
 
+#define AMDACQSCANCONTROLLER_CANT_CREATE_OUTPUTHANDLER 72001
+#define AMDACQSCANCONTROLLER_DACQ_INITIALIZATION_FAILED 72002
+#define AMDACQSCANCONTROLLER_NO_X_COLUMN 72003
+
 class AMDacqScanController : public AMScanController
 {
 Q_OBJECT
@@ -82,12 +86,6 @@ protected:
 	AMControl *dwellTimeTrigger_;
 	AMControl *dwellTimeConfirmed_;
 
-private:
-	AMScanConfiguration **_pCfg_;
-	AMScan **_pScan_;
-
-	AMScanConfiguration *pCfg_() { return *_pCfg_;}
-	AMScan *pScan_() { return *_pScan_;}
 };
 
 #endif // ACQMAN_DACQSCANCONTROLLER_H

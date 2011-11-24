@@ -34,7 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
    load(), and pushed out to the file with save().  Load() is normally called on program startup, and save() when the AMSettings view gets hit with OK or Apply (\todo... Make an AMSettings view).
 
    Accessing an option variable is simple and easy:
-		AMUserAMSettings::userDataFolder or AMSettings::publicDatabaseFilename, etc.
+		AMUserAMSettings::userDataFolder or AMSettings::s()->publicDatabaseFilename(), etc.
 
 
    For user settings, only two basic pieces of information are stored in the config file: the folder to store the user's data and database, and the name of their database file.  Once we have this information, we can access the user's personal meta-data object, which is stored in the database itself. (see AMUser::user() for more information.)
@@ -78,40 +78,58 @@ public:
 };
 
 
-class AMFileLoaderInterface;
-class AMAnalysisBlockInterface;
+#include <QReadWriteLock>
+#include <QMutex>
+#include <QMultiMap>
 
-/// This class encapsulates application-wide settings and options that are persistent over many runs of the program.
+/// This singleton class encapsulates application-wide settings and options that are persistent over many runs of the program. Access it using AMSettings::s() to get the instance. This class is thread-safe.
 class AMSettings {
 public:
+
+	/// AMSettings is a singleton class. Access the only instance of it using AMSettings::s().
+	static AMSettings* s();
 
 
 	/// 1. public database and storage:
 	// ========================================
 
 	/// This is where public (archived/reviewed) data is stored, system-wide
-	static QString publicDataFolder;
+	QString publicDataFolder() const;
+	void setPublicDataFolder(QString publicDataFolder);
 	/// This is the public database filename:
-	static QString publicDatabaseFilename;
+	QString publicDatabaseFilename() const;
+	void setPublicDatabaseFilename(QString publicDatabaseFilename);
 
 	/// This is the location of the folder that contains the file loader plugins
-	static QString fileLoaderPluginsFolder;
-	/// A list of available file loader plugins
-	static QList<AMFileLoaderInterface*> availableFileLoaders;
+	QString fileLoaderPluginsFolder() const;
+	void setFileLoaderPluginsFolder(QString fileLoaderPluginsFolder);
 
 	/// This is the location of the folder that contains the analysis block plugins
-	static QString analysisBlockPluginsFolder;
-	/// A list of available analysis block plugins
-	static QList<AMAnalysisBlockInterface*> availableAnalysisBlocks;
+	QString analysisBlockPluginsFolder() const;
+	void setAnalysisBlockPluginsFolder(QString analysisBlockPluginsFolder);
 
-	/// Load settings from disk:
-	static void load();
+	/// Load settings from disk persistent storage:
+	void load();
+	/// Save settings to disk persistent storage:
+	void save();
 
-	/// Save settings to disk:
-	static void save();
 
-	/// Load application plugins  (Should we move this to AM(Dataman)AppController, since it's part of the app lifecycle process? Then it could be virtual and re-defined by apps if necessary. Also, loading plugins turns out to be an expensive operation; we might not want tie it automatically to re-loading the settings.
-	static void loadApplicationPlugins();
+protected:
+	/// This is a singleton class, so the constructor is protected.
+	AMSettings() : mutex_(QReadWriteLock::Recursive) {}
+
+	QString publicDataFolder_;
+	QString publicDatabaseFilename_;
+
+	QString fileLoaderPluginsFolder_;
+	QString analysisBlockPluginsFolder_;
+
+	// thread safety
+	mutable QReadWriteLock mutex_;
+
+	// singleton instance
+	static AMSettings* instance_;
+	static QMutex instanceMutex_;
 
 };
 

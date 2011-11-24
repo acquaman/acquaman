@@ -139,7 +139,7 @@ void REIXSXESScanConfigurationView::onLoadCalibrations() {
 
 	calibrationSelector_->addItem("Default", -1);
 
-	QSqlQuery q = AMDatabase::userdb()->query();
+	QSqlQuery q = AMDatabase::database("user")->query();
 
 	q.prepare(QString("SELECT id, dateTime FROM %1").arg(calibration_.dbTableName()));
 	q.exec();
@@ -149,6 +149,7 @@ void REIXSXESScanConfigurationView::onLoadCalibrations() {
 		QDateTime dateTime = q.value(1).toDateTime();
 		calibrationSelector_->addItem(AMDateTimeUtils::prettyDateTime(dateTime), id);
 	}
+	q.finish();
 
 	// if we had a previously valid calibration, re-set it as current
 	int newIndexForOldId;
@@ -172,7 +173,7 @@ void REIXSXESScanConfigurationView::onCalibrationIndexChanged(int newIndex) {
 	configuration_.setSpectrometerCalibrationId(currentCalibrationId_);
 
 	if(currentCalibrationId_ > 0) {
-		calibration_.loadFromDb(AMDatabase::userdb(), currentCalibrationId_);
+		calibration_.loadFromDb(AMDatabase::database("user"), currentCalibrationId_);
 	}
 	else {
 		calibration_ = REIXSXESCalibration();

@@ -53,6 +53,11 @@ REIXSXESMCPDetector::REIXSXESMCPDetector(const QString& name, const QString& bas
 	connect(instantaneousImagePV_, SIGNAL(valueChanged()), this, SIGNAL(instantaneousImageDataChanged()));
 }
 
+REIXSXESMCPDetector::~REIXSXESMCPDetector() {
+	delete image_;
+	delete instantaneousImage_;
+}
+
 
 REIXSXESMCPDataSource::REIXSXESMCPDataSource(const QString &name, AMProcessVariable *imagePV, AMProcessVariable *resolutionXPV, AMProcessVariable *resolutionYPV, QObject *parent)
 	: QObject(parent), AMDataSource(name) {

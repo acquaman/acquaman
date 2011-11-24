@@ -41,6 +41,8 @@ public:
 	explicit AMExporter(QObject *parent = 0);
 	virtual ~AMExporter();
 
+	virtual const QMetaObject* getMetaObject();
+
 	/// A human-readable description of this file format (Will be used to let the user choose an exporter from the set of available ones.)
 	virtual QString description() const = 0;
 
@@ -116,6 +118,16 @@ protected:
 	void setCurrentAutoIndex(int autoIndex) { autoIndex_ = autoIndex; }
 	int autoIndex_;
 
+	/// Helper function: returns the filename.
+	void setCurrentFilename(const QString &name) { filename_ = name; }
+	QString filename_;
+
+	/// Helper function: returns the destination folder path.
+	void setDestinationFolderPath(const QString &path) { destinationFolderPath_ = path; }
+	QString destinationFolderPath_;
+
+	/// Helper member for Darren... bit hackish.
+	QString currentlyParsing_;
 
 	///////////////////////////////
 	// functions to implement the keyword replacement system
@@ -131,7 +143,6 @@ protected:
 	QString krRun(const QString& arg = QString());
 	QString krRunName(const QString& arg = QString());
 	QString krRunStartDate(const QString& arg = QString());
-	QString krRunEndDate(const QString& arg = QString());
 	QString krRunNotes(const QString& arg = QString());
 
 	QString krFacilityName(const QString& arg = QString());
@@ -165,6 +176,8 @@ protected:
 	QString krDataSourceAxisUnits(const QString& unused = QString());
 
 	QString krExporterAutoIncrement(const QString& arg = QString());
+
+	QString krFileSystemAutoIncrement(const QString &arg = QString());
 
 };
 

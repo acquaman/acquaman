@@ -74,12 +74,8 @@ public:
 		return scanSetModel_->scanAt(index);
 	}
 
-
-
-
-	/// Call this function to open a set of scans from the database. The scan information is contained inside a list of "amd://..." URLs.  For more information on the format, see dropEvent().   Returns true if the list contains at least one valid scan that was added.
-	/*! This function is used as a helper function by dropEvent(), but you can also call it directly. */
-	bool dropScanURLs(const QList<QUrl>& urls);
+	/// Call this function to find out if this editor can be closed. Checks for scans in progress and prompts the user for what to do with modified scans.  Returns true if the editor can be closed; returns false if any scans are acquiring or if the user responded "cancel" to a save-request.
+	bool canCloseEditor();
 
 signals:
 	/// Internal signal to forward the textChanged() from ui_.notesEdit
@@ -90,9 +86,6 @@ public slots:
 protected slots:
 	///  This catches changes in the scan that is currently selected, and hooks it up to the editor widgets. \todo Ultimately, we might handle more than one scan being "selected" at once.
 	void onCurrentChanged ( const QModelIndex & selected, const QModelIndex & deselected );
-
-	// This slot responds to meta-data changes in the current scan
-	// removed: void onScanMetaDataChanged();
 
 	/// internal signal to forward the textChanged() signal from ui_.notesEdit
 	void onNotesTextChanged() {
@@ -117,8 +110,20 @@ protected slots:
 	/// Called when the open scan dialog is accepted with one or more new scans to open.
 	void onChooseScanDialogAccepted();
 
+	/// Call this function to open a set of scans from the database. The scan information is contained inside a list of "amd://..." URLs.  For more information on the format, see dropEvent().   Returns true if the list contains at least one valid scan that was added.
+	/*! This function is used as an internal helper function by dropEvent(); Normally you should use the dropScanURLs function in AMDatamanAppController() since it can check for scans being open in other editors*/
+	bool dropScanURLs(const QList<QUrl>& urls);
 
 protected:
+
+	// Re-implemented functions
+	//////////////////////////
+	/// Implement acquiring/modified checks before allowing this window to close.
+	void closeEvent(QCloseEvent *);
+
+	// Variables
+	///////////////////////////
+
 	/// This is a model containing the current open scans
 	AMScanSetModel* scanSetModel_;
 	/// This is the currently-selected scan, or 0 non-existent
@@ -149,6 +154,7 @@ protected:
 
 	/// Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)
 	void dragEnterEvent(QDragEnterEvent *event);
+
 	/// Overloaded to enable drag-dropping scans.
 	/*! The Drag is accepted when:
 	  - Drag Action = Qt::CopyAction
@@ -163,6 +169,12 @@ protected:
 
 	/// This helper function refreshes the editor widgets with the values from a given scan
 	void updateEditor(AMScan* scan);
+
+	/// Helper function to ask if a scan should be aborted when trying to close it. Returns true if the scan should be aborted.
+	bool shouldStopAcquiringScan(AMScan* scan);
+	/// Helper function to ask if a scan should be saved when trying to close it. Returns an integer corresponding to QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel.
+	int shouldSaveModifiedScan(AMScan* scan);
+
 
 
 };

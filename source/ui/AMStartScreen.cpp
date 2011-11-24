@@ -26,7 +26,7 @@ AMStartScreen::AMStartScreen(QWidget *parent) :
 	QWidget(parent)
 {
 	//QPixmap pixmap(":/ ")
-	runSelector_ = new AMRunSelector(AMDatabase::userdb(),this);
+	runSelector_ = new AMRunSelector(AMDatabase::database("user"),this);
 	//QVBoxLayout *overallLayout = new QVBoxLayout(this);
 	//QGridLayout *startLayout = new QGridLayout(this);
 	QVBoxLayout *overallLayout = new QVBoxLayout();

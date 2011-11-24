@@ -1,7 +1,5 @@
 #include "SGM2004XASFileLoaderPlugin.h"
 
-AMBiHash<QString, QString> SGM2004XASFileLoaderPlugin::columns2pvNames_;
-
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
@@ -21,7 +19,7 @@ bool SGM2004XASFileLoaderPlugin::accepts(AMScan *scan){
 
 bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder){
 	qDebug() << "\n\nTRYING TO LOAD WITH SGM2004XAS PLUGIN";
-	// this static storage can be shared across all instances, but if we're the first, need to populate it.
+
 	if(columns2pvNames_.count() == 0) {
 		columns2pvNames_.set("eV", "BL1611-ID-1:Energy");
 		columns2pvNames_.set("ringCurrent", "PCT1402-01:mA:fbk");
@@ -36,12 +34,12 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		columns2pvNames_.set("grating", "SG16114I1001:choice");
 		columns2pvNames_.set("time", "Absolute-Time-Stamp");
 
-		columns2pvNames_.set("sdd_ROI_0", "MCA1611-01:ROI:0");
-		columns2pvNames_.set("sdd_ROI_1", "MCA1611-01:ROI:1");
-		columns2pvNames_.set("sdd_ROI_2", "MCA1611-01:ROI:2");
-		columns2pvNames_.set("sdd_ROI_3", "MCA1611-01:ROI:3");
-		columns2pvNames_.set("sdd_deadtime", "MCA1611-01:DeadFraction");
-		columns2pvNames_.set("sdd_fileOffset", "MCA1611-01:GetChannels");
+		columns2pvNames_.set("SDDROI0", "MCA1611-01:ROI:0");
+		columns2pvNames_.set("SDDROI1", "MCA1611-01:ROI:1");
+		columns2pvNames_.set("SDDROI2", "MCA1611-01:ROI:2");
+		columns2pvNames_.set("SDDROI3", "MCA1611-01:ROI:3");
+		columns2pvNames_.set("SDDDeadtime", "MCA1611-01:DeadFraction");
+		columns2pvNames_.set("SDDFileOffset", "MCA1611-01:GetChannels");
 	}
 
 
@@ -59,14 +57,8 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		return false;
 
 	QFileInfo sourceFileInfo(scan->filePath());
-	if(sourceFileInfo.isRelative()){
-		//qDebug() << "Path IS relative, user data folder is " << AMUserSettings::userDataFolder;
-		//sourceFileInfo.setFile(AMUserSettings::userDataFolder + "/" + scan->filePath());
-		qDebug() << "Path IS relative, user data folder is " << userDataFolder;
+	if(sourceFileInfo.isRelative())
 		sourceFileInfo.setFile(userDataFolder + "/" + scan->filePath());
-	}
-	else
-		qDebug() << "Path IS NOT relative.";
 
 	// information about the scan we hope to locate:
 	QString comments;
@@ -103,7 +95,6 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	colNames1.removeFirst();
 	for(int i=0; i<colNames1.count(); i++)
 		pv2columnName(colNames1[i]);
-
 
 	// find out what information we've got in event ID 2
 	fs.seek(0);
@@ -143,7 +134,7 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	// add scalar (0D) measurements to the raw data store, for each data column.  If setRawDataSources is true, also add raw data sources to the scan, which expose this data.
 	foreach(QString colName, colNames1) {
 		if(colName != "eV" && colName != "Event-ID") {
-			if(colName == "sdd_fileOffset"){
+			if(colName == "SDDFileOffset"){
 				foreach(QString afp, scan->additionalFilePaths())
 					if(afp.contains("_spectra.dat"))
 						spectraFile = afp;
@@ -166,10 +157,10 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		}
 	}
 	if(postSddFileOffset){
-		if(scan->rawData()->addMeasurement(AMMeasurementInfo("sdd_fileOffset", "sdd_fileOffset")))
+		if(scan->rawData()->addMeasurement(AMMeasurementInfo("SDDFileOffset", "SDDFileOffset")))
 			qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 	}
-	int sddOffsetIndex = colNames1.indexOf("sdd_fileOffset");
+	int sddOffsetIndex = colNames1.indexOf("SDDFileOffset");
 
 	// read all the data. Add to data columns or scan properties depending on the event-ID.
 
@@ -188,7 +179,7 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 			int measurementId = 0;
 			for(int i=1; i<colNames1.count(); i++) {
 				if(i == sddOffsetIndex){
-					scan->rawData()->setValue(eVAxisIndex, scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex(), lp.at(i).toDouble());
+					scan->rawData()->setValue(eVAxisIndex, scan->rawData()->idOfMeasurement("SDDFileOffset"), AMnDIndex(), lp.at(i).toDouble());
 					measurementId++;
 				}
 				else if(i!=eVIndex) {
@@ -222,8 +213,6 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		spectraFileInfo.setFile(spectraFile);
 		if(spectraFileInfo.isRelative())
 			spectraFileInfo.setFile(userDataFolder + "/" + spectraFile);
-		qDebug() << "SPECTRA FILE IS " << spectraFile;
-		//QFile sf(spectraFile);
 		QFile sf(spectraFileInfo.filePath());
 		if(!sf.open(QIODevice::ReadOnly)) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2004FileLoader parse error while loading scan data from file. Missing SDD spectra file."));
@@ -233,7 +222,7 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		int startByte, endByte;
 		int specCounter = 0;
 		int scanSize = scan->rawData()->scanSize(0);
-		int fileOffsetMeasurementId = scan->rawData()->idOfMeasurement("sdd_fileOffset");
+		int fileOffsetMeasurementId = scan->rawData()->idOfMeasurement("SDDFileOffset");
 		int sddMeasurementId = scan->rawData()->idOfMeasurement("SDD");
 		int sddSize = scan->rawData()->measurementAt(sddMeasurementId).size(0);
 		int* specValues = new int[sddSize];
@@ -307,4 +296,10 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	return true;
 }
 
-Q_EXPORT_PLUGIN2(SGM2004XASFileLoaderPlugin, SGM2004XASFileLoaderPlugin)
+bool SGM2004XASFileLoaderFactory::accepts(AMScan *scan)
+{
+	return (scan->fileFormat() == "sgm2004");
+}
+
+Q_EXPORT_PLUGIN2(SGM2004XASFileLoaderFactory, SGM2004XASFileLoaderFactory)
+

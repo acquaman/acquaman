@@ -60,12 +60,6 @@ protected slots:
 	void onCurrentScanControllerCreated();
 	void onCurrentScanControllerDestroyed();
 	void onCurrentScanControllerStarted();
-	void onCurrentScanControllerReinitialized(bool removeScan);
-
-
-	/// This is called when the user clicks any of the available "close" buttons in the main window's sidebar. For now, this could involve closing a scan editor window, or deleting an experiment.
-	/*! \todo This was REIMPLEMENTED from AMAppController to check if we're trying to close the current scan editor (ie: the one that holds a scan that is currently acquiring). Find a cleaner system to do this, in general. Build into somewhere else?*/
-	virtual void onWindowPaneCloseButtonClicked(const QModelIndex& index);
 
 protected:
 
@@ -77,9 +71,6 @@ protected:
 	AMScanConfigurationViewHolder* fastScanConfigurationHolder_;
 	SGMSidebar* sgmSidebar_;
 
-
-	/// The scan editor belonging to the active scan controller. (0 if not initialized)
-	AMGenericScanEditor* scanControllerActiveEditor_;
 
 };
 

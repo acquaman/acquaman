@@ -447,9 +447,12 @@ struct acqMaster {
 
 	/*
 	 * registered output methods
+	 * Version 4 should move these into an embedded data structure for more consistent handling.
+	 * That data structure should be part of an "Implementation" structure.
 	 */
 	eventDataHandler_t ** outputHandler;
 	void **outputKeys;
+	epicsMutexId *handlerLock;
 	int numOutputHandler;
 
 	/*

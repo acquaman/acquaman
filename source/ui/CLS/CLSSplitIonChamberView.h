@@ -42,14 +42,14 @@ protected slots:
 	void onUnitsChanged(QString units);
 
 	/// Handles setting the value combo box when one side of the ion chamber (A) is changed from elsewhere.
-	void onValueAChanged(int value);
+	void onValueAChanged(int value) { 	setValueComboBox(valueA_, value); }
 	/// Handles setting the units combo box when one side of the ion chamber (A) is changed from elsewhere.
-	void onUnitsAChanged(QString units);
+	void onUnitsAChanged(QString units) { setUnitsComboBox(unitsA_, units); }
 
 	/// Handles setting the value combo box when the other side of the ion chamber (B) is changed from elsewhere.
-	void onValueBChanged(int value);
+	void onValueBChanged(int value) { setValueComboBox(valueB_, value); }
 	/// Handles setting the units combo box when the other side of the ion chamber (B) is changed from elsewhere.
-	void onUnitsBChanged(QString units);
+	void onUnitsBChanged(QString units) { setUnitsComboBox(unitsB_, units); }
 
 	/// Builds a popup menu for switching view modes.
 	virtual void onCustomContextMenuRequested(QPoint pos);
@@ -73,6 +73,12 @@ protected:
 
 	/// Flag holding whether or not the view is basic or advanced.
 	bool isBasic_;
+
+private:
+	/// Helper function that takes a "value" combo box and sets the value.
+	void setValueComboBox(QComboBox *valueBox, int value);
+	/// Helper function that takes a "unit" combo box and sets the value.
+	void setUnitsComboBox(QComboBox *unitsBox, QString units);
 };
 
 #endif // CLSSPLITIONCHAMBERVIEW_H
