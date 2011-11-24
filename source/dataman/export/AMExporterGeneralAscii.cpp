@@ -120,7 +120,7 @@ bool AMExporterGeneralAscii::prepareDataSources() {
 	separateFileDataSources_.clear();
 	separateFileIncludeX_.clear();
 
-	if(option_->includeAllDataSources()) {
+	if(option_->includeAllDataSources() && !option_->firstColumnOnly()) {
 		// assumptions: 1D goes in main table. 0D, 2D and higher goes in separate section.
 		for(int i=0; i<currentScan_->dataSourceCount(); i++) {
 			switch(currentScan_->dataSourceAt(i)->rank()) {
@@ -133,8 +133,45 @@ bool AMExporterGeneralAscii::prepareDataSources() {
 				mainTableIncludeX_ << true;
 				break;
 			default:
+				if (option_->separateHigherDimensionalSources()){
+
+					separateFileDataSources_ << i;
+					separateFileIncludeX_ << false;
+				}
+				else{
+
+					separateSectionDataSources_ << i;
+					separateSectionIncludeX_ << true;
+				}
+				break;
+			}
+		}
+	}
+
+	else if (option_->includeAllDataSources() && option_->firstColumnOnly()){
+
+		// assumptions: 1D goes in main table. 0D, 2D and higher goes in separate section.
+		for(int i=0; i<currentScan_->dataSourceCount(); i++) {
+			switch(currentScan_->dataSourceAt(i)->rank()) {
+			case 0:
 				separateSectionDataSources_ << i;
-				separateSectionIncludeX_ << true;
+				separateSectionIncludeX_ << false;	// default false for 0D (scalar point) data
+				break;
+			case 1:
+				mainTableDataSources_ << i;
+				mainTableIncludeX_ << (i == 0 ? true : false);
+				break;
+			default:
+				if (option_->separateHigherDimensionalSources()){
+
+					separateFileDataSources_ << i;
+					separateFileIncludeX_ << false;
+				}
+				else{
+
+					separateSectionDataSources_ << i;
+					separateSectionIncludeX_ << true;
+				}
 				break;
 			}
 		}

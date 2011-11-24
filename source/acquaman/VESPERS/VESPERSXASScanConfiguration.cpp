@@ -89,3 +89,13 @@ QString VESPERSXASScanConfiguration::detailedDescription() const
 {
 	return QString("VESPERS XAS Scan");
 }
+
+QString VESPERSXASScanConfiguration::readRoiList() const
+{
+	QString prettyRois = "Regions of Interst\n";
+
+	for (int i = 0; i < roiInfoList_.count(); i++)
+		prettyRois.append(roiInfoList_.at(i).name() + "\t" + QString::number(roiInfoList_.at(i).low()) + " eV\t" + QString::number(roiInfoList_.at(i).high()) + " eV\n");
+
+	return prettyRois;
+}

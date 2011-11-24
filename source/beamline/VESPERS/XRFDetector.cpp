@@ -94,20 +94,17 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 		ocrPV_.at(i)->disablePutCallbackMode(true);
 		spectraPV_.at(i)->disablePutCallbackMode(true);
 
-		connect(statusPV_.at(i), SIGNAL(readReadyChanged(bool)), this, SLOT(isDetectorConnected()));
-		connect(mcaUpdateRatePV_.at(i), SIGNAL(writeReadyChanged(bool)), this, SLOT(isDetectorConnected()));
-		connect(statusUpdateRatePV_.at(i), SIGNAL(writeReadyChanged(bool)), this, SLOT(isDetectorConnected()));
-		connect(peakingTimePV_.at(i), SIGNAL(writeReadyChanged(bool)), this, SLOT(isDetectorConnected()));
-		connect(maximumEnergyPV_.at(i), SIGNAL(writeReadyChanged(bool)), this, SLOT(isDetectorConnected()));
-		connect(integrationTimePV_.at(i), SIGNAL(writeReadyChanged(bool)), this, SLOT(isDetectorConnected()));
-		connect(liveTimePV_.at(i), SIGNAL(writeReadyChanged(bool)), this, SLOT(isDetectorConnected()));
-		connect(elapsedTimePV_.at(i), SIGNAL(readReadyChanged(bool)), this, SLOT(isDetectorConnected()));
-		connect(icrPV_.at(i), SIGNAL(readReadyChanged(bool)), this, SLOT(isDetectorConnected()));
-		connect(ocrPV_.at(i), SIGNAL(readReadyChanged(bool)), this, SLOT(isDetectorConnected()));
-		connect(spectraPV_.at(i), SIGNAL(readReadyChanged(bool)), this, SLOT(isDetectorConnected()));
-
-		// This one is separate beccause this signal should only be called once.
-		connect(spectraPV_.first(), SIGNAL(valueChanged()), this, SLOT(setChannelSize()));
+		connect(statusPV_.at(i), SIGNAL(connected(bool)), this, SLOT(isDetectorConnected()));
+		connect(mcaUpdateRatePV_.at(i), SIGNAL(connected(bool)), this, SLOT(isDetectorConnected()));
+		connect(statusUpdateRatePV_.at(i), SIGNAL(connected(bool)), this, SLOT(isDetectorConnected()));
+		connect(peakingTimePV_.at(i), SIGNAL(connected(bool)), this, SLOT(isDetectorConnected()));
+		connect(maximumEnergyPV_.at(i), SIGNAL(connected(bool)), this, SLOT(isDetectorConnected()));
+		connect(integrationTimePV_.at(i), SIGNAL(connected(bool)), this, SLOT(isDetectorConnected()));
+		connect(liveTimePV_.at(i), SIGNAL(connected(bool)), this, SLOT(isDetectorConnected()));
+		connect(elapsedTimePV_.at(i), SIGNAL(connected(bool)), this, SLOT(isDetectorConnected()));
+		connect(icrPV_.at(i), SIGNAL(connected(bool)), this, SLOT(isDetectorConnected()));
+		connect(ocrPV_.at(i), SIGNAL(connected(bool)), this, SLOT(isDetectorConnected()));
+		connect(spectraPV_.at(i), SIGNAL(connected(bool)), this, SLOT(isDetectorConnected()));
 
 		spectrumDataSources_ << new AM1DProcessVariableDataSource(spectraPV_.at(i), QString("Element %1").arg(i+1), this);
 		icrDataSources_ << new AM0DProcessVariableDataSource(icrPV_.at(i), QString("Input count rate %1").arg(i+1), this);
@@ -117,6 +114,19 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 		correctedSpectrumDataSources_ << corrected;
 	}
 
+	connect(statusPV_.first(), SIGNAL(valueChanged()), this, SLOT(onStatusChanged()));
+	connect(mcaUpdateRatePV_.first(), SIGNAL(valueChanged(int)), this, SLOT(onRefreshRateChanged(int)));
+	connect(statusUpdateRatePV_.first(), SIGNAL(valueChanged()), this, SLOT(onStatusUpdateRateInitialized()));
+	connect(peakingTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onPeakingTimeChanged(double)));
+	connect(maximumEnergyPV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onMaximumEnergyChanged(double)));
+	connect(integrationTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onIntegrationTimeChanged(double)));
+	connect(elapsedTimePV_.first(), SIGNAL(valueChanged(double)), this, SIGNAL(elapsedTimeChanged(double)));
+	connect(icrPV_.first(), SIGNAL(valueChanged()), this, SIGNAL(deadTimeChanged()));
+	connect(ocrPV_.first(), SIGNAL(valueChanged()), this, SIGNAL(deadTimeChanged()));
+
+	// This one is separate beccause this signal should only be called once.
+	connect(spectraPV_.first(), SIGNAL(valueChanged()), this, SLOT(setChannelSize()));
+
 	if (elements > 1){
 
 		AM1DSummingAB *correctedSumAB = new AM1DSummingAB("Corrected Sum", this);
@@ -125,6 +135,7 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 	}
 
 	createROIList(baseName);
+	setSpectraRefreshRate(Slow);
 }
 
 XRFDetector::~XRFDetector()
@@ -233,40 +244,8 @@ void XRFDetector::isDetectorConnected()
 
 	if (isConnected() != currentlyConnected){
 
-		onConnectedChanged(currentlyConnected);
 		AMDetector::setConnected(currentlyConnected);
 		emit connected(currentlyConnected);
-	}
-}
-
-void XRFDetector::onConnectedChanged(bool isConnected)
-{
-	// Only connecting the first element because all the other elements act in unison.  This will minimize signal traffic on many-element detectors.
-	if (isConnected){
-
-		connect(statusPV_.first(), SIGNAL(valueChanged()), this, SLOT(onStatusChanged()));
-		//connect(mcaUpdateRatePV_.first(), SIGNAL(valueChanged(int)), this, SLOT(onRefreshRateChanged(int)));
-		connect(peakingTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onPeakingTimeChanged(double)));
-		connect(maximumEnergyPV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onMaximumEnergyChanged(double)));
-		connect(integrationTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onIntegrationTimeChanged(double)));
-		connect(elapsedTimePV_.first(), SIGNAL(valueChanged(double)), this, SIGNAL(elapsedTimeChanged(double)));
-		connect(icrPV_.first(), SIGNAL(valueChanged()), this, SIGNAL(deadTimeChanged()));
-		connect(ocrPV_.first(), SIGNAL(valueChanged()), this, SIGNAL(deadTimeChanged()));
-
-		onStatusUpdateRateInitialized();
-		setSpectraRefreshRate(Slow);
-		setChannelSize();
-	}
-	else{
-
-		disconnect(statusPV_.first(), SIGNAL(valueChanged()), this, SLOT(onStatusChanged()));
-		//disconnect(mcaUpdateRatePV_.first(), SIGNAL(valueChanged(int)), this, SLOT(onRefreshRateChanged(int)));
-		disconnect(peakingTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onPeakingTimeChanged(double)));
-		disconnect(maximumEnergyPV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onMaximumEnergyChanged(double)));
-		disconnect(integrationTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onIntegrationTimeChanged(double)));
-		disconnect(elapsedTimePV_.first(), SIGNAL(valueChanged(double)), this, SIGNAL(elapsedTimeChanged(double)));
-		disconnect(icrPV_.first(), SIGNAL(valueChanged()), this, SIGNAL(deadTimeChanged()));
-		disconnect(ocrPV_.first(), SIGNAL(valueChanged()), this, SIGNAL(deadTimeChanged()));
 	}
 }
 
