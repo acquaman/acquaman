@@ -126,7 +126,7 @@ const AMDbObjectInfo* AMDbObject::dbObjectInfo() const {
 #include <QDebug>
 
 // This member function updates a scan in the database (if it exists already in that database), otherwise it adds it to the database.
-bool AMDbObject::storeToDb(AMDatabase* db) {
+bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 
 	if(!db)
 		return false;
@@ -289,9 +289,11 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 	// Thumbnail save
 	///////////////////////////////////////////
 
-	// // SSSSSSSSSSSSSSlow?
-	if(thumbnailCount() > 0)
+	if(generateThumbnails && thumbnailCount() > 0)
 		QtConcurrent::run(&AMDbObject::updateThumbnails, db, id_, myInfo->tableName);
+	// TODO: currently there are a few situations where we are "leaking" thumbnails: leaving old stale thumbnails in the database. Ex: When the thumbnailCount() was non-zero on a previous save to this database, and is now 0. When the thumbnailCount() was non-zero on a previous save to the database, and generateThumbnails has been forced to false this time. Todo: garbage-collect stale thumbnails to save database space.  Challenge: performance and database locking.
+//	else
+//		QtConcurrent::run()...
 
 	// we were just stored to the database, so our properties must be in sync with it.
 	setModified(false);
@@ -312,7 +314,6 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 		return false;	// class hasn't been registered yet with the database system.
 
 
-	isReloading_ = true;
 	// Retrieve all columns from the database.
 	// optimization: not necessary to retrieve anything with the doNotLoad attribute set. Also, if the type is AMDbObjectList, there is no actual database column for this "column"... instead, its an auxiliary table.
 	QStringList keys;	// keys is the set of database columns to retrieve; all the columns that are loadable, and are not of type AMDbObjectList.
@@ -325,6 +326,7 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 	if(values.isEmpty())
 		return false;
 
+	isReloading_ = true;
 	// if we just successfully loaded out of here, then we have our new id() and database().
 	id_ = sourceId;
 	database_ = db;

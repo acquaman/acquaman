@@ -116,6 +116,9 @@ QEpicsAcqLocal::QEpicsAcqLocal( QWidget *parent) : QEpicsAcqClass(parent), runni
 	signalOnState = 0;
 	signalSendMessageBoxClear = 0;
 
+	signalOnHandlerSignal = 0;	//MB: Fixed initialization bug Nov. 2011. These two lines are in other versions of the dacq, but were missing here.
+	signalOnNewProperty = 0;
+
 	master = new_acqMaster();		// used for life of this widget
 	//
 	// circular reference: note that this is used by the putMode
@@ -532,13 +535,24 @@ int QEpicsAcqLocal::getRuns()                        // returns the current run 
 
 int QEpicsAcqLocal::pvIndex(const char *event, const char *pvname)
 {
-	QString alternate = NULL;
+	// MB:Fixed memory bug Nov. 2011. Previously:
+//	QString alternate = NULL;
+//	displayAlias *dap = displayAlias::find(pvname);
+//	if( dap)
+//		alternate = dap->getPvName();
+//	if( !alternate.isEmpty() )
+//		pvname = alternate.toAscii().constData();
+//	return getPVcolumn(event, pvname, master);
+	// BUG: In case of alternate, pvname does not point to valid data anymore; the QByteArray returned by toAscii() is gone out of scope.
+
+	QString alternate;
 	displayAlias *dap = displayAlias::find(pvname);
 	if( dap)
 		alternate = dap->getPvName();
-	if( !alternate.isEmpty() )
-		pvname = alternate.toAscii().constData();
-	return getPVcolumn(event, pvname, master);
+	if(!alternate.isEmpty() )
+		return getPVcolumn(event, alternate.toAscii().constData(), master);
+	else
+		return getPVcolumn(event, pvname, master);
 }
 
 const char *
@@ -552,7 +566,36 @@ QEpicsAcqLocal::getVariable( const char *name)
 
 int QEpicsAcqLocal::setVariable( const char *name, const char *value)
 {
+	// MB: Fixing memory bug Nov. 2011. Previously:
+//	const char *alternate = NULL;
+
+//	if( name == NULL || value == NULL)
+//		return -1;
+
+//	//
+//	// huge assumption: if we're setting a macro to a value that is also
+//	// in the alias table, then we don't want the alias, we really want the
+//	// pv name of the alias. Mostly true.
+//	//
+//	displayAlias *dap = displayAlias::find(value);
+//	if( dap)
+//		alternate = dap->getPvName().toAscii().constData(); // BUG: the string data pointed to by alternate is not valid after this line: the QByteArray returned by toAscii() goes out of scope.
+
+//	// printf("setVariable(%s,%s,%s)\n", name, value, alternate?alternate:"(NULL)");
+//	if( alternate)
+//		value = alternate;
+
+//	//
+//	// if this variable exists, update the value
+//	//
+//	macroTable *ptr = find_macro( name, NULL);
+//	if( ptr)
+//		set_macroValue(ptr, value);
+
+//	return 0;
+
 	const char *alternate = NULL;
+	QByteArray alternateByteArray;
 
 	if( name == NULL || value == NULL)
 		return -1;
@@ -563,11 +606,13 @@ int QEpicsAcqLocal::setVariable( const char *name, const char *value)
 	// pv name of the alias. Mostly true.
 	//
 	displayAlias *dap = displayAlias::find(value);
-	if( dap)
-		alternate = dap->getPvName().toAscii().constData();
+	if( dap) {
+		alternateByteArray = dap->getPvName().toAscii();
+		alternate = alternateByteArray.constData();
+	}
 
 	// printf("setVariable(%s,%s,%s)\n", name, value, alternate?alternate:"(NULL)");
-	if( alternate)
+	if(alternate)
 		value = alternate;
 
 	//

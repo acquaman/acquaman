@@ -112,6 +112,7 @@ bool VESPERSAppController::startup() {
 		}
 
 		QSqlQuery q = AMDbObjectSupport::s()->select(AMDatabase::database("user"), "AMExporterOptionGeneralAscii", "id, name");
+		q.exec();
 		QStringList names;
 		QList<int> ids;
 		while(q.next()) {
