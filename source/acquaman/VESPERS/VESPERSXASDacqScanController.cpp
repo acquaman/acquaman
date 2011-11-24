@@ -51,6 +51,17 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 	scan_->rawData()->addMeasurement(temp);
 	scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), 1), true, false);
 
+	for (int i = 0; i < ionChambers->count(); i++){
+
+		if (i != (int)config_->incomingChoice() && i != (int)config_->transmissionChoice()){
+
+			temp = AMMeasurementInfo(*(ionChambers->detectorAt(i)->toInfo()));
+			temp.name = ionChambers->detectorAt(i)->detectorName();
+			scan_->rawData()->addMeasurement(temp);
+			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
+		}
+	}
+
 	if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::SingleElement){
 
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF1E();
@@ -59,7 +70,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
 			scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
-			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+2), true, false);
+			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
 		}
 
 		scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->toXRFInfo()));
@@ -73,7 +84,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
 			scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
-			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+2), true, false);
+			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
 		}
 
 		scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->toXRFInfo()));
