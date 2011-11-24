@@ -102,45 +102,50 @@ void AMExportController::searchForAvailableDataSources()
 
 void AMExportController::continueAvailableDataSourceSearch()
 {
-	//if(searchScanIndex_ >= scanURLsToExport_.count())
 	if(searchScanIndex_ >= scanCount())
 		return; // We're done!
 
-	const QUrl& url = scanURLsToExport_.at(searchScanIndex_++);	// incrementing searchScanIndex_ here.
+	if(usingScanURLs_) {
+		const QUrl& url = scanURLsToExport_.at(searchScanIndex_++);	// incrementing searchScanIndex_ here.
 
-	AMDatabase* db;
-	QStringList path;
-	QString tableName;
-	int id;
-	bool idOkay;
+		AMDatabase* db;
+		QStringList path;
+		QString tableName;
+		int id;
+		bool idOkay;
 
-	// parse the URL and make sure it's valid
-	if(url.scheme() == "amd" &&
-			(db = AMDatabase::database(url.host())) &&
-			(path = url.path().split('/', QString::SkipEmptyParts)).count() == 2 &&
-			(id = path.at(1).toInt(&idOkay)) > 0 &&
-			idOkay == true &&
-			(tableName = path.at(0)).isEmpty() == false
-			) {
+		// parse the URL and make sure it's valid
+		if(url.scheme() == "amd" &&
+				(db = AMDatabase::database(url.host())) &&
+				(path = url.path().split('/', QString::SkipEmptyParts)).count() == 2 &&
+				(id = path.at(1).toInt(&idOkay)) > 0 &&
+				idOkay == true &&
+				(tableName = path.at(0)).isEmpty() == false
+				) {
 
-		// let's roll.  Find all the raw data sources for this scan
-		QSqlQuery q = db->select(tableName % "_rawDataSources", "id2,table2", "id1='" % QString::number(id) % "'");	// note: checked that this is indeed using the index. Can go faster? Dunno.
-		while(q.next()) {
-			// get name, description, rank for this data source
-			QSqlQuery q2 = db->select( q.value(1).toString(),
-									   "name,description,rank",
-									   "id='" % q.value(0).toString() % "'");
-			if(q2.next()) {
-				addFoundAvailableDataSource(q2.value(0).toString(), q2.value(1).toString(), q2.value(2).toInt());
-			}
-
-			// Find all the analyzed data sources for this scan
-			q = db->select(tableName % "_analyzedDataSources", "id2,table2", "id1='" % QString::number(id) % "'");	// note: checked that this is indeed using the index. Can go faster? Dunno.
+			// let's roll.  Find all the raw data sources for this scan
+			QSqlQuery q = db->select(tableName % "_rawDataSources", "id2,table2", "id1='" % QString::number(id) % "'");	// note: checked that this is indeed using the index. Can go faster? Dunno.
+			q.exec();
 			while(q.next()) {
 				// get name, description, rank for this data source
 				QSqlQuery q2 = db->select( q.value(1).toString(),
 										   "name,description,rank",
 										   "id='" % q.value(0).toString() % "'");
+				q2.exec();
+				if(q2.next()) {
+					addFoundAvailableDataSource(q2.value(0).toString(), q2.value(1).toString(), q2.value(2).toInt());
+				}
+			}
+
+			// Find all the analyzed data sources for this scan
+			q = db->select(tableName % "_analyzedDataSources", "id2,table2", "id1='" % QString::number(id) % "'");	// note: checked that this is indeed using the index. Can go faster? Dunno.
+			q.exec();
+			while(q.next()) {
+				// get name, description, rank for this data source
+				QSqlQuery q2 = db->select( q.value(1).toString(),
+										   "name,description,rank",
+										   "id='" % q.value(0).toString() % "'");
+				q2.exec();
 				if(q2.next()) {
 					addFoundAvailableDataSource(q2.value(0).toString(), q2.value(1).toString(), q2.value(2).toInt());
 				}

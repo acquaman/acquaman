@@ -442,8 +442,9 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/beamline/CLS/CLSSplitIonChamber.h \
 	source/ui/beamline/AMSplitIonChamberView.h \
 	source/ui/CLS/CLSSplitIonChamberView.h \
-	source/application/AMPluginsManager.h \
-    source/application/AMAppControllerSupport.h
+	source/application/AMAppControllerSupport.h \
+    source/application/AMPluginsManager.h \
+    source/dataman/import/AMScanDatabaseImportController.h
 
 CONFIG(mobility) {
 HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
@@ -713,7 +714,8 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/beamline/AMSplitIonChamberView.cpp \
 	source/ui/CLS/CLSSplitIonChamberView.cpp \
 	source/application/AMPluginsManager.cpp \
-    source/application/AMAppControllerSupport.cpp
+	source/application/AMAppControllerSupport.cpp \
+    source/dataman/import/AMScanDatabaseImportController.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
@@ -730,3 +732,4 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+

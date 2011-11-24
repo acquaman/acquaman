@@ -599,7 +599,6 @@ QSqlQuery AMDatabase::select(const QString &tableName, const QString &columnName
 
 	QString query = "SELECT " % columnNames % " FROM " % tableName % whereString % ";";
 	q.prepare(query);
-	q.exec();
 
 	return q;
 }
