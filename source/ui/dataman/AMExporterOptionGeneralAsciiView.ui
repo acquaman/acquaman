@@ -144,6 +144,13 @@
      </widget>
     </item>
     <item>
+     <widget class="QCheckBox" name="separateHigherDimensionSourcesCheck">
+      <property name="text">
+       <string>2D and higher data sources into separate files</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QFrame" name="sourcesSelectorFrame">
       <property name="enabled">
        <bool>false</bool>

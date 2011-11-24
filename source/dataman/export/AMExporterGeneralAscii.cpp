@@ -133,8 +133,16 @@ bool AMExporterGeneralAscii::prepareDataSources() {
 				mainTableIncludeX_ << true;
 				break;
 			default:
-				separateSectionDataSources_ << i;
-				separateSectionIncludeX_ << true;
+				if (option_->separateHigherDimensionalSources()){
+
+					separateFileDataSources_ << i;
+					separateFileIncludeX_ << false;
+				}
+				else{
+
+					separateSectionDataSources_ << i;
+					separateSectionIncludeX_ << true;
+				}
 				break;
 			}
 		}
@@ -154,8 +162,16 @@ bool AMExporterGeneralAscii::prepareDataSources() {
 				mainTableIncludeX_ << (i == 0 ? true : false);
 				break;
 			default:
-				separateSectionDataSources_ << i;
-				separateSectionIncludeX_ << true;
+				if (option_->separateHigherDimensionalSources()){
+
+					separateFileDataSources_ << i;
+					separateFileIncludeX_ << false;
+				}
+				else{
+
+					separateSectionDataSources_ << i;
+					separateSectionIncludeX_ << true;
+				}
 				break;
 			}
 		}

@@ -80,6 +80,7 @@ void AMExporterOptionGeneralAsciiView::initializeViewFromOption()
 
 	includeAllSourcesCheck->setChecked(option_->includeAllDataSources());
 	firstColumnOnlyCheck->setChecked(option_->firstColumnOnly());
+	separateHigherDimensionSourcesCheck->setChecked(option_->separateHigherDimensionalSources());
 	sourcesSelectorFrame->setEnabled(!option_->includeAllDataSources());
 
 
@@ -133,6 +134,7 @@ void AMExporterOptionGeneralAsciiView::makeUIConnections()
 
 	connect(includeAllSourcesCheck, SIGNAL(clicked(bool)), sourcesSelectorFrame, SLOT(setDisabled(bool)));
 	connect(includeAllSourcesCheck, SIGNAL(toggled(bool)), firstColumnOnlyCheck, SLOT(setEnabled(bool)));
+	connect(includeAllSourcesCheck, SIGNAL(toggled(bool)), separateHigherDimensionSourcesCheck, SLOT(setEnabled(bool)));
 
 	connect(sourcesAddButton, SIGNAL(clicked()), this, SLOT(onSourcesAddButtonClicked()));
 	connect(sourcesRemoveButton, SIGNAL(clicked()), this, SLOT(onSourcesRemoveButtonClicked()));
@@ -173,6 +175,8 @@ void AMExporterOptionGeneralAsciiView::makeOptionConnections() {
 	connect(includeAllSourcesCheck, SIGNAL(clicked(bool)), option_, SLOT(setIncludeAllDataSources(bool)));
 
 	connect(firstColumnOnlyCheck, SIGNAL(toggled(bool)), option_, SLOT(setFirstColumnOnly(bool)));
+
+	connect(separateHigherDimensionSourcesCheck, SIGNAL(toggled(bool)), option_, SLOT(setSeparateHigherDimensionalSources(bool)));
 }
 
 
