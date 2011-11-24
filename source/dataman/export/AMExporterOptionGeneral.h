@@ -40,6 +40,7 @@ class AMExporterOptionGeneral : public AMExporterOption
 	Q_PROPERTY(bool sectionHeaderIncluded READ sectionHeaderIncluded WRITE setSectionHeaderIncluded)
 
 	Q_PROPERTY(bool includeAllDataSources READ includeAllDataSources WRITE setIncludeAllDataSources)
+	Q_PROPERTY(bool firstColumnOnly READ firstColumnOnly WRITE setFirstColumnOnly)
 	Q_PROPERTY(QStringList dataSources READ dataSources WRITE dbLoadDataSources)
 	Q_PROPERTY(AMIntList dataSourceOrganizeModes READ dataSourceOrganizeModes WRITE dbLoadDataSourceOrganizeModes)
 	Q_PROPERTY(AMIntList dataSourceIsRequired READ dataSourceIsRequired WRITE dbLoadDataSourceIsRequired)
@@ -71,6 +72,7 @@ public:
 
 	QStringList dataSources() const { return dataSources_; }
 	bool includeAllDataSources() const { return includeAllDataSources_; }
+	bool firstColumnOnly() const { return firstColumnOnly_; }
 	AMIntList dataSourceOrganizeModes() const { return dataSourceOrganizeMode_; }
 	AMIntList dataSourceIsRequired() const{ return dataSourceIsRequired_; }
 	AMIntList dataSourceOmitAxisValueColumns() const { return dataSourceOmitAxisValueColumn_; }
@@ -92,6 +94,7 @@ public slots:
 	void setSectionHeaderIncluded(bool isIncluded) { sectionHeaderIncluded_ = isIncluded; setModified(true); }
 
 	void setIncludeAllDataSources(bool includeAll) { includeAllDataSources_ = includeAll; setModified(true); }
+	void setFirstColumnOnly(bool firstOnly) { firstColumnOnly_ = firstOnly; setModified(true); }
 
 	void addDataSource(const QString& name, bool omitAxisValueColumn, int organizeMode = CombineInColumnsMode, bool isRequired = true) {
 		dataSources_ << name;
@@ -151,6 +154,8 @@ protected:
 	QStringList dataSources_;
 	/// If instead you want to include all data sources in the scan (and ignore dataSources_), set this:
 	bool includeAllDataSources_;
+	/// Additional flag for when including all data sources.  If you wish to only have the X-axis printed out for the first data source.
+	bool firstColumnOnly_;
 
 	/// parallel list to dataSources_: specifies where to place each data source (Interpret as AMExporterOptionGeneral::DataSourceLocation)
 	AMIntList dataSourceOrganizeMode_;

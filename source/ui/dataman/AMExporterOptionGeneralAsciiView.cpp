@@ -79,6 +79,7 @@ void AMExporterOptionGeneralAsciiView::initializeViewFromOption()
 	sourcesLocationBox->setDisabled(true);
 
 	includeAllSourcesCheck->setChecked(option_->includeAllDataSources());
+	firstColumnOnlyCheck->setChecked(option_->firstColumnOnly());
 	sourcesSelectorFrame->setEnabled(!option_->includeAllDataSources());
 
 
@@ -131,6 +132,7 @@ void AMExporterOptionGeneralAsciiView::makeUIConnections()
 	connect(headerText, SIGNAL(textChanged()), this, SLOT(onHeaderTextChanged()));
 
 	connect(includeAllSourcesCheck, SIGNAL(clicked(bool)), sourcesSelectorFrame, SLOT(setDisabled(bool)));
+	connect(includeAllSourcesCheck, SIGNAL(toggled(bool)), firstColumnOnlyCheck, SLOT(setEnabled(bool)));
 
 	connect(sourcesAddButton, SIGNAL(clicked()), this, SLOT(onSourcesAddButtonClicked()));
 	connect(sourcesRemoveButton, SIGNAL(clicked()), this, SLOT(onSourcesRemoveButtonClicked()));
@@ -169,6 +171,8 @@ void AMExporterOptionGeneralAsciiView::makeOptionConnections() {
 	connect(fileNameSeparateSectionText, SIGNAL(textChanged(QString)), option_, SLOT(setSeparateSectionFileName(QString)));
 
 	connect(includeAllSourcesCheck, SIGNAL(clicked(bool)), option_, SLOT(setIncludeAllDataSources(bool)));
+
+	connect(firstColumnOnlyCheck, SIGNAL(toggled(bool)), option_, SLOT(setFirstColumnOnly(bool)));
 }
 
 
