@@ -434,14 +434,18 @@ QList<int> AMDatabase::objectsWhere(const QString& tableName, const QString& whe
 	QList<int> rl;
 
 	/// \todo sanitize more than this...
-	if(tableName.isEmpty() || whereClause.isEmpty()) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -10, "Could not search the database. (Missing the table name or column name.)"));
+	if(tableName.isEmpty()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -10, "Could not search the database. (Missing the table name.)"));
 		return rl;
 	}
 
 	QSqlQuery q( qdb() );
 
-	q.prepare(QString("SELECT id FROM %1 WHERE %2").arg(tableName).arg(whereClause));
+	QString query = "SELECT id FROM " % tableName;
+	if(!whereClause.isEmpty())
+		query.append(" WHERE ").append(whereClause);
+
+	q.prepare(query);
 	q.exec();
 
 	while(q.next()) {
