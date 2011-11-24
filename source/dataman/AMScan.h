@@ -39,6 +39,7 @@ typedef AMOrderedSet<QString, AMRawDataSource*> AMRawDataSourceSet;
 typedef AMOrderedSet<QString, AMAnalysisBlock*> AMAnalyzedDataSourceSet;
 
 class AMScanConfiguration;
+class AMScanDictionary;
 
 #ifndef ACQUAMAN_NO_ACQUISITION
 class AMScanController;
@@ -50,6 +51,7 @@ class AMScan : public AMDbObject {
 	Q_OBJECT
 
 	/// Database Persistent Properties
+	Q_PROPERTY(QString unEvaluatedName READ unEvaluatedName WRITE setUnEvaluatedName)
 	Q_PROPERTY(int number READ number WRITE setNumber NOTIFY numberChanged)
 	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime NOTIFY dateTimeChanged)
 	Q_PROPERTY(int runId READ runId WRITE setRunId)
@@ -74,6 +76,7 @@ class AMScan : public AMDbObject {
 	Q_CLASSINFO("scanInitialConditions", "hidden=true")
 	Q_CLASSINFO("analyzedDataSourcesConnections", "hidden=true")
 	Q_CLASSINFO("scanConfiguration", "hidden=true")
+	Q_CLASSINFO("unEvaluatedName", "upgradeDefault=<none>")
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Scan")
 
@@ -93,6 +96,7 @@ public:
 
 	// Role 1: Meta Data Elements
 	////////////////////////////////
+
 	/// Returns a user-given number
 	int number() const { return number_;}
 	/// Returns creation time / scan start time
@@ -113,6 +117,7 @@ public:
 
 	// Convenience functions on meta-data:
 	/////////////////////////
+	QString unEvaluatedName() const;
 	/// Returns the full scan name: number appended to name
 	QString fullName() const {return QString("%1 #%2").arg(name()).arg(number()); }
 	/// Returns the name of the sample (if a sample is set, otherwise returns "[no sample]")
@@ -310,10 +315,11 @@ public slots:
 	// Role 1: Setting Meta-Data
 	///////////////////////////////
 
+	void setUnEvaluatedName(QString unEvaluatedName);
 	/// Sets appended number
-	void setNumber(int number) { number_ = number; setModified(true); emit numberChanged(number_); }
+	void setNumber(int number);
 	/// set the date/time:
-	void setDateTime(const QDateTime& dt) { dateTime_ = dt; setModified(true); emit dateTimeChanged(dateTime_); }
+	void setDateTime(const QDateTime& dt);
 	/// associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
 	void setRunId(int newRunId);
 	/// Sets the sample associated with this scan.
@@ -337,6 +343,7 @@ signals:
 	void sampleIdChanged(int sampleId);
 	void numberChanged(int number);
 	void currentlyScanningChanged(bool currentlyScanning);
+	void scanConfigurationChanged();
 
 
 	// Combined Data Source Model: Signals
@@ -373,6 +380,7 @@ protected:
 	// meta data values
 	//////////////////////
 
+	QString unEvaluatedName_;
 	/// user-given number for this scan
 	int number_;
 	/// Scan start time
@@ -385,6 +393,9 @@ protected:
 	QString filePath_, fileFormat_;
 	/// Any additional files of raw data that need to be referenced.
 	QStringList additionalFilePaths_;
+
+	AMScanDictionary *nameDictionary_;
+	AMScanDictionary *exportNameDictionary_;
 
 	/// Caches the sample name
 	mutable QString sampleName_;

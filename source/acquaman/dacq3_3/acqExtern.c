@@ -37,8 +37,10 @@ acqRegisterOutputHandler( acqMaster_t *master, acqKey_t key, struct eventDataHan
 	i = master->numOutputHandler++;
 	master->outputHandler = (eventDataHandler_t **)realloc(master->outputHandler, (master->numOutputHandler)*sizeof (eventDataHandler_t *) );
 	master->outputKeys = (void *) realloc( master->outputKeys, (master->numOutputHandler)* sizeof (void *));
+	master->handlerLock = (epicsMutexId *) realloc( master->handlerLock, (master->numOutputHandler) * sizeof (epicsMutexId));
 	master->outputHandler[i] = edh;
 	master->outputKeys[i] = key;
+	master->handlerLock[i] = epicsMutexCreate();
 	return 0;
 }
 
@@ -53,7 +55,9 @@ int acqHandlerSignal( acqMaster_t *master, acqKey_t key, unsigned int signalID, 
 	{
 		if( key != master->outputKeys[i])
 		{
+			epicsMutexLock(master->handlerLock[i]);
 			master->outputHandler[i]->getHandlerSignal_cb(master->outputKeys[i], key, signalID, data);
+			epicsMutexUnlock(master->handlerLock[i]);
 		}
 	}
 	return 0;
@@ -69,6 +73,7 @@ int acqRemoveOutputHandler(acqMaster_t *master, acqKey_t key)
 	}
 	if (i >= master->numOutputHandler)
 		return -1;
+	epicsMutexDestroy( master->handlerLock[i]);
 	master->numOutputHandler--;
 	for( ; i < master->numOutputHandler; i++)
 	{

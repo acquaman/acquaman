@@ -58,6 +58,8 @@ CLSSplitIonChamberView::CLSSplitIonChamberView(CLSSplitIonChamber *chamber, QWid
 
 void CLSSplitIonChamberView::onValueChanged(int value)
 {
+	setValueComboBox(value_, value);
+
 	onValueAChanged(value);
 	if (isLocked_)
 		onValueBChanged(value);
@@ -65,117 +67,11 @@ void CLSSplitIonChamberView::onValueChanged(int value)
 
 void CLSSplitIonChamberView::onUnitsChanged(QString units)
 {
+	setUnitsComboBox(units_, units);
+
 	onUnitsAChanged(units);
 	if (isLocked_)
 		onUnitsBChanged(units);
-}
-
-void CLSSplitIonChamberView::onValueAChanged(int value)
-{
-	chamber_->blockSignals(true);
-
-	switch(value){
-
-	case 1:
-		valueA_->setCurrentIndex(0);
-		break;
-	case 2:
-		valueA_->setCurrentIndex(1);
-		break;
-	case 5:
-		valueA_->setCurrentIndex(2);
-		break;
-	case 10:
-		valueA_->setCurrentIndex(3);
-		break;
-	case 20:
-		valueA_->setCurrentIndex(4);
-		break;
-	case 50:
-		valueA_->setCurrentIndex(5);
-		break;
-	case 100:
-		valueA_->setCurrentIndex(6);
-		break;
-	case 200:
-		valueA_->setCurrentIndex(7);
-		break;
-	case 500:
-		valueA_->setCurrentIndex(8);
-		break;
-	}
-
-	chamber_->blockSignals(false);
-}
-
-void CLSSplitIonChamberView::onUnitsAChanged(QString units)
-{
-	chamber_->blockSignals(true);
-
-	if (units == "pA/V")
-		unitsA_->setCurrentIndex(0);
-	else if (units == "nA/V")
-		unitsA_->setCurrentIndex(1);
-	else if (units == "uA/V")
-		unitsA_->setCurrentIndex(2);
-	else if (units == "mA/V")
-		unitsA_->setCurrentIndex(3);
-
-	chamber_->blockSignals(false);
-}
-
-void CLSSplitIonChamberView::onValueBChanged(int value)
-{
-	chamber_->blockSignals(true);
-
-	switch(value){
-
-	case 1:
-		valueB_->setCurrentIndex(0);
-		break;
-	case 2:
-		valueB_->setCurrentIndex(1);
-		break;
-	case 5:
-		valueB_->setCurrentIndex(2);
-		break;
-	case 10:
-		valueB_->setCurrentIndex(3);
-		break;
-	case 20:
-		valueB_->setCurrentIndex(4);
-		break;
-	case 50:
-		valueB_->setCurrentIndex(5);
-		break;
-	case 100:
-		valueB_->setCurrentIndex(6);
-		break;
-	case 200:
-		valueB_->setCurrentIndex(7);
-		break;
-	case 500:
-		valueB_->setCurrentIndex(8);
-		break;
-	}
-
-	chamber_->blockSignals(false);
-}
-
-void CLSSplitIonChamberView::onUnitsBChanged(QString units)
-{
-	chamber_->blockSignals(true);
-
-	if (units == "pA/V")
-		unitsB_->setCurrentIndex(0);
-	else if (units == "nA/V")
-		unitsB_->setCurrentIndex(1);
-	else if (units == "uA/V")
-		unitsB_->setCurrentIndex(2);
-	else if (units == "mA/V")
-		unitsB_->setCurrentIndex(3);
-
-	chamber_->blockSignals(false);
 }
 
 void CLSSplitIonChamberView::onModeViewChanged()
@@ -298,4 +194,58 @@ void CLSSplitIonChamberView::onCustomContextMenuRequested(QPoint pos)
 			onModeViewChanged();
 		}
 	}
+}
+
+void CLSSplitIonChamberView::setValueComboBox(QComboBox *valueBox, int value)
+{
+	chamber_->blockSignals(true);
+
+	switch(value){
+
+	case 1:
+		valueBox->setCurrentIndex(0);
+		break;
+	case 2:
+		valueBox->setCurrentIndex(1);
+		break;
+	case 5:
+		valueBox->setCurrentIndex(2);
+		break;
+	case 10:
+		valueBox->setCurrentIndex(3);
+		break;
+	case 20:
+		valueBox->setCurrentIndex(4);
+		break;
+	case 50:
+		valueBox->setCurrentIndex(5);
+		break;
+	case 100:
+		valueBox->setCurrentIndex(6);
+		break;
+	case 200:
+		valueBox->setCurrentIndex(7);
+		break;
+	case 500:
+		valueBox->setCurrentIndex(8);
+		break;
+	}
+
+	chamber_->blockSignals(false);
+}
+
+void CLSSplitIonChamberView::setUnitsComboBox(QComboBox *unitsBox, QString units)
+{
+	chamber_->blockSignals(true);
+
+	if (units == "pA/V")
+		unitsBox->setCurrentIndex(0);
+	else if (units == "nA/V")
+		unitsBox->setCurrentIndex(1);
+	else if (units == "uA/V")
+		unitsBox->setCurrentIndex(2);
+	else if (units == "mA/V")
+		unitsBox->setCurrentIndex(3);
+
+	chamber_->blockSignals(false);
 }

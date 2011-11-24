@@ -234,6 +234,7 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 	if(scan) {
 
 	ui_.scanName->setText(scan->name());
+	//ui_.scanName->setText(scan->evaluatedName());
 	ui_.scanNumber->setValue(scan->number());
 	ui_.scanDate->setText( AMDateTimeUtils::prettyDate(scan->dateTime()));
 	ui_.scanTime->setText( scan->dateTime().time().toString("h:mmap") );
@@ -241,7 +242,8 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 	runSelector_->setCurrentRunId(scan->runId());
 	sampleEditor_->setCurrentSample(scan->sampleId());
 
-	ui_.topFrameTitle->setText(QString("Editing %1 #%2").arg(scan->name()).arg(scan->number()));
+	//ui_.topFrameTitle->setText(QString("Editing %1 #%2").arg(scan->name()).arg(scan->number()));
+	ui_.topFrameTitle->setText(QString("Editing %1").arg(scan->fullName()));
 	}
 
 	else {

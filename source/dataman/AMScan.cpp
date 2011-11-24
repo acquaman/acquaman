@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/datastore/AMInMemoryDataStore.h"
 #include "acquaman/AMScanConfiguration.h"
 #include "application/AMPluginsManager.h"
+#include "dataman/AMScanDictionary.h"
 
 
 AMScan::AMScan(QObject *parent)
@@ -51,6 +52,11 @@ AMScan::AMScan(QObject *parent)
 	//data_ = new AMDataTreeDataStore(AMAxisInfo("eV", 0, "Incidence Energy", "eV"));
 
 	sampleNameLoaded_ = false;
+
+	nameDictionary_ = new AMScanDictionary(this, this);
+	//nameDictionary_->setOperatingOnName(true);
+	//exportNameDictionary_ = new AMScanDictionary(this, this);
+	//exportNameDictionary_->setOperatingOnExportName(true);
 
 	// Connect added/removed signals from rawDataSources_ and analyzedDataSources_, to provide a model of all data sources:
 	connect(rawDataSources_.signalSource(), SIGNAL(itemAboutToBeAdded(int)), this, SLOT(onDataSourceAboutToBeAdded(int)));
@@ -91,6 +97,29 @@ AMScan::~AMScan() {
 }
 
 
+void AMScan::setUnEvaluatedName(QString unEvaluatedName){
+	if(unEvaluatedName_ != unEvaluatedName){
+		unEvaluatedName_ = unEvaluatedName;
+		nameDictionary_->parseKeywordStringAndOperate(unEvaluatedName_);
+	}
+}
+
+void AMScan::setNumber(int number) {
+	if(number_ != number){
+		number_ = number;
+		setModified(true);
+		emit numberChanged(number_);
+	}
+}
+
+void AMScan::setDateTime(const QDateTime& dt)
+{
+	if(dateTime_ != dt){
+		dateTime_ = dt;
+		setModified(true);
+		emit dateTimeChanged(dateTime_);
+	}
+}
 
 // associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
 void AMScan::setRunId(int newRunId) {
@@ -102,18 +131,28 @@ void AMScan::setRunId(int newRunId) {
 
 // Sets name of sample
 void AMScan::setSampleId(int newSampleId) {
-	sampleNameLoaded_ = false;	// invalidate the sample name cache
-	if(newSampleId <= 0) sampleId_ = -1;
-	else sampleId_ = newSampleId;
+	if(sampleId_ != newSampleId){
+		sampleNameLoaded_ = false;	// invalidate the sample name cache
+		if(newSampleId <= 0)
+			sampleId_ = -1;
+		else
+			sampleId_ = newSampleId;
 
-	setModified(true);
-	emit sampleIdChanged(sampleId_);
+		setModified(true);
+		emit sampleIdChanged(sampleId_);
+	}
 }
 
+QString AMScan::unEvaluatedName() const{
+	return unEvaluatedName_;
+}
+
+//QString AMScan::evaluatedName() const {
+//	return nameDictionary_->parseKeywordString(name());
+//}
 
 // Convenience function: returns the name of the sample (if a sample is set)
 QString AMScan::sampleName() const {
-
 	if(!sampleNameLoaded_)
 		retrieveSampleName();
 
@@ -124,7 +163,6 @@ QString AMScan::sampleName() const {
 
 
 void AMScan::retrieveSampleName() const {
-
 	if(sampleId() <1 || database() == 0)
 		sampleName_ = "[no sample]";
 
@@ -137,9 +175,6 @@ void AMScan::retrieveSampleName() const {
 			sampleName_ = "[no sample]";
 	}
 }
-
-
-
 
 // Loads a saved scan from the database into self. Returns true on success.
 /*! Re-implemented from AMDbObject::loadFromDb(), this version also loads the scan's raw data if autoLoadData() is set to true, and the stored filePath doesn't match the existing filePath()*/
@@ -162,6 +197,9 @@ bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
 			return false;
 		}
 	}
+
+	nameDictionary_ = new AMScanDictionary(this, this);
+
 	return true;
 }
 
@@ -278,9 +316,9 @@ void AMScan::dbLoadAnalyzedDataSourcesConnections(const QString& connectionStrin
 
 		if(!analyzedDataSources_.at(i)->setInputDataSources(inputs))
 			AMErrorMon::report(AMErrorReport(	this,
-												AMErrorReport::Alert,
-												0,
-												QString("There was an error re-connecting the inputs for the analysis component '%1: %2', when reloading this scan from the database. Your database might be corrupted. Please report this bug to the Acquaman developers.").arg(analyzedDataSources_.at(i)->name()).arg(analyzedDataSources_.at(i)->description())));
+								AMErrorReport::Alert,
+								0,
+								QString("There was an error re-connecting the inputs for the analysis component '%1: %2', when reloading this scan from the database. Your database might be corrupted. Please report this bug to the Acquaman developers.").arg(analyzedDataSources_.at(i)->name()).arg(analyzedDataSources_.at(i)->description())));
 	}
 }
 
@@ -324,10 +362,13 @@ void AMScan::onDataSourceRemoved(int index) {
 void AMScan::setScanConfiguration(AMScanConfiguration* newConfiguration) {
 	if(!newConfiguration)
 		return;
+	if(configuration_ == newConfiguration)
+		return;
 	if(configuration_)
 		delete configuration_;
 	configuration_ = newConfiguration;
 	setModified(true);
+	emit scanConfigurationChanged();
 }
 
 

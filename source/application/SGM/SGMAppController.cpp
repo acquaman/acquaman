@@ -42,7 +42,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMRun.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
+#include "dataman/export/AMExporterGeneralAscii.h"
 #include "ui/AMStartScreen.h"
+
+#include "application/AMAppControllerSupport.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
@@ -103,6 +106,19 @@ bool SGMAppController::startup() {
 			sgmDefault->setSeparateSectionFileName("$name_$dataSetName_$exportIndex.txt");
 			sgmDefault->storeToDb(AMDatabase::database("user"));
 		}
+
+		QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "SGMDefault");
+		if(matchIDs.count() > 0)
+			AMAppControllerSupport::registerClass<SGMXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
+
+		/* HEY DARREN, THIS IS AN EXAMPLE NOTE FOR YOU
+		if(AMAppControllerSupport::registeredClasses()->contains("SGMXASScanConfiguration")){
+			AMScanConfigurationObjectInfo myInfo = AMAppControllerSupport::registeredClasses()->value("SGMXASScanConfiguration");
+			qDebug() << myInfo.scanConfigurationClassName << myInfo.exporterClassName << myInfo.exporterOptionClassName << myInfo.exporterOptionId;
+		}
+		else
+			qDebug() << "No info found";
+		*/
 
 		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
 		AMStartScreen* startScreen = new AMStartScreen(0);
@@ -185,6 +201,15 @@ void SGMAppController::onSGMBeamlineConnected(){
 		sxsc->addRegion(0, goodEnergy, 1, goodEnergy+10, 1);
 		xasScanConfigurationView_ = new SGMXASScanConfigurationView(sxsc);
 		xasScanConfigurationHolder_->setView(xasScanConfigurationView_);
+
+		/* HEY DARREN, THIS IS AN EXAMPLE NOTE FOR YOU
+		AMExporter *myExporter = AMAppControllerSupport::createExporter(sxsc);
+		AMExporterOption *myExporterOption = AMAppControllerSupport::createExporterOption(sxsc);
+		if(myExporter && myExporterOption)
+			qDebug() << "Found that sucker " << myExporter->description() << myExporterOption->name();
+		else
+			qDebug() << "Odd, didn't find that exporter";
+		*/
 
 		SGMFastScanConfiguration *sfsc = new SGMFastScanConfiguration(this);
 		fastScanConfigurationView_ = new SGMFastScanConfigurationView(sfsc);

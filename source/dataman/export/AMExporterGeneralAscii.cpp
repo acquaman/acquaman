@@ -31,6 +31,10 @@ AMExporterGeneralAscii::AMExporterGeneralAscii(QObject *parent) :
 {
 }
 
+const QMetaObject* AMExporterGeneralAscii::getMetaObject(){
+	return metaObject();
+}
+
 AMExporterOption * AMExporterGeneralAscii::createDefaultOption() const {
 	return new AMExporterOptionGeneralAscii();
 }
@@ -67,6 +71,9 @@ bool AMExporterGeneralAscii::isValidFor(const AMScan *scan, const AMExporterOpti
 QString AMExporterGeneralAscii::exportScan(const AMScan *scan, const QString &destinationFolderPath, const AMExporterOption *option, int autoIndex)
 {
 	setCurrentAutoIndex(autoIndex);
+	setCurrentFilename(option->fileName());
+	setDestinationFolderPath(destinationFolderPath);
+
 	// prepare scan and option
 	setCurrentScan(scan);
 	option_ = qobject_cast<const AMExporterOptionGeneralAscii*>(option);
@@ -84,6 +91,7 @@ QString AMExporterGeneralAscii::exportScan(const AMScan *scan, const QString &de
 
 	// prepare export file
 	mainFileName_ = parseKeywordString( destinationFolderPath % "/" % option->fileName() );
+	qDebug() << "Wants to save as " << mainFileName_;
 
 	if(!openFile(mainFileName_)) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, "Export failed: Could not open the file '" % mainFileName_ % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));

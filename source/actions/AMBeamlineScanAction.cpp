@@ -23,6 +23,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 #include "util/AMDateTimeUtils.h"
+#include "dataman/AMScanExemplarDictionary.h"
+
+#include "dataman/export/AMExportController.h"
+#include "dataman/export/AMExporter.h"
+#include "dataman/export/AMExporterOption.h"
+#include "application/AMAppControllerSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
 
 #include <QPushButton>
 #include <QToolButton>
@@ -30,15 +37,25 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QApplication>
 #include <QStyle>
 #include <QMessageBox>
+#include <QDir>
 
 AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *parent) :
 	AMBeamlineActionItem(true, parent)
 {
 	cfg_ = cfg;
 	lastSampleDescription_ = "<Unknown Sample>";
+	exemplar_.setSampleName(lastSampleDescription_);
+	exemplar_.setScanConfiguration(cfg_);
+	nameDictionary_ = new AMScanExemplarDictionary(&exemplar_, this);
+	exportNameDictionary_ = new AMScanExemplarDictionary(&exemplar_, this);
+	nameDictionary_->setOperatingOnName(true);
+	exportNameDictionary_->setOperatingOnExportName(true);
 	if(cfg_){
 		connect(cfg_, SIGNAL(configurationChanged()), this, SLOT(onConfigurationChanged()));
 		setDescription(cfg_->description()+" on "+lastSampleDescription_);
+		nameDictionary_->parseKeywordStringAndOperate(cfg_->userScanName());
+		if(cfg_->autoExportEnabled())
+			exportNameDictionary_->parseKeywordStringAndOperate(cfg_->userExportName());
 	}
 	ctrl_ = NULL;
 	keepOnCancel_ = false;
@@ -71,6 +88,14 @@ bool AMBeamlineScanAction::isPaused() const{
 
 QString AMBeamlineScanAction::lastSampleDescription() const{
 	return lastSampleDescription_;
+}
+
+QString AMBeamlineScanAction::guessScanName() const{
+	return exemplar_.name();
+}
+
+QString AMBeamlineScanAction::guessExportName() const{
+	return exemplar_.exportName();
 }
 
 void AMBeamlineScanAction::start(){
@@ -162,6 +187,7 @@ void AMBeamlineScanAction::cleanup(){
 void AMBeamlineScanAction::setLastSampleDescription(const QString &lastSampleDescription){
 	lastSampleDescription_ = lastSampleDescription;
 	setDescription(cfg_->description()+" on "+lastSampleDescription_);
+	exemplar_.setSampleName(lastSampleDescription_);
 	emit descriptionChanged();
 }
 
@@ -225,8 +251,49 @@ void AMBeamlineScanAction::onScanSucceeded(){
 	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Completed "+AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())+"]");
 	emit descriptionChanged();
 	setSucceeded(true);
-	if(ctrl_->scan()->database())
-		ctrl_->scan()->storeToDb(ctrl_->scan()->database());
+	if(ctrl_->scan()->database()){
+		bool saveSucceeded = ctrl_->scan()->storeToDb(ctrl_->scan()->database());
+		if(saveSucceeded && cfg_->autoExportEnabled()){
+			QList<AMScan*> toExport;
+			toExport << ctrl_->scan();
+			AMExportController *exportController = new AMExportController(toExport);
+
+			// This needs to be generalized so the user can set it (on beamlines where this is acceptable)
+			QDir exportDir(AMUserSettings::userDataFolder);
+			exportDir.cdUp();
+			if(!exportDir.entryList(QDir::AllDirs).contains("exportData")){
+				if(!exportDir.mkdir("exportData")){
+					AMErrorMon::report(AMErrorReport(this,
+							AMErrorReport::Alert,
+							AMBEAMLINEACTIONITEM_CANT_CREATE_EXPORT_FOLDER,
+							"Error, could not create the auto-export folder. Please report this bug to the Acquaman developers."));
+					return;
+				}
+			}
+			exportDir.cd("exportData");
+			exportController->setDestinationFolderPath(exportDir.absolutePath());
+			AMExporter *autoExporter = AMAppControllerSupport::createExporter(cfg_);
+			if(!autoExporter){
+				AMErrorMon::report(AMErrorReport(this,
+								 AMErrorReport::Alert,
+								 AMBEAMLINEACTIONITEM_NO_REGISTERED_EXPORTER,
+								 "Error, no exporter registered for this scan type. Please report this bug to the Acquaman developers."));
+				return;
+			}
+			exportController->chooseExporter(autoExporter->metaObject()->className());
+			// This next creation involves a loadFromDb ... I tested it and it seems fast (milliseconds) ... if that's a Mac only thing then we can figure out a caching system, let me know I have a few ideas
+			AMExporterOption *autoExporterOption = AMAppControllerSupport::createExporterOption(cfg_);
+			if(!autoExporterOption){
+				AMErrorMon::report(AMErrorReport(this,
+								 AMErrorReport::Alert,
+								 AMBEAMLINEACTIONITEM_NO_REGISTERED_EXPORTER_OPTION,
+								 "Error, no exporter option registered for this scan type. Please report this bug to the Acquaman developers."));
+				return;
+			}
+			exportController->setOption(autoExporterOption);
+			exportController->start();
+		}
+	}
 }
 
 void AMBeamlineScanAction::onScanFailed(){
@@ -257,6 +324,8 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	scanNameLabel_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	scanNameLabel_->setAlignment(Qt::AlignVCenter);
 	updateScanNameLabel();
+
+	exportNameLabel_ = new QLabel("Probably Exporting as: "+scanAction_->guessExportName());
 
 	progressBar_ = new QProgressBar();
 	progressBar_->setMinimum(0);
@@ -304,7 +373,11 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	swapVL->setContentsMargins(0,0,0,0);
 	swapVL->setSpacing(0);
 	hl_->addLayout(swapVL);
-	setLayout(hl_);
+	vl_ = new QVBoxLayout();
+	vl_->addLayout(hl_);
+	vl_->addWidget(exportNameLabel_);
+	//setLayout(hl_);
+	setLayout(vl_);
 	onPreviousNextChanged();
 }
 

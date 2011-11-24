@@ -58,6 +58,7 @@ public:
 
 	explicit AMExporterOptionGeneral(QObject *parent = 0);
 
+	const QMetaObject* getMetaObject();
 
 
 	QString headerText() const { return headerText_; }

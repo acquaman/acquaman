@@ -426,6 +426,11 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/dataman/VESPERS/VESPERSXASDataLoader.h \
 	source/dataman/AMFileLoaderInterface.h \
 	source/ui/util/AMSettingsView.h \
+	source/dataman/AMScanDictionary.h \
+	source/dataman/AMScanParametersDictionary.h \
+	source/dataman/AMScanExemplarDictionary.h \
+	source/dataman/AMScanExemplar.h \
+	source/ui/dataman/AMDictionaryLineEdit.h \
 	source/beamline/AMIonChamber.h \
 	source/dataman/info/AMIonChamberInfo.h \
 	source/beamline/CLS/CLSIonChamber.h \
@@ -437,7 +442,8 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/beamline/CLS/CLSSplitIonChamber.h \
 	source/ui/beamline/AMSplitIonChamberView.h \
 	source/ui/CLS/CLSSplitIonChamberView.h \
-    source/application/AMPluginsManager.h
+	source/application/AMPluginsManager.h \
+    source/application/AMAppControllerSupport.h
 
 CONFIG(mobility) {
 HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
@@ -690,6 +696,11 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/analysis/AM2DDeadTimeAB.cpp \
 	source/dataman/VESPERS/VESPERSXASDataLoader.cpp \
 	source/ui/util/AMSettingsView.cpp \
+	source/dataman/AMScanDictionary.cpp \
+	source/dataman/AMScanParametersDictionary.cpp \
+	source/dataman/AMScanExemplarDictionary.cpp \
+	source/dataman/AMScanExemplar.cpp \
+	source/ui/dataman/AMDictionaryLineEdit.cpp \
 	source/beamline/AMIonChamber.cpp \
 	source/dataman/info/AMIonChamberInfo.cpp \
 	source/beamline/CLS/CLSIonChamber.cpp \
@@ -701,7 +712,8 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/beamline/CLS/CLSSplitIonChamber.cpp \
 	source/ui/beamline/AMSplitIonChamberView.cpp \
 	source/ui/CLS/CLSSplitIonChamberView.cpp \
-    source/application/AMPluginsManager.cpp
+	source/application/AMPluginsManager.cpp \
+    source/application/AMAppControllerSupport.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
@@ -718,29 +730,3 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

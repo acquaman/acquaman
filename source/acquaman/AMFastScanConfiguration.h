@@ -34,6 +34,8 @@ class AMFastScanConfiguration : public AMScanConfiguration
 public:
 	AMFastScanConfiguration(QObject *parent = 0);
 
+	const QMetaObject* getMetaObject();
+
 	double startEnergy() const { return startEnergy_;}
 	double endEnergy() const { return endEnergy_;}
 

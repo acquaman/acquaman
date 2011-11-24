@@ -37,6 +37,8 @@ public:
 	Q_INVOKABLE explicit AMXASScan(QObject *parent = 0);
 
 
+	//virtual QString technique() {return "XAS";}
+
 signals:
 
 public slots:

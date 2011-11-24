@@ -33,6 +33,8 @@ class AMExporterOptionGeneralAscii : public AMExporterOptionGeneral
 public:
 	Q_INVOKABLE explicit AMExporterOptionGeneralAscii(QObject *parent = 0);
 
+	const QMetaObject* getMetaObject();
+
 	/// The delimiter to use between columns
 	QString columnDelimiter() const { return columnDelimiter_; }
 	/// The delimiter to use between lines (newline character)
