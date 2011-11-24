@@ -230,8 +230,6 @@ signals:
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
 	void isDetectorConnected();
-	/// Connects and disconnects signals based on the connection of the detector.
-	void onConnectedChanged(bool isConnected);
 	/// Determines if the regions of interest in the detector all have values.
 	void allRoisHaveValues();
 	/// Determines if there is a discrepancy between the ROI list and the ROIInfo list and if there is, begins the sequence of updating the entire program.
@@ -268,7 +266,7 @@ protected slots:
 		}
 	}
 	/// Helper slot.  Sets the status update rate to Fast once it is connected.
-	void onStatusUpdateRateInitialized() { setStatusRefreshRate(Fast); }
+	void onStatusUpdateRateInitialized() { setStatusRefreshRate(Fast); disconnect(statusUpdateRatePV_.first(), SIGNAL(valueChanged()), this, SLOT(onStatusUpdateRateInitialized())); }
 	/// Handles changes to the peaking time.
 	void onPeakingTimeChanged(double pktime){ setPeakingTime(pktime); emit peakingTimeChanged(pktime); }
 	/// Handles changes to the maximum energy.
