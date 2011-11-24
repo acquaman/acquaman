@@ -65,11 +65,18 @@ bool VESPERSAppController::startup() {
 	AMUserSettings::load();
 	QString start = AMUserSettings::userDataFolder;
 	start.chop(1);
-	start = start.left(start.lastIndexOf("/"));
+	start = start.remove("/userData");
 	QString dir = QFileDialog::getExistingDirectory(0, "Choose a destination folder for your data.", start, QFileDialog::ShowDirsOnly);
 	if (!dir.isEmpty()){
 
 		dir += "/";
+		if (!dir.contains("userData")){
+
+			QDir makeNewDir(dir);
+			makeNewDir.mkdir("userData");
+			makeNewDir.cd("userData");
+			dir = makeNewDir.absolutePath() + "/";
+		}
 
 		if (dir.compare(AMUserSettings::userDataFolder) != 0){
 
