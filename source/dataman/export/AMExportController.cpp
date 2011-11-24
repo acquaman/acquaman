@@ -266,29 +266,31 @@ void AMExportController::continueScanExport()
 				  (tableName = path.at(0)).isEmpty() == false
 				  ))
 				throw QString("The export system couldn't understand the scan URL '" % url.toString() % "', so this scan has not been exported.");
+			emit statusChanged(status_ = "Opening: " % url.toString());
 
 			databaseObject = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
 			scan = qobject_cast<AMScan*>(databaseObject);
+
+			if(!scan) {
+				delete databaseObject;
+				throw QString("The export system couldn't load a scan out of the database (" % url.toString() % "), so this scan has not been exported.");
+			}
 		}
-		else if(usingScanObjects_)
+		else if(usingScanObjects_) {
 			scan = scanObjectsToExport_.at(exportScanIndex_);
-
-		//emit statusChanged(status_ = "Opening: " % url.toString());
-		emit statusChanged(status_ = "Opening: " % scan->name());
-
-		if(!scan) {
-			delete databaseObject;
-			//throw QString("The export system couldn't load a scan out of the database (" % url.toString() % "), so this scan has not been exported.");
-			throw QString("The export system couldn't load a scan out of the database, so this scan has not been exported.");
+			if(!scan)
+				throw QString("The export system couldn't load a scan out of the database, so this scan has not been exported.");
 		}
 
+		emit statusChanged(status_ = "Opening: " % scan->name());	// this is kinda pointless...
 		emit statusChanged(status_ = "Writing: " % scan->fullName());
 
 		// 3. Check that it can be exported with the exporter and option selected
 		if(!exporter_->isValidFor(scan, option_)) {
 			QString err("The exporter '" % exporter_->description() % "' and the template '" % option_->name() % "' are not compatible with this scan (" % scan->fullName() % "), so it has not been exported.");
 			emit statusChanged(status_ = err);
-			delete scan;
+			if(usingScanURLs_)
+				delete scan;
 			throw err;
 		}
 
@@ -297,24 +299,23 @@ void AMExportController::continueScanExport()
 		if(writtenFile.isNull()) {
 			QString err("Export failed for scan '" % scan->fullName() % "'.");
 			emit statusChanged(status_ = err);
-			delete scan;
+			if(usingScanURLs_)	// don't delete in usingScanObjects_ mode: we don't own the scans.
+				delete scan;
 			throw err;
 		}
 
 		emit statusChanged(status_ = "Wrote: " % writtenFile);
 		succeededCount_++;
-		if(usingScanURLs_)
+		if(usingScanURLs_) // don't delete in usingScanObjects_ mode: we don't own the scans.
 			delete scan; // done!
 	}
 
 	catch(QString errMsg) {
-		qDebug() << "In the catch";
 		failedCount_++;
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -1, errMsg));
 	}
 
 	// 5. increment exportScanIndex_ and re-schedule next one
-	qDebug() << "Just finished " << exportScanIndex_;
 	exportScanIndex_++;
 	QTimer::singleShot(5, this, SLOT(continueScanExport()));
 
