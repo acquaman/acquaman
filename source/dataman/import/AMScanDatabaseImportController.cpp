@@ -347,6 +347,7 @@ void AMScanDatabaseImportController::copyExperiments()
 			else
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -2, "Could not import the experiment '" % sourceExperiments_.value(sourceId) % "' into the database."));
 		}
+		// TODO: need to update the scans that should be in this experiment. This will be tricky... don't know new scan IDs yet.
 		qApp->sendPostedEvents();
 		qApp->processEvents();
 	}
@@ -462,6 +463,8 @@ void AMScanDatabaseImportController::copyScans()
 			continue;
 		}
 
+
+
 		// Copy the thumbnails from the old DB to the new DB:
 		// find the old thumbnails:
 		QStringList thumbnailCols;
@@ -510,6 +513,17 @@ void AMScanDatabaseImportController::copyScans()
 								   QVariantList() << thumbnailCount << thumbnailFirstId)) {
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -315, QString("While importing, error trying to store the updated thumbnail count and firstThumbnailId for database object %1. Please report this problem to the Acquaman developers.").arg(scanIds.at(i))));
 		}
+
+
+		// What experiments was this scan in? Need to map and add in new database.
+		QList<int> experiments = AMExperiment::experimentsContainingScan(scanIds.at(i), sourceDb_);
+		foreach(int oldExperimentId, experiments) {
+			int newExperimentId = s2dExperimentIds_.value(oldExperimentId);
+			if(newExperimentId > 0)
+				AMExperiment::addScanToExperiment(scan->id(), newExperimentId, destinationDb_);
+		}
+
+		// All done!
 		delete scan;
 		qApp->sendPostedEvents();
 		qApp->processEvents();
