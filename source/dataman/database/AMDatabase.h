@@ -148,8 +148,8 @@ The parameters by which to access the database are given in \c dbAccessString. (
 	/// ex: AMDatabase::db()->scansContaining("name", "Carbon60") could return Scans with names Carbon60_alpha and bCarbon60_gamma
 	QList<int> objectsContaining(const QString& tableName, const QString& colName, const QVariant& value) const;
 
-	/// returns a list of all the objecst/rows (by id) that match a given condition. \c whereClause is a string suitable for appending after an SQL "WHERE" statement.
-	QList<int> objectsWhere(const QString& tableName, const QString& whereClause) const;
+	/// returns a list of all the objecst/rows (by id) that match a given condition. \c whereClause is a string suitable for appending after an SQL "WHERE" statement. If you want the id of all objects, you can omit the where clause.
+	QList<int> objectsWhere(const QString& tableName, const QString& whereClause = QString()) const;
 
 
 	/// For people who really know what they're doing. You shouldn't normally use this.
