@@ -585,12 +585,11 @@ bool AMDatabase::createIndex(const QString& tableName, const QString& columnName
 	q.prepare(QString("CREATE INDEX %1 ON %2(%3);").arg(indexName, tableName, columnNames));
 	if(q.exec()) {
 		q.finish();
-		// Error suppressed: this happens all the time if the index already exists. AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Added index on columns (%1) to table '%2'.").arg(columnNames).arg(tableName)));
 		return true;
 	}
 	else {
 		q.finish();	// make sure that sqlite lock is released before emitting signals
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Error adding index on columns (%1) to table '%2'. Maybe it's already there? Sql reply says: %3").arg(columnNames).arg(tableName).arg(q.lastError().text())));
+		// Error suppressed: this happens all the time if the index already exists: AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Error adding index on columns (%1) to table '%2'. Maybe it's already there? Sql reply says: %3").arg(columnNames).arg(tableName).arg(q.lastError().text())));
 		return false;
 	}
 }

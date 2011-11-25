@@ -500,8 +500,6 @@ void AMDbObject::dissociateFromDb(bool shouldDissociateChildren)
 
 void AMDbObject::updateThumbnails(AMDatabase *db, int id, const QString& dbTableName) {
 
-	qDebug() << "Running thumbnail save in other thread..." << db->connectionName() << id << dbTableName;
-
 	// Step 1: try to load the object.
 	AMDbObject* object = AMDbObjectSupport::s()->createAndLoadObjectAt(db, dbTableName, id);
 	if(!object) {
@@ -555,11 +553,9 @@ void AMDbObject::updateThumbnails(AMDatabase *db, int id, const QString& dbTable
 		int retVal;
 		if(reuseThumbnailIds) {
 			retVal = db->insertOrUpdate(i+existingThumbnailIds.at(0), AMDbObjectSupport::thumbnailTableName(), keys, values);
-			qDebug() << "Thumbnail save: reusing row at " << existingThumbnailIds.at(0)+i;
 		}
 		else {
 			retVal = db->insertOrUpdate(0, AMDbObjectSupport::thumbnailTableName(), keys, values);
-			qDebug() << "Thumbnail save: Inserting new spots" << retVal;
 		}
 		if(retVal == 0)
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -314, QString("AMDbObject: error trying to save thumbnails for object with ID %1 in table '%2'. Please report this bug to the Acquaman developers.").arg(id).arg(dbTableName)));
