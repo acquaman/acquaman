@@ -48,15 +48,25 @@ border-top: 1px solid rgb(64, 64,64);
      </property>
      <layout class="QHBoxLayout" name="mainHLayout">
       <item>
-       <widget class="QPushButton" name="addButton">
-        <property name="maximumSize">
-         <size>
-          <width>40</width>
-          <height>16777215</height>
-         </size>
+       <widget class="QToolButton" name="addButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
         <property name="text">
-         <string>+</string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../icons/icons.qrc">
+          <normaloff>:/22x22/folder-new.png</normaloff>:/22x22/folder-new.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>22</width>
+          <height>22</height>
+         </size>
         </property>
        </widget>
       </item>
@@ -454,6 +464,15 @@ font: 8pt &quot;Lucida Grande&quot;;</string>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
+  <include location="../icons/icons.qrc"/>
+  <include location="../icons/icons.qrc"/>
+  <include location="../icons/icons.qrc"/>
+  <include location="../icons/icons.qrc"/>
+  <include location="../icons/icons.qrc"/>
+  <include location="../icons/icons.qrc"/>
+  <include location="../icons/icons.qrc"/>
+  <include location="../icons/icons.qrc"/>
+  <include location="../icons/icons.qrc"/>
   <include location="../icons/icons.qrc"/>
  </resources>
  <connections/>

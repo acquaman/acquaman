@@ -83,7 +83,8 @@ color: rgb(79, 79, 79);</string>
          </property>
          <property name="icon">
           <iconset resource="../../icons/icons.qrc">
-           <normaloff>:/22x22/viewThumbInv-22x22.png</normaloff>:/22x22/viewThumbInv-22x22.png</iconset>
+           <normaloff>:/22x22/view-list-icons-symbolic.png</normaloff>
+           <normalon>:/22x22/view-list-icons-symbolic_dark.png</normalon>:/22x22/view-list-icons-symbolic.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -106,7 +107,8 @@ color: rgb(79, 79, 79);</string>
          </property>
          <property name="icon">
           <iconset resource="../../icons/icons.qrc">
-           <normaloff>:/22x22/viewListInv-22x22.png</normaloff>:/22x22/viewListInv-22x22.png</iconset>
+           <normaloff>:/22x22/view-list-details-symbolic.png</normaloff>
+           <normalon>:/22x22/view-list-details-symbolic_dark.png</normalon>:/22x22/view-list-details-symbolic.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -124,6 +126,9 @@ color: rgb(79, 79, 79);</string>
        </item>
        <item>
         <widget class="QToolButton" name="viewModeB3_">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>F</string>
          </property>
@@ -144,12 +149,16 @@ color: rgb(79, 79, 79);</string>
        </item>
        <item>
         <widget class="QToolButton" name="viewModeB4_">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>D</string>
          </property>
          <property name="icon">
           <iconset resource="../../icons/icons.qrc">
-           <normaloff>:/22x22/viewDetaillInv-22x22.png</normaloff>:/22x22/viewDetaillInv-22x22.png</iconset>
+           <normaloff>:/22x22/view-list-compact-symbolic.png</normaloff>
+           <normalon>:/22x22/view-list-compact-symbolic_dark.png</normalon>:/22x22/view-list-compact-symbolic.png</iconset>
          </property>
          <property name="iconSize">
           <size>

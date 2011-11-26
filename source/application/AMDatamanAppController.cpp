@@ -47,6 +47,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDir>
 #include <QFile>
 #include <QMessageBox>
+#include <QInputDialog>
 
 #include "util/AMSettings.h"
 #include "dataman/AMScan.h"
@@ -460,9 +461,8 @@ void AMDatamanAppController::onMainWindowAliasItemActivated(QWidget *target, con
 }
 
 void AMDatamanAppController::onNewExperimentAdded(const QModelIndex &index) {
-	mw_->sidebar()->expand(index.parent());
-	mw_->sidebar()->setCurrentIndex(index);
-	mw_->sidebar()->edit(index);
+	mw_->sidebar()->expand(index.parent()); //Do this to show people where it ended up...
+	//mw_->sidebar()->setCurrentIndex(index);
 }
 
 
@@ -470,9 +470,18 @@ void AMDatamanAppController::onNewExperimentAdded(const QModelIndex &index) {
 #include "dataman/AMExperiment.h"
 void AMDatamanAppController::onAddButtonClicked() {
 
+	static QString lastExperimentName;
 	// For now, we simply create a new experiment. Later on, this could pop up a menu to create a new experiment, run, sample plate, whatever...
-	AMExperiment e("New Experiment");
-	e.storeToDb(AMDatabase::database("user"));
+	bool ok;
+	QString text = QInputDialog::getText(mw_, "Create new experiment",
+										 "Experiments help you organize groups of related scans.\n\nNew experiment name:",
+										 QLineEdit::Normal,
+										 lastExperimentName, &ok);
+	if (ok && !text.isEmpty()) {
+		AMExperiment e(text);
+		lastExperimentName = text;
+		e.storeToDb(AMDatabase::database("user"));
+	}
 }
 
 void AMDatamanAppController::onProgressUpdated(double elapsed, double total){
