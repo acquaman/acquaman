@@ -123,8 +123,6 @@ const AMDbObjectInfo* AMDbObject::dbObjectInfo() const {
 }
 
 
-#include <QDebug>
-
 // This member function updates a scan in the database (if it exists already in that database), otherwise it adds it to the database.
 bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 
@@ -136,6 +134,8 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 		return false;	// class has not been registered yet in the database system.
 
 
+	// If this object has never been stored to this database before, we could optimize some things.
+	bool neverSavedHere = (id()<1 || db !=database());
 
 	QVariantList values;	// list of values to store
 	QStringList keys;	// list of keys (column names) to store
@@ -225,7 +225,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 
 
 
-	// Add thumbnail info (just the count for now: 0) We will update the thumbnails in a secondary thread...
+	// Add thumbnail info (just the count for now: 0) We will update later once we store thumbnails (possibly in another thread).
 	keys << "thumbnailCount";
 	values << 0;
 
@@ -289,11 +289,13 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 	// Thumbnail save
 	///////////////////////////////////////////
 
-	if(generateThumbnails && thumbnailCount() > 0)
-		QtConcurrent::run(&AMDbObject::updateThumbnails, db, id_, myInfo->tableName);
-	// TODO: currently there are a few situations where we are "leaking" thumbnails: leaving old stale thumbnails in the database. Ex: When the thumbnailCount() was non-zero on a previous save to this database, and is now 0. When the thumbnailCount() was non-zero on a previous save to the database, and generateThumbnails has been forced to false this time. Todo: garbage-collect stale thumbnails to save database space.  Challenge: performance and database locking.
-//	else
-//		QtConcurrent::run()...
+	if(generateThumbnails && thumbnailCount() > 0) {
+		if(shouldGenerateThumbnailsInSeparateThread())
+			QtConcurrent::run(&AMDbObject::updateThumbnailsInSeparateThread, db, id_, myInfo->tableName, neverSavedHere);
+		else
+			updateThumbnailsInCurrentThread(neverSavedHere);
+	}
+	// TODO: currently there are a few situations where we are "leaking" thumbnails: leaving old stale thumbnails in the database. Ex: When the thumbnailCount() was non-zero on a previous save to this database, and is now 0. Or when the thumbnailCount() was non-zero on a previous save to the database, and generateThumbnails has been forced to false this time. That's not such a big deal... they'll get removed next time we store valid thumbnails.
 
 	// we were just stored to the database, so our properties must be in sync with it.
 	setModified(false);
@@ -498,7 +500,7 @@ void AMDbObject::dissociateFromDb(bool shouldDissociateChildren)
 	}
 }
 
-void AMDbObject::updateThumbnails(AMDatabase *db, int id, const QString& dbTableName) {
+void AMDbObject::updateThumbnailsInSeparateThread(AMDatabase *db, int id, const QString& dbTableName, bool neverSavedHereBefore) {
 
 	// Step 1: try to load the object.
 	AMDbObject* object = AMDbObjectSupport::s()->createAndLoadObjectAt(db, dbTableName, id);
@@ -513,15 +515,29 @@ void AMDbObject::updateThumbnails(AMDatabase *db, int id, const QString& dbTable
 			return;	// nothing else to do...
 	}
 
-	// Find out if there are any thumbnails for this object already in the DB:
-	QList<int> existingThumbnailIds = db->objectsWhere(AMDbObjectSupport::thumbnailTableName(), QString("objectId = %1 AND objectTableName = '%2'").arg(id).arg(dbTableName));
-	// as long as this function works properly, these will always be in a sequential block.
+	bool reuseThumbnailIds = false;
+	QList<int> existingThumbnailIds;
 
-	bool reuseThumbnailIds = (existingThumbnailIds.count() == thumbsCount);
+	if(!neverSavedHereBefore) {
+		// Find out if there are any thumbnails for this object already in the DB:
+		existingThumbnailIds = db->objectsWhere(AMDbObjectSupport::thumbnailTableName(), QString("objectId = %1 AND objectTableName = '%2'").arg(id).arg(dbTableName));
+		// as long as this function works properly, these will always be in a sequential block.
 
-	// don't reuse existing rows in the thumbnail table. Instead, delete and append new ones.
-	if(!reuseThumbnailIds) {
-		db->deleteRows(AMDbObjectSupport::thumbnailTableName(), QString("objectId = %1 AND objectTableName = '%2'").arg(id).arg(dbTableName));
+		reuseThumbnailIds = (existingThumbnailIds.count() == thumbsCount);
+		// need to check that the existingThumbnailIds are consecutive as well... Otherwise can't reuse them. They should always be in a consecutive block, but just in case the database has gotten messed up, it doesn't hurt to check.
+		if(reuseThumbnailIds) {
+			for(int i=1; i<existingThumbnailIds.count(); i++) {
+				if(existingThumbnailIds.at(i) != existingThumbnailIds.at(i-1)+1) {
+					reuseThumbnailIds = false;
+					break;
+				}
+			}
+		}
+
+		if(!reuseThumbnailIds) {
+			// Don't reuse existing rows in the thumbnail table. Instead, delete before appending new ones.
+			db->deleteRows(AMDbObjectSupport::thumbnailTableName(), QString("objectId = %1 AND objectTableName = '%2'").arg(id).arg(dbTableName));
+		}
 	}
 
 	QVariantList values;	// list of values to store
@@ -552,9 +568,11 @@ void AMDbObject::updateThumbnails(AMDatabase *db, int id, const QString& dbTable
 
 		int retVal;
 		if(reuseThumbnailIds) {
+			// qDebug() << "Thumbnail save: reusing row" << i+existingThumbnailIds.at(0) << "in other thread";
 			retVal = db->insertOrUpdate(i+existingThumbnailIds.at(0), AMDbObjectSupport::thumbnailTableName(), keys, values);
 		}
 		else {
+			// qDebug() << "THumnail save: inserting new row in other thread";
 			retVal = db->insertOrUpdate(0, AMDbObjectSupport::thumbnailTableName(), keys, values);
 		}
 		if(retVal == 0)
@@ -564,14 +582,10 @@ void AMDbObject::updateThumbnails(AMDatabase *db, int id, const QString& dbTable
 			firstThumbnailId = retVal;
 	}
 
-	keys.clear();
-	values.clear();
-
-	keys << "thumbnailCount" << "thumbnailFirstId";
-	values << thumbsCount << firstThumbnailId;
-
 	// now that we know where the thumbnails are, update this in the object table
-	if(!db->update(id, dbTableName, keys, values)) {
+	if(!db->update(id, dbTableName,
+				   QStringList() << "thumbnailCount" << "thumbnailFirstId",
+				   QVariantList() << thumbsCount << firstThumbnailId)) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -315, QString("AMDbObject: error trying to store the updated thumbnail count and firstThumbnailId for database object %1 in table '%2'. Please report this bug to the Acquaman developers.").arg(id).arg(dbTableName)));
 	}
 
@@ -579,7 +593,92 @@ void AMDbObject::updateThumbnails(AMDatabase *db, int id, const QString& dbTable
 	delete object;
 }
 
-//void AMDbObject::removeAllThumbnails(AMDatabase *db, int id, const QString &dbTableName)
-//{
-//	db->deleteRows(AMDbObjectSupport::thumbnailTableName(), QString("objectId = %1 AND objectTableName = '%2'").arg(id).arg(dbTableName));
-//}
+void AMDbObject::updateThumbnailsInCurrentThread(bool neverSavedHereBefore)
+{
+	QString databaseTableName = dbTableName();
+
+	// Find out how many thumbnails we're supposed to have:
+	int thumbsCount = thumbnailCount();
+	if(thumbsCount == 0) {
+			return;	// nothing else to do...
+	}
+
+	// Do we need to delete or reuse some existing thumbnails?
+	bool reuseThumbnailIds = false;
+	QList<int> existingThumbnailIds;
+
+	if(!neverSavedHereBefore) {	// optimization: only need to do this if we've been saved here before.
+
+		// Find out if there are any thumbnails for this object already in the DB:
+		existingThumbnailIds = database()->objectsWhere(AMDbObjectSupport::thumbnailTableName(), QString("objectId = %1 AND objectTableName = '%2'").arg(id()).arg(databaseTableName));
+
+		reuseThumbnailIds = (existingThumbnailIds.count() == thumbsCount);	// can reuse if the number of old and new ones matches.
+		// need to check that the existingThumbnailIds are consecutive as well... ie: in a sequential block. Otherwise can't reuse them.
+			// normally this is the case, unless we've forgotten / orphaned some. Doesn't hurt to check.
+		if(reuseThumbnailIds) {
+			for(int i=1; i<existingThumbnailIds.count(); i++) {
+				if(existingThumbnailIds.at(i) != existingThumbnailIds.at(i-1)+1) {
+					reuseThumbnailIds = false;
+					break;
+				}
+			}
+		}
+
+		// If we shouldn't reuse existing rows in the thumbnail table: delete old before appending new ones.
+		if(!reuseThumbnailIds) {
+			database()->deleteRows(AMDbObjectSupport::thumbnailTableName(), QString("objectId = %1 AND objectTableName = '%2'").arg(id()).arg(databaseTableName));
+		}
+	}
+
+	QVariantList values;	// list of values to store
+	QStringList keys;	// list of keys (column names) to store
+	int firstThumbnailId;
+
+	// Save each thumbnail:
+	for(int i=0; i<thumbsCount; i++) {
+		AMDbThumbnail t = thumbnail(i);
+
+		keys.clear();
+		values.clear();
+
+		keys << "objectId";
+		values << id();
+		keys << "objectTableName";
+		values << databaseTableName;
+		keys << "number";
+		values << i;
+		keys << "type";
+		values << t.typeString();
+		keys << "title";
+		values << t.title;
+		keys << "subtitle";
+		values << t.subtitle;
+		keys << "thumbnail";
+		values << t.thumbnail;
+
+		int retVal;
+		if(reuseThumbnailIds) {
+			// qDebug() << "Thumbnail save: reusing row" << i+existingThumbnailIds.at(0) << "in main thread";
+			retVal = database()->insertOrUpdate(i+existingThumbnailIds.at(0), AMDbObjectSupport::thumbnailTableName(), keys, values);
+		}
+		else {
+			// qDebug() << "THubmnail save: adding new row in main thread";
+			retVal = database()->insertOrUpdate(0, AMDbObjectSupport::thumbnailTableName(), keys, values);
+		}
+		if(retVal == 0)
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -314, QString("AMDbObject: error trying to save thumbnails for object with ID %1 in table '%2'. Please report this bug to the Acquaman developers.").arg(id()).arg(databaseTableName)));
+
+		if(i == 0)	// when inserting the first one... remember the id of this first thumbnail.
+			firstThumbnailId = retVal;
+	}
+
+	// now that we know where the thumbnails are, update this in the object table
+	if(!database()->update(id(),
+				   databaseTableName,
+				   QStringList() << "thumbnailCount" << "thumbnailFirstId",
+				   QVariantList() << thumbsCount << firstThumbnailId)) {
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -315, QString("AMDbObject: error trying to store the updated thumbnail count and firstThumbnailId for database object %1 in table '%2'. Please report this bug to the Acquaman developers.").arg(id()).arg(databaseTableName)));
+	}
+}
+
+
