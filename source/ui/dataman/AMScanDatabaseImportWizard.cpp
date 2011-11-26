@@ -96,7 +96,7 @@ AMScanDatabaseImportWizardChooseSourcePage::AMScanDatabaseImportWizardChooseSour
 
 void AMScanDatabaseImportWizardChooseSourcePage::initializePage()
 {
-	QTimer::singleShot(100, this, SLOT(displaySourcePathDialog()));
+	// QTimer::singleShot(100, this, SLOT(displaySourcePathDialog()));
 }
 
 bool AMScanDatabaseImportWizardChooseSourcePage::validatePage()
