@@ -19,7 +19,7 @@ bool SGM2010FastFileLoaderPlugin::accepts(AMScan *scan){
 }
 
 bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder){
-	qDebug() << "\n\nTRYING TO LOAD WITH sgm2010Fast PLUGIN";
+	// qDebug() << "\n\nTRYING TO LOAD WITH sgm2010Fast PLUGIN";
 
 	if(columns2pvNames_.count() == 0) {
 		columns2pvNames_.set("eV", "BL1611-ID-1:Energy");
