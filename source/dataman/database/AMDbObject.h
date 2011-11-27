@@ -307,6 +307,10 @@ public:
 		Q_UNUSED(index)
 		return AMDbThumbnail();
 	}
+	/// Overload this to indicate that it is safe to (and the database system should) generate thumbnails in a separate thread after a storeToDb(). By default, this is disabled and there is no imposed requirement that database classes be thread-safe or reentrant.
+	/*! Some database objects could take a long time to generate thumbnails; for performance, they might want to do this in another thread. Theferfore, the storeToDb() process can save the object without thumbnails, and then instruct it to be re-loaded in another thread to actually generate and store the thumbnails. However, it should only do that if the object's loadFromDb(), thumbnail(), and thumbnailCount() functions are full re-entrant; otherwise, this might be unsafe.
+This virtual function should return true for AMDbObject classes where it is both safe and desirable to generate thumbnails in another thread. */
+	virtual bool shouldGenerateThumbnailsInSeparateThread() const { return false; }
 
 
 
@@ -356,10 +360,11 @@ private:
 	/// stores the name property
 	QString name_;
 
-	/// This is a static helper function that will run in another thread to generate and save thumbnails after a db object is saved.
-	static void updateThumbnails(AMDatabase* db, int id, const QString& dbTableName);
-//	/// This is a static helper function that will delete any old stale thumbnails in another thread. When the new thumbnailCount() is 0, it is more efficient than updateThumbnails() because it doesn't need to load the object.
-//	static void removeAllThumbnails(AMDatabase* db, int id, const QString& dbTableName);
+	/// This is a static helper function that will run in another thread to reload the object, generate, and save thumbnails after a db object is saved with storeToDb().
+	/*! \c neverSavedHereBefore is an optimization for when we know there are no existing thumbnails.*/
+	static void updateThumbnailsInSeparateThread(AMDatabase* db, int id, const QString& dbTableName, bool neverSavedHereBefore);
+	/// This is a helper function used by storeToDb() to save the thumanils, in the current thread. It should only be called after the object has been stored in the main table and has a valid id() and database(). \c neverSavedHereBefore is an optimization for when we know there are no existing thumbnails.
+	void updateThumbnailsInCurrentThread(bool neverSavedHereBefore);
 
 	/// holds whether this object is currently being reloaded from the database
 	bool isReloading_;

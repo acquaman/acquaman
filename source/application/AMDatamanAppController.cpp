@@ -47,6 +47,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDir>
 #include <QFile>
 #include <QMessageBox>
+#include <QInputDialog>
 
 #include "util/AMSettings.h"
 #include "dataman/AMScan.h"
@@ -374,17 +375,23 @@ bool AMDatamanAppController::startupInstallActions()
 {
 	// make/install actions:
 	/////////////////////////////////
-	QAction* importAction = new QAction("Import to Library...", mw_);
-	importAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_I));
-	importAction->setStatusTip("Import outside data files into the library");
-	connect(importAction, SIGNAL(triggered()), this, SLOT(onActionImport()));
+	QAction* importLegacyFilesAction = new QAction("Import Legacy Files...", mw_);
+	importLegacyFilesAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_L));
+	importLegacyFilesAction->setStatusTip("Import raw data files (not collected with Acquaman) into the library");
+	connect(importLegacyFilesAction, SIGNAL(triggered()), this, SLOT(onActionImportLegacyFiles()));
+
+	QAction* importAcquamanDatabaseAction = new QAction("Import Acquaman Bundle...", mw_);
+	importAcquamanDatabaseAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_I));
+	importAcquamanDatabaseAction->setStatusTip("Import an Acquaman Bundle from another computer or from a beamline run");
+	connect(importAcquamanDatabaseAction, SIGNAL(triggered()), this, SLOT(onActionImportAcquamanDatabase()));
+
 
 	QAction* amSettingsAction = new QAction("Acquaman Settings", mw_);
 	amSettingsAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_S));
 	amSettingsAction->setStatusTip("View or Change Settings");
 	connect(amSettingsAction, SIGNAL(triggered()), this, SLOT(onActionSettings()));
 
-	settingsMasterView_ = 0; //NULL
+	settingsMasterView_ = 0;
 
 	//install menu bar, and add actions
 	//////////////////////////////////////
@@ -396,7 +403,8 @@ bool AMDatamanAppController::startupInstallActions()
 #endif
 
 	fileMenu_ = menuBar_->addMenu("File");
-	fileMenu_->addAction(importAction);
+	fileMenu_->addAction(importLegacyFilesAction);
+	fileMenu_->addAction(importAcquamanDatabaseAction);
 	fileMenu_->addAction(amSettingsAction);
 
 	return true;
@@ -426,7 +434,7 @@ void AMDatamanAppController::shutdown() {
 }
 
 
-void AMDatamanAppController::onActionImport() {
+void AMDatamanAppController::onActionImportLegacyFiles() {
 
 	new AMImportController();
 
@@ -453,9 +461,8 @@ void AMDatamanAppController::onMainWindowAliasItemActivated(QWidget *target, con
 }
 
 void AMDatamanAppController::onNewExperimentAdded(const QModelIndex &index) {
-	mw_->sidebar()->expand(index.parent());
-	mw_->sidebar()->setCurrentIndex(index);
-	mw_->sidebar()->edit(index);
+	mw_->sidebar()->expand(index.parent()); //Do this to show people where it ended up...
+	//mw_->sidebar()->setCurrentIndex(index);
 }
 
 
@@ -463,9 +470,18 @@ void AMDatamanAppController::onNewExperimentAdded(const QModelIndex &index) {
 #include "dataman/AMExperiment.h"
 void AMDatamanAppController::onAddButtonClicked() {
 
+	static QString lastExperimentName;
 	// For now, we simply create a new experiment. Later on, this could pop up a menu to create a new experiment, run, sample plate, whatever...
-	AMExperiment e("New Experiment");
-	e.storeToDb(AMDatabase::database("user"));
+	bool ok;
+	QString text = QInputDialog::getText(mw_, "Create new experiment",
+										 "Experiments help you organize groups of related scans.\n\nNew experiment name:",
+										 QLineEdit::Normal,
+										 lastExperimentName, &ok);
+	if (ok && !text.isEmpty()) {
+		AMExperiment e(text);
+		lastExperimentName = text;
+		e.storeToDb(AMDatabase::database("user"));
+	}
 }
 
 void AMDatamanAppController::onProgressUpdated(double elapsed, double total){
@@ -482,19 +498,6 @@ void AMDatamanAppController::onDataViewItemsActivated(const QList<QUrl>& itemUrl
 void AMDatamanAppController::onDataViewItemsActivatedSeparateWindows(const QList<QUrl> &itemUrls)
 {
 	dropScanURLs(itemUrls, 0, true);
-
-	//	AMGenericScanEditor* editor;
-
-	//	for(int i=0; i<itemUrls.count(); i++) {
-	//		QList<QUrl> singleUrl;
-	//		editor = createNewScanEditor();
-
-	//		singleUrl << itemUrls.at(i);
-	//		editor->dropScanURLs(singleUrl);
-	//	}
-
-	//	if(itemUrls.count())
-	//		mw_->setCurrentPane(editor);
 }
 
 #include "dataman/AMRunExperimentItems.h"
@@ -541,8 +544,6 @@ void AMDatamanAppController::onDataViewItemsExported(const QList<QUrl> &itemUrls
 	AMExportController* exportController = new AMExportController(itemUrls);
 	AMExportWizard* wizard = new AMExportWizard(exportController);
 	wizard->show();
-
-	Q_UNUSED(exportController)
 }
 
 int AMDatamanAppController::scanEditorCount() const
@@ -781,6 +782,17 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 	}
 	editor->addScan(scan);
 	return true;
+}
+
+#include "dataman/import/AMScanDatabaseImportController.h"
+#include "ui/dataman/AMScanDatabaseImportWizard.h"
+
+void AMDatamanAppController::onActionImportAcquamanDatabase()
+{
+	// will delete itself when finished
+	AMScanDatabaseImportController* importController = new AMScanDatabaseImportController();
+	AMScanDatabaseImportWizard* wizard = new AMScanDatabaseImportWizard(importController);
+	wizard->show();
 }
 
 

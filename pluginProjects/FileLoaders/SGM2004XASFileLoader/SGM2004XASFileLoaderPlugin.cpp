@@ -18,7 +18,7 @@ bool SGM2004XASFileLoaderPlugin::accepts(AMScan *scan){
 }
 
 bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder){
-	qDebug() << "\n\nTRYING TO LOAD WITH SGM2004XAS PLUGIN";
+	// qDebug() << "\n\nTRYING TO LOAD WITH SGM2004XAS PLUGIN";
 
 	if(columns2pvNames_.count() == 0) {
 		columns2pvNames_.set("eV", "BL1611-ID-1:Energy");

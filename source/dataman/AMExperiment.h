@@ -54,6 +54,14 @@ public:
 	/*! \todo move the general functionality in AMDbObject sytem */
 	static bool deleteExperiment(int id, AMDatabase* database);
 
+	/// Static function for managing experiments: find all the experiments that contain a given scan. Returns a list of experiment ids.
+	static QList<int> experimentsContainingScan(int scanId, AMDatabase* database);
+
+	/// Static function for managing experiments: adds a scan to an experiment
+	static bool addScanToExperiment(int scanId, int experimentId, AMDatabase* database);
+
+	/// Static function for managing experiments: remove scan from an experiment
+	static bool removeScanFromExperiment(int scanId, int experimentId, AMDatabase* database);
 
 	/// This returns a string of notes/comments about this experiment.
 	QString notes() const {

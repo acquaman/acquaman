@@ -295,6 +295,9 @@ public:
 	/// Return a thumbnail picture of the data sources. If we have any analyzed data sources, we have a thumbnail for each analyzed data source. Otherwise, rather than showing nothing, we have a thumbnail for each raw data source.  Unless we are currently scanning, in which case we just have one (which visually indicates this).
 	AMDbThumbnail thumbnail(int index) const;
 
+	/// Generating these thumbnails is time-consuming, because we have to draw a bunch of plots and render them to PNGs. Therefore, we should do it in a seperate thread.
+	virtual bool shouldGenerateThumbnailsInSeparateThread() const { return true; }
+
 
 	// Acquisition status, and link to scan controller
 	///////////////////////////////

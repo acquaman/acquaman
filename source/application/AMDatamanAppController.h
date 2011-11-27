@@ -154,8 +154,10 @@ The Drag is accepted when:
 	bool dropScanURL(const QUrl& url, AMGenericScanEditor* editor = 0);
 
 
-	/// Calling this slot activates the Import Data wizard.
-	void onActionImport();
+	/// Calling this slot activates the Import Legacy Data wizard.
+	void onActionImportLegacyFiles();
+	/// Calling this slot activates the Import Acquaman Bundle wizard, to import another acquamn database.
+	void onActionImportAcquamanDatabase();
 
 	/// Calling this slot activates the Settings View
 	void onActionSettings();
