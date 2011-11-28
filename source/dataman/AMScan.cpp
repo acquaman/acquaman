@@ -198,6 +198,7 @@ bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
 		}
 	}
 
+	delete nameDictionary_;
 	nameDictionary_ = new AMScanDictionary(this, this);
 
 	return true;

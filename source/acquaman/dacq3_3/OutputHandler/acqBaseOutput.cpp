@@ -558,7 +558,8 @@ void acqBaseOutput::setPropertyList(const std::string list)
 	setList = takeApart(list, ",");
 	for(unsigned int propno=0; propno < setList.size(); propno++)
 	{
-		unsigned int eqpos;
+		// MB: on 64-bit systems, this type is a bug: the "not found" comparison to std::string::npos will never be true: unsigned int eqpos;
+		size_t eqpos;
 		eqpos = setList[propno].find('=');
 		if( eqpos == std::string::npos)
 		{
