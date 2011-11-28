@@ -32,7 +32,6 @@ public:
 	/// create a new Fast scan with the following named \c detectors. Each "detector" is a source of a datapoint, that will be stored/logged, available as a column of raw data, and accessible through channel(s).
 	Q_INVOKABLE explicit AMFastScan(QObject *parent = 0);
 
-	bool storeToDb(AMDatabase *db);
 
 public slots:
 	void setAutoExportFilePath(const QString &autoExportFilePath);

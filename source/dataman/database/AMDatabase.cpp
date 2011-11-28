@@ -434,14 +434,18 @@ QList<int> AMDatabase::objectsWhere(const QString& tableName, const QString& whe
 	QList<int> rl;
 
 	/// \todo sanitize more than this...
-	if(tableName.isEmpty() || whereClause.isEmpty()) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -10, "Could not search the database. (Missing the table name or column name.)"));
+	if(tableName.isEmpty()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -10, "Could not search the database. (Missing the table name.)"));
 		return rl;
 	}
 
 	QSqlQuery q( qdb() );
 
-	q.prepare(QString("SELECT id FROM %1 WHERE %2").arg(tableName).arg(whereClause));
+	QString query = "SELECT id FROM " % tableName;
+	if(!whereClause.isEmpty())
+		query.append(" WHERE ").append(whereClause);
+
+	q.prepare(query);
 	q.exec();
 
 	while(q.next()) {
@@ -581,12 +585,11 @@ bool AMDatabase::createIndex(const QString& tableName, const QString& columnName
 	q.prepare(QString("CREATE INDEX %1 ON %2(%3);").arg(indexName, tableName, columnNames));
 	if(q.exec()) {
 		q.finish();
-		// Error suppressed: this happens all the time if the index already exists. AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Added index on columns (%1) to table '%2'.").arg(columnNames).arg(tableName)));
 		return true;
 	}
 	else {
 		q.finish();	// make sure that sqlite lock is released before emitting signals
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Error adding index on columns (%1) to table '%2'. Maybe it's already there? Sql reply says: %3").arg(columnNames).arg(tableName).arg(q.lastError().text())));
+		// Error suppressed: this happens all the time if the index already exists: AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Error adding index on columns (%1) to table '%2'. Maybe it's already there? Sql reply says: %3").arg(columnNames).arg(tableName).arg(q.lastError().text())));
 		return false;
 	}
 }
@@ -599,7 +602,6 @@ QSqlQuery AMDatabase::select(const QString &tableName, const QString &columnName
 
 	QString query = "SELECT " % columnNames % " FROM " % tableName % whereString % ";";
 	q.prepare(query);
-	q.exec();
 
 	return q;
 }

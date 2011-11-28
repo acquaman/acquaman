@@ -51,8 +51,6 @@ AMScan::AMScan(QObject *parent)
 	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured in specific subclasses.
 	//data_ = new AMDataTreeDataStore(AMAxisInfo("eV", 0, "Incidence Energy", "eV"));
 
-	autoLoadData_ = true;
-
 	sampleNameLoaded_ = false;
 
 	nameDictionary_ = new AMScanDictionary(this, this);
@@ -192,7 +190,7 @@ bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
 		return false;
 	}
 	// In auto-load data mode: If the file path is different than the old one, clear and reload the raw data.
-	if( !currentlyScanning() && autoLoadData_ && filePath() != oldFilePath ) {
+	if( !currentlyScanning() && autoLoadData() && filePath() != oldFilePath ) {
 		if(!loadData()){
 
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -483, "AMScan: Loading data failed."));
@@ -202,7 +200,6 @@ bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
 
 	nameDictionary_ = new AMScanDictionary(this, this);
 
-	// no longer necessary: setModified(false);
 	return true;
 }
 
@@ -304,8 +301,8 @@ void AMScan::dbLoadAnalyzedDataSourcesConnections(const QString& connectionStrin
 
 	if(allConnections.count() != analyzedDataSources_.count()) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "There was an error re-connecting the analysis and processing components for this scan; the number of analysis blocks didn't match. Your database might be corrupted. Please report this bug to the Acquaman developers."));
-		//qDebug() << "    AMScan: loading analyzedDataSourcesConnections: allConnections is:" << allConnections;
-		//qDebug() << "        but number of analyzedDataSources_ is : " << analyzedDataSources_.count();
+		qDebug() << "    AMScan: loading analyzedDataSourcesConnections: allConnections is:" << allConnections;
+		qDebug() << "        but number of analyzedDataSources_ is : " << analyzedDataSources_.count();
 		return;
 	}
 
@@ -546,4 +543,24 @@ void AMScan::setScanController(AMScanController* scanController)
 		emit currentlyScanningChanged(currentlyScanning_);
 	}
 }
+
+#include <QThread>
+#include <QMutexLocker>
+
+QMap<Qt::HANDLE, bool> AMScan::threadId2autoLoadData_;
+QMutex AMScan::threadId2autoLoadDataMutex_(QMutex::Recursive);
+
+bool AMScan::autoLoadData()
+{
+	QMutexLocker l(&threadId2autoLoadDataMutex_);
+	return threadId2autoLoadData_.value(QThread::currentThreadId(), true);
+}
+
+void AMScan::setAutoLoadData(bool autoLoadDataOn)
+{
+	threadId2autoLoadDataMutex_.lock();
+	threadId2autoLoadData_[QThread::currentThreadId()] = autoLoadDataOn;
+	threadId2autoLoadDataMutex_.unlock();
+}
+
 #endif

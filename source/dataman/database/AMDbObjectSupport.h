@@ -138,12 +138,12 @@ public:
 	// Public Functions: Searching at the SQL level
 	////////////////////////////////////
 
-	/// Convenience function for doing a select query on only some of the fields that an AMDbObject table has.
+	/// Convenience function for doing a select query on only some of the fields that an AMDbObject table has. The returned query has been prepared but not executed, so you still need to call exec() on it.  You can also still bindValue()s before executing it.
 	QSqlQuery select(AMDatabase* db, const QString& className, const QString& columnNames, const QString& whereClause = QString()) const;
 	/// Overloaded version of select(), useful when you know the class type but don't have its name.
 	template <class T>
 	QSqlQuery select(AMDatabase* db, const QString& columnNames, const QString& whereClause = QString()) const {
-		QString className = (T::staticMetaObject)->className();
+		QString className = (T::staticMetaObject).className();
 		return select(db, className, columnNames, whereClause);
 	}
 

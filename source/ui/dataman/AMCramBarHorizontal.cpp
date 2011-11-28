@@ -26,6 +26,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMCramBarHorizontal::AMCramBarHorizontal(QWidget *parent) :
 	QWidget(parent)
 {
+	parentWidget_ = 0;
+
 	outerLayout_ = new QHBoxLayout();
 	outerLayout_->setSpacing(0);
 	outerLayout_->setContentsMargins(0,0,0,0);
@@ -70,7 +72,6 @@ AMCramBarHorizontal::AMCramBarHorizontal(QWidget *parent) :
 	connect(scrollLeftButton_, SIGNAL(clicked()), this, SLOT(onScrollButtonClicked()));
 	connect(scrollRightButton_, SIGNAL(clicked()), this, SLOT(onScrollButtonClicked()));
 
-	parentWidget_ = 0;
 	checkIfScrollButtonsRequired_ = new AMDeferredFunctionCall(this);
 	connect(checkIfScrollButtonsRequired_, SIGNAL(executed()), this, SLOT(reviewScrollButtonsRequired()));
 }

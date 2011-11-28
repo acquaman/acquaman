@@ -329,10 +329,11 @@ void VESPERSEndstation::StringtoAMPV(AMProcessVariable *pv, QString toConvert)
 {
 	int converted[256];
 
+	QByteArray toConvertBA = toConvert.toAscii();
 	for (int i = 0; i < 256; i++){
 
-		if (i < toConvert.size())
-			converted[i] = toConvert.toAscii()[i];
+		if (i < toConvertBA.size())
+			converted[i] = toConvertBA.at(i);
 		else
 			converted[i] = 0;
 	}

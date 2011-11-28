@@ -33,10 +33,6 @@ AMFastScan::AMFastScan(QObject *parent) :
 }
 
 
-bool AMFastScan::storeToDb(AMDatabase *db){
-	bool succeeded = AMScan::storeToDb(db);
-	return succeeded;
-}
 
 void AMFastScan::setAutoExportFilePath(const QString &autoExportFilePath){
 	autoExportFilePath_ = autoExportFilePath;

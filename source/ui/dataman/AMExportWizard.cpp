@@ -341,6 +341,7 @@ void AMExportWizardOptionPage::populateOptionSelector()
 
 	// fill option combo box
 	QSqlQuery q = AMDbObjectSupport::s()->select(AMDatabase::database("user"), exporter_->exporterOptionClassName(), "id, name");
+	q.exec();
 	while(q.next()) {
 		optionSelector_->addItem(q.value(1).toString(),
 								 q.value(0).toInt());	// note: putting the database id in Qt::UserRole.
