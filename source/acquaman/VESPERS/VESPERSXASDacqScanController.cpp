@@ -74,7 +74,9 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
 		}
 
-		scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->toXRFInfo()));
+		temp = AMMeasurementInfo(detector->toXRFInfo());
+		temp.name = "spectra";
+		scan_->rawData()->addMeasurement(temp);
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), true, false);
 	}
 	else if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::FourElement){
@@ -100,7 +102,9 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
 		}
 
-		scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->toXRFInfo()));
+		temp = AMMeasurementInfo(detector->toXRFInfo());
+		temp.name = "corrSum";
+		scan_->rawData()->addMeasurement(temp);
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), true, false);
 
 		for (int i = 0; i < detector->elements(); i++){
@@ -125,14 +129,6 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 			}
 		}
 	}
-
-	// Add all the necessary analysis blocks.
-	AM1DExpressionAB* transmission = new AM1DExpressionAB("trans");
-	transmission->setDescription("Transmission");
-	transmission->setInputDataSources(QList<AMDataSource *>() << scan_->rawDataSources()->at(0) << scan_->rawDataSources()->at(1));
-	transmission->setExpression(QString("ln(%1/%2)").arg(scan_->rawDataSources()->at(0)->name()).arg(scan_->rawDataSources()->at(1)->name()));
-
-	scan_->addAnalyzedDataSource(transmission, true, false);
 
 	if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::SingleElement){
 
@@ -161,6 +157,13 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 			normPFY->setExpression(QString("%1/%2").arg(scan_->rawDataSources()->at(i+2)->name()).arg(scan_->rawDataSources()->at(0)->name()));
 			scan_->addAnalyzedDataSource(normPFY, true, false);
 		}
+
+		AM1DExpressionAB* transmission = new AM1DExpressionAB("trans");
+		transmission->setDescription("Transmission");
+		transmission->setInputDataSources(QList<AMDataSource *>() << scan_->rawDataSources()->at(0) << scan_->rawDataSources()->at(1));
+		transmission->setExpression(QString("ln(%1/%2)").arg(scan_->rawDataSources()->at(0)->name()).arg(scan_->rawDataSources()->at(1)->name()));
+
+		scan_->addAnalyzedDataSource(transmission, true, false);
 	}
 	else if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::FourElement){
 
@@ -188,6 +191,23 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 			normPFY->setExpression(QString("%1/%2").arg(scan_->rawDataSources()->at(i+2)->name()).arg(scan_->rawDataSources()->at(0)->name()));
 			scan_->addAnalyzedDataSource(normPFY, true, false);
 		}
+
+		AM1DExpressionAB* transmission = new AM1DExpressionAB("trans");
+		transmission->setDescription("Transmission");
+		transmission->setInputDataSources(QList<AMDataSource *>() << scan_->rawDataSources()->at(0) << scan_->rawDataSources()->at(1));
+		transmission->setExpression(QString("ln(%1/%2)").arg(scan_->rawDataSources()->at(0)->name()).arg(scan_->rawDataSources()->at(1)->name()));
+
+		scan_->addAnalyzedDataSource(transmission, true, false);
+	}
+
+	else {
+
+		AM1DExpressionAB* transmission = new AM1DExpressionAB("trans");
+		transmission->setDescription("Transmission");
+		transmission->setInputDataSources(QList<AMDataSource *>() << scan_->rawDataSources()->at(0) << scan_->rawDataSources()->at(1));
+		transmission->setExpression(QString("ln(%1/%2)").arg(scan_->rawDataSources()->at(0)->name()).arg(scan_->rawDataSources()->at(1)->name()));
+
+		scan_->addAnalyzedDataSource(transmission, true, false);
 	}
 
 	// Add all the extra data sources.
