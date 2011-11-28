@@ -188,7 +188,7 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 				raw3[j] = spectraTokenized.at(j+6144).toInt();
 				raw4[j] = spectraTokenized.at(j+8192).toInt();
 			}
-			qDebug() << data[0] << raw1[0] << raw2[0] << raw3[0];
+
 			scan->rawData()->setValue(axisValueIndex, scan->rawDataSourceCount()-5, data.constData(), data.size());
 			scan->rawData()->setValue(axisValueIndex, scan->rawDataSourceCount()-4, raw1.constData(), raw1.size());
 			scan->rawData()->setValue(axisValueIndex, scan->rawDataSourceCount()-3, raw2.constData(), raw2.size());

@@ -446,7 +446,10 @@ QVector<int> XRFDetector::spectraValues(int index)
 
 double XRFDetector::deadTimeAt(int index)
 {
-	if (index < elements_ && index >= 0)
+	if (icrPV_.at(index)->getInt() == 0)
+		return 0;
+
+	else if (index < elements_ && index >= 0)
 		return 100*(1 - ocrPV_.at(index)->getDouble()/icrPV_.at(index)->getDouble());
 
 	return -1;

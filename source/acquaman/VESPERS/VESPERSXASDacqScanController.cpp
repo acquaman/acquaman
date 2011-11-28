@@ -74,6 +74,9 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
 		}
 
+		// Add all the extra raw data sources.
+		addExtraDatasources();
+
 		temp = AMMeasurementInfo(detector->toXRFInfo());
 		temp.name = "spectra";
 		scan_->rawData()->addMeasurement(temp);
@@ -90,6 +93,9 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
 		}
 
+		// Add all the extra raw data sources.
+		addExtraDatasources();
+
 		temp = AMMeasurementInfo(detector->toXRFInfo());
 		temp.name = "corrSum";
 		scan_->rawData()->addMeasurement(temp);
@@ -104,6 +110,13 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 		}
 	}
 
+	else {
+
+		// Add all the extra raw data sources.  Only needs to happen after the ion chambers for transmission.
+		addExtraDatasources();
+	}
+
+	// Analysis blocks.
 	if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::SingleElement){
 
 		AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
@@ -119,16 +132,16 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 		AM1DExpressionAB *normPFY;
 		normPFY = new AM1DExpressionAB("norm_PFY");
 		normPFY->setDescription("Normalized PFY");
-		normPFY->setInputDataSources(QList<AMDataSource *>() << scan_->rawDataSources()->at(0) << scan_->analyzedDataSources()->at(1));
-		normPFY->setExpression(QString("%1/%2").arg(scan_->analyzedDataSources()->at(1)->name()).arg(scan_->rawDataSources()->at(0)->name()));
+		normPFY->setInputDataSources(QList<AMDataSource *>() << scan_->rawDataSources()->at(0) << scan_->analyzedDataSources()->at(0));
+		normPFY->setExpression(QString("%1/%2").arg(scan_->analyzedDataSources()->at(0)->name()).arg(scan_->rawDataSources()->at(0)->name()));
 		scan_->addAnalyzedDataSource(normPFY, true, false);
 
 		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
 			normPFY = new AM1DExpressionAB("norm_"+detector->roiInfoList()->at(i).name().remove(" "));
 			normPFY->setDescription("Normalized "+detector->roiInfoList()->at(i).name());
-			normPFY->setInputDataSources(QList<AMDataSource *>() << scan_->rawDataSources()->at(0) << scan_->rawDataSources()->at(i+2));
-			normPFY->setExpression(QString("%1/%2").arg(scan_->rawDataSources()->at(i+2)->name()).arg(scan_->rawDataSources()->at(0)->name()));
+			normPFY->setInputDataSources(QList<AMDataSource *>() << scan_->rawDataSources()->at(0) << scan_->rawDataSources()->at(i+4));
+			normPFY->setExpression(QString("%1/%2").arg(scan_->rawDataSources()->at(i+4)->name()).arg(scan_->rawDataSources()->at(0)->name()));
 			scan_->addAnalyzedDataSource(normPFY, true, false);
 		}
 
@@ -143,26 +156,26 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 
 		AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
 		QList<AMDataSource*> pfySource;
-		pfySource << scan_->rawDataSources()->at(scan_->rawDataSourceCount()-1);
+		pfySource << scan_->rawDataSources()->at(scan_->rawDataSourceCount()-5);
 		pfy->setInputDataSources(pfySource);
 		pfy->setSumAxis(1);
-		pfy->setSumRangeMax(scan_->rawDataSources()->at(scan_->rawDataSourceCount()-1)->size(1)-1);
+		pfy->setSumRangeMax(scan_->rawDataSources()->at(scan_->rawDataSourceCount()-5)->size(1)-1);
 		scan_->addAnalyzedDataSource(pfy, true, false);
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF4E();
 
 		AM1DExpressionAB *normPFY;
 		normPFY = new AM1DExpressionAB("norm_PFY");
 		normPFY->setDescription("Normalized PFY");
-		normPFY->setInputDataSources(QList<AMDataSource *>() << scan_->rawDataSources()->at(0) << scan_->analyzedDataSources()->at(1));
-		normPFY->setExpression(QString("%1/%2").arg(scan_->analyzedDataSources()->at(1)->name()).arg(scan_->rawDataSources()->at(0)->name()));
+		normPFY->setInputDataSources(QList<AMDataSource *>() << scan_->rawDataSources()->at(0) << scan_->analyzedDataSources()->at(0));
+		normPFY->setExpression(QString("%1/%2").arg(scan_->analyzedDataSources()->at(0)->name()).arg(scan_->rawDataSources()->at(0)->name()));
 		scan_->addAnalyzedDataSource(normPFY, true, false);
 
 		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
 			normPFY = new AM1DExpressionAB("norm_"+detector->roiInfoList()->at(i).name().remove(" "));
 			normPFY->setDescription("Normalized "+detector->roiInfoList()->at(i).name());
-			normPFY->setInputDataSources(QList<AMDataSource *>() << scan_->rawDataSources()->at(0) << scan_->rawDataSources()->at(i+2));
-			normPFY->setExpression(QString("%1/%2").arg(scan_->rawDataSources()->at(i+2)->name()).arg(scan_->rawDataSources()->at(0)->name()));
+			normPFY->setInputDataSources(QList<AMDataSource *>() << scan_->rawDataSources()->at(0) << scan_->rawDataSources()->at(i+4));
+			normPFY->setExpression(QString("%1/%2").arg(scan_->rawDataSources()->at(i+4)->name()).arg(scan_->rawDataSources()->at(0)->name()));
 			scan_->addAnalyzedDataSource(normPFY, true, false);
 		}
 
@@ -183,9 +196,6 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 
 		scan_->addAnalyzedDataSource(transmission, true, false);
 	}
-
-	// Add all the extra data sources.
-	addExtraDatasources();
 
 	useDwellTimes(VESPERSBeamline::vespers()->dwellTimeTrigger(), VESPERSBeamline::vespers()->dwellTimeConfirmed());
 }
@@ -526,8 +536,6 @@ bool VESPERSXASDacqScanController::setupSingleElementXAS()
 	for (int i = 0; i < roiCount; i++)
 		advAcq_->appendRecord("IOC1607-004:mca1.R"+QString::number(i), true, false, 0);
 
-	advAcq_->appendRecord("IOC1607-004:mca1", true, true, 1);
-
 	advAcq_->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
 	advAcq_->appendRecord("07B2_Mono_SineB_K", true, false, 0);
 	advAcq_->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);
@@ -537,6 +545,8 @@ bool VESPERSXASDacqScanController::setupSingleElementXAS()
 	advAcq_->appendRecord("IOC1607-004:mca1.ELTM", true, false, 0);
 	advAcq_->appendRecord("IOC1607-004:dxp1.FAST_PEAKS", true, false, 0);
 	advAcq_->appendRecord("IOC1607-004:dxp1.SLOW_PEAKS", true, false, 0);
+
+	advAcq_->appendRecord("IOC1607-004:mca1", true, true, 1);
 
 	// End of hardcoded.
 
@@ -574,13 +584,7 @@ bool VESPERSXASDacqScanController::setupFourElementXAS()
 	int roiCount = VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList()->count();
 
 	for (int i = 0; i < roiCount; i++)
-		advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R"+QString::number(i), true, false, 0);
-
-	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected", true, true, 1);
-	advAcq_->appendRecord("dxp1607-B21-04:mca1.VAL", true, true, 1);
-	advAcq_->appendRecord("dxp1607-B21-04:mca2.VAL", true, true, 1);
-	advAcq_->appendRecord("dxp1607-B21-04:mca3.VAL", true, true, 1);
-	advAcq_->appendRecord("dxp1607-B21-04:mca4.VAL", true, true, 1);
+		advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R"+QString::number(i), true, false, 1);
 
 	advAcq_->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
 	advAcq_->appendRecord("07B2_Mono_SineB_K", true, false, 0);
@@ -594,18 +598,24 @@ bool VESPERSXASDacqScanController::setupFourElementXAS()
 	advAcq_->appendRecord("dxp1607-B21-04:mca2.ELTM", true, false, 0);
 	advAcq_->appendRecord("dxp1607-B21-04:mca3.ELTM", true, false, 0);
 	advAcq_->appendRecord("dxp1607-B21-04:mca4.ELTM", true, false, 0);
-	advAcq_->appendRecord("dxp1607-B21-04:dxp1.FAST_PEAKS", true, false, 0);
-	advAcq_->appendRecord("dxp1607-B21-04:dxp2.FAST_PEAKS", true, false, 0);
-	advAcq_->appendRecord("dxp1607-B21-04:dxp3.FAST_PEAKS", true, false, 0);
-	advAcq_->appendRecord("dxp1607-B21-04:dxp4.FAST_PEAKS", true, false, 0);
-	advAcq_->appendRecord("dxp1607-B21-04:dxp1.SLOW_PEAKS", true, false, 0);
-	advAcq_->appendRecord("dxp1607-B21-04:dxp2.SLOW_PEAKS", true, false, 0);
-	advAcq_->appendRecord("dxp1607-B21-04:dxp3.SLOW_PEAKS", true, false, 0);
-	advAcq_->appendRecord("dxp1607-B21-04:dxp4.SLOW_PEAKS", true, false, 0);
-	advAcq_->appendRecord("dxp1607-B21-04:mca1.DTIM", true, false, 0);
-	advAcq_->appendRecord("dxp1607-B21-04:mca2.DTIM", true, false, 0);
-	advAcq_->appendRecord("dxp1607-B21-04:mca3.DTIM", true, false, 0);
-	advAcq_->appendRecord("dxp1607-B21-04:mca4.DTIM", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp1.FAST_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp2.FAST_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp3.FAST_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp4.FAST_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp1.SLOW_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp2.SLOW_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp3.SLOW_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp4.SLOW_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mca1.DTIM", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mca2.DTIM", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mca3.DTIM", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mca4.DTIM", true, false, 1);
+
+	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected", true, true, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca1", true, true, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca2", true, true, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca3", true, true, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca4", true, true, 0);
 
 	// End of hardcored.
 
