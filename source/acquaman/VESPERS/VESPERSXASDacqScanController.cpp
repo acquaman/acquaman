@@ -51,19 +51,19 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 	scan_->rawData()->addMeasurement(temp);
 	scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), 1), true, false);
 
-	if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::SingleElement){
+	// Adding in the extra ion chambers.
+	for (int i = 0; i < ionChambers->count(); i++){
 
-		// Adding in the extra ion chambers.
-		for (int i = 0; i < ionChambers->count(); i++){
+		if (i != (int)config_->incomingChoice() && i != (int)config_->transmissionChoice()){
 
-			if (i != (int)config_->incomingChoice() && i != (int)config_->transmissionChoice()){
-
-				temp = AMMeasurementInfo(*(ionChambers->detectorAt(i)->toInfo()));
-				temp.name = ionChambers->detectorAt(i)->detectorName();
-				scan_->rawData()->addMeasurement(temp);
-				scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
-			}
+			temp = AMMeasurementInfo(*(ionChambers->detectorAt(i)->toInfo()));
+			temp.name = ionChambers->detectorAt(i)->detectorName();
+			scan_->rawData()->addMeasurement(temp);
+			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
 		}
+	}
+
+	if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::SingleElement){
 
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF1E();
 
@@ -80,18 +80,6 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), true, false);
 	}
 	else if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::FourElement){
-
-		// Adding in the extra ion chambers.
-		for (int i = 0; i < ionChambers->count(); i++){
-
-			if (i != (int)config_->incomingChoice() && i != (int)config_->transmissionChoice()){
-
-				temp = AMMeasurementInfo(*(ionChambers->detectorAt(i)->toInfo()));
-				temp.name = ionChambers->detectorAt(i)->detectorName();
-				scan_->rawData()->addMeasurement(temp);
-				scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
-			}
-		}
 
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF4E();
 
@@ -113,20 +101,6 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 			temp.name = QString("raw%1").arg(i+1);
 			scan_->rawData()->addMeasurement(temp);
 			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
-		}
-	}
-	else{
-
-		// Adding in the extra ion chambers.
-		for (int i = 0; i < ionChambers->count(); i++){
-
-			if (i != (int)config_->incomingChoice() && i != (int)config_->transmissionChoice()){
-
-				temp = AMMeasurementInfo(*(ionChambers->detectorAt(i)->toInfo()));
-				temp.name = ionChambers->detectorAt(i)->detectorName();
-				scan_->rawData()->addMeasurement(temp);
-				scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
-			}
 		}
 	}
 
@@ -241,20 +215,11 @@ void VESPERSXASDacqScanController::addExtraDatasources()
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("Slow Peaks", "Slow Peaks"));
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
-		scan_->rawData()->addMeasurement(AMMeasurementInfo("Spectrum Index", "Spectrum Index"));
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 	}
 
 	else if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::FourElement){
 
 		// Real time (x4), Live time (x4), fast peaks (x4), slow peaks (x4), dead time (x4)
-		scan_->rawData()->addMeasurement(AMMeasurementInfo("Dead Time 1", "Dead Time 1", "%"));
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
-		scan_->rawData()->addMeasurement(AMMeasurementInfo("Dead Time 2", "Dead Time 2", "%"));
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
-		scan_->rawData()->addMeasurement(AMMeasurementInfo("Dead Time 3", "Dead Time 3", "%"));
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
-		scan_->rawData()->addMeasurement(AMMeasurementInfo("Dead Time 4", "Dead Time 4", "%"));
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("Real Time 1", "Real Time 1", "s"));
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
@@ -288,6 +253,13 @@ void VESPERSXASDacqScanController::addExtraDatasources()
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("Slow Peaks 4", "Slow Peaks 4"));
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
+		scan_->rawData()->addMeasurement(AMMeasurementInfo("Dead Time 1", "Dead Time 1", "%"));
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
+		scan_->rawData()->addMeasurement(AMMeasurementInfo("Dead Time 2", "Dead Time 2", "%"));
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
+		scan_->rawData()->addMeasurement(AMMeasurementInfo("Dead Time 3", "Dead Time 3", "%"));
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
+		scan_->rawData()->addMeasurement(AMMeasurementInfo("Dead Time 4", "Dead Time 4", "%"));
 	}
 }
 
@@ -545,16 +517,16 @@ bool VESPERSXASDacqScanController::setupSingleElementXAS()
 	advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt((int)config_->incomingChoice())->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt((int)config_->incomingChoice())->readMethod()));
 	advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt((int)config_->transmissionChoice())->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt((int)config_->transmissionChoice())->readMethod()));
 
-	int roiCount = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList()->count();
-
-	for (int i = 0; i < roiCount; i++)
-		advAcq_->appendRecord("IOC1607-004:mca1.R"+QString::number(i), true, false, 1);
-
-	advAcq_->appendRecord("IOC1607-004:mca1", true, true, 1);
-
 	for (int i = 0; i < ionChambers->count(); i++)
 		if (i != (int)config_->incomingChoice() && i != (int)config_->transmissionChoice())
 			advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
+
+	int roiCount = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList()->count();
+
+	for (int i = 0; i < roiCount; i++)
+		advAcq_->appendRecord("IOC1607-004:mca1.R"+QString::number(i), true, false, 0);
+
+	advAcq_->appendRecord("IOC1607-004:mca1", true, true, 1);
 
 	advAcq_->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
 	advAcq_->appendRecord("07B2_Mono_SineB_K", true, false, 0);
@@ -565,7 +537,6 @@ bool VESPERSXASDacqScanController::setupSingleElementXAS()
 	advAcq_->appendRecord("IOC1607-004:mca1.ELTM", true, false, 0);
 	advAcq_->appendRecord("IOC1607-004:dxp1.FAST_PEAKS", true, false, 0);
 	advAcq_->appendRecord("IOC1607-004:dxp1.SLOW_PEAKS", true, false, 0);
-	advAcq_->appendRecord("IOC1607-004:mca1.VAL", true, true, 1);
 
 	// End of hardcoded.
 
@@ -596,17 +567,16 @@ bool VESPERSXASDacqScanController::setupFourElementXAS()
 	advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt((int)config_->incomingChoice())->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt((int)config_->incomingChoice())->readMethod()));
 	advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt((int)config_->transmissionChoice())->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt((int)config_->transmissionChoice())->readMethod()));
 
-	int roiCount = VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList()->count();
-
-	for (int i = 0; i < roiCount; i++)
-		advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R"+QString::number(i), true, false, 1);
-
-	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected", true, true, 1);
-
 	for (int i = 0; i < ionChambers->count(); i++)
 		if (i != (int)config_->incomingChoice() && i != (int)config_->transmissionChoice())
 			advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
+	int roiCount = VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList()->count();
+
+	for (int i = 0; i < roiCount; i++)
+		advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R"+QString::number(i), true, false, 0);
+
+	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected", true, true, 1);
 	advAcq_->appendRecord("dxp1607-B21-04:mca1.VAL", true, true, 1);
 	advAcq_->appendRecord("dxp1607-B21-04:mca2.VAL", true, true, 1);
 	advAcq_->appendRecord("dxp1607-B21-04:mca3.VAL", true, true, 1);
@@ -624,18 +594,18 @@ bool VESPERSXASDacqScanController::setupFourElementXAS()
 	advAcq_->appendRecord("dxp1607-B21-04:mca2.ELTM", true, false, 0);
 	advAcq_->appendRecord("dxp1607-B21-04:mca3.ELTM", true, false, 0);
 	advAcq_->appendRecord("dxp1607-B21-04:mca4.ELTM", true, false, 0);
-	advAcq_->appendRecord("dxp1607-B21-04:dxp1.FAST_PEAKS", true, false, 1);
-	advAcq_->appendRecord("dxp1607-B21-04:dxp2.FAST_PEAKS", true, false, 1);
-	advAcq_->appendRecord("dxp1607-B21-04:dxp3.FAST_PEAKS", true, false, 1);
-	advAcq_->appendRecord("dxp1607-B21-04:dxp4.FAST_PEAKS", true, false, 1);
-	advAcq_->appendRecord("dxp1607-B21-04:dxp1.SLOW_PEAKS", true, false, 1);
-	advAcq_->appendRecord("dxp1607-B21-04:dxp2.SLOW_PEAKS", true, false, 1);
-	advAcq_->appendRecord("dxp1607-B21-04:dxp3.SLOW_PEAKS", true, false, 1);
-	advAcq_->appendRecord("dxp1607-B21-04:dxp4.SLOW_PEAKS", true, false, 1);
-	advAcq_->appendRecord("dxp1607-B21-04:mca1.DTIM", true, false, 1);
-	advAcq_->appendRecord("dxp1607-B21-04:mca2.DTIM", true, false, 1);
-	advAcq_->appendRecord("dxp1607-B21-04:mca3.DTIM", true, false, 1);
-	advAcq_->appendRecord("dxp1607-B21-04:mca4.DTIM", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp1.FAST_PEAKS", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp2.FAST_PEAKS", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp3.FAST_PEAKS", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp4.FAST_PEAKS", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp1.SLOW_PEAKS", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp2.SLOW_PEAKS", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp3.SLOW_PEAKS", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp4.SLOW_PEAKS", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca1.DTIM", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca2.DTIM", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca3.DTIM", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca4.DTIM", true, false, 0);
 
 	// End of hardcored.
 
