@@ -73,9 +73,6 @@ public:
 	/// Additional function to accept drops from the drag-and-drop system. We use this to accept dropped scans and add them to this experiment
 	virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action);
 
-	/// Helper function to add an object (Scan Object, etc.) from the Objects table to this experiment. Returns true on success. Returns false if it's already in there, or if any other error occurs.
-	bool addObjectToExperiment(int objectId);
-
 	/// Convenience function to get the database id of this experiment
 	int id() const {
 		return data(AM::IdRole).toInt();

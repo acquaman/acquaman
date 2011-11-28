@@ -280,8 +280,12 @@ bool QEpicsAdvAcq::addRegion(int region, QString pv, double start, double delta,
 //	if ( uregion > _regions.count() )
 	if ( region > _regions.count() )
 		return FALSE;
-	char* PVNAME = const_cast<char*>(pv.toAscii().data());
-	ctls.controlPV = strdup(PVNAME);
+	//MB: Fixing memory bug Nov. 2011. Previously:
+//	char* PVNAME = const_cast<char*>(pv.toAscii().data());
+//	ctls.controlPV = strdup(PVNAME);	// BUG: PVNAME now points to invalid data; QByteArray returned by .toAscii() is out of scope.
+
+	ctls.controlPV = strdup(pv.toAscii().constData());
+
 	ctls.startVal = start;
 	ctls.deltaVal = delta;
 	ctls.finalVal = end;
@@ -485,19 +489,33 @@ bool QEpicsAdvAcq::addRecord(int record, QString pv, bool enable, bool spectrum,
 	ev = first_acqEvent(_acq->getMaster());
 	if(!ev || !ev->numPvList || (record > ev->numPvList) )
 		return FALSE;
-	char* PVNAME = const_cast<char*>(pv.toAscii().data());
-
-
+	//MB: Fixing memory bug Nov. 2011. Previously:
+//		char* PVNAME = const_cast<char*>(pv.toAscii().data());
+	// BUG: PVNAME now points to invalid data.
+	// QUESTION: Is it really necessary to make a copy of the strings here?
+	// ANSWER: No: they are copied again in addIndexEventPv() and not freed. This was also a memory leak.
+//	switch(mode)
+//	{
+//		case 0:{
+//			addIndexEventPv( ev, record, strdup(PVNAME), !enable, NULL, useCurrent, spectrum );
+//			break;}
+//		case 1:{
+//			addIndexEventPv( ev, record, strdup(PVNAME), !enable, NULL, usePvGet, spectrum );
+//			break;}
+//		case 2:{
+//			addIndexEventPv( ev, record, strdup(PVNAME), !enable, NULL, waitForMonitor, spectrum );
+//			break;}
+//	}
 	switch(mode)
 	{
 		case 0:{
-			addIndexEventPv( ev, record, strdup(PVNAME), !enable, NULL, useCurrent, spectrum );
+			addIndexEventPv( ev, record, pv.toAscii().data(), !enable, NULL, useCurrent, spectrum );
 			break;}
 		case 1:{
-			addIndexEventPv( ev, record, strdup(PVNAME), !enable, NULL, usePvGet, spectrum );
+			addIndexEventPv( ev, record, pv.toAscii().data(), !enable, NULL, usePvGet, spectrum );
 			break;}
 		case 2:{
-			addIndexEventPv( ev, record, strdup(PVNAME), !enable, NULL, waitForMonitor, spectrum );
+			addIndexEventPv( ev, record, pv.toAscii().data(), !enable, NULL, waitForMonitor, spectrum );
 			break;}
 	}
 	return TRUE;
@@ -514,16 +532,30 @@ bool QEpicsAdvAcq::appendRecord(QString pv, bool enable, bool spectrum, int mode
 	if(spectrum)
 		format = "";
 
+	// MB: Fixing memory leak, Nov. 2011. strdup() is not required here; the strings are copied again in addEventPv() and not freed there.
+	// Previously:
+//	switch(mode)
+//	{
+//		case 0:{
+//			addEventPv( ev, strdup(pv.toAscii().data()), !enable, strdup(format.toAscii().data()), useCurrent, spectrum );
+//			break;}
+//		case 1:{
+//			addEventPv( ev, strdup(pv.toAscii().data()), !enable, strdup(format.toAscii().data()), usePvGet, spectrum );
+//			break;}
+//		case 2:{
+//			addEventPv( ev, strdup(pv.toAscii().data()), !enable, strdup(format.toAscii().data()), waitForMonitor, spectrum );
+//			break;}
+//	}
 	switch(mode)
 	{
 		case 0:{
-			addEventPv( ev, strdup(pv.toAscii().data()), !enable, strdup(format.toAscii().data()), useCurrent, spectrum );
+			addEventPv( ev, pv.toAscii().data(), !enable, format.toAscii().data(), useCurrent, spectrum );
 			break;}
 		case 1:{
-			addEventPv( ev, strdup(pv.toAscii().data()), !enable, strdup(format.toAscii().data()), usePvGet, spectrum );
+			addEventPv( ev, pv.toAscii().data(), !enable, format.toAscii().data(), usePvGet, spectrum );
 			break;}
 		case 2:{
-			addEventPv( ev, strdup(pv.toAscii().data()), !enable, strdup(format.toAscii().data()), waitForMonitor, spectrum );
+			addEventPv( ev, pv.toAscii().data(), !enable, format.toAscii().data(), waitForMonitor, spectrum );
 			break;}
 	}
 
@@ -605,9 +637,12 @@ bool QEpicsAdvAcq::buildFromConfig()
 void QEpicsAdvAcq::makeEmptyCTLS()
 {
 	memset(&ctls, 0, sizeof ctls);
-	QString temp_str = "InsertPVToControlHere";
-	char* PVNAME = const_cast<char*>(temp_str.toAscii().data());
-	ctls.controlPV = strdup(PVNAME);
+	//MB: Fixing memory bug, Nov. 2011. Previously:
+//	QString temp_str = "InsertPVToControlHere";
+//	char* PVNAME = const_cast<char*>(temp_str.toAscii().data());
+//	ctls.controlPV = strdup(PVNAME); //BUG: PVNAME does not point to valid data at this point.
+
+	ctls.controlPV = strdup("InsertPVToControlHere"); //MB: MEMORY LEAK HERE
 	ctls.startVal = 0;
 	ctls.haveStartVal=1;
 	ctls.finalVal = 0;
@@ -618,10 +653,11 @@ void QEpicsAdvAcq::makeEmptyCTLS()
 
 void QEpicsAdvAcq::setPV(int region, QString pvname)
 {
-	char* PVNAME = const_cast<char*>(pvname.toAscii().data());
+	//MB: Fixing memory bug, Nov. 2011. Previously:
+	// char* PVNAME = const_cast<char*>(pvname.toAscii().data());
 	_regions.at(region)->_pv = pvname;
 	if(_regions.at(region)->_enable)
-		(sp->acqControlList[region-_regions.at(region)->_offset]).controlPV = strdup(PVNAME);
+		(sp->acqControlList[region-_regions.at(region)->_offset]).controlPV = strdup(pvname.toAscii().constData());
 	(*validateConsequence)(this, region, "pv", pvname);
 }
 
@@ -707,8 +743,11 @@ void QEpicsAdvAcq::setEnable(int region, bool enable)
 	if(enable)
 	{
 		std::cout << "Add it back in\n";
-		char* PVNAME = const_cast<char*>(_regions.at(region)->_pv.toAscii().data());
-		ctls.controlPV = strdup(PVNAME);
+		//MB: Fixing memory bug, Nov. 2011. Previously:
+//		char* PVNAME = const_cast<char*>(_regions.at(region)->_pv.toAscii().data());
+//		ctls.controlPV = strdup(PVNAME);
+		ctls.controlPV = strdup(_regions.at(region)->_pv.toAscii().constData()); //MB: MEMORY LEAK STILL HERE
+
 		ctls.startVal = _regions.at(region)->_start;
 		ctls.deltaVal = _regions.at(region)->_delta;
 		ctls.finalVal = _regions.at(region)->_end;
@@ -716,6 +755,9 @@ void QEpicsAdvAcq::setEnable(int region, bool enable)
 		{
 			std::cout << "Getting out of zero\n";
 			sp->acqControlList[0] = ctls;
+			//MB: Fixing memory leak, Nov. 2011. Previously:
+//			sp->acqControlList[region].controlPV = strdup(ctls.controlPV);
+			if(sp->acqControlList[region].controlPV) free(sp->acqControlList[region].controlPV);
 			sp->acqControlList[region].controlPV = strdup(ctls.controlPV);
 		}
 		else
@@ -727,7 +769,7 @@ void QEpicsAdvAcq::setEnable(int region, bool enable)
 		for( int x = sp->numControlPV-1; x > region; x--)
 				sp->acqControlList[x] = sp->acqControlList[x-1];
 			sp->acqControlList[region-_regions.at(region)->_offset] = ctls;
-			sp->acqControlList[region-_regions.at(region)->_offset].controlPV = strdup(ctls.controlPV);
+			sp->acqControlList[region-_regions.at(region)->_offset].controlPV = strdup(ctls.controlPV);//MB: MEMORY LEAK HERE
 		}
 		makeEmptyCTLS();
 		_regions.at(region)->_enable = enable;
@@ -837,9 +879,11 @@ bool QEpicsAdvAcq::setQuickInputs(QString inputs)
 
 void QEpicsAdvAcq::saveConfigFile(const QString &infile)
 {
-	//char* SAVEFILE = const_cast<char*>(infile.toAscii().constData());
-	const char* SAVEFILE = infile.toAscii().constData();
-	acq_file_save_as(strdup(SAVEFILE), getMaster());
+	// MB: Fixing memory bug, Nov. 2011. Previously:
+//	//char* SAVEFILE = const_cast<char*>(infile.toAscii().constData());
+//	const char* SAVEFILE = infile.toAscii().constData();
+//	acq_file_save_as(strdup(SAVEFILE), getMaster());//BUG: SAVEFILE points to invalid data. QByteArray returned by toAscii() is out of scope.
+	acq_file_save_as(infile.toAscii().constData(), getMaster());
 }
 
 void QEpicsAdvAcq::spit()

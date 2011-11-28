@@ -136,7 +136,7 @@ The parameters by which to access the database are given in \c dbAccessString. (
 	/// Returns a QSqlQuery object for this database. The contents of the query have not been initialized. Beware: this can give you full-power access to the database. Don't break it!
 	QSqlQuery query() { return QSqlQuery(qdb()); }
 
-	/// Returns a QSqlQuery initialized to run a SELECT on the given \c tableName.  \c columnNames is a comma-separated list of columns to include in the search.  \c whereClause is a string suitable for appending after an SQL "WHERE" statement, or empty (by default).
+	/// Returns a QSqlQuery prepared to run a SELECT on the given \c tableName.  \c columnNames is a comma-separated list of columns to include in the search.  \c whereClause is a string suitable for appending after an SQL "WHERE" statement, or empty (by default). The query has been prepared, but not executed... You still need to call exec() on it, and you can still bindValue()s first.
 	QSqlQuery select(const QString& tableName, const QString& columnNames, const QString& whereClause = QString());
 
 
@@ -148,8 +148,8 @@ The parameters by which to access the database are given in \c dbAccessString. (
 	/// ex: AMDatabase::db()->scansContaining("name", "Carbon60") could return Scans with names Carbon60_alpha and bCarbon60_gamma
 	QList<int> objectsContaining(const QString& tableName, const QString& colName, const QVariant& value) const;
 
-	/// returns a list of all the objecst/rows (by id) that match a given condition. \c whereClause is a string suitable for appending after an SQL "WHERE" statement.
-	QList<int> objectsWhere(const QString& tableName, const QString& whereClause) const;
+	/// returns a list of all the objecst/rows (by id) that match a given condition. \c whereClause is a string suitable for appending after an SQL "WHERE" statement. If you want the id of all objects, you can omit the where clause.
+	QList<int> objectsWhere(const QString& tableName, const QString& whereClause = QString()) const;
 
 
 	/// For people who really know what they're doing. You shouldn't normally use this.

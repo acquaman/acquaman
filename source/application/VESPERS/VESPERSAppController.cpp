@@ -112,6 +112,7 @@ bool VESPERSAppController::startup() {
 		}
 
 		QSqlQuery q = AMDbObjectSupport::s()->select(AMDatabase::database("user"), "AMExporterOptionGeneralAscii", "id, name");
+		q.exec();
 		QStringList names;
 		QList<int> ids;
 		while(q.next()) {
@@ -122,7 +123,7 @@ bool VESPERSAppController::startup() {
 			AMExporterOptionGeneralAscii *vespersDefault = new AMExporterOptionGeneralAscii();
 			vespersDefault->setName("VESPERSDefault");
 			vespersDefault->setFileName("$name_$fsIndex.txt");
-			vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n$scanConfiguration[roiInfoList]");
+			vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n$scanConfiguration[rois]\nNote that I0.X is the energy feedback.\n");
 			vespersDefault->setHeaderIncluded(true);
 			vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
 			vespersDefault->setColumnHeaderIncluded(true);
@@ -130,6 +131,8 @@ bool VESPERSAppController::startup() {
 			vespersDefault->setSectionHeader("");
 			vespersDefault->setSectionHeaderIncluded(true);
 			vespersDefault->setIncludeAllDataSources(true);
+			vespersDefault->setFirstColumnOnly(true);
+			vespersDefault->setSeparateHigherDimensionalSources(true);
 			vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.txt");
 			vespersDefault->storeToDb(AMDatabase::database("user"));
 			qDebug() << "Added the VESPERSDefault to exporter options";
