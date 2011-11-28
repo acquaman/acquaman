@@ -36,24 +36,38 @@ QList<AMAnalysisBlockInterface *> AMPluginsManager::availableAnalysisBlocks() co
 	return availableAnalysisBlocks_;
 }
 
+#include "util/AMErrorMonitor.h"
+
 void AMPluginsManager::loadApplicationPlugins() {
 
 	QWriteLocker wl(&mutex_);
+
+	// qDebug() << "Loading file loader plugins...";
 
 	// Load file loader plugins
 	fileFormats2fileLoaderFactories_.clear();
 
 	QDir fileLoaderPluginsDirectory(AMSettings::s()->fileLoaderPluginsFolder());
 	foreach (QString fileName, fileLoaderPluginsDirectory.entryList(QDir::Files)) {
+		// qDebug() << " trying plugin file" << fileName;
 		QPluginLoader pluginLoader(fileLoaderPluginsDirectory.absoluteFilePath(fileName));
 		QObject *plugin = pluginLoader.instance();
 		if(plugin) {
+			// qDebug() << "  ...was a plugin.";
 			AMFileLoaderFactory *factory = qobject_cast<AMFileLoaderFactory *>(plugin);
 			if(factory) {
+				// qDebug() << "   was a file loader factory. Good!";
 				foreach(QString fileFormat, factory->acceptedFileFormats()) {
+					// qDebug() << "     accepts file format:" << fileFormat;
 					fileFormats2fileLoaderFactories_.insert(fileFormat, factory);
 				}
 			}
+		}
+		else {
+			AMErrorMon::report(AMErrorReport(0, 
+							AMErrorReport::Debug, 
+							-417,
+							QString("AMPluginsManager: There was a problem trying to load the plugin '%1'. The plugin system report the error: %2").arg(fileName).arg(pluginLoader.errorString())));
 		}
 	}
 
