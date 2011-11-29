@@ -72,6 +72,9 @@ public:
 	/// Both AMDbObject:: and AMDataSource:: have a name() function. Here we resolve that ambiguity.
 	QString name() const { return AMDataSource::name(); }
 
+	/// Sets the description because currently we call AMDataSource::setDescription which doesn't take care of setting setModified.  This adds that.
+	void setDescription(const QString &description) { AMDataSource::setDescription(description); setModified(true); }
+
 	/// Set the input of this block as a list of data sources. Returns false if the inputs are not sufficient, or incompatible with this analysis block. It is okay to set AMDataSource inputs that are currently not isValid()... the calculation will simply start when they become valid.
 	/*! Implementing classes should not re-implement this function; instead, they should provide setInputDataSourcesImplementation().
 
