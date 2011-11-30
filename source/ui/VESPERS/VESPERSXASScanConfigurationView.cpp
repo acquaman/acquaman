@@ -43,7 +43,6 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	// Regions setup
 	config_->regions()->setSensibleRange(-30, 40);
 	config_->regions()->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
-	config_->regions()->setDefaultUnits(" eV");
 
 	regionsView_ = new AMRegionsView(config_->regions());
 	regionsLineView_ = new AMRegionsLineView(config_->regions());

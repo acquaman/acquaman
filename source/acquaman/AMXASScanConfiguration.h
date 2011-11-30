@@ -58,8 +58,6 @@ public:
 	double regionEnd(int index) const { return regions_->end(index); }
 	/// Returns the time value of the region referred to by \param index.  If an invalid index is given, returns -1 (not a valid time value).
 	double regionTime(int index) const { return regions_->time(index); }
-	/// Returns the units for the region referred to by \param index.  If an invalid index is given, returns a null string.
-	QString regionUnits(int index) const { return regions_->units(index); }
 	/// Returns whether elastic start is enabled for the region referred to by \param index.
 	bool regionElasticStart(int index) const { return regions_->elasticStart(index); }
 	/// Returns whether elastic end is enabled for the reigon referred to by \param index.
@@ -67,7 +65,7 @@ public:
 	/// Returns the number of regions current in the scan configuration.
 	int regionCount() const { return regions_->count(); }
 	/// Returns the regions list.
-	AMXASRegionsList* regions() const { return regions_; }
+	AMXASRegionsList* regions() { return regions_; }
 
 	/// Quick accessor for the start of the first region. If no regions are set, returns -1
 	double startEnergy() const;
@@ -109,8 +107,6 @@ public slots:
 	bool setRegionEnd(int index, double end) { return regions_->setEnd(index, end); }
 	/// Sets the time value for the region referred to by \param index.  Returns true if successful, returns false if the index is invalid or the time is negative.
 	bool setRegionTime(int index, double time) { return regions_->setTime(index, time); }
-	/// Sets the units for the region referred to by \param index.  Returns true if successful, returns false if the index is invalid.
-	bool setRegionUnits(int index, QString units) { return regions_->setUnits(index, units); }
 	/// Sets the elastic start state for the region referred to by \param index.  Returns true if successful, returns false if the index is invalid.
 	bool setRegionElasticStart(int index, bool state) { return regions_->setElasticStart(index, state); }
 	/// Sets the elastic end state for the region referred to by \param index.  Returns true if successful, returns false if the index is invalid.

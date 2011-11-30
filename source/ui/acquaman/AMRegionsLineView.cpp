@@ -197,7 +197,6 @@ void AMRegionsLineView::redrawRegionsLine(){
 	if (regions_->isValid()){
 
 		for (int i = 0; i < regions_->count(); ++i) {
-
 			RegionItem *item = new RegionItem(regions_->start(i), regions_->delta(i), regions_->end(i), regions_->minEnergy(), regions_->maxEnergy(), nlSize-60);
 			item->setPos( 10+(int)floor((regions_->start(i)-regions_->minEnergy())/ratio), 0);
 			scene->addItem(item);
