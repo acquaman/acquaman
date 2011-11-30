@@ -55,6 +55,7 @@ class AMRegion: public QObject
 	Q_PROPERTY(double delta READ delta WRITE setDelta)
 	Q_PROPERTY(double end READ end WRITE setEnd)
 	Q_PROPERTY(double time READ time WRITE setTime)
+	Q_PROPERTY(QString units READ units WRITE setUnits)
 
 public:
 	/// Constructor, only requires a QObject for a parent and defaults elastic start and end to false.
@@ -77,6 +78,8 @@ public:
 	virtual bool elasticEnd() const { return elasticEnd_; }
 	/// Returns whether this region is valid or not.  Invalid regions are those that cannot be completed based on current start, delta, and end values.
 	virtual bool isValid() const;
+	/// Returns the units that the region is expressed in.
+	virtual QString units() const { return units_; }
 
 public slots:
 	/// Sets the start value from the double passed in. Makes sure the energy is within the allowable range, otherwise returns false.  Does not affect the AMControl directly.
@@ -99,6 +102,8 @@ public slots:
 	virtual bool setElasticStart(bool elastic) { elasticStart_ = elastic; return true; }
 	/// Sets the state of whether the end value can be adjusted through changes to the start of its adjacent region.
 	virtual bool setElasticEnd(bool elastic) { elasticEnd_ = elastic; return true; }
+	/// Sets the units that the region will be expressed in.
+	virtual bool setUnits(const QString &units);
 
 signals:
 	/// Notifier that the start value has changed.  Only used if elastic start is enabled.
@@ -115,6 +120,8 @@ protected:
 	double end_;
 	/// Value for the time spent per point in the region.
 	double time_;
+	/// QString for holding the units.
+	QString units_;
 	/// AMControl for the region to step through.
 	AMControl *ctrl_;
 	/// AMControl for the time of the region.
@@ -161,6 +168,8 @@ public slots:
 	void setDefaultControl(AMControl* defaultControl) { defaultControl_ = defaultControl; }
 	/// Sets the default time control.  It is used for setting the time control when inserting rows.
 	void setDefaultTimeControl(AMControl *defaultTimeControl) { defaultTimeControl_ = defaultTimeControl; }
+	/// Sets the default units for the region.  It is used for setting the units when inserting rows.
+	void setDefaultUnits(const QString &units) { defaultUnits_ = units; }
 
 protected:
 	/// Internal pointer to the list of AMRegion.
@@ -169,6 +178,8 @@ protected:
 	AMControl *defaultControl_;
 	/// Pointer to the default time control used to create AMRegions.
 	AMControl *defaultTimeControl_;
+	/// Holds the default units used when creating AMRegions.
+	QString defaultUnits_;
 };
 
 /// AMXASRegion is an implementation of AMRegion designed to scan energy regions; therefore, the AMControl is passed into the constructor and must be a beamline energy control.
