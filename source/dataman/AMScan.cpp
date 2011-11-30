@@ -242,8 +242,11 @@ void AMScan::dbLoadRawDataSources(const AMDbObjectList& newRawSources) {
 	// add new sources. Simply adding these to rawDataSources_ will be enough to emit the signals that tell everyone watching we have new data channels.
 	for(int i=0; i<newRawSources.count(); i++) {
 		AMRawDataSource* newRawSource = qobject_cast<AMRawDataSource*>(newRawSources.at(i));
-		if(newRawSource)
+		if(newRawSource) {
+
 			rawDataSources_.append(newRawSource, newRawSource->name());
+			connect(newRawSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified()));
+		}
 		else
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "There was an error reloading one of this scan's raw data sources from the database. Your database might be corrupted. Please report this bug to the Acquaman developers."));
 	}
@@ -264,8 +267,11 @@ void AMScan::dbLoadAnalyzedDataSources(const AMDbObjectList& newAnalyzedSources)
 	for(int i=0; i<newAnalyzedSources.count(); i++) {
 
 		AMAnalysisBlock* newSource = qobject_cast<AMAnalysisBlock*>(newAnalyzedSources.at(i));
-		if(newSource)
+		if(newSource) {
+
 			analyzedDataSources_.append(newSource, newSource->name());
+			connect(newSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified()));
+		}
 		else
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "There was an error reloading one of this scan's processed data sources from the database. Your database might be corrupted. Please report this bug to the Acquaman developers."));
 	}
@@ -383,6 +389,18 @@ void AMScan::dbLoadScanConfiguration(AMDbObject* newObject) {
 		setScanConfiguration(sc);
 }
 
+// Publicly expose part of the rawData(), by adding a new AMRawDataSource to the scan. The new data source \c newRawDataSource should be valid, initialized and connected to the data store already.  The scan takes ownership of \c newRawDataSource.  This function returns false if raw data source already exists with the same name as the \c newRawDataSource.
+bool AMScan::addRawDataSource(AMRawDataSource *newRawDataSource)
+{
+	if(newRawDataSource && rawDataSources_.append(newRawDataSource, newRawDataSource->name())) {
+
+		connect(newRawDataSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified()));
+		return true;
+	}
+
+	return false;
+}
+
 // This overloaded function calls addRawDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
 bool AMScan::addRawDataSource(AMRawDataSource* newRawDataSource, bool visibleInPlots, bool hiddenFromUsers) {
 	if(newRawDataSource) {
@@ -393,6 +411,16 @@ bool AMScan::addRawDataSource(AMRawDataSource* newRawDataSource, bool visibleInP
 	return addRawDataSource(newRawDataSource);
 }
 
+bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource)
+{
+	if(newAnalyzedDataSource && analyzedDataSources_.append(newAnalyzedDataSource, newAnalyzedDataSource->name())){
+
+		connect(newAnalyzedDataSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified()));
+		return true;
+	}
+
+	return false;
+}
 // This overloaded function calls addAnalyzedDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
 bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource, bool visibleInPlots, bool hiddenFromUsers) {
 	if(newAnalyzedDataSource) {
