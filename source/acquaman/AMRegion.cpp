@@ -126,10 +126,8 @@ QVariant AMRegionsListModel::data(const QModelIndex &index, int role) const{
 		return Qt::AlignCenter;
 
 	// If handling the background color.
-	if (role == Qt::BackgroundRole && regions_->at(index.row())->isValid())
-		return Qt::white;
-	else if (role == Qt::BackgroundRole && !regions_->at(index.row())->isValid())
-		return Qt::red;
+	if (role == Qt::BackgroundRole)
+		return regions_->at(index.row())->isValid() ? Qt::white : Qt::red;
 
 	// We only answer to Qt::DisplayRole right now
 	if(role != Qt::DisplayRole)
@@ -413,10 +411,8 @@ QVariant AMEXAFSRegionsListModel::data(const QModelIndex &index, int role) const
 		return Qt::AlignCenter;
 
 	// If handling the background color.
-	if (role == Qt::BackgroundRole && regions_->at(index.row())->isValid())
-		return Qt::white;
-	else if (role == Qt::BackgroundRole && !regions_->at(index.row())->isValid())
-		return Qt::red;
+	if (role == Qt::BackgroundRole)
+		return regions_->at(index.row())->isValid() ? Qt::white : Qt::red;
 
 	// We only answer to Qt::DisplayRole right now
 	if(role != Qt::DisplayRole)
@@ -516,14 +512,12 @@ bool AMEXAFSRegionsListModel::setData(const QModelIndex &index, const QVariant &
 			if (energy.contains("k") && region->type() == AMEXAFSRegion::Energy){
 
 				region->setType(AMEXAFSRegion::kSpace);
-
 				retVal = region->setStart(dval) && region->setDelta(0.1) && region->setEnd(toKSpace(region->end()));
 			}
 
 			else if (!energy.contains("k") && region->type() == AMEXAFSRegion::kSpace){
 
 				region->setType(AMEXAFSRegion::Energy);
-
 				retVal = region->setStart(dval) && region->setDelta(1) && region->setEnd(toEnergy(region->end()));
 			}
 
@@ -538,14 +532,12 @@ bool AMEXAFSRegionsListModel::setData(const QModelIndex &index, const QVariant &
 			if (energy.contains("k") && region->type() == AMEXAFSRegion::Energy){
 
 				region->setType(AMEXAFSRegion::kSpace);
-
 				retVal = region->setStart(toKSpace(region->start())) && region->setDelta(dval) && region->setEnd(toKSpace(region->end()));
 			}
 
 			else if (!energy.contains("k") && region->type() == AMEXAFSRegion::kSpace){
 
 				region->setType(AMEXAFSRegion::Energy);
-
 				retVal = region->setStart(toEnergy(region->start())) && region->setDelta(dval) && region->setEnd(toEnergy(region->end()));
 			}
 
@@ -560,14 +552,12 @@ bool AMEXAFSRegionsListModel::setData(const QModelIndex &index, const QVariant &
 			if (energy.contains("k") && region->type() == AMEXAFSRegion::Energy){
 
 				region->setType(AMEXAFSRegion::kSpace);
-
 				retVal = region->setStart(toKSpace(region->start())) && region->setDelta(0.1) && region->setEnd(dval);
 			}
 
 			else if (!energy.contains("k") && region->type() == AMEXAFSRegion::kSpace){
 
 				region->setType(AMEXAFSRegion::Energy);
-
 				retVal = region->setStart(toEnergy(region->start())) && region->setDelta(1) && region->setEnd(dval);
 			}
 
