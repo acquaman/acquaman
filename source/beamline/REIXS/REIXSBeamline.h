@@ -262,7 +262,7 @@ public:
 
 	// Accessing control elements:
 
-	/// Access the spectromter controls:
+	/// Access the spectrometer controls:
 	REIXSSpectrometer* spectrometer() { return spectrometer_; }
 	/// Access the sample chamber and load-lock controls:
 	REIXSSampleChamber* sampleChamber() { return sampleChamber_; }
