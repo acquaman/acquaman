@@ -26,6 +26,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMRegion::AMRegion(QObject *parent) :
 	QObject(parent)
 {
+	start_ = 0;
+	delta_ = 0;
+	end_ = 0;
+	time_ = 0;
+	units_ = "";
+	ctrl_ = 0;
+	timeControl_ = 0;
 	elasticStart_ = false;
 	elasticEnd_ = false;
 	initiatedStartAdjust_ = false;
@@ -74,6 +81,15 @@ bool AMRegion::setTime(double time)
 	return true;
 }
 
+bool AMRegion::setUnits(const QString &units)
+{
+	if (units_.isNull())
+		return false;
+
+	units_ = units;
+	return true;
+}
+
 bool AMRegion::adjustStart(double start){
 	if(initiatedStartAdjust_){
 		initiatedStartAdjust_ = false;
@@ -114,6 +130,7 @@ AMRegionsListModel::AMRegionsListModel(QObject *parent)
 	regions_ = new QList<AMRegion*>();
 	defaultControl_ = NULL;
 	defaultTimeControl_ = NULL;
+	defaultUnits_ = "";
 }
 
 QVariant AMRegionsListModel::data(const QModelIndex &index, int role) const{
@@ -138,30 +155,31 @@ QVariant AMRegionsListModel::data(const QModelIndex &index, int role) const{
 		return QVariant();
 
 	QVariant dataVal = QVariant();
+	AMRegion *region = regions_->at(index.row());
 
 	switch(index.column()){
 
 	case 0: // The control.
 		break; // Doing nothing.
 	case 1: // The start value.
-		dataVal = regions_->at(index.row())->start();
+		dataVal = QString::number(region->start()) + region->units();
 		break;
 	case 2: // The delta value.
-		dataVal = regions_->at(index.row())->delta();
+		dataVal = QString::number(region->delta()) + region->units();
 		break;
 	case 3: // The end value.
-		dataVal = regions_->at(index.row())->end();
+		dataVal = QString::number(region->end()) + region->units();
 		break;
 	case 4: // The state of whether the region has an elastic start value.
-		dataVal = regions_->at(index.row())->elasticStart();
+		dataVal = region->elasticStart();
 		break;
 	case 5: // The state of whether the region has an elastic end value.
-		dataVal = regions_->at(index.row())->elasticEnd();
+		dataVal = region->elasticEnd();
 		break;
 	case 6: // The time control.
 		break; // Doing nothing.
 	case 7: // The time value.
-		dataVal = regions_->at(index.row())->time();
+		dataVal = QString::number(region->time()) + " s";
 		break;
 	default:
 		break; // Return null if not a specific case.
@@ -225,13 +243,29 @@ bool AMRegionsListModel::setData(const QModelIndex &index, const QVariant &value
 		double dval;
 		bool bval;
 
-		if(index.column() == 1 || index.column() == 2 || index.column() == 3 || index.column() == 7)
-			dval  = value.toDouble(&conversionOK);
+		AMRegion *region = regions_->at(index.row());
+		if(index.column() == 1 || index.column() == 2 || index.column() == 3){
+
+			QString energy = value.toString();
+
+			if (energy.contains(region->units()))
+				energy.chop(region->units().size());
+
+			dval = energy.toDouble(&conversionOK);
+		}
 		else if(index.column() == 4 || index.column() == 5){
 			bval = value.toBool();
 			conversionOK = true;
 		}
+		else if (index.column() == 7){
 
+			QString time = value.toString();
+
+			if (time.contains(" s"))
+				time.chop(2);
+
+			dval = time.toDouble(&conversionOK);
+		}
 		// Check if any data is invalid.
 		if(!conversionOK)
 			return false;
@@ -243,23 +277,23 @@ bool AMRegionsListModel::setData(const QModelIndex &index, const QVariant &value
 			break;
 
 		case 1: // Setting a start value?
-			retVal = regions_->at(index.row())->setStart(dval);
+			retVal = region->setStart(dval);
 			break;
 
 		case 2: // Setting a delta value?
-			retVal = regions_->at(index.row())->setDelta(dval);
+			retVal = region->setDelta(dval);
 			break;
 
 		case 3: // Setting an end value?
-			retVal = regions_->at(index.row())->setEnd(dval);
+			retVal = region->setEnd(dval);
 			break;
 
 		case 4: // Setting the start elasticity?
-			retVal = regions_->at(index.row())->setElasticStart(bval);
+			retVal = region->setElasticStart(bval);
 			break;
 
 		case 5: // Setting the end elasticity?
-			retVal = regions_->at(index.row())->setElasticEnd(bval);
+			retVal = region->setElasticEnd(bval);
 			break;
 
 		case 6: // Setting the time time control?
@@ -267,7 +301,7 @@ bool AMRegionsListModel::setData(const QModelIndex &index, const QVariant &value
 			break;
 
 		case 7: // Setting a time value?
-			retVal = regions_->at(index.row())->setTime(dval);
+			retVal = region->setTime(dval);
 			break;
 
 		default: // Not a valid index.
@@ -298,6 +332,7 @@ bool AMRegionsListModel::insertRows(int position, int rows, const QModelIndex &i
 			tmpRegion = new AMRegion(this);
 			tmpRegion->setControl(defaultControl_);
 			tmpRegion->setTimeControl(defaultTimeControl_);
+			tmpRegion->setUnits(defaultUnits_);
 			regions_->insert(position, tmpRegion); // Order doesn't matter because they are all identical, empty regions.
 		}
 
@@ -352,6 +387,8 @@ bool AMXASRegionsListModel::insertRows(int position, int rows, const QModelIndex
 		for (int row = 0; row < rows; ++row) {
 
 			tmpRegion = new AMXASRegion(defaultControl_, this);
+			tmpRegion->setTimeControl(defaultTimeControl_);
+			tmpRegion->setUnits(defaultUnits_);
 			regions_->insert(position, tmpRegion); // Order doesn't matter because they are all identical, empty regions.
 		}
 
