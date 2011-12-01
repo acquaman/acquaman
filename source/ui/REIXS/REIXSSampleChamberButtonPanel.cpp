@@ -30,10 +30,10 @@ REIXSSampleChamberButtonPanel::REIXSSampleChamberButtonPanel(QWidget *parent) :
 	ui->sampleZup->setControl(chamber->z());
 	ui->sampleZup->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
 	ui->sampleZup->setStepSizeIndex(2);
+	ui->sampleZup->setDirectionReversed(true);// yup; down is up. Go figure.
 	ui->sampleZdown->setControl(chamber->z());
 	ui->sampleZdown->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
 	ui->sampleZdown->setStepSizeIndex(2);
-	ui->sampleZdown->setDirectionReversed(true);
 
 	ui->sampleCW->setControl(chamber->r());
 	ui->sampleCW->setStepSizes(QList<double>() << 1 << 5 << 10 << 45 << 90);
