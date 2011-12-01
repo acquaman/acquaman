@@ -386,7 +386,7 @@ The Control abstraction provides two different properties (and associated signal
 
 	/// Returns the enum string for a given \c controlValue. This function will check to make sure the control value is within the range of the set of enums.
 	QString enumNameAt(double controlValue) {
-		int enumValue = controlValue;
+		int enumValue = (int)controlValue;
 		if((unsigned)enumValue < (unsigned)enumNames_.count())
 			return enumNames_.at(enumValue);
 		else

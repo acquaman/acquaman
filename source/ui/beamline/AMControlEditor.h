@@ -49,7 +49,7 @@ public slots:
 	void setDoubleValue(double d);
 	void setDoubleMaximum(double d);
 	void setDoubleMinimum(double d);
-	void setDoubleDecimals(double d);
+	void setDoubleDecimals(int d);
 	void setLabelText(const QString& s);
 	void setSuffix(const QString& s);
 
@@ -112,7 +112,7 @@ public slots:
 	void setDoubleValue(double d);
 	void setDoubleMaximum(double d);
 	void setDoubleMinimum(double d);
-	void setDoubleDecimals(double d);
+	void setDoubleDecimals(int d);
 	void setLabelText(const QString& s);
 	void setEnumNames(const QStringList &sl);
 	void setSuffix(const QString& s);
