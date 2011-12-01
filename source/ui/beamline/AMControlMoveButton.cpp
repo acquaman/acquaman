@@ -50,10 +50,18 @@ void AMControlMoveButton::setControl(AMControl *control)
 	control_ = control;
 	if(control_) {
 		connect(control_, SIGNAL(destroyed()), this, SLOT(onControlDestroyed()));
+		connect(control_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
 	}
 
 	setText(QString::number(currentStepSize()) % (control_ ? control_->units() : QString()));
-	if(control_) setToolTip(control_->description());
+	if(control_)
+		setToolTip(control_->description().isEmpty() ? control_->name() : control_->description());
+
+	// enabled / disabled:
+	if(control_ && control->isConnected())
+		setEnabled(true);
+	else
+		setDisabled(true);
 }
 
 void AMControlMoveButton::onButtonClicked()
@@ -110,11 +118,14 @@ AMControlMoveButtonContextMenu::AMControlMoveButtonContextMenu(AMControlMoveButt
 {
 	moveButton_ = moveButton;
 	stepSizeButtons_.setExclusive(true);
-
+	QVBoxLayout* vl = new QVBoxLayout();
+	vl->setContentsMargins(0,0,0,0);
+	QFrame* contentsFrame = new QFrame();
+	contentsFrame->setFrameStyle(QFrame::StyledPanel);
 	QHBoxLayout* hl = new QHBoxLayout();
 
 	hl->setSpacing(0);
-	hl->setContentsMargins(2,2,2,2);
+	hl->setContentsMargins(4,4,4,4);
 	int buttonId = 0;
 	foreach(double stepSize, moveButton_->stepSizes()) {
 		QToolButton* stepButton = new QToolButton();
@@ -138,7 +149,9 @@ AMControlMoveButtonContextMenu::AMControlMoveButtonContextMenu(AMControlMoveButt
 		hl->addWidget(editor);
 	}
 
-	setLayout(hl);
+	contentsFrame->setLayout(hl);
+	vl->addWidget(contentsFrame);
+	setLayout(vl);
 }
 
 void AMControlMoveButtonContextMenu::onStepSizeIndexChanged(int newIndex)
