@@ -39,13 +39,13 @@ public:
 	AMRegionsList(QObject *parent = 0, bool setup = true);
 
 	/// Returns the start value of the region referred to by index. If an invalid index is given, returns -1 (not a valid energy value).
-	double start(int index) const;
+	virtual double start(int index) const;
 	/// Returns the delta value of the region referred to by index. If an invalid index is given, returns 0 (not a valid delta value).
-	double delta(int index) const;
+	virtual double delta(int index) const;
 	/// Returns the end value of the region referred to by index. If an invalid index is given, returns -1 (not a valid energy value).
-	double end(int index) const;
+	virtual double end(int index) const;
 	/// Returns the time value of the region referred to by \param index.  If an invalid index is given, returns -1 (not a valid time value).
-	double time(int index) const;
+	virtual double time(int index) const;
 	/// Returns whether elastic start is enabled for the region referred to by \param region.  False is returned if an invalid index is given as well as if it is not enabled.
 	bool elasticStart(int index) const;
 	/// Returns whether elastic end is enabled for the region referred to by \param region.  False is returned if an invalid index is given as well as if it is not enabled.
@@ -55,13 +55,13 @@ public:
 	/// Returns whether the regions list is valid or not.  Returns true only when ALL regions are valid, returns false otherwise.
 	bool isValid() const;
 	/// Returns the model being managed by this list.
-	AMRegionsListModel* model() { return regions_; }
+	AMRegionsListModel* model() const { return regions_; }
 	/// Returns the number of elements in the list.
-	int count() { return regions_->rowCount(QModelIndex()); }
+	int count() const { return regions_->rowCount(QModelIndex()); }
 	/// Returns the default control used by this list to move from the start to the end of the region.
-	AMControl* defaultControl() { return defaultControl_; }
+	AMControl* defaultControl() const { return defaultControl_; }
 	/// Returns the default time control used by this list for the dwell time of each point.
-	AMControl *defaultTimeControl() { return defaultTimeControl_; }
+	AMControl *defaultTimeControl() const { return defaultTimeControl_; }
 
 	/// Returns the sensible start position.
 	double sensibleStart() const { return sensibleStart_; }
@@ -143,6 +143,15 @@ Q_OBJECT
 public:
 	/// Constructor.  Sets up its own regions model.
 	AMXASRegionsList(QObject *parent = 0, bool setup = true) : AMRegionsList(parent, false) { if(setup) setupModel(); }
+
+	/// Overloaded to account for the eV units added.  Can be removed if a general AMRegion units algorithm is implemented.  Returns the start value of the region referred to by index. If an invalid index is given, returns -1 (not a valid energy value).
+	virtual double start(int index) const;
+	/// Overloaded to account for the eV units added.  Can be removed if a general AMRegion units algorithm is implemented.  Returns the delta value of the region referred to by index. If an invalid index is given, returns 0 (not a valid delta value).
+	virtual double delta(int index) const;
+	/// Overloaded to account for the eV units added.  Can be removed if a general AMRegion units algorithm is implemented.  Returns the end value of the region referred to by index. If an invalid index is given, returns -1 (not a valid energy value).
+	virtual double end(int index) const;
+	/// Overloaded to account for the eV units added.  Can be removed if a general AMRegion units algorithm is implemented.  Returns the time value of the region referred to by \param index.  If an invalid index is given, returns -1 (not a valid time value).
+	virtual double time(int index) const;
 
 public slots:
 	/// Sets the energy control for the AMXASRegions.  Also sets the default control for the regions list.
