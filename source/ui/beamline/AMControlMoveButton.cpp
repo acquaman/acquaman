@@ -24,6 +24,7 @@ AMControlMoveButton::AMControlMoveButton(QWidget *parent, AMControl* control, QL
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
 
 	setText(QString::number(currentStepSize()) % (control_ ? control_->units() : QString()));
+	connect(this, SIGNAL(clicked()), this, SLOT(onButtonClicked()));
 }
 
 void AMControlMoveButton::onControlDestroyed()
