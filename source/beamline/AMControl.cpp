@@ -535,27 +535,17 @@ void AMReadOnlyWaveformBinningPVControl::onReadPVValueChanged(){
 	emit valueChanged(value());
 }
 
-void AMPVwStatusAndUnitConversionControl::setUnitConverter(AMAbstractUnitConverter *newUnitConverter)
-{
-	QString oldUnits = units();
-	double oldValue = value();
 
-	delete converter_;
-	converter_ = newUnitConverter;
 
-	double newValue = value();
-	QString newUnits = units();
 
-	if(newValue != oldValue)
-		emit valueChanged(newValue);
-	if(newUnits != oldUnits)
-		emit unitsChanged(newUnits);
-}
 
-AMPVwStatusAndUnitConversionControl::AMPVwStatusAndUnitConversionControl(const QString &name, const QString &readPVname, const QString &writePVname, const QString &movingPVname, const QString &stopPVname, AMAbstractUnitConverter *unitConverter, QObject *parent, double tolerance, double moveStartTimeoutSeconds, AMAbstractControlStatusChecker *statusChecker, int stopValue, const QString &description) :
+
+
+AMPVwStatusAndUnitConversionControl::AMPVwStatusAndUnitConversionControl(const QString &name, const QString &readPVname, const QString &writePVname, const QString &movingPVname, const QString &stopPVname, AMAbstractUnitConverter *readUnitConverter, AMAbstractUnitConverter *writeUnitConverter, QObject *parent, double tolerance, double moveStartTimeoutSeconds, AMAbstractControlStatusChecker *statusChecker, int stopValue, const QString &description) :
 	AMPVwStatusControl(name, readPVname, writePVname, movingPVname, stopPVname, parent, tolerance, moveStartTimeoutSeconds, statusChecker, stopValue, description)
 {
-	converter_ = unitConverter;
+	readConverter_ = readUnitConverter;
+	writeConverter_ = writeUnitConverter;
 
 	disconnect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
 	connect(readPV_, SIGNAL(valueChanged(double)), this, SLOT(onReadPVValueChanged(double)));
@@ -567,10 +557,35 @@ AMPVwStatusAndUnitConversionControl::AMPVwStatusAndUnitConversionControl(const Q
 
 void AMPVwStatusAndUnitConversionControl::onReadPVValueChanged(double newValue)
 {
-	emit valueChanged(converter_->convertFromRaw(newValue));
+	emit valueChanged(readUnitConverter()->convertFromRaw(newValue));
 }
 
 void AMPVwStatusAndUnitConversionControl::onWritePVValueChanged(double newValue)
 {
-	emit setpointChanged(converter_->convertFromRaw(newValue));
+	emit setpointChanged(writeUnitConverter()->convertFromRaw(newValue));
 }
+
+void AMPVwStatusAndUnitConversionControl::setUnitConverters(AMAbstractUnitConverter *readUnitConverter, AMAbstractUnitConverter* writeUnitConverter)
+{
+	QString oldUnits = units();
+	double oldValue = value();
+	double oldSetpoint = setpoint();
+
+	delete readConverter_;
+	readConverter_ = readUnitConverter;
+	if(writeConverter_)
+		delete writeConverter_;
+	writeConverter_ = writeUnitConverter;
+
+	double newValue = value();
+	QString newUnits = units();
+	double newSetpoint = setpoint();
+
+	if(newUnits != oldUnits)
+		emit unitsChanged(newUnits);
+	if(newValue != oldValue)
+		emit valueChanged(newValue);
+	if(newSetpoint != oldSetpoint)
+		emit setpointChanged(newSetpoint);
+}
+

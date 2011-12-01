@@ -3,7 +3,8 @@ include ( acquamanCommon.pri )
 TARGET = REIXSAcquaman
 
 FORMS += \
-    source/ui/REIXS/REIXSXESSpectrometerControlEditor.ui
+    source/ui/REIXS/REIXSXESSpectrometerControlEditor.ui \
+	source/ui/REIXS/REIXSSampleChamberButtonPanel.ui
 
 HEADERS +=	source/application/REIXS/REIXSAppController.h \
 	source/acquaman/REIXS/REIXSXESScanConfiguration.h \
@@ -16,7 +17,8 @@ HEADERS +=	source/application/REIXS/REIXSAppController.h \
 	source/ui/REIXS/REIXSXESMCPDetectorView.h \
 	source/ui/REIXS/REIXSXESScanConfigurationDetailedView.h \
 	source/ui/REIXS/REIXSXESHexapodControlEditor.h \
-    source/ui/REIXS/REIXSXESSpectrometerControlEditor.h
+    source/ui/REIXS/REIXSXESSpectrometerControlEditor.h \
+	source/ui/REIXS/REIXSSampleChamberButtonPanel.h
 
 
 SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
@@ -31,4 +33,8 @@ SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
 	source/ui/REIXS/REIXSXESMCPDetectorView.cpp \
 	source/ui/REIXS/REIXSXESScanConfigurationDetailedView.cpp \
 	source/ui/REIXS/REIXSXESHexapodControlEditor.cpp \
-    source/ui/REIXS/REIXSXESSpectrometerControlEditor.cpp
+    source/ui/REIXS/REIXSXESSpectrometerControlEditor.cpp \
+	source/ui/REIXS/REIXSSampleChamberButtonPanel.cpp
+
+
+
