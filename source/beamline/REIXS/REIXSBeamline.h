@@ -249,7 +249,7 @@ protected:
 	AMControl* x_, *y_, *z_, *r_, *loadLockZ_, *loadLockR_;
 };
 
-/// This class
+/// This class creates and provides access to the AMControl objects with the power to move the REIXS beamline and spectrometer
 class REIXSBeamline : public AMBeamline
 {
 	Q_OBJECT
@@ -262,7 +262,7 @@ public:
 
 	// Accessing control elements:
 
-	/// Access the spectromter controls:
+	/// Access the spectrometer controls:
 	REIXSSpectrometer* spectrometer() { return spectrometer_; }
 	/// Access the sample chamber and load-lock controls:
 	REIXSSampleChamber* sampleChamber() { return sampleChamber_; }

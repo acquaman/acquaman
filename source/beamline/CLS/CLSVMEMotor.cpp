@@ -23,29 +23,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 CLSVMEMotor::CLSVMEMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds, QObject *parent) :
-		AMPVwStatusControl(name, baseName+":mm:fbk", baseName+":mm", baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerCLSVME(), 1, description)
+	AMPVwStatusControl(name, hasEncoder ? baseName+":mm:fbk" : baseName+":mm:sp", baseName+":mm", baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerCLSVME(), 1, description)
 		//AMPVwStatusControl(name, baseName+":mm:fbk", baseName+":mm", baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerStopped(0), 1, description)
 {
 	usingKill_ = false;
 	killPV_ = new AMProcessVariable(baseName+":kill", true, this);
-	positionReadbackPV_ = new AMProcessVariable(baseName+":mm:sp", true, this);
-	encoderReadbackPV_ = readPV_;
-
-	if(!hasEncoder){
-		disconnect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
-		disconnect(readPV_, SIGNAL(readReadyChanged(bool)), this, SLOT(onPVConnected(bool)));
-		disconnect(readPV_, SIGNAL(connectionTimeout()), this, SIGNAL(readConnectionTimeoutOccurred()));
-		disconnect(readPV_, SIGNAL(error(int)), this, SLOT(onReadPVError(int)));
-		disconnect(readPV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
-		disconnect(readPV_, SIGNAL(initialized()), this, SLOT(onReadPVInitialized()));
-		readPV_ = positionReadbackPV_;
-		connect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
-		connect(readPV_, SIGNAL(readReadyChanged(bool)), this, SLOT(onPVConnected(bool)));
-		connect(readPV_, SIGNAL(connectionTimeout()), this, SIGNAL(readConnectionTimeoutOccurred()));
-		connect(readPV_, SIGNAL(error(int)), this, SLOT(onReadPVError(int)));
-		connect(readPV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
-		connect(readPV_, SIGNAL(initialized()), this, SLOT(onReadPVInitialized()));
-	}
 
 	step_ = new AMPVControl(name+"Step", baseName+":step:sp", baseName+":step", QString(), this, 20);
 	velocity_ = new AMPVControl(name+"Velocity", baseName+":velo:sp", baseName+":velo", QString(), this, 2);

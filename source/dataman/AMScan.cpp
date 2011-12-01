@@ -414,7 +414,7 @@ bool AMScan::addRawDataSource(AMRawDataSource* newRawDataSource, bool visibleInP
 bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource)
 {
 	if(newAnalyzedDataSource && analyzedDataSources_.append(newAnalyzedDataSource, newAnalyzedDataSource->name())){
-		qDebug() << "Connected the signals.";
+
 		connect(newAnalyzedDataSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified()));
 		return true;
 	}

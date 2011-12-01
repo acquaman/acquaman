@@ -124,5 +124,15 @@
         <file>22x22/view-list-compact-symbolic_dark.png</file>
         <file>22x22/view-list-details-symbolic_dark.png</file>
         <file>22x22/view-list-icons-symbolic_dark.png</file>
+        <file>32x32/go-down.png</file>
+        <file>32x32/go-next.png</file>
+        <file>32x32/go-previous.png</file>
+        <file>32x32/go-up.png</file>
+        <file>22x22/go-down-dark.png</file>
+        <file>22x22/go-next-dark.png</file>
+        <file>22x22/go-previous-dark.png</file>
+        <file>22x22/go-up-dark.png</file>
+        <file>22x22/arrow-CCW.png</file>
+        <file>22x22/arrow-CW.png</file>
     </qresource>
 </RCC>

@@ -642,25 +642,3 @@ void AMControlButton::onToggled(bool toggled){
 void AMControlButton::setHappy(bool happy) {
 	Q_UNUSED(happy)
 }
-
-
-/*
-AMBeamlineActionButton::AMBeamlineActionButton(AMBeamlineActionItem* (SGMBeamline::*creationFunction)(), QWidget *parent) :
-		QToolButton(parent)
-{
-	//action_ = action;
-	creationFunction_ = creationFunction;
-	action_ = (SGMBeamline::sgm()->*creationFunction_)();
-	//action_ = (SGMBeamline::sgm()->*creationFunction_)();
-	connect(this, SIGNAL(clicked()), this, SLOT(onClicked()));
-}
-
-void AMBeamlineActionButton::overrideText(const QString &text){
-	setText(text);
-}
-
-void AMBeamlineActionButton::onClicked(){
-	if(action_ && !action_->hasStarted())
-		action_->start();
-}
-*/
