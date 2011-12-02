@@ -446,13 +446,13 @@ protected:
 	AMDetector *ringCurrentDetector_;
 	AMControlSet *ringCurrentControlSet_;
 	AMDetector *filterPD1ScalarDetector_;
-	AMControlSet *fiterPD1ScalarControlSet_;
+	AMControlSet *filterPD1ScalarControlSet_;
 	AMDetector *filterPD2ScalarDetector_;
-	AMControlSet *fiterPD2ScalarControlSet_;
+	AMControlSet *filterPD2ScalarControlSet_;
 	AMDetector *filterPD3ScalarDetector_;
-	AMControlSet *fiterPD3ScalarControlSet_;
+	AMControlSet *filterPD3ScalarControlSet_;
 	AMDetector *filterPD4ScalarDetector_;
-	AMControlSet *fiterPD4ScalarControlSet_;
+	AMControlSet *filterPD4ScalarControlSet_;
 
 	AMControlSet *criticalControlsSet_;
 	AMControlSet *beamOnControlSet_;
