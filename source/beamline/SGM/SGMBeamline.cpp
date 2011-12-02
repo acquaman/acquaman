@@ -494,26 +494,26 @@ void SGMBeamline::usingSGMBeamline(){
 	sgmPVName = amNames2pvNames_.valueF("filterPD1Current");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-	ringCurrent_ = new AMPVControl("filterPD1Current", sgmPVName, sgmPVName, "", this, 0.1);
-	ringCurrent_->setDescription("V Filter Diode");
+	filterPD1_ = new AMPVControl("filterPD1Current", sgmPVName, sgmPVName, "", this, 0.1);
+	filterPD1_->setDescription("V Filter Diode");
 
 	sgmPVName = amNames2pvNames_.valueF("filterPD2Current");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-	ringCurrent_ = new AMPVControl("filterPD2Current", sgmPVName, sgmPVName, "", this, 0.1);
-	ringCurrent_->setDescription("Cr Filter Diode");
+	filterPD2_ = new AMPVControl("filterPD2Current", sgmPVName, sgmPVName, "", this, 0.1);
+	filterPD2_->setDescription("Cr Filter Diode");
 
 	sgmPVName = amNames2pvNames_.valueF("filterPD3Current");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-	ringCurrent_ = new AMPVControl("filterPD3Current", sgmPVName, sgmPVName, "", this, 0.1);
-	ringCurrent_->setDescription("TiC Filter Diode");
+	filterPD3_ = new AMPVControl("filterPD3Current", sgmPVName, sgmPVName, "", this, 0.1);
+	filterPD3_->setDescription("TiC Filter Diode");
 
 	sgmPVName = amNames2pvNames_.valueF("filterPD4Current");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-	ringCurrent_ = new AMPVControl("filterPD4Current", sgmPVName, sgmPVName, "", this, 0.1);
-	ringCurrent_->setDescription("Fe Filter Diode");
+	filterPD4_ = new AMPVControl("filterPD4Current", sgmPVName, sgmPVName, "", this, 0.1);
+	filterPD4_->setDescription("Fe Filter Diode");
 
 
 	qDebug() << "\nPV Name Look Ups Failed: " << pvNameLookUpFail << "\n";
