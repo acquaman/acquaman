@@ -104,6 +104,10 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("ssaIllumination", "ILC1611-4-I10-02");
 	//TOM THIS IS STEP 4.8
 	amNames2pvNames_.set("ringCurrent", "PCT1402-01:mA:fbk");
+	amNames2pvNames_.set("filterPD1Current", "BL1611-ID-1:mcs06:fbk");
+	amNames2pvNames_.set("filterPD2Current", "BL1611-ID-1:mcs07:fbk");
+	amNames2pvNames_.set("filterPD3Current", "BL1611-ID-1:mcs08:fbk");
+	amNames2pvNames_.set("filterPD4Current", "BL1611-ID-1:mcs09:fbk");
 
 //	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", "PCT1402-01:mA:fbk", this);
 //	addChildControl(ringCurrent_);
@@ -487,6 +491,31 @@ void SGMBeamline::usingSGMBeamline(){
 	ringCurrent_ = new AMPVControl("ringCurrent", sgmPVName, sgmPVName, "", this, 0.1);
 	ringCurrent_->setDescription("Ring Current");
 
+	sgmPVName = amNames2pvNames_.valueF("filterPD1");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	ringCurrent_ = new AMPVControl("filterPD1", sgmPVName, sgmPVName, "", this, 0.1);
+	ringCurrent_->setDescription("V Filter Diode");
+
+	sgmPVName = amNames2pvNames_.valueF("filterPD2");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	ringCurrent_ = new AMPVControl("filterPD2", sgmPVName, sgmPVName, "", this, 0.1);
+	ringCurrent_->setDescription("Cr Filter Diode");
+
+	sgmPVName = amNames2pvNames_.valueF("filterPD3");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	ringCurrent_ = new AMPVControl("filterPD3", sgmPVName, sgmPVName, "", this, 0.1);
+	ringCurrent_->setDescription("Ti/C Filter Diode");
+
+	sgmPVName = amNames2pvNames_.valueF("filterPD4");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	ringCurrent_ = new AMPVControl("filterPD4", sgmPVName, sgmPVName, "", this, 0.1);
+	ringCurrent_->setDescription("Fe Filter Diode");
+
+
 	qDebug() << "\nPV Name Look Ups Failed: " << pvNameLookUpFail << "\n";
 }
 
@@ -748,6 +777,11 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	addChildControl(ssaIllumination_);
 	//TOM THIS IS STEP 4.10
 	addChildControl(ringCurrent_);
+	
+	addChildControl(filterPD1_);
+	addChildControl(filterPD2_);
+	addChildControl(filterPD3_);
+	addChildControl(filterPD4_);
 
 	criticalControlsSet_ = new AMControlSet(this);
 	criticalControlsSet_->setName("Critical Beamline Controls");
@@ -888,6 +922,35 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	ringCurrentDetector_ = 0; //NULL
 	unconnectedSets_.append(ringCurrentControlSet_);
 	connect(ringCurrentControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
+
+	filterPD1ControlSet_ = new AMControlSet(this);
+	filterPD1ControlSet_->setName("V Filter Diode Controls");
+	filterPD1ControlSet_->addControl(filterPD1_);
+	filterPD1Detector_ = 0; //NULL
+	unconnectedSets_.append(filterPD1ControlSet_);
+	connect(filterPD1ControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
+
+	filterPD2ControlSet_ = new AMControlSet(this);
+	filterPD2ControlSet_->setName("Cr Filter Diode Controls");
+	filterPD2ControlSet_->addControl(filterPD2_);
+	filterPD2Detector_ = 0; //NULL
+	unconnectedSets_.append(filterPD2ControlSet_);
+	connect(filterPD2ControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
+
+	filterPD3ControlSet_ = new AMControlSet(this);
+	filterPD3ControlSet_->setName("Ti/C Filter Diode Controls");
+	filterPD3ControlSet_->addControl(filterPD3_);
+	filterPD3Detector_ = 0; //NULL
+	unconnectedSets_.append(filterPD3ControlSet_);
+	connect(filterPD3ControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
+
+	filterPD4ControlSet_ = new AMControlSet(this);
+	filterPD4ControlSet_->setName("Fe Filter Diode Controls");
+	filterPD4ControlSet_->addControl(filterPD4_);
+	filterPD4Detector_ = 0; //NULL
+	unconnectedSets_.append(filterPD4ControlSet_);
+	connect(filterPD4ControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
+
 
 	fluxOptimization_ = new SGMFluxOptimization(this);
 	fluxOptimization_->setDescription("Flux");
@@ -1665,6 +1728,30 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			ringCurrentDetector_->setDescription(ringCurrent_->description());
 			allDetectors_->addDetector(ringCurrentDetector_);    // This adds it to the list of all known detectors
 			feedbackDetectors_->addDetector(ringCurrentDetector_); // This adds it to the list of detectors we use in every XAS Scan by default
+		}
+		else if(!filterPD1ScalarDetector_ && ctrlSet->name() == "V Filter Controls"){
+			filterPD1ScalarDetector_ = new AMSingleControlDetector(filterPD1_->name(), filterPD1_, AMDetector::ImmediateRead, this);
+			filterPD1ScalarDetector_->setDescription(filterPD1_->description());
+			allDetectors_->addDetector(filterPD1ScalarDetector_);    // This adds it to the list of all known detectors
+			feedbackDetectors_->addDetector(filterPD1ScalarDetector_); // This adds it to the list of detectors we use in every XAS Scan by default
+		}
+		else if(!filterPD2ScalarDetector_ && ctrlSet->name() == "Cr Filter Controls"){
+			filterPD2ScalarDetector_ = new AMSingleControlDetector(filterPD2_->name(), filterPD2_, AMDetector::ImmediateRead, this);
+			filterPD2ScalarDetector_->setDescription(filterPD2_->description());
+			allDetectors_->addDetector(filterPD2ScalarDetector_);    // This adds it to the list of all known detectors
+			feedbackDetectors_->addDetector(filterPD2ScalarDetector_); // This adds it to the list of detectors we use in every XAS Scan by default
+		}
+		else if(!filterPD3ScalarDetector_ && ctrlSet->name() == "Ti/C Filter Controls"){
+			filterPD3ScalarDetector_ = new AMSingleControlDetector(filterPD3_->name(), filterPD3_, AMDetector::ImmediateRead, this);
+			filterPD3ScalarDetector_->setDescription(filterPD3_->description());
+			allDetectors_->addDetector(filterPD3ScalarDetector_);    // This adds it to the list of all known detectors
+			feedbackDetectors_->addDetector(filterPD3ScalarDetector_); // This adds it to the list of detectors we use in every XAS Scan by default
+		}
+		else if(!filterPD4ScalarDetector_ && ctrlSet->name() == "Fe Filter Controls"){
+			filterPD4ScalarDetector_ = new AMSingleControlDetector(filterPD4_->name(), filterPD4_, AMDetector::ImmediateRead, this);
+			filterPD4ScalarDetector_->setDescription(filterPD4_->description());
+			allDetectors_->addDetector(filterPD4ScalarDetector_);    // This adds it to the list of all known detectors
+			feedbackDetectors_->addDetector(filterPD4ScalarDetector_); // This adds it to the list of detectors we use in every XAS Scan by default
 		}
 		else if(ctrlSet->name() == "SSA Manipulator"){
 			AMControlInfoList ssaInfoList = ssaManipulatorSet_->toInfoList();

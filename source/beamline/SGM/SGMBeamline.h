@@ -183,6 +183,10 @@ public:
 	AMDetector* encoderDownDetector() const { return encoderDownDetector_;}
 	//TOM THIS IS STEP 4.5
 	AMDetector* ringCurrentDetector() const { return ringCurrentDetector_;}
+	AMDetector* filterPD1ScalarDetector() const { return filterPD1ScalarDetector_;}
+	AMDetector* filterPD2ScalarDetector() const { return filterPD2ScalarDetector_;}
+	AMDetector* filterPD3ScalarDetector() const { return filterPD3ScalarDetector_;}
+	AMDetector* filterPD4ScalarDetector() const { return filterPD4ScalarDetector_;}
 
 	bool detectorValidForCurrentSignalSource(AMDetector *detector);
 	bool detectorValidForCurrentSignalSource(AMDetectorInfo *detectorInfo);
@@ -218,6 +222,10 @@ public:
 	AMControl* tfyHVToggle() const { return tfyHVToggle_;}
 	//TOM THIS IS STEP 4.3
 	AMControl* ringCurrent() const { return ringCurrent_;}
+	AMControl* filterPD1() const { return filterPD1_;}
+	AMControl* filterPD2() const { return filterPD2_;}
+	AMControl* filterPD3() const { return filterPD3_;}
+	AMControl* filterPD4() const { return filterPD4_;}
 	CLSCAEN2527HVChannel* hvChannel106() const { return hvChannel106_;}
 	CLSCAEN2527HVChannel* hvChannel109() const { return hvChannel109_;}
 	CLSPGT8000HVChannel* hvChannelPGT() const { return hvChannelPGT_;}
@@ -403,6 +411,10 @@ protected:
 	AMControl *ssaIllumination_;
 	//TOM THIS IS STEP 4.2
 	AMControl *ringCurrent_;
+	AMControl *filterPD1_;
+	AMControl *filterPD2_;
+	AMControl *filterPD3_;
+	AMControl *filterPD4_;
 
 	AMControlSet *teyPicoControlSet_;
 	AMDetector *teyPicoDetector_;
@@ -433,6 +445,14 @@ protected:
 	//TOM THIS IS STEP 4.4
 	AMDetector *ringCurrentDetector_;
 	AMControlSet *ringCurrentControlSet_;
+	AMDetector *filterPD1ScalarDetector_;
+	AMControlSet *fiterPD1ScalarControlSet_;
+	AMDetector *filterPD2ScalarDetector_;
+	AMControlSet *fiterPD2ScalarControlSet_;
+	AMDetector *filterPD3ScalarDetector_;
+	AMControlSet *fiterPD3ScalarControlSet_;
+	AMDetector *filterPD4ScalarDetector_;
+	AMControlSet *fiterPD4ScalarControlSet_;
 
 	AMControlSet *criticalControlsSet_;
 	AMControlSet *beamOnControlSet_;
