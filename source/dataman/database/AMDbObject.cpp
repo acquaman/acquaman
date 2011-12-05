@@ -134,6 +134,9 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 	if(!myInfo)
 		return false;	// class has not been registered yet in the database system.
 
+	QTime saveTime;
+	qDebug() << "Starting storeToDb() of" << myInfo->className;
+	saveTime.start();
 
 	// For performance when storing many child objects, we can speed things up (especially with SQLite, which needs to do a flush and reload of the db file on every write) by doing all the updates in one big transaction. This also ensure consistency.  Because storeToDb() calls could be nested, we don't want to start a transaction if one has already been started.
 	bool openedTransaction = false;
@@ -319,6 +322,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 		if(db->commitTransaction()) {
 			// we were just stored to the database, so our properties must be in sync with it.
 			setModified(false);
+			qDebug() << "Finished save of " << myInfo->className << "in" << saveTime.elapsed() << "ms; transaction committed.";
 			return true;
 		}
 		else {
@@ -329,6 +333,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 	}
 	// if we didn't open the transaction, no need to commit it.
 	else {
+		qDebug() << "Finished save of " << myInfo->className << "in" << saveTime.elapsed() << "ms;  not closing transaction.";
 		// we were just stored to the database, so our properties must be in sync with it.
 		setModified(false);
 		return true;
@@ -548,10 +553,15 @@ void AMDbObject::updateThumbnailsInSeparateThread(AMDatabase *db, int id, const 
 		return;	// nothing else to do...
 	}
 
+	QTime renderTime;
+	renderTime.start();
 	// Generating the thumbnails could take some time, especially for things that do complicated drawing (ie: scans with lots of points or multi-dim data). Let's do it all before hitting the database
 	QList<AMDbThumbnail> thumbnails;
 	for(int i=0; i<thumbsCount; i++)
 		thumbnails << object->thumbnail(i);
+
+	qDebug() << object->type() << "took" << renderTime.elapsed() << "ms to create thumbnails for saving.";
+	renderTime.restart();
 
 	// The remainder of this should happen in one database transaction. This ensures consistency, and it also increases performance because a database commit (and time consuming flush-to-disk, in the case of SQLite) doesn't have to happen for each thumbnail insert -- just once at the end.
 	// Note that there might be a transaction started already...
@@ -656,6 +666,8 @@ void AMDbObject::updateThumbnailsInSeparateThread(AMDatabase *db, int id, const 
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -495, "AMDbObject: Could not commit a transaction to save the thumbnails for object '" % dbTableName % ":" % QString::number(id) % "' in the database. Please report this problem to the Acquaman developers."));
 	}
 
+	qDebug() << object->type() << "took" << renderTime.elapsed() << "ms to store thumbnails in the database. Used own transaction = " << openedTransaction;
+
 	// And now we're done with the object...
 	delete object;
 }
@@ -680,7 +692,6 @@ void AMDbObject::updateThumbnailsInCurrentThread(bool neverSavedHereBefore)
 	if(database()->supportsTransactions() && !database()->transactionInProgress()) {
 		if(database()->startTransaction()) {
 			openedTransaction = true;
-			qDebug() << "Started transaction for thumbnail save at " << databaseTableName << id();
 		}
 		else {
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -495, "Could not start a transaction to save the thumbnails for object '" % databaseTableName % ":" % QString::number(id()) % "' in the database. Please report this problem to the Acquaman developers."));
