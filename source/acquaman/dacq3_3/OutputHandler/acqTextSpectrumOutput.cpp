@@ -39,6 +39,7 @@ acqTextSpectrumOutput::acqTextSpectrumOutput() :
 	handler.endRecord_cb = endRecord;
 	handler.nextOutput_cb = nextOutput;
 	handler.pvFlags_cb = pvFlags;
+	handler.eventName_cb = eventName;
 	defProperty(TEXTS_SPECTRUM_SPLIT, "OneToOne,ByRecord,ByInstance");
 
 	setPropertyList( TEXTS_NAME_SPECTRUM "," TEXTS_PROP_SPECTRUM "=Text," TEXTS_SPECTRUM_SPLIT "=OneToOne," TEXTS_SPECTRUM_STREAM "=File");
@@ -71,7 +72,9 @@ int acqTextSpectrumOutput::start( acqKey_t key)
 	acqTextSpectrumOutput *to = (acqTextSpectrumOutput *)key;
 
 	DEBUG(to) printf("acqTextSpectrumOutput::start(%p)\n", key);
-	to->haveSpectrum = FALSE;
+	printf("Setting haveSpecrum to false for start\n");
+	fflush(stdout);
+	//to->haveSpectrum = FALSE;
 	acqTextOutput::start(key);
 	return 0;
 }
@@ -114,8 +117,13 @@ int acqTextSpectrumOutput::pvFlags( acqKey_t key, int eventno, int pvno, const c
 
 		if(checkSpectrum->second == "1" || checkSpectrum->second == "TRUE" || checkSpectrum->second == "true")
 		{
+			printf("INTERALLY CHECKMARKING HAVESPECTRUM\n");
 			pvp->isSpectrum = true;
 			to->haveSpectrum = TRUE;
+
+			if(to->haveSpectrum)
+				printf("Actually set haveSpectrum to true\n");
+			fflush(stdout);
 		}
 		return 0;
 	}
@@ -194,17 +202,30 @@ int acqTextSpectrumOutput::nextOutput( acqKey_t key)
 	// this depends on PV information having been transmitted before acquisition
 	// looping starts. If no PV's have been detected that have been flagged 'spectra',
 	// then no file will be created.
+	printf("\n\n\nOutside spectra test\n");
+	if( to->haveSpectrum)
+		printf("Has spectrum\n");
+	if( to->spectrumStream)
+		printf("Has spectrumStream\n");
 	if( to->haveSpectrum && to->spectrumStream)
-	{
+	{printf("Inside spectra test\n\n\n");
 		to->recordCount = 0;
 		if( to->spectrumSplit == SS_ONE_TO_ONE)
 		{
 			to->nextSpectrumFile();
 		}
 
-	}
+	}fflush(stdout);
 
 	return 0;
+}
+
+int acqTextSpectrumOutput::eventName(acqKey_t key, int eventno, const char *name)
+{
+	acqBaseOutput::default_eventName(key, eventno, name);
+	acqTextSpectrumOutput *to = (acqTextSpectrumOutput *)key;
+	to->haveSpectrum = FALSE;
+	printf("Hack hack hack, coding in my hack\n");
 }
 
 // put out flagged header entries: event ID, timestamps, comment prefix ...

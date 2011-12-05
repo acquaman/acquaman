@@ -65,11 +65,12 @@ int acqFileStream:: open()
 	
 	buildFileName();
 	fp = fopen( outputName.c_str(), "a+");
+	printf("\n\n\nOutside fp NULL");
 	if( fp == NULL)
-	{
+	{printf("Inside fp NULL");
 		fp = stdout;
 		outputName = "< standard output >";
-	}
+	}fflush(stdout);
 	setProperty( PROP_OUTPUT_FILE, outputName);
 	if( getBaseOutput() )
 		getBaseOutput()->handlerSignal( acqFileStream_NewOutput, outputName.c_str() );
