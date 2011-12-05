@@ -49,7 +49,7 @@ public:
 	  \param baseName The base of the PV name (if the motor status was "SMTR16114I1022:status" then the base is "SMTR16114I1022")
 	  \param description A human readable description for this motor
 	  \param hasEncoder Should be set to true if the motor has an encoder
-	  \param tolerance The tolerance that will be used in the Acquaman framework to help determine position values
+	  \param tolerance The tolerance that will be used to determine if moves succeed in getting close enough to be considered a success
 	  \param moveStartTimeout How long the motor has to start moving before something is considered amis
 	  \param parent QObject parent class
 	  */
@@ -114,10 +114,6 @@ protected:
 
 	/// PV for the "kill" functionality
 	AMProcessVariable *killPV_;
-	/// PV for the encoder feedback in the engineering units
-	AMProcessVariable *encoderReadbackPV_;
-	/// PV for the readback on the position (used if no encoder present)
-	AMProcessVariable *positionReadbackPV_;
 
 	/// Toggle boolean for which stop PV to use (kill stops the motor IMMEDIATELY, while stop follows the velocity profile)
 	bool usingKill_;

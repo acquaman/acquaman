@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QSet>
+#include <QHash>
 #include <QMutex>
 
 
@@ -153,15 +154,14 @@ The parameters by which to access the database are given in \c dbAccessString. (
 
 
 	/// For people who really know what they're doing. You shouldn't normally use this.
-	void startTransaction() {
-		qdb().transaction();
-	}
-	void commitTransaction() {
-		qdb().commit();
-	}
-	void rollbackTransaction() {
-		qdb().rollback();
-	}
+	bool startTransaction();
+	bool commitTransaction();
+	bool rollbackTransaction();
+
+	/// Returns whether this connection supports transactions (ie: the database implementation supports transactions)
+	bool supportsTransactions() const;
+	/// Returns whether a transaction is in progress for this connection
+	bool transactionInProgress() const;
 
 
 
@@ -194,7 +194,9 @@ private:
 
 	/// For every AMDatabase instance, we can actually have multiple connections to the database: one for each thread. All connections are to the same underlying database. This is a set of the thread IDs for which we've already created connections. (The connection name for those is our connectionName_ with the threadId appended.)
 	mutable QSet<Qt::HANDLE> threadIDsOfOpenConnections_;
-	/// This mutex is used in the thread-safe function qdb() to protect access to threadIDsOfOpenConnections_.
+	/// Transactions are opened on a per-thread/per-connection basis. They cannot be nested, so this is used to track if an explicit transaction is in progress for a connection.
+	QSet<Qt::HANDLE> transactionOpenOnThread_;
+	/// This mutex is used in the thread-safe function qdb() to protect access to threadIDsOfOpenConnections_ and transactionOpenOnThread_.
 	mutable QMutex qdbMutex_;
 
 

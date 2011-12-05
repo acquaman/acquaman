@@ -445,7 +445,9 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/application/AMAppControllerSupport.h \
     source/application/AMPluginsManager.h \
     source/dataman/import/AMScanDatabaseImportController.h \
-    source/ui/dataman/AMScanDatabaseImportWizard.h
+    source/ui/dataman/AMScanDatabaseImportWizard.h \
+	source/beamline/CLS/CLSMDriveMotorControl.h \
+    source/ui/beamline/AMControlMoveButton.h
 
 CONFIG(mobility) {
 HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
@@ -717,7 +719,9 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/application/AMPluginsManager.cpp \
 	source/application/AMAppControllerSupport.cpp \
     source/dataman/import/AMScanDatabaseImportController.cpp \
-    source/ui/dataman/AMScanDatabaseImportWizard.cpp
+    source/ui/dataman/AMScanDatabaseImportWizard.cpp \
+	source/beamline/CLS/CLSMDriveMotorControl.cpp \
+    source/ui/beamline/AMControlMoveButton.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
@@ -734,6 +738,10 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
 
 
 

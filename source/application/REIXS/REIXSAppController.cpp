@@ -40,6 +40,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/REIXS/REIXSXESHexapodControlEditor.h"
 #include "ui/REIXS/REIXSXESSpectrometerControlEditor.h"
+#include "ui/REIXS/REIXSSampleChamberButtonPanel.h"
 
 #include "ui/dataman/AMSamplePlateView.h"
 #include "dataman/AMRun.h"
@@ -116,6 +117,7 @@ bool REIXSAppController::startup() {
 		hl->addWidget(gb);
 
 		hl->addWidget(new REIXSXESSpectrometerControlEditor(REIXSBeamline::bl()->spectrometer()));
+		hl->addWidget(new REIXSSampleChamberButtonPanel());
 
 		hl->addStretch(1);
 
