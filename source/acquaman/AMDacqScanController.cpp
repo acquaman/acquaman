@@ -76,16 +76,9 @@ bool AMDacqScanController::startImplementation(){
 				return false;
 			}
 			// Ensure that the dacq hasn't misloaded our x-column and set it to "NoRecord = true"
-			if(ev->pvList[0].noRecord == 1){
-				qDebug() << "Caught the dacq trying to screw up";
+			if(ev->pvList[0].noRecord == 1)
 				ev->pvList[0].noRecord = 0;
-			}
 			
-			for(int x = 0; x < ev->numPvList; x++){
-				if(ev->pvList[x].isSpectrum == 1)
-					qDebug() << "Found a SPECTRUM flag in pv " << x;
-			}
-
 			if(useDwellTimes_)
 				connect(dwellTimeTrigger_, SIGNAL(valueChanged(double)), this, SLOT(onDwellTimeTriggerChanged(double)));
 
