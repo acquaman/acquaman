@@ -4,7 +4,7 @@
 # ####################################################################
 
 # Video Support: Remove this line if you do not have the multimedia module from QtMobility
-#CONFIG += mobility
+CONFIG += mobility
 
 # Debug: Uncomment this to build the program in debug mode (no optimizations; include debugging symbols.)
 # Note that as of November 18, 2011, building in debug mode triggers a failure in the dacq library: the main (eV) PV ends up disabled in the dacq scan config.  This is likely a serious memory error.
@@ -287,7 +287,6 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/ui/AMThumbnailScrollViewer.h \
 	source/ui/AMBottomBar.h \
 	source/ui/acquaman/AMRegionsView.h \
-	#deprecated: source/ui/AMBeamlineCameraWidget.h \
 	source/ui/beamline/AMControlEditor.h \
 	source/acquaman.h \
 	source/ui/dataman/AMNewRunDialog.h \
@@ -318,7 +317,6 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/ui/AMStartScreen.h \
 	source/ui/AMSignallingGraphicsView.h \
 	source/dataman/AMUser.h \
-	#deprecated: source/ui/AMVideoPlayerWidget.h \
 	source/dataman/AMXESScan.h \
 	source/dataman/info/ALSBL8XESDetectorInfo.h \
 	source/dataman/ALSBL8XASFileLoader.h \
@@ -353,7 +351,6 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/actions/AMBeamlineControlStopAction.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
 	source/util/AMDeferredFunctionCall.h \
-	#deprecated: source/ui/AMVideoWidget.h \
 	source/ui/acquaman/AMScanConfigurationViewHolder.h \
 	source/ui/util/AMPeriodicTableView.h \
 	source/util/AMPeriodicTable.h \
@@ -453,6 +450,7 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 CONFIG(mobility) {
 HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
 	source/ui/AMOverlayVideoWidget.h \
+	source/ui/AMBeamlineCameraWidget.h \
 	source/ui/AMBeamlineCameraBrowser.h
 }
 
@@ -566,7 +564,6 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/AMThumbnailScrollViewer.cpp \
 	source/ui/AMBottomBar.cpp \
 	source/ui/acquaman/AMRegionsView.cpp \
-	#deprecated: source/ui/AMBeamlineCameraWidget.cpp \
 	source/ui/beamline/AMControlEditor.cpp \
 	source/ui/beamline/AMDetectorView.cpp \
 	source/ui/dataman/AMNewRunDialog.cpp \
@@ -595,7 +592,6 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/AMStartScreen.cpp \
 	source/ui/AMSignallingGraphicsView.cpp \
 	source/dataman/AMUser.cpp \
-	#deprecated: source/ui/AMVideoPlayerWidget.cpp \
 	source/dataman/AMXESScan.cpp \
 	source/dataman/info/ALSBL8XESDetectorInfo.cpp \
 	source/dataman/ALSBL8XASFileLoader.cpp \
@@ -647,8 +643,6 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/beamline/AMDetectorSet.cpp \
 	source/dataman/info/AMROIInfo.cpp \
 	source/beamline/AMROI.cpp \
-	#deprecated: source/ui/AMVideoWidget.cpp \
-	#source/beamline/AMBeamlineListAction.cpp
 	source/ui/dataman/AMSamplePositionViewActionsWidget.cpp \
 	source/actions/AMBeamlineListAction.cpp \
 	source/actions/AMBeamlineControlWaitAction.cpp \
@@ -727,6 +721,7 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
 		source/ui/AMCrosshairOverlayVideoWidget.cpp \
+		source/ui/AMBeamlineCameraWidget.cpp \
 		source/ui/AMBeamlineCameraBrowser.cpp
 }
 

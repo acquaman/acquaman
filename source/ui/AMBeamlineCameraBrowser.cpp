@@ -119,7 +119,7 @@ void AMBeamlineCameraBrowser::onSourceComboBoxChanged(int index)
 				sourceComboBox_->setItemText(index, url.toString());
 			setWindowTitle(url.toString());
 			videoWidget_->mediaPlayer()->setMedia(url);
-			qDebug() << "AMBeamlineCameraBrowser: Loading and playing" << url.toString();
+			// qDebug() << "AMBeamlineCameraBrowser: Loading and playing" << url.toString();
 			videoWidget_->mediaPlayer()->play();
 		}
 		else {
