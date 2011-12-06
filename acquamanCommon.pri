@@ -15,6 +15,9 @@ HOME_FOLDER = $$system(echo $HOME)
 
 macx {
 
+		# Disable Qt Mobility Video until everyone's Mac laptops support that
+		CONFIG -= mobility
+
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
 		DEV_PATH = dev
 
@@ -61,6 +64,9 @@ linux-g++ {
 		XML_INCLUDE_DIR = /usr/include/libxml2
 }
 linux-g++-32 {
+
+		# Disable Qt Mobility Video until Darren's laptop is ready for that.
+		CONFIG -= mobility
 
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
 		DEV_PATH = beamline/programming
@@ -111,6 +117,9 @@ CONFIG(jenkins_build) {
 
 		message("Detected Jenkins auto-build... Specifying dependency paths for the build server.")
 
+		# Disable Qt Mobility Video until the Jenkins-machine supports that
+		CONFIG -= mobility
+
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = /home/mark/dev/epics/base/include \
 				/home/mark/dev/epics/base/include/os/Linux
@@ -123,7 +132,7 @@ CONFIG(jenkins_build) {
 
 QT += core gui sql opengl
 
-# video using Multimedia module from QtMobility, if we have it
+# add video using Multimedia module from QtMobility, if we have it
 CONFIG(mobility) {
 	MOBILITY += multimedia
 }

@@ -37,7 +37,6 @@ AMSampleManagementWidget::AMSampleManagementWidget(QWidget *manipulatorWidget, c
 #else
 	Q_UNUSED(sampleCameraUrl);
 	Q_UNUSED(sampleCameraDescription);
-	cameraWidget_ = 0;
 #endif
 
 	topFrame_ = new AMTopFrame("Sample Management & Positioning");
