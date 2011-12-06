@@ -133,6 +133,7 @@ bool SGMAppController::startup() {
 		//////////
 		samplePositionView_ = new AMSampleManagementWidget(new SGMSampleManipulatorView(),
 									QUrl("http://ccd1611-403/axis-cgi/mjpg/video.cgi?resolution=1280x1024&.mjpg"),
+									"Sample Camera",
 									SGMBeamline::sgm()->currentSamplePlate(),
 									SGMBeamline::sgm()->sampleManipulator());
 		mw_->addPane(samplePositionView_, "Beamline Control", "SGM Sample Position", ":/system-software-update.png");

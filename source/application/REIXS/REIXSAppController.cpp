@@ -42,7 +42,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/REIXS/REIXSXESSpectrometerControlEditor.h"
 #include "ui/REIXS/REIXSSampleChamberButtonPanel.h"
 
-#include "ui/dataman/AMSamplePlateView.h"
+#include "ui/dataman/AMSampleManagementWidget.h"	/// \todo This doesn't belong in dataman
+#include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
 #include "dataman/AMRun.h"
 #include "ui/AMStartScreen.h"
 
@@ -93,6 +94,17 @@ bool REIXSAppController::startup() {
 		scanConfigurationHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_, xesScanConfigurationView_);
 		mw_->addPane(scanConfigurationHolder_, "Experiment Setup", "Emission Scan", ":/utilities-system-monitor.png");
 
+		AMSampleManagementWidget* sampleManagementPane = new AMSampleManagementWidget(new REIXSSampleChamberButtonPanel(),
+																					  QUrl("http://v2e1610-101.clsi.ca/mjpg/1/video.mjpg"),
+																					  "Sample Camera: down beam path",
+																					  0,
+																					  0,
+																					  0);
+
+		// sampleManagementPane->cameraWidget()->addSource("Just for testing", QUrl("/Users/mboots/Pictures/iPhoto Library/Masters/2011/09/14/20110914-110302/SANY0026.MP4"));
+		// other video sources: "http://v2e1607-001.cs.clsi.ca/mjpg/1/video.mjpg" "/Users/mboots/Pictures/iPhoto Library/Masters/2011/09/14/20110914-110302/SANY0026.MP4"
+		mw_->addPane(sampleManagementPane, "Experiment Setup", "Samples Positions", ":/22x22/gnome-display-properties.png");
+
 		////////////////// Testing junk; move somewhere clean ////////////////////
 		QWidget* spectrometerControlWidget = new QWidget();
 		QHBoxLayout* hl = new QHBoxLayout();
@@ -117,41 +129,8 @@ bool REIXSAppController::startup() {
 		hl->addWidget(gb);
 
 		hl->addWidget(new REIXSXESSpectrometerControlEditor(REIXSBeamline::bl()->spectrometer()));
-		hl->addWidget(new REIXSSampleChamberButtonPanel());
 
 		hl->addStretch(1);
-
-		// hl->addWidget(new AMSamplePlateView());
-
-
-//		AMCrosshairOverlayVideoWidget* vw = new AMCrosshairOverlayVideoWidget();
-//		// vw->videoItem()->setAspectRatioMode(Qt::IgnoreAspectRatio);
-//		vw->setCrosshairPosition(QPointF(0.99, 0.99));
-//		vw->show();
-//		vw->mediaPlayer()->setMedia(QUrl("/Users/mboots/Pictures/iPhoto Library/Originals/2010/mine movies/101_0216.M4V"));
-//		vw->mediaPlayer()->play();
-
-
-//		AMVideoWidget* vw = new AMVideoWidget();
-//		hl->addWidget(vw);
-//		vw->openVideoUrl("http://v2e1607-001.cs.clsi.ca/mjpg/1/video.mjpg");
-//		// vw->openVideoUrl("/Users/mboots/Pictures/iPhoto Library/Originals/2010/mine movies/101_0216.M4V");
-//		vw->play();
-
-
-
-//		vw->videoWidget()->openVideoUrl("/Users/mboots/Pictures/iPhoto Library/Originals/2010/mine movies/101_0216.M4V");
-//		vw->videoWidget()->play();
-
-//		AMOverlayVideoWidget* vw = new AMOverlayVideoWidget();
-//		hl->addWidget(vw, 1);
-//		vw->videoPlayer()->play(QString("/Users/mboots/Pictures/iPhoto Library/Originals/2010/mine movies/101_0216.M4V"));
-
-//		Phonon::VideoPlayer* vp = new Phonon::VideoPlayer();
-//		hl->addWidget(vp, 1);
-//		vp->play(QString("/Users/mboots/Pictures/iPhoto Library/Originals/2010/mine movies/101_0216.M4V"));
-
-
 
 		spectrometerControlWidget->setLayout(hl);
 		mw_->addPane(spectrometerControlWidget, "Experiment Setup", "Spectrometer controls", ":/utilities-system-monitor.png");
@@ -167,13 +146,13 @@ bool REIXSAppController::startup() {
 
 
 		/*! \todo: hook up bottom-bar signals to the active scan controller.
-	void MainWindow::onScanControllerReady(AMScanController *scanController){
-		qDebug() << "\n\nScan controller is ready\n\n";
-		connect(bottomBar_, SIGNAL(pauseScanIssued()), scanController, SLOT(pause()));
-		connect(bottomBar_, SIGNAL(stopScanIssued()), scanController, SLOT(cancel()));
-		connect(scanController, SIGNAL(progress(double,double)), bottomBar_, SLOT(updateScanProgress(double,double)));
-	}
-	*/
+ void MainWindow::onScanControllerReady(AMScanController *scanController){
+  qDebug() << "\n\nScan controller is ready\n\n";
+  connect(bottomBar_, SIGNAL(pauseScanIssued()), scanController, SLOT(pause()));
+  connect(bottomBar_, SIGNAL(stopScanIssued()), scanController, SLOT(cancel()));
+  connect(scanController, SIGNAL(progress(double,double)), bottomBar_, SLOT(updateScanProgress(double,double)));
+ }
+ */
 
 		return true;
 	}

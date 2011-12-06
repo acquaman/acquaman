@@ -445,12 +445,15 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/beamline/CLS/CLSMDriveMotorControl.h \
     source/ui/beamline/AMControlMoveButton.h \
     source/beamline/AMSampleManipulator.h \
-    source/beamline/AMControlSetSampleManipulator.h
+	source/beamline/AMControlSetSampleManipulator.h
 
 CONFIG(mobility) {
+DEFINES += AM_MOBILITY_VIDEO_ENABLED
+
 HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
 	source/ui/AMOverlayVideoWidget.h \
 	source/ui/AMBeamlineCameraWidget.h \
+	source/ui/AMBeamlineCameraWidgetWithSourceTabs.h \
 	source/ui/AMBeamlineCameraBrowser.h
 }
 
@@ -716,12 +719,13 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
     source/ui/dataman/AMScanDatabaseImportWizard.cpp \
 	source/beamline/CLS/CLSMDriveMotorControl.cpp \
     source/ui/beamline/AMControlMoveButton.cpp \
-    source/beamline/AMControlSetSampleManipulator.cpp
+	source/beamline/AMControlSetSampleManipulator.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
 		source/ui/AMCrosshairOverlayVideoWidget.cpp \
 		source/ui/AMBeamlineCameraWidget.cpp \
+		source/ui/AMBeamlineCameraWidgetWithSourceTabs.cpp \
 		source/ui/AMBeamlineCameraBrowser.cpp
 }
 
@@ -734,6 +738,12 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
 
 
 

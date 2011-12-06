@@ -23,11 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppController.h"
 
-//class AMSamplePositionView;
-//class AMXASScanConfigurationHolder;
-//class AMFastScanConfigurationHolder;
-//class AMScanConfigurationView;
-
 class REIXSXESScanConfigurationDetailedView;
 class AMScanConfigurationViewHolder;
 
@@ -62,7 +57,6 @@ protected:
 
 	AMScanConfigurationViewHolder* scanConfigurationHolder_;
 	REIXSXESScanConfigurationDetailedView* xesScanConfigurationView_;
-
 
 };
 

@@ -26,27 +26,36 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMTopFrame.h"
 
-AMSampleManagementWidget::AMSampleManagementWidget(QWidget *manipulatorWidget, const QUrl& sampleCameraUrl, AMSamplePlate* samplePlate, AMSampleManipulator* manipulator, QWidget *parent) :
+#include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
+
+AMSampleManagementWidget::AMSampleManagementWidget(QWidget *manipulatorWidget, const QUrl& sampleCameraUrl, const QString& sampleCameraDescription, AMSamplePlate* samplePlate, AMSampleManipulator* manipulator, QWidget *parent) :
 	QWidget(parent)
 {
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+	cameraWidget_ = new AMBeamlineCameraWidgetWithSourceTabs(sampleCameraUrl, sampleCameraDescription);
+	cameraWidget_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+#else
 	Q_UNUSED(sampleCameraUrl);
-	// cam_ = new AMBeamlineCameraWidget("Sample Camera", sampleCameraUrl);
-	// cam_->addSource("Camera 2", source2);
+	Q_UNUSED(sampleCameraDescription);
+	cameraWidget_ = 0;
+#endif
 
 	topFrame_ = new AMTopFrame("Sample Management & Positioning");
 	topFrame_->setIcon(QIcon(":/system-software-update.png"));
 
 	plateView_ = new AMSamplePlateView(samplePlate);
-	plateView_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+	plateView_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
 	plateView_->setManipulator(manipulator);
 
 	manipulatorWidget_ = manipulatorWidget;
-	manipulatorWidget_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	manipulatorWidget_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
 	connect(plateView_, SIGNAL(newSamplePlateSelected()), this, SLOT(onNewSamplePlateSelected()));
 
 	gl_ = new QGridLayout();
-	//gl_->addWidget(cam_, 0, 0, 3, 1, Qt::AlignLeft);
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+	gl_->addWidget(cameraWidget_, 0, 0, 3, 1, Qt::AlignLeft);
+#endif
 	gl_->addWidget(plateView_, 0, 1, 5, 1, Qt::AlignLeft);
 	gl_->addWidget(manipulatorWidget_, 3, 0, 2, 1, Qt::AlignLeft);
 
