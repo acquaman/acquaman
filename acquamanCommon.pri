@@ -300,7 +300,6 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/ui/AMDragDropItemModel.h \
 	source/dataman/AMRunExperimentItems.h \
 	source/ui/dataman/AMSampleManagementWidget.h \
-	source/ui/dataman/AMSampleManipulatorView.h \
 	source/ui/dataman/AMSamplePlateView.h \
 	source/dataman/info/AMControlInfoList.h \
 	source/dataman/AMSamplePlate.h \
@@ -447,7 +446,9 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
     source/dataman/import/AMScanDatabaseImportController.h \
     source/ui/dataman/AMScanDatabaseImportWizard.h \
 	source/beamline/CLS/CLSMDriveMotorControl.h \
-    source/ui/beamline/AMControlMoveButton.h
+    source/ui/beamline/AMControlMoveButton.h \
+    source/beamline/AMSampleManipulator.h \
+    source/beamline/AMControlSetSampleManipulator.h
 
 CONFIG(mobility) {
 HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
@@ -576,7 +577,6 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/AMDragDropItemModel.cpp \
 	source/dataman/AMRunExperimentItems.cpp \
 	source/ui/dataman/AMSampleManagementWidget.cpp \
-	source/ui/dataman/AMSampleManipulatorView.cpp \
 	source/ui/dataman/AMSamplePlateView.cpp \
 	source/dataman/info/AMControlInfoList.cpp \
 	source/dataman/AMSamplePlate.cpp \
@@ -721,7 +721,8 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
     source/dataman/import/AMScanDatabaseImportController.cpp \
     source/ui/dataman/AMScanDatabaseImportWizard.cpp \
 	source/beamline/CLS/CLSMDriveMotorControl.cpp \
-    source/ui/beamline/AMControlMoveButton.cpp
+    source/ui/beamline/AMControlMoveButton.cpp \
+    source/beamline/AMControlSetSampleManipulator.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
@@ -738,6 +739,10 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
 
 
 

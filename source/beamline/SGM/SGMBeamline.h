@@ -42,6 +42,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions/AMBeamlineParallelActionsList.h"
 #include "actions/AMBeamlineListAction.h"
 
+#include "beamline/AMControlSetSampleManipulator.h"
+
 #include "beamline/AMDetectorSet.h"
 
 #include "beamline/AMControlOptimization.h"
@@ -228,6 +230,8 @@ public:
 	AMControlSet* trackingSet() const { return trackingSet_;}
 	AMControlSet* ssaManipulatorSet() const { return ssaManipulatorSet_; }
 	QList<AMControlInfoList> ssaFiducializations() const { return ssaFiducializations_; }
+
+	AMControlSetSampleManipulator* sampleManipulator() const { return sampleManipulator_; }
 
 	AMDetectorSet* allDetectors() const { return allDetectors_;}
 	AMDetectorSet* feedbackDetectors() const { return feedbackDetectors_;}
@@ -445,6 +449,7 @@ protected:
 
 	AMControlSet *trackingSet_;
 	AMControlSet *ssaManipulatorSet_;
+	AMControlSetSampleManipulator *sampleManipulator_;
 	QList<double> ssaManipulatorSampleTolerances_;
 	QList<AMControlInfoList> ssaFiducializations_;
 

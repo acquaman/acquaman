@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMTopFrame.h"
 
-AMSampleManagementWidget::AMSampleManagementWidget(AMSampleManipulatorView *manipulatorView, const QUrl& sampleCameraUrl, AMSamplePlate* samplePlate, QWidget *parent) :
+AMSampleManagementWidget::AMSampleManagementWidget(QWidget *manipulatorWidget, const QUrl& sampleCameraUrl, AMSamplePlate* samplePlate, AMSampleManipulator* manipulator, QWidget *parent) :
 	QWidget(parent)
 {
 	Q_UNUSED(sampleCameraUrl);
@@ -38,30 +38,17 @@ AMSampleManagementWidget::AMSampleManagementWidget(AMSampleManipulatorView *mani
 
 	plateView_ = new AMSamplePlateView(samplePlate);
 	plateView_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+	plateView_->setManipulator(manipulator);
 
-	/* PREVIOUSLY on the OC:
-	if(!manipulatorView)
-		manipulatorView_ = new AMSampleManipulatorView();
-	else
-		manipulatorView_ = manipulatorView;
-	if(manipulatorView_->manipulator()){
-		manipulator_ = manipulatorView_->manipulator();
-		plateView_->setManipulator(manipulator_);
-	}*/
-
-	// Now assuming that all passed-in objects must be valid: (made it not an option to default to 0)
-	manipulatorView_ = manipulatorView;
-	// Access the sample manipulator through the manipulatorView, and set the plateView_'s manipulator to use the same.
-	plateView_->setManipulator(manipulatorView_->manipulator());
-
-	manipulatorView_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	manipulatorWidget_ = manipulatorWidget;
+	manipulatorWidget_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
 	connect(plateView_, SIGNAL(newSamplePlateSelected()), this, SLOT(onNewSamplePlateSelected()));
 
 	gl_ = new QGridLayout();
 	//gl_->addWidget(cam_, 0, 0, 3, 1, Qt::AlignLeft);
 	gl_->addWidget(plateView_, 0, 1, 5, 1, Qt::AlignLeft);
-	gl_->addWidget(manipulatorView_, 3, 0, 2, 1, Qt::AlignLeft);
+	gl_->addWidget(manipulatorWidget_, 3, 0, 2, 1, Qt::AlignLeft);
 
 	QVBoxLayout *vl = new QVBoxLayout();
 	vl->addWidget(topFrame_);
@@ -74,6 +61,6 @@ AMSampleManagementWidget::AMSampleManagementWidget(AMSampleManipulatorView *mani
 }
 
 void AMSampleManagementWidget::onNewSamplePlateSelected() {
-	qDebug() << "I heard that the current sample plate changed";
+	// qDebug() << "I heard that the current sample plate changed";
 	emit newSamplePlateSelected(plateView_->samplePlate());
 }
