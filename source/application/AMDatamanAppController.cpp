@@ -256,7 +256,6 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
 	AMDbObjectSupport::s()->registerClass<AMControlInfo>();
 	AMDbObjectSupport::s()->registerClass<AMControlInfoList>();
-	AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
 	AMDbObjectSupport::s()->registerClass<AMDetectorInfoSet>();
 	AMDbObjectSupport::s()->registerClass<AMSamplePosition>();
 	AMDbObjectSupport::s()->registerClass<AMSamplePlate>();
