@@ -218,11 +218,12 @@ public:
 
 	/// Inserts an AMXASRegion into the model.  It builds a default AMXASRegion, sets the control to whatever the energy control is at the time.
 	bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex());
+/*
 	/// Retrieves the data from an index (row and column) and returns as a QVariant. Only valid role is Qt::DisplayRole right now.  Re-implementing to add eV units.  If AMRegions have a units parameter then this will be unnecessary.
 	QVariant data(const QModelIndex &index, int role) const;
 	/// Sets the data value at an index (row and column). Only valid role is Qt::DisplayRole right now.  Re-implementing to add eV units.  If AMRegions have a units parameter then this will be unnecessary.
 	bool setData(const QModelIndex &index, const QVariant &value, int role);
-
+*/
 public slots:
 	/// Sets the energy control that is used for scanning the energy in an XAS scan.
 	void setEnergyControl(AMControl* energyControl) { setDefaultControl(energyControl); }

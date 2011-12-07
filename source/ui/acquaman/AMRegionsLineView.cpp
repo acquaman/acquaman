@@ -137,7 +137,7 @@ void EnergyIndexItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 	painter->drawText(box, Qt::AlignHCenter, energyVal.setNum(energy_) + " eV", textBox_);
 }
 
-AMRegionsLineView::AMRegionsLineView(AMXASRegionsList *regions, QWidget *parent) : QWidget(parent)
+AMRegionsLineView::AMRegionsLineView(AMRegionsList *regions, QWidget *parent) : QWidget(parent)
 {
 	regions_ = regions;
 	int nlSize = 800;
@@ -191,30 +191,30 @@ void AMRegionsLineView::handleRowsRemoved(const QModelIndex &parent, int start, 
 void AMRegionsLineView::redrawRegionsLine(){
 	int nlSize = 800;
 	scene->clear();
-	double range = regions_->maxEnergy() - regions_->minEnergy();
+	double range = regions_->maximumValue() - regions_->minimumValue();
 	double ratio = range/(nlSize-60);
 
 	if (regions_->isValid()){
 
 		for (int i = 0; i < regions_->count(); ++i) {
 
-			RegionItem *item = new RegionItem(regions_->start(i), regions_->delta(i), regions_->end(i), regions_->minEnergy(), regions_->maxEnergy(), nlSize-60);
-			item->setPos( 10+(int)floor((regions_->start(i)-regions_->minEnergy())/ratio), 0);
+			RegionItem *item = new RegionItem(regions_->start(i), regions_->delta(i), regions_->end(i), regions_->minimumValue(), regions_->maximumValue(), nlSize-60);
+			item->setPos( 10+(int)floor((regions_->start(i)-regions_->minimumValue())/ratio), 0);
 			scene->addItem(item);
-			EnergyIndexItem *eItem = new EnergyIndexItem(regions_->start(i), regions_->minEnergy(), regions_->maxEnergy(), nlSize-60);
-			eItem->setPos(10+(int)floor((regions_->start(i)-regions_->minEnergy())/ratio), 30);
+			EnergyIndexItem *eItem = new EnergyIndexItem(regions_->start(i), regions_->minimumValue(), regions_->maximumValue(), nlSize-60);
+			eItem->setPos(10+(int)floor((regions_->start(i)-regions_->minimumValue())/ratio), 30);
 			scene->addItem(eItem);
 		}
-		EnergyIndexItem *eItem = new EnergyIndexItem(regions_->end(regions_->count()-1), regions_->minEnergy(), regions_->maxEnergy(), nlSize-60);
-		eItem->setPos(10+(int)floor((regions_->end(regions_->count()-1)-regions_->minEnergy())/ratio) - eItem->boundingRect().width(), 30);
+		EnergyIndexItem *eItem = new EnergyIndexItem(regions_->end(regions_->count()-1), regions_->minimumValue(), regions_->maximumValue(), nlSize-60);
+		eItem->setPos(10+(int)floor((regions_->end(regions_->count()-1)-regions_->minimumValue())/ratio) - eItem->boundingRect().width(), 30);
 		scene->addItem(eItem);
 	}
 
 	else{
 
 		for (int i = 0; i < regions_->count(); ++i) {
-			RegionItem *item = new RegionItem(regions_->start(i), regions_->delta(i), regions_->end(i), regions_->minEnergy(), regions_->maxEnergy(), nlSize-60);
-			item->setPos( 10+(int)floor((regions_->start(i)-regions_->minEnergy())/ratio), 0);
+			RegionItem *item = new RegionItem(regions_->start(i), regions_->delta(i), regions_->end(i), regions_->minimumValue(), regions_->maximumValue(), nlSize-60);
+			item->setPos( 10+(int)floor((regions_->start(i)-regions_->minimumValue())/ratio), 0);
 			scene->addItem(item);
 		}
 

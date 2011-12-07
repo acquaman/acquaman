@@ -43,8 +43,11 @@ double AMRegionsList::start(int index) const
 {
 	QVariant retVal = regions_->data(regions_->index(index, 1), Qt::DisplayRole);
 
-	if(retVal.isValid())
+	if(retVal.isValid()){
+		QString val = retVal.toString();
+		val.chop(units(index).size());
 		return retVal.toDouble();
+	}
 
 	return -1;
 }
@@ -54,8 +57,12 @@ double AMRegionsList::delta(int index) const
 {
 	QVariant retVal = regions_->data(regions_->index(index, 2), Qt::DisplayRole);
 
-	if(retVal.isValid())
+	if(retVal.isValid()){
+
+		QString val = retVal.toString();
+		val.chop(units(index).size());
 		return retVal.toDouble();
+	}
 
 	return 0;
 }
@@ -65,8 +72,12 @@ double AMRegionsList::end(int index) const
 {
 	QVariant retVal = regions_->data(regions_->index(index, 3), Qt::DisplayRole);
 
-	if(retVal.isValid())
+	if(retVal.isValid()){
+
+		QString val = retVal.toString();
+		val.chop(units(index).size());
 		return retVal.toDouble();
+	}
 
 	return -1;
 }
@@ -95,9 +106,12 @@ double AMRegionsList::time(int index) const
 {
 	QVariant retVal = regions_->data(regions_->index(index, 7), Qt::DisplayRole);
 
-	if(retVal.isValid())
-		return retVal.toDouble();
+	if(retVal.isValid()){
 
+		QString val = retVal.toString();
+		val.chop(2);
+		return retVal.toDouble();
+	}
 	return -1;
 }
 
@@ -128,7 +142,7 @@ bool AMRegionsList::addRegion(int index, double start, double delta, double end,
 		return false;
 
 	retVal = setStart(index, start) && setDelta(index, delta) && setEnd(index, end) && setTime(index, time) && setUnits(index, defaultUnits_);
-
+	qDebug() << index << start << delta << end << time;
 	if(retVal){
 
 		if( (index == 0) && (count() != 1) ){
@@ -176,6 +190,9 @@ bool AMRegionsList::addRegion(int index, double start, double delta, double end,
 	// If we couldn't setup the region, take it out.
 	else
 		regions_->removeRows(index, 1);
+
+	for (int i = 0; i < regions_->regions()->size(); i++)
+		qDebug() << regions_->regions()->at(i)->start() << regions_->regions()->at(i)->delta() << regions_->regions()->at(i)->end() << regions_->regions()->at(i)->time();
 
 	return retVal;
 }
@@ -323,7 +340,7 @@ bool AMXASRegionsList::setupModel(){
 
 	return false;
 }
-
+/*
 // Returns the start value of the region refered to by index. If an invalid index is given, returns -1 (not a valid energy value).
 double AMXASRegionsList::start(int index) const
 {
@@ -382,7 +399,7 @@ double AMXASRegionsList::time(int index) const
 
 	return -1;
 }
-
+*/
 // AMEXAFSRegionsList
 ///////////////////////////////////////////
 

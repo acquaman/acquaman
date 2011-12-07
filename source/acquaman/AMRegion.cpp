@@ -244,6 +244,7 @@ bool AMRegionsListModel::setData(const QModelIndex &index, const QVariant &value
 		bool bval;
 
 		AMRegion *region = regions_->at(index.row());
+
 		if(index.column() == 1 || index.column() == 2 || index.column() == 3){
 
 			QString energy = value.toString();
@@ -266,6 +267,7 @@ bool AMRegionsListModel::setData(const QModelIndex &index, const QVariant &value
 
 			dval = time.toDouble(&conversionOK);
 		}
+
 		// Check if any data is invalid.
 		if(!conversionOK)
 			return false;
@@ -398,7 +400,7 @@ bool AMXASRegionsListModel::insertRows(int position, int rows, const QModelIndex
 
 	return false;
 }
-
+/*
 QVariant AMXASRegionsListModel::data(const QModelIndex &index, int role) const{
 	// Invalid index:
 	if(!index.isValid())
@@ -546,7 +548,7 @@ bool AMXASRegionsListModel::setData(const QModelIndex &index, const QVariant &va
 
 	return false;	// no value set
 }
-
+*/
 // AMEXAFSRegion
 ///////////////////////////////////////////////////
 

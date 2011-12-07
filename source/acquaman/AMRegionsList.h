@@ -117,6 +117,40 @@ public slots:
 	/// Sets the range for sensible values.
 	void setSensibleRange(double start, double end) { sensibleStart_ = start; sensibleEnd_ = end; }
 
+	/// Returns the maximum energy from all the regions.
+	virtual double maximumValue(){
+
+		double curMax = -1e12;
+
+		for(int x = 0; x < count(); x++){
+
+			if(start(x) > curMax)
+				curMax = start(x);
+
+			if(end(x) > curMax)
+				curMax = end(x);
+		}
+
+		return curMax;
+	}
+
+	/// Returns the minimum energy from all the regions.
+	virtual double minimumValue(){
+
+		double curMin = 1e12;
+
+		for(int x = 0; x < count(); x++){
+
+			if(start(x) < curMin)
+				curMin = start(x);
+
+			if(end(x) < curMin)
+				curMin = end(x);
+		}
+
+		return curMin;
+	}
+
 signals:
 	/// Notifier that the data contained within the model has changed.
 	void regionsChanged();
@@ -153,7 +187,7 @@ Q_OBJECT
 public:
 	/// Constructor.  Sets up its own regions model.
 	AMXASRegionsList(QObject *parent = 0, bool setup = true) : AMRegionsList(parent, false) { if(setup) setupModel(); }
-
+/*
 	/// Overloaded to account for the eV units added.  Can be removed if a general AMRegion units algorithm is implemented.  Returns the start value of the region referred to by index. If an invalid index is given, returns -1 (not a valid energy value).
 	virtual double start(int index) const;
 	/// Overloaded to account for the eV units added.  Can be removed if a general AMRegion units algorithm is implemented.  Returns the delta value of the region referred to by index. If an invalid index is given, returns 0 (not a valid delta value).
@@ -162,46 +196,12 @@ public:
 	virtual double end(int index) const;
 	/// Overloaded to account for the eV units added.  Can be removed if a general AMRegion units algorithm is implemented.  Returns the time value of the region referred to by \param index.  If an invalid index is given, returns -1 (not a valid time value).
 	virtual double time(int index) const;
-
+*/
 public slots:
 	/// Sets the energy control for the AMXASRegions.  Also sets the default control for the regions list.
 	virtual void setEnergyControl(AMControl* energyControl) { defaultControl_ = energyControl; ((AMXASRegionsListModel*)regions_)->setEnergyControl(energyControl); }
 	/// Sets the time control for the AMXASRegions.  Also sets the default time control for the regions list.
 	virtual void setTimeControl(AMControl *timeControl) { defaultTimeControl_ = timeControl; ((AMXASRegionsListModel *)regions_)->setTimeControl(timeControl); }
-
-	/// Returns the maximum energy from all the regions.
-	virtual double maxEnergy(){
-
-		double curMax = 1e-12;
-
-		for(int x = 0; x < count(); x++){
-
-			if(start(x) > curMax)
-				curMax = start(x);
-
-			if(end(x) > curMax)
-				curMax = end(x);
-		}
-
-		return curMax;
-	}
-
-	/// Returns the minimum energy from all the regions.
-	virtual double minEnergy(){
-
-		double curMin = 1e12;
-
-		for(int x = 0; x < count(); x++){
-
-			if(start(x) < curMin)
-				curMin = start(x);
-
-			if(end(x) < curMin)
-				curMin = end(x);
-		}
-
-		return curMin;
-	}
 
 protected:
 	/// Function used to setup the model that the list should manage.  When subclassed, call in the constructor to build your own custom model.
