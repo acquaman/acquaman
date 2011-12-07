@@ -53,8 +53,10 @@ public:
 
 	/// Accesses the sample plate view
 	AMSamplePlateView* samplePlateView() { return plateView_; }
-	/// Access the camera widget. If Acquaman has not been built with video support enabled, the camera widget will not appear, and this will return 0.
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+	/// Access the camera widget.
 	AMBeamlineCameraWidgetWithSourceTabs* cameraWidget() { return cameraWidget_; }
+#endif
 	/// Access the user-suppplied manipulator widget
 	QWidget* manipulatorWidget() { return manipulatorWidget_; }
 signals:
