@@ -75,7 +75,6 @@ protected:
 	QWidget *manipulatorWidget_;
 
 	AMTopFrame *topFrame_;
-	QGridLayout *gl_;
 };
 
 

@@ -44,27 +44,27 @@ AMSampleManagementWidget::AMSampleManagementWidget(QWidget *manipulatorWidget, c
 	topFrame_->setIcon(QIcon(":/system-software-update.png"));
 
 	plateView_ = new AMSamplePlateView(samplePlate);
-	plateView_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
 	plateView_->setManipulator(manipulator);
 
 	manipulatorWidget_ = manipulatorWidget;
-	manipulatorWidget_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
 	connect(plateView_, SIGNAL(newSamplePlateSelected()), this, SLOT(onNewSamplePlateSelected()));
 
-	gl_ = new QGridLayout();
-#ifdef AM_MOBILITY_VIDEO_ENABLED
-	gl_->addWidget(cameraWidget_, 0, 0, 3, 1, Qt::AlignLeft);
-#endif
-	gl_->addWidget(plateView_, 0, 1, 5, 1, Qt::AlignLeft);
-	gl_->addWidget(manipulatorWidget_, 3, 0, 2, 1, Qt::AlignLeft);
-
 	QVBoxLayout *vl = new QVBoxLayout();
+	QGridLayout* gl = new QGridLayout();
 	vl->addWidget(topFrame_);
-	vl->addLayout(gl_);
+	vl->addLayout(gl);
+
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+	gl->addWidget(cameraWidget_, 0, 0, 1, 1);
+#endif
+	gl->addWidget(plateView_, 0, 1, 2, 1);
+	gl->addWidget(manipulatorWidget_, 1, 0, 1, 1);
+	gl->setColumnStretch(0,1);
+	gl->setColumnStretch(1,0);
+
 	vl->setContentsMargins(0,0,0,0);
-	vl->setSpacing(1);
-	gl_->setContentsMargins(10, 0, 10, 0);
+	gl->setContentsMargins(10, 0, 10, 0);
 
 	setLayout(vl);
 }

@@ -135,7 +135,7 @@ void AMBeamlineCameraBrowser::setCurrentSourceURL(const QString &sourceURL)
 
 void AMBeamlineCameraBrowser::onMediaPlayerError()
 {
-	QMessageBox::warning(this, "AcquaCam Error", "Sorry! There was an error trying to open that media URL.");
+	QMessageBox::warning(this, "AcquaCam Error", "Sorry! There was an error trying to open that media URL:\n\n   " + videoWidget_->mediaPlayer()->errorString());
 	sourceComboBox_->removeItem(sourceComboBox_->currentIndex());
 }
 

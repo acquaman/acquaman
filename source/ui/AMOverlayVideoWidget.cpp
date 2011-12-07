@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMOverlayVideoWidget::AMOverlayVideoWidget(QWidget *parent, bool useOpenGlViewport) :
 	QGraphicsView(parent)
 {
-	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 	if(useOpenGlViewport) {
 		// setViewport(new QGLWidget());

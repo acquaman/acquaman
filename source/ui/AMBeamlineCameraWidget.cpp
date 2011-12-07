@@ -67,7 +67,6 @@ AMBeamlineCameraWidget::AMBeamlineCameraWidget(QWidget *parent, bool useOpenGlVi
 	vl->addWidget(videoWidget_ = new AMCrosshairOverlayVideoWidget(0, useOpenGlViewport));
 	setLayout(vl);
 
-
 	// Make conections:
 	//////////////////////////
 
