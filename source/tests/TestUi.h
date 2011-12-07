@@ -247,7 +247,7 @@ private slots:
 
 
 		SGM2004FileLoader s1Loader(&s1);
-		QString fileName = AMUserSettings::userDataFolder + "001.dat";
+		QString fileName = AMUserSettings::userDataFolder + "/001.dat";
 
 		QVERIFY(s1Loader.loadFromFile(fileName, true, true, true));
 
@@ -339,7 +339,7 @@ private slots:
 
 
 		SGM2004FileLoader s1Loader(&s1);
-		QString fileName = AMUserSettings::userDataFolder + "001.dat";
+		QString fileName = AMUserSettings::userDataFolder + "/001.dat";
 
 		QVERIFY(s1Loader.loadFromFile(fileName, true, true, true));
 
@@ -432,7 +432,7 @@ private slots:
 
 
 		SGM2004FileLoader s1Loader(&s1);
-		QString fileName = AMUserSettings::userDataFolder + "001.dat";
+		QString fileName = AMUserSettings::userDataFolder + "/001.dat";
 
 		QVERIFY(s1Loader.loadFromFile(fileName, true, true, true));
 
@@ -520,7 +520,7 @@ private slots:
 
 
 		SGM2004FileLoader s1Loader(&s1);
-		QString fileName = AMUserSettings::userDataFolder + "001.dat";
+		QString fileName = AMUserSettings::userDataFolder + "/001.dat";
 
 		QVERIFY(s1Loader.loadFromFile(fileName, true, true, true));
 
