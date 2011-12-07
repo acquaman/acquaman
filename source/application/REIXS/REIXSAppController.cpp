@@ -140,19 +140,8 @@ bool REIXSAppController::startup() {
 
 		connect(scanConfigurationHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 
-
-
-		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerCreated()));
-
-
-		/*! \todo: hook up bottom-bar signals to the active scan controller.
- void MainWindow::onScanControllerReady(AMScanController *scanController){
-  qDebug() << "\n\nScan controller is ready\n\n";
-  connect(bottomBar_, SIGNAL(pauseScanIssued()), scanController, SLOT(pause()));
-  connect(bottomBar_, SIGNAL(stopScanIssued()), scanController, SLOT(cancel()));
-  connect(scanController, SIGNAL(progress(double,double)), bottomBar_, SLOT(updateScanProgress(double,double)));
- }
- */
+		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
+		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
 
 		return true;
 	}
