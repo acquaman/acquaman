@@ -45,13 +45,9 @@ public:
 	/// Returns the end value of the region referred to by index. If an invalid index is given, returns -1 (not a valid energy value).
 	virtual double end(int index) const;
 	/// Returns the time value of the region referred to by \param index.  If an invalid index is given, returns -1 (not a valid time value).
-<<<<<<< HEAD
 	virtual double time(int index) const;
-=======
-	double time(int index) const;
 	/// Returns the units for the region referred to by \param index.  If an invalid index is given, returns a null string.
 	QString units(int index) const;
->>>>>>> parent of ee6c12e... Revert "Preliminary progress on adding units to the AMRegions view.  I have screwed up the RegionsLineView somehow.  Also some of the auto-filling in of start values seems to be off as well."
 	/// Returns whether elastic start is enabled for the region referred to by \param region.  False is returned if an invalid index is given as well as if it is not enabled.
 	bool elasticStart(int index) const;
 	/// Returns whether elastic end is enabled for the region referred to by \param region.  False is returned if an invalid index is given as well as if it is not enabled.
@@ -68,11 +64,8 @@ public:
 	AMControl* defaultControl() const { return defaultControl_; }
 	/// Returns the default time control used by this list for the dwell time of each point.
 	AMControl *defaultTimeControl() const { return defaultTimeControl_; }
-<<<<<<< HEAD
-=======
 	/// Returns the default units for this region.  The no default has been set then an empty string is returned.
 	QString defaultUnits() const { return defaultUnits_; }
->>>>>>> parent of ee6c12e... Revert "Preliminary progress on adding units to the AMRegions view.  I have screwed up the RegionsLineView somehow.  Also some of the auto-filling in of start values seems to be off as well."
 
 	/// Returns the sensible start position.
 	double sensibleStart() const { return sensibleStart_; }

@@ -602,7 +602,8 @@ QString AMExporter::krFileSystemAutoIncrement(const QString &arg)
 		if(scan->database())
 			scan->storeToDb(scan->database());
 		else
-			scan->storeToDb(AMDatabase::database("user"));	}
+			scan->storeToDb(AMDatabase::database("user"));
+	}
 
 	return QString::number(currentScan_->number());
 }
