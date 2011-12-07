@@ -646,7 +646,7 @@ private slots:
 		AMXASScan s1;
 		SGM2004FileLoader s1Loader(&s1);
 		/// \todo move this into proper storage location in data dir.
-		QString fileName = AMUserSettings::userDataFolder + "testScriptData/sgm001.dat";
+		QString fileName = AMUserSettings::userDataFolder + "/testScriptData/sgm001.dat";
 		//		qDebug() << "loading sgm data from file and checking for proper read:" << fileName;
 		QVERIFY(s1Loader.loadFromFile(fileName, true, true, true));
 		QCOMPARE(s1.scanSize(0), int(301));
@@ -677,7 +677,7 @@ private slots:
 		AMXASScan s1;
 		SGM2004FileLoader s1Loader(&s1);
 		/// \todo move this into proper storage location in data dir.
-		QString fileName = AMUserSettings::userDataFolder + "testScriptData/sgm001.dat";
+		QString fileName = AMUserSettings::userDataFolder + "/testScriptData/sgm001.dat";
 		//qDebug() << "loading sgm data from file and checking for proper read:" << fileName;
 		QVERIFY(s1Loader.loadFromFile(fileName, true, true, true));
 

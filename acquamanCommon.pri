@@ -4,7 +4,7 @@
 # ####################################################################
 
 # Video Support: Remove this line if you do not have the multimedia module from QtMobility
-#CONFIG += mobility
+CONFIG += mobility
 
 # Debug: Uncomment this to build the program in debug mode (no optimizations; include debugging symbols.)
 # Note that as of November 18, 2011, building in debug mode triggers a failure in the dacq library: the main (eV) PV ends up disabled in the dacq scan config.  This is likely a serious memory error.
@@ -14,6 +14,9 @@
 HOME_FOLDER = $$system(echo $HOME)
 
 macx {
+
+		# Disable Qt Mobility Video until everyone's Mac laptops support that
+		CONFIG -= mobility
 
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
 		DEV_PATH = dev
@@ -62,6 +65,9 @@ linux-g++ {
 }
 linux-g++-32 {
 
+		# Disable Qt Mobility Video until Darren's laptop is ready for that.
+		CONFIG -= mobility
+
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
 		DEV_PATH = beamline/programming
 
@@ -86,7 +92,7 @@ linux-g++-32 {
 linux-g++-64 {
 
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = dev
+		DEV_PATH = beamline/programming
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = /home/epics/src/R3.14.12/base/include \
@@ -111,6 +117,9 @@ CONFIG(jenkins_build) {
 
 		message("Detected Jenkins auto-build... Specifying dependency paths for the build server.")
 
+		# Disable Qt Mobility Video until the Jenkins-machine supports that
+		CONFIG -= mobility
+
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = /home/mark/dev/epics/base/include \
 				/home/mark/dev/epics/base/include/os/Linux
@@ -123,7 +132,7 @@ CONFIG(jenkins_build) {
 
 QT += core gui sql opengl
 
-# video using Multimedia module from QtMobility, if we have it
+# add video using Multimedia module from QtMobility, if we have it
 CONFIG(mobility) {
 	MOBILITY += multimedia
 }
@@ -287,7 +296,6 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/ui/AMThumbnailScrollViewer.h \
 	source/ui/AMBottomBar.h \
 	source/ui/acquaman/AMRegionsView.h \
-	#deprecated: source/ui/AMBeamlineCameraWidget.h \
 	source/ui/beamline/AMControlEditor.h \
 	source/acquaman.h \
 	source/ui/dataman/AMNewRunDialog.h \
@@ -300,7 +308,6 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/ui/AMDragDropItemModel.h \
 	source/dataman/AMRunExperimentItems.h \
 	source/ui/dataman/AMSampleManagementWidget.h \
-	source/ui/dataman/AMSampleManipulatorView.h \
 	source/ui/dataman/AMSamplePlateView.h \
 	source/dataman/info/AMControlInfoList.h \
 	source/dataman/AMSamplePlate.h \
@@ -319,7 +326,6 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/ui/AMStartScreen.h \
 	source/ui/AMSignallingGraphicsView.h \
 	source/dataman/AMUser.h \
-	#deprecated: source/ui/AMVideoPlayerWidget.h \
 	source/dataman/AMXESScan.h \
 	source/dataman/info/ALSBL8XESDetectorInfo.h \
 	source/dataman/ALSBL8XASFileLoader.h \
@@ -354,7 +360,6 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/actions/AMBeamlineControlStopAction.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
 	source/util/AMDeferredFunctionCall.h \
-	#deprecated: source/ui/AMVideoWidget.h \
 	source/ui/acquaman/AMScanConfigurationViewHolder.h \
 	source/ui/util/AMPeriodicTableView.h \
 	source/util/AMPeriodicTable.h \
@@ -446,11 +451,18 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
     source/application/AMPluginsManager.h \
     source/dataman/import/AMScanDatabaseImportController.h \
     source/ui/dataman/AMScanDatabaseImportWizard.h \
-    source/beamline/CLSMDriveMotorControl.h
+	source/beamline/CLS/CLSMDriveMotorControl.h \
+    source/ui/beamline/AMControlMoveButton.h \
+    source/beamline/AMSampleManipulator.h \
+	source/beamline/AMControlSetSampleManipulator.h
 
 CONFIG(mobility) {
+DEFINES += AM_MOBILITY_VIDEO_ENABLED
+
 HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
 	source/ui/AMOverlayVideoWidget.h \
+	source/ui/AMBeamlineCameraWidget.h \
+	source/ui/AMBeamlineCameraWidgetWithSourceTabs.h \
 	source/ui/AMBeamlineCameraBrowser.h
 }
 
@@ -564,7 +576,6 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/AMThumbnailScrollViewer.cpp \
 	source/ui/AMBottomBar.cpp \
 	source/ui/acquaman/AMRegionsView.cpp \
-	#deprecated: source/ui/AMBeamlineCameraWidget.cpp \
 	source/ui/beamline/AMControlEditor.cpp \
 	source/ui/beamline/AMDetectorView.cpp \
 	source/ui/dataman/AMNewRunDialog.cpp \
@@ -575,7 +586,6 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/AMDragDropItemModel.cpp \
 	source/dataman/AMRunExperimentItems.cpp \
 	source/ui/dataman/AMSampleManagementWidget.cpp \
-	source/ui/dataman/AMSampleManipulatorView.cpp \
 	source/ui/dataman/AMSamplePlateView.cpp \
 	source/dataman/info/AMControlInfoList.cpp \
 	source/dataman/AMSamplePlate.cpp \
@@ -594,7 +604,6 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/AMStartScreen.cpp \
 	source/ui/AMSignallingGraphicsView.cpp \
 	source/dataman/AMUser.cpp \
-	#deprecated: source/ui/AMVideoPlayerWidget.cpp \
 	source/dataman/AMXESScan.cpp \
 	source/dataman/info/ALSBL8XESDetectorInfo.cpp \
 	source/dataman/ALSBL8XASFileLoader.cpp \
@@ -646,8 +655,6 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/beamline/AMDetectorSet.cpp \
 	source/dataman/info/AMROIInfo.cpp \
 	source/beamline/AMROI.cpp \
-	#deprecated: source/ui/AMVideoWidget.cpp \
-	#source/beamline/AMBeamlineListAction.cpp
 	source/ui/dataman/AMSamplePositionViewActionsWidget.cpp \
 	source/actions/AMBeamlineListAction.cpp \
 	source/actions/AMBeamlineControlWaitAction.cpp \
@@ -719,11 +726,15 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/application/AMAppControllerSupport.cpp \
     source/dataman/import/AMScanDatabaseImportController.cpp \
     source/ui/dataman/AMScanDatabaseImportWizard.cpp \
-    source/beamline/CLSMDriveMotorControl.cpp
+	source/beamline/CLS/CLSMDriveMotorControl.cpp \
+    source/ui/beamline/AMControlMoveButton.cpp \
+	source/beamline/AMControlSetSampleManipulator.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
 		source/ui/AMCrosshairOverlayVideoWidget.cpp \
+		source/ui/AMBeamlineCameraWidget.cpp \
+		source/ui/AMBeamlineCameraWidgetWithSourceTabs.cpp \
 		source/ui/AMBeamlineCameraBrowser.cpp
 }
 
@@ -736,6 +747,18 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

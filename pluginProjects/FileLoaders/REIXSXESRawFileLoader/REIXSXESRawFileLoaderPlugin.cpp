@@ -57,8 +57,9 @@ bool REIXSXESRawFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 
 		// read all the pixel values
 		imageArray = new qint32[pixelsX*pixelsY];
-		for(int i=0; i<pixelsX*pixelsY; i++)
-			ds >> *(imageArray++);
+		qint32* writePointer = imageArray;
+		for(int i=0, cc=pixelsX*pixelsY; i<cc; i++)
+			ds >> *(writePointer++);
 
 		// read the magic string at the end of the file (makes sure we had all the data)
 		magicText = file.read(magicTextShouldBe.length());
@@ -87,8 +88,7 @@ bool REIXSXESRawFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 	if(!scan->rawData()->setValue(AMnDIndex(), 0, imageArray, pixelsX*pixelsY))
 		AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Alert, -39, "Could not set detector image value. Please report this bug to the acquaman developers."));
 
-	/// \bug Why is this leaking?
-	// delete [] imageArray;
+	delete [] imageArray;
 
 
 

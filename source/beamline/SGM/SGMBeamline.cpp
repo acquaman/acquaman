@@ -929,6 +929,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	unconnectedSets_.append(ssaManipulatorSet_);
 	connect(ssaManipulatorSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
+	sampleManipulator_ = new AMControlSetSampleManipulator(ssaManipulatorSet_);
+
 	allDetectors_ = new AMDetectorSet(this);
 	allDetectors_->setName("All Detectors");
 

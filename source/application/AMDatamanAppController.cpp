@@ -159,7 +159,7 @@ bool AMDatamanAppController::startupIsFirstTime()
 		}
 
 		// check for existence of database:
-		QString filename = AMUserSettings::userDataFolder + AMUserSettings::userDatabaseFilename;
+		QString filename = AMUserSettings::userDataFolder + "/" + AMUserSettings::userDatabaseFilename;
 		QFile dbFile(filename);
 		if(!dbFile.exists()) {
 			isFirstTime = true;
@@ -198,7 +198,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 
 	// create database connection (and actual database): the "user" database:
 	//////////////////////
-	AMDatabase* db = AMDatabase::createDatabase("user", AMUserSettings::userDataFolder + AMUserSettings::userDatabaseFilename);
+	AMDatabase* db = AMDatabase::createDatabase("user", AMUserSettings::userDataFolder + "/" + AMUserSettings::userDatabaseFilename);
 	if(!db)
 		return false;
 
@@ -208,7 +208,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 bool AMDatamanAppController::startupOnEveryTime()
 {
 	// create the "user" database connection.
-	AMDatabase* db = AMDatabase::createDatabase("user", AMUserSettings::userDataFolder + AMUserSettings::userDatabaseFilename);
+	AMDatabase* db = AMDatabase::createDatabase("user", AMUserSettings::userDataFolder + "/" + AMUserSettings::userDatabaseFilename);
 	if(!db)
 		return false;
 
@@ -256,7 +256,6 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
 	AMDbObjectSupport::s()->registerClass<AMControlInfo>();
 	AMDbObjectSupport::s()->registerClass<AMControlInfoList>();
-	AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
 	AMDbObjectSupport::s()->registerClass<AMDetectorInfoSet>();
 	AMDbObjectSupport::s()->registerClass<AMSamplePosition>();
 	AMDbObjectSupport::s()->registerClass<AMSamplePlate>();

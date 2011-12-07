@@ -40,6 +40,7 @@ AMScan::AMScan(QObject *parent)
 	notes_ = QString();
 	filePath_ = QString();
 	fileFormat_ = "unknown";
+	indexType_ = "<none>";
 
 	configuration_ = 0;
 #ifndef ACQUAMAN_NO_ACQUISITION

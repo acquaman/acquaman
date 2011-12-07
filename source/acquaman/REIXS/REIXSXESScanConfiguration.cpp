@@ -23,6 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 	AMScanConfiguration(parent), mcpDetectorInfo_()
 {
+	setAutoExportEnabled(false);
+
 	gratingNumber_ = 0;
 	centerEV_ = 200;
 	defocusDistanceMm_ = 0;

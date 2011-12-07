@@ -386,7 +386,7 @@ The Control abstraction provides two different properties (and associated signal
 
 	/// Returns the enum string for a given \c controlValue. This function will check to make sure the control value is within the range of the set of enums.
 	QString enumNameAt(double controlValue) {
-		int enumValue = controlValue;
+		int enumValue = (int)controlValue;
 		if((unsigned)enumValue < (unsigned)enumNames_.count())
 			return enumNames_.at(enumValue);
 		else
@@ -400,6 +400,10 @@ public slots:
 	virtual void move(double setpoint) {
 		Q_UNUSED(setpoint);
 		emit moveFailed(AMControl::NotConnectedFailure);  // The default implementation cannot move.
+	}
+	/// This is used to move a control a relative distance from its current position. The base class implementation simply issues a move() to the current value() plus \c distance. This may not be sufficient if moveRelative() will be called faster than value() updates in your implementation; in that case, it's recommended to re-implement this as appropriate.
+	virtual void moveRelative(double distance) {
+		move(value() + distance);
 	}
 
 	/// This sets the tolerance level: the required level of accuracy for successful move()s.
@@ -1026,7 +1030,7 @@ public:
 	/// The EPICS channel-access name of the setpoint PV
 	QString writePVName() const { return writePV_->pvName(); }
 	/// The value of the writePV. This will match setpoint() unless someone else (another program or person in the facility) is changing the setpoint.
-	double writePVValue() const { return writePV_->lastValue(); }
+	virtual double writePVValue() const { return writePV_->lastValue(); }
 	/// Read-only access to the writePV.  Using this to change the writePVs value by connecting to its slots is not allowed/not supported.
 	const AMProcessVariable* writePV() const { return writePV_; }
 	/// The maximum time allowed for the Control to start isMoving() after a move() is issued.
@@ -1148,13 +1152,16 @@ public:
   \param stopValue is the value that will be written to the stopPV when stop() is called.
   \param parent QObject parent class
   \param description A human-readable description of what this control controls
+  \param readUnitConverter An instance of an AMAbstractUnitConverter used by value() to convert from the readPV raw value to our desired units
+  \param writeUnitConverter An instance of an AMAbstractUnitConverter used by move() and setpoint() to convert from our desired units to the raw writePV value. Note that it's important for \c readUnitConverter and \c writeUnitConverter to convert into the same consistent units so that value() and setpoint() can be compared together appropriately.  In many cases, if the underlying PVs have the same raw units, then the same converter can be used for both, and \c writeUnitConverter can be set as 0.
   */
 	AMPVwStatusAndUnitConversionControl(const QString& name,
 										const QString& readPVname,
 										const QString& writePVname,
 										const QString& movingPVname,
 										const QString& stopPVname = QString(),
-										AMAbstractUnitConverter* unitConverter = new AMScaleAndOffsetUnitConverter("myUnits"),
+										AMAbstractUnitConverter* readUnitConverter = new AMScaleAndOffsetUnitConverter("myUnits"),
+										AMAbstractUnitConverter* writeUnitConverter = 0,
 										QObject* parent = 0,
 										double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
 										double moveStartTimeoutSeconds = 2.0,
@@ -1163,31 +1170,35 @@ public:
 										const QString &description = "");
 
 	/// Destructor: deletes the unit converter
-	~AMPVwStatusAndUnitConversionControl() { delete converter_; }
+	~AMPVwStatusAndUnitConversionControl() { delete readConverter_; delete writeConverter_; }
 
-	/// Set the unit converter. This class takes ownership of \c newUnitConverter and deletes the old one. \c newUnitConverter must be a pointer to a valid object.
-	void setUnitConverter(AMAbstractUnitConverter* newUnitConverter);
-	/// Returns the unit converter currently in-use
-	AMAbstractUnitConverter* unitConverter() const { return converter_; }
+	/// Set the unit converters. This class takes ownership of the new converters and deletes the old ones. \c readUnitConverter must be a pointer to a valid object; writeUnitConverter can be 0 if the same conversion is appropriate for both the readPV and writePV.
+	void setUnitConverters(AMAbstractUnitConverter* readUnitConverter, AMAbstractUnitConverter* writeUnitConverter = 0);
+	/// Returns the unit converter currently in-use for the read (feedback) values
+	AMAbstractUnitConverter* readUnitConverter() const { return readConverter_; }
+	/// Returns the unit converter currently in-use for the write (setpoint, move) values
+	AMAbstractUnitConverter* writeUnitConverter() const { return writeConverter_ ? writeConverter_ : readConverter_; }
 
 	/// For units, we return the units given by our unit converter
-	virtual QString units() const { return converter_->units(); }
+	virtual QString units() const { return readConverter_->units(); }
 	/// But you can still access the underlying "raw" units if you want
 	virtual QString rawUnits() const { return AMPVwStatusControl::units(); }
 
-	/// We overload value() to convert the units
-	virtual double value() const { return converter_->convertFromRaw(AMPVwStatusControl::value()); }
+	/// We overload value() to convert to our desired units
+	virtual double value() const { return readUnitConverter()->convertFromRaw(AMPVwStatusControl::value()); }
 
-	/// We overload move() to convert the units back to raw units
-	virtual void move(double setpoint) { AMPVwStatusControl::move(converter_->convertToRaw(setpoint)); }
+	/// We overload move() to convert our units back to raw units for the writePV
+	virtual void move(double setpoint) { AMPVwStatusControl::move(writeUnitConverter()->convertToRaw(setpoint)); }
 
 	/// We overload setpoint() to convert the units
-	virtual double setpoint() const { return converter_->convertFromRaw(AMPVwStatusControl::setpoint()); }
+	virtual double setpoint() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::setpoint()); }
 
-	/// Overloaded to convert the units
-	virtual double minimumValue() const { return converter_->convertFromRaw(AMPVwStatusControl::minimumValue()); }
-	/// Overloaded to convert the units
-	virtual double maximumValue() const { return converter_->convertFromRaw(AMPVwStatusControl::maximumValue()); }
+	/// Overloaded to convert the units. The min and max values come from the specification in the writePV.
+	virtual double minimumValue() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::minimumValue()); }
+	/// Overloaded to convert the units The min and max values come from the specification in the writePV.
+	virtual double maximumValue() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::maximumValue()); }
+	/// Overloaded to convert the units.
+	virtual double writePVValue() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::writePVValue()); }
 
 
 protected slots:
@@ -1196,9 +1207,9 @@ protected slots:
 	/// Instead of forwarding the writePV valueChanged() signal directly as setpointChanged(), we need to do a conversion
 	void onWritePVValueChanged(double newValue);
 
-
 protected:
-	AMAbstractUnitConverter* converter_;
+
+	AMAbstractUnitConverter* readConverter_, *writeConverter_;
 };
 
 

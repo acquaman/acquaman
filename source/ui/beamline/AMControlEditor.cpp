@@ -57,6 +57,11 @@ AMBasicControlEditor::AMBasicControlEditor(AMControl* control, QWidget *parent) 
 	setHappy(false);
 	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
+	// Create the editor dialog:
+	dialog_ = new AMBasicControlEditorStyledInputDialog(this);
+	dialog_->hide();
+	dialog_->setWindowModality(Qt::NonModal);
+	connect(dialog_, SIGNAL(doubleValueSelected(double)), control_, SLOT(move(double)));
 
 	// Make connections:
 	if(control_) {
@@ -64,15 +69,16 @@ AMBasicControlEditor::AMBasicControlEditor(AMControl* control, QWidget *parent) 
 		connect(control_, SIGNAL(unitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));
 		connect(control_, SIGNAL(connected(bool)), this, SLOT(setHappy(bool)));
 		connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onMotion(bool)));
+
+		// If the control is connected already, update our state right now. (We won't get the connected() signal later.)
+		if(control_->isConnected()) {
+			setHappy(true);
+			onValueChanged(control_->value());
+			onUnitsChanged(control_->units());
+			onMotion(control_->isMoving());
+		}
 	}
 	connect(this, SIGNAL(clicked()), this, SLOT(onEditStart()));
-
-	// Create the editor dialog:
-	dialog_ = new AMBasicControlEditorStyledInputDialog(this);
-	dialog_->hide();
-	dialog_->setWindowModality(Qt::NonModal);
-	connect(dialog_, SIGNAL(doubleValueSelected(double)), control_, SLOT(move(double)));
-
 }
 
 void AMBasicControlEditor::onValueChanged(double newVal) {
@@ -177,7 +183,7 @@ void AMBasicControlEditorStyledInputDialog::onAccepted() {
 void AMBasicControlEditorStyledInputDialog::setDoubleValue(double d) { spinBox_->setValue(d); }
 void AMBasicControlEditorStyledInputDialog::setDoubleMaximum(double d) { spinBox_->setMaximum(d); }
 void AMBasicControlEditorStyledInputDialog::setDoubleMinimum(double d) { spinBox_->setMinimum(d); }
-void AMBasicControlEditorStyledInputDialog::setDoubleDecimals(double d) { spinBox_->setDecimals(d); }
+void AMBasicControlEditorStyledInputDialog::setDoubleDecimals(int d) { spinBox_->setDecimals(d); }
 void AMBasicControlEditorStyledInputDialog::setLabelText(const QString& s) { label_->setText(s); }
 void AMBasicControlEditorStyledInputDialog::setSuffix(const QString& s) { spinBox_->setSuffix(QString(" ") + s); }
 
@@ -198,7 +204,7 @@ AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl
 	precision_ = 3;
 
 	statusTagControl_ = statusTagControl;
-	if(!control_->canMove())
+	if(control_ && !control_->canMove())
 		readOnly_ = true;
 
 	// Create objects:
@@ -245,17 +251,6 @@ AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl
 	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
 
-	// Make connections:
-	if(control_){
-		connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
-		connect(control_, SIGNAL(unitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));
-		connect(control_, SIGNAL(connected(bool)), this, SLOT(setHappy(bool)));
-		connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onMotion(bool)));
-	}
-	if(statusTagControl_)
-		connect(statusTagControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusValueChanged(double)));
-	connect(this, SIGNAL(clicked()), this, SLOT(onEditStart()));
-
 	// Create the editor dialog:
 	QStringList enumNames = QStringList();
 	dialog_ = new AMControlEditorStyledInputDialog(enumNames, this);
@@ -265,17 +260,33 @@ AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl
 		connect(dialog_, SIGNAL(doubleValueSelected(double)), control_, SLOT(move(double)));
 	else
 		connect(dialog_, SIGNAL(doubleValueSelected(double)), this, SLOT(onNewSetpoint(double)));
-	connect(control_, SIGNAL(enumChanges(QStringList)), dialog_, SLOT(setEnumNames(QStringList)));
-
-
-	if(control_ && control_->isConnected()){
-		if(control_->isEnum())
-			dialog_->setEnumNames(control_->enumNames());
-		setHappy(control_->isConnected());
+	
+	// Make connections:
+	if(control_){
+		connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
+		connect(control_, SIGNAL(unitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));
+		connect(control_, SIGNAL(connected(bool)), this, SLOT(setHappy(bool)));
+		connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onMotion(bool)));
+		connect(control_, SIGNAL(enumChanges(QStringList)), dialog_, SLOT(setEnumNames(QStringList)));
+		// If the control is connected already, update our state right now. (We won't get the connected() signal later.)
+		if(control_->isConnected()) {
+			setHappy(true);
+			onValueChanged(control_->value());
+			onUnitsChanged(control_->units());
+			onMotion(control_->isMoving());
+			if(control_->isEnum())
+				dialog_->setEnumNames(control_->enumNames());
+		}
+	}
+	if(statusTagControl_) {
+		connect(statusTagControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusValueChanged(double)));
+		if(statusTagControl_->isConnected())
+			onStatusValueChanged(statusTagControl_->value());
+	
 	}
 
-	if(statusTagControl_ && statusTagControl_->isConnected())
-		onStatusValueChanged(statusTagControl_->value());
+	connect(this, SIGNAL(clicked()), this, SLOT(onEditStart()));
+
 }
 
 double AMControlEditor::setpoint() const{
@@ -495,7 +506,7 @@ void AMControlEditorStyledInputDialog::setDoubleMinimum(double d) {
 		spinBox_->setMinimum(d);
 }
 
-void AMControlEditorStyledInputDialog::setDoubleDecimals(double d) {
+void AMControlEditorStyledInputDialog::setDoubleDecimals(int d) {
 	if(!isEnum_)
 		spinBox_->setDecimals(d);
 }

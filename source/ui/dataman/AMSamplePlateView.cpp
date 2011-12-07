@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMDetailedItemDelegate.h"
 
+#include "beamline/AMSampleManipulator.h"
+
 AMSamplePlateItemModel::AMSamplePlateItemModel(AMSamplePlate* plate, QObject* parent) :
 	QAbstractListModel(parent)
 {
@@ -547,8 +549,8 @@ void AMSamplePlateView::onAddSampleButtonClicked() {
 		samplePlate_->append(
 					AMSamplePosition(
 						sampleSelector_->currentSample(),
-						manipulator_->toInfoList(),
-						0/*manipulator_->facilityId()*/));
+						manipulator_->position(),
+						manipulator_->facilityId()));
 	else
 		samplePlate_->append(
 					AMSamplePosition(
@@ -566,7 +568,7 @@ void AMSamplePlateView::onAddSampleButtonClicked() {
 // called by the delegate when the editor buttons (Mark, Move To, Remove) are clicked
 void AMSamplePlateView::onRowMarkPressed(int row) {
 	if(manipulator_)
-		(*samplePlate_)[row].setPosition( manipulator_->toInfoList() );
+		(*samplePlate_)[row].setPosition( manipulator_->position() );
 	else {
 		(*samplePlate_)[row].setPosition( AMControlInfoList() );
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, "We couldn't mark that sample position, because we don't know how to move or measure the sample manipulator."));
@@ -577,13 +579,12 @@ void AMSamplePlateView::onRowMarkPressed(int row) {
 }
 
 
-// #include "actions/AMBeamlineControlSetMoveAction.h"
-
 // called by the delegate when the editor buttons (Mark, Move To, Remove) are clicked
 void AMSamplePlateView::onRowMoveToPressed(int row) {
-	/// \todo Move this to a manipulator/controller's job, rather than do ourselves? Use an action instead of direct move?
+
 	if(manipulator_)
-		manipulator_->setFromInfoList(samplePlate_->at(row).position());
+		if(!manipulator_->moveToPosition(samplePlate_->at(row).position()))
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -6, "We couldn't move that sample into position, because the sample manipulator is not ready."));
 	else {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, "We couldn't move that sample into position, because we don't know how to move the sample manipulator."));
 	}
@@ -599,7 +600,7 @@ void AMSamplePlateView::onRowRemovePressed(int row) {
 
 void AMSamplePlateItemModel::onSamplePositionChanged(int r)
 {
-	if(r<plate_->count()) {
+	if(r < plate_->count()) {
 		QModelIndex i = index(r,0);
 		emit dataChanged(i,i);
 	}

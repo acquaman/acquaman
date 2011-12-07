@@ -117,7 +117,7 @@ AMDetectorInfo* AMDetectorInfoSet::detectorInfoNamed(const QString& detectorName
 	return at(index).first;
 }
 
-const AMDetectorInfo* const AMDetectorInfoSet::detectorInfoNamed(const QString &detectorName) const{
+const AMDetectorInfo* AMDetectorInfoSet::detectorInfoNamed(const QString &detectorName) const{
 	int index = indexOfKey(detectorName);
 	if(index < 0)
 		return 0; // NULL
