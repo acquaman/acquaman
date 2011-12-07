@@ -558,8 +558,6 @@ QString AMExporter::krFileSystemAutoIncrement(const QString &arg)
 	if (currentScan_->indexType() != "fileSystem")
 		return "[??]";
 
-	qDebug() << currentScan_->number();
-
 	// The default number for a scan is 0.  If it is still 0 then the scan has not yet been indexed.  If this value is non-zero (number > 0) then the scan has already
 	// been assigned which likely means that the current file is an associated separate file (ie: data file with a spectra file accompanying it).
 	// The other benefit for doing it this way is that now the exported file will have the same number as the name on the scan editor.
