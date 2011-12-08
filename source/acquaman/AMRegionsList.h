@@ -187,16 +187,7 @@ Q_OBJECT
 public:
 	/// Constructor.  Sets up its own regions model.
 	AMXASRegionsList(QObject *parent = 0, bool setup = true) : AMRegionsList(parent, false) { if(setup) setupModel(); }
-/*
-	/// Overloaded to account for the eV units added.  Can be removed if a general AMRegion units algorithm is implemented.  Returns the start value of the region referred to by index. If an invalid index is given, returns -1 (not a valid energy value).
-	virtual double start(int index) const;
-	/// Overloaded to account for the eV units added.  Can be removed if a general AMRegion units algorithm is implemented.  Returns the delta value of the region referred to by index. If an invalid index is given, returns 0 (not a valid delta value).
-	virtual double delta(int index) const;
-	/// Overloaded to account for the eV units added.  Can be removed if a general AMRegion units algorithm is implemented.  Returns the end value of the region referred to by index. If an invalid index is given, returns -1 (not a valid energy value).
-	virtual double end(int index) const;
-	/// Overloaded to account for the eV units added.  Can be removed if a general AMRegion units algorithm is implemented.  Returns the time value of the region referred to by \param index.  If an invalid index is given, returns -1 (not a valid time value).
-	virtual double time(int index) const;
-*/
+
 public slots:
 	/// Sets the energy control for the AMXASRegions.  Also sets the default control for the regions list.
 	virtual void setEnergyControl(AMControl* energyControl) { defaultControl_ = energyControl; ((AMXASRegionsListModel*)regions_)->setEnergyControl(energyControl); }
