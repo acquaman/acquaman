@@ -31,8 +31,7 @@ VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(QObject *parent)
 	ionChamberNames_.insert(Imini, "Imini");
 	ionChamberNames_.insert(Ipost, "Ipost");
 
-	regions_->setSensibleStart(-30);
-	regions_->setSensibleEnd(40);
+	regions_->setSensibleRange(-30, 40);
 	regions_->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
 	regions_->setTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
 	regions_->setDefaultUnits(" eV");
@@ -56,8 +55,8 @@ VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(const VESPERSXASScanCon
 	ionChamberNames_.insert(Imini, "Imini");
 	ionChamberNames_.insert(Ipost, "Ipost");
 
-	regions_->setSensibleStart(regions_->sensibleStart());
-	regions_->setSensibleEnd(regions_->sensibleEnd());
+	regions_->setSensibleStart(original.regions()->sensibleStart());
+	regions_->setSensibleEnd(original.regions()->sensibleEnd());
 	regions_->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
 	regions_->setTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
 	regions_->setDefaultUnits(original.regions()->defaultUnits());
