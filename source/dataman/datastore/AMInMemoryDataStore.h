@@ -324,6 +324,7 @@ public:
 		}
 
 		(*scanPoint)[measurementId][flatIndex] = newValue;
+		emitDataChanged(scanIndex, scanIndex, measurementId);
 		return true;
 	}
 
@@ -385,6 +386,7 @@ public:
 		for(int i=0; i<measurement.size(); i++)
 			measurement[i] = inputData[i];
 
+		emitDataChanged(scanIndex, scanIndex, measurementId);
 		return true;
 	}
 
@@ -444,6 +446,7 @@ public:
 		for(int i=0; i<measurement.size(); i++)
 			measurement[i] = inputData[i];
 
+		emitDataChanged(scanIndex, scanIndex, measurementId);
 		return true;
 	}
 

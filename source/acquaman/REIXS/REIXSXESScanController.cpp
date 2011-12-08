@@ -44,7 +44,7 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 	scan_->setRunId(AMUser::user()->currentRunId());
 
 	// set the scan configuration within the scan:
-	scan_->setScanConfiguration(generalConfig_);
+	scan_->setScanConfiguration(config_);
 	///////////////////////////
 
 	// resolve any potential differences between the configured detector info, and the size of the actual detector. (Cumbersome, I know... The detector size seems configurable but isn't; you have to use the actual size of the real detector.)
@@ -138,7 +138,7 @@ bool REIXSXESScanController::startImplementation() {
 	connect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(onNewImageValues()));
 	connect(&scanProgressTimer_, SIGNAL(timeout()), this, SLOT(onScanProgressCheck()));
 
-	startTime_.start();
+	startTime_ = QDateTime::currentDateTime();
 	scanProgressTimer_.start(1000);
 
 	setStarted();
@@ -171,8 +171,7 @@ void REIXSXESScanController::onNewImageValues() {
 
 void REIXSXESScanController::onScanProgressCheck() {
 
-	/// \todo This will not work for scans longer than 24 hours.
-	double secondsElapsed = startTime_.elapsed()/1000;
+	int secondsElapsed = startTime_.secsTo(QDateTime::currentDateTime());
 
 	if(secondsElapsed > config_->maximumDurationSeconds()) {
 		onScanFinished();
@@ -180,6 +179,7 @@ void REIXSXESScanController::onScanProgressCheck() {
 	}
 
 	/// \bug What if this occurs before the detector is done clearing itself? could be spurious?
+	/// \todo Solve: wait for detector to clear before starting scan.
 	int totalCounts = REIXSBeamline::bl()->mcpDetector()->totalCounts();
 
 	if(totalCounts > config_->maximumTotalCounts()) {
@@ -204,7 +204,7 @@ void REIXSXESScanController::onScanProgressCheck() {
 
 	// every 5 seconds, save the raw data to disk.
 	/// \todo Make this a define adjustable
-	if((int)secondsElapsed % 5 == 0) {
+	if(secondsElapsed % 5 == 0) {
 		saveRawData();
 	}
 }
