@@ -46,6 +46,10 @@ public:
 	virtual double end(int index) const;
 	/// Returns the time value of the region referred to by \param index.  If an invalid index is given, returns -1 (not a valid time value).
 	virtual double time(int index) const;
+	/// Returns the units for the region referred to by \param index.  If an invalid index is given, returns a null string.
+	QString units(int index) const;
+	/// Returns teh time units for the region referred to by \param index.  If an invalid index is given, returns a null string.
+	QString timeUnits(int index) const;
 	/// Returns whether elastic start is enabled for the region referred to by \param region.  False is returned if an invalid index is given as well as if it is not enabled.
 	bool elasticStart(int index) const;
 	/// Returns whether elastic end is enabled for the region referred to by \param region.  False is returned if an invalid index is given as well as if it is not enabled.
@@ -62,6 +66,10 @@ public:
 	AMControl* defaultControl() const { return defaultControl_; }
 	/// Returns the default time control used by this list for the dwell time of each point.
 	AMControl *defaultTimeControl() const { return defaultTimeControl_; }
+	/// Returns the default units for this region.  If no default has been set then an empty string is returned.
+	QString defaultUnits() const { return defaultUnits_; }
+	/// Returns the default time units for this region.  If no default has been set then an empty string is returned.
+	QString defaultTimeUnits() const { return defaultTimeUnits_; }
 
 	/// Returns the sensible start position.
 	double sensibleStart() const { return sensibleStart_; }
@@ -77,6 +85,22 @@ public slots:
 	bool setEnd(int index, double end) { return regions_->setData(regions_->index(index, 3), end, Qt::EditRole); }
 	/// Sets the time value for the region referred to by index.  Returns true if successful, returns false if the index is invalid or the time is negative.
 	bool setTime(int index, double time) { return regions_->setData(regions_->index(index, 7), time, Qt::EditRole); }
+	/// Sets the units string for the region referred to by \param index.  Returns true if successful, returns false if the index is invalid.
+	bool setUnits(int index, const QString &units)
+	{
+		if (index < regions_->regions()->size())
+			return regions_->regions()->at(index)->setUnits(units);
+
+		return false;
+	}
+	/// Sets the time units string for the region referred to by \param index.  Returns true if successful, returns false if the index is invalid.
+	bool setTimeUnits(int index, const QString &units)
+	{
+		if (index < regions_->regions()->size())
+			return regions_->regions()->at(index)->setTimeUnits(units);
+
+		return false;
+	}
 	/// Sets the elastic start state for the region referred to by \param index. Returns true if successful, returns false if the index is invalid.
 	bool setElasticStart(int index, bool state) { return regions_->setData(regions_->index(index, 4), state, Qt::EditRole); }
 	/// Sets the elastic end state for the region referred to by \param index.  Returns true if successful, returns false if the index is invalid.
@@ -101,6 +125,10 @@ public slots:
 	void setDefaultControl(AMControl* defaultControl) { defaultControl_ = defaultControl; regions_->setDefaultControl(defaultControl); }
 	/// Sets the default time control used for time dwelling on each point and also passes the control to the model it is managing.
 	void setDefaultTimeControl(AMControl *defaultTimeControl) { defaultTimeControl_ = defaultTimeControl; regions_->setDefaultTimeControl(defaultTimeControl); }
+	/// Sets the default units.  These units are set to every new region that is created.
+	void setDefaultUnits(const QString &units) { defaultUnits_ = units; }
+	/// Sets the default time units.  These units are set to every new region that is created.
+	void setDefaultTimeUnits(const QString &units) { defaultTimeUnits_ = units; }
 
 	/// Sets the value for sensible start values.
 	void setSensibleStart(double val) { sensibleStart_ = val; }
@@ -108,6 +136,40 @@ public slots:
 	void setSensibleEnd(double val) { sensibleEnd_ = val; }
 	/// Sets the range for sensible values.
 	void setSensibleRange(double start, double end) { sensibleStart_ = start; sensibleEnd_ = end; }
+
+	/// Returns the maximum energy from all the regions.
+	virtual double maximumValue(){
+
+		double curMax = -1e12;
+
+		for(int x = 0; x < count(); x++){
+
+			if(start(x) > curMax)
+				curMax = start(x);
+
+			if(end(x) > curMax)
+				curMax = end(x);
+		}
+
+		return curMax;
+	}
+
+	/// Returns the minimum energy from all the regions.
+	virtual double minimumValue(){
+
+		double curMin = 1e12;
+
+		for(int x = 0; x < count(); x++){
+
+			if(start(x) < curMin)
+				curMin = start(x);
+
+			if(end(x) < curMin)
+				curMin = end(x);
+		}
+
+		return curMin;
+	}
 
 signals:
 	/// Notifier that the data contained within the model has changed.
@@ -134,6 +196,11 @@ protected:
 	double sensibleStart_;
 	/// A maximum value that can be used for intelligent energy selection in the XXXSqueeze functions.
 	double sensibleEnd_;
+
+	/// String holding the default units for this regions list.
+	QString defaultUnits_;
+	/// String holding the default time units for this regions list.
+	QString defaultTimeUnits_;
 };
 
 /// This class subclasses the AMRegionsList class to add some functionality specific to AMXASRegions.  Calls its own setupModel() to setup AMXASRegions instead of generic AMRegions.
@@ -144,54 +211,11 @@ public:
 	/// Constructor.  Sets up its own regions model.
 	AMXASRegionsList(QObject *parent = 0, bool setup = true) : AMRegionsList(parent, false) { if(setup) setupModel(); }
 
-	/// Overloaded to account for the eV units added.  Can be removed if a general AMRegion units algorithm is implemented.  Returns the start value of the region referred to by index. If an invalid index is given, returns -1 (not a valid energy value).
-	virtual double start(int index) const;
-	/// Overloaded to account for the eV units added.  Can be removed if a general AMRegion units algorithm is implemented.  Returns the delta value of the region referred to by index. If an invalid index is given, returns 0 (not a valid delta value).
-	virtual double delta(int index) const;
-	/// Overloaded to account for the eV units added.  Can be removed if a general AMRegion units algorithm is implemented.  Returns the end value of the region referred to by index. If an invalid index is given, returns -1 (not a valid energy value).
-	virtual double end(int index) const;
-	/// Overloaded to account for the eV units added.  Can be removed if a general AMRegion units algorithm is implemented.  Returns the time value of the region referred to by \param index.  If an invalid index is given, returns -1 (not a valid time value).
-	virtual double time(int index) const;
-
 public slots:
 	/// Sets the energy control for the AMXASRegions.  Also sets the default control for the regions list.
 	virtual void setEnergyControl(AMControl* energyControl) { defaultControl_ = energyControl; ((AMXASRegionsListModel*)regions_)->setEnergyControl(energyControl); }
 	/// Sets the time control for the AMXASRegions.  Also sets the default time control for the regions list.
 	virtual void setTimeControl(AMControl *timeControl) { defaultTimeControl_ = timeControl; ((AMXASRegionsListModel *)regions_)->setTimeControl(timeControl); }
-
-	/// Returns the maximum energy from all the regions.
-	virtual double maxEnergy(){
-
-		double curMax = 1e-12;
-
-		for(int x = 0; x < count(); x++){
-
-			if(start(x) > curMax)
-				curMax = start(x);
-
-			if(end(x) > curMax)
-				curMax = end(x);
-		}
-
-		return curMax;
-	}
-
-	/// Returns the minimum energy from all the regions.
-	virtual double minEnergy(){
-
-		double curMin = 1e12;
-
-		for(int x = 0; x < count(); x++){
-
-			if(start(x) < curMin)
-				curMin = start(x);
-
-			if(end(x) < curMin)
-				curMin = end(x);
-		}
-
-		return curMin;
-	}
 
 protected:
 	/// Function used to setup the model that the list should manage.  When subclassed, call in the constructor to build your own custom model.

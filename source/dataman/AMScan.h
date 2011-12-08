@@ -66,6 +66,7 @@ class AMScan : public AMDbObject {
 	Q_PROPERTY(QString analyzedDataSourcesConnections READ dbReadAnalyzedDataSourcesConnections WRITE dbLoadAnalyzedDataSourcesConnections)
 	Q_PROPERTY(AMDbObject* scanConfiguration READ dbGetScanConfiguration WRITE dbLoadScanConfiguration)
 	Q_PROPERTY(bool currentlyScanning READ currentlyScanning WRITE dbLoadCurrentlyScanning NOTIFY currentlyScanningChanged)
+	Q_PROPERTY(QString indexType READ indexType WRITE setIndexType)
 
 	Q_CLASSINFO("dateTime", "createIndex=true")
 	Q_CLASSINFO("sampleId", "createIndex=true")
@@ -77,6 +78,7 @@ class AMScan : public AMDbObject {
 	Q_CLASSINFO("analyzedDataSourcesConnections", "hidden=true")
 	Q_CLASSINFO("scanConfiguration", "hidden=true")
 	Q_CLASSINFO("unEvaluatedName", "upgradeDefault=<none>")
+	Q_CLASSINFO("indexType", "upgradeDefault=<none>")
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Scan")
 
@@ -114,6 +116,9 @@ public:
 	QString filePath() const { return filePath_; }
 	/// Any additional files of raw data that need to be referenced
 	QStringList additionalFilePaths() const { return additionalFilePaths_; }
+
+	/// Returns the indexation type that this scan will follow.
+	QString indexType() const { return indexType_; }
 
 	// Convenience functions on meta-data:
 	/////////////////////////
@@ -327,6 +332,8 @@ public slots:
 	void setRunId(int newRunId);
 	/// Sets the sample associated with this scan.
 	void setSampleId(int newSampleId);
+	/// Sets the indexation type.
+	void setIndexType(const QString &newType) { indexType_ = newType; setModified(true); }
 
 	/// Sets notes for scan
 	void setNotes(const QString &notes) { notes_ = notes; setModified(true); }
@@ -398,6 +405,8 @@ protected:
 	QString filePath_, fileFormat_;
 	/// Any additional files of raw data that need to be referenced.
 	QStringList additionalFilePaths_;
+	/// String holding what type of indexation the scan index can take.  This is a first attempt at actually using the scan index.  Currently, the only index type is fileSystem.
+	QString indexType_;
 
 	AMScanDictionary *nameDictionary_;
 	AMScanDictionary *exportNameDictionary_;

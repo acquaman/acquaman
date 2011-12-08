@@ -72,7 +72,7 @@ class AMRegionsLineView : public QWidget
 {
 	Q_OBJECT
 public:
-	AMRegionsLineView(AMXASRegionsList *regions, QWidget *parent = 0);
+	AMRegionsLineView(AMRegionsList *regions, QWidget *parent = 0);
 
 protected slots:
 	void handleDataChanged(QModelIndex topLeft, QModelIndex bottomRight);
@@ -81,7 +81,7 @@ protected slots:
 	void redrawRegionsLine();
 
 protected:
-	AMXASRegionsList *regions_;
+	AMRegionsList *regions_;
 	QGraphicsScene *scene;
 	QGraphicsView *view;
 };

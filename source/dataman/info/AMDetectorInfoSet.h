@@ -60,7 +60,11 @@ public:
 	int indexOf(const QString& detectorName) const;
 	/// Returns the detectorInfo named \c detectorName. (A NULL pointer is returned if there is nothing by that name in the set.)
 	AMDetectorInfo* detectorInfoNamed(const QString& detectorName);
-	const AMDetectorInfo* const detectorInfoNamed(const QString &detectorName) const;
+	/* NTBA December 7, 2011 Darren Hunter
+	  Based on research I am taking out the second const.  However, Dave still might want to test this.
+	  const AMDetectorInfo* const detectorInfoNamed(const QString &detectorName) const;
+	  */
+	const AMDetectorInfo* detectorInfoNamed(const QString &detectorName) const;
 	/// Returns the detectorInfo at the given index. (A NULL pointer is returned if the index is out of bounds.)
 	AMDetectorInfo* detectorInfoAt(int index);
 	// THIS WILL HAVE TO COPY AND CREATE A NEW ONE

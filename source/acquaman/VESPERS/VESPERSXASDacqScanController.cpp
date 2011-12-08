@@ -38,6 +38,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 	scan_->setFileFormat("vespers2011XAS");
 	scan_->setScanConfiguration(config_);
 	scan_->setRunId(AMUser::user()->currentRunId());
+	scan_->setIndexType("fileSystem");
 
 	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
