@@ -48,6 +48,8 @@ public:
 	virtual double time(int index) const;
 	/// Returns the units for the region referred to by \param index.  If an invalid index is given, returns a null string.
 	QString units(int index) const;
+	/// Returns teh time units for the region referred to by \param index.  If an invalid index is given, returns a null string.
+	QString timeUnits(int index) const;
 	/// Returns whether elastic start is enabled for the region referred to by \param region.  False is returned if an invalid index is given as well as if it is not enabled.
 	bool elasticStart(int index) const;
 	/// Returns whether elastic end is enabled for the region referred to by \param region.  False is returned if an invalid index is given as well as if it is not enabled.
@@ -64,8 +66,10 @@ public:
 	AMControl* defaultControl() const { return defaultControl_; }
 	/// Returns the default time control used by this list for the dwell time of each point.
 	AMControl *defaultTimeControl() const { return defaultTimeControl_; }
-	/// Returns the default units for this region.  The no default has been set then an empty string is returned.
+	/// Returns the default units for this region.  If no default has been set then an empty string is returned.
 	QString defaultUnits() const { return defaultUnits_; }
+	/// Returns the default time units for this region.  If no default has been set then an empty string is returned.
+	QString defaultTimeUnits() const { return defaultTimeUnits_; }
 
 	/// Returns the sensible start position.
 	double sensibleStart() const { return sensibleStart_; }
@@ -82,7 +86,21 @@ public slots:
 	/// Sets the time value for the region referred to by index.  Returns true if successful, returns false if the index is invalid or the time is negative.
 	bool setTime(int index, double time) { return regions_->setData(regions_->index(index, 7), time, Qt::EditRole); }
 	/// Sets the units string for the region referred to by \param index.  Returns true if successful, returns false if the index is invalid.
-	bool setUnits(int index, const QString &units) { return regions_->regions()->at(index)->setUnits(units); }
+	bool setUnits(int index, const QString &units)
+	{
+		if (index < regions_->regions()->size())
+			return regions_->regions()->at(index)->setUnits(units);
+
+		return false;
+	}
+	/// Sets the time units string for the region referred to by \param index.  Returns true if successful, returns false if the index is invalid.
+	bool setTimeUnits(int index, const QString &units)
+	{
+		if (index < regions_->regions()->size())
+			return regions_->regions()->at(index)->setTimeUnits(units);
+
+		return false;
+	}
 	/// Sets the elastic start state for the region referred to by \param index. Returns true if successful, returns false if the index is invalid.
 	bool setElasticStart(int index, bool state) { return regions_->setData(regions_->index(index, 4), state, Qt::EditRole); }
 	/// Sets the elastic end state for the region referred to by \param index.  Returns true if successful, returns false if the index is invalid.
@@ -109,6 +127,8 @@ public slots:
 	void setDefaultTimeControl(AMControl *defaultTimeControl) { defaultTimeControl_ = defaultTimeControl; regions_->setDefaultTimeControl(defaultTimeControl); }
 	/// Sets the default units.  These units are set to every new region that is created.
 	void setDefaultUnits(const QString &units) { defaultUnits_ = units; }
+	/// Sets the default time units.  These units are set to every new region that is created.
+	void setDefaultTimeUnits(const QString &units) { defaultTimeUnits_ = units; }
 
 	/// Sets the value for sensible start values.
 	void setSensibleStart(double val) { sensibleStart_ = val; }
@@ -177,7 +197,10 @@ protected:
 	/// A maximum value that can be used for intelligent energy selection in the XXXSqueeze functions.
 	double sensibleEnd_;
 
+	/// String holding the default units for this regions list.
 	QString defaultUnits_;
+	/// String holding the default time units for this regions list.
+	QString defaultTimeUnits_;
 };
 
 /// This class subclasses the AMRegionsList class to add some functionality specific to AMXASRegions.  Calls its own setupModel() to setup AMXASRegions instead of generic AMRegions.

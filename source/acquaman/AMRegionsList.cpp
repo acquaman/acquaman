@@ -29,6 +29,7 @@ AMRegionsList::AMRegionsList(QObject *parent, bool setup)
 	defaultControl_ = NULL;
 	regions_ = NULL;
 	defaultUnits_ = "";
+	defaultTimeUnits_ = "";
 
 	// Setting the sensible start and end values to the SGM values to preserve existing code.
 	sensibleStart_ = 200;
@@ -110,7 +111,7 @@ double AMRegionsList::time(int index) const
 	if(retVal.isValid()){
 
 		QString val = retVal.toString();
-		val.chop(2);
+		val.chop(timeUnits(index).size());
 		return val.toDouble();
 	}
 	return -1;
@@ -123,6 +124,15 @@ QString AMRegionsList::units(int index) const
 
 	return QString();
 }
+
+QString AMRegionsList::timeUnits(int index) const
+{
+	if (index < regions_->regions()->size())
+		return regions_->regions()->at(index)->timeUnits();
+
+	return QString();
+}
+
 bool AMRegionsList::isValid() const
 {
 	for (int i = 0; i < regions_->regions()->size(); i++)
@@ -142,7 +152,7 @@ bool AMRegionsList::addRegion(int index, double start, double delta, double end,
 	if(!regions_->insertRows(index, 1))
 		return false;
 
-	retVal = setStart(index, start) && setDelta(index, delta) && setEnd(index, end) && setTime(index, time) && setUnits(index, defaultUnits_);
+	retVal = setStart(index, start) && setDelta(index, delta) && setEnd(index, end) && setTime(index, time) && setUnits(index, defaultUnits_) && setTimeUnits(index, defaultTimeUnits_);
 
 	if(retVal){
 

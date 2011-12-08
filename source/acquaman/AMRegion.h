@@ -56,6 +56,7 @@ class AMRegion: public QObject
 	Q_PROPERTY(double end READ end WRITE setEnd)
 	Q_PROPERTY(double time READ time WRITE setTime)
 	Q_PROPERTY(QString units READ units WRITE setUnits)
+	Q_PROPERTY(QString timeUnits READ timeUnits WRITE setTimeUnits)
 
 public:
 	/// Constructor, only requires a QObject for a parent and defaults elastic start and end to false.
@@ -80,6 +81,8 @@ public:
 	virtual bool isValid() const;
 	/// Returns the units that the region is expressed in.
 	virtual QString units() const { return units_; }
+	/// Returns the units for the time in this region.
+	virtual QString timeUnits() const { return timeUnits_; }
 
 public slots:
 	/// Sets the start value from the double passed in. Makes sure the energy is within the allowable range, otherwise returns false.  Does not affect the AMControl directly.
@@ -104,6 +107,8 @@ public slots:
 	virtual bool setElasticEnd(bool elastic) { elasticEnd_ = elastic; return true; }
 	/// Sets the units that the region will be expressed in.
 	virtual bool setUnits(const QString &units);
+	/// Sets the time units that the region will be expressed in.
+	virtual bool setTimeUnits(const QString &units);
 
 signals:
 	/// Notifier that the start value has changed.  Only used if elastic start is enabled.
@@ -122,6 +127,8 @@ protected:
 	double time_;
 	/// QString for holding the units.
 	QString units_;
+	/// QString for holding the time units.
+	QString timeUnits_;
 	/// AMControl for the region to step through.
 	AMControl *ctrl_;
 	/// AMControl for the time of the region.
@@ -170,6 +177,8 @@ public slots:
 	void setDefaultTimeControl(AMControl *defaultTimeControl) { defaultTimeControl_ = defaultTimeControl; }
 	/// Sets the default units for the region.  It is used for setting the units when inserting rows.
 	void setDefaultUnits(const QString &units) { defaultUnits_ = units; }
+	/// Sets the default time units for the region.  It is used for setting the time units when inserting rows.
+	void setDefaultTimeUnits(const QString &units) { defaultTimeUnits_ = units; }
 
 protected:
 	/// Internal pointer to the list of AMRegion.
@@ -180,6 +189,8 @@ protected:
 	AMControl *defaultTimeControl_;
 	/// Holds the default units used when creating AMRegions.
 	QString defaultUnits_;
+	/// Holds the default time units used when creating AMRegions.
+	QString defaultTimeUnits_;
 };
 
 /// AMXASRegion is an implementation of AMRegion designed to scan energy regions; therefore, the AMControl is passed into the constructor and must be a beamline energy control.

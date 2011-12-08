@@ -31,6 +31,7 @@ AMRegion::AMRegion(QObject *parent) :
 	end_ = 0;
 	time_ = 0;
 	units_ = "";
+	timeUnits_ = "";
 	ctrl_ = 0;
 	timeControl_ = 0;
 	elasticStart_ = false;
@@ -83,10 +84,19 @@ bool AMRegion::setTime(double time)
 
 bool AMRegion::setUnits(const QString &units)
 {
-	if (units_.isNull())
+	if (units.isNull())
 		return false;
 
 	units_ = units;
+	return true;
+}
+
+bool AMRegion::setTimeUnits(const QString &units)
+{
+	if (units.isNull())
+		return false;
+
+	timeUnits_ = units;
 	return true;
 }
 
@@ -131,6 +141,7 @@ AMRegionsListModel::AMRegionsListModel(QObject *parent)
 	defaultControl_ = NULL;
 	defaultTimeControl_ = NULL;
 	defaultUnits_ = "";
+	defaultTimeUnits_ = "";
 }
 
 QVariant AMRegionsListModel::data(const QModelIndex &index, int role) const{
@@ -179,7 +190,7 @@ QVariant AMRegionsListModel::data(const QModelIndex &index, int role) const{
 	case 6: // The time control.
 		break; // Doing nothing.
 	case 7: // The time value.
-		dataVal = QString::number(region->time()) + " s";
+		dataVal = QString::number(region->time()) + region->timeUnits();
 		break;
 	default:
 		break; // Return null if not a specific case.
@@ -262,8 +273,8 @@ bool AMRegionsListModel::setData(const QModelIndex &index, const QVariant &value
 
 			QString time = value.toString();
 
-			if (time.contains(" s"))
-				time.chop(2);
+			if (time.contains(region->timeUnits()))
+				time.chop(region->timeUnits().size());
 
 			dval = time.toDouble(&conversionOK);
 		}
@@ -335,6 +346,7 @@ bool AMRegionsListModel::insertRows(int position, int rows, const QModelIndex &i
 			tmpRegion->setControl(defaultControl_);
 			tmpRegion->setTimeControl(defaultTimeControl_);
 			tmpRegion->setUnits(defaultUnits_);
+			tmpRegion->setTimeUnits(defaultTimeUnits_);
 			regions_->insert(position, tmpRegion); // Order doesn't matter because they are all identical, empty regions.
 		}
 
@@ -391,6 +403,7 @@ bool AMXASRegionsListModel::insertRows(int position, int rows, const QModelIndex
 			tmpRegion = new AMXASRegion(defaultControl_, this);
 			tmpRegion->setTimeControl(defaultTimeControl_);
 			tmpRegion->setUnits(defaultUnits_);
+			tmpRegion->setTimeUnits(defaultTimeUnits_);
 			regions_->insert(position, tmpRegion); // Order doesn't matter because they are all identical, empty regions.
 		}
 

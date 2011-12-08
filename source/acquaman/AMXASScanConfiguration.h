@@ -60,6 +60,8 @@ public:
 	double regionTime(int index) const { return regions_->time(index); }
 	/// Returns the units for the region referred to by \param index.  If an invalid index is given, returns a null string.
 	QString regionUnits(int index) const { return regions_->units(index); }
+	/// Returns the time units for the region referred to by \param index.  If an invalid index is given, returns a null string.
+	QString regionTimeUnits(int index) const { return regions_->timeUnits(index); }
 	/// Returns whether elastic start is enabled for the region referred to by \param index.
 	bool regionElasticStart(int index) const { return regions_->elasticStart(index); }
 	/// Returns whether elastic end is enabled for the reigon referred to by \param index.
