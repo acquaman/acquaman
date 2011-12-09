@@ -274,9 +274,10 @@ AMScanController* AMScanControllerSupervisor::currentScanController(){
 bool AMScanControllerSupervisor::setCurrentScanController(AMScanController *newScanController){
 	if(currentScanController_)
 		return false;
-	currentScanController_ = newScanController;
-	if(!currentScanController_->scan())
+	if(!newScanController->scan())
 		return false;
+	// careful: only set this now, once we know we're actually succeeded and accepting the new scan:
+	currentScanController_ = newScanController;
 	connect(currentScanController_, SIGNAL(finished()), this, SLOT(onCurrentScanControllerFinished()));
 	connect(currentScanController_, SIGNAL(started()), this, SIGNAL(currentScanControllerStarted()));
 	connect(currentScanController_, SIGNAL(cancelled()), this, SLOT(onCurrentScanControllerFinished()));
