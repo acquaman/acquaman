@@ -96,8 +96,8 @@ public:
 	/// Returns the ROI list.  The list is empty if not using a fluorescence detector.
 	AMROIInfoList roiList() const { return roiInfoList_; }
 
-	/// Returns the AMControlInfo for the energy control.
-	AMControlInfo energyControlInfo() const { return regions_->defaultControl()->toInfo(); }
+	/// Returns the AMControlInfo for the scanned region control.
+	AMControlInfo regionControlInfo() const { return regions_->defaultControl()->toInfo(); }
 	/// Returns the AMControlInfo for the time control.
 	AMControlInfo timeControlInfo() const { return regions_->defaultTimeControl()->toInfo(); }
 

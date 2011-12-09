@@ -1,32 +1,48 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "AMRegionScanConfiguration.h"
 #include "util/AMErrorMonitor.h"
 
 AMRegionScanConfiguration::AMRegionScanConfiguration(QObject *parent, bool setup)
 	: AMScanConfiguration(parent)
 {
-	userScanName_ = "$sample - $technique";
-
 	if (setup){
 
+		userScanName_ = "$sample - $technique";
 		regions_ = new AMRegionsList(this);
 		connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
 		connect(regions_, SIGNAL(regionsChanged()), this, SIGNAL(configurationChanged()));
 	}
 }
 
-AMRegionScanConfiguration::AMRegionScanConfiguration(const AMScanConfiguration &original, bool setup)
+AMRegionScanConfiguration::AMRegionScanConfiguration(const AMRegionScanConfiguration &original, bool setup)
 	: AMScanConfiguration(original.parent())
 {
-	qDebug() << "Using AMScanConfiguration copy constructor";
-
 	if (setup){
 
+		qDebug() << "Using AMScanConfiguration copy constructor";
+		setUserScanName(original.userScanName());
 		regions_ = new AMRegionsList(this);
 		connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
 		connect(regions_, SIGNAL(regionsChanged()), this, SIGNAL(configurationChanged()));
 	}
-
-	setUserScanName(original.userScanName());
 }
 
 const QMetaObject* AMRegionScanConfiguration::getMetaObject(){
@@ -45,7 +61,7 @@ double AMRegionScanConfiguration::endValue() const{
 	return -1;
 }
 
-bool AMRegionScanConfiguration::setStartEnergy(double startValue){
+bool AMRegionScanConfiguration::setStartValue(double startValue){
 	if(regions_->count() > 0)
 		return setRegionStart(0, startValue);
 	return false;
@@ -63,10 +79,32 @@ void AMRegionScanConfiguration::onRegionsChanged(){
 }
 
 QString AMRegionScanConfiguration::dbReadRegions() const{
+
 	QStringList rv;
 
-	for(int x = 0; x < regions_->count(); x++)
-		rv << QString("regionsVersion1.0,%1,%2,%3,%4,%5,%6").arg(regionStart(x)).arg(regionDelta(x)).arg(regionEnd(x)).arg(regionElasticStart(x) == true ? 1 : 0).arg(regionElasticEnd(x) == true ? 1 : 0).arg(regionTime(x));
+	// Stores the following information from the region in the following order:
+	/*
+	  1) Region starting point.
+	  2) Region delta between points.
+	  3) Region ending point.
+	  4) Whether the region uses elastic starting points.
+	  5) Whether the region uses elastic ending points.
+	  6) The time spent on each point in the region.
+	  7) The units for the scanned element of the region.
+	  8) The units of time spent on each point.
+	  */
+	for(int x = 0; x < regions_->count(); x++){
+
+		rv << QString("regionsVersion1.0,%1,%2,%3,%4,%5,%6,%7,%8")
+			  .arg(regionStart(x))
+			  .arg(regionDelta(x))
+			  .arg(regionEnd(x))
+			  .arg(regionElasticStart(x) == true ? 1 : 0)
+			  .arg(regionElasticEnd(x) == true ? 1 : 0)
+			  .arg(regionTime(x))
+			  .arg(regionUnits(x))
+			  .arg(regionTimeUnits(x));
+	}
 	if(rv.isEmpty())
 		return QString("");
 	return rv.join("\n");
@@ -92,12 +130,14 @@ void AMRegionScanConfiguration::dbLoadRegions(const QString &XASRegionsString){
 			addRegionSuccess &= setRegionElasticStart(x, oneRegion.at(4).toInt() == 1 ? true : false);
 			addRegionSuccess &= setRegionElasticEnd(x, oneRegion.at(5).toInt() == 1 ? true : false);
 		}
-		// Beginning of a more succinct usage of AMRegions.  Version 1.0	For now this the same as xasVersions1.1.
+		// Beginning of a more succinct usage of AMRegions.  Version 1.0
 		else if (oneRegion.at(0) == "regionsVersion1.0"){
 
 			addRegionSuccess = addRegion(x, oneRegion.at(1).toDouble(), oneRegion.at(2).toDouble(), oneRegion.at(3).toDouble(), oneRegion.at(6).toDouble());
 			addRegionSuccess &= setRegionElasticStart(x, oneRegion.at(4).toInt() == 1 ? true : false);
 			addRegionSuccess &= setRegionElasticEnd(x, oneRegion.at(5).toInt() == 1 ? true : false);
+			addRegionSuccess &= setRegionUnits(x, oneRegion.at(7));
+			addRegionSuccess &= setRegionTimeUnits(x, oneRegion.at(8));
 		}
 
 		if (!addRegionSuccess)

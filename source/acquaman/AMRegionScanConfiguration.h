@@ -86,18 +86,18 @@ public:
 
 	/// The auto-generated scan name. Can be re-implemented to customize for each scan type.
 	virtual QString autoScanName() const{
-		return QString("Region").arg(regionStart(0)).arg(regionEnd(regionCount()-1));
+		return QString("Region Scan").arg(regionStart(0)).arg(regionEnd(regionCount()-1));
 	}
 
-	/// Pure virtual functions that need to be implemented.  Because controls aren't set in AMXASScanConfiguration, subclasses need to implement the control info getter to their valid energy and time controls.
-	/// Returns the AMControlInfo for the energy control.
-	virtual AMControlInfo energyControlInfo() const = 0;
+	/// Pure virtual functions that need to be implemented.  Because controls aren't set in AMRegionScanConfiguration, subclasses need to implement the control info getter to their valid region and time controls.
+	/// Returns the AMControlInfo for the region scan control.
+	virtual AMControlInfo regionControlInfo() const = 0;
 	/// Returns the AMControlInfo for the time control.
 	virtual AMControlInfo timeControlInfo() const = 0;
 
 	/// The scientific technique this configuration is for
 	virtual QString technique() const{
-		return "Region";
+		return "Region Scan";
 	}
 
 public slots:
@@ -110,7 +110,9 @@ public slots:
 	/// Sets the time value for the region referred to by \param index.  Returns true if successful, returns false if the index is invalid or the time is negative.
 	bool setRegionTime(int index, double time) { return regions_->setTime(index, time); }
 	/// Sets the units for the region referred to by \param index.  Returns true if successful, returns false if the index is invalid.
-	bool setRegionUnits(int index, QString units) { return regions_->setUnits(index, units); }
+	bool setRegionUnits(int index, const QString &units) { return regions_->setUnits(index, units); }
+	/// Sets the time units for the region referred to by \param index.  Returns true if successful, returns false if the index is invalid.
+	bool setRegionTimeUnits(int index, const QString &units) { return regions_->setTimeUnits(index, units); }
 	/// Sets the elastic start state for the region referred to by \param index.  Returns true if successful, returns false if the index is invalid.
 	bool setRegionElasticStart(int index, bool state) { return regions_->setElasticStart(index, state); }
 	/// Sets the elastic end state for the region referred to by \param index.  Returns true if successful, returns false if the index is invalid.
@@ -136,10 +138,25 @@ protected slots:
 	void onRegionsChanged();
 
 protected:
+
+	/*!
+		These are virtual functions in case a specific format or different information associated with the region is required.  The current
+		way that they are stored is as a comma separated string with an ID tag as the first element and then the following pieces of the region
+		in the following order:
+
+		   1) Region starting point.
+		   2) Region delta between points.
+		   3) Region ending point.
+		   4) Whether the region uses elastic starting points.
+		   5) Whether the region uses elastic ending points.
+		   6) The time spent on each point in the region.
+		   7) The units for the scanned element of the region.
+		   8) The units of time spent on each point.
+	  */
 	/// This returns a string that describes the current regions. Regions are stored in order as common separated start, delta, and end values. New lines divide regions. Empty string is no regions.
-	QString dbReadRegions() const;
+	virtual QString dbReadRegions() const;
 	/// When loadFromDb() is called, this receives the string describing the regions and restores them.
-	void dbLoadRegions(const QString &regionsString);
+	virtual void dbLoadRegions(const QString &regionsString);
 
 protected:
 	/// Holds the list of AMXASRegion pointers.
