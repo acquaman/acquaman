@@ -163,7 +163,7 @@ void SGMBeamline::usingSGMBeamline(){
 	sgmPVName = amNames2pvNames_.valueF("exitSlitGap");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-	exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1017:status", "SMTR16114I1017:stop", this, 0.1);
+	exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1017:status", "SMTR16114I1017:stop", this, 0.5);
 	exitSlitGap_->setDescription("Exit Slit Gap");
 	sgmPVName = amNames2pvNames_.valueF("entranceSlitGap");
 	if(sgmPVName.isEmpty())
