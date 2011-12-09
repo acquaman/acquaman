@@ -94,7 +94,7 @@ void AMBeamlineScanAction::start(){
 			return;
 		}
 
-		// bug, fixed Dec. 2011. if( AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_) )
+		// bug, fixed Dec. 2011. if( !AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_) )
 			// There are two ways for this function to fail. If setCurrentScanController() fails because the controller's scan is null (ie: not because there is already a valid currentScanController()), then this dialog will be shown when it shouldn't be.  Further, if the user chooses requestFail, then the ctrl_ will be deleted even though it's already been set as the current scan controller... So that when the next scan runs, setCurrentScanController() will crash when trying to delete the last currentScanController (because it's been deleted already, but not through deleteCurrentScanController().
 		if( AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController() ) {
 
@@ -161,7 +161,7 @@ void AMBeamlineScanAction::start(){
 
 		// Bug, fixed Dec. 2011: delete ctrl_;
 			// [At this point, the AMScanControllerSupervisor::currentScanController() was already set with this controller. Deleting it here but not deleting it through AMScanControllerSupervisor::deleteCurrentScanController() will cause a crash the next time a scan runs and this function calls setCurrentScanController(). That function will attempt to disconnect and delete the already-deleted controller through its non-zero but invalid pointer.]
-		AMScanControllerSupervisor::deleteCurrentScanController();
+		AMScanControllerSupervisor::scanControllerSupervisor()->deleteCurrentScanController();
 
 		setFailed(true, AMBEAMLINEACTIONITEM_CANT_INITIALIZE_CONTROLLER);
 		return;
@@ -214,7 +214,7 @@ void AMBeamlineScanAction::onScanInitialized(){
 										 "Error, could not start scan controller. Please report this bug to the Acquaman developers."));
 		// Bug, fixed Dec. 2011: delete ctrl_;
 			// [At this point, the AMScanControllerSupervisor::currentScanController() was already set with this controller. Deleting it here but not deleting it through AMScanControllerSupervisor::deleteCurrentScanController() will cause a crash the next time a scan runs and this function calls setCurrentScanController(). That function will attempt to disconnect and delete the already-deleted controller through its non-zero but invalid pointer.]
-		AMScanControllerSupervisor::deleteCurrentScanController();
+		AMScanControllerSupervisor::scanControllerSupervisor()->deleteCurrentScanController();
 		setFailed(true, AMBEAMLINEACTIONITEM_CANT_START_CONTROLLER);
 		return;
 	}
