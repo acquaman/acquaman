@@ -508,12 +508,20 @@ bool AMEXAFSRegion::setEndByType(double end, RegionType type)
 
 double AMEXAFSRegion::toKSpace(double energy) const
 {
+	// Energy must be greater than the reference energy.
+	if (energy < edgeEnergy_)
+		return -1;
+
 	// k = sqrt((E - E0)/a) ; a = 3.810 945 497 eV * Angstrom
 	return sqrt((energy-edgeEnergy_)/3.810945497);
 }
 
 double AMEXAFSRegion::toEnergy(double kSpace) const
 {
+	// kSpace must be greater than 0.
+	if (kSpace < 0)
+		return -1;
+
 	// E = E0 + a*k^2 ; a = 3.810 945 497 eV * Angstrom
 	return edgeEnergy_ + 3.810945497*kSpace*kSpace;
 }
@@ -541,6 +549,7 @@ bool AMEXAFSRegionsListModel::insertRows(int position, int rows, const QModelInd
 				tmpRegion->setUnits(defaultUnits_);
 				tmpRegion->setTimeUnits(defaultTimeUnits_);
 				tmpRegion->setType(AMEXAFSRegion::kSpace);
+				tmpRegion->setEdgeEnergy(defaultEdgeEnergy_);
 				regions_->insert(position, tmpRegion); // Order doesn't matter because they are all identical, empty regions.
 			}
 		}
@@ -553,6 +562,7 @@ bool AMEXAFSRegionsListModel::insertRows(int position, int rows, const QModelInd
 				tmpRegion->setUnits(defaultUnits_);
 				tmpRegion->setTimeUnits(defaultTimeUnits_);
 				tmpRegion->setType(AMEXAFSRegion::Energy);
+				tmpRegion->setEdgeEnergy(defaultEdgeEnergy_);
 				regions_->insert(position, tmpRegion); // Order doesn't matter because they are all identical, empty regions.
 			}
 		}

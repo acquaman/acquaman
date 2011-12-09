@@ -249,12 +249,23 @@ class AMEXAFSRegion : public AMXASRegion
 {
 	Q_OBJECT
 
+	Q_PROPERTY(double edgeEnergy READ edgeEnergy WRITE setEdgeEnergy)
+	Q_PROPERTY(RegionType type READ type WRITE setType)
+
+	Q_ENUMS(RegionType)
+
 public:
 	/// Enum that defines what type of region it is.  Possibilities are Energy and kSpace.
 	enum RegionType { Energy, kSpace };
 
 	/// Constructor.  Takes two AMControls to act as the perminant energy and k-space control for this region.  Must be the beamline energy and beamline k-space control.
-	AMEXAFSRegion(AMControl *beamlineEnergy, AMControl *beamlineK, QObject *parent = 0) : AMXASRegion(beamlineEnergy, parent) { type_ = Energy; controlK_ = beamlineK; }
+	AMEXAFSRegion(AMControl *beamlineEnergy, AMControl *beamlineK, QObject *parent = 0)
+		: AMXASRegion(beamlineEnergy, parent)
+	{
+		type_ = Energy;
+		controlK_ = beamlineK;
+		edgeEnergy_ = 0;
+	}
 
 	/// Returns the stored start value as a double.  Returns value either as energy or k-space based on the current value of type.
 	virtual double start() const { return (type() == Energy) ? start_ : toKSpace(start_); }
@@ -297,9 +308,9 @@ public slots:
 	void setEdgeEnergy(double energy) { edgeEnergy_ = energy; }
 
 protected:
-	/// Returns the k-space value from \param energy using the current edge energy.
+	/// Returns the k-space value from \param energy using the current edge energy.  Returns -1 if invalid.
 	double toKSpace(double energy) const;
-	/// Returns the energy value fromm \param k using the current edge energy.
+	/// Returns the energy value fromm \param k using the current edge energy.  Returns -1 if invalid.
 	double toEnergy(double k) const;
 
 	/// The pointer to the k-space energy control.
@@ -321,7 +332,7 @@ Q_OBJECT
 
 public:
 	/// Constructor.  Builds a model that is identical to AMRegionsListModel.  No new features added.
-	AMEXAFSRegionsListModel(QObject *parent = 0) : AMXASRegionsListModel(parent) {}
+	AMEXAFSRegionsListModel(QObject *parent = 0) : AMXASRegionsListModel(parent) { defaultKControl_ = 0; defaultEdgeEnergy_ = 0; }
 
 	/// Inserts an AMEXAFSRegion into the model.  It builds a default AMEXAFSRegion, sets the control to whatever the energy control is at the time.
 	bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex());
@@ -333,10 +344,14 @@ public:
 public slots:
 	/// Sets the k-space control that is used for scanning the energy in an EXAFS scan.  \note This sets the default control for the region.  If setEnergyControl was used previously, then it will be overwritten.
 	void setKSpaceControl(AMControl* kSpaceControl) { defaultKControl_ = kSpaceControl; }
+	/// Sets the default edge energy that all new AMEXAFSRegions will be set with.
+	void setDefaultEdgeEnergy(double energy) { defaultEdgeEnergy_ = energy; }
 
 protected:
 	/// Pointer to the k-space control used to build AMEXAFSRegions.
 	AMControl *defaultKControl_;
+	/// Holds the default edge energy.  Used for conversions between energy and k-space for individual regions.
+	double defaultEdgeEnergy_;
 };
 
 #endif // ACQMAN_AMREGION_H
