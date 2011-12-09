@@ -428,6 +428,96 @@ bool AMEXAFSRegion::setType(AMEXAFSRegion::RegionType type)
 	return false;
 }
 
+// Sets the start value from the double passed in. Assumes the value passed in is in the space of the region.  Makes sure the energy is within the allowable range, otherwise returns false.
+bool AMEXAFSRegion::setStart(double start) {
+	if(control()->valueOutOfRange(start))
+		return false;
+
+	// k values can't be negative.
+	if (type_ == kSpace && start < 0)
+		return false;
+
+	start_ = (type_ == Energy) ? start : toEnergy(start);
+
+	if(elasticStart_){
+		initiatedStartAdjust_ = true;
+		emit startChanged(start_);
+	}
+
+	return true;
+}
+
+// Sets the end value from the double passed in. Assumes the value passed in is in the space of the region.  Makes sure the energy is within the allowable range, otherwise returns false.
+bool AMEXAFSRegion::setEnd(double end) {
+	if(control()->valueOutOfRange(end))
+		return false;
+
+	// k values can't be negative.
+	if (type_ == kSpace && end < 0)
+		return false;
+
+	end_ = (type_ == Energy) ? end : toEnergy(end);
+
+	if(elasticEnd_){
+		initiatedEndAdjust_ = true;
+		emit endChanged(end_);
+	}
+
+	return true;
+}
+
+// Sets the start value from the double and the method assumes that the value is in the space of the type passed in it.  For example, if you choose Energy, it will assume it is a value in eV.
+bool AMEXAFSRegion::setStartByType(double start, RegionType type)
+{
+	if(control()->valueOutOfRange(start))
+		return false;
+
+	// k values can't be negative.
+	if (type == kSpace && start < 0)
+		return false;
+
+	start_ = (type == Energy) ? start : toEnergy(start);
+
+	if(elasticStart_){
+		initiatedStartAdjust_ = true;
+		emit startChanged(start_);
+	}
+
+	return true;
+}
+
+// Sets the end value from the double and the method assumes that the value is in the space of the type passed in it.  For example, if you choose Energy, it will assume it is a value in eV.
+bool AMEXAFSRegion::setEndByType(double end, RegionType type)
+{
+	if(control()->valueOutOfRange(end))
+		return false;
+
+	// k values can't be negative.
+	if (type == kSpace && end < 0)
+		return false;
+
+	end_ = (type == Energy) ? end : toEnergy(end);
+
+	if(elasticEnd_){
+		initiatedEndAdjust_ = true;
+		emit endChanged(end_);
+	}
+
+	return true;
+}
+
+double AMEXAFSRegion::toKSpace(double energy) const
+{
+	// k = sqrt((E - E0)/a) ; a = 3.810 945 497 eV * Angstrom
+	return sqrt((energy-edgeEnergy_)/3.810945497);
+}
+
+double AMEXAFSRegion::toEnergy(double kSpace) const
+{
+	// E = E0 + a*k^2 ; a = 3.810 945 497 eV * Angstrom
+	return edgeEnergy_ + 3.810945497*kSpace*kSpace;
+}
+
 // AMEXAFSRegionsListModel
 ////////////////////////////////////////////////////////
 
@@ -440,10 +530,31 @@ bool AMEXAFSRegionsListModel::insertRows(int position, int rows, const QModelInd
 
 		AMEXAFSRegion *tmpRegion;
 
-		for (int row = 0; row < rows; ++row) {
+		// Only need to check for kSpace because the region defaults to Energy.
+		if ((index.row() != 0 && ((AMEXAFSRegion *)regions_->at(index.row()))->type() == AMEXAFSRegion::kSpace)
+				|| (((AMEXAFSRegion *)regions_->at(0))->type() == AMEXAFSRegion::kSpace)){
 
-			tmpRegion = new AMEXAFSRegion(defaultControl_, defaultKControl_, this);
-			regions_->insert(position, tmpRegion); // Order doesn't matter because they are all identical, empty regions.
+			for (int row = 0; row < rows; ++row) {
+
+				tmpRegion = new AMEXAFSRegion(defaultControl_, defaultKControl_, this);
+				tmpRegion->setTimeControl(defaultTimeControl_);
+				tmpRegion->setUnits(defaultUnits_);
+				tmpRegion->setTimeUnits(defaultTimeUnits_);
+				tmpRegion->setType(AMEXAFSRegion::kSpace);
+				regions_->insert(position, tmpRegion); // Order doesn't matter because they are all identical, empty regions.
+			}
+		}
+		else {
+
+			for (int row = 0; row < rows; ++row) {
+
+				tmpRegion = new AMEXAFSRegion(defaultControl_, defaultKControl_, this);
+				tmpRegion->setTimeControl(defaultTimeControl_);
+				tmpRegion->setUnits(defaultUnits_);
+				tmpRegion->setTimeUnits(defaultTimeUnits_);
+				tmpRegion->setType(AMEXAFSRegion::Energy);
+				regions_->insert(position, tmpRegion); // Order doesn't matter because they are all identical, empty regions.
+			}
 		}
 
 		endInsertRows();
@@ -564,13 +675,13 @@ bool AMEXAFSRegionsListModel::setData(const QModelIndex &index, const QVariant &
 			if (energy.contains("k") && region->type() == AMEXAFSRegion::Energy){
 
 				region->setType(AMEXAFSRegion::kSpace);
-				retVal = region->setStart(dval) && region->setDelta(0.1) && region->setEnd(toKSpace(region->end()));
+//				retVal = region->setStart(dval) && region->setDelta(0.1) && region->setEnd(toKSpace(region->end()));
 			}
 
 			else if (!energy.contains("k") && region->type() == AMEXAFSRegion::kSpace){
 
 				region->setType(AMEXAFSRegion::Energy);
-				retVal = region->setStart(dval) && region->setDelta(1) && region->setEnd(toEnergy(region->end()));
+//				retVal = region->setStart(dval) && region->setDelta(1) && region->setEnd(toEnergy(region->end()));
 			}
 
 			else
@@ -584,13 +695,13 @@ bool AMEXAFSRegionsListModel::setData(const QModelIndex &index, const QVariant &
 			if (energy.contains("k") && region->type() == AMEXAFSRegion::Energy){
 
 				region->setType(AMEXAFSRegion::kSpace);
-				retVal = region->setStart(toKSpace(region->start())) && region->setDelta(dval) && region->setEnd(toKSpace(region->end()));
+//				retVal = region->setStart(toKSpace(region->start())) && region->setDelta(dval) && region->setEnd(toKSpace(region->end()));
 			}
 
 			else if (!energy.contains("k") && region->type() == AMEXAFSRegion::kSpace){
 
 				region->setType(AMEXAFSRegion::Energy);
-				retVal = region->setStart(toEnergy(region->start())) && region->setDelta(dval) && region->setEnd(toEnergy(region->end()));
+//				retVal = region->setStart(toEnergy(region->start())) && region->setDelta(dval) && region->setEnd(toEnergy(region->end()));
 			}
 
 			else
@@ -604,13 +715,13 @@ bool AMEXAFSRegionsListModel::setData(const QModelIndex &index, const QVariant &
 			if (energy.contains("k") && region->type() == AMEXAFSRegion::Energy){
 
 				region->setType(AMEXAFSRegion::kSpace);
-				retVal = region->setStart(toKSpace(region->start())) && region->setDelta(0.1) && region->setEnd(dval);
+//				retVal = region->setStart(toKSpace(region->start())) && region->setDelta(0.1) && region->setEnd(dval);
 			}
 
 			else if (!energy.contains("k") && region->type() == AMEXAFSRegion::kSpace){
 
 				region->setType(AMEXAFSRegion::Energy);
-				retVal = region->setStart(toEnergy(region->start())) && region->setDelta(1) && region->setEnd(dval);
+//				retVal = region->setStart(toEnergy(region->start())) && region->setDelta(1) && region->setEnd(dval);
 			}
 
 			else
@@ -647,16 +758,4 @@ bool AMEXAFSRegionsListModel::setData(const QModelIndex &index, const QVariant &
 	}
 
 	return false;	// no value set
-}
-
-double AMEXAFSRegionsListModel::toKSpace(double energy)
-{
-	// k = sqrt((E - E0)/a) ; a = 3.810 945 497 eV * Angstrom
-	return sqrt((energy-edgeEnergy_)/3.810945497);
-}
-
-double AMEXAFSRegionsListModel::toEnergy(double kSpace)
-{
-	// E = E0 + a*k^2 ; a = 3.810 945 497 eV * Angstrom
-	return edgeEnergy_ + 3.810945497*kSpace*kSpace;
 }
