@@ -41,6 +41,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(QWidget *parent) :
 	verticalDetectorButton_ = new QRadioButton("High Resolution");
 
 	startFromCurrentPositionOption_ = new QCheckBox("current position");
+	doNotClearExistingCountsOption_ = new QCheckBox("Do not clear existing detector counts.");
 
 	maximumTotalCounts_ = new QDoubleSpinBox();
 	maximumTimeEdit_ = new QTimeEdit();
@@ -78,6 +79,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(QWidget *parent) :
 
 	fl->addRow("Detector orientation", vl1);
 	fl->addRow("Start from", startFromCurrentPositionOption_);
+	fl->addRow(QString(), doNotClearExistingCountsOption_);
 	fl->addRow("Calibration", calibrationSelector_);
 
 	detectorOptions->setLayout(fl);
@@ -105,6 +107,8 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(QWidget *parent) :
 
 	maximumTotalCounts_->setValue(configuration_.maximumTotalCounts());
 	maximumTimeEdit_->setTime(QTime().addSecs(configuration_.maximumDurationSeconds()));
+	startFromCurrentPositionOption_->setChecked(configuration_.shouldStartFromCurrentPosition());
+	doNotClearExistingCountsOption_->setChecked(configuration_.doNotClearExistingCounts());
 	/////////////////////////
 
 	connect(centerEVBox_, SIGNAL(valueChanged(double)), &configuration_, SLOT(setCenterEV(double)));
@@ -113,6 +117,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(QWidget *parent) :
 
 	connect(verticalDetectorButton_, SIGNAL(toggled(bool)), &configuration_, SLOT(setDetectorOrientation(bool)));
 	connect(startFromCurrentPositionOption_, SIGNAL(toggled(bool)), &configuration_, SLOT(setShouldStartFromCurrentPosition(bool)));
+	connect(doNotClearExistingCountsOption_, SIGNAL(toggled(bool)), &configuration_, SLOT(setDoNotClearExistingCounts(bool)));
 
 	connect(maximumTotalCounts_, SIGNAL(valueChanged(double)), &configuration_, SLOT(setMaximumTotalCounts(double)));
 

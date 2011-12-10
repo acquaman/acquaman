@@ -39,6 +39,7 @@ class REIXSXESScanConfiguration : public AMScanConfiguration
 	Q_PROPERTY(bool detectorOrientation READ detectorOrientation WRITE setDetectorOrientation)
 	Q_PROPERTY(double detectorTiltOffset READ detectorTiltOffset WRITE setDetectorTiltOffset)
 	Q_PROPERTY(bool shouldStartFromCurrentPosition READ shouldStartFromCurrentPosition WRITE setShouldStartFromCurrentPosition)
+	Q_PROPERTY(bool doNotClearExistingCounts READ doNotClearExistingCounts WRITE setDoNotClearExistingCounts)
 	Q_PROPERTY(AMDbObject* mcpDetectorInfo READ dbGetMcpDetectorInfo WRITE dbLoadMcpDetectorInfo)
 
 public:
@@ -65,6 +66,8 @@ public:
 	double detectorTiltOffset() const { return detectorTiltOffset_; }
 	/// A flag indicating that we should start the scan in whatever position the spectrometer is now. (ie: don't compute the desired position and move it)
 	bool shouldStartFromCurrentPosition() const { return shouldStartFromCurrentPosition_; }
+	/// A flag indicating that we should start the scan without clearing the existing counts on the detector.
+	bool doNotClearExistingCounts() const { return doNotClearExistingCounts_; }
 	/// Configuration information for the MCP detector itself
 	const REIXSXESMCPDetectorInfo* mcpDetectorInfo() const { return &mcpDetectorInfo_; }
 	REIXSXESMCPDetectorInfo* mcpDetectorInfo() { return &mcpDetectorInfo_; }
@@ -108,7 +111,8 @@ public slots:
 	void setDetectorTiltOffset(double detectorTilt) { detectorTiltOffset_ = detectorTilt; setModified(true); }
 	/// Set a flag indicating that we should start the scan in whatever position the spectrometer is now. (ie: don't compute the desired position and move things before starting the scan)
 	void setShouldStartFromCurrentPosition(bool startInCurrentPosition) { shouldStartFromCurrentPosition_ = startInCurrentPosition; setModified(true); }
-
+	/// Set a flag indicating that we should start the scan without clearing the existing counts on the detector.
+	void setDoNotClearExistingCounts(bool doNotClear) { doNotClearExistingCounts_ = doNotClear; setModified(true); }
 
 protected:
 
@@ -130,6 +134,8 @@ protected:
 	int spectrometerCalibrationId_;
 	/// A flag indicating that we should start the scan in whatever position the spectrometer is now. (ie: don't compute the desired position and move it)
 	bool shouldStartFromCurrentPosition_;
+	/// A flag indicating that we should start the scan without clearing the existing counts on the detector.
+	bool doNotClearExistingCounts_;
 
 	/// Detector configuration information:
 	REIXSXESMCPDetectorInfo mcpDetectorInfo_;

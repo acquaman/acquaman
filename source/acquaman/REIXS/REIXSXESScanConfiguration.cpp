@@ -32,6 +32,7 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 	detectorTiltOffset_ = 0;
 	detectorOrientation_ = 0;
 	shouldStartFromCurrentPosition_ = false;
+	doNotClearExistingCounts_ = false;
 
 	maximumTotalCounts_ = 1000000;
 	maximumDurationSeconds_ = 300;

@@ -72,6 +72,7 @@ protected:
 	QRadioButton *horizontalDetectorButton_, *verticalDetectorButton_;
 
 	QCheckBox* startFromCurrentPositionOption_;
+	QCheckBox* doNotClearExistingCountsOption_;
 
 	QDoubleSpinBox* maximumTotalCounts_;
 	QTimeEdit* maximumTimeEdit_;

@@ -68,10 +68,13 @@ bool REIXSXESScanController::initializeImplementation() {
 
 
 
-	// configure and clear the MCP detector
-	if( !REIXSBeamline::bl()->mcpDetector()->setFromInfo(*(config_->mcpDetectorInfo())) ) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 3, "Could not connect to and configure the MCP detector before starting XES scan."));
-		return false;
+	// configure and clear the MCP detector.
+	/// \todo We should really configure the detector even if we're not supposed to clear it, but right now setting the orientation clears the accumulated counts.  We'll be removing that orientation setting soon, since we no longer use it. Therefore, we should be OK to skip this if we're not supposed to clear.
+	if(!config_->doNotClearExistingCounts()) {
+		if( !REIXSBeamline::bl()->mcpDetector()->setFromInfo(*(config_->mcpDetectorInfo())) ) {
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 3, "Could not connect to and configure the MCP detector before starting XES scan."));
+			return false;
+		}
 	}
 
 
@@ -133,7 +136,9 @@ void REIXSXESScanController::onInitialSetupMoveSucceeded() {
 
 bool REIXSXESScanController::startImplementation() {
 
-	REIXSBeamline::bl()->mcpDetector()->clearImage();
+	if(!config_->doNotClearExistingCounts()) {
+		REIXSBeamline::bl()->mcpDetector()->clearImage();
+	}
 
 	connect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(onNewImageValues()));
 	connect(&scanProgressTimer_, SIGNAL(timeout()), this, SLOT(onScanProgressCheck()));
@@ -178,11 +183,11 @@ void REIXSXESScanController::onScanProgressCheck() {
 		return;
 	}
 
-	/// \bug What if this occurs before the detector is done clearing itself? could be spurious?
-	/// \todo Solve: wait for detector to clear before starting scan.
 	int totalCounts = REIXSBeamline::bl()->mcpDetector()->totalCounts();
 
-	if(totalCounts > config_->maximumTotalCounts()) {
+	// Check if total counts is reached.
+	// problem: What if this occurs before the detector is done clearing itself? could be spurious?  To solve this problem simply, just make sure we collect at least 5 seconds regardless of the total counts.
+	if(secondsElapsed > 5 && totalCounts > config_->maximumTotalCounts()) {
 		onScanFinished();
 		return;
 	}
