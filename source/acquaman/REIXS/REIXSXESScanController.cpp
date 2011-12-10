@@ -187,13 +187,13 @@ void REIXSXESScanController::onScanProgressCheck() {
 		return;
 	}
 
-	double timeProgress = secondsElapsed / config_->maximumDurationSeconds();
-	double countsProgress = totalCounts / config_->maximumTotalCounts();
+	double timeProgress = double(secondsElapsed) / config_->maximumDurationSeconds();
+	double countsProgress = double(totalCounts) / config_->maximumTotalCounts();
 
 	// emit based on whichever looks more promising to happen first...
 	if(countsProgress > timeProgress) {	// more likely to hit max counts first
 		emit progress(totalCounts, config_->maximumTotalCounts());
-		double timeLeft = (config_->maximumTotalCounts()-totalCounts) * (secondsElapsed/totalCounts);
+		double timeLeft = (config_->maximumTotalCounts()-totalCounts) * (double(secondsElapsed)/totalCounts);
 		emit timeRemaining(timeLeft);
 	}
 	else {
