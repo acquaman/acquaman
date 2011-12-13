@@ -539,7 +539,8 @@ bool AMEXAFSRegionsListModel::insertRows(int position, int rows, const QModelInd
 		AMEXAFSRegion *tmpRegion;
 
 		// Only need to check for kSpace because the region defaults to Energy.
-		if ((index.row() != 0 && ((AMEXAFSRegion *)regions_->at(index.row()))->type() == AMEXAFSRegion::kSpace)
+		// New regions should only be preset as kSpace regions if they are being appended after a kSpace region or if the only regions are kSpace regions.
+		if ((index.row() != 0 && ((AMEXAFSRegion *)regions_->at(index.row()))->type() == AMEXAFSRegion::kSpace && position > index.row())
 				|| (((AMEXAFSRegion *)regions_->at(0))->type() == AMEXAFSRegion::kSpace)){
 
 			for (int row = 0; row < rows; ++row) {
@@ -574,66 +575,6 @@ bool AMEXAFSRegionsListModel::insertRows(int position, int rows, const QModelInd
 	return false;
 }
 
-QVariant AMEXAFSRegionsListModel::data(const QModelIndex &index, int role) const{
-	// Invalid index:
-	if(!index.isValid())
-		return QVariant();
-
-	// If handling the alignment.
-	if (role == Qt::TextAlignmentRole)
-		return Qt::AlignCenter;
-
-	// If handling the background color.
-	if (role == Qt::BackgroundRole)
-		return regions_->at(index.row())->isValid() ? Qt::white : Qt::red;
-
-	// We only answer to Qt::DisplayRole right now
-	if(role != Qt::DisplayRole)
-		return QVariant();
-
-	// Out of range: (Just checking for too big.  isValid() checked for < 0)
-	if(index.row() >= regions_->count())
-		return QVariant();
-
-	AMEXAFSRegion *region = qobject_cast<AMEXAFSRegion *>(regions_->at(index.row()));
-
-	// If this region is not an AMEXAFSRegion, then we are in trouble.
-	if (!region)
-		return QVariant();
-
-	QVariant dataVal = QVariant();
-
-	switch(index.column()){
-
-	case 0: // The control.
-		break; // Doing nothing.
-	case 1: // The start value.
-		dataVal = region->type() == AMEXAFSRegion::Energy ? QString::number(region->start()) : QString::number(region->start()) + "k";
-		break;
-	case 2: // The delta value.
-		dataVal = region->type() == AMEXAFSRegion::Energy ? QString::number(region->delta()) : QString::number(region->delta()) + "k";
-		break;
-	case 3: // The end value.
-		dataVal = region->type() == AMEXAFSRegion::Energy ? QString::number(region->end()) : QString::number(region->end()) + "k";
-		break;
-	case 4: // The state of whether the region has an elastic start value.
-		dataVal = regions_->at(index.row())->elasticStart();
-		break;
-	case 5: // The state of whether the region has an elastic end value.
-		dataVal = regions_->at(index.row())->elasticEnd();
-		break;
-	case 6: // The time control.
-		break; // Doing nothing.
-	case 7: // The time value.
-		dataVal = regions_->at(index.row())->time();
-		break;
-	default:
-		break; // Return null if not a specific case.
-	}
-
-	return dataVal;
-}
-
 // Sets the data value at an index (row and column). Only valid role is Qt::DisplayRole right now.
 bool AMEXAFSRegionsListModel::setData(const QModelIndex &index, const QVariant &value, int role){
 
@@ -644,22 +585,29 @@ bool AMEXAFSRegionsListModel::setData(const QModelIndex &index, const QVariant &
 		double dval;
 		bool bval;
 
+		AMEXAFSRegion *region = qobject_cast<AMEXAFSRegion *>(regions_->at(index.row()));
+
 		if(index.column() == 1 || index.column() == 2 || index.column() == 3){
 
 			QString energy = value.toString();
 
-			if (energy.contains("k"))
-				energy.chop(1);
+			if (energy.contains(region->units()))
+				energy.chop(region->units().size());
 
 			dval = energy.toDouble(&conversionOK);
 		}
-
-		else if (index.column() == 7)
-			dval  = value.toDouble(&conversionOK);
-
 		else if(index.column() == 4 || index.column() == 5){
 			bval = value.toBool();
 			conversionOK = true;
+		}
+		else if (index.column() == 7){
+
+			QString time = value.toString();
+
+			if (time.contains(region->timeUnits()))
+				time.chop(region->timeUnits().size());
+
+			dval = time.toDouble(&conversionOK);
 		}
 
 		// Check if any data is invalid.
@@ -667,7 +615,6 @@ bool AMEXAFSRegionsListModel::setData(const QModelIndex &index, const QVariant &
 			return false;
 
 		QString energy;
-		AMEXAFSRegion *region = qobject_cast<AMEXAFSRegion *>(regions_->at(index.row()));
 
 		// Need to be using an AMEXAFSRegion.
 		if (!region)
@@ -682,60 +629,39 @@ bool AMEXAFSRegionsListModel::setData(const QModelIndex &index, const QVariant &
 		case 1: // Setting a start value?
 			energy = value.toString();
 
-			if (energy.contains("k") && region->type() == AMEXAFSRegion::Energy){
-
+			if (energy.contains("k") && region->type() == AMEXAFSRegion::Energy)
 				region->setType(AMEXAFSRegion::kSpace);
-//				retVal = region->setStart(dval) && region->setDelta(0.1) && region->setEnd(toKSpace(region->end()));
-			}
 
-			else if (!energy.contains("k") && region->type() == AMEXAFSRegion::kSpace){
-
+			else if (!energy.contains("k") && region->type() == AMEXAFSRegion::kSpace)
 				region->setType(AMEXAFSRegion::Energy);
-//				retVal = region->setStart(dval) && region->setDelta(1) && region->setEnd(toEnergy(region->end()));
-			}
 
-			else
-				retVal = regions_->at(index.row())->setStart(dval);
+			retVal = regions_->at(index.row())->setStart(dval);
 
 			break;
 
 		case 2: // Setting a delta value?
 			energy = value.toString();
 
-			if (energy.contains("k") && region->type() == AMEXAFSRegion::Energy){
-
+			if (energy.contains("k") && region->type() == AMEXAFSRegion::Energy)
 				region->setType(AMEXAFSRegion::kSpace);
-//				retVal = region->setStart(toKSpace(region->start())) && region->setDelta(dval) && region->setEnd(toKSpace(region->end()));
-			}
 
-			else if (!energy.contains("k") && region->type() == AMEXAFSRegion::kSpace){
-
+			else if (!energy.contains("k") && region->type() == AMEXAFSRegion::kSpace)
 				region->setType(AMEXAFSRegion::Energy);
-//				retVal = region->setStart(toEnergy(region->start())) && region->setDelta(dval) && region->setEnd(toEnergy(region->end()));
-			}
 
-			else
-				retVal = regions_->at(index.row())->setDelta(dval);
+			retVal = regions_->at(index.row())->setDelta(dval);
 
 			break;
 
 		case 3: // Setting an end value?
 			energy = value.toString();
 
-			if (energy.contains("k") && region->type() == AMEXAFSRegion::Energy){
-
+			if (energy.contains("k") && region->type() == AMEXAFSRegion::Energy)
 				region->setType(AMEXAFSRegion::kSpace);
-//				retVal = region->setStart(toKSpace(region->start())) && region->setDelta(0.1) && region->setEnd(dval);
-			}
 
-			else if (!energy.contains("k") && region->type() == AMEXAFSRegion::kSpace){
-
+			else if (!energy.contains("k") && region->type() == AMEXAFSRegion::kSpace)
 				region->setType(AMEXAFSRegion::Energy);
-//				retVal = region->setStart(toEnergy(region->start())) && region->setDelta(1) && region->setEnd(dval);
-			}
 
-			else
-				retVal = regions_->at(index.row())->setEnd(dval);
+			retVal = regions_->at(index.row())->setEnd(dval);
 
 			break;
 

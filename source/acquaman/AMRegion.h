@@ -336,8 +336,6 @@ public:
 
 	/// Inserts an AMEXAFSRegion into the model.  It builds a default AMEXAFSRegion, sets the control to whatever the energy control is at the time.
 	bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex());
-	/// Retrieves the data from an index (row and column) and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
-	QVariant data(const QModelIndex &index, int role) const;
 	/// Sets the data value at an index (row and column). Only valid role is Qt::DisplayRole right now.
 	bool setData(const QModelIndex &index, const QVariant &value, int role);
 
