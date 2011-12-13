@@ -183,7 +183,7 @@ protected:
 	/// Function used to setup the model that the list should manage.  When subclassed, call in the constructor to build your own custom model.
 	virtual bool setupModel();
 	/// Returns a pointer to the region refered to by index. If an invalid index is given, returns NULL.
-	AMRegion* region(int index) const;
+	AMRegion* region(int index) const { return (index < regions_->regions()->size() && index >= 0) ? regions_->regions()->at(index) : 0; }
 
 	/// Pointer to the control used by these regions.
 	AMControl *defaultControl_;
@@ -220,6 +220,8 @@ public slots:
 protected:
 	/// Function used to setup the model that the list should manage.  When subclassed, call in the constructor to build your own custom model.
 	virtual bool setupModel();
+	/// Returns a pointer to the region refered to by index. If an invalid index is given, returns NULL.
+	AMXASRegion* xasRegion(int index) const { return (index < regions_->regions()->size() && index >= 0) ? qobject_cast<AMXASRegion *>(regions_->regions()->at(index)) : 0; }
 };
 
 /// This class subclasses the AMXASRegionsList class to add even more functionality specific to AMEXAFSRegions.  Calls its own setupModel() to setup AMEXAFSRegions instead of AMXASRegions.
@@ -230,13 +232,32 @@ public:
 	/// Constructor.  Sets up its own regions model.
 	AMEXAFSRegionsList(QObject *parent = 0, bool setup = true) : AMXASRegionsList(parent, false) { if(setup) setupModel(); }
 
+	/// Returns the type of the region referred to by \param index.
+	AMEXAFSRegion::RegionType type(int index) const { return exafsRegion(index)->type(); }
+	/// Explicit getter based on the type passed into the function.  Returns the start value as a double from the region referred to by \param index.
+	double startByType(int index, AMEXAFSRegion::RegionType type) { return exafsRegion(index)->startByType(type); }
+	/// Explicit getter based on the type passed into the function.  Returns the end value as a double from the region referred to by \param index.
+	double endByType(int index, AMEXAFSRegion::RegionType type) { return exafsRegion(index)->endByType(type); }
+
 public slots:
+	/// Sets the type of the region referred to by \param index.
+	bool setType(int index, AMEXAFSRegion::RegionType type) { return exafsRegion(index)->setType(type); }
+	/// Sets the start value for the region referred to by \param index from the double and the method assumes that the value is in the space of the type passed in it.  For example, if you choose Energy, it will assume it is a value in eV.
+	bool setStartByType(int index, double start, AMEXAFSRegion::RegionType type) { return exafsRegion(index)->setStartByType(start, type); }
+	/// Sets the end value for the region referred to by \param index from the double and the method assumes that the value is in the space of the type passed in it.  For example, if you choose Energy, it will assume it is a value in eV.
+	bool setEndByType(int index, double end, AMEXAFSRegion::RegionType type) { return exafsRegion(index)->setEndByType(end, type); }
+
+	/// Overloaded for EXAFS.  Creates a new region at \param index and auto fills the start and end values to start and end values of the regions that surround it.  Uses values defined by sensibleStart() and sensibleEnd() when the new region is prepended or appended to the current list.
+	virtual bool addRegionSqueeze(int index);
+
 	/// Sets the k-space control for the AMEXAFSRegions.  Also sets the default control for the regions list.
 	virtual void setKControl(AMControl* kControl) { defaultKControl_ = kControl; ((AMEXAFSRegionsListModel*)regions_)->setKSpaceControl(kControl); }
 
 protected:
 	/// Function used to setup the model that the list should manage.  When subclassed, call in the constructor to build your own custom model.
 	virtual bool setupModel();
+	/// Returns a pointer to the region refered to by index. If an invalid index is given, returns NULL.
+	AMEXAFSRegion* exafsRegion(int index) const { return (index < regions_->regions()->size() && index >= 0) ? qobject_cast<AMEXAFSRegion *>(regions_->regions()->at(index)) : 0; }
 
 	/// Pointer to the control that moves regions through k-space.
 	AMControl *defaultKControl_;

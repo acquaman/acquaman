@@ -153,7 +153,7 @@ public:
 
 	/// Returns the number of regions in the list to generate the number of rows in a table or list
 	int rowCount(const QModelIndex & /*parent*/) const { return regions_->count(); }
-	/// Returns "4" statically. There are always three fields in the region: start, delta, end, and time.  However, the total number is 8.
+	/// Returns "4" statically. There are always four fields in the region: start, delta, end, and time.  However, the total number is 8.
 	int columnCount(const QModelIndex & /*parent*/) const { return 8; }
 	/// Retrieves the data from an index (row and column) and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
 	QVariant data(const QModelIndex &index, int role) const;
@@ -269,8 +269,6 @@ public:
 
 	/// Returns the stored start value as a double.  Returns value either as energy or k-space based on the current value of type.
 	virtual double start() const { return (type() == Energy) ? start_ : toKSpace(start_); }
-	/// Returns the stored delta value as a double.  Returns value either as energy or k-space based on the current value of type.
-	virtual double delta() const { return (type() == Energy) ? delta_ : toKSpace(delta_); }
 	/// Returns the stored end value as a double.  Returns value either as energy or k-space based on the current value of type.
 	virtual double end() const { return (type() == Energy) ? end_ : toKSpace(end_); }
 	/// Returns the units that the region is expressed in based on the type of region.  Returns whatever the energy units are set (likely eV) or "k".
@@ -278,8 +276,6 @@ public:
 
 	/// Explicit getter based on the type passed into the function.  Returns the start value as a double.
 	double startByType(RegionType type) { return (type == Energy) ? start_ : toKSpace(start_); }
-	/// Explicit getter based on the type passed into the function.  Retuns the delta value as a double.
-	double deltaByType(RegionType type) { return (type == Energy) ? delta_ : toKSpace(delta_); }
 	/// Explicit getter based on the type passed into the function.  Returns the end value as a double.
 	double endByType(RegionType type) { return (type == Energy) ? delta_ : toKSpace(delta_); }
 

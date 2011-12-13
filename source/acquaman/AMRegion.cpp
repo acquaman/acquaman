@@ -539,9 +539,8 @@ bool AMEXAFSRegionsListModel::insertRows(int position, int rows, const QModelInd
 		AMEXAFSRegion *tmpRegion;
 
 		// Only need to check for kSpace because the region defaults to Energy.
-		// New regions should only be preset as kSpace regions if they are being appended after a kSpace region or if the only regions are kSpace regions.
-		if ((index.row() != 0 && ((AMEXAFSRegion *)regions_->at(index.row()))->type() == AMEXAFSRegion::kSpace && position > index.row())
-				|| (((AMEXAFSRegion *)regions_->at(0))->type() == AMEXAFSRegion::kSpace)){
+		// New regions should only be preset as kSpace regions if they are being appended after a kSpace region
+		if (((AMEXAFSRegion *)regions_->at(index.row()))->type() == AMEXAFSRegion::kSpace && position > index.row()){
 
 			for (int row = 0; row < rows; ++row) {
 
@@ -586,6 +585,9 @@ bool AMEXAFSRegionsListModel::setData(const QModelIndex &index, const QVariant &
 		bool bval;
 
 		AMEXAFSRegion *region = qobject_cast<AMEXAFSRegion *>(regions_->at(index.row()));
+		// Need to be using an AMEXAFSRegion.
+		if (!region)
+			return false;
 
 		if(index.column() == 1 || index.column() == 2 || index.column() == 3){
 
@@ -615,10 +617,6 @@ bool AMEXAFSRegionsListModel::setData(const QModelIndex &index, const QVariant &
 			return false;
 
 		QString energy;
-
-		// Need to be using an AMEXAFSRegion.
-		if (!region)
-			return false;
 
 		switch(index.column()){
 
