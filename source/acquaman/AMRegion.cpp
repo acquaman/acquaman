@@ -538,33 +538,15 @@ bool AMEXAFSRegionsListModel::insertRows(int position, int rows, const QModelInd
 
 		AMEXAFSRegion *tmpRegion;
 
-		// Only need to check for kSpace because the region defaults to Energy.
-		// New regions should only be preset as kSpace regions if they are being appended after a kSpace region
-		if (((AMEXAFSRegion *)regions_->at(index.row()))->type() == AMEXAFSRegion::kSpace && position > index.row()){
+		for (int row = 0; row < rows; ++row) {
 
-			for (int row = 0; row < rows; ++row) {
-
-				tmpRegion = new AMEXAFSRegion(defaultControl_, defaultKControl_, this);
-				tmpRegion->setTimeControl(defaultTimeControl_);
-				tmpRegion->setUnits(defaultUnits_);
-				tmpRegion->setTimeUnits(defaultTimeUnits_);
-				tmpRegion->setType(AMEXAFSRegion::kSpace);
-				tmpRegion->setEdgeEnergy(defaultEdgeEnergy_);
-				regions_->insert(position, tmpRegion); // Order doesn't matter because they are all identical, empty regions.
-			}
-		}
-		else {
-
-			for (int row = 0; row < rows; ++row) {
-
-				tmpRegion = new AMEXAFSRegion(defaultControl_, defaultKControl_, this);
-				tmpRegion->setTimeControl(defaultTimeControl_);
-				tmpRegion->setUnits(defaultUnits_);
-				tmpRegion->setTimeUnits(defaultTimeUnits_);
-				tmpRegion->setType(AMEXAFSRegion::Energy);
-				tmpRegion->setEdgeEnergy(defaultEdgeEnergy_);
-				regions_->insert(position, tmpRegion); // Order doesn't matter because they are all identical, empty regions.
-			}
+			tmpRegion = new AMEXAFSRegion(defaultControl_, defaultKControl_, this);
+			tmpRegion->setTimeControl(defaultTimeControl_);
+			tmpRegion->setUnits(defaultUnits_);
+			tmpRegion->setTimeUnits(defaultTimeUnits_);
+			tmpRegion->setType(AMEXAFSRegion::Energy);
+			tmpRegion->setEdgeEnergy(defaultEdgeEnergy_);
+			regions_->insert(position, tmpRegion); // Order doesn't matter because they are all identical, empty regions.
 		}
 
 		endInsertRows();

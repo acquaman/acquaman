@@ -375,6 +375,7 @@ void VESPERSBeamline::setupMono()
 {
 	energyRelative_ = new AMPVwStatusControl("Relative Energy Movement", "07B2_Mono_SineB_delE", "07B2_Mono_SineB_delE", "SMTR1607-1-B20-20:status", "SMTR1607-1-B20-20:stop", this, 0.1, 2.0, new AMControlStatusCheckerDefault(0), 1);
 	masterDwellTime_ = new AMSinglePVControl("Master Dwell Time", "BL1607-B2-1:dwell:setTime", this, 0.1);
+	kControl_ = new AMPVwStatusControl("K-space", "07B2_Mono_SineB_K:fbk", "07B2_Mono_SineB_K", "SMTR1607-1-B20-20:status", QString(), this, 0.01);
 
 	mono_ = new VESPERSMonochromator(this);
 	intermediateSlits_ = new VESPERSIntermediateSlits(this);

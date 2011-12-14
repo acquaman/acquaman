@@ -18,7 +18,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	: AMScanConfigurationView(parent)
 {
 	config_ = config;
-	AMTopFrame *frame = new AMTopFrame("VESPERS XAS Configuration");
+	AMTopFrame *frame = new AMTopFrame("VESPERS EXAFS Configuration");
 
 	// Regions setup
 	regionsView_ = new AMRegionsView(config_->regions());
