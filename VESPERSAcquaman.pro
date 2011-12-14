@@ -48,7 +48,10 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/ui/VESPERS/VESPERSExperimentConfigurationView.h \
 	source/ui/util/AMPeriodicTableDialog.h \
 	source/beamline/VESPERS/VESPERSExperimentConfiguration.h \
-	source/util/VESPERS/VESPERSMapSetup.h
+	source/util/VESPERS/VESPERSMapSetup.h \
+    source/acquaman/VESPERS/VESPERSEXAFSScanConfiguration.h \
+    source/acquaman/VESPERS/VESPERSEXAFSDacqScanController.h \
+    source/ui/VESPERS/VESPERSEXAFSScanConfigurationView.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -95,10 +98,19 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/ui/VESPERS/VESPERSExperimentConfigurationView.cpp \
 	source/ui/util/AMPeriodicTableDialog.cpp \
 	source/beamline/VESPERS/VESPERSExperimentConfiguration.cpp \
-	source/util/VESPERS/VESPERSMapSetup.cpp
+	source/util/VESPERS/VESPERSMapSetup.cpp \
+    source/acquaman/VESPERS/VESPERSEXAFSScanConfiguration.cpp \
+    source/acquaman/VESPERS/VESPERSEXAFSDacqScanController.cpp \
+    source/ui/VESPERS/VESPERSEXAFSScanConfigurationView.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
+
+
+
+
 
 
 
