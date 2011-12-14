@@ -455,7 +455,8 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
     source/ui/beamline/AMControlMoveButton.h \
     source/beamline/AMSampleManipulator.h \
 	source/beamline/AMControlSetSampleManipulator.h \
-    source/acquaman/AMRegionScanConfiguration.h
+    source/acquaman/AMRegionScanConfiguration.h \
+    source/acquaman/AMEXAFSScanConfiguration.h
 
 CONFIG(mobility) {
 DEFINES += AM_MOBILITY_VIDEO_ENABLED
@@ -730,7 +731,8 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/beamline/CLS/CLSMDriveMotorControl.cpp \
     source/ui/beamline/AMControlMoveButton.cpp \
 	source/beamline/AMControlSetSampleManipulator.cpp \
-    source/acquaman/AMRegionScanConfiguration.cpp
+    source/acquaman/AMRegionScanConfiguration.cpp \
+    source/acquaman/AMEXAFSScanConfiguration.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
@@ -749,6 +751,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 

@@ -234,14 +234,30 @@ public:
 
 	/// Returns the type of the region referred to by \param index.
 	AMEXAFSRegion::RegionType type(int index) const { return exafsRegion(index)->type(); }
+	/// Returns the edge energy of the region referred to by \param index.
+	double edgeEnergy(int index) const { return exafsRegion(index)->edgeEnergy(); }
+	/// Returns the energy units for the region referred to by \param index.  This is so that the units can be retrieved even if the region is in k-space.
+	QString energyUnits(int index) const { return exafsRegion(index)->energyUnits(); }
 	/// Explicit getter based on the type passed into the function.  Returns the start value as a double from the region referred to by \param index.
 	double startByType(int index, AMEXAFSRegion::RegionType type) { return exafsRegion(index)->startByType(type); }
 	/// Explicit getter based on the type passed into the function.  Returns the end value as a double from the region referred to by \param index.
 	double endByType(int index, AMEXAFSRegion::RegionType type) { return exafsRegion(index)->endByType(type); }
 
+	/// Returns whether any of the regions are in the extended region (k-space).
+	bool hasKSpace() const
+	{
+		for (int i = 0; i < count(); i++)
+			if (exafsRegion(i)->type() == AMEXAFSRegion::kSpace)
+				return true;
+
+		return false;
+	}
+
 public slots:
 	/// Sets the type of the region referred to by \param index.
 	bool setType(int index, AMEXAFSRegion::RegionType type) { return exafsRegion(index)->setType(type); }
+	/// Sets the edge energy of the region referred to by \param index.
+	bool setEdgeEnergy(int index, double energy) { return exafsRegion(index)->setEdgeEnergy(energy); }
 	/// Sets the start value for the region referred to by \param index from the double and the method assumes that the value is in the space of the type passed in it.  For example, if you choose Energy, it will assume it is a value in eV.
 	bool setStartByType(int index, double start, AMEXAFSRegion::RegionType type) { return exafsRegion(index)->setStartByType(start, type); }
 	/// Sets the end value for the region referred to by \param index from the double and the method assumes that the value is in the space of the type passed in it.  For example, if you choose Energy, it will assume it is a value in eV.

@@ -76,17 +76,17 @@ public:
 
 	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by AMBeamlineScanAction to set the title for the action view.
 	virtual QString description() const {
-		return QString("Region Scan from %1 to %2").arg(regionStart(0)).arg(regionEnd(regionCount()-1));
+		return QString("Region Scan from %1%3 to %2%4").arg(regionStart(0)).arg(regionEnd(regionCount()-1)).arg(regionUnits(0)).arg(regionUnits(regionCount()-1));
 	}
 
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
 	virtual QString detailedDescription() const{
-		return QString("Region Scan from %1 to %2").arg(regionStart(0)).arg(regionEnd(regionCount()-1));
+		return QString("Region Scan from %1%3 to %2%4").arg(regionStart(0)).arg(regionEnd(regionCount()-1)).arg(regionUnits(0)).arg(regionUnits(regionCount()-1));
 	}
 
 	/// The auto-generated scan name. Can be re-implemented to customize for each scan type.
 	virtual QString autoScanName() const{
-		return QString("Region Scan").arg(regionStart(0)).arg(regionEnd(regionCount()-1));
+		return QString("Region Scan");
 	}
 
 	/// Pure virtual functions that need to be implemented.  Because controls aren't set in AMRegionScanConfiguration, subclasses need to implement the control info getter to their valid region and time controls.

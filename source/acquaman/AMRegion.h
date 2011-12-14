@@ -271,17 +271,17 @@ public:
 	virtual double start() const { return (type() == Energy) ? start_ : toKSpace(start_); }
 	/// Returns the stored end value as a double.  Returns value either as energy or k-space based on the current value of type.
 	virtual double end() const { return (type() == Energy) ? end_ : toKSpace(end_); }
-	/// Returns the time spent per point in the region.
+	/// Returns the time spent per point in the region.  Returns -1 in the case of k-space because the dwell time changes due to the an external app (currently).
 	virtual double time() const { return (type() == Energy) ? time_ : -1; }
 	/// Returns the units that the region is expressed in based on the type of region.  Returns whatever the energy units are set (likely eV) or "k".
 	virtual QString units() const { return (type() == Energy) ? units_ : "k"; }
-	/// Returns the units for the time in this region.
-	virtual QString timeUnits() const { return (type() == Energy) ? timeUnits_ : ""; }
+	/// Explicitly returns the units for energy space.
+	QString energyUnits() const { return units_; }
 
 	/// Explicit getter based on the type passed into the function.  Returns the start value as a double.
 	double startByType(RegionType type) { return (type == Energy) ? start_ : toKSpace(start_); }
 	/// Explicit getter based on the type passed into the function.  Returns the end value as a double.
-	double endByType(RegionType type) { return (type == Energy) ? delta_ : toKSpace(delta_); }
+	double endByType(RegionType type) { return (type == Energy) ? end_ : toKSpace(end_); }
 
 	/// Returns the region type.
 	AMEXAFSRegion::RegionType type() const { return type_; }
@@ -304,8 +304,17 @@ public slots:
 
 	/// Sets the region type.
 	bool setType(AMEXAFSRegion::RegionType type);
-	/// Sets the edge energy for the list model.  Used when computing k <-> eV.
-	void setEdgeEnergy(double energy) { edgeEnergy_ = energy; }
+	/// Sets the edge energy for the list model.  Used when computing k <-> eV.  Must be an absolute energy.
+	bool setEdgeEnergy(double energy)
+	{
+		if (energy >= 0){
+
+			edgeEnergy_ = energy;
+			return true;
+		}
+
+		return false;
+	}
 
 protected:
 	/// Returns the k-space value from \param energy using the current edge energy.  Returns -1 if invalid.

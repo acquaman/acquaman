@@ -110,10 +110,11 @@ QString AMRegionScanConfiguration::dbReadRegions() const{
 	return rv.join("\n");
 }
 
-void AMRegionScanConfiguration::dbLoadRegions(const QString &XASRegionsString){
-	if(XASRegionsString.isEmpty())
+void AMRegionScanConfiguration::dbLoadRegions(const QString &regionsString)
+{
+	if(regionsString.isEmpty())
 		return;
-	QStringList allRegions = XASRegionsString.split("\n", QString::SkipEmptyParts);
+	QStringList allRegions = regionsString.split("\n", QString::SkipEmptyParts);
 	QStringList oneRegion;
 	bool addRegionSuccess;
 
