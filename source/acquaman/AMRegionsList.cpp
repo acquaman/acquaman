@@ -420,3 +420,21 @@ bool AMEXAFSRegionsList::addRegionSqueeze(int index){
 		return addRegion(index, prevStart+(prevEnd-prevStart)/2, 1, nextStart+(nextEnd-nextStart)/2 );
 	}
 }
+
+bool AMEXAFSRegionsList::deleteRegionSqueeze(int index){
+
+	bool retVal = deleteRegion(index);
+
+	if(retVal){
+
+		if( (index != 0) && (index != count()) ){
+
+			double prevEnd, nextStart;
+			prevEnd = endByType(index-1, AMEXAFSRegion::Energy);
+			nextStart = startByType(index, AMEXAFSRegion::Energy);
+			setEnd(index-1, prevEnd+(nextStart-prevEnd)/2);
+		}
+	}
+
+	return retVal;
+}

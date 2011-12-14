@@ -271,8 +271,12 @@ public:
 	virtual double start() const { return (type() == Energy) ? start_ : toKSpace(start_); }
 	/// Returns the stored end value as a double.  Returns value either as energy or k-space based on the current value of type.
 	virtual double end() const { return (type() == Energy) ? end_ : toKSpace(end_); }
+	/// Returns the time spent per point in the region.
+	virtual double time() const { return (type() == Energy) ? time_ : -1; }
 	/// Returns the units that the region is expressed in based on the type of region.  Returns whatever the energy units are set (likely eV) or "k".
 	virtual QString units() const { return (type() == Energy) ? units_ : "k"; }
+	/// Returns the units for the time in this region.
+	virtual QString timeUnits() const { return (type() == Energy) ? timeUnits_ : ""; }
 
 	/// Explicit getter based on the type passed into the function.  Returns the start value as a double.
 	double startByType(RegionType type) { return (type == Energy) ? start_ : toKSpace(start_); }
@@ -334,6 +338,8 @@ public:
 	bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex());
 	/// Sets the data value at an index (row and column). Only valid role is Qt::DisplayRole right now.
 	bool setData(const QModelIndex &index, const QVariant &value, int role);
+	/// Retrieves the data from an index (row and column) and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
+	QVariant data(const QModelIndex &index, int role) const;
 
 public slots:
 	/// Sets the k-space control that is used for scanning the energy in an EXAFS scan.  \note This sets the default control for the region.  If setEnergyControl was used previously, then it will be overwritten.

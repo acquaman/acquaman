@@ -249,6 +249,8 @@ public slots:
 
 	/// Overloaded for EXAFS.  Creates a new region at \param index and auto fills the start and end values to start and end values of the regions that surround it.  Uses values defined by sensibleStart() and sensibleEnd() when the new region is prepended or appended to the current list.
 	virtual bool addRegionSqueeze(int index);
+	/// Deletes the region referred to by \param index and renumbers subsequent regions accordingly.  Returns true if successful, returns false if the index is invalid.  It also makes an intelligent change to the start and end values of the surrounding regions to push them together.
+	bool deleteRegionSqueeze(int index);
 
 	/// Sets the k-space control for the AMEXAFSRegions.  Also sets the default control for the regions list.
 	virtual void setKControl(AMControl* kControl) { defaultKControl_ = kControl; ((AMEXAFSRegionsListModel*)regions_)->setKSpaceControl(kControl); }

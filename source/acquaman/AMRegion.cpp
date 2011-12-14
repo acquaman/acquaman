@@ -693,3 +693,61 @@ bool AMEXAFSRegionsListModel::setData(const QModelIndex &index, const QVariant &
 
 	return false;	// no value set
 }
+
+QVariant AMEXAFSRegionsListModel::data(const QModelIndex &index, int role) const{
+	// Invalid index:
+	if(!index.isValid())
+		return QVariant();
+
+	// If handling the alignment.
+	if (role == Qt::TextAlignmentRole)
+		return Qt::AlignCenter;
+
+	// If handling the background color.
+	if (role == Qt::BackgroundRole)
+		return regions_->at(index.row())->isValid() ? Qt::white : Qt::red;
+
+	// We only answer to Qt::DisplayRole right now
+	if(role != Qt::DisplayRole)
+		return QVariant();
+
+	// Out of range: (Just checking for too big.  isValid() checked for < 0)
+	if(index.row() >= regions_->count())
+		return QVariant();
+
+	QVariant dataVal = QVariant();
+	AMEXAFSRegion *region = qobject_cast<AMEXAFSRegion *>(regions_->at(index.row()));
+	// Need to be using an AMEXAFSRegion.
+	if (!region)
+		return false;
+
+	switch(index.column()){
+
+	case 0: // The control.
+		break; // Doing nothing.
+	case 1: // The start value.
+		dataVal = QString::number(region->start()) + region->units();
+		break;
+	case 2: // The delta value.
+		dataVal = QString::number(region->delta()) + region->units();
+		break;
+	case 3: // The end value.
+		dataVal = QString::number(region->end()) + region->units();
+		break;
+	case 4: // The state of whether the region has an elastic start value.
+		dataVal = region->elasticStart();
+		break;
+	case 5: // The state of whether the region has an elastic end value.
+		dataVal = region->elasticEnd();
+		break;
+	case 6: // The time control.
+		break; // Doing nothing.
+	case 7: // The time value.
+		dataVal = (region->time() >= 0) ? QString::number(region->time()) + region->timeUnits() : "-";
+		break;
+	default:
+		break; // Return null if not a specific case.
+	}
+
+	return dataVal;
+}
