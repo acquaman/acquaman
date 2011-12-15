@@ -575,6 +575,12 @@ bool AMEXAFSRegionsListModel::setData(const QModelIndex &index, const QVariant &
 
 			QString energy = value.toString();
 
+			if (energy.contains("k") && region->type() == AMEXAFSRegion::Energy)
+				region->setType(AMEXAFSRegion::kSpace);
+
+			else if (!energy.contains("k") && region->type() == AMEXAFSRegion::kSpace)
+				region->setType(AMEXAFSRegion::Energy);
+
 			if (energy.contains(region->units()))
 				energy.chop(region->units().size());
 
@@ -598,8 +604,6 @@ bool AMEXAFSRegionsListModel::setData(const QModelIndex &index, const QVariant &
 		if(!conversionOK)
 			return false;
 
-		QString energy;
-
 		switch(index.column()){
 
 		case 0: // Setting a control?
@@ -607,42 +611,15 @@ bool AMEXAFSRegionsListModel::setData(const QModelIndex &index, const QVariant &
 			break;
 
 		case 1: // Setting a start value?
-			energy = value.toString();
-
-			if (energy.contains("k") && region->type() == AMEXAFSRegion::Energy)
-				region->setType(AMEXAFSRegion::kSpace);
-
-			else if (!energy.contains("k") && region->type() == AMEXAFSRegion::kSpace)
-				region->setType(AMEXAFSRegion::Energy);
-
 			retVal = regions_->at(index.row())->setStart(dval);
-
 			break;
 
 		case 2: // Setting a delta value?
-			energy = value.toString();
-
-			if (energy.contains("k") && region->type() == AMEXAFSRegion::Energy)
-				region->setType(AMEXAFSRegion::kSpace);
-
-			else if (!energy.contains("k") && region->type() == AMEXAFSRegion::kSpace)
-				region->setType(AMEXAFSRegion::Energy);
-
 			retVal = regions_->at(index.row())->setDelta(dval);
-
 			break;
 
 		case 3: // Setting an end value?
-			energy = value.toString();
-
-			if (energy.contains("k") && region->type() == AMEXAFSRegion::Energy)
-				region->setType(AMEXAFSRegion::kSpace);
-
-			else if (!energy.contains("k") && region->type() == AMEXAFSRegion::kSpace)
-				region->setType(AMEXAFSRegion::Energy);
-
 			retVal = regions_->at(index.row())->setEnd(dval);
-
 			break;
 
 		case 4: // Setting the start elasticity?
@@ -708,13 +685,13 @@ QVariant AMEXAFSRegionsListModel::data(const QModelIndex &index, int role) const
 	case 0: // The control.
 		break; // Doing nothing.
 	case 1: // The start value.
-		dataVal = QString::number(region->start()) + region->units();
+		dataVal = QString::number(region->start(), 'g', 3) + region->units();
 		break;
 	case 2: // The delta value.
-		dataVal = QString::number(region->delta()) + region->units();
+		dataVal = QString::number(region->delta(), 'g', 3) + region->units();
 		break;
 	case 3: // The end value.
-		dataVal = QString::number(region->end()) + region->units();
+		dataVal = QString::number(region->end(), 'g', 3) + region->units();
 		break;
 	case 4: // The state of whether the region has an elastic start value.
 		dataVal = region->elasticStart();
@@ -725,7 +702,7 @@ QVariant AMEXAFSRegionsListModel::data(const QModelIndex &index, int role) const
 	case 6: // The time control.
 		break; // Doing nothing.
 	case 7: // The time value.
-		dataVal = (region->time() >= 0) ? QString::number(region->time()) + region->timeUnits() : "-";
+		dataVal = (region->time() >= 0) ? QString::number(region->time(), 'f', 1) + region->timeUnits() : "-";
 		break;
 	default:
 		break; // Return null if not a specific case.

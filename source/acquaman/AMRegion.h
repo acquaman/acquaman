@@ -267,6 +267,18 @@ public:
 		edgeEnergy_ = 0;
 	}
 
+	/// Re-implemented.  Forcing XAS scans to start from lower energy and go to higher energy.
+	virtual bool isValid() const
+	{
+		if (type_ == Energy && start_ < end_ && delta_ > 0)
+			return true;
+
+		else if (type_ == kSpace && start_ < end_ && delta_ > 0 && start_ >= 0)
+			return true;
+
+		return false;
+	}
+
 	/// Returns the stored start value as a double.  Returns value either as energy or k-space based on the current value of type.
 	virtual double start() const { return (type() == Energy) ? start_ : toKSpace(start_); }
 	/// Returns the stored end value as a double.  Returns value either as energy or k-space based on the current value of type.

@@ -12,6 +12,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	ionChamberNames_.insert(Ipost, "Ipost");
 
 	regions_->setSensibleRange(-30, 40);
+	exafsRegions()->setDefaultEdgeEnergy(0); // Everything for XAS related scans on VESPERS is done using relative energy to the edge on a PV level.
 	exafsRegions()->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
 	exafsRegions()->setTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
 	exafsRegions()->setKControl(VESPERSBeamline::vespers()->kControl());
@@ -38,14 +39,19 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(const VESPERSEXAFSS
 
 	regions_->setSensibleStart(original.regions()->sensibleStart());
 	regions_->setSensibleEnd(original.regions()->sensibleEnd());
+	exafsRegions()->setDefaultEdgeEnergy(original.exafsRegions()->defaultEdgeEnergy());
 	exafsRegions()->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
 	exafsRegions()->setTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
 	exafsRegions()->setKControl(VESPERSBeamline::vespers()->kControl());
 	regions_->setDefaultUnits(original.regions()->defaultUnits());
 	regions_->setDefaultTimeUnits(original.regions()->defaultTimeUnits());
 
-	for (int i = 0; i < original.regionCount(); i++)
+	for (int i = 0; i < original.regionCount(); i++){
+
 		regions_->addRegion(i, original.regionStart(i), original.regionDelta(i), original.regionEnd(i), original.regionTime(i));
+		exafsRegions()->setType(i, original.exafsRegions()->type(i));
+		exafsRegions()->setEdgeEnergy(i, original.exafsRegions()->edgeEnergy(i));
+	}
 
 	setName(original.name());
 	fluorescenceDetectorChoice_ = original.fluorescenceDetectorChoice();

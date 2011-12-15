@@ -230,7 +230,14 @@ Q_OBJECT
 
 public:
 	/// Constructor.  Sets up its own regions model.
-	AMEXAFSRegionsList(QObject *parent = 0, bool setup = true) : AMXASRegionsList(parent, false) { if(setup) setupModel(); }
+	AMEXAFSRegionsList(QObject *parent = 0, bool setup = true)
+		: AMXASRegionsList(parent, false)
+	{
+		defaultEdgeEnergy_ = 0;
+
+		if(setup)
+			setupModel();
+	}
 
 	/// Returns the type of the region referred to by \param index.
 	AMEXAFSRegion::RegionType type(int index) const { return exafsRegion(index)->type(); }
@@ -242,6 +249,9 @@ public:
 	double startByType(int index, AMEXAFSRegion::RegionType type) { return exafsRegion(index)->startByType(type); }
 	/// Explicit getter based on the type passed into the function.  Returns the end value as a double from the region referred to by \param index.
 	double endByType(int index, AMEXAFSRegion::RegionType type) { return exafsRegion(index)->endByType(type); }
+
+	/// Returns the default edge energy for the regions list.  This is the energy that is set as the edge energy to all newly created regions.
+	double defaultEdgeEnergy() const { return defaultEdgeEnergy_; }
 
 	/// Returns whether any of the regions are in the extended region (k-space).
 	bool hasKSpace() const
@@ -268,6 +278,8 @@ public slots:
 	/// Deletes the region referred to by \param index and renumbers subsequent regions accordingly.  Returns true if successful, returns false if the index is invalid.  It also makes an intelligent change to the start and end values of the surrounding regions to push them together.
 	bool deleteRegionSqueeze(int index);
 
+	/// Sets the default edge energy for the regions list.  This is the energy that is set as the edge energy to all newly created regions.
+	void setDefaultEdgeEnergy(double energy) { defaultEdgeEnergy_ = energy; ((AMEXAFSRegionsListModel *)regions_)->setDefaultEdgeEnergy(energy); }
 	/// Sets the k-space control for the AMEXAFSRegions.  Also sets the default control for the regions list.
 	virtual void setKControl(AMControl* kControl) { defaultKControl_ = kControl; ((AMEXAFSRegionsListModel*)regions_)->setKSpaceControl(kControl); }
 
@@ -277,6 +289,8 @@ protected:
 	/// Returns a pointer to the region refered to by index. If an invalid index is given, returns NULL.
 	AMEXAFSRegion* exafsRegion(int index) const { return (index < regions_->regions()->size() && index >= 0) ? qobject_cast<AMEXAFSRegion *>(regions_->regions()->at(index)) : 0; }
 
+	/// Holds the default edge energy.  Used when making new regions.
+	double defaultEdgeEnergy_;
 	/// Pointer to the control that moves regions through k-space.
 	AMControl *defaultKControl_;
 };
