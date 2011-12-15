@@ -328,6 +328,11 @@ public slots:
 		return false;
 	}
 
+	/// Overloaded to accommodate the type difference for EXAFS.  This changes the start value of the region.  If the start value is already in the process of changing this function does nothing.
+	virtual bool adjustStart(double start);
+	/// Overloaded to accommodate the type difference for EXAFS.  This changes the end value of the region.  If the end value is already in the process of changing this function does nothing.
+	virtual bool adjustEnd(double end);
+
 protected:
 	/// Returns the k-space value from \param energy using the current edge energy.  Returns -1 if invalid.
 	double toKSpace(double energy) const;

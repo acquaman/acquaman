@@ -22,7 +22,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 
 	// Regions setup
 	regionsView_ = new AMRegionsView(config_->regions());
-	regionsLineView_ = new AMRegionsLineView(config_->regions());
+	regionsLineView_ = new AMEXAFSLineView(config_->exafsRegions());
 
 	// The fluorescence detector setup
 	QButtonGroup *fluorescenceButtonGroup = new QButtonGroup;

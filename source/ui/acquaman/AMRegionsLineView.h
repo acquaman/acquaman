@@ -26,10 +26,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMRegionsList.h"
 
 
-class RegionItem : public QGraphicsItem
+class AMRegionItem : public QGraphicsItem
 {
 public:
-	RegionItem(double start, double delta, double end, double min, double max, int pixRange, const QString &units = "");
+	AMRegionItem(double start, double delta, double end, double min, double max, int pixRange, const QString &units = "");
 
 	QRectF boundingRect() const;
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
@@ -51,10 +51,10 @@ private:
 	QString units_;
 };
 
-class EnergyIndexItem : public QGraphicsItem
+class AMEnergyIndexItem : public QGraphicsItem
 {
 public:
-	EnergyIndexItem(double energy, double min, double max, int pixRange, const QString &units = "");
+	AMEnergyIndexItem(double energy, double min, double max, int pixRange, const QString &units = "");
 
 	QRectF boundingRect() const;
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
@@ -80,12 +80,26 @@ protected slots:
 	void handleDataChanged(QModelIndex topLeft, QModelIndex bottomRight);
 	void handleRowsInsert(const QModelIndex &parent, int start, int end);
 	void handleRowsRemoved(const QModelIndex &parent, int start, int end);
-	void redrawRegionsLine();
+	virtual void redrawRegionsLine();
 
 protected:
 	AMRegionsList *regions_;
 	QGraphicsScene *scene;
 	QGraphicsView *view;
+};
+
+/// This class extends the AMRegionsLineView to allow for proper drawing of EXAFS regions where there is a mixture of energy space and k-space values.
+class AMEXAFSLineView : public AMRegionsLineView
+{
+	Q_OBJECT
+
+public:
+	/// Constructor.
+	AMEXAFSLineView(AMEXAFSRegionsList *regions, QWidget *parent = 0);
+
+protected slots:
+	/// Function that handles drawing all of the line view.
+	virtual void redrawRegionsLine();
 };
 
 #endif // AMREGIONSLINEVIEW_H

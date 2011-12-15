@@ -283,6 +283,40 @@ public slots:
 	/// Sets the k-space control for the AMEXAFSRegions.  Also sets the default control for the regions list.
 	virtual void setKControl(AMControl* kControl) { defaultKControl_ = kControl; ((AMEXAFSRegionsListModel*)regions_)->setKSpaceControl(kControl); }
 
+	/// Returns the maximum energy from all the regions.
+	virtual double maximumValue(){
+
+		double curMax = -1e12;
+
+		for(int x = 0; x < count(); x++){
+
+			if(startByType(x, AMEXAFSRegion::Energy) > curMax)
+				curMax = startByType(x, AMEXAFSRegion::Energy);
+
+			if(endByType(x, AMEXAFSRegion::Energy) > curMax)
+				curMax = endByType(x, AMEXAFSRegion::Energy);
+		}
+
+		return curMax;
+	}
+
+	/// Returns the minimum energy from all the regions.
+	virtual double minimumValue(){
+
+		double curMin = 1e12;
+
+		for(int x = 0; x < count(); x++){
+
+			if(startByType(x, AMEXAFSRegion::Energy) < curMin)
+				curMin = startByType(x, AMEXAFSRegion::Energy);
+
+			if(endByType(x, AMEXAFSRegion::Energy) < curMin)
+				curMin = endByType(x, AMEXAFSRegion::Energy);
+		}
+
+		return curMin;
+	}
+
 protected:
 	/// Function used to setup the model that the list should manage.  When subclassed, call in the constructor to build your own custom model.
 	virtual bool setupModel();

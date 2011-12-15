@@ -526,6 +526,28 @@ double AMEXAFSRegion::toEnergy(double kSpace) const
 	return edgeEnergy_ + 3.810945497*kSpace*kSpace;
 }
 
+bool AMEXAFSRegion::adjustStart(double start){
+	if(initiatedStartAdjust_){
+		initiatedStartAdjust_ = false;
+	}
+	else{
+		setStartByType(start, Energy);
+		initiatedStartAdjust_= false;
+	}
+	return true;
+}
+
+bool AMEXAFSRegion::adjustEnd(double end){
+	if(initiatedEndAdjust_){
+		initiatedEndAdjust_ = false;
+	}
+	else{
+		setEndByType(end, Energy);
+		initiatedEndAdjust_ = false;
+	}
+	return true;
+}
+
 // AMEXAFSRegionsListModel
 ////////////////////////////////////////////////////////
 
@@ -685,13 +707,13 @@ QVariant AMEXAFSRegionsListModel::data(const QModelIndex &index, int role) const
 	case 0: // The control.
 		break; // Doing nothing.
 	case 1: // The start value.
-		dataVal = QString::number(region->start(), 'g', 3) + region->units();
+		dataVal = QString::number(region->start(), 'g', 4) + region->units();
 		break;
 	case 2: // The delta value.
-		dataVal = QString::number(region->delta(), 'g', 3) + region->units();
+		dataVal = QString::number(region->delta(), 'g', 4) + region->units();
 		break;
 	case 3: // The end value.
-		dataVal = QString::number(region->end(), 'g', 3) + region->units();
+		dataVal = QString::number(region->end(), 'g', 4) + region->units();
 		break;
 	case 4: // The state of whether the region has an elastic start value.
 		dataVal = region->elasticStart();
