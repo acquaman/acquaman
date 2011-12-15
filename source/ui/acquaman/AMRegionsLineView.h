@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class RegionItem : public QGraphicsItem
 {
 public:
-	RegionItem(double start, double delta, double end, double min, double max, int pixRange);
+	RegionItem(double start, double delta, double end, double min, double max, int pixRange, const QString &units = "");
 
 	QRectF boundingRect() const;
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
@@ -48,12 +48,13 @@ private:
 	double max_;
 	int pixRange_;
 	int width_;
+	QString units_;
 };
 
 class EnergyIndexItem : public QGraphicsItem
 {
 public:
-	EnergyIndexItem(double energy, double min, double max, int pixRange);
+	EnergyIndexItem(double energy, double min, double max, int pixRange, const QString &units = "");
 
 	QRectF boundingRect() const;
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
@@ -66,6 +67,7 @@ private:
 	double max_;
 	int pixRange_;
 	int width_;
+	QString units_;
 };
 
 class AMRegionsLineView : public QWidget

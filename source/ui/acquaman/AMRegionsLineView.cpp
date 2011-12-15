@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMRegionsLineView.h"
 
-RegionItem::RegionItem(double start, double delta, double end, double min, double max, int pixRange) : color(qrand() % 256, qrand() % 256, qrand() % 256)
+RegionItem::RegionItem(double start, double delta, double end, double min, double max, int pixRange, const QString &units) : color(qrand() % 256, qrand() % 256, qrand() % 256)
 {
 	setToolTip(QString("QColor(%1, %2, %3)\n%4")
 			  .arg(color.red()).arg(color.green()).arg(color.blue())
@@ -33,6 +33,7 @@ RegionItem::RegionItem(double start, double delta, double end, double min, doubl
 	max_ = max;
 	pixRange_ = pixRange;
 	width_ = (int)floor( (end-start)/((max-min)/pixRange) );
+	units_ = units;
 }
 
 QRectF RegionItem::boundingRect() const{
@@ -53,7 +54,7 @@ void RegionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 	QChar deltaChar(0x0394);
 	deltaVal.prepend(" = ");
 	deltaVal.prepend(deltaChar);
-	deltaVal.append(" eV");
+	deltaVal.append(units_);
 	QRectF box(0, -15, width_, 30);
 	painter->drawText(box, Qt::AlignHCenter, deltaVal, &box);
 }
@@ -108,7 +109,7 @@ void RegionItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event){
 }
 
 
-EnergyIndexItem::EnergyIndexItem(double energy, double min, double max, int pixRange) : color(qrand() % 256, qrand() % 256, qrand() % 256)
+EnergyIndexItem::EnergyIndexItem(double energy, double min, double max, int pixRange, const QString &units) : color(qrand() % 256, qrand() % 256, qrand() % 256)
 {
 	setToolTip(QString("QColor(%1, %2, %3)\n%4")
 			  .arg(color.red()).arg(color.green()).arg(color.blue())
@@ -120,6 +121,7 @@ EnergyIndexItem::EnergyIndexItem(double energy, double min, double max, int pixR
 	pixRange_ = pixRange;
 	width_ = 45;
 	textBox_ = new QRectF(0, -15, width_, 30);
+	units_ = units;
 }
 
 QRectF EnergyIndexItem::boundingRect() const{
@@ -134,7 +136,7 @@ void EnergyIndexItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 	painter->setBrush(Qt::gray);
 	QString energyVal;
 	QRectF box(boundingRect());
-	painter->drawText(box, Qt::AlignHCenter, energyVal.setNum(energy_) + " eV", textBox_);
+	painter->drawText(box, Qt::AlignHCenter, energyVal.setNum(energy_) + units_, textBox_);
 }
 
 AMRegionsLineView::AMRegionsLineView(AMRegionsList *regions, QWidget *parent) : QWidget(parent)
@@ -198,14 +200,14 @@ void AMRegionsLineView::redrawRegionsLine(){
 
 		for (int i = 0; i < regions_->count(); ++i) {
 
-			RegionItem *item = new RegionItem(regions_->start(i), regions_->delta(i), regions_->end(i), regions_->minimumValue(), regions_->maximumValue(), nlSize-60);
+			RegionItem *item = new RegionItem(regions_->start(i), regions_->delta(i), regions_->end(i), regions_->minimumValue(), regions_->maximumValue(), nlSize-60, regions_->units(i));
 			item->setPos( 10+(int)floor((regions_->start(i)-regions_->minimumValue())/ratio), 0);
 			scene->addItem(item);
-			EnergyIndexItem *eItem = new EnergyIndexItem(regions_->start(i), regions_->minimumValue(), regions_->maximumValue(), nlSize-60);
+			EnergyIndexItem *eItem = new EnergyIndexItem(regions_->start(i), regions_->minimumValue(), regions_->maximumValue(), nlSize-60, regions_->units(i));
 			eItem->setPos(10+(int)floor((regions_->start(i)-regions_->minimumValue())/ratio), 30);
 			scene->addItem(eItem);
 		}
-		EnergyIndexItem *eItem = new EnergyIndexItem(regions_->end(regions_->count()-1), regions_->minimumValue(), regions_->maximumValue(), nlSize-60);
+		EnergyIndexItem *eItem = new EnergyIndexItem(regions_->end(regions_->count()-1), regions_->minimumValue(), regions_->maximumValue(), nlSize-60, regions_->units(regions_->count()-1));
 		eItem->setPos(10+(int)floor((regions_->end(regions_->count()-1)-regions_->minimumValue())/ratio) - eItem->boundingRect().width(), 30);
 		scene->addItem(eItem);
 	}
@@ -213,7 +215,7 @@ void AMRegionsLineView::redrawRegionsLine(){
 	else{
 
 		for (int i = 0; i < regions_->count(); ++i) {
-			RegionItem *item = new RegionItem(regions_->start(i), regions_->delta(i), regions_->end(i), regions_->minimumValue(), regions_->maximumValue(), nlSize-60);
+			RegionItem *item = new RegionItem(regions_->start(i), regions_->delta(i), regions_->end(i), regions_->minimumValue(), regions_->maximumValue(), nlSize-60, regions_->units(i));
 			item->setPos( 10+(int)floor((regions_->start(i)-regions_->minimumValue())/ratio), 0);
 			scene->addItem(item);
 		}
