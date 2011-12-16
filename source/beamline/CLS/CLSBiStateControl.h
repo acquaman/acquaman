@@ -14,14 +14,14 @@ class CLSBiStateControl : public AMControl
 public:
 	/// Constructor.  Builds the bi-state control based on the following parameters.
 	/*!
-	  \param name is the name of the control.
-	  \param descrtiption is a human readable description for the control.
-	  \param state is the PV name for the state PV.
-	  \param open is the PV name for the open PV.
-	  \param close is the PV name for the close PV.
-	  \param statusChecker is used to determine if the control is moving.
-	  \param parent provides a parent object.
-	  */
+   \param name is the name of the control.
+   \param descrtiption is a human readable description for the control.
+   \param state is the PV name for the state PV.
+   \param open is the PV name for the open PV.
+   \param close is the PV name for the close PV.
+   \param statusChecker is used to determine if the control is moving.
+   \param parent provides a parent object.
+   */
 	CLSBiStateControl(const QString &name,
 					  const QString &description,
 					  const QString &state,
@@ -59,10 +59,11 @@ public:
 	virtual bool canStop() const { return false; }
 	/// Indicates that this control \em should (assuming it's connected) be able to issue stop() commands while moves are in progress.  Bi-state controls cannot be stopped.
 	virtual bool shouldStop() const { return false; }
-	/// Indicates that this control is moving.  For a bi-state control this is defined as the "Between".
-	virtual bool isMoving() const { return (*statusChecker_)(statePV_->getInt()); }
+	/// Indicates that this control is currently moving.  For a bi-state control this is defined as the "Between".
+	virtual bool isMoving() const { return (*statusChecker_)(statePV_->getInt()) || moveInProgress_; }
 
-	virtual bool moveInProgress() const { return false; }
+	/// Indicates that this control is moving (as a result of a move you specifically requested)
+	virtual bool moveInProgress() const { return moveInProgress_; }
 
 	/// \name Information on the allowed range for this control:
 	//@{
@@ -100,7 +101,7 @@ public:
 	}
 
 signals:
-	/// Notifies that the status has changed and passes on the state.
+	/// Notifies that the statePV_ has changed and passes on the state.
 	void stateChanged(int);
 
 public slots:
@@ -115,12 +116,31 @@ public slots:
 			emit moveFailed(AMControl::OtherFailure);
 	}
 	/// Opens the control.  This activates the control and moves it to the "Open" state.  Synonomous with move(1).
-	void open() { setpoint_ = 1; openPV_->setValue(1); }
+	void open() {
+		if(setpoint_ != 1) {
+			moveInProgress_ = true;
+			emit moveStarted();
+		}
+		setpoint_ = 1; openPV_->setValue(1);
+	}
 	/// Closes the control.  This deactivates the control and moves it to the "Closed" state.  Synonomous with move(0).
-	void close() { setpoint_ = 0; closePV_->setValue(1); }
+	void close() {
+		if(setpoint_ != 0) {
+			moveInProgress_ = true;
+			emit moveStarted();
+		}
+		setpoint_ = 0; closePV_->setValue(1);
+	}
 
 	/// This is used to cancel or stop a move in progress. Does not do anything for this type of control.
 	virtual bool stop() { return false; }
+
+protected slots:
+	/// Helper function to review the connection state and make sure that connected(bool) is emitted for all changes to isConnected().
+	void onConnectionStateChanged();
+	/// Called to emit stateChanged() and valueChanged() when the statePV_ changes.
+	void onStateChanged();
+
 
 protected:
 	/// This is the process variable that holds the state of the control.
@@ -135,6 +155,15 @@ protected:
 
 	/// Holds the setpoint for the control.
 	int setpoint_;
+
+	/// Holds the last value of isConnected()
+	bool isConnected_;
+
+	/// Holds whether a move (your move) is in progress.
+	bool moveInProgress_;
+
+	/// Holds the last value of isMoving_;
+	bool isMoving_;
 };
 
 #endif // CLSBISTATECONTROL_H
