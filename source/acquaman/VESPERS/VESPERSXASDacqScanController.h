@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMDacqScanController.h"
 #include "acquaman/VESPERS/VESPERSXASScanConfiguration.h"
 #include "dataman/AMXASScan.h"
+#include "actions/AMBeamlineListAction.h"
 
 /// Some defined error codes to help with controller crashes.
 #define VESPERSXASDACQSCANCONTROLLER_CANT_INTIALIZE 77001
@@ -49,7 +50,7 @@ protected slots:
 	void onInitializationActionsProgress(double elapsed, double total);
 
 	/// Slot that catches when the cleanup actions are finished.
-	void onCleanupFinished() { AMDacqScanController::onDacqStop(); }
+	void onCleanupFinished();
 
 	/// Re-implementing to change actual dwell times for the VESPERS Beamline
 	void onDwellTimeTriggerChanged(double newValue);
@@ -64,6 +65,11 @@ protected:
 	void onDacqStop() { cleanup(); }
 	/// Method that cleans up the beamline after a scan is finished.  Makes a list of clean up actions and executes them.
 	void cleanup();
+
+	/// Helper method that removes and deletes all of the actions from initialization action for proper memory management.
+	void onInitializationActionFinished();
+	/// Helper method that removes and deletes all of the actions from the cleanup action for proper memory management.
+	void onCleanupActionFinished();
 
 	AMnDIndex toScanIndex(QMap<int, double> aeData);
 
@@ -85,6 +91,11 @@ protected:
 
 	/// A counter holding the current region index being scanned.
 	int currentRegionIndex_;
+
+	/// Action that contains all of the initialization actions for the controller.
+	AMBeamlineListAction *setupXASAction_;
+	/// Action that contains all of the cleanup actions for the controller.
+	AMBeamlineListAction *cleanupXASAction_;
 };
 
 #endif // VESPERSXASDACQSCANCONTROLLER_H
