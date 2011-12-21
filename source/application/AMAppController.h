@@ -61,6 +61,9 @@ If \c openInExistingEditor is set to true, and if there is an existing editor, t
 	/// Bring the Workflow view to the front level
 	void goToWorkflow();
 
+	///	Opens a single scan configuration from a given database URL.  Reimplemented to put the scan into a config view holder to possibly add it to the workflow.
+	virtual void launchScanConfigurationFromDb(const QUrl &url);
+
 	///////////////////////////////////
 
 protected:

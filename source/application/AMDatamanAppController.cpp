@@ -357,6 +357,7 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	connect(dataView_, SIGNAL(selectionActivated(QList<QUrl>)), this, SLOT(onDataViewItemsActivated(QList<QUrl>)));
 	connect(dataView_, SIGNAL(selectionActivatedSeparateWindows(QList<QUrl>)), this, SLOT(onDataViewItemsActivatedSeparateWindows(QList<QUrl>)));
 	connect(dataView_, SIGNAL(selectionExported(QList<QUrl>)), this, SLOT(onDataViewItemsExported(QList<QUrl>)));
+	connect(dataView_, SIGNAL(launchScanConfigurationsFromDb(QList<QUrl>)), this, SLOT(onLaunchScanConfigurationsFromDb(QList<QUrl>)));
 
 	// When 'alias' links are clicked in the main window sidebar, we might need to notify some widgets of the details
 	connect(mw_, SIGNAL(aliasItemActivated(QWidget*,QString,QVariant)), this, SLOT(onMainWindowAliasItemActivated(QWidget*,QString,QVariant)));
@@ -497,6 +498,67 @@ void AMDatamanAppController::onDataViewItemsActivated(const QList<QUrl>& itemUrl
 void AMDatamanAppController::onDataViewItemsActivatedSeparateWindows(const QList<QUrl> &itemUrls)
 {
 	dropScanURLs(itemUrls, 0, true);
+}
+
+void AMDatamanAppController::onLaunchScanConfigurationsFromDb(const QList<QUrl> &urls)
+{
+	if (urls.isEmpty())
+		return;
+
+	for (int i = 0; i < urls.size(); i++)
+		launchScanConfigurationFromDb(urls.at(i));
+}
+
+#include "ui/acquaman/AMScanConfigurationView.h"
+
+void AMDatamanAppController::launchScanConfigurationFromDb(const QUrl &url)
+{
+	// scheme correct?
+	if (url.scheme() != "amd")
+		return;
+
+	// Scan configurations only come from the user databases currently.
+	AMDatabase *db = AMDatabase::database("user");
+	if (!db)
+		return;
+
+	QStringList path = url.path().split('/', QString::SkipEmptyParts);
+	if(path.count() != 2)
+		return;
+
+	QString tableName = path.at(0);
+	bool idOkay;
+	int id = path.at(1).toInt(&idOkay);
+	if(!idOkay || id < 1)
+		return;
+
+	// Only open scans for now (ie: things in the scans table)
+	if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
+		return;
+
+	// Check if this scan is scanning... Use the currentlyScanning column stored in the database.
+	QVariant isScanning = db->retrieve(id, tableName, "currentlyScanning");
+	if(!isScanning.isValid())
+		return;
+
+	// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
+	AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
+	if(!dbo)
+		return;
+
+	// Is it a scan?
+	AMScan* scan = qobject_cast<AMScan*>( dbo );
+	if(!scan) {
+		delete dbo;
+		return;
+	}
+
+	AMScanConfigurationView *view = scan->scanConfiguration()->createView();
+	if (!view)
+		return;
+
+	view->setEnabled(false);
+	view->show();
 }
 
 #include "dataman/AMRunExperimentItems.h"

@@ -153,6 +153,10 @@ The Drag is accepted when:
 	/// Open a scan specified by a database URL, in the given \c editor. (If \c editor is 0, a new editor will be opened.)  The scans are checked to make sure that they're not already open, and that they're not still scanning somewhere else. Returns true if the scan was opened successfully.
 	bool dropScanURL(const QUrl& url, AMGenericScanEditor* editor = 0);
 
+	/// Opens scan configurations by a database URL, based on the view that is stored inside the scan.
+	void onLaunchScanConfigurationsFromDb(const QList<QUrl> &urls);
+	/// Opens a single scan configuration from a given database URL.
+	virtual void launchScanConfigurationFromDb(const QUrl &url);
 
 	/// Calling this slot activates the Import Legacy Data wizard.
 	void onActionImportLegacyFiles();

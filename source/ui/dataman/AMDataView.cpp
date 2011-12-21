@@ -68,6 +68,9 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	connect(gview_, SIGNAL(dragMoved(QPoint,QPoint)), this, SLOT(onDragMoved(QPoint,QPoint)));
 	connect(gview_, SIGNAL(dragEnded(QPoint,QPoint)), this, SLOT(onDragEnded(QPoint,QPoint)));
 
+	connect(gview_, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
+	gview_->setContextMenuPolicy(Qt::CustomContextMenu);
+
 	gview_->setScene(gscene_);
 	gwidget_ = new AMLayoutControlledGraphicsWidget();
 	gscene_->addItem(gwidget_);
@@ -1612,6 +1615,49 @@ void AMDataView::startDragWithSelectedItems(const QPixmap& optionalPixmap)
 }
 
 #include <QDebug>
+#include <QMenu>
+#include <QAction>
+#include <QMessageBox>
+
+void AMDataView::onCustomContextMenuRequested(QPoint pos)
+{
+	QMenu popup(this);
+
+	int numSelectedItems = gscene_->selectedItems().size();
+	QAction *temp = popup.addAction("");
+
+	switch(numSelectedItems){
+
+	case 0:
+		temp->setText("Show Scan Configuration");
+		temp->setEnabled(false);
+		break;
+	case 1:
+		temp->setText("Show Scan Configuration");
+		break;
+	default:
+		temp->setText("Show Scan Configurations");
+		break;
+	}
+
+	temp = popup.exec(mapToGlobal(pos));
+
+	// If a valid action was selected.
+	if (temp && (temp->text() == "Show Scan Configuration" || temp->text() == "Show Scan Configurations")){
+
+		if (numSelectedItems > 5){
+
+			QMessageBox::StandardButton button = QMessageBox::question(this, "Opening multiple scan configurations",
+																		"You are about to open more than 5 scan configurations at once.  Are you sure?",
+																		QMessageBox::Ok | QMessageBox::Cancel,
+																		QMessageBox::Cancel);
+			if (button == QMessageBox::Ok)
+				emit launchScanConfigurationsFromDb();
+		}
+		else
+			emit launchScanConfigurationsFromDb();
+	}
+}
 
 void AMDataView::onViewClicked(const QPoint &clickPos)
 {

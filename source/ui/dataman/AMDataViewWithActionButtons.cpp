@@ -48,6 +48,15 @@ AMDataViewWithActionButtons::AMDataViewWithActionButtons(AMDatabase* database, Q
 
 	connect(dataView_, SIGNAL(viewDoubleClicked()), this, SLOT(onDoubleClick()));
 	connect(dataView_, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
+	connect(dataView_, SIGNAL(launchScanConfigurationsFromDb()), this, SLOT(onLaunchScanConfigurationsFromDb()));
+}
+
+void AMDataViewWithActionButtons::onLaunchScanConfigurationsFromDb()
+{
+	QList<QUrl> urls = dataView_->selectedItems();
+
+	if(urls.count() > 0)
+		emit launchScanConfigurationsFromDb(urls);
 }
 
 void AMDataViewWithActionButtons::onDoubleClick()

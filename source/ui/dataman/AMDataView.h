@@ -138,6 +138,8 @@ signals:
 	void selectionChanged();
 	/// Emitted when the user double-clicks anywhere in the view.
 	void viewDoubleClicked();
+	/// Emitted when the user chooses to open a scan configuration from the database.
+	void launchScanConfigurationsFromDb();
 
 
 public slots:
@@ -188,6 +190,8 @@ protected slots:
 	void onViewClicked(const QPoint& clickPos);
 	void onViewDoubleClicked(const QPoint& clickPos);
 
+	/// Builds a popup menu for switching view modes.
+	void onCustomContextMenuRequested(QPoint pos);
 
 
 

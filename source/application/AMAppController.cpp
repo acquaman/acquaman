@@ -72,3 +72,60 @@ void AMAppController::openScanInEditorAndTakeOwnership(AMScan *scan, bool bringE
 	if(bringEditorToFront)
 		mw_->setCurrentPane(editor);
 }
+
+#include "acquaman/AMScanConfiguration.h"
+#include "ui/acquaman/AMScanConfigurationView.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder.h"
+#include "dataman/database/AMDatabase.h"
+#include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/AMScan.h"
+
+void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
+{
+	// scheme correct?
+	if (url.scheme() != "amd")
+		return;
+
+	// Scan configurations only come from the user databases currently.
+	AMDatabase *db = AMDatabase::database("user");
+	if (!db)
+		return;
+
+	QStringList path = url.path().split('/', QString::SkipEmptyParts);
+	if(path.count() != 2)
+		return;
+
+	QString tableName = path.at(0);
+	bool idOkay;
+	int id = path.at(1).toInt(&idOkay);
+	if(!idOkay || id < 1)
+		return;
+
+	// Only open scans for now (ie: things in the scans table)
+	if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
+		return;
+
+	// Check if this scan is scanning... Use the currentlyScanning column stored in the database.
+	QVariant isScanning = db->retrieve(id, tableName, "currentlyScanning");
+	if(!isScanning.isValid())
+		return;
+
+	// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
+	AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
+	if(!dbo)
+		return;
+
+	// Is it a scan?
+	AMScan* scan = qobject_cast<AMScan*>( dbo );
+	if(!scan) {
+		delete dbo;
+		return;
+	}
+
+	AMScanConfigurationView *view = scan->scanConfiguration()->createView();
+	if (!view)
+		return;
+
+	AMScanConfigurationViewHolder *viewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, view);
+	viewHolder->show();
+}
