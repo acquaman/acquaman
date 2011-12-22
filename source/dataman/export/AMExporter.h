@@ -77,9 +77,9 @@ For example: AMExporterGeneralAscii::exporterOptionClassName() would probably re
 	virtual AMExporterOption* createDefaultOption() const = 0;
 
 	/// Returns whether the exporter will overwrite all files with matching filenames.
-	OverwriteOption overwriteAll() const { return overwriteAll_; }
+	OverwriteOption overwriteOption() const { return overwriteAll_; }
 	/// Sets whether the exporter will overwrite all files with matching filenames.
-	void setOverwriteAll(OverwriteOption overwrite) { overwriteAll_ = overwrite; }
+	void setOverwriteOption(OverwriteOption overwrite) { overwriteAll_ = overwrite; }
 
 signals:
 
