@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFile>
 #include <QDir>
 #include <QStringBuilder>
+#include <QMessageBox>
 
 #include "util/AMTagReplacementParser.h"
 #include "dataman/AMScan.h"
@@ -31,6 +32,7 @@ AMExporter::AMExporter(QObject *parent) : QObject(parent) {
 	currentDataSourceIndex_ = 0;
 
 	autoIndex_ = 0;
+	overwriteAll_ = Default;
 
 	keywordParser_ = new AMTagReplacementParser();
 
@@ -56,8 +58,28 @@ bool AMExporter::openFile(const QString &filePath)
 }
 
 bool AMExporter::openFile(QFile* file, const QString& filePath) {
-	if(QFile::exists(filePath))
+
+	bool fileExists = QFile::exists(filePath);
+
+	if (fileExists && overwriteAll_ == None)
 		return false;
+
+	else if (fileExists && overwriteAll_ == Default){
+
+		QMessageBox::StandardButton button = QMessageBox::question(0, "Overwrite file?",
+																   QString("%1 already exists.  Do you want to overwrite this file?").arg(filePath.split("/").last()),
+																   QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll | QMessageBox::NoToAll,
+																   QMessageBox::Yes);
+
+
+		if (button == QMessageBox::YesToAll)
+			overwriteAll_ = All;
+		else if (button == QMessageBox::NoToAll)
+			overwriteAll_ = None;
+
+		if (button == QMessageBox::No || button == QMessageBox::NoToAll)
+			return false;
+	}
 
 	QFileInfo fileInfo(filePath);
 	if(!QDir::current().mkpath(fileInfo.path()))
