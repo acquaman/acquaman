@@ -232,7 +232,7 @@ void AMExportController::continueScanExport()
 		emit stateChanged(state_ = Finished);
 
 		// Reset whether the exporter should overwrite files with matching filenames.
-		exporter_->setOverwriteAll(AMExporter::Default);
+		exporter_->setOverwriteOption(AMExporter::Default);
 
 		QString message = "Exported " % QString::number(succeededCount()) % " scans.";
 		if(failedCount())
