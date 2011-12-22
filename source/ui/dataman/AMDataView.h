@@ -140,6 +140,12 @@ signals:
 	void viewDoubleClicked();
 	/// Emitted when the user chooses to open a scan configuration from the database.
 	void launchScanConfigurationsFromDb();
+	/// Emitted when the user chooses to edit scans.
+	void editScansFromDb();
+	/// Emitted when the user chooses to compare scans.
+	void compareScansFromDb();
+	/// Emitted when the user wants to export scans.
+	void exportScansFromDb();
 
 
 public slots:

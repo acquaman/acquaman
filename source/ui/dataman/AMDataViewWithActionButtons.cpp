@@ -45,9 +45,13 @@ AMDataViewWithActionButtons::AMDataViewWithActionButtons(AMDatabase* database, Q
 	connect(ui_->openSameEditorButton, SIGNAL(clicked()), this, SLOT(onCompareScansAction()));
 	connect(ui_->openSeparateEditorButton, SIGNAL(clicked()), this, SLOT(onEditScansAction()));
 	connect(ui_->exportButton, SIGNAL(clicked()), this, SLOT(onExportScansAction()));
+	connect(ui_->scanConfigurationButton, SIGNAL(clicked()), this, SLOT(onLaunchScanConfigurationsFromDb()));
 
 	connect(dataView_, SIGNAL(viewDoubleClicked()), this, SLOT(onDoubleClick()));
 	connect(dataView_, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
+	connect(dataView_, SIGNAL(editScansFromDb()), this, SLOT(onEditScansAction()));
+	connect(dataView_, SIGNAL(compareScansFromDb()), this, SLOT(onCompareScansAction()));
+	connect(dataView_, SIGNAL(exportScansFromDb()), this, SLOT(onExportScansAction()));
 	connect(dataView_, SIGNAL(launchScanConfigurationsFromDb()), this, SLOT(onLaunchScanConfigurationsFromDb()));
 }
 
@@ -73,10 +77,12 @@ void AMDataViewWithActionButtons::onSelectionChanged()
 		ui_->openSeparateEditorButton->setEnabled(true);
 		ui_->openSameEditorButton->setEnabled(true);
 		ui_->exportButton->setEnabled(true);
+		ui_->scanConfigurationButton->setEnabled(true);
 	}
 	else {
 		ui_->openSeparateEditorButton->setEnabled(false);
 		ui_->openSameEditorButton->setEnabled(false);
 		ui_->exportButton->setEnabled(false);
+		ui_->scanConfigurationButton->setEnabled(false);
 	}
 }

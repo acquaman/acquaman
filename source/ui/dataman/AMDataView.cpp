@@ -1622,10 +1622,21 @@ void AMDataView::startDragWithSelectedItems(const QPixmap& optionalPixmap)
 void AMDataView::onCustomContextMenuRequested(QPoint pos)
 {
 	QMenu popup(this);
-
 	int numSelectedItems = gscene_->selectedItems().size();
-	QAction *temp = popup.addAction("");
 
+	QAction *temp = popup.addAction("Edit");
+	if (numSelectedItems == 0)
+		temp->setEnabled(false);
+
+	temp = popup.addAction("Compare");
+	if (numSelectedItems == 0)
+		temp->setEnabled(false);
+
+	temp = popup.addAction("Export");
+	if (numSelectedItems == 0)
+		temp->setEnabled(false);
+
+	temp = popup.addAction("");
 	switch(numSelectedItems){
 
 	case 0:
@@ -1643,19 +1654,31 @@ void AMDataView::onCustomContextMenuRequested(QPoint pos)
 	temp = popup.exec(mapToGlobal(pos));
 
 	// If a valid action was selected.
-	if (temp && (temp->text() == "Show Scan Configuration" || temp->text() == "Show Scan Configurations")){
+	if (temp){
 
-		if (numSelectedItems > 5){
+		if (temp->text() == "Edit")
+			emit editScansFromDb();
 
-			QMessageBox::StandardButton button = QMessageBox::question(this, "Opening multiple scan configurations",
-																		"You are about to open more than 5 scan configurations at once.  Are you sure?",
-																		QMessageBox::Ok | QMessageBox::Cancel,
-																		QMessageBox::Cancel);
-			if (button == QMessageBox::Ok)
+		else if (temp->text() == "Compare")
+			emit compareScansFromDb();
+
+		else if (temp->text() == "Export")
+			emit exportScansFromDb();
+
+		else if (temp->text() == "Show Scan Configuration" || temp->text() == "Show Scan Configurations"){
+
+			if (numSelectedItems > 5){
+
+				QMessageBox::StandardButton button = QMessageBox::question(this, "Opening multiple scan configurations",
+																			"You are about to open more than 5 scan configurations at once.  Are you sure?",
+																			QMessageBox::Ok | QMessageBox::Cancel,
+																			QMessageBox::Cancel);
+				if (button == QMessageBox::Ok)
+					emit launchScanConfigurationsFromDb();
+			}
+			else
 				emit launchScanConfigurationsFromDb();
 		}
-		else
-			emit launchScanConfigurationsFromDb();
 	}
 }
 
