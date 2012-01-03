@@ -97,7 +97,7 @@ bool AMDatamanAppController::startup() {
 	if(!startupLoadSettings()) { qWarning() << "Problem with Acquaman startup: loading settings."; return false; }
 	if(!startupLoadPlugins()) { qWarning() << "Problem with Acquaman startup: loading plugins."; return false; }
 
-	if(isFirstTimeRun_ = startupIsFirstTime()) {
+	if((isFirstTimeRun_ = startupIsFirstTime())) {
 		if(!startupOnFirstTime()) { qWarning() << "Problem with Acquaman startup: handling first-time user."; return false; }
 	}
 	else {

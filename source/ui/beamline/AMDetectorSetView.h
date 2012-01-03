@@ -37,9 +37,11 @@ public:
 	int count() const;
 	AMDetectorSet* detectorSet();
 	AMDetectorView* boxByName(const QString &name);
-	AMDetectorView const * const boxAt(int row) const;
+	// Darren:  I'm changing this from AMDetectorView const * const because it only needs one.  Also, to be consistent with other parts of our code, I'm also changing the ordering to const AMDetectorView *.
+	const AMDetectorView *boxAt(int row) const;
 	AMDetectorView* detailByName(const QString &name);
-	AMDetectorView const * const detailAt(int row) const;
+	// Darren:  I'm changing this from AMDetectorView const * const because it only needs one.  Also, to be consistent with other parts of our code, I'm also changing the ordering to const AMDetectorView *.
+	const AMDetectorView *detailAt(int row) const;
 	bool checkedAt(int row) const;
 
 	/// Returns the current values of the detector set
