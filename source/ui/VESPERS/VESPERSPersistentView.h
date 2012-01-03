@@ -108,8 +108,6 @@ protected:
 	/// Spin box handling the Z slit gap.
 	QDoubleSpinBox *zSlit_;
 
-	/// The valve control.
-	VESPERSValveGroupControl *valves_;
 	/// The temperature control.
 	AMControlSet *temperature_;
 	/// The pressure control.

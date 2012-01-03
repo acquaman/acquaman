@@ -120,6 +120,13 @@ public:
 		}
 	}
 
+	/// Returns the PV name of the state PV.
+	QString statePVName() const { return statePV_->pvName(); }
+	/// Returns the PV name of the open PV.
+	QString openPVName() const { return openPV_->pvName(); }
+	/// Returns the PV name of the close PV.
+	QString closePVName() const { return closePV_->pvName(); }
+
 signals:
 	/// Notifies that the statePV_ has changed and passes on the state.
 	void stateChanged(int);
@@ -141,7 +148,8 @@ public slots:
 			moveInProgress_ = true;
 			emit moveStarted();
 		}
-		setpoint_ = 1; openPV_->setValue(1);
+		setpoint_ = 1;
+		openPV_->setValue(1);
 	}
 	/// Closes the control.  This deactivates the control and moves it to the "Closed" state.  Synonomous with move(0).
 	void close() {
@@ -149,7 +157,8 @@ public slots:
 			moveInProgress_ = true;
 			emit moveStarted();
 		}
-		setpoint_ = 0; closePV_->setValue(1);
+		setpoint_ = 0;
+		closePV_->setValue(1);
 	}
 
 	/// This is used to cancel or stop a move in progress. Does not do anything for this type of control.

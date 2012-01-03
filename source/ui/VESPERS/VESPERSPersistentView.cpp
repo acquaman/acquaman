@@ -53,8 +53,6 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	VESPERSPIDLoopControlView *pidView = new VESPERSPIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());
 	connect(VESPERSBeamline::vespers()->sampleStagePID(), SIGNAL(stateChanged(bool)), motors, SLOT(setEnabled(bool)));
 
-	// Valve group.
-	valves_ = VESPERSBeamline::vespers()->valves();
 	// The temperature control.
 	temperature_ = VESPERSBeamline::vespers()->temperatureSet();
 	connect(temperature_, SIGNAL(controlSetValuesChanged()), this, SLOT(onTemperatureStateChanged()));
@@ -211,7 +209,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 
 	valvesStatus_ = new QLabel;
 	valvesStatus_->setPixmap(QIcon(":/RED.png").pixmap(25));
-	connect(valves_, SIGNAL(statusChanged(bool)), this, SLOT(onValvesStateChanged()));
+	connect(VESPERSBeamline::vespers()->valveSet(), SIGNAL(controlSetValuesChanged()), this, SLOT(onValvesStateChanged()));
 
 	QLabel *valveIcon = new QLabel;
 	valveIcon->setPixmap(QIcon(":/valveIcon.png").pixmap(25));
@@ -321,15 +319,15 @@ void VESPERSPersistentView::toggleShutterState()
 
 void VESPERSPersistentView::onValvesButtonPushed()
 {
-	if (valves_->allValvesOpen())
-		valves_->closeAllValves();
+	if (VESPERSBeamline::vespers()->allValvesOpen())
+		VESPERSBeamline::vespers()->closeAllValves();
 	else
-		valves_->openAllValves();
+		VESPERSBeamline::vespers()->openAllValves();
 }
 
 void VESPERSPersistentView::onValvesStateChanged()
 {
-	if (valves_->allValvesOpen()){
+	if (VESPERSBeamline::vespers()->allValvesOpen()){
 
 		valvesButton_->setText("Close Valves");
 		valvesStatus_->setPixmap(QIcon(":/ON.png").pixmap(25));

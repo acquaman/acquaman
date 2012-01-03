@@ -22,11 +22,9 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/ui/VESPERS/VESPERSXRFElementView.h \
 	source/util/VESPERS/XRFPeriodicTable.h \
 	source/ui/VESPERS/XRFPeriodicTableView.h \
-	source/beamline/VESPERS/AMValveControl.h \
 	source/util/VESPERS/ROIHelper.h \
 	source/ui/VESPERS/VESPERSCustomizeRegionsOfInterest.h \
 	source/beamline/VESPERS/VESPERSSampleStageControl.h \
-	source/beamline/VESPERS/VESPERSValveGroupControl.h \
 	source/beamline/VESPERS/VESPERSPIDLoopControl.h \
 	source/ui/VESPERS/VESPERSPIDLoopControlView.h \
 	source/ui/VESPERS/VESPERSMapSetupView.h \
@@ -69,11 +67,9 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/ui/VESPERS/VESPERSXRFElementView.cpp \
 	source/util/VESPERS/XRFPeriodicTable.cpp \
 	source/ui/VESPERS/XRFPeriodicTableView.cpp \
-	source/beamline/VESPERS/AMValveControl.cpp \
 	source/util/VESPERS/ROIHelper.cpp \
 	source/ui/VESPERS/VESPERSCustomizeRegionsOfInterest.cpp \
 	source/beamline/VESPERS/VESPERSSampleStageControl.cpp \
-	source/beamline/VESPERS/VESPERSValveGroupControl.cpp \
 	source/beamline/VESPERS/VESPERSPIDLoopControl.cpp \
 	source/ui/VESPERS/VESPERSPIDLoopControlView.cpp \
 	source/ui/VESPERS/VESPERSMapSetupView.cpp \
@@ -99,6 +95,10 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
+
+
 
 
 

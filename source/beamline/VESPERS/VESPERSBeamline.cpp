@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions/AMBeamlineControlMoveAction.h"
 #include "actions/AMBeamlineParallelActionsList.h"
 #include "actions/AMBeamlineListAction.h"
+#include "beamline/CLS/CLSBiStateControl.h"
 
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
@@ -58,31 +59,21 @@ void VESPERSBeamline::setupDiagnostics()
 	ccgPreWindow_ =  new AMReadOnlyPVwStatusControl("Pressure Pre-Window", "CCG1607-2-B21-02:vac:p", "CCG1607-2-B21-02:vac", this, new AMControlStatusCheckerDefault(0));
 	ccgPostWindow_ =  new AMReadOnlyPVwStatusControl("Pressure Post-Window", "CCG1607-2-B21-03:vac:p", "CCG1607-2-B21-03:vac", this, new AMControlStatusCheckerDefault(0));
 
-	// Valve controls.
-	vvrFE1_ = new AMReadOnlyPVControl("Valve FE1", "VVR1408-B20-01:state", this);
-	vvrFE2_ = new AMReadOnlyPVControl("Valve FE2", "VVR1607-1-B20-01:state", this);
-	vvrM1_ = new AMReadOnlyPVControl("Valve M1", "VVR1607-1-B20-02:state", this);
-	vvrM2_ = new AMReadOnlyPVControl("Valve M2", "VVR1607-1-B20-03:state", this);
-	vvrBPM1_ = new AMReadOnlyPVControl("Valve BPM1", "VVR1607-1-B20-04:state", this);
-	vvrMono_ = new AMReadOnlyPVControl("Valve Mono", "VVR1607-1-B20-05:state", this);
-	vvrExitSlits_ = new AMReadOnlyPVControl("Valve Exit Slits", "VVR1607-1-B20-06:state", this);
-	vvrStraightSection_ = new AMReadOnlyPVControl("Valve Straight Section", "VVR1607-1-B20-07:state", this);
-	vvrBPM3_ = new AMReadOnlyPVControl("Valve BPM3", "VVR1607-1-B20-08:state", this);
-	vvrSSH_ = new AMReadOnlyPVControl("Valve SSH", "VVR1607-1-B21-01:state", this);
-	vvrBeamTransfer_ = new AMReadOnlyPVControl("Valve Beam Transfer", "VVR1607-2-B21-01:state", this);
-
 	// The actual valve control.  The reason for separating them is due to the fact that there currently does not exist an AMControl that handles setups like valves.
-	valveFE1_ = new AMValveControl("Valve Control FE1", "VVR1408-B20-01:state", "VVR1408-B20-01:opr:open", "VVR1408-B20-01:opr:close", this);
-	valveFE2_ = new AMValveControl("Valve Control FE2", "VVR1607-1-B20-01:state", "VVR1607-1-B20-01:opr:open", "VVR1607-1-B20-01:opr:close", this);
-	valveM1_ = new AMValveControl("Valve Control M1", "VVR1607-1-B20-02:state", "VVR1607-1-B20-02:opr:open", "VVR1607-1-B20-02:opr:close", this);
-	valveM2_ = new AMValveControl("Valve Control M2", "VVR1607-1-B20-03:state", "VVR1607-1-B20-03:opr:open", "VVR1607-1-B20-03:opr:close", this);
-	valveBPM1_ = new AMValveControl("Valve Control BPM1", "VVR1607-1-B20-04:state", "VVR1607-1-B20-04:opr:open", "VVR1607-1-B20-04:opr:close", this);
-	valveMono_ = new AMValveControl("Valve Control Mono", "VVR1607-1-B20-05:state", "VVR1607-1-B20-05:opr:open", "VVR1607-1-B20-05:opr:close", this);
-	valveExitSlits_ = new AMValveControl("Valve Control Exit Slits", "VVR1607-1-B20-06:state", "VVR1607-1-B20-06:opr:open", "VVR1607-1-B20-06:opr:close", this);
-	valveStraightSection_ = new AMValveControl("Valve Control Straight Section", "VVR1607-1-B20-07:state", "VVR1607-1-B20-07:opr:open", "VVR1607-1-B20-07:opr:close", this);
-	valveBPM3_ = new AMValveControl("Valve Control BPM3", "VVR1607-1-B20-08:state", "VVR1607-1-B20-08:opr:open", "VVR1607-1-B20-08:opr:close", this);
-	valveSSH_ = new AMValveControl("Valve Control SSH", "VVR1607-1-B21-01:state", "VVR1607-1-B21-01:opr:open", "VVR1607-1-B21-01:opr:close", this);
-	valveBeamTransfer_ = new AMValveControl("Valve Control Beam Transfer", "VVR1607-2-B21-01:state", "VVR1607-2-B21-01:opr:open", "VVR1607-2-B21-01:opr:close", this);
+	vvrFE1_ = new CLSBiStateControl("Valve Control FE1", "Valve Control FE1", "VVR1408-B20-01:state", "VVR1408-B20-01:opr:open", "VVR1408-B20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	vvrFE2_ = new CLSBiStateControl("Valve Control FE2", "Valve Control FE2", "VVR1607-1-B20-01:state", "VVR1607-1-B20-01:opr:open", "VVR1607-1-B20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	vvrM1_ = new CLSBiStateControl("Valve Control M1", "Valve Control M1", "VVR1607-1-B20-02:state", "VVR1607-1-B20-02:opr:open", "VVR1607-1-B20-02:opr:close", new AMControlStatusCheckerDefault(2), this);
+	vvrM2_ = new CLSBiStateControl("Valve Control M2", "Valve Control M2", "VVR1607-1-B20-03:state", "VVR1607-1-B20-03:opr:open", "VVR1607-1-B20-03:opr:close", new AMControlStatusCheckerDefault(2), this);
+	vvrBPM1_ = new CLSBiStateControl("Valve Control BPM1", "Valve Control BPM1", "VVR1607-1-B20-04:state", "VVR1607-1-B20-04:opr:open", "VVR1607-1-B20-04:opr:close", new AMControlStatusCheckerDefault(2), this);
+	vvrMono_ = new CLSBiStateControl("Valve Control Mono", "Valve Control Mono", "VVR1607-1-B20-05:state", "VVR1607-1-B20-05:opr:open", "VVR1607-1-B20-05:opr:close", new AMControlStatusCheckerDefault(2), this);
+	vvrExitSlits_ = new CLSBiStateControl("Valve Control Exit Slits", "Valve Control Exit Slits", "VVR1607-1-B20-06:state", "VVR1607-1-B20-06:opr:open", "VVR1607-1-B20-06:opr:close", new AMControlStatusCheckerDefault(2), this);
+	vvrStraightSection_ = new CLSBiStateControl("Valve Control Straight Section", "Valve Control Straight Section", "VVR1607-1-B20-07:state", "VVR1607-1-B20-07:opr:open", "VVR1607-1-B20-07:opr:close", new AMControlStatusCheckerDefault(2), this);
+	vvrBPM3_ = new CLSBiStateControl("Valve Control BPM3", "Valve Control BPM3", "VVR1607-1-B20-08:state", "VVR1607-1-B20-08:opr:open", "VVR1607-1-B20-08:opr:close", new AMControlStatusCheckerDefault(2), this);
+	vvrSSH_ = new CLSBiStateControl("Valve Control SSH", "Valve Control SSH", "VVR1607-1-B21-01:state", "VVR1607-1-B21-01:opr:open", "VVR1607-1-B21-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	vvrBeamTransfer_ = new CLSBiStateControl("Valve Control Beam Transfer", "Valve Control Beam Transfer", "VVR1607-2-B21-01:state", "VVR1607-2-B21-01:opr:open", "VVR1607-2-B21-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+
+	// Index used for opening and closing all the valves.
+	valveIndex_ = -1;
 
 	// Ion pump controls.
 	iopFE1a_ = new AMReadOnlyPVControl("Ion Pump FE1 a", "IOP1408-B20-01", this);
@@ -273,22 +264,6 @@ void VESPERSBeamline::setupControlSets()
 
 	connect(valveSet_, SIGNAL(connected(bool)), this, SLOT(valveConnected(bool)));
 
-	// Grouping the valve state modifying controls together.
-	valveList_ = new QList<AMValveControl *>;
-	valveList_->append(valveFE1_);
-	valveList_->append(valveFE2_);
-	valveList_->append(valveM1_);
-	valveList_->append(valveM2_);
-	valveList_->append(valveBPM1_);
-	valveList_->append(valveMono_);
-	valveList_->append(valveExitSlits_);
-	valveList_->append(valveStraightSection_);
-	valveList_->append(valveBPM3_);
-	valveList_->append(valveSSH_);
-	valveList_->append(valveBeamTransfer_);
-
-	valves_ = new VESPERSValveGroupControl(valveList_);
-
 	// Grouping the ion pump controls together.
 	ionPumpSet_ = new AMControlSet(this);
 	ionPumpSet_->addControl(iopFE1a_);
@@ -473,13 +448,13 @@ void VESPERSBeamline::pressureConnected(bool connected)
 void VESPERSBeamline::valveConnected(bool connected)
 {
 	if (connected)
-		connect(valveSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(valveError()));
+		connect(valveSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(valveError()));
 }
 
 void VESPERSBeamline::ionPumpConnected(bool connected)
 {
 	if (connected)
-		connect(ionPumpSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(ionPumpError()));
+		connect(ionPumpSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(ionPumpError()));
 }
 
 void VESPERSBeamline::temperatureConnected(bool connected)
@@ -496,7 +471,7 @@ void VESPERSBeamline::temperatureConnected(bool connected)
 void VESPERSBeamline::flowSwitchConnected(bool connected)
 {
 	if (connected)
-		connect(flowSwitchSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(flowSwitchError()));
+		connect(flowSwitchSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(flowSwitchError()));
 }
 
 void VESPERSBeamline::flowTransducerConnected(bool connected)
@@ -541,14 +516,14 @@ void VESPERSBeamline::valveError()
 		return;
 
 	QString error("");
-	AMReadOnlyPVControl *current = 0;
+	CLSBiStateControl *current = 0;
 
 	for (int i = 0; i < valveSet_->count(); i++){
 
-		current = qobject_cast<AMReadOnlyPVControl *>(valveSet_->at(i));
+		current = qobject_cast<CLSBiStateControl *>(valveSet_->at(i));
 
-		if (current->readPV()->getInt() == 4) // Closed is enum = 4.
-			error += QString("%1 (%2)\n").arg(current->name(), current->readPVName());
+		if (current->state() == 0) // Closed is 0.
+			error += QString("%1 (%2)\n").arg(current->name(), current->statePVName());
 	}
 
 	if (!error.isEmpty()){
@@ -556,7 +531,7 @@ void VESPERSBeamline::valveError()
 		error.prepend("The following valves are closed:\n");
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
 	}
-
+	qDebug() << error.isEmpty();
 	emit valveStatus(error.isEmpty());
 }
 
@@ -572,7 +547,7 @@ void VESPERSBeamline::ionPumpError()
 
 		current = qobject_cast<AMReadOnlyPVControl *>(ionPumpSet_->at(i));
 
-		if (!current->readPV()->getInt())
+		if (!current->value())
 			error += tr("%1 (%2)\n").arg(current->name(), current->readPVName());
 	}
 
@@ -622,7 +597,7 @@ void VESPERSBeamline::flowSwitchError()
 
 		current = qobject_cast<AMReadOnlyPVControl *>(flowSwitchSet_->at(i));
 
-		if (!current->readPV()->getInt())
+		if (!current->value())
 			error += tr("%1 (%2)\n").arg(current->name(), current->readPVName());
 	}
 
@@ -681,4 +656,53 @@ void VESPERSBeamline::sampleStageError()
 VESPERSBeamline::~VESPERSBeamline()
 {
 
+}
+
+bool VESPERSBeamline::allValvesOpen() const
+{
+	for (int i = 0; i < valveSet_->count(); i++)
+		if (valveSet_->at(i)->value() == 0 || valveSet_->at(i)->value() == 2)
+			return false;
+
+	return true;
+}
+
+void VESPERSBeamline::openValve(int index)
+{
+	if (index < 0 && index >= valveSet_->count() && valveSet_->at(index)->value() == 0)
+		valveSet_->at(index)->move(1);
+}
+
+void VESPERSBeamline::closeValve(int index)
+{
+	if (index < 0 && index >= valveSet_->count() && valveSet_->at(index)->value() == 1)
+		valveSet_->at(index)->move(0);
+}
+
+void VESPERSBeamline::openAllValves()
+{
+	valveIndex_ = valveSet_->count()-1;
+	openAllValvesHelper();
+}
+
+void VESPERSBeamline::closeAllValves()
+{
+	valveIndex_ = 0;
+	closeAllValvesHelper();
+}
+
+void VESPERSBeamline::openAllValvesHelper()
+{
+	openValve(valveIndex_--);
+
+	if (valveIndex_ >= 0)
+		QTimer::singleShot(150, this, SLOT(openAllValvesHelper()));
+}
+
+void VESPERSBeamline::closeAllValvesHelper()
+{
+	closeValve(valveIndex_++);
+
+	if (valveIndex_ < valveSet_->count())
+		QTimer::singleShot(150, this, SLOT(closeAllValvesHelper()));
 }
