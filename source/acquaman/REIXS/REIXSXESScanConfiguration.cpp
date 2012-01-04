@@ -30,7 +30,7 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 	defocusDistanceMm_ = 0;
 	spectrometerCalibrationId_ = -1;
 	detectorTiltOffset_ = 0;
-	detectorOrientation_ = 0;
+	// removed: detectorOrientation_ = 0;
 	shouldStartFromCurrentPosition_ = false;
 	doNotClearExistingCounts_ = false;
 
