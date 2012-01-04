@@ -31,7 +31,6 @@ REIXSBeamline::REIXSBeamline() :
 	spectrometerPositionSet_->addControl(spectrometer()->spectrometerRotationDrive());
 	spectrometerPositionSet_->addControl(spectrometer()->detectorTranslation());
 	spectrometerPositionSet_->addControl(spectrometer()->detectorTiltDrive());
-	spectrometerPositionSet_->addControl(spectrometer()->detectorRotationDrive());
 	spectrometerPositionSet_->addControl(spectrometer()->hexapod()->x());
 	spectrometerPositionSet_->addControl(spectrometer()->hexapod()->y());
 	spectrometerPositionSet_->addControl(spectrometer()->hexapod()->z());
@@ -128,18 +127,12 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 												"SMTR1610-4-I21-02:status",
 												"SMTR1610-4-I21-02:stop", this, 0.5);
 
-	detectorRotationDrive_ = new AMPVwStatusControl("detectorRotationDrive",
-													"SMTR1610-4-I21-03:mm:sp",
-													"SMTR1610-4-I21-03:mm",
-													"SMTR1610-4-I21-03:status",
-													"SMTR1610-4-I21-03:stop", this, 0.5);
 
 	hexapod_ = new REIXSHexapod(this);
 
 	addChildControl(spectrometerRotationDrive_);
 	addChildControl(detectorTranslation_);
 	addChildControl(detectorTiltDrive_);
-	addChildControl(detectorRotationDrive_);
 	addChildControl(hexapod_);
 
 	currentGrating_ = -1; specifiedGrating_ = 0;
@@ -630,7 +623,6 @@ bool REIXSSpectrometer::stop()
 	spectrometerRotationDrive_->stop();
 	detectorTranslation_->stop();
 	detectorTiltDrive_->stop();
-	detectorRotationDrive_->stop();
 	// hexapod: cannot stop without wrecking init. Don't worry for now... just let it stop over time. Not necessary for it to be not-moving before we re-send it somewhere new.
 
 	/// \todo Actually, have to flag that a stop has started, and also catch when the stop is finished... Motors will take a while to actually receive and decelerate.

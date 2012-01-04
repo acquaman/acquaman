@@ -121,9 +121,6 @@ bool REIXSAppController::startup() {
 		vl->addWidget(new QLabel("Detector Tilt"));
 		vl->addWidget(new AMBasicControlEditor(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()));
 
-		vl->addWidget(new QLabel("Detector Rotation"));
-		vl->addWidget(new AMBasicControlEditor(REIXSBeamline::bl()->spectrometer()->detectorRotationDrive()));
-
 		gb->setLayout(vl);
 
 		hl->addWidget(gb);
