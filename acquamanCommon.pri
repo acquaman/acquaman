@@ -448,13 +448,14 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/ui/beamline/AMSplitIonChamberView.h \
 	source/ui/CLS/CLSSplitIonChamberView.h \
 	source/application/AMAppControllerSupport.h \
-    source/application/AMPluginsManager.h \
-    source/dataman/import/AMScanDatabaseImportController.h \
-    source/ui/dataman/AMScanDatabaseImportWizard.h \
+	source/application/AMPluginsManager.h \
+	source/dataman/import/AMScanDatabaseImportController.h \
+	source/ui/dataman/AMScanDatabaseImportWizard.h \
 	source/beamline/CLS/CLSMDriveMotorControl.h \
-    source/ui/beamline/AMControlMoveButton.h \
-    source/beamline/AMSampleManipulator.h \
-	source/beamline/AMControlSetSampleManipulator.h
+	source/ui/beamline/AMControlMoveButton.h \
+	source/beamline/AMSampleManipulator.h \
+	source/beamline/AMControlSetSampleManipulator.h \
+	source/ui/CLS/CLSStopLightButton.h
 
 CONFIG(mobility) {
 DEFINES += AM_MOBILITY_VIDEO_ENABLED
@@ -724,11 +725,12 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/CLS/CLSSplitIonChamberView.cpp \
 	source/application/AMPluginsManager.cpp \
 	source/application/AMAppControllerSupport.cpp \
-    source/dataman/import/AMScanDatabaseImportController.cpp \
-    source/ui/dataman/AMScanDatabaseImportWizard.cpp \
+	source/dataman/import/AMScanDatabaseImportController.cpp \
+	source/ui/dataman/AMScanDatabaseImportWizard.cpp \
 	source/beamline/CLS/CLSMDriveMotorControl.cpp \
-    source/ui/beamline/AMControlMoveButton.cpp \
-	source/beamline/AMControlSetSampleManipulator.cpp
+	source/ui/beamline/AMControlMoveButton.cpp \
+	source/beamline/AMControlSetSampleManipulator.cpp \
+	source/ui/CLS/CLSStopLightButton.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
