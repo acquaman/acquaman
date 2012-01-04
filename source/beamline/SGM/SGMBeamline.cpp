@@ -117,7 +117,7 @@ void SGMBeamline::usingSGMBeamline(){
 	QString sgmPVName = amNames2pvNames_.valueF("energy");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-	energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, "BL1611-ID-1:ready", sgmPVName, this, 0.05);
+        energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, "BL1611-ID-1:ready", sgmPVName, this, 0.25);
 	energy_->setDescription("Energy");
 	sgmPVName = amNames2pvNames_.valueF("energySpacingParam");
 	if(sgmPVName.isEmpty())
