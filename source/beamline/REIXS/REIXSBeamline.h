@@ -114,7 +114,7 @@ public:
 	bool shouldMove() const { return true; }
 	bool shouldStop() const { return true; }
 	// exception: the hexapod can't stop...Or can it?
-	bool canStop() const { return spectrometerRotationDrive_->canStop() && detectorTranslation_->canStop() && detectorTiltDrive_->canStop() && detectorRotationDrive_->canStop(); }
+	bool canStop() const { return spectrometerRotationDrive_->canStop() && detectorTranslation_->canStop() && detectorTiltDrive_->canStop(); }
 
 
 	/// Indicates that a move (that was commanded via this object using move()) is in progress.  This will be accompanied by signals moveStarted(), moveFinished(), moveFailed(int reason).
@@ -135,7 +135,8 @@ public:
 	AMControl* spectrometerRotationDrive() { return spectrometerRotationDrive_; }
 	AMControl* detectorTranslation() { return detectorTranslation_; }
 	AMControl* detectorTiltDrive() { return detectorTiltDrive_; }
-	AMControl* detectorRotationDrive() { return detectorRotationDrive_; }
+	// removed motor from endstation in Dec. 2011:
+		// AMControl* detectorRotationDrive() { return detectorRotationDrive_; }
 	REIXSHexapod* hexapod() { return hexapod_; }
 
 public slots:
@@ -147,7 +148,7 @@ public slots:
 	void specifyDetectorTiltOffset(double tiltOffsetDeg);
 
 protected:
-	AMControl *spectrometerRotationDrive_, *detectorTranslation_, *detectorTiltDrive_, *detectorRotationDrive_;
+	AMControl *spectrometerRotationDrive_, *detectorTranslation_, *detectorTiltDrive_;
 	REIXSHexapod* hexapod_;
 
 	REIXSXESCalibration calibration_;

@@ -103,7 +103,7 @@ bool REIXSAppController::startup() {
 
 		// sampleManagementPane->cameraWidget()->addSource("Just for testing", QUrl("/Users/mboots/Pictures/iPhoto Library/Masters/2011/09/14/20110914-110302/SANY0026.MP4"));
 		// other video sources: "http://v2e1607-001.cs.clsi.ca/mjpg/1/video.mjpg" "/Users/mboots/Pictures/iPhoto Library/Masters/2011/09/14/20110914-110302/SANY0026.MP4"
-		mw_->addPane(sampleManagementPane, "Experiment Setup", "Samples Positions", ":/22x22/gnome-display-properties.png");
+		mw_->addPane(sampleManagementPane, "Experiment Setup", "Sample Positions", ":/22x22/gnome-display-properties.png");
 
 		////////////////// Testing junk; move somewhere clean ////////////////////
 		QWidget* spectrometerControlWidget = new QWidget();
@@ -120,9 +120,6 @@ bool REIXSAppController::startup() {
 
 		vl->addWidget(new QLabel("Detector Tilt"));
 		vl->addWidget(new AMBasicControlEditor(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()));
-
-		vl->addWidget(new QLabel("Detector Rotation"));
-		vl->addWidget(new AMBasicControlEditor(REIXSBeamline::bl()->spectrometer()->detectorRotationDrive()));
 
 		gb->setLayout(vl);
 
