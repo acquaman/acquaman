@@ -455,7 +455,7 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/ui/beamline/AMControlMoveButton.h \
 	source/beamline/AMSampleManipulator.h \
 	source/beamline/AMControlSetSampleManipulator.h \
-	source/ui/CLS/CLSStopLightButton.h
+	source/ui/CLS/CLSStopLightButton.h \
 	source/acquaman/AMRegionScanConfiguration.h \
 	source/acquaman/AMEXAFSScanConfiguration.h
 
@@ -732,7 +732,7 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/beamline/CLS/CLSMDriveMotorControl.cpp \
 	source/ui/beamline/AMControlMoveButton.cpp \
 	source/beamline/AMControlSetSampleManipulator.cpp \
-	source/ui/CLS/CLSStopLightButton.cpp
+	source/ui/CLS/CLSStopLightButton.cpp \
 	source/acquaman/AMRegionScanConfiguration.cpp \
 	source/acquaman/AMEXAFSScanConfiguration.cpp
 
