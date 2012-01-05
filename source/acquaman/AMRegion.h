@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -42,49 +42,78 @@ public:
   The AMRegion class provides the basic interface to a particular region in a scan. Most scans are made up of a list of back to back regions.
   As such, an AMRegion holds only a pointer to an AMControl (the device being scanned) as well as start, delta, and end values.
   The region should begin at the "start" value and move in discrete steps of "delta" until it hits the "end" value.
+  It is imaginable that the amount of time spent per point in each region is highly configurable.  For now, you can set a certain dwell time for each region.
   The actual implementation is up to the scan library being used.
   Checks like making sure that the delta moves in the right direction (positive if end > start OR negative if end < start) is NOT taken care of here.
   Responsibility for such checks is passed onto higher level classes (like AMScanConfiguration).
   */
 class AMRegion: public QObject
 {
-Q_OBJECT
-Q_PROPERTY(double start READ start WRITE setStart)
-Q_PROPERTY(double delta READ delta WRITE setDelta)
-Q_PROPERTY(double end READ end WRITE setEnd)
+	Q_OBJECT
+
+	Q_PROPERTY(double start READ start WRITE setStart)
+	Q_PROPERTY(double delta READ delta WRITE setDelta)
+	Q_PROPERTY(double end READ end WRITE setEnd)
+	Q_PROPERTY(double time READ time WRITE setTime)
+	Q_PROPERTY(QString units READ units WRITE setUnits)
+	Q_PROPERTY(QString timeUnits READ timeUnits WRITE setTimeUnits)
 
 public:
-	/// Constructor, only requires a QObject for a parent
+	/// Constructor, only requires a QObject for a parent and defaults elastic start and end to false.
 	AMRegion(QObject *parent = 0);
 	/// Returns the stored start value as a double
-	virtual double start() const { return start_;}
+	virtual double start() const { return start_; }
 	/// Returns the stored delta value as a double
-	virtual double delta() const { return delta_;}
+	virtual double delta() const { return delta_; }
 	/// Returns the stored end value as a double
-	virtual double end() const { return end_;}
+	virtual double end() const { return end_; }
+	/// Returns the time spent per point in the region.
+	virtual double time() const { return time_; }
 	/// Returns a pointer the AMControl this region is operating on
-	virtual AMControl* control() const { return ctrl_;}
-	virtual bool elasticStart() const { return elasticStart_;}
-	virtual bool elasticEnd() const { return elasticEnd_;}
+	virtual AMControl* control() const { return ctrl_; }
+	/// Returns a pointer to the AMControl this region uses to set the time.
+	virtual AMControl *timeControl() const { return timeControl_; }
+	/// Returns the state of whether or not the start value of the region can be adjusted by the end of the adjacent region being changed.
+	virtual bool elasticStart() const { return elasticStart_; }
+	/// Returns the state of whether or not the end value of the region can be adjusted by the start of the adjacent region being changed.
+	virtual bool elasticEnd() const { return elasticEnd_; }
+	/// Returns whether this region is valid or not.  Invalid regions are those that cannot be completed based on current start, delta, and end values.
+	virtual bool isValid() const;
+	/// Returns the units that the region is expressed in.
+	virtual QString units() const { return units_; }
+	/// Returns the units for the time in this region.
+	virtual QString timeUnits() const { return timeUnits_; }
 
 public slots:
-	/// Sets the start value from the double passed in. Does not affect the AMControl directly.
-	/// \todo A check on the limits of the AMControl?
-	virtual bool setStart(double start);// { start_ = start; return TRUE;}
+	/// Sets the start value from the double passed in. Makes sure the energy is within the allowable range, otherwise returns false.  Does not affect the AMControl directly.
+	virtual bool setStart(double start);
 	/// Sets the delta value from the double passed in. The value MUST BE non-zero, or function will return false. Does not affect the AMControl direclty.
 	virtual bool setDelta(double delta);
-	/// Sets the end value from the double passed in. Does not affect the AMControl directly.
-	/// \todo A check on the limits of the AMControl?
-	virtual bool setEnd(double end);// { end_ = end; return TRUE;}
+	/// Sets the end value from the double passed in. Makes sure the energy is within the allowable range, otherwise returns false.	Does not affect the AMControl directly.
+	virtual bool setEnd(double end);
+	/// Sets the time value to \param time.  Makes sure the time given is not negative and returns false if it is.  Does not affect the time AMControl directly.
+	virtual bool setTime(double time);
+	/// This changes the start value of the region.  If the start value is already in the process of changing this function does nothing.
 	virtual bool adjustStart(double start);
+	/// This changes the end value of the region.  If the end value is already in the process of changing this function does nothing.
 	virtual bool adjustEnd(double end);
 	/// Sets the AMControl for the region.
-	virtual bool setControl(AMControl* ctrl) { ctrl_ = ctrl; return true;}
-	virtual bool setElasticStart(bool elastic) { elasticStart_ = elastic; return true;}
-	virtual bool setElasticEnd(bool elastic) { elasticEnd_ = elastic; return true;}
+	virtual bool setControl(AMControl* ctrl) { ctrl_ = ctrl; return true; }
+	/// Sets the time AMControl for the region.
+	virtual bool setTimeControl(AMControl *control) { timeControl_ = control; return true; }
+	/// Sets the state of whether the start value can be adjusted through changes to the end of its adjacent region.
+	virtual bool setElasticStart(bool elastic) { elasticStart_ = elastic; return true; }
+	/// Sets the state of whether the end value can be adjusted through changes to the start of its adjacent region.
+	virtual bool setElasticEnd(bool elastic) { elasticEnd_ = elastic; return true; }
+	/// Sets the units that the region will be expressed in.
+	virtual bool setUnits(const QString &units);
+	/// Sets the time units that the region will be expressed in.
+	virtual bool setTimeUnits(const QString &units);
 
 signals:
+	/// Notifier that the start value has changed.  Only used if elastic start is enabled.
 	void startChanged(double start);
+	/// Notifier that the end value has changed.  Only used if elastic end is enabled.
 	void endChanged(double end);
 
 protected:
@@ -94,11 +123,23 @@ protected:
 	double delta_;
 	/// Value for the end of the region.
 	double end_;
+	/// Value for the time spent per point in the region.
+	double time_;
+	/// QString for holding the units.
+	QString units_;
+	/// QString for holding the time units.
+	QString timeUnits_;
 	/// AMControl for the region to step through.
 	AMControl *ctrl_;
+	/// AMControl for the time of the region.
+	AMControl *timeControl_;
+	/// Flag used to determine if the start value can be adjusted through changes to other regions.
 	bool elasticStart_;
+	/// Flag used to determine if the end value can be adjusted through changes to other regions.
 	bool elasticEnd_;
+	/// Flag used to determine if the start value is about to be changed by another region.
 	bool initiatedStartAdjust_;
+	/// Flag used to determine if the end vallue is about to be changed by another region.
 	bool initiatedEndAdjust_;
 };
 
@@ -112,34 +153,50 @@ public:
 
 	/// Returns the number of regions in the list to generate the number of rows in a table or list
 	int rowCount(const QModelIndex & /*parent*/) const { return regions_->count(); }
-	/// Returns "3" statically. There are always three fields in the region: start, delta, and end.
-	int columnCount(const QModelIndex & /*parent*/) const { return 6; }
+	/// Returns "4" statically. There are always three fields in the region: start, delta, end, and time.  However, the total number is 8.
+	int columnCount(const QModelIndex & /*parent*/) const { return 8; }
 	/// Retrieves the data from an index (row and column) and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
 	QVariant data(const QModelIndex &index, int role) const;
 	/// Retrieves the header data for a column or row and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 	/// Sets the data value at an index (row and column). Only valid role is Qt::DisplayRole right now.
 	bool setData(const QModelIndex &index, const QVariant &value, int role);
+	/// Inserts an AMRegion into the model.  It builds a default AMRegion, sets the control to whatever the default control is at the time.
 	bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex());
+	/// Removes an AMRegion from the model.
 	bool removeRows(int position, int rows, const QModelIndex &index = QModelIndex());
 	/// This allows editing of values within range (for ex: in a QTableView)
 	Qt::ItemFlags flags(const QModelIndex &index) const;
-
-	QList<AMRegion*> *regions(){return regions_;}
+	/// Returns the current list of AMRegions in the model.
+	QList<AMRegion*> *regions() { return regions_; }
 
 public slots:
-	void setDefaultControl(AMControl* defaultControl){defaultControl_ = defaultControl;}
+	/// Sets the default control.  It is used for setting the control when inserting rows.
+	void setDefaultControl(AMControl* defaultControl) { defaultControl_ = defaultControl; }
+	/// Sets the default time control.  It is used for setting the time control when inserting rows.
+	void setDefaultTimeControl(AMControl *defaultTimeControl) { defaultTimeControl_ = defaultTimeControl; }
+	/// Sets the default units for the region.  It is used for setting the units when inserting rows.
+	void setDefaultUnits(const QString &units) { defaultUnits_ = units; }
+	/// Sets the default time units for the region.  It is used for setting the time units when inserting rows.
+	void setDefaultTimeUnits(const QString &units) { defaultTimeUnits_ = units; }
 
 protected:
-	/// Internal pointer to the list of AMXASRegion.
+	/// Internal pointer to the list of AMRegion.
 	QList<AMRegion*> *regions_;
+	/// Pointer to the default control used to create AMRegions.
 	AMControl *defaultControl_;
+	/// Pointer to the default time control used to create AMRegions.
+	AMControl *defaultTimeControl_;
+	/// Holds the default units used when creating AMRegions.
+	QString defaultUnits_;
+	/// Holds the default time units used when creating AMRegions.
+	QString defaultTimeUnits_;
 };
 
-/// AMXASRegion is an impementation of AMRegion designed to scan energy regions; therefore, the AMControl is passed into the constructor and must be a beamline energy control.
+/// AMXASRegion is an implementation of AMRegion designed to scan energy regions; therefore, the AMControl is passed into the constructor and must be a beamline energy control.
 /*!
   Simply pass an AMControl pointer into the constructor, and this child class will always refer to the beamline energy.
-  The setStart() and setEnd() are reimplemented to ensure that the energy passed into the region is within the energy limits of the beamline.
+  \todo The setStart() and setEnd() are reimplemented to ensure that the energy passed into the region is within the energy limits of the beamline.
   The setControl(AMControl*) function has been castrated, it will always return false and no change will be made.
   */
 class AMXASRegion : public AMRegion
@@ -148,31 +205,112 @@ Q_OBJECT
 
 public:
 	/// Constructor, takes an AMControl to act as the perminant control for this region, must be the beamline energy control.
-	AMXASRegion(AMControl* beamlineEnergy, QObject *parent = 0) : AMRegion(parent) {ctrl_ = beamlineEnergy;}
+	AMXASRegion(AMControl* beamlineEnergy, QObject *parent = 0) : AMRegion(parent) { ctrl_ = beamlineEnergy; }
+	/// Re-implemented.  Forcing XAS scans to start from lower energy and go to higher energy.
+	virtual bool isValid() const { return (start_ < end_ && delta_ > 0) ? true : false; }
 
 public slots:
 	/// Castrated function, does nothing and returns false.
-	bool setControl(AMControl *ctrl){Q_UNUSED(ctrl); return false;}
+	bool setControl(AMControl *ctrl) { Q_UNUSED(ctrl); return false; }
 };
 
 /// An AMXASRegionModel is used as an interface between any default model viewer in Qt and a list of AMXASRegion.
 /*!
-  Simply pass a pointer to a list of AMXASRegion into the constructor and the model will be automatically set up.
-  \todo Move this up one level to ALL AMRegions and/or combine with the AMScanConfiguration classes (so they can be the model direclty).
+  This model reimplements the insert rows function to build AMXASRegions instead of generic AMRegions.
+  \todo Move this up one level to ALL AMRegions and/or combine with the AMScanConfiguration classes (so they can be the model directly).
   */
 
 class AMXASRegionsListModel : public AMRegionsListModel{
 Q_OBJECT
 
 public:
+	/// Constructor.  Builds a model that is identical to AMRegionsListModel.  No new features added.
 	AMXASRegionsListModel(QObject *parent = 0) : AMRegionsListModel(parent) {}
 
+	/// Inserts an AMXASRegion into the model.  It builds a default AMXASRegion, sets the control to whatever the energy control is at the time.
 	bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex());
 
 public slots:
-	void setEnergyControl(AMControl* energyControl){setDefaultControl(energyControl);}
+	/// Sets the energy control that is used for scanning the energy in an XAS scan.
+	void setEnergyControl(AMControl* energyControl) { setDefaultControl(energyControl); }
+	/// Sets the time control that is used for dwelling on each point in an XAS scan.
+	void setTimeControl(AMControl *timeControl) { setDefaultTimeControl(timeControl); }
+};
+
+/// An AMEXAFSRegion is an implementation of AMRegion designed to scan energy regions using either energy-space or k-space; therefore, the two AMControls that are passed into the constructor must be a beamline energy control and a beamline k-space energy control.
+/*!
+  Pass an AMControl pointer for both energy and k-space into the constructor and this child class will always refer to the appropriate control.
+  Like AMXASRegion, the setControl(AMControl *) function remains castrated.  It will always return false and no change will be made.
+  Because it extends the functionality of AMXASRegion, it subclasses it instead of AMRegion.
+  Region has a type that defaults to Energy.
+  */
+class AMEXAFSRegion : public AMXASRegion
+{
+	Q_OBJECT
+
+public:
+	/// Enum that defines what type of region it is.  Possibilities are Energy and kSpace.
+	enum RegionType { Energy, kSpace };
+
+	/// Constructor.  Takes two AMControls to act as the perminant energy and k-space control for this region.  Must be the beamline energy and beamline k-space control.
+	AMEXAFSRegion(AMControl *beamlineEnergy, AMControl *beamlineK, QObject *parent = 0) : AMXASRegion(beamlineEnergy, parent) { type_ = Energy; controlK_ = beamlineK; }
+
+	/// Returns the region type.
+	AMEXAFSRegion::RegionType type() const { return type_; }
+	/// Returns the control this region is using for scanning based on the current region type.
+	AMControl *control() const { return (type_ == Energy) ? ctrl_ : controlK_; }
+
+public slots:
+	/// Sets the reigon type.
+	bool setType(AMEXAFSRegion::RegionType type);
 
 protected:
+	/// The pointer to the k-space energy control.
+	AMControl *controlK_;
+	/// The type of region this is.
+	RegionType type_;
+};
+
+/// An AMEXAFSRegionModel is used as an interface between any default model viewer in Qt and a list of AMEXAFSRegion.
+/*!
+  This model reimplements the insert rows function to build AMEXAFSRegions instead of generic AMRegions.
+  \todo Move this up one level to ALL AMRegions and/or combine with the AMScanConfiguration classes (so they can be the model directly).
+  */
+
+class AMEXAFSRegionsListModel : public AMXASRegionsListModel{
+Q_OBJECT
+
+public:
+	/// Constructor.  Builds a model that is identical to AMRegionsListModel.  No new features added.
+	AMEXAFSRegionsListModel(QObject *parent = 0) : AMXASRegionsListModel(parent) {}
+
+	/// Inserts an AMEXAFSRegion into the model.  It builds a default AMEXAFSRegion, sets the control to whatever the energy control is at the time.
+	bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex());
+	/// Retrieves the data from an index (row and column) and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
+	QVariant data(const QModelIndex &index, int role) const;
+	/// Sets the data value at an index (row and column). Only valid role is Qt::DisplayRole right now.
+	bool setData(const QModelIndex &index, const QVariant &value, int role);
+
+	/// Returns the edge energy for the list model.  Used when computing k <-> eV.
+	double edgeEnergy() const { return edgeEnergy_; }
+
+	/// Returns the k-space value from \param energy using the current edge energy.
+	double toKSpace(double energy);
+	/// Returns the energy value fromm \param kSpace using the current edge energy.
+	double toEnergy(double kSpace);
+
+public slots:
+	/// Sets the k-space control that is used for scanning the energy in an EXAFS scan.  \note This sets the default control for the region.  If setEnergyControl was used previously, then it will be overwritten.
+	void setKSpaceControl(AMControl* kSpaceControl) { defaultKControl_ = kSpaceControl; }
+
+	/// Sets the edge energy for the list model.  Used when computing k <-> eV.
+	void setEdgeEnergy(double energy) { edgeEnergy_ = energy; }
+
+protected:
+	/// Pointer to the k-space control used to build AMEXAFSRegions.
+	AMControl *defaultKControl_;
+	/// The edge energy for the list.
+	double edgeEnergy_;
 };
 
 #endif // ACQMAN_AMREGION_H

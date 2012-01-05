@@ -21,14 +21,22 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SGMSAMPLEMANIPULATORVIEW_H
 #define SGMSAMPLEMANIPULATORVIEW_H
 
-#include "ui/AMSampleManipulatorView.h"
+#include <QGroupBox>
+#include <QIcon>
 
 class QCheckBox;
+class QComboBox;
+class QPushButton;
+class QSlider;
+class QToolButton;
+class QButtonGroup;
+class QGridLayout;
 
 class AMBeamlineListAction;
 class CLSVMEMotor;
+class AMControlEditor;
 
-class SGMSampleManipulatorView : public AMSampleManipulatorView
+class SGMSampleManipulatorView : public QGroupBox
 {
 Q_OBJECT
 public:

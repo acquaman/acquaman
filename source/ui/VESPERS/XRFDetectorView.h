@@ -1,14 +1,35 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef XRFDETECTORVIEW_H
 #define XRFDETECTORVIEW_H
 
-#include "ui/AMDetectorView.h"
+#include "ui/beamline/AMDetectorView.h"
 #include "beamline/VESPERS/XRFDetector.h"
 #include "util/VESPERS/XRFElement.h"
-#include "ui/VESPERS/ROIPlotMarker.h"
+#include "MPlot/MPlotMarkerTransparentVerticalRectangle.h"
 
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlotSeries.h"
+#include "MPlot/MPlotPoint.h"
 
 #include <QLabel>
 #include <QDoubleSpinBox>
@@ -71,12 +92,20 @@ public:
 	double minimumEnergy() const { return minimumEnergy_; }
 	/// Returns the maximum energy used for limiting what is drawn on the view.
 	double maximumEnergy() const { return maximumEnergy_; }
+	/// Returns whether or not the ROI markers will be highlighted when the current element is changed.
+	bool roiMarkersHightlighted() const { return highlightMarkers_; }
+	/// Returns whether or not the possibly viewable emission lines are visible.
+	bool emissionLinesVisible() const { return showEmissionLines_; }
+	/// Returns whether or not pile up peaks for the current element are visible.
+	bool pileUpPeaksVisible() const { return showPileUpPeaks_; }
+	/// Returns whether or not combination pile up peaks are visible.
+	bool combinationPileUpPeaksVisible() const { return showCombinationPileUpPeaks_; }
+	/// Returns the currently viewable element.
+	XRFElement *currentElement() const { return currentElement_; }
+	/// Returns the element that is used in combination pile up peak visualization.
+	XRFElement *secondaryElement() const { return secondaryElement_; }
 
 public slots:
-	/// Places coloured markers on the plot to show where the acceptable emission lines are in the range of the detector.
-	void showEmissionLines(XRFElement *el);
-	/// Changes the colors of the ROIMarkers for the latest element selected, if any.
-	void highlightMarkers(XRFElement *el);
 	/// Slot handling what happens when a region of interest is added.
 	void addRegionOfInterestMarker(AMROIInfo info);
 	/// Slot handling what happens when a region of interest is removed.
@@ -85,14 +114,42 @@ public slots:
 	void removeAllRegionsOfInterestMarkers();
 	/// Slot that sorts all the regions of interst.
 	void sortRegionsOfInterest();
-	/// Handles resizing the ROIPlotMarkers to a new width.
+	/// Handles resizing the MPlotMarkerTransparentVerticalRectangles to a new width.
 	void roiWidthUpdate(AMROI *roi);
 	/// Sets the minimum energy used by this view.
 	void setMinimumEnergy(double energy) { minimumEnergy_ = energy; }
 	/// Sets the maximum energy used by this view.
 	void setMaximumEnergy(double energy) { maximumEnergy_ = energy; }
+	/// Sets whether or not the ROI markers are highlighted.
+	void setROIMarkersHighlighted(bool highlight) { highlightMarkers_ = highlight; highlightMarkers(); }
+	/// Sets whether or not possible emission lines are visible.
+	void setEmissionLinesVisible(bool showLines) { showEmissionLines_ = showLines; showEmissionLines(); }
+	/// Sets whether or not pile up peaks are visible.
+	void setPileUpPeaksVisible(bool showPeaks)
+	{
+		showPileUpPeaks_ = showPeaks;
+		showPileUpPeaks();
+
+		if (!showPeaks)
+			setCombinationPileUpPeaksVisible(false);
+	}
+	/// Sets whether or not combination pile up peaks are visible.
+	void setCombinationPileUpPeaksVisible(bool showPeaks) { showCombinationPileUpPeaks_ = showPeaks; showCombinationPileUpPeaks(); }
+	/// Sets the current element that is to be viewed.
+	void setCurrentElement(XRFElement *el);
+	/// Sets the secondary element that is to be viewed.
+	void setSecondaryElement(XRFElement *el);
 
 protected slots:
+	/// Places coloured markers on the plot to show where the acceptable emission lines are in the range of the detector.  Uses the current element.
+	void showEmissionLines();
+	/// Places coloured markers on the plot to show where the pile up peaks are in the range of the detector.  Uses the current element.
+	void showPileUpPeaks();
+	/// Places coloured markers on the plot to show where the combination pile up peaks are in the range of the detector.  Uses the current element and the secondary element.
+	void showCombinationPileUpPeaks();
+	/// Changes the colors of the ROIMarkers for the latest element selected, if any.  Uses the current element.
+	void highlightMarkers();
+
 	/// Handles the update from the dead time control.
 	void onDeadTimeUpdate();
 	/// Handles the update from the elapsed time control.
@@ -120,6 +177,8 @@ protected slots:
 	void onExternalRegionsOfInterestChanged();
 	/// Handles changing the indicator light when status changes.
 	void onStatusChanged(bool status) { status == true ? status_->setPixmap(QIcon(":/ON.png").pixmap(20)) : status_->setPixmap(QIcon(":/OFF.png").pixmap(20)); }
+	/// Handles resetting everything in the view after the detector reconnects.
+	void onConnectionChanged(bool isConnected);
 
 	/// Hack to save the spectra.  For four element it will print out the four raw data and the corrected sum.
 	void saveSpectra();
@@ -135,6 +194,18 @@ protected:
 
 	/// Gets the maximum height from the first data source.  Used for scaling the height of the ROI markers.
 	double getMaximumHeight(MPlotItem *data);
+
+	/// Returns whether the given \param energy is within energy range of the detector.
+	bool withinEnergyRange(double energy) { return (energy <= maximumEnergy_ && energy >= minimumEnergy_) ? true : false; }
+
+	/// Helper function that builds a pile up line based on two indices for emission lines.  Does nothing if either index is invalid.
+	/*!
+	  \param el1 is the element for the first pile up component.
+	  \param line1 is the first line used for the pile up calculation.
+	  \param el2 is the element for the second pile up component.
+	  \param line 2 is the second line used for the pile up calculation.
+	  */
+	void addPileUpMarker(XRFElement *el1, int line1, XRFElement *el2, int line2);
 
 	/// Get a color for the color of a line on the plot.
 	QColor getColor(int index);
@@ -179,9 +250,27 @@ protected:
 	double maximumEnergy_;
 
 	/// Holds the list of current markers.
-	QList<ROIPlotMarker *> markers_;
+	QList<MPlotMarkerTransparentVerticalRectangle *> markers_;
 	/// This holds the plot markers for showing emission lines.
 	QList<MPlotPoint *> lines_;
+	/// This holds the plot markers for showing pile up peaks.
+	QList<MPlotPoint *> pileUpLines_;
+	/// This holds the plot markers for showing combination pile up peaks.
+	QList<MPlotPoint *> combinationPileUpLines_;
+
+	/// Current element selected.
+	XRFElement *currentElement_;
+	/// Secondary element used for combination pile up peak visualization.
+	XRFElement *secondaryElement_;
+
+	/// Bool holds whether or not regions of interest are highlighted when the currently viewed element is changed.
+	bool highlightMarkers_;
+	/// Bool holds whether or not the possible emission lines are drawn on the plot.
+	bool showEmissionLines_;
+	/// Bool determining if pile up peaks are visible or not.
+	bool showPileUpPeaks_;
+	/// Bool determining if combination pile up peaks are visible or not.
+	bool showCombinationPileUpPeaks_;
 };
 
 #endif // XRFDETECTORVIEW_H

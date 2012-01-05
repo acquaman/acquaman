@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -18,7 +18,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "REIXSBeamline.h"
-
+#include "beamline/CLS/CLSMDriveMotorControl.h"
 #include "util/AMErrorMonitor.h"
 
 REIXSBeamline::REIXSBeamline() :
@@ -31,7 +31,6 @@ REIXSBeamline::REIXSBeamline() :
 	spectrometerPositionSet_->addControl(spectrometer()->spectrometerRotationDrive());
 	spectrometerPositionSet_->addControl(spectrometer()->detectorTranslation());
 	spectrometerPositionSet_->addControl(spectrometer()->detectorTiltDrive());
-	spectrometerPositionSet_->addControl(spectrometer()->detectorRotationDrive());
 	spectrometerPositionSet_->addControl(spectrometer()->hexapod()->x());
 	spectrometerPositionSet_->addControl(spectrometer()->hexapod()->y());
 	spectrometerPositionSet_->addControl(spectrometer()->hexapod()->z());
@@ -58,6 +57,27 @@ REIXSBeamline::REIXSBeamline() :
 }
 
 
+
+REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
+	: AMControl("sampleChamber", "n/a", parent) {
+
+	// Motor information here was updated Nov. 2011 for the MDrive motors on the sample chamber, which still don't have unit conversion built into the driver.
+	// All motors are currently running at a microstep setting of 256. Therefore one revolution of the motor is: 200*256 = 51200 steps.
+	// Units per rev:
+	// The X and Y motors are equipped with the IMS "D" lead screw: 0.0833"/rev (2.116mm/rev).
+	// The Z stage has a 2.5mm/rev lead screw. However, it has a 10:1 gear reducer before the lead screw, so it's actually 0.25mm/rev.
+	// The sample theta stage has 100 teeth on the circumference gear. One motor revolution advances by one tooth, so it's 360deg/100revs, or 3.6deg/rev.
+	// The load lock theta stage also has 100 teeth on its circumference gear, for 3.6deg/rev.
+	// [Guessing] The load lock Z stage looks like it has the same 2.5mm/lead screw rev. However, it also has a 90-degree gear from the motor to the lead screw with 20 teeth, or 1 lead screw rev/20 motor revs.   ie: (2.5mm/screwRev)*(1screwRev/20rev) = 0.125mm/rev.
+
+	//								name	  PV base name        units unitsPerRev offset microsteps descript. tolerance startTimeoutSecs, parent
+	x_ = new CLSMDriveMotorControl("sampleX", "SMTR1610-4-I21-08", "mm", 2.116, 0, 256, "Sample Chamber X", 0.5, 1.0, this);
+	y_ = new CLSMDriveMotorControl("sampleY", "SMTR1610-4-I21-10", "mm", 2.116, 0, 256, "Sample Chamber Y", 0.5, 1.0, this);
+	z_ = new CLSMDriveMotorControl("sampleZ", "SMTR1610-4-I21-07", "mm", 0.25, 0, 256, "Sample Chamber Z", 0.5, 1.0, this);
+	r_ = new CLSMDriveMotorControl("sampleTheta", "SMTR1610-4-I21-11", "deg", 3.6, 0, 256, "Sample Chamber Theta", 0.5, 1.0, this);
+	loadLockZ_ = new CLSMDriveMotorControl("loadLockZ", "SMTR1610-4-I21-09", "mm", 0.125, 0, 256, "Load Lock Z", 0.5, 1.0, this);
+	loadLockR_ = new CLSMDriveMotorControl("loadLockTheta", "SMTR1610-4-I21-12", "deg", 3.6, 0, 256, "Load Lock Theta", 0.5, 1.0, this);
+}
 
 
 REIXSHexapod::REIXSHexapod(QObject* parent)
@@ -107,18 +127,12 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 												"SMTR1610-4-I21-02:status",
 												"SMTR1610-4-I21-02:stop", this, 0.5);
 
-	detectorRotationDrive_ = new AMPVwStatusControl("detectorRotationDrive",
-													"SMTR1610-4-I21-03:mm:sp",
-													"SMTR1610-4-I21-03:mm",
-													"SMTR1610-4-I21-03:status",
-													"SMTR1610-4-I21-03:stop", this, 0.5);
 
 	hexapod_ = new REIXSHexapod(this);
 
 	addChildControl(spectrometerRotationDrive_);
 	addChildControl(detectorTranslation_);
 	addChildControl(detectorTiltDrive_);
-	addChildControl(detectorRotationDrive_);
 	addChildControl(hexapod_);
 
 	currentGrating_ = -1; specifiedGrating_ = 0;
@@ -143,41 +157,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 }
 
 
-REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
-	: AMControl("sampleChamber", "n/a", parent) {
 
-	x_ = new AMPVwStatusControl("sampleX",
-								"SMTR1610-401-X:step:sp",
-								"SMTR1610-401-X:step",
-								"SMTR1610-401-X:moving",
-								"SMTR1610-401-X:stop", this, 1);
-	y_ = new AMPVwStatusControl("sampleY",
-								"SMTR1610-401-Y:step:sp",
-								"SMTR1610-401-Y:step",
-								"SMTR1610-401-Y:moving",
-								"SMTR1610-401-Y:stop", this, 1);
-	z_ = new AMPVwStatusControl("sampleZ",
-								"SMTR1610-401-Z:step:sp",
-								"SMTR1610-401-Z:step",
-								"SMTR1610-401-Z:moving",
-								"SMTR1610-401-Z:stop", this, 1);
-	r_ = new AMPVwStatusControl("sampleTheta",
-								"SMTR1610-401-R:step:sp",
-								"SMTR1610-401-R:step",
-								"SMTR1610-401-R:moving",
-								"SMTR1610-401-R:stop", this, 1);
-	loadLockZ_ = new AMPVwStatusControl("loadLockZ",
-										"SMTR1610-401-LZ:step:sp",
-										"SMTR1610-401-LZ:step",
-										"SMTR1610-401-LZ:moving",
-										"SMTR1610-401-LZ:stop", this, 1);
-	loadLockR_ = new AMPVwStatusControl("loadLockTheta",
-										"SMTR1610-401-LR:step:sp",
-										"SMTR1610-401-LR:step",
-										"SMTR1610-401-LR:moving",
-										"SMTR1610-401-LR:stop", this, 1);
-
-}
 
 
 
@@ -207,7 +187,7 @@ void REIXSSpectrometer::move(double setpoint)
 	}
 
 	currentMoveStep_ = Starting;
-	// question: limits? out of range?
+	/// \todo limits? out of range?
 	moveSetpoint_ = calibration_.computeSpectrometerPosition(specifiedGrating_, specifiedEV_, currentFocusOffset_, currentDetectorTiltOffset_);
 	emit moveStarted();
 
@@ -643,7 +623,6 @@ bool REIXSSpectrometer::stop()
 	spectrometerRotationDrive_->stop();
 	detectorTranslation_->stop();
 	detectorTiltDrive_->stop();
-	detectorRotationDrive_->stop();
 	// hexapod: cannot stop without wrecking init. Don't worry for now... just let it stop over time. Not necessary for it to be not-moving before we re-send it somewhere new.
 
 	/// \todo Actually, have to flag that a stop has started, and also catch when the stop is finished... Motors will take a while to actually receive and decelerate.

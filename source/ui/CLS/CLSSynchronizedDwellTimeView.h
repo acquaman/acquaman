@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef CLSSYNCHRONIZEDDWELLTIMEVIEW_H
 #define CLSSYNCHRONIZEDDWELLTIMEVIEW_H
 
@@ -76,6 +96,8 @@ protected slots:
 	void setTime();
 	/// Sets the mode for the dwell time.  If the mode is true, then set the Mode to Continuous, otherwise set it to Single Shot.
 	void setMode(bool mode);
+	/// Toggles the scanning state for the synchronized dwell time.
+	void toggleScanning() { dwellTime_->startScanning(!dwellTime_->isScanning()); }
 
 	/// Handles changes to the status.
 	void onStatusChanged(bool active) { overallStatus_->setPixmap(QIcon((active == true) ? ":/ON.png" : ":/OFF.png").pixmap(30, 30)); }
@@ -93,14 +115,40 @@ protected slots:
 			mode_->setChecked(true);
 		}
 	}
+	/// Handles changes to the scanning status.
+	void onScanningChanged(bool scanning)
+	{
+		if (scanning){
+
+			scanning_->setText("Scanning");
+			scanning_->setPalette(QPalette(Qt::green));
+		}
+		else{
+
+			scanning_->setText("Stopped");
+			scanning_->setPalette(QPalette(Qt::red));
+		}
+
+		scanning_->setChecked(scanning);
+	}
+	/// Builds a popup menu for switching view modes.
+	void onCustomContextMenuRequested(QPoint pos);
 
 protected:
 	/// The status icon label.
 	QLabel *overallStatus_;
 	/// The mode selection button.
 	QPushButton *mode_;
+	/// The scanning button.
+	QPushButton *scanning_;
 	/// The master time double spin box.
 	QDoubleSpinBox *masterTime_;
+
+	/// Flag handling the visibility.
+	bool advancedView_;
+
+	/// List of the individual element views.
+	QList<CLSSynchronizedDwellTimeElementView *> elViews_;
 
 	/// Pointer to the synchronized dwell time object.
 	CLSSynchronizedDwellTime *dwellTime_;

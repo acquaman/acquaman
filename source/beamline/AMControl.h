@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -31,6 +31,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 
 #include <float.h>
+
+#include "dataman/info/AMControlInfoList.h"
 
 /**
  * \defgroup control Beamline Control with AMControl and AMProcessVariable
@@ -91,10 +93,10 @@ The second category only reflects motion due to instructions sent by \em this so
   - signal: moveStarted(): emitted when moveInProgress first goes to true
   - signal: moveSucceeded(): emitted when a move completes successfully, and the final measure()d value is within tolerance of the setpoint.
   - signal: moveFailed(int explanation): emitted when a move is not able to complete for some reason. Possible explanation codes are:
-	-# Could not start the move because the control's not connected / responding
-	-# The move finished, but failed to achieve the tolerance requested
-	-# The move did not complete within a timeout period specified
-	-# an error code defined by the specific control implementation
+ -# Could not start the move because the control's not connected / responding
+ -# The move finished, but failed to achieve the tolerance requested
+ -# The move did not complete within a timeout period specified
+ -# an error code defined by the specific control implementation
 
 <b>Warning About Expected Behaviour</b>
 
@@ -213,7 +215,7 @@ public:
 
 	/// This enum type is used to describe the reason for a move failure.
 	/*! Possible explanation codes are:
-	*/
+ */
 	enum FailureExplanation {
 		NotConnectedFailure = 1, ///< Could not start the move because the control's not connected / responding
 		ToleranceFailure,		///< The move finished, but failed to achieve the tolerance requested
@@ -224,25 +226,29 @@ public:
 
 	/// This enum type is used to describe problematic states the control can be in
 	/*! Possible explanation codes are:
-	  */
+   */
 	enum ErrorExplanation{
 		CannotConnectError = 1, ///< Cannot connect to part of the control
 		CannotReadError,	///< Cannot read when we are connected and expect to be able to
 		CannotWriteError,	///< Cannot write when we are connected and expect to be able to
-		CannotGetStatusError,	///< Cannot read the status when we are connected
+		CannotGetStatusError	///< Cannot read the status when we are connected
 	};
 
 	/// Base Class Constructor
 	/*! \param name A unique descriptive name for this control.
-		\param units The default unit description.
-		\param parent QObject parent for memory management
-		*/
+  \param units The default unit description.
+  \param parent QObject parent for memory management
+  */
 	AMControl(const QString& name, const QString& units = "n/a", QObject* parent = 0, const QString description = "") : QObject(parent), units_(units), description_(description) {
 		setObjectName(name);
 		wasConnected_ = false;
 		tolerance_ = AMCONTROL_TOLERANCE_DONT_CARE;
 		contextKnownDescription_ = "";
 	}
+
+	/// \name Control info
+	/// One feature of a control is that it can create a snapshot of its current state and pass it on as an AMControlInfo.
+	AMControlInfo toInfo() { return AMControlInfo(name(), value(), minimumValue(), maximumValue(), units(), tolerance(), description(), contextKnownDescription()); }
 
 	/// \name Accessing childControls() subcontrols:
 	/// One additional feature of Controls is the ability to logically group sets of sub-controls together. (For example, a Monochromator control could consist of a Grating angle control, exit slit position control, and grating selector.)  Every Control therefore has a list of subcontrols.
@@ -320,26 +326,26 @@ The Control abstraction provides two different properties (and associated signal
 - signal: movingChanged(bool isMoving): provides notification of changes in isMoving()
 - signal: valueChanged(double newValue): emits a signal whenever a new sample (measured value) is obtained.
 
-	  */
+   */
 	virtual bool isMoving() const { return false; }
 
 
 	/// Indicates that a move() sent by this software is currently happening.
 	/*! There are two useful but distinct ideas on whether a control is "moving", particularly for distributed control systems like in a synchrotron.  Often, beamline parameters can be controlled from a user's software interface, but they can also spontaneously start moving due to external events or other control interfaces.
 
-	Sometimes, what you really want to know is whether the Control started or stopped moving <em>in response to your instructions</em>.  This is useful when scanning a value, and wanting to receive confirmation that the Control is doing what you told it to.
+ Sometimes, what you really want to know is whether the Control started or stopped moving <em>in response to your instructions</em>.  This is useful when scanning a value, and wanting to receive confirmation that the Control is doing what you told it to.
 
-	The Control abstraction provides two different properties (and associated signals) for these two concepts. The second category only reflects motion due to instructions sent by \em this software:
+ The Control abstraction provides two different properties (and associated signals) for these two concepts. The second category only reflects motion due to instructions sent by \em this software:
 
   - bool moveInProgress(): A move that you requested is currently happening
   - signal: moveStarted(): emitted when moveInProgress first goes to true
   - signal: moveSucceeded(): emitted when a move completes successfully, and the final measure()d value is within tolerance of the setpoint.
   - signal: moveFailed(int explanation): emitted when a move is not able to complete for some reason. Possible explanation codes are:
 
-		- \c AMControl::NotConnectedFailure: Could not start the move because the control's not connected or responding
-		- \c AMControl::ToleranceFailure: The move finished, but failed to achieve the tolerance requested
-		- \c AMControl::TimeoutFailure: The move failed to finish (or start) within a timeout period specified.
-		- \c AMControl::OtherFailure and higher: an error code defined by the specific control implementation
+  - \c AMControl::NotConnectedFailure: Could not start the move because the control's not connected or responding
+  - \c AMControl::ToleranceFailure: The move finished, but failed to achieve the tolerance requested
+  - \c AMControl::TimeoutFailure: The move failed to finish (or start) within a timeout period specified.
+  - \c AMControl::OtherFailure and higher: an error code defined by the specific control implementation
 
 
 */
@@ -365,9 +371,9 @@ The Control abstraction provides two different properties (and associated signal
 	/// Indicates that a control is discrete.
 
 	/*! \note This may not be valid the instant you create the control.  Watch for enumChanges(const QStringList& newEnumNames).)
-		 \return true if this control represents a discrete set of choices.
-		\sa enumNames(), enumCount()
-		*/
+   \return true if this control represents a discrete set of choices.
+  \sa enumNames(), enumCount()
+  */
 	bool isEnum() const { return (enumNames_.count() > 0); }
 
 	/// If it is a discrete control, this gives you a list of descriptions for each state. (They match with numerical values 0, 1, 2, ...)
@@ -380,7 +386,7 @@ The Control abstraction provides two different properties (and associated signal
 
 	/// Returns the enum string for a given \c controlValue. This function will check to make sure the control value is within the range of the set of enums.
 	QString enumNameAt(double controlValue) {
-		int enumValue = controlValue;
+		int enumValue = (int)controlValue;
 		if((unsigned)enumValue < (unsigned)enumNames_.count())
 			return enumNames_.at(enumValue);
 		else
@@ -395,6 +401,10 @@ public slots:
 		Q_UNUSED(setpoint);
 		emit moveFailed(AMControl::NotConnectedFailure);  // The default implementation cannot move.
 	}
+	/// This is used to move a control a relative distance from its current position. The base class implementation simply issues a move() to the current value() plus \c distance. This may not be sufficient if moveRelative() will be called faster than value() updates in your implementation; in that case, it's recommended to re-implement this as appropriate.
+	virtual void moveRelative(double distance) {
+		move(value() + distance);
+	}
 
 	/// This sets the tolerance level: the required level of accuracy for successful move()s.
 	void setTolerance(double newTolerance) { tolerance_ = newTolerance; }
@@ -402,7 +412,7 @@ public slots:
 	/// This sets the human-readable description for the control
 	void setDescription(const QString &description) { description_ = description; }
 
-	/// This sets the short form of a human-readable description for when the context is known or implicit
+	/// This sets the short form of a human-readable description. Very short, for when the context is known: Might be "X" as opposed to "SSA Manipulator X"
 	void setContextKnownDescription(const QString &contextKnownDescription) { contextKnownDescription_= contextKnownDescription; }
 
 	/// This is used to cancel or stop a move in progress. Must reimplement for actual controls.  It will be successful only if canStop() is true.  Returns true if the stop command was successfully sent.  (Note: this DOES NOT guarantee that the motor actually stopped!)
@@ -410,9 +420,9 @@ public slots:
 
 	/// Moves all of the AMControl's subcontrols (children and grandchildren, etc) based on a \c controlList QMap of Control Names and setpoint values.
 	/*! \param controlList specifies a set of AMControls by their name(), and specifies a target value for each.
-		\param errorLevel specifies what counts as success. \todo David: write out what these are.
-		\todo Change name to setChildrenState().
-	  */
+  \param errorLevel specifies what counts as success. \todo David: write out what these are.
+  \todo Change name to setChildrenState().
+   */
 	bool setState(const QMap<QString, double> controlList, unsigned int errorLevel = 0);
 
 
@@ -426,7 +436,7 @@ signals:
 	void moveSucceeded();
 	/// Emitted when a move is not able to complete successfully for some reason.
 	/*! Possible explanation codes are defined in AMControl::FailureExplanation.
-	*/
+ */
 	void moveFailed(int explanation);
 	//@}
 
@@ -450,12 +460,12 @@ signals:
 
 	/// Announces changes in isConnected().
 	/*! Emitted (true) when full functionality is achieved. Emitted (false) when full functionality is lost. What counts as functionality can be decided by the subclasses.
-		*/
+  */
 	void connected(bool);
 
 	/// Announces error states
 	/*! Emits error codes defined above or passes along error messages if available
-		*/
+  */
 	void error(int);
 	void error(const QString&);
 
@@ -468,7 +478,7 @@ protected:
 
 protected slots:
 	/// This is used internally to set the unit text:
-	virtual void setUnits(const QString& units) { units_ = units; emit unitsChanged(units_); }
+	virtual void setUnits(const QString& newUnits) { units_ = newUnits; emit unitsChanged(units()); }
 	/// This is used internally to flag whether a Control is labelled isEnum(), and add the names for each state. If it IS a discrete control (enumStateNames != 0), then the tolerance is set to a value less than 1.  This makes sense when the values must be integer (discrete) values.
 	virtual void setEnumStates(const QStringList& enumStateNames) { enumNames_ = enumStateNames; if(enumNames_.count() > 0) {setTolerance(0.1);} emit enumChanges(enumNames_); }
 
@@ -516,9 +526,9 @@ class AMReadOnlyPVControl : public AMControl {
 public:
 	/// Constructor
 	/*! \param name A unique description of this control
-		\param readPVname The EPICS channel-access name for this Process Variable
-		\param parent QObject parent class
-		*/
+  \param readPVname The EPICS channel-access name for this Process Variable
+  \param parent QObject parent class
+  */
 	AMReadOnlyPVControl(const QString& name, const QString& readPVname, QObject* parent = 0, const QString decription = "");
 
 	/// \name Reimplemented Public Functions:
@@ -617,22 +627,22 @@ class AMPVControl : public AMReadOnlyPVControl {
 public:
 	/// Constructor
 	/*! \param name A unique description of this control
-		\param readPVname The EPICS channel-access name for the feedback Process Variable
-		\param writePVname The EPICS channel-access name for the setpoint Process Variable
-		\param tolerance The accuracy required for a move() to count as having reached its setpoint() and emit moveSucceeded().
-		\param completionTimeoutSeconds Maximum time allowed for the value() to get within tolerance() of the setpoint() after a move().
-		\param parent QObject parent class
-		\param stopPVname The EPICS channel-access name for the process variable to write to cancel a move in progress. If empty (default), shouldStop() and canStop() both return false, and calls to stop() will not work.
-		*/
+  \param readPVname The EPICS channel-access name for the feedback Process Variable
+  \param writePVname The EPICS channel-access name for the setpoint Process Variable
+  \param tolerance The accuracy required for a move() to count as having reached its setpoint() and emit moveSucceeded().
+  \param completionTimeoutSeconds Maximum time allowed for the value() to get within tolerance() of the setpoint() after a move().
+  \param parent QObject parent class
+  \param stopPVname The EPICS channel-access name for the process variable to write to cancel a move in progress. If empty (default), shouldStop() and canStop() both return false, and calls to stop() will not work.
+  */
 	AMPVControl(const QString& name,
-		    const QString& readPVname,
-		    const QString& writePVname,
-		    const QString& stopPVname = QString(),
-		    QObject* parent = 0,
-		    double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
-		    double completionTimeoutSeconds = 10.0,
-		    int stopValue = 1,
-		    const QString &description = "");
+				const QString& readPVname,
+				const QString& writePVname,
+				const QString& stopPVname = QString(),
+				QObject* parent = 0,
+				double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
+				double completionTimeoutSeconds = 10.0,
+				int stopValue = 1,
+				const QString &description = "");
 
 	/// \name Reimplemented Public Functions:
 	//@{
@@ -737,7 +747,7 @@ protected slots:
 
 	/// (overridden) Handle a connection timeout from either the readPV_ or writePV_
 	/*! The units come from the readPV, so if it's out, we don't know what the units are.
-		In any case, if either one doesn't connected, we're not connected.*/
+  In any case, if either one doesn't connected, we're not connected.*/
 	void onConnectionTimeout() { if(sender() == readPV_) { setUnits("?"); } emit connected(false); emit error(AMControl::CannotConnectError); }
 
 	/// This is called when a PV channel (read or write) connects or disconnects
@@ -755,6 +765,32 @@ protected slots:
 
 };
 
+/// This class is a convenience construction class for AMPVControl.
+/*!
+  There are many controls that use AMPVControl that only talk to a single process variable.  The read and write PVs are the same and they have no stop PV.  Therefore,
+  there is a lot of superfluous information in the constructor that can lead to confusion implementation for new user-programmers and is quite unintuitive.  In the end,
+  this class behaves \em IDENTICALLY to AMPVControl.  It merely offers a more intuitive constructor.
+  */
+
+class AMSinglePVControl : public AMPVControl {
+
+	Q_OBJECT
+
+public:
+	/// Constructor.
+	/*! \param name A unique description of this control
+  \param PVname The EPICS channel-access name for the setpoint AND feedback Process Variable
+  \param tolerance The accuracy required for a move() to count as having reached its setpoint() and emit moveSucceeded().
+  \param completionTimeoutSeconds Maximum time allowed for the value() to get within tolerance() of the setpoint() after a move().
+  \param parent QObject parent class
+  */
+	AMSinglePVControl(const QString& name,
+					  const QString& PVname,
+					  QObject* parent = 0,
+					  double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
+					  double completionTimeoutSeconds = 10.0,
+					  const QString &description = "");
+};
 
 /// Subclass this to create an object that specifies how to interpret a control's status value.  With this mechanism, we can accept arbitrarily complex algorithms to determine if an AMPVwStatusControl's status value means that it's moving.  For example, if your motor driver returns 4, 5, or 6 to mean that it's moving, create a subclass whose operator()() function returns true in these three cases.
 class AMAbstractControlStatusChecker {
@@ -826,17 +862,17 @@ class AMReadOnlyPVwStatusControl : public AMReadOnlyPVControl {
 public:
 	/// Constructor
 	/*! \param name A unique description of this control
-		\param readPVname The EPICS channel-access name for the feedback Process Variable
-		\param movingPVname The EPICS channel-access name for the move-monitor Process Variable
-		\param statusChecker An instance of an AMAbstractControlStatusChecker.  isMoving() is true when the movingPV's value passed into its operator()() function returns true.  The default status checker compares the movingPV's value to 1.  (Note: this class takes ownership of the statusChecker and deletes it when done.)
-		\param parent QObject parent class
-		*/
+  \param readPVname The EPICS channel-access name for the feedback Process Variable
+  \param movingPVname The EPICS channel-access name for the move-monitor Process Variable
+  \param statusChecker An instance of an AMAbstractControlStatusChecker.  isMoving() is true when the movingPV's value passed into its operator()() function returns true.  The default status checker compares the movingPV's value to 1.  (Note: this class takes ownership of the statusChecker and deletes it when done.)
+  \param parent QObject parent class
+  */
 	AMReadOnlyPVwStatusControl(const QString& name,
-				   const QString& readPVname,
-				   const QString& movingPVname,
-				   QObject* parent = 0,
-				   AMAbstractControlStatusChecker* statusChecker = new AMControlStatusCheckerDefault(1),
-				   const QString &description = "");
+							   const QString& readPVname,
+							   const QString& movingPVname,
+							   QObject* parent = 0,
+							   AMAbstractControlStatusChecker* statusChecker = new AMControlStatusCheckerDefault(1),
+							   const QString &description = "");
 
 	/// Destructor
 	virtual ~AMReadOnlyPVwStatusControl() { delete statusChecker_; }
@@ -912,8 +948,8 @@ The unique behavior is defined as:
 - moveStarted() means:	after a move(), isMoving() became true withine moveStartTimeout()
 - moveSucceeded() means:	after a move(), the isMoving() went back to stopped, and the value() was within tolerance() of setpoint()
 - moveFailed() means:		after a move(), either
-		-isMoving() did not start within moveStartTimeout(), or
-		- when isMoving() went back to stopped, the required tolerance was not met.
+  -isMoving() did not start within moveStartTimeout(), or
+  - when isMoving() went back to stopped, the required tolerance was not met.
 
 <b>Most useful members for using this class:</b>
 
@@ -941,28 +977,28 @@ class AMPVwStatusControl : public AMReadOnlyPVwStatusControl {
 
 public:
 	/// Constructor
-	/*! \param name A unique description of this control
-		\param readPVname The EPICS channel-access name for the feedback Process Variable
-		\param writePVname The EPICS channel-access name for the setpoint Process Variable
-		\param movingPVname The EPICS channel-access name for the move-monitor Process Variable
-		\param tolerance The level of accuracy (max. distance between setpoint() and final value()) required for a move() to be successful
-		\param moveStartTimeoutSeconds Time allowed after a move() for the Control to first start moving.  If it doesn't, we emit moveFailed(AMControl::TimeoutFailure).
-		\param statusChecker An instance of an AMAbstractControlStatusChecker.  isMoving() is true when the movingPV's value passed into its operator()() function returns true.  The default status checker compares the movingPV's value to 1.  (Note: this class takes ownership of the statusChecker and deletes it when done.)
-		\param stopPVname is the EPICS channel-access name for the Process Variable used to stop() a move in progress.
-		\param stopValue is the value that will be written to the stopPV when stop() is called.
-		\param parent QObject parent class
-		*/
+	/*! \param name A unique representative name for this control
+  \param readPVname The EPICS channel-access name for the feedback Process Variable
+  \param writePVname The EPICS channel-access name for the setpoint Process Variable
+  \param movingPVname The EPICS channel-access name for the move-monitor Process Variable
+  \param tolerance The level of accuracy (max. distance between setpoint() and final value()) required for a move() to be successful
+  \param moveStartTimeoutSeconds Time allowed after a move() for the Control to first start moving.  If it doesn't, we emit moveFailed(AMControl::TimeoutFailure).
+  \param statusChecker An instance of an AMAbstractControlStatusChecker.  isMoving() is true when the movingPV's value passed into its operator()() function returns true.  The default status checker compares the movingPV's value to 1.  (Note: this class takes ownership of the statusChecker and deletes it when done.)
+  \param stopPVname is the EPICS channel-access name for the Process Variable used to stop() a move in progress.
+  \param stopValue is the value that will be written to the stopPV when stop() is called.
+  \param parent QObject parent class
+  */
 	AMPVwStatusControl(const QString& name,
-			   const QString& readPVname,
-			   const QString& writePVname,
-			   const QString& movingPVname,
-			   const QString& stopPVname = QString(),
-			   QObject* parent = 0,
-			   double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
-			   double moveStartTimeoutSeconds = 2.0,
-			   AMAbstractControlStatusChecker* statusChecker = new AMControlStatusCheckerDefault(1),
-			   int stopValue = 1,
-			   const QString &description = "");
+					   const QString& readPVname,
+					   const QString& writePVname,
+					   const QString& movingPVname,
+					   const QString& stopPVname = QString(),
+					   QObject* parent = 0,
+					   double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
+					   double moveStartTimeoutSeconds = 2.0,
+					   AMAbstractControlStatusChecker* statusChecker = new AMControlStatusCheckerDefault(1),
+					   int stopValue = 1,
+					   const QString &description = "");
 
 	/// \name Reimplemented Public Functions:
 	//@{
@@ -994,7 +1030,7 @@ public:
 	/// The EPICS channel-access name of the setpoint PV
 	QString writePVName() const { return writePV_->pvName(); }
 	/// The value of the writePV. This will match setpoint() unless someone else (another program or person in the facility) is changing the setpoint.
-	double writePVValue() const { return writePV_->lastValue(); }
+	virtual double writePVValue() const { return writePV_->lastValue(); }
 	/// Read-only access to the writePV.  Using this to change the writePVs value by connecting to its slots is not allowed/not supported.
 	const AMProcessVariable* writePV() const { return writePV_; }
 	/// The maximum time allowed for the Control to start isMoving() after a move() is issued.
@@ -1065,6 +1101,117 @@ protected slots:
 };
 
 
+/// Subclass this to create an object to define unit conversions from and to "raw" units. Instances of this are used by the AMPVwStatusAndUnitConversionControl.  A simple implementation that might do what you need is AMScaleAndOffsetUnitConverter.
+class AMAbstractUnitConverter {
+public:
+	/// Returns the name of the output (non-raw) units
+	virtual QString units() const = 0;
+	/// Converts raw units to output units
+	virtual double convertFromRaw(double rawValue) const = 0;
+	/// Convert output units back to raw units
+	virtual double convertToRaw(double value) const = 0;
+};
+
+/// This version of AMAbstractUnitConverter provides scaling and offset conversion, so that convertFromRaw(x) returns x*scale()+offset().
+class AMScaleAndOffsetUnitConverter : public AMAbstractUnitConverter {
+public:
+	/// Constructor
+	AMScaleAndOffsetUnitConverter(const QString& units, double scale = 1.0, double offset = 0.0) :
+		units_(units), scale_(scale), offset_(offset) {}
+	/// Convert raw units to output units
+	double convertFromRaw(double rawValue) const { return rawValue*scale_ + offset_; }
+	/// Conver output units back to raw units
+	double convertToRaw(double value) const { return (value-offset_)/scale_; }
+
+	/// Returns the scaling factor
+	double scale() const { return scale_; }
+	/// Returns the offset
+	double offset() const { return offset_; }
+	/// Returns the name of the output units
+	QString units() const { return units_; }
+
+protected:
+	QString units_;
+	double scale_, offset_;
+};
+
+/// This class works exactly like AMPVwStatusControl, except that it offers a user-definable conversion from the raw process variable units to other units, using AMAbstractUnitConverter to specify the conversion.
+class AMPVwStatusAndUnitConversionControl : public AMPVwStatusControl {
+
+	Q_OBJECT
+public:
+	/// Constructor
+	/*! \param name A unique representative name for this control
+  \param readPVname The EPICS channel-access name for the feedback Process Variable
+  \param writePVname The EPICS channel-access name for the setpoint Process Variable
+  \param movingPVname The EPICS channel-access name for the move-monitor Process Variable
+  \param tolerance The level of accuracy (max. distance between setpoint() and final value()) required for a move() to be successful. In this case, it should be specified in converted units (not raw units).
+  \param moveStartTimeoutSeconds Time allowed after a move() for the Control to first start moving.  If it doesn't, we emit moveFailed(AMControl::TimeoutFailure).
+  \param statusChecker An instance of an AMAbstractControlStatusChecker.  isMoving() is true when the movingPV's value passed into its operator()() function returns true.  The default status checker compares the movingPV's value to 1.  (Note: this class takes ownership of the statusChecker and deletes it when done.)
+  \param stopPVname is the EPICS channel-access name for the Process Variable used to stop() a move in progress.
+  \param stopValue is the value that will be written to the stopPV when stop() is called.
+  \param parent QObject parent class
+  \param description A human-readable description of what this control controls
+  \param readUnitConverter An instance of an AMAbstractUnitConverter used by value() to convert from the readPV raw value to our desired units
+  \param writeUnitConverter An instance of an AMAbstractUnitConverter used by move() and setpoint() to convert from our desired units to the raw writePV value. Note that it's important for \c readUnitConverter and \c writeUnitConverter to convert into the same consistent units so that value() and setpoint() can be compared together appropriately.  In many cases, if the underlying PVs have the same raw units, then the same converter can be used for both, and \c writeUnitConverter can be set as 0.
+  */
+	AMPVwStatusAndUnitConversionControl(const QString& name,
+										const QString& readPVname,
+										const QString& writePVname,
+										const QString& movingPVname,
+										const QString& stopPVname = QString(),
+										AMAbstractUnitConverter* readUnitConverter = new AMScaleAndOffsetUnitConverter("myUnits"),
+										AMAbstractUnitConverter* writeUnitConverter = 0,
+										QObject* parent = 0,
+										double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
+										double moveStartTimeoutSeconds = 2.0,
+										AMAbstractControlStatusChecker* statusChecker = new AMControlStatusCheckerDefault(1),
+										int stopValue = 1,
+										const QString &description = "");
+
+	/// Destructor: deletes the unit converter
+	~AMPVwStatusAndUnitConversionControl() { delete readConverter_; delete writeConverter_; }
+
+	/// Set the unit converters. This class takes ownership of the new converters and deletes the old ones. \c readUnitConverter must be a pointer to a valid object; writeUnitConverter can be 0 if the same conversion is appropriate for both the readPV and writePV.
+	void setUnitConverters(AMAbstractUnitConverter* readUnitConverter, AMAbstractUnitConverter* writeUnitConverter = 0);
+	/// Returns the unit converter currently in-use for the read (feedback) values
+	AMAbstractUnitConverter* readUnitConverter() const { return readConverter_; }
+	/// Returns the unit converter currently in-use for the write (setpoint, move) values
+	AMAbstractUnitConverter* writeUnitConverter() const { return writeConverter_ ? writeConverter_ : readConverter_; }
+
+	/// For units, we return the units given by our unit converter
+	virtual QString units() const { return readConverter_->units(); }
+	/// But you can still access the underlying "raw" units if you want
+	virtual QString rawUnits() const { return AMPVwStatusControl::units(); }
+
+	/// We overload value() to convert to our desired units
+	virtual double value() const { return readUnitConverter()->convertFromRaw(AMPVwStatusControl::value()); }
+
+	/// We overload move() to convert our units back to raw units for the writePV
+	virtual void move(double setpoint) { AMPVwStatusControl::move(writeUnitConverter()->convertToRaw(setpoint)); }
+
+	/// We overload setpoint() to convert the units
+	virtual double setpoint() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::setpoint()); }
+
+	/// Overloaded to convert the units. The min and max values come from the specification in the writePV.
+	virtual double minimumValue() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::minimumValue()); }
+	/// Overloaded to convert the units The min and max values come from the specification in the writePV.
+	virtual double maximumValue() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::maximumValue()); }
+	/// Overloaded to convert the units.
+	virtual double writePVValue() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::writePVValue()); }
+
+
+protected slots:
+	/// Instead of forwarding the readPV valueChanged() signal directly as valueChanged(), we need to do a conversion
+	void onReadPVValueChanged(double newValue);
+	/// Instead of forwarding the writePV valueChanged() signal directly as setpointChanged(), we need to do a conversion
+	void onWritePVValueChanged(double newValue);
+
+protected:
+
+	AMAbstractUnitConverter* readConverter_, *writeConverter_;
+};
+
 
 /// This class provides an AMControl with measure-only capability, based on an Epics Process Variable Waveform implementation.
 /*!
@@ -1097,15 +1244,15 @@ class AMReadOnlyWaveformBinningPVControl : public AMReadOnlyPVControl {
 public:
 	/// Constructor
 	/*! \param name A unique description of this control
-		\param readPVname The EPICS channel-access name for this Process Variable
-		\param parent QObject parent class
-		*/
+  \param readPVname The EPICS channel-access name for this Process Variable
+  \param parent QObject parent class
+  */
 	AMReadOnlyWaveformBinningPVControl(const QString& name,
-					   const QString& readPVname,
-					   int lowIndex = 0,
-					   int highIndex = 1,
-					   QObject* parent = 0,
-					   const QString &description = "");
+									   const QString& readPVname,
+									   int lowIndex = 0,
+									   int highIndex = 1,
+									   QObject* parent = 0,
+									   const QString &description = "");
 
 	/// \name Reimplemented Public Functions:
 	//@{

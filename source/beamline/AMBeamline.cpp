@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -39,8 +39,17 @@ void AMBeamline::releaseBl() {
 	if(instance_) {
 		delete instance_;
 		instance_ = 0;
-	}
+		}
 
+}
+
+AMBeamline * AMBeamline::bl()
+{
+	 if(!instance_) {
+		 qWarning() << "WARNING: AMBeamline: No beamline created yet.  You need to call YourBeamline::bl() before calling AMBeamline::bl().";
+	 }
+
+	return instance_;
 }
 
 

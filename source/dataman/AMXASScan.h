@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -36,8 +36,8 @@ public:
 	/// create a new XAS scan
 	Q_INVOKABLE explicit AMXASScan(QObject *parent = 0);
 
-	/// Re-implemented from AMScan. Currently only the SGM2004 and ALS Bl8.0.1 file formats are supported.
-	virtual bool loadDataImplementation();
+
+	//virtual QString technique() {return "XAS";}
 
 signals:
 

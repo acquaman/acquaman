@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -21,12 +21,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMSettings.h"
 #include <QtTest/QtTest>
 #include "beamline/SGM/SGMBeamline.h"
-#include "dataman/AMDatabase.h"
+#include "dataman/database/AMDatabase.h"
 #include "dataman/AMXASScan.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMXASDacqScanController.h"
 
-#include "dataman/AMFirstTimeController.h"
 #include "util/AMErrorMonitor.h"
 
 class TestAcquaman: public QObject

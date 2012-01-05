@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -22,123 +22,70 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMBEAMLINECAMERAWIDGET_H
 
 #include <QWidget>
-#include <QComboBox>
-#include "ui/AMVideoPlayerWidget.h"
+#include <QUrl>
 
-#include <QPaintEvent>
-#include <QPainter>
+class QComboBox;
+class QCheckBox;
+class AMCrosshairOverlayVideoWidget;
+class AMColorPickerButton;
+class QSlider;
 
-#include <QDebug>
-
-
-/// This class is an upgrade for AMVideoPlayerWidget, that can display a cross-hair and emit signals when clicked in a specific position.  The cross hair position and click locations are reported as a percentage of the video height and width, from 0 to 1.
-class AMCrosshairVideoWidget : public AMVideoPlayerWidget {
-
+/// This class provides a general-purpose widget that people can use to monitor the video from different network camera sources.
+class AMBeamlineCameraWidget : public QWidget
+{
 	Q_OBJECT
-
 public:
-	AMCrosshairVideoWidget(QWidget* parent = 0);
+	/// Constructor. OpenGL is enabled by default; you can set \c useOpenGlViewport to false if you cannot use OpenGl, but processor usage will be much higher.
+	explicit AMBeamlineCameraWidget(QWidget *parent = 0, bool useOpenGlViewport = true);
 
-public:
-	QPointF crosshairPosition() const { return QPointF(crosshairX_, crosshairY_); }
-	QPen crosshairPen() const { return crosshairPen_; }
-	bool crosshairVisible() const { return crosshairVisible_; }
+	/// Set the video source.
+	void playSource(const QUrl& sourceUrl);
+	/// Set the video source. Anything that can be converted into a URL of some kind works here. Returns false if given an invalid URL. (Note, however, that this doesn't mean the source was sucessfully opened; we still need to access the network, so success or failure will come asynchronously.)
+	bool playSource(const QString& sourceUrl);
 
-public slots:
-	void setCrosshairPosition(const QPointF& pos) {
-		crosshairX_ = pos.x();
-		crosshairY_ = pos.y();
-		update();
-	}
+	/// Returns the video source
+	QUrl source() const;
 
-	void setCrosshairPen(const QPen& pen) {
-		crosshairPen_ = pen;
-		update();
-	}
-
-	void setCrossHairVisible(bool crosshairVisible = true) {
-		crosshairVisible_ = crosshairVisible;
-		update();
-	}
+	/// Is the crosshair locked?
+	bool crosshairLocked() const { return crosshairLocked_; }
+	/// Returns the crosshair color
+	QColor crosshairColor() const;
+	/// Returns the crosshair line thickness
+	int crosshairLineThickness() const;
+	/// Is the crosshair visible?
+	bool crosshairVisible() const;
+	/// Returns the crosshair position (relative X-Y position on the video display, from (0,0)[top left] to (1,1)[bottom right] )
+	QPointF crosshairPosition() const;
 
 signals:
-	/// Emitted when the left mouse button is pressed down. (The position is reported as percentage of the video screen width and height; ie: from 0 to 1)
-	void mousePressed(const QPointF& position);
-	/// Emitted when the left mouse is released. (The position is reported as percentage of the video screen width and height; ie: from 0 to 1).  Not emitted for the second click of a double-click; see mouseDoubleClicked() instead.
-	void mouseReleased(const QPointF& position);
-	/// Emitted when the left mouse button is released from a double-click. (The position is reported as percentage of the video screen width and height; ie: from 0 to 1).
-	void mouseDoubleClicked(const QPointF& position);
-
-protected:
-	double crosshairX_, crosshairY_;
-	QPen crosshairPen_;
-	bool crosshairVisible_;
-
-	/// Re-implemented to draw the cross-hair
-	virtual void paintEvent(QPaintEvent *event);
-	/// Re-implemented to emit signals for mouse events
-	virtual void mousePressEvent(QMouseEvent *e);
-	virtual void mouseReleaseEvent(QMouseEvent *e);
-	virtual void mouseDoubleClickEvent(QMouseEvent *e);
-
-	/// Indicates that the second press of a double-click has happened
-	bool doubleClickInProgress_;
-};
-
-
-
-
-
-
-/// A widget that provides a view onto multiple Axis-server MJPEG streams (uses AMVideoPlayerWidget, which uses the VLC video library).  Pauses the video stream when hidden to save CPU consumption.
-class AMBeamlineCameraWidget : public QWidget {
-
-	Q_OBJECT
-
-public:
-	AMBeamlineCameraWidget(const QString& cameraName, const QUrl& cameraAddress, QWidget* parent = 0);
-	virtual ~AMBeamlineCameraWidget();
-
-	void setupVideo();
-
-	void addSource(const QString& cameraName, const QUrl& cameraAddress);
 
 public slots:
 
-	void onSourceChanged(int index);
-
-protected slots:
-	void debugMousePress(const QPointF& pos) {
-		qDebug() << "MOUSE PRESSED at " << pos;
-	}
-	void debugMouseRelease(const QPointF& pos) {
-		qDebug() << "MOUSE RELEASED at " << pos;
-	}
-	void debugMouseDoubleClicked(const QPointF& pos) {
-		qDebug() << "MOUSE DOUBLE CLICKED at " << pos;
-		videoWidget_->setCrosshairPosition(pos);
-	}
-
+	/// Set the crosshair color
+	void setCrosshairColor(const QColor& color);
+	/// Set the crosshair line thickness
+	void setCrosshairLineThickness(int thickness);
+	/// Set whether the crosshair is visible or not
+	void setCrosshairVisible(bool isVisible);
+	/// Disable the capability to move the cross-hair by double-clicking
+	void setCrosshairLocked(bool doLock = true);
+	/// Set the crosshair position (relative X-Y position on the video display, from (0,0)[top left] to (1,1)[bottom right] )
+	void setCrosshairPosition(const QPointF& pos) const;
 
 protected:
 
-	AMCrosshairVideoWidget* videoWidget_;
-	QComboBox* cameraList_;
+	AMCrosshairOverlayVideoWidget* videoWidget_;
+	QCheckBox* showCrosshairCheckBox_, *lockCrosshairCheckBox_;
+	AMColorPickerButton* crosshairColorPicker_;
+	QSlider* crosshairThicknessSlider_;
 
-	/// (Stop) the video stream when hidden (to save CPU usage)
-	virtual void hideEvent(QHideEvent *e) {
-		QWidget::hideEvent(e);
-		videoWidget_->stop();
-	}
+	bool crosshairLocked_;
 
-	/// (Play) the video stream when un-hidden
-	virtual void showEvent(QShowEvent *e) {
-		QWidget::showEvent(e);
-		videoWidget_->play();
-	}
+protected slots:
 
+	/// Called when double-clicking on the video widget (move the cursor if not locked)
+	void onVideoWidgetDoubleClicked(const QPointF& clickPoint);
 
 };
 
-
-#endif /*AMBEAMLINECAMERAWIDGET_H*/
+#endif // AMBEAMLINECAMERAWIDGET_H

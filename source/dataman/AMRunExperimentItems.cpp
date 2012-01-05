@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -19,20 +19,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMRunExperimentItems.h"
-#include "dataman/AMDatabase.h"
-#include "ui/AMDateTimeUtils.h"
+#include "dataman/database/AMDatabase.h"
+#include "util/AMDateTimeUtils.h"
 
 #include <QMimeData>
 #include <QUrl>
 #include <QList>
 #include <QStringList>
 
-#include "dataman/AMDbObjectSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMScan.h"
 
 QVariant AMRunModelItem::data(int role) const {
 	if(role == Qt::DisplayRole)
-		return QStandardItem::data(Qt::EditRole).toString() + ", " + AMDateTimeUtils::prettyDateRange(QStandardItem::data(AM::DateTimeRole).toDateTime(), QStandardItem::data(AM::EndDateTimeRole).toDateTime());
+		return QStandardItem::data(Qt::EditRole).toString() + ", " + AMDateTimeUtils::prettyDate(QStandardItem::data(AM::DateTimeRole).toDateTime());
 	else
 		return QStandardItem::data(role);
 }
@@ -40,7 +40,7 @@ QVariant AMRunModelItem::data(int role) const {
 #include "dataman/AMRun.h"
 void AMRunModelItem::setData(const QVariant &value, int role) {
 	if(role == Qt::EditRole) {
-		db_->update( data(AM::IdRole).toInt(), AMDbObjectSupport::tableNameForClass<AMRun>(), "name", value);
+		db_->update( data(AM::IdRole).toInt(), AMDbObjectSupport::s()->tableNameForClass<AMRun>(), "name", value);
 	}
 	QStandardItem::setData(value, role);
 }
@@ -48,7 +48,7 @@ void AMRunModelItem::setData(const QVariant &value, int role) {
 #include "dataman/AMExperiment.h"
 void AMExperimentModelItem::setData(const QVariant &value, int role) {
 	if(role == Qt::EditRole) {
-		db_->update( data(AM::IdRole).toInt(), AMDbObjectSupport::tableNameForClass<AMExperiment>(), "name", value);
+		db_->update( data(AM::IdRole).toInt(), AMDbObjectSupport::s()->tableNameForClass<AMExperiment>(), "name", value);
 	}
 	QStandardItem::setData(value, role);
 }
@@ -80,15 +80,15 @@ bool AMExperimentModelItem::dropMimeData(const QMimeData *data, Qt::DropAction a
 
 			QString tableName = path.at(1);
 			bool idOkay;
-			int id = path.at(2).toInt(&idOkay);
-			if(!idOkay || id < 1)
+			int scanId = path.at(2).toInt(&idOkay);
+			if(!idOkay || scanId < 1)
 				break;
 
-			/// \todo Determine if this is still necessary: Only store things that belong in the main scans table for now.
-			if(tableName != AMDbObjectSupport::tableNameForClass<AMScan>())
+			/// Only store things that belong in the main scans table for now. We have no way of tracking which table the objects came from, so the assumption is they are scans.
+			if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
 				break;
 
-			addObjectToExperiment(id);
+			AMExperiment::addScanToExperiment(scanId, id(), db_);
 			accepted = true;
 		}
 	}
@@ -96,20 +96,3 @@ bool AMExperimentModelItem::dropMimeData(const QMimeData *data, Qt::DropAction a
 	return accepted;
 }
 
-bool AMExperimentModelItem::addObjectToExperiment(int objectId) {
-	QSqlQuery q = db_->query();
-
-	// object already exists in this experiment. Don't add again.
-	if( db_->objectsWhere("ObjectExperimentEntries",
-						  QString("objectId = '%1' AND experimentId = '%2'")
-						  .arg(objectId).arg(id()))
-		.count() > 0)
-		return false;
-
-	QStringList colNames;
-	colNames << "objectId" << "experimentId";
-	QVariantList colValues;
-	colValues << objectId << id();
-
-	return db_->insertOrUpdate(0, "ObjectExperimentEntries", colNames, colValues);
-}

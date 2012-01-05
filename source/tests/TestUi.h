@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -22,22 +22,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMSettings.h"
 #include "dataman/AMXASScan.h"
-#include "dataman/SGM2004FileLoader.h"
+#include "dataman/SGM/SGM2004FileLoader.h"
 
-#include "ui/AMScanView.h"
+#include "ui/dataman/AMScanView.h"
 #include "ui/AMSidebar.h"
 #include "ui/AMStartScreen.h"
-#include "ui/AMNewRunDialog.h"
+#include "ui/dataman/AMNewRunDialog.h"
 #include "dataman/AMRun.h"
 #include "ui/AMThumbnailScrollViewer.h"
 
-#include "dataman/AMFirstTimeController.h"
 #include "util/AMErrorMonitor.h"
 
 #include "analysis/AM1DExpressionAB.h"
 #include <QTreeView>
 
-#include "ui/AMChooseScanDialog.h"
+#include "ui/dataman/AMChooseScanDialog.h"
 
 class TestUi: public QObject
 {
@@ -59,7 +58,7 @@ private slots:
 
 
 	void testAMChooseScanDialog() {
-		AMChooseScanDialog sd(AMDatabase::userdb(), "Choose a photodiode scan", "Please select the photodiode scan that will be used for normalization");
+		AMChooseScanDialog sd(AMDatabase::database("user"), "Choose a photodiode scan", "Please select the photodiode scan that will be used for normalization");
 		sd.show();
 
 		QTest::qWait(60000);
@@ -170,7 +169,7 @@ private slots:
 		view->setScene(scene);
 
 		AMThumbnailScrollGraphicsWidget* g = new AMThumbnailScrollGraphicsWidget(0);
-		g->setSource(AMDatabase::userdb(), 1, 4);
+		g->setSource(AMDatabase::database("user"), 1, 4);
 		scene->addItem(g);
 		g->setVisible(true);
 		g->setGeometry(QRectF(0,0,240,180));
@@ -248,7 +247,7 @@ private slots:
 
 
 		SGM2004FileLoader s1Loader(&s1);
-		QString fileName = AMUserSettings::userDataFolder + "001.dat";
+		QString fileName = AMUserSettings::userDataFolder + "/001.dat";
 
 		QVERIFY(s1Loader.loadFromFile(fileName, true, true, true));
 
@@ -340,7 +339,7 @@ private slots:
 
 
 		SGM2004FileLoader s1Loader(&s1);
-		QString fileName = AMUserSettings::userDataFolder + "001.dat";
+		QString fileName = AMUserSettings::userDataFolder + "/001.dat";
 
 		QVERIFY(s1Loader.loadFromFile(fileName, true, true, true));
 
@@ -433,7 +432,7 @@ private slots:
 
 
 		SGM2004FileLoader s1Loader(&s1);
-		QString fileName = AMUserSettings::userDataFolder + "001.dat";
+		QString fileName = AMUserSettings::userDataFolder + "/001.dat";
 
 		QVERIFY(s1Loader.loadFromFile(fileName, true, true, true));
 
@@ -521,7 +520,7 @@ private slots:
 
 
 		SGM2004FileLoader s1Loader(&s1);
-		QString fileName = AMUserSettings::userDataFolder + "001.dat";
+		QString fileName = AMUserSettings::userDataFolder + "/001.dat";
 
 		QVERIFY(s1Loader.loadFromFile(fileName, true, true, true));
 

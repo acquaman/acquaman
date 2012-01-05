@@ -1,15 +1,27 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef REIXSAPPCONTROLLER_H
 #define REIXSAPPCONTROLLER_H
 
 #include "application/AMAppController.h"
-
-//class SGMSampleTransferView;
-//class AMSamplePositionView;
-//class AMXASScanConfigurationHolder;
-//class AMFastScanConfigurationHolder;
-//class AMScanConfigurationView;
-//class SGMXASScanConfigurationViewer;
-//class SGMFastScanConfigurationViewer;
 
 class REIXSXESScanConfigurationDetailedView;
 class AMScanConfigurationViewHolder;
@@ -39,22 +51,12 @@ protected slots:
 	virtual void onCurrentPaneChanged(QWidget* pane);
 
 	void onCurrentScanControllerCreated();
-	void onCurrentScanControllerDestroyed();
-	void onCurrentScanControllerReinitialized(bool removeScan);
-
-
-	/// This is called when the user clicks any of the available "close" buttons in the main window's sidebar. For now, this could involve closing a scan editor window, or deleting an experiment.
-	/*! \todo This was REIMPLEMENTED from AMAppController to check if we're trying to close the current scan editor (ie: the one that holds a scan that is currently acquiring). Find a cleaner system to do this, in general. Build into somewhere else?*/
-	virtual void onWindowPaneCloseButtonClicked(const QModelIndex& index);
+	void onCurrentScanControllerStarted();
 
 protected:
 
 	AMScanConfigurationViewHolder* scanConfigurationHolder_;
 	REIXSXESScanConfigurationDetailedView* xesScanConfigurationView_;
-
-
-	/// The scan editor belonging to the active scan controller. (0 if not initialized)
-	AMGenericScanEditor* scanControllerActiveEditor_;
 
 };
 

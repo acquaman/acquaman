@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -26,8 +26,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QPushButton>
-#include "ui/AMRunSelector.h"
-#include "dataman/AMDatabase.h"
+#include "ui/dataman/AMRunSelector.h"
+#include "dataman/database/AMDatabase.h"
 
 class AMStartScreen : public QWidget
 {

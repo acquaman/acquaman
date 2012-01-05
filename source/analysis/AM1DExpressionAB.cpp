@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AM1DExpressionAB.h"
 #include "util/AMErrorMonitor.h"
 #include "AM1DExpressionABEditor.h"
+#include <limits>
 
 AM1DExpressionAB::AM1DExpressionAB(const QString& outputName, QObject* parent)
 	: AMAnalysisBlock(outputName, parent),
@@ -264,6 +265,10 @@ AMNumber AM1DExpressionAB::value(const AMnDIndex& indexes, bool doBoundsChecking
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, e.GetCode(), explanation));
 			return AMNumber(AMNumber::InvalidError);
 		}
+
+		if (rv == std::numeric_limits<qreal>::infinity() || rv == -std::numeric_limits<qreal>::infinity() || rv == std::numeric_limits<qreal>::quiet_NaN())
+			return 0;
+
 		return rv;
 	}
 }

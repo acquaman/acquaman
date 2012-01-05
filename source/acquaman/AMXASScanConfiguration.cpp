@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -25,9 +25,24 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 /// Constructor simply passes arguments up to AMScanConfiguration constructor.
 AMXASScanConfiguration::AMXASScanConfiguration(QObject *parent) : AMScanConfiguration(parent)
 {
+	userScanName_ = "$sample - $technique";
 	regions_ = new AMXASRegionsList(this);
 	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
 	connect(regions_, SIGNAL(regionsChanged()), this, SIGNAL(configurationChanged()));
+}
+
+AMXASScanConfiguration::AMXASScanConfiguration(const AMXASScanConfiguration &original) :
+	AMScanConfiguration(original.parent())
+{
+	qDebug() << "Using AMXASScanConfiguration copy constructor";
+	regions_ = new AMXASRegionsList(this);
+	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
+	connect(regions_, SIGNAL(regionsChanged()), this, SIGNAL(configurationChanged()));
+	setUserScanName(original.userScanName());
+}
+
+const QMetaObject* AMXASScanConfiguration::getMetaObject(){
+	return metaObject();
 }
 
 double AMXASScanConfiguration::startEnergy() const{
@@ -63,7 +78,7 @@ QString AMXASScanConfiguration::dbReadXASRegions() const{
 	QStringList rv;
 
 	for(int x = 0; x < regions_->count(); x++)
-		rv << QString("%1,%2,%3").arg(regionStart(x)).arg(regionDelta(x)).arg(regionEnd(x));
+		rv << QString("xasVersion1.1,%1,%2,%3,%4,%5,%6").arg(regionStart(x)).arg(regionDelta(x)).arg(regionEnd(x)).arg(regionElasticStart(x) == true ? 1 : 0).arg(regionElasticEnd(x) == true ? 1 : 0).arg(regionTime(x));
 	if(rv.isEmpty())
 		return QString("");
 	return rv.join("\n");
@@ -74,10 +89,23 @@ void AMXASScanConfiguration::dbLoadXASRegions(const QString &XASRegionsString){
 		return;
 	QStringList allRegions = XASRegionsString.split("\n", QString::SkipEmptyParts);
 	QStringList oneRegion;
+	bool addRegionSuccess;
 
 	for(int x = 0; x < allRegions.count(); x++){
 		oneRegion = allRegions.at(x).split(",", QString::SkipEmptyParts);
-		if(!addRegion(x, oneRegion.at(0).toDouble(), oneRegion.at(1).toDouble(), oneRegion.at(2).toDouble()))
+
+		// Legacy Acquaman XAS settings (version 1.0)
+		if (oneRegion.count() == 3)
+			addRegionSuccess = addRegion(x, oneRegion.at(0).toDouble(), oneRegion.at(1).toDouble(), oneRegion.at(2).toDouble());
+		// Acquaman XAS settings version 1.1
+		else if (oneRegion.at(0) == "xasVersion1.1"){
+
+			addRegionSuccess = addRegion(x, oneRegion.at(1).toDouble(), oneRegion.at(2).toDouble(), oneRegion.at(3).toDouble(), oneRegion.at(6).toDouble());
+			addRegionSuccess &= setRegionElasticStart(x, oneRegion.at(4).toInt() == 1 ? true : false);
+			addRegionSuccess &= setRegionElasticEnd(x, oneRegion.at(5).toInt() == 1 ? true : false);
+		}
+
+		if (!addRegionSuccess)
 			AMErrorMon::report(AMErrorReport(this,
 							AMErrorReport::Alert,
 							0,

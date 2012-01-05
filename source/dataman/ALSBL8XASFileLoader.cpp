@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringList>
 #include <QDateTime>
 #include "dataman/AMXASScan.h"
-#include "dataman/AMDetectorInfo.h"
+#include "dataman/info/AMDetectorInfo.h"
 #include "util/AMErrorMonitor.h"
 #include "analysis/AM1DExpressionAB.h"
 
@@ -240,8 +240,6 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool setMetaData
 			scan->addAnalyzedDataSource(tfyChannel);
 		}
 	}
-
-	/// scan->onDataChanged();	\todo Is this still used? What does it mean?
 
 	return true;
 }

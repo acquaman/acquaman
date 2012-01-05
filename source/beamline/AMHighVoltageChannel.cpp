@@ -81,7 +81,11 @@ void AMHighVoltageChannel::setOff(){
 }
 
 bool AMHighVoltageChannel::setPolarity(highVoltageChannelPolarity polarity){
-	polarity_ = polarity;
+	if(hasPolarity()){
+		polarity_ = polarity;
+		return true;
+	}
+	return false;
 }
 
 void AMHighVoltageChannel::setNoCurrent(bool noCurrent){

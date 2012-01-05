@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -19,13 +19,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMScan.h"
-#include "dataman/AMDatabase.h"
+#include "dataman/database/AMDatabase.h"
 #include "acquaman.h"
 #include "dataman/AMRun.h"
 #include "dataman/AMSample.h"
-#include "dataman/AMDbObjectSupport.h"
-#include "dataman/AMInMemoryDataStore.h"
+#include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/datastore/AMInMemoryDataStore.h"
 #include "acquaman/AMScanConfiguration.h"
+#include "application/AMPluginsManager.h"
+#include "dataman/AMScanDictionary.h"
 
 
 AMScan::AMScan(QObject *parent)
@@ -38,15 +40,24 @@ AMScan::AMScan(QObject *parent)
 	notes_ = QString();
 	filePath_ = QString();
 	fileFormat_ = "unknown";
+	indexType_ = "<none>";
 
 	configuration_ = 0;
+#ifndef ACQUAMAN_NO_ACQUISITION
+	controller_ = 0;
+#endif
+
+	currentlyScanning_ = false;
 
 	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured in specific subclasses.
 	//data_ = new AMDataTreeDataStore(AMAxisInfo("eV", 0, "Incidence Energy", "eV"));
 
-	autoLoadData_ = true;
-
 	sampleNameLoaded_ = false;
+
+	nameDictionary_ = new AMScanDictionary(this, this);
+	//nameDictionary_->setOperatingOnName(true);
+	//exportNameDictionary_ = new AMScanDictionary(this, this);
+	//exportNameDictionary_->setOperatingOnExportName(true);
 
 	// Connect added/removed signals from rawDataSources_ and analyzedDataSources_, to provide a model of all data sources:
 	connect(rawDataSources_.signalSource(), SIGNAL(itemAboutToBeAdded(int)), this, SLOT(onDataSourceAboutToBeAdded(int)));
@@ -87,41 +98,62 @@ AMScan::~AMScan() {
 }
 
 
+void AMScan::setUnEvaluatedName(QString unEvaluatedName){
+	if(unEvaluatedName_ != unEvaluatedName){
+		unEvaluatedName_ = unEvaluatedName;
+		nameDictionary_->parseKeywordStringAndOperate(unEvaluatedName_);
+	}
+}
+
+void AMScan::setNumber(int number) {
+	if(number_ != number){
+		number_ = number;
+		setModified(true);
+		emit numberChanged(number_);
+	}
+}
+
+void AMScan::setDateTime(const QDateTime& dt)
+{
+	if(dateTime_ != dt){
+		dateTime_ = dt;
+		setModified(true);
+		emit dateTimeChanged(dateTime_);
+	}
+}
 
 // associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
-/* This will also tell the new run (and the old run, if it exists) to update their date ranges */
 void AMScan::setRunId(int newRunId) {
-	// when setting the runId, need to tell our old and new runs to possibly update their date ranges
-	int oldRunId = runId_;
 
 	if(newRunId <= 0) runId_ = -1;
 	else runId_ = newRunId;
 	setModified(true);
-
-	// Do we need to update the scan range on the runs?
-	if(oldRunId != runId_) {
-		if(database() && oldRunId > 0)
-			AMRun::scheduleDateRangeUpdate(oldRunId, database(), dateTime());
-
-		if(database() && runId_ > 0)
-			AMRun::scheduleDateRangeUpdate(runId_, database(), dateTime());
-	}
 }
 
 // Sets name of sample
 void AMScan::setSampleId(int newSampleId) {
-	sampleNameLoaded_ = false;	// invalidate the sample name cache
-	if(newSampleId <= 0) sampleId_ = -1;
-	else sampleId_ = newSampleId;
+	if(sampleId_ != newSampleId){
+		sampleNameLoaded_ = false;	// invalidate the sample name cache
+		if(newSampleId <= 0)
+			sampleId_ = -1;
+		else
+			sampleId_ = newSampleId;
 
-	setModified(true);
-	emit sampleIdChanged(sampleId_);
+		setModified(true);
+		emit sampleIdChanged(sampleId_);
+	}
 }
 
+QString AMScan::unEvaluatedName() const{
+	return unEvaluatedName_;
+}
+
+//QString AMScan::evaluatedName() const {
+//	return nameDictionary_->parseKeywordString(name());
+//}
 
 // Convenience function: returns the name of the sample (if a sample is set)
 QString AMScan::sampleName() const {
-
 	if(!sampleNameLoaded_)
 		retrieveSampleName();
 
@@ -132,44 +164,18 @@ QString AMScan::sampleName() const {
 
 
 void AMScan::retrieveSampleName() const {
-
 	if(sampleId() <1 || database() == 0)
 		sampleName_ = "[no sample]";
 
 	else {
 		sampleNameLoaded_ = true;	// don't set sampleNameLoaded_ in the case above. That way we will keep checking until there's a valid database() (for ex: we get saved/stored.) The sampleNameLoaded_ cache is meant to speed up this database call.
-		QVariant vSampleName = database()->retrieve(sampleId(), AMDbObjectSupport::tableNameForClass<AMSample>(), QString("name"));
+		QVariant vSampleName = database()->retrieve(sampleId(), AMDbObjectSupport::s()->tableNameForClass<AMSample>(), QString("name"));
 		if(vSampleName.isValid())
 			sampleName_ =  vSampleName.toString();
 		else
 			sampleName_ = "[no sample]";
 	}
 }
-
-
-
-
-
-// Store or update self in the database. (returns true on success)
-/* Re-implemented from AMDbObject::storeToDb(), this version also schedules a date range update of the scan's run when it is insertes into a database for the very first time.
-  */
-bool AMScan::storeToDb(AMDatabase* db) {
-
-	bool isFirstTimeStored = (database() != db || id() < 1);
-
-	// Call the base class implementation
-	// Return false if it fails.
-	bool success = AMDbObject::storeToDb(db);
-
-	// if we have a runId set, and this is the first time we're getting stored to the database, we need to tell that run to update it's date range.
-	// (Once we've been stored in the db, we'll notify the old run and new run each time our runId changes)
-	if(success && isFirstTimeStored && runId() > 0 ) {
-		AMRun::scheduleDateRangeUpdate(runId(), database(), dateTime());
-	}
-
-	return success;
-}
-
 
 // Loads a saved scan from the database into self. Returns true on success.
 /*! Re-implemented from AMDbObject::loadFromDb(), this version also loads the scan's raw data if autoLoadData() is set to true, and the stored filePath doesn't match the existing filePath()*/
@@ -179,16 +185,23 @@ bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
 
 	// always call the base class implementation first. This retrieves/loads all the base-class properties.
 	// return false if it fails:
-	if( !AMDbObject::loadFromDb(db, sourceId))
-		return false;
+	if( !AMDbObject::loadFromDb(db, sourceId)){
 
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -482, "AMScan: Loading from database failed."));
+		return false;
+	}
 	// In auto-load data mode: If the file path is different than the old one, clear and reload the raw data.
-	if( autoLoadData_ && filePath() != oldFilePath ) {
-		if(!loadData())
+	if( !currentlyScanning() && autoLoadData() && filePath() != oldFilePath ) {
+		if(!loadData()){
+
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -483, "AMScan: Loading data failed."));
 			return false;
+		}
 	}
 
-	// no longer necessary: setModified(false);
+	delete nameDictionary_;
+	nameDictionary_ = new AMScanDictionary(this, this);
+
 	return true;
 }
 
@@ -230,8 +243,11 @@ void AMScan::dbLoadRawDataSources(const AMDbObjectList& newRawSources) {
 	// add new sources. Simply adding these to rawDataSources_ will be enough to emit the signals that tell everyone watching we have new data channels.
 	for(int i=0; i<newRawSources.count(); i++) {
 		AMRawDataSource* newRawSource = qobject_cast<AMRawDataSource*>(newRawSources.at(i));
-		if(newRawSource)
+		if(newRawSource) {
+
 			rawDataSources_.append(newRawSource, newRawSource->name());
+			connect(newRawSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified()));
+		}
 		else
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "There was an error reloading one of this scan's raw data sources from the database. Your database might be corrupted. Please report this bug to the Acquaman developers."));
 	}
@@ -252,8 +268,11 @@ void AMScan::dbLoadAnalyzedDataSources(const AMDbObjectList& newAnalyzedSources)
 	for(int i=0; i<newAnalyzedSources.count(); i++) {
 
 		AMAnalysisBlock* newSource = qobject_cast<AMAnalysisBlock*>(newAnalyzedSources.at(i));
-		if(newSource)
+		if(newSource) {
+
 			analyzedDataSources_.append(newSource, newSource->name());
+			connect(newSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified()));
+		}
 		else
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "There was an error reloading one of this scan's processed data sources from the database. Your database might be corrupted. Please report this bug to the Acquaman developers."));
 	}
@@ -290,8 +309,8 @@ void AMScan::dbLoadAnalyzedDataSourcesConnections(const QString& connectionStrin
 
 	if(allConnections.count() != analyzedDataSources_.count()) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "There was an error re-connecting the analysis and processing components for this scan; the number of analysis blocks didn't match. Your database might be corrupted. Please report this bug to the Acquaman developers."));
-		//qDebug() << "    AMScan: loading analyzedDataSourcesConnections: allConnections is:" << allConnections;
-		//qDebug() << "        but number of analyzedDataSources_ is : " << analyzedDataSources_.count();
+		qDebug() << "    AMScan: loading analyzedDataSourcesConnections: allConnections is:" << allConnections;
+		qDebug() << "        but number of analyzedDataSources_ is : " << analyzedDataSources_.count();
 		return;
 	}
 
@@ -305,9 +324,9 @@ void AMScan::dbLoadAnalyzedDataSourcesConnections(const QString& connectionStrin
 
 		if(!analyzedDataSources_.at(i)->setInputDataSources(inputs))
 			AMErrorMon::report(AMErrorReport(	this,
-											 AMErrorReport::Alert,
-											 0,
-											 QString("There was an error re-connecting the inputs for the analysis component '%1: %2', when reloading this scan from the database. Your database might be corrupted. Please report this bug to the Acquaman developers.").arg(analyzedDataSources_.at(i)->name()).arg(analyzedDataSources_.at(i)->description())));
+								AMErrorReport::Alert,
+								0,
+								QString("There was an error re-connecting the inputs for the analysis component '%1: %2', when reloading this scan from the database. Your database might be corrupted. Please report this bug to the Acquaman developers.").arg(analyzedDataSources_.at(i)->name()).arg(analyzedDataSources_.at(i)->description())));
 	}
 }
 
@@ -351,10 +370,13 @@ void AMScan::onDataSourceRemoved(int index) {
 void AMScan::setScanConfiguration(AMScanConfiguration* newConfiguration) {
 	if(!newConfiguration)
 		return;
+	if(configuration_ == newConfiguration)
+		return;
 	if(configuration_)
 		delete configuration_;
 	configuration_ = newConfiguration;
 	setModified(true);
+	emit scanConfigurationChanged();
 }
 
 
@@ -368,11 +390,52 @@ void AMScan::dbLoadScanConfiguration(AMDbObject* newObject) {
 		setScanConfiguration(sc);
 }
 
+// Publicly expose part of the rawData(), by adding a new AMRawDataSource to the scan. The new data source \c newRawDataSource should be valid, initialized and connected to the data store already.  The scan takes ownership of \c newRawDataSource.  This function returns false if raw data source already exists with the same name as the \c newRawDataSource.
+bool AMScan::addRawDataSource(AMRawDataSource *newRawDataSource)
+{
+	if(newRawDataSource && rawDataSources_.append(newRawDataSource, newRawDataSource->name())) {
+
+		connect(newRawDataSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified()));
+		return true;
+	}
+
+	return false;
+}
+
+// This overloaded function calls addRawDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
+bool AMScan::addRawDataSource(AMRawDataSource* newRawDataSource, bool visibleInPlots, bool hiddenFromUsers) {
+	if(newRawDataSource) {
+		newRawDataSource->setHiddenFromUsers(hiddenFromUsers);
+		newRawDataSource->setVisibleInPlots(visibleInPlots);
+	}
+
+	return addRawDataSource(newRawDataSource);
+}
+
+bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource)
+{
+	if(newAnalyzedDataSource && analyzedDataSources_.append(newAnalyzedDataSource, newAnalyzedDataSource->name())){
+
+		connect(newAnalyzedDataSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified()));
+		return true;
+	}
+
+	return false;
+}
+// This overloaded function calls addAnalyzedDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
+bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource, bool visibleInPlots, bool hiddenFromUsers) {
+	if(newAnalyzedDataSource) {
+		newAnalyzedDataSource->setHiddenFromUsers(hiddenFromUsers);
+		newAnalyzedDataSource->setVisibleInPlots(visibleInPlots);
+	}
+	return addAnalyzedDataSource(newAnalyzedDataSource);
+}
 
 
-#include <QPixmap>
+#include <QImage>
 #include <QBuffer>
 #include <QByteArray>
+#include <QFile>
 
 /// \todo Hackish... just needed for colors. Move the color table somewhere else besides AMScanSetModel.
 #include "dataman/AMScanSetModel.h"
@@ -380,26 +443,48 @@ void AMScan::dbLoadScanConfiguration(AMDbObject* newObject) {
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotSeries.h"
 #include "MPlot/MPlotImage.h"
-#include "dataman/AMDataSourceSeriesData.h"
-#include "dataman/AMDataSourceImageData.h"
+#include "dataman/datasource/AMDataSourceSeriesData.h"
+#include "dataman/datasource/AMDataSourceImageData.h"
+#include "util/AMDateTimeUtils.h"
+
+int AMScan::thumbnailCount() const{
+	if(currentlyScanning()){
+		return 1;
+	}
+	if(analyzedDataSources_.count())
+		return analyzedDataSources_.count();
+	else
+		return rawDataSources_.count();
+}
 
 // Return a thumbnail picture for thumbnail number \c index. For now, we use the following decision: Normally we provide thumbnails for all the analyzed data sources.  If there are no analyzed data sources, we provide thumbnails for all the raw data sources.
 AMDbThumbnail AMScan::thumbnail(int index) const {
+	if(currentlyScanning()) {
+
+		qDebug() << "thumbnail: AMScan knows it's scanning.";
+		QFile file(":/240x180/currentlyScanningThumbnail.png");
+		file.open(QIODevice::ReadOnly);
+		return AMDbThumbnail("Started",
+							 AMDateTimeUtils::prettyDateTime(dateTime()),
+							 AMDbThumbnail::PNGType,
+							 file.readAll());
+	}
+
 
 	bool useRawSources = (analyzedDataSources_.count() == 0);
 
 	if( index < 0 ||
-		(useRawSources && index >= rawDataSources_.count()) ||
-		(!useRawSources && index >= analyzedDataSources_.count())
-		)
+			(useRawSources && index >= rawDataSources_.count()) ||
+			(!useRawSources && index >= analyzedDataSources_.count())
+			)
 		return AMDbThumbnail(QString(), QString(), AMDbThumbnail::InvalidType, QByteArray());
 
 	// convert index into a proper index for dataSourceAt(). If we're using raw sources, leave as-is. If we're using analyzed data sources, add the rawDataSources_.count() offset.
 	if(!useRawSources)
 		index += rawDataSources_.count();
 
-	QPixmap pixmap(240, 180);
-	QPainter painter(&pixmap);
+	QImage image(240, 180, QImage::Format_ARGB32_Premultiplied);
+	QPainter painter(&image);
 	painter.setRenderHint(QPainter::Antialiasing, true);
 	QGraphicsScene gscene(QRectF(0,0,240,180));
 	MPlot* plot = new MPlot(QRectF(0,0,240,180));
@@ -445,6 +530,67 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 
 	delete plot;	// deletes all plot items (series, image) with it.
 
-	return AMDbThumbnail(dataSource->description(), dataSource->name(), pixmap);
+	return AMDbThumbnail(dataSource->description(), dataSource->name(), image);
 
 }
+
+bool AMScan::loadData()
+
+{
+	bool accepts = false;
+	bool success = false;
+
+	// find the available file loaders that claim to work for our fileFormat:
+	QList<AMFileLoaderFactory*> acceptingFileLoaders = AMPluginsManager::s()->availableFileLoaderPlugins().values(fileFormat());
+
+	for(int x = 0; x < acceptingFileLoaders.count(); x++) {
+		if((accepts = acceptingFileLoaders.at(x)->accepts(this))){
+			AMFileLoaderInterface* fileLoader = acceptingFileLoaders.at(x)->createFileLoader();
+			success = fileLoader->load(this, AMUserSettings::userDataFolder);
+			break;
+		}
+
+	}
+	if(!accepts)
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -47, QString("Could not find a suitable plugin for loading the file format '%1'.  Check the Acquaman preferences for the correct plugin locations, and contact the Acquaman developers for assistance.").arg(fileFormat())));
+
+	if(success)
+		for(int i=rawDataSources_.count()-1; i>=0; i--)
+			rawDataSources_.at(i)->setDataStore(rawData());
+	return success;
+}
+
+#ifndef ACQUAMAN_NO_ACQUISITION
+void AMScan::setScanController(AMScanController* scanController)
+{
+	bool wasScanning = currentlyScanning_;
+
+	controller_ = scanController;
+	currentlyScanning_ = (controller_ != 0);
+
+	if(currentlyScanning_ != wasScanning) {
+		setModified(true);
+		emit currentlyScanningChanged(currentlyScanning_);
+	}
+}
+
+#include <QThread>
+#include <QMutexLocker>
+
+QMap<Qt::HANDLE, bool> AMScan::threadId2autoLoadData_;
+QMutex AMScan::threadId2autoLoadDataMutex_(QMutex::Recursive);
+
+bool AMScan::autoLoadData()
+{
+	QMutexLocker l(&threadId2autoLoadDataMutex_);
+	return threadId2autoLoadData_.value(QThread::currentThreadId(), true);
+}
+
+void AMScan::setAutoLoadData(bool autoLoadDataOn)
+{
+	threadId2autoLoadDataMutex_.lock();
+	threadId2autoLoadData_[QThread::currentThreadId()] = autoLoadDataOn;
+	threadId2autoLoadDataMutex_.unlock();
+}
+
+#endif

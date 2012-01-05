@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -155,7 +155,6 @@ protected:
 	void addToPreviousSelectionsQueue(const QModelIndex& current);
 	/// returns previous index that should be switched to when removing or undocking \c current.
 	QModelIndex getPreviousSelection(const QModelIndex& current);
-
 
 };
 

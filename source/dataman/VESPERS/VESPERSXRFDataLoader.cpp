@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSXRFDataLoader.h"
 #include "util/AMErrorMonitor.h"
 #include "acquaman/VESPERS/VESPERSXRFScanConfiguration.h"
@@ -63,6 +83,7 @@ bool VESPERSXRFDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 				data[j] = lineTokenized.at(j).toInt();
 
 			scan->rawData()->addMeasurement(AMMeasurementInfo(QString("Element %1").arg(i+1), QString("Element %1").arg(i+1), "eV", config->detectorInfo().axes()));
+			scan->rawData()->setAxisValue(i, 0, i*config->detectorInfo().scale());
 			scan->rawData()->setValue(AMnDIndex(), i, data.constData(), data.size());
 		}
 		else{
@@ -77,21 +98,6 @@ bool VESPERSXRFDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 	}
 
 	file.close();
-
-	for (int i = 0; i < elements; i++){
-
-		AMDeadTimeAB *temp = (AMDeadTimeAB *)scan->analyzedDataSources()->at(i);
-		temp->setInputDataSourcesImplementation(QList<AMDataSource *>() << (AMDataSource *)scan->rawDataSources()->at(i) << (AMDataSource *)scan->rawDataSources()->at(i+elements) << (AMDataSource *)scan->rawDataSources()->at(i+2*elements));
-	}
-
-	if (elements > 1){
-
-		AM1DSummingAB *corr = (AM1DSummingAB *)scan->analyzedDataSources()->at(scan->analyzedDataSourceCount()-1);
-		QList<AMDataSource *> list;
-		for (int i = 0; i < scan->analyzedDataSourceCount()-1; i++)
-			list << (AMDataSource *)scan->analyzedDataSources()->at(i);
-		corr->setInputDataSourcesImplementation(list);
-	}
 
 	return true;
 }

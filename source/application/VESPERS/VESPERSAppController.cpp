@@ -1,29 +1,52 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSAppController.h"
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/VESPERS/VESPERSEndstationView.h"
 #include "ui/AMMainWindow.h"
 #include "ui/AMStartScreen.h"
-#include "ui/AMScanConfigurationViewHolder.h"
-#include "ui/VESPERS/VESPERSBeamlineView.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder.h"
 
 #include "ui/VESPERS/XRFDetectorView.h"
-#include "ui/VESPERS/XRFFreeRunView.h"
+#include "ui/VESPERS/VESPERSXRFFreeRunView.h"
 #include "ui/VESPERS/VESPERSPersistentView.h"
 #include "dataman/VESPERS/AMXRFScan.h"
 #include "util/AMPeriodicTable.h"
-#include "ui/VESPERS/XRFMapSetup.h"
 #include "ui/VESPERS/VESPERSDeviceStatusView.h"
 #include "ui/VESPERS/VESPERSXASScanConfigurationView.h"
+#include "ui/VESPERS/VESPERSExperimentConfigurationView.h"
 
 #include "dataman/AMScanEditorModelItem.h"
-#include "ui/AMGenericScanEditor.h"
+#include "ui/dataman/AMGenericScanEditor.h"
 
 // Helper classes that technically shouldn't need to exist.
 #include "util/VESPERS/ROIHelper.h"
 #include "util/VESPERS/VortexDetectorStatusHelper.h"
 
-#include "dataman/AMDbObjectSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
+#include "application/AMAppControllerSupport.h"
+
+#include "dataman/export/AMExporterOptionGeneralAscii.h"
+#include "dataman/export/AMExporterGeneralAscii.h"
 
 #include <QFileDialog>
 
@@ -42,11 +65,18 @@ bool VESPERSAppController::startup() {
 	AMUserSettings::load();
 	QString start = AMUserSettings::userDataFolder;
 	start.chop(1);
-	start = start.left(start.lastIndexOf("/"));
+	start = start.remove("/userData");
 	QString dir = QFileDialog::getExistingDirectory(0, "Choose a destination folder for your data.", start, QFileDialog::ShowDirsOnly);
 	if (!dir.isEmpty()){
 
 		dir += "/";
+		if (!dir.contains("userData")){
+
+			QDir makeNewDir(dir);
+			makeNewDir.mkdir("userData");
+			makeNewDir.cd("userData");
+			dir = makeNewDir.absolutePath() + "/";
+		}
 
 		if (dir.compare(AMUserSettings::userDataFolder) != 0){
 
@@ -55,17 +85,18 @@ bool VESPERSAppController::startup() {
 		}
 	}
 
-	// Initialize central beamline object
-	VESPERSBeamline::vespers();
-	// Initialize the periodic table object.
-	AMPeriodicTable::table();
-
 	// Start up the main program.
 	if(AMAppController::startup()) {
 
-		AMDbObjectSupport::registerClass<XRFDetectorInfo>();
-		AMDbObjectSupport::registerClass<VESPERSXRFScanConfiguration>();
-		AMDbObjectSupport::registerClass<AMXRFScan>();
+		// Initialize central beamline object
+		VESPERSBeamline::vespers();
+		// Initialize the periodic table object.
+		AMPeriodicTable::table();
+
+		AMDbObjectSupport::s()->registerClass<XRFDetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<VESPERSXRFScanConfiguration>();
+		AMDbObjectSupport::s()->registerClass<AMXRFScan>();
+		AMDbObjectSupport::s()->registerClass<VESPERSXASScanConfiguration>();
 
 		AMDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
 		AMDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
@@ -74,11 +105,43 @@ bool VESPERSAppController::startup() {
 		////////////////////////////////////////
 
 		AMRun existingRun;
-		if(!existingRun.loadFromDb(AMDatabase::userdb(), 1)) {
+		if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
 			// no run yet... let's create one.
-			AMRun firstRun("VESPERS", 4);	/// \todo For now, we know that 4 is the ID of the VESPERS facility, but this is a hardcoded hack. See AMFirstTimeController::onFirstTime() for where the facilities are created.
-			firstRun.storeToDb(AMDatabase::userdb());
+			AMRun firstRun("VESPERS", 4);	/// \todo For now, we know that 4 is the ID of the VESPERS facility, but this is a hardcoded hack.
+			firstRun.storeToDb(AMDatabase::database("user"));
 		}
+
+		QSqlQuery q = AMDbObjectSupport::s()->select(AMDatabase::database("user"), "AMExporterOptionGeneralAscii", "id, name");
+		q.exec();
+		QStringList names;
+		QList<int> ids;
+		while(q.next()) {
+			names << q.value(1).toString();
+			ids << q.value(0).toInt();
+		}
+		if(!names.contains("VESPERSDefault")){
+			AMExporterOptionGeneralAscii *vespersDefault = new AMExporterOptionGeneralAscii();
+			vespersDefault->setName("VESPERSDefault");
+			vespersDefault->setFileName("$name_$fsIndex.txt");
+			vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n$scanConfiguration[rois]\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
+			vespersDefault->setHeaderIncluded(true);
+			vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
+			vespersDefault->setColumnHeaderIncluded(true);
+			vespersDefault->setColumnHeaderDelimiter("==========");
+			vespersDefault->setSectionHeader("");
+			vespersDefault->setSectionHeaderIncluded(true);
+			vespersDefault->setIncludeAllDataSources(true);
+			vespersDefault->setFirstColumnOnly(true);
+			vespersDefault->setSeparateHigherDimensionalSources(true);
+			vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.txt");
+			vespersDefault->storeToDb(AMDatabase::database("user"));
+			qDebug() << "Added the VESPERSDefault to exporter options";
+		}
+
+		// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
+		QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
+		if(matchIDs.count() > 0)
+			AMAppControllerSupport::registerClass<VESPERSXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
 
 		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
 		AMStartScreen* startScreen = new AMStartScreen(0);
@@ -87,40 +150,36 @@ bool VESPERSAppController::startup() {
 		// Create panes in the main window:
 		////////////////////////////////////
 
-		scanControllerActiveEditor_ = 0;
-
 		// Setup the general endstation control view.
-		VESPERSEndstationView *endstationView = new VESPERSEndstationView;
-		VESPERSBeamlineView *beamlineView = new VESPERSBeamlineView;
-		//VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
+		VESPERSEndstationView *endstationView = new VESPERSEndstationView(VESPERSBeamline::vespers()->endstation());
+		VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
 
 		mw_->insertHeading("Beamline Control", 0);
 		mw_->addPane(endstationView, "Beamline Control", "Endstation", ":/system-software-update.png");
-		mw_->addPane(beamlineView, "Beamline Control", "Beamline", ":/system-software-update.png");
-		//mw_->addPane(statusPage, "Beamline Control", "Device Status", ":/system-software-update.png");
+		mw_->addPane(statusPage, "Beamline Control", "Device Status", ":/system-software-update.png");
 
 		// Setup the XRF views for the single element vortex and the four element vortex detectors.  Since they have scans that are added to the workflow, it gets the workflow manager view passed into it as well.
 		// This means that the FreeRunView kind of doubles as a regular detector view and a configuration view holder.
-		XRFFreeRunView *xrf1EFreeRunView = new XRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF1E()), workflowManagerView_);
-		XRFFreeRunView *xrf4EFreeRunView = new XRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF4E()), workflowManagerView_);
+		VESPERSXRFFreeRunView *xrf1EFreeRunView = new VESPERSXRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF1E()), workflowManagerView_);
+		VESPERSXRFFreeRunView *xrf4EFreeRunView = new VESPERSXRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF4E()), workflowManagerView_);
 
 		mw_->insertHeading("Free run", 1);
 		mw_->addPane(xrf1EFreeRunView, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");
 		mw_->addPane(xrf4EFreeRunView, "Free run", "XRF 4-el", ":/utilities-system-monitor.png");
 
-		// Setup page to launch the nDMapper software with correct options.
-		XRFMapSetup *ndMapSetup = new XRFMapSetup;
+		// Setup page that auto-enables detectors.
+		VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
 
 		// Setup XAS for the beamline.  Builds the config, view, and view holder.
 		VESPERSXASScanConfiguration *xasScanConfig = new VESPERSXASScanConfiguration();
-		xasScanConfig->addRegion(0, 0, 1, 10);
+		xasScanConfig->addRegion(0, -30, 1, 40, 1);
 		VESPERSXASScanConfigurationView *xasConfigView = new VESPERSXASScanConfigurationView(xasScanConfig);
 		AMScanConfigurationViewHolder *xasConfigViewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, xasConfigView);
 		/// \todo this can likely be somewhere else in the framework.
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
 
 		mw_->insertHeading("Scans", 2);
-		mw_->addPane(ndMapSetup, "Scans", "Map Setup", ":/utilities-system-monitor.png");
+		mw_->addPane(experimentConfigurationView, "Scans", "Experiment Setup", ":/utilities-system-monitor.png");
 		mw_->addPane(xasConfigViewHolder, "Scans", "XAS", ":/utilities-system-monitor.png");
 
 		// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
@@ -128,12 +187,12 @@ bool VESPERSAppController::startup() {
 		mw_->addRightWidget(persistentView);
 
 		// Show the endstation control view first.
-		mw_->setCurrentPane(endstationView);
+		mw_->setCurrentPane(experimentConfigurationView);
 
-		/// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
+		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
 		ROIHelper *roiHelper = new ROIHelper(this);
 		Q_UNUSED(roiHelper)
-		/// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE MCA AND DXP STATUS UPDATE PVS THAT DON'T SEEM TO FOLLOW THE STANDARD NAMING CONVENTIONS.
+		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE MCA AND DXP STATUS UPDATE PVS THAT DON'T SEEM TO FOLLOW THE STANDARD NAMING CONVENTIONS.
 		VortexDetectorStatusHelper *statusHelper = new VortexDetectorStatusHelper(this);
 		Q_UNUSED(statusHelper)
 
@@ -147,21 +206,16 @@ bool VESPERSAppController::startup() {
 void VESPERSAppController::shutdown() {
 	// Make sure we release/clean-up the beamline interface
 	AMBeamline::releaseBl();
+	AMAppController::shutdown();
 }
 
 void VESPERSAppController::onCurrentScanControllerStarted()
 {
-	if (AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat() == "vespersXRF")
+	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
+
+	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
 		return;
 
-	// Build a generic scan editor and put it the scan editors location.
-	AMGenericScanEditor *scanEditor = new AMGenericScanEditor();
-	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(scanEditor, ":/applications-science.png"));
-
-	// Add the current scan to the editor and the show the scan editor.
-	scanEditor->addScan(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
-	mw_->setCurrentPane(scanEditor);
-
-	scanControllerActiveEditor_ = scanEditor;
+	openScanInEditorAndTakeOwnership(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
 }
 

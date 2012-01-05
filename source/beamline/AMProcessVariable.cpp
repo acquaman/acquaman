@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstdlib>
 
 
-
 ///////////////////////////////
 // AMProcessVariableSupport
 ///////////////////////////////
@@ -34,7 +33,6 @@ AMProcessVariableSupport* AMProcessVariableSupport::instance_ = 0;
 
 // constructor: initializes channel access, starts the ca_poll timer, and installs us as the global exception handler.
 AMProcessVariableSupport::AMProcessVariableSupport() : QObject() {
-
 	qRegisterMetaType<AMProcessVariableDoubleVector>();
 	qRegisterMetaType<AMProcessVariableIntVector>();
 
@@ -42,7 +40,10 @@ AMProcessVariableSupport::AMProcessVariableSupport() : QObject() {
 
 	qWarning("Starting up channel access...");
 
-	putenv("EPICS_CA_MAX_ARRAY_BYTES=" AMPROCESSVARIABLE_MAX_CA_ARRAY_BYTES);
+	// Trying this, might work, might not. Trying to avoid conversion compiler warning (David Chevrier, Aug 25 2011)
+	//putenv(QString("EPICS_CA_MAX_ARRAY_BYTES=%1").arg(AMPROCESSVARIABLE_MAX_CA_ARRAY_BYTES).toAscii().data());
+	// Trying this, should work. Seems like setenv is better than putenv for this purpose (David Chevrier, Aug 29, 2011)
+	setenv(QString("EPICS_CA_MAX_ARRAY_BYTES").toAscii().data(), QString("%1").arg(AMPROCESSVARIABLE_MAX_CA_ARRAY_BYTES).toAscii().data(), 1);
 
 	int lastError = ca_context_create(ca_enable_preemptive_callback);
 	if(lastError != ECA_NORMAL )

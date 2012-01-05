@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -23,6 +23,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanConfiguration(parent) , SGMScanConfiguration()
 {
 	regions_->setEnergyControl(SGMBeamline::sgm()->energy());
+	regions_->setSensibleRange(200, 2000);
+	regions_->setDefaultUnits(" eV");
+	regions_->setDefaultTimeUnits(" s");
 	fluxResolutionSet_ = SGMBeamline::sgm()->fluxResolutionSet();
 	trackingSet_ = SGMBeamline::sgm()->trackingSet();
 
@@ -43,9 +46,14 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 }
 
 
-SGMXASScanConfiguration::SGMXASScanConfiguration(const SGMXASScanConfiguration &original) : AMXASScanConfiguration(original.parent()) , SGMScanConfiguration()
+SGMXASScanConfiguration::SGMXASScanConfiguration(const SGMXASScanConfiguration &original) : AMXASScanConfiguration(original) , SGMScanConfiguration()
 {
 	regions_->setEnergyControl(SGMBeamline::sgm()->energy());
+	regions_->setSensibleStart(original.regions()->sensibleStart());
+	regions_->setSensibleEnd(original.regions()->sensibleEnd());
+	regions_->setDefaultUnits(original.regions()->defaultUnits());
+	regions_->setDefaultTimeUnits(original.regions()->defaultTimeUnits());
+
 	for(int x = 0; x < original.regionCount(); x++)
 		regions_->addRegion(x, original.regionStart(x), original.regionDelta(x), original.regionEnd(x));
 
@@ -63,6 +71,10 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(const SGMXASScanConfiguration &
 	setTrackingGroup(original.trackingGroup());
 	setFluxResolutionGroup(original.fluxResolutionGroup());
 	setDetectorConfigurations(original.detectorChoiceConfigurations());
+}
+
+const QMetaObject* SGMXASScanConfiguration::getMetaObject(){
+	return metaObject();
 }
 
 AMDetectorInfoSet SGMXASScanConfiguration::allDetectorConfigurations() const{
@@ -84,7 +96,7 @@ AMScanController* SGMXASScanConfiguration::createController(){
 	return new SGMXASDacqScanController(this);
 }
 
-#include "ui/SGMXASScanConfigurationView.h"
+#include "ui/SGM/SGMXASScanConfigurationView.h"
 
 AMScanConfigurationView* SGMXASScanConfiguration::createView(){
 	return new SGMXASScanConfigurationView(this);

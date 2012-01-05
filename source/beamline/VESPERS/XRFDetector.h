@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef XRFDETECTOR_H
 #define XRFDETECTOR_H
 
@@ -6,7 +26,7 @@
 #include "beamline/AMROI.h"
 #include "util/VESPERS/XRFElement.h"
 #include "util/VESPERS/GeneralUtilities.h"
-#include "dataman/AMProcessVariableDataSource.h"
+#include "dataman/datasource/AMProcessVariableDataSource.h"
 #include "beamline/AMProcessVariable.h"
 
 #include <QTimer>
@@ -44,8 +64,6 @@ public:
 	/// Takes in a detector info and sets all the settings for the detector.
 	void fromXRFInfo(const XRFDetectorInfo &info);
 
-	/// Holds whether the entire detector is connected.
-	bool isConnected() const { return detectorConnected_; }
 	/// Holds whether the detector was connected previously.  Primarily useful at startup.
 	bool wasConnected() const { return wasConnected_; }
 
@@ -181,7 +199,7 @@ public slots:
 
 signals:
 	/// Only emitted as true when all of the controls in the detector are connected. Is emitted false when any of the controls within the detector become unconnected.
-	void detectorConnected(bool);
+	void connected(bool);
 	/// This signal is emitted when the status changes.  Passes the state as a bool.  True is acquiring, false is done.
 	void statusChanged(bool);
 	/// Notifies that the maximum energy has changed.
@@ -212,8 +230,6 @@ signals:
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
 	void isDetectorConnected();
-	/// Connects and disconnects signals based on the connection of the detector.
-	void onConnectedChanged(bool isConnected);
 	/// Determines if the regions of interest in the detector all have values.
 	void allRoisHaveValues();
 	/// Determines if there is a discrepancy between the ROI list and the ROIInfo list and if there is, begins the sequence of updating the entire program.
@@ -249,6 +265,8 @@ protected slots:
 			break;
 		}
 	}
+	/// Helper slot.  Sets the status update rate to Fast once it is connected.
+	void onStatusUpdateRateInitialized() { setStatusRefreshRate(Fast); disconnect(statusUpdateRatePV_.first(), SIGNAL(valueChanged()), this, SLOT(onStatusUpdateRateInitialized())); }
 	/// Handles changes to the peaking time.
 	void onPeakingTimeChanged(double pktime){ setPeakingTime(pktime); emit peakingTimeChanged(pktime); }
 	/// Handles changes to the maximum energy.
@@ -262,8 +280,6 @@ protected:
 	/// Helper function.  Takes in a base name and creates a list of ROIs based on the number of elements.  Creates PVs for the name, low limit, high limit, and current value.
 	void createROIList(QString baseName);
 
-	/// Bool handling whether the detector is connected.
-	bool detectorConnected_;
 	/// Bool handling whether the detector was connected.
 	bool wasConnected_;
 	/// The refresh rate.

@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef REIXSXESSCANCONTROLLER_H
 #define REIXSXESSCANCONTROLLER_H
 
@@ -5,6 +25,7 @@
 #include "acquaman/REIXS/REIXSXESScanConfiguration.h"
 #include "dataman/AMXESScan.h"
 #include <QTimer>
+#include <QDateTime>
 
 class AMBeamlineControlMoveAction;
 
@@ -46,8 +67,8 @@ protected slots:
 	void saveRawData();
 
 protected:
-	/// \todo Move to AMScanController? Time that scan was started
-	QTime startTime_;
+	/// Time that scan was started
+	QDateTime startTime_;
 	/// 1 second timer to check on progress of scan
 	QTimer scanProgressTimer_;
 
@@ -57,11 +78,8 @@ protected:
 
 
 private:
-	/// Shortcut to cast the scan configuration (AMScanController's generalCfg_) back into the REIXSXESScanConfiguration that we know it is.
-	REIXSXESScanConfiguration* pCfg() { return qobject_cast<REIXSXESScanConfiguration*>(generalCfg_); }
-
-	/// Shortcut to cast the scan object (AMScanController's generalScan_ back into the AMXESScan that we know it is.
-	AMXESScan* pScan() { return qobject_cast<AMXESScan*>(generalScan_); }
+	/// Our scan configuration:
+	REIXSXESScanConfiguration* config_;
 
 };
 

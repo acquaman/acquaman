@@ -22,15 +22,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/SGM/SGMBeamline.h"
 
-#include "ui/SGMSampleTransferView.h"
+#include "ui/SGM/SGMSampleTransferView.h"
 #include "ui/SGM/SGMSampleManipulatorView.h"
-#include "ui/AMSampleManagementWidget.h"
-#include "ui/SGMSidebar.h"
+#include "ui/dataman/AMSampleManagementWidget.h"
+#include "ui/SGM/SGMSidebar.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
 
-#include "dataman/AMDbObjectSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMRun.h"
 #include "ui/AMStartScreen.h"
 
@@ -51,10 +51,10 @@ bool SGMSSAAppController::startup() {
 		////////////////////////////////////////
 
 		AMRun existingRun;
-		if(!existingRun.loadFromDb(AMDatabase::userdb(), 1)) {
+		if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
 			// no run yet... let's create one.
-			AMRun firstRun("SGM", 3);	/// \todo For now, we know that 5 is the ID of the REIXS facility, but this is a hardcoded hack. See AMFirstTimeController::onFirstTime() for where the facilities are created.
-			firstRun.storeToDb(AMDatabase::userdb());
+			AMRun firstRun("SGM", 3);	/// \todo For now, we know that 5 is the ID of the REIXS facility, but this is a hardcoded hack.
+			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 
 		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
@@ -109,10 +109,12 @@ bool SGMSSAAppController::startup() {
 void SGMSSAAppController::shutdown() {
 	// Make sure we release/clean-up the beamline interface
 	AMBeamline::releaseBl();
+	AMAppController::shutdown();
 }
 
 
 void SGMSSAAppController::onCurrentPaneChanged(QWidget *pane) {
+	Q_UNUSED(pane);
 }
 
 void SGMSSAAppController::onSGMBeamlineConnected(){

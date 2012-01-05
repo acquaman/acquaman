@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -21,8 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMANALYSISBLOCK_H
 #define AMANALYSISBLOCK_H
 
-#include "dataman/AMDbObject.h"
-#include "dataman/AMDataSource.h"
+#include "dataman/database/AMDbObject.h"
+#include "dataman/datasource/AMDataSource.h"
 
 class QWidget;
 
@@ -58,8 +58,12 @@ class AMAnalysisBlock : public AMDbObject, public AMDataSource
 
 	Q_PROPERTY(QString description READ description WRITE setDescription)
 	Q_PROPERTY(int rank READ rank)
+	Q_PROPERTY(bool visibleInPlots READ visibleInPlots WRITE setVisibleInPlots)
+	Q_PROPERTY(bool hiddenFromUsers READ hiddenFromUsers WRITE setHiddenFromUsers)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Analysis Block")
+	Q_CLASSINFO("visibleInPlots", "upgradeDefault=true")
+	Q_CLASSINFO("hiddenFromUsers", "upgradeDefault=false")
 
 public:
 	/// Create a new AMAnalysisBlock. The block is an AMDataSource of output data; \c outputName is the name for this AMDataSource.
@@ -67,6 +71,9 @@ public:
 
 	/// Both AMDbObject:: and AMDataSource:: have a name() function. Here we resolve that ambiguity.
 	QString name() const { return AMDataSource::name(); }
+
+	/// Sets the description because currently we call AMDataSource::setDescription which doesn't take care of setting setModified.  This adds that.
+	void setDescription(const QString &description) { AMDataSource::setDescription(description); setModified(true); }
 
 	/// Set the input of this block as a list of data sources. Returns false if the inputs are not sufficient, or incompatible with this analysis block. It is okay to set AMDataSource inputs that are currently not isValid()... the calculation will simply start when they become valid.
 	/*! Implementing classes should not re-implement this function; instead, they should provide setInputDataSourcesImplementation().
@@ -112,6 +119,14 @@ public:
 	//////////////////////////////
 	/// If implementing classes don't use the setState() method to notify of changes in their current output state, they must re-implement this function to reflect their actual current state.
 	virtual int state() const { return state_;	}
+
+	/// Specify that this data source should be visible (in plots and graphical displays).  Users are free to toggle this visibility.
+	/*! Re-implemented from AMDataSource to call setModified().  */
+	virtual void setVisibleInPlots(bool isVisible) { AMDataSource::setVisibleInPlots(isVisible); setModified(true); }
+
+	/// Specify that this data source should be hidden from users by default. (ie: it contains some programming internals). This means that users shouldn't see it, or be able to toggle its visibility.
+	/*! Re-implemented from AMDataSource to call setModified().  */
+	virtual void setHiddenFromUsers(bool isHidden = true) { AMDataSource::setHiddenFromUsers(isHidden); setModified(true); }
 
 
 protected slots:

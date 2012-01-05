@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -53,7 +53,7 @@ QWidget* AMVerticalStackWidget::widget(int index) const {
 	return model_.data(model_.index(index,0), AM::PointerRole).value<QWidget*>();
 }
 
-#include "beamline/AMBeamlineActionItem.h"
+#include "actions/AMBeamlineActionItem.h"
 // Insert a widget at a specific index in the stack. Inserting at \c index = -1 is equivalent to appending to the end. The AMVerticalStackWidget takes ownership of the widget.
 void AMVerticalStackWidget::insertItem(int index, const QString& titleText, QWidget* widget, bool collapsable) {
 	if(index < 0 || index > count())
@@ -173,7 +173,7 @@ void AMVerticalStackWidget::collapseItem(int index) {
 	QWidget* w = model_.data(model_.index(index, 0), AM::PointerRole).value<QWidget*>();
 	if(w){
 		w->hide();
-		qDebug() << "Is visible " << w->isVisible();
+		// qDebug() << "Is visible " << w->isVisible();
 	}
 	AMHeaderButton* h = model_.data(model_.index(index,0), AM::WidgetRole).value<AMHeaderButton*>();
 	if(h){

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -22,9 +22,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDir>
 #include <QDateTime>
+#include <QStringBuilder>
 
-#include <QDebug>
-#include <QDateTime>
+#include <QMutexLocker>
+#include <QReadLocker>
+#include <QWriteLocker>
 
 /// User Settings:
 // ========================================
@@ -80,9 +82,6 @@ QString AMUserSettings::relativePathFromUserDataFolder(const QString &absolutePa
 }
 
 
-/// 2. User Information: (MOVED to AMUser)
-// ========================================
-
 
 /// Load settings from disk:
 void AMUserSettings::load() {
@@ -114,40 +113,122 @@ void AMUserSettings::save() {
 
 
 
-/// Program Settings
-// =========================================
-
-/// 2. public database and storage:
-// ========================================
-
-/// This is where public (archived/reviewed) data is stored, system-wide
-QString AMSettings::publicDataFolder;
-/// This is the public database filename:
-QString AMSettings::publicDatabaseFilename;
-
 
 /// Load settings from disk:
 void AMSettings::load() {
+
+	QWriteLocker wl(&mutex_);
+
+	// changing to NativeFormat; IniFormat is broken on Mac OS X Lion for SystemScope.  Filed Qt Bug: https://bugreports.qt.nokia.com/browse/QTBUG-21744
+#ifdef Q_WS_MAC
+	QSettings settings(QSettings::NativeFormat, QSettings::SystemScope, "Acquaman", "Acquaman");
+#else
 	QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "Acquaman", "Acquaman");
+#endif
 
 	// All settings variables are loaded here from disk. Default values must be provided -- they will be used if the particular setting doesn't exist yet.
 	// Don't forget to add here if you add new user options.
 
 	// variable = settings.value(key, defaultValue).toType();
 
-	publicDataFolder = settings.value("publicDataFolder", "/home/acquaman/data/").toString();
-	publicDatabaseFilename = settings.value("publicDatabaseFilename", "publicdata.db").toString();
+	publicDataFolder_ = settings.value("publicDataFolder", "/home/acquaman/data/").toString();
+	publicDatabaseFilename_ = settings.value("publicDatabaseFilename", "publicdata.db").toString();
+
+#ifdef Q_WS_MAC
+	QString defaultBasePath(QDir::homePath() % "/dev");
+#else
+	QString defaultBasePath(QDir::homePath() % "/beamline/programming");
+#endif
+	fileLoaderPluginsFolder_ = settings.value("fileLoaderPluginsFolder", QString(defaultBasePath % "/acquaman/plugins/FileLoaders")).toString();
+	analysisBlockPluginsFolder_ = settings.value("analysisBlockPluginsFolder", QString(defaultBasePath % "/acquaman/plugins/AnalysisBlocks")).toString();
 
 }
 
 /// Save settings to disk:
 void AMSettings::save() {
+
+	QReadLocker rl(&mutex_);
+
+	// changing to NativeFormat; IniFormat is broken on Mac OS X Lion for SystemScope.  Filed Qt Bug: https://bugreports.qt.nokia.com/browse/QTBUG-21744
+#ifdef Q_WS_MAC
+	QSettings settings(QSettings::NativeFormat, QSettings::SystemScope, "Acquaman", "Acquaman");
+#else
 	QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "Acquaman", "Acquaman");
+#endif
 
-	// All settings variables are saved here to the user-specific file.
-	// Don't forget to add here if you add new user options.
+	// All settings variables are saved here to the system-wide file.
+	// Don't forget to add here if you add new system-wide options.
 
-	settings.setValue("publicDataFolder", publicDataFolder);
-	settings.setValue("publicDatabaseFilename", publicDatabaseFilename);
+	settings.setValue("publicDataFolder", publicDataFolder_);
+	settings.setValue("publicDatabaseFilename", publicDatabaseFilename_);
+	settings.setValue("fileLoaderPluginsFolder", fileLoaderPluginsFolder_);
+	settings.setValue("analysisBlockPluginsFolder", analysisBlockPluginsFolder_);
 }
+
+
+// Singleton variables:
+QMutex AMSettings::instanceMutex_(QMutex::Recursive);
+AMSettings* AMSettings::instance_ = 0;
+
+AMSettings * AMSettings::s()
+{
+	QMutexLocker ml(&instanceMutex_);
+
+	if(!instance_) {
+		instance_ = new AMSettings();
+	}
+	return instance_;
+}
+
+QString AMSettings::publicDataFolder() const
+{
+	QReadLocker rl(&mutex_);
+	return publicDataFolder_;
+}
+
+void AMSettings::setPublicDataFolder(QString publicDataFolder)
+{
+	QWriteLocker wl(&mutex_);
+	publicDataFolder_ = publicDataFolder;
+}
+
+QString AMSettings::publicDatabaseFilename() const
+{
+	QReadLocker rl(&mutex_);
+	return publicDatabaseFilename_;
+}
+
+void AMSettings::setPublicDatabaseFilename(QString publicDatabaseFilename)
+{
+	QWriteLocker wl(&mutex_);
+	publicDatabaseFilename_ = publicDatabaseFilename;
+}
+
+QString AMSettings::fileLoaderPluginsFolder() const
+{
+	QReadLocker rl(&mutex_);
+	return fileLoaderPluginsFolder_;
+}
+
+void AMSettings::setFileLoaderPluginsFolder(QString fileLoaderPluginsFolder)
+{
+	QWriteLocker wl(&mutex_);
+	fileLoaderPluginsFolder_ = fileLoaderPluginsFolder;
+}
+
+QString AMSettings::analysisBlockPluginsFolder() const
+{
+	QReadLocker rl(&mutex_);
+	return analysisBlockPluginsFolder_;
+}
+
+void AMSettings::setAnalysisBlockPluginsFolder(QString analysisBlockPluginsFolder)
+{
+	QWriteLocker wl(&mutex_);
+	analysisBlockPluginsFolder_ = analysisBlockPluginsFolder;
+}
+
+
+
+
 

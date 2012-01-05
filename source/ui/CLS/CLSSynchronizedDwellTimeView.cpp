@@ -1,8 +1,30 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "CLSSynchronizedDwellTimeView.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QGroupBox>
+#include <QMenu>
+#include <QAction>
 
 CLSSynchronizedDwellTimeElementView::CLSSynchronizedDwellTimeElementView(CLSSynchronizedDwellTimeElement *dwellTimeElement, QWidget *parent)
 	: QWidget(parent)
@@ -69,6 +91,8 @@ CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellT
 {
 	dwellTime_ = dwellTime;
 
+	advancedView_ = false;
+
 	overallStatus_ = new QLabel;
 	overallStatus_->setPixmap(QIcon(":/OFF.png").pixmap(30, 30));
 	connect(dwellTime_, SIGNAL(statusChanged(bool)), this, SLOT(onStatusChanged(bool)));
@@ -89,16 +113,27 @@ CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellT
 	connect(dwellTime_, SIGNAL(timeChanged(double)), masterTime_, SLOT(setValue(double)));
 	connect(masterTime_, SIGNAL(editingFinished()), this, SLOT(setTime()));
 
+	scanning_ = new QPushButton;
+	scanning_->setCheckable(true);
+	scanning_->setChecked(false);
+	connect(dwellTime_, SIGNAL(scanningChanged(bool)), this, SLOT(onScanningChanged(bool)));
+	connect(scanning_, SIGNAL(clicked()), this, SLOT(toggleScanning()));
+
 	QHBoxLayout *topRow = new QHBoxLayout;
 	topRow->addWidget(overallStatus_, 0, Qt::AlignCenter);
+	topRow->addWidget(scanning_);
 	topRow->addWidget(mode_);
 	topRow->addWidget(masterTime_);
 
 	QVBoxLayout *groupBoxLayout = new QVBoxLayout;
 	groupBoxLayout->addLayout(topRow);
 
-	for (int i = 0; i < dwellTime_->elementCount(); i++)
-		groupBoxLayout->addWidget(new CLSSynchronizedDwellTimeElementView(dwellTime_->elementAt(i)));
+	for (int i = 0; i < dwellTime_->elementCount(); i++){
+
+		elViews_ << new CLSSynchronizedDwellTimeElementView(dwellTime_->elementAt(i));
+		elViews_.last()->hide();
+		groupBoxLayout->addWidget(elViews_.last());
+	}
 
 	QGroupBox *dwellTimeBox = new QGroupBox("Synchronized Dwell Time");
 	dwellTimeBox->setLayout(groupBoxLayout);
@@ -106,7 +141,11 @@ CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellT
 	QVBoxLayout *dwellTimeLayout = new QVBoxLayout;
 	dwellTimeLayout->addWidget(dwellTimeBox);
 
-	setMaximumSize(420, 80 + 50*dwellTime_->elementCount());
+	setMaximumSize(400, 105);
+
+	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
+	setContextMenuPolicy(Qt::CustomContextMenu);
+
 	setLayout(dwellTimeLayout);
 }
 
@@ -119,8 +158,43 @@ void CLSSynchronizedDwellTimeView::setTime()
 
 void CLSSynchronizedDwellTimeView::setMode(bool mode)
 {
-	if (mode && dwellTime_->mode() != CLSSynchronizedDwellTime::Continuous)
+	dwellTime_->blockSignals(true);
+
+	if (mode && dwellTime_->mode() != CLSSynchronizedDwellTime::Continuous){
+
 		dwellTime_->setMode(CLSSynchronizedDwellTime::Continuous);
-	else if (!mode && dwellTime_->mode() != CLSSynchronizedDwellTime::SingleShot)
+		onModeChanged(CLSSynchronizedDwellTime::Continuous);
+	}
+	else if (!mode && dwellTime_->mode() != CLSSynchronizedDwellTime::SingleShot){
+
 		dwellTime_->setMode(CLSSynchronizedDwellTime::SingleShot);
+		onModeChanged(CLSSynchronizedDwellTime::SingleShot);
+	}
+
+	dwellTime_->blockSignals(false);
+}
+
+void CLSSynchronizedDwellTimeView::onCustomContextMenuRequested(QPoint pos)
+{
+	QMenu popup(this);
+
+	QAction *temp = popup.addAction("Advanced View");
+	temp->setCheckable(true);
+	temp->setChecked(advancedView_);
+
+	temp = popup.exec(mapToGlobal(pos));
+
+	// If a valid action was selected.
+	if (temp && temp->text() == "Advanced View"){
+
+		advancedView_ = !advancedView_;
+
+		if (advancedView_)
+			setMaximumHeight(105 + 50*dwellTime_->elementCount());
+		else
+			setMaximumHeight(105);
+
+		for (int i = 0; i < elViews_.size(); i++)
+			elViews_.at(i)->setVisible(advancedView_);
+	}
 }

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -21,12 +21,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMSAMPLE_H
 #define AMSAMPLE_H
 
-#include "dataman/AMDbObject.h"
+#include "dataman/database/AMDbObject.h"
 #include <QImage>
 
 #include <QBuffer>
 #include <QByteArray>
-#include <QPixmap>
+#include <QImage>
 
 /// This class represents instances of objects that map to Samples in the user database.
 class AMSample : public AMDbObject
@@ -98,7 +98,7 @@ public:
 			return AMDbThumbnail(name(), dateTime().toString("MMM d (yyyy)"), AMDbThumbnail::InvalidType, QByteArray());
 
 
-		QPixmap image;
+		QImage image;
 		if(image.loadFromData(image_, "PNG"))
 			return AMDbThumbnail(name(), dateTime().toString("MMM d (yyyy)"), image);
 		else

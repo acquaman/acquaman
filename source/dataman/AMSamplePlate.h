@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -25,8 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDateTime>
 
 #include "AMSample.h"
-#include "AMControlInfoList.h"
-#include "AMDbObject.h"
+#include "dataman/info/AMControlInfoList.h"
+#include "dataman/database/AMDbObject.h"
 #include "acquaman.h"
 
 /// This is a small helper class for AMSamplePlate, which stores a set of samples and their associated positions on the sample plate/manipulator

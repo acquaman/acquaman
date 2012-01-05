@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -32,7 +32,6 @@ int main(int argc, char *argv[])
 	// =================================
 	QApplication app(argc, argv);
 	app.setApplicationName("Acquaman");
-
 
 	REIXSAppController* appController = new REIXSAppController();
 

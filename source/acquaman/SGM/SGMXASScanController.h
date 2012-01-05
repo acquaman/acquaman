@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -34,18 +34,12 @@ public:
 	virtual bool beamlineInitialize();
 
 protected:
-	SGMXASScanConfiguration *specificCfg_;
+	SGMXASScanConfiguration *config_;
 	AMBeamlineParallelActionsList *initializationActions_;
 	AMBeamlineParallelActionsList *cleanUpActions_;
 	bool beamlineInitialized_;
 	AMXASScan *specificScan_;
 
-private:
-	SGMXASScanConfiguration **_pCfg_;
-	AMXASScan **_pScan_;
-
-	SGMXASScanConfiguration* pCfg_();
-	AMXASScan* pScan_();
 };
 
 #endif // AMSGMXASSCANCONTROLLER_H

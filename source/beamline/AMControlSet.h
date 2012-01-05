@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMCONTROLSET_CONTROL_TIMEOUT_MS 4000
 
 #include "beamline/AMControl.h"
-#include "dataman/AMControlInfoList.h"
+#include "dataman/info/AMControlInfoList.h"
 
 #include "util/AMOrderedSet.h"
 

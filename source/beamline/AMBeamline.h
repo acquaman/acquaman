@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -51,7 +51,7 @@ class AMBeamline : public AMControl {
 public:
 	/// Singleton class accessor function. Use this to access the application-wide Beamline object.
 	/*! See note on subclassing and inheritance above. It's important that your own beamline's initialization function be called before this one (ex: YourBeamline::bl()) */
-	static AMBeamline* bl() { return instance_; }
+	static AMBeamline* bl();
 	/// Call this to delete the beamline object instance
 	static void releaseBl();
 

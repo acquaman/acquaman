@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -31,7 +31,7 @@ class QVBoxLayout;
 class AMVerticalStackWidget;
 class AMTopFrame;
 
-#include "beamline/AMBeamlineActionsList.h"
+#include "actions/AMBeamlineActionsList.h"
 
 class AMBeamlineActionsListView;
 

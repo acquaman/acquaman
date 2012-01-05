@@ -26,12 +26,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QPushButton>
+#include <QSlider>
+#include <QIcon>
+#include <QGridLayout>
 
-#include "beamline/AMBeamlineListAction.h"
+#include "actions/AMBeamlineListAction.h"
+#include "ui/beamline/AMControlEditor.h"
 #include "beamline/CLS/CLSVMEMotor.h"
 
 SGMSampleManipulatorView::SGMSampleManipulatorView(bool bigButtons, QWidget *parent) :
-		AMSampleManipulatorView("SGM SSA Endstation", SGMBeamline::sgm()->ssaManipulatorSet(), parent )
+		QGroupBox("SGM SSA Endstation", parent )
 {
 	lastHVValue_ = 0;
 	isJogging_ = false;
@@ -87,10 +92,10 @@ SGMSampleManipulatorView::SGMSampleManipulatorView(bool bigButtons, QWidget *par
 	mInPlaneCtrl_ = manipulator_->controlNamed("ssaManipulatorY");
 	mRotationCtrl_ = manipulator_->controlNamed("ssaManipulatorRot");
 	*/
-	mVerticalCtrl_ = qobject_cast<CLSVMEMotor*>(manipulator_->controlNamed("ssaManipulatorZ"));
-	mHorizontalCtrl_ = qobject_cast<CLSVMEMotor*>(manipulator_->controlNamed("ssaManipulatorX"));
-	mInPlaneCtrl_ = qobject_cast<CLSVMEMotor*>(manipulator_->controlNamed("ssaManipulatorY"));
-	mRotationCtrl_ = qobject_cast<CLSVMEMotor*>(manipulator_->controlNamed("ssaManipulatorRot"));
+	mVerticalCtrl_ = SGMBeamline::sgm()->ssaManipulatorZ();
+	mHorizontalCtrl_ = SGMBeamline::sgm()->ssaManipulatorX();
+	mInPlaneCtrl_ = SGMBeamline::sgm()->ssaManipulatorY();
+	mRotationCtrl_ = SGMBeamline::sgm()->ssaManipulatorRot();
 
 	mVerticalNC_ = new AMControlEditor(mVerticalCtrl_);
 	mHorizontalNC_ = new AMControlEditor(mHorizontalCtrl_);

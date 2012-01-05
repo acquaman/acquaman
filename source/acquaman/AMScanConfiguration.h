@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ACQMAN_SCANCONFIGURATION_H
 #define ACQMAN_SCANCONFIGURATION_H
 
-#include "dataman/AMDbObject.h"
+#include "dataman/database/AMDbObject.h"
 
 /// Forward declaration of AMScanController.  See note on circular coupling in AMScanConfiguration
 class AMScanController;
@@ -69,25 +69,28 @@ public:
 	/// Empty Destructor
 	virtual ~AMScanConfiguration() {}
 
+	virtual const QMetaObject* getMetaObject();
+
 	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by AMBeamlineScanAction to set the title for the action view.
-	virtual QString description() const {
-		return "Generic Scan";
-	}
+	virtual QString description() const;
 
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to provide more details. Used by AMBeamlineScanAction to set the main text in the action view.
-	virtual QString detailedDescription() const{
-		return "Generic Scan Details";
-	}
+	virtual QString detailedDescription() const;
 
 	/// The auto-generated scan name. Can be re-implemented to customize for each scan type.
-	virtual QString autoScanName() const{
-		return "Generic Scan";
-	}
+	virtual QString autoScanName() const;
 
 	/// The user-defined name for this scan. If left blank, the auto-generated version will be used
-	QString userScanName() const{
-		return userScanName_;
-	}
+	QString userScanName() const;
+
+	/// The user-defined export name for this scan.
+	QString userExportName() const;
+
+	/// The scientific technique this configuration is for
+	virtual QString technique() const;
+
+	/// Returns whether or not this scan configuration expects to be automatically exported (true by default)
+	bool autoExportEnabled() const;
 
 	// Virtual functions which must be re-implemented:
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
@@ -103,22 +106,32 @@ public:
 
 public slots:
 	/// Sets the user-defined scan name. If set to an empty string, the auto-generated scan name will be used.
-	void setUserScanName(const QString &userScanName){
-		if(userScanName_ != userScanName){
-			userScanName_ = userScanName;
-			emit userScanNameChanged(userScanName_);
-		}
-	}
+	void setUserScanName(const QString &userScanName);
+
+	/// Sets the user-defined export name
+	void setUserExportNmae(const QString &userExportName);
+
+	/// Sets whether or not this scan configuration expects to be automatically exported
+	void setAutoExportEnabled(bool autoExportEnabled);
 
 signals:
 	/// General signal that something about the configuration has changed
 	void configurationChanged();
 	/// Signal that the user-defined scan name has changed
 	void userScanNameChanged(const QString &userScanName);
+	/// Signal that the user-defined export name has changed
+	void userExportNameChanged(const QString &userExportName);
+	/// Signal that the autoExport flag has been changed
+	void autoExportEnabledChanged(bool autoExportEnabled);
 
 protected:
 	/// A user-defined name for this scan. If left blank an auto-generated name will be used.
 	QString userScanName_;
+	/// A user-defined export name for this scan.
+	QString userExportName_;
+
+	/// Defines whether of not this configuration expects to be automatically exported when run (true by default)
+	bool autoExportEnabled_;
 };
 
 #endif // ACQMAN_SCANCONFIGURATION_H

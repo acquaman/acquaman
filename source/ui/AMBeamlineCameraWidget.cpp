@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -20,145 +20,164 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMBeamlineCameraWidget.h"
 
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include <QCheckBox>
+#include <QBoxLayout>
+#include <QFrame>
 #include <QLabel>
-#include <QUrl>
+#include <QSlider>
 
+#include <QMessageBox>
+#include <QStringBuilder>
 
-AMCrosshairVideoWidget::AMCrosshairVideoWidget(QWidget* parent)
-	: AMVideoPlayerWidget(parent) {
+#include "ui/AMCrosshairOverlayVideoWidget.h"
+#include "ui/dataman/AMColorPickerButton.h"
 
-	crosshairX_ = 0.5;
-	crosshairY_ = 0.5;
-	crosshairPen_ = QPen(QColor(Qt::red));
-	crosshairVisible_ = true;
-
-	doubleClickInProgress_ = false;
-}
-
-void AMCrosshairVideoWidget::paintEvent(QPaintEvent *event) {
-
-	AMVideoPlayerWidget::paintEvent(event);
-
-	if(crosshairVisible_) {
-		QRect displayRect = videoDisplayRect_;
-		int xCoord = displayRect.left() + displayRect.width()*crosshairX_;
-		int yCoord = displayRect.top() + displayRect.height()*crosshairY_;
-
-		QPainter painter(this);
-		painter.setPen(crosshairPen_);
-		// draw vertical line:
-		painter.drawLine(QPointF(xCoord, displayRect.top()), QPointF(xCoord, displayRect.bottom()));
-		// draw horizontal line:
-		painter.drawLine(QPointF(displayRect.left(), yCoord), QPointF(displayRect.right(), yCoord));
-		painter.end();
-	}
-}
-
-
-void AMCrosshairVideoWidget::mousePressEvent(QMouseEvent *event) {
-	if(event->button() == Qt::LeftButton) {
-		emit mousePressed(QPointF(
-				double(event->pos().x()-videoDisplayRect_.left())/videoDisplayRect_.width(),
-				double(event->pos().y()-videoDisplayRect_.top())/videoDisplayRect_.height()
-				));
-	}
-	AMVideoPlayerWidget::mousePressEvent(event);
-}
-
-#include <QApplication>
-void AMCrosshairVideoWidget::mouseReleaseEvent(QMouseEvent *event) {
-
-	if(event->button() == Qt::LeftButton) {
-		if(doubleClickInProgress_) {
-			emit mouseDoubleClicked(QPointF(
-					double(event->pos().x()-videoDisplayRect_.left())/videoDisplayRect_.width(),
-					double(event->pos().y()-videoDisplayRect_.top())/videoDisplayRect_.height()
-					));
-			doubleClickInProgress_ = false;
-		}
-		else {
-			emit mouseReleased(QPointF(
-					double(event->pos().x()-videoDisplayRect_.left())/videoDisplayRect_.width(),
-					double(event->pos().y()-videoDisplayRect_.top())/videoDisplayRect_.height()
-					));
-		}
-	}
-
-	AMVideoPlayerWidget::mouseReleaseEvent(event);
-}
-
-void AMCrosshairVideoWidget::mouseDoubleClickEvent(QMouseEvent *event) {
-	doubleClickInProgress_ = true;
-	AMVideoPlayerWidget::mouseDoubleClickEvent(event);
-}
-
-
-
-
-AMBeamlineCameraWidget::AMBeamlineCameraWidget(const QString& cameraName, const QUrl& cameraAddress, QWidget* parent) : QWidget(parent) {
-
-	// Setup UI:
-	/////////////////////
-
-	// Layouts: full vertical, with horizontal sub-layout at bottom.
-	QVBoxLayout* vl1 = new QVBoxLayout(this);
-	QHBoxLayout* hl1 = new QHBoxLayout();
-
-	// VideoWidget takes up main space:
-	videoWidget_ = new AMCrosshairVideoWidget(this);
-	videoWidget_->setFillBackground(true);
-
-	vl1->addWidget(videoWidget_);
-
-	// add horizontal layout at bottom:
-	vl1->addLayout(hl1);
-
-	hl1->addStretch(1);
-	QLabel* label = new QLabel("Source");
-	hl1->addWidget(label);
-
-	// Add combobox with list of camera names/addresses:
-	cameraList_ = new QComboBox();
-	hl1->addWidget(cameraList_);
-
-	cameraList_->insertItem(0, cameraName, cameraAddress);
-	connect(cameraList_, SIGNAL(activated(int)), this, SLOT(onSourceChanged(int)));
-	onSourceChanged( cameraList_->currentIndex() );
-
-	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-	connect(videoWidget_, SIGNAL(mousePressed(QPointF)), this, SLOT(debugMousePress(QPointF)));
-	connect(videoWidget_, SIGNAL(mouseReleased(QPointF)), this, SLOT(debugMouseRelease(QPointF)));
-	connect(videoWidget_, SIGNAL(mouseDoubleClicked(QPointF)), this, SLOT(debugMouseDoubleClicked(QPointF)));
-
-}
-
-
-AMBeamlineCameraWidget::~AMBeamlineCameraWidget()
+AMBeamlineCameraWidget::AMBeamlineCameraWidget(QWidget *parent, bool useOpenGlViewport) :
+	QWidget(parent)
 {
+	crosshairLocked_ = false;
+
+	setWindowTitle("Video");
+
+	// GUI setup:
+	//////////////////////////
+	QVBoxLayout* vl = new QVBoxLayout();
+	vl->setSpacing(0);
+	vl->setContentsMargins(0,0,0,0);
+
+	QFrame* crosshairFrame = new QFrame();
+	QHBoxLayout* chl = new QHBoxLayout();
+	chl->setContentsMargins(12,4,12,4);
+	chl->addWidget(showCrosshairCheckBox_ = new QCheckBox("Crosshair:"));
+	chl->addSpacing(20);
+	chl->addWidget(new QLabel("Color:"));
+	chl->addWidget(crosshairColorPicker_ = new AMColorPickerButton(Qt::red));
+	chl->addWidget(new QLabel("Line:"));
+	chl->addWidget(crosshairThicknessSlider_ = new QSlider(Qt::Horizontal));
+	crosshairThicknessSlider_->setMaximumWidth(80);
+	crosshairThicknessSlider_->setRange(1,6);
+	crosshairThicknessSlider_->setValue(1);
+	chl->addSpacing(20);
+	chl->addWidget(lockCrosshairCheckBox_ = new QCheckBox("Lock position"));
+	chl->addStretch();
+	crosshairFrame->setLayout(chl);
+	showCrosshairCheckBox_->setChecked(true);
+
+	vl->addWidget(crosshairFrame);
+	vl->addWidget(videoWidget_ = new AMCrosshairOverlayVideoWidget(0, useOpenGlViewport));
+	setLayout(vl);
+
+	// Make conections:
+	//////////////////////////
+
+	connect(videoWidget_, SIGNAL(mouseDoubleClicked(QPointF)), this, SLOT(onVideoWidgetDoubleClicked(QPointF)));
+
+	connect(crosshairColorPicker_, SIGNAL(colorChanged(QColor)), this, SLOT(setCrosshairColor(QColor)));
+	connect(showCrosshairCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setCrosshairVisible(bool)));
+	connect(lockCrosshairCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setCrosshairLocked(bool)));
+	connect(crosshairThicknessSlider_, SIGNAL(valueChanged(int)), this, SLOT(setCrosshairLineThickness(int)));
+
 }
 
 
-#include "util/AMErrorMonitor.h"
+void AMBeamlineCameraWidget::setCrosshairColor(const QColor &color)
+{
+	QPen pen = videoWidget_->crosshairPen();
+	pen.setColor(color);
+	videoWidget_->setCrosshairPen(pen);
 
-void AMBeamlineCameraWidget::onSourceChanged(int index) {
-
-	videoWidget_->stop();
-
-	QUrl source( cameraList_->itemData(index).toUrl() );
-
-	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Information, 0, QString("Attempting to connect to video server: '%1%2' with user name: '%3' and password: '%4'").arg(source.host()).arg(source.path()).arg(source.userName()).arg(source.password())));
-
-	videoWidget_->openVideoUrl( source.toString() );
-
-	videoWidget_->play();
-
+	if(crosshairColorPicker_->color() != color) {
+		crosshairColorPicker_->blockSignals(true);
+		crosshairColorPicker_->setColor(color);
+		crosshairColorPicker_->blockSignals(false);
+	}
 }
 
-void AMBeamlineCameraWidget::addSource(const QString& cameraName, const QUrl& cameraAddress) {
+void AMBeamlineCameraWidget::setCrosshairVisible(bool isVisible)
+{
+	videoWidget_->setCrosshairVisible(isVisible);
 
-	cameraList_->addItem(cameraName, QVariant::fromValue(cameraAddress));
+	if(showCrosshairCheckBox_->isChecked() != isVisible) {
+		showCrosshairCheckBox_->blockSignals(true);
+		showCrosshairCheckBox_->setChecked(isVisible);
+		showCrosshairCheckBox_->blockSignals(false);
+	}
+}
+void AMBeamlineCameraWidget::setCrosshairLocked(bool doLock)
+{
+	crosshairLocked_ = doLock;
+
+	if(lockCrosshairCheckBox_->isChecked() != doLock) {
+		lockCrosshairCheckBox_->blockSignals(true);
+		lockCrosshairCheckBox_->setChecked(doLock);
+		lockCrosshairCheckBox_->blockSignals(false);
+	}
 }
 
+void AMBeamlineCameraWidget::onVideoWidgetDoubleClicked(const QPointF &clickPoint)
+{
+	if(!crosshairLocked_)
+		videoWidget_->setCrosshairPosition(clickPoint);
+}
+
+QColor AMBeamlineCameraWidget::crosshairColor() const
+{
+	return videoWidget_->crosshairPen().color();
+}
+
+bool AMBeamlineCameraWidget::crosshairVisible() const
+{
+	return videoWidget_->crosshairVisible();
+}
+
+QPointF AMBeamlineCameraWidget::crosshairPosition() const
+{
+	return videoWidget_->crosshairPosition();
+}
+
+void AMBeamlineCameraWidget::setCrosshairPosition(const QPointF &pos) const
+{
+	videoWidget_->setCrosshairPosition(pos);
+}
+
+void AMBeamlineCameraWidget::setCrosshairLineThickness(int thickness)
+{
+	QPen pen = videoWidget_->crosshairPen();
+	pen.setWidth(thickness);
+	videoWidget_->setCrosshairPen(pen);
+
+	if(crosshairThicknessSlider_->value() != thickness) {
+		crosshairThicknessSlider_->blockSignals(true);
+		crosshairThicknessSlider_->setValue(thickness);
+		crosshairThicknessSlider_->blockSignals(false);
+	}
+}
+
+int AMBeamlineCameraWidget::crosshairLineThickness() const
+{
+	return videoWidget_->crosshairPen().width();
+}
+
+void AMBeamlineCameraWidget::playSource(const QUrl& sourceUrl)
+{
+	videoWidget_->mediaPlayer()->setMedia(sourceUrl);
+	// qDebug() << "AMBeamlineCameraWidget: Loading and playing" << url.toString();
+	videoWidget_->mediaPlayer()->play();
+}
+
+
+bool AMBeamlineCameraWidget::playSource(const QString& sourceUrl)
+{
+	QUrl url = QUrl::fromUserInput(sourceUrl);
+
+	if(!url.isValid())
+		return false;
+
+	playSource(url);
+	return true;
+}
+
+QUrl AMBeamlineCameraWidget::source() const
+{
+	return videoWidget_->mediaPlayer()->media().canonicalUrl();
+}

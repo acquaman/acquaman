@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMACQSCANSPECTRUMOUTPUT_H
 #define AMACQSCANSPECTRUMOUTPUT_H
 
-#include "acquaman/dacq3_2/acqDataHandler.h"
+#include "acquaman/dacq3_3/acqDataHandler.h"
 #include "dataman/AMScan.h"
 
 
@@ -38,7 +38,7 @@ acqKey_t new_AMAcqScanOutput(void);
 
 #if defined(__cplusplus)
 
-#include "acquaman/dacq3_2/OutputHandler/acqTextSpectrumOutput.h"
+#include "acquaman/dacq3_3/OutputHandler/acqTextSpectrumOutput.h"
 #include <qdebug.h>
 #include <qmap.h>
 #include <QCoreApplication>

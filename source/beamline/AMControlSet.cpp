@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -93,10 +93,8 @@ AMControlInfoList AMControlSet::toInfoList() const {
 	AMControlInfoList rv;
 
 	int numControls = count();
-	for(int i=0; i<numControls; i++) {
-		AMControl* c = at(i);
-		rv.append( AMControlInfo(c->name(), c->value(), c->minimumValue(), c->maximumValue(), c->units(), c->tolerance(), c->description()) );
-	}
+	for(int i=0; i<numControls; i++)
+		rv.append(at(i)->toInfo());
 
 	return rv;
 }

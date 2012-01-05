@@ -1,5 +1,27 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "ui/VESPERS/VESPERSEndstationView.h"
 #include "ui/AMTopFrame.h"
+#include "ui/CLS/CLSSynchronizedDwellTimeView.h"
+#include "beamline/VESPERS/VESPERSBeamline.h"
 
 #include <QGridLayout>
 #include <QDebug>
@@ -16,14 +38,14 @@
 #include <QMessageBox>
 #include <QProcess>
 
-VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
+VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWidget *parent)
 	: QWidget(parent)
 {
 	// Setup the top frame.
 	AMTopFrame *topFrame = new AMTopFrame("Endstation Control Screen");
 
 	// The endstation model.
-	endstation_ = new VESPERSEndstation;
+	endstation_ = endstation;
 
 	// The button for the pseudo-motor reset.
 	QPushButton *resetPseudoMotorsButton = new QPushButton(QIcon(":/reset.png"), "Reset Pseudo-Motors");
@@ -82,7 +104,7 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	QGroupBox *controlGB = new QGroupBox;
 	controlGB->setObjectName("Control");
 	controlGB->setFixedSize(640, 400);
-	controlGB->setStyleSheet("QGroupBox#Control { background-image: url(:/Endstation-background.png); }");
+	controlGB->setStyleSheet("QGroupBox#Control { background-image: url(:/VESPERS/Endstation-background.png); }");
 	QGridLayout *controlGBLayout = new QGridLayout;
 	for (int i = 0; i < 20; i++){
 
@@ -130,71 +152,38 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	ccdGBLayout->setLabelAlignment(Qt::AlignRight);
 	ccdGB->setLayout(ccdGBLayout);
 
-	// Setup the filters.
-	filterComboBox_ = new QComboBox;
-	filterComboBox_->addItem("None");
-	filterComboBox_->addItem(QString::fromUtf8("50 μm"));
-	filterComboBox_->addItem(QString::fromUtf8("100 μm"));
-	filterComboBox_->addItem(QString::fromUtf8("150 μm"));
-	filterComboBox_->addItem(QString::fromUtf8("200 μm"));
-	filterComboBox_->addItem(QString::fromUtf8("250 μm"));
-	filterComboBox_->addItem(QString::fromUtf8("300 μm"));
-	filterComboBox_->addItem(QString::fromUtf8("350 μm"));
-	filterComboBox_->addItem(QString::fromUtf8("400 μm"));
-	filterComboBox_->addItem(QString::fromUtf8("450 μm"));
-	filterComboBox_->addItem(QString::fromUtf8("500 μm"));
-	filterComboBox_->addItem(QString::fromUtf8("550 μm"));
-	filterComboBox_->addItem(QString::fromUtf8("600 μm"));
-	filterComboBox_->addItem(QString::fromUtf8("650 μm"));
-	filterComboBox_->addItem(QString::fromUtf8("700 μm"));
-	filterComboBox_->addItem(QString::fromUtf8("750 μm"));
-	filterComboBox_->addItem(QString::fromUtf8("800 μm"));
-	connect(filterComboBox_, SIGNAL(currentIndexChanged(int)), endstation_, SLOT(setFilterThickness(int)));
-	connect(endstation_, SIGNAL(filterThicknessChanged(int)), this, SLOT(onFiltersChanged(int)));
-
 	QPushButton *startMicroscopeButton = new QPushButton("Microscope Display");
 	connect(startMicroscopeButton, SIGNAL(clicked()), this, SLOT(startMicroscope()));
 
-	QHBoxLayout *extrasGroupBoxLayout = new QHBoxLayout;
-	extrasGroupBoxLayout->addWidget(new QLabel("Filters:"));
-	extrasGroupBoxLayout->addWidget(filterComboBox_);
-	extrasGroupBoxLayout->addStretch();
+	QVBoxLayout *extrasGroupBoxLayout = new QVBoxLayout;
+	extrasGroupBoxLayout->addWidget(startMicroscopeButton);
 	extrasGroupBoxLayout->addWidget(resetPseudoMotorsButton);
 
-	/// \todo this will be removed once I build my own XAS software.
-	QPushButton *idaButton = new QPushButton("Launch XAS Software");
-	connect(idaButton, SIGNAL(clicked()), this, SLOT(startXAS()));
+	QGroupBox *extrasGroupBox = new QGroupBox("Extras");
+	extrasGroupBox->setLayout(extrasGroupBoxLayout);
 
-	QHBoxLayout *launchingLayout = new QHBoxLayout;
-	launchingLayout->addWidget(startMicroscopeButton);
-	launchingLayout->addWidget(idaButton);
+	CLSSynchronizedDwellTimeView *dwellTimeView = new CLSSynchronizedDwellTimeView(VESPERSBeamline::vespers()->synchronizedDwellTime());
 
-	QVBoxLayout *tempLayout = new QVBoxLayout;
-	tempLayout->addLayout(extrasGroupBoxLayout);
-	tempLayout->addLayout(launchingLayout);
+	QGridLayout *endstationLayout = new QGridLayout;
+	endstationLayout->addWidget(controlGB, 0, 0, 3, 3);
+	endstationLayout->addWidget(windowGB, 0, 3);
+	endstationLayout->addWidget(dwellTimeView, 3, 0);
+	endstationLayout->addWidget(ccdGB, 2, 3);
+	endstationLayout->addWidget(extrasGroupBox, 1, 3);
 
-	QGroupBox *ExtrasGroupBox = new QGroupBox("Extras");
-	ExtrasGroupBox->setLayout(tempLayout);
-
-	QVBoxLayout *extrasLayout = new QVBoxLayout;
-	extrasLayout->addStretch();
-	extrasLayout->addWidget(ExtrasGroupBox);
-	extrasLayout->addWidget(windowGB);
-	extrasLayout->addWidget(ccdGB);
-	extrasLayout->addStretch();
-
-	QHBoxLayout *layout = new QHBoxLayout;
-	layout->addStretch();
-	layout->addWidget(controlGB);
-	layout->addLayout(extrasLayout);
-	layout->addStretch();
+	QHBoxLayout *squishLayout = new QHBoxLayout;
+	squishLayout->addStretch();
+	squishLayout->addLayout(endstationLayout);
+	squishLayout->addStretch();
 
 	QVBoxLayout *masterLayout = new QVBoxLayout;
 	masterLayout->addWidget(topFrame);
-	masterLayout->addLayout(layout);
+	masterLayout->addStretch();
+	masterLayout->addLayout(squishLayout);
+	masterLayout->addStretch();
 
 	setLayout(masterLayout);
-	setMinimumSize(1000, 465);
+	setMinimumSize(1100, 465);
 }
 
 VESPERSEndstationView::~VESPERSEndstationView()
@@ -368,7 +357,7 @@ VESPERSEndstationConfigurationView::VESPERSEndstationConfigurationView(QWidget *
 	vortex4Layout->addRow("Home Position", vortex4HomeLayout);
 	vortex4GB->setLayout(vortex4Layout);
 
-	QPushButton *saveButton = new QPushButton(QIcon(":/Save.png"), tr("Save"));
+	QPushButton *saveButton = new QPushButton(QIcon(":/save.png"), tr("Save"));
 	connect(saveButton, SIGNAL(clicked()), this, SLOT(saveFile()));
 	QHBoxLayout *saveButtonLayout = new QHBoxLayout;
 	saveButtonLayout->addWidget(saveButton, 0, Qt::AlignRight);
@@ -394,7 +383,7 @@ void VESPERSEndstationConfigurationView::saveFile()
 							 tr("Cannot save file %1: \n%2")
 							 .arg(file.fileName())
 							 .arg(file.errorString()));
-                return;
+				return;
 	}
 
 	QTextStream out(&file);
@@ -429,29 +418,29 @@ void VESPERSEndstationConfigurationView::loadFile()
 {
 	QFile file(QDir::currentPath() + "/endstation.config");
 
-        // If there is no configuration file, then it creates a file with some default values.
-        if (!file.open(QFile::ReadOnly | QFile::Text)){
+		// If there is no configuration file, then it creates a file with some default values.
+		if (!file.open(QFile::ReadOnly | QFile::Text)){
 
-            ccdLowLimit_->setText(QString::number(35, 'f', 1));
-            ccdHighLimit_->setText(QString::number(190, 'f', 1));
-            ccdHomePosition_->setText(QString::number(190, 'f', 1));
+			ccdLowLimit_->setText(QString::number(35, 'f', 1));
+			ccdHighLimit_->setText(QString::number(190, 'f', 1));
+			ccdHomePosition_->setText(QString::number(190, 'f', 1));
 
-            vortexLowLimit_->setText(QString::number(60, 'f', 1));
-            vortexHighLimit_->setText(QString::number(180, 'f', 1));
-            vortexHomePosition_->setText(QString::number(180, 'f', 1));
+			vortexLowLimit_->setText(QString::number(60, 'f', 1));
+			vortexHighLimit_->setText(QString::number(180, 'f', 1));
+			vortexHomePosition_->setText(QString::number(180, 'f', 1));
 
-            vortex4LowLimit_->setText(QString::number(60, 'f', 1));
-            vortex4HighLimit_->setText(QString::number(180, 'f', 1));
-            vortex4HomePosition_->setText(QString::number(180, 'f', 1));
+			vortex4LowLimit_->setText(QString::number(60, 'f', 1));
+			vortex4HighLimit_->setText(QString::number(180, 'f', 1));
+			vortex4HomePosition_->setText(QString::number(180, 'f', 1));
 
-            microscopeInPosition_->setText(QString::number(90, 'f', 1));
-            microscopeOutPosition_->setText(QString::number(190, 'f', 1));
-            microscopeInStatus_->setText("In");
-            microscopeOutStatus_->setText("Out");
+			microscopeInPosition_->setText(QString::number(90, 'f', 1));
+			microscopeOutPosition_->setText(QString::number(190, 'f', 1));
+			microscopeInStatus_->setText("In");
+			microscopeOutStatus_->setText("Out");
 
-            saveFile();
+			saveFile();
 
-            return;
+			return;
 	}
 
 	QTextStream in(&file);

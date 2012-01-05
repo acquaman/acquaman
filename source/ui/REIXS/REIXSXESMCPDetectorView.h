@@ -1,8 +1,28 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef REIXSXESMCPDETECTORVIEW_H
 #define REIXSXESMCPDETECTORVIEW_H
 
 #include <QWidget>
-#include "ui/AMControlEditor.h"
+#include "ui/beamline/AMControlEditor.h"
 
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlotImage.h"
@@ -52,7 +72,7 @@ protected:
 	QComboBox* imageSelector_;
 	AMBasicControlEditor* averagingPeriodControl_;
 	AMBasicControlEditor* persistDurationControl_;
-	AMBasicControlEditor* orientationControl_;
+	// removed: AMBasicControlEditor* orientationControl_;
 
 	QLabel* countsPerSecondIndicator_;
 	QProgressBar* countsPerSecondBar_;

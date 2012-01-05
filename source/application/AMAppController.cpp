@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -22,15 +22,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMWorkflowManagerView.h"
 #include "ui/AMMainWindow.h"
+#include "ui/dataman/AMGenericScanEditor.h"
+#include "dataman/export/AMExporter.h"
+#include "dataman/export/AMExporterOption.h"
 
 AMAppController::AMAppController(QObject *parent)
 	: AMDatamanAppController(parent)
 {
 }
 
-bool AMAppController::startup() {
+bool AMAppController::startupCreateUserInterface() {
 
-	if (AMDatamanAppController::startup()){
+	if (AMDatamanAppController::startupCreateUserInterface()){
 		// a heading for the workflow manager...
 		workflowManagerView_ = new AMWorkflowManagerView();
 		mw_->insertHeading("Experiment Tools", 1);
@@ -47,11 +50,82 @@ AMAppController::~AMAppController() {
 
 }
 
-void AMAppController::shutdown() {
 
-	AMDatamanAppController::shutdown();
-}
 
 void AMAppController::goToWorkflow() {
 	mw_->setCurrentPane(workflowManagerView_);
+}
+
+void AMAppController::openScanInEditorAndTakeOwnership(AMScan *scan, bool bringEditorToFront, bool openInExistingEditor)
+{
+	AMGenericScanEditor* editor;
+
+	if(openInExistingEditor && scanEditorCount()) {
+		editor = scanEditorAt(scanEditorCount()-1);
+	}
+	else {
+		editor = createNewScanEditor();
+	}
+
+	editor->addScan(scan);
+
+	if(bringEditorToFront)
+		mw_->setCurrentPane(editor);
+}
+
+#include "acquaman/AMScanConfiguration.h"
+#include "ui/acquaman/AMScanConfigurationView.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder.h"
+#include "dataman/database/AMDatabase.h"
+#include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/AMScan.h"
+
+void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
+{
+	// scheme correct?
+	if (url.scheme() != "amd")
+		return;
+
+	// Scan configurations only come from the user databases currently.
+	AMDatabase *db = AMDatabase::database("user");
+	if (!db)
+		return;
+
+	QStringList path = url.path().split('/', QString::SkipEmptyParts);
+	if(path.count() != 2)
+		return;
+
+	QString tableName = path.at(0);
+	bool idOkay;
+	int id = path.at(1).toInt(&idOkay);
+	if(!idOkay || id < 1)
+		return;
+
+	// Only open scans for now (ie: things in the scans table)
+	if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
+		return;
+
+	// Check if this scan is scanning... Use the currentlyScanning column stored in the database.
+	QVariant isScanning = db->retrieve(id, tableName, "currentlyScanning");
+	if(!isScanning.isValid())
+		return;
+
+	// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
+	AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
+	if(!dbo)
+		return;
+
+	// Is it a scan?
+	AMScan* scan = qobject_cast<AMScan*>( dbo );
+	if(!scan) {
+		delete dbo;
+		return;
+	}
+
+	AMScanConfigurationView *view = scan->scanConfiguration()->createView();
+	if (!view)
+		return;
+
+	AMScanConfigurationViewHolder *viewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, view);
+	viewHolder->show();
 }

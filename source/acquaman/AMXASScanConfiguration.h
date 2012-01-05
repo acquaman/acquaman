@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include "AMScanConfiguration.h"
 #include "acquaman/AMRegionsList.h"
+#include "dataman/info/AMControlInfoList.h"
 
 /// An AMXASScanConfiguration is the parent class for any beamline that wants to implement a simple XAS (X-Ray Absorption Spectroscopy) scan.
 /*!
@@ -45,14 +46,30 @@ class AMXASScanConfiguration : public AMScanConfiguration
 public:
 	/// Constructor, needs only a pointer to a QObject to act as a parent.
 	AMXASScanConfiguration(QObject *parent = 0);
+	AMXASScanConfiguration(const AMXASScanConfiguration &original);
+
+	const QMetaObject* getMetaObject();
+
 	/// Returns the start value of the region refered to by index. If an invalid index is given, returns -1 (not a valid energy value).
-	double regionStart(int index) const { return regions_->start(index);}
+	double regionStart(int index) const { return regions_->start(index); }
 	/// Returns the delta value of the region refered to by index. If an invalid index is given, returns 0 (not a valid delta value).
-	double regionDelta(int index) const { return regions_->delta(index);}
+	double regionDelta(int index) const { return regions_->delta(index); }
 	/// Returns the end value of the region refered to by index. If an invalid index is given, returns -1 (not a valid energy value).
-	double regionEnd(int index) const { return regions_->end(index);}
-	int regionCount() const { return regions_->count();}
-	AMXASRegionsList* regions() { return regions_;}
+	double regionEnd(int index) const { return regions_->end(index); }
+	/// Returns the time value of the region referred to by \param index.  If an invalid index is given, returns -1 (not a valid time value).
+	double regionTime(int index) const { return regions_->time(index); }
+	/// Returns the units for the region referred to by \param index.  If an invalid index is given, returns a null string.
+	QString regionUnits(int index) const { return regions_->units(index); }
+	/// Returns the time units for the region referred to by \param index.  If an invalid index is given, returns a null string.
+	QString regionTimeUnits(int index) const { return regions_->timeUnits(index); }
+	/// Returns whether elastic start is enabled for the region referred to by \param index.
+	bool regionElasticStart(int index) const { return regions_->elasticStart(index); }
+	/// Returns whether elastic end is enabled for the reigon referred to by \param index.
+	bool regionElasticEnd(int index) const { return regions_->elasticEnd(index); }
+	/// Returns the number of regions current in the scan configuration.
+	int regionCount() const { return regions_->count(); }
+	/// Returns the regions list.
+	AMXASRegionsList* regions() const { return regions_; }
 
 	/// Quick accessor for the start of the first region. If no regions are set, returns -1
 	double startEnergy() const;
@@ -74,18 +91,38 @@ public:
 		return QString("XAS").arg(regionStart(0)).arg(regionEnd(regionCount()-1));
 	}
 
+	/// Pure virtual functions that need to be implemented.  Because controls aren't set in AMXASScanConfiguration, subclasses need to implement the control info getter to their valid energy and time controls.
+	/// Returns the AMControlInfo for the energy control.
+	virtual AMControlInfo energyControlInfo() const = 0;
+	/// Returns the AMControlInfo for the time control.
+	virtual AMControlInfo timeControlInfo() const = 0;
+
+	/// The scientific technique this configuration is for
+	virtual QString technique() const{
+		return "XAS";
+	}
+
 public slots:
 	/// Sets the start value of the region refered to by index. Returns true if sucessful, returns false if the index is invalid or the energy is out of range.
-	bool setRegionStart(int index, double start) { return regions_->setStart(index, start);}
+	bool setRegionStart(int index, double start) { return regions_->setStart(index, start); }
 	/// Sets the delta value of the region refered to by index. Returns true if sucessful, return false if the index is invalid or the delta is 0.
-	bool setRegionDelta(int index, double delta) { return regions_->setDelta(index, delta);}
+	bool setRegionDelta(int index, double delta) { return regions_->setDelta(index, delta); }
 	/// Sets the end value of the region refered to by index. Returns true if succesful, returns false if the index is invalid or the energy is out of range.
-	bool setRegionEnd(int index, double end) { return regions_->setEnd(index, end);}
-	/// Pure virtual function. Should be implemented in beamline specific subclasses as a convenience function for above.
-	/// Creates a new region using start, delta, and end values then calls addRegion(index, *region).
-	virtual bool addRegion(int index, double start, double delta, double end) = 0;
+	bool setRegionEnd(int index, double end) { return regions_->setEnd(index, end); }
+	/// Sets the time value for the region referred to by \param index.  Returns true if successful, returns false if the index is invalid or the time is negative.
+	bool setRegionTime(int index, double time) { return regions_->setTime(index, time); }
+	/// Sets the units for the region referred to by \param index.  Returns true if successful, returns false if the index is invalid.
+	bool setRegionUnits(int index, QString units) { return regions_->setUnits(index, units); }
+	/// Sets the elastic start state for the region referred to by \param index.  Returns true if successful, returns false if the index is invalid.
+	bool setRegionElasticStart(int index, bool state) { return regions_->setElasticStart(index, state); }
+	/// Sets the elastic end state for the region referred to by \param index.  Returns true if successful, returns false if the index is invalid.
+	bool setRegionElasticEnd(int index, bool state) { return regions_->setElasticEnd(index, state); }
+	/// Creates a new region using start, delta, end, and time values.
+	virtual bool addRegion(int index, double start, double delta, double end, double time) { return regions_->addRegion(index, start, delta, end, time); }
+	/// Overloaded.  Creates a new region using start, delta, and end values then calls addRegion(index, *region).
+	virtual bool addRegion(int index, double start, double delta, double end) { return regions_->addRegion(index, start, delta, end); }
 	/// Deletes the region refered to by index and renumbers subsequent regions accordingly. Returns true if successful, return false if index is invalid.
-	bool deleteRegion(int index) { return regions_->deleteRegion(index);}
+	bool deleteRegion(int index) { return regions_->deleteRegion(index); }
 
 	/// Quick setter for the start of the first region. Returns false if there are no regions or the energy is out of range
 	bool setStartEnergy(double startEnergy);

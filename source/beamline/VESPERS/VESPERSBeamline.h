@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -23,24 +23,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/AMDetectorSet.h"
-#include "beamline/VESPERS/AMValveControl.h"
 #include "beamline/VESPERS/XRFDetector.h"
 #include "beamline/AMROI.h"
-#include "beamline/VESPERS/SampleStageControl.h"
-#include "beamline/VESPERS/VESPERSValveGroupControl.h"
-#include "beamline/VESPERS/PIDLoopControl.h"
-#include "beamline/VESPERS/VESPERSIonChamberCalibration.h"
+#include "beamline/VESPERS/VESPERSSampleStageControl.h"
+#include "beamline/VESPERS/VESPERSPIDLoopControl.h"
 #include "beamline/VESPERS/VESPERSMonochromator.h"
 #include "beamline/VESPERS/VESPERSIntermediateSlits.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
-#include "beamline/AMBeamlineActionItem.h"
+#include "actions/AMBeamlineActionItem.h"
+#include "beamline/VESPERS/VESPERSEndstation.h"
+#include "beamline/VESPERS/VESPERSExperimentConfiguration.h"
+#include "beamline/AMIonChamber.h"
+#include "beamline/CLS/CLSIonChamber.h"
+#include "beamline/CLS/CLSSplitIonChamber.h"
 
 #include "util/AMErrorMonitor.h"
-
-#include "util/AMBiHash.h"
-
-#include "util/AMErrorMonitor.h"
-
 #include "util/AMBiHash.h"
 
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
@@ -87,23 +84,25 @@ public:
 	XRFDetector *vortexXRF4E() const { return (XRFDetector *)vortex4E_; }
 
 	/// Returns a general AMDetector pointer to the split ion chamber.
-	AMDetector *iSplit() const { return iSplit_; }
+	AMDetector *iSplitDetector() const { return iSplit_; }
+	/// Returns a CLSIonChamber pointer to the split ion chamber.
+	CLSSplitIonChamber *iSplit() const { return (CLSSplitIonChamber *)iSplit_; }
 	/// Returns a general AMDetector pointer to the pre-KB ion chamber.
-	AMDetector *iPreKB() const { return iPreKB_; }
+	AMDetector *iPreKBDetector() const { return iPreKB_; }
+	/// Returns a CLSIonChamber pointer to the split ion chamber.
+	CLSIonChamber *iPreKB() const { return (CLSIonChamber *)iPreKB_; }
 	/// Returns a general AMDetector pointer to the mini ion chamber.
-	AMDetector *iMini() const { return iMini_; }
+	AMDetector *iMiniDetector() const { return iMini_; }
+	/// Returns a CLSIonChamber pointer to the split ion chamber.
+	CLSIonChamber *iMini() const { return (CLSIonChamber *)iMini_; }
 	/// Returns a general AMDetector pointer to the post sample ion chamber.
-	AMDetector *iPost() const { return iPost_; }
+	AMDetector *iPostDetector() const { return iPost_; }
+	/// Returns a CLSIonChamber pointer to the split ion chamber.
+	CLSIonChamber *iPost() const { return (CLSIonChamber *)iPost_; }
 	/// Returns the ion chamber detector set.
 	AMDetectorSet *ionChambers() const { return ionChambers_; }
 
 	// Accessing control elements:
-
-	// Ion chamber calibration.
-	/// Returns the ion chamber calibration.  This is used for changing the high voltage and sensitivity of the ion chambers.
-	VESPERSIonChamberCalibration *ionChamberCalibration() const { return ionChamberCalibration_; }
-
-	// End of Ion chamber calibration.
 
 	// The monochromator abstraction.
 	/// Returns the monochromator abstraction for the VESPERS beamline.
@@ -123,9 +122,54 @@ public:
 
 	// End of synchronized dwell time.
 
+	// The photon and safety shutters.
+	/// Returns the first photon shutter.
+	AMControl *photonShutter1() const { return psh1_; }
+	/// Returns the second photon shutter.
+	AMControl *photonShutter2() const { return psh2_; }
+	/// Returns the first safety shutter.
+	AMControl *safetyShutter1() const { return ssh1_; }
+	/// Returns the second safety shutter.
+	AMControl *safetyShutter2() const { return ssh2_; }
+
+	// Because there is some logic involved with opening and closing the shutters each shutter has it's own method for opening and closing.
+	/// Opens the first photon shutter.  Returns whether the beamline was in the proper state before changing the shutter.
+	bool openPhotonShutter1();
+	/// Closes the first photon shutter.  Returns whether the beamline was in the proper state before changing the shutter.
+	bool closePhotonShutter1();
+	/// Opens the second photon shutter.  Returns whether the beamline was in the proper state before changing the shutter.
+	bool openPhotonShutter2();
+	/// Closes the second photon shutter.  Returns whether the beamline was in the proper state before changing the shutter.
+	bool closePhotonShutter2();
+	/// Opens the first safety shutter.  Returns whether the beamline was in the proper state before changing the shutter.
+	bool openSafetyShutter1();
+	/// Closes the second safety shutter.  Returns whether the beamline was in the proper state before changing the shutter.
+	bool closeSafetyShutter1();
+	/// Opens the first safety shutter.  Returns whether the beamline was in the proper state before changing the shutter.
+	bool openSafetyShutter2();
+	/// Closes the second safety shutter.  Returns whether the beamline was in the proper state before changing the shutter.
+	bool closeSafetyShutter2();
+
+
+	// The endstation.
+	/// Returns the endstation model.
+	VESPERSEndstation *endstation() const { return endstation_; }
+
+	// End of endstation.
+
 	// Beam selection motor.
 	/// Returns the control for the beam selection motor.
 	AMControl *beamSelectionMotor() const { return beamSelectionMotor_; }
+
+	// The experiment configuration.
+	/// Returns the experiment configuration model.
+	VESPERSExperimentConfiguration *experimentConfiguration() const { return experimentConfiguration_; }
+
+	// The helper controls for changing the dwell time for each region.
+	/// Returns the control in charge of changing the dwell time trigger for changing the dwell time between regions.
+	AMControl *dwellTimeTrigger() const { return dwellTimeTrigger_; }
+	/// Returns the control holding the confirmed flag while setting the dwell time between regions.
+	AMControl *dwellTimeConfirmed() const { return dwellTimeConfirmed_; }
 
 	// Pressure
 	/// Returns the pressure control for Front End section 1.
@@ -189,33 +233,14 @@ public:
 	/// Returns the valve control for the beam transfer section (1).
 	AMControl *vvrBeamTransfer() const { return vvrBeamTransfer_; }
 
-	// The valve control.
-	/// Returns the valve state modifying control for Front End section 1.
-	AMValveControl *valveFE1() const { return valveFE1_; }
-	/// Returns the valve state modifying control for Front End section 2a.
-	AMValveControl *valveFE2() const { return valveFE2_; }
-	/// Returns the valve state modifying control for M1.
-	AMValveControl *valveM1() const { return valveM1_; }
-	/// Returns the valve state modifying control for M2.
-	AMValveControl *valveM2() const { return valveM2_; }
-	/// Returns the valve state modifying control for BPM1.
-	AMValveControl *valveBPM1() const { return valveBPM1_; }
-	/// Returns the valve state modifying control for the Mono.
-	AMValveControl *valveMono() const { return valveMono_; }
-	/// Returns the valve state modifying control for the exit slits.
-	AMValveControl *valveExitSlits() const { return valveExitSlits_; }
-	/// Returns the valve state modifying control for the straight section.
-	AMValveControl *valveStraightSection() const { return valveStraightSection_; }
-	/// Returns the valve state modifying control for BPM3.
-	AMValveControl *valveBPM3() const { return valveBPM3_; }
-	/// Returns the valve state modifying control at the POE SSH.
-	AMValveControl *valveSSH() const { return valveSSH_; }
-	/// Returns the valve state modifying control for the beam transfer section (1).
-	AMValveControl *valveBeamTransfer() const { return valveBeamTransfer_; }
-	/// Returns the list of all the valves.
-	QList<AMValveControl *> *valveList() const { return valveList_; }
-	/// Returns the valve group control.
-	VESPERSValveGroupControl *valves() const { return valves_; }
+	// Some methods to control the group of valves.
+	/// Status: whether all the valves are open or not.
+	bool allValvesOpen() const;
+	/// Opens valve at a given index.
+	void openValve(int index);
+	/// Closes valve at a given index.
+	void closeValve(int index);
+
 
 	// Ion pumps
 	/// Returns the ion pump control for Front End section 1.a
@@ -347,35 +372,6 @@ public:
 	/// Returns the water flow transducer control for the POE SSH2.
 	AMControl *fltPoeSsh2() const { return fltPoeSsh2_; }
 
-	// Attenuation filters
-	/// Returns the first 250 um filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
-	AMControl *filter250umA() const { return filter250umA_; }
-	/// Returns the second 250 um filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
-	AMControl *filter250umB() const { return filter250umB_; }
-	/// Returns the first 100 um filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
-	AMControl *filter100umA() const { return filter100umA_; }
-	/// Returns the second 100 um filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
-	AMControl *filter100umB() const { return filter100umB_; }
-	/// Returns the first 50 um filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
-	AMControl *filter50umA() const { return filter50umA_; }
-	/// Returns the second 50 um filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
-	AMControl *filter50umB() const { return filter50umB_; }
-	/// Returns the upper shutter filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
-	AMControl *filterShutterUpper() const { return filterShutterUpper_; }
-	/// Returns the lower shutter filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
-	AMControl *filterShutterLower() const { return filterShutterLower_; }
-
-	// Endstation controls.
-
-	/// Returns the CCD motor control.
-	AMControl *ccdMotor() const { return ccdMotor_; }
-	/// Returns the microscope motor contorl.
-	AMControl *microscopeMotor() const { return microscopeMotor_; }
-	/// Returns the four element detector motor control.
-	AMControl *fourElMotor() const { return fourElMotor_; }
-	/// Returns the single element detector motor control.
-	AMControl *singleElMotor() const { return singleElMotor_; }
-
 	// Sample stage motor controls.
 
 	// Psedomotors.
@@ -396,7 +392,7 @@ public:
 
 	// The sample stage.
 	/// Returns the sample stage control built with the pseudo-motors.
-	SampleStageControl *pseudoSampleStage() const { return pseudoSampleStage_; }
+	VESPERSSampleStageControl *pseudoSampleStage() const { return pseudoSampleStage_; }
 
 	// Sample stage PID controls.
 	/// Returns the PID control for the x-direction of the sample stage.
@@ -407,7 +403,7 @@ public:
 	AMControl *sampleStagPidZ() const { return sampleStagePidZ_; }
 
 	/// Returns the sample stage PID control.
-	PIDLoopControl *sampleStagePID() const { return sampleStagePID_; }
+	VESPERSPIDLoopControl *sampleStagePID() const { return sampleStagePID_; }
 
 	// These Control Sets are logical groups of controls that are commonly used by different Acquaman components
 
@@ -423,47 +419,44 @@ public:
 	AMControlSet *flowSwitchSet() const { return flowSwitchSet_; }
 	/// Returns the water flow transducer control set.
 	AMControlSet *flowTransducerSet() const { return flowTransducerSet_; }
-	/// Returns the endstation motor control set.
-	AMControlSet *endstationMotorSet() const { return endstationMotorSet_; }
 	/// Returns the sample stage motor control set.
 	AMControlSet *sampleStageMotorSet() const { return sampleStageMotorSet_; }
-	/// Returns the filter control set.
-	AMControlSet *filterSet() const { return filterSet_; }
 
-	// These are PVs that are needed for random small jobs around the beamline.
-
-	/// Returns the process variable for the microscope light.
-	AMProcessVariable *micLight() const { return micLight_; }
-	/// Returns the laser on/off control.
-	AMControl *laserPower() const { return laserPower_; }
-	/// Returns the process variable for the CCD file path.  Needs special write function to get the info in or out.  See VESPERSEndstationView for example.
-	AMProcessVariable *ccdPath() const { return ccdPath_; }
-	/// Returns the process variable for the CCD file name.  Needs special write function to get the info in or out.  See VESPERSEndstationView for example.
-	AMProcessVariable *ccdFile() const { return ccdFile_; }
-	/// Returns the process variable for the CCD file number.
-	AMProcessVariable *ccdNumber() const { return ccdNumber_; }
-	/// Returns the process variable for the Pseudo-motor reset.
-	AMProcessVariable *resetPseudoMotors() const { return resetPseudoMotors_; }
-
-	// This is where the controls and PVs for mono settings exits.
+	// This is where the controls and PVs for scanning are.  They are reproduced somewhat because my encapsulation classes don't return AMControls.
+	/// Returns the relative energy control.
 	AMControl *energyRelative() const { return energyRelative_; }
+	/// Returns the master dwell time control.
+	AMControl *masterDwellTime() const { return masterDwellTime_; }
 
-	/// Returns the control to the split ion chamber #1.
-	AMControl *iSplitControl() const { return iSplitControl_; }
-	/// Returns the control to the pre-KB ion chamber.
-	AMControl *iPreKBControl() const { return iPreKBControl_; }
-	/// Returns the control to the mini ion chamber.
-	AMControl *iMiniControl() const { return iMiniControl_; }
-	/// Returns the control to the post sample ion chamber.
-	AMControl *iPostControl() const { return iPostControl_; }
+	//////////////////////////////////////////////////////////////////////////////////////
+	// Actions
+	/// Creates an action that changes the beam.  Returns 0 if unable to create.
+	AMBeamlineActionItem *createBeamChangeAction(Beam beam);
+
+	// End of Actions
+	//////////////////////////////////////////////////////////////////////////////////////
 
 signals:
 	/// Notifier that the beam has been changed.
 	void currentBeamChanged(VESPERSBeamline::Beam);
+	/// Notifier of the current state of the pressures on the beamline.  Passes false if ANY of the pressures falls below its setpoint.
+	void pressureStatus(bool);
+	/// Notifier of the current state of the valves on the beamline.  Passes false if ANY of the valves are closed.
+	void valveStatus(bool);
+	/// Notifier of the current state of the ion pumps on the beamline.  Passes false if ANY of the ion pumps fail.
+	void ionPumpStatus(bool);
+	/// Notifier of the current state of the temperature on the beamline.  Passes false if ANY of the temperatures rises above its setpoint.
+	void temperatureStatus(bool);
+	/// Notifier of the current state of the flow switches on the beamline.  Passes false if ANY of the flow switches are disabled.
+	void flowSwitchStatus(bool);
+	/// Notifier of the current state of the flow transducers on the beamline.  Passes false if ANY of the flow rates fall below its setpoint.
+	void flowTransducerStatus(bool);
 
 public slots:
-	/// Creates an action that changes the beam.  Returns 0 if unable to create.
-	AMBeamlineActionItem *createBeamChangeAction(Beam beam);
+	/// Class that opens all the valves on the beamline in sequence.
+	void openAllValves();
+	/// Class that closes all the valves on the beamline in sequence.
+	void closeAllValves();
 
 protected slots:
 	/// Determines is currently active on startup.  Also keeps track if the beam is changed outside of Acquaman.  Beam is set to None is if not inside any of the tolerances for the known beam positions.
@@ -502,6 +495,11 @@ protected slots:
 	/// Slot used to dead with sample stage motor errors.
 	void sampleStageError();
 
+	/// Helper slot that handles opening the next valve.
+	void openAllValvesHelper();
+	/// Helper slot that handles closing the next valve.
+	void closeAllValvesHelper();
+
 protected:
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
 	void setupDiagnostics();
@@ -515,6 +513,8 @@ protected:
 	void setupSampleStage();
 	/// Sets up mono settings.
 	void setupMono();
+	/// Sets up the experiment status.
+	void setupExperimentStatus();
 
 	/// Constructor. This is a singleton class; access it through VESPERSBeamline::vespers().
 	VESPERSBeamline();
@@ -534,25 +534,30 @@ protected:
 
 	// End detector sets.
 
-	// Ion chamber calibration.
-	VESPERSIonChamberCalibration *ionChamberCalibration_;
-
-	// End of Ion chamber calibration.
-
 	// VESPERS monochromator.
 	VESPERSMonochromator *mono_;
-
-	// End of VESPERS monochromator
 
 	// Intermediate slits.
 	VESPERSIntermediateSlits *intermediateSlits_;
 
-	// End of intermediate slits.
-
 	// Synchronized Dwell time
 	CLSSynchronizedDwellTime *synchronizedDwellTime_;
 
-	// End of synchronized dwell time.
+	// The shutters.
+	AMControl *psh1_;
+	AMControl *psh2_;
+	AMControl *ssh1_;
+	AMControl *ssh2_;
+
+	// Endstation
+	VESPERSEndstation *endstation_;
+
+	// Experiment Configuration
+	VESPERSExperimentConfiguration *experimentConfiguration_;
+
+	// Dwell time control helper functions for the dwell time.
+	AMControl *dwellTimeTrigger_;
+	AMControl *dwellTimeConfirmed_;
 
 	// Beam selection members.
 	// The current beam in use by the beamline.
@@ -598,20 +603,8 @@ protected:
 	AMControl *vvrSSH_;
 	AMControl *vvrBeamTransfer_;
 
-	// The Valve controls that change the state of the valve.
-	AMValveControl *valveFE1_;
-	AMValveControl *valveFE2_;
-	AMValveControl *valveM1_;
-	AMValveControl *valveM2_;
-	AMValveControl *valveBPM1_;
-	AMValveControl *valveMono_;
-	AMValveControl *valveExitSlits_;
-	AMValveControl *valveStraightSection_;
-	AMValveControl *valveBPM3_;
-	AMValveControl *valveSSH_;
-	AMValveControl *valveBeamTransfer_;
-	QList<AMValveControl *> *valveList_;
-	VESPERSValveGroupControl *valves_;
+	// Index used to keep track of which index we're on while opening or closing all the valves.  Always -1 except when opening or closing valves.
+	int valveIndex_;
 
 	// Ion pump controls.
 	AMControl *iopFE1a_;
@@ -689,52 +682,11 @@ protected:
 	AMControlSet *temperatureSet_;
 	AMControlSet *flowSwitchSet_;
 	AMControlSet *flowTransducerSet_;
-	AMControlSet *endstationMotorSet_;
 	AMControlSet *sampleStageMotorSet_;
-	AMControlSet *filterSet_;
-
-	// Beam attenuation filters.
-	AMControl *filter250umA_;
-	AMControl *filter250umB_;
-	AMControl *filter100umA_;
-	AMControl *filter100umB_;
-	AMControl *filter50umA_;
-	AMControl *filter50umB_;
-	AMControl *filterShutterUpper_;
-	AMControl *filterShutterLower_;
 
 	// End General Controls.
 
-	// Ion chamber controls.
-	AMControl *iSplitControl_;
-	AMControl *iPreKBControl_;
-	AMControl *iMiniControl_;
-	AMControl *iPostControl_;
-
 	// End ion chamber controls.
-
-	// Endstation controls
-	// The controls used for the control window.
-	AMControl *ccdMotor_;
-	AMControl *microscopeMotor_;
-	AMControl *fourElMotor_;
-	AMControl *singleElMotor_;
-
-	// Microscope light PV.
-	AMProcessVariable *micLight_;
-
-	// Laser on/off PV.
-	AMControl *laserPower_;
-
-	// Various CCD file path PVs.
-	AMProcessVariable *ccdPath_;
-	AMProcessVariable *ccdFile_;
-	AMProcessVariable *ccdNumber_;
-
-	// Pseudo-motor reset PV.
-	AMProcessVariable *resetPseudoMotors_;
-
-	// End Endstation controls.
 
 	// Sample stage controls.
 	// CLS pseudo-motors.
@@ -748,20 +700,21 @@ protected:
 	AMControl *sampleStageZ_;
 
 	// The sample stage encapsulation.
-	SampleStageControl *pseudoSampleStage_;
-	SampleStageControl *realSampleStage_;
+	VESPERSSampleStageControl *pseudoSampleStage_;
+	VESPERSSampleStageControl *realSampleStage_;
 
 	// The PID loop controls.
 	AMControl *sampleStagePidX_;
 	AMControl *sampleStagePidY_;
 	AMControl *sampleStagePidZ_;
 
-	PIDLoopControl *sampleStagePID_;
+	VESPERSPIDLoopControl *sampleStagePID_;
 
 	// End sample stage controls.
 
-	// Mono settings.
+	// Scanning settings.
 	AMControl *energyRelative_;
+	AMControl *masterDwellTime_;
 
 	// AM names bihash to/from PV names.
 	AMBiHash<QString, QString> amNames2pvNames_;

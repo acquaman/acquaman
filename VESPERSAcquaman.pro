@@ -6,14 +6,11 @@ FORMS +=
 
 HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/beamline/VESPERS/VESPERSBeamline.h \
-	source/ui/VESPERS/VESPERSBeamlineView.h \
-	source/ui/AMShutterButton.h \
-	source/ui/AMStopButton.h \
 	source/ui/VESPERS/VESPERSMotorView.h \
 	source/dataman/VESPERS/XRFDetectorInfo.h \
 	source/beamline/VESPERS/XRFDetector.h \
 	source/ui/VESPERS/XRFDetectorView.h \
-	source/ui/VESPERS/DeadTimeButton.h \
+	source/ui/VESPERS/VESPERSDeadTimeButton.h \
 	source/dataman/VESPERS/AMXRFScan.h \
 	source/dataman/VESPERS/VESPERSXRFDataLoader.h \
 	source/acquaman/VESPERS/VESPERSXRFScanConfiguration.h \
@@ -24,17 +21,13 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/ui/VESPERS/VESPERSXRFElementView.h \
 	source/util/VESPERS/XRFPeriodicTable.h \
 	source/ui/VESPERS/XRFPeriodicTableView.h \
-	source/beamline/VESPERS/AMValveControl.h \
-	source/ui/VESPERS/ROIPlotMarker.h \
 	source/util/VESPERS/ROIHelper.h \
-	source/ui/VESPERS/CustomizeRegionsOfInterest.h \
-	source/beamline/VESPERS/SampleStageControl.h \
-	source/beamline/VESPERS/VESPERSValveGroupControl.h \
-	source/beamline/VESPERS/PIDLoopControl.h \
-	source/ui/VESPERS/PIDLoopControlView.h \
-	source/ui/VESPERS/XRFMapSetup.h \
+	source/ui/VESPERS/VESPERSCustomizeRegionsOfInterest.h \
+	source/beamline/VESPERS/VESPERSSampleStageControl.h \
+	source/beamline/VESPERS/VESPERSPIDLoopControl.h \
+	source/ui/VESPERS/VESPERSPIDLoopControlView.h \
+	source/ui/VESPERS/VESPERSMapSetupView.h \
 	source/ui/VESPERS/VESPERSDeviceStatusView.h \
-	source/ui/VESPERS/VESPERSTemperatureView.h \
 	source/util/VESPERS/GeneralUtilities.h \
 	source/util/VESPERS/XRFElement.h \
 	source/acquaman/VESPERS/VESPERSXASScanConfiguration.h \
@@ -43,28 +36,25 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/beamline/VESPERS/VESPERSEndstation.h \
 	source/ui/VESPERS/VESPERSEndstationView.h \
 	source/acquaman/VESPERS/XRFFreeRun.h \
-	source/ui/VESPERS/XRFFreeRunView.h \
+	source/ui/VESPERS/VESPERSXRFFreeRunView.h \
 	source/util/VESPERS/VortexDetectorStatusHelper.h \
-	source/beamline/VESPERS/VESPERSIonChamberCalibration.h \
-	source/beamline/VESPERS/VESPERSIonChamber.h \
-	source/ui/VESPERS/VESPERSIonChamberView.h \
-	source/ui/VESPERS/VESPERSIonChamberCalibrationView.h \
 	source/beamline/VESPERS/VESPERSMonochromator.h \
 	source/beamline/VESPERS/VESPERSIntermediateSlits.h \
-	source/ui/VESPERS/VESPERSIntermediateSlitsView.h \
 	source/ui/VESPERS/VESPERSBeamSelectorView.h \
-	source/beamline/VESPERS/VESPERSSplitIonChamber.h
+	source/ui/VESPERS/VESPERSDiagnosticsView.h \
+	source/ui/VESPERS/VESPERSExperimentConfigurationView.h \
+	source/ui/util/AMPeriodicTableDialog.h \
+	source/beamline/VESPERS/VESPERSExperimentConfiguration.h \
+	source/util/VESPERS/VESPERSMapSetup.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
 	source/beamline/VESPERS/VESPERSBeamline.cpp \
-	source/ui/VESPERS/VESPERSBeamlineView.cpp \
-	source/ui/AMShutterButton.cpp \
 	source/ui/VESPERS/VESPERSMotorView.cpp \
 	source/dataman/VESPERS/XRFDetectorInfo.cpp \
 	source/beamline/VESPERS/XRFDetector.cpp \
 	source/ui/VESPERS/XRFDetectorView.cpp \
-	source/ui/VESPERS/DeadTimeButton.cpp \
+	source/ui/VESPERS/VESPERSDeadTimeButton.cpp \
 	source/dataman/VESPERS/AMXRFScan.cpp \
 	source/dataman/VESPERS/VESPERSXRFDataLoader.cpp \
 	source/acquaman/VESPERS/VESPERSXRFScanConfiguration.cpp \
@@ -75,17 +65,13 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/ui/VESPERS/VESPERSXRFElementView.cpp \
 	source/util/VESPERS/XRFPeriodicTable.cpp \
 	source/ui/VESPERS/XRFPeriodicTableView.cpp \
-	source/beamline/VESPERS/AMValveControl.cpp \
-	source/ui/VESPERS/ROIPlotMarker.cpp \
 	source/util/VESPERS/ROIHelper.cpp \
-	source/ui/VESPERS/CustomizeRegionsOfInterest.cpp \
-	source/beamline/VESPERS/SampleStageControl.cpp \
-	source/beamline/VESPERS/VESPERSValveGroupControl.cpp \
-	source/beamline/VESPERS/PIDLoopControl.cpp \
-	source/ui/VESPERS/PIDLoopControlView.cpp \
-	source/ui/VESPERS/XRFMapSetup.cpp \
+	source/ui/VESPERS/VESPERSCustomizeRegionsOfInterest.cpp \
+	source/beamline/VESPERS/VESPERSSampleStageControl.cpp \
+	source/beamline/VESPERS/VESPERSPIDLoopControl.cpp \
+	source/ui/VESPERS/VESPERSPIDLoopControlView.cpp \
+	source/ui/VESPERS/VESPERSMapSetupView.cpp \
 	source/ui/VESPERS/VESPERSDeviceStatusView.cpp \
-	source/ui/VESPERS/VESPERSTemperatureView.cpp \
 	source/util/VESPERS/GeneralUtilities.cpp \
 	source/util/VESPERS/XRFElement.cpp \
 	source/acquaman/VESPERS/VESPERSXASScanConfiguration.cpp \
@@ -94,19 +80,39 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/beamline/VESPERS/VESPERSEndstation.cpp \
 	source/ui/VESPERS/VESPERSEndstationView.cpp \
 	source/acquaman/VESPERS/XRFFreeRun.cpp \
-	source/ui/VESPERS/XRFFreeRunView.cpp \
+	source/ui/VESPERS/VESPERSXRFFreeRunView.cpp \
 	source/util/VESPERS/VortexDetectorStatusHelper.cpp \
-	source/beamline/VESPERS/VESPERSIonChamberCalibration.cpp \
-	source/beamline/VESPERS/VESPERSIonChamber.cpp \
-	source/ui/VESPERS/VESPERSIonChamberView.cpp \
-	source/ui/VESPERS/VESPERSIonChamberCalibrationView.cpp \
 	source/beamline/VESPERS/VESPERSMonochromator.cpp \
 	source/beamline/VESPERS/VESPERSIntermediateSlits.cpp \
-	source/ui/VESPERS/VESPERSIntermediateSlitsView.cpp \
 	source/ui/VESPERS/VESPERSBeamSelectorView.cpp \
-	source/beamline/VESPERS/VESPERSSplitIonChamber.cpp
+	source/ui/VESPERS/VESPERSDiagnosticsView.cpp \
+	source/ui/VESPERS/VESPERSExperimentConfigurationView.cpp \
+	source/ui/util/AMPeriodicTableDialog.cpp \
+	source/beamline/VESPERS/VESPERSExperimentConfiguration.cpp \
+	source/util/VESPERS/VESPERSMapSetup.cpp
 
 RESOURCES += \
-	source/ui/VESPERS/EndstationPictures.qrc \
-	source/ui/VESPERS/vespersIcons.qrc \
-	source/ui/StopButton.qrc
+	source/icons/VESPERS/vespersIcons.qrc
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

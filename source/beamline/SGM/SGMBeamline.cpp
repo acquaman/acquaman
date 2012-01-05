@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSVMEMotor.h"
 #include "beamline/CLS/CLSCAEN2527HVChannel.h"
 #include "beamline/CLS/CLSPGT8000HVChannel.h"
+#include "beamline/CLS/CLSSynchronizedDwellTime.h"
 
 void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("energy", "BL1611-ID-1:Energy");
@@ -62,8 +63,8 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("pgtBase", "MCA1611-01");
 	amNames2pvNames_.set("pgt", "MCA1611-01:GetChannels");
 	amNames2pvNames_.set("pgtHV", "MCA1611-01:Bias:Volt");
-	amNames2pvNames_.set("pgtIntegrationTime", "MCA1611-01:Preset:Live");
-	amNames2pvNames_.set("pgtIntegrationMode", "MCA1611-01:Preset:Live");
+	amNames2pvNames_.set("pgtIntegrationTime", "BL1611-ID-1:addOns:PGTDwellTime");
+	amNames2pvNames_.set("pgtIntegrationMode", "BL1611-ID-1:addOns:PGTDwellMode");
 	amNames2pvNames_.set("oos65000", "SA0000-03:DarkCorrectedSpectra");
 	amNames2pvNames_.set("oos65000IntegrationTime", "SA0000-03:IntegrationTime:Value");
 	amNames2pvNames_.set("I0Pico", "A1611-4-14:A:fbk");
@@ -82,6 +83,9 @@ void SGMBeamline::usingSGMBeamline(){
 
 	amNames2pvNames_.set("beamlineScanning", "BL1611-ID-1:scanning");
 	amNames2pvNames_.set("beamlineReady", "BL1611-ID-1:beam:status");
+	amNames2pvNames_.set("nextDwellTimeTrigger", "BL1611-ID-1:addOns:trigger:dwellTime");
+	amNames2pvNames_.set("nextDwellTimeConfirmed", "BL1611-ID-1:addOns:confirmed:dwellTime");
+	amNames2pvNames_.set("picoammeterDwellTime", "A1611I1:cont_interval");
 	amNames2pvNames_.set("energyMovingStatus", "BL1611-ID-1:ready");
 	amNames2pvNames_.set("fastShutterVoltage", "PSH16114I1001:V");
 	amNames2pvNames_.set("scalerMode", "BL1611-ID-1:mcs:continuous");
@@ -265,6 +269,10 @@ void SGMBeamline::usingSGMBeamline(){
 	hvChannel106_ = new CLSCAEN2527HVChannel("Ch 6+", "PS1611401:106", AMHighVoltageChannel::positive, this);
 	hvChannel109_ = new CLSCAEN2527HVChannel("Ch 9-", "PS1611401:109", AMHighVoltageChannel::negative, this);
 	hvChannelPGT_ = new CLSPGT8000HVChannel("SGM PGT", "MCA1611-01", this);
+	synchronizedDwellTime_ = new CLSSynchronizedDwellTime("BL1611-ID-1:dwell", this);
+	synchronizedDwellTime_->addElement(0);
+	synchronizedDwellTime_->addElement(1);
+	synchronizedDwellTime_->addElement(2);
 
 	sgmPVName = amNames2pvNames_.valueF("pgt");
 	if(sgmPVName.isEmpty())
@@ -379,6 +387,22 @@ void SGMBeamline::usingSGMBeamline(){
 		pvNameLookUpFail = true;
 	beamlineReady_ = new AMReadOnlyPVControl("beamlineReady", sgmPVName, this);
 	beamlineReady_->setDescription("Beamline Status");
+	sgmPVName = amNames2pvNames_.valueF("nextDwellTimeTrigger");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	nextDwellTimeTrigger_ = new AMPVControl("nextDwellTimeTrigger", sgmPVName, sgmPVName, "", this, 0.1 );
+	nextDwellTimeTrigger_->setDescription("Next Dwell Time Trigger");
+	sgmPVName = amNames2pvNames_.valueF("nextDwellTimeConfirmed");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	nextDwellTimeConfirmed_ = new AMPVControl("nextDwellTimeConfirmed", sgmPVName, sgmPVName, "", this, 0.1 );
+	nextDwellTimeConfirmed_->setDescription("Next Dwell Time Confirmed");
+	sgmPVName = amNames2pvNames_.valueF("picoammeterDwellTime");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	picoammeterDwellTime_ = new AMPVControl("picoammeterDwellTime", sgmPVName, sgmPVName, "", this, 0.1 );
+	picoammeterDwellTime_->setDescription("Picoammeter Dwell Time");
+
 	sgmPVName = amNames2pvNames_.valueF("energyMovingStatus");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
@@ -754,6 +778,9 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	connect(beamlineScanning_, SIGNAL(valueChanged(double)), this, SLOT(onBeamlineScanningValueChanged(double)));
 
 	addChildControl(beamlineReady_);
+	addChildControl(nextDwellTimeTrigger_);
+	addChildControl(nextDwellTimeConfirmed_);
+	addChildControl(picoammeterDwellTime_);
 	addChildControl(energyMovingStatus_);
 	addChildControl(fastShutterVoltage_);
 	addChildControl(gratingVelocity_);
@@ -983,6 +1010,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	ssaManipulatorSampleTolerances_ << 1.0 << 1.0 << 1.0 << 15.0;
 	unconnectedSets_.append(ssaManipulatorSet_);
 	connect(ssaManipulatorSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
+
+	sampleManipulator_ = new AMControlSetSampleManipulator(ssaManipulatorSet_);
 
 	allDetectors_ = new AMDetectorSet(this);
 	allDetectors_->setName("All Detectors");

@@ -47,7 +47,9 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 	fastDetectorsConfigurations_ = fastDetectors_->toInfoSet();
 }
 
-SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguration &original){
+SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguration &original) :
+		AMFastScanConfiguration(original), SGMScanConfiguration()
+{
 	currentSettings_ = 0; //NULL
 	currentEnergyParameters_ = 0; //NULL
 
@@ -77,6 +79,10 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguratio
 }
 
 SGMFastScanConfiguration::~SGMFastScanConfiguration(){
+}
+
+const QMetaObject* SGMFastScanConfiguration::getMetaObject(){
+	return metaObject();
 }
 
 AMDetectorInfoSet SGMFastScanConfiguration::allDetectorConfigurations() const{

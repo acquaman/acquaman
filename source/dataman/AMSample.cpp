@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -44,11 +44,11 @@ AMSample::AMSample(int databaseId, AMDatabase* database, QObject* parent)
 	loadFromDb(database, databaseId);
 }
 
-#include "dataman/AMDbObjectSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
 void AMSample::destroySample(AMDatabase* db, int id) {
 	if(db == 0)
 		return;
-	db->deleteRow(id, AMDbObjectSupport::tableNameForClass<AMSample>());
+	db->deleteRow(id, AMDbObjectSupport::s()->tableNameForClass<AMSample>());
 }
 
 #include "util/AMPeriodicTable.h"

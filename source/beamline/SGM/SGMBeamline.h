@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -31,20 +31,22 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/OceanOptics65000Detector.h"
 #include "beamline/AMControlSet.h"
 #include "util/AMBiHash.h"
-#include "beamline/AMBeamlineControlAction.h"
-#include "beamline/AMBeamlineControlMoveAction.h"
-#include "beamline/AMBeamlineControlSetMoveAction.h"
-#include "beamline/AMBeamlineControlWaitAction.h"
-#include "beamline/AMBeamlineControlStopAction.h"
-#include "beamline/AMBeamlineUserConfirmAction.h"
-#include "beamline/AMBeamlineHighVoltageChannelToggleAction.h"
-#include "beamline/AMBeamlineActionsList.h"
-#include "beamline/AMBeamlineParallelActionsList.h"
-#include "beamline/AMBeamlineListAction.h"
+#include "actions/AMBeamlineControlAction.h"
+#include "actions/AMBeamlineControlMoveAction.h"
+#include "actions/AMBeamlineControlSetMoveAction.h"
+#include "actions/AMBeamlineControlWaitAction.h"
+#include "actions/AMBeamlineControlStopAction.h"
+#include "actions/AMBeamlineUserConfirmAction.h"
+#include "actions/AMBeamlineHighVoltageChannelToggleAction.h"
+#include "actions/AMBeamlineActionsList.h"
+#include "actions/AMBeamlineParallelActionsList.h"
+#include "actions/AMBeamlineListAction.h"
+
+#include "beamline/AMControlSetSampleManipulator.h"
 
 #include "beamline/AMDetectorSet.h"
 
-#include "acquaman/AMControlOptimization.h"
+#include "beamline/AMControlOptimization.h"
 
 
 class SGMGratingAction;
@@ -52,6 +54,7 @@ class AMSamplePlate;
 class CLSVMEMotor;
 class CLSCAEN2527HVChannel;
 class CLSPGT8000HVChannel;
+class CLSSynchronizedDwellTime;
 
 class SGMBeamline : public AMBeamline
 {
@@ -201,6 +204,9 @@ public:
 	CLSVMEMotor* ssaManipulatorRot() const { return ssaManipulatorRot_;}
 	AMControl* beamlineScanning() const { return beamlineScanning_;}
 	AMControl* beamlineReady() const { return beamlineReady_;}
+	AMControl* nextDwellTimeTrigger() const { return nextDwellTimeTrigger_;}
+	AMControl* nextDwellTimeConfirmed() const { return nextDwellTimeConfirmed_;}
+	AMControl* picoammeterDwellTime() const { return picoammeterDwellTime_;}
 	AMControl* energyMovingStatus() const { return energyMovingStatus_;}
 	AMControl* fastShutterVoltage() const { return fastShutterVoltage_;}
 	AMControl* gratingVelocity() const { return gratingVelocity_;}
@@ -229,12 +235,15 @@ public:
 	CLSCAEN2527HVChannel* hvChannel106() const { return hvChannel106_;}
 	CLSCAEN2527HVChannel* hvChannel109() const { return hvChannel109_;}
 	CLSPGT8000HVChannel* hvChannelPGT() const { return hvChannelPGT_;}
+	CLSSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_;}
 
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet* trackingSet() const { return trackingSet_;}
 	AMControlSet* ssaManipulatorSet() const { return ssaManipulatorSet_; }
 	QList<AMControlInfoList> ssaFiducializations() const { return ssaFiducializations_; }
+
+	AMControlSetSampleManipulator* sampleManipulator() const { return sampleManipulator_; }
 
 	AMDetectorSet* allDetectors() const { return allDetectors_;}
 	AMDetectorSet* feedbackDetectors() const { return feedbackDetectors_;}
@@ -369,6 +378,7 @@ protected:
 	CLSCAEN2527HVChannel *hvChannel106_;
 	CLSCAEN2527HVChannel *hvChannel109_;
 	CLSPGT8000HVChannel *hvChannelPGT_;
+	CLSSynchronizedDwellTime *synchronizedDwellTime_;
 	AMControl *pgt_;
 	AMControl *pgtHV_;
 	AMControl *pgtIntegrationTime_;
@@ -390,6 +400,9 @@ protected:
 	CLSVMEMotor *ssaManipulatorRot_;
 	AMControl *beamlineScanning_;
 	AMControl *beamlineReady_;
+	AMControl *nextDwellTimeTrigger_;
+	AMControl *nextDwellTimeConfirmed_;
+	AMControl *picoammeterDwellTime_;
 	AMControl *energyMovingStatus_;
 	AMControl *fastShutterVoltage_;
 	AMControl *gratingVelocity_;
@@ -465,6 +478,7 @@ protected:
 
 	AMControlSet *trackingSet_;
 	AMControlSet *ssaManipulatorSet_;
+	AMControlSetSampleManipulator *sampleManipulator_;
 	QList<double> ssaManipulatorSampleTolerances_;
 	QList<AMControlInfoList> ssaFiducializations_;
 

@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "REIXSXESScanConfigurationView.h"
 #include <QTimer>
 #include <QFormLayout>
@@ -17,10 +37,12 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(QWidget *parent) :
 	defocusDistanceMmBox_ = new QDoubleSpinBox();
 	detectorTiltBox_ = new QDoubleSpinBox();
 
-	horizontalDetectorButton_ = new QRadioButton("Wide Window");
-	verticalDetectorButton_ = new QRadioButton("High Resolution");
+	// removed:
+	// horizontalDetectorButton_ = new QRadioButton("Wide Window");
+	// verticalDetectorButton_ = new QRadioButton("High Resolution");
 
 	startFromCurrentPositionOption_ = new QCheckBox("current position");
+	doNotClearExistingCountsOption_ = new QCheckBox("previous detector data");
 
 	maximumTotalCounts_ = new QDoubleSpinBox();
 	maximumTimeEdit_ = new QTimeEdit();
@@ -52,12 +74,14 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(QWidget *parent) :
 	fl->addRow("Defocus by (mm)", defocusDistanceMmBox_);
 	fl->addRow("Detector tilt offset (deg)", detectorTiltBox_);
 
-	QVBoxLayout* vl1 = new QVBoxLayout();
-	vl1->addWidget(horizontalDetectorButton_);
-	vl1->addWidget(verticalDetectorButton_);
+	// removed:
+//	QVBoxLayout* vl1 = new QVBoxLayout();
+//	vl1->addWidget(horizontalDetectorButton_);
+//	vl1->addWidget(verticalDetectorButton_);
+//	fl->addRow("Detector orientation", vl1);
 
-	fl->addRow("Detector orientation", vl1);
 	fl->addRow("Start from", startFromCurrentPositionOption_);
+	fl->addRow("Do not clear", doNotClearExistingCountsOption_);
 	fl->addRow("Calibration", calibrationSelector_);
 
 	detectorOptions->setLayout(fl);
@@ -78,21 +102,27 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(QWidget *parent) :
 	centerEVBox_->setValue(configuration_.centerEV());
 	defocusDistanceMmBox_->setValue(configuration_.defocusDistanceMm());
 	detectorTiltBox_->setValue(configuration_.detectorTiltOffset());
-	if(configuration_.detectorOrientation() == 0)
-		horizontalDetectorButton_->setChecked(true);
-	else
-		verticalDetectorButton_->setChecked(true);
+	// removed:
+//	if(configuration_.detectorOrientation() == 0)
+//		horizontalDetectorButton_->setChecked(true);
+//	else
+//		verticalDetectorButton_->setChecked(true);
 
 	maximumTotalCounts_->setValue(configuration_.maximumTotalCounts());
 	maximumTimeEdit_->setTime(QTime().addSecs(configuration_.maximumDurationSeconds()));
+	startFromCurrentPositionOption_->setChecked(configuration_.shouldStartFromCurrentPosition());
+	doNotClearExistingCountsOption_->setChecked(configuration_.doNotClearExistingCounts());
 	/////////////////////////
 
 	connect(centerEVBox_, SIGNAL(valueChanged(double)), &configuration_, SLOT(setCenterEV(double)));
 	connect(defocusDistanceMmBox_, SIGNAL(valueChanged(double)), &configuration_, SLOT(setDefocusDistanceMm(double)));
 	connect(detectorTiltBox_, SIGNAL(valueChanged(double)), &configuration_, SLOT(setDetectorTiltOffset(double)));
 
-	connect(verticalDetectorButton_, SIGNAL(toggled(bool)), &configuration_, SLOT(setDetectorOrientation(bool)));
+	// removed:
+//	connect(verticalDetectorButton_, SIGNAL(toggled(bool)), &configuration_, SLOT(setDetectorOrientation(bool)));
+
 	connect(startFromCurrentPositionOption_, SIGNAL(toggled(bool)), &configuration_, SLOT(setShouldStartFromCurrentPosition(bool)));
+	connect(doNotClearExistingCountsOption_, SIGNAL(toggled(bool)), &configuration_, SLOT(setDoNotClearExistingCounts(bool)));
 
 	connect(maximumTotalCounts_, SIGNAL(valueChanged(double)), &configuration_, SLOT(setMaximumTotalCounts(double)));
 
@@ -109,8 +139,8 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(QWidget *parent) :
 }
 
 
-#include "dataman/AMDatabase.h"
-#include "ui/AMDateTimeUtils.h"
+#include "dataman/database/AMDatabase.h"
+#include "util/AMDateTimeUtils.h"
 void REIXSXESScanConfigurationView::onLoadCalibrations() {
 
 	calibrationSelector_->blockSignals(true);
@@ -119,7 +149,7 @@ void REIXSXESScanConfigurationView::onLoadCalibrations() {
 
 	calibrationSelector_->addItem("Default", -1);
 
-	QSqlQuery q = AMDatabase::userdb()->query();
+	QSqlQuery q = AMDatabase::database("user")->query();
 
 	q.prepare(QString("SELECT id, dateTime FROM %1").arg(calibration_.dbTableName()));
 	q.exec();
@@ -129,6 +159,7 @@ void REIXSXESScanConfigurationView::onLoadCalibrations() {
 		QDateTime dateTime = q.value(1).toDateTime();
 		calibrationSelector_->addItem(AMDateTimeUtils::prettyDateTime(dateTime), id);
 	}
+	q.finish();
 
 	// if we had a previously valid calibration, re-set it as current
 	int newIndexForOldId;
@@ -152,7 +183,7 @@ void REIXSXESScanConfigurationView::onCalibrationIndexChanged(int newIndex) {
 	configuration_.setSpectrometerCalibrationId(currentCalibrationId_);
 
 	if(currentCalibrationId_ > 0) {
-		calibration_.loadFromDb(AMDatabase::userdb(), currentCalibrationId_);
+		calibration_.loadFromDb(AMDatabase::database("user"), currentCalibrationId_);
 	}
 	else {
 		calibration_ = REIXSXESCalibration();

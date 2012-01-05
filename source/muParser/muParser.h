@@ -79,9 +79,9 @@ namespace mu
       
       explicit change_dec_sep(char_type cDecSep, char_type cThousandsSep = 0, int nGroup = 3)
         :std::numpunct<TChar>()
+	,m_nGroup(nGroup) // Switched order to get around warning ... this used to be the last one
         ,m_cDecPoint(cDecSep)
-        ,m_cThousandsSep(cThousandsSep)
-        ,m_nGroup(nGroup)
+	,m_cThousandsSep(cThousandsSep)
       {}
       
     protected:

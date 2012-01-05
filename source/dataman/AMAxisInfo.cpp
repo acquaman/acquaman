@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -29,4 +29,6 @@ AMAxisInfo::AMAxisInfo(const QString& mName, int mSize, const QString& mDescript
 	description = mDescription;
 	units = mUnits;
 	isUniform = false;
+	start = 0.0;
+	increment = 1.0;
 }

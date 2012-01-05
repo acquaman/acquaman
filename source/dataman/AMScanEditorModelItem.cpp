@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -21,13 +21,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMScanEditorModelItem.h"
 
 #include "ui/AMWindowPaneModel.h"
-#include "ui/AMGenericScanEditor.h"
+#include "application/AMDatamanAppController.h"
+#include "ui/dataman/AMGenericScanEditor.h"
 
 #include <QUrl>
 #include <QList>
 
-AMScanEditorModelItem::AMScanEditorModelItem(AMGenericScanEditor *editorWidget, const QString &iconFileName) : AMDragDropItem()
+AMScanEditorModelItem::AMScanEditorModelItem(AMGenericScanEditor *editorWidget, AMDatamanAppController* controller,const QString &iconFileName) : AMDragDropItem()
 {
+	appController_ = controller;
+
 	setData(qVariantFromValue(qobject_cast<QWidget*>(editorWidget)), AM::WidgetRole);
 	setData(true, AM::CanCloseRole);
 	setData(true, AMWindowPaneModel::DockStateRole);
@@ -49,11 +52,16 @@ bool AMScanEditorModelItem::dropMimeData(const QMimeData *mimeData, Qt::DropActi
 	if(!mimeData->hasUrls())
 		return false;
 
-	AMGenericScanEditor* editor = qobject_cast<AMGenericScanEditor*>(data(AM::WidgetRole).value<QWidget*>());
+	AMGenericScanEditor* editor = editorWidget();
 
-	if(!editor)
+	if(!editor || !appController_)
 		return false;
 
-	return editor->dropScanURLs(mimeData->urls());
+	return appController_->dropScanURLs(mimeData->urls(), editor);
 
+}
+
+AMGenericScanEditor * AMScanEditorModelItem::editorWidget() const
+{
+	return qobject_cast<AMGenericScanEditor*>(data(AM::WidgetRole).value<QWidget*>());
 }

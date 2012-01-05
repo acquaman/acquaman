@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -19,7 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "acquaman.h"
-#include "dataman/AMDbObject.h"
+#include "dataman/database/AMDbObject.h"
 
 /*!
 
@@ -36,7 +36,7 @@ Acquaman is used in various forms to build applications with different functiona
 
   \section programmerDocIntro Introduction For Programmers...
 
-  For an introductory workshop to the Acquaman Framework, see these <a href="http://beamteam.usask.ca/mark/acquaman/AcquamanOrientationWorkshop_March2011.pdf">slides from March 2011</a>, which cover:
+  For an introductory workshop to the Acquaman Framework, see these <a href="http://acquaman.github.com/acquaman/doc/html/AcquamanOrientationWorkshop_March2011.pdf">slides from March 2011</a>, which cover:
 
 
 	- Core principles and programming paradigms
@@ -52,11 +52,9 @@ Acquaman is used in various forms to build applications with different functiona
   \b Modules
   - \c beamline : Control interface to the actual beamline hardware
   - \c acquaman : Manages setting up and executing scans
-  - \c dataman : Responsible for the representation (top layer), and storage and retrieval (bottom layer) of experimental data.
-  - \c workflow : A program-wide system for scheduling and running a series of "user-level" actions
-  - \c script : Provides the advanced user with powerful and direct access to the beamline, acquaman, and dataman layers
+  - \c dataman : Responsible for the representation, storage and retrieval of experimental data, including a persistent-object database ORM.
+  - \c workflow/actions : A program-wide system for scheduling and running a series of "user-level" actions
   - \c ui : Contains all user-interface widgets. These may depend on code in other modules, but all of the other modules are free of any GUI code, and can therefore be used on systems without a GUI.
-
   */
 
 

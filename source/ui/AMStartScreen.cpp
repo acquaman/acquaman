@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -26,7 +26,7 @@ AMStartScreen::AMStartScreen(QWidget *parent) :
 	QWidget(parent)
 {
 	//QPixmap pixmap(":/ ")
-	runSelector_ = new AMRunSelector(AMDatabase::userdb(),this);
+	runSelector_ = new AMRunSelector(AMDatabase::database("user"),this);
 	//QVBoxLayout *overallLayout = new QVBoxLayout(this);
 	//QGridLayout *startLayout = new QGridLayout(this);
 	QVBoxLayout *overallLayout = new QVBoxLayout();

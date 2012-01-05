@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier.
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -152,7 +152,7 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 
 	// process variable:
 	writePV_ = new AMProcessVariable(writePVname, true, this);
-	//connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	// instead of connected(), use writeRead: connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(writePV_, SIGNAL(writeReadyChanged(bool)), this, SLOT(onPVConnected(bool)));
 	connect(writePV_, SIGNAL(error(int)), this, SLOT(onWritePVError(int)));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeoutOccurred()));
@@ -172,6 +172,11 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 		connect(stopPV_, SIGNAL(error(int)), this, SLOT(onReadPVError(int)));	/// \todo Does this need separate error handling? What if the stop write fails? That's really important.
 	}
 	stopValue_ = stopValue;
+}
+
+AMSinglePVControl::AMSinglePVControl(const QString &name, const QString &PVname, QObject *parent, double tolerance, double completionTimeoutSeconds, const QString &description)
+	: AMPVControl(name, PVname, PVname, QString(), parent, tolerance, completionTimeoutSeconds, 1, description)
+{
 }
 
 // Start a move to the value setpoint:
@@ -376,7 +381,7 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	writePV_ = new AMProcessVariable(writePVname, true, this);
 
 	// connect:
-	//connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	// use writeReadyChanged() instead of connected() here: connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(writePV_, SIGNAL(writeReadyChanged(bool)), this, SLOT(onPVConnected(bool)));
 	connect(writePV_, SIGNAL(error(int)), this, SLOT(onWritePVError(int)));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeoutOccurred()));
@@ -529,3 +534,58 @@ void AMReadOnlyWaveformBinningPVControl::setBinParameters(int lowIndex, int high
 void AMReadOnlyWaveformBinningPVControl::onReadPVValueChanged(){
 	emit valueChanged(value());
 }
+
+
+
+
+
+
+
+AMPVwStatusAndUnitConversionControl::AMPVwStatusAndUnitConversionControl(const QString &name, const QString &readPVname, const QString &writePVname, const QString &movingPVname, const QString &stopPVname, AMAbstractUnitConverter *readUnitConverter, AMAbstractUnitConverter *writeUnitConverter, QObject *parent, double tolerance, double moveStartTimeoutSeconds, AMAbstractControlStatusChecker *statusChecker, int stopValue, const QString &description) :
+	AMPVwStatusControl(name, readPVname, writePVname, movingPVname, stopPVname, parent, tolerance, moveStartTimeoutSeconds, statusChecker, stopValue, description)
+{
+	readConverter_ = readUnitConverter;
+	writeConverter_ = writeUnitConverter;
+
+	disconnect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
+	connect(readPV_, SIGNAL(valueChanged(double)), this, SLOT(onReadPVValueChanged(double)));
+
+	disconnect(writePV_, SIGNAL(valueChanged(double)), this, SIGNAL(setpointChanged(double)));
+	connect(writePV_, SIGNAL(valueChanged(double)), this, SLOT(onWritePVValueChanged(double)));
+
+}
+
+void AMPVwStatusAndUnitConversionControl::onReadPVValueChanged(double newValue)
+{
+	emit valueChanged(readUnitConverter()->convertFromRaw(newValue));
+}
+
+void AMPVwStatusAndUnitConversionControl::onWritePVValueChanged(double newValue)
+{
+	emit setpointChanged(writeUnitConverter()->convertFromRaw(newValue));
+}
+
+void AMPVwStatusAndUnitConversionControl::setUnitConverters(AMAbstractUnitConverter *readUnitConverter, AMAbstractUnitConverter* writeUnitConverter)
+{
+	QString oldUnits = units();
+	double oldValue = value();
+	double oldSetpoint = setpoint();
+
+	delete readConverter_;
+	readConverter_ = readUnitConverter;
+	if(writeConverter_)
+		delete writeConverter_;
+	writeConverter_ = writeUnitConverter;
+
+	double newValue = value();
+	QString newUnits = units();
+	double newSetpoint = setpoint();
+
+	if(newUnits != oldUnits)
+		emit unitsChanged(newUnits);
+	if(newValue != oldValue)
+		emit valueChanged(newValue);
+	if(newSetpoint != oldSetpoint)
+		emit setpointChanged(newSetpoint);
+}
+
