@@ -79,6 +79,8 @@ public:
 	AMControlInfo regionControlInfo() const { return regions_->defaultControl()->toInfo(); }
 	/// Returns the AMControlInfo for the time control.
 	AMControlInfo timeControlInfo() const { return regions_->defaultTimeControl()->toInfo(); }
+	/// returns the AMControlInfo for the k-control.
+	AMControlInfo kControlInfo() const { return exafsRegions()->defaultKControl()->toInfo(); }
 
 	/// Get a pretty looking string of the current regions of interest.  Used primarily for exporting the list into the header of the file.
 	QString readRoiList() const;

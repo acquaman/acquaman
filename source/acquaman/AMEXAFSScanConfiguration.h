@@ -63,6 +63,9 @@ public:
 		return QString(exafsRegions()->hasKSpace() ? "EXAFS" : "XANES");
 	}
 
+	/// Pure virtual function requiring the k-control info to be returned.
+	virtual AMControlInfo kControlInfo() const = 0;
+
 	/// Convenience function for regionControlInfo.  Returns the AMControlInfo for the energy control.
 	virtual AMControlInfo energyControlInfo() const { return regionControlInfo(); }
 

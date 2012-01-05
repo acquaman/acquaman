@@ -250,6 +250,8 @@ public:
 	/// Explicit getter based on the type passed into the function.  Returns the end value as a double from the region referred to by \param index.
 	double endByType(int index, AMEXAFSRegion::RegionType type) { return exafsRegion(index)->endByType(type); }
 
+	/// Returns the default k-control used by this list to move from the start to the end of the region in k-space.
+	AMControl* defaultKControl() const { return defaultKControl_; }
 	/// Returns the default edge energy for the regions list.  This is the energy that is set as the edge energy to all newly created regions.
 	double defaultEdgeEnergy() const { return defaultEdgeEnergy_; }
 

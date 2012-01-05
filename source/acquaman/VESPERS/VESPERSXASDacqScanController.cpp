@@ -286,10 +286,9 @@ bool VESPERSXASDacqScanController::initializeImplementation()
 	 */
 	AMBeamlineParallelActionsList *setupXASActionsList = new AMBeamlineParallelActionsList;
 
-	if (!setupXASAction_){
+	if (!setupXASAction_)
+		onInitializationActionFinished();
 
-
-	}
 	setupXASAction_ = new AMBeamlineListAction(setupXASActionsList);
 
 	// First stage.
@@ -403,6 +402,10 @@ void VESPERSXASDacqScanController::cleanup()
 		First: Set the dwell time to 1 second.  Set the scan mode to continuous.  Set the relative energy PV to 0.
 	 */
 	AMBeamlineParallelActionsList *cleanupXASActionsList = new AMBeamlineParallelActionsList;
+
+	if (!cleanupXASAction_)
+		onCleanupActionFinished();
+
 	cleanupXASAction_ = new AMBeamlineListAction(cleanupXASActionsList);
 
 	// First stage.

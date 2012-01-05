@@ -48,7 +48,8 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(const VESPERSEXAFSS
 
 	for (int i = 0; i < original.regionCount(); i++){
 
-		regions_->addRegion(i, original.regionStart(i), original.regionDelta(i), original.regionEnd(i), original.regionTime(i));
+		// Because I store the values in energy space, I need to ask for them explicitly with no converstion.  Otherwise, the k-space values will be converted twice.
+		regions_->addRegion(i, original.regionStartByType(i, AMEXAFSRegion::Energy), original.regionDelta(i), original.regionEndByType(i, AMEXAFSRegion::Energy), original.regionTime(i));
 		exafsRegions()->setType(i, original.exafsRegions()->type(i));
 		exafsRegions()->setEdgeEnergy(i, original.exafsRegions()->edgeEnergy(i));
 	}
@@ -83,7 +84,7 @@ AMScanConfigurationView *VESPERSEXAFSScanConfiguration::createView()
 
 QString VESPERSEXAFSScanConfiguration::detailedDescription() const
 {
-	return QString("VESPERS XAS Scan");
+	return exafsRegions()->hasKSpace() ? QString("VESPERS EXAFS Scan") : QString("VESPERS XANES Scan");
 }
 
 QString VESPERSEXAFSScanConfiguration::readRoiList() const

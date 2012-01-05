@@ -12,7 +12,7 @@
 
 bool VESPERS2011XASFileLoaderPlugin::accepts(AMScan *scan)
 {
-	if (scan->fileFormat() == "vespersXAS" || scan->fileFormat() == "vespers2011XAS")
+	if (scan->fileFormat() == "vespersXAS" || scan->fileFormat() == "vespers2011XAS" || scan->fileFormat() == "vespers2011EXAFS")
 		return true;
 
 	return false;

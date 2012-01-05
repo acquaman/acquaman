@@ -4,7 +4,6 @@
 #include "dataman/AMUser.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
-#include "actions/AMBeamlineListAction.h"
 #include "actions/AMBeamlineParallelActionsList.h"
 
 #include <QDir>
@@ -13,9 +12,12 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	: AMDacqScanController(cfg, parent)
 {
 	config_ = cfg;
+	setupXASAction_ = 0;
+	cleanupXASAction_ = 0;
+
 	scan_ = new AMXASScan(); 	// MB: Moved from line 363 in startImplementation.
 	scan_->setName(config_->name());
-	scan_->setFileFormat("vespers2011XAS");
+	scan_->setFileFormat("vespers2011EXAFS");
 	scan_->setScanConfiguration(config_);
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setIndexType("fileSystem");
@@ -263,7 +265,11 @@ bool VESPERSEXAFSDacqScanController::initializeImplementation()
 		Third: Move the mono to the correct energy and move the sample stage to the correct location (if enabled).
 	 */
 	AMBeamlineParallelActionsList *setupXASActionsList = new AMBeamlineParallelActionsList;
-	AMBeamlineListAction *setupXASAction = new AMBeamlineListAction(setupXASActionsList);
+
+	if (!setupXASAction_)
+		onInitializationActionFinished();
+
+	setupXASAction_ = new AMBeamlineListAction(setupXASActionsList);
 
 	// First stage.
 	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
@@ -311,10 +317,10 @@ bool VESPERSEXAFSDacqScanController::initializeImplementation()
 		}
 	}
 
-	connect(setupXASAction, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
-	connect(setupXASAction, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
-	connect(setupXASAction, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
-	setupXASAction->start();
+	connect(setupXASAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
+	connect(setupXASAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
+	connect(setupXASAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
+	setupXASAction_->start();
 
 	return true;
 }
@@ -368,9 +374,23 @@ bool VESPERSEXAFSDacqScanController::startImplementation()
 	}
 
 	for (int i = 0; i < config_->regionCount(); i++){
+		qDebug() << config_->exafsRegions()->units(i) << config_->exafsRegions()->start(i) << config_->exafsRegions()->delta(i) << config_->exafsRegions()->end(i);
+		if (advAcq_->getNumRegions() == i){
 
-		if (advAcq_->getNumRegions() == i)
-			advAcq_->addRegion(i, config_->regionStart(i), config_->regionDelta(i), config_->regionEnd(i), 1);
+			AMPVwStatusControl *control = 0;
+
+			if (config_->regionType(i) == AMEXAFSRegion::Energy){
+
+				control = qobject_cast<AMPVwStatusControl *>(config_->regions()->defaultControl());
+				advAcq_->addRegion(i, control->writePVName(), config_->regionStart(i), config_->regionDelta(i), config_->regionEnd(i), 1);
+			}
+			else if (advAcq_->getNumRegions() == i && config_->regionType(i) == AMEXAFSRegion::kSpace){
+
+				control = qobject_cast<AMPVwStatusControl *>(config_->exafsRegions()->defaultKControl());
+				advAcq_->addRegion(i, control->writePVName(), config_->regionStart(i), config_->regionDelta(i), config_->regionEnd(i), 1);
+			}
+		}
+
 		else {
 
 			advAcq_->setStart(i, config_->regionStart(i));
@@ -389,7 +409,11 @@ void VESPERSEXAFSDacqScanController::cleanup()
 		First: Set the dwell time to 1 second.  Set the scan mode to continuous.  Set the relative energy PV to 0.
 	 */
 	AMBeamlineParallelActionsList *cleanupXASActionsList = new AMBeamlineParallelActionsList;
-	AMBeamlineListAction *cleanupXASAction = new AMBeamlineListAction(cleanupXASActionsList);
+
+	if (!cleanupXASAction_)
+		onCleanupActionFinished();
+
+	cleanupXASAction_ = new AMBeamlineListAction(cleanupXASActionsList);
 
 	// First stage.
 	cleanupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
@@ -399,9 +423,15 @@ void VESPERSEXAFSDacqScanController::cleanup()
 	// Energy.
 	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->mono()->createDelEAction(0));
 
-	connect(cleanupXASAction, SIGNAL(succeeded()), this, SLOT(onCleanupFinished()));
-	connect(cleanupXASAction, SIGNAL(failed(int)), this, SLOT(onCleanupFinished()));
-	cleanupXASAction->start();
+	connect(cleanupXASAction_, SIGNAL(succeeded()), this, SLOT(onCleanupFinished()));
+	connect(cleanupXASAction_, SIGNAL(failed(int)), this, SLOT(onCleanupFinished()));
+	cleanupXASAction_->start();
+}
+
+void VESPERSEXAFSDacqScanController::onCleanupFinished()
+{
+	onCleanupActionFinished();
+	AMDacqScanController::onDacqStop();
 }
 
 void VESPERSEXAFSDacqScanController::onDwellTimeTriggerChanged(double newValue)
@@ -422,6 +452,7 @@ AMnDIndex VESPERSEXAFSDacqScanController::toScanIndex(QMap<int, double> aeData)
 
 void VESPERSEXAFSDacqScanController::onInitializationActionsSucceeded()
 {
+	onInitializationActionFinished();
 	setInitialized();
 }
 
@@ -430,6 +461,7 @@ void VESPERSEXAFSDacqScanController::onInitializationActionsFailed(int explanati
 	Q_UNUSED(explanation)
 
 	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "XAS scan failed to initialize."));
+	onInitializationActionFinished();
 	setFailed();
 }
 
@@ -498,6 +530,8 @@ bool VESPERSEXAFSDacqScanController::setupSingleElementXAS()
 		return false;
 	}
 
+	usingSpectraDotDatFile_ = true;
+
 	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
 	while (advAcq_->deleteRecord(1)){}
 
@@ -547,6 +581,8 @@ bool VESPERSEXAFSDacqScanController::setupFourElementXAS()
 				"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
 		return false;
 	}
+
+	usingSpectraDotDatFile_ = true;
 
 	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
 	while (advAcq_->deleteRecord(1)){}
@@ -601,4 +637,42 @@ bool VESPERSEXAFSDacqScanController::setupFourElementXAS()
 	// End of hardcored.
 
 	return loadSuccess;
+}
+
+void VESPERSEXAFSDacqScanController::onInitializationActionFinished()
+{
+	if (setupXASAction_ == 0)
+		return;
+
+	// Disconnect all signals and return all memory.
+	setupXASAction_->disconnect();
+	AMBeamlineParallelActionsList *actionList = setupXASAction_->list()	;
+
+	for (int i = 0; i < actionList->stageCount(); i++){
+
+		while (actionList->stage(i)->size())
+			delete actionList->stage(i)->takeAt(0);
+	}
+
+	delete setupXASAction_;
+	setupXASAction_ = 0;
+}
+
+void VESPERSEXAFSDacqScanController::onCleanupActionFinished()
+{
+	if (cleanupXASAction_ == 0)
+		return;
+
+	// Disconnect all signals and return all memory.
+	cleanupXASAction_->disconnect();
+	AMBeamlineParallelActionsList *actionList = cleanupXASAction_->list()	;
+
+	for (int i = 0; i < actionList->stageCount(); i++){
+
+		while (actionList->stage(i)->size())
+			delete actionList->stage(i)->takeAt(0);
+	}
+
+	delete cleanupXASAction_;
+	cleanupXASAction_ = 0;
 }

@@ -173,16 +173,22 @@ bool VESPERSAppController::startup() {
 		VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
 
 		// Setup XAS for the beamline.  Builds the config, view, and view holder.
-		VESPERSEXAFSScanConfiguration *xasScanConfig = new VESPERSEXAFSScanConfiguration();
+		VESPERSXASScanConfiguration *xasScanConfig = new VESPERSXASScanConfiguration();
 		xasScanConfig->addRegion(0, -30, 1, 40, 1);
-		VESPERSEXAFSScanConfigurationView *xasConfigView = new VESPERSEXAFSScanConfigurationView(xasScanConfig);
+		VESPERSXASScanConfigurationView *xasConfigView = new VESPERSXASScanConfigurationView(xasScanConfig);
 		AMScanConfigurationViewHolder *xasConfigViewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, xasConfigView);
+		VESPERSEXAFSScanConfiguration *exafsScanConfig = new VESPERSEXAFSScanConfiguration();
+		exafsScanConfig->addRegion(0, -30, 1, 40, 1);
+		VESPERSEXAFSScanConfigurationView *exafsConfigView = new VESPERSEXAFSScanConfigurationView(exafsScanConfig);
+		AMScanConfigurationViewHolder *exafsConfigViewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, exafsConfigView);
 		/// \todo this can likely be somewhere else in the framework.
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
 
 		mw_->insertHeading("Scans", 2);
 		mw_->addPane(experimentConfigurationView, "Scans", "Experiment Setup", ":/utilities-system-monitor.png");
 		mw_->addPane(xasConfigViewHolder, "Scans", "XAS", ":/utilities-system-monitor.png");
+		mw_->addPane(exafsConfigViewHolder, "Scans", "EXAFS", ":/utilities-system-monitor.png");
+
 
 		// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
 		VESPERSPersistentView *persistentView = new VESPERSPersistentView;

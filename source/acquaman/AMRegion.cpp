@@ -441,7 +441,7 @@ bool AMEXAFSRegion::setStart(double start) {
 
 	if(elasticStart_){
 		initiatedStartAdjust_ = true;
-		emit startChanged(start_);
+		emit startChanged(startByType(Energy));
 	}
 
 	return true;
@@ -460,7 +460,7 @@ bool AMEXAFSRegion::setEnd(double end) {
 
 	if(elasticEnd_){
 		initiatedEndAdjust_ = true;
-		emit endChanged(end_);
+		emit endChanged(endByType(Energy));
 	}
 
 	return true;
@@ -480,7 +480,7 @@ bool AMEXAFSRegion::setStartByType(double start, RegionType type)
 
 	if(elasticStart_){
 		initiatedStartAdjust_ = true;
-		emit startChanged(start_);
+		emit startChanged(startByType(Energy));
 	}
 
 	return true;
@@ -500,7 +500,7 @@ bool AMEXAFSRegion::setEndByType(double end, RegionType type)
 
 	if(elasticEnd_){
 		initiatedEndAdjust_ = true;
-		emit endChanged(end_);
+		emit endChanged(endByType(Energy));
 	}
 
 	return true;
@@ -724,7 +724,7 @@ QVariant AMEXAFSRegionsListModel::data(const QModelIndex &index, int role) const
 	case 6: // The time control.
 		break; // Doing nothing.
 	case 7: // The time value.
-		dataVal = (region->time() >= 0) ? QString::number(region->time(), 'f', 1) + region->timeUnits() : "-";
+		dataVal = (region->type() == AMEXAFSRegion::Energy) ? QString::number(region->time(), 'f', 1) + region->timeUnits() : "-";
 		break;
 	default:
 		break; // Return null if not a specific case.
