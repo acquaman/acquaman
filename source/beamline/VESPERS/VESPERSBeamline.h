@@ -427,6 +427,8 @@ public:
 	AMControl *energyRelative() const { return energyRelative_; }
 	/// Returns the master dwell time control.
 	AMControl *masterDwellTime() const { return masterDwellTime_; }
+	/// Returns the k control used for EXAFS scans.
+	AMControl *kControl() const { return kControl_; }
 
 	//////////////////////////////////////////////////////////////////////////////////////
 	// Actions
@@ -715,6 +717,7 @@ protected:
 	// Scanning settings.
 	AMControl *energyRelative_;
 	AMControl *masterDwellTime_;
+	AMControl *kControl_;
 
 	// AM names bihash to/from PV names.
 	AMBiHash<QString, QString> amNames2pvNames_;

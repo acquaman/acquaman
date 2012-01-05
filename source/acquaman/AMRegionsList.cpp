@@ -364,3 +364,77 @@ bool AMEXAFSRegionsList::setupModel()
 
 	return false;
 }
+
+bool AMEXAFSRegionsList::addRegionSqueeze(int index){
+
+	double nextStart, nextEnd, prevStart, prevEnd;
+	double sensibleStart = sensibleStart_;
+	double sensibleEnd = sensibleEnd_;
+
+	if(count() == 0)
+		return addRegion(index, sensibleStart, 1, sensibleEnd);
+
+	else if(index == 0){
+
+		nextStart = startByType(index, AMEXAFSRegion::Energy);
+
+		if (sensibleStart == nextStart)
+			return addRegion(index, sensibleStart - 10, 1, nextStart);
+		else if (nextStart < sensibleStart)
+			return addRegion(index, nextStart - 10, 1, nextStart);
+		else
+			return addRegion(index, sensibleStart, 1, nextStart);
+	}
+
+	else if(index == count() && type(index-1) == AMEXAFSRegion::Energy){
+
+		prevEnd = endByType(index-1, AMEXAFSRegion::Energy);
+
+		if (sensibleEnd == prevEnd)
+			return addRegion(index, prevEnd, 1, sensibleEnd + 10);
+		else if (prevEnd > sensibleEnd)
+			return addRegion(index, prevEnd, 1, prevEnd + 10);
+		else
+			return addRegion(index, prevEnd, 1, sensibleEnd);
+	}
+
+	else if(index == count() && type(index-1) == AMEXAFSRegion::kSpace){
+
+		prevEnd = endByType(index-1, AMEXAFSRegion::kSpace);
+
+		// Sensible end for EXAFS is 10k.
+		if (prevEnd == 10)
+			return addRegion(index, prevEnd, 1, 15);
+		else if (prevEnd > 10)
+			return addRegion(index, prevEnd, 1, prevEnd + 5);
+		else
+			return addRegion(index, prevEnd, 1, 10);
+	}
+
+	else{
+
+		prevStart = startByType(index-1, AMEXAFSRegion::Energy);
+		prevEnd = endByType(index-1, AMEXAFSRegion::Energy);
+		nextStart = startByType(index, AMEXAFSRegion::Energy);
+		nextEnd = endByType(index, AMEXAFSRegion::Energy);
+		return addRegion(index, prevStart+(prevEnd-prevStart)/2, 1, nextStart+(nextEnd-nextStart)/2 );
+	}
+}
+
+bool AMEXAFSRegionsList::deleteRegionSqueeze(int index){
+
+	bool retVal = deleteRegion(index);
+
+	if(retVal){
+
+		if( (index != 0) && (index != count()) ){
+
+			double prevEnd, nextStart;
+			prevEnd = endByType(index-1, AMEXAFSRegion::Energy);
+			nextStart = startByType(index, AMEXAFSRegion::Energy);
+			setEnd(index-1, prevEnd+(nextStart-prevEnd)/2);
+		}
+	}
+
+	return retVal;
+}

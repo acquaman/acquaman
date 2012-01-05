@@ -1,32 +1,12 @@
-/*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+#ifndef VESPERSEXAFSSCANCONFIGURATION_H
+#define VESPERSEXAFSSCANCONFIGURATION_H
 
-This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
-
-Acquaman is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Acquaman is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
-#ifndef VESPERSXASSCANCONFIGURATION_H
-#define VESPERSXASSCANCONFIGURATION_H
-
-#include "acquaman/AMXASScanConfiguration.h"
+#include "acquaman/AMEXAFSScanConfiguration.h"
 #include "dataman/info/AMROIInfo.h"
 
-#include  <QMap>
+#include <QMap>
 
-class VESPERSXASScanConfiguration : public AMXASScanConfiguration
+class VESPERSEXAFSScanConfiguration : public AMEXAFSScanConfiguration
 {
 	Q_OBJECT
 
@@ -44,19 +24,18 @@ class VESPERSXASScanConfiguration : public AMXASScanConfiguration
 	Q_ENUMS(FluorescenceDetector)
 	Q_ENUMS(IonChamber)
 
-	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS XAS Scan Configuration")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS EXAFS Scan Configuration")
 
 public:
-
 	/// Enum for making the decision on what fluorescence detector the user wants to use.
 	enum FluorescenceDetector { None = 0, SingleElement, FourElement };
 	/// Enum for the ion chambers.  Used when choosing It and I0.
 	enum IonChamber { Isplit = 0, Iprekb, Imini, Ipost };
 
 	/// Constructor.
-	Q_INVOKABLE explicit VESPERSXASScanConfiguration(QObject *parent=0);
+	Q_INVOKABLE VESPERSEXAFSScanConfiguration(QObject *parent = 0);
 	/// Copy constructor.
-	VESPERSXASScanConfiguration(const VESPERSXASScanConfiguration &original);
+	VESPERSEXAFSScanConfiguration(const VESPERSEXAFSScanConfiguration &original);
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;
@@ -172,4 +151,4 @@ protected:
 	AMROIInfoList roiInfoList_;
 };
 
-#endif // VESPERSXASSCANCONFIGURATION_H
+#endif // VESPERSEXAFSSCANCONFIGURATION_H

@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMPeriodicTable.h"
 #include "ui/VESPERS/VESPERSDeviceStatusView.h"
 #include "ui/VESPERS/VESPERSXASScanConfigurationView.h"
+#include "ui/VESPERS/VESPERSEXAFSScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSExperimentConfigurationView.h"
 
 #include "dataman/AMScanEditorModelItem.h"
@@ -97,6 +98,7 @@ bool VESPERSAppController::startup() {
 		AMDbObjectSupport::s()->registerClass<VESPERSXRFScanConfiguration>();
 		AMDbObjectSupport::s()->registerClass<AMXRFScan>();
 		AMDbObjectSupport::s()->registerClass<VESPERSXASScanConfiguration>();
+		AMDbObjectSupport::s()->registerClass<VESPERSEXAFSScanConfiguration>();
 
 		AMDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
 		AMDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
@@ -171,9 +173,9 @@ bool VESPERSAppController::startup() {
 		VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
 
 		// Setup XAS for the beamline.  Builds the config, view, and view holder.
-		VESPERSXASScanConfiguration *xasScanConfig = new VESPERSXASScanConfiguration();
+		VESPERSEXAFSScanConfiguration *xasScanConfig = new VESPERSEXAFSScanConfiguration();
 		xasScanConfig->addRegion(0, -30, 1, 40, 1);
-		VESPERSXASScanConfigurationView *xasConfigView = new VESPERSXASScanConfigurationView(xasScanConfig);
+		VESPERSEXAFSScanConfigurationView *xasConfigView = new VESPERSEXAFSScanConfigurationView(xasScanConfig);
 		AMScanConfigurationViewHolder *xasConfigViewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, xasConfigView);
 		/// \todo this can likely be somewhere else in the framework.
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
