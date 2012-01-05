@@ -204,7 +204,7 @@ private slots:
 	void testRunDialog() {
 
 
-		AMStartScreen *ss;
+		AMStartScreen *ss = new AMStartScreen;
 		ss->show();
 
 
