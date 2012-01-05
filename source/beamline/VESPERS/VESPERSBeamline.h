@@ -122,6 +122,35 @@ public:
 
 	// End of synchronized dwell time.
 
+	// The photon and safety shutters.
+	/// Returns the first photon shutter.
+	AMControl *photonShutter1() const { return psh1_; }
+	/// Returns the second photon shutter.
+	AMControl *photonShutter2() const { return psh2_; }
+	/// Returns the first safety shutter.
+	AMControl *safetyShutter1() const { return ssh1_; }
+	/// Returns the second safety shutter.
+	AMControl *safetyShutter2() const { return ssh2_; }
+
+	// Because there is some logic involved with opening and closing the shutters each shutter has it's own method for opening and closing.
+	/// Opens the first photon shutter.  Returns whether the beamline was in the proper state before changing the shutter.
+	bool openPhotonShutter1();
+	/// Closes the first photon shutter.  Returns whether the beamline was in the proper state before changing the shutter.
+	bool closePhotonShutter1();
+	/// Opens the second photon shutter.  Returns whether the beamline was in the proper state before changing the shutter.
+	bool openPhotonShutter2();
+	/// Closes the second photon shutter.  Returns whether the beamline was in the proper state before changing the shutter.
+	bool closePhotonShutter2();
+	/// Opens the first safety shutter.  Returns whether the beamline was in the proper state before changing the shutter.
+	bool openSafetyShutter1();
+	/// Closes the second safety shutter.  Returns whether the beamline was in the proper state before changing the shutter.
+	bool closeSafetyShutter1();
+	/// Opens the first safety shutter.  Returns whether the beamline was in the proper state before changing the shutter.
+	bool openSafetyShutter2();
+	/// Closes the second safety shutter.  Returns whether the beamline was in the proper state before changing the shutter.
+	bool closeSafetyShutter2();
+
+
 	// The endstation.
 	/// Returns the endstation model.
 	VESPERSEndstation *endstation() const { return endstation_; }
@@ -513,6 +542,12 @@ protected:
 
 	// Synchronized Dwell time
 	CLSSynchronizedDwellTime *synchronizedDwellTime_;
+
+	// The shutters.
+	AMControl *psh1_;
+	AMControl *psh2_;
+	AMControl *ssh1_;
+	AMControl *ssh2_;
 
 	// Endstation
 	VESPERSEndstation *endstation_;

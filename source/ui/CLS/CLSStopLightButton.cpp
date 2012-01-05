@@ -18,27 +18,25 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "ui/AMShutterButton.h"
+#include "ui/CLS/CLSStopLightButton.h"
 #include <QPainter>
 #include <QRadialGradient>
 #include <QStyleOption>
 #include <QFontMetrics>
 #include <QDebug>
 
-AMShutterButton::AMShutterButton(QString title, QString statusPV, QWidget *parent)
-	: QPushButton(parent), state_(Between), title_(title)
+CLSStopLightButton::CLSStopLightButton(CLSBiStateControl *control, QWidget *parent)
+	: QPushButton(parent)
 {
-	statePV_ = new AMProcessVariable(statusPV, true, this);
-	connect(statePV_, SIGNAL(valueChanged()), this, SLOT(statusUpdate()));
-
-	openPV_ = 0;
-	closePV_ = 0;
+	control_ = control;
+	connect(control_, SIGNAL(stateChanged(int)), this, SLOT(update()));
+	connect(control_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged(bool)));
 
 	setFlat(true);
 
 	// Determining the size of the button.
 	QFontMetrics metric(this->font());
-	int width = metric.width(title);
+	int width = metric.width(control_->name());
 
 	if (width < 40)
 		width = 40;
@@ -46,73 +44,7 @@ AMShutterButton::AMShutterButton(QString title, QString statusPV, QWidget *paren
 	setMinimumSize(1.4*width, 1.4*width);
 }
 
-AMShutterButton::AMShutterButton(QString title, QString statusPV, QString openPV, QString closePV, QWidget *parent)
-	: QPushButton(parent), state_(Between), title_(title)
-{
-	statePV_ = new AMProcessVariable(statusPV, true, this);
-	connect(statePV_, SIGNAL(valueChanged()), this, SLOT(statusUpdate()));
-
-	openPV_ = new AMProcessVariable(openPV, true, this);
-	connect(openPV_, SIGNAL(writeReadyChanged(bool)), this, SLOT(statusUpdate()));
-	closePV_ = new AMProcessVariable(closePV, true, this);
-	connect(closePV_, SIGNAL(writeReadyChanged(bool)), this, SLOT(statusUpdate()));
-
-	setFlat(true);
-
-	// Determining the size of the button.
-	QFontMetrics metric(this->font());
-	int width = metric.width(title);
-
-	if (width < 40)
-		width = 40;
-
-	setMinimumSize(1.4*width, 1.4*width);
-}
-
-void AMShutterButton::changeState()
-{
-	if (isFlat() || openPV_ == 0 || closePV_ == 0)
-		return;
-
-	switch(state()){
-	case Open:
-	case Between:
-		closePV_->setValue(1);
-		break;
-	case Closed:
-		openPV_->setValue(1);
-	}
-
-	update();
-}
-
-void AMShutterButton::statusUpdate()
-{
-	setEnabled(statePV_->canRead());
-	if (isFlat() && openPV_ && closePV_)
-		setFlat(!openPV_->writeReady() && !closePV_->writeReady());
-
-	switch(statePV_->getInt()){
-	case 1:
-		setState(Open);
-		break;
-	case 4:
-		setState(Closed);
-		break;
-	case 2:
-	case 0:
-	case 3:
-	case 5:
-	case 6:
-	case 7:
-		setState(Between);
-		break;
-	}
-
-	update();
-}
-
-void AMShutterButton::paintEvent(QPaintEvent *e)
+void CLSStopLightButton::paintEvent(QPaintEvent *e)
 {
 	Q_UNUSED(e)
 
@@ -137,16 +69,16 @@ void AMShutterButton::paintEvent(QPaintEvent *e)
 
 	// Paint the center light.
 	QRadialGradient lightGradient(0.45*h, 0.3*h, 0.55*h);
-	switch(state()){
-	case Open:
+	switch(control_->state()){
+	case 1:
 		lightGradient.setColorAt(0, QColor(0, 200, 0));
 		lightGradient.setColorAt(0.5, QColor(34, 139, 34));
 		break;
-	case Between:
+	case 2:
 		lightGradient.setColorAt(0, QColor(255, 255, 0));
 		lightGradient.setColorAt(0.5, QColor(200, 200, 0));
 		break;
-	case Closed:
+	case 0:
 		lightGradient.setColorAt(0, QColor(255, 0, 0));
 		lightGradient.setColorAt(0.5, QColor(200, 0, 0));
 		break;
@@ -157,10 +89,11 @@ void AMShutterButton::paintEvent(QPaintEvent *e)
 
 	// Paint on the title.
 	QFontMetrics metric(this->font());
-	if (state() == Between)
+	if (control_->state() == 2)
 		painter.setPen(Qt::darkBlue);
 	else
 		painter.setPen(Qt::white);
 
-	painter.drawText(QRectF((0.8*h-metric.width(title()))/2, 0.25*h, metric.width(title()), metric.height()), title());
+	QString title(control_->name());
+	painter.drawText(QRectF((0.8*h-metric.width(title))/2, 0.25*h, metric.width(title), metric.height()), title);
 }
