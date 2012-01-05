@@ -257,6 +257,14 @@ protected slots:
 protected:
 	/// Helper function to create an appropriate MPlotItem and connect it to the \c dataSource, depending on the dimensionality of \c dataSource.  Returns 0 if we can't handle this dataSource and no item was created (ex: unsupported dimensionality; we only handle 1D or 2D data for now.)
 	MPlotItem* createPlotItemForDataSource(const AMDataSource* dataSource, const AMDataSourcePlotSettings& plotSettings);
+	/// Helper function to look at a plot and configure the left and right axes depending on whether there are 1D and/or 2D data sources in the plot.
+	/*! We plot 2D data sources on the right axis scale, and 1D data sources on the left axis scale.  We could therefore end up in one of 4 states for the axes configuration:
+0: No data sources of any kind: hide both axis labels; assign both axes to the left axis scale.
+1: Only 1D data sources: show the left axis labels, hide the right axis labels; assign both axes to the left axis scale.
+2: Only 2D data sources: hide the left axis labels, show the right axis labels; assign both axes to the right axis scale.
+3: Both 1D and 2D data sources: show the left and right axis labels; assign the left axis to the left axis scale and the right axis to the right axis scale.
+	  */
+	void reviewPlotAxesConfiguration(MPlotGW* plot);
 
 	AMScanView* masterView_;
 
@@ -289,7 +297,7 @@ signals:
 
 public slots:
 
-	/// change the view mode (newMode is a ViewMode enum: 0 for one data source at a time; 1 for all data sources overplotted; 2 for one plot per scan; 2 for one plot per data source.
+	/// change the view mode (newMode is a ViewMode enum: 0 for one data source at a time; 1 for all data sources overplotted; 2 for one plot per scan; 3 for one plot per data source.
 	void changeViewMode(int newMode);
 
 	/// add a scan to the view:
@@ -318,9 +326,9 @@ protected:
 
 	QPropertyAnimation* modeAnim_;
 
-	// build UI
+	/// internal helper function to build the UI
 	void setupUI();
-	// setup all UI event-handling connections
+	/// internal helper function to setup all UI event-handling connections
 	void makeConnections();
 
 
@@ -384,6 +392,7 @@ protected:
 };
 
 
+/// This class implements an internal view for AMScanView, which shows all of the enabled data sources.
 class AMScanViewMultiView : public AMScanViewInternal {
 	Q_OBJECT
 
@@ -428,7 +437,7 @@ protected:
 };
 
 
-
+/// This class implements an internal view for AMScanView, which shows every scan in its own plot.
 class AMScanViewMultiScansView : public AMScanViewInternal {
 	Q_OBJECT
 
@@ -485,6 +494,7 @@ protected:
 };
 
 
+/// This class implements an internal view for AMScanView, which shows each data source in its own plot.
 class AMScanViewMultiSourcesView : public AMScanViewInternal {
 	Q_OBJECT
 
