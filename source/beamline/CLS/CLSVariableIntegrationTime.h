@@ -46,6 +46,26 @@ public:
 	/// Returns the maximum time that should be used while computing the various dwell times.
 	double maximumTime() const { return maxTime_->value(); }
 
+	// Action getters.  Returns an action equivalent of a setter.
+	/// Returns an action that changes the mode to \param mode.
+	AMBeamlineActionItem *createModeAction(int mode);
+	/// Returns an action that changes the default time to \param time.
+	AMBeamlineActionItem *createDefaultTimeAction(double time);
+	/// Returns an action that changes the threshold to \param threshold.
+	AMBeamlineActionItem *createThresholdAction(double threshold);
+	/// Returns an action that changes the function to \param function.
+	AMBeamlineActionItem *createFunctionAction(int function);
+	/// Returns an action that changes the low value to \param low.
+	AMBeamlineActionItem *createLowValueAction(double low);
+	/// Returns an action that changes the high value to \param high.
+	AMBeamlineActionItem *createHighValueAction(double high);
+	/// Returns an action that changes the maximum time to \param time.
+	AMBeamlineActionItem *createMaximumTimeAction(double time);
+	/// Returns an action that intiates a compute action.
+	AMBeamlineActionItem *createComputeAction();
+	/// Returns an action that sets up the entire variable dwell time app.
+	AMBeamlineActionItem *createSetupAction(int mode, double defaultTime, double threshold, int function, double low, double high, double maximumTime);
+
 signals:
 	/// Notifier that the mode has changed.  Passes the new mode.
 	void modeChanged(int);
