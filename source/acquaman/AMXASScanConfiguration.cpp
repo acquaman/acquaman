@@ -99,7 +99,6 @@ void AMXASScanConfiguration::dbLoadXASRegions(const QString &XASRegionsString){
 			addRegionSuccess = addRegion(x, oneRegion.at(0).toDouble(), oneRegion.at(1).toDouble(), oneRegion.at(2).toDouble());
 		// Acquaman XAS settings version 1.1
 		else if (oneRegion.at(0) == "xasVersion1.1"){
-
 			addRegionSuccess = addRegion(x, oneRegion.at(1).toDouble(), oneRegion.at(2).toDouble(), oneRegion.at(3).toDouble(), oneRegion.at(6).toDouble());
 			addRegionSuccess &= setRegionElasticStart(x, oneRegion.at(4).toInt() == 1 ? true : false);
 			addRegionSuccess &= setRegionElasticEnd(x, oneRegion.at(5).toInt() == 1 ? true : false);

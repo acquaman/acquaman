@@ -326,6 +326,8 @@ void AMScanConfigurationViewHolder::onStartScanRequested(){
 	workflow_->insertBeamlineAction(position, action, startNow);
 }
 
+#include "acquaman/AMXASScanConfiguration.h"
+
 void AMScanConfigurationViewHolder::onAddToQueueRequested() {
 
 	if(!view_ || !view_->configuration())

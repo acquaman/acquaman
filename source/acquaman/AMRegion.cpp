@@ -333,7 +333,6 @@ bool AMRegionsListModel::setData(const QModelIndex &index, const QVariant &value
 }
 
 bool AMRegionsListModel::insertRows(int position, int rows, const QModelIndex &index){
-
 	if (index.row() <= regions_->count() && position <= regions_->count() && defaultControl_ && defaultTimeControl_) {
 
 		beginInsertRows(QModelIndex(), position, position+rows-1);
@@ -391,7 +390,6 @@ Qt::ItemFlags AMRegionsListModel::flags(const QModelIndex &index) const{
 ////////////////////////////////////////////////////////
 
 bool AMXASRegionsListModel::insertRows(int position, int rows, const QModelIndex &index){
-
 	if (index.row() <= regions_->count() && position <= regions_->count() && defaultControl_ && defaultTimeControl_) {
 
 		beginInsertRows(QModelIndex(), position, position+rows-1);

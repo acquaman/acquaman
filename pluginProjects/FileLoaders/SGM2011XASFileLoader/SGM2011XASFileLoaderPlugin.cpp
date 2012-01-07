@@ -18,7 +18,7 @@ bool SGM2011XASFileLoaderPlugin::accepts(AMScan *scan){
 }
 
 bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder){
-	// qDebug() << "\n\nTRYING TO LOAD WITH PLUGIN";
+	//qDebug() << "\n\nTRYING TO LOAD WITH SGM2011XAS PLUGIN";
 
 	if(columns2pvNames_.count() == 0) {
 		columns2pvNames_.set("Event-ID", "Event-ID");
@@ -32,6 +32,11 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		columns2pvNames_.set("TEY_SCALER", "BL1611-ID-1:mcs00:fbk");
 		columns2pvNames_.set("TFY_SCALER", "BL1611-ID-1:mcs02:fbk");
 		columns2pvNames_.set("EnergyFeedback", "BL1611-ID-1:Energy:fbk");
+		columns2pvNames_.set("PD1_SCALER", "BL1611-ID-1:mcs06:fbk");
+		columns2pvNames_.set("PD2_SCALER", "BL1611-ID-1:mcs07:fbk");
+		columns2pvNames_.set("PD3_SCALER", "BL1611-ID-1:mcs08:fbk");
+		columns2pvNames_.set("PD4_SCALER", "BL1611-ID-1:mcs09:fbk");
+		columns2pvNames_.set("RingCurrent", "PCT1402-01:mA:fbk");
 
 		columns2pvNames_.set("SDD", "MCA1611-01:GetChannels");
 		columns2pvNames_.set("OceanOptics65000Old", "SA0000-03:Spectra");
@@ -74,7 +79,6 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		return false;
 	}
 	QTextStream fs(&f);
-
 	// find out what columns exist. Looking for line starting with '#(1) '
 	// find out what information we've got in event ID 1
 	line.clear();
@@ -104,7 +108,6 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	}
 
 	scan->clearRawDataPointsAndMeasurements();
-
 
 	// There is a rawData scan axis called "eV" created in the constructor.  AMAxisInfo("eV", 0, "Incident Energy", "eV")
 	/// \todo What if there isn't? Should we check, and create the axis if none exist? What if there's more than one scan axis? Can't remove from AMDataStore... [The rest of this code assumes a single scan axis]
@@ -137,7 +140,6 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		if(spectraFileInfo.isRelative())
 			spectraFileInfo.setFile(userDataFolder + "/" + spectraFile);
 	}
-
 	for(int x = 0; x < colNames1.count(); x++){
 		QString colName = colNames1.at(x);
 		if(colName != "eV" && colName != "Event-ID"){
@@ -194,7 +196,6 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 			scan->rawData()->endInsertRows();
 		}
 	}
-
 	//Check for a spectraFile, load it if we can
 	if(spectraFile != ""){
 		//QFile sf(spectraFile);
@@ -325,7 +326,6 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 
 
 	/// scan->onDataChanged(); \todo Is this still used? What does it mean?
-
 	return true;
 }
 
