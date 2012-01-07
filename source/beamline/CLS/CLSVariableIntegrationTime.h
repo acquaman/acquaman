@@ -19,16 +19,39 @@ class CLSVariableIntegrationTime : public QObject
 {
 	Q_OBJECT
 public:
+	/// Enum for the various modes of the app.
+	enum Mode { Disabled = 0, EnabledwThreshold, Enabled };
+	/// Enum for the various functions that can be used for the app.
+	enum Function { Default = 0, Geometric, Exponential, Linear, Quadratic, SmoothStep, Logarithmic };
+
 	/// Constructor.  Takes in the base name and parent and builds a variable integration time object.
 	explicit CLSVariableIntegrationTime(const QString &baseName, QObject *parent = 0);
 
-	/// Returns the current mode of the variable integration time app.  0 is disabled, 1 is enabled w/ threshold, 2 is enabled.
-	int mode() const { return (int)mode_->value(); }
+	/// Returns the current mode of the variable integration time app.
+	Mode mode() const
+	{
+		Mode temp = Disabled;
+
+		switch ((int)mode_->value()){
+
+		case 0:
+			temp = Disabled;
+			break;
+		case 1:
+			temp = EnabledwThreshold;
+			break;
+		case 2:
+			temp = Enabled;
+			break;
+		}
+
+		return temp;
+	}
 	/// Returns the current default time of the variable integration app.
 	double defautTime() const { return defaultTime_->value(); }
 	/// Returns the threshold value (in k-space).
 	double threshold() const { return threshold_->value(); }
-	/// Returns the index of which function is being used to compute the various times.
+	/// Returns the function being used to compute the various times.
 	/*!
 		0) Default
 		1) Geometric
@@ -38,7 +61,37 @@ public:
 		5) Smooth Step
 		6) Logarithmic
 	  */
-	int function() const { return (int)function_->value(); }
+	Function function() const
+	{
+		Function temp = Default;
+
+		switch ((int)function_->value()){
+
+		case 0:
+			temp = Default;
+			break;
+		case 1:
+			temp = Geometric;
+			break;
+		case 2:
+			temp = Exponential;
+			break;
+		case 3:
+			temp = Linear;
+			break;
+		case 4:
+			temp = Quadratic;
+			break;
+		case 5:
+			temp = SmoothStep;
+			break;
+		case 6:
+			temp = Logarithmic;
+			break;
+		}
+
+		return temp;
+	}
 	/// Returns the low value of the region.  This should be set to the same as threshold for proper configuration.
 	double lowValue() const { return lowVal_->value(); }
 	/// Returns the high value of the region.  This should be set to the same as the end point of the region.
@@ -48,13 +101,13 @@ public:
 
 	// Action getters.  Returns an action equivalent of a setter.
 	/// Returns an action that changes the mode to \param mode.
-	AMBeamlineActionItem *createModeAction(int mode);
+	AMBeamlineActionItem *createModeAction(Mode mode);
 	/// Returns an action that changes the default time to \param time.
 	AMBeamlineActionItem *createDefaultTimeAction(double time);
 	/// Returns an action that changes the threshold to \param threshold.
 	AMBeamlineActionItem *createThresholdAction(double threshold);
 	/// Returns an action that changes the function to \param function.
-	AMBeamlineActionItem *createFunctionAction(int function);
+	AMBeamlineActionItem *createFunctionAction(Function function);
 	/// Returns an action that changes the low value to \param low.
 	AMBeamlineActionItem *createLowValueAction(double low);
 	/// Returns an action that changes the high value to \param high.
@@ -64,17 +117,17 @@ public:
 	/// Returns an action that intiates a compute action.
 	AMBeamlineActionItem *createComputeAction();
 	/// Returns an action that sets up the entire variable dwell time app.
-	AMBeamlineActionItem *createSetupAction(int mode, double defaultTime, double threshold, int function, double low, double high, double maximumTime);
+	AMBeamlineActionItem *createSetupAction(Mode mode, double defaultTime, double threshold, Function function, double low, double high, double maximumTime);
 
 signals:
 	/// Notifier that the mode has changed.  Passes the new mode.
-	void modeChanged(int);
+	void modeChanged(Mode);
 	/// Notifier that the default time changed.  Passes the new time.
 	void defautTimeChanged(double);
 	/// Notifier that the threshold has changed.  Passes the new threshold.
 	void thresholdChanged(double);
 	/// Notifier that the function used to compute the various times has changed.  Passes the index of the new function.
-	void functionChanged(int);
+	void functionChanged(Function);
 	/// Notifier that the low value of the region has changed.  Passes the new value.
 	void lowValueChanged(double);
 	/// Notifier that the high value of the region has changed.  Passes the new value.
@@ -84,6 +137,8 @@ signals:
 
 public slots:
 	/// Sets the mode for the variable integration time app.
+	void setMode(Mode mode) { mode_->move((int)mode); }
+	/// Overload.  Sets the mode for the variable integration time app.
 	void setMode(int mode) { mode_->move(mode); }
 	/// Sets the default time used for the variable integration time app.
 	void setDefaultTime(double time) { defaultTime_->move(time); }
@@ -99,6 +154,8 @@ public slots:
 		5) Smooth Step
 		6) Logarithmic
 	  */
+	void setFunction(Function function) { function_->move((int)function); }
+	/// Overload.  Sets the function that will be used for computing the various times.
 	void setFunction(int function) { function_->move(function); }
 	/// Sets the low value of the region that is used for computing the proper time values.  This SHOULD be the same as the threshold for expected performance.
 	void setLowValue(double low) { lowVal_->move(low); }
@@ -111,9 +168,9 @@ public slots:
 
 protected slots:
 	/// Helper slot to emit the mode signal.
-	void onModeChanged(double mode) { emit modeChanged((int)mode); }
+	void onModeChanged() { emit modeChanged(mode()); }
 	/// Helper slot to emit the function signal.
-	void onFunctionChagned(double function) { emit functionChanged((int)function); }
+	void onFunctionChagned() { emit functionChanged(function()); }
 
 protected:
 	/// Control that sets the mode of the integration time.

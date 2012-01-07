@@ -15,16 +15,16 @@ CLSVariableIntegrationTime::CLSVariableIntegrationTime(const QString &baseName, 
 	maxTime_ = new AMSinglePVControl("Maximum Time", baseName + ":ymax", this, 0.1);
 	compute_ = new AMSinglePVControl("Compute", baseName + ":aN:calc:run", this, 0.1);
 
-	connect(mode_, SIGNAL(valueChanged(double)), this, SLOT(onModeChanged(double)));
+	connect(mode_, SIGNAL(valueChanged(double)), this, SLOT(onModeChanged()));
 	connect(defaultTime_, SIGNAL(valueChanged(double)), this, SIGNAL(defautTimeChanged(double)));
 	connect(threshold_, SIGNAL(valueChanged(double)), this, SIGNAL(thresholdChanged(double)));
-	connect(function_, SIGNAL(valueChanged(double)), this, SLOT(onFunctionChagned(double)));
+	connect(function_, SIGNAL(valueChanged(double)), this, SLOT(onFunctionChagned()));
 	connect(lowVal_, SIGNAL(valueChanged(double)), this, SIGNAL(lowValueChanged(double)));
 	connect(highVal_, SIGNAL(valueChanged(double)), this, SIGNAL(highValueChanged(double)));
 	connect(maxTime_, SIGNAL(valueChanged(double)), this, SIGNAL(maximumTimeChanged(double)));
 }
 
-AMBeamlineActionItem *CLSVariableIntegrationTime::createModeAction(int mode)
+AMBeamlineActionItem *CLSVariableIntegrationTime::createModeAction(Mode mode)
 {
 	if (!mode_->isConnected())
 		return 0;
@@ -57,7 +57,7 @@ AMBeamlineActionItem *CLSVariableIntegrationTime::createThresholdAction(double t
 	return action;
 }
 
-AMBeamlineActionItem *CLSVariableIntegrationTime::createFunctionAction(int function)
+AMBeamlineActionItem *CLSVariableIntegrationTime::createFunctionAction(Function function)
 {
 	if (!function_->isConnected())
 		return 0;
@@ -112,7 +112,7 @@ AMBeamlineActionItem *CLSVariableIntegrationTime::createComputeAction()
 	return action;
 }
 
-AMBeamlineActionItem *CLSVariableIntegrationTime::createSetupAction(int mode, double defaultTime, double threshold, int function, double low, double high, double maximumTime)
+AMBeamlineActionItem *CLSVariableIntegrationTime::createSetupAction(Mode mode, double defaultTime, double threshold, Function function, double low, double high, double maximumTime)
 {
 	if (!(mode_->isConnected()
 		  && defaultTime_->isConnected()

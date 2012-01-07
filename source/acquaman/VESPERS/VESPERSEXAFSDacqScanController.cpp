@@ -261,7 +261,7 @@ bool VESPERSEXAFSDacqScanController::initializeImplementation()
 	// To initialize the XAS scan, there are three stages.
 	/*
 		First: Enable/Disable all the pertinent detectors.  The scalar is ALWAYS enabled.
-		Second: Set the mode to single shot and set the time on the synchronized dwell time.
+		Second: Set the mode to single shot,set the time on the synchronized dwell time, and set the variable integration time if an EXAFS scan.
 		Third: Move the mono to the correct energy and move the sample stage to the correct location (if enabled).
 	 */
 	AMBeamlineParallelActionsList *setupXASActionsList = new AMBeamlineParallelActionsList;
@@ -294,6 +294,18 @@ bool VESPERSEXAFSDacqScanController::initializeImplementation()
 	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
 	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::SingleShot));
 	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(config_->regionTime(0)));
+	if (config_->exafsRegions()->hasKSpace()){
+
+		int regionCount = config_->regionCount();
+		double time = (regionCount > 1) ? config_->regionTime(regionCount - 2) : 1; // Grab the time from the region before the EXAFS region or default it to 1 second.
+		setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->variableIntegrationTime()->createSetupAction(CLSVariableIntegrationTime::EnabledwThreshold,
+																													  time,
+																													  config_->regionStart(regionCount - 1),
+																													  CLSVariableIntegrationTime::Geometric,
+																													  config_->regionStart(regionCount - 1),
+																													  config_->regionEnd(regionCount - 1),
+																													  10));
+	}
 
 	// Third stage.
 	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem *>());
@@ -374,7 +386,7 @@ bool VESPERSEXAFSDacqScanController::startImplementation()
 	}
 
 	for (int i = 0; i < config_->regionCount(); i++){
-		qDebug() << config_->exafsRegions()->units(i) << config_->exafsRegions()->start(i) << config_->exafsRegions()->delta(i) << config_->exafsRegions()->end(i);
+
 		if (advAcq_->getNumRegions() == i){
 
 			AMPVwStatusControl *control = 0;
@@ -406,7 +418,7 @@ void VESPERSEXAFSDacqScanController::cleanup()
 {
 	// To cleanup the XAS scan, there is one stage.
 	/*
-		First: Set the dwell time to 1 second.  Set the scan mode to continuous.  Set the relative energy PV to 0.
+		First: Set the dwell time to 1 second.  Set the scan mode to continuous.  Disables the variable integration time.  Set the relative energy PV to 0.
 	 */
 	AMBeamlineParallelActionsList *cleanupXASActionsList = new AMBeamlineParallelActionsList;
 
@@ -420,6 +432,8 @@ void VESPERSEXAFSDacqScanController::cleanup()
 	// Synchronized dwell time.
 	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(1.0));
 	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::Continuous));
+	// Variable integration time.
+	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->variableIntegrationTime()->createModeAction(CLSVariableIntegrationTime::Disabled));
 	// Energy.
 	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->mono()->createDelEAction(0));
 
