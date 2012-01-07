@@ -450,9 +450,13 @@ void VESPERSEXAFSDacqScanController::onCleanupFinished()
 
 void VESPERSEXAFSDacqScanController::onDwellTimeTriggerChanged(double newValue)
 {
-	if( fabs(newValue - 1.0) < 0.1 ){
+	if( fabs(newValue - 1.0) < 0.1){
 
-		VESPERSBeamline::vespers()->synchronizedDwellTime()->setTime(config_->regionTime(currentRegionIndex_++));
+		// Only set the time for the region if in energy space.  The variable integration time app handles this in k-space.
+		if (config_->regionType(currentRegionIndex_) == AMEXAFSRegion::Energy)
+			VESPERSBeamline::vespers()->synchronizedDwellTime()->setTime(config_->regionTime(currentRegionIndex_));
+
+		currentRegionIndex_++;
 		dwellTimeTrigger_->move(0);
 		dwellTimeConfirmed_->move(1);
 	}
