@@ -84,6 +84,10 @@ double CLSCAEN2527HVChannel::voltage() const{
 		return -1;
 }
 
+bool CLSCAEN2527HVChannel::isFullyPowered() const{
+	return demand_->withinTolerance(voltage_->value());
+}
+
 QString CLSCAEN2527HVChannel::status() const{
 	if(isConnected()){
 		return status_->enumNameAt(status_->value());
@@ -174,7 +178,7 @@ void CLSCAEN2527HVChannel::onVoltageChanged(double voltage){
 	emit voltageChanged(voltage);
 	if(isOn() && demand_->withinTolerance(voltage))
 		emit fullyPowered();
-	if(isConnected() && poweringDown_ && ( voltage_->value() < 0.5 ) ){
+	if(isConnected() && poweringDown_ && ( voltage_->value() < 1.0 ) ){
 		poweringDown_ = false;
 		powerState_ = AMHighVoltageChannel::isPowerOff;
 		emit powerStateChanged(powerState_);
