@@ -18,8 +18,6 @@ bool SGM2011XASFileLoaderPlugin::accepts(AMScan *scan){
 }
 
 bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder){
-	//qDebug() << "\n\nTRYING TO LOAD WITH SGM2011XAS PLUGIN";
-
 	if(columns2pvNames_.count() == 0) {
 		columns2pvNames_.set("Event-ID", "Event-ID");
 		columns2pvNames_.set("eV", "BL1611-ID-1:Energy");
