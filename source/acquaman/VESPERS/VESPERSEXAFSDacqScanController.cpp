@@ -411,6 +411,7 @@ bool VESPERSEXAFSDacqScanController::startImplementation()
 		}
 	}
 
+	advAcq_->saveConfigFile("/home/hunterd/Desktop/writeTest.cfg");
 	return AMDacqScanController::startImplementation();
 }
 
@@ -444,7 +445,6 @@ void VESPERSEXAFSDacqScanController::cleanup()
 
 void VESPERSEXAFSDacqScanController::onCleanupFinished()
 {
-	onCleanupActionFinished();
 	AMDacqScanController::onDacqStop();
 }
 
@@ -470,7 +470,6 @@ AMnDIndex VESPERSEXAFSDacqScanController::toScanIndex(QMap<int, double> aeData)
 
 void VESPERSEXAFSDacqScanController::onInitializationActionsSucceeded()
 {
-	onInitializationActionFinished();
 	setInitialized();
 }
 
@@ -669,10 +668,10 @@ void VESPERSEXAFSDacqScanController::onInitializationActionFinished()
 	for (int i = 0; i < actionList->stageCount(); i++){
 
 		while (actionList->stage(i)->size())
-			delete actionList->stage(i)->takeAt(0);
+			actionList->stage(i)->takeAt(0)->deleteLater();
 	}
 
-	delete setupXASAction_;
+	setupXASAction_->deleteLater();
 	setupXASAction_ = 0;
 }
 
@@ -688,9 +687,9 @@ void VESPERSEXAFSDacqScanController::onCleanupActionFinished()
 	for (int i = 0; i < actionList->stageCount(); i++){
 
 		while (actionList->stage(i)->size())
-			delete actionList->stage(i)->takeAt(0);
+			actionList->stage(i)->takeAt(0)->deleteLater();
 	}
 
-	delete cleanupXASAction_;
+	cleanupXASAction_->deleteLater();
 	cleanupXASAction_ = 0;
 }

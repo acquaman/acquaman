@@ -50,8 +50,8 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(const VESPERSEXAFSS
 
 		// Because I store the values in energy space, I need to ask for them explicitly with no converstion.  Otherwise, the k-space values will be converted twice.
 		regions_->addRegion(i, original.regionStartByType(i, AMEXAFSRegion::Energy), original.regionDelta(i), original.regionEndByType(i, AMEXAFSRegion::Energy), original.regionTime(i));
-		exafsRegions()->setType(i, original.exafsRegions()->type(i));
-		exafsRegions()->setEdgeEnergy(i, original.exafsRegions()->edgeEnergy(i));
+		exafsRegions()->setType(i, original.regionType(i));
+		exafsRegions()->setEdgeEnergy(i, original.regionEdgeEnergy(i));
 	}
 
 	setName(original.name());

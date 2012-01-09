@@ -423,7 +423,6 @@ void VESPERSXASDacqScanController::cleanup()
 
 void VESPERSXASDacqScanController::onCleanupFinished()
 {
-	onCleanupActionFinished();
 	AMDacqScanController::onDacqStop();
 }
 
@@ -445,7 +444,6 @@ AMnDIndex VESPERSXASDacqScanController::toScanIndex(QMap<int, double> aeData)
 
 void VESPERSXASDacqScanController::onInitializationActionsSucceeded()
 {
-	onInitializationActionFinished();
 	setInitialized();
 }
 
@@ -644,10 +642,10 @@ void VESPERSXASDacqScanController::onInitializationActionFinished()
 	for (int i = 0; i < actionList->stageCount(); i++){
 
 		while (actionList->stage(i)->size())
-			delete actionList->stage(i)->takeAt(0);
+			actionList->stage(i)->takeAt(0)->deleteLater();
 	}
 
-	delete setupXASAction_;
+	setupXASAction_->deleteLater();
 	setupXASAction_ = 0;
 }
 
@@ -663,9 +661,9 @@ void VESPERSXASDacqScanController::onCleanupActionFinished()
 	for (int i = 0; i < actionList->stageCount(); i++){
 
 		while (actionList->stage(i)->size())
-			delete actionList->stage(i)->takeAt(0);
+			actionList->stage(i)->takeAt(0)->deleteLater();
 	}
 
-	delete cleanupXASAction_;
+	cleanupXASAction_->deleteLater();
 	cleanupXASAction_ = 0;
 }

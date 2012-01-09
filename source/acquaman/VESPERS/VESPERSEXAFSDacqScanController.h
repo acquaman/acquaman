@@ -20,6 +20,7 @@ public:
 	/// Constructor.
 	/// \param cfg is the XAS configuration that the controller will run.
 	VESPERSEXAFSDacqScanController(VESPERSEXAFSScanConfiguration *cfg, QObject *parent = 0);
+	~VESPERSEXAFSDacqScanController() { onInitializationActionFinished(); onCleanupActionFinished(); }
 
 protected slots:
 	/// Slot that handles the successful initialization of the scan.

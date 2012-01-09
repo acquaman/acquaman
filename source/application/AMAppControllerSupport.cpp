@@ -101,6 +101,8 @@ namespace AMAppControllerSupport{
 				if(exporter)
 					return exporter;
 			}
+
+			i++;
 		}
 		return 0;
 	}
@@ -115,6 +117,8 @@ namespace AMAppControllerSupport{
 				if(exporterOption && exporterOption->loadFromDb(AMDatabase::database("user"), i.value().exporterOptionId))
 					return exporterOption;
 			}
+
+			i++;
 		}
 		return 0;
 	}

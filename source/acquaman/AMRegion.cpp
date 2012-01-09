@@ -422,6 +422,7 @@ bool AMEXAFSRegion::setType(AMEXAFSRegion::RegionType type)
 	if (type == Energy || type == kSpace){
 
 		type_ = type;
+		emit typeChanged(type_);
 		return true;
 	}
 
@@ -621,6 +622,20 @@ bool AMEXAFSRegionsListModel::setData(const QModelIndex &index, const QVariant &
 
 			dval = time.toDouble(&conversionOK);
 		}
+		else if (index.column() == 8){
+
+			bval = value.toBool();
+			conversionOK = true;
+		}
+		else if (index.column() == 9){
+
+			QString energy = value.toString();
+
+			if (energy.contains(region->units()))
+				energy.chop(region->units().size());
+
+			dval = energy.toDouble(&conversionOK);
+		}
 
 		// Check if any data is invalid.
 		if(!conversionOK)
@@ -633,23 +648,23 @@ bool AMEXAFSRegionsListModel::setData(const QModelIndex &index, const QVariant &
 			break;
 
 		case 1: // Setting a start value?
-			retVal = regions_->at(index.row())->setStart(dval);
+			retVal = region->setStart(dval);
 			break;
 
 		case 2: // Setting a delta value?
-			retVal = regions_->at(index.row())->setDelta(dval);
+			retVal = region->setDelta(dval);
 			break;
 
 		case 3: // Setting an end value?
-			retVal = regions_->at(index.row())->setEnd(dval);
+			retVal = region->setEnd(dval);
 			break;
 
 		case 4: // Setting the start elasticity?
-			retVal = regions_->at(index.row())->setElasticStart(bval);
+			retVal = region->setElasticStart(bval);
 			break;
 
 		case 5: // Setting the end elasticity?
-			retVal = regions_->at(index.row())->setElasticEnd(bval);
+			retVal = region->setElasticEnd(bval);
 			break;
 
 		case 6: // Setting the time time control?
@@ -657,7 +672,15 @@ bool AMEXAFSRegionsListModel::setData(const QModelIndex &index, const QVariant &
 			break;
 
 		case 7: // Setting a time value?
-			retVal = regions_->at(index.row())->setTime(dval);
+			retVal = region->setTime(dval);
+			break;
+
+		case 8: // Setting a type value?
+			retVal = region->setType((bval == true) ? AMEXAFSRegion::Energy : AMEXAFSRegion::kSpace);
+			break;
+
+		case 9: // Setting the edge energy?
+			retVal = region->setEdgeEnergy(dval);
 			break;
 
 		default: // Not a valid index.
@@ -726,9 +749,64 @@ QVariant AMEXAFSRegionsListModel::data(const QModelIndex &index, int role) const
 	case 7: // The time value.
 		dataVal = (region->type() == AMEXAFSRegion::Energy) ? QString::number(region->time(), 'f', 1) + region->timeUnits() : "-";
 		break;
+	case 8: // Region type.
+		break; // Doing nothing.
+	case 9: // Edge energy.
+		break; // Doing nothing.
 	default:
 		break; // Return null if not a specific case.
 	}
 
 	return dataVal;
+}
+
+// Retrieves the header data for a column or row and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
+QVariant AMEXAFSRegionsListModel::headerData(int section, Qt::Orientation orientation, int role) const{
+
+	if (role != Qt::DisplayRole)
+		return QVariant();
+
+	// Vertical headers:
+	if(orientation == Qt::Vertical) {
+		return section;
+	}
+
+	// Horizontal Headers: (Column labels)
+	QVariant header = QVariant();
+
+	switch(section){
+
+	case 0:
+		header = "Control";
+		break;
+	case 1:
+		header = "Start";
+		break;
+	case 2:
+		header = "Delta";
+		break;
+	case 3:
+		header = "End";
+		break;
+	case 4:
+		header = "Elastic Start";
+		break;
+	case 5:
+		header = "Elastic End";
+		break;
+	case 6:
+		header = "Time Control";
+		break;
+	case 7:
+		header = "Time";
+		break;
+	case 8:
+		header = "Type";
+		break;
+	case 9:
+		header = "Edge Energy";
+		break;
+	}
+
+	return header;
 }

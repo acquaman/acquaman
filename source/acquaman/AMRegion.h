@@ -303,6 +303,10 @@ public:
 	/// Returns the control this region is using for scanning based on the current region type.
 	AMControl *control() const { return (type_ == Energy) ? ctrl_ : controlK_; }
 
+signals:
+	/// Notifier that the type of the region has been changed.  Returns the new type.
+	void typeChanged(RegionType);
+
 public slots:
 	/// Sets the start value from the double passed in. Assumes the value passed in is in the space of the region.  Makes sure the energy is within the allowable range, otherwise returns false.  Does not affect the AMControl directly.
 	virtual bool setStart(double start);
@@ -360,8 +364,12 @@ public:
 	/// Constructor.  Builds a model that is identical to AMRegionsListModel.  No new features added.
 	AMEXAFSRegionsListModel(QObject *parent = 0) : AMXASRegionsListModel(parent) { defaultKControl_ = 0; defaultEdgeEnergy_ = 0; }
 
+	/// Returns "4" statically. There are always four fields in the region: start, delta, end, and time.  However, the total number is 10.
+	int columnCount(const QModelIndex & /*parent*/) const { return 10; }
 	/// Inserts an AMEXAFSRegion into the model.  It builds a default AMEXAFSRegion, sets the control to whatever the energy control is at the time.
 	bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex());
+	/// Retrieves the header data for a column or row and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
+	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 	/// Sets the data value at an index (row and column). Only valid role is Qt::DisplayRole right now.
 	bool setData(const QModelIndex &index, const QVariant &value, int role);
 	/// Retrieves the data from an index (row and column) and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
@@ -371,7 +379,13 @@ public slots:
 	/// Sets the k-space control that is used for scanning the energy in an EXAFS scan.  \note This sets the default control for the region.  If setEnergyControl was used previously, then it will be overwritten.
 	void setKSpaceControl(AMControl* kSpaceControl) { defaultKControl_ = kSpaceControl; }
 	/// Sets the default edge energy that all new AMEXAFSRegions will be set with.
-	void setDefaultEdgeEnergy(double energy) { defaultEdgeEnergy_ = energy; }
+	void setDefaultEdgeEnergy(double energy)
+	{
+		defaultEdgeEnergy_ = energy;
+
+		for (int i = 0; i < regions_->size(); i++)
+			((AMEXAFSRegion *)regions_->at(i))->setEdgeEnergy(energy);
+	}
 
 protected:
 	/// Pointer to the k-space control used to build AMEXAFSRegions.

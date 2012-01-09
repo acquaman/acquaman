@@ -13,7 +13,8 @@
   necessary controls.  The functionality of the class will be similar to the new trend for AM classes to have getters, setters, and action getters.  Getters
   and setters for immediate actions on the beamline, and action getters that return an AMBeamlineActionItem that handles all the necessary setup and can be
   started at any time and behave according the Acquaman actions framework (useful for intialization or clean up procedures that need to wait for other actions
-  to complete before starting).
+  to complete before starting).  One final thing, although most things use seconds as the default unit of time, the CLS app uses milliseconds.  Therefore,
+  I have mapped all of the values from milliseconds to seconds for consistency within AM.
   */
 class CLSVariableIntegrationTime : public QObject
 {
@@ -47,8 +48,8 @@ public:
 
 		return temp;
 	}
-	/// Returns the current default time of the variable integration app.
-	double defautTime() const { return defaultTime_->value(); }
+	/// Returns the current default time (in seconds) of the variable integration app.
+	double defautTime() const { return 1000*defaultTime_->value(); }
 	/// Returns the threshold value (in k-space).
 	double threshold() const { return threshold_->value(); }
 	/// Returns the function being used to compute the various times.
@@ -96,13 +97,13 @@ public:
 	double lowValue() const { return lowVal_->value(); }
 	/// Returns the high value of the region.  This should be set to the same as the end point of the region.
 	double highValue() const { return highVal_->value(); }
-	/// Returns the maximum time that should be used while computing the various dwell times.
-	double maximumTime() const { return maxTime_->value(); }
+	/// Returns the maximum time (in seconds) that should be used while computing the various dwell times.
+	double maximumTime() const { return 1000*maxTime_->value(); }
 
 	// Action getters.  Returns an action equivalent of a setter.
 	/// Returns an action that changes the mode to \param mode.
 	AMBeamlineActionItem *createModeAction(Mode mode);
-	/// Returns an action that changes the default time to \param time.
+	/// Returns an action that changes the default time to \param time (in seconds).
 	AMBeamlineActionItem *createDefaultTimeAction(double time);
 	/// Returns an action that changes the threshold to \param threshold.
 	AMBeamlineActionItem *createThresholdAction(double threshold);
@@ -112,7 +113,7 @@ public:
 	AMBeamlineActionItem *createLowValueAction(double low);
 	/// Returns an action that changes the high value to \param high.
 	AMBeamlineActionItem *createHighValueAction(double high);
-	/// Returns an action that changes the maximum time to \param time.
+	/// Returns an action that changes the maximum time to \param time (in seconds).
 	AMBeamlineActionItem *createMaximumTimeAction(double time);
 	/// Returns an action that intiates a compute action.
 	AMBeamlineActionItem *createComputeAction();
@@ -140,8 +141,8 @@ public slots:
 	void setMode(Mode mode) { mode_->move((int)mode); }
 	/// Overload.  Sets the mode for the variable integration time app.
 	void setMode(int mode) { mode_->move(mode); }
-	/// Sets the default time used for the variable integration time app.
-	void setDefaultTime(double time) { defaultTime_->move(time); }
+	/// Sets the default time (in seconds) used for the variable integration time app.
+	void setDefaultTime(double time) { defaultTime_->move(time*1000); }
 	/// Sets the threshold value (in k-space).
 	void setThreshold(double value) { threshold_->move(value); }
 	/// Sets the function that will be used for computing the various times.
@@ -161,12 +162,16 @@ public slots:
 	void setLowValue(double low) { lowVal_->move(low); }
 	/// Sets the high value of the region that is used for computing the proper time values.  This should be the same as the last value in the regions.
 	void setHighValue(double high) { highVal_->move(high); }
-	/// Sets the maximum time that should be spent on any particular point of a scan.
-	void setMaximumTime(double maxTime) { maxTime_->move(maxTime); }
+	/// Sets the maximum time (in seconds) that should be spent on any particular point of a scan.
+	void setMaximumTime(double maxTime) { maxTime_->move(maxTime*1000); }
 	/// This tells the app to compute a new set of values for the dwell time.
 	void compute() { compute_->move(1); }
 
 protected slots:
+	/// Helper slot to emit the default time changed to ensure that the value is in seconds.
+	void onDefaultTimeChanged(double time) { emit defautTimeChanged(1000*time); }
+	/// Helper slot to emit the maximum time changed to ensure that the value is in seconds.
+	void onMaximumTimeChanged(double time) { emit maximumTimeChanged(1000*time); }
 	/// Helper slot to emit the mode signal.
 	void onModeChanged() { emit modeChanged(mode()); }
 	/// Helper slot to emit the function signal.

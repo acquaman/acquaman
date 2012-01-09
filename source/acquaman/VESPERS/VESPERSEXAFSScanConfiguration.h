@@ -112,7 +112,12 @@ public slots:
 	/// Sets the current edge for the scan.
 	void setEdge(QString edgeName) { edge_ = edgeName; setModified(true); }
 	/// Sets the edge energy.
-	void setEnergy(double edgeEnergy) { energy_ = edgeEnergy; setModified(true); }
+	void setEnergy(double edgeEnergy)
+	{
+		exafsRegions()->setDefaultEdgeEnergy(edgeEnergy);
+		energy_ = edgeEnergy;
+		setModified(true);
+	}
 
 	/// Sets whether the scan should move to a new position before starting.
 	void setGoToPosition(bool state) { goToPosition_ = state; setModified(true); }

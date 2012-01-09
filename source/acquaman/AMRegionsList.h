@@ -267,9 +267,9 @@ public:
 
 public slots:
 	/// Sets the type of the region referred to by \param index.
-	bool setType(int index, AMEXAFSRegion::RegionType type) { return exafsRegion(index)->setType(type); }
+	bool setType(int index, AMEXAFSRegion::RegionType type) { return regions_->setData(regions_->index(index, 8), (type == AMEXAFSRegion::Energy) ? true : false, Qt::EditRole); }
 	/// Sets the edge energy of the region referred to by \param index.
-	bool setEdgeEnergy(int index, double energy) { return exafsRegion(index)->setEdgeEnergy(energy); }
+	bool setEdgeEnergy(int index, double energy) { return regions_->setData(regions_->index(index, 9), energy, Qt::EditRole); }
 	/// Sets the start value for the region referred to by \param index from the double and the method assumes that the value is in the space of the type passed in it.  For example, if you choose Energy, it will assume it is a value in eV.
 	bool setStartByType(int index, double start, AMEXAFSRegion::RegionType type) { return exafsRegion(index)->setStartByType(start, type); }
 	/// Sets the end value for the region referred to by \param index from the double and the method assumes that the value is in the space of the type passed in it.  For example, if you choose Energy, it will assume it is a value in eV.

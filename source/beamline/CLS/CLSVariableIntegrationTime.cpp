@@ -16,12 +16,12 @@ CLSVariableIntegrationTime::CLSVariableIntegrationTime(const QString &baseName, 
 	compute_ = new AMSinglePVControl("Compute", baseName + ":aN:calc:run", this, 0.1);
 
 	connect(mode_, SIGNAL(valueChanged(double)), this, SLOT(onModeChanged()));
-	connect(defaultTime_, SIGNAL(valueChanged(double)), this, SIGNAL(defautTimeChanged(double)));
+	connect(defaultTime_, SIGNAL(valueChanged(double)), this, SLOT(onDefaultTimeChanged(double)));
 	connect(threshold_, SIGNAL(valueChanged(double)), this, SIGNAL(thresholdChanged(double)));
 	connect(function_, SIGNAL(valueChanged(double)), this, SLOT(onFunctionChagned()));
 	connect(lowVal_, SIGNAL(valueChanged(double)), this, SIGNAL(lowValueChanged(double)));
 	connect(highVal_, SIGNAL(valueChanged(double)), this, SIGNAL(highValueChanged(double)));
-	connect(maxTime_, SIGNAL(valueChanged(double)), this, SIGNAL(maximumTimeChanged(double)));
+	connect(maxTime_, SIGNAL(valueChanged(double)), this, SLOT(onMaximumTimeChanged(double)));
 }
 
 AMBeamlineActionItem *CLSVariableIntegrationTime::createModeAction(Mode mode)
@@ -41,7 +41,7 @@ AMBeamlineActionItem *CLSVariableIntegrationTime::createDefaultTimeAction(double
 		return 0;
 
 	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(defaultTime_);
-	action->setSetpoint(time);
+	action->setSetpoint(time*1000);
 
 	return action;
 }
@@ -96,7 +96,7 @@ AMBeamlineActionItem *CLSVariableIntegrationTime::createMaximumTimeAction(double
 		return 0;
 
 	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(maxTime_);
-	action->setSetpoint(time);
+	action->setSetpoint(time*1000);
 
 	return action;
 }
