@@ -536,11 +536,6 @@ void AMDatamanAppController::launchScanConfigurationFromDb(const QUrl &url)
 	if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
 		return;
 
-	// Check if this scan is scanning... Use the currentlyScanning column stored in the database.
-	QVariant isScanning = db->retrieve(id, tableName, "currentlyScanning");
-	if(!isScanning.isValid())
-		return;
-
 	// turn off automatic raw-day loading for scans... This will make loading the scan to access it's config much faster.
 	bool scanAutoLoadingOn = AMScan::autoLoadData();
 	AMScan::setAutoLoadData(false);
