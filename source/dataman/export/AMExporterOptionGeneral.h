@@ -107,6 +107,20 @@ public slots:
 		setModified(true);
 	}
 
+	void ensureDataSource(const QString& name, bool omitAxisValueColumn, int organizeMode = CombineInColumnsMode, bool isRequired = true) {
+		if(dataSources_.contains(name)){
+			int indexOf = dataSources_.indexOf(name);
+			if(isDataSourceAxisValueColumnOmitted(indexOf) != omitAxisValueColumn)
+				setDataSourceAxisValueColumnOmitted(indexOf, omitAxisValueColumn);
+			if(dataSourceOrganizeMode(indexOf) != organizeMode)
+				setDataSourceOrganizeMode(indexOf, organizeMode);
+			if(isDataSourceRequired(indexOf) != isRequired)
+				setDataSourceRequired(indexOf, isRequired);
+		}
+		else
+			addDataSource(name, omitAxisValueColumn, organizeMode, isRequired);
+	}
+
 	void removeDataSourceAt(int index) {
 		dataSources_.removeAt(index);
 		dataSourceOmitAxisValueColumn_.removeAt(index);

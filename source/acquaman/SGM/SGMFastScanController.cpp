@@ -205,6 +205,17 @@ bool SGMFastScanController::beamlineInitialize(){
 	//Go to start of energy range
 	//Mode needs to change before time, buffer, and total
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
+	for(int x = 0; x < config_->allDetectors()->count(); x++){
+		if(config_->allDetectorConfigurations().isActiveAt(x)){
+			// Not using settings in this way for Fast Scans right now
+			//config_->allDetectors()->detectorAt(x)->setFromInfo(config_->allDetectorConfigurations().detectorInfoAt(x));
+			config_->allDetectors()->detectorAt(x)->activate();
+			if(config_->allDetectors()->detectorAt(x)->turnOnAction()){
+				qDebug() << "Fast scan wants to turn on HV";
+				initializationActions_->appendAction(initializationActions_->stageCount()-1, config_->allDetectors()->detectorAt(x)->turnOnAction());
+			}
+		}
+	}
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
 	tmpAction->setSetpoint(settings->energyStart());
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);

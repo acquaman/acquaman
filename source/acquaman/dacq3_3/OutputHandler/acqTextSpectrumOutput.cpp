@@ -212,7 +212,6 @@ int acqTextSpectrumOutput::eventName(acqKey_t key, int eventno, const char *name
 	acqBaseOutput::default_eventName(key, eventno, name);
 	acqTextSpectrumOutput *to = (acqTextSpectrumOutput *)key;
 	to->haveSpectrum = FALSE;
-	printf("Hack hack hack, coding in my hack\n");
 
 	return 0;
 }

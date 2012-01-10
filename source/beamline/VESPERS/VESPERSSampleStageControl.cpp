@@ -53,9 +53,9 @@ VESPERSSampleStageControl::VESPERSSampleStageControl(AMControl *horiz, AMControl
 	connect(norm_, SIGNAL(setpointChanged(double)), this, SIGNAL(normalSetpointChanged(double)));
 
 	// If the controls are CLS VME motors, then use their connections to their steps.  Otherwise, it is a pseudomotor and we'll need to create those connections ourselves.
-	CLSVMEMotor *x = qobject_cast<CLSVMEMotor *>(horiz_);
-	CLSVMEMotor *y = qobject_cast<CLSVMEMotor *>(vert_);
-	CLSVMEMotor *z = qobject_cast<CLSVMEMotor *>(norm_);
+	CLSMAXvMotor *x = qobject_cast<CLSMAXvMotor *>(horiz_);
+	CLSMAXvMotor *y = qobject_cast<CLSMAXvMotor *>(vert_);
+	CLSMAXvMotor *z = qobject_cast<CLSMAXvMotor *>(norm_);
 
 	if (x != 0 && y != 0 && z != 0){
 

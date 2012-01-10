@@ -402,7 +402,7 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/beamline/OceanOptics65000Detector.h \
 	source/ui/beamline/OceanOptics65000DetectorView.h \
 	source/dataman/SGM/SGM2011XASFileLoader.h \
-	source/beamline/CLS/CLSVMEMotor.h \
+	source/beamline/CLS/CLSMAXvMotor.h \
 	source/analysis/AM1DDerivativeAB.h \
 	source/beamline/AMHighVoltageChannel.h \
 	source/beamline/CLS/CLSCAEN2527HVChannel.h \
@@ -679,7 +679,7 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/beamline/OceanOptics65000Detector.cpp \
 	source/ui/beamline/OceanOptics65000DetectorView.cpp \
 	source/dataman/SGM/SGM2011XASFileLoader.cpp \
-	source/beamline/CLS/CLSVMEMotor.cpp \
+	source/beamline/CLS/CLSMAXvMotor.cpp \
 	source/analysis/AM1DDerivativeAB.cpp \
 	source/beamline/AMHighVoltageChannel.cpp \
 	source/beamline/CLS/CLSCAEN2527HVChannel.cpp \

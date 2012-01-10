@@ -99,9 +99,9 @@ public:
 	/// Returns a pointer to a newly-created AMScanController that is appropriate for executing this kind of scan configuration.  The controller should be initialized to use this scan configuration object as its scan configuration.  Ownership of the new controller becomes the responsibility of the caller.
 	virtual AMScanController* createController() = 0;
 
-	/// Returns a new copy of the default view (caller responsible for memory). Returns 0 (NULL) if no default view.
+	/// Creates a new copy of the default view. (The caller responsible for memory management). Returns 0 if no default view is provided.  Note that the newly-created view is expected to build itself to display, and take memory ownership, of this scan configuration instance.
 	virtual AMScanConfigurationView* createView(){
-		return 0; //NULL
+		return 0;
 	}
 
 public slots:

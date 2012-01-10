@@ -54,6 +54,7 @@ class AMScan : public AMDbObject {
 	Q_PROPERTY(QString unEvaluatedName READ unEvaluatedName WRITE setUnEvaluatedName)
 	Q_PROPERTY(int number READ number WRITE setNumber NOTIFY numberChanged)
 	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime NOTIFY dateTimeChanged)
+	Q_PROPERTY(QDateTime endDateTime READ endDateTime WRITE setEndDateTime NOTIFY endDateTimeChanged)
 	Q_PROPERTY(int runId READ runId WRITE setRunId)
 	Q_PROPERTY(int sampleId READ sampleId WRITE setSampleId NOTIFY sampleIdChanged)
 	Q_PROPERTY(QString notes READ notes WRITE setNotes)
@@ -103,6 +104,11 @@ public:
 	int number() const { return number_;}
 	/// Returns creation time / scan start time
 	QDateTime dateTime() const {return dateTime_;}
+	/// Returns scan end time.
+	QDateTime endDateTime() const { return endDateTime_; }
+
+	/// Returns the elapsed time of the scan in seconds if a valid scan end time exists.  Returns -1 otherwise.
+	double elapsedTime() const;
 	/// Returns the id of the run containing this scan, or (-1) if not associated with a run.
 	int runId() const { return runId_; }
 	/// Returns id of the scan's sample (or -1 if a sample has not been assigned)
@@ -328,6 +334,8 @@ public slots:
 	void setNumber(int number);
 	/// set the date/time:
 	void setDateTime(const QDateTime& dt);
+	/// Set the scan end time.
+	void setEndDateTime(const QDateTime &endTime);
 	/// associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
 	void setRunId(int newRunId);
 	/// Sets the sample associated with this scan.
@@ -350,6 +358,7 @@ signals:
 	// Meta-data changed signals:
 	/////////////////
 	void dateTimeChanged(const QDateTime& newDateTime);
+	void endDateTimeChanged(const QDateTime &);
 	void sampleIdChanged(int sampleId);
 	void numberChanged(int number);
 	void currentlyScanningChanged(bool currentlyScanning);
@@ -397,6 +406,8 @@ protected:
 	int number_;
 	/// Scan start time
 	QDateTime dateTime_;
+	/// Scan end time.
+	QDateTime endDateTime_;
 	/// database id of the run and sample that this scan is associated with
 	int runId_, sampleId_;
 	/// notes for this sample. Can be plain or rich text, as long as you want it...

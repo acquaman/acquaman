@@ -33,7 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "actions/AMBeamlineListAction.h"
 #include "ui/beamline/AMControlEditor.h"
-#include "beamline/CLS/CLSVMEMotor.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
 
 SGMSampleManipulatorView::SGMSampleManipulatorView(bool bigButtons, QWidget *parent) :
 		QGroupBox("SGM SSA Endstation", parent )
@@ -250,8 +250,8 @@ void SGMSampleManipulatorView::onMUpButtonPressed(){
 		SGMBeamline::sgm()->ssaManipulatorZAcceleration()->move(2000);
 		mVerticalCtrl_->move(40);
 		*/
-		mVerticalCtrl_->setVelocity(3000);
-		mVerticalCtrl_->setAcceleration(2000);
+		mVerticalCtrl_->setStepVelocity(3000);
+		mVerticalCtrl_->setStepAcceleration(2000);
 		mVerticalCtrl_->move(40);
 	}
 }
@@ -259,8 +259,8 @@ void SGMSampleManipulatorView::onMUpButtonPressed(){
 void SGMSampleManipulatorView::onMUpButtonReleased(){
 	if(!isJogging_){
 		mVerticalCtrl_->stop();
-		mVerticalCtrl_->setVelocity(10000);
-		mVerticalCtrl_->setAcceleration(5000);
+		mVerticalCtrl_->setStepVelocity(10000);
+		mVerticalCtrl_->setStepAcceleration(5000);
 		/*
 		SGMBeamline::sgm()->ssaManipulatorZVelocity()->move(10000);
 		SGMBeamline::sgm()->ssaManipulatorZVelocityBase()->move(2000);
@@ -281,8 +281,8 @@ void SGMSampleManipulatorView::onMDownButtonPressed(){
 		SGMBeamline::sgm()->ssaManipulatorZAcceleration()->move(2000);
 		mVerticalCtrl_->move(-80);
 		*/
-		mVerticalCtrl_->setVelocity(3000);
-		mVerticalCtrl_->setAcceleration(2000);
+		mVerticalCtrl_->setStepVelocity(3000);
+		mVerticalCtrl_->setStepAcceleration(2000);
 		mVerticalCtrl_->move(-80);
 	}
 }
@@ -296,8 +296,8 @@ void SGMSampleManipulatorView::onMDownButtonReleased(){
 		SGMBeamline::sgm()->ssaManipulatorZAcceleration()->move(5000);
 		//mVerticalCtrl_->move(mVerticalCtrl_->value());
 		*/
-		mVerticalCtrl_->setVelocity(10000);
-		mVerticalCtrl_->setAcceleration(5000);
+		mVerticalCtrl_->setStepVelocity(10000);
+		mVerticalCtrl_->setStepAcceleration(5000);
 	}
 }
 
@@ -312,8 +312,8 @@ void SGMSampleManipulatorView::onMInboardButtonPressed(){
 		SGMBeamline::sgm()->ssaManipulatorXAcceleration()->move(2000);
 		mHorizontalCtrl_->move(-10.0);
 		*/
-		mHorizontalCtrl_->setVelocity(3000);
-		mHorizontalCtrl_->setAcceleration(2000);
+		mHorizontalCtrl_->setStepVelocity(3000);
+		mHorizontalCtrl_->setStepAcceleration(2000);
 		mHorizontalCtrl_->move(-10.0);
 	}
 }
@@ -327,8 +327,8 @@ void SGMSampleManipulatorView::onMInboardButtonReleased(){
 		SGMBeamline::sgm()->ssaManipulatorXAcceleration()->move(5000);
 		//mHorizontalCtrl_->move(mHorizontalCtrl_->value());
 		*/
-		mHorizontalCtrl_->setVelocity(10000);
-		mHorizontalCtrl_->setAcceleration(5000);
+		mHorizontalCtrl_->setStepVelocity(10000);
+		mHorizontalCtrl_->setStepAcceleration(5000);
 	}
 }
 
@@ -343,8 +343,8 @@ void SGMSampleManipulatorView::onMOutboardButtonPressed(){
 		SGMBeamline::sgm()->ssaManipulatorXAcceleration()->move(2000);
 		mHorizontalCtrl_->move(10.0);
 		*/
-		mHorizontalCtrl_->setVelocity(3000);
-		mHorizontalCtrl_->setAcceleration(2000);
+		mHorizontalCtrl_->setStepVelocity(3000);
+		mHorizontalCtrl_->setStepAcceleration(2000);
 		mHorizontalCtrl_->move(10.0);
 	}
 }
@@ -358,8 +358,8 @@ void SGMSampleManipulatorView::onMOutboardButtonReleased(){
 		SGMBeamline::sgm()->ssaManipulatorXAcceleration()->move(5000);
 		//mHorizontalCtrl_->move(mHorizontalCtrl_->value());
 		*/
-		mHorizontalCtrl_->setVelocity(10000);
-		mHorizontalCtrl_->setAcceleration(5000);
+		mHorizontalCtrl_->setStepVelocity(10000);
+		mHorizontalCtrl_->setStepAcceleration(5000);
 	}
 }
 
@@ -374,8 +374,8 @@ void SGMSampleManipulatorView::onMUpstreamButtonPressed(){
 		SGMBeamline::sgm()->ssaManipulatorYAcceleration()->move(2000);
 		mInPlaneCtrl_->move(-15.0);
 		*/
-		mInPlaneCtrl_->setVelocity(3000);
-		mInPlaneCtrl_->setAcceleration(2000);
+		mInPlaneCtrl_->setStepVelocity(3000);
+		mInPlaneCtrl_->setStepAcceleration(2000);
 		mInPlaneCtrl_->move(-15.0);
 	}
 }
@@ -389,8 +389,8 @@ void SGMSampleManipulatorView::onMUpstreamButtonReleased(){
 		SGMBeamline::sgm()->ssaManipulatorYAcceleration()->move(5000);
 		//mInPlaneCtrl_->move(mInPlaneCtrl_->value());
 		*/
-		mInPlaneCtrl_->setVelocity(10000);
-		mInPlaneCtrl_->setAcceleration(5000);
+		mInPlaneCtrl_->setStepVelocity(10000);
+		mInPlaneCtrl_->setStepAcceleration(5000);
 	}
 }
 
@@ -405,8 +405,8 @@ void SGMSampleManipulatorView::onMDownstreamButtonPressed(){
 		SGMBeamline::sgm()->ssaManipulatorYAcceleration()->move(2000);
 		mInPlaneCtrl_->move(10.0);
 		*/
-		mInPlaneCtrl_->setVelocity(3000);
-		mInPlaneCtrl_->setAcceleration(2000);
+		mInPlaneCtrl_->setStepVelocity(3000);
+		mInPlaneCtrl_->setStepAcceleration(2000);
 		mInPlaneCtrl_->move(10.0);
 	}
 }
@@ -420,8 +420,8 @@ void SGMSampleManipulatorView::onMDownstreamButtonReleased(){
 		SGMBeamline::sgm()->ssaManipulatorYAcceleration()->move(5000);
 		//mInPlaneCtrl_->move(mInPlaneCtrl_->value());
 		*/
-		mInPlaneCtrl_->setVelocity(10000);
-		mInPlaneCtrl_->setAcceleration(5000);
+		mInPlaneCtrl_->setStepVelocity(10000);
+		mInPlaneCtrl_->setStepAcceleration(5000);
 	}
 }
 
@@ -436,8 +436,8 @@ void SGMSampleManipulatorView::onMCWButtonPressed(){
 		SGMBeamline::sgm()->ssaManipulatorRotAcceleration()->move(2000);
 		mRotationCtrl_->move(-360.0);
 		*/
-		mRotationCtrl_->setVelocity(3000);
-		mRotationCtrl_->setAcceleration(2000);
+		mRotationCtrl_->setStepVelocity(3000);
+		mRotationCtrl_->setStepAcceleration(2000);
 		mRotationCtrl_->move(-360.0);
 	}
 }
@@ -451,8 +451,8 @@ void SGMSampleManipulatorView::onMCWButtonReleased(){
 		SGMBeamline::sgm()->ssaManipulatorRotAcceleration()->move(5000);
 		//mRotationCtrl_->move(mRotationCtrl_->value());
 		*/
-		mRotationCtrl_->setVelocity(10000);
-		mRotationCtrl_->setAcceleration(5000);
+		mRotationCtrl_->setStepVelocity(10000);
+		mRotationCtrl_->setStepAcceleration(5000);
 	}
 }
 
@@ -467,8 +467,8 @@ void SGMSampleManipulatorView::onMCCWButtonPressed(){
 		SGMBeamline::sgm()->ssaManipulatorRotAcceleration()->move(2000);
 		mRotationCtrl_->move(360.0);
 		*/
-		mRotationCtrl_->setVelocity(3000);
-		mRotationCtrl_->setAcceleration(2000);
+		mRotationCtrl_->setStepVelocity(3000);
+		mRotationCtrl_->setStepAcceleration(2000);
 		mRotationCtrl_->move(360.0);
 	}
 }
@@ -482,8 +482,8 @@ void SGMSampleManipulatorView::onMCCWButtonReleased(){
 		SGMBeamline::sgm()->ssaManipulatorRotAcceleration()->move(5000);
 		//mRotationCtrl_->move(mRotationCtrl_->value());
 		*/
-		mRotationCtrl_->setVelocity(10000);
-		mRotationCtrl_->setAcceleration(5000);
+		mRotationCtrl_->setStepVelocity(10000);
+		mRotationCtrl_->setStepAcceleration(5000);
 	}
 }
 

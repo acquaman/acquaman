@@ -35,6 +35,7 @@ AMScan::AMScan(QObject *parent)
 {
 	number_ = 0;
 	dateTime_ = QDateTime::currentDateTime();
+	endDateTime_ = QDateTime();
 	runId_ = -1;
 	sampleId_ = -1;
 	notes_ = QString();
@@ -120,6 +121,24 @@ void AMScan::setDateTime(const QDateTime& dt)
 		setModified(true);
 		emit dateTimeChanged(dateTime_);
 	}
+}
+
+void AMScan::setEndDateTime(const QDateTime &endTime)
+{
+	if (endDateTime_ != endTime){
+
+		endDateTime_ = endTime;
+		setModified(true);
+		emit endDateTimeChanged(endDateTime_);
+	}
+}
+
+double AMScan::elapsedTime() const
+{
+	if (endDateTime_.isValid())
+		return dateTime_.msecsTo(endDateTime_)/1000;
+
+	return -1;
 }
 
 // associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)

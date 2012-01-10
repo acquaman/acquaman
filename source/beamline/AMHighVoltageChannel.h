@@ -66,6 +66,8 @@ public:
 	virtual bool isOn() const;
 	/// Convenience function for powerState() == isOff
 	virtual bool isOff() const;
+	/// Convenience function for whether or not the voltage is at the demand within tolerance (needs to be implemented in subclasses because only they will know what that tolerance should be)
+	virtual bool isFullyPowered() const = 0;
 
 	/// Returns the status string for the channel (maybe "On", "Off", "Ramping Up", or "Ramping Down")
 	virtual QString status() const = 0;
