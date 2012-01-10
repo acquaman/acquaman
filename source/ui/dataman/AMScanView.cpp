@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/datasource/AMDataSourceImageData.h"
 #include "MPlot/MPlotImage.h"
 #include "MPlot/MPlotSeries.h"
+#include "MPlot/MPlotTools.h"
 #include <QScrollBar>
 #include "ui/dataman/AMColoredTextToolButton.h"
 
@@ -609,7 +610,125 @@ AMScanViewInternal::AMScanViewInternal(AMScanView* masterView)
 
 AMScanSetModel* AMScanViewInternal::model() const { return masterView_->model(); }
 
+MPlotGW * AMScanViewInternal::createDefaultPlot()
+{
+	MPlotGW* rv = new MPlotGW();
+	rv->plot()->plotArea()->setBrush(QBrush(QColor(Qt::white)));
+	// rv->plot()->axisRight()->setTicks(0);
+	rv->plot()->axisBottom()->setTicks(4);
+	rv->plot()->axisTop()->setTicks(4);
+	rv->plot()->axisLeft()->showGrid(false);
+	rv->plot()->axisScaleLeft()->setAutoScaleEnabled();
+	rv->plot()->axisScaleBottom()->setAutoScaleEnabled();
+	rv->plot()->axisScaleRight()->setAutoScaleEnabled();
 
+	rv->plot()->axisBottom()->showAxisName(false);
+	rv->plot()->axisLeft()->showAxisName(false);
+	rv->plot()->axisRight()->showAxisName(false);
+
+	// DragZoomerTools need to be added first ("on the bottom") so they don't steal everyone else's mouse events
+	rv->plot()->addTool(new MPlotDragZoomerTool);
+
+	//		// this tool selects a plot with the mouse
+	//		MPlotPlotSelectorTool psTool;
+	//		plot.addTool(&psTool);
+	//		// psTool.setEnabled(false);
+
+	// this tool adds mouse-wheel based zooming
+	rv->plot()->addTool(new MPlotWheelZoomerTool);
+
+	//		// this tool adds a cursor (or more) to a plot
+	//		MPlotCursorTool crsrTool;
+	//		plot.addTool(&crsrTool);
+	//		// add a cursor
+	//		crsrTool.addCursor();
+	//		crsrTool.cursor(0)->marker()->setPen(QPen(QColor(Qt::blue)));
+	return rv;
+}
+
+// Helper function to create an appropriate MPlotItem and connect it to the data, depending on the dimensionality of \c dataSource.  Returns 0 if we can't handle this dataSource and no item was created (ex: unsupported dimensionality; we only handle 1D or 2D data for now.)
+MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* dataSource, const AMDataSourcePlotSettings& plotSettings) {
+	MPlotItem* rv = 0;
+
+	if(dataSource == 0) {
+		qWarning() << "WARNING: AMScanViewInternal: Asked to create a plot item for a null data source.";
+		return 0;
+	}
+
+	switch(dataSource->rank()) {	// depending on the rank, we'll need an XY-series or an image to display it. 3D and 4D, etc. we don't handle for now.
+
+	case 1: {
+		MPlotSeriesBasic* series = new MPlotSeriesBasic();
+		series->setModel(new AMDataSourceSeriesData(dataSource), true);
+		series->setMarker(MPlotMarkerShape::None);
+		series->setLinePen(plotSettings.linePen);
+		rv = series;
+		break; }
+
+	case 2: {
+		MPlotImageBasic* image = new MPlotImageBasic();
+		image->setModel(new AMDataSourceImageData(dataSource), true);
+		image->setColorMap(plotSettings.colorMap);
+		image->setZValue(-1000);
+		rv = image;
+		break; }
+	default:
+		qWarning() << "WARNING: AMScanViewInternal: Asked to create a plot item for a rank that we don't handle.";
+		rv = 0;
+		break;
+	}
+
+	return rv;
+}
+
+// Helper function to look at a plot and configure the left and right axes depending on whether there are 1D and/or 2D data sources in the plot.
+/* We plot 2D data sources on the right axis scale, and 1D data sources on the left axis scale.  We could therefore end up in one of 4 states for the axes configuration:
+0: No data sources of any kind: hide both axis labels; assign both axes to the left axis scale.
+1: Only 1D data sources: show the left axis labels, hide the right axis labels; assign both axes to the left axis scale.
+2: Only 2D data sources: hide the left axis labels, show the right axis labels; assign both axes to the right axis scale.
+3: Both 1D and 2D data sources: show the left and right axis labels; assign the left axis to the left axis scale and the right axis to the right axis scale.
+  */
+void AMScanViewInternal::reviewPlotAxesConfiguration(MPlotGW *plotGW)
+{
+	MPlot* plot = plotGW->plot();
+	bool has1Dsources = (plot->seriesItemsCount() != 0);
+	bool has2Dsources = (plot->imageItemsCount() != 0);
+
+	// No data sources of any kind: hide both axis labels; assign both axes to the left axis scale.
+	if(!has1Dsources && !has2Dsources) {
+		plot->axisLeft()->showTickLabels(false);
+		plot->axisLeft()->setAxisScale(plot->axisScaleLeft());
+		plot->axisRight()->showTickLabels(false);
+		plot->axisRight()->setAxisScale(plot->axisScaleLeft());
+	}
+	// Only 1D data sources: show the left axis labels, hide the right axis labels; assign both axes to the left axis scale.
+	else if(has1Dsources && !has2Dsources) {
+		plot->axisLeft()->showTickLabels(true);
+		plot->axisLeft()->setAxisScale(plot->axisScaleLeft());
+		plot->axisRight()->showTickLabels(false);
+		plot->axisRight()->setAxisScale(plot->axisScaleLeft());
+	}
+	// Only 2D data sources: hide the left axis labels, show the right axis labels; assign both axes to the right axis scale.
+	else if(!has1Dsources && has2Dsources) {
+		plot->axisLeft()->showTickLabels(false);
+		plot->axisLeft()->setAxisScale(plot->axisScaleRight());
+		plot->axisRight()->showTickLabels(true);
+		plot->axisRight()->setAxisScale(plot->axisScaleRight());
+	}
+	// Both 1D and 2D data sources: show the left and right axis labels; assign the left axis to the left axis scale and the right axis to the right axis scale.
+	else if(has1Dsources && has2Dsources) {
+		plot->axisLeft()->showTickLabels(true);
+		plot->axisLeft()->setAxisScale(plot->axisScaleLeft());
+		plot->axisRight()->showTickLabels(true);
+		plot->axisRight()->setAxisScale(plot->axisScaleRight());
+	}
+}
+
+
+
+
+// AMScanViewExclusiveView
+/////////////////////////////
 
 AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMScanViewInternal(masterView) {
 
@@ -631,6 +750,7 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 
 	connect(model(), SIGNAL(exclusiveDataSourceChanged(QString)), this, SLOT(onExclusiveDataSourceChanged(QString)));
 
+	reviewPlotAxesConfiguration(plot_);
 	refreshTitle();
 }
 
@@ -655,6 +775,7 @@ void AMScanViewExclusiveView::onRowInserted(const QModelIndex& parent, int start
 		reviewScan(parent.row());
 	}
 
+	reviewPlotAxesConfiguration(plot_);
 	refreshTitle();
 }
 // before scans or data sources is deleted in the model:
@@ -696,8 +817,8 @@ void AMScanViewExclusiveView::onRowRemoved(const QModelIndex& parent, int start,
 	Q_UNUSED(start)
 	Q_UNUSED(end)
 
+	reviewPlotAxesConfiguration(plot_);
 	refreshTitle();
-
 }
 // when data changes.
 void AMScanViewExclusiveView::onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
@@ -749,6 +870,7 @@ void AMScanViewExclusiveView::onExclusiveDataSourceChanged(const QString& exclus
 		reviewScan(i);
 	}
 
+	reviewPlotAxesConfiguration(plot_);
 	refreshTitle();
 }
 
@@ -782,43 +904,9 @@ void AMScanViewExclusiveView::addScan(int scanIndex) {
 	}
 	plotItems_.insert(scanIndex, newItem);
 	plotItemDataSources_.insert(scanIndex, dataSource);
-
 }
 
-// Helper function to create an appropriate MPlotItem and connect it to the data, depending on the dimensionality of \c dataSource.  Returns 0 if we can't handle this dataSource and no item was created (ex: unsupported dimensionality; we only handle 1D or 2D data for now.)
-MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* dataSource, const AMDataSourcePlotSettings& plotSettings) {
-	MPlotItem* rv = 0;
 
-	if(dataSource == 0) {
-		qWarning() << "WARNING: AMScanViewInternal: Asked to create a plot item for a null data source.";
-		return 0;
-	}
-
-	switch(dataSource->rank()) {	// depending on the rank, we'll need an XY-series or an image to display it. 3D and 4D, etc. we don't handle for now.
-
-	case 1: {
-		MPlotSeriesBasic* series = new MPlotSeriesBasic();
-		series->setModel(new AMDataSourceSeriesData(dataSource), true);
-		series->setMarker(MPlotMarkerShape::None);
-		series->setLinePen(plotSettings.linePen);
-		rv = series;
-		break; }
-
-	case 2: {
-		MPlotImageBasic* image = new MPlotImageBasic();
-		image->setModel(new AMDataSourceImageData(dataSource), true);
-		image->setColorMap(plotSettings.colorMap);
-		image->setZValue(-1000);
-		rv = image;
-		break; }
-	default:
-		qWarning() << "WARNING: AMScanViewInternal: Asked to create a plot item for a rank that we don't handle.";
-		rv = 0;
-		break;
-	}
-
-	return rv;
-}
 
 // testing: #include "ui/dataman/AM3dDataSourceView.h"
 
@@ -977,6 +1065,7 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 		addScan(si);
 	}
 
+	reviewPlotAxesConfiguration(plot_);
 	refreshTitles();
 }
 
@@ -1051,6 +1140,7 @@ void AMScanViewMultiView::onRowInserted(const QModelIndex& parent, int start, in
 		}
 	}
 
+	reviewPlotAxesConfiguration(plot_);
 	refreshTitles();
 }
 // before scans or dataSources are deleted in the model:
@@ -1089,11 +1179,14 @@ void AMScanViewMultiView::onRowRemoved(const QModelIndex& parent, int start, int
 	Q_UNUSED(start)
 	Q_UNUSED(end)
 
+	reviewPlotAxesConfiguration(plot_);
 	refreshTitles();
 }
 
 // when data changes: (Things we care about: color, linePen, and visible)
 void AMScanViewMultiView::onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
+
+	bool plotItemsAddedOrRemoved = false;
 
 	// changes to a scan:
 	if(topLeft.internalId() == -1) {
@@ -1117,6 +1210,7 @@ void AMScanViewMultiView::onModelDataChanged(const QModelIndex& topLeft, const Q
 				if(plotItem == 0) {
 					plotItems_[si][di] = plotItem = createPlotItemForDataSource(model()->dataSourceAt(si, di), model()->plotSettings(si, di));
 					if(plotItem) {
+						plotItemsAddedOrRemoved = true;
 						plot_->plot()->addItem(plotItem, (model()->dataSourceAt(si, di)->rank() == 2 ? MPlot::Right : MPlot::Left));
 						/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
 						plotItem->setDescription(model()->scanAt(si)->fullName() + ": " + model()->dataSourceAt(si, di)->description());
@@ -1147,6 +1241,7 @@ void AMScanViewMultiView::onModelDataChanged(const QModelIndex& topLeft, const Q
 
 			else {	// shouldn't be visible
 				if(plotItem) { // need to get rid of?  (ie: it's not supposed to be visible, but we have a plot item)
+					plotItemsAddedOrRemoved = true;
 					plot_->plot()->removeItem(plotItem);
 					delete plotItem;
 					plotItems_[si][di] = 0;
@@ -1155,6 +1250,9 @@ void AMScanViewMultiView::onModelDataChanged(const QModelIndex& topLeft, const Q
 		}
 	}
 
+
+	if(plotItemsAddedOrRemoved)
+		reviewPlotAxesConfiguration(plot_);
 	refreshTitles();
 }
 
@@ -1307,7 +1405,10 @@ void AMScanViewMultiScansView::addScan(int si) {
 
 	// set plot title and legend
 	plots_.at(si)->plot()->legend()->setTitleText(model()->scanAt(si)->fullName());
+
+	reviewPlotAxesConfiguration(plots_.at(si));
 	refreshLegend(si);
+
 
 	// note: haven't yet added this new plot to the layout_.  That's up to reLayout();
 }
@@ -1352,9 +1453,8 @@ void AMScanViewMultiScansView::onRowInserted(const QModelIndex& parent, int star
 				if(newItem) {
 					newItem->setDescription(dataSource->description());
 					plots_.at(si)->plot()->addItem(newItem, (dataSource->rank() == 2 ? MPlot::Right : MPlot::Left));
-					/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
 				}
-				plots_[si]->plot()->addItem(newItem);
+				plots_.at(si)->plot()->addItem(newItem);
 				plotItems_[si].insert(di, newItem);
 
 				QColor color = model()->plotColor(si, di);
@@ -1370,6 +1470,8 @@ void AMScanViewMultiScansView::onRowInserted(const QModelIndex& parent, int star
 				plotLegendText_[si].insert(di, QString());
 			}
 		}
+
+		reviewPlotAxesConfiguration(plots_.at(si));
 		// update the legend text
 		refreshLegend(si);
 	}
@@ -1410,6 +1512,7 @@ void AMScanViewMultiScansView::onRowAboutToBeRemoved(const QModelIndex& parent, 
 			plotItems_[si].removeAt(di);
 			plotLegendText_[si].removeAt(di);
 		}
+		reviewPlotAxesConfiguration(plots_.at(si));
 		refreshLegend(si);
 	}
 }
@@ -1432,6 +1535,8 @@ void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, co
 	// changes to our data sources: internalId is the scanIndex.  Data source index is from topLeft.row to bottomRight.row
 	else if((unsigned)topLeft.internalId() < (unsigned)model()->scanCount()) {
 
+		bool visibilityChanges = false;
+
 		int si = topLeft.internalId();
 		for(int di=topLeft.row(); di<=bottomRight.row(); di++) {
 
@@ -1444,8 +1549,9 @@ void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, co
 				if(plotItem == 0) { // need to create? (becoming visible)
 					plotItems_[si][di] = plotItem = createPlotItemForDataSource(model()->dataSourceAt(si, di), model()->plotSettings(si, di));
 					if(plotItem) {
+						visibilityChanges = true;
 						plotItem->setDescription(model()->dataSourceAt(si, di)->description());
-						plots_[si]->plot()->addItem(plotItem, (model()->dataSourceAt(si, di)->rank() == 2 ? MPlot::Right : MPlot::Left));
+						plots_.at(si)->plot()->addItem(plotItem, (model()->dataSourceAt(si, di)->rank() == 2 ? MPlot::Right : MPlot::Left));
 					}
 				}
 				else {	// apply data changes to existing plot item
@@ -1482,12 +1588,15 @@ void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, co
 			else {	// shouldn't be visible.
 				if(plotItem) {	// need to get rid of? (becoming invisible)
 					// unnecessary: plots_[si]->plot()->removeItem(plotItem);
+					visibilityChanges = true;
 					delete plotItem;
 					plotItems_[si][di] = 0;
 				}
 				plotLegendText_[si][di] = QString(); // if invisible, remove from legend
 			}
 		}
+		if(visibilityChanges)
+			reviewPlotAxesConfiguration(plots_.at(si));
 		refreshLegend(si);
 	}
 }
@@ -1648,6 +1757,7 @@ void AMScanViewMultiSourcesView::onRowAboutToBeRemoved(const QModelIndex& parent
 					// unnecessary: dataSource2Plot_[dataSourceName]->plot()->removeItem(sourceAndScan2PlotItem_[dataSourceName][scan]);
 					delete sourceAndScan2PlotItem_[dataSourceName][scan];
 					sourceAndScan2PlotItem_[dataSourceName].remove(scan);
+					reviewPlotAxesConfiguration(dataSource2Plot_[dataSourceName]);
 					// note: checking whether a plot for this dataSource should still exist (in dataSource2Plot_) will be done after the deletion is finished, inside reviewSources() called by onRowRemoved().
 				}
 			}
@@ -1668,6 +1778,7 @@ void AMScanViewMultiSourcesView::onRowAboutToBeRemoved(const QModelIndex& parent
 				// unnecessary: dataSource2Plot_[sourceName]->plot()->removeItem(sourceAndScan2PlotItem_[sourceName][scan]);
 				delete sourceAndScan2PlotItem_[sourceName][scan];
 				sourceAndScan2PlotItem_[sourceName].remove(scan);
+				reviewPlotAxesConfiguration(dataSource2Plot_[sourceName]);
 				// note: checking whether a plot for this data source should still exist (in dataSource2Plot_) will be done after the deletion is finished, inside reviewSources() called by onRowRemoved().
 			}
 		}
@@ -1803,7 +1914,10 @@ bool AMScanViewMultiSourcesView::reviewDataSources() {
 	// and, addTheseSources is a set of the source names we don't have plots for (but should have)
 
 	// if there's anything in deleteTheseSources or in addTheseSources, we'll need to re-layout the plots
-	bool areChanges = ( deleteTheseSources.count() || addTheseSources.count() );
+	bool layoutChanges = ( deleteTheseSources.count() || addTheseSources.count() );
+
+	// this is a set of the data source names for the plots that need to have their axis configuration reviewed, because items have been added or removed
+	QSet<QString> sourcesNeedingAxesReview;
 
 	// delete the source plots that don't belong:
 	foreach(QString sourceName, deleteTheseSources) {
@@ -1862,6 +1976,7 @@ bool AMScanViewMultiSourcesView::reviewDataSources() {
 			if(!model()->isVisible(si, di)) {
 				//unnecessary: dataSource2Plot_[sourceName]->plot()->removeItem(sourceAndScan2PlotItem_[sourceName][scan]);
 				delete sourceAndScan2PlotItem_[sourceName].take(scan);
+				sourcesNeedingAxesReview << sourceName;
 			}
 		}
 
@@ -1876,6 +1991,7 @@ bool AMScanViewMultiSourcesView::reviewDataSources() {
 
 				MPlotItem* newItem = createPlotItemForDataSource(scan->dataSourceAt(di), model()->plotSettings(si, di));
 				if(newItem) {
+					sourcesNeedingAxesReview << sourceName;
 					newItem->setDescription(scan->fullName());
 					dataSource2Plot_[sourceName]->plot()->addItem(newItem, (scan->dataSourceAt(di)->rank() == 2 ? MPlot::Right : MPlot::Left));
 					// zzzzzzzz Always add, even if 0? (requires checking everywhere for null plot items). Or only add if valid? (Going with latter... hope this is okay, in event someone tries at add 0d, 3d or 4d data source.
@@ -1891,7 +2007,12 @@ bool AMScanViewMultiSourcesView::reviewDataSources() {
 			dataSource2Plot_[sourceName]->plot()->legend()->enableDefaultLegend(false);
 	}
 
-	return areChanges;
+	foreach(QString sourceName, sourcesNeedingAxesReview) {
+		if(dataSource2Plot_.contains(sourceName))
+			reviewPlotAxesConfiguration(dataSource2Plot_[sourceName]);
+	}
+
+	return layoutChanges;
 }
 
 void AMScanViewMultiSourcesView::enableLogScale(bool logScaleOn)
@@ -2005,41 +2126,7 @@ void AMScanViewMultiSourcesView::setDataRangeConstraint(int id)
 	}
 }
 
-#include "MPlot/MPlotTools.h"
 
-MPlotGW * AMScanViewInternal::createDefaultPlot()
-{
-	MPlotGW* rv = new MPlotGW();
-	rv->plot()->plotArea()->setBrush(QBrush(QColor(Qt::white)));
-	rv->plot()->axisRight()->setTicks(0);
-	rv->plot()->axisBottom()->setTicks(4);
-	rv->plot()->axisLeft()->showGrid(false);
-	rv->plot()->axisScaleLeft()->setAutoScaleEnabled();
-	rv->plot()->axisScaleBottom()->setAutoScaleEnabled();
-	rv->plot()->axisScaleRight()->setAutoScaleEnabled();
-
-	rv->plot()->axisBottom()->showAxisName(false);
-	rv->plot()->axisLeft()->showAxisName(false);
-
-	// DragZoomerTools need to be added first ("on the bottom") so they don't steal everyone else's mouse events
-	rv->plot()->addTool(new MPlotDragZoomerTool);
-
-	//		// this tool selects a plot with the mouse
-	//		MPlotPlotSelectorTool psTool;
-	//		plot.addTool(&psTool);
-	//		// psTool.setEnabled(false);
-
-	// this tool adds mouse-wheel based zooming
-	rv->plot()->addTool(new MPlotWheelZoomerTool);
-
-	//		// this tool adds a cursor (or more) to a plot
-	//		MPlotCursorTool crsrTool;
-	//		plot.addTool(&crsrTool);
-	//		// add a cursor
-	//		crsrTool.addCursor();
-	//		crsrTool.cursor(0)->marker()->setPen(QPen(QColor(Qt::blue)));
-	return rv;
-}
 
 AMScanViewScanBarContextMenu::AMScanViewScanBarContextMenu(AMScanSetModel *model, int scanIndex, int dataSourceIndex, QWidget* parent)
 	: QMenu(parent)

@@ -43,10 +43,9 @@ AMRegionsView::AMRegionsView(AMRegionsList *regions, QWidget *parent) :
 	regions_ = regions;
 	tv_ = new QTableView(this);
 	tv_->setModel(regions_->model());
-	tv_->hideColumn(0);
-	tv_->hideColumn(4);
-	tv_->hideColumn(5);
-	tv_->hideColumn(6);
+	for (int i = 0; i < regions_->model()->columnCount(QModelIndex()); i++)
+		if (!(i == 1 || i == 2 || i == 3 || i == 7))
+			tv_->hideColumn(i);
 	tv_->verticalHeader()->setVisible(false);
 	tv_->resize(tv_->sizeHint());
 

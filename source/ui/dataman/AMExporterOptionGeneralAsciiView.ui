@@ -134,6 +134,23 @@
      </widget>
     </item>
     <item>
+     <widget class="QCheckBox" name="firstColumnOnlyCheck">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="text">
+       <string>Use X-axis for first data source only</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QCheckBox" name="separateHigherDimensionSourcesCheck">
+      <property name="text">
+       <string>2D and higher data sources into separate files</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QFrame" name="sourcesSelectorFrame">
       <property name="enabled">
        <bool>false</bool>
@@ -172,7 +189,7 @@
               <string>...</string>
              </property>
              <property name="icon">
-              <iconset resource="../icons/icons.qrc">
+              <iconset resource="../../icons/icons.qrc">
                <normaloff>:/add.png</normaloff>:/add.png</iconset>
              </property>
             </widget>
@@ -186,7 +203,7 @@
               <string>...</string>
              </property>
              <property name="icon">
-              <iconset resource="../icons/icons.qrc">
+              <iconset resource="../../icons/icons.qrc">
                <normaloff>:/Close.png</normaloff>:/Close.png</iconset>
              </property>
             </widget>
@@ -722,10 +739,16 @@ If you've chosen to put any data sets into a separate file, provide the pattern 
   </widget>
  </widget>
  <resources>
-  <include location="../icons/icons.qrc"/>
-  <include location="../icons/icons.qrc"/>
-  <include location="../icons/icons.qrc"/>
-  <include location="../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
  </resources>
  <connections/>
 </ui>

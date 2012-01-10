@@ -42,12 +42,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMRun.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
+#include "dataman/export/AMExporterGeneralAscii.h"
 #include "ui/AMStartScreen.h"
+
+#include "application/AMAppControllerSupport.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
 {
-	scanControllerActiveEditor_ = 0;
 }
 
 bool SGMAppController::startup() {
@@ -58,11 +60,11 @@ bool SGMAppController::startup() {
 	if(AMAppController::startup()) {
 		SGMBeamline::sgm();
 
-		AMDbObjectSupport::registerClass<MCPDetectorInfo>();
-		AMDbObjectSupport::registerClass<PGTDetectorInfo>();
-		AMDbObjectSupport::registerClass<OceanOptics65000DetectorInfo>();
-		AMDbObjectSupport::registerClass<SGMXASScanConfiguration>();
-		AMDbObjectSupport::registerClass<SGMFastScanConfiguration>();
+		AMDbObjectSupport::s()->registerClass<MCPDetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<PGTDetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<OceanOptics65000DetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
+		AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration>();
 
 		AMDetectorViewSupport::registerClass<AMSingleControlBriefDetectorView, AMSingleControlDetector>();
 		AMDetectorViewSupport::registerClass<MCPBriefDetectorView, MCPDetector>();
@@ -76,34 +78,57 @@ bool SGMAppController::startup() {
 		////////////////////////////////////////
 
 		AMRun existingRun;
-		if(!existingRun.loadFromDb(AMDatabase::userdb(), 1)) {
+		if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
 			// no run yet... let's create one.
-			AMRun firstRun("SGM", 3);	/// \todo For now, we know that 5 is the ID of the REIXS facility, but this is a hardcoded hack. See AMFirstTimeController::onFirstTime() for where the facilities are created.
-			firstRun.storeToDb(AMDatabase::userdb());
-			AMExporterOptionGeneralAscii *sgmDefault = new AMExporterOptionGeneralAscii();
-			sgmDefault->setName("SGMDefault");
-			sgmDefault->setFileName("$name_$exportIndex.txt");
-			sgmDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription");
-			sgmDefault->setHeaderIncluded(true);
-			sgmDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
-			sgmDefault->setColumnHeaderIncluded(true);
-			sgmDefault->setColumnHeaderDelimiter("==========");
-			sgmDefault->setSectionHeader("");
-			sgmDefault->setSectionHeaderIncluded(true);
-			sgmDefault->setIncludeAllDataSources(false);
-			sgmDefault->addDataSource("EnergyFeedback", false, AMExporterOptionGeneral::CombineInColumnsMode, true);
-			sgmDefault->addDataSource("I0", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
-			sgmDefault->addDataSource("Photodiode", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
-			sgmDefault->addDataSource("TEY", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
-			sgmDefault->addDataSource("TFY", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
-			sgmDefault->addDataSource("TEYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
-			sgmDefault->addDataSource("TFYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
-			sgmDefault->addDataSource("PFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-			sgmDefault->addDataSource("IPFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-			sgmDefault->addDataSource("SDD", false, AMExporterOptionGeneral::SeparateFilesMode, false);
-			sgmDefault->setSeparateSectionFileName("$name_$dataSetName_$exportIndex.txt");
-			sgmDefault->storeToDb(AMDatabase::userdb());
+			AMRun firstRun("SGM", 3);	/// \todo For now, we know that 5 is the ID of the REIXS facility, but this is a hardcoded hack.
+			firstRun.storeToDb(AMDatabase::database("user"));
 		}
+
+		QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "SGMDefault");
+
+		AMExporterOptionGeneralAscii *sgmDefault;
+		// Don't have one called "SGMDefault", so make one. If we have one, retreive it and check it.
+		sgmDefault = new AMExporterOptionGeneralAscii();
+		if(matchIDs.count() != 0)
+			sgmDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
+		sgmDefault->setName("SGMDefault");
+		sgmDefault->setFileName("$name_$exportIndex.txt");
+		sgmDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription");
+		sgmDefault->setHeaderIncluded(true);
+		sgmDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
+		sgmDefault->setColumnHeaderIncluded(true);
+		sgmDefault->setColumnHeaderDelimiter("==========");
+		sgmDefault->setSectionHeader("");
+		sgmDefault->setSectionHeaderIncluded(true);
+		sgmDefault->setIncludeAllDataSources(false);
+		sgmDefault->ensureDataSource("EnergyFeedback", false, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmDefault->ensureDataSource("I0", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
+		sgmDefault->ensureDataSource("Photodiode", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
+		sgmDefault->ensureDataSource("TEY", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
+		sgmDefault->ensureDataSource("TFY", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
+		sgmDefault->ensureDataSource("TEYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
+		sgmDefault->ensureDataSource("TFYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
+		sgmDefault->ensureDataSource("PFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmDefault->ensureDataSource("IPFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmDefault->ensureDataSource("SDD", false, AMExporterOptionGeneral::SeparateFilesMode, false);
+		sgmDefault->setSeparateSectionFileName("$name_$dataSetName_$exportIndex.txt");
+		sgmDefault->storeToDb(AMDatabase::database("user"));
+
+		matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "SGMDefault");
+
+		if(matchIDs.count() > 0){
+			AMAppControllerSupport::registerClass<SGMXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
+			AMAppControllerSupport::registerClass<SGMFastScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
+		}
+
+		/* HEY DARREN, THIS IS AN EXAMPLE NOTE FOR YOU
+		if(AMAppControllerSupport::registeredClasses()->contains("SGMXASScanConfiguration")){
+			AMScanConfigurationObjectInfo myInfo = AMAppControllerSupport::registeredClasses()->value("SGMXASScanConfiguration");
+			qDebug() << myInfo.scanConfigurationClassName << myInfo.exporterClassName << myInfo.exporterOptionClassName << myInfo.exporterOptionId;
+		}
+		else
+			qDebug() << "No info found";
+		*/
 
 		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
 		AMStartScreen* startScreen = new AMStartScreen(0);
@@ -118,7 +143,9 @@ bool SGMAppController::startup() {
 		//////////
 		samplePositionView_ = new AMSampleManagementWidget(new SGMSampleManipulatorView(),
 									QUrl("http://ccd1611-403/axis-cgi/mjpg/video.cgi?resolution=1280x1024&.mjpg"),
-									SGMBeamline::sgm()->currentSamplePlate());
+									"Sample Camera",
+									SGMBeamline::sgm()->currentSamplePlate(),
+									SGMBeamline::sgm()->sampleManipulator());
 		mw_->addPane(samplePositionView_, "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
 		connect(samplePositionView_, SIGNAL(newSamplePlateSelected(AMSamplePlate*)), SGMBeamline::sgm(), SLOT(setCurrentSamplePlate(AMSamplePlate*)));
 
@@ -170,6 +197,7 @@ bool SGMAppController::startup() {
 void SGMAppController::shutdown() {
 	// Make sure we release/clean-up the beamline interface
 	AMBeamline::releaseBl();
+	AMAppController::shutdown();
 }
 
 
@@ -180,11 +208,21 @@ void SGMAppController::onCurrentPaneChanged(QWidget *pane) {
 void SGMAppController::onSGMBeamlineConnected(){
 	if(SGMBeamline::sgm()->isConnected() && !xasScanConfigurationView_ && !fastScanConfigurationView_){
 		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
-		//sxsc->addRegion(0, 950, 1, 960);
+		sxsc->xasRegions()->setEnergyControl(SGMBeamline::sgm()->energy());
+		sxsc->regions()->setDefaultTimeControl(SGMBeamline::sgm()->scalerIntegrationTime());
 		double goodEnergy = 10 * floor(SGMBeamline::sgm()->energy()->value() / 10);
 		sxsc->addRegion(0, goodEnergy, 1, goodEnergy+10, 1);
 		xasScanConfigurationView_ = new SGMXASScanConfigurationView(sxsc);
 		xasScanConfigurationHolder_->setView(xasScanConfigurationView_);
+
+		/* HEY DARREN, THIS IS AN EXAMPLE NOTE FOR YOU
+		AMExporter *myExporter = AMAppControllerSupport::createExporter(sxsc);
+		AMExporterOption *myExporterOption = AMAppControllerSupport::createExporterOption(sxsc);
+		if(myExporter && myExporterOption)
+			qDebug() << "Found that sucker " << myExporter->description() << myExporterOption->name();
+		else
+			qDebug() << "Odd, didn't find that exporter";
+		*/
 
 		SGMFastScanConfiguration *sfsc = new SGMFastScanConfiguration(this);
 		fastScanConfigurationView_ = new SGMFastScanConfigurationView(sfsc);
@@ -198,93 +236,12 @@ void SGMAppController::onSGMBeamlineConnected(){
 void SGMAppController::onCurrentScanControllerCreated(){
 	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
 
-	/// \todo add user preference: should new scans open in a new window, or docked?
-	// mw_->undock(scanEditor);
-	// QPoint newPos;
-	// newPos.setX(scanEditor->pos().x()+100);
-	// newPos.setY(scanEditor->pos().y()+150);
-	// scanEditor->move(newPos);
 }
 
 void SGMAppController::onCurrentScanControllerDestroyed(){
-	scanControllerActiveEditor_ = 0;
 }
 
 void SGMAppController::onCurrentScanControllerStarted(){
-	AMGenericScanEditor *scanEditor = new AMGenericScanEditor();
-	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(scanEditor, ":/applications-science.png"));
-
-	scanEditor->addScan(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
-	mw_->setCurrentPane(scanEditor);
-
-	scanControllerActiveEditor_ = scanEditor;
+	openScanInEditorAndTakeOwnership(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
 }
 
-void SGMAppController::onCurrentScanControllerReinitialized(bool removeScan){
-	if(!scanControllerActiveEditor_) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -13, "Error while re-initializing the scan controller; there is no active scan editor window. This is a bug and you should report it to the Acquaman developers."));
-		return;
-	}
-
-	/* NTBA - August 25th, 2011 (David Chevrier)
-			How do you know that the last scan in this scan editor is the one to remove?
-			What if they've opened another scan since onCurrentScanControllerCreated()?"
-	*/
-	if(removeScan)
-		scanControllerActiveEditor_->removeScan(scanControllerActiveEditor_->scanAt(scanControllerActiveEditor_->scanCount()-1));
-
-	scanControllerActiveEditor_->addScan(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
-}
-
-
-#include "dataman/AMRunExperimentItems.h"
-#include "dataman/AMExperiment.h"
-
-void SGMAppController::onWindowPaneCloseButtonClicked(const QModelIndex& index) {
-
-	// is this a scan editor to be deleted?
-	/////////////////////////////////
-	if(mw_->windowPaneModel()->itemFromIndex(index.parent()) == scanEditorsParentItem_) {
-		AMGenericScanEditor* editor = qobject_cast<AMGenericScanEditor*>(index.data(AM::WidgetRole).value<QWidget*>());
-
-		if(!editor)
-			return;
-
-		/// \todo Move this functionality into the scan window itself. Also provide more usability... ask if they want to stop the scan
-		if(editor == scanControllerActiveEditor_) {
-			QMessageBox::information(editor, "Cannot close this window while acquiring", "A scan is still acquiring data inside this scan window.\n\nTo close it, stop the scan first.", QMessageBox::Ok);
-			return;
-		}
-
-		// delete all scans in the editor, and ask the user for confirmation. If they 'cancel' on any, give up here and don't close the window.
-		while(editor->scanCount()) {
-			if(!editor->deleteScanWithModifiedCheck(editor->scanAt(editor->scanCount()-1)))
-				return;
-		}
-		mw_->removePane(editor);
-		delete editor;
-	}
-
-	// is this an experiment asking to be deleted?
-	/// \todo bad code; improve this with better architecture and functionality in expItem.  Don't like trusting dynamic_cast; there's no guarantee that someone didn't put a non-AMExperimentModelItem into the model under experimentsParentItem_.
-	else if(mw_->windowPaneModel()->itemFromIndex(index.parent()) == experimentsParentItem_) {
-
-		AMExperimentModelItem* expItem = dynamic_cast<AMExperimentModelItem*>(mw_->windowPaneModel()->itemFromIndex(index));
-		if(!expItem)
-			return;
-
-		AMExperiment experiment(expItem->id(), expItem->database());
-
-		QMessageBox deleteConfirmation(mw_);
-		deleteConfirmation.setText(QString("Are you sure you want to delete the experiment '%1'?").arg(experiment.name()));
-		deleteConfirmation.setInformativeText("The scans in this experiment will remain, but they will no longer be associated with the experiment. You can't undo this action.");
-		deleteConfirmation.setIcon(QMessageBox::Question);
-		deleteConfirmation.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-		deleteConfirmation.setDefaultButton(QMessageBox::Ok);
-		deleteConfirmation.setEscapeButton(QMessageBox::Cancel);
-
-		if(deleteConfirmation.exec() == QMessageBox::Ok) {
-			AMExperiment::deleteExperiment(experiment.id(), expItem->database());
-		}
-	}
-}

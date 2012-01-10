@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/REIXS/REIXSXESScanConfiguration.h"
 #include "dataman/AMXESScan.h"
 #include <QTimer>
+#include <QDateTime>
 
 class AMBeamlineControlMoveAction;
 
@@ -66,8 +67,8 @@ protected slots:
 	void saveRawData();
 
 protected:
-	/// \todo Move to AMScanController? Time that scan was started
-	QTime startTime_;
+	/// Time that scan was started
+	QDateTime startTime_;
 	/// 1 second timer to check on progress of scan
 	QTimer scanProgressTimer_;
 
@@ -77,11 +78,8 @@ protected:
 
 
 private:
-	/// Shortcut to cast the scan configuration (AMScanController's generalCfg_) back into the REIXSXESScanConfiguration that we know it is.
-	REIXSXESScanConfiguration* pCfg() { return qobject_cast<REIXSXESScanConfiguration*>(generalCfg_); }
-
-	/// Shortcut to cast the scan object (AMScanController's generalScan_ back into the AMXESScan that we know it is.
-	AMXESScan* pScan() { return qobject_cast<AMXESScan*>(generalScan_); }
+	/// Our scan configuration:
+	REIXSXESScanConfiguration* config_;
 
 };
 

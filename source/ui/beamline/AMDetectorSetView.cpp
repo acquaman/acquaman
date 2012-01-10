@@ -87,7 +87,7 @@ AMDetectorView* AMDetectorSetView::boxByName(const QString &name){
 	return detectorBoxes_.at(viewSet_->indexOfKey(name));
 }
 
-AMDetectorView const * const AMDetectorSetView::boxAt(int row) const{
+const AMDetectorView *AMDetectorSetView::boxAt(int row) const{
 	return detectorBoxes_.at(row);
 }
 
@@ -95,7 +95,7 @@ AMDetectorView* AMDetectorSetView::detailByName(const QString &name){
 	return detectorDetails_.at(viewSet_->indexOf(name));
 }
 
-AMDetectorView const * const AMDetectorSetView::detailAt(int row) const{
+const AMDetectorView *AMDetectorSetView::detailAt(int row) const{
 	return detectorDetails_.at(row);
 }
 

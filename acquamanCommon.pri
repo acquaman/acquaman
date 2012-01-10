@@ -4,13 +4,19 @@
 # ####################################################################
 
 # Video Support: Remove this line if you do not have the multimedia module from QtMobility
+CONFIG += mobility
 
-#CONFIG += mobility
+# Debug: Uncomment this to build the program in debug mode (no optimizations; include debugging symbols.)
+# Note that as of November 18, 2011, building in debug mode triggers a failure in the dacq library: the main (eV) PV ends up disabled in the dacq scan config.  This is likely a serious memory error.
+# CONFIG += debug
 
 # Automatically determines a user's home folder
 HOME_FOLDER = $$system(echo $HOME)
 
 macx {
+
+		# Disable Qt Mobility Video until everyone's Mac laptops support that
+		CONFIG -= mobility
 
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
 		DEV_PATH = dev
@@ -59,6 +65,9 @@ linux-g++ {
 }
 linux-g++-32 {
 
+		# Disable Qt Mobility Video until Darren's laptop is ready for that.
+		CONFIG -= mobility
+
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
 		DEV_PATH = beamline/programming
 
@@ -83,7 +92,7 @@ linux-g++-32 {
 linux-g++-64 {
 
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = Sandbox/Acquaman2011/dev
+		DEV_PATH = beamline/programming
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = /home/epics/src/R3.14.12/base/include \
@@ -103,11 +112,29 @@ linux-g++-64 {
 		XML_INCLUDE_DIR = /usr/include/libxml2
 }
 
+# Special build paths and options for running on the Jenkins auto-build server (currently at http://beamteam.usask.ca:8080)
+CONFIG(jenkins_build) {
+
+		message("Detected Jenkins auto-build... Specifying dependency paths for the build server.")
+
+		# Disable Qt Mobility Video until the Jenkins-machine supports that
+		CONFIG -= mobility
+
+		# EPICS Dependencies:
+		EPICS_INCLUDE_DIRS = /home/mark/dev/epics/base/include \
+				/home/mark/dev/epics/base/include/os/Linux
+		EPICS_LIB_DIR = /home/mark/dev/epics/base/lib/linux-x86
+
+		# MPlot Source
+		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/src"
+}
+
+
 QT += core gui sql opengl
 
-# video using Multimedia module from QtMobility, if we have it. (This will only be activated if you set the CONFIG += mobility line at the top of this file)
+# add video using Multimedia module from QtMobility, if we have it
 CONFIG(mobility) {
-		MOBILITY += multimedia
+	MOBILITY += multimedia
 }
 
 DESTDIR = build
@@ -172,22 +199,23 @@ linux-g++-64 {
 # Source Files (Acquaman Framework Common)
 #######################
 
-HEADERS += ../MPlot/src/MPlot/MPlot.h \
-	../MPlot/src/MPlot/MPlotAbstractTool.h \
-	../MPlot/src/MPlot/MPlotAxis.h \
-	../MPlot/src/MPlot/MPlotAxisScale.h \
-	../MPlot/src/MPlot/MPlotColorMap.h \
-	../MPlot/src/MPlot/MPlotImage.h \
-	../MPlot/src/MPlot/MPlotImageData.h \
-	../MPlot/src/MPlot/MPlotItem.h \
-	../MPlot/src/MPlot/MPlotLegend.h \
-	../MPlot/src/MPlot/MPlotMarker.h \
-	../MPlot/src/MPlot/MPlotPoint.h \
-	../MPlot/src/MPlot/MPlotRectangle.h \
-	../MPlot/src/MPlot/MPlotSeries.h \
-	../MPlot/src/MPlot/MPlotSeriesData.h \
-	../MPlot/src/MPlot/MPlotTools.h \
-	../MPlot/src/MPlot/MPlotWidget.h \
+HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAbstractTool.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxis.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxisScale.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorMap.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotImage.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotImageData.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotItem.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotLegend.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarker.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotPoint.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotRectangle.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeries.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeriesData.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotTools.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotWidget.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarkerTransparentVerticalRectangle.h \
 	source/acquaman/AMAcqScanOutput.h \
 	source/acquaman/AMAcqScanSpectrumOutput.h \
 	source/acquaman/AMDacqScanController.h \
@@ -232,7 +260,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/database/AMDbObject.h \
 	source/dataman/info/AMDetectorInfo.h \
 	source/dataman/AMExperiment.h \
-	source/dataman/AMFirstTimeController.h \
 	source/dataman/AMImportController.h \
 	source/dataman/AMRun.h \
 	source/dataman/AMSample.h \
@@ -269,7 +296,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMThumbnailScrollViewer.h \
 	source/ui/AMBottomBar.h \
 	source/ui/acquaman/AMRegionsView.h \
-	#deprecated: source/ui/AMBeamlineCameraWidget.h \
 	source/ui/beamline/AMControlEditor.h \
 	source/acquaman.h \
 	source/ui/dataman/AMNewRunDialog.h \
@@ -282,7 +308,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMDragDropItemModel.h \
 	source/dataman/AMRunExperimentItems.h \
 	source/ui/dataman/AMSampleManagementWidget.h \
-	source/ui/dataman/AMSampleManipulatorView.h \
 	source/ui/dataman/AMSamplePlateView.h \
 	source/dataman/info/AMControlInfoList.h \
 	source/dataman/AMSamplePlate.h \
@@ -299,9 +324,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMWrappingLineEdit.h \
 	source/actions/AMBeamlineControlSetMoveAction.h \
 	source/ui/AMStartScreen.h \
-	source/ui/AMSignallingGraphicsScene.h \
+	source/ui/AMSignallingGraphicsView.h \
 	source/dataman/AMUser.h \
-	#deprecated: source/ui/AMVideoPlayerWidget.h \
 	source/dataman/AMXESScan.h \
 	source/dataman/info/ALSBL8XESDetectorInfo.h \
 	source/dataman/ALSBL8XASFileLoader.h \
@@ -336,7 +360,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/actions/AMBeamlineControlStopAction.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
 	source/util/AMDeferredFunctionCall.h \
-	#deprecated: source/ui/AMVideoWidget.h \
 	source/ui/acquaman/AMScanConfigurationViewHolder.h \
 	source/ui/util/AMPeriodicTableView.h \
 	source/util/AMPeriodicTable.h \
@@ -360,7 +383,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/actions/AMBeamlineListAction.h \
 	source/actions/AMBeamlineControlWaitAction.h \
 	source/actions/AMBeamlineUserConfirmAction.h \
-	source/ui/dataman/AMScanQueryModel.h \
+	source/dataman/database/AMQueryTableModel.h \
 	source/dataman/export/AMExportController.h \
 	source/dataman/export/AMExporter.h \
 	source/dataman/export/AMExporterOption.h \
@@ -379,7 +402,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/OceanOptics65000Detector.h \
 	source/ui/beamline/OceanOptics65000DetectorView.h \
 	source/dataman/SGM/SGM2011XASFileLoader.h \
-	source/beamline/CLS/CLSVMEMotor.h \
+	source/beamline/CLS/CLSMAXvMotor.h \
 	source/analysis/AM1DDerivativeAB.h \
 	source/beamline/AMHighVoltageChannel.h \
 	source/beamline/CLS/CLSCAEN2527HVChannel.h \
@@ -408,6 +431,11 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/VESPERS/VESPERSXASDataLoader.h \
 	source/dataman/AMFileLoaderInterface.h \
 	source/ui/util/AMSettingsView.h \
+	source/dataman/AMScanDictionary.h \
+	source/dataman/AMScanParametersDictionary.h \
+	source/dataman/AMScanExemplarDictionary.h \
+	source/dataman/AMScanExemplar.h \
+	source/ui/dataman/AMDictionaryLineEdit.h \
 	source/beamline/AMIonChamber.h \
 	source/dataman/info/AMIonChamberInfo.h \
 	source/beamline/CLS/CLSIonChamber.h \
@@ -419,11 +447,26 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/CLS/CLSSplitIonChamber.h \
 	source/ui/beamline/AMSplitIonChamberView.h \
 	source/ui/CLS/CLSSplitIonChamberView.h \
-    ../MPlot/src/MPlot/MPlotMarkerTransparentVerticalRectangle.h
+	source/application/AMAppControllerSupport.h \
+	source/application/AMPluginsManager.h \
+	source/dataman/import/AMScanDatabaseImportController.h \
+	source/ui/dataman/AMScanDatabaseImportWizard.h \
+	source/beamline/CLS/CLSMDriveMotorControl.h \
+	source/ui/beamline/AMControlMoveButton.h \
+	source/beamline/AMSampleManipulator.h \
+	source/beamline/AMControlSetSampleManipulator.h \
+	source/ui/CLS/CLSStopLightButton.h \
+	source/acquaman/AMRegionScanConfiguration.h \
+	source/acquaman/AMEXAFSScanConfiguration.h \
+	source/beamline/CLS/CLSVariableIntegrationTime.h
 
 CONFIG(mobility) {
+DEFINES += AM_MOBILITY_VIDEO_ENABLED
+
 HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
 	source/ui/AMOverlayVideoWidget.h \
+	source/ui/AMBeamlineCameraWidget.h \
+	source/ui/AMBeamlineCameraWidgetWithSourceTabs.h \
 	source/ui/AMBeamlineCameraBrowser.h
 }
 
@@ -442,22 +485,23 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/dataman/AMChooseScanDialog.ui \
 	source/ui/AMLinePropertyEditor.ui \
 	source/ui/dataman/AMImagePropertyEditor.ui
-SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
-	../MPlot/src/MPlot/MPlotAbstractTool.cpp \
-	../MPlot/src/MPlot/MPlotAxis.cpp \
-	../MPlot/src/MPlot/MPlotAxisScale.cpp \
-	../MPlot/src/MPlot/MPlotColorMap.cpp \
-	../MPlot/src/MPlot/MPlotImage.cpp \
-	../MPlot/src/MPlot/MPlotImageData.cpp \
-	../MPlot/src/MPlot/MPlotItem.cpp \
-	../MPlot/src/MPlot/MPlotLegend.cpp \
-	../MPlot/src/MPlot/MPlotMarker.cpp \
-	../MPlot/src/MPlot/MPlotPoint.cpp \
-	../MPlot/src/MPlot/MPlotRectangle.cpp \
-	../MPlot/src/MPlot/MPlotSeries.cpp \
-	../MPlot/src/MPlot/MPlotSeriesData.cpp \
-	../MPlot/src/MPlot/MPlotTools.cpp \
-	../MPlot/src/MPlot/MPlotWidget.cpp \
+SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAbstractTool.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxis.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxisScale.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorMap.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotImage.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotImageData.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotItem.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotLegend.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarker.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotPoint.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotRectangle.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeries.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeriesData.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotTools.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotWidget.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarkerTransparentVerticalRectangle.cpp \
 	source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/AMAcqScanSpectrumOutput.cpp \
 	source/acquaman/AMDacqScanController.cpp \
@@ -507,7 +551,6 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/database/AMDbObject.cpp \
 	source/dataman/info/AMDetectorInfo.cpp \
 	source/dataman/AMExperiment.cpp \
-	source/dataman/AMFirstTimeController.cpp \
 	source/dataman/AMImportController.cpp \
 	source/dataman/AMRun.cpp \
 	source/dataman/AMSample.cpp \
@@ -537,7 +580,6 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMThumbnailScrollViewer.cpp \
 	source/ui/AMBottomBar.cpp \
 	source/ui/acquaman/AMRegionsView.cpp \
-	#deprecated: source/ui/AMBeamlineCameraWidget.cpp \
 	source/ui/beamline/AMControlEditor.cpp \
 	source/ui/beamline/AMDetectorView.cpp \
 	source/ui/dataman/AMNewRunDialog.cpp \
@@ -548,7 +590,6 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMDragDropItemModel.cpp \
 	source/dataman/AMRunExperimentItems.cpp \
 	source/ui/dataman/AMSampleManagementWidget.cpp \
-	source/ui/dataman/AMSampleManipulatorView.cpp \
 	source/ui/dataman/AMSamplePlateView.cpp \
 	source/dataman/info/AMControlInfoList.cpp \
 	source/dataman/AMSamplePlate.cpp \
@@ -565,9 +606,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMWrappingLineEdit.cpp \
 	source/actions/AMBeamlineControlSetMoveAction.cpp \
 	source/ui/AMStartScreen.cpp \
-	source/ui/AMSignallingGraphicsScene.cpp \
+	source/ui/AMSignallingGraphicsView.cpp \
 	source/dataman/AMUser.cpp \
-	#deprecated: source/ui/AMVideoPlayerWidget.cpp \
 	source/dataman/AMXESScan.cpp \
 	source/dataman/info/ALSBL8XESDetectorInfo.cpp \
 	source/dataman/ALSBL8XASFileLoader.cpp \
@@ -619,13 +659,11 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/AMDetectorSet.cpp \
 	source/dataman/info/AMROIInfo.cpp \
 	source/beamline/AMROI.cpp \
-	#deprecated: source/ui/AMVideoWidget.cpp \
-	#source/beamline/AMBeamlineListAction.cpp
 	source/ui/dataman/AMSamplePositionViewActionsWidget.cpp \
 	source/actions/AMBeamlineListAction.cpp \
 	source/actions/AMBeamlineControlWaitAction.cpp \
 	source/actions/AMBeamlineUserConfirmAction.cpp \
-	source/ui/dataman/AMScanQueryModel.cpp \
+	source/dataman/database/AMQueryTableModel.cpp \
 	source/dataman/export/AMExportController.cpp \
 	source/dataman/export/AMExporterOption.cpp \
 	source/dataman/export/AMExporterOptionGeneral.cpp \
@@ -644,7 +682,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/OceanOptics65000Detector.cpp \
 	source/ui/beamline/OceanOptics65000DetectorView.cpp \
 	source/dataman/SGM/SGM2011XASFileLoader.cpp \
-	source/beamline/CLS/CLSVMEMotor.cpp \
+	source/beamline/CLS/CLSMAXvMotor.cpp \
 	source/analysis/AM1DDerivativeAB.cpp \
 	source/beamline/AMHighVoltageChannel.cpp \
 	source/beamline/CLS/CLSCAEN2527HVChannel.cpp \
@@ -672,6 +710,11 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AM2DDeadTimeAB.cpp \
 	source/dataman/VESPERS/VESPERSXASDataLoader.cpp \
 	source/ui/util/AMSettingsView.cpp \
+	source/dataman/AMScanDictionary.cpp \
+	source/dataman/AMScanParametersDictionary.cpp \
+	source/dataman/AMScanExemplarDictionary.cpp \
+	source/dataman/AMScanExemplar.cpp \
+	source/ui/dataman/AMDictionaryLineEdit.cpp \
 	source/beamline/AMIonChamber.cpp \
 	source/dataman/info/AMIonChamberInfo.cpp \
 	source/beamline/CLS/CLSIonChamber.cpp \
@@ -683,11 +726,23 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/CLS/CLSSplitIonChamber.cpp \
 	source/ui/beamline/AMSplitIonChamberView.cpp \
 	source/ui/CLS/CLSSplitIonChamberView.cpp \
-    ../MPlot/src/MPlot/MPlotMarkerTransparentVerticalRectangle.cpp
+	source/application/AMPluginsManager.cpp \
+	source/application/AMAppControllerSupport.cpp \
+	source/dataman/import/AMScanDatabaseImportController.cpp \
+	source/ui/dataman/AMScanDatabaseImportWizard.cpp \
+	source/beamline/CLS/CLSMDriveMotorControl.cpp \
+	source/ui/beamline/AMControlMoveButton.cpp \
+	source/beamline/AMControlSetSampleManipulator.cpp \
+	source/ui/CLS/CLSStopLightButton.cpp \
+	source/acquaman/AMRegionScanConfiguration.cpp \
+	source/acquaman/AMEXAFSScanConfiguration.cpp \
+	source/beamline/CLS/CLSVariableIntegrationTime.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
 		source/ui/AMCrosshairOverlayVideoWidget.cpp \
+		source/ui/AMBeamlineCameraWidget.cpp \
+		source/ui/AMBeamlineCameraWidgetWithSourceTabs.cpp \
 		source/ui/AMBeamlineCameraBrowser.cpp
 }
 
@@ -700,6 +755,9 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
 
 
 

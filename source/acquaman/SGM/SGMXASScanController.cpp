@@ -30,50 +30,48 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMSamplePlate.h"
 
 SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
-	specificCfg_ = cfg;
-	_pCfg_ = & specificCfg_;
+	config_ = cfg;
 	initializationActions_ = 0; //NULL
 	cleanUpActions_ = 0; //NULL
 	beamlineInitialized_ = false;
 
 	specificScan_ = new AMXASScan();
-	_pScan_ = &specificScan_;
-	pScan_()->setFileFormat("sgm2011XAS");
-	pScan_()->setRunId(AMUser::user()->currentRunId());
-	pScan_()->setScanConfiguration(pCfg_());
-	pScan_()->setSampleId(SGMBeamline::sgm()->currentSampleId());
+	specificScan_->setFileFormat("sgm2011XAS");
+	specificScan_->setRunId(AMUser::user()->currentRunId());
+	specificScan_->setScanConfiguration(config_);
+	specificScan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
 	QString scanName;
 	QString sampleName;
-	if(pCfg_()->userScanName() == "")
-		scanName = pCfg_()->autoScanName();
+	if(config_->userScanName() == "")
+		scanName = config_->autoScanName();
 	else
-		scanName = pCfg_()->userScanName();
-	if(pScan_()->sampleId() == -1)
+		scanName = config_->userScanName();
+	if(specificScan_->sampleId() == -1)
 		sampleName = "Unknown Sample";
 	else
-		sampleName = AMSample(pScan_()->sampleId(), AMUser::user()->database()).name();
-	pScan_()->setName(QString("%1 - %2").arg(sampleName).arg(scanName));
+		sampleName = AMSample(specificScan_->sampleId(), AMUser::user()->database()).name();
+	specificScan_->setName(QString("%1 - %2").arg(sampleName).arg(scanName));
 
 	// Create space in raw data store, and create raw data channels, for each detector.
-	for(int i = 0; i < pCfg_()->allDetectorConfigurations().count(); i++){
-		AMDetectorInfo* detectorInfo = pCfg_()->allDetectorConfigurations().detectorInfoAt(i);
-		if(pCfg_()->allDetectorConfigurations().isActiveAt(i)){
+	for(int i = 0; i < config_->allDetectorConfigurations().count(); i++){
+		AMDetectorInfo* detectorInfo = config_->allDetectorConfigurations().detectorInfoAt(i);
+		if(config_->allDetectorConfigurations().isActiveAt(i)){
 
-			if(pScan_()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo)))
-				pScan_()->addRawDataSource(new AMRawDataSource(pScan_()->rawData(), pScan_()->rawData()->measurementCount()-1));
+			if(specificScan_->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo)))
+				specificScan_->addRawDataSource(new AMRawDataSource(specificScan_->rawData(), specificScan_->rawData()->measurementCount()-1));
 			else
 				qDebug() << "BIG PROBLEM!!!!!! WHAT JUST HAPPENED?!?!?" << detectorInfo->name();
 		}
 	}
 
 	QList<AMDataSource*> raw1DDataSources;
-	for(int i=0; i<pScan_()->rawDataSources()->count(); i++)
-		if(pScan_()->rawDataSources()->at(i)->rank() == 1)
-			raw1DDataSources << pScan_()->rawDataSources()->at(i);
+	for(int i=0; i<specificScan_->rawDataSources()->count(); i++)
+		if(specificScan_->rawDataSources()->at(i)->rank() == 1)
+			raw1DDataSources << specificScan_->rawDataSources()->at(i);
 
-	int rawTeyIndex = pScan_()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->teyDetector()->description());
-	int rawTfyIndex = pScan_()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->tfyDetector()->description());
-	int rawI0Index = pScan_()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->i0Detector()->description());
+	int rawTeyIndex = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->teyDetector()->description());
+	int rawTfyIndex = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->tfyDetector()->description());
+	int rawI0Index = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->i0Detector()->description());
 
 	if(rawTeyIndex != -1 && rawI0Index != -1) {
 		AM1DExpressionAB* teyChannel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->teyDetector()->description()));
@@ -81,7 +79,7 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 		teyChannel->setInputDataSources(raw1DDataSources);
 		teyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->teyDetector()->description()).arg(SGMBeamline::sgm()->i0Detector()->description()));
 
-		pScan_()->addAnalyzedDataSource(teyChannel);
+		specificScan_->addAnalyzedDataSource(teyChannel);
 	}
 
 	if(rawTfyIndex != -1 && rawI0Index != -1) {
@@ -90,20 +88,20 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 		tfyChannel->setInputDataSources(raw1DDataSources);
 		tfyChannel->setExpression(QString("-%1/%2").arg(SGMBeamline::sgm()->tfyDetector()->description()).arg(SGMBeamline::sgm()->i0Detector()->description()));
 
-		pScan_()->addAnalyzedDataSource(tfyChannel);
+		specificScan_->addAnalyzedDataSource(tfyChannel);
 	}
 
 	if(SGMBeamline::sgm()->pgtDetector()){
-		int rawSddIndex = pScan_()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->pgtDetector()->description());
+		int rawSddIndex = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->pgtDetector()->description());
 		if(rawSddIndex != -1) {
-			AMRawDataSource* sddRaw = pScan_()->rawDataSources()->at(rawSddIndex);
+			AMRawDataSource* sddRaw = specificScan_->rawDataSources()->at(rawSddIndex);
 			AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
 			QList<AMDataSource*> pfySource;
 			pfySource << sddRaw;
 			pfy->setInputDataSources(pfySource);
 			pfy->setSumAxis(1);
 			pfy->setSumRangeMax(sddRaw->size(1)-1);
-			pScan_()->addAnalyzedDataSource(pfy);
+			specificScan_->addAnalyzedDataSource(pfy);
 			if(rawSddIndex != -1 && rawI0Index != -1) {
 				AM1DExpressionAB* ipfyChannel = new AM1DExpressionAB(QString("IPFY"));
 				ipfyChannel->setDescription("IPFY");
@@ -113,22 +111,22 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 				ipfyChannel->setInputDataSources(ipfySources);
 				ipfyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->i0Detector()->description()).arg("PFY"));
 
-				pScan_()->addAnalyzedDataSource(ipfyChannel);
+				specificScan_->addAnalyzedDataSource(ipfyChannel);
 			}
 		}
 	}
 
 	if(SGMBeamline::sgm()->oos65000Detector()){
-		int rawOOSIndex = pScan_()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->oos65000Detector()->description().remove('\n'));
+		int rawOOSIndex = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->oos65000Detector()->description().remove('\n'));
 		if(rawOOSIndex != -1) {
-			AMRawDataSource* oosRaw = pScan_()->rawDataSources()->at(rawOOSIndex);
+			AMRawDataSource* oosRaw = specificScan_->rawDataSources()->at(rawOOSIndex);
 			AM2DSummingAB* ply = new AM2DSummingAB("PLY");
 			QList<AMDataSource*> plySource;
 			plySource << oosRaw;
 			ply->setInputDataSources(plySource);
 			ply->setSumAxis(1);
 			ply->setSumRangeMax(oosRaw->size(1)-1);
-			pScan_()->addAnalyzedDataSource(ply);
+			specificScan_->addAnalyzedDataSource(ply);
 			if(rawOOSIndex != -1 && rawI0Index != -1) {
 				AM1DExpressionAB* plyNormChannel = new AM1DExpressionAB(QString("PLYNorm"));
 				plyNormChannel->setDescription("PLYNorm");
@@ -138,7 +136,7 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 				plyNormChannel->setInputDataSources(plyNormSources);
 				plyNormChannel->setExpression(QString("%1/%2").arg("PLY").arg(SGMBeamline::sgm()->i0Detector()->description()));
 
-				pScan_()->addAnalyzedDataSource(plyNormChannel);
+				specificScan_->addAnalyzedDataSource(plyNormChannel);
 			}
 		}
 	}
@@ -176,17 +174,17 @@ bool SGMXASScanController::beamlineInitialize(){
 
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 	AMBeamlineControlSetMoveAction* tmpSetAction = new AMBeamlineControlSetMoveAction(SGMBeamline::sgm()->fluxResolutionSet());
-	tmpSetAction->setSetpoint((pCfg_()->fluxResolutionGroup()));
+	tmpSetAction->setSetpoint((config_->fluxResolutionGroup()));
 	initializationActions_->appendAction(0, tmpSetAction);
 
 	tmpSetAction = new AMBeamlineControlSetMoveAction(SGMBeamline::sgm()->trackingSet());
-	tmpSetAction->setSetpoint(pCfg_()->trackingGroup());
+	tmpSetAction->setSetpoint(config_->trackingGroup());
 	initializationActions_->appendAction(0, tmpSetAction);
 
 //	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 /*
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
-	tmpAction->setSetpoint(pCfg_()->startEnergy());
+	tmpAction->setSetpoint(config_->startEnergy());
 	initializationActions_->appendAction(0, tmpAction);
 */
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerMode());
@@ -203,13 +201,13 @@ bool SGMXASScanController::beamlineInitialize(){
 	initializationActions_->appendAction(0, tmpAction);
 
 
-	for(int x = 0; x < pCfg_()->allDetectors()->count(); x++){
-		if(pCfg_()->allDetectorConfigurations().isActiveAt(x)){
-			pCfg_()->allDetectors()->detectorAt(x)->setFromInfo(pCfg_()->allDetectorConfigurations().detectorInfoAt(x));
-			pCfg_()->allDetectors()->detectorAt(x)->activate();
-			if(pCfg_()->allDetectors()->detectorAt(x)->turnOnAction()){
+	for(int x = 0; x < config_->allDetectors()->count(); x++){
+		if(config_->allDetectorConfigurations().isActiveAt(x)){
+			config_->allDetectors()->detectorAt(x)->setFromInfo(config_->allDetectorConfigurations().detectorInfoAt(x));
+			config_->allDetectors()->detectorAt(x)->activate();
+			if(config_->allDetectors()->detectorAt(x)->turnOnAction()){
 				qDebug() << "Adding HV turn on to initialization actions";
-				initializationActions_->appendAction(0, pCfg_()->allDetectors()->detectorAt(x)->turnOnAction());
+				initializationActions_->appendAction(0, config_->allDetectors()->detectorAt(x)->turnOnAction());
 			}
 		}
 	}
@@ -217,7 +215,7 @@ bool SGMXASScanController::beamlineInitialize(){
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 
         tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
-        tmpAction->setSetpoint(pCfg_()->startEnergy());
+		tmpAction->setSetpoint(config_->startEnergy());
         initializationActions_->appendAction(1, tmpAction);
 
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
@@ -227,10 +225,3 @@ bool SGMXASScanController::beamlineInitialize(){
 	return beamlineInitialized_;
 }
 
-SGMXASScanConfiguration* SGMXASScanController::pCfg_(){
-	return *_pCfg_;
-}
-
-AMXASScan* SGMXASScanController::pScan_(){
-	return *_pScan_;
-}

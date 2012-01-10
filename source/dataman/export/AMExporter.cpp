@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFile>
 #include <QDir>
 #include <QStringBuilder>
+#include <QMessageBox>
 
 #include "util/AMTagReplacementParser.h"
 #include "dataman/AMScan.h"
@@ -31,6 +32,7 @@ AMExporter::AMExporter(QObject *parent) : QObject(parent) {
 	currentDataSourceIndex_ = 0;
 
 	autoIndex_ = 0;
+	overwriteAll_ = Default;
 
 	keywordParser_ = new AMTagReplacementParser();
 
@@ -46,14 +48,38 @@ AMExporter::~AMExporter() {
 	delete keywordParser_;
 }
 
+const QMetaObject* AMExporter::getMetaObject(){
+	return metaObject();
+}
+
 bool AMExporter::openFile(const QString &filePath)
 {
 	return openFile(file_, filePath);
 }
 
 bool AMExporter::openFile(QFile* file, const QString& filePath) {
-	if(QFile::exists(filePath))
+
+	bool fileExists = QFile::exists(filePath);
+
+	if (fileExists && overwriteAll_ == None)
 		return false;
+
+	else if (fileExists && overwriteAll_ == Default){
+
+		QMessageBox::StandardButton button = QMessageBox::question(0, "Overwrite file?",
+																   QString("%1 already exists.  Do you want to overwrite this file?").arg(filePath.split("/").last()),
+																   QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll | QMessageBox::NoToAll,
+																   QMessageBox::Yes);
+
+
+		if (button == QMessageBox::YesToAll)
+			overwriteAll_ = All;
+		else if (button == QMessageBox::NoToAll)
+			overwriteAll_ = None;
+
+		if (button == QMessageBox::No || button == QMessageBox::NoToAll)
+			return false;
+	}
 
 	QFileInfo fileInfo(filePath);
 	if(!QDir::current().mkpath(fileInfo.path()))
@@ -70,6 +96,7 @@ bool AMExporter::openFile(QFile* file, const QString& filePath) {
 }
 
 QString AMExporter::parseKeywordString(const QString &inputString) {
+	currentlyParsing_ = inputString;
 	keywordParser_->setInitialText(inputString);
 	keywordParser_->replaceAllUsingDictionary(keywordDictionary_);
 	return keywordParser_->getReplacedText();
@@ -87,7 +114,6 @@ void AMExporter::loadKeywordReplacementDictionary()
 	keywordDictionary_.insert("run", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krRun));
 	keywordDictionary_.insert("runName", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krRunName));
 	keywordDictionary_.insert("runStartDate", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krRunStartDate));
-	keywordDictionary_.insert("runEndDate", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krRunEndDate));
 	keywordDictionary_.insert("runNotes", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krRunNotes));
 	keywordDictionary_.insert("facilityName", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krFacilityName));
 	keywordDictionary_.insert("facilityDescription", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krFacilityDescription));
@@ -116,6 +142,8 @@ void AMExporter::loadKeywordReplacementDictionary()
 	keywordDictionary_.insert("dataSetAxisUnits", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDataSourceAxisUnits));
 
 	keywordDictionary_.insert("exportIndex", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krExporterAutoIncrement));
+
+	keywordDictionary_.insert("fsIndex", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krFileSystemAutoIncrement));
 }
 
 
@@ -180,7 +208,7 @@ QString AMExporter::krRun(const QString& arg) {
 
 	AMRun r;
 	r.loadFromDb(currentScan_->database(), currentScan_->runId());
-	return r.name() % " " % AMDateTimeUtils::prettyDateRange(r.dateTime(), r.endDateTime());
+	return r.name() % " " % AMDateTimeUtils::prettyDate(r.dateTime());
 }
 
 
@@ -207,18 +235,7 @@ QString AMExporter::krRunStartDate(const QString& arg) {
 		return r.dateTime().toString(arg);
 }
 
-QString AMExporter::krRunEndDate(const QString& arg) {
-	if(!currentScan_)
-		return "[??]";
 
-	AMRun r;
-	r.loadFromDb(currentScan_->database(), currentScan_->runId());
-
-	if(arg.isEmpty())
-		return r.endDateTime().toString("yyyy MM dd");
-	else
-		return r.endDateTime().toString(arg);
-}
 
 QString AMExporter::krRunNotes(const QString& arg) {
 	Q_UNUSED(arg)
@@ -258,7 +275,6 @@ QString AMExporter::krFacilityDescription(const QString& arg) {
 }
 
 #include "acquaman/AMScanConfiguration.h"	/// \todo Move to dataman!
-
 QString AMExporter::krScanConfiguration(const QString& propertyName) {
 	if(!currentScan_)
 		return "[??]";
@@ -267,7 +283,24 @@ QString AMExporter::krScanConfiguration(const QString& propertyName) {
 	if(!scanConfig)
 		return "[??]";
 
-	QVariant v =  scanConfig->property(propertyName.toLatin1().constData());
+	QStringList propertyArgs = propertyName.split('%');
+	QVariant v =  scanConfig->property(propertyArgs.at(0).toLatin1().constData());
+	if(propertyArgs.count() > 1){
+		if(propertyArgs.at(1) == "double" && v.canConvert<double>()){
+			double value = v.toDouble();
+			QString retVal;
+			int precision = 0;
+			bool conversionOk;
+			if(propertyArgs.count() > 2){
+				precision = propertyArgs.at(2).toInt(&conversionOk);
+				if(!conversionOk)
+					precision = 0;
+			}
+			retVal.setNum(value, 'f', precision);
+			return retVal;
+		}
+
+	}
 	if(!v.isValid())
 		return "[??]";
 
@@ -478,15 +511,15 @@ QString AMExporter::krDataSourceInfoDescription(const QString &dataSourceName) {
 	AMDataSource* ds = currentScan_->dataSourceAt(dataSourceIndex);
 	return ds->infoDescription();
 	/*
-	if(ds->infoDescription().isEmpty()){
-		qDebug() << "No info description, using name";
-		return ds->name();
-	}
-	else{
-		qDebug() << "Found info description";
-		return ds->infoDescription();
-	}
-	*/
+ if(ds->infoDescription().isEmpty()){
+  qDebug() << "No info description, using name";
+  return ds->name();
+ }
+ else{
+  qDebug() << "Found info description";
+  return ds->infoDescription();
+ }
+ */
 }
 
 QString AMExporter::krDataSourceAxisValue(const QString& dataSourceName) {
@@ -532,7 +565,67 @@ QString AMExporter::krExporterAutoIncrement(const QString &arg){
 	return QString("%1").arg(autoIndex_);
 }
 
+#include <QDir>
+#include <QRegExp>
+QString AMExporter::krFileSystemAutoIncrement(const QString &arg)
+{
+	Q_UNUSED(arg)
 
+	if (!currentScan_)
+		return "[??]";
 
+	if (!currentScan_->scanConfiguration())
+		return "[??]";
 
+	if (currentScan_->indexType() != "fileSystem")
+		return "[??]";
 
+	// The default number for a scan is 0.  If it is still 0 then the scan has not yet been indexed.  If this value is non-zero (number > 0) then the scan has already
+	// been assigned which likely means that the current file is an associated separate file (ie: data file with a spectra file accompanying it).
+	// The other benefit for doing it this way is that now the exported file will have the same number as the name on the scan editor.
+	if (currentScan_->number() == 0){
+
+		// This will not be necessary once the general AMScanDictionary is implemented.
+		AMScan *scan = const_cast<AMScan *>(currentScan_);
+
+		QString newName = currentlyParsing_;
+		newName = newName.mid(newName.lastIndexOf("/")+1);
+
+		for (int i = 0; i < keywordParser_->replacementList().size(); i++)
+			if (keywordParser_->replacementList().at(i).tag != "fsIndex")
+				newName.replace(keywordParser_->replacementList().at(i).tag, keywordParser_->replacementList().at(i).replacement);
+
+		newName.replace("$fsIndex", "*");
+
+		for (int i = 0; i < newName.count("$"); i++)
+			newName.replace("$", "");
+
+		QString finalTest = newName;
+
+		// The following line of code is the correct code, but using a different path for testing.
+		QDir dir(destinationFolderPath_);
+		//QDir dir("/Users/darrenhunter/dev/export test");
+		dir.setNameFilters(QStringList() << newName);
+		newName.replace("*", "[\\d{0,4}]\\");
+		QStringList filtered = dir.entryList().filter(QRegExp(newName));
+
+		int incr = 0;
+		dir.setNameFilters(QStringList() << QString(finalTest).replace("*", QString::number(filtered.size())));
+
+		while (!dir.entryList().isEmpty())
+			dir.setNameFilters(QStringList() << QString(finalTest).replace("*", QString::number(filtered.size()+(++incr))));
+
+		// I want the auto-index to start from 1.
+		if (filtered.size()+incr == 0)
+			scan->setNumber(1);
+		else
+			scan->setNumber(filtered.size()+incr);
+
+		if(scan->database())
+			scan->storeToDb(scan->database());
+		else
+			scan->storeToDb(AMDatabase::database("user"));
+	}
+
+	return QString::number(currentScan_->number());
+}

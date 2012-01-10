@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMExperiment.h"
+#include "database/AMDbObjectSupport.h"
 
 AMExperiment::AMExperiment(QObject *parent) :
 		AMDbObject(parent)
@@ -37,7 +38,50 @@ AMExperiment::AMExperiment(const QString& experimentName, QObject* parent)
 AMExperiment::AMExperiment(int databaseId, AMDatabase* database, QObject* parent)
 		: AMDbObject(parent)
 {
-		loadFromDb(database, databaseId);
+	loadFromDb(database, databaseId);
+}
+
+bool AMExperiment::deleteExperiment(int id, AMDatabase *database)
+{
+	database->deleteRows(AMDbObjectSupport::experimentEntriesTableName(),
+						 QString("experimentId = %1").arg(id));
+	return database->deleteRow(id, AMDbObjectSupport::s()->tableNameForClass(&staticMetaObject));
+}
+
+QList<int> AMExperiment::experimentsContainingScan(int scanId, AMDatabase *database)
+{
+	QList<int> rv;
+	QSqlQuery q = database->select(AMDbObjectSupport::experimentEntriesTableName(),
+								   "experimentId",
+								   QString("objectId = %1").arg(scanId));
+	if(!q.exec()) {
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -4, "Error accessing the experiment registry in the database. Please report this problem to the Acquaman developers."));
+	}
+	while(q.next()) {
+		rv << q.value(0).toInt();
+	}
+	return rv;
+}
+
+bool AMExperiment::addScanToExperiment(int scanId, int experimentId, AMDatabase *database)
+{
+	// object already exists in this experiment. Don't add again.
+	if( database->objectsWhere(AMDbObjectSupport::experimentEntriesTableName(),
+						  QString("objectId = '%1' AND experimentId = '%2'")
+						  .arg(scanId).arg(experimentId))
+		.count() > 0)
+		return false;	// already in there.
+
+	return database->insertOrUpdate(0,
+							   AMDbObjectSupport::experimentEntriesTableName(),
+							   QStringList() << "objectId" << "experimentId",
+							   QVariantList() << scanId << experimentId);
+}
+
+bool AMExperiment::removeScanFromExperiment(int scanId, int experimentId, AMDatabase *database)
+{
+	return (database->deleteRows(AMDbObjectSupport::experimentEntriesTableName(),
+						 QString("experimentId = %1 AND objectId = %2").arg(experimentId).arg(scanId)) > 0);
 }
 
 

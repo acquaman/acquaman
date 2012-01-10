@@ -41,7 +41,7 @@ AMSampleEditor::AMSampleEditor(AMDatabase* db, QWidget *parent) :
 		QWidget(parent)
 {
 	db_ = db;
-	sampleTableName_ = AMDbObjectSupport::tableNameForClass<AMSample>();
+	sampleTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMSample>();
 
 	vl_ = new QVBoxLayout();
 	vl_->setContentsMargins(0, 0, 0, 0);

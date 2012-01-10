@@ -26,19 +26,11 @@ AMScanControllerSupervisor* AMScanControllerSupervisor::instance_ = 0;
 AMScanController::AMScanController(AMScanConfiguration *cfg, QObject *parent) :
 	QObject(parent)
 {
-	generalCfg_ = cfg;
-	// unused: _pCfg_ = & generalCfg_;
-	generalScan_ = 0;
-	// unused: _pScan_ = &generalScan_;
+	generalConfig_ = cfg;
+	scan_ = 0;
 
 	state_ = AMScanController::Constructed;
-	/*
-	running_ = false;
-	paused_ = false;
-	initialized_ = false;
-	failed_ = false;
-	finished_ = false;
-	*/
+
 }
 
 AMScanController::ScanState AMScanController::state() const {
@@ -91,8 +83,9 @@ bool AMScanController::isFailed() const {
 
 bool AMScanController::initialize(){
 	if(changeState(AMScanController::Initializing)){
-		if(initializeImplementation())
+		if(initializeImplementation()) {
 			return true;
+		}
 		else
 			return false;
 	}
@@ -126,12 +119,15 @@ bool AMScanController::resume(){
 }
 
 void AMScanController::cancel(){
-	if(changeState(AMScanController::Cancelling))
+	if(changeState(AMScanController::Cancelling)) {
 		cancelImplementation();
+	}
 }
 
 bool AMScanController::setInitialized(){
 	if(changeState(AMScanController::Initialized)){
+		if(scan_)
+			scan_->setScanController(this);
 		emit initialized();
 		return true;
 	}
@@ -140,6 +136,8 @@ bool AMScanController::setInitialized(){
 
 bool AMScanController::setStarted(){
 	if(changeState(AMScanController::Running)){
+		if(scan_)
+			scan_->setScanController(this);
 		emit started();
 		return true;
 	}
@@ -163,12 +161,23 @@ bool AMScanController::setResumed(){
 }
 
 void AMScanController::setCancelled(){
-	if(changeState(AMScanController::Cancelled))
+	if(changeState(AMScanController::Cancelled)) {
+		if(scan_){
+
+			scan_->setEndDateTime(QDateTime::currentDateTime());
+			scan_->setScanController(0);
+		}
 		emit cancelled();
+	}
 }
 
 bool AMScanController::setFinished(){
 	if(changeState(AMScanController::Finished)){
+		if(scan_){
+
+			scan_->setEndDateTime(QDateTime::currentDateTime());
+			scan_->setScanController(0);
+		}
 		emit finished();
 		return true;
 	}
@@ -176,8 +185,14 @@ bool AMScanController::setFinished(){
 }
 
 void AMScanController::setFailed(){
-	if(changeState(AMScanController::Failed))
+	if(changeState(AMScanController::Failed)) {
+		if(scan_){
+
+			scan_->setEndDateTime(QDateTime::currentDateTime());
+			scan_->setScanController(0);
+		}
 		emit failed();
+	}
 }
 
 bool AMScanController::changeState(ScanState newState){
@@ -268,9 +283,10 @@ AMScanController* AMScanControllerSupervisor::currentScanController(){
 bool AMScanControllerSupervisor::setCurrentScanController(AMScanController *newScanController){
 	if(currentScanController_)
 		return false;
-	currentScanController_ = newScanController;
-	if(!currentScanController_->scan())
+	if(!newScanController->scan())
 		return false;
+	// careful: only set this now, once we know we're actually succeeded and accepting the new scan:
+	currentScanController_ = newScanController;
 	connect(currentScanController_, SIGNAL(finished()), this, SLOT(onCurrentScanControllerFinished()));
 	connect(currentScanController_, SIGNAL(started()), this, SIGNAL(currentScanControllerStarted()));
 	connect(currentScanController_, SIGNAL(cancelled()), this, SLOT(onCurrentScanControllerFinished()));

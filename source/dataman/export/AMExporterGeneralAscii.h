@@ -31,6 +31,8 @@ class AMExporterGeneralAscii : public AMExporter
 public:
 	Q_INVOKABLE explicit AMExporterGeneralAscii(QObject *parent = 0);
 
+	const QMetaObject* getMetaObject();
+
 	virtual QString description() const { return "Plain Text (Adjustable)"; }
 	virtual QString longDescription() const {
 		return "The Plain Text file format creates one or more data tables in a plain text file.  You can choose which data sources to include, and which tables to put them in.  You can also specify what to include in an optional header, and where to put higher-dimensional (2D, 3D, etc.) data.";

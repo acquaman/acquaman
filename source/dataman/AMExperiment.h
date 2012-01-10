@@ -33,16 +33,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDebug>
 
 /// This class represents instances of objects that map to Experiments in the database of user information.
-/*!
-<b>Notes for subclassing AMDbObject, to create more detailed storable data types:</b>
-- Include the Q_OBJECT macro so that Qt's meta-object system knows your class is a distinct type.
-- You must re-implement metaDataKeys(), metaDataUniqueKeys(), and metaDataAllKeys(), calling the base class where appropriate.
-- It's recommended to initialize your meta-data pieces (metaDataUniqueKeys()) inside metaData_ in the constructor.
-- If you need to load or save anything more than your metaData_, you must re-implement loadFromDb() and storeToDb()
-- If you want to store yourself anywhere but in the main object table, you must re-implement databaseTableName().  (For example, AMSamples overload databaseTableName() to return AMDatabaseDefinition::sampleTableName(), hence making sure that they are stored in a separate table.)
-- If you want to have non-blank thumbnails, you must provide thumbnailCount() and thumbnail(int index).
-*/
-
 class AMExperiment : public AMDbObject
 {
 	Q_OBJECT
@@ -62,14 +52,16 @@ public:
 
 	/// Static function for managing experiments: deletes an experiment and all associated entries from the given \c database.  Returns true on success.
 	/*! \todo move the general functionality in AMDbObject sytem */
-	static bool deleteExperiment(int id, AMDatabase* database) {
-		Q_UNUSED(id)
-		Q_UNUSED(database)
-		/// \todo Complete this.
-		qDebug() << "Haha... Just kidding.  I haven't implemented deleting experiments yet.";
-		return false;
-	}
+	static bool deleteExperiment(int id, AMDatabase* database);
 
+	/// Static function for managing experiments: find all the experiments that contain a given scan. Returns a list of experiment ids.
+	static QList<int> experimentsContainingScan(int scanId, AMDatabase* database);
+
+	/// Static function for managing experiments: adds a scan to an experiment
+	static bool addScanToExperiment(int scanId, int experimentId, AMDatabase* database);
+
+	/// Static function for managing experiments: remove scan from an experiment
+	static bool removeScanFromExperiment(int scanId, int experimentId, AMDatabase* database);
 
 	/// This returns a string of notes/comments about this experiment.
 	QString notes() const {

@@ -31,6 +31,10 @@ AMExporterGeneralAscii::AMExporterGeneralAscii(QObject *parent) :
 {
 }
 
+const QMetaObject* AMExporterGeneralAscii::getMetaObject(){
+	return metaObject();
+}
+
 AMExporterOption * AMExporterGeneralAscii::createDefaultOption() const {
 	return new AMExporterOptionGeneralAscii();
 }
@@ -67,6 +71,9 @@ bool AMExporterGeneralAscii::isValidFor(const AMScan *scan, const AMExporterOpti
 QString AMExporterGeneralAscii::exportScan(const AMScan *scan, const QString &destinationFolderPath, const AMExporterOption *option, int autoIndex)
 {
 	setCurrentAutoIndex(autoIndex);
+	setCurrentFilename(option->fileName());
+	setDestinationFolderPath(destinationFolderPath);
+
 	// prepare scan and option
 	setCurrentScan(scan);
 	option_ = qobject_cast<const AMExporterOptionGeneralAscii*>(option);
@@ -84,6 +91,7 @@ QString AMExporterGeneralAscii::exportScan(const AMScan *scan, const QString &de
 
 	// prepare export file
 	mainFileName_ = parseKeywordString( destinationFolderPath % "/" % option->fileName() );
+	qDebug() << "Wants to save as " << mainFileName_;
 
 	if(!openFile(mainFileName_)) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, "Export failed: Could not open the file '" % mainFileName_ % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));
@@ -112,7 +120,7 @@ bool AMExporterGeneralAscii::prepareDataSources() {
 	separateFileDataSources_.clear();
 	separateFileIncludeX_.clear();
 
-	if(option_->includeAllDataSources()) {
+	if(option_->includeAllDataSources() && !option_->firstColumnOnly()) {
 		// assumptions: 1D goes in main table. 0D, 2D and higher goes in separate section.
 		for(int i=0; i<currentScan_->dataSourceCount(); i++) {
 			switch(currentScan_->dataSourceAt(i)->rank()) {
@@ -125,8 +133,45 @@ bool AMExporterGeneralAscii::prepareDataSources() {
 				mainTableIncludeX_ << true;
 				break;
 			default:
+				if (option_->separateHigherDimensionalSources()){
+
+					separateFileDataSources_ << i;
+					separateFileIncludeX_ << false;
+				}
+				else{
+
+					separateSectionDataSources_ << i;
+					separateSectionIncludeX_ << true;
+				}
+				break;
+			}
+		}
+	}
+
+	else if (option_->includeAllDataSources() && option_->firstColumnOnly()){
+
+		// assumptions: 1D goes in main table. 0D, 2D and higher goes in separate section.
+		for(int i=0; i<currentScan_->dataSourceCount(); i++) {
+			switch(currentScan_->dataSourceAt(i)->rank()) {
+			case 0:
 				separateSectionDataSources_ << i;
-				separateSectionIncludeX_ << true;
+				separateSectionIncludeX_ << false;	// default false for 0D (scalar point) data
+				break;
+			case 1:
+				mainTableDataSources_ << i;
+				mainTableIncludeX_ << (i == 0 ? true : false);
+				break;
+			default:
+				if (option_->separateHigherDimensionalSources()){
+
+					separateFileDataSources_ << i;
+					separateFileIncludeX_ << false;
+				}
+				else{
+
+					separateSectionDataSources_ << i;
+					separateSectionIncludeX_ << true;
+				}
 				break;
 			}
 		}

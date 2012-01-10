@@ -120,6 +120,8 @@ public:
 	/// Construct a new detector object.   \c name is an abitrary name, that will be used for the data sources. \c basePVName is the base of the Process Variable names we use to read and control the detector (ex: [basePVName]:image, [basePVName]:clear, etc.)
 	REIXSXESMCPDetector(const QString& name, const QString& basePVName, QObject *parent = 0);
 
+	virtual ~REIXSXESMCPDetector();
+
 	QString name() const { return name_; }
 	QString description() const { return description_; }
 	void setName(const QString& name) { name_ = name; }
@@ -175,7 +177,7 @@ public:
 	// Controlling the detector
 	/////////////////////////////
 
-	/// Change the detector's configuration RIGHT NOW, from a saved set (REIXSXESDetectorInfo) of values. Note: the REIXSXESMCPDetectorInfo::size() of \c info is ignored.  Note: this will clear the accumulated image, because setting the orientation always clears the image.
+	/// Change the detector's configuration RIGHT NOW, from a saved set (REIXSXESDetectorInfo) of values. Note: the REIXSXESMCPDetectorInfo::size() of \c info is ignored.  Currently the orientation is ignored as well.
 	bool setFromInfo(const REIXSXESMCPDetectorInfo& info) {
 		bool success = true;
 
@@ -183,7 +185,8 @@ public:
 		setDescription(info.description());
 
 		/// \todo: set HV. (No current way to set it; no PV control)
-		success |= setOrientation(info.orientation());
+
+		// removed for now: success |= setOrientation(info.orientation());
 
 		return success;
 	}

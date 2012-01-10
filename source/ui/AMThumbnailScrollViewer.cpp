@@ -270,13 +270,26 @@ void AMThumbnailScrollGraphicsWidget::paint(QPainter *painter, const QStyleOptio
 	if(scaledPixmap_.size() != QSize(width_, height))
 		scaledPixmap_ = pixmap_.scaled(width_, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);	// this caches the scaled version of the pixmap, in case we need it again.
 
+	// Are we selected? Draw a selection background
+	if(isSelected()) {
+		painter->save();
+		painter->setRenderHint(QPainter::Antialiasing);
+		painter->setCompositionMode(QPainter::CompositionMode_Source);
+		painter->setPen(Qt::NoPen);
+		//painter->setBrush(QColor(56,117,215));
+		painter->setBrush(QColor(25,87,172));
+		//painter->setBrush(QColor(48,107,186));
+		painter->drawRoundedRect(QRectF(-10, -10, width_+20, height + textHeight_ + 20), 5, 5);
+		painter->restore();
+	}
+
+	// What matters: draw the thumbnail!
 	painter->drawPixmap(QPointF(0,0), scaledPixmap_);
 
-
+	// draw title and subtitle (thumbnail content)
 	int fontSize = width_ > 180 ? 12 : 10;
 	QFont font = QFont("Lucida Grande", fontSize, QFont::DemiBold);
 
-	// draw title and subtitle (thumbnail content)
 	QRectF tRect;
 
 	painter->setFont(font);
@@ -331,13 +344,6 @@ void AMThumbnailScrollGraphicsWidget::paint(QPainter *painter, const QStyleOptio
 		prepareGeometryChange();
 		textHeight_ = actualTextHeight;
 	}
-
-	if(isSelected()) {
-		painter->drawRect(-10, -10, width_+20, height + textHeight_ + 20);
-
-	}
-
-
 }
 
 
@@ -396,6 +402,7 @@ void AMThumbnailScrollGraphicsWidget::displayThumbnail(AMDatabase* db, int id) {
 			scaledPixmap_ = QPixmap();
 		}
 		else {
+			q.finish();
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -1, "AMThumbnailScrollViewerGraphicsWidget: Invalid/un-implemented thumbnail type."));
 			pixmap_ = invalidPixmap();
 			scaledPixmap_ = QPixmap();
@@ -502,94 +509,227 @@ void AMThumbnailScrollGraphicsWidget::hoverLeaveEvent(QGraphicsSceneHoverEvent *
 	QGraphicsItem::hoverLeaveEvent(event);
 }
 
+// display the thumbnails from a given AMDbObject
+void AMThumbnailScrollGraphicsWidget::setSource(AMDbObject* source) {
+	sourceIsDb_ = false;
+	sourceObject_ = source;
 
-/// Re-implemented from QGraphicsItem to be a drag-and-drop source containing the database, table name and id of the object that this thumbnail represents.
-void AMThumbnailScrollGraphicsWidget::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 
-	if (event->button() == Qt::LeftButton) {
-		event->accept();
+	tIndex_ = 0;
+	if(sourceObject_) {
+		objectId_ = sourceObject_->id();
+		tableName_ = sourceObject_->dbTableName();
+		displayThumbnail(sourceObject_->thumbnail(tIndex_));
 	}
-
-	QGraphicsItem::mousePressEvent(event);
-}
-
-#include <QApplication>
-
-/// Re-implemented from QGraphicsItem to be a drag-and-drop source containing the database, table name and id of the object that this thumbnail represents.
-void AMThumbnailScrollGraphicsWidget::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
-	if (QLineF(event->screenPos(), event->buttonDownScreenPos(Qt::LeftButton)).length() < QApplication::startDragDistance()) {
-		return;
-	}
-
-	QDrag* drag = createDragObject(event->widget());
-
-	if(drag) {
-		/// \todo: what drag action to use? default uses Qt::MoveAction
-		drag->exec(Qt::CopyAction);
-		// setCursor(Qt::OpenHandCursor);
+	else {
+		objectId_ = -1;
+		tableName_.clear();
+		displayThumbnail(AMDbThumbnail());
 	}
 }
 
-/// Re-implemented from QGraphicsItem to be a drag-and-drop source containing the database, table name and id of the object that this thumbnail represents.
-void AMThumbnailScrollGraphicsWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
-	Q_UNUSED(event)// setCursor(Qt::OpenHandCursor);
+// Display thumbnails directly out of a database (from the thumbnail table, with id's given in \c ids)
+void AMThumbnailScrollGraphicsWidget::setSource(AMDatabase* db, QList<int> ids) {
+	sourceIsDb_ = true;
+	sourceDb_ = db;
+
+	// We don't know this...
+	objectId_ = -1;
+	tableName_.clear();
+
+	ids_ = ids;
+	tIndex_ = 0;
+	if(ids_.count() > 0)
+		displayThumbnailDeferred(sourceDb_, ids_.at(tIndex_));
+	else
+		displayThumbnailDeferred(0,0);
 }
 
-#include <QUrl>
-#include <QList>
+// Display \c count thumbnails directly out of a database (from the thumbnail table, with sequential id's starting at \c startId)
+void AMThumbnailScrollGraphicsWidget::setSource(AMDatabase* db, int startId, int count) {
+	sourceIsDb_ = true;
+	sourceDb_ = db;
 
-/// This is a helper function that creates a new QDrag object and returns a pointer to it.  The QDrag object has the MIME type "text/uri-list" with one URL: 'amd://databaseName/tableName/id', which describes the object represented by this thumbnail.  It also has image data set (MIME type "image/x-") so that the drag icon is visible.  If it's impossible to determine which object this thumbnail represents (for ex: setSource() hasn't been called yet, or was called with an invalid object), this function returns 0.
-QDrag* AMThumbnailScrollGraphicsWidget::createDragObject(QWidget* dragSourceWidget) {
+	// We don't know this...
+	objectId_ = -1;
+	tableName_.clear();
 
-	QString uri;
+	ids_.clear();
+	for(int i=startId; i<startId+count; i++)
+		ids_ << i;
+	tIndex_ = 0;
+	if(ids_.count() > 0)
+		displayThumbnailDeferred(sourceDb_, ids_.at(tIndex_));
+	else
+		displayThumbnailDeferred(0,0);
 
-	// if our source is a database and set of rows (ids_) in the thumbnail table
-	if(sourceIsDb_ && sourceDb_) {
+}
 
-		// do we have the object id and table name already?
-		if(!tableName_.isEmpty() && objectId_ > 0) {
-			uri = QString("amd://%1/%2/%3").arg(sourceDb_->connectionName()).arg(tableName_).arg(objectId_);
-		}
-		// otherwise, we're going to have to look this up in reverse from the thumbnail table... Assuming we actually have some valid thumbnails.
-		else {
-			if(ids_.isEmpty())
-				return 0;
+// Display thumbnails for the object with this \c objectId out of the \c tableName table. For performance, if you know the answers already, you can specify the \c thumbnailStartId and \c count of the thumbnails in the thumbnail table. Otherwise, this information will be retrieved from the Database. This is the preferred usage of setSource(), since it remembers the source object's real location, while avoiding any unnecessary database lookups.
+void AMThumbnailScrollGraphicsWidget::setSource(AMDatabase* db, const QString& tableName, int objectId, int thumbnailStartId, int count) {
 
-			QSqlQuery q = sourceDb_->query();
-			q.prepare(QString("SELECT objectId,objectTableName FROM %1 WHERE id = ?").arg(AMDbObjectSupport::thumbnailTableName()));
-			q.bindValue(0, ids_.at(0));
+	// need to retrieve this from the db:
+	if(thumbnailStartId == -1 || count == -1) {
+
+		thumbnailStartId = 0; count = 0;
+
+		if(db) {
+			QSqlQuery q = db->query();
+			q.prepare(QString("SELECT thumbnailFirstId,thumbnailCount FROM %1 WHERE id = ?").arg(tableName));
+			q.bindValue(0,objectId);
 			if(q.exec() && q.first()) {
-				uri = QString("amd://%1/%2/%3").arg(sourceDb_->connectionName()).arg(q.value(1).toString()).arg(q.value(0).toInt());
+				thumbnailStartId = q.value(0).toInt();
+				count = q.value(1).toInt();
+			}
+		}
+	}
+
+	setSource(db, thumbnailStartId, count);
+	tableName_ = tableName;
+	objectId_ = objectId;
+}
+
+// Use this to set the size hint that the thumbnail requests within layouts, if a constraint is not provided. You can use this to dynamically resize the thumbnail item in layouts that don't specify a QSizeF constraint when calling sizeHint(int which, QSizeF constraint).
+void AMThumbnailScrollGraphicsWidget::setDefaultWidth(double width) {
+	if(preferredWidth_ == width)
+		return;
+
+	preferredWidth_ = width;
+	updateGeometry();
+}
+
+// Re-implemented from QGraphicsLayoutItem to respond to size instructions from the layout
+void AMThumbnailScrollGraphicsWidget::setGeometry(const QRectF &rect) {
+	// QGraphicsLayoutItem::setGeometry(rect);
+	prepareGeometryChange();
+	setPos(rect.left(), rect.top());
+	width_ = rect.width();
+	// clear this cache
+	c1_elided_.clear();
+	c2_elided_.clear();
+	update();
+}
+
+QSizeF AMThumbnailScrollGraphicsWidget::sizeHint(Qt::SizeHint which, const QSizeF &constraint) const {
+
+	Q_UNUSED(which)
+
+	if(constraint.width() < 0 && constraint.height() < 0) {
+		return QSizeF(preferredWidth_, preferredWidth_*3/4 + textHeight_);
+	}
+
+	// OK, a constraint has been specified. Assuming either width-constrained or height constrained.
+	QSizeF widthConstrained, heightConstrained;
+
+	if(constraint.width() > 0) {
+		widthConstrained = QSizeF(constraint.width(), constraint.width()*3/4 + textHeight_);
+		if(constraint.height() > 0) {	// constrained in both width and height
+			heightConstrained = QSizeF((constraint.height()-textHeight_)*4/3, constraint.height());
+			if(widthConstrained.height() > constraint.height()) {
+				return heightConstrained;
 			}
 			else {
-				return 0;
+				return widthConstrained;
 			}
 		}
+		else {
+			// only width constrained
+			return widthConstrained;
+		}
 	}
-
-	// if our source is a pointer to an AMDbObject
-	else if(!sourceIsDb_ && sourceObject_) {
-		if(!sourceObject_->database())
-			return 0;
-		if(sourceObject_->id() < 1)
-			return 0;
-		uri = QString("amd://%1/%2/%3").arg(sourceObject_->database()->connectionName()).arg(sourceObject_->dbTableName()).arg(sourceObject_->id());
+	else {
+		// only height constrained
+		return QSizeF((constraint.height()-textHeight_)*4/3, constraint.height());
 	}
-
-	QDrag* drag = new QDrag(dragSourceWidget);
-	QMimeData* mime = new QMimeData();
-	drag->setMimeData(mime);
-
-	QUrl url = QUrl(uri);
-	QList<QUrl> urlList;
-	urlList << url;
-	mime->setUrls(urlList);
-	mime->setText(uri);
-
-	drag->setPixmap(pixmap_.scaledToHeight(100, Qt::SmoothTransformation));
-	drag->setHotSpot(QPoint(15,15));
-
-	return drag;
 }
+
+///// Re-implemented from QGraphicsItem to be a drag-and-drop source containing the database, table name and id of the object that this thumbnail represents.
+//void AMThumbnailScrollGraphicsWidget::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+
+//	if (event->button() == Qt::LeftButton) {
+//		event->accept();
+//	}
+
+//	QGraphicsItem::mousePressEvent(event);
+//}
+
+//#include <QApplication>
+
+///// Re-implemented from QGraphicsItem to be a drag-and-drop source containing the database, table name and id of the object that this thumbnail represents.
+//void AMThumbnailScrollGraphicsWidget::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
+//	if (QLineF(event->screenPos(), event->buttonDownScreenPos(Qt::LeftButton)).length() < QApplication::startDragDistance()) {
+//		return;
+//	}
+
+//	QDrag* drag = createDragObject(event->widget());
+
+//	if(drag) {
+//		/// \todo: what drag action to use? default uses Qt::MoveAction
+//		drag->exec(Qt::CopyAction);
+//		// setCursor(Qt::OpenHandCursor);
+//	}
+//}
+
+///// Re-implemented from QGraphicsItem to be a drag-and-drop source containing the database, table name and id of the object that this thumbnail represents.
+//void AMThumbnailScrollGraphicsWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
+//	Q_UNUSED(event)// setCursor(Qt::OpenHandCursor);
+//}
+
+//#include <QUrl>
+//#include <QList>
+
+///// This is a helper function that creates a new QDrag object and returns a pointer to it.  The QDrag object has the MIME type "text/uri-list" with one URL: 'amd://databaseName/tableName/id', which describes the object represented by this thumbnail.  It also has image data set (MIME type "image/x-") so that the drag icon is visible.  If it's impossible to determine which object this thumbnail represents (for ex: setSource() hasn't been called yet, or was called with an invalid object), this function returns 0.
+//QDrag* AMThumbnailScrollGraphicsWidget::createDragObject(QWidget* dragSourceWidget) {
+
+//	QString uri;
+
+//	// if our source is a database and set of rows (ids_) in the thumbnail table
+//	if(sourceIsDb_ && sourceDb_) {
+
+//		// do we have the object id and table name already?
+//		if(!tableName_.isEmpty() && objectId_ > 0) {
+//			uri = QString("amd://%1/%2/%3").arg(sourceDb_->connectionName()).arg(tableName_).arg(objectId_);
+//		}
+//		// otherwise, we're going to have to look this up in reverse from the thumbnail table... Assuming we actually have some valid thumbnails.
+//		else {
+//			if(ids_.isEmpty())
+//				return 0;
+
+//			QSqlQuery q = sourceDb_->query();
+//			q.prepare(QString("SELECT objectId,objectTableName FROM %1 WHERE id = ?").arg(AMDbObjectSupport::thumbnailTableName()));
+//			q.bindValue(0, ids_.at(0));
+//			if(q.exec() && q.first()) {
+//				uri = QString("amd://%1/%2/%3").arg(sourceDb_->connectionName()).arg(q.value(1).toString()).arg(q.value(0).toInt());
+//			}
+//			else {
+//				return 0;
+//			}
+//		}
+//	}
+
+//	// if our source is a pointer to an AMDbObject
+//	else if(!sourceIsDb_ && sourceObject_) {
+//		if(!sourceObject_->database())
+//			return 0;
+//		if(sourceObject_->id() < 1)
+//			return 0;
+//		uri = QString("amd://%1/%2/%3").arg(sourceObject_->database()->connectionName()).arg(sourceObject_->dbTableName()).arg(sourceObject_->id());
+//	}
+
+//	QDrag* drag = new QDrag(dragSourceWidget);
+//	QMimeData* mime = new QMimeData();
+//	drag->setMimeData(mime);
+
+//	QUrl url = QUrl(uri);
+//	QList<QUrl> urlList;
+//	urlList << url;
+//	mime->setUrls(urlList);
+//	mime->setText(uri);
+
+//	drag->setPixmap(pixmap_.scaledToHeight(100, Qt::SmoothTransformation));
+//	drag->setHotSpot(QPoint(15,15));
+
+//	return drag;
+//}
 
 

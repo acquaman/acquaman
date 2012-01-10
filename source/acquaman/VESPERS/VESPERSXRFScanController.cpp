@@ -38,7 +38,6 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 	scanConfig->setDetectorInfo(detector_->toXRFInfo());
 
 	scan_ = new AMXRFScan;
-	generalScan_ = scan_;
 	scan_->setScanConfiguration(scanConfig);
 	scan_->setName(QString("XRF Scan - %1 el").arg(detector_->elements()));
 
@@ -122,11 +121,16 @@ void VESPERSXRFScanController::onDetectorAcquisitionFinished()
 		scan_->rawData()->setValue(AMnDIndex(), i+2*detector_->elements(), AMnDIndex(), detector_->outputCountRate(i));
 	}
 
+	// MB: Notice for Darren: at setFinished(), AMScanController will automatically ensure scan()->setScanController(0), and this will trigger a change in the scan's db state. (currentlyScanning()).
+	// If you want this to not create a prompt in AMGenericScanEditor ("The scan has been modified... Do you want to save it?") can do this first:
+	scan()->setScanController(0);
+	// before saving to the DB.
+
+	saveData();
 	if(scan()->database())
 		scan()->storeToDb(scan()->database());
 	else
-		scan()->storeToDb(AMDatabase::userdb());
-	saveData();
+		scan()->storeToDb(AMDatabase::database("user"));
 
 	setFinished();
 }

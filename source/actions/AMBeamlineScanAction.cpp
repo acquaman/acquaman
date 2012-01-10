@@ -23,6 +23,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 #include "util/AMDateTimeUtils.h"
+#include "dataman/AMScanExemplarDictionary.h"
+
+#include "dataman/export/AMExportController.h"
+#include "dataman/export/AMExporter.h"
+#include "dataman/export/AMExporterOption.h"
+#include "application/AMAppControllerSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
 
 #include <QPushButton>
 #include <QToolButton>
@@ -30,15 +37,25 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QApplication>
 #include <QStyle>
 #include <QMessageBox>
+#include <QDir>
 
 AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *parent) :
 	AMBeamlineActionItem(true, parent)
 {
 	cfg_ = cfg;
 	lastSampleDescription_ = "<Unknown Sample>";
+	exemplar_.setSampleName(lastSampleDescription_);
+	exemplar_.setScanConfiguration(cfg_);
+	nameDictionary_ = new AMScanExemplarDictionary(&exemplar_, this);
+	exportNameDictionary_ = new AMScanExemplarDictionary(&exemplar_, this);
+	nameDictionary_->setOperatingOnName(true);
+	exportNameDictionary_->setOperatingOnExportName(true);
 	if(cfg_){
 		connect(cfg_, SIGNAL(configurationChanged()), this, SLOT(onConfigurationChanged()));
 		setDescription(cfg_->description()+" on "+lastSampleDescription_);
+		nameDictionary_->parseKeywordStringAndOperate(cfg_->userScanName());
+		if(cfg_->autoExportEnabled())
+			exportNameDictionary_->parseKeywordStringAndOperate(cfg_->userExportName());
 	}
 	ctrl_ = NULL;
 	keepOnCancel_ = false;
@@ -73,6 +90,14 @@ QString AMBeamlineScanAction::lastSampleDescription() const{
 	return lastSampleDescription_;
 }
 
+QString AMBeamlineScanAction::guessScanName() const{
+	return exemplar_.name();
+}
+
+QString AMBeamlineScanAction::guessExportName() const{
+	return exemplar_.exportName();
+}
+
 void AMBeamlineScanAction::start(){
 	if(!isReady()){
 		if(VERBOSE_ACTION_ITEMS)
@@ -94,16 +119,19 @@ void AMBeamlineScanAction::start(){
 			return;
 		}
 
-		if( !AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_) ){
+		// bug, fixed Dec. 2011. if( !AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_) )
+			// There are two ways for this function to fail. If setCurrentScanController() fails because the controller's scan is null (ie: not because there is already a valid currentScanController()), then this dialog will be shown when it shouldn't be.  Further, if the user chooses requestFail, then the ctrl_ will be deleted even though it's already been set as the current scan controller... So that when the next scan runs, setCurrentScanController() will crash when trying to delete the last currentScanController (because it's been deleted already, but not through deleteCurrentScanController().
+		if( AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController() ) {
 
 			QMessageBox currentScanControllerChoice;
 			currentScanControllerChoice.setText(QString("Well this is embarressing"));
-			currentScanControllerChoice.setInformativeText(QString("Acquaman thinks you're already running a scan, if you're not press Ok to continue"));
+			currentScanControllerChoice.setInformativeText(QString("Acquaman thinks you're already running a scan. If you're not, press Ok to continue"));
 			currentScanControllerChoice.setIcon(QMessageBox::Question);
 			currentScanControllerChoice.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
 			currentScanControllerChoice.setDefaultButton(QMessageBox::Ok);
 			currentScanControllerChoice.setEscapeButton(QMessageBox::Cancel);
 			bool requestFail = false;
+
 			if(currentScanControllerChoice.exec() == QMessageBox::Ok){
 				AMScanControllerSupervisor::scanControllerSupervisor()->deleteCurrentScanController();
 				if(!AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_))
@@ -117,6 +145,17 @@ void AMBeamlineScanAction::start(){
 								 AMErrorReport::Alert,
 								 AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER,
 								 "Error, could not set current scan controller. Please report this bug to the Acquaman developers."));
+				setFailed(true, AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER);
+				return;
+			}
+		}
+		else {
+			if(!AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_)) {
+				delete ctrl_;
+				AMErrorMon::report(AMErrorReport(this,
+								 AMErrorReport::Alert,
+								 AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER,
+								 "Could not set the current scan controller, because the controller had not created a valid scan. Please report this bug to the Acquaman developers."));
 				setFailed(true, AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER);
 				return;
 			}
@@ -144,7 +183,11 @@ void AMBeamlineScanAction::start(){
 										 AMErrorReport::Alert,
 										 AMBEAMLINEACTIONITEM_CANT_INITIALIZE_CONTROLLER,
 										 "Error, could not initialize scan controller. Please report this bug to the Acquaman developers."));
-		delete ctrl_;
+
+		// Bug, fixed Dec. 2011: delete ctrl_;
+			// [At this point, the AMScanControllerSupervisor::currentScanController() was already set with this controller. Deleting it here but not deleting it through AMScanControllerSupervisor::deleteCurrentScanController() will cause a crash the next time a scan runs and this function calls setCurrentScanController(). That function will attempt to disconnect and delete the already-deleted controller through its non-zero but invalid pointer.]
+		AMScanControllerSupervisor::scanControllerSupervisor()->deleteCurrentScanController();
+
 		setFailed(true, AMBEAMLINEACTIONITEM_CANT_INITIALIZE_CONTROLLER);
 		return;
 	}
@@ -162,6 +205,7 @@ void AMBeamlineScanAction::cleanup(){
 void AMBeamlineScanAction::setLastSampleDescription(const QString &lastSampleDescription){
 	lastSampleDescription_ = lastSampleDescription;
 	setDescription(cfg_->description()+" on "+lastSampleDescription_);
+	exemplar_.setSampleName(lastSampleDescription_);
 	emit descriptionChanged();
 }
 
@@ -194,7 +238,9 @@ void AMBeamlineScanAction::onScanInitialized(){
 										 AMErrorReport::Alert,
 										 AMBEAMLINEACTIONITEM_CANT_START_CONTROLLER,
 										 "Error, could not start scan controller. Please report this bug to the Acquaman developers."));
-		delete ctrl_;
+		// Bug, fixed Dec. 2011: delete ctrl_;
+			// [At this point, the AMScanControllerSupervisor::currentScanController() was already set with this controller. Deleting it here but not deleting it through AMScanControllerSupervisor::deleteCurrentScanController() will cause a crash the next time a scan runs and this function calls setCurrentScanController(). That function will attempt to disconnect and delete the already-deleted controller through its non-zero but invalid pointer.]
+		AMScanControllerSupervisor::scanControllerSupervisor()->deleteCurrentScanController();
 		setFailed(true, AMBEAMLINEACTIONITEM_CANT_START_CONTROLLER);
 		return;
 	}
@@ -207,8 +253,7 @@ void AMBeamlineScanAction::onScanStarted(){
 	/*
 	setStarted(true);
 	*/
-	ctrl_->scan()->storeToDb(AMDatabase::userdb());
-	if(!ctrl_->scan()->database()){
+	if(!ctrl_->scan()->storeToDb(AMDatabase::database("user"))){
 		AMErrorMon::report(AMErrorReport(this,
 				AMErrorReport::Alert,
 				AMBEAMLINEACTIONITEM_CANT_SAVE_TO_DB,
@@ -226,8 +271,52 @@ void AMBeamlineScanAction::onScanSucceeded(){
 	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Completed "+AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())+"]");
 	emit descriptionChanged();
 	setSucceeded(true);
-	if(ctrl_->scan()->database())
-		ctrl_->scan()->storeToDb(ctrl_->scan()->database());
+	qDebug() << "Checking for scan's database";
+	if(ctrl_->scan()->database()){
+		qDebug() << "About to save scan";
+		bool saveSucceeded = ctrl_->scan()->storeToDb(ctrl_->scan()->database());
+		qDebug() << "Just saved scan";
+		if(saveSucceeded && cfg_->autoExportEnabled()){
+			QList<AMScan*> toExport;
+			toExport << ctrl_->scan();
+			AMExportController *exportController = new AMExportController(toExport);
+
+			// This needs to be generalized so the user can set it (on beamlines where this is acceptable)
+			QDir exportDir(AMUserSettings::userDataFolder);
+			exportDir.cdUp();
+			if(!exportDir.entryList(QDir::AllDirs).contains("exportData")){
+				if(!exportDir.mkdir("exportData")){
+					AMErrorMon::report(AMErrorReport(this,
+							AMErrorReport::Alert,
+							AMBEAMLINEACTIONITEM_CANT_CREATE_EXPORT_FOLDER,
+							"Error, could not create the auto-export folder. Please report this bug to the Acquaman developers."));
+					return;
+				}
+			}
+			exportDir.cd("exportData");
+			exportController->setDestinationFolderPath(exportDir.absolutePath());
+			AMExporter *autoExporter = AMAppControllerSupport::createExporter(cfg_);
+			if(!autoExporter){
+				AMErrorMon::report(AMErrorReport(this,
+								 AMErrorReport::Alert,
+								 AMBEAMLINEACTIONITEM_NO_REGISTERED_EXPORTER,
+								 "Error, no exporter registered for this scan type. Please report this bug to the Acquaman developers."));
+				return;
+			}
+			exportController->chooseExporter(autoExporter->metaObject()->className());
+			// This next creation involves a loadFromDb ... I tested it and it seems fast (milliseconds) ... if that's a Mac only thing then we can figure out a caching system, let me know I have a few ideas
+			AMExporterOption *autoExporterOption = AMAppControllerSupport::createExporterOption(cfg_);
+			if(!autoExporterOption){
+				AMErrorMon::report(AMErrorReport(this,
+								 AMErrorReport::Alert,
+								 AMBEAMLINEACTIONITEM_NO_REGISTERED_EXPORTER_OPTION,
+								 "Error, no exporter option registered for this scan type. Please report this bug to the Acquaman developers."));
+				return;
+			}
+			exportController->setOption(autoExporterOption);
+			exportController->start();
+		}
+	}
 }
 
 void AMBeamlineScanAction::onScanFailed(){
@@ -258,6 +347,8 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	scanNameLabel_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	scanNameLabel_->setAlignment(Qt::AlignVCenter);
 	updateScanNameLabel();
+
+	exportNameLabel_ = new QLabel("Probably Exporting as: "+scanAction_->guessExportName());
 
 	progressBar_ = new QProgressBar();
 	progressBar_->setMinimum(0);
@@ -305,7 +396,11 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	swapVL->setContentsMargins(0,0,0,0);
 	swapVL->setSpacing(0);
 	hl_->addLayout(swapVL);
-	setLayout(hl_);
+	vl_ = new QVBoxLayout();
+	vl_->addLayout(hl_);
+	vl_->addWidget(exportNameLabel_);
+	//setLayout(hl_);
+	setLayout(vl_);
 	onPreviousNextChanged();
 }
 

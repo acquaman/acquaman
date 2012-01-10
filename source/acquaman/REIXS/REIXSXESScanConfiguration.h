@@ -36,9 +36,10 @@ class REIXSXESScanConfiguration : public AMScanConfiguration
 	Q_PROPERTY(double maximumDurationSeconds READ maximumDurationSeconds WRITE setMaximumDurationSeconds)
 	Q_PROPERTY(double defocusDistanceMm READ defocusDistanceMm WRITE setDefocusDistanceMm)
 	Q_PROPERTY(int spectrometerCalibrationId READ spectrometerCalibrationId WRITE setSpectrometerCalibrationId)
-	Q_PROPERTY(bool detectorOrientation READ detectorOrientation WRITE setDetectorOrientation)
+	// removed: Q_PROPERTY(bool detectorOrientation READ detectorOrientation WRITE setDetectorOrientation)
 	Q_PROPERTY(double detectorTiltOffset READ detectorTiltOffset WRITE setDetectorTiltOffset)
 	Q_PROPERTY(bool shouldStartFromCurrentPosition READ shouldStartFromCurrentPosition WRITE setShouldStartFromCurrentPosition)
+	Q_PROPERTY(bool doNotClearExistingCounts READ doNotClearExistingCounts WRITE setDoNotClearExistingCounts)
 	Q_PROPERTY(AMDbObject* mcpDetectorInfo READ dbGetMcpDetectorInfo WRITE dbLoadMcpDetectorInfo)
 
 public:
@@ -59,12 +60,14 @@ public:
 	double defocusDistanceMm() const { return defocusDistanceMm_; }
 	/// The database id of the stored spectrometer calibration we should use. (This spectromter calibration is found in the user database, for now)
 	int spectrometerCalibrationId() const { return spectrometerCalibrationId_; }
-	/// The orientation of the detector: 0 for horizontal (wide window, low resolution), 1 for vertical (narrow window, high resolution)
-	bool detectorOrientation() const { return detectorOrientation_; }
+	// REMOVED: The orientation of the detector: 0 for horizontal (wide window, low resolution), 1 for vertical (narrow window, high resolution)
+	// bool detectorOrientation() const { return detectorOrientation_; }
 	/// Normally, the detector should be tangent to the rowland circle for best focussing.  This is an offset tilt, in degrees, where positive means more normal; negative means more grazing.
 	double detectorTiltOffset() const { return detectorTiltOffset_; }
 	/// A flag indicating that we should start the scan in whatever position the spectrometer is now. (ie: don't compute the desired position and move it)
 	bool shouldStartFromCurrentPosition() const { return shouldStartFromCurrentPosition_; }
+	/// A flag indicating that we should start the scan without clearing the existing counts on the detector.
+	bool doNotClearExistingCounts() const { return doNotClearExistingCounts_; }
 	/// Configuration information for the MCP detector itself
 	const REIXSXESMCPDetectorInfo* mcpDetectorInfo() const { return &mcpDetectorInfo_; }
 	REIXSXESMCPDetectorInfo* mcpDetectorInfo() { return &mcpDetectorInfo_; }
@@ -102,13 +105,14 @@ public slots:
 	void setDefocusDistanceMm(double defocusDistanceMm) { defocusDistanceMm_ = defocusDistanceMm; setModified(true); }
 	/// Set the database id of the stored spectrometer calibration we should use. (This spectromter calibration is found in the user database, for now)
 	void setSpectrometerCalibrationId(int id) { spectrometerCalibrationId_ = id; setModified(true); }
-	/// Set the orientation of the detector: 0 for horizontal (wide window, low resolution), 1 for vertical (narrow window, high resolution)
-	void setDetectorOrientation(bool orientationIsVertical) { detectorOrientation_ = orientationIsVertical; setModified(true); }
+	// REMOVED: Set the orientation of the detector: 0 for horizontal (wide window, low resolution), 1 for vertical (narrow window, high resolution)
+	// void setDetectorOrientation(bool orientationIsVertical) { detectorOrientation_ = orientationIsVertical; setModified(true); }
 	/// Set the detector incidence angle offset (tilt), in degrees, up from tangent to the rowland circle. Normally, the detector should be tangent to the rowland circle for best focussing.  This is an offset tilt, in degrees, where positive means more normal; negative means more grazing.
 	void setDetectorTiltOffset(double detectorTilt) { detectorTiltOffset_ = detectorTilt; setModified(true); }
 	/// Set a flag indicating that we should start the scan in whatever position the spectrometer is now. (ie: don't compute the desired position and move things before starting the scan)
 	void setShouldStartFromCurrentPosition(bool startInCurrentPosition) { shouldStartFromCurrentPosition_ = startInCurrentPosition; setModified(true); }
-
+	/// Set a flag indicating that we should start the scan without clearing the existing counts on the detector.
+	void setDoNotClearExistingCounts(bool doNotClear) { doNotClearExistingCounts_ = doNotClear; setModified(true); }
 
 protected:
 
@@ -122,14 +126,16 @@ protected:
 	int maximumDurationSeconds_;
 	/// Any lateral offset we should introduce along the angle at this energy, to slide the detector into or out of the focus position (Useful for calibration and testing)
 	double defocusDistanceMm_;
-	/// The orientation of the detector: 0 for horizontal (wide window, low resolution), 1 for vertical (narrow window, high resolution)
-	bool detectorOrientation_;
+	// REMOVED: The orientation of the detector: 0 for horizontal (wide window, low resolution), 1 for vertical (narrow window, high resolution)
+	// bool detectorOrientation_;
 	/// Normally, the detector should be tangent to the rowland circle for best focussing.  This is an offset tilt, in degrees, where positive means more normal; negative means more grazing, and 0 will place the detector tangent to the rowland circle.
 	double detectorTiltOffset_;
 	/// The database id of the stored spectrometer calibration we should use. (This spectromter calibration is found in the user database, for now)
 	int spectrometerCalibrationId_;
 	/// A flag indicating that we should start the scan in whatever position the spectrometer is now. (ie: don't compute the desired position and move it)
 	bool shouldStartFromCurrentPosition_;
+	/// A flag indicating that we should start the scan without clearing the existing counts on the detector.
+	bool doNotClearExistingCounts_;
 
 	/// Detector configuration information:
 	REIXSXESMCPDetectorInfo mcpDetectorInfo_;

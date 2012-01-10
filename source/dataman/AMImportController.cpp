@@ -350,7 +350,7 @@ void AMImportController::finalizeImport() {
 		}
 		else {
 
-			if( currentScan_->storeToDb(AMDatabase::userdb()) )
+			if( currentScan_->storeToDb(AMDatabase::database("user")) )
 				numSuccess_++;
 			else
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, "The file was loaded correctly, but it could not be saved to the database."));

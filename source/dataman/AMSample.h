@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QBuffer>
 #include <QByteArray>
-#include <QPixmap>
+#include <QImage>
 
 /// This class represents instances of objects that map to Samples in the user database.
 class AMSample : public AMDbObject
@@ -98,7 +98,7 @@ public:
 			return AMDbThumbnail(name(), dateTime().toString("MMM d (yyyy)"), AMDbThumbnail::InvalidType, QByteArray());
 
 
-		QPixmap image;
+		QImage image;
 		if(image.loadFromData(image_, "PNG"))
 			return AMDbThumbnail(name(), dateTime().toString("MMM d (yyyy)"), image);
 		else

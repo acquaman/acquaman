@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 SGMFastDacqScanController::SGMFastDacqScanController(SGMFastScanConfiguration *cfg, QObject *parent) :
 		AMDacqScanController(cfg, parent), SGMFastScanController(cfg)
 {
+	scan_ = specificScan_;	//MB: Moved from startImplementation(). The specificScan_ is new'd in the SGMFastScanController constructor.
 	lastProgress_ = 0.0;
 	initializationStagesComplete_ = 0;
 	timerSeconds_ = 0;
@@ -40,7 +41,7 @@ bool SGMFastDacqScanController::initializeImplementation(){
 		/* NTBA - August 25th, 2011 (David Chevrier)
 			Do we need to also clear any raw data sources here, or just the raw data itself?"
 		*/
-		pScan()->clearRawDataPoints();
+		scan_->clearRawDataPoints();
 		connect(initializationActions_, SIGNAL(listSucceeded()), this, SLOT(onInitializationActionsSucceeded()));
 		connect(initializationActions_, SIGNAL(stageSucceeded(int)), this, SLOT(onInitializationActionsStageSucceeded(int)));
 		connect(initializationActions_, SIGNAL(listFailed(int)), this, SLOT(onInitializationActionsFailed(int)));
@@ -69,13 +70,15 @@ bool SGMFastDacqScanController::startImplementation(){
 		homeDir.append("/dev");
 	else if( QDir(homeDir+"/beamline/programming").exists())
 		homeDir.append("/beamline/programming");
-        else if( QDir(homeDir+"/Sandbox/Acquaman2011/dev").exists())
+	/*
+	else if( QDir(homeDir+"/Sandbox/Acquaman2011/dev").exists())
                 homeDir.append("/Sandbox/Acquaman2011/dev");
 	else if( QDir("/home/sgm/Sandbox/Acquaman2011/dev").exists())
 		homeDir = "/home/sgm/Sandbox/Acquaman2011/dev";
+	*/
 
-	for(int x = 0; x < pCfg()->allDetectors()->count(); x++){
-		if(pCfg()->allDetectors()->isDefaultAt(x) && !SGMBeamline::sgm()->detectorValidForCurrentSignalSource(pCfg()->allDetectors()->detectorAt(x)->toInfo())){
+	for(int x = 0; x < config_->allDetectors()->count(); x++){
+		if(config_->allDetectors()->isDefaultAt(x) && !SGMBeamline::sgm()->detectorValidForCurrentSignalSource(config_->allDetectors()->detectorAt(x)->toInfo())){
 			AMErrorMon::report(AMErrorReport(this,
 					AMErrorReport::Alert,
 					SGMFASTDACQSCANCONTROLLER_CANT_START_DETECTOR_SOURCE_MISMATCH,
@@ -93,12 +96,11 @@ bool SGMFastDacqScanController::startImplementation(){
 		return false;
 	}
 	/**/
-	advAcq_->setStart(0, pCfg()->startEnergy());
-	advAcq_->setDelta(0, pCfg()->endEnergy()-pCfg()->startEnergy());
-	advAcq_->setEnd(0, pCfg()->endEnergy());
+	advAcq_->setStart(0, config_->startEnergy());
+	advAcq_->setDelta(0, config_->endEnergy()-config_->startEnergy());
+	advAcq_->setEnd(0, config_->endEnergy());
 	/**/
 
-	generalScan_ = specificScan_;
 	usingSpectraDotDatFile_ = true;
 	fastScanTimer_ = new QTimer(this);
 	connect(fastScanTimer_, SIGNAL(timeout()), this, SLOT(onFastScanTimerTimeout()));
@@ -200,15 +202,15 @@ bool SGMFastDacqScanController::event(QEvent *e){
 					}
 					if( x%6 == 5 ){
 						energyFbk = (1.0e-9*1239.842*sParam)/(2*spacingParam*c1Param*c2Param*(double)encoderReading*cos(thetaParam/2));
-						//if( ( (readings.at(0) > pCfg()->baseLine()) && (pScan()->rawData()->scanSize(0) == 0) ) || ( (pScan()->rawData()->scanSize(0) > 0) && (fabs(energyFbk - (double)pScan()->rawData()->axisValue(0, pScan()->rawData()->scanSize(0)-1)) > 0.001) ) ){
-							pScan()->rawData()->beginInsertRows(0);
-							pScan()->rawData()->setAxisValue(0, pScan()->rawData()->scanSize(0)-1, energyFbk);
-							//pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 0, AMnDIndex(), readings.at(0));
-							pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 0, AMnDIndex(), max(readings.at(0), 1.0));
-							pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 1, AMnDIndex(), readings.at(1));
-							pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 2, AMnDIndex(), readings.at(2));
-							pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 3, AMnDIndex(), readings.at(3));
-							pScan()->rawData()->endInsertRows();
+						//if( ( (readings.at(0) > config_->baseLine()) && (scan_->rawData()->scanSize(0) == 0) ) || ( (scan_->rawData()->scanSize(0) > 0) && (fabs(energyFbk - (double)scan_->rawData()->axisValue(0, scan_->rawData()->scanSize(0)-1)) > 0.001) ) ){
+							scan_->rawData()->beginInsertRows(0);
+							scan_->rawData()->setAxisValue(0, scan_->rawData()->scanSize(0)-1, energyFbk);
+							//scan_->rawData()->setValue(AMnDIndex(scan_->rawData()->scanSize(0)-1), 0, AMnDIndex(), readings.at(0));
+							scan_->rawData()->setValue(AMnDIndex(scan_->rawData()->scanSize(0)-1), 0, AMnDIndex(), max(readings.at(0), 1.0));
+							scan_->rawData()->setValue(AMnDIndex(scan_->rawData()->scanSize(0)-1), 1, AMnDIndex(), readings.at(1));
+							scan_->rawData()->setValue(AMnDIndex(scan_->rawData()->scanSize(0)-1), 2, AMnDIndex(), readings.at(2));
+							scan_->rawData()->setValue(AMnDIndex(scan_->rawData()->scanSize(0)-1), 3, AMnDIndex(), readings.at(3));
+							scan_->rawData()->endInsertRows();
 						//}
 					}
 				}
@@ -225,7 +227,7 @@ bool SGMFastDacqScanController::event(QEvent *e){
 AMnDIndex SGMFastDacqScanController::toScanIndex(QMap<int, double> aeData){
 	Q_UNUSED(aeData)
 	// SGM XAS Scan has only one dimension (energy), simply append to the end of this
-	return AMnDIndex(pScan()->rawData()->scanSize(0));
+	return AMnDIndex(scan_->rawData()->scanSize(0));
 }
 void SGMFastDacqScanController::onDacqStop(){
 	if(dacqCancelled_)
@@ -270,8 +272,8 @@ void SGMFastDacqScanController::onInitializationActionsFailed(int explanation){
 }
 
 void SGMFastDacqScanController::onFastScanTimerTimeout(){
-	calculateProgress(SGMBeamline::sgm()->energy()->value()-pCfg()->startEnergy(), pCfg()->endEnergy()-pCfg()->startEnergy());
-	if( fabs(SGMBeamline::sgm()->energy()->value()-pCfg()->endEnergy()) <  SGMBeamline::sgm()->energy()->tolerance())
+	calculateProgress(SGMBeamline::sgm()->energy()->value()-config_->startEnergy(), config_->endEnergy()-config_->startEnergy());
+	if( fabs(SGMBeamline::sgm()->energy()->value()-config_->endEnergy()) <  SGMBeamline::sgm()->energy()->tolerance())
 		fastScanTimer_->stop();
 }
 

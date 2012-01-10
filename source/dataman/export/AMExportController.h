@@ -50,6 +50,7 @@ public:
 
 class AMExporter;
 class AMExporterOption;
+class AMScan;
 
 
 /// Construct an AMExportController to supervise exporting a set of AMScans from the user's database.  Used in conjunction with an AMExportWizard, the user will be given options of different exporters ("file formats") to choose from, and will be able to review the option/template for their chosen exporter.  Finally, a progress bar will be displayed as the scans are exported.
@@ -90,6 +91,8 @@ public:
 
 	/// Construct an AMExportController with a list of Urls to the scan items you wish to export.  The URLs should be in the amd://databaseConnectionName/tableName/objectId format.  The controller will supervise the rest of the process, and delete itself when finished (or cancelled).
 	explicit AMExportController(const QList<QUrl>& scansToExport);
+
+	explicit AMExportController(const QList<AMScan*>& scansToExport);
 
 	~AMExportController();
 
@@ -133,7 +136,13 @@ public:
 	static const QHash<QString, AMExporterInfo>& registeredExporters() { return registeredExporters_; }
 
 	/// How many scans are being exporter?
-	int scanCount() const { return scansToExport_.count(); }
+	int scanCount() const {
+		if(usingScanURLs_)
+			return scanURLsToExport_.count();
+		if(usingScanObjects_)
+			return scanObjectsToExport_.count();
+		return 0;
+	}
 
 
 	/// Call this to select and load an exporter subclass (using the class name of an exporter registered previously, using registerExporter()).  Returns true if valid.  Once this has been called and has returned true, exporter() will return a valid instance.
@@ -214,7 +223,11 @@ protected:
 	static QHash<QString, AMExporterInfo> registeredExporters_;
 
 	/// The list of scans to export
-	QList<QUrl> scansToExport_;
+	QList<QUrl> scanURLsToExport_;
+	/// Alternatively, the list of actual scan objects to export
+	QList<AMScan*> scanObjectsToExport_;
+	bool usingScanURLs_;
+	bool usingScanObjects_;
 
 	/// Instance of the AMExporter subclass to use.  0 until chooseExporter() is called with a valid exporter class name.
 	AMExporter* exporter_;

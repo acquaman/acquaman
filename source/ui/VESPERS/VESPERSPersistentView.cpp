@@ -37,14 +37,14 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QWidget(parent)
 {
 	// The shutter buttons.
-	psh1_ = new AMShutterButton("PSH", "PSH1408-B20-01:state", "PSH1408-B20-01:opr:open", "PSH1408-B20-01:opr:close");
+	psh1_ = new CLSStopLightButton(qobject_cast<CLSBiStateControl *>(VESPERSBeamline::vespers()->photonShutter1()));
 	connect(psh1_, SIGNAL(clicked()), this, SLOT(onPSH1Clicked()));
-	psh2_ = new AMShutterButton("Optic", "PSH1408-B20-02:state", "PSH1408-B20-02:opr:open", "PSH1408-B20-02:opr:close");
+	psh2_ = new CLSStopLightButton(qobject_cast<CLSBiStateControl *>(VESPERSBeamline::vespers()->photonShutter2()));
 	connect(psh2_, SIGNAL(clicked()), this, SLOT(onPSH2Clicked()));
-	ssh1_ = new AMShutterButton("SSH", "SSH1408-B20-01:state", "SSH1408-B20-01:opr:open", "SSH1408-B20-01:opr:close");
+	ssh1_ = new CLSStopLightButton(qobject_cast<CLSBiStateControl *>(VESPERSBeamline::vespers()->safetyShutter1()));
 	connect(ssh1_, SIGNAL(clicked()), this, SLOT(onSSH1Clicked()));
-	ssh2_ = new AMShutterButton("Exp.", "SSH1607-1-B21-01:state", "SSH1607-1-B21-01:opr:open", "SSH1607-1-B21-01:opr:close");
-	connect(ssh2_, SIGNAL(clicked()), ssh2_, SLOT(changeState()));
+	ssh2_ = new CLSStopLightButton(qobject_cast<CLSBiStateControl *>(VESPERSBeamline::vespers()->safetyShutter2()));
+	connect(ssh2_, SIGNAL(clicked()), this, SLOT(onSSH2Clicked()));
 
 	// Sample stage widget.
 	VESPERSSampleStageView *motors = new VESPERSSampleStageView;
@@ -53,8 +53,6 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	VESPERSPIDLoopControlView *pidView = new VESPERSPIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());
 	connect(VESPERSBeamline::vespers()->sampleStagePID(), SIGNAL(stateChanged(bool)), motors, SLOT(setEnabled(bool)));
 
-	// Valve group.
-	valves_ = VESPERSBeamline::vespers()->valves();
 	// The temperature control.
 	temperature_ = VESPERSBeamline::vespers()->temperatureSet();
 	connect(temperature_, SIGNAL(controlSetValuesChanged()), this, SLOT(onTemperatureStateChanged()));
@@ -211,7 +209,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 
 	valvesStatus_ = new QLabel;
 	valvesStatus_->setPixmap(QIcon(":/RED.png").pixmap(25));
-	connect(valves_, SIGNAL(statusChanged(bool)), this, SLOT(onValvesStateChanged()));
+	connect(VESPERSBeamline::vespers()->valveSet(), SIGNAL(controlSetValuesChanged()), this, SLOT(onValvesStateChanged()));
 
 	QLabel *valveIcon = new QLabel;
 	valveIcon->setPixmap(QIcon(":/valveIcon.png").pixmap(25));
@@ -239,7 +237,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	// Ion chambers.
 	QVBoxLayout *ionChamberLayout = new QVBoxLayout;
 	ionChamberLayout->addWidget(new CLSSplitIonChamberView(VESPERSBeamline::vespers()->iSplit()));
-	ionChamberLayout->addWidget(new AMIonChamberView(VESPERSBeamline::vespers()->iPreKB()));
+	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPreKB()));
 	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iMini()));
 	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPost()));
 
@@ -280,7 +278,8 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	vespersLayout->addWidget(vespersBox);
 
 	setLayout(vespersLayout);
-	setFixedWidth(325);
+	//setFixedSize(325, 1000);
+	setFixedSize(325, 900);
 }
 
 void VESPERSPersistentView::onBeamChanged(VESPERSBeamline::Beam beam)
@@ -321,15 +320,15 @@ void VESPERSPersistentView::toggleShutterState()
 
 void VESPERSPersistentView::onValvesButtonPushed()
 {
-	if (valves_->allValvesOpen())
-		valves_->closeAllValves();
+	if (VESPERSBeamline::vespers()->allValvesOpen())
+		VESPERSBeamline::vespers()->closeAllValves();
 	else
-		valves_->openAllValves();
+		VESPERSBeamline::vespers()->openAllValves();
 }
 
 void VESPERSPersistentView::onValvesStateChanged()
 {
-	if (valves_->allValvesOpen()){
+	if (VESPERSBeamline::vespers()->allValvesOpen()){
 
 		valvesButton_->setText("Close Valves");
 		valvesStatus_->setPixmap(QIcon(":/ON.png").pixmap(25));
@@ -389,48 +388,41 @@ void VESPERSPersistentView::onWaterStateChanged()
 void VESPERSPersistentView::onPSH1Clicked()
 {
 	// If currently open, simply close.
-	if (psh1_->state() == AMShutterButton::Open)
-		psh1_->close();
+	if (VESPERSBeamline::vespers()->photonShutter1()->value() == 1)
+		VESPERSBeamline::vespers()->closePhotonShutter2();
 
 	// Need to check if opening is okay before opening.  Emits a message if not successful.
-	else {
-		if (ssh1_->state() == AMShutterButton::Open || (ssh1_->state() == AMShutterButton::Closed && psh2_->state() == AMShutterButton::Closed))
-			psh1_->open();
-
-		else
-			QMessageBox::information(this, "Beamline Instructions", QString("You must open the %1 shutter before opening %2 shutter.").arg(ssh1_->title()).arg(psh1_->title()));
-	}
+	else if (VESPERSBeamline::vespers()->photonShutter1()->value() == 0 && VESPERSBeamline::vespers()->openPhotonShutter1())
+		QMessageBox::information(this, "Beamline Instructions", QString("You must open the %1 shutter before opening %2 shutter.").arg(VESPERSBeamline::vespers()->safetyShutter1()->name()).arg(VESPERSBeamline::vespers()->photonShutter1()->name()));
 }
 
 void VESPERSPersistentView::onPSH2Clicked()
 {
 	// If currently open, simply close.
-	if (psh2_->state() == AMShutterButton::Open)
-		psh2_->close();
+	if (VESPERSBeamline::vespers()->photonShutter2()->value() == 1)
+		VESPERSBeamline::vespers()->closePhotonShutter2();
 
 	// Need to check if opening is okay before opening.  Emits a message if not successful.
-	else {
-		if (ssh1_->state() == AMShutterButton::Open || (ssh1_->state() == AMShutterButton::Closed && psh1_->state() == AMShutterButton::Closed))
-			psh2_->open();
-
-		else
-			QMessageBox::information(this, "Beamline Instructions", QString("You must open the %1 shutter before opening %2 shutter.").arg(ssh1_->title()).arg(psh2_->title()));
-	}
+	else if (VESPERSBeamline::vespers()->photonShutter2()->value() == 0 && VESPERSBeamline::vespers()->openPhotonShutter2())
+		QMessageBox::information(this, "Beamline Instructions", QString("You must open the %1 shutter before opening %2 shutter.").arg(VESPERSBeamline::vespers()->safetyShutter1()->name()).arg(VESPERSBeamline::vespers()->photonShutter2()->name()));
 }
 
 void VESPERSPersistentView::onSSH1Clicked()
 {
 	// If currently closed, simply open.
-	if (ssh1_->state() == AMShutterButton::Closed)
-		ssh1_->open();
+	if (VESPERSBeamline::vespers()->safetyShutter1()->value() == 0)
+		VESPERSBeamline::vespers()->openSafetyShutter1();
 
 	// Need to check if closing is okay before closing.  Emits a message if not successful.
-	else{
+	else if (VESPERSBeamline::vespers()->safetyShutter1()->value() == 1 && VESPERSBeamline::vespers()->closeSafetyShutter1())
+		QMessageBox::information(this, "Beamline Instructions", QString("You must close either the %1 shutter or the %2 shutter before closing the %3 shutter.").arg(VESPERSBeamline::vespers()->photonShutter1()->name()).arg(VESPERSBeamline::vespers()->photonShutter2()->name()).arg(VESPERSBeamline::vespers()->safetyShutter1()->name()));
+}
 
-		if ((psh1_->state() == AMShutterButton::Open && psh2_->state() == AMShutterButton::Closed) || (psh1_->state() == AMShutterButton::Closed && psh2_->state() == AMShutterButton::Open))
-			ssh1_->close();
+void VESPERSPersistentView::onSSH2Clicked()
+{
+	if (VESPERSBeamline::vespers()->safetyShutter2()->value() == 0)
+		VESPERSBeamline::vespers()->openSafetyShutter2();
 
-		else
-			QMessageBox::information(this, "Beamline Instructions", QString("You must close either the %1 shutter or the %2 shutter before closing the %3 shutter.").arg(psh1_->title()).arg(psh2_->title()).arg(ssh1_->title()));
-	}
+	else if (VESPERSBeamline::vespers()->safetyShutter2()->value() == 1)
+		VESPERSBeamline::vespers()->closeSafetyShutter2();
 }

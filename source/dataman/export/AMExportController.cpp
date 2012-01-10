@@ -41,9 +41,31 @@ QHash<QString, AMExporterInfo> AMExportController::registeredExporters_;
 AMExportController::AMExportController(const QList<QUrl>& scansToExport) :
 	QObject()
 {
+	usingScanURLs_ = true;
+	usingScanObjects_ = false;
 	exporter_ = 0;
 	option_ = 0;
-	scansToExport_ = scansToExport;
+	scanURLsToExport_ = scansToExport;
+	state_ = Preparing;
+	availableDataSourcesModel_ = new QStandardItemModel(this);
+
+	searchScanIndex_ = -1;
+	exportScanIndex_ = -1;
+	succeededCount_ = failedCount_ = 0;
+
+	destinationFolderPath_ = AMUser::user()->lastExportDestination();
+	if(destinationFolderPath_.isEmpty())
+		destinationFolderPath_ = QDir::toNativeSeparators(QDir::homePath());
+}
+
+AMExportController::AMExportController(const QList<AMScan*>& scansToExport) :
+	QObject()
+{
+	usingScanObjects_ = true;
+	usingScanURLs_ = false;
+	exporter_ = 0;
+	option_ = 0;
+	scanObjectsToExport_ = scansToExport;
 	state_ = Preparing;
 	availableDataSourcesModel_ = new QStandardItemModel(this);
 
@@ -80,48 +102,69 @@ void AMExportController::searchForAvailableDataSources()
 
 void AMExportController::continueAvailableDataSourceSearch()
 {
-	if(searchScanIndex_ >= scansToExport_.count())
+	if(searchScanIndex_ >= scanCount())
 		return; // We're done!
 
-	const QUrl& url = scansToExport_.at(searchScanIndex_++);	// incrementing searchScanIndex_ here.
+	if(usingScanURLs_) {
+		const QUrl& url = scanURLsToExport_.at(searchScanIndex_++);	// incrementing searchScanIndex_ here.
 
-	AMDatabase* db;
-	QStringList path;
-	QString tableName;
-	int id;
-	bool idOkay;
+		AMDatabase* db;
+		QStringList path;
+		QString tableName;
+		int id;
+		bool idOkay;
 
-	// parse the URL and make sure it's valid
-	if(url.scheme() == "amd" &&
-			(db = AMDatabase::dbByName(url.host())) &&
-			(path = url.path().split('/', QString::SkipEmptyParts)).count() == 2 &&
-			(id = path.at(1).toInt(&idOkay)) > 0 &&
-			idOkay == true &&
-			(tableName = path.at(0)).isEmpty() == false
-			) {
+		// parse the URL and make sure it's valid
+		if(url.scheme() == "amd" &&
+				(db = AMDatabase::database(url.host())) &&
+				(path = url.path().split('/', QString::SkipEmptyParts)).count() == 2 &&
+				(id = path.at(1).toInt(&idOkay)) > 0 &&
+				idOkay == true &&
+				(tableName = path.at(0)).isEmpty() == false
+				) {
 
-		// let's roll.  Find all the raw data sources for this scan
-		QSqlQuery q = db->select(tableName % "_rawDataSources", "id2,table2", "id1='" % QString::number(id) % "'");	// note: checked that this is indeed using the index. Can go faster? Dunno.
-		while(q.next()) {
-			// get name, description, rank for this data source
-			QSqlQuery q2 = db->select( q.value(1).toString(),
-									  "name,description,rank",
-									  "id='" % q.value(0).toString() % "'");
-			if(q2.next()) {
-				addFoundAvailableDataSource(q2.value(0).toString(), q2.value(1).toString(), q2.value(2).toInt());
+			// let's roll.  Find all the raw data sources for this scan
+			QSqlQuery q = db->select(tableName % "_rawDataSources", "id2,table2", "id1='" % QString::number(id) % "'");	// note: checked that this is indeed using the index. Can go faster? Dunno.
+			q.exec();
+			while(q.next()) {
+				// get name, description, rank for this data source
+				QSqlQuery q2 = db->select( q.value(1).toString(),
+										   "name,description,rank",
+										   "id='" % q.value(0).toString() % "'");
+				q2.exec();
+				if(q2.next()) {
+					addFoundAvailableDataSource(q2.value(0).toString(), q2.value(1).toString(), q2.value(2).toInt());
+				}
+			}
+
+			// Find all the analyzed data sources for this scan
+			q = db->select(tableName % "_analyzedDataSources", "id2,table2", "id1='" % QString::number(id) % "'");	// note: checked that this is indeed using the index. Can go faster? Dunno.
+			q.exec();
+			while(q.next()) {
+				// get name, description, rank for this data source
+				QSqlQuery q2 = db->select( q.value(1).toString(),
+										   "name,description,rank",
+										   "id='" % q.value(0).toString() % "'");
+				q2.exec();
+				if(q2.next()) {
+					addFoundAvailableDataSource(q2.value(0).toString(), q2.value(1).toString(), q2.value(2).toInt());
+				}
 			}
 		}
-
-		// Find all the analyzed data sources for this scan
-		q = db->select(tableName % "_analyzedDataSources", "id2,table2", "id1='" % QString::number(id) % "'");	// note: checked that this is indeed using the index. Can go faster? Dunno.
-		while(q.next()) {
-			// get name, description, rank for this data source
-			QSqlQuery q2 = db->select( q.value(1).toString(),
-									  "name,description,rank",
-									  "id='" % q.value(0).toString() % "'");
-			if(q2.next()) {
-				addFoundAvailableDataSource(q2.value(0).toString(), q2.value(1).toString(), q2.value(2).toInt());
-			}
+	}
+	else if(usingScanObjects_){
+		const AMScan *scan = scanObjectsToExport_.at(searchScanIndex_++);
+		const AMRawDataSourceSet *rawSources = scan->rawDataSources();
+		const AMRawDataSource *rds;
+		for(int x = 0; x < rawSources->count(); x++){
+			rds = rawSources->at(x);
+			addFoundAvailableDataSource(rds->name(), rds->description(), rds->rank());
+		}
+		const AMAnalyzedDataSourceSet *analyzedSources = scan->analyzedDataSources();
+		const AMAnalysisBlock *ads;
+		for(int x = 0; x < analyzedSources->count(); x++){
+			ads = analyzedSources->at(x);
+			addFoundAvailableDataSource(ads->name(), ads->description(), ads->rank());
 		}
 	}
 
@@ -185,8 +228,11 @@ void AMExportController::continueScanExport()
 	emit progressChanged(exportScanIndex_, scanCount());
 
 	// 1. Check for finished:
-	if(exportScanIndex_ >= scansToExport_.count()) {
+	if(exportScanIndex_ >= scanCount()) {
 		emit stateChanged(state_ = Finished);
+
+		// Reset whether the exporter should overwrite files with matching filenames.
+		exporter_->setOverwriteOption(AMExporter::Default);
 
 		QString message = "Exported " % QString::number(succeededCount()) % " scans.";
 		if(failedCount())
@@ -202,40 +248,52 @@ void AMExportController::continueScanExport()
 
 	try {
 		// 2. Load scan from db and check loaded successfully
-		const QUrl& url = scansToExport_.at(exportScanIndex_);
 
-		emit statusChanged(status_ = "Opening:  " % url.toString());
 
-		AMDatabase* db;
-		QStringList path;
-		QString tableName;
-		int id;
-		bool idOkay;
+		AMScan* scan;
+		AMDbObject* databaseObject;
+		if(usingScanURLs_){
+			const QUrl& url = scanURLsToExport_.at(exportScanIndex_);
+			AMDatabase* db;
+			QStringList path;
+			QString tableName;
+			int id;
+			bool idOkay;
 
-		// parse the URL and make sure it's valid
-		if(!(	url.scheme() == "amd" &&
-			 (db = AMDatabase::dbByName(url.host())) &&
-			 (path = url.path().split('/', QString::SkipEmptyParts)).count() == 2 &&
-			 (id = path.at(1).toInt(&idOkay)) > 0 &&
-			 idOkay == true &&
-			 (tableName = path.at(0)).isEmpty() == false
-			 ))
-			throw QString("The export system couldn't understand the scan URL '" % url.toString() % "', so this scan has not been exported.");
+			// parse the URL and make sure it's valid
+			if(!( url.scheme() == "amd" &&
+				  (db = AMDatabase::database(url.host())) &&
+				  (path = url.path().split('/', QString::SkipEmptyParts)).count() == 2 &&
+				  (id = path.at(1).toInt(&idOkay)) > 0 &&
+				  idOkay == true &&
+				  (tableName = path.at(0)).isEmpty() == false
+				  ))
+				throw QString("The export system couldn't understand the scan URL '" % url.toString() % "', so this scan has not been exported.");
+			emit statusChanged(status_ = "Opening: " % url.toString());
 
-		AMDbObject* databaseObject = AMDbObjectSupport::createAndLoadObjectAt(db, tableName, id);
-		AMScan* scan = qobject_cast<AMScan*>(databaseObject);
-		if(!scan) {
-			delete databaseObject;
-			throw QString("The export system couldn't load a scan out of the database (" % url.toString() % "), so this scan has not been exported.");
+			databaseObject = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
+			scan = qobject_cast<AMScan*>(databaseObject);
+
+			if(!scan) {
+				delete databaseObject;
+				throw QString("The export system couldn't load a scan out of the database (" % url.toString() % "), so this scan has not been exported.");
+			}
+		}
+		else if(usingScanObjects_) {
+			scan = scanObjectsToExport_.at(exportScanIndex_);
+			if(!scan)
+				throw QString("The export system couldn't load a scan out of the database, so this scan has not been exported.");
 		}
 
-		emit statusChanged(status_ = "Writing:  " % scan->fullName());
+		emit statusChanged(status_ = "Opening: " % scan->name());	// this is kinda pointless...
+		emit statusChanged(status_ = "Writing: " % scan->fullName());
 
 		// 3. Check that it can be exported with the exporter and option selected
 		if(!exporter_->isValidFor(scan, option_)) {
 			QString err("The exporter '" % exporter_->description() % "' and the template '" % option_->name() % "' are not compatible with this scan (" % scan->fullName() % "), so it has not been exported.");
 			emit statusChanged(status_ = err);
-			delete scan;
+			if(usingScanURLs_)
+				delete scan;
 			throw err;
 		}
 
@@ -244,13 +302,15 @@ void AMExportController::continueScanExport()
 		if(writtenFile.isNull()) {
 			QString err("Export failed for scan '" % scan->fullName() % "'.");
 			emit statusChanged(status_ = err);
-			delete scan;
+			if(usingScanURLs_)	// don't delete in usingScanObjects_ mode: we don't own the scans.
+				delete scan;
 			throw err;
 		}
 
-		emit statusChanged(status_ = "Wrote:   " % writtenFile);
+		emit statusChanged(status_ = "Wrote: " % writtenFile);
 		succeededCount_++;
-		delete scan;	// done!
+		if(usingScanURLs_) // don't delete in usingScanObjects_ mode: we don't own the scans.
+			delete scan; // done!
 	}
 
 	catch(QString errMsg) {
@@ -259,7 +319,6 @@ void AMExportController::continueScanExport()
 	}
 
 	// 5. increment exportScanIndex_ and re-schedule next one
-	qDebug() << "Just finished " << exportScanIndex_;
 	exportScanIndex_++;
 	QTimer::singleShot(5, this, SLOT(continueScanExport()));
 

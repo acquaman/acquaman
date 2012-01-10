@@ -30,7 +30,7 @@ class AMDataViewWithActionButtons : public QWidget
 	Q_OBJECT
 public:
 	/// Constructs an AMDataView inside a widget that also provides buttons for the user to edit, compare, and export scans.
-	explicit AMDataViewWithActionButtons(AMDatabase* database = AMDatabase::userdb(), QWidget *parent = 0);
+	explicit AMDataViewWithActionButtons(AMDatabase* database = AMDatabase::database("user"), QWidget *parent = 0);
 
 	/// Access the AMDataView contained inside this widget
 	AMDataView* dataView() const { return dataView_; }
@@ -42,6 +42,8 @@ signals:
 	void selectionActivatedSeparateWindows(const QList<QUrl> &);
 	/// Emitted when the user attempts to export the selected scans. (This action is (hopefully) completed elsewhere, so that we don't couple the AMDataView to the export system)
 	void selectionExported(const QList<QUrl>&);
+	/// Emitted when the user wants to open scan configurations of the selected scans from the database.
+	void launchScanConfigurationsFromDb(const QList<QUrl> &);
 
 
 public slots:
@@ -67,6 +69,9 @@ protected slots:
 
 	/// When the base class's selection changes. We might need to enable or disable some of the buttons.
 	void onSelectionChanged();
+
+	/// When the user chooses to launch scan configurations from the database.  If more than 0 items are selected, we emit launchScanConfigurationsFromDb().
+	void onLaunchScanConfigurationsFromDb();
 
 protected:
 	Ui::AMDataViewActionsBar* ui_;

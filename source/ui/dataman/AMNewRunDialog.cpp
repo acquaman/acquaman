@@ -82,7 +82,7 @@ void AMNewRunDialog::addFacility(){
 	*/
 	q.prepare(QString("SELECT %1.description,%1.name,AMDbObjectThumbnails_table.thumbnail,AMDbObjectThumbnails_table.type,%1.id "
 			  "FROM %1,AMDbObjectThumbnails_table WHERE %1.thumbnailFirstId = AMDbObjectThumbnails_table.id "
-			  "ORDER BY %1.id DESC").arg(AMDbObjectSupport::tableNameForClass<AMFacility>()));
+			  "ORDER BY %1.id DESC").arg(AMDbObjectSupport::s()->tableNameForClass<AMFacility>()));
 	int i = 0;
 	if (q.exec()) {
 		while (q.next()) {
@@ -99,8 +99,10 @@ void AMNewRunDialog::addFacility(){
 			i++;
 		}
 	}
-	else
+	else {
+		q.finish();
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Error retrieving information from the database."));
+	}
 
 
 }
@@ -120,7 +122,7 @@ void AMNewRunDialog::okButtonPressed(){
 	int facilityId = facilitySelectCb->itemData(facilitySelectCb->currentIndex(),AM::IdRole).toInt();
 
 	AMRun newRun(runName, facilityId);
-	bool success = newRun.storeToDb(AMDatabase::userdb());
+	bool success = newRun.storeToDb(AMDatabase::database("user"));
 
 
 	if(success) {

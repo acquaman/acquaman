@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMBottomBar::AMBottomBar(QWidget *parent) : QWidget(parent)
 {
 	setupUi(this);
-
+	addButton->setToolTip("Add Experiment Folder...");
 
 	statusView_ = new AMStatusView();
 	mainHLayout->addWidget(statusView_);

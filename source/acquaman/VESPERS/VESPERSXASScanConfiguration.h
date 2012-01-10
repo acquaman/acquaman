@@ -39,6 +39,7 @@ class VESPERSXASScanConfiguration : public AMXASScanConfiguration
 	Q_PROPERTY(double xPosition READ x WRITE setX)
 	Q_PROPERTY(double yPosition READ y WRITE setY)
 	Q_PROPERTY(AMDbObject* roiInfoList READ dbGetROIInfoList WRITE dbLoadROIInfoList)
+	Q_PROPERTY(QString rois READ readRoiList WRITE writeRoiList)
 
 	Q_ENUMS(FluorescenceDetector)
 	Q_ENUMS(IonChamber)
@@ -95,10 +96,15 @@ public:
 	/// Returns the ROI list.  The list is empty if not using a fluorescence detector.
 	AMROIInfoList roiList() const { return roiInfoList_; }
 
-	/// Returns the AMControlInfo for the energy control.
-	AMControlInfo energyControlInfo() const { return regions_->defaultControl()->toInfo(); }
+	/// Returns the AMControlInfo for the scanned region control.
+	AMControlInfo regionControlInfo() const { return regions_->defaultControl()->toInfo(); }
 	/// Returns the AMControlInfo for the time control.
 	AMControlInfo timeControlInfo() const { return regions_->defaultTimeControl()->toInfo(); }
+
+	/// Get a pretty looking string of the current regions of interest.  Used primarily for exporting the list into the header of the file.
+	QString readRoiList() const;
+	/// This function does nothing.  It is there to preserve the fact that the database needs to be able to read and write.
+	void writeRoiList(QString) {}
 
 	// Database loading and storing
 	///////////////////////

@@ -25,6 +25,8 @@ AMExporterOptionGeneral::AMExporterOptionGeneral(QObject *parent) :
 {
 
 	includeAllDataSources_ = true;
+	firstColumnOnly_ = false;
+	separateHigherDimensionalSources_ = false;
 
 	headerText_ =	"Scan: $name #$number\n"
 					"Date: $dateTime\n"
@@ -44,3 +46,6 @@ AMExporterOptionGeneral::AMExporterOptionGeneral(QObject *parent) :
 	separateSectionFileName_ = "$name_$number_$dataSet_$dateTime[yyyyMMdd_hhmmss].dat";
 }
 
+const QMetaObject* AMExporterOptionGeneral::getMetaObject(){
+	return metaObject();
+}

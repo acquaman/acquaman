@@ -61,13 +61,13 @@ void AMRunExperimentInsert::onDatabaseUpdated(const QString& table, int id) {
 	Q_UNUSED(id)
 
 	//if(table == "AMRun_table" && !runRefreshScheduled_) {
-	if(table == AMDbObjectSupport::tableNameForClass<AMRun>() && !runRefreshScheduled_) {
+	if(table == AMDbObjectSupport::s()->tableNameForClass<AMRun>() && !runRefreshScheduled_) {
 		runRefreshScheduled_ = true;
 		QTimer::singleShot(0, this, SLOT(refreshRuns()));
 	}
 
 	//if(table == "AMExperiment_table" && !expRefreshScheduled_) {
-	if(table == AMDbObjectSupport::tableNameForClass<AMExperiment>() && !expRefreshScheduled_) {
+	if(table == AMDbObjectSupport::s()->tableNameForClass<AMExperiment>() && !expRefreshScheduled_) {
 		expRefreshScheduled_ = true;
 		QTimer::singleShot(0, this, SLOT(refreshExperiments()));
 	}
@@ -76,7 +76,7 @@ void AMRunExperimentInsert::onDatabaseUpdated(const QString& table, int id) {
 void AMRunExperimentInsert::onDatabaseObjectCreated(const QString& table, int id) {
 	onDatabaseUpdated(table, id);
 
-	if(table == AMDbObjectSupport::tableNameForClass<AMExperiment>())
+	if(table == AMDbObjectSupport::s()->tableNameForClass<AMExperiment>())
 		newExperimentId_ = id;
 }
 
@@ -87,38 +87,40 @@ void AMRunExperimentInsert::refreshRuns() {
 	QSqlQuery q = db_->query();
 	q.setForwardOnly(true);
 	/* NTBA - September 1st, 2011 (David Chevrier)
-	"Hard-coded database table names. Down to just AMDbObjectThumbnails_table."
-	*/
-	q.prepare(QString("SELECT %1.name, %1.dateTime, %2.description, AMDbObjectThumbnails_table.thumbnail, AMDbObjectThumbnails_table.type, %1.id, %1.endDateTime "
-			  "FROM %1,%2,AMDbObjectThumbnails_table "
-			  "WHERE %2.id = %1.facilityId AND AMDbObjectThumbnails_table.id = %2.thumbnailFirstId "
-			  "ORDER BY %1.dateTime ASC").arg(AMDbObjectSupport::tableNameForClass<AMRun>()).arg(AMDbObjectSupport::tableNameForClass<AMFacility>()));
-	if(!q.exec())
+ "Hard-coded database table names. Down to just AMDbObjectThumbnails_table."
+ */
+	q.prepare(QString("SELECT %1.name, %1.dateTime, %2.description, AMDbObjectThumbnails_table.thumbnail, AMDbObjectThumbnails_table.type, %1.id "
+					  "FROM %1,%2,AMDbObjectThumbnails_table "
+					  "WHERE %2.id = %1.facilityId AND AMDbObjectThumbnails_table.id = %2.thumbnailFirstId "
+					  "ORDER BY %1.dateTime ASC").arg(AMDbObjectSupport::s()->tableNameForClass<AMRun>()).arg(AMDbObjectSupport::s()->tableNameForClass<AMFacility>()));
+	if(!q.exec()) {
+		q.finish();
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Could not retrieve a list of run information from the database."));
+	}
+	else {
+		while(q.next()) {
 
-	while(q.next()) {
+			/// "editRole" is just the name, because you can't change the date:
+			AMRunModelItem* item = new AMRunModelItem(db_, q.value(5).toInt(), q.value(0).toString());
 
-		/// "editRole" is just the name, because you can't change the date:
-		AMRunModelItem* item = new AMRunModelItem(db_, q.value(5).toInt(), q.value(0).toString());
+			/// "displayRole" looks like "[name], [startDate]" or "SGM, Aug 4 (2010)". We get this by storing the date/time in AM::DateTimeRole
+			item->setData(q.value(1).toDateTime(), AM::DateTimeRole);
 
-		/// "displayRole" looks like "[name], [startDate] - [endDate]" or "SGM, Aug 4 - 9 (2010)". We get this by storing the date/time in AM::DateTimeRole, and the endDateTime in AM::EndDateTimeRole
-		item->setData(q.value(1).toDateTime(), AM::DateTimeRole);
-		item->setData(q.value(6).toDateTime(), AM::EndDateTimeRole);
+			/// "decorationRole" is the icon for the facility:
+			if(q.value(4).toString() == "PNG") {
+				QPixmap p;
+				if(p.loadFromData(q.value(3).toByteArray(), "PNG"))
+					item->setData(p.scaledToHeight(22, Qt::SmoothTransformation), Qt::DecorationRole);
+			}
 
-		/// "decorationRole" is the icon for the facility:
-		if(q.value(4).toString() == "PNG") {
-			QPixmap p;
-			if(p.loadFromData(q.value(3).toByteArray(), "PNG"))
-				item->setData(p.scaledToHeight(22, Qt::SmoothTransformation), Qt::DecorationRole);
+			/// "toolTipRole" is the long description of the facility
+			item->setData(q.value(2).toString(), Qt::ToolTipRole);
+
+			/// Fill the alias information for this to be a valid 'Alias' item
+			AMWindowPaneModel::initAliasItem(item, runItem_->data(AMWindowPaneModel::AliasTargetRole).value<QStandardItem*>(), "Runs", q.value(5).toInt());
+
+			runItem_->appendRow(item);
 		}
-
-		/// "toolTipRole" is the long description of the facility
-		item->setData(q.value(2).toString(), Qt::ToolTipRole);
-
-		/// Fill the alias information for this to be a valid 'Alias' item
-		AMWindowPaneModel::initAliasItem(item, runItem_->data(AMWindowPaneModel::AliasTargetRole).value<QStandardItem*>(), "Runs", q.value(5).toInt());
-
-		runItem_->appendRow(item);
 	}
 
 	// no more refresh scheduled, since we just completed it.
@@ -133,34 +135,38 @@ void AMRunExperimentInsert::refreshExperiments() {
 	QSqlQuery q = db_->query();
 	q.setForwardOnly(true);
 	q.prepare(QString("SELECT name,id "
-			  "FROM %1 "
-			  "ORDER BY id ASC").arg(AMDbObjectSupport::tableNameForClass<AMExperiment>()));
-	if(!q.exec())
+					  "FROM %1 "
+					  "ORDER BY id ASC").arg(AMDbObjectSupport::s()->tableNameForClass<AMExperiment>()));
+	if(!q.exec()) {
+		q.finish();
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Could not retrieve a list of experiment information from the database."));
+	}
 
-	while(q.next()) {
+	else {
+		while(q.next()) {
 
-		int id = q.value(1).toInt();
+			int id = q.value(1).toInt();
 
-		/// "editRole" and "displayRole" are just the name:
-		AMExperimentModelItem* item = new AMExperimentModelItem(db_, id, q.value(0).toString());
+			/// "editRole" and "displayRole" are just the name:
+			AMExperimentModelItem* item = new AMExperimentModelItem(db_, id, q.value(0).toString());
 
-		/// "decorationRole" is a standard folder icon
-		item->setData(QPixmap(":/22x22/folder.png"), Qt::DecorationRole);
+			/// "decorationRole" is a standard folder icon
+			item->setData(QPixmap(":/22x22/folder.png"), Qt::DecorationRole);
 
-		/// "toolTipRole" is the name, again. (\todo eventually, this could contain the number of scans in the experiment)
-		item->setData(q.value(0).toString(), Qt::ToolTipRole);
+			/// "toolTipRole" is the name, again. (\todo eventually, this could contain the number of scans in the experiment)
+			item->setData(q.value(0).toString(), Qt::ToolTipRole);
 
-		/// Fill the alias information for this to be a valid 'Alias' item
-		AMWindowPaneModel::initAliasItem(item, experimentItem_->data(AMWindowPaneModel::AliasTargetRole).value<QStandardItem*>(), "Experiments", id);
-		item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEditable);
+			/// Fill the alias information for this to be a valid 'Alias' item
+			AMWindowPaneModel::initAliasItem(item, experimentItem_->data(AMWindowPaneModel::AliasTargetRole).value<QStandardItem*>(), "Experiments", id);
+			item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEditable);
 
-		experimentItem_->appendRow(item);
+			experimentItem_->appendRow(item);
 
-		// Last of all... if this one is the newly-added experiment, let's select and start editing it's name:
-		if(id == newExperimentId_) {
-			emit newExperimentAdded(item->index());
-			newExperimentId_ = -1;
+			// Last of all... if this one is the newly-added experiment, let's select and start editing it's name:
+			if(id == newExperimentId_) {
+				emit newExperimentAdded(item->index());
+				newExperimentId_ = -1;
+			}
 		}
 	}
 
@@ -174,5 +180,5 @@ void AMRunExperimentInsert::refreshExperiments() {
 
 
 /*
-	setStyleSheet("AMRunExperimentTree { font: 500 10pt \"Lucida Grande\"; border: 0px none transparent; background-color: transparent; show-decoration-selected: 1; selection-background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(170, 176, 197, 255), stop:1 rgba(115, 122, 153, 255)); } QTreeView::item { height: 26; } \n QTreeView::item::hover { border-width: 1px; border-style: solid;	border-color: rgb(22, 84, 170); border-top-color: rgb(69, 128, 200); background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(91, 146, 213, 255), stop:1 rgba(22, 84, 170, 255)); }  QTreeView::item::selected { border: 1px solid rgb(115, 122, 153); border-top-color: rgb(131, 137, 167);  background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(170, 176, 197, 255), stop:1 rgba(115, 122, 153, 255)); }");
+ setStyleSheet("AMRunExperimentTree { font: 500 10pt \"Lucida Grande\"; border: 0px none transparent; background-color: transparent; show-decoration-selected: 1; selection-background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(170, 176, 197, 255), stop:1 rgba(115, 122, 153, 255)); } QTreeView::item { height: 26; } \n QTreeView::item::hover { border-width: 1px; border-style: solid;	border-color: rgb(22, 84, 170); border-top-color: rgb(69, 128, 200); background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(91, 146, 213, 255), stop:1 rgba(22, 84, 170, 255)); }  QTreeView::item::selected { border: 1px solid rgb(115, 122, 153); border-top-color: rgb(131, 137, 167);  background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(170, 176, 197, 255), stop:1 rgba(115, 122, 153, 255)); }");
 */

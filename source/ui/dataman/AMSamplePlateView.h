@@ -35,8 +35,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMSampleEditor.h"
 
 #include "util/AMDeferredFunctionCall.h"
-#include "beamline/AMControlSet.h"
-
 #include "util/AMDateTimeUtils.h"
 
 
@@ -226,7 +224,7 @@ public:
 	int samplePlateId() const { return plate_->id(); }
 
 	/// reload the sample plate out of the database to become a different sample plate
-	void changeSamplePlate(int newId) { plate_->loadFromDb(AMDatabase::userdb(), newId); }
+	void changeSamplePlate(int newId) { plate_->loadFromDb(AMDatabase::database("user"), newId); }
 
 signals:
 	/// Emitted when the sample plate is changed
@@ -282,7 +280,7 @@ protected:
 
 
 
-
+class AMSampleManipulator;
 
 class AMSamplePlateView : public QWidget
 {
@@ -295,19 +293,12 @@ public:
 	AMSamplePlate* samplePlate() { return samplePlate_; }
 
 public slots:
-	void setManipulator(AMControlSet *manipulator) { manipulator_ = manipulator; }
+	void setManipulator(AMSampleManipulator *manipulator) { manipulator_ = manipulator; }
 
 signals:
 	void newSamplePlateSelected();
 
 protected slots:
-	//	void changeSamplePlate(int newPlateId);
-
-	//	void onSampleTableItemUpdated(QString tableName, int id);
-	//	void onSampleTableItemCreated(QString tableName, int id);
-	//	void onSampleTableItemRemoved(QString tableName, int id);
-
-	//	void refreshSamples();
 
 	void onAddSampleButtonClicked();
 
@@ -335,7 +326,7 @@ protected:
 	/// Pointer to the sample plate object we display / change
 	AMSamplePlate* samplePlate_;
 	/// Manipulator used to move samples into position / grab current positions
-	AMControlSet *manipulator_;
+	AMSampleManipulator *manipulator_;
 
 	/// A model that wraps an AMSamplePlate object for exposing as a list view
 	AMSamplePlateItemModel* samplePlateModel_;

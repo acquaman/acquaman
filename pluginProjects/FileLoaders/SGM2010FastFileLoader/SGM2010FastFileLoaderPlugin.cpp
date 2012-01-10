@@ -1,7 +1,5 @@
 #include "SGM2010FastFileLoaderPlugin.h"
 
-AMBiHash<QString, QString> SGM2010FastFileLoaderPlugin::columns2pvNames_;
-
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
@@ -21,8 +19,8 @@ bool SGM2010FastFileLoaderPlugin::accepts(AMScan *scan){
 }
 
 bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder){
-	qDebug() << "\n\nTRYING TO LOAD WITH sgm2010Fast PLUGIN";
-	// this static storage can be shared across all instances, but if we're the first, need to populate it.
+	// qDebug() << "\n\nTRYING TO LOAD WITH sgm2010Fast PLUGIN";
+
 	if(columns2pvNames_.count() == 0) {
 		columns2pvNames_.set("eV", "BL1611-ID-1:Energy");
 		columns2pvNames_.set("scaler_fileOffset", "BL1611-ID-1:mcs:scan");
@@ -283,4 +281,10 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 	return true;
 }
 
-Q_EXPORT_PLUGIN2(SGM2010FastFileLoaderPlugin, SGM2010FastFileLoaderPlugin)
+bool SGM2010FastFileLoaderFactory::accepts(AMScan *scan)
+{
+	return (scan->fileFormat() == "sgm2010Fast");
+}
+
+Q_EXPORT_PLUGIN2(SGM2010FastFileLoaderFactory, SGM2010FastFileLoaderFactory)
+

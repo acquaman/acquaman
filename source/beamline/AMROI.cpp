@@ -28,6 +28,7 @@ AMROI::AMROI(QString baseName, int elements, int number, QObject *parent)
 	setScale(1);
 	buildAllPVs(baseName, elements, number);
 	setRegion(QString(), -1, -1);
+	value_ = 0;
 }
 
 void AMROI::buildAllPVs(QString baseName, int elements, int number)

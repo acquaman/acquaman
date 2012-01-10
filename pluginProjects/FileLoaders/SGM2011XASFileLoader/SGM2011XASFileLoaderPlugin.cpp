@@ -1,7 +1,5 @@
 #include "SGM2011XASFileLoaderPlugin.h"
 
-AMBiHash<QString, QString> SGM2011XASFileLoaderPlugin::columns2pvNames_;
-
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
@@ -20,8 +18,6 @@ bool SGM2011XASFileLoaderPlugin::accepts(AMScan *scan){
 }
 
 bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder){
-	qDebug() << "\n\nTRYING TO LOAD WITH PLUGIN";
-	// this static storage can be shared across all instances, but if we're the first, need to populate it.
 	if(columns2pvNames_.count() == 0) {
 		columns2pvNames_.set("Event-ID", "Event-ID");
 		columns2pvNames_.set("eV", "BL1611-ID-1:Energy");
@@ -34,6 +30,11 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		columns2pvNames_.set("TEY_SCALER", "BL1611-ID-1:mcs00:fbk");
 		columns2pvNames_.set("TFY_SCALER", "BL1611-ID-1:mcs02:fbk");
 		columns2pvNames_.set("EnergyFeedback", "BL1611-ID-1:Energy:fbk");
+		columns2pvNames_.set("PD1_SCALER", "BL1611-ID-1:mcs06:fbk");
+		columns2pvNames_.set("PD2_SCALER", "BL1611-ID-1:mcs07:fbk");
+		columns2pvNames_.set("PD3_SCALER", "BL1611-ID-1:mcs08:fbk");
+		columns2pvNames_.set("PD4_SCALER", "BL1611-ID-1:mcs09:fbk");
+		columns2pvNames_.set("RingCurrent", "PCT1402-01:mA:fbk");
 
 		columns2pvNames_.set("SDD", "MCA1611-01:GetChannels");
 		columns2pvNames_.set("OceanOptics65000Old", "SA0000-03:Spectra");
@@ -59,14 +60,8 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		return false;
 
 	QFileInfo sourceFileInfo(scan->filePath());
-	if(sourceFileInfo.isRelative()){
-		//qDebug() << "Path IS relative, user data folder is " << AMUserSettings::userDataFolder;
-		//sourceFileInfo.setFile(AMUserSettings::userDataFolder + "/" + scan->filePath());
-		qDebug() << "Path IS relative, user data folder is " << userDataFolder;
+	if(sourceFileInfo.isRelative())
 		sourceFileInfo.setFile(userDataFolder + "/" + scan->filePath());
-	}
-	else
-		qDebug() << "Path IS NOT relative.";
 
 	// used in parsing the data file
 	QString line;
@@ -82,7 +77,6 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		return false;
 	}
 	QTextStream fs(&f);
-
 	// find out what columns exist. Looking for line starting with '#(1) '
 	// find out what information we've got in event ID 1
 	line.clear();
@@ -111,13 +105,7 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 
 	}
 
-	/*
-	// clear the existing raw data (and raw data sources, if we're supposed to)
-	if(setRawDataSources)
-		scan->clearRawDataPointsAndMeasurementsAndDataSources();
-	else*/
 	scan->clearRawDataPointsAndMeasurements();
-
 
 	// There is a rawData scan axis called "eV" created in the constructor.  AMAxisInfo("eV", 0, "Incident Energy", "eV")
 	/// \todo What if there isn't? Should we check, and create the axis if none exist? What if there's more than one scan axis? Can't remove from AMDataStore... [The rest of this code assumes a single scan axis]
@@ -131,12 +119,7 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	QString spectraFile = "";
 	QFileInfo spectraFileInfo;
 	for(int x = 0; x < colNames1.count(); x++){
-		/*
-		if(offsets2MeasurementInfos_.containsF(colNames1.at(x))){
-		*/
-		/**/
 		if(offsets2MeasurementInfos_.contains(colNames1.at(x))){
-			/**/
 			offsetColumns << x;
 			initialFileOffsets << QList<int>();
 			fileOffsets << QList<QPair<int, int> >();
@@ -155,19 +138,11 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		if(spectraFileInfo.isRelative())
 			spectraFileInfo.setFile(userDataFolder + "/" + spectraFile);
 	}
-
 	for(int x = 0; x < colNames1.count(); x++){
 		QString colName = colNames1.at(x);
 		if(colName != "eV" && colName != "Event-ID"){
 			if(offsetColumns.contains(x)){
-				/*
-				AMMeasurementInfo spectraInfo(offsets2MeasurementInfos_.valueF(colName));
-				scan->rawData()->addMeasurement(spectraInfo);
-				*/
-				/**/
-				qDebug() << "Column is a spectrum offset with name " << colName;
 				if(colName == "SDD"){
-					qDebug() << "Adding SDD column at " << x;
 					AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
 					QList<AMAxisInfo> sddAxes;
 					sddAxes << sddEVAxisInfo;
@@ -175,14 +150,12 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 					scan->rawData()->addMeasurement(sddInfo);
 				}
 				else if(colName == "OceanOptics65000"){
-					qDebug() << "Adding OOS column at " << x;
 					AMAxisInfo oosWavelengthAxisInfo("wavelength", 1024, "Wavelength", "nm");
 					QList<AMAxisInfo> oosAxes;
 					oosAxes << oosWavelengthAxisInfo;
 					AMMeasurementInfo oosInfo("OceanOptics65000", "OceanOptics 65000", "counts", oosAxes);
 					scan->rawData()->addMeasurement(oosInfo);
 				}
-				/**/
 			}
 			else
 				scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));
@@ -221,7 +194,6 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 			scan->rawData()->endInsertRows();
 		}
 	}
-
 	//Check for a spectraFile, load it if we can
 	if(spectraFile != ""){
 		//QFile sf(spectraFile);
@@ -231,7 +203,6 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 			return false;
 		}
 
-		qDebug() << "Playing the spectra game, raw data measurement count is " << scan->rawData()->measurementCount();
 		//Prep the list of start and end bytes
 		// The initialFileOffsets is a list of lists of ints. The first list is the start offsets for the first spectra
 		//  This is not enough, as we as need the end (need to read from start to end). End is the start of the next spectra.
@@ -267,8 +238,6 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		//  Alloc a double array of that size and append it to the list of spectrum values
 		//  Start each spectrum counter at 0
 		for(int x = 0; x < offsetColumns.count(); x++){
-			qDebug() << "x is " << x << " means column is " << offsetColumns.at(x)-2;
-			qDebug() << "means size is " << scan->rawData()->measurementAt(offsetColumns.at(x)-2).size(0);
 
 			//Offset two columns for event-ID and eV
 			allSpecSizes.append(scan->rawData()->measurementAt(offsetColumns.at(x)-2).size(0));
@@ -284,10 +253,8 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 				// Grab the start and end bytes from the fileOffsets ... only a problem for the last item
 				startByte = fileOffsets.at(y).at(x).first;
 				endByte = fileOffsets.at(y).at(x).second;
-				if(endByte == -1){
+				if(endByte == -1)
 					endByte = spectraFileInfo.size();
-					qDebug() << "Old way says " << endByte << " info way says " << spectraFileInfo.size();
-				}
 
 				// Grab the text from the specified start to end and put it into a QByteArray
 				sf.seek(startByte);
@@ -348,102 +315,22 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	}
 
 
-	/*
-	// If we need to create the raw data sources...
-	if(setRawDataSources){
-		for(int x = 0; x < scan->rawData()->measurementCount(); x++){
-			if(defaultUserVisibleColumns_.contains(scan->rawData()->measurementAt(x).name))
-				scan->addRawDataSource(new AMRawDataSource(scan->rawData(), x));
+	for(int i=0; i<scan->rawDataSources()->count(); i++) {
+		if(scan->rawDataSources()->at(i)->measurementId() >= scan->rawData()->measurementCount()) {
+			AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Debug, -97, QString("The data in the file (%1 columns) didn't match the raw data columns we were expecting (column %2). Removing the raw data column '%3')").arg(scan->rawData()->measurementCount()).arg(scan->rawDataSources()->at(i)->measurementId()).arg(scan->rawDataSources()->at(i)->name())));
+			scan->deleteRawDataSource(i);
 		}
 	}
 
-
-	/// Not supposed to create the raw data sources.  Do an integrity check on the pre-existing data sources instead... If there's a raw data source, but it's pointing to a non-existent measurement in the data store, that's a problem. Remove it.  \todo Is there any way to incorporate this at a higher level, so that import-writers don't need to bother?
-	else {*/
-		for(int i=0; i<scan->rawDataSources()->count(); i++) {
-			if(scan->rawDataSources()->at(i)->measurementId() >= scan->rawData()->measurementCount()) {
-				AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Debug, -97, QString("The data in the file (%1 columns) didn't match the raw data columns we were expecting (column %2). Removing the raw data column '%3')").arg(scan->rawData()->measurementCount()).arg(scan->rawDataSources()->at(i)->measurementId()).arg(scan->rawDataSources()->at(i)->name())));
-				scan->deleteRawDataSource(i);
-			}
-		}
-	/*
-	}
-	*/
-
-
-	// If the scan doesn't have any channels yet, it would be helpful to create some.
-	/*
-	if(createDefaultAnalysisBlocks) {
-
-		QList<AMDataSource*> raw1DDataSources;
-		for(int i=0; i<scan->rawDataSources()->count(); i++)
-			if(scan->rawDataSources()->at(i)->rank() == 1)
-				raw1DDataSources << scan->rawDataSources()->at(i);
-
-		int rawTeyIndex = scan->rawDataSources()->indexOfKey("TEY");
-		int rawTfyIndex = scan->rawDataSources()->indexOfKey("TFY");
-		int rawI0Index = scan->rawDataSources()->indexOfKey("I0");
-
-		if(rawTeyIndex != -1 && rawI0Index != -1) {
-			AM1DExpressionAB* teyChannel = new AM1DExpressionAB("TEYNorm");
-			teyChannel->setDescription("Normalized TEY");
-			teyChannel->setInputDataSources(raw1DDataSources);
-			teyChannel->setExpression("TEY/I0");
-
-			scan->addAnalyzedDataSource(teyChannel);
-		}
-
-		if(rawTfyIndex != -1 && rawI0Index != -1) {
-			AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("TFYNorm");
-			tfyChannel->setDescription("Normalized TFY");
-			tfyChannel->setInputDataSources(raw1DDataSources);
-			tfyChannel->setExpression("-TFY/I0");
-
-			scan->addAnalyzedDataSource(tfyChannel);
-		}
-
-
-		int rawSddIndex = scan->rawDataSources()->indexOfKey("SDD");
-		if(rawSddIndex != -1) {
-			AMRawDataSource* sddRaw = scan->rawDataSources()->at(rawSddIndex);
-			AM2DSummingAB* sddSum = new AM2DSummingAB("PFY");
-			QList<AMDataSource*> sddSumSource;
-			sddSumSource << sddRaw;
-			sddSum->setInputDataSources(sddSumSource);
-			sddSum->setSumAxis(1);
-			sddSum->setSumRangeMax(sddRaw->size(1)-1);
-
-			scan->addAnalyzedDataSource(sddSum);
-		}
-
-		int rawOOSIndex = scan->rawDataSources()->indexOfKey("OceanOptics65000");
-		if(rawOOSIndex != -1) {
-			AMRawDataSource* oosRaw = scan->rawDataSources()->at(rawOOSIndex);
-			AM2DSummingAB* ply = new AM2DSummingAB("PLY");
-			QList<AMDataSource*> plySource;
-			plySource << oosRaw;
-			ply->setInputDataSources(plySource);
-			ply->setSumAxis(1);
-			ply->setSumRangeMax(oosRaw->size(1)-1);
-			scan->addAnalyzedDataSource(ply);
-			if(rawOOSIndex != -1 && rawI0Index != -1) {
-				AM1DExpressionAB* plyNormChannel = new AM1DExpressionAB(QString("PLYNorm"));
-				plyNormChannel->setDescription("PLYNorm");
-				QList<AMDataSource*> plyNormSources;
-				plyNormSources.append(raw1DDataSources);
-				plyNormSources.append(ply);
-				plyNormChannel->setInputDataSources(plyNormSources);
-				plyNormChannel->setExpression(QString("%1/%2").arg("PLY").arg("I0"));
-
-				scan->addAnalyzedDataSource(plyNormChannel);
-			}
-		}
-	}
-	*/
 
 	/// scan->onDataChanged(); \todo Is this still used? What does it mean?
-
 	return true;
 }
 
-Q_EXPORT_PLUGIN2(SGM2011XASFileLoaderPlugin, SGM2011XASFileLoaderPlugin)
+bool SGM2011XASFileLoaderFactory::accepts(AMScan *scan)
+{
+	return (scan->fileFormat() == "sgm2011XAS");
+}
+
+Q_EXPORT_PLUGIN2(SGM2011XASFileLoaderFactory, SGM2011XASFileLoaderFactory)
+

@@ -39,6 +39,8 @@ public:
 	virtual double demand() const;
 	virtual double voltage() const;
 
+	virtual bool isFullyPowered() const;
+
 	virtual QString status() const;
 
 	virtual double current() const;

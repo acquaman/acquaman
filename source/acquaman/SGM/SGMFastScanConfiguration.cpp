@@ -81,6 +81,10 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguratio
 SGMFastScanConfiguration::~SGMFastScanConfiguration(){
 }
 
+const QMetaObject* SGMFastScanConfiguration::getMetaObject(){
+	return metaObject();
+}
+
 AMDetectorInfoSet SGMFastScanConfiguration::allDetectorConfigurations() const{
 	AMDetectorInfoSet allConfigurations;
 	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectors()->count(); x++)

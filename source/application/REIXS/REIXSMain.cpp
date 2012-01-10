@@ -33,7 +33,6 @@ int main(int argc, char *argv[])
 	QApplication app(argc, argv);
 	app.setApplicationName("Acquaman");
 
-
 	REIXSAppController* appController = new REIXSAppController();
 
 

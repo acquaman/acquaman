@@ -19,7 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "VESPERSEndstation.h"
-#include "beamline/CLS/CLSVMEMotor.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
 
 #include <QMessageBox>
 #include <QDir>
@@ -33,10 +33,10 @@ VESPERSEndstation::VESPERSEndstation(AMControl *normal, QObject *parent)
 	wasConnected_ = false;
 
 	// The controls used for the control window.
-	ccdControl_ = new CLSVMEMotor("CCD motor", "SMTR1607-2-B21-18", "CCD motor", false, 1.0, 2.0, this);
-	microscopeControl_ = new CLSVMEMotor("Microscope motor", "SMTR1607-2-B21-17", "Microscope motor", false, 1.0, 2.0, this);
-	fourElControl_ = new CLSVMEMotor("4-Element Vortex motor", "SMTR1607-2-B21-27", "4-Element Vortex motor", false, 1.0, 2.0, this);
-	singleElControl_ = new CLSVMEMotor("1-Element Vortex motor", "SMTR1607-2-B21-15", "1-Element Vortex motor", false, 1.0, 2.0, this);
+	ccdControl_ = new CLSMAXvMotor("CCD motor", "SMTR1607-2-B21-18", "CCD motor", false, 1.0, 2.0, this);
+	microscopeControl_ = new CLSMAXvMotor("Microscope motor", "SMTR1607-2-B21-17", "Microscope motor", false, 1.0, 2.0, this);
+	fourElControl_ = new CLSMAXvMotor("4-Element Vortex motor", "SMTR1607-2-B21-27", "4-Element Vortex motor", false, 1.0, 2.0, this);
+	singleElControl_ = new CLSMAXvMotor("1-Element Vortex motor", "SMTR1607-2-B21-15", "1-Element Vortex motor", false, 1.0, 2.0, this);
 
 	focusControl_ = normal;
 
@@ -329,10 +329,11 @@ void VESPERSEndstation::StringtoAMPV(AMProcessVariable *pv, QString toConvert)
 {
 	int converted[256];
 
+	QByteArray toConvertBA = toConvert.toAscii();
 	for (int i = 0; i < 256; i++){
 
-		if (i < toConvert.size())
-			converted[i] = toConvert.toAscii()[i];
+		if (i < toConvertBA.size())
+			converted[i] = toConvertBA.at(i);
 		else
 			converted[i] = 0;
 	}

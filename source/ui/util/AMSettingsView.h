@@ -60,7 +60,7 @@ public:
 	bool hasUnsavedChanges();
 
 public slots:
-	/// Applies any changes (that is, saves changes using AMSettings::save() and reloads with AMSettings::load() )
+	/// Applies any changes (that is, saves changes using AMSettings::s()->save() and reloads with AMSettings::s()->load() )
 	void applyChanges();
 	/// Discard any changes and sets the line edits back to the AMSettings values
 	void discardChanges();

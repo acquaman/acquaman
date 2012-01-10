@@ -29,4 +29,6 @@ AMAxisInfo::AMAxisInfo(const QString& mName, int mSize, const QString& mDescript
 	description = mDescription;
 	units = mUnits;
 	isUniform = false;
+	start = 0.0;
+	increment = 1.0;
 }

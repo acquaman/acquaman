@@ -69,9 +69,10 @@ protected:
 	QDoubleSpinBox* defocusDistanceMmBox_;
 	QDoubleSpinBox* detectorTiltBox_;
 
-	QRadioButton *horizontalDetectorButton_, *verticalDetectorButton_;
+	// removed: QRadioButton *horizontalDetectorButton_, *verticalDetectorButton_;
 
 	QCheckBox* startFromCurrentPositionOption_;
+	QCheckBox* doNotClearExistingCountsOption_;
 
 	QDoubleSpinBox* maximumTotalCounts_;
 	QTimeEdit* maximumTimeEdit_;

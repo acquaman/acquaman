@@ -233,7 +233,7 @@ bool AMExportWizardOptionPage::onSaveOptionButtonClicked() {
 				QMessageBox::information(this, "Missing name", "You must provide a name if you want to save this template.", QMessageBox::Ok);
 			else if(ok) {
 				option_->setName(name);
-				if(option_->storeToDb(AMDatabase::userdb())) {
+				if(option_->storeToDb(AMDatabase::database("user"))) {
 					// populateOptionSelector(); instead... sneak it into the list without forcing a re-load.
 					optionSelector_->blockSignals(true);
 					optionSelector_->addItem(option_->name(), option_->id());
@@ -313,9 +313,9 @@ void AMExportWizardOptionPage::onOptionSelectorIndexChanged(int index)
 	// or load saved option
 	else {
 		option_ = qobject_cast<AMExporterOption*>(
-					AMDbObjectSupport::createAndLoadObjectAt(
-						AMDatabase::userdb(),
-						AMDbObjectSupport::tableNameForClass(exporter_->exporterOptionClassName()),
+					AMDbObjectSupport::s()->createAndLoadObjectAt(
+						AMDatabase::database("user"),
+						AMDbObjectSupport::s()->tableNameForClass(exporter_->exporterOptionClassName()),
 						optionSelector_->itemData(optionSelector_->currentIndex()).toInt()));
 		controller_->setOption(option_); // will delete the previous option_
 		saveOptionButton_->setText("Save");
@@ -340,7 +340,8 @@ void AMExportWizardOptionPage::populateOptionSelector()
 	optionSelector_->addItem("New Template", -1);
 
 	// fill option combo box
-	QSqlQuery q = AMDbObjectSupport::select(AMDatabase::userdb(), exporter_->exporterOptionClassName(), "id, name");
+	QSqlQuery q = AMDbObjectSupport::s()->select(AMDatabase::database("user"), exporter_->exporterOptionClassName(), "id, name");
+	q.exec();
 	while(q.next()) {
 		optionSelector_->addItem(q.value(1).toString(),
 								 q.value(0).toInt());	// note: putting the database id in Qt::UserRole.

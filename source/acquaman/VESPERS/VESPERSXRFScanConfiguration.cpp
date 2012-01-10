@@ -25,11 +25,13 @@ VESPERSXRFScanConfiguration::VESPERSXRFScanConfiguration(XRFDetectorInfo detecto
 	: AMScanConfiguration(parent)
 {
 	xrfDetectorInfo_ = detectorInfo;
+	setAutoExportEnabled(false);
 }
 
 VESPERSXRFScanConfiguration::VESPERSXRFScanConfiguration(QObject *parent)
 	: AMScanConfiguration(parent)
 {
+	setAutoExportEnabled(false);
 }
 
 VESPERSXRFScanConfiguration::~VESPERSXRFScanConfiguration()

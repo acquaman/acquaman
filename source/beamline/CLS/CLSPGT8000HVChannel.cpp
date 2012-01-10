@@ -68,6 +68,10 @@ double CLSPGT8000HVChannel::voltage() const{
 		return -1;
 }
 
+bool CLSPGT8000HVChannel::isFullyPowered() const{
+	return demand_->withinTolerance(voltage_->value());
+}
+
 QString CLSPGT8000HVChannel::status() const{
 	if(isConnected())
 		return toggle_->enumNameAt(toggle_->value());

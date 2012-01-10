@@ -31,8 +31,11 @@ VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(QObject *parent)
 	ionChamberNames_.insert(Imini, "Imini");
 	ionChamberNames_.insert(Ipost, "Ipost");
 
-	regions_->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
-	regions_->setTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
+	regions_->setSensibleRange(-30, 40);
+	xasRegions()->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
+	xasRegions()->setTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
+	regions_->setDefaultUnits(" eV");
+	regions_->setDefaultTimeUnits(" s");
 	setName("XAS Scan");
 	fluorescenceDetectorChoice_ = None;
 	It_ = Ipost;
@@ -52,8 +55,13 @@ VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(const VESPERSXASScanCon
 	ionChamberNames_.insert(Imini, "Imini");
 	ionChamberNames_.insert(Ipost, "Ipost");
 
-	regions_->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
-	regions_->setTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
+	regions_->setSensibleStart(original.regions()->sensibleStart());
+	regions_->setSensibleEnd(original.regions()->sensibleEnd());
+	xasRegions()->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
+	xasRegions()->setTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
+	regions_->setDefaultUnits(original.regions()->defaultUnits());
+	regions_->setDefaultTimeUnits(original.regions()->defaultTimeUnits());
+
 	for (int i = 0; i < original.regionCount(); i++)
 		regions_->addRegion(i, original.regionStart(i), original.regionDelta(i), original.regionEnd(i), original.regionTime(i));
 
@@ -88,4 +96,14 @@ AMScanConfigurationView *VESPERSXASScanConfiguration::createView()
 QString VESPERSXASScanConfiguration::detailedDescription() const
 {
 	return QString("VESPERS XAS Scan");
+}
+
+QString VESPERSXASScanConfiguration::readRoiList() const
+{
+	QString prettyRois = "Regions of Interest\n";
+
+	for (int i = 0; i < roiInfoList_.count(); i++)
+		prettyRois.append(roiInfoList_.at(i).name() + "\t" + QString::number(roiInfoList_.at(i).low()) + " eV\t" + QString::number(roiInfoList_.at(i).high()) + " eV\n");
+
+	return prettyRois;
 }

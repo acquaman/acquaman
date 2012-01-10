@@ -43,6 +43,8 @@ public:
 	Q_INVOKABLE explicit SGMXASScanConfiguration(QObject *parent=0);
 	SGMXASScanConfiguration(const SGMXASScanConfiguration &original);
 
+	const QMetaObject* getMetaObject();
+
 	AMControlSet *fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet *trackingSet() const { return trackingSet_;}
 
@@ -67,8 +69,8 @@ public:
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
-	/// Returns the AMControlInfo for the energy control.
-	AMControlInfo energyControlInfo() const { return regions_->defaultControl()->toInfo(); }
+	/// Returns the AMControlInfo for the scanned region control.
+	AMControlInfo regionControlInfo() const { return regions_->defaultControl()->toInfo(); }
 	/// Returns the AMControlInfo for the time control.
 	AMControlInfo timeControlInfo() const { return regions_->defaultTimeControl()->toInfo(); }
 

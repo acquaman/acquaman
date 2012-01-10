@@ -29,17 +29,32 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
   This class implements loading of the raw XAS data files that are outputted from the Dacq library.
   The file type is the standard CLS output file.
   */
-class VESPERS2011XASFileLoaderPlugin : public QObject, AMFileLoaderInterface
+class VESPERS2011XASFileLoaderPlugin : public AMFileLoaderInterface
 {
-	Q_OBJECT
-	Q_INTERFACES(AMFileLoaderInterface)
 
 public:
+	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept vespersXAS and vespers2011XAS and vespers2011EXAFS.
+	virtual QStringList acceptedFileFormats() { return (QStringList() << "vespersXAS" << "vespers2011XAS" << "vespers2011EXAFS"); }
 	/// Format tag. a unique string identifying this format.
 	virtual bool accepts(AMScan *scan);
 
 	/// Loads data from \param filepath into the target scan.
 	virtual bool load(AMScan *scan, const QString &userDataFolder);
+};
+
+class VESPERS2011XASFileLoaderFactory : public QObject, AMFileLoaderFactory
+{
+	Q_OBJECT
+	Q_INTERFACES(AMFileLoaderFactory)
+
+public:
+	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept vespersXAS and vespers2011XAS
+	virtual QStringList acceptedFileFormats() { return (QStringList() << "vespersXAS" << "vespers2011XAS" << "vespers2011EXAFS"); }
+	/// This function allows you to do a more detailed check of an AMScan to see whether you can load data for it.
+	virtual bool accepts(AMScan *scan);
+
+	/// This should create an instance of an AMFileLoaderInterface object to do the actual loading.
+	virtual AMFileLoaderInterface* createFileLoader() { return new VESPERS2011XASFileLoaderPlugin(); }
 };
 
 #endif // VESPERS2011XASFILELOADERPLUGIN_H

@@ -23,11 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppController.h"
 
-//class AMSamplePositionView;
-//class AMXASScanConfigurationHolder;
-//class AMFastScanConfigurationHolder;
-//class AMScanConfigurationView;
-
 class REIXSXESScanConfigurationDetailedView;
 class AMScanConfigurationViewHolder;
 
@@ -56,22 +51,12 @@ protected slots:
 	virtual void onCurrentPaneChanged(QWidget* pane);
 
 	void onCurrentScanControllerCreated();
-	void onCurrentScanControllerDestroyed();
-	void onCurrentScanControllerReinitialized(bool removeScan);
-
-
-	/// This is called when the user clicks any of the available "close" buttons in the main window's sidebar. For now, this could involve closing a scan editor window, or deleting an experiment.
-	/*! \todo This was REIMPLEMENTED from AMAppController to check if we're trying to close the current scan editor (ie: the one that holds a scan that is currently acquiring). Find a cleaner system to do this, in general. Build into somewhere else?*/
-	virtual void onWindowPaneCloseButtonClicked(const QModelIndex& index);
+	void onCurrentScanControllerStarted();
 
 protected:
 
 	AMScanConfigurationViewHolder* scanConfigurationHolder_;
 	REIXSXESScanConfigurationDetailedView* xesScanConfigurationView_;
-
-
-	/// The scan editor belonging to the active scan controller. (0 if not initialized)
-	AMGenericScanEditor* scanControllerActiveEditor_;
 
 };
 
