@@ -133,10 +133,17 @@ bool SGMXASDacqScanController::startImplementation(){
 		}
 	}
 	for(int x = 0; x < config_->regionCount(); x++){
-		if(advAcq_->getNumRegions() == x)
+		if(advAcq_->getNumRegions() == x && x == 0)
 			advAcq_->addRegion(x, config_->regionStart(x), config_->regionDelta(x), config_->regionEnd(x), 1);
+		else if (advAcq_->getNumRegions() == x)
+			advAcq_->addRegion(x, config_->regionStart(x)+config_->regionDelta(x), config_->regionDelta(x), config_->regionEnd(x), 1);
 		else{
-			advAcq_->setStart(x, config_->regionStart(x));
+
+			if (x == 0)
+				advAcq_->setStart(x, config_->regionStart(x));
+			else
+				advAcq_->setStart(x, config_->regionStart(x)+config_->regionDelta(x));
+
 			advAcq_->setDelta(x, config_->regionDelta(x));
 			advAcq_->setEnd(x, config_->regionEnd(x));
 		}

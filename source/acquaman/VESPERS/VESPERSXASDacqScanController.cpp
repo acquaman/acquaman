@@ -383,11 +383,17 @@ bool VESPERSXASDacqScanController::startImplementation()
 
 	for (int i = 0; i < config_->regionCount(); i++){
 
-		if (advAcq_->getNumRegions() == i)
+		if (advAcq_->getNumRegions() == i && i == 0)
 			advAcq_->addRegion(i, config_->regionStart(i), config_->regionDelta(i), config_->regionEnd(i), 1);
+		else if (advAcq_->getNumRegions() == i)
+			advAcq_->addRegion(i, config_->regionStart(i)+config_->regionDelta(i), config_->regionDelta(i), config_->regionEnd(i), 1);
 		else {
 
-			advAcq_->setStart(i, config_->regionStart(i));
+			if (i == 0)
+				advAcq_->setStart(i, config_->regionStart(i));
+			else
+				advAcq_->setStart(i, config_->regionStart(i)+config_->regionDelta(i));
+
 			advAcq_->setDelta(i, config_->regionDelta(i));
 			advAcq_->setEnd(i, config_->regionEnd(i));
 		}
