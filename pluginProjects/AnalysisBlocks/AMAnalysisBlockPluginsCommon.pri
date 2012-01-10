@@ -53,7 +53,7 @@ linux-g++-32 {
 linux-g++-64 {
 
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = Sandbox/Acquaman2011/dev
+		DEV_PATH = beamline/programming
 
 		# Where the acquaman source is
 		AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/source

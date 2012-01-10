@@ -35,8 +35,8 @@ CLSPGTDwellTimeCoordinator::CLSPGTDwellTimeCoordinator(const QString &PGTStubNam
 	realTimeControl_ = new AMPVControl("PGTRealTime", PGTStubName+":Preset:Real", "MCA1611-01:Preset:Real", "", this, 0.1);
 	liveTimeControl_ = new AMPVControl("PGTLiveTime", PGTStubName+":Preset:Live", "MCA1611-01:Preset:Live", "", this, 0.1);
 	peakTimeControl_ = new AMPVControl("PGTPeakTime", PGTStubName+":Preset:Peak", "MCA1611-01:Preset:Peak", "", this, 0.1);
-	dwellTimeControl_ = new AMPVControl("PGTDwellTime", beamlineStubName+":addOns:PGTDwellTime", "BL1611-ID-1:addOns:PGTDwellTime", "", this, 0.1);
-	dwellModeControl_ = new AMPVControl("PGTDwellMode", beamlineStubName+":addOns:PGTDwellMode", "BL1611-ID-1:addOns:PGTDwellMode", "", this, 0.1);
+        dwellTimeControl_ = new AMPVControl("PGTDwellTime", beamlineStubName+":AddOns:PGTDwellTime", "BL1611-ID-1:AddOns:PGTDwellTime", "", this, 0.1);
+        dwellModeControl_ = new AMPVControl("PGTDwellMode", beamlineStubName+":AddOns:PGTDwellMode", "BL1611-ID-1:AddOns:PGTDwellMode", "", this, 0.1);
 
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(realTimeControl_);

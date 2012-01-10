@@ -50,6 +50,13 @@ SGM2011XASFileLoader::SGM2011XASFileLoader(AMXASScan *scan) :
 		columns2pvNames_.set("TEY_SCALER", "BL1611-ID-1:mcs00:fbk");
 		columns2pvNames_.set("TFY_SCALER", "BL1611-ID-1:mcs02:fbk");
 		columns2pvNames_.set("EnergyFeedback", "BL1611-ID-1:Energy:fbk");
+		//TOM THIS IS STEP 4.15
+		columns2pvNames_.set("RingCurrent", "PCT1402-01:mA:fbk");
+		
+		columns2pvNames_.set("VFilterDiode", "BL1611-ID-1:mcs06:fbk");
+		columns2pvNames_.set("CrFilterDiode", "BL1611-ID-1:mcs07:fbk");
+		columns2pvNames_.set("TiCFilterDiode", "BL1611-ID-1:mcs08:fbk");
+		columns2pvNames_.set("FeFilterDiode", "BL1611-ID-1:mcs09:fbk");
 
 		columns2pvNames_.set("SDD", "MCA1611-01:GetChannels");
 		columns2pvNames_.set("OceanOptics65000Old", "SA0000-03:Spectra");
@@ -64,6 +71,12 @@ SGM2011XASFileLoader::SGM2011XASFileLoader(AMXASScan *scan) :
 	defaultUserVisibleColumns_ << "I0";
 	defaultUserVisibleColumns_ << "Photodiode";
 	defaultUserVisibleColumns_ << "EnergyFeedback";
+	//TOM THIS IS STEP 4.16
+	defaultUserVisibleColumns_ << "RingCurrent";
+	defaultUserVisibleColumns_ << "VFilterDiode";
+	defaultUserVisibleColumns_ << "CrFilterDiode";
+	defaultUserVisibleColumns_ << "TiCFilterDiode";
+	defaultUserVisibleColumns_ << "FeFilterDiode";
 	defaultUserVisibleColumns_ << "SDD";
 	defaultUserVisibleColumns_ << "OceanOptics65000";
 }
@@ -405,7 +418,7 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 			AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("TFYNorm");
 			tfyChannel->setDescription("Normalized TFY");
 			tfyChannel->setInputDataSources(raw1DDataSources);
-			tfyChannel->setExpression("-TFY/I0");
+			tfyChannel->setExpression("TFY/I0");
 
 			scan->addAnalyzedDataSource(tfyChannel);
 		}

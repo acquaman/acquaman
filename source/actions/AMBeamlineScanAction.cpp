@@ -271,8 +271,11 @@ void AMBeamlineScanAction::onScanSucceeded(){
 	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Completed "+AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())+"]");
 	emit descriptionChanged();
 	setSucceeded(true);
+	qDebug() << "Checking for scan's database";
 	if(ctrl_->scan()->database()){
+		qDebug() << "About to save scan";
 		bool saveSucceeded = ctrl_->scan()->storeToDb(ctrl_->scan()->database());
+		qDebug() << "Just saved scan";
 		if(saveSucceeded && cfg_->autoExportEnabled()){
 			QList<AMScan*> toExport;
 			toExport << ctrl_->scan();

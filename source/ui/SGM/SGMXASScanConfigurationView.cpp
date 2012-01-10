@@ -35,7 +35,8 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 		topFrame_ = new AMTopFrame("Configure an XAS Scan to Run Later");
 		topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
 
-		sxsc->regions()->setEnergyControl(SGMBeamline::sgm()->energy());
+		//This should be done somewhere else
+		//sxsc->regions()->setEnergyControl(SGMBeamline::sgm()->energy());
 
 		regionsLineView_ = new AMRegionsLineView(sxsc->regions(), this);
 		regionsView_ = new AMRegionsView(sxsc->regions(), this);
