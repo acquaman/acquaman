@@ -110,10 +110,15 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 	if(!isScanning.isValid())
 		return;
 
+	// turn off automatic raw-day loading for scans... This will make loading the scan to access it's config much faster.
+	bool scanAutoLoadingOn = AMScan::autoLoadData();
+	AMScan::setAutoLoadData(false);
 	// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
 	AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
 	if(!dbo)
 		return;
+	// restore AMScan's auto-loading of data to whatever it was before.
+	AMScan::setAutoLoadData(scanAutoLoadingOn);
 
 	// Is it a scan?
 	AMScan* scan = qobject_cast<AMScan*>( dbo );
@@ -122,10 +127,26 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 		return;
 	}
 
-	AMScanConfigurationView *view = scan->scanConfiguration()->createView();
-	if (!view)
+	// need to check that this scan actually has a valid config. This hasn't always been guaranteed, especially when scans move between beamlines.
+	AMScanConfiguration* config = scan->scanConfiguration();
+	if(!config) {
+		delete scan;
+		return;
+	}
+	// need to create a copy of the config so we can delete the scan (and hence the config instance owned by the scan). The view will take ownership of the copy.
+	config = config->createCopy();
+	delete scan;
+	if(!config)
 		return;
 
+	AMScanConfigurationView *view = config->createView();
+	if(!view) {
+		delete config;
+		/// \todo Message to user here, with an explanation of why this didn't work?
+		return;
+	}
+
 	AMScanConfigurationViewHolder *viewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, view);
+	viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
 	viewHolder->show();
 }

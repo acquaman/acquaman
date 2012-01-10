@@ -165,6 +165,9 @@ border: none;
      </item>
      <item>
       <widget class="QToolButton" name="scanConfigurationButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="toolTip">
         <string>Show the configuration for the selected scan(s).</string>
        </property>
