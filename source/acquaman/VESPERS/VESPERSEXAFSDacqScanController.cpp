@@ -394,24 +394,35 @@ bool VESPERSEXAFSDacqScanController::startImplementation()
 			if (config_->regionType(i) == AMEXAFSRegion::Energy){
 
 				control = qobject_cast<AMPVwStatusControl *>(config_->regions()->defaultControl());
-				advAcq_->addRegion(i, control->writePVName(), config_->regionStart(i), config_->regionDelta(i), config_->regionEnd(i), 1);
+
+				if (i == 0)
+					advAcq_->addRegion(i, control->writePVName(), config_->regionStart(i), config_->regionDelta(i), config_->regionEnd(i), 1);
+				else
+					advAcq_->addRegion(i, control->writePVName(), config_->regionStart(i)+config_->regionDelta(i), config_->regionDelta(i), config_->regionEnd(i), 1);
 			}
-			else if (advAcq_->getNumRegions() == i && config_->regionType(i) == AMEXAFSRegion::kSpace){
+			else if (config_->regionType(i) == AMEXAFSRegion::kSpace){
 
 				control = qobject_cast<AMPVwStatusControl *>(config_->exafsRegions()->defaultKControl());
-				advAcq_->addRegion(i, control->writePVName(), config_->regionStart(i), config_->regionDelta(i), config_->regionEnd(i), 1);
+
+				if (i == 0)
+					advAcq_->addRegion(i, control->writePVName(), config_->regionStart(i), config_->regionDelta(i), config_->regionEnd(i), 1);
+				else
+					advAcq_->addRegion(i, control->writePVName(), config_->regionStart(i)+config_->regionDelta(i), config_->regionDelta(i), config_->regionEnd(i), 1);
 			}
 		}
 
 		else {
 
-			advAcq_->setStart(i, config_->regionStart(i));
+			if (i == 0)
+				advAcq_->setStart(i, config_->regionStart(i));
+			else
+				advAcq_->setStart(i, config_->regionStart(i)+config_->regionDelta(i));
+
 			advAcq_->setDelta(i, config_->regionDelta(i));
 			advAcq_->setEnd(i, config_->regionEnd(i));
 		}
 	}
 
-	advAcq_->saveConfigFile("/home/hunterd/Desktop/writeTest.cfg");
 	return AMDacqScanController::startImplementation();
 }
 
