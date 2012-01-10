@@ -119,16 +119,19 @@ void AMBeamlineScanAction::start(){
 			return;
 		}
 
-		if( !AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_) ){
+		// bug, fixed Dec. 2011. if( !AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_) )
+			// There are two ways for this function to fail. If setCurrentScanController() fails because the controller's scan is null (ie: not because there is already a valid currentScanController()), then this dialog will be shown when it shouldn't be.  Further, if the user chooses requestFail, then the ctrl_ will be deleted even though it's already been set as the current scan controller... So that when the next scan runs, setCurrentScanController() will crash when trying to delete the last currentScanController (because it's been deleted already, but not through deleteCurrentScanController().
+		if( AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController() ) {
 
 			QMessageBox currentScanControllerChoice;
 			currentScanControllerChoice.setText(QString("Well this is embarressing"));
-			currentScanControllerChoice.setInformativeText(QString("Acquaman thinks you're already running a scan, if you're not press Ok to continue"));
+			currentScanControllerChoice.setInformativeText(QString("Acquaman thinks you're already running a scan. If you're not, press Ok to continue"));
 			currentScanControllerChoice.setIcon(QMessageBox::Question);
 			currentScanControllerChoice.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
 			currentScanControllerChoice.setDefaultButton(QMessageBox::Ok);
 			currentScanControllerChoice.setEscapeButton(QMessageBox::Cancel);
 			bool requestFail = false;
+
 			if(currentScanControllerChoice.exec() == QMessageBox::Ok){
 				AMScanControllerSupervisor::scanControllerSupervisor()->deleteCurrentScanController();
 				if(!AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_))
@@ -142,6 +145,17 @@ void AMBeamlineScanAction::start(){
 								 AMErrorReport::Alert,
 								 AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER,
 								 "Error, could not set current scan controller. Please report this bug to the Acquaman developers."));
+				setFailed(true, AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER);
+				return;
+			}
+		}
+		else {
+			if(!AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_)) {
+				delete ctrl_;
+				AMErrorMon::report(AMErrorReport(this,
+								 AMErrorReport::Alert,
+								 AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER,
+								 "Could not set the current scan controller, because the controller had not created a valid scan. Please report this bug to the Acquaman developers."));
 				setFailed(true, AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER);
 				return;
 			}
@@ -169,7 +183,11 @@ void AMBeamlineScanAction::start(){
 										 AMErrorReport::Alert,
 										 AMBEAMLINEACTIONITEM_CANT_INITIALIZE_CONTROLLER,
 										 "Error, could not initialize scan controller. Please report this bug to the Acquaman developers."));
-		delete ctrl_;
+
+		// Bug, fixed Dec. 2011: delete ctrl_;
+			// [At this point, the AMScanControllerSupervisor::currentScanController() was already set with this controller. Deleting it here but not deleting it through AMScanControllerSupervisor::deleteCurrentScanController() will cause a crash the next time a scan runs and this function calls setCurrentScanController(). That function will attempt to disconnect and delete the already-deleted controller through its non-zero but invalid pointer.]
+		AMScanControllerSupervisor::scanControllerSupervisor()->deleteCurrentScanController();
+
 		setFailed(true, AMBEAMLINEACTIONITEM_CANT_INITIALIZE_CONTROLLER);
 		return;
 	}
@@ -220,7 +238,9 @@ void AMBeamlineScanAction::onScanInitialized(){
 										 AMErrorReport::Alert,
 										 AMBEAMLINEACTIONITEM_CANT_START_CONTROLLER,
 										 "Error, could not start scan controller. Please report this bug to the Acquaman developers."));
-		delete ctrl_;
+		// Bug, fixed Dec. 2011: delete ctrl_;
+			// [At this point, the AMScanControllerSupervisor::currentScanController() was already set with this controller. Deleting it here but not deleting it through AMScanControllerSupervisor::deleteCurrentScanController() will cause a crash the next time a scan runs and this function calls setCurrentScanController(). That function will attempt to disconnect and delete the already-deleted controller through its non-zero but invalid pointer.]
+		AMScanControllerSupervisor::scanControllerSupervisor()->deleteCurrentScanController();
 		setFailed(true, AMBEAMLINEACTIONITEM_CANT_START_CONTROLLER);
 		return;
 	}
@@ -251,8 +271,11 @@ void AMBeamlineScanAction::onScanSucceeded(){
 	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Completed "+AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())+"]");
 	emit descriptionChanged();
 	setSucceeded(true);
+	qDebug() << "Checking for scan's database";
 	if(ctrl_->scan()->database()){
+		qDebug() << "About to save scan";
 		bool saveSucceeded = ctrl_->scan()->storeToDb(ctrl_->scan()->database());
+		qDebug() << "Just saved scan";
 		if(saveSucceeded && cfg_->autoExportEnabled()){
 			QList<AMScan*> toExport;
 			toExport << ctrl_->scan();

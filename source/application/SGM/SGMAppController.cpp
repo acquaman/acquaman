@@ -82,34 +82,44 @@ bool SGMAppController::startup() {
 			// no run yet... let's create one.
 			AMRun firstRun("SGM", 3);	/// \todo For now, we know that 5 is the ID of the REIXS facility, but this is a hardcoded hack.
 			firstRun.storeToDb(AMDatabase::database("user"));
-			AMExporterOptionGeneralAscii *sgmDefault = new AMExporterOptionGeneralAscii();
-			sgmDefault->setName("SGMDefault");
-			sgmDefault->setFileName("$name_$exportIndex.txt");
-			sgmDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription");
-			sgmDefault->setHeaderIncluded(true);
-			sgmDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
-			sgmDefault->setColumnHeaderIncluded(true);
-			sgmDefault->setColumnHeaderDelimiter("==========");
-			sgmDefault->setSectionHeader("");
-			sgmDefault->setSectionHeaderIncluded(true);
-			sgmDefault->setIncludeAllDataSources(false);
-			sgmDefault->addDataSource("EnergyFeedback", false, AMExporterOptionGeneral::CombineInColumnsMode, true);
-			sgmDefault->addDataSource("I0", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
-			sgmDefault->addDataSource("Photodiode", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
-			sgmDefault->addDataSource("TEY", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
-			sgmDefault->addDataSource("TFY", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
-			sgmDefault->addDataSource("TEYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
-			sgmDefault->addDataSource("TFYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
-			sgmDefault->addDataSource("PFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-			sgmDefault->addDataSource("IPFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-			sgmDefault->addDataSource("SDD", false, AMExporterOptionGeneral::SeparateFilesMode, false);
-			sgmDefault->setSeparateSectionFileName("$name_$dataSetName_$exportIndex.txt");
-			sgmDefault->storeToDb(AMDatabase::database("user"));
 		}
 
 		QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "SGMDefault");
-		if(matchIDs.count() > 0)
+
+		AMExporterOptionGeneralAscii *sgmDefault;
+		// Don't have one called "SGMDefault", so make one. If we have one, retreive it and check it.
+		sgmDefault = new AMExporterOptionGeneralAscii();
+		if(matchIDs.count() != 0)
+			sgmDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
+		sgmDefault->setName("SGMDefault");
+		sgmDefault->setFileName("$name_$exportIndex.txt");
+		sgmDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription");
+		sgmDefault->setHeaderIncluded(true);
+		sgmDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
+		sgmDefault->setColumnHeaderIncluded(true);
+		sgmDefault->setColumnHeaderDelimiter("==========");
+		sgmDefault->setSectionHeader("");
+		sgmDefault->setSectionHeaderIncluded(true);
+		sgmDefault->setIncludeAllDataSources(false);
+		sgmDefault->ensureDataSource("EnergyFeedback", false, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmDefault->ensureDataSource("I0", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
+		sgmDefault->ensureDataSource("Photodiode", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
+		sgmDefault->ensureDataSource("TEY", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
+		sgmDefault->ensureDataSource("TFY", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
+		sgmDefault->ensureDataSource("TEYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
+		sgmDefault->ensureDataSource("TFYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
+		sgmDefault->ensureDataSource("PFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmDefault->ensureDataSource("IPFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmDefault->ensureDataSource("SDD", false, AMExporterOptionGeneral::SeparateFilesMode, false);
+		sgmDefault->setSeparateSectionFileName("$name_$dataSetName_$exportIndex.txt");
+		sgmDefault->storeToDb(AMDatabase::database("user"));
+
+		matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "SGMDefault");
+
+		if(matchIDs.count() > 0){
 			AMAppControllerSupport::registerClass<SGMXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
+			AMAppControllerSupport::registerClass<SGMFastScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
+		}
 
 		/* HEY DARREN, THIS IS AN EXAMPLE NOTE FOR YOU
 		if(AMAppControllerSupport::registeredClasses()->contains("SGMXASScanConfiguration")){
@@ -133,7 +143,9 @@ bool SGMAppController::startup() {
 		//////////
 		samplePositionView_ = new AMSampleManagementWidget(new SGMSampleManipulatorView(),
 									QUrl("http://ccd1611-403/axis-cgi/mjpg/video.cgi?resolution=1280x1024&.mjpg"),
-									SGMBeamline::sgm()->currentSamplePlate());
+									"Sample Camera",
+									SGMBeamline::sgm()->currentSamplePlate(),
+									SGMBeamline::sgm()->sampleManipulator());
 		mw_->addPane(samplePositionView_, "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
 		connect(samplePositionView_, SIGNAL(newSamplePlateSelected(AMSamplePlate*)), SGMBeamline::sgm(), SLOT(setCurrentSamplePlate(AMSamplePlate*)));
 
@@ -196,7 +208,8 @@ void SGMAppController::onCurrentPaneChanged(QWidget *pane) {
 void SGMAppController::onSGMBeamlineConnected(){
 	if(SGMBeamline::sgm()->isConnected() && !xasScanConfigurationView_ && !fastScanConfigurationView_){
 		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
-		//sxsc->addRegion(0, 950, 1, 960);
+		sxsc->xasRegions()->setEnergyControl(SGMBeamline::sgm()->energy());
+		sxsc->regions()->setDefaultTimeControl(SGMBeamline::sgm()->scalerIntegrationTime());
 		double goodEnergy = 10 * floor(SGMBeamline::sgm()->energy()->value() / 10);
 		sxsc->addRegion(0, goodEnergy, 1, goodEnergy+10, 1);
 		xasScanConfigurationView_ = new SGMXASScanConfigurationView(sxsc);

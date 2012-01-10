@@ -85,6 +85,7 @@ public:
 	static int endRecord( acqKey_t key, int eventno);
 	static int pvFlags( acqKey_t key, int eventno, int pvno, const char *flags);
 	static int nextOutput( acqKey_t key);
+	static int eventName ( acqKey_t key, int eventno, const char *name);
 
 	// output to the Spectrum Stream
 	int sendSpectrumLine(const char * format, ...);

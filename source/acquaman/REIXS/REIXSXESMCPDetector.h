@@ -177,7 +177,7 @@ public:
 	// Controlling the detector
 	/////////////////////////////
 
-	/// Change the detector's configuration RIGHT NOW, from a saved set (REIXSXESDetectorInfo) of values. Note: the REIXSXESMCPDetectorInfo::size() of \c info is ignored.  Note: this will clear the accumulated image, because setting the orientation always clears the image.
+	/// Change the detector's configuration RIGHT NOW, from a saved set (REIXSXESDetectorInfo) of values. Note: the REIXSXESMCPDetectorInfo::size() of \c info is ignored.  Currently the orientation is ignored as well.
 	bool setFromInfo(const REIXSXESMCPDetectorInfo& info) {
 		bool success = true;
 
@@ -185,7 +185,8 @@ public:
 		setDescription(info.description());
 
 		/// \todo: set HV. (No current way to set it; no PV control)
-		success |= setOrientation(info.orientation());
+
+		// removed for now: success |= setOrientation(info.orientation());
 
 		return success;
 	}

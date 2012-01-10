@@ -70,10 +70,12 @@ bool SGMFastDacqScanController::startImplementation(){
 		homeDir.append("/dev");
 	else if( QDir(homeDir+"/beamline/programming").exists())
 		homeDir.append("/beamline/programming");
-        else if( QDir(homeDir+"/Sandbox/Acquaman2011/dev").exists())
+	/*
+	else if( QDir(homeDir+"/Sandbox/Acquaman2011/dev").exists())
                 homeDir.append("/Sandbox/Acquaman2011/dev");
 	else if( QDir("/home/sgm/Sandbox/Acquaman2011/dev").exists())
 		homeDir = "/home/sgm/Sandbox/Acquaman2011/dev";
+	*/
 
 	for(int x = 0; x < config_->allDetectors()->count(); x++){
 		if(config_->allDetectors()->isDefaultAt(x) && !SGMBeamline::sgm()->detectorValidForCurrentSignalSource(config_->allDetectors()->detectorAt(x)->toInfo())){

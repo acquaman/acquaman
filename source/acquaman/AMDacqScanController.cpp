@@ -76,11 +76,9 @@ bool AMDacqScanController::startImplementation(){
 				return false;
 			}
 			// Ensure that the dacq hasn't misloaded our x-column and set it to "NoRecord = true"
-			if(ev->pvList[0].noRecord == 1){
-				qDebug() << "Caught the dacq trying to screw up";
+			if(ev->pvList[0].noRecord == 1)
 				ev->pvList[0].noRecord = 0;
-			}
-
+			
 			if(useDwellTimes_)
 				connect(dwellTimeTrigger_, SIGNAL(valueChanged(double)), this, SLOT(onDwellTimeTriggerChanged(double)));
 
@@ -96,7 +94,11 @@ bool AMDacqScanController::startImplementation(){
 
 			scan_->setFilePath(fullPath.filePath()+".dat");	// relative path and extension (is what the database wants)
 			if(usingSpectraDotDatFile_){
+				// qDebug() << "dacq scan controller: setting additional file paths: " << (QStringList() << fullPath.filePath()+"_spectra.dat");
 				scan_->setAdditionalFilePaths( QStringList() << fullPath.filePath()+"_spectra.dat" );
+			}
+			else {
+				// qDebug() << "dacq scan controller: not using spectraDotDat file.";
 			}
 
 			((AMAcqScanSpectrumOutput*)abop)->setScan(scan_);

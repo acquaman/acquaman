@@ -49,7 +49,7 @@ public slots:
 	void setDoubleValue(double d);
 	void setDoubleMaximum(double d);
 	void setDoubleMinimum(double d);
-	void setDoubleDecimals(double d);
+	void setDoubleDecimals(int d);
 	void setLabelText(const QString& s);
 	void setSuffix(const QString& s);
 
@@ -112,7 +112,7 @@ public slots:
 	void setDoubleValue(double d);
 	void setDoubleMaximum(double d);
 	void setDoubleMinimum(double d);
-	void setDoubleDecimals(double d);
+	void setDoubleDecimals(int d);
 	void setLabelText(const QString& s);
 	void setEnumNames(const QStringList &sl);
 	void setSuffix(const QString& s);
@@ -229,25 +229,5 @@ protected:
 	bool programaticToggle_;
 };
 
-
-/*
-// Starts the first action in the actionsList as long as it isn't already finished (that would put us in a problematic state)
-class AMBeamlineActionButton : public QToolButton
-{
-Q_OBJECT
-public:
-	AMBeamlineActionButton(AMBeamlineActionItem* (SGMBeamline::*creationFunction)(), QWidget *parent = 0);
-
-public slots:
-	void overrideText(const QString& text);
-
-protected slots:
-	void onClicked();
-
-protected:
-	AMBeamlineActionItem* (SGMBeamline::*creationFunction_)();
-	AMBeamlineActionItem *action_;
-};
-*/
 
 #endif // AM_CONTROLEDITOR_H

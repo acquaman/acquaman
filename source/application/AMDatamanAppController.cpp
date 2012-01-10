@@ -97,7 +97,7 @@ bool AMDatamanAppController::startup() {
 	if(!startupLoadSettings()) { qWarning() << "Problem with Acquaman startup: loading settings."; return false; }
 	if(!startupLoadPlugins()) { qWarning() << "Problem with Acquaman startup: loading plugins."; return false; }
 
-	if(isFirstTimeRun_ = startupIsFirstTime()) {
+	if((isFirstTimeRun_ = startupIsFirstTime())) {
 		if(!startupOnFirstTime()) { qWarning() << "Problem with Acquaman startup: handling first-time user."; return false; }
 	}
 	else {
@@ -159,7 +159,7 @@ bool AMDatamanAppController::startupIsFirstTime()
 		}
 
 		// check for existence of database:
-		QString filename = AMUserSettings::userDataFolder + AMUserSettings::userDatabaseFilename;
+		QString filename = AMUserSettings::userDataFolder + "/" + AMUserSettings::userDatabaseFilename;
 		QFile dbFile(filename);
 		if(!dbFile.exists()) {
 			isFirstTime = true;
@@ -198,7 +198,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 
 	// create database connection (and actual database): the "user" database:
 	//////////////////////
-	AMDatabase* db = AMDatabase::createDatabase("user", AMUserSettings::userDataFolder + AMUserSettings::userDatabaseFilename);
+	AMDatabase* db = AMDatabase::createDatabase("user", AMUserSettings::userDataFolder + "/" + AMUserSettings::userDatabaseFilename);
 	if(!db)
 		return false;
 
@@ -208,7 +208,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 bool AMDatamanAppController::startupOnEveryTime()
 {
 	// create the "user" database connection.
-	AMDatabase* db = AMDatabase::createDatabase("user", AMUserSettings::userDataFolder + AMUserSettings::userDatabaseFilename);
+	AMDatabase* db = AMDatabase::createDatabase("user", AMUserSettings::userDataFolder + "/" + AMUserSettings::userDatabaseFilename);
 	if(!db)
 		return false;
 
@@ -256,7 +256,6 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
 	AMDbObjectSupport::s()->registerClass<AMControlInfo>();
 	AMDbObjectSupport::s()->registerClass<AMControlInfoList>();
-	AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
 	AMDbObjectSupport::s()->registerClass<AMDetectorInfoSet>();
 	AMDbObjectSupport::s()->registerClass<AMSamplePosition>();
 	AMDbObjectSupport::s()->registerClass<AMSamplePlate>();
@@ -358,6 +357,7 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	connect(dataView_, SIGNAL(selectionActivated(QList<QUrl>)), this, SLOT(onDataViewItemsActivated(QList<QUrl>)));
 	connect(dataView_, SIGNAL(selectionActivatedSeparateWindows(QList<QUrl>)), this, SLOT(onDataViewItemsActivatedSeparateWindows(QList<QUrl>)));
 	connect(dataView_, SIGNAL(selectionExported(QList<QUrl>)), this, SLOT(onDataViewItemsExported(QList<QUrl>)));
+	connect(dataView_, SIGNAL(launchScanConfigurationsFromDb(QList<QUrl>)), this, SLOT(onLaunchScanConfigurationsFromDb(QList<QUrl>)));
 
 	// When 'alias' links are clicked in the main window sidebar, we might need to notify some widgets of the details
 	connect(mw_, SIGNAL(aliasItemActivated(QWidget*,QString,QVariant)), this, SLOT(onMainWindowAliasItemActivated(QWidget*,QString,QVariant)));
@@ -498,6 +498,83 @@ void AMDatamanAppController::onDataViewItemsActivated(const QList<QUrl>& itemUrl
 void AMDatamanAppController::onDataViewItemsActivatedSeparateWindows(const QList<QUrl> &itemUrls)
 {
 	dropScanURLs(itemUrls, 0, true);
+}
+
+void AMDatamanAppController::onLaunchScanConfigurationsFromDb(const QList<QUrl> &urls)
+{
+	if (urls.isEmpty())
+		return;
+
+	for (int i = 0; i < urls.size(); i++)
+		launchScanConfigurationFromDb(urls.at(i));
+}
+
+#include "ui/acquaman/AMScanConfigurationView.h"
+
+void AMDatamanAppController::launchScanConfigurationFromDb(const QUrl &url)
+{
+	// scheme correct?
+	if (url.scheme() != "amd")
+		return;
+
+	// Scan configurations only come from the user databases currently.
+	AMDatabase *db = AMDatabase::database("user");
+	if (!db)
+		return;
+
+	QStringList path = url.path().split('/', QString::SkipEmptyParts);
+	if(path.count() != 2)
+		return;
+
+	QString tableName = path.at(0);
+	bool idOkay;
+	int id = path.at(1).toInt(&idOkay);
+	if(!idOkay || id < 1)
+		return;
+
+	// Only open scans for now (ie: things in the scans table)
+	if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
+		return;
+
+	// turn off automatic raw-day loading for scans... This will make loading the scan to access it's config much faster.
+	bool scanAutoLoadingOn = AMScan::autoLoadData();
+	AMScan::setAutoLoadData(false);
+	// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
+	AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
+	if(!dbo)
+		return;
+	// restore AMScan's auto-loading of data to whatever it was before.
+	AMScan::setAutoLoadData(scanAutoLoadingOn);
+
+	// Is it a scan?
+	AMScan* scan = qobject_cast<AMScan*>( dbo );
+	if(!scan) {
+		delete dbo;
+		return;
+	}
+
+	// Does the scan have a configuration?
+	AMScanConfiguration* config = scan->scanConfiguration();
+	if(!config) {
+		delete scan;
+		return;
+	}
+	// need to create a copy of the config so we can delete the scan (and hence the config instance owned by the scan). The view will take ownership of the copy.
+	config = config->createCopy();
+	delete scan;
+	if(!config)
+		return;
+
+	AMScanConfigurationView *view = config->createView();
+	if(!view) {
+		delete config;
+		/// \todo Error message here? Explain to user why it's not working?
+		return;
+	}
+
+	view->setEnabled(false);
+	view->setAttribute(Qt::WA_DeleteOnClose, true);
+	view->show();
 }
 
 #include "dataman/AMRunExperimentItems.h"

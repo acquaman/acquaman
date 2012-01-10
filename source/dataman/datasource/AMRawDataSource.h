@@ -52,6 +52,9 @@ public:
 	/// Both AMDbObject() and AMDataSource() have a name(). Here we un-ambiguate those two.
 	QString name() const { return AMDataSource::name(); }
 
+	/// Sets the description because currently we call AMDataSource::setDescription which doesn't take care of setting setModified.  This adds that.
+	void setDescription(const QString &description) { AMDataSource::setDescription(description); setModified(true); }
+
 	/// Provided to reconnect this source to a valid \c dataStore, after using the second constructor. The current measurementId() must be a valid id within the new \c dataStore, and the scan and measurement dimensions of the new datastore must match our old ones. (This is a requirement of AMDataSources never changing rank.). Returns false if the new \c dataStore cannot work, and this source is going to remain Invalid.
 	bool setDataStore(const AMDataStore* dataStore);
 

@@ -41,9 +41,6 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	AMTopFrame *frame = new AMTopFrame("VESPERS XAS Configuration");
 
 	// Regions setup
-	config_->regions()->setSensibleRange(-30, 40);
-	config_->regions()->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
-
 	regionsView_ = new AMRegionsView(config_->regions());
 	regionsLineView_ = new AMRegionsLineView(config_->regions());
 

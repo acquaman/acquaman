@@ -6,7 +6,6 @@ FORMS +=
 
 HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/beamline/VESPERS/VESPERSBeamline.h \
-	source/ui/AMShutterButton.h \
 	source/ui/VESPERS/VESPERSMotorView.h \
 	source/dataman/VESPERS/XRFDetectorInfo.h \
 	source/beamline/VESPERS/XRFDetector.h \
@@ -22,11 +21,9 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/ui/VESPERS/VESPERSXRFElementView.h \
 	source/util/VESPERS/XRFPeriodicTable.h \
 	source/ui/VESPERS/XRFPeriodicTableView.h \
-	source/beamline/VESPERS/AMValveControl.h \
 	source/util/VESPERS/ROIHelper.h \
 	source/ui/VESPERS/VESPERSCustomizeRegionsOfInterest.h \
 	source/beamline/VESPERS/VESPERSSampleStageControl.h \
-	source/beamline/VESPERS/VESPERSValveGroupControl.h \
 	source/beamline/VESPERS/VESPERSPIDLoopControl.h \
 	source/ui/VESPERS/VESPERSPIDLoopControlView.h \
 	source/ui/VESPERS/VESPERSMapSetupView.h \
@@ -48,12 +45,14 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/ui/VESPERS/VESPERSExperimentConfigurationView.h \
 	source/ui/util/AMPeriodicTableDialog.h \
 	source/beamline/VESPERS/VESPERSExperimentConfiguration.h \
-	source/util/VESPERS/VESPERSMapSetup.h
+	source/util/VESPERS/VESPERSMapSetup.h \
+	source/acquaman/VESPERS/VESPERSEXAFSScanConfiguration.h \
+	source/acquaman/VESPERS/VESPERSEXAFSDacqScanController.h \
+	source/ui/VESPERS/VESPERSEXAFSScanConfigurationView.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
 	source/beamline/VESPERS/VESPERSBeamline.cpp \
-	source/ui/AMShutterButton.cpp \
 	source/ui/VESPERS/VESPERSMotorView.cpp \
 	source/dataman/VESPERS/XRFDetectorInfo.cpp \
 	source/beamline/VESPERS/XRFDetector.cpp \
@@ -69,11 +68,9 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/ui/VESPERS/VESPERSXRFElementView.cpp \
 	source/util/VESPERS/XRFPeriodicTable.cpp \
 	source/ui/VESPERS/XRFPeriodicTableView.cpp \
-	source/beamline/VESPERS/AMValveControl.cpp \
 	source/util/VESPERS/ROIHelper.cpp \
 	source/ui/VESPERS/VESPERSCustomizeRegionsOfInterest.cpp \
 	source/beamline/VESPERS/VESPERSSampleStageControl.cpp \
-	source/beamline/VESPERS/VESPERSValveGroupControl.cpp \
 	source/beamline/VESPERS/VESPERSPIDLoopControl.cpp \
 	source/ui/VESPERS/VESPERSPIDLoopControlView.cpp \
 	source/ui/VESPERS/VESPERSMapSetupView.cpp \
@@ -95,26 +92,10 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/ui/VESPERS/VESPERSExperimentConfigurationView.cpp \
 	source/ui/util/AMPeriodicTableDialog.cpp \
 	source/beamline/VESPERS/VESPERSExperimentConfiguration.cpp \
-	source/util/VESPERS/VESPERSMapSetup.cpp
+	source/util/VESPERS/VESPERSMapSetup.cpp \
+	source/acquaman/VESPERS/VESPERSEXAFSScanConfiguration.cpp \
+	source/acquaman/VESPERS/VESPERSEXAFSDacqScanController.cpp \
+	source/ui/VESPERS/VESPERSEXAFSScanConfigurationView.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -18,16 +18,28 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMSampleManipulatorView.h"
+#ifndef REIXSSAMPLECHAMBERBUTTONPANEL_H
+#define REIXSSAMPLECHAMBERBUTTONPANEL_H
 
-AMSampleManipulatorView::AMSampleManipulatorView(QString title, AMControlSet *manipulator, QWidget *parent) :
-	QGroupBox(title, parent)
+#include <QWidget>
+
+namespace Ui {
+    class REIXSSampleChamberButtonPanel;
+}
+
+class REIXSSampleChamberButtonPanel : public QWidget
 {
-	manipulator_ = manipulator;
-}
+    Q_OBJECT
 
-AMControlSet* AMSampleManipulatorView::manipulator(){
-	return manipulator_;
-}
+public:
+    explicit REIXSSampleChamberButtonPanel(QWidget *parent = 0);
+    ~REIXSSampleChamberButtonPanel();
 
+protected slots:
+	void onStopButtonClicked();
 
+private:
+    Ui::REIXSSampleChamberButtonPanel *ui;
+};
+
+#endif // REIXSSAMPLECHAMBERBUTTONPANEL_H

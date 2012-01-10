@@ -18,32 +18,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AMSAMPLEMANIPULATORVIEW_H
-#define AMSAMPLEMANIPULATORVIEW_H
+#include "CLSMDriveMotorControl.h"
 
-#include <QGroupBox>
-#include <QGridLayout>
-#include <QPushButton>
-#include <QIcon>
-#include "beamline/AMControlSet.h"
-#include "ui/beamline/AMControlEditor.h"
+#include <QStringBuilder>
 
-class AMSampleManipulatorView : public QGroupBox
-{
-Q_OBJECT
-public:
-	explicit AMSampleManipulatorView(QString title = "Manipulator", AMControlSet *manipulator = 0, QWidget *parent = 0);
+CLSMDriveMotorControl::CLSMDriveMotorControl(const QString &name, const QString &baseName, const QString& units, double unitsPerRev, double offset, int microsteps, const QString &description, double tolerance, double moveStartTimeoutSeconds, QObject *parent)
+	: AMPVwStatusAndUnitConversionControl(name, baseName % ":enc:fbk", baseName % ":step", baseName % ":status", baseName % ":stop", new AMScaleAndOffsetUnitConverter(units, unitsPerRev/4000.0, offset), new AMScaleAndOffsetUnitConverter(units, unitsPerRev/(200.0*microsteps), offset), parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerDefault(1), 1, description) {
 
-	AMControlSet *manipulator();
-
-signals:
-
-public slots:
-
-protected:
-	AMControlSet *manipulator_;
-};
-
-
-
-#endif // AMSAMPLEMANIPULATORVIEW_H
+}

@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QComboBox>
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
-#include "ui/AMShutterButton.h"
+#include "ui/CLS/CLSStopLightButton.h"
 
 class VESPERSPersistentView : public QWidget
 {
@@ -58,6 +58,8 @@ protected slots:
 	void onPSH2Clicked();
 	/// Handles the logic for opening SSH1.
 	void onSSH1Clicked();
+	/// Handles the logic for opening SSH2.
+	void onSSH2Clicked();
 	/// Handles updates from the lower shutter filter push button.
 	void toggleShutterState();
 	/// Handles the state change from the shutter.  Changes the label to the either a red or green light.  Green means open.
@@ -108,8 +110,6 @@ protected:
 	/// Spin box handling the Z slit gap.
 	QDoubleSpinBox *zSlit_;
 
-	/// The valve control.
-	VESPERSValveGroupControl *valves_;
 	/// The temperature control.
 	AMControlSet *temperature_;
 	/// The pressure control.
@@ -119,10 +119,10 @@ protected:
 	/// The flow transducers.
 	AMControlSet *flowTransducers_;
 	/// The photon and safety shutters.
-	AMShutterButton *psh1_;
-	AMShutterButton *psh2_;
-	AMShutterButton *ssh1_;
-	AMShutterButton *ssh2_;
+	CLSStopLightButton *psh1_;
+	CLSStopLightButton *psh2_;
+	CLSStopLightButton *ssh1_;
+	CLSStopLightButton *ssh2_;
 
 	/// Pointer to the slits.
 	VESPERSIntermediateSlits *slits_;

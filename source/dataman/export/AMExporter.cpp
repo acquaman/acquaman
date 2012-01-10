@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFile>
 #include <QDir>
 #include <QStringBuilder>
+#include <QMessageBox>
 
 #include "util/AMTagReplacementParser.h"
 #include "dataman/AMScan.h"
@@ -31,6 +32,7 @@ AMExporter::AMExporter(QObject *parent) : QObject(parent) {
 	currentDataSourceIndex_ = 0;
 
 	autoIndex_ = 0;
+	overwriteAll_ = Default;
 
 	keywordParser_ = new AMTagReplacementParser();
 
@@ -56,8 +58,28 @@ bool AMExporter::openFile(const QString &filePath)
 }
 
 bool AMExporter::openFile(QFile* file, const QString& filePath) {
-	if(QFile::exists(filePath))
+
+	bool fileExists = QFile::exists(filePath);
+
+	if (fileExists && overwriteAll_ == None)
 		return false;
+
+	else if (fileExists && overwriteAll_ == Default){
+
+		QMessageBox::StandardButton button = QMessageBox::question(0, "Overwrite file?",
+																   QString("%1 already exists.  Do you want to overwrite this file?").arg(filePath.split("/").last()),
+																   QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll | QMessageBox::NoToAll,
+																   QMessageBox::Yes);
+
+
+		if (button == QMessageBox::YesToAll)
+			overwriteAll_ = All;
+		else if (button == QMessageBox::NoToAll)
+			overwriteAll_ = None;
+
+		if (button == QMessageBox::No || button == QMessageBox::NoToAll)
+			return false;
+	}
 
 	QFileInfo fileInfo(filePath);
 	if(!QDir::current().mkpath(fileInfo.path()))
@@ -555,32 +577,55 @@ QString AMExporter::krFileSystemAutoIncrement(const QString &arg)
 	if (!currentScan_->scanConfiguration())
 		return "[??]";
 
-	QString newName = currentlyParsing_;
-	newName = newName.mid(newName.lastIndexOf("/")+1);
+	if (currentScan_->indexType() != "fileSystem")
+		return "[??]";
 
-	for (int i = 0; i < keywordParser_->replacementList().size(); i++)
-		if (keywordParser_->replacementList().at(i).tag != "fsIndex")
-			newName.replace(keywordParser_->replacementList().at(i).tag, keywordParser_->replacementList().at(i).replacement);
+	// The default number for a scan is 0.  If it is still 0 then the scan has not yet been indexed.  If this value is non-zero (number > 0) then the scan has already
+	// been assigned which likely means that the current file is an associated separate file (ie: data file with a spectra file accompanying it).
+	// The other benefit for doing it this way is that now the exported file will have the same number as the name on the scan editor.
+	if (currentScan_->number() == 0){
 
-	newName.replace("$fsIndex", "*");
+		// This will not be necessary once the general AMScanDictionary is implemented.
+		AMScan *scan = const_cast<AMScan *>(currentScan_);
 
-	for (int i = 0; i < newName.count("$"); i++)
-		newName.replace("$", "");
+		QString newName = currentlyParsing_;
+		newName = newName.mid(newName.lastIndexOf("/")+1);
 
-	QString finalTest = newName;
+		for (int i = 0; i < keywordParser_->replacementList().size(); i++)
+			if (keywordParser_->replacementList().at(i).tag != "fsIndex")
+				newName.replace(keywordParser_->replacementList().at(i).tag, keywordParser_->replacementList().at(i).replacement);
 
-	// The following line of code is the correct code, but using a different path for testing.
-	QDir dir(destinationFolderPath_);
-	//QDir dir("/Users/darrenhunter/dev/export test");
-	dir.setNameFilters(QStringList() << newName);
-	newName.replace("*", "[\\d{0,4}]\\");
-	QStringList filtered = dir.entryList().filter(QRegExp(newName));
+		newName.replace("$fsIndex", "*");
 
-	int incr = 0;
-	dir.setNameFilters(QStringList() << QString(finalTest).replace("*", QString::number(filtered.size())));
+		for (int i = 0; i < newName.count("$"); i++)
+			newName.replace("$", "");
 
-	while (!dir.entryList().isEmpty())
-		dir.setNameFilters(QStringList() << QString(finalTest).replace("*", QString::number(filtered.size()+(++incr))));
+		QString finalTest = newName;
 
-	return QString::number(filtered.size()+incr);
+		// The following line of code is the correct code, but using a different path for testing.
+		QDir dir(destinationFolderPath_);
+		//QDir dir("/Users/darrenhunter/dev/export test");
+		dir.setNameFilters(QStringList() << newName);
+		newName.replace("*", "[\\d{0,4}]\\");
+		QStringList filtered = dir.entryList().filter(QRegExp(newName));
+
+		int incr = 0;
+		dir.setNameFilters(QStringList() << QString(finalTest).replace("*", QString::number(filtered.size())));
+
+		while (!dir.entryList().isEmpty())
+			dir.setNameFilters(QStringList() << QString(finalTest).replace("*", QString::number(filtered.size()+(++incr))));
+
+		// I want the auto-index to start from 1.
+		if (filtered.size()+incr == 0)
+			scan->setNumber(1);
+		else
+			scan->setNumber(filtered.size()+incr);
+
+		if(scan->database())
+			scan->storeToDb(scan->database());
+		else
+			scan->storeToDb(AMDatabase::database("user"));
+	}
+
+	return QString::number(currentScan_->number());
 }

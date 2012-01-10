@@ -38,6 +38,15 @@ class AMExporter : public QObject
 {
 	Q_OBJECT
 public:
+	/// Enum flag for determining the overwrite options for the exporter.
+	/*!
+		All will overwrite all files that have matching file names.
+		None will overwrite none of the files that have matching file names.
+		Default will ask whether the file should be overwritten for every file that matches.
+	  */
+	enum OverwriteOption { All, None, Default };
+
+	/// Constructor.
 	explicit AMExporter(QObject *parent = 0);
 	virtual ~AMExporter();
 
@@ -66,6 +75,11 @@ For example: AMExporterGeneralAscii::exporterOptionClassName() would probably re
 
 	/// create an "exporter option" (an instance of an AMExporterOption subclass) that is a valid default for this type of exporter
 	virtual AMExporterOption* createDefaultOption() const = 0;
+
+	/// Returns whether the exporter will overwrite all files with matching filenames.
+	OverwriteOption overwriteOption() const { return overwriteAll_; }
+	/// Sets whether the exporter will overwrite all files with matching filenames.
+	void setOverwriteOption(OverwriteOption overwrite) { overwriteAll_ = overwrite; }
 
 signals:
 
@@ -128,6 +142,9 @@ protected:
 
 	/// Helper member for Darren... bit hackish.
 	QString currentlyParsing_;
+
+	/// Flag used if a scan should overwrite all pre-existing files with the same name.
+	OverwriteOption overwriteAll_;
 
 	///////////////////////////////
 	// functions to implement the keyword replacement system

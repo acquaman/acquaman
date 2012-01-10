@@ -56,6 +56,8 @@ AMDataSourcesEditor::AMDataSourcesEditor(AMScanSetModel* model, QWidget *parent)
 	connect(ui_.addDataSourceButton, SIGNAL(clicked()), this, SLOT(onAddDataSourceButtonClicked()));
 
 	editingNewDataSourceName_ =  false;
+
+	connect(ui_.descriptionEdit, SIGNAL(editingFinished()), this, SLOT(descriptionEditingFinished()));
 }
 
 void AMDataSourcesEditor::setCurrentScan(AMScan *scan) {
@@ -247,11 +249,15 @@ void AMDataSourcesEditor::onNewDataSourceNamed() {
 void AMDataSourcesEditor::descriptionEditingFinished() {
 	int si = currentScanIndex();
 	int di = currentDataSourceIndex();
+	int rawCount = model_->scanAt(si)->rawDataSourceCount();
 
 	if(si <0 || di <0 || di>=model_->scanAt(si)->dataSourceCount())
 		return;
 
-	model_->dataSourceAt(si, di)->setDescription(ui_.descriptionEdit->text());
+	if (di < rawCount)
+		model_->scanAt(si)->rawDataSources()->at(di)->setDescription(ui_.descriptionEdit->text());
+	else
+		model_->scanAt(si)->analyzedDataSources()->at(di-rawCount)->setDescription(ui_.descriptionEdit->text());
 }
 
 

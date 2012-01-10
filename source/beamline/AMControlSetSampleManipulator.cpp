@@ -18,14 +18,25 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMValveControl.h"
+#include "AMControlSetSampleManipulator.h"
 
-AMValveControl::AMValveControl(QString name, QString readPV, QString openPV, QString closePV, QObject *parent)
-	: QObject(parent)
+#include "beamline/AMControlSet.h"
+
+AMControlSetSampleManipulator::AMControlSetSampleManipulator(AMControlSet* controlSet)
 {
-	name_ = name;
-	readPV_ = new AMProcessVariable(readPV, true, this);
-	openPV_ = new AMProcessVariable(openPV, false, this);
-	closePV_ = new AMProcessVariable(closePV, false, this);
-	connect(readPV_, SIGNAL(valueChanged(int)), this, SIGNAL(stateChanged(int)));
+	controlSet_ = controlSet;
+}
+
+AMControlInfoList AMControlSetSampleManipulator::position() const
+{
+	return controlSet_->toInfoList();
+}
+
+bool AMControlSetSampleManipulator::moveToPosition(const AMControlInfoList &newPosition)
+{
+	if(!controlSet_->isConnected())
+		return false;
+
+	controlSet_->setFromInfoList(newPosition);
+	return true;
 }

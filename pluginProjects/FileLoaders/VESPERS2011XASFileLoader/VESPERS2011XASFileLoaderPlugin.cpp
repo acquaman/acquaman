@@ -12,7 +12,7 @@
 
 bool VESPERS2011XASFileLoaderPlugin::accepts(AMScan *scan)
 {
-	if (scan->fileFormat() == "vespersXAS" || scan->fileFormat() == "vespers2011XAS")
+	if (scan->fileFormat() == "vespersXAS" || scan->fileFormat() == "vespers2011XAS" || scan->fileFormat() == "vespers2011EXAFS")
 		return true;
 
 	return false;
@@ -62,9 +62,17 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 
 		data.resize(2048);
 
-		QString temp(sourceFileInfo.filePath());
-		temp.chop(4);
-		spectra.setFileName(temp+"_spectra.dat");
+		foreach(QString afp, scan->additionalFilePaths())
+			if(afp.contains("_spectra.dat"))
+				spectra.setFileName(afp);
+
+		if(spectra.fileName() == ""){
+
+			// Needed until the non-trivial database upgrade happens so I can set all the additional filepaths.
+			QString temp(sourceFileInfo.filePath());
+			temp.chop(4);
+			spectra.setFileName(temp+"_spectra.dat");
+		}
 
 		if(!spectra.open(QIODevice::ReadOnly)) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, QString("XASFileLoader parse error while loading scan spectra data from %1.").arg(spectra.fileName())));
@@ -79,9 +87,17 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 		raw3.resize(2048);
 		raw4.resize(2048);
 
-		QString temp(sourceFileInfo.filePath());
-		temp.chop(4);
-		spectra.setFileName(temp+"_spectra.dat");
+		foreach(QString afp, scan->additionalFilePaths())
+			if(afp.contains("_spectra.dat"))
+				spectra.setFileName(afp);
+
+		if(spectra.fileName() == ""){
+
+			// Needed until the non-trivial database upgrade happens so I can set all the additional filepaths.
+			QString temp(sourceFileInfo.filePath());
+			temp.chop(4);
+			spectra.setFileName(temp+"_spectra.dat");
+		}
 
 		if(!spectra.open(QIODevice::ReadOnly)) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, QString("XASFileLoader parse error while loading scan spectra data from %1.").arg(spectra.fileName())));
@@ -219,7 +235,7 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 
 bool VESPERS2011XASFileLoaderFactory::accepts(AMScan *scan)
 {
-	return (scan->fileFormat() == "vespersXAS" || scan->fileFormat() == "vespers2011XAS");
+	return (scan->fileFormat() == "vespersXAS" || scan->fileFormat() == "vespers2011XAS" || scan->fileFormat() == "vespers2011EXAFS");
 }
 
 Q_EXPORT_PLUGIN2(VESPERS2011XASFileLoaderFactory, VESPERS2011XASFileLoaderFactory)

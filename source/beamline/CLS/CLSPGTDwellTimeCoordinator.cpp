@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "CLSPGTDwellTimeCoordinator.h"
 
 CLSPGTDwellTimeCoordinator::CLSPGTDwellTimeCoordinator(const QString &PGTStubName, const QString &beamlineStubName, QObject *parent) :
@@ -15,8 +35,8 @@ CLSPGTDwellTimeCoordinator::CLSPGTDwellTimeCoordinator(const QString &PGTStubNam
 	realTimeControl_ = new AMPVControl("PGTRealTime", PGTStubName+":Preset:Real", "MCA1611-01:Preset:Real", "", this, 0.1);
 	liveTimeControl_ = new AMPVControl("PGTLiveTime", PGTStubName+":Preset:Live", "MCA1611-01:Preset:Live", "", this, 0.1);
 	peakTimeControl_ = new AMPVControl("PGTPeakTime", PGTStubName+":Preset:Peak", "MCA1611-01:Preset:Peak", "", this, 0.1);
-	dwellTimeControl_ = new AMPVControl("PGTDwellTime", beamlineStubName+":addOns:PGTDwellTime", "BL1611-ID-1:addOns:PGTDwellTime", "", this, 0.1);
-	dwellModeControl_ = new AMPVControl("PGTDwellMode", beamlineStubName+":addOns:PGTDwellMode", "BL1611-ID-1:addOns:PGTDwellMode", "", this, 0.1);
+        dwellTimeControl_ = new AMPVControl("PGTDwellTime", beamlineStubName+":AddOns:PGTDwellTime", "BL1611-ID-1:AddOns:PGTDwellTime", "", this, 0.1);
+        dwellModeControl_ = new AMPVControl("PGTDwellMode", beamlineStubName+":AddOns:PGTDwellMode", "BL1611-ID-1:AddOns:PGTDwellMode", "", this, 0.1);
 
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(realTimeControl_);

@@ -35,7 +35,7 @@ VESPERSDeviceStatusView::VESPERSDeviceStatusView(QWidget *parent) :
 
 	VESPERSDiagnosticsView *temperature = new VESPERSDiagnosticsView(VESPERSBeamline::vespers()->temperatureSet(), 1, true);
 	VESPERSDiagnosticsView *pressure = new VESPERSDiagnosticsView(VESPERSBeamline::vespers()->pressureSet(), 1, true);
-	VESPERSDiagnosticsView *valves = new VESPERSDiagnosticsView(VESPERSBeamline::vespers()->valveSet(), 1, false);
+	VESPERSDiagnosticsView *valves = new VESPERSDiagnosticsView(VESPERSBeamline::vespers()->valveSet(), 2, false);
 	VESPERSDiagnosticsView *ionPumps = new VESPERSDiagnosticsView(VESPERSBeamline::vespers()->ionPumpSet(), 2, false);
 	VESPERSDiagnosticsView *flowSwitch = new VESPERSDiagnosticsView(VESPERSBeamline::vespers()->flowSwitchSet(), 2, false);
 	VESPERSDiagnosticsView *flowTransducer = new VESPERSDiagnosticsView(VESPERSBeamline::vespers()->flowTransducerSet(), 2, true);
@@ -64,36 +64,42 @@ VESPERSDeviceStatusView::VESPERSDeviceStatusView(QWidget *parent) :
 	temp->setCheckable(true);
 	temp->setChecked(true);
 	temp->setText("Temperature");
+	temp->setPalette(QPalette(Qt::red));
 	device_->addButton(temp, 0);
 	buttons->addWidget(temp);
 
 	temp = new QToolButton;
 	temp->setCheckable(true);
 	temp->setText("Pressure");
+	temp->setPalette(QPalette(Qt::red));
 	device_->addButton(temp, 1);
 	buttons->addWidget(temp);
 
 	temp = new QToolButton;
 	temp->setCheckable(true);
 	temp->setText("Valves");
+	temp->setPalette(QPalette(Qt::red));
 	device_->addButton(temp, 2);
 	buttons->addWidget(temp);
 
 	temp = new QToolButton;
 	temp->setCheckable(true);
 	temp->setText("Ion Pumps");
+	temp->setPalette(QPalette(Qt::red));
 	device_->addButton(temp, 3);
 	buttons->addWidget(temp);
 
 	temp = new QToolButton;
 	temp->setCheckable(true);
 	temp->setText("Flow Switches");
+	temp->setPalette(QPalette(Qt::red));
 	device_->addButton(temp, 4);
 	buttons->addWidget(temp);
 
 	temp = new QToolButton;
 	temp->setCheckable(true);
 	temp->setText("Flow Transducers");
+	temp->setPalette(QPalette(Qt::red));
 	device_->addButton(temp, 5);
 	buttons->addWidget(temp);
 

@@ -28,6 +28,8 @@ AMRegionsList::AMRegionsList(QObject *parent, bool setup)
 {
 	defaultControl_ = NULL;
 	regions_ = NULL;
+	defaultUnits_ = "";
+	defaultTimeUnits_ = "";
 
 	// Setting the sensible start and end values to the SGM values to preserve existing code.
 	sensibleStart_ = 200;
@@ -42,8 +44,12 @@ double AMRegionsList::start(int index) const
 {
 	QVariant retVal = regions_->data(regions_->index(index, 1), Qt::DisplayRole);
 
-	if(retVal.isValid())
-		return retVal.toDouble();
+	if(retVal.isValid()){
+
+		QString val = retVal.toString();
+		val.chop(units(index).size());
+		return val.toDouble();
+	}
 
 	return -1;
 }
@@ -53,8 +59,12 @@ double AMRegionsList::delta(int index) const
 {
 	QVariant retVal = regions_->data(regions_->index(index, 2), Qt::DisplayRole);
 
-	if(retVal.isValid())
-		return retVal.toDouble();
+	if(retVal.isValid()){
+
+		QString val = retVal.toString();
+		val.chop(units(index).size());
+		return val.toDouble();
+	}
 
 	return 0;
 }
@@ -64,8 +74,12 @@ double AMRegionsList::end(int index) const
 {
 	QVariant retVal = regions_->data(regions_->index(index, 3), Qt::DisplayRole);
 
-	if(retVal.isValid())
-		return retVal.toDouble();
+	if(retVal.isValid()){
+
+		QString val = retVal.toString();
+		val.chop(units(index).size());
+		return val.toDouble();
+	}
 
 	return -1;
 }
@@ -94,10 +108,29 @@ double AMRegionsList::time(int index) const
 {
 	QVariant retVal = regions_->data(regions_->index(index, 7), Qt::DisplayRole);
 
-	if(retVal.isValid())
-		return retVal.toDouble();
+	if(retVal.isValid()){
 
+		QString val = retVal.toString();
+		val.chop(timeUnits(index).size());
+		return val.toDouble();
+	}
 	return -1;
+}
+
+QString AMRegionsList::units(int index) const
+{
+	if (index < regions_->regions()->size())
+		return regions_->regions()->at(index)->units();
+
+	return QString();
+}
+
+QString AMRegionsList::timeUnits(int index) const
+{
+	if (index < regions_->regions()->size())
+		return regions_->regions()->at(index)->timeUnits();
+
+	return QString();
 }
 
 bool AMRegionsList::isValid() const
@@ -119,7 +152,7 @@ bool AMRegionsList::addRegion(int index, double start, double delta, double end,
 	if(!regions_->insertRows(index, 1))
 		return false;
 
-	retVal = setStart(index, start) && setDelta(index, delta) && setEnd(index, end) && setTime(index, time);
+	retVal = setStart(index, start) && setDelta(index, delta) && setEnd(index, end) && setTime(index, time) && setUnits(index, defaultUnits_) && setTimeUnits(index, defaultTimeUnits_);
 
 	if(retVal){
 
@@ -330,4 +363,97 @@ bool AMEXAFSRegionsList::setupModel()
 	}
 
 	return false;
+}
+
+AMEXAFSRegion::RegionType AMEXAFSRegionsList::type(int index) const
+{
+	return exafsRegion(index)->type();
+}
+
+double AMEXAFSRegionsList::edgeEnergy(int index) const
+{
+	QVariant retVal = regions_->data(regions_->index(index, 9), Qt::DisplayRole);
+
+	if(retVal.isValid()){
+
+		QString val = retVal.toString();
+		val.chop(units(index).size());
+		return val.toDouble();
+	}
+
+	return -1;
+}
+
+bool AMEXAFSRegionsList::addRegionSqueeze(int index){
+
+	double nextStart, nextEnd, prevStart, prevEnd;
+	double sensibleStart = sensibleStart_;
+	double sensibleEnd = sensibleEnd_;
+
+	if(count() == 0)
+		return addRegion(index, sensibleStart, 1, sensibleEnd);
+
+	else if(index == 0){
+
+		nextStart = startByType(index, AMEXAFSRegion::Energy);
+
+		if (sensibleStart == nextStart)
+			return addRegion(index, sensibleStart - 10, 1, nextStart);
+		else if (nextStart < sensibleStart)
+			return addRegion(index, nextStart - 10, 1, nextStart);
+		else
+			return addRegion(index, sensibleStart, 1, nextStart);
+	}
+
+	else if(index == count() && type(index-1) == AMEXAFSRegion::Energy){
+
+		prevEnd = endByType(index-1, AMEXAFSRegion::Energy);
+
+		if (sensibleEnd == prevEnd)
+			return addRegion(index, prevEnd, 1, sensibleEnd + 10);
+		else if (prevEnd > sensibleEnd)
+			return addRegion(index, prevEnd, 1, prevEnd + 10);
+		else
+			return addRegion(index, prevEnd, 1, sensibleEnd);
+	}
+
+	else if(index == count() && type(index-1) == AMEXAFSRegion::kSpace){
+
+		prevEnd = endByType(index-1, AMEXAFSRegion::kSpace);
+
+		// Sensible end for EXAFS is 10k.
+		if (prevEnd == 10)
+			return addRegion(index, prevEnd, 1, 15);
+		else if (prevEnd > 10)
+			return addRegion(index, prevEnd, 1, prevEnd + 5);
+		else
+			return addRegion(index, prevEnd, 1, 10);
+	}
+
+	else{
+
+		prevStart = startByType(index-1, AMEXAFSRegion::Energy);
+		prevEnd = endByType(index-1, AMEXAFSRegion::Energy);
+		nextStart = startByType(index, AMEXAFSRegion::Energy);
+		nextEnd = endByType(index, AMEXAFSRegion::Energy);
+		return addRegion(index, prevStart+(prevEnd-prevStart)/2, 1, nextStart+(nextEnd-nextStart)/2 );
+	}
+}
+
+bool AMEXAFSRegionsList::deleteRegionSqueeze(int index){
+
+	bool retVal = deleteRegion(index);
+
+	if(retVal){
+
+		if( (index != 0) && (index != count()) ){
+
+			double prevEnd, nextStart;
+			prevEnd = endByType(index-1, AMEXAFSRegion::Energy);
+			nextStart = startByType(index, AMEXAFSRegion::Energy);
+			setEnd(index-1, prevEnd+(nextStart-prevEnd)/2);
+		}
+	}
+
+	return retVal;
 }

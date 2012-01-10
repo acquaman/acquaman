@@ -26,54 +26,49 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMTopFrame.h"
 
-AMSampleManagementWidget::AMSampleManagementWidget(AMSampleManipulatorView *manipulatorView, const QUrl& sampleCameraUrl, AMSamplePlate* samplePlate, QWidget *parent) :
+#include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
+
+AMSampleManagementWidget::AMSampleManagementWidget(QWidget *manipulatorWidget, const QUrl& sampleCameraUrl, const QString& sampleCameraDescription, AMSamplePlate* samplePlate, AMSampleManipulator* manipulator, QWidget *parent) :
 	QWidget(parent)
 {
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+	cameraWidget_ = new AMBeamlineCameraWidgetWithSourceTabs(sampleCameraUrl, sampleCameraDescription);
+	cameraWidget_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+#else
 	Q_UNUSED(sampleCameraUrl);
-	// cam_ = new AMBeamlineCameraWidget("Sample Camera", sampleCameraUrl);
-	// cam_->addSource("Camera 2", source2);
+	Q_UNUSED(sampleCameraDescription);
+#endif
 
 	topFrame_ = new AMTopFrame("Sample Management & Positioning");
 	topFrame_->setIcon(QIcon(":/system-software-update.png"));
 
 	plateView_ = new AMSamplePlateView(samplePlate);
-	plateView_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+	plateView_->setManipulator(manipulator);
 
-	/* PREVIOUSLY on the OC:
-	if(!manipulatorView)
-		manipulatorView_ = new AMSampleManipulatorView();
-	else
-		manipulatorView_ = manipulatorView;
-	if(manipulatorView_->manipulator()){
-		manipulator_ = manipulatorView_->manipulator();
-		plateView_->setManipulator(manipulator_);
-	}*/
-
-	// Now assuming that all passed-in objects must be valid: (made it not an option to default to 0)
-	manipulatorView_ = manipulatorView;
-	// Access the sample manipulator through the manipulatorView, and set the plateView_'s manipulator to use the same.
-	plateView_->setManipulator(manipulatorView_->manipulator());
-
-	manipulatorView_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	manipulatorWidget_ = manipulatorWidget;
 
 	connect(plateView_, SIGNAL(newSamplePlateSelected()), this, SLOT(onNewSamplePlateSelected()));
 
-	gl_ = new QGridLayout();
-	//gl_->addWidget(cam_, 0, 0, 3, 1, Qt::AlignLeft);
-	gl_->addWidget(plateView_, 0, 1, 5, 1, Qt::AlignLeft);
-	gl_->addWidget(manipulatorView_, 3, 0, 2, 1, Qt::AlignLeft);
-
 	QVBoxLayout *vl = new QVBoxLayout();
+	QGridLayout* gl = new QGridLayout();
 	vl->addWidget(topFrame_);
-	vl->addLayout(gl_);
+	vl->addLayout(gl);
+
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+	gl->addWidget(cameraWidget_, 0, 0, 1, 1);
+#endif
+	gl->addWidget(plateView_, 0, 1, 2, 1);
+	gl->addWidget(manipulatorWidget_, 1, 0, 1, 1);
+	gl->setColumnStretch(0,1);
+	gl->setColumnStretch(1,0);
+
 	vl->setContentsMargins(0,0,0,0);
-	vl->setSpacing(1);
-	gl_->setContentsMargins(10, 0, 10, 0);
+	gl->setContentsMargins(10, 0, 10, 0);
 
 	setLayout(vl);
 }
 
 void AMSampleManagementWidget::onNewSamplePlateSelected() {
-	qDebug() << "I heard that the current sample plate changed";
+	// qDebug() << "I heard that the current sample plate changed";
 	emit newSamplePlateSelected(plateView_->samplePlate());
 }

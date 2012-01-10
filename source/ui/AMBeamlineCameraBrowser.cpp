@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMBeamlineCameraBrowser.h"
 
 #include <QComboBox>
-#include <QCheckBox>
 #include <QBoxLayout>
 #include <QFrame>
 #include <QLabel>
@@ -30,39 +29,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 
 #include "ui/AMCrosshairOverlayVideoWidget.h"
-#include "ui/dataman/AMColorPickerButton.h"
 
 AMBeamlineCameraBrowser::AMBeamlineCameraBrowser(QWidget *parent, bool useOpenGlViewport) :
-	QWidget(parent)
+	AMBeamlineCameraWidget(parent, useOpenGlViewport)
 {
-	crosshairLocked_ = false;
-
 	setWindowTitle("Video");
 
 	// GUI setup:
 	//////////////////////////
-	QVBoxLayout* vl = new QVBoxLayout();
-	vl->setSpacing(0);
-	vl->setContentsMargins(0,0,0,0);
-
-	QFrame* crosshairFrame = new QFrame();
-	QHBoxLayout* chl = new QHBoxLayout();
-	chl->setContentsMargins(12,4,12,4);
-	chl->addWidget(showCrosshairCheckBox_ = new QCheckBox("Crosshair:"));
-	chl->addSpacing(20);
-	chl->addWidget(new QLabel("Color:"));
-	chl->addWidget(crosshairColorPicker_ = new AMColorPickerButton(Qt::red));
-	chl->addWidget(new QLabel("Line:"));
-	chl->addWidget(crosshairThicknessSlider_ = new QSlider(Qt::Horizontal));
-	crosshairThicknessSlider_->setMaximumWidth(80);
-	crosshairThicknessSlider_->setRange(1,6);
-	crosshairThicknessSlider_->setValue(1);
-	chl->addSpacing(20);
-	chl->addWidget(lockCrosshairCheckBox_ = new QCheckBox("Lock position"));
-	chl->addStretch();
-	crosshairFrame->setLayout(chl);
-	showCrosshairCheckBox_->setChecked(true);
-
 
 	QFrame* sourceFrame = new QFrame();
 	QHBoxLayout* shl = new QHBoxLayout();
@@ -72,10 +46,7 @@ AMBeamlineCameraBrowser::AMBeamlineCameraBrowser(QWidget *parent, bool useOpenGl
 	sourceComboBox_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	sourceFrame->setLayout(shl);
 
-	vl->addWidget(crosshairFrame);
-	vl->addWidget(videoWidget_ = new AMCrosshairOverlayVideoWidget(0, useOpenGlViewport));
-	vl->addWidget(sourceFrame, 0);
-	setLayout(vl);
+	qobject_cast<QVBoxLayout*>(layout())->addWidget(sourceFrame, 0);
 
 	// configure source combo box
 	///////////////////////////
@@ -83,26 +54,13 @@ AMBeamlineCameraBrowser::AMBeamlineCameraBrowser(QWidget *parent, bool useOpenGl
 	sourceComboBox_->setInsertPolicy(QComboBox::InsertAtTop);
 	sourceComboBox_->setMaxCount(20);
 
-
 	// Make conections:
 	//////////////////////////
-
-	connect(videoWidget_, SIGNAL(mouseDoubleClicked(QPointF)), this, SLOT(onVideoWidgetDoubleClicked(QPointF)));
-
-	connect(crosshairColorPicker_, SIGNAL(colorChanged(QColor)), this, SLOT(setCrosshairColor(QColor)));
-	connect(showCrosshairCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setCrosshairVisible(bool)));
-	connect(lockCrosshairCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setCrosshairLocked(bool)));
-
 	connect(sourceComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSourceComboBoxChanged(int)));
-
 	connect(videoWidget_->mediaPlayer(), SIGNAL(error(QMediaPlayer::Error)), this, SLOT(onMediaPlayerError()));
-	connect(crosshairThicknessSlider_, SIGNAL(valueChanged(int)), this, SLOT(setCrosshairLineThickness(int)));
-
 }
 
 
-
-#include <QDebug>
 void AMBeamlineCameraBrowser::onSourceComboBoxChanged(int index)
 {
 	if(index < 0) {
@@ -118,9 +76,8 @@ void AMBeamlineCameraBrowser::onSourceComboBoxChanged(int index)
 			if(url.toString() != stringUrl)
 				sourceComboBox_->setItemText(index, url.toString());
 			setWindowTitle(url.toString());
-			videoWidget_->mediaPlayer()->setMedia(url);
-			qDebug() << "AMBeamlineCameraBrowser: Loading and playing" << url.toString();
-			videoWidget_->mediaPlayer()->play();
+			// start and play it:
+			playSource(url);
 		}
 		else {
 			QMessageBox::warning(this, "Invalid camera source address", "Sorry! That doesn't look like a valid URL for a camera or media source:\n\n" % stringUrl);
@@ -156,66 +113,6 @@ void AMBeamlineCameraBrowser::setPreviousSourceURLs(const QStringList &sourceURL
 	}
 }
 
-void AMBeamlineCameraBrowser::setCrosshairColor(const QColor &color)
-{
-	QPen pen = videoWidget_->crosshairPen();
-	pen.setColor(color);
-	videoWidget_->setCrosshairPen(pen);
-
-	if(crosshairColorPicker_->color() != color) {
-		crosshairColorPicker_->blockSignals(true);
-		crosshairColorPicker_->setColor(color);
-		crosshairColorPicker_->blockSignals(false);
-	}
-}
-
-void AMBeamlineCameraBrowser::setCrosshairVisible(bool isVisible)
-{
-	videoWidget_->setCrosshairVisible(isVisible);
-
-	if(showCrosshairCheckBox_->isChecked() != isVisible) {
-		showCrosshairCheckBox_->blockSignals(true);
-		showCrosshairCheckBox_->setChecked(isVisible);
-		showCrosshairCheckBox_->blockSignals(false);
-	}
-}
-void AMBeamlineCameraBrowser::setCrosshairLocked(bool doLock)
-{
-	crosshairLocked_ = doLock;
-
-	if(lockCrosshairCheckBox_->isChecked() != doLock) {
-		lockCrosshairCheckBox_->blockSignals(true);
-		lockCrosshairCheckBox_->setChecked(doLock);
-		lockCrosshairCheckBox_->blockSignals(false);
-	}
-}
-
-void AMBeamlineCameraBrowser::onVideoWidgetDoubleClicked(const QPointF &clickPoint)
-{
-	if(!crosshairLocked_)
-		videoWidget_->setCrosshairPosition(clickPoint);
-}
-
-QColor AMBeamlineCameraBrowser::crosshairColor() const
-{
-	return videoWidget_->crosshairPen().color();
-}
-
-bool AMBeamlineCameraBrowser::crosshairVisible() const
-{
-	return videoWidget_->crosshairVisible();
-}
-
-QPointF AMBeamlineCameraBrowser::crosshairPosition() const
-{
-	return videoWidget_->crosshairPosition();
-}
-
-void AMBeamlineCameraBrowser::setCrosshairPosition(const QPointF &pos) const
-{
-	videoWidget_->setCrosshairPosition(pos);
-}
-
 QString AMBeamlineCameraBrowser::currentSourceURL() const
 {
 	return sourceComboBox_->currentText();
@@ -238,26 +135,9 @@ void AMBeamlineCameraBrowser::setCurrentSourceURL(const QString &sourceURL)
 
 void AMBeamlineCameraBrowser::onMediaPlayerError()
 {
-	QMessageBox::warning(this, "AcquaCam Error", "Sorry! There was an error trying to open that media URL.");
+	QMessageBox::warning(this, "AcquaCam Error", "Sorry! There was an error trying to open that media URL:\n\n   " + videoWidget_->mediaPlayer()->errorString());
 	sourceComboBox_->removeItem(sourceComboBox_->currentIndex());
 }
 
-void AMBeamlineCameraBrowser::setCrosshairLineThickness(int thickness)
-{
-	QPen pen = videoWidget_->crosshairPen();
-	pen.setWidth(thickness);
-	videoWidget_->setCrosshairPen(pen);
-
-	if(crosshairThicknessSlider_->value() != thickness) {
-		crosshairThicknessSlider_->blockSignals(true);
-		crosshairThicknessSlider_->setValue(thickness);
-		crosshairThicknessSlider_->blockSignals(false);
-	}
-}
-
-int AMBeamlineCameraBrowser::crosshairLineThickness() const
-{
-	return videoWidget_->crosshairPen().width();
-}
 
 

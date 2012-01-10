@@ -28,8 +28,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSet>
 #include <QMutexLocker>
 #include <QApplication>
+#include <QSqlDriver>
 
-#include <QDebug>
+
 
 // Internal instance records:
 QHash<QString, AMDatabase*> AMDatabase::connectionName2Instance_;
@@ -631,4 +632,41 @@ QSqlDatabase AMDatabase::qdb() const
 		threadIDsOfOpenConnections_ << threadId;
 		return db;
 	}
+}
+
+bool AMDatabase::startTransaction()
+{
+	QMutexLocker ml(&qdbMutex_);
+	bool success = qdb().transaction();
+	if(success)
+		transactionOpenOnThread_.insert(QThread::currentThreadId());
+	return success;
+}
+
+bool AMDatabase::commitTransaction()
+{
+	QMutexLocker ml(&qdbMutex_);
+	bool success = qdb().commit();
+	transactionOpenOnThread_.remove(QThread::currentThreadId());
+	return success;
+}
+
+bool AMDatabase::rollbackTransaction()
+{
+	QMutexLocker ml(&qdbMutex_);
+	bool success = qdb().rollback();
+	transactionOpenOnThread_.remove(QThread::currentThreadId());
+	return success;
+}
+
+bool AMDatabase::transactionInProgress() const
+{
+	QMutexLocker ml(&qdbMutex_);
+	return transactionOpenOnThread_.contains(QThread::currentThreadId());
+}
+
+
+bool AMDatabase::supportsTransactions() const
+{
+	return qdb().driver()->hasFeature(QSqlDriver::Transactions);
 }

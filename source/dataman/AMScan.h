@@ -54,6 +54,7 @@ class AMScan : public AMDbObject {
 	Q_PROPERTY(QString unEvaluatedName READ unEvaluatedName WRITE setUnEvaluatedName)
 	Q_PROPERTY(int number READ number WRITE setNumber NOTIFY numberChanged)
 	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime NOTIFY dateTimeChanged)
+	Q_PROPERTY(QDateTime endDateTime READ endDateTime WRITE setEndDateTime NOTIFY endDateTimeChanged)
 	Q_PROPERTY(int runId READ runId WRITE setRunId)
 	Q_PROPERTY(int sampleId READ sampleId WRITE setSampleId NOTIFY sampleIdChanged)
 	Q_PROPERTY(QString notes READ notes WRITE setNotes)
@@ -66,6 +67,7 @@ class AMScan : public AMDbObject {
 	Q_PROPERTY(QString analyzedDataSourcesConnections READ dbReadAnalyzedDataSourcesConnections WRITE dbLoadAnalyzedDataSourcesConnections)
 	Q_PROPERTY(AMDbObject* scanConfiguration READ dbGetScanConfiguration WRITE dbLoadScanConfiguration)
 	Q_PROPERTY(bool currentlyScanning READ currentlyScanning WRITE dbLoadCurrentlyScanning NOTIFY currentlyScanningChanged)
+	Q_PROPERTY(QString indexType READ indexType WRITE setIndexType)
 
 	Q_CLASSINFO("dateTime", "createIndex=true")
 	Q_CLASSINFO("sampleId", "createIndex=true")
@@ -77,6 +79,7 @@ class AMScan : public AMDbObject {
 	Q_CLASSINFO("analyzedDataSourcesConnections", "hidden=true")
 	Q_CLASSINFO("scanConfiguration", "hidden=true")
 	Q_CLASSINFO("unEvaluatedName", "upgradeDefault=<none>")
+	Q_CLASSINFO("indexType", "upgradeDefault=<none>")
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Scan")
 
@@ -101,6 +104,11 @@ public:
 	int number() const { return number_;}
 	/// Returns creation time / scan start time
 	QDateTime dateTime() const {return dateTime_;}
+	/// Returns scan end time.
+	QDateTime endDateTime() const { return endDateTime_; }
+
+	/// Returns the elapsed time of the scan in seconds if a valid scan end time exists.  Returns -1 otherwise.
+	double elapsedTime() const;
 	/// Returns the id of the run containing this scan, or (-1) if not associated with a run.
 	int runId() const { return runId_; }
 	/// Returns id of the scan's sample (or -1 if a sample has not been assigned)
@@ -114,6 +122,9 @@ public:
 	QString filePath() const { return filePath_; }
 	/// Any additional files of raw data that need to be referenced
 	QStringList additionalFilePaths() const { return additionalFilePaths_; }
+
+	/// Returns the indexation type that this scan will follow.
+	QString indexType() const { return indexType_; }
 
 	// Convenience functions on meta-data:
 	/////////////////////////
@@ -139,7 +150,7 @@ public:
 	int rawDataSourceCount() const { return rawDataSources_.count(); }
 	// AMRawDataSourceSet* rawDataSources() { return &rawDataSources_; }
 	/// Publicly expose part of the rawData(), by adding a new AMRawDataSource to the scan. The new data source \c newRawDataSource should be valid, initialized and connected to the data store already.  The scan takes ownership of \c newRawDataSource.  This function returns false if raw data source already exists with the same name as the \c newRawDataSource.
-	bool addRawDataSource(AMRawDataSource* newRawDataSource) { if(newRawDataSource) return rawDataSources_.append(newRawDataSource, newRawDataSource->name()); return false; }
+	bool addRawDataSource(AMRawDataSource* newRawDataSource);
 	/// This overloaded function calls addRawDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
 	bool addRawDataSource(AMRawDataSource* newRawDataSource, bool visibleInPlots, bool hiddenFromUsers);
 	/// Delete and remove an existing raw data source.  \c id is the idnex of the source in rawDataSources().
@@ -150,7 +161,7 @@ public:
 	int analyzedDataSourceCount() const { return analyzedDataSources_.count(); }
 	// AMAnalyzedDataSourceSet* analyzedDataSources() { return &analyzedDataSources_; }
 	/// Add an new analysis block to the scan.  The scan takes ownership of the \c newAnalysisBlock and exposes it as one of the analyzed data sources.
-	bool addAnalyzedDataSource(AMAnalysisBlock* newAnalyzedDataSource) { if(newAnalyzedDataSource) return analyzedDataSources_.append(newAnalyzedDataSource, newAnalyzedDataSource->name()); return false; }
+	bool addAnalyzedDataSource(AMAnalysisBlock* newAnalyzedDataSource);
 	/// This overloaded function calls addAnalyzedDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
 	bool addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource, bool visibleInPlots, bool hiddenFromUsers);
 	/// Delete and remove an existing analysis block. \c id is the index of the source in analyzedDataSources().
@@ -323,10 +334,14 @@ public slots:
 	void setNumber(int number);
 	/// set the date/time:
 	void setDateTime(const QDateTime& dt);
+	/// Set the scan end time.
+	void setEndDateTime(const QDateTime &endTime);
 	/// associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
 	void setRunId(int newRunId);
 	/// Sets the sample associated with this scan.
 	void setSampleId(int newSampleId);
+	/// Sets the indexation type.
+	void setIndexType(const QString &newType) { indexType_ = newType; setModified(true); }
 
 	/// Sets notes for scan
 	void setNotes(const QString &notes) { notes_ = notes; setModified(true); }
@@ -343,6 +358,7 @@ signals:
 	// Meta-data changed signals:
 	/////////////////
 	void dateTimeChanged(const QDateTime& newDateTime);
+	void endDateTimeChanged(const QDateTime &);
 	void sampleIdChanged(int sampleId);
 	void numberChanged(int number);
 	void currentlyScanningChanged(bool currentlyScanning);
@@ -377,6 +393,8 @@ protected slots:
 	void onDataSourceAboutToBeRemoved(int index);
 	/// Receives itemRemoved() signals from rawDataSources_ and analyzedDataSources_, and emits dataSourceRemoved.
 	void onDataSourceRemoved(int index);
+	/// Receives modified() signals from the rawDataSources_ and analyszedDataSources_ and calls setModified for the scan.
+	void onDataSourceModified() { setModified(true); }
 
 protected:
 
@@ -388,6 +406,8 @@ protected:
 	int number_;
 	/// Scan start time
 	QDateTime dateTime_;
+	/// Scan end time.
+	QDateTime endDateTime_;
 	/// database id of the run and sample that this scan is associated with
 	int runId_, sampleId_;
 	/// notes for this sample. Can be plain or rich text, as long as you want it...
@@ -396,6 +416,8 @@ protected:
 	QString filePath_, fileFormat_;
 	/// Any additional files of raw data that need to be referenced.
 	QStringList additionalFilePaths_;
+	/// String holding what type of indexation the scan index can take.  This is a first attempt at actually using the scan index.  Currently, the only index type is fileSystem.
+	QString indexType_;
 
 	AMScanDictionary *nameDictionary_;
 	AMScanDictionary *exportNameDictionary_;

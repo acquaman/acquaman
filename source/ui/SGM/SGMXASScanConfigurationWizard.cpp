@@ -30,10 +30,10 @@ SGMXASScanConfigurationWizard::SGMXASScanConfigurationWizard(SGMXASScanConfigura
 
 		introPage = new SGMXASScanConfigurationIntroWizardPage("Welcome to SGM's XAS Scan Wizard",
 															   "This wizard will guide you through all of the steps required to configure an XAS on the SGM Beamline.");
-		regionsPage = new AMXASRegionsWizardPage(cfg_->regions(),
+		regionsPage = new AMXASRegionsWizardPage(cfg_->xasRegions(),
 												 "Configure Your Scan's Energy Regions",
 												 "Using the table provided, enter as many regions as you require.");
-		fluxResolutionPage = new SGMFluxResolutionWizardPage((AMControlOptimizationSet*)(cfg_->fluxResolutionSet()), cfg_->regions(),
+		fluxResolutionPage = new SGMFluxResolutionWizardPage((AMControlOptimizationSet*)(cfg_->fluxResolutionSet()), cfg_->xasRegions(),
 															 "Pick the Desired Flux or Resolution for Your Scan",
 															 "Based on the regions you've entered, the sliders below offer the optimum settings for flux and resolution. "
 															 "If you choose a flux setting, the best possible resolution will be chosen and vice versa. "

@@ -69,7 +69,7 @@ void AMBeamlineHighVoltageChannelToggleAction::start(){
 		connect(&progressTimer_, SIGNAL(timeout()), this, SLOT(calculateProgress()));
 		progressTimer_.start(250);
 		if(setpoint_ == AMHighVoltageChannel::isPowerOn){
-			if(highVoltageChannel_->isOn()){
+			if(highVoltageChannel_->isFullyPowered()){
 				qDebug() << "Already on, no worries";
 				onStarted();
 				onSucceeded();
