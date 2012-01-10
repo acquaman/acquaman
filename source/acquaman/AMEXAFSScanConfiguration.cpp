@@ -26,28 +26,58 @@ AMEXAFSScanConfiguration::AMEXAFSScanConfiguration(const AMEXAFSScanConfiguratio
 	}
 }
 
+double AMEXAFSScanConfiguration::startValue() const
+{
+	if(regions_->count() > 0)
+		return regionStartByType(0, AMEXAFSRegion::Energy);
+	return -1;
+}
+
+double AMEXAFSScanConfiguration::endValue() const
+{
+	if(regions_->count() > 0)
+		return regionEndByType(regions_->count()-1, AMEXAFSRegion::Energy);
+	return -1;
+}
+
+bool AMEXAFSScanConfiguration::setStartValue(double startValue)
+{
+	if(regions_->count() > 0)
+		return setRegionStartByType(0, startValue, AMEXAFSRegion::Energy);
+	return false;
+}
+
+bool AMEXAFSScanConfiguration::setEndValue(double endValue)
+{
+	if(regions_->count() > 0)
+		return setRegionEndByType(regions_->count()-1, endValue, AMEXAFSRegion::Energy);
+	return false;
+}
+
 QString AMEXAFSScanConfiguration::dbReadRegions() const{
 
 	QStringList rv;
 
 	// Stores the following information from the region in the following order:
 	/*
-	  1) Type (either Energy space or kSpace)
-	  2) Edge energy (in the units given by region units)
-	  3) Region starting point in energy space.
-	  4) Region delta between points.
-	  5) Region ending point in energy space.
-	  6) Whether the region uses elastic starting points.
-	  7) Whether the region uses elastic ending points.
-	  8) The time spent on each point in the region.
-	  9) The units for the scanned element of the region.  This is the units of energy space even if the region is itself in kSpace.
-	  10) The units of time spent on each point.
+	 1) Type (either Energy space or kSpace)
+	 2) Edge energy (in the units given by region units)
+	 3) Whether the energy is relative or absolute (true = relative, false = absolute).
+	 4) Region starting point in energy space.
+	 5) Region delta between points.
+	 6) Region ending point in energy space.
+	 7) Whether the region uses elastic starting points.
+	 8) Whether the region uses elastic ending points.
+	 9) The time spent on each point in the region.
+	 10) The units for the scanned element of the region.  This is the units of energy space even if the region is itself in kSpace.
+	 11) The units of time spent on each point.
 	  */
 	for(int x = 0; x < regions_->count(); x++){
 
-		rv << QString("exafsVersion1.0,%1,%2,%3,%4,%5,%6,%7,%8,%9,%10")
+		rv << QString("exafsVersion1.0,%1,%2,%3,%4,%5,%6,%7,%8,%9,%10,%11")
 			  .arg(regionType(x) == AMEXAFSRegion::Energy ? "Energy" : "kSpace")
 			  .arg(exafsRegions()->defaultEdgeEnergy())
+			  .arg(exafsRegions()->defaultIsRelative() == true ? 1 : 0)
 			  .arg(regionStartByType(x, AMEXAFSRegion::Energy))
 			  .arg(regionDelta(x))
 			  .arg(regionEndByType(x, AMEXAFSRegion::Energy))
@@ -94,16 +124,20 @@ void AMEXAFSScanConfiguration::dbLoadRegions(const QString &exafsRegionsString){
 
 		else if (oneRegion.at(0) == "exafsVersion1.0"){
 
-			addRegionSuccess = addRegion(x, oneRegion.at(3).toDouble(), oneRegion.at(4).toDouble(), oneRegion.at(5).toDouble(), oneRegion.at(8).toDouble());
+			addRegionSuccess = addRegion(x, oneRegion.at(4).toDouble(), oneRegion.at(5).toDouble(), oneRegion.at(6).toDouble(), oneRegion.at(9).toDouble());
 			addRegionSuccess &= setRegionType(x, oneRegion.at(1) == "Energy" ? AMEXAFSRegion::Energy : AMEXAFSRegion::kSpace);
+			addRegionSuccess &= setRegionIsRelative(x, oneRegion.at(3).toInt() == 1 ? true : false);
 			addRegionSuccess &= setRegionEdgeEnergy(x, oneRegion.at(2).toDouble());
-			addRegionSuccess &= setRegionElasticStart(x, oneRegion.at(6).toInt() == 1 ? true : false);
-			addRegionSuccess &= setRegionElasticEnd(x, oneRegion.at(7).toInt() == 1 ? true : false);
-			addRegionSuccess &= setRegionUnits(x, oneRegion.at(9));
-			addRegionSuccess &= setRegionTimeUnits(x, oneRegion.at(10));
+			addRegionSuccess &= setRegionElasticStart(x, oneRegion.at(7).toInt() == 1 ? true : false);
+			addRegionSuccess &= setRegionElasticEnd(x, oneRegion.at(8).toInt() == 1 ? true : false);
+			addRegionSuccess &= setRegionUnits(x, oneRegion.at(10));
+			addRegionSuccess &= setRegionTimeUnits(x, oneRegion.at(11));
 
-			if (x == 0)
+			if (x == 0){
+
 				exafsRegions()->setDefaultEdgeEnergy(regionEdgeEnergy(x));
+				exafsRegions()->setDefaultIsRelative(regionIsRelative(x));
+			}
 		}
 
 		if (!addRegionSuccess)

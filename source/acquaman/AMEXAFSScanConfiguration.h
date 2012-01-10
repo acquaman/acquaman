@@ -31,12 +31,19 @@ public:
 	AMEXAFSRegion::RegionType regionType(int index) const { return exafsRegions()->type(index); }
 	/// Returns the edge energy for the region referred to by \param index.
 	double regionEdgeEnergy(int index) const { return exafsRegions()->edgeEnergy(index); }
+	/// Returns whether the region referred to by \param index uses an absolute or relative energy.
+	bool regionIsRelative(int index) const { return exafsRegions()->isRelative(index); }
 	/// Returns the energy units of the region referred to by \param index.  This is necessary if you want to know the units of energy space even if the region itself is in k-space.
 	QString regionEnergyUnits(int index) const { return exafsRegions()->energyUnits(index); }
 	/// Returns the region start point, referred to by \param index, in the space indicated by \param type.
 	double regionStartByType(int index, AMEXAFSRegion::RegionType type) const { return exafsRegions()->startByType(index, type); }
 	/// Returns the region end point, referred to by \param index, in the space indicated by \param type.
 	double regionEndByType(int index, AMEXAFSRegion::RegionType type) const { return exafsRegions()->endByType(index, type); }
+
+	/// Re-implemented for EXAFS.  Quick accessor for the start of the first region. Will always return an energy.  If no regions are set, returns -1
+	virtual double startValue() const;
+	/// Re-implemented for EXAFS.  Quick accessor for the end of the final region. Will always return an energy.  If no reginos are set, returns -1
+	virtual double endValue() const;
 
 	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by AMBeamlineScanAction to set the title for the action view.
 	virtual QString description() const {
@@ -82,10 +89,17 @@ public slots:
 	bool setRegionType(int index, AMEXAFSRegion::RegionType type) { return exafsRegions()->setType(index, type); }
 	/// Sets the edge energy of the region referred to by \param index.
 	bool setRegionEdgeEnergy(int index, double energy) { return exafsRegions()->setEdgeEnergy(index, energy); }
+	/// Sets whether the region uses absolute or relative energy.
+	bool setRegionIsRelative(int index, bool isRelative) { return exafsRegions()->setRelative(index, isRelative); }
 	/// Sets the start point of the region referred to by \param index based on the space indicated by \param type.
 	bool setRegionStartByType(int index, double start, AMEXAFSRegion::RegionType type) { return exafsRegions()->setStartByType(index, start, type); }
 	/// Sets the end point of the region referred to by \param index based on the space indicated by \param type.
 	bool setRegionEndByType(int index, double end, AMEXAFSRegion::RegionType type) { return exafsRegions()->setEndByType(index, end, type); }
+
+	/// Quick setter for the start of the first region. Returns false if there are no regions or the energy is out of range
+	virtual bool setStartValue(double startValue);
+	/// Quick setter for the end of the final region. Returns false if there are no regions or the energy is out of range
+	virtual bool setEndValue(double endValue);
 
 protected:
 	/*!
@@ -95,14 +109,15 @@ protected:
 
 		   1) Type (either Energy space or kSpace)
 		   2) Edge energy (in the units given by region units)
-		   3) Region starting point in energy space.
-		   4) Region delta between points.
-		   5) Region ending point in energy space.
-		   6) Whether the region uses elastic starting points.
-		   7) Whether the region uses elastic ending points.
-		   8) The time spent on each point in the region.
-		   9) The units for the scanned element of the region.  This is the units of energy space even if the region is itself in kSpace.
-		   10) The units of time spent on each point.
+		   3) Whether the energy is relative or absolute (true = relative, false = absolute).
+		   4) Region starting point in energy space.
+		   5) Region delta between points.
+		   6) Region ending point in energy space.
+		   7) Whether the region uses elastic starting points.
+		   8) Whether the region uses elastic ending points.
+		   9) The time spent on each point in the region.
+		   10) The units for the scanned element of the region.  This is the units of energy space even if the region is itself in kSpace.
+		   11) The units of time spent on each point.
 	  */
 	/// This returns a string that describes the current regions. Regions are stored in order as common separated start, delta, and end values. New lines divide regions. Empty string is no regions.
 	virtual QString dbReadRegions() const;

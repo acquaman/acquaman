@@ -510,11 +510,14 @@ bool AMEXAFSRegion::setEndByType(double end, RegionType type)
 double AMEXAFSRegion::toKSpace(double energy) const
 {
 	// Energy must be greater than the reference energy.
-	if (energy < edgeEnergy_)
+	if (!isRelative_ && (energy < edgeEnergy_))
 		return -1;
 
 	// k = sqrt((E - E0)/a) ; a = 3.810 945 497 eV * Angstrom
-	return sqrt((energy-edgeEnergy_)/3.810945497);
+	if (isRelative_)
+		return sqrt(energy/3.810945497);
+	else
+		return sqrt((energy-edgeEnergy_)/3.810945497);
 }
 
 double AMEXAFSRegion::toEnergy(double kSpace) const
@@ -524,7 +527,10 @@ double AMEXAFSRegion::toEnergy(double kSpace) const
 		return -1;
 
 	// E = E0 + a*k^2 ; a = 3.810 945 497 eV * Angstrom
-	return edgeEnergy_ + 3.810945497*kSpace*kSpace;
+	if (isRelative_)
+		return 3.810945497*kSpace*kSpace;
+	else
+		return edgeEnergy_ + 3.810945497*kSpace*kSpace;
 }
 
 bool AMEXAFSRegion::adjustStart(double start){
@@ -569,6 +575,7 @@ bool AMEXAFSRegionsListModel::insertRows(int position, int rows, const QModelInd
 			tmpRegion->setTimeUnits(defaultTimeUnits_);
 			tmpRegion->setType(AMEXAFSRegion::Energy);
 			tmpRegion->setEdgeEnergy(defaultEdgeEnergy_);
+			tmpRegion->setRelative(defaultIsRelative_);
 			regions_->insert(position, tmpRegion); // Order doesn't matter because they are all identical, empty regions.
 		}
 
@@ -750,9 +757,10 @@ QVariant AMEXAFSRegionsListModel::data(const QModelIndex &index, int role) const
 		dataVal = (region->type() == AMEXAFSRegion::Energy) ? QString::number(region->time(), 'f', 1) + region->timeUnits() : "-";
 		break;
 	case 8: // Region type.
-		break; // Doing nothing.
+		break;
 	case 9: // Edge energy.
-		break; // Doing nothing.
+		dataVal = QString::number(region->start(), 'g', 4) + region->units();
+		break;
 	default:
 		break; // Return null if not a specific case.
 	}

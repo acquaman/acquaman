@@ -265,6 +265,7 @@ public:
 		type_ = Energy;
 		controlK_ = beamlineK;
 		edgeEnergy_ = 0;
+		isRelative_ = false;
 	}
 
 	/// Re-implemented.  Forcing XAS scans to start from lower energy and go to higher energy.
@@ -289,6 +290,9 @@ public:
 	virtual QString units() const { return (type() == Energy) ? units_ : "k"; }
 	/// Explicitly returns the units for energy space.
 	QString energyUnits() const { return units_; }
+
+	/// Returns whether the region energy is relative or absolute.
+	bool isRealtive() const { return isRelative_; }
 
 	/// Explicit getter based on the type passed into the function.  Returns the start value as a double.
 	double startByType(RegionType type) { return (type == Energy) ? start_ : toKSpace(start_); }
@@ -337,6 +341,9 @@ public slots:
 	/// Overloaded to accommodate the type difference for EXAFS.  This changes the end value of the region.  If the end value is already in the process of changing this function does nothing.
 	virtual bool adjustEnd(double end);
 
+	/// Sets whether the region is relative.
+	bool setRelative(bool isRelative) { isRelative_ = isRelative; return true; }
+
 protected:
 	/// Returns the k-space value from \param energy using the current edge energy.  Returns -1 if invalid.
 	double toKSpace(double energy) const;
@@ -349,6 +356,8 @@ protected:
 	RegionType type_;
 	/// The edge energy, used for conversion between energy and k-space.  This assumes units of eV.
 	double edgeEnergy_;
+	/// Flag used to determine whether the energy PV is in absolute values or relative values.
+	bool isRelative_;
 };
 
 /// An AMEXAFSRegionModel is used as an interface between any default model viewer in Qt and a list of AMEXAFSRegion.
@@ -362,7 +371,7 @@ Q_OBJECT
 
 public:
 	/// Constructor.  Builds a model that is identical to AMRegionsListModel.  No new features added.
-	AMEXAFSRegionsListModel(QObject *parent = 0) : AMXASRegionsListModel(parent) { defaultKControl_ = 0; defaultEdgeEnergy_ = 0; }
+	AMEXAFSRegionsListModel(QObject *parent = 0) : AMXASRegionsListModel(parent) { defaultKControl_ = 0; defaultEdgeEnergy_ = 0; defaultIsRelative_ = false; }
 
 	/// Returns "4" statically. There are always four fields in the region: start, delta, end, and time.  However, the total number is 10.
 	int columnCount(const QModelIndex & /*parent*/) const { return 10; }
@@ -386,12 +395,16 @@ public slots:
 		for (int i = 0; i < regions_->size(); i++)
 			((AMEXAFSRegion *)regions_->at(i))->setEdgeEnergy(energy);
 	}
+	/// Sets the default is relative to all new AMEXAFSRegions.
+	void setDefaultIsRelative(bool isRelative) { defaultIsRelative_ = isRelative; }
 
 protected:
 	/// Pointer to the k-space control used to build AMEXAFSRegions.
 	AMControl *defaultKControl_;
 	/// Holds the default edge energy.  Used for conversions between energy and k-space for individual regions.
 	double defaultEdgeEnergy_;
+	/// Flag that holds whether the regions are relative or absolute in energy.
+	bool defaultIsRelative_;
 };
 
 #endif // ACQMAN_AMREGION_H

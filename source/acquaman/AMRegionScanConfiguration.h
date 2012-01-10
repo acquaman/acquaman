@@ -70,9 +70,9 @@ public:
 	AMRegionsList* regions() const { return regions_; }
 
 	/// Quick accessor for the start of the first region. If no regions are set, returns -1
-	double startValue() const;
+	virtual double startValue() const;
 	/// Quick accessor for the end of the final region. If no reginos are set, returns -1
-	double endValue() const;
+	virtual double endValue() const;
 
 	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by AMBeamlineScanAction to set the title for the action view.
 	virtual QString description() const {
@@ -125,9 +125,9 @@ public slots:
 	bool deleteRegion(int index) { return regions_->deleteRegion(index); }
 
 	/// Quick setter for the start of the first region. Returns false if there are no regions or the energy is out of range
-	bool setStartValue(double startValue);
+	virtual bool setStartValue(double startValue);
 	/// Quick setter for the end of the final region. Returns false if there are no regions or the energy is out of range
-	bool setEndValue(double endValue);
+	virtual bool setEndValue(double endValue);
 
 signals:
 	/// Notifier that passes on the signal that current state of the regions have changed.

@@ -365,6 +365,25 @@ bool AMEXAFSRegionsList::setupModel()
 	return false;
 }
 
+AMEXAFSRegion::RegionType AMEXAFSRegionsList::type(int index) const
+{
+	return exafsRegion(index)->type();
+}
+
+double AMEXAFSRegionsList::edgeEnergy(int index) const
+{
+	QVariant retVal = regions_->data(regions_->index(index, 9), Qt::DisplayRole);
+
+	if(retVal.isValid()){
+
+		QString val = retVal.toString();
+		val.chop(units(index).size());
+		return val.toDouble();
+	}
+
+	return -1;
+}
+
 bool AMEXAFSRegionsList::addRegionSqueeze(int index){
 
 	double nextStart, nextEnd, prevStart, prevEnd;

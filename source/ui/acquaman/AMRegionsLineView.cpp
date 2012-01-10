@@ -236,7 +236,7 @@ void AMRegionsLineView::redrawRegionsLine(){
 AMEXAFSLineView::AMEXAFSLineView(AMEXAFSRegionsList *regions, QWidget *parent)
 	: AMRegionsLineView(regions, parent)
 {
-
+	redrawRegionsLine();
 }
 
 void AMEXAFSLineView::redrawRegionsLine()

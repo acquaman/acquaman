@@ -16,6 +16,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	exafsRegions()->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
 	exafsRegions()->setTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
 	exafsRegions()->setKControl(VESPERSBeamline::vespers()->kControl());
+	exafsRegions()->setDefaultIsRelative(true);
 	regions_->setDefaultUnits(" eV");
 	regions_->setDefaultTimeUnits(" s");
 	setName("XAS Scan");
@@ -45,6 +46,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(const VESPERSEXAFSS
 	exafsRegions()->setKControl(VESPERSBeamline::vespers()->kControl());
 	regions_->setDefaultUnits(original.regions()->defaultUnits());
 	regions_->setDefaultTimeUnits(original.regions()->defaultTimeUnits());
+	exafsRegions()->setDefaultIsRelative(original.exafsRegions()->defaultIsRelative());
 
 	for (int i = 0; i < original.regionCount(); i++){
 

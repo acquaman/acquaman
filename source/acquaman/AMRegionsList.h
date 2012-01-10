@@ -234,15 +234,19 @@ public:
 		: AMXASRegionsList(parent, false)
 	{
 		defaultEdgeEnergy_ = 0;
+		defaultKControl_ = 0;
+		defaultIsRelative_ = false;
 
 		if(setup)
 			setupModel();
 	}
 
 	/// Returns the type of the region referred to by \param index.
-	AMEXAFSRegion::RegionType type(int index) const { return exafsRegion(index)->type(); }
+	AMEXAFSRegion::RegionType type(int index) const;
 	/// Returns the edge energy of the region referred to by \param index.
-	double edgeEnergy(int index) const { return exafsRegion(index)->edgeEnergy(); }
+	double edgeEnergy(int index) const;
+	/// Returns whether the edge energy of the region referred to by \param index uses relative energy or not.
+	bool isRelative(int index) const { return exafsRegion(index)->isRealtive(); }
 	/// Returns the energy units for the region referred to by \param index.  This is so that the units can be retrieved even if the region is in k-space.
 	QString energyUnits(int index) const { return exafsRegion(index)->energyUnits(); }
 	/// Explicit getter based on the type passed into the function.  Returns the start value as a double from the region referred to by \param index.
@@ -254,6 +258,8 @@ public:
 	AMControl* defaultKControl() const { return defaultKControl_; }
 	/// Returns the default edge energy for the regions list.  This is the energy that is set as the edge energy to all newly created regions.
 	double defaultEdgeEnergy() const { return defaultEdgeEnergy_; }
+	/// Returns the default of whether the region is relative or absolute.
+	bool defaultIsRelative() const { return defaultIsRelative_; }
 
 	/// Returns whether any of the regions are in the extended region (k-space).
 	bool hasKSpace() const
@@ -270,6 +276,8 @@ public slots:
 	bool setType(int index, AMEXAFSRegion::RegionType type) { return regions_->setData(regions_->index(index, 8), (type == AMEXAFSRegion::Energy) ? true : false, Qt::EditRole); }
 	/// Sets the edge energy of the region referred to by \param index.
 	bool setEdgeEnergy(int index, double energy) { return regions_->setData(regions_->index(index, 9), energy, Qt::EditRole); }
+	/// Sets whether the region referred to by \param index uses relative or absolute energy units.
+	bool setRelative(int index, bool isRelative) { return exafsRegion(index)->setRelative(isRelative); }
 	/// Sets the start value for the region referred to by \param index from the double and the method assumes that the value is in the space of the type passed in it.  For example, if you choose Energy, it will assume it is a value in eV.
 	bool setStartByType(int index, double start, AMEXAFSRegion::RegionType type) { return exafsRegion(index)->setStartByType(start, type); }
 	/// Sets the end value for the region referred to by \param index from the double and the method assumes that the value is in the space of the type passed in it.  For example, if you choose Energy, it will assume it is a value in eV.
@@ -284,6 +292,8 @@ public slots:
 	void setDefaultEdgeEnergy(double energy) { defaultEdgeEnergy_ = energy; ((AMEXAFSRegionsListModel *)regions_)->setDefaultEdgeEnergy(energy); }
 	/// Sets the k-space control for the AMEXAFSRegions.  Also sets the default control for the regions list.
 	virtual void setKControl(AMControl* kControl) { defaultKControl_ = kControl; ((AMEXAFSRegionsListModel*)regions_)->setKSpaceControl(kControl); }
+	/// Sets the default for whether the regions are relative or not.
+	void setDefaultIsRelative(bool isRelative) { defaultIsRelative_ = isRelative; ((AMEXAFSRegionsListModel *)regions_)->setDefaultIsRelative(isRelative); }
 
 	/// Returns the maximum energy from all the regions.
 	virtual double maximumValue(){
@@ -329,6 +339,8 @@ protected:
 	double defaultEdgeEnergy_;
 	/// Pointer to the control that moves regions through k-space.
 	AMControl *defaultKControl_;
+	/// Flag holding whether the regions are relative or not.
+	bool defaultIsRelative_;
 };
 
 
