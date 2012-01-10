@@ -22,12 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanConfiguration(parent) , SGMScanConfiguration()
 {
-<<<<<<< HEAD
-	regions_->setEnergyControl(SGMBeamline::sgm()->energy());
-	regions_->setDefaultTimeControl(SGMBeamline::sgm()->scalerIntegrationTime());
-=======
 	xasRegions()->setEnergyControl(SGMBeamline::sgm()->energy());
->>>>>>> XASRegionsUpgrade
+	regions_->setDefaultTimeControl(SGMBeamline::sgm()->scalerIntegrationTime());
+
 	regions_->setSensibleRange(200, 2000);
 	regions_->setDefaultUnits(" eV");
 	regions_->setDefaultTimeUnits(" s");

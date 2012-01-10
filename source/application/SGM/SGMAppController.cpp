@@ -208,7 +208,7 @@ void SGMAppController::onCurrentPaneChanged(QWidget *pane) {
 void SGMAppController::onSGMBeamlineConnected(){
 	if(SGMBeamline::sgm()->isConnected() && !xasScanConfigurationView_ && !fastScanConfigurationView_){
 		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
-		sxsc->regions()->setEnergyControl(SGMBeamline::sgm()->energy());
+		sxsc->xasRegions()->setEnergyControl(SGMBeamline::sgm()->energy());
 		sxsc->regions()->setDefaultTimeControl(SGMBeamline::sgm()->scalerIntegrationTime());
 		double goodEnergy = 10 * floor(SGMBeamline::sgm()->energy()->value() / 10);
 		sxsc->addRegion(0, goodEnergy, 1, goodEnergy+10, 1);
