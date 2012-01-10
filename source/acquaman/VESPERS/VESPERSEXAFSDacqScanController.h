@@ -1,47 +1,26 @@
-/*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
-
-This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
-
-Acquaman is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Acquaman is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
-#ifndef VESPERSXASDACQSCANCONTROLLER_H
-#define VESPERSXASDACQSCANCONTROLLER_H
+#ifndef VESPERSEXAFSDACQSCANCONTROLLER_H
+#define VESPERSEXAFSDACQSCANCONTROLLER_H
 
 #include "acquaman/AMDacqScanController.h"
-#include "acquaman/VESPERS/VESPERSXASScanConfiguration.h"
+#include "acquaman/VESPERS/VESPERSEXAFSScanConfiguration.h"
 #include "dataman/AMXASScan.h"
 #include "actions/AMBeamlineListAction.h"
 
 /// Some defined error codes to help with controller crashes.
-#define VESPERSXASDACQSCANCONTROLLER_CANT_INTIALIZE 77001
-#define VESPERSXASDACQSCANCONTROLLER_CANT_START_BL_SCANNING 77002
-#define VESPERSXASDACQSCANCONTROLLER_CANT_START_DETECTOR_SOURCE_MISMATCH 77003
-#define VESPERSXASDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE 77004
+#define VESPERSEXAFSDACQSCANCONTROLLER_CANT_INTIALIZE 78001
+#define VESPERSEXAFSDACQSCANCONTROLLER_CANT_START_BL_SCANNING 78002
+#define VESPERSEXAFSDACQSCANCONTROLLER_CANT_START_DETECTOR_SOURCE_MISMATCH 78003
+#define VESPERSEXAFSDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE 78004
 
-class VESPERSXASDacqScanController : public AMDacqScanController
+class VESPERSEXAFSDacqScanController : public AMDacqScanController
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
 	/// \param cfg is the XAS configuration that the controller will run.
-	VESPERSXASDacqScanController(VESPERSXASScanConfiguration *cfg, QObject *parent = 0);
-
-	~VESPERSXASDacqScanController() { onInitializationActionFinished(); onCleanupActionFinished(); }
+	VESPERSEXAFSDacqScanController(VESPERSEXAFSScanConfiguration *cfg, QObject *parent = 0);
+	~VESPERSEXAFSDacqScanController() { onInitializationActionFinished(); onCleanupActionFinished(); }
 
 protected slots:
 	/// Slot that handles the successful initialization of the scan.
@@ -89,7 +68,7 @@ protected:
 	QString getHomeDirectory();
 
 	/// Pointer to the configuration used by this controller.
-	VESPERSXASScanConfiguration *config_;
+	VESPERSEXAFSScanConfiguration *config_;
 
 	/// A counter holding the current region index being scanned.
 	int currentRegionIndex_;
@@ -100,4 +79,4 @@ protected:
 	AMBeamlineListAction *cleanupXASAction_;
 };
 
-#endif // VESPERSXASDACQSCANCONTROLLER_H
+#endif // VESPERSEXAFSDACQSCANCONTROLLER_H

@@ -1,24 +1,4 @@
-/*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
-
-This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
-
-Acquaman is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Acquaman is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
-#include "VESPERSXASDacqScanController.h"
+#include "VESPERSEXAFSDacqScanController.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "actions/AMBeamlineActionsList.h"
 #include "dataman/AMUser.h"
@@ -28,7 +8,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDir>
 
-VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfiguration *cfg, QObject *parent)
+VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanConfiguration *cfg, QObject *parent)
 	: AMDacqScanController(cfg, parent)
 {
 	config_ = cfg;
@@ -37,7 +17,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 
 	scan_ = new AMXASScan(); 	// MB: Moved from line 363 in startImplementation.
 	scan_->setName(config_->name());
-	scan_->setFileFormat("vespers2011XAS");
+	scan_->setFileFormat("vespers2011EXAFS");
 	scan_->setScanConfiguration(config_);
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setIndexType("fileSystem");
@@ -66,7 +46,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 		}
 	}
 
-	if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::SingleElement){
+	if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::SingleElement){
 
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF1E();
 
@@ -85,7 +65,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 		scan_->rawData()->addMeasurement(temp);
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), true, false);
 	}
-	else if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::FourElement){
+	else if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::FourElement){
 
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF4E();
 
@@ -120,7 +100,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 	}
 
 	// Analysis blocks.
-	if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::SingleElement){
+	if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::SingleElement){
 
 		AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
 		QList<AMDataSource*> pfySource;
@@ -155,7 +135,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 
 		scan_->addAnalyzedDataSource(transmission, true, false);
 	}
-	else if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::FourElement){
+	else if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::FourElement){
 
 		AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
 		QList<AMDataSource*> pfySource;
@@ -203,7 +183,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 	useDwellTimes(VESPERSBeamline::vespers()->dwellTimeTrigger(), VESPERSBeamline::vespers()->dwellTimeConfirmed());
 }
 
-void VESPERSXASDacqScanController::addExtraDatasources()
+void VESPERSEXAFSDacqScanController::addExtraDatasources()
 {
 	// Common to all three types are Ea, K, dwell time and ring current.
 	scan_->rawData()->addMeasurement(AMMeasurementInfo("Ea", "Energy Setpoint", "eV"));
@@ -215,7 +195,7 @@ void VESPERSXASDacqScanController::addExtraDatasources()
 	scan_->rawData()->addMeasurement(AMMeasurementInfo("Ring Current", "Ring Current", "mA"));
 	scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 
-	if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::SingleElement){
+	if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::SingleElement){
 
 		// Dead time, real time, live time, fast peaks, slow peaks, spectrum index.
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("Dead Time", "Dead Time", "%"));
@@ -230,7 +210,7 @@ void VESPERSXASDacqScanController::addExtraDatasources()
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 	}
 
-	else if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::FourElement){
+	else if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::FourElement){
 
 		// Real time (x4), Live time (x4), fast peaks (x4), slow peaks (x4), dead time (x4)
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
@@ -276,12 +256,12 @@ void VESPERSXASDacqScanController::addExtraDatasources()
 	}
 }
 
-bool VESPERSXASDacqScanController::initializeImplementation()
+bool VESPERSEXAFSDacqScanController::initializeImplementation()
 {
 	// To initialize the XAS scan, there are three stages.
 	/*
 		First: Enable/Disable all the pertinent detectors.  The scalar is ALWAYS enabled.
-		Second: Set the mode to single shot and set the time on the synchronized dwell time.
+		Second: Set the mode to single shot,set the time on the synchronized dwell time, and set the variable integration time if an EXAFS scan.
 		Third: Move the mono to the correct energy and move the sample stage to the correct location (if enabled).
 	 */
 	AMBeamlineParallelActionsList *setupXASActionsList = new AMBeamlineParallelActionsList;
@@ -296,7 +276,7 @@ bool VESPERSXASDacqScanController::initializeImplementation()
 	// Scalar
 	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(0)->createEnableAction(true));
 	// Single element vortex
-	if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::SingleElement)
+	if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::SingleElement)
 		setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(true));
 	else
 		setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(false));
@@ -305,7 +285,7 @@ bool VESPERSXASDacqScanController::initializeImplementation()
 	// Picoammeters
 	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
 	// Four element vortex
-	if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::FourElement)
+	if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::FourElement)
 		setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(true));
 	else
 		setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
@@ -314,6 +294,18 @@ bool VESPERSXASDacqScanController::initializeImplementation()
 	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
 	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::SingleShot));
 	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(config_->regionTime(0)));
+	if (config_->exafsRegions()->hasKSpace()){
+
+		int regionCount = config_->regionCount();
+		double time = (regionCount > 1) ? config_->regionTime(regionCount - 2) : 1; // Grab the time from the region before the EXAFS region or default it to 1 second.
+		setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->variableIntegrationTime()->createSetupAction(CLSVariableIntegrationTime::EnabledwThreshold,
+																													  time,
+																													  config_->regionStart(regionCount - 1),
+																													  CLSVariableIntegrationTime::Geometric,
+																													  config_->regionStart(regionCount - 1),
+																													  config_->regionEnd(regionCount - 1),
+																													  10));
+	}
 
 	// Third stage.
 	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem *>());
@@ -324,6 +316,19 @@ bool VESPERSXASDacqScanController::initializeImplementation()
 		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(config_->y()));
 	}
 
+	// Integrity check.  Make sure no actions are null.
+	for (int i = 0; i < setupXASActionsList->stageCount(); i++){
+
+		for (int j = 0; j < setupXASActionsList->stage(i)->size(); j++){
+
+			if (setupXASActionsList->action(i, j) == 0){
+
+				onInitializationActionsFailed(0);
+				return false;
+			}
+		}
+	}
+
 	connect(setupXASAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
 	connect(setupXASAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
 	connect(setupXASAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
@@ -332,42 +337,42 @@ bool VESPERSXASDacqScanController::initializeImplementation()
 	return true;
 }
 
-bool VESPERSXASDacqScanController::startImplementation()
+bool VESPERSEXAFSDacqScanController::startImplementation()
 {
 	currentRegionIndex_ = 0;
 
 	// Setup the real config.
 	switch(config_->fluorescenceDetectorChoice()){
 
-	case VESPERSXASScanConfiguration::None:
+	case VESPERSEXAFSScanConfiguration::None:
 		if (!setupTransmissionXAS()){
 
 			AMErrorMon::report(AMErrorReport(this,
 					AMErrorReport::Alert,
-					VESPERSXASDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
-					"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
+					VESPERSEXAFSDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
+					"Error, VESPERS EXAFS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
 			return false;
 		}
 		break;
 
-	case VESPERSXASScanConfiguration::SingleElement:
+	case VESPERSEXAFSScanConfiguration::SingleElement:
 		if (!setupSingleElementXAS()){
 
 			AMErrorMon::report(AMErrorReport(this,
 					AMErrorReport::Alert,
-					VESPERSXASDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
-					"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
+					VESPERSEXAFSDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
+					"Error, VESPERS EXAFS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
 			return false;
 		}
 		break;
 
-	case VESPERSXASScanConfiguration::FourElement:
+	case VESPERSEXAFSScanConfiguration::FourElement:
 		if (!setupFourElementXAS()){
 
 			AMErrorMon::report(AMErrorReport(this,
 					AMErrorReport::Alert,
-					VESPERSXASDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
-					"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
+					VESPERSEXAFSDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
+					"Error, VESPERS EXAFS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
 			return false;
 		}
 		break;
@@ -375,17 +380,37 @@ bool VESPERSXASDacqScanController::startImplementation()
 	default:
 		AMErrorMon::report(AMErrorReport(this,
 				AMErrorReport::Alert,
-				VESPERSXASDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
-				"Error, VESPERS XAS DACQ Scan Controller failed to start (Invalid Fluorescence Detector chosen). Please report this bug to the Acquaman developers."));
+				VESPERSEXAFSDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
+				"Error, VESPERS EXAFS DACQ Scan Controller failed to start (Invalid Fluorescence Detector chosen). Please report this bug to the Acquaman developers."));
 		return false;
 	}
 
 	for (int i = 0; i < config_->regionCount(); i++){
 
-		if (advAcq_->getNumRegions() == i && i == 0)
-			advAcq_->addRegion(i, config_->regionStart(i), config_->regionDelta(i), config_->regionEnd(i), 1);
-		else if (advAcq_->getNumRegions() == i)
-			advAcq_->addRegion(i, config_->regionStart(i)+config_->regionDelta(i), config_->regionDelta(i), config_->regionEnd(i), 1);
+		if (advAcq_->getNumRegions() == i){
+
+			AMPVwStatusControl *control = 0;
+
+			if (config_->regionType(i) == AMEXAFSRegion::Energy){
+
+				control = qobject_cast<AMPVwStatusControl *>(config_->regions()->defaultControl());
+
+				if (i == 0)
+					advAcq_->addRegion(i, control->writePVName(), config_->regionStart(i), config_->regionDelta(i), config_->regionEnd(i), 1);
+				else
+					advAcq_->addRegion(i, control->writePVName(), config_->regionStart(i)+config_->regionDelta(i), config_->regionDelta(i), config_->regionEnd(i), 1);
+			}
+			else if (config_->regionType(i) == AMEXAFSRegion::kSpace){
+
+				control = qobject_cast<AMPVwStatusControl *>(config_->exafsRegions()->defaultKControl());
+
+				if (i == 0)
+					advAcq_->addRegion(i, control->writePVName(), config_->regionStart(i), config_->regionDelta(i), config_->regionEnd(i), 1);
+				else
+					advAcq_->addRegion(i, control->writePVName(), config_->regionStart(i)+config_->regionDelta(i), config_->regionDelta(i), config_->regionEnd(i), 1);
+			}
+		}
+
 		else {
 
 			if (i == 0)
@@ -401,11 +426,11 @@ bool VESPERSXASDacqScanController::startImplementation()
 	return AMDacqScanController::startImplementation();
 }
 
-void VESPERSXASDacqScanController::cleanup()
+void VESPERSEXAFSDacqScanController::cleanup()
 {
 	// To cleanup the XAS scan, there is one stage.
 	/*
-		First: Set the dwell time to 1 second.  Set the scan mode to continuous.  Set the relative energy PV to 0.
+		First: Set the dwell time to 1 second.  Set the scan mode to continuous.  Disables the variable integration time.  Set the relative energy PV to 0.
 	 */
 	AMBeamlineParallelActionsList *cleanupXASActionsList = new AMBeamlineParallelActionsList;
 
@@ -419,6 +444,8 @@ void VESPERSXASDacqScanController::cleanup()
 	// Synchronized dwell time.
 	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(1.0));
 	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::Continuous));
+	// Variable integration time.
+	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->variableIntegrationTime()->createModeAction(CLSVariableIntegrationTime::Disabled));
 	// Energy.
 	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->mono()->createDelEAction(0));
 
@@ -427,33 +454,37 @@ void VESPERSXASDacqScanController::cleanup()
 	cleanupXASAction_->start();
 }
 
-void VESPERSXASDacqScanController::onCleanupFinished()
+void VESPERSEXAFSDacqScanController::onCleanupFinished()
 {
 	AMDacqScanController::onDacqStop();
 }
 
-void VESPERSXASDacqScanController::onDwellTimeTriggerChanged(double newValue)
+void VESPERSEXAFSDacqScanController::onDwellTimeTriggerChanged(double newValue)
 {
-	if( fabs(newValue - 1.0) < 0.1 ){
+	if( fabs(newValue - 1.0) < 0.1){
 
-		VESPERSBeamline::vespers()->synchronizedDwellTime()->setTime(config_->regionTime(currentRegionIndex_++));
+		// Only set the time for the region if in energy space.  The variable integration time app handles this in k-space.
+		if (config_->regionType(currentRegionIndex_) == AMEXAFSRegion::Energy)
+			VESPERSBeamline::vespers()->synchronizedDwellTime()->setTime(config_->regionTime(currentRegionIndex_));
+
+		currentRegionIndex_++;
 		dwellTimeTrigger_->move(0);
 		dwellTimeConfirmed_->move(1);
 	}
 }
 
-AMnDIndex VESPERSXASDacqScanController::toScanIndex(QMap<int, double> aeData)
+AMnDIndex VESPERSEXAFSDacqScanController::toScanIndex(QMap<int, double> aeData)
 {
 	Q_UNUSED(aeData)
 	return AMnDIndex(scan_->rawData()->scanSize(0));
 }
 
-void VESPERSXASDacqScanController::onInitializationActionsSucceeded()
+void VESPERSEXAFSDacqScanController::onInitializationActionsSucceeded()
 {
 	setInitialized();
 }
 
-void VESPERSXASDacqScanController::onInitializationActionsFailed(int explanation)
+void VESPERSEXAFSDacqScanController::onInitializationActionsFailed(int explanation)
 {
 	Q_UNUSED(explanation)
 
@@ -462,13 +493,13 @@ void VESPERSXASDacqScanController::onInitializationActionsFailed(int explanation
 	setFailed();
 }
 
-void VESPERSXASDacqScanController::onInitializationActionsProgress(double elapsed, double total)
+void VESPERSEXAFSDacqScanController::onInitializationActionsProgress(double elapsed, double total)
 {
 	Q_UNUSED(elapsed)
 	Q_UNUSED(total)
 }
 
-QString VESPERSXASDacqScanController::getHomeDirectory()
+QString VESPERSEXAFSDacqScanController::getHomeDirectory()
 {
 	// Find out which path we are using for acquaman (depends on whether you are on Mac or Linux or beamline OPI).
 	QString homeDir = QDir::homePath();
@@ -480,7 +511,7 @@ QString VESPERSXASDacqScanController::getHomeDirectory()
 	return homeDir;
 }
 
-bool VESPERSXASDacqScanController::setupTransmissionXAS()
+bool VESPERSEXAFSDacqScanController::setupTransmissionXAS()
 {
 	bool loadSuccess = false;
 
@@ -489,7 +520,7 @@ bool VESPERSXASDacqScanController::setupTransmissionXAS()
 	if(!loadSuccess){
 		AMErrorMon::report(AMErrorReport(this,
 				AMErrorReport::Alert,
-				VESPERSXASDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
+				VESPERSEXAFSDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
 				"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
 		return false;
 	}
@@ -513,7 +544,7 @@ bool VESPERSXASDacqScanController::setupTransmissionXAS()
 	return loadSuccess;
 }
 
-bool VESPERSXASDacqScanController::setupSingleElementXAS()
+bool VESPERSEXAFSDacqScanController::setupSingleElementXAS()
 {
 	bool loadSuccess = false;
 
@@ -522,7 +553,7 @@ bool VESPERSXASDacqScanController::setupSingleElementXAS()
 	if(!loadSuccess){
 		AMErrorMon::report(AMErrorReport(this,
 				AMErrorReport::Alert,
-				VESPERSXASDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
+				VESPERSEXAFSDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
 				"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
 		return false;
 	}
@@ -565,7 +596,7 @@ bool VESPERSXASDacqScanController::setupSingleElementXAS()
 	return loadSuccess;
 }
 
-bool VESPERSXASDacqScanController::setupFourElementXAS()
+bool VESPERSEXAFSDacqScanController::setupFourElementXAS()
 {
 	bool loadSuccess = false;
 
@@ -574,7 +605,7 @@ bool VESPERSXASDacqScanController::setupFourElementXAS()
 	if(!loadSuccess){
 		AMErrorMon::report(AMErrorReport(this,
 				AMErrorReport::Alert,
-				VESPERSXASDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
+				VESPERSEXAFSDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
 				"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
 		return false;
 	}
@@ -636,7 +667,7 @@ bool VESPERSXASDacqScanController::setupFourElementXAS()
 	return loadSuccess;
 }
 
-void VESPERSXASDacqScanController::onInitializationActionFinished()
+void VESPERSEXAFSDacqScanController::onInitializationActionFinished()
 {
 	if (setupXASAction_ == 0)
 		return;
@@ -655,7 +686,7 @@ void VESPERSXASDacqScanController::onInitializationActionFinished()
 	setupXASAction_ = 0;
 }
 
-void VESPERSXASDacqScanController::onCleanupActionFinished()
+void VESPERSEXAFSDacqScanController::onCleanupActionFinished()
 {
 	if (cleanupXASAction_ == 0)
 		return;

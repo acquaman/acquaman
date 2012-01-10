@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMRegionsLineView.h"
 
-RegionItem::RegionItem(double start, double delta, double end, double min, double max, int pixRange) : color(qrand() % 256, qrand() % 256, qrand() % 256)
+AMRegionItem::AMRegionItem(double start, double delta, double end, double min, double max, int pixRange, const QString &units) : color(qrand() % 256, qrand() % 256, qrand() % 256)
 {
 	setToolTip(QString("QColor(%1, %2, %3)\n%4")
 			  .arg(color.red()).arg(color.green()).arg(color.blue())
@@ -33,13 +33,14 @@ RegionItem::RegionItem(double start, double delta, double end, double min, doubl
 	max_ = max;
 	pixRange_ = pixRange;
 	width_ = (int)floor( (end-start)/((max-min)/pixRange) );
+	units_ = units;
 }
 
-QRectF RegionItem::boundingRect() const{
+QRectF AMRegionItem::boundingRect() const{
 	return QRectF(0, -15, width_, 30);
 }
 
-void RegionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
+void AMRegionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
 	Q_UNUSED(option);
 	Q_UNUSED(widget);
 	painter->setPen(Qt::NoPen);
@@ -53,12 +54,12 @@ void RegionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 	QChar deltaChar(0x0394);
 	deltaVal.prepend(" = ");
 	deltaVal.prepend(deltaChar);
-	deltaVal.append(" eV");
+	deltaVal.append(units_);
 	QRectF box(0, -15, width_, 30);
 	painter->drawText(box, Qt::AlignHCenter, deltaVal, &box);
 }
 
-void RegionItem::mousePressEvent(QGraphicsSceneMouseEvent *event){
+void AMRegionItem::mousePressEvent(QGraphicsSceneMouseEvent *event){
 	if (event->button() != Qt::LeftButton) {
 		event->ignore();
 		return;
@@ -67,7 +68,7 @@ void RegionItem::mousePressEvent(QGraphicsSceneMouseEvent *event){
 	setCursor(Qt::ClosedHandCursor);
 }
 
-void RegionItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event){
+void AMRegionItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event){
 	if (QLineF(event->screenPos(), event->buttonDownScreenPos(Qt::LeftButton)).length() < QApplication::startDragDistance()) {
 		return;
 	}
@@ -101,14 +102,14 @@ void RegionItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event){
 	setCursor(Qt::OpenHandCursor);
 }
 
-void RegionItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event){
+void AMRegionItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event){
 	Q_UNUSED(event)
 
 	setCursor(Qt::OpenHandCursor);
 }
 
 
-EnergyIndexItem::EnergyIndexItem(double energy, double min, double max, int pixRange) : color(qrand() % 256, qrand() % 256, qrand() % 256)
+AMEnergyIndexItem::AMEnergyIndexItem(double energy, double min, double max, int pixRange, const QString &units) : color(qrand() % 256, qrand() % 256, qrand() % 256)
 {
 	setToolTip(QString("QColor(%1, %2, %3)\n%4")
 			  .arg(color.red()).arg(color.green()).arg(color.blue())
@@ -118,15 +119,16 @@ EnergyIndexItem::EnergyIndexItem(double energy, double min, double max, int pixR
 	min_ = min;
 	max_ = max;
 	pixRange_ = pixRange;
-	width_ = 45;
+	width_ = 60;
 	textBox_ = new QRectF(0, -15, width_, 30);
+	units_ = units;
 }
 
-QRectF EnergyIndexItem::boundingRect() const{
+QRectF AMEnergyIndexItem::boundingRect() const{
 	return QRectF(textBox_->x(), textBox_->y(), textBox_->width(), textBox_->height());
 }
 
-void EnergyIndexItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
+void AMEnergyIndexItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
 	Q_UNUSED(option);
 	Q_UNUSED(widget);
 	painter->setPen(Qt::NoPen);
@@ -134,7 +136,7 @@ void EnergyIndexItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 	painter->setBrush(Qt::gray);
 	QString energyVal;
 	QRectF box(boundingRect());
-	painter->drawText(box, Qt::AlignHCenter, energyVal.setNum(energy_) + " eV", textBox_);
+	painter->drawText(box, Qt::AlignHCenter, energyVal.setNum(energy_) + units_, textBox_);
 }
 
 AMRegionsLineView::AMRegionsLineView(AMRegionsList *regions, QWidget *parent) : QWidget(parent)
@@ -198,14 +200,14 @@ void AMRegionsLineView::redrawRegionsLine(){
 
 		for (int i = 0; i < regions_->count(); ++i) {
 
-			RegionItem *item = new RegionItem(regions_->start(i), regions_->delta(i), regions_->end(i), regions_->minimumValue(), regions_->maximumValue(), nlSize-60);
+			AMRegionItem *item = new AMRegionItem(regions_->start(i), regions_->delta(i), regions_->end(i), regions_->minimumValue(), regions_->maximumValue(), nlSize-60, regions_->units(i));
 			item->setPos( 10+(int)floor((regions_->start(i)-regions_->minimumValue())/ratio), 0);
 			scene->addItem(item);
-			EnergyIndexItem *eItem = new EnergyIndexItem(regions_->start(i), regions_->minimumValue(), regions_->maximumValue(), nlSize-60);
+			AMEnergyIndexItem *eItem = new AMEnergyIndexItem(regions_->start(i), regions_->minimumValue(), regions_->maximumValue(), nlSize-60, regions_->units(i));
 			eItem->setPos(10+(int)floor((regions_->start(i)-regions_->minimumValue())/ratio), 30);
 			scene->addItem(eItem);
 		}
-		EnergyIndexItem *eItem = new EnergyIndexItem(regions_->end(regions_->count()-1), regions_->minimumValue(), regions_->maximumValue(), nlSize-60);
+		AMEnergyIndexItem *eItem = new AMEnergyIndexItem(regions_->end(regions_->count()-1), regions_->minimumValue(), regions_->maximumValue(), nlSize-60, regions_->units(regions_->count()-1));
 		eItem->setPos(10+(int)floor((regions_->end(regions_->count()-1)-regions_->minimumValue())/ratio) - eItem->boundingRect().width(), 30);
 		scene->addItem(eItem);
 	}
@@ -213,8 +215,73 @@ void AMRegionsLineView::redrawRegionsLine(){
 	else{
 
 		for (int i = 0; i < regions_->count(); ++i) {
-			RegionItem *item = new RegionItem(regions_->start(i), regions_->delta(i), regions_->end(i), regions_->minimumValue(), regions_->maximumValue(), nlSize-60);
+			AMRegionItem *item = new AMRegionItem(regions_->start(i), regions_->delta(i), regions_->end(i), regions_->minimumValue(), regions_->maximumValue(), nlSize-60, regions_->units(i));
 			item->setPos( 10+(int)floor((regions_->start(i)-regions_->minimumValue())/ratio), 0);
+			scene->addItem(item);
+		}
+
+		QRectF rect(scene->itemsBoundingRect());
+		scene->addRect(rect, QPen(Qt::black), QBrush(Qt::red));
+		QFont font(this->font());
+		font.setBold(true);
+		font.setPointSize(12);
+		QGraphicsTextItem *text = scene->addText("Regions Are Invalid!", font);
+		text->moveBy(rect.width()/2 - text->sceneBoundingRect().width()/2, -text->sceneBoundingRect().height()/2);
+	}
+}
+
+// AMEXAFSLinesView
+////////////////////////////////////////
+
+AMEXAFSLineView::AMEXAFSLineView(AMEXAFSRegionsList *regions, QWidget *parent)
+	: AMRegionsLineView(regions, parent)
+{
+	redrawRegionsLine();
+}
+
+void AMEXAFSLineView::redrawRegionsLine()
+{
+	// This method needs a valid AMEXAFSRegions.  If we got a bad one then that would be awkward.
+	AMEXAFSRegionsList *regions = qobject_cast<AMEXAFSRegionsList *>(regions_);
+	if (!regions)
+		return;
+
+	int nlSize = 800;
+	scene->clear();
+	double range = regions->maximumValue() - regions->minimumValue();
+	double ratio = range/(nlSize-60);
+
+	if (regions->isValid()){
+
+		for (int i = 0; i < regions->count(); ++i) {
+
+			AMRegionItem *item = new AMRegionItem(regions->startByType(i, AMEXAFSRegion::Energy), regions->delta(i), regions->endByType(i, AMEXAFSRegion::Energy), regions->minimumValue(), regions->maximumValue(), nlSize-60, regions->units(i));
+			item->setPos( (int)floor((regions->startByType(i, AMEXAFSRegion::Energy)-regions->minimumValue())/ratio), 0);
+			scene->addItem(item);
+
+			if (i > 0 && regions->type(i) == AMEXAFSRegion::kSpace && regions->type(i-1) == AMEXAFSRegion::Energy){
+
+				AMEnergyIndexItem *eItem = new AMEnergyIndexItem(regions->end(i-1), regions->minimumValue(), regions->maximumValue(), nlSize-60, regions->units(i-1));
+				eItem->setPos((int)floor((regions->endByType(i-1, AMEXAFSRegion::Energy)-regions->minimumValue())/ratio), 30);
+				scene->addItem(eItem);
+			}
+			else{
+
+				AMEnergyIndexItem *eItem = new AMEnergyIndexItem(regions->start(i), regions->minimumValue(), regions->maximumValue(), nlSize-60, regions->units(i));
+				eItem->setPos((int)floor((regions->startByType(i, AMEXAFSRegion::Energy)-regions->minimumValue())/ratio), 30);
+				scene->addItem(eItem);
+			}
+		}
+		AMEnergyIndexItem *eItem = new AMEnergyIndexItem(regions->end(regions->count()-1), regions->minimumValue(), regions->maximumValue(), nlSize-60, regions->units(regions->count()-1));
+		eItem->setPos((int)floor((regions->endByType(regions->count()-1, AMEXAFSRegion::Energy)-regions->minimumValue())/ratio) - eItem->boundingRect().width(), 30);
+		scene->addItem(eItem);
+	}
+
+	else{
+
+		for (int i = 0; i < regions->count(); ++i) {
+			AMRegionItem *item = new AMRegionItem(regions->startByType(i, AMEXAFSRegion::Energy), regions->delta(i), regions->endByType(i, AMEXAFSRegion::Energy), regions->minimumValue(), regions->maximumValue(), nlSize-60, regions->units(i));
+			item->setPos( (int)floor((regions->startByType(i, AMEXAFSRegion::Energy)-regions->minimumValue())/ratio), 0);
 			scene->addItem(item);
 		}
 

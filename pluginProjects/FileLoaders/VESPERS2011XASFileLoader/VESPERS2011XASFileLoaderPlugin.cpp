@@ -12,7 +12,7 @@
 
 bool VESPERS2011XASFileLoaderPlugin::accepts(AMScan *scan)
 {
-	if (scan->fileFormat() == "vespersXAS" || scan->fileFormat() == "vespers2011XAS")
+	if (scan->fileFormat() == "vespersXAS" || scan->fileFormat() == "vespers2011XAS" || scan->fileFormat() == "vespers2011EXAFS")
 		return true;
 
 	return false;
@@ -235,7 +235,7 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 
 bool VESPERS2011XASFileLoaderFactory::accepts(AMScan *scan)
 {
-	return (scan->fileFormat() == "vespersXAS" || scan->fileFormat() == "vespers2011XAS");
+	return (scan->fileFormat() == "vespersXAS" || scan->fileFormat() == "vespers2011XAS" || scan->fileFormat() == "vespers2011EXAFS");
 }
 
 Q_EXPORT_PLUGIN2(VESPERS2011XASFileLoaderFactory, VESPERS2011XASFileLoaderFactory)

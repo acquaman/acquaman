@@ -36,6 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMIonChamber.h"
 #include "beamline/CLS/CLSIonChamber.h"
 #include "beamline/CLS/CLSSplitIonChamber.h"
+#include "beamline/CLS/CLSVariableIntegrationTime.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -121,6 +122,12 @@ public:
 	CLSSynchronizedDwellTime *synchronizedDwellTime() const { return synchronizedDwellTime_; }
 
 	// End of synchronized dwell time.
+
+	// The variable integration time.
+	/// Returns the variable integration time.
+	CLSVariableIntegrationTime *variableIntegrationTime() const { return variableIntegrationTime_; }
+
+	// End of variable integration time.
 
 	// The photon and safety shutters.
 	/// Returns the first photon shutter.
@@ -427,6 +434,8 @@ public:
 	AMControl *energyRelative() const { return energyRelative_; }
 	/// Returns the master dwell time control.
 	AMControl *masterDwellTime() const { return masterDwellTime_; }
+	/// Returns the k control used for EXAFS scans.
+	AMControl *kControl() const { return kControl_; }
 
 	//////////////////////////////////////////////////////////////////////////////////////
 	// Actions
@@ -515,6 +524,8 @@ protected:
 	void setupMono();
 	/// Sets up the experiment status.
 	void setupExperimentStatus();
+	/// Sets up various beamline components.
+	void setupComponents();
 
 	/// Constructor. This is a singleton class; access it through VESPERSBeamline::vespers().
 	VESPERSBeamline();
@@ -542,6 +553,9 @@ protected:
 
 	// Synchronized Dwell time
 	CLSSynchronizedDwellTime *synchronizedDwellTime_;
+
+	// Variable integration time.
+	CLSVariableIntegrationTime *variableIntegrationTime_;
 
 	// The shutters.
 	AMControl *psh1_;
@@ -715,6 +729,7 @@ protected:
 	// Scanning settings.
 	AMControl *energyRelative_;
 	AMControl *masterDwellTime_;
+	AMControl *kControl_;
 
 	// AM names bihash to/from PV names.
 	AMBiHash<QString, QString> amNames2pvNames_;
