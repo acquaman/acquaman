@@ -47,7 +47,7 @@ QString AMEXAFSScanConfiguration::dbReadRegions() const{
 
 		rv << QString("exafsVersion1.0,%1,%2,%3,%4,%5,%6,%7,%8,%9,%10")
 			  .arg(regionType(x) == AMEXAFSRegion::Energy ? "Energy" : "kSpace")
-			  .arg(regionEdgeEnergy(x))
+			  .arg(exafsRegions()->defaultEdgeEnergy())
 			  .arg(regionStartByType(x, AMEXAFSRegion::Energy))
 			  .arg(regionDelta(x))
 			  .arg(regionEndByType(x, AMEXAFSRegion::Energy))
@@ -101,6 +101,9 @@ void AMEXAFSScanConfiguration::dbLoadRegions(const QString &exafsRegionsString){
 			addRegionSuccess &= setRegionElasticEnd(x, oneRegion.at(7).toInt() == 1 ? true : false);
 			addRegionSuccess &= setRegionUnits(x, oneRegion.at(9));
 			addRegionSuccess &= setRegionTimeUnits(x, oneRegion.at(10));
+
+			if (x == 0)
+				exafsRegions()->setDefaultEdgeEnergy(regionEdgeEnergy(x));
 		}
 
 		if (!addRegionSuccess)
