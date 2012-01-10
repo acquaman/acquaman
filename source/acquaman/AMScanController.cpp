@@ -162,16 +162,22 @@ bool AMScanController::setResumed(){
 
 void AMScanController::setCancelled(){
 	if(changeState(AMScanController::Cancelled)) {
-		if(scan_)
+		if(scan_){
+
+			scan_->setEndDateTime(QDateTime::currentDateTime());
 			scan_->setScanController(0);
+		}
 		emit cancelled();
 	}
 }
 
 bool AMScanController::setFinished(){
 	if(changeState(AMScanController::Finished)){
-		if(scan_)
+		if(scan_){
+
+			scan_->setEndDateTime(QDateTime::currentDateTime());
 			scan_->setScanController(0);
+		}
 		emit finished();
 		return true;
 	}
@@ -180,8 +186,11 @@ bool AMScanController::setFinished(){
 
 void AMScanController::setFailed(){
 	if(changeState(AMScanController::Failed)) {
-		if(scan_)
+		if(scan_){
+
+			scan_->setEndDateTime(QDateTime::currentDateTime());
 			scan_->setScanController(0);
+		}
 		emit failed();
 	}
 }
