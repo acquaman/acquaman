@@ -44,7 +44,7 @@ public:
 	/// This constructor is used to reload analysis blocks directly out of the database
 	Q_INVOKABLE AM2DSummingAB(AMDatabase* db, int id);
 
-	bool accepts(const QString &format){return false;}
+	bool accepts(const QString &format){ Q_UNUSED(format) return false;}
 
 	QString infoDescription() const { return QString("(Axis %1 from %2 to %3)").arg(sumAxis_).arg(sumRangeMin_).arg(sumRangeMax_); }
 
