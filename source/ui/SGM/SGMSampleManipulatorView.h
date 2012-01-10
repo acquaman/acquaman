@@ -33,7 +33,7 @@ class QButtonGroup;
 class QGridLayout;
 
 class AMBeamlineListAction;
-class CLSVMEMotor;
+class CLSMAXvMotor;
 class AMControlEditor;
 
 class SGMSampleManipulatorView : public QGroupBox
@@ -100,10 +100,10 @@ protected:
 	AMControl *mInPlaneCtrl_;
 	AMControl *mRotationCtrl_;
 	*/
-	CLSVMEMotor *mVerticalCtrl_;
-	CLSVMEMotor *mHorizontalCtrl_;
-	CLSVMEMotor *mInPlaneCtrl_;
-	CLSVMEMotor *mRotationCtrl_;
+	CLSMAXvMotor *mVerticalCtrl_;
+	CLSMAXvMotor *mHorizontalCtrl_;
+	CLSMAXvMotor *mInPlaneCtrl_;
+	CLSMAXvMotor *mRotationCtrl_;
 
 	AMControlEditor *mVerticalNC_;
 	AMControlEditor *mHorizontalNC_;

@@ -51,7 +51,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class SGMGratingAction;
 class AMSamplePlate;
-class CLSVMEMotor;
+class CLSMAXvMotor;
 class CLSCAEN2527HVChannel;
 class CLSPGT8000HVChannel;
 class CLSSynchronizedDwellTime;
@@ -198,10 +198,10 @@ public:
 
 	AMControl* loadlockCCG() const { return loadlockCCG_;}
 	AMControl* loadlockTCG() const { return loadlockTCG_;}
-	CLSVMEMotor* ssaManipulatorX() const { return ssaManipulatorX_;}
-	CLSVMEMotor* ssaManipulatorY() const { return ssaManipulatorY_;}
-	CLSVMEMotor* ssaManipulatorZ() const { return ssaManipulatorZ_;}
-	CLSVMEMotor* ssaManipulatorRot() const { return ssaManipulatorRot_;}
+	CLSMAXvMotor* ssaManipulatorX() const { return ssaManipulatorX_;}
+	CLSMAXvMotor* ssaManipulatorY() const { return ssaManipulatorY_;}
+	CLSMAXvMotor* ssaManipulatorZ() const { return ssaManipulatorZ_;}
+	CLSMAXvMotor* ssaManipulatorRot() const { return ssaManipulatorRot_;}
 	AMControl* beamlineScanning() const { return beamlineScanning_;}
 	AMControl* beamlineReady() const { return beamlineReady_;}
 	AMControl* nextDwellTimeTrigger() const { return nextDwellTimeTrigger_;}
@@ -394,10 +394,10 @@ protected:
 	AMControl *encoderDown_;
 	AMControl *loadlockCCG_;
 	AMControl *loadlockTCG_;
-	CLSVMEMotor *ssaManipulatorX_;
-	CLSVMEMotor *ssaManipulatorY_;
-	CLSVMEMotor *ssaManipulatorZ_;
-	CLSVMEMotor *ssaManipulatorRot_;
+	CLSMAXvMotor *ssaManipulatorX_;
+	CLSMAXvMotor *ssaManipulatorY_;
+	CLSMAXvMotor *ssaManipulatorZ_;
+	CLSMAXvMotor *ssaManipulatorRot_;
 	AMControl *beamlineScanning_;
 	AMControl *beamlineReady_;
 	AMControl *nextDwellTimeTrigger_;

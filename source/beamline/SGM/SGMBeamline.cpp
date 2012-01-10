@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMSamplePlate.h"
 #include "dataman/AMUser.h"
-#include "beamline/CLS/CLSVMEMotor.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/CLS/CLSCAEN2527HVChannel.h"
 #include "beamline/CLS/CLSPGT8000HVChannel.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
@@ -364,16 +364,16 @@ void SGMBeamline::usingSGMBeamline(){
 	loadlockTCG_->setDescription("SSA Loadlock TCG Pressure");
 	loadlockTCG_->setContextKnownDescription("Loadlock TCG");
 
-	ssaManipulatorX_ = new CLSVMEMotor("ssaManipulatorX", amNames2pvNames_.valueF("ssaManipulatorX"), "SSA Inboard/Outboard", true, 0.2, 2.0, this);
+	ssaManipulatorX_ = new CLSMAXvMotor("ssaManipulatorX", amNames2pvNames_.valueF("ssaManipulatorX"), "SSA Inboard/Outboard", true, 0.2, 2.0, this);
 	ssaManipulatorX_->setContextKnownDescription("X");
 
-	ssaManipulatorY_ = new CLSVMEMotor("ssaManipulatorY", amNames2pvNames_.valueF("ssaManipulatorY"), "SSA Upstream/Downstream", true, 0.2, 2.0, this);
+	ssaManipulatorY_ = new CLSMAXvMotor("ssaManipulatorY", amNames2pvNames_.valueF("ssaManipulatorY"), "SSA Upstream/Downstream", true, 0.2, 2.0, this);
 	ssaManipulatorY_->setContextKnownDescription("Y");
 
-	ssaManipulatorZ_ = new CLSVMEMotor("ssaManipulatorZ", amNames2pvNames_.valueF("ssaManipulatorZ"), "SSA Up/Down", true, 0.2, 2.0, this);
+	ssaManipulatorZ_ = new CLSMAXvMotor("ssaManipulatorZ", amNames2pvNames_.valueF("ssaManipulatorZ"), "SSA Up/Down", true, 0.2, 2.0, this);
 	ssaManipulatorZ_->setContextKnownDescription("Z");
 
-	ssaManipulatorRot_ = new CLSVMEMotor("ssaManipulatorRot", amNames2pvNames_.valueF("ssaManipulatorRot"), "SSA Rotation", false, 0.2, 2.0, this);
+	ssaManipulatorRot_ = new CLSMAXvMotor("ssaManipulatorRot", amNames2pvNames_.valueF("ssaManipulatorRot"), "SSA Rotation", false, 0.2, 2.0, this);
 	ssaManipulatorRot_->setContextKnownDescription("R");
 
 

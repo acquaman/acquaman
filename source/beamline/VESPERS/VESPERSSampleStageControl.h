@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include <QPair>
 
-#include "beamline/CLS/CLSVMEMotor.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
 #include "actions/AMBeamlineActionItem.h"
 
 /*!
