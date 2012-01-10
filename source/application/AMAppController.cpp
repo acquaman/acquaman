@@ -122,6 +122,10 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 		return;
 	}
 
+	// Does the scan have a configuration?
+	if (!scan->scanConfiguration())
+		return;
+
 	AMScanConfigurationView *view = scan->scanConfiguration()->createView();
 	if (!view)
 		return;
