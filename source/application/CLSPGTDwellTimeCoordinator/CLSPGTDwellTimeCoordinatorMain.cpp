@@ -30,5 +30,7 @@ int main(int argc, char *argv[])
 
 	CLSPGTDwellTimeCoordinator *coordinator = new CLSPGTDwellTimeCoordinator("MCA1611-01", "BL1611-ID-1");
 
+	Q_UNUSED(coordinator)
+
 	return app.exec();
 }

@@ -458,7 +458,7 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/ui/CLS/CLSStopLightButton.h \
 	source/acquaman/AMRegionScanConfiguration.h \
 	source/acquaman/AMEXAFSScanConfiguration.h \
-    source/beamline/CLS/CLSVariableIntegrationTime.h
+	source/beamline/CLS/CLSVariableIntegrationTime.h
 
 CONFIG(mobility) {
 DEFINES += AM_MOBILITY_VIDEO_ENABLED
@@ -736,7 +736,7 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/CLS/CLSStopLightButton.cpp \
 	source/acquaman/AMRegionScanConfiguration.cpp \
 	source/acquaman/AMEXAFSScanConfiguration.cpp \
-    source/beamline/CLS/CLSVariableIntegrationTime.cpp
+	source/beamline/CLS/CLSVariableIntegrationTime.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \

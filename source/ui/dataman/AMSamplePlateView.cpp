@@ -582,9 +582,11 @@ void AMSamplePlateView::onRowMarkPressed(int row) {
 // called by the delegate when the editor buttons (Mark, Move To, Remove) are clicked
 void AMSamplePlateView::onRowMoveToPressed(int row) {
 
-	if(manipulator_)
+	if(manipulator_){
+
 		if(!manipulator_->moveToPosition(samplePlate_->at(row).position()))
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -6, "We couldn't move that sample into position, because the sample manipulator is not ready."));
+	}
 	else {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, "We couldn't move that sample into position, because we don't know how to move the sample manipulator."));
 	}
