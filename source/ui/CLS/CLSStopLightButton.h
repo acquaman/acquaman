@@ -46,9 +46,13 @@ public:
 protected slots:
 	/// Handles the look of the button if the connectivity changes.  It defaults to a "flat" look when it is disconnected.
 	void onConnectedChanged(bool connected) { setFlat(!connected); }
+
 protected:
 	/// Re-implemented paint function.
 	virtual void paintEvent(QPaintEvent *e);
+	/// Re-implemented mouse release event that does not emit the clicked signal if the button is flat.
+	virtual void mouseReleaseEvent(QMouseEvent *e);
+
 
 	/// Control that this stop light represents.  This is a CLSBiStateControl rather than an AMControl because of the specific nature of the button.
 	CLSBiStateControl *control_;
