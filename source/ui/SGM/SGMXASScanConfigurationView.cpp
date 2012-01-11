@@ -61,6 +61,10 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 		warningsLabel_->setFont(warningsFont);
 		warningsLabel_->setStyleSheet( "QLabel{ color: red }" );
 
+		scanNameLabel_ = new QLabel("Scan Name");
+		scanNameEdit_ = new QLineEdit(this);
+		connect(scanNameEdit_, SIGNAL(textEdited(QString)), this, SLOT(onScanNameEditChanged(QString)));
+
 		mainVL_ = new QVBoxLayout();
 		mainVL_->addWidget(topFrame_);
 		mainVL_->addWidget(regionsLineView_);
@@ -74,6 +78,11 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 		bottomGL_->setColumnMinimumWidth(1, 40);
 		bottomGL_->setContentsMargins(10, 0, 0, 0);
 		mainVL_->addStretch(8);
+		QHBoxLayout *nameHL = new QHBoxLayout();
+		nameHL->addWidget(scanNameLabel_);
+		nameHL->addWidget(scanNameEdit_);
+		nameHL->setContentsMargins(10,0,0,0);
+		mainVL_->addLayout(nameHL);
 		mainVL_->setContentsMargins(0,0,0,0);
 		mainVL_->setSpacing(1);
 		setLayout(mainVL_);
@@ -120,6 +129,10 @@ void SGMXASScanConfigurationView::onSGMBeamlineCriticalControlsConnectedChanged(
 		xasDetectorsView_->setEnabled(false);
 		warningsLabel_->setText("SGM Beamline Unavailable");
 	}
+}
+
+void SGMXASScanConfigurationView::onScanNameEditChanged(const QString &scanName){
+	cfg_->setUserScanName(scanName);
 }
 
 SGMFluxResolutionPickerView::SGMFluxResolutionPickerView(AMXASRegionsList *regions, QWidget *parent) :

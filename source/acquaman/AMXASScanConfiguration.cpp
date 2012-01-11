@@ -26,7 +26,7 @@ AMXASScanConfiguration::AMXASScanConfiguration(QObject *parent, bool setup)
 {
 	if (setup){
 
-		userScanName_ = "$sample - $technique";
+		//userScanName_ = "$sample - $technique";
 		regions_ = new AMXASRegionsList(this);
 		connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
 		connect(regions_, SIGNAL(regionsChanged()), this, SIGNAL(configurationChanged()));
