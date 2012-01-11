@@ -50,6 +50,8 @@ signals:
 protected slots:
 	void onSGMBeamlineCriticalControlsConnectedChanged();
 
+	void onScanNameEditChanged(const QString &scanName);
+
 protected:
 	SGMFastScanConfiguration *cfg_;
 
@@ -81,6 +83,9 @@ protected:
 	QSpinBox *undulatorRelativeStepSB_;
 	QSpinBox *undulatorVelocitySB_;
 	QDoubleSpinBox *exitSlitDistanceDSB_;
+
+	QLabel *scanNameLabel_;
+	QLineEdit *scanNameEdit_;
 
 	QGridLayout *gl_;
 	QFormLayout *fl_;

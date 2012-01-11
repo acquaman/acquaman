@@ -92,7 +92,8 @@ bool SGMAppController::startup() {
 		if(matchIDs.count() != 0)
 			sgmDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
 		sgmDefault->setName("SGMDefault");
-		sgmDefault->setFileName("$name_$exportIndex.txt");
+		//sgmDefault->setFileName("$name_$exportIndex.txt");
+		sgmDefault->setFileName("$name_$fsIndex.txt");
 		sgmDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription");
 		sgmDefault->setHeaderIncluded(true);
 		sgmDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
@@ -111,7 +112,8 @@ bool SGMAppController::startup() {
 		sgmDefault->ensureDataSource("PFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
 		sgmDefault->ensureDataSource("IPFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
 		sgmDefault->ensureDataSource("SDD", false, AMExporterOptionGeneral::SeparateFilesMode, false);
-		sgmDefault->setSeparateSectionFileName("$name_$dataSetName_$exportIndex.txt");
+		//sgmDefault->setSeparateSectionFileName("$name_$dataSetName_$exportIndex.txt");
+		sgmDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.txt");
 		sgmDefault->storeToDb(AMDatabase::database("user"));
 
 		matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "SGMDefault");

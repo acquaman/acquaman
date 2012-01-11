@@ -106,6 +106,9 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 		exitSlitDistanceDSB_->setMaximum(700.0);
 		exitSlitDistanceDSB_->setValue(sfsc->exitSlitDistance());
 
+		scanNameLabel_ = new QLabel("Scan Name");
+		scanNameEdit_ = new QLineEdit(this);
+
 		connect(sfsc, SIGNAL(onElementChanged(QString)), elementEdit_, SLOT(setText(QString)));
 		connect(sfsc, SIGNAL(onRunSecondsChanged(double)), runTimeDSB_, SLOT(setValue(double)));
 		connect(sfsc, SIGNAL(onEnergyStartChanged(double)), startEnergyDSB_, SLOT(setValue(double)));
@@ -133,6 +136,8 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 		connect(undulatorVelocitySB_, SIGNAL(valueChanged(int)), sfsc, SLOT(setUndulatorVelocity(int)));
 		connect(exitSlitDistanceDSB_, SIGNAL(valueChanged(double)), sfsc, SLOT(setExitSlitDistance(double)));
 
+		connect(scanNameEdit_, SIGNAL(textEdited(QString)), this, SLOT(onScanNameEditChanged(QString)));
+
 		fl_ = new QFormLayout();
 		fl_->addRow(elementLabel_, elementEdit_);
 		fl_->addRow(runTimeLabel_, runTimeDSB_);
@@ -149,6 +154,10 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 		gl_ = new QGridLayout();
 		gl_->addWidget(presetsComboBox_,	0, 0, 1, 1, Qt::AlignCenter);
 		gl_->addLayout(fl_,			0, 1, 1, 1, Qt::AlignCenter);
+		QHBoxLayout *nameHL = new QHBoxLayout();
+		nameHL->addWidget(scanNameLabel_);
+		nameHL->addWidget(scanNameEdit_);
+		gl_->addLayout(nameHL,			1, 0, 1, 2, Qt::AlignCenter);
 		gl_->addWidget(warningsLabel_,		0, 0, 1, 2, Qt::AlignCenter);
 		gl_->setRowStretch(1, 10);
 		QVBoxLayout *vl = new QVBoxLayout();
@@ -206,4 +215,8 @@ void SGMFastScanConfigurationView::onSGMBeamlineCriticalControlsConnectedChanged
 		baseLineSB_->setEnabled(false);
 		warningsLabel_->setText("SGM Beamline Unavailable");
 	}
+}
+
+void SGMFastScanConfigurationView::onScanNameEditChanged(const QString &scanName){
+	cfg_->setUserScanName(scanName);
 }
