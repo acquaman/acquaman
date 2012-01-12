@@ -63,6 +63,8 @@ public:
 	/////////////////////////////////////////////////////
 
 signals:
+	/// Notifier that the detector is connected.
+	void connected(bool);
 	/// Notifier that the temperature has changed.
 	void temperatureChanged(double);
 	/// Notifier that the acquire time has changed.
