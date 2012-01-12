@@ -11,6 +11,11 @@ VESPERSRoperCCDDetector::VESPERSRoperCCDDetector(const QString &name, const QStr
 	acquireTimeControl_ = new AMSinglePVControl("Acquire Time", "IOC1607-003:det1:AcquireTime", this, 0.1);
 	timeRemainingControl_ = new AMReadOnlyPVControl("Time Remaining", "IOC1607-003:det1:TimeRemaining_RBV", this);
 
+	// Various CCD file path PVs.
+	ccdPath_ = new AMProcessVariable("IOC1607-003:det1:FilePath", true, this);
+	ccdFile_ = new AMProcessVariable("IOC1607-003:det1:FileName", true, this);
+	ccdNumber_ = new AMProcessVariable("IOC1607-003:det1:FileNumber", true, this);
+
 	connect(signalSource(), SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
 	connect(temperatureControl_, SIGNAL(valueChanged(double)), this, SIGNAL(temperatureChanged(double)));
 	connect(imageModeControl_, SIGNAL(valueChanged(double)), this, SLOT(onImageModeChanged()));
@@ -19,6 +24,10 @@ VESPERSRoperCCDDetector::VESPERSRoperCCDDetector(const QString &name, const QStr
 	connect(stateControl_, SIGNAL(valueChanged(double)), this, SLOT(onStateChanged()));
 	connect(acquireTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(acquireTimeChanged(double)));
 	connect(timeRemainingControl_, SIGNAL(valueChanged(double)), this, SIGNAL(timeRemainingChanged(double)));
+
+	connect(ccdPath_, SIGNAL(valueChanged()), this, SLOT(onCCDPathChanged()));
+	connect(ccdFile_, SIGNAL(valueChanged()), this, SLOT(onCCDNameChanged()));
+	connect(ccdNumber_, SIGNAL(valueChanged(int)), this, SIGNAL(ccdNumberChanged(int)));
 }
 
 VESPERSRoperCCDDetector::ImageMode VESPERSRoperCCDDetector::imageMode() const
@@ -129,4 +138,37 @@ void VESPERSRoperCCDDetector::setFromRoperInfo(const VESPERSRoperCCDDetectorInfo
 {
 	setTemperature(info.temperature());
 	setAcquireTime(info.acquireTime());
+}
+
+QString VESPERSRoperCCDDetector::AMPVtoString(AMProcessVariable *pv)
+{
+	int current;
+	QString name;
+
+	for (unsigned i = 0; i < pv->count(); i++){
+
+		current = pv->getInt(i);
+		if (current == 0)
+			break;
+
+		name += QString::fromAscii((const char *) &current);
+	}
+
+	return name;
+}
+
+void VESPERSRoperCCDDetector::StringtoAMPV(AMProcessVariable *pv, QString toConvert)
+{
+	int converted[256];
+
+	QByteArray toConvertBA = toConvert.toAscii();
+	for (int i = 0; i < 256; i++){
+
+		if (i < toConvertBA.size())
+			converted[i] = toConvertBA.at(i);
+		else
+			converted[i] = 0;
+	}
+
+	pv->setValues(converted, 256);
 }

@@ -25,8 +25,12 @@ protected slots:
 	void onIsAcquiringChanged(bool isAcquiring) { isAcquiring_->setPixmap(QIcon(isAcquiring == true ? ":/ON.png" : ":/OFF.png").pixmap(25)); }
 	/// Slot used to update the time remaining label.
 	void onTimeRemainingChanged(double time) { timeRemaining_->setText(QString::number(time, 'g', 2)+" s"); }
+	/// Slot used to update the state label.
+	void onStateChanged(VESPERSRoperCCDDetector::State newState);
 	/// Slot used to set the acquire time on the detector.
 	void setAcquireTime(double time) { if (time != detector_->acquireTime()) detector_->setAcquireTime(time); }
+	/// Overloaded.  Slot used to set the acquire time on the detector.
+	void setAcquireTime() { if (acquireTime_->value() != detector_->acquireTime()) detector_->setAcquireTime(acquireTime_->value()); }
 	/// Slot used to update the trigger mode combo box.
 	void onTriggerModeChanged(VESPERSRoperCCDDetector::TriggerMode mode);
 	/// Slot used to set the trigger mode on the detector.
@@ -41,12 +45,12 @@ protected slots:
 		if (filePathEdit_->text().at(filePathEdit_->text().size()-1) != '\\')
 			filePathEdit_->setText(filePathEdit_->text()+"\\");
 
-		endstation_->setCCDPath(filePathEdit_->text());
+		detector_->setCCDPath(filePathEdit_->text());
 	}
 	/// Used to set the CCD File name when it changes from the program.
-	void ccdFileEdited() { endstation_->setCCDName(fileNameEdit_->text()); }
+	void ccdFileEdited() { detector_->setCCDName(fileNameEdit_->text()); }
 	/// Used to set the CCD Number when it changes from the program.
-	void ccdNumberEdited() { endstation_->setCCDNumber(fileNumberEdit_->text().toInt()); }
+	void ccdNumberEdited() { detector_->setCCDNumber(fileNumberEdit_->text().toInt()); }
 	/// Used to update the ccdNumber value.
 	void ccdNumberUpdate(int val) { fileNumberEdit_->setText(QString::number(val)); }
 
@@ -68,6 +72,8 @@ protected:
 	QComboBox *triggerMode_;
 	/// Combo box holding the image mode.
 	QComboBox *imageMode_;
+	/// Label holding the current state.
+	QLabel *state_;
 
 	// CCD setup things.
 	/// CCD file path line edit.

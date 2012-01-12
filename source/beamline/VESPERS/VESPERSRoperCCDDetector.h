@@ -28,8 +28,10 @@ public:
 	/// Return the meta object.
 	const QMetaObject *getMetaObject() { return metaObject(); }
 
-	/// Returns the description for the dector.
+	/// Returns the description for the detector.
 	virtual QString description() const { return VESPERSRoperCCDDetectorInfo::description(); }
+	/// Sets the description for the detector.
+	virtual void setDescription(const QString &description) { VESPERSRoperCCDDetectorInfo::setDescription(description); }
 
 	/// Transforms current settings into a detector info.  Returns a new instance -- caller is reponsible for memory.
 	virtual AMDetectorInfo *toInfo() const { return new VESPERSRoperCCDDetectorInfo(*this); }
@@ -80,6 +82,13 @@ signals:
 	/// Notifier that the status of the detector has changed.
 	void isAcquiringChanged(bool);
 
+	/// Notifier that the CCD path has changed.
+	void ccdPathChanged(QString);
+	/// Notifier that the CCD file name has changed.
+	void ccdNameChanged(QString);
+	/// Notifier that the CCD number has changed.
+	void ccdNumberChanged(int);
+
 public slots:
 	/// Sets the acquire time for the detector.
 	virtual void setAcquireTime(double time)
@@ -103,6 +112,13 @@ public slots:
 	/// Stops the detector.
 	void stop() { operationControl_->move(0); }
 
+	/// Sets the CCD file path.
+	void setCCDPath(QString path) { StringtoAMPV(ccdPath_, path); }
+	/// Sets the CCD file name.
+	void setCCDName(QString name) { StringtoAMPV(ccdFile_, name); }
+	/// Sets the CCD file number.
+	void setCCDNumber(int number) { ccdNumber_->setValue(number); }
+
 protected slots:
 	/// Helper slot that emits the image mode.
 	void onImageModeChanged() { emit imageModeChanged(imageMode()); }
@@ -113,7 +129,17 @@ protected slots:
 	/// Helper slot that emits whether the detector is acquiring or not.
 	void onIsAcquiringChanged() { emit isAcquiringChanged(isAcquiring()); }
 
+	/// Handles the CCD path update.
+	void onCCDPathChanged() { emit ccdPathChanged(AMPVtoString(ccdPath_)); }
+	/// Handles the CCD name update.
+	void onCCDNameChanged() { emit ccdNameChanged(AMPVtoString(ccdFile_)); }
+
 protected:
+	/// Converts the bizarre string output of the pv to a real QString.
+	QString AMPVtoString(AMProcessVariable *pv);
+	/// Converts the string to the array of integers it needs to be.
+	void StringtoAMPV(AMProcessVariable *pv, QString toConvert);
+
 	/// Control for the temperature.
 	AMControl *temperatureControl_;
 	/// Control for the image mode.
@@ -128,6 +154,14 @@ protected:
 	AMControl *acquireTimeControl_;
 	/// Control for the time remaining.
 	AMControl *timeRemainingControl_;
+
+	// Various CCD file path PVs.
+	/// PV holding the path to the files.
+	AMProcessVariable *ccdPath_;
+	/// PV holding the name of the file.
+	AMProcessVariable *ccdFile_;
+	/// PV holding the number of the file.
+	AMProcessVariable *ccdNumber_;
 };
 
 #endif // VESPERSROPERCCDDETECTOR_H

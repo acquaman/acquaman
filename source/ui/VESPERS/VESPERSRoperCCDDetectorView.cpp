@@ -1,8 +1,12 @@
 #include "VESPERSRoperCCDDetectorView.h"
 
+#include "ui/AMTopFrame.h"
+
 #include <QToolButton>
 #include <QGroupBox>
 #include <QFormLayout>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 
 VESPERSRoperCCDDetectorView::VESPERSRoperCCDDetectorView(VESPERSRoperCCDDetector *detector, bool configureOnly, QWidget *parent)
 	: AMDetailedDetectorView(configureOnly, parent)
@@ -20,6 +24,9 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	if (!detector)
 		return false;
 
+	AMTopFrame *topFrame = new AMTopFrame(QString("X-Ray Diffraction - Roper CCD"));
+	topFrame->setIcon(QIcon(":/utilities-system-monitor.png"));
+
 	detector_ = static_cast<VESPERSRoperCCDDetector *>(detector);
 	connect(detector_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
 
@@ -27,15 +34,26 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	isAcquiring_->setPixmap(QIcon(":/OFF.png").pixmap(25));
 	connect(detector_, SIGNAL(isAcquiringChanged(bool)), this, SLOT(onIsAcquiringChanged(bool)));
 
+	state_ = new QLabel;
+	connect(detector_, SIGNAL(stateChanged(VESPERSRoperCCDDetector::State)), this, SLOT(onStateChanged(VESPERSRoperCCDDetector::State)));
+
 	timeRemaining_ = new QLabel("- s");
 	connect(detector_, SIGNAL(timeRemainingChanged(double)), this, SLOT(onTimeRemainingChanged(double)));
 
-	acquireTime_ = QDoubleSpinBox;
+	acquireTime_ = new QDoubleSpinBox;
 	acquireTime_->setSuffix(" s");
 	acquireTime_->setDecimals(2);
 	acquireTime_->setRange(0, 1000);
 	connect(detector_, SIGNAL(acquireTimeChanged(double)), acquireTime_, SLOT(setValue(double)));
-	connecct(acquireTime_, SIGNAL(editingFinished()), this, SLOT(setAcquireTime(double)));
+	connect(acquireTime_, SIGNAL(editingFinished()), this, SLOT(setAcquireTime()));
+
+	QToolButton *startButton = new QToolButton;
+	startButton->setIcon(QIcon(":/play_button_green.png"));
+	connect(startButton, SIGNAL(clicked()), detector_, SLOT(start()));
+
+	QToolButton *stopButton = new QToolButton;
+	stopButton->setIcon(QIcon(":/red-stop-button.png"));
+	connect(stopButton, SIGNAL(clicked()), detector_, SLOT(stop()));
 
 	triggerMode_ = new QComboBox;
 	triggerMode_->addItem("Free Run");
@@ -52,28 +70,72 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	// Setup the CCD file path signals and layout.
 	filePathEdit_ = new QLineEdit;
 	connect(filePathEdit_, SIGNAL(editingFinished()), this, SLOT(ccdPathEdited()));
-	connect(endstation_, SIGNAL(ccdPathChanged(QString)), filePathEdit_, SLOT(setText(QString)));
+	connect(detector_, SIGNAL(ccdPathChanged(QString)), filePathEdit_, SLOT(setText(QString)));
 
 	fileNameEdit_ = new QLineEdit;
 	connect(fileNameEdit_, SIGNAL(editingFinished()), this, SLOT(ccdFileEdited()));
-	connect(endstation_, SIGNAL(ccdNameChanged(QString)), fileNameEdit_, SLOT(setText(QString)));
+	connect(detector_, SIGNAL(ccdNameChanged(QString)), fileNameEdit_, SLOT(setText(QString)));
 
 	fileNumberEdit_ = new QLineEdit;
 	connect(fileNumberEdit_, SIGNAL(editingFinished()), this, SLOT(ccdNumberEdited()));
-	connect(endstation_, SIGNAL(ccdNumberChanged(int)), this, SLOT(ccdNumberUpdate(int)));
+	connect(detector_, SIGNAL(ccdNumberChanged(int)), this, SLOT(ccdNumberUpdate(int)));
+
+	QGroupBox *acquisitionBox = new QGroupBox("Acquisition");
+
+	QHBoxLayout *statusLayout = new QHBoxLayout;
+	statusLayout->addWidget(isAcquiring_);
+	statusLayout->addWidget(state_);
+	statusLayout->addWidget(timeRemaining_);
+
+	QHBoxLayout *startLayout = new QHBoxLayout;
+	startLayout->addWidget(acquireTime_);
+	startLayout->addWidget(startButton);
+	startLayout->addWidget(stopButton);
+
+	QHBoxLayout *modeLayout = new QHBoxLayout;
+	modeLayout->addWidget(triggerMode_);
+	modeLayout->addWidget(imageMode_);
+
+	QVBoxLayout *acquisitionLayout = new QVBoxLayout;
+	acquisitionLayout->addLayout(statusLayout);
+	acquisitionLayout->addLayout(startLayout);
+	acquisitionLayout->addLayout(modeLayout);
+
+	acquisitionBox->setLayout(acquisitionLayout);
 
 	QGroupBox *ccdGB = new QGroupBox(tr("Image Path"));
 	QFormLayout *ccdGBLayout = new QFormLayout;
-	ccdGBLayout->addRow("Path:", ccdPathEdit_);
-	ccdGBLayout->addRow("Name:", ccdFileEdit_);
-	ccdGBLayout->addRow("Number:", ccdNumberEdit_);
+	ccdGBLayout->addRow("Path:", filePathEdit_);
+	ccdGBLayout->addRow("Name:", fileNameEdit_);
+	ccdGBLayout->addRow("Number:", fileNumberEdit_);
 	ccdGBLayout->setLabelAlignment(Qt::AlignRight);
 	ccdGB->setLayout(ccdGBLayout);
+
+	QVBoxLayout *detectorLayout = new QVBoxLayout;
+	detectorLayout->addStretch();
+	detectorLayout->addWidget(acquisitionBox);
+	detectorLayout->addWidget(ccdGB);
+	detectorLayout->addStretch();
+
+	QHBoxLayout *horizontalSquishLayout = new QHBoxLayout;
+	horizontalSquishLayout->addStretch();
+	horizontalSquishLayout->addLayout(detectorLayout);
+	horizontalSquishLayout->addStretch();
+
+	QVBoxLayout *masterLayout = new QVBoxLayout;
+	masterLayout->addWidget(topFrame);
+	masterLayout->addStretch();
+	masterLayout->addLayout(horizontalSquishLayout);
+	masterLayout->addStretch();
+
+	setLayout(masterLayout);
+
+	return true;
 }
 
 void VESPERSRoperCCDDetectorView::onTriggerModeChanged(VESPERSRoperCCDDetector::TriggerMode mode)
 {
-	imageMode_->setCurrentIndex((int)mode);
+	triggerMode_->setCurrentIndex((int)mode);
 }
 
 void VESPERSRoperCCDDetectorView::setTriggerMode(int newMode)
@@ -115,6 +177,44 @@ void VESPERSRoperCCDDetectorView::setImageMode(int newMode)
 		if (detector_->imageMode() != VESPERSRoperCCDDetector::Focus )
 			detector_->setImageMode(VESPERSRoperCCDDetector::Focus);
 
+		break;
+	}
+}
+
+void VESPERSRoperCCDDetectorView::onStateChanged(VESPERSRoperCCDDetector::State newState)
+{
+	switch(newState){
+
+	case VESPERSRoperCCDDetector::Idle:
+		state_->setText("Idle");
+		break;
+
+	case VESPERSRoperCCDDetector::Acquire:
+		state_->setText("Acquire");
+		break;
+
+	case VESPERSRoperCCDDetector::Readout:
+		state_->setText("Readout");
+		break;
+
+	case VESPERSRoperCCDDetector::Correct:
+		state_->setText("Correct");
+		break;
+
+	case VESPERSRoperCCDDetector::Saving:
+		state_->setText("Saving");
+		break;
+
+	case VESPERSRoperCCDDetector::Aborting:
+		state_->setText("Aborting");
+		break;
+
+	case VESPERSRoperCCDDetector::Error:
+		state_->setText("Error");
+		break;
+
+	case VESPERSRoperCCDDetector::Waiting:
+		state_->setText("Waiting");
 		break;
 	}
 }

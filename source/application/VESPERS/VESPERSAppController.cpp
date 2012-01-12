@@ -35,6 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSXASScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSEXAFSScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSExperimentConfigurationView.h"
+#include "ui/VESPERS/VESPERSRoperCCDDetectorView.h"
 
 #include "dataman/AMScanEditorModelItem.h"
 #include "ui/dataman/AMGenericScanEditor.h"
@@ -102,6 +103,7 @@ bool VESPERSAppController::startup() {
 
 		AMDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
 		AMDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
+		AMDetectorViewSupport::registerClass<VESPERSRoperCCDDetectorView, VESPERSRoperCCDDetector>();
 
 		// Testing and making the first run in the database, if there isn't one already.  Make this it's own function if you think startup() is getting too big ; )
 		////////////////////////////////////////
@@ -168,9 +170,12 @@ bool VESPERSAppController::startup() {
 		VESPERSXRFFreeRunView *xrf1EFreeRunView = new VESPERSXRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF1E()), workflowManagerView_);
 		VESPERSXRFFreeRunView *xrf4EFreeRunView = new VESPERSXRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF4E()), workflowManagerView_);
 
+		VESPERSRoperCCDDetectorView *roperCCDView = new VESPERSRoperCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
+
 		mw_->insertHeading("Free run", 1);
 		mw_->addPane(xrf1EFreeRunView, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");
 		mw_->addPane(xrf4EFreeRunView, "Free run", "XRF 4-el", ":/utilities-system-monitor.png");
+		mw_->addPane(roperCCDView, "Free run", "XRD - Roper", ":/utilities-system-monitor.png");
 
 		// Setup page that auto-enables detectors.
 		VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
