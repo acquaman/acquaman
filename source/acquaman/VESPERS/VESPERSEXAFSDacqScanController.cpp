@@ -301,7 +301,7 @@ bool VESPERSEXAFSDacqScanController::initializeImplementation()
 		setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->variableIntegrationTime()->createSetupAction(CLSVariableIntegrationTime::EnabledwThreshold,
 																													  time,
 																													  config_->regionStart(regionCount - 1),
-																													  CLSVariableIntegrationTime::Geometric,
+																													  VESPERSBeamline::vespers()->variableIntegrationTime()->function(),
 																													  config_->regionStart(regionCount - 1),
 																													  config_->regionEnd(regionCount - 1),
 																													  10));

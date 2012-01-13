@@ -231,3 +231,22 @@ void VESPERSAppController::onCurrentScanControllerStarted()
 	openScanInEditorAndTakeOwnership(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
 }
 
+void VESPERSAppController::onCurrentScanControllerCreated()
+{
+	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
+
+	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
+		return;
+
+	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
+}
+
+void VESPERSAppController::onCurrentScanControllerFinished()
+{
+	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
+
+	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
+		return;
+
+	disconnect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
+}

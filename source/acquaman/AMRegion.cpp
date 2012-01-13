@@ -735,7 +735,7 @@ QVariant AMEXAFSRegionsListModel::data(const QModelIndex &index, int role) const
 	case 0: // The control.
 		break; // Doing nothing.
 	case 1: // The start value.
-		dataVal = QString::number(region->start(), 'g', 4) + region->units();
+		dataVal = QString::number(region->startByType(AMEXAFSRegion::Energy), 'g', 4) + region->unitsByType(AMEXAFSRegion::Energy);
 		break;
 	case 2: // The delta value.
 		dataVal = QString::number(region->delta(), 'g', 4) + region->units();
@@ -752,7 +752,7 @@ QVariant AMEXAFSRegionsListModel::data(const QModelIndex &index, int role) const
 	case 6: // The time control.
 		break; // Doing nothing.
 	case 7: // The time value.
-		dataVal = (region->type() == AMEXAFSRegion::Energy) ? QString::number(region->time(), 'f', 1) + region->timeUnits() : "-";
+		dataVal = QString::number(region->time(), 'f', 1) + region->timeUnits();
 		break;
 	case 8: // Region type.
 		break;
