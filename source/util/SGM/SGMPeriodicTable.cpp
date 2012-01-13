@@ -34,12 +34,14 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 												      SGMEnergyPosition(295.0, -377497, -140470, 200.46, 0),
 												      SGMEnergyPosition(320.0, -348005, -133061, 100.54, 0)));
 	tmpElementInfo->addEdgeInfo(carbonK);
+	SGMFastScanSettings carbonK5s(5.0, 24000, 5.0, 200, 4000);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
-									5.0, 24000, 5.0, 200, 4000 ));
+									carbonK5s ));
+	SGMFastScanSettings carbonK20s(20.0, 5800, 20.0, 200, 970);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
-									20.0, 5800, 20.0, 200, 970));
+									carbonK20s));
 	sgmPeriodicTableInfo_.append(tmpElementInfo, tmpElementInfo->element());
 
 	//NITROGEN INFO
@@ -48,12 +50,14 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 												      SGMEnergyPosition(415.0, -268341, -105051, 5.99793, 0),
 												      SGMEnergyPosition(430.0, -258981, -101191, 15.5151, 0)));
 	tmpElementInfo->addEdgeInfo(nitrogenK);
+	SGMFastScanSettings nitrogenK5s(5.0, 10000, 5.0, 200, 1500);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
-									5.0, 10000, 5.0, 200, 1500));
+									nitrogenK5s));
+	SGMFastScanSettings nitrogenK20s(20.0, 1800, 20.0, 800, 400);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
-									20.0, 1800, 20.0, 800, 400));
+									nitrogenK20s));
 	sgmPeriodicTableInfo_.append(tmpElementInfo, tmpElementInfo->element());
 
 	//OXYGEN INFO
@@ -62,16 +66,19 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 												      SGMEnergyPosition(545.0, -204333, -73988, 198.591, 0),
 												      SGMEnergyPosition(560.0, -198860, -70692, 232.356, 0)));
 	tmpElementInfo->addEdgeInfo(oxygenK);
+	SGMFastScanSettings oxygenK5s(5.0, 10000, 5.0, 200, 1600);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
-									5.0, 10000, 5.0, 200, 1600));
+									oxygenK5s));
+	SGMFastScanSettings oxygenK20s(20.0, 1100, 20.0, 800, 330);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
-									20.0, 1100, 20.0, 800, 330));
+									oxygenK20s));
 	sgmPeriodicTableInfo_.append(tmpElementInfo, tmpElementInfo->element());
 
 	//CALCIUM INFO
 	tmpElementInfo = new SGMElementInfo(AMPeriodicTable::table()->elementBySymbol("Ca"), this);
+	/*
 	SGMEdgeInfo calciumL3(AMPeriodicTable::table()->elementBySymbol("Ca")->L3Edge(), SGMScanRangeInfo(SGMEnergyPosition(345.0, -322785, -125202, 1.0, 1),
 													 SGMEnergyPosition(350.0, -318716, -123716, 1.0, 1),
 													 SGMEnergyPosition(355.0, -313695, -122224, 1.0, 1)));
@@ -92,22 +99,26 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("L2")),
 									20.0, 950, 20.0, 800, 170));
+	*/
 
 	SGMStandardScanInfo calciumL("L Edge", SGMScanRangeInfo(SGMEnergyPosition(345.0, -322785, -125202, 1.0, 1),
 											SGMEnergyPosition(355.0, -313695, -122224, 1.0, 1),
 											SGMEnergyPosition(365.0, -305100, -119343, 1.0, 1)));
 	tmpElementInfo->addStandardScanInfo(calciumL);
+	SGMFastScanSettings calciumL5s(5.0, 8500, 5.0, 200, 1800);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmStandardScanInfos().at(tmpElementInfo->sgmStandardScanInfos().indexOfKey("L Edge")),
-									5.0, 8500, 5.0, 200, 1800));
+									calciumL5s));
+	SGMFastScanSettings calciumL20s(20.0, 1800, 20.0, 800, 300);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmStandardScanInfos().at(tmpElementInfo->sgmStandardScanInfos().indexOfKey("L Edge")),
-									20.0, 1800, 20.0, 800, 300));
+									calciumL20s));
 
 	sgmPeriodicTableInfo_.append(tmpElementInfo, tmpElementInfo->element());
 
 	//TITANIUM INFO
 	tmpElementInfo = new SGMElementInfo(AMPeriodicTable::table()->elementBySymbol("Ti"), this);
+	/*
 	SGMEdgeInfo titaniumL3(AMPeriodicTable::table()->elementBySymbol("Ti")->L3Edge(), SGMScanRangeInfo(SGMEnergyPosition(450.0, -247469, -96777, 1.0, 0),
 													 SGMEnergyPosition(457.5, -243412, -94931, 1.0, 0),
 													 SGMEnergyPosition(465.0, -239490, -93072, 1.0, 0)));
@@ -128,22 +139,26 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("L2")),
 									20.0, 950, 20.0, 800, 170));
+	*/
 
 	SGMStandardScanInfo titaniumL("L Edge", SGMScanRangeInfo(SGMEnergyPosition(450.0, -247469, -96777, 1.0, 0),
 											SGMEnergyPosition(465.0, -239490, -93072, 1.0, 0),
 											SGMEnergyPosition(480.0, -232004, -89479, 21.226, 0)));
 	tmpElementInfo->addStandardScanInfo(titaniumL);
+	SGMFastScanSettings titaniumL5s(5.0, 8500, 5.0, 200, 1800);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmStandardScanInfos().at(tmpElementInfo->sgmStandardScanInfos().indexOfKey("L Edge")),
-									5.0, 8500, 5.0, 200, 1800));
+									titaniumL5s));
+	SGMFastScanSettings titaniumL20s(20.0, 1800, 20.0, 800, 300);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmStandardScanInfos().at(tmpElementInfo->sgmStandardScanInfos().indexOfKey("L Edge")),
-									20.0, 1800, 20.0, 800, 300));
+									titaniumL20s));
 
 	sgmPeriodicTableInfo_.append(tmpElementInfo, tmpElementInfo->element());
 
 	//CHROMIUM INFO
 	tmpElementInfo = new SGMElementInfo(AMPeriodicTable::table()->elementBySymbol("Cr"), this);
+	/*
 	SGMEdgeInfo chromiumL3(AMPeriodicTable::table()->elementBySymbol("Cr")->L3Edge(), SGMScanRangeInfo(SGMEnergyPosition(565.0, -197101, -70227, 189.973, 0),
 													 SGMEnergyPosition(575.0, -193671, -68067, 213.716, 0),
 													 SGMEnergyPosition(585.0, -190363, -65922, 238.105, 0)));
@@ -164,22 +179,26 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("L2")),
 									20.0, 950, 20.0, 800, 170));
+	*/
 
 	SGMStandardScanInfo chromiumL("L Edge", SGMScanRangeInfo(SGMEnergyPosition(565.0, -197101, -70227, 189.973, 0),
 											SGMEnergyPosition(585.0, -190363, -65922, 238.105, 0),
 											SGMEnergyPosition(605.0, -184068, -61689, 288.669, 0)));
 	tmpElementInfo->addStandardScanInfo(chromiumL);
+	SGMFastScanSettings chromiumL5s(5.0, 8500, 5.0, 200, 1800);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmStandardScanInfos().at(tmpElementInfo->sgmStandardScanInfos().indexOfKey("L Edge")),
-									5.0, 8500, 5.0, 200, 1800));
+									chromiumL5s));
+	SGMFastScanSettings chromiumL20s(20.0, 1800, 20.0, 800, 300);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmStandardScanInfos().at(tmpElementInfo->sgmStandardScanInfos().indexOfKey("L Edge")),
-									20.0, 1800, 20.0, 800, 300));
+									chromiumL20s));
 
 	sgmPeriodicTableInfo_.append(tmpElementInfo, tmpElementInfo->element());
 
 	//IRON INFO
 	tmpElementInfo = new SGMElementInfo(AMPeriodicTable::table()->elementBySymbol("Fe"), this);
+	/*
 	SGMEdgeInfo ironL3(AMPeriodicTable::table()->elementBySymbol("Fe")->L3Edge(), SGMScanRangeInfo(SGMEnergyPosition(700.0, -159088, -42422, 554.784, 0),
 													 SGMEnergyPosition(710.0, -156847, -40435, 584.795, 0),
 													 SGMEnergyPosition(720.0, -154667, -38483, 615.12, 0)));
@@ -200,22 +219,26 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("L2")),
 									20.0, 950, 20.0, 800, 170));
+	*/
 
 	SGMStandardScanInfo ironL("L Edge", SGMScanRangeInfo(SGMEnergyPosition(700.0, -159088, -42422, 554.784, 0),
 											SGMEnergyPosition(720.0, -154667, -38483, 615.12, 0),
 											SGMEnergyPosition(740.0, -150491, -34593, 676.653, 0)));
 	tmpElementInfo->addStandardScanInfo(ironL);
+	SGMFastScanSettings ironL5s(5.0, 8500, 5.0, 200, 1800);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmStandardScanInfos().at(tmpElementInfo->sgmStandardScanInfos().indexOfKey("L Edge")),
-									5.0, 8500, 5.0, 200, 1800));
+									ironL5s));
+	SGMFastScanSettings ironL20s(20.0, 1800, 20.0, 800, 300);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmStandardScanInfos().at(tmpElementInfo->sgmStandardScanInfos().indexOfKey("L Edge")),
-									20.0, 1800, 20.0, 800, 300));
+									ironL20s));
 
 	sgmPeriodicTableInfo_.append(tmpElementInfo, tmpElementInfo->element());
 
 	//NICKEL INFO
 	tmpElementInfo = new SGMElementInfo(AMPeriodicTable::table()->elementBySymbol("Ni"), this);
+	/*
 	SGMEdgeInfo nickelL3(AMPeriodicTable::table()->elementBySymbol("Ni")->L3Edge(), SGMScanRangeInfo(SGMEnergyPosition(840.0, -242330, -15364, 78.917, 1),
 													 SGMEnergyPosition(852.5, -238779, -13006, 89.776, 1),
 													 SGMEnergyPosition(865.0, -235326, -10614, 101.285, 1)));
@@ -236,17 +259,20 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("L2")),
 									20.0, 950, 20.0, 800, 170));
+	*/
 
 	SGMStandardScanInfo nickelL("L Edge", SGMScanRangeInfo(SGMEnergyPosition(840.0, -242330, -15364, 78.917, 1),
 											SGMEnergyPosition(865.0, -235326, -10614, 101.285, 1),
 											SGMEnergyPosition(890.0, -228716, -5858, 126.123, 1)));
 	tmpElementInfo->addStandardScanInfo(nickelL);
+	SGMFastScanSettings nickelL5s(5.0, 8500, 5.0, 200, 1800);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmStandardScanInfos().at(tmpElementInfo->sgmStandardScanInfos().indexOfKey("L Edge")),
-									5.0, 8500, 5.0, 200, 1800));
+									nickelL5s));
+	SGMFastScanSettings nickelL20s(20.0, 1800, 20.0, 800, 300);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmStandardScanInfos().at(tmpElementInfo->sgmStandardScanInfos().indexOfKey("L Edge")),
-									20.0, 1800, 20.0, 800, 300));
+									nickelL20s));
 
 	sgmPeriodicTableInfo_.append(tmpElementInfo, tmpElementInfo->element());
 
@@ -256,16 +282,19 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 													 SGMEnergyPosition(935.0, -217710, 3318, 230.292, 1),
 													 SGMEnergyPosition(945.0, -215406, 5232, 242.299, 1)));
 	tmpElementInfo->addEdgeInfo(copperL3);
+	SGMFastScanSettings copperL5s(5.0, 3000, 5.0, 200, 1000);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("L3")),
-									5.0, 3000, 5.0, 200, 1000));
+									copperL5s));
+	SGMFastScanSettings copperL20s(20.0, 450, 20.0, 800, 235);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("L3")),
-									20.0, 450, 20.0, 800, 235));
+									copperL20s));
 	sgmPeriodicTableInfo_.append(tmpElementInfo, tmpElementInfo->element());
 
 	//ZINC INFO
 	tmpElementInfo = new SGMElementInfo(AMPeriodicTable::table()->elementBySymbol("Zn"), this);
+	/*
 	SGMEdgeInfo zincL3(AMPeriodicTable::table()->elementBySymbol("Zn")->L3Edge(), SGMScanRangeInfo(SGMEnergyPosition(1010.0, -201543, 17819, 326.886, 1),
 													 SGMEnergyPosition(1025.0, -198594, 20749, 347.853, 1),
 													 SGMEnergyPosition(1040.0, -195729, 23697, 369.307, 1)));
@@ -286,17 +315,20 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("L2")),
 									20.0, 600, 20.0, 800, 350));
+	*/
 
 	SGMStandardScanInfo zincL("L Edge", SGMScanRangeInfo(SGMEnergyPosition(1010.0, -201543, 17796, 326.886),
 											SGMEnergyPosition(1035.0, -196675, 22723, 362.103, 1),
 											SGMEnergyPosition(1060.0, -192036, 27678, 398.628, 1)));
 	tmpElementInfo->addStandardScanInfo(zincL);
+	SGMFastScanSettings zincL5s(5.0, 6000, 5.0, 200, 3500);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmStandardScanInfos().at(tmpElementInfo->sgmStandardScanInfos().indexOfKey("L Edge")),
-									5.0, 6000, 5.0, 200, 3500));
+									zincL5s));
+	SGMFastScanSettings zincL20s(20.0, 850, 20.0, 800, 600);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmStandardScanInfos().at(tmpElementInfo->sgmStandardScanInfos().indexOfKey("L Edge")),
-									20.0, 850, 20.0, 800, 600));
+									zincL20s));
 
 	sgmPeriodicTableInfo_.append(tmpElementInfo, tmpElementInfo->element());
 
@@ -306,12 +338,14 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 												      SGMEnergyPosition(1080.0, -188479, 31109, 374.72, 1),
 												      SGMEnergyPosition(1110.0, -183388, 37235, 421.201, 1)));
 	tmpElementInfo->addEdgeInfo(sodiumK);
+	SGMFastScanSettings sodiumK5s(5.0, 24000, 5.0, 200, 4000);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
-									5.0, 24000, 5.0, 200, 4000 ));
+									sodiumK5s ));
+	SGMFastScanSettings sodiumK20s(20.0, 4800, 20.0, 200, 820);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
-									20.0, 4800, 20.0, 200, 820));
+									sodiumK20s));
 	sgmPeriodicTableInfo_.append(tmpElementInfo, tmpElementInfo->element());
 
 	//MAGNESIUM INFO
@@ -320,12 +354,14 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 												      SGMEnergyPosition(1315.0, -239101, -99682, 105.38, 2),
 												      SGMEnergyPosition(1340.0, -234638, -97582, 120.65, 2)));
 	tmpElementInfo->addEdgeInfo(magnesiumK);
+	SGMFastScanSettings magnesiumK5s(5.0, 24000, 5.0, 200, 4000);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
-									5.0, 24000, 5.0, 200, 4000 ));
+									magnesiumK5s ));
+	SGMFastScanSettings magnesiumK20s(20.0, 4800, 20.0, 200, 820);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
-									20.0, 4800, 20.0, 200, 820));
+									magnesiumK20s));
 	sgmPeriodicTableInfo_.append(tmpElementInfo, tmpElementInfo->element());
 
 	//ALUMINUM INFO
@@ -334,12 +370,14 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 												      SGMEnergyPosition(1580.0, -198998, -78694, 311.23, 2),
 												      SGMEnergyPosition(1610.0, -195288, -76434, 339.47, 2)));
 	tmpElementInfo->addEdgeInfo(aluminumK);
+	SGMFastScanSettings aluminumK5s(5.0, 24000, 5.0, 200, 4000);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
-									5.0, 24000, 5.0, 200, 4000 ));
+									aluminumK5s ));
+	SGMFastScanSettings aluminumK20s(20.0, 4800, 20.0, 200, 820);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
-									20.0, 4800, 20.0, 200, 820));
+									aluminumK20s));
 	sgmPeriodicTableInfo_.append(tmpElementInfo, tmpElementInfo->element());
 
 	//SILICON INFO
@@ -348,12 +386,14 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 												      SGMEnergyPosition(1860.0, -169041, -58574, 601.08, 2),
 												      SGMEnergyPosition(1890.0, -166359, -56493, 635.07, 2)));
 	tmpElementInfo->addEdgeInfo(siliconK);
+	SGMFastScanSettings siliconK5s(5.0, 24000, 5.0, 200, 4000);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
-									5.0, 24000, 5.0, 200, 4000 ));
+									siliconK5s ));
+	SGMFastScanSettings siliconK20s(20.0, 4800, 20.0, 200, 820);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
-									20.0, 4800, 20.0, 200, 820));
+									siliconK20s));
 	sgmPeriodicTableInfo_.append(tmpElementInfo, tmpElementInfo->element());
 }
 

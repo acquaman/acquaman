@@ -219,6 +219,7 @@ Q_OBJECT
 
 public:
 	explicit SGMFastScanSettings(QObject *parent = 0);
+	SGMFastScanSettings(double runSeconds, int motorSettings, double scalerTime, int baseLine, int undulatorVelocity, QObject *parent = 0);
 
 	double runSeconds() const;
 	int motorSettings() const;

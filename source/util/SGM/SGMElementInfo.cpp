@@ -207,6 +207,16 @@ SGMFastScanSettings::SGMFastScanSettings(QObject *parent) :
 	undulatorVelocity_ = 0;
 }
 
+SGMFastScanSettings::SGMFastScanSettings(double runSeconds, int motorSettings, double scalerTime, int baseLine, int undulatorVelocity, QObject *parent) :
+	AMDbObject(parent)
+{
+	runSeconds_ = runSeconds;
+	motorSettings_ = motorSettings;
+	scalerTime_ = scalerTime;
+	baseLine_ = baseLine;
+	undulatorVelocity_ = undulatorVelocity;
+}
+
 double SGMFastScanSettings::runSeconds() const{
 	return runSeconds_;
 }
