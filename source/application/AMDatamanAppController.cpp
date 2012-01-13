@@ -570,7 +570,7 @@ void AMDatamanAppController::launchScanConfigurationFromDb(const QUrl &url)
 	AMScanConfigurationView *view = config->createView();
 	if(!view) {
 		delete config;
-		/// \todo Error message here? Explain to user why it's not working?
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -401, "Unable to create view from the scan configuration loaded from the database.  Contact Acquaman developers."));
 		return;
 	}
 
