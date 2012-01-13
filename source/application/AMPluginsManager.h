@@ -46,6 +46,9 @@ public:
 	/// Calling this will clear the existing plugins and reload all that we find on the disk, in AMSettings::fileLoaderPluginsFolder() and AMSettings::analysisBlockPluginsFolder().
 	void loadApplicationPlugins();
 
+	/// Calling this will clear the existing plugins and reload all that we find on the disk, in fileLoaderFolder and analysisBlockFolder.
+	void loadApplicationPlugins(const QString &fileLoaderFolder, const QString &analysisBlocksFolder);
+
 protected:
 	/// This is a singleton class, so the constructor is protected.
 	AMPluginsManager() : mutex_(QReadWriteLock::Recursive) {}

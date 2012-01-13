@@ -67,7 +67,7 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	closedLoopEnabled_ = new AMPVControl(name+"ClosedLoopEnabled", baseName+":closedLoop", baseName+":closedLoop", QString(), this, 0.1);
 	servoPIDEnabled_ = new AMPVControl(name+"ServoPIDEnabled", baseName+":hold:sp", baseName+":hold", QString(), this, 0.1);
 
-	encoderTarget_ = new AMPVwStatusControl(name+"EncoderTarget", baseName+":encTarget:fbk", baseName+":encTarget", baseName+":status", QString(), this, 10, 2.0, new AMControlStatusCheckerCLSMAXv(), 1);
+	encoderTarget_ = new AMPVwStatusControl(name+"EncoderTarget", baseName+":enc:fbk", baseName+":encTarget", baseName+":status", QString(), this, 10, 2.0, new AMControlStatusCheckerCLSMAXv(), 1);
 	encoderMovementType_ = new AMPVControl(name+"EncoderMovementType", baseName+":encMoveType", baseName+":selEncMvType", QString(), this, 0.1);
 	preDeadBand_ = new AMPVControl(name+"PreDeadBand", baseName+":preDBand", baseName+":preDBand", QString(), this, 1);
 	postDeadBand_ = new AMPVControl(name+"PostDeadBand", baseName+":postDBand", baseName+":postDBand", QString(), this, 1);
@@ -155,7 +155,45 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 }
 
 bool CLSMAXvMotor::isConnected() const{
-	return AMPVwStatusControl::isConnected() && step_->isConnected() && stepVelocity_->isConnected() && stepBaseVelocity_->isConnected() && stepAcceleration_->isConnected() && stepCurrentVelocity_->isConnected();
+	bool coreFunctions = true;
+	bool encoderFunctions = true;
+	coreFunctions = AMPVwStatusControl::isConnected()
+			&& EGUVelocity_->isConnected()
+			&& EGUBaseVelocity_->isConnected()
+			&& EGUAcceleration_->isConnected()
+			&& EGUCurrentVelocity_->isConnected()
+			&& EGUOffset_->isConnected()
+			&& step_->isConnected()
+			&& stepVelocity_->isConnected()
+			&& stepBaseVelocity_->isConnected()
+			&& stepAcceleration_->isConnected()
+			&& stepCurrentVelocity_->isConnected()
+			&& cwLimit_->isConnected()
+			&& ccwLimit_->isConnected()
+			&& powerState_->isConnected()
+			&& powerInverted_->isConnected()
+			&& stepCalibrationSlope_->isConnected()
+			&& stepCalibrationOffset_->isConnected()
+			&& motorType_->isConnected()
+			&& limitActiveState_->isConnected()
+			&& limitDisabled_->isConnected();
+	if(hasEncoder_)
+		encoderFunctions = encoderCalibrationSlope_->isConnected()
+			&& encoderCalibrationOffset_->isConnected()
+			&& encoderCalibrationOffset_->isConnected()
+			&& encoderType_->isConnected()
+			&& encoderEncoding_->isConnected()
+			&& closedLoopEnabled_->isConnected()
+			&& servoPIDEnabled_->isConnected()
+			&& encoderTarget_->isConnected()
+			&& encoderMovementType_->isConnected()
+			&& preDeadBand_->isConnected()
+			&& postDeadBand_->isConnected()
+			&& maxRetries_->isConnected()
+			&& actualRetries_->isConnected()
+			&& encoderPercentApproach_->isConnected()
+			&& encoderStepSoftRatio_->isConnected();
+	return coreFunctions && encoderFunctions;
 }
 
 double CLSMAXvMotor::EGUVelocity() const{

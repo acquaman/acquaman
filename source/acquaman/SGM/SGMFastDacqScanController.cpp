@@ -19,11 +19,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "SGMFastDacqScanController.h"
-
+#include "util/SGM/SGMDacqConfigurationFile.h"
+#include "dataman/database/AMDbObjectSupport.h"
 #include <QDir>
 
 SGMFastDacqScanController::SGMFastDacqScanController(SGMFastScanConfiguration *cfg, QObject *parent) :
-		AMDacqScanController(cfg, parent), SGMFastScanController(cfg)
+	AMDacqScanController(cfg, parent), SGMFastScanController(cfg)
 {
 	scan_ = specificScan_;	//MB: Moved from startImplementation(). The specificScan_ is new'd in the SGMFastScanController constructor.
 	lastProgress_ = 0.0;
@@ -39,8 +40,8 @@ SGMFastDacqScanController::SGMFastDacqScanController(SGMFastScanConfiguration *c
 bool SGMFastDacqScanController::initializeImplementation(){
 	if(SGMFastScanController::beamlineInitialize() && initializationActions_){
 		/* NTBA - August 25th, 2011 (David Chevrier)
-			Do we need to also clear any raw data sources here, or just the raw data itself?"
-		*/
+   Do we need to also clear any raw data sources here, or just the raw data itself?"
+  */
 		scan_->clearRawDataPoints();
 		connect(initializationActions_, SIGNAL(listSucceeded()), this, SLOT(onInitializationActionsSucceeded()));
 		connect(initializationActions_, SIGNAL(stageSucceeded(int)), this, SLOT(onInitializationActionsStageSucceeded(int)));
@@ -50,49 +51,44 @@ bool SGMFastDacqScanController::initializeImplementation(){
 		return true;
 	}
 	AMErrorMon::report(AMErrorReport(this,
-			AMErrorReport::Alert,
-			SGMFASTDACQSCANCONTROLLER_CANT_INTIALIZE,
-			"Error, SGM Fast DACQ Scan Controller failed to initialize. Please report this bug to the Acquaman developers."));
+					 AMErrorReport::Alert,
+					 SGMFASTDACQSCANCONTROLLER_CANT_INTIALIZE,
+					 "Error, SGM Fast DACQ Scan Controller failed to initialize. Please report this bug to the Acquaman developers."));
 	return false;
 }
 
 bool SGMFastDacqScanController::startImplementation(){
 	if(SGMBeamline::sgm()->isBeamlineScanning()){
 		AMErrorMon::report(AMErrorReport(this,
-				AMErrorReport::Alert,
-				SGMFASTDACQSCANCONTROLLER_CANT_INTIALIZE,
-				"Error, SGM Fast DACQ Scan Controller failed to start (SGM is already scanning). Please report this bug to the Acquaman developers."));
+						 AMErrorReport::Alert,
+						 SGMFASTDACQSCANCONTROLLER_CANT_INTIALIZE,
+						 "Error, SGM Fast DACQ Scan Controller failed to start (SGM is already scanning). Please report this bug to the Acquaman developers."));
 		return false;
 	}
 	bool loadSuccess;
-	QString homeDir = QDir::homePath();
-	if( QDir(homeDir+"/dev").exists())
-		homeDir.append("/dev");
-	else if( QDir(homeDir+"/beamline/programming").exists())
-		homeDir.append("/beamline/programming");
-	/*
-	else if( QDir(homeDir+"/Sandbox/Acquaman2011/dev").exists())
-                homeDir.append("/Sandbox/Acquaman2011/dev");
-	else if( QDir("/home/sgm/Sandbox/Acquaman2011/dev").exists())
-		homeDir = "/home/sgm/Sandbox/Acquaman2011/dev";
-	*/
 
 	for(int x = 0; x < config_->allDetectors()->count(); x++){
 		if(config_->allDetectors()->isDefaultAt(x) && !SGMBeamline::sgm()->detectorValidForCurrentSignalSource(config_->allDetectors()->detectorAt(x)->toInfo())){
 			AMErrorMon::report(AMErrorReport(this,
-					AMErrorReport::Alert,
-					SGMFASTDACQSCANCONTROLLER_CANT_START_DETECTOR_SOURCE_MISMATCH,
-					"Error, SGM Fast DACQ Scan Controller failed to start. The SGM Beamline thinks you're configured to use the wrong detectors (picoammeters versus scalers). Please report this bug to the Acquaman developers."));
+							 AMErrorReport::Alert,
+							 SGMFASTDACQSCANCONTROLLER_CANT_START_DETECTOR_SOURCE_MISMATCH,
+							 "Error, SGM Fast DACQ Scan Controller failed to start. The SGM Beamline thinks you're configured to use the wrong detectors (picoammeters versus scalers). Please report this bug to the Acquaman developers."));
 			return false;
 		}
 	}
 
-	loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/Scalar_Fast.config"));
+	SGMDacqConfigurationFile *configFile = new SGMDacqConfigurationFile();
+	QList<int> matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "FastScaler");
+	if(matchIDs.count() > 0){
+		configFile->loadFromDb(AMDatabase::database("SGMBeamline"), matchIDs.at(0));
+		loadSuccess = advAcq_->setConfigFile(configFile->configurationFileFullPath());
+	}
+
 	if(!loadSuccess){
 		AMErrorMon::report(AMErrorReport(this,
-				AMErrorReport::Alert,
-				SGMFASTDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
-				"Error, SGM Fast DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
+						 AMErrorReport::Alert,
+						 SGMFASTDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
+						 "Error, SGM Fast DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
 		return false;
 	}
 	/**/
@@ -186,7 +182,7 @@ bool SGMFastDacqScanController::event(QEvent *e){
 					if(x%6 == 0)
 						readings.clear();
 					if( x%6 == 0 || x%6 == 1 || x%6 == 2 || x%6 == 3 ){
-					//if( x%6 == 0 || x%6 == 1 || x%6 == 4 || x%6 == 5 ){
+						//if( x%6 == 0 || x%6 == 1 || x%6 == 4 || x%6 == 5 ){
 						if(j.value().at(x+1) == 0)
 							readings.append(1);
 						else
@@ -203,14 +199,14 @@ bool SGMFastDacqScanController::event(QEvent *e){
 					if( x%6 == 5 ){
 						energyFbk = (1.0e-9*1239.842*sParam)/(2*spacingParam*c1Param*c2Param*(double)encoderReading*cos(thetaParam/2));
 						//if( ( (readings.at(0) > config_->baseLine()) && (scan_->rawData()->scanSize(0) == 0) ) || ( (scan_->rawData()->scanSize(0) > 0) && (fabs(energyFbk - (double)scan_->rawData()->axisValue(0, scan_->rawData()->scanSize(0)-1)) > 0.001) ) ){
-							scan_->rawData()->beginInsertRows(0);
-							scan_->rawData()->setAxisValue(0, scan_->rawData()->scanSize(0)-1, energyFbk);
-							//scan_->rawData()->setValue(AMnDIndex(scan_->rawData()->scanSize(0)-1), 0, AMnDIndex(), readings.at(0));
-							scan_->rawData()->setValue(AMnDIndex(scan_->rawData()->scanSize(0)-1), 0, AMnDIndex(), max(readings.at(0), 1.0));
-							scan_->rawData()->setValue(AMnDIndex(scan_->rawData()->scanSize(0)-1), 1, AMnDIndex(), readings.at(1));
-							scan_->rawData()->setValue(AMnDIndex(scan_->rawData()->scanSize(0)-1), 2, AMnDIndex(), readings.at(2));
-							scan_->rawData()->setValue(AMnDIndex(scan_->rawData()->scanSize(0)-1), 3, AMnDIndex(), readings.at(3));
-							scan_->rawData()->endInsertRows();
+						scan_->rawData()->beginInsertRows(0);
+						scan_->rawData()->setAxisValue(0, scan_->rawData()->scanSize(0)-1, energyFbk);
+						//scan_->rawData()->setValue(AMnDIndex(scan_->rawData()->scanSize(0)-1), 0, AMnDIndex(), readings.at(0));
+						scan_->rawData()->setValue(AMnDIndex(scan_->rawData()->scanSize(0)-1), 0, AMnDIndex(), max(readings.at(0), 1.0));
+						scan_->rawData()->setValue(AMnDIndex(scan_->rawData()->scanSize(0)-1), 1, AMnDIndex(), readings.at(1));
+						scan_->rawData()->setValue(AMnDIndex(scan_->rawData()->scanSize(0)-1), 2, AMnDIndex(), readings.at(2));
+						scan_->rawData()->setValue(AMnDIndex(scan_->rawData()->scanSize(0)-1), 3, AMnDIndex(), readings.at(3));
+						scan_->rawData()->endInsertRows();
 						//}
 					}
 				}
