@@ -52,6 +52,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/SGM/SGMDacqConfigurationFile.h"
 #include "util/SGM/SGMPluginsLocation.h"
 #include "application/AMPluginsManager.h"
+#include "util/SGM/SGMPeriodicTable.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
@@ -73,6 +74,8 @@ bool SGMAppController::startup() {
 		if(!setupSGMDatabase())
 			return false;
 		if(!startupSGMInstallActions())
+			return false;
+		if(!setupSGMPeriodicTable())
 			return false;
 
 		SGMBeamline::sgm();
@@ -390,6 +393,47 @@ bool SGMAppController::setupSGMDatabase(){
 		success &= analysisBlockPluginsLocation->loadFromDb(dbSGM, matchIDs.at(0));
 	if(success)
 		AMPluginsManager::s()->loadApplicationPlugins(fileLoaderPluginsLocation->pluginFolderPath(), analysisBlockPluginsLocation->pluginFolderPath());
+
+	return success;
+}
+
+bool SGMAppController::setupSGMPeriodicTable(){
+	bool success = true;
+
+	AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
+	if(!dbSGM)
+		return false;
+
+	QList<int> matchIDs;
+
+	success &= AMDbObjectSupport::s()->registerClass<SGMEnergyPosition>();
+	success &= AMDbObjectSupport::s()->registerClass<SGMScanRangeInfo>();
+	success &= AMDbObjectSupport::s()->registerClass<SGMEdgeInfo>();
+	success &= AMDbObjectSupport::s()->registerClass<SGMStandardScanInfo>();
+	success &= AMDbObjectSupport::s()->registerClass<SGMElementInfo>();
+	success &= AMDbObjectSupport::s()->registerClass<SGMFastScanSettings>();
+	success &= AMDbObjectSupport::s()->registerClass<SGMFastScanParameters>();
+
+	QString groupName = "SGM_Carbon";
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", groupName);
+	if(matchIDs.count() == 0){
+		/*
+		SGMElementInfo *carbonInfo = new SGMElementInfo(AMPeriodicTable::table()->elementBySymbol("C"), this, groupName);
+		SGMEdgeInfo carbonK(AMPeriodicTable::table()->elementBySymbol("C")->KEdge(), SGMScanRangeInfo(SGMEnergyPosition(270.0, -397720, -149991, 286.63, 0, groupName+"_Start"),
+													      SGMEnergyPosition(295.0, -377497, -140470, 200.46, 0, groupName+"_Middle"),
+													      SGMEnergyPosition(320.0, -348005, -133061, 100.54, 0, groupName+"_End"), groupName+"_Range"),
+				    groupName+"K");
+		carbonInfo->addEdgeInfo(carbonK);
+		carbonInfo->addFastScanParameters(new SGMFastScanParameters(carbonInfo->element()->name(),
+										carbonInfo->sgmEdgeInfos().at(carbonInfo->sgmEdgeInfos().indexOfKey("K")),
+										SGMFastScanSettings(5.0, 24000, 5.0, 200, 4000, this, groupName+"K5s_Settings"), this, groupName+"K5s" ));
+		carbonInfo->addFastScanParameters(new SGMFastScanParameters(carbonInfo->element()->name(),
+										carbonInfo->sgmEdgeInfos().at(carbonInfo->sgmEdgeInfos().indexOfKey("K")),
+										SGMFastScanSettings(20.0, 5800, 20.0, 200, 970, this, groupName+"K20s_Settings"), this, groupName+"K20s"));
+		//sgmPeriodicTableInfo_.append(tmpElementInfo, tmpElementInfo->element());
+		success &= carbonInfo->storeToDb(dbSGM);
+		*/
+	}
 
 	return success;
 }

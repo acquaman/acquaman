@@ -66,6 +66,7 @@ protected slots:
 protected:
 	bool startupSGMInstallActions();
 	bool setupSGMDatabase();
+	bool setupSGMPeriodicTable();
 
 protected:
 

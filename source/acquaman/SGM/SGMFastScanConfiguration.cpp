@@ -243,77 +243,61 @@ bool SGMFastScanConfiguration::setElement(const QString& element){
 }
 
 bool SGMFastScanConfiguration::setRunSeconds(double runSeconds){
-	/*
 	currentSettings_->setRunSeconds(runSeconds);
 	emit onRunSecondsChanged(currentSettings_->runSeconds());
 	setModified(true);
 	return true;
-	*/
 }
 
 bool SGMFastScanConfiguration::setEnergyStart(double energyStart){
-	/*
 	currentSettings_->setEnergyStart(energyStart);
 	setStartEnergy(energyStart);
 	emit onEnergyStartChanged(currentSettings_->energyStart());
 	setModified(true);
 	return true;
-	*/
 }
 
 bool SGMFastScanConfiguration::setEnergyMidpoint(double energyMidpoint){
-	/*
 	currentSettings_->setEnergyMidpoint(energyMidpoint);
 	emit onEnergyMidpointChanged(currentSettings_->energyMidpoint());
 	setModified(true);
 	return true;
-	*/
 }
 
 bool SGMFastScanConfiguration::setEnergyEnd(double energyEnd){
-	/*
 	currentSettings_->setEnergyEnd(energyEnd);
 	setEndEnergy(energyEnd);
 	emit onEnergyEndChanged(currentSettings_->energyEnd());
 	setModified(true);
 	return true;
-	*/
 }
 
 bool SGMFastScanConfiguration::setVelocity(int velocity){
-	/*
 	currentSettings_->setVelocity(velocity);
 	emit onVelocityChanged(currentSettings_->velocity());
 	setModified(true);
 	return true;
-	*/
 }
 
 bool SGMFastScanConfiguration::setVelocityBase(int velocityBase){
-	/*
 	currentSettings_->setVelocityBase(velocityBase);
 	emit onVelocityBaseChanged(currentSettings_->velocityBase());
 	setModified(true);
 	return true;
-	*/
 }
 
 bool SGMFastScanConfiguration::setAcceleration(int acceleration){
-	/*
 	currentSettings_->setAcceleration(acceleration);
 	emit onAccelerationChanged(currentSettings_->acceleration());
 	setModified(true);
 	return true;
-	*/
 }
 
 bool SGMFastScanConfiguration::setScalerTime(double scalerTime){
-	/*
 	currentSettings_->setScalerTime(scalerTime);
 	emit onScalerTimeChanged(currentSettings_->scalerTime());
 	setModified(true);
 	return true;
-	*/
 }
 
 bool SGMFastScanConfiguration::setEnergyParameters(SGMEnergyParameters *parameters){
@@ -377,57 +361,45 @@ bool SGMFastScanConfiguration::setThetaParameter(double thetaParameter){
 }
 
 bool SGMFastScanConfiguration::setBaseLine(int baseLine){
-	/*
 	currentSettings_->setBaseLine(baseLine);
 	emit onBaseLineChanged(currentSettings_->baseLine());
 	setModified(true);
 	return true;
-	*/
 }
 
 bool SGMFastScanConfiguration::setUndulatorStartStep(int undulatorStartStep){
-	/*
 	currentSettings_->setUndulatorStartStep(undulatorStartStep);
 	emit undulatorStartStepChanged(currentSettings_->undulatorStartStep());
 	setModified(true);
 	return true;
-	*/
 }
 
 bool SGMFastScanConfiguration::setUndulatorVelocity(int undulatorVelocity){
-	/*
 	currentSettings_->setUndulatorVelocity(undulatorVelocity);
 	emit undulatorVelocityChanged(currentSettings_->undulatorVelocity());
 	setModified(true);
 	return true;
-	*/
 }
 
 bool SGMFastScanConfiguration::setUndulatorRelativeStep(int undulatorRelativeStep){
-	/*
 	currentSettings_->setUndulatorRelativeStep(undulatorRelativeStep);
 	emit undulatorRelativeStepChanged(currentSettings_->undulatorRelativeStep());
 	setModified(true);
 	return true;
-	*/
 }
 
 bool SGMFastScanConfiguration::setExitSlitDistance(double exitSlitDistance){
-	/*
 	currentSettings_->setExitSlitDistance(exitSlitDistance);
 	emit exitSlitDistanceChanged(currentSettings_->exitSlitDistance());
 	setModified(true);
 	return true;
-	*/
 }
 
 bool SGMFastScanConfiguration::setSGMGrating(int sgmGrating){
-	/*
 	currentSettings_->setSGMGrating(sgmGrating);
 	emit sgmGratingChanged(currentSettings_->sgmGrating());
 	setModified(true);
 	return true;
-	*/
 }
 
 bool SGMFastScanConfiguration::setDetectorConfigurations(AMDetectorInfoSet detectorConfigurations) {

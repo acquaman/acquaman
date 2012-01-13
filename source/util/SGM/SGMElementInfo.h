@@ -42,7 +42,7 @@ Q_PROPERTY(int sgmGrating READ sgmGrating WRITE setSGMGrating)
 Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Energy Settings")
 
 public:
-	Q_INVOKABLE SGMEnergyPosition(double energy = -1, int monoEncoderTarget = -1, int undulatorStepSetpoint = -1, double exitSlitDistance = -1, int sgmGrating = -1);
+	Q_INVOKABLE SGMEnergyPosition(double energy = -1, int monoEncoderTarget = -1, int undulatorStepSetpoint = -1, double exitSlitDistance = -1, int sgmGrating = -1, const QString &name = QString());
 
 	double energy() const { return energy_;}
 	int monoEncoderTarget() const { return monoEncoderTarget_;}
@@ -53,7 +53,7 @@ public:
 	SGMEnergyPosition& operator=(const SGMEnergyPosition& other);
 	friend QDebug operator<<(QDebug d, const SGMEnergyPosition &energyPosition);
 
-protected:
+public slots:
 	void setEnergy(double energy) { energy_ = energy;}
 	void setMonoEncoderTarget(int monoEncoderTarget) { monoEncoderTarget_ = monoEncoderTarget;}
 	void setUndulatorStepSetpoint(int undulatorStepSetpoint) { undulatorStepSetpoint_ = undulatorStepSetpoint;}
@@ -79,7 +79,7 @@ Q_PROPERTY(AMDbObject* end READ dbGetEnd WRITE dbLoadEnd)
 Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Scan Range Info")
 
 public:
-	Q_INVOKABLE SGMScanRangeInfo(const SGMEnergyPosition &start = SGMEnergyPosition(), const SGMEnergyPosition &middle = SGMEnergyPosition(), const SGMEnergyPosition &end = SGMEnergyPosition());
+	Q_INVOKABLE SGMScanRangeInfo(const SGMEnergyPosition &start = SGMEnergyPosition(), const SGMEnergyPosition &middle = SGMEnergyPosition(), const SGMEnergyPosition &end = SGMEnergyPosition(), const QString &name = QString());
 	SGMScanRangeInfo(const SGMScanRangeInfo &other);
 
 	SGMEnergyPosition start() const { return start_;}
@@ -116,8 +116,8 @@ Q_PROPERTY(AMDbObject* standardRange READ dbGetStandardRange WRITE dbLoadStandar
 Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Edge Info")
 
 public:
-	Q_INVOKABLE SGMEdgeInfo(const QString &edge = "", double energy = -1, const SGMScanRangeInfo &standardRange = SGMScanRangeInfo());
-	SGMEdgeInfo(QPair<QString, QString> edgeAndEnergy, const SGMScanRangeInfo &standardRange);
+	Q_INVOKABLE SGMEdgeInfo(const QString &edge = "", double energy = -1, const SGMScanRangeInfo &standardRange = SGMScanRangeInfo(), const QString &name = QString());
+	SGMEdgeInfo(QPair<QString, QString> edgeAndEnergy, const SGMScanRangeInfo &standardRange, const QString &name = QString());
 
 	QString edge() const { return edge_;}
 	double energy() const { return energy_;}
@@ -129,10 +129,11 @@ public:
 	SGMEdgeInfo& operator=(const SGMEdgeInfo &other);
 	friend QDebug operator<<(QDebug d, const SGMEdgeInfo &edgeInfo);
 
-protected:
+public slots:
 	void setEdge(const QString &edge) { edge_ = edge;}
 	void setEnergy(double energy) { energy_ = energy;}
 
+protected:
 	AMDbObject* dbGetStandardRange() { return &standardRange_;}
 	void dbLoadStandardRange(AMDbObject*) {} //never called
 
@@ -152,7 +153,7 @@ Q_PROPERTY(AMDbObject* standardRange READ dbGetStandardRange WRITE dbLoadStandar
 Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Standard Scan Info")
 
 public:
-	Q_INVOKABLE SGMStandardScanInfo(const QString &scanName = "", const SGMScanRangeInfo &standardRange = SGMScanRangeInfo());
+	Q_INVOKABLE SGMStandardScanInfo(const QString &scanName = "", const SGMScanRangeInfo &standardRange = SGMScanRangeInfo(), const QString &name = QString());
 
 	QString scanName() const { return scanName_;}
 	SGMScanRangeInfo standardRange() const { return standardRange_;}
@@ -163,9 +164,10 @@ public:
 	SGMStandardScanInfo& operator=(const SGMStandardScanInfo &other);
 	friend QDebug operator<<(QDebug d, const SGMStandardScanInfo &standardScanInfo);
 
-protected:
+public slots:
 	void setScanName(const QString &scanName) { scanName_ = scanName;}
 
+protected:
 	AMDbObject* dbGetStandardRange() { return &standardRange_;}
 	void dbLoadStandardRange(AMDbObject*) {} //never called
 
@@ -181,11 +183,12 @@ Q_OBJECT
 
 Q_PROPERTY(AMDbObjectList sgmEdgeInfos READ dbReadSGMEdgeInfos WRITE dbLoadSGMEdgeInfos)
 Q_PROPERTY(AMDbObjectList sgmStandardScanInfos READ dbReadSGMStandardScanInfos WRITE dbLoadSGMStandardScanInfos)
+Q_PROPERTY(AMDbObjectList sgmFastScanParameters READ dbReadSGMFastScanParameters WRITE dbLoadSGMFastScanParameters)
 
 Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Element Info")
 
 public:
-	Q_INVOKABLE SGMElementInfo(AMElement *element, QObject *parent = 0);
+	Q_INVOKABLE SGMElementInfo(AMElement *element = 0, QObject *parent = 0, const QString &name = QString());
 
 	AMElement* element() const;
 
@@ -201,9 +204,11 @@ public slots:
 protected:
 	AMDbObjectList dbReadSGMEdgeInfos();
 	AMDbObjectList dbReadSGMStandardScanInfos();
+	AMDbObjectList dbReadSGMFastScanParameters();
 
-	void dbLoadSGMEdgeInfos(const AMDbObjectList& sgmEdgeInfos);
-	void dbLoadSGMStandardScanInfos(const AMDbObjectList& sgmStandardScanInfos);
+	void dbLoadSGMEdgeInfos(const AMDbObjectList &sgmEdgeInfos);
+	void dbLoadSGMStandardScanInfos(const AMDbObjectList &sgmStandardScanInfos);
+	void dbLoadSGMFastScanParameters(const AMDbObjectList &sgmFastScanParameters);
 
 protected:
 	AMElement *element_;
@@ -218,8 +223,7 @@ class SGMFastScanSettings : public AMDbObject
 Q_OBJECT
 
 public:
-	explicit SGMFastScanSettings(QObject *parent = 0);
-	SGMFastScanSettings(double runSeconds, int motorSettings, double scalerTime, int baseLine, int undulatorVelocity, QObject *parent = 0);
+	explicit SGMFastScanSettings(double runSeconds = -1, int motorSettings = 0, double scalerTime = -1, int baseLine = -1, int undulatorVelocity = 0, QObject *parent = 0, const QString &name = QString());
 
 	double runSeconds() const;
 	int motorSettings() const;
@@ -258,13 +262,15 @@ Q_OBJECT
 Q_PROPERTY(QString element READ element WRITE setElement)
 Q_PROPERTY(AMDbObject* edgeInfo READ dbGetEdgeInfo WRITE dbLoadEdgeInfo)
 Q_PROPERTY(AMDbObject* standardScanInfo READ dbGetStandardScanInfo WRITE dbLoadStandardScanInfo)
+Q_PROPERTY(AMDbObject* fastScanSettings READ dbGetFastScanSettings WRITE dbLoadFastScanSettings)
+Q_PROPERTY(bool usingEdgeInfo READ usingEdgeInfo WRITE setUsingEdgeInfo)
 
 Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Fast Scan Parameters")
 
 public:
 	SGMFastScanParameters(QObject *parent = 0);
-	SGMFastScanParameters(const QString &element, const SGMEdgeInfo &edgeInfo, const SGMFastScanSettings &fastScanSettings, QObject *parent = 0);
-	SGMFastScanParameters(const QString &element, const SGMStandardScanInfo &standardScanInfo, const SGMFastScanSettings &fastScanSettings, QObject *parent = 0);
+	SGMFastScanParameters(const QString &element, const SGMEdgeInfo &edgeInfo, const SGMFastScanSettings &fastScanSettings, QObject *parent = 0, const QString &name = QString());
+	SGMFastScanParameters(const QString &element, const SGMStandardScanInfo &standardScanInfo, const SGMFastScanSettings &fastScanSettings, QObject *parent = 0, const QString &name = QString());
 
 
 	bool operator==(const SGMFastScanParameters &other);
@@ -289,12 +295,33 @@ public:
 
 	SGMEdgeInfo edgeInfo() const;
 	SGMStandardScanInfo standardScanInfo() const;
+	SGMFastScanSettings fastScanSettings() const;
 
 public slots:
 	void setElement(const QString &element); //{ element_ = element;}
 
+	void setEdge(const QString &edge);
+	void setRunSeconds(double runSeconds);
+	void setEnergyStart(double energyStart);
+	void setEnergyMidpoint(double energyMidpoint);
+	void setEnergyEnd(double energyEnd);
+	void setVelocity(int velocity);
+	void setVelocityBase(int velocityBase);
+	void setAcceleration(int acceleration);
+	void setScalerTime(double scalerTime);
+	void setBaseLine(int baseLine);
+	void setUndulatorStartStep(int undulatorStartStep);
+	void setUndulatorVelocity(int undulatorVelocity);
+	void setUndulatorRelativeStep(int undulatorRelativeStep);
+	void setExitSlitDistance(double exitSlitDistance);
+	void setSGMGrating(int sgmGrating);
+
 	void setEdgeInfo(SGMEdgeInfo &edgeInfo);
 	void setStandardScanInfo(SGMStandardScanInfo &standardScanInfo);
+	void setFastScanSettings(SGMFastScanSettings &fastScanSettings);
+
+protected slots:
+	void setUsingEdgeInfo(bool usingEdgeInfo);
 
 protected:
 	AMDbObject* dbGetEdgeInfo() { return &edgeInfo_;}
@@ -302,6 +329,11 @@ protected:
 
 	AMDbObject* dbGetStandardScanInfo() {return &standardScanInfo_;}
 	void dbLoadStandardScanInfo(AMDbObject*) {} //never called
+
+	AMDbObject* dbGetFastScanSettings() { return &fastScanSettings_;}
+	void dbLoadFastScanSettings(AMDbObject*) {} //never called
+
+	bool usingEdgeInfo() const;
 
 protected:
 	QString element_;

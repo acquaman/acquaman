@@ -25,8 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "SGMScanConfiguration.h"
 #include "util/SGM/SGMElementInfo.h"
 
-//class SGMFastScanParameters;
-
 class SGMFastScanConfiguration : public AMFastScanConfiguration, public SGMScanConfiguration
 {
 	Q_OBJECT
