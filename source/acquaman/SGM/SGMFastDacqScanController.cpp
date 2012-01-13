@@ -65,7 +65,8 @@ bool SGMFastDacqScanController::startImplementation(){
 		return false;
 	}
 	bool loadSuccess;
-	QString homeDir = QDir::homePath();
+//	QString homeDir = QDir::homePath();
+	QString homeDir = "/home/sgm";
 	if( QDir(homeDir+"/dev").exists())
 		homeDir.append("/dev");
 	else if( QDir(homeDir+"/beamline/programming").exists())
