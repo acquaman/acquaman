@@ -546,7 +546,7 @@ void VESPERSBeamline::valveError()
 		error.prepend("The following valves are closed:\n");
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
 	}
-	qDebug() << error.isEmpty();
+
 	emit valveStatus(error.isEmpty());
 }
 
