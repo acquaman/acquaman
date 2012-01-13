@@ -37,6 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSIonChamber.h"
 #include "beamline/CLS/CLSSplitIonChamber.h"
 #include "beamline/CLS/CLSVariableIntegrationTime.h"
+#include "beamline/VESPERS/VESPERSRoperCCDDetector.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -83,6 +84,11 @@ public:
 	AMDetector *vortexAM4E() const { return vortex4E_; }
 	/// Returns the specific XRFDetector pointer of the single element XRF detector.
 	XRFDetector *vortexXRF4E() const { return (XRFDetector *)vortex4E_; }
+
+	/// Returns a general AMDetector pointer of the Roper CCD.
+	AMDetector *roperCCDDetector() const { return roperCCD_; }
+	/// Returns the specific pointer to the Roper CCD.
+	VESPERSRoperCCDDetector *roperCCD() const { return (VESPERSRoperCCDDetector *)roperCCD_; }
 
 	/// Returns a general AMDetector pointer to the split ion chamber.
 	AMDetector *iSplitDetector() const { return iSplit_; }
@@ -533,6 +539,7 @@ protected:
 	// Detectors.
 	AMDetector *vortex1E_;
 	AMDetector *vortex4E_;
+	AMDetector *roperCCD_;
 	AMDetector *iSplit_;
 	AMDetector *iPreKB_;
 	AMDetector *iMini_;

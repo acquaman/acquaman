@@ -458,7 +458,12 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/ui/CLS/CLSStopLightButton.h \
 	source/acquaman/AMRegionScanConfiguration.h \
 	source/acquaman/AMEXAFSScanConfiguration.h \
-	source/beamline/CLS/CLSVariableIntegrationTime.h
+	source/beamline/CLS/CLSVariableIntegrationTime.h \
+    source/beamline/CLS/CLSOMS58Motor.h \
+    source/util/SGM/SGMSettings.h \
+    source/util/SGM/SGMDacqConfigurationFile.h \
+    source/util/SGM/SGMPluginsLocation.h \
+    source/ui/util/SGM/SGMSettingsMasterView.h
 
 CONFIG(mobility) {
 DEFINES += AM_MOBILITY_VIDEO_ENABLED
@@ -736,7 +741,12 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/CLS/CLSStopLightButton.cpp \
 	source/acquaman/AMRegionScanConfiguration.cpp \
 	source/acquaman/AMEXAFSScanConfiguration.cpp \
-	source/beamline/CLS/CLSVariableIntegrationTime.cpp
+	source/beamline/CLS/CLSVariableIntegrationTime.cpp \
+    source/beamline/CLS/CLSOMS58Motor.cpp \
+    source/util/SGM/SGMSettings.cpp \
+    source/util/SGM/SGMDacqConfigurationFile.cpp \
+    source/util/SGM/SGMPluginsLocation.cpp \
+    source/ui/util/SGM/SGMSettingsMasterView.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
@@ -755,6 +765,16 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
+
+
+
+
 
 
 

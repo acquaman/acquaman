@@ -223,6 +223,7 @@ bool AMDatamanAppController::startupDatabaseUpgrades()
 	return true;
 }
 
+#include "util/SGM/SGMSettings.h"
 bool AMDatamanAppController::startupRegisterDatabases()
 {
 	AMDatabase* db = AMDatabase::database("user");
@@ -231,6 +232,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	}
 
 	AMDbObjectSupport::s()->registerDatabase(db);
+
 	AMDbObjectSupport::s()->registerClass<AMDbObject>();
 	AMDbObjectSupport::s()->registerClass<AMScan>();
 	AMDbObjectSupport::s()->registerClass<AMXASScan>();
@@ -251,10 +253,10 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AM1DSummingAB>();
 	AMDbObjectSupport::s()->registerClass<AMDeadTimeAB>();
 
-
 	AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
 	AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
 	AMDbObjectSupport::s()->registerClass<AMControlInfo>();
+
 	AMDbObjectSupport::s()->registerClass<AMControlInfoList>();
 	AMDbObjectSupport::s()->registerClass<AMDetectorInfoSet>();
 	AMDbObjectSupport::s()->registerClass<AMSamplePosition>();
@@ -568,7 +570,7 @@ void AMDatamanAppController::launchScanConfigurationFromDb(const QUrl &url)
 	AMScanConfigurationView *view = config->createView();
 	if(!view) {
 		delete config;
-		/// \todo Error message here? Explain to user why it's not working?
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -401, "Unable to create view from the scan configuration loaded from the database.  Contact Acquaman developers."));
 		return;
 	}
 

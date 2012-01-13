@@ -137,7 +137,7 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 	AMScanConfigurationView *view = config->createView();
 	if(!view) {
 		delete config;
-		/// \todo Message to user here, with an explanation of why this didn't work?
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -401, "Unable to create view from the scan configuration loaded from the database.  Contact Acquaman developers."));
 		return;
 	}
 

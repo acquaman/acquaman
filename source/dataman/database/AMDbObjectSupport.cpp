@@ -178,7 +178,6 @@ QString AMDbObjectSupport::tableNameForClass(const QString& className) const {
 	return QString();
 }
 
-
 // register a new class with the database system. This is all you need to do enable an AMDbObect subclass. Returns false if the initialization failed; true if it was completed successfully, or if the object is already registered.
 bool AMDbObjectSupport::registerClass(const QMetaObject* mo) {
 
@@ -372,7 +371,7 @@ bool AMDbObjectSupport::initializeDatabaseForClass(AMDatabase* db, const AMDbObj
 				/// \todo For more reliability, could ensure that _unique columns_ in shared-table classes have actually been created.
 				if(!info.sharedTable) {
 					db->rollbackTransaction();
-					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -16, QString("Database support: There was an error trying to create an auxiliary table (%1) in the database for class %2.").arg(auxTableName).arg(info.className)));
+					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -16, QString("Database support: There was an error trying to create (initialze) an auxiliary table (%1) in the database for class %2.").arg(auxTableName).arg(info.className)));
 					return false;
 				}
 			}
@@ -548,7 +547,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 						|| !db->createIndex(auxTableName, "id2") ) {
 
 					db->rollbackTransaction();
-					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -106, QString("Database support: There was an error trying to create an auxiliary table (%1) in the database while upgrading class %2.").arg(auxTableName).arg(info.className)));
+					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -106, QString("Database support: There was an error trying to create (upgrade) an auxiliary table (%1) in the database while upgrading class %2.").arg(auxTableName).arg(info.className)));
 					return false;
 				}
 			}

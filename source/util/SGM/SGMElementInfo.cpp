@@ -20,8 +20,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMElementInfo.h"
 
-SGMEnergyPosition::SGMEnergyPosition(double energy, int monoEncoderTarget, int undulatorStepSetpoint, double exitSlitDistance, int sgmGrating)
+SGMEnergyPosition::SGMEnergyPosition(double energy, int monoEncoderTarget, int undulatorStepSetpoint, double exitSlitDistance, int sgmGrating, const QString &name)
 {
+	setName(name);
 	setEnergy(energy);
 	setMonoEncoderTarget(monoEncoderTarget);
 	setUndulatorStepSetpoint(undulatorStepSetpoint);
@@ -45,8 +46,9 @@ QDebug operator<<(QDebug d, const SGMEnergyPosition &energyPosition){
 	return d;
 }
 
-SGMScanRangeInfo::SGMScanRangeInfo(const SGMEnergyPosition &start, const SGMEnergyPosition &middle, const SGMEnergyPosition &end)
+SGMScanRangeInfo::SGMScanRangeInfo(const SGMEnergyPosition &start, const SGMEnergyPosition &middle, const SGMEnergyPosition &end, const QString &name)
 {
+	setName(name);
 	start_ = start;
 	middle_ = middle;
 	end_ = end;
@@ -60,23 +62,43 @@ SGMScanRangeInfo::SGMScanRangeInfo(const SGMScanRangeInfo &other) :
 	end_ = other.end();
 }
 
+SGMScanRangeInfo& SGMScanRangeInfo::operator =(const SGMScanRangeInfo &other){
+	if(this != &other){
+		start_ = other.start();
+		middle_ = other.middle();
+		end_ = other.end();
+	}
+	return *this;
+}
+
 QDebug operator<<(QDebug d, const SGMScanRangeInfo &rangeInfo){
 	d << "[" << rangeInfo.start() << ", " << rangeInfo.middle() << ", " << rangeInfo.end() << "]";
 	return d;
 }
 
-SGMEdgeInfo::SGMEdgeInfo(const QString &edge, double energy, const SGMScanRangeInfo &standardRange) :
+SGMEdgeInfo::SGMEdgeInfo(const QString &edge, double energy, const SGMScanRangeInfo &standardRange, const QString &name) :
 		standardRange_(standardRange)
 {
+	setName(name);
 	setEdge(edge);
 	setEnergy(energy);
 }
 
-SGMEdgeInfo::SGMEdgeInfo(QPair<QString, QString> edgeAndEnergy, const SGMScanRangeInfo &standardRange) :
+SGMEdgeInfo::SGMEdgeInfo(QPair<QString, QString> edgeAndEnergy, const SGMScanRangeInfo &standardRange, const QString &name) :
 		standardRange_(standardRange)
 {
+	setName(name);
 	setEdge(edgeAndEnergy.first);
 	setEnergy(edgeAndEnergy.second.toDouble());
+}
+
+SGMEdgeInfo& SGMEdgeInfo::operator =(const SGMEdgeInfo &other){
+	if(this != &other){
+		setEdge(other.edge());
+		setEnergy(other.energy());
+		standardRange_ = other.standardRange();
+	}
+	return *this;
 }
 
 QDebug operator<<(QDebug d, const SGMEdgeInfo &edgeInfo){
@@ -84,10 +106,19 @@ QDebug operator<<(QDebug d, const SGMEdgeInfo &edgeInfo){
 	return d;
 }
 
-SGMStandardScanInfo::SGMStandardScanInfo(const QString &scanName, const SGMScanRangeInfo &standardRange) :
+SGMStandardScanInfo::SGMStandardScanInfo(const QString &scanName, const SGMScanRangeInfo &standardRange, const QString &name) :
 		standardRange_(standardRange)
 {
+	setName(name);
 	setScanName(scanName);
+}
+
+SGMStandardScanInfo& SGMStandardScanInfo::operator =(const SGMStandardScanInfo &other){
+	if(this != &other){
+		setScanName(other.scanName());
+		standardRange_ = other.standardRange();
+	}
+	return *this;
 }
 
 QDebug operator<<(QDebug d, const SGMStandardScanInfo &standardScanInfo){
@@ -95,10 +126,10 @@ QDebug operator<<(QDebug d, const SGMStandardScanInfo &standardScanInfo){
 	return d;
 }
 
-SGMElementInfo::SGMElementInfo(AMElement *element, QObject *parent) :
+SGMElementInfo::SGMElementInfo(AMElement *element, QObject *parent, const QString &name) :
 		AMDbObject(parent)
-//		QObject(parent)
 {
+	setName(name);
 	element_ = element;
 }
 
@@ -147,6 +178,13 @@ AMDbObjectList SGMElementInfo::dbReadSGMStandardScanInfos(){
 	return rv;
 }
 
+AMDbObjectList SGMElementInfo::dbReadSGMFastScanParameters(){
+	AMDbObjectList rv;
+	for(int x = 0; x < availableFastScanParameters_.count(); x++)
+		rv << availableFastScanParameters_[x];
+	return rv;
+}
+
 void SGMElementInfo::dbLoadSGMEdgeInfos(const AMDbObjectList &sgmEdgeInfos){
 	sgmEdgeInfos_.clear();
 
@@ -171,68 +209,122 @@ void SGMElementInfo::dbLoadSGMStandardScanInfos(const AMDbObjectList &sgmStandar
 	}
 }
 
-SGMFastScanParameters::SGMFastScanParameters(QObject *parent) : QObject(parent)
-{
+void SGMElementInfo::dbLoadSGMFastScanParameters(const AMDbObjectList &sgmFastScanParameters){
+	availableFastScanParameters_.clear();
+
+	for(int x = 0; x < sgmFastScanParameters.count(); x++){
+		SGMFastScanParameters* newFastScanParameter = qobject_cast<SGMFastScanParameters*>(sgmFastScanParameters.at(x));
+		if(newFastScanParameter)
+			availableFastScanParameters_.append(newFastScanParameter, (int)newFastScanParameter->runSeconds());// note: makes a copy of object pointed to by newStandardScanInfo, and stores in our internal list.
+
+		//delete sgmFastScanParameters.at(x); // we're copying these; don't need to keep these ones around. They're our responsibility to delete.
+	}
 }
 
-SGMFastScanParameters::SGMFastScanParameters(const QString &element, double runSeconds, double energyStart, double energyMidpoint, double energyEnd, int velocity, int velocityBase, int acceleration, double scalerTime, int baseLine, int undulatorStartStep, int undulatorVelocity, int undulatorRelativeStep, QObject *parent) :
-		QObject(parent)
+
+SGMFastScanSettings::SGMFastScanSettings(double runSeconds, int motorSettings, double scalerTime, int baseLine, int undulatorVelocity, QObject *parent, const QString &name) :
+	AMDbObject(parent)
 {
-	setElement(element);
-	setRunSeconds(runSeconds);
-	setEnergyStart(energyStart);
-	setEnergyMidpoint(energyMidpoint);
-	setEnergyEnd(energyEnd);
-	setVelocity(velocity);
-	setVelocityBase(velocityBase);
-	setAcceleration(acceleration);
-	setScalerTime(scalerTime);
-	setBaseLine(baseLine);
-	setUndulatorStartStep(undulatorStartStep);
-	setUndulatorVelocity(undulatorVelocity);
-	setUndulatorRelativeStep(undulatorRelativeStep);
+	setName(name);
+	runSeconds_ = runSeconds;
+	motorSettings_ = motorSettings;
+	scalerTime_ = scalerTime;
+	baseLine_ = baseLine;
+	undulatorVelocity_ = undulatorVelocity;
 }
 
-SGMFastScanParameters::SGMFastScanParameters(const QString &element, const SGMEdgeInfo &edgeInfo, double runSeconds, int motorSettings, double scalerTime, int baseLine, int undulatorVelocity, QObject *parent) :
-		QObject(parent)
-{
-	setElement(element);
-	setEdge(edgeInfo.edge());
-	setRunSeconds(runSeconds);
-	setEnergyStart(edgeInfo.standardStart().energy());
-	setEnergyMidpoint(edgeInfo.standardMiddle().energy());
-	setEnergyEnd(edgeInfo.standardEnd().energy());
-	setVelocity(motorSettings);
-	setVelocityBase(motorSettings);
-	setAcceleration(motorSettings);
-	setScalerTime(scalerTime);
-	setBaseLine(baseLine);
-	setUndulatorStartStep(edgeInfo.standardStart().undulatorStepSetpoint());
-	setUndulatorVelocity(undulatorVelocity);
-	setUndulatorRelativeStep(edgeInfo.standardEnd().undulatorStepSetpoint()-edgeInfo.standardStart().undulatorStepSetpoint());
-	setExitSlitDistance(edgeInfo.standardMiddle().exitSlitDistance());
-	setSGMGrating(edgeInfo.standardStart().sgmGrating());
+double SGMFastScanSettings::runSeconds() const{
+	return runSeconds_;
 }
 
-SGMFastScanParameters::SGMFastScanParameters(const QString &element, const SGMStandardScanInfo &standardScanInfo, double runSeconds, int motorSettings, double scalerTime, int baseLine, int undulatorVelocity, QObject *parent) :
-		QObject(parent)
+int SGMFastScanSettings::motorSettings() const{
+	return motorSettings_;
+}
+
+double SGMFastScanSettings::scalerTime() const{
+	return scalerTime_;
+}
+
+int SGMFastScanSettings::baseLine() const{
+	return baseLine_;
+}
+
+int SGMFastScanSettings::undulatorVelocity() const{
+	return undulatorVelocity_;
+}
+
+SGMFastScanSettings& SGMFastScanSettings::operator =(const SGMFastScanSettings &other){
+	if(this != &other){
+		setRunSeconds(other.runSeconds());
+		setMotorSettings(other.motorSettings());
+		setScalerTime(other.scalerTime());
+		setBaseLine(other.baseLine());
+		setUndulatorVelocity(other.undulatorVelocity());
+	}
+	return *this;
+}
+
+void SGMFastScanSettings::setRunSeconds(double runSeconds){
+	if(runSeconds_ != runSeconds){
+		runSeconds_ = runSeconds;
+		emit runSecondsChanged(runSeconds_);
+	}
+}
+
+void SGMFastScanSettings::setMotorSettings(int motorSettings){
+	if(motorSettings_ != motorSettings){
+		motorSettings_ = motorSettings;
+		emit motorSettingsChanged(motorSettings_);
+	}
+}
+
+void SGMFastScanSettings::setScalerTime(double scalerTime){
+	if(scalerTime_ != scalerTime){
+		scalerTime_ = scalerTime;
+		emit scalerTimeChanged(scalerTime_);
+	}
+}
+
+void SGMFastScanSettings::setBaseLine(int baseLine){
+	if(baseLine_ != baseLine){
+		baseLine_ = baseLine;
+		emit baseLineChanged(baseLine_);
+	}
+}
+
+void SGMFastScanSettings::setUndulatorVelocity(int undulatorVelocity){
+	if(undulatorVelocity_ != undulatorVelocity){
+		undulatorVelocity_ = undulatorVelocity;
+		emit undulatorVelocityChanged(undulatorVelocity_);
+	}
+}
+
+
+SGMFastScanParameters::SGMFastScanParameters(QObject *parent) : AMDbObject(parent)
 {
+	usingEdgeInfo_ = false;
+}
+
+SGMFastScanParameters::SGMFastScanParameters(const QString &element, const SGMEdgeInfo &edgeInfo, const SGMFastScanSettings &fastScanSettings, QObject *parent, const QString &name) :
+		AMDbObject(parent)
+{
+	setName(name);
 	setElement(element);
-	setEdge(standardScanInfo.scanName());
-	setRunSeconds(runSeconds);
-	setEnergyStart(standardScanInfo.standardStart().energy());
-	setEnergyMidpoint(standardScanInfo.standardMiddle().energy());
-	setEnergyEnd(standardScanInfo.standardEnd().energy());
-	setVelocity(motorSettings);
-	setVelocityBase(motorSettings);
-	setAcceleration(motorSettings);
-	setScalerTime(scalerTime);
-	setBaseLine(baseLine);
-	setUndulatorStartStep(standardScanInfo.standardStart().undulatorStepSetpoint());
-	setUndulatorVelocity(undulatorVelocity);
-	setUndulatorRelativeStep(standardScanInfo.standardEnd().undulatorStepSetpoint()-standardScanInfo.standardStart().undulatorStepSetpoint());
-	setExitSlitDistance(standardScanInfo.standardMiddle().exitSlitDistance());
-	setSGMGrating(standardScanInfo.standardStart().sgmGrating());
+
+	usingEdgeInfo_ = true;
+	edgeInfo_ = edgeInfo;
+	fastScanSettings_ = fastScanSettings;
+}
+
+SGMFastScanParameters::SGMFastScanParameters(const QString &element, const SGMStandardScanInfo &standardScanInfo, const SGMFastScanSettings &fastScanSettings, QObject *parent, const QString &name) :
+		AMDbObject(parent)
+{
+	setName(name);
+	setElement(element);
+
+	usingEdgeInfo_ = false;
+	standardScanInfo_ = standardScanInfo;
+	fastScanSettings_ = fastScanSettings;
 }
 
 bool SGMFastScanParameters::operator ==(const SGMFastScanParameters &other){
@@ -254,4 +346,220 @@ bool SGMFastScanParameters::operator ==(const SGMFastScanParameters &other){
 		return true;
 	}
 	return false;
+}
+
+QString SGMFastScanParameters::element() const{
+	return element_;
+}
+
+QString SGMFastScanParameters::edge() const{
+	if(usingEdgeInfo_)
+		return edgeInfo_.edge();
+	else
+		return standardScanInfo_.scanName();
+}
+
+double SGMFastScanParameters::runSeconds() const{
+	return fastScanSettings_.runSeconds();
+}
+
+double SGMFastScanParameters::energyStart() const{
+	if(usingEdgeInfo_)
+		return edgeInfo_.standardStart().energy();
+	else
+		return standardScanInfo_.standardStart().energy();
+}
+
+double SGMFastScanParameters::energyMidpoint() const{
+	if(usingEdgeInfo_)
+		return edgeInfo_.standardMiddle().energy();
+	else
+		return standardScanInfo_.standardMiddle().energy();
+}
+
+double SGMFastScanParameters::energyEnd() const{
+	if(usingEdgeInfo_)
+		return edgeInfo_.standardEnd().energy();
+	else
+		return standardScanInfo_.standardEnd().energy();
+}
+
+int SGMFastScanParameters::velocity() const{
+	return fastScanSettings_.motorSettings();
+}
+
+int SGMFastScanParameters::velocityBase() const{
+	return fastScanSettings_.motorSettings();
+}
+
+int SGMFastScanParameters::acceleration() const{
+	return fastScanSettings_.motorSettings();
+}
+
+double SGMFastScanParameters::scalerTime() const{
+	return fastScanSettings_.scalerTime();
+}
+
+int SGMFastScanParameters::baseLine() const{
+	return fastScanSettings_.baseLine();
+}
+
+int SGMFastScanParameters::undulatorStartStep() const{
+	if(usingEdgeInfo_)
+		return edgeInfo_.standardStart().undulatorStepSetpoint();
+	else
+		return standardScanInfo_.standardStart().undulatorStepSetpoint();
+}
+
+int SGMFastScanParameters::undulatorVelocity() const{
+	return fastScanSettings_.undulatorVelocity();
+}
+
+int SGMFastScanParameters::undulatorRelativeStep() const{
+	if(usingEdgeInfo_)
+		return edgeInfo_.standardEnd().undulatorStepSetpoint() - edgeInfo_.standardStart().undulatorStepSetpoint();
+	else
+		return standardScanInfo_.standardEnd().undulatorStepSetpoint() - standardScanInfo_.standardStart().undulatorStepSetpoint();
+}
+
+double SGMFastScanParameters::exitSlitDistance() const{
+	if(usingEdgeInfo_)
+		return edgeInfo_.standardMiddle().exitSlitDistance();
+	else
+		return standardScanInfo_.standardMiddle().exitSlitDistance();
+}
+
+int SGMFastScanParameters::sgmGrating() const{
+	if(usingEdgeInfo_)
+		return edgeInfo_.standardStart().sgmGrating();
+	else
+		return standardScanInfo_.standardStart().sgmGrating();
+}
+
+SGMEdgeInfo SGMFastScanParameters::edgeInfo() const{
+	if(usingEdgeInfo_)
+		return edgeInfo_;
+	else
+		return SGMEdgeInfo();
+}
+
+SGMStandardScanInfo SGMFastScanParameters::standardScanInfo() const{
+	if(!usingEdgeInfo_)
+		return standardScanInfo_;
+	else
+		return SGMStandardScanInfo();
+}
+
+SGMFastScanSettings SGMFastScanParameters::fastScanSettings() const{
+	return fastScanSettings_;
+}
+
+void SGMFastScanParameters::setElement(const QString &element){
+	element_ = element;
+}
+
+void SGMFastScanParameters::setEdge(const QString &edge){
+	if(usingEdgeInfo_)
+		edgeInfo_.setEdge(edge);
+	else
+		standardScanInfo_.setScanName(edge);
+}
+
+void SGMFastScanParameters::setRunSeconds(double runSeconds){
+	fastScanSettings_.setRunSeconds(runSeconds);
+}
+
+void SGMFastScanParameters::setEnergyStart(double energyStart){
+	if(usingEdgeInfo_)
+		edgeInfo_.standardStart().setEnergy(energyStart);
+	else
+		standardScanInfo_.standardStart().setEnergy(energyStart);
+}
+
+void SGMFastScanParameters::setEnergyMidpoint(double energyMidpoint){
+	if(usingEdgeInfo_)
+		edgeInfo_.standardMiddle().setEnergy(energyMidpoint);
+	else
+		standardScanInfo_.standardMiddle().setEnergy(energyMidpoint);
+}
+
+void SGMFastScanParameters::setEnergyEnd(double energyEnd){
+	if(usingEdgeInfo_)
+		edgeInfo_.standardEnd().setEnergy(energyEnd);
+	else
+		standardScanInfo_.standardEnd().setEnergy(energyEnd);
+}
+
+void SGMFastScanParameters::setVelocity(int velocity){
+	fastScanSettings_.setMotorSettings(velocity);
+}
+
+void SGMFastScanParameters::setVelocityBase(int velocityBase){
+	fastScanSettings_.setMotorSettings(velocityBase);
+}
+
+void SGMFastScanParameters::setAcceleration(int acceleration){
+	fastScanSettings_.setMotorSettings(acceleration);
+}
+
+void SGMFastScanParameters::setScalerTime(double scalerTime){
+	fastScanSettings_.setScalerTime(scalerTime);
+}
+
+void SGMFastScanParameters::setBaseLine(int baseLine){
+	fastScanSettings_.setBaseLine(baseLine);
+}
+
+void SGMFastScanParameters::setUndulatorStartStep(int undulatorStartStep){
+	if(usingEdgeInfo_)
+		edgeInfo_.standardStart().setUndulatorStepSetpoint(undulatorStartStep);
+	else
+		standardScanInfo_.standardStart().setUndulatorStepSetpoint(undulatorStartStep);
+}
+
+void SGMFastScanParameters::setUndulatorVelocity(int undulatorVelocity){
+	fastScanSettings_.setUndulatorVelocity(undulatorVelocity);
+}
+
+void SGMFastScanParameters::setUndulatorRelativeStep(int undulatorRelativeStep){
+	if(usingEdgeInfo_)
+		edgeInfo_.standardEnd().setUndulatorStepSetpoint(edgeInfo_.standardStart().undulatorStepSetpoint()+undulatorRelativeStep);
+	else
+		standardScanInfo_.standardEnd().setUndulatorStepSetpoint(standardScanInfo_.standardStart().undulatorStepSetpoint()+undulatorRelativeStep);
+}
+
+void SGMFastScanParameters::setExitSlitDistance(double exitSlitDistance){
+	if(usingEdgeInfo_)
+		edgeInfo_.standardMiddle().setExitSlitDistance(exitSlitDistance);
+	else
+		standardScanInfo_.standardMiddle().setExitSlitDistance(exitSlitDistance);
+}
+
+void SGMFastScanParameters::setSGMGrating(int sgmGrating){
+	if(usingEdgeInfo_)
+		edgeInfo_.standardStart().setSGMGrating(sgmGrating);
+	else
+		standardScanInfo_.standardStart().setSGMGrating(sgmGrating);
+}
+
+void SGMFastScanParameters::setEdgeInfo(SGMEdgeInfo &edgeInfo){
+	usingEdgeInfo_ = true;
+	edgeInfo_ = edgeInfo;
+}
+
+void SGMFastScanParameters::setStandardScanInfo(SGMStandardScanInfo &standardScanInfo){
+	usingEdgeInfo_ = false;
+	standardScanInfo_ = standardScanInfo;
+}
+
+void SGMFastScanParameters::setFastScanSettings(SGMFastScanSettings &fastScanSettings){
+	fastScanSettings_ = fastScanSettings;
+}
+
+void SGMFastScanParameters::setUsingEdgeInfo(bool usingEdgeInfo){
+	usingEdgeInfo_ = usingEdgeInfo;
+}
+
+bool SGMFastScanParameters::usingEdgeInfo() const{
+	return usingEdgeInfo_;
 }

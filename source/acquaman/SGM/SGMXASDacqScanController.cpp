@@ -20,7 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "SGMXASDacqScanController.h"
 
 #include <QDir>
-
+#include "util/SGM/SGMDacqConfigurationFile.h"
+#include "dataman/database/AMDbObjectSupport.h"
 #include "actions/AMBeamlineListAction.h"
 
 SGMXASDacqScanController::SGMXASDacqScanController(SGMXASScanConfiguration *cfg, QObject *parent) :
@@ -61,20 +62,6 @@ bool SGMXASDacqScanController::startImplementation(){
 		return false;
 	}
 	bool loadSuccess = false;
-//	QString homeDir = QDir::homePath();
-	QString homeDir = "/home/sgm";
-	if( QDir(homeDir+"/dev").exists())
-		homeDir.append("/dev");
-	else if( QDir(homeDir+"/beamline/programming").exists())
-		homeDir.append("/beamline/programming");
-	/*
-	else if( QDir(homeDir+"/Sandbox/Acquaman2011/dev").exists())
-		homeDir.append("/Sandbox/Acquaman2011/dev");
-	else if( QDir("/home/sgm/Sandbox/Acquaman2011/dev").exists())
-		homeDir = "/home/sgm/Sandbox/Acquaman2011/dev";
-	*/
-
-	qDebug() << "THINK HOMEDIR IS " << homeDir;
 
 	for(int x = 0; x < config_->allDetectorConfigurations().count(); x++){
 		if(config_->allDetectorConfigurations().isActiveAt(x) && !SGMBeamline::sgm()->detectorValidForCurrentSignalSource(config_->allDetectorConfigurations().detectorInfoAt(x))){
@@ -86,35 +73,42 @@ bool SGMXASDacqScanController::startImplementation(){
 		}
 	}
 
+	SGMDacqConfigurationFile *configFile = new SGMDacqConfigurationFile();
+	QList<int> matchIDs;
 	if( SGMBeamline::sgm()->pgtDetector() && SGMBeamline::sgm()->oos65000Detector() && config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())
 		&& config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->oos65000Detector()->detectorName())){
 		qDebug() << "Using SDD and OOS";
 		if(SGMBeamline::sgm()->usingPicoammeterSource())
-			loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgtxeolAmmeter.cfg"));
+			matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTXEOLAmmeter");
 		else if(SGMBeamline::sgm()->usingScalerSource())
-			loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgtxeolScaler.cfg"));
+			matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTXEOLScaler");
 		usingSpectraDotDatFile_ = true;
 	}
 	else if(SGMBeamline::sgm()->pgtDetector() && config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())){
 		qDebug() << "Using SDD";
 		if(SGMBeamline::sgm()->usingPicoammeterSource())
-			loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgtAmmeter.cfg"));
+			matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTAmmeter");
 		else if(SGMBeamline::sgm()->usingScalerSource())
-			loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgtScaler.cfg"));
+			matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTScaler");
 		usingSpectraDotDatFile_ = true;
 	}
 	else if(SGMBeamline::sgm()->oos65000Detector() && config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->oos65000Detector()->detectorName())){
 		qDebug() << "Using OOS";
 		if(SGMBeamline::sgm()->usingPicoammeterSource())
-			loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/xeolAmmeter.cfg"));
+			matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "XEOLAmmeter");
 		else if(SGMBeamline::sgm()->usingScalerSource())
-			loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/xeolScaler.cfg"));
+			matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "XEOLScaler");
 		usingSpectraDotDatFile_ = true;
 	}
 	else if(SGMBeamline::sgm()->usingPicoammeterSource())
-		loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/defaultEnergyAmmeter.cfg"));
+		matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "DefaultAmmeter");
 	else if(SGMBeamline::sgm()->usingScalerSource())
-		loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/defaultEnergyScaler.cfg"));
+		matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "DefaultScaler");
+
+	if(matchIDs.count() > 0){
+		configFile->loadFromDb(AMDatabase::database("SGMBeamline"), matchIDs.at(0));
+		loadSuccess = advAcq_->setConfigFile(configFile->configurationFileFullPath());
+	}
 	if(!loadSuccess){
 		AMErrorMon::report(AMErrorReport(this,
 				AMErrorReport::Alert,

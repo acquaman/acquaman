@@ -28,12 +28,4 @@ AMFastScan::AMFastScan(QObject *parent) :
 {
 	AMAxisInfo energyAxis("ev", 0, "Incident Energy", "eV");
 	data_->addScanAxis(energyAxis);
-
-	autoExportFilePath_ = "";
-}
-
-
-
-void AMFastScan::setAutoExportFilePath(const QString &autoExportFilePath){
-	autoExportFilePath_ = autoExportFilePath;
 }

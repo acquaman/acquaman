@@ -58,7 +58,11 @@ QList<AMAnalysisBlockInterface *> AMPluginsManager::availableAnalysisBlocks() co
 
 #include "util/AMErrorMonitor.h"
 
-void AMPluginsManager::loadApplicationPlugins() {
+void AMPluginsManager::loadApplicationPlugins(){
+	loadApplicationPlugins(AMSettings::s()->fileLoaderPluginsFolder(), AMSettings::s()->analysisBlockPluginsFolder());
+}
+
+void AMPluginsManager::loadApplicationPlugins(const QString &fileLoaderFolder, const QString &analysisBlocksFolder) {
 
 	QWriteLocker wl(&mutex_);
 
@@ -67,7 +71,7 @@ void AMPluginsManager::loadApplicationPlugins() {
 	// Load file loader plugins
 	fileFormats2fileLoaderFactories_.clear();
 
-	QDir fileLoaderPluginsDirectory(AMSettings::s()->fileLoaderPluginsFolder());
+	QDir fileLoaderPluginsDirectory(fileLoaderFolder);
 	foreach (QString fileName, fileLoaderPluginsDirectory.entryList(QDir::Files)) {
 		// qDebug() << " trying plugin file" << fileName;
 		QPluginLoader pluginLoader(fileLoaderPluginsDirectory.absoluteFilePath(fileName));
@@ -94,7 +98,7 @@ void AMPluginsManager::loadApplicationPlugins() {
 	// Load analysis block plugins
 	availableAnalysisBlocks_.clear();
 
-	QDir analysisBlockPluginsDirectory(AMSettings::s()->analysisBlockPluginsFolder());
+	QDir analysisBlockPluginsDirectory(analysisBlocksFolder);
 	foreach (QString fileName, analysisBlockPluginsDirectory.entryList(QDir::Files)) {
 		QPluginLoader pluginLoader(analysisBlockPluginsDirectory.absoluteFilePath(fileName));
 		QObject *plugin = pluginLoader.instance();
