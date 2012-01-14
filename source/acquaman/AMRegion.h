@@ -386,6 +386,10 @@ public:
 	/// Retrieves the data from an index (row and column) and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
 	QVariant data(const QModelIndex &index, int role) const;
 
+signals:
+	/// Passes on that one of the regions' type has changed.
+	void typeChanged();
+
 public slots:
 	/// Sets the k-space control that is used for scanning the energy in an EXAFS scan.  \note This sets the default control for the region.  If setEnergyControl was used previously, then it will be overwritten.
 	void setKSpaceControl(AMControl* kSpaceControl) { defaultKControl_ = kSpaceControl; }

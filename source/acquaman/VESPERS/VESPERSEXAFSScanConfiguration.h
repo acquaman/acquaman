@@ -20,9 +20,12 @@ class VESPERSEXAFSScanConfiguration : public AMEXAFSScanConfiguration
 	Q_PROPERTY(double yPosition READ y WRITE setY)
 	Q_PROPERTY(AMDbObject* roiInfoList READ dbGetROIInfoList WRITE dbLoadROIInfoList)
 	Q_PROPERTY(QString rois READ readRoiList WRITE writeRoiList)
+	Q_PROPERTY(bool useFixedTime READ useFixedTime WRITE setUseFixedTime)
 
 	Q_ENUMS(FluorescenceDetector)
 	Q_ENUMS(IonChamber)
+
+	Q_CLASSINFO("useFixedTime", "upgradeDefault=false")
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS EXAFS Scan Configuration")
 
@@ -69,6 +72,9 @@ public:
 	/// Returns the y coordinate of the scan position.
 	double y() const { return position_.second; }
 
+	/// Returns whether the scan should use fixed or variable integration time.  The default is to use the variable integration time.
+	bool useFixedTime() const { return useFixedTime_; }
+
 	/// Returns the ion chamber name from its corresponding enum.
 	QString ionChamberName(IonChamber chamber) { return ionChamberNames_.value(chamber); }
 
@@ -95,32 +101,49 @@ public:
 	/// Don't need to do anything because dbGetROIList always returns a valid AMDbObject.
 	void dbLoadROIInfoList(AMDbObject *) {}
 
+signals:
+	/// Notifier that the fluorescence choice has changed.
+	void fluorescenceDetectorChoiceChanged(FluorescenceDetector);
+	/// Notifier that the incoming choice has changed.
+	void incomingChoiceChanged(IonChamber);
+	/// Notifier that the transmition choice has changed.
+	void transmissionChoiceChanged(IonChamber);
+	/// Notifier that the edge name has changed.
+	void edgeChanged(QString);
+	/// Notifier that the edge energy has changed.
+	void energyChanged(double);
+	/// Notifier about whether the scan will move somewhere specific before scanning.
+	void gotoPositionChanged(bool);
+	/// Notifier about whether the scan should use fixed or variabled integration time.
+	void useFixedTimeChanged(bool);
+
 public slots:
 
 	/// Sets the choice for the fluorescence detector.
-	void setFluorescenceDetectorChoice(FluorescenceDetector detector) { fluorescenceDetectorChoice_ = detector; setModified(true); }
+	void setFluorescenceDetectorChoice(FluorescenceDetector detector) { fluorescenceDetectorChoice_ = detector; emit fluorescenceDetectorChoiceChanged(fluorescenceDetectorChoice_); setModified(true); }
 	/// Overloaded.  Used for database loading.
 	void setFluorescenceDetectorChoice(int detector) { setFluorescenceDetectorChoice((FluorescenceDetector)detector); }
 	/// Sets the choice for It ion chamber.
-	void setTransmissionChoice(IonChamber It) { It_ = It; setModified(true); }
+	void setTransmissionChoice(IonChamber It) { It_ = It; emit transmissionChoiceChanged(It_); setModified(true); }
 	/// Overloaded.  Used for database loading.
 	void setTransmissionChoice(int It) { setTransmissionChoice((IonChamber)It); }
 	/// Sets the choice for I0 ion chamber.
-	void setIncomingChoice(IonChamber I0) { I0_ = I0; setModified(true); }
+	void setIncomingChoice(IonChamber I0) { I0_ = I0; emit incomingChoiceChanged(I0_); setModified(true); }
 	/// Overloaded.  Used for database loading.
 	void setIncomingChoice(int I0) { setIncomingChoice((IonChamber)I0); }
 	/// Sets the current edge for the scan.
-	void setEdge(QString edgeName) { edge_ = edgeName; setModified(true); }
+	void setEdge(QString edgeName) { edge_ = edgeName; emit edgeChanged(edgeName); setModified(true); }
 	/// Sets the edge energy.
 	void setEnergy(double edgeEnergy)
 	{
 		exafsRegions()->setDefaultEdgeEnergy(edgeEnergy);
 		energy_ = edgeEnergy;
+		emit energyChanged(energy_);
 		setModified(true);
 	}
 
 	/// Sets whether the scan should move to a new position before starting.
-	void setGoToPosition(bool state) { goToPosition_ = state; setModified(true); }
+	void setGoToPosition(bool state) { goToPosition_ = state; emit gotoPositionChanged(goToPosition_); setModified(true); }
 	/// Sets the position the scan should move to before starting.
 	void setPosition(QPair<double, double> pos) { position_ = pos; setModified(true); }
 	/// Overloaded.  Takes the x and y position explicitly.
@@ -129,6 +152,9 @@ public slots:
 	void setX(double xPos) { position_.first = xPos; setModified(true); }
 	/// Sets the y coordinate of the starting position of the scan.
 	void setY(double yPos) { position_.second = yPos; setModified(true); }
+
+	/// Sets whether the scan should use fixed or variable integration time for EXAFS.
+	void setUseFixedTime(bool fixed) { useFixedTime_ = fixed; emit useFixedTimeChanged(useFixedTime_); setModified(true); }
 
 	/// Sets the ROI list.
 	void setRoiInfoList(const AMROIInfoList &list) { roiInfoList_ = list; setModified(true); }
@@ -145,6 +171,9 @@ protected:
 	QString edge_;
 	/// The edge energy for the scan.
 	double energy_;
+
+	/// Holds whether the EXAFS scan will use fixed or variable integration time.
+	bool useFixedTime_;
 
 	/// Bool used to determine if the scan should go to a new location or stay wherever the current position is.
 	bool goToPosition_;

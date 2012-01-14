@@ -271,6 +271,10 @@ public:
 		return false;
 	}
 
+signals:
+	/// Notifier that the regions list contains k-space regions.
+	void regionsHaveKSpaceChanged(bool);
+
 public slots:
 	/// Sets the type of the region referred to by \param index.
 	bool setType(int index, AMEXAFSRegion::RegionType type) { return regions_->setData(regions_->index(index, 8), (type == AMEXAFSRegion::Energy) ? true : false, Qt::EditRole); }
@@ -328,6 +332,10 @@ public slots:
 
 		return curMin;
 	}
+
+protected slots:
+	/// Helper slot that emits the regionsHaveKSpaceChanged signal.
+	void onTypeChanged() { emit regionsHaveKSpaceChanged(hasKSpace()); }
 
 protected:
 	/// Function used to setup the model that the list should manage.  When subclassed, call in the constructor to build your own custom model.

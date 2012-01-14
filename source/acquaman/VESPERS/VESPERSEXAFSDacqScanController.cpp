@@ -294,7 +294,7 @@ bool VESPERSEXAFSDacqScanController::initializeImplementation()
 	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
 	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::SingleShot));
 	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(config_->regionTime(0)));
-	if (config_->exafsRegions()->hasKSpace()){
+	if (config_->exafsRegions()->hasKSpace() && !config_->useFixedTime()){
 
 		int regionCount = config_->regionCount();
 		double time = (regionCount > 1) ? config_->regionTime(regionCount - 2) : 1; // Grab the time from the region before the EXAFS region or default it to 1 second.
@@ -304,7 +304,7 @@ bool VESPERSEXAFSDacqScanController::initializeImplementation()
 																													  VESPERSBeamline::vespers()->variableIntegrationTime()->function(),
 																													  config_->regionStart(regionCount - 1),
 																													  config_->regionEnd(regionCount - 1),
-																													  10));
+																													  config_->regionTime(regionCount - 1)));
 	}
 
 	// Third stage.
@@ -463,8 +463,8 @@ void VESPERSEXAFSDacqScanController::onDwellTimeTriggerChanged(double newValue)
 {
 	if( fabs(newValue - 1.0) < 0.1){
 
-		// Only set the time for the region if in energy space.  The variable integration time app handles this in k-space.
-		if (config_->regionType(currentRegionIndex_) == AMEXAFSRegion::Energy)
+		// Only set the time for the region if in energy space or if told explicitly to do so.  The variable integration time app handles this in k-space.
+		if ((config_->regionType(currentRegionIndex_) == AMEXAFSRegion::Energy) || (config_->regionType(currentRegionIndex_) == AMEXAFSRegion::kSpace && config_->useFixedTime()))
 			VESPERSBeamline::vespers()->synchronizedDwellTime()->setTime(config_->regionTime(currentRegionIndex_));
 
 		currentRegionIndex_++;

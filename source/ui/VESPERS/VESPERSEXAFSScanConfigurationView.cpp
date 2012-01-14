@@ -160,6 +160,11 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 			energy_->setValue(energy);
 	}
 
+	QCheckBox *useFixedTime = new QCheckBox("Use fixed time (EXAFS)");
+	useFixedTime->setEnabled(false);
+	connect(config_->exafsRegions(), SIGNAL(regionsHaveKSpaceChanged(bool)), useFixedTime, SLOT(setEnabled(bool)));
+	connect(useFixedTime, SIGNAL(toggled(bool)), config_, SLOT(setUseFixedTime(bool)));
+
 	QFormLayout *energySetpointLayout = new QFormLayout;
 	energySetpointLayout->addRow("Energy:", energy_);
 
@@ -227,6 +232,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	contentsLayout->addLayout(positionLayout, 2, 2);
 	contentsLayout->addWidget(ionChambersGroupBox, 2, 1);
 	contentsLayout->addWidget(roiText_, 3, 2, 2, 2);
+	contentsLayout->addWidget(useFixedTime, 4, 0);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();

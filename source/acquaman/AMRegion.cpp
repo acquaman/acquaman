@@ -574,6 +574,7 @@ bool AMEXAFSRegionsListModel::insertRows(int position, int rows, const QModelInd
 			tmpRegion->setType(AMEXAFSRegion::Energy);
 			tmpRegion->setEdgeEnergy(defaultEdgeEnergy_);
 			tmpRegion->setRelative(defaultIsRelative_);
+			connect(tmpRegion, SIGNAL(typeChanged(RegionType)), this, SIGNAL(typeChanged()));
 			regions_->insert(position, tmpRegion); // Order doesn't matter because they are all identical, empty regions.
 		}
 

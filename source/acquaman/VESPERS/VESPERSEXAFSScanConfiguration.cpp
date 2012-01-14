@@ -25,6 +25,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	I0_ = Imini;
 	edge_ = "";
 	energy_ = 0.0;
+	useFixedTime_ = false;
 
 	goToPosition_ = false;
 	position_ = qMakePair(0.0, 0.0);
@@ -62,6 +63,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(const VESPERSEXAFSS
 	I0_ = original.incomingChoice();
 	edge_ = original.edge();
 	energy_ = original.energy();
+	useFixedTime_ = original.useFixedTime();
 
 	goToPosition_ = original.goToPosition();
 	position_ = original.position();

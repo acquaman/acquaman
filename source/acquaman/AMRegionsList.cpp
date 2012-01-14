@@ -359,6 +359,7 @@ bool AMEXAFSRegionsList::setupModel()
 	if (regions_){
 
 		connect(regions_, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onDataChanged(QModelIndex,QModelIndex)));
+		connect(regions_, SIGNAL(typeChanged()), this, SLOT(onTypeChanged()));
 		return true;
 	}
 
