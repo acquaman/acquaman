@@ -232,6 +232,11 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	positionLayout->addRow("x:", xLayout);
 	positionLayout->addRow("y:", yLayout);
 
+	estimatedTime_ = new QLabel;
+	estimatedSetTime_ = new QLabel;
+	connect(config_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged(double)));
+	onEstimatedTimeChanged(config_->totalTime());
+
 	// The roi text edit.
 	roiText_ = new QTextEdit;
 	roiText_->setReadOnly(true);
@@ -257,6 +262,8 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	contentsLayout->addWidget(ionChambersGroupBox, 2, 1);
 	contentsLayout->addWidget(roiText_, 3, 2, 2, 2);
 	contentsLayout->addWidget(useFixedTime, 4, 0);
+	contentsLayout->addWidget(estimatedTime_, 5, 0);
+	contentsLayout->addWidget(estimatedSetTime_, 6, 0);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
@@ -379,4 +386,44 @@ void VESPERSEXAFSScanConfigurationView::onItClicked(int id)
 		I0Group_->button(i)->setEnabled(false);
 
 	config_->setTransmissionChoice(id);
+}
+
+void VESPERSEXAFSScanConfigurationView::onEstimatedTimeChanged(double newTime)
+{
+	estimatedTime_->setText("Estimated time per scan: " + convertTimeToString(newTime));
+	estimatedSetTime_->setText("Estimated time for set: " + convertTimeToString(newTime*5));
+}
+
+QString VESPERSEXAFSScanConfigurationView::convertTimeToString(double time)
+{
+	QString timeString;
+
+	int days = time/3600/24;
+
+	if (days > 0){
+
+		time -= time/3600/24;
+		timeString += QString::number(days) + "d:";
+	}
+
+	int hours = time/3600;
+
+	if (hours > 0){
+
+		time -= hours*3600;
+		timeString += QString::number(hours) + "h:";
+	}
+
+	int minutes = time/60;
+
+	if (minutes > 0){
+
+		time -= minutes*60;
+		timeString += QString::number(minutes) + "m:";
+	}
+
+	int seconds = ((int)time)%60;
+	timeString += QString::number(seconds) + "s";
+
+	return timeString;
 }

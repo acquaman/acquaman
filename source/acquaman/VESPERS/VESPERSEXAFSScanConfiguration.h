@@ -75,6 +75,9 @@ public:
 	/// Returns whether the scan should use fixed or variable integration time.  The default is to use the variable integration time.
 	bool useFixedTime() const { return useFixedTime_; }
 
+	/// Returns the current total estimated time for a scan to complete.
+	double totalTime() const { return totalTime_; }
+
 	/// Returns the ion chamber name from its corresponding enum.
 	QString ionChamberName(IonChamber chamber) { return ionChamberNames_.value(chamber); }
 
@@ -116,6 +119,8 @@ signals:
 	void gotoPositionChanged(bool);
 	/// Notifier about whether the scan should use fixed or variabled integration time.
 	void useFixedTimeChanged(bool);
+	/// Notifier that the total time estimate has changed.
+	void totalTimeChanged(double);
 
 public slots:
 
@@ -154,10 +159,14 @@ public slots:
 	void setY(double yPos) { position_.second = yPos; setModified(true); }
 
 	/// Sets whether the scan should use fixed or variable integration time for EXAFS.
-	void setUseFixedTime(bool fixed) { useFixedTime_ = fixed; emit useFixedTimeChanged(useFixedTime_); setModified(true); }
+	void setUseFixedTime(bool fixed) { useFixedTime_ = fixed; emit useFixedTimeChanged(useFixedTime_); computeTotalTime(); setModified(true); }
 
 	/// Sets the ROI list.
 	void setRoiInfoList(const AMROIInfoList &list) { roiInfoList_ = list; setModified(true); }
+
+protected slots:
+	/// Computes the total time any time the regions list changes.
+	void computeTotalTime();
 
 protected:
 	/// Fluorescence detector choice.
@@ -185,6 +194,9 @@ protected:
 
 	/// The list holding all the current ROIs for the detector.
 	AMROIInfoList roiInfoList_;
+
+	/// Holds the total time in seconds that the scan is estimated to take.
+	double totalTime_;
 };
 
 #endif // VESPERSEXAFSSCANCONFIGURATION_H

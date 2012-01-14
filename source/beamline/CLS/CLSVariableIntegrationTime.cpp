@@ -151,40 +151,140 @@ AMBeamlineActionItem *CLSVariableIntegrationTime::createSetupAction(Mode mode, d
 
 double CLSVariableIntegrationTime::totalTime(double delta) const
 {
-	return -1;
+	int n = round((highValue() - lowValue())/delta);
+	double time = 0;
+
+	switch(function()){
+
+	case Default:
+		time = totalTimeDefault(delta, n)/1000;
+		break;
+
+	case Geometric:
+		time = totalTimeGeometric(delta, n)/1000;
+		break;
+
+	case Exponential:
+		time = totalTimeExponential(delta, n)/1000;
+		break;
+
+	case Linear:
+		time = totalTimeLinear(delta, n)/1000;
+		break;
+
+	case Quadratic:
+		time = totalTimeQuadratic(delta, n)/1000;
+		break;
+
+	case SmoothStep:
+		time = totalTimeSmoothStep(delta, n)/1000;
+		break;
+
+	case Logarithmic:
+		time = totalTimeLogarithmic(delta, n)/1000;
+		break;
+	}
+	qDebug() << time;
+	return time;
 }
 
 double CLSVariableIntegrationTime::totalTimeDefault(double delta, int n) const
 {
-	return -1;
+	Q_UNUSED(delta)
+
+	return a0()*n;
 }
 
 double CLSVariableIntegrationTime::totalTimeGeometric(double delta, int n) const
 {
-	return -1;
+	double time = 0;
+	double a = a0();
+	double b = a1();
+	double c = a2();
+	double k0 = lowValue();
+
+	for (int i = 0; i < n; i++)
+		time += a + b*pow(k0 + i*delta, c);
+
+	time += a + b*pow(highValue(), c);
+
+	return time;
 }
 
 double CLSVariableIntegrationTime::totalTimeExponential(double delta, int n) const
 {
-	return -1;
+	double time = 0;
+	double a = a0();
+	double b = a1();
+	double c = a2();
+	double k0 = lowValue();
+
+	for (int i = 0; i < n; i++)
+		time += a + b*exp(c*(k0 + i*delta));
+
+	time += a + b*exp(c*(highValue()));
+
+	return time;
 }
 
 double CLSVariableIntegrationTime::totalTimeLinear(double delta, int n) const
 {
-	return -1;
+	double time = 0;
+	double a = a0();
+	double b = a1();
+	double k0 = lowValue();
+
+	for (int i = 0; i < n; i++)
+		time += a + b*(k0 + i*delta);
+
+	time += a + b*(highValue());
+
+	return time;
 }
 
 double CLSVariableIntegrationTime::totalTimeQuadratic(double delta, int n) const
 {
-	return -1;
+	double time = 0;
+	double a = a0();
+	double b = a1();
+	double k0 = lowValue();
+
+	for (int i = 0; i < n; i++)
+		time += a + b*pow(k0 + i*delta, 2);
+
+	time += a + b*pow(highValue(), 2);
+
+	return time;
 }
 
 double CLSVariableIntegrationTime::totalTimeSmoothStep(double delta, int n) const
 {
-	return -1;
+	double time = 0;
+	double a = a0();
+	double b = a1();
+	double c = a2();
+	double k0 = lowValue();
+
+	for (int i = 0; i < n; i++)
+		time += a + b/(1 + exp(-c*(k0 + i*delta)));
+
+	time += a + b/(1 + exp(-c*(highValue())));
+
+	return time;
 }
 
 double CLSVariableIntegrationTime::totalTimeLogarithmic(double delta, int n) const
 {
-	return -1;
+	double time = 0;
+	double a = a0();
+	double b = a1();
+	double c = a2();
+	double k0 = lowValue();
+
+	for (int i = 0; i < n; i++)
+		time += a + b*log(fabs(k0 + i*delta + c));
+
+	time += a + b*log(fabs(highValue() + c));
+
+	return time;
 }

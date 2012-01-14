@@ -66,8 +66,13 @@ protected slots:
 
 		positionsSaved_->setText("Unsaved");
 	}
+	/// Helper slot that handles the setting the estimated time label.  The value comes in as seconds.
+	void onEstimatedTimeChanged(double newTime);
 
 protected:
+	/// Helper method that takes a time in seconds and returns a string of d:h:m:s.
+	QString convertTimeToString(double time);
+
 	/// Pointer to the specific scan config the view is modifying.
 	VESPERSEXAFSScanConfiguration *config_;
 
@@ -95,6 +100,11 @@ protected:
 	QLabel *savedYPosition_;
 	/// Label holding whether or not the x and y positions have been saved yet.
 	QLabel *positionsSaved_;
+
+	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
+	QLabel *estimatedTime_;
+	/// Label holding the current estimated time for the set of scans to complete.
+	QLabel *estimatedSetTime_;
 
 	/// Button group for the It ion chamber selection.
 	QButtonGroup *ItGroup_;

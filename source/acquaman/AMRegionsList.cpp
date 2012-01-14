@@ -316,6 +316,8 @@ bool AMRegionsList::deleteRegionSqueeze(int index){
 			nextStart = start(index);
 			setEnd(index-1, prevEnd+(nextStart-prevEnd)/2);
 		}
+
+		emit regionsChanged();
 	}
 
 	return retVal;
@@ -454,6 +456,8 @@ bool AMEXAFSRegionsList::deleteRegionSqueeze(int index){
 			nextStart = startByType(index, AMEXAFSRegion::Energy);
 			setEnd(index-1, prevEnd+(nextStart-prevEnd)/2);
 		}
+
+		emit regionsChanged();
 	}
 
 	return retVal;
