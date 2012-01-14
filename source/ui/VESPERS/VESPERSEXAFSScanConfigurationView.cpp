@@ -177,9 +177,20 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	QCheckBox *goToPosition = new QCheckBox("Choose Position");
 	goToPosition->setChecked(config_->goToPosition());
 
-	QPushButton *setCurrentPosition = new QPushButton("Set Position");
+	QPushButton *setCurrentPosition = new QPushButton(QIcon(":/save.png"), "");
 	setCurrentPosition->setEnabled(goToPosition->isChecked());
 	connect(setCurrentPosition, SIGNAL(clicked()), this, SLOT(setScanPosition()));
+
+	savedXPosition_ = new QLabel(QString::number(config_->x(), 'g', 3) + " mm");
+	savedXPosition_->setEnabled(goToPosition->isChecked());
+	savedYPosition_ = new QLabel(QString::number(config_->y(), 'g', 3) + " mm");
+	savedYPosition_->setEnabled(goToPosition->isChecked());
+	positionsSaved_ = new QLabel("Unsaved");
+	positionsSaved_->setEnabled(goToPosition->isChecked());
+
+	QHBoxLayout *saveLayout = new QHBoxLayout;
+	saveLayout->addWidget(setCurrentPosition);
+	saveLayout->addWidget(positionsSaved_);
 
 	xPosition_ = new QDoubleSpinBox;
 	xPosition_->setEnabled(goToPosition->isChecked());
@@ -188,6 +199,11 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	xPosition_->setValue(config_->x());
 	xPosition_->setSuffix(" mm");
 	connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
+	connect(xPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
+
+	QHBoxLayout *xLayout = new QHBoxLayout;
+	xLayout->addWidget(xPosition_);
+	xLayout->addWidget(savedXPosition_);
 
 	yPosition_ = new QDoubleSpinBox;
 	yPosition_->setEnabled(goToPosition->isChecked());
@@ -196,17 +212,25 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	yPosition_->setValue(config_->y());
 	yPosition_->setSuffix(" mm");
 	connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
+	connect(yPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
+
+	QHBoxLayout *yLayout = new QHBoxLayout;
+	yLayout->addWidget(yPosition_);
+	yLayout->addWidget(savedYPosition_);
 
 	connect(goToPosition, SIGNAL(toggled(bool)), config_, SLOT(setGoToPosition(bool)));
 	connect(goToPosition, SIGNAL(toggled(bool)), setCurrentPosition, SLOT(setEnabled(bool)));
 	connect(goToPosition, SIGNAL(toggled(bool)), xPosition_, SLOT(setEnabled(bool)));
 	connect(goToPosition, SIGNAL(toggled(bool)), yPosition_, SLOT(setEnabled(bool)));
+	connect(goToPosition, SIGNAL(toggled(bool)), savedXPosition_, SLOT(setEnabled(bool)));
+	connect(goToPosition, SIGNAL(toggled(bool)), savedYPosition_, SLOT(setEnabled(bool)));
+	connect(goToPosition, SIGNAL(toggled(bool)), positionsSaved_, SLOT(setEnabled(bool)));
 
 	QFormLayout *positionLayout = new QFormLayout;
 	positionLayout->addRow(goToPosition);
-	positionLayout->addRow(setCurrentPosition);
-	positionLayout->addRow("x:", xPosition_);
-	positionLayout->addRow("y:", yPosition_);
+	positionLayout->addRow(saveLayout);
+	positionLayout->addRow("x:", xLayout);
+	positionLayout->addRow("y:", yLayout);
 
 	// The roi text edit.
 	roiText_ = new QTextEdit;

@@ -15,6 +15,7 @@
 #include <QDoubleSpinBox>
 #include <QToolButton>
 #include <QComboBox>
+#include <QLabel>
 
 class VESPERSEXAFSScanConfigurationView : public AMScanConfigurationView
 {
@@ -48,7 +49,23 @@ protected slots:
 	/// Handles changes in the combo box index.
 	void onLinesComboBoxIndexChanged(int index);
 	/// Sets the current horizontal and vertical positions and saves them in the configuration.
-	void setScanPosition() { config_->setPosition(xPosition_->value(), yPosition_->value()); }
+	void setScanPosition()
+	{
+		config_->setPosition(xPosition_->value(), yPosition_->value());
+		savedXPosition_->setText(QString::number(config_->x(), 'g', 3) + " mm");
+		savedYPosition_->setText(QString::number(config_->y(), 'g', 3) + " mm");
+		positionsSaved_->setText("Saved");
+		connect(xPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
+		connect(yPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
+	}
+	/// Helper slot.  If the value is changed from either of the x or y position spin boxes then the positions saved label should change to unsaved.
+	void onXorYPositionChanged()
+	{
+		disconnect(xPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
+		disconnect(yPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
+
+		positionsSaved_->setText("Unsaved");
+	}
 
 protected:
 	/// Pointer to the specific scan config the view is modifying.
@@ -72,6 +89,12 @@ protected:
 	QDoubleSpinBox *xPosition_;
 	/// The spin box htat holds the y coordinate for the scan position.
 	QDoubleSpinBox *yPosition_;
+	/// Label holding what the currently saved x position is in the scan configuration.
+	QLabel *savedXPosition_;
+	/// Label holding what the currently saved y position is in the scan configuration.
+	QLabel *savedYPosition_;
+	/// Label holding whether or not the x and y positions have been saved yet.
+	QLabel *positionsSaved_;
 
 	/// Button group for the It ion chamber selection.
 	QButtonGroup *ItGroup_;
