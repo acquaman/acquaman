@@ -14,6 +14,9 @@ CLSVariableIntegrationTime::CLSVariableIntegrationTime(const QString &baseName, 
 	highVal_ = new AMSinglePVControl("High Value", baseName + ":xmax", this, 0.1);
 	maxTime_ = new AMSinglePVControl("Maximum Time", baseName + ":ymax", this, 0.1);
 	compute_ = new AMSinglePVControl("Compute", baseName + ":aN:calc:run", this, 0.1);
+	a0_ = new AMReadOnlyPVControl("a0", baseName + ":a0", this);
+	a1_ = new AMReadOnlyPVControl("a1", baseName + ":a1", this);
+	a2_ = new AMReadOnlyPVControl("a2", baseName + ":a2", this);
 
 	connect(mode_, SIGNAL(valueChanged(double)), this, SLOT(onModeChanged()));
 	connect(defaultTime_, SIGNAL(valueChanged(double)), this, SLOT(onDefaultTimeChanged(double)));
@@ -22,6 +25,9 @@ CLSVariableIntegrationTime::CLSVariableIntegrationTime(const QString &baseName, 
 	connect(lowVal_, SIGNAL(valueChanged(double)), this, SIGNAL(lowValueChanged(double)));
 	connect(highVal_, SIGNAL(valueChanged(double)), this, SIGNAL(highValueChanged(double)));
 	connect(maxTime_, SIGNAL(valueChanged(double)), this, SLOT(onMaximumTimeChanged(double)));
+	connect(a0_, SIGNAL(valueChanged(double)), this, SIGNAL(a0Changed(double)));
+	connect(a1_, SIGNAL(valueChanged(double)), this, SIGNAL(a1Changed(double)));
+	connect(a2_, SIGNAL(valueChanged(double)), this, SIGNAL(a2Changed(double)));
 }
 
 AMBeamlineActionItem *CLSVariableIntegrationTime::createModeAction(Mode mode)
@@ -141,4 +147,44 @@ AMBeamlineActionItem *CLSVariableIntegrationTime::createSetupAction(Mode mode, d
 	setupActionsList->appendAction(1, createComputeAction());
 
 	return setupAction;
+}
+
+double CLSVariableIntegrationTime::totalTime(double delta) const
+{
+	return -1;
+}
+
+double CLSVariableIntegrationTime::totalTimeDefault(double delta, int n) const
+{
+	return -1;
+}
+
+double CLSVariableIntegrationTime::totalTimeGeometric(double delta, int n) const
+{
+	return -1;
+}
+
+double CLSVariableIntegrationTime::totalTimeExponential(double delta, int n) const
+{
+	return -1;
+}
+
+double CLSVariableIntegrationTime::totalTimeLinear(double delta, int n) const
+{
+	return -1;
+}
+
+double CLSVariableIntegrationTime::totalTimeQuadratic(double delta, int n) const
+{
+	return -1;
+}
+
+double CLSVariableIntegrationTime::totalTimeSmoothStep(double delta, int n) const
+{
+	return -1;
+}
+
+double CLSVariableIntegrationTime::totalTimeLogarithmic(double delta, int n) const
+{
+	return -1;
 }
