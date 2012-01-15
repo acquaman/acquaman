@@ -1,5 +1,8 @@
 #include "AMActionRunner.h"
 #include "actions2/AMAction.h"
+#include "actions2/AMActionLog.h"
+
+#include "util/AMErrorMonitor.h"
 
 #include <QStringBuilder>
 #include <QPixmapCache>
@@ -77,7 +80,9 @@ void AMActionRunner::onCurrentActionStateChanged(int state, int previousState)
 			state == AMAction::Succeeded) {
 
 		// log it:
-		// todozzzz AMActionHistoryLogger::s()->logCompletedAction(currentAction_);
+		if(!AMActionLog::logCompletedAction(currentAction_)) {
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem logging the completed action to your database.  Please report this problem to the Acquaman developers."));
+		}
 
 		// move onto the next, if there is one, and disconnect and delete the old one.
 		internalDoNextAction();
@@ -277,7 +282,9 @@ void AMActionRunner::onImmediateActionStateChanged(int state, int previousState)
 			state == AMAction::Succeeded) {
 
 		// log it:
-		// todozzzz AMActionHistoryLogger::s()->logCompletedAction(action);
+		if(!AMActionLog::logCompletedAction(action)) {
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -201, "There was a problem logging the completed action to your database.  Please report this problem to the Acquaman developers."));
+		}
 
 		// disconnect and delete it
 		disconnect(action, 0, this, 0);

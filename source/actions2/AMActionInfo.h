@@ -18,9 +18,8 @@ class AMActionInfo : public AMDbObject
 {
 	Q_OBJECT
 
-	Q_PROPERTY(QString shortDescription READ shortDescription WRITE setShortDescription)
 	Q_PROPERTY(QString longDescription READ longDescription WRITE setLongDescription)
-	Q_PROPERTY(QString iconFilName READ iconFileName WRITE setIconFileName)
+	Q_PROPERTY(QString iconFileName READ iconFileName WRITE setIconFileName)
 	Q_PROPERTY(double expectedDuration READ expectedDuration WRITE setExpectedDuration)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Action Info")
@@ -42,8 +41,9 @@ public:
 	virtual QString typeDescription() const { return "Generic Action"; }
 
 
-	/// This description is presented to users in default views, for example: "Moving to Sample Fe2O3"
-	QString shortDescription() const { return shortDescription_; }
+	/// This description is presented to users in default views, for example: "Move to Sample Fe2O3". Unlike typeDescription(), it is intended to be usually unique to an action instance.
+	/*! This is actually just a synonym for AMDbObject::name(). */
+	QString shortDescription() const { return name(); }
 	/// This description is presented to users in default views, for example: "<b>Moving to Sample Fe2O3:</b>\n X=30.4mm,\n Y=12.1mm,\n Z=16.5mm,\n R=45.0deg"
 	QString longDescription() const { return longDescription_; }
 	/// This returns the path to an icon used to represent the action in default views. If none is provided, it returns a generic icon. PNG images are recommended.
@@ -56,7 +56,7 @@ public:
 public slots:
 
 	/// Set a short description of of the action, for ex: "Moving to Sample Fe2O3"
-	void setShortDescription(const QString& shortDescription) { shortDescription_ = shortDescription; setModified(true); emit infoChanged(); }
+	void setShortDescription(const QString& shortDescription) { setName(shortDescription); emit infoChanged(); }
 	/// Set a long description of the action, for example: "<b>Moving to Sample Fe2O3:</b>\n X=30.4mm,\n Y=12.1mm,\n Z=16.5mm,\n R=45.0deg"
 	void setLongDescription(const QString& longDescription) { longDescription_ = longDescription; setModified(true); emit infoChanged(); }
 	/// Set the path to an icon used to represent the action in default views. PNG images are recommended.
@@ -82,7 +82,7 @@ signals:
 
 
 protected:
-	QString shortDescription_, longDescription_;
+	QString longDescription_;
 	QString iconFileName_;
 	double expectedDuration_;
 };

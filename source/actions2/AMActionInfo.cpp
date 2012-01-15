@@ -2,19 +2,19 @@
 
 AMActionInfo::AMActionInfo(const QString &shortDescription, const QString & longDescription, const QString &iconFileName, QObject *parent)
 	: AMDbObject(parent),
-	  shortDescription_(shortDescription),
 	  longDescription_(longDescription),
 	  iconFileName_(iconFileName)
 {
+	setName(shortDescription);
 	expectedDuration_ = -1;
 }
 
 AMActionInfo::AMActionInfo(const AMActionInfo& other)
 	: AMDbObject(),
-	  shortDescription_(other.shortDescription_),
 	  longDescription_(other.longDescription_),
 	  iconFileName_(other.iconFileName_)
 {
+	setName(other.name());
 	expectedDuration_ = other.expectedDuration_;
 }
 

@@ -133,6 +133,7 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 	double runningTime() const { if(!startDateTime_.isValid()) return -1.0; return elapsedTime() - pausedTime() - waitingForPrereqsTime(); }
 
 	/// Returns a description of the action's status, for example, "Waiting for the beamline energy to reach the setpoint".  Implementations should update this while the action is running using setStatusText().
+	/*! Even if you don't ever call this, the base class implementation will at at least call it on every state change with the name of the state. (For example: when the state changes to running, the status text will change to "Running".) You can always call it again after the state change/in-between state changes to provide more details to the user.*/
 	QString statusText() const { return statusText_; }
 
 

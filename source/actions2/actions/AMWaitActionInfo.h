@@ -7,6 +7,8 @@
 class AMWaitActionInfo : public AMActionInfo
 {
     Q_OBJECT
+	Q_PROPERTY(double secondsToWait READ secondsToWait WRITE setSecondsToWait)
+
 public:
 	/// Constructor. Specify the number of \c seconds you want to wait for
 	AMWaitActionInfo(double seconds, QObject *parent = 0);
@@ -28,6 +30,9 @@ public:
 
 	/// The total number of seconds that we're supposed to wait for
 	double secondsToWait() const { return seconds_; }
+
+	/// Set the total number of seconds to wait
+	void setSecondsToWait(double seconds) { seconds_ = seconds; setModified(true); }
 
 signals:
 
