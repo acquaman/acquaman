@@ -70,6 +70,8 @@ AMActionRunnerCurrentView::AMActionRunnerCurrentView(AMActionRunner* actionRunne
 	vl->addWidget(topFrame);
 
 	currentActionView_ = new QTreeView();
+	currentActionView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+	currentActionView_->setMaximumHeight(48);
 	vl->addWidget(currentActionView_);
 
 	currentActionModel_ = new QStandardItemModel(this);

@@ -6,7 +6,10 @@
 #include <QDateTime>
 
 /// This database object is used to log a user's completed actions (AMAction) in the Acquaman Workflow/Action system.  It contains the start and end times of the action, the final state of the action (Succeeded, Failed, or Cancelled), and a child database object to store the corresponding AMActionInfo.
-/*! The database table is indexed by endDateTime for fast searching/sorting by when actions finished. */
+/*! The database table is indexed by endDateTime for fast searching/sorting by when actions finished.
+
+In the database table, we also duplicate and store the AMActionInfo's shortDescription() (as name()), longDescription, and iconFileName so that we can access them quickly without having to load the whole AMActionInfo.
+*/
 class AMActionLog : public AMDbObject
 {
     Q_OBJECT
@@ -15,6 +18,9 @@ class AMActionLog : public AMDbObject
 	Q_PROPERTY(QDateTime endDateTime READ endDateTime WRITE dbLoadEndDateTime)
 	Q_PROPERTY(int finalState READ finalState WRITE dbLoadFinalState)
 	Q_PROPERTY(AMDbObject* info READ info WRITE dbLoadInfo)
+	// The associated ActionInfo's longDescription and iconFileName are duplicated in the database table for quick access, but they don't need to be member variables of this object since we can always retrieve them from the info().
+	Q_PROPERTY(QString longDescription READ longDescription)
+	Q_PROPERTY(QString iconFileName READ iconFileName)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Completed Action Log")
 	// Index by completion time (This is how we will sort/present them in order.)
@@ -53,11 +59,15 @@ public:
 	/// The final state of the action: will be either AMAction::Succeeded, AMAction::Cancelled, or AMAction::Failed.
 	int finalState() const { return finalState_; }
 
+	/// Convenience function to get the info()'s longDescription
+	QString longDescription() const { if(info_) return info_->longDescription(); else return QString(); }
+	/// Convenience function to get the info()'s iconFileName
+	QString iconFileName() const { if(info_) return info_->iconFileName(); else return QString(); }
+
 	// Public setters:
 	/////////////////////////
 	/// Set up this log based on the given \c completedAction. If the action is not in a final state, does nothing and returns false.
 	bool setFromAction(const AMAction* completedAction);
-
 
 	// For use by the database system ONLY, during loadFromDb():
 	//////////////////////////

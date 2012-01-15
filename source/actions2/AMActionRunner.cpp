@@ -310,12 +310,12 @@ QVariant AMActionQueueModelItem::data(int role) const
 	else if(role == Qt::DecorationRole) {
 		QPixmap p;
 		QString iconFileName = action_->info()->iconFileName();
-		if(QPixmapCache::find("AMActionQueueModelItemIcon" % iconFileName, &p))
+		if(QPixmapCache::find("AMActionIcon" % iconFileName, &p))
 			return p;
 		else {
 			p.load(iconFileName);
 			p = p.scaledToHeight(32);
-			QPixmapCache::insert("AMActionQueueModelItemIcon" % iconFileName, p);
+			QPixmapCache::insert("AMActionIcon" % iconFileName, p);
 			return p;
 		}
 	}

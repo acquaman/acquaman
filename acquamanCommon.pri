@@ -489,7 +489,8 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/actions2/actions/AMWaitActionInfo.h \
     source/actions2/actions/AMScanControllerAction.h \
     source/actions2/actions/AMScanControllerActionInfo.h \
-    source/actions2/AMActionLog.h
+    source/actions2/AMActionLog.h \
+    source/ui/actions2/AMActionHistoryView.h
 
 CONFIG(mobility) {
 DEFINES += AM_MOBILITY_VIDEO_ENABLED
@@ -789,7 +790,8 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/actions2/actions/AMWaitActionInfo.cpp \
     source/actions2/actions/AMScanControllerAction.cpp \
     source/actions2/actions/AMScanControllerActionInfo.cpp \
-    source/actions2/AMActionLog.cpp
+    source/actions2/AMActionLog.cpp \
+    source/ui/actions2/AMActionHistoryView.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
@@ -808,6 +810,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 

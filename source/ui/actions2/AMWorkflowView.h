@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "ui/actions2/AMActionRunnerQueueView.h"
 #include "ui/actions2/AMActionRunnerCurrentView.h"
+#include "ui/actions2/AMActionHistoryView.h"
 
 /// This widget provides an overall view of a user's workflow: an AMActionRunnerQueueView to manage the upcoming actions, an AMActionRunnerCurrentView to manage the current action, and an AMActionHistoryView for the completed actions. Using this widget, users can duplicate or delete upcoming actions, pause or resume the workflow queue, observe and cancel the current action, and review/re-queue past actions.
 class AMWorkflowView : public QWidget
@@ -19,6 +20,9 @@ public:
 	/// Access the current view for the current action
 	AMActionRunnerCurrentView* currentView() { return currentView_; }
 
+	/// Access the history view of completed actions
+	AMActionHistoryView* historyView() { return historyView_; }
+
 signals:
 
 public slots:
@@ -26,7 +30,7 @@ public slots:
 protected:
 	AMActionRunnerQueueView* queueView_;
 	AMActionRunnerCurrentView* currentView_;
-
+	AMActionHistoryView* historyView_;
 };
 
 #endif // AMWORKFLOWVIEW_H

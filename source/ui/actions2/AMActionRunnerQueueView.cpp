@@ -16,6 +16,7 @@ AMActionRunnerQueueView::AMActionRunnerQueueView(AMActionRunner* actionRunner, Q
 	actionRunner_ = actionRunner;
 
 	treeView_ = new QTreeView();
+	treeView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	treeView_->setModel(actionRunner_->queueModel());
 	treeView_->setHeaderHidden(true);
 	treeView_->setAttribute(Qt::WA_MacShowFocusRect, false);

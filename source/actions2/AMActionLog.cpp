@@ -15,6 +15,7 @@ AMActionLog::AMActionLog(const AMAction *completedAction, QObject *parent) :
 		finalState_ = completedAction->state();
 		startDateTime_ = completedAction->startDateTime();
 		endDateTime_ = completedAction->endDateTime();
+		setName(info_->shortDescription());
 	}
 	else {
 		info_ = 0;
@@ -30,6 +31,7 @@ AMActionLog::AMActionLog(const AMActionLog &other) :
 		finalState_ = other.finalState();
 		startDateTime_ = other.startDateTime();
 		endDateTime_ = other.endDateTime();
+		setName(info_->shortDescription());
 	}
 	else {
 		info_ = 0;
@@ -50,6 +52,7 @@ bool AMActionLog::setFromAction(const AMAction *completedAction)
 		finalState_ = completedAction->state();
 		startDateTime_ = completedAction->startDateTime();
 		endDateTime_ = completedAction->endDateTime();
+		setName(info_->shortDescription());
 		setModified(true);
 		return true;
 	}
@@ -82,6 +85,7 @@ void AMActionLog::dbLoadInfo(AMDbObject *newInfo)
 	if(info) {
 		delete info_;
 		info_ = info;
+		setName(info_->shortDescription());
 		setModified(true);
 	}
 	else {

@@ -25,13 +25,16 @@ AMWorkflowView::AMWorkflowView(QWidget *parent) :
 
 	currentView_ = new AMActionRunnerCurrentView(AMActionRunner::s());
 	queueView_ = new AMActionRunnerQueueView(AMActionRunner::s());
+	historyView_ = new AMActionHistoryView(AMActionRunner::s());
 
 	QVBoxLayout* vl = new QVBoxLayout(this);
 	vl->setContentsMargins(0,0,0,0);
 	vl->setSpacing(0);
 
 	vl->addLayout(hl);
-	vl->addWidget(currentView_, 0);
+	vl->addWidget(historyView_);
 	vl->addSpacing(12);
-	vl->addWidget(queueView_, 1);
+	vl->addWidget(currentView_);
+	vl->addSpacing(12);
+	vl->addWidget(queueView_);
 }
