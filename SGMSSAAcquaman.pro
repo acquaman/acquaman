@@ -44,7 +44,7 @@ SOURCES +=	source/application/SGM/SGMSSAMain.cpp \
 	source/util/SGM/SGMPeriodicTable.cpp
 
 RESOURCES += \
-    source/beamline/SGM/TransferHelpImages/LoadLockOutImages.qrc \
-    source/beamline/SGM/TransferHelpImages/LoadLockInImages.qrc \
-    source/beamline/SGM/TransferHelpImages/ChamberOutImages.qrc \
-    source/beamline/SGM/TransferHelpImages/ChamberInImages.qrc
+	source/beamline/SGM/TransferHelpImages/LoadLockOutImages.qrc \
+	source/beamline/SGM/TransferHelpImages/LoadLockInImages.qrc \
+	source/beamline/SGM/TransferHelpImages/ChamberOutImages.qrc \
+	source/beamline/SGM/TransferHelpImages/ChamberInImages.qrc

@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMSamplePlate.h"
 #include "dataman/AMUser.h"
-#include "beamline/CLS/CLSMAXvMotor.h"
+#include "beamline/SGM/SGMMAXvMotor.h"
 #include "beamline/CLS/CLSCAEN2527HVChannel.h"
 #include "beamline/CLS/CLSPGT8000HVChannel.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
@@ -63,8 +63,8 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("pgtBase", "MCA1611-01");
 	amNames2pvNames_.set("pgt", "MCA1611-01:GetChannels");
 	amNames2pvNames_.set("pgtHV", "MCA1611-01:Bias:Volt");
-        amNames2pvNames_.set("pgtIntegrationTime", "BL1611-ID-1:AddOns:PGTDwellTime");
-        amNames2pvNames_.set("pgtIntegrationMode", "BL1611-ID-1:AddOns:PGTDwellMode");
+		amNames2pvNames_.set("pgtIntegrationTime", "BL1611-ID-1:AddOns:PGTDwellTime");
+		amNames2pvNames_.set("pgtIntegrationMode", "BL1611-ID-1:AddOns:PGTDwellMode");
 	amNames2pvNames_.set("oos65000", "SA0000-03:DarkCorrectedSpectra");
 	amNames2pvNames_.set("oos65000IntegrationTime", "SA0000-03:IntegrationTime:Value");
 	amNames2pvNames_.set("I0Pico", "A1611-4-14:A:fbk");
@@ -83,8 +83,8 @@ void SGMBeamline::usingSGMBeamline(){
 
 	amNames2pvNames_.set("beamlineScanning", "BL1611-ID-1:scanning");
 	amNames2pvNames_.set("beamlineReady", "BL1611-ID-1:beam:status");
-        amNames2pvNames_.set("nextDwellTimeTrigger", "BL1611-ID-1:AddOns:trigger:dwellTime");
-        amNames2pvNames_.set("nextDwellTimeConfirmed", "BL1611-ID-1:AddOns:confirmed:dwellTime");
+		amNames2pvNames_.set("nextDwellTimeTrigger", "BL1611-ID-1:AddOns:trigger:dwellTime");
+		amNames2pvNames_.set("nextDwellTimeConfirmed", "BL1611-ID-1:AddOns:confirmed:dwellTime");
 	amNames2pvNames_.set("picoammeterDwellTime", "A1611I1:cont_interval");
 	amNames2pvNames_.set("energyMovingStatus", "BL1611-ID-1:ready");
 	amNames2pvNames_.set("fastShutterVoltage", "PSH16114I1001:V");
@@ -121,7 +121,7 @@ void SGMBeamline::usingSGMBeamline(){
 	QString sgmPVName = amNames2pvNames_.valueF("energy");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-        energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, "BL1611-ID-1:ready", sgmPVName, this, 0.25);
+		energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, "BL1611-ID-1:ready", sgmPVName, this, 0.25);
 	energy_->setDescription("Energy");
 	sgmPVName = amNames2pvNames_.valueF("energySpacingParam");
 	if(sgmPVName.isEmpty())
@@ -364,16 +364,16 @@ void SGMBeamline::usingSGMBeamline(){
 	loadlockTCG_->setDescription("SSA Loadlock TCG Pressure");
 	loadlockTCG_->setContextKnownDescription("Loadlock TCG");
 
-	ssaManipulatorX_ = new CLSMAXvMotor("ssaManipulatorX", amNames2pvNames_.valueF("ssaManipulatorX"), "SSA Inboard/Outboard", true, 0.2, 2.0, this);
+//	ssaManipulatorX_ = new SGMMAXvMotor("ssaManipulatorX", amNames2pvNames_.valueF("ssaManipulatorX"), "SSA Inboard/Outboard", true, 0.2, 2.0, this);
 	ssaManipulatorX_->setContextKnownDescription("X");
 
-	ssaManipulatorY_ = new CLSMAXvMotor("ssaManipulatorY", amNames2pvNames_.valueF("ssaManipulatorY"), "SSA Upstream/Downstream", true, 0.2, 2.0, this);
+//	ssaManipulatorY_ = new SGMMAXvMotor("ssaManipulatorY", amNames2pvNames_.valueF("ssaManipulatorY"), "SSA Upstream/Downstream", true, 0.2, 2.0, this);
 	ssaManipulatorY_->setContextKnownDescription("Y");
 
-	ssaManipulatorZ_ = new CLSMAXvMotor("ssaManipulatorZ", amNames2pvNames_.valueF("ssaManipulatorZ"), "SSA Up/Down", true, 0.2, 2.0, this);
+//	ssaManipulatorZ_ = new SGMMAXvMotor("ssaManipulatorZ", amNames2pvNames_.valueF("ssaManipulatorZ"), "SSA Up/Down", true, 0.2, 2.0, this);
 	ssaManipulatorZ_->setContextKnownDescription("Z");
 
-	ssaManipulatorRot_ = new CLSMAXvMotor("ssaManipulatorRot", amNames2pvNames_.valueF("ssaManipulatorRot"), "SSA Rotation", false, 0.2, 2.0, this);
+//	ssaManipulatorRot_ = new SGMMAXvMotor("ssaManipulatorRot", amNames2pvNames_.valueF("ssaManipulatorRot"), "SSA Rotation", false, 0.2, 2.0, this);
 	ssaManipulatorRot_->setContextKnownDescription("R");
 
 
@@ -804,7 +804,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	addChildControl(ssaIllumination_);
 	//TOM THIS IS STEP 4.10
 	addChildControl(ringCurrent_);
-	
+
 	addChildControl(filterPD1_);
 	addChildControl(filterPD2_);
 	addChildControl(filterPD3_);
@@ -2183,7 +2183,7 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 	gsl_multifit_linear_workspace * work
 			= gsl_multifit_linear_alloc (n, 3);
 	gsl_multifit_wlinear (X, w, y, c, cov,
-			      &chisq, work);
+				  &chisq, work);
 	gsl_multifit_linear_free (work);
 
 #define C(i) (gsl_vector_get(c,(i)))

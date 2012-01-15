@@ -55,11 +55,8 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	stepCalibrationSlope_ = new AMPVControl(name+"StepCalibrationSlope", baseName+":step:slope", baseName+":step:slope", QString(), this, 0.00001);
 	encoderCalibrationOffset_ = new AMPVControl(name+"EncoderCalibrationOffset", baseName+":enc:offset", baseName+":enc:offset", QString(), this, 0.001);
 	stepCalibrationOffset_ = new AMPVControl(name+"StepCalibrationOffset", baseName+":step:offset", baseName+":step:offset", QString(), this, 0.001);
-	encoderCalibrationAbsoluteOffset_ = new AMPVControl(name+"EncoderCalibrationAbsoluteOffset", baseName+":enc:absOffset", baseName+":enc:absOffset", QString(), this, 1);
 
 	motorType_ = new AMPVControl(name+"MotorType", baseName+":motorType:sp", baseName+":motorType", QString(), this, 0.1);
-	encoderType_ = new AMPVControl(name+"EncoderType", baseName+":encoderType:sp", baseName+":encoderType", QString(), this, 0.1);
-	encoderEncoding_ = new AMPVControl(name+"EncoderEncoding", baseName+":absEncodingType", baseName+":absEncodingType", QString(), this, 0.1);
 
 	limitActiveState_ = new AMPVControl(name+"LimitActiveState", baseName+":limitHigh", baseName+":limitHigh", QString(), this, 0.1);
 	limitDisabled_ = new AMPVControl(name+"LimitDisabled", baseName+":disableLimits", baseName+":disableLimits", QString(), this, 0.1);
@@ -72,7 +69,6 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	preDeadBand_ = new AMPVControl(name+"PreDeadBand", baseName+":preDBand", baseName+":preDBand", QString(), this, 1);
 	postDeadBand_ = new AMPVControl(name+"PostDeadBand", baseName+":postDBand", baseName+":postDBand", QString(), this, 1);
 	maxRetries_ = new AMPVControl(name+"MaxRetries", baseName+":maxRetry", baseName+":maxRetry", QString(), this, 1);
-	actualRetries_ = new AMReadOnlyPVControl(name+"ActualRetries", baseName+":retry:fbk", this);
 	encoderPercentApproach_ = new AMPVControl(name+"EncoderPercentApproach", baseName+":pctApproach", baseName+":pctApproach", QString(), this, 0.01);
 	encoderStepSoftRatio_ = new AMPVControl(name+"EncoderStepSoftRatio", baseName+":softRatio", baseName+":softRatio", QString(), this, 0.001);
 
@@ -116,15 +112,9 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	connect(encoderCalibrationOffset_, SIGNAL(valueChanged(double)), this, SIGNAL(encoderCalibrationOffsetChanged(double)));
 	connect(stepCalibrationOffset_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(stepCalibrationOffset_, SIGNAL(valueChanged(double)), this, SIGNAL(stepCalibrationOffsetChanged(double)));
-	connect(encoderCalibrationAbsoluteOffset_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
-	connect(encoderCalibrationAbsoluteOffset_, SIGNAL(valueChanged(double)), this, SIGNAL(encoderCalibrationAbsoluteOffsetChanged(double)));
 
 	connect(motorType_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(motorType_, SIGNAL(valueChanged(double)), this, SLOT(onMotorTypeChanged(double)));
-	connect(encoderType_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
-	connect(encoderType_, SIGNAL(valueChanged(double)), this, SLOT(onEncoderTypeChanged(double)));
-	connect(encoderEncoding_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
-	connect(encoderEncoding_, SIGNAL(valueChanged(double)), this, SLOT(onEncoderEncodingChanged(double)));
 
 	connect(limitActiveState_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(limitActiveState_, SIGNAL(valueChanged(double)), this, SLOT(onLimitActiveStateChanged(double)));
@@ -146,8 +136,6 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	connect(postDeadBand_, SIGNAL(valueChanged(double)), this, SIGNAL(postDeadBandChanged(double)));
 	connect(maxRetries_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(maxRetries_, SIGNAL(valueChanged(double)), this, SIGNAL(maxRetriesChanged(double)));
-	connect(actualRetries_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
-	connect(actualRetries_, SIGNAL(valueChanged(double)), this, SIGNAL(actualRetriesChanged(double)));
 	connect(encoderPercentApproach_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(encoderPercentApproach_, SIGNAL(valueChanged(double)), this, SIGNAL(encoderPercentApproachChanged(double)));
 	connect(encoderStepSoftRatio_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
@@ -181,8 +169,6 @@ bool CLSMAXvMotor::isConnected() const{
 		encoderFunctions = encoderCalibrationSlope_->isConnected()
 			&& encoderCalibrationOffset_->isConnected()
 			&& encoderCalibrationOffset_->isConnected()
-			&& encoderType_->isConnected()
-			&& encoderEncoding_->isConnected()
 			&& closedLoopEnabled_->isConnected()
 			&& servoPIDEnabled_->isConnected()
 			&& encoderTarget_->isConnected()
@@ -190,7 +176,6 @@ bool CLSMAXvMotor::isConnected() const{
 			&& preDeadBand_->isConnected()
 			&& postDeadBand_->isConnected()
 			&& maxRetries_->isConnected()
-			&& actualRetries_->isConnected()
 			&& encoderPercentApproach_->isConnected()
 			&& encoderStepSoftRatio_->isConnected();
 	return coreFunctions && encoderFunctions;
@@ -339,12 +324,6 @@ double CLSMAXvMotor::stepCalibrationOffset() const{
 	return 0.0;
 }
 
-double CLSMAXvMotor::encoderCalibrationAbsoluteOffset() const{
-	if(isConnected())
-		return encoderCalibrationAbsoluteOffset_->value();
-	return 0.0;
-}
-
 CLSMAXvMotor::MotorType CLSMAXvMotor::motorType() const{
 	if(!isConnected())
 		return CLSMAXvMotor::MotorTypeError;
@@ -363,47 +342,6 @@ CLSMAXvMotor::MotorType CLSMAXvMotor::motorType() const{
 		return CLSMAXvMotor::MotorTypeError;
 		break;
 
-	}
-}
-
-CLSMAXvMotor::EncoderType CLSMAXvMotor::encoderType() const{
-	if(!isConnected())
-		return CLSMAXvMotor::EncoderTypeError;
-	if(!hasEncoder_)
-		return CLSMAXvMotor::EncoderNone;
-	int enumChoice = (int)encoderType_->value();
-	switch(enumChoice){
-	case 0:
-		return CLSMAXvMotor::EncoderIncrememtal;
-		break;
-	case 1:
-		return CLSMAXvMotor::EncoderAbsolute;
-		break;
-	case 2:
-		return CLSMAXvMotor::EncoderPotentiometer;
-		break;
-	default:
-		return CLSMAXvMotor::EncoderTypeError;
-		break;
-	}
-}
-
-CLSMAXvMotor::EncoderEncoding CLSMAXvMotor::encoderEncoding() const{
-	if(!isConnected())
-		return CLSMAXvMotor::EncodingError;
-	if(!hasEncoder_)
-		return CLSMAXvMotor::EncodingNone;
-	int enumChoice = (int)encoderEncoding_->value();
-	switch(enumChoice){
-	case 0:
-		return CLSMAXvMotor::EncodingBinary;
-		break;
-	case 1:
-		return CLSMAXvMotor::EncodingGreyCode;
-		break;
-	default:
-		return CLSMAXvMotor::EncodingError;
-		break;
 	}
 }
 
@@ -498,12 +436,6 @@ double CLSMAXvMotor::postDeadBand() const{
 double CLSMAXvMotor::maxRetries() const{
 	if(isConnected())
 		return maxRetries_->value();
-	return 0.5;
-}
-
-double CLSMAXvMotor::actualRetries() const{
-	if(isConnected())
-		return actualRetries_->value();
 	return 0.5;
 }
 
@@ -648,14 +580,6 @@ AMBeamlineActionItem* CLSMAXvMotor::createStepCalibrationOffsetAction(double ste
 	return action;
 }
 
-AMBeamlineActionItem* CLSMAXvMotor::createEncoderCalibrationAbsoluteOffsetAction(double encoderCalibrationAbsoluteOffset){
-	if(!isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(encoderCalibrationAbsoluteOffset_);
-	action->setSetpoint(encoderCalibrationAbsoluteOffset);
-	return action;
-}
 
 AMBeamlineActionItem* CLSMAXvMotor::createMotorTypeAction(CLSMAXvMotor::MotorType motorType){
 	if(!isConnected())
@@ -663,24 +587,6 @@ AMBeamlineActionItem* CLSMAXvMotor::createMotorTypeAction(CLSMAXvMotor::MotorTyp
 
 	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(motorType_);
 	action->setSetpoint(motorType);
-	return action;
-}
-
-AMBeamlineActionItem* CLSMAXvMotor::createEncoderTypeAction(CLSMAXvMotor::EncoderType encoderType){
-	if(!isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(encoderType_);
-	action->setSetpoint(encoderType);
-	return action;
-}
-
-AMBeamlineActionItem* CLSMAXvMotor::createEncoderEncodingAction(CLSMAXvMotor::EncoderEncoding encoderEncoding){
-	if(!isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(encoderEncoding_);
-	action->setSetpoint(encoderEncoding);
 	return action;
 }
 
@@ -871,24 +777,9 @@ void CLSMAXvMotor::setStepCalibrationOffset(double stepCalibrationOffset){
 		stepCalibrationOffset_->move(stepCalibrationOffset);
 }
 
-void CLSMAXvMotor::setEncoderCalibrationAbsoluteOffset(double encoderCalibrationAbsoluteOffset){
-	if(isConnected())
-		encoderCalibrationAbsoluteOffset_->move(encoderCalibrationAbsoluteOffset);
-}
-
 void CLSMAXvMotor::setMotorType(CLSMAXvMotor::MotorType motorType){
 	if(isConnected())
 		motorType_->move(motorType);
-}
-
-void CLSMAXvMotor::setEncoderType(CLSMAXvMotor::EncoderType encoderType){
-	if(isConnected())
-		encoderType_->move(encoderType);
-}
-
-void CLSMAXvMotor::setEncoderEncoding(CLSMAXvMotor::EncoderEncoding encoderEncoding){
-	if(isConnected())
-		encoderEncoding_->move(encoderEncoding);
 }
 
 void CLSMAXvMotor::setLimitActiveState(CLSMAXvMotor::LimitActiveState limitActiveState){
@@ -1014,39 +905,6 @@ void CLSMAXvMotor::onMotorTypeChanged(double value){
 		break;
 	default:
 		emit motorTypeChanged(CLSMAXvMotor::MotorTypeError);
-		break;
-	}
-}
-
-void CLSMAXvMotor::onEncoderTypeChanged(double value){
-	int enumChoice = (int)value;
-	switch(enumChoice){
-	case 0:
-		emit encoderTypeChanged(CLSMAXvMotor::EncoderIncrememtal);
-		break;
-	case 1:
-		emit encoderTypeChanged(CLSMAXvMotor::EncoderAbsolute);
-		break;
-	case 2:
-		emit encoderTypeChanged(CLSMAXvMotor::EncoderPotentiometer);
-		break;
-	default:
-		emit encoderTypeChanged(CLSMAXvMotor::EncoderTypeError);
-		break;
-	}
-}
-
-void CLSMAXvMotor::onEncoderEncodingChanged(double value){
-	int enumChoice = (int)value;
-	switch(enumChoice){
-	case 0:
-		emit encoderEncodingChanged(CLSMAXvMotor::EncodingBinary);
-		break;
-	case 1:
-		emit encoderEncodingChanged(CLSMAXvMotor::EncodingGreyCode);
-		break;
-	default:
-		emit encoderEncodingChanged(CLSMAXvMotor::EncodingError);
 		break;
 	}
 }
