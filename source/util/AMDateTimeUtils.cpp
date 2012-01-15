@@ -52,7 +52,7 @@ QString AMDateTimeUtils::prettyDateTime(const QDateTime &dateTime, const QString
 QString AMDateTimeUtils::prettyDate(const QDateTime& dt) { return prettyDate(dt.date()); }
 
 
-/// Returns a compact date range (ex: "yesterday and today", "September 4 - 9 (2010)", "Aug 4 - Sept 9 (2010)", or "Aug 4 (2009) - Sept 9 (2010)"
+// Returns a compact date range (ex: "yesterday and today", "September 4 - 9 (2010)", "Aug 4 - Sept 9 (2010)", or "Aug 4 (2009) - Sept 9 (2010)"
 QString AMDateTimeUtils::prettyDateRange(const QDateTime& start, const QDateTime& end) {
 
 	if(!start.isValid() || !end.isValid())
@@ -91,4 +91,40 @@ QString AMDateTimeUtils::prettyDateRange(const QDateTime& start, const QDateTime
 
 	// years not equal
 	return start.toString("MMM d (yyyy)") + " - " + end.toString("MMM d (yyyy)");
+}
+
+
+QString AMDateTimeUtils::prettyDuration(const QDateTime& start, const QDateTime& end) {
+	int seconds = start.secsTo(end);
+	if(seconds == 0) {
+		return QString("%1 milliseconds").arg(start.msecsTo(end));
+	}
+	else if(seconds == 1)
+		return "1 second";
+	else if(seconds < 60)
+		return QString("%1 seconds").arg(seconds);
+	else if(seconds < 3600) {
+		int minutes = seconds / 60.0;
+		int remainingSeconds = seconds - minutes*60;
+		if(minutes == 1)
+			return QString("1 minute and %1 sec").arg(remainingSeconds);
+		else
+			return QString("%1 minutes and %2 sec").arg(minutes).arg(remainingSeconds);
+	}
+	else if(seconds < 3600*24) {
+		int hours = seconds / 3600.0;
+		int remainingMinutes = (seconds - hours*3600.0)/60.0;
+		if(hours == 1)
+			return QString("1 hour and %1 min").arg(remainingMinutes);
+		else
+			return QString("%1 hours and %2 min").arg(hours).arg(remainingMinutes);
+	}
+	else {
+		int days = seconds / (3600.0*24.0);
+		double remainingHours = (seconds - days*3600*24)/3600.0;
+		if(days == 1)
+			return QString("1 day, %1 hours").arg(remainingHours, 0, 'f', 1);
+		else
+			return QString("%1 days, %2 hours").arg(days).arg(remainingHours, 0, 'f', 1);
+	}
 }
