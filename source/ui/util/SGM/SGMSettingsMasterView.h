@@ -5,46 +5,6 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 
-class SGMPluginsLocationView;
-class SGMDacqConfigurationFileView;
-
-class SGMSettingsMasterView : public QWidget
-{
-Q_OBJECT
-
-public:
-	SGMSettingsMasterView(QWidget *parent = 0);
-
-protected slots:
-	/// Slot to listen to changes in the unsavedChanges (right now only listening to AMSettingsView)
-	void onUnsavedChanges(bool hasUnsavedChanges);
-	/// Applies changes but does not close window
-	void onApplyButtonClicked();
-	/// Discards changes and closes the window
-	void onCancelButtonClicked();
-	/// Applies changes and closes the window
-	void onOkButtonClicked();
-
-protected:
-	/// The closeEvent is reimplemented to offer a dialog option to save/discard/cancel if changes have been made
-	virtual void closeEvent(QCloseEvent *);
-
-protected:
-	/// Instance of SGMPluginsLocationView
-	SGMPluginsLocationView *sgmPluginsLocationView_;
-	/// Instance of SGMDacqConfigurationFileView
-	SGMDacqConfigurationFileView *sgmDacqConfigurationFileView_;
-
-	/// Button to apply changes but not close
-	QPushButton *applyButton_;
-	/// Button to discard changes and close
-	QPushButton *cancelButton_;
-	/// Button to apply changes and close
-	QPushButton *okButton_;
-
-	QVBoxLayout *vl_;
-};
-
 #include <QGroupBox>
 #include <QLineEdit>
 #include <QFormLayout>
@@ -142,6 +102,43 @@ protected:
 	QList<int> configurationFileIDs_;
 
 	QFormLayout *fl_;
+};
+
+class SGMSettingsMasterView : public QWidget
+{
+Q_OBJECT
+
+public:
+	SGMSettingsMasterView(QWidget *parent = 0);
+
+protected slots:
+	/// Slot to listen to changes in the unsavedChanges (right now only listening to AMSettingsView)
+	void onUnsavedChanges(bool hasUnsavedChanges);
+	/// Applies changes but does not close window
+	void onApplyButtonClicked();
+	/// Discards changes and closes the window
+	void onCancelButtonClicked();
+	/// Applies changes and closes the window
+	void onOkButtonClicked();
+
+protected:
+	/// The closeEvent is reimplemented to offer a dialog option to save/discard/cancel if changes have been made
+	virtual void closeEvent(QCloseEvent *);
+
+protected:
+	/// Instance of SGMPluginsLocationView
+	SGMPluginsLocationView *sgmPluginsLocationView_;
+	/// Instance of SGMDacqConfigurationFileView
+	SGMDacqConfigurationFileView *sgmDacqConfigurationFileView_;
+
+	/// Button to apply changes but not close
+	QPushButton *applyButton_;
+	/// Button to discard changes and close
+	QPushButton *cancelButton_;
+	/// Button to apply changes and close
+	QPushButton *okButton_;
+
+	QVBoxLayout *vl_;
 };
 
 #endif // SGMSETTINGSMASTERVIEW_H

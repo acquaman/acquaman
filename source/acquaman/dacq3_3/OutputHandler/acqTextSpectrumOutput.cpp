@@ -19,6 +19,8 @@ using namespace std;
 #define TRUE 1
 #define FALSE 0
 
+#include <QDebug>
+
 static acqOutputHandlerFactoryRegister registerMe( "Text", acqTextSpectrumOutput::new_acqTextSpectrumOutput);
 
 /// Only constructor. This over-rides the default handler entries from a base class.
@@ -108,13 +110,16 @@ int acqTextSpectrumOutput::pvFlags( acqKey_t key, int eventno, int pvno, const c
 	pvPrivate::pvproperties_iter checkSpectrum;
 	checkSpectrum = pvIter->second->pvproperties.find( isSpectrumKey );
 
+	qDebug() << "Doing a checkSpectrum?";
 	if( checkSpectrum != pvIter->second->pvproperties.end() )
 	{
+		qDebug() << "Yeah, check that spectrum";
 		DEBUG(to) printf("pv[%d] isSpectrum:%s\n", uid, checkSpectrum->second.c_str() );
 
 		if(checkSpectrum->second == "1" || checkSpectrum->second == "TRUE" || checkSpectrum->second == "true")
 		{
 			pvp->isSpectrum = true;
+			qDebug() << "Set haveSpectrum to TRUE";
 			to->haveSpectrum = TRUE;
 		}
 		return 0;
@@ -194,15 +199,24 @@ int acqTextSpectrumOutput::nextOutput( acqKey_t key)
 	// this depends on PV information having been transmitted before acquisition
 	// looping starts. If no PV's have been detected that have been flagged 'spectra',
 	// then no file will be created.
+	qDebug() << "Before to->haveSpectrum && to->spectrumStream";
+	if( to->haveSpectrum)
+		qDebug() << "haveSpectrum is true";
+	if( to->spectrumStream)
+		qDebug() << "spectrumStream is true";
 	if( to->haveSpectrum && to->spectrumStream)
 	{
+		qDebug() << "I guess it has a spectrum";
 		to->recordCount = 0;
 		if( to->spectrumSplit == SS_ONE_TO_ONE)
 		{
+			qDebug() << "I guess it wants to nextSpectrumFile";
 			to->nextSpectrumFile();
 		}
 
 	}
+	else
+		qDebug() << "\n\n\n\n\n\n\nTHIS IS CATACLYSMIC\n\n\n\n\n";
 
 	return 0;
 }
@@ -211,7 +225,8 @@ int acqTextSpectrumOutput::eventName(acqKey_t key, int eventno, const char *name
 {
 	acqBaseOutput::default_eventName(key, eventno, name);
 	acqTextSpectrumOutput *to = (acqTextSpectrumOutput *)key;
-	to->haveSpectrum = FALSE;
+	qDebug() << "In eventName setting haveSpectrum to FALSE";
+	//to->haveSpectrum = FALSE;
 
 	return 0;
 }
@@ -301,6 +316,7 @@ std::string acqTextSpectrumOutput::nextSpectrumFile(int record, int spectrum_no)
 	}
 	if( spectrumStream)
 	{
+		qDebug() << "Has spectrumStream so actually ->next()";
 		spectrumStream->setProperty( PROP_FILE_PATH, directory);
 		spectrumStream->setProperty( PROP_FILE_TEMPLATE, spectrumFileName);
 		spectrumStream->next();
