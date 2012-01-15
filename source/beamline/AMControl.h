@@ -1096,7 +1096,8 @@ protected slots:
 	/// This is used to add our own move tracking signals when isMoving() changes:
 	void onIsMovingChanged(bool);
 
-
+	/// This is called when a PV channel connects or disconnects
+	void onPVConnected(bool connected);
 
 };
 

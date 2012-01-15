@@ -67,7 +67,7 @@ void VESPERSBeamline::setupDiagnostics()
 	ccgPostWindow_ =  new AMReadOnlyPVwStatusControl("Pressure Post-Window", "CCG1607-2-B21-03:vac:p", "CCG1607-2-B21-03:vac", this, new AMControlStatusCheckerDefault(0));
 
 	// The actual valve control.  The reason for separating them is due to the fact that there currently does not exist an AMControl that handles setups like valves.
-	vvrFE1_ = new CLSBiStateControl("Valve Control FE1", "Valve Control FE1", "VVR1408-B20-01:state", "VVR1408-B20-01:opr:open", "VVR1408-B20-01:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrFE1_ = new AMReadOnlyPVwStatusControl("Valve Control FE1", "VVR1408-B20-01:state", "VVR1408-B20-01:state", this, new AMControlStatusCheckerDefault(4));
 	vvrFE2_ = new CLSBiStateControl("Valve Control FE2", "Valve Control FE2", "VVR1607-1-B20-01:state", "VVR1607-1-B20-01:opr:open", "VVR1607-1-B20-01:opr:close", new AMControlStatusCheckerDefault(4), this);
 	vvrM1_ = new CLSBiStateControl("Valve Control M1", "Valve Control M1", "VVR1607-1-B20-02:state", "VVR1607-1-B20-02:opr:open", "VVR1607-1-B20-02:opr:close", new AMControlStatusCheckerDefault(4), this);
 	vvrM2_ = new CLSBiStateControl("Valve Control M2", "Valve Control M2", "VVR1607-1-B20-03:state", "VVR1607-1-B20-03:opr:open", "VVR1607-1-B20-03:opr:close", new AMControlStatusCheckerDefault(4), this);
@@ -462,14 +462,20 @@ void VESPERSBeamline::pressureConnected(bool connected)
 
 void VESPERSBeamline::valveConnected(bool connected)
 {
-	if (connected)
+	if (connected){
+
 		connect(valveSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(valveError()));
+		valveError();
+	}
 }
 
 void VESPERSBeamline::ionPumpConnected(bool connected)
 {
-	if (connected)
+	if (connected){
+
 		connect(ionPumpSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(ionPumpError()));
+		ionPumpError();
+	}
 }
 
 void VESPERSBeamline::temperatureConnected(bool connected)
@@ -485,8 +491,11 @@ void VESPERSBeamline::temperatureConnected(bool connected)
 
 void VESPERSBeamline::flowSwitchConnected(bool connected)
 {
-	if (connected)
+	if (connected){
+
 		connect(flowSwitchSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(flowSwitchError()));
+		flowSwitchError();
+	}
 }
 
 void VESPERSBeamline::flowTransducerConnected(bool connected)
@@ -535,10 +544,21 @@ void VESPERSBeamline::valveError()
 
 	for (int i = 0; i < valveSet_->count(); i++){
 
-		current = qobject_cast<CLSBiStateControl *>(valveSet_->at(i));
+		if (i == 0){
 
-		if (current->state() == 0) // Closed is 0.
-			error += QString("%1 (%2)\n").arg(current->name(), current->statePVName());
+			AMReadOnlyPVwStatusControl *first = qobject_cast<AMReadOnlyPVwStatusControl *>(valveSet_->at(i));
+
+			if (first->isMoving()) // Closed is 0.
+				error += QString("%1 (%2)\n").arg(first->name(), first->movingPVName());
+		}
+
+		else {
+
+			current = qobject_cast<CLSBiStateControl *>(valveSet_->at(i));
+
+			if (current->state() == 0) // Closed is 0.
+				error += QString("%1 (%2)\n").arg(current->name(), current->statePVName());
+		}
 	}
 
 	if (!error.isEmpty()){
