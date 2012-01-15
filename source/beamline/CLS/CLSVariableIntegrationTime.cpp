@@ -154,6 +154,7 @@ double CLSVariableIntegrationTime::totalTime(double delta) const
 	int n = round((highValue() - lowValue())/delta);
 	double time = 0;
 
+	// The results of all of the functions will be in milliseconds and therefore need to be divided by 1000 to get into seconds.
 	switch(function()){
 
 	case Default:
@@ -184,7 +185,7 @@ double CLSVariableIntegrationTime::totalTime(double delta) const
 		time = totalTimeLogarithmic(delta, n)/1000;
 		break;
 	}
-	qDebug() << time;
+
 	return time;
 }
 
