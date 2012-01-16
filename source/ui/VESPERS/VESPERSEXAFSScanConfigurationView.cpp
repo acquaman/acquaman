@@ -160,6 +160,11 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 			energy_->setValue(energy);
 	}
 
+	QCheckBox *useFixedTime = new QCheckBox("Use fixed time (EXAFS)");
+	useFixedTime->setEnabled(false);
+	connect(config_->exafsRegions(), SIGNAL(regionsHaveKSpaceChanged(bool)), useFixedTime, SLOT(setEnabled(bool)));
+	connect(useFixedTime, SIGNAL(toggled(bool)), config_, SLOT(setUseFixedTime(bool)));
+
 	QFormLayout *energySetpointLayout = new QFormLayout;
 	energySetpointLayout->addRow("Energy:", energy_);
 
@@ -172,9 +177,20 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	QCheckBox *goToPosition = new QCheckBox("Choose Position");
 	goToPosition->setChecked(config_->goToPosition());
 
-	QPushButton *setCurrentPosition = new QPushButton("Set Position");
+	QPushButton *setCurrentPosition = new QPushButton(QIcon(":/save.png"), "");
 	setCurrentPosition->setEnabled(goToPosition->isChecked());
 	connect(setCurrentPosition, SIGNAL(clicked()), this, SLOT(setScanPosition()));
+
+	savedXPosition_ = new QLabel(QString::number(config_->x(), 'g', 3) + " mm");
+	savedXPosition_->setEnabled(goToPosition->isChecked());
+	savedYPosition_ = new QLabel(QString::number(config_->y(), 'g', 3) + " mm");
+	savedYPosition_->setEnabled(goToPosition->isChecked());
+	positionsSaved_ = new QLabel("Unsaved");
+	positionsSaved_->setEnabled(goToPosition->isChecked());
+
+	QHBoxLayout *saveLayout = new QHBoxLayout;
+	saveLayout->addWidget(setCurrentPosition);
+	saveLayout->addWidget(positionsSaved_);
 
 	xPosition_ = new QDoubleSpinBox;
 	xPosition_->setEnabled(goToPosition->isChecked());
@@ -183,6 +199,11 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	xPosition_->setValue(config_->x());
 	xPosition_->setSuffix(" mm");
 	connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
+	connect(xPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
+
+	QHBoxLayout *xLayout = new QHBoxLayout;
+	xLayout->addWidget(xPosition_);
+	xLayout->addWidget(savedXPosition_);
 
 	yPosition_ = new QDoubleSpinBox;
 	yPosition_->setEnabled(goToPosition->isChecked());
@@ -191,17 +212,30 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	yPosition_->setValue(config_->y());
 	yPosition_->setSuffix(" mm");
 	connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
+	connect(yPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
+
+	QHBoxLayout *yLayout = new QHBoxLayout;
+	yLayout->addWidget(yPosition_);
+	yLayout->addWidget(savedYPosition_);
 
 	connect(goToPosition, SIGNAL(toggled(bool)), config_, SLOT(setGoToPosition(bool)));
 	connect(goToPosition, SIGNAL(toggled(bool)), setCurrentPosition, SLOT(setEnabled(bool)));
 	connect(goToPosition, SIGNAL(toggled(bool)), xPosition_, SLOT(setEnabled(bool)));
 	connect(goToPosition, SIGNAL(toggled(bool)), yPosition_, SLOT(setEnabled(bool)));
+	connect(goToPosition, SIGNAL(toggled(bool)), savedXPosition_, SLOT(setEnabled(bool)));
+	connect(goToPosition, SIGNAL(toggled(bool)), savedYPosition_, SLOT(setEnabled(bool)));
+	connect(goToPosition, SIGNAL(toggled(bool)), positionsSaved_, SLOT(setEnabled(bool)));
 
 	QFormLayout *positionLayout = new QFormLayout;
 	positionLayout->addRow(goToPosition);
-	positionLayout->addRow(setCurrentPosition);
-	positionLayout->addRow("x:", xPosition_);
-	positionLayout->addRow("y:", yPosition_);
+	positionLayout->addRow(saveLayout);
+	positionLayout->addRow("x:", xLayout);
+	positionLayout->addRow("y:", yLayout);
+
+	estimatedTime_ = new QLabel;
+	estimatedSetTime_ = new QLabel;
+	connect(config_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged(double)));
+	onEstimatedTimeChanged(config_->totalTime());
 
 	// The roi text edit.
 	roiText_ = new QTextEdit;
@@ -227,6 +261,9 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	contentsLayout->addLayout(positionLayout, 2, 2);
 	contentsLayout->addWidget(ionChambersGroupBox, 2, 1);
 	contentsLayout->addWidget(roiText_, 3, 2, 2, 2);
+	contentsLayout->addWidget(useFixedTime, 4, 0);
+	contentsLayout->addWidget(estimatedTime_, 5, 0);
+	contentsLayout->addWidget(estimatedSetTime_, 6, 0);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
@@ -349,4 +386,44 @@ void VESPERSEXAFSScanConfigurationView::onItClicked(int id)
 		I0Group_->button(i)->setEnabled(false);
 
 	config_->setTransmissionChoice(id);
+}
+
+void VESPERSEXAFSScanConfigurationView::onEstimatedTimeChanged(double newTime)
+{
+	estimatedTime_->setText("Estimated time per scan: " + convertTimeToString(newTime));
+	estimatedSetTime_->setText("Estimated time for set: " + convertTimeToString(newTime*5));
+}
+
+QString VESPERSEXAFSScanConfigurationView::convertTimeToString(double time)
+{
+	QString timeString;
+
+	int days = time/3600/24;
+
+	if (days > 0){
+
+		time -= time/3600/24;
+		timeString += QString::number(days) + "d:";
+	}
+
+	int hours = time/3600;
+
+	if (hours > 0){
+
+		time -= hours*3600;
+		timeString += QString::number(hours) + "h:";
+	}
+
+	int minutes = time/60;
+
+	if (minutes > 0){
+
+		time -= minutes*60;
+		timeString += QString::number(minutes) + "m:";
+	}
+
+	int seconds = ((int)time)%60;
+	timeString += QString::number(seconds) + "s";
+
+	return timeString;
 }

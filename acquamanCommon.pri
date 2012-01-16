@@ -463,7 +463,8 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
     source/util/SGM/SGMSettings.h \
     source/util/SGM/SGMDacqConfigurationFile.h \
     source/util/SGM/SGMPluginsLocation.h \
-    source/ui/util/SGM/SGMSettingsMasterView.h
+	source/ui/util/SGM/SGMSettingsMasterView.h \
+	source/beamline/SGM/SGMMAXvMotor.h
 
 CONFIG(mobility) {
 DEFINES += AM_MOBILITY_VIDEO_ENABLED
@@ -746,7 +747,8 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
     source/util/SGM/SGMSettings.cpp \
     source/util/SGM/SGMDacqConfigurationFile.cpp \
     source/util/SGM/SGMPluginsLocation.cpp \
-    source/ui/util/SGM/SGMSettingsMasterView.cpp
+	source/ui/util/SGM/SGMSettingsMasterView.cpp \
+	source/beamline/SGM/SGMMAXvMotor.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \

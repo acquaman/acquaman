@@ -99,6 +99,15 @@ public:
 	double highValue() const { return highVal_->value(); }
 	/// Returns the maximum time (in seconds) that should be used while computing the various dwell times.
 	double maximumTime() const { return 1000*maxTime_->value(); }
+	/// Returns the current value of a0.
+	double a0() const { return a0_->value(); }
+	/// Returns the current value of a1.
+	double a1() const { return a1_->value(); }
+	/// Returns the current value of a2.
+	double a2() const { return a2_->value(); }
+
+	/// Compute the time it will take to go through all of the points and return the value in seconds.  Uses the current values of the a0, a1, a2, and the current function.
+	double totalTime(double delta) const;
 
 	// Action getters.  Returns an action equivalent of a setter.
 	/// Returns an action that changes the mode to \param mode.
@@ -135,6 +144,12 @@ signals:
 	void highValueChanged(double);
 	/// Notifier that the maximum time has changed.  Passes the new value.
 	void maximumTimeChanged(double);
+	/// Notifier that the value of a0 has changed.  Passes the new value.
+	void a0Changed(double);
+	/// Notifier that the value of a1 has changed.  Passes the new value.
+	void a1Changed(double);
+	/// Notifier that the value of a2 has changed.  Passes the new value.
+	void a2Changed(double);
 
 public slots:
 	/// Sets the mode for the variable integration time app.
@@ -178,6 +193,21 @@ protected slots:
 	void onFunctionChagned() { emit functionChanged(function()); }
 
 protected:
+	/// Method that returns the total time using the default function.
+	double totalTimeDefault(double delta, int n) const;
+	/// Method that returns the total time using the geometric function.
+	double totalTimeGeometric(double delta, int n) const;
+	/// Method that returns the total time using the exponential function.
+	double totalTimeExponential(double delta, int n) const;
+	/// Method that returns the total time using the linear function.
+	double totalTimeLinear(double delta, int n) const;
+	/// Method that returns the total time using the quadratic function.
+	double totalTimeQuadratic(double delta, int n) const;
+	/// Method that returns the total time using the smooth step function.
+	double totalTimeSmoothStep(double delta, int n) const;
+	/// Method that returns the total time using the logaritmic function.
+	double totalTimeLogarithmic(double delta, int n) const;
+
 	/// Control that sets the mode of the integration time.
 	AMControl *mode_;
 	/// Control that sets the default time.
@@ -194,6 +224,12 @@ protected:
 	AMControl *maxTime_;
 	/// Control that computes the appropriate values for the various dwell times.  This should be used after every change to the parameters of this class, or at the end of a complete setup.
 	AMControl *compute_;
+	/// Control that holds the current value of a0.
+	AMControl *a0_;
+	/// Control that holds the current value of a1.
+	AMControl *a1_;
+	/// Control that holds the current value of a2.
+	AMControl *a2_;
 };
 
 #endif // CLSVARIABLEINTEGRATIONTIME_H

@@ -29,15 +29,12 @@ VESPERSExperimentConfiguration::VESPERSExperimentConfiguration(CLSSynchronizedDw
 
 	poeBeamStatus_ = new AMReadOnlyPVControl("POE Beam Status", "07B2:POE_BeamStatus", this);
 	poeBeamStatusEnable_ = new AMSinglePVControl("POE Beam Status Enable", "07B2:EnablePOEStat", this, 0.1);
-	soeBeamStatus_ = new AMReadOnlyPVControl("SOE Beam Status", "07B2:SOE_BeamStatus", this);
-	soeBeamStatusEnable_ = new AMSinglePVControl("SOE Beam Status Enable", "07B2:EnableSOEStat", this, 0.1);
 	fastShutterReady_ = new AMReadOnlyPVControl("Fast Shutter Ready", "DIO1607-01:CCD:NotReady:fbk", this);
 	ccdStatus_ = new AMReadOnlyPVControl("CCD Status", "IOC1607-003:det1:DetectorState_RBV", this);
 
 	type_ = Custom;
 
 	usePOE_ = false;
-	useSOE_ = false;
 	useFastShutter_ = false;
 	useCCD_ = false;
 	useSampleStage_ = false;
@@ -45,11 +42,9 @@ VESPERSExperimentConfiguration::VESPERSExperimentConfiguration(CLSSynchronizedDw
 	useFourEl_ = false;
 
 	connect(poeBeamStatusEnable_, SIGNAL(valueChanged(double)), this, SLOT(onPOEEnableChanged(double)));
-	connect(soeBeamStatusEnable_, SIGNAL(valueChanged(double)), this, SLOT(onSOEEnableChanged(double)));
 	connect(synchronizedDwellTime_, SIGNAL(connected(bool)), this, SLOT(onSynchronizedDwellTimeStartup(bool)));
 
 	connect(poeBeamStatus_, SIGNAL(valueChanged(double)), this, SLOT(determineExperimentStatus()));
-	connect(soeBeamStatus_, SIGNAL(valueChanged(double)), this, SLOT(determineExperimentStatus()));
 	connect(fastShutterReady_, SIGNAL(valueChanged(double)), this, SLOT(determineExperimentStatus()));
 	connect(ccdStatus_, SIGNAL(connected(bool)), this, SLOT(determineExperimentStatus()));
 	connect(pseudoSampleStage_, SIGNAL(connected(bool)), this, SLOT(determineExperimentStatus()));
@@ -81,8 +76,6 @@ void VESPERSExperimentConfiguration::determineExperimentStatus()
 
 	if (usePOE_ && (int)poeBeamStatus_->value() == 0)
 		ready = false;
-	if (useSOE_ && (int)soeBeamStatus_->value() == 0)
-		ready = false;
 	if (useFastShutter_ && (int)fastShutterReady_->value() == 0)
 		ready = false;
 	if (useCCD_ && !ccdStatus_->isConnected())
@@ -110,7 +103,6 @@ void VESPERSExperimentConfiguration::setType(VESPERSExperimentConfiguration::Exp
 	case XAS:
 		// XAS.  Enable: POE, SOE, and Sample Stage
 		usePOEStatus(true);
-		useSOEStatus(true);
 		useFastShutterStatus(false);
 		useCCDStatus(false);
 		useSampleStageStatus(true);
@@ -122,7 +114,6 @@ void VESPERSExperimentConfiguration::setType(VESPERSExperimentConfiguration::Exp
 	case XRFw1el:
 		// XRF w/ 1-el Vortex.  Enable: POE, SOE, 1-el Vortex, and Sample Stage
 		usePOEStatus(true);
-		useSOEStatus(true);
 		useFastShutterStatus(false);
 		useCCDStatus(false);
 		useSampleStageStatus(true);
@@ -134,7 +125,6 @@ void VESPERSExperimentConfiguration::setType(VESPERSExperimentConfiguration::Exp
 	case XRFw4el:
 		// XRF w/ 4-el Vortex.  Enable: POE, SOE, 4-el Vortex, and Sample Stage
 		usePOEStatus(true);
-		useSOEStatus(true);
 		useFastShutterStatus(false);
 		useCCDStatus(false);
 		useSampleStageStatus(true);
@@ -144,7 +134,6 @@ void VESPERSExperimentConfiguration::setType(VESPERSExperimentConfiguration::Exp
 	case XRFw1elAndXRD:
 		// XRF w/ 1-el Vortex + CCD.  Enable: POE, SOE, 1-el Vortex, CCD, Fast Shutter, and Sample Stage
 		usePOEStatus(true);
-		useSOEStatus(true);
 		useFastShutterStatus(true);
 		useCCDStatus(true);
 		useSampleStageStatus(true);
@@ -154,7 +143,6 @@ void VESPERSExperimentConfiguration::setType(VESPERSExperimentConfiguration::Exp
 	case XRFw4elAndXRD:
 		// XRF w/ 4-el Vortex.  Enable: POE, SOE, 4-el Vortex, CCD, Fast Shutter, and Sample Stage
 		usePOEStatus(true);
-		useSOEStatus(true);
 		useFastShutterStatus(true);
 		useCCDStatus(true);
 		useSampleStageStatus(true);
@@ -178,20 +166,6 @@ void VESPERSExperimentConfiguration::usePOEStatus(bool use)
 		poeBeamStatusEnable_->move(use == true ? 0.0 : 1.0);
 
 	emit POEStatusChanged(use);
-	determineExperimentStatus();
-}
-
-void VESPERSExperimentConfiguration::useSOEStatus(bool use)
-{
-	if (useSOE_ == use)
-		return;
-
-	useSOE_ = use;
-
-	if (soeBeamStatusEnable_->isConnected())
-		soeBeamStatusEnable_->move(use == true ? 0.0 : 1.0);
-
-	emit SOEStatusChanged(use);
 	determineExperimentStatus();
 }
 
