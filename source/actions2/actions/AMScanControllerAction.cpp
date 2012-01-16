@@ -43,12 +43,22 @@ AMScanControllerActionInfo * AMScanControllerAction::scanControllerInfo()
 
 void AMScanControllerAction::startImplementation()
 {
-	controller_ = scanControllerInfo()->scanConfig()->createController();
+	AMScanConfiguration* config = scanControllerInfo()->scanConfig();
+	if(!config) {
+		AMErrorMon::report(AMErrorReport(this,
+										 AMErrorReport::Alert,
+										 -13,
+										 "There was no valid scan configuration provided. Please report this problem to the Acquaman developers."));
+		notifyFailed();
+		return;
+	}
+
+	controller_ = config->createController();
 	if(!controller_) {
 		AMErrorMon::report(AMErrorReport(this,
 										 AMErrorReport::Alert,
 										 -1,
-										 "Could not create the scan controller. Please report this bug to the Acquaman developers."));
+										 "Could not create the scan controller. Please report this problem to the Acquaman developers."));
 		notifyFailed();
 		return;
 	}
@@ -73,6 +83,7 @@ void AMScanControllerAction::startImplementation()
 
 void AMScanControllerAction::pauseImplementation()
 {
+	// will only be called from the running state, so we can assume there is a controller_
 	controller_->pause();
 }
 
@@ -83,7 +94,12 @@ void AMScanControllerAction::resumeImplementation()
 
 void AMScanControllerAction::cancelImplementation()
 {
-	// if we're in a transient startup state, we might not be able to cancel right now... Not sure about the behaviour of the different scan controllers; from observations at SGM, looks like the AMDacqScanController doesn't cancel while initializing.
+	if(!controller_) {
+		notifyCancelled();
+		return;
+	}
+
+	// if we're in a transient startup state, we might not be able to cancel right now... Not sure about the behaviour of the different scan controllers; from observations at SGM, looks like the AMDacqScanController doesn't cancel well while initializing.
 	if(controller_->state() == AMScanController::Initializing || controller_->state() == AMScanController::Starting) {
 		shouldCancelASAP_ = true;
 	}
@@ -112,6 +128,7 @@ void AMScanControllerAction::onScanControllerStateChanged(int previousState, int
 		}
 	}
 
+
 	// on started(): need to save the scan
 	if(state == AMScanController::Running && previousState == AMScanController::Starting) {
 		if(shouldCancelASAP_) {
@@ -127,17 +144,20 @@ void AMScanControllerAction::onScanControllerStateChanged(int previousState, int
 		}
 	}
 
+
 	// on cancelled():
 	if(state == AMScanController::Cancelled) {
 		disconnect(controller_, 0, this, 0);
 		notifyCancelled();
 	}
 
+
 	// on failed():
 	if(state == AMScanController::Failed) {
 		disconnect(controller_, 0, this, 0);
 		notifyFailed();
 	}
+
 	// on succeeded(): save the scan once again...
 	if(state == AMScanController::Finished) {
 		disconnect(controller_, 0, this, 0);
@@ -147,7 +167,7 @@ void AMScanControllerAction::onScanControllerStateChanged(int previousState, int
 											 -4,
 											 "Could not save the scan to the database. Please report this bug to the Acquaman developers."));
 		}
-		// todozzzzz... incorporate auto-export here. (clean up design for that after reviewing requirements?)
+		/// \todo ... incorporate auto-export here.
 		notifySucceeded();
 	}
 

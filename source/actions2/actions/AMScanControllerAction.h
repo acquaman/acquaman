@@ -12,7 +12,7 @@ class AMScanControllerAction : public AMAction
     Q_OBJECT
 public:
 	/// Constructor.  \c info can be any kind of AMScanControllerActionInfo; all it needs is to be able to access an AMScanConfiguration with AMScanControllerActionInfo::scanConfig().
-	AMScanControllerAction(AMScanControllerActionInfo* info, QObject *parent = 0);
+	Q_INVOKABLE AMScanControllerAction(AMScanControllerActionInfo* info, QObject *parent = 0);
 	/// Copy Constructor
 	AMScanControllerAction(const AMScanControllerAction& other);
 	/// Virtual copy constructor

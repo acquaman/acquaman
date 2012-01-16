@@ -79,6 +79,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions2/AMActionLog.h"
 #include "actions2/actions/AMWaitActionInfo.h"
 #include "actions2/actions/AMControlMoveActionInfo.h"
+#include "actions2/actions/AMScanControllerActionInfo.h"
 
 
 #include "dataman/database/AMDbObjectSupport.h"
@@ -279,6 +280,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMActionLog>();
 	AMDbObjectSupport::s()->registerClass<AMWaitActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMControlMoveActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMScanControllerActionInfo>();
 
 	return true;
 }

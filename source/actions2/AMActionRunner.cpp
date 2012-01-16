@@ -9,27 +9,12 @@
 
 AMActionRunner* AMActionRunner::instance_ = 0;
 
-// testing only:
-#include "actions2/actions/AMWaitAction.h"
-#include "actions2/actions/AMControlMoveAction.h"
-#include "actions2/actions/AMScanControllerAction.h"
-// #include "acquaman/REIXS/REIXSXESScanConfiguration.h"
-
 AMActionRunner::AMActionRunner(QObject *parent) :
 	QObject(parent)
 {
 	currentAction_ = 0;
 	isPaused_ = true;
 	queueModel_ = new AMActionQueueModel(this, this);
-
-	addActionToQueue(new AMWaitAction(10));
-	addActionToQueue(new AMWaitAction(20));
-	addActionToQueue(new AMWaitAction(30));
-	addActionToQueue(new AMWaitAction(40));
-	addActionToQueue(new AMControlMoveAction(new AMControlMoveActionInfo()));
-	addActionToQueue(new AMControlMoveAction(new AMControlMoveActionInfo()));
-	addActionToQueue(new AMWaitAction(10));
-	// addActionToQueue(new AMScanControllerAction(new AMScanControllerActionInfo(new REIXSXESScanConfiguration())));
 }
 
 AMActionRunner::~AMActionRunner() {

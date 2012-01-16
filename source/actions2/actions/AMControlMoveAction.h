@@ -35,7 +35,7 @@ public:
 	/*! Due to the separation of implementation and parameters into AMAction and AMActionInfo, our AMControlMoveActionInfo cannot hold an AMControl directly, since it needs to be OK to exist on any beamline/non-beamline/Acquaman release. Instead, it holds an AMControlInfo.  Therefore, AMControlMoveAction needs to be subclassed for beamline-specific use by implementing this function, which is responsible for returning a pointer to the control we must use to run the action.
 
 The default implementation returns 0, which will cause the action to fail.*/
-	virtual AMControl* getControlForAction(const AMControlInfo& controlInfo) { Q_UNUSED(controlInfo) return 0; }
+	virtual AMControl* getControlForAction(const AMControlInfo& controlInfo) const { Q_UNUSED(controlInfo) return 0; }
 
 signals:
 

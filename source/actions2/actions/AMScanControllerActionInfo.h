@@ -5,13 +5,14 @@
 
 class AMScanConfiguration;
 
-/// This class is the minimum AMActionInfo required for AMScanControllerAction. It is recommended that you subclass it so that you have a unique AMActionInfo to be registered with custome views and editors for your scan configurations. (See the <b>Actions and ActionInfo</b> section of AMAction for more information.)
+/// This AMActionInfo-subclass contains the minimum information required to run an AMScanControllerAction.
+/*! It is recommended that you subclass it so that you have a unique AMActionInfo to register with custom views and editors for your scan configurations. (See the <b>Actions and ActionInfo</b> section of AMAction for more information.) */
 class AMScanControllerActionInfo : public AMActionInfo
 {
     Q_OBJECT
 public:
-	/// Constructor: requires an associated AMScanConfiguration
-	AMScanControllerActionInfo(AMScanConfiguration* scanConfig, QObject *parent = 0);
+	/// Constructor: requires an associated AMScanConfiguration \c scanConfig.
+	Q_INVOKABLE AMScanControllerActionInfo(AMScanConfiguration* scanConfig = 0, QObject *parent = 0);
 	/// Copy constructor. Makes a copy of \c other's scan configuration.
 	AMScanControllerActionInfo(const AMScanControllerActionInfo& other);
 	/// Virtual copy constructor
@@ -28,6 +29,8 @@ public:
 	// New public functions
 	//////////////////////////
 
+	/// Returns true if it has a valid scanConfig()
+	bool isValid() const { return scanConfig_ != 0; }
 	/// Access the scan configuration:
 	const AMScanConfiguration* scanConfig() const { return scanConfig_; }
 	/// Access the scan configuration:

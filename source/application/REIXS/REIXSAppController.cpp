@@ -48,10 +48,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMStartScreen.h"
 
 #include "ui/actions2/AMWorkflowView.h"
-
+#include "actions2/AMActionRunner.h"
 #include "actions2/AMActionRegistry.h"
 #include "actions2/actions/AMWaitAction.h"
-#include "actions2/actions/AMControlMoveAction.h"
+#include "actions2/actions/REIXS/REIXSControlMoveAction.h"
+#include "actions2/actions/AMScanControllerAction.h"
 
 #include <QMessageBox>
 
@@ -72,6 +73,8 @@ bool REIXSAppController::startup() {
 		AMDbObjectSupport::s()->registerClass<REIXSXESMCPDetectorInfo>();
 		AMDbObjectSupport::s()->registerClass<REIXSXESCalibration>();
 
+		AMDbObjectSupport::s()->registerClass<REIXSControlMoveActionInfo>();
+
 
 		// Testing and making the first run in the database, if there isn't one already.  Make this it's own function if you think startup() is getting too big ; )
 		////////////////////////////////////////
@@ -88,11 +91,19 @@ bool REIXSAppController::startup() {
 		startScreen->show();
 
 
-
-
 		// Testing Actions2: register AMWaitAction
 		AMActionRegistry::s()->registerInfoAndAction<AMWaitActionInfo, AMWaitAction>("Wait", "This action simply waits for a specified amount of time.", ":/user-away.png");
-		AMActionRegistry::s()->registerInfoAndAction<AMControlMoveActionInfo, AMControlMoveAction>("Control Move", "This action moves a beamline control to a target position.", ":/system-run.png");
+		AMActionRegistry::s()->registerInfoAndAction<REIXSControlMoveActionInfo, REIXSControlMoveAction>("REIXS Control Move", "This action moves a REIXS beamline control to a target position.", ":/system-run.png");
+		AMActionRegistry::s()->registerInfoAndAction<AMScanControllerActionInfo, AMScanControllerAction>("Scan", "This is a broken scan", ":/system-run.png");
+
+		AMActionRunner::s()->addActionToQueue(new AMWaitAction(10));
+		AMActionRunner::s()->addActionToQueue(new AMWaitAction(20));
+		AMActionRunner::s()->addActionToQueue(new REIXSControlMoveAction(new REIXSControlMoveActionInfo(AMControlInfo("sampleX", 5, 0, 0, "mm", 0.1, "Sample X"))));
+		AMActionRunner::s()->addActionToQueue(new AMWaitAction(20));
+		AMActionRunner::s()->addActionToQueue(new REIXSControlMoveAction(new REIXSControlMoveActionInfo(AMControlInfo("sampleX", 5, 0, 0, "mm", 0.1, "Sample X"))));
+		AMActionRunner::s()->addActionToQueue(new AMWaitAction(20));
+		AMActionRunner::s()->addActionToQueue(new AMScanControllerAction(new AMScanControllerActionInfo(new REIXSXESScanConfiguration())));
+
 
 		// Create panes in the main window:
 		////////////////////////////////////
