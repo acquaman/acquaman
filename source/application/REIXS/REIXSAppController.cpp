@@ -49,6 +49,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/actions2/AMWorkflowView.h"
 
+#include "actions2/AMActionRegistry.h"
+#include "actions2/actions/AMWaitAction.h"
+
 #include <QMessageBox>
 
 
@@ -86,6 +89,8 @@ bool REIXSAppController::startup() {
 
 
 
+		// Testing Actions2: register AMWaitAction
+		AMActionRegistry::s()->registerInfoAndAction<AMWaitActionInfo, AMWaitAction>("Wait", "This action simply waits for a specified amount of time.", ":/user-away.png");
 
 		// Create panes in the main window:
 		////////////////////////////////////

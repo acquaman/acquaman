@@ -3,6 +3,7 @@
 #include "actions2/AMActionLog.h"
 #include "actions2/AMActionRunner.h"
 #include "dataman/database/AMDbObjectSupport.h"
+#include "actions2/AMActionRegistry.h"
 
 #include "dataman/AMRun.h"
 #include "dataman/AMUser.h"
@@ -18,6 +19,7 @@
 #include <QFrame>
 #include <QPushButton>
 #include <QToolButton>
+#include <QMessageBox>
 
 #include <QStringBuilder>
 #include <QPixmapCache>
@@ -605,12 +607,12 @@ QVariant AMActionHistoryModel::data(const QModelIndex &index, int role) const
 	else if(role == Qt::SizeHintRole) {
 		return QSize(-1, 32);
 	}
-//	else if(role == Qt::TextAlignmentRole) {
-//		if(index.column() == 1)
-//			return Qt::AlignCenter;
-//		else
-//			return int(Qt::AlignLeft | Qt::AlignVCenter);
-//	}
+	//	else if(role == Qt::TextAlignmentRole) {
+	//		if(index.column() == 1)
+	//			return Qt::AlignCenter;
+	//		else
+	//			return int(Qt::AlignLeft | Qt::AlignVCenter);
+	//	}
 	else if(role == Qt::ToolTipRole) {
 		if(index.column() == 0) {
 			return item->longDescription();
@@ -689,23 +691,66 @@ bool AMActionHistoryModel::deleteRow(int index)
 
 void AMActionHistoryView::onReRunActionButtonClicked()
 {
-	/// \todo
+	// we need a valid action runner to re-queue actions. This button shouldn't be enabled if there is no actionRunner_, but just in case:
+	if(!actionRunner_)
+		return;
+
+	// go through all selected rows.
+	foreach(QModelIndex i, treeView_->selectionModel()->selectedRows(0)) {
+		AMActionLogItem* item = model_->logItem(i);
+		if(!item)
+			continue;
+		// load the full actionLog.
+		AMActionLog actionLog;
+		if(!actionLog.loadFromDb(item->database(), item->id())) {
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -57, "Could not load the action log for id " % QString::number(item->id()) % " from the database. Please report this problem to the Acquaman developers."));
+			continue;
+		}
+		if(!actionLog.info()) {
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -58, "Could not load the action info for the action log with id " % QString::number(item->id()) % " from the database. It is likely because the action info class hasn't been registered with the database system. Please report this problem to the Acquaman developers."));
+			continue;
+		}
+		// make a copy of the AMActionInfo.
+		AMActionInfo* info = actionLog.info()->createCopy();
+
+		// make an action (assuming the actionInfo is registered with a corresponding action)
+		AMAction* action = AMActionRegistry::s()->createActionFromInfo(info);
+		if(!action) {
+			QMessageBox::warning(this, "Cannot re-run this action", "Could not re-run this action because running the '" % info->typeDescription() %  "' action isn't enabled for your beamline's version of Acquaman. If you don't think this should be the case, please report this to the Acquaman developers.");
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -59, "Could not re-run this action because running '" % actionLog.name() % "' isn't enabled for your beamline's version of Acquaman. If you don't think this should be the case, please report this to the Acquaman developers."));
+			delete info;
+			continue;
+		}
+		actionRunner_->addActionToQueue(action);
+	}
 }
 
 void AMActionHistoryView::onSelectionChanged()
 {
-	int numSelected = treeView_->selectionModel()->selectedRows().count();
-	if(numSelected == 0) {
-		reRunActionButton_->setDisabled(true);
+	// can only re-run actions if we have a valid actionRunner_
+	if(actionRunner_) {
+		int numSelected = treeView_->selectionModel()->selectedRows().count();
+		if(numSelected == 0) {
+			reRunActionButton_->setDisabled(true);
+		}
+		else if(numSelected == 1) {
+			reRunActionButton_->setEnabled(true);
+			reRunActionButton_->setText("Re-run this action");
+		}
+		else {
+			reRunActionButton_->setEnabled(true);
+			reRunActionButton_->setText("Re-run these actions");
+		}
 	}
-	else if(numSelected == 1) {
-		reRunActionButton_->setEnabled(true);
-		reRunActionButton_->setText("Re-run this action");
-	}
-	else {
-		reRunActionButton_->setEnabled(true);
-		reRunActionButton_->setText("Re-run these actions");
-	}
+}
+
+AMActionLogItem * AMActionHistoryModel::logItem(const QModelIndex &index) const
+{
+	if(!index.isValid())
+		return 0;
+	if(index.row() >= items_.count())
+		return 0;
+	return items_.at(index.row());
 }
 
 

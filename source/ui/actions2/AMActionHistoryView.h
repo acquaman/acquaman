@@ -22,6 +22,8 @@ public:
 
 	/// Returns the id of the corresponding AMActionLog in the database
 	int id() const { return id_; }
+	/// Returns the database that the corresponding AMActionLog is in
+	AMDatabase* database() const { return db_; }
 	/// Returns the endDateTime of the corresponding AMActionLog, loading it from the database if required.
 	QDateTime endDateTime() const;
 	/// Returns the startDateTime of the corresponding AMActionLog, loading it from the database if required.
@@ -88,6 +90,9 @@ public:
 	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
 	virtual QVariant data(const QModelIndex &index, int role) const;
 	virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+
+	/// Returns the AMActionLogItem at \c index
+	AMActionLogItem* logItem(const QModelIndex& index) const;
 
 public slots:
 	/// Set the date/time range of actions that should be shown. Specificy an invalid QDateTime for \c oldest to show all.  Specify an invalid QDateTime for \c newest to always be the current date time.

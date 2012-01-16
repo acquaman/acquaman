@@ -17,7 +17,7 @@ public:
 	//////////////////////////////
 
 	/// Constructor. Requires and takes ownership of an existing AMWaitActionInfo \c info.  For ex: \c info = new AMWaitActionInfo(60) will wait for 60 seconds.
-	AMWaitAction(AMWaitActionInfo* info, QObject *parent = 0);
+	Q_INVOKABLE AMWaitAction(AMWaitActionInfo* info, QObject *parent = 0);
 	/// This convenience constructor is indentical to AMWaitAction(new AMWaitActionInfo(seconds))
 	AMWaitAction(double seconds, QObject* parent = 0);
 	/// Copy constructor: must re-implement, but can simply use the AMAction copy constructor to make copies of the info and prereqs. We need to reset our internal state variables (secondsSpentWaitingForPrereqs_, in this case) to make the copy a "like new" action - ie, not run yet.

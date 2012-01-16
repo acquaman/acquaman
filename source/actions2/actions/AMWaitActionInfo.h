@@ -11,7 +11,7 @@ class AMWaitActionInfo : public AMActionInfo
 
 public:
 	/// Constructor. Specify the number of \c seconds you want to wait for
-	AMWaitActionInfo(double seconds, QObject *parent = 0);
+	Q_INVOKABLE AMWaitActionInfo(double seconds = 60, QObject *parent = 0);
 
 	/// Copy Constructor
 	AMWaitActionInfo(const AMWaitActionInfo& other) : AMActionInfo(other), seconds_(other.seconds_) {}
