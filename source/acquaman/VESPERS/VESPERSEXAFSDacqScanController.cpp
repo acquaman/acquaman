@@ -15,6 +15,17 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	setupXASAction_ = 0;
 	cleanupXASAction_ = 0;
 
+	secondsElapsed_ = 0;
+	secondsTotal_ = config_->totalTime();
+	elapsedTime_.setInterval(1000);
+	connect(this, SIGNAL(started()), &elapsedTime_, SLOT(start()));
+	connect(this, SIGNAL(cancelled()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(paused()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(resumed()), &elapsedTime_, SLOT(start()));
+	connect(this, SIGNAL(failed()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(finished()), &elapsedTime_, SLOT(stop()));
+	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
+
 	scan_ = new AMXASScan(); 	// MB: Moved from line 363 in startImplementation.
 	scan_->setName(config_->name());
 	scan_->setFileFormat("vespers2011EXAFS");
@@ -477,6 +488,19 @@ AMnDIndex VESPERSEXAFSDacqScanController::toScanIndex(QMap<int, double> aeData)
 {
 	Q_UNUSED(aeData)
 	return AMnDIndex(scan_->rawData()->scanSize(0));
+}
+
+void VESPERSEXAFSDacqScanController::onScanTimerUpdate()
+{
+	if (elapsedTime_.isActive()){
+
+		if (secondsElapsed_ >= secondsTotal_)
+			secondsElapsed_ = secondsTotal_;
+		else
+			secondsElapsed_ += 1.0;
+
+		emit progress(secondsElapsed_, secondsTotal_);
+	}
 }
 
 void VESPERSEXAFSDacqScanController::onInitializationActionsSucceeded()
