@@ -52,7 +52,22 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 		connect(trackingView_, SIGNAL(configValuesChanged(AMControlInfoList)), sxsc, SLOT(setTrackingGroup(AMControlInfoList)));
 		connect(sxsc, SIGNAL(trackingGroupChanged(AMControlInfoList)), trackingView_, SLOT(setFromInfoList(AMControlInfoList)));
 
-		xasDetectorsView_ = new AMDetectorSetView(sxsc->detectorChoices(), true);
+		/*
+		for(int x = 0; x < sxsc->detectorChoices()->count(); x++){
+			if(sxsc->detectorChoices()->isDefaultAt(x))
+				qDebug() << sxsc->detectorChoices()->detectorAt(x)->detectorName() << " is default";
+			else
+				qDebug() << sxsc->detectorChoices()->detectorAt(x)->detectorName() << " is not default";
+		}
+		for(int x = 0; x < sxsc->detectorChoiceConfigurations().count(); x++){
+			if(sxsc->detectorChoiceConfigurations().isActiveAt(x))
+				qDebug() << sxsc->detectorChoiceConfigurations().detectorInfoAt(x)->name() << " is active";
+			else
+				qDebug() << sxsc->detectorChoiceConfigurations().detectorInfoAt(x)->name() << " is not active";
+		}
+		*/
+		//xasDetectorsView_ = new AMDetectorSetView(sxsc->detectorChoices(), true);
+		xasDetectorsView_ = new AMDetectorSetView(sxsc->detectorChoices(), sxsc->detectorChoiceConfigurations());
 		connect(xasDetectorsView_, SIGNAL(configValuesChanged()), this, SLOT(onDetectorConfigurationsChanged()));
 
 		warningsLabel_ = new QLabel("");
