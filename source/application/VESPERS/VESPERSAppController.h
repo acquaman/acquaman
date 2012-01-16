@@ -49,7 +49,10 @@ public:
 protected slots:
 	/// Helper slot that builds a generic scan editor for the XAS scan.  \todo this seems like something that should be higher up in the framework.
 	void onCurrentScanControllerStarted();
-
+	/// Helper slot that handles hooking up the progress bar from the bottom bar to the current scan controller progress.
+	void onCurrentScanControllerCreated();
+	/// Helper slot that handles disconnecting the current scan controller from the progress bar when it's done.
+	void onCurrentScanControllerFinished();
 };
 
 #endif // VESPERSAPPCONTROLLER_H

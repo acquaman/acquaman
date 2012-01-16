@@ -33,7 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "actions/AMBeamlineListAction.h"
 #include "ui/beamline/AMControlEditor.h"
-#include "beamline/CLS/CLSMAXvMotor.h"
+#include "beamline/SGM/SGMMAXvMotor.h"
 
 SGMSampleManipulatorView::SGMSampleManipulatorView(bool bigButtons, QWidget *parent) :
 		QGroupBox("SGM SSA Endstation", parent )

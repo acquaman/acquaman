@@ -132,6 +132,9 @@ bool SGMAppController::startup() {
 		sgmDefault->ensureDataSource("PFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
 		sgmDefault->ensureDataSource("IPFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
 		sgmDefault->ensureDataSource("SDD", false, AMExporterOptionGeneral::SeparateFilesMode, false);
+		sgmDefault->ensureDataSource("OceanOptics65000", false, AMExporterOptionGeneral::SeparateFilesMode, false);
+		sgmDefault->ensureDataSource("PLY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmDefault->ensureDataSource("PLYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
 		//sgmDefault->setSeparateSectionFileName("$name_$dataSetName_$exportIndex.txt");
 		sgmDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.txt");
 		sgmDefault->storeToDb(AMDatabase::database("user"));
@@ -303,7 +306,7 @@ bool SGMAppController::setupSGMDatabase(){
 		configFile = new SGMDacqConfigurationFile();
 		configFile->setName("PGTXEOLAmmeter");
 		configFile->setConfigurationFileName("pgtxeolAmmeter.cfg");
-		configFile->setConfigurationFilePath("/Users/fawkes/dev/acquaman/devConfigurationFiles");
+		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
 		success &= configFile->storeToDb(dbSGM);
 	}
 	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTXEOLScaler");
@@ -311,7 +314,7 @@ bool SGMAppController::setupSGMDatabase(){
 		configFile = new SGMDacqConfigurationFile();
 		configFile->setName("PGTXEOLScaler");
 		configFile->setConfigurationFileName("pgtxeolScaler.cfg");
-		configFile->setConfigurationFilePath("/Users/fawkes/dev/acquaman/devConfigurationFiles");
+		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
 		success &= configFile->storeToDb(dbSGM);
 	}
 	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTAmmeter");
@@ -319,7 +322,7 @@ bool SGMAppController::setupSGMDatabase(){
 		configFile = new SGMDacqConfigurationFile();
 		configFile->setName("PGTAmmeter");
 		configFile->setConfigurationFileName("pgtAmmeter.cfg");
-		configFile->setConfigurationFilePath("/Users/fawkes/dev/acquaman/devConfigurationFiles");
+		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
 		success &= configFile->storeToDb(dbSGM);
 	}
 	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTScaler");
@@ -327,7 +330,7 @@ bool SGMAppController::setupSGMDatabase(){
 		configFile = new SGMDacqConfigurationFile();
 		configFile->setName("PGTScaler");
 		configFile->setConfigurationFileName("pgtScaler.cfg");
-		configFile->setConfigurationFilePath("/Users/fawkes/dev/acquaman/devConfigurationFiles");
+		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
 		success &= configFile->storeToDb(dbSGM);
 	}
 	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "XEOLAmmeter");
@@ -335,7 +338,7 @@ bool SGMAppController::setupSGMDatabase(){
 		configFile = new SGMDacqConfigurationFile();
 		configFile->setName("XEOLAmmeter");
 		configFile->setConfigurationFileName("xeolAmmeter.cfg");
-		configFile->setConfigurationFilePath("/Users/fawkes/dev/acquaman/devConfigurationFiles");
+		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
 		success &= configFile->storeToDb(dbSGM);
 	}
 	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "XEOLScaler");
@@ -343,7 +346,7 @@ bool SGMAppController::setupSGMDatabase(){
 		configFile = new SGMDacqConfigurationFile();
 		configFile->setName("XEOLScaler");
 		configFile->setConfigurationFileName("xeolScaler.cfg");
-		configFile->setConfigurationFilePath("/Users/fawkes/dev/acquaman/devConfigurationFiles");
+		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
 		success &= configFile->storeToDb(dbSGM);
 	}
 	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "DefaultAmmeter");
@@ -351,7 +354,7 @@ bool SGMAppController::setupSGMDatabase(){
 		configFile = new SGMDacqConfigurationFile();
 		configFile->setName("DefaultAmmeter");
 		configFile->setConfigurationFileName("defaultEnergyAmmeter.cfg");
-		configFile->setConfigurationFilePath("/Users/fawkes/dev/acquaman/devConfigurationFiles");
+		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
 		success &= configFile->storeToDb(dbSGM);
 	}
 	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "DefaultScaler");
@@ -359,7 +362,7 @@ bool SGMAppController::setupSGMDatabase(){
 		configFile = new SGMDacqConfigurationFile();
 		configFile->setName("DefaultScaler");
 		configFile->setConfigurationFileName("defaultEnergyScaler.cfg");
-		configFile->setConfigurationFilePath("/Users/fawkes/dev/acquaman/devConfigurationFiles");
+		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
 		success &= configFile->storeToDb(dbSGM);
 	}
 	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "FastScaler");
@@ -367,7 +370,7 @@ bool SGMAppController::setupSGMDatabase(){
 		configFile = new SGMDacqConfigurationFile();
 		configFile->setName("FastScaler");
 		configFile->setConfigurationFileName("Scalar_Fast.config");
-		configFile->setConfigurationFilePath("/Users/fawkes/dev/acquaman/devConfigurationFiles");
+		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
 		success &= configFile->storeToDb(dbSGM);
 	}
 
@@ -377,7 +380,7 @@ bool SGMAppController::setupSGMDatabase(){
 	fileLoaderPluginsLocation = new SGMPluginsLocation();
 	if(matchIDs.count() == 0){
 		fileLoaderPluginsLocation->setName("FileLoaders");
-		fileLoaderPluginsLocation->setPluginFolderPath("/Users/fawkes/dev/acquaman/plugins/FileLoaders");
+		fileLoaderPluginsLocation->setPluginFolderPath("/home/sgm/beamline/programming/acquaman/plugins/FileLoaders");
 		success &= fileLoaderPluginsLocation->storeToDb(dbSGM);
 	}
 	else
@@ -386,7 +389,7 @@ bool SGMAppController::setupSGMDatabase(){
 	analysisBlockPluginsLocation = new SGMPluginsLocation();
 	if(matchIDs.count() == 0){
 		analysisBlockPluginsLocation->setName("AnalysisBlocks");
-		analysisBlockPluginsLocation->setPluginFolderPath("/Users/fawkes/dev/acquaman/plugins/AnalysisBlocks");
+		analysisBlockPluginsLocation->setPluginFolderPath("/home/sgm/beamline/programming/acquaman/plugins/AnalysisBlocks");
 		success &= analysisBlockPluginsLocation->storeToDb(dbSGM);
 	}
 	else

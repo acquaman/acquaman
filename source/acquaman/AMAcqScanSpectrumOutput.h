@@ -61,6 +61,9 @@ public:
 	void setScan(AMScan *scan);
 	void setScanController(QObject *scanController);
 
+protected:
+	virtual void onExpectationOfSpectrumNotMet();
+
 private:
 	int outputCol;
 	AMScan *scan_;

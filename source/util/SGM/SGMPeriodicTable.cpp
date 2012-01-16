@@ -34,7 +34,7 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 												      SGMEnergyPosition(295.0, -377497, -140470, 200.46, 0),
 												      SGMEnergyPosition(320.0, -348005, -133061, 100.54, 0)));
 	tmpElementInfo->addEdgeInfo(carbonK);
-	SGMFastScanSettings carbonK5s(5.0, 24000, 5.0, 200, 4000);
+	SGMFastScanSettings carbonK5s(5.0, 40000, 5.0, 200, 6000);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
 									carbonK5s ));
@@ -278,15 +278,15 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 
 	//COPPER INFO
 	tmpElementInfo = new SGMElementInfo(AMPeriodicTable::table()->elementBySymbol("Cu"), this);
-	SGMEdgeInfo copperL3(AMPeriodicTable::table()->elementBySymbol("Cu")->L3Edge(), SGMScanRangeInfo(SGMEnergyPosition(925.0, -220063, 1414, 218.584, 1),
-													 SGMEnergyPosition(935.0, -217710, 3318, 230.292, 1),
-													 SGMEnergyPosition(945.0, -215406, 5232, 242.299, 1)));
+	SGMEdgeInfo copperL3(AMPeriodicTable::table()->elementBySymbol("Cu")->L3Edge(), SGMScanRangeInfo(SGMEnergyPosition(920.0, -221259, 1300, 218.584, 1),
+													 SGMEnergyPosition(950.0, -214272, 3318, 230.292, 1),
+													 SGMEnergyPosition(970.0, -209854, 9900, 242.299, 1)));
 	tmpElementInfo->addEdgeInfo(copperL3);
 	SGMFastScanSettings copperL5s(5.0, 3000, 5.0, 200, 1000);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("L3")),
 									copperL5s));
-	SGMFastScanSettings copperL20s(20.0, 450, 20.0, 800, 235);
+	SGMFastScanSettings copperL20s(20.0, 1100, 20.0, 800, 510);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("L3")),
 									copperL20s));

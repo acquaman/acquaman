@@ -19,6 +19,8 @@ using namespace std;
 #define TRUE 1
 #define FALSE 0
 
+#include <QDebug>
+
 static acqOutputHandlerFactoryRegister registerMe( "Text", acqTextSpectrumOutput::new_acqTextSpectrumOutput);
 
 /// Only constructor. This over-rides the default handler entries from a base class.
@@ -28,7 +30,8 @@ acqTextSpectrumOutput::acqTextSpectrumOutput() :
 	haveSpectrum(0), spectrumFormat(SF_DEFAULT),
 	spectrumStream(NULL),
 	ts_outputState(TSOH_INIT),
-	spectrumSplit(SS_ONE_TO_ONE)
+	spectrumSplit(SS_ONE_TO_ONE),
+	expectsSpectrumFromScanController_(false)
 {
 	handler.start_cb = start;
 	handler.pause_cb = pause;
@@ -62,6 +65,14 @@ acqKey_t new_acqTextSpectrumOutput(void)
 {
 	acqBaseOutput *to = new acqTextSpectrumOutput();
 	return (acqKey_t )to;
+}
+
+bool acqTextSpectrumOutput::expectsSpectrumFromScanController() const{
+	return expectsSpectrumFromScanController_;
+}
+
+void acqTextSpectrumOutput::setExpectsSpectrumFromScanController(bool expectsSpectrumFromScanController){
+	expectsSpectrumFromScanController_ = expectsSpectrumFromScanController;
 }
 
 /// start of a run - may be multiple passes
@@ -107,7 +118,6 @@ int acqTextSpectrumOutput::pvFlags( acqKey_t key, int eventno, int pvno, const c
 
 	pvPrivate::pvproperties_iter checkSpectrum;
 	checkSpectrum = pvIter->second->pvproperties.find( isSpectrumKey );
-
 	if( checkSpectrum != pvIter->second->pvproperties.end() )
 	{
 		DEBUG(to) printf("pv[%d] isSpectrum:%s\n", uid, checkSpectrum->second.c_str() );
@@ -119,7 +129,6 @@ int acqTextSpectrumOutput::pvFlags( acqKey_t key, int eventno, int pvno, const c
 		}
 		return 0;
 	}
-
 	pvp->isSpectrum = false;
 	return 0;
 }
@@ -203,6 +212,8 @@ int acqTextSpectrumOutput::nextOutput( acqKey_t key)
 		}
 
 	}
+	else if(to->expectsSpectrumFromScanController())
+		to->onExpectationOfSpectrumNotMet();
 
 	return 0;
 }
@@ -211,7 +222,7 @@ int acqTextSpectrumOutput::eventName(acqKey_t key, int eventno, const char *name
 {
 	acqBaseOutput::default_eventName(key, eventno, name);
 	acqTextSpectrumOutput *to = (acqTextSpectrumOutput *)key;
-	to->haveSpectrum = FALSE;
+	//to->haveSpectrum = FALSE;
 
 	return 0;
 }
@@ -548,3 +559,6 @@ std::string &acqTextSpectrumOutput::getProperty(std::string name)
 	return acqTextOutput::getProperty(name);
 }
 
+void acqTextSpectrumOutput::onExpectationOfSpectrumNotMet(){
+	return;
+}

@@ -58,6 +58,19 @@ void AMAcqScanSpectrumOutput::setScanController(QObject *scanController){
 	scanController_ = scanController;
 }
 
+void AMAcqScanSpectrumOutput::onExpectationOfSpectrumNotMet(){
+	if(scanController_){
+		//AMAcqScanSpectrumOutput *to = (AMAcqScanSpectrumOutput *)key;
+
+		/// \todo Handle spectrum output like this too, fix up the other (unused right now) output handler
+		AMAcqErrorEvent *errorEvent = new AMAcqErrorEvent();
+		errorEvent->errorCode_ = 90001;
+		errorEvent->errorExplanation_ = "Dacq Library failed to generate the expected _spectrum.dat file";
+		QCoreApplication::postEvent(scanController_, errorEvent);
+		return;
+	}
+}
+
 /// C interface to the Constructor.
 /// these are important for dynamic library use!
 acqKey_t new_AMAcqScanSpectrumOutput(void)

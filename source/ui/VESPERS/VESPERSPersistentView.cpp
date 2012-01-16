@@ -389,10 +389,10 @@ void VESPERSPersistentView::onPSH1Clicked()
 {
 	// If currently open, simply close.
 	if (VESPERSBeamline::vespers()->photonShutter1()->value() == 1)
-		VESPERSBeamline::vespers()->closePhotonShutter2();
+		VESPERSBeamline::vespers()->closePhotonShutter1();
 
 	// Need to check if opening is okay before opening.  Emits a message if not successful.
-	else if (VESPERSBeamline::vespers()->photonShutter1()->value() == 0 && VESPERSBeamline::vespers()->openPhotonShutter1())
+	else if (VESPERSBeamline::vespers()->photonShutter1()->value() == 0 && !VESPERSBeamline::vespers()->openPhotonShutter1())
 		QMessageBox::information(this, "Beamline Instructions", QString("You must open the %1 shutter before opening %2 shutter.").arg(VESPERSBeamline::vespers()->safetyShutter1()->name()).arg(VESPERSBeamline::vespers()->photonShutter1()->name()));
 }
 
@@ -403,7 +403,7 @@ void VESPERSPersistentView::onPSH2Clicked()
 		VESPERSBeamline::vespers()->closePhotonShutter2();
 
 	// Need to check if opening is okay before opening.  Emits a message if not successful.
-	else if (VESPERSBeamline::vespers()->photonShutter2()->value() == 0 && VESPERSBeamline::vespers()->openPhotonShutter2())
+	else if (VESPERSBeamline::vespers()->photonShutter2()->value() == 0 && !VESPERSBeamline::vespers()->openPhotonShutter2())
 		QMessageBox::information(this, "Beamline Instructions", QString("You must open the %1 shutter before opening %2 shutter.").arg(VESPERSBeamline::vespers()->safetyShutter1()->name()).arg(VESPERSBeamline::vespers()->photonShutter2()->name()));
 }
 
@@ -414,7 +414,7 @@ void VESPERSPersistentView::onSSH1Clicked()
 		VESPERSBeamline::vespers()->openSafetyShutter1();
 
 	// Need to check if closing is okay before closing.  Emits a message if not successful.
-	else if (VESPERSBeamline::vespers()->safetyShutter1()->value() == 1 && VESPERSBeamline::vespers()->closeSafetyShutter1())
+	else if (VESPERSBeamline::vespers()->safetyShutter1()->value() == 1 && !VESPERSBeamline::vespers()->closeSafetyShutter1())
 		QMessageBox::information(this, "Beamline Instructions", QString("You must close either the %1 shutter or the %2 shutter before closing the %3 shutter.").arg(VESPERSBeamline::vespers()->photonShutter1()->name()).arg(VESPERSBeamline::vespers()->photonShutter2()->name()).arg(VESPERSBeamline::vespers()->safetyShutter1()->name()));
 }
 

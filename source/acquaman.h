@@ -42,7 +42,7 @@ namespace AM {
 	// enum AcquamanType { IntList = QVariant::UserType + 20, DoubleList };
 
 	/// Acquaman-specific event types
-	enum EventType { AcqEvent = QEvent::User+20, VideoResizeEvent, ItemChangedEvent };
+	enum EventType { AcqEvent = QEvent::User+20, AcqErrorEvent, VideoResizeEvent, ItemChangedEvent };
 
 	/// custom QGraphicsItem types (see qgraphicsitem_cast<>() for more information)
 	enum GraphicsItemType { ThumbnailScrollGraphicsWidgetType = 65540 };
@@ -60,6 +60,15 @@ public:
 	QMap<int, double> dataPackage_;
 	QMap<int, QList<double> > spectraPackage_;
 	QMap<int, double> extraPackage_;
+};
+
+class AMAcqErrorEvent : public QEvent{
+public:
+	AMAcqErrorEvent() : QEvent( (QEvent::Type)AM::AcqErrorEvent)
+	{}
+
+	int errorCode_;
+	QString errorExplanation_;
 };
 
 class AMDbObject;

@@ -131,27 +131,6 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	connect(endstation_, SIGNAL(currentControlChanged(AMControl*)), this, SLOT(setWindow(AMControl*)));
 	endstation_->setCurrent("1-Element Vortex motor");
 
-	// Setup the CCD file path signals and layout.
-//	ccdPathEdit_ = new QLineEdit;
-//	connect(ccdPathEdit_, SIGNAL(editingFinished()), this, SLOT(ccdPathEdited()));
-//	connect(endstation_, SIGNAL(ccdPathChanged(QString)), ccdPathEdit_, SLOT(setText(QString)));
-
-//	ccdFileEdit_ = new QLineEdit;
-//	connect(ccdFileEdit_, SIGNAL(editingFinished()), this, SLOT(ccdFileEdited()));
-//	connect(endstation_, SIGNAL(ccdNameChanged(QString)), ccdFileEdit_, SLOT(setText(QString)));
-
-//	ccdNumberEdit_ = new QLineEdit;
-//	connect(ccdNumberEdit_, SIGNAL(editingFinished()), this, SLOT(ccdNumberEdited()));
-//	connect(endstation_, SIGNAL(ccdNumberChanged(int)), this, SLOT(ccdNumberUpdate(int)));
-
-//	QGroupBox *ccdGB = new QGroupBox(tr("CCD Image Path"));
-//	QFormLayout *ccdGBLayout = new QFormLayout;
-//	ccdGBLayout->addRow("Path:", ccdPathEdit_);
-//	ccdGBLayout->addRow("Name:", ccdFileEdit_);
-//	ccdGBLayout->addRow("Number:", ccdNumberEdit_);
-//	ccdGBLayout->setLabelAlignment(Qt::AlignRight);
-//	ccdGB->setLayout(ccdGBLayout);
-
 	QPushButton *startMicroscopeButton = new QPushButton("Microscope Display");
 	connect(startMicroscopeButton, SIGNAL(clicked()), this, SLOT(startMicroscope()));
 
@@ -168,7 +147,6 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	endstationLayout->addWidget(controlGB, 0, 0, 3, 3);
 	endstationLayout->addWidget(windowGB, 0, 3);
 	endstationLayout->addWidget(dwellTimeView, 3, 0);
-//	endstationLayout->addWidget(ccdGB, 2, 3);
 	endstationLayout->addWidget(extrasGroupBox, 1, 3);
 
 	QHBoxLayout *squishLayout = new QHBoxLayout;

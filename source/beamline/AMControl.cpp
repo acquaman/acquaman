@@ -407,6 +407,22 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 
 }
 
+// This is called when a PV channel connects or disconnects
+void AMPVwStatusControl::onPVConnected(bool) {
+	bool nowConnected = isConnected();
+
+	// Due change detection so that we don't emit disconnected() when already disconnected()...
+	// This could happen when the first PV connects but the move PV hasn't come up yet.
+
+	// disconnected:
+	if(wasConnected_ && !nowConnected)
+		emit connected(wasConnected_ = nowConnected);
+
+	// connection gained:
+	if(!wasConnected_ && nowConnected)
+		emit connected(wasConnected_ = nowConnected);
+}
+
 // Start a move to the value setpoint:
 void AMPVwStatusControl::move(double setpoint) {
 
