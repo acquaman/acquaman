@@ -316,6 +316,8 @@ bool AMRegionsList::deleteRegionSqueeze(int index){
 			nextStart = start(index);
 			setEnd(index-1, prevEnd+(nextStart-prevEnd)/2);
 		}
+
+		emit regionsChanged();
 	}
 
 	return retVal;
@@ -359,6 +361,7 @@ bool AMEXAFSRegionsList::setupModel()
 	if (regions_){
 
 		connect(regions_, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onDataChanged(QModelIndex,QModelIndex)));
+		connect(regions_, SIGNAL(typeChanged()), this, SLOT(onTypeChanged()));
 		return true;
 	}
 
@@ -453,6 +456,8 @@ bool AMEXAFSRegionsList::deleteRegionSqueeze(int index){
 			nextStart = startByType(index, AMEXAFSRegion::Energy);
 			setEnd(index-1, prevEnd+(nextStart-prevEnd)/2);
 		}
+
+		emit regionsChanged();
 	}
 
 	return retVal;

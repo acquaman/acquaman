@@ -35,6 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSXASScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSEXAFSScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSExperimentConfigurationView.h"
+#include "ui/VESPERS/VESPERSRoperCCDDetectorView.h"
 
 #include "dataman/AMScanEditorModelItem.h"
 #include "ui/dataman/AMGenericScanEditor.h"
@@ -102,6 +103,7 @@ bool VESPERSAppController::startup() {
 
 		AMDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
 		AMDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
+		AMDetectorViewSupport::registerClass<VESPERSRoperCCDDetectorView, VESPERSRoperCCDDetector>();
 
 		// Testing and making the first run in the database, if there isn't one already.  Make this it's own function if you think startup() is getting too big ; )
 		////////////////////////////////////////
@@ -124,7 +126,7 @@ bool VESPERSAppController::startup() {
 		if(!names.contains("VESPERSDefault")){
 			AMExporterOptionGeneralAscii *vespersDefault = new AMExporterOptionGeneralAscii();
 			vespersDefault->setName("VESPERSDefault");
-			vespersDefault->setFileName("$name_$fsIndex.txt");
+			vespersDefault->setFileName("$name_$fsIndex.dat");
 			vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n$scanConfiguration[rois]\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
 			vespersDefault->setHeaderIncluded(true);
 			vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
@@ -135,7 +137,7 @@ bool VESPERSAppController::startup() {
 			vespersDefault->setIncludeAllDataSources(true);
 			vespersDefault->setFirstColumnOnly(true);
 			vespersDefault->setSeparateHigherDimensionalSources(true);
-			vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.txt");
+			vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
 			vespersDefault->storeToDb(AMDatabase::database("user"));
 			qDebug() << "Added the VESPERSDefault to exporter options";
 		}
@@ -168,19 +170,17 @@ bool VESPERSAppController::startup() {
 		VESPERSXRFFreeRunView *xrf1EFreeRunView = new VESPERSXRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF1E()), workflowManagerView_);
 		VESPERSXRFFreeRunView *xrf4EFreeRunView = new VESPERSXRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF4E()), workflowManagerView_);
 
+		VESPERSRoperCCDDetectorView *roperCCDView = new VESPERSRoperCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
+
 		mw_->insertHeading("Free run", 1);
 		mw_->addPane(xrf1EFreeRunView, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");
 		mw_->addPane(xrf4EFreeRunView, "Free run", "XRF 4-el", ":/utilities-system-monitor.png");
+		mw_->addPane(roperCCDView, "Free run", "XRD - Roper", ":/utilities-system-monitor.png");
 
 		// Setup page that auto-enables detectors.
 		VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
 
 		// Setup XAS for the beamline.  Builds the config, view, and view holder.
-		VESPERSXASScanConfiguration *xasScanConfig = new VESPERSXASScanConfiguration();
-		xasScanConfig->addRegion(0, -30, 1, 40, 1);
-		VESPERSXASScanConfigurationView *xasConfigView = new VESPERSXASScanConfigurationView(xasScanConfig);
-		AMScanConfigurationViewHolder *xasConfigViewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, xasConfigView);
-
 		VESPERSEXAFSScanConfiguration *exafsScanConfig = new VESPERSEXAFSScanConfiguration();
 		exafsScanConfig->addRegion(0, -30, 1, 40, 1);
 		VESPERSEXAFSScanConfigurationView *exafsConfigView = new VESPERSEXAFSScanConfigurationView(exafsScanConfig);
@@ -191,8 +191,7 @@ bool VESPERSAppController::startup() {
 
 		mw_->insertHeading("Scans", 2);
 		mw_->addPane(experimentConfigurationView, "Scans", "Experiment Setup", ":/utilities-system-monitor.png");
-		mw_->addPane(xasConfigViewHolder, "Scans", "XAS", ":/utilities-system-monitor.png");
-		mw_->addPane(exafsConfigViewHolder, "Scans", "EXAFS", ":/utilities-system-monitor.png");
+		mw_->addPane(exafsConfigViewHolder, "Scans", "XAS", ":/utilities-system-monitor.png");
 
 
 		// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
@@ -232,3 +231,22 @@ void VESPERSAppController::onCurrentScanControllerStarted()
 	openScanInEditorAndTakeOwnership(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
 }
 
+void VESPERSAppController::onCurrentScanControllerCreated()
+{
+	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
+
+	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
+		return;
+
+	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
+}
+
+void VESPERSAppController::onCurrentScanControllerFinished()
+{
+	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
+
+	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
+		return;
+
+	disconnect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
+}

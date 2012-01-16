@@ -91,38 +91,32 @@ VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(VESPERSEx
 	connect(component, SIGNAL(toggled(bool)), experimentConfiguration_, SLOT(usePOEStatus(bool)));
 	compLayout->addWidget(component);
 
-	component = new QCheckBox("SOE");
-	components_->addButton(component, 1);
-	connect(experimentConfiguration_, SIGNAL(SOEStatusChanged(bool)), component, SLOT(setChecked(bool)));
-	connect(component, SIGNAL(toggled(bool)), experimentConfiguration_, SLOT(useSOEStatus(bool)));
-	compLayout->addWidget(component);
-
 	component = new QCheckBox("1-el Vortex");
-	components_->addButton(component, 2);
+	components_->addButton(component, 1);
 	connect(experimentConfiguration_, SIGNAL(singleElementVortexStatusChanged(bool)), component, SLOT(setChecked(bool)));
 	connect(component, SIGNAL(toggled(bool)), experimentConfiguration_, SLOT(useSingleElementVortex(bool)));
 	compLayout->addWidget(component);
 
 	component = new QCheckBox("4-el Vortex");
-	components_->addButton(component, 3);
+	components_->addButton(component, 2);
 	connect(experimentConfiguration_, SIGNAL(fourElementVortexStatusChanged(bool)), component, SLOT(setChecked(bool)));
 	connect(component, SIGNAL(toggled(bool)), experimentConfiguration_, SLOT(useFourElementVortex(bool)));
 	compLayout->addWidget(component);
 
 	component = new QCheckBox("CCD");
-	components_->addButton(component, 4);
+	components_->addButton(component, 3);
 	connect(experimentConfiguration_, SIGNAL(CCDStatusChanged(bool)), component, SLOT(setChecked(bool)));
 	connect(component, SIGNAL(toggled(bool)), experimentConfiguration_, SLOT(useCCDStatus(bool)));
 	compLayout->addWidget(component);
 
 	component = new QCheckBox("Fast Shutter");
-	components_->addButton(component, 5);
+	components_->addButton(component, 4);
 	connect(experimentConfiguration_, SIGNAL(fastShutterStatusChanged(bool)), component, SLOT(setChecked(bool)));
 	connect(component, SIGNAL(toggled(bool)), experimentConfiguration_, SLOT(useFastShutterStatus(bool)));
 	compLayout->addWidget(component);
 
 	component = new QCheckBox("Sample Stage");
-	components_->addButton(component, 6);
+	components_->addButton(component, 5);
 	connect(experimentConfiguration_, SIGNAL(sampleStageStatusChanged(bool)), component, SLOT(setChecked(bool)));
 	connect(component, SIGNAL(toggled(bool)), experimentConfiguration_, SLOT(useSampleStageStatus(bool)));
 	compLayout->addWidget(component);

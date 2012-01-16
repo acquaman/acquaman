@@ -18,14 +18,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include <QApplication>
+#include <QCoreApplication>
 #include "beamline/CLS/CLSPGTDwellTimeCoordinator.h"
 
 int main(int argc, char *argv[])
 {
 
 	// =================================
-	QApplication app(argc, argv);
+	QCoreApplication app(argc, argv);
 	app.setApplicationName("CLS PGT Dwell Time Coordinator");
 
 	CLSPGTDwellTimeCoordinator *coordinator = new CLSPGTDwellTimeCoordinator("MCA1611-01", "BL1611-ID-1");

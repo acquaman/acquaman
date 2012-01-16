@@ -53,8 +53,6 @@ signals:
 	void experimentTypeChanged(VESPERSExperimentConfiguration::ExperimentType);
 	/// Notifier that the POE status has changed.  Passes the new state.
 	void POEStatusChanged(bool);
-	/// Notifier that the SOE status has changed.  Passes the new state.
-	void SOEStatusChanged(bool);
 	/// Notifier that the fast shutter status has changed.  Passes the new state.
 	void fastShutterStatusChanged(bool);
 	/// Notifier that the CCD status has changed.  Passes the new state.
@@ -74,8 +72,6 @@ public slots:
 
 	/// Enables/Disables the POE status from the experiment ready status.
 	void usePOEStatus(bool use);
-	/// Enables/Disables the SOE status from the experiment ready status.
-	void useSOEStatus(bool use);
 	/// Enables/Disables the fast shutter from experiment ready status.
 	void useFastShutterStatus(bool use);
 	/// Enables/Disables the CCD from the experiment ready status.
@@ -92,8 +88,6 @@ protected slots:
 	void determineExperimentStatus();
 	/// Handles changes from the beamline to the POE status.
 	void onPOEEnableChanged(double val) { usePOEStatus((int)val == 0 ? true : false); }
-	/// Handles changes from the beamline to the SOE status.
-	void onSOEEnableChanged(double val) { useSOEStatus((int)val == 0 ? true : false); }
 	/// Handles the synchronized dwell time configuration at startup.
 	void onSynchronizedDwellTimeStartup(bool connected);
 
@@ -112,10 +106,6 @@ protected:
 	AMControl *poeBeamStatus_;
 	/// The POE beam status enable.
 	AMControl *poeBeamStatusEnable_;
-	/// The SOE beam status control.
-	AMControl *soeBeamStatus_;
-	/// The SOE beam status enable.
-	AMControl *soeBeamStatusEnable_;
 	/// The fast shutter control.
 	AMControl *fastShutterReady_;
 	/// The CCD status control.
@@ -126,8 +116,6 @@ protected:
 
 	/// Flag to keep track of whether or not the POE is enabled.
 	bool usePOE_;
-	/// Flag to keep track of whether or not the SOE is enabled.
-	bool useSOE_;
 	/// Flag to keep track of whether or not the fast shutter is enabled.
 	bool useFastShutter_;
 	/// Flag to keep track of whether or not the CCD is enabled.

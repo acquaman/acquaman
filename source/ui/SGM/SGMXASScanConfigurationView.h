@@ -57,6 +57,8 @@ protected slots:
 	void onDetectorConfigurationsChanged();
 	void onSGMBeamlineCriticalControlsConnectedChanged();
 
+	void onScanNameEditChanged(const QString &scanName);
+
 protected:
 	SGMXASScanConfiguration *cfg_;
 
@@ -71,6 +73,9 @@ protected:
 
 	QVBoxLayout *mainVL_;
 	QGridLayout *bottomGL_;
+
+	QLabel *scanNameLabel_;
+	QLineEdit *scanNameEdit_;
 };
 
 class SGMFluxResolutionPickerView : public QGroupBox{

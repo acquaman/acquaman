@@ -40,17 +40,21 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	specificScan_->setRunId(AMUser::user()->currentRunId());
 	specificScan_->setScanConfiguration(config_);
 	specificScan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
+	specificScan_->setIndexType("fileSystem");
 	QString scanName;
 	QString sampleName;
-	if(config_->userScanName() == "")
-		scanName = config_->autoScanName();
-	else
-		scanName = config_->userScanName();
 	if(specificScan_->sampleId() == -1)
 		sampleName = "Unknown Sample";
 	else
 		sampleName = AMSample(specificScan_->sampleId(), AMUser::user()->database()).name();
-	specificScan_->setName(QString("%1 - %2").arg(sampleName).arg(scanName));
+	if(config_->userScanName() == ""){
+		scanName = config_->autoScanName();
+		specificScan_->setName(QString("%1 - %2").arg(sampleName).arg(scanName));
+	}
+	else{
+		scanName = config_->userScanName();
+		specificScan_->setName(QString("%1 - %2").arg(scanName).arg(sampleName));
+	}
 
 	// Create space in raw data store, and create raw data channels, for each detector.
 	for(int i = 0; i < config_->allDetectorConfigurations().count(); i++){

@@ -241,8 +241,8 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 
 	scanningResetButton_->setContentsMargins(2,2,2,2);
 
-	CLSSynchronizedDwellTimeView *synchronizedDwellTimeView = new CLSSynchronizedDwellTimeView(SGMBeamline::sgm()->synchronizedDwellTime());
-	synchronizedDwellTimeView->show();
+	//CLSSynchronizedDwellTimeView *synchronizedDwellTimeView = new CLSSynchronizedDwellTimeView(SGMBeamline::sgm()->synchronizedDwellTime());
+	//synchronizedDwellTimeView->show();
 }
 
 SGMSidebar::~SGMSidebar() {

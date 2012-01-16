@@ -93,21 +93,6 @@ public:
 	~VESPERSEndstationView();
 
 protected slots:
-	/// Used to set the CCD Path when it changes from the program.
-	void ccdPathEdited()
-	{
-		if (ccdPathEdit_->text().at(ccdPathEdit_->text().size()-1) != '\\')
-			ccdPathEdit_->setText(ccdPathEdit_->text()+"\\");
-
-		endstation_->setCCDPath(ccdPathEdit_->text());
-	}
-	/// Used to set the CCD File name when it changes from the program.
-	void ccdFileEdited() { endstation_->setCCDName(ccdFileEdit_->text()); }
-	/// Used to set the CCD Number when it changes from the program.
-	void ccdNumberEdited() { endstation_->setCCDNumber(ccdNumberEdit_->text().toInt()); }
-	/// Used to update the ccdNumber value.
-	void ccdNumberUpdate(int val) { ccdNumberEdit_->setText(QString::number(val)); }
-
 	/// Handles setting the microscope slider without creating a signal/slot loop.
 	void setMicroscopeLight(int val) { micLight_->blockSignals(true); micLight_->setValue(val); micLight_->blockSignals(false); }
 	/// Used when the light bulb button is toggled.
@@ -184,11 +169,6 @@ protected slots:
 	void startXAS() { QProcess::startDetached("/home/vespers/bin/runIDA"); }
 
 protected:
-	// CCD setup things.
-	QLineEdit *ccdPathEdit_;
-	QLineEdit *ccdFileEdit_;
-	QLineEdit *ccdNumberEdit_;
-
 	// Microscope light setup.
 	QSlider *micLight_;
 	QToolButton *lightBulb_;

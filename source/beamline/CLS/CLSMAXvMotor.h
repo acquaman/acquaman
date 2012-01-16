@@ -66,21 +66,6 @@ public:
 		MotorTypeError = 3		///< There is an error determining the motor type
 	};
 
-	enum EncoderType {
-		EncoderIncrememtal = 0,		///< An incremental encoder
-		EncoderAbsolute = 1,		///< An absolute encoder
-		EncoderPotentiometer = 2,	///< A potentiometer encoder
-		EncoderNone = 3,		///< No encoder
-		EncoderTypeError = 4		///< There is an error determinging the encoder type
-	};
-
-	enum EncoderEncoding {
-		EncodingBinary = 0,	///< Encoder uses binary encoding
-		EncodingGreyCode = 1,	///< Encoder uses greycode encoding
-		EncodingNone = 2,	///< No encoder, so no encoding
-		EncodingError = 3	///< There is an error determining the encoding type
-	};
-
 	enum LimitActiveState {
 		LimitActiveLow = 0,	///< Limits are an active low signal
 		LimitActiveHigh = 1,	///< Limits are an active high signal
@@ -152,15 +137,9 @@ public:
 	double encoderCalibrationOffset() const;
 	/// Returns the step calibration offset. Returns 0 if the motor isn't connected yet.
 	double stepCalibrationOffset() const;
-	/// Returns the absolute encoder calibration offset. Returns 0 if the motor isn't connected yet.
-	double encoderCalibrationAbsoluteOffset() const;
 
 	/// Returns the motor type is use. Returns MotorTypeError if the motor isn't connected yet.
 	CLSMAXvMotor::MotorType motorType() const;
-	/// Returns the encoder type in use. Returns EncoderTypeError if the motor isn't connected yet.
-	CLSMAXvMotor::EncoderType encoderType() const;
-	/// Returns the encoding type in use. Returns EncodingError if the motor isn't connected yet.
-	CLSMAXvMotor::EncoderEncoding encoderEncoding() const;
 
 	/// Returns the limits active state. Returns LimitsActiveError if the motor isn't connected yet.
 	CLSMAXvMotor::LimitActiveState limitActiveState() const;
@@ -182,8 +161,6 @@ public:
 	double postDeadBand() const;
 	/// Returns the max retries value. Returns 0.5 if the motor isn't connected yet.  This is because max retries is actually given in integers.
 	double maxRetries() const;
-	/// Returns the actual retries value. Returns 0.5 if the motor isn't connected yet.  This is because actual retries is actually given in integers.
-	double actualRetries() const;
 	/// Returns the encoder percent approach. Returns -1 if the motor isn't connected yet.
 	double encoderPercentApproach() const;
 	/// Returns the encoder/step soft ratio. Returns 0 if the motor isn't connected yet.
@@ -224,15 +201,9 @@ public:
 	AMBeamlineActionItem* createEncoderCalibrationOffsetAction(double encoderCalibrationAbsoluteOffset);
 	/// Returns a newly created action to change the step calibration offset. Returns 0 if the control is not connected.
 	AMBeamlineActionItem* createStepCalibrationOffsetAction(double stepCalibrationOffset);
-	/// Returns a newly created action to change the encoder calibration absolute offset. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createEncoderCalibrationAbsoluteOffsetAction(double encoderCalibrationAbsoluteOffset);
 
 	/// Returns a newly created action to change the motor type. Returns 0 if the control is not connected.
 	AMBeamlineActionItem* createMotorTypeAction(CLSMAXvMotor::MotorType motorType);
-	/// Returns a newly created action to change the encoder type. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createEncoderTypeAction(CLSMAXvMotor::EncoderType encoderType);
-	/// Returns a newly created action to change the encoder encoding. Returns 0 if the control is not connected.
-	AMBeamlineActionItem* createEncoderEncodingAction(CLSMAXvMotor::EncoderEncoding encoderEncoding);
 
 	/// Returns a newly created action to change the limit active state. Returns 0 if the control is not connected.
 	AMBeamlineActionItem* createLimitActiveStateAction(CLSMAXvMotor::LimitActiveState limitActiveState);
@@ -291,15 +262,9 @@ public slots:
 	void setEncoderCalibrationOffset(double encoderCalibrationAbsoluteOffset);
 	/// Sets the step calibration offset
 	void setStepCalibrationOffset(double stepCalibrationOffset);
-	/// Sets the absolute encoder calibration offset
-	void setEncoderCalibrationAbsoluteOffset(double absoluteEncoderCalibrationOffset);
 
 	/// Sets the motor type to use
 	void setMotorType(CLSMAXvMotor::MotorType motorType);
-	/// Sets the encoder type to use
-	void setEncoderType(CLSMAXvMotor::EncoderType encoderType);
-	/// Sets the encoding to use
-	void setEncoderEncoding(CLSMAXvMotor::EncoderEncoding encoderEncoding);
 
 	/// Sets the limit active state
 	void setLimitActiveState(CLSMAXvMotor::LimitActiveState limitActiveState);
@@ -365,15 +330,9 @@ signals:
 	void encoderCalibrationOffsetChanged(double newCalibration);
 	/// Emitted when the step calibration offset changes
 	void stepCalibrationOffsetChanged(double newCalibration);
-	/// Emitted when the absolute encoder calibration offset changes
-	void encoderCalibrationAbsoluteOffsetChanged(double newCalibration);
 
 	/// Emitted when the motor type in use changes
 	void motorTypeChanged(CLSMAXvMotor::MotorType motorType);
-	/// Emitted when the encoder type in use changes
-	void encoderTypeChanged(CLSMAXvMotor::EncoderType encoderType);
-	/// Emitted when the encoder encoding in use changes
-	void encoderEncodingChanged(CLSMAXvMotor::EncoderEncoding encoderEncoding);
 
 	/// Emitted when the limits active state changes
 	void limitActiveStateChanged(CLSMAXvMotor::LimitActiveState limitActiveState);
@@ -414,12 +373,6 @@ protected slots:
 
 	/// Handles changes in the motor type control
 	void onMotorTypeChanged(double value);
-
-	/// Handles changes in the encoder type control
-	void onEncoderTypeChanged(double value);
-
-	/// Handles changes in the encoder encoding
-	void onEncoderEncodingChanged(double value);
 
 	/// Handles changes in the limit active state
 	void onLimitActiveStateChanged(double value);
@@ -480,15 +433,9 @@ protected:
 	AMPVControl *encoderCalibrationOffset_;
 	/// Read-write control for the step calibration offset
 	AMPVControl *stepCalibrationOffset_;
-	/// Read-write control for the absolute encoder calibration offset
-	AMPVControl *encoderCalibrationAbsoluteOffset_;
 
 	/// Read-write control for the motor type
 	AMPVControl *motorType_;
-	/// Read-write control for the encoder type
-	AMPVControl *encoderType_;
-	/// Read-write control for the encoder encoding
-	AMPVControl *encoderEncoding_;
 
 	/// Read-write control for the limit's active state
 	AMPVControl *limitActiveState_;
@@ -510,8 +457,6 @@ protected:
 	AMPVControl *postDeadBand_;
 	/// Read-write control for the max retries value
 	AMPVControl *maxRetries_;
-	/// Readonly control for the actual retries value
-	AMReadOnlyPVControl *actualRetries_;
 	/// Read-write control for the encoder percent approach
 	AMPVControl *encoderPercentApproach_;
 	/// Read-write control for encoder/step soft ratio

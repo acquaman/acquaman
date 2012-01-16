@@ -47,6 +47,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppControllerSupport.h"
 
+#include "ui/util/SGM/SGMSettingsMasterView.h"
+#include "util/SGM/SGMSettings.h"
+#include "util/SGM/SGMDacqConfigurationFile.h"
+#include "util/SGM/SGMPluginsLocation.h"
+#include "application/AMPluginsManager.h"
+#include "util/SGM/SGMPeriodicTable.h"
+
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
 {
@@ -57,7 +64,20 @@ bool SGMAppController::startup() {
 	// Initialize AMBeamline::bl() as an SGMBeamline::sgm() instance. FIRST!
 	//SGMBeamline::sgm();
 
+	SGMSettings::s()->load();
+	AMDatabase* dbSGM = AMDatabase::createDatabase("SGMBeamline", SGMSettings::s()->SGMDataFolder() + "/" + SGMSettings::s()->SGMDatabaseFilename());
+	if(!dbSGM)
+		return false;
+	AMDbObjectSupport::s()->registerDatabase(dbSGM);
+
 	if(AMAppController::startup()) {
+		if(!setupSGMDatabase())
+			return false;
+		if(!startupSGMInstallActions())
+			return false;
+		if(!setupSGMPeriodicTable())
+			return false;
+
 		SGMBeamline::sgm();
 
 		AMDbObjectSupport::s()->registerClass<MCPDetectorInfo>();
@@ -92,7 +112,8 @@ bool SGMAppController::startup() {
 		if(matchIDs.count() != 0)
 			sgmDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
 		sgmDefault->setName("SGMDefault");
-		sgmDefault->setFileName("$name_$exportIndex.txt");
+		//sgmDefault->setFileName("$name_$exportIndex.txt");
+		sgmDefault->setFileName("$name_$fsIndex.txt");
 		sgmDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription");
 		sgmDefault->setHeaderIncluded(true);
 		sgmDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
@@ -111,7 +132,11 @@ bool SGMAppController::startup() {
 		sgmDefault->ensureDataSource("PFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
 		sgmDefault->ensureDataSource("IPFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
 		sgmDefault->ensureDataSource("SDD", false, AMExporterOptionGeneral::SeparateFilesMode, false);
-		sgmDefault->setSeparateSectionFileName("$name_$dataSetName_$exportIndex.txt");
+		sgmDefault->ensureDataSource("OceanOptics65000", false, AMExporterOptionGeneral::SeparateFilesMode, false);
+		sgmDefault->ensureDataSource("PLY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmDefault->ensureDataSource("PLYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		//sgmDefault->setSeparateSectionFileName("$name_$dataSetName_$exportIndex.txt");
+		sgmDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.txt");
 		sgmDefault->storeToDb(AMDatabase::database("user"));
 
 		matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "SGMDefault");
@@ -245,3 +270,173 @@ void SGMAppController::onCurrentScanControllerStarted(){
 	openScanInEditorAndTakeOwnership(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
 }
 
+void SGMAppController::onActionSGMSettings(){
+	if(!sgmSettingsMasterView_)
+		sgmSettingsMasterView_ = new SGMSettingsMasterView();
+	sgmSettingsMasterView_->show();
+}
+
+bool SGMAppController::startupSGMInstallActions(){
+	QAction *sgmSettingAction = new QAction("SGM Beamline Settings...", mw_);
+	sgmSettingAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_T));
+	sgmSettingAction->setStatusTip("View or Change SGM Beamline Settings");
+	connect(sgmSettingAction, SIGNAL(triggered()), this, SLOT(onActionSGMSettings()));
+
+	sgmSettingsMasterView_ = 0;
+
+	fileMenu_->addSeparator();
+	fileMenu_->addAction(sgmSettingAction);
+
+	return true;
+}
+
+bool SGMAppController::setupSGMDatabase(){
+	bool success = true;
+
+	AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
+	if(!dbSGM)
+		return false;
+
+	QList<int> matchIDs;
+
+	success &= AMDbObjectSupport::s()->registerClass<SGMDacqConfigurationFile>();
+	SGMDacqConfigurationFile *configFile;
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTXEOLAmmeter");
+	if(matchIDs.count() == 0){
+		configFile = new SGMDacqConfigurationFile();
+		configFile->setName("PGTXEOLAmmeter");
+		configFile->setConfigurationFileName("pgtxeolAmmeter.cfg");
+		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
+		success &= configFile->storeToDb(dbSGM);
+	}
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTXEOLScaler");
+	if(matchIDs.count() == 0){
+		configFile = new SGMDacqConfigurationFile();
+		configFile->setName("PGTXEOLScaler");
+		configFile->setConfigurationFileName("pgtxeolScaler.cfg");
+		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
+		success &= configFile->storeToDb(dbSGM);
+	}
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTAmmeter");
+	if(matchIDs.count() == 0){
+		configFile = new SGMDacqConfigurationFile();
+		configFile->setName("PGTAmmeter");
+		configFile->setConfigurationFileName("pgtAmmeter.cfg");
+		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
+		success &= configFile->storeToDb(dbSGM);
+	}
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTScaler");
+	if(matchIDs.count() == 0){
+		configFile = new SGMDacqConfigurationFile();
+		configFile->setName("PGTScaler");
+		configFile->setConfigurationFileName("pgtScaler.cfg");
+		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
+		success &= configFile->storeToDb(dbSGM);
+	}
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "XEOLAmmeter");
+	if(matchIDs.count() == 0){
+		configFile = new SGMDacqConfigurationFile();
+		configFile->setName("XEOLAmmeter");
+		configFile->setConfigurationFileName("xeolAmmeter.cfg");
+		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
+		success &= configFile->storeToDb(dbSGM);
+	}
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "XEOLScaler");
+	if(matchIDs.count() == 0){
+		configFile = new SGMDacqConfigurationFile();
+		configFile->setName("XEOLScaler");
+		configFile->setConfigurationFileName("xeolScaler.cfg");
+		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
+		success &= configFile->storeToDb(dbSGM);
+	}
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "DefaultAmmeter");
+	if(matchIDs.count() == 0){
+		configFile = new SGMDacqConfigurationFile();
+		configFile->setName("DefaultAmmeter");
+		configFile->setConfigurationFileName("defaultEnergyAmmeter.cfg");
+		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
+		success &= configFile->storeToDb(dbSGM);
+	}
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "DefaultScaler");
+	if(matchIDs.count() == 0){
+		configFile = new SGMDacqConfigurationFile();
+		configFile->setName("DefaultScaler");
+		configFile->setConfigurationFileName("defaultEnergyScaler.cfg");
+		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
+		success &= configFile->storeToDb(dbSGM);
+	}
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "FastScaler");
+	if(matchIDs.count() == 0){
+		configFile = new SGMDacqConfigurationFile();
+		configFile->setName("FastScaler");
+		configFile->setConfigurationFileName("Scalar_Fast.config");
+		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
+		success &= configFile->storeToDb(dbSGM);
+	}
+
+	success &= AMDbObjectSupport::s()->registerClass<SGMPluginsLocation>();
+	SGMPluginsLocation *fileLoaderPluginsLocation, *analysisBlockPluginsLocation;
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMPluginsLocation>(), "name", "FileLoaders");
+	fileLoaderPluginsLocation = new SGMPluginsLocation();
+	if(matchIDs.count() == 0){
+		fileLoaderPluginsLocation->setName("FileLoaders");
+		fileLoaderPluginsLocation->setPluginFolderPath("/home/sgm/beamline/programming/acquaman/plugins/FileLoaders");
+		success &= fileLoaderPluginsLocation->storeToDb(dbSGM);
+	}
+	else
+		success &= fileLoaderPluginsLocation->loadFromDb(dbSGM, matchIDs.at(0));
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMPluginsLocation>(), "name", "AnalysisBlocks");
+	analysisBlockPluginsLocation = new SGMPluginsLocation();
+	if(matchIDs.count() == 0){
+		analysisBlockPluginsLocation->setName("AnalysisBlocks");
+		analysisBlockPluginsLocation->setPluginFolderPath("/home/sgm/beamline/programming/acquaman/plugins/AnalysisBlocks");
+		success &= analysisBlockPluginsLocation->storeToDb(dbSGM);
+	}
+	else
+		success &= analysisBlockPluginsLocation->loadFromDb(dbSGM, matchIDs.at(0));
+	if(success)
+		AMPluginsManager::s()->loadApplicationPlugins(fileLoaderPluginsLocation->pluginFolderPath(), analysisBlockPluginsLocation->pluginFolderPath());
+
+	return success;
+}
+
+bool SGMAppController::setupSGMPeriodicTable(){
+	bool success = true;
+
+	AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
+	if(!dbSGM)
+		return false;
+
+	QList<int> matchIDs;
+
+	success &= AMDbObjectSupport::s()->registerClass<SGMEnergyPosition>();
+	success &= AMDbObjectSupport::s()->registerClass<SGMScanRangeInfo>();
+	success &= AMDbObjectSupport::s()->registerClass<SGMEdgeInfo>();
+	success &= AMDbObjectSupport::s()->registerClass<SGMStandardScanInfo>();
+	success &= AMDbObjectSupport::s()->registerClass<SGMElementInfo>();
+	success &= AMDbObjectSupport::s()->registerClass<SGMFastScanSettings>();
+	success &= AMDbObjectSupport::s()->registerClass<SGMFastScanParameters>();
+
+	QString groupName = "SGM_Carbon";
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", groupName);
+	if(matchIDs.count() == 0){
+		/*
+		SGMElementInfo *carbonInfo = new SGMElementInfo(AMPeriodicTable::table()->elementBySymbol("C"), this, groupName);
+		SGMEdgeInfo carbonK(AMPeriodicTable::table()->elementBySymbol("C")->KEdge(), SGMScanRangeInfo(SGMEnergyPosition(270.0, -397720, -149991, 286.63, 0, groupName+"_Start"),
+													      SGMEnergyPosition(295.0, -377497, -140470, 200.46, 0, groupName+"_Middle"),
+													      SGMEnergyPosition(320.0, -348005, -133061, 100.54, 0, groupName+"_End"), groupName+"_Range"),
+				    groupName+"K");
+		carbonInfo->addEdgeInfo(carbonK);
+		carbonInfo->addFastScanParameters(new SGMFastScanParameters(carbonInfo->element()->name(),
+										carbonInfo->sgmEdgeInfos().at(carbonInfo->sgmEdgeInfos().indexOfKey("K")),
+										SGMFastScanSettings(5.0, 24000, 5.0, 200, 4000, this, groupName+"K5s_Settings"), this, groupName+"K5s" ));
+		carbonInfo->addFastScanParameters(new SGMFastScanParameters(carbonInfo->element()->name(),
+										carbonInfo->sgmEdgeInfos().at(carbonInfo->sgmEdgeInfos().indexOfKey("K")),
+										SGMFastScanSettings(20.0, 5800, 20.0, 200, 970, this, groupName+"K20s_Settings"), this, groupName+"K20s"));
+		//sgmPeriodicTableInfo_.append(tmpElementInfo, tmpElementInfo->element());
+		success &= carbonInfo->storeToDb(dbSGM);
+		*/
+	}
+
+	return success;
+}

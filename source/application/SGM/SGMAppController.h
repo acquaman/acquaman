@@ -29,7 +29,7 @@ class AMScanConfigurationViewHolder;
 class SGMXASScanConfigurationView;
 class SGMFastScanConfigurationView;
 class SGMSidebar;
-
+class SGMSettingsMasterView;
 
 class SGMAppController : public AMAppController {
 	Q_OBJECT
@@ -61,17 +61,25 @@ protected slots:
 	void onCurrentScanControllerDestroyed();
 	void onCurrentScanControllerStarted();
 
+	void onActionSGMSettings();
+
+protected:
+	bool startupSGMInstallActions();
+	bool setupSGMDatabase();
+	bool setupSGMPeriodicTable();
+
 protected:
 
-	SGMSampleTransferView* sampleTransferView_;
-	AMSampleManagementWidget* samplePositionView_;
-	SGMXASScanConfigurationView* xasScanConfigurationView_;
-	SGMFastScanConfigurationView* fastScanConfigurationView_;
-	AMScanConfigurationViewHolder* xasScanConfigurationHolder_;
-	AMScanConfigurationViewHolder* fastScanConfigurationHolder_;
-	SGMSidebar* sgmSidebar_;
+	SGMSampleTransferView *sampleTransferView_;
+	AMSampleManagementWidget *samplePositionView_;
+	SGMXASScanConfigurationView *xasScanConfigurationView_;
+	SGMFastScanConfigurationView *fastScanConfigurationView_;
+	AMScanConfigurationViewHolder *xasScanConfigurationHolder_;
+	AMScanConfigurationViewHolder *fastScanConfigurationHolder_;
+	SGMSidebar *sgmSidebar_;
 
-
+	/// Persistent view for SGMSettings
+	SGMSettingsMasterView *sgmSettingsMasterView_;
 };
 
 #endif // SGMAPPCONTROLLER_H

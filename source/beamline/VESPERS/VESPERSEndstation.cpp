@@ -47,11 +47,6 @@ VESPERSEndstation::VESPERSEndstation(AMControl *normal, QObject *parent)
 	// Laser on/off control.
 	laserPower_ = new AMPVControl("Laser Power Control", "07B2_PLC_LaserDistON", "07B2_PLC_LaserDistON_Tog", QString(), this);
 
-	// Various CCD file path PVs.
-	ccdPath_ = new AMProcessVariable("IOC1607-003:det1:FilePath", true, this);
-	ccdFile_ = new AMProcessVariable("IOC1607-003:det1:FileName", true, this);
-	ccdNumber_ = new AMProcessVariable("IOC1607-003:det1:FileNumber", true, this);
-
 	// Pseudo-motor reset button.
 	resetPseudoMotors_ = new AMProcessVariable("TS1607-2-B21-01:HNV:loadOffsets.PROC", false, this);
 
@@ -85,9 +80,6 @@ VESPERSEndstation::VESPERSEndstation(AMControl *normal, QObject *parent)
 	connect(focusControl_, SIGNAL(valueChanged(double)), this, SIGNAL(focusFbkChanged(double)));
 	connect(singleElControl_, SIGNAL(valueChanged(double)), this, SIGNAL(singleElFbkChanged(double)));
 	connect(fourElControl_, SIGNAL(valueChanged(double)), this, SIGNAL(fourElFbkChanged(double)));
-	connect(ccdPath_, SIGNAL(valueChanged()), this, SLOT(onCCDPathChanged()));
-	connect(ccdFile_, SIGNAL(valueChanged()), this, SLOT(onCCDNameChanged()));
-	connect(ccdNumber_, SIGNAL(valueChanged(int)), this, SIGNAL(ccdNumberChanged(int)));
 
 	QList<AMControl *> list(filterMap_.values());
 	for (int i = 0; i < list.size(); i++)
@@ -306,37 +298,4 @@ void VESPERSEndstation::setShutterState(bool state)
 		toggleControl(filterShutterUpper_);
 
 	toggleControl(filterShutterLower_);
-}
-
-QString VESPERSEndstation::AMPVtoString(AMProcessVariable *pv)
-{
-	int current;
-	QString name;
-
-	for (unsigned i = 0; i < pv->count(); i++){
-
-		current = pv->getInt(i);
-		if (current == 0)
-			break;
-
-		name += QString::fromAscii((const char *) &current);
-	}
-
-	return name;
-}
-
-void VESPERSEndstation::StringtoAMPV(AMProcessVariable *pv, QString toConvert)
-{
-	int converted[256];
-
-	QByteArray toConvertBA = toConvert.toAscii();
-	for (int i = 0; i < 256; i++){
-
-		if (i < toConvertBA.size())
-			converted[i] = toConvertBA.at(i);
-		else
-			converted[i] = 0;
-	}
-
-	pv->setValues(converted, 256);
 }

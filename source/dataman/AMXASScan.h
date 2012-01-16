@@ -36,23 +36,10 @@ public:
 	/// create a new XAS scan
 	Q_INVOKABLE explicit AMXASScan(QObject *parent = 0);
 
-
-	//virtual QString technique() {return "XAS";}
-
-signals:
-
-public slots:
-
-protected slots:
-
 protected:
 
 	QString legacyGrating_;
 	QString legacyIntegrationTime_;
-
-//	friend class SGM2004FileLoader;
-//	friend class ALSBL8XASFileLoader;
-
 };
 
 #endif // AMXASSCAN_H

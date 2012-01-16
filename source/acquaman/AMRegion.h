@@ -284,8 +284,8 @@ public:
 	virtual double start() const { return (type() == Energy) ? start_ : toKSpace(start_); }
 	/// Returns the stored end value as a double.  Returns value either as energy or k-space based on the current value of type.
 	virtual double end() const { return (type() == Energy) ? end_ : toKSpace(end_); }
-	/// Returns the time spent per point in the region.  Returns -1 in the case of k-space because the dwell time changes due to the an external app (currently).
-	virtual double time() const { return (type() == Energy) ? time_ : -1; }
+	/// Returns the time spent per point in the region.  In the case of k-space the time is the maximum time because the dwell time changes due to the an external app (currently).
+	virtual double time() const { return time_; }
 	/// Returns the units that the region is expressed in based on the type of region.  Returns whatever the energy units are set (likely eV) or "k".
 	virtual QString units() const { return (type() == Energy) ? units_ : "k"; }
 	/// Explicitly returns the units for energy space.
@@ -298,6 +298,8 @@ public:
 	double startByType(RegionType type) { return (type == Energy) ? start_ : toKSpace(start_); }
 	/// Explicit getter based on the type passed into the function.  Returns the end value as a double.
 	double endByType(RegionType type) { return (type == Energy) ? end_ : toKSpace(end_); }
+	/// Explicit getter based on the type passed into the function.  Returns the units.
+	QString unitsByType(RegionType type) { return (type == Energy) ? units_ : "k"; }
 
 	/// Returns the region type.
 	AMEXAFSRegion::RegionType type() const { return type_; }
@@ -383,6 +385,10 @@ public:
 	bool setData(const QModelIndex &index, const QVariant &value, int role);
 	/// Retrieves the data from an index (row and column) and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
 	QVariant data(const QModelIndex &index, int role) const;
+
+signals:
+	/// Passes on that one of the regions' type has changed.
+	void typeChanged();
 
 public slots:
 	/// Sets the k-space control that is used for scanning the energy in an EXAFS scan.  \note This sets the default control for the region.  If setEnergyControl was used previously, then it will be overwritten.

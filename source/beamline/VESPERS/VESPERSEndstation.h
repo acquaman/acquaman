@@ -77,12 +77,6 @@ signals:
 	void singleElFbkChanged(double);
 	/// The four element motor position changed notification.
 	void fourElFbkChanged(double);
-	/// Notifier that the CCD path has changed.
-	void ccdPathChanged(QString);
-	/// Notifier that the CCD file name has changed.
-	void ccdNameChanged(QString);
-	/// Notifier that the CCD number has changed.
-	void ccdNumberChanged(int);
 
 public slots:
 	/// Sets the current control that should be focused on.  It will find the correct control based on the name.  Control is set to 0 if invalid name is given.
@@ -103,12 +97,6 @@ public slots:
 	void closeShutter() { setShutterState(false); }
 	/// Set the value for the microscope.  Must be between 0 and 100.
 	void setLightIntensity(int intensity) { if (micLightPV_->getInt() != intensity) micLightPV_->setValue(intensity); }
-	/// Sets the CCD file path.
-	void setCCDPath(QString path) { StringtoAMPV(ccdPath_, path); }
-	/// Sets the CCD file name.
-	void setCCDName(QString name) { StringtoAMPV(ccdFile_, name); }
-	/// Sets the CCD file number.
-	void setCCDNumber(int number) { ccdNumber_->setValue(number); }
 
 protected slots:
 	/// Helper slot that emits the right signal based on the current state of filterLower.
@@ -119,20 +107,12 @@ protected slots:
 	void onFiltersChanged();
 	/// Handles updating the control window if the configuration changes.
 	void updateControl(AMControl *control);
-	/// Handles the CCD path update.
-	void onCCDPathChanged() { emit ccdPathChanged(AMPVtoString(ccdPath_)); }
-	/// Handles the CCD name update.
-	void onCCDNameChanged() { emit ccdNameChanged(AMPVtoString(ccdFile_)); }
 
 protected:
 	/// Returns whether the \code control \code value is within tolerance of \code position.
 	bool controlWithinTolerance(AMControl *control, double value, double position) { return fabs(value-position) < control->tolerance() ? true : false; }
 	/// Helper function to properly toggle the filter PVs.  Takes an AMControl *, casts it to an AMPVControl * then toggles them.
 	void toggleControl(AMControl *control) { control->move(1); control->move(0); }
-	/// Converts the bizarre string output of the pv to a real QString.
-	QString AMPVtoString(AMProcessVariable *pv);
-	/// Converts the string to the array of integers it needs to be.
-	void StringtoAMPV(AMProcessVariable *pv, QString toConvert);
 
 	// Holds the previous state of the filter connectivity.
 	bool wasConnected_;
@@ -158,11 +138,6 @@ protected:
 
 	// Laser power control.
 	AMPVControl *laserPower_;
-
-	// Various CCD file path PVs.
-	AMProcessVariable *ccdPath_;
-	AMProcessVariable *ccdFile_;
-	AMProcessVariable *ccdNumber_;
 
 	// The pseudo-motor reset PV.
 	AMProcessVariable *resetPseudoMotors_;

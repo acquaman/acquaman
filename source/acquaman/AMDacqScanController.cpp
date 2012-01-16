@@ -96,6 +96,7 @@ bool AMDacqScanController::startImplementation(){
 			if(usingSpectraDotDatFile_){
 				// qDebug() << "dacq scan controller: setting additional file paths: " << (QStringList() << fullPath.filePath()+"_spectra.dat");
 				scan_->setAdditionalFilePaths( QStringList() << fullPath.filePath()+"_spectra.dat" );
+				((AMAcqScanSpectrumOutput*)abop)->setExpectsSpectrumFromScanController(true);
 			}
 			else {
 				// qDebug() << "dacq scan controller: not using spectraDotDat file.";
@@ -168,6 +169,13 @@ bool AMDacqScanController::event(QEvent *e){
 			scan_->rawData()->endInsertRows();
 		}
 		e->accept();
+		return true;
+	}
+	else if(e->type() == (QEvent::Type)AM::AcqErrorEvent){
+		int errorCode = ((AMAcqErrorEvent*)e)->errorCode_;
+		QString errorExplanation = ((AMAcqErrorEvent*)e)->errorExplanation_;
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDACQSCANCONTROLLER_NO_SPECTRUM_FILE, QString("%1 %2 %3").arg("AMDacqScanController:").arg(errorExplanation).arg(errorCode)));
+		cancelImplementation();
 		return true;
 	}
 	else
