@@ -2,8 +2,7 @@
 #define AMSCANCONTROLLERACTION_H
 
 #include "actions2/AMAction.h"
-
-class AMScanControllerActionInfo;
+#include "actions2/actions/AMScanControllerActionInfo.h"
 class AMScanController;
 
 /// This class wraps any AMScanController as an AMAction for use with Acquaman's Action/Workflow system.  It requires a detailed subclass of AMActionInfo to be passed into the constructor; normally this would be an AMActionInfo describing the parameters for your scan, with a link to the corresponding AMScanConfiguration.

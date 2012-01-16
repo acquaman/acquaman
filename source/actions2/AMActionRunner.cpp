@@ -11,8 +11,8 @@ AMActionRunner* AMActionRunner::instance_ = 0;
 
 // testing only:
 #include "actions2/actions/AMWaitAction.h"
+#include "actions2/actions/AMControlMoveAction.h"
 #include "actions2/actions/AMScanControllerAction.h"
-#include "actions2/actions/AMScanControllerActionInfo.h"
 // #include "acquaman/REIXS/REIXSXESScanConfiguration.h"
 
 AMActionRunner::AMActionRunner(QObject *parent) :
@@ -26,10 +26,9 @@ AMActionRunner::AMActionRunner(QObject *parent) :
 	addActionToQueue(new AMWaitAction(20));
 	addActionToQueue(new AMWaitAction(30));
 	addActionToQueue(new AMWaitAction(40));
-	addActionToQueue(new AMWaitAction(50));
-	addActionToQueue(new AMWaitAction(60));
-	addActionToQueue(new AMWaitAction(70));
-	addActionToQueue(new AMWaitAction(80));
+	addActionToQueue(new AMControlMoveAction(new AMControlMoveActionInfo()));
+	addActionToQueue(new AMControlMoveAction(new AMControlMoveActionInfo()));
+	addActionToQueue(new AMWaitAction(10));
 	// addActionToQueue(new AMScanControllerAction(new AMScanControllerActionInfo(new REIXSXESScanConfiguration())));
 }
 
@@ -314,7 +313,7 @@ QVariant AMActionQueueModelItem::data(int role) const
 			return p;
 		else {
 			p.load(iconFileName);
-			p = p.scaledToHeight(32);
+			p = p.scaledToHeight(32, Qt::SmoothTransformation);
 			QPixmapCache::insert("AMActionIcon" % iconFileName, p);
 			return p;
 		}

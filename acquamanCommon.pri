@@ -491,7 +491,9 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
     source/actions2/actions/AMScanControllerActionInfo.h \
     source/actions2/AMActionLog.h \
     source/ui/actions2/AMActionHistoryView.h \
-    source/actions2/AMActionRegistry.h
+    source/actions2/AMActionRegistry.h \
+    source/actions2/actions/AMControlMoveActionInfo.h \
+    source/actions2/actions/AMControlMoveAction.h
 
 
 CONFIG(mobility) {
@@ -794,7 +796,9 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
     source/actions2/actions/AMScanControllerActionInfo.cpp \
     source/actions2/AMActionLog.cpp \
     source/ui/actions2/AMActionHistoryView.cpp \
-    source/actions2/AMActionRegistry.cpp
+    source/actions2/AMActionRegistry.cpp \
+    source/actions2/actions/AMControlMoveActionInfo.cpp \
+    source/actions2/actions/AMControlMoveAction.cpp
 
 
 CONFIG(mobility) {
@@ -814,6 +818,7 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
 
 
 

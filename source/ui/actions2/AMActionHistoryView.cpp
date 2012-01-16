@@ -583,12 +583,12 @@ QVariant AMActionHistoryModel::data(const QModelIndex &index, int role) const
 			if(iconFileName.isEmpty())
 				iconFileName = ":/64x64/generic-action.png";
 			QPixmap p;
-			if(QPixmapCache::find("AMActionIcon" % iconFileName, &p))
+			if(QPixmapCache::find("AMActionLogItemIcon" % iconFileName, &p))
 				return p;
 			else {
 				p.load(iconFileName);
-				p = p.scaledToHeight(22);
-				QPixmapCache::insert("AMActionIcon" % iconFileName, p);
+				p = p.scaledToHeight(22, Qt::SmoothTransformation);
+				QPixmapCache::insert("AMActionLogItemIcon" % iconFileName, p);
 				return p;
 			}
 		}
