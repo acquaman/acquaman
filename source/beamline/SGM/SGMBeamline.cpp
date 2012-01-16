@@ -147,7 +147,7 @@ void SGMBeamline::usingSGMBeamline(){
 	sgmPVName = amNames2pvNames_.valueF("mono");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-	AMPVwStatusControl *mono = new AMPVwStatusControl("mono", sgmPVName+":enc:fbk", sgmPVName+":encTarget", sgmPVName+":moving", "SMTR16114I1002:stop", energy_, 5);
+	AMPVwStatusControl *mono = new AMPVwStatusControl("mono", sgmPVName+":enc:fbk", sgmPVName+":encTarget", sgmPVName+":status", "SMTR16114I1002:stop", energy_, 5, 2.0, new AMControlStatusCheckerCLSMAXv(), 1);
 	mono->setDescription("Monochromator");
 	sgmPVName = amNames2pvNames_.valueF("undulator");
 	if(sgmPVName.isEmpty())
@@ -157,7 +157,6 @@ void SGMBeamline::usingSGMBeamline(){
 	sgmPVName = amNames2pvNames_.valueF("exitSlit");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-	//AMPVwStatusControl *exitSlit = new AMPVwStatusControl("exitSlit", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1003:moving", "SMTR16114I1003:stop", energy_, 0.1);
 	AMPVwStatusControl *exitSlit = new AMPVwStatusControl("exitSlit", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1003:status", "SMTR16114I1003:stop", energy_, 0.1, 2.0, new AMControlStatusCheckerDefault(1));
 	exitSlit->setDescription("Exit Slit Position");
 	energy_->addChildControl(mono);
