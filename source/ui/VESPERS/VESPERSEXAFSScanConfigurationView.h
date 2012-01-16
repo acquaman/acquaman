@@ -55,6 +55,9 @@ protected slots:
 		savedXPosition_->setText(QString::number(config_->x(), 'g', 3) + " mm");
 		savedYPosition_->setText(QString::number(config_->y(), 'g', 3) + " mm");
 		positionsSaved_->setText("Saved");
+		QPalette palette(this->palette());
+		palette.setColor(QPalette::Active, QPalette::WindowText, Qt::darkGreen);
+		positionsSaved_->setPalette(palette);
 		connect(xPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
 		connect(yPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
 	}
@@ -65,6 +68,9 @@ protected slots:
 		disconnect(yPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
 
 		positionsSaved_->setText("Unsaved");
+		QPalette palette(this->palette());
+		palette.setColor(QPalette::Active, QPalette::WindowText, Qt::darkRed);
+		positionsSaved_->setPalette(palette);
 	}
 	/// Helper slot that handles the setting the estimated time label.  The value comes in as seconds.
 	void onEstimatedTimeChanged(double newTime);
