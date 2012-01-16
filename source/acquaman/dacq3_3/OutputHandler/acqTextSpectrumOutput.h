@@ -70,6 +70,9 @@ public:
 	static acqBaseOutput * new_acqTextSpectrumOutput();
 	bool haveSpectrumFlag() { return haveSpectrum; };
 
+	bool expectsSpectrumFromScanController() const;
+	void setExpectsSpectrumFromScanController(bool expectsSpectrumFromScanController);
+
 	void setSpectrumDelimiter(const std::string &delim) { spectrumDelimiter = delim; } ;
 	const std::string& getSpectrumDelimiter() { return spectrumDelimiter; } ;
 
@@ -105,6 +108,9 @@ public:
 	int recordCount;
 
 protected:
+	virtual void onExpectationOfSpectrumNotMet();
+
+protected:
 
 	bool verbose;			// header output level
 
@@ -117,6 +123,7 @@ protected:
 	virtual void getPrivate(int eventID, int pvID);		// over-ride the map table allocator
 	virtual std::string nextSpectrumFile(int record=-1, int pvid=-1);
 
+	bool expectsSpectrumFromScanController_;
 };
 
 #endif

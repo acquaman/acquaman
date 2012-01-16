@@ -132,6 +132,9 @@ bool SGMAppController::startup() {
 		sgmDefault->ensureDataSource("PFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
 		sgmDefault->ensureDataSource("IPFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
 		sgmDefault->ensureDataSource("SDD", false, AMExporterOptionGeneral::SeparateFilesMode, false);
+		sgmDefault->ensureDataSource("OceanOptics65000", false, AMExporterOptionGeneral::SeparateFilesMode, false);
+		sgmDefault->ensureDataSource("PLY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmDefault->ensureDataSource("PLYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
 		//sgmDefault->setSeparateSectionFileName("$name_$dataSetName_$exportIndex.txt");
 		sgmDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.txt");
 		sgmDefault->storeToDb(AMDatabase::database("user"));

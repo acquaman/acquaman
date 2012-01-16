@@ -30,7 +30,8 @@ acqTextSpectrumOutput::acqTextSpectrumOutput() :
 	haveSpectrum(0), spectrumFormat(SF_DEFAULT),
 	spectrumStream(NULL),
 	ts_outputState(TSOH_INIT),
-	spectrumSplit(SS_ONE_TO_ONE)
+	spectrumSplit(SS_ONE_TO_ONE),
+	expectsSpectrumFromScanController_(false)
 {
 	handler.start_cb = start;
 	handler.pause_cb = pause;
@@ -64,6 +65,14 @@ acqKey_t new_acqTextSpectrumOutput(void)
 {
 	acqBaseOutput *to = new acqTextSpectrumOutput();
 	return (acqKey_t )to;
+}
+
+bool acqTextSpectrumOutput::expectsSpectrumFromScanController() const{
+	return expectsSpectrumFromScanController_;
+}
+
+void acqTextSpectrumOutput::setExpectsSpectrumFromScanController(bool expectsSpectrumFromScanController){
+	expectsSpectrumFromScanController_ = expectsSpectrumFromScanController;
 }
 
 /// start of a run - may be multiple passes
@@ -109,22 +118,17 @@ int acqTextSpectrumOutput::pvFlags( acqKey_t key, int eventno, int pvno, const c
 
 	pvPrivate::pvproperties_iter checkSpectrum;
 	checkSpectrum = pvIter->second->pvproperties.find( isSpectrumKey );
-
-	qDebug() << "Doing a checkSpectrum?";
 	if( checkSpectrum != pvIter->second->pvproperties.end() )
 	{
-		qDebug() << "Yeah, check that spectrum";
 		DEBUG(to) printf("pv[%d] isSpectrum:%s\n", uid, checkSpectrum->second.c_str() );
 
 		if(checkSpectrum->second == "1" || checkSpectrum->second == "TRUE" || checkSpectrum->second == "true")
 		{
 			pvp->isSpectrum = true;
-			qDebug() << "Set haveSpectrum to TRUE";
 			to->haveSpectrum = TRUE;
 		}
 		return 0;
 	}
-
 	pvp->isSpectrum = false;
 	return 0;
 }
@@ -199,24 +203,17 @@ int acqTextSpectrumOutput::nextOutput( acqKey_t key)
 	// this depends on PV information having been transmitted before acquisition
 	// looping starts. If no PV's have been detected that have been flagged 'spectra',
 	// then no file will be created.
-	qDebug() << "Before to->haveSpectrum && to->spectrumStream";
-	if( to->haveSpectrum)
-		qDebug() << "haveSpectrum is true";
-	if( to->spectrumStream)
-		qDebug() << "spectrumStream is true";
 	if( to->haveSpectrum && to->spectrumStream)
 	{
-		qDebug() << "I guess it has a spectrum";
 		to->recordCount = 0;
 		if( to->spectrumSplit == SS_ONE_TO_ONE)
 		{
-			qDebug() << "I guess it wants to nextSpectrumFile";
 			to->nextSpectrumFile();
 		}
 
 	}
-	else
-		qDebug() << "\n\n\n\n\n\n\nTHIS IS CATACLYSMIC\n\n\n\n\n";
+	else if(to->expectsSpectrumFromScanController())
+		to->onExpectationOfSpectrumNotMet();
 
 	return 0;
 }
@@ -225,7 +222,6 @@ int acqTextSpectrumOutput::eventName(acqKey_t key, int eventno, const char *name
 {
 	acqBaseOutput::default_eventName(key, eventno, name);
 	acqTextSpectrumOutput *to = (acqTextSpectrumOutput *)key;
-	qDebug() << "In eventName setting haveSpectrum to FALSE";
 	//to->haveSpectrum = FALSE;
 
 	return 0;
@@ -316,7 +312,6 @@ std::string acqTextSpectrumOutput::nextSpectrumFile(int record, int spectrum_no)
 	}
 	if( spectrumStream)
 	{
-		qDebug() << "Has spectrumStream so actually ->next()";
 		spectrumStream->setProperty( PROP_FILE_PATH, directory);
 		spectrumStream->setProperty( PROP_FILE_TEMPLATE, spectrumFileName);
 		spectrumStream->next();
@@ -564,3 +559,6 @@ std::string &acqTextSpectrumOutput::getProperty(std::string name)
 	return acqTextOutput::getProperty(name);
 }
 
+void acqTextSpectrumOutput::onExpectationOfSpectrumNotMet(){
+	return;
+}

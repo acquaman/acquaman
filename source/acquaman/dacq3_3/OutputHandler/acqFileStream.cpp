@@ -67,7 +67,6 @@ int acqFileStream:: open()
 	fp = fopen( outputName.c_str(), "a+");
 	if( fp == NULL)
 	{
-		perror("\n\nWHAT THE HELL IS THIS");
 		fp = stdout;
 		outputName = "< standard output >";
 	}
@@ -168,9 +167,6 @@ int acqFileStream::buildFileName()
 
 	DEBUG(this) printf("buildFileName: '%s'\n", namesel.c_str() );
 	outputName = namesel;
-
-	QString oname = QString::fromUtf8(outputName.c_str());
-	qDebug() << "\n\nFile name should be " << oname;
 
 	return 0;
 }
