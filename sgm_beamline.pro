@@ -3,7 +3,8 @@
 # #####################################################################
 
 TEMPLATE = subdirs
-SUBDIRS +=	SGMAcquaman.pro \
+SUBDIRS += \
 	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	CLSPGTDwellTimeCoordinator.pro \
-        SGMSSAAcquaman.pro
+	SGMSSAAcquaman.pro \
+        SGMAcquaman.pro
