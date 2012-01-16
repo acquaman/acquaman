@@ -40,6 +40,12 @@ class AMGenericScanEditor : public QWidget
 {
 Q_OBJECT
 public:
+	enum ShouldStopAcquiringScanChoice{
+		ShouldStopNo =		0,
+		ShouldStopYes =		1,
+		ShouldStopForeQuit =	2
+	};
+
 	/// Construct an empty editor:
 	explicit AMGenericScanEditor(QWidget *parent = 0);
 
@@ -171,7 +177,7 @@ protected:
 	void updateEditor(AMScan* scan);
 
 	/// Helper function to ask if a scan should be aborted when trying to close it. Returns true if the scan should be aborted.
-	bool shouldStopAcquiringScan(AMScan* scan);
+	AMGenericScanEditor::ShouldStopAcquiringScanChoice shouldStopAcquiringScan(AMScan* scan);
 	/// Helper function to ask if a scan should be saved when trying to close it. Returns an integer corresponding to QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel.
 	int shouldSaveModifiedScan(AMScan* scan);
 
