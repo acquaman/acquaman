@@ -33,6 +33,8 @@ public:
 	  \param parent Pointer to QWidget to act as parent.
 	  */
 	explicit AMDetectorSetView(AMDetectorSet *viewSet, bool configureOnly = false, QWidget *parent = 0);
+	// Assumes configureOnly is true and uses infoSet as the starting point
+	explicit AMDetectorSetView(AMDetectorSet *viewSet, const AMDetectorInfoSet &infoSet, QWidget *parent = 0);
 
 	int count() const;
 	AMDetectorSet* detectorSet();
