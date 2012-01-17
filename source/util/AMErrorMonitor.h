@@ -144,6 +144,36 @@ public:
 		mon()->reportF(e);
 	}
 
+	/// Overloaded.  Reports an AMErrorReport using the information provided.  This function is thread-safe.
+	static void report(const QObject *src = 0, AMErrorReport::Level level = AMErrorReport::Alert, int code = 0, const QString &desc = "")
+	{
+		mon()->reportF(AMErrorReport(src, level, code, desc));
+	}
+
+	/// Report an information level AMErrorReport.  Builds an AMErrorReport using the information provided.  This function is thread-safe.
+	static void information(const QObject *src = 0, int code = 0, const QString &desc = "")
+	{
+		mon()->reportF(AMErrorReport(src, AMErrorReport::Information, code, desc));
+	}
+
+	/// Report an alert level AMErrorReport.  Builds an AMErrorReport using the information provided. This function is thread-safe.
+	static void alert(const QObject *src = 0, int code = 0, const QString &desc = "")
+	{
+		mon()->reportF(AMErrorReport(src, AMErrorReport::Alert, code, desc));
+	}
+
+	/// Report an error level AMErrorReport.  Builds an AMErrorReport using the information provided.  This function is thread-safe.
+	static void error(const QObject *src = 0, int code = 0, const QString &desc = "")
+	{
+		mon()->reportF(AMErrorReport(src, AMErrorReport::Serious, code, desc));
+	}
+
+	/// Report a debug level AMErrorReport.  Builds an AMErrorREport using the information provided.  This function is thread-safe.
+	static void debug(const QObject *src = 0, int code = 0, const QString &desc = "")
+	{
+		mon()->reportF(AMErrorReport(src, AMErrorReport::Debug, code, desc));
+	}
+
 	/// Enable or disable debug-level notifications:
 	static void enableDebugNotifications(bool debugEnabled = true) {
 		mon()->debugEnabled_ = debugEnabled;
