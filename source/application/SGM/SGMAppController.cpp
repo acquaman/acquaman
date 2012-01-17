@@ -114,7 +114,7 @@ bool SGMAppController::startup() {
 		sgmDefault->setName("SGMDefault");
 		//sgmDefault->setFileName("$name_$exportIndex.txt");
 		sgmDefault->setFileName("$name_$fsIndex.txt");
-		sgmDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription");
+		sgmDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\nGrating: $scanConfiguration[grating%enumConvert]\nHarmonic: $scanConfiguration[harmonic%enumConvert]\nExit Slit Gap: $scanConfiguration[exitSlitGap%double%2] um");
 		sgmDefault->setHeaderIncluded(true);
 		sgmDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
 		sgmDefault->setColumnHeaderIncluded(true);

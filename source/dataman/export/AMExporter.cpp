@@ -299,6 +299,10 @@ QString AMExporter::krScanConfiguration(const QString& propertyName) {
 			retVal.setNum(value, 'f', precision);
 			return retVal;
 		}
+		else if(propertyArgs.at(1) == "enumConvert" && v.canConvert<int>()){
+			if(scanConfig->canEnumConvert(propertyArgs.at(0)))
+				return scanConfig->enumConvert(propertyArgs.at(0), v.toInt());
+		}
 
 	}
 	if(!v.isValid())

@@ -57,6 +57,12 @@ public:
 	/// Returns the current configuration requested for all of the detectors
 	AMDetectorInfoSet allDetectorConfigurations() const;
 
+	/// Returns whether or not this scan configuration can convert a property from an enum into a useful string. For use with the export systems. SGMXASScanConfiguration can convert grating and harmonic.
+	virtual bool canEnumConvert(const QString &enumName) const;
+
+	/// Returns the useful string version for enum convertable properites. Will return [??] if the property cannot be converted by this scan configuration. SGMXASScanConfiguration can convert grating and harmonic.
+	virtual QString enumConvert(const QString &enumName, int enumValue) const;
+
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;
 
