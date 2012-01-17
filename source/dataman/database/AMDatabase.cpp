@@ -30,6 +30,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QApplication>
 #include <QSqlDriver>
 
+#include <QTime>
+#include <QDebug>
+
 
 
 // Internal instance records:
@@ -630,13 +633,17 @@ QSqlDatabase AMDatabase::qdb() const
 		if(!ok) {
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, QString("error connecting to database (access %1). The SQL reply was: %2").arg(dbAccessString_).arg(db.lastError().text())));
 		}
+//		else {
+//			QSqlQuery q(db);
+//			q.prepare("PRAGMA synchronous=NORMAL;");
+//			execQuery(q, 10);
+//		}
+
 		threadIDsOfOpenConnections_ << threadId;
 		return db;
 	}
 }
 
-#include <QTime>
-#include <QDebug>
 
 bool AMDatabase::startTransaction()
 {
@@ -649,7 +656,7 @@ bool AMDatabase::startTransaction()
 	return success;
 }
 
-bool AMDatabase::commitTransaction()
+bool AMDatabase::commitTransaction(int timeoutMs)
 {
 	QTime startTime;
 	startTime.start();
@@ -661,14 +668,21 @@ bool AMDatabase::commitTransaction()
 		attempt++;
 		if(!success)
 			usleep(5000);
-	} while (!success && startTime.elapsed() < 5000);
+	} while (!success && startTime.elapsed() < timeoutMs);
 
 	qdbMutex_.lock();
 	transactionOpenOnThread_.remove(QThread::currentThreadId());
 	qdbMutex_.unlock();
 
-	if(attempt > 1)
-		qDebug() << "*** Commit required " << attempt << "tries.  Did succeed:" << success;
+	if(attempt > 1) {
+		if(success) {
+			qWarning() << "Warning: AMDatabase detected contention for database access in commitTransaction(). It took" << attempt << "tries for the commit to succeed";
+		}
+		else {
+			qWarning() << "Warning: AMDatabase detected contention for database access in commitTransaction(). After" << attempt << "attempts, the commit still did not succeed.";
+		}
+	}
+
 	return success;
 }
 
@@ -701,19 +715,25 @@ bool AMDatabase::execQuery(QSqlQuery &query, int timeoutMs)
 	QTime startTime;
 	startTime.start();
 
-	bool rv;
+	bool success;
 	int lastErrorNumber;
 	int attempt = 0;
 	do {
-		rv = query.exec();
+		success = query.exec();
 		lastErrorNumber = query.lastError().number();
 		attempt++;
 		if(lastErrorNumber == 5)
 			usleep(5000);
-	} while(rv != true && startTime.elapsed() < timeoutMs && (lastErrorNumber == 5));
+	} while(success != true && startTime.elapsed() < timeoutMs && (lastErrorNumber == 5));
 
-	if(attempt != 1)
-		qDebug() << "!!! Query required " << attempt << "tries to exec. Did succeed = " << rv;
+	if(attempt > 1) {
+		if(success) {
+			qWarning() << "Warning: AMDatabase detected contention for database locking in execQuery(). It took" << attempt << "tries for the query to succeed";
+		}
+		else {
+			qWarning() << "Warning: AMDatabase detected contention for database locking in execQuery(). After" << attempt << "attempts, the query still did not succeed.";
+		}
+	}
 
-	return rv;
+	return success;
 }
