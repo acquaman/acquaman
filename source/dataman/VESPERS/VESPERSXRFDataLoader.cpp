@@ -44,7 +44,7 @@ bool VESPERSXRFDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 
 	if (!scan){
 
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, 0, "VESPERS XRF File Loader: Could not load XRF data into a non-XRF scan."));
+		AMErrorMon::alert(0, 0, "VESPERS XRF File Loader: Could not load XRF data into a non-XRF scan.");
 		return false;
 	}
 
@@ -52,13 +52,13 @@ bool VESPERSXRFDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 
 	if (!config){
 
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, 0, "VESPERS XRF File Loader: Scan does not have a valid scan configuration."));
+		AMErrorMon::alert(0, 0, "VESPERS XRF File Loader: Scan does not have a valid scan configuration.");
 		return false;
 	}
 
 	QFile file(filepath);
 	if(!file.open(QIODevice::ReadOnly)) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "XRFFileLoader parse error while loading scan data from file."));
+		AMErrorMon::error(0, -1, "XRFFileLoader parse error while loading scan data from file.");
 		return false;
 	}
 
@@ -108,7 +108,7 @@ bool VESPERSXRFDataLoader::saveToFile(const QString &filepath)
 
 	QFile file(filepath);
 	if(!file.open(QIODevice::WriteOnly)) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "XRFFileLoader parse error while savings scan data from file."));
+		AMErrorMon::error(0, -1, "XRFFileLoader parse error while savings scan data from file.");
 		return false;
 	}
 
