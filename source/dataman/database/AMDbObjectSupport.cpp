@@ -458,7 +458,7 @@ bool AMDbObjectSupport::isUpgradeRequiredForClass(AMDatabase* db, const AMDbObje
 
 	QSqlQuery q = db->query();
 	q.prepare("SELECT columnName FROM " % allColumnsTableName() % " WHERE typeId = '" % QString::number(typeIdInDatabase) % "';");
-	if(!q.exec()) {
+	if(!AMDatabase::execQuery(q)) {
 		q.finish();
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -205, QString("Database support: There was an error while trying to check if the class '%1' in the database needs an upgrade.").arg(info.className)));
 		return false;
@@ -478,13 +478,13 @@ bool AMDbObjectSupport::isUpgradeRequiredForClass(AMDatabase* db, const AMDbObje
 			QString auxTableName = info.tableName % "_" % info.columns.at(i);
 			// Does SQLite not support the SQL-92 standard INFORMATION_SCHEMA?
 			//				q.prepare("SELECT COUNT(1) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = " % auxTableName % ";");
-			//				q.exec();
+			//				AMDatabase::execQuery(q);
 			//				if(!q.first() || q.value(0).toInt() != 1) {
 			//					return true;
 			//				}
 			// Ok, let's try this way.  This will simply fail if the auxiliary table doesn't exist...
 			q.prepare("SELECT COUNT(1) FROM " % auxTableName % " WHERE 1=0;");	// as high-performance of a query as we can make on that table;
-			if(!q.exec()) {
+			if(!AMDatabase::execQuery(q)) {
 				return true;
 			}
 		}
@@ -507,7 +507,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 	QSet<QString> existingColumns;
 	QSqlQuery q = db->query();
 	q.prepare("SELECT columnName FROM " % allColumnsTableName() % " WHERE typeId = '" % QString::number(typeIdInDatabase) % "';");
-	if(!q.exec()) {
+	if(!AMDatabase::execQuery(q)) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -105, QString("Database support: There was an error while trying to check if the class '%1' in the database needs an upgrade.").arg(info.className)));
 		return false;
 	}
@@ -537,7 +537,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 			QString auxTableName = info.tableName % "_" % info.columns.at(i);
 			// Does the table exist?
 			q.prepare("SELECT COUNT(1) FROM " % auxTableName % " WHERE 1=0;");	// as high-performance of a query as we can make on that table;
-			if(!q.exec()) {	// fails if table doesn't exist.
+			if(!AMDatabase::execQuery(q)) {	// fails if table doesn't exist.
 				q.finish();
 				// therefore, we need to create the table:
 				if( !db->ensureTable(auxTableName,
@@ -588,7 +588,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 					q.prepare(QString("UPDATE %1 SET %2 = ?;").arg(info.tableName).arg(info.columns.at(i)));
 					q.bindValue(0, QVariant(defaultValue));
 
-					if(!q.exec()) {
+					if(!AMDatabase::execQuery(q)) {
 						q.finish();
 						AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -403, QString("AMDbObjectSupport: Could not insert default value '%1' for column '%2'").arg(defaultValue).arg(info.columns.at(i))));
 					}
@@ -772,6 +772,140 @@ AMDbObjectSupport * AMDbObjectSupport::s() {
 		}
 	}
 	return instance_;
+}
+
+#include <QDebug>
+bool AMDbObjectSupport::event(QEvent *e)
+{
+	if(e->type() != (QEvent::Type)AM::ThumbnailsGeneratedEvent)
+		return false;
+
+	AMDbThumbnailsGeneratedEvent* te = static_cast<AMDbThumbnailsGeneratedEvent*>(e);
+
+	AMDatabase* db = te->db;
+	QString dbTableName = te->dbTablename;
+	int id = te->dbObjectId;
+	bool neverSavedHereBefore = te->neverSavedHereBefore;
+	int thumbsCount = te->thumbnails.count();
+
+	// check that the database hasn't been deleted and is still registered properly.
+	registryMutex_.lockForRead();
+	if(!registeredDatabases_.contains(db)) {
+		registryMutex_.unlock();
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -967, "Received a thumbnail update event for an unregistered database. It's possible that the database was deleted since this event was posted."));
+		return true;	// still want the event, but can't do anything.
+	}
+	registryMutex_.unlock();
+
+	// for debugging database performance only:
+	QTime saveTime;
+	saveTime.start();
+
+	// The remainder of this should happen in one database transaction. This ensures consistency, and it also increases performance because a database commit (and time consuming flush-to-disk, in the case of SQLite) doesn't have to happen for each thumbnail insert -- just once at the end.
+	// Note that there might be a transaction started already...
+	bool openedTransaction = false;
+	if(db->supportsTransactions() && !db->transactionInProgress()) {
+		if(db->startTransaction()) {
+			openedTransaction = true;
+			qDebug() << "Opened transaction for thumbnail save of object at [" << dbTableName << id << "].";
+		}
+		else {
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -495, "Could not start a transaction to save the thumbnails for object '" % dbTableName % ":" % QString::number(id) % "' in the database. Please report this problem to the Acquaman developers."));
+			return true;
+		}
+	}
+
+	bool reuseThumbnailIds = false;
+	QList<int> existingThumbnailIds;
+
+	if(!neverSavedHereBefore) {
+		// Find out if there are any thumbnails for this object already in the DB:
+		existingThumbnailIds = db->objectsWhere(AMDbObjectSupport::thumbnailTableName(), QString("objectId = %1 AND objectTableName = '%2'").arg(id).arg(dbTableName));
+		// as long as this function works properly, these will always be in a sequential block.
+
+		reuseThumbnailIds = (existingThumbnailIds.count() == thumbsCount);
+		// need to check that the existingThumbnailIds are consecutive as well... Otherwise can't reuse them. They should always be in a consecutive block, but just in case the database has gotten messed up, it doesn't hurt to check.
+		if(reuseThumbnailIds) {
+			for(int i=1; i<existingThumbnailIds.count(); i++) {
+				if(existingThumbnailIds.at(i) != existingThumbnailIds.at(i-1)+1) {
+					reuseThumbnailIds = false;
+					break;
+				}
+			}
+		}
+
+		if(!reuseThumbnailIds) {
+			// Don't reuse existing rows in the thumbnail table. Instead, delete before appending new ones.
+			db->deleteRows(AMDbObjectSupport::thumbnailTableName(), QString("objectId = %1 AND objectTableName = '%2'").arg(id).arg(dbTableName));
+		}
+	}
+
+	QVariantList values;	// list of values to store
+	QStringList keys;	// list of keys (column names) to store
+	int firstThumbnailId;
+
+	// Save each thumbnail:
+	for(int i=0; i<thumbsCount; i++) {
+		const AMDbThumbnail& t = te->thumbnails.at(i);
+
+		keys.clear();
+		values.clear();
+
+		keys << "objectId";
+		values << id;
+		keys << "objectTableName";
+		values << dbTableName;
+		keys << "number";
+		values << i;
+		keys << "type";
+		values << t.typeString();
+		keys << "title";
+		values << t.title;
+		keys << "subtitle";
+		values << t.subtitle;
+		keys << "thumbnail";
+		values << t.thumbnail;
+
+		int retVal;
+		if(reuseThumbnailIds) {
+			// qDebug() << "Thumbnail save: reusing row" << i+existingThumbnailIds.at(0) << "in other thread";
+			retVal = db->insertOrUpdate(i+existingThumbnailIds.at(0), AMDbObjectSupport::thumbnailTableName(), keys, values);
+		}
+		else {
+			// qDebug() << "THumnail save: inserting new row in other thread";
+			retVal = db->insertOrUpdate(0, AMDbObjectSupport::thumbnailTableName(), keys, values);
+		}
+		if(retVal == 0) {
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -314, QString("AMDbObject: error trying to save thumbnails for object with ID %1 in table '%2'. Please report this bug to the Acquaman developers.").arg(id).arg(dbTableName)));
+			if(openedTransaction) {
+				db->rollbackTransaction();
+				return true;
+			}
+		}
+
+		if(i == 0)	// when inserting the first one... remember the id of this first thumbnail.
+			firstThumbnailId = retVal;
+	}
+
+	// now that we know where the thumbnails are, update this in the object table
+	if(!db->update(id, dbTableName,
+				   QStringList() << "thumbnailCount" << "thumbnailFirstId",
+				   QVariantList() << thumbsCount << firstThumbnailId)) {
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -315, QString("AMDbObject: error trying to store the updated thumbnail count and firstThumbnailId for database object %1 in table '%2'. Please report this bug to the Acquaman developers.").arg(id).arg(dbTableName)));
+		if(openedTransaction) {
+			db->rollbackTransaction();
+			return true;
+		}
+	}
+
+	// only commit the transaction if we opened it.
+	if(openedTransaction && !db->commitTransaction()) {
+		db->rollbackTransaction();
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -495, "AMDbObject: Could not commit a transaction to save the thumbnails for object '" % dbTableName % ":" % QString::number(id) % "' in the database. Please report this problem to the Acquaman developers."));
+	}
+
+	qDebug() << "Storing thumbnails for [" << dbTableName << ":" << id << "] took" << saveTime.elapsed() << "ms to store thumbnails in the database. Used own transaction = " << openedTransaction;
+	return true;
 }
 
 

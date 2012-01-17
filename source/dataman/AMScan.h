@@ -307,7 +307,7 @@ public:
 	AMDbThumbnail thumbnail(int index) const;
 
 	/// Generating these thumbnails is time-consuming, because we have to draw a bunch of plots and render them to PNGs. Therefore, we should do it in a seperate thread.
-	virtual bool shouldGenerateThumbnailsInSeparateThread() const { return false; }
+	virtual bool shouldGenerateThumbnailsInSeparateThread() const { return true; }
 
 
 	// Acquisition status, and link to scan controller

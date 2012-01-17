@@ -53,6 +53,24 @@ public:
 	QString typeString() const;
 };
 
+/// This event class contains completed thumbnails that might have been generated in another thread. It's used to pass the thumbnails out of AMDbObject::updateThumbnailsInSeparateThread() back to the main thread, where they will be updated in the database.
+class AMDbThumbnailsGeneratedEvent : public QEvent {
+
+public:
+	/// Constructor
+	AMDbThumbnailsGeneratedEvent(const QList<AMDbThumbnail>& thumbnails, AMDatabase* db, const QString& dbTableName, int dbObjectId, bool neverSavedHereBefore);
+
+	/// The list of thumbnails that were rendered
+	QList<AMDbThumbnail> thumbnails;
+	/// The database where the object and thumbnails should be found
+	AMDatabase* db;
+	/// The name of the table in the database where the object is found
+	QString dbTablename;
+	/// The id of the object in that table.
+	int dbObjectId;
+	/// An optimization to signal that the object has never been saved in this table before
+	bool neverSavedHereBefore;
+};
 
 class AMDbObjectInfo;
 

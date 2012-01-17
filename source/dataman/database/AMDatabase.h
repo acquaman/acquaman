@@ -81,6 +81,10 @@ The parameters by which to access the database are given in \c dbAccessString. (
 	}
 
 
+	/// Contrary to what the docs say, the QSQLiteDriver never re-tries a query that fails when the database was busy/locked. You can use this function instead of QSqlQuery::exec(). Whenever a query fails due to a busy error, it will block up to a maximum timeout of \c timeoutMs ms while re-trying automatically every 5ms.
+	static bool execQuery(QSqlQuery& query, int timeoutMs = 5000);
+
+
 	// Instance Functions
 	///////////////////////////
 
@@ -153,9 +157,11 @@ The parameters by which to access the database are given in \c dbAccessString. (
 	QList<int> objectsWhere(const QString& tableName, const QString& whereClause = QString()) const;
 
 
-	/// For people who really know what they're doing. You shouldn't normally use this.
+	/// Starts an SQL transaction if the implementation supports them. Returns true on success.
 	bool startTransaction();
-	bool commitTransaction();
+	/// Tries to commit a transaction. Since SQLite commits may fail with SQLITE_BUSY errors, this will keep retrying up to \c timeoutMs ms for the commit to succeed. Returns true on success.
+	bool commitTransaction(int timeoutMs = 5000);
+	/// Tries (just once) to roll back (revert) a transaction. Normally this always succeeds, as long as a transaction is open. Returns true on success.
 	bool rollbackTransaction();
 
 	/// Returns whether this connection supports transactions (ie: the database implementation supports transactions)
