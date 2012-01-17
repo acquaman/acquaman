@@ -13,11 +13,11 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 {
 	scaler_ = scaler;
 	if(scaler_ && scaler_->isConnected()){
-		scanningCE_ = new AMControlEditor(scaler_->startToggleControl());
-		continuousCE_ = new AMControlEditor(scaler_->continuousToggleControl());
-		dwellTimeCE_ = new AMControlEditor(scaler_->dwellTimeControl());
-		scansPerBufferCE_ = new AMControlEditor(scaler_->scansPerBufferControl());
-		totalScansCE_ = new AMControlEditor(scaler_->totalScansControl());
+//		scanningCE_ = new AMControlEditor(scaler_->startToggleControl());
+//		continuousCE_ = new AMControlEditor(scaler_->continuousToggleControl());
+//		dwellTimeCE_ = new AMControlEditor(scaler_->dwellTimeControl());
+//		scansPerBufferCE_ = new AMControlEditor(scaler_->scansPerBufferControl());
+//		totalScansCE_ = new AMControlEditor(scaler_->totalScansControl());
 
 		toggleLayout_ = new QFormLayout();
 		toggleLayout_->addRow("Scanning", scanningCE_);
