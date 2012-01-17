@@ -186,6 +186,13 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	savedYPosition_ = new QLabel(QString::number(config_->y(), 'g', 3) + " mm");
 	savedYPosition_->setEnabled(goToPosition->isChecked());
 	positionsSaved_ = new QLabel("Unsaved");
+	QFont font(this->font());
+	font.setBold(true);
+	positionsSaved_->setFont(font);
+	QPalette palette(this->palette());
+	palette.setColor(QPalette::Active, QPalette::WindowText, Qt::red);
+	palette.setColor(QPalette::Disabled, QPalette::WindowText, Qt::darkGray);
+	positionsSaved_->setPalette(palette);
 	positionsSaved_->setEnabled(goToPosition->isChecked());
 
 	QHBoxLayout *saveLayout = new QHBoxLayout;

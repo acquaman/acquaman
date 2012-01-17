@@ -15,6 +15,17 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	setupXASAction_ = 0;
 	cleanupXASAction_ = 0;
 
+	secondsElapsed_ = 0;
+	secondsTotal_ = config_->totalTime();
+	elapsedTime_.setInterval(1000);
+	connect(this, SIGNAL(started()), &elapsedTime_, SLOT(start()));
+	connect(this, SIGNAL(cancelled()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(paused()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(resumed()), &elapsedTime_, SLOT(start()));
+	connect(this, SIGNAL(failed()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(finished()), &elapsedTime_, SLOT(stop()));
+	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
+
 	scan_ = new AMXASScan(); 	// MB: Moved from line 363 in startImplementation.
 	scan_->setName(config_->name());
 	scan_->setFileFormat("vespers2011EXAFS");
@@ -347,10 +358,9 @@ bool VESPERSEXAFSDacqScanController::startImplementation()
 	case VESPERSEXAFSScanConfiguration::None:
 		if (!setupTransmissionXAS()){
 
-			AMErrorMon::report(AMErrorReport(this,
-					AMErrorReport::Alert,
+			AMErrorMon::alert(this,
 					VESPERSEXAFSDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
-					"Error, VESPERS EXAFS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
+					"Error, VESPERS EXAFS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers.");
 			return false;
 		}
 		break;
@@ -358,10 +368,9 @@ bool VESPERSEXAFSDacqScanController::startImplementation()
 	case VESPERSEXAFSScanConfiguration::SingleElement:
 		if (!setupSingleElementXAS()){
 
-			AMErrorMon::report(AMErrorReport(this,
-					AMErrorReport::Alert,
+			AMErrorMon::alert(this,
 					VESPERSEXAFSDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
-					"Error, VESPERS EXAFS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
+					"Error, VESPERS EXAFS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers.");
 			return false;
 		}
 		break;
@@ -369,19 +378,17 @@ bool VESPERSEXAFSDacqScanController::startImplementation()
 	case VESPERSEXAFSScanConfiguration::FourElement:
 		if (!setupFourElementXAS()){
 
-			AMErrorMon::report(AMErrorReport(this,
-					AMErrorReport::Alert,
+			AMErrorMon::alert(this,
 					VESPERSEXAFSDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
-					"Error, VESPERS EXAFS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
+					"Error, VESPERS EXAFS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers.");
 			return false;
 		}
 		break;
 
 	default:
-		AMErrorMon::report(AMErrorReport(this,
-				AMErrorReport::Alert,
+		AMErrorMon::alert(this,
 				VESPERSEXAFSDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
-				"Error, VESPERS EXAFS DACQ Scan Controller failed to start (Invalid Fluorescence Detector chosen). Please report this bug to the Acquaman developers."));
+				"Error, VESPERS EXAFS DACQ Scan Controller failed to start (Invalid Fluorescence Detector chosen). Please report this bug to the Acquaman developers.");
 		return false;
 	}
 
@@ -479,6 +486,19 @@ AMnDIndex VESPERSEXAFSDacqScanController::toScanIndex(QMap<int, double> aeData)
 	return AMnDIndex(scan_->rawData()->scanSize(0));
 }
 
+void VESPERSEXAFSDacqScanController::onScanTimerUpdate()
+{
+	if (elapsedTime_.isActive()){
+
+		if (secondsElapsed_ >= secondsTotal_)
+			secondsElapsed_ = secondsTotal_;
+		else
+			secondsElapsed_ += 1.0;
+
+		emit progress(secondsElapsed_, secondsTotal_);
+	}
+}
+
 void VESPERSEXAFSDacqScanController::onInitializationActionsSucceeded()
 {
 	setInitialized();
@@ -488,7 +508,7 @@ void VESPERSEXAFSDacqScanController::onInitializationActionsFailed(int explanati
 {
 	Q_UNUSED(explanation)
 
-	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "XAS scan failed to initialize."));
+	AMErrorMon::alert(this, 0, "XAS scan failed to initialize.");
 	onInitializationActionFinished();
 	setFailed();
 }
@@ -518,10 +538,9 @@ bool VESPERSEXAFSDacqScanController::setupTransmissionXAS()
 	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/XANES.cfg"));
 
 	if(!loadSuccess){
-		AMErrorMon::report(AMErrorReport(this,
-				AMErrorReport::Alert,
+		AMErrorMon::alert(this,
 				VESPERSEXAFSDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
-				"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
+				"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers.");
 		return false;
 	}
 
@@ -551,10 +570,9 @@ bool VESPERSEXAFSDacqScanController::setupSingleElementXAS()
 	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/XANES-1Elem.cfg"));
 
 	if(!loadSuccess){
-		AMErrorMon::report(AMErrorReport(this,
-				AMErrorReport::Alert,
+		AMErrorMon::alert(this,
 				VESPERSEXAFSDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
-				"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
+				"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers.");
 		return false;
 	}
 
@@ -603,10 +621,9 @@ bool VESPERSEXAFSDacqScanController::setupFourElementXAS()
 	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/XANES-4Elem.cfg"));
 
 	if(!loadSuccess){
-		AMErrorMon::report(AMErrorReport(this,
-				AMErrorReport::Alert,
+		AMErrorMon::alert(this,
 				VESPERSEXAFSDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
-				"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
+				"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers.");
 		return false;
 	}
 

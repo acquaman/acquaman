@@ -278,13 +278,15 @@ bool AMGenericScanEditor::deleteScanWithModifiedCheck(AMScan* scan) {
 #ifndef ACQUAMAN_NO_ACQUISITION
 	// Potential problem 1: Is the scan acquiring?
 	if(scan->scanController()) {	// look for a valid scanController().
-		if(shouldStopAcquiringScan(scan)) {
+		AMGenericScanEditor::ShouldStopAcquiringScanChoice response = shouldStopAcquiringScan(scan);
+		if(response == AMGenericScanEditor::ShouldStopYes) {
 			// stop the scan. Warning: this won't happen instantly... there's event driven handling in the scan controller. For now, the user will have to re-initiate whatever top-level action caused this.
 			scan->scanController()->cancel();
 			/// \todo Test out processing events from inside here, for maybe up to a few seconds, until the scan is done, and then delete it and return true?
 		}
 		// because we can't ensure the scan has stopped, we can't continue and delete it. The user will have to re-initiate this action now that the scan is done.
-		return false;
+		else if(response == AMGenericScanEditor::ShouldStopNo)
+			return false;
 	}
 #endif
 
@@ -486,7 +488,7 @@ void AMGenericScanEditor::closeEvent(QCloseEvent* e)
 
 }
 
-bool AMGenericScanEditor::shouldStopAcquiringScan(AMScan *scan)
+AMGenericScanEditor::ShouldStopAcquiringScanChoice AMGenericScanEditor::shouldStopAcquiringScan(AMScan *scan)
 {
 	QMessageBox scanningEnquiry;
 	scanningEnquiry.setText(QString("The scan '%1' (#%2) is still acquiring.")
@@ -495,15 +497,18 @@ bool AMGenericScanEditor::shouldStopAcquiringScan(AMScan *scan)
 	scanningEnquiry.setInformativeText("You can't close this scan while it's still acquiring. Do you want to stop it?");
 	scanningEnquiry.setIcon(QMessageBox::Question);
 	QPushButton* stopScanButton = scanningEnquiry.addButton("Stop Scan", QMessageBox::AcceptRole);
+	QPushButton *forceQuitButton = scanningEnquiry.addButton("Force Quit", QMessageBox::AcceptRole);
 	scanningEnquiry.addButton(QMessageBox::Cancel);
 	scanningEnquiry.setDefaultButton(QMessageBox::Cancel);
 	scanningEnquiry.setEscapeButton(QMessageBox::Cancel);
 
 	scanningEnquiry.exec();
 	if(scanningEnquiry.clickedButton() == stopScanButton)
-		return true;
+		return AMGenericScanEditor::ShouldStopYes;
+	else if(scanningEnquiry.clickedButton() == forceQuitButton)
+		return AMGenericScanEditor::ShouldStopForeQuit;
 	else
-		return false;
+		return AMGenericScanEditor::ShouldStopNo;
 }
 
 int AMGenericScanEditor::shouldSaveModifiedScan(AMScan *scan)
@@ -529,11 +534,12 @@ bool AMGenericScanEditor::canCloseEditor()
 		AMScan* scan = scanAt(i);
 		if(scan->scanController()) {
 			// is still scanning. Can't close.
-			if(shouldStopAcquiringScan(scan)) {
+			AMGenericScanEditor::ShouldStopAcquiringScanChoice response = shouldStopAcquiringScan(scan);
+			if(response == AMGenericScanEditor::ShouldStopYes) {
 				scan->scanController()->cancel();
 				canClose=false; // unfortunately, still can't close, because we can't guaranntee right now that the scan was stopped
 			}
-			else {
+			else if(response == AMGenericScanEditor::ShouldStopNo){
 				return false;	// they chose to cancel, so don't bother asking about anything else.
 			}
 		}

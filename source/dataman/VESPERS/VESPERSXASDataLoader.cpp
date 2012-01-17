@@ -41,13 +41,13 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 
 	if (!scan){
 
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, 0, "VESPERS XAS File Loader: Could not load XAS data into a non-XAS scan."));
+		AMErrorMon::alert(0, 0, "VESPERS XAS File Loader: Could not load XAS data into a non-XAS scan.");
 		return false;
 	}
 
 	QFile file(filepath);
 	if(!file.open(QIODevice::ReadOnly)) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "XASFileLoader parse error while loading scan data from file."));
+		AMErrorMon::error(0, -1, "XASFileLoader parse error while loading scan data from file.");
 		return false;
 	}
 
@@ -78,7 +78,7 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 		spectra.setFileName(temp+"_spectra.dat");
 
 		if(!spectra.open(QIODevice::ReadOnly)) {
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, QString("XASFileLoader parse error while loading scan spectra data from %1.").arg(spectra.fileName())));
+			AMErrorMon::error(0, -1, QString("XASFileLoader parse error while loading scan spectra data from %1.").arg(spectra.fileName()));
 			return false;
 		}
 	}

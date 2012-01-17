@@ -528,7 +528,7 @@ void VESPERSBeamline::pressureError()
 	if (!error.isEmpty()){
 
 		error.prepend("The following pressure readings are at a critical level:\n");
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
+		AMErrorMon::error(this, 0, error);
 	}
 
 	emit pressureStatus(error.isEmpty());
@@ -564,7 +564,7 @@ void VESPERSBeamline::valveError()
 	if (!error.isEmpty()){
 
 		error.prepend("The following valves are closed:\n");
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
+		AMErrorMon::error(this, 0, error);
 	}
 
 	emit valveStatus(error.isEmpty());
@@ -589,7 +589,7 @@ void VESPERSBeamline::ionPumpError()
 	if (!error.isEmpty()){
 
 		error.prepend("The following ion pumps are no longer operating correctly:\n");
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
+		AMErrorMon::error(this, 0, error);
 	}
 
 	emit ionPumpStatus(error.isEmpty());
@@ -614,7 +614,7 @@ void VESPERSBeamline::temperatureError()
 	if (!error.isEmpty()){
 
 		error.prepend("The following temperature sensors are reading too high:\n");
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
+		AMErrorMon::error(this, 0, error);
 	}
 
 	emit temperatureStatus(error.isEmpty());
@@ -639,7 +639,7 @@ void VESPERSBeamline::flowSwitchError()
 	if (!error.isEmpty()){
 
 		error.prepend("The following flow switches have tripped:\n");
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
+		AMErrorMon::error(this, 0, error);
 	}
 
 	emit flowSwitchStatus(error.isEmpty());
@@ -664,7 +664,7 @@ void VESPERSBeamline::flowTransducerError()
 	if (!error.isEmpty()){
 
 		error.prepend("The following flow transducers are measuring too low:\n");
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
+		AMErrorMon::error(this, 0, error);
 	}
 
 	emit flowTransducerStatus(error.isEmpty());
@@ -673,19 +673,19 @@ void VESPERSBeamline::flowTransducerError()
 void VESPERSBeamline::singleElVortexError(bool isConnected)
 {
 	if (vortexXRF1E()->wasConnected() && !isConnected)
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, "The single element vortex detector is no longer connected."));
+		AMErrorMon::error(this, 0, "The single element vortex detector is no longer connected.");
 }
 
 void VESPERSBeamline::fourElVortexError(bool isConnected)
 {
 	if (vortexXRF4E()->wasConnected() && !isConnected)
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, "The four element vortex detector is no longer connected."));
+		AMErrorMon::error(this, 0, "The four element vortex detector is no longer connected.");
 }
 
 void VESPERSBeamline::sampleStageError()
 {
 	if (!sampleStageMotorSet()->isConnected())
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "The sample stage is no longer connected."));
+		AMErrorMon::alert(this, 0, "The sample stage is no longer connected.");
 }
 
 VESPERSBeamline::~VESPERSBeamline()

@@ -37,9 +37,6 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	state_ = new QLabel;
 	connect(detector_, SIGNAL(stateChanged(VESPERSRoperCCDDetector::State)), this, SLOT(onStateChanged(VESPERSRoperCCDDetector::State)));
 
-	timeRemaining_ = new QLabel("- s");
-	connect(detector_, SIGNAL(timeRemainingChanged(double)), this, SLOT(onTimeRemainingChanged(double)));
-
 	acquireTime_ = new QDoubleSpinBox;
 	acquireTime_->setSuffix(" s");
 	acquireTime_->setDecimals(2);
@@ -67,6 +64,27 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	connect(detector_, SIGNAL(imageModeChanged(VESPERSRoperCCDDetector::ImageMode)), this, SLOT(onImageModeChanged(VESPERSRoperCCDDetector::ImageMode)));
 	connect(imageMode_, SIGNAL(currentIndexChanged(int)), this, SLOT(setImageMode(int)));
 
+	temperatureSetpoint_ = new QDoubleSpinBox;
+	temperatureSetpoint_->setRange(-70, 30);
+	temperatureSetpoint_->setValue(20);
+	temperatureSetpoint_->setDecimals(1);
+	temperatureSetpoint_->setSuffix(QString::fromUtf8(" °C"));
+	connect(detector_, SIGNAL(temperatureSetpointChanged(double)), temperatureSetpoint_, SLOT(setValue(double)));
+	connect(temperatureSetpoint_, SIGNAL(editingFinished()), this, SLOT(setTemperature()));
+
+	temperatureFeedback_ = new QLabel("");
+	connect(detector_, SIGNAL(temperatureChanged(double)), this, SLOT(onTemperatureChanged(double)));
+
+	QToolButton *saveButton = new QToolButton;
+	saveButton->setIcon(QIcon(":/save.png"));
+	connect(saveButton, SIGNAL(clicked()), detector_, SLOT(saveFile()));
+
+	autoSaveComboBox_ = new QComboBox;
+	autoSaveComboBox_->addItem("No");
+	autoSaveComboBox_->addItem("Yes");
+	connect(detector_, SIGNAL(autoSaveEnabledChanged(bool)), this, SLOT(onAutoSaveChanged(bool)));
+	connect(autoSaveComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(setAutoSave(int)));
+
 	// Setup the CCD file path signals and layout.
 	filePathEdit_ = new QLineEdit;
 	connect(filePathEdit_, SIGNAL(editingFinished()), this, SLOT(ccdPathEdited()));
@@ -85,7 +103,6 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	QHBoxLayout *statusLayout = new QHBoxLayout;
 	statusLayout->addWidget(isAcquiring_);
 	statusLayout->addWidget(state_);
-	statusLayout->addWidget(timeRemaining_);
 
 	QHBoxLayout *startLayout = new QHBoxLayout;
 	startLayout->addWidget(acquireTime_);
@@ -96,6 +113,11 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	modeLayout->addWidget(triggerMode_);
 	modeLayout->addWidget(imageMode_);
 
+	QHBoxLayout *temperatureLayout = new QHBoxLayout;
+	temperatureLayout->addWidget(new QLabel("Temperature: "));
+	temperatureLayout->addWidget(temperatureSetpoint_);
+	temperatureLayout->addWidget(temperatureFeedback_);
+
 	QVBoxLayout *acquisitionLayout = new QVBoxLayout;
 	acquisitionLayout->addLayout(statusLayout);
 	acquisitionLayout->addLayout(startLayout);
@@ -103,8 +125,9 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 
 	acquisitionBox->setLayout(acquisitionLayout);
 
-	QGroupBox *ccdGB = new QGroupBox(tr("Image Path"));
+	QGroupBox *ccdGB = new QGroupBox(tr("Image Options"));
 	QFormLayout *ccdGBLayout = new QFormLayout;
+	ccdGBLayout->addRow(autoSaveComboBox_, saveButton);
 	ccdGBLayout->addRow("Path:", filePathEdit_);
 	ccdGBLayout->addRow("Name:", fileNameEdit_);
 	ccdGBLayout->addRow("Number:", fileNumberEdit_);
@@ -114,6 +137,7 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	QVBoxLayout *detectorLayout = new QVBoxLayout;
 	detectorLayout->addStretch();
 	detectorLayout->addWidget(acquisitionBox);
+	detectorLayout->addLayout(temperatureLayout);
 	detectorLayout->addWidget(ccdGB);
 	detectorLayout->addStretch();
 
@@ -215,6 +239,32 @@ void VESPERSRoperCCDDetectorView::onStateChanged(VESPERSRoperCCDDetector::State 
 
 	case VESPERSRoperCCDDetector::Waiting:
 		state_->setText("Waiting");
+		break;
+	}
+}
+
+void VESPERSRoperCCDDetectorView::onAutoSaveChanged(bool autoSave)
+{
+	if (autoSave)
+		autoSaveComboBox_->setCurrentIndex(1);
+	else
+		autoSaveComboBox_->setCurrentIndex(0);
+}
+
+void VESPERSRoperCCDDetectorView::setAutoSave(int autoSave)
+{
+	switch(autoSave){
+
+	case 0:
+		if (detector_->autoSaveEnabled())
+			detector_->setAutoSaveEnabled(false);
+
+		break;
+
+	case 1:
+		if (!detector_->autoSaveEnabled())
+			detector_->setAutoSaveEnabled(true);
+
 		break;
 	}
 }

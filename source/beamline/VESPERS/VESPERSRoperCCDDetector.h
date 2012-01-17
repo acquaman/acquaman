@@ -46,8 +46,6 @@ public:
 	// Getters that aren't included in the info.  These are convenience functions that grab the current value from the control.
 	//////////////////////////////////////////////////
 
-	/// Returns the remaining time that the detector will spend acquiring.
-	double timeRemaining() const { return timeRemainingControl_->value(); }
 	/// Returns the temperature.  This returns the value from the control.
 	virtual double acquireTime() const { return temperatureControl_->value(); }
 	/// Returns the current image mode.
@@ -60,6 +58,10 @@ public:
 	virtual double temperature() const { return temperatureControl_->value(); }
 	/// Returns whether the detector is currently acquiring.
 	bool isAcquiring() const { return operationControl_->value() == 1 ? true : false; }
+	/// Returns whether autosave is enabled for the detector.
+	bool autoSaveEnabled() const { return autoSaveControl_->value() == 1 ? true : false; }
+	/// Returns whether the file is being saved.
+	bool fileBeingSaved() const { return saveFileControl_->isMoving(); }
 
 	// End of getters that aren't included in the info.
 	/////////////////////////////////////////////////////
@@ -69,6 +71,8 @@ signals:
 	void connected(bool);
 	/// Notifier that the temperature has changed.
 	void temperatureChanged(double);
+	/// Notifier that the temperature setpoint has changed.
+	void temperatureSetpointChanged(double);
 	/// Notifier that the acquire time has changed.
 	void acquireTimeChanged(double);
 	/// Notifier that the image mode has changed.
@@ -77,10 +81,12 @@ signals:
 	void triggerModeChanged(VESPERSRoperCCDDetector::TriggerMode);
 	/// Notifier that the detector state has changed.
 	void stateChanged(VESPERSRoperCCDDetector::State);
-	/// Notifier that the time remaining has changed.
-	void timeRemainingChanged(double);
 	/// Notifier that the status of the detector has changed.
 	void isAcquiringChanged(bool);
+	/// Notifier that the autosave status of the detector has changed.
+	void autoSaveEnabledChanged(bool);
+	/// Notifier of the current state for saving a file.
+	void saveFileStateChanged(bool);
 
 	/// Notifier that the CCD path has changed.
 	void ccdPathChanged(QString);
@@ -111,6 +117,10 @@ public slots:
 	void start() { operationControl_->move(1); }
 	/// Stops the detector.
 	void stop() { operationControl_->move(0); }
+	/// Sets the state for the autosave status for the detector.
+	void setAutoSaveEnabled(bool enable) { autoSaveControl_->move((enable == true) ? 1 : 0); }
+	/// Sends the signal to save the current image to the current file path + name + number combo.
+	void saveFile() { saveFileControl_->move(1); }
 
 	/// Sets the CCD file path.
 	void setCCDPath(QString path) { StringtoAMPV(ccdPath_, path); }
@@ -128,6 +138,10 @@ protected slots:
 	void onStateChanged() { emit stateChanged(state()); }
 	/// Helper slot that emits whether the detector is acquiring or not.
 	void onIsAcquiringChanged() { emit isAcquiringChanged(isAcquiring()); }
+	/// Helper slot that emits whether the detector has autosave enabled or not.
+	void onAutoSaveEnabledChanged() { emit autoSaveEnabledChanged(autoSaveEnabled()); }
+	/// Helper slot that emits the current status of writing a file.
+	void onSaveFileStateChanged() { emit saveFileStateChanged(fileBeingSaved()); }
 
 	/// Handles the CCD path update.
 	void onCCDPathChanged() { emit ccdPathChanged(AMPVtoString(ccdPath_)); }
@@ -152,8 +166,10 @@ protected:
 	AMControl *stateControl_;
 	/// Control for the exposure time.
 	AMControl *acquireTimeControl_;
-	/// Control for the time remaining.
-	AMControl *timeRemainingControl_;
+	/// Control for setting whether or not the files should be autosaved.
+	AMControl *autoSaveControl_;
+	/// Control for saving the current file.
+	AMControl *saveFileControl_;
 
 	// Various CCD file path PVs.
 	/// PV holding the path to the files.

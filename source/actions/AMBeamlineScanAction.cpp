@@ -42,6 +42,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *parent) :
 	AMBeamlineActionItem(true, parent)
 {
+	scanID_ = -1;
 	cfg_ = cfg;
 	lastSampleDescription_ = "<Unknown Sample>";
 	exemplar_.setSampleName(lastSampleDescription_);
@@ -52,6 +53,7 @@ AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *pa
 	exportNameDictionary_->setOperatingOnExportName(true);
 	if(cfg_){
 		connect(cfg_, SIGNAL(configurationChanged()), this, SLOT(onConfigurationChanged()));
+		connect(cfg_, SIGNAL(destroyed()), this, SLOT(onConfigurationDestroyed()));
 		setDescription(cfg_->description()+" on "+lastSampleDescription_);
 		nameDictionary_->parseKeywordStringAndOperate(cfg_->userScanName());
 		if(cfg_->autoExportEnabled())
@@ -72,6 +74,36 @@ AMBeamlineActionItemView* AMBeamlineScanAction::createView(int index){
 AMBeamlineActionItem* AMBeamlineScanAction::createCopy() const{
 	if(cfg_)
 		return new AMBeamlineScanAction(cfg_->createCopy());
+	else{
+		// turn off automatic raw-day loading for scans... This will make loading the scan to access it's config much faster.
+		bool scanAutoLoadingOn = AMScan::autoLoadData();
+		AMScan::setAutoLoadData(false);
+		// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
+		AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(AMDatabase::database("user"), AMDbObjectSupport::s()->tableNameForClass<AMScan>(), scanID_);
+		if(!dbo)
+			return 0; //NULL
+		// restore AMScan's auto-loading of data to whatever it was before.
+		AMScan::setAutoLoadData(scanAutoLoadingOn);
+		// Is it a scan?
+		AMScan* scan = qobject_cast<AMScan*>( dbo );
+		if(!scan) {
+			delete dbo;
+			return 0; //NULL
+		}
+		// Does the scan have a configuration?
+		AMScanConfiguration* config = scan->scanConfiguration();
+		if(!config) {
+			delete scan;
+			return 0; //NULL
+		}
+		// need to create a copy of the config so we can delete the scan (and hence the config instance owned by the scan). The view will take ownership of the copy.
+		config = config->createCopy();
+		delete scan;
+		if(!config)
+			return 0; //NULL
+		cfg_ = config;
+		return new AMBeamlineScanAction(cfg_->createCopy());
+	}
 	return 0;//NULL
 }
 
@@ -259,6 +291,8 @@ void AMBeamlineScanAction::onScanStarted(){
 				AMBEAMLINEACTIONITEM_CANT_SAVE_TO_DB,
 				"Error, could not save scan to database. Please report this bug to the Acquaman developers."));
 	}
+	else
+		scanID_ = ctrl_->scan()->id();
 }
 
 void AMBeamlineScanAction::onScanCancelled(){
@@ -271,11 +305,8 @@ void AMBeamlineScanAction::onScanSucceeded(){
 	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Completed "+AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())+"]");
 	emit descriptionChanged();
 	setSucceeded(true);
-	qDebug() << "Checking for scan's database";
 	if(ctrl_->scan()->database()){
-		qDebug() << "About to save scan";
 		bool saveSucceeded = ctrl_->scan()->storeToDb(ctrl_->scan()->database());
-		qDebug() << "Just saved scan";
 		if(saveSucceeded && cfg_->autoExportEnabled()){
 			QList<AMScan*> toExport;
 			toExport << ctrl_->scan();
@@ -317,6 +348,11 @@ void AMBeamlineScanAction::onScanSucceeded(){
 			exportController->start();
 		}
 	}
+	else
+		AMErrorMon::report(AMErrorReport(this,
+						 AMErrorReport::Alert,
+						 AMBEAMLINEACTIONITEM_NO_DATABASE_FOR_SCAN,
+						 "Error, the scan isn't connected to any database. Please report this bug to the Acquaman developers."));
 }
 
 void AMBeamlineScanAction::onScanFailed(){
@@ -330,6 +366,10 @@ void AMBeamlineScanAction::onBeamlineScanningChanged(bool isScanning){
 void AMBeamlineScanAction::onConfigurationChanged(){
 	setDescription(cfg_->description()+" on "+lastSampleDescription_);
 	emit descriptionChanged();
+}
+
+void AMBeamlineScanAction::onConfigurationDestroyed(){
+	cfg_ = 0;
 }
 
 AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAction, int index, QWidget *parent) :

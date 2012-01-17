@@ -23,8 +23,6 @@ public:
 protected slots:
 	/// Slot used to switch the icon on the currently acquiring indicator.
 	void onIsAcquiringChanged(bool isAcquiring) { isAcquiring_->setPixmap(QIcon(isAcquiring == true ? ":/ON.png" : ":/OFF.png").pixmap(25)); }
-	/// Slot used to update the time remaining label.
-	void onTimeRemainingChanged(double time) { timeRemaining_->setText(QString::number(time, 'g', 2)+" s"); }
 	/// Slot used to update the state label.
 	void onStateChanged(VESPERSRoperCCDDetector::State newState);
 	/// Slot used to set the acquire time on the detector.
@@ -39,6 +37,14 @@ protected slots:
 	void onImageModeChanged(VESPERSRoperCCDDetector::ImageMode mode);
 	/// Slot used to set the image mode on the detector.
 	void setImageMode(int newMode);
+	/// Slot used to set the temperature setpoint.
+	void setTemperature() { if (temperatureSetpoint_->value() != detector_->temperature()) detector_->setTemperature(temperatureSetpoint_->value()); }
+	/// Slot used to set the temperature feedback.
+	void onTemperatureChanged(double temp) { temperatureFeedback_->setText(QString::number(temp, 'g', 3) + QString::fromUtf8(" °C")); }
+	/// Slot used to set the autosave setting on the detector.
+	void setAutoSave(int autoSave);
+	/// Slot used to update the autosave combo box.
+	void onAutoSaveChanged(bool autoSave);
 	/// Used to set the CCD Path when it changes from the program.
 	void ccdPathEdited()
 	{
@@ -64,8 +70,6 @@ protected:
 
 	/// Label holding the isAcquiring state.
 	QLabel *isAcquiring_;
-	/// Label holding the current time remaining.
-	QLabel *timeRemaining_;
 	/// Spin box holding the acquire time.
 	QDoubleSpinBox *acquireTime_;
 	/// Combo box holding the trigger mode.
@@ -74,6 +78,12 @@ protected:
 	QComboBox *imageMode_;
 	/// Label holding the current state.
 	QLabel *state_;
+	/// Spin box holding the temperature setpoint for the detector.
+	QDoubleSpinBox *temperatureSetpoint_;
+	/// Label holding the feedback value for the temperature.
+	QLabel *temperatureFeedback_;
+	/// Combo box holding the autosave options.
+	QComboBox *autoSaveComboBox_;
 
 	// CCD setup things.
 	/// CCD file path line edit.

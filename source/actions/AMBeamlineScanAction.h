@@ -40,6 +40,7 @@ class QToolButton;
 #define AMBEAMLINEACTIONITEM_CANT_CREATE_EXPORT_FOLDER 27107
 #define AMBEAMLINEACTIONITEM_NO_REGISTERED_EXPORTER 27108
 #define AMBEAMLINEACTIONITEM_NO_REGISTERED_EXPORTER_OPTION 27109
+#define AMBEAMLINEACTIONITEM_NO_DATABASE_FOR_SCAN 27110
 
 class AMScanExemplarDictionary;
 #include "dataman/AMScanExemplar.h"
@@ -93,9 +94,13 @@ protected slots:
 	virtual void onBeamlineScanningChanged(bool isScanning);
 	virtual void onConfigurationChanged();
 
+	virtual void onConfigurationDestroyed();
+
 protected:
-	AMScanConfiguration *cfg_;
+	mutable AMScanConfiguration *cfg_;
 	AMScanController *ctrl_;
+	/// Used to retrieve the scan from the database if necessary
+	int scanID_;
 	bool keepOnCancel_;
 	QString lastSampleDescription_;
 
