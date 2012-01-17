@@ -7,7 +7,7 @@ class CLSSIS3820ScalerChannel;
 class AMBeamlineActionItem;
 
 /*!
-  Builds an abstraction for the SIS 3820 scalar used throughout the CLS.  It takes in a base name of the PV's and builds all the PV's
+  Builds an abstraction for the SIS 3820 scaler used throughout the CLS.  It takes in a base name of the PV's and builds all the PV's
   and makes the necessary connections.
   */
 class CLSSIS3820Scaler : public QObject
@@ -19,32 +19,32 @@ public:
 	/// Constructor.  Takes the baseName of the PV's as parameters.
 	CLSSIS3820Scaler(const QString &baseName, QObject *parent = 0);
 
-	/// Returns whether the scalar is all connected.
+	/// Returns whether the scaler is all connected.
 	bool isConnected() const;
 
-	/// Returns whether the scalar is currently scanning.
+	/// Returns whether the scaler is currently scanning.
 	bool isScanning() const;
-	/// Returns whether the scalar is set to be in continuous mode or single shot mode.
+	/// Returns whether the scaler is set to be in continuous mode or single shot mode.
 	bool isContinuous() const;
 	/// Return the current dwell time.  Returns the value in seconds.
 	double dwellTime() const;
 	/// Returns the number of scans per buffer.
 	int scansPerBuffer() const;
-	/// Returns the total number of scans the scalar will do.
+	/// Returns the total number of scans the scaler will do.
 	int totalScans() const;
-	/// Returns a vector of all of the readings for the scalar.
+	/// Returns a vector of all of the readings for the scaler.
 	QVector<int> reading() const;
 
-	/// Returns the individual scalar channel provided by \param index.
+	/// Returns the individual scaler channel provided by \param index.
 	CLSSIS3820ScalerChannel* channelAt(int index);
 	/// Returns the list of all the channels.
 	AMOrderedList<CLSSIS3820ScalerChannel*> channels();
 
-	/// Creates an action to start the scalar to \param setScanning.
+	/// Creates an action to start the scaler to \param setScanning.
 	AMBeamlineActionItem* createStartAction(bool setScanning);
 	/// Creates an action to enable continuous mode or enable single shot mode.
 	AMBeamlineActionItem* createContinuousEnableAction(bool enableContinuous);
-	/// Creates an action to set the dwell time of the scalar to \param dwellTime.
+	/// Creates an action to set the dwell time of the scaler to \param dwellTime.
 	AMBeamlineActionItem* createDwellTimeAction(double dwellTime);
 	/// Creates an action that sets the number of scans per buffer to \param scansPerBuffer.
 	AMBeamlineActionItem* createScansPerBufferAction(int scansPerBuffer);
@@ -52,11 +52,11 @@ public:
 	AMBeamlineActionItem* createTotalScansAction(int totalScans);
 
 public slots:
-	/// Sets the scalar to be scanning or not.
+	/// Sets the scaler to be scanning or not.
 	void setScanning(bool isScanning);
-	/// Sets the mode of the scalar to either continuous or single shot.
+	/// Sets the mode of the scaler to either continuous or single shot.
 	void setContinuous(bool isContinuous);
-	/// Sets the dwell time for the scalar.
+	/// Sets the dwell time for the scaler.
 	void setDwellTime(double dwellTime);
 	/// Sets the number of scans per buffer.
 	void setScansPerBuffer(int scansPerBuffer);
@@ -74,32 +74,34 @@ signals:
 	void scansPerBufferChanged(int scansPerBuffer);
 	/// Notifier that the total number of scans have changed.  Returns the new total.
 	void totalScansChanged(int totalScans);
-	/// Notifier that the scalar readings have changed.
+	/// Notifier that the scaler readings have changed.
 	void readingChanged();
-	/// Notifier that the overall state of the scalar is connected or not.
+	/// Notifier that the overall state of the scaler is connected or not.
 	void connectedChanged(bool isConnected);
 
 protected slots:
 	/// Helper slot that handles changes in the scanning status.
 	void onScanningToggleChanged();
-	/// Helper slot that handles changes to the mode of the scalar.
+	/// Helper slot that handles changes to the mode of the scaler.
 	void onContinuousToggleChanged();
+	/// Helper slot that handles emitting the dwell time changed but in seconds rather than milliseconds.
+	void onDwellTimeChanged(double time);
 	/// Helper slot that emits the number of scans per buffer.
 	void onScanPerBufferChanged(double scansPerBuffer);
 	/// Helper slot that emits the number of total scans.
 	void onTotalScansChanged(double totalScans);
-	/// Helper slot that handles emitting the connectivity of the scalar.
+	/// Helper slot that handles emitting the connectivity of the scaler.
 	void onConnectedChanged();
 
 protected:
-	/// List that holds all of the individual scalar channels.
+	/// List that holds all of the individual scaler channels.
 	AMOrderedList<CLSSIS3820ScalerChannel*> scalerChannels_;
 
 	/// Control that handles changing the scanning status.
 	AMControl *startToggle_;
-	/// Control that handles setting the mode of the scalar.
+	/// Control that handles setting the mode of the scaler.
 	AMControl *continuousToggle_;
-	/// Controls the dwell time of the scalar.
+	/// Controls the dwell time of the scaler.
 	AMControl *dwellTime_;
 	/// Controls the number of scans per buffer.
 	AMControl *scanPerBuffer_;
@@ -111,11 +113,11 @@ protected:
 	/// A control set that holds all of the above controls.
 	AMControlSet *allControls_;
 
-	/// Flag that holds whether the scalar has ever been connected to the beamline.
+	/// Flag that holds whether the scaler has ever been connected to the beamline.
 	bool connectedOnce_;
 };
 
-/// This class is an abstraction of an individual channel for the scalar class.
+/// This class is an abstraction of an individual channel for the scaler class.
 class CLSSIS3820ScalerChannel : public QObject
 {
 
@@ -131,6 +133,8 @@ public:
 	bool isEnabled() const;
 	/// Returns the current value of the channel.
 	int reading() const;
+	/// Returns the index of this channel.
+	int index() const { return index_; }
 
 	/// Creates an action that will enable/disable the channel based on \param setEnabled.
 	AMBeamlineActionItem* createEnableAction(bool setEnabled);
@@ -144,8 +148,6 @@ signals:
 	void enabledChanged(bool isEnabled);
 	/// Notifier that the current reading of the channel has changed.  Passes the new reading.
 	void readingChanged(int reading);
-	/// Notifier that the current reading changed but passed as a string.
-	void readingChanged(const QString &reading);
 	/// Notifier that the connectivity of the channel has changed.  Passes the new state.
 	void connected(bool isConnected);
 
@@ -156,6 +158,9 @@ protected slots:
 	void onChannelReadingChanged(double reading);
 
 protected:
+	/// Index of this scaler channel.
+	int index_;
+
 	/// Control that handles the enabled flag of the individual channel.
 	AMControl *channelEnable_;
 	/// Control that handles reading the value of the channel.

@@ -38,6 +38,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSplitIonChamber.h"
 #include "beamline/CLS/CLSVariableIntegrationTime.h"
 #include "beamline/VESPERS/VESPERSRoperCCDDetector.h"
+#include "beamline/CLS/CLSSIS3820Scaler.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -134,6 +135,12 @@ public:
 	CLSVariableIntegrationTime *variableIntegrationTime() const { return variableIntegrationTime_; }
 
 	// End of variable integration time.
+
+	// The scaler.
+	/// Returns the scaler.
+	CLSSIS3820Scaler *scaler() const { return scaler_; }
+
+	// End of scaler.
 
 	// The photon and safety shutters.
 	/// Returns the first photon shutter.
@@ -563,6 +570,9 @@ protected:
 
 	// Variable integration time.
 	CLSVariableIntegrationTime *variableIntegrationTime_;
+
+	// Scaler.
+	CLSSIS3820Scaler *scaler_;
 
 	// The shutters.
 	AMControl *psh1_;

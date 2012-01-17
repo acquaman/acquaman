@@ -13,7 +13,7 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 	for(int x = 0; x < 32; x++){
 		tmpChannel = new CLSSIS3820ScalerChannel(baseName, x, this);
 		scalerChannels_.append(tmpChannel);
-		connect(tmpChannel, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged(bool)));
+		connect(tmpChannel, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 	}
 
 	startToggle_ = new AMPVControl("Start/Scanning", baseName+":startScan", baseName+":startScan", QString(), this, 0.1);
@@ -34,7 +34,7 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 
 	connect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(onScanningToggleChanged()));
 	connect(continuousToggle_, SIGNAL(valueChanged(double)), this, SLOT(onContinuousToggleChanged()));
-	connect(dwellTime_, SIGNAL(valueChanged(double)), this, SIGNAL(dwellTimeChanged(double)));
+	connect(dwellTime_, SIGNAL(valueChanged(double)), this, SLOT(onDwellTimeChanged(double)));
 	connect(scanPerBuffer_, SIGNAL(valueChanged(double)), this, SLOT(onScanPerBufferChanged(double)));
 	connect(totalScans_, SIGNAL(valueChanged(double)), this, SLOT(onTotalScansChanged(double)));
 	connect(reading_, SIGNAL(valueChanged(double)), this, SIGNAL(readingChanged()));
@@ -70,7 +70,7 @@ bool CLSSIS3820Scaler::isContinuous() const{
 double CLSSIS3820Scaler::dwellTime() const{
 
 	if(isConnected())
-		return dwellTime_->value();
+		return dwellTime_->value()/1000;
 
 	return -1;
 }
@@ -147,7 +147,7 @@ AMBeamlineActionItem* CLSSIS3820Scaler::createDwellTimeAction(double dwellTime) 
 	if(!action)
 		return 0; //NULL
 
-	action->setSetpoint(dwellTime);
+	action->setSetpoint(dwellTime*1000);
 
 	return action;
 }
@@ -211,8 +211,8 @@ void CLSSIS3820Scaler::setDwellTime(double dwellTime){
 	if(!isConnected())
 		return;
 
-	if(!dwellTime_->withinTolerance(dwellTime))
-		dwellTime_->move(dwellTime);
+	if(!dwellTime_->withinTolerance(dwellTime*1000))
+		dwellTime_->move(dwellTime*1000);
 }
 
 void CLSSIS3820Scaler::setScansPerBuffer(int scansPerBuffer){
@@ -257,6 +257,14 @@ void CLSSIS3820Scaler::onContinuousToggleChanged(){
 		emit continuousChanged(false);
 }
 
+void CLSSIS3820Scaler::onDwellTimeChanged(double time)
+{
+	if (!isConnected())
+		return;
+
+	emit dwellTimeChanged(time/1000);
+}
+
 void CLSSIS3820Scaler::onScanPerBufferChanged(double scansPerBuffer){
 
 	if(!isConnected())
@@ -267,8 +275,8 @@ void CLSSIS3820Scaler::onScanPerBufferChanged(double scansPerBuffer){
 
 void CLSSIS3820Scaler::onTotalScansChanged(double totalScans){
 
-	if(!isConnected())
-		return;
+//	if(!isConnected())
+//		return;
 
 	emit totalScansChanged((int)totalScans);
 }
@@ -289,6 +297,8 @@ CLSSIS3820ScalerChannel::CLSSIS3820ScalerChannel(const QString &baseName, int in
 	QObject(parent)
 {
 	QString fullBaseName = QString("%1%2").arg(baseName).arg(index, 2, 10, QChar('0'));
+
+	index_ = index;
 
 	channelEnable_ = new AMPVControl(QString("Channel%1Enable").arg(index), fullBaseName+":enable", fullBaseName+":enable", QString(), this, 0.1);
 	channelReading_ = new AMReadOnlyPVControl(QString("Channel%1Reading").arg(index), fullBaseName+":fbk", this);
@@ -351,5 +361,4 @@ void CLSSIS3820ScalerChannel::onChannelEnabledChanged(){
 void CLSSIS3820ScalerChannel::onChannelReadingChanged(double reading){
 
 	emit readingChanged((int)reading);
-	emit readingChanged(QString::number(reading));
 }
