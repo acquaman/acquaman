@@ -306,15 +306,12 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 	}
 
 
-	// Thumbnail save
+	// Thumbnail save (if we're supposed to do it in this thread)
 	///////////////////////////////////////////
 
-	if(generateThumbnails && thumbnailCount() > 0) {
-		if(shouldGenerateThumbnailsInSeparateThread())
-			QtConcurrent::run(&AMDbObject::updateThumbnailsInSeparateThread, db, id_, myInfo->tableName, neverSavedHere);
-		else
-			updateThumbnailsInCurrentThread(neverSavedHere);
-	}
+	if(generateThumbnails && thumbnailCount() > 0 && !shouldGenerateThumbnailsInSeparateThread())
+		updateThumbnailsInCurrentThread(neverSavedHere);
+
 	// NOTE: currently there are a few situations where we are "leaking" thumbnails: leaving old stale thumbnails in the database. Ex: When the thumbnailCount() was non-zero on a previous save to this database, and is now 0. Or when the thumbnailCount() was non-zero on a previous save to the database, and generateThumbnails has been forced to false this time. That's not such a big deal... they're not referenced by anything, and they'll get removed next time we store valid thumbnails.
 
 	// finalizing... Commit the transaction if we opened it.
@@ -323,6 +320,9 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			// we were just stored to the database, so our properties must be in sync with it.
 			setModified(false);
 			qDebug() << "Finished save of " << myInfo->className << "in" << saveTime.elapsed() << "ms; transaction committed.";
+			if(shouldGenerateThumbnailsInSeparateThread() && generateThumbnails && thumbnailCount() > 0) {
+				QtConcurrent::run(&AMDbObject::updateThumbnailsInSeparateThread, db, id_, myInfo->tableName, neverSavedHere);
+			}
 			return true;
 		}
 		else {
@@ -336,6 +336,9 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 		qDebug() << "Finished save of " << myInfo->className << "in" << saveTime.elapsed() << "ms;  not closing transaction.";
 		// we were just stored to the database, so our properties must be in sync with it.
 		setModified(false);
+		if(shouldGenerateThumbnailsInSeparateThread() && generateThumbnails && thumbnailCount() > 0) {
+			QtConcurrent::run(&AMDbObject::updateThumbnailsInSeparateThread, db, id_, myInfo->tableName, neverSavedHere);
+		}
 		return true;
 	}
 }
@@ -401,6 +404,8 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 			QStringList clist;  clist << "id2" << "table2";
 			for(int r=0; r<storedObjectRows.count(); r++) {
 				QVariantList objectLocation = db->retrieve(storedObjectRows.at(r), auxTableName, clist);
+				if(objectLocation.isEmpty())
+					return false;
 				QString objectTable = objectLocation.at(1).toString();
 				int objectId = objectLocation.at(0).toInt();
 				storedObjectTables << objectTable;
@@ -539,6 +544,8 @@ void AMDbObject::dissociateFromDb(bool shouldDissociateChildren)
 }
 
 void AMDbObject::updateThumbnailsInSeparateThread(AMDatabase *db, int id, const QString& dbTableName, bool neverSavedHereBefore) {
+
+	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -313, "Storing AMScan thumbnail in separate thread..."));
 
 	// Step 1: try to load the object.
 	AMDbObject* object = AMDbObjectSupport::s()->createAndLoadObjectAt(db, dbTableName, id);

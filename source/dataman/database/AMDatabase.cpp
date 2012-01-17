@@ -137,7 +137,7 @@ int AMDatabase::insertOrUpdate(int id, const QString& table, const QStringList& 
 		query.bindValue(i+1, values.at(i));
 
 	// Run query. Query failed?
-	if(!query.exec()) {
+	if(!execQuery(query)) {
 		query.finish();	// make sure that sqlite lock is released before emitting signals
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("database save failed. Could not execute query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
 		return 0;
@@ -186,7 +186,7 @@ bool AMDatabase::update(int id, const QString& table, const QString& column, con
 	query.bindValue(1, QVariant(id));
 
 	// Run query. Query failed?
-	if(!query.exec()) {
+	if(!execQuery(query)) {
 		query.finish();	// make sure that sqlite lock is released before emitting signals
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("database update failed. Could not execute query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
 		return false;
@@ -227,7 +227,7 @@ bool AMDatabase::update(int id, const QString& table, const QStringList& columns
 	query.bindValue(i, QVariant(id));
 
 	// Run query. Query failed?
-	if(!query.exec()) {
+	if(!execQuery(query)) {
 		query.finish();	// make sure that sqlite lock is released before emitting signals
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("database update failed. Could not execute query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
 		return false;
@@ -263,7 +263,7 @@ bool AMDatabase::update(const QString& tableName, const QString& whereClause, co
 	query.bindValue(0, dataValue);
 
 	// Run query. Query failed?
-	if(!query.exec()) {
+	if(!execQuery(query)) {
 		query.finish();	// make sure that sqlite lock is released before emitting signals
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("Failed to update the database. Could not execute the query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
 		return false;
@@ -299,7 +299,7 @@ bool AMDatabase::deleteRow(int id, const QString& tableName) {
 	query.bindValue(0, id);
 
 	// Run query. Query failed?
-	if(!query.exec()) {
+	if(!execQuery(query)) {
 		query.finish();	// make sure that sqlite lock is released before emitting signals
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("Failed to delete the database object. Could not execute the query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
 		return false;
@@ -332,7 +332,7 @@ int AMDatabase::deleteRows(const QString& tableName, const QString& whereClause)
 	query.prepare(QString("DELETE FROM %1 WHERE %2").arg(tableName).arg(whereClause));
 
 	// Run query. Query failed?
-	if(!query.exec()) {
+	if(!execQuery(query)) {
 		query.finish();	// make sure that sqlite lock is released before emitting signals
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("Failed to delete the database object(s). Could not execute the query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
 		return 0;
@@ -377,7 +377,7 @@ QVariantList AMDatabase::retrieve(int id, const QString& table, const QStringLis
 	q.bindValue(0,id);
 
 	// run query. Did it succeed?
-	if(!q.exec()) {
+	if(!execQuery(q)) {
 		q.finish();	// make sure that sqlite lock is released before emitting signals
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, QString("database retrieve failed. Could not execute query (%1). The SQL reply was: %2").arg(q.executedQuery()).arg(q.lastError().text())));
 		return values;
@@ -411,7 +411,7 @@ QVariant AMDatabase::retrieve(int id, const QString& table, const QString& colNa
 	q.bindValue(0,id);
 
 	// run query. Did it succeed?
-	if(!q.exec()) {
+	if(!execQuery(q)) {
 		q.finish();	// make sure that sqlite lock is released before emitting signals
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, QString("database retrieve failed. Could not execute query (%1). The SQL reply was: %2").arg(q.executedQuery()).arg(q.lastError().text())));
 		return false;
@@ -447,7 +447,7 @@ QList<int> AMDatabase::objectsWhere(const QString& tableName, const QString& whe
 		query.append(" WHERE ").append(whereClause);
 
 	q.prepare(query);
-	q.exec();
+	execQuery(q);
 
 	while(q.next()) {
 		rl << q.value(0).toInt();
@@ -483,7 +483,7 @@ QList<int> AMDatabase::objectsMatching(const QString& tableName, const QString& 
 		q.prepare(QString("SELECT id FROM %1 WHERE %2 = ?").arg(tableName).arg(colName));
 		q.bindValue(0, value);
 	}
-	q.exec();
+	execQuery(q);
 
 	while(q.next()) {
 		rl << q.value(0).toInt();
@@ -512,7 +512,7 @@ QList<int> AMDatabase::objectsContaining(const QString& tableName, const QString
 	q.prepare(QString("SELECT id FROM %1 WHERE %2 LIKE ('%' || :val || '%')").arg(tableName).arg(colName));
 
 	q.bindValue(":val", value);
-	q.exec();
+	execQuery(q);
 
 	while(q.next()) {
 		rl << q.value(0).toInt();
@@ -549,7 +549,8 @@ bool AMDatabase::ensureTable(const QString& tableName, const QStringList& column
 	qs.chop(2);
 	qs.append(")");
 
-	if(q.exec(qs)) {
+	q.prepare(qs);
+	if(execQuery(q)) {
 		return true;
 	}
 	else {
@@ -567,7 +568,7 @@ bool AMDatabase::ensureColumn(const QString& tableName, const QString& columnNam
 
 	q.prepare(QString("ALTER TABLE %1 ADD COLUMN %2 %3;").arg(tableName).arg(columnName).arg(columnType));
 
-	if(q.exec()) {
+	if(execQuery(q)) {
 		q.finish();
 		// Error suppressed: this happens all the time if the column exists alread. AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Adding database column %1 to table %2.").arg(columnName).arg(tableName)));
 		return true;
@@ -584,7 +585,7 @@ bool AMDatabase::createIndex(const QString& tableName, const QString& columnName
 	QString indexName = QString("idx_%1_%2").arg(tableName, columnNames);
 	indexName.remove(QRegExp("[\\s\\,\\;]"));// remove whitespace, commas, and semicolons from index name...
 	q.prepare(QString("CREATE INDEX %1 ON %2(%3);").arg(indexName, tableName, columnNames));
-	if(q.exec()) {
+	if(execQuery(q)) {
 		q.finish();
 		return true;
 	}
@@ -623,7 +624,7 @@ QSqlDatabase AMDatabase::qdb() const
 	else {
 		QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", QString("%1%2").arg(connectionName_).arg((qulonglong)threadId));
 		db.setDatabaseName(dbAccessString_);
-		db.setConnectOptions("QSQLITE_BUSY_TIMEOUT=10000");
+		db.setConnectOptions("QSQLITE_BUSY_TIMEOUT=10");
 
 		bool ok = db.open();
 		if(!ok) {
@@ -634,28 +635,51 @@ QSqlDatabase AMDatabase::qdb() const
 	}
 }
 
+#include <QTime>
+#include <QDebug>
+
 bool AMDatabase::startTransaction()
 {
-	QMutexLocker ml(&qdbMutex_);
 	bool success = qdb().transaction();
-	if(success)
+	if(success) {
+		qdbMutex_.lock();
 		transactionOpenOnThread_.insert(QThread::currentThreadId());
+		qdbMutex_.unlock();
+	}
 	return success;
 }
 
 bool AMDatabase::commitTransaction()
 {
-	QMutexLocker ml(&qdbMutex_);
-	bool success = qdb().commit();
+	QTime startTime;
+	startTime.start();
+
+	bool success;
+	int attempt = 0;
+	do {
+		success = qdb().commit();
+		attempt++;
+		if(!success)
+			usleep(5000);
+	} while (!success && startTime.elapsed() < 5000);
+
+	qdbMutex_.lock();
 	transactionOpenOnThread_.remove(QThread::currentThreadId());
+	qdbMutex_.unlock();
+
+	if(attempt > 1)
+		qDebug() << "*** Commit required " << attempt << "tries.  Did succeed:" << success;
 	return success;
 }
 
 bool AMDatabase::rollbackTransaction()
 {
-	QMutexLocker ml(&qdbMutex_);
 	bool success = qdb().rollback();
+
+	qdbMutex_.lock();
 	transactionOpenOnThread_.remove(QThread::currentThreadId());
+	qdbMutex_.unlock();
+
 	return success;
 }
 
@@ -669,4 +693,27 @@ bool AMDatabase::transactionInProgress() const
 bool AMDatabase::supportsTransactions() const
 {
 	return qdb().driver()->hasFeature(QSqlDriver::Transactions);
+}
+
+
+bool AMDatabase::execQuery(QSqlQuery &query, int timeoutMs)
+{
+	QTime startTime;
+	startTime.start();
+
+	bool rv;
+	int lastErrorNumber;
+	int attempt = 0;
+	do {
+		rv = query.exec();
+		lastErrorNumber = query.lastError().number();
+		attempt++;
+		if(lastErrorNumber == 5)
+			usleep(5000);
+	} while(rv != true && startTime.elapsed() < timeoutMs && (lastErrorNumber == 5));
+
+	if(attempt != 1)
+		qDebug() << "!!! Query required " << attempt << "tries to exec. Did succeed = " << rv;
+
+	return rv;
 }

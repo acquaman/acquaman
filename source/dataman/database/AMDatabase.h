@@ -81,6 +81,10 @@ The parameters by which to access the database are given in \c dbAccessString. (
 	}
 
 
+	/// Contrary to what the docs say, the QSQLiteDriver never re-tries a query when the database was busy/locked. This is a function you can use instead of QSqlQuery::exec() that will block while re-trying automatically whenever it fails due to a busy error, up to a maximum timeout of \c timeoutMs milliseconds.
+	static bool execQuery(QSqlQuery& query, int timeoutMs = 5000);
+
+
 	// Instance Functions
 	///////////////////////////
 

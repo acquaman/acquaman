@@ -458,7 +458,7 @@ bool AMDbObjectSupport::isUpgradeRequiredForClass(AMDatabase* db, const AMDbObje
 
 	QSqlQuery q = db->query();
 	q.prepare("SELECT columnName FROM " % allColumnsTableName() % " WHERE typeId = '" % QString::number(typeIdInDatabase) % "';");
-	if(!q.exec()) {
+	if(!AMDatabase::execQuery(q)) {
 		q.finish();
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -205, QString("Database support: There was an error while trying to check if the class '%1' in the database needs an upgrade.").arg(info.className)));
 		return false;
@@ -478,13 +478,13 @@ bool AMDbObjectSupport::isUpgradeRequiredForClass(AMDatabase* db, const AMDbObje
 			QString auxTableName = info.tableName % "_" % info.columns.at(i);
 			// Does SQLite not support the SQL-92 standard INFORMATION_SCHEMA?
 			//				q.prepare("SELECT COUNT(1) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = " % auxTableName % ";");
-			//				q.exec();
+			//				AMDatabase::execQuery(q);
 			//				if(!q.first() || q.value(0).toInt() != 1) {
 			//					return true;
 			//				}
 			// Ok, let's try this way.  This will simply fail if the auxiliary table doesn't exist...
 			q.prepare("SELECT COUNT(1) FROM " % auxTableName % " WHERE 1=0;");	// as high-performance of a query as we can make on that table;
-			if(!q.exec()) {
+			if(!AMDatabase::execQuery(q)) {
 				return true;
 			}
 		}
@@ -507,7 +507,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 	QSet<QString> existingColumns;
 	QSqlQuery q = db->query();
 	q.prepare("SELECT columnName FROM " % allColumnsTableName() % " WHERE typeId = '" % QString::number(typeIdInDatabase) % "';");
-	if(!q.exec()) {
+	if(!AMDatabase::execQuery(q)) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -105, QString("Database support: There was an error while trying to check if the class '%1' in the database needs an upgrade.").arg(info.className)));
 		return false;
 	}
@@ -537,7 +537,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 			QString auxTableName = info.tableName % "_" % info.columns.at(i);
 			// Does the table exist?
 			q.prepare("SELECT COUNT(1) FROM " % auxTableName % " WHERE 1=0;");	// as high-performance of a query as we can make on that table;
-			if(!q.exec()) {	// fails if table doesn't exist.
+			if(!AMDatabase::execQuery(q)) {	// fails if table doesn't exist.
 				q.finish();
 				// therefore, we need to create the table:
 				if( !db->ensureTable(auxTableName,
@@ -588,7 +588,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 					q.prepare(QString("UPDATE %1 SET %2 = ?;").arg(info.tableName).arg(info.columns.at(i)));
 					q.bindValue(0, QVariant(defaultValue));
 
-					if(!q.exec()) {
+					if(!AMDatabase::execQuery(q)) {
 						q.finish();
 						AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -403, QString("AMDbObjectSupport: Could not insert default value '%1' for column '%2'").arg(defaultValue).arg(info.columns.at(i))));
 					}
