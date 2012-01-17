@@ -98,7 +98,8 @@ bool MCPDetector::setFromInfo(const MCPDetectorInfo& info){
 }
 
 bool MCPDetector::activate(){
-	hvCtrl()->move(1600);
+	if(!hvCtrl()->withinTolerance(1600))
+		hvCtrl()->move(1600);
 	return true;
 }
 

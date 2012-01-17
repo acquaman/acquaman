@@ -207,7 +207,7 @@ bool SGMXASScanController::beamlineInitialize(){
 
 	for(int x = 0; x < config_->allDetectors()->count(); x++){
 		if(config_->allDetectorConfigurations().isActiveAt(x)){
-			config_->allDetectors()->detectorAt(x)->setFromInfo(config_->allDetectorConfigurations().detectorInfoAt(x));
+			//config_->allDetectors()->detectorAt(x)->setFromInfo(config_->allDetectorConfigurations().detectorInfoAt(x));
 			config_->allDetectors()->detectorAt(x)->activate();
 			if(config_->allDetectors()->detectorAt(x)->turnOnAction()){
 				qDebug() << "Adding HV turn on to initialization actions";
