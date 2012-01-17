@@ -157,9 +157,9 @@ bool SGMFastScanController::beamlineInitialize(){
 	tmpBAction ? cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpBAction) : cleanupFailed = true;
 	tmpBAction = SGMBeamline::sgm()->scaler()->createContinuousEnableAction(SGMBeamline::sgm()->scaler()->isContinuous());
 	tmpBAction ? cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpBAction) : cleanupFailed = true;
-	tmpBAction = SGMBeamline::sgm()->scaler()->createScansPerBufferAction(SGMBeamline::sgm()->scaler()->scansPerBuffer());
+	tmpBAction = SGMBeamline::sgm()->scaler()->createScansPerBufferAction(SGMBeamline::sgm()->scaler()->isContinuous() ? 1 : SGMBeamline::sgm()->scaler()->scansPerBuffer());
 	tmpBAction ? cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpBAction) : cleanupFailed = true;
-	tmpBAction = SGMBeamline::sgm()->scaler()->createTotalScansAction(SGMBeamline::sgm()->scaler()->totalScans());
+	tmpBAction = SGMBeamline::sgm()->scaler()->createTotalScansAction(SGMBeamline::sgm()->scaler()->isContinuous() ? 1 : SGMBeamline::sgm()->scaler()->totalScans());
 	tmpBAction ? cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpBAction) : cleanupFailed = true;
 
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorFastTracking());
