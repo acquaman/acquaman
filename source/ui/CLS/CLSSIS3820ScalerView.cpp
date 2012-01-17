@@ -18,7 +18,7 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 	if(scaler_ && scaler_->isConnected()){
 
 		// Build the top part.
-		modeButton_ = new QPushButton("Continuous");
+		modeButton_ = new QPushButton("Single Shot");
 		modeButton_->setCheckable(true);
 		modeButton_->setChecked(false);
 		connect(modeButton_, SIGNAL(toggled(bool)), this, SLOT(setContinuous(bool)));
