@@ -82,7 +82,7 @@ protected slots:
 	/// Handles when the z value changes.
 	void onZStateChanged() { emit stateChanged(state()); }
 	/// Handles what happens when the repair action fails.
-	void onRepairFailed() { AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "The PID loop repair has failed.  Either try again or contact the beamline staff")); }
+	void onRepairFailed() { AMErrorMon::alert(this, 0, "The PID loop repair has failed.  Either try again or contact the beamline staff"); }
 
 protected:
 

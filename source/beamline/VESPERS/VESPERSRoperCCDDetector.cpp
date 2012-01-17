@@ -9,7 +9,8 @@ VESPERSRoperCCDDetector::VESPERSRoperCCDDetector(const QString &name, const QStr
 	operationControl_ = new AMSinglePVControl("Operation", "IOC1607-003:det1:Acquire", this, 0.1);
 	stateControl_ = new AMReadOnlyPVControl("State", "IOC1607-003:det1:DetectorState_RBV", this);
 	acquireTimeControl_ = new AMSinglePVControl("Acquire Time", "IOC1607-003:det1:AcquireTime", this, 0.1);
-	timeRemainingControl_ = new AMReadOnlyPVControl("Time Remaining", "IOC1607-003:det1:TimeRemaining_RBV", this);
+	autoSaveControl_ = new AMPVControl("AutoSave", "IOC1607-003:det1:AutoSave_RBV", "IOC1607-003:det1:AutoSave", QString(), this, 0.1);
+	saveFileControl_ = new AMPVwStatusControl("Save File", "IOC1607-003:det1:WriteFile", "IOC1607-003:det1:WriteFile", "IOC1607-003:det1:WriteFile_RBV", QString(), this, 0.1);
 
 	// Various CCD file path PVs.
 	ccdPath_ = new AMProcessVariable("IOC1607-003:det1:FilePath", true, this);
@@ -18,12 +19,14 @@ VESPERSRoperCCDDetector::VESPERSRoperCCDDetector(const QString &name, const QStr
 
 	connect(signalSource(), SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
 	connect(temperatureControl_, SIGNAL(valueChanged(double)), this, SIGNAL(temperatureChanged(double)));
+	connect(temperatureControl_, SIGNAL(setpointChanged(double)), this, SIGNAL(temperatureSetpointChanged(double)));
 	connect(imageModeControl_, SIGNAL(valueChanged(double)), this, SLOT(onImageModeChanged()));
 	connect(triggerModeControl_, SIGNAL(valueChanged(double)), this, SLOT(onTriggerModeChanged()));
 	connect(operationControl_, SIGNAL(valueChanged(double)), this, SLOT(onIsAcquiringChanged()));
 	connect(stateControl_, SIGNAL(valueChanged(double)), this, SLOT(onStateChanged()));
 	connect(acquireTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(acquireTimeChanged(double)));
-	connect(timeRemainingControl_, SIGNAL(valueChanged(double)), this, SIGNAL(timeRemainingChanged(double)));
+	connect(autoSaveControl_, SIGNAL(valueChanged(double)), this, SLOT(onAutoSaveEnabledChanged()));
+	connect(saveFileControl_, SIGNAL(valueChanged(double)), this, SLOT(onSaveFileStateChanged()));
 
 	connect(ccdPath_, SIGNAL(valueChanged()), this, SLOT(onCCDPathChanged()));
 	connect(ccdFile_, SIGNAL(valueChanged()), this, SLOT(onCCDNameChanged()));
@@ -82,7 +85,7 @@ VESPERSRoperCCDDetector::State VESPERSRoperCCDDetector::state() const
 {
 	State detectorState = Idle;
 
-	switch((int)imageModeControl_->value()){
+	switch((int)stateControl_->value()){
 
 	case 0:
 		detectorState = Idle;

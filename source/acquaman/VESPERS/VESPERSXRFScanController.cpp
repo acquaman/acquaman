@@ -139,7 +139,7 @@ void VESPERSXRFScanController::saveData()
 {
 	QFile file(AMUserSettings::userDataFolder + "/" + scan_->filePath());
 	if(!file.open(QIODevice::WriteOnly)) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "Could not save XRF data."));
+		AMErrorMon::error(this, -1, "Could not save XRF data.");
 		return;
 	}
 
