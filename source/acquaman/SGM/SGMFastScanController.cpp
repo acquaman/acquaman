@@ -216,9 +216,9 @@ bool SGMFastScanController::beamlineInitialize(){
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
 	tmpAction->setSetpoint(settings->energyStart());
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerMode());
-	tmpAction->setSetpoint(0);
-	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	tmpBAction = SGMBeamline::sgm()->scaler()->createContinuousEnableAction(false);
+	tmpBAction ? initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpBAction) : cleanupFailed = true;
+
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorStep());
 	tmpAction->setSetpoint(settings->undulatorStartStep());
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);

@@ -89,12 +89,8 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("picoammeterDwellTime", "A1611I1:cont_interval");
 	amNames2pvNames_.set("energyMovingStatus", "BL1611-ID-1:ready");
 	amNames2pvNames_.set("fastShutterVoltage", "PSH16114I1001:V");
-	amNames2pvNames_.set("scalerMode", "BL1611-ID-1:mcs:continuous");
-	amNames2pvNames_.set("scalerStart", "BL1611-ID-1:mcs:startScan");
 	amNames2pvNames_.set("scaler", "BL1611-ID-1:mcs:scan");
 	amNames2pvNames_.set("scalerIntegrationTime", "BL1611-ID-1:mcs:delay");
-	amNames2pvNames_.set("scalerScansPerBuffer", "BL1611-ID-1:mcs:nscan");
-	amNames2pvNames_.set("scalerTotalNumberOfScans", "BL1611-ID-1:mcs:scanCount");
 	amNames2pvNames_.set("gratingVelocity", "SMTR16114I1002:velo");
 	amNames2pvNames_.set("gratingBaseVelocity", "SMTR16114I1002:veloBase");
 	amNames2pvNames_.set("gratingAcceleration", "SMTR16114I1002:accel");
@@ -113,9 +109,6 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("filterPD2Current", "BL1611-ID-1:mcs07:fbk");
 	amNames2pvNames_.set("filterPD3Current", "BL1611-ID-1:mcs08:fbk");
 	amNames2pvNames_.set("filterPD4Current", "BL1611-ID-1:mcs09:fbk");
-
-//	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", "PCT1402-01:mA:fbk", this);
-//	addChildControl(ringCurrent_);
 
 	bool pvNameLookUpFail = false;
 
@@ -464,37 +457,12 @@ void SGMBeamline::usingSGMBeamline(){
 	activeEndstation_ = new AMPVControl("activeEndstation", sgmPVName, sgmPVName, "", this);
 	activeEndstation_->setDescription("Endstation Selection");
 
-	sgmPVName = amNames2pvNames_.valueF("scalerStart");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	scalerStart_ = new AMPVControl("scalerStart", sgmPVName, sgmPVName, "", this, 0.1);
-	scalerStart_->setDescription("Scaler Start");
-	scalerStart_->setContextKnownDescription("Start");
-
 	sgmPVName = amNames2pvNames_.valueF("scalerIntegrationTime");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	scalerIntegrationTime_ = new AMPVControl("scalerIntegrationTime", sgmPVName, sgmPVName, "", this, 0.1);
 	scalerIntegrationTime_->setDescription("Scaler Integration Time");
 	scalerIntegrationTime_->setContextKnownDescription("Integration Time");
-	sgmPVName = amNames2pvNames_.valueF("scalerMode");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	scalerMode_ = new AMPVControl("scalerMode", sgmPVName, sgmPVName, "", this, 0.5);
-	scalerMode_->setDescription("Scaler Mode");
-	scalerMode_->setContextKnownDescription("Mode");
-	sgmPVName = amNames2pvNames_.valueF("scalerTotalNumberOfScans");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	scalerTotalNumberOfScans_ = new AMPVControl("scalerTotalNumberOfScans", sgmPVName, sgmPVName, "", this, 0.5);
-	scalerTotalNumberOfScans_->setDescription("Scaler Number of Scans");
-	scalerTotalNumberOfScans_->setContextKnownDescription("Number of Scans");
-	sgmPVName = amNames2pvNames_.valueF("scalerScansPerBuffer");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	scalerScansPerBuffer_ = new AMPVControl("scalerScansPerBuffer", sgmPVName, sgmPVName, "", this, 0.5);
-	scalerScansPerBuffer_->setDescription("Scaler Scan per Buffer");
-	scalerScansPerBuffer_->setContextKnownDescription("Scans per Buffer");
 
 	sgmPVName = amNames2pvNames_.valueF("detectorSignalSource");
 	if(sgmPVName.isEmpty())
@@ -799,9 +767,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	addChildControl(visibleLightStatus_);
 	connect(visibleLightStatus_, SIGNAL(valueChanged(double)), this, SLOT(onVisibleLightChanged(double)));
 	addChildControl(scalerIntegrationTime_);
-	addChildControl(scalerScansPerBuffer_);
-	addChildControl(scalerTotalNumberOfScans_);
-	addChildControl(scalerMode_);
 	addChildControl(detectorSignalSource_);
 	connect(detectorSignalSource_, SIGNAL(valueChanged(double)), this, SLOT(onDetectorSignalSourceChanged(double)));
 	connect(activeEndstation_, SIGNAL(valueChanged(double)), this, SLOT(onActiveEndstationChanged(double)));

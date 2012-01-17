@@ -220,11 +220,7 @@ public:
 	AMControl* visibleLightToggle() const { return visibleLightToggle_;}
 	AMControl* visibleLightStatus() const { return visibleLightStatus_;}
 	AMControl* activeEndstation() const { return activeEndstation_;}
-	AMControl* scalerStart() const { return scalerStart_;}
 	AMControl* scalerIntegrationTime() const { return scalerIntegrationTime_;}
-	AMControl* scalerScansPerBuffer() const { return scalerScansPerBuffer_;}
-	AMControl* scalerTotalNumberOfScans() const { return scalerTotalNumberOfScans_;}
-	AMControl* scalerMode() const { return scalerMode_;}
 	AMControl* ssaIllumination() const { return ssaIllumination_;}
 	AMControl* tfyHVToggle() const { return tfyHVToggle_;}
 	//TOM THIS IS STEP 4.3
@@ -355,7 +351,6 @@ protected:
 	// Parts of this beamline:
 	///////////////////////////////
 
-//	AMControl *ringCurrent_;
 	AMControl *energy_;
 	AMControl *energySpacingParam_;
 	AMControl *energyC1Param_;
@@ -420,11 +415,7 @@ protected:
 	AMControl *visibleLightToggle_;
 	AMControl *visibleLightStatus_;
 	AMControl *activeEndstation_;
-	AMControl *scalerStart_;
 	AMControl *scalerIntegrationTime_;
-	AMControl *scalerScansPerBuffer_;
-	AMControl *scalerTotalNumberOfScans_;
-	AMControl *scalerMode_;
 	AMControl *detectorSignalSource_;
 	AMControl *ssaIllumination_;
 	//TOM THIS IS STEP 4.2
