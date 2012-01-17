@@ -31,7 +31,7 @@ bool VESPERS2011XRFFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 
 	QFile file(sourceFileInfo.filePath());
 	if(!file.open(QIODevice::ReadOnly)) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "XRFFileLoader parse error while loading scan data from file."));
+		AMErrorMon::error(0, -1, "XRFFileLoader parse error while loading scan data from file.");
 		return false;
 	}
 
@@ -52,7 +52,7 @@ bool VESPERS2011XRFFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 		elements = 4;
 	else{
 
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "XRFFileLoader cannot recognize file."));
+		AMErrorMon::alert(0, -1, "XRFFileLoader cannot recognize file.");
 		return false;
 	}
 

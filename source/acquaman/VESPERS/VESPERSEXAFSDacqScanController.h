@@ -6,6 +6,8 @@
 #include "dataman/AMXASScan.h"
 #include "actions/AMBeamlineListAction.h"
 
+#include <QTimer>
+
 /// Some defined error codes to help with controller crashes.
 #define VESPERSEXAFSDACQSCANCONTROLLER_CANT_INTIALIZE 78001
 #define VESPERSEXAFSDACQSCANCONTROLLER_CANT_START_BL_SCANNING 78002
@@ -35,6 +37,8 @@ protected slots:
 
 	/// Re-implementing to change actual dwell times for the VESPERS Beamline
 	void onDwellTimeTriggerChanged(double newValue);
+	/// Helper slot that handles the progress update.
+	void onScanTimerUpdate();
 
 protected:
 	/// Specific implementation of the scan initialization.
@@ -77,6 +81,13 @@ protected:
 	AMBeamlineListAction *setupXASAction_;
 	/// Action that contains all of the cleanup actions for the controller.
 	AMBeamlineListAction *cleanupXASAction_;
+
+	/// Timer used for determining the elapsed time for a scan.
+	QTimer elapsedTime_;
+	/// Number of seconds since the timer started.
+	double secondsElapsed_;
+	/// Number of seconds total for the scan to complete (estimate).
+	double secondsTotal_;
 };
 
 #endif // VESPERSEXAFSDACQSCANCONTROLLER_H
