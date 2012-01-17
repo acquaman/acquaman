@@ -6,4 +6,5 @@ TEMPLATE = subdirs
 SUBDIRS +=	SGMAcquaman.pro \
 	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	CLSPGTDwellTimeCoordinator.pro \
+	SGMAddOnsCoordinator.pro \
         SGMSSAAcquaman.pro
