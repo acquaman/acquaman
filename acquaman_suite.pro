@@ -16,4 +16,5 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	XRFSpectraViewer.pro \
 	MidIRBPM.pro \
 	CLSPGTDwellTimeCoordinator.pro \
+	SGMAddOnsCoordinator.pro \
         SGMSSAAcquaman.pro
