@@ -91,6 +91,39 @@ AMDetectorInfoSet SGMXASScanConfiguration::allDetectorConfigurations() const{
 	return allConfigurations;
 }
 
+bool SGMXASScanConfiguration::canEnumConvert(const QString &enumName) const{
+	if(enumName == "grating" || enumName == "harmonic")
+		return true;
+	return false;
+}
+
+QString SGMXASScanConfiguration::enumConvert(const QString &enumName, int enumValue) const{
+	if(enumName == "grating"){
+		switch(enumValue){
+		case 0:
+			return "Low";
+			break;
+		case 1:
+			return "Medium";
+			break;
+		case 2:
+			return "High";
+			break;
+		}
+	}
+	else if(enumName == "harmonic"){
+		switch(enumValue){
+		case 0:
+			return "First";
+			break;
+		case 1:
+			return "Third";
+			break;
+		}
+	}
+	return "[??]";
+}
+
 AMScanConfiguration* SGMXASScanConfiguration::createCopy() const{
 	return new SGMXASScanConfiguration(*this);
 }
