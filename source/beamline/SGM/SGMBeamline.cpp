@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSCAEN2527HVChannel.h"
 #include "beamline/CLS/CLSPGT8000HVChannel.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
+#include "ui/CLS/CLSSIS3820ScalerView.h"
 
 void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("energy", "BL1611-ID-1:Energy");
@@ -537,6 +538,10 @@ void SGMBeamline::usingSGMBeamline(){
 		pvNameLookUpFail = true;
 	filterPD4_ = new AMPVControl("filterPD4Current", sgmPVName, sgmPVName, "", this, 0.1);
 	filterPD4_->setDescription("Fe Filter Diode");
+
+	scalerView_ = 0; //NULL
+	scaler_ = new CLSSIS3820Scaler("BL1611-ID-1:mcs", this);
+	connect(scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
 
 
 	qDebug() << "\nPV Name Look Ups Failed: " << pvNameLookUpFail << "\n";
@@ -1125,9 +1130,9 @@ QString SGMBeamline::sgmHarmonicDescription(SGMBeamline::sgmHarmonic harmonic) c
 }
 
 QString SGMBeamline::sgmDetectorSignalSourceName(SGMBeamline::sgmDetectorSignalSource dss) const{
-	if(dss == SGMBeamline::picoammeters)
+	if(dss == SGMBeamline::sourcePicoammeters)
 		return "Picoammeters";
-	else if(dss == SGMBeamline::scaler)
+	else if(dss == SGMBeamline::sourceScaler)
 		return "Scaler";
 	else
 		return "ERROR";
@@ -1509,6 +1514,12 @@ AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHVPGTOffActions(){
 	AMBeamlineHighVoltageChannelToggleAction *offAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannelPGT());
 	offAction->setSetpoint(AMHighVoltageChannel::isPowerOff);
 	return offAction;
+}
+
+CLSSIS3820Scaler* SGMBeamline::scaler(){
+	if(scaler_->isConnected())
+		return scaler_;
+	return 0; //NULL
 }
 
 bool SGMBeamline::isBeamlineScanning(){
@@ -1945,6 +1956,15 @@ void SGMBeamline::onVisibleLightChanged(double value){
 		emit visibleLightStatusChanged("Visible Light\n is moving to OFF");
 	else if( visibleLightStatus_->value() == 0)
 		emit visibleLightStatusChanged("Visible Light\n is OFF");
+}
+
+void SGMBeamline::onScalerConnected(bool connected){
+	if(!connected)
+		return;
+	if(!scalerView_){
+		scalerView_ = new CLSSIS3820ScalerView(scaler_);
+		scalerView_->show();
+	}
 }
 
 SGMBeamline* SGMBeamline::sgm() {

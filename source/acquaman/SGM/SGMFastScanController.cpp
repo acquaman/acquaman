@@ -248,9 +248,12 @@ bool SGMFastScanController::beamlineInitialize(){
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerIntegrationTime());
 	tmpAction->setSetpoint(settings->scalerTime());
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerScansPerBuffer());
-	tmpAction->setSetpoint(1000);
-	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	//tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerScansPerBuffer());
+	//tmpAction->setSetpoint(1000);
+	//initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	AMBeamlineActionItem *tmpBAction = SGMBeamline::sgm()->scaler()->createScansPerBufferAction(1000);
+	if(tmpBAction)
+		initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpBAction);
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerTotalNumberOfScans());
 	tmpAction->setSetpoint(1000);
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);

@@ -41,6 +41,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions/AMBeamlineActionsList.h"
 #include "actions/AMBeamlineParallelActionsList.h"
 #include "actions/AMBeamlineListAction.h"
+#include "beamline/CLS/CLSSIS3820Scaler.h"
 
 #include "beamline/AMControlSetSampleManipulator.h"
 
@@ -54,6 +55,7 @@ class SGMMAXvMotor;
 class CLSCAEN2527HVChannel;
 class CLSPGT8000HVChannel;
 class CLSSynchronizedDwellTime;
+class CLSSIS3820ScalerView;
 
 class SGMBeamline : public AMBeamline
 {
@@ -78,8 +80,8 @@ public:
 	QString sgmHarmonicDescription(SGMBeamline::sgmHarmonic harmonic) const;
 
 	enum sgmDetectorSignalSource{
-		picoammeters = 0,
-		scaler = 1
+		sourcePicoammeters = 0,
+		sourceScaler = 1
 	};
 	QString sgmDetectorSignalSourceName(SGMBeamline::sgmDetectorSignalSource dss) const;
 
@@ -138,9 +140,9 @@ public:
 
 	QString detectorSignalSource() const {
 		if(detectorSignalSource_->value() == 0)
-			return sgmDetectorSignalSourceName(SGMBeamline::picoammeters);
+			return sgmDetectorSignalSourceName(SGMBeamline::sourcePicoammeters);
 		else if(detectorSignalSource_->value() == 1)
-			return sgmDetectorSignalSourceName(SGMBeamline::scaler);
+			return sgmDetectorSignalSourceName(SGMBeamline::sourceScaler);
 		else
 			return sgmDetectorSignalSourceName((SGMBeamline::sgmDetectorSignalSource)272727);
 	}
@@ -272,6 +274,8 @@ public:
 	AMBeamlineHighVoltageChannelToggleAction* createHVPGTOnActions();
 	AMBeamlineHighVoltageChannelToggleAction* createHVPGTOffActions();
 
+	CLSSIS3820Scaler* scaler();
+
 	bool isBeamlineScanning();
 
 	virtual AMControlSet* currentSamplePositioner() { return ssaManipulatorSet(); }
@@ -297,9 +301,9 @@ public slots:
 	void closeVacuum();
 
 	void setDetectorSignalSource(SGMBeamline::sgmDetectorSignalSource detectorSignalSource){
-		if(detectorSignalSource == SGMBeamline::picoammeters)
+		if(detectorSignalSource == SGMBeamline::sourcePicoammeters)
 			detectorSignalSource_->move(0);
-		else if(detectorSignalSource == SGMBeamline::scaler)
+		else if(detectorSignalSource == SGMBeamline::sourceScaler)
 			detectorSignalSource_->move(1);
 		return;
 	}
@@ -339,6 +343,8 @@ protected slots:
 	void recomputeWarnings();
 
 	void onVisibleLightChanged(double value);
+
+	void onScalerConnected(bool connected);
 
 protected:
 	// Singleton implementation:
@@ -490,6 +496,9 @@ protected:
 
 	/// The sample plate currently in the SSA chamber:
 	AMSamplePlate* currentSamplePlate_;
+
+	CLSSIS3820Scaler *scaler_;
+	CLSSIS3820ScalerView *scalerView_;
 
 	AMOrderedSet<QString, QPixmap> transferLoadLockOutAction1Help_;
 	AMOrderedSet<QString, QPixmap> transferLoadLockOutAction2Help_;
