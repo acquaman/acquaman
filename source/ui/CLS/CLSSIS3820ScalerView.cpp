@@ -15,7 +15,7 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 {
 	scaler_ = scaler;
 
-	if(scaler_/* && scaler_->isConnected()*/){
+	if(scaler_ && scaler_->isConnected()){
 
 		// Build the top part.
 		modeButton_ = new QPushButton("Continuous");
