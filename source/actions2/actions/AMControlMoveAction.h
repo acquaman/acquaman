@@ -67,6 +67,8 @@ protected:
 
 	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMControlMoveActionInfo. This makes it easier to access.
 	const AMControlMoveActionInfo* controlMoveInfo() const { return qobject_cast<const AMControlMoveActionInfo*>(info()); }
+	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMControlMoveActionInfo. This makes it easier to access.
+	AMControlMoveActionInfo* controlMoveInfo() { return qobject_cast<AMControlMoveActionInfo*>(info()); }
 
 	// Internal variables:
 

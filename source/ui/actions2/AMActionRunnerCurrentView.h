@@ -59,6 +59,8 @@ protected:
 	QLabel* timeElapsedLabel_, * timeRemainingLabel_, *headerTitle_, *headerSubTitle_;
 
 	AMActionRunner* actionRunner_;
+
+
 };
 
 #endif // AMACTIONRUNNERCURRENTVIEW_H

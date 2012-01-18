@@ -32,8 +32,11 @@ public:
 	/// Returns a pointer to our move destination setpoint
 	const AMControlInfo* controlInfo() const { return &controlInfo_; }
 
-	/// Set the move destination setpoint. (We make a copy of \c controlInfo's values, but don't take ownership of it.)
+	/// Set the move destination setpoint, including the control name, value, and description.
+	/*! \note We make a copy of \c controlInfo's values, and do not retain any reference to it afterward. */
 	void setControlInfo(const AMControlInfo& controlInfo) { controlInfo_.setValuesFrom(controlInfo); }
+	/// Set the move destination setpoint (value only).
+	void setSetpoint(double setpoint);
 
 	// Database loading/storing
 	////////////////////////////

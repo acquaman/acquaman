@@ -210,6 +210,9 @@ protected:
 
 	bool scrolledToBottom_;
 
+	/// If we should be scrolled to the bottom of the treeView_, sometimes the scrolling doesn't happen if we're not visible. Here we make sure it does.
+	void showEvent(QShowEvent *);
+
 };
 
 #endif // AMACTIONHISTORYVIEW_H

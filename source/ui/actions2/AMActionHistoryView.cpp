@@ -26,8 +26,6 @@
 
 #include <QHeaderView>
 
-#include <QDebug>
-
 // AMActionLogItem
 ////////////////////////////
 
@@ -255,12 +253,12 @@ void AMActionHistoryModel::onDatabaseItemCreated(const QString &tableName, int i
 
 	// if id is -1, there could be updates to the whole table.
 	if(id < 1) {
-		qDebug() << "AMACtionHistoryModel: global refresh";
+		// qDebug() << "AMActionHistoryModel: global refresh";
 		refreshFunctionCall_.schedule();
 		return;
 	}
 
-	qDebug() << "AMACtionHistoryModel: precision refresh";
+	// qDebug() << "AMActionHistoryModel: precision refresh";
 
 	// OK, this is a specific update.
 	// find out if this action's endDateTime is within our visible date range
@@ -416,8 +414,8 @@ AMActionHistoryView::AMActionHistoryView(AMActionRunner *actionRunner, AMDatabas
 	treeView_->setAlternatingRowColors(true);
 	treeView_->setRootIsDecorated(false);	// gets rid of indentation at top level.
 	//treeView_->setHeaderHidden(true);
-	scrolledToBottom_ = true;
 	treeView_->scrollToBottom();
+	scrolledToBottom_ = true;
 	treeView_->header()->setStretchLastSection(false);
 	treeView_->header()->setResizeMode(0, QHeaderView::Stretch);
 	treeView_->header()->setResizeMode(1, QHeaderView::Fixed);
@@ -453,16 +451,19 @@ void AMActionHistoryView::onModelAboutToBeRefreshed()
 {
 	// we're scrolled to the bottom if the vertical scroll bar value is at maximum. Remember that so we can go back to the bottom after the refresh.
 	scrolledToBottom_ = (treeView_->verticalScrollBar()->value() == treeView_->verticalScrollBar()->maximum());
-	qDebug() << "AMActionHistoryView: Scrolled to bottom = " << scrolledToBottom_;
+	// qDebug() << "Scrolled to bottom:" << scrolledToBottom_;
 }
 
 void AMActionHistoryView::onModelRefreshed()
 {
 	// if we were scrolled to the most recent (bottom) action before the refresh, let's scroll back there.
 	if(scrolledToBottom_) {
-		qDebug() << "AMActionHistoryView: Scrolling to Bottom!!!!!";
 		// doesn't work: treeView_->verticalScrollBar()->triggerAction(QScrollBar::SliderToMaximum);
+
+		// also doesn't work... Sometimes only goes most of the way there.
 		treeView_->scrollToBottom();
+		// looks like if the tree view is not visible at this time, this won't take effect. Adding another check in our showEvent() to scroll the treeView_ to the bottom if should be scrolledToBottom_
+		// qDebug() << "ScrollING to bottom";
 	}
 
 	// update subtitle text with how many, of how many total.
@@ -751,6 +752,14 @@ AMActionLogItem * AMActionHistoryModel::logItem(const QModelIndex &index) const
 	if(index.row() >= items_.count())
 		return 0;
 	return items_.at(index.row());
+}
+
+void AMActionHistoryView::showEvent(QShowEvent *e)
+{
+	QWidget::showEvent(e);
+
+	if(scrolledToBottom_)
+		treeView_->scrollToBottom();
 }
 
 
