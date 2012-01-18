@@ -60,6 +60,17 @@ bool AMScanConfiguration::autoExportEnabled() const{
 	return autoExportEnabled_;
 }
 
+bool AMScanConfiguration::canEnumConvert(const QString &enumName) const{
+	Q_UNUSED(enumName)
+	return false;
+}
+
+QString AMScanConfiguration::enumConvert(const QString &enumName, int enumValue) const{
+	Q_UNUSED(enumName)
+	Q_UNUSED(enumValue)
+	return "[??]";
+}
+
 void AMScanConfiguration::setUserScanName(const QString &userScanName){
 	if(userScanName_ != userScanName){
 		userScanName_ = userScanName;

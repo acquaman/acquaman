@@ -466,7 +466,9 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
     source/util/SGM/SGMDacqConfigurationFile.h \
     source/util/SGM/SGMPluginsLocation.h \
 	source/ui/util/SGM/SGMSettingsMasterView.h \
-	source/beamline/SGM/SGMMAXvMotor.h
+	source/beamline/SGM/SGMMAXvMotor.h \
+    source/beamline/CLS/CLSSIS3820Scaler.h \
+    source/ui/CLS/CLSSIS3820ScalerView.h
 
 CONFIG(mobility) {
 DEFINES += AM_MOBILITY_VIDEO_ENABLED
@@ -750,7 +752,9 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
     source/util/SGM/SGMDacqConfigurationFile.cpp \
     source/util/SGM/SGMPluginsLocation.cpp \
 	source/ui/util/SGM/SGMSettingsMasterView.cpp \
-	source/beamline/SGM/SGMMAXvMotor.cpp
+	source/beamline/SGM/SGMMAXvMotor.cpp \
+    source/beamline/CLS/CLSSIS3820Scaler.cpp \
+    source/ui/CLS/CLSSIS3820ScalerView.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
@@ -769,6 +773,10 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
 
 
 

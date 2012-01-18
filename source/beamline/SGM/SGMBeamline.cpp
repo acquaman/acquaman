@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSCAEN2527HVChannel.h"
 #include "beamline/CLS/CLSPGT8000HVChannel.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
+#include "ui/CLS/CLSSIS3820ScalerView.h"
 
 void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("energy", "BL1611-ID-1:Energy");
@@ -88,12 +89,8 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("picoammeterDwellTime", "A1611I1:cont_interval");
 	amNames2pvNames_.set("energyMovingStatus", "BL1611-ID-1:ready");
 	amNames2pvNames_.set("fastShutterVoltage", "PSH16114I1001:V");
-	amNames2pvNames_.set("scalerMode", "BL1611-ID-1:mcs:continuous");
-	amNames2pvNames_.set("scalerStart", "BL1611-ID-1:mcs:startScan");
 	amNames2pvNames_.set("scaler", "BL1611-ID-1:mcs:scan");
 	amNames2pvNames_.set("scalerIntegrationTime", "BL1611-ID-1:mcs:delay");
-	amNames2pvNames_.set("scalerScansPerBuffer", "BL1611-ID-1:mcs:nscan");
-	amNames2pvNames_.set("scalerTotalNumberOfScans", "BL1611-ID-1:mcs:scanCount");
 	amNames2pvNames_.set("gratingVelocity", "SMTR16114I1002:velo");
 	amNames2pvNames_.set("gratingBaseVelocity", "SMTR16114I1002:veloBase");
 	amNames2pvNames_.set("gratingAcceleration", "SMTR16114I1002:accel");
@@ -112,9 +109,6 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("filterPD2Current", "BL1611-ID-1:mcs07:fbk");
 	amNames2pvNames_.set("filterPD3Current", "BL1611-ID-1:mcs08:fbk");
 	amNames2pvNames_.set("filterPD4Current", "BL1611-ID-1:mcs09:fbk");
-
-//	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", "PCT1402-01:mA:fbk", this);
-//	addChildControl(ringCurrent_);
 
 	bool pvNameLookUpFail = false;
 
@@ -200,7 +194,7 @@ void SGMBeamline::usingSGMBeamline(){
 	sgmPVName = amNames2pvNames_.valueF("grating");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-	grating_ = new AMPVwStatusControl("grating", sgmPVName+":fbk", sgmPVName, "SMTR16114I1016:state", "SMTR16114I1016:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
+	grating_ = new AMPVwStatusControl("grating", sgmPVName, sgmPVName, "SMTR16114I1016:state", "SMTR16114I1016:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
 	grating_->setDescription("Grating Selection");
 	sgmPVName = amNames2pvNames_.valueF("harmonic");
 	if(sgmPVName.isEmpty())
@@ -463,37 +457,12 @@ void SGMBeamline::usingSGMBeamline(){
 	activeEndstation_ = new AMPVControl("activeEndstation", sgmPVName, sgmPVName, "", this);
 	activeEndstation_->setDescription("Endstation Selection");
 
-	sgmPVName = amNames2pvNames_.valueF("scalerStart");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	scalerStart_ = new AMPVControl("scalerStart", sgmPVName, sgmPVName, "", this, 0.1);
-	scalerStart_->setDescription("Scaler Start");
-	scalerStart_->setContextKnownDescription("Start");
-
 	sgmPVName = amNames2pvNames_.valueF("scalerIntegrationTime");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	scalerIntegrationTime_ = new AMPVControl("scalerIntegrationTime", sgmPVName, sgmPVName, "", this, 0.1);
 	scalerIntegrationTime_->setDescription("Scaler Integration Time");
 	scalerIntegrationTime_->setContextKnownDescription("Integration Time");
-	sgmPVName = amNames2pvNames_.valueF("scalerMode");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	scalerMode_ = new AMPVControl("scalerMode", sgmPVName, sgmPVName, "", this, 0.5);
-	scalerMode_->setDescription("Scaler Mode");
-	scalerMode_->setContextKnownDescription("Mode");
-	sgmPVName = amNames2pvNames_.valueF("scalerTotalNumberOfScans");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	scalerTotalNumberOfScans_ = new AMPVControl("scalerTotalNumberOfScans", sgmPVName, sgmPVName, "", this, 0.5);
-	scalerTotalNumberOfScans_->setDescription("Scaler Number of Scans");
-	scalerTotalNumberOfScans_->setContextKnownDescription("Number of Scans");
-	sgmPVName = amNames2pvNames_.valueF("scalerScansPerBuffer");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	scalerScansPerBuffer_ = new AMPVControl("scalerScansPerBuffer", sgmPVName, sgmPVName, "", this, 0.5);
-	scalerScansPerBuffer_->setDescription("Scaler Scan per Buffer");
-	scalerScansPerBuffer_->setContextKnownDescription("Scans per Buffer");
 
 	sgmPVName = amNames2pvNames_.valueF("detectorSignalSource");
 	if(sgmPVName.isEmpty())
@@ -537,6 +506,10 @@ void SGMBeamline::usingSGMBeamline(){
 		pvNameLookUpFail = true;
 	filterPD4_ = new AMPVControl("filterPD4Current", sgmPVName, sgmPVName, "", this, 0.1);
 	filterPD4_->setDescription("Fe Filter Diode");
+
+	scalerView_ = 0; //NULL
+	scaler_ = new CLSSIS3820Scaler("BL1611-ID-1:mcs", this);
+	connect(scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
 
 
 	qDebug() << "\nPV Name Look Ups Failed: " << pvNameLookUpFail << "\n";
@@ -794,9 +767,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	addChildControl(visibleLightStatus_);
 	connect(visibleLightStatus_, SIGNAL(valueChanged(double)), this, SLOT(onVisibleLightChanged(double)));
 	addChildControl(scalerIntegrationTime_);
-	addChildControl(scalerScansPerBuffer_);
-	addChildControl(scalerTotalNumberOfScans_);
-	addChildControl(scalerMode_);
 	addChildControl(detectorSignalSource_);
 	connect(detectorSignalSource_, SIGNAL(valueChanged(double)), this, SLOT(onDetectorSignalSourceChanged(double)));
 	connect(activeEndstation_, SIGNAL(valueChanged(double)), this, SLOT(onActiveEndstationChanged(double)));
@@ -1125,9 +1095,9 @@ QString SGMBeamline::sgmHarmonicDescription(SGMBeamline::sgmHarmonic harmonic) c
 }
 
 QString SGMBeamline::sgmDetectorSignalSourceName(SGMBeamline::sgmDetectorSignalSource dss) const{
-	if(dss == SGMBeamline::picoammeters)
+	if(dss == SGMBeamline::sourcePicoammeters)
 		return "Picoammeters";
-	else if(dss == SGMBeamline::scaler)
+	else if(dss == SGMBeamline::sourceScaler)
 		return "Scaler";
 	else
 		return "ERROR";
@@ -1509,6 +1479,12 @@ AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHVPGTOffActions(){
 	AMBeamlineHighVoltageChannelToggleAction *offAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannelPGT());
 	offAction->setSetpoint(AMHighVoltageChannel::isPowerOff);
 	return offAction;
+}
+
+CLSSIS3820Scaler* SGMBeamline::scaler(){
+	if(scaler_->isConnected())
+		return scaler_;
+	return 0; //NULL
 }
 
 bool SGMBeamline::isBeamlineScanning(){
@@ -1945,6 +1921,15 @@ void SGMBeamline::onVisibleLightChanged(double value){
 		emit visibleLightStatusChanged("Visible Light\n is moving to OFF");
 	else if( visibleLightStatus_->value() == 0)
 		emit visibleLightStatusChanged("Visible Light\n is OFF");
+}
+
+void SGMBeamline::onScalerConnected(bool connected){
+	if(!connected)
+		return;
+	if(!scalerView_){
+		scalerView_ = new CLSSIS3820ScalerView(scaler_);
+		scalerView_->show();
+	}
 }
 
 SGMBeamline* SGMBeamline::sgm() {
