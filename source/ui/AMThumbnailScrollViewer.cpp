@@ -175,7 +175,7 @@ void AMThumbnailScrollViewer::mouseMoveEvent ( QMouseEvent * event ) {
 	double ratio = event->posF().x() / width();
 
 	if(sourceIsDb_ && sourceDb_ && !sourceIds_.isEmpty()) {
-		int index = sourceIds_.count()*ratio;
+		int index = int(sourceIds_.count()*ratio);
 		if(index == sourceIds_.count())
 			index--;
 		if(index != tIndex_) {
@@ -187,7 +187,7 @@ void AMThumbnailScrollViewer::mouseMoveEvent ( QMouseEvent * event ) {
 
 	if(!sourceIsDb_ && sourceObject_) {
 		int thumbnailCount = sourceObject_->thumbnailCount();
-		int index = thumbnailCount*ratio;
+		int index = int(thumbnailCount*ratio);
 		if(index == thumbnailCount)
 			index--;
 		if(index != tIndex_) {
@@ -266,9 +266,9 @@ void AMThumbnailScrollGraphicsWidget::paint(QPainter *painter, const QStyleOptio
 	if(deferredUpdate_required_)
 		displayThumbnail(deferredUpdate_db_, deferredUpdate_id_);
 
-	int height = width_*3/4;
-	if(scaledPixmap_.size() != QSize(width_, height))
-		scaledPixmap_ = pixmap_.scaled(width_, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);	// this caches the scaled version of the pixmap, in case we need it again.
+	int height = int(width_*3/4);
+	if(scaledPixmap_.size() != QSize(int(width_), height))
+		scaledPixmap_ = pixmap_.scaled(int(width_), height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);	// this caches the scaled version of the pixmap, in case we need it again.
 
 	// Are we selected? Draw a selection background
 	if(isSelected()) {
@@ -315,7 +315,7 @@ void AMThumbnailScrollGraphicsWidget::paint(QPainter *painter, const QStyleOptio
 	// Do we need to update the elided text?
 	if(c1_elided_.isEmpty() && !c1_.isEmpty()) {
 		QFontMetrics fm(font);
-		c1_elided_ = fm.elidedText(c1_, Qt::ElideMiddle, width_);
+		c1_elided_ = fm.elidedText(c1_, Qt::ElideMiddle, int(width_));
 	}
 	painter->setFont(font);
 	painter->setPen(QColor::fromRgb(25,25,25));
@@ -328,7 +328,7 @@ void AMThumbnailScrollGraphicsWidget::paint(QPainter *painter, const QStyleOptio
 	// Do we need to update the elided text?
 	if(c2_elided_.isEmpty() && !c2_.isEmpty()) {
 		QFontMetrics fm(font);
-		c2_elided_ = fm.elidedText(c2_, Qt::ElideMiddle, width_);
+		c2_elided_ = fm.elidedText(c2_, Qt::ElideMiddle, int(width_));
 	}
 	painter->setFont(font);
 	painter->setPen(QColor::fromRgb(167,167,167));
@@ -337,7 +337,7 @@ void AMThumbnailScrollGraphicsWidget::paint(QPainter *painter, const QStyleOptio
 					   c2_elided_,
 					   &c2Rect);
 
-	painter->drawRect(0,0,width_, height);
+	painter->drawRect(QRectF(0,0,width_, qreal(height)));
 
 	double actualTextHeight = c1Rect.height() + c2Rect.height() + 2*textLineSpacing();
 	if( !qFuzzyCompare(actualTextHeight, textHeight_ ) ) {
@@ -452,7 +452,7 @@ void AMThumbnailScrollGraphicsWidget::hoverMoveEvent(QGraphicsSceneHoverEvent *e
 	double ratio = event->pos().x() / width_;
 
 	if(sourceIsDb_ && sourceDb_ && !ids_.isEmpty()) {
-		int index = ids_.count()*ratio;
+		int index = int(ids_.count()*ratio);
 		if(index == ids_.count())
 			index--;
 
@@ -463,7 +463,7 @@ void AMThumbnailScrollGraphicsWidget::hoverMoveEvent(QGraphicsSceneHoverEvent *e
 	}
 
 	if(!sourceIsDb_ && sourceObject_) {
-		int index = sourceObject_->thumbnailCount()*ratio;
+		int index = int(sourceObject_->thumbnailCount()*ratio);
 		if(index != tIndex_) {
 			tIndex_ = index;
 			displayThumbnail(sourceObject_->thumbnail(tIndex_));

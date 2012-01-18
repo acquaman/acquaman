@@ -1006,7 +1006,7 @@ void AMDataView::resizeEvent(QResizeEvent *event) {
 }
 
 void AMDataView::onResize() {
-	int width = effectiveWidth();	// how much room we have available in the view area.
+	int width = int(effectiveWidth());	// how much room we have available in the view area.
 
 	// set the width constraint on every section in the main vertical layout.
 	foreach(AMAbstractDataViewSection* s, sections_) {
@@ -1141,7 +1141,7 @@ void AMDataViewSection::layoutHeaderItem() {
 	// qDebug() << "Calling Layout Header. entireRect = " << entireRect;
 
 	qreal headerHeight = qMin(entireRect.height(),
-							  proxyWidget_->effectiveSizeHint(Qt::MinimumSize, QSize(entireRect.width(), -1)).height());
+							  proxyWidget_->effectiveSizeHint(Qt::MinimumSize, QSizeF(entireRect.width(), -1)).height());
 
 	qreal yOffset = 0;
 	///////////////
@@ -1219,7 +1219,7 @@ AMDataViewSectionThumbnailView::AMDataViewSectionThumbnailView(AMDatabase* db, c
 	layout_->setUniformItemSizes(true);
 
 	layout_->setDefaultWidth(initialWidthConstraint);
-	int initialItemWidth = (double)initialItemSize/50.0*160.0 + 80;
+	int initialItemWidth = int((double)initialItemSize/50.0*160.0 + 80);
 	layout_->setItemSizeConstraint(QSizeF(initialItemWidth, -1));
 
 	populate();

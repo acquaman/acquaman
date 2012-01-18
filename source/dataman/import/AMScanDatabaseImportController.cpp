@@ -101,7 +101,7 @@ void AMScanDatabaseImportController::analyzeFacilitiesForDuplicates()
 	int stepIndex = 0;
 	int totalSteps = q.size();
 	while(q.next()) {
-		emit stepProgress(100.0*(++stepIndex) / totalSteps);	// if size is not supported in db, then this will be negative... which will trigger a "undefined" progress bar. Perfect.
+		emit stepProgress(int(100.0*(++stepIndex) / totalSteps));	// if size is not supported in db, then this will be negative... which will trigger a "undefined" progress bar. Perfect.
 
 		int id = q.value(0).toInt();
 		QString name = q.value(1).toString();
@@ -147,7 +147,7 @@ void AMScanDatabaseImportController::analyzeRunsForDuplicates()
 	int stepIndex = 0;
 	int totalSteps = q.size();
 	while(q.next()) {
-		emit stepProgress(100.0*(++stepIndex) / totalSteps);	// if size is not supported in db, then this will be negative... which will trigger a "undefined" progress bar. Perfect.
+		emit stepProgress(int(100.0*(++stepIndex) / totalSteps));	// if size is not supported in db, then this will be negative... which will trigger a "undefined" progress bar. Perfect.
 
 		int id = q.value(0).toInt();
 		QString name = q.value(1).toString();
@@ -193,7 +193,7 @@ void AMScanDatabaseImportController::analyzeExperimentsForDuplicates()
 	int stepIndex = 0;
 	int totalSteps = q.size();
 	while(q.next()) {
-		emit stepProgress(100.0*(++stepIndex) / totalSteps);	// if size is not supported in db, then this will be negative... which will trigger a "undefined" progress bar. Perfect.
+		emit stepProgress(int(100.0*(++stepIndex) / totalSteps));	// if size is not supported in db, then this will be negative... which will trigger a "undefined" progress bar. Perfect.
 
 		int id = q.value(0).toInt();
 		QString name = q.value(1).toString();
@@ -236,7 +236,7 @@ void AMScanDatabaseImportController::analyzeSamplesForDuplicates()
 	int stepIndex = 0;
 	int totalSteps = q.size();
 	while(q.next()) {
-		emit stepProgress(100.0*(++stepIndex) / totalSteps);	// if size is not supported in db, then this will be negative... which will trigger a "undefined" progress bar. Perfect.
+		emit stepProgress(int(100.0*(++stepIndex) / totalSteps));	// if size is not supported in db, then this will be negative... which will trigger a "undefined" progress bar. Perfect.
 
 		int id = q.value(0).toInt();
 		QString name = q.value(1).toString();
@@ -298,7 +298,7 @@ void AMScanDatabaseImportController::copyFacilities()
 	while (i.hasNext()) {
 		if(state_ != Importing) return;
 		i.next();
-		emit stepProgress(100.0*(++currentStep)/totalSteps);
+		emit stepProgress(int(100.0*(++currentStep)/totalSteps));
 		// key is id; value is id in destination database, or -1 if not there yet. (if not there, need to insert)
 		int sourceId = i.key(), destinationId = i.value();
 		if(destinationId<1) {
@@ -327,7 +327,7 @@ void AMScanDatabaseImportController::copyRuns()
 	while (i.hasNext()) {
 		if(state_ != Importing) return;
 		i.next();
-		emit stepProgress(100.0*(++currentStep)/totalSteps);
+		emit stepProgress(int(100.0*(++currentStep)/totalSteps));
 		// key is id; value is id in destination database, or -1 if not there yet. (if not there, need to insert)
 		int sourceId = i.key(), destinationId = i.value();
 		if(destinationId<1) {
@@ -356,7 +356,7 @@ void AMScanDatabaseImportController::copyExperiments()
 	while (i.hasNext()) {
 		if(state_ != Importing) return;
 		i.next();
-		emit stepProgress(100.0*(++currentStep)/totalSteps);
+		emit stepProgress(int(100.0*(++currentStep)/totalSteps));
 		// key is id; value is id in destination database, or -1 if not there yet. (if not there, need to insert)
 		int sourceId = i.key(), destinationId = i.value();
 		if(destinationId<1) {
@@ -385,7 +385,7 @@ void AMScanDatabaseImportController::copySamples()
 	while (i.hasNext()) {
 		if(state_ != Importing) return;
 		i.next();
-		emit stepProgress(100.0*(++currentStep)/totalSteps);
+		emit stepProgress(int(100.0*(++currentStep)/totalSteps));
 		// key is id; value is id in destination database, or -1 if not there yet. (if not there, need to insert)
 		int sourceId = i.key(), destinationId = i.value();
 		if(destinationId<1) {
@@ -417,7 +417,7 @@ void AMScanDatabaseImportController::copyScans()
 	for(int i=0, cc=scanIds.count(); i<cc; i++) {
 		if(state_ != Importing) return;
 
-		emit stepProgress(100.0*(i+1)/cc);
+		emit stepProgress(int(100.0*(i+1)/cc));
 
 		AMDbObject* object = AMDbObjectSupport::s()->createAndLoadObjectAt(sourceDb_, scanTableName, scanIds.at(i));
 		if(!object) {

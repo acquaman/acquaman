@@ -496,7 +496,7 @@ void AMBeamlineScanActionView::updateProgressBar(double elapsed, double total){
 	progressBar_->setValue((int)elapsed);
 
 	double secondsRemaining = total - elapsed;
-	QTime tRemaining = QTime(0,0,0,0).addMSecs((int)1000*secondsRemaining);
+	QTime tRemaining = QTime(0,0,0,0).addMSecs(int(1000*secondsRemaining));
 	QString rStr = (tRemaining.hour() > 0) ? "h:mm:ss" : "m:ss" ;
 	timeRemainingLabel_->setText(tRemaining.toString(rStr)+" Remaining");
 }

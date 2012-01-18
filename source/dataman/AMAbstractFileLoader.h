@@ -28,6 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMAbstractFileLoader
 {
 public:
+	virtual ~AMAbstractFileLoader() {}
+
 	// Construct a loader object pointing to a particular scan
 	AMAbstractFileLoader(AMScan* target) {
 		scan_ = target;

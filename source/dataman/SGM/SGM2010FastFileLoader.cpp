@@ -156,7 +156,7 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 		if(line.startsWith("1,") && (lp = line.split(',')).count() == colNames1.count() ) {
 			for(int i=1; i<colNames1.count(); i++) {
 				if(colNames1.at(i) == "encoder"){
-					encoderEndpoint = lp.at(i).toDouble();
+					encoderEndpoint = int(lp.at(i).toDouble());
 					qDebug() << "Encoder endpoint set to " << encoderEndpoint;
 				}
 			}
@@ -166,7 +166,7 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 			// see if we recognize any of the translated column names as useful:
 			for(int i=1; i<colNames2.count(); i++) {
 				if(colNames2.at(i) == "time")
-					datetime = QDateTime::fromTime_t(lp.at(i).toDouble());
+					datetime = QDateTime::fromTime_t(uint(lp.at(i).toDouble()));
 				if(colNames2.at(i) == "grating")
 					grating = lp.at(i);
 				if(colNames2.at(i) == "encoder"){

@@ -29,6 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 /// This is the base class for functors (function objects) which take an (optional, possibly blank) argument and return a converted string. It supports advanced usage of AMTagReplacementParser by serving as entries in a hash-table which maps tags to the functions that return their replacement values. (See AMTagReplacementParser::replaceAllUsingDictionary).
 class AMAbstractTagReplacementFunctor {
 public:
+	virtual ~AMAbstractTagReplacementFunctor() {}
+
 	/// Return replacement text, possibly based on an option \c argument
 	virtual QString getText(const QString& argument) = 0;
 };

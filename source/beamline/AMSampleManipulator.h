@@ -31,6 +31,8 @@ class AMSampleManipulator
 {
 
 public:
+	virtual ~AMSampleManipulator() {}
+
 	/// Returns the current position of the sample manipulator, as an AMControlInfoList.
 	virtual AMControlInfoList position() const = 0;
 	/// Sends a request to move the sample manipulator into position \c newPosition. Returns true if the request is accepted; false if it cannot be started for any reason.

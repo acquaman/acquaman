@@ -183,7 +183,7 @@ void REIXSXESScanController::onScanProgressCheck() {
 		return;
 	}
 
-	int totalCounts = REIXSBeamline::bl()->mcpDetector()->totalCounts();
+	int totalCounts = int(REIXSBeamline::bl()->mcpDetector()->totalCounts());
 
 	// Check if total counts is reached.
 	// problem: What if this occurs before the detector is done clearing itself? could be spurious?  To solve this problem simply, just make sure we collect at least 5 seconds regardless of the total counts.

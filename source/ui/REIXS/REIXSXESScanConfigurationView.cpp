@@ -225,5 +225,5 @@ void REIXSXESScanConfigurationView::onMaximumTimeEditChanged(const QTime &time) 
 
 	QTime baseTime(0,0);
 	double totalSeconds = baseTime.secsTo(time);
-	configuration_.setMaximumDurationSeconds(totalSeconds);
+	configuration_.setMaximumDurationSeconds(int(totalSeconds));
 }

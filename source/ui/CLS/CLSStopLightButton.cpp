@@ -41,7 +41,7 @@ CLSStopLightButton::CLSStopLightButton(CLSBiStateControl *control, QWidget *pare
 	if (width < 40)
 		width = 40;
 
-	setMinimumSize(1.4*width, 1.4*width);
+	setMinimumSize(int(1.4*width), int(1.4*width));
 }
 
 void CLSStopLightButton::mouseReleaseEvent(QMouseEvent *e)

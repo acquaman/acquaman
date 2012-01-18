@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 /// This abstract class defines the interface for an "importer" that does the specific heavy-lifting for importing a given file format.
 class AMImporter {
 public:
+	virtual ~AMImporter() {}
+
 	/// A human-readable description of what this importer is good for (ex: "CLS SGM Data Format, 2004 - 2010")
 	virtual QString description() const = 0;
 

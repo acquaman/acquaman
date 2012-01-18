@@ -113,8 +113,8 @@ void REIXSXESMCPDataSource::onConnectionStateChanged() {
 
 	// becoming connected...
 	if(!wasConnected && isConnected_) {
-		pixelsX_ = axes_[0].size = pow(2, resolutionXPV_->getInt());
-		pixelsY_ = axes_[1].size = pow(2, resolutionYPV_->getInt());
+		pixelsX_ = axes_[0].size = pow(2, double(resolutionXPV_->getInt()));
+		pixelsY_ = axes_[1].size = pow(2, double(resolutionYPV_->getInt()));
 		emitValuesChanged();
 		emitSizeChanged();
 		emitStateChanged(AMDataSource::ProcessingFlag);
