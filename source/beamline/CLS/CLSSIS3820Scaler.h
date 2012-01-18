@@ -44,7 +44,7 @@ public:
 	AMBeamlineActionItem* createStartAction(bool setScanning);
 	/// Creates an action to enable continuous mode or enable single shot mode.
 	AMBeamlineActionItem* createContinuousEnableAction(bool enableContinuous);
-	/// Creates an action to set the dwell time of the scaler to \param dwellTime.
+	/// Creates an action to set the dwell time of the scaler to \param dwellTime (in seconds).
 	AMBeamlineActionItem* createDwellTimeAction(double dwellTime);
 	/// Creates an action that sets the number of scans per buffer to \param scansPerBuffer.
 	AMBeamlineActionItem* createScansPerBufferAction(int scansPerBuffer);
@@ -56,7 +56,7 @@ public slots:
 	void setScanning(bool isScanning);
 	/// Sets the mode of the scaler to either continuous or single shot.
 	void setContinuous(bool isContinuous);
-	/// Sets the dwell time for the scaler.
+	/// Sets the dwell time for the scaler (in seconds).
 	void setDwellTime(double dwellTime);
 	/// Sets the number of scans per buffer.
 	void setScansPerBuffer(int scansPerBuffer);

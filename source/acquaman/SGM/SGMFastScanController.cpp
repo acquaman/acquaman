@@ -239,7 +239,7 @@ bool SGMFastScanController::beamlineInitialize(){
 	tmpAction->setSetpoint(settings->acceleration());
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 
-	tmpBAction = SGMBeamline::sgm()->scaler()->createDwellTimeAction(settings->scalerTime());
+	tmpBAction = SGMBeamline::sgm()->scaler()->createDwellTimeAction(settings->scalerTime()/1000);
 	tmpBAction ? initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpBAction) : initializationFailed = true;
 	tmpBAction = SGMBeamline::sgm()->scaler()->createScansPerBufferAction(1000);
 	tmpBAction ? initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpBAction) : initializationFailed = true;

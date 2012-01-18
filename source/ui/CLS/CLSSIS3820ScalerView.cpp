@@ -48,7 +48,7 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 		timeLayout->addWidget(time_);
 
 		scansPerBuffer_ = new QSpinBox;
-		scansPerBuffer_->setRange(0, 100);
+		scansPerBuffer_->setRange(0, 10000);
 		scansPerBuffer_->setValue(1);
 		scansPerBuffer_->setFixedWidth(100);
 		scansPerBuffer_->setAlignment(Qt::AlignCenter);
@@ -60,7 +60,7 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 		scansPerBufferLayout->addWidget(scansPerBuffer_);
 
 		totalScans_ = new QSpinBox;
-		totalScans_->setRange(0, 100);
+		totalScans_->setRange(0, 10000);
 		totalScans_->setValue(1);
 		totalScans_->setFixedWidth(100);
 		totalScans_->setAlignment(Qt::AlignCenter);
@@ -178,6 +178,8 @@ void CLSSIS3820ScalerView::onStatusChanged(bool status)
 		status_->setPixmap(QIcon(":/OFF.png").pixmap(25));
 		scanningButton_->setText("Stopped");
 		scanningButton_->setPalette(QPalette(Qt::red));
+		if(scanningButton_->isChecked())
+			scanningButton_->setChecked(false);
 	}
 }
 
@@ -222,6 +224,10 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 	layout->addWidget(enableBox, 0, Qt::AlignLeft);
 	layout->addStretch();
 	layout->addWidget(readingLabel_, 0, Qt::AlignCenter);
+	if( (channel_->index() < 8) || (channel_->index() > 15 && channel_->index() < 24) )
+		layout->setContentsMargins(0,0,5,0);
+	else
+		layout->setContentsMargins(5,0,0,0);
 
 	setLayout(layout);
 }
