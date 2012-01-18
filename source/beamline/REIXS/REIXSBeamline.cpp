@@ -141,7 +141,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 
 	specifiedEV_ = 395;
 
-	currentMoveStep_ = MoveDone;
+	moveAction_ = 0;
 	setTolerance(0.1);
 
 	// valueChanged(): if the optical origin is at the rotation point and everything is perfect, then only the spectrometerRotationDrive_ motor will affect the energy value.  But in the non-perfect-aligned general math situation, the translation can also affect eV.  And of course gratings...
@@ -162,6 +162,8 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 
 
 
+#include "actions2/AMListAction.h"
+#include "actions2/actions/AMInternalControlMoveAction.h"
 
 void REIXSSpectrometer::move(double setpoint)
 {
@@ -186,447 +188,68 @@ void REIXSSpectrometer::move(double setpoint)
 		emit gratingChanged(currentGrating_ = specifiedGrating_);
 	}
 
-	currentMoveStep_ = Starting;
 	/// \todo limits? out of range?
 	moveSetpoint_ = calibration_.computeSpectrometerPosition(specifiedGrating_, specifiedEV_, currentFocusOffset_, currentDetectorTiltOffset_);
-	emit moveStarted();
 
+	// build the move action (With sub-actions to run in parallel)
+	moveAction_ = new AMListAction(new AMActionInfo("spectrometer eV move"), AMListAction::ParallelMode, this);
+	// if we need to move the grating into position, add actions for that:
 	if(!gratingInPosition()) {
-		smStartMoveZto0();
+		// make a sequential action for the grating moves
+		AMListAction* gratingAction = new AMListAction(new AMActionInfo("grating move"));	// sequential by default.
+		// first, move Z to 0
+		gratingAction->addSubAction(new AMInternalControlMoveAction(hexapod_->z(), 0));
+		// then move U to 0
+		gratingAction->addSubAction(new AMInternalControlMoveAction(hexapod_->u(), 0));
+		// then move R,S,T into position (Can do simultaneously with parallel action)
+		AMListAction* rstAction = new AMListAction(new AMActionInfo("grating RST move"), AMListAction::ParallelMode);
+		rstAction->addSubAction(new AMInternalControlMoveAction(hexapod_->r(), moveSetpoint_.controlNamed("hexapodR").value()));
+		rstAction->addSubAction(new AMInternalControlMoveAction(hexapod_->s(), moveSetpoint_.controlNamed("hexapodS").value()));
+		rstAction->addSubAction(new AMInternalControlMoveAction(hexapod_->t(), moveSetpoint_.controlNamed("hexapodT").value()));
+		gratingAction->addSubAction(rstAction);
+		// move U to actual position
+		gratingAction->addSubAction(new AMInternalControlMoveAction(hexapod_->u(), moveSetpoint_.controlNamed("hexapodU").value()));
+		// then move X,Y,Z into position (can do simultaneously with parallel action)
+		AMListAction* xyzAction = new AMListAction(new AMActionInfo("grating XYZ move"), AMListAction::ParallelMode);
+		xyzAction->addSubAction(new AMInternalControlMoveAction(hexapod_->x(), moveSetpoint_.controlNamed("hexapodX").value()));
+		xyzAction->addSubAction(new AMInternalControlMoveAction(hexapod_->y(), moveSetpoint_.controlNamed("hexapodY").value()));
+		xyzAction->addSubAction(new AMInternalControlMoveAction(hexapod_->z(), moveSetpoint_.controlNamed("hexapodZ").value()));
+		gratingAction->addSubAction(xyzAction);
+
+		moveAction_->addSubAction(gratingAction);
 	}
-	else
-		smStartMoveLiftTiltTranslation();
+	// add Lift, Tilt, and Translation
+	moveAction_->addSubAction(new AMInternalControlMoveAction(spectrometerRotationDrive_, moveSetpoint_.controlNamed("spectrometerRotationDrive").value()));
+	moveAction_->addSubAction(new AMInternalControlMoveAction(detectorTiltDrive_, moveSetpoint_.controlNamed("detectorTiltDrive").value()));
+	moveAction_->addSubAction(new AMInternalControlMoveAction(detectorTranslation_, moveSetpoint_.controlNamed("detectorTranslation").value()));
 
+	// Watch the move action: succeeded or failed (or cancelled)
+	connect(moveAction_, SIGNAL(stateChanged(int,int)), this, SLOT(onMoveActionStateChanged(int,int)));
+	emit moveStarted();
+	moveAction_->start();
 }
 
-
-void REIXSSpectrometer::smStartMoveZto0()
-{
-	qDebug() << "Moving Z to 0";
-	currentMoveStep_ = MovingZto0;
-	connect(hexapod_->z(), SIGNAL(moveSucceeded()), this, SLOT(smMoveZto0Succeeded()));
-	connect(hexapod_->z(), SIGNAL(moveFailed(int)), this, SLOT(smMoveZto0Failed(int)));
-
-	hexapod_->z()->move(0);
-}
-
-void REIXSSpectrometer::smMoveZto0Succeeded()
-{
-	qDebug() << "Moving Z to 0: success!";
-	disconnect(hexapod_->z(), SIGNAL(moveSucceeded()), this, SLOT(smMoveZto0Succeeded()));
-	disconnect(hexapod_->z(), SIGNAL(moveFailed(int)), this, SLOT(smMoveZto0Failed(int)));
-
-	smStartMoveUto0();
-}
-
-void REIXSSpectrometer::smMoveZto0Failed(int reason)
-{
-	disconnect(hexapod_->z(), SIGNAL(moveSucceeded()), this, SLOT(smMoveZto0Succeeded()));
-	disconnect(hexapod_->z(), SIGNAL(moveFailed(int)), this, SLOT(smMoveZto0Failed(int)));
-
-	currentMoveStep_ = MoveDone;
-	emit moveFailed(reason);
-
-	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, reason, "Spectrometer move: failed while trying to move Hexapod Z to 0"));
-}
-
-void REIXSSpectrometer::smStartMoveUto0()
-{
-	qDebug() << "Moving U to 0";
-	currentMoveStep_ = MovingUto0;
-
-	connect(hexapod_->u(), SIGNAL(moveSucceeded()), this, SLOT(smMoveUto0Succeeded()));
-	connect(hexapod_->u(), SIGNAL(moveFailed(int)), this, SLOT(smMoveUto0Failed(int)));
-
-	hexapod_->u()->move(0);
-}
-
-void REIXSSpectrometer::smMoveUto0Succeeded()
-{
-	qDebug() << "Moving Z to 0: success!";
-
-	disconnect(hexapod_->u(), SIGNAL(moveSucceeded()), this, SLOT(smMoveUto0Succeeded()));
-	disconnect(hexapod_->u(), SIGNAL(moveFailed(int)), this, SLOT(smMoveUto0Failed(int)));
-
-	smStartMoveRST();
-}
-
-void REIXSSpectrometer::smMoveUto0Failed(int reason)
-{
-	disconnect(hexapod_->u(), SIGNAL(moveSucceeded()), this, SLOT(smMoveUto0Succeeded()));
-	disconnect(hexapod_->u(), SIGNAL(moveFailed(int)), this, SLOT(smMoveUto0Failed(int)));
-
-	currentMoveStep_ = MoveDone;
-	emit moveFailed(reason);
-
-	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, reason, QString("Spectrometer move: failed while trying to move Hexapod U into position. Target: %1.  Reached: %2").arg(hexapod_->u()->setpoint()).arg(hexapod_->u()->value())));
-}
-
-void REIXSSpectrometer::smStartMoveRST()
-{
-	qDebug() << "Moving RST to pos";
-
-	currentMoveStep_ = MovingRST;
-
-	smRMoveDone_ = smSMoveDone_ = smTMoveDone_ = false;
-	connect(hexapod_->r(), SIGNAL(moveSucceeded()), this, SLOT(smRMoveSucceeded()));
-	connect(hexapod_->r(), SIGNAL(moveFailed(int)), this, SLOT(smRMoveFailed(int)));
-	connect(hexapod_->s(), SIGNAL(moveSucceeded()), this, SLOT(smSMoveSucceeded()));
-	connect(hexapod_->s(), SIGNAL(moveFailed(int)), this, SLOT(smSMoveFailed(int)));
-	connect(hexapod_->t(), SIGNAL(moveSucceeded()), this, SLOT(smTMoveSucceeded()));
-	connect(hexapod_->t(), SIGNAL(moveFailed(int)), this, SLOT(smTMoveFailed(int)));
-
-	hexapod_->r()->move(moveSetpoint_.controlNamed("hexapodR").value());
-	hexapod_->s()->move(moveSetpoint_.controlNamed("hexapodS").value());
-	hexapod_->t()->move(moveSetpoint_.controlNamed("hexapodT").value());
-}
-
-
-
-void REIXSSpectrometer::smStartMoveU()
-{
-	qDebug() << "Moving U to pos";
-
-	currentMoveStep_ = MovingU;
-
-	connect(hexapod_->u(), SIGNAL(moveSucceeded()), this, SLOT(smMoveUSucceeded()));
-	connect(hexapod_->u(), SIGNAL(moveFailed(int)), this, SLOT(smMoveUFailed(int)));
-
-	hexapod_->u()->move(moveSetpoint_.controlNamed("hexapodU").value());
-}
-
-void REIXSSpectrometer::smMoveUSucceeded()
-{
-	qDebug() << "Moving U to pos: Success!";
-
-	disconnect(hexapod_->u(), SIGNAL(moveSucceeded()), this, SLOT(smMoveUSucceeded()));
-	disconnect(hexapod_->u(), SIGNAL(moveFailed(int)), this, SLOT(smMoveUFailed(int)));
-
-	smStartMoveXYZ();
-}
-
-void REIXSSpectrometer::smMoveUFailed(int reason)
-{
-	disconnect(hexapod_->u(), SIGNAL(moveSucceeded()), this, SLOT(smMoveUSucceeded()));
-	disconnect(hexapod_->u(), SIGNAL(moveFailed(int)), this, SLOT(smMoveUFailed(int)));
-
-	currentMoveStep_ = MoveDone;
-	emit moveFailed(reason);
-
-	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, reason, QString("Spectrometer move: failed while trying to move Hexapod U into position. Target: %1.  Reached: %2").arg(hexapod_->u()->setpoint()).arg(hexapod_->u()->value())));
-}
-
-void REIXSSpectrometer::smStartMoveXYZ()
-{
-	qDebug() << "Moving XYZ to pos";
-
-	currentMoveStep_ = MovingXYZ;
-	smXMoveDone_ = smYMoveDone_ = smZMoveDone_ = false;
-
-	connect(hexapod_->x(), SIGNAL(moveSucceeded()), this, SLOT(smXMoveSucceeded()));
-	connect(hexapod_->x(), SIGNAL(moveFailed(int)), this, SLOT(smXMoveFailed(int)));
-	connect(hexapod_->y(), SIGNAL(moveSucceeded()), this, SLOT(smYMoveSucceeded()));
-	connect(hexapod_->y(), SIGNAL(moveFailed(int)), this, SLOT(smYMoveFailed(int)));
-	connect(hexapod_->z(), SIGNAL(moveSucceeded()), this, SLOT(smZMoveSucceeded()));
-	connect(hexapod_->z(), SIGNAL(moveFailed(int)), this, SLOT(smZMoveFailed(int)));
-
-	hexapod_->x()->move(moveSetpoint_.controlNamed("hexapodX").value());
-	hexapod_->y()->move(moveSetpoint_.controlNamed("hexapodY").value());
-	hexapod_->z()->move(moveSetpoint_.controlNamed("hexapodZ").value());
-}
-
-
-
-void REIXSSpectrometer::smStartMoveLiftTiltTranslation()
-{
-	qDebug() << "Moving Lift, Tilt, Translation to pos";
-
-	currentMoveStep_ = MovingLiftTiltTranslation;
-	smLiftMoveDone_ = smTiltMoveDone_ = smTranslationMoveDone_ = false;
-
-	connect(spectrometerRotationDrive_, SIGNAL(moveSucceeded()), this, SLOT(smLiftMoveSucceeded()));
-	connect(spectrometerRotationDrive_, SIGNAL(moveFailed(int)), this, SLOT(smLiftMoveFailed(int)));
-	connect(detectorTiltDrive_, SIGNAL(moveSucceeded()), this, SLOT(smTiltMoveSucceeded()));
-	connect(detectorTiltDrive_, SIGNAL(moveFailed(int)), this, SLOT(smTiltMoveFailed(int)));
-	connect(detectorTranslation_, SIGNAL(moveSucceeded()), this, SLOT(smTranslationMoveSucceeded()));
-	connect(detectorTranslation_, SIGNAL(moveFailed(int)), this, SLOT(smTranslationMoveFailed(int)));
-
-
-	spectrometerRotationDrive_->move(moveSetpoint_.controlNamed("spectrometerRotationDrive").value());
-	detectorTiltDrive_->move(moveSetpoint_.controlNamed("detectorTiltDrive").value());
-	detectorTranslation_->move(moveSetpoint_.controlNamed("detectorTranslation").value());
-
-}
-
-
-
-void REIXSSpectrometer::smRMoveSucceeded()
-{
-	qDebug() << "Moving R to pos: success!";
-
-	disconnect(hexapod_->r(), SIGNAL(moveSucceeded()), this, SLOT(smRMoveSucceeded()));
-	disconnect(hexapod_->r(), SIGNAL(moveFailed(int)), this, SLOT(smRMoveFailed(int)));
-
-	smRMoveDone_ = true;
-	if(smRMoveDone_ && smSMoveDone_ && smTMoveDone_)
-		smStartMoveU();
-}
-
-void REIXSSpectrometer::smSMoveSucceeded()
-{
-	qDebug() << "Moving S to pos: success!";
-
-	disconnect(hexapod_->s(), SIGNAL(moveSucceeded()), this, SLOT(smSMoveSucceeded()));
-	disconnect(hexapod_->s(), SIGNAL(moveFailed(int)), this, SLOT(smSMoveFailed(int)));
-
-	smSMoveDone_ = true;
-	if(smRMoveDone_ && smSMoveDone_ && smTMoveDone_)
-		smStartMoveU();
-
-}
-
-void REIXSSpectrometer::smTMoveSucceeded()
-{
-	qDebug() << "Moving T to pos: success!";
-
-	disconnect(hexapod_->t(), SIGNAL(moveSucceeded()), this, SLOT(smTMoveSucceeded()));
-	disconnect(hexapod_->t(), SIGNAL(moveFailed(int)), this, SLOT(smTMoveFailed(int)));
-
-	smTMoveDone_ = true;
-	if(smRMoveDone_ && smSMoveDone_ && smTMoveDone_)
-		smStartMoveU();
-}
-
-void REIXSSpectrometer::smRMoveFailed(int reason)
-{
-	disconnect(hexapod_->r(), SIGNAL(moveSucceeded()), this, SLOT(smRMoveSucceeded()));
-	disconnect(hexapod_->r(), SIGNAL(moveFailed(int)), this, SLOT(smRMoveFailed(int)));
-	disconnect(hexapod_->s(), SIGNAL(moveSucceeded()), this, SLOT(smSMoveSucceeded()));
-	disconnect(hexapod_->s(), SIGNAL(moveFailed(int)), this, SLOT(smSMoveFailed(int)));
-	disconnect(hexapod_->t(), SIGNAL(moveSucceeded()), this, SLOT(smTMoveSucceeded()));
-	disconnect(hexapod_->t(), SIGNAL(moveFailed(int)), this, SLOT(smTMoveFailed(int)));
-
-	currentMoveStep_ = MoveDone;
-	emit moveFailed(reason);
-
-	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, reason, "Spectrometer move: failed while trying to move Hexapod R into position."));
-}
-
-void REIXSSpectrometer::smSMoveFailed(int reason)
-{
-	disconnect(hexapod_->r(), SIGNAL(moveSucceeded()), this, SLOT(smRMoveSucceeded()));
-	disconnect(hexapod_->r(), SIGNAL(moveFailed(int)), this, SLOT(smRMoveFailed(int)));
-	disconnect(hexapod_->s(), SIGNAL(moveSucceeded()), this, SLOT(smSMoveSucceeded()));
-	disconnect(hexapod_->s(), SIGNAL(moveFailed(int)), this, SLOT(smSMoveFailed(int)));
-	disconnect(hexapod_->t(), SIGNAL(moveSucceeded()), this, SLOT(smTMoveSucceeded()));
-	disconnect(hexapod_->t(), SIGNAL(moveFailed(int)), this, SLOT(smTMoveFailed(int)));
-
-	currentMoveStep_ = MoveDone;
-	emit moveFailed(reason);
-
-	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, reason, "Spectrometer move: failed while trying to move Hexapod S into position."));
-}
-
-void REIXSSpectrometer::smTMoveFailed(int reason)
-{
-	disconnect(hexapod_->r(), SIGNAL(moveSucceeded()), this, SLOT(smRMoveSucceeded()));
-	disconnect(hexapod_->r(), SIGNAL(moveFailed(int)), this, SLOT(smRMoveFailed(int)));
-	disconnect(hexapod_->s(), SIGNAL(moveSucceeded()), this, SLOT(smSMoveSucceeded()));
-	disconnect(hexapod_->s(), SIGNAL(moveFailed(int)), this, SLOT(smSMoveFailed(int)));
-	disconnect(hexapod_->t(), SIGNAL(moveSucceeded()), this, SLOT(smTMoveSucceeded()));
-	disconnect(hexapod_->t(), SIGNAL(moveFailed(int)), this, SLOT(smTMoveFailed(int)));
-
-	currentMoveStep_ = MoveDone;
-	emit moveFailed(reason);
-
-	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, reason, "Spectrometer move: failed while trying to move Hexapod S into position."));
-}
-
-void REIXSSpectrometer::smXMoveSucceeded()
-{
-	qDebug() << "Moving X to pos: success!";
-
-	disconnect(hexapod_->x(), SIGNAL(moveSucceeded()), this, SLOT(smXMoveSucceeded()));
-	disconnect(hexapod_->x(), SIGNAL(moveFailed(int)), this, SLOT(smXMoveFailed(int)));
-
-	smXMoveDone_ = true;
-	if(smXMoveDone_ && smYMoveDone_ && smZMoveDone_)
-		smStartMoveLiftTiltTranslation();
-}
-
-void REIXSSpectrometer::smYMoveSucceeded()
-{
-	qDebug() << "Moving Y to pos: success!";
-
-	disconnect(hexapod_->y(), SIGNAL(moveSucceeded()), this, SLOT(smYMoveSucceeded()));
-	disconnect(hexapod_->y(), SIGNAL(moveFailed(int)), this, SLOT(smYMoveFailed(int)));
-
-	smYMoveDone_ = true;
-	if(smXMoveDone_ && smYMoveDone_ && smZMoveDone_)
-		smStartMoveLiftTiltTranslation();
-
-}
-
-void REIXSSpectrometer::smZMoveSucceeded()
-{
-	qDebug() << "Moving Z to pos: success!";
-
-	disconnect(hexapod_->z(), SIGNAL(moveSucceeded()), this, SLOT(smZMoveSucceeded()));
-	disconnect(hexapod_->z(), SIGNAL(moveFailed(int)), this, SLOT(smZMoveFailed(int)));
-
-	smZMoveDone_ = true;
-	if(smXMoveDone_ && smYMoveDone_ && smZMoveDone_)
-		smStartMoveLiftTiltTranslation();
-}
-
-void REIXSSpectrometer::smXMoveFailed(int reason)
-{
-	disconnect(hexapod_->x(), SIGNAL(moveSucceeded()), this, SLOT(smXMoveSucceeded()));
-	disconnect(hexapod_->x(), SIGNAL(moveFailed(int)), this, SLOT(smXMoveFailed(int)));
-	disconnect(hexapod_->y(), SIGNAL(moveSucceeded()), this, SLOT(smYMoveSucceeded()));
-	disconnect(hexapod_->y(), SIGNAL(moveFailed(int)), this, SLOT(smYMoveFailed(int)));
-	disconnect(hexapod_->z(), SIGNAL(moveSucceeded()), this, SLOT(smZMoveSucceeded()));
-	disconnect(hexapod_->z(), SIGNAL(moveFailed(int)), this, SLOT(smZMoveFailed(int)));
-
-	currentMoveStep_ = MoveDone;
-	emit moveFailed(reason);
-
-	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, reason, "Spectrometer move: failed while trying to move Hexapod X into position."));
-}
-
-void REIXSSpectrometer::smYMoveFailed(int reason)
-{
-	disconnect(hexapod_->x(), SIGNAL(moveSucceeded()), this, SLOT(smXMoveSucceeded()));
-	disconnect(hexapod_->x(), SIGNAL(moveFailed(int)), this, SLOT(smXMoveFailed(int)));
-	disconnect(hexapod_->y(), SIGNAL(moveSucceeded()), this, SLOT(smYMoveSucceeded()));
-	disconnect(hexapod_->y(), SIGNAL(moveFailed(int)), this, SLOT(smYMoveFailed(int)));
-	disconnect(hexapod_->z(), SIGNAL(moveSucceeded()), this, SLOT(smZMoveSucceeded()));
-	disconnect(hexapod_->z(), SIGNAL(moveFailed(int)), this, SLOT(smZMoveFailed(int)));
-
-	currentMoveStep_ = MoveDone;
-	emit moveFailed(reason);
-
-	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, reason, "Spectrometer move: failed while trying to move Hexapod Y into position."));
-}
-
-void REIXSSpectrometer::smZMoveFailed(int reason)
-{
-	disconnect(hexapod_->x(), SIGNAL(moveSucceeded()), this, SLOT(smXMoveSucceeded()));
-	disconnect(hexapod_->x(), SIGNAL(moveFailed(int)), this, SLOT(smXMoveFailed(int)));
-	disconnect(hexapod_->y(), SIGNAL(moveSucceeded()), this, SLOT(smYMoveSucceeded()));
-	disconnect(hexapod_->y(), SIGNAL(moveFailed(int)), this, SLOT(smYMoveFailed(int)));
-	disconnect(hexapod_->z(), SIGNAL(moveSucceeded()), this, SLOT(smZMoveSucceeded()));
-	disconnect(hexapod_->z(), SIGNAL(moveFailed(int)), this, SLOT(smZMoveFailed(int)));
-
-	currentMoveStep_ = MoveDone;
-	emit moveFailed(reason);
-
-	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, reason, "Spectrometer move: failed while trying to move Hexapod Z into position."));
-}
-
-void REIXSSpectrometer::smLiftMoveSucceeded()
-{
-	qDebug() << "Moving Lift to pos: success!";
-
-	disconnect(spectrometerRotationDrive_, SIGNAL(moveSucceeded()), this, SLOT(smLiftMoveSucceeded()));
-	disconnect(spectrometerRotationDrive_, SIGNAL(moveFailed(int)), this, SLOT(smLiftMoveFailed(int)));
-
-	smLiftMoveDone_ = true;
-	if(smLiftMoveDone_ && smTiltMoveDone_ && smTranslationMoveDone_) {
-		currentMoveStep_ = MoveDone;
-		emit moveSucceeded();
-	}
-}
-
-void REIXSSpectrometer::smTiltMoveSucceeded()
-{
-	qDebug() << "Moving Tilt to pos: success!";
-
-	disconnect(detectorTiltDrive_, SIGNAL(moveSucceeded()), this, SLOT(smTiltMoveSucceeded()));
-	disconnect(detectorTiltDrive_, SIGNAL(moveFailed(int)), this, SLOT(smTiltMoveFailed(int)));
-
-	smTiltMoveDone_ = true;
-	if(smLiftMoveDone_ && smTiltMoveDone_ && smTranslationMoveDone_) {
-		currentMoveStep_ = MoveDone;
-		emit moveSucceeded();
-	}
-}
-
-void REIXSSpectrometer::smTranslationMoveSucceeded()
-{
-	qDebug() << "Moving Translation to pos: success!";
-
-	disconnect(detectorTranslation_, SIGNAL(moveSucceeded()), this, SLOT(smTranslationMoveSucceeded()));
-	disconnect(detectorTranslation_, SIGNAL(moveFailed(int)), this, SLOT(smTranslationMoveFailed(int)));
-
-	smTranslationMoveDone_ = true;
-	if(smLiftMoveDone_ && smTiltMoveDone_ && smTranslationMoveDone_) {
-		currentMoveStep_ = MoveDone;
-		emit moveSucceeded();
-	}
-}
-
-void REIXSSpectrometer::smLiftMoveFailed(int reason)
-{
-	disconnect(spectrometerRotationDrive_, SIGNAL(moveSucceeded()), this, SLOT(smLiftMoveSucceeded()));
-	disconnect(spectrometerRotationDrive_, SIGNAL(moveFailed(int)), this, SLOT(smLiftMoveFailed(int)));
-	disconnect(detectorTiltDrive_, SIGNAL(moveSucceeded()), this, SLOT(smTiltMoveSucceeded()));
-	disconnect(detectorTiltDrive_, SIGNAL(moveFailed(int)), this, SLOT(smTiltMoveFailed(int)));
-	disconnect(detectorTranslation_, SIGNAL(moveSucceeded()), this, SLOT(smTranslationMoveSucceeded()));
-	disconnect(detectorTranslation_, SIGNAL(moveFailed(int)), this, SLOT(smTranslationMoveFailed(int)));
-
-	currentMoveStep_ = MoveDone;
-	emit moveFailed(reason);
-
-	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, reason, "Spectrometer move: failed while trying to move the Spectrometer Rotation motor into position."));
-}
-
-void REIXSSpectrometer::smTiltMoveFailed(int reason)
-{
-	disconnect(spectrometerRotationDrive_, SIGNAL(moveSucceeded()), this, SLOT(smLiftMoveSucceeded()));
-	disconnect(spectrometerRotationDrive_, SIGNAL(moveFailed(int)), this, SLOT(smLiftMoveFailed(int)));
-	disconnect(detectorTiltDrive_, SIGNAL(moveSucceeded()), this, SLOT(smTiltMoveSucceeded()));
-	disconnect(detectorTiltDrive_, SIGNAL(moveFailed(int)), this, SLOT(smTiltMoveFailed(int)));
-	disconnect(detectorTranslation_, SIGNAL(moveSucceeded()), this, SLOT(smTranslationMoveSucceeded()));
-	disconnect(detectorTranslation_, SIGNAL(moveFailed(int)), this, SLOT(smTranslationMoveFailed(int)));
-
-	currentMoveStep_ = MoveDone;
-	emit moveFailed(reason);
-
-	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, reason, QString("Spectrometer move: failed while trying to move the detector tilt motor into position. Target: %1.  Reached: %2").arg(detectorTiltDrive_->setpoint()).arg(detectorTiltDrive_->value())));
-}
-
-void REIXSSpectrometer::smTranslationMoveFailed(int reason)
-{
-	disconnect(spectrometerRotationDrive_, SIGNAL(moveSucceeded()), this, SLOT(smLiftMoveSucceeded()));
-	disconnect(spectrometerRotationDrive_, SIGNAL(moveFailed(int)), this, SLOT(smLiftMoveFailed(int)));
-	disconnect(detectorTiltDrive_, SIGNAL(moveSucceeded()), this, SLOT(smTiltMoveSucceeded()));
-	disconnect(detectorTiltDrive_, SIGNAL(moveFailed(int)), this, SLOT(smTiltMoveFailed(int)));
-	disconnect(detectorTranslation_, SIGNAL(moveSucceeded()), this, SLOT(smTranslationMoveSucceeded()));
-	disconnect(detectorTranslation_, SIGNAL(moveFailed(int)), this, SLOT(smTranslationMoveFailed(int)));
-
-	currentMoveStep_ = MoveDone;
-	emit moveFailed(reason);
-
-	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, reason, "Spectrometer move: failed while trying to move the Detector Translation motor into position."));
-}
 
 bool REIXSSpectrometer::stop()
 {
 	if(!canStop())
 		return false;
 
-	if(currentMoveStep_ != MoveDone) {
+	if(moveInProgress()) {
+		moveAction_->cancel();
+		/// \todo Actually, have to flag that a stop has started, and also catch when the stop is finished... Motors will take a while to actually receive and decelerate.
+		delete moveAction_;
+		moveAction_ = 0;
 		emit moveFailed(AMControl::WasStoppedFailure);
 	}
 
+	// just in case anything was moving from outside our instructions (ie: commanded from somewhere else in the building)
 	spectrometerRotationDrive_->stop();
 	detectorTranslation_->stop();
 	detectorTiltDrive_->stop();
 	// hexapod: cannot stop without wrecking init. Don't worry for now... just let it stop over time. Not necessary for it to be not-moving before we re-send it somewhere new.
 
 	/// \todo Actually, have to flag that a stop has started, and also catch when the stop is finished... Motors will take a while to actually receive and decelerate.
-	currentMoveStep_ = MoveDone;
 
 	return true;
 }
@@ -699,6 +322,21 @@ bool REIXSSpectrometer::gratingInPosition() const
 			hexapod_->u()->withinTolerance(u) &&
 			hexapod_->v()->withinTolerance(0) &&
 			hexapod_->w()->withinTolerance(0);
+}
+
+void REIXSSpectrometer::onMoveActionStateChanged(int state, int previousState)
+{
+	Q_UNUSED(previousState)
+
+	if(state == AMAction::Succeeded || state == AMAction::Failed || state == AMAction::Cancelled) {
+		delete moveAction_;
+		moveAction_ = 0;
+		if(state == AMAction::Succeeded)
+			emit moveSucceeded();
+		else if(state == AMAction::Failed)
+			emit moveFailed(AMControl::OtherFailure);
+		// cancelled: handled previously in stop().
+	}
 }
 
 

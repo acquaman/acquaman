@@ -54,10 +54,10 @@ public:
 	// Modification methods:
 
 	/// Appends a sub-action to the end of the sub-actions list. (Fails and returns false if the action is already running.)
-	/*! The action takes ownership of its sub-actions and will delete them when deleted */
+	/*! The action takes ownership of its sub-actions, and will delete them when deleted */
 	bool addSubAction(AMAction* action) { return insertSubAction(action, -1); }
 	/// Inserts a sub-action into the sub-actions list. \c index is the position the sub-action will end up in. (Fails and returns false if the action is already running.) If \c index is 0, the sub-action is inserted at the beginning. If \c index >= subActionCount() or < 0, the sub-action is inserted at the end.
-	/*! The action takes ownership of its sub-actions and will delete them when deleted */
+	/*! The action takes ownership of its sub-actions, and will delete them when deleted */
 	bool insertSubAction(AMAction* action, int index);
 
 	/// Remove and return the sub-action at \c index. Returns 0 if the index is out of range, or if the action is already running and this is not allowed. Ownership of the sub-action becomes the responsibility of the caller.
@@ -69,7 +69,7 @@ public:
 	// Re-implemented public functions
 	///////////////////////
 
-	/// Re-implemented from AMAction to indicate we can pause. In sequential mode we can pause if the current action is running and can pause, OR if there's more than one action (ie: we can pause between actions). In parallel mode, we can pause if all of our still-running parallel actions can pause.  If there are no sub-actions, we cannot pause because the action would run instantly.
+	/// Re-implemented from AMAction to indicate we can pause. In sequential mode we can pause if the current action is running and can pause, OR if there's more than one action (ie: we can pause between actions). In parallel mode, we can pause if all of our still-running parallel actions can pause.  If there are no sub-actions, we cannot pause because the action would run instantly -- there would be no time to pause.
 	virtual bool canPause() const;
 
 signals:

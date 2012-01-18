@@ -10,7 +10,7 @@
 
   After actions are run, it is their AMActionInfo that can be stored persistently in the user's database [and hence shared across other beamlines/programs, which is why the infos must be decoupled from the implementation]. If you want to be able to re-create and run live AMActions based on these stored AMActionInfos, you should register your Action/Info pair with AMActionRegistry::registerActionForInfo().
 
-If you want to be lazy and dispense with the hassle of AMActionInfo subclasses, you can use an instance of the generic AMActionInfo inside actions (where the action parameters have been hard-coded into the actions themselves). The information in this base class is sufficient to provide users with general feedback on the state of the action while it is queued or running.  However, in this case it will not be possible to recreate a copy of any particular action based on the stored AMActionInfo.
+All actions NEED to have a valid action info.  However, if you want to be lazy and dispense with the hassle of custom AMActionInfo subclasses, you can use an instance of the generic AMActionInfo inside your actions (for ex: where the action parameters have been hard-coded into the actions themselves). The information in this base class is sufficient to provide users with general feedback on the state of the action while it is queued or running.  However, in this case it will not be possible to recreate a copy of any particular action based on the stored AMActionInfo.
 
   A custom AMActionInfo is also necessary if you want to install a custom view or editor for queued or stored actions; this can be done using the AMActionRegistry functions registerDelegateForInfo(), registerEditorForInfo() and registerWindowEditorForInfo(). All of the views/editors operate on the info rather than the action, so that they can be used in programs that shouldn't/can't access the action's implementation.
 */
@@ -18,6 +18,7 @@ class AMActionInfo : public AMDbObject
 {
 	Q_OBJECT
 
+	// the shortDescription is stored in the AMDbObject name column
 	Q_PROPERTY(QString longDescription READ longDescription WRITE setLongDescription)
 	Q_PROPERTY(QString iconFileName READ iconFileName WRITE setIconFileName)
 	Q_PROPERTY(double expectedDuration READ expectedDuration WRITE setExpectedDuration)
@@ -66,7 +67,7 @@ public slots:
 	void setExpectedDuration(double expectedDurationSeconds) { expectedDuration_ = expectedDurationSeconds; setModified(true); emit infoChanged(); emit expectedDurationChanged(expectedDuration_); }
 
 public:
-	// Database thumbnails: None for now... Use in AMActionLogItem later.
+	// Database thumbnails: None for now... Use in AMActionLogItem later?
 	/////////////////////
 	//	/// If we have a non-empty iconFileName_ has been set, we return 1 thumbnail.
 	//	virtual int thumbnailCount() const { return iconFileName_.isEmpty() ? 0 : 1; }
