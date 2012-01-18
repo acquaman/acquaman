@@ -38,33 +38,3 @@ AMWorkflowView::AMWorkflowView(QWidget *parent) :
 	vl->addSpacing(12);
 	vl->addWidget(queueView_);
 }
-
-
-#include <QCloseEvent>
-#include <QDebug>
-#include <QMessageBox>
-#include "actions2/AMAction.h"
-
-void AMWorkflowView::closeEvent(QCloseEvent *e)
-{
-	AMActionRunner::s()->setQueuePaused(true);
-
-	qDebug() << "CLOSE EVENT";
-
-	if(AMActionRunner::s()->actionRunning()) {
-		e->setAccepted(false);
-		qDebug() << "Attempting to block close";
-
-		if(QMessageBox::question(this,
-							  "An action is still running. Are you sure you want to quit?",
-							  QString("There is an action (%1) still running.  Do you want to stop it?").arg(AMActionRunner::s()->currentAction()->info()->shortDescription()),
-							  QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-			AMAction* action = AMActionRunner::s()->currentAction();
-			if(action)
-				action->cancel();
-			// problem: we don't know how long this will take to cancel, so we can't continue with the quit process. They'll just have to try quitting again, and the action will probably be done by then.
-		}
-	}
-
-	QWidget::closeEvent(e);
-}

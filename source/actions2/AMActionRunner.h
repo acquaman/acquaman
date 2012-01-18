@@ -118,6 +118,10 @@ public:
 
 	/// Instead of going through the queue, it's possible to ask the Action Runner to take an action and run it immediately.  Immediate actions will be run in parallel/independently of the currentAction() if there is one, (although they might wait for their prerequisites to be satisfied, just like any other action.)  When the action finishes, the Action Runner will take care of logging and deleting it.  If it fails, the action's failureResponseInActionRunner() will be respected.
 	void runActionImmediately(AMAction* action);
+	/// Returns the number of immediate actions currently running
+	int immediateActionsCount() const { return immediateActions_.count(); }
+	/// Returns the immediately-running action at \c index (which must be >= 0 and < immediateActionsCount()
+	AMAction* immediateActionAt(int index);
 
 
 signals:
@@ -149,6 +153,16 @@ public slots:
 	/// Set whether the queue is paused or running.  If the queue is running, it will advance automatically to the next action whenever there are actions in the queue, or when an action is added to an empty queue. Note that setting the queue to paused does not pause the current action... It only pauses the workflow from moving on to the <i>next</i> action after the current one is completed.
 	void setQueuePaused(bool isPaused);
 
+	// These slots are useful to controller views of the current action. This saves them from having to deal with the individual currentAction();
+	/// Cancel the currently-running action, if there is one. (Returns true if so.)
+	bool cancelCurrentAction();
+	/// Pause the current action, if there is one, and it can be paused. (Returns true if so.)
+	bool pauseCurrentAction();
+	/// Resume the current action, if there is one, and it is paused. (Returns true if so)
+	bool resumeCurrentAction();
+
+	/// This slot can be used to cancel all immediately-running actions. Returns true if there were any to cancel.
+	bool cancelImmediateActions();
 
 protected slots:
 	/// Respond internally whenever the state of the currently-running action changes.
@@ -162,6 +176,7 @@ protected:
 	AMActionQueueModel* queueModel_;
 	AMAction* currentAction_;
 	bool isPaused_;
+	QList<AMAction*> immediateActions_;
 
 	/// Helper function called when the previous action finishes. If the queue is running and there are more actions, it starts the next one. If the queue is paused or if we're out of actions, it sets the currentAction() to 0. Either way, it emits the currentActionChanged() signal.
 	void internalDoNextAction();

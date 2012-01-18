@@ -31,9 +31,6 @@ protected:
 	AMActionRunnerQueueView* queueView_;
 	AMActionRunnerCurrentView* currentView_;
 	AMActionHistoryView* historyView_;
-
-	/// We handle the closeEvent() to check to make sure there aren't still actions running.
-	void closeEvent(QCloseEvent *e);
 };
 
 #endif // AMWORKFLOWVIEW_H

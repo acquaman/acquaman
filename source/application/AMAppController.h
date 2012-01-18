@@ -69,6 +69,12 @@ If \c openInExistingEditor is set to true, and if there is an existing editor, t
 protected:
 	/// Top-level panes in the main window
 	AMWorkflowManagerView* workflowManagerView_;
+
+	/// Filters the closeEvent on the main window, in case there's any reason why we can't quit directly. (ie: scans modified and still open, or an action is still running)
+	virtual bool eventFilter(QObject *, QEvent *);
+
+	/// Checks to make sure no actions are currently running in the AMActionRunner. If there are, asks user if they want to cancel them, but still returns false.
+	bool canCloseActionRunner();
 };
 
 #endif // AMAPPCONTROLLER_H

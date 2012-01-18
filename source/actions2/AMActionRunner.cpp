@@ -235,6 +235,7 @@ int AMActionRunner::internalAskUserWhatToDoAboutFailedAction(AMAction* action)
 void AMActionRunner::runActionImmediately(AMAction *action)
 {
 	connect(action, SIGNAL(stateChanged(int,int)), this, SLOT(onImmediateActionStateChanged(int,int)));
+	immediateActions_ << action;
 	action->start();
 }
 
@@ -264,6 +265,9 @@ void AMActionRunner::onImmediateActionStateChanged(int state, int previousState)
 	if(state == AMAction::Failed ||
 			state == AMAction::Cancelled ||
 			state == AMAction::Succeeded) {
+
+		// remove from the list of current immediate actions
+		immediateActions_.removeAll(action);
 
 		// log it:
 		if(!AMActionLog::logCompletedAction(action)) {
@@ -382,5 +386,48 @@ bool AMActionQueueModel::removeRows(int row, int count, const QModelIndex &paren
 {
 	// qDebug() << "What? someone's calling removeRows on the model" << row << count << parent;
 	return QStandardItemModel::removeRows(row, count, parent);
+}
+
+AMAction * AMActionRunner::immediateActionAt(int index)
+{
+	if(index < 0 || index >= immediateActions_.count()) {
+		return 0;
+	}
+	return immediateActions_.at(index);
+}
+
+bool AMActionRunner::cancelCurrentAction()
+{
+	if(currentAction_) {
+		currentAction_->cancel();
+		return true;
+	}
+	return false;
+}
+
+bool AMActionRunner::pauseCurrentAction()
+{
+	if(currentAction_ && currentAction_->canPause()) {
+		return currentAction_->pause();
+	}
+	return false;
+}
+
+bool AMActionRunner::resumeCurrentAction()
+{
+	if(currentAction_ && currentAction_->state() == AMAction::Paused) {
+		return currentAction_->resume();
+	}
+	return false;
+}
+
+bool AMActionRunner::cancelImmediateActions()
+{
+	if(immediateActions_.isEmpty())
+		return false;
+
+	foreach(AMAction* action, immediateActions_)
+		action->cancel();
+	return true;
 }
 

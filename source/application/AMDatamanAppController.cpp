@@ -742,10 +742,9 @@ bool AMDatamanAppController::eventFilter(QObject* o, QEvent* e)
 			e->ignore();
 			return true;
 		}
-		else {
-			// They got away with closing the main window. We should quit the application
-			qApp->quit();	//note that this might already be in progress, if an application quit was what triggered this close event.  No harm in asking twice...
-		}
+		// They got away with closing the main window. We should quit the application
+		qApp->quit();	//note that this might already be in progress, if an application quit was what triggered this close event.  No harm in asking twice...
+
 	}
 	// anything else, allow unfiltered
 	return QObject::eventFilter(o,e);
