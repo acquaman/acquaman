@@ -388,6 +388,8 @@ void VESPERSBeamline::setupComponents()
 	connect(beamSelectionMotor_, SIGNAL(valueChanged(double)), this, SLOT(onBeamSelectionMotorConnected()));
 
 	variableIntegrationTime_ = new CLSVariableIntegrationTime("BL1607-B2-1:VarStep", this);
+
+	scaler_ = new CLSSIS3820Scaler("BL1607-B2-1:mcs", this);
 }
 
 void VESPERSBeamline::setupExperimentStatus()

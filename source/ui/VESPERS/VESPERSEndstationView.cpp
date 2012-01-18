@@ -92,6 +92,7 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	QToolButton *configButton = new QToolButton;
 	configButton->setIcon(QIcon(":/configure.png"));
 	connect(configButton, SIGNAL(clicked()), config_, SLOT(show()));
+	connect(configButton, SIGNAL(clicked()), config_, SLOT(raise()));
 
 	// Laser power signal.
 	laserPowerButton_ = new QToolButton;
@@ -146,7 +147,7 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	QGridLayout *endstationLayout = new QGridLayout;
 	endstationLayout->addWidget(controlGB, 0, 0, 3, 3);
 	endstationLayout->addWidget(windowGB, 0, 3);
-	endstationLayout->addWidget(dwellTimeView, 3, 0);
+	endstationLayout->addWidget(dwellTimeView, 2, 3);
 	endstationLayout->addWidget(extrasGroupBox, 1, 3);
 
 	QHBoxLayout *squishLayout = new QHBoxLayout;
