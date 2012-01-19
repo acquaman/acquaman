@@ -13,6 +13,7 @@
 #include <QRadioButton>
 #include <QCheckBox>
 #include <QPushButton>
+#include <QSpinBox>
 
 VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAFSScanConfiguration *config, QWidget *parent)
 	: AMScanConfigurationView(parent)
@@ -161,9 +162,18 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	}
 
 	QCheckBox *useFixedTime = new QCheckBox("Use fixed time (EXAFS)");
-	useFixedTime->setEnabled(false);
+	useFixedTime->setEnabled(config_->useFixedTime());
 	connect(config_->exafsRegions(), SIGNAL(regionsHaveKSpaceChanged(bool)), useFixedTime, SLOT(setEnabled(bool)));
 	connect(useFixedTime, SIGNAL(toggled(bool)), config_, SLOT(setUseFixedTime(bool)));
+
+	QSpinBox *numberOfScans = new QSpinBox;
+	numberOfScans->setMinimum(1);
+	numberOfScans->setValue(config_->numberOfScans());
+	connect(numberOfScans, SIGNAL(valueChanged(int)), config_, SLOT(setNumberOfScans(int)));
+	connect(config_, SIGNAL(numberOfScansChanged(int)), this, SLOT(onEstimatedTimeChanged()));
+
+	QFormLayout *numberOfScansLayout = new QFormLayout;
+	numberOfScansLayout->addRow("Number of Scans:", numberOfScans);
 
 	QFormLayout *energySetpointLayout = new QFormLayout;
 	energySetpointLayout->addRow("Energy:", energy_);
@@ -241,8 +251,8 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 
 	estimatedTime_ = new QLabel;
 	estimatedSetTime_ = new QLabel;
-	connect(config_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged(double)));
-	onEstimatedTimeChanged(config_->totalTime());
+	connect(config_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
+	onEstimatedTimeChanged();
 
 	// The roi text edit.
 	roiText_ = new QTextEdit;
@@ -271,6 +281,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	contentsLayout->addWidget(useFixedTime, 4, 0);
 	contentsLayout->addWidget(estimatedTime_, 5, 0);
 	contentsLayout->addWidget(estimatedSetTime_, 6, 0);
+	contentsLayout->addLayout(numberOfScansLayout, 6, 1);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
@@ -395,10 +406,10 @@ void VESPERSEXAFSScanConfigurationView::onItClicked(int id)
 	config_->setTransmissionChoice(id);
 }
 
-void VESPERSEXAFSScanConfigurationView::onEstimatedTimeChanged(double newTime)
+void VESPERSEXAFSScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time per scan: " + convertTimeToString(newTime));
-	estimatedSetTime_->setText("Estimated time for set: " + convertTimeToString(newTime*5));
+	estimatedTime_->setText("Estimated time per scan: " + convertTimeToString(config_->totalTime()));
+	estimatedSetTime_->setText("Estimated time for set: " + convertTimeToString(config_->totalTime()*config_->numberOfScans()));
 }
 
 QString VESPERSEXAFSScanConfigurationView::convertTimeToString(double time)
