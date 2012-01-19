@@ -18,7 +18,7 @@ public:
 	AMControlMoveActionInfo(const AMControlMoveActionInfo& other);
 
 	/// This function is used as a virtual copy constructor
-	virtual AMControlMoveActionInfo* createCopy() const { return new AMControlMoveActionInfo(*this); }
+	virtual AMActionInfo* createCopy() const { return new AMControlMoveActionInfo(*this); }
 
 	// Re-implemented public functions
 	/////////////////////////////////

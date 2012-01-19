@@ -74,7 +74,7 @@ void AMScanControllerAction::startImplementation()
 		AMErrorMon::report(AMErrorReport(this,
 										 AMErrorReport::Alert,
 										 -5,
-										 "Could not initialize the scan controller. Please report this bug to the Acquaman developers."));
+										 "There was a problem initializing the scan controller. The preceeding error messages might give more information. Please report this problem to the beamline staff."));
 		disconnect(controller_, 0, this, 0);
 		notifyFailed();
 		return;

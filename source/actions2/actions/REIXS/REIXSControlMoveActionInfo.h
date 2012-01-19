@@ -15,7 +15,7 @@ public:
 	REIXSControlMoveActionInfo(const REIXSControlMoveActionInfo& other) : AMControlMoveActionInfo(other) {}
 
 	/// This function is used as a virtual copy constructor
-	virtual REIXSControlMoveActionInfo* createCopy() const { return new REIXSControlMoveActionInfo(*this); }
+	virtual AMActionInfo* createCopy() const { return new REIXSControlMoveActionInfo(*this); }
 
 	// Re-implemented public functions
 	/////////////////////////////////

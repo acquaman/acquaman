@@ -17,7 +17,7 @@ public:
 	AMScanControllerAction(const AMScanControllerAction& other);
 	/// Virtual copy constructor
 	virtual AMAction* createCopy() const { return new AMScanControllerAction(*this); }
-	/// Destructor
+	/// Destructor. Deletes the controller, if we have one running already.
 	virtual ~AMScanControllerAction();
 
 	// Re-implemented public functions

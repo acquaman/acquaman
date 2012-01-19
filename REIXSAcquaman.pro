@@ -20,7 +20,9 @@ HEADERS +=	source/application/REIXS/REIXSAppController.h \
     source/ui/REIXS/REIXSXESSpectrometerControlEditor.h \
 	source/ui/REIXS/REIXSSampleChamberButtonPanel.h \
     source/actions2/actions/REIXS/REIXSControlMoveAction.h \
-    source/actions2/actions/REIXS/REIXSControlMoveActionInfo.h
+    source/actions2/actions/REIXS/REIXSControlMoveActionInfo.h \
+    source/actions2/actions/REIXS/REIXSXESScanActionInfo.h \
+    source/actions2/actions/REIXS/REIXSXESScanAction.h
 
 
 SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
@@ -37,7 +39,13 @@ SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
 	source/ui/REIXS/REIXSXESHexapodControlEditor.cpp \
     source/ui/REIXS/REIXSXESSpectrometerControlEditor.cpp \
 	source/ui/REIXS/REIXSSampleChamberButtonPanel.cpp \
-    source/actions2/actions/REIXS/REIXSControlMoveAction.cpp
+    source/actions2/actions/REIXS/REIXSControlMoveAction.cpp \
+    source/actions2/actions/REIXS/REIXSXESScanActionInfo.cpp
+
+
+
+
+
 
 
 

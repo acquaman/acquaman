@@ -17,7 +17,7 @@ public:
 	AMWaitActionInfo(const AMWaitActionInfo& other) : AMActionInfo(other), seconds_(other.seconds_) {}
 
 	/// This function is used as a virtual copy constructor
-	virtual AMWaitActionInfo* createCopy() const { return new AMWaitActionInfo(*this); }
+	virtual AMActionInfo* createCopy() const { return new AMWaitActionInfo(*this); }
 
 	// Re-implemented public functions
 	/////////////////////////////////
