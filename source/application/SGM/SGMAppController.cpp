@@ -65,10 +65,12 @@ bool SGMAppController::startup() {
 	//SGMBeamline::sgm();
 
 	SGMSettings::s()->load();
-	AMDatabase* dbSGM = AMDatabase::createDatabase("SGMBeamline", SGMSettings::s()->SGMDataFolder() + "/" + SGMSettings::s()->SGMDatabaseFilename());
-	if(!dbSGM)
-		return false;
-	AMDbObjectSupport::s()->registerDatabase(dbSGM);
+
+//	Moved to startupRegisterDatabases() to test why this was failing after another database (ie: the main database) was already registered.
+//	AMDatabase* dbSGM = AMDatabase::createDatabase("SGMBeamline", SGMSettings::s()->SGMDataFolder() + "/" + SGMSettings::s()->SGMDatabaseFilename());
+//	if(!dbSGM)
+//		return false;
+//	AMDbObjectSupport::s()->registerDatabase(dbSGM);
 
 	if(AMAppController::startup()) {
 		if(!setupSGMDatabase())
@@ -225,6 +227,24 @@ void SGMAppController::shutdown() {
 	AMAppController::shutdown();
 }
 
+
+bool SGMAppController::startupRegisterDatabases()
+{
+	if(!AMAppController::startupRegisterDatabases())
+		return false;
+
+	AMDatabase* dbSGM = AMDatabase::createDatabase("SGMBeamline", SGMSettings::s()->SGMDataFolder() + "/" + SGMSettings::s()->SGMDatabaseFilename());
+	if(!dbSGM) {
+		AMErrorMon::alert(this, -701, "Error creating the SGM Database. Please report this problem to the Acquaman developers.");
+		return false;
+	}
+
+	if(!AMDbObjectSupport::s()->registerDatabase(dbSGM)) {
+		AMErrorMon::alert(this, -702, "Error registering the SGM Database. Please report this problem to the Acquaman developers.");
+		return false;
+	}
+	return true;
+}
 
 void SGMAppController::onCurrentPaneChanged(QWidget *pane) {
 	Q_UNUSED(pane)
@@ -440,3 +460,5 @@ bool SGMAppController::setupSGMPeriodicTable(){
 
 	return success;
 }
+
+
