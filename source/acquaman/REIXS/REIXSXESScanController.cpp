@@ -24,14 +24,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMUser.h"
 
 #include "dataman/REIXS/REIXSXESCalibration.h"
-#include "actions/AMBeamlineControlMoveAction.h"
+#include "actions2/actions/AMInternalControlMoveAction.h"
 #include "util/AMSettings.h"
 
 REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* configuration, QObject *parent) :
 	AMScanController(configuration, parent)
 {
 	config_ = configuration;
-	initialMoveAction_ = new AMBeamlineControlMoveAction(REIXSBeamline::bl()->spectrometer(), this);
+	initialMoveAction_ = new AMInternalControlMoveAction(REIXSBeamline::bl()->spectrometer(), 0, this);
 
 	/////////////////////////
 
@@ -109,10 +109,10 @@ bool REIXSXESScanController::initializeImplementation() {
 		}
 
 		connect(initialMoveAction_, SIGNAL(succeeded()), this, SLOT(onInitialSetupMoveSucceeded()));
-		connect(initialMoveAction_, SIGNAL(failed(int)), this, SLOT(onInitialSetupMoveFailed()));
+		connect(initialMoveAction_, SIGNAL(failed()), this, SLOT(onInitialSetupMoveFailed()));
 		initialMoveAction_->start();
 
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Information, 0, "Moving spectrometer into position before starting the scan..."));
+		// AMErrorMon::report(AMErrorReport(this, AMErrorReport::Information, 0, "Moving spectrometer into position before starting the scan..."));
 		return true;
 	}
 }

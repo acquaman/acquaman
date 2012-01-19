@@ -177,7 +177,7 @@ void AMActionRunner::internalDoNextAction()
 		if(currentAction_) {
 			AMAction* oldAction = currentAction_;
 			emit currentActionChanged(currentAction_ = 0);
-			delete oldAction;
+			oldAction->deleteLater(); // the action might have sent notifyFailed() or notifySucceeded() in the middle a deep call stack... In that case, we might actually still be executing inside the action's code, so better not delete it until that all has a chance to finish. (Otherwise... Crash!)
 		}
 	}
 
@@ -195,7 +195,7 @@ void AMActionRunner::internalDoNextAction()
 
 		if(oldAction) {
 			disconnect(oldAction, 0, this, 0);
-			delete oldAction;
+			oldAction->deleteLater();	// the action might have sent notifyFailed() or notifySucceeded() in the middle a deep call stack... In that case, we might actually still be executing inside the action's code, so better not delete it until that all has a chance to finish. (Otherwise... Crash!)
 		}
 
 		connect(currentAction_, SIGNAL(stateChanged(int,int)), this, SLOT(onCurrentActionStateChanged(int,int)));

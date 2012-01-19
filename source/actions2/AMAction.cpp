@@ -43,8 +43,11 @@ AMAction::AMAction(const AMAction& other)
 }
 
 
+#include <QDebug>
 // Destructor: deletes the info and prerequisites
 AMAction::~AMAction() {
+	qDebug() << "Deleting action:" << info_->shortDescription();
+
 	delete info_;
 	while(!prereqs_.isEmpty())
 		delete prereqs_.takeLast();
@@ -366,6 +369,13 @@ void AMAction::setState(AMAction::State newState) {
 	// qDebug() << "AMAction: Entering state:" << stateDescription(state_);
 	setStatusText(stateDescription(state_));
 	emit stateChanged(state_, previousState_);
+	// convenience signals for final states:
+	if(state_ == Succeeded)
+		emit succeeded();
+	else if(state_ == Failed)
+		emit failed();
+	else if(state_ == Cancelled)
+		emit cancelled();
 }
 
 double AMAction::pausedTime() const

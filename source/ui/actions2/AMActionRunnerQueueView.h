@@ -9,6 +9,14 @@ class QToolButton;
 class QLabel;
 class QPushButton;
 
+#include <QItemDelegate>
+/// This delegate is used by the tree view in AMActionRunnerQueueView to show custom editor widgets depending on the action. The available editors depend on those that have been registered with AMActionRegistry.  You should never need to use this class directly.
+class AMActionRunnerQueueItemDelegate : public QItemDelegate {
+	Q_OBJECT
+public:
+
+};
+
 /// This UI class provides a view of the upcoming (queued) actions in an AMActionRunner. It is part of a the overall AMWorkflowView.
 class AMActionRunnerQueueView : public QWidget
 {

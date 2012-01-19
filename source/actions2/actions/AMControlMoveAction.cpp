@@ -23,12 +23,25 @@ void AMControlMoveAction::startImplementation() {
 		notifyFailed();
 		return;
 	}
+	// check we can move...
 	if(!control_->canMove()) {
 		AMErrorMon::report(AMErrorReport(this,
 										 AMErrorReport::Alert,
 										 -2,
 										 QString("There was an error moving the control '%1' into position, because the control was not connected and ready to move. Please report this problem to the beamline staff.")
 										 .arg(control_->name())));
+		notifyFailed();
+		return;
+	}
+	// check that the destination is in range...
+	if(control_->valueOutOfRange(setpoint.value())) {
+		AMErrorMon::report(AMErrorReport(this,
+										 AMErrorReport::Alert,
+										 -3,
+										 QString("There was an error moving the control '%1' into position, because the destination %2 %3 was outside its range. Please report this problem to the beamline staff.")
+										 .arg(control_->name())
+										 .arg(setpoint.value())
+										 .arg(setpoint.units())));
 		notifyFailed();
 		return;
 	}

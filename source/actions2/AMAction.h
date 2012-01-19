@@ -216,6 +216,16 @@ signals:
 	/// Emitted whenever the state() of the action changes
 	void stateChanged(int newActionState, int previousActionState);
 
+	// convenience synonyms for state changed to a final state.
+	//////////////////////////
+	/// Emitted when the state changes to Succeeded
+	void succeeded();
+	/// Emitted when the state changes to Failed
+	void failed();
+	/// Emitted when the state changes to Cancelled
+	void cancelled();
+
+
 	/// Emitted when the progress changes. (\c numerator gives the amount done, relative to the total expected amount \c denominator. For example, \c numerator could be a percentage value, and \c denominator could be 100.)
 	void progressChanged(double numerator, double denominator);
 	/// If the action knows how long it will take, this signal is emitted with the total expected run time. If it doesn't know how long things will take, it could be emitted with (-1).
