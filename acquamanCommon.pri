@@ -154,7 +154,7 @@ LIBS += $$GSL_LIB \
 		-L$$EPICS_LIB_DIR -lca -lCom
 
 # Set standard level of compiler warnings for everyone. (Otherwise the warnings shown will be system-dependent.)
-QMAKE_CXX_FLAGS_WARN_ON += -Wextra
+QMAKE_CXXFLAGS += -Wextra
 
 # Specify runtime search locations for libraries (Must change for release bundle, if epics in a different location)
 macx {

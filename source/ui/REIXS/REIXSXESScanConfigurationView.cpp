@@ -109,7 +109,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(QWidget *parent) :
 //		verticalDetectorButton_->setChecked(true);
 
 	maximumTotalCounts_->setValue(configuration_.maximumTotalCounts());
-	maximumTimeEdit_->setTime(QTime().addSecs(configuration_.maximumDurationSeconds()));
+	maximumTimeEdit_->setTime(QTime().addSecs(int(configuration_.maximumDurationSeconds())));
 	startFromCurrentPositionOption_->setChecked(configuration_.shouldStartFromCurrentPosition());
 	doNotClearExistingCountsOption_->setChecked(configuration_.doNotClearExistingCounts());
 	/////////////////////////
