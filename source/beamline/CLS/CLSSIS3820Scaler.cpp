@@ -324,7 +324,7 @@ bool CLSSIS3820ScalerChannel::isEnabled() const{
 int CLSSIS3820ScalerChannel::reading() const{
 
 	if(isConnected())
-		return channelReading_->value();
+		return int(channelReading_->value());
 
 	return -1;
 }

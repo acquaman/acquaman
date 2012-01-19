@@ -171,7 +171,7 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 					grating = lp.at(i);
 				if(colNames2.at(i) == "encoder"){
 					hasEncoderInfo = true;
-					encoderStartPoint = lp.at(i).toDouble();
+					encoderStartPoint = int(lp.at(i).toDouble());
 				}
 			}
 		}
