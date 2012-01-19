@@ -6,6 +6,7 @@
 
 #include <QStringBuilder>
 #include <QPixmapCache>
+#include <QTimer>
 
 AMActionRunner* AMActionRunner::instance_ = 0;
 
@@ -203,7 +204,8 @@ void AMActionRunner::internalDoNextAction()
 		connect(currentAction_, SIGNAL(statusTextChanged(QString)), this, SIGNAL(currentActionStatusTextChanged(QString)));
 		connect(currentAction_, SIGNAL(expectedDurationChanged(double)), this, SIGNAL(currentActionExpectedDurationChanged(double)));
 
-		currentAction_->start();
+		// to avoid a growing call stack if a long series of actions are all failing inside their start() method... We wait to run the next one until we get back to the even loop.
+		QTimer::singleShot(0, currentAction_, SLOT(start()));
 	}
 }
 

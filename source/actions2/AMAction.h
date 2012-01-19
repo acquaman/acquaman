@@ -152,6 +152,7 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 	/// This virtual function can be re-implemented to specify whether the action has the capability to pause. By default, it returns false (ie: cannot pause).
 	virtual bool canPause() const { return false; }
 
+public slots:
 	// External requests to change the state: start(), cancel(), pause(), and resume().
 	//////////////////
 	// All of these requests to change the state return false if not allowed from the current state.
@@ -168,6 +169,7 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 	/// For actions that support pausing, request to pause the action. Allowed from Paused only. The state will change to Resuming.
 	bool resume();
 
+public:
 	// Progress API
 	////////////////////////
 
@@ -234,8 +236,6 @@ signals:
 	/// Emitted when the statusText() changes.
 	void statusTextChanged(const QString& statusText);
 
-
-public slots:
 
 
 protected slots:
