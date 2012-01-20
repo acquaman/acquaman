@@ -48,7 +48,7 @@ class VESPERS2011XRFFileLoaderFactory : public QObject, public AMFileLoaderFacto
 
 public:
 	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept vespersXRF and vespers2011XRF
-	virtual QStringList acceptedFileFormats() { return (QStringList() << "vespersXRF" << "vespers2011XRF"); }
+	virtual QStringList acceptedFileFormats() { return QStringList() << "vespersXRF" << "vespers2011XRF"; }
 	/// This function allows you to do a more detailed check of an AMScan to see whether you can load data for it.
 	virtual bool accepts(AMScan *scan);
 

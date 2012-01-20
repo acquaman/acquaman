@@ -42,7 +42,7 @@ class SGM2010FastFileLoaderFactory : public QObject, public AMFileLoaderFactory
 
 public:
 	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept sgm2010Fast.
-	virtual QStringList acceptedFileFormats() { return (QStringList() << "sgm2010Fast"); }
+	virtual QStringList acceptedFileFormats() { return QStringList() << "sgm2010Fast"; }
 	/// This function allows you to do a more detailed check of an AMScan to see whether you can load data for it.
 	virtual bool accepts(AMScan *scan);
 
