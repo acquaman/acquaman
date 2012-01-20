@@ -124,8 +124,10 @@ bool SGMAppController::startup() {
 		sgmDefault->setSectionHeader("");
 		sgmDefault->setSectionHeaderIncluded(true);
 		sgmDefault->setIncludeAllDataSources(false);
-		sgmDefault->ensureDataSource("EnergyFeedback", false, AMExporterOptionGeneral::CombineInColumnsMode, false);
-		sgmDefault->ensureDataSource("I0", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
+		if(sgmDefault->dataSources().count() > 0 && sgmDefault->dataSources().at(0) == "EnergyFeedback")
+			sgmDefault->removeDataSourceAt(0);
+		sgmDefault->ensureDataSource("I0", false, AMExporterOptionGeneral::CombineInColumnsMode, true);
+		sgmDefault->ensureDataSource("EnergyFeedback", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
 		sgmDefault->ensureDataSource("Photodiode", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
 		sgmDefault->ensureDataSource("TEY", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
 		sgmDefault->ensureDataSource("TFY", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
