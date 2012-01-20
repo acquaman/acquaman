@@ -153,6 +153,8 @@ LIBS += $$GSL_LIB \
 #	-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
 		-L$$EPICS_LIB_DIR -lca -lCom
 
+# Set standard level of compiler warnings for everyone. (Otherwise the warnings shown will be system-dependent.)
+QMAKE_CXXFLAGS += -Wextra
 
 # Specify runtime search locations for libraries (Must change for release bundle, if epics in a different location)
 macx {

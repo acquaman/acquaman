@@ -631,7 +631,7 @@ void AMDbObject::updateThumbnailsInCurrentThread(bool neverSavedHereBefore)
 
 	QVariantList values;	// list of values to store
 	QStringList keys;	// list of keys (column names) to store
-	int firstThumbnailId;
+	int firstThumbnailId = 0;
 
 	// Save each thumbnail:
 	for(int i=0; i<thumbsCount; i++) {

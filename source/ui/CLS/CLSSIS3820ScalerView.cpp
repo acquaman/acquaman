@@ -162,7 +162,7 @@ void CLSSIS3820ScalerView::setTime()
 
 void CLSSIS3820ScalerView::onTimeChanged(double time)
 {
-	time_->setValue(time*1000);
+	time_->setValue(int(time*1000));
 }
 
 void CLSSIS3820ScalerView::onStatusChanged(bool status)

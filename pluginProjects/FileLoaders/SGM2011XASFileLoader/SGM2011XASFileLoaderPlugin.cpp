@@ -182,7 +182,7 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 			for(int i=1; i<colNames1.count(); i++) {
 				// Save the initial offsets for each of the spectra saved in the spectra file
 				if(offsetColumns.contains(i)){
-					initialFileOffsets[offsetId++].append(lp.at(i).toDouble());
+					initialFileOffsets[offsetId++].append(int(lp.at(i).toDouble()));
 					measurementId++;
 				}
 				else if(i!=eVIndex) {

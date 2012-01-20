@@ -222,9 +222,11 @@ protected:
 	////////////////////////////////
 
 private:
-	/// This should not be considered part of the public interface.
+	/// A registry of the classes that have been registered so far (at runtime) in the database system
 	QHash<QString, AMDbObjectInfo> registeredClasses_;
-	/// This should not be considered part of the public interface.
+	/// A list of the classes that have been registered so far (at runtime) in the database system. This holds the same information as registeredClassess.  However, the list is ordered in the sequence the classes were registered, and we need to be able to go through that same order when preparing a newly-registered database for previously-registered classes.
+	QList<AMDbObjectInfo> registeredClassesInOrder_;
+	/// A set of databases that have been registered so far (at runtime) with the database system
 	QSet<AMDatabase*> registeredDatabases_;
 
 	/// This is a singleton class, so the constructor is private.

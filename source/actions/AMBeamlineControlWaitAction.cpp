@@ -171,7 +171,7 @@ void AMBeamlineControlWaitAction::onValueChanged(double newValue){
 	}
 	if(startTimer){
 		connect(&holdTimeTimer_, SIGNAL(timeout()), this, SLOT(onHoldTimeReached()));
-		holdTimeTimer_.start(holdTime_);
+		holdTimeTimer_.start(int(holdTime_));
 	}
 	else if(stopTimer){
 		disconnect(&holdTimeTimer_, SIGNAL(timeout()), this, SLOT(onHoldTimeReached()));

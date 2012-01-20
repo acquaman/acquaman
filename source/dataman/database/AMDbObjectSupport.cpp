@@ -204,6 +204,7 @@ bool AMDbObjectSupport::registerClass(const QMetaObject* mo) {
 
 	if(success) {
 		registeredClasses_.insert(className, newInfo);
+		registeredClassesInOrder_ << newInfo;
 		return true;
 	}
 	else
@@ -276,9 +277,7 @@ bool AMDbObjectSupport::registerDatabase(AMDatabase* db) {
 
 	// Retro-actively add all previously registered classes.
 	bool success = true;
-	QHashIterator<QString, AMDbObjectInfo> iClasses(registeredClasses_);
-	while(iClasses.hasNext()) {
-		AMDbObjectInfo dbo = iClasses.next().value();
+	foreach(const AMDbObjectInfo& dbo, registeredClassesInOrder_) {
 		success = success && getDatabaseReadyForClass(db, dbo);
 	}
 
@@ -371,7 +370,7 @@ bool AMDbObjectSupport::initializeDatabaseForClass(AMDatabase* db, const AMDbObj
 				/// \todo For more reliability, could ensure that _unique columns_ in shared-table classes have actually been created.
 				if(!info.sharedTable) {
 					db->rollbackTransaction();
-					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -16, QString("Database support: There was an error trying to create (initialze) an auxiliary table (%1) in the database for class %2.").arg(auxTableName).arg(info.className)));
+					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -16, QString("Database support: There was an error trying to create (initialize) an auxiliary table (%1) in the database for class %2.").arg(auxTableName).arg(info.className)));
 					return false;
 				}
 			}
@@ -842,7 +841,7 @@ bool AMDbObjectSupport::event(QEvent *e)
 
 	QVariantList values;	// list of values to store
 	QStringList keys;	// list of keys (column names) to store
-	int firstThumbnailId;
+	int firstThumbnailId = 0;
 
 	// Save each thumbnail:
 	for(int i=0; i<thumbsCount; i++) {

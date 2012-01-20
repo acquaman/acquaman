@@ -198,7 +198,7 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 			for(int i=1; i<colNames2.count(); i++) {
 
 				if(colNames2.at(i) == "time")
-					datetime = QDateTime::fromTime_t(lp.at(i).toDouble());
+					datetime = QDateTime::fromTime_t(uint(lp.at(i).toDouble()));
 				if(colNames2.at(i) == "grating")
 					grating = lp.at(i);
 				if(colNames2.at(i) == "integrationTime")
@@ -219,13 +219,19 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 			return false;
 		}
 
-		int startByte, endByte;
+		int startByte = 0;
+		int endByte = 0;
 		int specCounter = 0;
 		int scanSize = scan->rawData()->scanSize(0);
 		int fileOffsetMeasurementId = scan->rawData()->idOfMeasurement("SDDFileOffset");
 		int sddMeasurementId = scan->rawData()->idOfMeasurement("SDD");
 		int sddSize = scan->rawData()->measurementAt(sddMeasurementId).size(0);
 		int* specValues = new int[sddSize];
+
+		if(scanSize < 2){
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2004FileLoader parse error while loading scan data from file. SDD cannot have fewer than 2 points."));
+			return false;
+		}
 
 		for(int x = 0; x < scanSize; x++){
 			if(x == scanSize-1){

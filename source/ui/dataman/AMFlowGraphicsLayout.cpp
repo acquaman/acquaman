@@ -231,12 +231,12 @@ qreal AMFlowGraphicsLayout::heightForWidth(qreal width) const
 	QSizeF itemSize = m_items.count() > 0 ? m_items.first()->effectiveSizeHint(Qt::PreferredSize, itemSizeConstraint_) : QSizeF(10,10);
 	qreal horizontalSpacing = spacing(Qt::Horizontal);
 
-	int itemsPerRow = (maxWidth + horizontalSpacing) / (itemSize.width() + horizontalSpacing);	// algebra from: maxWidth = num*width + (num-1)*horizontalSpacing
+	int itemsPerRow = int((maxWidth + horizontalSpacing) / (itemSize.width() + horizontalSpacing));	// algebra from: maxWidth = num*width + (num-1)*horizontalSpacing
 	if(itemsPerRow < 1)
 		itemsPerRow = 1;
 
 
-	int rowsRequired = ceil(m_items.count() / double(itemsPerRow));	// round up here
+	int rowsRequired = int(ceil(m_items.count() / double(itemsPerRow)));	// round up here
 
 	qreal itemsHeight = rowsRequired*itemSize.height();
 	if(rowsRequired > 1)	// add spacing (x the number of spaces, not the number of rows!) if there's more than one row.

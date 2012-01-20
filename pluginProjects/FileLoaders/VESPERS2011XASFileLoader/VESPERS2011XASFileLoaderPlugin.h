@@ -34,7 +34,7 @@ class VESPERS2011XASFileLoaderPlugin : public AMFileLoaderInterface
 
 public:
 	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept vespersXAS and vespers2011XAS and vespers2011EXAFS.
-	virtual QStringList acceptedFileFormats() { return (QStringList() << "vespersXAS" << "vespers2011XAS" << "vespers2011EXAFS"); }
+	virtual QStringList acceptedFileFormats() { return QStringList() << "vespersXAS" << "vespers2011XAS" << "vespers2011EXAFS"; }
 	/// Format tag. a unique string identifying this format.
 	virtual bool accepts(AMScan *scan);
 
@@ -49,7 +49,7 @@ class VESPERS2011XASFileLoaderFactory : public QObject, AMFileLoaderFactory
 
 public:
 	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept vespersXAS and vespers2011XAS
-	virtual QStringList acceptedFileFormats() { return (QStringList() << "vespersXAS" << "vespers2011XAS" << "vespers2011EXAFS"); }
+	virtual QStringList acceptedFileFormats() { return QStringList() << "vespersXAS" << "vespers2011XAS" << "vespers2011EXAFS"; }
 	/// This function allows you to do a more detailed check of an AMScan to see whether you can load data for it.
 	virtual bool accepts(AMScan *scan);
 

@@ -46,6 +46,8 @@ class AMScan;
   */
 class AMFileLoaderInterface {
 public:
+	virtual ~AMFileLoaderInterface() {}
+
 	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle (ex: "sgm2004"). You should have at least one here, otherwise your plugin will never be used.  It's fine to accept multiple file formats.
 	virtual QStringList acceptedFileFormats() = 0;
 	/// This function allows you to do a more detailed check of an AMScan to see whether you can load data for it.
@@ -60,6 +62,8 @@ public:
 class AMFileLoaderFactory
 {
 public:
+	virtual ~AMFileLoaderFactory() {}
+
 	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle (ex: "sgm2004"). You should have at least one here, otherwise your plugin will never be used.  It's fine to accept multiple file formats.
 	virtual QStringList acceptedFileFormats() = 0;
 	/// This function allows you to do a more detailed check of an AMScan to see whether you can load data for it.
