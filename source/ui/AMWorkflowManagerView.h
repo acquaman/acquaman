@@ -52,6 +52,15 @@ public:
 	/// Returns true if it's currently impossible to start the workflow because another program has exclusive access to the beamline
 	bool beamlineBusy() const;
 
+	// These are functions required for Darren's addition to the workflow.  They are not used in the general workflow... workflow.
+
+	/// Returns the current head of the workflow queue.
+	AMBeamlineActionItem *headOfQueue() { return workflowQueue_->head(); }
+	/// Removes a beamline action item from a given index.
+	void removeBeamlineAction(int index);
+
+	// End of functions required by Darren.
+
 signals:
 	/// Signals changes in workflowItemCount()
 	void actionItemCountChanged(int actionItemsLeftToRun);

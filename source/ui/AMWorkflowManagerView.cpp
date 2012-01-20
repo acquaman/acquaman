@@ -176,6 +176,20 @@ void AMWorkflowManagerView::insertBeamlineAction(int index, AMBeamlineActionItem
 
 }
 
+// Darren's function.
+
+void AMWorkflowManagerView::removeBeamlineAction(int index)
+{
+	if (index < 0 || index >= workflowQueue_->count())
+		return;
+
+	if (workflowQueue_->isEmpty())
+		return;
+
+	workflowActions_->deleteAction(index);
+}
+
+// End of Darren's function.
 
 void AMWorkflowManagerView::reviewWorkflowStatus(){
 	bool qEmpty = workflowQueue_->isEmpty();

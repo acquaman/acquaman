@@ -43,6 +43,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // Helper classes that technically shouldn't need to exist.
 #include "util/VESPERS/ROIHelper.h"
 #include "util/VESPERS/VortexDetectorStatusHelper.h"
+#include "util/VESPERS/VESPERSWorkflowAssistant.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "application/AMAppControllerSupport.h"
@@ -149,6 +150,8 @@ bool VESPERSAppController::startup() {
 			AMAppControllerSupport::registerClass<VESPERSXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
 			AMAppControllerSupport::registerClass<VESPERSEXAFSScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
 		}
+
+		VESPERSWorkflowAssistant *assistant = new VESPERSWorkflowAssistant(workflowManagerView_, this);
 
 		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
 		AMStartScreen* startScreen = new AMStartScreen(0);
