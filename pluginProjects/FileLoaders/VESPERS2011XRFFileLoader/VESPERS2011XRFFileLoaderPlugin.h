@@ -33,7 +33,7 @@ class VESPERS2011XRFFileLoaderPlugin : public AMFileLoaderInterface
 
 public:
 	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept vespersXRF and vespers2011XRF
-	virtual QStringList acceptedFileFormats() { return (QStringList() << "vespersXRF" << "vespers2011XRF"); }
+	virtual QStringList acceptedFileFormats() { return QStringList() << "vespersXRF" << "vespers2011XRF"; }
 	/// Format tag. a unique string identifying this format.
 	virtual bool accepts(AMScan *scan);
 

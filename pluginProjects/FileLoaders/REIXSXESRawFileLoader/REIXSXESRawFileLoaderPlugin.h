@@ -17,7 +17,7 @@ class REIXSXESRawFileLoaderPlugin : public AMFileLoaderInterface
 {
 public:
 	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept reixsXESRaw.
-	virtual QStringList acceptedFileFormats() { return (QStringList() << "reixsXESRaw"); }
+	virtual QStringList acceptedFileFormats() { return QStringList() << "reixsXESRaw"; }
 	/// A more detailed way of determining whether we work for a given scan...
 	virtual bool accepts(AMScan *scan);
 	/// Load the data under AMScan::filePath() into the \c scan

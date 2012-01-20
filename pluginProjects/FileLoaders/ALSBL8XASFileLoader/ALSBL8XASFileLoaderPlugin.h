@@ -11,7 +11,7 @@ class ALSBL8XASFileLoaderPlugin : public AMFileLoaderInterface
 {
 public:
 	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept alsBl8Xas.
-	virtual QStringList acceptedFileFormats() { return (QStringList() << "alsBl8Xas"); }
+	virtual QStringList acceptedFileFormats() { return QStringList() << "alsBl8Xas"; }
 
 	virtual bool accepts(AMScan *scan);
 

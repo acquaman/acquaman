@@ -10,7 +10,7 @@ class SGM2004XASFileLoaderPlugin : public AMFileLoaderInterface
 {
 public:
 	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept sgm2004.
-	virtual QStringList acceptedFileFormats() { return (QStringList() << "sgm2004"); }
+	virtual QStringList acceptedFileFormats() { return QStringList() << "sgm2004"; }
 
 	virtual bool accepts(AMScan *scan);
 

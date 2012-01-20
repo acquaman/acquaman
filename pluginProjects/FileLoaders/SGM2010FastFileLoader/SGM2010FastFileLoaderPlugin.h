@@ -12,7 +12,7 @@ class SGM2010FastFileLoaderPlugin : public AMFileLoaderInterface
 
 public:
 	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept sgm2010Fast.
-	virtual QStringList acceptedFileFormats() { return (QStringList() << "sgm2010Fast"); }
+	virtual QStringList acceptedFileFormats() { return QStringList() << "sgm2010Fast"; }
 
 	virtual bool accepts(AMScan *scan);
 
