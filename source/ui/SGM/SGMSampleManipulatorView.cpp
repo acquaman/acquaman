@@ -252,7 +252,7 @@ void SGMSampleManipulatorView::onMUpButtonPressed(){
 		*/
 		mVerticalCtrl_->setStepVelocity(3000);
 		mVerticalCtrl_->setStepAcceleration(2000);
-		mVerticalCtrl_->move(40);
+		mVerticalCtrl_->move(50);
 	}
 }
 

@@ -1927,8 +1927,8 @@ void SGMBeamline::onScalerConnected(bool connected){
 	if(!connected)
 		return;
 	if(!scalerView_){
-		scalerView_ = new CLSSIS3820ScalerView(scaler_);
-		scalerView_->show();
+		//scalerView_ = new CLSSIS3820ScalerView(scaler_);
+		//scalerView_->show();
 	}
 }
 
