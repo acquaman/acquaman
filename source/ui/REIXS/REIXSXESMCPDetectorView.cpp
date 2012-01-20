@@ -164,7 +164,7 @@ void REIXSXESMCPDetectorView::onCountsPerSecondChanged(double countsPerSecond) {
 	if(countsPerSecond == 0)
 		countsPerSecond = 1;
 
-	countsPerSecondBar_->setValue(log10(countsPerSecond)*100);	// integer scale goes up to 600.  Highest count rate we'll see is 1e6.
+	countsPerSecondBar_->setValue(int(log10(countsPerSecond)*100));	// integer scale goes up to 600.  Highest count rate we'll see is 1e6.
 }
 
 

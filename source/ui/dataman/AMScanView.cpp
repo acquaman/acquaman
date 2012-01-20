@@ -61,7 +61,7 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 		nameLabel_->setText(source->name() + QString(" #%1").arg(source->number()));
 	nameLabel_->setStyleSheet("color: white;");
 	hl->addWidget(nameLabel_);
-	hl->addStretch(0.5);
+	hl->addStretch(0);
 
 	cramBar_ = new AMCramBarHorizontal();
 
@@ -1610,7 +1610,7 @@ void AMScanViewMultiScansView::reLayout() {
 	for(int li=0; li<layout_->count(); li++)
 		layout_->removeAt(li);
 
-	int rc=0, cc=0, width = sqrt(plots_.count());
+	int rc=0, cc=0, width = int(sqrt(plots_.count()));
 
 	for(int pi=0; pi<plots_.count(); pi++) {
 		layout_->addItem(plots_.at(pi), rc, cc++, Qt::AlignCenter);
@@ -1856,7 +1856,7 @@ void AMScanViewMultiSourcesView::reLayout() {
 	for(int li=0; li<layout_->count(); li++)
 		layout_->removeAt(li);
 
-	int rc=0, cc=0, width = sqrt(dataSource2Plot_.count());
+	int rc=0, cc=0, width = int(sqrt(dataSource2Plot_.count()));
 
 	foreach(MPlotGW* plot, dataSource2Plot_) {
 		layout_->addItem(plot, rc, cc++, Qt::AlignCenter);

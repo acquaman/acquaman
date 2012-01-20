@@ -240,7 +240,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 			for(int i=1; i<colNames2.count(); i++) {
 
 				if(colNames2.at(i) == "time")
-					datetime = QDateTime::fromTime_t(lp.at(i).toDouble());
+					datetime = QDateTime::fromTime_t(uint(lp.at(i).toDouble()));
 				if(colNames2.at(i) == "grating")
 					grating = lp.at(i);
 				if(colNames2.at(i) == "integrationTime")

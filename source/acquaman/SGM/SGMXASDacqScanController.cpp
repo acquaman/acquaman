@@ -149,6 +149,18 @@ bool SGMXASDacqScanController::startImplementation(){
 	return AMDacqScanController::startImplementation();
 }
 
+void SGMXASDacqScanController::cancelImplementation(){
+	dacqCancelled_ = true;
+	if(initializationActions_ && initializationActions_->isRunning()){
+		qDebug() << "Need to stop the intialization actions";
+		disconnect(initializationActions_, 0);
+		connect(initializationActions_, SIGNAL(listSucceeded()), this, SLOT(onScanCancelledBeforeInitialized()));
+		connect(initializationActions_, SIGNAL(listFailed(int)), this, SLOT(onScanCancelledBeforeInitialized()));
+	}
+	else
+		AMDacqScanController::cancelImplementation();
+}
+
 AMnDIndex SGMXASDacqScanController::toScanIndex(QMap<int, double> aeData){
 	Q_UNUSED(aeData)
 	// SGM XAS Scan has only one dimension (energy), simply append to the end of this
@@ -211,4 +223,18 @@ void SGMXASDacqScanController::onScanFinished(){
 	}
 	else
 		AMDacqScanController::onDacqStop();
+}
+
+void SGMXASDacqScanController::onScanCancelledBeforeInitialized(){
+	qDebug() << "HEARD XAS SCAN CANCELLED BEFORE INITIALIZED";
+	if(cleanUpActions_){
+		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(onDacqStop()));
+		cleanUpActions_->start();
+	}
+	else
+		AMDacqScanController::onDacqStop();
+}
+
+void SGMXASDacqScanController::onScanCancelledWhileRunning(){
+
 }

@@ -55,7 +55,7 @@ public:
 	/// How long to count for? We should stop this scan when we get this many counts. (Using double so that we can go higher than maximum int value)
 	double maximumTotalCounts() const { return maximumTotalCounts_; }
 	/// How long to count for? We should stop this scan after this many seconds have elapsed
-	int maximumDurationSeconds() const { return maximumDurationSeconds_; }
+	double maximumDurationSeconds() const { return double(maximumDurationSeconds_); }
 	/// Any lateral offset we should introduce along the angle at this energy, to slide the detector into or out of the focus position (Useful for calibration and testing)
 	double defocusDistanceMm() const { return defocusDistanceMm_; }
 	/// The database id of the stored spectrometer calibration we should use. (This spectromter calibration is found in the user database, for now)
@@ -100,7 +100,7 @@ public slots:
 	/// Set how long to count for. We should stop this scan when we get this many counts. (Using double so that we can go higher than maximum int value)
 	void setMaximumTotalCounts(double counts) { maximumTotalCounts_ = counts; setModified(true); }
 	/// Set how long to count for. We should stop this scan after this many seconds have elapsed
-	void setMaximumDurationSeconds(int seconds) { maximumDurationSeconds_ = seconds; setModified(true); }
+	void setMaximumDurationSeconds(double seconds) { maximumDurationSeconds_ = int(seconds); setModified(true); }
 	/// Set any lateral offset we should introduce along the angle at this energy, to slide the detector into or out of the focus position (Useful for calibration and testing)
 	void setDefocusDistanceMm(double defocusDistanceMm) { defocusDistanceMm_ = defocusDistanceMm; setModified(true); }
 	/// Set the database id of the stored spectrometer calibration we should use. (This spectromter calibration is found in the user database, for now)

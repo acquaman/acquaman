@@ -55,7 +55,7 @@ public:
 
 	virtual AMBeamlineActionItem* createCopy() const;
 
-	AMScanConfiguration* cfg() const { return cfg_;}
+	AMScanConfiguration* cfg() const;
 	virtual bool isRunning() const;
 	virtual bool isPaused() const;
 
@@ -63,6 +63,8 @@ public:
 
 	QString guessScanName() const;
 	QString guessExportName() const;
+
+	bool configurationLocked() const;
 
 signals:
 	void progress(double, double);
@@ -98,6 +100,7 @@ protected slots:
 
 protected:
 	mutable AMScanConfiguration *cfg_;
+	bool configurationLocked_;
 	AMScanController *ctrl_;
 	/// Used to retrieve the scan from the database if necessary
 	int scanID_;
@@ -133,6 +136,8 @@ protected slots:
 	void onPreviousNextChanged();
 	void onMoveUpButtonClicked();
 	void onMoveDownButtonClicked();
+
+	void onScanConfigurationDestroyed();
 
 protected:
 	void mouseDoubleClickEvent(QMouseEvent *);

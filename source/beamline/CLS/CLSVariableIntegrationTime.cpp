@@ -151,7 +151,7 @@ AMBeamlineActionItem *CLSVariableIntegrationTime::createSetupAction(Mode mode, d
 
 double CLSVariableIntegrationTime::totalTime(double delta) const
 {
-	int n = round((highValue() - lowValue())/delta);
+	int n = int(round((highValue() - lowValue())/delta));
 	double time = 0;
 
 	// The results of all of the functions will be in milliseconds and therefore need to be divided by 1000 to get into seconds.

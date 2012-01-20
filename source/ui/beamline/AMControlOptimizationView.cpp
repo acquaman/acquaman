@@ -297,7 +297,7 @@ bool AMCompactControlOptimizationSetView::onParam1SliderUpdate(int val){
 	param2Item_->updateCurveMarker(otherPercent);
 
 	param1Trigger_ = true;
-	param2Slider->setValue(otherPercent);
+	param2Slider->setValue(int(otherPercent));
 	parseConfigValues(param1Curve_->metaAt(param1Val));
 	return true;
 }
@@ -320,7 +320,7 @@ bool AMCompactControlOptimizationSetView::onParam2SliderUpdate(int val){
 	param2Item_->updateCurveMarker(val);
 
 	param2Trigger_ = true;
-	param1Slider->setValue(otherPercent);
+	param1Slider->setValue(int(otherPercent));
 	parseConfigValues(param2Curve_->metaAt(param2Val));
 	return true;
 }
@@ -347,8 +347,8 @@ bool AMCompactControlOptimizationSetView::onParamValuesChanged(double param1, do
 		detailView_->resetBoxTrigger();
 		double param1Percent = param1Curve_->percentFromValue(param1)*100;
 		double param2Percent = param2Curve_->percentFromValue(param2)*100;
-		param1Slider->setValue(param1Percent);
-		param2Slider->setValue(param2Percent);
+		param1Slider->setValue(int(param1Percent));
+		param2Slider->setValue(int(param2Percent));
 		param1Item_->updateCurveMarker(param1Percent);
 		param2Item_->updateCurveMarker(param2Percent);
 	}

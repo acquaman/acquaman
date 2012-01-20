@@ -38,6 +38,7 @@ public:
 protected:
 	bool initializeImplementation();
 	bool startImplementation();
+	void cancelImplementation();
 	AMnDIndex toScanIndex(QMap<int, double> aeData);
 
 protected slots:
@@ -53,6 +54,8 @@ protected slots:
 
 	void onScanFinished();
 
+	void onScanCancelledBeforeInitialized();
+	void onScanCancelledWhileRunning();
 };
 
 #endif // ACQMAN_SGMXASDACQSCANCONTROLLER_H

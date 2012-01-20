@@ -72,8 +72,8 @@ protected slots:
 		palette.setColor(QPalette::Active, QPalette::WindowText, Qt::darkRed);
 		positionsSaved_->setPalette(palette);
 	}
-	/// Helper slot that handles the setting the estimated time label.  The value comes in as seconds.
-	void onEstimatedTimeChanged(double newTime);
+	/// Helper slot that handles the setting the estimated time label.
+	void onEstimatedTimeChanged();
 
 protected:
 	/// Helper method that takes a time in seconds and returns a string of d:h:m:s.

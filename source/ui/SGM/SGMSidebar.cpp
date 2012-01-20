@@ -110,8 +110,8 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	shl->setContentsMargins(2, 2, 2, 2);
 
 	detectorSignalSources_ = new QButtonGroup();
-	picoammeterButton_ = new QRadioButton(SGMBeamline::sgm()->sgmDetectorSignalSourceName(SGMBeamline::picoammeters));
-	scalerButton_ = new QRadioButton(SGMBeamline::sgm()->sgmDetectorSignalSourceName(SGMBeamline::scaler));
+	picoammeterButton_ = new QRadioButton(SGMBeamline::sgm()->sgmDetectorSignalSourceName(SGMBeamline::sourcePicoammeters));
+	scalerButton_ = new QRadioButton(SGMBeamline::sgm()->sgmDetectorSignalSourceName(SGMBeamline::sourceScaler));
 	detectorSignalSources_->addButton(picoammeterButton_, 0);
 	detectorSignalSources_->addButton(scalerButton_, 1);
 	QGroupBox *detectorSourceBox = new QGroupBox("Detectors");
@@ -317,9 +317,9 @@ void SGMSidebar::onStopMotorsActionFinished(){
 }
 
 void SGMSidebar::onDetectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource newSource){
-	if(newSource == SGMBeamline::picoammeters)
+	if(newSource == SGMBeamline::sourcePicoammeters)
 		picoammeterButton_->setChecked(true);
-	else if(newSource == SGMBeamline::scaler)
+	else if(newSource == SGMBeamline::sourceScaler)
 		scalerButton_->setChecked(true);
 }
 

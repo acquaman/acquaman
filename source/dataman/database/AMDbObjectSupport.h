@@ -211,13 +211,22 @@ protected:
 	static bool ensureTableForDbObjects(const QString& tableName, AMDatabase* db, bool reuseDeletedIds = true);
 
 
+
+
+	/// Called with an AMThumbnailsGeneratedEvent to finish updating the thumbnails for an object in a database, when the thumbnails were generated in a separate thread. We want to make sure that the database _modifications_ are all done from the main thread, to avoid the possibility of Sqlite locking contention.
+	/*! (The database is threadsafe, and from a thread-safety perspective we _can_ run both select and modify queries from any thread.  But when we do this, we run into the possiblity (depending on exact timing) that two threads may both be trying to obtain an exclusive lock, and as a result neither can commit / proceed with its query.  Therefore, we try to keep all database modification commands in the main thread.  If we had a database with full serializable connections (like MySQL) this wouldn't be a problem.*/
+	virtual bool event(QEvent *);
+
+
 	// Internal Variables
 	////////////////////////////////
 
 private:
-	/// This should not be considered part of the public interface.
+	/// A registry of the classes that have been registered so far (at runtime) in the database system
 	QHash<QString, AMDbObjectInfo> registeredClasses_;
-	/// This should not be considered part of the public interface.
+	/// A list of the classes that have been registered so far (at runtime) in the database system. This holds the same information as registeredClassess.  However, the list is ordered in the sequence the classes were registered, and we need to be able to go through that same order when preparing a newly-registered database for previously-registered classes.
+	QList<AMDbObjectInfo> registeredClassesInOrder_;
+	/// A set of databases that have been registered so far (at runtime) with the database system
 	QSet<AMDatabase*> registeredDatabases_;
 
 	/// This is a singleton class, so the constructor is private.

@@ -43,6 +43,7 @@ AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *pa
 	AMBeamlineActionItem(true, parent)
 {
 	scanID_ = -1;
+	configurationLocked_ = false;
 	cfg_ = cfg;
 	lastSampleDescription_ = "<Unknown Sample>";
 	exemplar_.setSampleName(lastSampleDescription_);
@@ -72,6 +73,8 @@ AMBeamlineActionItemView* AMBeamlineScanAction::createView(int index){
 }
 
 AMBeamlineActionItem* AMBeamlineScanAction::createCopy() const{
+	return new AMBeamlineScanAction(cfg()->createCopy());
+	/*
 	if(cfg_)
 		return new AMBeamlineScanAction(cfg_->createCopy());
 	else{
@@ -104,7 +107,42 @@ AMBeamlineActionItem* AMBeamlineScanAction::createCopy() const{
 		cfg_ = config;
 		return new AMBeamlineScanAction(cfg_->createCopy());
 	}
+	*/
 	return 0;//NULL
+}
+
+AMScanConfiguration* AMBeamlineScanAction::cfg() const{
+	if(cfg_)
+		return cfg_;
+
+	// turn off automatic raw-day loading for scans... This will make loading the scan to access it's config much faster.
+	bool scanAutoLoadingOn = AMScan::autoLoadData();
+	AMScan::setAutoLoadData(false);
+	// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
+	AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(AMDatabase::database("user"), AMDbObjectSupport::s()->tableNameForClass<AMScan>(), scanID_);
+	if(!dbo)
+		return 0; //NULL
+	// restore AMScan's auto-loading of data to whatever it was before.
+	AMScan::setAutoLoadData(scanAutoLoadingOn);
+	// Is it a scan?
+	AMScan* scan = qobject_cast<AMScan*>( dbo );
+	if(!scan) {
+		delete dbo;
+		return 0; //NULL
+	}
+	// Does the scan have a configuration?
+	AMScanConfiguration* config = scan->scanConfiguration();
+	if(!config) {
+		delete scan;
+		return 0; //NULL
+	}
+	// need to create a copy of the config so we can delete the scan (and hence the config instance owned by the scan). The view will take ownership of the copy.
+	config = config->createCopy();
+	delete scan;
+	if(!config)
+		return 0; //NULL
+	cfg_ = config;
+	return cfg_;
 }
 
 bool AMBeamlineScanAction::isRunning() const{
@@ -130,6 +168,10 @@ QString AMBeamlineScanAction::guessExportName() const{
 	return exemplar_.exportName();
 }
 
+bool AMBeamlineScanAction::configurationLocked() const{
+	return configurationLocked_;
+}
+
 void AMBeamlineScanAction::start(){
 	if(!isReady()){
 		if(VERBOSE_ACTION_ITEMS)
@@ -139,6 +181,7 @@ void AMBeamlineScanAction::start(){
 	}
 
 	if(!AMBeamlineActionItem::isReinitialized()){
+		configurationLocked_ = true;
 		if(VERBOSE_ACTION_ITEMS)
 			qDebug() << "Not reinitalized, creating new controller";
 		ctrl_ = cfg_->createController();
@@ -496,7 +539,7 @@ void AMBeamlineScanActionView::updateProgressBar(double elapsed, double total){
 	progressBar_->setValue((int)elapsed);
 
 	double secondsRemaining = total - elapsed;
-	QTime tRemaining = QTime(0,0,0,0).addMSecs((int)1000*secondsRemaining);
+	QTime tRemaining = QTime(0,0,0,0).addMSecs(int(1000*secondsRemaining));
 	QString rStr = (tRemaining.hour() > 0) ? "h:mm:ss" : "m:ss" ;
 	timeRemainingLabel_->setText(tRemaining.toString(rStr)+" Remaining");
 }
@@ -629,13 +672,21 @@ void AMBeamlineScanActionView::onMoveDownButtonClicked(){
 
 #include "ui/acquaman/AMScanConfigurationView.h"
 
+void AMBeamlineScanActionView::onScanConfigurationDestroyed(){
+	delete configurationView_;
+	configurationView_ = 0;
+}
+
+
 void AMBeamlineScanActionView::mouseDoubleClickEvent(QMouseEvent *){
 	// if we don't have a configuration view yet, try to create one.  (This might fail, if no default view is defined for this scan configuration.)
-	if(!configurationView_)
+	if(!configurationView_){
 		configurationView_ = scanAction_->cfg()->createView();
+		connect(scanAction_->cfg(), SIGNAL(destroyed()), this, SLOT(onScanConfigurationDestroyed()));
+	}
 	if(configurationView_ == 0)
 		return;
-	if(scanAction_->hasFinished())
+	if(scanAction_->configurationLocked())
 		configurationView_->setDisabled(true);
 	configurationView_->setWindowModality(Qt::WindowModal);
 	configurationView_->show();

@@ -21,11 +21,13 @@ class VESPERSEXAFSScanConfiguration : public AMEXAFSScanConfiguration
 	Q_PROPERTY(AMDbObject* roiInfoList READ dbGetROIInfoList WRITE dbLoadROIInfoList)
 	Q_PROPERTY(QString rois READ readRoiList WRITE writeRoiList)
 	Q_PROPERTY(bool useFixedTime READ useFixedTime WRITE setUseFixedTime)
+	Q_PROPERTY(int numberOfScans READ numberOfScans WRITE setNumberOfScans)
 
 	Q_ENUMS(FluorescenceDetector)
 	Q_ENUMS(IonChamber)
 
 	Q_CLASSINFO("useFixedTime", "upgradeDefault=false")
+	Q_CLASSINFO("numberOfScans", "upgradeDefault=1")
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS EXAFS Scan Configuration")
 
@@ -74,6 +76,8 @@ public:
 
 	/// Returns whether the scan should use fixed or variable integration time.  The default is to use the variable integration time.
 	bool useFixedTime() const { return useFixedTime_; }
+	/// Returns the number of times this scan will be run.
+	int numberOfScans() const { return numberOfScans_; }
 
 	/// Returns the current total estimated time for a scan to complete.
 	double totalTime() const { return totalTime_; }
@@ -121,6 +125,8 @@ signals:
 	void useFixedTimeChanged(bool);
 	/// Notifier that the total time estimate has changed.
 	void totalTimeChanged(double);
+	/// Notifier that the number of scans has changed.
+	void numberOfScansChanged(int);
 
 public slots:
 
@@ -160,6 +166,8 @@ public slots:
 
 	/// Sets whether the scan should use fixed or variable integration time for EXAFS.
 	void setUseFixedTime(bool fixed) { useFixedTime_ = fixed; emit useFixedTimeChanged(useFixedTime_); computeTotalTime(); setModified(true); }
+	/// Sets the number of times this scan should be repeated.
+	void setNumberOfScans(int num) { numberOfScans_ = num; emit numberOfScansChanged(numberOfScans_); setModified(true); }
 
 	/// Sets the ROI list.
 	void setRoiInfoList(const AMROIInfoList &list) { roiInfoList_ = list; setModified(true); }
@@ -197,6 +205,9 @@ protected:
 
 	/// Holds the total time in seconds that the scan is estimated to take.
 	double totalTime_;
+
+	/// Holds the number of times this scan should be repeated.
+	int numberOfScans_;
 };
 
 #endif // VESPERSEXAFSSCANCONFIGURATION_H

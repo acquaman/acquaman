@@ -124,8 +124,10 @@ bool SGMFastScanController::beamlineInitialize(){
 	bool undulatorTrackingOn = (fabs(SGMBeamline::sgm()->undulatorTracking()->value()-1.0) < SGMBeamline::sgm()->undulatorTracking()->tolerance());
 	bool exitSlitTrackingOn = (fabs(SGMBeamline::sgm()->exitSlitTracking()->value()-1.0) < SGMBeamline::sgm()->exitSlitTracking()->tolerance());
 
-	AMBeamlineControlMoveAction *tmpAction = NULL;
+	AMBeamlineControlMoveAction *tmpAction = 0; //NULL;
+	AMBeamlineActionItem *tmpBAction = 0; //NULL
 
+	bool cleanupFailed = false;
 	cleanUpActions_ = new AMBeamlineParallelActionsList();
 
 	//Prepare the actions for clean up by making a one stage list with the current values for:
@@ -150,26 +152,22 @@ bool SGMFastScanController::beamlineInitialize(){
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->gratingAcceleration());
 	tmpAction->setSetpoint(SGMBeamline::sgm()->gratingAcceleration()->value());
 	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerIntegrationTime());
-	tmpAction->setSetpoint(SGMBeamline::sgm()->scalerIntegrationTime()->value());
-	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerMode());
-	tmpAction->setSetpoint(SGMBeamline::sgm()->scalerMode()->value());
-	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerScansPerBuffer());
-	tmpAction->setSetpoint(SGMBeamline::sgm()->scalerScansPerBuffer()->value());
-	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerTotalNumberOfScans());
-	tmpAction->setSetpoint(SGMBeamline::sgm()->scalerTotalNumberOfScans()->value());
-	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
-	/**/
+
+	tmpBAction = SGMBeamline::sgm()->scaler()->createDwellTimeAction(SGMBeamline::sgm()->scaler()->dwellTime());
+	tmpBAction ? cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpBAction) : cleanupFailed = true;
+	tmpBAction = SGMBeamline::sgm()->scaler()->createContinuousEnableAction(SGMBeamline::sgm()->scaler()->isContinuous());
+	tmpBAction ? cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpBAction) : cleanupFailed = true;
+	tmpBAction = SGMBeamline::sgm()->scaler()->createScansPerBufferAction(SGMBeamline::sgm()->scaler()->isContinuous() ? 1 : SGMBeamline::sgm()->scaler()->scansPerBuffer());
+	tmpBAction ? cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpBAction) : cleanupFailed = true;
+	tmpBAction = SGMBeamline::sgm()->scaler()->createTotalScansAction(SGMBeamline::sgm()->scaler()->isContinuous() ? 1 : SGMBeamline::sgm()->scaler()->totalScans());
+	tmpBAction ? cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpBAction) : cleanupFailed = true;
+
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorFastTracking());
 	tmpAction->setSetpoint(0);
 	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorVelocity());
 	tmpAction->setSetpoint(11811);
 	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
-	/**/
 
 
 
@@ -177,6 +175,7 @@ bool SGMFastScanController::beamlineInitialize(){
 	/* NTBA - August 25th, 2011 (David Chevrier)
 		Who's going to delete the list and the actions?"
 	*/
+	bool initializationFailed = false;
 	initializationActions_ = new AMBeamlineParallelActionsList();
 	if( SGMBeamline::sgm()->energy()->withinTolerance(settings->energyStart()) ){
 		qDebug() << "Too close to start energy";
@@ -198,13 +197,7 @@ bool SGMFastScanController::beamlineInitialize(){
 		initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 	}
 
-	/*
-	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->grating());
-	tmpAction->setSetpoint(settings->sgmGrating());
-	*/
 	qDebug() << "I would want to go to " << settings->sgmGrating();
-	//initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 
 	//Go to start of energy range
 	//Mode needs to change before time, buffer, and total
@@ -223,9 +216,9 @@ bool SGMFastScanController::beamlineInitialize(){
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
 	tmpAction->setSetpoint(settings->energyStart());
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerMode());
-	tmpAction->setSetpoint(0);
-	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	tmpBAction = SGMBeamline::sgm()->scaler()->createContinuousEnableAction(false);
+	tmpBAction ? initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpBAction) : cleanupFailed = true;
+
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorStep());
 	tmpAction->setSetpoint(settings->undulatorStartStep());
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
@@ -245,15 +238,13 @@ bool SGMFastScanController::beamlineInitialize(){
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->gratingAcceleration());
 	tmpAction->setSetpoint(settings->acceleration());
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerIntegrationTime());
-	tmpAction->setSetpoint(settings->scalerTime());
-	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerScansPerBuffer());
-	tmpAction->setSetpoint(1000);
-	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerTotalNumberOfScans());
-	tmpAction->setSetpoint(1000);
-	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+
+	tmpBAction = SGMBeamline::sgm()->scaler()->createDwellTimeAction(settings->scalerTime()/1000);
+	tmpBAction ? initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpBAction) : initializationFailed = true;
+	tmpBAction = SGMBeamline::sgm()->scaler()->createScansPerBufferAction(1000);
+	tmpBAction ? initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpBAction) : initializationFailed = true;
+	tmpBAction = SGMBeamline::sgm()->scaler()->createTotalScansAction(1000);
+	tmpBAction ? initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpBAction) : initializationFailed = true;
 
 	qDebug() << "Relative step to " << settings->undulatorRelativeStep() << " velocity to " << settings->undulatorVelocity();
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorRelativeStepStorage());
@@ -271,6 +262,7 @@ bool SGMFastScanController::beamlineInitialize(){
 	What detectors, if any, do we need to take of for a fast scan?
 	*/
 
-	beamlineInitialized_ = true;
+	//beamlineInitialized_ = true;
+	beamlineInitialized_ = !initializationFailed;
 	return beamlineInitialized_;
 }

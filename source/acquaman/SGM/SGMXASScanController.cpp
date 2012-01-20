@@ -151,22 +151,20 @@ bool SGMXASScanController::isBeamlineInitialized() {
 }
 
 bool SGMXASScanController::beamlineInitialize(){
-	AMBeamlineControlMoveAction *tmpAction = NULL;
+	AMBeamlineControlMoveAction *tmpAction = 0; //NULL
+	AMBeamlineActionItem *tmpBAction = 0; //NULL
 
+	bool cleanupFailed = false;
 	cleanUpActions_ = new AMBeamlineParallelActionsList();
 	cleanUpActions_->appendStage(new QList<AMBeamlineActionItem*>());
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerMode());
-	tmpAction->setSetpoint(SGMBeamline::sgm()->scalerMode()->value());
-	cleanUpActions_->appendAction(0, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerStart());
-	tmpAction->setSetpoint(SGMBeamline::sgm()->scalerStart()->value());
-	cleanUpActions_->appendAction(0, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerTotalNumberOfScans());
-	tmpAction->setSetpoint(SGMBeamline::sgm()->scalerTotalNumberOfScans()->value());
-	cleanUpActions_->appendAction(0, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerScansPerBuffer());
-	tmpAction->setSetpoint(SGMBeamline::sgm()->scalerScansPerBuffer()->value());
-	cleanUpActions_->appendAction(0, tmpAction);
+
+	tmpBAction = SGMBeamline::sgm()->scaler()->createContinuousEnableAction(SGMBeamline::sgm()->scaler()->isContinuous());
+	tmpBAction ? cleanUpActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
+	tmpBAction = SGMBeamline::sgm()->scaler()->createScansPerBufferAction(SGMBeamline::sgm()->scaler()->isContinuous() ? 1 : SGMBeamline::sgm()->scaler()->scansPerBuffer());
+	tmpBAction ? cleanUpActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
+	tmpBAction = SGMBeamline::sgm()->scaler()->createTotalScansAction(SGMBeamline::sgm()->scaler()->isContinuous() ? 1 : SGMBeamline::sgm()->scaler()->totalScans());
+	tmpBAction ? cleanUpActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
+
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->fastShutterVoltage());
 	tmpAction->setSetpoint(SGMBeamline::sgm()->fastShutterVoltage()->value());
 	cleanUpActions_->appendAction(0, tmpAction);
@@ -174,6 +172,7 @@ bool SGMXASScanController::beamlineInitialize(){
 	/* NTBA - August 25th, 2011 (David Chevrier)
 			Who's going to delete the list and the actions?"
 	*/
+	bool initializationFailed = false;
 	initializationActions_ = new AMBeamlineParallelActionsList();
 
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
@@ -181,33 +180,9 @@ bool SGMXASScanController::beamlineInitialize(){
 	tmpSetAction->setSetpoint((config_->fluxResolutionGroup()));
 	initializationActions_->appendAction(0, tmpSetAction);
 
-	tmpSetAction = new AMBeamlineControlSetMoveAction(SGMBeamline::sgm()->trackingSet());
-	tmpSetAction->setSetpoint(config_->trackingGroup());
-	initializationActions_->appendAction(0, tmpSetAction);
-
-//	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
-/*
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
-	tmpAction->setSetpoint(config_->startEnergy());
-	initializationActions_->appendAction(0, tmpAction);
-*/
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerMode());
-	tmpAction->setSetpoint(0);
-	initializationActions_->appendAction(0, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerStart());
-	tmpAction->setSetpoint(0);
-	initializationActions_->appendAction(0, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerTotalNumberOfScans());
-	tmpAction->setSetpoint(1);
-	initializationActions_->appendAction(0, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerScansPerBuffer());
-	tmpAction->setSetpoint(1);
-	initializationActions_->appendAction(0, tmpAction);
-
-
 	for(int x = 0; x < config_->allDetectors()->count(); x++){
 		if(config_->allDetectorConfigurations().isActiveAt(x)){
-			config_->allDetectors()->detectorAt(x)->setFromInfo(config_->allDetectorConfigurations().detectorInfoAt(x));
+			//config_->allDetectors()->detectorAt(x)->setFromInfo(config_->allDetectorConfigurations().detectorInfoAt(x));
 			config_->allDetectors()->detectorAt(x)->activate();
 			if(config_->allDetectors()->detectorAt(x)->turnOnAction()){
 				qDebug() << "Adding HV turn on to initialization actions";
@@ -216,14 +191,31 @@ bool SGMXASScanController::beamlineInitialize(){
 		}
 	}
 
+	tmpSetAction = new AMBeamlineControlSetMoveAction(SGMBeamline::sgm()->trackingSet());
+	tmpSetAction->setSetpoint(config_->trackingGroup());
+	initializationActions_->appendAction(0, tmpSetAction);
+
+	tmpBAction = SGMBeamline::sgm()->scaler()->createStartAction(0);
+	tmpBAction ? initializationActions_->appendAction(0, tmpBAction) : initializationFailed = true;
+	tmpBAction = SGMBeamline::sgm()->scaler()->createContinuousEnableAction(false);
+	tmpBAction ? initializationActions_->appendAction(0, tmpBAction) : initializationFailed = true;
+
+	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
+	tmpBAction = SGMBeamline::sgm()->scaler()->createScansPerBufferAction(1);
+	tmpBAction ? initializationActions_->appendAction(1, tmpBAction) : initializationFailed = true;
+	tmpBAction = SGMBeamline::sgm()->scaler()->createTotalScansAction(1);
+	tmpBAction ? initializationActions_->appendAction(1, tmpBAction) : initializationFailed = true;
+
+
+
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 
         tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
 		tmpAction->setSetpoint(config_->startEnergy());
-        initializationActions_->appendAction(1, tmpAction);
+	initializationActions_->appendAction(2, tmpAction);
 
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
-	initializationActions_->appendAction(2, SGMBeamline::sgm()->createBeamOnActions());
+	initializationActions_->appendAction(3, SGMBeamline::sgm()->createBeamOnActions());
 
 	beamlineInitialized_ = true;
 	return beamlineInitialized_;

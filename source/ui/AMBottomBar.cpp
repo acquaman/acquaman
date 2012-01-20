@@ -54,8 +54,8 @@ void AMBottomBar::updateScanProgress(double secondsElapsed, double secondsTotal)
 	progressBar->setMaximum((int)secondsTotal);
 	progressBar->setValue((int)secondsElapsed);
 	double secondsRemaining = secondsTotal - secondsElapsed;
-	QTime elapsed = QTime(0,0,0,0).addMSecs((int)1000*secondsElapsed);
-	QTime remaining = QTime(0,0,0,0).addMSecs((int)1000*secondsRemaining);
+	QTime elapsed = QTime(0,0,0,0).addMSecs(int(1000*secondsElapsed));
+	QTime remaining = QTime(0,0,0,0).addMSecs(int(1000*secondsRemaining));
 	QString eStr = (elapsed.hour() > 0) ? "h:mm:ss" : "m:ss" ;
 	QString rStr = (remaining.hour() > 0) ? "h:mm:ss" : "m:ss" ;
 	if(secondsRemaining == 0)

@@ -795,6 +795,8 @@ public:
 /// Subclass this to create an object that specifies how to interpret a control's status value.  With this mechanism, we can accept arbitrarily complex algorithms to determine if an AMPVwStatusControl's status value means that it's moving.  For example, if your motor driver returns 4, 5, or 6 to mean that it's moving, create a subclass whose operator()() function returns true in these three cases.
 class AMAbstractControlStatusChecker {
 public:
+	virtual ~AMAbstractControlStatusChecker() {}
+
 	/// Returns true if the \c statusValue indicates the control is moving, and false if it's not.
 	virtual bool operator()(quint32 statusValue) = 0;
 };
@@ -1105,6 +1107,8 @@ protected slots:
 /// Subclass this to create an object to define unit conversions from and to "raw" units. Instances of this are used by the AMPVwStatusAndUnitConversionControl.  A simple implementation that might do what you need is AMScaleAndOffsetUnitConverter.
 class AMAbstractUnitConverter {
 public:
+	virtual ~AMAbstractUnitConverter() {}
+
 	/// Returns the name of the output (non-raw) units
 	virtual QString units() const = 0;
 	/// Converts raw units to output units
