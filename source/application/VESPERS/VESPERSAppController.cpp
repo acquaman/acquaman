@@ -151,7 +151,7 @@ bool VESPERSAppController::startup() {
 			AMAppControllerSupport::registerClass<VESPERSEXAFSScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
 		}
 
-		VESPERSWorkflowAssistant *assistant = new VESPERSWorkflowAssistant(workflowManagerView_, this);
+//		VESPERSWorkflowAssistant *assistant = new VESPERSWorkflowAssistant(workflowManagerView_, this);
 
 		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
 		AMStartScreen* startScreen = new AMStartScreen(0);

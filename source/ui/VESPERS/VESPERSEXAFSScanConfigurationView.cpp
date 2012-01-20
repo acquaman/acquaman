@@ -280,8 +280,8 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	contentsLayout->addWidget(roiText_, 3, 2, 2, 2);
 	contentsLayout->addWidget(useFixedTime, 4, 0);
 	contentsLayout->addWidget(estimatedTime_, 5, 0);
-	contentsLayout->addWidget(estimatedSetTime_, 6, 0);
-	contentsLayout->addLayout(numberOfScansLayout, 6, 1);
+//	contentsLayout->addWidget(estimatedSetTime_, 6, 0);
+//	contentsLayout->addLayout(numberOfScansLayout, 6, 1);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
