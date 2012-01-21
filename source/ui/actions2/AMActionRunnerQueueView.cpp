@@ -106,46 +106,40 @@ void AMActionRunnerQueueView::onQueueActionAddedOrRemoved()
 
 void AMActionRunnerQueueView::onSelectionChanged()
 {
-	bool hasSelectedItems = (treeView_->selectionModel()->selectedRows().count() != 0);
+	QModelIndexList selectedIndexes = treeView_->selectionModel()->selectedRows();
 
-	deleteButton_->setEnabled(hasSelectedItems);
-	duplicateButton_->setEnabled(hasSelectedItems);
+	deleteButton_->setEnabled(selectedIndexes.count() != 0);
+	duplicateButton_->setEnabled(allSelectedIndexesAtSameLevel(selectedIndexes));
 }
 
 void AMActionRunnerQueueView::onDeleteButtonClicked()
 {
 	QModelIndexList selectedRows = treeView_->selectionModel()->selectedRows(0);
-	QList<int> indexesToDelete;
-	foreach(QModelIndex i, selectedRows) {
-		// todozzz.... For now, only delete top-level actions. Will need to figure out deleting actions inside loops later.
-		if(!i.parent().isValid()) {
-			indexesToDelete << i.row();
-		}
-	}
-	// need to delete from largest index to smallest index, otherwise the indexes will change as we go.
-	qSort(indexesToDelete);
-	for(int i=indexesToDelete.count()-1; i>=0; i--)
-		actionRunner_->deleteActionInQueue(indexesToDelete.at(i));
+	actionRunner_->deleteActionsInQueue(selectedRows);
 }
 
 void AMActionRunnerQueueView::onDuplicateButtonClicked()
 {
-	QList<int> indexesToCopy;
-
 	QModelIndexList selectedRows = treeView_->selectionModel()->selectedRows(0);
-	foreach(QModelIndex i, selectedRows) {
-		// todozzz.... For now, only duplicate top-level actions. Will need to figure out deleting actions inside loops later.
-		if(!i.parent().isValid()) {
-			indexesToCopy << i.row();
-		}
-	}
-
-	actionRunner_->duplicateActionsInQueue(indexesToCopy);
+	actionRunner_->duplicateActionsInQueue(selectedRows);
 }
 
 void AMActionRunnerQueueView::onQueuePaused(bool isPaused)
 {
 	pauseButton_->setChecked(isPaused);
+}
+
+bool AMActionRunnerQueueView::allSelectedIndexesAtSameLevel(const QModelIndexList &selectedIndexes)
+{
+	if(selectedIndexes.isEmpty())
+		return false;
+
+	QModelIndex firstParent = selectedIndexes.at(0).parent();
+	foreach(QModelIndex i, selectedIndexes)
+		if(i.parent() != firstParent)
+			return false;
+
+	return true;
 }
 
 

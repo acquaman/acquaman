@@ -55,6 +55,10 @@ protected:
 	QPushButton* pauseButton_;
 
 	QPushButton* deleteButton_, *duplicateButton_;
+
+
+	/// Helper function to determine if all the selected indexes are at the same level of the hierarchy. We need this to be true in order to enable the 'duplicate actions' button.  Then a user can either duplicate top-level actions, or duplicate actions within an AMNestedAction, but there's no ambiguity as to what we would do for a combination of both.
+	bool allSelectedIndexesAtSameLevel(const QModelIndexList& selectedIndexes);
 };
 
 ///// This class wraps an AMActionRunner into a model that works with the Qt Model/View system. Nominally, it's usually a list model, but it uses the full tree model API so that actions inside AMLoopAction appear hierarchically.  There is only ever one column.

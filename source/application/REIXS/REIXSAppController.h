@@ -53,6 +53,9 @@ protected slots:
 	void onCurrentScanControllerCreated();
 	void onCurrentScanControllerStarted();
 
+
+	void tempAddLoopActions();
+
 protected:
 
 	AMScanConfigurationViewHolder* scanConfigurationHolder_;

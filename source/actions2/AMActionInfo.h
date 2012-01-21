@@ -27,7 +27,7 @@ class AMActionInfo : public AMDbObject
 
 public:
 	/// Constructor
-	AMActionInfo(const QString& shortDescription = "Generic Action", const QString& longDescription = QString(), const QString& iconFileName = QString(), QObject *parent = 0);
+	Q_INVOKABLE AMActionInfo(const QString& shortDescription = "Generic Action", const QString& longDescription = QString(), const QString& iconFileName = QString(), QObject *parent = 0);
 	/// Copy Constructor
 	AMActionInfo(const AMActionInfo& other);
 

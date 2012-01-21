@@ -13,7 +13,7 @@ class AMActionQueueModelItem : public QStandardItem {
 public:
 	/// Used to identify a specific type of item subclass
 	enum Type { AMActionQueueModelItemType = QStandardItem::UserType + 1049 };
-	/// Constructor
+	/// Construct a model item for the given \c action.
 	AMActionQueueModelItem(AMAction* action);
 	/// The two things that separate us from QStandardItems: we have an associated action, and we return data based on that action
 	AMAction* action() { return action_; }
@@ -28,13 +28,13 @@ protected:
 
 class AMActionRunner;
 
-/// This subclass of QStandardItemModel is used internally by AMActionRunner for its queue of upcoming actions.   You should never use this class directly.
+/// This subclass of QStandardItemModel is used internally by AMActionRunner for its queue of upcoming actions, and to handle drag-and-drop interaction with AMActionRunnerQueueView. You should never need to use this class directly; instead, programmers should use the AMActionRunner API to manage queued actions.
 /*!
 Implementation Notes
 
-- We use a possibly hierarchical model so that we can support nesting of "For-loop" actions at some point.
-- Subclassing QStandardItemModel is only necessary because we want to enable drag-and-drop reordering of actions (AMActionQueueModelItems) in the AMActionRunner.
-- There is not two-way data flow/synchronization between this model and AMActionRunner.  Instead, the AMActionRunner must be the only object to send modification commands to this model.  For example, it is NOT supported to remove items from the AMActionRunner queue by calling removeRows() on this model.
+- We use a possibly hierarchical model so that we can support nesting of "For-loop"-type actions (anything that implements AMNestedAction).
+- Subclassing QStandardItemModel is only necessary because we want to enable drag-and-drop reordering of actions (AMActionQueueModelItems) in the AMActionRunner; otherwise we could use a normal QStandardItemModel.
+- IMPORANT: There is not two-way data flow/synchronization between this model and AMActionRunner.  Instead, the AMActionRunner must be the only object to send modification commands to this model.  For example, it is NOT supported to remove items from the AMActionRunner queue by calling removeRows() on this model.
 */
 class AMActionQueueModel : public QStandardItemModel {
 public:
@@ -58,6 +58,7 @@ protected:
 	AMActionRunner* actionRunner_;
 };
 
+class AMNestedAction;
 
 /// This singleton class provides the API for Acquaman's workflow manager. You can queue up actions for it to run, manage the queue of upcoming actions, and receive notifications when actions are completed. After an action is completed, it will automatically log the actions with AMActionLog::logCompletedAction().  The AMActionRunnerCurrentView and AMActionRunnerQueueView provide graphical user interfaces to this API.
 /*! Note that the AMActionRunner's queue is initially paused when it is first created. To have it start executing actions as soon as they become available, call AMActionRunner::s()->setPaused(false).*/
@@ -70,10 +71,10 @@ public:
 	/// Release and delete the singleton instance
 	static void releaseActionRunner();
 
-	// The Queue of Upcoming Actions:
+	// The Queue of Upcoming Actions:  (These all refer to top-level actions. To manage ordering and moving sub-actions within nested actions like loop actions, programmers should use the AMNestedAction interface.)
 	///////////////////////////////////
 
-	/// The number of actions that are in the queue. (Does not include the possible current action.)
+	/// The number of actions that are in the queue. (Does not include the possible currently-running action.)
 	int queuedActionCount() const { return queueModel_->rowCount(); }
 	/// Returns a pointer to an action in the queue, or 0 if the index is out of range.
 	const AMAction* queuedActionAt(int index) const { AMActionQueueModelItem* item = static_cast<AMActionQueueModelItem*>(queueModel_->item(index)); if(item) return item->action(); return 0; }
@@ -124,6 +125,13 @@ public:
 	AMAction* immediateActionAt(int index);
 
 
+	// Additional public functions
+
+	/// This version of deleteActionsInQueue is typically only used by the AMActionRunnerQueueView, since it has a list of QModelIndex that it needs to delete. If \c indexesToDelete contains non-top-level model indexes, this will use the AMNestedAction API to delete sub-actions inside nested actions.
+	void deleteActionsInQueue(QModelIndexList indexesToDelete);
+	/// This version of duplicateActionsInQueue is typically only used by the AMActionRunnerQueueView, since it has a list of QModelIndex that it needs to duplicate.  If \c indexesToDuplicate contains non-top-level model indexes, this will use the AMNestedAction API to duplicate the sub-actions within the nested action.  If it contains all top-level model indexes, then it simply calls the regular duplicateActionsInQueue().  If there is a combination of top-level and nested indexes, it does nothing... Since what should be done here is ambiguous as to where the duplicated actions should end up.
+	void duplicateActionsInQueue(const QModelIndexList& indexesToCopy);
+
 signals:
 
 	// Signals regarding the currently-running item
@@ -172,16 +180,33 @@ protected slots:
 	void onImmediateActionStateChanged(int state, int previousState);
 
 
+//	/// Respond internally when a nested action adds a subAction
+//	void onNestedActionSubActionAboutToBeAdded(int index);
+	/// Respond internally when a nested action adds a subAction
+	void onNestedActionSubActionAdded(int index);
+	/// Respond internally when a nested action removes a subAction
+	void onNestedActionSubActionAboutToBeRemoved(int index);
+//	/// Respond internally when a nested action removes a subAction
+//	void onNestedActionSubActionRemoved(int index);
+
+
 protected:
 	AMActionQueueModel* queueModel_;
 	AMAction* currentAction_;
 	bool isPaused_;
 	QList<AMAction*> immediateActions_;
 
+	QHash<AMNestedAction*, QPersistentModelIndex> nestedActions_;
+
 	/// Helper function called when the previous action finishes. If the queue is running and there are more actions, it starts the next one. If the queue is paused or if we're out of actions, it sets the currentAction() to 0. Either way, it emits the currentActionChanged() signal.
 	void internalDoNextAction();
 	/// Helper function to prompt the user about what to do given that the current action failed, and it specified a "prompt user" failure response. Do they want to retry or move on?
 	int internalAskUserWhatToDoAboutFailedAction(AMAction* action);
+
+	/// Helper function to ...
+	void internalBuildNestedActionItemsIfRequired(AMActionQueueModelItem* parentItem);
+	/// Helper function to...
+	void internalCleanUpNestedActionIndexes(AMActionQueueModelItem* parentItem);
 
 private:
 	/// This is a singleton class, so the constructor is private. Access the only instance of it via s().

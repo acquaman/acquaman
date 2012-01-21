@@ -55,6 +55,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions2/actions/AMScanControllerAction.h"
 #include "actions2/actions/AMInternalControlMoveAction.h"
 #include "actions2/actions/REIXS/REIXSXESScanAction.h"
+#include "actions2/AMLoopAction.h"
 
 #include <QMessageBox>
 
@@ -98,6 +99,7 @@ bool REIXSAppController::startup() {
 		AMActionRegistry::s()->registerInfoAndAction<REIXSControlMoveActionInfo, REIXSControlMoveAction>("REIXS Control Move", "This action moves a REIXS beamline control to a target position.", ":/system-run.png");
 		AMActionRegistry::s()->registerInfoAndAction<REIXSXESScanActionInfo, REIXSXESScanAction>("REIXS XES Scan", "This action conducts a single XES scan at a given detector energy.", ":/utilities-system-monitor.png");
 
+		AMActionRunner::s()->addActionToQueue(new AMLoopAction(new AMActionInfo("Loop Action: 3")));
 		AMActionRunner::s()->addActionToQueue(new AMInternalControlMoveAction(REIXSBeamline::bl()->sampleChamber()->x(), 35));
 		AMActionRunner::s()->addActionToQueue(new REIXSXESScanAction(new REIXSXESScanConfiguration()));
 		AMActionRunner::s()->addActionToQueue(new AMWaitAction(10));
@@ -108,6 +110,9 @@ bool REIXSAppController::startup() {
 		AMActionRunner::s()->addActionToQueue(new REIXSControlMoveAction(new REIXSControlMoveActionInfo(AMControlInfo("sampleX", 5, 0, 0, "mm", 0.1, "Sample X"))));
 		AMActionRunner::s()->addActionToQueue(new AMWaitAction(20));
 		AMActionRunner::s()->addActionToQueue(new REIXSXESScanAction(new REIXSXESScanConfiguration()));
+
+		// test adding sub-actions to loop action later
+		QTimer::singleShot(10000, this, SLOT(tempAddLoopActions()));
 
 
 		// Create panes in the main window:
@@ -200,6 +205,20 @@ void REIXSAppController::onCurrentScanControllerCreated(){
 
 	// hook up bottom-bar. This should be moved up in the framework...
 	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
+}
+
+void REIXSAppController::tempAddLoopActions()
+{
+	AMLoopAction* loopAction = qobject_cast<AMLoopAction*>(AMActionRunner::s()->queuedActionAt(0));
+
+	loopAction->insertSubAction(new AMWaitAction(10), -1);
+	loopAction->insertSubAction(new AMWaitAction(11), -1);
+	AMLoopAction* inner1 = new AMLoopAction(new AMActionInfo("Loop Inner 1"));
+	loopAction->insertSubAction(inner1, -1);
+
+	inner1->insertSubAction(new AMWaitAction(12), -1);
+
+	// inner1->insertSubAction(new AMWaitAction(13), -1);
 }
 
 
