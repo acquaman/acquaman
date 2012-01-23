@@ -53,6 +53,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/SGM/SGMPluginsLocation.h"
 #include "application/AMPluginsManager.h"
 #include "util/SGM/SGMPeriodicTable.h"
+#include "util/AMGithubManager.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
@@ -64,13 +65,32 @@ bool SGMAppController::startup() {
 	// Initialize AMBeamline::bl() as an SGMBeamline::sgm() instance. FIRST!
 	//SGMBeamline::sgm();
 
-	SGMSettings::s()->load();
+	/*
+	manager_ = new QNetworkAccessManager(this);
+	QNetworkRequest request;
+	QString userInfo;
+	QByteArray infoData;
+	QString headerData;
+	QByteArray jsonData;
 
-//	Moved to startupRegisterDatabases() to test why this was failing after another database (ie: the main database) was already registered.
-//	AMDatabase* dbSGM = AMDatabase::createDatabase("SGMBeamline", SGMSettings::s()->SGMDataFolder() + "/" + SGMSettings::s()->SGMDatabaseFilename());
-//	if(!dbSGM)
-//		return false;
-//	AMDbObjectSupport::s()->registerDatabase(dbSGM);
+	request.setUrl(QUrl("https://api.github.com/issues?state=closed&direction=asc"));
+	userInfo = "AcquamanIssues:sucking2report";
+	infoData = userInfo.toLocal8Bit().toBase64();
+	headerData = "Basic " + infoData;
+	request.setRawHeader("Authorization", headerData.toLocal8Bit());
+
+
+	reply_ = manager_->get(request);
+	connect(manager_, SIGNAL(finished(QNetworkReply*)), this, SLOT(networkReplyFinished(QNetworkReply*)));
+	*/
+
+	ghManager_ = new AMGithubManager("AcquamanIssues", "sucking2report", "AcquamanIssuesTest", this);
+	connect(ghManager_, SIGNAL(authenticated(bool)), this, SLOT(githubAuthenticated(bool)));
+	//ghRequest_->getIssues();
+	//ghRequest_->createNewIssue();
+	//connect(ghManager_, SIGNAL(issuesReturned(QVariantMap)), this, SLOT(githubReplyFinished(QVariantMap)));
+
+	SGMSettings::s()->load();
 
 	if(AMAppController::startup()) {
 		if(!setupSGMDatabase())
@@ -151,13 +171,13 @@ bool SGMAppController::startup() {
 		}
 
 		/* HEY DARREN, THIS IS AN EXAMPLE NOTE FOR YOU
-		if(AMAppControllerSupport::registeredClasses()->contains("SGMXASScanConfiguration")){
-			AMScanConfigurationObjectInfo myInfo = AMAppControllerSupport::registeredClasses()->value("SGMXASScanConfiguration");
-			qDebug() << myInfo.scanConfigurationClassName << myInfo.exporterClassName << myInfo.exporterOptionClassName << myInfo.exporterOptionId;
-		}
-		else
-			qDebug() << "No info found";
-		*/
+  if(AMAppControllerSupport::registeredClasses()->contains("SGMXASScanConfiguration")){
+   AMScanConfigurationObjectInfo myInfo = AMAppControllerSupport::registeredClasses()->value("SGMXASScanConfiguration");
+   qDebug() << myInfo.scanConfigurationClassName << myInfo.exporterClassName << myInfo.exporterOptionClassName << myInfo.exporterOptionId;
+  }
+  else
+   qDebug() << "No info found";
+  */
 
 		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
 		AMStartScreen* startScreen = new AMStartScreen(0);
@@ -171,10 +191,10 @@ bool SGMAppController::startup() {
 		mw_->insertHeading("Beamline Control", 0);
 		//////////
 		samplePositionView_ = new AMSampleManagementWidget(new SGMSampleManipulatorView(),
-									QUrl("http://ccd1611-403/axis-cgi/mjpg/video.cgi?resolution=1280x1024&.mjpg"),
-									"Sample Camera",
-									SGMBeamline::sgm()->currentSamplePlate(),
-									SGMBeamline::sgm()->sampleManipulator());
+								   QUrl("http://ccd1611-403/axis-cgi/mjpg/video.cgi?resolution=1280x1024&.mjpg"),
+								   "Sample Camera",
+								   SGMBeamline::sgm()->currentSamplePlate(),
+								   SGMBeamline::sgm()->sampleManipulator());
 		mw_->addPane(samplePositionView_, "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
 		connect(samplePositionView_, SIGNAL(newSamplePlateSelected(AMSamplePlate*)), SGMBeamline::sgm(), SLOT(setCurrentSamplePlate(AMSamplePlate*)));
 
@@ -204,13 +224,13 @@ bool SGMAppController::startup() {
 		connect(SGMBeamline::sgm(), SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(onSGMBeamlineConnected()));
 
 		/*! \todo: hook up bottom-bar signals to the active scan controller.
-	void MainWindow::onScanControllerReady(AMScanController *scanController){
-		qDebug() << "\n\nScan controller is ready\n\n";
-		connect(bottomBar_, SIGNAL(pauseScanIssued()), scanController, SLOT(pause()));
-		connect(bottomBar_, SIGNAL(stopScanIssued()), scanController, SLOT(cancel()));
-		connect(scanController, SIGNAL(progress(double,double)), bottomBar_, SLOT(updateScanProgress(double,double)));
-	}
-	*/
+ void MainWindow::onScanControllerReady(AMScanController *scanController){
+  qDebug() << "\n\nScan controller is ready\n\n";
+  connect(bottomBar_, SIGNAL(pauseScanIssued()), scanController, SLOT(pause()));
+  connect(bottomBar_, SIGNAL(stopScanIssued()), scanController, SLOT(cancel()));
+  connect(scanController, SIGNAL(progress(double,double)), bottomBar_, SLOT(updateScanProgress(double,double)));
+ }
+ */
 		sgmSidebar_ = new SGMSidebar();
 		mw_->addRightWidget(sgmSidebar_);
 
@@ -263,13 +283,13 @@ void SGMAppController::onSGMBeamlineConnected(){
 		xasScanConfigurationHolder_->setView(xasScanConfigurationView_);
 
 		/* HEY DARREN, THIS IS AN EXAMPLE NOTE FOR YOU
-		AMExporter *myExporter = AMAppControllerSupport::createExporter(sxsc);
-		AMExporterOption *myExporterOption = AMAppControllerSupport::createExporterOption(sxsc);
-		if(myExporter && myExporterOption)
-			qDebug() << "Found that sucker " << myExporter->description() << myExporterOption->name();
-		else
-			qDebug() << "Odd, didn't find that exporter";
-		*/
+  AMExporter *myExporter = AMAppControllerSupport::createExporter(sxsc);
+  AMExporterOption *myExporterOption = AMAppControllerSupport::createExporterOption(sxsc);
+  if(myExporter && myExporterOption)
+   qDebug() << "Found that sucker " << myExporter->description() << myExporterOption->name();
+  else
+   qDebug() << "Odd, didn't find that exporter";
+  */
 
 		SGMFastScanConfiguration *sfsc = new SGMFastScanConfiguration(this);
 		fastScanConfigurationView_ = new SGMFastScanConfigurationView(sfsc);
@@ -296,6 +316,36 @@ void SGMAppController::onActionSGMSettings(){
 	if(!sgmSettingsMasterView_)
 		sgmSettingsMasterView_ = new SGMSettingsMasterView();
 	sgmSettingsMasterView_->show();
+}
+
+void SGMAppController::githubReplyFinished(QVariantMap jsonMap){
+	qDebug() << "GH Reply";
+	qDebug() << jsonSensiblePrint(jsonMap);
+}
+
+void SGMAppController::githubAuthenticated(bool authenticated){
+	qDebug() << "Github says authenticated " << authenticated;
+	ghManager_->createNewIssue("From a better AM API", "First one from the manager API");
+	//ghManager_->getIssues();
+	//connect(ghManager_, SIGNAL(issuesReturned(QVariantMap)), this, SLOT(githubReplyFinished(QVariantMap)));
+}
+
+QString SGMAppController::jsonSensiblePrint(const QVariantMap &jsonMap, int indentLevel){
+	QString retVal;
+	QString tabLevel;
+	for(int x = 0; x < indentLevel; x++)
+		tabLevel.append("\t");
+	QMap<QString, QVariant>::const_iterator i = jsonMap.constBegin();
+	while (i != jsonMap.constEnd()) {
+		if(i.value().type() == QVariant::ULongLong)
+			retVal.append(QString("%1\"%2\": \"%3\"\n").arg(tabLevel).arg(i.key()).arg(i.value().toULongLong()));
+		else if(i.value().type() == QVariant::String)
+			retVal.append(QString("%1\"%2\": \"%3\"\n").arg(tabLevel).arg(i.key()).arg(i.value().toString()));
+		else if(i.value().canConvert(QVariant::Map))
+			retVal.append(QString("%1\"%2\":\n%3").arg(tabLevel).arg(i.key()).arg(jsonSensiblePrint(i.value().toMap(), indentLevel+1)));
+		++i;
+	}
+	return retVal;
 }
 
 bool SGMAppController::startupSGMInstallActions(){
@@ -443,24 +493,22 @@ bool SGMAppController::setupSGMPeriodicTable(){
 	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", groupName);
 	if(matchIDs.count() == 0){
 		/*
-		SGMElementInfo *carbonInfo = new SGMElementInfo(AMPeriodicTable::table()->elementBySymbol("C"), this, groupName);
-		SGMEdgeInfo carbonK(AMPeriodicTable::table()->elementBySymbol("C")->KEdge(), SGMScanRangeInfo(SGMEnergyPosition(270.0, -397720, -149991, 286.63, 0, groupName+"_Start"),
-													      SGMEnergyPosition(295.0, -377497, -140470, 200.46, 0, groupName+"_Middle"),
-													      SGMEnergyPosition(320.0, -348005, -133061, 100.54, 0, groupName+"_End"), groupName+"_Range"),
-				    groupName+"K");
-		carbonInfo->addEdgeInfo(carbonK);
-		carbonInfo->addFastScanParameters(new SGMFastScanParameters(carbonInfo->element()->name(),
-										carbonInfo->sgmEdgeInfos().at(carbonInfo->sgmEdgeInfos().indexOfKey("K")),
-										SGMFastScanSettings(5.0, 24000, 5.0, 200, 4000, this, groupName+"K5s_Settings"), this, groupName+"K5s" ));
-		carbonInfo->addFastScanParameters(new SGMFastScanParameters(carbonInfo->element()->name(),
-										carbonInfo->sgmEdgeInfos().at(carbonInfo->sgmEdgeInfos().indexOfKey("K")),
-										SGMFastScanSettings(20.0, 5800, 20.0, 200, 970, this, groupName+"K20s_Settings"), this, groupName+"K20s"));
-		//sgmPeriodicTableInfo_.append(tmpElementInfo, tmpElementInfo->element());
-		success &= carbonInfo->storeToDb(dbSGM);
-		*/
+  SGMElementInfo *carbonInfo = new SGMElementInfo(AMPeriodicTable::table()->elementBySymbol("C"), this, groupName);
+  SGMEdgeInfo carbonK(AMPeriodicTable::table()->elementBySymbol("C")->KEdge(), SGMScanRangeInfo(SGMEnergyPosition(270.0, -397720, -149991, 286.63, 0, groupName+"_Start"),
+     SGMEnergyPosition(295.0, -377497, -140470, 200.46, 0, groupName+"_Middle"),
+     SGMEnergyPosition(320.0, -348005, -133061, 100.54, 0, groupName+"_End"), groupName+"_Range"),
+ groupName+"K");
+  carbonInfo->addEdgeInfo(carbonK);
+  carbonInfo->addFastScanParameters(new SGMFastScanParameters(carbonInfo->element()->name(),
+   carbonInfo->sgmEdgeInfos().at(carbonInfo->sgmEdgeInfos().indexOfKey("K")),
+   SGMFastScanSettings(5.0, 24000, 5.0, 200, 4000, this, groupName+"K5s_Settings"), this, groupName+"K5s" ));
+  carbonInfo->addFastScanParameters(new SGMFastScanParameters(carbonInfo->element()->name(),
+   carbonInfo->sgmEdgeInfos().at(carbonInfo->sgmEdgeInfos().indexOfKey("K")),
+   SGMFastScanSettings(20.0, 5800, 20.0, 200, 970, this, groupName+"K20s_Settings"), this, groupName+"K20s"));
+  //sgmPeriodicTableInfo_.append(tmpElementInfo, tmpElementInfo->element());
+  success &= carbonInfo->storeToDb(dbSGM);
+  */
 	}
 
 	return success;
 }
-
-

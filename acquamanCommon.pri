@@ -41,6 +41,8 @@ macx {
 		# LibXML Dependencies (required by dacq library)
 		XML_LIB = -lxml2
 		XML_INCLUDE_DIR = /usr/include/libxml2
+
+		QJSON_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/qjson/src
 }
 linux-g++ {
 
@@ -130,7 +132,7 @@ CONFIG(jenkins_build) {
 }
 
 
-QT += core gui sql opengl
+QT += core gui sql opengl network
 
 # add video using Multimedia module from QtMobility, if we have it
 CONFIG(mobility) {
@@ -468,7 +470,21 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/ui/util/SGM/SGMSettingsMasterView.h \
 	source/beamline/SGM/SGMMAXvMotor.h \
     source/beamline/CLS/CLSSIS3820Scaler.h \
-    source/ui/CLS/CLSSIS3820ScalerView.h
+    source/ui/CLS/CLSSIS3820ScalerView.h \
+	$$QJSON_INCLUDE_DIR/json_parser.hh \
+	$$QJSON_INCLUDE_DIR/json_scanner.h \
+	$$QJSON_INCLUDE_DIR/location.hh \
+	$$QJSON_INCLUDE_DIR/parser_p.h \
+	$$QJSON_INCLUDE_DIR/parser.h \
+	$$QJSON_INCLUDE_DIR/parserrunnable.h \
+	$$QJSON_INCLUDE_DIR/position.hh \
+	$$QJSON_INCLUDE_DIR/qjson_debug.h \
+	$$QJSON_INCLUDE_DIR/qjson_export.h \
+	$$QJSON_INCLUDE_DIR/qobjecthelper.h \
+	$$QJSON_INCLUDE_DIR/serializer.h \
+	$$QJSON_INCLUDE_DIR/serializerrunnable.h \
+	$$QJSON_INCLUDE_DIR/stack.hh \
+    source/util/AMGithubManager.h
 
 CONFIG(mobility) {
 DEFINES += AM_MOBILITY_VIDEO_ENABLED
@@ -754,7 +770,15 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/util/SGM/SGMSettingsMasterView.cpp \
 	source/beamline/SGM/SGMMAXvMotor.cpp \
     source/beamline/CLS/CLSSIS3820Scaler.cpp \
-    source/ui/CLS/CLSSIS3820ScalerView.cpp
+    source/ui/CLS/CLSSIS3820ScalerView.cpp \
+	$$QJSON_INCLUDE_DIR/json_parser.cc \
+	$$QJSON_INCLUDE_DIR/json_scanner.cpp \
+	$$QJSON_INCLUDE_DIR/parser.cpp \
+	$$QJSON_INCLUDE_DIR/parserrunnable.cpp \
+	$$QJSON_INCLUDE_DIR/qobjecthelper.cpp \
+	$$QJSON_INCLUDE_DIR/serializer.cpp \
+	$$QJSON_INCLUDE_DIR/serializerrunnable.cpp \
+    source/util/AMGithubManager.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
@@ -773,6 +797,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 
