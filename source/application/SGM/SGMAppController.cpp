@@ -325,7 +325,7 @@ void SGMAppController::githubReplyFinished(QVariantMap jsonMap){
 
 void SGMAppController::githubAuthenticated(bool authenticated){
 	qDebug() << "Github says authenticated " << authenticated;
-	ghManager_->createNewIssue("From a better AM API", "First one from the manager API");
+	//ghManager_->createNewIssue("From a better AM API", "First one from the manager API");
 	//ghManager_->getIssues();
 	//connect(ghManager_, SIGNAL(issuesReturned(QVariantMap)), this, SLOT(githubReplyFinished(QVariantMap)));
 }
