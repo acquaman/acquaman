@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "ui/AMWorkflowManagerView.h"
+#include "acquaman/VESPERS/VESPERSEXAFSScanConfiguration.h"
 
 /*!
   This class acts as an assistant to the current version of the workflow to allow for multiple copies of a scan to be repeated.  The idea
@@ -19,7 +20,22 @@ public:
 	/// Constructor.  Takes a pointer to the workflow.
 	explicit VESPERSWorkflowAssistant(AMWorkflowManagerView *workflow, QObject *parent = 0);
 
+    /// Returns the name of the current scan configuration.  Returns 0 if there is no scan to be viewed.
+    /*! \note Currently returns only VESPERSEXAFSScanConfiguration because it is the only type of scan currently supported.
+        If more scans become supported before the workfow is rewritten then this class will be extended.
+        */
+    VESPERSEXAFSScanConfiguration *currentConfiguration() const { return config_; }
+
+    /// Returns the name of the current scan configuration.
+    QString configName() const { return config_ != 0 ? config_->name() : ""; }
+    /// Returns the current total number of scans that should be executed.  Returns -1 if the the configuration is invalid.
+    int totalScans() const { return config_ != 0 ? config_->numberOfScans() : -1; }
+    /// Returns the current scan running.  Returns -1 if no scans are running.
+    int currentScan() const { return currentScan_; }
+
 signals:
+    /// Notifier that the workflow is running or not.
+    void workflowRunningChanged(bool);
 
 public slots:
 
@@ -30,6 +46,12 @@ protected slots:
 protected:
 	/// Pointer to the workflow.
 	AMWorkflowManagerView *workflow_;
+
+    /// Current number of scans that have been scanned in the current set.
+    int currentScan_;
+
+    /// The current scan configuration.
+    VESPERSEXAFSScanConfiguration *config_;
 
 };
 
