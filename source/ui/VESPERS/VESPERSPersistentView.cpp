@@ -54,7 +54,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	connect(VESPERSBeamline::vespers()->sampleStagePID(), SIGNAL(stateChanged(bool)), motors, SLOT(setEnabled(bool)));
 
 	// The temperature control.
-	temperature_ = VESPERSBeamline::vespers()->temperatureSet();
+    temperature_ = VESPERSBeamline::vespers()->temperatureSet();
 	connect(temperature_, SIGNAL(controlSetValuesChanged()), this, SLOT(onTemperatureStateChanged()));
 
 	// The pressure control.
@@ -279,7 +279,8 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 
 	setLayout(vespersLayout);
 	//setFixedSize(325, 1000);
-	setFixedSize(325, 900);
+//	setFixedSize(325, 900);
+    setFixedSize(325, 800);
 }
 
 void VESPERSPersistentView::onBeamChanged(VESPERSBeamline::Beam beam)

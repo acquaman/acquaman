@@ -191,18 +191,32 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	setCurrentPosition->setEnabled(goToPosition->isChecked());
 	connect(setCurrentPosition, SIGNAL(clicked()), this, SLOT(setScanPosition()));
 
-	savedXPosition_ = new QLabel(QString::number(config_->x(), 'g', 3) + " mm");
+    savedXPosition_ = new QLabel(QString::number(config_->goToPosition() ? config_->x() : 0, 'g', 3) + " mm");
 	savedXPosition_->setEnabled(goToPosition->isChecked());
-	savedYPosition_ = new QLabel(QString::number(config_->y(), 'g', 3) + " mm");
+    savedYPosition_ = new QLabel(QString::number(config_->goToPosition() ? config_->y() : 0, 'g', 3) + " mm");
 	savedYPosition_->setEnabled(goToPosition->isChecked());
-	positionsSaved_ = new QLabel("Unsaved");
+
+	positionsSaved_ = new QLabel;
+	QPalette palette(this->palette());
+	palette.setColor(QPalette::Disabled, QPalette::WindowText, Qt::darkGray);
+
+	// Although not entirely valid, the chances that both x and y being identically 0 for a saved position is incredibly unlikely.
+    if (!config_->goToPosition() || (config_->x() == 0.0 && config_->y() == 0.0)){
+
+		positionsSaved_->setText("Unsaved");
+		palette.setColor(QPalette::Active, QPalette::WindowText, Qt::red);
+	}
+	else{
+
+		positionsSaved_->setText("Saved");
+		palette.setColor(QPalette::Active, QPalette::WindowText, Qt::darkGreen);
+	}
+
+	positionsSaved_->setPalette(palette);
+
 	QFont font(this->font());
 	font.setBold(true);
 	positionsSaved_->setFont(font);
-	QPalette palette(this->palette());
-	palette.setColor(QPalette::Active, QPalette::WindowText, Qt::red);
-	palette.setColor(QPalette::Disabled, QPalette::WindowText, Qt::darkGray);
-	positionsSaved_->setPalette(palette);
 	positionsSaved_->setEnabled(goToPosition->isChecked());
 
 	QHBoxLayout *saveLayout = new QHBoxLayout;
@@ -213,7 +227,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	xPosition_->setEnabled(goToPosition->isChecked());
 	xPosition_->setDecimals(3);
 	xPosition_->setRange(-100, 100);
-	xPosition_->setValue(config_->x());
+    xPosition_->setValue(config_->goToPosition() ? config_->x() : 0);
 	xPosition_->setSuffix(" mm");
 	connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
 	connect(xPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
@@ -226,7 +240,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	yPosition_->setEnabled(goToPosition->isChecked());
 	yPosition_->setDecimals(3);
 	yPosition_->setRange(-100, 100);
-	yPosition_->setValue(config_->y());
+    yPosition_->setValue(config_->goToPosition() ? config_->y() : 0);
 	yPosition_->setSuffix(" mm");
 	connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
 	connect(yPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
