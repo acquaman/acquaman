@@ -415,7 +415,6 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/beamline/CLS/CLSPGT8000HVChannel.h \
 	source/analysis/AM1DInterpolationAB.h \
 	source/analysis/AM1DRunningAverageFilterAB.h \
-	source/analysis/SGM/SGM1DFastScanFilterAB.h \
 	source/analysis/AMExternalScanDataSourceAB.h \
 	source/analysis/AM1DSummingAB.h \
 	source/analysis/AMDeadTimeAB.h \
@@ -463,14 +462,9 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/acquaman/AMRegionScanConfiguration.h \
 	source/acquaman/AMEXAFSScanConfiguration.h \
 	source/beamline/CLS/CLSVariableIntegrationTime.h \
-    source/beamline/CLS/CLSOMS58Motor.h \
-    source/util/SGM/SGMSettings.h \
-    source/util/SGM/SGMDacqConfigurationFile.h \
-    source/util/SGM/SGMPluginsLocation.h \
-	source/ui/util/SGM/SGMSettingsMasterView.h \
-	source/beamline/SGM/SGMMAXvMotor.h \
-    source/beamline/CLS/CLSSIS3820Scaler.h \
-    source/ui/CLS/CLSSIS3820ScalerView.h \
+	source/beamline/CLS/CLSOMS58Motor.h \
+	source/beamline/CLS/CLSSIS3820Scaler.h \
+	source/ui/CLS/CLSSIS3820ScalerView.h \
 	$$QJSON_INCLUDE_DIR/json_parser.hh \
 	$$QJSON_INCLUDE_DIR/json_scanner.h \
 	$$QJSON_INCLUDE_DIR/location.hh \
@@ -484,7 +478,7 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	$$QJSON_INCLUDE_DIR/serializer.h \
 	$$QJSON_INCLUDE_DIR/serializerrunnable.h \
 	$$QJSON_INCLUDE_DIR/stack.hh \
-    source/util/AMGithubManager.h
+	source/util/AMGithubManager.h
 
 CONFIG(mobility) {
 DEFINES += AM_MOBILITY_VIDEO_ENABLED
@@ -717,7 +711,6 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/beamline/CLS/CLSPGT8000HVChannel.cpp \
 	source/analysis/AM1DInterpolationAB.cpp \
 	source/analysis/AM1DRunningAverageFilterAB.cpp \
-	source/analysis/SGM/SGM1DFastScanFilterAB.cpp \
 	source/analysis/AMExternalScanDataSourceAB.cpp \
 	source/analysis/AM1DSummingAB.cpp \
 	source/analysis/AMDeadTimeAB.cpp \
@@ -763,14 +756,8 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/acquaman/AMRegionScanConfiguration.cpp \
 	source/acquaman/AMEXAFSScanConfiguration.cpp \
 	source/beamline/CLS/CLSVariableIntegrationTime.cpp \
-    source/beamline/CLS/CLSOMS58Motor.cpp \
-    source/util/SGM/SGMSettings.cpp \
-    source/util/SGM/SGMDacqConfigurationFile.cpp \
-    source/util/SGM/SGMPluginsLocation.cpp \
-	source/ui/util/SGM/SGMSettingsMasterView.cpp \
-	source/beamline/SGM/SGMMAXvMotor.cpp \
-    source/beamline/CLS/CLSSIS3820Scaler.cpp \
-    source/ui/CLS/CLSSIS3820ScalerView.cpp \
+	source/beamline/CLS/CLSSIS3820Scaler.cpp \
+	source/ui/CLS/CLSSIS3820ScalerView.cpp \
 	$$QJSON_INCLUDE_DIR/json_parser.cc \
 	$$QJSON_INCLUDE_DIR/json_scanner.cpp \
 	$$QJSON_INCLUDE_DIR/parser.cpp \
@@ -778,7 +765,7 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	$$QJSON_INCLUDE_DIR/qobjecthelper.cpp \
 	$$QJSON_INCLUDE_DIR/serializer.cpp \
 	$$QJSON_INCLUDE_DIR/serializerrunnable.cpp \
-    source/util/AMGithubManager.cpp
+	source/util/AMGithubManager.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
