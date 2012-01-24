@@ -6,8 +6,8 @@ VESPERSWorkflowAssistantView::VESPERSWorkflowAssistantView(VESPERSWorkflowAssist
 	: QWidget(parent)
 {
 	assistant_ = assistant;
-//	setVisible(false);
-//	connect(assistant_, SIGNAL(workflowRunningChanged(bool)), this, SLOT(setVisible(bool)));
+	setVisible(false);
+	connect(assistant_, SIGNAL(workflowRunningChanged(bool)), this, SLOT(setVisible(bool)));
 
 	progressBar_ = new QProgressBar;
 	progressBar_->setFixedWidth(400);
