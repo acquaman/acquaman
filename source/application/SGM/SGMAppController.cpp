@@ -65,25 +65,6 @@ bool SGMAppController::startup() {
 	// Initialize AMBeamline::bl() as an SGMBeamline::sgm() instance. FIRST!
 	//SGMBeamline::sgm();
 
-	/*
-	manager_ = new QNetworkAccessManager(this);
-	QNetworkRequest request;
-	QString userInfo;
-	QByteArray infoData;
-	QString headerData;
-	QByteArray jsonData;
-
-	request.setUrl(QUrl("https://api.github.com/issues?state=closed&direction=asc"));
-	userInfo = "AcquamanIssues:sucking2report";
-	infoData = userInfo.toLocal8Bit().toBase64();
-	headerData = "Basic " + infoData;
-	request.setRawHeader("Authorization", headerData.toLocal8Bit());
-
-
-	reply_ = manager_->get(request);
-	connect(manager_, SIGNAL(finished(QNetworkReply*)), this, SLOT(networkReplyFinished(QNetworkReply*)));
-	*/
-
 	ghManager_ = new AMGithubManager("AcquamanIssues", "sucking2report", "AcquamanIssuesTest", this);
 	connect(ghManager_, SIGNAL(authenticated(bool)), this, SLOT(githubAuthenticated(bool)));
 	//ghRequest_->getIssues();
@@ -169,15 +150,6 @@ bool SGMAppController::startup() {
 			AMAppControllerSupport::registerClass<SGMXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
 			AMAppControllerSupport::registerClass<SGMFastScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
 		}
-
-		/* HEY DARREN, THIS IS AN EXAMPLE NOTE FOR YOU
-  if(AMAppControllerSupport::registeredClasses()->contains("SGMXASScanConfiguration")){
-   AMScanConfigurationObjectInfo myInfo = AMAppControllerSupport::registeredClasses()->value("SGMXASScanConfiguration");
-   qDebug() << myInfo.scanConfigurationClassName << myInfo.exporterClassName << myInfo.exporterOptionClassName << myInfo.exporterOptionId;
-  }
-  else
-   qDebug() << "No info found";
-  */
 
 		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
 		AMStartScreen* startScreen = new AMStartScreen(0);
@@ -281,15 +253,6 @@ void SGMAppController::onSGMBeamlineConnected(){
 		sxsc->addRegion(0, goodEnergy, 1, goodEnergy+10, 1);
 		xasScanConfigurationView_ = new SGMXASScanConfigurationView(sxsc);
 		xasScanConfigurationHolder_->setView(xasScanConfigurationView_);
-
-		/* HEY DARREN, THIS IS AN EXAMPLE NOTE FOR YOU
-  AMExporter *myExporter = AMAppControllerSupport::createExporter(sxsc);
-  AMExporterOption *myExporterOption = AMAppControllerSupport::createExporterOption(sxsc);
-  if(myExporter && myExporterOption)
-   qDebug() << "Found that sucker " << myExporter->description() << myExporterOption->name();
-  else
-   qDebug() << "Odd, didn't find that exporter";
-  */
 
 		SGMFastScanConfiguration *sfsc = new SGMFastScanConfiguration(this);
 		fastScanConfigurationView_ = new SGMFastScanConfigurationView(sfsc);
@@ -482,32 +445,489 @@ bool SGMAppController::setupSGMPeriodicTable(){
 	QList<int> matchIDs;
 
 	success &= AMDbObjectSupport::s()->registerClass<SGMEnergyPosition>();
-	success &= AMDbObjectSupport::s()->registerClass<SGMScanRangeInfo>();
-	success &= AMDbObjectSupport::s()->registerClass<SGMEdgeInfo>();
-	success &= AMDbObjectSupport::s()->registerClass<SGMStandardScanInfo>();
+	success &= AMDbObjectSupport::s()->registerClass<SGMScanInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMElementInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMFastScanSettings>();
 	success &= AMDbObjectSupport::s()->registerClass<SGMFastScanParameters>();
 
-	QString groupName = "SGM_Carbon";
-	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", groupName);
+	QString elementSymbol;
+	QString elementName;
+	QString elementEdge;
+
+	// CARBON SETTINGS
+	elementSymbol = "C";
+	elementName = "Carbon";
+	elementEdge = "K";
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
 	if(matchIDs.count() == 0){
-		/*
-  SGMElementInfo *carbonInfo = new SGMElementInfo(AMPeriodicTable::table()->elementBySymbol("C"), this, groupName);
-  SGMEdgeInfo carbonK(AMPeriodicTable::table()->elementBySymbol("C")->KEdge(), SGMScanRangeInfo(SGMEnergyPosition(270.0, -397720, -149991, 286.63, 0, groupName+"_Start"),
-     SGMEnergyPosition(295.0, -377497, -140470, 200.46, 0, groupName+"_Middle"),
-     SGMEnergyPosition(320.0, -348005, -133061, 100.54, 0, groupName+"_End"), groupName+"_Range"),
- groupName+"K");
-  carbonInfo->addEdgeInfo(carbonK);
-  carbonInfo->addFastScanParameters(new SGMFastScanParameters(carbonInfo->element()->name(),
-   carbonInfo->sgmEdgeInfos().at(carbonInfo->sgmEdgeInfos().indexOfKey("K")),
-   SGMFastScanSettings(5.0, 24000, 5.0, 200, 4000, this, groupName+"K5s_Settings"), this, groupName+"K5s" ));
-  carbonInfo->addFastScanParameters(new SGMFastScanParameters(carbonInfo->element()->name(),
-   carbonInfo->sgmEdgeInfos().at(carbonInfo->sgmEdgeInfos().indexOfKey("K")),
-   SGMFastScanSettings(20.0, 5800, 20.0, 200, 970, this, groupName+"K20s_Settings"), this, groupName+"K20s"));
-  //sgmPeriodicTableInfo_.append(tmpElementInfo, tmpElementInfo->element());
-  success &= carbonInfo->storeToDb(dbSGM);
-  */
+		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 270.0, -397720, -149991, 286.63, 0);
+		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 295.0, -377497, -140470, 200.46, 0);
+		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 320.0, -348005, -133061, 100.54, 0);
+		success &= epStart.storeToDb(dbSGM);
+		success &= epMiddle.storeToDb(dbSGM);
+		success &= epEnd.storeToDb(dbSGM);
+
+		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		success &= scanInfo.storeToDb(dbSGM);
+
+		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 40000, 5.0, 200, 6000);
+		success &= fs5Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
+		success &= fsp5->storeToDb(dbSGM);
+
+		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 5800, 20.0, 200, 970);
+		success &= fs20Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp20 = new SGMFastScanParameters(elementName%elementEdge%"20s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs20Settings);
+		success &= fsp20->storeToDb(dbSGM);
+
+		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
+		elementInfo->addEdgeInfo(scanInfo);
+		elementInfo->addFastScanParameters(fsp5);
+		elementInfo->addFastScanParameters(fsp20);
+		success &= elementInfo->storeToDb(dbSGM);
+	}
+
+	// NITROGEN SETTINGS
+	elementSymbol = "N";
+	elementName = "Nitrogen";
+	elementEdge = "K";
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
+	if(matchIDs.count() == 0){
+		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 400.0, -278404, -109034, 1.37942, 0);
+		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 415.0, -268341, -105051, 5.99793, 0);
+		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 430.0, -258981, -101191, 15.5151, 0);
+		success &= epStart.storeToDb(dbSGM);
+		success &= epMiddle.storeToDb(dbSGM);
+		success &= epEnd.storeToDb(dbSGM);
+
+		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		success &= scanInfo.storeToDb(dbSGM);
+
+		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 10000, 5.0, 200, 1500);
+		success &= fs5Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
+		success &= fsp5->storeToDb(dbSGM);
+
+		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 1800, 20.0, 800, 400);
+		success &= fs20Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp20 = new SGMFastScanParameters(elementName%elementEdge%"20s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs20Settings);
+		success &= fsp20->storeToDb(dbSGM);
+
+		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
+		elementInfo->addEdgeInfo(scanInfo);
+		elementInfo->addFastScanParameters(fsp5);
+		elementInfo->addFastScanParameters(fsp20);
+		success &= elementInfo->storeToDb(dbSGM);
+	}
+
+	// OXYGEN SETTINGS
+	elementSymbol = "O";
+	elementName = "Oxygen";
+	elementEdge = "K";
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
+	if(matchIDs.count() == 0){
+		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 530.0, -210116, -77335, 166.586, 0);
+		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 545.0, -204333, -73988, 198.591, 0);
+		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 560.0, -198860, -70692, 232.356, 0);
+		success &= epStart.storeToDb(dbSGM);
+		success &= epMiddle.storeToDb(dbSGM);
+		success &= epEnd.storeToDb(dbSGM);
+
+		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		success &= scanInfo.storeToDb(dbSGM);
+
+		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 10000, 5.0, 200, 1600);
+		success &= fs5Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
+		success &= fsp5->storeToDb(dbSGM);
+
+		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 1100, 20.0, 800, 330);
+		success &= fs20Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp20 = new SGMFastScanParameters(elementName%elementEdge%"20s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs20Settings);
+		success &= fsp20->storeToDb(dbSGM);
+
+		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
+		elementInfo->addEdgeInfo(scanInfo);
+		elementInfo->addFastScanParameters(fsp5);
+		elementInfo->addFastScanParameters(fsp20);
+		success &= elementInfo->storeToDb(dbSGM);
+	}
+
+	// CALCIUM SETTINGS
+	elementSymbol = "Ca";
+	elementName = "Calcium";
+	elementEdge = "L";
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
+	if(matchIDs.count() == 0){
+		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 345.0, -322785, -125202, 1.0, 1);
+		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 355.0, -313695, -122224, 1.0, 1);
+		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 365.0, -305100, -119343, 1.0, 1);
+		success &= epStart.storeToDb(dbSGM);
+		success &= epMiddle.storeToDb(dbSGM);
+		success &= epEnd.storeToDb(dbSGM);
+
+		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		success &= scanInfo.storeToDb(dbSGM);
+
+		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 8500, 5.0, 200, 1800);
+		success &= fs5Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
+		success &= fsp5->storeToDb(dbSGM);
+
+		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 1800, 20.0, 800, 300);
+		success &= fs20Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp20 = new SGMFastScanParameters(elementName%elementEdge%"20s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs20Settings);
+		success &= fsp20->storeToDb(dbSGM);
+
+		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
+		elementInfo->addEdgeInfo(scanInfo);
+		elementInfo->addFastScanParameters(fsp5);
+		elementInfo->addFastScanParameters(fsp20);
+		success &= elementInfo->storeToDb(dbSGM);
+	}
+
+	// TITANIUM SETTINGS
+	elementSymbol = "Ti";
+	elementName = "Titanium";
+	elementEdge = "L";
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
+	if(matchIDs.count() == 0){
+		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 450.0, -247469, -96777, 1.0, 0);
+		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 465.0, -239490, -93072, 1.0, 0);
+		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 480.0, -232004, -89479, 21.226, 0);
+		success &= epStart.storeToDb(dbSGM);
+		success &= epMiddle.storeToDb(dbSGM);
+		success &= epEnd.storeToDb(dbSGM);
+
+		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		success &= scanInfo.storeToDb(dbSGM);
+
+		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 8500, 5.0, 200, 1800);
+		success &= fs5Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
+		success &= fsp5->storeToDb(dbSGM);
+
+		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 1800, 20.0, 800, 300);
+		success &= fs20Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp20 = new SGMFastScanParameters(elementName%elementEdge%"20s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs20Settings);
+		success &= fsp20->storeToDb(dbSGM);
+
+		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
+		elementInfo->addEdgeInfo(scanInfo);
+		elementInfo->addFastScanParameters(fsp5);
+		elementInfo->addFastScanParameters(fsp20);
+		success &= elementInfo->storeToDb(dbSGM);
+	}
+
+	// CHROMIUM SETTINGS
+	elementSymbol = "Cr";
+	elementName = "Chromium";
+	elementEdge = "L";
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
+	if(matchIDs.count() == 0){
+		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 565.0, -197101, -70227, 189.973, 0);
+		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 585.0, -190363, -65922, 238.105, 0);
+		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 605.0, -184068, -61689, 288.669, 0);
+		success &= epStart.storeToDb(dbSGM);
+		success &= epMiddle.storeToDb(dbSGM);
+		success &= epEnd.storeToDb(dbSGM);
+
+		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		success &= scanInfo.storeToDb(dbSGM);
+
+		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 8500, 5.0, 200, 1800);
+		success &= fs5Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
+		success &= fsp5->storeToDb(dbSGM);
+
+		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 1800, 20.0, 800, 300);
+		success &= fs20Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp20 = new SGMFastScanParameters(elementName%elementEdge%"20s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs20Settings);
+		success &= fsp20->storeToDb(dbSGM);
+
+		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
+		elementInfo->addEdgeInfo(scanInfo);
+		elementInfo->addFastScanParameters(fsp5);
+		elementInfo->addFastScanParameters(fsp20);
+		success &= elementInfo->storeToDb(dbSGM);
+	}
+
+	// IRON SETTINGS
+	elementSymbol = "Fe";
+	elementName = "Iron";
+	elementEdge = "L";
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
+	if(matchIDs.count() == 0){
+		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 700.0, -159088, -42422, 554.784, 0);
+		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 720.0, -154667, -38483, 615.12, 0);
+		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 740.0, -150491, -34593, 676.653, 0);
+		success &= epStart.storeToDb(dbSGM);
+		success &= epMiddle.storeToDb(dbSGM);
+		success &= epEnd.storeToDb(dbSGM);
+
+		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		success &= scanInfo.storeToDb(dbSGM);
+
+		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 8500, 5.0, 200, 1800);
+		success &= fs5Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
+		success &= fsp5->storeToDb(dbSGM);
+
+		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 1800, 20.0, 800, 300);
+		success &= fs20Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp20 = new SGMFastScanParameters(elementName%elementEdge%"20s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs20Settings);
+		success &= fsp20->storeToDb(dbSGM);
+
+		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
+		elementInfo->addEdgeInfo(scanInfo);
+		elementInfo->addFastScanParameters(fsp5);
+		elementInfo->addFastScanParameters(fsp20);
+		success &= elementInfo->storeToDb(dbSGM);
+	}
+
+	// NICKEL SETTINGS
+	elementSymbol = "Ni";
+	elementName = "Nickel";
+	elementEdge = "L";
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
+	if(matchIDs.count() == 0){
+		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 840.0, -242330, -15364, 78.917, 1);
+		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 865.0, -235326, -10614, 101.285, 1);
+		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 890.0, -228716, -5858, 126.123, 1);
+		success &= epStart.storeToDb(dbSGM);
+		success &= epMiddle.storeToDb(dbSGM);
+		success &= epEnd.storeToDb(dbSGM);
+
+		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		success &= scanInfo.storeToDb(dbSGM);
+
+		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 8500, 5.0, 200, 1800);
+		success &= fs5Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
+		success &= fsp5->storeToDb(dbSGM);
+
+		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 1800, 20.0, 800, 300);
+		success &= fs20Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp20 = new SGMFastScanParameters(elementName%elementEdge%"20s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs20Settings);
+		success &= fsp20->storeToDb(dbSGM);
+
+		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
+		elementInfo->addEdgeInfo(scanInfo);
+		elementInfo->addFastScanParameters(fsp5);
+		elementInfo->addFastScanParameters(fsp20);
+		success &= elementInfo->storeToDb(dbSGM);
+	}
+
+	// COPPER SETTINGS
+	elementSymbol = "Cu";
+	elementName = "Copper";
+	elementEdge = "L";
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
+	if(matchIDs.count() == 0){
+		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 920.0, -221259, 1300, 218.584, 1);
+		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 950.0, -214272, 3318, 230.292, 1);
+		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 970.0, -209854, 9900, 242.299, 1);
+		success &= epStart.storeToDb(dbSGM);
+		success &= epMiddle.storeToDb(dbSGM);
+		success &= epEnd.storeToDb(dbSGM);
+
+		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		success &= scanInfo.storeToDb(dbSGM);
+
+		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 3000, 5.0, 200, 1000);
+		success &= fs5Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
+		success &= fsp5->storeToDb(dbSGM);
+
+		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 1100, 20.0, 800, 510);
+		success &= fs20Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp20 = new SGMFastScanParameters(elementName%elementEdge%"20s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs20Settings);
+		success &= fsp20->storeToDb(dbSGM);
+
+		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
+		elementInfo->addEdgeInfo(scanInfo);
+		elementInfo->addFastScanParameters(fsp5);
+		elementInfo->addFastScanParameters(fsp20);
+		success &= elementInfo->storeToDb(dbSGM);
+	}
+
+	// ZINC SETTINGS
+	elementSymbol = "Zn";
+	elementName = "Zinc";
+	elementEdge = "L";
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
+	if(matchIDs.count() == 0){
+		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 1010.0, -201543, 17796, 326.886, 1);
+		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 1035.0, -196675, 22723, 362.103, 1);
+		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 1060.0, -192036, 27678, 398.628, 1);
+		success &= epStart.storeToDb(dbSGM);
+		success &= epMiddle.storeToDb(dbSGM);
+		success &= epEnd.storeToDb(dbSGM);
+
+		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		success &= scanInfo.storeToDb(dbSGM);
+
+		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 6000, 5.0, 200, 3500);
+		success &= fs5Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
+		success &= fsp5->storeToDb(dbSGM);
+
+		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 850, 20.0, 800, 600);
+		success &= fs20Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp20 = new SGMFastScanParameters(elementName%elementEdge%"20s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs20Settings);
+		success &= fsp20->storeToDb(dbSGM);
+
+		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
+		elementInfo->addEdgeInfo(scanInfo);
+		elementInfo->addFastScanParameters(fsp5);
+		elementInfo->addFastScanParameters(fsp20);
+		success &= elementInfo->storeToDb(dbSGM);
+	}
+
+	// SODIUM SETTINGS
+	elementSymbol = "Na";
+	elementName = "Sodium";
+	elementEdge = "K";
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
+	if(matchIDs.count() == 0){
+		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 1050.0, -193868, 25085, 329.87, 1);
+		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 1080.0, -188479, 31109, 374.72, 1);
+		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 1110.0, -183388, 37235, 421.201, 1);
+		success &= epStart.storeToDb(dbSGM);
+		success &= epMiddle.storeToDb(dbSGM);
+		success &= epEnd.storeToDb(dbSGM);
+
+		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		success &= scanInfo.storeToDb(dbSGM);
+
+		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 24000, 5.0, 200, 4000);
+		success &= fs5Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
+		success &= fsp5->storeToDb(dbSGM);
+
+		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 4800, 20.0, 200, 820);
+		success &= fs20Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp20 = new SGMFastScanParameters(elementName%elementEdge%"20s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs20Settings);
+		success &= fsp20->storeToDb(dbSGM);
+
+		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
+		elementInfo->addEdgeInfo(scanInfo);
+		elementInfo->addFastScanParameters(fsp5);
+		elementInfo->addFastScanParameters(fsp20);
+		success &= elementInfo->storeToDb(dbSGM);
+	}
+
+	// MAGNESIUM SETTINGS
+	elementSymbol = "Mg";
+	elementName = "Magnesium";
+	elementEdge = "K";
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
+	if(matchIDs.count() == 0){
+		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 1290.0, -249736, -101803, 91.21, 2);
+		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 1315.0, -239101, -99682, 105.38, 2);
+		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 1340.0, -234638, -97582, 120.65, 2);
+		success &= epStart.storeToDb(dbSGM);
+		success &= epMiddle.storeToDb(dbSGM);
+		success &= epEnd.storeToDb(dbSGM);
+
+		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		success &= scanInfo.storeToDb(dbSGM);
+
+		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 24000, 5.0, 200, 4000);
+		success &= fs5Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
+		success &= fsp5->storeToDb(dbSGM);
+
+		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 4800, 20.0, 200, 820);
+		success &= fs20Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp20 = new SGMFastScanParameters(elementName%elementEdge%"20s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs20Settings);
+		success &= fsp20->storeToDb(dbSGM);
+
+		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
+		elementInfo->addEdgeInfo(scanInfo);
+		elementInfo->addFastScanParameters(fsp5);
+		elementInfo->addFastScanParameters(fsp20);
+		success &= elementInfo->storeToDb(dbSGM);
+	}
+
+	// ALUMINUM SETTINGS
+	elementSymbol = "Al";
+	elementName = "Aluminum";
+	elementEdge = "K";
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
+	if(matchIDs.count() == 0){
+		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 1550.0, -202852, -80942, 283.82, 2);
+		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 1580.0, -198998, -78694, 311.23, 2);
+		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 1610.0, -195288, -76434, 339.47, 2);
+		success &= epStart.storeToDb(dbSGM);
+		success &= epMiddle.storeToDb(dbSGM);
+		success &= epEnd.storeToDb(dbSGM);
+
+		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		success &= scanInfo.storeToDb(dbSGM);
+
+		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 24000, 5.0, 200, 4000);
+		success &= fs5Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
+		success &= fsp5->storeToDb(dbSGM);
+
+		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 4800, 20.0, 200, 820);
+		success &= fs20Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp20 = new SGMFastScanParameters(elementName%elementEdge%"20s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs20Settings);
+		success &= fsp20->storeToDb(dbSGM);
+
+		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
+		elementInfo->addEdgeInfo(scanInfo);
+		elementInfo->addFastScanParameters(fsp5);
+		elementInfo->addFastScanParameters(fsp20);
+		success &= elementInfo->storeToDb(dbSGM);
+	}
+
+	// SILICON SETTINGS
+	elementSymbol = "Si";
+	elementName = "Silicon";
+	elementEdge = "K";
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
+	if(matchIDs.count() == 0){
+		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 1830.0, -171811, -60656, 567.57, 2);
+		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 1860.0, -169041, -58574, 601.08, 2);
+		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 1890.0, -166359, -56493, 635.07, 2);
+		success &= epStart.storeToDb(dbSGM);
+		success &= epMiddle.storeToDb(dbSGM);
+		success &= epEnd.storeToDb(dbSGM);
+
+		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		success &= scanInfo.storeToDb(dbSGM);
+
+		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 24000, 5.0, 200, 4000);
+		success &= fs5Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
+		success &= fsp5->storeToDb(dbSGM);
+
+		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 4800, 20.0, 200, 820);
+		success &= fs20Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp20 = new SGMFastScanParameters(elementName%elementEdge%"20s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs20Settings);
+		success &= fsp20->storeToDb(dbSGM);
+
+		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
+		elementInfo->addEdgeInfo(scanInfo);
+		elementInfo->addFastScanParameters(fsp5);
+		elementInfo->addFastScanParameters(fsp20);
+		success &= elementInfo->storeToDb(dbSGM);
 	}
 
 	return success;
