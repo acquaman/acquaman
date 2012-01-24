@@ -32,6 +32,7 @@ FORMS += 	source/ui/SGMXASScanConfigurationViewer.ui
 
 HEADERS += \
 	source/application/SGM/SGMAppController.h \
+	source/application/SGM/SGMSSAAppController.h \
 	source/acquaman/SGM/SGMScanConfiguration.h \
 	source/acquaman/SGM/SGMXASDacqScanController.h \
 	source/acquaman/SGM/SGMXASScanConfiguration.h \
@@ -59,6 +60,7 @@ HEADERS += \
 
 SOURCES += \
 	source/application/SGM/SGMAppController.cpp \
+	source/application/SGM/SGMSSAAppController.cpp \
 	source/acquaman/SGM/SGMScanConfiguration.cpp \
 	source/acquaman/SGM/SGMXASDacqScanController.cpp \
 	source/acquaman/SGM/SGMXASScanConfiguration.cpp \

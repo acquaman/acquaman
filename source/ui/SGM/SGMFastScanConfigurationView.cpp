@@ -151,9 +151,13 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 		fl_->addRow(undulatorVelocityLabel_, undulatorVelocitySB_);
 		fl_->addRow(exitSlitDistanceLabel_, exitSlitDistanceDSB_);
 
+		energyPosition_ = sfsc->currentParameters()->scanInfo().start();
+		SGMEnergyPositionView *epView = new SGMEnergyPositionView(&energyPosition_);
+
 		gl_ = new QGridLayout();
 		gl_->addWidget(presetsComboBox_,	0, 0, 1, 1, Qt::AlignCenter);
 		gl_->addLayout(fl_,			0, 1, 1, 1, Qt::AlignCenter);
+		gl_->addWidget(epView,			0, 2, 1, 1, Qt::AlignCenter);
 		QHBoxLayout *nameHL = new QHBoxLayout();
 		nameHL->addWidget(scanNameLabel_);
 		nameHL->addWidget(scanNameEdit_);

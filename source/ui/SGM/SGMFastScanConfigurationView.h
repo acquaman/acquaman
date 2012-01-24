@@ -36,6 +36,7 @@ class AMTopFrame;
 
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "acquaman/SGM/SGMFastScanConfiguration.h"
+#include "ui/util/SGM/SGMEnergyPositionView.h"
 
 class SGMFastScanConfigurationView : public AMScanConfigurationView
 {
@@ -90,6 +91,8 @@ protected:
 	QGridLayout *gl_;
 	QFormLayout *fl_;
 	QFormLayout *fl2_;
+
+	SGMEnergyPosition energyPosition_;
 };
 
 #endif // SGMFASTSCANCONFIGURATIONVIEWER_H
