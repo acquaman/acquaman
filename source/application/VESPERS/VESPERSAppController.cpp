@@ -44,6 +44,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/VESPERS/ROIHelper.h"
 #include "util/VESPERS/VortexDetectorStatusHelper.h"
 #include "util/VESPERS/VESPERSWorkflowAssistant.h"
+#include "ui/VESPERS/VESPERSWorkflowAssistantView.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "application/AMAppControllerSupport.h"
@@ -151,14 +152,16 @@ bool VESPERSAppController::startup() {
 			AMAppControllerSupport::registerClass<VESPERSEXAFSScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
 		}
 
-		VESPERSWorkflowAssistant *assistant = new VESPERSWorkflowAssistant(workflowManagerView_, this);
-
 		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
 		AMStartScreen* startScreen = new AMStartScreen(0);
 		startScreen->show();
 
 		// Create panes in the main window:
 		////////////////////////////////////
+
+		VESPERSWorkflowAssistant *assistant = new VESPERSWorkflowAssistant(workflowManagerView_, this);
+		VESPERSWorkflowAssistantView *assistantView = new VESPERSWorkflowAssistantView(assistant);
+		mw_->insertVerticalWidget(2, assistantView);
 
 		// Setup the general endstation control view.
 		VESPERSEndstationView *endstationView = new VESPERSEndstationView(VESPERSBeamline::vespers()->endstation());

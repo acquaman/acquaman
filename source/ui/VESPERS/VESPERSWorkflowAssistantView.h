@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QProgressBar>
 #include <QSpinBox>
+#include <QLabel>
 
 #include "util/VESPERS/VESPERSWorkflowAssistant.h"
 
@@ -16,23 +17,35 @@
   */
 class VESPERSWorkflowAssistantView : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    /// Constructor.  Builds the view around the VESPERSWorkflowAssistant object passed into it.
-    explicit VESPERSWorkflowAssistantView(VESPERSWorkflowAssistant *assistant, QWidget *parent = 0);
-    
+	/// Constructor.  Builds the view around the VESPERSWorkflowAssistant object passed into it.
+	explicit VESPERSWorkflowAssistantView(VESPERSWorkflowAssistant *assistant, QWidget *parent = 0);
+
 signals:
-    
+
 public slots:
-    
+
+protected slots:
+	/// Handles changes to the current scan index.
+	void onCurrentScanChanged(int index);
+	/// Handles changes to the scan configuration (ie: the scan set has changed).
+	void onScanConfigurationChanged();
+	/// Helper slot that handles telling the workflow assistant that the total number of scans has changed.
+	void onTotalScansChanged(int num);
+
 protected:
-    /// Pointer to the workflow assistant.
-    VESPERSWorkflowAssistant *assistant_;
-    /// The progress bar of all of the set of scans.
-    QProgressBar *progressBar_;
-    /// The total number of scans.
-    QSpinBox *totalScans_;
+	/// Pointer to the workflow assistant.
+	VESPERSWorkflowAssistant *assistant_;
+	/// The progress bar of all of the set of scans.
+	QProgressBar *progressBar_;
+	/// The total number of scans.
+	QSpinBox *totalScans_;
+	/// The label holding the name of the current scan.
+	QLabel *name_;
+	/// The label holding the current scan.
+	QLabel *currentScan_;
 };
 
 #endif // VESPERSWORKFLOWASSISTANTVIEW_H
