@@ -644,9 +644,9 @@ void AMControlButton::onToggled(bool toggled){
 		programaticToggle_ = false;
 		return;
 	}
-	if(toggled)
+	if(toggled && !control_->withinTolerance(downValue_))
 		control_->move(downValue_);
-	else
+	else if(!toggled && !control_->withinTolerance(upValue_))
 		control_->move(upValue_);
 }
 
