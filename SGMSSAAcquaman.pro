@@ -21,7 +21,8 @@ HEADERS += 	source/application/SGM/SGMSSAAppController.h \
 	source/ui/SGM/SGMSampleManipulatorView.h \
 	source/beamline/SGM/SGMBeamlineInfo.h \
 	source/util/SGM/SGMElementInfo.h \
-	source/util/SGM/SGMPeriodicTable.h
+	source/util/SGM/SGMPeriodicTable.h \
+	source/ui/util/SGM/SGMEnergyPositionView.h
 
 SOURCES +=	source/application/SGM/SGMSSAMain.cpp \
 	source/application/SGM/SGMSSAAppController.cpp \
@@ -41,7 +42,8 @@ SOURCES +=	source/application/SGM/SGMSSAMain.cpp \
 	source/ui/SGM/SGMSampleManipulatorView.cpp \
 	source/beamline/SGM/SGMBeamlineInfo.cpp \
 	source/util/SGM/SGMElementInfo.cpp \
-	source/util/SGM/SGMPeriodicTable.cpp
+	source/util/SGM/SGMPeriodicTable.cpp \
+	source/ui/util/SGM/SGMEnergyPositionView.cpp
 
 RESOURCES += \
 	source/beamline/SGM/TransferHelpImages/LoadLockOutImages.qrc \
