@@ -117,35 +117,31 @@ bool VESPERSAppController::startup() {
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 
-		QSqlQuery q = AMDbObjectSupport::s()->select(AMDatabase::database("user"), "AMExporterOptionGeneralAscii", "id, name");
-		q.exec();
-		QStringList names;
-		QList<int> ids;
-		while(q.next()) {
-			names << q.value(1).toString();
-			ids << q.value(0).toInt();
-		}
-		if(!names.contains("VESPERSDefault")){
-			AMExporterOptionGeneralAscii *vespersDefault = new AMExporterOptionGeneralAscii();
-			vespersDefault->setName("VESPERSDefault");
-			vespersDefault->setFileName("$name_$fsIndex.dat");
-			vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n$scanConfiguration[rois]\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
-			vespersDefault->setHeaderIncluded(true);
-			vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
-			vespersDefault->setColumnHeaderIncluded(true);
-			vespersDefault->setColumnHeaderDelimiter("==========");
-			vespersDefault->setSectionHeader("");
-			vespersDefault->setSectionHeaderIncluded(true);
-			vespersDefault->setIncludeAllDataSources(true);
-			vespersDefault->setFirstColumnOnly(true);
-			vespersDefault->setSeparateHigherDimensionalSources(true);
-			vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
-			vespersDefault->storeToDb(AMDatabase::database("user"));
-			qDebug() << "Added the VESPERSDefault to exporter options";
-		}
+		QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
+
+		AMExporterOptionGeneralAscii *vespersDefault = new AMExporterOptionGeneralAscii();
+
+		if (matchIDs.count() != 0)
+			vespersDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
+
+		vespersDefault->setName("VESPERSDefault");
+		vespersDefault->setFileName("$name_$fsIndex.dat");
+		vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[rois]\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
+		vespersDefault->setHeaderIncluded(true);
+		vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
+		vespersDefault->setColumnHeaderIncluded(true);
+		vespersDefault->setColumnHeaderDelimiter("==========");
+		vespersDefault->setSectionHeader("");
+		vespersDefault->setSectionHeaderIncluded(true);
+		vespersDefault->setIncludeAllDataSources(true);
+		vespersDefault->setFirstColumnOnly(true);
+		vespersDefault->setSeparateHigherDimensionalSources(true);
+		vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
+		vespersDefault->storeToDb(AMDatabase::database("user"));
+		qDebug() << "Added the VESPERSDefault to exporter options";
 
 		// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
-		QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
+		matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
 		if(matchIDs.count() > 0){
 
 			AMAppControllerSupport::registerClass<VESPERSXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
@@ -193,7 +189,9 @@ bool VESPERSAppController::startup() {
 		AMScanConfigurationViewHolder *exafsConfigViewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, exafsConfigView);
 
 		/// \todo this can likely be somewhere else in the framework.
+		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
+		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerFinished()));
 
 		mw_->insertHeading("Scans", 2);
 		mw_->addPane(experimentConfigurationView, "Scans", "Experiment Setup", ":/utilities-system-monitor.png");

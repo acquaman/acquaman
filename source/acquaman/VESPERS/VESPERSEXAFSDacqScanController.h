@@ -40,6 +40,9 @@ protected slots:
 	/// Helper slot that handles the progress update.
 	void onScanTimerUpdate();
 
+	/// Re-implementing to castrate the function.  I don't want any dacq progress updates because they are much less accurate.
+	virtual void onDacqSendCompletion(int completion) { Q_UNUSED(completion) }
+
 protected:
 	/// Specific implementation of the scan initialization.
 	bool initializeImplementation();

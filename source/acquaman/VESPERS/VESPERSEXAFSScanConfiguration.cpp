@@ -32,6 +32,10 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	position_ = qMakePair(0.0, 0.0);
 	totalTime_ = 0;
 	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
+	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onEXAFSRegionsChanged()));
+	connect(VESPERSBeamline::vespers()->variableIntegrationTime(), SIGNAL(a0Changed(double)), this, SLOT(computeTotalTime()));
+	connect(VESPERSBeamline::vespers()->variableIntegrationTime(), SIGNAL(a1Changed(double)), this, SLOT(computeTotalTime()));
+	connect(VESPERSBeamline::vespers()->variableIntegrationTime(), SIGNAL(a2Changed(double)), this, SLOT(computeTotalTime()));
 }
 
 VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(const VESPERSEXAFSScanConfiguration &original)
@@ -77,6 +81,10 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(const VESPERSEXAFSS
 	totalTime_ = 0;
 	computeTotalTime();
 	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
+	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onEXAFSRegionsChanged()));
+	connect(VESPERSBeamline::vespers()->variableIntegrationTime(), SIGNAL(a0Changed(double)), this, SLOT(computeTotalTime()));
+	connect(VESPERSBeamline::vespers()->variableIntegrationTime(), SIGNAL(a1Changed(double)), this, SLOT(computeTotalTime()));
+	connect(VESPERSBeamline::vespers()->variableIntegrationTime(), SIGNAL(a2Changed(double)), this, SLOT(computeTotalTime()));
 }
 
 AMScanConfiguration *VESPERSEXAFSScanConfiguration::createCopy() const
@@ -109,11 +117,48 @@ QString VESPERSEXAFSScanConfiguration::readRoiList() const
 	return prettyRois;
 }
 
+void VESPERSEXAFSScanConfiguration::onEXAFSRegionsChanged()
+{
+	if (exafsRegions()->hasKSpace()){
+
+		CLSVariableIntegrationTime *timeApp = VESPERSBeamline::vespers()->variableIntegrationTime();
+		bool needToCompute = false;
+		int lastVal = exafsRegions()->count()-1;
+
+		if (exafsRegions()->count() > 1 && (exafsRegions()->time(lastVal-1) != timeApp->defautTime())){
+
+			timeApp->setDefaultTime(exafsRegions()->time(lastVal-1));
+			needToCompute = true;
+		}
+
+		if (exafsRegions()->startByType(lastVal, AMEXAFSRegion::kSpace) != timeApp->lowValue()){
+
+			timeApp->setLowValue(exafsRegions()->startByType(lastVal, AMEXAFSRegion::kSpace));
+			needToCompute = true;
+		}
+
+		if (exafsRegions()->endByType(lastVal, AMEXAFSRegion::kSpace) != timeApp->highValue()){
+
+			timeApp->setHighValue(exafsRegions()->endByType(lastVal, AMEXAFSRegion::kSpace));
+			needToCompute = true;
+		}
+
+		if (exafsRegions()->time(lastVal) != timeApp->maximumTime()){
+
+			timeApp->setMaximumTime(exafsRegions()->time(lastVal));
+			needToCompute = true;
+		}
+
+		if (needToCompute)
+			timeApp->compute();
+	}
+}
+
 void VESPERSEXAFSScanConfiguration::computeTotalTime()
 {
 	double time = 0;
 
-	if (exafsRegions()->hasKSpace()){
+	if (exafsRegions()->hasKSpace() && !useFixedTime_){
 
 		for (int i = 0; i < regions_->count(); i++){
 
@@ -131,6 +176,6 @@ void VESPERSEXAFSScanConfiguration::computeTotalTime()
 			time += ((regions_->end(i) - regions_->start(i))/regions_->delta(i))*(regions_->time(i) + 0.7); // Seems to take about 0.7 seconds for extra beamline stuff to happen.
 	}
 
-	totalTime_ = time;
+	totalTime_ = time + 6; // There is a 6 second miscellaneous startup delay.
 	emit totalTimeChanged(totalTime_);
 }
