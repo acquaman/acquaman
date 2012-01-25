@@ -80,36 +80,10 @@ protected:
 	AMTopFrame *topFrame_;
 
 	QComboBox *presetsComboBox_;
-	QLabel *elementLabel_;
-	QLabel *runTimeLabel_;
-	QLabel *startEnergyLabel_;
-	QLabel *energyMidpointLabel_;
-	QLabel *endEnergyLabel_;
-	QLabel *motorSettingsLabel_;
-	QLabel *baseLineLabel_;
-	QLabel *undulatorStartStepLabel_;
-	QLabel *undulatorRelativeStepLabel_;
-	QLabel *undulatorVelocityLabel_;
-	QLabel *exitSlitDistanceLabel_;
 	QLabel *warningsLabel_;
-
-	QLineEdit *elementEdit_;
-	QDoubleSpinBox *runTimeDSB_;
-	QDoubleSpinBox *startEnergyDSB_;
-	QDoubleSpinBox *energyMidpointDSB_;
-	QDoubleSpinBox *endEnergyDSB_;
-	QSpinBox *motorSettingsSB_;
-	QSpinBox *baseLineSB_;
-
-	QSpinBox *undulatorStartStepSB_;
-	QSpinBox *undulatorRelativeStepSB_;
-	QSpinBox *undulatorVelocitySB_;
-	QDoubleSpinBox *exitSlitDistanceDSB_;
 
 	QLabel *scanNameLabel_;
 	QLineEdit *scanNameEdit_;
-
-	QFormLayout *fl_;
 };
 
 #endif // SGMFASTSCANCONFIGURATIONVIEWER_H

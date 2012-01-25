@@ -127,7 +127,7 @@ void SGMEnergyPositionView::setEnergyPosition(SGMEnergyPosition *energyPosition)
 	energyPosition_ = energyPosition;
 	if(energyPosition_){
 		if(!energyPosition_->name().isEmpty())
-			setTitle(energyPosition_->name());
+			setTitle(energyPosition_->descriptionFromName());
 
 		energySpinBox_->setValue(energyPosition_->energy());
 		monoEncoderTargetSpinBox_->setValue(energyPosition_->monoEncoderTarget());

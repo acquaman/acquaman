@@ -31,6 +31,19 @@ SGMEnergyPosition::SGMEnergyPosition(const QString &name, double energy, int mon
 	setSGMGrating(sgmGrating);
 }
 
+QString SGMEnergyPosition::descriptionFromName() const{
+	if(name().isEmpty())
+		return QString();
+	QString description = name();
+	for(int x = 1; x < description.size(); x++){
+		if(description.at(x).isUpper() || (description.at(x).isDigit() && !description.at(x-1).isDigit()) ){
+			description.insert(x, " ");
+			x++;
+		}
+	}
+	return description;
+}
+
 double SGMEnergyPosition::energy() const {
 	return energy_;
 }
@@ -145,6 +158,19 @@ SGMScanInfo::SGMScanInfo(const QString &scanName, QPair<QString, double> edgeAnd
 
 QString SGMScanInfo::scanName() const {
 	return scanName_;
+}
+
+QString SGMScanInfo::descriptionFromName() const{
+	if(name().isEmpty())
+		return QString();
+	QString description = name();
+	for(int x = 1; x < description.size(); x++){
+		if(description.at(x).isUpper() || (description.at(x).isDigit() && !description.at(x-1).isDigit()) ){
+			description.insert(x, " ");
+			x++;
+		}
+	}
+	return description;
 }
 
 bool SGMScanInfo::hasEdge() const {
@@ -346,6 +372,19 @@ SGMFastScanSettings::SGMFastScanSettings(const QString &name, double runSeconds,
 	undulatorVelocity_ = undulatorVelocity;
 }
 
+QString SGMFastScanSettings::descriptionFromName() const{
+	if(name().isEmpty())
+		return QString();
+	QString description = name();
+	for(int x = 1; x < description.size(); x++){
+		if(description.at(x).isUpper() || (description.at(x).isDigit() && !description.at(x-1).isDigit()) ){
+			description.insert(x, " ");
+			x++;
+		}
+	}
+	return description;
+}
+
 double SGMFastScanSettings::runSeconds() const{
 	return runSeconds_;
 }
@@ -542,7 +581,6 @@ void SGMFastScanParameters::setRunSeconds(double runSeconds){
 }
 
 void SGMFastScanParameters::setEnergyStart(double energyStart){
-	qDebug() << "Setting start energy to " << energyStart;
 	SGMEnergyPosition newEnergyPosition = scanInfo_.start();
 	newEnergyPosition.setEnergy(energyStart);
 	scanInfo_.setStart(newEnergyPosition);

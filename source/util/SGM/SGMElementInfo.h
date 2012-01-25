@@ -44,6 +44,7 @@ Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Energy Settings")
 public:
 	Q_INVOKABLE SGMEnergyPosition(const QString &name = QString(), double energy = -1, int monoEncoderTarget = -1, int undulatorStepSetpoint = -1, double exitSlitDistance = -1, int sgmGrating = -1);
 
+	QString descriptionFromName() const;
 	double energy() const;
 	int monoEncoderTarget() const;
 	int undulatorStepSetpoint() const;
@@ -95,9 +96,9 @@ Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Scan Info")
 
 public:
 	Q_INVOKABLE SGMScanInfo(const QString &scanName = QString(), QPair<QString, double> edgeAndEnergy = qMakePair(QString(), -1.0), SGMEnergyPosition start = SGMEnergyPosition(), SGMEnergyPosition middle = SGMEnergyPosition(), SGMEnergyPosition end = SGMEnergyPosition(), QObject *parent = 0);
-	//SGMScanInfo(const SGMScanInfo &original);
 
 	QString scanName() const;
+	QString descriptionFromName() const;
 	bool hasEdge() const;
 	QString edge() const;
 	double energy() const;
@@ -200,6 +201,7 @@ Q_PROPERTY(int undulatorVelocity READ undulatorVelocity WRITE setUndulatorVeloci
 public:
 	explicit SGMFastScanSettings(const QString &name = QString(), double runSeconds = -1, int motorSettings = 0, double scalerTime = -1, int baseLine = -1, int undulatorVelocity = 0, QObject *parent = 0);
 
+	QString descriptionFromName() const;
 	double runSeconds() const;
 	int motorSettings() const;
 	double scalerTime() const;

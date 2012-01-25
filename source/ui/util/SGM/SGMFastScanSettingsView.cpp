@@ -73,7 +73,7 @@ void SGMFastScanSettingsView::setFastScanSettings(SGMFastScanSettings *fastScanS
 	fastScanSettings_ = fastScanSettings;
 	if(fastScanSettings_){
 		if(!fastScanSettings_->name().isEmpty())
-			setTitle(fastScanSettings_->name());
+			setTitle(fastScanSettings_->descriptionFromName());
 
 		runSecondsSpinBox_->setValue(fastScanSettings_->runSeconds());
 		motorSettingsSpinBox_->setValue(fastScanSettings_->motorSettings());
