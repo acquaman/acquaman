@@ -29,6 +29,9 @@ public:
 	/// Public interface to delete the sub-action at \c index. Takes care of emitting signals subActionAboutToBeRemoved(), and subActionRemoved(). If \c index >= subActionCount(), returns false.  Only allowed while the action is in the AMAction::Constructed state... Once it's running, you can no longer remove sub-actions and this will return false.
 	bool deleteSubAction(int index);
 
+	/// Public interface to remove the sub-action at \c index, but don't delete it.  Ownership of the sub-action becomes the responsibility of the caller, and the sub-action's parentAction() is set back to 0.    Only allowed while the action is in the AMAction::Constructed state... Once it's running, you can no longer remove sub-actions and this will return 0.  Also returns 0 if \c index is out of range.
+	AMAction* takeSubAction(int index);
+
 	/// Public function to duplicate a set of sub-actions at \c indexesToCopy. The new sub-actions will all be inserted at the position after the last existing sub-action in \c indexesToCopy.  It uses insertSubAction() to add copies of the existing ones, and therefore will fail if the action is not in the AMAction::Constructed state.
 	bool duplicateSubActions(const QList<int>& indexesToCopy);
 
@@ -80,7 +83,7 @@ protected:
 	// can assume index is valid. Don't emit subActionAboutToBeAdded(), etc. because the base class takes care of this for you.
 	virtual void insertSubActionImplementation(AMAction *action, int index) = 0;
 	// can assume index is valid. Don't emit subActionAboutToBeRemoved(), etc. because the base class takes care of this for you.
-	virtual void deleteSubActionImplementation(int index) = 0;
+	virtual AMAction* takeSubActionImplementation(int index) = 0;
 
 };
 

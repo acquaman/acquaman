@@ -17,6 +17,8 @@ AMLoopAction::AMLoopAction(const AMLoopAction &other) : AMNestedAction(other) {
 
 	foreach(AMAction* action, other.subActions_)
 		subActions_ << action->createCopy();
+	foreach(AMAction* action, subActions_)
+		action->internalSetParentAction(this);
 }
 
 AMLoopAction::~AMLoopAction() {
@@ -29,7 +31,7 @@ void AMLoopAction::insertSubActionImplementation(AMAction *action, int index)
 	subActions_.insert(index, action);
 }
 
-void AMLoopAction::deleteSubActionImplementation(int index)
+AMAction* AMLoopAction::takeSubActionImplementation(int index)
 {
-	delete subActions_.takeAt(index);
+	return subActions_.takeAt(index);
 }

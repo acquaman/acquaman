@@ -72,7 +72,7 @@ class AMActionRunnerQueueModel;
 /*! Note that the AMActionRunner's queue is initially paused when it is first created. To have it start executing actions as soon as they become available, call AMActionRunner::s()->setPaused(false).*/
 class AMActionRunner : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	/// This is a singleton class. You access the only instance of it using AMActionRunner::s().
 	static AMActionRunner* s();
@@ -191,17 +191,6 @@ protected slots:
 	/// Respond internally whenever the state of any immediate-run action changes.
 	void onImmediateActionStateChanged(int state, int previousState);
 
-
-//	/// Respond internally when a nested action adds a subAction
-//	void onNestedActionSubActionAboutToBeAdded(int index);
-//	/// Respond internally when a nested action adds a subAction
-//	void onNestedActionSubActionAdded(int index);
-//	/// Respond internally when a nested action removes a subAction
-//	void onNestedActionSubActionAboutToBeRemoved(int index);
-//	/// Respond internally when a nested action removes a subAction
-//	void onNestedActionSubActionRemoved(int index);
-
-
 protected:
 	AMAction* currentAction_;
 	bool isPaused_;
@@ -251,6 +240,21 @@ public:
 	QModelIndex indexForAction(AMAction* action) const;
 
 
+	// Drag and Drop functions:
+	////////////////////////////////
+
+	/// Re-implemented from QAbstractItemModel to deal with dropping when re-ordering the queue via drag-and-drop.
+	virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
+	/// Re-implemented from QAbstractItemModel to deal with dragging when re-ordering the queue via drag-and-drop.
+	virtual QMimeData* mimeData(const QModelIndexList &indexes) const;
+	/// Re-implemented from QAbstractItemModel to deal with dragging when re-ordering the queue via drag-and-drop.
+	virtual QStringList mimeTypes() const;
+	/// Re-implemented from QAbstractItemModel to deal with dropping when re-ordering the queue via drag-and-drop
+	virtual Qt::DropActions supportedDropActions() const { return (Qt::MoveAction | Qt::IgnoreAction); }
+
+	/// Re-implemented only for debugging purposes (temporary).
+	bool removeRows(int row, int count, const QModelIndex &parent);
+
 	// extra public functions
 	///////////////////////////
 	/// This version of deleteActionsInQueue is  used by the AMActionRunnerQueueView, since it has a list of QModelIndex that it needs to delete. If \c indexesToDelete contains non-top-level model indexes, this will use the AMNestedAction API to delete sub-actions inside nested actions.
@@ -264,8 +268,19 @@ protected slots:
 	void onActionAboutToBeRemoved(int index);
 	void onActionRemoved(int index);
 
+	// called when any nested action
+	void onSubActionAboutToBeAdded(int index);
+	void onSubActionAdded(int index);
+	void onSubActionAboutToBeRemoved(int index);
+	void onSubActionRemoved(int index);
+
 protected:
 	AMActionRunner* actionRunner_;
+
+	AMAction* lastSender_;
+
+	void internalConnectNestedActions(AMAction* action);
+	void internalDisconnectNestedActions(AMAction* action);
 };
 
 #include <QMimeData>

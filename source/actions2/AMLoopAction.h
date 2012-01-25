@@ -61,8 +61,8 @@ protected:
 
 	/// Implement to insert a sub- \c action at \c index. Can be assured by the base class that \c index is valid and that we're not running yet.
 	virtual void insertSubActionImplementation(AMAction *action, int index);
-	/// Implement to delete the sub-action at \c index. Can be assured by the base class that \c index is valid and that we're not running yet.
-	virtual void deleteSubActionImplementation(int index);
+	/// Implement to remove and return the sub-action at \c index. Can be assured by the base class that \c index is valid and that we're not running yet.
+	virtual AMAction* takeSubActionImplementation(int index);
 };
 
 #endif // AMLOOPACTION_H

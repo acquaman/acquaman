@@ -80,6 +80,9 @@ void AMActionRunner::onCurrentActionStateChanged(int state, int previousState)
 
 void AMActionRunner::insertActionInQueue(AMAction *action, int index)
 {
+	if(!action)
+		return;
+
 	if(index < 0 || index > queuedActions_.count())
 		index = queuedActions_.count();
 
@@ -287,218 +290,10 @@ void AMActionRunner::onImmediateActionStateChanged(int state, int previousState)
 }
 
 
-//AMActionQueueModelItem::AMActionQueueModelItem(AMAction *action) : QStandardItem()
-//{
-//	action_ = action;
-
-//	// is it a nested action? then include drop-enabled flag.
-//	if(qobject_cast<AMNestedAction*>(action))
-//		setFlags(Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled);
-//	else
-//		setFlags(Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled);
-
-//}
-
-
-//QVariant AMActionQueueModelItem::data(int role) const
-//{
-//	if(role == Qt::DisplayRole) {
-//		return action_->info()->shortDescription();
-//	}
-//	else if(role == Qt::DecorationRole) {
-//		QPixmap p;
-//		QString iconFileName = action_->info()->iconFileName();
-//		if(QPixmapCache::find("AMActionIcon" % iconFileName, &p))
-//			return p;
-//		else {
-//			p.load(iconFileName);
-//			p = p.scaledToHeight(32, Qt::SmoothTransformation);
-//			QPixmapCache::insert("AMActionIcon" % iconFileName, p);
-//			return p;
-//		}
-//	}
-//	else if(role == Qt::SizeHintRole) {
-//		return QSize(-1, 48);
-//	}
-//	return QStandardItem::data(role);
-//}
-
-//AMActionQueueModel::AMActionQueueModel(AMActionRunner *actionRunner, QObject *parent) :
-//	QStandardItemModel(parent)
-//{
-//	actionRunner_ = actionRunner;
-//}
 
 
 
-//bool AMActionQueueModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
-//{
-//	Q_UNUSED(column)
 
-//	// Option 1: Handle internal move actions, where the \c data is a list of the qmodelindexes to move
-//	if(action == Qt::MoveAction) {
-//		const AMModelIndexListMimeData* milData = qobject_cast<const AMModelIndexListMimeData*>(data);
-//		if(milData) {
-//			QList<QPersistentModelIndex> mil = milData->modelIndexList();
-//			// go through and make sure all indexes are valid, and have the same parent index. If we're asked to move multiple indexes from different levels of the hierarchy, I have no idea how we'd interpret that.
-//			if(mil.isEmpty())
-//				return false;	// nothing to do!
-//			QPersistentModelIndex first = mil.at(0);
-//			foreach(const QPersistentModelIndex& mi, mil) {
-//				if(!mi.isValid()) {
-//					return false;	// this item was removed from the model while the drag was in progress.  Be faster next time, user.
-//				}
-//				if(mi.parent() != first.parent())
-//					return false;	// we need all indexes to move to be at the same level of the hierarchy.
-//			}
-//			// OK, these indexes are OK to use.
-
-//			// get the row (index) of each action, and sort them in ascending order
-//			QList<int> indexesToMove;
-//			foreach(const QPersistentModelIndex& pmi, mil) {
-//				QModelIndex mi = pmi; // convert back to current index to get the row.
-//				indexesToMove << mi.row();
-//			}
-//			qSort(indexesToMove);
-
-//			// Case A: Source: These are all top-level actions in the queue.
-//			if(!first.parent().isValid()) {
-
-//				QList<AMAction*> actionsToMove;
-//				foreach(int i, indexesToMove)
-//					actionsToMove << actionRunner_->queuedActionAt(i);
-
-//				// Subcase A1: destination: They are being moved to another location at the top level. We can move them using the AMActionRunner API.
-//				if(!parent.isValid()) {
-
-//					qDebug() << "Moving from top level to top level.";
-
-//					// Insert into action runner:
-//					int targetRow = row;
-//					if(targetRow < 0 || targetRow > actionRunner_->queuedActionCount())
-//						targetRow = actionRunner_->queuedActionCount();
-//					foreach(AMAction* action, actionsToMove)
-//						actionRunner_->insertActionInQueue(action, targetRow++);
-
-//					// now here's the funny thing: The view's drag action will now delete rows from the model corresponding to where these all came from. (Hopefully it uses persistent indexes for this!) Normally it's not good to delete rows using the model interface, because we haven't deleted the corresponding actions in the AMActionRunner. But here, at this point, we've actually created duplicate model entries for each action instance, so this is exactly the behaviour we want.
-//					return true;
-//				}
-//				// Subcase A2: destination: They are being moved inside a nested action.
-//				else {
-//					qDebug() << "Moving from top level to nested action.";
-
-//					// parent is valid... It represents the nested action we're supposed to drop these actions inside of.
-//					AMActionQueueModelItem* item = static_cast<AMActionQueueModelItem*>(itemFromIndex(parent));
-//					AMNestedAction* nestedAction = qobject_cast<AMNestedAction*>(item->action());
-//					if(!nestedAction) {
-//						qWarning() << "AMActionQueueModel: Warning: Asked to drop actions inside a nested action that wasn't valid.";
-//						return false;
-//					}
-//					int targetRow = row;
-//					if(targetRow < 0 || targetRow > nestedAction->subActionCount())
-//						targetRow = nestedAction->subActionCount();
-//					foreach(AMAction* action, actionsToMove)
-//						nestedAction->insertSubAction(action, targetRow++);
-//					return true;
-//				}
-//			}
-//			// Case B: Source: These are sub-actions inside a nested action...
-//			else {
-//				AMActionQueueModelItem* sourceParentItem = static_cast<AMActionQueueModelItem*>(itemFromIndex(first.parent()));
-//				AMNestedAction* sourceParentAction = qobject_cast<AMNestedAction*>(sourceParentItem->action());
-//				if(!sourceParentAction) {
-//					qWarning() << "AMActionQueueModel: Warning: Asked to move actions from inside a nested action that wasn't valid.";
-//					return false;
-//				}
-
-//				// Subcase B0: The destination is the same as the source. Just rearranging within one AMNestedAction.
-//				if(first.parent() == parent) {
-//					qWarning() << "Rearranging inside sub-actions: not supported";
-//					return false;
-//				}
-//				// otherwise, moving to different parent
-//				else {
-//					// make a copy of all the sub-actions (in order)
-//					QList<AMAction*> copiedActions;
-//					foreach(int i, indexesToMove) {
-//						AMAction* a = sourceParentAction->subActionAt(i);
-//						if(a)
-//							copiedActions << a->createCopy();
-//					}
-
-//					// Subcase B1: The destination is the top level. Need to add the copied actions directly to AMActionRunner.
-//					if(!parent.isValid()) {
-//						qDebug() << "Move from one nested action to top level.";
-//						int targetRow = row;
-//						if(targetRow < 0 || targetRow > actionRunner_->queuedActionCount())
-//							targetRow = actionRunner_->queuedActionCount();
-//						foreach(AMAction* action, copiedActions)
-//							actionRunner_->insertActionInQueue(action, targetRow++);
-//					}
-//					// Subcase B2: The destination is a different sub-action.
-//					else {
-//						qDebug() << "Move from one nested action to another.";
-//						AMActionQueueModelItem* destParentItem = static_cast<AMActionQueueModelItem*>(itemFromIndex(parent));
-//						if(!destParentItem) {
-//							qDebug() << "WTF: no item.";
-//							return false;
-//						}
-//						AMNestedAction* destParentAction = qobject_cast<AMNestedAction*>(destParentItem->action());
-//						if(!destParentAction) {
-//							qWarning() << "AMActionQueueModel: Warning: Asked to move actions into a nested action that wasn't valid.";
-//							return false;
-//						}
-//						int targetRow = row;
-//						if(targetRow < 0 || targetRow > destParentAction->subActionCount())
-//							targetRow = destParentAction->subActionCount();
-//						foreach(AMAction* action, copiedActions)
-//							destParentAction->insertSubAction(action, targetRow++);
-//					}
-//					// delete the sub-actions (from highest index to lowest index)
-//					for(int i=indexesToMove.count()-1; i>=0; i--)
-//						sourceParentAction->deleteSubAction(indexesToMove.at(i));	// this will knock the items out of the model, when we pick up the deleted signal.
-//					return true;
-//				}
-//			}
-//		}
-//	}
-
-//	return false;
-//}
-
-//QMimeData * AMActionQueueModel::mimeData(const QModelIndexList &indexes) const
-//{
-//	if(indexes.isEmpty())
-//		return 0;
-//	// We only support dragging if all the indexes are at the same level of the hierarchy. Let's check that here, and return 0 if not.
-//	QModelIndex firstParent = indexes.at(0).parent();
-//	foreach(const QModelIndex& index, indexes)
-//		if(index.parent() != firstParent)
-//			return 0;
-
-//	// alright, looks good. Turn them into persistent indexes and pass them off inside our custom (not externally-sharable) mime type container.
-//	return new AMModelIndexListMimeData(indexes);
-//}
-
-//QStringList AMActionQueueModel::mimeTypes() const
-//{
-//	return QStringList() << "application/octet-stream";
-//}
-
-//bool AMActionQueueModel::removeRows(int row, int count, const QModelIndex &parent)
-//{
-//	qDebug() << "What? someone's calling removeRows on the model" << row << count << parent;
-//	if(!parent.isValid()) {
-//		for(int i=0; i<count; i++)
-//			qDebug() << "    removing: " << static_cast<AMActionQueueModelItem*>(itemFromIndex(index(row+i, 0)))->action()->info()->shortDescription();
-//	}
-//	qDebug() << "     Before remove:";
-//	checkTreeConsistency();
-//	bool rv = QStandardItemModel::removeRows(row, count, parent);
-//	qDebug() << "     After remove:";
-//	checkTreeConsistency();
-//	return rv;
-//}
 
 AMAction * AMActionRunner::immediateActionAt(int index)
 {
@@ -541,129 +336,6 @@ bool AMActionRunner::cancelImmediateActions()
 	foreach(AMAction* action, immediateActions_)
 		action->cancel();
 	return true;
-}
-
-
-//void AMActionRunner::onNestedActionSubActionAdded(int index)
-//{
-//	AMNestedAction* nestedAction = qobject_cast<AMNestedAction*>(sender());
-//	if(!nestedAction)
-//		return;
-
-//	// todozzzz
-//	//	// find out the index and item representing this nested action
-//	//	AMActionQueueModelItem* parentItem = static_cast<AMActionQueueModelItem*>(queueModel_->itemFromIndex(nestedActions_.value(nestedAction)));
-//	//	if(!parentItem) {
-//	//		// This isn't a user-visible error... It should never happen and is only for developers, which is why it doesn't use AMErrorMon.
-//	//		qWarning() << "AMActionRunner: Warning: detected corruption in its tracking of nested actions. No index found for sender when adding a sub-action.";
-//	//		return;
-//	//	}
-
-//	//	// insert a child item in the model corresponding to the new subAction
-//	//	AMAction* subAction = nestedAction->subActionAt(index);
-//	//	if(!subAction) {
-//	//		qWarning() << "AMActionRunner: Warning: A subclass of AMNestedAction returned us an invalid subAction at index" << index;
-//	//		return;
-//	//	}
-//	//	AMActionQueueModelItem* item = new AMActionQueueModelItem(subAction);
-//	//	parentItem->insertRow(index, item);
-//	//	internalBuildNestedActionItemsIfRequired(item);	// this will recursively insert the subAction's sub-actions, if it has any.
-
-//}
-
-//void AMActionRunner::onNestedActionSubActionAboutToBeRemoved(int index)
-//{
-//	AMNestedAction* nestedAction = qobject_cast<AMNestedAction*>(sender());
-//	if(!nestedAction)
-//		return;
-
-//	// todozzzz
-//	//	// find out the index and item representing this nested action
-//	//	AMActionQueueModelItem* parentItem = static_cast<AMActionQueueModelItem*>(queueModel_->itemFromIndex(nestedActions_.value(nestedAction)));
-//	//	if(!parentItem) {
-//	//		// This isn't a user-visible error... It should never happen and is only for developers, which is why it doesn't use AMErrorMon.
-//	//		qWarning() << "AMActionRunner: Warning: detected corruption in its tracking of nested actions. No index found for sender when removing a sub-action.";
-//	//		return;
-//	//	}
-
-//	//	// remove the child item from the model. If _it_ is a nested action, need to do some cleanup too.
-//	//	AMActionQueueModelItem* subItem = static_cast<AMActionQueueModelItem*>(parentItem->child(index));
-//	//	if(!subItem) {
-//	//		qWarning() << "AMActionRunner: Warning: No sub-action to remove at the index " << index;
-//	//		return;
-//	//	}
-//	//	// We're going to remove subItem, so if it represents a nested action, we'll have to clean those out recursively.
-//	//	internalCleanUpNestedActionIndexes(subItem);
-//	//	// and finally, take this item out of the model.
-//	//	parentItem->removeRow(index);
-
-//	//	// We trust that the Nested Action will take care of deleting its now-removed sub-action, since it was the one that notified us of this deletion in the first place.
-//}
-
-void AMActionRunnerQueueModel::deleteActionsInQueue(QModelIndexList indexesToDelete)
-{
-	QList<int> topLevelIndexesToDelete;
-	QList<QPersistentModelIndex> nestedIndexesToDelete;
-
-	foreach(QModelIndex i, indexesToDelete) {
-		// Sort out the top-level actions...
-		if(!i.parent().isValid()) {
-			topLevelIndexesToDelete << i.row();
-		}
-		// ... from those that are inside an AMNestedAction
-		else {
-			nestedIndexesToDelete << QPersistentModelIndex(i);
-		}
-	}
-	// Delete the top-level actions. Need to delete from largest index to smallest index, otherwise the indexes will change as we go. [We could use persistent indexes to avoid this problem, but the performance is better if we don't.]
-	qSort(topLevelIndexesToDelete);
-	for(int i=topLevelIndexesToDelete.count()-1; i>=0; i--)
-		actionRunner_->deleteActionInQueue(topLevelIndexesToDelete.at(i));
-
-	// Now, do we have any nested actions left to delete? They might have been deleted if they were inside parents that were deleted, so make sure to check for valid persistent indexes.
-	foreach(QPersistentModelIndex i, nestedIndexesToDelete) {
-		if(i.isValid()) {
-			// get their parent model item... which should represent a nested action
-			AMNestedAction* nestedAction = qobject_cast<AMNestedAction*>(actionAtIndex(i.parent()));
-			if(nestedAction) {
-				nestedAction->deleteSubAction(i.row());
-			}
-		}
-	}
-}
-
-
-void AMActionRunnerQueueModel::duplicateActionsInQueue(const QModelIndexList &indexesToCopy) {
-	// nothing to do:
-	if(indexesToCopy.isEmpty())
-		return;
-
-	// This function works if all the indexes are at the same level of the model tree hierarchy.  Let's confirm that first.
-	QModelIndex firstParent = indexesToCopy.at(0).parent();
-	foreach(QModelIndex i, indexesToCopy)
-		if(i.parent() != firstParent)
-			return;
-
-	// OK.  Are they all top-level indexes?
-	if(!firstParent.isValid()) {
-		QList<int> topLevelIndexes;
-		foreach(QModelIndex i, indexesToCopy)
-			topLevelIndexes << i.row();
-		// call the top-level version:
-		actionRunner_->duplicateActionsInQueue(topLevelIndexes);
-	}
-	// Otherwise, these indexes are sub-actions of some AMNestedAction
-	else {
-		// find the nested action:
-		AMNestedAction* nestedAction = qobject_cast<AMNestedAction*>(actionAtIndex(firstParent));
-		if(nestedAction) {
-			QList<int> subActionIndexes;
-			foreach(QModelIndex i, indexesToCopy)
-				subActionIndexes << i.row();
-			// use the AMNestedAction API to duplicate these subactions.
-			nestedAction->duplicateSubActions(subActionIndexes);
-		}
-	}
 }
 
 int AMActionRunner::indexOfQueuedAction(const AMAction *action) {
@@ -772,6 +444,10 @@ QVariant AMActionRunnerQueueModel::data(const QModelIndex &index, int role) cons
 
 Qt::ItemFlags AMActionRunnerQueueModel::flags(const QModelIndex &index) const
 {
+	// need to be able to drop onto the top-level index.
+	if(!index.isValid())
+		return Qt::ItemIsDropEnabled;
+
 	AMNestedAction* nestedAction = qobject_cast<AMNestedAction*>(actionAtIndex(index));
 	if(nestedAction)
 		return (Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled);
@@ -783,8 +459,11 @@ bool AMActionRunnerQueueModel::hasChildren(const QModelIndex &parent) const
 {
 	if(!parent.isValid())
 		return true;	// top level: must have children.
-	else
-		return qobject_cast<AMNestedAction*>(actionAtIndex(parent)) != 0;
+	else {
+		// other levels: have children if its a nested action.
+		AMNestedAction* nestedAction = qobject_cast<AMNestedAction*>(actionAtIndex(parent));
+		return (nestedAction != 0);
+	}
 }
 
 AMAction * AMActionRunnerQueueModel::actionAtIndex(const QModelIndex &index) const
@@ -794,20 +473,21 @@ AMAction * AMActionRunnerQueueModel::actionAtIndex(const QModelIndex &index) con
 	return static_cast<AMAction*>(index.internalPointer());
 }
 
-void AMActionRunnerQueueModel::onActionAboutToBeAdded(int index)
+void AMActionRunnerQueueModel::onActionAboutToBeAdded(int i)
 {
-	beginInsertRows(QModelIndex(), index, index);
+	beginInsertRows(QModelIndex(), i, i);
 }
 
-void AMActionRunnerQueueModel::onActionAdded(int index)
+void AMActionRunnerQueueModel::onActionAdded(int i)
 {
-	Q_UNUSED(index)
+	internalConnectNestedActions(actionRunner_->queuedActionAt(i));
 	endInsertRows();
 }
 
-void AMActionRunnerQueueModel::onActionAboutToBeRemoved(int index)
+void AMActionRunnerQueueModel::onActionAboutToBeRemoved(int i)
 {
-	beginRemoveRows(QModelIndex(), index, index);
+	internalDisconnectNestedActions(actionRunner_->queuedActionAt(i));
+	beginRemoveRows(QModelIndex(), i, i);
 }
 
 void AMActionRunnerQueueModel::onActionRemoved(int index)
@@ -841,6 +521,320 @@ QModelIndex AMActionRunnerQueueModel::indexForAction(AMAction *action) const
 		return createIndex(row, 0, action);
 	}
 }
+
+void AMActionRunnerQueueModel::internalConnectNestedActions(AMAction *action)
+{
+	AMNestedAction* nestedAction = qobject_cast<AMNestedAction*>(action);
+	if(nestedAction) {
+		qDebug() << "Connecting and remembering nested action" << action->info()->shortDescription();
+		disconnect(nestedAction, 0, this, 0);
+		connect(nestedAction, SIGNAL(subActionAboutToBeAdded(int)), this, SLOT(onSubActionAboutToBeAdded(int)));
+		connect(nestedAction, SIGNAL(subActionAdded(int)), this, SLOT(onSubActionAdded(int)));
+		connect(nestedAction, SIGNAL(subActionAboutToBeRemoved(int)), this, SLOT(onSubActionAboutToBeRemoved(int)));
+		connect(nestedAction, SIGNAL(subActionRemoved(int)), this, SLOT(onSubActionRemoved(int)));
+
+		for(int i=0,cc=nestedAction->subActionCount(); i<cc; i++)
+			internalConnectNestedActions(nestedAction->subActionAt(i));
+	}
+}
+
+void AMActionRunnerQueueModel::internalDisconnectNestedActions(AMAction *action)
+{
+	AMNestedAction* nestedAction = qobject_cast<AMNestedAction*>(action);
+	if(nestedAction) {
+		qDebug() << "Disconnecting and forgetting nested action" << action->info()->shortDescription();
+		disconnect(nestedAction, 0, this, 0);
+
+		for(int i=0,cc=nestedAction->subActionCount(); i<cc; i++)
+			internalDisconnectNestedActions(nestedAction->subActionAt(i));
+	}
+}
+
+void AMActionRunnerQueueModel::onSubActionAboutToBeAdded(int index)
+{
+	AMNestedAction* parentAction = qobject_cast<AMNestedAction*>(sender());
+	lastSender_ = parentAction;
+	if(!parentAction) {
+		qWarning() << "AMActionRunnerQueueModel: Warning: invalid parent sent subActionAboutToBeAdded().";
+		return;
+	}
+
+	QModelIndex parentIndex = indexForAction(parentAction);
+	if(!parentIndex.isValid()) {
+		qWarning() << "AMActionRunnerQueueModel: Warning: Nested Action parent not found for the added sub-action.";
+		return;
+	}
+
+	beginInsertRows(parentIndex, index, index);
+}
+
+void AMActionRunnerQueueModel::onSubActionAdded(int index)
+{
+	AMNestedAction* parentAction = qobject_cast<AMNestedAction*>(sender());
+	if(parentAction != lastSender_) {
+		qWarning() << "AMActionRunnerQueueModel: Warning: Unmatched calls to onSubActionAboutToBeAdded/onSubActionAdded.";
+	}
+	else {
+		internalConnectNestedActions(parentAction->subActionAt(index));
+	}
+	endInsertRows();
+}
+
+void AMActionRunnerQueueModel::onSubActionAboutToBeRemoved(int index)
+{
+	AMNestedAction* parentAction = qobject_cast<AMNestedAction*>(sender());
+	lastSender_ = parentAction;
+	if(!parentAction) {
+		qWarning() << "AMActionRunnerQueueModel: Warning: invalid parent sent subActionAboutToBeRemoved().";
+		return;
+	}
+
+	internalDisconnectNestedActions(parentAction->subActionAt(index));
+
+	QModelIndex parentIndex = indexForAction(parentAction);
+	if(!parentIndex.isValid()) {
+		qWarning() << "AMActionRunnerQueueModel: Warning: Nested Action parent not found for the removed sub-action.";
+		return;
+	}
+
+	beginRemoveRows(parentIndex, index, index);
+}
+
+void AMActionRunnerQueueModel::onSubActionRemoved(int index)
+{
+	Q_UNUSED(index)
+	if(qobject_cast<AMNestedAction*>(sender()) != lastSender_) {
+		qWarning() << "AMActionRunnerQueueModel: Warning: Unmatched calls to onSubActionAboutToBeRemoved/onSubActionRemoved.";
+	}
+	endRemoveRows();
+}
+
+void AMActionRunnerQueueModel::deleteActionsInQueue(QModelIndexList indexesToDelete)
+{
+	QList<int> topLevelIndexesToDelete;
+	QList<QPersistentModelIndex> nestedIndexesToDelete;
+
+	foreach(QModelIndex i, indexesToDelete) {
+		// Sort out the top-level actions...
+		if(!i.parent().isValid()) {
+			topLevelIndexesToDelete << i.row();
+		}
+		// ... from those that are inside an AMNestedAction
+		else {
+			nestedIndexesToDelete << QPersistentModelIndex(i);
+		}
+	}
+	// Delete the top-level actions. Need to delete from largest index to smallest index, otherwise the indexes will change as we go. [We could use persistent indexes to avoid this problem, but the performance is better if we don't.]
+	qSort(topLevelIndexesToDelete);
+	for(int i=topLevelIndexesToDelete.count()-1; i>=0; i--)
+		actionRunner_->deleteActionInQueue(topLevelIndexesToDelete.at(i));
+
+	// Now, do we have any nested actions left to delete? They might have been deleted if they were inside parents that were deleted, so make sure to check for valid persistent indexes.
+	foreach(QPersistentModelIndex i, nestedIndexesToDelete) {
+		if(i.isValid()) {
+			// get their parent model item... which should represent a nested action
+			AMNestedAction* nestedAction = qobject_cast<AMNestedAction*>(actionAtIndex(i.parent()));
+			if(nestedAction) {
+				nestedAction->deleteSubAction(i.row());
+			}
+		}
+	}
+}
+
+
+void AMActionRunnerQueueModel::duplicateActionsInQueue(const QModelIndexList &indexesToCopy) {
+	// nothing to do:
+	if(indexesToCopy.isEmpty())
+		return;
+
+	// This function works if all the indexes are at the same level of the model tree hierarchy.  Let's confirm that first.
+	QModelIndex firstParent = indexesToCopy.at(0).parent();
+	foreach(QModelIndex i, indexesToCopy)
+		if(i.parent() != firstParent)
+			return;
+
+	// OK.  Are they all top-level indexes?
+	if(!firstParent.isValid()) {
+		QList<int> topLevelIndexes;
+		foreach(QModelIndex i, indexesToCopy)
+			topLevelIndexes << i.row();
+		// call the top-level version:
+		actionRunner_->duplicateActionsInQueue(topLevelIndexes);
+	}
+	// Otherwise, these indexes are sub-actions of some AMNestedAction
+	else {
+		// find the nested action:
+		AMNestedAction* nestedAction = qobject_cast<AMNestedAction*>(actionAtIndex(firstParent));
+		if(nestedAction) {
+			QList<int> subActionIndexes;
+			foreach(QModelIndex i, indexesToCopy)
+				subActionIndexes << i.row();
+			// use the AMNestedAction API to duplicate these subactions.
+			nestedAction->duplicateSubActions(subActionIndexes);
+		}
+	}
+}
+
+
+bool AMActionRunnerQueueModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+	Q_UNUSED(column)
+
+	// Option 1: Handle internal move actions, where the \c data is a list of the qmodelindexes to move
+	if(action == Qt::MoveAction) {
+		const AMModelIndexListMimeData* milData = qobject_cast<const AMModelIndexListMimeData*>(data);
+		if(milData) {
+			QList<QPersistentModelIndex> mil = milData->modelIndexList();
+			// go through and make sure all indexes are valid, and have the same parent index. If we're asked to move multiple indexes from different levels of the hierarchy, I have no idea how we'd interpret that.
+			if(mil.isEmpty())
+				return false;	// nothing to do!
+			QPersistentModelIndex first = mil.at(0);
+			foreach(const QPersistentModelIndex& mi, mil) {
+				if(!mi.isValid()) {
+					return false;	// this item was removed from the model while the drag was in progress.  Be faster next time, user.
+				}
+				if(mi.parent() != first.parent())
+					return false;	// we need all indexes to move to be at the same level of the hierarchy.
+			}
+			// OK, these indexes are OK to use.  Sort them:
+			qSort(mil);
+
+			// Case A: Source: These are all top-level actions in the queue.
+			if(!first.parent().isValid()) {
+
+				// Subcase A1: destination: They are being moved to another location at the top level. We can move them using the AMActionRunner API.
+				if(!parent.isValid()) {
+
+					qDebug() << "Moving from top level to top level.";
+
+					// Get a persistent model index corresponding to the destination. (It might move as we move things around.)
+					QPersistentModelIndex destinationIndex(index(row, 0, parent));
+					// go backward through the list of indexes to move, inserting at destination. This will ensure that we maintain ordering. The persistent indexes adjust themselves to keep pointing to the same objects as we insert/remove.
+					for(int i=0,cc=mil.count(); i<cc; i++) {
+						int destinationRow = destinationIndex.row();
+						if(destinationRow > mil.at(i).row())
+							destinationRow--;
+						qDebug() << "   Before: Destination row:" << destinationRow;
+						actionRunner_->moveActionInQueue(mil.at(i).row(), destinationRow);
+						qDebug() << "   After: Destination row:" << destinationIndex.row();
+					}
+					return true;
+				}
+				// Subcase A2: destination: They are being moved to inside a nested action.
+				else {
+					qDebug() << "Moving from top level to nested action.";
+
+					// parent is valid... It represents the nested action we're supposed to drop these actions inside of.
+					AMNestedAction* nestedAction = qobject_cast<AMNestedAction*>(actionAtIndex(parent));
+					if(!nestedAction) {
+						qWarning() << "AMActionRunnerQueueModel: Warning: Asked to drop actions inside a nested action that wasn't valid.";
+						return false;
+					}
+					int targetRow = row;
+					if(targetRow < 0 || targetRow > nestedAction->subActionCount())
+						targetRow = nestedAction->subActionCount();
+					for(int i=0,cc=mil.count(); i<cc; i++) {
+						nestedAction->insertSubAction(actionRunner_->queuedActionAt(mil.at(i).row())->createCopy(), targetRow++);
+						actionRunner_->deleteActionInQueue(mil.at(i).row());
+					}
+					return true;
+				}
+			}
+			// Case B: Source: These are sub-actions inside a nested action...
+			else {
+				AMNestedAction* sourceParentAction = qobject_cast<AMNestedAction*>(actionAtIndex(first.parent()));
+				if(!sourceParentAction) {
+					qWarning() << "AMActionQueueModel: Warning: Asked to move actions from inside a nested action that wasn't valid.";
+					return false;
+				}
+
+				// Subcase B0: The destination is the same as the source. Just rearranging within one AMNestedAction.
+				if(first.parent() == parent) {
+					QPersistentModelIndex destinationIndex(index(row, 0, parent));
+					for(int i=0,cc=mil.count(); i<cc; i++) {
+						AMAction* moveAction = sourceParentAction->takeSubAction(mil.at(i).row());
+						if(moveAction)
+							sourceParentAction->insertSubAction(moveAction, destinationIndex.row());
+						else
+							qWarning() << "AMActionRunnerQueueModel: Warning: Received an invalid item when rearranging actions inside a nested action.";
+					}
+					return true;
+				}
+				// otherwise, moving to a different parent
+				else {
+					// Subcase B1: The destination is the top level. Need to add the copied actions directly to AMActionRunner.
+					if(!parent.isValid()) {
+						qDebug() << "Move from one nested action to top level.";
+						int targetRow = row;
+						if(targetRow < 0 || targetRow > actionRunner_->queuedActionCount())
+							targetRow = actionRunner_->queuedActionCount();
+						for(int i=0,cc=mil.count(); i<cc; i++) {
+							actionRunner_->insertActionInQueue(sourceParentAction->takeSubAction(mil.at(i).row()), targetRow++);
+						}
+						return true;
+					}
+					// Subcase B2: The destination is a different sub-action.
+					else {
+						qDebug() << "Move from one nested action to another.";
+						AMNestedAction* destParentAction = qobject_cast<AMNestedAction*>(actionAtIndex(parent));
+						if(!destParentAction) {
+							qWarning() << "AMActionQueueModel: Warning: Asked to move actions into a nested action that wasn't valid.";
+							return false;
+						}
+						int targetRow = row;
+						if(targetRow < 0 || targetRow > destParentAction->subActionCount())
+							targetRow = destParentAction->subActionCount();
+						for(int i=0,cc=mil.count(); i<cc; i++) {
+							destParentAction->insertSubAction(sourceParentAction->takeSubAction(mil.at(i).row()), targetRow++);
+						}
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	// if we return false to the DropAction, it might retry with IgnoreAction. We need to accept that one.
+	else if(action == Qt::IgnoreAction) {
+		qDebug() << "*******####### Offering IgnoreAction!";
+		return true;
+	}
+
+	return false;
+}
+
+QMimeData * AMActionRunnerQueueModel::mimeData(const QModelIndexList &indexes) const
+{
+	if(indexes.isEmpty())
+		return 0;
+	// We only support dragging if all the indexes are at the same level of the hierarchy. Let's check that here, and return 0 if not.
+	QModelIndex firstParent = indexes.at(0).parent();
+	foreach(const QModelIndex& index, indexes)
+		if(index.parent() != firstParent)
+			return 0;
+
+	// alright, looks good. Turn them into persistent indexes and pass them off inside our custom (not externally-sharable) mime type container.
+	return new AMModelIndexListMimeData(indexes);
+}
+
+QStringList AMActionRunnerQueueModel::mimeTypes() const
+{
+	return QStringList() << "application/octet-stream";
+}
+
+bool AMActionRunnerQueueModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+	Q_UNUSED(row)
+	Q_UNUSED(count)
+	Q_UNUSED(parent)
+
+	qWarning() << "AMActionRunnerQueueModel: Warning: Ignoring request from view to remove rows.";
+
+	return false;
+}
+
+
 
 //void AMActionQueueModel::traverse1(const QModelIndex &parent, QString &outstring, int level)
 //{
