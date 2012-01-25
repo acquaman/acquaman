@@ -154,6 +154,8 @@ void AMActionHistoryModel::setMaximumActionsToDisplay(int maximumActionsCount)
 	/// \todo Optimization: instead of a full refresh, we could just load the additional ones we need, by specifying a LIMIT and OFFSET in the SQL query.
 }
 
+#include <QDebug>
+
 void AMActionHistoryModel::refreshFromDb()
 {
 	emit modelAboutToBeRefreshed();
@@ -175,7 +177,7 @@ void AMActionHistoryModel::refreshFromDb()
 	if(visibleRangeOldest_.isValid() && visibleRangeNewest_.isValid()) {
 		q = db_->select(actionLogTableName_,
 						"id",
-						"endDateTime BETWEEN ? AND ? ORDER BY endDateTime DESC LIMIT ?;");
+						"endDateTime BETWEEN ? AND ? ORDER BY endDateTime DESC LIMIT ?");
 		q.bindValue(0, visibleRangeOldest_);
 		q.bindValue(1, visibleRangeNewest_);
 		q.bindValue(2, maximumActionsLimit_);
@@ -189,39 +191,42 @@ void AMActionHistoryModel::refreshFromDb()
 	else if(visibleRangeOldest_.isValid()) {
 		q = db_->select(actionLogTableName_,
 						"id",
-						"endDateTime >= ? ORDER BY endDateTime DESC LIMIT ?;");
+						"endDateTime >= ? ORDER BY endDateTime DESC LIMIT ?");
 		q.bindValue(0, visibleRangeOldest_);
 		q.bindValue(1, maximumActionsLimit_);
 		q2 = db_->select(actionLogTableName_,
 						 "COUNT(1)",
-						 "endDateTime >= ?;");
+						 "endDateTime >= ?");
 		q2.bindValue(0, visibleRangeOldest_);
+
+		qDebug() << "Bound values:" <<q.boundValues();
 
 	}
 	// only a newest limit:
 	else if(visibleRangeNewest_.isValid()) {
 		q = db_->select(actionLogTableName_,
 						"id",
-						"endDateTime <= ? ORDER BY endDateTime DESC LIMIT ?;");
+						"endDateTime <= ? ORDER BY endDateTime DESC LIMIT ?");
 		q.bindValue(0, visibleRangeNewest_);
 		q.bindValue(1, maximumActionsLimit_);
 		q2 = db_->select(actionLogTableName_,
 						 "COUNT(1)",
-						 "endDateTime <= ?;");
+						 "endDateTime <= ?");
 		q2.bindValue(0, visibleRangeNewest_);
 	}
 	// everything:
 	else {
 		q = db_->select(actionLogTableName_,
 						"id",
-						"1 ORDER BY endDateTime DESC LIMIT ?;");
+						"1 ORDER BY endDateTime DESC LIMIT ?");
 		q.bindValue(0, maximumActionsLimit_);
 		q2 = db_->select(actionLogTableName_,
 						 "COUNT(1)");
 	}
 
 	// run the query and get the ids:
-	q.exec();
+	if(!q.exec())
+		AMErrorMon::alert(this, -333, "Could not execute the query to refresh the action history. Please report this problem to the Acquaman developers." % q.lastError().text());
 	while(q.next())
 		ids << q.value(0).toInt();
 	q.finish();
@@ -231,6 +236,7 @@ void AMActionHistoryModel::refreshFromDb()
 		visibleActionsCount_ = q2.value(0).toInt();
 	}
 	else {
+		AMErrorMon::alert(this, -333, "Could not execute the query to refresh the action history. Please report this problem to the Acquaman developers." % q.lastError().text());
 		visibleActionsCount_ = -1;	// you should never see this
 	}
 	q2.finish();
