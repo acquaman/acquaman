@@ -46,6 +46,11 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 		presetsComboBox_->addItems(sfsc->presets());
 		connect(presetsComboBox_, SIGNAL(currentIndexChanged(int)), sfsc, SLOT(setParametersFromPreset(int)));
 
+		connect(sfsc, SIGNAL(startPositionChanged()), this, SLOT(onParametersStartPositionChanged()));
+		connect(sfsc, SIGNAL(middlePositionChanged()), this, SLOT(onParametersMiddlePositionChanged()));
+		connect(sfsc, SIGNAL(endPositionChanged()), this, SLOT(onParametersEndPositionChanged()));
+		connect(sfsc, SIGNAL(fastScanSettingsChanged()), this, SLOT(onFastScanSettingsChanged()));
+
 		elementLabel_ = new QLabel("Element");
 		runTimeLabel_ = new QLabel("Run Time");
 		startEnergyLabel_ = new QLabel("Start Energy");
@@ -109,13 +114,13 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 		scanNameLabel_ = new QLabel("Scan Name");
 		scanNameEdit_ = new QLineEdit(this);
 
-		connect(sfsc, SIGNAL(onElementChanged(QString)), elementEdit_, SLOT(setText(QString)));
-		connect(sfsc, SIGNAL(onRunSecondsChanged(double)), runTimeDSB_, SLOT(setValue(double)));
-		connect(sfsc, SIGNAL(onEnergyStartChanged(double)), startEnergyDSB_, SLOT(setValue(double)));
-		connect(sfsc, SIGNAL(onEnergyMidpointChanged(double)), energyMidpointDSB_, SLOT(setValue(double)));
-		connect(sfsc, SIGNAL(onEnergyEndChanged(double)), endEnergyDSB_, SLOT(setValue(double)));
-		connect(sfsc, SIGNAL(onVelocityChanged(int)), motorSettingsSB_, SLOT(setValue(int)));
-		connect(sfsc, SIGNAL(onBaseLineChanged(int)), baseLineSB_, SLOT(setValue(int)));
+		connect(sfsc, SIGNAL(elementChanged(QString)), elementEdit_, SLOT(setText(QString)));
+		connect(sfsc, SIGNAL(runSecondsChanged(double)), runTimeDSB_, SLOT(setValue(double)));
+		connect(sfsc, SIGNAL(energyStartChanged(double)), startEnergyDSB_, SLOT(setValue(double)));
+		connect(sfsc, SIGNAL(energyMidpointChanged(double)), energyMidpointDSB_, SLOT(setValue(double)));
+		connect(sfsc, SIGNAL(energyEndChanged(double)), endEnergyDSB_, SLOT(setValue(double)));
+		connect(sfsc, SIGNAL(velocityChanged(int)), motorSettingsSB_, SLOT(setValue(int)));
+		connect(sfsc, SIGNAL(baseLineChanged(int)), baseLineSB_, SLOT(setValue(int)));
 		connect(sfsc, SIGNAL(undulatorStartStepChanged(int)), undulatorStartStepSB_, SLOT(setValue(int)));
 		connect(sfsc, SIGNAL(undulatorRelativeStepChanged(int)), undulatorRelativeStepSB_, SLOT(setValue(int)));
 		connect(sfsc, SIGNAL(undulatorVelocityChanged(int)), undulatorVelocitySB_, SLOT(setValue(int)));
@@ -151,25 +156,67 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 		fl_->addRow(undulatorVelocityLabel_, undulatorVelocitySB_);
 		fl_->addRow(exitSlitDistanceLabel_, exitSlitDistanceDSB_);
 
-		energyPosition_ = sfsc->currentParameters()->scanInfo().start();
-		SGMEnergyPositionView *epView = new SGMEnergyPositionView(&energyPosition_);
+		startPositionView_ = 0;
+		middlePositionView_ = 0;
+		endPositionView_ = 0;
+		fastScanSettingsView_ = 0;
 
-		gl_ = new QGridLayout();
-		gl_->addWidget(presetsComboBox_,	0, 0, 1, 1, Qt::AlignCenter);
-		gl_->addLayout(fl_,			0, 1, 1, 1, Qt::AlignCenter);
-		gl_->addWidget(epView,			0, 2, 1, 1, Qt::AlignCenter);
+		onParametersStartPositionChanged();
+		onParametersMiddlePositionChanged();
+		onParametersEndPositionChanged();
+		onFastScanSettingsChanged();
+
+		startPositionView_ = new SGMEnergyPositionView(&startPositionCopy_, SGMEnergyPositionView::ViewModeStartOrEnd);
+		middlePositionView_ = new SGMEnergyPositionView(&middlePositionCopy_, SGMEnergyPositionView::ViewModeMiddle);
+		endPositionView_ = new SGMEnergyPositionView(&endPositionCopy_, SGMEnergyPositionView::ViewModeStartOrEnd);
+		fastScanSettingsView_ = new SGMFastScanSettingsView(&fastScanSettingsCopy_);
+
+		QHBoxLayout *presetsLayout = new QHBoxLayout();
+		presetsLayout->addWidget(presetsComboBox_);
+		presetsLayout->addStretch(10);
+
+		QVBoxLayout *settingsLayout = new QVBoxLayout();
+		settingsLayout->addWidget(fastScanSettingsView_);
+		settingsLayout->addStretch(10);
+
+		QVBoxLayout *positionsLayout = new QVBoxLayout();
+		positionsLayout->addWidget(startPositionView_);
+		positionsLayout->addWidget(middlePositionView_);
+		positionsLayout->addWidget(endPositionView_);
+		positionsLayout->addStretch(10);
+
+		QHBoxLayout *hl = new QHBoxLayout();
+		hl->addLayout(settingsLayout);
+		hl->addLayout(positionsLayout);
+
 		QHBoxLayout *nameHL = new QHBoxLayout();
 		nameHL->addWidget(scanNameLabel_);
 		nameHL->addWidget(scanNameEdit_);
+
+		QVBoxLayout *mainLayout = new QVBoxLayout();
+		mainLayout->addLayout(presetsLayout);
+		mainLayout->addLayout(hl);
+		mainLayout->addWidget(warningsLabel_);
+		mainLayout->addLayout(nameHL);
+
+		/*
+		gl_ = new QGridLayout();
+		gl_->addWidget(presetsComboBox_,	0, 0, 1, 1, Qt::AlignCenter);
+		gl_->addLayout(fl_,			0, 1, 1, 1, Qt::AlignCenter);
+		gl_->addLayout(positionsLayout,		0, 2, 1, 1, Qt::AlignCenter);
 		gl_->addLayout(nameHL,			1, 0, 1, 2, Qt::AlignCenter);
 		gl_->addWidget(warningsLabel_,		0, 0, 1, 2, Qt::AlignCenter);
 		gl_->setRowStretch(1, 10);
+		*/
+
 		QVBoxLayout *vl = new QVBoxLayout();
 		vl->addWidget(topFrame_);
-		vl->addLayout(gl_);
+		//vl->addLayout(gl_);
+		vl->addLayout(mainLayout);
 		vl->setContentsMargins(0,0,0,0);
 		vl->setSpacing(1);
-		gl_->setContentsMargins(10, 0, 10, 0);
+		//gl_->setContentsMargins(10, 0, 10, 0);
+		mainLayout->setContentsMargins(10, 0, 10, 0);
 		this->setLayout(vl);
 		this->setMaximumSize(700, 800);
 
@@ -223,4 +270,52 @@ void SGMFastScanConfigurationView::onSGMBeamlineCriticalControlsConnectedChanged
 
 void SGMFastScanConfigurationView::onScanNameEditChanged(const QString &scanName){
 	cfg_->setUserScanName(scanName);
+}
+
+void SGMFastScanConfigurationView::onParametersStartPositionChanged(){
+	disconnect(&startPositionCopy_, 0);
+	startPositionCopy_ = cfg_->currentParameters()->scanInfo().start();
+	if(startPositionView_)
+		startPositionView_->setEnergyPosition(&startPositionCopy_);
+	connect(&startPositionCopy_, SIGNAL(energyPositionChanged()), this, SLOT(onStartPositionCopyChanged()));
+}
+
+void SGMFastScanConfigurationView::onParametersMiddlePositionChanged(){
+	disconnect(&middlePositionCopy_, 0);
+	middlePositionCopy_ = cfg_->currentParameters()->scanInfo().middle();
+	if(middlePositionView_)
+		middlePositionView_->setEnergyPosition(&middlePositionCopy_);
+	connect(&middlePositionCopy_, SIGNAL(energyPositionChanged()), this, SLOT(onMiddlePositionCopyChanged()));
+}
+
+void SGMFastScanConfigurationView::onParametersEndPositionChanged(){
+	disconnect(&endPositionCopy_, 0);
+	endPositionCopy_ = cfg_->currentParameters()->scanInfo().end();
+	if(endPositionView_)
+		endPositionView_->setEnergyPosition(&endPositionCopy_);
+	connect(&endPositionCopy_, SIGNAL(energyPositionChanged()), this, SLOT(onEndPositionCopyChanged()));
+}
+
+void SGMFastScanConfigurationView::onFastScanSettingsChanged(){
+	disconnect(&fastScanSettingsCopy_, 0);
+	fastScanSettingsCopy_ = cfg_->currentParameters()->fastScanSettings();
+	if(fastScanSettingsView_)
+		fastScanSettingsView_->setFastScanSettings(&fastScanSettingsCopy_);
+	connect(&fastScanSettingsCopy_, SIGNAL(fastScanSettingsChanged()), this, SLOT(onFastScanSettingsCopyChanged()));
+}
+
+void SGMFastScanConfigurationView::onStartPositionCopyChanged(){
+	cfg_->currentParameters()->setStartPosition(startPositionCopy_);
+}
+
+void SGMFastScanConfigurationView::onMiddlePositionCopyChanged(){
+	cfg_->currentParameters()->setMiddlePosition(middlePositionCopy_);
+}
+
+void SGMFastScanConfigurationView::onEndPositionCopyChanged(){
+	cfg_->currentParameters()->setEndPosition(endPositionCopy_);
+}
+
+void SGMFastScanConfigurationView::onFastScanSettingsCopyChanged(){
+	cfg_->currentParameters()->setFastScanSettings(fastScanSettingsCopy_);
 }

@@ -37,6 +37,7 @@ class AMTopFrame;
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "acquaman/SGM/SGMFastScanConfiguration.h"
 #include "ui/util/SGM/SGMEnergyPositionView.h"
+#include "ui/util/SGM/SGMFastScanSettingsView.h"
 
 class SGMFastScanConfigurationView : public AMScanConfigurationView
 {
@@ -53,8 +54,28 @@ protected slots:
 
 	void onScanNameEditChanged(const QString &scanName);
 
+	void onParametersStartPositionChanged();
+	void onParametersMiddlePositionChanged();
+	void onParametersEndPositionChanged();
+	void onFastScanSettingsChanged();
+
+	void onStartPositionCopyChanged();
+	void onMiddlePositionCopyChanged();
+	void onEndPositionCopyChanged();
+	void onFastScanSettingsCopyChanged();
+
 protected:
 	SGMFastScanConfiguration *cfg_;
+
+	SGMEnergyPosition startPositionCopy_;
+	SGMEnergyPosition middlePositionCopy_;
+	SGMEnergyPosition endPositionCopy_;
+	SGMFastScanSettings fastScanSettingsCopy_;
+
+	SGMEnergyPositionView *startPositionView_;
+	SGMEnergyPositionView *middlePositionView_;
+	SGMEnergyPositionView *endPositionView_;
+	SGMFastScanSettingsView *fastScanSettingsView_;
 
 	AMTopFrame *topFrame_;
 
@@ -88,11 +109,7 @@ protected:
 	QLabel *scanNameLabel_;
 	QLineEdit *scanNameEdit_;
 
-	QGridLayout *gl_;
 	QFormLayout *fl_;
-	QFormLayout *fl2_;
-
-	SGMEnergyPosition energyPosition_;
 };
 
 #endif // SGMFASTSCANCONFIGURATIONVIEWER_H

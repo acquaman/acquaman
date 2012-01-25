@@ -95,6 +95,7 @@ Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Scan Info")
 
 public:
 	Q_INVOKABLE SGMScanInfo(const QString &scanName = QString(), QPair<QString, double> edgeAndEnergy = qMakePair(QString(), -1.0), SGMEnergyPosition start = SGMEnergyPosition(), SGMEnergyPosition middle = SGMEnergyPosition(), SGMEnergyPosition end = SGMEnergyPosition(), QObject *parent = 0);
+	//SGMScanInfo(const SGMScanInfo &original);
 
 	QString scanName() const;
 	bool hasEdge() const;
@@ -220,6 +221,7 @@ signals:
 	void scalerTimeChanged(double scalerTime);
 	void baseLineChanged(int baseLine);
 	void undulatorVelocityChanged(int undulatorVelocity);
+
 	void fastScanSettingsChanged();
 
 protected:
@@ -293,6 +295,7 @@ public slots:
 	void setFastScanSettings(const SGMFastScanSettings &fastScanSettings);
 
 signals:
+	void elementChanged(const QString &element);
 	void runSecondsChanged(double runSeconds);
 	void energyStartChanged(double energyStart);
 	void energyMidpointChanged(double energyMidpoint);
@@ -303,6 +306,7 @@ signals:
 	void scalerTimeChanged(double scalerTime);
 	void baseLineChanged(int baseLine);
 	void undulatorStartStepChanged(int undulatorStartStep);
+	void undulatorVelocityChanged(int undulatorVelocity);
 	void undulatorRelativeStepChanged(int undulatorRelativeStep);
 	void exitSlitDistanceChanged(double exitSlitDistance);
 	void sgmGratingChanged(int sgmGrating);
@@ -312,6 +316,11 @@ signals:
 	void middlePositionChanged();
 	void endPositionChanged();
 	void fastScanSettingsChanged();
+
+protected slots:
+	void onStartChanged();
+	void onMiddleChanged();
+	void onEndChanged();
 
 protected:
 	AMDbObject* dbGetScanInfo() { return &scanInfo_;}

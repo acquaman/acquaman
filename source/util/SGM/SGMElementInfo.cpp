@@ -527,7 +527,10 @@ SGMFastScanSettings SGMFastScanParameters::fastScanSettings() const{
 }
 
 void SGMFastScanParameters::setElement(const QString &element){
-	element_ = element;
+	if(element_ != element){
+		element_ = element;
+		emit elementChanged(element_);
+	}
 }
 
 void SGMFastScanParameters::setEdge(const QString &edge){
@@ -539,6 +542,7 @@ void SGMFastScanParameters::setRunSeconds(double runSeconds){
 }
 
 void SGMFastScanParameters::setEnergyStart(double energyStart){
+	qDebug() << "Setting start energy to " << energyStart;
 	SGMEnergyPosition newEnergyPosition = scanInfo_.start();
 	newEnergyPosition.setEnergy(energyStart);
 	scanInfo_.setStart(newEnergyPosition);
@@ -605,7 +609,12 @@ void SGMFastScanParameters::setSGMGrating(int sgmGrating){
 }
 
 void SGMFastScanParameters::setScanInfo(const SGMScanInfo &scanInfo){
+	disconnect(&scanInfo_, 0);
 	scanInfo_ = scanInfo;
+	connect(&scanInfo_, SIGNAL(startChanged()), this, SLOT(onStartChanged()));
+	connect(&scanInfo_, SIGNAL(middleChanged()), this, SLOT(onMiddleChanged()));
+	connect(&scanInfo_, SIGNAL(endChanged()), this, SLOT(onEndChanged()));
+	connect(&scanInfo, SIGNAL(scanInfoChanged()), this, SIGNAL(scanInfoChanged()));
 }
 
 void SGMFastScanParameters::setStartPosition(const SGMEnergyPosition &start){
@@ -621,5 +630,33 @@ void SGMFastScanParameters::setEndPosition(const SGMEnergyPosition &end){
 }
 
 void SGMFastScanParameters::setFastScanSettings(const SGMFastScanSettings &fastScanSettings){
+	disconnect(&fastScanSettings_, 0);
 	fastScanSettings_ = fastScanSettings;
+	connect(&fastScanSettings_, SIGNAL(runSecondsChanged(double)), this, SIGNAL(runSecondsChanged(double)));
+	connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(velocityChanged(int)));
+	connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(velocityBaseChanged(int)));
+	connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(accelerationChanged(int)));
+	connect(&fastScanSettings_, SIGNAL(scalerTimeChanged(double)), this, SIGNAL(scalerTimeChanged(double)));
+	connect(&fastScanSettings_, SIGNAL(baseLineChanged(int)), this, SIGNAL(baseLineChanged(int)));
+	connect(&fastScanSettings_, SIGNAL(undulatorVelocityChanged(int)), this, SIGNAL(undulatorVelocityChanged(int)));
+	connect(&fastScanSettings_, SIGNAL(fastScanSettingsChanged()), this, SIGNAL(fastScanSettingsChanged()));
+}
+
+void SGMFastScanParameters::onStartChanged(){
+	emit energyStartChanged(scanInfo_.start().energy());
+	emit undulatorStartStepChanged(scanInfo_.start().undulatorStepSetpoint());
+	emit sgmGratingChanged(scanInfo_.start().sgmGrating());
+	emit startPositionChanged();
+}
+
+void SGMFastScanParameters::onMiddleChanged(){
+	emit energyMidpointChanged(scanInfo_.middle().energy());
+	emit exitSlitDistanceChanged(scanInfo_.middle().exitSlitDistance());
+	emit middlePositionChanged();
+}
+
+void SGMFastScanParameters::onEndChanged(){
+	emit energyEndChanged(scanInfo_.end().energy());
+	emit undulatorRelativeStepChanged(scanInfo_.end().undulatorStepSetpoint()-scanInfo_.start().undulatorStepSetpoint());
+	emit endPositionChanged();
 }
