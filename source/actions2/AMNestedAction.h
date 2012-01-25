@@ -14,9 +14,9 @@ public:
 	/// Copy constructor, to make a new runnable action just like \c other.
 	AMNestedAction(const AMNestedAction& other) : AMAction(other) {}
 
-	/// This virtual function takes the role of a virtual copy constructor. All actions MUST RE-IMPLEMENT to be able to create and return a an independent copy of themselves. (This allows us to get a detailed subclass copy without knowing the type of the action.) NOTE that the returned instance should be a perfect copy except for the state() -- which will be reset to Constructed -- and any other subclass-specific state information: the copy should look like a new action that hasn't been run yet.
-	/*! It's recommended to make use of the copy constructor when implementing this, to ensure that the base class is copied properly.*/
-	// virtual AMAction* createCopy() const { return new AMNestedAction(*this); }
+//	/// This virtual function takes the role of a virtual copy constructor. All actions MUST RE-IMPLEMENT to be able to create and return a an independent copy of themselves. (This allows us to get a detailed subclass copy without knowing the type of the action.) NOTE that the returned instance should be a perfect copy except for the state() -- which will be reset to Constructed -- and any other subclass-specific state information: the copy should look like a new action that hasn't been run yet.
+//	/*! It's recommended to make use of the copy constructor when implementing this, to ensure that the base class is copied properly.*/
+//	virtual AMAction* createCopy() const { return new AMNestedAction(*this); }
 
 	/// IMPORANT: subclasses should ensure to delete their subActions in their own destructor
 	virtual ~AMNestedAction() {}
@@ -31,6 +31,10 @@ public:
 
 	/// Public function to duplicate a set of sub-actions at \c indexesToCopy. The new sub-actions will all be inserted at the position after the last existing sub-action in \c indexesToCopy.  It uses insertSubAction() to add copies of the existing ones, and therefore will fail if the action is not in the AMAction::Constructed state.
 	bool duplicateSubActions(const QList<int>& indexesToCopy);
+
+
+	/// Find the index of a sub-action \c action, or -1 if not found.
+	int indexOfSubAction(const AMAction* action) const;
 
 
 	// Public virtual functions to re-implement:

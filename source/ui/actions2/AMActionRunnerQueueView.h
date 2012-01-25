@@ -61,30 +61,5 @@ protected:
 	bool allSelectedIndexesAtSameLevel(const QModelIndexList& selectedIndexes);
 };
 
-///// This class wraps an AMActionRunner into a model that works with the Qt Model/View system. Nominally, it's usually a list model, but it uses the full tree model API so that actions inside AMLoopAction appear hierarchically.  There is only ever one column.
-//class AMActionRunnerQueueModel : public QAbstractItemModel {
-//	Q_OBJECT
-//public:
-//	/// Constructor.
-//	AMActionRunnerQueueModel(AMActionRunner* actionRunner, QObject* parent = 0);
-
-//	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-
-//	QModelIndex parent(const QModelIndex &child) const;
-
-//	int rowCount(const QModelIndex &parent = QModelIndex()) const;
-
-//	int columnCount(const QModelIndex &parent = QModelIndex()) const;
-
-//	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-
-//	bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
-
-//	AMAction* actionAtIndex(const QModelIndex& index);
-
-
-//protected:
-//	AMActionRunner* actionRunner_;
-//};
 
 #endif // AMACTIONRUNNERQUEUEVIEW_H

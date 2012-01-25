@@ -15,6 +15,7 @@ AMAction::AMAction(AMActionInfo* info, QObject *parent)
 	state_ = previousState_ = Constructed;
 	statusText_ = "Not yet started";
 	secondsSpentPaused_ = secondsSpentWaitingForPrereqs_ = 0;
+	parentAction_ = 0;
 
 	connect(info_, SIGNAL(expectedDurationChanged(double)), this, SIGNAL(expectedDurationChanged(double)));
 
@@ -31,6 +32,7 @@ AMAction::AMAction(const AMAction& other)
 	state_ = previousState_ = Constructed;
 	statusText_ = "Not yet started";
 	secondsSpentPaused_ = secondsSpentWaitingForPrereqs_ = 0;
+	parentAction_ = 0;
 
 	prereqBehaviour_ = other.prereqBehaviour_;
 	failureResponseInActionRunner_ = other.failureResponseInActionRunner_;

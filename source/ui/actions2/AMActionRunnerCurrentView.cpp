@@ -14,6 +14,8 @@
 #include <QStringBuilder>
 #include <QTimer>
 #include <QMessageBox>
+#include <QPixmapCache>
+
 
 AMActionRunnerCurrentView::AMActionRunnerCurrentView(AMActionRunner* actionRunner, QWidget *parent) :
     QWidget(parent)
@@ -213,4 +215,42 @@ void AMActionRunnerCurrentView::onStateChanged(int state, int previousState)
 
 	// Can pause or resume from only these states:
 	pauseButton_->setEnabled(state == AMAction::Running || state == AMAction::WaitingForPrereqs || state == AMAction::Paused);
+}
+
+
+
+AMActionQueueModelItem::AMActionQueueModelItem(AMAction *action) : QStandardItem()
+{
+	action_ = action;
+
+//	// is it a nested action? then include drop-enabled flag.
+//	if(qobject_cast<AMNestedAction*>(action))
+//		setFlags(Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled);
+//	else
+	setFlags(Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled);
+
+}
+
+
+QVariant AMActionQueueModelItem::data(int role) const
+{
+	if(role == Qt::DisplayRole) {
+		return action_->info()->shortDescription();
+	}
+	else if(role == Qt::DecorationRole) {
+		QPixmap p;
+		QString iconFileName = action_->info()->iconFileName();
+		if(QPixmapCache::find("AMActionIcon" % iconFileName, &p))
+			return p;
+		else {
+			p.load(iconFileName);
+			p = p.scaledToHeight(32, Qt::SmoothTransformation);
+			QPixmapCache::insert("AMActionIcon" % iconFileName, p);
+			return p;
+		}
+	}
+	else if(role == Qt::SizeHintRole) {
+		return QSize(-1, 48);
+	}
+	return QStandardItem::data(role);
 }

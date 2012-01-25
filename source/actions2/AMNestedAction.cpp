@@ -9,6 +9,7 @@ bool AMNestedAction::insertSubAction(AMAction *action, int index)
 		index = subActionCount();
 
 	emit subActionAboutToBeAdded(index);
+	action->internalSetParentAction(this);
 	insertSubActionImplementation(action, index);
 	emit subActionAdded(index);
 
@@ -24,6 +25,7 @@ bool AMNestedAction::deleteSubAction(int index)
 		return false;
 
 	emit subActionAboutToBeRemoved(index);
+	subActionAt(index)->internalSetParentAction(0);
 	deleteSubActionImplementation(index);
 	emit subActionRemoved(index);
 
@@ -56,4 +58,13 @@ bool AMNestedAction::duplicateSubActions(const QList<int> &indexesToCopy)
 		insertSubAction(subActionAt(i)->createCopy(), insertionIndex++);
 
 	return true;
+}
+
+int AMNestedAction::indexOfSubAction(const AMAction *action) const
+{
+	for(int i=0,cc=subActionCount(); i<cc; i++) {
+		if(action == subActionAt(i))
+			return i;
+	}
+	return -1;
 }

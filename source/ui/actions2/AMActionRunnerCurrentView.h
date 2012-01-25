@@ -12,6 +12,26 @@ class QPushButton;
 class QStandardItemModel;
 class QProgressBar;
 
+#include <QStandardItem>
+
+/// This subclass of QStandardItem is used inside AMActionRunnerCurrentView's QTreeView to display actions.  You should never need to use this class directly.
+class AMActionQueueModelItem : public QStandardItem {
+public:
+	/// Used to identify a specific type of item subclass
+	enum Type { AMActionQueueModelItemType = QStandardItem::UserType + 1049 };
+	/// Construct a model item for the given \c action.
+	AMActionQueueModelItem(AMAction* action);
+	/// The two things that separate us from QStandardItems: we have an associated action, and we return data based on that action
+	AMAction* action() { return action_; }
+	/// Action-specific data: we return the action's info's shortDescription() for Qt::DisplayRole, and cache and return pixmaps based on the info's iconFileName() for Qt::DecorationRole
+	virtual QVariant data(int role) const;
+	/// Used to identify a specific type of item subclass
+	virtual int type() const { return AMActionQueueModelItemType; }
+protected:
+	/// Pointer to our associated action
+	AMAction* action_;
+};
+
 /// This class provides a view of the currently-running action in the AMActionRunner. It is part of the overall AMWorkflowView.
 class AMActionRunnerCurrentView : public QWidget
 {

@@ -115,13 +115,13 @@ void AMActionRunnerQueueView::onSelectionChanged()
 void AMActionRunnerQueueView::onDeleteButtonClicked()
 {
 	QModelIndexList selectedRows = treeView_->selectionModel()->selectedRows(0);
-	actionRunner_->deleteActionsInQueue(selectedRows);
+	actionRunner_->queueModel()->deleteActionsInQueue(selectedRows);
 }
 
 void AMActionRunnerQueueView::onDuplicateButtonClicked()
 {
 	QModelIndexList selectedRows = treeView_->selectionModel()->selectedRows(0);
-	actionRunner_->duplicateActionsInQueue(selectedRows);
+	actionRunner_->queueModel()->duplicateActionsInQueue(selectedRows);
 }
 
 void AMActionRunnerQueueView::onQueuePaused(bool isPaused)

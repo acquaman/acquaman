@@ -99,7 +99,7 @@ bool REIXSAppController::startup() {
 		AMActionRegistry::s()->registerInfoAndAction<REIXSControlMoveActionInfo, REIXSControlMoveAction>("REIXS Control Move", "This action moves a REIXS beamline control to a target position.", ":/system-run.png");
 		AMActionRegistry::s()->registerInfoAndAction<REIXSXESScanActionInfo, REIXSXESScanAction>("REIXS XES Scan", "This action conducts a single XES scan at a given detector energy.", ":/utilities-system-monitor.png");
 
-		AMActionRunner::s()->addActionToQueue(new AMLoopAction(new AMActionInfo("Loop Action: 3")));
+		// AMActionRunner::s()->addActionToQueue(new AMLoopAction(new AMActionInfo("Loop Action: 3")));
 		AMActionRunner::s()->addActionToQueue(new AMInternalControlMoveAction(REIXSBeamline::bl()->sampleChamber()->x(), 35));
 		AMActionRunner::s()->addActionToQueue(new REIXSXESScanAction(new REIXSXESScanConfiguration()));
 		AMActionRunner::s()->addActionToQueue(new AMWaitAction(10));
@@ -112,7 +112,7 @@ bool REIXSAppController::startup() {
 		AMActionRunner::s()->addActionToQueue(new REIXSXESScanAction(new REIXSXESScanConfiguration()));
 
 		// test adding sub-actions to loop action later
-		QTimer::singleShot(10000, this, SLOT(tempAddLoopActions()));
+		// QTimer::singleShot(10000, this, SLOT(tempAddLoopActions()));
 
 
 		// Create panes in the main window:

@@ -19,6 +19,8 @@ signals:
 	void satisfiedChanged(bool isSatisfied);
 };
 
+class AMNestedAction;
+
 /// AMAction defines the interface for "actions" which can be run asynchronously in Acquaman's Workflow system. Actions (especially AMListAction) can also be useful on their own, outside of the workflow environment, to (a) make a set of events happen in a defined order, and (b) receive notification when those events succeed or fail. They can be used to easily build up complicated behaviour when moving beamlines around or building scan controllers.
 /*!
   <b>Running actions</b>
@@ -151,6 +153,18 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 
 	/// This virtual function can be re-implemented to specify whether the action has the capability to pause. By default, it returns false (ie: cannot pause).
 	virtual bool canPause() const { return false; }
+
+
+	// Nesting actions
+	///////////////////////
+
+	/// Sometimes, actions are formally bundled inside other actions using the AMNestedAction API. If this action happens to be found inside a nested action, this returns a pointer to the nested action. Normally, it returns 0.
+	const AMNestedAction* parentAction() const { return parentAction_; }
+	/// Sometimes, actions are formally bundled inside other actions using the AMNestedAction API. If this action happens to be found inside a nested action, this returns a pointer to the nested action. Normally, it returns 0.
+	AMNestedAction* parentAction() { return parentAction_; }
+	/// This function should not be considered part of the public interface. It is used by nested actions to set the parent action. NEVER CALL THIS FUNCTION.
+	void internalSetParentAction(AMNestedAction* parentAction) { parentAction_ = parentAction; }
+
 
 public slots:
 	// External requests to change the state: start(), cancel(), pause(), and resume().
@@ -296,6 +310,8 @@ private:
 	QPair<double,double> progress_;
 	QDateTime startDateTime_, endDateTime_;
 	QString statusText_;
+
+	AMNestedAction* parentAction_;
 
 private slots:
 	// These slots are used to respond to events as the state machine runs.
