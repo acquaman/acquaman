@@ -28,8 +28,7 @@ public slots:
 protected slots:
 	/// When the current action in the AMActionRunner changes
 	void onCurrentActionChanged(AMAction*);
-	/// When the cancel button is clicked for the current action
-	void onCancelButtonClicked();
+
 	/// When the pause button is clicked for the current action
 	void onPauseButtonClicked();
 

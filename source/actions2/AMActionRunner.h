@@ -27,6 +27,7 @@ protected:
 };
 
 class AMActionRunner;
+class AMNestedAction;
 
 /// This subclass of QStandardItemModel is used internally by AMActionRunner for its queue of upcoming actions, and to handle drag-and-drop interaction with AMActionRunnerQueueView. You should never need to use this class directly; instead, programmers should use the AMActionRunner API to manage queued actions.
 /*!
@@ -56,9 +57,19 @@ public:
 protected:
 	/// Pointer back to our action runner, that we use to request re-ordering during drag-and-drop
 	AMActionRunner* actionRunner_;
+
+	// traverses the tree (depth first) and appends all the action short descriptions to outstring. Uses the model indexes for structure
+	void traverse1(const QModelIndex& parent, QString& outstring, int level = 0);
+	// traverses the tree (depth first) and appends all the action short descriptions to outstring. Uses the AMActionRunner/AMNestedAction apis for structure.
+	void traverse2(const AMNestedAction* parent, QString& outstring, int level = 0);
+
+	void checkTreeConsistency();
+
+	QString nSpaces(int n);
+
+
 };
 
-class AMNestedAction;
 
 /// This singleton class provides the API for Acquaman's workflow manager. You can queue up actions for it to run, manage the queue of upcoming actions, and receive notifications when actions are completed. After an action is completed, it will automatically log the actions with AMActionLog::logCompletedAction().  The AMActionRunnerCurrentView and AMActionRunnerQueueView provide graphical user interfaces to this API.
 /*! Note that the AMActionRunner's queue is initially paused when it is first created. To have it start executing actions as soon as they become available, call AMActionRunner::s()->setPaused(false).*/

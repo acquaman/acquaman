@@ -236,11 +236,13 @@ void AMActionHistoryModel::refreshFromDb()
 	q2.finish();
 
 
-	// add AMActionLogItem items going backward, so they are now in ascending order (ie: most recent at bottom).
-	beginInsertRows(QModelIndex(), 0, ids.count()-1);
-	for(int i=ids.count()-1; i>=0; i--)
-		items_ << new AMActionLogItem(db_, ids.at(i));
-	endInsertRows();
+	if(!ids.isEmpty()) {
+		// add AMActionLogItem items going backward, so they are now in ascending order (ie: most recent at bottom).
+		beginInsertRows(QModelIndex(), 0, ids.count()-1);
+		for(int i=ids.count()-1; i>=0; i--)
+			items_ << new AMActionLogItem(db_, ids.at(i));
+		endInsertRows();
+	}
 
 	emit modelRefreshed();
 }
@@ -667,6 +669,9 @@ void AMActionHistoryModel::appendItem(AMActionLogItem *item)
 
 void AMActionHistoryModel::clear()
 {
+	if(items_.isEmpty())
+		return;
+
 	int currentCount = items_.count();
 	beginRemoveRows(QModelIndex(), 0, currentCount-1);
 	qDeleteAll(items_);

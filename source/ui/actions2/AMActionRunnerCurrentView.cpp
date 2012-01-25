@@ -81,7 +81,7 @@ AMActionRunnerCurrentView::AMActionRunnerCurrentView(AMActionRunner* actionRunne
 	currentActionView_->setAttribute(Qt::WA_MacShowFocusRect, false);
 
 	connect(actionRunner_, SIGNAL(currentActionChanged(AMAction*)), this, SLOT(onCurrentActionChanged(AMAction*)));
-	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()));
+	connect(cancelButton_, SIGNAL(clicked()), actionRunner_, SLOT(cancelCurrentAction()));
 	connect(pauseButton_, SIGNAL(clicked()), this, SLOT(onPauseButtonClicked()));
 
 	connect(actionRunner_, SIGNAL(currentActionStatusTextChanged(QString)), this, SLOT(onStatusTextChanged(QString)));
@@ -126,12 +126,6 @@ void AMActionRunnerCurrentView::onCurrentActionChanged(AMAction* nextAction)
 	}
 }
 
-void AMActionRunnerCurrentView::onCancelButtonClicked()
-{
-	AMAction* currentAction = actionRunner_->currentAction();
-	if(currentAction)
-		currentAction->cancel();
-}
 
 void AMActionRunnerCurrentView::onStatusTextChanged(const QString &newStatus)
 {
