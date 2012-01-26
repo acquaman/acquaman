@@ -8,8 +8,8 @@
 #include <QSslError>
 #include <QBuffer>
 
-#include "../qjson/src/serializer.h"
-#include "../qjson/src/parser.h"
+#include "source/qjson/serializer.h"
+#include "source/qjson/parser.h"
 
 class AMGithubManager : public QObject{
 Q_OBJECT
