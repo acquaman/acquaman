@@ -211,19 +211,20 @@ bool SGMFastScanConfiguration::setParametersFromPreset(int index){
 bool SGMFastScanConfiguration::setParameters(SGMFastScanParameters *settings){
 	if(!settings)
 		return false;
+	disconnect(currentSettings_, 0);
 	currentSettings_ = settings;
 	setStartEnergy(currentSettings_->energyStart());
 	setEndEnergy(currentSettings_->energyEnd());
-	emit onElementChanged(currentSettings_->element());
-	emit onRunSecondsChanged(currentSettings_->runSeconds());
-	emit onEnergyStartChanged(currentSettings_->energyStart());
-	emit onEnergyMidpointChanged(currentSettings_->energyMidpoint());
-	emit onEnergyEndChanged(currentSettings_->energyEnd());
-	emit onVelocityChanged(currentSettings_->velocity());
-	emit onVelocityBaseChanged(currentSettings_->velocityBase());
-	emit onAccelerationChanged(currentSettings_->acceleration());
-	emit onScalerTimeChanged(currentSettings_->scalerTime());
-	emit onBaseLineChanged(currentSettings_->baseLine());
+	emit elementChanged(currentSettings_->element());
+	emit runSecondsChanged(currentSettings_->runSeconds());
+	emit energyStartChanged(currentSettings_->energyStart());
+	emit energyMidpointChanged(currentSettings_->energyMidpoint());
+	emit energyEndChanged(currentSettings_->energyEnd());
+	emit velocityChanged(currentSettings_->velocity());
+	emit velocityBaseChanged(currentSettings_->velocityBase());
+	emit accelerationChanged(currentSettings_->acceleration());
+	emit scalerTimeChanged(currentSettings_->scalerTime());
+	emit baseLineChanged(currentSettings_->baseLine());
 
 	emit undulatorStartStepChanged(currentSettings_->undulatorStartStep());
 	emit undulatorVelocityChanged(currentSettings_->undulatorVelocity());
@@ -231,20 +232,44 @@ bool SGMFastScanConfiguration::setParameters(SGMFastScanParameters *settings){
 	emit exitSlitDistanceChanged(currentSettings_->exitSlitDistance());
 	emit sgmGratingChanged(currentSettings_->sgmGrating());
 
+	emit startPositionChanged();
+	emit middlePositionChanged();
+	emit endPositionChanged();
+	emit fastScanSettingsChanged();
+	emit parametersChanged();
+
+	connect(currentSettings_, SIGNAL(elementChanged(QString)), this, SIGNAL(elementChanged(QString)));
+	connect(currentSettings_, SIGNAL(runSecondsChanged(double)), this, SIGNAL(runSecondsChanged(double)));
+	connect(currentSettings_, SIGNAL(energyStartChanged(double)), this, SIGNAL(energyStartChanged(double)));
+	connect(currentSettings_, SIGNAL(energyMidpointChanged(double)), this, SIGNAL(energyMidpointChanged(double)));
+	connect(currentSettings_, SIGNAL(energyEndChanged(double)), this, SIGNAL(energyEndChanged(double)));
+	connect(currentSettings_, SIGNAL(velocityChanged(int)), this, SIGNAL(velocityChanged(int)));
+	connect(currentSettings_, SIGNAL(velocityBaseChanged(int)), this, SIGNAL(velocityBaseChanged(int)));
+	connect(currentSettings_, SIGNAL(accelerationChanged(int)), this, SIGNAL(accelerationChanged(int)));
+	connect(currentSettings_, SIGNAL(scalerTimeChanged(double)), this, SIGNAL(scalerTimeChanged(double)));
+	connect(currentSettings_, SIGNAL(baseLineChanged(int)), this, SIGNAL(baseLineChanged(int)));
+	connect(currentSettings_, SIGNAL(undulatorStartStepChanged(int)), this, SIGNAL(undulatorStartStepChanged(int)));
+	connect(currentSettings_, SIGNAL(undulatorVelocityChanged(int)), this, SIGNAL(undulatorVelocityChanged(int)));
+	connect(currentSettings_, SIGNAL(undulatorRelativeStepChanged(int)), this, SIGNAL(undulatorRelativeStepChanged(int)));
+	connect(currentSettings_, SIGNAL(exitSlitDistanceChanged(double)), this, SIGNAL(exitSlitDistanceChanged(double)));
+	connect(currentSettings_, SIGNAL(sgmGratingChanged(int)), this, SIGNAL(sgmGratingChanged(int)));
+	connect(currentSettings_, SIGNAL(startPositionChanged()), this, SIGNAL(startPositionChanged()));
+	connect(currentSettings_, SIGNAL(middlePositionChanged()), this, SIGNAL(middlePositionChanged()));
+	connect(currentSettings_, SIGNAL(endPositionChanged()), this, SIGNAL(endPositionChanged()));
+	connect(currentSettings_, SIGNAL(fastScanSettingsChanged()), this, SIGNAL(fastScanSettingsChanged()));
+
 	setModified(true);
 	return true;
 }
 
 bool SGMFastScanConfiguration::setElement(const QString& element){
 	currentSettings_->setElement(element);
-	emit onElementChanged(currentSettings_->element());
 	setModified(true);
 	return true;
 }
 
 bool SGMFastScanConfiguration::setRunSeconds(double runSeconds){
 	currentSettings_->setRunSeconds(runSeconds);
-	emit onRunSecondsChanged(currentSettings_->runSeconds());
 	setModified(true);
 	return true;
 }
@@ -252,14 +277,12 @@ bool SGMFastScanConfiguration::setRunSeconds(double runSeconds){
 bool SGMFastScanConfiguration::setEnergyStart(double energyStart){
 	currentSettings_->setEnergyStart(energyStart);
 	setStartEnergy(energyStart);
-	emit onEnergyStartChanged(currentSettings_->energyStart());
 	setModified(true);
 	return true;
 }
 
 bool SGMFastScanConfiguration::setEnergyMidpoint(double energyMidpoint){
 	currentSettings_->setEnergyMidpoint(energyMidpoint);
-	emit onEnergyMidpointChanged(currentSettings_->energyMidpoint());
 	setModified(true);
 	return true;
 }
@@ -267,35 +290,30 @@ bool SGMFastScanConfiguration::setEnergyMidpoint(double energyMidpoint){
 bool SGMFastScanConfiguration::setEnergyEnd(double energyEnd){
 	currentSettings_->setEnergyEnd(energyEnd);
 	setEndEnergy(energyEnd);
-	emit onEnergyEndChanged(currentSettings_->energyEnd());
 	setModified(true);
 	return true;
 }
 
 bool SGMFastScanConfiguration::setVelocity(int velocity){
 	currentSettings_->setVelocity(velocity);
-	emit onVelocityChanged(currentSettings_->velocity());
 	setModified(true);
 	return true;
 }
 
 bool SGMFastScanConfiguration::setVelocityBase(int velocityBase){
 	currentSettings_->setVelocityBase(velocityBase);
-	emit onVelocityBaseChanged(currentSettings_->velocityBase());
 	setModified(true);
 	return true;
 }
 
 bool SGMFastScanConfiguration::setAcceleration(int acceleration){
 	currentSettings_->setAcceleration(acceleration);
-	emit onAccelerationChanged(currentSettings_->acceleration());
 	setModified(true);
 	return true;
 }
 
 bool SGMFastScanConfiguration::setScalerTime(double scalerTime){
 	currentSettings_->setScalerTime(scalerTime);
-	emit onScalerTimeChanged(currentSettings_->scalerTime());
 	setModified(true);
 	return true;
 }
@@ -305,11 +323,11 @@ bool SGMFastScanConfiguration::setEnergyParameters(SGMEnergyParameters *paramete
 		return false;
 	if( !currentEnergyParameters_ || (*currentEnergyParameters_ != *parameters)){
 		currentEnergyParameters_ = parameters;
-		emit onSpacingParameterChanged(currentEnergyParameters_->spacingParameter());
-		emit onC1ParameterChanged(currentEnergyParameters_->c1Parameter());
-		emit onC2ParameterChanged(currentEnergyParameters_->c2Parameter());
-		emit onSParameterChanged(currentEnergyParameters_->sParameter());
-		emit onThetaParameterChanged(currentEnergyParameters_->thetaParameter());
+		emit spacingParameterChanged(currentEnergyParameters_->spacingParameter());
+		emit c1ParameterChanged(currentEnergyParameters_->c1Parameter());
+		emit c2ParameterChanged(currentEnergyParameters_->c2Parameter());
+		emit sParameterChanged(currentEnergyParameters_->sParameter());
+		emit thetaParameterChanged(currentEnergyParameters_->thetaParameter());
 		setModified(true);
 	}
 	return true;
@@ -318,7 +336,7 @@ bool SGMFastScanConfiguration::setEnergyParameters(SGMEnergyParameters *paramete
 bool SGMFastScanConfiguration::setSpacingParameter(double spacingParameter){
 	if(currentEnergyParameters_->spacingParameter() != spacingParameter){
 		currentEnergyParameters_->setSpacingParameter(spacingParameter);
-		emit onSpacingParameterChanged(spacingParameter);
+		emit spacingParameterChanged(spacingParameter);
 		setModified(true);
 	}
 	return true;
@@ -327,7 +345,7 @@ bool SGMFastScanConfiguration::setSpacingParameter(double spacingParameter){
 bool SGMFastScanConfiguration::setC1Parameter(double c1Parameter){
 	if(currentEnergyParameters_->c1Parameter() != c1Parameter){
 		currentEnergyParameters_->setC1Parameter(c1Parameter);
-		emit onC1ParameterChanged(c1Parameter);
+		emit c1ParameterChanged(c1Parameter);
 		setModified(true);
 	}
 	return true;
@@ -336,7 +354,7 @@ bool SGMFastScanConfiguration::setC1Parameter(double c1Parameter){
 bool SGMFastScanConfiguration::setC2Parameter(double c2Parameter){
 	if(currentEnergyParameters_->c2Parameter() != c2Parameter){
 		currentEnergyParameters_->setC2Parameter(c2Parameter);
-		emit onC2ParameterChanged(c2Parameter);
+		emit c2ParameterChanged(c2Parameter);
 		setModified(true);
 	}
 	return true;
@@ -345,7 +363,7 @@ bool SGMFastScanConfiguration::setC2Parameter(double c2Parameter){
 bool SGMFastScanConfiguration::setSParameter(double sParameter){
 	if(currentEnergyParameters_->sParameter() != sParameter){
 		currentEnergyParameters_->setSParameter(sParameter);
-		emit onSParameterChanged(sParameter);
+		emit sParameterChanged(sParameter);
 		setModified(true);
 	}
 	return true;
@@ -354,7 +372,7 @@ bool SGMFastScanConfiguration::setSParameter(double sParameter){
 bool SGMFastScanConfiguration::setThetaParameter(double thetaParameter){
 	if(currentEnergyParameters_->thetaParameter() != thetaParameter){
 		currentEnergyParameters_->setThetaParameter(thetaParameter);
-		emit onThetaParameterChanged(thetaParameter);
+		emit thetaParameterChanged(thetaParameter);
 		setModified(true);
 	}
 	return true;
@@ -362,42 +380,36 @@ bool SGMFastScanConfiguration::setThetaParameter(double thetaParameter){
 
 bool SGMFastScanConfiguration::setBaseLine(int baseLine){
 	currentSettings_->setBaseLine(baseLine);
-	emit onBaseLineChanged(currentSettings_->baseLine());
 	setModified(true);
 	return true;
 }
 
 bool SGMFastScanConfiguration::setUndulatorStartStep(int undulatorStartStep){
 	currentSettings_->setUndulatorStartStep(undulatorStartStep);
-	emit undulatorStartStepChanged(currentSettings_->undulatorStartStep());
 	setModified(true);
 	return true;
 }
 
 bool SGMFastScanConfiguration::setUndulatorVelocity(int undulatorVelocity){
 	currentSettings_->setUndulatorVelocity(undulatorVelocity);
-	emit undulatorVelocityChanged(currentSettings_->undulatorVelocity());
 	setModified(true);
 	return true;
 }
 
 bool SGMFastScanConfiguration::setUndulatorRelativeStep(int undulatorRelativeStep){
 	currentSettings_->setUndulatorRelativeStep(undulatorRelativeStep);
-	emit undulatorRelativeStepChanged(currentSettings_->undulatorRelativeStep());
 	setModified(true);
 	return true;
 }
 
 bool SGMFastScanConfiguration::setExitSlitDistance(double exitSlitDistance){
 	currentSettings_->setExitSlitDistance(exitSlitDistance);
-	emit exitSlitDistanceChanged(currentSettings_->exitSlitDistance());
 	setModified(true);
 	return true;
 }
 
 bool SGMFastScanConfiguration::setSGMGrating(int sgmGrating){
 	currentSettings_->setSGMGrating(sgmGrating);
-	emit sgmGratingChanged(currentSettings_->sgmGrating());
 	setModified(true);
 	return true;
 }

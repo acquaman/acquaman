@@ -30,6 +30,7 @@ class SGMXASScanConfigurationView;
 class SGMFastScanConfigurationView;
 class SGMSidebar;
 class SGMSettingsMasterView;
+class AMGithubManager;
 
 class SGMAppController : public AMAppController {
 	Q_OBJECT
