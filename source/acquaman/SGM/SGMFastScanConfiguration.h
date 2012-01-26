@@ -136,28 +136,34 @@ public slots:
 	bool setDetectorConfigurations(AMDetectorInfoSet detectorConfigurations);
 
 signals:
-	void onElementChanged(const QString& element);
-	void onRunSecondsChanged(double runSeconds);
-	void onEnergyStartChanged(double energyStart);
-	void onEnergyMidpointChanged(double energyMidpoint);
-	void onEnergyEndChanged(double energyEnd);
-	void onVelocityChanged(int velocity);
-	void onVelocityBaseChanged(int velocityBase);
-	void onAccelerationChanged(int acceleration);
-	void onScalerTimeChanged(double scalerTime);
+	void elementChanged(const QString& element);
+	void runSecondsChanged(double runSeconds);
+	void energyStartChanged(double energyStart);
+	void energyMidpointChanged(double energyMidpoint);
+	void energyEndChanged(double energyEnd);
+	void velocityChanged(int velocity);
+	void velocityBaseChanged(int velocityBase);
+	void accelerationChanged(int acceleration);
+	void scalerTimeChanged(double scalerTime);
 
-	void onSpacingParameterChanged(double spacingParameter);
-	void onC1ParameterChanged(double c1Parameter);
-	void onC2ParameterChanged(double c2Parameter);
-	void onSParameterChanged(double sParameter);
-	void onThetaParameterChanged(double thetaParameter);
+	void spacingParameterChanged(double spacingParameter);
+	void c1ParameterChanged(double c1Parameter);
+	void c2ParameterChanged(double c2Parameter);
+	void sParameterChanged(double sParameter);
+	void thetaParameterChanged(double thetaParameter);
 
-	void onBaseLineChanged(int baseLine);
+	void baseLineChanged(int baseLine);
 	void undulatorStartStepChanged(int undulatorStartStep);
 	void undulatorVelocityChanged(int undulatorVelocity);
 	void undulatorRelativeStepChanged(int undulatorRelativeStep);
 	void exitSlitDistanceChanged(double exitSlitDistance);
 	void sgmGratingChanged(int sgmGrating);
+
+	void startPositionChanged();
+	void middlePositionChanged();
+	void endPositionChanged();
+	void fastScanSettingsChanged();
+	void parametersChanged();
 
 protected:
 	AMDbObject* dbReadDetectorConfigs() { return &fastDetectorsConfigurations_; }

@@ -36,6 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMRunExperimentInsert.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/util/AMSettingsView.h"
+#include "ui/util/AMGithubIssueSubmissionView.h"
 
 #include "application/AMPluginsManager.h"
 
@@ -310,6 +311,9 @@ bool AMDatamanAppController::startupRegisterExporters()
 
 bool AMDatamanAppController::startupCreateUserInterface()
 {
+	settingsMasterView_ = 0;
+	issueSubmissionView_ = 0;
+
 	//Create the main tab window:
 	mw_ = new AMMainWindow();
 	mw_->setWindowTitle("Acquaman");
@@ -394,7 +398,10 @@ bool AMDatamanAppController::startupInstallActions()
 	amSettingsAction->setStatusTip("View or Change Settings");
 	connect(amSettingsAction, SIGNAL(triggered()), this, SLOT(onActionSettings()));
 
-	settingsMasterView_ = 0;
+	QAction* amIssueSubmissionAction = new QAction("Report an Issue", mw_);
+	amIssueSubmissionAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_B));
+	amIssueSubmissionAction->setStatusTip("Report an issue to the Acquaman Developers");
+	connect(amIssueSubmissionAction, SIGNAL(triggered()), this, SLOT(onActionIssueSubmission()));
 
 	//install menu bar, and add actions
 	//////////////////////////////////////
@@ -409,6 +416,9 @@ bool AMDatamanAppController::startupInstallActions()
 	fileMenu_->addAction(importLegacyFilesAction);
 	fileMenu_->addAction(importAcquamanDatabaseAction);
 	fileMenu_->addAction(amSettingsAction);
+
+	helpMenu_ = menuBar_->addMenu("Help");
+	helpMenu_->addAction(amIssueSubmissionAction);
 
 	return true;
 }
@@ -447,6 +457,16 @@ void AMDatamanAppController::onActionSettings(){
 	if(!settingsMasterView_)
 		settingsMasterView_ = new AMSettingsMasterView();
 	settingsMasterView_->show();
+}
+
+void AMDatamanAppController::onActionIssueSubmission(){
+	if(!issueSubmissionView_){
+		issueSubmissionView_ = new AMGithubIssueSubmissionView();
+		for(int x = 0; x < additionalIssueTypesAndAssignees_.count(); x++)
+			issueSubmissionView_->addIssueType(additionalIssueTypesAndAssignees_.at(x), additionalIssueTypesAndAssignees_.keyAt(x));
+		connect(issueSubmissionView_, SIGNAL(finished()), this, SLOT(onIssueSubmissionViewFinished()));
+	}
+	issueSubmissionView_->show();
 }
 
 void AMDatamanAppController::onCurrentPaneChanged(QWidget *pane) {
@@ -613,6 +633,15 @@ void AMDatamanAppController::onWindowPaneCloseButtonClicked(const QModelIndex& i
 			AMExperiment::deleteExperiment(experiment.id(), expItem->database());
 		}
 	}
+}
+
+void AMDatamanAppController::onIssueSubmissionViewFinished(){
+	if(!issueSubmissionView_)
+		return;
+
+	disconnect(issueSubmissionView_, SIGNAL(finished()), this, SLOT(onIssueSubmissionViewFinished()));
+	delete issueSubmissionView_;
+	issueSubmissionView_ = 0;
 }
 
 #include "dataman/export/AMExportController.h"

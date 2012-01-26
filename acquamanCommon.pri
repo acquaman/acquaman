@@ -130,7 +130,7 @@ CONFIG(jenkins_build) {
 }
 
 
-QT += core gui sql opengl
+QT += core gui sql opengl network
 
 # add video using Multimedia module from QtMobility, if we have it
 CONFIG(mobility) {
@@ -413,7 +413,6 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/beamline/CLS/CLSPGT8000HVChannel.h \
 	source/analysis/AM1DInterpolationAB.h \
 	source/analysis/AM1DRunningAverageFilterAB.h \
-	source/analysis/SGM/SGM1DFastScanFilterAB.h \
 	source/analysis/AMExternalScanDataSourceAB.h \
 	source/analysis/AM1DSummingAB.h \
 	source/analysis/AMDeadTimeAB.h \
@@ -461,14 +460,24 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/acquaman/AMRegionScanConfiguration.h \
 	source/acquaman/AMEXAFSScanConfiguration.h \
 	source/beamline/CLS/CLSVariableIntegrationTime.h \
-    source/beamline/CLS/CLSOMS58Motor.h \
-    source/util/SGM/SGMSettings.h \
-    source/util/SGM/SGMDacqConfigurationFile.h \
-    source/util/SGM/SGMPluginsLocation.h \
-	source/ui/util/SGM/SGMSettingsMasterView.h \
-	source/beamline/SGM/SGMMAXvMotor.h \
-    source/beamline/CLS/CLSSIS3820Scaler.h \
-    source/ui/CLS/CLSSIS3820ScalerView.h
+	source/beamline/CLS/CLSOMS58Motor.h \
+	source/beamline/CLS/CLSSIS3820Scaler.h \
+	source/ui/CLS/CLSSIS3820ScalerView.h \
+	source/qjson/json_parser.hh \
+	source/qjson/json_scanner.h \
+	source/qjson/location.hh \
+	source/qjson/parser_p.h \
+	source/qjson/parser.h \
+	source/qjson/parserrunnable.h \
+	source/qjson/position.hh \
+	source/qjson/qjson_debug.h \
+	source/qjson/qjson_export.h \
+	source/qjson/qobjecthelper.h \
+	source/qjson/serializer.h \
+	source/qjson/serializerrunnable.h \
+	source/qjson/stack.hh \
+	source/util/AMGithubManager.h \
+    source/ui/util/AMGithubIssueSubmissionView.h
 
 CONFIG(mobility) {
 DEFINES += AM_MOBILITY_VIDEO_ENABLED
@@ -701,7 +710,6 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/beamline/CLS/CLSPGT8000HVChannel.cpp \
 	source/analysis/AM1DInterpolationAB.cpp \
 	source/analysis/AM1DRunningAverageFilterAB.cpp \
-	source/analysis/SGM/SGM1DFastScanFilterAB.cpp \
 	source/analysis/AMExternalScanDataSourceAB.cpp \
 	source/analysis/AM1DSummingAB.cpp \
 	source/analysis/AMDeadTimeAB.cpp \
@@ -747,14 +755,17 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/acquaman/AMRegionScanConfiguration.cpp \
 	source/acquaman/AMEXAFSScanConfiguration.cpp \
 	source/beamline/CLS/CLSVariableIntegrationTime.cpp \
-    source/beamline/CLS/CLSOMS58Motor.cpp \
-    source/util/SGM/SGMSettings.cpp \
-    source/util/SGM/SGMDacqConfigurationFile.cpp \
-    source/util/SGM/SGMPluginsLocation.cpp \
-	source/ui/util/SGM/SGMSettingsMasterView.cpp \
-	source/beamline/SGM/SGMMAXvMotor.cpp \
-    source/beamline/CLS/CLSSIS3820Scaler.cpp \
-    source/ui/CLS/CLSSIS3820ScalerView.cpp
+	source/beamline/CLS/CLSSIS3820Scaler.cpp \
+	source/ui/CLS/CLSSIS3820ScalerView.cpp \
+	source/qjson/json_parser.cc \
+	source/qjson/json_scanner.cpp \
+	source/qjson/parser.cpp \
+	source/qjson/parserrunnable.cpp \
+	source/qjson/qobjecthelper.cpp \
+	source/qjson/serializer.cpp \
+	source/qjson/serializerrunnable.cpp \
+	source/util/AMGithubManager.cpp \
+    source/ui/util/AMGithubIssueSubmissionView.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
@@ -773,6 +784,12 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
 
 
 

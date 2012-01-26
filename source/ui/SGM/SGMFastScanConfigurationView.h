@@ -36,6 +36,8 @@ class AMTopFrame;
 
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "acquaman/SGM/SGMFastScanConfiguration.h"
+#include "ui/util/SGM/SGMEnergyPositionView.h"
+#include "ui/util/SGM/SGMFastScanSettingsView.h"
 
 class SGMFastScanConfigurationView : public AMScanConfigurationView
 {
@@ -52,44 +54,36 @@ protected slots:
 
 	void onScanNameEditChanged(const QString &scanName);
 
+	void onParametersStartPositionChanged();
+	void onParametersMiddlePositionChanged();
+	void onParametersEndPositionChanged();
+	void onFastScanSettingsChanged();
+
+	void onStartPositionCopyChanged();
+	void onMiddlePositionCopyChanged();
+	void onEndPositionCopyChanged();
+	void onFastScanSettingsCopyChanged();
+
 protected:
 	SGMFastScanConfiguration *cfg_;
+
+	SGMEnergyPosition startPositionCopy_;
+	SGMEnergyPosition middlePositionCopy_;
+	SGMEnergyPosition endPositionCopy_;
+	SGMFastScanSettings fastScanSettingsCopy_;
+
+	SGMEnergyPositionView *startPositionView_;
+	SGMEnergyPositionView *middlePositionView_;
+	SGMEnergyPositionView *endPositionView_;
+	SGMFastScanSettingsView *fastScanSettingsView_;
 
 	AMTopFrame *topFrame_;
 
 	QComboBox *presetsComboBox_;
-	QLabel *elementLabel_;
-	QLabel *runTimeLabel_;
-	QLabel *startEnergyLabel_;
-	QLabel *energyMidpointLabel_;
-	QLabel *endEnergyLabel_;
-	QLabel *motorSettingsLabel_;
-	QLabel *baseLineLabel_;
-	QLabel *undulatorStartStepLabel_;
-	QLabel *undulatorRelativeStepLabel_;
-	QLabel *undulatorVelocityLabel_;
-	QLabel *exitSlitDistanceLabel_;
 	QLabel *warningsLabel_;
-
-	QLineEdit *elementEdit_;
-	QDoubleSpinBox *runTimeDSB_;
-	QDoubleSpinBox *startEnergyDSB_;
-	QDoubleSpinBox *energyMidpointDSB_;
-	QDoubleSpinBox *endEnergyDSB_;
-	QSpinBox *motorSettingsSB_;
-	QSpinBox *baseLineSB_;
-
-	QSpinBox *undulatorStartStepSB_;
-	QSpinBox *undulatorRelativeStepSB_;
-	QSpinBox *undulatorVelocitySB_;
-	QDoubleSpinBox *exitSlitDistanceDSB_;
 
 	QLabel *scanNameLabel_;
 	QLineEdit *scanNameEdit_;
-
-	QGridLayout *gl_;
-	QFormLayout *fl_;
-	QFormLayout *fl2_;
 };
 
 #endif // SGMFASTSCANCONFIGURATIONVIEWER_H
