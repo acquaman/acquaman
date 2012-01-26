@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/SGM/SGMSampleTransferView.h"
 #include "ui/SGM/SGMSampleManipulatorView.h"
+#include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/dataman/AMSampleManagementWidget.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder.h"
 #include "ui/SGM/SGMXASScanConfigurationView.h"
@@ -166,9 +167,11 @@ bool SGMAppController::startup() {
 
 		connect(SGMBeamline::sgm(), SIGNAL(currentSamplePlateChanged(AMSamplePlate*)), workflowManagerView_, SLOT(setCurrentSamplePlate(AMSamplePlate*)));
 
-		sampleTransferView_ = new SGMSampleTransferView();
-		mw_->addPane(sampleTransferView_, "Beamline Control", "SGM Sample Transfer", ":/system-software-update.png");
+		//sampleTransferView_ = new SGMSampleTransferView();
+		//mw_->addPane(sampleTransferView_, "Beamline Control", "SGM Sample Transfer", ":/system-software-update.png");
 
+		sgmScalerView_ = 0;
+		connect(SGMBeamline::sgm()->rawScaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onSGMScalerConnected(bool)));
 
 		mw_->insertHeading("Experiment Setup", 1);
 		//////////
@@ -197,7 +200,7 @@ bool SGMAppController::startup() {
   connect(scanController, SIGNAL(progress(double,double)), bottomBar_, SLOT(updateScanProgress(double,double)));
  }
  */
-		additionalIssueTypesAndAssignees_.append("I think it's an SGM specific issue", "AcquamanIssues");
+		additionalIssueTypesAndAssignees_.append("I think it's an SGM specific issue", "davidChevrier");
 
 		sgmSidebar_ = new SGMSidebar();
 		mw_->addRightWidget(sgmSidebar_);
@@ -253,6 +256,13 @@ void SGMAppController::onSGMBeamlineConnected(){
 		SGMFastScanConfiguration *sfsc = new SGMFastScanConfiguration(this);
 		fastScanConfigurationView_ = new SGMFastScanConfigurationView(sfsc);
 		fastScanConfigurationHolder_->setView(fastScanConfigurationView_);
+	}
+}
+
+void SGMAppController::onSGMScalerConnected(bool connected){
+	if(connected && !sgmScalerView_){
+		sgmScalerView_ = new CLSSIS3820ScalerView(SGMBeamline::sgm()->scaler());
+		mw_->addPane(sgmScalerView_, "Beamline Control", "SGM Scaler", ":/system-software-update.png");
 	}
 }
 

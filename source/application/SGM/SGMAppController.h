@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class SGMSampleTransferView;
 class AMSampleManagementWidget;
+class CLSSIS3820ScalerView;
 class AMScanConfigurationViewHolder;
 class SGMXASScanConfigurationView;
 class SGMFastScanConfigurationView;
@@ -59,6 +60,7 @@ protected slots:
 	virtual void onCurrentPaneChanged(QWidget* pane);
 
 	void onSGMBeamlineConnected();
+	void onSGMScalerConnected(bool connected);
 
 	/// \todo comment this, David...
 	void onCurrentScanControllerCreated();
@@ -76,6 +78,7 @@ protected:
 
 	SGMSampleTransferView *sampleTransferView_;
 	AMSampleManagementWidget *samplePositionView_;
+	CLSSIS3820ScalerView *sgmScalerView_;
 	SGMXASScanConfigurationView *xasScanConfigurationView_;
 	SGMFastScanConfigurationView *fastScanConfigurationView_;
 	AMScanConfigurationViewHolder *xasScanConfigurationHolder_;
