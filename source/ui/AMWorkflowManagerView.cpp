@@ -81,6 +81,12 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 
 	//	removed with adder: connect(workflowView_, SIGNAL(queueUpdated(int)), adder_, SLOT(onQueueUpdated(int)));
 
+	// Darren added this.
+
+	connect(workflowQueue_, SIGNAL(headChanged()), this, SIGNAL(headChanged()));
+
+	// End of Darren's addition.
+
 	vl_ = new QVBoxLayout();
 	vl_->addWidget(scrollArea);
 
@@ -176,6 +182,20 @@ void AMWorkflowManagerView::insertBeamlineAction(int index, AMBeamlineActionItem
 
 }
 
+// Darren's function.
+
+void AMWorkflowManagerView::removeBeamlineAction(int index)
+{
+	if (index < 0 || index >= workflowQueue_->count())
+		return;
+
+	if (workflowQueue_->isEmpty())
+		return;
+
+	workflowActions_->deleteAction(index);
+}
+
+// End of Darren's function.
 
 void AMWorkflowManagerView::reviewWorkflowStatus(){
 	bool qEmpty = workflowQueue_->isEmpty();

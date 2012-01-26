@@ -43,6 +43,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // Helper classes that technically shouldn't need to exist.
 #include "util/VESPERS/ROIHelper.h"
 #include "util/VESPERS/VortexDetectorStatusHelper.h"
+#include "util/VESPERS/VESPERSWorkflowAssistant.h"
+#include "ui/VESPERS/VESPERSWorkflowAssistantView.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "application/AMAppControllerSupport.h"
@@ -115,35 +117,31 @@ bool VESPERSAppController::startup() {
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 
-		QSqlQuery q = AMDbObjectSupport::s()->select(AMDatabase::database("user"), "AMExporterOptionGeneralAscii", "id, name");
-		q.exec();
-		QStringList names;
-		QList<int> ids;
-		while(q.next()) {
-			names << q.value(1).toString();
-			ids << q.value(0).toInt();
-		}
-		if(!names.contains("VESPERSDefault")){
-			AMExporterOptionGeneralAscii *vespersDefault = new AMExporterOptionGeneralAscii();
-			vespersDefault->setName("VESPERSDefault");
-			vespersDefault->setFileName("$name_$fsIndex.dat");
-			vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n$scanConfiguration[rois]\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
-			vespersDefault->setHeaderIncluded(true);
-			vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
-			vespersDefault->setColumnHeaderIncluded(true);
-			vespersDefault->setColumnHeaderDelimiter("==========");
-			vespersDefault->setSectionHeader("");
-			vespersDefault->setSectionHeaderIncluded(true);
-			vespersDefault->setIncludeAllDataSources(true);
-			vespersDefault->setFirstColumnOnly(true);
-			vespersDefault->setSeparateHigherDimensionalSources(true);
-			vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
-			vespersDefault->storeToDb(AMDatabase::database("user"));
-			qDebug() << "Added the VESPERSDefault to exporter options";
-		}
+		QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
+
+		AMExporterOptionGeneralAscii *vespersDefault = new AMExporterOptionGeneralAscii();
+
+		if (matchIDs.count() != 0)
+			vespersDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
+
+		vespersDefault->setName("VESPERSDefault");
+		vespersDefault->setFileName("$name_$fsIndex.dat");
+		vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[rois]\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
+		vespersDefault->setHeaderIncluded(true);
+		vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
+		vespersDefault->setColumnHeaderIncluded(true);
+		vespersDefault->setColumnHeaderDelimiter("==========");
+		vespersDefault->setSectionHeader("");
+		vespersDefault->setSectionHeaderIncluded(true);
+		vespersDefault->setIncludeAllDataSources(true);
+		vespersDefault->setFirstColumnOnly(true);
+		vespersDefault->setSeparateHigherDimensionalSources(true);
+		vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
+		vespersDefault->storeToDb(AMDatabase::database("user"));
+		qDebug() << "Added the VESPERSDefault to exporter options";
 
 		// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
-		QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
+		matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
 		if(matchIDs.count() > 0){
 
 			AMAppControllerSupport::registerClass<VESPERSXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
@@ -156,6 +154,10 @@ bool VESPERSAppController::startup() {
 
 		// Create panes in the main window:
 		////////////////////////////////////
+
+		assistant_ = new VESPERSWorkflowAssistant(workflowManagerView_, this);
+		VESPERSWorkflowAssistantView *assistantView = new VESPERSWorkflowAssistantView(assistant_);
+		mw_->insertVerticalWidget(2, assistantView);
 
 		// Setup the general endstation control view.
 		VESPERSEndstationView *endstationView = new VESPERSEndstationView(VESPERSBeamline::vespers()->endstation());
@@ -187,7 +189,9 @@ bool VESPERSAppController::startup() {
 		AMScanConfigurationViewHolder *exafsConfigViewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, exafsConfigView);
 
 		/// \todo this can likely be somewhere else in the framework.
+		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
+		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerFinished()));
 
 		mw_->insertHeading("Scans", 2);
 		mw_->addPane(experimentConfigurationView, "Scans", "Experiment Setup", ":/utilities-system-monitor.png");
@@ -200,6 +204,10 @@ bool VESPERSAppController::startup() {
 
 		// Show the endstation control view first.
 		mw_->setCurrentPane(experimentConfigurationView);
+
+		// Bottom bar connections.
+		connect(this, SIGNAL(pauseScanIssued()), this, SLOT(onPauseScanIssued()));
+		connect(this, SIGNAL(stopScanIssued()), this, SLOT(onCancelScanIssued()));
 
 		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
 		ROIHelper *roiHelper = new ROIHelper(this);
@@ -239,6 +247,7 @@ void VESPERSAppController::onCurrentScanControllerCreated()
 		return;
 
 	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
+	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));
 }
 
 void VESPERSAppController::onCurrentScanControllerFinished()
@@ -249,4 +258,24 @@ void VESPERSAppController::onCurrentScanControllerFinished()
 		return;
 
 	disconnect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
+	disconnect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));
+}
+
+void VESPERSAppController::onPauseScanIssued()
+{
+	AMScanController *controller = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+
+	if (controller && controller->isRunning())
+		controller->pause();
+
+	else if (controller && controller->isPaused())
+		controller->resume();
+}
+
+void VESPERSAppController::onCancelScanIssued()
+{
+	AMScanController *controller = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+
+	if (controller)
+		controller->cancel();
 }

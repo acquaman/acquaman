@@ -323,7 +323,8 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	bottomBar_ = new AMBottomBar();
 	mw_->addBottomWidget(bottomBar_);
 	connect(bottomBar_, SIGNAL(addButtonClicked()), this, SLOT(onAddButtonClicked()));
-
+	connect(bottomBar_, SIGNAL(pauseScanIssued()), this, SIGNAL(pauseScanIssued()));
+	connect(bottomBar_, SIGNAL(stopScanIssued()), this, SIGNAL(stopScanIssued()));
 
 	// Create panes in the main window:
 	////////////////////////////////////
@@ -818,6 +819,9 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 	if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
 		return false;
 
+	// Flag used to determine if the scan needs to overwrite the currently scanning status.
+	bool overwriteNecessary = false;
+
 	// Check if this scan is scanning... Use the currentlyScanning column stored in the database.
 	QVariant isScanning = db->retrieve(id, tableName, "currentlyScanning");
 	if(!isScanning.isValid())
@@ -826,21 +830,29 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 		QList<QVariant> nameAndNumber = db->retrieve(id, tableName, QStringList() << "name" << "number");
 		QMessageBox stillScanningEnquiry;
 		stillScanningEnquiry.setWindowTitle("This scan is still acquiring.");
-		stillScanningEnquiry.setText(QString("The scan '%1' (#%2) is currently still acquiring data, so you can't open multiple copies of it yet.")
+		stillScanningEnquiry.setText(QString("The scan '%1' (#%2) is currently still acquiring data, so you can't open multiple copies of it yet.  <b><i>Note: You may overwrite the currently scanning state of your scan by choosing \"Overwrite Scanning Status\".  This should be done only if a scan is locked.<i></b>")
 									 .arg(nameAndNumber.at(0).toString())
 									 .arg(nameAndNumber.at(1).toString()));
 		stillScanningEnquiry.setIcon(QMessageBox::Question);
 		QPushButton* showMeNowButton = stillScanningEnquiry.addButton("Show me the scan", QMessageBox::AcceptRole);
 		stillScanningEnquiry.addButton(QMessageBox::Cancel);
+		QPushButton *overwriteCurrentlyScanningButton = stillScanningEnquiry.addButton("Overwrite Scanning Status", QMessageBox::ActionRole);
 		stillScanningEnquiry.setDefaultButton(showMeNowButton);
 		stillScanningEnquiry.exec();
 		if(stillScanningEnquiry.clickedButton() == showMeNowButton) {
 			AMGenericScanEditor* otherEditor = isScanOpenForEditing(id, db);
 			if(otherEditor)
 				mw_->setCurrentPane(otherEditor);
-			/// \todo What if we don't find it? What if a program crashed and left the currentlyScanning column set in the database? Should we have a way to override this?
+
+			return false;
 		}
-		return false;
+		// If this option is chosen, it will set currently scanning to false, and then allow regular opening of the scan.
+		else if (stillScanningEnquiry.clickedButton() == overwriteCurrentlyScanningButton){
+
+			overwriteNecessary = true;
+		}
+		else
+			return false;
 	}
 
 	// Check if this scan is already open
@@ -882,6 +894,27 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 	if(!scan) {
 		delete dbo;
 		return false;
+	}
+
+	// Change the scan in the database if necessary and then reload it.
+	if (overwriteNecessary){
+
+		scan->setScanController(0);
+		scan->storeToDb(AMDatabase::database("user"), true);
+
+		/// \todo DH: I'm sure I should just make a function to do things like this, but for now I'm just duplicating code because it's easy.
+		delete dbo;
+
+		dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
+		if(!dbo)
+			return false;
+
+		// Is it a scan?
+		scan = qobject_cast<AMScan*>( dbo );
+		if(!scan) {
+			delete dbo;
+			return false;
+		}
 	}
 
 	// success!

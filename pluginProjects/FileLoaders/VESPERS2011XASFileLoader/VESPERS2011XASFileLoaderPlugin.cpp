@@ -62,9 +62,9 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 
 		data.resize(2048);
 
-		foreach(QString afp, scan->additionalFilePaths())
-			if(afp.contains("_spectra.dat"))
-				spectra.setFileName(afp);
+		foreach(QString additionalFilePath, scan->additionalFilePaths())
+			if(additionalFilePath.contains("_spectra.dat"))
+				spectra.setFileName(additionalFilePath);
 
 		if(spectra.fileName() == ""){
 
@@ -74,9 +74,15 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 			spectra.setFileName(temp+"_spectra.dat");
 		}
 
-		if(!spectra.open(QIODevice::ReadOnly)) {
-			AMErrorMon::error(0, -1, QString("XASFileLoader parse error while loading scan spectra data from %1.").arg(spectra.fileName()));
-			return false;
+		else {
+
+			QFileInfo spectraFileInfo(spectra.fileName());
+			if (spectraFileInfo.isRelative())
+				spectra.setFileName(userDataFolder + "/" + spectra.fileName());
+			if(!spectra.open(QIODevice::ReadOnly)) {
+				AMErrorMon::error(0, -1, QString("XASFileLoader parse error while loading scan spectra data from %1.").arg(spectra.fileName()));
+				return false;
+			}
 		}
 	}
 	else if (usingFourElement){
@@ -87,9 +93,9 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 		raw3.resize(2048);
 		raw4.resize(2048);
 
-		foreach(QString afp, scan->additionalFilePaths())
-			if(afp.contains("_spectra.dat"))
-				spectra.setFileName(afp);
+		foreach(QString additionalFilePath, scan->additionalFilePaths())
+			if(additionalFilePath.contains("_spectra.dat"))
+				spectra.setFileName(additionalFilePath);
 
 		if(spectra.fileName() == ""){
 
@@ -99,9 +105,15 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 			spectra.setFileName(temp+"_spectra.dat");
 		}
 
-		if(!spectra.open(QIODevice::ReadOnly)) {
-			AMErrorMon::error(0, -1, QString("XASFileLoader parse error while loading scan spectra data from %1.").arg(spectra.fileName()));
-			return false;
+		else {
+
+			QFileInfo spectraFileInfo(spectra.fileName());
+			if (spectraFileInfo.isRelative())
+				spectra.setFileName(userDataFolder + "/" + spectra.fileName());
+			if(!spectra.open(QIODevice::ReadOnly)) {
+				AMErrorMon::error(0, -1, QString("XASFileLoader parse error while loading scan spectra data from %1.").arg(spectra.fileName()));
+				return false;
+			}
 		}
 	}
 	else
@@ -230,6 +242,8 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 
 	if (usingSingleElement || usingFourElement)
 		spectra.close();
+
+	qDebug() << "MADE IT TO THE END OF THE FILE LODAER!!!";
 	return true;
 }
 
