@@ -82,7 +82,7 @@ void AMGithubManager::getIssues(AMGithubManager::IssuesFilter filter, AMGithubMa
 		return;
 	QNetworkRequest request;
 
-	QString issuesURL = "https://api.github.com/repos/"+userName_+"/"+repository_+"/issues";
+	QString issuesURL = "https://api.github.com/repos/"+repository_+"/issues";
 	QString issuesOptions = "?";
 	switch(filter){
 	issuesOptions.append("filter=");
@@ -145,7 +145,7 @@ void AMGithubManager::createNewIssue(const QString &title, const QString &body, 
 		return;
 	QNetworkRequest request;
 
-	QString issuesURL = "https://api.github.com/repos/AcquamanIssues/AcquamanIssuesTest/issues";
+	QString issuesURL = "https://api.github.com/repos/"+repository_+"/issues";
 	request.setUrl(QUrl(issuesURL));
 
 	QString userInfo = userName_+":"+password_;
