@@ -40,10 +40,14 @@ signals:
 	void currentScanChanged(int);
 	/// Notifier that the configuration has changed.
 	void configurationChanged();
+	/// Notifier that the progress of the current scan has changed as a decimal 0 < % < 1.
+	void progressChanged(double);
 
 public slots:
 	/// Sets the total number of scans for this configuration.  This also adds or removes scans from the workflow if required.
 	void setTotalScans(int num);
+	/// Sets the current progress.
+	void onCurrentProgressChanged(double elapsed, double total) { emit progressChanged(elapsed/total); }
 
 protected slots:
 	/// Slot that listens to the workflow and updates internal pieces of this class.

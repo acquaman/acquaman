@@ -34,6 +34,8 @@ protected slots:
 	void onScanConfigurationChanged();
 	/// Helper slot that handles telling the workflow assistant that the total number of scans has changed.
 	void onTotalScansChanged(int num);
+	/// Helper slot that sets the progress bar.
+	void onProgressChanged(double progress);
 
 protected:
 	/// Pointer to the workflow assistant.

@@ -319,7 +319,8 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	bottomBar_ = new AMBottomBar();
 	mw_->addBottomWidget(bottomBar_);
 	connect(bottomBar_, SIGNAL(addButtonClicked()), this, SLOT(onAddButtonClicked()));
-
+	connect(bottomBar_, SIGNAL(pauseScanIssued()), this, SIGNAL(pauseScanIssued()));
+	connect(bottomBar_, SIGNAL(stopScanIssued()), this, SIGNAL(stopScanIssued()));
 
 	// Create panes in the main window:
 	////////////////////////////////////

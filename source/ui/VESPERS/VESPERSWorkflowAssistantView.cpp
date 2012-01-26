@@ -11,6 +11,7 @@ VESPERSWorkflowAssistantView::VESPERSWorkflowAssistantView(VESPERSWorkflowAssist
 
 	progressBar_ = new QProgressBar;
 	progressBar_->setFixedWidth(400);
+	connect(assistant_, SIGNAL(progressChanged(double)), this, SLOT(onProgressChanged(double)));
 
 	totalScans_ = new QSpinBox;
 	totalScans_->setMinimum(1);
@@ -39,14 +40,19 @@ VESPERSWorkflowAssistantView::VESPERSWorkflowAssistantView(VESPERSWorkflowAssist
 
 void VESPERSWorkflowAssistantView::onTotalScansChanged(int num)
 {
-	if (num != assistant_->totalScans() && num > assistant_->currentScan())
+	if (num != assistant_->totalScans() && num >= assistant_->currentScan())
 		assistant_->setTotalScans(num);
+}
+
+void VESPERSWorkflowAssistantView::onProgressChanged(double progress)
+{
+	progressBar_->setValue(int(100*((progress+assistant_->currentScan()-1)/assistant_->totalScans())));
 }
 
 void VESPERSWorkflowAssistantView::onCurrentScanChanged(int index)
 {
 	currentScan_->setText(QString("%1 /").arg(index));
-	progressBar_->setValue(int(index*100/assistant_->totalScans()));
+	progressBar_->setValue(int((index-1)*100/assistant_->totalScans()));
 	totalScans_->setMinimum(index);
 }
 

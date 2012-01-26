@@ -176,6 +176,6 @@ void VESPERSEXAFSScanConfiguration::computeTotalTime()
 			time += ((regions_->end(i) - regions_->start(i))/regions_->delta(i))*(regions_->time(i) + 0.7); // Seems to take about 0.7 seconds for extra beamline stuff to happen.
 	}
 
-	totalTime_ = time + 6; // There is a 6 second miscellaneous startup delay.
+	totalTime_ = time + 9; // There is a 9 second miscellaneous startup delay.
 	emit totalTimeChanged(totalTime_);
 }

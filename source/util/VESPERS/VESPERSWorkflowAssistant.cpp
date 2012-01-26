@@ -9,7 +9,8 @@ VESPERSWorkflowAssistant::VESPERSWorkflowAssistant(AMWorkflowManagerView *workfl
 	currentScan_ = -1;
 	config_ = 0;
 
-	connect(workflow_, SIGNAL(actionItemCountChanged(int)), this, SLOT(listen()));
+//	connect(workflow_, SIGNAL(actionItemCountChanged(int)), this, SLOT(listen()));
+	connect(workflow_, SIGNAL(headChanged()), this, SLOT(listen()));
 	connect(workflow_, SIGNAL(runningChanged(bool)), this, SLOT(onWorkflowRunningChanged(bool)));
 }
 
@@ -25,7 +26,7 @@ void VESPERSWorkflowAssistant::listen()
 	if (!config)
 		return;
 
-	if (config_ && config->name() == config_->name()){
+	if (config_ && config->name() == config_->name() && currentScan_ != config_->numberOfScans()){
 
 		currentScan_++;
 		emit currentScanChanged(currentScan_);
@@ -72,12 +73,12 @@ void VESPERSWorkflowAssistant::addExtraScanActions(int num)
 	for (int i = 0; i < num; i++){
 
 		AMBeamlineScanAction* action = new AMBeamlineScanAction(config_->createCopy());
-		workflow_->insertBeamlineAction(0, action);
+		workflow_->insertBeamlineAction(1, action);
 	}
 }
 
 void VESPERSWorkflowAssistant::removeExtraScanActions(int num)
 {
 	for (int i = 0; i < num; i++)
-		workflow_->removeBeamlineAction(0);
+		workflow_->removeBeamlineAction(1);
 }

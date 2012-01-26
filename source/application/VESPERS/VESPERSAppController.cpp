@@ -155,8 +155,8 @@ bool VESPERSAppController::startup() {
 		// Create panes in the main window:
 		////////////////////////////////////
 
-		VESPERSWorkflowAssistant *assistant = new VESPERSWorkflowAssistant(workflowManagerView_, this);
-		VESPERSWorkflowAssistantView *assistantView = new VESPERSWorkflowAssistantView(assistant);
+		assistant_ = new VESPERSWorkflowAssistant(workflowManagerView_, this);
+		VESPERSWorkflowAssistantView *assistantView = new VESPERSWorkflowAssistantView(assistant_);
 		mw_->insertVerticalWidget(2, assistantView);
 
 		// Setup the general endstation control view.
@@ -205,6 +205,10 @@ bool VESPERSAppController::startup() {
 		// Show the endstation control view first.
 		mw_->setCurrentPane(experimentConfigurationView);
 
+		// Bottom bar connections.
+		connect(this, SIGNAL(pauseScanIssued()), this, SLOT(onPauseScanIssued()));
+		connect(this, SIGNAL(stopScanIssued()), this, SLOT(onCancelScanIssued()));
+
 		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
 		ROIHelper *roiHelper = new ROIHelper(this);
 		Q_UNUSED(roiHelper)
@@ -243,6 +247,7 @@ void VESPERSAppController::onCurrentScanControllerCreated()
 		return;
 
 	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
+	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));
 }
 
 void VESPERSAppController::onCurrentScanControllerFinished()
@@ -253,4 +258,24 @@ void VESPERSAppController::onCurrentScanControllerFinished()
 		return;
 
 	disconnect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
+	disconnect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));
+}
+
+void VESPERSAppController::onPauseScanIssued()
+{
+	AMScanController *controller = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+
+	if (controller && controller->isRunning())
+		controller->pause();
+
+	else if (controller && controller->isPaused())
+		controller->resume();
+}
+
+void VESPERSAppController::onCancelScanIssued()
+{
+	AMScanController *controller = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+
+	if (controller)
+		controller->cancel();
 }
