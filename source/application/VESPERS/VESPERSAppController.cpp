@@ -209,6 +209,9 @@ bool VESPERSAppController::startup() {
 		connect(this, SIGNAL(pauseScanIssued()), this, SLOT(onPauseScanIssued()));
 		connect(this, SIGNAL(stopScanIssued()), this, SLOT(onCancelScanIssued()));
 
+		// Github setup for adding VESPERS specific comment.
+		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");
+
 		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
 		ROIHelper *roiHelper = new ROIHelper(this);
 		Q_UNUSED(roiHelper)
