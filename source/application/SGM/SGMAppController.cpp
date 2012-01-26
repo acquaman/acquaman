@@ -65,9 +65,6 @@ bool SGMAppController::startup() {
 	// Initialize AMBeamline::bl() as an SGMBeamline::sgm() instance. FIRST!
 	//SGMBeamline::sgm();
 
-	//ghManager_ = new AMGithubManager("AcquamanIssues", "sucking2report", "AcquamanIssuesTest", this);
-	//connect(ghManager_, SIGNAL(authenticated(bool)), this, SLOT(githubAuthenticated(bool)));
-
 	SGMSettings::s()->load();
 
 	if(AMAppController::startup()) {

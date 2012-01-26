@@ -57,7 +57,7 @@ AMGithubIssueSubmissionView::AMGithubIssueSubmissionView(QWidget *parent) :
 	setLayout(vl);
 
 	messageLabel_->setText("Authenticating ...");
-	issueManager_ = new AMGithubManager("AcquamanIssues", "sucking2report", "AcquamanIssuesTest", this);
+	issueManager_ = new AMGithubManager("AcquamanIssues", "sucking2report", "acquaman", this);
 	connect(issueManager_, SIGNAL(authenticated(bool)), this, SLOT(onGitAuthenticated(bool)));
 
 	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()));
