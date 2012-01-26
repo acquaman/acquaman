@@ -30,6 +30,24 @@ QString AMGithubManager::repository() const{
 	return repository_;
 }
 
+QString AMGithubManager::jsonSensiblePrint(const QVariantMap &jsonMap, int indentLevel) const{
+	QString retVal;
+	QString tabLevel;
+	for(int x = 0; x < indentLevel; x++)
+		tabLevel.append("\t");
+	QMap<QString, QVariant>::const_iterator i = jsonMap.constBegin();
+	while (i != jsonMap.constEnd()) {
+		if(i.value().type() == QVariant::ULongLong)
+			retVal.append(QString("%1\"%2\": \"%3\"\n").arg(tabLevel).arg(i.key()).arg(i.value().toULongLong()));
+		else if(i.value().type() == QVariant::String)
+			retVal.append(QString("%1\"%2\": \"%3\"\n").arg(tabLevel).arg(i.key()).arg(i.value().toString()));
+		else if(i.value().canConvert(QVariant::Map))
+			retVal.append(QString("%1\"%2\":\n%3").arg(tabLevel).arg(i.key()).arg(jsonSensiblePrint(i.value().toMap(), indentLevel+1)));
+		++i;
+	}
+	return retVal;
+}
+
 void AMGithubManager::setUserName(const QString &userName){
 	userName_ = userName;
 }
@@ -187,10 +205,14 @@ void AMGithubManager::onIssuesReturned(){
 }
 
 void AMGithubManager::onCreateNewIssueReturned(){
+	QJson::Parser parser;
+	bool retVal = false;
+	if(createNewIssueReply_->rawHeader("Status") == "201 Created")
+		retVal = true;
 	disconnect(createNewIssueReply_, 0);
 	createNewIssueReply_->deleteLater();
 	createNewIssueReply_ = 0;
-	emit createNewIssueReturned();
+	emit issueCreated(retVal);
 }
 
 void AMGithubManager::initialize(){

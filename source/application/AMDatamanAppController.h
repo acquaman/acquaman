@@ -26,12 +26,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QList>
 #include <QModelIndex>
 
+#include "util/AMOrderedSet.h"
+
 class AMMainWindow;
 class AMBottomBar;
 class AMDataViewWithActionButtons;
 class AMRunExperimentInsert;
 class AMGenericScanEditor;
 class AMSettingsMasterView;
+class AMGithubIssueSubmissionView;
 
 class QMenuBar;
 class QMenu;
@@ -166,6 +169,9 @@ The Drag is accepted when:
 	/// Calling this slot activates the Settings View
 	void onActionSettings();
 
+	/// Calling this slot activates the Issue Submission View
+	void onActionIssueSubmission();
+
 	/// this slot is called when the "add something" button is pushed. For now, it just creates a new experiment. This could be expanded to a drop-down menu that offers creating a new experiment, a new scan, a new run...
 	void onAddButtonClicked();
 
@@ -205,6 +211,9 @@ protected slots:
 	/// This is called when the user clicks any of the available "close" buttons in the main window's sidebar. For now, this could involve closing a scan editor window, or deleting an experiment.
 	virtual void onWindowPaneCloseButtonClicked(const QModelIndex& index);
 
+	/// This is called when the issue submission view is finished and no longer needed
+	virtual void onIssueSubmissionViewFinished();
+
 protected:
 	/// Helper function to go through all the scan editors and see if we can close all of them.
 	bool canCloseScanEditors() const;
@@ -225,7 +234,7 @@ protected:
 
 	/// Menus
 	QMenuBar* menuBar_;
-	QMenu* fileMenu_;
+	QMenu *fileMenu_, *helpMenu_;
 
 	/// Top-level panes in the main window
 	AMBottomBar* bottomBar_;
@@ -234,6 +243,11 @@ protected:
 
 	/// Persistent view for AMSettings
 	AMSettingsMasterView *settingsMasterView_;
+
+	/// Persistent view for AMGithubIssueSubmissionView
+	AMGithubIssueSubmissionView *issueSubmissionView_;
+	/// Storage for additional issue types and assignees in subclass app controllers
+	AMOrderedSet<QString, QString> additionalIssueTypesAndAssignees_;
 
 	/// The parent item for all runs and experiments we'll place in the window pane model
 	QStandardItem* runsParentItem_, *experimentsParentItem_;

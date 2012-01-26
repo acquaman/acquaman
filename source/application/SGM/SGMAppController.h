@@ -67,12 +67,7 @@ protected slots:
 
 	void onActionSGMSettings();
 
-	void githubReplyFinished(QVariantMap jsonMap);
-	void githubAuthenticated(bool authenticated);
-
 protected:
-	QString jsonSensiblePrint(const QVariantMap &jsonMap, int indentLevel = 0);
-
 	bool startupSGMInstallActions();
 	bool setupSGMDatabase();
 	bool setupSGMPeriodicTable();
@@ -86,11 +81,6 @@ protected:
 	AMScanConfigurationViewHolder *xasScanConfigurationHolder_;
 	AMScanConfigurationViewHolder *fastScanConfigurationHolder_;
 	SGMSidebar *sgmSidebar_;
-
-	//QNetworkAccessManager *manager_;
-	//QNetworkReply *reply_;
-
-	AMGithubManager *ghManager_;
 
 	/// Persistent view for SGMSettings
 	SGMSettingsMasterView *sgmSettingsMasterView_;

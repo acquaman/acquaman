@@ -27,6 +27,8 @@ public:
 
 	QString repository() const;
 
+	QString jsonSensiblePrint(const QVariantMap &jsonMap, int indentLevel = 0) const;
+
 public slots:
 	void setUserName(const QString &userName);
 	void setPassword(const QString &password);
@@ -44,7 +46,7 @@ public slots:
 signals:
 	void authenticated(bool isAuthenticated);
 	void issuesReturned(QVariantMap issues);
-	void createNewIssueReturned();
+	void issueCreated(bool issueCreated);
 
 protected slots:
 	void onAuthenicatedRequestReturned();

@@ -53,7 +53,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/SGM/SGMPluginsLocation.h"
 #include "application/AMPluginsManager.h"
 #include "util/SGM/SGMPeriodicTable.h"
-#include "util/AMGithubManager.h"
+#include "ui/util/AMGithubIssueSubmissionView.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
@@ -65,11 +65,8 @@ bool SGMAppController::startup() {
 	// Initialize AMBeamline::bl() as an SGMBeamline::sgm() instance. FIRST!
 	//SGMBeamline::sgm();
 
-	ghManager_ = new AMGithubManager("AcquamanIssues", "sucking2report", "AcquamanIssuesTest", this);
-	connect(ghManager_, SIGNAL(authenticated(bool)), this, SLOT(githubAuthenticated(bool)));
-	//ghRequest_->getIssues();
-	//ghRequest_->createNewIssue();
-	//connect(ghManager_, SIGNAL(issuesReturned(QVariantMap)), this, SLOT(githubReplyFinished(QVariantMap)));
+	//ghManager_ = new AMGithubManager("AcquamanIssues", "sucking2report", "AcquamanIssuesTest", this);
+	//connect(ghManager_, SIGNAL(authenticated(bool)), this, SLOT(githubAuthenticated(bool)));
 
 	SGMSettings::s()->load();
 
@@ -203,6 +200,8 @@ bool SGMAppController::startup() {
   connect(scanController, SIGNAL(progress(double,double)), bottomBar_, SLOT(updateScanProgress(double,double)));
  }
  */
+		additionalIssueTypesAndAssignees_.append("I think it's an SGM specific issue", "AcquamanIssues");
+
 		sgmSidebar_ = new SGMSidebar();
 		mw_->addRightWidget(sgmSidebar_);
 
@@ -279,36 +278,6 @@ void SGMAppController::onActionSGMSettings(){
 	if(!sgmSettingsMasterView_)
 		sgmSettingsMasterView_ = new SGMSettingsMasterView();
 	sgmSettingsMasterView_->show();
-}
-
-void SGMAppController::githubReplyFinished(QVariantMap jsonMap){
-	qDebug() << "GH Reply";
-	qDebug() << jsonSensiblePrint(jsonMap);
-}
-
-void SGMAppController::githubAuthenticated(bool authenticated){
-	qDebug() << "Github says authenticated " << authenticated;
-	//ghManager_->createNewIssue("From a better AM API", "First one from the manager API");
-	//ghManager_->getIssues();
-	//connect(ghManager_, SIGNAL(issuesReturned(QVariantMap)), this, SLOT(githubReplyFinished(QVariantMap)));
-}
-
-QString SGMAppController::jsonSensiblePrint(const QVariantMap &jsonMap, int indentLevel){
-	QString retVal;
-	QString tabLevel;
-	for(int x = 0; x < indentLevel; x++)
-		tabLevel.append("\t");
-	QMap<QString, QVariant>::const_iterator i = jsonMap.constBegin();
-	while (i != jsonMap.constEnd()) {
-		if(i.value().type() == QVariant::ULongLong)
-			retVal.append(QString("%1\"%2\": \"%3\"\n").arg(tabLevel).arg(i.key()).arg(i.value().toULongLong()));
-		else if(i.value().type() == QVariant::String)
-			retVal.append(QString("%1\"%2\": \"%3\"\n").arg(tabLevel).arg(i.key()).arg(i.value().toString()));
-		else if(i.value().canConvert(QVariant::Map))
-			retVal.append(QString("%1\"%2\":\n%3").arg(tabLevel).arg(i.key()).arg(jsonSensiblePrint(i.value().toMap(), indentLevel+1)));
-		++i;
-	}
-	return retVal;
 }
 
 bool SGMAppController::startupSGMInstallActions(){
