@@ -132,6 +132,12 @@ public:
 
 
 signals:
+	/// Passing on the stop scan signal from the bottom bar.
+	void stopScanIssued();
+	/// Passing on the pause scan signal from the bottom bar.
+	void pauseScanIssued();
+	/// Passing on the continue scan signal from the bottom bar.
+	void continueScanIssued();
 
 public slots:
 	/// Open a list of scans, specified by a database URL, in the given \c editor. (If \c editor is 0, a new editor will be opened.)  The scans are checked to make sure that they're not already open, and that they're not still scanning somewhere else.

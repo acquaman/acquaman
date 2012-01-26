@@ -180,7 +180,7 @@ public slots:
 	/// Sets the maximum time (in seconds) that should be spent on any particular point of a scan.
 	void setMaximumTime(double maxTime) { maxTime_->move(maxTime*1000); }
 	/// This tells the app to compute a new set of values for the dwell time.
-	void compute() { compute_->move(1); }
+	void compute() { compute_->move(1); compute_->move(0); }
 
 protected slots:
 	/// Helper slot to emit the default time changed to ensure that the value is in seconds.

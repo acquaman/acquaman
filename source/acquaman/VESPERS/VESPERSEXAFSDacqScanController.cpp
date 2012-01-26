@@ -273,7 +273,7 @@ bool VESPERSEXAFSDacqScanController::initializeImplementation()
 	/*
 		First: Enable/Disable all the pertinent detectors.  The scalar is ALWAYS enabled.
 		Second: Set the mode to single shot,set the time on the synchronized dwell time, and set the variable integration time if an EXAFS scan.
-		Third: Move the mono to the correct energy and move the sample stage to the correct location (if enabled).
+		Third: Make sure the relative energy postion is back to zero, move the mono to the correct energy and move the sample stage to the correct location (if enabled).
 	 */
 	AMBeamlineParallelActionsList *setupXASActionsList = new AMBeamlineParallelActionsList;
 
@@ -320,6 +320,7 @@ bool VESPERSEXAFSDacqScanController::initializeImplementation()
 
 	// Third stage.
 	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+	setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->mono()->createDelEAction(0));
 	setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->mono()->createEoAction(config_->energy()));
 	if (config_->goToPosition()){
 
@@ -412,9 +413,9 @@ bool VESPERSEXAFSDacqScanController::startImplementation()
 				control = qobject_cast<AMPVwStatusControl *>(config_->exafsRegions()->defaultKControl());
 
 				if (i == 0)
-					advAcq_->addRegion(i, control->writePVName(), config_->regionStart(i), config_->regionDelta(i), config_->regionEnd(i), 1);
+					advAcq_->addRegion(i, control->writePVName(), config_->regionStartByType(i, AMEXAFSRegion::kSpace), config_->regionDelta(i), config_->regionEnd(i), 1);
 				else
-					advAcq_->addRegion(i, control->writePVName(), config_->regionStart(i)+config_->regionDelta(i), config_->regionDelta(i), config_->regionEnd(i), 1);
+					advAcq_->addRegion(i, control->writePVName(), config_->regionStartByType(i, AMEXAFSRegion::kSpace)+config_->regionDelta(i), config_->regionDelta(i), config_->regionEnd(i), 1);
 			}
 		}
 
@@ -438,6 +439,7 @@ void VESPERSEXAFSDacqScanController::cleanup()
 	// To cleanup the XAS scan, there is one stage.
 	/*
 		First: Set the dwell time to 1 second.  Set the scan mode to continuous.  Disables the variable integration time.  Set the relative energy PV to 0.
+		Second: Start the synchronized dwell time.
 	 */
 	AMBeamlineParallelActionsList *cleanupXASActionsList = new AMBeamlineParallelActionsList;
 

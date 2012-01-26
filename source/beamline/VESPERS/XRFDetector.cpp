@@ -55,7 +55,7 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 
 	for (int i = 0; i < elements; i++){
 
-		if (i == 0){
+//		if (i == 0){
 
 			statusPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ACQG", true, this);
 			mcaUpdateRatePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".SCAN", true, this);
@@ -65,18 +65,18 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 			integrationTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PRTM", true, this);
 			liveTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PLTM", true, this);
 			elapsedTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ERTM", true, this);
-		}
-		else{
+//		}
+//		else{
 
-			statusPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ACQG", false, this);
-			mcaUpdateRatePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".SCAN", false, this);
-			statusUpdateRatePV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".SCAN", false, this);
-			peakingTimePV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".PKTIM", false, this);
-			maximumEnergyPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".EMAX", false, this);
-			integrationTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PRTM", false, this);
-			liveTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PLTM", false, this);
-			elapsedTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ERTM", false, this);
-		}
+//			statusPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ACQG", false, this);
+//			mcaUpdateRatePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".SCAN", false, this);
+//			statusUpdateRatePV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".SCAN", false, this);
+//			peakingTimePV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".PKTIM", false, this);
+//			maximumEnergyPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".EMAX", false, this);
+//			integrationTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PRTM", false, this);
+//			liveTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PLTM", false, this);
+//			elapsedTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ERTM", false, this);
+//		}
 
 		icrPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".ICR", true, this);
 		ocrPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".OCR", true, this);
@@ -94,17 +94,17 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 		ocrPV_.at(i)->disablePutCallbackMode(true);
 		spectraPV_.at(i)->disablePutCallbackMode(true);
 
-		connect(statusPV_.at(i), SIGNAL(connected(bool)), this, SLOT(isDetectorConnected()));
-		connect(mcaUpdateRatePV_.at(i), SIGNAL(connected(bool)), this, SLOT(isDetectorConnected()));
-		connect(statusUpdateRatePV_.at(i), SIGNAL(connected(bool)), this, SLOT(isDetectorConnected()));
-		connect(peakingTimePV_.at(i), SIGNAL(connected(bool)), this, SLOT(isDetectorConnected()));
-		connect(maximumEnergyPV_.at(i), SIGNAL(connected(bool)), this, SLOT(isDetectorConnected()));
-		connect(integrationTimePV_.at(i), SIGNAL(connected(bool)), this, SLOT(isDetectorConnected()));
-		connect(liveTimePV_.at(i), SIGNAL(connected(bool)), this, SLOT(isDetectorConnected()));
-		connect(elapsedTimePV_.at(i), SIGNAL(connected(bool)), this, SLOT(isDetectorConnected()));
-		connect(icrPV_.at(i), SIGNAL(connected(bool)), this, SLOT(isDetectorConnected()));
-		connect(ocrPV_.at(i), SIGNAL(connected(bool)), this, SLOT(isDetectorConnected()));
-		connect(spectraPV_.at(i), SIGNAL(connected(bool)), this, SLOT(isDetectorConnected()));
+		connect(statusPV_.at(i), SIGNAL(readReadyChanged(bool)), this, SLOT(isDetectorConnected()));
+		connect(mcaUpdateRatePV_.at(i), SIGNAL(readReadyChanged(bool)), this, SLOT(isDetectorConnected()));
+		connect(statusUpdateRatePV_.at(i), SIGNAL(writeReadyChanged(bool)), this, SLOT(isDetectorConnected()));
+		connect(peakingTimePV_.at(i), SIGNAL(writeReadyChanged(bool)), this, SLOT(isDetectorConnected()));
+		connect(maximumEnergyPV_.at(i), SIGNAL(writeReadyChanged(bool)), this, SLOT(isDetectorConnected()));
+		connect(integrationTimePV_.at(i), SIGNAL(writeReadyChanged(bool)), this, SLOT(isDetectorConnected()));
+		connect(liveTimePV_.at(i), SIGNAL(writeReadyChanged(bool)), this, SLOT(isDetectorConnected()));
+		connect(elapsedTimePV_.at(i), SIGNAL(readReadyChanged(bool)), this, SLOT(isDetectorConnected()));
+		connect(icrPV_.at(i), SIGNAL(readReadyChanged(bool)), this, SLOT(isDetectorConnected()));
+		connect(ocrPV_.at(i), SIGNAL(readReadyChanged(bool)), this, SLOT(isDetectorConnected()));
+		connect(spectraPV_.at(i), SIGNAL(readReadyChanged(bool)), this, SLOT(isDetectorConnected()));
 
 		spectrumDataSources_ << new AM1DProcessVariableDataSource(spectraPV_.at(i), QString("Element %1").arg(i+1), this);
 		icrDataSources_ << new AM0DProcessVariableDataSource(icrPV_.at(i), QString("Input count rate %1").arg(i+1), this);
@@ -449,8 +449,12 @@ double XRFDetector::deadTimeAt(int index)
 	if (icrPV_.at(index)->getInt() == 0)
 		return 0;
 
-	else if (index < elements_ && index >= 0)
-		return 100*(1 - ocrPV_.at(index)->getDouble()/icrPV_.at(index)->getDouble());
+	else if (index < elements_ && index >= 0){
+
+		double deadTime = 100*(1 - ocrPV_.at(index)->getDouble()/icrPV_.at(index)->getDouble());
+
+		return deadTime >= 0 ? deadTime : 0;
+	}
 
 	return -1;
 }

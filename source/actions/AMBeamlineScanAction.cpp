@@ -341,6 +341,18 @@ void AMBeamlineScanAction::onScanStarted(){
 void AMBeamlineScanAction::onScanCancelled(){
 	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Cancelled]");
 	emit descriptionChanged();
+
+	// Only save scans that already have an id in the database.
+	if (scanID_ != -1){
+
+		if(!ctrl_->scan()->storeToDb(AMDatabase::database("user"))){
+			AMErrorMon::report(AMErrorReport(this,
+											 AMErrorReport::Alert,
+											 AMBEAMLINEACTIONITEM_CANT_SAVE_TO_DB,
+											 "Error, could not save scan to database. Please report this bug to the Acquaman developers."));
+		}
+	}
+
 	setFailed(true, AMBEAMLINEACTIONITEM_SCAN_CANCELLED);
 }
 
@@ -399,6 +411,18 @@ void AMBeamlineScanAction::onScanSucceeded(){
 }
 
 void AMBeamlineScanAction::onScanFailed(){
+
+	// Only save scans that already have an id in the database.
+	if (scanID_ != -1){
+
+		if(!ctrl_->scan()->storeToDb(AMDatabase::database("user"))){
+			AMErrorMon::report(AMErrorReport(this,
+											 AMErrorReport::Alert,
+											 AMBEAMLINEACTIONITEM_CANT_SAVE_TO_DB,
+											 "Error, could not save scan to database. Please report this bug to the Acquaman developers."));
+		}
+	}
+
 	setFailed(true);
 }
 

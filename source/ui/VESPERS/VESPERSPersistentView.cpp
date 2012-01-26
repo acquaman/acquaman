@@ -280,6 +280,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	setLayout(vespersLayout);
 	//setFixedSize(325, 1000);
 	setFixedSize(325, 900);
+//    setFixedSize(325, 800);
 }
 
 void VESPERSPersistentView::onBeamChanged(VESPERSBeamline::Beam beam)

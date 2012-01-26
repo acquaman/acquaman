@@ -30,6 +30,8 @@ class VESPERSXASScanConfigurationView;
 
 class AMGenericScanEditor;
 
+class VESPERSWorkflowAssistant;
+
 class VESPERSAppController : public AMAppController {
 	Q_OBJECT
 
@@ -53,6 +55,15 @@ protected slots:
 	void onCurrentScanControllerCreated();
 	/// Helper slot that handles disconnecting the current scan controller from the progress bar when it's done.
 	void onCurrentScanControllerFinished();
+
+	/// Helper slot that pauses scans using the bottom bar.
+	void onPauseScanIssued();
+	/// Helper slot that cancels the current scan.
+	void onCancelScanIssued();
+
+protected:
+	/// Temporary workflow assistant.
+	VESPERSWorkflowAssistant *assistant_;
 };
 
 #endif // VESPERSAPPCONTROLLER_H

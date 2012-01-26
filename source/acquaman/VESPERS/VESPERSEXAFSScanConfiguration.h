@@ -175,6 +175,8 @@ public slots:
 protected slots:
 	/// Computes the total time any time the regions list changes.
 	void computeTotalTime();
+	/// Makes sure that the variable integration time app is properly updated after a k-space region has been updated.
+	void onEXAFSRegionsChanged();
 
 protected:
 	/// Fluorescence detector choice.
