@@ -71,7 +71,7 @@ void VESPERSWorkflowAssistant::onScanCancelled()
 {
 	setTotalScans(currentScan_);
 	config_ = 0;
-	emit configurationChanged();
+	currentScan_ = -1;
 }
 
 void VESPERSWorkflowAssistant::addExtraScanActions(int num)
