@@ -72,9 +72,9 @@ protected:
 	SGMEnergyPosition endPositionCopy_;
 	SGMFastScanSettings fastScanSettingsCopy_;
 
-	SGMEnergyPositionView *startPositionView_;
-	SGMEnergyPositionView *middlePositionView_;
-	SGMEnergyPositionView *endPositionView_;
+	SGMEnergyPositionWBeamlineView *startPositionView_;
+	SGMEnergyPositionWBeamlineView *middlePositionView_;
+	SGMEnergyPositionWBeamlineView *endPositionView_;
 	SGMFastScanSettingsView *fastScanSettingsView_;
 
 	AMTopFrame *topFrame_;

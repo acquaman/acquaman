@@ -240,6 +240,54 @@ void VESPERSAppController::onCurrentScanControllerStarted()
 		return;
 
 	openScanInEditorAndTakeOwnership(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
+
+	VESPERSEXAFSScanConfiguration *config = qobject_cast<VESPERSEXAFSScanConfiguration *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->scanConfiguration());
+
+	if (!config)
+		return;
+
+	switch(config->fluorescenceDetectorChoice()){
+
+	case VESPERSEXAFSScanConfiguration::None:
+
+		scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("trans");
+		break;
+
+	case VESPERSEXAFSScanConfiguration::SingleElement:
+	{
+		QStringList dataSources(scanEditorAt(scanEditorCount()-1)->visibleDataSourceNames());
+		int index = 0;
+
+		for (int i = 0; i < dataSources.size(); i++){
+			if (dataSources.at(i).contains("norm") && (dataSources.at(i).contains("Ka") || dataSources.contains("La"))){
+
+				index = i;
+				break;
+			}
+		}
+
+		scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName(dataSources.at(index));
+
+		break;
+	}
+	case VESPERSEXAFSScanConfiguration::FourElement:
+	{
+		QStringList dataSources(scanEditorAt(scanEditorCount()-1)->visibleDataSourceNames());
+		int index = 0;
+
+		for (int i = 0; i < dataSources.size(); i++){
+			if (dataSources.at(i).contains("norm") && (dataSources.at(i).contains("Ka") || dataSources.contains("La1"))){
+
+				index = i;
+				break;
+			}
+		}
+
+		scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName(dataSources.at(index));
+
+		break;
+	}
+	}
 }
 
 void VESPERSAppController::onCurrentScanControllerCreated()

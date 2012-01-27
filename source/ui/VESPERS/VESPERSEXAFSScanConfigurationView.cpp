@@ -285,6 +285,9 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 			roiText_->insertPlainText(GeneralUtilities::addGreek(config_->roiList().at(i).name())+"\t" + QString::number(config_->roiList().at(i).low()) + "\t" + QString::number(config_->roiList().at(i).high()) +"\n");
 	}
 
+	// Label showing where the data will be saved.
+	QLabel *exportPath = new QLabel(QString("Data exported to: %1exportData").arg(AMUserSettings::userDataFolder));
+
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(regionsView_, 1, 0, 2, 2);
@@ -298,6 +301,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	contentsLayout->addWidget(estimatedTime_, 6, 0, 1, 2);
 	contentsLayout->addWidget(estimatedSetTime_, 7, 0, 1, 2);
 	contentsLayout->addLayout(numberOfScansLayout, 5, 0);
+	contentsLayout->addWidget(exportPath, 8, 0, 1, 3);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();

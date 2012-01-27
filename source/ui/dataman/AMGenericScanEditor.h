@@ -83,6 +83,15 @@ public:
 	/// Call this function to find out if this editor can be closed. Checks for scans in progress and prompts the user for what to do with modified scans.  Returns true if the editor can be closed; returns false if any scans are acquiring or if the user responded "cancel" to a save-request.
 	bool canCloseEditor();
 
+	/// Sets which data source should be viewed by exclusive views.  Returns true if the data source was found and set.  Returns false otherwise.
+	bool setExclusiveDataSourceByName(const QString &name) { return scanSetModel_->setExclusiveDataSourceByName(name); }
+
+	/// Exposing scan set model method that returns a list of all data source names that exist (over all scans in the model). Warning: this is slow.  O(n), where n is the total number of data sources in all scans.
+	QStringList allDataSourceNames() const { return scanSetModel_->allDataSourceNames(); }
+
+	/// Exposing scan set model method that returns a list of all data source names that exist and are visible in at least one scan. Warning: this is slow.  O(n), where n is the total number of data sources in all scans.
+	QStringList visibleDataSourceNames() const { return scanSetModel_->visibleDataSourceNames(); }
+
 signals:
 	/// Internal signal to forward the textChanged() from ui_.notesEdit
 	void notesChanged(const QString&);
