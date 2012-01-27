@@ -461,10 +461,12 @@ void VESPERSEXAFSDacqScanController::cleanup()
 	connect(cleanupXASAction_, SIGNAL(succeeded()), this, SLOT(onCleanupFinished()));
 	connect(cleanupXASAction_, SIGNAL(failed(int)), this, SLOT(onCleanupFinished()));
 	cleanupXASAction_->start();
+	qDebug() << "Started the cleanup actions.";
 }
 
 void VESPERSEXAFSDacqScanController::onCleanupFinished()
 {
+	qDebug() << "In cleanup finished...";
 	AMDacqScanController::onDacqStop();
 }
 

@@ -192,7 +192,7 @@ void AMWorkflowManagerView::removeBeamlineAction(int index)
 	if (workflowQueue_->isEmpty())
 		return;
 
-	workflowActions_->deleteAction(index);
+	workflowActions_->deleteAction(workflowQueue_->indexOfHead() + index);
 }
 
 // End of Darren's function.

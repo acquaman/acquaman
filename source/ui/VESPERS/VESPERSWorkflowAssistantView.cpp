@@ -24,6 +24,7 @@ VESPERSWorkflowAssistantView::VESPERSWorkflowAssistantView(VESPERSWorkflowAssist
 	connect(assistant_, SIGNAL(currentScanChanged(int)), this, SLOT(onCurrentScanChanged(int)));
 
 	connect(assistant_, SIGNAL(configurationChanged()), this, SLOT(onScanConfigurationChanged()));
+	connect(assistant_, SIGNAL(scanCancelled()), this, SLOT(onScanCancelled()));
 
 	QHBoxLayout *layout = new QHBoxLayout;
 	layout->addStretch();

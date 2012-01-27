@@ -209,6 +209,9 @@ bool VESPERSAppController::startup() {
 		connect(this, SIGNAL(pauseScanIssued()), this, SLOT(onPauseScanIssued()));
 		connect(this, SIGNAL(stopScanIssued()), this, SLOT(onCancelScanIssued()));
 
+		// Github setup for adding VESPERS specific comment.
+		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");
+
 		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
 		ROIHelper *roiHelper = new ROIHelper(this);
 		Q_UNUSED(roiHelper)
@@ -256,6 +259,9 @@ void VESPERSAppController::onCurrentScanControllerFinished()
 
 	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
 		return;
+
+	if (AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->state() == AMScanController::Cancelled)
+		assistant_->onScanCancelled();
 
 	disconnect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
 	disconnect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));
