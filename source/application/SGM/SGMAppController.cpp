@@ -470,9 +470,9 @@ bool SGMAppController::setupSGMPeriodicTable(){
 	elementEdge = "K";
 	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
 	if(matchIDs.count() == 0){
-		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 400.0, -278404, -109034, 1.37942, 0);
-		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 415.0, -268341, -105051, 5.99793, 0);
-		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 430.0, -258981, -101191, 15.5151, 0);
+		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 380.0, -293057, -115327, 1.37942, 0);
+		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 410.0, -268341, -105051, 3.88, 0);
+		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 440.0, -253095, -99461, 15.5151, 0);
 		success &= epStart.storeToDb(dbSGM);
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
