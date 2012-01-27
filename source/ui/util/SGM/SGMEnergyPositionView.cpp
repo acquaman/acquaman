@@ -79,13 +79,13 @@ SGMEnergyPositionView::SGMEnergyPositionView(SGMEnergyPosition *energyPosition, 
 	setEnergyPosition(energyPosition);
 
 
-	QVBoxLayout *vl2 = new QVBoxLayout();
-	vl2->addStretch(10);
-	vl2->addWidget(alternateViewModeButton_);
+	vl2_ = new QVBoxLayout();
+	vl2_->addStretch(10);
+	vl2_->addWidget(alternateViewModeButton_);
 
 	QHBoxLayout *hl = new QHBoxLayout();
 	hl->addLayout(vl1);
-	hl->addLayout(vl2);
+	hl->addLayout(vl2_);
 
 	setLayout(hl);
 }
@@ -192,4 +192,27 @@ void SGMEnergyPositionView::onViewModeChanged(){
 		sgmGratingLabel_->hide();
 		sgmGratingComboBox_->hide();
 	}
+}
+
+#include "beamline/SGM/SGMBeamline.h"
+
+SGMEnergyPositionWBeamlineView::SGMEnergyPositionWBeamlineView(SGMEnergyPosition *energyPosition, SGMEnergyPositionView::EnergyPositionViewMode alternateViewMode, QWidget *parent) :
+	SGMEnergyPositionView(energyPosition, alternateViewMode, parent)
+{
+	setFromBeamlineButton_ = new QPushButton("Set From\nBeamline");
+	if(!SGMBeamline::sgm()->isConnected())
+		setFromBeamlineButton_->hide();
+	else
+		connect(setFromBeamlineButton_, SIGNAL(clicked()), this, SLOT(onSetFromBeamlineButtonClicked()));
+
+	vl2_->insertStretch(0, 10);
+	vl2_->insertWidget(0, setFromBeamlineButton_);
+}
+
+void SGMEnergyPositionWBeamlineView::onSetFromBeamlineButtonClicked(){
+	energyPosition_->setEnergy(SGMBeamline::sgm()->energy()->value());
+	energyPosition_->setMonoEncoderTarget(SGMBeamline::sgm()->mono()->value());
+	energyPosition_->setUndulatorStepSetpoint(SGMBeamline::sgm()->undulatorStep()->value());
+	energyPosition_->setExitSlitDistance(SGMBeamline::sgm()->exitSlit()->value());
+	energyPosition_->setSGMGrating(SGMBeamline::sgm()->grating()->value());
 }
