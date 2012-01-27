@@ -271,7 +271,6 @@ void SGMAppController::onSGMScalerConnected(bool connected){
 
 void SGMAppController::onCurrentScanControllerCreated(){
 	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
-
 }
 
 void SGMAppController::onCurrentScanControllerDestroyed(){
@@ -279,6 +278,23 @@ void SGMAppController::onCurrentScanControllerDestroyed(){
 
 void SGMAppController::onCurrentScanControllerStarted(){
 	openScanInEditorAndTakeOwnership(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
+
+	SGMXASScanConfiguration *xasConfig = qobject_cast<SGMXASScanConfiguration *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->scanConfiguration());
+	if(xasConfig){
+		if(xasConfig->allDetectorConfigurations().isActiveNamed("teyScaler") || xasConfig->allDetectorConfigurations().isActiveNamed("teyPico"))
+			scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("TEYNorm");
+		else if(xasConfig->allDetectorConfigurations().isActiveNamed("tfyScaler") || xasConfig->allDetectorConfigurations().isActiveNamed("tfyPico"))
+			scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("TFYNorm");
+		else
+			scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("I0");
+		return;
+	}
+
+	SGMFastScanConfiguration *fastConfig = qobject_cast<SGMFastScanConfiguration *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->scanConfiguration());
+	if(fastConfig){
+		scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("TEY");
+		return;
+	}
 }
 
 void SGMAppController::onActionSGMSettings(){
