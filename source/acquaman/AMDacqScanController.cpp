@@ -78,7 +78,7 @@ bool AMDacqScanController::startImplementation(){
 			// Ensure that the dacq hasn't misloaded our x-column and set it to "NoRecord = true"
 			if(ev->pvList[0].noRecord == 1)
 				ev->pvList[0].noRecord = 0;
-			
+
 			if(useDwellTimes_)
 				connect(dwellTimeTrigger_, SIGNAL(valueChanged(double)), this, SLOT(onDwellTimeTriggerChanged(double)));
 

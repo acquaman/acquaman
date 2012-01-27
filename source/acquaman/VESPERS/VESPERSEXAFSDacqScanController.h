@@ -40,14 +40,19 @@ protected slots:
 	/// Helper slot that handles the progress update.
 	void onScanTimerUpdate();
 
+	/// Re-implementing to castrate the function.  I don't want any dacq progress updates because they are much less accurate.
+	virtual void onDacqSendCompletion(int completion) { Q_UNUSED(completion) }
+
 protected:
 	/// Specific implementation of the scan initialization.
 	bool initializeImplementation();
 	/// Specific implmentation of the scan start.
 	bool startImplementation();
+	/// Specific implementation of the scan cancel.
+	void cancelImplemqentation() { AMDacqScanController::cancelImplementation(); cleanup(); }
 
 	/// Re-implementing to intercept finished() signal and do cleanup
-	void onDacqStop() { cleanup(); }
+	void onDacqStop() {qDebug() << "In onDacqStop()"; cleanup(); }
 	/// Method that cleans up the beamline after a scan is finished.  Makes a list of clean up actions and executes them.
 	void cleanup();
 

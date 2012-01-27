@@ -121,6 +121,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	// Scan name selection
 	scanName_ = new QLineEdit;
 	scanName_->setText(config_->name());
+	scanName_->setAlignment(Qt::AlignCenter);
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	onScanNameEdited();
 
@@ -169,6 +170,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	QSpinBox *numberOfScans = new QSpinBox;
 	numberOfScans->setMinimum(1);
 	numberOfScans->setValue(config_->numberOfScans());
+	numberOfScans->setAlignment(Qt::AlignCenter);
 	connect(numberOfScans, SIGNAL(valueChanged(int)), config_, SLOT(setNumberOfScans(int)));
 	connect(config_, SIGNAL(numberOfScansChanged(int)), this, SLOT(onEstimatedTimeChanged()));
 
@@ -191,18 +193,32 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	setCurrentPosition->setEnabled(goToPosition->isChecked());
 	connect(setCurrentPosition, SIGNAL(clicked()), this, SLOT(setScanPosition()));
 
-	savedXPosition_ = new QLabel(QString::number(config_->x(), 'g', 3) + " mm");
+	savedXPosition_ = new QLabel(QString::number(config_->goToPosition() ? config_->x() : 0, 'g', 3) + " mm");
 	savedXPosition_->setEnabled(goToPosition->isChecked());
-	savedYPosition_ = new QLabel(QString::number(config_->y(), 'g', 3) + " mm");
+	savedYPosition_ = new QLabel(QString::number(config_->goToPosition() ? config_->y() : 0, 'g', 3) + " mm");
 	savedYPosition_->setEnabled(goToPosition->isChecked());
-	positionsSaved_ = new QLabel("Unsaved");
+
+	positionsSaved_ = new QLabel;
+	QPalette palette(this->palette());
+	palette.setColor(QPalette::Disabled, QPalette::WindowText, Qt::darkGray);
+
+	// Although not entirely valid, the chances that both x and y being identically 0 for a saved position is incredibly unlikely.
+	if (!config_->goToPosition() || (config_->x() == 0.0 && config_->y() == 0.0)){
+
+		positionsSaved_->setText("Unsaved");
+		palette.setColor(QPalette::Active, QPalette::WindowText, Qt::red);
+	}
+	else{
+
+		positionsSaved_->setText("Saved");
+		palette.setColor(QPalette::Active, QPalette::WindowText, Qt::darkGreen);
+	}
+
+	positionsSaved_->setPalette(palette);
+
 	QFont font(this->font());
 	font.setBold(true);
 	positionsSaved_->setFont(font);
-	QPalette palette(this->palette());
-	palette.setColor(QPalette::Active, QPalette::WindowText, Qt::red);
-	palette.setColor(QPalette::Disabled, QPalette::WindowText, Qt::darkGray);
-	positionsSaved_->setPalette(palette);
 	positionsSaved_->setEnabled(goToPosition->isChecked());
 
 	QHBoxLayout *saveLayout = new QHBoxLayout;
@@ -213,7 +229,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	xPosition_->setEnabled(goToPosition->isChecked());
 	xPosition_->setDecimals(3);
 	xPosition_->setRange(-100, 100);
-	xPosition_->setValue(config_->x());
+	xPosition_->setValue(config_->goToPosition() ? config_->x() : 0);
 	xPosition_->setSuffix(" mm");
 	connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
 	connect(xPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
@@ -226,7 +242,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	yPosition_->setEnabled(goToPosition->isChecked());
 	yPosition_->setDecimals(3);
 	yPosition_->setRange(-100, 100);
-	yPosition_->setValue(config_->y());
+	yPosition_->setValue(config_->goToPosition() ? config_->y() : 0);
 	yPosition_->setSuffix(" mm");
 	connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
 	connect(yPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
@@ -263,7 +279,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 
 	else{
 
-		roiText_->insertPlainText("Name\tLow (eV)\tHigh(eV)\n");
+		roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
 
 		for (int i = 0; i < config_->roiList().count(); i++)
 			roiText_->insertPlainText(GeneralUtilities::addGreek(config_->roiList().at(i).name())+"\t" + QString::number(config_->roiList().at(i).low()) + "\t" + QString::number(config_->roiList().at(i).high()) +"\n");
@@ -271,17 +287,17 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
-	contentsLayout->addWidget(regionsView_, 3, 0, 1, 2);
-	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 2, 0);
-	contentsLayout->addLayout(scanNameLayout, 0, 0);
-	contentsLayout->addLayout(energyLayout, 1, 0, 1, 2);
-	contentsLayout->addLayout(positionLayout, 2, 2);
-	contentsLayout->addWidget(ionChambersGroupBox, 2, 1);
-	contentsLayout->addWidget(roiText_, 3, 2, 2, 2);
-	contentsLayout->addWidget(useFixedTime, 4, 0);
-	contentsLayout->addWidget(estimatedTime_, 5, 0);
-	contentsLayout->addWidget(estimatedSetTime_, 6, 0);
-	contentsLayout->addLayout(numberOfScansLayout, 6, 1);
+	contentsLayout->addWidget(regionsView_, 1, 0, 2, 2);
+	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 1, 2);
+	contentsLayout->addLayout(scanNameLayout, 4, 0);
+	contentsLayout->addLayout(energyLayout, 0, 0, 1, 3);
+	contentsLayout->addLayout(positionLayout, 4, 2, 4, 1);
+	contentsLayout->addWidget(ionChambersGroupBox, 2, 2, 2, 1);
+	contentsLayout->addWidget(roiText_, 1, 3, 2, 2);
+	contentsLayout->addWidget(useFixedTime, 3, 0);
+	contentsLayout->addWidget(estimatedTime_, 6, 0, 1, 2);
+	contentsLayout->addWidget(estimatedSetTime_, 7, 0, 1, 2);
+	contentsLayout->addLayout(numberOfScansLayout, 5, 0);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
@@ -291,9 +307,9 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	QVBoxLayout *configViewLayout = new QVBoxLayout;
 	configViewLayout->addWidget(frame);
 	configViewLayout->addStretch();
+	configViewLayout->addWidget(regionsLineView_, 0, Qt::AlignCenter);
 	configViewLayout->addLayout(squeezeContents);
 	configViewLayout->addStretch();
-	configViewLayout->addWidget(regionsLineView_, 0, Qt::AlignCenter);
 
 	setLayout(configViewLayout);
 }
@@ -321,7 +337,7 @@ void VESPERSEXAFSScanConfigurationView::onFluorescenceChoiceChanged(int id)
 		break;
 	}
 
-	roiText_->insertPlainText("Name\tLow (eV)\tHigh(eV)\n");
+	roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
 
 	for (int i = 0; i < config_->roiList().count(); i++)
 		roiText_->insertPlainText(GeneralUtilities::addGreek(config_->roiList().at(i).name())+"\t" + QString::number(config_->roiList().at(i).low()) + "\t" + QString::number(config_->roiList().at(i).high()) +"\n");
@@ -408,8 +424,8 @@ void VESPERSEXAFSScanConfigurationView::onItClicked(int id)
 
 void VESPERSEXAFSScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time per scan: " + convertTimeToString(config_->totalTime()));
-	estimatedSetTime_->setText("Estimated time for set: " + convertTimeToString(config_->totalTime()*config_->numberOfScans()));
+	estimatedTime_->setText("Estimated time per scan:\t" + convertTimeToString(config_->totalTime()));
+	estimatedSetTime_->setText("Estimated time for set:\t" + convertTimeToString(config_->totalTime()*config_->numberOfScans()));
 }
 
 QString VESPERSEXAFSScanConfigurationView::convertTimeToString(double time)

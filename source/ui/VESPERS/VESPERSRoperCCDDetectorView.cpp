@@ -40,7 +40,8 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	acquireTime_ = new QDoubleSpinBox;
 	acquireTime_->setSuffix(" s");
 	acquireTime_->setDecimals(2);
-	acquireTime_->setRange(0, 1000);
+	acquireTime_->setRange(0, 10000);
+	acquireTime_->setAlignment(Qt::AlignCenter);
 	connect(detector_, SIGNAL(acquireTimeChanged(double)), acquireTime_, SLOT(setValue(double)));
 	connect(acquireTime_, SIGNAL(editingFinished()), this, SLOT(setAcquireTime()));
 
@@ -103,31 +104,34 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	QHBoxLayout *statusLayout = new QHBoxLayout;
 	statusLayout->addWidget(isAcquiring_);
 	statusLayout->addWidget(state_);
-
-	QHBoxLayout *startLayout = new QHBoxLayout;
-	startLayout->addWidget(acquireTime_);
-	startLayout->addWidget(startButton);
-	startLayout->addWidget(stopButton);
+	statusLayout->addWidget(startButton);
+	statusLayout->addWidget(stopButton);
 
 	QHBoxLayout *modeLayout = new QHBoxLayout;
+	modeLayout->addWidget(acquireTime_);
 	modeLayout->addWidget(triggerMode_);
 	modeLayout->addWidget(imageMode_);
 
 	QHBoxLayout *temperatureLayout = new QHBoxLayout;
-	temperatureLayout->addWidget(new QLabel("Temperature: "));
-	temperatureLayout->addWidget(temperatureSetpoint_);
-	temperatureLayout->addWidget(temperatureFeedback_);
+	temperatureLayout->addWidget(new QLabel("Temperature: "), 0, Qt::AlignCenter);
+	temperatureLayout->addWidget(temperatureSetpoint_, 0, Qt::AlignCenter);
+	temperatureLayout->addWidget(temperatureFeedback_, 0, Qt::AlignCenter);
 
 	QVBoxLayout *acquisitionLayout = new QVBoxLayout;
 	acquisitionLayout->addLayout(statusLayout);
-	acquisitionLayout->addLayout(startLayout);
 	acquisitionLayout->addLayout(modeLayout);
 
 	acquisitionBox->setLayout(acquisitionLayout);
 
+	QHBoxLayout *ccdGBTopLayout = new QHBoxLayout;
+	ccdGBTopLayout->addWidget(new QLabel("Autosave Image:"));
+	ccdGBTopLayout->addWidget(autoSaveComboBox_);
+	ccdGBTopLayout->addWidget(new QLabel("Save Current Image:"));
+	ccdGBTopLayout->addWidget(saveButton);
+
 	QGroupBox *ccdGB = new QGroupBox(tr("Image Options"));
 	QFormLayout *ccdGBLayout = new QFormLayout;
-	ccdGBLayout->addRow(autoSaveComboBox_, saveButton);
+	ccdGBLayout->addRow(ccdGBTopLayout);
 	ccdGBLayout->addRow("Path:", filePathEdit_);
 	ccdGBLayout->addRow("Name:", fileNameEdit_);
 	ccdGBLayout->addRow("Number:", fileNumberEdit_);

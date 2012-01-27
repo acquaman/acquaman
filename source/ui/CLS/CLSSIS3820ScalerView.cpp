@@ -126,7 +126,11 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 		mainVL->addLayout(bottomHL1);
 		mainVL->addLayout(bottomHL2);
 
-		setLayout(mainVL);
+		QHBoxLayout *constrainingHL = new QHBoxLayout();
+		constrainingHL->addLayout(mainVL);
+		constrainingHL->addStretch(10);
+
+		setLayout(constrainingHL);
 	}
 }
 
@@ -212,10 +216,14 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 	channel_ = channel;
 
 	QCheckBox *enableBox = new QCheckBox;
+	if(channel_->isConnected() && channel_->isEnabled())
+		enableBox->setChecked(true);
 	connect(channel_, SIGNAL(enabledChanged(bool)), enableBox, SLOT(setChecked(bool)));
 	connect(enableBox, SIGNAL(toggled(bool)), channel_, SLOT(setEnabled(bool)));
 
 	readingLabel_ = new QLabel;
+	if(channel_->isConnected())
+		onReadingChanged(channel_->reading());
 	connect(channel_, SIGNAL(readingChanged(int)), this, SLOT(onReadingChanged(int)));
 
 	QHBoxLayout *layout = new QHBoxLayout;

@@ -46,6 +46,12 @@ public:
 	/// AMMainWindow takes ownership for all of its pane widgets (whether docked or undocked), and deletes them in the destructor.
 	virtual ~AMMainWindow();
 
+	/// Insert a custom widget into the vertical layout at \param index.
+	void insertVerticalWidget(int index, QWidget *verticalWidget)
+	{
+		vlayout_->insertWidget(index, verticalWidget);
+	}
+
 	/// Add a custom widget below the sidebar and main area
 	void addBottomWidget(QWidget* bottomWidget) {
 		vlayout_->addWidget(bottomWidget);

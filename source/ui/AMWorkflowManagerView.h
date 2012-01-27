@@ -52,6 +52,15 @@ public:
 	/// Returns true if it's currently impossible to start the workflow because another program has exclusive access to the beamline
 	bool beamlineBusy() const;
 
+	// These are functions required for Darren's addition to the workflow.  They are not used in the general workflow... workflow.
+
+	/// Returns the current head of the workflow queue.
+	AMBeamlineActionItem *headOfQueue() { return workflowQueue_->head(); }
+	/// Removes a beamline action item from a given index.
+	void removeBeamlineAction(int index);
+
+	// End of functions required by Darren.
+
 signals:
 	/// Signals changes in workflowItemCount()
 	void actionItemCountChanged(int actionItemsLeftToRun);
@@ -59,6 +68,13 @@ signals:
 	void runningChanged(bool isRunning);
 	/// Signals changes in the status of the workflow: \c beamlineBusy means that it's impossible to start running the workflow because another program, etc. has exclusive access to it. \c queueEmpty means that there are no items (except for possibly the currently-running action) in the workflow. \c workflowRunning means that we are executing actions right now.
 	void workflowStatusChanged(bool beamlineBusy, bool queueEmpty, bool workflowRunning);
+
+	// Darren's addition.
+
+	/// Notifier that the head of the queue has changed.
+	void headChanged();
+
+	// End of Darren's addition.
 
 public slots:
 
