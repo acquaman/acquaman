@@ -1,6 +1,7 @@
 #include "AMActionRunnerCurrentView.h"
 #include "actions2/AMActionRunner.h"
 #include "actions2/AMAction.h"
+#include "actions2/AMNestedAction.h"
 
 #include <QTreeView>
 #include <QBoxLayout>
@@ -16,6 +17,7 @@
 #include <QMessageBox>
 #include <QPixmapCache>
 
+#include <QDebug>
 
 AMActionRunnerCurrentView::AMActionRunnerCurrentView(AMActionRunner* actionRunner, QWidget *parent) :
     QWidget(parent)
@@ -74,10 +76,10 @@ AMActionRunnerCurrentView::AMActionRunnerCurrentView(AMActionRunner* actionRunne
 	currentActionView_ = new QTreeView();
 	currentActionView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 	currentActionView_->setMaximumHeight(48);
+	currentActionView_->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 	vl->addWidget(currentActionView_);
 
-	currentActionModel_ = new QStandardItemModel(this);
-	currentActionView_->setModel(currentActionModel_);
+	currentActionView_->setModel(new AMActionRunnerCurrentModel(actionRunner_, this));
 	currentActionView_->setSelectionMode(QAbstractItemView::NoSelection);
 	currentActionView_->setHeaderHidden(true);
 	currentActionView_->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -108,10 +110,17 @@ void AMActionRunnerCurrentView::onCurrentActionChanged(AMAction* nextAction)
 		pauseButton_->setText("Pause");
 	}
 
-	currentActionModel_->removeRow(0); // harmless if no row yet... Will just return false.
+	// model will handle the tree view on its own. But... we want to make some more visible room if it's a nested action, to show the sub-actions.
+	AMNestedAction* nestedAction = qobject_cast<AMNestedAction*>(nextAction);
+	if(nestedAction) {
+		currentActionView_->setMaximumHeight(qMin(168, int((nestedAction->subActionCount()+1)*48)));
+		QTimer::singleShot(0, currentActionView_, SLOT(expandAll()));
+	}
+	else {
+		currentActionView_->setMaximumHeight(48);
+	}
 
 	if(nextAction) {
-		currentActionModel_->appendRow(new AMActionQueueModelItem(nextAction));
 		headerTitle_->setText("Current Action: " % nextAction->info()->typeDescription());
 		headerSubTitle_->setText("<b>Status</b>: " % nextAction->statusText());
 		timeElapsedLabel_->setText("0:00");
@@ -137,6 +146,7 @@ void AMActionRunnerCurrentView::onStatusTextChanged(const QString &newStatus)
 void AMActionRunnerCurrentView::onExpectedDurationChanged(double totalSeconds)
 {
 	double elapsed = actionRunner_->currentAction()->elapsedTime();
+	qDebug() << "In on expected duration changed: " << totalSeconds;
 	if(totalSeconds > 0)
 		timeRemainingLabel_->setText(formatSeconds(totalSeconds-elapsed));
 	else
@@ -155,6 +165,7 @@ void AMActionRunnerCurrentView::onTimeUpdateTimer()
 	if(currentAction) {
 		double elapsed = currentAction->runningTime();
 		double expectedDuration = currentAction->expectedDuration();
+		qDebug() << "In time update timer: expected duration:" << expectedDuration;
 		timeRemainingLabel_->setText(expectedDuration > 0 ? formatSeconds(expectedDuration-elapsed) : "?:??");
 		timeElapsedLabel_->setText(formatSeconds(elapsed));
 	}
@@ -219,27 +230,90 @@ void AMActionRunnerCurrentView::onStateChanged(int state, int previousState)
 
 
 
-AMActionQueueModelItem::AMActionQueueModelItem(AMAction *action) : QStandardItem()
+AMActionRunnerCurrentModel::AMActionRunnerCurrentModel(AMActionRunner *actionRunner, QObject *parent) : QAbstractItemModel(parent)
 {
-	action_ = action;
+	actionRunner_ = actionRunner;
+	currentAction_ = 0;
 
-//	// is it a nested action? then include drop-enabled flag.
-//	if(qobject_cast<AMNestedAction*>(action))
-//		setFlags(Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled);
-//	else
-	setFlags(Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled);
-
+	connect(actionRunner_, SIGNAL(currentActionChanged(AMAction*)), this, SLOT(onCurrentActionChanged(AMAction*)));
 }
 
-
-QVariant AMActionQueueModelItem::data(int role) const
+QModelIndex AMActionRunnerCurrentModel::index(int row, int column, const QModelIndex &parent) const
 {
+	if(column != 0)
+		return QModelIndex();
+
+	// top-level: index for the current action.
+	if(!parent.isValid()) {
+		if(row != 0)
+			return QModelIndex();
+		if(!currentAction_)
+			return QModelIndex();
+		return createIndex(0, 0, currentAction_);
+	}
+	// There is a parent, so this is an index for a sub-action inside an AMNestedAction.
+	else {
+		AMNestedAction* parentAction = qobject_cast<AMNestedAction*>(actionAtIndex(parent));
+		if(!parentAction) {
+			qWarning() << "AMActionRunnerCurrentModel: Warning: Requested child index with invalid parent action.";
+			return QModelIndex();
+		}
+		if(row < 0 || row >= parentAction->subActionCount()) {
+			qWarning() << "AMActionRunnerCurrentModel: Warning: sub-action not found at child index row" << row << "with parent" << parent;
+			return QModelIndex();
+		}
+		return createIndex(row, 0, parentAction->subActionAt(row));
+	}
+}
+
+QModelIndex AMActionRunnerCurrentModel::parent(const QModelIndex &child) const
+{
+	if(!child.isValid())
+		return QModelIndex();
+
+	AMAction* childAction = actionAtIndex(child);
+	if(!childAction)
+		return QModelIndex();
+
+	// if childAction->parentAction() returns 0 (ie: no parent -- its at the top level) then this will return an invalid index, meaning it has no parent.
+	return indexForAction(childAction->parentAction());
+}
+
+int AMActionRunnerCurrentModel::rowCount(const QModelIndex &parent) const
+{
+	// top level: the row count is 1 if the action runner has a current action, otherwise 0.
+	if(!parent.isValid()) {
+		return currentAction_ ? 1 : 0;
+	}
+
+	// otherwise, parent must represent an AMNestedAction
+	AMNestedAction* nestedAction = qobject_cast<AMNestedAction*>(actionAtIndex(parent));
+	if(nestedAction)
+		return nestedAction->subActionCount();
+	else
+		return 0;
+}
+
+int AMActionRunnerCurrentModel::columnCount(const QModelIndex &parent) const
+{
+	Q_UNUSED(parent)
+	return 1;
+}
+
+QVariant AMActionRunnerCurrentModel::data(const QModelIndex &index, int role) const
+{
+	AMAction* action = actionAtIndex(index);
+	if(!action) {
+		qWarning() << "AMActionRunnerQueueModel: Warning: No action at index " << index;
+		return QVariant();
+	}
+
 	if(role == Qt::DisplayRole) {
-		return action_->info()->shortDescription();
+		return action->info()->shortDescription();
 	}
 	else if(role == Qt::DecorationRole) {
 		QPixmap p;
-		QString iconFileName = action_->info()->iconFileName();
+		QString iconFileName = action->info()->iconFileName();
 		if(QPixmapCache::find("AMActionIcon" % iconFileName, &p))
 			return p;
 		else {
@@ -252,5 +326,71 @@ QVariant AMActionQueueModelItem::data(int role) const
 	else if(role == Qt::SizeHintRole) {
 		return QSize(-1, 48);
 	}
-	return QStandardItem::data(role);
+
+	return QVariant();
+}
+
+Qt::ItemFlags AMActionRunnerCurrentModel::flags(const QModelIndex &index) const
+{
+	Q_UNUSED(index)
+	return (Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable);
+}
+
+bool AMActionRunnerCurrentModel::hasChildren(const QModelIndex &parent) const
+{
+	if(!parent.isValid())
+		return true;	// top level: must have children.
+	else {
+		// other levels: have children if its a nested action, and the nested action has children.
+		AMNestedAction* nestedAction = qobject_cast<AMNestedAction*>(actionAtIndex(parent));
+		return (nestedAction && nestedAction->subActionCount() > 0);
+	}
+}
+
+AMAction * AMActionRunnerCurrentModel::actionAtIndex(const QModelIndex &index) const
+{
+	if(!index.isValid())
+		return 0;
+	return static_cast<AMAction*>(index.internalPointer());
+}
+
+QModelIndex AMActionRunnerCurrentModel::indexForAction(AMAction *action) const
+{
+	if(!action)
+		return QModelIndex();
+
+	AMNestedAction* parentAction = action->parentAction();
+	if(!parentAction) {
+		// action is in the top-level. It must be the current action.
+		if(action == currentAction_)
+			return createIndex(0, 0, action);
+		else {
+			qWarning() << "AMActionRunnerCurrentModel: Warning: Action not found as the current action.";
+			return QModelIndex();
+		}
+	}
+	else {
+		// we do a have parent action. Do a linear search for ourself in the parent AMNestedAction to find our row.
+		int row = parentAction->indexOfSubAction(action);
+		if(row == -1) {
+			qWarning() << "AMActionRunnerCurrentModel: Warning: action not found in nested action.";
+			return QModelIndex();
+		}
+		return createIndex(row, 0, action);
+	}
+}
+
+void AMActionRunnerCurrentModel::onCurrentActionChanged(AMAction *newCurrentAction)
+{
+	if(currentAction_) {
+		beginRemoveRows(QModelIndex(), 0, 0);
+		currentAction_ = 0;
+		endRemoveRows();
+	}
+
+	if(newCurrentAction) {
+		beginInsertRows(QModelIndex(), 0, 0);
+		currentAction_ = newCurrentAction;
+		endInsertRows();
+	}
 }

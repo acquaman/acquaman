@@ -385,8 +385,48 @@ void AMListAction::internalOnSubActionProgressChanged(double numerator, double d
 			setProgress(currentSubActionIndex() + numerator/denominator, subActionCount());
 		}
 	}
+	// parallel mode:
 	else {
+		// if they all have an expected duration, try to return total progress in secondsCompleted of secondsTotal.
+		if(internalAllActionsHaveExpectedDuration()) {
+			double totalNumerator = 0, totalDenominator = 0;
+			for(int i=0, cc=subActionCount(); i<cc; i++) {
+				AMAction* action = subActionAt(i);
 
+				// completed action? Add total run time to both denominator and numerator.
+				if(action->inFinalState()) {
+					double runTimeSeconds = action->startDateTime().secsTo(action->endDateTime());
+					totalDenominator += runTimeSeconds;
+					totalNumerator += runTimeSeconds;
+				}
+				// incomplete action.
+				else {
+					double expectedDuration = action->info()->expectedDuration();
+					totalDenominator += expectedDuration;
+					totalNumerator += action->startDateTime().secsTo(action->endDateTime());
+				}
+			}
+			setProgress(totalNumerator/subActionCount(), totalDenominator/subActionCount());
+		}
+		else {
+			double totalNumerator = 0, totalDenominator = 0;
+			foreach(AMAction* action, subActions_) {
+				QPair<double, double> p = action->progress();
+				// Will return (0,0) if unknown, or (-1,-1) if not yet started.
+				if(p.second == 0) {
+					setProgress(0,0);
+					return;
+				}
+				if(p.first < 0 && p.second < 0) { // hasnt started yet
+					totalDenominator += 1;
+				}
+				else {
+					totalNumerator += p.first;
+					totalDenominator += p.second;
+				}
+			}
+			setProgress(totalNumerator, totalDenominator);
+		}
 	}
 }
 

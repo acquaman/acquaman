@@ -23,6 +23,9 @@ AMActionRunnerQueueView::AMActionRunnerQueueView(AMActionRunner* actionRunner, Q
 	treeView_->setSelectionBehavior(QAbstractItemView::SelectRows);
 	treeView_->setSelectionMode(QAbstractItemView::ExtendedSelection);
 	treeView_->setAlternatingRowColors(true);
+	treeView_->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+	treeView_->setAutoScroll(true);
+	treeView_->setAutoScrollMargin(20);
 
 	treeView_->setDragEnabled(true);
 	treeView_->viewport()->setAcceptDrops(true);

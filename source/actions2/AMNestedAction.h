@@ -40,15 +40,17 @@ public:
 	int indexOfSubAction(const AMAction* action) const;
 
 
-	// Public virtual functions to re-implement:
+	// Public virtual functions that must be re-implemented:
 	//////////////////////
 
 	/// Specifies whether, when logging actions that are run with AMActionRunner, to log the entire action, or log the individual sub-actions as they complete.
 	virtual bool shouldLogSubActionsSeparately() { return true; }
 
-	// Querying the sub-actions
+	/// Returns the number of sub-actions
 	virtual int subActionCount() const = 0;
+	/// Returns the sub-action at \c index, or 0 if \c index is out of range.
 	virtual const AMAction* subActionAt(int index) const = 0;
+	/// Returns the sub-action at \c index, or 0 if \c index is out of range.
 	virtual AMAction* subActionAt(int index) = 0;
 
 	/// Returns the index of the currently-active subaction. Return -1 if it doesn't make sense to consider any as current, and -2 if all should be considered current.
@@ -56,21 +58,24 @@ public:
 
 signals:
 
-	// Should be emitted by implementations
+	// These signals should be emitted by implementations
 	/////////////////////////////////////////
 
-	// todozzz How are these used?
-
-	/// Emitted when a sub-action completes. TODOZZZZ... should the system be responsible for deleting \c completedAction?
+	/// Emitted when a sub-action completes.
 	void subActionCompleted(AMAction* completedAction);
 	/// Emitted when the current sub-action changes. \c newSubActionIndex can be from 0 to subActionCount()-1.  This can change in any order... For example, AMLoopAction might go from the last subAction back to the first subAction.  Send -1 if it doesn't make sense to consider any as current, and -2 if all should be considered current.
 	void currentSubActionChanged(int newSubActionIndex);
 
 	// Emitted by the base class
 	/////////////////////////////
+
+	/// Emitted right before a sub-action is added at \c index
 	void subActionAboutToBeAdded(int index);
+	/// Emitted right after a sub-action is added at \c index
 	void subActionAdded(int index);
+	/// Emitted right before the sub-action that is now at \c index will be removed
 	void subActionAboutToBeRemoved(int index);
+	/// Emitted right after the sub-action that used to be at \c index was removed.
 	void subActionRemoved(int index);
 
 public slots:
@@ -80,9 +85,9 @@ protected:
 	// Protected virtual functions to re-implement
 	/////////////////////////////////////
 
-	// can assume index is valid. Don't emit subActionAboutToBeAdded(), etc. because the base class takes care of this for you.
+	/// Implement this to insert a sub-action \c action at \c index. You can assume \c index is valid. Don't emit subActionAboutToBeAdded(), etc. because the base class takes care of this for you.
 	virtual void insertSubActionImplementation(AMAction *action, int index) = 0;
-	// can assume index is valid. Don't emit subActionAboutToBeRemoved(), etc. because the base class takes care of this for you.
+	/// Implement this to remove and return the sub-action at \c index. You can assume index is valid. Don't emit subActionAboutToBeRemoved(), etc. because the base class takes care of this for you.
 	virtual AMAction* takeSubActionImplementation(int index) = 0;
 
 };

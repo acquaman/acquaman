@@ -68,9 +68,12 @@ void AMActionRunner::onCurrentActionStateChanged(int state, int previousState)
 			state == AMAction::Cancelled ||
 			state == AMAction::Succeeded) {
 
-		// log it:
-		if(!AMActionLog::logCompletedAction(currentAction_)) {
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem logging the completed action to your database.  Please report this problem to the Acquaman developers."));
+		// log it, unless it's a nested action that wants to take care of logging its sub-actions itself.
+		AMNestedAction* nestedAction = qobject_cast<AMNestedAction*>(currentAction_);
+		if(!(nestedAction && nestedAction->shouldLogSubActionsSeparately())) {
+			if(!AMActionLog::logCompletedAction(currentAction_)) {
+				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem logging the completed action to your database.  Please report this problem to the Acquaman developers."));
+			}
 		}
 
 		// move onto the next, if there is one, and disconnect and delete the old one.
@@ -367,6 +370,7 @@ QModelIndex AMActionRunnerQueueModel::index(int row, int column, const QModelInd
 			return QModelIndex();
 		return createIndex(row, 0, actionRunner_->queuedActionAt(row));
 	}
+	// otherwise this is an index for a sub-action of an AMNestedAction.
 	else {
 		AMNestedAction* parentAction = qobject_cast<AMNestedAction*>(actionAtIndex(parent));
 		if(!parentAction) {
