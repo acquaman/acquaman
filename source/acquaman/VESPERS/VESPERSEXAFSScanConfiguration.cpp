@@ -31,6 +31,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	goToPosition_ = false;
 	position_ = qMakePair(0.0, 0.0);
 	totalTime_ = 0;
+	timeOffset_ = 0.7;
 	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
 	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onEXAFSRegionsChanged()));
 	connect(VESPERSBeamline::vespers()->variableIntegrationTime(), SIGNAL(a0Changed(double)), this, SLOT(computeTotalTime()));
@@ -78,6 +79,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(const VESPERSEXAFSS
 
 	roiInfoList_ = original.roiList();
 
+	timeOffset_ = 0.7;
 	totalTime_ = 0;
 	computeTotalTime();
 	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
@@ -163,17 +165,17 @@ void VESPERSEXAFSScanConfiguration::computeTotalTime()
 		for (int i = 0; i < regions_->count(); i++){
 
 			if (exafsRegions()->type(i) == AMEXAFSRegion::kSpace)
-				time += VESPERSBeamline::vespers()->variableIntegrationTime()->totalTime(regions_->delta(i)) + ((regions_->end(i) - regions_->start(i))/regions_->delta(i))*0.7;
+				time += VESPERSBeamline::vespers()->variableIntegrationTime()->totalTime(regions_->delta(i)) + ((regions_->end(i) - regions_->start(i))/regions_->delta(i))*timeOffset_;
 
 			else
-				time += ((regions_->end(i) - regions_->start(i))/regions_->delta(i))*(regions_->time(i) + 0.7); // Seems to take about 0.7 seconds for extra beamline stuff to happen.
+				time += ((regions_->end(i) - regions_->start(i))/regions_->delta(i))*(regions_->time(i) + timeOffset_); // Seems to take about 0.7 seconds for extra beamline stuff to happen.
 		}
 	}
 
 	else{
 
 		for (int i = 0; i < regions_->count(); i++)
-			time += ((regions_->end(i) - regions_->start(i))/regions_->delta(i))*(regions_->time(i) + 0.7); // Seems to take about 0.7 seconds for extra beamline stuff to happen.
+			time += ((regions_->end(i) - regions_->start(i))/regions_->delta(i))*(regions_->time(i) + timeOffset_); // Seems to take about 0.7 seconds for extra beamline stuff to happen.
 	}
 
 	totalTime_ = time + 9; // There is a 9 second miscellaneous startup delay.

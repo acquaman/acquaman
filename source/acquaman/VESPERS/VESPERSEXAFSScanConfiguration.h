@@ -81,6 +81,8 @@ public:
 
 	/// Returns the current total estimated time for a scan to complete.
 	double totalTime() const { return totalTime_; }
+	/// Returns the time offset.
+	double timeOffset() const { return timeOffset_; }
 
 	/// Returns the ion chamber name from its corresponding enum.
 	QString ionChamberName(IonChamber chamber) { return ionChamberNames_.value(chamber); }
@@ -169,6 +171,9 @@ public slots:
 	/// Sets the number of times this scan should be repeated.
 	void setNumberOfScans(int num) { numberOfScans_ = num; emit numberOfScansChanged(numberOfScans_); setModified(true); }
 
+	/// Sets the time offset used for estimating the scan time.
+	void setTimeOffset(double offset) { timeOffset_ = offset; computeTotalTime(); }
+
 	/// Sets the ROI list.
 	void setRoiInfoList(const AMROIInfoList &list) { roiInfoList_ = list; setModified(true); }
 
@@ -210,6 +215,9 @@ protected:
 
 	/// Holds the number of times this scan should be repeated.
 	int numberOfScans_;
+
+	/// Holds the offset per point of extra time when doing a scan.
+	double timeOffset_;
 };
 
 #endif // VESPERSEXAFSSCANCONFIGURATION_H

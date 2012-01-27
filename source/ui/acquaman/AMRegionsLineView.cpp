@@ -237,6 +237,7 @@ AMEXAFSLineView::AMEXAFSLineView(AMEXAFSRegionsList *regions, QWidget *parent)
 	: AMRegionsLineView(regions, parent)
 {
 	redrawRegionsLine();
+	connect(regions, SIGNAL(regionsHaveKSpaceChanged(bool)), this, SLOT(redrawRegionsLine()));
 }
 
 void AMEXAFSLineView::redrawRegionsLine()

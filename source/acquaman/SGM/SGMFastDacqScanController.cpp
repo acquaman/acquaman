@@ -264,7 +264,12 @@ void SGMFastDacqScanController::onInitializationActionsStageSucceeded(int stageI
 
 void SGMFastDacqScanController::onInitializationActionsFailed(int explanation){
 	Q_UNUSED(explanation)
-	setFailed();
+	if(cleanUpActions_){
+		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(setCancelled()));
+		cleanUpActions_->start();
+	}
+	else
+		setCancelled();
 }
 
 void SGMFastDacqScanController::onFastScanTimerTimeout(){

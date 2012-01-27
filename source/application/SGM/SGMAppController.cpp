@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/SGM/SGMSampleTransferView.h"
 #include "ui/SGM/SGMSampleManipulatorView.h"
+#include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/dataman/AMSampleManagementWidget.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder.h"
 #include "ui/SGM/SGMXASScanConfigurationView.h"
@@ -166,9 +167,11 @@ bool SGMAppController::startup() {
 
 		connect(SGMBeamline::sgm(), SIGNAL(currentSamplePlateChanged(AMSamplePlate*)), workflowManagerView_, SLOT(setCurrentSamplePlate(AMSamplePlate*)));
 
-		sampleTransferView_ = new SGMSampleTransferView();
-		mw_->addPane(sampleTransferView_, "Beamline Control", "SGM Sample Transfer", ":/system-software-update.png");
+		//sampleTransferView_ = new SGMSampleTransferView();
+		//mw_->addPane(sampleTransferView_, "Beamline Control", "SGM Sample Transfer", ":/system-software-update.png");
 
+		sgmScalerView_ = 0;
+		connect(SGMBeamline::sgm()->rawScaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onSGMScalerConnected(bool)));
 
 		mw_->insertHeading("Experiment Setup", 1);
 		//////////
@@ -197,7 +200,7 @@ bool SGMAppController::startup() {
   connect(scanController, SIGNAL(progress(double,double)), bottomBar_, SLOT(updateScanProgress(double,double)));
  }
  */
-		additionalIssueTypesAndAssignees_.append("I think it's an SGM specific issue", "AcquamanIssues");
+		additionalIssueTypesAndAssignees_.append("I think it's an SGM specific issue", "davidChevrier");
 
 		sgmSidebar_ = new SGMSidebar();
 		mw_->addRightWidget(sgmSidebar_);
@@ -256,12 +259,18 @@ void SGMAppController::onSGMBeamlineConnected(){
 	}
 }
 
+void SGMAppController::onSGMScalerConnected(bool connected){
+	if(connected && !sgmScalerView_){
+		sgmScalerView_ = new CLSSIS3820ScalerView(SGMBeamline::sgm()->scaler());
+		mw_->addPane(sgmScalerView_, "Beamline Control", "SGM Scaler", ":/system-software-update.png");
+	}
+}
+
 #include "dataman/AMScanEditorModelItem.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 
 void SGMAppController::onCurrentScanControllerCreated(){
 	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
-
 }
 
 void SGMAppController::onCurrentScanControllerDestroyed(){
@@ -269,6 +278,23 @@ void SGMAppController::onCurrentScanControllerDestroyed(){
 
 void SGMAppController::onCurrentScanControllerStarted(){
 	openScanInEditorAndTakeOwnership(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
+
+	SGMXASScanConfiguration *xasConfig = qobject_cast<SGMXASScanConfiguration *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->scanConfiguration());
+	if(xasConfig){
+		if(xasConfig->allDetectorConfigurations().isActiveNamed("teyScaler") || xasConfig->allDetectorConfigurations().isActiveNamed("teyPico"))
+			scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("TEYNorm");
+		else if(xasConfig->allDetectorConfigurations().isActiveNamed("tfyScaler") || xasConfig->allDetectorConfigurations().isActiveNamed("tfyPico"))
+			scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("TFYNorm");
+		else
+			scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("I0");
+		return;
+	}
+
+	SGMFastScanConfiguration *fastConfig = qobject_cast<SGMFastScanConfiguration *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->scanConfiguration());
+	if(fastConfig){
+		scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("TEY");
+		return;
+	}
 }
 
 void SGMAppController::onActionSGMSettings(){
@@ -460,9 +486,9 @@ bool SGMAppController::setupSGMPeriodicTable(){
 	elementEdge = "K";
 	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
 	if(matchIDs.count() == 0){
-		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 400.0, -278404, -109034, 1.37942, 0);
-		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 415.0, -268341, -105051, 5.99793, 0);
-		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 430.0, -258981, -101191, 15.5151, 0);
+		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 380.0, -293057, -115327, 1.37942, 0);
+		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 410.0, -268341, -105051, 3.88, 0);
+		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 440.0, -253095, -99461, 15.5151, 0);
 		success &= epStart.storeToDb(dbSGM);
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);

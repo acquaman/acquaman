@@ -32,7 +32,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/VESPERS/AMXRFScan.h"
 #include "util/AMPeriodicTable.h"
 #include "ui/VESPERS/VESPERSDeviceStatusView.h"
-#include "ui/VESPERS/VESPERSXASScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSEXAFSScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSExperimentConfigurationView.h"
 #include "ui/VESPERS/VESPERSRoperCCDDetectorView.h"
@@ -100,7 +99,6 @@ bool VESPERSAppController::startup() {
 		AMDbObjectSupport::s()->registerClass<XRFDetectorInfo>();
 		AMDbObjectSupport::s()->registerClass<VESPERSXRFScanConfiguration>();
 		AMDbObjectSupport::s()->registerClass<AMXRFScan>();
-		AMDbObjectSupport::s()->registerClass<VESPERSXASScanConfiguration>();
 		AMDbObjectSupport::s()->registerClass<VESPERSEXAFSScanConfiguration>();
 
 		AMDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
@@ -142,11 +140,8 @@ bool VESPERSAppController::startup() {
 
 		// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
 		matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
-		if(matchIDs.count() > 0){
-
-			AMAppControllerSupport::registerClass<VESPERSXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
+		if(matchIDs.count() > 0)
 			AMAppControllerSupport::registerClass<VESPERSEXAFSScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
-		}
 
 		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
 		AMStartScreen* startScreen = new AMStartScreen(0);
@@ -240,6 +235,38 @@ void VESPERSAppController::onCurrentScanControllerStarted()
 		return;
 
 	openScanInEditorAndTakeOwnership(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
+
+	VESPERSEXAFSScanConfiguration *config = qobject_cast<VESPERSEXAFSScanConfiguration *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->scanConfiguration());
+
+	if (!config)
+		return;
+
+	switch(config->fluorescenceDetectorChoice()){
+
+	case VESPERSEXAFSScanConfiguration::None:
+
+		scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("trans");
+		break;
+
+	case VESPERSEXAFSScanConfiguration::SingleElement:
+	case VESPERSEXAFSScanConfiguration::FourElement:
+	{
+		QStringList dataSources(scanEditorAt(scanEditorCount()-1)->visibleDataSourceNames());
+		int index = 0;
+
+		for (int i = 0; i < dataSources.size(); i++){
+			if (dataSources.at(i).contains("norm") && (dataSources.at(i).contains("Ka") || dataSources.contains("La"))){
+
+				index = i;
+				break;
+			}
+		}
+
+		scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName(dataSources.at(index));
+
+		break;
+	}
+	}
 }
 
 void VESPERSAppController::onCurrentScanControllerCreated()

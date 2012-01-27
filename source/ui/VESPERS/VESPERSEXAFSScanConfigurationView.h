@@ -32,8 +32,6 @@ public:
 protected slots:
 	/// Handles setting the name of the configuration from the line edit.
 	void onScanNameEdited() { config_->setName(scanName_->text()); }
-	/// Handles switching which button group is being viewed for Ion chamber selection.
-	void onItI0Toggled(int id);
 	/// Handles changing what are acceptable choices for I0 based on It clicks.  Takes in the id of the new It choice.  Passes choice on to the configuration.
 	void onItClicked(int id);
 	/// Passes on the selection for I0 to the configuration.
@@ -74,6 +72,13 @@ protected slots:
 	}
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();
+	/// Slot that sets up the regions for standard XANES scans.
+	void onDefaultXANESScanClicked();
+	/// Slot that sets up the regions for standard EXAFS scans.
+	void onDefaultEXAFSScanClicked();
+
+	/// Handles the context menu.
+	void onCustomContextMenuRequested(QPoint pos);
 
 protected:
 	/// Helper method that takes a time in seconds and returns a string of d:h:m:s.
@@ -119,6 +124,11 @@ protected:
 
 	/// The text edit that holds all the names of the regions of interest.
 	QTextEdit *roiText_;
+
+	/// A label holding text for the the time offset spin box.
+	QLabel *timeOffsetLabel_;
+	/// A spin box holding the time offset.
+	QDoubleSpinBox *timeOffset_;
 };
 
 #endif // VESPERSEXAFSSCANCONFIGURATIONVIEW_H

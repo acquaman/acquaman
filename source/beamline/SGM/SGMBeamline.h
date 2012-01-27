@@ -55,7 +55,6 @@ class SGMMAXvMotor;
 class CLSCAEN2527HVChannel;
 class CLSPGT8000HVChannel;
 class CLSSynchronizedDwellTime;
-class CLSSIS3820ScalerView;
 
 class SGMBeamline : public AMBeamline
 {
@@ -270,7 +269,10 @@ public:
 	AMBeamlineHighVoltageChannelToggleAction* createHVPGTOnActions();
 	AMBeamlineHighVoltageChannelToggleAction* createHVPGTOffActions();
 
+	/// Returns a pointer to the scaler IF the scaler IS connected
 	CLSSIS3820Scaler* scaler();
+	/// Returns a pointer to the scaler EVEN IF the scaler ISN'T yet connected
+	CLSSIS3820Scaler* rawScaler();
 
 	bool isBeamlineScanning();
 
@@ -339,8 +341,6 @@ protected slots:
 	void recomputeWarnings();
 
 	void onVisibleLightChanged(double value);
-
-	void onScalerConnected(bool connected);
 
 protected:
 	// Singleton implementation:
@@ -489,7 +489,6 @@ protected:
 	AMSamplePlate* currentSamplePlate_;
 
 	CLSSIS3820Scaler *scaler_;
-	CLSSIS3820ScalerView *scalerView_;
 
 	AMOrderedSet<QString, QPixmap> transferLoadLockOutAction1Help_;
 	AMOrderedSet<QString, QPixmap> transferLoadLockOutAction2Help_;
@@ -523,7 +522,6 @@ protected:
 
 private:
 	void usingSGMBeamline();
-	void usingFakeBeamline();
 };
 
 class SGMFluxOptimization : public AMControlOptimization

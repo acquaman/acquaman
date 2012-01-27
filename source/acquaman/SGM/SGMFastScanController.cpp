@@ -162,6 +162,11 @@ bool SGMFastScanController::beamlineInitialize(){
 	tmpBAction = SGMBeamline::sgm()->scaler()->createTotalScansAction(SGMBeamline::sgm()->scaler()->isContinuous() ? 1 : SGMBeamline::sgm()->scaler()->totalScans());
 	tmpBAction ? cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpBAction) : cleanupFailed = true;
 
+	for(int x = 0; x < 32; x++){
+		tmpBAction = SGMBeamline::sgm()->scaler()->channelAt(x)->createEnableAction(SGMBeamline::sgm()->scaler()->channelAt(x)->isEnabled());
+		tmpBAction ? cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpBAction) : cleanupFailed = true;
+	}
+
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorFastTracking());
 	tmpAction->setSetpoint(0);
 	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
@@ -169,14 +174,20 @@ bool SGMFastScanController::beamlineInitialize(){
 	tmpAction->setSetpoint(11811);
 	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
 
-
-
 	SGMFastScanParameters *settings = config_->currentParameters();
 	/* NTBA - August 25th, 2011 (David Chevrier)
 		Who's going to delete the list and the actions?"
 	*/
 	bool initializationFailed = false;
 	initializationActions_ = new AMBeamlineParallelActionsList();
+
+	if( !SGMBeamline::sgm()->grating()->withinTolerance(settings->scanInfo().start().sgmGrating())){
+		initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
+		tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->grating());
+		tmpAction->setSetpoint(settings->scanInfo().start().sgmGrating());
+		initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	}
+
 	if( SGMBeamline::sgm()->energy()->withinTolerance(settings->energyStart()) ){
 		qDebug() << "Too close to start energy";
 		initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
@@ -196,8 +207,6 @@ bool SGMFastScanController::beamlineInitialize(){
 		tmpAction->setSetpoint(0);
 		initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 	}
-
-	qDebug() << "I would want to go to " << settings->sgmGrating();
 
 	//Go to start of energy range
 	//Mode needs to change before time, buffer, and total
@@ -245,6 +254,13 @@ bool SGMFastScanController::beamlineInitialize(){
 	tmpBAction ? initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpBAction) : initializationFailed = true;
 	tmpBAction = SGMBeamline::sgm()->scaler()->createTotalScansAction(1000);
 	tmpBAction ? initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpBAction) : initializationFailed = true;
+
+	bool enableIt = false;
+	for(int x = 0; x < 32; x++){
+		(x < 6) ? enableIt = true : enableIt = false;
+		tmpBAction = SGMBeamline::sgm()->scaler()->channelAt(x)->createEnableAction(enableIt);
+		tmpBAction ? initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpBAction) : initializationFailed = true;
+	}
 
 	qDebug() << "Relative step to " << settings->undulatorRelativeStep() << " velocity to " << settings->undulatorVelocity();
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorRelativeStepStorage());
