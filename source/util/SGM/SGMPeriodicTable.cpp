@@ -46,15 +46,15 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 
 	//NITROGEN INFO
 	tmpElementInfo = new SGMElementInfo(AMPeriodicTable::table()->elementBySymbol("N"), this);
-	SGMEdgeInfo nitrogenK(AMPeriodicTable::table()->elementBySymbol("N")->KEdge(), SGMScanRangeInfo(SGMEnergyPosition(400.0, -278404, -109034, 1.37942, 0),
-												      SGMEnergyPosition(415.0, -268341, -105051, 5.99793, 0),
-												      SGMEnergyPosition(430.0, -258981, -101191, 15.5151, 0)));
+	SGMEdgeInfo nitrogenK(AMPeriodicTable::table()->elementBySymbol("N")->KEdge(), SGMScanRangeInfo(SGMEnergyPosition(380.0, -293057, -115327, 1.37942, 0),
+												      SGMEnergyPosition(410.0, -268341, -105051, 3.88, 0),
+												      SGMEnergyPosition(440.0, -253095, -99461, 15.5151, 0)));
 	tmpElementInfo->addEdgeInfo(nitrogenK);
-	SGMFastScanSettings nitrogenK5s(5.0, 10000, 5.0, 200, 1500);
+	SGMFastScanSettings nitrogenK5s(5.0, 12000, 5.0, 200, 1700);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
 									nitrogenK5s));
-	SGMFastScanSettings nitrogenK20s(20.0, 1800, 20.0, 800, 400);
+	SGMFastScanSettings nitrogenK20s(20.0, 4000, 20.0, 800, 850);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
 									nitrogenK20s));
