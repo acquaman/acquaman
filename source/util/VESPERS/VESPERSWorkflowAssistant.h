@@ -48,6 +48,8 @@ public slots:
 	void setTotalScans(int num);
 	/// Sets the current progress.
 	void onCurrentProgressChanged(double elapsed, double total) { emit progressChanged(elapsed/total); }
+	/// Handles when scans are cancelled.  Need to delete all of the extra scans that have been setup.
+	void onScanCancelled();
 
 protected slots:
 	/// Slot that listens to the workflow and updates internal pieces of this class.

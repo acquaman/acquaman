@@ -9,7 +9,6 @@ VESPERSWorkflowAssistant::VESPERSWorkflowAssistant(AMWorkflowManagerView *workfl
 	currentScan_ = -1;
 	config_ = 0;
 
-//	connect(workflow_, SIGNAL(actionItemCountChanged(int)), this, SLOT(listen()));
 	connect(workflow_, SIGNAL(headChanged()), this, SLOT(listen()));
 	connect(workflow_, SIGNAL(runningChanged(bool)), this, SLOT(onWorkflowRunningChanged(bool)));
 }
@@ -66,6 +65,13 @@ void VESPERSWorkflowAssistant::onWorkflowRunningChanged(bool running)
 		addExtraScanActions(config_->numberOfScans()-1);
 
 	emit workflowRunningChanged(running);
+}
+
+void VESPERSWorkflowAssistant::onScanCancelled()
+{
+	setTotalScans(currentScan_);
+	config_ = 0;
+	currentScan_ = -1;
 }
 
 void VESPERSWorkflowAssistant::addExtraScanActions(int num)
