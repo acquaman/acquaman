@@ -489,7 +489,7 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
     source/actions2/actions/AMInternalControlMoveAction.h \
     source/actions2/AMNestedAction.h \
     source/actions2/AMLoopAction.h \
-    source/actions2/actions/AMLoopActionInfo.h
+	source/actions2/AMLoopActionInfo.h
 
 
 CONFIG(mobility) {
@@ -798,7 +798,7 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
     source/actions2/actions/AMInternalControlMoveAction.cpp \
     source/actions2/AMNestedAction.cpp \
     source/actions2/AMLoopAction.cpp \
-    source/actions2/actions/AMLoopActionInfo.cpp
+	source/actions2/AMLoopActionInfo.cpp
 
 
 CONFIG(mobility) {

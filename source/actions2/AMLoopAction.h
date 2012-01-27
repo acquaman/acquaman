@@ -3,7 +3,7 @@
 
 #include "actions2/AMNestedAction.h"
 
-#include "actions2/actions/AMLoopActionInfo.h"
+#include "actions2/AMLoopActionInfo.h"
 
 /// An AMLoopAction contains a list of sub-actions that, when the loop action is run, will be executed a fixed number of times.  It implements the AMNestedAction interface so that the sub-actions are visible inside the AMActionRunner views, so that users can drag-and-drop existing actions into/out-of the loop.
 /*! The sub-actions are effectively used as templates, because a new copy of each sub-action will be made every time it is executed. You can configure whether you want the entire loop action logged as one, or every sub-action to be logged individually, by calling setShouldLogSubActionsSeparately(). */
@@ -11,8 +11,10 @@ class AMLoopAction : public AMNestedAction
 {
     Q_OBJECT
 public:
-	/// Constructor.
-	AMLoopAction(AMLoopActionInfo* info, QObject *parent = 0);
+	/// Constructor. Requires an AMLoopActionInfo for the \c info.
+	Q_INVOKABLE AMLoopAction(AMLoopActionInfo* info, QObject *parent = 0);
+	/// This convenience constructor is a synonym for AMLoopAction(new AMLoopActionInfo(iterations)).
+	AMLoopAction(int iterations, QObject* parent = 0);
 
 	/// Copy constructor, to make a new runnable action just like \c other. Here we make a copy of all the sub-actions.
 	AMLoopAction(const AMLoopAction& other);

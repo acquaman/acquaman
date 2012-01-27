@@ -99,7 +99,7 @@ bool REIXSAppController::startup() {
 		AMActionRegistry::s()->registerInfoAndAction<REIXSControlMoveActionInfo, REIXSControlMoveAction>("REIXS Control Move", "This action moves a REIXS beamline control to a target position.", ":/system-run.png");
 		AMActionRegistry::s()->registerInfoAndAction<REIXSXESScanActionInfo, REIXSXESScanAction>("REIXS XES Scan", "This action conducts a single XES scan at a given detector energy.", ":/utilities-system-monitor.png");
 
-		AMActionRunner::s()->addActionToQueue(new AMLoopAction(new AMActionInfo("Loop Action: 3")));
+		AMActionRunner::s()->addActionToQueue(new AMLoopAction(3));
 		AMActionRunner::s()->addActionToQueue(new AMInternalControlMoveAction(REIXSBeamline::bl()->sampleChamber()->x(), 35));
 		AMActionRunner::s()->addActionToQueue(new REIXSXESScanAction(new REIXSXESScanConfiguration()));
 		AMActionRunner::s()->addActionToQueue(new AMWaitAction(10));
@@ -213,7 +213,7 @@ void REIXSAppController::tempAddLoopActions()
 
 	loopAction->insertSubAction(new AMWaitAction(10), -1);
 	loopAction->insertSubAction(new AMWaitAction(11), -1);
-	AMLoopAction* inner1 = new AMLoopAction(new AMActionInfo("Loop Inner 1"));
+	AMLoopAction* inner1 = new AMLoopAction(2);
 	loopAction->insertSubAction(inner1, -1);
 
 	inner1->insertSubAction(new AMWaitAction(12), -1);

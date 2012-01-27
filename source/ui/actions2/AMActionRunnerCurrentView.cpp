@@ -146,7 +146,6 @@ void AMActionRunnerCurrentView::onStatusTextChanged(const QString &newStatus)
 void AMActionRunnerCurrentView::onExpectedDurationChanged(double totalSeconds)
 {
 	double elapsed = actionRunner_->currentAction()->elapsedTime();
-	qDebug() << "In on expected duration changed: " << totalSeconds;
 	if(totalSeconds > 0)
 		timeRemainingLabel_->setText(formatSeconds(totalSeconds-elapsed));
 	else
@@ -165,7 +164,6 @@ void AMActionRunnerCurrentView::onTimeUpdateTimer()
 	if(currentAction) {
 		double elapsed = currentAction->runningTime();
 		double expectedDuration = currentAction->expectedDuration();
-		qDebug() << "In time update timer: expected duration:" << expectedDuration;
 		timeRemainingLabel_->setText(expectedDuration > 0 ? formatSeconds(expectedDuration-elapsed) : "?:??");
 		timeElapsedLabel_->setText(formatSeconds(elapsed));
 	}

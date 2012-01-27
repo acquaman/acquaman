@@ -10,6 +10,12 @@ AMLoopAction::AMLoopAction(AMLoopActionInfo *info, QObject *parent) : AMNestedAc
 	currentSubAction_ = 0;
 }
 
+AMLoopAction::AMLoopAction(int iterations, QObject *parent) : AMNestedAction(new AMLoopActionInfo(iterations), parent) {
+	currentIteration_ = 0;
+	currentSubActionIndex_ = -1;
+	logSubActionsSeparately_ = true;
+	currentSubAction_ = 0;
+}
 
 AMLoopAction::AMLoopAction(const AMLoopAction &other) : AMNestedAction(other) {
 	logSubActionsSeparately_ = other.logSubActionsSeparately_;
