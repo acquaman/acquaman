@@ -216,12 +216,14 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 	channel_ = channel;
 
 	QCheckBox *enableBox = new QCheckBox;
-	if(channel_->isEnabled())
+	if(channel_->isConnected() && channel_->isEnabled())
 		enableBox->setChecked(true);
 	connect(channel_, SIGNAL(enabledChanged(bool)), enableBox, SLOT(setChecked(bool)));
 	connect(enableBox, SIGNAL(toggled(bool)), channel_, SLOT(setEnabled(bool)));
 
 	readingLabel_ = new QLabel;
+	if(channel_->isConnected())
+		onReadingChanged(channel_->reading());
 	connect(channel_, SIGNAL(readingChanged(int)), this, SLOT(onReadingChanged(int)));
 
 	QHBoxLayout *layout = new QHBoxLayout;
