@@ -9,6 +9,7 @@ class QSpinBox;
 class QComboBox;
 class QPushButton;
 class QLabel;
+class QVBoxLayout;
 
 class SGMEnergyPositionView : public QGroupBox
 {
@@ -52,6 +53,21 @@ protected:
 	QLabel *exitSlitDistanceLabel_;
 	QLabel *sgmGratingLabel_;
 	QPushButton *alternateViewModeButton_;
+
+	QVBoxLayout *vl2_;
+};
+
+class SGMEnergyPositionWBeamlineView : public SGMEnergyPositionView
+{
+Q_OBJECT
+public:
+	SGMEnergyPositionWBeamlineView(SGMEnergyPosition *energyPosition, SGMEnergyPositionView::EnergyPositionViewMode alternateViewMode = SGMEnergyPositionView::ViewModeAll, QWidget *parent = 0);
+
+protected slots:
+	void onSetFromBeamlineButtonClicked();
+
+protected:
+	QPushButton *setFromBeamlineButton_;
 };
 
 #endif // SGMENERGYPOSITIONVIEW_H
