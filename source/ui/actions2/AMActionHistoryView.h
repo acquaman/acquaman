@@ -175,9 +175,17 @@ public:
 	/// Constructor. If you want this history view to be able to re-instantiate and re-queue actions, pass in valid AMActionRunner, ie: AMActionRunner::s().  The default (\c actionRunner = 0) is suitable for a Dataman-only program, and can only browse the user's action history.
 	AMActionHistoryView(AMActionRunner* actionRunner = 0, AMDatabase* db = AMDatabase::database("user"), QWidget *parent = 0);
 
+	/// Returns true if the view is currently collapsed to show only the header bar, and false if it is fully shown.
+	bool isCollapsed() const { return isCollapsed_; }
+
 signals:
+	/// This signal is emitted with \c true when the view widget is collapsed to show only the header bar, and \c false when it is restored.
+	void collapsed(bool isCollapsed);
 
 public slots:
+
+	/// Collapses the view to show only the header bar.
+	void collapse(bool doCollapse);
 
 protected slots:
 	/// Called when the "show more actions" button is clicked. Doubles the model's maximumActionsToDisplay().
@@ -209,6 +217,7 @@ protected:
 	QPushButton* reRunActionButton_;
 
 	bool scrolledToBottom_;
+	bool isCollapsed_;
 
 	/// If we should be scrolled to the bottom of the treeView_, sometimes the scrolling doesn't happen if we're not visible. Here we make sure it does.
 	void showEvent(QShowEvent *);

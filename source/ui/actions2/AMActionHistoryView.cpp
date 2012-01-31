@@ -366,6 +366,8 @@ AMActionHistoryView::AMActionHistoryView(AMActionRunner *actionRunner, AMDatabas
 
 	// Setup UI
 	//////////////////////
+	isCollapsed_ = false;
+
 	QFrame* topFrame = new QFrame();
 	topFrame->setObjectName("topFrame");
 	topFrame->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
@@ -375,9 +377,9 @@ AMActionHistoryView::AMActionHistoryView(AMActionRunner *actionRunner, AMDatabas
 	hl->setContentsMargins(6, 2, 12, 1);
 
 	QToolButton* hideButton = new QToolButton();
-	hideButton->setStyleSheet("QToolButton {\nborder: none;\nbackground-color: rgba(255, 255, 255, 0);\ncolor: white;\n image: url(:/22x22/arrow-white-right.png)} \nQToolButton::checked {\n	image: url(:/22x22/arrow-white-down.png);\n}\n");
+	hideButton->setStyleSheet("QToolButton {\nborder: none;\nbackground-color: rgba(255, 255, 255, 0);\ncolor: white;\n image: url(:/22x22/arrow-white-down.png)} \nQToolButton::checked {\n	image: url(:/22x22/arrow-white-right.png);\n}\n");
 	hideButton->setCheckable(true);
-	hideButton->setChecked(true);
+	hideButton->setChecked(false);
 	hl->addWidget(hideButton);
 	hl->addSpacing(10);
 
@@ -443,7 +445,7 @@ AMActionHistoryView::AMActionHistoryView(AMActionRunner *actionRunner, AMDatabas
 	// Make connections:
 	////////////////
 
-	connect(hideButton, SIGNAL(toggled(bool)), treeView_, SLOT(setVisible(bool)));
+	connect(hideButton, SIGNAL(toggled(bool)), this, SLOT(collapse(bool)));
 
 	connect(model_, SIGNAL(modelAboutToBeRefreshed()), this, SLOT(onModelAboutToBeRefreshed()));
 	connect(model_, SIGNAL(modelRefreshed()), this, SLOT(onModelRefreshed()));
@@ -771,6 +773,17 @@ void AMActionHistoryView::showEvent(QShowEvent *e)
 
 	if(scrolledToBottom_)
 		treeView_->scrollToBottom();
+}
+
+
+void AMActionHistoryView::collapse(bool doCollapse)
+{
+	bool wasCollapsed = isCollapsed();
+	treeView_->setHidden(doCollapse);
+	isCollapsed_ = doCollapse;
+
+	if(isCollapsed_ != wasCollapsed)
+		emit collapsed(doCollapse);
 }
 
 

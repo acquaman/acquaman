@@ -392,3 +392,4 @@ void AMActionRunnerCurrentModel::onCurrentActionChanged(AMAction *newCurrentActi
 		endInsertRows();
 	}
 }
+

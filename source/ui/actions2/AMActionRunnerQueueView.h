@@ -15,6 +15,15 @@ class AMActionRunnerQueueItemDelegate : public QItemDelegate {
 	Q_OBJECT
 public:
 
+	virtual QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
+	virtual void setEditorData(QWidget *editor, const QModelIndex &index) const {
+		Q_UNUSED(editor)
+		Q_UNUSED(index)
+	}
+
+//	virtual void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
 };
 
 /// This UI class provides a view of the upcoming (queued) actions in an AMActionRunner. It is part of a the overall AMWorkflowView.
@@ -25,9 +34,16 @@ public:
 	/// Constructor. Should pass in the instance of AMActionRunner::s() for \c actionRunner.
 	AMActionRunnerQueueView(AMActionRunner* actionRunner, QWidget *parent = 0);
 
+	/// Returns true if the view is currently collapsed to show only the header bar, and false if it is fully shown.
+	bool isCollapsed() const { return isCollapsed_; }
+
 signals:
+	/// This signal is emitted with \c true when the view widget is collapsed to show only the header bar, and \c false when it is restored.
+	void collapsed(bool isCollapsed);
 
 public slots:
+	/// Collapses the view to show only the header bar.
+	void collapse(bool isCollapsed);
 
 protected slots:
 	/// Called when the "Pause Queue" button is clicked or un-clicked
@@ -55,6 +71,8 @@ protected:
 	QPushButton* pauseButton_;
 
 	QPushButton* deleteButton_, *duplicateButton_;
+
+	bool isCollapsed_;
 
 
 	/// Helper function to determine if all the selected indexes are at the same level of the hierarchy. We need this to be true in order to enable the 'duplicate actions' button.  Then a user can either duplicate top-level actions, or duplicate actions within an AMNestedAction, but there's no ambiguity as to what we would do for a combination of both.

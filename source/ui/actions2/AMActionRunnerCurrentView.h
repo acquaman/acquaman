@@ -46,6 +46,8 @@ protected:
 	AMAction* currentAction_;
 };
 
+// Previously:
+//
 ///// This subclass of QStandardItem is used inside AMActionRunnerCurrentView's QTreeView to display actions.  You should never need to use this class directly.
 //class AMActionQueueModelItem : public QStandardItem {
 //public:
@@ -71,7 +73,6 @@ class AMActionRunnerCurrentView : public QWidget
 public:
 	/// Constructor. Should pass in AMActionRunner::s() for \c actionRunner
 	AMActionRunnerCurrentView(AMActionRunner* actionRunner, QWidget *parent = 0);
-
 
 signals:
 

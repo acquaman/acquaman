@@ -15,6 +15,7 @@ AMActionRunnerQueueView::AMActionRunnerQueueView(AMActionRunner* actionRunner, Q
 {
 	actionRunner_ = actionRunner;
 
+	isCollapsed_ = false;
 	treeView_ = new QTreeView();
 	treeView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	treeView_->setModel(actionRunner_->queueModel());
@@ -41,9 +42,9 @@ AMActionRunnerQueueView::AMActionRunnerQueueView(AMActionRunner* actionRunner, Q
 	hl->setContentsMargins(6, 2, 12, 1);
 
 	hideButton_ = new QToolButton();
-	hideButton_->setStyleSheet("QToolButton {\nborder: none;\nbackground-color: rgba(255, 255, 255, 0);\ncolor: white;\n image: url(:/22x22/arrow-white-right.png)} \nQToolButton::checked {\n	image: url(:/22x22/arrow-white-down.png);\n}\n");
+	hideButton_->setStyleSheet("QToolButton {\nborder: none;\nbackground-color: rgba(255, 255, 255, 0);\ncolor: white;\n image: url(:/22x22/arrow-white-down.png)} \nQToolButton::checked {\n	image: url(:/22x22/arrow-white-right.png);\n}\n");
 	hideButton_->setCheckable(true);
-	hideButton_->setChecked(true);
+	hideButton_->setChecked(false);
 	hl->addWidget(hideButton_);
 	hl->addSpacing(10);
 
@@ -83,7 +84,7 @@ AMActionRunnerQueueView::AMActionRunnerQueueView(AMActionRunner* actionRunner, Q
 	vl->addWidget(topFrame);
 	vl->addWidget(treeView_);
 
-	connect(hideButton_, SIGNAL(toggled(bool)), treeView_, SLOT(setVisible(bool)));
+	connect(hideButton_, SIGNAL(toggled(bool)), this, SLOT(collapse(bool)));
 	connect(pauseButton_, SIGNAL(toggled(bool)), this, SLOT(onPauseButtonClicked(bool)));
 	connect(duplicateButton_, SIGNAL(clicked()), this, SLOT(onDuplicateButtonClicked()));
 	connect(deleteButton_, SIGNAL(clicked()), this, SLOT(onDeleteButtonClicked()));
@@ -144,6 +145,45 @@ bool AMActionRunnerQueueView::allSelectedIndexesAtSameLevel(const QModelIndexLis
 
 	return true;
 }
+
+
+
+QWidget * AMActionRunnerQueueItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+	Q_UNUSED(option)
+
+	const AMActionRunnerQueueModel* model = qobject_cast<const AMActionRunnerQueueModel*>(index.model());
+	if(!model)
+		return 0;
+
+	AMAction* action = model->actionAtIndex(index);
+	if(!action)
+		return 0;
+
+	QWidget* rv = AMActionRegistry::s()->createEditorForInfo(action->info());
+	if(rv) {
+		rv->setParent(parent);
+		rv->setBackgroundRole(QPalette::Window);
+		rv->setAutoFillBackground(true);
+	}
+
+	return rv;
+}
+
+
+void AMActionRunnerQueueView::collapse(bool doCollapse)
+{
+	bool wasCollapsed = isCollapsed();
+	treeView_->setHidden(doCollapse);
+	isCollapsed_ = doCollapse;
+
+	if(isCollapsed_ != wasCollapsed)
+		emit collapsed(doCollapse);
+}
+
+//void AMActionRunnerQueueItemDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
+//{
+//}
 
 
 

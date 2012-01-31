@@ -9,6 +9,8 @@
 AMWorkflowView::AMWorkflowView(QWidget *parent) :
     QWidget(parent)
 {
+	layoutSpacer_ = 0;
+
 	QHBoxLayout* hl = new QHBoxLayout();
 	hl->setContentsMargins(12,12,12,12);
 	hl->setSpacing(12);
@@ -37,4 +39,25 @@ AMWorkflowView::AMWorkflowView(QWidget *parent) :
 	vl->addWidget(currentView_);
 	vl->addSpacing(12);
 	vl->addWidget(queueView_);
+
+	connect(queueView_, SIGNAL(collapsed(bool)), this, SLOT(onViewCollapsed()));
+	connect(historyView_, SIGNAL(collapsed(bool)), this, SLOT(onViewCollapsed()));
+}
+
+#include <QSpacerItem>
+void AMWorkflowView::onViewCollapsed()
+{
+	// both collapsed but we don't have a spacer? Add it to bottom of layout to keep layout from spreading everything out.
+	if(historyView_->isCollapsed() && queueView_->isCollapsed() && !layoutSpacer_) {
+		layoutSpacer_ = new QSpacerItem(0,0,QSizePolicy::Minimum,QSizePolicy::Expanding);
+		layout()->addItem(layoutSpacer_);
+	}
+
+	// At least one not collapsed, but we do have a spacer? Get rid of it.
+	else if((!historyView_->isCollapsed() || !queueView_->isCollapsed()) && layoutSpacer_) {
+		layout()->removeItem(layoutSpacer_);
+		QSpacerItem* spacer = layoutSpacer_;
+		layoutSpacer_ = 0;
+		delete spacer;
+	}
 }
