@@ -9,64 +9,6 @@
 class AMAction;
 class AMActionRunnerQueueModel;
 
-///// This subclass of QStandardItem is used inside AMActionQueueModel to represent actions in the AMActionRunner queue.  You should never need to use this class directly.
-//class AMActionQueueModelItem : public QStandardItem {
-//public:
-//	/// Used to identify a specific type of item subclass
-//	enum Type { AMActionQueueModelItemType = QStandardItem::UserType + 1049 };
-//	/// Construct a model item for the given \c action.
-//	AMActionQueueModelItem(AMAction* action);
-//	/// The two things that separate us from QStandardItems: we have an associated action, and we return data based on that action
-//	AMAction* action() { return action_; }
-//	/// Action-specific data: we return the action's info's shortDescription() for Qt::DisplayRole, and cache and return pixmaps based on the info's iconFileName() for Qt::DecorationRole
-//	virtual QVariant data(int role) const;
-//	/// Used to identify a specific type of item subclass
-//	virtual int type() const { return AMActionQueueModelItemType; }
-//protected:
-//	/// Pointer to our associated action
-//	AMAction* action_;
-//};
-
-
-///// This subclass of QStandardItemModel is used internally by AMActionRunner for its queue of upcoming actions, and to handle drag-and-drop interaction with AMActionRunnerQueueView. You should never need to use this class directly; instead, programmers should use the AMActionRunner API to manage queued actions.
-///*!
-//Implementation Notes
-
-//- We use a possibly hierarchical model so that we can support nesting of "For-loop"-type actions (anything that implements AMNestedAction).
-//- Subclassing QStandardItemModel is only necessary because we want to enable drag-and-drop reordering of actions (AMActionQueueModelItems) in the AMActionRunner; otherwise we could use a normal QStandardItemModel.
-//- IMPORANT: There is not two-way data flow/synchronization between this model and AMActionRunner.  Instead, the AMActionRunner must be the only object to send modification commands to this model.  For example, it is NOT supported to remove items from the AMActionRunner queue by calling removeRows() on this model.
-//*/
-//class AMActionQueueModel : public QStandardItemModel {
-//public:
-//	/// Constructor. Requires a pointer back to the AMActionRunner.
-//	AMActionQueueModel(AMActionRunner* actionRunner, QObject* parent = 0);
-
-//	/// Re-implemented from QStandardItemModel to deal with dropping when re-ordering the queue via drag-and-drop.
-//	virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
-//	/// Re-implemented from QStandardItemModel to deal with dragging when re-ordering the queue via drag-and-drop.
-//	virtual QMimeData* mimeData(const QModelIndexList &indexes) const;
-//	/// Re-implemented from QStandardItemModel to deal with dragging when re-ordering the queue via drag-and-drop.
-//	virtual QStringList mimeTypes() const;
-//	/// Re-implemented from QStandardItemModel to deal with dropping when re-ordering the queue via drag-and-drop
-//	virtual Qt::DropActions supportedDropActions() const { return Qt::MoveAction; }
-
-//	/// Re-implemented only for debugging purposes (temporary). Same behaviour as QStandardItemView.
-//	bool removeRows(int row, int count, const QModelIndex &parent);
-
-//protected:
-//	/// Pointer back to our action runner, that we use to request re-ordering during drag-and-drop
-//	AMActionRunner* actionRunner_;
-
-//	// traverses the tree (depth first) and appends all the action short descriptions to outstring. Uses the model indexes for structure
-//	void traverse1(const QModelIndex& parent, QString& outstring, int level = 0);
-//	// traverses the tree (depth first) and appends all the action short descriptions to outstring. Uses the AMActionRunner/AMNestedAction apis for structure.
-//	void traverse2(const AMNestedAction* parent, QString& outstring, int level = 0);
-
-//	void checkTreeConsistency();
-
-//	QString nSpaces(int n);
-//};
-
 
 /// This singleton class provides the API for Acquaman's workflow manager. You can queue up actions for it to run, manage the queue of upcoming actions, and receive notifications when actions are completed. After an action is completed, it will automatically log the actions with AMActionLog::logCompletedAction().  The AMActionRunnerCurrentView and AMActionRunnerQueueView provide graphical user interfaces to this API.
 /*! Note that the AMActionRunner's queue is initially paused when it is first created. To have it start executing actions as soon as they become available, call AMActionRunner::s()->setPaused(false).*/

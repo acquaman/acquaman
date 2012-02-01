@@ -5,6 +5,8 @@
 
 #include <QStringBuilder>
 
+#include <QWidget>
+
 AMActionInfoActionRegistration::AMActionInfoActionRegistration(const QMetaObject *actionInfoMetaObjectI, const QMetaObject *actionMetaObjectI, const QString &shortDescriptionI, const QString &longDescriptionI, const QString& iconFileNameI)
 	: shortDescription(shortDescriptionI), longDescription(longDescriptionI), iconFileName(iconFileNameI)
 {
@@ -54,7 +56,7 @@ bool AMActionRegistry::registerInfoAndAction(const QMetaObject *infoMetaObject, 
 	}
 
 	if(!hasSuitableConstructor) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -2, "Could not register the AMAction class " % QString(actionMetaObject->className()) % " because it does not have a Q_INVOKABLE constructor that takes an " % QString(actionMetaObject->className()) % "* argument."));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -2, "Could not register the AMAction class " % QString(actionMetaObject->className()) % " because it does not have a Q_INVOKABLE constructor that takes an " % QString(infoMetaObject->className()) % "* argument."));
 		return false;
 	}
 
@@ -71,6 +73,10 @@ bool AMActionRegistry::registerInfoAndAction(const QMetaObject *infoMetaObject, 
 				AMActionInfoActionRegistration(infoMetaObject, actionMetaObject, shortDescription, longDescription, iconFileName));
 	// success!
 	return true;
+}
+
+bool AMActionRegistry::actionRegisteredForInfo(AMActionInfo *info) {
+	return actionInfo2Actions_.contains(QString(info->metaObject()->className()));
 }
 
 AMAction * AMActionRegistry::createActionFromInfo(AMActionInfo *info)
@@ -99,27 +105,87 @@ AMActionRegistry * AMActionRegistry::s()
 	return instance_;
 }
 
-bool AMActionRegistry::inheritsAMActionInfo(const QMetaObject *mo) const
+bool AMActionRegistry::inheritsClassNamed(const QMetaObject *mo, const QString& className) const
 {
 	const QMetaObject* superClass = mo;
-	bool inheritsActionInfo;
+	bool doesInheritClass;
 	do {
-		inheritsActionInfo = (superClass->className() == QString("AMActionInfo"));
+		doesInheritClass = (superClass->className() == className);
 	}
-	while( (superClass=superClass->superClass()) && inheritsActionInfo == false );
+	while( (superClass=superClass->superClass()) && doesInheritClass == false );
 
-	return inheritsActionInfo;
+	return doesInheritClass;
 }
 
-bool AMActionRegistry::inheritsAMAction(const QMetaObject *mo) const
+bool AMActionRegistry::registerInfoAndEditor(const QMetaObject *infoMetaObject, const QMetaObject *editorMetaObject) {
+	if(!infoMetaObject)
+		return false;
+	if(!editorMetaObject)
+		return false;
+
+	// check that the alleged info inherits AMActionInfo
+	if(!inheritsAMActionInfo(infoMetaObject)) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -1, "Could not register the AMActionInfo class " % QString(infoMetaObject->className()) % " because it does not inherit AMActionInfo."));
+		return false;
+	}
+	// check that the alleged editor inherits QWidget
+	if(!inheritsQWidget(editorMetaObject)) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -2, "Could not register the Editor class " % QString(editorMetaObject->className()) % " because it does not inherit QWidget."));
+		return false;
+	}
+
+	// check for Q_INVOKABLE constructor in the editor that takes a pointer to this AMActionInfo. If this constructor doesn't exist, there won't be any way we can use this registration to construct an editor for the info.
+	bool hasSuitableConstructor = false;
+	for(int i=0, cc=editorMetaObject->constructorCount(); i<cc; i++) {
+		QList<QByteArray> parameterTypes = editorMetaObject->constructor(i).parameterTypes();
+		if(parameterTypes.count() == 1 &&
+				parameterTypes.at(0) == QByteArray(infoMetaObject->className()).append("*")) {
+			hasSuitableConstructor = true;
+			break;
+		}
+	}
+
+
+	if(!hasSuitableConstructor) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -2, "Could not register the Editor class " % QString(editorMetaObject->className()) % " because it does not have a Q_INVOKABLE constructor that takes an " % QString(infoMetaObject->className()) % "* argument."));
+		return false;
+	}
+
+
+	// already registered?
+	if(actionInfo2Editors_.contains(QString(infoMetaObject->className()))) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -2, "Could not register the AMActionInfo class " % QString(infoMetaObject->className()) % " because it is already registered."));
+		return false;
+	}
+
+	// insert into registry
+	actionInfo2Editors_.insert(
+				QString(infoMetaObject->className()),
+				AMActionInfoEditorRegistration(infoMetaObject, editorMetaObject));
+	// success!
+	return true;
+}
+
+bool AMActionRegistry::editorRegisteredForInfo(AMActionInfo *info)
 {
-	const QMetaObject* superClass = mo;
-	bool inheritsAction;
-	do {
-		inheritsAction = (superClass->className() == QString("AMAction"));
-	}
-	while( (superClass=superClass->superClass()) && inheritsAction == false );
-
-	return inheritsAction;
+	return actionInfo2Editors_.contains(QString(info->metaObject()->className()));
 }
 
+QWidget * AMActionRegistry::createEditorForInfo(AMActionInfo *info)
+{
+	if(!info)
+		return 0;
+
+	QString infoClassName = QString(info->metaObject()->className());
+
+	// is the info class registered?
+	if(!actionInfo2Editors_.contains(infoClassName))
+		return 0;
+
+	const QMetaObject* editorMetaObject = actionInfo2Editors_.value(infoClassName).editorMetaObject;
+
+	// this usage of QGenericArgument (instead of the Q_ARG macro) is technically unsupported, but the only way to do it because we don't know the type at compile-time.
+	return qobject_cast<QWidget*>(editorMetaObject->newInstance(
+									  QGenericArgument(infoClassName.append("*").toAscii().constData(),
+													   static_cast<const void*>(&info))));
+}

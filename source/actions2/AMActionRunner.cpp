@@ -12,6 +12,8 @@
 
 #include <QDebug>
 
+#include "actions2/AMActionRegistry.h"
+
 AMActionRunner* AMActionRunner::instance_ = 0;
 
 AMActionRunner::AMActionRunner(QObject *parent) :
@@ -452,11 +454,18 @@ Qt::ItemFlags AMActionRunnerQueueModel::flags(const QModelIndex &index) const
 	if(!index.isValid())
 		return Qt::ItemIsDropEnabled;
 
+	Qt::ItemFlags rv = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
+
+	// Nested actions can accept drops onto them (to insert actions)
 	AMNestedAction* nestedAction = qobject_cast<AMNestedAction*>(actionAtIndex(index));
 	if(nestedAction)
-		return (Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled);
-	else
-		return (Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled);
+		rv |= Qt::ItemIsDropEnabled;
+
+	// Actions are editable if they have an editor registered for their ActionInfo.
+	if(AMActionRegistry::s()->editorRegisteredForInfo(actionAtIndex(index)->info()))
+		rv |= Qt::ItemIsEditable;
+
+	return rv;
 }
 
 bool AMActionRunnerQueueModel::hasChildren(const QModelIndex &parent) const
@@ -530,7 +539,7 @@ void AMActionRunnerQueueModel::internalConnectNestedActions(AMAction *action)
 {
 	AMNestedAction* nestedAction = qobject_cast<AMNestedAction*>(action);
 	if(nestedAction) {
-		qDebug() << "Connecting and remembering nested action" << action->info()->shortDescription();
+		// qDebug() << "Connecting and remembering nested action" << action->info()->shortDescription();
 		disconnect(nestedAction, 0, this, 0);
 		connect(nestedAction, SIGNAL(subActionAboutToBeAdded(int)), this, SLOT(onSubActionAboutToBeAdded(int)));
 		connect(nestedAction, SIGNAL(subActionAdded(int)), this, SLOT(onSubActionAdded(int)));
@@ -546,7 +555,7 @@ void AMActionRunnerQueueModel::internalDisconnectNestedActions(AMAction *action)
 {
 	AMNestedAction* nestedAction = qobject_cast<AMNestedAction*>(action);
 	if(nestedAction) {
-		qDebug() << "Disconnecting and forgetting nested action" << action->info()->shortDescription();
+		// qDebug() << "Disconnecting and forgetting nested action" << action->info()->shortDescription();
 		disconnect(nestedAction, 0, this, 0);
 
 		for(int i=0,cc=nestedAction->subActionCount(); i<cc; i++)
@@ -709,7 +718,7 @@ bool AMActionRunnerQueueModel::dropMimeData(const QMimeData *data, Qt::DropActio
 				// Subcase A1: destination: They are being moved to another location at the top level. We can move them using the AMActionRunner API.
 				if(!parent.isValid()) {
 
-					qDebug() << "Moving from top level to top level.";
+					// qDebug() << "Moving from top level to top level.";
 
 					// Get a persistent model index corresponding to the destination. (It might move as we move things around.)
 					QPersistentModelIndex destinationIndex(index(row, 0, parent));
@@ -718,15 +727,13 @@ bool AMActionRunnerQueueModel::dropMimeData(const QMimeData *data, Qt::DropActio
 						int destinationRow = destinationIndex.row();
 						if(destinationRow > mil.at(i).row())
 							destinationRow--;
-						qDebug() << "   Before: Destination row:" << destinationRow;
 						actionRunner_->moveActionInQueue(mil.at(i).row(), destinationRow);
-						qDebug() << "   After: Destination row:" << destinationIndex.row();
 					}
 					return true;
 				}
 				// Subcase A2: destination: They are being moved to inside a nested action.
 				else {
-					qDebug() << "Moving from top level to nested action.";
+					// qDebug() << "Moving from top level to nested action.";
 
 					// parent is valid... It represents the nested action we're supposed to drop these actions inside of.
 					AMNestedAction* nestedAction = qobject_cast<AMNestedAction*>(actionAtIndex(parent));
@@ -768,7 +775,7 @@ bool AMActionRunnerQueueModel::dropMimeData(const QMimeData *data, Qt::DropActio
 				else {
 					// Subcase B1: The destination is the top level. Need to add the copied actions directly to AMActionRunner.
 					if(!parent.isValid()) {
-						qDebug() << "Move from one nested action to top level.";
+						// qDebug() << "Move from one nested action to top level.";
 						int targetRow = row;
 						if(targetRow < 0 || targetRow > actionRunner_->queuedActionCount())
 							targetRow = actionRunner_->queuedActionCount();
@@ -779,7 +786,7 @@ bool AMActionRunnerQueueModel::dropMimeData(const QMimeData *data, Qt::DropActio
 					}
 					// Subcase B2: The destination is a different sub-action.
 					else {
-						qDebug() << "Move from one nested action to another.";
+						// qDebug() << "Move from one nested action to another.";
 						AMNestedAction* destParentAction = qobject_cast<AMNestedAction*>(actionAtIndex(parent));
 						if(!destParentAction) {
 							qWarning() << "AMActionQueueModel: Warning: Asked to move actions into a nested action that wasn't valid.";
@@ -801,7 +808,7 @@ bool AMActionRunnerQueueModel::dropMimeData(const QMimeData *data, Qt::DropActio
 
 	// if we return false to the DropAction, it might retry with IgnoreAction. We need to accept that one.
 	else if(action == Qt::IgnoreAction) {
-		qDebug() << "*******####### Offering IgnoreAction!";
+		qDebug() << "AMActionRunnerQueueModel: Wow: Qt actually behaved according to spec and offered the IgnoreAction. Too bad this never happens...";
 		return true;
 	}
 

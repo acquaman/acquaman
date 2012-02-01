@@ -32,7 +32,7 @@ public:
 	int loopCount() const { return loopCount_; }
 
 	/// Set the total number of iteration to loop for.
-	void setLoopCount(int loopCount) { loopCount_ = loopCount; setModified(true); emit loopCountChanged(loopCount_); }
+	void setLoopCount(int loopCount);
 
 signals:
 

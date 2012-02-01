@@ -48,7 +48,7 @@ AMAction* AMLoopAction::takeSubActionImplementation(int index)
 void AMLoopAction::startImplementation()
 {
 	// done already with nothing to do.
-	if(subActionCount() == 0) {
+	if(subActionCount() == 0 || loopCount() == 0) {
 		notifyStarted();
 		notifySucceeded();
 		return;

@@ -1,6 +1,7 @@
 #include "AMActionRunnerQueueView.h"
 
 #include "actions2/AMActionRunner.h"
+#include "actions2/AMActionRegistry.h"
 
 #include <QTreeView>
 #include <QBoxLayout>
@@ -32,6 +33,8 @@ AMActionRunnerQueueView::AMActionRunnerQueueView(AMActionRunner* actionRunner, Q
 	treeView_->viewport()->setAcceptDrops(true);
 	treeView_->setDropIndicatorShown(true);
 	treeView_->setDragDropMode(QTreeView::DragDrop);
+
+	treeView_->setItemDelegate(new AMActionRunnerQueueItemDelegate(this));
 
 	QFrame* topFrame = new QFrame();
 	topFrame->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
@@ -147,6 +150,16 @@ bool AMActionRunnerQueueView::allSelectedIndexesAtSameLevel(const QModelIndexLis
 }
 
 
+void AMActionRunnerQueueView::collapse(bool doCollapse)
+{
+	bool wasCollapsed = isCollapsed();
+	treeView_->setHidden(doCollapse);
+	isCollapsed_ = doCollapse;
+
+	if(isCollapsed_ != wasCollapsed)
+		emit collapsed(doCollapse);
+}
+
 
 QWidget * AMActionRunnerQueueItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
@@ -170,16 +183,6 @@ QWidget * AMActionRunnerQueueItemDelegate::createEditor(QWidget *parent, const Q
 	return rv;
 }
 
-
-void AMActionRunnerQueueView::collapse(bool doCollapse)
-{
-	bool wasCollapsed = isCollapsed();
-	treeView_->setHidden(doCollapse);
-	isCollapsed_ = doCollapse;
-
-	if(isCollapsed_ != wasCollapsed)
-		emit collapsed(doCollapse);
-}
 
 //void AMActionRunnerQueueItemDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
 //{

@@ -154,8 +154,6 @@ void AMActionHistoryModel::setMaximumActionsToDisplay(int maximumActionsCount)
 	/// \todo Optimization: instead of a full refresh, we could just load the additional ones we need, by specifying a LIMIT and OFFSET in the SQL query.
 }
 
-#include <QDebug>
-
 void AMActionHistoryModel::refreshFromDb()
 {
 	emit modelAboutToBeRefreshed();
@@ -198,9 +196,6 @@ void AMActionHistoryModel::refreshFromDb()
 						 "COUNT(1)",
 						 "endDateTime >= ?");
 		q2.bindValue(0, visibleRangeOldest_);
-
-		qDebug() << "Bound values:" <<q.boundValues();
-
 	}
 	// only a newest limit:
 	else if(visibleRangeNewest_.isValid()) {

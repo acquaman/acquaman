@@ -31,12 +31,13 @@ public:
 	/// The total number of seconds that we're supposed to wait for
 	double secondsToWait() const { return seconds_; }
 
+public slots:
+
 	/// Set the total number of seconds to wait
-	void setSecondsToWait(double seconds) { seconds_ = seconds; setModified(true); }
+	void setSecondsToWait(double seconds);
 
 signals:
 
-public slots:
 
 protected:
 	/// The number of seconds to wait for

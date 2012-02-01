@@ -9,24 +9,21 @@ class QToolButton;
 class QLabel;
 class QPushButton;
 
-#include <QItemDelegate>
+#include <QStyledItemDelegate>
 /// This delegate is used by the tree view in AMActionRunnerQueueView to show custom editor widgets depending on the action. The available editors depend on those that have been registered with AMActionRegistry.  You should never need to use this class directly.
-class AMActionRunnerQueueItemDelegate : public QItemDelegate {
+class AMActionRunnerQueueItemDelegate : public QStyledItemDelegate {
 	Q_OBJECT
 public:
 
+	explicit AMActionRunnerQueueItemDelegate(QObject* parent = 0) : QStyledItemDelegate(parent) {}
+
 	virtual QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
-	virtual void setEditorData(QWidget *editor, const QModelIndex &index) const {
-		Q_UNUSED(editor)
-		Q_UNUSED(index)
-	}
-
-//	virtual void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+//    virtual void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
 };
 
-/// This UI class provides a view of the upcoming (queued) actions in an AMActionRunner. It is part of a the overall AMWorkflowView.
+/// This UI class provides a view of the upcoming (queued) actions in an AMActionRunner. It is part of the overall AMWorkflowView.
 class AMActionRunnerQueueView : public QWidget
 {
     Q_OBJECT

@@ -56,6 +56,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions2/actions/AMInternalControlMoveAction.h"
 #include "actions2/actions/REIXS/REIXSXESScanAction.h"
 #include "actions2/AMLoopAction.h"
+#include "actions2/editors/AMWaitActionEditor.h"
+#include "actions2/editors/AMLoopActionEditor.h"
 
 #include <QMessageBox>
 
@@ -98,6 +100,9 @@ bool REIXSAppController::startup() {
 		AMActionRegistry::s()->registerInfoAndAction<AMWaitActionInfo, AMWaitAction>("Wait", "This action simply waits for a specified amount of time.", ":/user-away.png");
 		AMActionRegistry::s()->registerInfoAndAction<REIXSControlMoveActionInfo, REIXSControlMoveAction>("REIXS Control Move", "This action moves a REIXS beamline control to a target position.", ":/system-run.png");
 		AMActionRegistry::s()->registerInfoAndAction<REIXSXESScanActionInfo, REIXSXESScanAction>("REIXS XES Scan", "This action conducts a single XES scan at a given detector energy.", ":/utilities-system-monitor.png");
+
+		AMActionRegistry::s()->registerInfoAndEditor<AMWaitActionInfo, AMWaitActionEditor>();
+		AMActionRegistry::s()->registerInfoAndEditor<AMLoopActionInfo, AMLoopActionEditor>();
 
 		AMActionRunner::s()->addActionToQueue(new AMLoopAction(3));
 		AMActionRunner::s()->addActionToQueue(new AMInternalControlMoveAction(REIXSBeamline::bl()->sampleChamber()->x(), 35));
