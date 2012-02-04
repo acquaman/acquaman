@@ -66,13 +66,18 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 /// Called before starting to satisfy any prerequisites (ie: setting up the beamline, setting up files, etc.)
 bool REIXSXESScanController::initializeImplementation() {
 
+	// Is the detector connected?
+	if(!REIXSBeamline::bl()->mcpDetector()->canRead() || !!REIXSBeamline::bl()->mcpDetector()->canConfigure()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 17, "Could not connect to the MCP detector before starting an XES scan. Please report this problem to the beamline staff."));
+		return false;
+	}
 
 
 	// configure and clear the MCP detector.
 	/// \todo We should really configure the detector even if we're not supposed to clear it, but right now setting the orientation clears the accumulated counts.  We'll be removing that orientation setting soon, since we no longer use it. Therefore, we should be OK to skip this if we're not supposed to clear.
 	if(!config_->doNotClearExistingCounts()) {
 		if( !REIXSBeamline::bl()->mcpDetector()->setFromInfo(*(config_->mcpDetectorInfo())) ) {
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 3, "Could not connect to and configure the MCP detector before starting XES scan."));
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 3, "Could not connect to and configure the MCP detector before starting an XES scan. Please report this problem to the beamline staff."));
 			return false;
 		}
 	}
