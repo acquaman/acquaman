@@ -24,8 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppController.h"
 
 class REIXSXESScanConfigurationDetailedView;
-class AMScanConfigurationViewHolder;
-
+class AMWorkflowView;
 
 class REIXSAppController : public AMAppController {
 	Q_OBJECT
@@ -43,23 +42,20 @@ public:
 	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
 	virtual void shutdown();
 
+public slots:
+	virtual void goToWorkflow();
 
 protected slots:
-	/// This slot catches changes in the current widget of the AMMainWindow. \c pane is the new current widget.  Re-implement to catch any widget-specific responses that you need here.
-	/*! \note This only applies to panes that are currently docked within the main window.  If a pane has been undocked, no notification will be received when it becomes raised or activated by the user.
-	  */
-	virtual void onCurrentPaneChanged(QWidget* pane);
 
-	void onCurrentScanControllerCreated();
-	void onCurrentScanControllerStarted();
-
+	/// This watches when the state of the current action changes (as notified by AMActionRunner). For now, we notice when an AMScanControllerAction starts, and create an editor for its scan.
+	virtual void onCurrentActionStateChanged(int newState, int oldState);
 
 	void tempAddLoopActions();
 
 protected:
 
-	AMScanConfigurationViewHolder* scanConfigurationHolder_;
 	REIXSXESScanConfigurationDetailedView* xesScanConfigurationView_;
+	AMWorkflowView* workflowView_;
 
 };
 

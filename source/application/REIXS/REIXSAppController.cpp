@@ -23,12 +23,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/REIXS/REIXSBeamline.h"
 
 #include "ui/acquaman/AMScanConfigurationView.h"
-#include "ui/acquaman/AMScanConfigurationViewHolder.h"
 #include "ui/REIXS/REIXSXESScanConfigurationDetailedView.h"
-#include "acquaman/AMScanController.h"
+#include "ui/REIXS/REIXSScanConfigurationViewHolder.h"
 
 #include "ui/AMMainWindow.h"
-#include "ui/AMWorkflowManagerView.h"
 
 #include "util/AMErrorMonitor.h"
 #include "dataman/database/AMDbObjectSupport.h"
@@ -46,6 +44,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
 #include "dataman/AMRun.h"
 #include "ui/AMStartScreen.h"
+
+// old workflow manager view: (to be removed)
+#include "ui/AMWorkflowManagerView.h"
 
 #include "ui/actions2/AMWorkflowView.h"
 #include "actions2/AMActionRunner.h"
@@ -123,12 +124,20 @@ bool REIXSAppController::startup() {
 		// Create panes in the main window:
 		////////////////////////////////////
 
+		// add the workflow control UI
+		workflowView_ = new AMWorkflowView();
+		mw_->addPane(workflowView_, "Experiment Tools", "Workflow 2", ":/user-away.png");
+		// remove the old one:
+		mw_->removePane(workflowManagerView_);
+		workflowManagerView_->hide();
+
+
 		mw_->insertHeading("Experiment Setup", 1);
 		//////////
 		xesScanConfigurationView_ = new REIXSXESScanConfigurationDetailedView(REIXSBeamline::bl()->mcpDetector());
-		scanConfigurationHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_, xesScanConfigurationView_);
-		mw_->addPane(scanConfigurationHolder_, "Experiment Setup", "Emission Scan", ":/utilities-system-monitor.png");
-
+		REIXSScanConfigurationViewHolder* scanConfigurationHolder = new REIXSScanConfigurationViewHolder(xesScanConfigurationView_);
+		mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Emission Scan", ":/utilities-system-monitor.png");
+		connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 		AMSampleManagementWidget* sampleManagementPane = new AMSampleManagementWidget(new REIXSSampleChamberButtonPanel(),
 																					  QUrl("http://v2e1610-101.clsi.ca/mjpg/1/video.mjpg"),
 																					  "Sample Camera: down beam path",
@@ -168,14 +177,9 @@ bool REIXSAppController::startup() {
 		mw_->addPane(spectrometerControlWidget, "Experiment Setup", "Spectrometer controls", ":/utilities-system-monitor.png");
 
 
-		mw_->addPane(new AMWorkflowView(), "Experiment Tools", "Workflow 2", ":/user-away.png");
-
 		////////////////// End of testing junk; move somewhere clean ////////////////////
 
-		connect(scanConfigurationHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
-
-		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
-		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
+		connect(AMActionRunner::s(), SIGNAL(currentActionStateChanged(int,int)), this, SLOT(onCurrentActionStateChanged(int,int)));
 
 		return true;
 	}
@@ -190,28 +194,6 @@ void REIXSAppController::shutdown() {
 	AMAppController::shutdown();
 }
 
-
-void REIXSAppController::onCurrentPaneChanged(QWidget *pane) {
-
-	Q_UNUSED(pane)
-
-}
-
-
-#include "dataman/AMScanEditorModelItem.h"
-#include "ui/dataman/AMGenericScanEditor.h"
-
-void REIXSAppController::onCurrentScanControllerStarted(){
-
-	openScanInEditorAndTakeOwnership(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
-}
-
-void REIXSAppController::onCurrentScanControllerCreated(){
-
-	// hook up bottom-bar. This should be moved up in the framework...
-	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
-}
-
 void REIXSAppController::tempAddLoopActions()
 {
 	AMLoopAction* loopAction = qobject_cast<AMLoopAction*>(AMActionRunner::s()->queuedActionAt(0));
@@ -224,6 +206,30 @@ void REIXSAppController::tempAddLoopActions()
 	inner1->insertSubAction(new AMWaitAction(12), -1);
 
 	// inner1->insertSubAction(new AMWaitAction(13), -1);
+}
+
+void REIXSAppController::goToWorkflow()
+{
+	mw_->setCurrentPane(workflowView_);
+}
+
+#include "acquaman/AMScanController.h"
+
+void REIXSAppController::onCurrentActionStateChanged(int newState, int oldState)
+{
+	Q_UNUSED(oldState)
+
+	if(newState == AMAction::Running) {
+		AMAction* action = AMActionRunner::s()->currentAction();
+
+		AMScanControllerAction* scanAction = qobject_cast<AMScanControllerAction*>(action);
+		if(scanAction) {
+			AMScanController* scanController = scanAction->scanController();
+			if(scanController) {
+				openScanInEditorAndTakeOwnership(scanController->scan());
+			}
+		}
+	}
 }
 
 

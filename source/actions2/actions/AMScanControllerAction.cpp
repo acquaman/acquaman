@@ -43,8 +43,9 @@ AMScanControllerActionInfo * AMScanControllerAction::scanControllerInfo()
 
 void AMScanControllerAction::startImplementation()
 {
+	// Important note: the ActionInfo's scanConfig belongs to it, and will be deleted with the ActionInfo. The scan config is supposed to hang around with scan as it runs, so we make a copy here
 	AMScanConfiguration* config = scanControllerInfo()->scanConfig();
-	if(!config) {
+	if(!config || !(config=config->createCopy())) {
 		AMErrorMon::report(AMErrorReport(this,
 										 AMErrorReport::Alert,
 										 -13,
@@ -60,8 +61,10 @@ void AMScanControllerAction::startImplementation()
 										 -1,
 										 "Could not create the scan controller. Please report this problem to the Acquaman developers."));
 		notifyFailed();
+		delete config;
 		return;
 	}
+	// from here on, the controller is responsible for memory management of the config. Currently, memory management of the scan and its config will be passed off to the app controller by watching for when this action starts, and creating an editor window for it... See AMAppController::onActionStateChanged().
 
 	connect(controller_, SIGNAL(stateChanged(int,int)), this, SLOT(onScanControllerStateChanged(int,int)));
 	connect(controller_, SIGNAL(progress(double,double)), this, SLOT(setProgress(double,double)));

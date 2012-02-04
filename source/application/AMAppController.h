@@ -58,8 +58,8 @@ public slots:
 If \c openInExistingEditor is set to true, and if there is an existing editor, the scan will be appended inside that editor. (If there is more than one open editor, the scan will be added to the most recently-created one.)  By default, a new editor window is created.*/
 	void openScanInEditorAndTakeOwnership(AMScan* scan, bool bringEditorToFront = true, bool openInExistingEditor = false);
 
-	/// Bring the Workflow view to the front level
-	void goToWorkflow();
+	/// Bring the Workflow view to the front.
+	virtual void goToWorkflow();
 
 	///	Opens a single scan configuration from a given database URL.  Reimplemented to put the scan into a config view holder to possibly add it to the workflow.
 	virtual void launchScanConfigurationFromDb(const QUrl &url);

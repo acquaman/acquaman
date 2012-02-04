@@ -26,6 +26,12 @@ public:
 	/// Specify that we can pause, if our scan controller can pause.
 	virtual bool canPause() const;
 
+
+	// New public functions:
+	/////////////////////////////
+	/// Returns the scan controller. It is not supported to start, stop, or pause the scan controller through this.
+	AMScanController* scanController() { return controller_; }
+
 signals:
 
 public slots:

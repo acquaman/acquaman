@@ -91,8 +91,10 @@ AMScan::~AMScan() {
 	}
 
 	// delete the scan configuration, if we have one
-	if(configuration_)
+	if(configuration_) {
 		delete configuration_;
+		configuration_ = 0;
+	}
 
 	// delete the raw data store, which was allocated in the constructor.
 	delete data_;
