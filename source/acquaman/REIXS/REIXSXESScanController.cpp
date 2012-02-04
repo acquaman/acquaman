@@ -67,7 +67,7 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 bool REIXSXESScanController::initializeImplementation() {
 
 	// Is the detector connected?
-	if(!REIXSBeamline::bl()->mcpDetector()->canRead() || !!REIXSBeamline::bl()->mcpDetector()->canConfigure()) {
+	if(!REIXSBeamline::bl()->mcpDetector()->canRead() || !REIXSBeamline::bl()->mcpDetector()->canConfigure()) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 17, "Could not connect to the MCP detector before starting an XES scan. Please report this problem to the beamline staff."));
 		return false;
 	}
