@@ -45,10 +45,9 @@ AMAction::AMAction(const AMAction& other)
 }
 
 
-#include <QDebug>
 // Destructor: deletes the info and prerequisites
 AMAction::~AMAction() {
-	qDebug() << "Deleting action:" << info_->shortDescription();
+	// qDebug() << "Deleting action:" << info_->shortDescription();
 
 	delete info_;
 	while(!prereqs_.isEmpty())
