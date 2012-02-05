@@ -98,6 +98,7 @@ bool REIXSAppController::startup() {
 
 
 		// Testing Actions2: register AMWaitAction
+		/// \todo Move common ones to main app controller.
 		AMActionRegistry::s()->registerInfoAndAction<AMWaitActionInfo, AMWaitAction>("Wait", "This action simply waits for a specified amount of time.", ":/user-away.png");
 		AMActionRegistry::s()->registerInfoAndAction<REIXSControlMoveActionInfo, REIXSControlMoveAction>("REIXS Control Move", "This action moves a REIXS beamline control to a target position.", ":/system-run.png");
 		AMActionRegistry::s()->registerInfoAndAction<REIXSXESScanActionInfo, REIXSXESScanAction>("REIXS XES Scan", "This action conducts a single XES scan at a given detector energy.", ":/utilities-system-monitor.png");
@@ -105,20 +106,21 @@ bool REIXSAppController::startup() {
 		AMActionRegistry::s()->registerInfoAndEditor<AMWaitActionInfo, AMWaitActionEditor>();
 		AMActionRegistry::s()->registerInfoAndEditor<AMLoopActionInfo, AMLoopActionEditor>();
 
-		AMActionRunner::s()->addActionToQueue(new AMLoopAction(3));
-		AMActionRunner::s()->addActionToQueue(new AMInternalControlMoveAction(REIXSBeamline::bl()->sampleChamber()->x(), 35));
-		AMActionRunner::s()->addActionToQueue(new REIXSXESScanAction(new REIXSXESScanConfiguration()));
-		AMActionRunner::s()->addActionToQueue(new AMWaitAction(10));
-		AMActionRunner::s()->addActionToQueue(new AMWaitAction(20));
-		AMActionRunner::s()->addActionToQueue(new REIXSXESScanAction(new REIXSXESScanConfiguration()));
-		AMActionRunner::s()->addActionToQueue(new REIXSControlMoveAction(new REIXSControlMoveActionInfo(AMControlInfo("sampleX", 5, 0, 0, "mm", 0.1, "Sample X"))));
-		AMActionRunner::s()->addActionToQueue(new AMWaitAction(20));
-		AMActionRunner::s()->addActionToQueue(new REIXSControlMoveAction(new REIXSControlMoveActionInfo(AMControlInfo("sampleX", 5, 0, 0, "mm", 0.1, "Sample X"))));
-		AMActionRunner::s()->addActionToQueue(new AMWaitAction(20));
-		AMActionRunner::s()->addActionToQueue(new REIXSXESScanAction(new REIXSXESScanConfiguration()));
+		// Leftover from testing:
+//		AMActionRunner::s()->addActionToQueue(new AMLoopAction(3));
+//		AMActionRunner::s()->addActionToQueue(new AMInternalControlMoveAction(REIXSBeamline::bl()->sampleChamber()->x(), 35));
+//		AMActionRunner::s()->addActionToQueue(new REIXSXESScanAction(new REIXSXESScanConfiguration()));
+//		AMActionRunner::s()->addActionToQueue(new AMWaitAction(10));
+//		AMActionRunner::s()->addActionToQueue(new AMWaitAction(20));
+//		AMActionRunner::s()->addActionToQueue(new REIXSXESScanAction(new REIXSXESScanConfiguration()));
+//		AMActionRunner::s()->addActionToQueue(new REIXSControlMoveAction(new REIXSControlMoveActionInfo(AMControlInfo("sampleX", 5, 0, 0, "mm", 0.1, "Sample X"))));
+//		AMActionRunner::s()->addActionToQueue(new AMWaitAction(20));
+//		AMActionRunner::s()->addActionToQueue(new REIXSControlMoveAction(new REIXSControlMoveActionInfo(AMControlInfo("sampleX", 5, 0, 0, "mm", 0.1, "Sample X"))));
+//		AMActionRunner::s()->addActionToQueue(new AMWaitAction(20));
+//		AMActionRunner::s()->addActionToQueue(new REIXSXESScanAction(new REIXSXESScanConfiguration()));
 
-		// test adding sub-actions to loop action later
-		QTimer::singleShot(10000, this, SLOT(tempAddLoopActions()));
+//		// test adding sub-actions to loop action later
+//		QTimer::singleShot(10000, this, SLOT(tempAddLoopActions()));
 
 
 		// Create panes in the main window:
@@ -126,7 +128,7 @@ bool REIXSAppController::startup() {
 
 		// add the workflow control UI
 		workflowView_ = new AMWorkflowView();
-		mw_->addPane(workflowView_, "Experiment Tools", "Workflow 2", ":/user-away.png");
+		mw_->addPane(workflowView_, "Experiment Tools", "Workflow", ":/user-away.png");
 		// remove the old one:
 		mw_->removePane(workflowManagerView_);
 		workflowManagerView_->hide();
@@ -194,19 +196,19 @@ void REIXSAppController::shutdown() {
 	AMAppController::shutdown();
 }
 
-void REIXSAppController::tempAddLoopActions()
-{
-	AMLoopAction* loopAction = qobject_cast<AMLoopAction*>(AMActionRunner::s()->queuedActionAt(0));
+//void REIXSAppController::tempAddLoopActions()
+//{
+//	AMLoopAction* loopAction = qobject_cast<AMLoopAction*>(AMActionRunner::s()->queuedActionAt(0));
 
-	loopAction->insertSubAction(new AMWaitAction(10), -1);
-	loopAction->insertSubAction(new AMWaitAction(11), -1);
-	AMLoopAction* inner1 = new AMLoopAction(2);
-	loopAction->insertSubAction(inner1, -1);
+//	loopAction->insertSubAction(new AMWaitAction(10), -1);
+//	loopAction->insertSubAction(new AMWaitAction(11), -1);
+//	AMLoopAction* inner1 = new AMLoopAction(2);
+//	loopAction->insertSubAction(inner1, -1);
 
-	inner1->insertSubAction(new AMWaitAction(12), -1);
+//	inner1->insertSubAction(new AMWaitAction(12), -1);
 
-	// inner1->insertSubAction(new AMWaitAction(13), -1);
-}
+//	// inner1->insertSubAction(new AMWaitAction(13), -1);
+//}
 
 void REIXSAppController::goToWorkflow()
 {
