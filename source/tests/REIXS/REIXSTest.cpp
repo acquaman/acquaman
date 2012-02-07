@@ -88,7 +88,7 @@ void REIXSTest::checkCalibration()
 
 void REIXSTest::testHexapodPVChanges()
 {
-	QString baseName = "HXPD1610-401-01:";
+	QString baseName = "HXPD1610-4-I21-01:";
 	AMPVwStatusControl u("hexapodU", baseName+"U:sp", baseName+"U", baseName+"moving", QString(), this, 0.05);
 
 	QTest::qWait(5000);

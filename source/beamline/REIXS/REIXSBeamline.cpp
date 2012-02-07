@@ -83,7 +83,7 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 REIXSHexapod::REIXSHexapod(QObject* parent)
 	: AMCompositeControl("hexapod", "n/a", parent) {
 
-	QString baseName = "HXPD1610-401-01:";
+	QString baseName = "HXPD1610-4-I21-01:";
 	x_ = new AMPVwStatusControl("hexapodX", baseName+"X:sp", baseName+"X", baseName+"moving", QString(), this, 0.01);
 	y_ = new AMPVwStatusControl("hexapodY", baseName+"Y:sp", baseName+"Y", baseName+"moving", QString(), this, 0.01);
 	z_ = new AMPVwStatusControl("hexapodZ", baseName+"Z:sp", baseName+"Z", baseName+"moving", QString(), this, 0.01);
