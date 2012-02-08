@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions2/actions/AMInternalControlMoveAction.h"
 #include "util/AMSettings.h"
 
+#include "analysis/AM2DSummingAB.h"
+
 REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* configuration, QObject *parent) :
 	AMScanController(configuration, parent)
 {
@@ -57,8 +59,14 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 	configuredDetector.name = "xesImage";	// necessary for file loader/saver.
 
 	scan_->rawData()->addMeasurement(configuredDetector);
-	scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), 0));
+	AMRawDataSource* imageDataSource = new AMRawDataSource(scan_->rawData(), 0);
+	scan_->addRawDataSource(imageDataSource);
 
+	AM2DSummingAB* xesSpectrum = new AM2DSummingAB("Spectrum");
+	xesSpectrum->setInputDataSources(QList<AMDataSource*>() << imageDataSource);
+	xesSpectrum->setSumAxis(1);
+	xesSpectrum->setSumRangeMax(imageDataSource->size(1)-1);
+	scan_->addAnalyzedDataSource(xesSpectrum);
 }
 
 
