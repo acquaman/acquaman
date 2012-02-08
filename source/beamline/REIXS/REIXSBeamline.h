@@ -65,7 +65,6 @@ class AMListAction;
 - angleDrive(): The position of the ball screw that lifts the spectrometer, in mm, up from the home (lowered) position.
 - detectorTranslation(): The position of the ball screw that translates the detector along the chamber, in mm, away from the upstream home position
 - detectorTiltDrive():  The position of the linear stage that tilts the detector, in mm, up from its vertically lowest home position
-- detectorRotationDrive(): The position of the linear stage which rotates the detector, in mm, away from the most upstream home position
 - hexapod(): The REIXSHexapod controls
 */
 class REIXSSpectrometer : public AMCompositeControl {

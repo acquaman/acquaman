@@ -197,7 +197,7 @@ void AMPVControl::move(double setpoint) {
 		emit movingChanged(moveInProgress_ = true);
 
 		// emit the signal that we started:
-		emit this->moveStarted();
+		emit moveStarted();
 
 		// Special case added:
 		// =======================
@@ -205,7 +205,7 @@ void AMPVControl::move(double setpoint) {
 		// This check is only possible if you've actually specified a non-default, appropriate timeout:
 		if(tolerance() != AMCONTROL_TOLERANCE_DONT_CARE && inPosition()) {
 			emit movingChanged(moveInProgress_ = false);
-			emit this->moveSucceeded();
+			emit moveSucceeded();
 		}
 		else {
 			// start the countdown to see if we get there in time or stall out: (completionTimeout_ is in seconds)
@@ -213,7 +213,7 @@ void AMPVControl::move(double setpoint) {
 		}
 	}
 	else {
-		qWarning() << QString("Could not move %1 to %2").arg(writePV_->pvName()).arg(setpoint_);
+		qWarning() << QString("AMPVControl: Could not move %1 to %2").arg(writePV_->pvName()).arg(setpoint_);
 
 		// Notify the failure right away:
 		emit moveFailed(AMControl::NotConnectedFailure);
