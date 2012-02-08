@@ -53,6 +53,10 @@ protected:
 	AMScanSetModel* model_;
 	/// index of the data source this context menu was created for
 	QPersistentModelIndex pi_;
+	/// Scan index.
+	int scanIndex_;
+	/// Data source index.  Similar to QPersistentModelIndex.
+	int dataSourceIndex_;
 
 
 protected slots:
@@ -60,7 +64,7 @@ protected slots:
 	void hideAllExceptDataSource();
 	/// Called when the "show all data sources like this one" action is triggered.
 	void showAllDataSource();
-	/// Called when the "show all data sources" action is triggered.
+	/// Called when the "show all data sources" action is triggered.  This only shows all the data sources for the scan that was selected.  If you want to show all data sources on all open scans then you need to do this for each scan.
 	void showAll();
 	/// Called when the "edit Color And Style" action is triggered.
 	void editColorAndStyle();

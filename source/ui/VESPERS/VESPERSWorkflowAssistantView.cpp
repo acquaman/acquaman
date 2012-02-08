@@ -62,5 +62,5 @@ void VESPERSWorkflowAssistantView::onScanConfigurationChanged()
 	progressBar_->setValue(0);
 	totalScans_->setValue(assistant_->totalScans());
 	totalScans_->setMinimum(1);
-	currentScan_->setText("1 /");
+	currentScan_->setText(QString("%1 /").arg(assistant_->currentScan()));
 }

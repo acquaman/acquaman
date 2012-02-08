@@ -2132,6 +2132,8 @@ AMScanViewScanBarContextMenu::AMScanViewScanBarContextMenu(AMScanSetModel *model
 	: QMenu(parent)
 {
 	model_ = model;
+	scanIndex_ = scanIndex;
+	dataSourceIndex_ = dataSourceIndex;
 	QModelIndex di = model_->indexForDataSource(scanIndex, dataSourceIndex);
 	pi_ = QPersistentModelIndex(di);
 
@@ -2161,14 +2163,53 @@ AMScanViewScanBarContextMenu::~AMScanViewScanBarContextMenu() {
 
 void AMScanViewScanBarContextMenu::hideAllExceptDataSource()
 {
+	AMScan *scan = model_->scanAt(scanIndex_);
+	if (!scan)
+		return;
+
+	int dataSourceCount = scan->dataSourceCount();
+
+	for (int i = 0; i < dataSourceCount; i++){
+
+		if (i == dataSourceIndex_)
+			model_->setVisible(scanIndex_, i, true);
+
+		else
+			model_->setVisible(scanIndex_, i, false);
+	}
 }
 
 void AMScanViewScanBarContextMenu::showAllDataSource()
 {
+	QString nameOfDataSource(model_->dataSourceAt(scanIndex_, dataSourceIndex_)->name());
+	int scanCount = model_->scanCount();
+	int dataSourceCount = 0;
+
+	for (int i = 0; i < scanCount; i++){
+
+		dataSourceCount = model_->scanAt(i)->dataSourceCount();
+
+		for (int j = 0; j < dataSourceCount; j++){
+
+			if (model_->dataSourceAt(i, j)->name() == nameOfDataSource)
+				model_->setVisible(i, j, true);
+
+			else
+				model_->setVisible(i, j, false);
+		}
+	}
 }
 
 void AMScanViewScanBarContextMenu::showAll()
 {
+	AMScan *scan = model_->scanAt(scanIndex_);
+	if (!scan)
+		return;
+
+	int dataSourceCount = scan->dataSourceCount();
+
+	for (int i = 0; i < dataSourceCount; i++)
+		model_->setVisible(scanIndex_, i, true);
 }
 
 #include "ui/dataman/AMScanSetItemPropertyDialog.h"
