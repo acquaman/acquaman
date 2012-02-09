@@ -442,7 +442,10 @@ void AMPVwStatusControl::move(double setpoint) {
 	// This check is only possible if you've actually specified a non-default, appropriate tolerance:
 	if(tolerance() != AMCONTROL_TOLERANCE_DONT_CARE && inPosition()) {
 		startInProgress_ = false;
-		emit this->moveSucceeded();
+		moveInProgress_ = true;
+		emit moveStarted();
+		moveInProgress_ = false;
+		emit moveSucceeded();
 	}
 	else {
 		// start the timer to check if our move failed to start:
