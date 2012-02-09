@@ -62,10 +62,11 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 	AMRawDataSource* imageDataSource = new AMRawDataSource(scan_->rawData(), 0);
 	scan_->addRawDataSource(imageDataSource);
 
-	AM2DSummingAB* xesSpectrum = new AM2DSummingAB("Spectrum");
+	AM2DSummingAB* xesSpectrum = new AM2DSummingAB("xesSpectrum");
 	xesSpectrum->setInputDataSources(QList<AMDataSource*>() << imageDataSource);
 	xesSpectrum->setSumAxis(1);
-	xesSpectrum->setSumRangeMax(imageDataSource->size(1)-1);
+	xesSpectrum->setSumRangeMax(45);
+	xesSpectrum->setSumRangeMin(15);
 	scan_->addAnalyzedDataSource(xesSpectrum);
 }
 
