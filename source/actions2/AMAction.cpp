@@ -208,7 +208,9 @@ bool AMAction::setPrereqBehaviour(AMAction::PrereqBehaviour prereqBehaviour)
 void AMAction::notifyStarted()
 {
 	if(state() != Starting) {
-		qWarning() << "AMAction: Warning: An action told us it has started, but we did not tell it to start.";
+		qWarning() << "AMAction: Warning: An implementation told us it has started, but we did not tell it to start.";
+		qWarning() << "    Action name:" << info()->name();
+		qWarning() << "    Current state:" << stateDescription(state());
 		return;
 	}
 
@@ -231,6 +233,8 @@ void AMAction::notifySucceeded()
 
 	default:
 		qWarning() << "AMAction: Warning: An implementation told us it had succeeded before it could possibly be running.";
+		qWarning() << "    Action name:" << info()->name();
+		qWarning() << "    Current state:" << stateDescription(state());
 	}
 }
 
@@ -367,7 +371,7 @@ QString AMAction::stateDescription(AMAction::State state)
 void AMAction::setState(AMAction::State newState) {
 	previousState_ = state_;
 	state_ = newState;
-	// qDebug() << "AMAction: Entering state:" << stateDescription(state_);
+	// qDebug() << "AMAction:" << info()->name() << ": Entering state:" << stateDescription(state_);
 	setStatusText(stateDescription(state_));
 	emit stateChanged(state_, previousState_);
 	// convenience signals for final states:
