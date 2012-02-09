@@ -145,3 +145,70 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 	viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
 	viewHolder->show();
 }
+
+
+bool AMAppController::eventFilter(QObject* o, QEvent* e)
+{
+	if(o == mw_ && e->type() == QEvent::Close) {
+		if(!canCloseScanEditors()) {
+			e->ignore();
+			return true;
+		}
+		if(!canCloseActionRunner()) {
+			e->ignore();
+			return true;
+		}
+		// They got away with closing the main window. We should quit the application
+		qApp->quit();	//note that this might already be in progress, if an application quit was what triggered this close event.  No harm in asking twice...
+
+	}
+	// anything else, allow unfiltered
+	return QObject::eventFilter(o,e);
+}
+
+#include <QMessageBox>
+#include "actions2/AMActionRunner.h"
+#include "actions2/AMAction.h"
+bool AMAppController::canCloseActionRunner()
+{
+	AMActionRunner::s()->setQueuePaused(true);
+
+	// is there an action running in the primary queue?
+	if(AMActionRunner::s()->actionRunning()) {
+
+		int doCancel = QMessageBox::question(mw_,
+											  "An action is still running. Are you sure you want to quit?",
+											  QString("There is an action (%1) still running.  Do you want to stop it?").arg(AMActionRunner::s()->currentAction()->info()->shortDescription()),
+											  QMessageBox::Yes, QMessageBox::No);
+
+		// Careful: it might have finished while the user was answering the question.
+		if(AMActionRunner::s()->actionRunning()) {
+			if(doCancel == QMessageBox::Yes)
+				AMActionRunner::s()->cancelCurrentAction();
+			return false;
+		}
+	}
+
+	// any actions running in the background in immediate mode?
+	if(AMActionRunner::s()->immediateActionsCount()) {
+		QStringList descriptions;
+		for(int i=0, cc=AMActionRunner::s()->immediateActionsCount(); i<cc; i++) {
+			descriptions << AMActionRunner::s()->immediateActionAt(i)->info()->shortDescription();
+		}
+		int doCancel = QMessageBox::question(mw_,
+											  "Actions are still running in the background. Are you sure you want to quit?",
+											  QString("There are still actions running in the background (%1). Do you want to stop them?").arg(descriptions.join(", ")),
+											  QMessageBox::Yes, QMessageBox::No);
+
+		// careful: they might have finished while the user was answering.
+		if(AMActionRunner::s()->immediateActionsCount()) {
+			if(doCancel == QMessageBox::Yes)
+				AMActionRunner::s()->cancelImmediateActions();
+			return false;
+		}
+	}
+
+
+	// No objections. Can quit.
+	return true;
+}

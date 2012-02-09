@@ -112,7 +112,7 @@ double REIXSXESCalibration::computeEVFromSpectrometerPosition(int gratingIndex, 
 	QVector3D pos = detectorPosFromThetaAndTranslation(theta, detectorTranslationMm);
 	double dTheta = dThetaFromDetectorPos(pos);
 
-	qDebug() << "theta:" << theta << "pos" << pos << "dTheta" << dTheta;
+	// qDebug() << "theta:" << theta << "pos" << pos << "dTheta" << dTheta;
 
 	return eVFromDTheta(dTheta, gratingIndex);
 }

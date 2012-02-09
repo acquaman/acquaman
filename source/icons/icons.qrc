@@ -139,5 +139,14 @@
         <file>64x64/gnome-display-properties.png</file>
         <file>hammer-wrench.png</file>
         <file>32x32/hammer-wrench.png</file>
+        <file>64x64/generic-action.png</file>
+        <file>22x22/media-playback-pause.png</file>
+        <file>22x22/media-playback-start.png</file>
+        <file>22x22/list-remove-2.png</file>
+        <file>22x22/greenCheck.png</file>
+        <file>22x22/orangeX.png</file>
+        <file>22x22/redCrash.png</file>
+        <file>22x22/dialog-question.png</file>
+        <file>32x32/media-playlist-repeat.png</file>
     </qresource>
 </RCC>

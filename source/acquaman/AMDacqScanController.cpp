@@ -113,7 +113,7 @@ bool AMDacqScanController::startImplementation(){
 		}
 }
 
-bool AMDacqScanController::canPause(){
+bool AMDacqScanController::canPause() const {
 	return true;
 }
 

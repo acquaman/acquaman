@@ -158,23 +158,15 @@ QMAKE_CXXFLAGS += -Wextra
 
 # Specify runtime search locations for libraries (Must change for release bundle, if epics in a different location)
 macx {
+# For Qt 4.7.1 and earlier, need to use
+								#QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
+								#QMAKE_LFLAGS_RPATH += "$$QWTPLOT3D_LIB_DIR"
+# instead of this:
 
-				contains(QT_MINOR_VERSION, 7) {
-						contains(QT_PATCH_VERSION, 2) | contains(QT_PATCH_VERSION, 3) | contains(QT_PATCH_VERSION, 4) {
-								# 4.7.2 or 4.7.3 or 4.7.4: Use same as linux-g++
+		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
+		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 #		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QWTPLOT3D_LIB_DIR"
 #		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QWTPLOT3D_LIB_DIR"
-								QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
-								QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
-						}
-						else {
-								QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
-								#QMAKE_LFLAGS_RPATH += "$$QWTPLOT3D_LIB_DIR"
-						}
-				} else {
-								QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
-				#QMAKE_LFLAGS_RPATH += "$$QWTPLOT3D_LIB_DIR"
-				}
 }
 
 
@@ -477,7 +469,32 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/qjson/serializerrunnable.h \
 	source/qjson/stack.hh \
 	source/util/AMGithubManager.h \
-    source/ui/util/AMGithubIssueSubmissionView.h
+    source/ui/util/AMGithubIssueSubmissionView.h \
+    source/actions2/AMAction.h \
+    source/actions2/AMListAction.h \
+	source/actions2/AMActionInfo.h \
+    source/actions2/AMActionRunner.h \
+    source/ui/actions2/AMActionRunnerQueueView.h \
+    source/ui/actions2/AMActionRunnerCurrentView.h \
+    source/ui/actions2/AMWorkflowView.h \
+	source/actions2/actions/AMWaitAction.h \
+	source/actions2/actions/AMWaitActionInfo.h \
+    source/actions2/actions/AMScanControllerAction.h \
+    source/actions2/actions/AMScanControllerActionInfo.h \
+    source/actions2/AMActionLog.h \
+    source/ui/actions2/AMActionHistoryView.h \
+    source/actions2/AMActionRegistry.h \
+    source/actions2/actions/AMControlMoveActionInfo.h \
+    source/actions2/actions/AMControlMoveAction.h \
+    source/actions2/actions/AMInternalControlMoveAction.h \
+    source/actions2/AMNestedAction.h \
+    source/actions2/AMLoopAction.h \
+	source/actions2/AMLoopActionInfo.h \
+	source/actions2/editors/AMWaitActionEditor.h \
+	source/actions2/editors/AMLoopActionEditor.h \
+    source/ui/acquaman/AMScanConfigurationViewHolder2.h \
+    source/ui/actions2/AMActionRunnerAddActionBar.h
+
 
 CONFIG(mobility) {
 DEFINES += AM_MOBILITY_VIDEO_ENABLED
@@ -765,7 +782,31 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/qjson/serializer.cpp \
 	source/qjson/serializerrunnable.cpp \
 	source/util/AMGithubManager.cpp \
-    source/ui/util/AMGithubIssueSubmissionView.cpp
+    source/ui/util/AMGithubIssueSubmissionView.cpp \
+    source/actions2/AMAction.cpp \
+    source/actions2/AMListAction.cpp \
+    source/actions2/AMActionInfo.cpp \
+    source/actions2/AMActionRunner.cpp \
+    source/ui/actions2/AMActionRunnerQueueView.cpp \
+    source/ui/actions2/AMActionRunnerCurrentView.cpp \
+    source/ui/actions2/AMWorkflowView.cpp \
+	source/actions2/actions/AMWaitAction.cpp \
+	source/actions2/actions/AMWaitActionInfo.cpp \
+    source/actions2/actions/AMScanControllerAction.cpp \
+    source/actions2/actions/AMScanControllerActionInfo.cpp \
+    source/actions2/AMActionLog.cpp \
+    source/ui/actions2/AMActionHistoryView.cpp \
+    source/actions2/AMActionRegistry.cpp \
+    source/actions2/actions/AMControlMoveActionInfo.cpp \
+    source/actions2/actions/AMControlMoveAction.cpp \
+    source/actions2/actions/AMInternalControlMoveAction.cpp \
+    source/actions2/AMNestedAction.cpp \
+    source/actions2/AMLoopAction.cpp \
+	source/actions2/AMLoopActionInfo.cpp \
+	source/actions2/editors/AMWaitActionEditor.cpp \
+	source/actions2/editors/AMLoopActionEditor.cpp \
+    source/ui/acquaman/AMScanConfigurationViewHolder2.cpp \
+    source/ui/actions2/AMActionRunnerAddActionBar.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
@@ -784,46 +825,6 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -114,6 +114,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(QWidget *parent) :
 	doNotClearExistingCountsOption_->setChecked(configuration_.doNotClearExistingCounts());
 	/////////////////////////
 
+	connect(gratingSelector_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSelectedGratingChanged(int)));
 	connect(centerEVBox_, SIGNAL(valueChanged(double)), &configuration_, SLOT(setCenterEV(double)));
 	connect(defocusDistanceMmBox_, SIGNAL(valueChanged(double)), &configuration_, SLOT(setDefocusDistanceMm(double)));
 	connect(detectorTiltBox_, SIGNAL(valueChanged(double)), &configuration_, SLOT(setDetectorTiltOffset(double)));

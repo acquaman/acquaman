@@ -75,6 +75,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DSummingAB.h"
 #include "analysis/AMDeadTimeAB.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
+#include "actions2/AMActionInfo.h"
+#include "actions2/AMActionLog.h"
+#include "actions2/actions/AMWaitActionInfo.h"
+#include "actions2/actions/AMControlMoveActionInfo.h"
+#include "actions2/actions/AMScanControllerActionInfo.h"
+
+
 #include "dataman/database/AMDbObjectSupport.h"
 
 
@@ -268,6 +275,12 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMExporterOptionGeneralAscii>();
 
 	AMDbObjectSupport::s()->registerClass<AMUser>();
+
+	AMDbObjectSupport::s()->registerClass<AMActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMActionLog>();
+	AMDbObjectSupport::s()->registerClass<AMWaitActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMControlMoveActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMScanControllerActionInfo>();
 
 	return true;
 }
@@ -729,10 +742,9 @@ bool AMDatamanAppController::eventFilter(QObject* o, QEvent* e)
 			e->ignore();
 			return true;
 		}
-		else {
-			// They got away with closing the main window. We should quit the application
-			qApp->quit();	//note that this might already be in progress, if an application quit was what triggered this close event.  No harm in asking twice...
-		}
+		// They got away with closing the main window. We should quit the application
+		qApp->quit();	//note that this might already be in progress, if an application quit was what triggered this close event.  No harm in asking twice...
+
 	}
 	// anything else, allow unfiltered
 	return QObject::eventFilter(o,e);

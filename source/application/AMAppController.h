@@ -58,8 +58,8 @@ public slots:
 If \c openInExistingEditor is set to true, and if there is an existing editor, the scan will be appended inside that editor. (If there is more than one open editor, the scan will be added to the most recently-created one.)  By default, a new editor window is created.*/
 	void openScanInEditorAndTakeOwnership(AMScan* scan, bool bringEditorToFront = true, bool openInExistingEditor = false);
 
-	/// Bring the Workflow view to the front level
-	void goToWorkflow();
+	/// Bring the Workflow view to the front.
+	virtual void goToWorkflow();
 
 	///	Opens a single scan configuration from a given database URL.  Reimplemented to put the scan into a config view holder to possibly add it to the workflow.
 	virtual void launchScanConfigurationFromDb(const QUrl &url);
@@ -69,6 +69,12 @@ If \c openInExistingEditor is set to true, and if there is an existing editor, t
 protected:
 	/// Top-level panes in the main window
 	AMWorkflowManagerView* workflowManagerView_;
+
+	/// Filters the closeEvent on the main window, in case there's any reason why we can't quit directly. (ie: scans modified and still open, or an action is still running)
+	virtual bool eventFilter(QObject *, QEvent *);
+
+	/// Checks to make sure no actions are currently running in the AMActionRunner. If there are, asks user if they want to cancel them, but still returns false.
+	bool canCloseActionRunner();
 };
 
 #endif // AMAPPCONTROLLER_H

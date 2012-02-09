@@ -719,7 +719,7 @@ AMDbObject* AMDbObjectSupport::createAndLoadObjectAt(AMDatabase* db, const QStri
 		}
 	}
 	else {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -93, QString("[AMDbObjectSupport] Could not load the object with ID %1 from the table '%2', because there are no suitable constructors. Please report this bug to the Acquaman developers").arg(id).arg(tableName)));
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -93, QString("[AMDbObjectSupport] Could not load the object with ID %1 from the table '%2', because there are no suitable (Q_INVOKABLE) constructors. Please report this bug to the Acquaman developers").arg(id).arg(tableName)));
 	}
 	return 0;
 }

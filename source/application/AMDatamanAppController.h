@@ -225,7 +225,7 @@ protected:
 	bool canCloseScanEditors() const;
 
 	/// Filters the close-event from the main window, to catch anything we need to check before closing the window.
-	bool eventFilter(QObject *, QEvent *);
+	virtual bool eventFilter(QObject *, QEvent *);
 
 //	/// Helper function to process all events for \c ms milliseconds, but stay in the calling function.
 //	void processEventsFor(int ms);

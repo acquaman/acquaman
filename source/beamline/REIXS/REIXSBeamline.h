@@ -58,12 +58,13 @@ protected:
 
 };
 
+class AMListAction;
+
 /// The REIXSSpectrometer control is a high-level abstraction for controlling the spectrometer energy.  It's also a container for the set of (low-level, physical) controls which make up the spectrometer:
 /*!
 - angleDrive(): The position of the ball screw that lifts the spectrometer, in mm, up from the home (lowered) position.
 - detectorTranslation(): The position of the ball screw that translates the detector along the chamber, in mm, away from the upstream home position
 - detectorTiltDrive():  The position of the linear stage that tilts the detector, in mm, up from its vertically lowest home position
-- detectorRotationDrive(): The position of the linear stage which rotates the detector, in mm, away from the most upstream home position
 - hexapod(): The REIXSHexapod controls
 */
 class REIXSSpectrometer : public AMCompositeControl {
@@ -118,7 +119,7 @@ public:
 
 
 	/// Indicates that a move (that was commanded via this object using move()) is in progress.  This will be accompanied by signals moveStarted(), moveFinished(), moveFailed(int reason).
-	virtual bool moveInProgress() const { return currentMoveStep_ != MoveDone; }
+	virtual bool moveInProgress() const { return moveAction_ != 0; }
 
 	/// Returns the minimum and maximum value for the current grating
 	virtual double minimumValue() const { return calibration_.evRangeForGrating(specifiedGrating_).first; }
@@ -162,8 +163,11 @@ protected:
 
 
 	// for move state machine:
-	enum MoveStep { Starting, MovingZto0, MovingUto0, MovingRST, MovingU, MovingXYZ, MovingLiftTiltTranslation, MoveDone };
-	MoveStep currentMoveStep_;
+//	enum MoveStep { Starting, MovingZto0, MovingUto0, MovingRST, MovingU, MovingXYZ, MovingLiftTiltTranslation, MoveDone };
+//	MoveStep currentMoveStep_;
+
+	/// It takes lots of steps to move the detector into position. This is the action we use to run a detector move. Valid if a move is in progress, and 0 otherwise.
+	AMListAction* moveAction_;
 
 
 signals:
@@ -183,47 +187,51 @@ protected slots:
 	/// Called at a maximum rate of 0.1s, this examines the current position of the spectrometer and emits valueChanged().
 	void reviewValueChanged() { emit valueChanged(value()); }
 
-	// for move state machine
-	void smStartMoveZto0();
-	void smMoveZto0Succeeded();
-	void smMoveZto0Failed(int reason);
 
-	void smStartMoveUto0();
-	void smMoveUto0Succeeded();
-	void smMoveUto0Failed(int reason);
+	/// Called when the moveAction_ changes state. Handle success, failure, or cancellation.
+	void onMoveActionStateChanged(int newState, int previousState);
 
-	void smStartMoveRST();
-	void smRMoveSucceeded();
-	void smSMoveSucceeded();
-	void smTMoveSucceeded();
-	void smRMoveFailed(int reason);
-	void smSMoveFailed(int reason);
-	void smTMoveFailed(int reason);
+//	// for move state machine
+//	void smStartMoveZto0();
+//	void smMoveZto0Succeeded();
+//	void smMoveZto0Failed(int reason);
 
-	void smStartMoveU();
-	void smMoveUSucceeded();
-	void smMoveUFailed(int reason);
+//	void smStartMoveUto0();
+//	void smMoveUto0Succeeded();
+//	void smMoveUto0Failed(int reason);
 
-	void smStartMoveXYZ();
-	void smXMoveSucceeded();
-	void smYMoveSucceeded();
-	void smZMoveSucceeded();
-	void smXMoveFailed(int reason);
-	void smYMoveFailed(int reason);
-	void smZMoveFailed(int reason);
+//	void smStartMoveRST();
+//	void smRMoveSucceeded();
+//	void smSMoveSucceeded();
+//	void smTMoveSucceeded();
+//	void smRMoveFailed(int reason);
+//	void smSMoveFailed(int reason);
+//	void smTMoveFailed(int reason);
 
-	void smStartMoveLiftTiltTranslation();
-	void smLiftMoveSucceeded();
-	void smTiltMoveSucceeded();
-	void smTranslationMoveSucceeded();
-	void smLiftMoveFailed(int reason);
-	void smTiltMoveFailed(int reason);
-	void smTranslationMoveFailed(int reason);
+//	void smStartMoveU();
+//	void smMoveUSucceeded();
+//	void smMoveUFailed(int reason);
+
+//	void smStartMoveXYZ();
+//	void smXMoveSucceeded();
+//	void smYMoveSucceeded();
+//	void smZMoveSucceeded();
+//	void smXMoveFailed(int reason);
+//	void smYMoveFailed(int reason);
+//	void smZMoveFailed(int reason);
+
+//	void smStartMoveLiftTiltTranslation();
+//	void smLiftMoveSucceeded();
+//	void smTiltMoveSucceeded();
+//	void smTranslationMoveSucceeded();
+//	void smLiftMoveFailed(int reason);
+//	void smTiltMoveFailed(int reason);
+//	void smTranslationMoveFailed(int reason);
 
 protected:
-	bool smRMoveDone_, smSMoveDone_, smTMoveDone_;
-	bool smXMoveDone_, smYMoveDone_, smZMoveDone_;
-	bool smLiftMoveDone_, smTiltMoveDone_, smTranslationMoveDone_;
+//	bool smRMoveDone_, smSMoveDone_, smTMoveDone_;
+//	bool smXMoveDone_, smYMoveDone_, smZMoveDone_;
+//	bool smLiftMoveDone_, smTiltMoveDone_, smTranslationMoveDone_;
 
 	AMControlInfoList moveSetpoint_;
 
