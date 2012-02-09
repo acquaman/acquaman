@@ -112,10 +112,12 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	modeLayout->addWidget(triggerMode_);
 	modeLayout->addWidget(imageMode_);
 
+	QGroupBox *temperatureGroupBox = new QGroupBox("Temperature Control");
 	QHBoxLayout *temperatureLayout = new QHBoxLayout;
 	temperatureLayout->addWidget(new QLabel("Temperature: "), 0, Qt::AlignCenter);
 	temperatureLayout->addWidget(temperatureSetpoint_, 0, Qt::AlignCenter);
 	temperatureLayout->addWidget(temperatureFeedback_, 0, Qt::AlignCenter);
+	temperatureGroupBox->setLayout(temperatureLayout);
 
 	QVBoxLayout *acquisitionLayout = new QVBoxLayout;
 	acquisitionLayout->addLayout(statusLayout);
@@ -141,7 +143,7 @@ bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configu
 	QVBoxLayout *detectorLayout = new QVBoxLayout;
 	detectorLayout->addStretch();
 	detectorLayout->addWidget(acquisitionBox);
-	detectorLayout->addLayout(temperatureLayout);
+	detectorLayout->addWidget(temperatureGroupBox);
 	detectorLayout->addWidget(ccdGB);
 	detectorLayout->addStretch();
 

@@ -4,7 +4,7 @@
 
 TEMPLATE = subdirs
 SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
-	pluginProjects/AnalysisBlocks/AMAnalysisBlockPlugins.pro \
+	# pluginProjects/AnalysisBlocks/AMAnalysisBlockPlugins.pro \
 	REIXSTest.pro \
 	REIXSAcquaman.pro \
 	SGMAcquaman.pro \
@@ -17,5 +17,5 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	MidIRBPM.pro \
 	CLSPGTDwellTimeCoordinator.pro \
 	SGMAddOnsCoordinator.pro \
-    SGMSSAAcquaman.pro
+	SGMSSAAcquaman.pro
 
