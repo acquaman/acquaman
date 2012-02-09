@@ -46,9 +46,7 @@ bool AMListAction::insertSubAction(AMAction *action, int index)
 	if(state() != Constructed)
 		return false;	// cannot change this once running.
 
-	if(index<0)
-		index = 0;
-	if(index > subActions_.count())
+	if(index<0 || index > subActions_.count())
 		index = subActions_.count();
 
 	emit subActionAboutToBeAdded(index);
