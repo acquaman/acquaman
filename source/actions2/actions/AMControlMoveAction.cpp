@@ -60,6 +60,7 @@ void AMControlMoveAction::startImplementation() {
 
 void AMControlMoveAction::onMoveStarted()
 {
+	disconnect(control_, SIGNAL(moveStarted()), this, SLOT(onMoveStarted()));
 	notifyStarted();
 	// start the progressTick timer
 	connect(&progressTick_, SIGNAL(timeout()), this, SLOT(onProgressTick()));
@@ -68,6 +69,7 @@ void AMControlMoveAction::onMoveStarted()
 
 void AMControlMoveAction::onMoveFailed(int reason)
 {
+	disconnect(control_, 0, this, 0);
 	progressTick_.stop();
 	disconnect(&progressTick_, 0, this, 0);
 
@@ -87,6 +89,7 @@ void AMControlMoveAction::onMoveFailed(int reason)
 
 void AMControlMoveAction::onMoveSucceeded()
 {
+	disconnect(control_, 0, this, 0);
 	progressTick_.stop();
 	disconnect(&progressTick_, 0, this, 0);
 
