@@ -329,7 +329,7 @@ void REIXSSpectrometer::onMoveActionStateChanged(int state, int previousState)
 	Q_UNUSED(previousState)
 
 	if(state == AMAction::Succeeded || state == AMAction::Failed || state == AMAction::Cancelled) {
-		delete moveAction_;
+		moveAction_->deleteLater();	// cannot delete right away, because we might still be executing inside the moveAction_'s code.
 		moveAction_ = 0;
 		if(state == AMAction::Succeeded)
 			emit moveSucceeded();
