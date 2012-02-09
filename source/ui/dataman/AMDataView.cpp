@@ -1622,7 +1622,7 @@ void AMDataView::startDragWithSelectedItems(const QPixmap& optionalPixmap)
 void AMDataView::onCustomContextMenuRequested(QPoint pos)
 {
 	QMenu popup(this);
-	int numSelectedItems = gscene_->selectedItems().size();
+	int numSelectedItems = numberOfSelectedItems();
 
 	QAction *temp = popup.addAction("Edit");
 	if (numSelectedItems == 0)
@@ -1693,21 +1693,75 @@ void AMDataView::onViewClicked(const QPoint &clickPos)
 	if(mods & Qt::ShiftModifier) {
 		// shift-selection: select all items in the rectangle containing the existing selected items and the clicked item.
 		if(item && (item->flags() & QGraphicsItem::ItemIsSelectable)) {
-			QRectF newSelectionRect = item->mapRectToScene(item->boundingRect());
+
 			QList<QGraphicsItem*> selectedItems = gscene_->selectedItems();
 			bool otherItems = false;
-			for(int i=0; i<selectedItems.count(); i++) {
+
+			for(int i=0; i < selectedItems.count(); i++) {
+
 				QGraphicsItem* otherItem = selectedItems.at(i);
-				if(otherItem != item) {
+
+				if(otherItem != item)
 					otherItems = true;
-					newSelectionRect |= otherItem->mapRectToScene(otherItem->boundingRect());
+			}
+
+			if (otherItems){
+
+				QList<QGraphicsItem *> items = gscene_->items();
+				int clickedItemIndex = items.indexOf(item);
+				int startIndex = 0;
+				int endIndex = 0;
+				int indexOfSelectedItem = 0;
+				int firstSelectedIndex = items.indexOf(selectedItems.first());
+				int lastSelectedIndex = items.indexOf(selectedItems.first());
+
+				for (int i = 0; i < selectedItems.size(); i++){
+
+					indexOfSelectedItem = items.indexOf(selectedItems.at(i));
+
+					if (firstSelectedIndex > indexOfSelectedItem)
+						firstSelectedIndex = indexOfSelectedItem;
+
+					if (lastSelectedIndex < indexOfSelectedItem)
+						lastSelectedIndex = indexOfSelectedItem;
 				}
+
+				// If the clicked item is before any selected items.  Highlight all in between.
+				if (clickedItemIndex < firstSelectedIndex){
+
+					startIndex = clickedItemIndex;
+					endIndex = firstSelectedIndex;
+				}
+
+				// If the clicked item is after all other selected items.  Highlight all in between.
+				else if (clickedItemIndex > lastSelectedIndex){
+
+					startIndex = lastSelectedIndex;
+					endIndex = clickedItemIndex + 1;	// Adding 1 to include the clicked item as well.
+				}
+
+				// If the clicked item falls between two selected items, select all of the items between the clicked item and the previous (lower index) item.
+				else {
+
+					int tempIndex = 0;
+
+					for (int i = 0; i < selectedItems.size(); i++){
+
+						indexOfSelectedItem = items.indexOf(selectedItems.at(i));
+
+						if ((indexOfSelectedItem < clickedItemIndex) && (tempIndex < indexOfSelectedItem))
+							tempIndex = indexOfSelectedItem;
+					}
+
+					startIndex = tempIndex;
+					endIndex = clickedItemIndex + 1;	// Adding 1 to include the clicked item as well.
+				}
+
+				// Select all items from the start to the end.
+				for (int i = startIndex; i < endIndex; i++)
+					items.at(i)->setSelected(true);
 			}
-			if(otherItems) {
-				selectionArea_ = QPainterPath();
-				selectionArea_.addRect(newSelectionRect);
-				gscene_->setSelectionArea(selectionArea_);
-			}
+
 			else {
 				// no selected items. Just select this item.
 				item->setSelected(true);

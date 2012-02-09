@@ -128,7 +128,7 @@ bool VESPERSAppController::startup() {
 		vespersDefault->setHeaderIncluded(true);
 		vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
 		vespersDefault->setColumnHeaderIncluded(true);
-		vespersDefault->setColumnHeaderDelimiter("==========");
+		vespersDefault->setColumnHeaderDelimiter("");
 		vespersDefault->setSectionHeader("");
 		vespersDefault->setSectionHeaderIncluded(true);
 		vespersDefault->setIncludeAllDataSources(true);
