@@ -493,7 +493,8 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/actions2/editors/AMWaitActionEditor.h \
 	source/actions2/editors/AMLoopActionEditor.h \
     source/ui/acquaman/AMScanConfigurationViewHolder2.h \
-    source/ui/actions2/AMActionRunnerAddActionBar.h
+    source/ui/actions2/AMActionRunnerAddActionBar.h \
+    source/dataman/export/AMExporterAthena.h
 
 
 CONFIG(mobility) {
@@ -806,7 +807,8 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/actions2/editors/AMWaitActionEditor.cpp \
 	source/actions2/editors/AMLoopActionEditor.cpp \
     source/ui/acquaman/AMScanConfigurationViewHolder2.cpp \
-    source/ui/actions2/AMActionRunnerAddActionBar.cpp
+    source/ui/actions2/AMActionRunnerAddActionBar.cpp \
+    source/dataman/export/AMExporterAthena.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
@@ -825,6 +827,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 

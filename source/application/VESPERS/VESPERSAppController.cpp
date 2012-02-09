@@ -50,6 +50,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
+#include "dataman/export/AMExporterAthena.h"
 
 #include <QFileDialog>
 
@@ -141,7 +142,7 @@ bool VESPERSAppController::startup() {
 		// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
 		matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
 		if(matchIDs.count() > 0)
-			AMAppControllerSupport::registerClass<VESPERSEXAFSScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
+			AMAppControllerSupport::registerClass<VESPERSEXAFSScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(matchIDs.at(0));
 
 		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
 		AMStartScreen* startScreen = new AMStartScreen(0);

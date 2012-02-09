@@ -65,10 +65,15 @@ protected:
 	/// Parse the data sources in option_, find their index within the scan, and fill mainTableDataSources_, separateSectionDataSources_, and separateFileDataSources_.  Returns true if all required data sources are found.
 	bool prepareDataSources();
 
-	void writeHeader();
-	void writeMainTable();
-	void writeSeparateSections();
-	bool writeSeparateFiles(const QString& destinationFolderPath);
+	// These functions are virtual because you may want most of the options already existing in AMExporterGeneralAscii, but redefine certain behaviours.
+	/// Method that writes the header piece of the exported file.
+	virtual void writeHeader();
+	/// Method that writes the data in the main table, including the function names.
+	virtual void writeMainTable();
+	/// Method that writes the separate sections of the data file.
+	virtual void writeSeparateSections();
+	/// Method that writes the separate files for other data sources.
+	virtual bool writeSeparateFiles(const QString& destinationFolderPath);
 
 	/// converts all "\r\n" windows style line endings in \c inputString to "\n"
 	void normalizeLineEndings(QString& inputString);
