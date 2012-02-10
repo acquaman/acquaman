@@ -244,29 +244,29 @@ void VESPERSAppController::onCurrentScanControllerStarted()
 
 	switch(config->fluorescenceDetectorChoice()){
 
-	case VESPERSEXAFSScanConfiguration::None:
+		case VESPERSEXAFSScanConfiguration::None:
 
-		scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("trans");
-		break;
+			scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("trans");
+			break;
 
-	case VESPERSEXAFSScanConfiguration::SingleElement:
-	case VESPERSEXAFSScanConfiguration::FourElement:
-	{
-		QStringList dataSources(scanEditorAt(scanEditorCount()-1)->visibleDataSourceNames());
-		int index = 0;
+		case VESPERSEXAFSScanConfiguration::SingleElement:
+		case VESPERSEXAFSScanConfiguration::FourElement:
+		{
+			QStringList dataSources(scanEditorAt(scanEditorCount()-1)->visibleDataSourceNames());
+			int index = 0;
 
-		for (int i = 0; i < dataSources.size(); i++){
-			if (dataSources.at(i).contains("norm") && (dataSources.at(i).contains("Ka") || dataSources.contains("La"))){
+			for (int i = 0; i < dataSources.size(); i++){
+				if (dataSources.at(i).contains("norm") && dataSources.at(i).contains(config->edge())){
 
-				index = i;
-				break;
+					index = i;
+					break;
+				}
 			}
+
+			scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName(dataSources.at(index));
+
+			break;
 		}
-
-		scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName(dataSources.at(index));
-
-		break;
-	}
 	}
 }
 
