@@ -43,7 +43,7 @@ public:
 	enum ShouldStopAcquiringScanChoice{
 		ShouldStopNo =		0,
 		ShouldStopYes =		1,
-		ShouldStopForeQuit =	2
+		ShouldStopForceQuit =	2
 	};
 
 	/// Construct an empty editor:
