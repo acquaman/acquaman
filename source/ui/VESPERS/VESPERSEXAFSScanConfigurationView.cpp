@@ -23,6 +23,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 
 	// Regions setup
 	regionsView_ = new AMRegionsView(config_->regions());
+	regionsView_->setMinimumWidth(300);
 	regionsLineView_ = new AMEXAFSLineView(config_->exafsRegions());
 
 	// The fluorescence detector setup

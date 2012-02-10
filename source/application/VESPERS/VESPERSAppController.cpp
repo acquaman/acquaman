@@ -125,7 +125,7 @@ bool VESPERSAppController::startup() {
 
 		vespersDefault->setName("VESPERSDefault");
 		vespersDefault->setFileName("$name_$fsIndex.dat");
-		vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[rois]\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
+		vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[edge]\n$scanConfiguration[rois]\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
 		vespersDefault->setHeaderIncluded(true);
 		vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
 		vespersDefault->setColumnHeaderIncluded(true);
@@ -180,7 +180,7 @@ bool VESPERSAppController::startup() {
 
 		// Setup XAS for the beamline.  Builds the config, view, and view holder.
 		VESPERSEXAFSScanConfiguration *exafsScanConfig = new VESPERSEXAFSScanConfiguration();
-		exafsScanConfig->addRegion(0, -30, 1, 40, 1);
+		exafsScanConfig->addRegion(0, -30, 0.5, 40, 1);
 		VESPERSEXAFSScanConfigurationView *exafsConfigView = new VESPERSEXAFSScanConfigurationView(exafsScanConfig);
 		AMScanConfigurationViewHolder *exafsConfigViewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, exafsConfigView);
 

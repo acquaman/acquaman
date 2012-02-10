@@ -70,7 +70,7 @@ void AMExporterAthena::writeHeader()
 	convertNormalizedLineEndingsTo(option_->newlineDelimiter(), headerText);
 
 	headerText.replace("\n", "\n# ");
-	headerText.append("-------------------------------------\n");
+	headerText.append("-------------------------------------\n"); // Athena header delimeter from the data.
 
 	QTextStream ts(file_);
 	ts << headerText;
