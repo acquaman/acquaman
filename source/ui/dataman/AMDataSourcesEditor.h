@@ -96,6 +96,8 @@ protected:
 	/// Flag to indicate that we're currently editing the name of a new (not-yet created) data source.
 	bool editingNewDataSourceName_;
 
+	/// Name of the type of analysis block will be added.
+	QString nameOfAnalysisBlockToBeAdded_;
 
 	/// A data source-specific editor widget, to edit the unique parameters of a data source.  Returned by AMDataSource::createDetailEditor().
 	QWidget* detailEditor_;
