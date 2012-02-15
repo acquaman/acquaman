@@ -58,6 +58,8 @@ protected slots:
 
 	/// Called when the user finishes editing a data source description
 	void descriptionEditingFinished();
+	/// Called when the current data source description is changed on the model side.
+	void onDataSourceDescriptionChanged();
 
 
 protected:

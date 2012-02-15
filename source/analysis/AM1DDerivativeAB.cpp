@@ -76,7 +76,7 @@ void AM1DDerivativeAB::setInputDataSourcesImplementation(const QList<AMDataSourc
 		canAnalyze_ = false;
 
 		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
-		setDescription("-- No input data --");
+		setDescription("Derivative");
 	}
 
 	// we know that this will only be called with valid input source
@@ -134,7 +134,7 @@ void AM1DDerivativeAB::setInputSource()
 		inputSource_ = inputDataSourceAt(index);
 		canAnalyze_ = true;
 
-		axes_[0] = inputSource_->axisInfoAt(1);
+		axes_[0] = inputSource_->axisInfoAt(0);
 		setDescription(QString("Derivative of %1")
 					   .arg(inputSource_->name()));
 
@@ -148,7 +148,7 @@ void AM1DDerivativeAB::setInputSource()
 		inputSource_ = 0;
 		canAnalyze_ = false;
 		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
-		setDescription("-- No input data --");
+		setDescription("Derivative");
 	}
 
 	reviewState();

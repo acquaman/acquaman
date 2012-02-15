@@ -90,8 +90,6 @@ void AMDataSourcesEditor::setCurrentScan(int scanIndex) {
 
 void AMDataSourcesEditor::onSetViewIndexChanged(const QModelIndex &selected, const QModelIndex &deselected) {
 
-	Q_UNUSED(deselected)
-
 	removeDetailEditor();
 
 	// Nothing selected?
@@ -118,11 +116,22 @@ void AMDataSourcesEditor::onSetViewIndexChanged(const QModelIndex &selected, con
 
 	// Data source selected.
 	/////////////////
+
+	// Remove old connection to the data source description.
+	int oldSi = deselected.parent().row();
+	int oldDi = deselected.row();
+	AMDataSource *oldDataSource = model_->dataSourceAt(oldSi, oldDi);
+	if (oldDataSource)
+		disconnect(oldDataSource->signalSource(), SIGNAL(infoChanged()), this, SLOT(onDataSourceDescriptionChanged()));
+
+	// Setup new data source.
 	int si = selected.parent().row();
 	int di = selected.row();
 	AMDataSource* dataSource = model_->dataSourceAt(si, di);
 	if(!dataSource)
 		return;
+
+	connect(dataSource->signalSource(), SIGNAL(infoChanged()), this, SLOT(onDataSourceDescriptionChanged()));
 
 	ui_.nameEdit->setText(dataSource->name());
 	ui_.descriptionEdit->setText(dataSource->description());
@@ -137,6 +146,14 @@ void AMDataSourcesEditor::onSetViewIndexChanged(const QModelIndex &selected, con
 	populateExpressionMenu(si);
 	*/
 
+}
+
+void AMDataSourcesEditor::onDataSourceDescriptionChanged()
+{
+	QModelIndex index = ui_.scanSetView->currentIndex();
+	AMDataSource *dataSource = model_->dataSourceAt(index.parent().row(), index.row());
+	if (dataSource)
+		ui_.descriptionEdit->setText(dataSource->description());
 }
 
 #include <QMessageBox>
@@ -265,7 +282,7 @@ void AMDataSourcesEditor::onNewDataSourceNamed() {
 	/// \todo Currently this only provides access to the raw data sources, until we can figure out a way to detect or work-around the circular reference problem if analyzed data sources could be used as input.
 	/// \note DH: I have changed this to use all of the data sources.  There currently is still no work-around for the circular reference problem.  We are just going to have to be careful about using this.
 
-	for(int i=0; i<scan->rawDataSources()->count(); i++){
+	for(int i=0; i<scan->dataSourceCount(); i++){
 
 		tempSource = scan->dataSourceAt(i);
 

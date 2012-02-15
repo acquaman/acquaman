@@ -10,8 +10,12 @@ AM1DBasicDerivativeABEditor::AM1DBasicDerivativeABEditor(AM1DDerivativeAB *deriv
 
 	names_ = new QComboBox;
 	populateComboBox();
+
 	connect(names_, SIGNAL(currentIndexChanged(int)), this, SLOT(onNameChoiceChanged(int)));
 	connect(derivative_, SIGNAL(inputSourcesChanged()), this, SLOT(populateComboBox()));
+
+	if (derivative_->inputDataSourceCount() > 0)
+		onNameChoiceChanged(0);
 
 	QHBoxLayout *layout = new QHBoxLayout;
 	layout->addWidget(new QLabel("Input:"), 0, Qt::AlignRight);
@@ -28,7 +32,7 @@ void AM1DBasicDerivativeABEditor::populateComboBox()
 
 		tempSource = derivative_->inputDataSourceAt(i);
 
-		if (derivative_->name() != tempSource->name())
+		if (derivative_->name() != tempSource->name() && !tempSource->hiddenFromUsers())
 			names_->addItem(tempSource->description(), tempSource->name());
 	}
 }
