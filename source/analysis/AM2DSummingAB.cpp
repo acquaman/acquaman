@@ -27,6 +27,8 @@ AM2DSummingAB::AM2DSummingAB(const QString& outputName, QObject* parent)
 	sumAxis_ = 0;
 	sumRangeMin_ = 0;
 	sumRangeMax_ = 0;
+	analyzedName_ = "";
+	canAnalyze_ = false;
 
 	inputSource_ = 0;
 	cacheCompletelyInvalid_ = false;
@@ -58,9 +60,9 @@ AM2DSummingAB::AM2DSummingAB(AMDatabase* db, int id)
 }
 
 
-/// Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, our specific requirements are...
-/*! - there must be a single input source
-	- the rank() of that input source must be 2 (two-dimensiona)
+// Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, our specific requirements are...
+/* - there must be a single input source or a list of 2D data sources
+	- the rank() of that input source must be 2 (two-dimensional)
 	*/
 bool AM2DSummingAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const {
 
@@ -70,6 +72,16 @@ bool AM2DSummingAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& da
 	// otherwise we need a single input source, with a rank of 2.
 	if(dataSources.count() == 1 && dataSources.at(0)->rank() == 2)
 		return true;
+
+	// Or we need a list of 2D data sources.
+	else if (dataSources.count() > 1){
+
+		for (int i = 0; i < dataSources.count(); i++)
+			if (dataSources.at(i)->rank() != 2)
+				return false;
+
+		return true;
+	}
 
 	return false;
 }
@@ -83,20 +95,23 @@ void AM2DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 		disconnect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
 		disconnect(inputSource_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		disconnect(inputSource_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+		inputSource_ = 0;
 	}
 
 	if(dataSources.isEmpty()) {
 		inputSource_ = 0;
 		sources_.clear();
+		canAnalyze_ = false;
 
 		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
 		setDescription("-- No input data --");
 	}
 
 	// we know that this will only be called with valid input source
-	else {
+	else if (dataSources.count() == 1) {
 		inputSource_ = dataSources.at(0);
 		sources_ = dataSources;
+		canAnalyze_ = true;
 
 		int otherAxis = (sumAxis_ == 0) ? 1 : 0;
 		axes_[0] = inputSource_->axisInfoAt(otherAxis);
@@ -111,6 +126,12 @@ void AM2DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 
 	}
 
+	else {
+
+		sources_ = dataSources;
+		setInputSource();
+	}
+
 	invalidateCache();
 	reviewState();
 
@@ -120,10 +141,69 @@ void AM2DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 	emitInfoChanged();
 }
 
+void AM2DSummingAB::setAnalyzedName(const QString &name)
+{
+	analyzedName_ = name;
+	canAnalyze_ = canAnalyze(name);
+	setInputSource();
+}
 
+void AM2DSummingAB::setInputSource()
+{
+	// disconnect connections from old source, if it exists.
+	if(inputSource_) {
+		disconnect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(inputSource_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		disconnect(inputSource_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+		inputSource_ = 0;
+	}
 
+	int index = indexOfInputSource(analyzedName_);
 
-/// Connected to be called when the values of the input data source change
+	if (index >= 0){
+
+		inputSource_ = inputDataSourceAt(index);
+		canAnalyze_ = true;
+
+		axes_[0] = inputSource_->axisInfoAt(0);
+		setDescription(QString("%1 Summed (over %2)")
+					   .arg(inputSource_->name())
+					   .arg(inputSource_->axisInfoAt(sumAxis_).name));
+
+		connect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(inputSource_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		connect(inputSource_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+	}
+
+	else{
+
+		inputSource_ = 0;
+		canAnalyze_ = false;
+		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
+		setDescription("Sum");
+	}
+
+	reviewState();
+
+	emitSizeChanged(0);
+	emitValuesChanged();
+	emitAxisInfoChanged(0);
+	emitInfoChanged();
+}
+
+bool AM2DSummingAB::canAnalyze(const QString &name) const
+{
+	// Always can analyze a single 2D data source.
+	if (sources_.count() == 1)
+		return true;
+
+	if (indexOfInputSource(name) >= 0)
+		return true;
+
+	return false;
+}
+
+// Connected to be called when the values of the input data source change
 void AM2DSummingAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end) {
 
 	if(start.isValid() && end.isValid()) {

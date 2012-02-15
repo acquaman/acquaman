@@ -1,9 +1,9 @@
-#include "AM1DBasicDerivativeABEditor.h"
+#include "AM1DBasicIntegralABEditor.h"
 
 #include <QLabel>
 #include <QHBoxLayout>
 
-AM1DBasicDerivativeABEditor::AM1DBasicDerivativeABEditor(AM1DDerivativeAB *analysisBlock, QWidget *parent)
+AM1DBasicIntegralABEditor::AM1DBasicIntegralABEditor(AM1DIntegralAB *analysisBlock, QWidget *parent)
 	: QWidget(parent)
 {
 	analysisBlock_ = analysisBlock;
@@ -24,7 +24,7 @@ AM1DBasicDerivativeABEditor::AM1DBasicDerivativeABEditor(AM1DDerivativeAB *analy
 	setLayout(layout);
 }
 
-void AM1DBasicDerivativeABEditor::populateComboBox()
+void AM1DBasicIntegralABEditor::populateComboBox()
 {
 	AMDataSource *tempSource = 0;
 
@@ -37,7 +37,7 @@ void AM1DBasicDerivativeABEditor::populateComboBox()
 	}
 }
 
-void AM1DBasicDerivativeABEditor::onNameChoiceChanged(int index)
+void AM1DBasicIntegralABEditor::onNameChoiceChanged(int index)
 {
 	QString name = names_->itemData(index).toString();
 	analysisBlock_->setAnalyzedName(name);

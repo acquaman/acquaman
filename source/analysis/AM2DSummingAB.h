@@ -30,6 +30,7 @@ class AM2DSummingAB : public AMStandardAnalysisBlock {
 	Q_PROPERTY(int sumAxis READ sumAxis WRITE setSumAxis)
 	Q_PROPERTY(int sumRangeMin READ sumRangeMin WRITE setSumRangeMin)
 	Q_PROPERTY(int sumRangeMax READ sumRangeMax WRITE setSumRangeMax)
+	Q_PROPERTY(QString analyzedName READ analyzedName WRITE setAnalyzedName)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=2D Binning Block")
 
@@ -42,15 +43,22 @@ public:
 	QString infoDescription() const { return QString("(Axis %1 from %2 to %3)").arg(sumAxis_).arg(sumRangeMin_).arg(sumRangeMax_); }
 
 	/// Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, our specific requirements are...
-	/*! - there must be a single input source
-  - the rank() of that input source must be 2 (two-dimensiona)
+	/*! - there must be a single input source or a list of 2D data sources.
+  - the rank() of that input source must be 2 (two-dimensional)
   */
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
 
 	/// Set the data source inputs.
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
 
-
+	/// Set the analyzed data source name.
+	void setAnalyzedName(const QString &name);
+	/// Returns the current analyzed data source name.  If none have been set then this returns an empty string.
+	QString analyzedName() const { return analyzedName_; }
+	/// Returns whether the data source can be evaluated.  Checks against the current analyzed name.
+	bool canAnalyze() const { return canAnalyze_; }
+	/// Returns whether the data source can be evaluated by passing in a name.  Even though, the analysis block can be evaluated regardless of the name if there is only one data source, this will return true even if the name doesn't match.
+	bool canAnalyze(const QString &name) const;
 
 	// Creating editors for editing parameters
 	////////////////////////////////////
@@ -187,6 +195,9 @@ protected slots:
 
 
 protected:
+	/// Helper method that sets the inputSource_ pointer to the correct one based on the current state of analyzedName_.
+	void setInputSource();
+
 	/// Cached previously-summed values.  Either they don't need to be re-calculated, or they're AMNumber::Null and do need to be recalculated.
 	mutable QVector<AMNumber> cachedValues_;
 	/// Optimization: invalidating the cache with invalid() requires clearing all values in it. If we've just done this, we can avoid re-doing it until there's actually something to clear.
@@ -196,6 +207,11 @@ protected:
 
 	int sumAxis_;
 	int sumRangeMin_, sumRangeMax_;
+
+	/// The name of the data source that should be analyzed.
+	QString analyzedName_;
+	/// Flag holding whether or not the data source can be analyzed.
+	bool canAnalyze_;
 
 	/// helper function to clear the cachedValues_
 	void invalidateCache() {
@@ -209,7 +225,7 @@ protected:
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState() {
 
-		if(inputSource_ == 0 || !inputSource_->isValid()) {
+		if(!canAnalyze_ || inputSource_ == 0 || !inputSource_->isValid()) {
 			setState(AMDataSource::InvalidFlag);
 			return;
 		}

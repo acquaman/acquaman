@@ -206,6 +206,7 @@ void AMDataSourcesEditor::onAddDataSourceButtonClicked() {
 
 	QAction *temp = popup.addAction("Add Derivative");
 	temp = popup.addAction("Add Integral");
+	temp->setEnabled(false);
 	temp = popup.addAction("Add Expression");
 	temp = popup.addAction("Add 2D Summing");
 
@@ -243,6 +244,8 @@ void AMDataSourcesEditor::onAddDataSourceButtonClicked() {
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM1DDerivativeAB.h"
 #include "analysis/AM2DSummingAB.h"
+#include "analysis/AM1DIntegralAB.h"
+
 /// \todo Eventually, this button should support creating all kinds of available data sources (raw, and analysis blocks), using a beautiful popup dialogue with buttons and icons and descriptions. For now, we only create AM1DExpressionAB (expression editors for 1D channels, to allow simply 1D normalization and calibration)
 void AMDataSourcesEditor::onNewDataSourceNamed() {
 
@@ -301,8 +304,8 @@ void AMDataSourcesEditor::onNewDataSourceNamed() {
 
 	else if (nameOfAnalysisBlockToBeAdded_ == "Integral"){
 
-//		newAnalysisBlock = new AM1DIntegralAB(chName);
-//		newAnalysisBlock->setInputDataSources(singleDimDataSources);
+		newAnalysisBlock = new AM1DIntegralAB(chName);
+		newAnalysisBlock->setInputDataSources(singleDimDataSources);
 	}
 
 	else if (nameOfAnalysisBlockToBeAdded_ == "Expression"){
