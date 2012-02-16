@@ -58,7 +58,7 @@ void AM1DIntegralAB::setInputDataSourcesImplementation(const QList<AMDataSource*
 		canAnalyze_ = false;
 
 		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
-		setDescription("Derivative");
+		setDescription("Integral");
 	}
 
 	// we know that this will only be called with valid input source
@@ -117,7 +117,7 @@ void AM1DIntegralAB::setInputSource()
 		canAnalyze_ = true;
 
 		axes_[0] = inputSource_->axisInfoAt(0);
-		setDescription(QString("Derivative of %1")
+		setDescription(QString("Integral of %1")
 					   .arg(inputSource_->name()));
 
 		connect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
@@ -133,6 +133,7 @@ void AM1DIntegralAB::setInputSource()
 		setDescription("Integral");
 	}
 
+	invalidateCache();
 	reviewState();
 
 	emitSizeChanged(0);
@@ -174,14 +175,19 @@ AMNumber AM1DIntegralAB::value(const AMnDIndex& indexes, bool doBoundsChecking) 
 		double newVal = 0.0;
 		int index = indexes.i();
 
+		// Implementing Int[f(x)] ~ 1/2 * SUM {(x[i+1] - x[i])*(f(x[i+1]) + f(x[i])) }
 		if ((unsigned)index == ((unsigned)axes_.at(0).size - 1))
-			newVal = (double(inputSource_->axisValue(0, index, doBoundsChecking))-double(inputSource_->axisValue(0, index-1, doBoundsChecking)))*(double(inputSource_->value(index, doBoundsChecking)) + double(inputSource_->value(index-1, doBoundsChecking)));
+			newVal = 0.5*(double(inputSource_->axisValue(0, index, doBoundsChecking))-double(inputSource_->axisValue(0, index-1, doBoundsChecking)))*(double(inputSource_->value(index, doBoundsChecking)) + double(inputSource_->value(index-1, doBoundsChecking)));
 
 		else
-			newVal = (double(inputSource_->axisValue(0, index+1, doBoundsChecking))-double(inputSource_->axisValue(0, index, doBoundsChecking)))*(double(inputSource_->value(index+1, doBoundsChecking)) + double(inputSource_->value(index, doBoundsChecking)));
+			newVal = 0.5*(double(inputSource_->axisValue(0, index+1, doBoundsChecking))-double(inputSource_->axisValue(0, index, doBoundsChecking)))*(double(inputSource_->value(index+1, doBoundsChecking)) + double(inputSource_->value(index, doBoundsChecking)));
+
+		if (index != 0)
+			newVal += double(value(AMnDIndex(index-1)));
 
 		cachedValues_[index] = newVal;
 		cacheCompletelyInvalid_ = false;
+
 		return newVal;
 	}
 	// otherwise return the value we have.
@@ -201,7 +207,7 @@ AMNumber AM1DIntegralAB::axisValue(int axisNumber, int index, bool doBoundsCheck
 
 }
 
-/// Connected to be called when the values of the input data source change
+// Connected to be called when the values of the input data source change
 void AM1DIntegralAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end) {
 
 	if(start.isValid() && end.isValid()) {
@@ -223,8 +229,12 @@ void AM1DIntegralAB::onInputSourceValuesChanged(const AMnDIndex& start, const AM
 
 /// Connected to be called when the size of the input source changes
 void AM1DIntegralAB::onInputSourceSizeChanged() {
-	axes_[0].size = inputSource_->size(0);
-	emitSizeChanged(0);
+
+	if (axes_.at(0).size != inputSource_->size(0)){
+		axes_[0].size = inputSource_->size(0);
+		cachedValues_.resize(axes_.at(0).size);
+		emitSizeChanged(0);
+	}
 }
 
 /// Connected to be called when the state() flags of any input source change

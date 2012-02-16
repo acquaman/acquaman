@@ -152,8 +152,11 @@ void AMDataSourcesEditor::onDataSourceDescriptionChanged()
 {
 	QModelIndex index = ui_.scanSetView->currentIndex();
 	AMDataSource *dataSource = model_->dataSourceAt(index.parent().row(), index.row());
-	if (dataSource)
+	if (dataSource){
+
 		ui_.descriptionEdit->setText(dataSource->description());
+		ui_.scanSetView->update(index);
+	}
 }
 
 #include <QMessageBox>
@@ -206,7 +209,6 @@ void AMDataSourcesEditor::onAddDataSourceButtonClicked() {
 
 	QAction *temp = popup.addAction("Add Derivative");
 	temp = popup.addAction("Add Integral");
-	temp->setEnabled(false);
 	temp = popup.addAction("Add Expression");
 	temp = popup.addAction("Add 2D Summing");
 
