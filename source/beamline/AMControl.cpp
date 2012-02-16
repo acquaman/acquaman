@@ -119,7 +119,7 @@ void AMReadOnlyPVControl::onReadPVError(int errorCode) {
 	if(source){
 		if( (errorCode == AMPROCESSVARIABLE_CANNOT_READ) && shouldMeasure() ){
 			emit error(AMControl::CannotReadError);
-			qWarning() << QString("Read Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
+			qWarning() << QString("AMReadOnlyPVControl: Read Process Variable error %1: code %2.").arg(source->pvName()).arg(errorCode);
 		}
 	}
 }
@@ -251,7 +251,7 @@ void AMPVControl::onWritePVError(int errorCode) {
 	if(source){
 		if(errorCode == AMPROCESSVARIABLE_CANNOT_WRITE && shouldMove() ){
 			emit error(AMControl::CannotWriteError);
-			qWarning() << QString("Write Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
+			qWarning() << QString("AMPVControl: Write Process Variable Error %1: code %2.").arg(source->pvName()).arg(errorCode);
 		}
 	}
 }
@@ -262,7 +262,7 @@ void AMPVControl::onCompletionTimeout() {
 	// if we weren't moving, this shouldn't have happened. someone forgot to shutoff the timer?
 	// todo: this is only included for state testing debugging... can remove if never happens
 	if(!moveInProgress_) {
-		qWarning() << "AMPVControl:: timer timeout while move not in progress.  How did this happen?";
+		qWarning() << "AMPVControl: timer timeout while move not in progress.  How did this happen?";
 		return;
 	}
 
@@ -348,7 +348,7 @@ void AMReadOnlyPVwStatusControl::onStatusPVError(int errorCode) {
 	if(source){
 		if(errorCode == AMPROCESSVARIABLE_CANNOT_READ){
 			emit error(AMControl::CannotGetStatusError);
-			qWarning() << QString("Status Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
+			qWarning() << QString("AMReadOnlyPVwStatusControl: Status Process Variable error %1: code %2.").arg(source->pvName()).arg(errorCode);
 		}
 	}
 }
@@ -474,7 +474,7 @@ void AMPVwStatusControl::onWritePVError(int errorCode) {
 	if(source){
 		if(errorCode == AMPROCESSVARIABLE_CANNOT_WRITE && shouldMove()){
 			emit error(AMControl::CannotWriteError);
-			qWarning() << QString("Write Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
+			qWarning() << QString("AMPVwStatusControl: Write Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
 		}
 	}
 }
