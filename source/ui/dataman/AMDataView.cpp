@@ -39,7 +39,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	QWidget(parent)
 {
-
 	db_ = database;
 	runId_ = experimentId_ = -1;
 	scansTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMScan>();
@@ -1614,7 +1613,6 @@ void AMDataView::startDragWithSelectedItems(const QPixmap& optionalPixmap)
 	drag->exec(Qt::CopyAction); // todo: also offer move action if dropping onto runs
 }
 
-#include <QDebug>
 #include <QMenu>
 #include <QAction>
 #include <QMessageBox>
@@ -1785,13 +1783,26 @@ void AMDataView::onViewClicked(const QPoint &clickPos)
 	}
 }
 
+#include <QGraphicsSceneMouseEvent>
 bool AMDataView::eventFilter(QObject* object, QEvent* event)
 {
+	// for now, this filter only applies when we are in thumbnail view mode.
 	if(object == gscene_ && viewMode_ == AMDataViews::ThumbnailView) {
 		if(event->type() == QEvent::GraphicsSceneMouseDoubleClick
 				|| event->type() == QEvent::GraphicsSceneMousePress
-				|| event->type() == QEvent::GraphicsSceneMouseRelease)
+				|| event->type() == QEvent::GraphicsSceneMouseRelease) {
+
+			// We need to filter the clicks to prevent the scene from messing with our selection system.
+				// Exception: However, if this is a click on the header bar widget, we need to allow that to go through (for ex: for collapsing/expanding sections)
+			QGraphicsSceneMouseEvent* mouseEvent = static_cast<QGraphicsSceneMouseEvent*>(event);
+			QGraphicsItem* item = gscene_->itemAt(mouseEvent->buttonDownScenePos(mouseEvent->button()));
+			if(qgraphicsitem_cast<QGraphicsProxyWidget*>(item))
+				return false;	// need to let the proxy widget receive this event. (This only works while we're using that proxy widget for the header bars in AMDataViewSection).
+
+			// Note: If we end up adding a lot more exceptions here, we might need to take a second look at how this is designed.
+
 			return true;
+		}
 	}
 
 	return false;
