@@ -110,9 +110,9 @@ void AMBasicControlEditor::onEditStart() {
 		return;
 	}
 
-	dialog_->setDoubleValue(control_->value());
 	dialog_->setDoubleMaximum(control_->maximumValue());
 	dialog_->setDoubleMinimum(control_->minimumValue());
+	dialog_->setDoubleValue(control_->value());
 	dialog_->setDoubleDecimals(3);	// todo: display precision?
 	dialog_->setLabelText(control_->objectName());
 	dialog_->setSuffix(control_->units());
