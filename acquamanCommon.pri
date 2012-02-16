@@ -497,7 +497,8 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
     source/dataman/export/AMExporterAthena.h \
     source/analysis/AM1DBasicDerivativeABEditor.h \
     source/analysis/AM1DIntegralAB.h \
-    source/analysis/AM1DBasicIntegralABEditor.h
+    source/analysis/AM1DBasicIntegralABEditor.h \
+    source/acquaman/AM2DDacqScanController.h
 
 
 CONFIG(mobility) {
@@ -814,7 +815,8 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
     source/dataman/export/AMExporterAthena.cpp \
     source/analysis/AM1DBasicDerivativeABEditor.cpp \
     source/analysis/AM1DIntegralAB.cpp \
-    source/analysis/AM1DBasicIntegralABEditor.cpp
+    source/analysis/AM1DBasicIntegralABEditor.cpp \
+    source/acquaman/AM2DDacqScanController.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
@@ -833,6 +835,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 
