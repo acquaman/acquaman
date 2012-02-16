@@ -59,6 +59,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions2/AMLoopAction.h"
 #include "actions2/editors/AMWaitActionEditor.h"
 #include "actions2/editors/AMLoopActionEditor.h"
+#include "actions2/editors/REIXS/REIXSXESScanActionEditor.h"
 
 #include <QMessageBox>
 
@@ -105,6 +106,7 @@ bool REIXSAppController::startup() {
 
 		AMActionRegistry::s()->registerInfoAndEditor<AMWaitActionInfo, AMWaitActionEditor>();
 		AMActionRegistry::s()->registerInfoAndEditor<AMLoopActionInfo, AMLoopActionEditor>();
+		AMActionRegistry::s()->registerInfoAndEditor<REIXSXESScanActionInfo, REIXSXESScanActionEditor>();
 
 		// Leftover from testing:
 //		AMActionRunner::s()->addActionToQueue(new AMLoopAction(3));
