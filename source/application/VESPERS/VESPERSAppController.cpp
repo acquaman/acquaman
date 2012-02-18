@@ -256,7 +256,7 @@ void VESPERSAppController::onCurrentScanControllerStarted()
 			int index = 0;
 
 			for (int i = 0; i < dataSources.size(); i++){
-				if (dataSources.at(i).contains("norm") && dataSources.at(i).contains(config->edge())){
+				if (dataSources.at(i).contains("norm") && dataSources.at(i).contains(config->edge().remove(" "))){
 
 					index = i;
 					break;

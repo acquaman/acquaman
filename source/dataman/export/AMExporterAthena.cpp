@@ -97,6 +97,7 @@ void AMExporterAthena::writeMainTable()
 
 			columnText = parseKeywordString(option_->columnHeader());
 			columnText.replace(" ", "");
+			columnText = columnText.left(columnText.indexOf("("));
 
 			// 1D data sources:
 			if(ds->rank() == 1) {
