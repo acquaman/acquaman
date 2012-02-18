@@ -19,9 +19,25 @@ public:
 	/// Virtual copy constructor
 	virtual AMActionInfo* createCopy() const { return new REIXSXESScanActionInfo(*this); }
 
+
+
+	/// Convenience function to extract the detector energy from the config. Returns 0 if this was a default-constructed actionInfo with no valid configuration.
+	double configCenterEV() const;
+	/// Convenience function to extract the defocus distance from the config. Returns 0 if this was a default-constructed actionInfo with no valid configuration.
+	double configDefocusMm() const;
+	/// Convenience function to extract the tilt offset from the config. Returns 0 if this was a default-constructed actionInfo with no valid configuration.
+	double configTiltOffset() const;
+
 signals:
 
 public slots:
+
+	/// Convenience function to set the detector energy and update the descriptions
+	void setConfigCenterEV(double eV);
+	/// Convenience function to set the defocus offset and update the descriptions
+	void setConfigDefocusMm(double mm);
+	/// Convience function to set the detector tilt offset and update the descriptions
+	void setConfigTiltOffset(double degrees);
 
 protected:
 	/// Saves the scan config in the database, and also used to load the scan config from the db whenever we already have a valid one.
@@ -29,6 +45,9 @@ protected:
 	/// Used to load the scan config from the database when we don't have a valid one yet.
 	void dbLoadScanConfig(AMDbObject* newObject);
 
+	/// The base class scanConfig() returns our REIXSXESScanConfiguration as an AMScanConfiguration. Here we return it for convenience as a REIXSXESScanConfiguration.
+	REIXSXESScanConfiguration* xesConfig();
+	const REIXSXESScanConfiguration* xesConfig() const;
 };
 
 #endif // REIXSXESSCANACTIONINFO_H

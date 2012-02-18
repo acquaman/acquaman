@@ -10,9 +10,9 @@ class VESPERSEXAFSScanConfiguration : public AMEXAFSScanConfiguration
 {
 	Q_OBJECT
 
-	Q_PROPERTY(FluorescenceDetector fluorescenceDetectorChoice READ fluorescenceDetectorChoice WRITE setFluorescenceDetectorChoice)
-	Q_PROPERTY(IonChamber transmissionChoice READ transmissionChoice WRITE setTransmissionChoice)
-	Q_PROPERTY(IonChamber incomingChoice READ incomingChoice WRITE setIncomingChoice)
+	Q_PROPERTY(int fluorescenceDetectorChoice READ fluorescenceDetectorChoice WRITE setFluorescenceDetectorChoice)
+	Q_PROPERTY(int transmissionChoice READ transmissionChoice WRITE setTransmissionChoice)
+	Q_PROPERTY(int incomingChoice READ incomingChoice WRITE setIncomingChoice)
 	Q_PROPERTY(QString edge READ edge WRITE setEdge)
 	Q_PROPERTY(double edgeEnergy READ energy WRITE setEnergy)
 	Q_PROPERTY(bool goToPosition READ goToPosition WRITE setGoToPosition)
@@ -22,9 +22,6 @@ class VESPERSEXAFSScanConfiguration : public AMEXAFSScanConfiguration
 	Q_PROPERTY(QString rois READ readRoiList WRITE writeRoiList)
 	Q_PROPERTY(bool useFixedTime READ useFixedTime WRITE setUseFixedTime)
 	Q_PROPERTY(int numberOfScans READ numberOfScans WRITE setNumberOfScans)
-
-	Q_ENUMS(FluorescenceDetector)
-	Q_ENUMS(IonChamber)
 
 	Q_CLASSINFO("useFixedTime", "upgradeDefault=false")
 	Q_CLASSINFO("numberOfScans", "upgradeDefault=1")

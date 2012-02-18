@@ -243,7 +243,6 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 	if (usingSingleElement || usingFourElement)
 		spectra.close();
 
-	qDebug() << "MADE IT TO THE END OF THE FILE LODAER!!!";
 	return true;
 }
 

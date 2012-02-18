@@ -42,10 +42,10 @@ REIXSSampleChamberButtonPanel::REIXSSampleChamberButtonPanel(QWidget *parent) :
 	ui->sampleYup->setControl(chamber->y());
 	ui->sampleYup->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	ui->sampleYup->setStepSizeIndex(1);
+	ui->sampleYup->setDirectionReversed(true);
 	ui->sampleYdown->setControl(chamber->y());
 	ui->sampleYdown->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	ui->sampleYdown->setStepSizeIndex(1);
-	ui->sampleYdown->setDirectionReversed(true);
 
 	ui->sampleZup->setControl(chamber->z());
 	ui->sampleZup->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
@@ -58,9 +58,9 @@ REIXSSampleChamberButtonPanel::REIXSSampleChamberButtonPanel(QWidget *parent) :
 	ui->sampleCW->setControl(chamber->r());
 	ui->sampleCW->setStepSizes(QList<double>() << 1 << 5 << 10 << 45 << 90);
 	ui->sampleCW->setStepSizeIndex(1);
+	ui->sampleCW->setDirectionReversed(true);
 	ui->sampleCCW->setControl(chamber->r());
 	ui->sampleCCW->setStepSizes(QList<double>() << 1 << 5 << 10 << 45 << 90);
-	ui->sampleCCW->setDirectionReversed(true);
 	ui->sampleCCW->setStepSizeIndex(1);
 
 	ui->loadLockCW->setControl(chamber->loadLockR());

@@ -39,6 +39,15 @@ AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *
 
 	analysisBlock_ = analysisBlock;
 
+	names_ = new QComboBox;
+	populateComboBox();
+
+	connect(names_, SIGNAL(currentIndexChanged(int)), this, SLOT(onNameChoiceChanged(int)));
+	connect(analysisBlock_, SIGNAL(inputSourcesChanged()), this, SLOT(populateComboBox()));
+
+	if (analysisBlock_->inputDataSourceCount() > 0)
+		onNameChoiceChanged(0);
+
 	axisSelector_ = new QComboBox();
 	axisSelector_->addItem("Horizontal");
 	axisSelector_->addItem("Vertical");
@@ -90,6 +99,7 @@ AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *
 
 	QVBoxLayout* vl = new QVBoxLayout();
 	QFormLayout* fl = new QFormLayout();
+	fl->addRow("Input:", names_);
 	fl->addRow("Sum", axisSelector_);
 	QHBoxLayout* hl = new QHBoxLayout();
 	hl->addWidget(rangeMinControl_);
@@ -108,6 +118,25 @@ AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *
 	connect(axisSelector_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSumAxisControlChanged(int)));
 	connect(rangeMinControl_, SIGNAL(valueChanged(int)), this, SLOT(onRangeMinControlChanged(int)));
 	connect(rangeMaxControl_, SIGNAL(valueChanged(int)), this, SLOT(onRangeMaxControlChanged(int)));
+}
+
+void AM2DSummingABEditor::populateComboBox()
+{
+	AMDataSource *tempSource = 0;
+
+	for (int i = 0; i < analysisBlock_->inputDataSourceCount(); i++){
+
+		tempSource = analysisBlock_->inputDataSourceAt(i);
+
+		if (analysisBlock_->name() != tempSource->name() && !tempSource->hiddenFromUsers())
+			names_->addItem(tempSource->description(), tempSource->name());
+	}
+}
+
+void AM2DSummingABEditor::onNameChoiceChanged(int index)
+{
+	QString name = names_->itemData(index).toString();
+	analysisBlock_->setAnalyzedName(name);
 }
 
 

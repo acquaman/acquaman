@@ -1,46 +1,26 @@
-/*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
-
-This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
-
-Acquaman is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Acquaman is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
-#ifndef AM1DDERIVATIVEAB_H
-#define AM1DDERIVATIVEAB_H
+#ifndef AM1DINTEGRALAB_H
+#define AM1DINTEGRALAB_H
 
 #include "analysis/AMStandardAnalysisBlock.h"
 
-/*! This analysis block accepts a single 1D input data source and calculates the derivative.
-	The output data is the same size as the input data source.  It uses the backward difference method
-	(except for the first data point in the series, which uses the forward difference method.)
+/*! This analysis block accepts a single 1D input data source and calculates the integral.
+	The output data is the same size as the input data source.  It uses the trapezoidal method
+	of numerical integration.
 
 	It can take a list of 1D data sources, but only analyzes the data source that matches the analyzed name.
 	If only one 1D data source is provided then it will analyze it, even if the name does not match.
   */
-class AM1DDerivativeAB : public AMStandardAnalysisBlock
+class AM1DIntegralAB : public AMStandardAnalysisBlock
 {
 	Q_OBJECT
 
 	Q_PROPERTY(QString analyzedName READ analyzedName WRITE setAnalyzedName)
 
-	Q_CLASSINFO("AMDbObject_Attributes", "description=1D Derivative Block")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=1D Integral Block")
 
 public:
 	/// Constructor.
-	Q_INVOKABLE AM1DDerivativeAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
+	Q_INVOKABLE AM1DIntegralAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	QString infoDescription() const { return QString(); }
 
@@ -89,6 +69,19 @@ protected:
 	/// Helper method that sets the inputSource_ pointer to the correct one based on the current state of analyzedName_.
 	void setInputSource();
 
+	/// helper function to clear the cachedValues_
+	void invalidateCache() {
+		if(!cacheCompletelyInvalid_ || cachedValues_.size() != axes_.at(0).size) {
+			cachedValues_ = QVector<AMNumber>(axes_.at(0).size);	// everything in there is now AMNumber::Null.
+			cacheCompletelyInvalid_ = true;
+		}
+	}
+
+	/// Cached previously-summed values.  Either they don't need to be re-calculated, or they're AMNumber::Null and do need to be recalculated.
+	mutable QVector<AMNumber> cachedValues_;
+	/// Optimization: invalidating the cache with invalid() requires clearing all values in it. If we've just done this, we can avoid re-doing it until there's actually something to clear.
+	mutable bool cacheCompletelyInvalid_;
+
 	/// Pointer to the data source that will be analyzed.
 	AMDataSource* inputSource_;	// our single input source, or 0 if we don't have one.
 
@@ -101,4 +94,4 @@ protected:
 	void reviewState();
 };
 
-#endif // AM1DDERIVATIVEAB_H
+#endif // AM1DINTEGRALAB_H

@@ -49,3 +49,14 @@ AMScanConfiguration* REIXSXESScanConfiguration::createCopy() const {
 AMScanController* REIXSXESScanConfiguration::createController() {
 	return new REIXSXESScanController(this);
 }
+
+QString REIXSXESScanConfiguration::description() const
+{
+	QString rv = QString("XES Scan at %1 eV").arg(centerEV());
+	if(defocusDistanceMm() != 0)
+		rv.append(QString(", Defocussed %1 mm").arg(defocusDistanceMm()));
+	if(detectorTiltOffset() != 0)
+		rv.append(QString(", Tilt offset %1 deg").arg(detectorTiltOffset()));
+
+	return rv;
+}

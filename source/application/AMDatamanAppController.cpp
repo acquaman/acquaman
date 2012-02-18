@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
+#include "dataman/export/AMExporterAthena.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
@@ -319,6 +320,8 @@ bool AMDatamanAppController::startupRegisterExporters()
 {
 	// Install exporters
 	AMExportController::registerExporter<AMExporterGeneralAscii>();
+	AMExportController::registerExporter<AMExporterAthena>();
+
 	return true;
 }
 

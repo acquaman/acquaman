@@ -50,6 +50,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
+#include "dataman/export/AMExporterAthena.h"
 
 #include <QFileDialog>
 
@@ -124,7 +125,7 @@ bool VESPERSAppController::startup() {
 
 		vespersDefault->setName("VESPERSDefault");
 		vespersDefault->setFileName("$name_$fsIndex.dat");
-		vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[rois]\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
+		vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[edge]\n$scanConfiguration[rois]\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
 		vespersDefault->setHeaderIncluded(true);
 		vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
 		vespersDefault->setColumnHeaderIncluded(true);
@@ -141,7 +142,7 @@ bool VESPERSAppController::startup() {
 		// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
 		matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
 		if(matchIDs.count() > 0)
-			AMAppControllerSupport::registerClass<VESPERSEXAFSScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
+			AMAppControllerSupport::registerClass<VESPERSEXAFSScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(matchIDs.at(0));
 
 		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
 		AMStartScreen* startScreen = new AMStartScreen(0);
@@ -179,7 +180,7 @@ bool VESPERSAppController::startup() {
 
 		// Setup XAS for the beamline.  Builds the config, view, and view holder.
 		VESPERSEXAFSScanConfiguration *exafsScanConfig = new VESPERSEXAFSScanConfiguration();
-		exafsScanConfig->addRegion(0, -30, 1, 40, 1);
+		exafsScanConfig->addRegion(0, -30, 0.5, 40, 1);
 		VESPERSEXAFSScanConfigurationView *exafsConfigView = new VESPERSEXAFSScanConfigurationView(exafsScanConfig);
 		AMScanConfigurationViewHolder *exafsConfigViewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, exafsConfigView);
 
@@ -243,29 +244,29 @@ void VESPERSAppController::onCurrentScanControllerStarted()
 
 	switch(config->fluorescenceDetectorChoice()){
 
-	case VESPERSEXAFSScanConfiguration::None:
+		case VESPERSEXAFSScanConfiguration::None:
 
-		scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("trans");
-		break;
+			scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("trans");
+			break;
 
-	case VESPERSEXAFSScanConfiguration::SingleElement:
-	case VESPERSEXAFSScanConfiguration::FourElement:
-	{
-		QStringList dataSources(scanEditorAt(scanEditorCount()-1)->visibleDataSourceNames());
-		int index = 0;
+		case VESPERSEXAFSScanConfiguration::SingleElement:
+		case VESPERSEXAFSScanConfiguration::FourElement:
+		{
+			QStringList dataSources(scanEditorAt(scanEditorCount()-1)->visibleDataSourceNames());
+			int index = 0;
 
-		for (int i = 0; i < dataSources.size(); i++){
-			if (dataSources.at(i).contains("norm") && (dataSources.at(i).contains("Ka") || dataSources.contains("La"))){
+			for (int i = 0; i < dataSources.size(); i++){
+				if (dataSources.at(i).contains("norm") && dataSources.at(i).contains(config->edge())){
 
-				index = i;
-				break;
+					index = i;
+					break;
+				}
 			}
+
+			scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName(dataSources.at(index));
+
+			break;
 		}
-
-		scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName(dataSources.at(index));
-
-		break;
-	}
 	}
 }
 

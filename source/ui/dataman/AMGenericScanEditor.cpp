@@ -506,7 +506,7 @@ AMGenericScanEditor::ShouldStopAcquiringScanChoice AMGenericScanEditor::shouldSt
 	if(scanningEnquiry.clickedButton() == stopScanButton)
 		return AMGenericScanEditor::ShouldStopYes;
 	else if(scanningEnquiry.clickedButton() == forceQuitButton)
-		return AMGenericScanEditor::ShouldStopForeQuit;
+		return AMGenericScanEditor::ShouldStopForceQuit;
 	else
 		return AMGenericScanEditor::ShouldStopNo;
 }

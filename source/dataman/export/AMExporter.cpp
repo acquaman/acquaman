@@ -600,15 +600,11 @@ QString AMExporter::krFileSystemAutoIncrement(const QString &arg)
 				newName.replace(keywordParser_->replacementList().at(i).tag, keywordParser_->replacementList().at(i).replacement);
 
 		newName.replace("$fsIndex", "*");
-
-		for (int i = 0; i < newName.count("$"); i++)
-			newName.replace("$", "");
+		newName.replace("$", "");
 
 		QString finalTest = newName;
 
-		// The following line of code is the correct code, but using a different path for testing.
 		QDir dir(destinationFolderPath_);
-		//QDir dir("/Users/darrenhunter/dev/export test");
 		dir.setNameFilters(QStringList() << newName);
 		newName.replace("*", "[\\d{0,4}]\\");
 		QStringList filtered = dir.entryList().filter(QRegExp(newName));
