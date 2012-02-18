@@ -15,6 +15,12 @@
 	the capabilities to do scans over two independent axes.  There is a strict requirement
 	that the map be rectangular and to enforce this there are two pure virtual functions
 	that must be implemented by subclasses in order for the class to be instantiated.
+
+	Currently, there is also an assumption that the x-axis of the map is the "fast axis".
+	This means that if doing a 2D map, it rasters across the screen along the x-axis and
+	then only increments the y-axis (slow axis) after it finishes moving across the entire
+	line.  It is conceivable that the y-axis could be the fast axis, but for now it is
+	hard coded as such.
   */
 class AM2DDacqScanController : public AMDacqScanController
 {

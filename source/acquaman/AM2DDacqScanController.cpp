@@ -1,5 +1,7 @@
 #include "AM2DDacqScanController.h"
 
+#include <QDir>
+
 AM2DDacqScanController::AM2DDacqScanController(AMScanConfiguration *cfg, QObject *parent)
 	: AMDacqScanController(cfg, parent)
 {
@@ -122,7 +124,7 @@ bool AM2DDacqScanController::event(QEvent *e)
 		return AMScanController::event(e);
 }
 
-bool AM2DDacqScanController::toScanIndex(QMap<int, double> aeData)
+AMnDIndex AM2DDacqScanController::toScanIndex(QMap<int, double> aeData)
 {
 	Q_UNUSED(aeData);
 
