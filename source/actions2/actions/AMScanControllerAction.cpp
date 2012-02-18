@@ -151,6 +151,15 @@ void AMScanControllerAction::onScanControllerStateChanged(int previousState, int
 	// on cancelled():
 	if(state == AMScanController::Cancelled) {
 		disconnect(controller_, 0, this, 0);
+		// If the scan has already been saved to the database, we need to save it again (at least, to clear the currentlyScanning column). If it hasn't been saved, then we probably haven't gotten far enough to make it worth saving, so don't bother.
+		if(controller_->scan()->id() > 0) {
+			if(!controller_->scan()->storeToDb(controller_->scan()->database())) {
+				AMErrorMon::report(AMErrorReport(this,
+												 AMErrorReport::Alert,
+												 -4,
+												 "Could not save the scan to the database. Please report this bug to the Acquaman developers."));
+			}
+		}
 		notifyCancelled();
 	}
 
@@ -158,6 +167,15 @@ void AMScanControllerAction::onScanControllerStateChanged(int previousState, int
 	// on failed():
 	if(state == AMScanController::Failed) {
 		disconnect(controller_, 0, this, 0);
+		// If the scan has already been saved to the database, we need to save it again (at least, to clear the currentlyScanning column). If it hasn't been saved, then we probably haven't gotten far enough to make it worth saving, so don't bother.
+		if(controller_->scan()->id() > 0) {
+			if(!controller_->scan()->storeToDb(controller_->scan()->database())) {
+				AMErrorMon::report(AMErrorReport(this,
+												 AMErrorReport::Alert,
+												 -4,
+												 "Could not save the scan to the database. Please report this bug to the Acquaman developers."));
+			}
+		}
 		notifyFailed();
 	}
 
