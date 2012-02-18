@@ -146,6 +146,7 @@ void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int 
 		if (source->dataSourceAt(i)->hiddenFromUsers())
 			newButton->hide();
 
+		connect(newButton, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onDataSourceButtonRightClicked(QPoint)));
 		// qDebug() << "added a data source. exclusiveModeOn is: " << exclusiveModeOn_ << ", source name is:" << source->dataSourceAt(i)->name() << ", exclusiveDataSourceName is:" << model_->exclusiveDataSourceName();
 	}
 
@@ -162,6 +163,8 @@ void AMScanViewScanBar::onRowAboutToBeRemoved(const QModelIndex& parent, int sta
 
 	// (AMScanSetModel guarantees only one removed at once -- ie: start == end --, but we don't depend on that)
 	for(int di = end; di>=start; di-- ) {
+
+		sourceButtons_.button(di)->disconnect();
 		delete sourceButtons_.button(di);
 		// the button group's id's from "start+1" to "count+1" are too high now...
 		for(int i=di+1; i<sourceButtons_.buttons().count()+1; i++)
