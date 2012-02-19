@@ -497,7 +497,8 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
     source/dataman/export/AMExporterAthena.h \
     source/analysis/AM1DBasicDerivativeABEditor.h \
     source/analysis/AM1DIntegralAB.h \
-    source/analysis/AM1DBasicIntegralABEditor.h
+    source/analysis/AM1DBasicIntegralABEditor.h \
+    source/ui/actions2/AMAddActionDialog.h
 
 
 CONFIG(mobility) {
@@ -524,7 +525,8 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/dataman/AMDataViewActionsBar.ui \
 	source/ui/dataman/AMChooseScanDialog.ui \
 	source/ui/AMLinePropertyEditor.ui \
-	source/ui/dataman/AMImagePropertyEditor.ui
+	source/ui/dataman/AMImagePropertyEditor.ui \
+    source/ui/actions2/AMAddActionDialog.ui
 SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAbstractTool.cpp \
 	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxis.cpp \
@@ -814,7 +816,8 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
     source/dataman/export/AMExporterAthena.cpp \
     source/analysis/AM1DBasicDerivativeABEditor.cpp \
     source/analysis/AM1DIntegralAB.cpp \
-    source/analysis/AM1DBasicIntegralABEditor.cpp
+    source/analysis/AM1DBasicIntegralABEditor.cpp \
+    source/ui/actions2/AMAddActionDialog.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
@@ -833,6 +836,9 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
 
 
 
