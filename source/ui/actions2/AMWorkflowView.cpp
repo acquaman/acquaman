@@ -5,6 +5,7 @@
 #include <QIcon>
 #include <QLabel>
 #include <QPixmap>
+#include <QPushButton>
 
 AMWorkflowView::AMWorkflowView(QWidget *parent) :
     QWidget(parent)
@@ -24,10 +25,13 @@ AMWorkflowView::AMWorkflowView(QWidget *parent) :
 	titleLabel->setStyleSheet("font: 20pt \"Lucida Grande\";\ncolor: rgb(79, 79, 79);");
 	hl->addWidget(titleLabel);
 	hl->addStretch(1);
+	addActionButton_ = new QPushButton("Add Action...");
+	hl->addWidget(addActionButton_);
 
 	currentView_ = new AMActionRunnerCurrentView(AMActionRunner::s());
 	queueView_ = new AMActionRunnerQueueView(AMActionRunner::s());
 	historyView_ = new AMActionHistoryView(AMActionRunner::s());
+	addActionDialog_ = 0;
 
 	QVBoxLayout* vl = new QVBoxLayout(this);
 	vl->setContentsMargins(0,0,0,0);
@@ -42,6 +46,12 @@ AMWorkflowView::AMWorkflowView(QWidget *parent) :
 
 	connect(queueView_, SIGNAL(collapsed(bool)), this, SLOT(onViewCollapsed()));
 	connect(historyView_, SIGNAL(collapsed(bool)), this, SLOT(onViewCollapsed()));
+	connect(addActionButton_, SIGNAL(clicked()), this, SLOT(onAddActionButtonClicked()));
+}
+
+AMWorkflowView::~AMWorkflowView() {
+	delete addActionDialog_;
+	addActionDialog_ = 0;
 }
 
 #include <QSpacerItem>
@@ -60,4 +70,12 @@ void AMWorkflowView::onViewCollapsed()
 		layoutSpacer_ = 0;
 		delete spacer;
 	}
+}
+
+void AMWorkflowView::onAddActionButtonClicked()
+{
+	if(!addActionDialog_) {
+		addActionDialog_ = new AMAddActionDialog();
+	}
+	addActionDialog_->show();
 }
