@@ -170,7 +170,10 @@ protected:
 	AMScan *scan_;
 
 private:
-	/// This class is in charge of determining if the new state is acceptable and if so, switching to that state.
+	/// This function returns true if a state transition is allowed between the current state and \c newState.
+	bool canChangeStateTo(ScanState newState);
+	/// This function calls canChangeState() to see if the requested transition is allowed, and then writes in the actual state change and emits stateChanged().
+	/*! Returns false if the transition is not allowed. This is used to ensure that implementations cannot call functions like notifyFinished(), notifyPaused(), etc. from states where that transition would not be legitimate.*/
 	bool changeState(ScanState newState);
 
 private:

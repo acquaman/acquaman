@@ -125,9 +125,10 @@ void AMScanController::cancel(){
 }
 
 bool AMScanController::setInitialized(){
-	if(changeState(AMScanController::Initialized)){
+	if(canChangeStateTo(AMScanController::Initialized)){
 		if(scan_)
 			scan_->setScanController(this);
+		changeState(AMScanController::Initialized);
 		emit initialized();
 		return true;
 	}
@@ -135,9 +136,10 @@ bool AMScanController::setInitialized(){
 }
 
 bool AMScanController::setStarted(){
-	if(changeState(AMScanController::Running)){
+	if(canChangeStateTo(AMScanController::Running)){
 		if(scan_)
 			scan_->setScanController(this);
+		changeState(AMScanController::Running);
 		emit started();
 		return true;
 	}
@@ -161,23 +163,23 @@ bool AMScanController::setResumed(){
 }
 
 void AMScanController::setCancelled(){
-	if(changeState(AMScanController::Cancelled)) {
+	if(canChangeStateTo(AMScanController::Cancelled)) {
 		if(scan_){
-
 			scan_->setEndDateTime(QDateTime::currentDateTime());
 			scan_->setScanController(0);
 		}
+		changeState(AMScanController::Cancelled);
 		emit cancelled();
 	}
 }
 
 bool AMScanController::setFinished(){
-	if(changeState(AMScanController::Finished)){
+	if(canChangeStateTo(AMScanController::Finished)){
 		if(scan_){
-
 			scan_->setEndDateTime(QDateTime::currentDateTime());
 			scan_->setScanController(0);
 		}
+		changeState(AMScanController::Finished);
 		emit finished();
 		return true;
 	}
@@ -185,17 +187,19 @@ bool AMScanController::setFinished(){
 }
 
 void AMScanController::setFailed(){
-	if(changeState(AMScanController::Failed)) {
-		if(scan_){
-
+	if(canChangeStateTo(AMScanController::Failed)) {
+		if(scan_) {
 			scan_->setEndDateTime(QDateTime::currentDateTime());
 			scan_->setScanController(0);
 		}
+
+		changeState(AMScanController::Failed);
 		emit failed();
 	}
 }
 
-bool AMScanController::changeState(ScanState newState){
+bool AMScanController::canChangeStateTo(AMScanController::ScanState newState)
+{
 	bool canTransition = false;
 	// Check the permissible transitions
 	switch (newState) {
@@ -217,7 +221,7 @@ bool AMScanController::changeState(ScanState newState){
 		if(isStarting() || isResuming())
 			canTransition = true;
 		break;
-	// Only support pausing from the running state right now
+		// Only support pausing from the running state right now
 	case AMScanController::Pausing :
 		if(canPause() && isRunning())
 			canTransition = true;
@@ -244,16 +248,24 @@ bool AMScanController::changeState(ScanState newState){
 		canTransition = true;
 		break;
 	}
-	if(canTransition){
-		ScanState oldState = state_;
-		state_= newState;
-		emit stateChanged(oldState, newState);
-	}
+
 	return canTransition;
 }
 
+bool AMScanController::changeState(ScanState newState){
+	if(canChangeStateTo(newState)) {
+		ScanState oldState = state_;
+		state_= newState;
+		emit stateChanged(oldState, newState);
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 AMScanControllerSupervisor::AMScanControllerSupervisor(QObject *parent) :
-		QObject(parent)
+	QObject(parent)
 {
 	currentScanController_ = 0;
 }
@@ -309,3 +321,5 @@ void AMScanControllerSupervisor::onCurrentScanControllerFinished(){
 	currentScanController_->deleteLater();
 	currentScanController_ = 0;
 }
+
+
