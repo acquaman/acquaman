@@ -127,8 +127,6 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 		pfy->setSumRangeMax(scan_->rawDataSources()->at(scan_->rawDataSourceCount()-1)->size(1)-1);
 		scan_->addAnalyzedDataSource(pfy, true, false);
 
-		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF1E();
-
 		AM1DExpressionAB *normPFY;
 		normPFY = new AM1DExpressionAB("norm_PFY");
 		normPFY->setDescription("Normalized PFY");
@@ -136,12 +134,12 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 		normPFY->setExpression(QString("%1/%2").arg(scan_->analyzedDataSources()->at(0)->name()).arg(scan_->rawDataSources()->at(0)->name()));
 		scan_->addAnalyzedDataSource(normPFY, true, false);
 
-		for (int i = 0; i < detector->roiInfoList()->count(); i++){
+		for (int i = 0; i < scan_->rawDataSourceCount(); i++){
 
-			if (detector->roiInfoList()->at(i).name().contains(config_->edge())){
+			if (scan_->rawDataSources()->at(i)->name().contains(config_->edge().remove(" "))){
 
-				normPFY = new AM1DExpressionAB("norm_"+detector->roiInfoList()->at(i).name().remove(" "));
-				normPFY->setDescription("Normalized "+detector->roiInfoList()->at(i).name());
+				normPFY = new AM1DExpressionAB("norm_"+scan_->rawDataSources()->at(i)->name());
+				normPFY->setDescription("Normalized "+scan_->rawDataSources()->at(i)->description());
 				normPFY->setInputDataSources(QList<AMDataSource *>() << scan_->rawDataSources()->at(0) << scan_->rawDataSources()->at(i));
 				normPFY->setExpression(QString("%1/%2").arg(scan_->rawDataSources()->at(i)->name()).arg(scan_->rawDataSources()->at(0)->name()));
 				scan_->addAnalyzedDataSource(normPFY, true, false);
@@ -164,7 +162,6 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 		pfy->setSumAxis(1);
 		pfy->setSumRangeMax(scan_->rawDataSources()->at(scan_->rawDataSourceCount()-5)->size(1)-1);
 		scan_->addAnalyzedDataSource(pfy, true, false);
-		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF4E();
 
 		AM1DExpressionAB *normPFY;
 		normPFY = new AM1DExpressionAB("norm_PFY");
@@ -173,14 +170,14 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 		normPFY->setExpression(QString("%1/%2").arg(scan_->analyzedDataSources()->at(0)->name()).arg(scan_->rawDataSources()->at(0)->name()));
 		scan_->addAnalyzedDataSource(normPFY, true, false);
 
-		for (int i = 0; i < detector->roiInfoList()->count(); i++){
+		for (int i = 0; i < scan_->rawDataSourceCount(); i++){
 
-			if (detector->roiInfoList()->at(i).name().contains(config_->edge())){
+			if (scan_->rawDataSources()->at(i)->name().contains(config_->edge().remove(" "))){
 
-				normPFY = new AM1DExpressionAB("norm_"+detector->roiInfoList()->at(i).name().remove(" "));
-				normPFY->setDescription("Normalized "+detector->roiInfoList()->at(i).name());
-				normPFY->setInputDataSources(QList<AMDataSource *>() << scan_->rawDataSources()->at(0) << scan_->rawDataSources()->at(i+4));
-				normPFY->setExpression(QString("%1/%2").arg(scan_->rawDataSources()->at(i+4)->name()).arg(scan_->rawDataSources()->at(0)->name()));
+				normPFY = new AM1DExpressionAB("norm_"+scan_->rawDataSources()->at(i)->name());
+				normPFY->setDescription("Normalized "+scan_->rawDataSources()->at(i)->description());
+				normPFY->setInputDataSources(QList<AMDataSource *>() << scan_->rawDataSources()->at(0) << scan_->rawDataSources()->at(i));
+				normPFY->setExpression(QString("%1/%2").arg(scan_->rawDataSources()->at(i)->name()).arg(scan_->rawDataSources()->at(0)->name()));
 				scan_->addAnalyzedDataSource(normPFY, true, false);
 			}
 		}
