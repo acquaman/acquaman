@@ -256,11 +256,10 @@ void VESPERSAppController::onCurrentScanControllerStarted()
 			int index = 0;
 
 			for (int i = 0; i < dataSources.size(); i++){
-				if (dataSources.at(i).contains("norm") && dataSources.at(i).contains(config->edge())){
 
+				// Grabbing the Ka or La emission line because that will be the one people will want to see.
+				if (dataSources.at(i).contains("norm") && dataSources.at(i).contains(config->edge().remove(" ")+"a"))
 					index = i;
-					break;
-				}
 			}
 
 			scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName(dataSources.at(index));

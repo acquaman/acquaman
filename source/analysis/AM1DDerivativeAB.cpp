@@ -187,14 +187,29 @@ AMNumber AM1DDerivativeAB::value(const AMnDIndex& indexes, bool doBoundsChecking
 
 	int index = indexes.i();
 
+	// Forward difference.
 	if(index == 0){
+
 		return ((double)inputSource_->value(1, doBoundsChecking)-
 				(double)inputSource_->value(0, doBoundsChecking))/
 				((double)inputSource_->axisValue(0, 1, doBoundsChecking)-
 				 (double)inputSource_->axisValue(0, 0, doBoundsChecking));
 	}
-	else{
-		return ((double)inputSource_->value(index, doBoundsChecking)-(double)inputSource_->value(index-1, doBoundsChecking))/((double)inputSource_->axisValue(0, index, doBoundsChecking)-(double)inputSource_->axisValue(0, index-1,doBoundsChecking));
+	// Backward difference.
+	else if(index+1 == axes_.at(0).size){
+
+		return ((double)inputSource_->value(index, doBoundsChecking)-
+				(double)inputSource_->value(index-1, doBoundsChecking))/
+				((double)inputSource_->axisValue(0, index, doBoundsChecking)-
+				 (double)inputSource_->axisValue(0, index-1, doBoundsChecking));
+	}
+	// Central difference.
+	else {
+
+		return ((double)inputSource_->value(index+1, doBoundsChecking)-
+				(double)inputSource_->value(index-1, doBoundsChecking))/
+				(2*((double)inputSource_->axisValue(0, index+1, doBoundsChecking)-
+				 (double)inputSource_->axisValue(0, index-1, doBoundsChecking)));
 	}
 }
 

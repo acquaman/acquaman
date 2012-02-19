@@ -24,8 +24,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AMStandardAnalysisBlock.h"
 
 /*! This analysis block accepts a single 1D input data source and calculates the derivative.
-	The output data is the same size as the input data source.  It uses the backward difference method
-	(except for the first data point in the series, which uses the forward difference method.)
+	The output data is the same size as the input data source.  It uses the central difference method
+	(except for the first data point in the series, which uses the forward difference method and the
+	last data point in series uses the backwards diffeence method.)
 
 	It can take a list of 1D data sources, but only analyzes the data source that matches the analyzed name.
 	If only one 1D data source is provided then it will analyze it, even if the name does not match.
