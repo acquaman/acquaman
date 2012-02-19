@@ -30,9 +30,9 @@ public:
 	/// Constructor.
 	AM2DDacqScanController(AMScanConfiguration *cfg, QObject *parent = 0);
 
-	/// Returns the number of values in the first independent axis.
+	/// Pure virtual functions.  Returns the number of values in the first independent axis.
 	virtual int xAxisCount() const = 0;
-	/// Returns the number of values in the second independent axis.
+	/// Pure virtual functions.  Returns the number of values in the second independent axis.
 	virtual int yAxisCount() const = 0;
 
 protected:
