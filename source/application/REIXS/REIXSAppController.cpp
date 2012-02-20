@@ -102,7 +102,7 @@ bool REIXSAppController::startup() {
 		// Testing Actions2: register AMWaitAction
 		/// \todo Move common ones to main app controller.
 		AMActionRegistry::s()->registerInfoAndAction<AMWaitActionInfo, AMWaitAction>("Wait", "This action simply waits for a specified amount of time.", ":/user-away.png");
-		AMActionRegistry::s()->registerInfoAndAction<REIXSControlMoveActionInfo, REIXSControlMoveAction>("REIXS Control Move", "This action moves a REIXS beamline control to a target position.", ":/system-run.png");
+		AMActionRegistry::s()->registerInfoAndAction<REIXSControlMoveActionInfo, REIXSControlMoveAction>("REIXS Control Move", "This action moves any REIXS beamline control to a target position.\n\nYou can specify an absolute or a relative move.", ":/system-run.png");
 		AMActionRegistry::s()->registerInfoAndAction<REIXSXESScanActionInfo, REIXSXESScanAction>("REIXS XES Scan", "This action conducts a single XES scan at a given detector energy.", ":/utilities-system-monitor.png");
 		AMActionRegistry::s()->registerInfoAndAction<AMLoopActionInfo, AMLoopAction>("Loop", "This action repeats a set of sub-actions a specific number of times.\n\nAfter adding it, you can drag-and-drop other actions inside it.", ":/32x32/media-playlist-repeat.png");
 
