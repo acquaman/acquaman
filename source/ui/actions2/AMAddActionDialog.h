@@ -1,7 +1,7 @@
 #ifndef AMADDACTIONDIALOG_H
 #define AMADDACTIONDIALOG_H
 
-#include <QWidget>
+#include <QDialog>
 
 namespace Ui {
     class AMAddActionDialog;
@@ -9,7 +9,7 @@ namespace Ui {
 
 class QListWidgetItem;
 
-class AMAddActionDialog : public QWidget
+class AMAddActionDialog : public QDialog
 {
     Q_OBJECT
 

@@ -18,8 +18,6 @@ public:
 	/// Constructor
     explicit AMWorkflowView(QWidget *parent = 0);
 
-	~AMWorkflowView();
-
 	/// Access the queue view for upcoming actions
 	AMActionRunnerQueueView* queueView() { return queueView_; }
 
