@@ -7,6 +7,7 @@
 class QDoubleSpinBox;
 class QComboBox;
 class QLabel;
+class QCheckBox;
 
 /// This widget provides an in-place editor for REIXSControlMoveActionInfo.
 class REIXSControlMoveActionEditor : public QFrame
@@ -25,6 +26,8 @@ protected slots:
 	void onControlSelectorBoxCurrentIndexChanged(int index);
 	/// Called when the user is done editing the setpointBox_ target value.
 	void onSetpointBoxEditingFinished();
+	/// Called when the "relative move" checkbox is toggled
+	void onRelativeCheckBoxToggled(bool isRelative);
 
 protected:
 	REIXSControlMoveActionInfo* info_;
@@ -32,7 +35,8 @@ protected:
 	/// Holds the descriptions (as DisplayRole text) and names (as UserRole) of the controls we have available to choose from.
 	QComboBox* controlSelectorBox_;
 	QDoubleSpinBox* setpointBox_;
-	QLabel* unitsLabel_;
+	QLabel* unitsLabel_, *toLabel_;
+	QCheckBox* relativeCheckBox_;
 
 	/// Helper function to populate the available controls in the controlSelectorBox_, and update the widgets to reflect the current info_.
 	void populateControls();
