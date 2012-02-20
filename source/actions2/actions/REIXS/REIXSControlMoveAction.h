@@ -3,7 +3,6 @@
 
 #include "actions2/actions/AMControlMoveAction.h"
 #include "actions2/actions/REIXS/REIXSControlMoveActionInfo.h"
-#include <QMap>
 
 /// This subclass of AMControlMoveAction provides the required lookup of controls on the REIXS beamline at the CLS.
 class REIXSControlMoveAction : public AMControlMoveAction
@@ -25,16 +24,6 @@ public:
 
 	/// Re-implemented to return a control from the REIXS beamline.
 	AMControl* getControlForAction(const AMControlInfo &controlInfo) const;
-
-signals:
-
-public slots:
-
-protected:
-	/// Holds a mapping from control names to AMControl instances in REIXSBeamline. (This could alternatively be built into the beamline class itself, or we could use an AMControlSet. All of these options let us restrict which AMControls are accessible to Actions.)
-	static QMap<QString, AMControl*> name2Control_;
-	/// Helper function to populate the mapping, if it's empty.
-	void populateControlLookup() const;
 
 };
 

@@ -284,6 +284,8 @@ public:
 	AMControlSet* sampleManipulatorSet() { return sampleManipulatorSet_; }
 	/// All the controls for positioning the Spectrometer
 	AMControlSet* spectrometerPositionSet() { return spectrometerPositionSet_; }
+	/// All the controls we want to expose to users for available motions in REIXSControlMoveAction.
+	AMControlSet* allControlsSet() { return allControlsSet_; }
 
 signals:
 
@@ -294,8 +296,9 @@ protected:
 	REIXSBeamline();
 
 	/// \todo: beamline front-end controls
-	// AMControl* incidentEV_;
-	// AMControl* monoGrating_;
+	// these are just temporary controls for testing; not organized properly...
+	AMControl* beamlineEV_;
+	AMControl* monoSlitWidth_;
 
 	/// A hierarchichal group of controls making up the spectrometer
 	REIXSSpectrometer* spectrometer_;
@@ -310,6 +313,8 @@ protected:
 	AMControlSet* sampleManipulatorSet_;
 	/// All the controls for positioning the Spectrometer (angleDrive, detectorTranslation, detectorTiltDrive, detectorRotationDrive, hexapod{X, Y, Z, U, V, W, R, S, T}
 	AMControlSet* spectrometerPositionSet_;
+	/// All the controls we want to expose to users for available motions in REIXSControlMoveAction.
+	AMControlSet* allControlsSet_;
 
 
 };

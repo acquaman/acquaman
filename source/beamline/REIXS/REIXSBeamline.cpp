@@ -54,6 +54,31 @@ REIXSBeamline::REIXSBeamline() :
 	// MCP detector
 	mcpDetector_ = new REIXSXESMCPDetector("xesImage", "CPD1610-01", this);
 
+
+	// Upstream controls (TODO: organize completely)
+	beamlineEV_ = new AMPVwStatusControl("beamlineEV", "REIXS:energy", "REIXS:energy", "REIXS:status", "REIXS:energy:stop", this, 0.01, 2.0, new AMControlStatusCheckerDefault(1), 1, "Beamline Energy");
+
+	// Build a control set of all the controls we want to make available to REIXSControlMoveAction
+	allControlsSet_ = new AMControlSet(this);
+	allControlsSet_->addControl(beamlineEV_);
+	allControlsSet_->addControl(spectrometer());
+	allControlsSet_->addControl(spectrometer()->spectrometerRotationDrive());
+	allControlsSet_->addControl(spectrometer()->detectorTranslation());
+	allControlsSet_->addControl(spectrometer()->detectorTiltDrive());
+	allControlsSet_->addControl(spectrometer()->hexapod()->x());
+	allControlsSet_->addControl(spectrometer()->hexapod()->y());
+	allControlsSet_->addControl(spectrometer()->hexapod()->z());
+	allControlsSet_->addControl(spectrometer()->hexapod()->u());
+	allControlsSet_->addControl(spectrometer()->hexapod()->v());
+	allControlsSet_->addControl(spectrometer()->hexapod()->w());
+	allControlsSet_->addControl(spectrometer()->hexapod()->r());
+	allControlsSet_->addControl(spectrometer()->hexapod()->s());
+	allControlsSet_->addControl(spectrometer()->hexapod()->t());
+	allControlsSet_->addControl(sampleChamber()->x());
+	allControlsSet_->addControl(sampleChamber()->y());
+	allControlsSet_->addControl(sampleChamber()->z());
+	allControlsSet_->addControl(sampleChamber()->r());
+
 }
 
 

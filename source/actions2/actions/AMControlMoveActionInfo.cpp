@@ -15,4 +15,20 @@ AMControlMoveActionInfo::AMControlMoveActionInfo(const AMControlMoveActionInfo &
 void AMControlMoveActionInfo::setSetpoint(double setpoint)
 {
 	controlInfo_.setValue(setpoint);
+	updateDescriptionText();
 }
+
+void AMControlMoveActionInfo::setControlInfo(const AMControlInfo &controlInfo)
+{
+	controlInfo_.setValuesFrom(controlInfo);
+	updateDescriptionText();
+}
+
+void AMControlMoveActionInfo::updateDescriptionText()
+{
+	QString d = QString("Moving %1 to %2 %3").arg(controlInfo_.description().isEmpty() ? controlInfo_.name() : controlInfo_.description()).arg(controlInfo_.value()).arg(controlInfo_.units());
+
+	setShortDescription(d);
+	setLongDescription(d);
+}
+

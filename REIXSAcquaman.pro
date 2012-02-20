@@ -24,7 +24,8 @@ HEADERS +=	source/application/REIXS/REIXSAppController.h \
     source/actions2/actions/REIXS/REIXSXESScanActionInfo.h \
     source/actions2/actions/REIXS/REIXSXESScanAction.h \
     source/ui/REIXS/REIXSScanConfigurationViewHolder.h \
-    source/actions2/editors/REIXS/REIXSXESScanActionEditor.h
+    source/actions2/editors/REIXS/REIXSXESScanActionEditor.h \
+    source/actions2/editors/REIXS/REIXSControlMoveActionEditor.h
 
 
 SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
@@ -44,7 +45,10 @@ SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
     source/actions2/actions/REIXS/REIXSControlMoveAction.cpp \
     source/actions2/actions/REIXS/REIXSXESScanActionInfo.cpp \
     source/ui/REIXS/REIXSScanConfigurationViewHolder.cpp \
-    source/actions2/editors/REIXS/REIXSXESScanActionEditor.cpp
+    source/actions2/editors/REIXS/REIXSXESScanActionEditor.cpp \
+    source/actions2/editors/REIXS/REIXSControlMoveActionEditor.cpp
+
+
 
 
 

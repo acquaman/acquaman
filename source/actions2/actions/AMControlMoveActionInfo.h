@@ -34,7 +34,7 @@ public:
 
 	/// Set the move destination setpoint, including the control name, value, and description.
 	/*! \note We make a copy of \c controlInfo's values, and do not retain any reference to it afterward. */
-	void setControlInfo(const AMControlInfo& controlInfo) { controlInfo_.setValuesFrom(controlInfo); }
+	void setControlInfo(const AMControlInfo& controlInfo);
 	/// Set the move destination setpoint (value only).
 	void setSetpoint(double setpoint);
 
@@ -53,6 +53,9 @@ public slots:
 protected:
 	/// The AMControlInfo that specifies where to move to
 	AMControlInfo controlInfo_;
+
+	/// A short helper function to update the action's description
+	void updateDescriptionText();
 
 };
 
