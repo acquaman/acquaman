@@ -45,7 +45,7 @@ AMControlSetView::AMControlSetView(AMControlSet *viewSet, bool configureOnly, QW
 	setLayout(hl_);
 	setFixedSize(300, 200);
 
-	connect(viewSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(onControlSetValuesChanged(AMControlInfoList)));
+	connect(viewSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(onControlSetValuesChanged()));
 }
 
 AMControlInfoList AMControlSetView::currentValues(){
@@ -85,9 +85,9 @@ void AMControlSetView::setDisabled(bool disabled){
 		controlBoxes_[x]->setReadOnly(disabled);
 }
 
-void AMControlSetView::onControlSetValuesChanged(AMControlInfoList infoList){
+void AMControlSetView::onControlSetValuesChanged(){
 	if(!configureOnly_)
-		emit currentValuesChanged(infoList);
+		emit currentValuesChanged(viewSet_->toInfoList());
 }
 
 void AMControlSetView::onConfigurationValueChanged(){
