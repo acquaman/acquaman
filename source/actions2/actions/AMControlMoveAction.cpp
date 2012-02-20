@@ -54,8 +54,11 @@ void AMControlMoveAction::startImplementation() {
 	// remember the start position:
 	startPosition_ = control_->toInfo();
 
-	// start the move
-	control_->move(setpoint.value());
+	// start the move:
+	if(controlMoveInfo()->isRelativeMove())
+		control_->moveRelative(setpoint.value());
+	else
+		control_->move(setpoint.value());
 }
 
 void AMControlMoveAction::onMoveStarted()
@@ -99,7 +102,7 @@ void AMControlMoveAction::onMoveSucceeded()
 
 void AMControlMoveAction::onProgressTick()
 {
-	double destination = controlMoveInfo()->controlInfo()->value();
+	double destination = control_->setpoint();
 	double fractionComplete = (control_->value() - startPosition_.value()) / (destination - startPosition_.value());
 	double runningSeconds = runningTime();
 	double expectedTotalSeconds = runningSeconds / fractionComplete;
