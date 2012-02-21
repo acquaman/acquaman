@@ -99,14 +99,14 @@ public:
 	/// Returns the step size of the x axis.
 	double xStep() const { return steps_.first; }
 	/// Returns the end position of the x axis.
-	double xEnd() const { return xRange_.first; }
+	double xEnd() const { return xRange_.second; }
 
 	/// Returns the start position of the y axis.
-	double yStart() const { return xRange_.second; }
+	double yStart() const { return yRange_.first; }
 	/// Returns the step size of the y axis.
 	double yStep() const { return steps_.second; }
 	/// Returns the end position of the y axis.
-	double yEnd() const { return xRange_.second; }
+	double yEnd() const { return yRange_.second; }
 
 	/// Returns the time step per point.
 	double timeStep() const { return time_; }

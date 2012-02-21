@@ -188,6 +188,8 @@ bool VESPERSAppController::startup() {
 
 		// Setup 2D maps for the beamline.  Builds the config, view, and view holder.
 		VESPERS2DScanConfiguration *mapScanConfiguration = new VESPERS2DScanConfiguration();
+		mapScanConfiguration->setStepSize(0.005, 0.005);
+		mapScanConfiguration->setTimeStep(1);
 		VESPERS2DScanConfigurationView *mapScanConfigurationView = new VESPERS2DScanConfigurationView(mapScanConfiguration);
 		AMScanConfigurationViewHolder *mapScanConfigurationViewHolder = new AMScanConfigurationViewHolder(workflowManagerView_, mapScanConfigurationView);
 		connect(mapScanConfigurationView, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));

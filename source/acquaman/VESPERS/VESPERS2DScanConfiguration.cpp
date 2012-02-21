@@ -13,6 +13,13 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
 	roiInfoList_ = AMROIInfoList();
 	totalTime_ = 0;
 	timeOffset_ = 0.7;
+	connect(this, SIGNAL(xStartChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(xStepChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(xEndChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(yStartChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(yStepChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(yEndChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(timeStepChanged(double)), this, SLOT(computeTotalTime()));
 }
 
 VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfiguration &original)
@@ -25,6 +32,13 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfig
 	roiInfoList_ = original.roiList();
 	totalTime_ = 0;
 	timeOffset_ = 0.7;
+	connect(this, SIGNAL(xStartChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(xStepChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(xEndChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(yStartChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(yStepChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(yEndChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(timeStepChanged(double)), this, SLOT(computeTotalTime()));
 }
 
 AMScanConfiguration *VESPERS2DScanConfiguration::createCopy() const

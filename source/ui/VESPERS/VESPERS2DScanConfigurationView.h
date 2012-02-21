@@ -46,6 +46,8 @@ protected slots:
 	void onYEndChanged();
 	/// Helper slot that manages setting the y axis step size.
 	void onYStepChanged();
+	/// Helper slot that manages setting the time per point.
+	void onDwellTimeChanged();
 
 	/// Handles setting the name of the configuration from the line edit.
 	void onScanNameEdited() { config_->setName(scanName_->text()); }
@@ -70,6 +72,8 @@ protected:
 	QString convertTimeToString(double time);
 	/// Helper method that updates the map info label based on the current values of the start, end, and step size.
 	void updateMapInfo();
+	/// Helper method that updates the x and y step spin boxes if the map is not possible to change.
+	void axesAcceptable();
 
 	/// Pointer to the specific scan config the view is modifying.
 	VESPERS2DScanConfiguration *config_;

@@ -26,17 +26,19 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	hStart_ = new QDoubleSpinBox;
 	hStart_->setPrefix("H: ");
 	hStart_->setRange(-1000000, 1000000);
-	hStart_->setSuffix("mm");
+	hStart_->setSuffix(" mm");
 	hStart_->setValue(config_->xStart());
-	hStart_->setDecimals(1);
+	hStart_->setDecimals(3);
+	hStart_->setAlignment(Qt::AlignCenter);
 	connect(hStart_, SIGNAL(editingFinished()), this, SLOT(onXStartChanged()));
 
 	vStart_ = new QDoubleSpinBox;
 	vStart_->setPrefix("V: ");
 	vStart_->setRange(-1000000, 1000000);
-	vStart_->setSuffix("mm");
+	vStart_->setSuffix(" mm");
 	vStart_->setValue(config_->yStart()*1000);
-	vStart_->setDecimals(1);
+	vStart_->setDecimals(3);
+	vStart_->setAlignment(Qt::AlignCenter);
 	connect(vStart_, SIGNAL(editingFinished()), this, SLOT(onYStartChanged()));
 
 	QPushButton *startUseCurrentButton = new QPushButton("Use Current");
@@ -51,17 +53,19 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	hEnd_ = new QDoubleSpinBox;
 	hEnd_->setPrefix("H: ");
 	hEnd_->setRange(-1000000, 1000000);
-	hEnd_->setSuffix("mm");
+	hEnd_->setSuffix(" mm");
 	hEnd_->setValue(config_->xEnd());
-	hEnd_->setDecimals(1);
+	hEnd_->setDecimals(3);
+	hEnd_->setAlignment(Qt::AlignCenter);
 	connect(hEnd_, SIGNAL(editingFinished()), this, SLOT(onXEndChanged()));
 
 	vEnd_ = new QDoubleSpinBox;
 	vEnd_->setPrefix("V: ");
 	vEnd_->setRange(-1000000, 1000000);
-	vEnd_->setSuffix("mm");
+	vEnd_->setSuffix(" mm");
 	vEnd_->setValue(config_->yEnd());
-	vEnd_->setDecimals(1);
+	vEnd_->setDecimals(3);
+	vEnd_->setAlignment(Qt::AlignCenter);
 	connect(vEnd_, SIGNAL(editingFinished()), this, SLOT(onYEndChanged()));
 
 	QPushButton *endUseCurrentButton = new QPushButton("Use Current");
@@ -77,16 +81,18 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	hStep_->setPrefix("H: ");
 	hStep_->setRange(0, 1000000);
 	hStep_->setSuffix(QString(" %1").arg(QString::fromUtf8("µm")));
-	hStep_->setValue(config_->xStep()*1000);		// xStep needs to be in mm.
 	hStep_->setDecimals(1);
+	hStep_->setAlignment(Qt::AlignCenter);
+	hStep_->setValue(config_->xStep()*1000);		// xStep needs to be in mm.
 	connect(hStep_, SIGNAL(editingFinished()), this, SLOT(onXStepChanged()));
 
 	vStep_ = new QDoubleSpinBox;
 	vStep_->setPrefix("V: ");
 	vStep_->setRange(0, 1000000);
 	vStep_->setSuffix(QString(" %1").arg(QString::fromUtf8("µm")));
-	vStep_->setValue(config_->yStep()*1000);		// yStep needs to be in mm.
 	vStep_->setDecimals(1);
+	vStep_->setAlignment(Qt::AlignCenter);
+	vStep_->setValue(config_->yStep()*1000);		// yStep needs to be in mm.
 	connect(vStep_, SIGNAL(editingFinished()), this, SLOT(onYStepChanged()));
 
 	QHBoxLayout *stepSizeLayout = new QHBoxLayout;
@@ -96,6 +102,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	stepSizeLayout->addStretch();
 
 	mapInfo_ = new QLabel;
+	updateMapInfo();
 
 	QVBoxLayout *positionsLayout = new QVBoxLayout;
 	positionsLayout->addLayout(startPointLayout);
@@ -104,6 +111,25 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	positionsLayout->addWidget(mapInfo_);
 
 	positionsBox->setLayout(positionsLayout);
+
+	// Dwell time.
+	dwellTime_ = new QDoubleSpinBox;
+	dwellTime_->setRange(0, 1000000);
+	dwellTime_->setValue(config_->timeStep());
+	dwellTime_->setSuffix(" s");
+	dwellTime_->setAlignment(Qt::AlignCenter);
+	dwellTime_->setDecimals(1);
+	connect(dwellTime_, SIGNAL(editingFinished()), this, SLOT(onDwellTimeChanged()));
+
+	QHBoxLayout *timeLayout = new QHBoxLayout;
+	timeLayout->addWidget(new QLabel("Dwell Time:"));
+	timeLayout->addWidget(dwellTime_);
+
+	// Using the CCD.
+	QCheckBox *usingCCDCheckBox = new QCheckBox("Do XRD simultaneously");
+	usingCCDCheckBox->setChecked(config_->usingCCD());
+	connect(config_, SIGNAL(usingCCDChanged(bool)), usingCCDCheckBox, SLOT(setChecked(bool)));
+	connect(usingCCDCheckBox, SIGNAL(toggled(bool)), config_, SLOT(setUsingCCD(bool)));
 
 	// The fluorescence detector setup
 	QButtonGroup *fluorescenceButtonGroup = new QButtonGroup;
@@ -199,6 +225,8 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(positionsBox, 0, 0);
+	contentsLayout->addLayout(timeLayout, 1, 0);
+	contentsLayout->addWidget(usingCCDCheckBox, 2, 0);
 	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 1, 3);
 	contentsLayout->addLayout(scanNameLayout, 4, 1);
 	contentsLayout->addWidget(I0GroupBox, 2, 3, 2, 1);
@@ -336,48 +364,75 @@ void VESPERS2DScanConfigurationView::onCustomContextMenuRequested(QPoint pos)
 
 void VESPERS2DScanConfigurationView::onSetStartPosition()
 {
+	double h = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
+	double v = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
 
+	config_->setXStart(h);
+	hStart_->setValue(h);
+	config_->setYStart(v);
+	vStart_->setValue(v);
+	updateMapInfo();
+	axesAcceptable();
 }
 
 void VESPERS2DScanConfigurationView::onSetEndPosition()
 {
+	double h = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
+	double v = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
 
+	config_->setXEnd(h);
+	hEnd_->setValue(h);
+	config_->setYEnd(v);
+	vEnd_->setValue(v);
+	updateMapInfo();
+	axesAcceptable();
 }
 
 void VESPERS2DScanConfigurationView::onXStartChanged()
 {
 	config_->setXStart(hStart_->value());
 	updateMapInfo();
+	axesAcceptable();
 }
 
 void VESPERS2DScanConfigurationView::onXEndChanged()
 {
 	config_->setXEnd(hEnd_->value());
 	updateMapInfo();
+	axesAcceptable();
 }
 
 void VESPERS2DScanConfigurationView::onXStepChanged()
 {
 	config_->setXStep(hStep_->value()/1000);
 	updateMapInfo();
+	axesAcceptable();
 }
 
 void VESPERS2DScanConfigurationView::onYStartChanged()
 {
 	config_->setYStart(vStart_->value());
 	updateMapInfo();
+	axesAcceptable();
 }
 
 void VESPERS2DScanConfigurationView::onYEndChanged()
 {
 	config_->setYEnd(vEnd_->value());
 	updateMapInfo();
+	axesAcceptable();
 }
 
 void VESPERS2DScanConfigurationView::onYStepChanged()
 {
 	config_->setYStep(vStep_->value()/1000);
 	updateMapInfo();
+	axesAcceptable();
+}
+
+void VESPERS2DScanConfigurationView::onDwellTimeChanged()
+{
+	config_->setTimeStep(dwellTime_->value());
 }
 
 void VESPERS2DScanConfigurationView::updateMapInfo()
@@ -387,6 +442,16 @@ void VESPERS2DScanConfigurationView::updateMapInfo()
 	int hPoints = int(fabs(hSize/config_->xStep()));
 	int vPoints = int(fabs(vSize/config_->yStep()));
 
+	if (hPoints < 0)
+		hPoints = 0;
+	else
+		hPoints++;
+
+	if (vPoints < 0)
+		vPoints = 0;
+	else
+		vPoints++;
+
 	mapInfo_->setText(QString("Map Size: %1 %2 x %3 %2\t Points: %4 x %5")
 					  .arg(hSize*1000)
 					  .arg(QString::fromUtf8("µm"))
@@ -394,4 +459,14 @@ void VESPERS2DScanConfigurationView::updateMapInfo()
 					  .arg(hPoints)
 					  .arg(vPoints)
 					  );
+}
+
+void VESPERS2DScanConfigurationView::axesAcceptable()
+{
+	QPalette good(this->palette());
+	QPalette bad(good);
+	bad.setColor(QPalette::Base, Qt::red);
+
+	hStep_->setPalette(config_->validXAxis() ? good : bad);
+	vStep_->setPalette(config_->validYAxis() ? good : bad);
 }
