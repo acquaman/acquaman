@@ -20,6 +20,91 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	config_ = config;
 	AMTopFrame *frame = new AMTopFrame("VESPERS 2D Map Configuration");
 
+	// Setup the group box for setting the start and end points.
+	QGroupBox *positionsBox = new QGroupBox("Positions");
+
+	hStart_ = new QDoubleSpinBox;
+	hStart_->setPrefix("H: ");
+	hStart_->setRange(-1000000, 1000000);
+	hStart_->setSuffix("mm");
+	hStart_->setValue(config_->xStart());
+	hStart_->setDecimals(1);
+	connect(hStart_, SIGNAL(editingFinished()), this, SLOT(onXStartChanged()));
+
+	vStart_ = new QDoubleSpinBox;
+	vStart_->setPrefix("V: ");
+	vStart_->setRange(-1000000, 1000000);
+	vStart_->setSuffix("mm");
+	vStart_->setValue(config_->yStart()*1000);
+	vStart_->setDecimals(1);
+	connect(vStart_, SIGNAL(editingFinished()), this, SLOT(onYStartChanged()));
+
+	QPushButton *startUseCurrentButton = new QPushButton("Use Current");
+	connect(startUseCurrentButton, SIGNAL(clicked()), this, SLOT(onSetStartPosition()));
+
+	QHBoxLayout *startPointLayout = new QHBoxLayout;
+	startPointLayout->addWidget(new QLabel("Start:"));
+	startPointLayout->addWidget(hStart_);
+	startPointLayout->addWidget(vStart_);
+	startPointLayout->addWidget(startUseCurrentButton);
+
+	hEnd_ = new QDoubleSpinBox;
+	hEnd_->setPrefix("H: ");
+	hEnd_->setRange(-1000000, 1000000);
+	hEnd_->setSuffix("mm");
+	hEnd_->setValue(config_->xEnd());
+	hEnd_->setDecimals(1);
+	connect(hEnd_, SIGNAL(editingFinished()), this, SLOT(onXEndChanged()));
+
+	vEnd_ = new QDoubleSpinBox;
+	vEnd_->setPrefix("V: ");
+	vEnd_->setRange(-1000000, 1000000);
+	vEnd_->setSuffix("mm");
+	vEnd_->setValue(config_->yEnd());
+	vEnd_->setDecimals(1);
+	connect(vEnd_, SIGNAL(editingFinished()), this, SLOT(onYEndChanged()));
+
+	QPushButton *endUseCurrentButton = new QPushButton("Use Current");
+	connect(endUseCurrentButton, SIGNAL(clicked()), this, SLOT(onSetEndPosition()));
+
+	QHBoxLayout *endPointLayout = new QHBoxLayout;
+	endPointLayout->addWidget(new QLabel("End:"));
+	endPointLayout->addWidget(hEnd_);
+	endPointLayout->addWidget(vEnd_);
+	endPointLayout->addWidget(endUseCurrentButton);
+
+	hStep_ = new QDoubleSpinBox;
+	hStep_->setPrefix("H: ");
+	hStep_->setRange(0, 1000000);
+	hStep_->setSuffix(QString(" %1").arg(QString::fromUtf8("µm")));
+	hStep_->setValue(config_->xStep()*1000);		// xStep needs to be in mm.
+	hStep_->setDecimals(1);
+	connect(hStep_, SIGNAL(editingFinished()), this, SLOT(onXStepChanged()));
+
+	vStep_ = new QDoubleSpinBox;
+	vStep_->setPrefix("V: ");
+	vStep_->setRange(0, 1000000);
+	vStep_->setSuffix(QString(" %1").arg(QString::fromUtf8("µm")));
+	vStep_->setValue(config_->yStep()*1000);		// yStep needs to be in mm.
+	vStep_->setDecimals(1);
+	connect(vStep_, SIGNAL(editingFinished()), this, SLOT(onYStepChanged()));
+
+	QHBoxLayout *stepSizeLayout = new QHBoxLayout;
+	stepSizeLayout->addWidget(new QLabel("Step Size:"));
+	stepSizeLayout->addWidget(hStep_);
+	stepSizeLayout->addWidget(vStep_);
+	stepSizeLayout->addStretch();
+
+	mapInfo_ = new QLabel;
+
+	QVBoxLayout *positionsLayout = new QVBoxLayout;
+	positionsLayout->addLayout(startPointLayout);
+	positionsLayout->addLayout(endPointLayout);
+	positionsLayout->addLayout(stepSizeLayout);
+	positionsLayout->addWidget(mapInfo_);
+
+	positionsBox->setLayout(positionsLayout);
+
 	// The fluorescence detector setup
 	QButtonGroup *fluorescenceButtonGroup = new QButtonGroup;
 	QRadioButton *tempButton;
@@ -52,9 +137,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	tempButton->setChecked(true);
 	I0Group_->addButton(tempButton, 2);
 	I0GroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Ipost");
-	I0Group_->addButton(tempButton, 3);
-	I0GroupLayout->addWidget(tempButton);
+
 	connect(I0Group_, SIGNAL(buttonClicked(int)), this, SLOT(onI0Clicked(int)));
 
 	I0Group_->button((int)config_->incomingChoice())->click();
@@ -76,13 +159,19 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	connect(config_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
 	onEstimatedTimeChanged();
 
-	// The roi text edit.
+	// The roi text edit and configuration.
 	roiText_ = new QTextEdit;
 	roiText_->setReadOnly(true);
-	roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
 
-	for (int i = 0; i < config_->roiList().count(); i++)
-		roiText_->insertPlainText(GeneralUtilities::addGreek(config_->roiList().at(i).name())+"\t" + QString::number(config_->roiList().at(i).low()) + "\t" + QString::number(config_->roiList().at(i).high()) +"\n");
+	QPushButton *configureDetectorButton = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure Detector");
+	connect(configureDetectorButton, SIGNAL(clicked()), this, SLOT(onConfigureDetectorClicked()));
+
+	QFormLayout *roiTextLayout = new QFormLayout;
+	roiTextLayout->addRow(roiText_);
+	roiTextLayout->addRow(configureDetectorButton);
+
+	QGroupBox *roiTextBox = new QGroupBox("Regions Of Interest");
+	roiTextBox->setLayout(roiTextLayout);
 
 	// Label showing where the data will be saved.
 	QLabel *exportPath = new QLabel(QString("Data exported to: %1exportData").arg(AMUserSettings::userDataFolder));
@@ -109,10 +198,11 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
+	contentsLayout->addWidget(positionsBox, 0, 0);
 	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 1, 3);
 	contentsLayout->addLayout(scanNameLayout, 4, 1);
 	contentsLayout->addWidget(I0GroupBox, 2, 3, 2, 1);
-	contentsLayout->addWidget(roiText_, 1, 4, 2, 2);
+	contentsLayout->addWidget(roiTextBox, 1, 4, 2, 2);
 	contentsLayout->addWidget(estimatedTime_, 6, 1, 1, 2);
 	contentsLayout->addLayout(timeOffsetLayout, 8, 1, 1, 2);
 
@@ -125,9 +215,9 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	configViewLayout->addWidget(frame);
 	configViewLayout->addStretch();
 	configViewLayout->addLayout(squeezeContents);
-	configViewLayout->addSpacing(30);
-	configViewLayout->addWidget(exportPath, 0, Qt::AlignCenter);
 	configViewLayout->addStretch();
+	configViewLayout->addWidget(exportPath, 0, Qt::AlignCenter);
+	configViewLayout->addSpacing(30);
 
 	setLayout(configViewLayout);
 }
@@ -135,21 +225,55 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 void VESPERS2DScanConfigurationView::onFluorescenceChoiceChanged(int id)
 {
 	config_->setFluorescenceDetectorChoice(id);
-	roiText_->clear();
 
 	switch(id){
 
 	case 1:
 		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
-		roiText_->show();
 		break;
 
 	case 2:
 		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
-		roiText_->show();
 		break;
 	}
 
+	updateRoiText();
+}
+
+void VESPERS2DScanConfigurationView::onConfigureDetectorClicked()
+{
+	switch(config_->fluorescenceDetectorChoice()){
+
+	case VESPERS2DScanConfiguration::None:
+		break;
+
+	case VESPERS2DScanConfiguration::SingleElement:
+		emit configureDetector("Single Element");
+		break;
+
+	case VESPERS2DScanConfiguration::FourElement:
+		emit configureDetector("Four Element");
+		break;
+	}
+}
+
+void VESPERS2DScanConfigurationView::updateRoiText()
+{
+	switch(config_->fluorescenceDetectorChoice()){
+
+	case VESPERS2DScanConfiguration::None:
+		break;
+
+	case VESPERS2DScanConfiguration::SingleElement:
+		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
+		break;
+
+	case VESPERS2DScanConfiguration::FourElement:
+		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
+		break;
+	}
+
+	roiText_->clear();
 	roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
 
 	for (int i = 0; i < config_->roiList().count(); i++)
@@ -208,4 +332,66 @@ void VESPERS2DScanConfigurationView::onCustomContextMenuRequested(QPoint pos)
 		timeOffsetLabel_->setVisible(!timeOffsetLabel_->isVisible());
 		timeOffset_->setVisible(!timeOffset_->isVisible());
 	}
+}
+
+void VESPERS2DScanConfigurationView::onSetStartPosition()
+{
+
+}
+
+void VESPERS2DScanConfigurationView::onSetEndPosition()
+{
+
+}
+
+void VESPERS2DScanConfigurationView::onXStartChanged()
+{
+	config_->setXStart(hStart_->value());
+	updateMapInfo();
+}
+
+void VESPERS2DScanConfigurationView::onXEndChanged()
+{
+	config_->setXEnd(hEnd_->value());
+	updateMapInfo();
+}
+
+void VESPERS2DScanConfigurationView::onXStepChanged()
+{
+	config_->setXStep(hStep_->value()/1000);
+	updateMapInfo();
+}
+
+void VESPERS2DScanConfigurationView::onYStartChanged()
+{
+	config_->setYStart(vStart_->value());
+	updateMapInfo();
+}
+
+void VESPERS2DScanConfigurationView::onYEndChanged()
+{
+	config_->setYEnd(vEnd_->value());
+	updateMapInfo();
+}
+
+void VESPERS2DScanConfigurationView::onYStepChanged()
+{
+	config_->setYStep(vStep_->value()/1000);
+	updateMapInfo();
+}
+
+void VESPERS2DScanConfigurationView::updateMapInfo()
+{
+	double hSize = fabs(config_->xEnd()-config_->xStart());
+	double vSize = fabs(config_->yEnd()-config_->yStart());
+	int hPoints = int(fabs(hSize/config_->xStep()));
+	int vPoints = int(fabs(vSize/config_->yStep()));
+
+	mapInfo_->setText(QString("Map Size: %1 %2 x %3 %2\t Points: %4 x %5")
+					  .arg(hSize*1000)
+					  .arg(QString::fromUtf8("µm"))
+					  .arg(vSize*1000)
+					  .arg(hPoints)
+					  .arg(vPoints)
+					  );
 }

@@ -257,13 +257,8 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::None)
 		roiText_->hide();
 
-	else{
-
-		roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
-
-		for (int i = 0; i < config_->roiList().count(); i++)
-			roiText_->insertPlainText(GeneralUtilities::addGreek(config_->roiList().at(i).name())+"\t" + QString::number(config_->roiList().at(i).low()) + "\t" + QString::number(config_->roiList().at(i).high()) +"\n");
-	}
+	else
+		roiText_->show();
 
 	// Label showing where the data will be saved.
 	QLabel *exportPath = new QLabel(QString("Data exported to: %1exportData").arg(AMUserSettings::userDataFolder));
@@ -344,7 +339,6 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 void VESPERSEXAFSScanConfigurationView::onFluorescenceChoiceChanged(int id)
 {
 	config_->setFluorescenceDetectorChoice(id);
-	roiText_->clear();
 
 	switch(id){
 
@@ -364,6 +358,26 @@ void VESPERSEXAFSScanConfigurationView::onFluorescenceChoiceChanged(int id)
 		break;
 	}
 
+	updateRoiText();
+}
+
+void VESPERSEXAFSScanConfigurationView::updateRoiText()
+{
+	switch(config_->fluorescenceDetectorChoice()){
+
+	case VESPERSEXAFSScanConfiguration::None:
+		break;
+
+	case VESPERSEXAFSScanConfiguration::SingleElement:
+		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
+		break;
+
+	case VESPERSEXAFSScanConfiguration::FourElement:
+		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
+		break;
+	}
+
+	roiText_->clear();
 	roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
 
 	for (int i = 0; i < config_->roiList().count(); i++)
