@@ -17,6 +17,7 @@
 #include <QComboBox>
 #include <QLabel>
 
+/// This class builds the view for configuring an EXAFS scan for the VESPERS beamline.
 class VESPERSEXAFSScanConfigurationView : public AMScanConfigurationView
 {
 	Q_OBJECT

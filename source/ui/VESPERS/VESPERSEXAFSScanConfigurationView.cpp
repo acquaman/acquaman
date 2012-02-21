@@ -244,6 +244,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	positionLayout->addRow("x:", xLayout);
 	positionLayout->addRow("y:", yLayout);
 
+	// The estimated scan time.
 	estimatedTime_ = new QLabel;
 	estimatedSetTime_ = new QLabel;
 	connect(config_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));

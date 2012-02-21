@@ -3,6 +3,7 @@
 AM2DScanConfiguration::AM2DScanConfiguration(QObject *parent)
 	: AMScanConfiguration(parent)
 {
+	setUserScanName("");
 	xRange_ = qMakePair(0.0, 0.0);
 	yRange_ = qMakePair(0.0, 0.0);
 	steps_ = qMakePair(0.0, 0.0);
@@ -14,6 +15,7 @@ AM2DScanConfiguration::AM2DScanConfiguration(QObject *parent)
 AM2DScanConfiguration::AM2DScanConfiguration(const AM2DScanConfiguration &original)
 	: AMScanConfiguration(original.parent())
 {
+	setUserScanName(original.userScanName());
 	xRange_ = original.xRange();
 	yRange_ = original.yRange();
 	steps_ = original.steps();

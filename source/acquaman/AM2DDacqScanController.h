@@ -21,6 +21,10 @@
 	then only increments the y-axis (slow axis) after it finishes moving across the entire
 	line.  It is conceivable that the y-axis could be the fast axis, but for now it is
 	hard coded as such.
+
+	Another assumption is that the first two data sources are assumed to be the x and y
+	coordinates, respectively.  If anything else is in the first two columns then the
+	data will not be stored correctly.  The remaining columns can be in any order.
   */
 class AM2DDacqScanController : public AMDacqScanController
 {
@@ -30,10 +34,15 @@ public:
 	/// Constructor.
 	AM2DDacqScanController(AMScanConfiguration *cfg, QObject *parent = 0);
 
-	/// Pure virtual functions.  Returns the number of values in the first independent axis.
+	/// Pure virtual function.  Returns the number of values in the first independent axis.
 	virtual int xAxisCount() const = 0;
-	/// Pure virtual functions.  Returns the number of values in the second independent axis.
+	/// Pure virtual function.  Returns the number of values in the second independent axis.
 	virtual int yAxisCount() const = 0;
+
+	/// Pure virtual function.  Returns the PV name that will be used for the x-axis.
+	virtual QString xAxisPVName() const = 0;
+	/// Pure virtual function.  Returns the PV name that will be used for the y-axis.
+	virtual QString yAxisPVName() const = 0;
 
 protected:
 	/// Re-implementing the start implementation to build in some dacq safety features that are needed over and above the normal single scan.  Contains duplicate code from AMDacqScanController::startImplementation().

@@ -17,6 +17,11 @@ public:
 	/// Returns the number of values in the second independent axis.
 	virtual int yAxisCount() const { return 0; }
 
+	/// Returns the PV name that will be used for the x-axis.
+	virtual QString xAxisPVName() const { return ""; }
+	/// Returns the PV name that will be used for the y-axis.
+	virtual QString yAxisPVName() const { return ""; }
+
 protected:
 	/// Specific implementation of the scan initialization.
 	bool initializeImplementation() { return false; }
