@@ -23,7 +23,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
 }
 
 VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfiguration &original)
-	: AM2DScanConfiguration(original.parent())
+	: AM2DScanConfiguration(original)
 {
 	setName(original.name());
 	I0_ = original.incomingChoice();

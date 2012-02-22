@@ -14,7 +14,7 @@ AMEXAFSScanConfiguration::AMEXAFSScanConfiguration(QObject *parent, bool setup)
 }
 
 AMEXAFSScanConfiguration::AMEXAFSScanConfiguration(const AMEXAFSScanConfiguration &original, bool setup)
-	: AMXASScanConfiguration(original.parent(), false)
+	: AMXASScanConfiguration(original, false)
 {
 	if (setup){
 
