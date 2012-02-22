@@ -36,7 +36,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	vStart_->setPrefix("V: ");
 	vStart_->setRange(-1000000, 1000000);
 	vStart_->setSuffix(" mm");
-	vStart_->setValue(config_->yStart()*1000);
+	vStart_->setValue(config_->yStart());
 	vStart_->setDecimals(3);
 	vStart_->setAlignment(Qt::AlignCenter);
 	connect(vStart_, SIGNAL(editingFinished()), this, SLOT(onYStartChanged()));
@@ -224,15 +224,15 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
-	contentsLayout->addWidget(positionsBox, 0, 0);
-	contentsLayout->addLayout(timeLayout, 1, 0);
-	contentsLayout->addWidget(usingCCDCheckBox, 2, 0);
-	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 1, 3);
-	contentsLayout->addLayout(scanNameLayout, 4, 1);
-	contentsLayout->addWidget(I0GroupBox, 2, 3, 2, 1);
-	contentsLayout->addWidget(roiTextBox, 1, 4, 2, 2);
-	contentsLayout->addWidget(estimatedTime_, 6, 1, 1, 2);
-	contentsLayout->addLayout(timeOffsetLayout, 8, 1, 1, 2);
+	contentsLayout->addWidget(positionsBox, 0, 0, 1, 3);
+	contentsLayout->addLayout(timeLayout, 1, 0, 1, 1);
+	contentsLayout->addWidget(usingCCDCheckBox, 2, 0, 1, 1);
+	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 0, 3, 1, 1);
+	contentsLayout->addLayout(scanNameLayout, 3, 0, 1, 1);
+	contentsLayout->addWidget(I0GroupBox, 1, 3, 4, 1);
+	contentsLayout->addWidget(roiTextBox, 0, 5, 4, 3);
+	contentsLayout->addWidget(estimatedTime_, 4, 0, 1, 1);
+	contentsLayout->addLayout(timeOffsetLayout, 5, 0, 1, 1);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();

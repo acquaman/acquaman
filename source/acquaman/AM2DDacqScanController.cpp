@@ -5,6 +5,7 @@
 AM2DDacqScanController::AM2DDacqScanController(AMScanConfiguration *cfg, QObject *parent)
 	: AMDacqScanController(cfg, parent)
 {
+	config_ = cfg;
 	xPosition_ = 0;
 	yPosition_ = 0;
 }
@@ -14,6 +15,12 @@ bool AM2DDacqScanController::startImplementation()
 	acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScanSpectrum", "File");
 	if( abop)
 	{
+		if (!setScanAxesControl()){
+
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AM2DDACQSCANCONTROLLER_DACQ_INITIALIZATION_FAILED, "AM2DDacqScanController: could not set the x and y axes."));
+			return false;
+		}
+
 		acqEvent_t *ev;
 		ev = first_acqEvent(advAcq_->getMaster());
 		if(!ev || !ev->numPvList ){
@@ -128,14 +135,140 @@ AMnDIndex AM2DDacqScanController::toScanIndex(QMap<int, double> aeData)
 {
 	Q_UNUSED(aeData);
 
-	// Increment the fast axis (assumed to be the x axis).  If the fast axis is at the end of the road, set it to 0 and increment the slow axis.
-	xPosition_++;
+	// Increment the fast axis.  If the fast axis is at the end of the road, set it to 0 and increment the slow axis.
+	switch(config_->fastAxis()){
 
-	if (xPosition_ == xAxisCount()){
+		case AM2DScanConfiguration::X: {
 
-		xPosition_ = 0;
-		yPosition_++;
+			xPosition_++;
+
+			if (xPosition_ == xAxisCount()){
+
+				xPosition_ = 0;
+				yPosition_++;
+			}
+
+			break;
+		}
+
+		case AM2DScanConfiguration::Y: {
+
+			yPosition_++;
+
+			if (yPosition_ == yAxisCount()){
+
+				yPosition_ = 0;
+				xPosition_++;
+			}
+
+			break;
+		}
 	}
 
 	return AMnDIndex(xPosition_, yPosition_);
+}
+
+bool AM2DDacqScanController::setConfigFile(const QString &filename)
+{
+	filename_ = filename;
+	return advAcq_->setConfigFile(filename);
+}
+
+bool AM2DDacqScanController::setScanAxesControl()
+{
+	// Stage 1:  Save the current state of the config file.
+	QString filename = filename_;
+	filename = filename.left(filename.lastIndexOf("/"));
+	filename.append("interim.cfg");
+	advAcq_->saveConfigFile(filename);
+
+	// Stage 2:  Setup the slow axis and fast axis strings.
+	QString fastAxis = "";
+	QString slowAxis = "";
+
+	// First is the slow axis.
+	switch(config_->fastAxis()){
+
+	case AM2DScanConfiguration::X:
+
+		fastAxis = QString("# Control \"%1\" start:%2 delta: %3 final:%4 active: 7")
+				.arg(xAxisPVName())
+				.arg(config_->xStart())
+				.arg(config_->xStep())
+				.arg(config_->xEnd());
+
+		slowAxis = QString("# Control \"%1\" start:%2 delta: %3 final:%4 active: 7")
+				.arg(yAxisPVName())
+				.arg(config_->yStart())
+				.arg(config_->yStep())
+				.arg(config_->yEnd());
+
+		break;
+
+	case AM2DScanConfiguration::Y:
+
+		slowAxis = QString("# Control \"%1\" start:%2 delta: %3 final:%4 active: 7")
+				.arg(xAxisPVName())
+				.arg(config_->xStart())
+				.arg(config_->xStep())
+				.arg(config_->xEnd());
+
+		fastAxis = QString("# Control \"%1\" start:%2 delta: %3 final:%4 active: 7")
+				.arg(yAxisPVName())
+				.arg(config_->yStart())
+				.arg(config_->yStep())
+				.arg(config_->yEnd());
+
+		break;
+	}
+
+	// Stage 3:  Load up the file through a text stream and change the controls for Both scan axes.
+	QFile file(filename);
+	if(!file.open(QIODevice::ReadOnly)) {
+		AMErrorMon::error(0, -1, "AM2DDacqScanController:  could not open the config file.");
+		return false;
+	}
+
+	QTextStream in(&file);
+	QString current;
+	QStringList completeFile;
+
+	while (!(current = in.readLine()).startsWith("# Control")){
+
+		completeFile << current;
+	}
+
+	completeFile << slowAxis;
+
+	while (!(current = in.readLine()).startsWith("# Control")){
+
+		completeFile << current;
+	}
+
+	completeFile << fastAxis;
+
+	while (!(current = in.readLine()).isNull()){
+
+		completeFile << current;
+	}
+
+	file.close();
+
+	// Stage 4:  Save the file back as interim.cfg.
+	QFile file(filename);
+	if(!file.open(QIODevice::WriteOnly)) {
+		AMErrorMon::error(0, -1, "AM2DDacqScanController:  could not open the config file.");
+		return false;
+	}
+
+	QTextStream out(&file);
+
+	for (int i = 0; i < completeFile.size(); i++)
+		out << completeFile.at(i);
+
+	file.close();
+	completeFile.clear();
+
+	// Stage 5:  Reload the config file.
+	return advAcq_->setConfigFile(filename);
 }
