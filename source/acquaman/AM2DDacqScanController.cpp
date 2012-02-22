@@ -5,7 +5,7 @@
 AM2DDacqScanController::AM2DDacqScanController(AMScanConfiguration *cfg, QObject *parent)
 	: AMDacqScanController(cfg, parent)
 {
-	config_ = cfg;
+	internal2DConfig_ = cfg;
 	xPosition_ = 0;
 	yPosition_ = 0;
 }
@@ -136,7 +136,7 @@ AMnDIndex AM2DDacqScanController::toScanIndex(QMap<int, double> aeData)
 	Q_UNUSED(aeData);
 
 	// Increment the fast axis.  If the fast axis is at the end of the road, set it to 0 and increment the slow axis.
-	switch(config_->fastAxis()){
+	switch(internal2DConfig_->fastAxis()){
 
 		case AM2DScanConfiguration::X: {
 
@@ -176,6 +176,9 @@ bool AM2DDacqScanController::setConfigFile(const QString &filename)
 
 bool AM2DDacqScanController::setScanAxesControl()
 {
+	if (xAxisPVName().isEmpty() || yAxisPVName().isEmpty())
+		return false;
+
 	// Stage 1:  Save the current state of the config file.
 	QString filename = filename_;
 	filename = filename.left(filename.lastIndexOf("/"));
@@ -187,21 +190,21 @@ bool AM2DDacqScanController::setScanAxesControl()
 	QString slowAxis = "";
 
 	// First is the slow axis.
-	switch(config_->fastAxis()){
+	switch(internal2DConfig_->fastAxis()){
 
 	case AM2DScanConfiguration::X:
 
 		fastAxis = QString("# Control \"%1\" start:%2 delta: %3 final:%4 active: 7")
 				.arg(xAxisPVName())
-				.arg(config_->xStart())
-				.arg(config_->xStep())
-				.arg(config_->xEnd());
+				.arg(internal2DConfig_->xStart())
+				.arg(internal2DConfig_->xStep())
+				.arg(internal2DConfig_->xEnd());
 
 		slowAxis = QString("# Control \"%1\" start:%2 delta: %3 final:%4 active: 7")
 				.arg(yAxisPVName())
-				.arg(config_->yStart())
-				.arg(config_->yStep())
-				.arg(config_->yEnd());
+				.arg(internal2DConfig_->yStart())
+				.arg(internal2DConfig_->yStep())
+				.arg(internal2DConfig_->yEnd());
 
 		break;
 
@@ -209,15 +212,15 @@ bool AM2DDacqScanController::setScanAxesControl()
 
 		slowAxis = QString("# Control \"%1\" start:%2 delta: %3 final:%4 active: 7")
 				.arg(xAxisPVName())
-				.arg(config_->xStart())
-				.arg(config_->xStep())
-				.arg(config_->xEnd());
+				.arg(internal2DConfig_->xStart())
+				.arg(internal2DConfig_->xStep())
+				.arg(internal2DConfig_->xEnd());
 
 		fastAxis = QString("# Control \"%1\" start:%2 delta: %3 final:%4 active: 7")
 				.arg(yAxisPVName())
-				.arg(config_->yStart())
-				.arg(config_->yStep())
-				.arg(config_->yEnd());
+				.arg(internal2DConfig_->yStart())
+				.arg(internal2DConfig_->yStep())
+				.arg(internal2DConfig_->yEnd());
 
 		break;
 	}

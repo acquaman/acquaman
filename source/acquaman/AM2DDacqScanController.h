@@ -71,7 +71,7 @@ protected:
 	int yPosition_;
 
 	/// Pointer to a 2D scan configuration.  Used inside this class.  The general AMScanController will get the regular AMScanConfiguration.
-	AM2DScanConfiguration *config_;
+	AM2DScanConfiguration *internal2DConfig_;
 
 	/// String that holds the file name (including path).
 	QString filename_;
