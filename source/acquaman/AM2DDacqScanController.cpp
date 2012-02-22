@@ -223,13 +223,13 @@ bool AM2DDacqScanController::setScanAxesControl()
 	}
 
 	// Stage 3:  Load up the file through a text stream and change the controls for Both scan axes.
-	QFile file(filename);
-	if(!file.open(QIODevice::ReadOnly)) {
+	QFile inputFile(filename);
+	if(!inputFile.open(QIODevice::ReadOnly)) {
 		AMErrorMon::error(0, -1, "AM2DDacqScanController:  could not open the config file.");
 		return false;
 	}
 
-	QTextStream in(&file);
+	QTextStream in(&inputFile);
 	QString current;
 	QStringList completeFile;
 
@@ -252,21 +252,21 @@ bool AM2DDacqScanController::setScanAxesControl()
 		completeFile << current;
 	}
 
-	file.close();
+	inputFile.close();
 
 	// Stage 4:  Save the file back as interim.cfg.
-	QFile file(filename);
-	if(!file.open(QIODevice::WriteOnly)) {
+	QFile outputFile(filename);
+	if(!outputFile.open(QIODevice::WriteOnly)) {
 		AMErrorMon::error(0, -1, "AM2DDacqScanController:  could not open the config file.");
 		return false;
 	}
 
-	QTextStream out(&file);
+	QTextStream out(&outputFile);
 
 	for (int i = 0; i < completeFile.size(); i++)
 		out << completeFile.at(i);
 
-	file.close();
+	outputFile.close();
 	completeFile.clear();
 
 	// Stage 5:  Reload the config file.
