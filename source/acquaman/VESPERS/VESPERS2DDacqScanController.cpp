@@ -27,6 +27,6 @@ bool VESPERS2DDacqScanController::initializeImplementation()
 
 bool VESPERS2DDacqScanController::startImplementation()
 {
-	/// \todo Fill in the start implementation in a way that's similar too VESPERSEXAFSDacqScanController.
+	/// \todo Fill in the start implementation in a way that's similar too VESPERSEXAFSDacqScanController.e
 	return AM2DDacqScanController::startImplementation();
 }
