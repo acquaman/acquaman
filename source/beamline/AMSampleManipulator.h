@@ -31,6 +31,8 @@ class AMSampleManipulator
 {
 
 public:
+	/// Empty constructor
+	AMSampleManipulator() {}
 	virtual ~AMSampleManipulator() {}
 
 	/// Returns the current position of the sample manipulator, as an AMControlInfoList.
