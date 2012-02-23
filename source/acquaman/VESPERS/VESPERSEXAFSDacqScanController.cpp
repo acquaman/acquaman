@@ -233,7 +233,6 @@ void VESPERSEXAFSDacqScanController::addExtraDatasources()
 	else if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::FourElement){
 
 		// Real time (x4), Live time (x4), fast peaks (x4), slow peaks (x4), dead time (x4)
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("RealTime1", "Real Time 1", "s"));
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("RealTime2", "Real Time 2", "s"));
@@ -273,6 +272,7 @@ void VESPERSEXAFSDacqScanController::addExtraDatasources()
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("DeadTime3", "Dead Time 3", "%"));
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("DeadTime4", "Dead Time 4", "%"));
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 	}
 }
 
