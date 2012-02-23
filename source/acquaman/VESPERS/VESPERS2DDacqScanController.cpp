@@ -67,8 +67,6 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 
 	// Add the rest.
 
-	// Add analysis blocks.
-
 }
 
 void VESPERS2DDacqScanController::addExtraDatasources()
@@ -295,6 +293,9 @@ bool VESPERS2DDacqScanController::setupSingleElementMap()
 				"Error, VESPERS 2D DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers.");
 		return false;
 	}
+
+	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
+	while (advAcq_->deleteRecord(2)){}
 }
 
 bool VESPERS2DDacqScanController::setupFourElementMap()
@@ -312,4 +313,7 @@ bool VESPERS2DDacqScanController::setupFourElementMap()
 				"Error, VESPERS 2D DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers.");
 		return false;
 	}
+
+	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
+	while (advAcq_->deleteRecord(2)){}
 }
