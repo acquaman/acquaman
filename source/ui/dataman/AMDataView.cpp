@@ -373,7 +373,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No runs found.");
+					sections_ << new AMDataViewEmptyHeader("No runs found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for runs. The database might be corrupted."));
@@ -412,7 +412,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No experiments found.");
+					sections_ << new AMDataViewEmptyHeader("No experiments found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for experiments. The database might be corrupted."));
@@ -449,7 +449,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No data types found.");
+					sections_ << new AMDataViewEmptyHeader("No data types found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for scan types. The database might be corrupted."));
@@ -489,7 +489,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No samples found.");
+					sections_ << new AMDataViewEmptyHeader("No samples found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for samples. The database might be corrupted."));
@@ -529,7 +529,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No elements found.");
+					sections_ << new AMDataViewEmptyHeader("No elements found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for elements in samples. The database might be corrupted."));
@@ -608,7 +608,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No experiments found.");
+					sections_ << new AMDataViewEmptyHeader("No experiments found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for experiments. The database might be corrupted."));
@@ -646,7 +646,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No data types found.");
+					sections_ << new AMDataViewEmptyHeader("No data types found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for scan types. The database might be corrupted."));
@@ -687,7 +687,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No samples found.");
+					sections_ << new AMDataViewEmptyHeader("No samples found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for samples. The database might be corrupted."));
@@ -728,7 +728,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No elements found.");
+					sections_ << new AMDataViewEmptyHeader("No elements found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for elements in samples. The database might be corrupted."));
@@ -809,7 +809,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No runs found.");
+					sections_ << new AMDataViewEmptyHeader("No runs found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for runs. The database might be corrupted."));
@@ -850,7 +850,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No data types found.");
+					sections_ << new AMDataViewEmptyHeader("No data types found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for scan types. The database might be corrupted."));
@@ -892,7 +892,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No samples found.");
+					sections_ << new AMDataViewEmptyHeader("No samples found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for samples. The database might be corrupted."));
@@ -933,7 +933,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No elements found.");
+					sections_ << new AMDataViewEmptyHeader("No elements found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for elements in samples. The database might be corrupted."));

@@ -468,9 +468,10 @@ protected:
 class AMDataViewEmptyHeader : public AMAbstractDataViewSection, private Ui::AMDataViewEmptyHeader {
 	Q_OBJECT
 public:
-	explicit AMDataViewEmptyHeader(const QString& message, QGraphicsItem* parent = 0)
+	explicit AMDataViewEmptyHeader(const QString& message, double initialWidthConstraint = 400, QGraphicsItem* parent = 0)
 		: AMAbstractDataViewSection(parent) {
-		proxiedWidget_ = new QWidget();
+		widthConstraint_ = initialWidthConstraint;
+		proxiedWidget_ = new QFrame();
 		setupUi(proxiedWidget_);
 		QGraphicsProxyWidget* proxy = new QGraphicsProxyWidget(this);
 		proxy->setWidget(proxiedWidget_);
@@ -483,7 +484,7 @@ public:
 	}
 	virtual ~AMDataViewEmptyHeader() {}
 
-	void setWidthConstraint(double widthConstraint) { Q_UNUSED(widthConstraint); }
+	void setWidthConstraint(double widthConstraint) { widthConstraint_ = widthConstraint; updateGeometry(); }
 
 	QString messageText() const { return messageText_->text(); }
 
@@ -493,8 +494,18 @@ public slots:
 	}
 
 protected:
-	QWidget* proxiedWidget_;
+	QFrame* proxiedWidget_;
 	QGraphicsLinearLayout* layout_;
+
+	double widthConstraint_;
+
+	/// Re-implemented to return a sizeHint that is exactly what the top widget wants us to be.
+	QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint) const {
+		Q_UNUSED(which)
+		Q_UNUSED(constraint)
+
+		return QSizeF(widthConstraint_, -1);
+	}
 
 };
 
