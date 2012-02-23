@@ -2,12 +2,13 @@
 
 #include <QDir>
 
-AM2DDacqScanController::AM2DDacqScanController(AMScanConfiguration *cfg, QObject *parent)
+AM2DDacqScanController::AM2DDacqScanController(AM2DScanConfiguration *cfg, QObject *parent)
 	: AMDacqScanController(cfg, parent)
 {
 	internal2DConfig_ = cfg;
 	xPosition_ = 0;
 	yPosition_ = 0;
+	useDwellTimes_ = false;
 }
 
 bool AM2DDacqScanController::startImplementation()

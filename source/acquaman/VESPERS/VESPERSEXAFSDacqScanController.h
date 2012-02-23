@@ -22,6 +22,7 @@ public:
 	/// Constructor.
 	/// \param cfg is the XAS configuration that the controller will run.
 	VESPERSEXAFSDacqScanController(VESPERSEXAFSScanConfiguration *cfg, QObject *parent = 0);
+	/// Destructor.  Makes sure all the memory from the actions that were created is freed.
 	~VESPERSEXAFSDacqScanController() { onInitializationActionFinished(); onCleanupActionFinished(); }
 
 protected slots:
@@ -49,10 +50,10 @@ protected:
 	/// Specific implmentation of the scan start.
 	bool startImplementation();
 	/// Specific implementation of the scan cancel.
-	void cancelImplemqentation() { AMDacqScanController::cancelImplementation(); cleanup(); }
+	void cancelImplementation() { AMDacqScanController::cancelImplementation(); cleanup(); }
 
 	/// Re-implementing to intercept finished() signal and do cleanup
-	void onDacqStop() {qDebug() << "In onDacqStop()"; cleanup(); }
+	void onDacqStop() { cleanup(); }
 	/// Method that cleans up the beamline after a scan is finished.  Makes a list of clean up actions and executes them.
 	void cleanup();
 
