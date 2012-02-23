@@ -75,6 +75,11 @@ protected:
 	/// Returns the home directory for Acquaman.
 	QString getHomeDirectory();
 
+	/// Sets up the 2D scan based on the single element detector being used for XRF.
+	bool setupSingleElementMap();
+	/// Sets up the 2D scan based on the four element detector being used for XRF.
+	bool setupFourElementMap();
+
 	/// Pointer to the VESPERS2DScanConfiguration this scan controls.
 	VESPERS2DScanConfiguration *config_;
 
