@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "REIXSAppController.h"
 
 #include "beamline/REIXS/REIXSBeamline.h"
+#include "beamline/REIXS/REIXSSampleManipulator.h"
 
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/REIXS/REIXSXESScanConfigurationDetailedView.h"
@@ -56,11 +57,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions2/actions/AMScanControllerAction.h"
 #include "actions2/actions/AMInternalControlMoveAction.h"
 #include "actions2/actions/REIXS/REIXSXESScanAction.h"
+#include "actions2/actions/REIXS/REIXSSampleMoveAction.h"
 #include "actions2/AMLoopAction.h"
 #include "actions2/editors/AMWaitActionEditor.h"
 #include "actions2/editors/AMLoopActionEditor.h"
 #include "actions2/editors/REIXS/REIXSXESScanActionEditor.h"
 #include "actions2/editors/REIXS/REIXSControlMoveActionEditor.h"
+
 
 #include <QMessageBox>
 
@@ -83,6 +86,7 @@ bool REIXSAppController::startup() {
 
 		AMDbObjectSupport::s()->registerClass<REIXSControlMoveActionInfo>();
 		AMDbObjectSupport::s()->registerClass<REIXSXESScanActionInfo>();
+		AMDbObjectSupport::s()->registerClass<REIXSSampleMoveActionInfo>();
 
 		// Testing and making the first run in the database, if there isn't one already.  Make this it's own function if you think startup() is getting too big ; )
 		////////////////////////////////////////
@@ -105,6 +109,7 @@ bool REIXSAppController::startup() {
 		AMActionRegistry::s()->registerInfoAndAction<REIXSControlMoveActionInfo, REIXSControlMoveAction>("REIXS Control Move", "This action moves any REIXS beamline control to a target position.\n\nYou can specify an absolute or a relative move.", ":/system-run.png");
 		AMActionRegistry::s()->registerInfoAndAction<REIXSXESScanActionInfo, REIXSXESScanAction>("REIXS XES Scan", "This action conducts a single XES scan at a given detector energy.", ":/utilities-system-monitor.png");
 		AMActionRegistry::s()->registerInfoAndAction<AMLoopActionInfo, AMLoopAction>("Loop", "This action repeats a set of sub-actions a specific number of times.\n\nAfter adding it, you can drag-and-drop other actions inside it.", ":/32x32/media-playlist-repeat.png");
+		AMActionRegistry::s()->registerInfoAndAction<REIXSSampleMoveActionInfo, REIXSSampleMoveAction>("REIXS Sample Move", "This action moves the sample manipulator to a predefined position.", ":/32x32/gnome-display-properties.png");
 
 		AMActionRegistry::s()->registerInfoAndEditor<AMWaitActionInfo, AMWaitActionEditor>();
 		AMActionRegistry::s()->registerInfoAndEditor<AMLoopActionInfo, AMLoopActionEditor>();
@@ -149,7 +154,7 @@ bool REIXSAppController::startup() {
 																					  QUrl("http://v2e1610-101.clsi.ca/mjpg/1/video.mjpg"),
 																					  "Sample Camera: down beam path",
 																					  0,
-																					  0,
+																					  new REIXSSampleManipulator(),
 																					  0);
 
 		// sampleManagementPane->cameraWidget()->addSource("Just for testing", QUrl("/Users/mboots/Pictures/iPhoto Library/Masters/2011/09/14/20110914-110302/SANY0026.MP4"));
