@@ -43,8 +43,10 @@ const AMAction * AMListAction::subActionAt(int index) const
 
 bool AMListAction::insertSubAction(AMAction *action, int index)
 {
-	if(state() != Constructed)
-		return false;	// cannot change this once running.
+	if(!(state() == Constructed || state() == Starting)) {
+		qWarning() << "AMListAction: Cannot add sub-actions once the action is already running.";
+		return false;
+	}
 
 	if(index<0 || index > subActions_.count())
 		index = subActions_.count();
@@ -58,8 +60,12 @@ bool AMListAction::insertSubAction(AMAction *action, int index)
 
 AMAction * AMListAction::takeSubActionAt(int index)
 {
-	if(state() != Constructed)
-		return 0; // cannot change this once running
+
+	if(!(state() == Constructed || state() == Starting)) {
+		qWarning() << "AMListAction: Cannot remove sub-actions once the action is already running.";
+		return 0;
+	}
+
 	if(index <0 || index >= subActions_.count())
 		return 0;
 

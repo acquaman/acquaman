@@ -35,160 +35,164 @@ class AMRunSelector;
 class AMSampleEditor;
 class AMDataSourcesEditor;
 class AMChooseScanDialog;
+class AMControlInfoListTableView;
 
 class AMGenericScanEditor : public QWidget
 {
 Q_OBJECT
 public:
-	enum ShouldStopAcquiringScanChoice{
-		ShouldStopNo =		0,
-		ShouldStopYes =		1,
-		ShouldStopForceQuit =	2
-	};
+    enum ShouldStopAcquiringScanChoice{
+        ShouldStopNo =		0,
+        ShouldStopYes =		1,
+        ShouldStopForceQuit =	2
+    };
 
-	/// Construct an empty editor:
-	explicit AMGenericScanEditor(QWidget *parent = 0);
+    /// Construct an empty editor:
+    explicit AMGenericScanEditor(QWidget *parent = 0);
 
-	/// Deletes self and all scan objects that were added
-	virtual ~AMGenericScanEditor();
+    /// Deletes self and all scan objects that were added
+    virtual ~AMGenericScanEditor();
 
-	/// Add a scan to an editor. The editor takes ownership of the scan, and will delete it when closed or the scan is removed.
-	void addScan(AMScan* newScan);
+    /// Add a scan to an editor. The editor takes ownership of the scan, and will delete it when closed or the scan is removed.
+    void addScan(AMScan* newScan);
 
 
-	/// Remove a scan from the editor and delete the scan.
-	void deleteScan(AMScan* scan);
+    /// Remove a scan from the editor and delete the scan.
+    void deleteScan(AMScan* scan);
 
-	/// Remove a scan and delete it, but ask the user for confirmation if it's been modified.  Returns true if the scan was deleted, and false if the user 'cancelled' the process.
-	bool deleteScanWithModifiedCheck(AMScan* scan);
+    /// Remove a scan and delete it, but ask the user for confirmation if it's been modified.  Returns true if the scan was deleted, and false if the user 'cancelled' the process.
+    bool deleteScanWithModifiedCheck(AMScan* scan);
 
-	/// Remove a scan from the editor, but don't delete the scan. Ownership becomes the responsibility of the caller.
-	void removeScan(AMScan* scan) {
-		scanSetModel_->removeScan(scan);
-		refreshWindowTitle();
-	}
+    /// Remove a scan from the editor, but don't delete the scan. Ownership becomes the responsibility of the caller.
+    void removeScan(AMScan* scan) {
+        scanSetModel_->removeScan(scan);
+        refreshWindowTitle();
+    }
 
-	/// Returns the number of scans open in the editor.
-	int scanCount() const {
-		return scanSetModel_->scanCount();
-	}
+    /// Returns the number of scans open in the editor.
+    int scanCount() const {
+        return scanSetModel_->scanCount();
+    }
 
-	/// Returns a particular scan pointer, by index. Returns 0 if \c index is out of bounds.
-	AMScan* scanAt(int index) const {
-		if(index<0 || index>=scanCount())
-			return 0;
-		return scanSetModel_->scanAt(index);
-	}
+    /// Returns a particular scan pointer, by index. Returns 0 if \c index is out of bounds.
+    AMScan* scanAt(int index) const {
+        if(index<0 || index>=scanCount())
+            return 0;
+        return scanSetModel_->scanAt(index);
+    }
 
-	/// Call this function to find out if this editor can be closed. Checks for scans in progress and prompts the user for what to do with modified scans.  Returns true if the editor can be closed; returns false if any scans are acquiring or if the user responded "cancel" to a save-request.
-	bool canCloseEditor();
+    /// Call this function to find out if this editor can be closed. Checks for scans in progress and prompts the user for what to do with modified scans.  Returns true if the editor can be closed; returns false if any scans are acquiring or if the user responded "cancel" to a save-request.
+    bool canCloseEditor();
 
-	/// Sets which data source should be viewed by exclusive views.  Returns true if the data source was found and set.  Returns false otherwise.
-	bool setExclusiveDataSourceByName(const QString &name) { return scanSetModel_->setExclusiveDataSourceByName(name); }
+    /// Sets which data source should be viewed by exclusive views.  Returns true if the data source was found and set.  Returns false otherwise.
+    bool setExclusiveDataSourceByName(const QString &name) { return scanSetModel_->setExclusiveDataSourceByName(name); }
 
-	/// Exposing scan set model method that returns a list of all data source names that exist (over all scans in the model). Warning: this is slow.  O(n), where n is the total number of data sources in all scans.
-	QStringList allDataSourceNames() const { return scanSetModel_->allDataSourceNames(); }
+    /// Exposing scan set model method that returns a list of all data source names that exist (over all scans in the model). Warning: this is slow.  O(n), where n is the total number of data sources in all scans.
+    QStringList allDataSourceNames() const { return scanSetModel_->allDataSourceNames(); }
 
-	/// Exposing scan set model method that returns a list of all data source names that exist and are visible in at least one scan. Warning: this is slow.  O(n), where n is the total number of data sources in all scans.
-	QStringList visibleDataSourceNames() const { return scanSetModel_->visibleDataSourceNames(); }
+    /// Exposing scan set model method that returns a list of all data source names that exist and are visible in at least one scan. Warning: this is slow.  O(n), where n is the total number of data sources in all scans.
+    QStringList visibleDataSourceNames() const { return scanSetModel_->visibleDataSourceNames(); }
 
 signals:
-	/// Internal signal to forward the textChanged() from ui_.notesEdit
-	void notesChanged(const QString&);
+    /// Internal signal to forward the textChanged() from ui_.notesEdit
+    void notesChanged(const QString&);
 
 public slots:
 
 protected slots:
-	///  This catches changes in the scan that is currently selected, and hooks it up to the editor widgets. \todo Ultimately, we might handle more than one scan being "selected" at once.
-	void onCurrentChanged ( const QModelIndex & selected, const QModelIndex & deselected );
+    ///  This catches changes in the scan that is currently selected, and hooks it up to the editor widgets. \todo Ultimately, we might handle more than one scan being "selected" at once.
+    void onCurrentChanged ( const QModelIndex & selected, const QModelIndex & deselected );
 
-	/// internal signal to forward the textChanged() signal from ui_.notesEdit
-	void onNotesTextChanged() {
-		emit notesChanged(ui_.notesEdit->toPlainText());
-	}
+    /// internal signal to forward the textChanged() signal from ui_.notesEdit
+    void onNotesTextChanged() {
+        emit notesChanged(ui_.notesEdit->toPlainText());
+    }
 
-	/// called when the close buttons in the list of scans are clicked
-	void onScanModelCloseClicked(const QModelIndex& index);
+    /// called when the close buttons in the list of scans are clicked
+    void onScanModelCloseClicked(const QModelIndex& index);
 
-	/// Called when the 'Open...' button is clicked
-	void onOpenScanButtonClicked();
+    /// Called when the 'Open...' button is clicked
+    void onOpenScanButtonClicked();
 
-	/// Called when the 'Save' scan button is clicked
-	void onSaveScanButtonClicked();
+    /// Called when the 'Save' scan button is clicked
+    void onSaveScanButtonClicked();
 
-	/// Called when the 'Close' scan button is clicked
-	void onCloseScanButtonClicked();
+    /// Called when the 'Close' scan button is clicked
+    void onCloseScanButtonClicked();
 
-	/// Call this to update the window title when a scan is added or removed
-	void refreshWindowTitle();
+    /// Call this to update the window title when a scan is added or removed
+    void refreshWindowTitle();
 
-	/// Called when the open scan dialog is accepted with one or more new scans to open.
-	void onChooseScanDialogAccepted();
+    /// Called when the open scan dialog is accepted with one or more new scans to open.
+    void onChooseScanDialogAccepted();
 
-	/// Call this function to open a set of scans from the database. The scan information is contained inside a list of "amd://..." URLs.  For more information on the format, see dropEvent().   Returns true if the list contains at least one valid scan that was added.
-	/*! This function is used as an internal helper function by dropEvent(); Normally you should use the dropScanURLs function in AMDatamanAppController() since it can check for scans being open in other editors*/
-	bool dropScanURLs(const QList<QUrl>& urls);
+    /// Call this function to open a set of scans from the database. The scan information is contained inside a list of "amd://..." URLs.  For more information on the format, see dropEvent().   Returns true if the list contains at least one valid scan that was added.
+    /*! This function is used as an internal helper function by dropEvent(); Normally you should use the dropScanURLs function in AMDatamanAppController() since it can check for scans being open in other editors*/
+    bool dropScanURLs(const QList<QUrl>& urls);
 
 protected:
 
-	// Re-implemented functions
-	//////////////////////////
-	/// Implement acquiring/modified checks before allowing this window to close.
-	void closeEvent(QCloseEvent *);
+    // Re-implemented functions
+    //////////////////////////
+    /// Implement acquiring/modified checks before allowing this window to close.
+    void closeEvent(QCloseEvent *);
 
-	// Variables
-	///////////////////////////
+    // Variables
+    ///////////////////////////
 
-	/// This is a model containing the current open scans
-	AMScanSetModel* scanSetModel_;
-	/// This is the currently-selected scan, or 0 non-existent
-	AMScan* currentScan_;
+    /// This is a model containing the current open scans
+    AMScanSetModel* scanSetModel_;
+    /// This is the currently-selected scan, or 0 non-existent
+    AMScan* currentScan_;
 
-	// UI Components
+    // UI Components
 
-	/// UI object container
-	Ui::AMGenericScanEditor ui_;
+    /// UI object container
+    Ui::AMGenericScanEditor ui_;
 
-	/// stack-widget holder for right-column editors
-	AMVerticalStackWidget* stackWidget_;
+    /// stack-widget holder for right-column editors
+    AMVerticalStackWidget* stackWidget_;
 
-	/// Run selector
-	AMRunSelector* runSelector_;
+    /// Run selector
+    AMRunSelector* runSelector_;
 
-	/// Data sources editor:
-	AMDataSourcesEditor* dataSourcesEditor_;
+    /// Data sources editor:
+    AMDataSourcesEditor* dataSourcesEditor_;
 
-	/// Plot view capable of holding multiple scans.
-	AMScanView* scanView_;
+    /// View of the scans' scanInitialConditions()
+    AMControlInfoListTableView* conditionsTableView_;
 
-	/// Sample editor
-	AMSampleEditor* sampleEditor_;
+    /// Plot view capable of holding multiple scans.
+    AMScanView* scanView_;
 
-	/// Dialog to choose an existing scan to open/add.  Will be 0 until it is required/created.
-	AMChooseScanDialog* chooseScanDialog_;
+    /// Sample editor
+    AMSampleEditor* sampleEditor_;
 
-	/// Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)
-	void dragEnterEvent(QDragEnterEvent *event);
+    /// Dialog to choose an existing scan to open/add.  Will be 0 until it is required/created.
+    AMChooseScanDialog* chooseScanDialog_;
 
-	/// Overloaded to enable drag-dropping scans.
-	/*! The Drag is accepted when:
-	  - Drag Action = Qt::CopyAction
-	  - One of the MIME types is "text/uri-list"... format is "amd://databaseConnectionName/tableName/id"
-	  - There is at least one URL in the uri-list
-	  - The URL scheme is "amd://"
-	  - The database connection name returns a valid database, according to AMDatabase::dbByName(connectionName)
-	  - The table is the main Objects table
-	  - The id of the item can be found in the table
-	  */
-	void dropEvent(QDropEvent * event);
+    /// Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)
+    void dragEnterEvent(QDragEnterEvent *event);
 
-	/// This helper function refreshes the editor widgets with the values from a given scan
-	void updateEditor(AMScan* scan);
+    /// Overloaded to enable drag-dropping scans.
+    /*! The Drag is accepted when:
+      - Drag Action = Qt::CopyAction
+      - One of the MIME types is "text/uri-list"... format is "amd://databaseConnectionName/tableName/id"
+      - There is at least one URL in the uri-list
+      - The URL scheme is "amd://"
+      - The database connection name returns a valid database, according to AMDatabase::dbByName(connectionName)
+      - The table is the main Objects table
+      - The id of the item can be found in the table
+      */
+    void dropEvent(QDropEvent * event);
 
-	/// Helper function to ask if a scan should be aborted when trying to close it. Returns true if the scan should be aborted.
-	AMGenericScanEditor::ShouldStopAcquiringScanChoice shouldStopAcquiringScan(AMScan* scan);
-	/// Helper function to ask if a scan should be saved when trying to close it. Returns an integer corresponding to QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel.
-	int shouldSaveModifiedScan(AMScan* scan);
+    /// This helper function refreshes the editor widgets with the values from a given scan
+    void updateEditor(AMScan* scan);
+
+    /// Helper function to ask if a scan should be aborted when trying to close it. Returns true if the scan should be aborted.
+    AMGenericScanEditor::ShouldStopAcquiringScanChoice shouldStopAcquiringScan(AMScan* scan);
+    /// Helper function to ask if a scan should be saved when trying to close it. Returns an integer corresponding to QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel.
+    int shouldSaveModifiedScan(AMScan* scan);
 
 
 

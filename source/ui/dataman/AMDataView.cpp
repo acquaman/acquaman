@@ -373,7 +373,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No runs found.");
+					sections_ << new AMDataViewEmptyHeader("No runs found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for runs. The database might be corrupted."));
@@ -412,7 +412,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No experiments found.");
+					sections_ << new AMDataViewEmptyHeader("No experiments found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for experiments. The database might be corrupted."));
@@ -449,7 +449,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No data types found.");
+					sections_ << new AMDataViewEmptyHeader("No data types found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for scan types. The database might be corrupted."));
@@ -489,7 +489,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No samples found.");
+					sections_ << new AMDataViewEmptyHeader("No samples found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for samples. The database might be corrupted."));
@@ -529,7 +529,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No elements found.");
+					sections_ << new AMDataViewEmptyHeader("No elements found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for elements in samples. The database might be corrupted."));
@@ -608,7 +608,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No experiments found.");
+					sections_ << new AMDataViewEmptyHeader("No experiments found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for experiments. The database might be corrupted."));
@@ -646,7 +646,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No data types found.");
+					sections_ << new AMDataViewEmptyHeader("No data types found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for scan types. The database might be corrupted."));
@@ -687,7 +687,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No samples found.");
+					sections_ << new AMDataViewEmptyHeader("No samples found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for samples. The database might be corrupted."));
@@ -728,7 +728,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No elements found.");
+					sections_ << new AMDataViewEmptyHeader("No elements found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for elements in samples. The database might be corrupted."));
@@ -743,7 +743,7 @@ void AMDataView::refreshView() {
 
 
 
-
+	// Showing a specific experiment
 	if(!runOrExp_ && experimentId_ >= 0) {
 
 		// get experiment name:
@@ -789,8 +789,8 @@ void AMDataView::refreshView() {
 				QVector<QDateTime> runDateTimes;
 				while(findRuns.next()) {
 					runIds << findRuns.value(0).toInt();
-					runNames << findRuns.value(2).toString();
-					runDateTimes << findRuns.value(1).toDateTime();
+					runNames << findRuns.value(1).toString();
+					runDateTimes << findRuns.value(2).toDateTime();
 				}
 				findRuns.finish();	// to avoid long db locks, let's finish this query before doing all the section queries
 				for(int i=0, cc=runIds.count(); i<cc; i++) {
@@ -802,14 +802,14 @@ void AMDataView::refreshView() {
 					AMDataViewSection* section = new AMDataViewSection(
 								fullRunName,
 								QString("Showing all data from this run in the <i>%1</i> experiment").arg(expName),
-								QString("runId = '%1' AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2');").arg(runId).arg(experimentId_),
+								QString("runId = '%1' AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2')").arg(runId).arg(experimentId_),
 								viewMode_, db_, true, gwidget_, effectiveWidth(), itemSize_);
 					connect(gview_->verticalScrollBar(), SIGNAL(valueChanged(int)), section, SLOT(layoutHeaderItem()));
 
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No runs found.");
+					sections_ << new AMDataViewEmptyHeader("No runs found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for runs. The database might be corrupted."));
@@ -826,7 +826,7 @@ void AMDataView::refreshView() {
 			findTypes.setForwardOnly(true);
 			findTypes.prepare(QString("SELECT AMDbObjectTypes_table.AMDbObjectType, AMDbObjectTypes_table.description, AMScan_table.AMDbObjectType, AMScan_table.id, ObjectExperimentEntries.objectId, ObjectExperimentEntries.experimentId "
 									  "FROM AMDbObjectTypes_table, AMScan_table, ObjectExperimentEntries "
-									  "WHERE ObjectExperimentEntries.experimentId = ? AND ObjectExperimentEntries.objectId = AMScan_table.id AND AMDbObjectTypes_table.AMDbObjectType = AMScan_table.AMDbObjectType;"));
+									  "WHERE ObjectExperimentEntries.experimentId = ? AND ObjectExperimentEntries.objectId = AMScan_table.id AND AMDbObjectTypes_table.AMDbObjectType = AMScan_table.AMDbObjectType"));
 			findTypes.bindValue(0, experimentId_);
 			if(findTypes.exec()) {
 				QVector<QString> classNames;
@@ -850,7 +850,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No data types found.");
+					sections_ << new AMDataViewEmptyHeader("No data types found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for scan types. The database might be corrupted."));
@@ -865,7 +865,7 @@ void AMDataView::refreshView() {
 			bool found = false;
 			QSqlQuery findSamples = db_->query();
 			findSamples.setForwardOnly(true);
-			findSamples.prepare("SELECT id,dateTime,name FROM AMSample_table WHERE id IN (SELECT sampleId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?));");	/// \todo add thumbnail icon!
+			findSamples.prepare("SELECT id,dateTime,name FROM AMSample_table WHERE id IN (SELECT sampleId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?))");	/// \todo add thumbnail icon!
 			findSamples.bindValue(0, experimentId_);
 			if(findSamples.exec()) {
 				QVector<int> sampleIds;
@@ -892,7 +892,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No samples found.");
+					sections_ << new AMDataViewEmptyHeader("No samples found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for samples. The database might be corrupted."));
@@ -906,7 +906,7 @@ void AMDataView::refreshView() {
 			bool found = false;
 			QSqlQuery findElements = db_->query();
 			findElements.setForwardOnly(true);
-			findElements.prepare("SELECT id,symbol,name FROM Elements WHERE id IN (SELECT elementId FROM SampleElementEntries WHERE sampleId IN (SELECT sampleId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?)));");
+			findElements.prepare("SELECT id,symbol,name FROM Elements WHERE id IN (SELECT elementId FROM SampleElementEntries WHERE sampleId IN (SELECT sampleId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?)))");
 			findElements.bindValue(0, experimentId_);
 			if(findElements.exec()) {
 				QVector<int> elementIds;
@@ -933,7 +933,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No elements found.");
+					sections_ << new AMDataViewEmptyHeader("No elements found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for elements in samples. The database might be corrupted."));

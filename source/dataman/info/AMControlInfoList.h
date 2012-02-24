@@ -43,7 +43,7 @@ class AMControlInfo : public AMDbObject {
 
 
 public:
-	Q_INVOKABLE AMControlInfo(const QString& name = "Invalid Control Info", double value = 0.0, double minimum = 0.0, double maximum = 0.0, const QString& units = "n/a", double tolerance = 0.0, const QString &description = "", const QString &contextKnownDescription = "", QObject* parent = 0);
+	Q_INVOKABLE AMControlInfo(const QString& name = "Invalid Control", double value = 0.0, double minimum = 0.0, double maximum = 0.0, const QString& units = "n/a", double tolerance = 0.0, const QString &description = "", const QString &contextKnownDescription = "", QObject* parent = 0);
 
 	double value() const { return value_; }
 	double minimum() const { return minimum_; }

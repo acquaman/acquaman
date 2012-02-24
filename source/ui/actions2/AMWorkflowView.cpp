@@ -49,10 +49,6 @@ AMWorkflowView::AMWorkflowView(QWidget *parent) :
 	connect(addActionButton_, SIGNAL(clicked()), this, SLOT(onAddActionButtonClicked()));
 }
 
-AMWorkflowView::~AMWorkflowView() {
-	delete addActionDialog_;
-	addActionDialog_ = 0;
-}
 
 #include <QSpacerItem>
 void AMWorkflowView::onViewCollapsed()
@@ -75,7 +71,7 @@ void AMWorkflowView::onViewCollapsed()
 void AMWorkflowView::onAddActionButtonClicked()
 {
 	if(!addActionDialog_) {
-		addActionDialog_ = new AMAddActionDialog();
+		addActionDialog_ = new AMAddActionDialog(this);
 	}
 	addActionDialog_->show();
 }

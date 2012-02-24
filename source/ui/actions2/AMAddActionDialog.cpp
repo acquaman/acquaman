@@ -9,15 +9,16 @@
 #include "util/AMErrorMonitor.h"
 
 AMAddActionDialog::AMAddActionDialog(QWidget *parent) :
-    QWidget(parent),
+	QDialog(parent, Qt::Tool),
     ui(new Ui::AMAddActionDialog)
 {
     ui->setupUi(this);
 
+	connect(ui->actionsListWidget, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this, SLOT(onListWidgetCurrentIndexChanged(QListWidgetItem*,QListWidgetItem*)));
 	populateWithRegisteredActions();
 
-	connect(ui->actionsListWidget, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this, SLOT(onListWidgetCurrentIndexChanged(QListWidgetItem*,QListWidgetItem*)));
 	connect(ui->addToWorkflowButton, SIGNAL(clicked()), this, SLOT(onAddToWorkflowButtonClicked()));
+	connect(ui->actionsListWidget, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onAddToWorkflowButtonClicked()));
 }
 
 AMAddActionDialog::~AMAddActionDialog()
@@ -60,6 +61,9 @@ void AMAddActionDialog::populateWithRegisteredActions()
 		item->setData(AM::DescriptionRole, registration.longDescription);
 		item->setData(AM::NameRole, i.key());	// this holds the class name of the AMActionInfo, so we can pull it out of AMActionRegistry later.
 	}
+
+	if(ui->actionsListWidget->count())
+		ui->actionsListWidget->setCurrentRow(0);
 }
 
 void AMAddActionDialog::onAddToWorkflowButtonClicked()
