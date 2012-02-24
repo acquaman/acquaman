@@ -23,10 +23,11 @@ AMControlInfoListTableView::AMControlInfoListTableView(const AMControlInfoList* 
 void AMControlInfoListTableView::setFromInfoList(const AMControlInfoList* list)
 {
     table_->clear();
-    table_->setRowCount(list->count());
     table_->setColumnCount(3);
 
     if(list) {
+        table_->setRowCount(list->count());
+
         for(int i=0,cc=list->count(); i<cc; i++) {
             const AMControlInfo& info = list->at(i);
 
