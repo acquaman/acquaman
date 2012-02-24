@@ -500,10 +500,11 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/analysis/AM1DBasicIntegralABEditor.h \
 	source/ui/actions2/AMAddActionDialog.h \
 	source/util/AMJoystick.h \
-	source/ui/util/AMJoystickTestView.h
+	source/ui/util/AMJoystickTestView.h \
+	source/ui/dataman/AMControlInfoListTableView.h
 
 # OS-specific files:
-linux-g++ {
+linux-g++|linux-g++-32|linux-g++-64 {
 	 HEADERS += source/util/AMGenericLinuxJoystick.h
 }
 
@@ -827,10 +828,11 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/analysis/AM1DBasicIntegralABEditor.cpp \
 	source/ui/actions2/AMAddActionDialog.cpp \
 	source/util/AMJoystick.cpp \
-	source/ui/util/AMJoystickTestView.cpp
+	source/ui/util/AMJoystickTestView.cpp \
+	source/ui/dataman/AMControlInfoListTableView.cpp
 
 # OS-specific files
-linux-g++ {
+linux-g++|linux-g++-32|linux-g++-64 {
 	SOURCES += source/util/AMGenericLinuxJoystick.cpp
 }
 
