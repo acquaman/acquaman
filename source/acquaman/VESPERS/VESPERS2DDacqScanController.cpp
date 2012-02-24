@@ -447,6 +447,12 @@ bool VESPERS2DDacqScanController::setupSingleElementMap()
 	advAcq_->appendRecord("IOC1607-004:dxp1.FAST_PEAKS", true, false, 0);
 	advAcq_->appendRecord("IOC1607-004:dxp1.SLOW_PEAKS", true, false, 0);
 
+	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+
+	for (int i = 0; i < ionChambers->count(); i++)
+		if (ionChambers->detectorAt(i)->detectorName() != "Ipost")
+			advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
+
 	if (config_->usingCCD())
 		advAcq_->appendRecord("CCD1607-001:FileName", true, false, 0);
 
@@ -506,6 +512,12 @@ bool VESPERS2DDacqScanController::setupFourElementMap()
 	advAcq_->appendRecord("dxp1607-B21-04:mca2.DTIM", true, false, 1);
 	advAcq_->appendRecord("dxp1607-B21-04:mca3.DTIM", true, false, 1);
 	advAcq_->appendRecord("dxp1607-B21-04:mca4.DTIM", true, false, 1);
+
+	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+
+	for (int i = 0; i < ionChambers->count(); i++)
+		if (ionChambers->detectorAt(i)->detectorName() != "Ipost")
+			advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
 	if (config_->usingCCD())
 		advAcq_->appendRecord("CCD1607-001:FileName", true, false, 0);
