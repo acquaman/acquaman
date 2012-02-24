@@ -160,7 +160,7 @@ void VESPERS2DDacqScanController::addExtraDatasources()
 	}
 
 	// Adding in the extra ion chambers but not Ipost.
-    AMMeasurementInfo temp("", "");
+	AMMeasurementInfo temp("", "");
 	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
 	for (int i = 0; i < ionChambers->count(); i++){
@@ -184,7 +184,7 @@ void VESPERS2DDacqScanController::addExtraDatasources()
 	// Add the spectra.
 	if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement){
 
-        temp = AMMeasurementInfo(VESPERSBeamline::vespers()->vortexXRF1E()->toXRFInfo());
+		temp = AMMeasurementInfo(VESPERSBeamline::vespers()->vortexXRF1E()->toXRFInfo());
 		temp.name = "spectra";
 		scan_->rawData()->addMeasurement(temp);
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
@@ -192,12 +192,12 @@ void VESPERS2DDacqScanController::addExtraDatasources()
 
 	else if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::FourElement){
 
-        temp = AMMeasurementInfo(VESPERSBeamline::vespers()->vortexXRF4E()->toXRFInfo());
+		temp = AMMeasurementInfo(VESPERSBeamline::vespers()->vortexXRF4E()->toXRFInfo());
 		temp.name = "corrSum";
 		scan_->rawData()->addMeasurement(temp);
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 
-        for (int i = 0; i < VESPERSBeamline::vespers()->vortexXRF4E()->elements(); i++){
+		for (int i = 0; i < VESPERSBeamline::vespers()->vortexXRF4E()->elements(); i++){
 
 			temp.name = QString("raw%1").arg(i+1);
 			scan_->rawData()->addMeasurement(temp);
@@ -446,13 +446,13 @@ bool VESPERS2DDacqScanController::setupSingleElementMap()
 	advAcq_->appendRecord("IOC1607-004:mca1.ELTM", true, false, 0);
 	advAcq_->appendRecord("IOC1607-004:dxp1.FAST_PEAKS", true, false, 0);
 	advAcq_->appendRecord("IOC1607-004:dxp1.SLOW_PEAKS", true, false, 0);
-#error Put in the name of the CCD file name and also check the config files for whether or not they include the dwell time with every point.
-    if (config_->usingCCD())
-        advAcq_->appendRecord("--CCD File name PV---", true, false, 0);
 
-    advAcq_->appendRecord("IOC1607-004:mca1", true, true, 1);
+	if (config_->usingCCD())
+		advAcq_->appendRecord("CCD1607-001:FileName", true, false, 0);
 
-    return true;
+	advAcq_->appendRecord("IOC1607-004:mca1", true, true, 1);
+
+	return true;
 }
 
 bool VESPERS2DDacqScanController::setupFourElementMap()
@@ -476,45 +476,45 @@ bool VESPERS2DDacqScanController::setupFourElementMap()
 	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
 	while (advAcq_->deleteRecord(2)){}
 
-    advAcq_->appendRecord(xAxisPVName()+":fbk", true, false, 0);
-    advAcq_->appendRecord(yAxisPVName()+":fbk", true, false, 0);
+	advAcq_->appendRecord(xAxisPVName()+":fbk", true, false, 0);
+	advAcq_->appendRecord(yAxisPVName()+":fbk", true, false, 0);
 
-    XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF4E();
-    int roiCount = detector->roiInfoList()->count();
+	XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF4E();
+	int roiCount = detector->roiInfoList()->count();
 
-    for (int i = 0; i < roiCount; i++)
-        advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R"+QString::number(i), true, false, 0);
+	for (int i = 0; i < roiCount; i++)
+		advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R"+QString::number(i), true, false, 0);
 
-    advAcq_->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
-    advAcq_->appendRecord("dxp1607-B21-04:mca1.ERTM", true, false, 0);
-    advAcq_->appendRecord("dxp1607-B21-04:mca2.ERTM", true, false, 0);
-    advAcq_->appendRecord("dxp1607-B21-04:mca3.ERTM", true, false, 0);
-    advAcq_->appendRecord("dxp1607-B21-04:mca4.ERTM", true, false, 0);
-    advAcq_->appendRecord("dxp1607-B21-04:mca1.ELTM", true, false, 0);
-    advAcq_->appendRecord("dxp1607-B21-04:mca2.ELTM", true, false, 0);
-    advAcq_->appendRecord("dxp1607-B21-04:mca3.ELTM", true, false, 0);
-    advAcq_->appendRecord("dxp1607-B21-04:mca4.ELTM", true, false, 0);
-    advAcq_->appendRecord("dxp1607-B21-04:dxp1.FAST_PEAKS", true, false, 1);
-    advAcq_->appendRecord("dxp1607-B21-04:dxp2.FAST_PEAKS", true, false, 1);
-    advAcq_->appendRecord("dxp1607-B21-04:dxp3.FAST_PEAKS", true, false, 1);
-    advAcq_->appendRecord("dxp1607-B21-04:dxp4.FAST_PEAKS", true, false, 1);
-    advAcq_->appendRecord("dxp1607-B21-04:dxp1.SLOW_PEAKS", true, false, 1);
-    advAcq_->appendRecord("dxp1607-B21-04:dxp2.SLOW_PEAKS", true, false, 1);
-    advAcq_->appendRecord("dxp1607-B21-04:dxp3.SLOW_PEAKS", true, false, 1);
-    advAcq_->appendRecord("dxp1607-B21-04:dxp4.SLOW_PEAKS", true, false, 1);
-    advAcq_->appendRecord("dxp1607-B21-04:mca1.DTIM", true, false, 1);
-    advAcq_->appendRecord("dxp1607-B21-04:mca2.DTIM", true, false, 1);
-    advAcq_->appendRecord("dxp1607-B21-04:mca3.DTIM", true, false, 1);
-    advAcq_->appendRecord("dxp1607-B21-04:mca4.DTIM", true, false, 1);
+	advAcq_->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca1.ERTM", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca2.ERTM", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca3.ERTM", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca4.ERTM", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca1.ELTM", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca2.ELTM", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca3.ELTM", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca4.ELTM", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp1.FAST_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp2.FAST_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp3.FAST_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp4.FAST_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp1.SLOW_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp2.SLOW_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp3.SLOW_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp4.SLOW_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mca1.DTIM", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mca2.DTIM", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mca3.DTIM", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mca4.DTIM", true, false, 1);
 
-    if (config_->usingCCD())
-        advAcq_->appendRecord("---CCD File name---", true, false, 0);
+	if (config_->usingCCD())
+		advAcq_->appendRecord("CCD1607-001:FileName", true, false, 0);
 
-    advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected", true, true, 0);
-    advAcq_->appendRecord("dxp1607-B21-04:mca1", true, true, 0);
-    advAcq_->appendRecord("dxp1607-B21-04:mca2", true, true, 0);
-    advAcq_->appendRecord("dxp1607-B21-04:mca3", true, true, 0);
-    advAcq_->appendRecord("dxp1607-B21-04:mca4", true, true, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected", true, true, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca1", true, true, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca2", true, true, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca3", true, true, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca4", true, true, 0);
 
-    return true;
+	return true;
 }
