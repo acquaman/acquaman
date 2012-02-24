@@ -469,38 +469,45 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/qjson/serializerrunnable.h \
 	source/qjson/stack.hh \
 	source/util/AMGithubManager.h \
-    source/ui/util/AMGithubIssueSubmissionView.h \
-    source/actions2/AMAction.h \
-    source/actions2/AMListAction.h \
+	source/ui/util/AMGithubIssueSubmissionView.h \
+	source/actions2/AMAction.h \
+	source/actions2/AMListAction.h \
 	source/actions2/AMActionInfo.h \
-    source/actions2/AMActionRunner.h \
-    source/ui/actions2/AMActionRunnerQueueView.h \
-    source/ui/actions2/AMActionRunnerCurrentView.h \
-    source/ui/actions2/AMWorkflowView.h \
+	source/actions2/AMActionRunner.h \
+	source/ui/actions2/AMActionRunnerQueueView.h \
+	source/ui/actions2/AMActionRunnerCurrentView.h \
+	source/ui/actions2/AMWorkflowView.h \
 	source/actions2/actions/AMWaitAction.h \
 	source/actions2/actions/AMWaitActionInfo.h \
-    source/actions2/actions/AMScanControllerAction.h \
-    source/actions2/actions/AMScanControllerActionInfo.h \
-    source/actions2/AMActionLog.h \
-    source/ui/actions2/AMActionHistoryView.h \
-    source/actions2/AMActionRegistry.h \
-    source/actions2/actions/AMControlMoveActionInfo.h \
-    source/actions2/actions/AMControlMoveAction.h \
-    source/actions2/actions/AMInternalControlMoveAction.h \
-    source/actions2/AMNestedAction.h \
-    source/actions2/AMLoopAction.h \
+	source/actions2/actions/AMScanControllerAction.h \
+	source/actions2/actions/AMScanControllerActionInfo.h \
+	source/actions2/AMActionLog.h \
+	source/ui/actions2/AMActionHistoryView.h \
+	source/actions2/AMActionRegistry.h \
+	source/actions2/actions/AMControlMoveActionInfo.h \
+	source/actions2/actions/AMControlMoveAction.h \
+	source/actions2/actions/AMInternalControlMoveAction.h \
+	source/actions2/AMNestedAction.h \
+	source/actions2/AMLoopAction.h \
 	source/actions2/AMLoopActionInfo.h \
 	source/actions2/editors/AMWaitActionEditor.h \
 	source/actions2/editors/AMLoopActionEditor.h \
-    source/ui/acquaman/AMScanConfigurationViewHolder2.h \
-    source/ui/actions2/AMActionRunnerAddActionBar.h \
-    source/dataman/export/AMExporterAthena.h \
-    source/analysis/AM1DBasicDerivativeABEditor.h \
-    source/analysis/AM1DIntegralAB.h \
-    source/analysis/AM1DBasicIntegralABEditor.h \
-    source/ui/actions2/AMAddActionDialog.h
+	source/ui/acquaman/AMScanConfigurationViewHolder2.h \
+	source/ui/actions2/AMActionRunnerAddActionBar.h \
+	source/dataman/export/AMExporterAthena.h \
+	source/analysis/AM1DBasicDerivativeABEditor.h \
+	source/analysis/AM1DIntegralAB.h \
+	source/analysis/AM1DBasicIntegralABEditor.h \
+	source/ui/actions2/AMAddActionDialog.h \
+	source/util/AMJoystick.h \
+	source/ui/util/AMJoystickTestView.h
 
+# OS-specific files:
+linux-g++ {
+	 HEADERS += source/util/AMGenericLinuxJoystick.h
+}
 
+# Only when the Mobility Video framework is available:
 CONFIG(mobility) {
 DEFINES += AM_MOBILITY_VIDEO_ENABLED
 
@@ -526,7 +533,8 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/dataman/AMChooseScanDialog.ui \
 	source/ui/AMLinePropertyEditor.ui \
 	source/ui/dataman/AMImagePropertyEditor.ui \
-    source/ui/actions2/AMAddActionDialog.ui
+	source/ui/actions2/AMAddActionDialog.ui \
+	source/ui/util/AMJoystickTestView.ui
 SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAbstractTool.cpp \
 	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxis.cpp \
@@ -788,36 +796,43 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/qjson/serializer.cpp \
 	source/qjson/serializerrunnable.cpp \
 	source/util/AMGithubManager.cpp \
-    source/ui/util/AMGithubIssueSubmissionView.cpp \
-    source/actions2/AMAction.cpp \
-    source/actions2/AMListAction.cpp \
-    source/actions2/AMActionInfo.cpp \
-    source/actions2/AMActionRunner.cpp \
-    source/ui/actions2/AMActionRunnerQueueView.cpp \
-    source/ui/actions2/AMActionRunnerCurrentView.cpp \
-    source/ui/actions2/AMWorkflowView.cpp \
+	source/ui/util/AMGithubIssueSubmissionView.cpp \
+	source/actions2/AMAction.cpp \
+	source/actions2/AMListAction.cpp \
+	source/actions2/AMActionInfo.cpp \
+	source/actions2/AMActionRunner.cpp \
+	source/ui/actions2/AMActionRunnerQueueView.cpp \
+	source/ui/actions2/AMActionRunnerCurrentView.cpp \
+	source/ui/actions2/AMWorkflowView.cpp \
 	source/actions2/actions/AMWaitAction.cpp \
 	source/actions2/actions/AMWaitActionInfo.cpp \
-    source/actions2/actions/AMScanControllerAction.cpp \
-    source/actions2/actions/AMScanControllerActionInfo.cpp \
-    source/actions2/AMActionLog.cpp \
-    source/ui/actions2/AMActionHistoryView.cpp \
-    source/actions2/AMActionRegistry.cpp \
-    source/actions2/actions/AMControlMoveActionInfo.cpp \
-    source/actions2/actions/AMControlMoveAction.cpp \
-    source/actions2/actions/AMInternalControlMoveAction.cpp \
-    source/actions2/AMNestedAction.cpp \
-    source/actions2/AMLoopAction.cpp \
+	source/actions2/actions/AMScanControllerAction.cpp \
+	source/actions2/actions/AMScanControllerActionInfo.cpp \
+	source/actions2/AMActionLog.cpp \
+	source/ui/actions2/AMActionHistoryView.cpp \
+	source/actions2/AMActionRegistry.cpp \
+	source/actions2/actions/AMControlMoveActionInfo.cpp \
+	source/actions2/actions/AMControlMoveAction.cpp \
+	source/actions2/actions/AMInternalControlMoveAction.cpp \
+	source/actions2/AMNestedAction.cpp \
+	source/actions2/AMLoopAction.cpp \
 	source/actions2/AMLoopActionInfo.cpp \
 	source/actions2/editors/AMWaitActionEditor.cpp \
 	source/actions2/editors/AMLoopActionEditor.cpp \
-    source/ui/acquaman/AMScanConfigurationViewHolder2.cpp \
-    source/ui/actions2/AMActionRunnerAddActionBar.cpp \
-    source/dataman/export/AMExporterAthena.cpp \
-    source/analysis/AM1DBasicDerivativeABEditor.cpp \
-    source/analysis/AM1DIntegralAB.cpp \
-    source/analysis/AM1DBasicIntegralABEditor.cpp \
-    source/ui/actions2/AMAddActionDialog.cpp
+	source/ui/acquaman/AMScanConfigurationViewHolder2.cpp \
+	source/ui/actions2/AMActionRunnerAddActionBar.cpp \
+	source/dataman/export/AMExporterAthena.cpp \
+	source/analysis/AM1DBasicDerivativeABEditor.cpp \
+	source/analysis/AM1DIntegralAB.cpp \
+	source/analysis/AM1DBasicIntegralABEditor.cpp \
+	source/ui/actions2/AMAddActionDialog.cpp \
+	source/util/AMJoystick.cpp \
+	source/ui/util/AMJoystickTestView.cpp
+
+# OS-specific files
+linux-g++ {
+	SOURCES += source/util/AMGenericLinuxJoystick.cpp
+}
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
