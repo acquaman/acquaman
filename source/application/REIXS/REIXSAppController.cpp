@@ -108,9 +108,9 @@ bool REIXSAppController::startup() {
 
         // Testing Joystick:
 #ifdef Q_OS_LINUX
-        AMJoystick* joystick = new AMGenericLinuxJoystick("/dev/input/js0", this);
-        AMJoystickTestView* testView = new AMJoystickTestView(joystick);
-        testView->show();
+        // AMJoystick* joystick = new AMGenericLinuxJoystick("/dev/input/js0", this);
+        // AMJoystickTestView* testView = new AMJoystickTestView(joystick);
+        // testView->show();
 #endif
 
         // Testing Actions2: register AMWaitAction
