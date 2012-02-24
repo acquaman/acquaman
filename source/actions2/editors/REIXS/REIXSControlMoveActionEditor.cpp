@@ -27,6 +27,7 @@ REIXSControlMoveActionEditor::REIXSControlMoveActionEditor(REIXSControlMoveActio
 	unitsLabel_ = new QLabel("");
 	hl->addWidget(unitsLabel_);
 	relativeCheckBox_ = new QCheckBox("Relative Move");
+    relativeCheckBox_->setChecked(info_->isRelativeMove());
 	hl->addWidget(relativeCheckBox_);
 	hl->addStretch(0);
 	////////////////////
