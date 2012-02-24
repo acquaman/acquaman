@@ -108,16 +108,27 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 REIXSHexapod::REIXSHexapod(QObject* parent)
 	: AMCompositeControl("hexapod", "n/a", parent) {
 
+	setDescription("XES Hexapod");
+
 	QString baseName = "HXPD1610-4-I21-01:";
 	x_ = new AMPVwStatusControl("hexapodX", baseName+"X:sp", baseName+"X", baseName+"moving", QString(), this, 0.01);
+	x_->setDescription("Hexapod X");
 	y_ = new AMPVwStatusControl("hexapodY", baseName+"Y:sp", baseName+"Y", baseName+"moving", QString(), this, 0.01);
+	y_->setDescription("Hexapod Y");
 	z_ = new AMPVwStatusControl("hexapodZ", baseName+"Z:sp", baseName+"Z", baseName+"moving", QString(), this, 0.01);
+	z_->setDescription("Hexapod Z");
 	u_ = new AMPVwStatusControl("hexapodU", baseName+"U:sp", baseName+"U", baseName+"moving", QString(), this, 0.05);
+	u_->setDescription("Hexapod U");
 	v_ = new AMPVwStatusControl("hexapodV", baseName+"V:sp", baseName+"V", baseName+"moving", QString(), this, 0.05);
+	v_->setDescription("Hexapod V");
 	w_ = new AMPVwStatusControl("hexapodW", baseName+"W:sp", baseName+"W", baseName+"moving", QString(), this, 0.05);
+	w_->setDescription("Hexapod W");
 	r_ = new AMPVControl("hexapodR", baseName+"R:sp", baseName+"R", QString(), this, 0.001);
+	r_->setDescription("Hexapod R");
 	s_ = new AMPVControl("hexapodS", baseName+"S:sp", baseName+"S", QString(), this, 0.001);
+	s_->setDescription("Hexapod S");
 	t_ = new AMPVControl("hexapodT", baseName+"T:sp", baseName+"T", QString(), this, 0.001);
+	t_->setDescription("Hexapod T");
 
 	addChildControl(x_);
 	addChildControl(y_);
@@ -134,11 +145,14 @@ REIXSHexapod::REIXSHexapod(QObject* parent)
 REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 	: AMCompositeControl("spectrometer", "eV", parent) {
 
+	setDescription("XES Detector Energy");
 	spectrometerRotationDrive_ = new AMPVwStatusControl("spectrometerRotationDrive",
 														"SMTR1610-4-I21-01:mm:sp",
 														"SMTR1610-4-I21-01:mm",
 														"SMTR1610-4-I21-01:status",
 														"SMTR1610-4-I21-01:stop", this, 1);
+
+	spectrometerRotationDrive_->setDescription("XES Lift Stage");
 
 	detectorTranslation_ = new AMPVwStatusControl("detectorTranslation",
 												  "SMTR1610-4-I21-04:mm:sp",
@@ -146,11 +160,13 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 												  "SMTR1610-4-I21-04:status",
 												  "SMTR1610-4-I21-04:stop", this, 1);
 
+	detectorTranslation_->setDescription("XES Detector Translation");
 	detectorTiltDrive_ = new AMPVwStatusControl("detectorTiltDrive",
 												"SMTR1610-4-I21-02:mm:sp",
 												"SMTR1610-4-I21-02:mm",
 												"SMTR1610-4-I21-02:status",
 												"SMTR1610-4-I21-02:stop", this, 0.5);
+	detectorTiltDrive_->setDescription("XES Detector Tilt Stage");
 
 
 	hexapod_ = new REIXSHexapod(this);

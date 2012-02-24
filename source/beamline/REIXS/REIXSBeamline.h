@@ -114,7 +114,7 @@ public:
 	bool shouldMeasure() const { return true; }
 	bool shouldMove() const { return true; }
 	bool shouldStop() const { return true; }
-	// exception: the hexapod can't stop...Or can it?
+	// exception: the hexapod can't stop (Without wrecking its calibration and requiring a re-init.) But it can be told to go to new positions, even if the old move isn't done, so don't worry about stopping it.
 	bool canStop() const { return spectrometerRotationDrive_->canStop() && detectorTranslation_->canStop() && detectorTiltDrive_->canStop(); }
 
 
@@ -130,7 +130,6 @@ public:
 
 	/// Stop the spectrometer if it's currently moving
 	virtual bool stop();
-
 
 
 	AMControl* spectrometerRotationDrive() { return spectrometerRotationDrive_; }
@@ -161,20 +160,20 @@ protected:
 
 	double specifiedEV_;
 
-
-	// for move state machine:
-//	enum MoveStep { Starting, MovingZto0, MovingUto0, MovingRST, MovingU, MovingXYZ, MovingLiftTiltTranslation, MoveDone };
-//	MoveStep currentMoveStep_;
-
 	/// It takes lots of steps to move the detector into position. This is the action we use to run a detector move. Valid if a move is in progress, and 0 otherwise.
 	AMListAction* moveAction_;
 
+	/// Holds the values for all the motors we need to move, to reach an energy position.
+	AMControlInfoList moveSetpoint_;
+
+	/// We don't want to calculate and emit valueChanged() as often as we get motor move updates... because these ones can update real fast. This is used to slow it down, and only emit valueChanged() about once every 200ms.
+	AMDeferredFunctionCall reviewValueChangedFunction_;
 
 signals:
 	/// Emitted when the calibration object is changed (This might mean that the # of gratings or grating names might be different). Check with spectrometerCalibration().
 	void calibrationChanged();
 
-	/// Emitted when the current grating() changes.  This doesn't necessarily mean that the new grating is in position, but we will have atarted moving it into position.  The specifiedGrating() turns into the current grating() when a move() is issued.
+	/// Emitted when the current grating() changes.  This doesn't necessarily mean that the new grating is in position, but we will have started moving it into position.  The specifiedGrating() turns into the current grating() when a move() is issued.
 	void gratingChanged(int);
 
 	/// \todo: gratingInPositionChanged() for any hexapod moves...
@@ -190,54 +189,6 @@ protected slots:
 
 	/// Called when the moveAction_ changes state. Handle success, failure, or cancellation.
 	void onMoveActionStateChanged(int newState, int previousState);
-
-//	// for move state machine
-//	void smStartMoveZto0();
-//	void smMoveZto0Succeeded();
-//	void smMoveZto0Failed(int reason);
-
-//	void smStartMoveUto0();
-//	void smMoveUto0Succeeded();
-//	void smMoveUto0Failed(int reason);
-
-//	void smStartMoveRST();
-//	void smRMoveSucceeded();
-//	void smSMoveSucceeded();
-//	void smTMoveSucceeded();
-//	void smRMoveFailed(int reason);
-//	void smSMoveFailed(int reason);
-//	void smTMoveFailed(int reason);
-
-//	void smStartMoveU();
-//	void smMoveUSucceeded();
-//	void smMoveUFailed(int reason);
-
-//	void smStartMoveXYZ();
-//	void smXMoveSucceeded();
-//	void smYMoveSucceeded();
-//	void smZMoveSucceeded();
-//	void smXMoveFailed(int reason);
-//	void smYMoveFailed(int reason);
-//	void smZMoveFailed(int reason);
-
-//	void smStartMoveLiftTiltTranslation();
-//	void smLiftMoveSucceeded();
-//	void smTiltMoveSucceeded();
-//	void smTranslationMoveSucceeded();
-//	void smLiftMoveFailed(int reason);
-//	void smTiltMoveFailed(int reason);
-//	void smTranslationMoveFailed(int reason);
-
-protected:
-//	bool smRMoveDone_, smSMoveDone_, smTMoveDone_;
-//	bool smXMoveDone_, smYMoveDone_, smZMoveDone_;
-//	bool smLiftMoveDone_, smTiltMoveDone_, smTranslationMoveDone_;
-
-	AMControlInfoList moveSetpoint_;
-
-	/// We don't want to calculate and emit valueChanged() as often as we get motor move updates... because these ones can update real fast. This is used to slow it down, and only emit valueChanged() about once every 200ms.
-	AMDeferredFunctionCall reviewValueChangedFunction_;
-
 };
 
 /// The REIXSSampleChamber control is a container for the motor controls that make up the sample manipulator and load lock.
