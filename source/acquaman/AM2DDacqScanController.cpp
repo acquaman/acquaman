@@ -70,11 +70,13 @@ bool AM2DDacqScanController::startImplementation()
 
 		((AMAcqScanSpectrumOutput*)abop)->setScan(scan_);
 		((AMAcqScanSpectrumOutput*)abop)->setScanController(this);
-		advAcq_->Start();
-		return true;
+
+		return false;
+		//		advAcq_->Start();
+//		return true;
 	}
 	else{
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AM2DDACQSCANCONTROLLER_CANT_CREATE_OUTPUTHANDLER, "AM2DDacqScanController: could not create output handler."));
+		AMErrorMon::alert(0, AM2DDACQSCANCONTROLLER_CANT_CREATE_OUTPUTHANDLER, "AM2DDacqScanController: could not create output handler.");
 		return false;
 	}
 }
@@ -183,7 +185,7 @@ bool AM2DDacqScanController::setScanAxesControl()
 	// Stage 1:  Save the current state of the config file.
 	QString filename = filename_;
 	filename = filename.left(filename.lastIndexOf("/"));
-	filename.append("interim.cfg");
+	filename.append("/interim.cfg");
 	advAcq_->saveConfigFile(filename);
 
 	// Stage 2:  Setup the slow axis and fast axis strings.
@@ -268,7 +270,7 @@ bool AM2DDacqScanController::setScanAxesControl()
 	QTextStream out(&outputFile);
 
 	for (int i = 0; i < completeFile.size(); i++)
-		out << completeFile.at(i);
+		out << completeFile.at(i) << "\n";
 
 	outputFile.close();
 	completeFile.clear();

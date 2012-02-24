@@ -295,7 +295,9 @@ void VESPERSAppController::onCurrentScanControllerCreated()
 		return;
 
 	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
-	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));
+
+	if (fileFormat == "vespersXAS" || fileFormat == "vespers2011XAS" || fileFormat == "vespers2011EXAFS")
+		connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));
 }
 
 void VESPERSAppController::onCurrentScanControllerFinished()

@@ -20,7 +20,7 @@ void VESPERSWorkflowAssistant::listen()
 	if (!scanAction)
 		return;
 
-	VESPERSEXAFSScanConfiguration * config = qobject_cast<VESPERSEXAFSScanConfiguration *>(scanAction->cfg());
+	VESPERSEXAFSScanConfiguration *config = qobject_cast<VESPERSEXAFSScanConfiguration *>(scanAction->cfg());
 
 	if (!config)
 		return;
@@ -61,7 +61,7 @@ void VESPERSWorkflowAssistant::setTotalScans(int num)
 
 void VESPERSWorkflowAssistant::onWorkflowRunningChanged(bool running)
 {
-	if (running)
+	if (running && config_)
 		addExtraScanActions(config_->numberOfScans()-1);
 
 	emit workflowRunningChanged(running);
