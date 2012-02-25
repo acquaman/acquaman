@@ -98,6 +98,8 @@ protected slots:
 
 	/// Called to bring up the setpoint editor dialog.
 	void onEditStart();
+	/// Called when the setpoint editor dialog is accepted with a new \c value. The default implementation simply calls move() on the control.  You can re-implement this in a subclass if you want to have different behaviour (for ex: using an AMAction to do the move, etc.)
+	virtual void onNewSetpointChosen(double value);
 
 protected:
 	AMControl *control_;

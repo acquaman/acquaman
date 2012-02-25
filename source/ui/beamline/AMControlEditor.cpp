@@ -61,7 +61,7 @@ AMBasicControlEditor::AMBasicControlEditor(AMControl* control, QWidget *parent) 
 	dialog_ = new AMBasicControlEditorStyledInputDialog(this);
 	dialog_->hide();
 	dialog_->setWindowModality(Qt::NonModal);
-	connect(dialog_, SIGNAL(doubleValueSelected(double)), control_, SLOT(move(double)));
+	connect(dialog_, SIGNAL(doubleValueSelected(double)), this, SLOT(onNewSetpointChosen(double)));
 
 	// Make connections:
 	if(control_) {
@@ -105,7 +105,7 @@ void AMBasicControlEditor::onMotion(bool moving) {
 
 void AMBasicControlEditor::onEditStart() {
 
-	if(!control_->canMove()) {
+	if(!control_ || !control_->canMove()) {
 		QApplication::beep();
 		return;
 	}
@@ -189,6 +189,18 @@ void AMBasicControlEditorStyledInputDialog::setSuffix(const QString& s) { spinBo
 
 void AMBasicControlEditorStyledInputDialog::showEvent ( QShowEvent * event ) { QDialog::showEvent(event); spinBox_->setFocus(); }
 
+
+void AMBasicControlEditor::onNewSetpointChosen(double value)
+{
+	if(control_)
+		control_->move(value);
+}
+
+
+
+
+// AMControlEditor
+////////////////////////////
 
 AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl, bool readOnly, bool configureOnly, QWidget *parent) :
 	QGroupBox(parent)
@@ -653,3 +665,4 @@ void AMControlButton::onToggled(bool toggled){
 void AMControlButton::setHappy(bool happy) {
 	Q_UNUSED(happy)
 }
+
