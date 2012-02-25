@@ -845,6 +845,20 @@ bool AMActionRunnerQueueModel::removeRows(int row, int count, const QModelIndex 
 	return false;
 }
 
+bool AMActionRunner::runActionImmediatelyInQueue(AMAction *action)
+{
+	if(actionRunning())
+		return false;
+	if(!action)
+		return false;
+
+	bool queueWasPaused = queuePaused();
+	insertActionInQueue(action, 0);
+	setQueuePaused(false);	// this will start up the first action, but only that one.
+	setQueuePaused(queueWasPaused);
+	return true;
+}
+
 
 
 //void AMActionQueueModel::traverse1(const QModelIndex &parent, QString &outstring, int level)

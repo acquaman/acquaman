@@ -89,10 +89,7 @@ void AMActionRunnerAddActionBar::onStartActionRequested(){
 
 	if(result == 0) {
 		// no other actions in queue... Just run now.
-		bool queuePaused = AMActionRunner::s()->queuePaused();
-		AMActionRunner::s()->insertActionInQueue(action, 0);
-		AMActionRunner::s()->setQueuePaused(false);	// this will start it running.
-		AMActionRunner::s()->setQueuePaused(queuePaused);	// leave the queue state how we found it.
+		AMActionRunner::s()->runActionImmediatelyInQueue(action);
 	}
 
 	else if(result == addToEnd) {
@@ -107,10 +104,8 @@ void AMActionRunnerAddActionBar::onStartActionRequested(){
 		AMActionRunner::s()->setQueuePaused(false);
 	}
 	else if(result == runOnlyThisOne) {
-		// there are other actions, but we only want to run this one. Insert it at the front of the queue, un-pause the queue to start it up, and then pause it again.
-		AMActionRunner::s()->insertActionInQueue(action, 0);
-		AMActionRunner::s()->setQueuePaused(false);
-		AMActionRunner::s()->setQueuePaused(true);
+		// there are other actions, but we only want to run this one.
+		AMActionRunner::s()->runActionImmediatelyInQueue(action);
 	}
 }
 

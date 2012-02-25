@@ -46,10 +46,13 @@ public:
 	/// Move an action up or down the queue. \c currentIndex is the action to move, and \c finalIndex is the index you want it to end up in when everything is done.  (\c finalIndex can be 0 for the beginning, or -1 to go to the end.) Returns false if \c currentIndex is out of range, or if \c currentIndex == \c finalIndex.
 	bool moveActionInQueue(int currentIndex, int finalIndex);
 
-
+	/// Assuming no actions are running (ie: actionRunning() returns false), sometimes it's desireable to run an action immediately without affecting other actions that might already be in the queue. This function will run a single action immediately by adding it to the front of the queue, starting it, and then restoring the queuePaused() state. Obviously, this is not possible if there is already an action running; in that case, it will simply return false.
+	/*! If instead you want to run an action immediately "in the background" regardless of whether actions are running in the queue, use the immediate mode interface with runActionImmediately() */
+	bool runActionImmediatelyInQueue(AMAction* action);
 
 	/// Whether the queue is paused or running. If the queue is running, it will advance automatically to the next action whenever there are actions in the queue.  \see setQueuePaused().
 	bool queuePaused() const { return isPaused_; }
+
 
 	/// This QAbstractItemModel is a useful model for standard Qt views of the AMActionRunner's queue (like AMActionRunnerQueueView). It simply wraps ourself (AMActionRunner) in the interface required of Qt models.
 	AMActionRunnerQueueModel* queueModel() { return queueModel_; }
