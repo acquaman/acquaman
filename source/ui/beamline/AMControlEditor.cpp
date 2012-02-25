@@ -114,7 +114,7 @@ void AMBasicControlEditor::onEditStart() {
 	dialog_->setDoubleMinimum(control_->minimumValue());
 	dialog_->setDoubleValue(control_->value());
 	dialog_->setDoubleDecimals(3);	// todo: display precision?
-	dialog_->setLabelText(control_->objectName());
+	dialog_->setLabelText(control_->description().isEmpty() ? control_->name() : control_->description());
 	dialog_->setSuffix(control_->units());
 	dialog_->show();
 	dialog_->move( mapToGlobal(QPoint(width()/2,height()/2)) - QPoint(dialog_->width()/2, dialog_->height()/2) );
