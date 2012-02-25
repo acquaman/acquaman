@@ -52,13 +52,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/actions2/AMWorkflowView.h"
 #include "actions2/AMActionRunner.h"
 #include "actions2/AMActionRegistry.h"
+#include "actions2/AMLoopAction.h"
 #include "actions2/actions/AMWaitAction.h"
 #include "actions2/actions/REIXS/REIXSControlMoveAction.h"
 #include "actions2/actions/AMScanControllerAction.h"
 #include "actions2/actions/AMInternalControlMoveAction.h"
 #include "actions2/actions/REIXS/REIXSXESScanAction.h"
 #include "actions2/actions/REIXS/REIXSSampleMoveAction.h"
-#include "actions2/AMLoopAction.h"
+#include "actions2/actions/REIXS/REIXSMoveToSampleTransferPositionAction.h"
 #include "actions2/editors/AMWaitActionEditor.h"
 #include "actions2/editors/AMLoopActionEditor.h"
 #include "actions2/editors/REIXS/REIXSXESScanActionEditor.h"
@@ -119,10 +120,11 @@ bool REIXSAppController::startup() {
 
         /// \todo Move common ones to main app controller.
         AMActionRegistry::s()->registerInfoAndAction<AMWaitActionInfo, AMWaitAction>("Wait", "This action simply waits for a specified amount of time.", ":/user-away.png");
-        AMActionRegistry::s()->registerInfoAndAction<REIXSControlMoveActionInfo, REIXSControlMoveAction>("Control Move", "This action moves any REIXS beamline control to a target position.\n\nYou can specify an absolute or a relative move.", ":/system-run.png");
+		AMActionRegistry::s()->registerInfoAndAction<REIXSControlMoveActionInfo, REIXSControlMoveAction>("Move Control", "This action moves any REIXS beamline control to a target position.\n\nYou can specify an absolute or a relative move.", ":/system-run.png");
         AMActionRegistry::s()->registerInfoAndAction<REIXSXESScanActionInfo, REIXSXESScanAction>("XES Scan", "This action conducts a single XES scan at a given detector energy.", ":/utilities-system-monitor.png");
         AMActionRegistry::s()->registerInfoAndAction<AMLoopActionInfo, AMLoopAction>("Loop", "This action repeats a set of sub-actions a specific number of times.\n\nAfter adding it, you can drag-and-drop other actions inside it.", ":/32x32/media-playlist-repeat.png");
-        AMActionRegistry::s()->registerInfoAndAction<REIXSSampleMoveActionInfo, REIXSSampleMoveAction>("Sample Move", "This action moves the REIXS sample manipulator to a predefined position.", ":/32x32/gnome-display-properties.png");
+		AMActionRegistry::s()->registerInfoAndAction<REIXSSampleMoveActionInfo, REIXSSampleMoveAction>("Move Sample: Measure", "This action moves the REIXS sample manipulator to the default measurement position.", ":/32x32/gnome-display-properties.png");
+		AMActionRegistry::s()->registerInfoAndAction<REIXSMoveToSampleTransferPositionActionInfo, REIXSMoveToSampleTransferPositionAction>("Move Sample: Transfer", "This action moves the REIXS sample manipulator to the sample transfer position.", ":/32x32/media-eject.png");
 
         AMActionRegistry::s()->registerInfoAndEditor<AMWaitActionInfo, AMWaitActionEditor>();
         AMActionRegistry::s()->registerInfoAndEditor<AMLoopActionInfo, AMLoopActionEditor>();

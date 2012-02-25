@@ -32,7 +32,9 @@ HEADERS +=	source/application/REIXS/REIXSAppController.h \
     source/beamline/REIXS/REIXSSampleManipulator.h \
     source/ui/REIXS/REIXSSidebar.h \
     source/ui/REIXS/REIXSActionBasedControlEditor.h \
-    source/ui/REIXS/REIXSActionBasedEnumControlEditor.h
+    source/ui/REIXS/REIXSActionBasedEnumControlEditor.h \
+    source/actions2/actions/REIXS/REIXSMoveToSampleTransferPositionAction.h \
+    source/actions2/actions/REIXS/REIXSMoveToSampleTransferPositionActionInfo.h
 
 
 SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
@@ -59,7 +61,13 @@ SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
     source/beamline/REIXS/REIXSSampleManipulator.cpp \
     source/ui/REIXS/REIXSSidebar.cpp \
     source/ui/REIXS/REIXSActionBasedControlEditor.cpp \
-    source/ui/REIXS/REIXSActionBasedEnumControlEditor.cpp
+    source/ui/REIXS/REIXSActionBasedEnumControlEditor.cpp \
+    source/actions2/actions/REIXS/REIXSMoveToSampleTransferPositionAction.cpp \
+    source/actions2/actions/REIXS/REIXSMoveToSampleTransferPositionActionInfo.cpp
+
+
+
+
 
 
 
