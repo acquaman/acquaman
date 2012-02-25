@@ -228,6 +228,9 @@
         <property name="value">
          <number>24</number>
         </property>
+        <property name="format">
+         <string/>
+        </property>
        </widget>
       </item>
       <item row="0" column="2">
@@ -266,6 +269,9 @@
        <widget class="QProgressBar" name="signalTEYBar">
         <property name="value">
          <number>24</number>
+        </property>
+        <property name="format">
+         <string/>
         </property>
        </widget>
       </item>
@@ -306,6 +312,9 @@
         <property name="value">
          <number>24</number>
         </property>
+        <property name="format">
+         <string/>
+        </property>
        </widget>
       </item>
       <item row="2" column="2">
@@ -344,6 +353,9 @@
        <widget class="QProgressBar" name="signalXESBar">
         <property name="value">
          <number>24</number>
+        </property>
+        <property name="format">
+         <string/>
         </property>
        </widget>
       </item>

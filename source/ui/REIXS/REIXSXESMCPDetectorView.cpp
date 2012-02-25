@@ -98,6 +98,7 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 	countsPerSecondBar_->setOrientation(Qt::Vertical);
 	countsPerSecondBar_->setRange(0, 600);
 	countsPerSecondBar_->setValue(0);
+	countsPerSecondBar_->setFormat(QString());
 
 	adjustColorMapButton_ = new QToolButton();
 	adjustColorMapButton_->setText("Adjust colors...");
