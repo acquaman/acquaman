@@ -212,7 +212,7 @@ protected slots:
 };
 
 /// The REIXSSampleChamber control is a container for the motor controls that make up the sample manipulator and load lock.
-class REIXSSampleChamber : public AMControl {
+class REIXSSampleChamber : public AMCompositeControl {
 	Q_OBJECT
 public:
 	REIXSSampleChamber(QObject* parent = 0);
