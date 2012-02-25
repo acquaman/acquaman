@@ -7,8 +7,9 @@ namespace Ui {
     class REIXSSidebar;
 }
 
-class AMBasicControlEditor;
+class REIXSActionBasedControlEditor;
 
+/// This widget displays the real-time "at a glance" REIXS beamline controls / feedback monitors on the side of the application's main window.
 class REIXSSidebar : public QWidget
 {
     Q_OBJECT
@@ -21,7 +22,7 @@ private:
     Ui::REIXSSidebar *ui;
 
 	// Additional UI controls
-	AMBasicControlEditor* beamlineEnergyEditor_, *monoSlitEditor_;
+	REIXSActionBasedControlEditor* beamlineEnergyEditor_, *monoSlitEditor_;
 };
 
 #endif // REIXSSIDEBAR_H

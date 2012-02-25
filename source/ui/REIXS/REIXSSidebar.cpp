@@ -5,7 +5,7 @@
 
 #include "ui/REIXS/REIXSXESSpectrometerControlEditor.h"
 #include "beamline/REIXS/REIXSBeamline.h"
-#include "ui/beamline/AMControlEditor.h"
+#include "ui/REIXS/REIXSActionBasedControlEditor.h"
 
 REIXSSidebar::REIXSSidebar(QWidget *parent) :
     QWidget(parent),
@@ -14,10 +14,10 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 	ui->setupUi(this);
 	ui->verticalLayout->insertWidget(1, new REIXSXESSpectrometerControlEditor(REIXSBeamline::bl()->spectrometer()));
 
-	beamlineEnergyEditor_ = new AMBasicControlEditor(REIXSBeamline::bl()->photonSource()->energy());
+	beamlineEnergyEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->energy());
 	ui->beamlineFormLayout->setWidget(1, QFormLayout::FieldRole, beamlineEnergyEditor_);
 
-	monoSlitEditor_ = new AMBasicControlEditor(REIXSBeamline::bl()->photonSource()->monoSlit());
+	monoSlitEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoSlit());
 	ui->beamlineFormLayout->setWidget(4, QFormLayout::FieldRole, monoSlitEditor_);
 }
 
