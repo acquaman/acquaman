@@ -50,7 +50,6 @@ protected slots:
 	/// This watches when the state of the current action changes (as notified by AMActionRunner). For now, we notice when an AMScanControllerAction starts, and create an editor for its scan.
 	virtual void onCurrentActionStateChanged(int newState, int oldState);
 
-	// void tempAddLoopActions();
 
 protected:
 

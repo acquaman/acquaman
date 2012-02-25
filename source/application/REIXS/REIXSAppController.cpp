@@ -64,6 +64,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions2/editors/REIXS/REIXSXESScanActionEditor.h"
 #include "actions2/editors/REIXS/REIXSControlMoveActionEditor.h"
 
+#include "ui/REIXS/REIXSSidebar.h"
 
 #include <QMessageBox>
 
@@ -113,7 +114,9 @@ bool REIXSAppController::startup() {
         // testView->show();
 #endif
 
-        // Testing Actions2: register AMWaitAction
+		// Register Actions:
+		////////////////////////////////
+
         /// \todo Move common ones to main app controller.
         AMActionRegistry::s()->registerInfoAndAction<AMWaitActionInfo, AMWaitAction>("Wait", "This action simply waits for a specified amount of time.", ":/user-away.png");
         AMActionRegistry::s()->registerInfoAndAction<REIXSControlMoveActionInfo, REIXSControlMoveAction>("Control Move", "This action moves any REIXS beamline control to a target position.\n\nYou can specify an absolute or a relative move.", ":/system-run.png");
@@ -125,22 +128,6 @@ bool REIXSAppController::startup() {
         AMActionRegistry::s()->registerInfoAndEditor<AMLoopActionInfo, AMLoopActionEditor>();
         AMActionRegistry::s()->registerInfoAndEditor<REIXSXESScanActionInfo, REIXSXESScanActionEditor>();
         AMActionRegistry::s()->registerInfoAndEditor<REIXSControlMoveActionInfo, REIXSControlMoveActionEditor>();
-
-        // Leftover from testing:
-//		AMActionRunner::s()->addActionToQueue(new AMLoopAction(3));
-//		AMActionRunner::s()->addActionToQueue(new AMInternalControlMoveAction(REIXSBeamline::bl()->sampleChamber()->x(), 35));
-//		AMActionRunner::s()->addActionToQueue(new REIXSXESScanAction(new REIXSXESScanConfiguration()));
-//		AMActionRunner::s()->addActionToQueue(new AMWaitAction(10));
-//		AMActionRunner::s()->addActionToQueue(new AMWaitAction(20));
-//		AMActionRunner::s()->addActionToQueue(new REIXSXESScanAction(new REIXSXESScanConfiguration()));
-//		AMActionRunner::s()->addActionToQueue(new REIXSControlMoveAction(new REIXSControlMoveActionInfo(AMControlInfo("sampleX", 5, 0, 0, "mm", 0.1, "Sample X"))));
-//		AMActionRunner::s()->addActionToQueue(new AMWaitAction(20));
-//		AMActionRunner::s()->addActionToQueue(new REIXSControlMoveAction(new REIXSControlMoveActionInfo(AMControlInfo("sampleX", 5, 0, 0, "mm", 0.1, "Sample X"))));
-//		AMActionRunner::s()->addActionToQueue(new AMWaitAction(20));
-//		AMActionRunner::s()->addActionToQueue(new REIXSXESScanAction(new REIXSXESScanConfiguration()));
-
-//		// test adding sub-actions to loop action later
-//		QTimer::singleShot(10000, this, SLOT(tempAddLoopActions()));
 
 
         // Create panes in the main window:
@@ -167,8 +154,6 @@ bool REIXSAppController::startup() {
                                                                                       new REIXSSampleManipulator(),
                                                                                       0);
 
-        // sampleManagementPane->cameraWidget()->addSource("Just for testing", QUrl("/Users/mboots/Pictures/iPhoto Library/Masters/2011/09/14/20110914-110302/SANY0026.MP4"));
-        // other video sources: "http://v2e1607-001.cs.clsi.ca/mjpg/1/video.mjpg" "/Users/mboots/Pictures/iPhoto Library/Masters/2011/09/14/20110914-110302/SANY0026.MP4"
         mw_->addPane(sampleManagementPane, "Experiment Setup", "Sample Positions", ":/22x22/gnome-display-properties.png");
 
         ////////////////// Testing junk; move somewhere clean ////////////////////
@@ -197,11 +182,22 @@ bool REIXSAppController::startup() {
 
         spectrometerControlWidget->setLayout(hl);
         mw_->addPane(spectrometerControlWidget, "Experiment Setup", "Spectrometer controls", ":/utilities-system-monitor.png");
-
-
         ////////////////// End of testing junk; move somewhere clean ////////////////////
 
+
+
+
+		// Add the sidebar, for real-time display of the beamline.
+		////////////////////////
+		REIXSSidebar* sidebar = new REIXSSidebar();
+		mw_->addRightWidget(sidebar);
+
+		// Make connections
+		//////////////////////////
+		/// \todo Eventually move into AMAppController
         connect(AMActionRunner::s(), SIGNAL(currentActionStateChanged(int,int)), this, SLOT(onCurrentActionStateChanged(int,int)));
+
+
 
         return true;
     }

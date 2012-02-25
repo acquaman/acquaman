@@ -24,6 +24,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 REIXSBeamline::REIXSBeamline() :
 	AMBeamline("REIXSBeamline")
 {
+	// Upstream controls
+	photonSource_ = new REIXSPhotonSource(this);
+	addChildControl(photonSource_);
+
 	// Spectromter: controls and control set for positioners:
 	spectrometer_ = new REIXSSpectrometer(this);
 	addChildControl(spectrometer_);
@@ -55,12 +59,12 @@ REIXSBeamline::REIXSBeamline() :
 	mcpDetector_ = new REIXSXESMCPDetector("xesImage", "CPD1610-01", this);
 
 
-	// Upstream controls (TODO: organize completely)
-	beamlineEV_ = new AMPVwStatusControl("beamlineEV", "REIXS:energy", "REIXS:energy", "REIXS:status", "REIXS:energy:stop", this, 0.01, 2.0, new AMControlStatusCheckerDefault(1), 1, "Beamline Energy");
-
-	// Build a control set of all the controls we want to make available to REIXSControlMoveAction
+	// Build a control set of all the controls we want to make available to REIXSControlMoveAction, as well as record in the scan's scanInitialConditions()
 	allControlsSet_ = new AMControlSet(this);
-	allControlsSet_->addControl(beamlineEV_);
+	allControlsSet_->addControl(photonSource()->energy());
+	allControlsSet_->addControl(photonSource()->monoGratingSelector());
+	allControlsSet_->addControl(photonSource()->monoMirrorSelector());
+	allControlsSet_->addControl(photonSource()->monoSlit());
 	allControlsSet_->addControl(spectrometer());
 	allControlsSet_->addControl(spectrometer()->spectrometerRotationDrive());
 	allControlsSet_->addControl(spectrometer()->detectorTranslation());
@@ -378,6 +382,26 @@ void REIXSSpectrometer::onMoveActionStateChanged(int state, int previousState)
 			emit moveFailed(AMControl::OtherFailure);
 		// cancelled: handled previously in stop().
 	}
+}
+
+REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
+	AMCompositeControl("photonSource", "n/a", parent, "EPU and Monochromator")
+{
+	energy_ = new AMPVwStatusControl("beamlineEV", "REIXS:MONO1610-I20-01:energy:fbk", "REIXS:energy", "REIXS:status", "REIXS:energy:stop", this, 0.01);
+	energy_->setDescription("Beamline Energy");
+
+	monoSlit_ = new AMPVwStatusAndUnitConversionControl("monoSlit", "SMTR1610-I20-10:mm:fbk", "SMTR1610-I20-10:mm", "SMTR1610-I20-10:status", "SMTR1610-I20-10:stop", new AMScaleAndOffsetUnitConverter("um", 0.001), 0, this, 0.1);
+	monoSlit_->setDescription("Mono Slit Width");
+
+	monoGratingTranslation_ = new AMPVwStatusControl("monoGratingTranslation", "MONO1610-I20-01:grating:trans:mm:fbk", "MONO1610-I20-01:grating:trans:mm", "MONO1610-I20-01:grating:trans:status", "SMTR1610-I20-04:stop", this, 0.05);
+	monoGratingTranslation_->setDescription("Mono Grating Translation");
+	monoGratingSelector_ = new AMPVwStatusControl("monoGratingSelector", "MONO1610-I20-01:grating:select:fbk", "MONO1610-I20-01:grating:select", "MONO1610-I20-01:grating:trans:status", "SMTR1610-I20-04:stop", this, 1);
+	monoGratingSelector_->setDescription("Mono Grating");
+
+	monoMirrorTranslation_ = new AMPVwStatusControl("monoMirrorTranslation", "MONO1610-I20-01:mirror:trans:mm:fbk", "MONO1610-I20-01:mirror:trans:mm", "MONO1610-I20-01:mirror:trans:status", "SMTR1610-I20-02:stop", this, 0.05);
+	monoMirrorTranslation_->setDescription("Mono Mirror Translation");
+	monoMirrorSelector_ = new AMPVwStatusControl("monoMirrorSelector", "MONO1610-I20-01:mirror:select:fbk", "MONO1610-I20-01:mirror:select", "MONO1610-I20-01:mirror:trans:status", "SMTR1610-I20-02:stop", this, 1);
+	monoMirrorSelector_->setDescription("Mono Mirror");
 }
 
 

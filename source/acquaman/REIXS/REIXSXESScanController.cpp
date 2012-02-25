@@ -139,8 +139,8 @@ void REIXSXESScanController::onInitialSetupMoveFailed() {
 }
 
 void REIXSXESScanController::onInitialSetupMoveSucceeded() {
-	// remember the positions of the spectrometer
-	*(scan_->scanInitialConditions()) = REIXSBeamline::bl()->spectrometerPositionSet()->toInfoList();
+	// remember the state of the beamline at the beginning of the scan.
+	scan_->scanInitialConditions()->setValuesFrom(REIXSBeamline::bl()->allControlsSet()->toInfoList());
 
 	disconnect(initialMoveAction_, 0, this, 0);
 

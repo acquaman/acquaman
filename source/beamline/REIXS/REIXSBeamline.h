@@ -28,6 +28,26 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMDeferredFunctionCall.h"
 
+/// The REIXSPhotonSource control is a container for the set of controls that make up the mono and EPU
+class REIXSPhotonSource : public AMCompositeControl {
+	Q_OBJECT
+public:
+	REIXSPhotonSource(QObject* parent = 0);
+
+	AMControl* energy() { return energy_; }
+	AMControl* monoSlit() { return monoSlit_; }
+	AMControl* monoGratingTranslation() { return monoGratingTranslation_; }
+	AMControl* monoGratingSelector() { return monoGratingSelector_; }
+	AMControl* monoMirrorTranslation() { return monoMirrorTranslation_; }
+	AMControl* monoMirrorSelector() { return monoMirrorSelector_; }
+
+
+
+protected:
+	AMControl *energy_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_;
+
+};
+
 /// The REIXSHexapod control is just a container for the set of coupled controls which make up the hexapod:
 /*!
 - x(), y(), z(): Stage position in mm
@@ -222,6 +242,8 @@ public:
 
 	// Accessing control elements:
 
+	/// Access the upstream (mono/EPU) controls
+	REIXSPhotonSource* photonSource() { return photonSource_; }
 	/// Access the spectrometer controls:
 	REIXSSpectrometer* spectrometer() { return spectrometer_; }
 	/// Access the sample chamber and load-lock controls:
@@ -246,11 +268,8 @@ protected:
 	/// Constructor. This is a singleton class; access it through REIXSBeamline::bl().
 	REIXSBeamline();
 
-	/// \todo: beamline front-end controls
-	// these are just temporary controls for testing; not organized properly...
-	AMControl* beamlineEV_;
-	AMControl* monoSlitWidth_;
-
+	/// A group of controls making up the EPU and mono
+	REIXSPhotonSource* photonSource_;
 	/// A hierarchichal group of controls making up the spectrometer
 	REIXSSpectrometer* spectrometer_;
 	/// A hierarchichal group of controls making up the sample chamber

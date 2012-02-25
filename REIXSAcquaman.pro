@@ -4,7 +4,8 @@ TARGET = REIXSAcquaman
 
 FORMS += \
     source/ui/REIXS/REIXSXESSpectrometerControlEditor.ui \
-	source/ui/REIXS/REIXSSampleChamberButtonPanel.ui
+	source/ui/REIXS/REIXSSampleChamberButtonPanel.ui \
+    source/ui/REIXS/REIXSSidebar.ui
 
 HEADERS +=	source/application/REIXS/REIXSAppController.h \
 	source/acquaman/REIXS/REIXSXESScanConfiguration.h \
@@ -28,7 +29,8 @@ HEADERS +=	source/application/REIXS/REIXSAppController.h \
     source/actions2/editors/REIXS/REIXSControlMoveActionEditor.h \
     source/actions2/actions/REIXS/REIXSSampleMoveAction.h \
     source/actions2/actions/REIXS/REIXSSampleMoveActionInfo.h \
-    source/beamline/REIXS/REIXSSampleManipulator.h
+    source/beamline/REIXS/REIXSSampleManipulator.h \
+    source/ui/REIXS/REIXSSidebar.h
 
 
 SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
@@ -52,7 +54,11 @@ SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
     source/actions2/editors/REIXS/REIXSControlMoveActionEditor.cpp \
     source/actions2/actions/REIXS/REIXSSampleMoveAction.cpp \
     source/actions2/actions/REIXS/REIXSSampleMoveActionInfo.cpp \
-    source/beamline/REIXS/REIXSSampleManipulator.cpp
+    source/beamline/REIXS/REIXSSampleManipulator.cpp \
+    source/ui/REIXS/REIXSSidebar.cpp
+
+
+
 
 
 

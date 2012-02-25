@@ -21,14 +21,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef REIXSXESSPECTROMETERCONTROLEDITOR_H
 #define REIXSXESSPECTROMETERCONTROLEDITOR_H
 
-#include <QFrame>
+#include <QGroupBox>
 #include "beamline/REIXS/REIXSBeamline.h"
 
 namespace Ui {
 	class REIXSXESSpectrometerControlEditor;
 }
 
-class REIXSXESSpectrometerControlEditor : public QFrame
+class REIXSXESSpectrometerControlEditor : public QGroupBox
 {
 	Q_OBJECT
 

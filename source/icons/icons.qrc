@@ -148,5 +148,21 @@
         <file>22x22/redCrash.png</file>
         <file>22x22/dialog-question.png</file>
         <file>32x32/media-playlist-repeat.png</file>
+        <file>10x10/greenLEDOff.png</file>
+        <file>10x10/greenLEDOn.png</file>
+        <file>10x10/redLEDOff.png</file>
+        <file>10x10/redLEDOn.png</file>
+        <file>16x16/greenLEDOff.png</file>
+        <file>16x16/greenLEDOn.png</file>
+        <file>16x16/redLEDOff.png</file>
+        <file>16x16/redLEDOn.png</file>
+        <file>22x22/greenLEDOff.png</file>
+        <file>22x22/greenLEDOn.png</file>
+        <file>22x22/redLEDOff.png</file>
+        <file>22x22/redLEDOn.png</file>
+        <file>32x32/greenLEDOff.png</file>
+        <file>32x32/greenLEDOn.png</file>
+        <file>32x32/redLEDOff.png</file>
+        <file>32x32/redLEDOn.png</file>
     </qresource>
 </RCC>
