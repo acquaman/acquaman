@@ -35,7 +35,7 @@ void AMBasicEnumControlEditor::onControlConnected(bool connected)
 		onControlValueChanged(control_->value());
 	}
 	else {
-		setText("[Disconnected]");
+		setText("[Not Connected]");
 	}
 }
 
