@@ -54,7 +54,7 @@ AMBasicControlEditor::AMBasicControlEditor(AMControl* control, QWidget *parent) 
 	valueLabel_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 	setFrameStyle(QFrame::StyledPanel);
 	setStyleSheet("QFrame#AMControlEditor { background: white; } ");
-	setHappy(false);
+	setValidState(false);
 	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
 	// Create the editor dialog:
@@ -67,12 +67,12 @@ AMBasicControlEditor::AMBasicControlEditor(AMControl* control, QWidget *parent) 
 	if(control_) {
 		connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
 		connect(control_, SIGNAL(unitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));
-		connect(control_, SIGNAL(connected(bool)), this, SLOT(setHappy(bool)));
+		connect(control_, SIGNAL(connected(bool)), this, SLOT(setValidState(bool)));
 		connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onMotion(bool)));
 
 		// If the control is connected already, update our state right now. (We won't get the connected() signal later.)
 		if(control_->isConnected()) {
-			setHappy(true);
+			setValidState(true);
 			onValueChanged(control_->value());
 			onUnitsChanged(control_->units());
 			onMotion(control_->isMoving());
@@ -89,8 +89,8 @@ void AMBasicControlEditor::onUnitsChanged(const QString& units) {
 }
 
 
-void AMBasicControlEditor::setHappy(bool happy) {
-	if(happy)
+void AMBasicControlEditor::setValidState(bool isConnected) {
+	if(isConnected)
 		unitsLabel_->setStyleSheet("border: 1px outset #00df00; background: #d4ffdf; padding: 1px; width: 100%; color: #00df00;");
 	else
 		unitsLabel_->setStyleSheet("border: 1px outset #f20000; background: #ffdfdf;	padding: 1px; color: #f20000;");
@@ -100,7 +100,7 @@ void AMBasicControlEditor::onMotion(bool moving) {
 	if(moving)
 		unitsLabel_->setStyleSheet("border: 1px outset blue; background: #ffdfdf;	padding: 1px; color: blue;");
 	else
-		setHappy(control_->isConnected());
+		setValidState(control_->isConnected());
 }
 
 void AMBasicControlEditor::onEditStart() {
