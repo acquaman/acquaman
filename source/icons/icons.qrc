@@ -164,5 +164,7 @@
         <file>32x32/greenLEDOn.png</file>
         <file>32x32/redLEDOff.png</file>
         <file>32x32/redLEDOn.png</file>
+        <file>22x22/view-refresh.png</file>
+        <file>16x16/view-refresh.png</file>
     </qresource>
 </RCC>

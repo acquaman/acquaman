@@ -501,7 +501,8 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/ui/actions2/AMAddActionDialog.h \
 	source/util/AMJoystick.h \
 	source/ui/util/AMJoystickTestView.h \
-	source/ui/dataman/AMControlInfoListTableView.h
+	source/ui/dataman/AMControlInfoListTableView.h \
+    source/ui/beamline/AMBasicEnumControlEditor.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -829,7 +830,8 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/actions2/AMAddActionDialog.cpp \
 	source/util/AMJoystick.cpp \
 	source/ui/util/AMJoystickTestView.cpp \
-	source/ui/dataman/AMControlInfoListTableView.cpp
+	source/ui/dataman/AMControlInfoListTableView.cpp \
+    source/ui/beamline/AMBasicEnumControlEditor.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -853,6 +855,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 
