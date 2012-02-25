@@ -19,11 +19,8 @@ bool REIXSSampleManipulator::moveToPosition(const AMControlInfoList &newPosition
 		return false;
 	}
 
-	// Nothing currently running. Throw an action into the front of the workflow, start it, and then restore the queuePaused state to whatever it used to be.
-	bool queuePaused = AMActionRunner::s()->queuePaused();
-	AMActionRunner::s()->insertActionInQueue(new REIXSSampleMoveAction(newPosition), 0);
-	AMActionRunner::s()->setQueuePaused(false);
-	AMActionRunner::s()->setQueuePaused(queuePaused);
+	// Nothing currently running. We can run this one action immediately in the queue.
+	AMActionRunner::s()->runActionImmediatelyInQueue(new REIXSSampleMoveAction(newPosition));
 
 	return true;
 }
