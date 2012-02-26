@@ -6,14 +6,17 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>269</width>
-    <height>371</height>
+    <width>330</width>
+    <height>362</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetFixedSize</enum>
+   </property>
    <item>
     <widget class="QGroupBox" name="beamlineGroupBox">
      <property name="title">
@@ -356,16 +359,6 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../icons/icons.qrc"/>
-  <include location="../../icons/icons.qrc"/>
-  <include location="../../icons/icons.qrc"/>
-  <include location="../../icons/icons.qrc"/>
-  <include location="../../icons/icons.qrc"/>
-  <include location="../../icons/icons.qrc"/>
-  <include location="../../icons/icons.qrc"/>
-  <include location="../../icons/icons.qrc"/>
-  <include location="../../icons/icons.qrc"/>
-  <include location="../../icons/icons.qrc"/>
   <include location="../../icons/icons.qrc"/>
  </resources>
  <connections/>
