@@ -59,10 +59,11 @@ public:
 		minimum_ = other.minimum_;
 		maximum_ = other.maximum_;
 		units_ = other.units_;
-		tolerance_ = other.tolerance();
-		description_ = other.description();
-		contextKnownDescription_ = other.contextKnownDescription();
-		setName(other.name());	// will take care of calling setModified().
+		tolerance_ = other.tolerance_;
+		description_ = other.description_;
+		contextKnownDescription_ = other.contextKnownDescription_;
+		setName(other.name());
+		setModified(true);
 	}
 
 public slots:
