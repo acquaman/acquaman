@@ -88,7 +88,9 @@ REIXSBeamline::REIXSBeamline() :
 
 
 REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
-	: AMControl("sampleChamber", "n/a", parent) {
+	: AMCompositeControl("sampleChamber", "n/a", parent) {
+
+	setDescription("XES Sample Chamber Controls");
 
 	// Motor information here was updated Nov. 2011 for the MDrive motors on the sample chamber, which still don't have unit conversion built into the driver.
 	// All motors are currently running at a microstep setting of 256. Therefore one revolution of the motor is: 200*256 = 51200 steps.
@@ -106,6 +108,13 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 	r_ = new CLSMDriveMotorControl("sampleTheta", "SMTR1610-4-I21-11", "deg", 3.6, 0, 256, "Sample Chamber Theta", 0.5, 1.0, this);
 	loadLockZ_ = new CLSMDriveMotorControl("loadLockZ", "SMTR1610-4-I21-09", "mm", 0.125, 0, 256, "Load Lock Z", 0.5, 1.0, this);
 	loadLockR_ = new CLSMDriveMotorControl("loadLockTheta", "SMTR1610-4-I21-12", "deg", 3.6, 0, 256, "Load Lock Theta", 0.5, 1.0, this);
+
+	addChildControl(x_);
+	addChildControl(y_);
+	addChildControl(z_);
+	addChildControl(r_);
+	addChildControl(loadLockZ_);
+	addChildControl(loadLockR_);
 }
 
 
