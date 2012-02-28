@@ -333,7 +333,6 @@ bool VESPERSEXAFSDacqScanController::initializeImplementation()
 	// Third stage.
 	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 	setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->mono()->createDelEAction(0));
-	setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->mono()->createEoAction(config_->energy()));
 	if (config_->goToPosition()){
 
 		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(config_->x()));
