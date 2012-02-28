@@ -313,6 +313,7 @@ bool VESPERSEXAFSDacqScanController::initializeImplementation()
 
 	// Second stage.
 	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createStartAction(false));
 	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createScansPerBufferAction(1));
 	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createTotalScansAction(1));
 	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::SingleShot));
@@ -445,7 +446,6 @@ bool VESPERSEXAFSDacqScanController::startImplementation()
 			advAcq_->setEnd(i, config_->regionEnd(i));
 		}
 	}
-
 //	advAcq_->saveConfigFile("/home/hunterd/Desktop/writeTest.cfg");
 
 	return AMDacqScanController::startImplementation();
@@ -456,7 +456,7 @@ void VESPERSEXAFSDacqScanController::cleanup()
 	// To cleanup the XAS scan, there is one stage.
 	/*
 		First: Set the dwell time to 1 second.  Disables the variable integration time.  Set the relative energy PV to 0.
-		Second: Set the scan mode to continuous.  This starts the synchronized dwell time.
+  Second: Set the scan mode to continuous.  This starts the synchronized dwell time.
 	 */
 	AMBeamlineParallelActionsList *cleanupXASActionsList = new AMBeamlineParallelActionsList;
 
