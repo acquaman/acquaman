@@ -1,5 +1,7 @@
 #include "VESPERSRoperCCDDetector.h"
 
+#include "actions/AMBeamlineControlMoveAction.h"
+
 VESPERSRoperCCDDetector::VESPERSRoperCCDDetector(const QString &name, const QString &description, QObject *parent)
 	: VESPERSRoperCCDDetectorInfo(name, description, parent), AMDetector(name)
 {
@@ -19,12 +21,12 @@ VESPERSRoperCCDDetector::VESPERSRoperCCDDetector(const QString &name, const QStr
 
 	connect(signalSource(), SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
 	connect(temperatureControl_, SIGNAL(valueChanged(double)), this, SIGNAL(temperatureChanged(double)));
-	connect(temperatureControl_, SIGNAL(setpointChanged(double)), this, SIGNAL(temperatureSetpointChanged(double)));
+	connect(temperatureControl_, SIGNAL(setpointChanged(double)), this, SLOT(onTemperatureSetpointChanged(double)));
 	connect(imageModeControl_, SIGNAL(valueChanged(double)), this, SLOT(onImageModeChanged()));
 	connect(triggerModeControl_, SIGNAL(valueChanged(double)), this, SLOT(onTriggerModeChanged()));
 	connect(operationControl_, SIGNAL(valueChanged(double)), this, SLOT(onIsAcquiringChanged()));
 	connect(stateControl_, SIGNAL(valueChanged(double)), this, SLOT(onStateChanged()));
-	connect(acquireTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(acquireTimeChanged(double)));
+	connect(acquireTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(onAcquireTimeChanged(double)));
 	connect(autoSaveControl_, SIGNAL(valueChanged(double)), this, SLOT(onAutoSaveEnabledChanged()));
 	connect(saveFileControl_, SIGNAL(valueChanged(double)), this, SLOT(onSaveFileStateChanged()));
 
@@ -174,4 +176,92 @@ void VESPERSRoperCCDDetector::StringtoAMPV(AMProcessVariable *pv, QString toConv
 	}
 
 	pv->setValues(converted, 256);
+}
+
+AMBeamlineActionItem *VESPERSRoperCCDDetector::createAcquireTimeAction(double time)
+{
+	if (!acquireTimeControl_->isConnected())
+		return 0;
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(acquireTimeControl_);
+	action->setSetpoint(time);
+
+	return action;
+}
+
+AMBeamlineActionItem *VESPERSRoperCCDDetector::createImageModeAction(VESPERSRoperCCDDetector::ImageMode mode)
+{
+	if (!imageModeControl_->isConnected())
+		return 0;
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(imageModeControl_);
+	action->setSetpoint(int(mode));
+
+	return action;
+}
+
+AMBeamlineActionItem *VESPERSRoperCCDDetector::createTriggerModeAction(VESPERSRoperCCDDetector::TriggerMode mode)
+{
+	if (!triggerModeControl_->isConnected())
+		return 0;
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(triggerModeControl_);
+	action->setSetpoint(int(mode));
+
+	return action;
+}
+
+AMBeamlineActionItem *VESPERSRoperCCDDetector::createTemperatureAction(double temperature)
+{
+	if (!temperatureControl_->isConnected())
+		return 0;
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(temperatureControl_);
+	action->setSetpoint(temperature);
+
+	return action;
+}
+
+AMBeamlineActionItem *VESPERSRoperCCDDetector::createStartAction()
+{
+	if (!operationControl_->isConnected())
+		return 0;
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(operationControl_);
+	action->setSetpoint(1);
+
+	return action;
+}
+
+AMBeamlineActionItem *VESPERSRoperCCDDetector::createStopAction()
+{
+	if (!operationControl_->isConnected())
+		return 0;
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(operationControl_);
+	action->setSetpoint(0);
+
+	return action;
+}
+
+AMBeamlineActionItem *VESPERSRoperCCDDetector::createAutoSaveAction(bool autoSave)
+{
+	if (!autoSaveControl_->isConnected())
+		return 0;
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(autoSaveControl_);
+	action->setSetpoint(autoSave ? 1 : 0);
+
+	return action;
+}
+
+AMBeamlineActionItem *VESPERSRoperCCDDetector::createSaveFileAction()
+{
+	if (!saveFileControl_->isConnected())
+		return 0;
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(saveFileControl_);
+	action->setSetpoint(1);
+
+	return action;
 }

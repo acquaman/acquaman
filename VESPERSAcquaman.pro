@@ -50,7 +50,10 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
     source/dataman/VESPERS/VESPERSRoperCCDDetectorInfo.h \
     source/ui/VESPERS/VESPERSRoperCCDDetectorView.h \
     source/util/VESPERS/VESPERSWorkflowAssistant.h \
-    source/ui/VESPERS/VESPERSWorkflowAssistantView.h
+    source/ui/VESPERS/VESPERSWorkflowAssistantView.h \
+    source/acquaman/VESPERS/VESPERS2DDacqScanController.h \
+    source/acquaman/VESPERS/VESPERS2DScanConfiguration.h \
+    source/ui/VESPERS/VESPERS2DScanConfigurationView.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -99,10 +102,19 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
     source/dataman/VESPERS/VESPERSRoperCCDDetectorInfo.cpp \
     source/ui/VESPERS/VESPERSRoperCCDDetectorView.cpp \
     source/util/VESPERS/VESPERSWorkflowAssistant.cpp \
-    source/ui/VESPERS/VESPERSWorkflowAssistantView.cpp
+    source/ui/VESPERS/VESPERSWorkflowAssistantView.cpp \
+    source/acquaman/VESPERS/VESPERS2DDacqScanController.cpp \
+    source/acquaman/VESPERS/VESPERS2DScanConfiguration.cpp \
+    source/ui/VESPERS/VESPERS2DScanConfigurationView.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
+
+
+
+
 
 
 

@@ -1,29 +1,39 @@
-#ifndef VESPERSEXAFSDACQSCANCONTROLLER_H
-#define VESPERSEXAFSDACQSCANCONTROLLER_H
+#ifndef VESPERS2DDACQSCANCONTROLLER_H
+#define VESPERS2DDACQSCANCONTROLLER_H
 
-#include "acquaman/AMDacqScanController.h"
-#include "acquaman/VESPERS/VESPERSEXAFSScanConfiguration.h"
-#include "dataman/AMXASScan.h"
+#include "acquaman/AM2DDacqScanController.h"
+#include "acquaman/VESPERS/VESPERS2DScanConfiguration.h"
+#include "dataman/AM2DScan.h"
 #include "actions/AMBeamlineListAction.h"
 
 #include <QTimer>
 
 /// Some defined error codes to help with controller crashes.
-#define VESPERSEXAFSDACQSCANCONTROLLER_CANT_INTIALIZE 78001
-#define VESPERSEXAFSDACQSCANCONTROLLER_CANT_START_BL_SCANNING 78002
-#define VESPERSEXAFSDACQSCANCONTROLLER_CANT_START_DETECTOR_SOURCE_MISMATCH 78003
-#define VESPERSEXAFSDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE 78004
+#define VESPERS2DDACQSCANCONTROLLER_CANT_INTIALIZE 79001
+#define VESPERS2DDACQSCANCONTROLLER_CANT_START_BL_SCANNING 79002
+#define VESPERS2DDACQSCANCONTROLLER_CANT_START_DETECTOR_SOURCE_MISMATCH 79003
+#define VESPERS2DDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE 79004
 
-class VESPERSEXAFSDacqScanController : public AMDacqScanController
+/// This class builds a scan controller for doing a 2D map.  It current assumes only the pseudo motors will be used.
+class VESPERS2DDacqScanController : public AM2DDacqScanController
 {
 	Q_OBJECT
 
 public:
-	/// Constructor.
-	/// \param cfg is the XAS configuration that the controller will run.
-	VESPERSEXAFSDacqScanController(VESPERSEXAFSScanConfiguration *cfg, QObject *parent = 0);
+	/// Constructor.  \param cfg is the 2D scan configuration that the controller will run.
+	VESPERS2DDacqScanController(VESPERS2DScanConfiguration *cfg, QObject *parent = 0);
 	/// Destructor.  Makes sure all the memory from the actions that were created is freed.
-	~VESPERSEXAFSDacqScanController() { onInitializationActionFinished(); onCleanupActionFinished(); }
+	~VESPERS2DDacqScanController() { onInitializationActionFinished(); onCleanupActionFinished(); }
+
+	/// Returns the number of values in the first independent axis.
+	virtual int xAxisCount() const { return xAxisCount_; }
+	/// Returns the number of values in the second independent axis.
+	virtual int yAxisCount() const { return yAxisCount_; }
+
+	/// Returns the PV name that will be used for the x-axis.
+	virtual QString xAxisPVName() const { return xAxisPVName_; }
+	/// Returns the PV name that will be used for the y-axis.
+	virtual QString yAxisPVName() const { return yAxisPVName_; }
 
 protected slots:
 	/// Slot that handles the successful initialization of the scan.
@@ -36,8 +46,6 @@ protected slots:
 	/// Slot that catches when the cleanup actions are finished.
 	void onCleanupFinished();
 
-	/// Re-implementing to change actual dwell times for the VESPERS Beamline
-	void onDwellTimeTriggerChanged(double newValue);
 	/// Helper slot that handles the progress update.
 	void onScanTimerUpdate();
 
@@ -62,31 +70,33 @@ protected:
 	/// Helper method that removes and deletes all of the actions from the cleanup action for proper memory management.
 	void onCleanupActionFinished();
 
-	AMnDIndex toScanIndex(QMap<int, double> aeData);
-
 	/// Adds all the data sources that are still important but not visualized.
 	void addExtraDatasources();
-
-	/// Sets up the XAS scan based on no fluorescence detectors selected.
-	bool setupTransmissionXAS();
-	/// Sets up the XAS scan based on the single element vortex detector being selected.
-	bool setupSingleElementXAS();
-	/// Sets up the XAS scan based on the four element vortex detector being selected.
-	bool setupFourElementXAS();
 
 	/// Returns the home directory for Acquaman.
 	QString getHomeDirectory();
 
-	/// Pointer to the configuration used by this controller.
-	VESPERSEXAFSScanConfiguration *config_;
+	/// Sets up the 2D scan based on the single element detector being used for XRF.
+	bool setupSingleElementMap();
+	/// Sets up the 2D scan based on the four element detector being used for XRF.
+	bool setupFourElementMap();
 
-	/// A counter holding the current region index being scanned.
-	int currentRegionIndex_;
+	/// Pointer to the VESPERS2DScanConfiguration this scan controls.
+	VESPERS2DScanConfiguration *config_;
+
+	/// Holds the x-axis PV name.
+	QString xAxisPVName_;
+	/// Holds the y-axis PV name.
+	QString yAxisPVName_;
+	/// Holds the x-axis count.
+	int xAxisCount_;
+	/// Holds the y-axis count.
+	int yAxisCount_;
 
 	/// Action that contains all of the initialization actions for the controller.
-	AMBeamlineListAction *setupXASAction_;
+	AMBeamlineListAction *initializationActions_;
 	/// Action that contains all of the cleanup actions for the controller.
-	AMBeamlineListAction *cleanupXASAction_;
+	AMBeamlineListAction *cleanupActions_;
 
 	/// Timer used for determining the elapsed time for a scan.
 	QTimer elapsedTime_;
@@ -96,4 +106,4 @@ protected:
 	double secondsTotal_;
 };
 
-#endif // VESPERSEXAFSDACQSCANCONTROLLER_H
+#endif // VESPERS2DDACQSCANCONTROLLER_H

@@ -34,7 +34,7 @@ AMXASScanConfiguration::AMXASScanConfiguration(QObject *parent, bool setup)
 }
 
 AMXASScanConfiguration::AMXASScanConfiguration(const AMXASScanConfiguration &original, bool setup)
-	: AMRegionScanConfiguration(original.parent(), false)
+	: AMRegionScanConfiguration(original, false)
 {
 	if (setup){
 

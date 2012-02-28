@@ -6,11 +6,6 @@
 VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	: AMEXAFSScanConfiguration(parent)
 {
-	ionChamberNames_.insert(Isplit, "Isplit");
-	ionChamberNames_.insert(Iprekb, "Iprekb");
-	ionChamberNames_.insert(Imini, "Imini");
-	ionChamberNames_.insert(Ipost, "Ipost");
-
 	regions_->setSensibleRange(-30, 40);
 	exafsRegions()->setDefaultEdgeEnergy(0); // Everything for XAS related scans on VESPERS is done using relative energy to the edge on a PV level.
 	exafsRegions()->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
@@ -28,6 +23,8 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	useFixedTime_ = false;
 	numberOfScans_ = 1;
 
+	roiInfoList_ = AMROIInfoList();
+
 	goToPosition_ = false;
 	position_ = qMakePair(0.0, 0.0);
 	totalTime_ = 0;
@@ -40,13 +37,8 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 }
 
 VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(const VESPERSEXAFSScanConfiguration &original)
-	: AMEXAFSScanConfiguration(original.parent())
+	: AMEXAFSScanConfiguration(original)
 {
-	ionChamberNames_.insert(Isplit, "Isplit");
-	ionChamberNames_.insert(Iprekb, "Iprekb");
-	ionChamberNames_.insert(Imini, "Imini");
-	ionChamberNames_.insert(Ipost, "Ipost");
-
 	regions_->setSensibleStart(original.regions()->sensibleStart());
 	regions_->setSensibleEnd(original.regions()->sensibleEnd());
 	exafsRegions()->setDefaultEdgeEnergy(original.exafsRegions()->defaultEdgeEnergy());
