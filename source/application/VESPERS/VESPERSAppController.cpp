@@ -202,7 +202,7 @@ bool VESPERSAppController::startup() {
 		mw_->insertHeading("Scans", 2);
 		mw_->addPane(experimentConfigurationView, "Scans", "Experiment Setup", ":/utilities-system-monitor.png");
 		mw_->addPane(exafsConfigViewHolder, "Scans", "XAS", ":/utilities-system-monitor.png");
-		mw_->addPane(mapScanConfigurationViewHolder, "Scans", "2DMaps", ":/utilities-system-monitor.png");
+//		mw_->addPane(mapScanConfigurationViewHolder, "Scans", "2DMaps", ":/utilities-system-monitor.png");
 
 		// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
 		VESPERSPersistentView *persistentView = new VESPERSPersistentView;
