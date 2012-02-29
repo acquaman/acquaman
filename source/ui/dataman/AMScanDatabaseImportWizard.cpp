@@ -37,7 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStyle>
 
 AMScanDatabaseImportWizard::AMScanDatabaseImportWizard(AMScanDatabaseImportController* controller, QWidget *parent) :
-    QWizard(parent)
+	QWizard(parent)
 {
 	controller_ = controller;
 	addPage(new AMScanDatabaseImportWizardChooseSourcePage(controller_));
@@ -80,7 +80,7 @@ AMScanDatabaseImportWizardChooseSourcePage::AMScanDatabaseImportWizardChooseSour
 	progressLabel_ = new QLabel();
 
 	setTitle("Import Acquaman Bundle");
-	setSubTitle("This tool lets you import a complete Acquaman Bundle (for example, from another computer or a beamline run) into your database. All of the raw data and scan information will be copied, and you will have a chance to review possible duplicates.\n\nOn this page, you should choose the bundle folder. It should contain a file called '" % AMUserSettings::userDatabaseFilename % "'.");
+//	setSubTitle("This tool lets you import a complete Acquaman Bundle (for example, from another computer or a beamline run) into your database. All of the raw data and scan information will be copied, and you will have a chance to review possible duplicates.\n\nOn this page, you should choose the bundle folder. It should contain a file called '" % AMUserSettings::userDatabaseFilename % "'.");
 
 	sourcePathLineEdit_ = new QLineEdit();
 	browseButton_ = new QPushButton("Browse");
@@ -103,12 +103,14 @@ AMScanDatabaseImportWizardChooseSourcePage::AMScanDatabaseImportWizardChooseSour
 	gb->setLayout(vl2);
 
 	QVBoxLayout* vl = new QVBoxLayout();
+	vl->addWidget(new QLabel("This tool lets you import a complete Acquaman Bundle (for example, from another computer or a beamline run) \ninto your database. All of the raw data and scan information will be copied, and you will have a chance to review \npossible duplicates.\n\nOn this page, you should choose the bundle folder. It should contain a file called '" % AMUserSettings::userDatabaseFilename % "'."));
 	vl->addLayout(hl);
 	vl->addWidget(gb);
 	vl->addStretch();
 	vl->addLayout(hl2);
 
 	setLayout(vl);
+	setMinimumHeight(400);
 
 	connect(sourcePathLineEdit_, SIGNAL(textChanged(QString)), this, SLOT(reviewComplete()));
 	connect(browseButton_, SIGNAL(clicked()), this, SLOT(displaySourcePathDialog()));
@@ -200,7 +202,7 @@ AMScanDatabaseImportWizardReviewRunsPage::AMScanDatabaseImportWizardReviewRunsPa
 	progressLabel_ = new QLabel();
 
 	setTitle("Review Runs");
-	setSubTitle("These are the runs we found in the bundle.\n\nAny runs that are already in your library are shown on the right and will be merged automatically. If you want to keep these separate instead, check the 'Keep Separate' box and a new run will be added.");
+//	setSubTitle("These are the runs we found in the bundle.\n\nAny runs that are already in your library are shown on the right and will be merged automatically. If you want to keep these separate instead, check the 'Keep Separate' box and a new run will be added.");
 
 	runsFoundList_ = new QListWidget();
 	runsToMergeList_ = new QListWidget();
@@ -221,11 +223,13 @@ AMScanDatabaseImportWizardReviewRunsPage::AMScanDatabaseImportWizardReviewRunsPa
 
 
 	QVBoxLayout* vl = new QVBoxLayout();
+	vl->addWidget(new QLabel("These are the runs we found in the bundle.\n\nAny runs that are already in your library are shown on the right and will be merged automatically. \nIf you want to keep these separate instead, check the 'Keep Separate' box and a new run will be added.\n"));
 	vl->addLayout(hl);
 	vl->addStretch();
 	vl->addLayout(hl2);
 
 	setLayout(vl);
+	setMinimumHeight(400);
 
 	connect(controller_, SIGNAL(stepProgress(int)), progressBar_, SLOT(setValue(int)));
 	connect(controller_, SIGNAL(progressDescription(QString)), progressLabel_, SLOT(setText(QString)));
@@ -282,7 +286,7 @@ AMScanDatabaseImportWizardReviewExperimentsPage::AMScanDatabaseImportWizardRevie
 	progressLabel_ = new QLabel();
 
 	setTitle("Review Experiments");
-	setSubTitle("These are the experiments we found in the bundle.\n\nAny experiments that are already in your library are shown on the right and will be merged automatically. If you want to keep these separate instead, check the 'Keep Separate' box and a new experiment will be added.");
+//	setSubTitle("These are the experiments we found in the bundle.\n\nAny experiments that are already in your library are shown on the right and will be merged automatically. If you want to keep these separate instead, check the 'Keep Separate' box \nand a new experiment will be added.");
 
 	itemsFoundList_ = new QListWidget();
 	itemsToMergeList_ = new QListWidget();
@@ -303,11 +307,13 @@ AMScanDatabaseImportWizardReviewExperimentsPage::AMScanDatabaseImportWizardRevie
 
 
 	QVBoxLayout* vl = new QVBoxLayout();
+	vl->addWidget(new QLabel("These are the experiments we found in the bundle.\n\nAny experiments that are already in your library are shown on the right and will be merged automatically. \nIf you want to keep these separate instead, check the 'Keep Separate' box and a new experiment will be added.\n"));
 	vl->addLayout(hl);
 	vl->addStretch();
 	vl->addLayout(hl2);
 
 	setLayout(vl);
+	setMinimumHeight(400);
 
 	connect(controller_, SIGNAL(stepProgress(int)), progressBar_, SLOT(setValue(int)));
 	connect(controller_, SIGNAL(progressDescription(QString)), progressLabel_, SLOT(setText(QString)));
@@ -368,7 +374,7 @@ AMScanDatabaseImportWizardReviewSamplesPage::AMScanDatabaseImportWizardReviewSam
 	progressLabel_ = new QLabel();
 
 	setTitle("Review Samples");
-	setSubTitle("These are the samples we found in the bundle.\n\nAny samples that are already in your library are shown on the right and will be merged automatically. If you want to keep these separate instead, check the 'Keep Separate' box and a new sample will be added.");
+//	setSubTitle("These are the samples we found in the bundle.\n\nAny samples that are already in your library are shown on the right and will be merged automatically. If you want to keep these separate instead, check the 'Keep Separate' box and a new sample will be added.");
 
 	itemsFoundList_ = new QListWidget();
 	itemsToMergeList_ = new QListWidget();
@@ -389,11 +395,13 @@ AMScanDatabaseImportWizardReviewSamplesPage::AMScanDatabaseImportWizardReviewSam
 
 
 	QVBoxLayout* vl = new QVBoxLayout();
+	vl->addWidget(new QLabel("These are the samples we found in the bundle.\n\nAny samples that are already in your library are shown on the right and will be merged automatically. \nIf you want to keep these separate instead, check the 'Keep Separate' box and a new sample will be added.\n"));
 	vl->addLayout(hl);
 	vl->addStretch();
 	vl->addLayout(hl2);
 
 	setLayout(vl);
+	setMinimumHeight(400);
 
 	connect(controller_, SIGNAL(stepProgress(int)), progressBar_, SLOT(setValue(int)));
 	connect(controller_, SIGNAL(progressDescription(QString)), progressLabel_, SLOT(setText(QString)));
@@ -430,7 +438,7 @@ AMScanDatabaseImportWizardDoImportPage::AMScanDatabaseImportWizardDoImportPage(A
 	progressLabel_ = new QLabel();
 
 	setTitle("Importing...");
-	setSubTitle("Pleases wait while this Acquaman Bundle is imported into your library.");
+//	setSubTitle("Pleases wait while this Acquaman Bundle is imported into your library.");
 
 
 	QHBoxLayout* hl2 = new QHBoxLayout();
@@ -439,6 +447,7 @@ AMScanDatabaseImportWizardDoImportPage::AMScanDatabaseImportWizardDoImportPage(A
 
 
 	QVBoxLayout* vl = new QVBoxLayout();
+	vl->addWidget(new QLabel("Pleases wait while this Acquaman Bundle is imported into your library."));
 	vl->addStretch();
 	vl->addLayout(hl2);
 
