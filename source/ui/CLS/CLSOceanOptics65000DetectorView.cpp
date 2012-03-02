@@ -18,9 +18,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "OceanOptics65000DetectorView.h"
+#include "CLSOceanOptics65000DetectorView.h"
 
-OceanOptics65000BriefDetectorView::OceanOptics65000BriefDetectorView(OceanOptics65000Detector *detector, bool configureOnly, QWidget *parent) :
+CLSOceanOptics65000BriefDetectorView::CLSOceanOptics65000BriefDetectorView(CLSOceanOptics65000Detector *detector, bool configureOnly, QWidget *parent) :
 		AMBriefDetectorView(configureOnly, parent)
 {
 	hl_ = 0;
@@ -29,14 +29,14 @@ OceanOptics65000BriefDetectorView::OceanOptics65000BriefDetectorView(OceanOptics
 	setDetector(detector, configureOnly_);
 }
 
-AMDetector* OceanOptics65000BriefDetectorView::detector(){
+AMDetector* CLSOceanOptics65000BriefDetectorView::detector(){
 	return detector_;
 }
 
-bool OceanOptics65000BriefDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool CLSOceanOptics65000BriefDetectorView::setDetector(AMDetector *detector, bool configureOnly){
 	if(!detector)
 		return false;
-	detector_ = static_cast<OceanOptics65000Detector*>(detector);
+	detector_ = static_cast<CLSOceanOptics65000Detector*>(detector);
 	configureOnly_ = configureOnly;
 	if(!hl_){
 		hl_ = new QHBoxLayout();
@@ -53,7 +53,7 @@ bool OceanOptics65000BriefDetectorView::setDetector(AMDetector *detector, bool c
 	return true;
 }
 
-OceanOptics65000DetailedDetectorView::OceanOptics65000DetailedDetectorView(OceanOptics65000Detector *detector, bool configureOnly, QWidget *parent) :
+CLSOceanOptics65000DetailedDetectorView::CLSOceanOptics65000DetailedDetectorView(CLSOceanOptics65000Detector *detector, bool configureOnly, QWidget *parent) :
 	AMDetailedDetectorView(configureOnly, parent)
 {
 	gl_ = 0;
@@ -64,29 +64,29 @@ OceanOptics65000DetailedDetectorView::OceanOptics65000DetailedDetectorView(Ocean
 	setDetector(detector, configureOnly_);
 }
 
-AMDetector* OceanOptics65000DetailedDetectorView::detector(){
+AMDetector* CLSOceanOptics65000DetailedDetectorView::detector(){
 	return detector_;
 }
 
-AMDetectorInfo* OceanOptics65000DetailedDetectorView::configurationSettings() const{
+AMDetectorInfo* CLSOceanOptics65000DetailedDetectorView::configurationSettings() const{
 	return configurationSettings_;
 }
 
-void OceanOptics65000DetailedDetectorView::onControlSetpointRequested(){
+void CLSOceanOptics65000DetailedDetectorView::onControlSetpointRequested(){
 	if(detector_ && detector_->isConnected()){
 		configurationSettings_->setIntegrationTime(integrationTimeCE_->setpoint());
 		emit settingsConfigureRequested();
 	}
 }
 
-bool OceanOptics65000DetailedDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool CLSOceanOptics65000DetailedDetectorView::setDetector(AMDetector *detector, bool configureOnly){
 	if(!detector)
 		return false;
-	detector_ = static_cast<OceanOptics65000Detector*>(detector);
+	detector_ = static_cast<CLSOceanOptics65000Detector*>(detector);
 	if(configurationSettings_)
 		configurationSettings_->deleteLater();
 	// This NEWs a OceanOptics65000DetectorInfo, I'm responsible for it now
-	configurationSettings_ = qobject_cast<OceanOptics65000DetectorInfo*>(detector_->toNewInfo());
+	configurationSettings_ = qobject_cast<CLSOceanOptics65000DetectorInfo*>(detector_->toNewInfo());
 	configureOnly_ = configureOnly;
 	if(!gl_){
 		gl_ = new QGridLayout();

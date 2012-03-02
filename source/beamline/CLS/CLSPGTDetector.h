@@ -18,21 +18,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef MCPDETECTOR_H
-#define MCPDETECTOR_H
+#ifndef CLSPGTDETECTOR_H
+#define CLSPGTDETECTOR_H
 
-#include "AMDetector.h"
-#include "dataman/info/MCPDetectorInfo.h"
-#include "AMControlSet.h"
-#include "actions/AMBeamlineActionItem.h"
+#include "beamline/AMDetector.h"
+#include "dataman/info/CLSPGTDetectorInfo.h"
+#include "beamline/AMControlSet.h"
 
-class MCPDetector : public MCPDetectorInfo, public AMDetector
+class CLSPGTDetector : public CLSPGTDetectorInfo, public AMDetector
 {
 	Q_OBJECT
 public:
-	MCPDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
-	MCPDetector(const QString& name, AMControl *reading, AMControl *hv, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
-	~MCPDetector();
+	CLSPGTDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
+	CLSPGTDetector(const QString& name, AMControl *dataWaveform, AMControl *hv, AMControl *integrationTime, AMControl *integrationMode, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
+	~CLSPGTDetector();
 
 	const QMetaObject* getMetaObject();
 
@@ -40,29 +39,31 @@ public:
 
 	/// NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.
 	AMDetectorInfo* toInfo() const;
-	MCPDetectorInfo toMCPInfo() const;
-
-	bool isPoweredOn();
-
-	AMControl* readingCtrl() const;
-	AMControl* hvCtrl() const;
+	CLSPGTDetectorInfo toPGTInfo() const;
 
 	/* NTBA March 14, 2011 David Chevrier
 	bool setFromInfo(const AMDetectorInfo &info);
-	   */
+	*/
 	bool setFromInfo(const AMDetectorInfo *info);
-	bool setFromInfo(const MCPDetectorInfo &info);
+	bool setFromInfo(const CLSPGTDetectorInfo &info);
+
+	bool isPoweredOn();
 
 	bool activate();
 	AMBeamlineActionItem* turnOnAction();
 
-	bool settingsMatchFbk(MCPDetectorInfo* settings);
+	AMControl* dataWaveformCtrl() const;
+	AMControl* hvCtrl() const;
+	AMControl* integrationTimeCtrl() const;
+	AMControl* integrationModeCtrl() const;
+
+	bool settingsMatchFbk(CLSPGTDetectorInfo* settings);
 
 	QString description() const;
 
 public slots:
 	void setDescription(const QString &description);
-	virtual bool setControls(MCPDetectorInfo *mcpSettings);
+	virtual bool setControls(CLSPGTDetectorInfo *pgtSettings);
 
 signals:
 	void poweredOnChanged(bool poweredOn);
@@ -73,7 +74,7 @@ protected slots:
 	void onSettingsControlValuesChanged();
 
 protected:
-	void initializeFromControlSet(AMControlSet *readingsControls, AMControlSet *settingsControls);
+	bool initializeFromControlSet(AMControlSet *readingsControls, AMControlSet *settingsControls);
 
 protected:
 	AMControlSet *readingsControls_;
@@ -88,4 +89,4 @@ private:
 };
 
 
-#endif // MCPDETECTOR_H
+#endif // CLSPGTDETECTOR_H

@@ -18,12 +18,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef PGTDETECTORINFO_H
-#define PGTDETECTORINFO_H
+#ifndef CLSPGTDETECTORINFO_H
+#define CLSPGTDETECTORINFO_H
 
 #include "AMSpectralOutputDetectorInfo.h"
 
-class PGTDetectorInfo : public AMSpectralOutputDetectorInfo
+class CLSPGTDetectorInfo : public AMSpectralOutputDetectorInfo
 {
 Q_OBJECT
 	Q_PROPERTY(double hvSetpoint READ hvSetpoint WRITE setHVSetpoint)
@@ -33,14 +33,14 @@ Q_OBJECT
 	Q_CLASSINFO("AMDbObject_Attributes", "description=PGT Detector")
 
 public:
-	PGTDetectorInfo(const QString& name, const QString& description, QObject *parent = 0);
+	CLSPGTDetectorInfo(const QString& name, const QString& description, QObject *parent = 0);
 
-	PGTDetectorInfo(const PGTDetectorInfo &original);
+	CLSPGTDetectorInfo(const CLSPGTDetectorInfo &original);
 
 	/// Creates a new info pointer from this one, caller is responsible for memory
 	virtual AMDetectorInfo* toNewInfo() const;
 
-	PGTDetectorInfo& operator=(const PGTDetectorInfo& other);
+	CLSPGTDetectorInfo& operator=(const CLSPGTDetectorInfo& other);
 
 	/// Operational setpoint for High Voltage (HV)
 	double hvSetpoint() const;
@@ -71,4 +71,4 @@ protected:
 };
 
 
-#endif // PGTDETECTORINFO_H
+#endif // CLSPGTDETECTORINFO_H

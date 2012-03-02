@@ -18,12 +18,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef MCPDETECTORINFO_H
-#define MCPDETECTORINFO_H
+#ifndef SGMMCPDETECTORINFO_H
+#define SGMMCPDETECTORINFO_H
 
-#include "AMDetectorInfo.h"
+#include "dataman/info/AMDetectorInfo.h"
 
-class MCPDetectorInfo : public AMDetectorInfo
+class SGMMCPDetectorInfo : public AMDetectorInfo
 {
 Q_OBJECT
 	Q_PROPERTY(double hvSetpoint READ hvSetpoint WRITE setHVSetpoint)
@@ -33,14 +33,14 @@ Q_OBJECT
 	Q_CLASSINFO("AMDbObject_Attributes", "description=MCP Detector")
 
 public:
-	MCPDetectorInfo(const QString& name, const QString& description, QObject *parent = 0);
+	SGMMCPDetectorInfo(const QString& name, const QString& description, QObject *parent = 0);
 
-	MCPDetectorInfo(const MCPDetectorInfo &original);
+	SGMMCPDetectorInfo(const SGMMCPDetectorInfo &original);
 
 	/// Creates a new info pointer from this one, caller is responsible for memory
 	virtual AMDetectorInfo* toNewInfo() const;
 
-	MCPDetectorInfo& operator=(const MCPDetectorInfo& other);
+	SGMMCPDetectorInfo& operator=(const SGMMCPDetectorInfo& other);
 
 	/// Operational setpoint for High Voltage (HV)
 	double hvSetpoint() const;
@@ -70,4 +70,4 @@ protected:
 };
 
 
-#endif // MCPDETECTORINFO_H
+#endif // SGMMCPDETECTORINFO_H

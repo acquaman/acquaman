@@ -18,81 +18,85 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "PGTDetectorInfo.h"
+#include "SGMMCPDetectorInfo.h"
 
-PGTDetectorInfo::PGTDetectorInfo(const QString& name, const QString& description, QObject *parent) : AMSpectralOutputDetectorInfo(name, description, 1024, "energy", QStringList(), parent)
+SGMMCPDetectorInfo::SGMMCPDetectorInfo(const QString& name, const QString& description, QObject *parent) : AMDetectorInfo(name, description, parent)
 {
 	hvSetpoint_ = double(0.0);
 	hvSetpointRangeMin_ = double(0.0);
-	hvSetpointRangeMax_ = double(180.0);
+	hvSetpointRangeMax_ = double(1400.0);
+	units_ = "counts";
 }
 
-PGTDetectorInfo::PGTDetectorInfo(const PGTDetectorInfo &original) :
-		AMSpectralOutputDetectorInfo(original)
+SGMMCPDetectorInfo::SGMMCPDetectorInfo(const SGMMCPDetectorInfo &original) :
+		AMDetectorInfo(original)
 {
 //	retreiveAndSetProperties(original);
 	this->operator =(original);
 }
 
-AMDetectorInfo* PGTDetectorInfo::toNewInfo() const{
-	return new PGTDetectorInfo(*this);
+AMDetectorInfo* SGMMCPDetectorInfo::toNewInfo() const{
+	return new SGMMCPDetectorInfo(*this);
 }
 
-PGTDetectorInfo& PGTDetectorInfo::operator =(const PGTDetectorInfo &other){
+SGMMCPDetectorInfo& SGMMCPDetectorInfo::operator =(const SGMMCPDetectorInfo& other){
 	if(this != &other){
 //		retreiveAndSetProperties(other);
-		AMSpectralOutputDetectorInfo::operator =(other);
+		AMDetectorInfo::operator =(other);
 		setHVSetpoint(other.hvSetpoint());
 		setHVSetpointRangeMin(other.hvSetpointRangeMin());
 		setHVSetpointRangeMax(other.hvSetpointRangeMax());
+		setUnits(other.units());
 	}
 	return *this;
 }
 
-
-double PGTDetectorInfo::hvSetpoint() const {
+double SGMMCPDetectorInfo::hvSetpoint() const
+{
 	return hvSetpoint_;
 }
 
-double PGTDetectorInfo::hvSetpointRangeMin() const {
+double SGMMCPDetectorInfo::hvSetpointRangeMin() const
+{
 	return hvSetpointRangeMin_;
 }
 
-double PGTDetectorInfo::hvSetpointRangeMax() const {
+double SGMMCPDetectorInfo::hvSetpointRangeMax() const
+{
 	return hvSetpointRangeMax_;
 }
 
-QPair<double, double> PGTDetectorInfo::hvSetpointRange() const {
+QPair<double, double> SGMMCPDetectorInfo::hvSetpointRange() const
+{
 	return QPair<double, double>(hvSetpointRangeMin_, hvSetpointRangeMax_);
 }
 
-QDebug PGTDetectorInfo::qDebugPrint(QDebug &d) const{
-	d << hvSetpoint() << "[hvSetpoint]"
-			<< integrationMode() << "[integrationMode]"
-			<< integrationTime() << "[integrationTime]";
+QDebug SGMMCPDetectorInfo::qDebugPrint(QDebug &d) const{
+	d << hvSetpoint() << "[hvSetpoint]";
 	return d;
 }
 
-bool PGTDetectorInfo::hasDetails() const {
+bool SGMMCPDetectorInfo::hasDetails() const
+{
 	return true;
 }
 
-void PGTDetectorInfo::setHVSetpoint(double hvSetpoint) {
+void SGMMCPDetectorInfo::setHVSetpoint(double hvSetpoint) {
 	hvSetpoint_ = hvSetpoint;
 	setModified(true);
 }
 
-void PGTDetectorInfo::setHVSetpointRangeMin(double min) {
+void SGMMCPDetectorInfo::setHVSetpointRangeMin(double min) {
 	hvSetpointRangeMin_ = min;
 	setModified(true);
 }
 
-void PGTDetectorInfo::setHVSetpointRangeMax(double max) {
+void SGMMCPDetectorInfo::setHVSetpointRangeMax(double max) {
 	hvSetpointRangeMax_ = max;
 	setModified(true);
 }
 
-void PGTDetectorInfo::setHVSetpointRange(QPair<double, double> range){
+void SGMMCPDetectorInfo::setHVSetpointRange(QPair<double, double> range){
 	hvSetpointRangeMin_ = range.first;
 	hvSetpointRangeMax_ = range.second;
 	setModified(true);

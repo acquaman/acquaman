@@ -359,16 +359,16 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/util/AMPeriodicTable.h \
 	source/util/AMElement.h \
 	source/dataman/info/AMSpectralOutputDetectorInfo.h \
-	source/dataman/info/MCPDetectorInfo.h \
-	source/dataman/info/PGTDetectorInfo.h \
+	source/dataman/SGM/SGMMCPDetectorInfo.h \
+	source/dataman/info/CLSPGTDetectorInfo.h \
 	source/beamline/AMSingleControlDetector.h \
 	source/beamline/AMSpectralOutputDetector.h \
-	source/beamline/PGTDetector.h \
-	source/beamline/MCPDetector.h \
+	source/beamline/CLS/CLSPGTDetector.h \
+	source/beamline/SGM/SGMMCPDetector.h \
 	source/ui/beamline/AMDetectorViewSupport.h \
 	source/ui/beamline/AMSingleControlDetectorView.h \
-	source/ui/beamline/MCPDetectorView.h \
-	source/ui/beamline/PGTDetectorView.h \
+	source/ui/SGM/SGMMCPDetectorView.h \
+	source/ui/CLS/CLSPGTDetectorView.h \
 	source/ui/beamline/AMDetectorSetView.h \
 	source/beamline/AMDetectorSet.h \
 	source/dataman/info/AMROIInfo.h \
@@ -392,9 +392,9 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/ui/AMTopFrame.h \
 	source/actions/AMBeamlineSamplePlateMoveAction.h \
 	source/actions/AMBeamlineFiducializationMoveAction.h \
-	source/dataman/info/OceanOptics65000DetectorInfo.h \
-	source/beamline/OceanOptics65000Detector.h \
-	source/ui/beamline/OceanOptics65000DetectorView.h \
+	source/dataman/info/CLSOceanOptics65000DetectorInfo.h \
+	source/beamline/CLS/CLSOceanOptics65000Detector.h \
+	source/ui/CLS/CLSOceanOptics65000DetectorView.h \
 	source/dataman/SGM/SGM2011XASFileLoader.h \
 	source/beamline/CLS/CLSMAXvMotor.h \
 	source/analysis/AM1DDerivativeAB.h \
@@ -704,16 +704,16 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/util/AMPeriodicTable.cpp \
 	source/util/AMElement.cpp \
 	source/dataman/info/AMSpectralOutputDetectorInfo.cpp \
-	source/dataman/info/MCPDetectorInfo.cpp \
-	source/dataman/info/PGTDetectorInfo.cpp \
+	source/dataman/SGM/SGMMCPDetectorInfo.cpp \
+	source/dataman/info/CLSPGTDetectorInfo.cpp \
 	source/beamline/AMSingleControlDetector.cpp \
 	source/beamline/AMSpectralOutputDetector.cpp \
-	source/beamline/PGTDetector.cpp \
-	source/beamline/MCPDetector.cpp \
+	source/beamline/CLS/CLSPGTDetector.cpp \
+	source/beamline/SGM/SGMMCPDetector.cpp \
 	source/ui/beamline/AMDetectorViewSupport.cpp \
 	source/ui/beamline/AMSingleControlDetectorView.cpp \
-	source/ui/beamline/MCPDetectorView.cpp \
-	source/ui/beamline/PGTDetectorView.cpp \
+	source/ui/SGM/SGMMCPDetectorView.cpp \
+	source/ui/CLS/CLSPGTDetectorView.cpp \
 	source/ui/beamline/AMDetectorSetView.cpp \
 	source/beamline/AMDetectorSet.cpp \
 	source/dataman/info/AMROIInfo.cpp \
@@ -737,9 +737,9 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 #	source/ui/dataman/AM3dDataSourceView.cpp \
 	source/actions/AMBeamlineSamplePlateMoveAction.cpp \
 	source/actions/AMBeamlineFiducializationMoveAction.cpp \
-	source/dataman/info/OceanOptics65000DetectorInfo.cpp \
-	source/beamline/OceanOptics65000Detector.cpp \
-	source/ui/beamline/OceanOptics65000DetectorView.cpp \
+	source/dataman/info/CLSOceanOptics65000DetectorInfo.cpp \
+	source/beamline/CLS/CLSOceanOptics65000Detector.cpp \
+	source/ui/CLS/CLSOceanOptics65000DetectorView.cpp \
 	source/dataman/SGM/SGM2011XASFileLoader.cpp \
 	source/beamline/CLS/CLSMAXvMotor.cpp \
 	source/analysis/AM1DDerivativeAB.cpp \

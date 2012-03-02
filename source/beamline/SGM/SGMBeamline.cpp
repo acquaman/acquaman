@@ -1472,32 +1472,32 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			FastDetectors_->addDetector(teyScalerDetector_, true);
 		}
 		else if(!tfyPicoDetector_ && ctrlSet->name() == "TFY Pico Controls"){
-			tfyPicoDetector_ = new MCPDetector(tfyPico_->name(), tfyPico_, tfyHV_, createHV109OnActions(), createHV109OffActions(), AMDetector::WaitRead, this);
+			tfyPicoDetector_ = new SGMMCPDetector(tfyPico_->name(), tfyPico_, tfyHV_, createHV109OnActions(), createHV109OffActions(), AMDetector::WaitRead, this);
 			tfyPicoDetector_->setDescription(tfyPico_->description());
 			allDetectors_->addDetector(tfyPicoDetector_);
 			XASDetectors_->addDetector(tfyPicoDetector_, true);
 			connect(tfyHVToggle_, SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
-			connect( ((MCPDetector*)tfyPicoDetector_)->hvCtrl(), SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
+			connect( ((SGMMCPDetector*)tfyPicoDetector_)->hvCtrl(), SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
 			emit detectorHVChanged();
 		}
 		else if(!tfyScalerDetector_ && ctrlSet->name() == "TFY Scaler Controls"){
-			tfyScalerDetector_ = new MCPDetector(tfyScaler_->name(), tfyScaler_, tfyHV_, createHV109OnActions(), createHV109OffActions(), AMDetector::WaitRead, this);
+			tfyScalerDetector_ = new SGMMCPDetector(tfyScaler_->name(), tfyScaler_, tfyHV_, createHV109OnActions(), createHV109OffActions(), AMDetector::WaitRead, this);
 			tfyScalerDetector_->setDescription(tfyScaler_->description());
 			allDetectors_->addDetector(tfyScalerDetector_);
 			XASDetectors_->addDetector(tfyScalerDetector_, true);
 			FastDetectors_->addDetector(tfyScalerDetector_, true);
 			connect(tfyHVToggle_, SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
-			connect( ((MCPDetector*)tfyScalerDetector_)->hvCtrl(), SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()) );
+			connect( ((SGMMCPDetector*)tfyScalerDetector_)->hvCtrl(), SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()) );
 			emit detectorHVChanged();
 		}
 		else if(!pgtDetector_ && ctrlSet->name() == "SDD Controls"){
-			pgtDetector_ = new PGTDetector(pgt_->name(), pgt_, pgtHV_, pgtIntegrationTime_, pgtIntegrationMode_, createHVPGTOnActions(), createHVPGTOffActions(), AMDetector::WaitRead, this);
+			pgtDetector_ = new CLSPGTDetector(pgt_->name(), pgt_, pgtHV_, pgtIntegrationTime_, pgtIntegrationMode_, createHVPGTOnActions(), createHVPGTOffActions(), AMDetector::WaitRead, this);
 			pgtDetector_->setDescription(pgt_->description());
 			allDetectors_->addDetector(pgtDetector_);
 			XASDetectors_->addDetector(pgtDetector_);
 		}
 		else if(!oos65000Detector_ && ctrlSet->name() == "OOS65000 Controls"){
-			oos65000Detector_ = new OceanOptics65000Detector(oos65000_->name(), oos65000_, oos65000IntegrationTime_, AMDetector::WaitRead, this);
+			oos65000Detector_ = new CLSOceanOptics65000Detector(oos65000_->name(), oos65000_, oos65000IntegrationTime_, AMDetector::WaitRead, this);
 			oos65000Detector_->setDescription(oos65000_->description());
 			allDetectors_->addDetector(oos65000Detector_);
 			XASDetectors_->addDetector(oos65000Detector_);

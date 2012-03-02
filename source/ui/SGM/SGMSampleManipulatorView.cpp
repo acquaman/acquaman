@@ -543,8 +543,8 @@ void SGMSampleManipulatorView::onHVButtonClicked(){
 }
 
 void SGMSampleManipulatorView::onHVStateChanged(){
-	if(SGMBeamline::sgm()->tfyDetector() && ((MCPDetector*)SGMBeamline::sgm()->tfyDetector())->hvCtrl()){
-		double curHVValue = ((MCPDetector*)SGMBeamline::sgm()->tfyDetector())->hvCtrl()->value();
+	if(SGMBeamline::sgm()->tfyDetector() && ((SGMMCPDetector*)SGMBeamline::sgm()->tfyDetector())->hvCtrl()){
+		double curHVValue = ((SGMMCPDetector*)SGMBeamline::sgm()->tfyDetector())->hvCtrl()->value();
 		switch( (int)(SGMBeamline::sgm()->tfyHVToggle()->value()) ){
 		case 0:
 			hvButton_->setText("HV is OFF");

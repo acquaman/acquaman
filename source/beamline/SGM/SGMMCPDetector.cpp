@@ -18,10 +18,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "MCPDetector.h"
+#include "SGMMCPDetector.h"
 
-MCPDetector::MCPDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod, QObject *parent) :
-		MCPDetectorInfo(name, name, parent), AMDetector(name, readMethod)
+SGMMCPDetector::SGMMCPDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod, QObject *parent) :
+		SGMMCPDetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
 	ownsControlSets_ = false;
 	toggleOnAction_ = toggleOnAction;
@@ -30,8 +30,8 @@ MCPDetector::MCPDetector(const QString &name, AMControlSet *readingsControls, AM
 }
 
 
-MCPDetector::MCPDetector(const QString &name, AMControl *reading, AMControl *hv, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod, QObject *parent) :
-		MCPDetectorInfo(name, name, parent), AMDetector(name, readMethod)
+SGMMCPDetector::SGMMCPDetector(const QString &name, AMControl *reading, AMControl *hv, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod, QObject *parent) :
+		SGMMCPDetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
 	ownsControlSets_ = true;
 	AMControlSet *readingsControls = new AMControlSet(this);
@@ -43,71 +43,71 @@ MCPDetector::MCPDetector(const QString &name, AMControl *reading, AMControl *hv,
 	initializeFromControlSet(readingsControls, settingsControls);
 }
 
-MCPDetector::~MCPDetector(){
+SGMMCPDetector::~SGMMCPDetector(){
 	/* NTBA March 14, 2011 David Chevrier
 	   Need to take care of ownsControlSet_
 	*/
 }
 
-const QMetaObject* MCPDetector::getMetaObject() {
+const QMetaObject* SGMMCPDetector::getMetaObject() {
 	return metaObject();
 }
 
-double MCPDetector::reading() const{
+double SGMMCPDetector::reading() const{
 	if(isConnected())
 		return readingsControls_->at(0)->value();
 	else
 		return -1;
 }
 
-AMDetectorInfo* MCPDetector::toInfo() const{
-	return new MCPDetectorInfo(*this);
+AMDetectorInfo* SGMMCPDetector::toInfo() const{
+	return new SGMMCPDetectorInfo(*this);
 }
 
-MCPDetectorInfo MCPDetector::toMCPInfo() const{
-	return MCPDetectorInfo(*this);
+SGMMCPDetectorInfo SGMMCPDetector::toMCPInfo() const{
+	return SGMMCPDetectorInfo(*this);
 }
 
-bool MCPDetector::isPoweredOn(){
+bool SGMMCPDetector::isPoweredOn(){
 	return poweredOn_;
 }
 
-AMControl* MCPDetector::readingCtrl() const {
+AMControl* SGMMCPDetector::readingCtrl() const {
 	if(isConnected())
 		return readingsControls_->at(0);
 	return 0;
 }
 
-AMControl* MCPDetector::hvCtrl() const {
+AMControl* SGMMCPDetector::hvCtrl() const {
 	if(isConnected())
 		return settingsControls_->at(0);
 	return 0;
 }
 
-bool MCPDetector::setFromInfo(const AMDetectorInfo *info){
-	const MCPDetectorInfo *di = qobject_cast<const MCPDetectorInfo*>(info);
+bool SGMMCPDetector::setFromInfo(const AMDetectorInfo *info){
+	const SGMMCPDetectorInfo *di = qobject_cast<const SGMMCPDetectorInfo*>(info);
 	if(!di)
 		return false;
 	hvCtrl()->move(di->hvSetpoint());
 	return true;
 }
 
-bool MCPDetector::setFromInfo(const MCPDetectorInfo& info){
+bool SGMMCPDetector::setFromInfo(const SGMMCPDetectorInfo& info){
 	hvCtrl()->move(info.hvSetpoint());
 	return true;
 }
 
-bool MCPDetector::activate(){
+bool SGMMCPDetector::activate(){
 	if(!hvCtrl()->withinTolerance(1600))
 		hvCtrl()->move(1600);
 	return true;
 }
 
-AMBeamlineActionItem* MCPDetector::turnOnAction(){
+AMBeamlineActionItem* SGMMCPDetector::turnOnAction(){
 	return toggleOnAction_->createCopy();
 }
 
-bool MCPDetector::settingsMatchFbk(MCPDetectorInfo *settings){
+bool SGMMCPDetector::settingsMatchFbk(SGMMCPDetectorInfo *settings){
 	bool rVal = false;
 	if( fabs(settings->hvSetpoint() - hvCtrl()->value()) > hvCtrl()->tolerance())
 		return rVal;
@@ -117,33 +117,33 @@ bool MCPDetector::settingsMatchFbk(MCPDetectorInfo *settings){
 	}
 }
 
-QString MCPDetector::description() const{
+QString SGMMCPDetector::description() const{
 	return AMDetectorInfo::description();
 }
 
-bool MCPDetector::setControls(MCPDetectorInfo *mcpSettings){
+bool SGMMCPDetector::setControls(SGMMCPDetectorInfo *mcpSettings){
 	Q_UNUSED(mcpSettings)
 //	hvCtrl()->move( mcpSettings->hvSetpoint() );
 	return true;
 }
 
-void MCPDetector::setDescription(const QString &description){
+void SGMMCPDetector::setDescription(const QString &description){
 	AMDetectorInfo::setDescription(description);
 }
 
-void MCPDetector::onControlsConnected(bool connected){
+void SGMMCPDetector::onControlsConnected(bool connected){
 	Q_UNUSED(connected)
 	bool allConnected = readingsControls_->isConnected() && settingsControls_->isConnected();
 	if(allConnected != isConnected())
 		setConnected(allConnected);
 }
 
-void MCPDetector::onReadingsControlValuesChanged(){
+void SGMMCPDetector::onReadingsControlValuesChanged(){
 	if(isConnected())
 		emitReadingsChanged();
 }
 
-void MCPDetector::onSettingsControlValuesChanged(){
+void SGMMCPDetector::onSettingsControlValuesChanged(){
 	if(isConnected()){
 		setHVSetpoint(hvCtrl()->value());
 		bool lastPoweredOn = poweredOn_;
@@ -154,7 +154,7 @@ void MCPDetector::onSettingsControlValuesChanged(){
 	}
 }
 
-void MCPDetector::initializeFromControlSet(AMControlSet *readingsControls, AMControlSet *settingsControls){
+void SGMMCPDetector::initializeFromControlSet(AMControlSet *readingsControls, AMControlSet *settingsControls){
 	readingsControls_ = 0; //NULL
 	settingsControls_ = 0; //NULL
 	poweredOn_ = false;

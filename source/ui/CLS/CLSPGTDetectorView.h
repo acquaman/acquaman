@@ -18,16 +18,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef PGTDETECTORVIEW_H
-#define PGTDETECTORVIEW_H
+#ifndef CLSPGTDETECTORVIEW_H
+#define CLSPGTDETECTORVIEW_H
 
-#include "AMDetectorView.h"
+#include "ui/beamline/AMDetectorView.h"
 
-class PGTBriefDetectorView : public AMBriefDetectorView
+class CLSPGTBriefDetectorView : public AMBriefDetectorView
 {
 Q_OBJECT
 public:
-	Q_INVOKABLE explicit PGTBriefDetectorView(PGTDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
+	Q_INVOKABLE explicit CLSPGTBriefDetectorView(CLSPGTDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
 
 	AMDetector* detector();
 
@@ -39,17 +39,17 @@ protected:
 	QToolButton *powerState_;
 	QIcon powerOnState_, powerOffState_;
 	QHBoxLayout *hl_;
-	PGTDetector *detector_;
+	CLSPGTDetector *detector_;
 
 	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
 	bool setDetector(AMDetector *detector, bool configureOnly = false);
 };
 
-class PGTDetailedDetectorView : public AMDetailedDetectorView
+class CLSPGTDetailedDetectorView : public AMDetailedDetectorView
 {
 Q_OBJECT
 public:
-	Q_INVOKABLE explicit PGTDetailedDetectorView(PGTDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
+	Q_INVOKABLE explicit CLSPGTDetailedDetectorView(CLSPGTDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
 
 	/* NTBA March 14, 2011 David Chevrier
 	   Needs a destructor for configurationSettings_
@@ -67,8 +67,8 @@ protected:
 	void setConfigurationSettingsFromDetector();
 
 protected:
-	PGTDetector *detector_;
-	PGTDetectorInfo *configurationSettings_;
+	CLSPGTDetector *detector_;
+	CLSPGTDetectorInfo *configurationSettings_;
 	QGridLayout *gl_;
 	AMControlEditor *readingCE_;
 	AMControlEditor *hvCE_;
@@ -79,4 +79,4 @@ protected:
 	bool setDetector(AMDetector *detector, bool configureOnly = false);
 };
 
-#endif // PGTDETECTORVIEW_H
+#endif // CLSPGTDETECTORVIEW_H

@@ -18,85 +18,81 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "MCPDetectorInfo.h"
+#include "CLSPGTDetectorInfo.h"
 
-MCPDetectorInfo::MCPDetectorInfo(const QString& name, const QString& description, QObject *parent) : AMDetectorInfo(name, description, parent)
+CLSPGTDetectorInfo::CLSPGTDetectorInfo(const QString& name, const QString& description, QObject *parent) : AMSpectralOutputDetectorInfo(name, description, 1024, "energy", QStringList(), parent)
 {
 	hvSetpoint_ = double(0.0);
 	hvSetpointRangeMin_ = double(0.0);
-	hvSetpointRangeMax_ = double(1400.0);
-	units_ = "counts";
+	hvSetpointRangeMax_ = double(180.0);
 }
 
-MCPDetectorInfo::MCPDetectorInfo(const MCPDetectorInfo &original) :
-		AMDetectorInfo(original)
+CLSPGTDetectorInfo::CLSPGTDetectorInfo(const CLSPGTDetectorInfo &original) :
+		AMSpectralOutputDetectorInfo(original)
 {
 //	retreiveAndSetProperties(original);
 	this->operator =(original);
 }
 
-AMDetectorInfo* MCPDetectorInfo::toNewInfo() const{
-	return new MCPDetectorInfo(*this);
+AMDetectorInfo* CLSPGTDetectorInfo::toNewInfo() const{
+	return new CLSPGTDetectorInfo(*this);
 }
 
-MCPDetectorInfo& MCPDetectorInfo::operator =(const MCPDetectorInfo& other){
+CLSPGTDetectorInfo& CLSPGTDetectorInfo::operator =(const CLSPGTDetectorInfo &other){
 	if(this != &other){
 //		retreiveAndSetProperties(other);
-		AMDetectorInfo::operator =(other);
+		AMSpectralOutputDetectorInfo::operator =(other);
 		setHVSetpoint(other.hvSetpoint());
 		setHVSetpointRangeMin(other.hvSetpointRangeMin());
 		setHVSetpointRangeMax(other.hvSetpointRangeMax());
-		setUnits(other.units());
 	}
 	return *this;
 }
 
-double MCPDetectorInfo::hvSetpoint() const
-{
+
+double CLSPGTDetectorInfo::hvSetpoint() const {
 	return hvSetpoint_;
 }
 
-double MCPDetectorInfo::hvSetpointRangeMin() const
-{
+double CLSPGTDetectorInfo::hvSetpointRangeMin() const {
 	return hvSetpointRangeMin_;
 }
 
-double MCPDetectorInfo::hvSetpointRangeMax() const
-{
+double CLSPGTDetectorInfo::hvSetpointRangeMax() const {
 	return hvSetpointRangeMax_;
 }
 
-QPair<double, double> MCPDetectorInfo::hvSetpointRange() const
-{
+QPair<double, double> CLSPGTDetectorInfo::hvSetpointRange() const {
 	return QPair<double, double>(hvSetpointRangeMin_, hvSetpointRangeMax_);
 }
 
-QDebug MCPDetectorInfo::qDebugPrint(QDebug &d) const{
-	d << hvSetpoint() << "[hvSetpoint]";
+QDebug CLSPGTDetectorInfo::qDebugPrint(QDebug &d) const{
+	d << hvSetpoint() << "[hvSetpoint]"
+			<< integrationMode() << "[integrationMode]"
+			<< integrationTime() << "[integrationTime]";
 	return d;
 }
 
-bool MCPDetectorInfo::hasDetails() const
-{
+bool CLSPGTDetectorInfo::hasDetails() const {
 	return true;
 }
 
-void MCPDetectorInfo::setHVSetpoint(double hvSetpoint) {
+void CLSPGTDetectorInfo::setHVSetpoint(double hvSetpoint) {
 	hvSetpoint_ = hvSetpoint;
 	setModified(true);
 }
 
-void MCPDetectorInfo::setHVSetpointRangeMin(double min) {
+void CLSPGTDetectorInfo::setHVSetpointRangeMin(double min) {
 	hvSetpointRangeMin_ = min;
 	setModified(true);
 }
 
-void MCPDetectorInfo::setHVSetpointRangeMax(double max) {
+void CLSPGTDetectorInfo::setHVSetpointRangeMax(double max) {
 	hvSetpointRangeMax_ = max;
 	setModified(true);
 }
 
-void MCPDetectorInfo::setHVSetpointRange(QPair<double, double> range){
+void CLSPGTDetectorInfo::setHVSetpointRange(QPair<double, double> range){
 	hvSetpointRangeMin_ = range.first;
 	hvSetpointRangeMax_ = range.second;
 	setModified(true);

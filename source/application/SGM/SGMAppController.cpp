@@ -33,9 +33,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMScanController.h"
 #include "ui/beamline/AMDetectorView.h"
 #include "ui/beamline/AMSingleControlDetectorView.h"
-#include "ui/beamline/MCPDetectorView.h"
-#include "ui/beamline/PGTDetectorView.h"
-#include "ui/beamline/OceanOptics65000DetectorView.h"
+#include "ui/SGM/SGMMCPDetectorView.h"
+#include "ui/CLS/CLSPGTDetectorView.h"
+#include "ui/CLS/CLSOceanOptics65000DetectorView.h"
 #include "ui/CLS/CLSAmptekSDD123DetectorView.h"
 
 #include "ui/AMMainWindow.h"
@@ -79,19 +79,19 @@ bool SGMAppController::startup() {
 
 		SGMBeamline::sgm();
 
-		AMDbObjectSupport::s()->registerClass<MCPDetectorInfo>();
-		AMDbObjectSupport::s()->registerClass<PGTDetectorInfo>();
-		AMDbObjectSupport::s()->registerClass<OceanOptics65000DetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<SGMMCPDetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<CLSPGTDetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<CLSOceanOptics65000DetectorInfo>();
 		AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
 		AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration>();
 
 		AMDetectorViewSupport::registerClass<AMSingleControlBriefDetectorView, AMSingleControlDetector>();
-		AMDetectorViewSupport::registerClass<MCPBriefDetectorView, MCPDetector>();
-		AMDetectorViewSupport::registerClass<MCPDetailedDetectorView, MCPDetector>();
-		AMDetectorViewSupport::registerClass<PGTBriefDetectorView, PGTDetector>();
-		AMDetectorViewSupport::registerClass<PGTDetailedDetectorView, PGTDetector>();
-		AMDetectorViewSupport::registerClass<OceanOptics65000BriefDetectorView, OceanOptics65000Detector>();
-		AMDetectorViewSupport::registerClass<OceanOptics65000DetailedDetectorView, OceanOptics65000Detector>();
+		AMDetectorViewSupport::registerClass<SGMMCPBriefDetectorView, SGMMCPDetector>();
+		AMDetectorViewSupport::registerClass<SGMMCPDetailedDetectorView, SGMMCPDetector>();
+		AMDetectorViewSupport::registerClass<CLSPGTBriefDetectorView, CLSPGTDetector>();
+		AMDetectorViewSupport::registerClass<CLSPGTDetailedDetectorView, CLSPGTDetector>();
+		AMDetectorViewSupport::registerClass<CLSOceanOptics65000BriefDetectorView, CLSOceanOptics65000Detector>();
+		AMDetectorViewSupport::registerClass<CLSOceanOptics65000DetailedDetectorView, CLSOceanOptics65000Detector>();
 		AMDetectorViewSupport::registerClass<CLSAmptekSDD123BriefDetectorView, CLSAmptekSDD123Detector>();
 		AMDetectorViewSupport::registerClass<CLSAmptekSDD123DetailedDetectorView, CLSAmptekSDD123Detector>();
 
@@ -177,7 +177,7 @@ bool SGMAppController::startup() {
 		connect(SGMBeamline::sgm()->rawScaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onSGMScalerConnected(bool)));
 
 		amptekSDD1View_ = 0;
-		connect(SGMBeamline::sgm()->rawAmptekSDD1(), SIGNAL(connected(bool)), this, SLOT(onSGMAmptekSDD1Connected(bool)));
+		connect(SGMBeamline::sgm()->amptekSDD1()->signalSource(), SIGNAL(connected(bool)), this, SLOT(onSGMAmptekSDD1Connected(bool)));
 
 		mw_->insertHeading("Experiment Setup", 1);
 		//////////
@@ -274,8 +274,7 @@ void SGMAppController::onSGMScalerConnected(bool connected){
 
 void SGMAppController::onSGMAmptekSDD1Connected(bool connected){
 	if(connected && ! amptekSDD1View_){
-		//amptekSDD1View_ = new CLSAmptekSDD123DetailedDetectorView(SGMBeamline::sgm()->amptekSDD1());
-		amptekSDD1View_ =AMDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->amptekSDD1());
+		amptekSDD1View_ = AMDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->amptekSDD1());
 		mw_->addPane(amptekSDD1View_, "Beamline Control", "SGM SDD", ":/system-software-update.png");
 	}
 }

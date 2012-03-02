@@ -18,12 +18,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef OCEANOPTICS65000DETECTORINFO_H
-#define OCEANOPTICS65000DETECTORINFO_H
+#ifndef CLSOCEANOPTICS65000DETECTORINFO_H
+#define CLSOCEANOPTICS65000DETECTORINFO_H
 
 #include "AMDetectorInfo.h"
 
-class OceanOptics65000DetectorInfo : public AMDetectorInfo
+class CLSOceanOptics65000DetectorInfo : public AMDetectorInfo
 {
 Q_OBJECT
 
@@ -35,14 +35,14 @@ Q_PROPERTY(double integrationTime READ integrationTime WRITE setIntegrationTime)
 Q_CLASSINFO("AMDbObject_Attributes", "description=Ocean Optics 65000 USB Spectrometer Detector")
 
 public:
-	OceanOptics65000DetectorInfo(const QString &name, const QString &description, QObject *parent = 0);
+	CLSOceanOptics65000DetectorInfo(const QString &name, const QString &description, QObject *parent = 0);
 
-	OceanOptics65000DetectorInfo(const OceanOptics65000DetectorInfo &original);
+	CLSOceanOptics65000DetectorInfo(const CLSOceanOptics65000DetectorInfo &original);
 
 	/// Creates a new info pointer from this one, caller is responsible for memory
 	virtual AMDetectorInfo* toNewInfo() const;
 
-	OceanOptics65000DetectorInfo& operator=(const OceanOptics65000DetectorInfo& other);
+	CLSOceanOptics65000DetectorInfo& operator=(const CLSOceanOptics65000DetectorInfo& other);
 
 	/// Number of bins in spectrometer
 	int binCount() const;
@@ -85,4 +85,4 @@ protected:
 	double integrationTime_;
 };
 
-#endif // OCEANOPTICS65000DETECTORINFO_H
+#endif // CLSOCEANOPTICS65000DETECTORINFO_H

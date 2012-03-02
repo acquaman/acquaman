@@ -18,10 +18,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "PGTDetector.h"
+#include "CLSPGTDetector.h"
 
-PGTDetector::PGTDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod, QObject *parent) :
-		PGTDetectorInfo(name, name, parent), AMDetector(name, readMethod)
+CLSPGTDetector::CLSPGTDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod, QObject *parent) :
+		CLSPGTDetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
 	ownsControlSets_ = false;
 	toggleOnAction_ = toggleOnAction;
@@ -29,8 +29,8 @@ PGTDetector::PGTDetector(const QString &name, AMControlSet *readingsControls, AM
 	initializeFromControlSet(readingsControls, settingsControls);
 }
 
-PGTDetector::PGTDetector(const QString &name, AMControl *dataWaveform, AMControl *hv, AMControl *integrationTime, AMControl *integrationMode, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod, QObject *parent) :
-		PGTDetectorInfo(name, name, parent), AMDetector(name, readMethod)
+CLSPGTDetector::CLSPGTDetector(const QString &name, AMControl *dataWaveform, AMControl *hv, AMControl *integrationTime, AMControl *integrationMode, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod, QObject *parent) :
+		CLSPGTDetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
 	ownsControlSets_ = true;
 	AMControlSet *readingsControls = new AMControlSet(this);
@@ -44,34 +44,34 @@ PGTDetector::PGTDetector(const QString &name, AMControl *dataWaveform, AMControl
 	initializeFromControlSet(readingsControls, settingsControls);
 }
 
-PGTDetector::~PGTDetector()
+CLSPGTDetector::~CLSPGTDetector()
 {
 	/* NTBA March 14, 2011 David Chevrier
 	   Need to take care of ownsControlSet_
 	   */
 }
 
-const QMetaObject* PGTDetector::getMetaObject() {
+const QMetaObject* CLSPGTDetector::getMetaObject() {
 	return metaObject();
 }
 
-double PGTDetector::reading() const{
+double CLSPGTDetector::reading() const{
 	if(isConnected())
 		return dataWaveformCtrl()->value();
 	else
 		return -1;
 }
 
-AMDetectorInfo* PGTDetector::toInfo() const{
-	return new PGTDetectorInfo(*this);
+AMDetectorInfo* CLSPGTDetector::toInfo() const{
+	return new CLSPGTDetectorInfo(*this);
 }
 
-PGTDetectorInfo PGTDetector::toPGTInfo() const{
-	return PGTDetectorInfo(*this);
+CLSPGTDetectorInfo CLSPGTDetector::toPGTInfo() const{
+	return CLSPGTDetectorInfo(*this);
 }
 
-bool PGTDetector::setFromInfo(const AMDetectorInfo *info){
-	const PGTDetectorInfo *di = qobject_cast<const PGTDetectorInfo*>(info);
+bool CLSPGTDetector::setFromInfo(const AMDetectorInfo *info){
+	const CLSPGTDetectorInfo *di = qobject_cast<const CLSPGTDetectorInfo*>(info);
 	if(!di)
 		return false;
 	//integrationTimeCtrl()->move(di->integrationTime());
@@ -80,7 +80,7 @@ bool PGTDetector::setFromInfo(const AMDetectorInfo *info){
 	return true;
 }
 
-bool PGTDetector::setFromInfo(const PGTDetectorInfo& info){
+bool CLSPGTDetector::setFromInfo(const CLSPGTDetectorInfo& info){
 	Q_UNUSED(info)
 	//integrationTimeCtrl()->move(info.integrationTime());
 	//integrationModeCtrl()->move(integrationModeCtrl()->enumNames().indexOf(info.integrationMode()));
@@ -88,41 +88,41 @@ bool PGTDetector::setFromInfo(const PGTDetectorInfo& info){
 	return true;
 }
 
-bool PGTDetector::isPoweredOn(){
+bool CLSPGTDetector::isPoweredOn(){
 	return poweredOn_;
 }
 
-bool PGTDetector::activate(){
+bool CLSPGTDetector::activate(){
 	hvCtrl()->move(180);
 	return true;
 }
 
-AMBeamlineActionItem* PGTDetector::turnOnAction(){
+AMBeamlineActionItem* CLSPGTDetector::turnOnAction(){
 	return toggleOnAction_->createCopy();
 }
 
-AMControl* PGTDetector::dataWaveformCtrl() const {
+AMControl* CLSPGTDetector::dataWaveformCtrl() const {
 	if(isConnected())
 		return readingsControls_->at(0);
 	else
 		return 0;
 }
 
-AMControl* PGTDetector::hvCtrl() const {
+AMControl* CLSPGTDetector::hvCtrl() const {
 	if(isConnected())
 		return settingsControls_->at(0);
 	else
 		return 0;
 }
 
-AMControl* PGTDetector::integrationTimeCtrl() const {
+AMControl* CLSPGTDetector::integrationTimeCtrl() const {
 	if(isConnected())
 		return settingsControls_->at(1);
 	else
 		return 0;
 }
 
-AMControl* PGTDetector::integrationModeCtrl() const {
+AMControl* CLSPGTDetector::integrationModeCtrl() const {
 	if(isConnected())
 		return settingsControls_->at(2);
 	else
@@ -131,7 +131,7 @@ AMControl* PGTDetector::integrationModeCtrl() const {
 
 
 
-bool PGTDetector::settingsMatchFbk(PGTDetectorInfo *settings){
+bool CLSPGTDetector::settingsMatchFbk(CLSPGTDetectorInfo *settings){
 	bool rVal = false;
 	if( fabs(settings->integrationTime() - integrationTimeCtrl()->value()) > integrationTimeCtrl()->tolerance() )
 		return rVal;
@@ -145,15 +145,15 @@ bool PGTDetector::settingsMatchFbk(PGTDetectorInfo *settings){
 	}
 }
 
-QString PGTDetector::description() const{
+QString CLSPGTDetector::description() const{
 	return AMDetectorInfo::description();
 }
 
-void PGTDetector::setDescription(const QString &description){
+void CLSPGTDetector::setDescription(const QString &description){
 	AMDetectorInfo::setDescription(description);
 }
 
-bool PGTDetector::setControls(PGTDetectorInfo *pgtSettings){
+bool CLSPGTDetector::setControls(CLSPGTDetectorInfo *pgtSettings){
 	Q_UNUSED(pgtSettings)
 //	hvCtrl()->move( pgtSettings->hvSetpoint() );
 //	integrationTimeCtrl()->move( pgtSettings->integrationTime() );
@@ -161,14 +161,14 @@ bool PGTDetector::setControls(PGTDetectorInfo *pgtSettings){
 	return true;
 }
 
-void PGTDetector::onControlsConnected(bool connected){
+void CLSPGTDetector::onControlsConnected(bool connected){
 	Q_UNUSED(connected)
 	bool allConnected = readingsControls_->isConnected() && settingsControls_->isConnected();
 	if(allConnected != isConnected())
 		setConnected(allConnected);
 }
 
-void PGTDetector::onSettingsControlValuesChanged(){
+void CLSPGTDetector::onSettingsControlValuesChanged(){
 	if(isConnected()){
 		setHVSetpoint(hvCtrl()->value());
 		setIntegrationTime(integrationTimeCtrl()->value());
@@ -181,12 +181,12 @@ void PGTDetector::onSettingsControlValuesChanged(){
 	}
 }
 
-void PGTDetector::onReadingsControlValuesChanged(){
+void CLSPGTDetector::onReadingsControlValuesChanged(){
 	if(isConnected())
 		emitReadingsChanged();
 }
 
-bool PGTDetector::initializeFromControlSet(AMControlSet *readingsControls, AMControlSet *settingsControls){
+bool CLSPGTDetector::initializeFromControlSet(AMControlSet *readingsControls, AMControlSet *settingsControls){
 	readingsControls_ = 0; //NULL
 	settingsControls_ = 0; //NULL
 	poweredOn_ = false;
