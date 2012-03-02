@@ -666,6 +666,10 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	unconnectedSets_.append(pgtControlSet_);
 	connect(pgtControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
+	pgtDetector_ = new CLSPGTDetector(pgt_->name(), "MCA1611-01", createHVPGTOnActions(), createHVPGTOffActions(), AMDetector::WaitRead, this);
+	pgtDetector_->setDescription(pgt_->description());
+	connect(pgtDetector_->signalSource(), SIGNAL(connected(bool)), this, SIGNAL(controlSetConnectionsChanged()));
+
 	oos65000ControlSet_ = new AMControlSet(this);
 	oos65000ControlSet_->setName("OOS65000 Controls");
 	oos65000ControlSet_->addControl(oos65000_);
@@ -805,6 +809,9 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 
 	FastDetectors_ = new AMDetectorSet(this);
 	FastDetectors_->setName("Fast Scan Detectors");
+
+	allDetectors_->addDetector(pgtDetector_);
+	XASDetectors_->addDetector(pgtDetector_);
 
 	currentSamplePlate_ = 0;//NULL
 
@@ -1491,10 +1498,13 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			emit detectorHVChanged();
 		}
 		else if(!pgtDetector_ && ctrlSet->name() == "SDD Controls"){
-			pgtDetector_ = new CLSPGTDetector(pgt_->name(), pgt_, pgtHV_, pgtIntegrationTime_, pgtIntegrationMode_, createHVPGTOnActions(), createHVPGTOffActions(), AMDetector::WaitRead, this);
+			/*
+			//pgtDetector_ = new CLSPGTDetector(pgt_->name(), pgt_, pgtHV_, pgtIntegrationTime_, pgtIntegrationMode_, createHVPGTOnActions(), createHVPGTOffActions(), AMDetector::WaitRead, this);
+			pgtDetector_ = new CLSPGTDetector("PGT", "MCA1611-01", createHVPGTOnActions(), createHVPGTOffActions(), AMDetector::WaitRead, this);
 			pgtDetector_->setDescription(pgt_->description());
 			allDetectors_->addDetector(pgtDetector_);
 			XASDetectors_->addDetector(pgtDetector_);
+			*/
 		}
 		else if(!oos65000Detector_ && ctrlSet->name() == "OOS65000 Controls"){
 			oos65000Detector_ = new CLSOceanOptics65000Detector(oos65000_->name(), oos65000_, oos65000IntegrationTime_, AMDetector::WaitRead, this);

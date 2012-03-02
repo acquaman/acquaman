@@ -29,8 +29,7 @@ class CLSPGTDetector : public CLSPGTDetectorInfo, public AMDetector
 {
 	Q_OBJECT
 public:
-	CLSPGTDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
-	CLSPGTDetector(const QString& name, AMControl *dataWaveform, AMControl *hv, AMControl *integrationTime, AMControl *integrationMode, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
+	CLSPGTDetector(const QString& name, const QString &baseName, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
 	~CLSPGTDetector();
 
 	const QMetaObject* getMetaObject();
@@ -74,12 +73,12 @@ protected slots:
 	void onSettingsControlValuesChanged();
 
 protected:
-	bool initializeFromControlSet(AMControlSet *readingsControls, AMControlSet *settingsControls);
+	AMControl *dataWaveformControl_;
+	AMControl *hvControl_;
+	AMControl *integrationTimeControl_;
+	AMControl *integrationModeControl_;
 
-protected:
-	AMControlSet *readingsControls_;
-	AMControlSet *settingsControls_;
-	bool ownsControlSets_;
+	AMControlSet *allControls_;
 
 	AMBeamlineActionItem *toggleOnAction_;
 	AMBeamlineActionItem *toggleOffAction_;

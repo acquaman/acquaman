@@ -20,28 +20,43 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSPGTDetector.h"
 
-CLSPGTDetector::CLSPGTDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod, QObject *parent) :
-		CLSPGTDetectorInfo(name, name, parent), AMDetector(name, readMethod)
+CLSPGTDetector::CLSPGTDetector(const QString &name, const QString &baseName, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod, QObject *parent) :
+	CLSPGTDetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
-	ownsControlSets_ = false;
 	toggleOnAction_ = toggleOnAction;
 	toggleOffAction_ = toggleOffAction;
-	initializeFromControlSet(readingsControls, settingsControls);
-}
+	allControls_ = new AMControlSet();
+	poweredOn_ = false;
 
-CLSPGTDetector::CLSPGTDetector(const QString &name, AMControl *dataWaveform, AMControl *hv, AMControl *integrationTime, AMControl *integrationMode, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod, QObject *parent) :
-		CLSPGTDetectorInfo(name, name, parent), AMDetector(name, readMethod)
-{
-	ownsControlSets_ = true;
-	AMControlSet *readingsControls = new AMControlSet(this);
-	AMControlSet *settingsControls = new AMControlSet(this);
-	readingsControls->addControl(dataWaveform);
-	settingsControls->addControl(hv);
-	settingsControls->addControl(integrationTime);
-	settingsControls->addControl(integrationMode);
-	toggleOnAction_ = toggleOnAction;
-	toggleOffAction_ = toggleOffAction;
-	initializeFromControlSet(readingsControls, settingsControls);
+	dataWaveformControl_ = new AMReadOnlyWaveformBinningPVControl(name+"Spectrum", baseName+":GetChannels", 0, 1024, this);
+	dataWaveformControl_->setDescription("SDD Spectrum");
+	dataWaveformControl_->setContextKnownDescription("Spectrum");
+	hvControl_ = new AMPVControl(name+"HV", baseName+":Bias:VoltActual:fbk", baseName+":Bias:Volt", QString(), this, 0.5);
+	hvControl_->setDescription("SDD High Voltage");
+	hvControl_->setContextKnownDescription("Voltage");
+	integrationTimeControl_ = new AMPVControl(name+"IntegrationTime", "BL1611-ID-1:AddOns:PGTDwellTime", "BL1611-ID-1:AddOns:PGTDwellTime", "", this, 0.1);
+	integrationTimeControl_->setDescription("SDD Integration Time");
+	integrationTimeControl_->setContextKnownDescription("Integration Time");
+	integrationModeControl_ = new AMPVControl(name+"IntegrationMode", "BL1611-ID-1:AddOns:PGTDwellMode", "BL1611-ID-1:AddOns:PGTDwellMode", "", this, 0.1);
+	integrationModeControl_->setDescription("SDD Integration Mode");
+	integrationModeControl_->setContextKnownDescription("Integration Mode");
+
+	allControls_->addControl(dataWaveformControl_);
+	allControls_->addControl(hvControl_);
+	allControls_->addControl(integrationTimeControl_);
+	allControls_->addControl(integrationModeControl_);
+
+	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
+	connect(signalSource(), SIGNAL(connected(bool)), this, SLOT(onSettingsControlValuesChanged()));
+	connect(dataWaveformControl_, SIGNAL(valueChanged(double)), this, SLOT(onReadingsControlValuesChanged()));
+	connect(hvControl_, SIGNAL(valueChanged(double)), this, SLOT(onSettingsControlValuesChanged()));
+	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(onSettingsControlValuesChanged()));
+	connect(integrationModeControl_, SIGNAL(valueChanged(double)), this, SLOT(onSettingsControlValuesChanged()));
+
+	if(isConnected()){
+		onReadingsControlValuesChanged();
+		onSettingsControlValuesChanged();
+	}
 }
 
 CLSPGTDetector::~CLSPGTDetector()
@@ -103,28 +118,28 @@ AMBeamlineActionItem* CLSPGTDetector::turnOnAction(){
 
 AMControl* CLSPGTDetector::dataWaveformCtrl() const {
 	if(isConnected())
-		return readingsControls_->at(0);
+		return dataWaveformControl_;
 	else
 		return 0;
 }
 
 AMControl* CLSPGTDetector::hvCtrl() const {
 	if(isConnected())
-		return settingsControls_->at(0);
+		return hvControl_;
 	else
 		return 0;
 }
 
 AMControl* CLSPGTDetector::integrationTimeCtrl() const {
 	if(isConnected())
-		return settingsControls_->at(1);
+		return integrationTimeControl_;
 	else
 		return 0;
 }
 
 AMControl* CLSPGTDetector::integrationModeCtrl() const {
 	if(isConnected())
-		return settingsControls_->at(2);
+		return integrationModeControl_;
 	else
 		return 0;
 }
@@ -162,10 +177,8 @@ bool CLSPGTDetector::setControls(CLSPGTDetectorInfo *pgtSettings){
 }
 
 void CLSPGTDetector::onControlsConnected(bool connected){
-	Q_UNUSED(connected)
-	bool allConnected = readingsControls_->isConnected() && settingsControls_->isConnected();
-	if(allConnected != isConnected())
-		setConnected(allConnected);
+	if(connected != isConnected())
+		setConnected(connected);
 }
 
 void CLSPGTDetector::onSettingsControlValuesChanged(){
@@ -184,29 +197,4 @@ void CLSPGTDetector::onSettingsControlValuesChanged(){
 void CLSPGTDetector::onReadingsControlValuesChanged(){
 	if(isConnected())
 		emitReadingsChanged();
-}
-
-bool CLSPGTDetector::initializeFromControlSet(AMControlSet *readingsControls, AMControlSet *settingsControls){
-	readingsControls_ = 0; //NULL
-	settingsControls_ = 0; //NULL
-	poweredOn_ = false;
-
-	if(readingsControls->count() == 1 && settingsControls->count() == 3){
-		readingsControls_ = readingsControls;
-		settingsControls_ = settingsControls;
-		connect(signalSource(), SIGNAL(connected(bool)), this, SLOT(onSettingsControlValuesChanged()));
-		connect(readingsControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
-		connect(settingsControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
-		connect(readingsControls_, SIGNAL(controlSetValuesChanged()), this, SLOT(onReadingsControlValuesChanged()));
-		connect(settingsControls_, SIGNAL(controlSetValuesChanged()), this, SLOT(onSettingsControlValuesChanged()));
-		onControlsConnected(readingsControls_->isConnected() && settingsControls_->isConnected());
-		if(isConnected()){
-			onReadingsControlValuesChanged();
-			onSettingsControlValuesChanged();
-		}
-
-		return true;
-	}
-
-	return false;
 }

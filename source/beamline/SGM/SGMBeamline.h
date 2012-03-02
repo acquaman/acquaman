@@ -103,7 +103,7 @@ public:
 	virtual ~SGMBeamline();
 
 	bool isConnected() const {
-		return criticalControlsSet_->isConnected();
+		return criticalControlsSet_->isConnected() && pgtDetector()->isConnected();
 	}
 
 	QStringList unconnectedCriticals() const;
