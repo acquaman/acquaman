@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/MCPDetector.h"
 #include "beamline/PGTDetector.h"
 #include "beamline/OceanOptics65000Detector.h"
+#include "beamline/CLS/CLSAmptekSDD123Detector.h"
 #include "beamline/AMControlSet.h"
 #include "util/AMBiHash.h"
 #include "actions/AMBeamlineControlAction.h"
@@ -190,6 +191,8 @@ public:
 	AMDetector* filterPD2ScalarDetector() const { return filterPD2ScalarDetector_;}
 	AMDetector* filterPD3ScalarDetector() const { return filterPD3ScalarDetector_;}
 	AMDetector* filterPD4ScalarDetector() const { return filterPD4ScalarDetector_;}
+	AMDetector* amptekSDD1() const { return amptekSDD1_;}
+	CLSAmptekSDD123Detector* rawAmptekSDD1() const { return amptekSDD1_;}
 
 	bool detectorValidForCurrentSignalSource(AMDetector *detector);
 	bool detectorValidForCurrentSignalSource(AMDetectorInfo *detectorInfo);
@@ -462,6 +465,7 @@ protected:
 	AMControlSet *filterPD3ScalarControlSet_;
 	AMDetector *filterPD4ScalarDetector_;
 	AMControlSet *filterPD4ScalarControlSet_;
+	CLSAmptekSDD123Detector* amptekSDD1_;
 
 	AMControlSet *criticalControlsSet_;
 	AMControlSet *beamOnControlSet_;

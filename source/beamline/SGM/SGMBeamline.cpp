@@ -68,6 +68,7 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("pgtIntegrationMode", "BL1611-ID-1:AddOns:PGTDwellMode");
 	amNames2pvNames_.set("oos65000", "SA0000-03:DarkCorrectedSpectra");
 	amNames2pvNames_.set("oos65000IntegrationTime", "SA0000-03:IntegrationTime:Value");
+	amNames2pvNames_.set("amptekSDD1", "amptek:sdd1");
 	amNames2pvNames_.set("I0Pico", "A1611-4-14:A:fbk");
 	amNames2pvNames_.set("I0Scaler", "BL1611-ID-1:mcs01:fbk");
 	amNames2pvNames_.set("photodiodePico", "A1611-4-13:A:fbk");
@@ -757,6 +758,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	unconnectedSets_.append(filterPD4ScalarControlSet_);
 	connect(filterPD4ScalarControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
+	amptekSDD1_ = new CLSAmptekSDD123Detector("AmptekSDD1", "amptek:sdd1", this);
 
 	fluxOptimization_ = new SGMFluxOptimization(this);
 	fluxOptimization_->setDescription("Flux");

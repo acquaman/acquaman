@@ -38,7 +38,8 @@ OceanOptics65000DetectorInfo::OceanOptics65000DetectorInfo(const QString &name, 
 OceanOptics65000DetectorInfo::OceanOptics65000DetectorInfo(const OceanOptics65000DetectorInfo &original) :
 		AMDetectorInfo(original)
 {
-	retreiveAndSetProperties(original);
+//	retreiveAndSetProperties(original);
+	this->operator =(original);
 }
 
 AMDetectorInfo* OceanOptics65000DetectorInfo::toNewInfo() const{
@@ -46,8 +47,15 @@ AMDetectorInfo* OceanOptics65000DetectorInfo::toNewInfo() const{
 }
 
 OceanOptics65000DetectorInfo& OceanOptics65000DetectorInfo::operator =(const OceanOptics65000DetectorInfo& other){
-	if(this != &other)
-		retreiveAndSetProperties(other);
+	if(this != &other){
+//		retreiveAndSetProperties(other);
+		AMDetectorInfo::operator =(other);
+		setBinCount(other.binCount());
+		setAxisName(other.axisName());
+		setAxisUnit(other.axisUnit());
+		setIntegrationTime(other.integrationTime());
+		setUnits(other.units());
+	}
 	return *this;
 }
 

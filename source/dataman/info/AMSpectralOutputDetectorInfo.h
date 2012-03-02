@@ -42,6 +42,9 @@ public:
 
 	AMSpectralOutputDetectorInfo(const AMSpectralOutputDetectorInfo &original);
 
+	/// Implements assignment operator
+	AMSpectralOutputDetectorInfo& operator=(const AMSpectralOutputDetectorInfo &other);
+
 	/// Number of bins or pixels along the axis
 	int binCount() const;
 	/// Name of the spectrum axis (ex: "eV")

@@ -30,7 +30,8 @@ PGTDetectorInfo::PGTDetectorInfo(const QString& name, const QString& description
 PGTDetectorInfo::PGTDetectorInfo(const PGTDetectorInfo &original) :
 		AMSpectralOutputDetectorInfo(original)
 {
-	retreiveAndSetProperties(original);
+//	retreiveAndSetProperties(original);
+	this->operator =(original);
 }
 
 AMDetectorInfo* PGTDetectorInfo::toNewInfo() const{
@@ -38,8 +39,13 @@ AMDetectorInfo* PGTDetectorInfo::toNewInfo() const{
 }
 
 PGTDetectorInfo& PGTDetectorInfo::operator =(const PGTDetectorInfo &other){
-	if(this != &other)
-		retreiveAndSetProperties(other);
+	if(this != &other){
+//		retreiveAndSetProperties(other);
+		AMSpectralOutputDetectorInfo::operator =(other);
+		setHVSetpoint(other.hvSetpoint());
+		setHVSetpointRangeMin(other.hvSetpointRangeMin());
+		setHVSetpointRangeMax(other.hvSetpointRangeMax());
+	}
 	return *this;
 }
 

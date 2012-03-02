@@ -26,7 +26,18 @@ AMIonChamberInfo::AMIonChamberInfo(const QString &name, const QString &descripti
 }
 
 AMIonChamberInfo::AMIonChamberInfo(const AMIonChamberInfo &original)
-	: AMDetectorInfo(original.name(), original.description(), original.parent())
+	: AMDetectorInfo(original)
 {
-	retreiveAndSetProperties(original);
+//	retreiveAndSetProperties(original);
+	this->operator =(original);
+}
+
+AMIonChamberInfo& AMIonChamberInfo::operator =(const AMIonChamberInfo &other)
+{
+	if(this != &other){
+		AMDetectorInfo::operator =(other);
+		setMinimumVoltage(other.minimumVoltage());
+		setMaximumVoltage(other.maximumVoltage());
+	}
+	return *this;
 }

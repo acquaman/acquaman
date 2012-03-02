@@ -31,7 +31,8 @@ MCPDetectorInfo::MCPDetectorInfo(const QString& name, const QString& description
 MCPDetectorInfo::MCPDetectorInfo(const MCPDetectorInfo &original) :
 		AMDetectorInfo(original)
 {
-	retreiveAndSetProperties(original);
+//	retreiveAndSetProperties(original);
+	this->operator =(original);
 }
 
 AMDetectorInfo* MCPDetectorInfo::toNewInfo() const{
@@ -39,8 +40,14 @@ AMDetectorInfo* MCPDetectorInfo::toNewInfo() const{
 }
 
 MCPDetectorInfo& MCPDetectorInfo::operator =(const MCPDetectorInfo& other){
-	if(this != &other)
-		retreiveAndSetProperties(other);
+	if(this != &other){
+//		retreiveAndSetProperties(other);
+		AMDetectorInfo::operator =(other);
+		setHVSetpoint(other.hvSetpoint());
+		setHVSetpointRangeMin(other.hvSetpointRangeMin());
+		setHVSetpointRangeMax(other.hvSetpointRangeMax());
+		setUnits(other.units());
+	}
 	return *this;
 }
 

@@ -32,7 +32,18 @@ AMDetectorInfo::AMDetectorInfo(const QString& name, const QString& description, 
 AMDetectorInfo::AMDetectorInfo(const AMDetectorInfo &original) :
 		AMDbObject(original)
 {
-	retreiveAndSetProperties(original);
+	//retreiveAndSetProperties(original);
+	this->operator =(original);
+}
+
+AMDetectorInfo& AMDetectorInfo::operator =(const AMDetectorInfo &other)
+{
+	if(this != &other){
+		AMDbObject::operator =(other);
+		description_ = other.description();
+		setUnits(other.units());
+	}
+	return *this;
 }
 
 AMDetectorInfo* AMDetectorInfo::toNewInfo() const{
@@ -48,6 +59,7 @@ QDebug AMDetectorInfo::qDebugPrint(QDebug &d) const{
 	return d;
 }
 
+/*
 void AMDetectorInfo::retreiveAndSetProperties(const AMDetectorInfo &original){
 	const QMetaObject *metaobject = original.metaObject();
 	int count = metaobject->propertyCount();
@@ -61,3 +73,4 @@ void AMDetectorInfo::retreiveAndSetProperties(const AMDetectorInfo &original){
 			this->setProperty(name, value);
 	}
 }
+*/

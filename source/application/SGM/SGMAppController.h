@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class SGMSampleTransferView;
 class AMSampleManagementWidget;
 class CLSSIS3820ScalerView;
+class AMDetectorView;
 class AMScanConfigurationViewHolder;
 class SGMXASScanConfigurationView;
 class SGMFastScanConfigurationView;
@@ -61,6 +62,7 @@ protected slots:
 
 	void onSGMBeamlineConnected();
 	void onSGMScalerConnected(bool connected);
+	void onSGMAmptekSDD1Connected(bool connected);
 
 	/// \todo comment this, David...
 	void onCurrentScanControllerCreated();
@@ -79,6 +81,7 @@ protected:
 	SGMSampleTransferView *sampleTransferView_;
 	AMSampleManagementWidget *samplePositionView_;
 	CLSSIS3820ScalerView *sgmScalerView_;
+	AMDetectorView *amptekSDD1View_;
 	SGMXASScanConfigurationView *xasScanConfigurationView_;
 	SGMFastScanConfigurationView *fastScanConfigurationView_;
 	AMScanConfigurationViewHolder *xasScanConfigurationHolder_;

@@ -45,6 +45,9 @@ public:
 	/// Constructor that takes in a detector info and retrieves all the settings.
 	AMIonChamberInfo(const AMIonChamberInfo &original);
 
+	/// Implements assignment operator
+	AMIonChamberInfo& operator=(const AMIonChamberInfo &other);
+
 	/// Returns the minimum voltage range for the ion chamber.
 	double minimumVoltage() const { return voltageRange_.first; }
 	/// Returns the maximum voltage range for the ion chamber.

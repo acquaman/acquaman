@@ -36,6 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/beamline/MCPDetectorView.h"
 #include "ui/beamline/PGTDetectorView.h"
 #include "ui/beamline/OceanOptics65000DetectorView.h"
+#include "ui/CLS/CLSAmptekSDD123DetectorView.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
@@ -91,6 +92,8 @@ bool SGMAppController::startup() {
 		AMDetectorViewSupport::registerClass<PGTDetailedDetectorView, PGTDetector>();
 		AMDetectorViewSupport::registerClass<OceanOptics65000BriefDetectorView, OceanOptics65000Detector>();
 		AMDetectorViewSupport::registerClass<OceanOptics65000DetailedDetectorView, OceanOptics65000Detector>();
+		AMDetectorViewSupport::registerClass<CLSAmptekSDD123BriefDetectorView, CLSAmptekSDD123Detector>();
+		AMDetectorViewSupport::registerClass<CLSAmptekSDD123DetailedDetectorView, CLSAmptekSDD123Detector>();
 
 		// Testing and making the first run in the database, if there isn't one already.  Make this it's own function if you think startup() is getting too big ; )
 		////////////////////////////////////////
@@ -172,6 +175,9 @@ bool SGMAppController::startup() {
 
 		sgmScalerView_ = 0;
 		connect(SGMBeamline::sgm()->rawScaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onSGMScalerConnected(bool)));
+
+		amptekSDD1View_ = 0;
+		connect(SGMBeamline::sgm()->rawAmptekSDD1(), SIGNAL(connected(bool)), this, SLOT(onSGMAmptekSDD1Connected(bool)));
 
 		mw_->insertHeading("Experiment Setup", 1);
 		//////////
@@ -263,6 +269,14 @@ void SGMAppController::onSGMScalerConnected(bool connected){
 	if(connected && !sgmScalerView_){
 		sgmScalerView_ = new CLSSIS3820ScalerView(SGMBeamline::sgm()->scaler());
 		mw_->addPane(sgmScalerView_, "Beamline Control", "SGM Scaler", ":/system-software-update.png");
+	}
+}
+
+void SGMAppController::onSGMAmptekSDD1Connected(bool connected){
+	if(connected && ! amptekSDD1View_){
+		//amptekSDD1View_ = new CLSAmptekSDD123DetailedDetectorView(SGMBeamline::sgm()->amptekSDD1());
+		amptekSDD1View_ =AMDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->amptekSDD1());
+		mw_->addPane(amptekSDD1View_, "Beamline Control", "SGM SDD", ":/system-software-update.png");
 	}
 }
 
