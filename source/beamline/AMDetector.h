@@ -51,6 +51,7 @@ protected:
 signals:
 	/// Indicates that the detector is ready (each detector sub class can define this however makes most sense)
 	void connected(bool isConnected);
+	void availabilityChagned(AMDetector *detector, bool isAvailable);
 	/// Indicates that the meta-information for this detector (currently just description()) has changed.
 	void infoChanged();
 	void readingsChanged();

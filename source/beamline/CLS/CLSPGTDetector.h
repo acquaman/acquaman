@@ -73,14 +73,21 @@ protected slots:
 	void onSettingsControlValuesChanged();
 
 protected:
+	/// The actual control for the spectrum waveform
 	AMControl *dataWaveformControl_;
+	/// The control for the PGT high voltage
 	AMControl *hvControl_;
+	/// The control for the integration time
 	AMControl *integrationTimeControl_;
+	/// The control for the integration mode
 	AMControl *integrationModeControl_;
 
+	/// A control set for all the controls (for ease of signalling)
 	AMControlSet *allControls_;
 
+	/// The action for toggling the HV on (right now comes from somewhere else)
 	AMBeamlineActionItem *toggleOnAction_;
+	/// The action for toggling the HV off (right now comes from somewhere else)
 	AMBeamlineActionItem *toggleOffAction_;
 
 private:

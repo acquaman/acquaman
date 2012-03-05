@@ -600,6 +600,19 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	transferLoadLockInControlSet_->addControl(loadlockCCG_);
 	transferLoadLockInControlSet_->addControl(loadlockTCG_);
 
+	detectorMap_ = new QMultiMap<AMDetector*, AMDetectorSet*>();
+	allDetectors_ = new AMDetectorSet(this);
+	allDetectors_->setName("All Detectors");
+
+	feedbackDetectors_ = new AMDetectorSet(this);
+	feedbackDetectors_->setName("Feedback Detectors");
+
+	XASDetectors_ = new AMDetectorSet(this);
+	XASDetectors_->setName("XAS Detectors");
+
+	FastDetectors_ = new AMDetectorSet(this);
+	FastDetectors_->setName("Fast Scan Detectors");
+
 	teyPicoControlSet_ = new AMControlSet(this);
 	teyPicoControlSet_->setName("TEY Pico Controls");
 	teyPicoControlSet_->addControl(teyPico_);
@@ -633,14 +646,24 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	pgtDetector_ = new CLSPGTDetector("pgt", "MCA1611-01", createHVPGTOnActions(), createHVPGTOffActions(), AMDetector::WaitRead, this);
 	pgtDetector_->setDescription("SDD");
 	connect(pgtDetector_->signalSource(), SIGNAL(connected(bool)), this, SIGNAL(controlSetConnectionsChanged()));
+	connect(pgtDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
+	detectorMap_->insert(pgtDetector_, allDetectors());
+	detectorMap_->insert(pgtDetector_, XASDetectors());
+
+	oos65000Detector_ = new CLSOceanOptics65000Detector("oos65000", "SA0000-03", AMDetector::WaitRead, this);
+	oos65000Detector_->setDescription("OceanOptics 65000");
+	connect(oos65000Detector_->signalSource(), SIGNAL(connected(bool)), this, SIGNAL(controlSetConnectionsChanged()));
+	connect(oos65000Detector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
+	detectorMap_->insert(oos65000Detector_, allDetectors());
+	detectorMap_->insert(oos65000Detector_, XASDetectors());
 
 	oos65000ControlSet_ = new AMControlSet(this);
 	oos65000ControlSet_->setName("OOS65000 Controls");
 	oos65000ControlSet_->addControl(oos65000_);
 	oos65000ControlSet_->addControl(oos65000IntegrationTime_);
-	oos65000Detector_ = 0; //NULL
-	unconnectedSets_.append(oos65000ControlSet_);
-	connect(oos65000ControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
+	//oos65000Detector_ = 0; //NULL
+	//unconnectedSets_.append(oos65000ControlSet_);
+	//connect(oos65000ControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
 	i0PicoControlSet_ = new AMControlSet(this);
 	i0PicoControlSet_->setName("I0 Pico Controls");
@@ -762,20 +785,11 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 
 	sampleManipulator_ = new AMControlSetSampleManipulator(ssaManipulatorSet_);
 
-	allDetectors_ = new AMDetectorSet(this);
-	allDetectors_->setName("All Detectors");
-
-	feedbackDetectors_ = new AMDetectorSet(this);
-	feedbackDetectors_->setName("Feedback Detectors");
-
-	XASDetectors_ = new AMDetectorSet(this);
-	XASDetectors_->setName("XAS Detectors");
-
-	FastDetectors_ = new AMDetectorSet(this);
-	FastDetectors_->setName("Fast Scan Detectors");
-
-	allDetectors_->addDetector(pgtDetector_);
-	XASDetectors_->addDetector(pgtDetector_);
+	//allDetectors_->addDetector(pgtDetector_);
+	//XASDetectors_->addDetector(pgtDetector_);
+	//allDetectors_->addDetector(oos65000Detector_);
+	//XASDetectors_->addDetector(oos65000Detector_);
+	connect(this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)), this, SLOT(onDetectorAvailabilityChanged(AMDetector*,bool)));
 
 	currentSamplePlate_ = 0;//NULL
 
@@ -1462,10 +1476,12 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			emit detectorHVChanged();
 		}
 		else if(!oos65000Detector_ && ctrlSet->name() == "OOS65000 Controls"){
+			/*
 			oos65000Detector_ = new CLSOceanOptics65000Detector(oos65000_->name(), oos65000_, oos65000IntegrationTime_, AMDetector::WaitRead, this);
 			oos65000Detector_->setDescription(oos65000_->description());
 			allDetectors_->addDetector(oos65000Detector_);
 			XASDetectors_->addDetector(oos65000Detector_);
+			*/
 		}
 		else if(!i0PicoDetector_ && ctrlSet->name() == "I0 Pico Controls"){
 			i0PicoDetector_ = new AMSingleControlDetector(i0Pico_->name(), i0Pico_, AMDetector::WaitRead, this);
@@ -1700,6 +1716,29 @@ void SGMBeamline::onVisibleLightChanged(double value){
 		emit visibleLightStatusChanged("Visible Light\n is moving to OFF");
 	else if( visibleLightStatus_->value() == 0)
 		emit visibleLightStatusChanged("Visible Light\n is OFF");
+}
+
+void SGMBeamline::onDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable){
+	QList<AMDetectorSet*> detectorSets = detectorMap_->values(detector);
+	if(isAvailable){
+
+		bool hasDetector;
+		for(int x = 0; x < detectorSets.count(); x++){
+			hasDetector = false;
+			for(int y = 0; y < detectorSets.at(x)->count(); y++)
+				if(detectorSets.at(x)->detectorAt(y)->detectorName() == detector->detectorName())
+					hasDetector = true;
+			if(!hasDetector)
+				detectorSets.at(x)->addDetector(detector);
+		}
+	}
+	else{
+		for(int x = 0; x < detectorSets.count(); x++){
+			for(int y = 0; y < detectorSets.at(x)->count(); y++)
+				if(detectorSets.at(x)->detectorAt(y)->detectorName() == detector->detectorName())
+					detectorSets.at(x)->removeDetector(detector);
+		}
+	}
 }
 
 SGMBeamline* SGMBeamline::sgm() {

@@ -20,6 +20,28 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSOceanOptics65000Detector.h"
 
+CLSOceanOptics65000Detector::CLSOceanOptics65000Detector(const QString &name, const QString &baseName, AMDetector::ReadMethod readMethod, QObject *parent) :
+	CLSOceanOptics65000DetectorInfo(name, name, parent), AMDetector(name, readMethod)
+{
+	allControls_ = new AMControlSet();
+
+	dataWaveformControl_ = new AMReadOnlyWaveformBinningPVControl(name+"Spectrum", baseName+":DarkCorrectedSpectra", 0, 1024, this);
+	dataWaveformControl_->setDescription("OceanOptics 65000 Spectrum");
+	dataWaveformControl_->setContextKnownDescription("Spectrum");
+	integrationTimeControl_ = new AMPVControl(name+"IntegrationTime", baseName+":IntegrationTime:Value", baseName+":IntegrationTime:Value", "", this, 0.1);
+	integrationTimeControl_->setDescription("OceanOptics 65000 Integration Time");
+	integrationTimeControl_->setContextKnownDescription("Integration Time");
+
+	allControls_->addControl(dataWaveformControl_);
+	allControls_->addControl(integrationTimeControl_);
+
+	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
+	connect(signalSource(), SIGNAL(connected(bool)), this, SLOT(onSettingsControlValuesChanged()));
+	connect(dataWaveformControl_, SIGNAL(valueChanged(double)), this, SLOT(onReadingsControlValuesChanged()));
+	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(onSettingsControlValuesChanged()));
+}
+
+/*
 CLSOceanOptics65000Detector::CLSOceanOptics65000Detector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMDetector::ReadMethod readMethod, QObject *parent) :
 		CLSOceanOptics65000DetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
@@ -37,6 +59,7 @@ CLSOceanOptics65000Detector::CLSOceanOptics65000Detector(const QString &name, AM
 	settingsControls->addControl(integrationTime);
 	initializeFromControlSet(readingsControls, settingsControls);
 }
+*/
 
 CLSOceanOptics65000Detector::~CLSOceanOptics65000Detector(){
 	/* NTBA May 23, 2011 David Chevrier
@@ -78,14 +101,16 @@ bool CLSOceanOptics65000Detector::setFromInfo(const CLSOceanOptics65000DetectorI
 
 AMControl* CLSOceanOptics65000Detector::dataWaveformControl() const{
 	if(isConnected())
-		return readingsControls_->at(0);
+		return dataWaveformControl_;
+		//return readingsControls_->at(0);
 	else
 		return 0; //NULL
 }
 
 AMControl* CLSOceanOptics65000Detector::integrationTimeControl() const{
 	if(isConnected())
-		return settingsControls_->at(0);
+		return integrationTimeControl_;
+//		return settingsControls_->at(0);
 	else
 		return 0; //NULL
 }
@@ -114,10 +139,10 @@ bool CLSOceanOptics65000Detector::setControls(CLSOceanOptics65000DetectorInfo *s
 }
 
 void CLSOceanOptics65000Detector::onControlsConnected(bool connected){
-	Q_UNUSED(connected)
-	bool allConnected = readingsControls_->isConnected() && settingsControls_->isConnected();
-	if(allConnected != isConnected())
-		setConnected(allConnected);
+//	Q_UNUSED(connected)
+//	bool allConnected = readingsControls_->isConnected() && settingsControls_->isConnected();
+	if(connected != isConnected())
+		setConnected(connected);
 }
 
 void CLSOceanOptics65000Detector::onSettingsControlValuesChanged(){
@@ -132,6 +157,7 @@ void CLSOceanOptics65000Detector::onReadingsControlValuesChanged(){
 		emitReadingsChanged();
 }
 
+/*
 bool CLSOceanOptics65000Detector::initializeFromControlSet(AMControlSet *readingsControls, AMControlSet *settingsControls){
 	readingsControls_ = 0; //NULL
 	settingsControls_ = 0; //NULL
@@ -153,3 +179,4 @@ bool CLSOceanOptics65000Detector::initializeFromControlSet(AMControlSet *reading
 	}
 	return false;
 }
+*/

@@ -103,6 +103,7 @@ public:
 	virtual ~SGMBeamline();
 
 	bool isConnected() const {
+		//return criticalControlsSet_->isConnected() && pgtDetector()->isConnected() && oos65000Detector()->isConnected();
 		return criticalControlsSet_->isConnected() && pgtDetector()->isConnected();
 	}
 
@@ -331,6 +332,7 @@ signals:
 	void currentEndstationChanged(SGMBeamline::sgmEndstation);
 
 	void detectorHVChanged();
+	void detectorAvailabilityChanged(AMDetector *detector, bool available);
 
 protected slots:
 	void onBeamlineScanningValueChanged(double value);
@@ -343,6 +345,7 @@ protected slots:
 	void recomputeWarnings();
 
 	void onVisibleLightChanged(double value);
+	void onDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
 
 protected:
 	// Singleton implementation:
@@ -485,6 +488,8 @@ protected:
 	AMDetectorSet *feedbackDetectors_;
 	AMDetectorSet *XASDetectors_;
 	AMDetectorSet *FastDetectors_;
+
+	QMultiMap<AMDetector*, AMDetectorSet*> *detectorMap_;
 
 	QList<AMControlSet*> unconnectedSets_;
 
