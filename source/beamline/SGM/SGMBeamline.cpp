@@ -65,7 +65,6 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("pgt", "MCA1611-01:GetChannels");
 	amNames2pvNames_.set("pgtHV", "MCA1611-01:Bias:Volt");
 	amNames2pvNames_.set("oos65000", "SA0000-03:DarkCorrectedSpectra");
-	amNames2pvNames_.set("oos65000IntegrationTime", "SA0000-03:IntegrationTime:Value");
 	amNames2pvNames_.set("amptekSDD1", "amptek:sdd1");
 	amNames2pvNames_.set("I0Pico", "A1611-4-14:A:fbk");
 	amNames2pvNames_.set("I0Scaler", "BL1611-ID-1:mcs01:fbk");
@@ -270,19 +269,6 @@ void SGMBeamline::usingSGMBeamline(){
 	pgtHV_ = new AMPVControl("pgtHV", sgmPVName+"Actual:fbk", sgmPVName, QString(), this, 0.5);
 	pgtHV_->setDescription("SDD High Voltage");
 	pgtHV_->setContextKnownDescription("Voltage");
-
-	sgmPVName = amNames2pvNames_.valueF("oos65000");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	oos65000_ = new AMReadOnlyWaveformBinningPVControl("oos65000", sgmPVName, 0, 1024, this);
-	oos65000_->setDescription("OceanOptics 65000");
-
-	sgmPVName = amNames2pvNames_.valueF("oos65000IntegrationTime");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	oos65000IntegrationTime_ = new AMPVControl("oos65000IntegrationTime", sgmPVName, sgmPVName, "", this, 0.1);
-	oos65000IntegrationTime_->setDescription("OceanOptics 65000 Integration Time");
-	oos65000IntegrationTime_->setContextKnownDescription("Integration Time");
 
 	sgmPVName = amNames2pvNames_.valueF("I0Pico");
 	if(sgmPVName.isEmpty())
@@ -520,8 +506,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	addChildControl(tfyScaler_);
 	addChildControl(tfyHV_);
 	addChildControl(pgtHV_);
-	addChildControl(oos65000_);
-	addChildControl(oos65000IntegrationTime_);
 	addChildControl(i0Pico_);
 	addChildControl(i0Scaler_);
 	addChildControl(eVFbk_);
@@ -656,14 +640,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	connect(oos65000Detector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 	detectorMap_->insert(oos65000Detector_, allDetectors());
 	detectorMap_->insert(oos65000Detector_, XASDetectors());
-
-	oos65000ControlSet_ = new AMControlSet(this);
-	oos65000ControlSet_->setName("OOS65000 Controls");
-	oos65000ControlSet_->addControl(oos65000_);
-	oos65000ControlSet_->addControl(oos65000IntegrationTime_);
-	//oos65000Detector_ = 0; //NULL
-	//unconnectedSets_.append(oos65000ControlSet_);
-	//connect(oos65000ControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
 	i0PicoControlSet_ = new AMControlSet(this);
 	i0PicoControlSet_->setName("I0 Pico Controls");
@@ -1474,14 +1450,6 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			connect(tfyHVToggle_, SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
 			connect( ((SGMMCPDetector*)tfyScalerDetector_)->hvCtrl(), SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()) );
 			emit detectorHVChanged();
-		}
-		else if(!oos65000Detector_ && ctrlSet->name() == "OOS65000 Controls"){
-			/*
-			oos65000Detector_ = new CLSOceanOptics65000Detector(oos65000_->name(), oos65000_, oos65000IntegrationTime_, AMDetector::WaitRead, this);
-			oos65000Detector_->setDescription(oos65000_->description());
-			allDetectors_->addDetector(oos65000Detector_);
-			XASDetectors_->addDetector(oos65000Detector_);
-			*/
 		}
 		else if(!i0PicoDetector_ && ctrlSet->name() == "I0 Pico Controls"){
 			i0PicoDetector_ = new AMSingleControlDetector(i0Pico_->name(), i0Pico_, AMDetector::WaitRead, this);
