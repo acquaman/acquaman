@@ -64,11 +64,13 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 		// This is safe and okay because I always have the regions of interest set taking up 0-X where X is the count-1 of the number of regions of interest.
 		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
-			if (detector->roiInfoList()->at(i).name().contains(config_->edge())){
+			scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
 
-				scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
+			if (detector->roiInfoList()->at(i).name().contains(config_->edge()))
 				scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
-			}
+
+			else
+				scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
 		}
 
 		// Add all the extra raw data sources.
@@ -86,11 +88,13 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 		// This is safe and okay because I always have the regions of interest set taking up 0-X where X is the count-1 of the number of regions of interest.
 		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
-			if (detector->roiInfoList()->at(i).name().contains(config_->edge())){
+			scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
 
-				scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
+			if (detector->roiInfoList()->at(i).name().contains(config_->edge()))
 				scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
-			}
+
+			else
+				scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
 		}
 
 		// Add all the extra raw data sources.
@@ -619,8 +623,7 @@ bool VESPERSEXAFSDacqScanController::setupSingleElementXAS()
 	int roiCount = detector->roiInfoList()->count();
 
 	for (int i = 0; i < roiCount; i++)
-		if (detector->roiInfoList()->at(i).name().contains(config_->edge()))
-			advAcq_->appendRecord("IOC1607-004:mca1.R"+QString::number(i), true, false, 0);
+		advAcq_->appendRecord("IOC1607-004:mca1.R"+QString::number(i), true, false, 0);
 
 	advAcq_->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
 	advAcq_->appendRecord("07B2_Mono_SineB_K", true, false, 0);
@@ -672,8 +675,7 @@ bool VESPERSEXAFSDacqScanController::setupFourElementXAS()
 	int roiCount = detector->roiInfoList()->count();
 
 	for (int i = 0; i < roiCount; i++)
-		if (detector->roiInfoList()->at(i).name().contains(config_->edge()))
-			advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R"+QString::number(i), true, false, 1);
+		advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R"+QString::number(i), true, false, 1);
 
 	advAcq_->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
 	advAcq_->appendRecord("07B2_Mono_SineB_K", true, false, 0);
