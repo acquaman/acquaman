@@ -381,10 +381,10 @@ protected:
 	CLSCAEN2527HVChannel *hvChannel109_;
 	CLSPGT8000HVChannel *hvChannelPGT_;
 	CLSSynchronizedDwellTime *synchronizedDwellTime_;
-	AMControl *pgt_;
+	//AMControl *pgt_;
 	AMControl *pgtHV_;
-	AMControl *pgtIntegrationTime_;
-	AMControl *pgtIntegrationMode_;
+	//AMControl *pgtIntegrationTime_;
+	//AMControl *pgtIntegrationMode_;
 	AMControl *oos65000_;
 	AMControl *oos65000IntegrationTime_;
 	AMControl *i0Pico_;
@@ -435,7 +435,7 @@ protected:
 	AMDetector *tfyPicoDetector_;
 	AMControlSet *tfyScalerControlSet_;
 	AMDetector *tfyScalerDetector_;
-	AMControlSet *pgtControlSet_;
+
 	AMDetector *pgtDetector_;
 	AMControlSet *oos65000ControlSet_;
 	AMDetector *oos65000Detector_;

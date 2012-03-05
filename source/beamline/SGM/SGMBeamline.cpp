@@ -64,8 +64,6 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("pgtBase", "MCA1611-01");
 	amNames2pvNames_.set("pgt", "MCA1611-01:GetChannels");
 	amNames2pvNames_.set("pgtHV", "MCA1611-01:Bias:Volt");
-	amNames2pvNames_.set("pgtIntegrationTime", "BL1611-ID-1:AddOns:PGTDwellTime");
-	amNames2pvNames_.set("pgtIntegrationMode", "BL1611-ID-1:AddOns:PGTDwellMode");
 	amNames2pvNames_.set("oos65000", "SA0000-03:DarkCorrectedSpectra");
 	amNames2pvNames_.set("oos65000IntegrationTime", "SA0000-03:IntegrationTime:Value");
 	amNames2pvNames_.set("amptekSDD1", "amptek:sdd1");
@@ -268,35 +266,14 @@ void SGMBeamline::usingSGMBeamline(){
 	synchronizedDwellTime_->addElement(1);
 	synchronizedDwellTime_->addElement(2);
 
-	sgmPVName = amNames2pvNames_.valueF("pgt");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	//pgt_ = new AMReadOnlyPVControl("pgt", sgmPVName, this);
-	pgt_ = new AMReadOnlyWaveformBinningPVControl("pgt", sgmPVName, 0, 1024, this);
-	pgt_->setDescription("SDD");
-
 	sgmPVName = amNames2pvNames_.valueF("pgtHV");
 	pgtHV_ = new AMPVControl("pgtHV", sgmPVName+"Actual:fbk", sgmPVName, QString(), this, 0.5);
 	pgtHV_->setDescription("SDD High Voltage");
 	pgtHV_->setContextKnownDescription("Voltage");
 
-	sgmPVName = amNames2pvNames_.valueF("pgtIntegrationTime");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	pgtIntegrationTime_ = new AMPVControl("pgtIntegrationTime", sgmPVName, sgmPVName, "", this, 0.1);
-	pgtIntegrationTime_->setDescription("SDD Integration Time");
-	pgtIntegrationTime_->setContextKnownDescription("Integration Time");
-	sgmPVName = amNames2pvNames_.valueF("pgtIntegrationMode");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	pgtIntegrationMode_ = new AMPVControl("pgtIntegrationMode", sgmPVName, sgmPVName, "", this, 0.1);
-	pgtIntegrationMode_->setDescription("SDD Integration Mode");
-	pgtIntegrationMode_->setContextKnownDescription("Integration Mode");
-
 	sgmPVName = amNames2pvNames_.valueF("oos65000");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-	//pgt_ = new AMReadOnlyPVControl("pgt", sgmPVName, this);
 	oos65000_ = new AMReadOnlyWaveformBinningPVControl("oos65000", sgmPVName, 0, 1024, this);
 	oos65000_->setDescription("OceanOptics 65000");
 
@@ -542,10 +519,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	addChildControl(tfyPico_);
 	addChildControl(tfyScaler_);
 	addChildControl(tfyHV_);
-	addChildControl(pgt_);
 	addChildControl(pgtHV_);
-	addChildControl(pgtIntegrationTime_);
-	addChildControl(pgtIntegrationMode_);
 	addChildControl(oos65000_);
 	addChildControl(oos65000IntegrationTime_);
 	addChildControl(i0Pico_);
@@ -656,18 +630,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	unconnectedSets_.append(tfyScalerControlSet_);
 	connect(tfyScalerControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
-	pgtControlSet_ = new AMControlSet(this);
-	pgtControlSet_->setName("SDD Controls");
-	pgtControlSet_->addControl(pgt_);
-	pgtControlSet_->addControl(pgtHV_);
-	pgtControlSet_->addControl(pgtIntegrationTime_);
-	pgtControlSet_->addControl(pgtIntegrationMode_);
-	pgtDetector_ = 0; //NULL
-	unconnectedSets_.append(pgtControlSet_);
-	connect(pgtControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
-
-	pgtDetector_ = new CLSPGTDetector(pgt_->name(), "MCA1611-01", createHVPGTOnActions(), createHVPGTOffActions(), AMDetector::WaitRead, this);
-	pgtDetector_->setDescription(pgt_->description());
+	pgtDetector_ = new CLSPGTDetector("pgt", "MCA1611-01", createHVPGTOnActions(), createHVPGTOffActions(), AMDetector::WaitRead, this);
+	pgtDetector_->setDescription("SDD");
 	connect(pgtDetector_->signalSource(), SIGNAL(connected(bool)), this, SIGNAL(controlSetConnectionsChanged()));
 
 	oos65000ControlSet_ = new AMControlSet(this);
@@ -1496,15 +1460,6 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			connect(tfyHVToggle_, SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
 			connect( ((SGMMCPDetector*)tfyScalerDetector_)->hvCtrl(), SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()) );
 			emit detectorHVChanged();
-		}
-		else if(!pgtDetector_ && ctrlSet->name() == "SDD Controls"){
-			/*
-			//pgtDetector_ = new CLSPGTDetector(pgt_->name(), pgt_, pgtHV_, pgtIntegrationTime_, pgtIntegrationMode_, createHVPGTOnActions(), createHVPGTOffActions(), AMDetector::WaitRead, this);
-			pgtDetector_ = new CLSPGTDetector("PGT", "MCA1611-01", createHVPGTOnActions(), createHVPGTOffActions(), AMDetector::WaitRead, this);
-			pgtDetector_->setDescription(pgt_->description());
-			allDetectors_->addDetector(pgtDetector_);
-			XASDetectors_->addDetector(pgtDetector_);
-			*/
 		}
 		else if(!oos65000Detector_ && ctrlSet->name() == "OOS65000 Controls"){
 			oos65000Detector_ = new CLSOceanOptics65000Detector(oos65000_->name(), oos65000_, oos65000IntegrationTime_, AMDetector::WaitRead, this);
