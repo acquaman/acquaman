@@ -127,7 +127,7 @@ bool VESPERSAppController::startup() {
 
 		vespersDefault->setName("VESPERSDefault");
 		vespersDefault->setFileName("$name_$fsIndex.dat");
-		vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[edge]\n$scanConfiguration[rois]\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
+		vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\nActual Vertical Position:\t$controlValue[Vertical Sample Stage] mm\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
 		vespersDefault->setHeaderIncluded(true);
 		vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
 		vespersDefault->setColumnHeaderIncluded(true);

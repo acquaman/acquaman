@@ -373,6 +373,9 @@ bool VESPERSEXAFSDacqScanController::startImplementation()
 {
 	currentRegionIndex_ = 0;
 
+	scan_->scanInitialConditions()->append(VESPERSBeamline::vespers()->sampleStageHorizontal()->toInfo());
+	scan_->scanInitialConditions()->append(VESPERSBeamline::vespers()->sampleStageVertical()->toInfo());
+
 	// Setup the real config.
 	switch(config_->fluorescenceDetectorChoice()){
 
