@@ -110,14 +110,10 @@ bool SGMXASDacqScanController::startImplementation(){
 	for(int i = 0; i < config_->allDetectorConfigurations().count(); i++){
 		if(config_->allDetectorConfigurations().isActiveAt(i)){
 			AMDetector *dtctr = config_->allDetectors()->detectorNamed(config_->allDetectorConfigurations().detectorInfoAt(i)->name());
-			qDebug() << "Want to work with " << dtctr->toInfo()->name() << dtctr->toInfo()->rank();
-			//if(dtctr->detectorName() == SGMBeamline::sgm()->pgtDetector()->detectorName())
 			if(dtctr->toInfo()->rank() > 0)
 				advAcq_->appendRecord(dtctr->dacqName(), true, true, detectorReadMethodToDacqReadMethod(dtctr->readMethod()));
-				//advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->detectorName()), true, true, detectorReadMethodToDacqReadMethod(dtctr->readMethod()));
 			else
 				advAcq_->appendRecord(dtctr->dacqName(), true, false, detectorReadMethodToDacqReadMethod(dtctr->readMethod()));
-				//advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->detectorName()), true, false, detectorReadMethodToDacqReadMethod(dtctr->readMethod()));
 		}
 	}
 	for(int x = 0; x < config_->regionCount(); x++){

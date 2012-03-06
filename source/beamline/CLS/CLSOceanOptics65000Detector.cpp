@@ -41,30 +41,7 @@ CLSOceanOptics65000Detector::CLSOceanOptics65000Detector(const QString &name, co
 	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(onSettingsControlValuesChanged()));
 }
 
-/*
-CLSOceanOptics65000Detector::CLSOceanOptics65000Detector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMDetector::ReadMethod readMethod, QObject *parent) :
-		CLSOceanOptics65000DetectorInfo(name, name, parent), AMDetector(name, readMethod)
-{
-	ownsControlSets_ = false;
-	initializeFromControlSet(readingsControls, settingsControls);
-}
-
-CLSOceanOptics65000Detector::CLSOceanOptics65000Detector(const QString &name, AMControl *dataWaveform, AMControl *integrationTime, AMDetector::ReadMethod readMethod, QObject *parent) :
-		CLSOceanOptics65000DetectorInfo(name, name, parent), AMDetector(name, readMethod)
-{
-	ownsControlSets_ = true;
-	AMControlSet *readingsControls = new AMControlSet(this);
-	AMControlSet *settingsControls = new AMControlSet(this);
-	readingsControls->addControl(dataWaveform);
-	settingsControls->addControl(integrationTime);
-	initializeFromControlSet(readingsControls, settingsControls);
-}
-*/
-
 CLSOceanOptics65000Detector::~CLSOceanOptics65000Detector(){
-	/* NTBA May 23, 2011 David Chevrier
-	   Need to take care of ownsControlSet_
-	   */
 }
 
 const QMetaObject* CLSOceanOptics65000Detector::getMetaObject() {
@@ -110,7 +87,6 @@ bool CLSOceanOptics65000Detector::setFromInfo(const CLSOceanOptics65000DetectorI
 AMControl* CLSOceanOptics65000Detector::dataWaveformControl() const{
 	if(isConnected())
 		return dataWaveformControl_;
-		//return readingsControls_->at(0);
 	else
 		return 0; //NULL
 }
@@ -118,7 +94,6 @@ AMControl* CLSOceanOptics65000Detector::dataWaveformControl() const{
 AMControl* CLSOceanOptics65000Detector::integrationTimeControl() const{
 	if(isConnected())
 		return integrationTimeControl_;
-//		return settingsControls_->at(0);
 	else
 		return 0; //NULL
 }
@@ -147,8 +122,6 @@ bool CLSOceanOptics65000Detector::setControls(CLSOceanOptics65000DetectorInfo *s
 }
 
 void CLSOceanOptics65000Detector::onControlsConnected(bool connected){
-//	Q_UNUSED(connected)
-//	bool allConnected = readingsControls_->isConnected() && settingsControls_->isConnected();
 	if(connected != isConnected())
 		setConnected(connected);
 }
@@ -164,27 +137,3 @@ void CLSOceanOptics65000Detector::onReadingsControlValuesChanged(){
 	if(isConnected())
 		emitReadingsChanged();
 }
-
-/*
-bool CLSOceanOptics65000Detector::initializeFromControlSet(AMControlSet *readingsControls, AMControlSet *settingsControls){
-	readingsControls_ = 0; //NULL
-	settingsControls_ = 0; //NULL
-
-	if(readingsControls->count() == 1 && settingsControls->count() == 1){
-		readingsControls_ = readingsControls;
-		settingsControls_ = settingsControls;
-		connect(signalSource(), SIGNAL(connected(bool)), this, SLOT(onSettingsControlValuesChanged()));
-		connect(readingsControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
-		connect(settingsControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
-		connect(readingsControls_, SIGNAL(controlSetValuesChanged()), this, SLOT(onReadingsControlValuesChanged()));
-		connect(settingsControls_, SIGNAL(controlSetValuesChanged()), this, SLOT(onSettingsControlValuesChanged()));
-		onControlsConnected(readingsControls_->isConnected() && settingsControls_->isConnected());
-		if(isConnected()){
-			onReadingsControlValuesChanged();
-			onSettingsControlValuesChanged();
-			return true;
-		}
-	}
-	return false;
-}
-*/

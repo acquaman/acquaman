@@ -543,6 +543,7 @@ void SGMSampleManipulatorView::onHVButtonClicked(){
 }
 
 void SGMSampleManipulatorView::onHVStateChanged(){
+	qDebug() << "I heard the detector HV changed";
 	if(SGMBeamline::sgm()->tfyDetector() && ((SGMMCPDetector*)SGMBeamline::sgm()->tfyDetector())->hvCtrl()){
 		double curHVValue = ((SGMMCPDetector*)SGMBeamline::sgm()->tfyDetector())->hvCtrl()->value();
 		switch( (int)(SGMBeamline::sgm()->tfyHVToggle()->value()) ){

@@ -31,10 +31,6 @@ Q_OBJECT
 public:
 	/// Default constructor takes a base name for generation
 	CLSOceanOptics65000Detector(const QString &name, const QString &baseName, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
-//	/// Constructor with control sets
-//	CLSOceanOptics65000Detector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
-//	/// Constructor with individual controls
-//	CLSOceanOptics65000Detector(const QString &name, AMControl *dataWaveform, AMControl *integrationTime, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
 	/// Destructor
 	~CLSOceanOptics65000Detector();
 
@@ -83,10 +79,6 @@ protected slots:
 	void onSettingsControlValuesChanged();
 
 protected:
-//	/// Main portion of the constructor, once we have the control sets we need
-//	bool initializeFromControlSet(AMControlSet *readingsControls, AMControlSet *settingsControls);
-
-protected:
 	/// The actual control for the spectrum waveform
 	AMControl *dataWaveformControl_;
 	/// The control for the integration time
@@ -94,14 +86,6 @@ protected:
 
 	/// A control set for all the controls (for ease of signalling)
 	AMControlSet *allControls_;
-
-//	/// Control set for the readings (just the data waveform in this case)
-//	AMControlSet *readingsControls_;
-//	/// Control set for the settings (just the integration time in this case)
-//	AMControlSet *settingsControls_;
-//	/// Toggle state for whether we're managing our own control sets
-//	bool ownsControlSets_;
-
 };
 
 #endif // CLSOCEANOPTICS65000DETECTOR_H

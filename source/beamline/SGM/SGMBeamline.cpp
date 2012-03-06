@@ -56,22 +56,11 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("undulatorTracking", "UND1411-01:Energy:track");
 	amNames2pvNames_.set("monoTracking", "SG16114I1001:Energy:track");
 	amNames2pvNames_.set("exitSlitTracking", "PSL16114I1003:Energy:track");
-	//amNames2pvNames_.set("teyPico", "A1611-4-15:A:fbk");
-	//amNames2pvNames_.set("teyScaler", "BL1611-ID-1:mcs00:fbk");
-	//amNames2pvNames_.set("tfyPico", "A1611-4-16:A:fbk");
 	amNames2pvNames_.set("tfyScaler", "BL1611-ID-1:mcs02:fbk");
 	amNames2pvNames_.set("tfyHV", "PS1611401:109");
 	amNames2pvNames_.set("pgtBase", "MCA1611-01");
-	//amNames2pvNames_.set("pgt", "MCA1611-01:GetChannels");
 	amNames2pvNames_.set("pgtHV", "MCA1611-01:Bias:Volt");
-	//amNames2pvNames_.set("oos65000", "SA0000-03:DarkCorrectedSpectra");
 	amNames2pvNames_.set("amptekSDD1", "amptek:sdd1");
-	//amNames2pvNames_.set("I0Pico", "A1611-4-14:A:fbk");
-	//amNames2pvNames_.set("I0Scaler", "BL1611-ID-1:mcs01:fbk");
-	//amNames2pvNames_.set("photodiodePico", "A1611-4-13:A:fbk");
-	//amNames2pvNames_.set("photodiodeScaler", "BL1611-ID-1:mcs03:fbk");
-	//amNames2pvNames_.set("encoderUp", "BL1611-ID-1:mcs04:fbk");
-	//amNames2pvNames_.set("encoderDown", "BL1611-ID-1:mcs05:fbk");
 	amNames2pvNames_.set("loadlockCCG", "CCG1611-4-I10-09:vac:p");
 	amNames2pvNames_.set("loadlockTCG", "TCGC1611-426:pressure:fbk");
 
@@ -101,12 +90,6 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("activeEndstation", "BL1611-ID-1:AddOns:endstation:active");
 	amNames2pvNames_.set("detectorSignalSource", "BL1611-ID-1:AddOns:signalSource");
 	amNames2pvNames_.set("ssaIllumination", "ILC1611-4-I10-02");
-	//TOM THIS IS STEP 4.8
-	//amNames2pvNames_.set("ringCurrent", "PCT1402-01:mA:fbk");
-	//amNames2pvNames_.set("filterPD1Current", "BL1611-ID-1:mcs06:fbk");
-	//amNames2pvNames_.set("filterPD2Current", "BL1611-ID-1:mcs07:fbk");
-	//amNames2pvNames_.set("filterPD3Current", "BL1611-ID-1:mcs08:fbk");
-	//amNames2pvNames_.set("filterPD4Current", "BL1611-ID-1:mcs09:fbk");
 
 	bool pvNameLookUpFail = false;
 
@@ -227,23 +210,6 @@ void SGMBeamline::usingSGMBeamline(){
 	exitSlitTracking_->setDescription("Exit Slit Tracking");
 	exitSlitTracking_->setContextKnownDescription("Exit Slit");
 
-	/*
-	sgmPVName = amNames2pvNames_.valueF("teyPico");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	teyPico_ = new AMReadOnlyPVControl("teyPico", sgmPVName, this);
-	teyPico_->setDescription("TEY");
-	sgmPVName = amNames2pvNames_.valueF("teyScaler");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	teyScaler_ = new AMReadOnlyPVControl("teyScaler", sgmPVName, this);
-	teyScaler_->setDescription("TEY");
-	sgmPVName = amNames2pvNames_.valueF("tfyPico");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	tfyPico_ = new AMReadOnlyPVControl("tfyPico", sgmPVName, this);
-	tfyPico_->setDescription("TFY");
-	*/
 	sgmPVName = amNames2pvNames_.valueF("tfyScaler");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
@@ -271,46 +237,6 @@ void SGMBeamline::usingSGMBeamline(){
 	pgtHV_ = new AMPVControl("pgtHV", sgmPVName+"Actual:fbk", sgmPVName, QString(), this, 0.5);
 	pgtHV_->setDescription("SDD High Voltage");
 	pgtHV_->setContextKnownDescription("Voltage");
-
-	/*
-	sgmPVName = amNames2pvNames_.valueF("I0Pico");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	i0Pico_ = new AMReadOnlyPVControl("I0Pico", sgmPVName, this);
-	i0Pico_->setDescription("I0");
-	sgmPVName = amNames2pvNames_.valueF("I0Scaler");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	i0Scaler_ = new AMReadOnlyPVControl("I0Scaler", sgmPVName, this);
-	i0Scaler_->setDescription("I0");
-
-	sgmPVName = amNames2pvNames_.valueF("eVFbk");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	eVFbk_ = new AMReadOnlyPVControl("eVFbk", sgmPVName, this);
-	eVFbk_->setDescription("Energy Feedback");
-	sgmPVName = amNames2pvNames_.valueF("photodiodePico");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	photodiodePico_ = new AMReadOnlyPVControl("photodiodePico", sgmPVName, this);
-	photodiodePico_->setDescription("Photodiode");
-	sgmPVName = amNames2pvNames_.valueF("photodiodeScaler");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	photodiodeScaler_ = new AMReadOnlyPVControl("photodiodeScaler", sgmPVName, this);
-	photodiodeScaler_->setDescription("Photodiode");
-
-	sgmPVName = amNames2pvNames_.valueF("encoderUp");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	encoderUp_ = new AMReadOnlyPVControl("encoderUp", sgmPVName, this);
-	encoderUp_->setDescription("Encoder Up Counts");
-	sgmPVName = amNames2pvNames_.valueF("encoderDown");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	encoderDown_ = new AMReadOnlyPVControl("encoderDown", sgmPVName, this);
-	encoderDown_->setDescription("Encoder Down Counts");
-	*/
 
 	sgmPVName = amNames2pvNames_.valueF("loadlockCCG");
 	if(sgmPVName.isEmpty())
@@ -444,40 +370,7 @@ void SGMBeamline::usingSGMBeamline(){
 	ssaIllumination_ = new AMPVControl("ssaIllumination", sgmPVName, sgmPVName, "", this, 0.5);
 	ssaIllumination_->setDescription("SSA Illumination");
 
-	//TOM THIS IS STEP 4.9
-	sgmPVName = amNames2pvNames_.valueF("ringCurrent");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	ringCurrent_ = new AMPVControl("ringCurrent", sgmPVName, sgmPVName, "", this, 0.1);
-	ringCurrent_->setDescription("Ring Current");
-
-	sgmPVName = amNames2pvNames_.valueF("filterPD1Current");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	filterPD1_ = new AMPVControl("filterPD1Current", sgmPVName, sgmPVName, "", this, 0.1);
-	filterPD1_->setDescription("V Filter Diode");
-
-	sgmPVName = amNames2pvNames_.valueF("filterPD2Current");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	filterPD2_ = new AMPVControl("filterPD2Current", sgmPVName, sgmPVName, "", this, 0.1);
-	filterPD2_->setDescription("Cr Filter Diode");
-
-	sgmPVName = amNames2pvNames_.valueF("filterPD3Current");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	filterPD3_ = new AMPVControl("filterPD3Current", sgmPVName, sgmPVName, "", this, 0.1);
-	filterPD3_->setDescription("TiC Filter Diode");
-
-	sgmPVName = amNames2pvNames_.valueF("filterPD4Current");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	filterPD4_ = new AMPVControl("filterPD4Current", sgmPVName, sgmPVName, "", this, 0.1);
-	filterPD4_->setDescription("Fe Filter Diode");
-
 	scaler_ = new CLSSIS3820Scaler("BL1611-ID-1:mcs", this);
-	//connect(scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
-
 
 	qDebug() << "\nPV Name Look Ups Failed: " << pvNameLookUpFail << "\n";
 }
@@ -504,17 +397,9 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	addChildControl(undulatorTracking_);
 	addChildControl(monoTracking_);
 	addChildControl(exitSlitTracking_);
-	//addChildControl(teyPico_);
-	//addChildControl(teyScaler_);
-	//addChildControl(tfyPico_);
 	addChildControl(tfyScaler_);
 	addChildControl(tfyHV_);
 	addChildControl(pgtHV_);
-	//addChildControl(i0Pico_);
-	//addChildControl(i0Scaler_);
-	//addChildControl(eVFbk_);
-	//addChildControl(encoderUp_);
-	//addChildControl(encoderDown_);
 	addChildControl(ssaManipulatorX_);
 	addChildControl(ssaManipulatorY_);
 	addChildControl(ssaManipulatorZ_);
@@ -544,13 +429,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	connect(detectorSignalSource_, SIGNAL(valueChanged(double)), this, SLOT(onDetectorSignalSourceChanged(double)));
 	connect(activeEndstation_, SIGNAL(valueChanged(double)), this, SLOT(onActiveEndstationChanged(double)));
 	addChildControl(ssaIllumination_);
-	//TOM THIS IS STEP 4.10
-	addChildControl(ringCurrent_);
-
-	addChildControl(filterPD1_);
-	addChildControl(filterPD2_);
-	addChildControl(filterPD3_);
-	addChildControl(filterPD4_);
 
 	criticalControlsSet_ = new AMControlSet(this);
 	criticalControlsSet_->setName("Critical Beamline Controls");
@@ -609,14 +487,15 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	connect(teyScalerDetector_->signalSource(), SIGNAL(connected(bool)), this, SIGNAL(controlSetConnectionsChanged()));
 	connect(teyScalerDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 
-	tfyScalerControlSet_ = new AMControlSet(this);
-	tfyScalerControlSet_->setName("TFY Scaler Controls");
-	tfyScalerControlSet_->addControl(tfyScaler_);
-	tfyScalerControlSet_->addControl(tfyHV_);
-	tfyScalerControlSet_->addControl(tfyHVToggle_);
-	tfyScalerDetector_ = 0; //NULL
-	unconnectedSets_.append(tfyScalerControlSet_);
-	connect(tfyScalerControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
+	tfyScalerDetector_ = new SGMMCPDetector("tfyScaler", "BL1611-ID-1:mcs02:fbk", "PS1611401:109", createHV109OnActions(), createHV109OffActions(), AMDetector::WaitRead, this);
+	tfyScalerDetector_->setDescription("TFY");
+	detectorMap_->insert(tfyScalerDetector_, qMakePair(allDetectors(), false));
+	detectorMap_->insert(tfyScalerDetector_, qMakePair(XASDetectors(), true));
+	detectorMap_->insert(tfyScalerDetector_, qMakePair(FastDetectors(), true));
+	connect(tfyScalerDetector_->signalSource(), SIGNAL(connected(bool)), this, SIGNAL(controlSetConnectionsChanged()));
+	connect(tfyScalerDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
+	connect(tfyScalerDetector_->signalSource(), SIGNAL(settingsChanged()), this, SIGNAL(detectorHVChanged()));
+	connect(tfyHVToggle_, SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
 
 	pgtDetector_ = new CLSPGTDetector("pgt", "MCA1611-01", createHVPGTOnActions(), createHVPGTOffActions(), AMDetector::WaitRead, this);
 	pgtDetector_->setDescription("SDD");
@@ -665,23 +544,12 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	connect(encoderDownDetector_->signalSource(), SIGNAL(connected(bool)), this, SIGNAL(controlSetConnectionsChanged()));
 	connect(encoderDownDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 
-	//TOM THIS IS STEP 4.11
-
 	ringCurrentDetector_ = new AMSingleReadOnlyControlDetector("ringCurrent", "PCT1402-01:mA:fbk", AMDetector::ImmediateRead, this);
 	ringCurrentDetector_->setDescription("Ring Current");
 	detectorMap_->insert(ringCurrentDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(ringCurrentDetector_, qMakePair(feedbackDetectors(), false));
 	connect(ringCurrentDetector_->signalSource(), SIGNAL(connected(bool)), this, SIGNAL(controlSetConnectionsChanged()));
 	connect(ringCurrentDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
-
-	/*
-	ringCurrentControlSet_ = new AMControlSet(this);
-	ringCurrentControlSet_->setName("Ring Current Controls");
-	ringCurrentControlSet_->addControl(ringCurrent_);
-	ringCurrentDetector_ = 0; //NULL
-	unconnectedSets_.append(ringCurrentControlSet_);
-	connect(ringCurrentControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
-	*/
 
 	filterPD1ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD1Current", "BL1611-ID-1:mcs06:fbk", AMDetector::ImmediateRead, this);
 	filterPD1ScalarDetector_->setDescription("V Filter Diode");
@@ -690,30 +558,12 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	connect(filterPD1ScalarDetector_->signalSource(), SIGNAL(connected(bool)), this, SIGNAL(controlSetConnectionsChanged()));
 	connect(filterPD1ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 
-	/*
-	filterPD1ScalarControlSet_ = new AMControlSet(this);
-	filterPD1ScalarControlSet_->setName("V Filter Diode Controls");
-	filterPD1ScalarControlSet_->addControl(filterPD1_);
-	filterPD1ScalarDetector_ = 0; //NULL
-	unconnectedSets_.append(filterPD1ScalarControlSet_);
-	connect(filterPD1ScalarControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
-	*/
-
 	filterPD2ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD2Current", "BL1611-ID-1:mcs07:fbk", AMDetector::ImmediateRead, this);
 	filterPD2ScalarDetector_->setDescription("Cr Filter Diode");
 	detectorMap_->insert(filterPD2ScalarDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(filterPD2ScalarDetector_, qMakePair(feedbackDetectors(), false));
 	connect(filterPD2ScalarDetector_->signalSource(), SIGNAL(connected(bool)), this, SIGNAL(controlSetConnectionsChanged()));
 	connect(filterPD2ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
-
-	/*
-	filterPD2ScalarControlSet_ = new AMControlSet(this);
-	filterPD2ScalarControlSet_->setName("Cr Filter Diode Controls");
-	filterPD2ScalarControlSet_->addControl(filterPD2_);
-	filterPD2ScalarDetector_ = 0; //NULL
-	unconnectedSets_.append(filterPD2ScalarControlSet_);
-	connect(filterPD2ScalarControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
-	*/
 
 	filterPD3ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD3Current", "BL1611-ID-1:mcs08:fbk", AMDetector::ImmediateRead, this);
 	filterPD3ScalarDetector_->setDescription("TiC Filter Diode");
@@ -722,30 +572,12 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	connect(filterPD3ScalarDetector_->signalSource(), SIGNAL(connected(bool)), this, SIGNAL(controlSetConnectionsChanged()));
 	connect(filterPD3ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 
-	/*
-	filterPD3ScalarControlSet_ = new AMControlSet(this);
-	filterPD3ScalarControlSet_->setName("TiC Filter Diode Controls");
-	filterPD3ScalarControlSet_->addControl(filterPD3_);
-	filterPD3ScalarDetector_ = 0; //NULL
-	unconnectedSets_.append(filterPD3ScalarControlSet_);
-	connect(filterPD3ScalarControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
-	*/
-
 	filterPD4ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD4Current", "BL1611-ID-1:mcs09:fbk", AMDetector::ImmediateRead, this);
 	filterPD4ScalarDetector_->setDescription("Fe Filter Diode");
 	detectorMap_->insert(filterPD4ScalarDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(filterPD4ScalarDetector_, qMakePair(feedbackDetectors(), false));
 	connect(filterPD4ScalarDetector_->signalSource(), SIGNAL(connected(bool)), this, SIGNAL(controlSetConnectionsChanged()));
 	connect(filterPD4ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
-
-	/*
-	filterPD4ScalarControlSet_ = new AMControlSet(this);
-	filterPD4ScalarControlSet_->setName("Fe Filter Diode Controls");
-	filterPD4ScalarControlSet_->addControl(filterPD4_);
-	filterPD4ScalarDetector_ = 0; //NULL
-	unconnectedSets_.append(filterPD4ScalarControlSet_);
-	connect(filterPD4ScalarControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
-	*/
 
 	amptekSDD1_ = new CLSAmptekSDD123Detector("AmptekSDD1", "amptek:sdd1", this);
 
@@ -1437,84 +1269,7 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 
 	if(csConnected){
 		unconnectedSets_.removeAll(ctrlSet);
-		if(!tfyScalerDetector_ && ctrlSet->name() == "TFY Scaler Controls"){
-			tfyScalerDetector_ = new SGMMCPDetector(tfyScaler_->name(), tfyScaler_, tfyHV_, createHV109OnActions(), createHV109OffActions(), AMDetector::WaitRead, this);
-			tfyScalerDetector_->setDescription(tfyScaler_->description());
-			allDetectors_->addDetector(tfyScalerDetector_);
-			XASDetectors_->addDetector(tfyScalerDetector_, true);
-			FastDetectors_->addDetector(tfyScalerDetector_, true);
-			connect(tfyHVToggle_, SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
-			connect( ((SGMMCPDetector*)tfyScalerDetector_)->hvCtrl(), SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()) );
-			emit detectorHVChanged();
-		}
-		else if(!i0ScalerDetector_ && ctrlSet->name() == "I0 Scaler Controls"){
-			/*
-			i0ScalerDetector_ = new AMSingleControlDetector(i0Scaler_->name(), i0Scaler_, AMDetector::WaitRead, this);
-			i0ScalerDetector_->setDescription(i0Scaler_->description());
-			allDetectors_->addDetector(i0ScalerDetector_);
-			feedbackDetectors_->addDetector(i0ScalerDetector_);
-			*/
-		}
-		else if(!eVFbkDetector_ && ctrlSet->name() == "Energy Feedback Controls"){
-			/*
-			eVFbkDetector_ = new AMSingleControlDetector(eVFbk_->name(), eVFbk_, AMDetector::ImmediateRead, this);
-			eVFbkDetector_->setDescription(eVFbk_->description());
-			allDetectors_->addDetector(eVFbkDetector_);
-			feedbackDetectors_->addDetector(eVFbkDetector_);
-			*/
-		}
-		else if(!photodiodeScalerDetector_ && ctrlSet->name() == "Photodiode Scaler Controls"){
-			/*
-			photodiodeScalerDetector_ = new AMSingleControlDetector(photodiodeScaler_->name(), photodiodeScaler_, AMDetector::WaitRead, this);
-			photodiodeScalerDetector_->setDescription(photodiodeScaler_->description());
-			allDetectors_->addDetector(photodiodeScalerDetector_);
-			*/
-		}
-		/*
-		else if(!encoderUpDetector_ && ctrlSet->name() == "Encoder Up Controls"){
-			encoderUpDetector_ = new AMSingleControlDetector(encoderUp_->name(), encoderUp_, AMDetector::WaitRead, this);
-			encoderUpDetector_->setDescription(encoderUp_->description());
-			allDetectors_->addDetector(encoderUpDetector_);
-		}
-		else if(!encoderDownDetector_ && ctrlSet->name() == "Encoder Down Controls"){
-			encoderDownDetector_ = new AMSingleControlDetector(encoderDown_->name(), encoderDown_, AMDetector::WaitRead, this);
-			encoderDownDetector_->setDescription(encoderDown_->description());
-			allDetectors_->addDetector(encoderDownDetector_);
-		}
-		*/
-		//TOM THIS IS STEP 4.12
-		/*
-		else if(!ringCurrentDetector_ && ctrlSet->name() == "Ring Current Controls"){
-			ringCurrentDetector_ = new AMSingleControlDetector(ringCurrent_->name(), ringCurrent_, AMDetector::ImmediateRead, this);
-			ringCurrentDetector_->setDescription(ringCurrent_->description());
-			allDetectors_->addDetector(ringCurrentDetector_);    // This adds it to the list of all known detectors
-			feedbackDetectors_->addDetector(ringCurrentDetector_); // This adds it to the list of detectors we use in every XAS Scan by default
-		}
-		else if(!filterPD1ScalarDetector_ && ctrlSet->name() == "V Filter Diode Controls"){
-			filterPD1ScalarDetector_ = new AMSingleControlDetector(filterPD1_->name(), filterPD1_, AMDetector::ImmediateRead, this);
-			filterPD1ScalarDetector_->setDescription(filterPD1_->description());
-			allDetectors_->addDetector(filterPD1ScalarDetector_);    // This adds it to the list of all known detectors
-			feedbackDetectors_->addDetector(filterPD1ScalarDetector_); // This adds it to the list of detectors we use in every XAS Scan by default
-		}
-		else if(!filterPD2ScalarDetector_ && ctrlSet->name() == "Cr Filter Diode Controls"){
-			filterPD2ScalarDetector_ = new AMSingleControlDetector(filterPD2_->name(), filterPD2_, AMDetector::ImmediateRead, this);
-			filterPD2ScalarDetector_->setDescription(filterPD2_->description());
-			allDetectors_->addDetector(filterPD2ScalarDetector_);    // This adds it to the list of all known detectors
-			feedbackDetectors_->addDetector(filterPD2ScalarDetector_); // This adds it to the list of detectors we use in every XAS Scan by default
-		}
-		else if(!filterPD3ScalarDetector_ && ctrlSet->name() == "TiC Filter Diode Controls"){
-			filterPD3ScalarDetector_ = new AMSingleControlDetector(filterPD3_->name(), filterPD3_, AMDetector::ImmediateRead, this);
-			filterPD3ScalarDetector_->setDescription(filterPD3_->description());
-			allDetectors_->addDetector(filterPD3ScalarDetector_);    // This adds it to the list of all known detectors
-			feedbackDetectors_->addDetector(filterPD3ScalarDetector_); // This adds it to the list of detectors we use in every XAS Scan by default
-		}
-		else if(!filterPD4ScalarDetector_ && ctrlSet->name() == "Fe Filter Diode Controls"){
-			filterPD4ScalarDetector_ = new AMSingleControlDetector(filterPD4_->name(), filterPD4_, AMDetector::ImmediateRead, this);
-			filterPD4ScalarDetector_->setDescription(filterPD4_->description());
-			allDetectors_->addDetector(filterPD4ScalarDetector_);    // This adds it to the list of all known detectors
-			feedbackDetectors_->addDetector(filterPD4ScalarDetector_); // This adds it to the list of detectors we use in every XAS Scan by default
-		}*/
-		else if(ctrlSet->name() == "SSA Manipulator"){
+		if(ctrlSet->name() == "SSA Manipulator"){
 			AMControlInfoList ssaInfoList = ssaManipulatorSet_->toInfoList();
 			ssaInfoList[0].setValue(-1.0);
 			ssaInfoList[1].setValue( 0.0);
@@ -1693,7 +1448,7 @@ void SGMBeamline::onDetectorAvailabilityChanged(AMDetector *detector, bool isAva
 				if(detectorSets.at(x).first->detectorAt(y)->detectorName() == detector->detectorName())
 					hasDetector = true;
 			if(!hasDetector){
-				qDebug() << "Adding detector " << detector->detectorName() << " as default " << detectorSets.at(x).second;
+				//qDebug() << "Adding detector " << detector->detectorName() << " as default " << detectorSets.at(x).second;
 				detectorSets.at(x).first->addDetector(detector, detectorSets.at(x).second);
 			}
 		}

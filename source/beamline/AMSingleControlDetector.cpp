@@ -79,15 +79,12 @@ void AMSingleControlDetector::onControlConnected(bool connected){
 AMSingleReadOnlyControlDetector::AMSingleReadOnlyControlDetector(const QString &name, const QString &baseName, AMDetector::ReadMethod readMethod, QObject *parent) :
 		AMDetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
-	//control_ = control;
 	control_ = new AMReadOnlyPVControl(name, baseName, this);
 	connect(control_, SIGNAL(connected(bool)), this, SLOT(onControlConnected(bool)));
 	connect(control_, SIGNAL(valueChanged(double)), AMDetector::signalSource(), SIGNAL(readingsChanged()));
-	//onControlConnected(control_->isConnected());
 }
 
 AMSingleReadOnlyControlDetector::~AMSingleReadOnlyControlDetector(){
-	//control_ = NULL;
 }
 
 const QMetaObject* AMSingleReadOnlyControlDetector::getMetaObject() {

@@ -61,9 +61,6 @@ CLSPGTDetector::CLSPGTDetector(const QString &name, const QString &baseName, AMB
 
 CLSPGTDetector::~CLSPGTDetector()
 {
-	/* NTBA March 14, 2011 David Chevrier
-	   Need to take care of ownsControlSet_
-	   */
 }
 
 const QMetaObject* CLSPGTDetector::getMetaObject() {

@@ -30,8 +30,7 @@ class SGMMCPDetector : public SGMMCPDetectorInfo, public AMDetector
 {
 	Q_OBJECT
 public:
-	SGMMCPDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
-	SGMMCPDetector(const QString& name, AMControl *reading, AMControl *hv, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
+	SGMMCPDetector(const QString &name, const QString &fullReadingName, const QString &hvBaseName, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
 	~SGMMCPDetector();
 
 	const QMetaObject* getMetaObject();
@@ -66,8 +65,11 @@ public slots:
 	void setDescription(const QString &description);
 	virtual bool setControls(SGMMCPDetectorInfo *mcpSettings);
 
+	void onDetectorHVToggleChanged();
+
 signals:
 	void poweredOnChanged(bool poweredOn);
+	void detectorHVChanged();
 
 protected slots:
 	void onControlsConnected(bool connected);
@@ -75,12 +77,13 @@ protected slots:
 	void onSettingsControlValuesChanged();
 
 protected:
-	void initializeFromControlSet(AMControlSet *readingsControls, AMControlSet *settingsControls);
+	/// The actual control for the reading value
+	AMControl *readingControl_;
+	/// The control for the MCP High voltage
+	AMControl *hvControl_;
 
-protected:
-	AMControlSet *readingsControls_;
-	AMControlSet *settingsControls_;
-	bool ownsControlSets_;
+	/// A control set for all the controls (for ease of signalling)
+	AMControlSet *allControls_;
 
 	AMBeamlineActionItem *toggleOnAction_;
 	AMBeamlineActionItem *toggleOffAction_;
