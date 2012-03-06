@@ -201,7 +201,7 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 		else if (usingFourElement){
 
 			// Only going to rawDataSourceCount-5 because the last 5 raw data sources are the 2D spectra scan and requires its own method of entering the data.
-			for (int i = 0; i < scan->rawDataSourceCount()-1; i++)
+			for (int i = 0; i < scan->rawDataSourceCount()-5; i++)
 				scan->rawData()->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+2).toDouble());
 
 			spectraTokenized.clear();

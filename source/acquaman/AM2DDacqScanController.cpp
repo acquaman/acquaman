@@ -104,7 +104,7 @@ bool AM2DDacqScanController::event(QEvent *e)
 			++i;
 
 			while(i != aeData.constEnd()){
-				scan_->rawData()->setValue(insertIndex, i.key()-1, AMnDIndex(), i.value());
+				scan_->rawData()->setValue(insertIndex, i.key()-2, AMnDIndex(), i.value());
 				++i;
 			}
 
