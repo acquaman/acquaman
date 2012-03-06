@@ -187,3 +187,18 @@ void AMControlMoveButtonContextMenu::leaveEvent(QEvent *e)
 	hide();
 	QDialog::leaveEvent(e);
 }
+
+void AMControlMoveButton::press(bool down)
+{
+	// press
+	if(down) {
+		setDown(true);
+	}
+	// release, only if already pressed.
+	else {
+		if(isDown()) {
+			setDown(false);
+			click();
+		}
+	}
+}
