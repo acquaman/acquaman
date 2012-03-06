@@ -41,6 +41,8 @@ public:
 	/// Returns the meta object
 	const QMetaObject* getMetaObject();
 
+	virtual QString dacqName() const;
+
 	/// General reading value (in this case, the total counts in all bins)
 	virtual double reading() const;
 

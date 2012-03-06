@@ -34,6 +34,8 @@ public:
 
 	const QMetaObject* getMetaObject();
 
+	virtual QString dacqName() const;
+
 	virtual double reading() const;
 
 	/// NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.

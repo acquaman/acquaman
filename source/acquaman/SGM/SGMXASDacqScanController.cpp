@@ -63,16 +63,6 @@ bool SGMXASDacqScanController::startImplementation(){
 	}
 	bool loadSuccess = false;
 
-	for(int x = 0; x < config_->allDetectorConfigurations().count(); x++){
-		if(config_->allDetectorConfigurations().isActiveAt(x) && !SGMBeamline::sgm()->detectorValidForCurrentSignalSource(config_->allDetectorConfigurations().detectorInfoAt(x))){
-			AMErrorMon::report(AMErrorReport(this,
-					AMErrorReport::Alert,
-					SGMXASDACQSCANCONTROLLER_CANT_START_DETECTOR_SOURCE_MISMATCH,
-					"Error, SGM XAS DACQ Scan Controller failed to start. The SGM Beamline thinks you're configured to use the wrong detectors (picoammeters versus scalers). Please report this bug to the Acquaman developers."));
-			return false;
-		}
-	}
-
 	SGMDacqConfigurationFile *configFile = new SGMDacqConfigurationFile();
 	QList<int> matchIDs;
 	if( SGMBeamline::sgm()->pgtDetector() && SGMBeamline::sgm()->oos65000Detector() && config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())
@@ -123,9 +113,11 @@ bool SGMXASDacqScanController::startImplementation(){
 			qDebug() << "Want to work with " << dtctr->toInfo()->name() << dtctr->toInfo()->rank();
 			//if(dtctr->detectorName() == SGMBeamline::sgm()->pgtDetector()->detectorName())
 			if(dtctr->toInfo()->rank() > 0)
-				advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->detectorName()), true, true, detectorReadMethodToDacqReadMethod(dtctr->readMethod()));
+				advAcq_->appendRecord(dtctr->dacqName(), true, true, detectorReadMethodToDacqReadMethod(dtctr->readMethod()));
+				//advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->detectorName()), true, true, detectorReadMethodToDacqReadMethod(dtctr->readMethod()));
 			else
-				advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->detectorName()), true, false, detectorReadMethodToDacqReadMethod(dtctr->readMethod()));
+				advAcq_->appendRecord(dtctr->dacqName(), true, false, detectorReadMethodToDacqReadMethod(dtctr->readMethod()));
+				//advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->detectorName()), true, false, detectorReadMethodToDacqReadMethod(dtctr->readMethod()));
 		}
 	}
 	for(int x = 0; x < config_->regionCount(); x++){

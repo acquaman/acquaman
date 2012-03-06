@@ -104,7 +104,7 @@ public:
 
 	bool isConnected() const {
 		//return criticalControlsSet_->isConnected() && pgtDetector()->isConnected() && oos65000Detector()->isConnected();
-		return criticalControlsSet_->isConnected() && pgtDetector()->isConnected();
+		return criticalControlsSet_->isConnected() && pgtDetector()->isConnected() && teyScalerDetector_->isConnected();
 	}
 
 	QStringList unconnectedCriticals() const;
@@ -158,31 +158,19 @@ public:
 	}
 
 	AMDetector* teyDetector() const {
-		if(detectorSignalSource_->value() == 0)
-			return teyPicoDetector_;
-		else
-			return teyScalerDetector_;
+		return teyScalerDetector_;
 	}
 	AMDetector* tfyDetector() const {
-		if(detectorSignalSource_->value() == 0)
-			return tfyPicoDetector_;
-		else
-			return tfyScalerDetector_;
+		return tfyScalerDetector_;
 	}
 	AMDetector* pgtDetector() const { return pgtDetector_;}
 	AMDetector* oos65000Detector() const { return oos65000Detector_;}
 	AMDetector* i0Detector() const {
-		if(detectorSignalSource_->value() == 0)
-			return i0PicoDetector_;
-		else
-			return i0ScalerDetector_;
+		return i0ScalerDetector_;
 	}
 	AMDetector* eVFbkDetector() const { return eVFbkDetector_;}
 	AMDetector* photodiodeDetector() const {
-		if(detectorSignalSource_->value() == 0)
-			return photodiodePicoDetector_;
-		else
-			return photodiodeScalerDetector_;
+		return photodiodeScalerDetector_;
 	}
 	AMDetector* encoderUpDetector() const { return encoderUpDetector_;}
 	AMDetector* encoderDownDetector() const { return encoderDownDetector_;}
@@ -374,9 +362,9 @@ protected:
 	AMControl *undulatorTracking_;
 	AMControl *monoTracking_;
 	AMControl *exitSlitTracking_;
-	AMControl *teyPico_;
-	AMControl *teyScaler_;
-	AMControl *tfyPico_;
+	//AMControl *teyPico_;
+	//AMControl *teyScaler_;
+	//AMControl *tfyPico_;
 	AMControl *tfyScaler_;
 	AMControl *tfyHV_;
 	AMControl *tfyHVToggle_;
@@ -385,13 +373,13 @@ protected:
 	CLSPGT8000HVChannel *hvChannelPGT_;
 	CLSSynchronizedDwellTime *synchronizedDwellTime_;
 	AMControl *pgtHV_;
-	AMControl *i0Pico_;
-	AMControl *i0Scaler_;
-	AMControl *eVFbk_;
-	AMControl *photodiodePico_;
-	AMControl *photodiodeScaler_;
-	AMControl *encoderUp_;
-	AMControl *encoderDown_;
+	//AMControl *i0Pico_;
+	//AMControl *i0Scaler_;
+	//AMControl *eVFbk_;
+	//AMControl *photodiodePico_;
+	//AMControl *photodiodeScaler_;
+	//AMControl *encoderUp_;
+	//AMControl *encoderDown_;
 	AMControl *loadlockCCG_;
 	AMControl *loadlockTCG_;
 	SGMMAXvMotor *ssaManipulatorX_;
@@ -425,42 +413,34 @@ protected:
 	AMControl *filterPD3_;
 	AMControl *filterPD4_;
 
-	AMControlSet *teyPicoControlSet_;
-	AMDetector *teyPicoDetector_;
-	AMControlSet *teyScalerControlSet_;
+	//AMControlSet *teyScalerControlSet_;
 	AMDetector *teyScalerDetector_;
-	AMControlSet *tfyPicoControlSet_;
-	AMDetector *tfyPicoDetector_;
 	AMControlSet *tfyScalerControlSet_;
 	AMDetector *tfyScalerDetector_;
 
 	AMDetector *pgtDetector_;
 	AMDetector *oos65000Detector_;
-	AMDetector *i0PicoDetector_;
-	AMControlSet *i0PicoControlSet_;
 	AMDetector *i0ScalerDetector_;
-	AMControlSet *i0ScalerControlSet_;
+	//AMControlSet *i0ScalerControlSet_;
 	AMDetector *eVFbkDetector_;
-	AMControlSet *eVFbkControlSet_;
-	AMDetector *photodiodePicoDetector_;
-	AMControlSet *photodiodePicoControlSet_;
+	//AMControlSet *eVFbkControlSet_;
 	AMDetector *photodiodeScalerDetector_;
-	AMControlSet *photodiodeScalerControlSet_;
+	//AMControlSet *photodiodeScalerControlSet_;
 	AMDetector *encoderUpDetector_;
-	AMControlSet *encoderUpControlSet_;
+	//AMControlSet *encoderUpControlSet_;
 	AMDetector *encoderDownDetector_;
-	AMControlSet *encoderDownControlSet_;
+	//AMControlSet *encoderDownControlSet_;
 	//TOM THIS IS STEP 4.4
 	AMDetector *ringCurrentDetector_;
-	AMControlSet *ringCurrentControlSet_;
+	//AMControlSet *ringCurrentControlSet_;
 	AMDetector *filterPD1ScalarDetector_;
-	AMControlSet *filterPD1ScalarControlSet_;
+	//AMControlSet *filterPD1ScalarControlSet_;
 	AMDetector *filterPD2ScalarDetector_;
-	AMControlSet *filterPD2ScalarControlSet_;
+	//AMControlSet *filterPD2ScalarControlSet_;
 	AMDetector *filterPD3ScalarDetector_;
-	AMControlSet *filterPD3ScalarControlSet_;
+	//AMControlSet *filterPD3ScalarControlSet_;
 	AMDetector *filterPD4ScalarDetector_;
-	AMControlSet *filterPD4ScalarControlSet_;
+	//AMControlSet *filterPD4ScalarControlSet_;
 	AMDetector* amptekSDD1_;
 
 	AMControlSet *criticalControlsSet_;
@@ -483,7 +463,7 @@ protected:
 	AMDetectorSet *XASDetectors_;
 	AMDetectorSet *FastDetectors_;
 
-	QMultiMap<AMDetector*, AMDetectorSet*> *detectorMap_;
+	QMultiMap<AMDetector*, QPair<AMDetectorSet*, bool> > *detectorMap_;
 
 	QList<AMControlSet*> unconnectedSets_;
 

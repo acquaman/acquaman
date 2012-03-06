@@ -71,6 +71,14 @@ const QMetaObject* CLSOceanOptics65000Detector::getMetaObject() {
 	return metaObject();
 }
 
+QString CLSOceanOptics65000Detector::dacqName() const{
+	AMReadOnlyWaveformBinningPVControl *tmpControl = qobject_cast<AMReadOnlyWaveformBinningPVControl*>(dataWaveformControl_);
+	if(isConnected() && tmpControl)
+		return tmpControl->readPVName();
+	else
+		return "";
+}
+
 double CLSOceanOptics65000Detector::reading() const{
 	if(isConnected())
 		return dataWaveformControl()->value();

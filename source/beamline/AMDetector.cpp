@@ -78,6 +78,10 @@ AMDetector::ReadMethod AMDetector::readMethod() const{
 	return readMethod_;
 }
 
+QString AMDetector::dacqName() const{
+	return "";
+}
+
 double AMDetector::reading() const{
 	return -1;
 }

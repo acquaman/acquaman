@@ -34,6 +34,7 @@ public:
 
 	virtual double reading() const;
 
+
 	/// NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.
 	AMDetectorInfo* toInfo() const;
 
@@ -42,6 +43,39 @@ public:
 	/* NTBA March 14, 2011 David Chevrier
 	bool setFromInfo(const AMDetectorInfo &info);
 	*/
+	bool setFromInfo(const AMDetectorInfo *info);
+
+	QString description() const;
+
+public slots:
+	void setDescription(const QString &description);
+	virtual bool setControls(AMDetectorInfo *detectorSettings);
+
+protected slots:
+	void onControlConnected(bool connected);
+
+protected:
+	AMControl *control_;
+};
+
+class AMSingleReadOnlyControlDetector : public AMDetectorInfo, public AMDetector
+{
+Q_OBJECT
+public:
+	AMSingleReadOnlyControlDetector(const QString& name, const QString &baseName, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
+	~AMSingleReadOnlyControlDetector();
+
+	const QMetaObject* getMetaObject();
+
+	virtual QString dacqName() const;
+
+	virtual double reading() const;
+
+	/// NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.
+	AMDetectorInfo* toInfo() const;
+
+	AMControl* control();
+
 	bool setFromInfo(const AMDetectorInfo *info);
 
 	QString description() const;

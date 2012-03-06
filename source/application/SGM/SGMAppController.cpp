@@ -86,6 +86,7 @@ bool SGMAppController::startup() {
 		AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration>();
 
 		AMDetectorViewSupport::registerClass<AMSingleControlBriefDetectorView, AMSingleControlDetector>();
+		AMDetectorViewSupport::registerClass<AMSingleReadOnlyControlBriefDetectorView, AMSingleReadOnlyControlDetector>();
 		AMDetectorViewSupport::registerClass<SGMMCPBriefDetectorView, SGMMCPDetector>();
 		AMDetectorViewSupport::registerClass<SGMMCPDetailedDetectorView, SGMMCPDetector>();
 		AMDetectorViewSupport::registerClass<CLSPGTBriefDetectorView, CLSPGTDetector>();

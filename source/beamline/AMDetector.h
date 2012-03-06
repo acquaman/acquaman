@@ -87,6 +87,9 @@ public:
 	/// The read method this detector is using (see AMDetector::ReadMethod enum)
 	virtual AMDetector::ReadMethod readMethod() const;
 
+	/// Returns the PV name the dacq library wants to use
+	virtual QString dacqName() const;
+
 	/// Get the current reading
 	virtual double reading() const;
 

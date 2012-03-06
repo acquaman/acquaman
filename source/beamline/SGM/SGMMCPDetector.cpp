@@ -53,6 +53,14 @@ const QMetaObject* SGMMCPDetector::getMetaObject() {
 	return metaObject();
 }
 
+QString SGMMCPDetector::dacqName() const{
+	AMReadOnlyPVControl *tmpControl = qobject_cast<AMReadOnlyPVControl*>(readingCtrl());
+	if(isConnected() && tmpControl)
+		return tmpControl->readPVName();
+	else
+		return "";
+}
+
 double SGMMCPDetector::reading() const{
 	if(isConnected())
 		return readingsControls_->at(0)->value();

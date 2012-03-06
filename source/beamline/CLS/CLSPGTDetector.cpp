@@ -70,6 +70,14 @@ const QMetaObject* CLSPGTDetector::getMetaObject() {
 	return metaObject();
 }
 
+QString CLSPGTDetector::dacqName() const{
+	AMReadOnlyWaveformBinningPVControl *tmpControl = qobject_cast<AMReadOnlyWaveformBinningPVControl*>(dataWaveformControl_);
+	if(isConnected() && tmpControl)
+		return tmpControl->readPVName();
+	else
+		return "";
+}
+
 double CLSPGTDetector::reading() const{
 	if(isConnected())
 		return dataWaveformCtrl()->value();
