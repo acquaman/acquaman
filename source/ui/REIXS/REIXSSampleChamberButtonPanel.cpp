@@ -97,3 +97,62 @@ void REIXSSampleChamberButtonPanel::onStopButtonClicked()
 	chamber->loadLockR()->stop();
 	chamber->loadLockZ()->stop();
 }
+
+void REIXSSampleChamberButtonPanel::onJoystickButtonChanged(int buttonId, bool isDown)
+{
+	// Mapping:
+	/*
+	  Dpad up: 4
+	  Dpad down: 6
+	  Dpad right: 5
+	  Dpad left: 7
+
+	  Triangle: 12
+	  X: 14
+	  Circle: 13
+	  Square: 15
+
+	  Right top trigger: 11
+	  Left top trigger: 10
+
+	  Right bottom trigger:9
+	  Left bottom trigger: 8
+
+	  Right joystick press: 2
+	  Left joystick press:1
+
+	  PS button: 16
+	  Select: 0
+	  Start: 3
+	  */
+
+	switch(buttonId) {
+	case 4:
+		ui->sampleXdown->press(isDown);
+		break;
+	case 6:
+		ui->sampleXup->press(isDown);
+		break;
+	case 5:
+		ui->sampleYdown->press(isDown);
+		break;
+	case 7:
+		ui->sampleYup->press(isDown);
+		break;
+
+
+	case 12:
+		ui->sampleZup->press(isDown);
+		break;
+	case 14:
+		ui->sampleZdown->press(isDown);
+		break;
+
+	case 11:
+		ui->sampleCW->press(isDown);
+		break;
+	case 10:
+		ui->sampleCCW->press(isDown);
+		break;
+	}
+}
