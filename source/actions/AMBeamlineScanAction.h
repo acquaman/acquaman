@@ -69,6 +69,10 @@ public:
 signals:
 	void progress(double, double);
 	void descriptionChanged();
+	/// Emitted when the action is paused.
+	void paused();
+	/// Emitted when the action is resumed.
+	void resumed();
 
 	void exportMe(const QList<QUrl> &itemUrls);
 
@@ -90,6 +94,10 @@ protected slots:
 	void delayedStart(bool ready);
 	virtual void onScanInitialized();
 	virtual void onScanStarted();
+	/// Slot that handles propogating the paused signal from the controller.
+	void onScanPaused();
+	/// Slot that handles propogating the resumed signal from the controller.
+	void onScanResumed();
 	virtual void onScanCancelled();
 	virtual void onScanSucceeded();
 	virtual void onScanFailed();
@@ -129,6 +137,10 @@ protected slots:
 	void updateScanNameLabel();
 	void updateProgressBar(double elapsed, double total);
 	void onScanStarted();
+	/// Slot that handles propogating the paused signal from the controller.
+	void onScanPaused();
+	/// Slot that handles propogating the resumed signal from the controller.
+	void onScanResumed();
 	void onScanFinished();
 	void onScanFailed(int explanation);
 	void onStopCancelButtonClicked();

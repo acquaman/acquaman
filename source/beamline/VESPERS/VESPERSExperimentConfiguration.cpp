@@ -41,6 +41,8 @@ VESPERSExperimentConfiguration::VESPERSExperimentConfiguration(CLSSynchronizedDw
 	useSingleEl_ = false;
 	useFourEl_ = false;
 
+	connect(poeBeamStatus_, SIGNAL(valueChanged(double)), this, SLOT(onPOEStatusChanged(double)));
+
 	connect(poeBeamStatusEnable_, SIGNAL(valueChanged(double)), this, SLOT(onPOEEnableChanged(double)));
 	connect(synchronizedDwellTime_, SIGNAL(connected(bool)), this, SLOT(onSynchronizedDwellTimeStartup(bool)));
 
@@ -50,6 +52,12 @@ VESPERSExperimentConfiguration::VESPERSExperimentConfiguration(CLSSynchronizedDw
 	connect(pseudoSampleStage_, SIGNAL(connected(bool)), this, SLOT(determineExperimentStatus()));
 	connect(vortex1E_, SIGNAL(connected(bool)), this, SLOT(determineExperimentStatus()));
 	connect(vortex4E_, SIGNAL(connected(bool)), this, SLOT(determineExperimentStatus()));
+}
+
+void VESPERSExperimentConfiguration::onPOEStatusChanged(double state)
+{
+	if (usePOE_ && (int(state) == 0))
+		emit beamDumped();
 }
 
 void VESPERSExperimentConfiguration::onSynchronizedDwellTimeStartup(bool connected)
