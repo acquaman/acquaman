@@ -68,6 +68,7 @@ protected:
 	QString krScanConfiguration(const QString& propertyName);
 
 	QString krControl(const QString& controlName);
+	QString krControlName(const QString &controlName);
 	QString krControlDescription(const QString& controlName);
 	QString krControlValue(const QString& controlName);
 	QString krControlUnits(const QString& controlName);

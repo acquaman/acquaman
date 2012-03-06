@@ -17,6 +17,7 @@
 #include <QComboBox>
 #include <QLabel>
 
+/// This class builds the view for configuring an EXAFS scan for the VESPERS beamline.
 class VESPERSEXAFSScanConfigurationView : public AMScanConfigurationView
 {
 	Q_OBJECT
@@ -77,10 +78,14 @@ protected slots:
 	/// Slot that sets up the regions for standard EXAFS scans.
 	void onDefaultEXAFSScanClicked();
 
+	/// Updates roiText_ based on the current state of the ROI list.
+	void updateRoiText();
 	/// Handles the context menu.
 	void onCustomContextMenuRequested(QPoint pos);
 
 protected:
+	/// Reimplements the show event to update the Regions of Interest text.
+	virtual void showEvent(QShowEvent *e) { updateRoiText(); AMScanConfigurationView::showEvent(e); }
 	/// Helper method that takes a time in seconds and returns a string of d:h:m:s.
 	QString convertTimeToString(double time);
 

@@ -4,6 +4,7 @@
 #include "beamline/AMDetector.h"
 #include "dataman/VESPERS/VESPERSRoperCCDDetectorInfo.h"
 #include "beamline/AMControl.h"
+#include "actions/AMBeamlineActionItem.h"
 
 /*!
   This class encapsulates the Roper CCD used on VESPERS.  Although currently not available, it will have the current image set available for viewing.
@@ -65,6 +66,24 @@ public:
 
 	// End of getters that aren't included in the info.
 	/////////////////////////////////////////////////////
+
+	// Action getters.  Returns actions that perform a specific action.
+	/// Returns a newly created action that sets the acquire time.  Returns 0 if the control is not connected.
+	AMBeamlineActionItem *createAcquireTimeAction(double time);
+	/// Returns a newly created action that sets the image mode.  Returns 0 if the control is not connected.
+	AMBeamlineActionItem *createImageModeAction(VESPERSRoperCCDDetector::ImageMode mode);
+	/// Returns a newly created action that sets the trigger mode.  Returns 0 if the control is not connected.
+	AMBeamlineActionItem *createTriggerModeAction(VESPERSRoperCCDDetector::TriggerMode mode);
+	/// Returns a newly created action that sets the temperature setpoint.  Returns 0 if the control is not connected.
+	AMBeamlineActionItem *createTemperatureAction(double temperature);
+	/// Returns a newly created action that starts the detector.  Returns 0 if the control is not connected.
+	AMBeamlineActionItem *createStartAction();
+	/// Returns a newly created action that stops the detector.  Returns 0 if the control is not connected.
+	AMBeamlineActionItem *createStopAction();
+	/// Creates a newly created action that sets whether the detector should autosave files.  Returns 0 if the control is not connected.
+	AMBeamlineActionItem *createAutoSaveAction(bool autoSave);
+	/// Creates a newly created action that saves a file.  Returns 0 if the control is not connected.
+	AMBeamlineActionItem *createSaveFileAction();
 
 signals:
 	/// Notifier that the detector is connected.
@@ -142,6 +161,10 @@ protected slots:
 	void onAutoSaveEnabledChanged() { emit autoSaveEnabledChanged(autoSaveEnabled()); }
 	/// Helper slot that emits the current status of writing a file.
 	void onSaveFileStateChanged() { emit saveFileStateChanged(fileBeingSaved()); }
+	/// Helper slot that emits the acquireTime signal and sets the acquire time in the info.
+	void onAcquireTimeChanged(double time) { VESPERSRoperCCDDetectorInfo::setAcquireTime(time); emit acquireTimeChanged(time); }
+	/// Helper slot that emits the temperature changed signal and sets the temperature in the info.
+	void onTemperatureSetpointChanged(double temperature) { VESPERSRoperCCDDetectorInfo::setTemperature(temperature); emit temperatureSetpointChanged(temperature); }
 
 	/// Handles the CCD path update.
 	void onCCDPathChanged() { emit ccdPathChanged(AMPVtoString(ccdPath_)); }

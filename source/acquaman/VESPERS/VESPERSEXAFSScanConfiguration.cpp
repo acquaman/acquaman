@@ -6,11 +6,6 @@
 VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	: AMEXAFSScanConfiguration(parent)
 {
-	ionChamberNames_.insert(Isplit, "Isplit");
-	ionChamberNames_.insert(Iprekb, "Iprekb");
-	ionChamberNames_.insert(Imini, "Imini");
-	ionChamberNames_.insert(Ipost, "Ipost");
-
 	regions_->setSensibleRange(-30, 40);
 	exafsRegions()->setDefaultEdgeEnergy(0); // Everything for XAS related scans on VESPERS is done using relative energy to the edge on a PV level.
 	exafsRegions()->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
@@ -28,6 +23,8 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	useFixedTime_ = false;
 	numberOfScans_ = 1;
 
+	roiInfoList_ = AMROIInfoList();
+
 	goToPosition_ = false;
 	position_ = qMakePair(0.0, 0.0);
 	totalTime_ = 0;
@@ -40,13 +37,8 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 }
 
 VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(const VESPERSEXAFSScanConfiguration &original)
-	: AMEXAFSScanConfiguration(original.parent())
+	: AMEXAFSScanConfiguration(original)
 {
-	ionChamberNames_.insert(Isplit, "Isplit");
-	ionChamberNames_.insert(Iprekb, "Iprekb");
-	ionChamberNames_.insert(Imini, "Imini");
-	ionChamberNames_.insert(Ipost, "Ipost");
-
 	regions_->setSensibleStart(original.regions()->sensibleStart());
 	regions_->setSensibleEnd(original.regions()->sensibleEnd());
 	exafsRegions()->setDefaultEdgeEnergy(original.exafsRegions()->defaultEdgeEnergy());
@@ -117,6 +109,103 @@ QString VESPERSEXAFSScanConfiguration::readRoiList() const
 		prettyRois.append(roiInfoList_.at(i).name() + "\t" + QString::number(roiInfoList_.at(i).low()) + " eV\t" + QString::number(roiInfoList_.at(i).high()) + " eV\n");
 
 	return prettyRois;
+}
+
+QString VESPERSEXAFSScanConfiguration::headerText() const
+{
+	QString header("Configuration of the Scan\n\n");
+
+	header.append("Scanned Edge:\t" + edge() + "\n");
+
+	switch(fluorescenceDetectorChoice()){
+
+	case None:
+		header.append("Fluorescence Detector:\tNone\n");
+		break;
+	case SingleElement:
+		header.append("Fluorescence Detector:\tSingle Element Vortex Detector\n");
+		break;
+	case FourElement:
+		header.append("Fluorescence Detector:\tFour Element Vortex Detector\n");
+		break;
+	}
+
+	switch(incomingChoice()){
+
+	case Isplit:
+		header.append("I0:\tIsplit - The split ion chamber.\n");
+		break;
+	case Iprekb:
+		header.append("I0:\tIprekb - The ion chamber before the KB mirror box.\n");
+		break;
+	case Imini:
+		header.append("I0:\tImini - The small ion chamber immediately after the KB mirror box.\n");
+		break;
+	case Ipost:
+		header.append("I0:\tIpost - The ion chamber at the end of the beamline.\n");
+		break;
+	}
+
+	switch(transmissionChoice()){
+
+	case Isplit:
+		header.append("It:\tIsplit - The split ion chamber.\n");
+		break;
+	case Iprekb:
+		header.append("It:\tIprekb - The ion chamber before the KB mirror box.\n");
+		break;
+	case Imini:
+		header.append("It:\tImini - The small ion chamber immediately after the KB mirror box.\n");
+		break;
+	case Ipost:
+		header.append("It:\tIpost - The ion chamber at the end of the beamline.\n");
+		break;
+	}
+
+	header.append(QString("Automatically moved to a specific location (used when setting up the workflow)?\t%1").arg(goToPosition() ? "Yes\n" : "No\n\n"));
+
+	if (goToPosition()){
+
+		header.append(QString("Horizontal Position:\t%1 mm\n").arg(x()));
+		header.append(QString("Vertical Position:\t%1 mm\n\n").arg(y()));
+	}
+
+	if (fluorescenceDetectorChoice() != None){
+
+		header.append("Regions of Interest\n");
+
+		for (int i = 0; i < roiInfoList_.count(); i++)
+			header.append(roiInfoList_.at(i).name() + "\t" + QString::number(roiInfoList_.at(i).low()) + " eV\t" + QString::number(roiInfoList_.at(i).high()) + " eV\n");
+	}
+
+	header.append("\n");
+	header.append("Regions Scanned\n");
+
+	for (int i = 0; i < regionCount(); i++){
+
+		if (exafsRegions()->type(i) == AMEXAFSRegion::kSpace && useFixedTime())
+			header.append(QString("Start: %1 eV\tDelta: %2 k\tEnd: %3 k\tTime: %4 s\n")
+						  .arg(exafsRegions()->startByType(i, AMEXAFSRegion::Energy))
+						  .arg(exafsRegions()->delta(i))
+						  .arg(exafsRegions()->endByType(i, AMEXAFSRegion::kSpace))
+						  .arg(regions_->time(i)));
+
+		else if (exafsRegions()->type(i) == AMEXAFSRegion::kSpace && !useFixedTime())
+			header.append(QString("Start: %1 eV\tDelta: %2 k\tEnd: %3 k\tMaximum time (used with variable integration time): %4 s\n")
+						  .arg(exafsRegions()->startByType(i, AMEXAFSRegion::Energy))
+						  .arg(exafsRegions()->delta(i))
+						  .arg(exafsRegions()->endByType(i, AMEXAFSRegion::kSpace))
+						  .arg(exafsRegions()->time(i)));
+
+		else
+			header.append(QString("Start: %1 eV\tDelta: %2 eV\tEnd: %3 eV\tTime: %4 s\n")
+						  .arg(regionStart(i))
+						  .arg(regionDelta(i))
+						  .arg(regionEnd(i))
+						  .arg(regionTime(i)));
+	}
+
+	return header;
 }
 
 void VESPERSEXAFSScanConfiguration::onEXAFSRegionsChanged()

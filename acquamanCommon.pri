@@ -502,8 +502,10 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/util/AMJoystick.h \
 	source/ui/util/AMJoystickTestView.h \
 	source/ui/dataman/AMControlInfoListTableView.h \
-    source/ui/beamline/AMBasicEnumControlEditor.h
-
+	source/ui/beamline/AMBasicEnumControlEditor.h \
+	source/acquaman/AM2DDacqScanController.h \
+	source/acquaman/AM2DScanConfiguration.h \
+	source/dataman/AM2DScan.h
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
 	 HEADERS += source/util/AMGenericLinuxJoystick.h
@@ -537,6 +539,7 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/dataman/AMImagePropertyEditor.ui \
 	source/ui/actions2/AMAddActionDialog.ui \
 	source/ui/util/AMJoystickTestView.ui
+
 SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAbstractTool.cpp \
 	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxis.cpp \
@@ -831,8 +834,10 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/util/AMJoystick.cpp \
 	source/ui/util/AMJoystickTestView.cpp \
 	source/ui/dataman/AMControlInfoListTableView.cpp \
-    source/ui/beamline/AMBasicEnumControlEditor.cpp
-
+	source/ui/beamline/AMBasicEnumControlEditor.cpp \
+	source/acquaman/AM2DDacqScanController.cpp \
+	source/acquaman/AM2DScanConfiguration.cpp \
+	source/dataman/AM2DScan.cpp
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
 	SOURCES += source/util/AMGenericLinuxJoystick.cpp
@@ -855,27 +860,3 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

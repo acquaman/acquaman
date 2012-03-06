@@ -81,6 +81,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions2/actions/AMWaitActionInfo.h"
 #include "actions2/actions/AMControlMoveActionInfo.h"
 #include "actions2/actions/AMScanControllerActionInfo.h"
+#include "dataman/AM2DScan.h"
 
 
 #include "dataman/database/AMDbObjectSupport.h"
@@ -247,6 +248,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMXASScan>();
 	AMDbObjectSupport::s()->registerClass<AMFastScan>();
 	AMDbObjectSupport::s()->registerClass<AMXESScan>();
+	AMDbObjectSupport::s()->registerClass<AM2DScan>();
 
 	AMDbObjectSupport::s()->registerClass<AMRun>();
 	AMDbObjectSupport::s()->registerClass<AMExperiment>();
