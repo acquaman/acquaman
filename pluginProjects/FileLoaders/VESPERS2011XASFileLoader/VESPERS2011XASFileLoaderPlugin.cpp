@@ -175,6 +175,9 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 	}
 	while (!in.atEnd()){
 
+		if (axisValueIndex > 0)
+			line = in.readLine();
+
 		lineTokenized << line.split(", ");
 
 		scan->rawData()->beginInsertRows(0);
@@ -234,7 +237,6 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 		scan->rawData()->endInsertRows();
 
 		axisValueIndex++;
-		line = in.readLine();
 		lineTokenized.clear();
 	}
 

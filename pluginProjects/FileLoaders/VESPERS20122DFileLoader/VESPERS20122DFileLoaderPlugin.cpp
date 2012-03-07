@@ -66,7 +66,7 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 
 	// Clear any old data so we can start fresh.
 	scan->clearRawDataPointsAndMeasurements();
-	qDebug() << scan->rawDataSourceCount();
+
 	if (usingSingleElement){
 
 		// Include all for now.
@@ -75,8 +75,10 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 
 		while (!in.atEnd()){
 
+			if (!(x == 0 && y == 0))
+				line = in.readLine();
+
 			lineTokenized << line.split(", ");
-			scan->rawData()->beginInsertRows(0);
 
 			if (xLength == 0 && lineTokenized.at(1).toDouble() == double(scan->rawData()->axisValue(0, 0))){
 
@@ -86,6 +88,7 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 			}
 
 			AMnDIndex axisValueIndex(x, y);
+			scan->rawData()->beginInsertRowsAsNecessaryForScanPoint(axisValueIndex);
 
 			scan->rawData()->setAxisValue(0, axisValueIndex.i(), lineTokenized.at(1).toDouble());
 			scan->rawData()->setAxisValue(1, axisValueIndex.j(), lineTokenized.at(2).toDouble());
@@ -103,7 +106,6 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 				y++;
 			}
 
-			line = in.readLine();
 			lineTokenized.clear();
 		}
 	}
