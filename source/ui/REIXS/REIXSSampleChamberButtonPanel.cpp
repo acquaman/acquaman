@@ -34,18 +34,18 @@ REIXSSampleChamberButtonPanel::REIXSSampleChamberButtonPanel(QWidget *parent) :
 	ui->sampleXup->setControl(chamber->x());
 	ui->sampleXup->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	ui->sampleXup->setStepSizeIndex(1);
+	ui->sampleXup->setDirectionReversed(true);
 	ui->sampleXdown->setControl(chamber->x());
 	ui->sampleXdown->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	ui->sampleXdown->setStepSizeIndex(1);
-	ui->sampleXdown->setDirectionReversed(true);
 
 	ui->sampleYup->setControl(chamber->y());
 	ui->sampleYup->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	ui->sampleYup->setStepSizeIndex(1);
-	ui->sampleYup->setDirectionReversed(true);
 	ui->sampleYdown->setControl(chamber->y());
 	ui->sampleYdown->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	ui->sampleYdown->setStepSizeIndex(1);
+	ui->sampleYdown->setDirectionReversed(true);
 
 	ui->sampleZup->setControl(chamber->z());
 	ui->sampleZup->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
@@ -127,16 +127,16 @@ void REIXSSampleChamberButtonPanel::onJoystickButtonChanged(int buttonId, bool i
 	  */
 
 	switch(buttonId) {
-	case 4:
+	case 6:
 		ui->sampleXdown->press(isDown);
 		break;
-	case 6:
+	case 4:
 		ui->sampleXup->press(isDown);
 		break;
-	case 5:
+	case 7:
 		ui->sampleYdown->press(isDown);
 		break;
-	case 7:
+	case 5:
 		ui->sampleYup->press(isDown);
 		break;
 
