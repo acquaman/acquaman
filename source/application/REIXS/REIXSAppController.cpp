@@ -108,13 +108,6 @@ bool REIXSAppController::startup() {
         AMStartScreen* startScreen = new AMStartScreen(0);
         startScreen->show();
 
-        // Testing Joystick:
-#ifdef Q_OS_LINUX
-        // AMJoystick* joystick = new AMGenericLinuxJoystick("/dev/input/js0", this);
-        // AMJoystickTestView* testView = new AMJoystickTestView(joystick);
-        // testView->show();
-#endif
-
 		// Register Actions:
 		////////////////////////////////
 
@@ -149,7 +142,9 @@ bool REIXSAppController::startup() {
         REIXSScanConfigurationViewHolder* scanConfigurationHolder = new REIXSScanConfigurationViewHolder(xesScanConfigurationView_);
         mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Emission Scan", ":/utilities-system-monitor.png");
         connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
-        AMSampleManagementWidget* sampleManagementPane = new AMSampleManagementWidget(new REIXSSampleChamberButtonPanel(),
+
+		REIXSSampleChamberButtonPanel* buttonPanel = new REIXSSampleChamberButtonPanel();
+		AMSampleManagementWidget* sampleManagementPane = new AMSampleManagementWidget(buttonPanel,
                                                                                       QUrl("http://v2e1610-101.clsi.ca/mjpg/1/video.mjpg"),
                                                                                       "Sample Camera: down beam path",
                                                                                       0,
@@ -157,6 +152,13 @@ bool REIXSAppController::startup() {
                                                                                       0);
 
         mw_->addPane(sampleManagementPane, "Experiment Setup", "Sample Positions", ":/22x22/gnome-display-properties.png");
+		// Testing Joystick:
+#ifdef Q_OS_LINUX
+		 AMJoystick* joystick = new AMGenericLinuxJoystick("/dev/input/js0", this);
+		 connect(joystick, SIGNAL(buttonChanged(int,bool,quint32)), buttonPanel, SLOT(onJoystickButtonChanged(int,bool)));
+//         AMJoystickTestView* testView = new AMJoystickTestView(joystick);
+//         testView->show();
+#endif
 
         ////////////////// Testing junk; move somewhere clean ////////////////////
         QWidget* spectrometerControlWidget = new QWidget();
@@ -249,7 +251,7 @@ void REIXSAppController::onCurrentActionStateChanged(int newState, int oldState)
                 openScanInEditorAndTakeOwnership(scanController->scan());
             }
         }
-    }
+	}
 }
 
 

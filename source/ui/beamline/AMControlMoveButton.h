@@ -64,6 +64,11 @@ public slots:
 	/// Specifies to reverse the direction of the moves.
 	void setDirectionReversed(bool trueForReverse) { directionReversed_ = trueForReverse; }
 
+	/// "Press" the button: When set to true, the button's down state is activated.  When changed to false, the button is changed to the up state, and a click() is generated.  \note If the button is already in the up state when press(false) is called, no click() will be generated.
+	void press(bool down = true);
+	/// Synonym for press(false)
+	void release() { press(false); }
+
 signals:
 	/// Emitted when the step size changes, with the index in stepSizes(). Used by the right-click panel AMControlMoveButtonContextMenu.
 	void stepSizeIndexChanged(int newIndex);
