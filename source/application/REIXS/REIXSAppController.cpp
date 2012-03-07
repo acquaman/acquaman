@@ -192,12 +192,7 @@ bool REIXSAppController::startup() {
 		// Add the sidebar, for real-time display of the beamline.
 		////////////////////////
 		REIXSSidebar* sidebar = new REIXSSidebar();
-		QWidget* sidebarContainer = new QWidget();
-		QVBoxLayout* scvl = new QVBoxLayout(sidebarContainer);
-		scvl->setContentsMargins(0,0,0,0);
-		scvl->addWidget(sidebar);
-		scvl->addStretch();
-		mw_->addRightWidget(sidebarContainer);
+		mw_->addRightWidget(sidebar);
 
 		// Make connections
 		//////////////////////////
