@@ -24,8 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMScanConfiguration.h"
 #include "dataman/REIXS/REIXSXESMCPDetectorInfo.h"
 
-/// This class specifies the parameters that completely describe how to run an XES scan on the REIXS beamline/spectrometer
-/*! \todo Move some of this information up to a general AMXESScanConfiguration class. What would be useful for others? */
+/// This class specifies the parameters that describe how to run an XES scan on the REIXS beamline/spectrometer
 class REIXSXESScanConfiguration : public AMScanConfiguration
 {
 	Q_OBJECT
@@ -36,7 +35,6 @@ class REIXSXESScanConfiguration : public AMScanConfiguration
 	Q_PROPERTY(double maximumDurationSeconds READ maximumDurationSeconds WRITE setMaximumDurationSeconds)
 	Q_PROPERTY(double defocusDistanceMm READ defocusDistanceMm WRITE setDefocusDistanceMm)
 	Q_PROPERTY(int spectrometerCalibrationId READ spectrometerCalibrationId WRITE setSpectrometerCalibrationId)
-	// removed: Q_PROPERTY(bool detectorOrientation READ detectorOrientation WRITE setDetectorOrientation)
 	Q_PROPERTY(double detectorTiltOffset READ detectorTiltOffset WRITE setDetectorTiltOffset)
 	Q_PROPERTY(bool shouldStartFromCurrentPosition READ shouldStartFromCurrentPosition WRITE setShouldStartFromCurrentPosition)
 	Q_PROPERTY(bool doNotClearExistingCounts READ doNotClearExistingCounts WRITE setDoNotClearExistingCounts)

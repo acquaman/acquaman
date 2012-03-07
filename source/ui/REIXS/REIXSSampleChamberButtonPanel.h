@@ -35,6 +35,9 @@ public:
     explicit REIXSSampleChamberButtonPanel(QWidget *parent = 0);
     ~REIXSSampleChamberButtonPanel();
 
+public slots:
+	void onJoystickButtonChanged(int buttonId, bool isDown);
+
 protected slots:
 	void onStopButtonClicked();
 
