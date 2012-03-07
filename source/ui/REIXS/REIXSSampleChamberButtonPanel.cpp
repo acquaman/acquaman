@@ -34,18 +34,18 @@ REIXSSampleChamberButtonPanel::REIXSSampleChamberButtonPanel(QWidget *parent) :
 	ui->sampleXup->setControl(chamber->x());
 	ui->sampleXup->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	ui->sampleXup->setStepSizeIndex(1);
+	ui->sampleXup->setDirectionReversed(true);
 	ui->sampleXdown->setControl(chamber->x());
 	ui->sampleXdown->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	ui->sampleXdown->setStepSizeIndex(1);
-	ui->sampleXdown->setDirectionReversed(true);
 
 	ui->sampleYup->setControl(chamber->y());
 	ui->sampleYup->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	ui->sampleYup->setStepSizeIndex(1);
-	ui->sampleYup->setDirectionReversed(true);
 	ui->sampleYdown->setControl(chamber->y());
 	ui->sampleYdown->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	ui->sampleYdown->setStepSizeIndex(1);
+	ui->sampleYdown->setDirectionReversed(true);
 
 	ui->sampleZup->setControl(chamber->z());
 	ui->sampleZup->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
@@ -96,4 +96,63 @@ void REIXSSampleChamberButtonPanel::onStopButtonClicked()
 	chamber->r()->stop();
 	chamber->loadLockR()->stop();
 	chamber->loadLockZ()->stop();
+}
+
+void REIXSSampleChamberButtonPanel::onJoystickButtonChanged(int buttonId, bool isDown)
+{
+	// Mapping:
+	/*
+	  Dpad up: 4
+	  Dpad down: 6
+	  Dpad right: 5
+	  Dpad left: 7
+
+	  Triangle: 12
+	  X: 14
+	  Circle: 13
+	  Square: 15
+
+	  Right top trigger: 11
+	  Left top trigger: 10
+
+	  Right bottom trigger:9
+	  Left bottom trigger: 8
+
+	  Right joystick press: 2
+	  Left joystick press:1
+
+	  PS button: 16
+	  Select: 0
+	  Start: 3
+	  */
+
+	switch(buttonId) {
+	case 6:
+		ui->sampleXdown->press(isDown);
+		break;
+	case 4:
+		ui->sampleXup->press(isDown);
+		break;
+	case 7:
+		ui->sampleYdown->press(isDown);
+		break;
+	case 5:
+		ui->sampleYup->press(isDown);
+		break;
+
+
+	case 12:
+		ui->sampleZup->press(isDown);
+		break;
+	case 14:
+		ui->sampleZdown->press(isDown);
+		break;
+
+	case 11:
+		ui->sampleCW->press(isDown);
+		break;
+	case 10:
+		ui->sampleCCW->press(isDown);
+		break;
+	}
 }
