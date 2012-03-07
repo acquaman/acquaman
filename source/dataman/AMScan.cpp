@@ -524,7 +524,7 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 	plot->axisLeft()->showAxisName(false);
 	plot->legend()->enableDefaultLegend(false);	// don't show default legend names, because we want to provide these as text later; don't include them in the bitmap
 
-	const AMDataSource* dataSource = dataSourceAt(index);
+	const AMDataSource* dataSource = dataSourceAt(indexOfNotHiddenDataSource(index));
 	switch(dataSource->rank()) {
 	case 1: {
 		MPlotSeriesBasic* series = new MPlotSeriesBasic();

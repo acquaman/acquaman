@@ -248,18 +248,18 @@ public:
 		the index of the not hidden data source at position 2 even if the real position is 4.  Therefore, providing the value 2 will return the value 4 with
 		this example.
 	  */
-	int indexOfNotHiddenRawDataSource(int index)
+	int indexOfNotHiddenRawDataSource(int index) const
 	{
-		int counter = 0;
+		int counter = -1;
 		int rawCount =  rawDataSourceCount();
 
 		for (int i = 0; i < rawCount; i++){
 
-			if (counter == index)
-				return i;
-
 			if (!rawDataSources()->at(i)->hiddenFromUsers())
 				counter++;
+
+			if (counter == index)
+				return i;
 		}
 
 		return -1;
@@ -284,18 +284,19 @@ public:
 		the index of the not hidden data source at position 2 even if the real position is 4.  Therefore, providing the value 2 will return the value 4 with
 		this example.
 	  */
-	int indexOfNotHiddenAnalyzedDataSource(int index)
+	int indexOfNotHiddenAnalyzedDataSource(int index) const
 	{
-		int counter = 0;
+		int counter = -1;
 		int analyzedCount = analyzedDataSourceCount();
 
 		for (int i = 0; i < analyzedCount; i++){
 
-			if (counter == index)
-				return i;
-
 			if (!analyzedDataSources()->at(i)->hiddenFromUsers())
 				counter++;
+
+
+			if (counter == index)
+				return i;
 		}
 
 		return -1;
@@ -310,18 +311,18 @@ public:
 		\note This assumes you know what you're doing.  If you are interested in an analyzed data source, then you need to add rawNotHiddenCount to the
 		index you provide, not rawDataSourceCount.
 	  */
-	int indexOfNotHiddenDataSource(int index)
+	int indexOfNotHiddenDataSource(int index) const
 	{
-		int counter = 0;
+		int counter = -1;
 		int count = dataSourceCount();
 
 		for (int i = 0; i < count; i++){
 
-			if (counter == index)
-				return i;
-
 			if (!dataSourceAt(i)->hiddenFromUsers())
 				counter++;
+
+			if (counter == index)
+				return i;
 		}
 
 		return -1;
