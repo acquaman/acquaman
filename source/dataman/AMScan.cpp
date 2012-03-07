@@ -472,10 +472,10 @@ int AMScan::thumbnailCount() const{
 	if(currentlyScanning()){
 		return 1;
 	}
-	if(analyzedDataSources_.count())
-		return analyzedDataSources_.count();
+	if(analyzedDataSourceNotHiddenCount())
+		return analyzedDataSourceNotHiddenCount();
 	else
-		return rawDataSources_.count();
+		return rawDataSourceNotHiddenCount();
 }
 
 // Return a thumbnail picture for thumbnail number \c index. For now, we use the following decision: Normally we provide thumbnails for all the analyzed data sources.  If there are no analyzed data sources, we provide thumbnails for all the raw data sources.
@@ -492,17 +492,17 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 	}
 
 
-	bool useRawSources = (analyzedDataSources_.count() == 0);
+	bool useRawSources = (analyzedDataSourceNotHiddenCount() == 0);
 
 	if( index < 0 ||
-			(useRawSources && index >= rawDataSources_.count()) ||
-			(!useRawSources && index >= analyzedDataSources_.count())
+			(useRawSources && index >= rawDataSourceNotHiddenCount()) ||
+			(!useRawSources && index >= analyzedDataSourceNotHiddenCount())
 			)
 		return AMDbThumbnail(QString(), QString(), AMDbThumbnail::InvalidType, QByteArray());
 
 	// convert index into a proper index for dataSourceAt(). If we're using raw sources, leave as-is. If we're using analyzed data sources, add the rawDataSources_.count() offset.
 	if(!useRawSources)
-		index += rawDataSources_.count();
+		index += rawDataSourceNotHiddenCount();
 
 	QImage image(240, 180, QImage::Format_ARGB32_Premultiplied);
 	QPainter painter(&image);
