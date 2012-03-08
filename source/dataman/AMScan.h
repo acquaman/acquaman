@@ -225,7 +225,108 @@ public:
 		return false;
 	}
 
+	// Provide access to the data sources that are hidden from users.  Used for thumbnail generation.  I have left these as public methods
+	// because these might be generally useful if people are using data sources that are hidden from users.  However, if you don't have
+	// any data sources that are hidden from users or if that fact doesn't matter, then stick with the standard methods.
 
+	/// Returns the number of raw data sources that are not hidden from users.
+	int rawDataSourceNotHiddenCount() const
+	{
+		int count = 0;
+		int rawCount =  rawDataSourceCount();
+
+		for (int i = 0; i < rawCount; i++)
+			if (!rawDataSources()->at(i)->hiddenFromUsers())
+				count++;
+
+		return count;
+	}
+
+	/// Returns the real index of the raw data source for a given not hidden index.
+	/*!
+		This is a helper method that returns the real index of the raw data source.  The idea is that if you provide a value of 2 with the desire of getting
+		the index of the not hidden data source at position 2 even if the real position is 4.  Therefore, providing the value 2 will return the value 4 with
+		this example.
+	  */
+	int indexOfNotHiddenRawDataSource(int index) const
+	{
+		int counter = -1;
+		int rawCount =  rawDataSourceCount();
+
+		for (int i = 0; i < rawCount; i++){
+
+			if (!rawDataSources()->at(i)->hiddenFromUsers())
+				counter++;
+
+			if (counter == index)
+				return i;
+		}
+
+		return -1;
+	}
+
+	/// Returns the number of raw data sources that are not hidden from users.
+	int analyzedDataSourceNotHiddenCount() const
+	{
+		int count = 0;
+		int analyzedCount = analyzedDataSourceCount();
+
+		for (int i = 0; i < analyzedCount; i++)
+			if (!analyzedDataSources()->at(i)->hiddenFromUsers())
+				count++;
+
+		return count;
+	}
+
+	/// Returns the real index of the analyzed data source for a given not hidden index.
+	/*!
+		This is a helper method that returns the real index of the data source.  The idea is that if you provide a value of 2 with the desire of getting
+		the index of the not hidden data source at position 2 even if the real position is 4.  Therefore, providing the value 2 will return the value 4 with
+		this example.
+	  */
+	int indexOfNotHiddenAnalyzedDataSource(int index) const
+	{
+		int counter = -1;
+		int analyzedCount = analyzedDataSourceCount();
+
+		for (int i = 0; i < analyzedCount; i++){
+
+			if (!analyzedDataSources()->at(i)->hiddenFromUsers())
+				counter++;
+
+
+			if (counter == index)
+				return i;
+		}
+
+		return -1;
+	}
+
+	/// Returns the real index of the data source for a given not hidden index.
+	/*!
+		This is a helper method that returns the real index of the data source.  The idea is that if you provide a value of 2 with the desire of getting
+		the index of the not hidden data source at position 2 even if the real position is 4.  Therefore, providing the value 2 will return the value 4 with
+		this example.
+
+		\note This assumes you know what you're doing.  If you are interested in an analyzed data source, then you need to add rawNotHiddenCount to the
+		index you provide, not rawDataSourceCount.
+	  */
+	int indexOfNotHiddenDataSource(int index) const
+	{
+		int counter = -1;
+		int count = dataSourceCount();
+
+		for (int i = 0; i < count; i++){
+
+			if (!dataSourceAt(i)->hiddenFromUsers())
+				counter++;
+
+			if (counter == index)
+				return i;
+		}
+
+		return -1;
+	}
 
 	// Role 4: Loading/Clearing Raw Data
 	////////////////////////////
