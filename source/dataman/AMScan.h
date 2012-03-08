@@ -225,6 +225,22 @@ public:
 		return false;
 	}
 
+	// Data sources have an option to be hiddenFromUsers(), for internal-only data that shouldn't be exposed. As one example, default thumbnails are only generated for non-hiddenFromUsers() data sources.  These are convenience helper functions to return the indexes of just the non-hiddenFromUsers data sources.
+	//////////////
+
+	/// Convenience function to count the number of data sources that do NOT have the AMDataSource::hiddenFromUsers() attribute set.
+	int nonHiddenDataSourceCount() const;
+	/// Convenience function to count the number of raw data sources that do NOT have the AMDataSource::hiddenFromUsers() attribute set.
+	int nonHiddenRawDataSourceCount() const;
+	/// Convenience function to count the number of analyzed data sources that do NOT have the AMDataSource::hiddenFromUsers() attribute set.
+	int nonHiddenAnalyzedDataSourceCount() const;
+
+	/// Convenience function to provide a list of the data sources that do NOT have the AMDataSource::hiddenFromUsers() attribute set. The returned indexes can be used in dataSourceAt().
+	QVector<int> nonHiddenDataSourceIndexes() const;
+	/// Convenience function to provide a list of the raw data sources that do NOT have the AMDataSource::hiddenFromUsers() attribute set. The returned indexes can be used in rawDataSourceAt().
+	QVector<int> nonHiddenRawDataSourceIndexes() const;
+	/// Convenience function to provide a list of the analyzed data sources that do NOT have the AMDataSource::hiddenFromUsers() attribute set. The returned indexes can be used in analyzedDataSourceAt().
+	QVector<int> nonHiddenAnalyzedDataSourceIndexes() const;
 
 
 	// Role 4: Loading/Clearing Raw Data
@@ -300,10 +316,10 @@ public:
 	// Role 8: Thumbnail system:
 	////////////////////////////////
 
-	/// This is an arbitrary decision, but let's define it like this (for usability): If we have any analyzed data sources, we have a thumbnail for each analyzed data source. Otherwise, rather than showing nothing, we have a thumbnail for each raw data source.  Unless we are currently scanning, in which case we just have one (which visually indicates this).
+	/// This is an arbitrary decision, but let's define it like this (for usability): If we have any analyzed data sources, we have a thumbnail for each analyzed data source. Otherwise, rather than showing nothing, we have a thumbnail for each raw data source.  Unless we are currently scanning, in which case we just have one (which visually indicates this).  In all cases, we exclude data sources that have the AMDataSource::hiddenFromUsers() attribute set.
 	int thumbnailCount() const;
 
-	/// Return a thumbnail picture of the data sources. If we have any analyzed data sources, we have a thumbnail for each analyzed data source. Otherwise, rather than showing nothing, we have a thumbnail for each raw data source.  Unless we are currently scanning, in which case we just have one (which visually indicates this).
+	/// Return a thumbnail picture of the data sources. If we have any analyzed data sources, we have a thumbnail for each analyzed data source. Otherwise, rather than showing nothing, we have a thumbnail for each raw data source.  Unless we are currently scanning, in which case we just have one (which visually indicates this). In all cases, we exclude data sources that have the AMDataSource::hiddenFromUsers() attribute set.
 	AMDbThumbnail thumbnail(int index) const;
 
 	/// Generating these thumbnails is time-consuming, because we have to draw a bunch of plots and render them to PNGs. Therefore, we should do it in a seperate thread.

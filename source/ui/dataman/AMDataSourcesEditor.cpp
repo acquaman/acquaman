@@ -61,6 +61,54 @@ AMDataSourcesEditor::AMDataSourcesEditor(AMScanSetModel* model, QWidget *parent)
 	nameOfAnalysisBlockToBeAdded_ = "";
 
 	connect(ui_.descriptionEdit, SIGNAL(editingFinished()), this, SLOT(descriptionEditingFinished()));
+
+	showAllDataSources_ = false;
+	setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
+}
+
+void AMDataSourcesEditor::onCustomContextMenuRequested(QPoint point)
+{
+	QMenu popup(this);
+	QAction *temp = popup.addAction("Show all data sources");
+	temp->setCheckable(true);
+	temp->setChecked(showAllDataSources_);
+
+	temp = popup.exec(mapToGlobal(point));
+
+	// If a valid action was selected.
+	if (temp && temp->text() == "Show all data sources"){
+
+		showAllDataSources_ = !showAllDataSources_;
+		showAllDataSources(showAllDataSources_);
+	}
+}
+
+void AMDataSourcesEditor::showAllDataSources(bool showAll)
+{
+	int scanIndex = currentScanIndex();
+	QModelIndex modelIndex;
+
+	// No scans to access.
+	if (scanIndex < 0 || scanIndex >= model_->scanCount())
+		return;
+
+	else
+		modelIndex = model_->indexForScan(scanIndex);
+
+	showAllDataSources_ = showAll;
+
+	if (showAllDataSources_){
+
+		for (int i = 0; i < model_->scanAt(scanIndex)->dataSourceCount(); i++)
+			ui_.scanSetView->setRowHidden(i, modelIndex, false);
+	}
+
+	else{
+
+		for (int di = 0; di < model_->scanAt(scanIndex)->dataSourceCount(); di++)
+			ui_.scanSetView->setRowHidden(di, modelIndex, model_->dataSourceAt(scanIndex, di)->hiddenFromUsers());
+	}
 }
 
 void AMDataSourcesEditor::setCurrentScan(AMScan *scan) {
@@ -85,7 +133,7 @@ void AMDataSourcesEditor::setCurrentScan(int scanIndex) {
 	QModelIndex i = model_->indexForScan(scanIndex);
 	ui_.scanSetView->expand(i);
 	ui_.scanSetView->setCurrentIndex(i);
-
+	showAllDataSources(false);
 }
 
 void AMDataSourcesEditor::onSetViewIndexChanged(const QModelIndex &selected, const QModelIndex &deselected) {
