@@ -472,10 +472,11 @@ int AMScan::thumbnailCount() const{
 	if(currentlyScanning()){
 		return 1;
 	}
-	if(analyzedDataSourceNotHiddenCount())
-		return analyzedDataSourceNotHiddenCount();
+	int analyzedCount = nonHiddenAnalyzedDataSourceCount();
+	if(analyzedCount)
+		return analyzedCount;
 	else
-		return rawDataSourceNotHiddenCount();
+		return nonHiddenRawDataSourceCount();
 }
 
 // Return a thumbnail picture for thumbnail number \c index. For now, we use the following decision: Normally we provide thumbnails for all the analyzed data sources.  If there are no analyzed data sources, we provide thumbnails for all the raw data sources.
@@ -492,17 +493,17 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 	}
 
 
-	bool useRawSources = (analyzedDataSourceNotHiddenCount() == 0);
+	int analyzedCount = nonHiddenAnalyzedDataSourceCount();
 
+	bool useRawSources = (analyzedCount == 0);
+
+	// in range?
 	if( index < 0 ||
-			(useRawSources && index >= rawDataSourceNotHiddenCount()) ||
-			(!useRawSources && index >= analyzedDataSourceNotHiddenCount())
+			(useRawSources && index >= nonHiddenRawDataSourceCount()) ||
+			(!useRawSources && index >= analyzedCount)
 			)
 		return AMDbThumbnail(QString(), QString(), AMDbThumbnail::InvalidType, QByteArray());
 
-	// convert index into a proper index for dataSourceAt(). If we're using raw sources, leave as-is. If we're using analyzed data sources, add the rawDataSources_.count() offset.
-	if(!useRawSources)
-		index += rawDataSourceNotHiddenCount();
 
 	QImage image(240, 180, QImage::Format_ARGB32_Premultiplied);
 	QPainter painter(&image);
@@ -524,7 +525,12 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 	plot->axisLeft()->showAxisName(false);
 	plot->legend()->enableDefaultLegend(false);	// don't show default legend names, because we want to provide these as text later; don't include them in the bitmap
 
-	const AMDataSource* dataSource = dataSourceAt(indexOfNotHiddenDataSource(index));
+	const AMDataSource* dataSource;
+	if(useRawSources)
+		dataSource = rawDataSources()->at(nonHiddenRawDataSourceIndexes().at(index));
+	else
+		dataSource = analyzedDataSources()->at(nonHiddenAnalyzedDataSourceIndexes().at(index));
+
 	switch(dataSource->rank()) {
 	case 1: {
 		MPlotSeriesBasic* series = new MPlotSeriesBasic();
@@ -612,6 +618,67 @@ void AMScan::setAutoLoadData(bool autoLoadDataOn)
 	threadId2autoLoadDataMutex_.lock();
 	threadId2autoLoadData_[QThread::currentThreadId()] = autoLoadDataOn;
 	threadId2autoLoadDataMutex_.unlock();
+}
+
+int AMScan::nonHiddenDataSourceCount() const
+{
+	int rv = 0;
+	for(int i=0,cc=dataSourceCount(); i<cc; i++) {
+		if(!dataSourceAt(i)->hiddenFromUsers())
+			rv++;
+	}
+	return rv;
+}
+
+int AMScan::nonHiddenRawDataSourceCount() const
+{
+	int rv = 0;
+	for(int i=0,cc=rawDataSourceCount(); i<cc; i++) {
+		if(!rawDataSources()->at(i)->hiddenFromUsers())
+			rv++;
+	}
+	return rv;
+}
+
+int AMScan::nonHiddenAnalyzedDataSourceCount() const
+{
+	int rv = 0;
+	for(int i=0,cc=analyzedDataSourceCount(); i<cc; i++) {
+		if(!analyzedDataSources()->at(i)->hiddenFromUsers())
+			rv++;
+	}
+	return rv;
+}
+
+QVector<int> AMScan::nonHiddenDataSourceIndexes() const
+{
+	QVector<int> rv;
+	for(int i=0,cc=dataSourceCount(); i<cc; i++) {
+		if(!dataSourceAt(i)->hiddenFromUsers())
+			rv << i;
+	}
+	return rv;
+
+}
+
+QVector<int> AMScan::nonHiddenRawDataSourceIndexes() const
+{
+	QVector<int> rv;
+	for(int i=0,cc=rawDataSourceCount(); i<cc; i++) {
+		if(!rawDataSources()->at(i)->hiddenFromUsers())
+			rv << i;
+	}
+	return rv;
+}
+
+QVector<int> AMScan::nonHiddenAnalyzedDataSourceIndexes() const
+{
+	QVector<int> rv;
+	for(int i=0,cc=analyzedDataSourceCount(); i<cc; i++) {
+		if(!analyzedDataSources()->at(i)->hiddenFromUsers())
+			rv << i;
+	}
+	return rv;
 }
 
 #endif
