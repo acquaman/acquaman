@@ -28,9 +28,13 @@ REIXSBeamline::REIXSBeamline() :
 	photonSource_ = new REIXSPhotonSource(this);
 	addChildControl(photonSource_);
 
+	valvesAndShutters_ = new REIXSValvesAndShutters(this);
+	addChildControl(valvesAndShutters_);
+
 	// Spectromter: controls and control set for positioners:
 	spectrometer_ = new REIXSSpectrometer(this);
 	addChildControl(spectrometer_);
+
 	spectrometerPositionSet_ = new AMControlSet(this);
 	spectrometerPositionSet_->addControl(spectrometer()->spectrometerRotationDrive());
 	spectrometerPositionSet_->addControl(spectrometer()->detectorTranslation());
@@ -412,6 +416,22 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	monoMirrorSelector_ = new AMPVwStatusControl("monoMirrorSelector", "MONO1610-I20-01:mirror:select:fbk", "MONO1610-I20-01:mirror:select", "MONO1610-I20-01:mirror:trans:status", "SMTR1610-I20-02:stop", this, 1);
 	monoMirrorSelector_->setDescription("Mono Mirror");
 }
+
+REIXSValvesAndShutters::REIXSValvesAndShutters(QObject *parent) : AMCompositeControl("valvesAndShutters", "n/a", parent)
+{
+	psh2_ = new CLSBiStateControl("photonShutter2", "Photon Shutter 2", "PSH1410-I00-02:state", "PSH1410-I00-02:opr:open", "PSH1410-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this);
+
+	psh4_ = new CLSBiStateControl("photonShutter4", "Photon Shutter 4", "PSH1610-I20-01:state", "PSH1610-I20-01:opr:open", "PSH1610-I20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+
+	endstationValve_ = new CLSBiStateControl("XESendstationValve", "XES Endstation Valve", "VVR1610-4-I21-01:state", "VVR1610-4-I21-01:opr:open", "VVR1610-4-I21-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+
+	addChildControl(psh2_);
+	addChildControl(psh4_);
+	addChildControl(endstationValve_);
+
+}
+
+
 
 
 

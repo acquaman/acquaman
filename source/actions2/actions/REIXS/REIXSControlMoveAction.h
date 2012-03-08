@@ -17,7 +17,7 @@ public:
 	/// Copy constructor: must re-implement, but can simply use the base class copy constructor.
 	REIXSControlMoveAction(const REIXSControlMoveAction& other) : AMControlMoveAction(other) {}
 	/// Virtual copy constructor
-	virtual REIXSControlMoveAction* createCopy() const { return new REIXSControlMoveAction(*this); }
+	virtual AMAction* createCopy() const { return new REIXSControlMoveAction(*this); }
 
 	// Re-implemented virtual functions
 	/////////////////////////
