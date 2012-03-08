@@ -89,7 +89,9 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	addExtraDatasources();
 
 	// Add analysis blocks.
-	AMDataSource *i0 = scan_->dataSourceAt(scan_->indexOfDataSource("I0"));
+	QList<AMDataSource *> i0List(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("Isplit"))
+															<< scan_->dataSourceAt(scan_->indexOfDataSource("Iprekb"))
+															<< scan_->dataSourceAt(scan_->indexOfDataSource("Imini")));
 	AMDataSource *rawDataSource = 0;
 	AM2DNormalizationAB *normROI = 0;
 
@@ -98,7 +100,7 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 		rawDataSource = scan_->rawDataSources()->at(i+2);
 		normROI = new AM2DNormalizationAB("norm_"+rawDataSource->name());
 		normROI->setDescription("Normalized "+rawDataSource->description());
-		normROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource << i0);
+		normROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource << i0List);
 		scan_->addAnalyzedDataSource(normROI, true, false);
 	}
 }
@@ -175,26 +177,19 @@ void VESPERS2DDacqScanController::addExtraDatasources()
 
 	for (int i = 0; i < ionChambers->count(); i++){
 
-		if (ionChambers->detectorAt(i)->detectorName() != "Ipost" && i == int(config_->incomingChoice())){
-
-			temp = AMMeasurementInfo(*(ionChambers->detectorAt(i)->toInfo()));
-			temp.name = "I0";
-			scan_->rawData()->addMeasurement(temp);
-			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
-		}
-		else if (ionChambers->detectorAt(i)->detectorName() != "Ipost"){
+		if (ionChambers->detectorAt(i)->detectorName() != "Ipost"){
 
 			temp = AMMeasurementInfo(*(ionChambers->detectorAt(i)->toInfo()));
 			temp.name = ionChambers->detectorAt(i)->detectorName();
 			scan_->rawData()->addMeasurement(temp);
-			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
+			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
 		}
 	}
 
 	// If using the CCD for XRD simultaneously.
 	if (config_->usingCCD()){
 
-		scan_->rawData()->addMeasurement(AMMeasurementInfo("CCDFileNumber", "CCD file nnumber"));
+		scan_->rawData()->addMeasurement(AMMeasurementInfo("CCDFileNumber", "CCD file number"));
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 	}
 

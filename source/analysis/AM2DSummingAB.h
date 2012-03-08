@@ -151,6 +151,7 @@ public:
 		emitValuesChanged();
 		emitAxisInfoChanged(0);
 		emitInfoChanged();
+		setModified(true);
 	}
 
 	/// Set the minimum index in the region of interest.  If the sum range is beyond the size of the summed axis, the output goes invalid. The value remains as set, however.
@@ -164,6 +165,7 @@ public:
 		reviewState();
 
 		emitValuesChanged();
+		setModified(true);
 	}
 
 	/// Set the maximum index in the region of interest. If the sum range is beyond the size of the summed axis, the output goes invalid. However, the value remains as set.
@@ -176,6 +178,7 @@ public:
 		reviewState();
 
 		emitValuesChanged();
+		setModified(true);
 	}
 
 

@@ -5,6 +5,8 @@ AM2DNormalizationAB::AM2DNormalizationAB(const QString &outputName, QObject *par
 {
 	data_ = 0;
 	normalizer_ = 0;
+	canAnalyze_ = false;
+	dataName_ = "";
 	axes_ << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 }
@@ -17,6 +19,16 @@ bool AM2DNormalizationAB::areInputDataSourcesAcceptable(const QList<AMDataSource
 	// otherwise we need two input sources, with a rank of 2.
 	if(dataSources.count() == 2 && dataSources.at(0)->rank() == 2 && dataSources.at(1)->rank() == 2)
 		return true;
+
+	// Otherwise, any number of data sources (greater than 2) that all have a rank of 2.
+	if (dataSources.count() > 2){
+
+		for (int i = 0; i < dataSources.size(); i++)
+			if (dataSources.at(i)->rank() != 2)
+				return false;
+
+		return true;
+	}
 
 	return false;
 }
@@ -44,6 +56,7 @@ void AM2DNormalizationAB::setInputDataSourcesImplementation(const QList<AMDataSo
 		data_ = 0;
 		normalizer_ = 0;
 		sources_.clear();
+		canAnalyze_ = false;
 
 		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
 		axes_[1] = AMAxisInfo("invalid", 0, "No input data");
@@ -55,6 +68,7 @@ void AM2DNormalizationAB::setInputDataSourcesImplementation(const QList<AMDataSo
 		data_ = dataSources.at(0);
 		normalizer_ = dataSources.at(1);
 		sources_ = dataSources;
+		canAnalyze_ = true;
 
 		axes_[0] = data_->axisInfoAt(0);
 		axes_[1] = data_->axisInfoAt(1);
@@ -69,12 +83,107 @@ void AM2DNormalizationAB::setInputDataSourcesImplementation(const QList<AMDataSo
 		connect(normalizer_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 	}
 
+	else {
+
+		sources_ = dataSources;
+		setInputSources();
+	}
+
 	reviewState();
 
-	emitSizeChanged(0);
+	emitSizeChanged();
 	emitValuesChanged();
-	emitAxisInfoChanged(0);
+	emitAxisInfoChanged();
 	emitInfoChanged();
+}
+
+void AM2DNormalizationAB::setDataName(const QString &name)
+{
+	dataName_ = name;
+	setModified(true);
+	canAnalyze_ = canAnalyze(dataName_, normalizationName_);
+	setInputSources();
+}
+
+void AM2DNormalizationAB::setNormalizationName(const QString &name)
+{
+	normalizationName_ = name;
+	setModified(true);
+	canAnalyze_ = canAnalyze(dataName_, normalizationName_);
+	setInputSources();
+}
+
+void AM2DNormalizationAB::setInputSources()
+{
+	if (data_){
+
+		disconnect(data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(data_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		disconnect(data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+		data_ = 0;
+	}
+
+	if (normalizer_){
+
+		disconnect(normalizer_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(normalizer_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		disconnect(normalizer_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+		normalizer_ = 0;
+	}
+
+	int dataIndex = indexOfInputSource(dataName_);
+	int normalizationIndex = indexOfInputSource(normalizationName_);
+
+	if (dataIndex >= 0 && normalizationIndex >= 0){
+
+		data_ = inputDataSourceAt(dataIndex);
+		normalizer_ = inputDataSourceAt(normalizationIndex);
+		canAnalyze_ = true;
+
+		axes_[0] = data_->axisInfoAt(0);
+		axes_[1] = data_->axisInfoAt(1);
+
+		setDescription(QString("Normalized %1 map").arg(data_->name()));
+
+		connect(data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(data_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		connect(data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+		connect(normalizer_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(normalizer_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		connect(normalizer_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+	}
+
+	else{
+
+		data_ = 0;
+		normalizer_ = 0;
+		sources_.clear();
+		canAnalyze_ = false;
+
+		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
+		axes_[1] = AMAxisInfo("invalid", 0, "No input data");
+		setDescription("Normalized 2D Data Source");
+	}
+
+	reviewState();
+
+	emitSizeChanged();
+	emitValuesChanged();
+	emitAxisInfoChanged();
+	emitInfoChanged();
+}
+
+bool AM2DNormalizationAB::canAnalyze(const QString &dataName, const QString &normalizationName) const
+{
+	// Can always analyze two 2D data sources.
+	if (sources_.count() == 2)
+		return true;
+
+	// The first data source is reserved for the data.
+	if (indexOfInputSource(dataName) >= 0 && indexOfInputSource(normalizationName))
+		return true;
+
+	return false;
 }
 
 AMNumber AM2DNormalizationAB::value(const AMnDIndex &indexes, bool doBoundsChecking) const
@@ -114,8 +223,7 @@ void AM2DNormalizationAB::onInputSourceValuesChanged(const AMnDIndex& start, con
 void AM2DNormalizationAB::onInputSourceSizeChanged() {
 	axes_[0].size = data_->size(0);
 	axes_[1].size = data_->size(1);
-	emitSizeChanged(0);
-	emitSizeChanged(1);
+	emitSizeChanged();
 }
 
 void AM2DNormalizationAB::onInputSourceStateChanged() {
@@ -128,13 +236,21 @@ void AM2DNormalizationAB::onInputSourceStateChanged() {
 
 void AM2DNormalizationAB::reviewState(){
 
-	if(data_ == 0 || !data_->isValid()
+	if(!canAnalyze_
+			|| data_ == 0 || !data_->isValid()
 			|| normalizer_ == 0 || !normalizer_->isValid()) {
 		setState(AMDataSource::InvalidFlag);
 		return;
 	}
 	else
 		setState(0);
+}
+
+#include "analysis/AM2DNormalizationABEditor.h"
+
+QWidget *AM2DNormalizationAB::createEditorWidget()
+{
+	return new AM2DNormalizationABEditor(this);
 }
 
 bool AM2DNormalizationAB::loadFromDb(AMDatabase *db, int id) {
