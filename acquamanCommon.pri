@@ -505,7 +505,8 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/ui/beamline/AMBasicEnumControlEditor.h \
 	source/acquaman/AM2DDacqScanController.h \
 	source/acquaman/AM2DScanConfiguration.h \
-	source/dataman/AM2DScan.h
+	source/dataman/AM2DScan.h \
+    source/analysis/AM2DNormalizationAB.h
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
 	 HEADERS += source/util/AMGenericLinuxJoystick.h
@@ -837,7 +838,8 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/beamline/AMBasicEnumControlEditor.cpp \
 	source/acquaman/AM2DDacqScanController.cpp \
 	source/acquaman/AM2DScanConfiguration.cpp \
-	source/dataman/AM2DScan.cpp
+	source/dataman/AM2DScan.cpp \
+    source/analysis/AM2DNormalizationAB.cpp
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
 	SOURCES += source/util/AMGenericLinuxJoystick.cpp
@@ -860,3 +862,5 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+

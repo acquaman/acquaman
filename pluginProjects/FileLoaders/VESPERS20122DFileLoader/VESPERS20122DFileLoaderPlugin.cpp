@@ -67,67 +67,49 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 	// Clear any old data so we can start fresh.
 	scan->clearRawDataPointsAndMeasurements();
 
-	if (usingSingleElement){
+	// Include all for now.
+	for (int i = 0; i < scan->rawDataSourceCount(); i++)
+		scan->rawData()->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description()));
 
-		// Include all for now.
-		for (int i = 0; i < scan->rawDataSourceCount(); i++)
-			scan->rawData()->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description()));
+	while (!in.atEnd()){
 
-		while (!in.atEnd()){
+		// The first time we enter this loop we'll already have the first line of data.
+		if (!(x == 0 && y == 0))
+			line = in.readLine();
 
-			if (!(x == 0 && y == 0))
-				line = in.readLine();
+		lineTokenized << line.split(", ");
 
-			lineTokenized << line.split(", ");
+		// Used for determining how long the x axis is.
+		if (xLength == 0 && lineTokenized.at(1).toDouble() == double(scan->rawData()->axisValue(0, 0))){
 
-			if (xLength == 0 && lineTokenized.at(1).toDouble() == double(scan->rawData()->axisValue(0, 0))){
-
-				xLength = x;
-				x = 0;
-				y++;
-			}
-
-			AMnDIndex axisValueIndex(x, y);
-			scan->rawData()->beginInsertRowsAsNecessaryForScanPoint(axisValueIndex);
-
-			scan->rawData()->setAxisValue(0, axisValueIndex.i(), lineTokenized.at(1).toDouble());
-			scan->rawData()->setAxisValue(1, axisValueIndex.j(), lineTokenized.at(2).toDouble());
-
-			for (int i = 0; i < scan->rawDataSourceCount(); i++)
-				scan->rawData()->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+3).toDouble());
-
-			scan->rawData()->endInsertRows();
-
-			x++;
-
-			if (xLength != 0 && x == xLength){
-
-				x = 0;
-				y++;
-			}
-
-			lineTokenized.clear();
+			xLength = x;
+			x = 0;
+			y++;
 		}
-	}
 
-	else if (usingSingleElementAndCCD){
+		// Add in the data at the right spot.
+		AMnDIndex axisValueIndex(x, y);
+		scan->rawData()->beginInsertRowsAsNecessaryForScanPoint(axisValueIndex);
 
-	}
+		scan->rawData()->setAxisValue(0, axisValueIndex.i(), lineTokenized.at(1).toDouble());
+		scan->rawData()->setAxisValue(1, axisValueIndex.j(), lineTokenized.at(2).toDouble());
 
-	else if (usingFourElement){
-
-		// Include all for now.
 		for (int i = 0; i < scan->rawDataSourceCount(); i++)
-			scan->rawData()->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description()));
+			scan->rawData()->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+3).toDouble());
+
+		scan->rawData()->endInsertRows();
+
+		// Advance to the next spot.
+		x++;
+
+		if (xLength != 0 && x == xLength){
+
+			x = 0;
+			y++;
+		}
+
+		lineTokenized.clear();
 	}
-
-	else if (usingFourElementAndCCD){
-
-	}
-
-	else
-		return false;
-
 
 	file.close();
 
