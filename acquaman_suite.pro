@@ -17,5 +17,7 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	MidIRBPM.pro \
 	CLSPGTDwellTimeCoordinator.pro \
 	SGMAddOnsCoordinator.pro \
-	SGMSSAAcquaman.pro
+	SGMSSAAcquaman.pro \
+    EnsureLegalHeader
+
 
