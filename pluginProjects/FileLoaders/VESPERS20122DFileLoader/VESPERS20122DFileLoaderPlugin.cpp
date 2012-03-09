@@ -23,7 +23,96 @@ bool VESPERS20122DFileLoaderPlugin::accepts(AMScan *scan)
 
 bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder)
 {
-	/// \todo implement load.
+	// Check for null scan reference.
+	if (!scan)
+		return false;
+
+	QFileInfo sourceFileInfo(scan->filePath());
+	if(sourceFileInfo.isRelative())
+		sourceFileInfo.setFile(userDataFolder + "/" + scan->filePath());
+
+	QFile file(sourceFileInfo.filePath());
+	if(!file.open(QIODevice::ReadOnly)) {
+		AMErrorMon::error(0, -1, "XASFileLoader parse error while loading scan data from file.");
+		return false;
+	}
+
+	QTextStream in(&file);
+	QString line;
+	QStringList lineTokenized;
+
+	bool usingSingleElement = false;
+	bool usingSingleElementAndCCD = false;
+	bool usingFourElement = false;
+	bool usingFourElementAndCCD = false;
+
+	if (scan->fileFormat() == "vespers2012XRF1El")
+		usingSingleElement = true;
+	else if (scan->fileFormat() == "vespers2012XRF1ElXRD")
+		usingSingleElementAndCCD = true;
+	else if (scan->fileFormat() == "vespers2012XRF4El")
+		usingFourElement = true;
+	else if (scan->fileFormat() == "vespers2012XRF4ElXRD")
+		usingFourElementAndCCD = true;
+
+	while ((line = in.readLine()).contains("#")){
+		//Do nothing
+	}
+
+	// Some setup variables.
+	int x = 0;
+	int y = 0;
+	int xLength = 0;
+
+	// Clear any old data so we can start fresh.
+	scan->clearRawDataPointsAndMeasurements();
+
+	// Include all for now.
+	for (int i = 0; i < scan->rawDataSourceCount(); i++)
+		scan->rawData()->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description()));
+
+	while (!in.atEnd()){
+
+		// The first time we enter this loop we'll already have the first line of data.
+		if (!(x == 0 && y == 0))
+			line = in.readLine();
+
+		lineTokenized << line.split(", ");
+
+		// Used for determining how long the x axis is.
+		if (xLength == 0 && lineTokenized.at(1).toDouble() == double(scan->rawData()->axisValue(0, 0))){
+
+			xLength = x;
+			x = 0;
+			y++;
+		}
+
+		// Add in the data at the right spot.
+		AMnDIndex axisValueIndex(x, y);
+		scan->rawData()->beginInsertRowsAsNecessaryForScanPoint(axisValueIndex);
+
+		scan->rawData()->setAxisValue(0, axisValueIndex.i(), lineTokenized.at(1).toDouble());
+		scan->rawData()->setAxisValue(1, axisValueIndex.j(), lineTokenized.at(2).toDouble());
+
+		for (int i = 0; i < scan->rawDataSourceCount(); i++)
+			scan->rawData()->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+3).toDouble());
+
+		scan->rawData()->endInsertRows();
+
+		// Advance to the next spot.
+		x++;
+
+		if (xLength != 0 && x == xLength){
+
+			x = 0;
+			y++;
+		}
+
+		lineTokenized.clear();
+	}
+
+	file.close();
+
 	return true;
 }
 

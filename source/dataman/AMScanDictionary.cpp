@@ -73,6 +73,7 @@ void AMScanDictionary::loadKeywordReplacementDictionaryImplementation()
 	keywordDictionary_.insert("notes", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krNotes));
 	keywordDictionary_.insert("runNotes", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krRunNotes));
 	keywordDictionary_.insert("control", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krControl));
+	keywordDictionary_.insert("controlName", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krControlName));
 	keywordDictionary_.insert("controlDescription", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krControlDescription));
 	keywordDictionary_.insert("controlValue", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krControlValue));
 	keywordDictionary_.insert("controlUnits", new AMTagReplacementFunctor<AMScanDictionary>(this, &AMScanDictionary::krControlUnits));
@@ -285,6 +286,18 @@ QString AMScanDictionary::krControl(const QString& controlName) {
 	return QString::number(ci.value()) % " " % ci.units();
 }
 
+QString AMScanDictionary::krControlName(const QString &controlName)
+{
+	if (!scan_)
+		return "[??]";
+
+	int index = scan_->scanInitialConditions()->indexOf(controlName);
+	if(index == -1)
+		return "[??]";
+
+	return scan_->scanInitialConditions()->at(index).name();
+}
+
 QString AMScanDictionary::krControlDescription(const QString& controlName) {
 	if(!scan_)
 		return "[??]";
@@ -293,7 +306,7 @@ QString AMScanDictionary::krControlDescription(const QString& controlName) {
 	if(index == -1)
 		return "[??]";
 
-	return scan_->scanInitialConditions()->at(index).name();	/// \todo Add description!
+	return scan_->scanInitialConditions()->at(index).description();
 }
 
 QString AMScanDictionary::krControlValue(const QString& controlName) {

@@ -24,27 +24,28 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 REIXSXESCalibration::REIXSXESCalibration(QObject *parent) :
 	AMDbObject(parent)
 {
-	gratingNames_ << "Low Energy" << "Impurity" << "Medium Energy" << "High Energy*" << "Medium Energy (HiRes)";
+	gratingNames_ << "LEG" << "Impurity" << "MEG" << "HEG*(HRHEG)" << "HRMEG";
 	gratingGrooveDensities_ << 593.02 << 892.86 << 1187.819 << 2600 << 1800;
 	gratingRadii_ << 5025.6 << 6699.8 << 10018 << 11461 << 10029;
-	gratingCenterPositionsX_ << 18.946 << -16.552 << 18.517 << 18.499 << -16.998;
-	gratingCenterPositionsY_ << -10.917 << -10.899 << 16.915 << 41.810 << 41.405;
-	gratingCenterPositionsZ_ << 9.958 << 10.637 << -22.173 << 12.6 << 12.915;
+	gratingCenterPositionsX_ << 20.529 << -14.970 << 20.374 << 20.278 << -15.220;
+	gratingCenterPositionsY_ << -25.865 << -25.723 << 2.697 << 26.808 << 26.535;
+	gratingCenterPositionsZ_ << 12.892 << 13.507 << -18.923 << 16.465 << 16.709;
 
-	gratingMountTilt_ << 4.07 << 3.07 << 2.07 << 1.82 << 2.07;
+	gratingMountTilt_ << 5.01 << 4.011 << 3.005 << 2.764 << 3.013;
 	gratingMountRoll_ << 0 << 0 << 0 << 0 << 0;
+	// gratingMountTwist_ << 0.41 << 0.41 << 0.41 << 0.41;
 
-	hexapodOrigin_ = QVector3D(0, 0, -433.731);
+	hexapodOrigin_ = QVector3D(2.418, 4.145, -430.478);
 
 	detectorPos0_ = QVector3D(-2.548, 498.977, 25.279);
 
-	slitPos_ = QVector3D(-1.596, -349.373, 0.516);
+	slitPos_ = QVector3D(-0.32, -349.95, -6.10);
 	opticalOrigin_ = QVector3D(0, 0, 0);
 
 
 	detectorHeightError_ = 3.03; //mm
 
-	spectrometerTheta0_ = 3.242; //deg
+	spectrometerTheta0_ = 1.749; //deg
 	spectrometerTheta0m_ = 3.07; //deg
 
 	frameA_ = 2850.66;//mm
@@ -62,7 +63,7 @@ REIXSXESCalibration::REIXSXESCalibration(QObject *parent) :
 	spectrometerRotDrive0_ = -3.7; //mm
 
 
-	detectorTranslation0_ = 499.617; //mm
+	detectorTranslation0_ = 499.609; //mm
 
 	gratingEVRangesMin_ << 100 << 100 << 100 << 100 << 100;
 	gratingEVRangesMax_ << 1000 << 1000 << 1000 << 1000 << 1000;

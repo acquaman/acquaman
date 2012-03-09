@@ -95,6 +95,7 @@ void AM1DIntegralAB::setInputDataSourcesImplementation(const QList<AMDataSource*
 void AM1DIntegralAB::setAnalyzedName(const QString &name)
 {
 	analyzedName_ = name;
+	setModified(true);
 	canAnalyze_ = canAnalyze(name);
 	setInputSource();
 }

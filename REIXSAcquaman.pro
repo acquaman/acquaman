@@ -34,7 +34,10 @@ HEADERS +=	source/application/REIXS/REIXSAppController.h \
     source/ui/REIXS/REIXSActionBasedControlEditor.h \
     source/ui/REIXS/REIXSActionBasedEnumControlEditor.h \
     source/actions2/actions/REIXS/REIXSMoveToSampleTransferPositionAction.h \
-    source/actions2/actions/REIXS/REIXSMoveToSampleTransferPositionActionInfo.h
+    source/actions2/actions/REIXS/REIXSMoveToSampleTransferPositionActionInfo.h \
+    source/actions2/actions/REIXS/REIXSBeamOnOffAction.h \
+    source/actions2/actions/REIXS/REIXSBeamOnOffActionInfo.h \
+    source/actions2/editors/REIXS/REIXSBeamOnOffActionEditor.h
 
 
 SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
@@ -63,7 +66,16 @@ SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
     source/ui/REIXS/REIXSActionBasedControlEditor.cpp \
     source/ui/REIXS/REIXSActionBasedEnumControlEditor.cpp \
     source/actions2/actions/REIXS/REIXSMoveToSampleTransferPositionAction.cpp \
-    source/actions2/actions/REIXS/REIXSMoveToSampleTransferPositionActionInfo.cpp
+    source/actions2/actions/REIXS/REIXSMoveToSampleTransferPositionActionInfo.cpp \
+    source/actions2/actions/REIXS/REIXSBeamOnOffAction.cpp \
+    source/actions2/actions/REIXS/REIXSBeamOnOffActionInfo.cpp \
+    source/actions2/editors/REIXS/REIXSBeamOnOffActionEditor.cpp
+
+
+
+
+
+
 
 
 

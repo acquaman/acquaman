@@ -127,7 +127,7 @@ bool VESPERSAppController::startup() {
 
 		vespersDefault->setName("VESPERSDefault");
 		vespersDefault->setFileName("$name_$fsIndex.dat");
-		vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[edge]\n$scanConfiguration[rois]\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
+		vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\nActual Vertical Position:\t$controlValue[Vertical Sample Stage] mm\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
 		vespersDefault->setHeaderIncluded(true);
 		vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
 		vespersDefault->setColumnHeaderIncluded(true);
@@ -257,32 +257,32 @@ void VESPERSAppController::onCurrentScanControllerStarted()
 
 	VESPERSEXAFSScanConfiguration *config = qobject_cast<VESPERSEXAFSScanConfiguration *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->scanConfiguration());
 
-	if (!config)
-		return;
+	if (config){
 
-	switch(config->fluorescenceDetectorChoice()){
+		switch(config->fluorescenceDetectorChoice()){
 
-		case VESPERSEXAFSScanConfiguration::None:
+			case VESPERSEXAFSScanConfiguration::None:
 
-			scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("trans");
-			break;
+				scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("trans");
+				break;
 
-		case VESPERSEXAFSScanConfiguration::SingleElement:
-		case VESPERSEXAFSScanConfiguration::FourElement:
-		{
-			QStringList dataSources(scanEditorAt(scanEditorCount()-1)->visibleDataSourceNames());
-			int index = 0;
+			case VESPERSEXAFSScanConfiguration::SingleElement:
+			case VESPERSEXAFSScanConfiguration::FourElement:
+			{
+				QStringList dataSources(scanEditorAt(scanEditorCount()-1)->visibleDataSourceNames());
+				int index = 0;
 
-			for (int i = 0; i < dataSources.size(); i++){
+				for (int i = 0; i < dataSources.size(); i++){
 
-				// Grabbing the Ka or La emission line because that will be the one people will want to see.
-				if (dataSources.at(i).contains("norm") && dataSources.at(i).contains(config->edge().remove(" ")+"a"))
-					index = i;
+					// Grabbing the Ka or La emission line because that will be the one people will want to see.
+					if (dataSources.at(i).contains("norm") && dataSources.at(i).contains(config->edge().remove(" ")+"a"))
+						index = i;
+				}
+
+				scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName(dataSources.at(index));
+
+				break;
 			}
-
-			scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName(dataSources.at(index));
-
-			break;
 		}
 	}
 }
@@ -295,6 +295,7 @@ void VESPERSAppController::onCurrentScanControllerCreated()
 		return;
 
 	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
+	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
 
 	if (fileFormat == "vespersXAS" || fileFormat == "vespers2011XAS" || fileFormat == "vespers2011EXAFS")
 		connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));
@@ -307,11 +308,23 @@ void VESPERSAppController::onCurrentScanControllerFinished()
 	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
 		return;
 
-	if (AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->state() == AMScanController::Cancelled)
+	if (AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->state() == AMScanController::Cancelled
+			&& (fileFormat == "vespersXAS" || fileFormat == "vespers2011XAS" || fileFormat == "vespers2011EXAFS")){
+
 		assistant_->onScanCancelled();
+		disconnect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));
+	}
 
 	disconnect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
-	disconnect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));
+	disconnect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
+}
+
+void VESPERSAppController::onBeamDump()
+{
+	AMScanController *controller = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+
+	if (controller && controller->isRunning())
+		controller->pause();
 }
 
 void VESPERSAppController::onPauseScanIssued()

@@ -27,6 +27,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMCompositeControl.h"
 
 #include "util/AMDeferredFunctionCall.h"
+#include "beamline/CLS/CLSBiStateControl.h"
+
+class AMAction;
 
 /// The REIXSPhotonSource control is a container for the set of controls that make up the mono and EPU
 class REIXSPhotonSource : public AMCompositeControl {
@@ -45,6 +48,29 @@ public:
 
 protected:
 	AMControl *energy_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_;
+
+};
+
+/// REIXSValvesAndShutters is a container for the set of valve and shutter controls on the beamline
+class REIXSValvesAndShutters : public AMCompositeControl {
+	Q_OBJECT
+public:
+	REIXSValvesAndShutters(QObject* parent = 0);
+
+	/// Photon shutter 2
+	CLSBiStateControl* psh2() { return psh2_; }
+	/// Photon shutter 4: Used for turning off the beam
+	CLSBiStateControl* psh4() { return psh4_; }
+	/// Used in sample changes to isolate the endstation
+	CLSBiStateControl* endstationValve() { return endstationValve_; }
+
+
+	/// \todo Variable apertures: set to 4x4
+
+
+protected:
+	CLSBiStateControl* psh2_, *psh4_, *endstationValve_;
+
 
 };
 
@@ -250,6 +276,8 @@ public:
 	REIXSSampleChamber* sampleChamber() { return sampleChamber_; }
 	/// Access the live MCP detector object
 	REIXSXESMCPDetector* mcpDetector() { return mcpDetector_; }
+	/// Access the valves and shutters
+	REIXSValvesAndShutters* valvesAndShutters() { return valvesAndShutters_; }
 
 	// These Control Sets are logical groups of controls, that are commonly used by different Acquaman components
 
@@ -276,6 +304,8 @@ protected:
 	REIXSSampleChamber* sampleChamber_;
 	/// An object for controlling the MCP detector and downloading its image values
 	REIXSXESMCPDetector* mcpDetector_;
+	/// A group of valve and shutter controls
+	REIXSValvesAndShutters* valvesAndShutters_;
 
 
 	// These Control Sets are logical groups of controls, that are commonly used by different Acquaman components

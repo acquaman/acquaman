@@ -121,6 +121,7 @@ void AMExporter::loadKeywordReplacementDictionary()
 	keywordDictionary_.insert("scanConfiguration", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krScanConfiguration));
 
 	keywordDictionary_.insert("control", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krControl));
+	keywordDictionary_.insert("controlName", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krControlName));
 	keywordDictionary_.insert("controlDescription", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krControlDescription));
 	keywordDictionary_.insert("controlValue", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krControlValue));
 	keywordDictionary_.insert("controlUnits", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krControlUnits));
@@ -325,6 +326,18 @@ QString AMExporter::krControl(const QString& controlName) {
 	return QString::number(ci.value()) % " " % ci.units();
 }
 
+QString AMExporter::krControlName(const QString &controlName)
+{
+	if (!currentScan_)
+		return "[??]";
+
+	int index = currentScan_->scanInitialConditions()->indexOf(controlName);
+	if(index == -1)
+		return "[??]";
+
+	return currentScan_->scanInitialConditions()->at(index).name();
+}
+
 QString AMExporter::krControlDescription(const QString& controlName) {
 	if(!currentScan_)
 		return "[??]";
@@ -333,7 +346,7 @@ QString AMExporter::krControlDescription(const QString& controlName) {
 	if(index == -1)
 		return "[??]";
 
-	return currentScan_->scanInitialConditions()->at(index).name();	/// \todo Add description!
+	return currentScan_->scanInitialConditions()->at(index).description();
 }
 
 QString AMExporter::krControlValue(const QString& controlName) {

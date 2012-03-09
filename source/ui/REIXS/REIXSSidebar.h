@@ -31,6 +31,9 @@ protected slots:
 	////////////////////////////
 
 	void onMCPCountsPerSecondChanged(double countsPerSecond);
+
+	void onBeamOnButtonClicked();
+	void onBeamOffButtonClicked();
 };
 
 #endif // REIXSSIDEBAR_H

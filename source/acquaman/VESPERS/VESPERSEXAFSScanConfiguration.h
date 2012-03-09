@@ -33,6 +33,7 @@ class VESPERSEXAFSScanConfiguration : public AMEXAFSScanConfiguration
 	Q_PROPERTY(double yPosition READ y WRITE setY)
 	Q_PROPERTY(AMDbObject* roiInfoList READ dbGetROIInfoList WRITE dbLoadROIInfoList)
 	Q_PROPERTY(QString rois READ readRoiList WRITE writeRoiList)
+	Q_PROPERTY(QString header READ headerText WRITE setHeaderText)
 	Q_PROPERTY(bool useFixedTime READ useFixedTime WRITE setUseFixedTime)
 	Q_PROPERTY(int numberOfScans READ numberOfScans WRITE setNumberOfScans)
 
@@ -108,6 +109,11 @@ public:
 	QString readRoiList() const;
 	/// This function does nothing.  It is there to preserve the fact that the database needs to be able to read and write.
 	void writeRoiList(QString) {}
+
+	/// Get a nice looking string that contains all the standard information in an XAS scan.   Used when exporting.
+	QString headerText() const;
+	/// This function does nothing.  It is there to preserve the fact that the database needs to be able to read and write.
+	void setHeaderText(QString) {}
 
 	// Database loading and storing
 	///////////////////////

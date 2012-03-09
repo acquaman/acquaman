@@ -56,11 +56,8 @@ public:
 	/// this is the "setpoint": the last place the control was told to go:
 	virtual double setpoint() const { return setpoint_; }
 
-	/// this indicates whether a control is "in position" (ie: its value is within tolerance of the setpoint)
-	virtual bool inPosition() const { return fabs(value()-setpoint()) < tolerance(); }
-
-	/// this indicates whether a contorl is "within tolerance" of a given target (ie: the target specified is the same as the current value within the set tolerance)
-	virtual bool withinTolerance(double target) const { return fabs(value()-target) < tolerance(); }
+	// inPosition() is correct as defined by AMControl.
+	// withinTolerance() is correct as defined by AMControl.
 
 	/// \name Capabilities
 	/// These indicate the current cabilities and status of this control. Unconnected controls can't do anything.
@@ -87,8 +84,7 @@ public:
 
 	/// \name Information on the allowed range for this control:
 	//@{
-	/// These are the minimum and maximum allowed values for this control.
-	virtual QPair<double,double> range() const { return QPair<double,double>(minimumValue(), maximumValue()); }
+
 	/// Due to the binary nature of these controls, I enforce that the minimum must be zero.  This is because there is no guarantee that the PVs will be set or that there is any preconceived setup done for the controls.
 	virtual double minimumValue() const { return 0; }
 	/// Due to the binary nature of these controls, I enforce that the maximum must be one.  This is because there is no guarantee that the PVs will be set or that there is any preconceived setup done for the controls.
@@ -144,25 +140,32 @@ public slots:
 	}
 	/// Opens the control.  This activates the control and moves it to the "Open" state.  Synonomous with move(1).
 	void open() {
-		if(setpoint_ != 1) {
-			moveInProgress_ = true;
-			emit moveStarted();
-		}
 		setpoint_ = 1;
+		emit movingChanged(moveInProgress_ = true);
+		emit moveStarted();
+		// in position already?
+		if(inPosition()) {
+			emit movingChanged(moveInProgress_ = false);
+			emit moveSucceeded();
+		}
+
 		openPV_->setValue(1);
 	}
 	/// Closes the control.  This deactivates the control and moves it to the "Closed" state.  Synonomous with move(0).
 	void close() {
-		if(setpoint_ != 0) {
-			moveInProgress_ = true;
-			emit moveStarted();
-		}
 		setpoint_ = 0;
+		emit movingChanged(moveInProgress_ = true);
+		emit moveStarted();
+		// in position already?
+		if(inPosition()) {
+			emit movingChanged(moveInProgress_ = false);
+			emit moveSucceeded();
+		}
+
 		closePV_->setValue(1);
 	}
 
-	/// This is used to cancel or stop a move in progress. Does not do anything for this type of control.
-	virtual bool stop() { return false; }
+	// cannot stop() these kinds of controls.
 
 protected slots:
 	/// Helper function to review the connection state and make sure that connected(bool) is emitted for all changes to isConnected().

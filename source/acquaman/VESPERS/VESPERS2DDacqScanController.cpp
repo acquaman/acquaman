@@ -3,7 +3,7 @@
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "actions/AMBeamlineActionsList.h"
 #include "dataman/AMUser.h"
-#include "analysis/AM1DExpressionAB.h"
+#include "analysis/AM2DNormalizationAB.h"
 #include "actions/AMBeamlineParallelActionsList.h"
 
 #include <QDir>
@@ -65,32 +65,44 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	scan_->rawData()->addMeasurement(AMMeasurementInfo("V:fbk", "Vertical Feedback", "mm"));
 	scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 
-	// Add the regions of interest.
-	if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement){
+	XRFDetector *detector = 0;
 
-		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF1E();
+	if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement)
+		detector = VESPERSBeamline::vespers()->vortexXRF1E();
+	else if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::FourElement)
+		detector = VESPERSBeamline::vespers()->vortexXRF4E();
 
-		// This is safe and okay because I always have the regions of interest set taking up 0-X where X is the count-1 of the number of regions of interest.
-		for (int i = 0; i < detector->roiInfoList()->count(); i++){
+	// This should never happen.
+	if (!detector)
+		return;
 
-			scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
-			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
-		}
-	}
-	else if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::FourElement){
+	int roiCount = detector->roiInfoList()->count();
 
-		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF4E();
+	// This is safe and okay because I always have the regions of interest set taking up 0-X where X is the count-1 of the number of regions of interest.
+	for (int i = 0; i < roiCount; i++){
 
-		// This is safe and okay because I always have the regions of interest set taking up 0-X where X is the count-1 of the number of regions of interest.
-		for (int i = 0; i < detector->roiInfoList()->count(); i++){
-
-			scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
-			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
-		}
+		scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
 	}
 
-	// Add the rest (includes the ion chambers).
+	// Add the rest (includes the ion chambers).  This sets I0 as well; it is the only visible raw data source.
 	addExtraDatasources();
+
+	// Add analysis blocks.
+	QList<AMDataSource *> i0List(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("Isplit"))
+															<< scan_->dataSourceAt(scan_->indexOfDataSource("Iprekb"))
+															<< scan_->dataSourceAt(scan_->indexOfDataSource("Imini")));
+	AMDataSource *rawDataSource = 0;
+	AM2DNormalizationAB *normROI = 0;
+
+	for (int i = 0; i < roiCount; i++){
+
+		rawDataSource = scan_->rawDataSources()->at(i+2);
+		normROI = new AM2DNormalizationAB("norm_"+rawDataSource->name());
+		normROI->setDescription("Normalized "+rawDataSource->description());
+		normROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource << i0List);
+		scan_->addAnalyzedDataSource(normROI, true, false);
+	}
 }
 
 void VESPERS2DDacqScanController::addExtraDatasources()
@@ -170,40 +182,40 @@ void VESPERS2DDacqScanController::addExtraDatasources()
 			temp = AMMeasurementInfo(*(ionChambers->detectorAt(i)->toInfo()));
 			temp.name = ionChambers->detectorAt(i)->detectorName();
 			scan_->rawData()->addMeasurement(temp);
-			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
+			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
 		}
 	}
 
 	// If using the CCD for XRD simultaneously.
 	if (config_->usingCCD()){
 
-		scan_->rawData()->addMeasurement(AMMeasurementInfo("CCDFileName", "CCD file name"));
+		scan_->rawData()->addMeasurement(AMMeasurementInfo("CCDFileNumber", "CCD file number"));
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 	}
 
-	// Add the spectra.
-	if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement){
+//	// Add the spectra.
+//	if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement){
 
-		temp = AMMeasurementInfo(VESPERSBeamline::vespers()->vortexXRF1E()->toXRFInfo());
-		temp.name = "spectra";
-		scan_->rawData()->addMeasurement(temp);
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
-	}
+//		temp = AMMeasurementInfo(VESPERSBeamline::vespers()->vortexXRF1E()->toXRFInfo());
+//		temp.name = "spectra";
+//		scan_->rawData()->addMeasurement(temp);
+//		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
+//	}
 
-	else if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::FourElement){
+//	else if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::FourElement){
 
-		temp = AMMeasurementInfo(VESPERSBeamline::vespers()->vortexXRF4E()->toXRFInfo());
-		temp.name = "corrSum";
-		scan_->rawData()->addMeasurement(temp);
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
+//		temp = AMMeasurementInfo(VESPERSBeamline::vespers()->vortexXRF4E()->toXRFInfo());
+//		temp.name = "corrSum";
+//		scan_->rawData()->addMeasurement(temp);
+//		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 
-		for (int i = 0; i < VESPERSBeamline::vespers()->vortexXRF4E()->elements(); i++){
+//		for (int i = 0; i < VESPERSBeamline::vespers()->vortexXRF4E()->elements(); i++){
 
-			temp.name = QString("raw%1").arg(i+1);
-			scan_->rawData()->addMeasurement(temp);
-			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
-		}
-	}
+//			temp.name = QString("raw%1").arg(i+1);
+//			scan_->rawData()->addMeasurement(temp);
+//			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
+//		}
+//	}
 }
 
 bool VESPERS2DDacqScanController::initializeImplementation()
@@ -213,60 +225,60 @@ bool VESPERS2DDacqScanController::initializeImplementation()
 		First: Enable/Disable all the pertinent detectors.  The scalar is ALWAYS enabled.
 		Second: Set the mode to single shot,set the time on the synchronized dwell time.
 	 */
-//	AMBeamlineParallelActionsList *initializationActionsList = new AMBeamlineParallelActionsList;
+	AMBeamlineParallelActionsList *initializationActionsList = new AMBeamlineParallelActionsList;
 
-//	if (!initializationActions_)
-//		onInitializationActionFinished();
+	if (!initializationActions_)
+		onInitializationActionFinished();
 
-//	initializationActions_ = new AMBeamlineListAction(initializationActionsList);
+	initializationActions_ = new AMBeamlineListAction(initializationActionsList);
 
-//	// First stage.
-//	initializationActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-//	// Scalar
-//	initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(0)->createEnableAction(true));
-//	// Single element vortex
-//	if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement)
-//		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(true));
-//	else
-//		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(false));
-//	// CCD
-//	if (config_->usingCCD())
-//		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(true));
-//	else
-//		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(false));
-//	// Picoammeters
-//	initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
-//	// Four element vortex
-//	if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::FourElement)
-//		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(true));
-//	else
-//		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
+	// First stage.
+	initializationActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+	// Scalar
+	initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(0)->createEnableAction(true));
+	// Single element vortex
+	if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement)
+		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(true));
+	else
+		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(false));
+	// CCD
+	if (config_->usingCCD())
+		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(true));
+	else
+		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(false));
+	// Picoammeters
+	initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
+	// Four element vortex
+	if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::FourElement)
+		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(true));
+	else
+		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
 
-//	// Second stage.
-//	initializationActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-//	initializationActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createScansPerBufferAction(1));
-//	initializationActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createTotalScansAction(1));
-//	initializationActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::SingleShot));
-//	initializationActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(config_->timeStep()));
+	// Second stage.
+	initializationActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+	initializationActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createScansPerBufferAction(1));
+	initializationActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createTotalScansAction(1));
+	initializationActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::SingleShot));
+	initializationActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(config_->timeStep()));
 
-//	// Integrity check.  Make sure no actions are null.
-//	for (int i = 0; i < initializationActionsList->stageCount(); i++){
+	// Integrity check.  Make sure no actions are null.
+	for (int i = 0; i < initializationActionsList->stageCount(); i++){
 
-//		for (int j = 0; j < initializationActionsList->stage(i)->size(); j++){
+		for (int j = 0; j < initializationActionsList->stage(i)->size(); j++){
 
-//			if (initializationActionsList->action(i, j) == 0){
+			if (initializationActionsList->action(i, j) == 0){
 
-//				onInitializationActionsFailed(0);
-//				return false;
-//			}
-//		}
-//	}
+				onInitializationActionsFailed(0);
+				return false;
+			}
+		}
+	}
 
-//	connect(initializationActions_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
-//	connect(initializationActions_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
-//	connect(initializationActions_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
-//	initializationActions_->start();
-setInitialized();
+	connect(initializationActions_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
+	connect(initializationActions_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
+	connect(initializationActions_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
+	initializationActions_->start();
+
 	return true;
 }
 
@@ -454,7 +466,7 @@ bool VESPERS2DDacqScanController::setupSingleElementMap()
 			advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
 	if (config_->usingCCD())
-		advAcq_->appendRecord("CCD1607-001:FileName", true, false, 0);
+		advAcq_->appendRecord("IOC1607-003:det1:FileNumber", true, false, 0);
 
 	advAcq_->appendRecord("IOC1607-004:mca1", true, true, 1);
 
@@ -520,7 +532,7 @@ bool VESPERS2DDacqScanController::setupFourElementMap()
 			advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
 	if (config_->usingCCD())
-		advAcq_->appendRecord("CCD1607-001:FileName", true, false, 0);
+		advAcq_->appendRecord("IOC1607-003:det1:FileNumber", true, false, 0);
 
 	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected", true, true, 0);
 	advAcq_->appendRecord("dxp1607-B21-04:mca1", true, true, 0);

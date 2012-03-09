@@ -48,6 +48,8 @@ bool AM2DDacqScanController::startImplementation()
 		if(useDwellTimes_)
 			connect(dwellTimeTrigger_, SIGNAL(valueChanged(double)), this, SLOT(onDwellTimeTriggerChanged(double)));
 
+		xPosition_ = -1;
+
 		acqRegisterOutputHandler( advAcq_->getMaster(), (acqKey_t) abop, &abop->handler);                // register the handler with the acquisition
 
 		QFileInfo fullPath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()));	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
@@ -71,9 +73,8 @@ bool AM2DDacqScanController::startImplementation()
 		((AMAcqScanSpectrumOutput*)abop)->setScan(scan_);
 		((AMAcqScanSpectrumOutput*)abop)->setScanController(this);
 
-		return false;
-		//		advAcq_->Start();
-//		return true;
+		advAcq_->Start();
+		return true;
 	}
 	else{
 		AMErrorMon::alert(0, AM2DDACQSCANCONTROLLER_CANT_CREATE_OUTPUTHANDLER, "AM2DDacqScanController: could not create output handler.");
@@ -103,7 +104,7 @@ bool AM2DDacqScanController::event(QEvent *e)
 			++i;
 
 			while(i != aeData.constEnd()){
-				scan_->rawData()->setValue(insertIndex, i.key()-1, AMnDIndex(), i.value());
+				scan_->rawData()->setValue(insertIndex, i.key()-2, AMnDIndex(), i.value());
 				++i;
 			}
 

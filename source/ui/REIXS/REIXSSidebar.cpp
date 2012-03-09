@@ -10,8 +10,8 @@
 
 
 REIXSSidebar::REIXSSidebar(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::REIXSSidebar)
+	QWidget(parent),
+	ui(new Ui::REIXSSidebar)
 {
 	// Setup additional UI elements
 	////////////////////////
@@ -34,6 +34,9 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 	//////////////////////
 
 	connect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(countsPerSecondChanged(double)), this, SLOT(onMCPCountsPerSecondChanged(double)));
+
+	connect(ui->beamOnButton, SIGNAL(clicked()), this, SLOT(onBeamOnButtonClicked()));
+	connect(ui->beamOffButton, SIGNAL(clicked()), this, SLOT(onBeamOffButtonClicked()));
 }
 
 REIXSSidebar::~REIXSSidebar()
@@ -50,4 +53,30 @@ void REIXSSidebar::onMCPCountsPerSecondChanged(double countsPerSecond)
 
 	ui->signalXESBar->setValue(int(log10(countsPerSecond)*100));	// integer scale goes up to 600.  Highest count rate we'll see is 1e6.
 
+}
+
+#include "actions2/AMActionRunner.h"
+#include "actions2/actions/REIXS/REIXSBeamOnOffAction.h"
+#include <QMessageBox>
+
+void REIXSSidebar::onBeamOnButtonClicked()
+{
+	if(AMActionRunner::s()->actionRunning()) {
+		if(QMessageBox::question(this, "Really turn the beam on?", "Actions are currently running in the workflow. Are you sure you want to turn the beam on?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
+			AMActionRunner::s()->runActionImmediately(new REIXSBeamOnOffAction(true));	// runs in background.
+	}
+	else {
+		AMActionRunner::s()->runActionImmediatelyInQueue(new REIXSBeamOnOffAction(true));
+	}
+}
+
+void REIXSSidebar::onBeamOffButtonClicked()
+{
+	if(AMActionRunner::s()->actionRunning()) {
+		if(QMessageBox::question(this, "Really turn the beam off?", "Actions are currently running in the workflow. Are you sure you want to turn the beam off?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
+			AMActionRunner::s()->runActionImmediately(new REIXSBeamOnOffAction(false));	// runs in background.
+	}
+	else {
+		AMActionRunner::s()->runActionImmediatelyInQueue(new REIXSBeamOnOffAction(false));
+	}
 }

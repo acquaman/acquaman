@@ -60,10 +60,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions2/actions/REIXS/REIXSXESScanAction.h"
 #include "actions2/actions/REIXS/REIXSSampleMoveAction.h"
 #include "actions2/actions/REIXS/REIXSMoveToSampleTransferPositionAction.h"
+#include "actions2/actions/REIXS/REIXSBeamOnOffAction.h"
 #include "actions2/editors/AMWaitActionEditor.h"
 #include "actions2/editors/AMLoopActionEditor.h"
 #include "actions2/editors/REIXS/REIXSXESScanActionEditor.h"
 #include "actions2/editors/REIXS/REIXSControlMoveActionEditor.h"
+#include "actions2/editors/REIXS/REIXSBeamOnOffActionEditor.h"
 
 #include "ui/REIXS/REIXSSidebar.h"
 
@@ -93,6 +95,7 @@ bool REIXSAppController::startup() {
         AMDbObjectSupport::s()->registerClass<REIXSControlMoveActionInfo>();
         AMDbObjectSupport::s()->registerClass<REIXSXESScanActionInfo>();
         AMDbObjectSupport::s()->registerClass<REIXSSampleMoveActionInfo>();
+		AMDbObjectSupport::s()->registerClass<REIXSBeamOnOffActionInfo>();
 
         // Testing and making the first run in the database, if there isn't one already.  Make this it's own function if you think startup() is getting too big ; )
         ////////////////////////////////////////
@@ -108,13 +111,6 @@ bool REIXSAppController::startup() {
         AMStartScreen* startScreen = new AMStartScreen(0);
         startScreen->show();
 
-        // Testing Joystick:
-#ifdef Q_OS_LINUX
-        // AMJoystick* joystick = new AMGenericLinuxJoystick("/dev/input/js0", this);
-        // AMJoystickTestView* testView = new AMJoystickTestView(joystick);
-        // testView->show();
-#endif
-
 		// Register Actions:
 		////////////////////////////////
 
@@ -125,11 +121,13 @@ bool REIXSAppController::startup() {
         AMActionRegistry::s()->registerInfoAndAction<AMLoopActionInfo, AMLoopAction>("Loop", "This action repeats a set of sub-actions a specific number of times.\n\nAfter adding it, you can drag-and-drop other actions inside it.", ":/32x32/media-playlist-repeat.png");
 		AMActionRegistry::s()->registerInfoAndAction<REIXSSampleMoveActionInfo, REIXSSampleMoveAction>("Move Sample: Measure", "This action moves the REIXS sample manipulator to the default measurement position.", ":/32x32/gnome-display-properties.png");
 		AMActionRegistry::s()->registerInfoAndAction<REIXSMoveToSampleTransferPositionActionInfo, REIXSMoveToSampleTransferPositionAction>("Move Sample: Transfer", "This action moves the REIXS sample manipulator to the sample transfer position.", ":/32x32/media-eject.png");
+		AMActionRegistry::s()->registerInfoAndAction<REIXSBeamOnOffActionInfo, REIXSBeamOnOffAction>("Beam On/Off", "This action takes care of turning the beam on or off.");
 
         AMActionRegistry::s()->registerInfoAndEditor<AMWaitActionInfo, AMWaitActionEditor>();
         AMActionRegistry::s()->registerInfoAndEditor<AMLoopActionInfo, AMLoopActionEditor>();
         AMActionRegistry::s()->registerInfoAndEditor<REIXSXESScanActionInfo, REIXSXESScanActionEditor>();
         AMActionRegistry::s()->registerInfoAndEditor<REIXSControlMoveActionInfo, REIXSControlMoveActionEditor>();
+		AMActionRegistry::s()->registerInfoAndEditor<REIXSBeamOnOffActionInfo, REIXSBeamOnOffActionEditor>();
 
 
         // Create panes in the main window:
@@ -149,7 +147,9 @@ bool REIXSAppController::startup() {
         REIXSScanConfigurationViewHolder* scanConfigurationHolder = new REIXSScanConfigurationViewHolder(xesScanConfigurationView_);
         mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Emission Scan", ":/utilities-system-monitor.png");
         connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
-        AMSampleManagementWidget* sampleManagementPane = new AMSampleManagementWidget(new REIXSSampleChamberButtonPanel(),
+
+		REIXSSampleChamberButtonPanel* buttonPanel = new REIXSSampleChamberButtonPanel();
+		AMSampleManagementWidget* sampleManagementPane = new AMSampleManagementWidget(buttonPanel,
                                                                                       QUrl("http://v2e1610-101.clsi.ca/mjpg/1/video.mjpg"),
                                                                                       "Sample Camera: down beam path",
                                                                                       0,
@@ -157,6 +157,13 @@ bool REIXSAppController::startup() {
                                                                                       0);
 
         mw_->addPane(sampleManagementPane, "Experiment Setup", "Sample Positions", ":/22x22/gnome-display-properties.png");
+		// Testing Joystick:
+#ifdef Q_OS_LINUX
+		 AMJoystick* joystick = new AMGenericLinuxJoystick("/dev/input/js0", this);
+		 connect(joystick, SIGNAL(buttonChanged(int,bool,quint32)), buttonPanel, SLOT(onJoystickButtonChanged(int,bool)));
+//         AMJoystickTestView* testView = new AMJoystickTestView(joystick);
+//         testView->show();
+#endif
 
         ////////////////// Testing junk; move somewhere clean ////////////////////
         QWidget* spectrometerControlWidget = new QWidget();
@@ -192,12 +199,7 @@ bool REIXSAppController::startup() {
 		// Add the sidebar, for real-time display of the beamline.
 		////////////////////////
 		REIXSSidebar* sidebar = new REIXSSidebar();
-		QWidget* sidebarContainer = new QWidget();
-		QVBoxLayout* scvl = new QVBoxLayout(sidebarContainer);
-		scvl->setContentsMargins(0,0,0,0);
-		scvl->addWidget(sidebar);
-		scvl->addStretch();
-		mw_->addRightWidget(sidebarContainer);
+		mw_->addRightWidget(sidebar);
 
 		// Make connections
 		//////////////////////////
@@ -254,7 +256,7 @@ void REIXSAppController::onCurrentActionStateChanged(int newState, int oldState)
                 openScanInEditorAndTakeOwnership(scanController->scan());
             }
         }
-    }
+	}
 }
 
 
