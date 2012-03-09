@@ -74,6 +74,18 @@ bool SGMXASDacqScanController::startImplementation(){
 			matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTXEOLScaler");
 		usingSpectraDotDatFile_ = true;
 	}
+	else if(SGMBeamline::sgm()->pgtDetector() && SGMBeamline::sgm()->amptekSDD1() && SGMBeamline::sgm()->amptekSDD2() && config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())
+			&& config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->amptekSDD1()->detectorName()) && config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->amptekSDD2()->detectorName())){
+		qDebug() << "USING PGT AND BOTH AMPTEKs";
+		matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTAmpBScaler");
+		usingSpectraDotDatFile_ = true;
+	}
+	else if(SGMBeamline::sgm()->pgtDetector() && SGMBeamline::sgm()->amptekSDD1() && config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())
+			&& config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->amptekSDD1()->detectorName())){
+		qDebug() << "USING PGT AND AMPTEK1";
+		matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTAmp1Scaler");
+		usingSpectraDotDatFile_ = true;
+	}
 	else if(SGMBeamline::sgm()->pgtDetector() && config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())){
 		qDebug() << "Using SDD";
 		if(SGMBeamline::sgm()->usingPicoammeterSource())
@@ -110,6 +122,7 @@ bool SGMXASDacqScanController::startImplementation(){
 	for(int i = 0; i < config_->allDetectorConfigurations().count(); i++){
 		if(config_->allDetectorConfigurations().isActiveAt(i)){
 			AMDetector *dtctr = config_->allDetectors()->detectorNamed(config_->allDetectorConfigurations().detectorInfoAt(i)->name());
+			qDebug() << "Dacq append record as " << dtctr->detectorName() << dtctr->toInfo()->rank() << dtctr->dacqName() << dtctr->readMethod();
 			if(dtctr->toInfo()->rank() > 0)
 				advAcq_->appendRecord(dtctr->dacqName(), true, true, detectorReadMethodToDacqReadMethod(dtctr->readMethod()));
 			else

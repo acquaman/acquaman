@@ -72,7 +72,7 @@ QPair<double, double> SGMMCPDetectorInfo::hvSetpointRange() const
 }
 
 QDebug SGMMCPDetectorInfo::qDebugPrint(QDebug &d) const{
-	d << hvSetpoint() << "[hvSetpoint]";
+	d << name() << hvSetpoint() << "[hvSetpoint]";
 	return d;
 }
 

@@ -38,11 +38,16 @@ CLSAmptekSDD123DetailedDetectorView::CLSAmptekSDD123DetailedDetectorView(CLSAmpt
 	AMDetailedDetectorView(configureOnly, parent)
 {
 	detector_ = 0;
+	configurationSettings_ = 0;
 	setDetector(detector, configureOnly);
 }
 
 AMDetector* CLSAmptekSDD123DetailedDetectorView::detector(){
 	return detector_;
+}
+
+AMDetectorInfo* CLSAmptekSDD123DetailedDetectorView::configurationSettings() const{
+	return configurationSettings_;
 }
 
 MPlot* CLSAmptekSDD123DetailedDetectorView::plot() const{
@@ -54,6 +59,9 @@ bool CLSAmptekSDD123DetailedDetectorView::setDetector(AMDetector *detector, bool
 		return false;
 
 	detector_ = static_cast<CLSAmptekSDD123Detector*>(detector);
+	if(configurationSettings_)
+		configurationSettings_->deleteLater();
+	configurationSettings_ = qobject_cast<CLSAmptekSDD123DetectorInfo*>(detector_->toNewInfo());
 	connect(detector_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged(bool)));
 	connect(detector_, SIGNAL(statusChanged(bool)), this, SLOT(onStatusChanged(bool)));
 	connect(detector_, SIGNAL(integrationTimeChanged(double)), this, SLOT(onIntegrationTimeChanged(double)));

@@ -38,8 +38,10 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	allDetectors_ = new AMDetectorSet(this);
 	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectors()->count(); x++)
 		allDetectors_->addDetector(SGMBeamline::sgm()->feedbackDetectors()->detectorAt(x), true);
-	for(int x = 0; x < xasDetectors_->count(); x++)
+	for(int x = 0; x < xasDetectors_->count(); x++){
+		qDebug() << "Adding detector named " << xasDetectors_->detectorAt(x)->detectorName();
 		allDetectors_->addDetector(xasDetectors_->detectorAt(x), xasDetectors_->isDefaultAt(x));
+	}
 	xasDetectorsCfg_ = xasDetectors_->toInfoSet();
 
 	// default channels removed. Need to come up with new replacement system to create default analysis blocks instead.

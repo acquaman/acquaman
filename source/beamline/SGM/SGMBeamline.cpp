@@ -580,13 +580,13 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	connect(filterPD4ScalarDetector_->signalSource(), SIGNAL(connected(bool)), this, SIGNAL(controlSetConnectionsChanged()));
 	connect(filterPD4ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 
-	amptekSDD1_ = new CLSAmptekSDD123Detector("AmptekSDD1", "amptek:sdd1", this);
+	amptekSDD1_ = new CLSAmptekSDD123Detector("AmptekSDD1", "amptek:sdd1", AMDetector::WaitRead, this);
 	detectorMap_->insert(amptekSDD1_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(amptekSDD1_, qMakePair(XASDetectors(), false));
 	connect(amptekSDD1_->signalSource(), SIGNAL(connected(bool)), this, SIGNAL(controlSetConnectionsChanged()));
 	connect(amptekSDD1_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 
-	amptekSDD2_ = new CLSAmptekSDD123Detector("AmptekSDD2", "amptek:sdd2", this);
+	amptekSDD2_ = new CLSAmptekSDD123Detector("AmptekSDD2", "amptek:sdd2", AMDetector::WaitRead, this);
 	detectorMap_->insert(amptekSDD2_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(amptekSDD2_, qMakePair(XASDetectors(), false));
 	connect(amptekSDD2_->signalSource(), SIGNAL(connected(bool)), this, SIGNAL(controlSetConnectionsChanged()));
@@ -673,6 +673,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	transferChamberInAction3Help_.append(QPixmap(":/ChamberIn/action3Image3.jpg"), "3");
 	transferChamberInAction4Help_.append(QPixmap(":/ChamberIn/action4Image1.jpg"), "1");
 	transferChamberInAction4Help_.append(QPixmap(":/ChamberIn/action42Image2.jpg"), "2");
+
+	QTimer::singleShot(5000, this, SLOT(computeBeamlineInitialized()));
 }
 
 SGMBeamline::~SGMBeamline()
@@ -1471,6 +1473,10 @@ void SGMBeamline::onDetectorAvailabilityChanged(AMDetector *detector, bool isAva
 					detectorSets.at(x).first->removeDetector(detector);
 		}
 	}
+}
+
+void SGMBeamline::computeBeamlineInitialized(){
+	emit beamlineInitialized();
 }
 
 SGMBeamline* SGMBeamline::sgm() {

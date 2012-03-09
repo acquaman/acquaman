@@ -91,7 +91,7 @@ QList<AMAxisInfo> CLSOceanOptics65000DetectorInfo::axes() const{
 }
 
 QDebug CLSOceanOptics65000DetectorInfo::qDebugPrint(QDebug &d) const{
-	d << integrationTime() << "[integrationTime]";
+	d << name() << integrationTime() << "[integrationTime]";
 	return d;
 }
 

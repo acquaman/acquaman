@@ -307,6 +307,8 @@ signals:
 	void detectorHVChanged();
 	void detectorAvailabilityChanged(AMDetector *detector, bool available);
 
+	void beamlineInitialized();
+
 protected slots:
 	void onBeamlineScanningValueChanged(double value);
 	void onControlSetConnected(bool csConnected);
@@ -319,6 +321,8 @@ protected slots:
 
 	void onVisibleLightChanged(double value);
 	void onDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
+
+	void computeBeamlineInitialized();
 
 protected:
 	// Singleton implementation:

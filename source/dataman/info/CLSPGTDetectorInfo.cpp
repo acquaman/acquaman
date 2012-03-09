@@ -67,7 +67,7 @@ QPair<double, double> CLSPGTDetectorInfo::hvSetpointRange() const {
 }
 
 QDebug CLSPGTDetectorInfo::qDebugPrint(QDebug &d) const{
-	d << hvSetpoint() << "[hvSetpoint]"
+	d << name() << hvSetpoint() << "[hvSetpoint]"
 			<< integrationMode() << "[integrationMode]"
 			<< integrationTime() << "[integrationTime]";
 	return d;

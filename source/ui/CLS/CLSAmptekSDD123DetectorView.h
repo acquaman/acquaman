@@ -45,6 +45,8 @@ public:
 
 	/// Returns a pointer to the detector being view
 	AMDetector* detector();
+	/// The view is managing this created object, hook up to destroyed() if you need long-term notification
+	AMDetectorInfo* configurationSettings() const;
 	/// Returns a pointer to the plot
 	MPlot* plot() const;
 
@@ -71,6 +73,7 @@ protected:
 protected:
 	/// The pointer to the detector
 	CLSAmptekSDD123Detector *detector_;
+	CLSAmptekSDD123DetectorInfo *configurationSettings_;
 
 	/// The status indicator
 	QLabel *statusLabel_;

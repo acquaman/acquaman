@@ -1,7 +1,7 @@
 #include "CLSAmptekSDD123Detector.h"
 
-CLSAmptekSDD123Detector::CLSAmptekSDD123Detector(const QString &name, const QString &baseName, QObject *parent) :
-	CLSAmptekSDD123DetectorInfo(name, name, parent), AMDetector(name)
+CLSAmptekSDD123Detector::CLSAmptekSDD123Detector(const QString &name, const QString &baseName, AMDetector::ReadMethod readMethod, QObject *parent) :
+	CLSAmptekSDD123DetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
 	connect(signalSource(), SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
 
@@ -43,6 +43,14 @@ CLSAmptekSDD123Detector::~CLSAmptekSDD123Detector()
 
 const QMetaObject* CLSAmptekSDD123Detector::getMetaObject(){
 	return metaObject();
+}
+
+QString CLSAmptekSDD123Detector::dacqName() const{
+	AMReadOnlyPVControl *tmpControl = qobject_cast<AMReadOnlyPVControl*>(spectrumControl_);
+	if(isConnected() && tmpControl)
+		return tmpControl->readPVName();
+	else
+		return "";
 }
 
 QString CLSAmptekSDD123Detector::description() const{
@@ -91,6 +99,11 @@ QVector<int> CLSAmptekSDD123Detector::spectraValues()
 
 AMDataSource* CLSAmptekSDD123Detector::spectrumDataSource() const{
 	return spectrumDataSource_;
+}
+
+QDebug CLSAmptekSDD123Detector::qDebugPrint(QDebug &d) const{
+	d << "CLSAmptekSDD123Detector " << name();
+	return d;
 }
 
 void CLSAmptekSDD123Detector::start(){

@@ -82,6 +82,7 @@ bool SGMAppController::startup() {
 		AMDbObjectSupport::s()->registerClass<SGMMCPDetectorInfo>();
 		AMDbObjectSupport::s()->registerClass<CLSPGTDetectorInfo>();
 		AMDbObjectSupport::s()->registerClass<CLSOceanOptics65000DetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<CLSAmptekSDD123DetectorInfo>();
 		AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
 		AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration>();
 
@@ -200,7 +201,8 @@ bool SGMAppController::startup() {
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerDestroyed()));
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
 
-		connect(SGMBeamline::sgm(), SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(onSGMBeamlineConnected()));
+		//connect(SGMBeamline::sgm(), SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(onSGMBeamlineConnected()));
+		connect(SGMBeamline::sgm(), SIGNAL(beamlineInitialized()), this, SLOT(onSGMBeamlineConnected()));
 
 		/*! \todo: hook up bottom-bar signals to the active scan controller.
  void MainWindow::onScanControllerReady(AMScanController *scanController){
@@ -381,6 +383,22 @@ bool SGMAppController::setupSGMDatabase(){
 		configFile = new SGMDacqConfigurationFile();
 		configFile->setName("PGTScaler");
 		configFile->setConfigurationFileName("pgtScaler.cfg");
+		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
+		success &= configFile->storeToDb(dbSGM);
+	}
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTAmp1Scaler");
+	if(matchIDs.count() == 0){
+		configFile = new SGMDacqConfigurationFile();
+		configFile->setName("PGTAmp1Scaler");
+		configFile->setConfigurationFileName("pgtAmp1Scaler.cfg");
+		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
+		success &= configFile->storeToDb(dbSGM);
+	}
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTAmpBScaler");
+	if(matchIDs.count() == 0){
+		configFile = new SGMDacqConfigurationFile();
+		configFile->setName("PGTAmpBScaler");
+		configFile->setConfigurationFileName("pgtAmpBScaler.cfg");
 		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
 		success &= configFile->storeToDb(dbSGM);
 	}

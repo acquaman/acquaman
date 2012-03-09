@@ -14,12 +14,15 @@ Q_OBJECT
 
 public:
 	/// Default constructor. Requires the name and base PV of the detector. It builds all the PV's and connects them accordingly.
-	CLSAmptekSDD123Detector(const QString &name, const QString &baseName, QObject *parent = 0);
+	CLSAmptekSDD123Detector(const QString &name, const QString &baseName, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
 
 	~CLSAmptekSDD123Detector();
 
 	/// Return the meta object
 	const QMetaObject *getMetaObject();
+
+	/// Return the dacq compatible name for this detector
+	virtual QString dacqName() const;
 
 	/// Returns the description for the detector.
 	virtual QString description() const;
@@ -52,6 +55,8 @@ public:
 	///////////////////////////////////////
 	/// Returns the raw spectrum data source at \c index.  It is assumed that the data sources will be in order of element.  Must be between 0 and size()-1.
 	AMDataSource* spectrumDataSource() const;
+
+	virtual QDebug qDebugPrint(QDebug &d) const;
 
 public slots:
 

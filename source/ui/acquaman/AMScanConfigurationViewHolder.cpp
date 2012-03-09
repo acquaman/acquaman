@@ -226,13 +226,13 @@ void AMScanConfigurationViewHolder::setView(AMScanConfigurationView *view) {
 	view_ = view;
 	if(view_) {
 		layout_->insertWidget(0, view_);
+		/*
 		if(view_->configuration()){
-			/*
 			testExemplar_.setScanConfiguration(view_->configuration());
 			scanNameDictionaryLineEdit_->setTextAndOperate(view_->configuration()->userScanName());
 			exportNameDictionaryLineEdit_->setTextAndOperate(view_->configuration()->userExportName());
-			*/
 		}
+		*/
 	}
 
 	reviewStartScanButtonState();
