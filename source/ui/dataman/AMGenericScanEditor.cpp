@@ -230,20 +230,14 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 
 }
 
-/* removed:
-void AMGenericScanEditor::onScanMetaDataChanged() {
-
-	// hmmm... should we change the editor values? What if the scan is altered elsewhere...
-	// what if they changed it first? But haven't saved yet?
-}*/
 
 void AMGenericScanEditor::updateEditor(AMScan *scan) {
 	if(scan) {
 
 		ui_.scanName->setText(scan->name());
-		//ui_.scanName->setText(scan->evaluatedName());
 		ui_.scanNumber->setValue(scan->number());
 		ui_.scanDate->setText( AMDateTimeUtils::prettyDate(scan->dateTime()));
+		ui_.scanDuration->setText(AMDateTimeUtils::prettyDuration(scan->dateTime(), scan->endDateTime()));
 		ui_.scanTime->setText( scan->dateTime().time().toString("h:mmap") );
 		ui_.notesEdit->setPlainText( scan->notes() );
 		runSelector_->setCurrentRunId(scan->runId());
@@ -259,6 +253,7 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		ui_.scanName->setText( QString() );
 		ui_.scanNumber->setValue(0);
 		ui_.scanDate->setText( QString() );
+		ui_.scanDuration->setText( QString() );
 		ui_.scanTime->setText( QString() );
 		ui_.notesEdit->clear();
 
