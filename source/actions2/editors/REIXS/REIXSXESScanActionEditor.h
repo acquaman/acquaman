@@ -24,6 +24,11 @@ protected slots:
 	void onFocusOffsetEditingFinished();
 	/// When the tilt offset spin box is changed
 	void onTiltOffsetEditingFinished();
+	/// When the "More..." button is clicked, opens up a REIXSXESScanConfigurationView in a dialog window.
+	void onMoreDetailsButtonClicked();
+
+	/// Updates the elements when the scan configuration is changed from outside.
+	void onScanConfigurationChanged();
 
 protected:
 	QDoubleSpinBox* energy_, *focusOffset_, *tiltOffset_;

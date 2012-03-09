@@ -9,7 +9,6 @@ REIXSBeamOnOffActionEditor::REIXSBeamOnOffActionEditor(REIXSBeamOnOffActionInfo 
 {
 	info_ = info;
 	setFrameStyle(QFrame::StyledPanel);
-	setFocusPolicy(Qt::ClickFocus);
 
 	QRadioButton* beamOnButton = new QRadioButton("On");
 	QRadioButton* beamOffButton = new QRadioButton("Off");
