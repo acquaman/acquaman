@@ -143,8 +143,12 @@ AMGenericScanEditor::~AMGenericScanEditor() {
 void AMGenericScanEditor::addScan(AMScan* newScan) {
 	scanSetModel_->addScan(newScan);
 	ui_.scanListView->setCurrentIndex(scanSetModel_->indexForScan(scanSetModel_->indexOf(newScan)));
-	if(scanSetModel_->exclusiveDataSourceName().isEmpty() && newScan->dataSourceCount() > 0)
-		scanSetModel_->setExclusiveDataSourceByName(newScan->dataSourceAt(newScan->indexOfNotHiddenDataSource(0))->name());
+
+	if(scanSetModel_->exclusiveDataSourceName().isEmpty()) {
+		QVector<int> nonHiddenDataSourceIndexes = newScan->nonHiddenDataSourceIndexes();
+		if(!nonHiddenDataSourceIndexes.isEmpty())
+			scanSetModel_->setExclusiveDataSourceByName(newScan->dataSourceAt(nonHiddenDataSourceIndexes.first())->name());
+	}
 
 	refreshWindowTitle();
 }

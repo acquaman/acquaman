@@ -21,7 +21,7 @@ public:
 	/// Copy constructor: must re-implement, but can simply use the AMAction copy constructor to make copies of the info and prereqs. We need to reset any internal state variables to make the copy a "like new" action - ie, not run yet.
 	AMControlMoveAction(const AMControlMoveAction& other) : AMAction(other) { control_ = 0; }
 	/// Virtual copy constructor
-	virtual AMControlMoveAction* createCopy() const { return new AMControlMoveAction(*this); }
+	virtual AMAction* createCopy() const { return new AMControlMoveAction(*this); }
 
 	// Re-implemented public functions
 	///////////////////////////////

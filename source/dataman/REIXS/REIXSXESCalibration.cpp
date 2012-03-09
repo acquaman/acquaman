@@ -31,7 +31,7 @@ REIXSXESCalibration::REIXSXESCalibration(QObject *parent) :
 	gratingCenterPositionsY_ << -25.865 << -25.723 << 2.697 << 26.808 << 26.535;
 	gratingCenterPositionsZ_ << 12.892 << 13.507 << -18.923 << 16.465 << 16.709;
 
-	gratingMountTilt_ << 4.0 << 3.0 << 2.0 << 1.75 << 2.0;
+	gratingMountTilt_ << 5.01 << 4.011 << 3.005 << 2.764 << 3.013;
 	gratingMountRoll_ << 0 << 0 << 0 << 0 << 0;
 	// gratingMountTwist_ << 0.41 << 0.41 << 0.41 << 0.41;
 
@@ -45,7 +45,7 @@ REIXSXESCalibration::REIXSXESCalibration(QObject *parent) :
 
 	detectorHeightError_ = 3.03; //mm
 
-	spectrometerTheta0_ = 2.738; //deg
+	spectrometerTheta0_ = 1.749; //deg
 	spectrometerTheta0m_ = 3.07; //deg
 
 	frameA_ = 2850.66;//mm
