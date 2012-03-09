@@ -176,11 +176,26 @@ QWidget * AMActionRunnerQueueItemDelegate::createEditor(QWidget *parent, const Q
 	QWidget* rv = AMActionRegistry::s()->createEditorForInfo(action->info());
 	if(rv) {
 		rv->setParent(parent);
+		rv->setFocusPolicy(Qt::StrongFocus);
 		rv->setBackgroundRole(QPalette::Window);
 		rv->setAutoFillBackground(true);
 	}
 
 	return rv;
+}
+
+#include <QKeyEvent>
+bool AMActionRunnerQueueItemDelegate::eventFilter(QObject *object, QEvent *event)
+{
+	QWidget* widget = qobject_cast<QWidget*>(object);
+
+	if(widget && event->type() == QEvent::KeyRelease) {
+		QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+		if(keyEvent->key() == Qt::Key_Escape)
+			emit closeEditor(widget);
+
+	}
+	return QObject::eventFilter(object, event);
 }
 
 
