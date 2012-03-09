@@ -148,9 +148,15 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 		normPFY->setExpression(QString("%1/%2").arg(scan_->analyzedDataSources()->at(0)->name()).arg(scan_->rawDataSources()->at(0)->name()));
 		scan_->addAnalyzedDataSource(normPFY, true, false);
 
+		QString edge = config_->edge();
+
+		// If this is an L edge, chop out the number for comparison purposes.
+		if (edge.contains(QRegExp("L\\d$")))
+			edge.chop(1);
+
 		for (int i = 0; i < scan_->rawDataSourceCount(); i++){
 
-			if (scan_->rawDataSources()->at(i)->name().contains(config_->edge().remove(" "))){
+			if (scan_->rawDataSources()->at(i)->name().contains(edge.remove(" "))){
 
 				normPFY = new AM1DExpressionAB("norm_"+scan_->rawDataSources()->at(i)->name());
 				normPFY->setDescription("Normalized "+scan_->rawDataSources()->at(i)->description());
@@ -184,9 +190,15 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 		normPFY->setExpression(QString("%1/%2").arg(scan_->analyzedDataSources()->at(0)->name()).arg(scan_->rawDataSources()->at(0)->name()));
 		scan_->addAnalyzedDataSource(normPFY, true, false);
 
+		QString edge = config_->edge();
+
+		// If this is an L edge, chop out the number for comparison purposes.
+		if (edge.contains(QRegExp("L\\d$")))
+			edge.chop(1);
+
 		for (int i = 0; i < scan_->rawDataSourceCount(); i++){
 
-			if (scan_->rawDataSources()->at(i)->name().contains(config_->edge().remove(" "))){
+			if (scan_->rawDataSources()->at(i)->name().contains(edge.remove(" "))){
 
 				normPFY = new AM1DExpressionAB("norm_"+scan_->rawDataSources()->at(i)->name());
 				normPFY->setDescription("Normalized "+scan_->rawDataSources()->at(i)->description());
