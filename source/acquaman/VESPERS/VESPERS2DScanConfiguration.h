@@ -25,6 +25,7 @@ class VESPERS2DScanConfiguration : public AM2DScanConfiguration
 	Q_PROPERTY(QString ccdFileName READ ccdFileName WRITE setCCDFileName)
 	Q_PROPERTY(AMDbObject* roiInfoList READ dbGetROIInfoList WRITE dbLoadROIInfoList)
 	Q_PROPERTY(QString rois READ readRoiList WRITE writeRoiList)
+	Q_PROPERTY(QString header READ headerText WRITE setHeaderText)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS 2D Scan Configuration")
 
@@ -83,6 +84,11 @@ public:
 	QString readRoiList() const;
 	/// This function does nothing.  It is there to preserve the fact that the database needs to be able to read and write.
 	void writeRoiList(QString) {}
+
+	/// Get a nice looking string that contains all the standard information in an XAS scan.   Used when exporting.
+	QString headerText() const;
+	/// This function does nothing.  It is there to preserve the fact that the database needs to be able to read and write.
+	void setHeaderText(QString) {}
 
 	// Database loading and storing
 	///////////////////////

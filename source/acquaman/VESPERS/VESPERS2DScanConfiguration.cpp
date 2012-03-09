@@ -66,6 +66,11 @@ QString VESPERS2DScanConfiguration::detailedDescription() const
 	return "Spatial x-ray fluorescence 2D map";
 }
 
+QString VESPERS2DScanConfiguration::headerText() const
+{
+	return QString("");
+}
+
 QString VESPERS2DScanConfiguration::readRoiList() const
 {
 	QString prettyRois = "Regions of Interest\n";
