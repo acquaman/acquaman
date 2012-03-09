@@ -145,7 +145,7 @@ void VESPERSRoperCCDDetector::setFromRoperInfo(const VESPERSRoperCCDDetectorInfo
 	setAcquireTime(info.acquireTime());
 }
 
-QString VESPERSRoperCCDDetector::AMPVtoString(AMProcessVariable *pv)
+QString VESPERSRoperCCDDetector::AMPVtoString(AMProcessVariable *pv) const
 {
 	int current;
 	QString name;
