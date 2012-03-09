@@ -4,15 +4,28 @@
 #include "acquaman/AMEXAFSScanConfiguration.h"
 #include "dataman/info/AMROIInfo.h"
 
-#include <QMap>
+/// This class is the VESPERS specific EXAFS scan configuration.
+/*!
+	This class extends the AMEXAFSScanConfiguration to configure any kind
+	of XAS scan for the VESPERS beamline.  It is an energy scan that can
+	be configured to run over just the edge of a given element (XANES) or it
+	can be configured to run over the entire range of a given edge (EXAFS).
+	Both types of scans have some subtle differences between how the scans are
+	setup and these are accommodated.  You have the flexibility to choose which
+	ion chamber you wish to use for I0 and It (for transmission mode) and also
+	the choice of fluorescence detector that the scan will use if collecting
+	the partial fluorescence yield.  It saves the edge, the energy, and a position
+	that the scan will move to in the event there are different hot spots that
+	you want to queue up.
+  */
 
 class VESPERSEXAFSScanConfiguration : public AMEXAFSScanConfiguration
 {
 	Q_OBJECT
 
-	Q_PROPERTY(FluorescenceDetector fluorescenceDetectorChoice READ fluorescenceDetectorChoice WRITE setFluorescenceDetectorChoice)
-	Q_PROPERTY(IonChamber transmissionChoice READ transmissionChoice WRITE setTransmissionChoice)
-	Q_PROPERTY(IonChamber incomingChoice READ incomingChoice WRITE setIncomingChoice)
+	Q_PROPERTY(int fluorescenceDetectorChoice READ fluorescenceDetectorChoice WRITE setFluorescenceDetectorChoice)
+	Q_PROPERTY(int transmissionChoice READ transmissionChoice WRITE setTransmissionChoice)
+	Q_PROPERTY(int incomingChoice READ incomingChoice WRITE setIncomingChoice)
 	Q_PROPERTY(QString edge READ edge WRITE setEdge)
 	Q_PROPERTY(double edgeEnergy READ energy WRITE setEnergy)
 	Q_PROPERTY(bool goToPosition READ goToPosition WRITE setGoToPosition)
@@ -20,11 +33,9 @@ class VESPERSEXAFSScanConfiguration : public AMEXAFSScanConfiguration
 	Q_PROPERTY(double yPosition READ y WRITE setY)
 	Q_PROPERTY(AMDbObject* roiInfoList READ dbGetROIInfoList WRITE dbLoadROIInfoList)
 	Q_PROPERTY(QString rois READ readRoiList WRITE writeRoiList)
+	Q_PROPERTY(QString header READ headerText WRITE setHeaderText)
 	Q_PROPERTY(bool useFixedTime READ useFixedTime WRITE setUseFixedTime)
 	Q_PROPERTY(int numberOfScans READ numberOfScans WRITE setNumberOfScans)
-
-	Q_ENUMS(FluorescenceDetector)
-	Q_ENUMS(IonChamber)
 
 	Q_CLASSINFO("useFixedTime", "upgradeDefault=false")
 	Q_CLASSINFO("numberOfScans", "upgradeDefault=1")
@@ -81,9 +92,8 @@ public:
 
 	/// Returns the current total estimated time for a scan to complete.
 	double totalTime() const { return totalTime_; }
-
-	/// Returns the ion chamber name from its corresponding enum.
-	QString ionChamberName(IonChamber chamber) { return ionChamberNames_.value(chamber); }
+	/// Returns the time offset.
+	double timeOffset() const { return timeOffset_; }
 
 	/// Returns the ROI list.  The list is empty if not using a fluorescence detector.
 	AMROIInfoList roiList() const { return roiInfoList_; }
@@ -99,6 +109,11 @@ public:
 	QString readRoiList() const;
 	/// This function does nothing.  It is there to preserve the fact that the database needs to be able to read and write.
 	void writeRoiList(QString) {}
+
+	/// Get a nice looking string that contains all the standard information in an XAS scan.   Used when exporting.
+	QString headerText() const;
+	/// This function does nothing.  It is there to preserve the fact that the database needs to be able to read and write.
+	void setHeaderText(QString) {}
 
 	// Database loading and storing
 	///////////////////////
@@ -169,6 +184,9 @@ public slots:
 	/// Sets the number of times this scan should be repeated.
 	void setNumberOfScans(int num) { numberOfScans_ = num; emit numberOfScansChanged(numberOfScans_); setModified(true); }
 
+	/// Sets the time offset used for estimating the scan time.
+	void setTimeOffset(double offset) { timeOffset_ = offset; computeTotalTime(); }
+
 	/// Sets the ROI list.
 	void setRoiInfoList(const AMROIInfoList &list) { roiInfoList_ = list; setModified(true); }
 
@@ -199,14 +217,13 @@ protected:
 	/// The position that the scan should go to when goToPosition_ is true.  \note Implementation detail: this currently assumes we are using the pseudomotor sample stage.
 	QPair<double, double> position_;
 
-	/// Mapping between Ion chambers and their names.
-	QMap<IonChamber, QString> ionChamberNames_;
-
 	/// The list holding all the current ROIs for the detector.
 	AMROIInfoList roiInfoList_;
 
 	/// Holds the total time in seconds that the scan is estimated to take.
 	double totalTime_;
+	/// Holds the offset per point of extra time when doing a scan.
+	double timeOffset_;
 
 	/// Holds the number of times this scan should be repeated.
 	int numberOfScans_;

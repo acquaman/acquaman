@@ -175,6 +175,9 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 	}
 	while (!in.atEnd()){
 
+		if (axisValueIndex > 0)
+			line = in.readLine();
+
 		lineTokenized << line.split(", ");
 
 		scan->rawData()->beginInsertRows(0);
@@ -201,7 +204,7 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 		else if (usingFourElement){
 
 			// Only going to rawDataSourceCount-5 because the last 5 raw data sources are the 2D spectra scan and requires its own method of entering the data.
-			for (int i = 0; i < scan->rawDataSourceCount()-1; i++)
+			for (int i = 0; i < scan->rawDataSourceCount()-5; i++)
 				scan->rawData()->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+2).toDouble());
 
 			spectraTokenized.clear();
@@ -234,7 +237,6 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 		scan->rawData()->endInsertRows();
 
 		axisValueIndex++;
-		line = in.readLine();
 		lineTokenized.clear();
 	}
 
@@ -243,7 +245,6 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 	if (usingSingleElement || usingFourElement)
 		spectra.close();
 
-	qDebug() << "MADE IT TO THE END OF THE FILE LODAER!!!";
 	return true;
 }
 

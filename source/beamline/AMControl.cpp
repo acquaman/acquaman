@@ -119,7 +119,7 @@ void AMReadOnlyPVControl::onReadPVError(int errorCode) {
 	if(source){
 		if( (errorCode == AMPROCESSVARIABLE_CANNOT_READ) && shouldMeasure() ){
 			emit error(AMControl::CannotReadError);
-			qWarning() << QString("Read Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
+			qWarning() << QString("AMReadOnlyPVControl: Read Process Variable error %1: code %2.").arg(source->pvName()).arg(errorCode);
 		}
 	}
 }
@@ -197,7 +197,7 @@ void AMPVControl::move(double setpoint) {
 		emit movingChanged(moveInProgress_ = true);
 
 		// emit the signal that we started:
-		emit this->moveStarted();
+		emit moveStarted();
 
 		// Special case added:
 		// =======================
@@ -205,7 +205,7 @@ void AMPVControl::move(double setpoint) {
 		// This check is only possible if you've actually specified a non-default, appropriate timeout:
 		if(tolerance() != AMCONTROL_TOLERANCE_DONT_CARE && inPosition()) {
 			emit movingChanged(moveInProgress_ = false);
-			emit this->moveSucceeded();
+			emit moveSucceeded();
 		}
 		else {
 			// start the countdown to see if we get there in time or stall out: (completionTimeout_ is in seconds)
@@ -213,7 +213,7 @@ void AMPVControl::move(double setpoint) {
 		}
 	}
 	else {
-		qWarning() << QString("Could not move %1 to %2").arg(writePV_->pvName()).arg(setpoint_);
+		qWarning() << QString("AMPVControl: Could not move %1 to %2").arg(writePV_->pvName()).arg(setpoint_);
 
 		// Notify the failure right away:
 		emit moveFailed(AMControl::NotConnectedFailure);
@@ -251,7 +251,7 @@ void AMPVControl::onWritePVError(int errorCode) {
 	if(source){
 		if(errorCode == AMPROCESSVARIABLE_CANNOT_WRITE && shouldMove() ){
 			emit error(AMControl::CannotWriteError);
-			qWarning() << QString("Write Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
+			qWarning() << QString("AMPVControl: Write Process Variable Error %1: code %2.").arg(source->pvName()).arg(errorCode);
 		}
 	}
 }
@@ -262,7 +262,7 @@ void AMPVControl::onCompletionTimeout() {
 	// if we weren't moving, this shouldn't have happened. someone forgot to shutoff the timer?
 	// todo: this is only included for state testing debugging... can remove if never happens
 	if(!moveInProgress_) {
-		qWarning() << "AMPVControl:: timer timeout while move not in progress.  How did this happen?";
+		qWarning() << "AMPVControl: timer timeout while move not in progress.  How did this happen?";
 		return;
 	}
 
@@ -348,7 +348,7 @@ void AMReadOnlyPVwStatusControl::onStatusPVError(int errorCode) {
 	if(source){
 		if(errorCode == AMPROCESSVARIABLE_CANNOT_READ){
 			emit error(AMControl::CannotGetStatusError);
-			qWarning() << QString("Status Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
+			qWarning() << QString("AMReadOnlyPVwStatusControl: Status Process Variable error %1: code %2.").arg(source->pvName()).arg(errorCode);
 		}
 	}
 }
@@ -442,7 +442,10 @@ void AMPVwStatusControl::move(double setpoint) {
 	// This check is only possible if you've actually specified a non-default, appropriate tolerance:
 	if(tolerance() != AMCONTROL_TOLERANCE_DONT_CARE && inPosition()) {
 		startInProgress_ = false;
-		emit this->moveSucceeded();
+		moveInProgress_ = true;
+		emit moveStarted();
+		moveInProgress_ = false;
+		emit moveSucceeded();
 	}
 	else {
 		// start the timer to check if our move failed to start:
@@ -471,7 +474,7 @@ void AMPVwStatusControl::onWritePVError(int errorCode) {
 	if(source){
 		if(errorCode == AMPROCESSVARIABLE_CANNOT_WRITE && shouldMove()){
 			emit error(AMControl::CannotWriteError);
-			qWarning() << QString("Write Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
+			qWarning() << QString("AMPVwStatusControl: Write Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
 		}
 	}
 }

@@ -30,9 +30,6 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/ui/VESPERS/VESPERSDeviceStatusView.h \
 	source/util/VESPERS/GeneralUtilities.h \
 	source/util/VESPERS/XRFElement.h \
-	source/acquaman/VESPERS/VESPERSXASScanConfiguration.h \
-	source/acquaman/VESPERS/VESPERSXASDacqScanController.h \
-	source/ui/VESPERS/VESPERSXASScanConfigurationView.h \
 	source/beamline/VESPERS/VESPERSEndstation.h \
 	source/ui/VESPERS/VESPERSEndstationView.h \
 	source/acquaman/VESPERS/XRFFreeRun.h \
@@ -53,7 +50,10 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
     source/dataman/VESPERS/VESPERSRoperCCDDetectorInfo.h \
     source/ui/VESPERS/VESPERSRoperCCDDetectorView.h \
     source/util/VESPERS/VESPERSWorkflowAssistant.h \
-    source/ui/VESPERS/VESPERSWorkflowAssistantView.h
+    source/ui/VESPERS/VESPERSWorkflowAssistantView.h \
+    source/acquaman/VESPERS/VESPERS2DDacqScanController.h \
+    source/acquaman/VESPERS/VESPERS2DScanConfiguration.h \
+    source/ui/VESPERS/VESPERS2DScanConfigurationView.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -82,9 +82,6 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/ui/VESPERS/VESPERSDeviceStatusView.cpp \
 	source/util/VESPERS/GeneralUtilities.cpp \
 	source/util/VESPERS/XRFElement.cpp \
-	source/acquaman/VESPERS/VESPERSXASScanConfiguration.cpp \
-	source/acquaman/VESPERS/VESPERSXASDacqScanController.cpp \
-	source/ui/VESPERS/VESPERSXASScanConfigurationView.cpp \
 	source/beamline/VESPERS/VESPERSEndstation.cpp \
 	source/ui/VESPERS/VESPERSEndstationView.cpp \
 	source/acquaman/VESPERS/XRFFreeRun.cpp \
@@ -105,10 +102,25 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
     source/dataman/VESPERS/VESPERSRoperCCDDetectorInfo.cpp \
     source/ui/VESPERS/VESPERSRoperCCDDetectorView.cpp \
     source/util/VESPERS/VESPERSWorkflowAssistant.cpp \
-    source/ui/VESPERS/VESPERSWorkflowAssistantView.cpp
+    source/ui/VESPERS/VESPERSWorkflowAssistantView.cpp \
+    source/acquaman/VESPERS/VESPERS2DDacqScanController.cpp \
+    source/acquaman/VESPERS/VESPERS2DScanConfiguration.cpp \
+    source/ui/VESPERS/VESPERS2DScanConfigurationView.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

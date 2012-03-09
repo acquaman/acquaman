@@ -59,6 +59,12 @@ public slots:
 	/// signals from analysis block: if the block's input data source changes (to either null, or one with a different size.)
 	void onAnalysisBlockInputDataSourcesChanged();
 
+protected slots:
+	/// Handles setting the name for the analysis block based on the new choice of input data source.
+	void onNameChoiceChanged(int index);
+	/// Helper slot.  Populates the names combo box.
+	void populateComboBox();
+
 protected:
 	/// The analysis block instance we provide editing capabilities for
 	AM2DSummingAB* analysisBlock_;
@@ -79,7 +85,8 @@ protected:
 	/// Expanded editor, which can opened up to provide a gui for editing the fields.
 	QWidget* additionalEditor_;
 
-
+	/// The combo box that contains all of the names.
+	QComboBox *names_;
 };
 
 #endif // AM2DSUMMINGABEDITOR_H

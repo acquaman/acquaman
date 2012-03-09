@@ -240,6 +240,8 @@ void AMBeamlineScanAction::start(){
 		connect(ctrl_, SIGNAL(failed()), this, SLOT(onScanFailed()));
 		connect(ctrl_, SIGNAL(started()), this, SLOT(onScanStarted()));
 		connect(ctrl_, SIGNAL(progress(double,double)), this, SIGNAL(progress(double,double)));
+		connect(ctrl_, SIGNAL(paused()), this, SLOT(onScanPaused()));
+		connect(ctrl_, SIGNAL(resumed()), this, SLOT(onScanResumed()));
 	}
 	else {
 		qDebug() << "Reinitialized, no controller creation";
@@ -291,9 +293,12 @@ void AMBeamlineScanAction::pause(bool pause){
 		emit descriptionChanged();
 		ctrl_->pause();
 	}
-	else
-		ctrl_->resume();
+	else{
 
+		setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Running]");
+		emit descriptionChanged();
+		ctrl_->resume();
+	}
 }
 
 void AMBeamlineScanAction::initialize(){
@@ -336,6 +341,20 @@ void AMBeamlineScanAction::onScanStarted(){
 	}
 	else
 		scanID_ = ctrl_->scan()->id();
+}
+
+void AMBeamlineScanAction::onScanPaused()
+{
+	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Paused]");
+	emit descriptionChanged();
+	emit paused();
+}
+
+void AMBeamlineScanAction::onScanResumed()
+{
+	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Running]");
+	emit descriptionChanged();
+	emit resumed();
 }
 
 void AMBeamlineScanAction::onScanCancelled(){
@@ -467,6 +486,8 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	connect(scanAction_, SIGNAL(descriptionChanged()), this, SLOT(updateScanNameLabel()));
 	connect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
 	connect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
+	connect(scanAction_, SIGNAL(paused()), this, SLOT(onScanPaused()));
+	connect(scanAction_, SIGNAL(resumed()), this, SLOT(onScanResumed()));
 	connect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
 	connect(scanAction_, SIGNAL(failed(int)), this, SLOT(onScanFailed(int)));
 	closeIcon_ = QIcon(":/window-close.png");
@@ -522,6 +543,8 @@ void AMBeamlineScanActionView::setAction(AMBeamlineActionItem *action){
 		disconnect(scanAction_, SIGNAL(descriptionChanged()), this, SLOT(updateScanNameLabel()));
 		disconnect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
 		disconnect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
+		disconnect(scanAction_, SIGNAL(paused()), this, SLOT(onScanPaused()));
+		disconnect(scanAction_, SIGNAL(resumed()), this, SLOT(onScanResumed()));
 		disconnect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
 		disconnect(scanAction_, SIGNAL(previousChanged()), this, SLOT(onPreviousNextChanged()));
 		disconnect(scanAction_, SIGNAL(nextChanged()), this, SLOT(onPreviousNextChanged()));
@@ -532,6 +555,8 @@ void AMBeamlineScanActionView::setAction(AMBeamlineActionItem *action){
 		connect(scanAction_, SIGNAL(descriptionChanged()), this, SLOT(updateScanNameLabel()));
 		connect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
 		connect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
+		connect(scanAction_, SIGNAL(paused()), this, SLOT(onScanPaused()));
+		connect(scanAction_, SIGNAL(resumed()), this, SLOT(onScanResumed()));
 		connect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
 		connect(scanAction_, SIGNAL(previousChanged()), this, SLOT(onPreviousNextChanged()));
 		connect(scanAction_, SIGNAL(nextChanged()), this, SLOT(onPreviousNextChanged()));
@@ -578,6 +603,16 @@ void AMBeamlineScanActionView::onScanStarted(){
 	playPauseButton_->setIcon(pauseIcon_);
 	playPauseButton_->setEnabled(true);
 	updateLook();
+}
+
+void AMBeamlineScanActionView::onScanPaused()
+{
+	playPauseButton_->setIcon(startIcon_);
+}
+
+void AMBeamlineScanActionView::onScanResumed()
+{
+	playPauseButton_->setIcon(pauseIcon_);
 }
 
 void AMBeamlineScanActionView::onScanFinished(){

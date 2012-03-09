@@ -134,8 +134,6 @@ void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int 
 		newButton->setText(source->dataSourceAt(i)->name());
 		newButton->setCheckable(true);
 		newButton->setMaximumHeight(18);
-		QColor color = model_->plotColor(scanIndex_, i);
-		newButton->setStyleSheet(QString("color: rgba(%1, %2, %3, %4);").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha()));
 		sourceButtons_.addButton(newButton, i);
 		cramBar_->insertWidget(i, newButton);
 		if(exclusiveModeOn_)
@@ -146,6 +144,8 @@ void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int 
 		if (source->dataSourceAt(i)->hiddenFromUsers())
 			newButton->hide();
 
+		newButton->setContextMenuPolicy(Qt::CustomContextMenu);
+		connect(newButton, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onDataSourceButtonRightClicked(QPoint)));
 		// qDebug() << "added a data source. exclusiveModeOn is: " << exclusiveModeOn_ << ", source name is:" << source->dataSourceAt(i)->name() << ", exclusiveDataSourceName is:" << model_->exclusiveDataSourceName();
 	}
 
@@ -162,6 +162,8 @@ void AMScanViewScanBar::onRowAboutToBeRemoved(const QModelIndex& parent, int sta
 
 	// (AMScanSetModel guarantees only one removed at once -- ie: start == end --, but we don't depend on that)
 	for(int di = end; di>=start; di-- ) {
+
+		sourceButtons_.button(di)->disconnect();
 		delete sourceButtons_.button(di);
 		// the button group's id's from "start+1" to "count+1" are too high now...
 		for(int i=di+1; i<sourceButtons_.buttons().count()+1; i++)
@@ -2132,6 +2134,8 @@ AMScanViewScanBarContextMenu::AMScanViewScanBarContextMenu(AMScanSetModel *model
 	: QMenu(parent)
 {
 	model_ = model;
+	scanIndex_ = scanIndex;
+	dataSourceIndex_ = dataSourceIndex;
 	QModelIndex di = model_->indexForDataSource(scanIndex, dataSourceIndex);
 	pi_ = QPersistentModelIndex(di);
 
@@ -2161,14 +2165,53 @@ AMScanViewScanBarContextMenu::~AMScanViewScanBarContextMenu() {
 
 void AMScanViewScanBarContextMenu::hideAllExceptDataSource()
 {
+	AMScan *scan = model_->scanAt(scanIndex_);
+	if (!scan)
+		return;
+
+	int dataSourceCount = scan->dataSourceCount();
+
+	for (int i = 0; i < dataSourceCount; i++){
+
+		if (i == dataSourceIndex_)
+			model_->setVisible(scanIndex_, i, true);
+
+		else
+			model_->setVisible(scanIndex_, i, false);
+	}
 }
 
 void AMScanViewScanBarContextMenu::showAllDataSource()
 {
+	QString nameOfDataSource(model_->dataSourceAt(scanIndex_, dataSourceIndex_)->name());
+	int scanCount = model_->scanCount();
+	int dataSourceCount = 0;
+
+	for (int i = 0; i < scanCount; i++){
+
+		dataSourceCount = model_->scanAt(i)->dataSourceCount();
+
+		for (int j = 0; j < dataSourceCount; j++){
+
+			if (model_->dataSourceAt(i, j)->name() == nameOfDataSource)
+				model_->setVisible(i, j, true);
+
+			else
+				model_->setVisible(i, j, false);
+		}
+	}
 }
 
 void AMScanViewScanBarContextMenu::showAll()
 {
+	AMScan *scan = model_->scanAt(scanIndex_);
+	if (!scan)
+		return;
+
+	int dataSourceCount = scan->dataSourceCount();
+
+	for (int i = 0; i < dataSourceCount; i++)
+		model_->setVisible(scanIndex_, i, true);
 }
 
 #include "ui/dataman/AMScanSetItemPropertyDialog.h"

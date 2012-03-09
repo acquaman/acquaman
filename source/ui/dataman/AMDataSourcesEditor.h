@@ -58,9 +58,16 @@ protected slots:
 
 	/// Called when the user finishes editing a data source description
 	void descriptionEditingFinished();
+	/// Called when the current data source description is changed on the model side.
+	void onDataSourceDescriptionChanged();
 
+	/// Called when the custom context menu is requested.
+	void onCustomContextMenuRequested(QPoint point);
 
 protected:
+	/// Shows all data sources for the current scan regardless of whether or not they are hidden from users.
+	void showAllDataSources(bool showAll);
+
 	/// UI components
 	Ui::AMDataSourcesEditor ui_;
 
@@ -96,10 +103,14 @@ protected:
 	/// Flag to indicate that we're currently editing the name of a new (not-yet created) data source.
 	bool editingNewDataSourceName_;
 
+	/// Name of the type of analysis block will be added.
+	QString nameOfAnalysisBlockToBeAdded_;
 
 	/// A data source-specific editor widget, to edit the unique parameters of a data source.  Returned by AMDataSource::createDetailEditor().
 	QWidget* detailEditor_;
 
+	/// Flag holding whether all of the data sources should be visible or not, despite their state of hidden from users.
+	bool showAllDataSources_;
 };
 
 #endif // AMDATASOURCESEDITOR_H

@@ -43,7 +43,7 @@ class AMControlInfo : public AMDbObject {
 
 
 public:
-	Q_INVOKABLE AMControlInfo(const QString& name = "Invalid Control Info", double value = 0.0, double minimum = 0.0, double maximum = 0.0, const QString& units = "n/a", double tolerance = 0.0, const QString &description = "", const QString &contextKnownDescription = "", QObject* parent = 0);
+	Q_INVOKABLE AMControlInfo(const QString& name = "Invalid Control", double value = 0.0, double minimum = 0.0, double maximum = 0.0, const QString& units = "n/a", double tolerance = 0.0, const QString &description = "", const QString &contextKnownDescription = "", QObject* parent = 0);
 
 	double value() const { return value_; }
 	double minimum() const { return minimum_; }
@@ -59,10 +59,11 @@ public:
 		minimum_ = other.minimum_;
 		maximum_ = other.maximum_;
 		units_ = other.units_;
-		tolerance_ = other.tolerance();
-		description_ = other.description();
-		contextKnownDescription_ = other.contextKnownDescription();
-		setName(other.name());	// will take care of calling setModified().
+		tolerance_ = other.tolerance_;
+		description_ = other.description_;
+		contextKnownDescription_ = other.contextKnownDescription_;
+		setName(other.name());
+		setModified(true);
 	}
 
 public slots:

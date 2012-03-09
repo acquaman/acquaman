@@ -54,25 +54,25 @@ AMBasicControlEditor::AMBasicControlEditor(AMControl* control, QWidget *parent) 
 	valueLabel_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 	setFrameStyle(QFrame::StyledPanel);
 	setStyleSheet("QFrame#AMControlEditor { background: white; } ");
-	setHappy(false);
+	setValidState(false);
 	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
 	// Create the editor dialog:
 	dialog_ = new AMBasicControlEditorStyledInputDialog(this);
 	dialog_->hide();
 	dialog_->setWindowModality(Qt::NonModal);
-	connect(dialog_, SIGNAL(doubleValueSelected(double)), control_, SLOT(move(double)));
+	connect(dialog_, SIGNAL(doubleValueSelected(double)), this, SLOT(onNewSetpointChosen(double)));
 
 	// Make connections:
 	if(control_) {
 		connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
 		connect(control_, SIGNAL(unitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));
-		connect(control_, SIGNAL(connected(bool)), this, SLOT(setHappy(bool)));
+		connect(control_, SIGNAL(connected(bool)), this, SLOT(setValidState(bool)));
 		connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onMotion(bool)));
 
 		// If the control is connected already, update our state right now. (We won't get the connected() signal later.)
 		if(control_->isConnected()) {
-			setHappy(true);
+			setValidState(true);
 			onValueChanged(control_->value());
 			onUnitsChanged(control_->units());
 			onMotion(control_->isMoving());
@@ -89,8 +89,8 @@ void AMBasicControlEditor::onUnitsChanged(const QString& units) {
 }
 
 
-void AMBasicControlEditor::setHappy(bool happy) {
-	if(happy)
+void AMBasicControlEditor::setValidState(bool isConnected) {
+	if(isConnected)
 		unitsLabel_->setStyleSheet("border: 1px outset #00df00; background: #d4ffdf; padding: 1px; width: 100%; color: #00df00;");
 	else
 		unitsLabel_->setStyleSheet("border: 1px outset #f20000; background: #ffdfdf;	padding: 1px; color: #f20000;");
@@ -100,21 +100,21 @@ void AMBasicControlEditor::onMotion(bool moving) {
 	if(moving)
 		unitsLabel_->setStyleSheet("border: 1px outset blue; background: #ffdfdf;	padding: 1px; color: blue;");
 	else
-		setHappy(control_->isConnected());
+		setValidState(control_->isConnected());
 }
 
 void AMBasicControlEditor::onEditStart() {
 
-	if(!control_->canMove()) {
+	if(!control_ || !control_->canMove()) {
 		QApplication::beep();
 		return;
 	}
 
-	dialog_->setDoubleValue(control_->value());
 	dialog_->setDoubleMaximum(control_->maximumValue());
 	dialog_->setDoubleMinimum(control_->minimumValue());
+	dialog_->setDoubleValue(control_->value());
 	dialog_->setDoubleDecimals(3);	// todo: display precision?
-	dialog_->setLabelText(control_->objectName());
+	dialog_->setLabelText(control_->description().isEmpty() ? control_->name() : control_->description());
 	dialog_->setSuffix(control_->units());
 	dialog_->show();
 	dialog_->move( mapToGlobal(QPoint(width()/2,height()/2)) - QPoint(dialog_->width()/2, dialog_->height()/2) );
@@ -189,6 +189,18 @@ void AMBasicControlEditorStyledInputDialog::setSuffix(const QString& s) { spinBo
 
 void AMBasicControlEditorStyledInputDialog::showEvent ( QShowEvent * event ) { QDialog::showEvent(event); spinBox_->setFocus(); }
 
+
+void AMBasicControlEditor::onNewSetpointChosen(double value)
+{
+	if(control_)
+		control_->move(value);
+}
+
+
+
+
+// AMControlEditor
+////////////////////////////
 
 AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl, bool readOnly, bool configureOnly, QWidget *parent) :
 	QGroupBox(parent)
@@ -653,3 +665,4 @@ void AMControlButton::onToggled(bool toggled){
 void AMControlButton::setHappy(bool happy) {
 	Q_UNUSED(happy)
 }
+

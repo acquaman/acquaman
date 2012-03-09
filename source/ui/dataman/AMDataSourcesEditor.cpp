@@ -21,6 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMDataSourcesEditor.h"
 #include "ui/AMCloseItemDelegate.h"
 #include <QRegExpValidator>
+#include <QMenu>
+#include <QAction>
 
 #include "dataman/datasource/AMDataSource.h"
 #include "dataman/AMScan.h"
@@ -56,8 +58,57 @@ AMDataSourcesEditor::AMDataSourcesEditor(AMScanSetModel* model, QWidget *parent)
 	connect(ui_.addDataSourceButton, SIGNAL(clicked()), this, SLOT(onAddDataSourceButtonClicked()));
 
 	editingNewDataSourceName_ =  false;
+	nameOfAnalysisBlockToBeAdded_ = "";
 
 	connect(ui_.descriptionEdit, SIGNAL(editingFinished()), this, SLOT(descriptionEditingFinished()));
+
+	showAllDataSources_ = false;
+	setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
+}
+
+void AMDataSourcesEditor::onCustomContextMenuRequested(QPoint point)
+{
+	QMenu popup(this);
+	QAction *temp = popup.addAction("Show all data sources");
+	temp->setCheckable(true);
+	temp->setChecked(showAllDataSources_);
+
+	temp = popup.exec(mapToGlobal(point));
+
+	// If a valid action was selected.
+	if (temp && temp->text() == "Show all data sources"){
+
+		showAllDataSources_ = !showAllDataSources_;
+		showAllDataSources(showAllDataSources_);
+	}
+}
+
+void AMDataSourcesEditor::showAllDataSources(bool showAll)
+{
+	int scanIndex = currentScanIndex();
+	QModelIndex modelIndex;
+
+	// No scans to access.
+	if (scanIndex < 0 || scanIndex >= model_->scanCount())
+		return;
+
+	else
+		modelIndex = model_->indexForScan(scanIndex);
+
+	showAllDataSources_ = showAll;
+
+	if (showAllDataSources_){
+
+		for (int i = 0; i < model_->scanAt(scanIndex)->dataSourceCount(); i++)
+			ui_.scanSetView->setRowHidden(i, modelIndex, false);
+	}
+
+	else{
+
+		for (int di = 0; di < model_->scanAt(scanIndex)->dataSourceCount(); di++)
+			ui_.scanSetView->setRowHidden(di, modelIndex, model_->dataSourceAt(scanIndex, di)->hiddenFromUsers());
+	}
 }
 
 void AMDataSourcesEditor::setCurrentScan(AMScan *scan) {
@@ -82,12 +133,10 @@ void AMDataSourcesEditor::setCurrentScan(int scanIndex) {
 	QModelIndex i = model_->indexForScan(scanIndex);
 	ui_.scanSetView->expand(i);
 	ui_.scanSetView->setCurrentIndex(i);
-
+	showAllDataSources(false);
 }
 
 void AMDataSourcesEditor::onSetViewIndexChanged(const QModelIndex &selected, const QModelIndex &deselected) {
-
-	Q_UNUSED(deselected)
 
 	removeDetailEditor();
 
@@ -115,11 +164,22 @@ void AMDataSourcesEditor::onSetViewIndexChanged(const QModelIndex &selected, con
 
 	// Data source selected.
 	/////////////////
+
+	// Remove old connection to the data source description.
+	int oldSi = deselected.parent().row();
+	int oldDi = deselected.row();
+	AMDataSource *oldDataSource = model_->dataSourceAt(oldSi, oldDi);
+	if (oldDataSource)
+		disconnect(oldDataSource->signalSource(), SIGNAL(infoChanged()), this, SLOT(onDataSourceDescriptionChanged()));
+
+	// Setup new data source.
 	int si = selected.parent().row();
 	int di = selected.row();
 	AMDataSource* dataSource = model_->dataSourceAt(si, di);
 	if(!dataSource)
 		return;
+
+	connect(dataSource->signalSource(), SIGNAL(infoChanged()), this, SLOT(onDataSourceDescriptionChanged()));
 
 	ui_.nameEdit->setText(dataSource->name());
 	ui_.descriptionEdit->setText(dataSource->description());
@@ -134,6 +194,17 @@ void AMDataSourcesEditor::onSetViewIndexChanged(const QModelIndex &selected, con
 	populateExpressionMenu(si);
 	*/
 
+}
+
+void AMDataSourcesEditor::onDataSourceDescriptionChanged()
+{
+	QModelIndex index = ui_.scanSetView->currentIndex();
+	AMDataSource *dataSource = model_->dataSourceAt(index.parent().row(), index.row());
+	if (dataSource){
+
+		ui_.descriptionEdit->setText(dataSource->description());
+		ui_.scanSetView->update(index);
+	}
 }
 
 #include <QMessageBox>
@@ -182,6 +253,51 @@ int AMDataSourcesEditor::currentDataSourceIndex() const {
 /// \todo Eventually, this button should support creating all kinds of available data sources, using a beautiful popup dialogue with buttons and icons and descriptions. For now, we only create AM1DExpressionAB (expression editors for 1D channels, to allow simply 1D normalization and calibration)
 void AMDataSourcesEditor::onAddDataSourceButtonClicked() {
 
+	QMenu popup(this);
+
+	int scanIndex = currentScanIndex();
+
+	switch (model_->scanAt(scanIndex)->scanRank())	{
+
+		case 0: // No specific options for 0D scans as of yet.
+		break;
+
+		case 1: {
+
+			QAction *temp = popup.addAction("Add Derivative");
+			temp = popup.addAction("Add Integral");
+			temp = popup.addAction("Add Expression");
+			temp = popup.addAction("Add 2D Summing");
+
+			temp = popup.exec(mapToGlobal(ui_.addDataSourceButton->pos()));
+
+			// If a valid action was selected.
+			if (temp){
+
+				if (temp->text() == "Add Derivative")
+					nameOfAnalysisBlockToBeAdded_ = "Derivative";
+				else if (temp->text() == "Add Integral")
+					nameOfAnalysisBlockToBeAdded_ = "Integral";
+				else if (temp->text() == "Add Expression")
+					nameOfAnalysisBlockToBeAdded_ = "Expression";
+				else if (temp->text() == "Add 2D Summing")
+					nameOfAnalysisBlockToBeAdded_ = "2D Summing";
+			}
+
+			break;
+		}
+
+		case 2: {
+
+			QAction *temp = popup.addAction("2D Map Normalization");
+
+			temp = popup.exec(mapToGlobal(ui_.addDataSourceButton->pos()));
+
+			if (temp && temp->text() == "2D Map Normalization")
+				nameOfAnalysisBlockToBeAdded_ = "2D Map Normalization";
+		}
+	}
+
 	removeDetailEditor();
 
 	/// Data source names aren't editable after they've been created. Here we re-enable the nameEdit for editing shortly, and connect its editingFinished ... We'll complete the operation in onNewChannelNamed().
@@ -199,6 +315,11 @@ void AMDataSourcesEditor::onAddDataSourceButtonClicked() {
 
 #include "util/AMErrorMonitor.h"
 #include "analysis/AM1DExpressionAB.h"
+#include "analysis/AM1DDerivativeAB.h"
+#include "analysis/AM2DSummingAB.h"
+#include "analysis/AM1DIntegralAB.h"
+#include "analysis/AM2DNormalizationAB.h"
+
 /// \todo Eventually, this button should support creating all kinds of available data sources (raw, and analysis blocks), using a beautiful popup dialogue with buttons and icons and descriptions. For now, we only create AM1DExpressionAB (expression editors for 1D channels, to allow simply 1D normalization and calibration)
 void AMDataSourcesEditor::onNewDataSourceNamed() {
 
@@ -228,16 +349,60 @@ void AMDataSourcesEditor::onNewDataSourceNamed() {
 		return;
 	}
 
-	AM1DExpressionAB* newExpression = new AM1DExpressionAB(chName);
-	// find out all the available 1D data sources, to use for inputs on this new data source.
-	/// \todo Currently this only provides access to the raw data sources, until we can figure out a way to detect or work-around the circular reference problem if analyzed data sources could be used as input.
-	QList<AMDataSource*> singleDimDataSources;
 	AMScan* scan = model_->scanAt(si);
-	for(int i=0; i<scan->rawDataSources()->count(); i++)
-		if(scan->rawDataSources()->at(i)->rank() == 1)
-			singleDimDataSources << scan->rawDataSources()->at(i);
-	newExpression->setInputDataSources(singleDimDataSources);
-	scan->addAnalyzedDataSource(newExpression);
+	QList<AMDataSource*> singleDimDataSources;
+	QList<AMDataSource *> twoDimDataSources;
+	AMAnalysisBlock *newAnalysisBlock = 0;
+	AMDataSource *tempSource = 0;
+
+	// find out all the available 1D and 2D data sources, to use for inputs on this new data source.
+	/// \todo Currently this only provides access to the raw data sources, until we can figure out a way to detect or work-around the circular reference problem if analyzed data sources could be used as input.
+	/// \note DH: I have changed this to use all of the data sources.  There currently is still no work-around for the circular reference problem.  We are just going to have to be careful about using this.
+
+	for(int i=0; i<scan->dataSourceCount(); i++){
+
+		tempSource = scan->dataSourceAt(i);
+
+		if(tempSource->rank() == 1)
+			singleDimDataSources << tempSource;
+
+		else if(tempSource->rank() == 2)
+			twoDimDataSources << tempSource;
+	}
+
+	if (nameOfAnalysisBlockToBeAdded_ == "Derivative"){
+
+		newAnalysisBlock = new AM1DDerivativeAB(chName);
+		newAnalysisBlock->setInputDataSources(singleDimDataSources);
+	}
+
+	else if (nameOfAnalysisBlockToBeAdded_ == "Integral"){
+
+		newAnalysisBlock = new AM1DIntegralAB(chName);
+		newAnalysisBlock->setInputDataSources(singleDimDataSources);
+	}
+
+	else if (nameOfAnalysisBlockToBeAdded_ == "Expression"){
+
+		newAnalysisBlock = new AM1DExpressionAB(chName);
+		newAnalysisBlock->setInputDataSources(singleDimDataSources);
+	}
+
+	else if (nameOfAnalysisBlockToBeAdded_ == "2D Summing"){
+
+		newAnalysisBlock = new AM2DSummingAB(chName);
+		newAnalysisBlock->setInputDataSources(twoDimDataSources);
+	}
+
+	else if (nameOfAnalysisBlockToBeAdded_ == "2D Map Normalization"){
+
+		newAnalysisBlock = new AM2DNormalizationAB(chName);
+		newAnalysisBlock->setInputDataSources(twoDimDataSources);
+	}
+
+	// This should always happen.  But just to be safe.
+	if (newAnalysisBlock)
+		scan->addAnalyzedDataSource(newAnalysisBlock);
 
 	int di = scan->dataSourceCount()-1;
 	ui_.scanSetView->setCurrentIndex(model_->indexForDataSource(si, di));

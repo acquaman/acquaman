@@ -136,47 +136,15 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 	acqTextSpectrumOutput::pvTSPrivate *pvpr = (acqTextSpectrumOutput::pvTSPrivate*)to->pvInfo[makeuid(eventno, pvno)];
 	if(pvpr){
 		pvpr->output(key, pvpr->colp->columnType, value, count);
-	}
 
-	if( (eventno == 1) && (pvno != 0) && !to->lockHash_)
+		if( (eventno == 1) && (pvno != 0) && !to->lockHash_)
 			to->pvnoToColumn_[pvno] = to->colNo_++;
 
-	double dataVal;
-	double specMax = 0;
-	QList<double> spectraVal;
+		double dataVal;
+		double specMax = 0;
+		QList<double> spectraVal;
 
-	if(!pvpr->isSpectrum){
-		switch( pvpr->colp->columnType)
-		{
-		case DBF_STRING:
-			break;
-		case DBF_ENUM:	// ENUM support is difficult if the value may be passed through multiple
-			// processes before being handled. It is the responsibility of the inheriting class
-			// to determine how to convert enums to strings, probably with support from the
-			// calling program.
-			break;
-		case DBF_SHORT:
-			dataVal = (double)*(short *)value;
-			break;
-		case DBF_FLOAT:
-			dataVal = (double)*(float *)value;
-			break;
-		case DBF_CHAR:
-			dataVal = (double)*(char *)value;
-			break;
-		case DBF_LONG:
-			dataVal = (double)*(long *)value;
-			break;
-		case DBF_DOUBLE:
-			dataVal = *(double *)value;
-			break;
-		default:
-			return -1;
-		}
-	}
-	else{
-		qDebug() << "Spectrum of count " << count;
-		for(int x = 0; x < count; x++){
+		if(!pvpr->isSpectrum){
 			switch( pvpr->colp->columnType)
 			{
 			case DBF_STRING:
@@ -195,45 +163,77 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 			case DBF_CHAR:
 				dataVal = (double)*(char *)value;
 				break;
-			case DBF_LONG:{
-				/* NTBA May 8th, 2011 David Chevrier
-				   There seems to be an issue with the DBF_LONG being saved as int (size 4)
-				   rather than as long (size 8). Probably a 64bit problem.
-				*/
-				//dataVal = (double)*(long *)value;
-				dataVal = (double)*(int *)value;
+			case DBF_LONG:
+				dataVal = (double)*(long *)value;
 				break;
-			}
 			case DBF_DOUBLE:
 				dataVal = *(double *)value;
 				break;
 			default:
 				return -1;
 			}
-			spectraVal.append(dataVal);
-			if(dataVal > specMax)
-				specMax = dataVal;
-			/* NTBA May 8th, 2011 David Chevrier
-			   There seems to be an issue with the DBF_LONG being saved as int (size 4)
-			   rather than as long (size 8). Probably a 64bit problem.
-			 */
-			if(pvpr->colp->columnType == DBF_LONG)
-				value = (char  *)value + 4;
-			else
-				value = (char  *)value + pvpr->colp->dataSize;
 		}
-	}
-	if((eventno == 1) && !pvpr->isSpectrum){
-		if( (pvno == 0) && (eventno == 1) )
-			to->dataPackage_.insert(0, dataVal);
-		else
-			to->dataPackage_.insert(to->pvnoToColumn_[pvno]+1, dataVal);
-	}
-	else if( (eventno == 2) && (pvno == 1) && !pvpr->isSpectrum){
-		to->extraPackage_.insert(2, dataVal);
-	}
-	else if( (eventno == 1) && pvpr->isSpectrum ){
-		to->spectraPackage_.insert(to->pvnoToColumn_[pvno]+1, spectraVal);
+		else{
+			qDebug() << "Spectrum of count " << count;
+			for(int x = 0; x < count; x++){
+				switch( pvpr->colp->columnType)
+				{
+				case DBF_STRING:
+					break;
+				case DBF_ENUM:	// ENUM support is difficult if the value may be passed through multiple
+					// processes before being handled. It is the responsibility of the inheriting class
+					// to determine how to convert enums to strings, probably with support from the
+					// calling program.
+					break;
+				case DBF_SHORT:
+					dataVal = (double)*(short *)value;
+					break;
+				case DBF_FLOAT:
+					dataVal = (double)*(float *)value;
+					break;
+				case DBF_CHAR:
+					dataVal = (double)*(char *)value;
+					break;
+				case DBF_LONG:{
+				/* NTBA May 8th, 2011 David Chevrier
+				There seems to be an issue with the DBF_LONG being saved as int (size 4)
+				rather than as long (size 8). Probably a 64bit problem.
+				*/
+					//dataVal = (double)*(long *)value;
+					dataVal = (double)*(int *)value;
+					break;
+				}
+				case DBF_DOUBLE:
+					dataVal = *(double *)value;
+					break;
+				default:
+					return -1;
+				}
+				spectraVal.append(dataVal);
+				if(dataVal > specMax)
+					specMax = dataVal;
+				/* NTBA May 8th, 2011 David Chevrier
+				There seems to be an issue with the DBF_LONG being saved as int (size 4)
+				rather than as long (size 8). Probably a 64bit problem.
+				*/
+				if(pvpr->colp->columnType == DBF_LONG)
+					value = (char  *)value + 4;
+				else
+					value = (char  *)value + pvpr->colp->dataSize;
+			}
+		}
+		if((eventno == 1) && !pvpr->isSpectrum){
+			if( (pvno == 0) && (eventno == 1) )
+				to->dataPackage_.insert(0, dataVal);
+			else
+				to->dataPackage_.insert(to->pvnoToColumn_[pvno]+1, dataVal);
+		}
+		else if( (eventno == 2) && (pvno == 1) && !pvpr->isSpectrum){
+			to->extraPackage_.insert(2, dataVal);
+		}
+		else if( (eventno == 1) && pvpr->isSpectrum ){
+			to->spectraPackage_.insert(to->pvnoToColumn_[pvno]+1, spectraVal);
+		}
 	}
 	return 0;
 }

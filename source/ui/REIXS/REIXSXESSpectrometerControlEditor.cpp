@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 
 REIXSXESSpectrometerControlEditor::REIXSXESSpectrometerControlEditor(REIXSSpectrometer* spectrometer, QWidget *parent) :
-	QFrame(parent),
+	QGroupBox(parent),
 	ui_(new Ui::REIXSXESSpectrometerControlEditor)
 {
 	ui_->setupUi(this);

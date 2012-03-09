@@ -99,7 +99,7 @@ public:
 	AMDoubleList gratingEVRangesMin() const { return gratingEVRangesMin_; } ///< min EV reachable by grating; (imposed safety limits)
 	AMDoubleList gratingEVRangesMax() const { return gratingEVRangesMax_; } ///< the max EV reachable by grating; (imposed safety limits)
 
-	double detectorHeightError() const { return detectorHeightError_; }
+	double detectorHeightError() const { return detectorHeightError_; } ///< The center of the detector should be on a line parallel to the translation rails, intersecting the rotation axle. This error is positive if it's above that ideal mounting height, and negative if below. The height is measured perpendicular to the frame rails -- not the y-axis.
 
 public slots:
 

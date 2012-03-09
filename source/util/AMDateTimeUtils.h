@@ -37,6 +37,9 @@ namespace AMDateTimeUtils
 	/// Returns a compact date range (ex: "yesterday and today", "September 4 - 9 (2010)", "Aug 4 - Sept 9 (2010)", or "Aug 4 (2009) - Sept 9 (2010)"
 	QString prettyDateRange(const QDateTime& start, const QDateTime& end);
 
+	/// Formats an approximate duration, depending on the size. (ex: "6 seconds", "3 minutes and 5 seconds", "1 hour and 13 minutes", "1 day and 4.5 hours")
+	QString prettyDuration(const QDateTime& start, const QDateTime& end);
+
 
 };
 

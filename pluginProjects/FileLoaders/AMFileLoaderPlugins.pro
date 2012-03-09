@@ -7,4 +7,5 @@ SUBDIRS += \
 	VESPERS2011XASFileLoader \
 	VESPERS2011XRFFileLoader \
 	REIXSXESRawFileLoader \
-	ALSBL8XASFileLoader
+	ALSBL8XASFileLoader \
+	VESPERS20122DFileLoader

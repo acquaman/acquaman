@@ -383,7 +383,7 @@ void VESPERSBeamline::setupComponents()
 	beamPositions_.insert(Si, -17.5);
 	beamPositions_.insert(OnePointSixPercent, -22.5);
 
-	beamSelectionMotor_ = new CLSMAXvMotor("MonoBeamSelectionMotor", "SMTR1607-1-B20-21", "Motor that controls which beam makes it down the pipe.", false, 0.1, 2.0, this);
+	beamSelectionMotor_ = new CLSMAXvMotor("MonoBeamSelectionMotor", "SMTR1607-1-B20-21", "Motor that controls which beam makes it down the pipe.", false, 1, 2.0, this);
 	connect(beamSelectionMotor_, SIGNAL(movingChanged(bool)), this, SLOT(determineBeam()));
 	connect(beamSelectionMotor_, SIGNAL(valueChanged(double)), this, SLOT(onBeamSelectionMotorConnected()));
 
@@ -395,6 +395,7 @@ void VESPERSBeamline::setupComponents()
 void VESPERSBeamline::setupExperimentStatus()
 {
 	experimentConfiguration_ = new VESPERSExperimentConfiguration(synchronizedDwellTime_, pseudoSampleStage_, (XRFDetector *)vortex1E_, (XRFDetector *)vortex4E_, this);
+	connect(experimentConfiguration_, SIGNAL(beamDumped()), this, SIGNAL(beamDumped()));
 }
 
 AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(Beam beam)

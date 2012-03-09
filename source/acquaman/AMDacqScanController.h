@@ -54,7 +54,7 @@ public:
 
 protected:
 	bool startImplementation();
-	bool canPause();
+	bool canPause() const;
 	void pauseImplementation();
 	void resumeImplementation();
 	void cancelImplementation();

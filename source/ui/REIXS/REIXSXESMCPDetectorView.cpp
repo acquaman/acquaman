@@ -51,6 +51,8 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 	// removed: orientationControl_ = new AMBasicControlEditor(detector_->orientationControl());
 
 	countsPerSecondIndicator_ = new QLabel();
+	countsPerSecondIndicator_->setFixedWidth(70);
+	countsPerSecondIndicator_->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 	countsPerSecondBar_ = new QProgressBar();
 
 	colorMapEditor_ = 0;
@@ -98,6 +100,7 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 	countsPerSecondBar_->setOrientation(Qt::Vertical);
 	countsPerSecondBar_->setRange(0, 600);
 	countsPerSecondBar_->setValue(0);
+	countsPerSecondBar_->setFormat(QString());
 
 	adjustColorMapButton_ = new QToolButton();
 	adjustColorMapButton_->setText("Adjust colors...");
@@ -158,7 +161,7 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 void REIXSXESMCPDetectorView::onCountsPerSecondChanged(double countsPerSecond) {
 
 
-	countsPerSecondIndicator_->setText(QString("%1").arg(countsPerSecond, 5, 'e', 1));
+	countsPerSecondIndicator_->setText(QString("%1").arg(countsPerSecond, 0, 'e', 1));
 
 	// log(0) is undefined...
 	if(countsPerSecond == 0)

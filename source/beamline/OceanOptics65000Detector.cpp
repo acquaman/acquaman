@@ -142,8 +142,8 @@ bool OceanOptics65000Detector::initializeFromControlSet(AMControlSet *readingsCo
 		connect(signalSource(), SIGNAL(connected(bool)), this, SLOT(onSettingsControlValuesChanged()));
 		connect(readingsControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
 		connect(settingsControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
-		connect(readingsControls_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(onReadingsControlValuesChanged()));
-		connect(settingsControls_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(onSettingsControlValuesChanged()));
+		connect(readingsControls_, SIGNAL(controlSetValuesChanged()), this, SLOT(onReadingsControlValuesChanged()));
+		connect(settingsControls_, SIGNAL(controlSetValuesChanged()), this, SLOT(onSettingsControlValuesChanged()));
 		onControlsConnected(readingsControls_->isConnected() && settingsControls_->isConnected());
 		if(isConnected()){
 			onReadingsControlValuesChanged();

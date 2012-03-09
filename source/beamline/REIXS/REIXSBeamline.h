@@ -27,6 +27,52 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMCompositeControl.h"
 
 #include "util/AMDeferredFunctionCall.h"
+#include "beamline/CLS/CLSBiStateControl.h"
+
+class AMAction;
+
+/// The REIXSPhotonSource control is a container for the set of controls that make up the mono and EPU
+class REIXSPhotonSource : public AMCompositeControl {
+	Q_OBJECT
+public:
+	REIXSPhotonSource(QObject* parent = 0);
+
+	AMControl* energy() { return energy_; }
+	AMControl* monoSlit() { return monoSlit_; }
+	AMControl* monoGratingTranslation() { return monoGratingTranslation_; }
+	AMControl* monoGratingSelector() { return monoGratingSelector_; }
+	AMControl* monoMirrorTranslation() { return monoMirrorTranslation_; }
+	AMControl* monoMirrorSelector() { return monoMirrorSelector_; }
+
+
+
+protected:
+	AMControl *energy_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_;
+
+};
+
+/// REIXSValvesAndShutters is a container for the set of valve and shutter controls on the beamline
+class REIXSValvesAndShutters : public AMCompositeControl {
+	Q_OBJECT
+public:
+	REIXSValvesAndShutters(QObject* parent = 0);
+
+	/// Photon shutter 2
+	CLSBiStateControl* psh2() { return psh2_; }
+	/// Photon shutter 4: Used for turning off the beam
+	CLSBiStateControl* psh4() { return psh4_; }
+	/// Used in sample changes to isolate the endstation
+	CLSBiStateControl* endstationValve() { return endstationValve_; }
+
+
+	/// \todo Variable apertures: set to 4x4
+
+
+protected:
+	CLSBiStateControl* psh2_, *psh4_, *endstationValve_;
+
+
+};
 
 /// The REIXSHexapod control is just a container for the set of coupled controls which make up the hexapod:
 /*!
@@ -58,12 +104,13 @@ protected:
 
 };
 
+class AMListAction;
+
 /// The REIXSSpectrometer control is a high-level abstraction for controlling the spectrometer energy.  It's also a container for the set of (low-level, physical) controls which make up the spectrometer:
 /*!
 - angleDrive(): The position of the ball screw that lifts the spectrometer, in mm, up from the home (lowered) position.
 - detectorTranslation(): The position of the ball screw that translates the detector along the chamber, in mm, away from the upstream home position
 - detectorTiltDrive():  The position of the linear stage that tilts the detector, in mm, up from its vertically lowest home position
-- detectorRotationDrive(): The position of the linear stage which rotates the detector, in mm, away from the most upstream home position
 - hexapod(): The REIXSHexapod controls
 */
 class REIXSSpectrometer : public AMCompositeControl {
@@ -113,12 +160,12 @@ public:
 	bool shouldMeasure() const { return true; }
 	bool shouldMove() const { return true; }
 	bool shouldStop() const { return true; }
-	// exception: the hexapod can't stop...Or can it?
+	// exception: the hexapod can't stop (Without wrecking its calibration and requiring a re-init.) But it can be told to go to new positions, even if the old move isn't done, so don't worry about stopping it.
 	bool canStop() const { return spectrometerRotationDrive_->canStop() && detectorTranslation_->canStop() && detectorTiltDrive_->canStop(); }
 
 
 	/// Indicates that a move (that was commanded via this object using move()) is in progress.  This will be accompanied by signals moveStarted(), moveFinished(), moveFailed(int reason).
-	virtual bool moveInProgress() const { return currentMoveStep_ != MoveDone; }
+	virtual bool moveInProgress() const { return moveAction_ != 0; }
 
 	/// Returns the minimum and maximum value for the current grating
 	virtual double minimumValue() const { return calibration_.evRangeForGrating(specifiedGrating_).first; }
@@ -129,7 +176,6 @@ public:
 
 	/// Stop the spectrometer if it's currently moving
 	virtual bool stop();
-
 
 
 	AMControl* spectrometerRotationDrive() { return spectrometerRotationDrive_; }
@@ -160,17 +206,20 @@ protected:
 
 	double specifiedEV_;
 
+	/// It takes lots of steps to move the detector into position. This is the action we use to run a detector move. Valid if a move is in progress, and 0 otherwise.
+	AMListAction* moveAction_;
 
-	// for move state machine:
-	enum MoveStep { Starting, MovingZto0, MovingUto0, MovingRST, MovingU, MovingXYZ, MovingLiftTiltTranslation, MoveDone };
-	MoveStep currentMoveStep_;
+	/// Holds the values for all the motors we need to move, to reach an energy position.
+	AMControlInfoList moveSetpoint_;
 
+	/// We don't want to calculate and emit valueChanged() as often as we get motor move updates... because these ones can update real fast. This is used to slow it down, and only emit valueChanged() about once every 200ms.
+	AMDeferredFunctionCall reviewValueChangedFunction_;
 
 signals:
 	/// Emitted when the calibration object is changed (This might mean that the # of gratings or grating names might be different). Check with spectrometerCalibration().
 	void calibrationChanged();
 
-	/// Emitted when the current grating() changes.  This doesn't necessarily mean that the new grating is in position, but we will have atarted moving it into position.  The specifiedGrating() turns into the current grating() when a move() is issued.
+	/// Emitted when the current grating() changes.  This doesn't necessarily mean that the new grating is in position, but we will have started moving it into position.  The specifiedGrating() turns into the current grating() when a move() is issued.
 	void gratingChanged(int);
 
 	/// \todo: gratingInPositionChanged() for any hexapod moves...
@@ -183,57 +232,13 @@ protected slots:
 	/// Called at a maximum rate of 0.1s, this examines the current position of the spectrometer and emits valueChanged().
 	void reviewValueChanged() { emit valueChanged(value()); }
 
-	// for move state machine
-	void smStartMoveZto0();
-	void smMoveZto0Succeeded();
-	void smMoveZto0Failed(int reason);
 
-	void smStartMoveUto0();
-	void smMoveUto0Succeeded();
-	void smMoveUto0Failed(int reason);
-
-	void smStartMoveRST();
-	void smRMoveSucceeded();
-	void smSMoveSucceeded();
-	void smTMoveSucceeded();
-	void smRMoveFailed(int reason);
-	void smSMoveFailed(int reason);
-	void smTMoveFailed(int reason);
-
-	void smStartMoveU();
-	void smMoveUSucceeded();
-	void smMoveUFailed(int reason);
-
-	void smStartMoveXYZ();
-	void smXMoveSucceeded();
-	void smYMoveSucceeded();
-	void smZMoveSucceeded();
-	void smXMoveFailed(int reason);
-	void smYMoveFailed(int reason);
-	void smZMoveFailed(int reason);
-
-	void smStartMoveLiftTiltTranslation();
-	void smLiftMoveSucceeded();
-	void smTiltMoveSucceeded();
-	void smTranslationMoveSucceeded();
-	void smLiftMoveFailed(int reason);
-	void smTiltMoveFailed(int reason);
-	void smTranslationMoveFailed(int reason);
-
-protected:
-	bool smRMoveDone_, smSMoveDone_, smTMoveDone_;
-	bool smXMoveDone_, smYMoveDone_, smZMoveDone_;
-	bool smLiftMoveDone_, smTiltMoveDone_, smTranslationMoveDone_;
-
-	AMControlInfoList moveSetpoint_;
-
-	/// We don't want to calculate and emit valueChanged() as often as we get motor move updates... because these ones can update real fast. This is used to slow it down, and only emit valueChanged() about once every 200ms.
-	AMDeferredFunctionCall reviewValueChangedFunction_;
-
+	/// Called when the moveAction_ changes state. Handle success, failure, or cancellation.
+	void onMoveActionStateChanged(int newState, int previousState);
 };
 
 /// The REIXSSampleChamber control is a container for the motor controls that make up the sample manipulator and load lock.
-class REIXSSampleChamber : public AMControl {
+class REIXSSampleChamber : public AMCompositeControl {
 	Q_OBJECT
 public:
 	REIXSSampleChamber(QObject* parent = 0);
@@ -263,12 +268,16 @@ public:
 
 	// Accessing control elements:
 
+	/// Access the upstream (mono/EPU) controls
+	REIXSPhotonSource* photonSource() { return photonSource_; }
 	/// Access the spectrometer controls:
 	REIXSSpectrometer* spectrometer() { return spectrometer_; }
 	/// Access the sample chamber and load-lock controls:
 	REIXSSampleChamber* sampleChamber() { return sampleChamber_; }
 	/// Access the live MCP detector object
 	REIXSXESMCPDetector* mcpDetector() { return mcpDetector_; }
+	/// Access the valves and shutters
+	REIXSValvesAndShutters* valvesAndShutters() { return valvesAndShutters_; }
 
 	// These Control Sets are logical groups of controls, that are commonly used by different Acquaman components
 
@@ -276,6 +285,8 @@ public:
 	AMControlSet* sampleManipulatorSet() { return sampleManipulatorSet_; }
 	/// All the controls for positioning the Spectrometer
 	AMControlSet* spectrometerPositionSet() { return spectrometerPositionSet_; }
+	/// All the controls we want to expose to users for available motions in REIXSControlMoveAction.
+	AMControlSet* allControlsSet() { return allControlsSet_; }
 
 signals:
 
@@ -285,16 +296,16 @@ protected:
 	/// Constructor. This is a singleton class; access it through REIXSBeamline::bl().
 	REIXSBeamline();
 
-	/// \todo: beamline front-end controls
-	// AMControl* incidentEV_;
-	// AMControl* monoGrating_;
-
+	/// A group of controls making up the EPU and mono
+	REIXSPhotonSource* photonSource_;
 	/// A hierarchichal group of controls making up the spectrometer
 	REIXSSpectrometer* spectrometer_;
 	/// A hierarchichal group of controls making up the sample chamber
 	REIXSSampleChamber* sampleChamber_;
 	/// An object for controlling the MCP detector and downloading its image values
 	REIXSXESMCPDetector* mcpDetector_;
+	/// A group of valve and shutter controls
+	REIXSValvesAndShutters* valvesAndShutters_;
 
 
 	// These Control Sets are logical groups of controls, that are commonly used by different Acquaman components
@@ -302,6 +313,8 @@ protected:
 	AMControlSet* sampleManipulatorSet_;
 	/// All the controls for positioning the Spectrometer (angleDrive, detectorTranslation, detectorTiltDrive, detectorRotationDrive, hexapod{X, Y, Z, U, V, W, R, S, T}
 	AMControlSet* spectrometerPositionSet_;
+	/// All the controls we want to expose to users for available motions in REIXSControlMoveAction.
+	AMControlSet* allControlsSet_;
 
 
 };

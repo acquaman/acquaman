@@ -37,6 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMSampleEditor.h"
 #include "ui/dataman/AMDataSourcesEditor.h"
 #include "ui/dataman/AMChooseScanDialog.h"
+#include "ui/dataman/AMControlInfoListTableView.h"
 
 #ifndef ACQUAMAN_NO_ACQUISITION
 // needed to stop scans in progress, if requested from here during close events.
@@ -44,7 +45,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
-		QWidget(parent)
+	QWidget(parent)
 {
 	ui_.setupUi(this);
 	setWindowTitle("Scan Editor");
@@ -89,9 +90,9 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	dataSourcesEditor_ = new AMDataSourcesEditor(scanSetModel_);
 	stackWidget_->addItem("Data Sets", dataSourcesEditor_);
 
-	QWidget* temp3 = new QWidget();
-	temp3->setMinimumHeight(200);
-	stackWidget_->addItem("Beamline Information", temp3);
+	conditionsTableView_ = new AMControlInfoListTableView();
+	conditionsTableView_->setMinimumHeight(200);
+	stackWidget_->addItem("Beamline Information", conditionsTableView_);
 	stackWidget_->collapseItem(2);
 
 
@@ -142,8 +143,12 @@ AMGenericScanEditor::~AMGenericScanEditor() {
 void AMGenericScanEditor::addScan(AMScan* newScan) {
 	scanSetModel_->addScan(newScan);
 	ui_.scanListView->setCurrentIndex(scanSetModel_->indexForScan(scanSetModel_->indexOf(newScan)));
-	if(scanSetModel_->exclusiveDataSourceName().isEmpty() && newScan->dataSourceCount() > 0)
-		scanSetModel_->setExclusiveDataSourceByName(newScan->dataSourceAt(0)->name());
+
+	if(scanSetModel_->exclusiveDataSourceName().isEmpty()) {
+		QVector<int> nonHiddenDataSourceIndexes = newScan->nonHiddenDataSourceIndexes();
+		if(!nonHiddenDataSourceIndexes.isEmpty())
+			scanSetModel_->setExclusiveDataSourceByName(newScan->dataSourceAt(nonHiddenDataSourceIndexes.first())->name());
+	}
 
 	refreshWindowTitle();
 }
@@ -186,15 +191,15 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 		disconnect(this, SIGNAL(notesChanged(QString)), currentScan_, SLOT(setNotes(QString)));
 		disconnect(runSelector_, SIGNAL(currentRunIdChanged(int)), currentScan_, SLOT(setRunId(int)));
 		disconnect(sampleEditor_, SIGNAL(currentSampleChanged(int)), currentScan_, SLOT(setSampleId(int)));
+		disconnect(currentScan_, SIGNAL(numberChanged(int)), this, SLOT(refreshWindowTitle()));
+		disconnect(currentScan_, SIGNAL(nameChanged(QString)), this, SLOT(refreshWindowTitle()));
 	}
 
 	// it becomes now the new scan:
 	currentScan_ = newScan;
 
-
-	// update all widgets to match
+	// update all widgets to match the current scan
 	updateEditor(currentScan_);
-	dataSourcesEditor_->setCurrentScan(currentScan_);
 
 
 	if(currentScan_) {
@@ -206,6 +211,8 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 		connect(this, SIGNAL(notesChanged(QString)), currentScan_, SLOT(setNotes(QString)));
 		connect(runSelector_, SIGNAL(currentRunIdChanged(int)), currentScan_, SLOT(setRunId(int)));
 		connect(sampleEditor_, SIGNAL(currentSampleChanged(int)), currentScan_, SLOT(setSampleId(int)));
+		connect(currentScan_, SIGNAL(numberChanged(int)), this, SLOT(refreshWindowTitle()));
+		connect(currentScan_, SIGNAL(nameChanged(QString)), this, SLOT(refreshWindowTitle()));
 
 		// \todo When migrating to multiple scan selection, this will need to be changed:
 		ui_.saveScanButton->setEnabled(true);
@@ -233,17 +240,19 @@ void AMGenericScanEditor::onScanMetaDataChanged() {
 void AMGenericScanEditor::updateEditor(AMScan *scan) {
 	if(scan) {
 
-	ui_.scanName->setText(scan->name());
-	//ui_.scanName->setText(scan->evaluatedName());
-	ui_.scanNumber->setValue(scan->number());
-	ui_.scanDate->setText( AMDateTimeUtils::prettyDate(scan->dateTime()));
-	ui_.scanTime->setText( scan->dateTime().time().toString("h:mmap") );
-	ui_.notesEdit->setPlainText( scan->notes() );
-	runSelector_->setCurrentRunId(scan->runId());
-	sampleEditor_->setCurrentSample(scan->sampleId());
+		ui_.scanName->setText(scan->name());
+		//ui_.scanName->setText(scan->evaluatedName());
+		ui_.scanNumber->setValue(scan->number());
+		ui_.scanDate->setText( AMDateTimeUtils::prettyDate(scan->dateTime()));
+		ui_.scanTime->setText( scan->dateTime().time().toString("h:mmap") );
+		ui_.notesEdit->setPlainText( scan->notes() );
+		runSelector_->setCurrentRunId(scan->runId());
+		sampleEditor_->setCurrentSample(scan->sampleId());
+		dataSourcesEditor_->setCurrentScan(scan);
+		conditionsTableView_->setFromInfoList(scan->scanInitialConditions());
 
-	//ui_.topFrameTitle->setText(QString("Editing %1 #%2").arg(scan->name()).arg(scan->number()));
-	ui_.topFrameTitle->setText(QString("Editing %1").arg(scan->fullName()));
+		//ui_.topFrameTitle->setText(QString("Editing %1 #%2").arg(scan->name()).arg(scan->number()));
+		ui_.topFrameTitle->setText(QString("Editing %1").arg(scan->fullName()));
 	}
 
 	else {
@@ -256,6 +265,8 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		// what to set run selector to?
 
 		sampleEditor_->setCurrentSample(-1);
+		dataSourcesEditor_->setCurrentScan(0);
+		conditionsTableView_->setFromInfoList(0);
 
 		ui_.topFrameTitle->setText("Scan Editor");
 	}
@@ -329,10 +340,10 @@ bool AMGenericScanEditor::deleteScanWithModifiedCheck(AMScan* scan) {
 // Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)
 void AMGenericScanEditor::dragEnterEvent(QDragEnterEvent *event) {
 	if(	event->possibleActions() & Qt::CopyAction
-		&& event->mimeData()->hasUrls()
-		&& event->mimeData()->urls().count() > 0
-		&& event->mimeData()->urls().at(0).scheme() == "amd"
-				) {
+			&& event->mimeData()->hasUrls()
+			&& event->mimeData()->urls().count() > 0
+			&& event->mimeData()->urls().at(0).scheme() == "amd"
+			) {
 		event->accept();
 		event->acceptProposedAction();
 	}
@@ -342,7 +353,7 @@ void AMGenericScanEditor::dragEnterEvent(QDragEnterEvent *event) {
 
 
 
- /// Overloaded to enable drag-dropping scans.
+/// Overloaded to enable drag-dropping scans.
 /*! The Drag is accepted when:
   - Drag Action = Qt::CopyAction
   - One of the MIME types is "text/uri-list"... format is "amd://databaseConnectionName/tableName/id"
@@ -355,7 +366,7 @@ void AMGenericScanEditor::dragEnterEvent(QDragEnterEvent *event) {
 void AMGenericScanEditor::dropEvent(QDropEvent * event) {
 
 	if(	!( event->possibleActions() & Qt::CopyAction
-		&& event->mimeData()->hasUrls()) )
+		   && event->mimeData()->hasUrls()) )
 		return;
 
 
@@ -506,7 +517,7 @@ AMGenericScanEditor::ShouldStopAcquiringScanChoice AMGenericScanEditor::shouldSt
 	if(scanningEnquiry.clickedButton() == stopScanButton)
 		return AMGenericScanEditor::ShouldStopYes;
 	else if(scanningEnquiry.clickedButton() == forceQuitButton)
-		return AMGenericScanEditor::ShouldStopForeQuit;
+		return AMGenericScanEditor::ShouldStopForceQuit;
 	else
 		return AMGenericScanEditor::ShouldStopNo;
 }

@@ -20,17 +20,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM1DDerivativeAB.h"
 
+#include "analysis/AM1DBasicDerivativeABEditor.h"
+
 AM1DDerivativeAB::AM1DDerivativeAB(const QString &outputName, QObject *parent) :
 	AMStandardAnalysisBlock(outputName, parent)
 {
 	inputSource_ = 0;
+	analyzedName_ = "";
+	canAnalyze_ = false;
 
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 }
 
 // Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, our specific requirements are...
-/* - there must be a single input source
+/* - there must be a single input source or a list of 1D data sources
  - the rank() of that input source must be 1 (one-dimensional)
  */
 
@@ -41,6 +45,16 @@ bool AM1DDerivativeAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>&
 	// otherwise we need a single input source, with a rank of 1.
 	if(dataSources.count() == 1 && dataSources.at(0)->rank() == 1)
 		return true;
+
+	// Or we need a list of 1D data sources.
+	else if (dataSources.count() > 1){
+
+		for (int i = 0; i < dataSources.count(); i++)
+			if (dataSources.at(i)->rank() != 1)
+				return false;
+
+		return true;
+	}
 
 	return false;
 }
@@ -53,20 +67,23 @@ void AM1DDerivativeAB::setInputDataSourcesImplementation(const QList<AMDataSourc
 		disconnect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
 		disconnect(inputSource_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		disconnect(inputSource_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+		inputSource_ = 0;
 	}
 
 	if(dataSources.isEmpty()) {
 		inputSource_ = 0;
 		sources_.clear();
+		canAnalyze_ = false;
 
 		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
-		setDescription("-- No input data --");
+		setDescription("Derivative");
 	}
 
 	// we know that this will only be called with valid input source
-	else {
+	else if (dataSources.count() == 1){
 		inputSource_ = dataSources.at(0);
 		sources_ = dataSources;
+		canAnalyze_ = true;
 
 		axes_[0] = inputSource_->axisInfoAt(0);
 
@@ -79,12 +96,80 @@ void AM1DDerivativeAB::setInputDataSourcesImplementation(const QList<AMDataSourc
 
 	}
 
+	else {
+
+		sources_ = dataSources;
+		setInputSource();
+	}
+
 	reviewState();
 
 	emitSizeChanged(0);
 	emitValuesChanged();
 	emitAxisInfoChanged(0);
 	emitInfoChanged();
+}
+
+void AM1DDerivativeAB::setAnalyzedName(const QString &name)
+{
+	analyzedName_ = name;
+	setModified(true);
+	canAnalyze_ = canAnalyze(name);
+	setInputSource();
+}
+
+void AM1DDerivativeAB::setInputSource()
+{
+	// disconnect connections from old source, if it exists.
+	if(inputSource_) {
+		disconnect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(inputSource_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		disconnect(inputSource_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+		inputSource_ = 0;
+	}
+
+	int index = indexOfInputSource(analyzedName_);
+
+	if (index >= 0){
+
+		inputSource_ = inputDataSourceAt(index);
+		canAnalyze_ = true;
+
+		axes_[0] = inputSource_->axisInfoAt(0);
+		setDescription(QString("Derivative of %1")
+					   .arg(inputSource_->name()));
+
+		connect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(inputSource_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		connect(inputSource_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+	}
+
+	else{
+
+		inputSource_ = 0;
+		canAnalyze_ = false;
+		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
+		setDescription("Derivative");
+	}
+
+	reviewState();
+
+	emitSizeChanged(0);
+	emitValuesChanged();
+	emitAxisInfoChanged(0);
+	emitInfoChanged();
+}
+
+bool AM1DDerivativeAB::canAnalyze(const QString &name) const
+{
+	// Always can analyze a single 1D data source.
+	if (sources_.count() == 1)
+		return true;
+
+	if (indexOfInputSource(name) >= 0)
+		return true;
+
+	return false;
 }
 
 AMNumber AM1DDerivativeAB::value(const AMnDIndex& indexes, bool doBoundsChecking) const{
@@ -94,20 +179,38 @@ AMNumber AM1DDerivativeAB::value(const AMnDIndex& indexes, bool doBoundsChecking
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
+	if (!canAnalyze())
+		return AMNumber(AMNumber::InvalidError);
+
 	if(doBoundsChecking)
 		if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
 			return AMNumber(AMNumber::OutOfBoundsError);
 
 	int index = indexes.i();
 
+	// Forward difference.
 	if(index == 0){
+
 		return ((double)inputSource_->value(1, doBoundsChecking)-
 				(double)inputSource_->value(0, doBoundsChecking))/
 				((double)inputSource_->axisValue(0, 1, doBoundsChecking)-
 				 (double)inputSource_->axisValue(0, 0, doBoundsChecking));
 	}
-	else{
-		return ((double)inputSource_->value(index, doBoundsChecking)-(double)inputSource_->value(index-1, doBoundsChecking))/((double)inputSource_->axisValue(0, index, doBoundsChecking)-(double)inputSource_->axisValue(0, index-1,doBoundsChecking));
+	// Backward difference.
+	else if(index+1 == axes_.at(0).size){
+
+		return ((double)inputSource_->value(index, doBoundsChecking)-
+				(double)inputSource_->value(index-1, doBoundsChecking))/
+				((double)inputSource_->axisValue(0, index, doBoundsChecking)-
+				 (double)inputSource_->axisValue(0, index-1, doBoundsChecking));
+	}
+	// Central difference.
+	else {
+
+		return ((double)inputSource_->value(index+1, doBoundsChecking)-
+				(double)inputSource_->value(index-1, doBoundsChecking))/
+				(2*((double)inputSource_->axisValue(0, index+1, doBoundsChecking)-
+				 (double)inputSource_->axisValue(0, index-1, doBoundsChecking)));
 	}
 }
 
@@ -144,7 +247,8 @@ void AM1DDerivativeAB::onInputSourceStateChanged() {
 }
 
 void AM1DDerivativeAB::reviewState(){
-	if(inputSource_ == 0 || !inputSource_->isValid()) {
+
+	if(!canAnalyze_ || inputSource_ == 0 || !inputSource_->isValid()) {
 		setState(AMDataSource::InvalidFlag);
 		return;
 	}
@@ -152,7 +256,10 @@ void AM1DDerivativeAB::reviewState(){
 		setState(0);
 }
 
-
+QWidget *AM1DDerivativeAB::createEditorWidget()
+{
+	 return new AM1DBasicDerivativeABEditor(this);
+}
 
 bool AM1DDerivativeAB::loadFromDb(AMDatabase *db, int id) {
 	bool success = AMDbObject::loadFromDb(db, id);

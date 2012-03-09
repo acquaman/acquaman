@@ -39,7 +39,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	QWidget(parent)
 {
-
 	db_ = database;
 	runId_ = experimentId_ = -1;
 	scansTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMScan>();
@@ -374,7 +373,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No runs found.");
+					sections_ << new AMDataViewEmptyHeader("No runs found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for runs. The database might be corrupted."));
@@ -413,7 +412,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No experiments found.");
+					sections_ << new AMDataViewEmptyHeader("No experiments found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for experiments. The database might be corrupted."));
@@ -450,7 +449,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No data types found.");
+					sections_ << new AMDataViewEmptyHeader("No data types found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for scan types. The database might be corrupted."));
@@ -490,7 +489,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No samples found.");
+					sections_ << new AMDataViewEmptyHeader("No samples found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for samples. The database might be corrupted."));
@@ -530,7 +529,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No elements found.");
+					sections_ << new AMDataViewEmptyHeader("No elements found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for elements in samples. The database might be corrupted."));
@@ -609,7 +608,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No experiments found.");
+					sections_ << new AMDataViewEmptyHeader("No experiments found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for experiments. The database might be corrupted."));
@@ -647,7 +646,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No data types found.");
+					sections_ << new AMDataViewEmptyHeader("No data types found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for scan types. The database might be corrupted."));
@@ -688,7 +687,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No samples found.");
+					sections_ << new AMDataViewEmptyHeader("No samples found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for samples. The database might be corrupted."));
@@ -729,7 +728,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No elements found.");
+					sections_ << new AMDataViewEmptyHeader("No elements found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for elements in samples. The database might be corrupted."));
@@ -744,7 +743,7 @@ void AMDataView::refreshView() {
 
 
 
-
+	// Showing a specific experiment
 	if(!runOrExp_ && experimentId_ >= 0) {
 
 		// get experiment name:
@@ -790,8 +789,8 @@ void AMDataView::refreshView() {
 				QVector<QDateTime> runDateTimes;
 				while(findRuns.next()) {
 					runIds << findRuns.value(0).toInt();
-					runNames << findRuns.value(2).toString();
-					runDateTimes << findRuns.value(1).toDateTime();
+					runNames << findRuns.value(1).toString();
+					runDateTimes << findRuns.value(2).toDateTime();
 				}
 				findRuns.finish();	// to avoid long db locks, let's finish this query before doing all the section queries
 				for(int i=0, cc=runIds.count(); i<cc; i++) {
@@ -803,14 +802,14 @@ void AMDataView::refreshView() {
 					AMDataViewSection* section = new AMDataViewSection(
 								fullRunName,
 								QString("Showing all data from this run in the <i>%1</i> experiment").arg(expName),
-								QString("runId = '%1' AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2');").arg(runId).arg(experimentId_),
+								QString("runId = '%1' AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2')").arg(runId).arg(experimentId_),
 								viewMode_, db_, true, gwidget_, effectiveWidth(), itemSize_);
 					connect(gview_->verticalScrollBar(), SIGNAL(valueChanged(int)), section, SLOT(layoutHeaderItem()));
 
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No runs found.");
+					sections_ << new AMDataViewEmptyHeader("No runs found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for runs. The database might be corrupted."));
@@ -827,7 +826,7 @@ void AMDataView::refreshView() {
 			findTypes.setForwardOnly(true);
 			findTypes.prepare(QString("SELECT AMDbObjectTypes_table.AMDbObjectType, AMDbObjectTypes_table.description, AMScan_table.AMDbObjectType, AMScan_table.id, ObjectExperimentEntries.objectId, ObjectExperimentEntries.experimentId "
 									  "FROM AMDbObjectTypes_table, AMScan_table, ObjectExperimentEntries "
-									  "WHERE ObjectExperimentEntries.experimentId = ? AND ObjectExperimentEntries.objectId = AMScan_table.id AND AMDbObjectTypes_table.AMDbObjectType = AMScan_table.AMDbObjectType;"));
+									  "WHERE ObjectExperimentEntries.experimentId = ? AND ObjectExperimentEntries.objectId = AMScan_table.id AND AMDbObjectTypes_table.AMDbObjectType = AMScan_table.AMDbObjectType"));
 			findTypes.bindValue(0, experimentId_);
 			if(findTypes.exec()) {
 				QVector<QString> classNames;
@@ -851,7 +850,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No data types found.");
+					sections_ << new AMDataViewEmptyHeader("No data types found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for scan types. The database might be corrupted."));
@@ -866,7 +865,7 @@ void AMDataView::refreshView() {
 			bool found = false;
 			QSqlQuery findSamples = db_->query();
 			findSamples.setForwardOnly(true);
-			findSamples.prepare("SELECT id,dateTime,name FROM AMSample_table WHERE id IN (SELECT sampleId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?));");	/// \todo add thumbnail icon!
+			findSamples.prepare("SELECT id,dateTime,name FROM AMSample_table WHERE id IN (SELECT sampleId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?))");	/// \todo add thumbnail icon!
 			findSamples.bindValue(0, experimentId_);
 			if(findSamples.exec()) {
 				QVector<int> sampleIds;
@@ -893,7 +892,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No samples found.");
+					sections_ << new AMDataViewEmptyHeader("No samples found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for samples. The database might be corrupted."));
@@ -907,7 +906,7 @@ void AMDataView::refreshView() {
 			bool found = false;
 			QSqlQuery findElements = db_->query();
 			findElements.setForwardOnly(true);
-			findElements.prepare("SELECT id,symbol,name FROM Elements WHERE id IN (SELECT elementId FROM SampleElementEntries WHERE sampleId IN (SELECT sampleId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?)));");
+			findElements.prepare("SELECT id,symbol,name FROM Elements WHERE id IN (SELECT elementId FROM SampleElementEntries WHERE sampleId IN (SELECT sampleId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?)))");
 			findElements.bindValue(0, experimentId_);
 			if(findElements.exec()) {
 				QVector<int> elementIds;
@@ -934,7 +933,7 @@ void AMDataView::refreshView() {
 					sections_ << section;
 				}
 				if(!found)
-					sections_ << new AMDataViewEmptyHeader("No elements found.");
+					sections_ << new AMDataViewEmptyHeader("No elements found.", effectiveWidth());
 			}
 			else {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for elements in samples. The database might be corrupted."));
@@ -1614,7 +1613,6 @@ void AMDataView::startDragWithSelectedItems(const QPixmap& optionalPixmap)
 	drag->exec(Qt::CopyAction); // todo: also offer move action if dropping onto runs
 }
 
-#include <QDebug>
 #include <QMenu>
 #include <QAction>
 #include <QMessageBox>
@@ -1622,7 +1620,7 @@ void AMDataView::startDragWithSelectedItems(const QPixmap& optionalPixmap)
 void AMDataView::onCustomContextMenuRequested(QPoint pos)
 {
 	QMenu popup(this);
-	int numSelectedItems = gscene_->selectedItems().size();
+	int numSelectedItems = numberOfSelectedItems();
 
 	QAction *temp = popup.addAction("Edit");
 	if (numSelectedItems == 0)
@@ -1693,21 +1691,75 @@ void AMDataView::onViewClicked(const QPoint &clickPos)
 	if(mods & Qt::ShiftModifier) {
 		// shift-selection: select all items in the rectangle containing the existing selected items and the clicked item.
 		if(item && (item->flags() & QGraphicsItem::ItemIsSelectable)) {
-			QRectF newSelectionRect = item->mapRectToScene(item->boundingRect());
+
 			QList<QGraphicsItem*> selectedItems = gscene_->selectedItems();
 			bool otherItems = false;
-			for(int i=0; i<selectedItems.count(); i++) {
+
+			for(int i=0; i < selectedItems.count(); i++) {
+
 				QGraphicsItem* otherItem = selectedItems.at(i);
-				if(otherItem != item) {
+
+				if(otherItem != item)
 					otherItems = true;
-					newSelectionRect |= otherItem->mapRectToScene(otherItem->boundingRect());
+			}
+
+			if (otherItems){
+
+				QList<QGraphicsItem *> items = gscene_->items();
+				int clickedItemIndex = items.indexOf(item);
+				int startIndex = 0;
+				int endIndex = 0;
+				int indexOfSelectedItem = 0;
+				int firstSelectedIndex = items.indexOf(selectedItems.first());
+				int lastSelectedIndex = items.indexOf(selectedItems.first());
+
+				for (int i = 0; i < selectedItems.size(); i++){
+
+					indexOfSelectedItem = items.indexOf(selectedItems.at(i));
+
+					if (firstSelectedIndex > indexOfSelectedItem)
+						firstSelectedIndex = indexOfSelectedItem;
+
+					if (lastSelectedIndex < indexOfSelectedItem)
+						lastSelectedIndex = indexOfSelectedItem;
 				}
+
+				// If the clicked item is before any selected items.  Highlight all in between.
+				if (clickedItemIndex < firstSelectedIndex){
+
+					startIndex = clickedItemIndex;
+					endIndex = firstSelectedIndex;
+				}
+
+				// If the clicked item is after all other selected items.  Highlight all in between.
+				else if (clickedItemIndex > lastSelectedIndex){
+
+					startIndex = lastSelectedIndex;
+					endIndex = clickedItemIndex + 1;	// Adding 1 to include the clicked item as well.
+				}
+
+				// If the clicked item falls between two selected items, select all of the items between the clicked item and the previous (lower index) item.
+				else {
+
+					int tempIndex = 0;
+
+					for (int i = 0; i < selectedItems.size(); i++){
+
+						indexOfSelectedItem = items.indexOf(selectedItems.at(i));
+
+						if ((indexOfSelectedItem < clickedItemIndex) && (tempIndex < indexOfSelectedItem))
+							tempIndex = indexOfSelectedItem;
+					}
+
+					startIndex = tempIndex;
+					endIndex = clickedItemIndex + 1;	// Adding 1 to include the clicked item as well.
+				}
+
+				// Select all items from the start to the end.
+				for (int i = startIndex; i < endIndex; i++)
+					items.at(i)->setSelected(true);
 			}
-			if(otherItems) {
-				selectionArea_ = QPainterPath();
-				selectionArea_.addRect(newSelectionRect);
-				gscene_->setSelectionArea(selectionArea_);
-			}
+
 			else {
 				// no selected items. Just select this item.
 				item->setSelected(true);
@@ -1731,13 +1783,26 @@ void AMDataView::onViewClicked(const QPoint &clickPos)
 	}
 }
 
+#include <QGraphicsSceneMouseEvent>
 bool AMDataView::eventFilter(QObject* object, QEvent* event)
 {
+	// for now, this filter only applies when we are in thumbnail view mode.
 	if(object == gscene_ && viewMode_ == AMDataViews::ThumbnailView) {
 		if(event->type() == QEvent::GraphicsSceneMouseDoubleClick
 				|| event->type() == QEvent::GraphicsSceneMousePress
-				|| event->type() == QEvent::GraphicsSceneMouseRelease)
+				|| event->type() == QEvent::GraphicsSceneMouseRelease) {
+
+			// We need to filter the clicks to prevent the scene from messing with our selection system.
+				// Exception: However, if this is a click on the header bar widget, we need to allow that to go through (for ex: for collapsing/expanding sections)
+			QGraphicsSceneMouseEvent* mouseEvent = static_cast<QGraphicsSceneMouseEvent*>(event);
+			QGraphicsItem* item = gscene_->itemAt(mouseEvent->buttonDownScenePos(mouseEvent->button()));
+			if(qgraphicsitem_cast<QGraphicsProxyWidget*>(item))
+				return false;	// need to let the proxy widget receive this event. (This only works while we're using that proxy widget for the header bars in AMDataViewSection).
+
+			// Note: If we end up adding a lot more exceptions here, we might need to take a second look at how this is designed.
+
 			return true;
+		}
 	}
 
 	return false;

@@ -51,6 +51,8 @@ signals:
 	void experimentReady(bool);
 	/// Notifier that the experiment type has been changed.
 	void experimentTypeChanged(VESPERSExperimentConfiguration::ExperimentType);
+	/// Notifier that the beam has gone down.  When the POE status enable goes from true to false this notifies the beamline that the beam has dumped.
+	void beamDumped();
 	/// Notifier that the POE status has changed.  Passes the new state.
 	void POEStatusChanged(bool);
 	/// Notifier that the fast shutter status has changed.  Passes the new state.
@@ -90,6 +92,8 @@ protected slots:
 	void onPOEEnableChanged(double val) { usePOEStatus((int)val == 0 ? true : false); }
 	/// Handles the synchronized dwell time configuration at startup.
 	void onSynchronizedDwellTimeStartup(bool connected);
+	/// Determines whether the beam has dumped or not.
+	void onPOEStatusChanged(double state);
 
 protected:
 	/// The pointer to the dwell time.

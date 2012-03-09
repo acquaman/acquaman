@@ -35,6 +35,7 @@ class AMRunSelector;
 class AMSampleEditor;
 class AMDataSourcesEditor;
 class AMChooseScanDialog;
+class AMControlInfoListTableView;
 
 class AMGenericScanEditor : public QWidget
 {
@@ -43,7 +44,7 @@ public:
 	enum ShouldStopAcquiringScanChoice{
 		ShouldStopNo =		0,
 		ShouldStopYes =		1,
-		ShouldStopForeQuit =	2
+		ShouldStopForceQuit =	2
 	};
 
 	/// Construct an empty editor:
@@ -157,6 +158,9 @@ protected:
 
 	/// Data sources editor:
 	AMDataSourcesEditor* dataSourcesEditor_;
+
+	/// View of the scans' scanInitialConditions()
+	AMControlInfoListTableView* conditionsTableView_;
 
 	/// Plot view capable of holding multiple scans.
 	AMScanView* scanView_;

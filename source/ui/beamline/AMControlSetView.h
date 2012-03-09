@@ -90,7 +90,7 @@ public slots:
 	void setDisabled(bool disabled);
 
 protected slots:
-	void onControlSetValuesChanged(AMControlInfoList infoList);
+	void onControlSetValuesChanged();
 	void onConfigurationValueChanged();
 
 protected:

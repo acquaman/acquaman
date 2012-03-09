@@ -24,14 +24,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMUser.h"
 
 #include "dataman/REIXS/REIXSXESCalibration.h"
-#include "actions/AMBeamlineControlMoveAction.h"
+#include "actions2/actions/AMInternalControlMoveAction.h"
 #include "util/AMSettings.h"
+
+#include "analysis/AM2DSummingAB.h"
 
 REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* configuration, QObject *parent) :
 	AMScanController(configuration, parent)
 {
 	config_ = configuration;
-	initialMoveAction_ = new AMBeamlineControlMoveAction(REIXSBeamline::bl()->spectrometer(), this);
+	initialMoveAction_ = new AMInternalControlMoveAction(REIXSBeamline::bl()->spectrometer(), 0, this);
 
 	/////////////////////////
 
@@ -57,8 +59,15 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 	configuredDetector.name = "xesImage";	// necessary for file loader/saver.
 
 	scan_->rawData()->addMeasurement(configuredDetector);
-	scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), 0));
+	AMRawDataSource* imageDataSource = new AMRawDataSource(scan_->rawData(), 0);
+	scan_->addRawDataSource(imageDataSource);
 
+	AM2DSummingAB* xesSpectrum = new AM2DSummingAB("xesSpectrum");
+	xesSpectrum->setInputDataSources(QList<AMDataSource*>() << imageDataSource);
+	xesSpectrum->setSumAxis(1);
+	xesSpectrum->setSumRangeMax(45);
+	xesSpectrum->setSumRangeMin(15);
+	scan_->addAnalyzedDataSource(xesSpectrum);
 }
 
 
@@ -66,13 +75,18 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 /// Called before starting to satisfy any prerequisites (ie: setting up the beamline, setting up files, etc.)
 bool REIXSXESScanController::initializeImplementation() {
 
+	// Is the detector connected?
+	if(!REIXSBeamline::bl()->mcpDetector()->canRead() || !REIXSBeamline::bl()->mcpDetector()->canConfigure()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 17, "Could not connect to the MCP detector before starting an XES scan. Please report this problem to the beamline staff."));
+		return false;
+	}
 
 
 	// configure and clear the MCP detector.
 	/// \todo We should really configure the detector even if we're not supposed to clear it, but right now setting the orientation clears the accumulated counts.  We'll be removing that orientation setting soon, since we no longer use it. Therefore, we should be OK to skip this if we're not supposed to clear.
 	if(!config_->doNotClearExistingCounts()) {
 		if( !REIXSBeamline::bl()->mcpDetector()->setFromInfo(*(config_->mcpDetectorInfo())) ) {
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 3, "Could not connect to and configure the MCP detector before starting XES scan."));
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 3, "Could not connect to and configure the MCP detector before starting an XES scan. Please report this problem to the beamline staff."));
 			return false;
 		}
 	}
@@ -109,10 +123,10 @@ bool REIXSXESScanController::initializeImplementation() {
 		}
 
 		connect(initialMoveAction_, SIGNAL(succeeded()), this, SLOT(onInitialSetupMoveSucceeded()));
-		connect(initialMoveAction_, SIGNAL(failed(int)), this, SLOT(onInitialSetupMoveFailed()));
+		connect(initialMoveAction_, SIGNAL(failed()), this, SLOT(onInitialSetupMoveFailed()));
 		initialMoveAction_->start();
 
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Information, 0, "Moving spectrometer into position before starting the scan..."));
+		// AMErrorMon::report(AMErrorReport(this, AMErrorReport::Information, 0, "Moving spectrometer into position before starting the scan..."));
 		return true;
 	}
 }
@@ -125,8 +139,8 @@ void REIXSXESScanController::onInitialSetupMoveFailed() {
 }
 
 void REIXSXESScanController::onInitialSetupMoveSucceeded() {
-	// remember the positions of the spectrometer
-	*(scan_->scanInitialConditions()) = REIXSBeamline::bl()->spectrometerPositionSet()->toInfoList();
+	// remember the state of the beamline at the beginning of the scan.
+	scan_->scanInitialConditions()->setValuesFrom(REIXSBeamline::bl()->allControlsSet()->toInfoList());
 
 	disconnect(initialMoveAction_, 0, this, 0);
 

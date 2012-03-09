@@ -39,7 +39,7 @@ class QPushButton;
 
 // TODO: finish this for numeric controls only... and then generalize this and Control to: Numeric, Item, String.
 
-// Helper class: the dialog box to get new setpoints:
+/// This helper class for AMBasicControlEditor provides a dialog box to get new setpoints. You should never need to use it directly.
 class AMBasicControlEditorStyledInputDialog : public QDialog {
 	Q_OBJECT
 public:
@@ -69,27 +69,37 @@ protected slots:
 };
 
 
+/// This widget can be used to view the feedback position and move the setpoint of any AMControl, in a compact space-efficient way.  Normally, the control's value(), units(), and isMoving() status are shown. When a user clicks on the widget, a popup dialog is opened under their mouse; they can enter a new setpoint and hit enter to move the control.
 class AMBasicControlEditor : public QFrame
 {
 Q_OBJECT
 public:
-	explicit AMBasicControlEditor(AMControl *control, QWidget *parent = 0);
+	/// Constructor: requires a pointer to the \c control to show, or 0.
+	AMBasicControlEditor(AMControl *control, QWidget *parent = 0);
 
 signals:
-	void moveRequested(double);
+	/// Emitted when the widget is clicked to bring up the setpoint editor dialog.
 	void clicked();
 
 public slots:
 
 protected slots:
-	void setHappy(bool happy = true);
-	void setUnhappy() { setHappy(false); }
+	/// Called to color the dialog to indicate the control is connected and can be moved.
+	void setValidState(bool isValid = true);
+	/// Called to color the dialog to indicate the control is disconnected.
+	void setInvalidState() { setValidState(false); }
 
+	/// Called when the control's value changes; updates the valueLabel_.
 	void onValueChanged(double newVal);
+	/// Called when the control's units change; updates the unitsLabel_.
 	void onUnitsChanged(const QString& units);
+	/// Called when the control's isMoving() state changes.
 	void onMotion(bool moving);
 
+	/// Called to bring up the setpoint editor dialog.
 	void onEditStart();
+	/// Called when the setpoint editor dialog is accepted with a new \c value. The default implementation simply calls move() on the control.  You can re-implement this in a subclass if you want to have different behaviour (for ex: using an AMAction to do the move, etc.)
+	virtual void onNewSetpointChosen(double value);
 
 protected:
 	AMControl *control_;
@@ -97,6 +107,7 @@ protected:
 	QLabel *unitsLabel_;
 	AMBasicControlEditorStyledInputDialog* dialog_;
 
+	/// Re-implemented to emit clicked() when clicked anywhere. (Normally, QFrames don't act like buttons.)
 	void mouseReleaseEvent ( QMouseEvent *event );
 
 };
