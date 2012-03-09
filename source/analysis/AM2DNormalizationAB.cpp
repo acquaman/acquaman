@@ -199,6 +199,10 @@ AMNumber AM2DNormalizationAB::value(const AMnDIndex &indexes, bool doBoundsCheck
 				&& (unsigned)indexes.j() >= (unsigned)axes_.at(1).size)
 			return AMNumber(AMNumber::OutOfBoundsError);
 
+	// Can't divide by zero.
+	if (double(normalizer_->value(indexes)) == 0)
+		return 0;
+
 	return double(data_->value(indexes))/double(normalizer_->value(indexes));
 }
 
