@@ -60,13 +60,18 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::SingleElement){
 
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF1E();
+		QString edge = config_->edge();
+
+		// If this is an L edge, chop out the number for comparison purposes.
+		if (edge.contains(QRegExp("L\\d$")))
+			edge.chop(1);
 
 		// This is safe and okay because I always have the regions of interest set taking up 0-X where X is the count-1 of the number of regions of interest.
 		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
 			scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
 
-			if (detector->roiInfoList()->at(i).name().contains(config_->edge()))
+			if (detector->roiInfoList()->at(i).name().contains(edge))
 				scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
 
 			else
@@ -84,13 +89,18 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	else if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::FourElement){
 
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF4E();
+		QString edge = config_->edge();
+
+		// If this is an L edge, chop out the number for comparison purposes.
+		if (edge.contains(QRegExp("L\\d$")))
+			edge.chop(1);
 
 		// This is safe and okay because I always have the regions of interest set taking up 0-X where X is the count-1 of the number of regions of interest.
 		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
 			scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
 
-			if (detector->roiInfoList()->at(i).name().contains(config_->edge()))
+			if (detector->roiInfoList()->at(i).name().contains(edge))
 				scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
 
 			else
