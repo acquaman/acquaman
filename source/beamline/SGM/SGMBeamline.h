@@ -171,6 +171,7 @@ public:
 	AMDetector* filterPD3ScalarDetector() const { return filterPD3ScalarDetector_;}
 	AMDetector* filterPD4ScalarDetector() const { return filterPD4ScalarDetector_;}
 	AMDetector* amptekSDD1() const { return amptekSDD1_;}
+	AMDetector* amptekSDD2() const { return amptekSDD2_;}
 
 	bool detectorValidForCurrentSignalSource(AMDetector *detector);
 	bool detectorValidForCurrentSignalSource(AMDetectorInfo *detectorInfo);
@@ -396,6 +397,7 @@ protected:
 	AMDetector *filterPD3ScalarDetector_;
 	AMDetector *filterPD4ScalarDetector_;
 	AMDetector* amptekSDD1_;
+	AMDetector* amptekSDD2_;
 
 	AMControlSet *criticalControlsSet_;
 	AMControlSet *beamOnControlSet_;

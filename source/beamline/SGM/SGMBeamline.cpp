@@ -61,6 +61,7 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("pgtBase", "MCA1611-01");
 	amNames2pvNames_.set("pgtHV", "MCA1611-01:Bias:Volt");
 	amNames2pvNames_.set("amptekSDD1", "amptek:sdd1");
+	amNames2pvNames_.set("amptekSDD2", "amptek:sdd2");
 	amNames2pvNames_.set("loadlockCCG", "CCG1611-4-I10-09:vac:p");
 	amNames2pvNames_.set("loadlockTCG", "TCGC1611-426:pressure:fbk");
 
@@ -580,6 +581,16 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	connect(filterPD4ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 
 	amptekSDD1_ = new CLSAmptekSDD123Detector("AmptekSDD1", "amptek:sdd1", this);
+	detectorMap_->insert(amptekSDD1_, qMakePair(allDetectors(), false));
+	detectorMap_->insert(amptekSDD1_, qMakePair(XASDetectors(), false));
+	connect(amptekSDD1_->signalSource(), SIGNAL(connected(bool)), this, SIGNAL(controlSetConnectionsChanged()));
+	connect(amptekSDD1_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
+
+	amptekSDD2_ = new CLSAmptekSDD123Detector("AmptekSDD2", "amptek:sdd2", this);
+	detectorMap_->insert(amptekSDD2_, qMakePair(allDetectors(), false));
+	detectorMap_->insert(amptekSDD2_, qMakePair(XASDetectors(), false));
+	connect(amptekSDD2_->signalSource(), SIGNAL(connected(bool)), this, SIGNAL(controlSetConnectionsChanged()));
+	connect(amptekSDD2_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 
 	fluxOptimization_ = new SGMFluxOptimization(this);
 	fluxOptimization_->setDescription("Flux");

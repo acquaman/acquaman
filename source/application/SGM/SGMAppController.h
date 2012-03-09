@@ -63,6 +63,7 @@ protected slots:
 	void onSGMBeamlineConnected();
 	void onSGMScalerConnected(bool connected);
 	void onSGMAmptekSDD1Connected(bool connected);
+	void onSGMAmptekSDD2Connected(bool connected);
 
 	/// \todo comment this, David...
 	void onCurrentScanControllerCreated();
@@ -82,6 +83,7 @@ protected:
 	AMSampleManagementWidget *samplePositionView_;
 	CLSSIS3820ScalerView *sgmScalerView_;
 	AMDetectorView *amptekSDD1View_;
+	AMDetectorView *amptekSDD2View_;
 	SGMXASScanConfigurationView *xasScanConfigurationView_;
 	SGMFastScanConfigurationView *fastScanConfigurationView_;
 	AMScanConfigurationViewHolder *xasScanConfigurationHolder_;

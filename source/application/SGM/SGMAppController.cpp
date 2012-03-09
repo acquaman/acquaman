@@ -179,6 +179,9 @@ bool SGMAppController::startup() {
 
 		amptekSDD1View_ = 0;
 		connect(SGMBeamline::sgm()->amptekSDD1()->signalSource(), SIGNAL(connected(bool)), this, SLOT(onSGMAmptekSDD1Connected(bool)));
+		amptekSDD2View_ = 0;
+		connect(SGMBeamline::sgm()->amptekSDD2()->signalSource(), SIGNAL(connected(bool)), this, SLOT(onSGMAmptekSDD2Connected(bool)));
+
 
 		mw_->insertHeading("Experiment Setup", 1);
 		//////////
@@ -276,7 +279,14 @@ void SGMAppController::onSGMScalerConnected(bool connected){
 void SGMAppController::onSGMAmptekSDD1Connected(bool connected){
 	if(connected && ! amptekSDD1View_){
 		amptekSDD1View_ = AMDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->amptekSDD1());
-		mw_->addPane(amptekSDD1View_, "Beamline Control", "SGM SDD", ":/system-software-update.png");
+		mw_->addPane(amptekSDD1View_, "Beamline Control", "SGM Amptek1", ":/system-software-update.png");
+	}
+}
+
+void SGMAppController::onSGMAmptekSDD2Connected(bool connected){
+	if(connected && ! amptekSDD2View_){
+		amptekSDD2View_ = AMDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->amptekSDD2());
+		mw_->addPane(amptekSDD2View_, "Beamline Control", "SGM Amptek2", ":/system-software-update.png");
 	}
 }
 
