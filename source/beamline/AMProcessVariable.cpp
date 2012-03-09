@@ -38,11 +38,9 @@ AMProcessVariableSupport::AMProcessVariableSupport() : QObject() {
 
 	connect(&flushIOCaller_, SIGNAL(executed()), this, SLOT(executeFlushIO()));
 
-	qWarning("Starting up channel access...");
+	qWarning("AMProcessVariableSupport: Starting up channel access...");
 
-	// Trying this, might work, might not. Trying to avoid conversion compiler warning (David Chevrier, Aug 25 2011)
-	//putenv(QString("EPICS_CA_MAX_ARRAY_BYTES=%1").arg(AMPROCESSVARIABLE_MAX_CA_ARRAY_BYTES).toAscii().data());
-	// Trying this, should work. Seems like setenv is better than putenv for this purpose (David Chevrier, Aug 29, 2011)
+
 	setenv(QString("EPICS_CA_MAX_ARRAY_BYTES").toAscii().data(), QString("%1").arg(AMPROCESSVARIABLE_MAX_CA_ARRAY_BYTES).toAscii().data(), 1);
 
 	int lastError = ca_context_create(ca_enable_preemptive_callback);
@@ -57,8 +55,8 @@ AMProcessVariableSupport::AMProcessVariableSupport() : QObject() {
 
 }
 
-// standard singleton-pattern getInstance() method.
-AMProcessVariableSupport* AMProcessVariableSupport::getInstance() {
+// standard singleton-pattern get-instance method.
+AMProcessVariableSupport* AMProcessVariableSupport::s() {
 
 	if (instance_ == 0)  { // is it the first call?
 		instance_ = new AMProcessVariableSupport(); // create sole instance
@@ -71,12 +69,12 @@ AMProcessVariableSupport* AMProcessVariableSupport::getInstance() {
 void AMProcessVariableSupport::removePVImplementation(chid c) {
 
 	// unregister this channel:
-	map_.remove(qint64(c));
+	chid2Private_.remove(qint64(c));
 
 	// if that was the last one out, tear down Channel Access:
-	if(map_.count() == 0) {
+	if(chid2Private_.count() == 0) {
 
-		qWarning("Shutting down channel access...");
+		qWarning("AMProcessVariableSupport: Shutting down channel access...");
 		// removed: killTimer(timerId_);			// stop the ca_poll() timer.
 		ca_add_exception_event(0, 0);	// return the default exception handler
 		ca_context_destroy();			// shut down Channel Access
@@ -85,12 +83,25 @@ void AMProcessVariableSupport::removePVImplementation(chid c) {
 	}
 }
 
+AMProcessVariablePrivate* AMProcessVariableSupport::getPrivateForPVNameImplementation(const QString &pvName)
+{
+	QHash<QString, AMProcessVariablePrivate*>::const_iterator i = pvName2Private_.find(pvName);
+	if(i != pvName2Private_.constEnd())
+		return i.value();	// have one already!
+
+	AMProcessVariablePrivate* d = new AMProcessVariablePrivate(pvName);
+	pvName2Private_.insert(pvName, d);
+	return d;
+
+}
+
+
 void AMProcessVariableSupport::PVExceptionCB(struct exception_handler_args args) {
 
 	// If there's a specific channel, pass it on to the channel's exception handler:
-	if(args.chid && getInstance()->map_.contains(qint64(args.chid)) ) {
+	if(args.chid && s()->chid2Private_.contains(qint64(args.chid)) ) {
 
-		getInstance()->map_.value(qint64(args.chid))->exceptionCB(args);
+		s()->chid2Private_.value(qint64(args.chid))->exceptionCB(args);
 
 	}
 
@@ -107,9 +118,10 @@ void AMProcessVariableSupport::PVExceptionCB(struct exception_handler_args args)
 
 
 
-AMProcessVariable::AMProcessVariable(const QString& pvName, bool autoMonitor, QObject* parent, int timeoutMs) : QObject(parent), shouldBeMonitoring_(autoMonitor) {
+AMProcessVariablePrivate::AMProcessVariablePrivate(const QString& pvName) : QObject() {
 
-	setObjectName("AMProcessVariable_" + pvName);
+	shouldBeMonitoring_ = false;
+	setObjectName("AMProcessVariablePrivate_" + pvName);
 
 	// connect signals and slots we use to pass data safely back from callback functions called in other threads:
 	connect(this, SIGNAL(internal_error(int)), this, SLOT(internal_onError(int)));
@@ -119,6 +131,7 @@ AMProcessVariable::AMProcessVariable(const QString& pvName, bool autoMonitor, QO
 	connect(this, SIGNAL(internal_integerValueChanged(AMProcessVariableIntVector)), this, SLOT(internal_onIntegerValueChanged(AMProcessVariableIntVector)));
 	connect(this, SIGNAL(internal_enumValueChanged(AMProcessVariableIntVector)), this, SLOT(internal_onEnumValueChanged(AMProcessVariableIntVector)));
 	connect(this, SIGNAL(internal_stringValueChanged(QStringList)), this,  SLOT(internal_onStringValueChanged(QStringList)));
+	connect(this, SIGNAL(internal_alarmChanged(int,int)), this, SLOT(internal_onAlarmChanged(int,int)));
 
 
 	// Install convenience signal generators: (these create the error(QString message) and connected() and disconnected() signals.
@@ -128,8 +141,9 @@ AMProcessVariable::AMProcessVariable(const QString& pvName, bool autoMonitor, QO
 	// This PV is not initialized yet:
 	initialized_ = false;
 	hasValues_ = false;
-	serverType_ = Unconnected;
-	ourType_ = Unconnected;
+	serverType_ = PVDataType::Unconnected;
+	ourType_ = PVDataType::Unconnected;
+	ourAlarmType_ = DBR_STS_DOUBLE;
 
 	lastReadReady_ = false;
 	lastWriteReady_ = false;
@@ -152,21 +166,23 @@ AMProcessVariable::AMProcessVariable(const QString& pvName, bool autoMonitor, QO
 	disablePutCallback_ = false;
 
 	chid_ = 0;
-	channelCreated_ = true;
+	evid_ = 0;
+	alarmEvid_ = 0;
 
+	alarmStatus_ = 0;
+	alarmSeverity_ = 0;
+
+	channelCreated_ = true;
 	try {
 
 		AMProcessVariableSupport::ensureChannelAccess();
 
-		// attempt to search/connect:
+		// attempt to search/connect to channel:
 		lastError_ = ca_create_channel (pvName.toAscii().constData(), PVConnectionChangedCBWrapper, this, CA_PRIORITY_DEFAULT, &chid_ );
 		if(lastError_ != ECA_NORMAL)
 			throw lastError_;
 
 		AMProcessVariableSupport::flushIO();
-
-		// This will notice if the search times out:
-		QTimer::singleShot(timeoutMs, this, SLOT(onConnectionTimeout()));
 
 		// register ourself to the support class:
 		AMProcessVariableSupport::registerPV(chid_, this);
@@ -174,19 +190,17 @@ AMProcessVariable::AMProcessVariable(const QString& pvName, bool autoMonitor, QO
 
 	catch(int s) {
 
-		qWarning() << QString("AMProcessVariable: Error initializing AMProcessVariable for process variable named '%1'. Reason: %2").arg(pvName).arg(ca_message(lastError_));
+		qWarning() << QString("AMProcessVariablePrivate: Error initializing AMProcessVariablePrivate for process variable named '%1'. Reason: %2").arg(pvName).arg(ca_message(lastError_));
 		channelCreated_ = false;
 		emit error(s);
 	}
 }
 
 
-AMProcessVariable::~AMProcessVariable() {
+AMProcessVariablePrivate::~AMProcessVariablePrivate() {
 
-	// qWarning() << QString("deleting AMProcessVariable %1.").arg(pvName());
+	// qWarning() << QString("deleting AMProcessVariablePrivate %1.").arg(pvName());
 
-	emit disconnected();
-	emit connected(false);
 
 	// This is unnecessary... called auto. by ca_clear_channel():
 	// ca_clear_subscription(evid_);
@@ -200,39 +214,94 @@ AMProcessVariable::~AMProcessVariable() {
 
 }
 
+void AMProcessVariablePrivate::attachProcessVariable(AMProcessVariable *pv)
+{
+	if(attachedProcessVariables_.contains(pv)) {
+		qWarning() << "AMProcessVariablePrivate: Attempted to attach an AMProcessVariable that is already attached.";
+		return;
+	}
+
+	attachedProcessVariables_ << pv;
+
+	// Forward all signals:
+	connect(this, SIGNAL(connected(bool)), pv, SIGNAL(connected(bool)));
+	connect(this, SIGNAL(connected()), pv, SIGNAL(connected()));
+	connect(this, SIGNAL(disconnected()), pv, SIGNAL(disconnected()));
+	connect(this, SIGNAL(connectionStateChanged(int)), pv, SIGNAL(connectionStateChanged(int)));
+	connect(this, SIGNAL(initialized()), pv, SIGNAL(initialized()));
+	connect(this, SIGNAL(hasValuesChanged(bool)), pv, SIGNAL(hasValuesChanged(bool)));
+
+	connect(this, SIGNAL(readReadyChanged(bool)), pv, SIGNAL(readReadyChanged(bool)));
+	connect(this, SIGNAL(writeReadyChanged(bool)), pv, SIGNAL(writeReadyChanged(bool)));
+
+	connect(this, SIGNAL(alarmChanged(int,int)), pv, SIGNAL(alarmChanged(int,int)));
+
+	connect(this, SIGNAL(error(int)), pv, SIGNAL(error(int)));
+	connect(this, SIGNAL(error(QString)), pv, SIGNAL(error(QString)));
+
+	connect(this, SIGNAL(valueChanged()), pv, SIGNAL(valueChanged()));
+	connect(this, SIGNAL(valueChanged(int)), pv, SIGNAL(valueChanged(int)));
+	connect(this, SIGNAL(valueChanged(double)), pv, SIGNAL(valueChanged(double)));
+	connect(this, SIGNAL(valueChanged(QString)), pv, SIGNAL(valueChanged(QString)));
+
+	connect(this, SIGNAL(putRequestReturned(int)), pv, SIGNAL(putRequestReturned(int)));
+
+}
+
+void AMProcessVariablePrivate::detachProcessVariable(AMProcessVariable *pv)
+{
+	if(!attachedProcessVariables_.contains(pv)) {
+		qWarning() << "AMProcessVariablePrivate: Attempted to detach an AMProcessVariable that is not attached.";
+		return;
+	}
+
+	disconnect(this, 0, pv, 0);
+	attachedProcessVariables_.remove(pv);
+	if(attachedProcessVariables_.isEmpty())
+		delete this;	 // we can do this (carefully), since it is the last thing we do, and nothing will ever use us anymore.
+}
+
+
 // Wrapper functions to deliver the callbacks to the class instances:
 ////////////////////
-void AMProcessVariable::PVConnectionChangedCBWrapper(struct connection_handler_args connArgs) {
+void AMProcessVariablePrivate::PVConnectionChangedCBWrapper(struct connection_handler_args connArgs) {
 
 	// dig the instance pointer out of the puser field of the chid (inside connArgs)
-	AMProcessVariable* myPV = reinterpret_cast<AMProcessVariable*>( ca_puser(connArgs.chid) );
+	AMProcessVariablePrivate* myPV = reinterpret_cast<AMProcessVariablePrivate*>( ca_puser(connArgs.chid) );
 	if(myPV)
 		myPV->connectionChangedCB(connArgs);
 
 }
 
-void AMProcessVariable::PVValueChangedCBWrapper(struct event_handler_args eventArgs) {
+void AMProcessVariablePrivate::PVValueChangedCBWrapper(struct event_handler_args eventArgs) {
 
 	// dig the instance pointer out of the puser field of the chid (inside connArgs)
-	AMProcessVariable* myPV = reinterpret_cast<AMProcessVariable*>( ca_puser(eventArgs.chid) );
+	AMProcessVariablePrivate* myPV = reinterpret_cast<AMProcessVariablePrivate*>( ca_puser(eventArgs.chid) );
 	if(myPV)
 		myPV->valueChangedCB(eventArgs);
 
 }
 
-void AMProcessVariable::PVControlInfoCBWrapper(struct event_handler_args eventArgs) {
+void AMProcessVariablePrivate::PVAlarmChangedCBWrapper(event_handler_args eventArgs) {
+	// dig the instance pointer out of the puser field of the chid (inside connArgs)
+	AMProcessVariablePrivate* myPV = reinterpret_cast<AMProcessVariablePrivate*>( ca_puser(eventArgs.chid) );
+	if(myPV)
+		myPV->alarmChangedCB(eventArgs);
+}
+
+void AMProcessVariablePrivate::PVControlInfoCBWrapper(struct event_handler_args eventArgs) {
 
 	// dig the instance pointer out of the puser field of the chid (inside connArgs)
-	AMProcessVariable* myPV = reinterpret_cast<AMProcessVariable*>( ca_puser(eventArgs.chid) );
+	AMProcessVariablePrivate* myPV = reinterpret_cast<AMProcessVariablePrivate*>( ca_puser(eventArgs.chid) );
 	if(myPV)
 		myPV->controlInfoCB(eventArgs);
 
 }
 
-void AMProcessVariable::PVPutRequestCBWrapper(struct event_handler_args eventArgs) {
+void AMProcessVariablePrivate::PVPutRequestCBWrapper(struct event_handler_args eventArgs) {
 
 	// dig the instance pointer out of the puser field of the chid (inside connArgs)
-	AMProcessVariable* myPV = reinterpret_cast<AMProcessVariable*>( ca_puser(eventArgs.chid) );
+	AMProcessVariablePrivate* myPV = reinterpret_cast<AMProcessVariablePrivate*>( ca_puser(eventArgs.chid) );
 	if(myPV)
 		myPV->putRequestCB(eventArgs);
 
@@ -242,7 +311,7 @@ void AMProcessVariable::PVPutRequestCBWrapper(struct event_handler_args eventArg
 
 // Callbacks for events:
 /////////////////////
-void AMProcessVariable::exceptionCB(struct exception_handler_args args) {
+void AMProcessVariablePrivate::exceptionCB(struct exception_handler_args args) {
 
 
 
@@ -253,12 +322,12 @@ void AMProcessVariable::exceptionCB(struct exception_handler_args args) {
 
 }
 
-void AMProcessVariable::connectionChangedCB(struct connection_handler_args connArgs) {
+void AMProcessVariablePrivate::connectionChangedCB(struct connection_handler_args connArgs) {
 
 
 	int lastError;
 	chtype serverType;
-	PVDataType ourType;
+	PVDataType::Type ourType;
 
 	//
 	//  cs_ - `channel state'
@@ -277,28 +346,11 @@ void AMProcessVariable::connectionChangedCB(struct connection_handler_args connA
 		serverType = ca_field_type(chid_);
 
 		// We simplify all floating-point types to double, all integer types to long, and leave strings as strings and enums as enums:
-		ourType = serverType2ourType(serverType);
-
-		// Make sure we have room for storage. Integers and Enums held in data_int_internal_.  FloatingPoints in data_dbl_internal_. (NOTE: this storage is just a performance optimization, and only accessed by the callback functions within channel-access thread-space. It prevents these functions from having to allocate storage each time new values arrive. These arrays may be accessed from various channel-access threads at any point in time (although channel-access guarantees that no more than one premptive callback will be made simultaneously), and therefore should not be read or written from the main thread.
-		/*
-		switch(ourType) {
-		case Integer:
-		case Enum:
-			data_int_internal_.resize(ca_element_count(chid_));
-			break;
-		case FloatingPoint:
-			data_dbl_internal_.resize(ca_element_count(chid_));
-			break;
-		case String:
-			data_str_internal_.clear();
-			break;
-		case Unconnected:
-			break;// won't happen, but if it does, nothing required.
-		}*/
+		ourType = AMProcessVariable::serverType2ourType(serverType);
 
 		// Request some information about the PV (units, control limits, etc.).
 		// For enum types, we want the list of string names:
-		if(ourType == Enum) {
+		if(ourType == PVDataType::Enum) {
 			lastError = ca_get_callback(DBR_CTRL_ENUM, chid_, PVControlInfoCBWrapper, this);
 
 			if(lastError != ECA_NORMAL) {
@@ -307,14 +359,14 @@ void AMProcessVariable::connectionChangedCB(struct connection_handler_args connA
 			}
 		}
 		// otherwise, requesting control information as DBR_CTRL_DOUBLE because this gives the most information that could possibly be available (precision, limits, units)
-		else if (ourType == Integer || ourType == FloatingPoint){
+		else if (ourType == PVDataType::Integer || ourType == PVDataType::FloatingPoint){
 			lastError = ca_get_callback(DBR_CTRL_DOUBLE, chid_, PVControlInfoCBWrapper, this);
 			if(lastError != ECA_NORMAL) {
 				qWarning() << QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError));
 				emit internal_error(lastError);
 			}
 		}
-		else if(ourType == String){
+		else if(ourType == PVDataType::String){
 			lastError = ca_get_callback(DBR_CTRL_STRING, chid_, PVControlInfoCBWrapper, this);
 			if(lastError != ECA_NORMAL) {
 				qWarning() << QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError));
@@ -331,6 +383,14 @@ void AMProcessVariable::connectionChangedCB(struct connection_handler_args connA
 			emit internal_error(lastError);
 		}
 
+		// all connections will monitor the alarm status, even if they don't want to monitor the values
+		lastError = ca_create_subscription(AMProcessVariable::serverType2StatusType(serverType), 1, chid_, DBE_ALARM, PVAlarmChangedCBWrapper, this, &alarmEvid_);
+		if(lastError != ECA_NORMAL) {
+			qWarning() << QString("AMProcessVariable: Error while trying to subscribe to alarms: %1: %2").arg(pvName()).arg(ca_message(lastError));
+			emit internal_error(lastError);
+		}
+
+		// start monitoring values, if we're supposed to be.
 		if(shouldBeMonitoring_) {
 			lastError = ca_create_subscription(ourType, ca_element_count(chid_), chid_, DBE_VALUE | DBE_LOG | DBE_ALARM, PVValueChangedCBWrapper, this, &evid_ );
 			if(lastError != ECA_NORMAL) {
@@ -354,7 +414,7 @@ void AMProcessVariable::connectionChangedCB(struct connection_handler_args connA
 }
 
 
-void AMProcessVariable::controlInfoCB(struct event_handler_args eventArgs) {
+void AMProcessVariablePrivate::controlInfoCB(struct event_handler_args eventArgs) {
 
 
 	int lastError;
@@ -422,7 +482,7 @@ void AMProcessVariable::controlInfoCB(struct event_handler_args eventArgs) {
 //int             status; ECA_XXX status of the requested op from the server
 //
 
-void AMProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
+void AMProcessVariablePrivate::valueChangedCB(struct event_handler_args eventArgs) {
 
 
 	int lastError;
@@ -439,7 +499,7 @@ void AMProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
 	// Note: the onConnectionChanged handler should have got the vector sizes right before we get any of this data.
 	switch(eventArgs.type) {
 
-	case FloatingPoint: {
+	case PVDataType::FloatingPoint: {
 			AMProcessVariableDoubleVector rv(eventArgs.count);
 			for(int i=0; i<eventArgs.count; i++)
 				rv[i] = ((dbr_double_t*)eventArgs.dbr)[i];
@@ -448,7 +508,7 @@ void AMProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
 			break;
 		}
 
-	case Integer: {
+	case PVDataType::Integer: {
 			AMProcessVariableIntVector rv(eventArgs.count);
 			for(int i=0; i<eventArgs.count; i++)
 				rv[i] = ((dbr_long_t*)eventArgs.dbr)[i];
@@ -456,7 +516,7 @@ void AMProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
 			break;
 		}
 
-	case Enum: {
+	case PVDataType::Enum: {
 			AMProcessVariableIntVector rv(eventArgs.count);
 			for(int i=0; i<eventArgs.count; i++)
 				rv[i] = ((dbr_enum_t*)eventArgs.dbr)[i];
@@ -464,7 +524,7 @@ void AMProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
 			break;
 		}
 
-	case String: {
+	case PVDataType::String: {
 			QStringList rv;
 			for(int i=0; i<eventArgs.count; i++)
 				rv << QString( ((dbr_string_t*)eventArgs.dbr)[i] );
@@ -475,8 +535,50 @@ void AMProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
 }
 
 
+void AMProcessVariablePrivate::alarmChangedCB(struct event_handler_args eventArgs) {
 
-void AMProcessVariable::putRequestCB(struct event_handler_args eventArgs) {
+
+	int lastError;
+	if( (lastError = eventArgs.status) != ECA_NORMAL) {
+		qWarning() << QString("Error in alarm-changed callback: %1: %2").arg(pvName()).arg(ca_message(lastError));
+		emit internal_error(lastError);
+		return;
+	}
+
+	if(eventArgs.dbr == 0)
+		return;
+
+	// Handle this based on the type of information we're getting:
+	switch(eventArgs.type) {
+
+	case DBR_STS_DOUBLE: {
+			dbr_sts_double* dbr = (dbr_sts_double*)eventArgs.dbr;
+			emit internal_alarmChanged(dbr->status, dbr->severity);
+			break;
+		}
+
+	case DBR_STS_LONG: {
+			dbr_sts_long* dbr = (dbr_sts_long*)eventArgs.dbr;
+			emit internal_alarmChanged(dbr->status, dbr->severity);
+			break;
+		}
+
+	case DBR_STS_ENUM: {
+			dbr_sts_enum* dbr = (dbr_sts_enum*)eventArgs.dbr;
+			emit internal_alarmChanged(dbr->status, dbr->severity);
+			break;
+		}
+
+	case DBR_STS_STRING: {
+			dbr_sts_string* dbr = (dbr_sts_string*)eventArgs.dbr;
+			emit internal_alarmChanged(dbr->status, dbr->severity);
+			break;
+		}
+	}
+}
+
+
+void AMProcessVariablePrivate::putRequestCB(struct event_handler_args eventArgs) {
 
 	if(eventArgs.status != ECA_NORMAL) {
 
@@ -488,12 +590,13 @@ void AMProcessVariable::putRequestCB(struct event_handler_args eventArgs) {
 	emit putRequestReturned(eventArgs.status);
 }
 
-void AMProcessVariable::internal_onConnectionStateChanged(bool isConnected, int count, int serverType, int ourType) {
+void AMProcessVariablePrivate::internal_onConnectionStateChanged(bool isConnected, int count, int serverType, int ourType) {
 
 	if(isConnected) {
 		count_ = count;
 		serverType_ = serverType;
-		ourType_ = (PVDataType)ourType;
+		ourType_ = (PVDataType::Type)ourType;
+		ourAlarmType_ = AMProcessVariable::serverType2StatusType(serverType);
 	}
 
 	else {
@@ -507,7 +610,7 @@ void AMProcessVariable::internal_onConnectionStateChanged(bool isConnected, int 
 }
 
 
-void AMProcessVariable::internal_onControlInfoChanged(int controlInfoType, QString units, int precision, double upperGraphLimit, double lowerGraphLimit, double upperLimit, double lowerLimit, QStringList enumStrings) {
+void AMProcessVariablePrivate::internal_onControlInfoChanged(int controlInfoType, QString units, int precision, double upperGraphLimit, double lowerGraphLimit, double upperLimit, double lowerLimit, QStringList enumStrings) {
 
 	Q_UNUSED(controlInfoType)
 
@@ -547,7 +650,7 @@ void AMProcessVariable::internal_onControlInfoChanged(int controlInfoType, QStri
 	emit initialized();
 }
 
-void AMProcessVariable::internal_onFloatingPointValueChanged(AMProcessVariableDoubleVector doubleData) {
+void AMProcessVariablePrivate::internal_onFloatingPointValueChanged(AMProcessVariableDoubleVector doubleData) {
 	bool hasChanged = false;
 	if(!hasValues_)
 		hasChanged = true;
@@ -561,7 +664,7 @@ void AMProcessVariable::internal_onFloatingPointValueChanged(AMProcessVariableDo
 	emit valueChanged();
 }
 
-void AMProcessVariable::internal_onIntegerValueChanged(AMProcessVariableIntVector intData) {
+void AMProcessVariablePrivate::internal_onIntegerValueChanged(AMProcessVariableIntVector intData) {
 	bool hasChanged = false;
 	if(!hasValues_)
 		hasChanged = true;
@@ -574,7 +677,7 @@ void AMProcessVariable::internal_onIntegerValueChanged(AMProcessVariableIntVecto
 	emit valueChanged();
 }
 
-void AMProcessVariable::internal_onEnumValueChanged(AMProcessVariableIntVector enumData) {
+void AMProcessVariablePrivate::internal_onEnumValueChanged(AMProcessVariableIntVector enumData) {
 	bool hasChanged = false;
 	if(!hasValues_)
 		hasChanged = true;
@@ -597,7 +700,7 @@ void AMProcessVariable::internal_onEnumValueChanged(AMProcessVariableIntVector e
 }
 
 
-void AMProcessVariable::internal_onStringValueChanged(QStringList stringData) {
+void AMProcessVariablePrivate::internal_onStringValueChanged(QStringList stringData) {
 	bool hasChanged = false;
 	if(!hasValues_)
 		hasChanged = true;
@@ -609,30 +712,23 @@ void AMProcessVariable::internal_onStringValueChanged(QStringList stringData) {
 	emit valueChanged();
 }
 
-
-void AMProcessVariable::onConnectionTimeout() {
-
-
-
-	// If we haven't connected by now:
-	if(this->connectionState() != cs_conn) {
-		qWarning() << QString("AMProcessVariable: channel connect timed out for %1").arg(pvName());
-		emit connectionTimeout();
-	}
-
-	// Don't call ca_clear_channel here.  Channel access will keep on trying in the background. (Channel access handles this automatically for us.)  Will emit connected() signal when successful.
+void AMProcessVariablePrivate::internal_onAlarmChanged(int status, int severity) {
+	bool hasChanged = (status != alarmStatus_ || severity != alarmSeverity_);
+	alarmStatus_ = status;
+	alarmSeverity_ = severity;
+	if(hasChanged)
+		emit alarmChanged(alarmStatus_, alarmSeverity_);
 }
 
-void AMProcessVariable::checkReadWriteReady(){
+
+void AMProcessVariablePrivate::checkReadWriteReady(){
 	// We aren't readReady, but the only problem is ca_read_access failed
 	if(!readReady() && isConnected() && isInitialized() && hasValues()){
 		emit error(AMPROCESSVARIABLE_CANNOT_READ);
-		emit error("Lacking read access to PV");
 	}
 	// We aren't writeReady, but the only problem is ca_write_access failed
 	if(!writeReady() && readReady()){
 		emit error(AMPROCESSVARIABLE_CANNOT_WRITE);
-		emit error("Lacking write access to PV");
 	}
 	if(lastReadReady_ != readReady()){
 		lastReadReady_ = readReady();
@@ -645,7 +741,12 @@ void AMProcessVariable::checkReadWriteReady(){
 }
 
 
-bool AMProcessVariable::startMonitoring() {
+bool AMProcessVariablePrivate::startMonitoring() {
+
+	if(!channelCreated_ || !isConnected()) {
+		shouldBeMonitoring_ = true;	// Will start monitoring once we actually connect.
+		return true;
+	}
 
 	lastError_ = ca_create_subscription(ourType_, ca_element_count(chid_), chid_, DBE_VALUE | DBE_LOG | DBE_ALARM, PVValueChangedCBWrapper, this, &evid_ );
 	if(lastError_ != ECA_NORMAL) {
@@ -655,25 +756,27 @@ bool AMProcessVariable::startMonitoring() {
 	}
 
 	AMProcessVariableSupport::flushIO();
-
 	return true;
 }
 
-void AMProcessVariable::stopMonitoring() {
+void AMProcessVariablePrivate::stopMonitoring() {
+
+	shouldBeMonitoring_ = false;
+	if(!channelCreated_ || !isConnected()) {
+		return;
+	}
+
+	if(evid_ == 0) {
+		qWarning() << QString("AMProcessVariable: Cannot stop monitoring %1, because it hasn't started monitoring yet.").arg(pvName());
+		return;
+	}
 
 	ca_clear_subscription(evid_);
 	AMProcessVariableSupport::flushIO();
+	evid_ = 0;
 }
 
-bool AMProcessVariable::requestValue(int numberOfValues) {
-
-	//just for lastError_
-
-	// Not necessary. Connection status is checked by ca_array_get_callback:
-	//if(ca_state(chid_) != cs_conn) {
-	//	qWarning(QString("Error requesting value: channel not connected: %1").arg(pvName()));
-	//	return false;
-	//}
+bool AMProcessVariablePrivate::requestValue(int numberOfValues) {
 
 	lastError_ = ca_array_get_callback(ourType_, numberOfValues, chid_, PVValueChangedCBWrapper, this);
 	if(lastError_ != ECA_NORMAL) {
@@ -687,9 +790,7 @@ bool AMProcessVariable::requestValue(int numberOfValues) {
 	return true;
 }
 
-void AMProcessVariable::setValue(int value) {
-
-	//just for lastError_
+void AMProcessVariablePrivate::setValue(int value) {
 
 	dbr_long_t setpoint = value;
 
@@ -706,9 +807,7 @@ void AMProcessVariable::setValue(int value) {
 	AMProcessVariableSupport::flushIO();
 }
 
-void AMProcessVariable::setValues(dbr_long_t setpoints[], int num) {
-
-	//just for lastError_
+void AMProcessVariablePrivate::setValues(dbr_long_t setpoints[], int num) {
 
 	if (disablePutCallback_)
 		lastError_ = ca_array_put( DBR_LONG, num, chid_, setpoints );
@@ -723,9 +822,7 @@ void AMProcessVariable::setValues(dbr_long_t setpoints[], int num) {
 	AMProcessVariableSupport::flushIO();
 }
 
-void AMProcessVariable::setValue(double value) {
-
-	//just for lastError_
+void AMProcessVariablePrivate::setValue(double value) {
 
 	dbr_double_t setpoint = value;
 
@@ -735,16 +832,14 @@ void AMProcessVariable::setValue(double value) {
 		lastError_ = ca_put_callback( DBR_DOUBLE, chid_, &setpoint, PVPutRequestCBWrapper, this );
 
 	if(lastError_ != ECA_NORMAL) {
-		qWarning() << QString("Error while trying to put AMProcessVariable value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
+		qWarning() << QString("AMProcessVariable: Error while trying to put value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
 
 	AMProcessVariableSupport::flushIO();
 }
 
-void AMProcessVariable::setValues(dbr_double_t setpoints[], int num) {
-
-	//just for lastError_
+void AMProcessVariablePrivate::setValues(dbr_double_t setpoints[], int num) {
 
 	if (disablePutCallback_)
 		lastError_ = ca_array_put( DBR_DOUBLE, num, chid_, setpoints );
@@ -752,16 +847,14 @@ void AMProcessVariable::setValues(dbr_double_t setpoints[], int num) {
 		lastError_ = ca_array_put_callback( DBR_DOUBLE, num, chid_, setpoints, PVPutRequestCBWrapper, this );
 
 	if(lastError_ != ECA_NORMAL) {
-		qWarning() << QString("Error while trying to put AMProcessVariable values: %1: %2").arg(pvName()).arg(ca_message(lastError_));
+		qWarning() << QString("AMProcessVariable: Error while trying to put values: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
 
 	AMProcessVariableSupport::flushIO();
 }
 
-void AMProcessVariable::setValue(const QString& value) {
-
-	//just for lastError_
+void AMProcessVariablePrivate::setValue(const QString& value) {
 
 	dbr_string_t setpoint;
 	QByteArray d1 = value.toAscii();
@@ -773,17 +866,15 @@ void AMProcessVariable::setValue(const QString& value) {
 		lastError_ = ca_put_callback( DBR_STRING, chid_, setpoint, PVPutRequestCBWrapper, this );
 
 	if(lastError_ != ECA_NORMAL) {
-		qWarning() << QString("Error while trying to put AMProcessVariable value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
+		qWarning() << QString("AMProcessVariable: Error while trying to put value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
 
 	AMProcessVariableSupport::flushIO();
 }
 
-// TODO: not sure if this is right...
-void AMProcessVariable::setValues(const QStringList& setpoints) {
+void AMProcessVariablePrivate::setValues(const QStringList& setpoints) {
 
-	//just for lastError_
 
 	QList<QByteArray> asciiData;	// will hold the ascii form of our strings
 	const char** stringArray = new const char*[setpoints.size()];		// an array of strings (array of char*... ie: char**) which ca_array_put_callback requires.
@@ -799,7 +890,7 @@ void AMProcessVariable::setValues(const QStringList& setpoints) {
 		lastError_ = ca_array_put_callback( DBR_STRING, setpoints.size(), chid_, stringArray, PVPutRequestCBWrapper, this );
 
 	if(lastError_ != ECA_NORMAL) {
-		qWarning() << QString("Error while trying to put AMProcessVariable values: %1: %2").arg(pvName()).arg(ca_message(lastError_));
+		qWarning() << QString("AMProcessVariable: Error while trying to put values: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
 	// TODO: check that ca_array_put_callback doesn't require this left in memory after this function goes out of scope?
@@ -810,25 +901,23 @@ void AMProcessVariable::setValues(const QStringList& setpoints) {
 }
 
 
-double AMProcessVariable::lastValue(unsigned index) const {
-
-
+double AMProcessVariablePrivate::lastValue(unsigned index) const {
 
 	// Depending on our type, we need to know where to look and how to convert:
 	switch(ourType_) {
 
-	case FloatingPoint:
+	case PVDataType::FloatingPoint:
 		if(index >= (unsigned)data_dbl_.count())
 			return -1.0;
 		return data_dbl_.at(index);
 
-	case Integer:
-	case Enum:
+	case PVDataType::Integer:
+	case PVDataType::Enum:
 		if(index >= (unsigned)data_int_.count())
 			return -1.0;
 		return (double)data_int_.at(index);
 
-	case String:
+	case PVDataType::String:
 		if(index >= (unsigned)data_str_.count())
 			return -1.0;
 		return data_str_.at(index).toDouble();
@@ -837,6 +926,189 @@ double AMProcessVariable::lastValue(unsigned index) const {
 	default:
 		return -1.0;
 	}
+}
+
+
+
+int AMProcessVariablePrivate::getInt(unsigned index) const {
+
+
+
+	// Depending on our type, we need to know where to look and how to convert:
+	switch(ourType_) {
+
+	case PVDataType::FloatingPoint:
+		if(index >= (unsigned)data_dbl_.count())
+			return -1;
+		return (int)data_dbl_.at(index);
+
+	case PVDataType::Integer:
+	case PVDataType::Enum:
+		if(index >= (unsigned)data_int_.count())
+			return -1;
+		return data_int_.at(index);
+
+	case PVDataType::String:
+		if(index >= (unsigned)data_str_.count())
+			return -1;
+		return data_str_.at(index).toInt();
+
+		// default case, including Unconnected:
+	default:
+		return -1;
+	}
+}
+
+
+QString AMProcessVariablePrivate::getString(unsigned index) const {
+
+
+
+	// Depending on our type, we need to know where to look and how to convert:
+	switch(ourType_) {
+
+	case PVDataType::FloatingPoint:
+		if(index >= (unsigned)data_dbl_.count())
+			return "[array index out of range]";
+		return QString("%1").arg(data_dbl_.at(index));
+
+	case PVDataType::Integer:
+		if(index >= (unsigned)data_int_.count())
+			return "[array index out of range]";
+		return QString("%1").arg(data_int_.at(index));
+
+	case PVDataType::Enum:
+		if(index >= (unsigned)data_int_.count())
+			return "[array index out of range]";
+		if(initialized_) {
+			int intValue = data_int_.at(index);
+			// check to make sure that the enum value is within the allowed enum range
+			// Some bad IOCs might send an enum value that is not within their set of enum options. Dude!?
+			if((unsigned)intValue < (unsigned)enumStrings_.count())
+				return enumStrings_.at(intValue);
+			else
+				return QString("[enum value out of range]");
+		}
+		else	// otherwise we just return the number, in string form:
+			return QString("%1").arg(data_int_.at(index));
+
+
+	case PVDataType::String:
+		if(index >= (unsigned)data_str_.count())
+			return "[array index out of range]";
+		return data_str_.at(index);
+
+		// default case, including Unconnected:
+	default:
+		return "[PV not connected]";
+	}
+}
+
+QString AMProcessVariablePrivate::errorString(int errorCode)
+{
+	switch(errorCode){
+	case AMPROCESSVARIABLE_CANNOT_READ:
+		return "Lacking read access permission to Process Variable.";
+	case AMPROCESSVARIABLE_CANNOT_WRITE:
+		return "Lacking write access permission to Process Variable.";
+	default:
+		 return QString(ca_message(errorCode));
+	}
+}
+
+
+// AMProcessVariable
+/////////////////////////
+
+
+// This a convenience function that we can call to figure out our simplified type based on an epics ca_field_type(). Possibilities are:
+/*
+#define DBF_STRING	0
+#define	DBF_INT		1
+#define	DBF_SHORT	1
+#define	DBF_FLOAT	2
+#define	DBF_ENUM	3
+#define	DBF_CHAR	4
+#define	DBF_LONG	5
+#define	DBF_DOUBLE	6
+
+//
+//
+//DBR_CHAR  	dbr_char_t  	8 bit character
+//DBR_SHORT 	dbr_short_t 	16 bit integer
+//DBR_ENUM 	dbr_enum_t 	16 bit unsigned integer
+//DBR_LONG 	dbr_long_t 	32 bit signed integer
+//DBR_FLOAT 	dbr_float_t 	32 bit IEEE floating point
+//DBR_DOUBLE 	dbr_double_t 	64 bit IEEE floating point
+//DBR_STRING 	dbr_string_t 	40 character string
+//
+//
+  */
+PVDataType::Type AMProcessVariable::serverType2ourType(chtype serverType) {
+
+	switch(serverType) {
+	case DBF_STRING:
+		return PVDataType::String;
+	case DBF_SHORT:
+	case DBF_CHAR:
+	case DBF_LONG:
+		return PVDataType::Integer;
+	case DBF_ENUM:
+		return PVDataType::Enum;
+	case DBF_FLOAT:
+	case DBF_DOUBLE:
+		return PVDataType::FloatingPoint;
+	}
+	return PVDataType::FloatingPoint;
+}
+
+chtype AMProcessVariable::serverType2StatusType(chtype serverType)
+{
+	switch(serverType) {
+	case DBF_STRING:
+		return DBR_STS_STRING;
+	case DBF_SHORT:
+	case DBF_CHAR:
+	case DBF_LONG:
+		return DBR_STS_LONG;
+	case DBF_ENUM:
+		return DBR_STS_ENUM;
+	case DBF_FLOAT:
+	case DBF_DOUBLE:
+		return DBR_STS_DOUBLE;
+	}
+	return DBR_STS_DOUBLE;
+}
+
+
+
+AMProcessVariable::AMProcessVariable(const QString &pvName, bool autoMonitor, QObject *parent, int connectionTimeoutMs) :
+	QObject(parent)
+{
+	setObjectName("AMProcessVariable_" + pvName);
+
+	d_ = AMProcessVariableSupport::getPrivateForPVName(pvName);
+	d_->attachProcessVariable(this);
+	if(autoMonitor)
+		d_->startMonitoring();
+
+	// This will notice if the connection times out:
+	QTimer::singleShot(connectionTimeoutMs, this, SLOT(onConnectionTimeout()));
+}
+
+AMProcessVariable::~AMProcessVariable() {
+	d_->detachProcessVariable(this);
+}
+
+void AMProcessVariable::onConnectionTimeout() {
+
+	// If we haven't connected by now:
+	if(!isConnected()) {
+		qWarning() << QString("AMProcessVariable: channel connect timed out for %1").arg(pvName());
+		emit connectionTimeout();
+	}
+
+	// Channel access will keep on trying in the background. (Channel access handles this automatically for us.)  Will emit connected() signal when successful.
 }
 
 int AMProcessVariable::binIntegerValues(int lowIndex, int highIndex) const{
@@ -870,124 +1142,5 @@ double AMProcessVariable::binFloatingPointValues(int lowIndex, int highIndex) co
 		rVal += lastDoubles.at(x);
 	return rVal;
 }
-
-
-// double AMProcessVariable::getDouble() is just a synonym for lastValue().
-
-int AMProcessVariable::getInt(unsigned index) const {
-
-
-
-	// Depending on our type, we need to know where to look and how to convert:
-	switch(ourType_) {
-
-	case FloatingPoint:
-		if(index >= (unsigned)data_dbl_.count())
-			return -1;
-		return (int)data_dbl_.at(index);
-
-	case Integer:
-	case Enum:
-		if(index >= (unsigned)data_int_.count())
-			return -1;
-		return data_int_.at(index);
-
-	case String:
-		if(index >= (unsigned)data_str_.count())
-			return -1;
-		return data_str_.at(index).toInt();
-
-		// default case, including Unconnected:
-	default:
-		return -1;
-	}
-}
-
-
-QString AMProcessVariable::getString(unsigned index) const {
-
-
-
-	// Depending on our type, we need to know where to look and how to convert:
-	switch(ourType_) {
-
-	case FloatingPoint:
-		if(index >= (unsigned)data_dbl_.count())
-			return "[array index out of range]";
-		return QString("%1").arg(data_dbl_.at(index));
-
-	case Integer:
-		if(index >= (unsigned)data_int_.count())
-			return "[array index out of range]";
-		return QString("%1").arg(data_int_.at(index));
-
-	case Enum:
-		if(index >= (unsigned)data_int_.count())
-			return "[array index out of range]";
-		if(initialized_) {
-			int intValue = data_int_.at(index);
-			// check to make sure that the enum value is within the allowed enum range
-			// Some bad IOCs might send an enum value that is not within their set of enum options. Dude!?
-			if((unsigned)intValue < (unsigned)enumStrings_.count())
-				return enumStrings_.at(intValue);
-			else
-				return QString("[enum value out of range]");
-		}
-		else	// otherwise we just return the number, in string form:
-			return QString("%1").arg(data_int_.at(index));
-
-
-	case String:
-		if(index >= (unsigned)data_str_.count())
-			return "[array index out of range]";
-		return data_str_.at(index);
-
-		// default case, including Unconnected:
-	default:
-		return "[PV not connected]";
-	}
-}
-
-// This a convenience function that we can call to figure out our simplified type based on an epics ca_field_type(). Possibilities are:
-/*
-#define DBF_STRING	0
-#define	DBF_INT		1
-#define	DBF_SHORT	1
-#define	DBF_FLOAT	2
-#define	DBF_ENUM	3
-#define	DBF_CHAR	4
-#define	DBF_LONG	5
-#define	DBF_DOUBLE	6
-
-//
-//
-//DBR_CHAR  	dbr_char_t  	8 bit character
-//DBR_SHORT 	dbr_short_t 	16 bit integer
-//DBR_ENUM 	dbr_enum_t 	16 bit unsigned integer
-//DBR_LONG 	dbr_long_t 	32 bit signed integer
-//DBR_FLOAT 	dbr_float_t 	32 bit IEEE floating point
-//DBR_DOUBLE 	dbr_double_t 	64 bit IEEE floating point
-//DBR_STRING 	dbr_string_t 	40 character string
-//
-//
-  */
-AMProcessVariable::PVDataType AMProcessVariable::serverType2ourType(chtype serverType) {
-
-	switch(serverType) {
-	case DBF_STRING:
-		return String;
-	case DBF_SHORT:
-	case DBF_CHAR:
-	case DBF_LONG:
-		return Integer;
-	case DBF_ENUM:
-		return Enum;
-	case DBF_FLOAT:
-	case DBF_DOUBLE:
-		return FloatingPoint;
-	}
-	return FloatingPoint;
-}
-
 
 
