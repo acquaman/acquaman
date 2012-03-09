@@ -143,7 +143,7 @@ bool SGMXASDacqScanController::startImplementation(){
 			advAcq_->setEnd(x, config_->regionEnd(x));
 		}
 	}
-	advAcq_->saveConfigFile("/Users/fawkes/dev/acquaman/devConfigurationFiles/davidTest.cfg");
+	advAcq_->saveConfigFile("/home/sgm/Configuration Files/davidTest.cfg");
 
 	qDebug() << "Calling startImplementation for dacq";
 	return AMDacqScanController::startImplementation();
