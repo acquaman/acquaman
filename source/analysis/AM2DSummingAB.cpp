@@ -165,7 +165,8 @@ void AM2DSummingAB::setInputSource()
 		inputSource_ = inputDataSourceAt(index);
 		canAnalyze_ = true;
 
-		axes_[0] = inputSource_->axisInfoAt(0);
+		int otherAxis = (sumAxis_ == 0) ? 1 : 0;
+		axes_[0] = inputSource_->axisInfoAt(otherAxis);
 		setDescription(QString("%1 Summed (over %2)")
 					   .arg(inputSource_->name())
 					   .arg(inputSource_->axisInfoAt(sumAxis_).name));
