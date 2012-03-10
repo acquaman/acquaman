@@ -255,24 +255,47 @@ void AMDataSourcesEditor::onAddDataSourceButtonClicked() {
 
 	QMenu popup(this);
 
-	QAction *temp = popup.addAction("Add Derivative");
-	temp = popup.addAction("Add Integral");
-	temp = popup.addAction("Add Expression");
-	temp = popup.addAction("Add 2D Summing");
+	int scanIndex = currentScanIndex();
 
-	temp = popup.exec(mapToGlobal(ui_.addDataSourceButton->pos()));
+	switch (model_->scanAt(scanIndex)->scanRank())	{
 
-	// If a valid action was selected.
-	if (temp){
+		case 0: // No specific options for 0D scans as of yet.
+		break;
 
-		if (temp->text() == "Add Derivative")
-			nameOfAnalysisBlockToBeAdded_ = "Derivative";
-		else if (temp->text() == "Add Integral")
-			nameOfAnalysisBlockToBeAdded_ = "Integral";
-		else if (temp->text() == "Add Expression")
-			nameOfAnalysisBlockToBeAdded_ = "Expression";
-		else if (temp->text() == "Add 2D Summing")
-			nameOfAnalysisBlockToBeAdded_ = "2D Summing";
+		case 1: {
+
+			QAction *temp = popup.addAction("Add Derivative");
+			temp = popup.addAction("Add Integral");
+			temp = popup.addAction("Add Expression");
+			temp = popup.addAction("Add 2D Summing");
+
+			temp = popup.exec(mapToGlobal(ui_.addDataSourceButton->pos()));
+
+			// If a valid action was selected.
+			if (temp){
+
+				if (temp->text() == "Add Derivative")
+					nameOfAnalysisBlockToBeAdded_ = "Derivative";
+				else if (temp->text() == "Add Integral")
+					nameOfAnalysisBlockToBeAdded_ = "Integral";
+				else if (temp->text() == "Add Expression")
+					nameOfAnalysisBlockToBeAdded_ = "Expression";
+				else if (temp->text() == "Add 2D Summing")
+					nameOfAnalysisBlockToBeAdded_ = "2D Summing";
+			}
+
+			break;
+		}
+
+		case 2: {
+
+			QAction *temp = popup.addAction("2D Map Normalization");
+
+			temp = popup.exec(mapToGlobal(ui_.addDataSourceButton->pos()));
+
+			if (temp && temp->text() == "2D Map Normalization")
+				nameOfAnalysisBlockToBeAdded_ = "2D Map Normalization";
+		}
 	}
 
 	removeDetailEditor();
@@ -295,6 +318,7 @@ void AMDataSourcesEditor::onAddDataSourceButtonClicked() {
 #include "analysis/AM1DDerivativeAB.h"
 #include "analysis/AM2DSummingAB.h"
 #include "analysis/AM1DIntegralAB.h"
+#include "analysis/AM2DNormalizationAB.h"
 
 /// \todo Eventually, this button should support creating all kinds of available data sources (raw, and analysis blocks), using a beautiful popup dialogue with buttons and icons and descriptions. For now, we only create AM1DExpressionAB (expression editors for 1D channels, to allow simply 1D normalization and calibration)
 void AMDataSourcesEditor::onNewDataSourceNamed() {
@@ -367,6 +391,12 @@ void AMDataSourcesEditor::onNewDataSourceNamed() {
 	else if (nameOfAnalysisBlockToBeAdded_ == "2D Summing"){
 
 		newAnalysisBlock = new AM2DSummingAB(chName);
+		newAnalysisBlock->setInputDataSources(twoDimDataSources);
+	}
+
+	else if (nameOfAnalysisBlockToBeAdded_ == "2D Map Normalization"){
+
+		newAnalysisBlock = new AM2DNormalizationAB(chName);
 		newAnalysisBlock->setInputDataSources(twoDimDataSources);
 	}
 

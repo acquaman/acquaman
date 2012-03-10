@@ -10,6 +10,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
 	I0_ = Imini;
 	fluorescenceDetectorChoice_ = SingleElement;
 	usingCCD_ = false;
+	ccdFileName_ = "";
 	roiInfoList_ = AMROIInfoList();
 	totalTime_ = 0;
 	timeOffset_ = 0.7;
@@ -29,6 +30,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfig
 	I0_ = original.incomingChoice();
 	fluorescenceDetectorChoice_ = original.fluorescenceDetectorChoice();
 	usingCCD_ = original.usingCCD();
+	ccdFileName_ = original.ccdFileName();
 	roiInfoList_ = original.roiList();
 	totalTime_ = 0;
 	timeOffset_ = 0.7;
@@ -64,6 +66,11 @@ QString VESPERS2DScanConfiguration::detailedDescription() const
 	return "Spatial x-ray fluorescence 2D map";
 }
 
+QString VESPERS2DScanConfiguration::headerText() const
+{
+	return QString("");
+}
+
 QString VESPERS2DScanConfiguration::readRoiList() const
 {
 	QString prettyRois = "Regions of Interest\n";
@@ -81,8 +88,12 @@ void VESPERS2DScanConfiguration::computeTotalTime()
 	// Get the number of points.
 	time = 	fabs((xEnd()-xStart())/xStep())*fabs((yEnd()-yStart())/yStep());
 
-	// Factor in the time per point.
-	time *= timeStep() + timeOffset_;
+	// Factor in the time per point.  There is an extra 6 seconds for CCD images.
+	if (usingCCD())
+		time *= timeStep() + timeOffset_ + 6.0;
+	else
+		time *= timeStep() + timeOffset_;
+
 	totalTime_ = time;
 	emit totalTimeChanged(totalTime_);
 }

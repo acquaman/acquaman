@@ -113,6 +113,7 @@ void AM1DDerivativeAB::setInputDataSourcesImplementation(const QList<AMDataSourc
 void AM1DDerivativeAB::setAnalyzedName(const QString &name)
 {
 	analyzedName_ = name;
+	setModified(true);
 	canAnalyze_ = canAnalyze(name);
 	setInputSource();
 }

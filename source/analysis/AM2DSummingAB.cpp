@@ -144,6 +144,7 @@ void AM2DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 void AM2DSummingAB::setAnalyzedName(const QString &name)
 {
 	analyzedName_ = name;
+	setModified(true);
 	canAnalyze_ = canAnalyze(name);
 	setInputSource();
 }
