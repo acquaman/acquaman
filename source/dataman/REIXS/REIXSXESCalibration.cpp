@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "REIXSXESCalibration.h"
 
+#include <QDebug>
 
 REIXSXESCalibration::REIXSXESCalibration(QObject *parent) :
 	AMDbObject(parent)
@@ -71,7 +72,6 @@ REIXSXESCalibration::REIXSXESCalibration(QObject *parent) :
 
 AMControlInfoList REIXSXESCalibration::computeSpectrometerPosition(REIXSXESScanConfiguration *scanConfiguration) const
 {
-	/// \todo Handle orientation of detector (wide/narrow)
 	return computeSpectrometerPosition(scanConfiguration->gratingNumber(),
 									   scanConfiguration->centerEV(),
 									   scanConfiguration->defocusDistanceMm(),
@@ -81,6 +81,8 @@ AMControlInfoList REIXSXESCalibration::computeSpectrometerPosition(REIXSXESScanC
 
 AMControlInfoList REIXSXESCalibration::computeSpectrometerPosition(int gratingIndex, double eV, double focusOffsetMm, double tiltOffsetDeg) const
 {
+	qDebug() << "Spectrometer Geometry calculations for: " << gratingNames().at(gratingIndex) << eV << "eV," << focusOffsetMm << "mm defocus," << tiltOffsetDeg << "deg tilt offset:";
+
 	AMControlInfoList rv;
 
 	double hexU = hexapodU(gratingIndex);
@@ -103,6 +105,20 @@ AMControlInfoList REIXSXESCalibration::computeSpectrometerPosition(int gratingIn
 	rv.append(AMControlInfo("hexapodR", hexRST.x(), 0,0, "mm", 0.1, "Hexapod rotation point R"));
 	rv.append(AMControlInfo("hexapodS", hexRST.y(), 0,0, "mm", 0.1, "Hexapod rotation point S"));
 	rv.append(AMControlInfo("hexapodT", hexRST.z(), 0,0, "mm", 0.1, "Hexapod rotation point T"));
+
+
+	qDebug() << "   Alpha required for rowland condition (deg):" << r2d(alpha(gratingIndex));
+	qDebug() << "   Beta using that alpha, at " << eV << "eV:" << r2d(beta(eV, gratingIndex));
+	qDebug() << "   Angle of slit-origin ray above y axis (deg)" << r2d(sTheta());
+	qDebug() << "   Grating tilt to achieve required alpha (deg):" << hexU;
+	qDebug() << "   r (mm):" << r();
+	qDebug() << "   r-prime (mm):" << rPrime(eV, gratingIndex);
+	qDebug() << "   Spectrometer dTheta: angle up from y axis to center of detector:" << r2d(dTheta(eV, gratingIndex));
+	qDebug() << "   Detector position:" << detPos;
+	qDebug() << "   Spectrometer theta:" << theta;
+	qDebug() << "   Translation:" << translation;
+	qDebug() << "   Spectrometer rotation stage translation:" << spectrometerRotation;
+	qDebug() << "   Tilt stage translation:" << tilt;
 
 	return rv;
 }
