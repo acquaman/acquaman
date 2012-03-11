@@ -130,6 +130,9 @@ protected slots:
 	/*! This function is used as an internal helper function by dropEvent(); Normally you should use the dropScanURLs function in AMDatamanAppController() since it can check for scans being open in other editors*/
 	bool dropScanURLs(const QList<QUrl>& urls);
 
+	/// Called on a one-second timer: Right now, we only use this to update the duration display for currentlyAcquiring() scans
+	void onOneSecondTimer();
+
 protected:
 
 	// Re-implemented functions

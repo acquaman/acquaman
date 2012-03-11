@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDropEvent>
 #include <QList>
 #include <QUrl>
+#include <QTimer>
+#include <QStringBuilder>
 
 #include "acquaman.h"
 
@@ -128,6 +130,8 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 
 	chooseScanDialog_ = 0;
 
+	QTimer* oneSecondTimer = new QTimer(this);
+	connect(oneSecondTimer, SIGNAL(timeout()), this, SLOT(onOneSecondTimer()));
 }
 
 
@@ -184,8 +188,6 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 
 	// disconnect the old scan:
 	if(currentScan_) {
-		// removed: disconnect(currentScan_, SIGNAL(metaDataChanged()), this, SLOT(onScanMetaDataChanged()));
-
 		disconnect(ui_.scanName, 0, currentScan_, 0);
 		disconnect(ui_.scanNumber, 0, currentScan_, 0);
 		disconnect(this, SIGNAL(notesChanged(QString)), currentScan_, SLOT(setNotes(QString)));
@@ -237,7 +239,8 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		ui_.scanName->setText(scan->name());
 		ui_.scanNumber->setValue(scan->number());
 		ui_.scanDate->setText( AMDateTimeUtils::prettyDate(scan->dateTime()));
-		ui_.scanDuration->setText(AMDateTimeUtils::prettyDuration(scan->dateTime(), scan->endDateTime()));
+		ui_.scanDuration->setText(scan->currentlyScanning() ? ("Acquiring " % AMDateTimeUtils::prettyDuration(currentScan_->dateTime(), QDateTime::currentDateTime(), true))
+															: AMDateTimeUtils::prettyDuration(scan->dateTime(), scan->endDateTime()));
 		ui_.scanTime->setText( scan->dateTime().time().toString("h:mmap") );
 		ui_.notesEdit->setPlainText( scan->notes() );
 		runSelector_->setCurrentRunId(scan->runId());
@@ -581,4 +584,19 @@ bool AMGenericScanEditor::canCloseEditor()
 	}
 
 	return canClose;
+}
+
+void AMGenericScanEditor::onOneSecondTimer()
+{
+	if(currentScan_) {
+		if(currentScan_->currentlyScanning())
+			ui_.scanDuration->setText("Acquiring " % AMDateTimeUtils::prettyDuration(currentScan_->dateTime(), QDateTime::currentDateTime(), true));
+		else {
+			// this is a cheap easy way to find out if we've switched from acquiring to not acquiring, and therefore should put in the final duration
+			if(ui_.scanDuration->text().startsWith("Acqu")) {
+				ui_.scanDuration->setText(AMDateTimeUtils::prettyDuration(currentScan_->dateTime(), currentScan_->endDateTime()));
+			}
+		}
+	}
+
 }
