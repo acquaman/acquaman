@@ -4,6 +4,7 @@
 #include "analysis/AMStandardAnalysisBlock.h"
 #include "util/AMDeferredFunctionCall.h"
 
+#define HAVE_INLINE	// makes GSL operations faster by inlining.
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_multifit.h>
