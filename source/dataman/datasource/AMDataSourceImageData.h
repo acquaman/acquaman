@@ -53,6 +53,9 @@ public:
 
 	/// Return the extent of the data. We assume the axis values are ordered... is this a valid assumption?
 	virtual inline QRectF boundingRect() const {
+		if(!isValid_)
+			return QRectF();
+
 		int sizeX = source_->size(0);
 		int sizeY = source_->size(1);
 
