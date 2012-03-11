@@ -5,6 +5,7 @@
 
 class CLSSIS3820ScalerChannel;
 class AMBeamlineActionItem;
+class AMControl;
 
 /*!
   Builds an abstraction for the SIS 3820 scaler used throughout the CLS.  It takes in a base name of the PV's and builds all the PV's

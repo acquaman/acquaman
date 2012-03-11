@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLSBISTATECONTROL_H
 #define CLSBISTATECONTROL_H
 
-#include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
 
 /*!
   This class implements AMControl to encapsulate the access convention to valves and shutters at the CLS.  Unlike most other controls/process variables, valves and shutters

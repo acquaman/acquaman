@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define REIXSXESMCPDETECTOR_H
 
 #include <QObject>
-#include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
 #include "dataman/datasource/AMDataSource.h"
 #include "dataman/REIXS/REIXSXESMCPDetectorInfo.h"
 

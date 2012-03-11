@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include <QMap>
 
-#include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
 
 class VESPERSEndstation : public QObject
 {

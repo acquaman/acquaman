@@ -3,7 +3,7 @@
 
 #include "beamline/AMDetector.h"
 #include "dataman/VESPERS/VESPERSRoperCCDDetectorInfo.h"
-#include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineActionItem.h"
 
 /*!

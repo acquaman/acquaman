@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "VESPERSMonochromator.h"
+#include "beamline/AMPVControl.h"
 
 VESPERSMonochromator::VESPERSMonochromator(QObject *parent) :
 	QObject(parent)

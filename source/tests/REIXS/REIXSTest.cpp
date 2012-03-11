@@ -84,7 +84,7 @@ void REIXSTest::checkCalibration()
 
 }
 
-#include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
 
 void REIXSTest::testHexapodPVChanges()
 {
