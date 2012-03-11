@@ -168,6 +168,11 @@ void REIXSXESImageAB::setInputDataSourcesImplementation(const QList<AMDataSource
 
 		axes_[0] = inputSource_->axisInfoAt(0);	// take the X axis info from the data source.
 
+		if(shiftValues_.isEmpty()) {
+			for(int i=0,cc=inputSource_->size(1); i<cc; i++)
+				shiftValues_ << 0;	// make a null shift list, matching the size of the input data. Don't do this if we already have a shift list.
+		}
+
 		connect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
 		connect(inputSource_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		connect(inputSource_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));

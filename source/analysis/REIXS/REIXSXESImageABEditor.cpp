@@ -107,6 +107,7 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	fl->addRow(correlateNowButton_);
 	vl->addLayout(fl);
 	vl->addWidget(plotWidget_);
+	vl->addWidget(shiftDisplayOffsetSlider_);
 	setLayout(vl);
 
 	onAnalysisBlockInputDataSourcesChanged();
