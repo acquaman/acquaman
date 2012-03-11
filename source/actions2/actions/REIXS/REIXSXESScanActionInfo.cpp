@@ -29,11 +29,9 @@ AMDbObject * REIXSXESScanActionInfo::dbReadScanConfig()
 }
 
 
-#include <QDebug>
 void REIXSXESScanActionInfo::onConfigurationChanged()
 {
 	QString description = xesConfig()->description();
-	qDebug() << "Calling onConfigurationChanged:" << description;
 	setShortDescription(description);
 	setLongDescription(description);
 }
