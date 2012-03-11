@@ -44,7 +44,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMSampleManagementWidget.h"	/// \todo This doesn't belong in dataman
 #include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
 #include "dataman/AMRun.h"
-#include "ui/AMStartScreen.h"
 
 // old workflow manager view: (to be removed)
 #include "ui/AMWorkflowManagerView.h"
@@ -110,9 +109,6 @@ bool REIXSAppController::startup() {
             firstRun.storeToDb(AMDatabase::database("user"));
         }
 
-        // Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
-        AMStartScreen* startScreen = new AMStartScreen(0);
-        startScreen->show();
 
 		// Register Actions:
 		////////////////////////////////

@@ -20,61 +20,64 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMStartScreen.h"
 
-#include <QDebug>
+#include <QBoxLayout>
+#include <QGridLayout>
+#include <QPushButton>
+#include "ui/dataman/AMRunSelector.h"
+#include "dataman/database/AMDatabase.h"
 
-AMStartScreen::AMStartScreen(QWidget *parent) :
-	QWidget(parent)
+AMStartScreen::AMStartScreen(bool mustAccept, QWidget *parent) :
+	QDialog(parent)
 {
-	//QPixmap pixmap(":/ ")
+	mustAccept_ = mustAccept;
 	runSelector_ = new AMRunSelector(AMDatabase::database("user"),this);
-	//QVBoxLayout *overallLayout = new QVBoxLayout(this);
-	//QGridLayout *startLayout = new QGridLayout(this);
+
 	QVBoxLayout *overallLayout = new QVBoxLayout();
 	QGridLayout *startLayout = new QGridLayout();
 	QLabel *selectRunLabel = new QLabel(tr("Welcome to Acquaman!\n\nThis is your current run.\nIt will be used to organize your data for this visit to the facility.\n\nYou can change it, or create a new one."),this);
-	QPushButton *ok= new QPushButton("Start",this);
+	QPushButton *ok= new QPushButton("Select");
 
 	startLayout->addWidget(selectRunLabel,1,1);
 	startLayout->addWidget(ok,2,2);
 	startLayout->addWidget(runSelector_,2,1);
-
-	//overallLayout->addItem(pixmap);
 	overallLayout->addLayout(startLayout);
 	setLayout(overallLayout);
 
-	setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
 	setAttribute(Qt::WA_DeleteOnClose, true);
 
-	connect(ok,SIGNAL(clicked()),this,SLOT(close()));
+	connect(ok,SIGNAL(clicked()),this,SLOT(accept()));
 
 	// Useability tweak: If there are no valid runs (ie: the current run selected is invalid), we can start creating one
-	if(runSelector_->currentRunId() < 1)
-		runSelector_->showAddRunDialog();
+//	if(runSelector_->currentRunId() < 1)
+//		runSelector_->showAddRunDialog();
 
 }
 
 #include <QMessageBox>
 #include "dataman/AMUser.h"
-
-bool AMStartScreen::storeCurrentRun(){
-	if(runSelector_->currentRunId() > 0) {
-		AMUser::user()->setCurrentRunId( runSelector_->currentRunId() );
-		return true;
-	}
-	else {
-		QMessageBox::information(this, "Please select a run", "You must select or create a valid run. ");
-		return false;
-	}
-}
-
-
-#include <QCloseEvent>
 #include <QApplication>
 
-void AMStartScreen::closeEvent(QCloseEvent *e) {
+void AMStartScreen::accept()
+{
+	if(runSelector_->currentRunId() > 0) {
+		AMUser::user()->setCurrentRunId( runSelector_->currentRunId() );
+		QDialog::accept();
+	}
+	else {
+		QMessageBox::information(this, "Please select a run", "You must select or create a valid run.");
+	}
 
-	if(QApplication::closingDown() || storeCurrentRun())
-		e->accept();
-	else
-		e->ignore();
+	if(QApplication::closingDown())
+		QDialog::accept();
+
+	// otherwise, don't do anything... Should not accept. This will leave the dialog open.
+}
+
+void AMStartScreen::reject()
+{
+	if(!mustAccept_ || QApplication::closingDown())
+		QDialog::reject();
+	else {
+		QMessageBox::information(this, "Please select a run", "You must select or create a valid run.");
+	}
 }

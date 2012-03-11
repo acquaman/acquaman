@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "dataman/export/AMExporter.h"
 #include "dataman/export/AMExporterOption.h"
+#include "ui/AMStartScreen.h"
 
 AMAppController::AMAppController(QObject *parent)
 	: AMDatamanAppController(parent)
@@ -38,6 +39,9 @@ bool AMAppController::startupCreateUserInterface() {
 		workflowManagerView_ = new AMWorkflowManagerView();
 		mw_->insertHeading("Experiment Tools", 1);
 		mw_->addPane(workflowManagerView_, "Experiment Tools", "Workflow", ":/user-away.png");
+
+		AMStartScreen* chooseRunDialog = new AMStartScreen(true, mw_);
+		chooseRunDialog->show();
 
 		return true;
 	}
@@ -207,5 +211,28 @@ bool AMAppController::canCloseActionRunner()
 
 	// No objections. Can quit.
 	return true;
+}
+
+void AMAppController::showChooseRunDialog()
+{
+	AMStartScreen* d = new AMStartScreen(false, mw_);
+	d->show();
+}
+
+#include <QMenu>
+bool AMAppController::startupInstallActions()
+{
+	if(AMDatamanAppController::startupInstallActions()) {
+
+		QAction* changeRunAction = new QAction("Change Run...", mw_);
+		// changeRunAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_B));
+		changeRunAction->setStatusTip("Change the current run, or create a new one");
+		connect(changeRunAction, SIGNAL(triggered()), this, SLOT(showChooseRunDialog()));
+
+		fileMenu_->addAction(changeRunAction);
+		return true;
+	}
+	else
+		return false;
 }
 

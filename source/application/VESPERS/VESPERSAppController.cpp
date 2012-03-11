@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/VESPERS/VESPERSEndstationView.h"
 #include "ui/AMMainWindow.h"
-#include "ui/AMStartScreen.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder.h"
 
 #include "ui/VESPERS/XRFDetectorView.h"
@@ -56,6 +55,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/VESPERS/VESPERSExporter2DAscii.h"
 
 #include <QFileDialog>
+
+#include "dataman/AMRun.h"
 
 // For database registration:
 #include "dataman/VESPERS/XRFDetectorInfo.h"
@@ -153,9 +154,6 @@ bool VESPERSAppController::startup() {
 			AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporter2DAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
 		}
 
-		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
-		AMStartScreen* startScreen = new AMStartScreen(0);
-		startScreen->show();
 
 		// Create panes in the main window:
 		////////////////////////////////////
