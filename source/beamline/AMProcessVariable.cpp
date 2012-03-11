@@ -86,15 +86,14 @@ chtype AMProcessVariable::serverType2StatusType(chtype serverType)
 
 
 
-AMProcessVariable::AMProcessVariable(const QString &pvName, bool autoMonitor, QObject *parent, int connectionTimeoutMs) :
+AMProcessVariable::AMProcessVariable(const QString &pvName, bool monitor, QObject *parent, int connectionTimeoutMs) :
 	QObject(parent)
 {
 	setObjectName("AMProcessVariable_" + pvName);
+	shouldBeMonitoring_ = monitor;
 
 	d_ = AMProcessVariableSupport::getPrivateForPVName(pvName);
 	d_->attachProcessVariable(this);
-	if(autoMonitor)
-		d_->startMonitoring();
 
 	// This will notice if the connection times out:
 	QTimer::singleShot(connectionTimeoutMs, this, SLOT(onConnectionTimeout()));

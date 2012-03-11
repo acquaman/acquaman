@@ -42,7 +42,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /// This class is used to connect to an Epics Process Variable (PV) using the Channel Access protocol.  The PV values can be read and written, and signals are provided for monitoring and alarm events.  Control information in the form of units, enum strings, etc. is also provided.
-/*! If you create two or more AMProcessVariable instances that refer to the same PV, for network performance they will transparently share a single underlying Channel Access connection. One important caveat, for now, is that calling startMonitoring() or stopMonitoring() will affect all connections to that underlying PV.*/
+/*!
+<b>Note on multiple AMProcessVariables that refer to the same PV</b>
+
+If you create two or more AMProcessVariable instances that refer to the same PV, for network performance they will transparently share a single underlying Channel Access connection. One important caveat, for now, is that if ANY of those process variables want monitoring enabled, ALL of them will be effectively monitored, and emit valueChanged() updates.  Calling stopMonitoring() may do nothing, if another connection to the same PV wants monitoring enabled.*/
 class AMProcessVariable : public QObject {
 	Q_OBJECT
 public:
@@ -54,11 +57,11 @@ public:
 
 	/// Constructor
 	/*! \param pvName The process variable channel-access name.
-  \param autoMonitor If autoMonitor = true, we'll start monitoring the channel as soon as we connect.
+  \param monitor If monitor = true, we'll start monitoring the channel for value changes as soon as we connect.
   \param connectionTimeoutMs Sets the timeout if you want to be notified if we fail to connect within a certain period.  Default is one second, defined in EPICS_CA_CONN_TIMEOUT_MS.
   \param parent QObject parent class pointer
   */
-	AMProcessVariable(const QString& pvName, bool autoMonitor = false, QObject* parent = 0, int connectionTimeoutMs = EPICS_CA_CONN_TIMEOUT_MS);
+	AMProcessVariable(const QString& pvName, bool monitor = false, QObject* parent = 0, int connectionTimeoutMs = EPICS_CA_CONN_TIMEOUT_MS);
 
 	/// Destructor
 	/*! Notifies our AMProcessVariablePrivate that we don't need it anymore */
@@ -79,6 +82,8 @@ public:
 	bool isConnected() const { return d_->isConnected(); }
 	/// Indicates that a connection was established to the Epics CA server, and we managed to download control information (meta information) for this Process Variable. Does not mean that we've retrieved the values yet.
 	bool isInitialized() const { return d_->isInitialized(); }
+	/// Returns true if the connection has a monitoring subscription to receive value changes. \see startMonitoring(), startMonitoring().
+	bool isMonitoring() const { return d_->isMonitoring(); }
 	/// Indicates that we've received the actual values for this PV at some point in history. (Note that isConnected() will be true as soon as a connection to the CA server is established, but we won't have the value yet when connected() gets emitted.)  valueChanged() will be emitted when the first value is received, but in case you're not watching that, you can call hasValues() to check if this has already happened.
 	bool hasValues() const { return d_->hasValues(); }
 
@@ -223,10 +228,10 @@ public slots:
 	/// asynchronous request to read \c numberOfValues values from the server:
 	bool requestValue(int numberOfValues = 1) { return d_->requestValue(numberOfValues); }
 
-	/// start monitoring on this channel:
-	bool startMonitoring() { return d_->startMonitoring(); }
-	/// stop monitoring this channel
-	void stopMonitoring() { d_->stopMonitoring(); }
+	/// start monitoring on this channel. If the channel is not yet connected, it will start monitoring when it does connect.
+	void startMonitoring() { shouldBeMonitoring_ = true; d_->reviewMonitoring(); }
+	/// stop monitoring this channel. \note If any other AMProcessVariables instances exist which connect to the same underlying PV, and they want monitoring enabled, then monitoring will continue. This is a restriction due to our automatic sharing of channel-access connections for network performance.
+	void stopMonitoring() { shouldBeMonitoring_ = false; d_->reviewMonitoring(); }
 
 	/// Request a new setpoint.
 	void setValue(int i) { d_->setValue(i); }
@@ -311,6 +316,10 @@ protected slots:
 protected:
 	/// Private instance of a channel access connection; possibly shared with other AMProcessVariables that refer to the same underlying PV.
 	AMProcessVariablePrivate* d_;
+	/// Flag to indicate that this PV wants to receive monitor notifications when the value changes.
+	bool shouldBeMonitoring_;
+
+	friend class AMProcessVariablePrivate;
 };
 
 /**

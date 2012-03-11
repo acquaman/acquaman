@@ -248,6 +248,9 @@ void AMProcessVariablePrivate::attachProcessVariable(AMProcessVariable *pv)
 
 	connect(this, SIGNAL(putRequestReturned(int)), pv, SIGNAL(putRequestReturned(int)));
 
+	// If this PV wants to be monitored, this might change whether we should be monitoring.
+	reviewMonitoring();
+
 }
 
 void AMProcessVariablePrivate::detachProcessVariable(AMProcessVariable *pv)
@@ -259,6 +262,9 @@ void AMProcessVariablePrivate::detachProcessVariable(AMProcessVariable *pv)
 
 	disconnect(this, 0, pv, 0);
 	attachedProcessVariables_.remove(pv);
+	// If this PV wanted to be monitored, this might change whether we should be monitoring.
+	reviewMonitoring();
+
 	if(attachedProcessVariables_.isEmpty())
 		delete this;	 // we can do this (carefully), since it is the last thing we do, and nothing will ever use us anymore.
 }
@@ -743,27 +749,24 @@ void AMProcessVariablePrivate::checkReadWriteReady(){
 }
 
 
-bool AMProcessVariablePrivate::startMonitoring() {
+void AMProcessVariablePrivate::startMonitoring() {
 
 	if(!channelCreated_ || !isConnected()) {
-		shouldBeMonitoring_ = true;	// Will start monitoring once we actually connect.
-		return true;
+		qWarning() << QString("AMProcessVariable: Error starting monitoring PV '%1' because it is not connected yet.").arg(pvName());
 	}
 
 	lastError_ = ca_create_subscription(ourType_, ca_element_count(chid_), chid_, DBE_VALUE | DBE_LOG | DBE_ALARM, PVValueChangedCBWrapper, this, &evid_ );
 	if(lastError_ != ECA_NORMAL) {
 		qWarning() << QString("AMProcessVariable: Error starting monitoring: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
-		return false;
+		return;
 	}
 
 	AMProcessVariableSupport::flushIO();
-	return true;
 }
 
 void AMProcessVariablePrivate::stopMonitoring() {
 
-	shouldBeMonitoring_ = false;
 	if(!channelCreated_ || !isConnected()) {
 		return;
 	}
@@ -777,6 +780,27 @@ void AMProcessVariablePrivate::stopMonitoring() {
 	AMProcessVariableSupport::flushIO();
 	evid_ = 0;
 }
+
+void AMProcessVariablePrivate::reviewMonitoring()
+{
+	bool shouldBeMonitoring = false;
+	foreach(AMProcessVariable* pv, attachedProcessVariables_) {
+		if(pv->shouldBeMonitoring_) {
+			shouldBeMonitoring = true;
+			break;
+		}
+	}
+
+	shouldBeMonitoring_ = shouldBeMonitoring;
+
+	// do we need to start? If connected, we can now.  If not connected, we'll start automatically when we do connect.
+	if(shouldBeMonitoring_ && !isMonitoring() && channelCreated_ && isConnected())
+		startMonitoring();
+	// do we need to stop?
+	else if(!shouldBeMonitoring_ && isMonitoring())
+		stopMonitoring();
+}
+
 
 bool AMProcessVariablePrivate::requestValue(int numberOfValues) {
 
@@ -1017,3 +1041,4 @@ QString AMProcessVariablePrivate::errorString(int errorCode)
 		 return QString(ca_message(errorCode));
 	}
 }
+
