@@ -16,11 +16,10 @@
 #include "MPlot/MPlotSeries.h"
 #include "MPlot/MPlotSeriesData.h"
 #include "MPlot/MPlotTools.h"
+#include "MPlot/MPlotColorMap.h"
 #include "dataman/datasource/AMDataSourceImageData.h"
 
 #include "analysis/REIXS/REIXSXESImageAB.h"
-
-#include <QDebug>
 
 REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWidget *parent) :
 	QWidget(parent)
@@ -61,13 +60,18 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	plot_->axisScaleBottom()->setPadding(0);
 	plot_->axisScaleLeft()->setPadding(0);
 	image_ = 0;
+	colorMap_ = new MPlotColorMap(MPlotColorMap::Jet);
+	colorMap_->setBrightness(0.08);
+	colorMap_->setContrast(2.1);
+	colorMap_->setGamma(1.0);
 
 	shiftData_ = new REIXSXESImageABEditorShiftModel(analysisBlock_);
 	shiftSeries_ = new MPlotSeriesBasic();
 	shiftSeries_->setModel(shiftData_, true);
 	shiftSeries_->setIgnoreWhenAutoScaling(true);
+	shiftSeries_->setMarker(MPlotMarkerShape::None);
 	plot_->addItem(shiftSeries_);
-	shiftSeries_->setZValue(5000);	// put on top of everything.
+	shiftSeries_->setZValue(2999);	// put on top of plot, but below range rectangles.
 
 	QColor white(Qt::white);
 	QPen pen(white, 1, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
@@ -85,6 +89,8 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	plot_->addItem(rangeRectangle2_);
 	rangeRectangle2_->setVisible(false);
 	plot_->legend()->enableDefaultLegend(false);
+	plot_->axisBottom()->setTicks(3);
+	plot_->axisLeft()->setTicks(3);
 
 	plot_->addTool(new MPlotDragZoomerTool());
 	plot_->addTool(new MPlotWheelZoomerTool());
@@ -97,12 +103,12 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	hl->addWidget(rangeMinControl_);
 	hl->addWidget(new QLabel("To"));
 	hl->addWidget(rangeMaxControl_);
-	fl->addRow("From (index)", hl);
+	fl->addRow("From:", hl);
 	QHBoxLayout* hl2 = new QHBoxLayout();
 	hl2->addWidget(correlationCenterBox_);
-	hl2->addWidget(new QLabel("Points"));
+	hl2->addWidget(new QLabel("#"));
 	hl2->addWidget(correlationPointsBox_);
-	fl->addRow("Correlation: Center", hl2);
+	fl->addRow("Corr. Center", hl2);
 	fl->addRow(liveCorrelationCheckBox_);
 	fl->addRow(correlateNowButton_);
 	vl->addLayout(fl);
@@ -127,6 +133,10 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	// direct connections:
 	connect(correlateNowButton_, SIGNAL(clicked()), analysisBlock_, SLOT(correlateNow()));
 	connect(liveCorrelationCheckBox_, SIGNAL(toggled(bool)), analysisBlock_, SLOT(enableLiveCorrelation(bool)));
+}
+
+REIXSXESImageABEditor::~REIXSXESImageABEditor() {
+	delete colorMap_;
 }
 
 void REIXSXESImageABEditor::onRangeMinControlChanged(int newRangeMin)
@@ -228,6 +238,7 @@ void REIXSXESImageABEditor::onAnalysisBlockInputDataSourcesChanged()
 		shiftDisplayOffsetSlider_->blockSignals(false);
 
 		image_ = new MPlotImageBasic();
+		image_->setColorMap(*colorMap_);
 		image_->setModel(new AMDataSourceImageData(inputSource), true);
 		plot_->addItem(image_);
 	}
@@ -300,9 +311,7 @@ REIXSXESImageABEditorShiftModel::REIXSXESImageABEditorShiftModel(REIXSXESImageAB
 	connect(analysisBlock_, SIGNAL(inputSourcesChanged()), this, SLOT(onOutputSizeChanged()));
 	connect(analysisBlock_, SIGNAL(shiftValuesChanged()), this, SLOT(onShiftValuesChanged()));
 }
-REIXSXESImageABEditorShiftModel::~REIXSXESImageABEditorShiftModel() {
-	qDebug() << "!!!!!!!!!!!!!!!!!\nShift model getting deleted. That means the series and plot were deleted. Good.";
-}
+
 
 qreal REIXSXESImageABEditorShiftModel::x(unsigned index) const
 {

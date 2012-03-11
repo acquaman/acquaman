@@ -20,8 +20,34 @@ REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
 
+	// Fitting structures (unallocated)
+	fitWorkSpace_ = 0;
+	fitXX_ = 0;
+	fitY_ = 0;
+	fitWeight_ = 0;
+	fitC_ = 0;
+	fitCov_ = 0;
+
 	connect(&callCorrelation_, SIGNAL(executed()), this, SLOT(correlateNow()));
 	setDescription("XES Analyzed Spectrum");
+}
+
+REIXSXESImageAB::REIXSXESImageAB(AMDatabase *db, int id) :
+	AMStandardAnalysisBlock("tempName", 0)
+{
+	sumRangeMin_ = 2;
+	sumRangeMax_ = 61;
+	correlationCenterPx_ = 512;
+	correlationHalfWidth_ = 40;
+	liveCorrelation_ = false;
+	// shift values can start out empty.
+
+	inputSource_ = 0;
+	cacheCompletelyInvalid_ = false;
+
+	// leave sources_ empty for now.
+
+	axes_ << AMAxisInfo("invalid", 0, "No input data");
 
 	// Fitting structures (unallocated)
 	fitWorkSpace_ = 0;
@@ -30,20 +56,8 @@ REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 	fitWeight_ = 0;
 	fitC_ = 0;
 	fitCov_ = 0;
-}
 
-REIXSXESImageAB::REIXSXESImageAB(AMDatabase *db, int id) :
-	AMStandardAnalysisBlock("tempName", 0)
-{
-	inputSource_ = 0;
-	cacheCompletelyInvalid_ = false;
-
-	// leave sources_ empty for now.
-
-	axes_ << AMAxisInfo("invalid", 0, "No input data");
-
-	loadFromDb(db, id);
-	// will restore the parameters sumRangeMin_, sumRangeMax_, correlation settings, and shift values. We'll remain invalid until we get connected to a data source.
+	loadFromDb(db, id); // will restore the parameters sumRangeMin_, sumRangeMax_, correlation settings, and shift values. We'll remain invalid until we get connected to a data source.
 	AMDataSource::name_ = AMDbObject::name();	// normally it's not okay to change a dataSource's name. Here we get away with it because we're within the constructor, and nothing's watching us yet.
 
 	connect(&callCorrelation_, SIGNAL(executed()), this, SLOT(correlateNow()));
@@ -60,6 +74,9 @@ void REIXSXESImageAB::setSumRangeMin(int sumRangeMin)
 		return;
 
 	sumRangeMin_ = sumRangeMin;
+	if(liveCorrelation())
+		callCorrelation_.schedule();
+
 	invalidateCache();
 	reviewState();
 
@@ -73,6 +90,9 @@ void REIXSXESImageAB::setSumRangeMax(int sumRangeMax)
 		return;
 
 	sumRangeMax_ = sumRangeMax;
+	if(liveCorrelation())
+		callCorrelation_.schedule();
+
 	invalidateCache();
 	reviewState();
 
@@ -158,7 +178,6 @@ void REIXSXESImageAB::setInputDataSourcesImplementation(const QList<AMDataSource
 		sources_.clear();
 
 		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
-		releaseFittingStructures();
 	}
 
 	// we know that this will only be called with one valid input source
@@ -177,8 +196,6 @@ void REIXSXESImageAB::setInputDataSourcesImplementation(const QList<AMDataSource
 		connect(inputSource_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		connect(inputSource_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 
-		releaseFittingStructures();	// harmless if don't exist yet.
-		allocateFittingStructures(inputSource_->size(1));
 	}
 
 
@@ -215,7 +232,7 @@ AMNumber REIXSXESImageAB::value(const AMnDIndex &indexes, bool doBoundsChecking)
 		double newVal = 0.0;
 		int contributingRows = 0;
 		for(int j=sumRangeMin_; j<=sumRangeMax_; j++) { // loop through rows
-			int sourceI = i - shiftValues_.at(j);
+			int sourceI = i + shiftValues_.at(j);
 			if(sourceI < maxI && sourceI >= 0) {
 				newVal += double(inputSource_->value(AMnDIndex(sourceI, j), false));
 				contributingRows++;
@@ -224,7 +241,10 @@ AMNumber REIXSXESImageAB::value(const AMnDIndex &indexes, bool doBoundsChecking)
 
 		// normalize by dividing by the number of rows that contributed. Since we want to keep the output in units similar to raw counts, multiply by the nominal (usual) number of contributing rows.
 		// Essentially, this normalization prevents columns near the edge that miss out on some rows due to shifting from being artificially suppressed.  For inner columns, contributingRows will (sumRangeMax_ - sumRangeMin_ + 1).
-		newVal = newVal * double(sumRangeMax_ - sumRangeMin_ + 1) / double(contributingRows);
+		if(contributingRows == 0)
+			newVal = 0;
+		else
+			newVal = newVal * double(sumRangeMax_ - sumRangeMin_ + 1) / double(contributingRows);
 
 		cachedValues_[i] = newVal;
 		cacheCompletelyInvalid_ = false;
@@ -265,10 +285,6 @@ void REIXSXESImageAB::onInputSourceSizeChanged()
 		cachedValues_.resize(axes_.at(0).size);	// resize() will fill in with default-constructed value for AMNumber(), which is AMNumber::Null.
 		emitSizeChanged(0);
 	}
-
-	// the fitting structures have to match the vertical size of the image.
-	releaseFittingStructures();
-	allocateFittingStructures(inputSource_->size(1));
 
 	// because of the shifting before summing, this could change values outside of the added/removed region; just invalidate everything.
 	invalidateCache();
@@ -322,7 +338,6 @@ void REIXSXESImageAB::enableLiveCorrelation(bool enabled)
 	setModified(true);
 }
 
-
 void REIXSXESImageAB::correlateNow()
 {
 	if(!inputSource_ || !inputSource_->isValid())
@@ -331,7 +346,12 @@ void REIXSXESImageAB::correlateNow()
 	// variables:
 	int sizeY = inputSource_->size(1);
 	int sizeX = inputSource_->size(0);
-	int midY = sizeY/2;
+	int midY = (sumRangeMin()+sumRangeMax())/2;
+
+	if(sizeY < 1 || sizeX < 1) {
+		AMErrorMon::alert(this, -37, "Image correlation routine should not be run with a size of 0. Please report this bug to the REIXS Acquaman developers.");
+		return;
+	}
 
 	int minShift = -correlationHalfWidth_;
 	int maxShift = correlationHalfWidth_;
@@ -371,6 +391,9 @@ void REIXSXESImageAB::correlateNow()
 
 void REIXSXESImageAB::allocateFittingStructures(int numRows)
 {
+	if(numRows < 1)
+		return;	// do not allocate if size is 0.
+
 	fitWorkSpace_ = gsl_multifit_linear_alloc(numRows, 3);
 	fitXX_ = gsl_matrix_calloc(numRows, 3);		// The matrix of predictor variables XX_ij = x_i^j;  In our case, x is the image row index (y!)
 	fitY_ = gsl_vector_calloc(numRows);		// The vector of observations;  In our case, fitY_i is the shiftnumber shiftnum_[i]
@@ -412,6 +435,12 @@ QVector<int> REIXSXESImageAB::quadraticSmooth(const QVector<int> &shifts)
 	if(shifts.count() != sizeY) {
 		AMErrorMon::alert(this, -33, "Cannot conduct quadratic smoothing of the shift values, because the size of the input does not match the image vertical size. Please report this bug to the REIXS Acquaman developers.");
 		return rv;
+	}
+
+	// Do we need to allocate or re-size the fitting structures?
+	if(!fitWorkSpace_ || fitY_->size != size_t(sizeY)) {
+		releaseFittingStructures();
+		allocateFittingStructures(sizeY);
 	}
 
 	// Copy the shiftnumbers into the 'observation' fitting vector

@@ -14,6 +14,7 @@ class MPlot;
 class MPlotImageBasic;
 class MPlotRectangle;
 class MPlotSeriesBasic;
+class MPlotColorMap;
 
 class REIXSXESImageAB;
 
@@ -25,7 +26,6 @@ class REIXSXESImageABEditorShiftModel : public QObject, public MPlotAbstractSeri
 public:
 	/// Constructor: exposes the shiftValues() in \c analysisBlock (must be valid).
 	REIXSXESImageABEditorShiftModel(REIXSXESImageAB* analysisBlock, QObject* parent = 0);
-	~REIXSXESImageABEditorShiftModel();
 
 	virtual qreal x(unsigned index) const;
 	virtual qreal y(unsigned index) const;
@@ -57,6 +57,8 @@ public:
 	/// Construct an editor for the analysis block \c analysisBlock. (Must be valid)
 	explicit REIXSXESImageABEditor(REIXSXESImageAB* analysisBlock, QWidget *parent = 0);
 
+	/// Destructor
+	~REIXSXESImageABEditor();
 
 
 signals:
@@ -96,6 +98,7 @@ protected:
 	// plot widget to show what region is summed
 	MPlotWidget* plotWidget_;
 	MPlot* plot_;
+	MPlotColorMap* colorMap_;
 	MPlotImageBasic* image_;
 	MPlotRectangle* rangeRectangle1_, *rangeRectangle2_;
 	MPlotSeriesBasic* shiftSeries_;

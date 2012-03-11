@@ -89,7 +89,7 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 	MPlotColorMap colorMap(MPlotColorMap::Bone);
 	colorMap.setContrast(2.1);
 	colorMap.setBrightness(0.08);
-	colorMap.setGamma(0.7);
+	colorMap.setGamma(1.0);
 	image_->setColorMap(colorMap);
 	imagePlot_->addItem(image_);
 

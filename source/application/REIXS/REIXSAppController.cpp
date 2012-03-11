@@ -67,6 +67,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions2/editors/REIXS/REIXSControlMoveActionEditor.h"
 #include "actions2/editors/REIXS/REIXSBeamOnOffActionEditor.h"
 
+#include "analysis/REIXS/REIXSXESImageAB.h"
+
 #include "ui/REIXS/REIXSSidebar.h"
 
 #include <QMessageBox>
@@ -91,6 +93,7 @@ bool REIXSAppController::startup() {
         AMDbObjectSupport::s()->registerClass<REIXSXESScanConfiguration>();
         AMDbObjectSupport::s()->registerClass<REIXSXESMCPDetectorInfo>();
         AMDbObjectSupport::s()->registerClass<REIXSXESCalibration>();
+		AMDbObjectSupport::s()->registerClass<REIXSXESImageAB>();
 
         AMDbObjectSupport::s()->registerClass<REIXSControlMoveActionInfo>();
         AMDbObjectSupport::s()->registerClass<REIXSXESScanActionInfo>();
