@@ -95,6 +95,9 @@ QString AMDateTimeUtils::prettyDateRange(const QDateTime& start, const QDateTime
 
 
 QString AMDateTimeUtils::prettyDuration(const QDateTime& start, const QDateTime& end) {
+	if(!start.isValid() || !end.isValid())
+		return "??";
+
 	int seconds = start.secsTo(end);
 	if(seconds == 0) {
 		return QString("%1 milliseconds").arg(start.msecsTo(end));
@@ -104,7 +107,7 @@ QString AMDateTimeUtils::prettyDuration(const QDateTime& start, const QDateTime&
 	else if(seconds < 60)
 		return QString("%1 seconds").arg(seconds);
 	else if(seconds < 3600) {
-		int minutes = seconds / 60.0;
+		int minutes = int(seconds / 60.0);
 		int remainingSeconds = seconds - minutes*60;
 		if(minutes == 1)
 			return QString("1 minute and %1 sec").arg(remainingSeconds);
@@ -112,15 +115,15 @@ QString AMDateTimeUtils::prettyDuration(const QDateTime& start, const QDateTime&
 			return QString("%1 minutes and %2 sec").arg(minutes).arg(remainingSeconds);
 	}
 	else if(seconds < 3600*24) {
-		int hours = seconds / 3600.0;
-		int remainingMinutes = (seconds - hours*3600.0)/60.0;
+		int hours = int(seconds / 3600.0);
+		int remainingMinutes = int((seconds - hours*3600.0)/60.0);
 		if(hours == 1)
 			return QString("1 hour and %1 min").arg(remainingMinutes);
 		else
 			return QString("%1 hours and %2 min").arg(hours).arg(remainingMinutes);
 	}
 	else {
-		int days = seconds / (3600.0*24.0);
+		int days = int(seconds / (3600.0*24.0));
 		double remainingHours = (seconds - days*3600*24)/3600.0;
 		if(days == 1)
 			return QString("1 day, %1 hours").arg(remainingHours, 0, 'f', 1);
