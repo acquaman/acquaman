@@ -76,8 +76,8 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 
 	corrRegionLeft_ = new MPlotPoint(QPointF(analysisBlock_->correlationCenterPixel()-analysisBlock_->correlationHalfWidth(), 0));
 	corrRegionRight_ = new MPlotPoint(QPointF(analysisBlock_->correlationCenterPixel()+analysisBlock_->correlationHalfWidth(), 0));
-	corrRegionLeft_->setMarker(MPlotMarkerShape::VerticalBeam, 1, QPen(QColor(Qt::black)));
-	corrRegionRight_->setMarker(MPlotMarkerShape::VerticalBeam, 1, QPen(QColor(Qt::black)));
+	corrRegionLeft_->setMarker(MPlotMarkerShape::VerticalBeam, 2000, QPen(QColor(Qt::black)));
+	corrRegionRight_->setMarker(MPlotMarkerShape::VerticalBeam, 2000, QPen(QColor(Qt::black)));
 	corrRegionLeft_->setIgnoreWhenAutoScaling(true);
 	corrRegionRight_->setIgnoreWhenAutoScaling(true);
 	plot_->addItem(corrRegionLeft_);
