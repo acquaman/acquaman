@@ -17,6 +17,7 @@
 #include "MPlot/MPlotSeriesData.h"
 #include "MPlot/MPlotTools.h"
 #include "MPlot/MPlotColorMap.h"
+#include "MPlot/MPlotPoint.h"
 #include "dataman/datasource/AMDataSourceImageData.h"
 
 #include "analysis/REIXS/REIXSXESImageAB.h"
@@ -72,6 +73,17 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	shiftSeries_->setMarker(MPlotMarkerShape::None);
 	plot_->addItem(shiftSeries_);
 	shiftSeries_->setZValue(2999);	// put on top of plot, but below range rectangles.
+
+	corrRegionLeft_ = new MPlotPoint(QPointF(analysisBlock_->correlationCenterPixel()-analysisBlock_->correlationHalfWidth(), 0));
+	corrRegionRight_ = new MPlotPoint(QPointF(analysisBlock_->correlationCenterPixel()+analysisBlock_->correlationHalfWidth(), 0));
+	corrRegionLeft_->setMarker(MPlotMarkerShape::VerticalBeam, 1, QPen(QColor(Qt::black)));
+	corrRegionRight_->setMarker(MPlotMarkerShape::VerticalBeam, 1, QPen(QColor(Qt::black)));
+	corrRegionLeft_->setIgnoreWhenAutoScaling(true);
+	corrRegionRight_->setIgnoreWhenAutoScaling(true);
+	plot_->addItem(corrRegionLeft_);
+	plot_->addItem(corrRegionRight_);
+	corrRegionLeft_->setZValue(2998);
+	corrRegionRight_->setZValue(2997);
 
 	QColor white(Qt::white);
 	QPen pen(white, 1, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
@@ -174,6 +186,8 @@ void REIXSXESImageABEditor::onCorrelationCenterBoxChanged(int center)
 	analysisBlock_->setCorrelationCenterPixel(center);
 
 	// update lines showing correlation range.
+	corrRegionLeft_->setValue(QPointF(analysisBlock_->correlationCenterPixel()-analysisBlock_->correlationHalfWidth(), 0));
+	corrRegionRight_->setValue(QPointF(analysisBlock_->correlationCenterPixel()+analysisBlock_->correlationHalfWidth(), 0));
 }
 
 void REIXSXESImageABEditor::onCorrelationPointsBoxChanged(int points)
@@ -186,6 +200,8 @@ void REIXSXESImageABEditor::onCorrelationPointsBoxChanged(int points)
 	analysisBlock_->setCorrelationHalfWidth(halfWidth);
 
 	// update lines showing correlation range.
+	corrRegionLeft_->setValue(QPointF(analysisBlock_->correlationCenterPixel()-analysisBlock_->correlationHalfWidth(), 0));
+	corrRegionRight_->setValue(QPointF(analysisBlock_->correlationCenterPixel()+analysisBlock_->correlationHalfWidth(), 0));
 }
 
 void REIXSXESImageABEditor::onAnalysisBlockInputDataSourcesChanged()
@@ -241,6 +257,9 @@ void REIXSXESImageABEditor::onAnalysisBlockInputDataSourcesChanged()
 		image_->setColorMap(*colorMap_);
 		image_->setModel(new AMDataSourceImageData(inputSource), true);
 		plot_->addItem(image_);
+
+		corrRegionLeft_->setValue(QPointF(analysisBlock_->correlationCenterPixel()-analysisBlock_->correlationHalfWidth(), 0));
+		corrRegionRight_->setValue(QPointF(analysisBlock_->correlationCenterPixel()+analysisBlock_->correlationHalfWidth(), 0));
 	}
 
 	else {

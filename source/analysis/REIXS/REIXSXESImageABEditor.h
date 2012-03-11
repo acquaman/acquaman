@@ -15,6 +15,7 @@ class MPlotImageBasic;
 class MPlotRectangle;
 class MPlotSeriesBasic;
 class MPlotColorMap;
+class MPlotPoint;
 
 class REIXSXESImageAB;
 
@@ -102,6 +103,7 @@ protected:
 	MPlotImageBasic* image_;
 	MPlotRectangle* rangeRectangle1_, *rangeRectangle2_;
 	MPlotSeriesBasic* shiftSeries_;
+	MPlotPoint* corrRegionLeft_, * corrRegionRight_;
 	REIXSXESImageABEditorShiftModel* shiftData_;
 
 
