@@ -57,8 +57,8 @@ public:
 	/// This constructor is empty. Call AMDatamanAppController::startup() to create all of the application windows, widgets, and data objects that are needed on program startup.
 	explicit AMDatamanAppController(QObject *parent = 0);
 
-	/// This destructor automatically calls shutdown() if required. (ie: if startup() has run successfully, and shutdown() hasn't been called yet.)
-	virtual ~AMDatamanAppController();
+	/// This destructor is empty.  You should call shutdown() to delete everything and clean up.
+	virtual ~AMDatamanAppController() {}
 
 	// 1. Lifecycle control
 	//////////////////////////////

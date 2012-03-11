@@ -442,15 +442,6 @@ bool AMDatamanAppController::startupInstallActions()
 }
 
 
-
-
-/// Program shutdown:
-AMDatamanAppController::~AMDatamanAppController() {
-
-	if(isRunning())
-		shutdown();
-}
-
 void AMDatamanAppController::shutdown() {
 
 	isShuttingDown_ = true;
@@ -460,7 +451,6 @@ void AMDatamanAppController::shutdown() {
 
 	// Close down connection to the user Database
 	AMDatabase::deleteDatabase("user");
-
 
 }
 

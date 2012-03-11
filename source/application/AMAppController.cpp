@@ -45,10 +45,6 @@ bool AMAppController::startupCreateUserInterface() {
 	return false;
 }
 
-// Program shutdown:
-AMAppController::~AMAppController() {
-
-}
 
 
 
@@ -212,3 +208,4 @@ bool AMAppController::canCloseActionRunner()
 	// No objections. Can quit.
 	return true;
 }
+
