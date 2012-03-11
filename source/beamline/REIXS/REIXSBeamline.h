@@ -260,11 +260,15 @@ class REIXSBeamline : public AMBeamline
 {
 	Q_OBJECT
 public:
+	/// Acccess the REIXSBeamline singleton instance through REIXSBeamline::bl()
 	static REIXSBeamline* bl() {
 		if(!instance_)
 			instance_ = new REIXSBeamline();
 		return static_cast<REIXSBeamline*>(instance_);
 	}
+
+	/// Destructor
+	~REIXSBeamline();
 
 	// Accessing control elements:
 

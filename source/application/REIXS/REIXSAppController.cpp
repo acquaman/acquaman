@@ -217,8 +217,8 @@ bool REIXSAppController::startup() {
         return false;
 }
 
-
 void REIXSAppController::shutdown() {
+
     // Make sure we release/clean-up the beamline interface
     AMBeamline::releaseBl();
     AMAppController::shutdown();
