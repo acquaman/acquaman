@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMPluginsManager.h"
 #include "dataman/AMScanDictionary.h"
 
+#include <QDebug>
 
 AMScan::AMScan(QObject *parent)
 	: AMDbObject(parent)
@@ -75,6 +76,13 @@ AMScan::AMScan(QObject *parent)
 
 
 AMScan::~AMScan() {
+
+	qDebug() << "AMScan: Deleting" << fullName();
+
+	if(!owners_.isEmpty()) {
+		qWarning() << "AMScan: Warning: The scan was deleted while other objects were still interested in it. You should never delete a scan directly; instead, call AMScan::release().  Those objects might now attempt to access a deleted scan.";
+	}
+
 	// delete all data sources.
 	// \note This is expensive if an AMScanSetModel and associated plots are watching. It would be faster to tell those plots, "Peace out, all my data sources are about to disappear", so that they don't need to respond to each removal separately. For now, you should remove this scan from the AMScanSetModel FIRST, and then delete it.
 	int count;
@@ -679,6 +687,21 @@ QVector<int> AMScan::nonHiddenAnalyzedDataSourceIndexes() const
 			rv << i;
 	}
 	return rv;
+}
+
+void AMScan::retain(QObject *owner)
+{
+	if(owner)
+		owners_ << owner;
+}
+
+void AMScan::release(QObject *pastOwner)
+{
+	if(pastOwner)
+		owners_.remove(pastOwner);
+
+	if(owners_.isEmpty())	// nobody wants us anymore... So sad.
+		delete this;			// commit suicide.
 }
 
 #endif

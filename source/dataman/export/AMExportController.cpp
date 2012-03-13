@@ -66,6 +66,8 @@ AMExportController::AMExportController(const QList<AMScan*>& scansToExport) :
 	exporter_ = 0;
 	option_ = 0;
 	scanObjectsToExport_ = scansToExport;
+	foreach(AMScan* s, scanObjectsToExport_)
+		s->retain(this);	// make sure we keep these scans in memory as long as we need them.
 	state_ = Preparing;
 	availableDataSourcesModel_ = new QStandardItemModel(this);
 
@@ -278,11 +280,12 @@ void AMExportController::continueScanExport()
 				delete databaseObject;
 				throw QString("The export system couldn't load a scan out of the database (" % url.toString() % "), so this scan has not been exported.");
 			}
+			scan->retain(this);
 		}
 		else if(usingScanObjects_) {
 			scan = scanObjectsToExport_.at(exportScanIndex_);
 			if(!scan)
-				throw QString("The export system couldn't load a scan out of the database, so this scan has not been exported.");
+				throw QString("An invalid scan reference was provided, so this scan has not been exported.");
 		}
 
 		emit statusChanged(status_ = "Opening: " % scan->name());	// this is kinda pointless...
@@ -292,8 +295,7 @@ void AMExportController::continueScanExport()
 		if(!exporter_->isValidFor(scan, option_)) {
 			QString err("The exporter '" % exporter_->description() % "' and the template '" % option_->name() % "' are not compatible with this scan (" % scan->fullName() % "), so it has not been exported.");
 			emit statusChanged(status_ = err);
-			if(usingScanURLs_)
-				delete scan;
+			scan->release(this);
 			throw err;
 		}
 
@@ -302,15 +304,13 @@ void AMExportController::continueScanExport()
 		if(writtenFile.isNull()) {
 			QString err("Export failed for scan '" % scan->fullName() % "'.");
 			emit statusChanged(status_ = err);
-			if(usingScanURLs_)	// don't delete in usingScanObjects_ mode: we don't own the scans.
-				delete scan;
+			scan->release(this);
 			throw err;
 		}
 
 		emit statusChanged(status_ = "Wrote: " % writtenFile);
 		succeededCount_++;
-		if(usingScanURLs_) // don't delete in usingScanObjects_ mode: we don't own the scans.
-			delete scan; // done!
+		scan->release(this); // done!
 	}
 
 	catch(QString errMsg) {

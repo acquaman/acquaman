@@ -239,10 +239,11 @@ public:
 
 	// Resizable Interface:
 
-	/// Add a scan to this model.  The AMScan must exist elsewhere, for the lifetime that it is added to the model.  The model does not take ownership of the scan.
+	/// Add a scan to this model.  The model retains an interest in the scan, keeping it in memory as long as required. \see AMScan::retain().
 	void addScan(AMScan* newScan);
 
-	/// removes an AMScan from this model. Does not delete the scan.  You must call this before deleting a scan that has been added to the model.
+	/// removes an AMScan from this model. The model releases an interest in the scan, which might delete it if nothing else is using it.
+	/*! To prevent this from happening (for example, you want to re-use the scan instance outside this model), call removeMe->retain() before calling removeScan(removeMe). */
 	bool removeScan(AMScan* removeMe);
 
 	/// edit interface. Not all roles/values can be edited.

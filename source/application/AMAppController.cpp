@@ -125,12 +125,12 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 	// need to check that this scan actually has a valid config. This hasn't always been guaranteed, especially when scans move between beamlines.
 	AMScanConfiguration* config = scan->scanConfiguration();
 	if(!config) {
-		delete scan;
+		scan->release();
 		return;
 	}
 	// need to create a copy of the config so we can delete the scan (and hence the config instance owned by the scan). The view will take ownership of the copy.
 	config = config->createCopy();
-	delete scan;
+	scan->release();
 	if(!config)
 		return;
 

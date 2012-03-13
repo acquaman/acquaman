@@ -261,6 +261,9 @@ int AMScanSetModel::indexOf(const AMDataSource *dataSource, int scanIndex) const
 
 // Add a scan to this model.  The AMScan must exist elsewhere, for the lifetime that it is added to the model.  Model does not take ownership of the scan.
 void AMScanSetModel::addScan(AMScan* newScan) {
+
+	newScan->retain(this); // declare our interest in this scan.
+
 	emit layoutAboutToBeChanged();
 
 	beginInsertRows(QModelIndex(), scans_.count(), scans_.count());
@@ -305,6 +308,8 @@ bool AMScanSetModel::removeScan(AMScan* removeMe) {
 		scans_.removeAt(index);
 		sourcePlotSettings_.removeAt(index);
 		endRemoveRows();
+
+		removeMe->release(this);	// remove our interest in this scan.
 
 		/// \todo hack: should not be needed... But we do to keep QTreeViews from getting messed up. Why?
 		emit layoutChanged();
