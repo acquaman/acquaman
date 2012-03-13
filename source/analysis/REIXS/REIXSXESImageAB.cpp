@@ -272,6 +272,9 @@ void REIXSXESImageAB::onInputSourceValuesChanged(const AMnDIndex &start, const A
 {
 	Q_UNUSED(start)
 	Q_UNUSED(end)
+	
+	if(liveCorrelation())
+		callCorrelation_.schedule();
 
 	// invalidate the cache. We're not summing straight down, so values outside of the start - end range may change; we just invalidate everything.
 	invalidateCache();
@@ -285,6 +288,9 @@ void REIXSXESImageAB::onInputSourceSizeChanged()
 		cachedValues_.resize(axes_.at(0).size);	// resize() will fill in with default-constructed value for AMNumber(), which is AMNumber::Null.
 		emitSizeChanged(0);
 	}
+
+	if(liveCorrelation())
+		callCorrelation_.schedule();
 
 	// because of the shifting before summing, this could change values outside of the added/removed region; just invalidate everything.
 	invalidateCache();
