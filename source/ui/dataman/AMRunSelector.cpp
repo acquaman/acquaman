@@ -96,8 +96,8 @@ void AMRunSelector::populateRuns() {
 
 	if (q.exec()) {
 		while (q.next()){
-			addItem(QString("%1, started %2").arg(q.value(1).toString()).arg(AMDateTimeUtils::prettyDate(q.value(2).toDateTime())));
-			setItemData(i, q.value(3).toString(), AM::DescriptionRole);
+			addItem(QString("%1").arg(q.value(1).toString()));
+			setItemData(i, QString("started %1, %2").arg(AMDateTimeUtils::prettyDate(q.value(2).toDateTime())).arg(q.value(3).toString()), AM::DescriptionRole);
 			setItemData(i, q.value(2).toDateTime(), AM::DateTimeRole);
 			if(q.value(4).toString() == "PNG") {
 				QPixmap p;
