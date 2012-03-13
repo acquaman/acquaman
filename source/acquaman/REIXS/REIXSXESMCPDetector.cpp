@@ -119,7 +119,7 @@ void REIXSXESMCPDataSource::onConnectionStateChanged() {
 		emitSizeChanged();
 		emitStateChanged(AMDataSource::ProcessingFlag);
 
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Connection established to MCP Detector " + imagePV_->pvName() + QString(" Size: %1 x %2").arg(pixelsX_).arg(pixelsY_)));
+		// AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Connection established to MCP Detector " + imagePV_->pvName() + QString(" Size: %1 x %2").arg(pixelsX_).arg(pixelsY_)));
 	}
 }
 
