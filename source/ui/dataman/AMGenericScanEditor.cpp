@@ -41,6 +41,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMChooseScanDialog.h"
 #include "ui/dataman/AMControlInfoListTableView.h"
 
+#include "util/AMFontSizes.h"
+
 #ifndef ACQUAMAN_NO_ACQUISITION
 // needed to stop scans in progress, if requested from here during close events.
 #include "acquaman/AMScanController.h"
@@ -50,6 +52,8 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	QWidget(parent)
 {
 	ui_.setupUi(this);
+	ui_.topFrameTitle->setStyleSheet("font: " AM_FONT_LARGE_ "pt \"Lucida Grande\";\ncolor: rgb(79, 79, 79);");
+	ui_.statusTextLabel->setStyleSheet("color: white;\nfont: bold " AM_FONT_SMALL_ "pt \"Lucida Grande\"");
 	setWindowTitle("Scan Editor");
 
 	// Add extra UI components:

@@ -9,6 +9,7 @@
 #include "dataman/AMUser.h"
 
 #include "util/AMDateTimeUtils.h"
+#include "util/AMFontSizes.h"
 
 #include <QTreeView>
 #include <QBoxLayout>
@@ -382,9 +383,9 @@ AMActionHistoryView::AMActionHistoryView(AMActionRunner *actionRunner, AMDatabas
 	vl2->setContentsMargins(0,0,0,0);
 	vl2->setSpacing(0);
 	headerTitle_ = new QLabel("Completed Actions");
-	headerTitle_->setStyleSheet("color: white;\nfont: 20pt \"Lucida Grande\"");
+	headerTitle_->setStyleSheet("color: white;\nfont: " AM_FONT_XLARGE_ "pt \"Lucida Grande\"");
 	headerSubTitle_ = new QLabel("No actions to show.");
-	headerSubTitle_->setStyleSheet("color: rgb(204, 204, 204);\nfont: 12pt \"Lucida Grande\"");
+	headerSubTitle_->setStyleSheet("color: rgb(204, 204, 204);\nfont: " AM_FONT_REGULAR_ "pt \"Lucida Grande\"");
 	vl2->addWidget(headerTitle_);
 	vl2->addWidget(headerSubTitle_);
 	hl->addLayout(vl2);
@@ -400,7 +401,7 @@ AMActionHistoryView::AMActionHistoryView(AMActionRunner *actionRunner, AMDatabas
 	hl->addWidget(reRunActionButton_);
 	hl->addSpacing(40);
 	QLabel* showLabel = new QLabel("Show: ");
-	showLabel->setStyleSheet("color: rgb(204, 204, 204);\nfont: 12pt \"Lucida Grande\"");
+	showLabel->setStyleSheet("color: rgb(204, 204, 204);\nfont: " AM_FONT_REGULAR_ "pt \"Lucida Grande\"");
 	hl->addWidget(showLabel);
 	rangeComboBox_ = new QComboBox();
 	rangeComboBox_->addItem("Last Hour");

@@ -3,6 +3,8 @@
 #include "actions2/AMAction.h"
 #include "actions2/AMNestedAction.h"
 
+#include "util/AMFontSizes.h"
+
 #include <QTreeView>
 #include <QBoxLayout>
 #include <QFrame>
@@ -37,9 +39,9 @@ AMActionRunnerCurrentView::AMActionRunnerCurrentView(AMActionRunner* actionRunne
 	vl2->setContentsMargins(0,0,0,0);
 	vl2->setSpacing(0);
 	headerTitle_ = new QLabel("Current Action");
-	headerTitle_->setStyleSheet("color: white;\nfont: 20pt \"Lucida Grande\"");
+	headerTitle_->setStyleSheet("color: white;\nfont: " AM_FONT_XLARGE_ "pt \"Lucida Grande\"");
 	headerSubTitle_ = new QLabel("No action running.");
-	headerSubTitle_->setStyleSheet("color: rgb(204, 204, 204);\nfont: 12pt \"Lucida Grande\"");
+	headerSubTitle_->setStyleSheet("color: rgb(204, 204, 204);\nfont: " AM_FONT_REGULAR_ "pt \"Lucida Grande\"");
 	vl2->addWidget(headerTitle_);
 	vl2->addWidget(headerSubTitle_);
 	hl->addLayout(vl2);
@@ -47,7 +49,7 @@ AMActionRunnerCurrentView::AMActionRunnerCurrentView(AMActionRunner* actionRunne
 	hl->addStretch(0);
 
 	timeElapsedLabel_ = new QLabel("0:00");
-	timeElapsedLabel_->setStyleSheet("color: white;\nfont: 18pt \"Lucida Grande\"");
+	timeElapsedLabel_->setStyleSheet("color: white;\nfont: " AM_FONT_LARGE_ "pt \"Lucida Grande\"");
 	hl->addWidget(timeElapsedLabel_);
 	hl->addSpacing(10);
 	progressBar_ = new QProgressBar();
@@ -55,7 +57,7 @@ AMActionRunnerCurrentView::AMActionRunnerCurrentView(AMActionRunner* actionRunne
 	hl->addWidget(progressBar_, 1);
 	hl->addSpacing(10);
 	timeRemainingLabel_ = new QLabel("0:00");
-	timeRemainingLabel_->setStyleSheet("color: white;\nfont: 18pt \"Lucida Grande\"");
+	timeRemainingLabel_->setStyleSheet("color: white;\nfont: " AM_FONT_LARGE_ "pt \"Lucida Grande\"");
 	hl->addWidget(timeRemainingLabel_);
 	hl->addSpacing(20);
 

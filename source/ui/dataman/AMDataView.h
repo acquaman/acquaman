@@ -468,20 +468,7 @@ protected:
 class AMDataViewEmptyHeader : public AMAbstractDataViewSection, private Ui::AMDataViewEmptyHeader {
 	Q_OBJECT
 public:
-	explicit AMDataViewEmptyHeader(const QString& message, double initialWidthConstraint = 400, QGraphicsItem* parent = 0)
-		: AMAbstractDataViewSection(parent) {
-		widthConstraint_ = initialWidthConstraint;
-		proxiedWidget_ = new QFrame();
-		setupUi(proxiedWidget_);
-		QGraphicsProxyWidget* proxy = new QGraphicsProxyWidget(this);
-		proxy->setWidget(proxiedWidget_);
-		layout_ = new QGraphicsLinearLayout(Qt::Vertical);
-		layout_->setContentsMargins(0,0,0,0);
-		setLayout(layout_);
-		layout_->addItem(proxy);
-
-		messageText_->setText(message);
-	}
+	explicit AMDataViewEmptyHeader(const QString& message, double initialWidthConstraint = 400, QGraphicsItem* parent = 0);
 	virtual ~AMDataViewEmptyHeader() {}
 
 	void setWidthConstraint(double widthConstraint) { widthConstraint_ = widthConstraint; updateGeometry(); }
