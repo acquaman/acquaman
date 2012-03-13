@@ -1,6 +1,8 @@
 #include "AMWorkflowView.h"
 #include "actions2/AMActionRunner.h"
 
+#include "util/AMFontSizes.h"
+
 #include <QBoxLayout>
 #include <QIcon>
 #include <QLabel>
@@ -22,7 +24,7 @@ AMWorkflowView::AMWorkflowView(QWidget *parent) :
 	titleIcon->setScaledContents(true);
 	hl->addWidget(titleIcon);
 	QLabel* titleLabel = new QLabel("Workflow");
-	titleLabel->setStyleSheet("font: 20pt \"Lucida Grande\";\ncolor: rgb(79, 79, 79);");
+	titleLabel->setStyleSheet("font: " AM_FONT_XLARGE_ "pt \"Lucida Grande\";\ncolor: rgb(79, 79, 79);");
 	hl->addWidget(titleLabel);
 	hl->addStretch(1);
 	addActionButton_ = new QPushButton("Add Action...");

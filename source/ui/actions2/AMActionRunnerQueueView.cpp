@@ -3,6 +3,8 @@
 #include "actions2/AMActionRunner.h"
 #include "actions2/AMActionRegistry.h"
 
+#include "util/AMFontSizes.h"
+
 #include <QTreeView>
 #include <QBoxLayout>
 #include <QFrame>
@@ -55,9 +57,9 @@ AMActionRunnerQueueView::AMActionRunnerQueueView(AMActionRunner* actionRunner, Q
 	vl2->setContentsMargins(0,0,0,0);
 	vl2->setSpacing(0);
 	headerTitle_ = new QLabel("Upcoming Actions");
-	headerTitle_->setStyleSheet("color: white;\nfont: 20pt \"Lucida Grande\"");
+	headerTitle_->setStyleSheet("color: white;\nfont: " AM_FONT_XLARGE_ "pt \"Lucida Grande\"");
 	headerSubTitle_ = new QLabel(QString("%1 actions in the workflow queue.").arg(actionRunner_->queuedActionCount()));
-	headerSubTitle_->setStyleSheet("color: rgb(204, 204, 204);\nfont: 12pt \"Lucida Grande\"");
+	headerSubTitle_->setStyleSheet("color: rgb(204, 204, 204);\nfont: " AM_FONT_REGULAR_ "pt \"Lucida Grande\"");
 	vl2->addWidget(headerTitle_);
 	vl2->addWidget(headerSubTitle_);
 	hl->addLayout(vl2);

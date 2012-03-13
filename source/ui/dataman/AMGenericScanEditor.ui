@@ -119,7 +119,7 @@ border-bottom: 1px solid black;
        </spacer>
       </item>
       <item>
-       <widget class="QLabel" name="xPosLabel">
+       <widget class="QLabel" name="statusTextLabel">
         <property name="styleSheet">
          <string notr="true">color: white;
 font: bold 10pt &quot;Lucida Grande&quot;</string>

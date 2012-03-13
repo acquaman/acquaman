@@ -509,7 +509,8 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/acquaman/AM2DScanConfiguration.h \
 	source/dataman/AM2DScan.h \
     source/analysis/AM2DNormalizationAB.h \
-	source/analysis/AM2DNormalizationABEditor.h
+	source/analysis/AM2DNormalizationABEditor.h \
+    source/util/AMFontSizes.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -870,6 +871,7 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
 
 
 

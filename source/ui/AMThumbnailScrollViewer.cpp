@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMThumbnailScrollViewer.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "util/AMErrorMonitor.h"
-
+#include "util/AMFontSizes.h"
 #include <QVBoxLayout>
 
 AMThumbnailScrollViewer::AMThumbnailScrollViewer(QWidget *parent) :
@@ -39,10 +39,10 @@ AMThumbnailScrollViewer::AMThumbnailScrollViewer(QWidget *parent) :
 
 	title_ = new QLabel("Title");
 	title_->setAlignment(Qt::AlignRight);
-	title_->setStyleSheet("color: rgb(25,25,25); font: 12pt bold \"Lucida Grande\";");
+	title_->setStyleSheet("color: rgb(25,25,25); font: " AM_FONT_REGULAR_ "pt bold \"Lucida Grande\";");
 	subtitle_ = new QLabel("Subtitle");
 	subtitle_->setAlignment(Qt::AlignRight);
-	subtitle_->setStyleSheet("color: rgb(168,168,168); font: 12pt italic \"Lucida Grande\";");
+	subtitle_->setStyleSheet("color: rgb(168,168,168); font: " AM_FONT_REGULAR_ "pt italic \"Lucida Grande\";");
 
 	QVBoxLayout* vl = new QVBoxLayout();
 	vl->addWidget(title_);
@@ -206,11 +206,11 @@ AMThumbnailScrollWidget::AMThumbnailScrollWidget(const QString& caption1, const 
 	tv_ = new AMThumbnailScrollViewer();
 	c1_ = new QLabel(caption1);
 	c1_->setAlignment(Qt::AlignCenter);
-	c1_->setStyleSheet("font: bold 12pt \"Lucida Grande\"; color: rgb(25, 25, 25);");
+	c1_->setStyleSheet("font: bold " AM_FONT_REGULAR_ "pt \"Lucida Grande\"; color: rgb(25, 25, 25);");
 	c1_->setWordWrap(true);
 	c2_ = new QLabel(caption2);
 	c2_->setAlignment(Qt::AlignHCenter);
-	c2_->setStyleSheet("font: italic 12pt \"Lucida Grande\"; color: rgb(127, 127, 127);");
+	c2_->setStyleSheet("font: italic " AM_FONT_REGULAR_ "pt \"Lucida Grande\"; color: rgb(127, 127, 127);");
 	c2_->setWordWrap(true);
 
 	QVBoxLayout* vl = new QVBoxLayout();
