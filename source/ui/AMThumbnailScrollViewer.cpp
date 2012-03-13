@@ -287,7 +287,7 @@ void AMThumbnailScrollGraphicsWidget::paint(QPainter *painter, const QStyleOptio
 	painter->drawPixmap(QPointF(0,0), scaledPixmap_);
 
 	// draw title and subtitle (thumbnail content)
-	int fontSize = width_ > 180 ? 12 : 10;
+	int fontSize = width_ > 180 ? AM_FONT_REGULAR : AM_FONT_SMALL;
 	QFont font = QFont("Lucida Grande", fontSize, QFont::DemiBold);
 
 	QRectF tRect;
