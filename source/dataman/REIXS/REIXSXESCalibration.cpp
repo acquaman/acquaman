@@ -33,21 +33,21 @@ REIXSXESCalibration::REIXSXESCalibration(QObject *parent) :
 	gratingCenterPositionsZ_ << 12.892 << 13.507 << -18.923 << 16.465 << 16.709;
 
 	gratingMountTilt_ << 5.01 << 4.011 << 3.005 << 2.764 << 3.013;
-	gratingMountRoll_ << 0 << 0 << 0 << 0 << 0;
+	gratingMountRoll_ << .261 << .261 << .261 << .261 << .261;
 	// gratingMountTwist_ << 0.41 << 0.41 << 0.41 << 0.41;
 
 	hexapodOrigin_ = QVector3D(2.418, 4.145, -430.478);
 
-	detectorPos0_ = QVector3D(-2.548, 498.977, 25.279);
+	detectorPos0_ = QVector3D(0.032, 499.609, 23.895);
 
 	slitPos_ = QVector3D(-0.32, -349.95, -6.10);
 	opticalOrigin_ = QVector3D(0, 0, 0);
 
 
-	detectorHeightError_ = 3.03; //mm
+	detectorHeightError_ = 0;// !!!! -3.03 from old calculations. Who knows?; //mm
 
-	spectrometerTheta0_ = 1.749; //deg
-	spectrometerTheta0m_ = 3.07; //deg
+	spectrometerTheta0_ = 2.738; //deg (Calculated from detector position, in hexapod coordinates, at the survey position)
+	spectrometerTheta0m_ = 3.0; // !!!! deg (3.1 from survey data. This number needs more accuracy)
 
 	frameA_ = 2850.66;//mm
 	frameATheta_ = 3.205021;//deg
@@ -113,12 +113,14 @@ AMControlInfoList REIXSXESCalibration::computeSpectrometerPosition(int gratingIn
 	qDebug() << "   Grating tilt to achieve required alpha (deg):" << hexU;
 	qDebug() << "   r (mm):" << r();
 	qDebug() << "   r-prime (mm):" << rPrime(eV, gratingIndex);
-	qDebug() << "   Spectrometer dTheta: angle up from y axis to center of detector:" << r2d(dTheta(eV, gratingIndex));
+	qDebug() << "   Spectrometer dTheta: angle up from y axis to center of detector (deg):" << r2d(dTheta(eV, gratingIndex));
 	qDebug() << "   Detector position:" << detPos;
-	qDebug() << "   Spectrometer theta:" << theta;
-	qDebug() << "   Translation:" << translation;
-	qDebug() << "   Spectrometer rotation stage translation:" << spectrometerRotation;
-	qDebug() << "   Tilt stage translation:" << tilt;
+	qDebug() << "   Spectrometer theta: (deg)" << r2d(theta);
+	qDebug() << "   Translation: (mm)" << translation;
+	qDebug() << "   Spectrometer rotation stage translation: (mm)" << spectrometerRotation;
+	qDebug() << "   Detector tilt phi (detector angle down to positive y axis) (deg):" << r2d(detectorPhi(eV, gratingIndex));
+	qDebug() << "   Extra tilt on top of spectrometer angle" <<  r2d(detectorPhi(eV, gratingIndex) - theta);
+	qDebug() << "   Tilt stage translation: (mm)" << tilt;
 
 	return rv;
 }
