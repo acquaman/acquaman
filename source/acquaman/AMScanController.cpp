@@ -33,6 +33,11 @@ AMScanController::AMScanController(AMScanConfiguration *cfg, QObject *parent) :
 
 }
 
+AMScanController::~AMScanController() {
+	if(scan_)
+		scan_->release(this);
+}
+
 AMScanController::ScanState AMScanController::state() const {
 	return state_;
 }
@@ -126,8 +131,10 @@ void AMScanController::cancel(){
 
 bool AMScanController::setInitialized(){
 	if(canChangeStateTo(AMScanController::Initialized)){
-		if(scan_)
+		if(scan_) {
 			scan_->setScanController(this);
+			scan_->retain(this);
+		}
 		changeState(AMScanController::Initialized);
 		emit initialized();
 		return true;
@@ -137,8 +144,10 @@ bool AMScanController::setInitialized(){
 
 bool AMScanController::setStarted(){
 	if(canChangeStateTo(AMScanController::Running)){
-		if(scan_)
+		if(scan_) {
 			scan_->setScanController(this);
+			scan_->retain(this);
+		}
 		changeState(AMScanController::Running);
 		emit started();
 		return true;

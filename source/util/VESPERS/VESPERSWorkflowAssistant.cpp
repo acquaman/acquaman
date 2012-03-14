@@ -64,7 +64,8 @@ void VESPERSWorkflowAssistant::onWorkflowRunningChanged(bool running)
 	if (running && config_)
 		addExtraScanActions(config_->numberOfScans()-1);
 
-	emit workflowRunningChanged(running);
+	if (config_)
+		emit workflowRunningChanged(running);
 }
 
 void VESPERSWorkflowAssistant::onScanCancelled()

@@ -46,6 +46,9 @@ class AMScanController : public QObject
 public:
 	explicit AMScanController(AMScanConfiguration *configuration, QObject *parent = 0);
 
+	/// Destructor: If the scan_ has been created, releases it.
+	virtual ~AMScanController();
+
 	/// Enum describing the state/progress of the scan
 	enum ScanState { Constructed,
 			 Initializing,

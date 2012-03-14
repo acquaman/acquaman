@@ -56,6 +56,8 @@ void AMDacqScanController::useDwellTimes(AMControl *dwellTimeTrigger, AMControl 
 		useDwellTimes_ = true;
 		dwellTimeTrigger_ = dwellTimeTrigger;
 		dwellTimeConfirmed_ = dwellTimeConfirmed;
+		dwellTimeTrigger_->move(0);
+		dwellTimeConfirmed_->move(1);
 	}
 	else
 		useDwellTimes_ = false;
