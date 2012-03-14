@@ -35,6 +35,8 @@ public:
 protected:
 	/// Parse the data sources in option_, find their index within the scan, and fill mainTableDataSources_, separateSectionDataSources_, and separateFileDataSources_.  Returns true if all required data sources are found.
 	virtual bool prepareDataSources();
+	/// Method that writes the header piece of the exported file.
+	virtual void writeHeader();
 	/// Method that writes the data in the main table, including the function names.
 	virtual void writeMainTable();
 	/// Method that writes the separate sections of the data file.  Athena doesn't like separate sections, so this function is castrated.

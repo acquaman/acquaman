@@ -99,7 +99,7 @@ QString VESPERS2DScanConfiguration::headerText() const
 		break;
 	}
 
-	header.append("Regions of Interest\n");
+	header.append("\nRegions of Interest\n");
 
 	for (int i = 0; i < roiInfoList_.count(); i++)
 		header.append(roiInfoList_.at(i).name() + "\t" + QString::number(roiInfoList_.at(i).low()) + " eV\t" + QString::number(roiInfoList_.at(i).high()) + " eV\n");
@@ -108,10 +108,10 @@ QString VESPERS2DScanConfiguration::headerText() const
 	header.append("Map Dimensions\n");
 	header.append("X Axis\n");
 	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(xStart()).arg(xEnd()));
-	header.append(QString("Step Size:\t%1 %2\n").arg(xStep()).arg(QString::fromUtf8("μm")));
+	header.append(QString("Step Size:\t%1 mm\n").arg(xStep()));
 	header.append("Y Axis\n");
 	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(yStart()).arg(yEnd()));
-	header.append(QString("Step Size:\t%1 %2\n").arg(yStep()).arg(QString::fromUtf8("μm")));
+	header.append(QString("Step Size:\t%1 mm\n").arg(yStep()));
 
 	return header;
 }
