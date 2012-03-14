@@ -216,7 +216,7 @@ AMNumber AM2DNormalizationAB::axisValue(int axisNumber, int index, bool doBounds
 	if (!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	if (axisNumber != 0 || axisNumber != 1)
+    if (axisNumber != 0 && axisNumber != 1)
 		return AMNumber(AMNumber::DimensionError);
 
 	if (index >= axes_.at(axisNumber).size)
