@@ -16,8 +16,11 @@ AM2DNormalizationABEditor::AM2DNormalizationABEditor(AM2DNormalizationAB *analys
 	connect(normalizationNames_, SIGNAL(currentIndexChanged(int)), this, SLOT(onNormalizationNameChoiceChanged(int)));
 	connect(analysisBlock_, SIGNAL(inputSourcesChanged()), this, SLOT(populateComboBox()));
 
-	if (analysisBlock_->inputDataSourceCount() > 0)
+	if (analysisBlock_->inputDataSourceCount() > 0){
+
 		dataNames_->setCurrentIndex(dataNames_->findData(analysisBlock_->dataName()));
+		normalizationNames_->setCurrentIndex(normalizationNames_->findData(analysisBlock_->normalizationName()));
+	}
 
 	QFormLayout *layout = new QFormLayout;
 	layout->addRow("Data:", dataNames_);
@@ -55,5 +58,5 @@ void AM2DNormalizationABEditor::onDataNameChoiceChanged(int index)
 void AM2DNormalizationABEditor::onNormalizationNameChoiceChanged(int index)
 {
 	QString name = normalizationNames_->itemData(index).toString();
-	analysisBlock_->setDataName(name);
+	analysisBlock_->setNormalizationName(name);
 }

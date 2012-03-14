@@ -22,7 +22,7 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	cleanupActions_ = 0;
 
 	secondsElapsed_ = 0;
-	secondsTotal_ = config_->totalTime();
+	secondsTotal_ = config_->totalTime(true);
 	elapsedTime_.setInterval(1000);
 	connect(this, SIGNAL(started()), &elapsedTime_, SLOT(start()));
 	connect(this, SIGNAL(cancelled()), &elapsedTime_, SLOT(stop()));
@@ -86,20 +86,42 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	addExtraDatasources();
 
 	// Add analysis blocks.
-//	QList<AMDataSource *> i0List(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("Isplit"))
-//															<< scan_->dataSourceAt(scan_->indexOfDataSource("Iprekb"))
-//															<< scan_->dataSourceAt(scan_->indexOfDataSource("Imini")));
-//	AMDataSource *rawDataSource = 0;
-//	AM2DNormalizationAB *normROI = 0;
+	QList<AMDataSource *> i0List(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("Isplit"))
+															<< scan_->dataSourceAt(scan_->indexOfDataSource("Iprekb"))
+															<< scan_->dataSourceAt(scan_->indexOfDataSource("Imini")));
+	AMDataSource *rawDataSource = 0;
+	AM2DNormalizationAB *normROI = 0;
+	QString i0Name("");
 
-//	for (int i = 0; i < roiCount; i++){
+	switch (config_->incomingChoice()){
 
-//		rawDataSource = scan_->rawDataSources()->at(i+2);
-//		normROI = new AM2DNormalizationAB("norm_"+rawDataSource->name());
-//		normROI->setDescription("Normalized "+rawDataSource->description());
-//		normROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource << i0List);
-//		scan_->addAnalyzedDataSource(normROI, true, false);
-//	}
+	case VESPERS2DScanConfiguration::Isplit:
+		i0Name = i0List.at(0)->name();
+		break;
+
+	case VESPERS2DScanConfiguration::Iprekb:
+		i0Name = i0List.at(1)->name();
+		break;
+
+	case VESPERS2DScanConfiguration::Imini:
+		i0Name = i0List.at(2)->name();
+		break;
+
+	case VESPERS2DScanConfiguration::Ipost:
+		i0Name = "";
+		break;
+	}
+
+	for (int i = 0; i < roiCount; i++){
+
+		rawDataSource = scan_->rawDataSources()->at(i+2);
+		normROI = new AM2DNormalizationAB("norm_"+rawDataSource->name());
+		normROI->setDescription("Normalized "+rawDataSource->description());
+		normROI->setDataName(rawDataSource->name());
+		normROI->setNormalizationName(i0Name);
+		normROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource << i0List);
+		scan_->addAnalyzedDataSource(normROI, true, false);
+	}
 }
 
 void VESPERS2DDacqScanController::addExtraDatasources()
