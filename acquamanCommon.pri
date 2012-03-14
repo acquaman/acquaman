@@ -510,7 +510,8 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/dataman/AM2DScan.h \
     source/analysis/AM2DNormalizationAB.h \
 	source/analysis/AM2DNormalizationABEditor.h \
-    source/util/AMFontSizes.h
+    source/util/AMFontSizes.h \
+    source/ui/dataman/AMScanViewUtilities.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -847,7 +848,8 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/acquaman/AM2DScanConfiguration.cpp \
 	source/dataman/AM2DScan.cpp \
     source/analysis/AM2DNormalizationAB.cpp \
-	source/analysis/AM2DNormalizationABEditor.cpp
+	source/analysis/AM2DNormalizationABEditor.cpp \
+    source/ui/dataman/AMScanViewUtilities.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -871,6 +873,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 
