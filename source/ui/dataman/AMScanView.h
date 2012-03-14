@@ -41,8 +41,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QMenu>
 
-class AMScanViewSourceSelector;
-
 class QCheckBox;
 class QDoubleSpinBox;
 

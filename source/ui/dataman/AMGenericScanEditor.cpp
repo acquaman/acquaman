@@ -40,6 +40,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMDataSourcesEditor.h"
 #include "ui/dataman/AMChooseScanDialog.h"
 #include "ui/dataman/AMControlInfoListTableView.h"
+#include "ui/dataman/AM2DScanView.h"
 
 #include "util/AMFontSizes.h"
 
@@ -66,9 +67,13 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	scanView_ = new AMScanView();
 	scanView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	ui_.leftVerticalLayout->insertWidget(0, scanView_, 2);
+//	scanView2D_ = new AM2DScanView();
+//	scanView2D_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+//	ui_.leftVerticalLayout->insertWidget(0, scanView2D_, 2);
 
 	// share the scan set model with the AMScanView
 	scanSetModel_ = scanView_->model();
+//	scanSetModel_ = scanView2D_->model();
 
 	// And set this model on the list view of scans:
 	ui_.scanListView->setModel(scanSetModel_);

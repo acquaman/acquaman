@@ -801,7 +801,9 @@ void AMScanViewExclusiveView::setDataRangeConstraint(int id)
 	}
 }
 
+// AMScanViewMultiView
 /////////////////////////////
+
 AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInternal(masterView) {
 
 	// create our main plot:
@@ -1080,6 +1082,7 @@ void AMScanViewMultiView::setDataRangeConstraint(int id)
 	}
 }
 
+// AMScanViewMultiScansView
 ///////////////////////////////////////////////////
 
 AMScanViewMultiScansView::AMScanViewMultiScansView(AMScanView* masterView) : AMScanViewInternal(masterView) {
@@ -1447,10 +1450,8 @@ void AMScanViewMultiScansView::setDataRangeConstraint(int id)
 	}
 }
 
-
-
+// AMScanViewMultiSourcesView
 //////////////////////////////////////////////////
-
 
 AMScanViewMultiSourcesView::AMScanViewMultiSourcesView(AMScanView* masterView) : AMScanViewInternal(masterView) {
 

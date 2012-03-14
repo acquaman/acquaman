@@ -404,7 +404,25 @@ void AMScanSetModel::onDataSourceAdded(int dataSourceIndex) {
 	if(scanIndex == -1)
 		return;
 
-	sourcePlotSettings_[scanIndex].insert(dataSourceIndex, AMDataSourcePlotSettings());	/// \todo colors...
+	AMDataSourcePlotSettings ps; /// \todo set up nicer default colors (related within scans)
+	AMScan *scan = scanAt(scanIndex);
+
+	// Hack for Darren's 2D XRF maps and Mark's XES scans.
+	if (scan->scanRank() == 0){
+
+		ps.colorMap.setContrast(2.1);
+		ps.colorMap.setBrightness(0.08);
+		ps.colorMap.setGamma(1);
+	}
+
+	else if (scan->scanRank() == 2){
+
+		ps.colorMap.setContrast(1);
+		ps.colorMap.setBrightness(0);
+		ps.colorMap.setGamma(1);
+	}
+
+	sourcePlotSettings_[scanIndex].insert(dataSourceIndex, ps);
 
 	endInsertRows();
 }

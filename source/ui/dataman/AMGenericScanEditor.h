@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMScan;
 
 class AMScanView;
+class AM2DScanView;
 class AMVerticalStackWidget;
 class AMRunSelector;
 class AMSampleEditor;
@@ -161,6 +162,8 @@ protected:
 
 	/// Plot view capable of holding multiple scans.
 	AMScanView* scanView_;
+	//Testing AM2DScanView.
+	AM2DScanView *scanView2D_;
 
 	/// Sample editor
 	AMSampleEditor* sampleEditor_;
