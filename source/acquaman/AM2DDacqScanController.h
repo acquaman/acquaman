@@ -25,7 +25,7 @@
 
 	This is important because the start implementation will set the control information based
 	on that specification.  An important distinction is that the even if the fast and slow axes
-	are switched, the order of the first two data sources is still x then y.
+	are switched, the order of the first two data sources are still x then y.
 
 	Another assumption is that the first two data sources are assumed to be the x and y
 	coordinates, respectively.  If anything else is in the first two columns then the
@@ -38,11 +38,6 @@ class AM2DDacqScanController : public AMDacqScanController
 public:
 	/// Constructor.
 	AM2DDacqScanController(AM2DScanConfiguration *cfg, QObject *parent = 0);
-
-	/// Pure virtual function.  Returns the number of values in the first independent axis.
-	virtual int xAxisCount() const = 0;
-	/// Pure virtual function.  Returns the number of values in the second independent axis.
-	virtual int yAxisCount() const = 0;
 
 	/// Pure virtual function.  Returns the PV name that will be used for the x-axis.
 	virtual QString xAxisPVName() const = 0;
@@ -69,6 +64,8 @@ protected:
 	int xPosition_;
 	/// Holds the current position in the y axis.
 	int yPosition_;
+	/// Holds the initial position of the fast axis.  Used for determining when to increment the slow axis.
+	double fastAxisPosition_;
 
 	/// Pointer to a 2D scan configuration.  Used inside this class.  The general AMScanController will get the regular AMScanConfiguration.
 	AM2DScanConfiguration *internal2DConfig_;

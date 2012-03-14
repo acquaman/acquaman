@@ -279,6 +279,22 @@ void AMScanSetModel::addScan(AMScan* newScan) {
 	for(int i=0; i<newScan->dataSourceCount(); i++) {
 		AMDataSourcePlotSettings ps; /// \todo set up nicer default colors (related within scans)
 		// Previously here: decided how many/which data sources to make visible.  Visibility is now controlled in AMDataSource::visibleInPlots().  Scan controllers can initialize this, and it will be saved in the database.
+
+		// Hack for Darren's 2D XRF maps and Mark's XES scans.
+		if (newScan->scanRank() == 0){
+
+			ps.colorMap.setContrast(2.1);
+			ps.colorMap.setBrightness(0.08);
+			ps.colorMap.setGamma(1);
+		}
+
+		else if (newScan->scanRank() == 2){
+
+			ps.colorMap.setContrast(1);
+			ps.colorMap.setBrightness(0);
+			ps.colorMap.setGamma(1);
+		}
+
 		plotSettings.append(ps);
 	}
 	sourcePlotSettings_.append(plotSettings);

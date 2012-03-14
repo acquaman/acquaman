@@ -25,11 +25,6 @@ public:
 	/// Destructor.  Makes sure all the memory from the actions that were created is freed.
 	~VESPERS2DDacqScanController() { onInitializationActionFinished(); onCleanupActionFinished(); }
 
-	/// Returns the number of values in the first independent axis.
-	virtual int xAxisCount() const { return xAxisCount_; }
-	/// Returns the number of values in the second independent axis.
-	virtual int yAxisCount() const { return yAxisCount_; }
-
 	/// Returns the PV name that will be used for the x-axis.
 	virtual QString xAxisPVName() const { return xAxisPVName_; }
 	/// Returns the PV name that will be used for the y-axis.
@@ -88,10 +83,6 @@ protected:
 	QString xAxisPVName_;
 	/// Holds the y-axis PV name.
 	QString yAxisPVName_;
-	/// Holds the x-axis count.
-	int xAxisCount_;
-	/// Holds the y-axis count.
-	int yAxisCount_;
 
 	/// Action that contains all of the initialization actions for the controller.
 	AMBeamlineListAction *initializationActions_;
