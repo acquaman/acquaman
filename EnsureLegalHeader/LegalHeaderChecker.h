@@ -18,6 +18,7 @@ protected:
 	QString fullNotice_;
 	QStringList oldToNew_;
 	QStringList nothingToNew_;
+	QStringList ignoreDirectories_;
 };
 
 #endif // LEGALHEADERCHECKER_H
