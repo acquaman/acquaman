@@ -17,6 +17,7 @@ protected:
 	QString anyNotice_;
 	QString fullNotice_;
 	QStringList oldToNew_;
+	QStringList nothingToNew_;
 };
 
 #endif // LEGALHEADERCHECKER_H
