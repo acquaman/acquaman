@@ -47,6 +47,35 @@ void LegalHeaderChecker::recurseDirectories(const QString &currentPath, const QS
 			oldToNew_ << allHeadersWithOldNotice.at(x);
 	}
 
+	QProcess findOldCpps;
+	arguments.clear();
+	arguments << "-c" << "grep \""+oldNotice_+"\" -l "+currentPath+"/*.cpp";
+
+	findOldCpps.start("/bin/sh", arguments );
+	if (!findOldCpps.waitForStarted())
+		return;
+
+	if (!findOldCpps.waitForFinished())
+		return;
+
+	QByteArray resultOldCpp = findOldCpps.readAll();
+	QString resultOldCppAsString(resultOldCpp);
+	QStringList allCppsWithOldNotice = resultOldCppAsString.split('\n');
+	allCppsWithOldNotice.removeLast();
+
+	for(int x = 0; x < allCppsWithOldNotice.count(); x++){
+			QProcess fixText;
+			QStringList arguments;
+			arguments << "-c" << "sed -i '' 's/"+oldNotice_+"/"+newNotice_+"/g' "+allCppsWithOldNotice.at(x);
+			fixText.start("/bin/sh", arguments );
+			if (!fixText.waitForStarted())
+				return;
+
+			if (!fixText.waitForFinished())
+				return;
+			oldToNew_ << allCppsWithOldNotice.at(x);
+	}
+
 	QProcess findNoHeaders;
 	arguments.clear();
 	arguments << "-c" << "grep -L \""+anyNotice_+"\" "+currentPath+"/*.h";
@@ -73,9 +102,37 @@ void LegalHeaderChecker::recurseDirectories(const QString &currentPath, const QS
 
 			if (!addText.waitForFinished())
 				return;
-			nothingToNew_ << allHeadersWithOldNotice.at(x);
+			nothingToNew_ << allCppsWithOldNotice.at(x);
 	}
 
+	QProcess findNoCpps;
+	arguments.clear();
+	arguments << "-c" << "grep -L \""+anyNotice_+"\" "+currentPath+"/*.cpp";
+
+	findNoCpps.start("/bin/sh", arguments );
+	if (!findNoCpps.waitForStarted())
+		return;
+
+	if (!findNoCpps.waitForFinished())
+		return;
+
+	QByteArray resultNoneCpp = findNoCpps.readAll();
+	QString resultNoneCppAsString(resultNoneCpp);
+	QStringList allCppsWithNoNotice = resultNoneCppAsString.split('\n');
+	allCppsWithNoNotice.removeLast();
+
+	for(int x = 0; x < allCppsWithNoNotice.count(); x++){
+			QProcess addText;
+			QStringList arguments;
+			arguments << "-c" << "perl -pi -e 'print \"/*\n"+newNotice_+fullNotice_+"*/\n\n\n\" if $. == 1' "+allCppsWithNoNotice.at(x);
+			addText.start("/bin/sh", arguments );
+			if (!addText.waitForStarted())
+				return;
+
+			if (!addText.waitForFinished())
+				return;
+			nothingToNew_ << allCppsWithOldNotice.at(x);
+	}
 
 	for(int x = 0; x < directories.count(); x++){
 		QDir nextDir(currentPath+"/"+directories.at(x));
