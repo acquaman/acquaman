@@ -228,6 +228,18 @@ void SGMAppController::shutdown() {
 	AMAppController::shutdown();
 }
 
+bool SGMAppController::startupDatabaseUpgrades(){
+	qDebug() << "In SGMAppController startupDatabaseUpgrades";
+
+	QMap<QString, QString> indexTableToWhereColumn;
+	indexTableToWhereColumn.insert("AMDetectorInfoSet_table_detectorInfos", "table2");
+	dbObjectBecomes("PGTDetectorInfo", "CLSPGTDetectorInfo", indexTableToWhereColumn);
+	dbObjectBecomes("OceanOptics65000DetectorInfo", "CLSOceanOptics65000DetectorInfo", indexTableToWhereColumn);
+	dbObjectBecomes("MCPDetectorInfo", "SGMMCPDetectorInfo", indexTableToWhereColumn);
+
+	return true;
+}
+
 
 bool SGMAppController::startupRegisterDatabases()
 {
@@ -961,4 +973,74 @@ bool SGMAppController::setupSGMPeriodicTable(){
 	}
 
 	return success;
+}
+
+bool SGMAppController::dbObjectBecomes(const QString &originalClassName, const QString &newClassName, QMap<QString, QString> indexTableToColumnWhere){
+	AMDatabase *userDb = AMDatabase::database("user");
+	QList<int> matchingOriginial;
+	QList<int> matchingNew;
+
+	matchingOriginial = userDb->objectsMatching("AMDbObjectTypes_table", "AMDbObjectType", originalClassName);
+	matchingNew = userDb->objectsMatching("AMDbObjectTypes_table", "AMDbObjectType", newClassName);
+	qDebug() << "Original " << matchingOriginial.count() << " New " << matchingNew.count();
+
+	if(matchingOriginial.count() > 0 && matchingNew.count() > 0){
+		qDebug() << "OKAY, WE HAVE A PROBLEM! BOTH OF THOSE TABLES ARE IN THE DATABASE.";
+	}
+	else if(matchingOriginial.count() > 0 && matchingNew.count() == 0){
+		qDebug() << "WE'RE OKAY, WE CAN DO A NON-TRIVIAL UPGRADE";
+
+		QString originalTableName = originalClassName%"_table";
+		QString newTableName = newClassName%"_table";
+
+		QStringList columnsToChange;
+		QVariantList changesToMake;
+		columnsToChange << "AMDbObjectType" << "tableName";
+		changesToMake << QVariant(newClassName) << QVariant(newTableName);
+		userDb->startTransaction();
+		if(!userDb->update(matchingOriginial.at(0), "AMDbObjectTypes_table", columnsToChange, changesToMake)){
+			userDb->rollbackTransaction();
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -270, QString("Database support: There was an error trying to update the AMDbObjectTypes table for (%1) to become %2.").arg(originalClassName).arg(newClassName)));
+			return false;
+		}
+
+		QMap<QString, QString>::const_iterator i = indexTableToColumnWhere.constBegin();
+		while (i != indexTableToColumnWhere.constEnd()) {
+			qDebug() << "Operating on index table " << i.key();
+			QList<int> indexTableIndices = userDb->objectsWhere(i.key(), i.value()%"='"%originalTableName%"'");
+			qDebug() << "The indices list is " << indexTableIndices;
+			for(int x = 0; x < indexTableIndices.count(); x++){
+				if(!userDb->update(indexTableIndices.at(x), i.key(), i.value(), QVariant(newTableName))){
+					userDb->rollbackTransaction();
+					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -271, QString("Database support: There was an error trying to update the AMDetectorInfoSet_table_detectorInfos table at id %1.").arg(indexTableIndices.at(x))));
+					return false;
+				}
+			}
+			++i;
+		}
+
+		if(!userDb->update(originalTableName, "AMDbObjectType='"%originalClassName%"'", "AMDbObjectType", QVariant(newClassName))){
+			userDb->rollbackTransaction();
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -272, QString("Database support: There was an error trying to update the %1 table for new AMDbObjectType %2.").arg(originalTableName).arg(newClassName)));
+			return false;
+		}
+
+		QSqlQuery q = userDb->query();
+		q.prepare("ALTER table "%originalTableName%" RENAME to "%newTableName);
+		if(!AMDatabase::execQuery(q)) {
+			q.finish();
+			userDb->rollbackTransaction();
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -273, QString("Database support: There was an error while trying to update table %1 to become %2.").arg(originalClassName).arg(newClassName)));
+			return false;
+		}
+
+		userDb->commitTransaction();
+	}
+	else if(matchingOriginial.count() == 0 && matchingNew.count() > 0){
+		qDebug() << "UPGRADE ALREADY DONE OR UNNECESSARY";
+	}
+	else{
+		qDebug() << "THAT'S ODD ... WE DON'T HAVE EITHER OF THOSE";
+	}
+	return true;
 }
