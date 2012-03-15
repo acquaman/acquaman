@@ -6,10 +6,17 @@
 class LegalHeaderChecker
 {
 public:
-	LegalHeaderChecker();
+	LegalHeaderChecker(const QString &oldNotice, const QString &newNotice);
 
 protected:
 	void recurseDirectories(const QString &currentPath, const QStringList &directories);
+
+protected:
+	QString oldNotice_;
+	QString newNotice_;
+	QString anyNotice_;
+	QString fullNotice_;
+	QStringList oldToNew_;
 };
 
 #endif // LEGALHEADERCHECKER_H
