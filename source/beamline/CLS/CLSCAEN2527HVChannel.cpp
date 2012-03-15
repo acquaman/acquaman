@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSCAEN2527HVChannel.h"
 
-#include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
 
 CLSCAEN2527HVChannel::CLSCAEN2527HVChannel(const QString &name, const QString &pvBaseName, AMHighVoltageChannel::highVoltageChannelPolarity polarity, QObject *parent) :
 		AMHighVoltageChannel(name, parent)

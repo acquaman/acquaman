@@ -5,6 +5,7 @@
 #include "beamline/AMDetector.h"
 
 #include "beamline/AMControlSet.h"
+#include "beamline/AMPVControl.h"
 #include "dataman/datasource/AMProcessVariableDataSource.h"
 
 /// This class represents a single Amptek SDD 123 Detector

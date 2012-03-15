@@ -293,13 +293,17 @@ public slots:
 
 	/// Motor position (mm) of the tilt stage, incorporating an angle offset (deg., positive = more normal, negative = more grazing) from the default position of tangent to the rowland circle.
 	double tiltStageDrive(double eV, int gi, double spectrometerTheta, double tiltOffset = 0) const {
-		double detectorPhiPrime = detectorPhi(eV, gi) - spectrometerTheta;	// angle we need on top of our orientation we already get along spectrometerTheta().
+		double detectorPhiPrime = detectorPhi(eV, gi) - spectrometerTheta;	// angle we need on top of our orientation we already get along spectrometerTheta().  If there was no detector mounting height error, and the optical origin was at the center of mechanical rotation, this would be equivalent to the grazing incidence angle onto the detector, ie: 90deg. - beta.
 
 		detectorPhiPrime += d2r(tiltOffset);
 
-		double h = tiltA_ * sin(detectorPhiPrime) - tiltB_ + sqrt(tiltB_*tiltB_ - tiltA_*tiltA_*pow(1-cos(detectorPhiPrime), 2));
+		// Previously: using analytical formula using linkage lengths
+//		double h = tiltA_ * sin(detectorPhiPrime) - tiltB_ + sqrt(tiltB_*tiltB_ - tiltA_*tiltA_*pow(1-cos(detectorPhiPrime), 2));
 
-		return h + tiltHomePos_ - 89.411;
+//		return h + tiltHomePos_ - 89.411;
+
+		// using empirical formula from survey data.
+		return 1.1928*r2d(detectorPhiPrime) - 19.15;
 	}
 
 

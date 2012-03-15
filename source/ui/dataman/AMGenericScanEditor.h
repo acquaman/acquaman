@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMScan;
 
 class AMScanView;
+class AM2DScanView;
 class AMVerticalStackWidget;
 class AMRunSelector;
 class AMSampleEditor;
@@ -41,33 +42,27 @@ class AMGenericScanEditor : public QWidget
 {
 Q_OBJECT
 public:
-	enum ShouldStopAcquiringScanChoice{
-		ShouldStopNo =		0,
-		ShouldStopYes =		1,
-		ShouldStopForceQuit =	2
-	};
 
 	/// Construct an empty editor:
 	explicit AMGenericScanEditor(QWidget *parent = 0);
 
-	/// Deletes self and all scan objects that were added
+	/// Deletes self and releases all scan objects that were added
 	virtual ~AMGenericScanEditor();
 
-	/// Add a scan to an editor. The editor takes ownership of the scan, and will delete it when closed or the scan is removed.
+	/// Add a scan to an editor. The editor retains an interest in \c newScan, keeping it in memory as long as required. \see AMScan::retain().
 	void addScan(AMScan* newScan);
 
+	/// Remove a scan, but ask the user for confirmation if it's been modified.  Returns true if the scan was deleted, and false if the user 'cancelled' the process.
+	bool removeScanWithModifiedCheck(AMScan* scan);
 
-	/// Remove a scan from the editor and delete the scan.
-	void deleteScan(AMScan* scan);
-
-	/// Remove a scan and delete it, but ask the user for confirmation if it's been modified.  Returns true if the scan was deleted, and false if the user 'cancelled' the process.
-	bool deleteScanWithModifiedCheck(AMScan* scan);
-
-	/// Remove a scan from the editor, but don't delete the scan. Ownership becomes the responsibility of the caller.
-	void removeScan(AMScan* scan) {
-		scanSetModel_->removeScan(scan);
-		refreshWindowTitle();
-	}
+	/// Remove a scan from the editor.  The editor releases its interest in \c scan, which might cause it to be deleted if nothing else is using it. \see AMScan::release().
+	/*! To prevent this from happening (for example, because you want to re-use the scan instance outside of this editor), you need to retain it first:
+	  \code
+	  scan->retain(newOwner);
+	  editor->removeScan(scan);
+	  \endcode
+	  */
+	void removeScan(AMScan* scan);
 
 	/// Returns the number of scans open in the editor.
 	int scanCount() const {
@@ -130,6 +125,9 @@ protected slots:
 	/*! This function is used as an internal helper function by dropEvent(); Normally you should use the dropScanURLs function in AMDatamanAppController() since it can check for scans being open in other editors*/
 	bool dropScanURLs(const QList<QUrl>& urls);
 
+	/// Called on a one-second timer: Right now, we only use this to update the duration display for currentlyAcquiring() scans
+	void onOneSecondTimer();
+
 protected:
 
 	// Re-implemented functions
@@ -164,6 +162,8 @@ protected:
 
 	/// Plot view capable of holding multiple scans.
 	AMScanView* scanView_;
+	//Testing AM2DScanView.
+	AM2DScanView *scanView2D_;
 
 	/// Sample editor
 	AMSampleEditor* sampleEditor_;
@@ -190,7 +190,7 @@ protected:
 	void updateEditor(AMScan* scan);
 
 	/// Helper function to ask if a scan should be aborted when trying to close it. Returns true if the scan should be aborted.
-	AMGenericScanEditor::ShouldStopAcquiringScanChoice shouldStopAcquiringScan(AMScan* scan);
+	bool shouldStopAcquiringScan(AMScan* scan);
 	/// Helper function to ask if a scan should be saved when trying to close it. Returns an integer corresponding to QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel.
 	int shouldSaveModifiedScan(AMScan* scan);
 

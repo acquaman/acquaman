@@ -36,9 +36,10 @@ class REIXSXESScanConfigurationView : public AMScanConfigurationView
 {
 	Q_OBJECT
 public:
-	explicit REIXSXESScanConfigurationView(QWidget *parent = 0);
+	/// Constructor.  If \c config is 0, we create our own (and delete it, when destroyed).  If a valid \c config is provided, we will operate on that one, but not take ownership of it. It must remain valid as long as this widget exists.
+	explicit REIXSXESScanConfigurationView(REIXSXESScanConfiguration* config = 0, QWidget *parent = 0);
 
-	virtual const AMScanConfiguration* configuration() const { return &configuration_; }
+	virtual const AMScanConfiguration* configuration() const { return configuration_; }
 
 signals:
 
@@ -60,8 +61,10 @@ protected slots:
 
 
 protected:
-	/// The internal configuration that we modify
-	REIXSXESScanConfiguration configuration_;
+	/// The internal configuration that we modify.
+	REIXSXESScanConfiguration* configuration_;
+	/// If we've created scanConfiguration_, we can delete it when we are deleted. If it belongs to someone else, don't.
+	bool ownsConfiguration_;
 
 	/// UI elements
 	QComboBox* gratingSelector_;

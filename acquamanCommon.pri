@@ -245,10 +245,12 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/actions/AMBeamlineActionItem.h \
 	source/actions/AMBeamlineControlAction.h \
 	source/beamline/AMControl.h \
+	source/beamline/AMPVControl.h \
 	source/beamline/AMControlSet.h \
 	source/beamline/AMControlState.h \
 	source/beamline/AMDetector.h \
 	source/beamline/AMProcessVariable.h \
+	source/beamline/AMProcessVariablePrivate.h \
 	source/beamline/AMPVNames.h \
 	source/dataman/database/AMDatabase.h \
 	source/dataman/database/AMDbObject.h \
@@ -511,7 +513,11 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/analysis/AM2DNormalizationABEditor.h \
 	source/dataman/info/AMBasicXRFDetectorInfo.h \
 	source/beamline/CLS/CLSAmptekSDD123Detector.h \
-	source/ui/CLS/CLSAmptekSDD123DetectorView.h
+	source/ui/CLS/CLSAmptekSDD123DetectorView.h \
+	source/util/AMFontSizes.h \
+	source/ui/dataman/AMScanViewUtilities.h \
+	source/ui/dataman/AM2DScanView.h
+
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
 	 HEADERS += source/util/AMGenericLinuxJoystick.h
@@ -604,9 +610,11 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/actions/AMBeamlineActionItem.cpp \
 	source/actions/AMBeamlineControlAction.cpp \
 	source/beamline/AMControl.cpp \
+	source/beamline/AMPVControl.cpp \
 	source/beamline/AMControlSet.cpp \
 	source/beamline/AMControlState.cpp \
 	source/beamline/AMProcessVariable.cpp \
+	source/beamline/AMProcessVariablePrivate.cpp \
 	source/beamline/AMPVNames.cpp \
 	source/dataman/database/AMDatabase.cpp \
 	source/dataman/database/AMDbObject.cpp \
@@ -849,7 +857,10 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/analysis/AM2DNormalizationABEditor.cpp \
 	source/dataman/info/AMBasicXRFDetectorInfo.cpp \
 	source/beamline/CLS/CLSAmptekSDD123Detector.cpp \
-	source/ui/CLS/CLSAmptekSDD123DetectorView.cpp
+	source/ui/CLS/CLSAmptekSDD123DetectorView.cpp \
+	source/ui/dataman/AMScanViewUtilities.cpp \
+	source/ui/dataman/AM2DScanView.cpp
+
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
 	SOURCES += source/util/AMGenericLinuxJoystick.cpp

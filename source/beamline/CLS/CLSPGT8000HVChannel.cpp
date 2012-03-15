@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSPGT8000HVChannel.h"
 
-#include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
 
 CLSPGT8000HVChannel::CLSPGT8000HVChannel(const QString &name, const QString &pvBaseName, QObject *parent) :
 		AMHighVoltageChannel(name, parent)

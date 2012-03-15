@@ -1,7 +1,7 @@
 #ifndef CLSOMS58MOTOR_H
 #define CLSOMS58MOTOR_H
 
-#include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineActionItem.h"
 
 /// This function object provides the moving check for the CLSOMS58Motors

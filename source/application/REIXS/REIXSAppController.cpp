@@ -44,7 +44,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMSampleManagementWidget.h"	/// \todo This doesn't belong in dataman
 #include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
 #include "dataman/AMRun.h"
-#include "ui/AMStartScreen.h"
 
 // old workflow manager view: (to be removed)
 #include "ui/AMWorkflowManagerView.h"
@@ -66,6 +65,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions2/editors/REIXS/REIXSXESScanActionEditor.h"
 #include "actions2/editors/REIXS/REIXSControlMoveActionEditor.h"
 #include "actions2/editors/REIXS/REIXSBeamOnOffActionEditor.h"
+
+#include "analysis/REIXS/REIXSXESImageAB.h"
 
 #include "ui/REIXS/REIXSSidebar.h"
 
@@ -91,6 +92,7 @@ bool REIXSAppController::startup() {
         AMDbObjectSupport::s()->registerClass<REIXSXESScanConfiguration>();
         AMDbObjectSupport::s()->registerClass<REIXSXESMCPDetectorInfo>();
         AMDbObjectSupport::s()->registerClass<REIXSXESCalibration>();
+		AMDbObjectSupport::s()->registerClass<REIXSXESImageAB>();
 
         AMDbObjectSupport::s()->registerClass<REIXSControlMoveActionInfo>();
         AMDbObjectSupport::s()->registerClass<REIXSXESScanActionInfo>();
@@ -107,9 +109,6 @@ bool REIXSAppController::startup() {
             firstRun.storeToDb(AMDatabase::database("user"));
         }
 
-        // Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
-        AMStartScreen* startScreen = new AMStartScreen(0);
-        startScreen->show();
 
 		// Register Actions:
 		////////////////////////////////
@@ -214,8 +213,8 @@ bool REIXSAppController::startup() {
         return false;
 }
 
-
 void REIXSAppController::shutdown() {
+
     // Make sure we release/clean-up the beamline interface
     AMBeamline::releaseBl();
     AMAppController::shutdown();

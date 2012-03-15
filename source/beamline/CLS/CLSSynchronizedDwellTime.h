@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 
-#include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineControlMoveAction.h"
 
 /*!

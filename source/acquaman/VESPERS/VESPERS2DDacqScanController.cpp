@@ -13,9 +13,6 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 {
 	config_ = cfg;
 
-	xAxisCount_ = int(fabs((config_->xEnd()-config_->xStart())/config_->xStep())) + 1;
-	yAxisCount_ = int(fabs((config_->yEnd()-config_->yStart())/config_->yStep())) + 1;
-
 	AMPVwStatusControl *control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz());
 	xAxisPVName_ = control != 0 ? control->writePVName() : "";
 	control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->vert());
@@ -25,7 +22,7 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	cleanupActions_ = 0;
 
 	secondsElapsed_ = 0;
-	secondsTotal_ = config_->totalTime();
+	secondsTotal_ = config_->totalTime(true);
 	elapsedTime_.setInterval(1000);
 	connect(this, SIGNAL(started()), &elapsedTime_, SLOT(start()));
 	connect(this, SIGNAL(cancelled()), &elapsedTime_, SLOT(stop()));
@@ -94,12 +91,34 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 															<< scan_->dataSourceAt(scan_->indexOfDataSource("Imini")));
 	AMDataSource *rawDataSource = 0;
 	AM2DNormalizationAB *normROI = 0;
+	QString i0Name("");
+
+	switch (config_->incomingChoice()){
+
+	case VESPERS2DScanConfiguration::Isplit:
+		i0Name = i0List.at(0)->name();
+		break;
+
+	case VESPERS2DScanConfiguration::Iprekb:
+		i0Name = i0List.at(1)->name();
+		break;
+
+	case VESPERS2DScanConfiguration::Imini:
+		i0Name = i0List.at(2)->name();
+		break;
+
+	case VESPERS2DScanConfiguration::Ipost:
+		i0Name = "";
+		break;
+	}
 
 	for (int i = 0; i < roiCount; i++){
 
 		rawDataSource = scan_->rawDataSources()->at(i+2);
 		normROI = new AM2DNormalizationAB("norm_"+rawDataSource->name());
 		normROI->setDescription("Normalized "+rawDataSource->description());
+		normROI->setDataName(rawDataSource->name());
+		normROI->setNormalizationName(i0Name);
 		normROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource << i0List);
 		scan_->addAnalyzedDataSource(normROI, true, false);
 	}

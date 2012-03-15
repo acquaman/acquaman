@@ -59,8 +59,6 @@ AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *
 	rangeMaxControl_->setSingleStep(1);
 	rangeMaxControl_->setMinimum(0);
 
-	additionalEditor_ = 0;
-
 	plot_ = new MPlot();
 	plotWidget_ = new MPlotWidget();
 	plotWidget_->setPlot(plot_);

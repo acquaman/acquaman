@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetector.h"
 #include "dataman/info/CLSOceanOptics65000DetectorInfo.h"
 #include "beamline/AMControlSet.h"
+#include "beamline/AMPVControl.h"
 
 class CLSOceanOptics65000Detector : public CLSOceanOptics65000DetectorInfo, public AMDetector
 {

@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 
-#include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
 
 /*!
   This class encapuslats the SR570's that are used at the CLS for gain sensitivity control.  They have the ability for

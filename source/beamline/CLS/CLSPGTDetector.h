@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetector.h"
 #include "dataman/info/CLSPGTDetectorInfo.h"
 #include "beamline/AMControlSet.h"
+#include "beamline/AMPVControl.h"
 
 class CLSPGTDetector : public CLSPGTDetectorInfo, public AMDetector
 {

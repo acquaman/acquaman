@@ -3,7 +3,7 @@
 
 #include "beamline/AMDetector.h"
 #include "dataman/VESPERS/VESPERSRoperCCDDetectorInfo.h"
-#include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineActionItem.h"
 
 /*!
@@ -63,6 +63,12 @@ public:
 	bool autoSaveEnabled() const { return autoSaveControl_->value() == 1 ? true : false; }
 	/// Returns whether the file is being saved.
 	bool fileBeingSaved() const { return saveFileControl_->isMoving(); }
+	/// Returns the current file path set for the detector.
+	QString ccdFilePath() const { return AMPVtoString(ccdPath_); }
+	/// Returns the current file name for the detector.
+	QString ccdFileName() const { return AMPVtoString(ccdFile_); }
+	/// Returns the current number that is used for auto indexing of the file names.
+	int ccdFileNumber() const { return ccdNumber_->getInt(); }
 
 	// End of getters that aren't included in the info.
 	/////////////////////////////////////////////////////
@@ -173,7 +179,7 @@ protected slots:
 
 protected:
 	/// Converts the bizarre string output of the pv to a real QString.
-	QString AMPVtoString(AMProcessVariable *pv);
+	QString AMPVtoString(AMProcessVariable *pv) const;
 	/// Converts the string to the array of integers it needs to be.
 	void StringtoAMPV(AMProcessVariable *pv, QString toConvert);
 

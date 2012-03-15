@@ -261,6 +261,9 @@ int AMScanSetModel::indexOf(const AMDataSource *dataSource, int scanIndex) const
 
 // Add a scan to this model.  The AMScan must exist elsewhere, for the lifetime that it is added to the model.  Model does not take ownership of the scan.
 void AMScanSetModel::addScan(AMScan* newScan) {
+
+	newScan->retain(this); // declare our interest in this scan.
+
 	emit layoutAboutToBeChanged();
 
 	beginInsertRows(QModelIndex(), scans_.count(), scans_.count());
@@ -276,6 +279,22 @@ void AMScanSetModel::addScan(AMScan* newScan) {
 	for(int i=0; i<newScan->dataSourceCount(); i++) {
 		AMDataSourcePlotSettings ps; /// \todo set up nicer default colors (related within scans)
 		// Previously here: decided how many/which data sources to make visible.  Visibility is now controlled in AMDataSource::visibleInPlots().  Scan controllers can initialize this, and it will be saved in the database.
+
+		// Hack for Darren's 2D XRF maps and Mark's XES scans.
+		if (newScan->scanRank() == 0){
+
+			ps.colorMap.setContrast(2.1);
+			ps.colorMap.setBrightness(0.08);
+			ps.colorMap.setGamma(1);
+		}
+
+		else if (newScan->scanRank() == 2){
+
+			ps.colorMap.setContrast(1);
+			ps.colorMap.setBrightness(0);
+			ps.colorMap.setGamma(1);
+		}
+
 		plotSettings.append(ps);
 	}
 	sourcePlotSettings_.append(plotSettings);
@@ -305,6 +324,8 @@ bool AMScanSetModel::removeScan(AMScan* removeMe) {
 		scans_.removeAt(index);
 		sourcePlotSettings_.removeAt(index);
 		endRemoveRows();
+
+		removeMe->release(this);	// remove our interest in this scan.
 
 		/// \todo hack: should not be needed... But we do to keep QTreeViews from getting messed up. Why?
 		emit layoutChanged();
@@ -383,7 +404,25 @@ void AMScanSetModel::onDataSourceAdded(int dataSourceIndex) {
 	if(scanIndex == -1)
 		return;
 
-	sourcePlotSettings_[scanIndex].insert(dataSourceIndex, AMDataSourcePlotSettings());	/// \todo colors...
+	AMDataSourcePlotSettings ps; /// \todo set up nicer default colors (related within scans)
+	AMScan *scan = scanAt(scanIndex);
+
+	// Hack for Darren's 2D XRF maps and Mark's XES scans.
+	if (scan->scanRank() == 0){
+
+		ps.colorMap.setContrast(2.1);
+		ps.colorMap.setBrightness(0.08);
+		ps.colorMap.setGamma(1);
+	}
+
+	else if (scan->scanRank() == 2){
+
+		ps.colorMap.setContrast(1);
+		ps.colorMap.setBrightness(0);
+		ps.colorMap.setGamma(1);
+	}
+
+	sourcePlotSettings_[scanIndex].insert(dataSourceIndex, ps);
 
 	endInsertRows();
 }

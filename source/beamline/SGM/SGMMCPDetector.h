@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetector.h"
 #include "dataman/SGM/SGMMCPDetectorInfo.h"
 #include "beamline/AMControlSet.h"
+#include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineActionItem.h"
 
 class SGMMCPDetector : public SGMMCPDetectorInfo, public AMDetector

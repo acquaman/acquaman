@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/VESPERS/VESPERSEndstationView.h"
 #include "ui/AMMainWindow.h"
-#include "ui/AMStartScreen.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder.h"
 
 #include "ui/VESPERS/XRFDetectorView.h"
@@ -49,11 +48,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/database/AMDbObjectSupport.h"
 #include "application/AMAppControllerSupport.h"
 
+#include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
+#include "dataman/export/VESPERS/VESPERSExporter2DAscii.h"
 
 #include <QFileDialog>
+
+#include "dataman/AMRun.h"
 
 // For database registration:
 #include "dataman/VESPERS/XRFDetectorInfo.h"
@@ -108,6 +111,8 @@ bool VESPERSAppController::startup() {
 		AMDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
 		AMDetectorViewSupport::registerClass<VESPERSRoperCCDDetectorView, VESPERSRoperCCDDetector>();
 
+		AMExportController::registerExporter<VESPERSExporter2DAscii>();
+
 		// Testing and making the first run in the database, if there isn't one already.  Make this it's own function if you think startup() is getting too big ; )
 		////////////////////////////////////////
 
@@ -143,12 +148,12 @@ bool VESPERSAppController::startup() {
 
 		// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
 		matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
-		if(matchIDs.count() > 0)
-			AMAppControllerSupport::registerClass<VESPERSEXAFSScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(matchIDs.at(0));
+		if(matchIDs.count() > 0){
 
-		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
-		AMStartScreen* startScreen = new AMStartScreen(0);
-		startScreen->show();
+			AMAppControllerSupport::registerClass<VESPERSEXAFSScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(matchIDs.at(0));
+			AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporter2DAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
+		}
+
 
 		// Create panes in the main window:
 		////////////////////////////////////

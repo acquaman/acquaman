@@ -255,6 +255,7 @@ void AMImportController::setupNextFile() {
 	else {
 		w_->loadingStatusLabel->setText("Loaded successfully.");
 		w_->loadingStatusLabel->setStyleSheet("color: black;");
+		currentScan_->retain(this);
 	}
 
 
@@ -357,7 +358,7 @@ void AMImportController::finalizeImport() {
 		}
 
 		w_->thumbnailViewer->setSource(0);
-		delete currentScan_;
+		currentScan_->release(this);
 		currentScan_ = 0;
 	}
 }

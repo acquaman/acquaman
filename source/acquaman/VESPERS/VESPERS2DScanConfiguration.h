@@ -22,8 +22,10 @@ class VESPERS2DScanConfiguration : public AM2DScanConfiguration
 	Q_PROPERTY(int incomingChoice READ incomingChoice WRITE setIncomingChoice)
 	Q_PROPERTY(int fluorescenceDetectorChoice READ fluorescenceDetectorChoice WRITE setFluorescenceDetectorChoice)
 	Q_PROPERTY(bool usingCCD READ usingCCD WRITE setUsingCCD)
+	Q_PROPERTY(QString ccdFileName READ ccdFileName WRITE setCCDFileName)
 	Q_PROPERTY(AMDbObject* roiInfoList READ dbGetROIInfoList WRITE dbLoadROIInfoList)
 	Q_PROPERTY(QString rois READ readRoiList WRITE writeRoiList)
+	Q_PROPERTY(QString header READ headerText WRITE setHeaderText)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS 2D Scan Configuration")
 
@@ -65,6 +67,8 @@ public:
 	FluorescenceDetector fluorescenceDetectorChoice() const { return fluorescenceDetectorChoice_; }
 	/// Returns whether the scan is using the CCD or not.
 	bool usingCCD() const { return usingCCD_; }
+	/// Returns the CCD file name.
+	QString ccdFileName() const { return ccdFileName_; }
 
 	/// Returns the current total estimated time for a scan to complete.
 	double totalTime() const { return totalTime_; }
@@ -81,6 +85,11 @@ public:
 	/// This function does nothing.  It is there to preserve the fact that the database needs to be able to read and write.
 	void writeRoiList(QString) {}
 
+	/// Get a nice looking string that contains all the standard information in an XAS scan.   Used when exporting.
+	QString headerText() const;
+	/// This function does nothing.  It is there to preserve the fact that the database needs to be able to read and write.
+	void setHeaderText(QString) {}
+
 	// Database loading and storing
 	///////////////////////
 
@@ -96,6 +105,8 @@ signals:
 	void fluorescenceDetectorChoiceChanged(FluorescenceDetector);
 	/// Notifier that the flag for whether the CCD will be used has changed.
 	void usingCCDChanged(bool);
+	/// Notifier that the name of the CCD file name has changed.
+	void ccdFileNameChanged(QString);
 	/// Notifier that the total time estimate has changed.
 	void totalTimeChanged(double);
 
@@ -110,6 +121,8 @@ public slots:
 	void setFluorescenceDetectorChoice(int detector) { setFluorescenceDetectorChoice((FluorescenceDetector)detector); }
 	/// Sets whether the scan should be using the CCD or not.
 	void setUsingCCD(bool use) { usingCCD_ = use; emit usingCCDChanged(use); setModified(true); }
+	/// Sets the file name for the CCD files.
+	void setCCDFileName(const QString &name) { ccdFileName_ = name; emit ccdFileNameChanged(ccdFileName_); setModified(true); }
 	/// Sets the time offset used for estimating the scan time.
 	void setTimeOffset(double offset) { timeOffset_ = offset; computeTotalTime(); }
 
@@ -127,6 +140,8 @@ protected:
 	FluorescenceDetector fluorescenceDetectorChoice_;
 	/// Flag holding whether the scan should use the CCD detector or not.
 	bool usingCCD_;
+	/// The file name (minus number, path and extension of the file) for the CCD.
+	QString ccdFileName_;
 	/// The list holding all the current ROIs for the detector.
 	AMROIInfoList roiInfoList_;
 	/// Holds the total time in seconds that the scan is estimated to take.

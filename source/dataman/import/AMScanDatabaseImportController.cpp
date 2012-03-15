@@ -436,6 +436,7 @@ void AMScanDatabaseImportController::copyScans()
 			delete object;
 			continue;
 		}
+		scan->retain(this);
 
 		// update scan fields:
 		scan->setRunId(s2dRunIds_.value(scan->runId(), -1));
@@ -450,7 +451,7 @@ void AMScanDatabaseImportController::copyScans()
 		if(destinationDir.exists(filePath)) {
 			// I know we're not supposed to be a GUI module... but is it okay to prompt here for what to do?
 			if(userSaysShouldSkipDuplicateScan(scan)) {
-				delete scan;
+				scan->release(this);
 				continue;
 			}
 			filePath = makeUniqueFileName(destinationPath_, filePath);
@@ -479,7 +480,7 @@ void AMScanDatabaseImportController::copyScans()
 											 AMErrorReport::Alert,
 											 -4,
 											 QString("Error copying the scan with ID '%1' into the new database. Your database might be corrupted. Please report this problem to the Acquaman developers.").arg(scanIds.at(i))));
-			delete scan;
+			scan->release(this);
 			continue;
 		}
 
@@ -544,7 +545,7 @@ void AMScanDatabaseImportController::copyScans()
 		}
 
 		// All done!
-		delete scan;
+		scan->release();
 		qApp->sendPostedEvents();
 		qApp->processEvents();
 	}

@@ -36,6 +36,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QColor>
 #include <QApplication>
 
+#include "util/AMFontSizes.h"
+
 AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	QWidget(parent)
 {
@@ -47,6 +49,7 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	itemSize_ = 50;
 
 	setupUi(this);
+	headingLabel_->setStyleSheet("font: " AM_FONT_XLARGE_ "pt \"Lucida Grande\";color: rgb(79, 79, 79);");
 
 	// add additional UI components: the QGraphicsView and QGraphicsScene
 	////////////////////////////
@@ -1043,6 +1046,8 @@ AMDataViewSection::AMDataViewSection(const QString& title, const QString& subtit
 
 	proxiedWidget_ = new QFrame();
 	setupUi(proxiedWidget_);
+	titleLabel_->setStyleSheet("color: white;\nfont: " AM_FONT_XLARGE_ "pt \"Lucida Grande\";");
+	subtitleLabel_->setStyleSheet("color: rgb(204, 204, 204);\nfont: " AM_FONT_REGULAR_ "pt \"Lucida Grande\";");
 	proxyWidget_ = new QGraphicsProxyWidget(this);
 	proxyWidget_->setWidget(proxiedWidget_);
 	proxyWidget_->setZValue(30000);
@@ -1827,6 +1832,22 @@ void AMDataView::onViewDoubleClicked(const QPoint &clickPos)
 
 
 
+AMDataViewEmptyHeader::AMDataViewEmptyHeader(const QString &message, double initialWidthConstraint, QGraphicsItem *parent) :
+	AMAbstractDataViewSection(parent)
+{
+	widthConstraint_ = initialWidthConstraint;
+	proxiedWidget_ = new QFrame();
+	setupUi(proxiedWidget_);
+	messageText_->setStyleSheet("color: rgb(25, 25, 25);\nfont: italic " AM_FONT_REGULAR_ "pt \"Lucida Grande\";");
+	QGraphicsProxyWidget* proxy = new QGraphicsProxyWidget(this);
+	proxy->setWidget(proxiedWidget_);
+	layout_ = new QGraphicsLinearLayout(Qt::Vertical);
+	layout_->setContentsMargins(0,0,0,0);
+	setLayout(layout_);
+	layout_->addItem(proxy);
+
+	messageText_->setText(message);
+}
 
 
 

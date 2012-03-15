@@ -8,6 +8,7 @@ AM2DDacqScanController::AM2DDacqScanController(AM2DScanConfiguration *cfg, QObje
 	internal2DConfig_ = cfg;
 	xPosition_ = 0;
 	yPosition_ = 0;
+	fastAxisPosition_ = 0;
 	useDwellTimes_ = false;
 }
 
@@ -48,7 +49,11 @@ bool AM2DDacqScanController::startImplementation()
 		if(useDwellTimes_)
 			connect(dwellTimeTrigger_, SIGNAL(valueChanged(double)), this, SLOT(onDwellTimeTriggerChanged(double)));
 
-		xPosition_ = -1;
+		// Setting the fast axis position to -1 for counting purposes.
+		if (internal2DConfig_->fastAxis() == AM2DScanConfiguration::X)
+			xPosition_ = -1;
+		else
+			yPosition_ = -1;
 
 		acqRegisterOutputHandler( advAcq_->getMaster(), (acqKey_t) abop, &abop->handler);                // register the handler with the acquisition
 
@@ -144,26 +149,40 @@ AMnDIndex AM2DDacqScanController::toScanIndex(QMap<int, double> aeData)
 
 		case AM2DScanConfiguration::X: {
 
-			xPosition_++;
+			if (xPosition_ == -1 && yPosition_ == 0){
 
-			if (xPosition_ == xAxisCount()){
+				fastAxisPosition_ = aeData.value(0);
+				xPosition_++;
+			}
+
+			else if (fastAxisPosition_ == aeData.value(0)){
 
 				xPosition_ = 0;
 				yPosition_++;
 			}
+
+			else
+				xPosition_++;
 
 			break;
 		}
 
 		case AM2DScanConfiguration::Y: {
 
+		if (yPosition_ == -1 && xPosition_ == 0){
+
+			fastAxisPosition_ = aeData.value(1);
 			yPosition_++;
+		}
 
-			if (yPosition_ == yAxisCount()){
+		else if (fastAxisPosition_ == aeData.value(1)){
 
-				yPosition_ = 0;
-				xPosition_++;
-			}
+			yPosition_ = 0;
+			xPosition_++;
+		}
+
+		else
+			yPosition_++;
 
 			break;
 		}

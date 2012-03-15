@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMSINGLECONTROLDETECTOR_H
 
 #include "AMDetector.h"
+#include "AMPVControl.h"
 
 class AMSingleControlDetector : public AMDetectorInfo, public AMDetector
 {

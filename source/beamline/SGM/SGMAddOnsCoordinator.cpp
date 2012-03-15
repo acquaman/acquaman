@@ -1,4 +1,5 @@
 #include "SGMAddOnsCoordinator.h"
+#include "beamline/AMPVControl.h"
 
 SGMAddOnsCoordinator::SGMAddOnsCoordinator(QObject *parent) :
 	QObject(parent)

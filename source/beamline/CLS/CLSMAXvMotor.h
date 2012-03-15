@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLSMAXVMOTOR_H
 #define CLSMAXVMOTOR_H
 
-#include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineActionItem.h"
 
 /// This function object provides the moving check for the CLSMAXvMotors

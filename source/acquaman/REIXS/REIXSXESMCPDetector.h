@@ -22,11 +22,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define REIXSXESMCPDETECTOR_H
 
 #include <QObject>
-#include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
 #include "dataman/datasource/AMDataSource.h"
 #include "dataman/REIXS/REIXSXESMCPDetectorInfo.h"
 
-/// This class exposes an array process variable as an AMDataSource, for use with REIXSXESMCPDetector.
+/// This class exposes an array process variable as an AMDataSource, for use with REIXSXESMCPDetector. The first (0) axis is the energy axis, and the second (1) axis is the vertical detector axis.
 /*! \todo Should there be an abstract class above this one, that doesn't tie this to an EPICS PV implementation? */
 class REIXSXESMCPDataSource : public QObject, public AMDataSource {
 	Q_OBJECT
