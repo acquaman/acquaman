@@ -13,13 +13,18 @@ VESPERSRoperCCDDetectorInfo::VESPERSRoperCCDDetectorInfo(const QString &name, co
 VESPERSRoperCCDDetectorInfo::VESPERSRoperCCDDetectorInfo(const VESPERSRoperCCDDetectorInfo &original)
 	: AMDetectorInfo(original)
 {
-	retreiveAndSetProperties(original);
+//	retreiveAndSetProperties(original);
+	this->operator =(original);
 }
 
 VESPERSRoperCCDDetectorInfo &VESPERSRoperCCDDetectorInfo::operator =(const VESPERSRoperCCDDetectorInfo &other)
 {
-	if (this != &other)
-		retreiveAndSetProperties(other);
+	if (this != &other){
+	//	retreiveAndSetProperties(other);
+		AMDetectorInfo::operator =(other);
+		setAcquireTime(other.acquireTime());
+		setTemperature(other.temperature());
+	}
 
 	return *this;
 }

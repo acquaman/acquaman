@@ -27,6 +27,7 @@ AMDetectorSignalSource::AMDetectorSignalSource(AMDetector *parent)
 
 void AMDetectorSignalSource::emitConnected(bool isConnected) {
 	emit connected(isConnected);
+	emit availabilityChagned(detector(), isConnected);
 }
 
 void AMDetectorSignalSource::emitInfoChanged() {
@@ -77,6 +78,10 @@ AMDetector::ReadMethod AMDetector::readMethod() const{
 	return readMethod_;
 }
 
+QString AMDetector::dacqName() const{
+	return "";
+}
+
 double AMDetector::reading() const{
 	return -1;
 }
@@ -93,6 +98,7 @@ void AMDetector::setConnected(bool isConnected){
 void AMDetector::setReadMethod(AMDetector::ReadMethod readMethod){
 	readMethod_ = readMethod;
 }
+
 
 void AMDetector::emitConnected(bool isConnected) {
 	signalSource_->emitConnected(isConnected);

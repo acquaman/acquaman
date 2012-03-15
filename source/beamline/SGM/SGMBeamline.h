@@ -26,9 +26,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMDetector.h"
 #include "beamline/AMSingleControlDetector.h"
-#include "beamline/MCPDetector.h"
-#include "beamline/PGTDetector.h"
-#include "beamline/OceanOptics65000Detector.h"
+#include "beamline/SGM/SGMMCPDetector.h"
+#include "beamline/CLS/CLSPGTDetector.h"
+#include "beamline/CLS/CLSOceanOptics65000Detector.h"
+#include "beamline/CLS/CLSAmptekSDD123Detector.h"
 #include "beamline/AMControlSet.h"
 #include "util/AMBiHash.h"
 #include "actions/AMBeamlineControlAction.h"
@@ -102,7 +103,8 @@ public:
 	virtual ~SGMBeamline();
 
 	bool isConnected() const {
-		return criticalControlsSet_->isConnected();
+		//return criticalControlsSet_->isConnected() && pgtDetector()->isConnected() && oos65000Detector()->isConnected();
+		return criticalControlsSet_->isConnected() && pgtDetector()->isConnected() && teyScalerDetector_->isConnected();
 	}
 
 	QStringList unconnectedCriticals() const;
@@ -114,7 +116,6 @@ public:
 	QString pvName(const QString &amName) const { return amNames2pvNames_.valueF(amName);}
 	QString amName(const QString &pvName) const { return amNames2pvNames_.valueR(pvName);}
 
-//	AMControl* ringCurrent() const { return ringCurrent_; }
 	AMControl* energy() const { return energy_;}
 	AMControl* energySpacingParam() const { return energySpacingParam_;}
 	AMControl* energyC1Param() const { return energyC1Param_;}
@@ -155,41 +156,22 @@ public:
 			return sgmEndstationName((SGMBeamline::sgmEndstation)272727);
 	}
 
-	AMDetector* teyDetector() const {
-		if(detectorSignalSource_->value() == 0)
-			return teyPicoDetector_;
-		else
-			return teyScalerDetector_;
-	}
-	AMDetector* tfyDetector() const {
-		if(detectorSignalSource_->value() == 0)
-			return tfyPicoDetector_;
-		else
-			return tfyScalerDetector_;
-	}
+	AMDetector* teyDetector() const { return teyScalerDetector_;}
+	AMDetector* tfyDetector() const { return tfyScalerDetector_;}
 	AMDetector* pgtDetector() const { return pgtDetector_;}
 	AMDetector* oos65000Detector() const { return oos65000Detector_;}
-	AMDetector* i0Detector() const {
-		if(detectorSignalSource_->value() == 0)
-			return i0PicoDetector_;
-		else
-			return i0ScalerDetector_;
-	}
+	AMDetector* i0Detector() const { return i0ScalerDetector_;}
 	AMDetector* eVFbkDetector() const { return eVFbkDetector_;}
-	AMDetector* photodiodeDetector() const {
-		if(detectorSignalSource_->value() == 0)
-			return photodiodePicoDetector_;
-		else
-			return photodiodeScalerDetector_;
-	}
+	AMDetector* photodiodeDetector() const { return photodiodeScalerDetector_;}
 	AMDetector* encoderUpDetector() const { return encoderUpDetector_;}
 	AMDetector* encoderDownDetector() const { return encoderDownDetector_;}
-	//TOM THIS IS STEP 4.5
 	AMDetector* ringCurrentDetector() const { return ringCurrentDetector_;}
 	AMDetector* filterPD1ScalarDetector() const { return filterPD1ScalarDetector_;}
 	AMDetector* filterPD2ScalarDetector() const { return filterPD2ScalarDetector_;}
 	AMDetector* filterPD3ScalarDetector() const { return filterPD3ScalarDetector_;}
 	AMDetector* filterPD4ScalarDetector() const { return filterPD4ScalarDetector_;}
+	AMDetector* amptekSDD1() const { return amptekSDD1_;}
+	AMDetector* amptekSDD2() const { return amptekSDD2_;}
 
 	bool detectorValidForCurrentSignalSource(AMDetector *detector);
 	bool detectorValidForCurrentSignalSource(AMDetectorInfo *detectorInfo);
@@ -222,12 +204,6 @@ public:
 	AMControl* scalerIntegrationTime() const { return scalerIntegrationTime_;}
 	AMControl* ssaIllumination() const { return ssaIllumination_;}
 	AMControl* tfyHVToggle() const { return tfyHVToggle_;}
-	//TOM THIS IS STEP 4.3
-	AMControl* ringCurrent() const { return ringCurrent_;}
-	AMControl* filterPD1() const { return filterPD1_;}
-	AMControl* filterPD2() const { return filterPD2_;}
-	AMControl* filterPD3() const { return filterPD3_;}
-	AMControl* filterPD4() const { return filterPD4_;}
 	CLSCAEN2527HVChannel* hvChannel106() const { return hvChannel106_;}
 	CLSCAEN2527HVChannel* hvChannel109() const { return hvChannel109_;}
 	CLSPGT8000HVChannel* hvChannelPGT() const { return hvChannelPGT_;}
@@ -329,6 +305,9 @@ signals:
 	void currentEndstationChanged(SGMBeamline::sgmEndstation);
 
 	void detectorHVChanged();
+	void detectorAvailabilityChanged(AMDetector *detector, bool available);
+
+	void beamlineInitialized();
 
 protected slots:
 	void onBeamlineScanningValueChanged(double value);
@@ -341,6 +320,9 @@ protected slots:
 	void recomputeWarnings();
 
 	void onVisibleLightChanged(double value);
+	void onDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
+
+	void computeBeamlineInitialized();
 
 protected:
 	// Singleton implementation:
@@ -369,9 +351,6 @@ protected:
 	AMControl *undulatorTracking_;
 	AMControl *monoTracking_;
 	AMControl *exitSlitTracking_;
-	AMControl *teyPico_;
-	AMControl *teyScaler_;
-	AMControl *tfyPico_;
 	AMControl *tfyScaler_;
 	AMControl *tfyHV_;
 	AMControl *tfyHVToggle_;
@@ -379,19 +358,7 @@ protected:
 	CLSCAEN2527HVChannel *hvChannel109_;
 	CLSPGT8000HVChannel *hvChannelPGT_;
 	CLSSynchronizedDwellTime *synchronizedDwellTime_;
-	AMControl *pgt_;
 	AMControl *pgtHV_;
-	AMControl *pgtIntegrationTime_;
-	AMControl *pgtIntegrationMode_;
-	AMControl *oos65000_;
-	AMControl *oos65000IntegrationTime_;
-	AMControl *i0Pico_;
-	AMControl *i0Scaler_;
-	AMControl *eVFbk_;
-	AMControl *photodiodePico_;
-	AMControl *photodiodeScaler_;
-	AMControl *encoderUp_;
-	AMControl *encoderDown_;
 	AMControl *loadlockCCG_;
 	AMControl *loadlockTCG_;
 	SGMMAXvMotor *ssaManipulatorX_;
@@ -418,50 +385,23 @@ protected:
 	AMControl *scalerIntegrationTime_;
 	AMControl *detectorSignalSource_;
 	AMControl *ssaIllumination_;
-	//TOM THIS IS STEP 4.2
-	AMControl *ringCurrent_;
-	AMControl *filterPD1_;
-	AMControl *filterPD2_;
-	AMControl *filterPD3_;
-	AMControl *filterPD4_;
 
-	AMControlSet *teyPicoControlSet_;
-	AMDetector *teyPicoDetector_;
-	AMControlSet *teyScalerControlSet_;
 	AMDetector *teyScalerDetector_;
-	AMControlSet *tfyPicoControlSet_;
-	AMDetector *tfyPicoDetector_;
-	AMControlSet *tfyScalerControlSet_;
 	AMDetector *tfyScalerDetector_;
-	AMControlSet *pgtControlSet_;
 	AMDetector *pgtDetector_;
-	AMControlSet *oos65000ControlSet_;
 	AMDetector *oos65000Detector_;
-	AMDetector *i0PicoDetector_;
-	AMControlSet *i0PicoControlSet_;
 	AMDetector *i0ScalerDetector_;
-	AMControlSet *i0ScalerControlSet_;
 	AMDetector *eVFbkDetector_;
-	AMControlSet *eVFbkControlSet_;
-	AMDetector *photodiodePicoDetector_;
-	AMControlSet *photodiodePicoControlSet_;
 	AMDetector *photodiodeScalerDetector_;
-	AMControlSet *photodiodeScalerControlSet_;
 	AMDetector *encoderUpDetector_;
-	AMControlSet *encoderUpControlSet_;
 	AMDetector *encoderDownDetector_;
-	AMControlSet *encoderDownControlSet_;
-	//TOM THIS IS STEP 4.4
 	AMDetector *ringCurrentDetector_;
-	AMControlSet *ringCurrentControlSet_;
 	AMDetector *filterPD1ScalarDetector_;
-	AMControlSet *filterPD1ScalarControlSet_;
 	AMDetector *filterPD2ScalarDetector_;
-	AMControlSet *filterPD2ScalarControlSet_;
 	AMDetector *filterPD3ScalarDetector_;
-	AMControlSet *filterPD3ScalarControlSet_;
 	AMDetector *filterPD4ScalarDetector_;
-	AMControlSet *filterPD4ScalarControlSet_;
+	AMDetector* amptekSDD1_;
+	AMDetector* amptekSDD2_;
 
 	AMControlSet *criticalControlsSet_;
 	AMControlSet *beamOnControlSet_;
@@ -482,6 +422,8 @@ protected:
 	AMDetectorSet *feedbackDetectors_;
 	AMDetectorSet *XASDetectors_;
 	AMDetectorSet *FastDetectors_;
+
+	QMultiMap<AMDetector*, QPair<AMDetectorSet*, bool> > *detectorMap_;
 
 	QList<AMControlSet*> unconnectedSets_;
 

@@ -23,8 +23,54 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDetectorView.h"
 #include "beamline/AMDetectorSet.h"
+#include <QScrollArea>
+
+class AMDetectorSetViewInternal;
 
 class AMDetectorSetView : public QGroupBox
+{
+Q_OBJECT
+public:
+	explicit AMDetectorSetView(AMDetectorSet *viewSet, bool configureOnly = false, QWidget *parent = 0);
+	// Assumes configureOnly is true and uses infoSet as the starting point
+	explicit AMDetectorSetView(AMDetectorSet *viewSet, const AMDetectorInfoSet &infoSet, QWidget *parent = 0);
+
+	int count() const;
+	AMDetectorSet* detectorSet();
+	AMDetectorView* boxByName(const QString &name);
+	// Darren:  I'm changing this from AMDetectorView const * const because it only needs one.  Also, to be consistent with other parts of our code, I'm also changing the ordering to const AMDetectorView *.
+	const AMDetectorView *boxAt(int row) const;
+	AMDetectorView* detailByName(const QString &name);
+	// Darren:  I'm changing this from AMDetectorView const * const because it only needs one.  Also, to be consistent with other parts of our code, I'm also changing the ordering to const AMDetectorView *.
+	const AMDetectorView *detailAt(int row) const;
+	bool checkedAt(int row) const;
+
+	/// Returns the current values of the detector set
+	AMDetectorInfoSet currentValues();
+	/// Returns the desired values if the view is used for configuration only (returns the current values if the view is not for configuration only)
+	AMDetectorInfoSet configValues();
+
+	friend QDebug operator<<(QDebug d, const AMDetectorSetView& dsv);
+
+	//virtual QSize sizeHint() const;
+
+signals:
+	/// Emitted when any control value in the control set changes (but ONLY when the view is not configure only)
+	void currentValuesChanged();
+	/// Emitted when any configuration value changes or when a detector is enabled/disabled (but ONLY when the view is configure only)
+	void configValuesChanged();
+
+protected:
+	/// Used for the main bulk of the constructor, as it's the same between both
+	void initializeWidget(AMDetectorSet *viewSet);
+
+protected:
+	AMDetectorSetViewInternal *internalView_;
+	QScrollArea *scrollArea_;
+};
+
+class AMDetectorSetViewInternal : public QWidget
+//class AMDetectorSetView : public QGroupBox
 {
 Q_OBJECT
 public:
@@ -32,9 +78,9 @@ public:
 	/*! \param viewSet Pointer to the AMControlSet to view.
 	  \param parent Pointer to QWidget to act as parent.
 	  */
-	explicit AMDetectorSetView(AMDetectorSet *viewSet, bool configureOnly = false, QWidget *parent = 0);
+	explicit AMDetectorSetViewInternal(AMDetectorSet *viewSet, bool configureOnly = false, QWidget *parent = 0);
 	// Assumes configureOnly is true and uses infoSet as the starting point
-	explicit AMDetectorSetView(AMDetectorSet *viewSet, const AMDetectorInfoSet &infoSet, QWidget *parent = 0);
+	explicit AMDetectorSetViewInternal(AMDetectorSet *viewSet, const AMDetectorInfoSet &infoSet, QWidget *parent = 0);
 
 	int count() const;
 	AMDetectorSet* detectorSet();

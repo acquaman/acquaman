@@ -33,9 +33,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMScanController.h"
 #include "ui/beamline/AMDetectorView.h"
 #include "ui/beamline/AMSingleControlDetectorView.h"
-#include "ui/beamline/MCPDetectorView.h"
-#include "ui/beamline/PGTDetectorView.h"
-#include "ui/beamline/OceanOptics65000DetectorView.h"
+#include "ui/SGM/SGMMCPDetectorView.h"
+#include "ui/CLS/CLSPGTDetectorView.h"
+#include "ui/CLS/CLSOceanOptics65000DetectorView.h"
+#include "ui/CLS/CLSAmptekSDD123DetectorView.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
@@ -78,19 +79,23 @@ bool SGMAppController::startup() {
 
 		SGMBeamline::sgm();
 
-		AMDbObjectSupport::s()->registerClass<MCPDetectorInfo>();
-		AMDbObjectSupport::s()->registerClass<PGTDetectorInfo>();
-		AMDbObjectSupport::s()->registerClass<OceanOptics65000DetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<SGMMCPDetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<CLSPGTDetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<CLSOceanOptics65000DetectorInfo>();
+		AMDbObjectSupport::s()->registerClass<CLSAmptekSDD123DetectorInfo>();
 		AMDbObjectSupport::s()->registerClass<SGMXASScanConfiguration>();
 		AMDbObjectSupport::s()->registerClass<SGMFastScanConfiguration>();
 
 		AMDetectorViewSupport::registerClass<AMSingleControlBriefDetectorView, AMSingleControlDetector>();
-		AMDetectorViewSupport::registerClass<MCPBriefDetectorView, MCPDetector>();
-		AMDetectorViewSupport::registerClass<MCPDetailedDetectorView, MCPDetector>();
-		AMDetectorViewSupport::registerClass<PGTBriefDetectorView, PGTDetector>();
-		AMDetectorViewSupport::registerClass<PGTDetailedDetectorView, PGTDetector>();
-		AMDetectorViewSupport::registerClass<OceanOptics65000BriefDetectorView, OceanOptics65000Detector>();
-		AMDetectorViewSupport::registerClass<OceanOptics65000DetailedDetectorView, OceanOptics65000Detector>();
+		AMDetectorViewSupport::registerClass<AMSingleReadOnlyControlBriefDetectorView, AMSingleReadOnlyControlDetector>();
+		AMDetectorViewSupport::registerClass<SGMMCPBriefDetectorView, SGMMCPDetector>();
+		AMDetectorViewSupport::registerClass<SGMMCPDetailedDetectorView, SGMMCPDetector>();
+		AMDetectorViewSupport::registerClass<CLSPGTBriefDetectorView, CLSPGTDetector>();
+		AMDetectorViewSupport::registerClass<CLSPGTDetailedDetectorView, CLSPGTDetector>();
+		AMDetectorViewSupport::registerClass<CLSOceanOptics65000BriefDetectorView, CLSOceanOptics65000Detector>();
+		AMDetectorViewSupport::registerClass<CLSOceanOptics65000DetailedDetectorView, CLSOceanOptics65000Detector>();
+		AMDetectorViewSupport::registerClass<CLSAmptekSDD123BriefDetectorView, CLSAmptekSDD123Detector>();
+		AMDetectorViewSupport::registerClass<CLSAmptekSDD123DetailedDetectorView, CLSAmptekSDD123Detector>();
 
 		// Testing and making the first run in the database, if there isn't one already.  Make this it's own function if you think startup() is getting too big ; )
 		////////////////////////////////////////
@@ -173,6 +178,12 @@ bool SGMAppController::startup() {
 		sgmScalerView_ = 0;
 		connect(SGMBeamline::sgm()->rawScaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onSGMScalerConnected(bool)));
 
+		amptekSDD1View_ = 0;
+		connect(SGMBeamline::sgm()->amptekSDD1()->signalSource(), SIGNAL(connected(bool)), this, SLOT(onSGMAmptekSDD1Connected(bool)));
+		amptekSDD2View_ = 0;
+		connect(SGMBeamline::sgm()->amptekSDD2()->signalSource(), SIGNAL(connected(bool)), this, SLOT(onSGMAmptekSDD2Connected(bool)));
+
+
 		mw_->insertHeading("Experiment Setup", 1);
 		//////////
 		xasScanConfigurationView_ = 0; //NULL
@@ -190,7 +201,8 @@ bool SGMAppController::startup() {
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerDestroyed()));
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
 
-		connect(SGMBeamline::sgm(), SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(onSGMBeamlineConnected()));
+		//connect(SGMBeamline::sgm(), SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(onSGMBeamlineConnected()));
+		connect(SGMBeamline::sgm(), SIGNAL(beamlineInitialized()), this, SLOT(onSGMBeamlineConnected()));
 
 		/*! \todo: hook up bottom-bar signals to the active scan controller.
  void MainWindow::onScanControllerReady(AMScanController *scanController){
@@ -263,6 +275,20 @@ void SGMAppController::onSGMScalerConnected(bool connected){
 	if(connected && !sgmScalerView_){
 		sgmScalerView_ = new CLSSIS3820ScalerView(SGMBeamline::sgm()->scaler());
 		mw_->addPane(sgmScalerView_, "Beamline Control", "SGM Scaler", ":/system-software-update.png");
+	}
+}
+
+void SGMAppController::onSGMAmptekSDD1Connected(bool connected){
+	if(connected && ! amptekSDD1View_){
+		amptekSDD1View_ = AMDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->amptekSDD1());
+		mw_->addPane(amptekSDD1View_, "Beamline Control", "SGM Amptek1", ":/system-software-update.png");
+	}
+}
+
+void SGMAppController::onSGMAmptekSDD2Connected(bool connected){
+	if(connected && ! amptekSDD2View_){
+		amptekSDD2View_ = AMDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->amptekSDD2());
+		mw_->addPane(amptekSDD2View_, "Beamline Control", "SGM Amptek2", ":/system-software-update.png");
 	}
 }
 
@@ -357,6 +383,22 @@ bool SGMAppController::setupSGMDatabase(){
 		configFile = new SGMDacqConfigurationFile();
 		configFile->setName("PGTScaler");
 		configFile->setConfigurationFileName("pgtScaler.cfg");
+		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
+		success &= configFile->storeToDb(dbSGM);
+	}
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTAmp1Scaler");
+	if(matchIDs.count() == 0){
+		configFile = new SGMDacqConfigurationFile();
+		configFile->setName("PGTAmp1Scaler");
+		configFile->setConfigurationFileName("pgtAmp1Scaler.cfg");
+		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
+		success &= configFile->storeToDb(dbSGM);
+	}
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTAmpBScaler");
+	if(matchIDs.count() == 0){
+		configFile = new SGMDacqConfigurationFile();
+		configFile->setName("PGTAmpBScaler");
+		configFile->setConfigurationFileName("pgtAmpBScaler.cfg");
 		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
 		success &= configFile->storeToDb(dbSGM);
 	}

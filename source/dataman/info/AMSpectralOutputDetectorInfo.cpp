@@ -37,7 +37,25 @@ AMSpectralOutputDetectorInfo::AMSpectralOutputDetectorInfo(const QString& name, 
 AMSpectralOutputDetectorInfo::AMSpectralOutputDetectorInfo(const AMSpectralOutputDetectorInfo &original) :
 		AMDetectorInfo(original)
 {
-	retreiveAndSetProperties(original);
+//	retreiveAndSetProperties(original);
+	integrationModeList_ << "Real" << "Live" << "Peak";
+	this->operator =(original);
+}
+
+AMSpectralOutputDetectorInfo& AMSpectralOutputDetectorInfo::operator =(const AMSpectralOutputDetectorInfo &other)
+{
+	if(this != &other){
+		AMDetectorInfo::operator =(other);
+		setBinCount(other.binCount());
+		setAxisName(other.axisName());
+		setBinNames(other.binNames());
+		setIntegrationTime(other.integrationTime());
+		setIntegrationTimeRangeMin(other.integrationTimeRangeMin());
+		setIntegrationTimeRangeMax(other.integrationTimeRangeMax());
+		setIntegrationMode(other.integrationMode());
+		setUnits(other.units());
+	}
+	return *this;
 }
 
 int AMSpectralOutputDetectorInfo::binCount() const

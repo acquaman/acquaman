@@ -18,29 +18,30 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef MCPDETECTOR_H
-#define MCPDETECTOR_H
+#ifndef SGMMCPDETECTOR_H
+#define SGMMCPDETECTOR_H
 
-#include "AMDetector.h"
-#include "dataman/info/MCPDetectorInfo.h"
-#include "AMControlSet.h"
+#include "beamline/AMDetector.h"
+#include "dataman/SGM/SGMMCPDetectorInfo.h"
+#include "beamline/AMControlSet.h"
 #include "actions/AMBeamlineActionItem.h"
 
-class MCPDetector : public MCPDetectorInfo, public AMDetector
+class SGMMCPDetector : public SGMMCPDetectorInfo, public AMDetector
 {
 	Q_OBJECT
 public:
-	MCPDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
-	MCPDetector(const QString& name, AMControl *reading, AMControl *hv, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
-	~MCPDetector();
+	SGMMCPDetector(const QString &name, const QString &fullReadingName, const QString &hvBaseName, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
+	~SGMMCPDetector();
 
 	const QMetaObject* getMetaObject();
+
+	virtual QString dacqName() const;
 
 	virtual double reading() const;
 
 	/// NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.
 	AMDetectorInfo* toInfo() const;
-	MCPDetectorInfo toMCPInfo() const;
+	SGMMCPDetectorInfo toMCPInfo() const;
 
 	bool isPoweredOn();
 
@@ -51,21 +52,24 @@ public:
 	bool setFromInfo(const AMDetectorInfo &info);
 	   */
 	bool setFromInfo(const AMDetectorInfo *info);
-	bool setFromInfo(const MCPDetectorInfo &info);
+	bool setFromInfo(const SGMMCPDetectorInfo &info);
 
 	bool activate();
 	AMBeamlineActionItem* turnOnAction();
 
-	bool settingsMatchFbk(MCPDetectorInfo* settings);
+	bool settingsMatchFbk(SGMMCPDetectorInfo* settings);
 
 	QString description() const;
 
 public slots:
 	void setDescription(const QString &description);
-	virtual bool setControls(MCPDetectorInfo *mcpSettings);
+	virtual bool setControls(SGMMCPDetectorInfo *mcpSettings);
+
+	void onDetectorHVToggleChanged();
 
 signals:
 	void poweredOnChanged(bool poweredOn);
+	void detectorHVChanged();
 
 protected slots:
 	void onControlsConnected(bool connected);
@@ -73,12 +77,13 @@ protected slots:
 	void onSettingsControlValuesChanged();
 
 protected:
-	void initializeFromControlSet(AMControlSet *readingsControls, AMControlSet *settingsControls);
+	/// The actual control for the reading value
+	AMControl *readingControl_;
+	/// The control for the MCP High voltage
+	AMControl *hvControl_;
 
-protected:
-	AMControlSet *readingsControls_;
-	AMControlSet *settingsControls_;
-	bool ownsControlSets_;
+	/// A control set for all the controls (for ease of signalling)
+	AMControlSet *allControls_;
 
 	AMBeamlineActionItem *toggleOnAction_;
 	AMBeamlineActionItem *toggleOffAction_;
@@ -88,4 +93,4 @@ private:
 };
 
 
-#endif // MCPDETECTOR_H
+#endif // SGMMCPDETECTOR_H

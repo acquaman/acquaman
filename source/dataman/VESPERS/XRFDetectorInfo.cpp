@@ -21,21 +21,31 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "XRFDetectorInfo.h"
 
 XRFDetectorInfo::XRFDetectorInfo(const QString &name, const QString &description, QObject *parent)
-	: AMDetectorInfo(name, description, parent)
+	: AMBasicXRFDetectorInfo(name, description, parent)
 {
 	setUnits("Counts");
 }
 
 XRFDetectorInfo::XRFDetectorInfo(const XRFDetectorInfo &original)
-	: AMDetectorInfo(original.name(), original.description(), original.parent())
+	: AMBasicXRFDetectorInfo(original)
 {
-	retreiveAndSetProperties(original);
+//	retreiveAndSetProperties(original);
+	this->operator =(original);
 }
 
 XRFDetectorInfo &XRFDetectorInfo::operator =(const XRFDetectorInfo &other)
 {
-	if (this != &other)
-		retreiveAndSetProperties(other);
+	if (this != &other){
+		//retreiveAndSetProperties(other);
+		AMBasicXRFDetectorInfo::operator =(other);
+		setElements(other.elements());
+		setChannels(other.channels());
+		setIntegrationTime(other.integrationTime());
+		setPeakingTime(other.peakingTime());
+		AMROIInfoList *roiInfoList = const_cast<AMROIInfoList *>(other.roiInfoList());
+		setROIList(*roiInfoList);
+		setMaximumEnergy(other.maximumEnergy());
+	}
 	return *this;
 }
 

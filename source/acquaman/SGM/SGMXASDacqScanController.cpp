@@ -63,16 +63,6 @@ bool SGMXASDacqScanController::startImplementation(){
 	}
 	bool loadSuccess = false;
 
-	for(int x = 0; x < config_->allDetectorConfigurations().count(); x++){
-		if(config_->allDetectorConfigurations().isActiveAt(x) && !SGMBeamline::sgm()->detectorValidForCurrentSignalSource(config_->allDetectorConfigurations().detectorInfoAt(x))){
-			AMErrorMon::report(AMErrorReport(this,
-					AMErrorReport::Alert,
-					SGMXASDACQSCANCONTROLLER_CANT_START_DETECTOR_SOURCE_MISMATCH,
-					"Error, SGM XAS DACQ Scan Controller failed to start. The SGM Beamline thinks you're configured to use the wrong detectors (picoammeters versus scalers). Please report this bug to the Acquaman developers."));
-			return false;
-		}
-	}
-
 	SGMDacqConfigurationFile *configFile = new SGMDacqConfigurationFile();
 	QList<int> matchIDs;
 	if( SGMBeamline::sgm()->pgtDetector() && SGMBeamline::sgm()->oos65000Detector() && config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())
@@ -82,6 +72,18 @@ bool SGMXASDacqScanController::startImplementation(){
 			matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTXEOLAmmeter");
 		else if(SGMBeamline::sgm()->usingScalerSource())
 			matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTXEOLScaler");
+		usingSpectraDotDatFile_ = true;
+	}
+	else if(SGMBeamline::sgm()->pgtDetector() && SGMBeamline::sgm()->amptekSDD1() && SGMBeamline::sgm()->amptekSDD2() && config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())
+			&& config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->amptekSDD1()->detectorName()) && config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->amptekSDD2()->detectorName())){
+		qDebug() << "USING PGT AND BOTH AMPTEKs";
+		matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTAmpBScaler");
+		usingSpectraDotDatFile_ = true;
+	}
+	else if(SGMBeamline::sgm()->pgtDetector() && SGMBeamline::sgm()->amptekSDD1() && config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())
+			&& config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->amptekSDD1()->detectorName())){
+		qDebug() << "USING PGT AND AMPTEK1";
+		matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTAmp1Scaler");
 		usingSpectraDotDatFile_ = true;
 	}
 	else if(SGMBeamline::sgm()->pgtDetector() && config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())){
@@ -120,11 +122,11 @@ bool SGMXASDacqScanController::startImplementation(){
 	for(int i = 0; i < config_->allDetectorConfigurations().count(); i++){
 		if(config_->allDetectorConfigurations().isActiveAt(i)){
 			AMDetector *dtctr = config_->allDetectors()->detectorNamed(config_->allDetectorConfigurations().detectorInfoAt(i)->name());
-			//if(dtctr->detectorName() == SGMBeamline::sgm()->pgtDetector()->detectorName())
+			qDebug() << "Dacq append record as " << dtctr->detectorName() << dtctr->toInfo()->rank() << dtctr->dacqName() << dtctr->readMethod();
 			if(dtctr->toInfo()->rank() > 0)
-				advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->detectorName()), true, true, detectorReadMethodToDacqReadMethod(dtctr->readMethod()));
+				advAcq_->appendRecord(dtctr->dacqName(), true, true, detectorReadMethodToDacqReadMethod(dtctr->readMethod()));
 			else
-				advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->detectorName()), true, false, detectorReadMethodToDacqReadMethod(dtctr->readMethod()));
+				advAcq_->appendRecord(dtctr->dacqName(), true, false, detectorReadMethodToDacqReadMethod(dtctr->readMethod()));
 		}
 	}
 	for(int x = 0; x < config_->regionCount(); x++){

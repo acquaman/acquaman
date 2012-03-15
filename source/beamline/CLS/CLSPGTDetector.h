@@ -18,34 +18,35 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef PGTDETECTOR_H
-#define PGTDETECTOR_H
+#ifndef CLSPGTDETECTOR_H
+#define CLSPGTDETECTOR_H
 
-#include "AMDetector.h"
-#include "dataman/info/PGTDetectorInfo.h"
-#include "AMControlSet.h"
+#include "beamline/AMDetector.h"
+#include "dataman/info/CLSPGTDetectorInfo.h"
+#include "beamline/AMControlSet.h"
 
-class PGTDetector : public PGTDetectorInfo, public AMDetector
+class CLSPGTDetector : public CLSPGTDetectorInfo, public AMDetector
 {
 	Q_OBJECT
 public:
-	PGTDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
-	PGTDetector(const QString& name, AMControl *dataWaveform, AMControl *hv, AMControl *integrationTime, AMControl *integrationMode, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
-	~PGTDetector();
+	CLSPGTDetector(const QString& name, const QString &baseName, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
+	~CLSPGTDetector();
 
 	const QMetaObject* getMetaObject();
+
+	virtual QString dacqName() const;
 
 	virtual double reading() const;
 
 	/// NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.
 	AMDetectorInfo* toInfo() const;
-	PGTDetectorInfo toPGTInfo() const;
+	CLSPGTDetectorInfo toPGTInfo() const;
 
 	/* NTBA March 14, 2011 David Chevrier
 	bool setFromInfo(const AMDetectorInfo &info);
 	*/
 	bool setFromInfo(const AMDetectorInfo *info);
-	bool setFromInfo(const PGTDetectorInfo &info);
+	bool setFromInfo(const CLSPGTDetectorInfo &info);
 
 	bool isPoweredOn();
 
@@ -57,13 +58,13 @@ public:
 	AMControl* integrationTimeCtrl() const;
 	AMControl* integrationModeCtrl() const;
 
-	bool settingsMatchFbk(PGTDetectorInfo* settings);
+	bool settingsMatchFbk(CLSPGTDetectorInfo* settings);
 
 	QString description() const;
 
 public slots:
 	void setDescription(const QString &description);
-	virtual bool setControls(PGTDetectorInfo *pgtSettings);
+	virtual bool setControls(CLSPGTDetectorInfo *pgtSettings);
 
 signals:
 	void poweredOnChanged(bool poweredOn);
@@ -74,14 +75,21 @@ protected slots:
 	void onSettingsControlValuesChanged();
 
 protected:
-	bool initializeFromControlSet(AMControlSet *readingsControls, AMControlSet *settingsControls);
+	/// The actual control for the spectrum waveform
+	AMControl *dataWaveformControl_;
+	/// The control for the PGT high voltage
+	AMControl *hvControl_;
+	/// The control for the integration time
+	AMControl *integrationTimeControl_;
+	/// The control for the integration mode
+	AMControl *integrationModeControl_;
 
-protected:
-	AMControlSet *readingsControls_;
-	AMControlSet *settingsControls_;
-	bool ownsControlSets_;
+	/// A control set for all the controls (for ease of signalling)
+	AMControlSet *allControls_;
 
+	/// The action for toggling the HV on (right now comes from somewhere else)
 	AMBeamlineActionItem *toggleOnAction_;
+	/// The action for toggling the HV off (right now comes from somewhere else)
 	AMBeamlineActionItem *toggleOffAction_;
 
 private:
@@ -89,4 +97,4 @@ private:
 };
 
 
-#endif // PGTDETECTOR_H
+#endif // CLSPGTDETECTOR_H

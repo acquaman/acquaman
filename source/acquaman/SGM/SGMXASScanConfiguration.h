@@ -115,6 +115,9 @@ signals:
 	   Need something similar for detector set
 	*/
 
+protected slots:
+	void detectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
+
 protected:
 	AMDbObject* dbReadDetectorConfigs() { return &xasDetectorsCfg_;}
 	void dbLoadDetectorConfigs(AMDbObject*) {} //Never called, xasDetectorsCfg_ is always valid

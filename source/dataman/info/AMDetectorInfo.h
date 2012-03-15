@@ -56,6 +56,8 @@ public:
 	  */
 	AMDetectorInfo(const AMDetectorInfo& original);
 
+	AMDetectorInfo& operator=(const AMDetectorInfo &other);
+
 	~AMDetectorInfo() {}
 
 	/// Creates a new info pointer from this one, caller is responsible for memory
@@ -109,8 +111,8 @@ public slots:
 	/// Set the size of the detector. This may not be applicable or valid for some detectors (for example, a single-point detector, or one with a fixed dimensionality.  Returns false if it's invalid to set the size.
 	virtual bool setSize(const AMnDIndex& size) { Q_UNUSED(size); return false; }
 
-protected:
-	void retreiveAndSetProperties(const AMDetectorInfo &original);
+//protected:
+	//void retreiveAndSetProperties(const AMDetectorInfo &original);
 
 protected:
 	QString description_;
