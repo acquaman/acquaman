@@ -234,9 +234,9 @@ bool SGMAppController::startupDatabaseUpgrades(){
 	QMap<QString, QString> parentTablesToColumnsNames;
 	QMap<QString, int> indexTablesToIndexSide;
 	indexTablesToIndexSide.insert("AMDetectorInfoSet_table_detectorInfos", 2);
-	dbObjectBecomes("PGTDetectorInfo", "CLSPGTDetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide);
-	dbObjectBecomes("OceanOptics65000DetectorInfo", "CLSOceanOptics65000DetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide);
-	dbObjectBecomes("MCPDetectorInfo", "SGMMCPDetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide);
+	dbObjectClassBecomes("PGTDetectorInfo", "CLSPGTDetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide);
+	dbObjectClassBecomes("OceanOptics65000DetectorInfo", "CLSOceanOptics65000DetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide);
+	dbObjectClassBecomes("MCPDetectorInfo", "SGMMCPDetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide);
 
 	return true;
 }
@@ -976,7 +976,7 @@ bool SGMAppController::setupSGMPeriodicTable(){
 	return success;
 }
 
-bool SGMAppController::dbObjectBecomes(const QString &originalClassName, const QString &newClassName, QMap<QString, QString> parentTablesToColumnNames, QMap<QString, int> indexTablesToIndexSide){
+bool SGMAppController::dbObjectClassBecomes(const QString &originalClassName, const QString &newClassName, QMap<QString, QString> parentTablesToColumnNames, QMap<QString, int> indexTablesToIndexSide){
 	AMDatabase *userDb = AMDatabase::database("user");
 
 	QString originalTableName = originalClassName%"_table";
@@ -1016,6 +1016,23 @@ bool SGMAppController::dbObjectBecomes(const QString &originalClassName, const Q
 			userDb->rollbackTransaction();
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -270, QString("Database support: There was an error trying to update the AMDbObjectTypes table for (%1) to become %2.").arg(originalClassName).arg(newClassName)));
 			return false;
+		}
+
+		// Loop over all the parent tables to column names map values
+		QMap<QString, QString>::const_iterator j = parentTablesToColumnNames.constBegin();
+		while (j != parentTablesToColumnNames.constEnd()) {
+			// Grab the list of indices we're interested in and for all those indices update to the new class name while maintaining the original index value (format: table_name;index_value)
+			QList<int> parentTableIndices = userDb->objectsWhere(j.key(), QString("%1 LIKE '%2;%'").arg(j.value()).arg(originalTableName));
+			for(int x = 0; x < parentTableIndices.count(); x++){
+				QString indexStringToUse = userDb->retrieve(parentTableIndices.at(x), j.key(), j.value()).toString();
+				int indexToUse = indexStringToUse.split(';').at(1).toInt();
+				if(!userDb->update(parentTableIndices.at(x), j.key(), j.value(), QVariant(QString("%1;%2").arg(newTableName).arg(indexToUse)))){
+					userDb->rollbackTransaction();
+					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -281, QString("Database support: There was an error trying to update the %1 column for %2 table at id %2.").arg(j.value()).arg(j.key()).arg(parentTableIndices.at(x))));
+					return false;
+				}
+			}
+			++j;
 		}
 
 		// Loop over all the index table to column map values
@@ -1103,6 +1120,23 @@ bool SGMAppController::dbObjectClassMerge(const QString &mergeToClassName, const
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -275, QString("Database support: There was an error while trying to insert into to table format %1.").arg(mergeToTableName)));
 			return false;
 		}
+	}
+
+	// Loop over all the parent tables to column names map values
+	QMap<QString, QString>::const_iterator j = parentTablesToColumnNames.constBegin();
+	while (j != parentTablesToColumnNames.constEnd()) {
+		// Grab the list of indices we're interested in and for all those indices update to the new class name while updating the original index value for the correct offset (format: table_name;index_value)
+		QList<int> parentTableIndices = userDb->objectsWhere(j.key(), QString("%1 LIKE '%2;%'").arg(j.value()).arg(mergeFromTableName));
+		for(int x = 0; x < parentTableIndices.count(); x++){
+			QString indexStringToUse = userDb->retrieve(parentTableIndices.at(x), j.key(), j.value()).toString();
+			int indexToUse = indexStringToUse.split(';').at(1).toInt() + toCount;
+			if(!userDb->update(parentTableIndices.at(x), j.key(), j.value(), QVariant(QString("%1;%2").arg(mergeToTableName).arg(indexToUse)))){
+				userDb->rollbackTransaction();
+				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -282, QString("Database support: There was an error trying to update the %1 column for %2 table at id %2.").arg(j.value()).arg(j.key()).arg(parentTableIndices.at(x))));
+				return false;
+			}
+		}
+		++j;
 	}
 
 	// Loop over all of the index tables we're interested in so we can change any "from" side items to refer to the "original" side table with their revamped ids.
