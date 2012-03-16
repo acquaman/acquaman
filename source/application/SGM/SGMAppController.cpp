@@ -231,11 +231,12 @@ void SGMAppController::shutdown() {
 bool SGMAppController::startupDatabaseUpgrades(){
 	qDebug() << "In SGMAppController startupDatabaseUpgrades";
 
-	QMap<QString, QString> indexTableToWhereColumn;
-	indexTableToWhereColumn.insert("AMDetectorInfoSet_table_detectorInfos", "table2");
-	dbObjectBecomes("PGTDetectorInfo", "CLSPGTDetectorInfo", indexTableToWhereColumn);
-	dbObjectBecomes("OceanOptics65000DetectorInfo", "CLSOceanOptics65000DetectorInfo", indexTableToWhereColumn);
-	dbObjectBecomes("MCPDetectorInfo", "SGMMCPDetectorInfo", indexTableToWhereColumn);
+	QMap<QString, QString> parentTablesToColumnsNames;
+	QMap<QString, int> indexTablesToIndexSide;
+	indexTablesToIndexSide.insert("AMDetectorInfoSet_table_detectorInfos", 2);
+	dbObjectBecomes("PGTDetectorInfo", "CLSPGTDetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide);
+	dbObjectBecomes("OceanOptics65000DetectorInfo", "CLSOceanOptics65000DetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide);
+	dbObjectBecomes("MCPDetectorInfo", "SGMMCPDetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide);
 
 	return true;
 }
@@ -975,56 +976,157 @@ bool SGMAppController::setupSGMPeriodicTable(){
 	return success;
 }
 
-bool SGMAppController::dbObjectBecomes(const QString &originalClassName, const QString &newClassName, QMap<QString, QString> indexTableToColumnWhere){
+bool SGMAppController::dbObjectBecomes(const QString &originalClassName, const QString &newClassName, QMap<QString, QString> parentTablesToColumnNames, QMap<QString, int> indexTablesToIndexSide){
 	AMDatabase *userDb = AMDatabase::database("user");
+
+	QString originalTableName = originalClassName%"_table";
+	QString newTableName = newClassName%"_table";
+
 	QList<int> matchingOriginial;
 	QList<int> matchingNew;
 
+	// Find the number of objects matching the original and new class names in the AMDbObjectTypes table
 	matchingOriginial = userDb->objectsMatching("AMDbObjectTypes_table", "AMDbObjectType", originalClassName);
 	matchingNew = userDb->objectsMatching("AMDbObjectTypes_table", "AMDbObjectType", newClassName);
 	qDebug() << "Original " << matchingOriginial.count() << " New " << matchingNew.count();
 
+
+	// If they're both non-zero, then you'll have to do something about that to figure it out
 	if(matchingOriginial.count() > 0 && matchingNew.count() > 0){
-		qDebug() << "OKAY, WE HAVE A PROBLEM! BOTH OF THOSE TABLES ARE IN THE DATABASE.";
-	}
-	else if(matchingOriginial.count() > 0 && matchingNew.count() == 0){
-		qDebug() << "WE'RE OKAY, WE CAN DO A NON-TRIVIAL UPGRADE";
+		qDebug() << "OKAY, WE HAVE A PROBLEM! BOTH OF THOSE TABLES ARE IN THE DATABASE. We need to rollback to the original, then we can apply the upgrade algorithm";
 
-		QString originalTableName = originalClassName%"_table";
-		QString newTableName = newClassName%"_table";
+		QList<int> allOriginalIDs = userDb->objectsMatching(originalTableName, "AMDbObjectType", originalClassName);
+		QList<int> allNewIDs = userDb->objectsMatching(newTableName, "AMDbObjectType", newClassName);
+		int originalCount = allOriginalIDs.count();
 
-		QStringList columnsToChange;
-		QVariantList changesToMake;
-		columnsToChange << "AMDbObjectType" << "tableName";
-		changesToMake << QVariant(newClassName) << QVariant(newTableName);
 		userDb->startTransaction();
-		if(!userDb->update(matchingOriginial.at(0), "AMDbObjectTypes_table", columnsToChange, changesToMake)){
+
+		QSqlQuery q = userDb->query();
+		q.prepare("PRAGMA table_info("%newTableName%")");
+		if(!AMDatabase::execQuery(q)) {
+			q.finish();
 			userDb->rollbackTransaction();
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -270, QString("Database support: There was an error trying to update the AMDbObjectTypes table for (%1) to become %2.").arg(originalClassName).arg(newClassName)));
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -274, QString("Database support: There was an error while trying to read meta data on table %1.").arg(newTableName)));
 			return false;
 		}
+		QStringList allTableColumns;
+		while(q.next()){
+			allTableColumns << q.value(1).toString();
+		}
+		allTableColumns.removeFirst();
+		q.finish();
 
-		QMap<QString, QString>::const_iterator i = indexTableToColumnWhere.constBegin();
-		while (i != indexTableToColumnWhere.constEnd()) {
-			qDebug() << "Operating on index table " << i.key();
-			QList<int> indexTableIndices = userDb->objectsWhere(i.key(), i.value()%"='"%originalTableName%"'");
-			qDebug() << "The indices list is " << indexTableIndices;
-			for(int x = 0; x < indexTableIndices.count(); x++){
-				if(!userDb->update(indexTableIndices.at(x), i.key(), i.value(), QVariant(newTableName))){
+		for(int x = 0; x < allNewIDs.count(); x++){
+			QVariantList valuesFromNewTable = userDb->retrieve(allNewIDs.at(x), newTableName, allTableColumns);
+			int newIDInOldTable = userDb->insertOrUpdate(originalCount+allNewIDs.at(x), originalTableName, allTableColumns, valuesFromNewTable );
+			if(newIDInOldTable == 0){
+				userDb->rollbackTransaction();
+				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -275, QString("Database support: There was an error while trying to insert into original table format %1.").arg(originalTableName)));
+				return false;
+			}
+		}
+
+		QMap<QString, int>::const_iterator i = indexTablesToIndexSide.constBegin();
+		while (i != indexTablesToIndexSide.constEnd()) {
+			//QList<int> indexTableIndices = userDb->objectsWhere(i.key(), i.value()%"='"%newTableName%"'");
+			QList<int> indexTableIndices = userDb->objectsWhere(i.key(), QString("table%1='%2'").arg(i.value()).arg(newTableName));
+			QStringList updateColumns;
+			/*QString idString = i.value();
+			idString.replace("table", "id");*/
+			QString idString = QString("id%1").arg(i.value());
+			updateColumns << idString << QString("table%1").arg(i.value());
+			for(int x = 0; x< indexTableIndices.count(); x++){
+				int currentId2 = userDb->retrieve(indexTableIndices.at(x), i.key(), idString).toInt() + originalCount;
+				QVariantList updateValues;
+				updateValues << QVariant(currentId2) << QVariant(originalTableName);
+				if(!userDb->update(indexTableIndices.at(x), i.key(), updateColumns, updateValues)){
 					userDb->rollbackTransaction();
-					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -271, QString("Database support: There was an error trying to update the AMDetectorInfoSet_table_detectorInfos table at id %1.").arg(indexTableIndices.at(x))));
+					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -276, QString("Database support: There was an error trying to update the %1 table at id %2.").arg(i.key()).arg(indexTableIndices.at(x))));
 					return false;
 				}
 			}
 			++i;
 		}
 
+		QList<int> newClassDbObjectIds = userDb->objectsWhere("AMDbObjectTypes_table", "AMDbObjectType = '"%newClassName%"'");
+		if(newClassDbObjectIds.count() != 1){
+			userDb->rollbackTransaction();
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -277, QString("Database support: There was an error trying to find %1 in the AMDbObjectTypes table.").arg(newClassName)));
+			return false;
+		}
+		int newClassDbObjectId = newClassDbObjectIds.at(0);
+		if(!userDb->deleteRow(newClassDbObjectId, "AMDbObjectTypes_table")){
+			userDb->rollbackTransaction();
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -278, QString("Database support: There was an error trying to rollback the AMDbObjectTypes table for %1.").arg(newClassName)));
+			return false;
+		}
+
+		QStringList relatedAMDbObjectTypesTables;
+		relatedAMDbObjectTypesTables << "allColumns" << "visibleColumns" << "loadColumns";
+		for(int x = 0; x < relatedAMDbObjectTypesTables.count(); x++){
+			if(userDb->deleteRows("AMDbObjectTypes_"%relatedAMDbObjectTypesTables.at(x), QString("TypeId='%1'").arg(newClassDbObjectId)) == 0){
+				userDb->rollbackTransaction();
+				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -279, QString("Database support: There was an error trying to rollback the AMDbObjectTypes related table %1.").arg("AMDbObjectTypes_"%relatedAMDbObjectTypesTables.at(x))));
+				return false;
+			}
+		}
+
+		q = userDb->query();
+		q.prepare("DROP TABLE "%newTableName);
+		if(!AMDatabase::execQuery(q)) {
+			q.finish();
+			userDb->rollbackTransaction();
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -280, QString("Database support: There was an error while trying to rollback table %1.").arg(newTableName)));
+			return false;
+		}
+		q.finish();
+
+		userDb->commitTransaction();
+		return dbObjectBecomes(originalClassName, newClassName, parentTablesToColumnNames, indexTablesToIndexSide);
+	}
+	// If there are no instances of the new class, then we can upgrade in this fashion
+	else if(matchingOriginial.count() > 0 && matchingNew.count() == 0){
+		qDebug() << "WE'RE OKAY, WE CAN DO A NON-TRIVIAL UPGRADE";
+		// Start the transaction, we can rollback to here if things go badly
+		userDb->startTransaction();
+
+		// Update the AMDbObjectTypes_table to replace the AMDbObjectType and table name with the new values
+		QStringList columnsToChange;
+		QVariantList changesToMake;
+		columnsToChange << "AMDbObjectType" << "tableName";
+		changesToMake << QVariant(newClassName) << QVariant(newTableName);
+		if(!userDb->update(matchingOriginial.at(0), "AMDbObjectTypes_table", columnsToChange, changesToMake)){
+			userDb->rollbackTransaction();
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -270, QString("Database support: There was an error trying to update the AMDbObjectTypes table for (%1) to become %2.").arg(originalClassName).arg(newClassName)));
+			return false;
+		}
+
+		// Loop over all the index table to column map values
+		QMap<QString, int>::const_iterator i = indexTablesToIndexSide.constBegin();
+		while (i != indexTablesToIndexSide.constEnd()) {
+			//qDebug() << "Operating on index table " << i.key();
+			// Grab the list of indices we're interested in and for all those indices update to the new class name
+			//QList<int> indexTableIndices = userDb->objectsWhere(i.key(), i.value()%"='"%originalTableName%"'");
+			QList<int> indexTableIndices = userDb->objectsWhere(i.key(), QString("table%1='%2'").arg(i.value()).arg(originalTableName));
+			//qDebug() << "The indices list is " << indexTableIndices;
+			for(int x = 0; x < indexTableIndices.count(); x++){
+				if(!userDb->update(indexTableIndices.at(x), i.key(), QString("table%1").arg(i.value()), QVariant(newTableName))){
+					userDb->rollbackTransaction();
+					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -271, QString("Database support: There was an error trying to update the %1 table at id %2.").arg(i.key()).arg(indexTableIndices.at(x))));
+					return false;
+				}
+			}
+			++i;
+		}
+
+		// Go to the actual class table (the original one) and update the AMDbObjectType column
 		if(!userDb->update(originalTableName, "AMDbObjectType='"%originalClassName%"'", "AMDbObjectType", QVariant(newClassName))){
 			userDb->rollbackTransaction();
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -272, QString("Database support: There was an error trying to update the %1 table for new AMDbObjectType %2.").arg(originalTableName).arg(newClassName)));
 			return false;
 		}
 
+		// Finally, rename the table from the original name to the new name
 		QSqlQuery q = userDb->query();
 		q.prepare("ALTER table "%originalTableName%" RENAME to "%newTableName);
 		if(!AMDatabase::execQuery(q)) {
@@ -1034,11 +1136,14 @@ bool SGMAppController::dbObjectBecomes(const QString &originalClassName, const Q
 			return false;
 		}
 
+		// If there were no problems then commit the transaction
 		userDb->commitTransaction();
 	}
+	// If there are no instances of the original class then no upgrade is necessary
 	else if(matchingOriginial.count() == 0 && matchingNew.count() > 0){
 		qDebug() << "UPGRADE ALREADY DONE OR UNNECESSARY";
 	}
+	// Neither class name can be found, did you type something in wrong?
 	else{
 		qDebug() << "THAT'S ODD ... WE DON'T HAVE EITHER OF THOSE";
 	}

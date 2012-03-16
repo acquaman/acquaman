@@ -79,7 +79,14 @@ protected:
 	bool setupSGMDatabase();
 	bool setupSGMPeriodicTable();
 
-	bool dbObjectBecomes(const QString &originalClassName, const QString &newClassName, QMap<QString, QString> indexTableToColumnWhere);
+	/// Upgrades an AMDbObject class originally called \c originalClassName to \c newClassName.
+	/*! This takes care of the problem where a class used in the database needs to be renamed. There are several caveats on this one.
+	  The function is only for classes of medium complexity. They can been in an index table, but they shouldn't be the indexed table (for example, a class that inherits AMDetectorInfo is okay, but this can't handle something like AMDetectorInfoSet).
+	  This function will ensure that the AMDbObjectTypes_table is properply updated, as well as changing the name of the class table and its AMDbObjectType column.
+	  The \c indexTableToColumnWhere map allows you to specify a mapping of tables and columns you want to make sure are updated.
+	  For example, if you have an index table you can speficy the index table name and the column to check in. This will run through all of the row of that index table and update instances of the old class name to the new class name.
+	  */
+	bool dbObjectBecomes(const QString &originalClassName, const QString &newClassName, QMap<QString, QString> parentTablesToColumnNames, QMap<QString, int> indexTablesToIndexSide);
 
 protected:
 
