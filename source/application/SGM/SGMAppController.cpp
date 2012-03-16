@@ -991,101 +991,18 @@ bool SGMAppController::dbObjectBecomes(const QString &originalClassName, const Q
 	qDebug() << "Original " << matchingOriginial.count() << " New " << matchingNew.count();
 
 
-	// If they're both non-zero, then you'll have to do something about that to figure it out
+	// If they're both non-zero, then roll the database back by converting all of the "new" side instances to "original" side instances by using the classMerge function.
 	if(matchingOriginial.count() > 0 && matchingNew.count() > 0){
 		qDebug() << "OKAY, WE HAVE A PROBLEM! BOTH OF THOSE TABLES ARE IN THE DATABASE. We need to rollback to the original, then we can apply the upgrade algorithm";
 
-		QList<int> allOriginalIDs = userDb->objectsMatching(originalTableName, "AMDbObjectType", originalClassName);
-		QList<int> allNewIDs = userDb->objectsMatching(newTableName, "AMDbObjectType", newClassName);
-		int originalCount = allOriginalIDs.count();
-
-		userDb->startTransaction();
-
-		QSqlQuery q = userDb->query();
-		q.prepare("PRAGMA table_info("%newTableName%")");
-		if(!AMDatabase::execQuery(q)) {
-			q.finish();
-			userDb->rollbackTransaction();
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -274, QString("Database support: There was an error while trying to read meta data on table %1.").arg(newTableName)));
+		if(!dbObjectClassMerge(originalClassName, newClassName, parentTablesToColumnNames, indexTablesToIndexSide))
 			return false;
-		}
-		QStringList allTableColumns;
-		while(q.next()){
-			allTableColumns << q.value(1).toString();
-		}
-		allTableColumns.removeFirst();
-		q.finish();
 
-		for(int x = 0; x < allNewIDs.count(); x++){
-			QVariantList valuesFromNewTable = userDb->retrieve(allNewIDs.at(x), newTableName, allTableColumns);
-			int newIDInOldTable = userDb->insertOrUpdate(originalCount+allNewIDs.at(x), originalTableName, allTableColumns, valuesFromNewTable );
-			if(newIDInOldTable == 0){
-				userDb->rollbackTransaction();
-				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -275, QString("Database support: There was an error while trying to insert into original table format %1.").arg(originalTableName)));
-				return false;
-			}
-		}
-
-		QMap<QString, int>::const_iterator i = indexTablesToIndexSide.constBegin();
-		while (i != indexTablesToIndexSide.constEnd()) {
-			//QList<int> indexTableIndices = userDb->objectsWhere(i.key(), i.value()%"='"%newTableName%"'");
-			QList<int> indexTableIndices = userDb->objectsWhere(i.key(), QString("table%1='%2'").arg(i.value()).arg(newTableName));
-			QStringList updateColumns;
-			/*QString idString = i.value();
-			idString.replace("table", "id");*/
-			QString idString = QString("id%1").arg(i.value());
-			updateColumns << idString << QString("table%1").arg(i.value());
-			for(int x = 0; x< indexTableIndices.count(); x++){
-				int currentId2 = userDb->retrieve(indexTableIndices.at(x), i.key(), idString).toInt() + originalCount;
-				QVariantList updateValues;
-				updateValues << QVariant(currentId2) << QVariant(originalTableName);
-				if(!userDb->update(indexTableIndices.at(x), i.key(), updateColumns, updateValues)){
-					userDb->rollbackTransaction();
-					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -276, QString("Database support: There was an error trying to update the %1 table at id %2.").arg(i.key()).arg(indexTableIndices.at(x))));
-					return false;
-				}
-			}
-			++i;
-		}
-
-		QList<int> newClassDbObjectIds = userDb->objectsWhere("AMDbObjectTypes_table", "AMDbObjectType = '"%newClassName%"'");
-		if(newClassDbObjectIds.count() != 1){
-			userDb->rollbackTransaction();
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -277, QString("Database support: There was an error trying to find %1 in the AMDbObjectTypes table.").arg(newClassName)));
-			return false;
-		}
-		int newClassDbObjectId = newClassDbObjectIds.at(0);
-		if(!userDb->deleteRow(newClassDbObjectId, "AMDbObjectTypes_table")){
-			userDb->rollbackTransaction();
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -278, QString("Database support: There was an error trying to rollback the AMDbObjectTypes table for %1.").arg(newClassName)));
-			return false;
-		}
-
-		QStringList relatedAMDbObjectTypesTables;
-		relatedAMDbObjectTypesTables << "allColumns" << "visibleColumns" << "loadColumns";
-		for(int x = 0; x < relatedAMDbObjectTypesTables.count(); x++){
-			if(userDb->deleteRows("AMDbObjectTypes_"%relatedAMDbObjectTypesTables.at(x), QString("TypeId='%1'").arg(newClassDbObjectId)) == 0){
-				userDb->rollbackTransaction();
-				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -279, QString("Database support: There was an error trying to rollback the AMDbObjectTypes related table %1.").arg("AMDbObjectTypes_"%relatedAMDbObjectTypesTables.at(x))));
-				return false;
-			}
-		}
-
-		q = userDb->query();
-		q.prepare("DROP TABLE "%newTableName);
-		if(!AMDatabase::execQuery(q)) {
-			q.finish();
-			userDb->rollbackTransaction();
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -280, QString("Database support: There was an error while trying to rollback table %1.").arg(newTableName)));
-			return false;
-		}
-		q.finish();
-
-		userDb->commitTransaction();
-		return dbObjectBecomes(originalClassName, newClassName, parentTablesToColumnNames, indexTablesToIndexSide);
+		matchingNew = userDb->objectsMatching("AMDbObjectTypes_table", "AMDbObjectType", newClassName);
 	}
+
 	// If there are no instances of the new class, then we can upgrade in this fashion
-	else if(matchingOriginial.count() > 0 && matchingNew.count() == 0){
+	if(matchingOriginial.count() > 0 && matchingNew.count() == 0){
 		qDebug() << "WE'RE OKAY, WE CAN DO A NON-TRIVIAL UPGRADE";
 		// Start the transaction, we can rollback to here if things go badly
 		userDb->startTransaction();
@@ -1104,11 +1021,8 @@ bool SGMAppController::dbObjectBecomes(const QString &originalClassName, const Q
 		// Loop over all the index table to column map values
 		QMap<QString, int>::const_iterator i = indexTablesToIndexSide.constBegin();
 		while (i != indexTablesToIndexSide.constEnd()) {
-			//qDebug() << "Operating on index table " << i.key();
 			// Grab the list of indices we're interested in and for all those indices update to the new class name
-			//QList<int> indexTableIndices = userDb->objectsWhere(i.key(), i.value()%"='"%originalTableName%"'");
 			QList<int> indexTableIndices = userDb->objectsWhere(i.key(), QString("table%1='%2'").arg(i.value()).arg(originalTableName));
-			//qDebug() << "The indices list is " << indexTableIndices;
 			for(int x = 0; x < indexTableIndices.count(); x++){
 				if(!userDb->update(indexTableIndices.at(x), i.key(), QString("table%1").arg(i.value()), QVariant(newTableName))){
 					userDb->rollbackTransaction();
@@ -1147,5 +1061,109 @@ bool SGMAppController::dbObjectBecomes(const QString &originalClassName, const Q
 	else{
 		qDebug() << "THAT'S ODD ... WE DON'T HAVE EITHER OF THOSE";
 	}
+	return true;
+}
+
+bool SGMAppController::dbObjectClassMerge(const QString &mergeToClassName, const QString &mergeFromClassName, QMap<QString, QString> parentTablesToColumnNames, QMap<QString, int> indexTablesToIndexSide){
+	AMDatabase *userDb = AMDatabase::database("user");
+
+	QString mergeToTableName = mergeToClassName%"_table";
+	QString mergeFromTableName = mergeFromClassName%"_table";
+
+	// Grab the list of toIDs and fromIDs so we can get counts and offsets
+	QList<int> allToIDs = userDb->objectsMatching(mergeToTableName, "AMDbObjectType", mergeToClassName);
+	QList<int> allFromIDs = userDb->objectsMatching(mergeFromTableName, "AMDbObjectType", mergeFromClassName);
+	int toCount = allToIDs.count();
+
+	// Start the transaction so we can rollback to here if something goes wrong
+	userDb->startTransaction();
+
+	// Query and record all the column names (except id) from the from table. We need this string list to pass around.
+	QSqlQuery q = userDb->query();
+	q.prepare("PRAGMA table_info("%mergeFromTableName%")");
+	if(!AMDatabase::execQuery(q)) {
+		q.finish();
+		userDb->rollbackTransaction();
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -274, QString("Database support: There was an error while trying to read meta data on table %1.").arg(mergeFromTableName)));
+		return false;
+	}
+	QStringList allTableColumns;
+	while(q.next()){
+		allTableColumns << q.value(1).toString();
+	}
+	allTableColumns.removeFirst();
+	q.finish();
+
+	// Insert all the "from" side items into the "to" side table with an offset in their ids
+	for(int x = 0; x < allFromIDs.count(); x++){
+		QVariantList valuesFromFromTable = userDb->retrieve(allFromIDs.at(x), mergeFromTableName, allTableColumns);
+		int fromIDInOldTable = userDb->insertOrUpdate(toCount+allFromIDs.at(x), mergeToTableName, allTableColumns, valuesFromFromTable );
+		if(fromIDInOldTable == 0){
+			userDb->rollbackTransaction();
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -275, QString("Database support: There was an error while trying to insert into to table format %1.").arg(mergeToTableName)));
+			return false;
+		}
+	}
+
+	// Loop over all of the index tables we're interested in so we can change any "from" side items to refer to the "original" side table with their revamped ids.
+	QMap<QString, int>::const_iterator i = indexTablesToIndexSide.constBegin();
+	while (i != indexTablesToIndexSide.constEnd()) {
+		QList<int> indexTableIndices = userDb->objectsWhere(i.key(), QString("table%1='%2'").arg(i.value()).arg(mergeFromTableName));
+		QStringList updateColumns;
+		QString idString = QString("id%1").arg(i.value());
+		updateColumns << idString << QString("table%1").arg(i.value());
+		for(int x = 0; x< indexTableIndices.count(); x++){
+			int currentId2 = userDb->retrieve(indexTableIndices.at(x), i.key(), idString).toInt() + toCount;
+			QVariantList updateValues;
+			updateValues << QVariant(currentId2) << QVariant(mergeToTableName);
+			if(!userDb->update(indexTableIndices.at(x), i.key(), updateColumns, updateValues)){
+				userDb->rollbackTransaction();
+				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -276, QString("Database support: There was an error trying to update the %1 table at id %2.").arg(i.key()).arg(indexTableIndices.at(x))));
+				return false;
+			}
+		}
+		++i;
+	}
+
+	// Grab the id of the from class from the AMDbObjectTypes table. We need this to get rid of items in the related tables
+	QList<int> fromClassDbObjectIds = userDb->objectsWhere("AMDbObjectTypes_table", "AMDbObjectType = '"%mergeFromClassName%"'");
+	if(fromClassDbObjectIds.count() != 1){
+		userDb->rollbackTransaction();
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -277, QString("Database support: There was an error trying to find %1 in the AMDbObjectTypes table.").arg(mergeFromClassName)));
+		return false;
+	}
+	int fromClassDbObjectId = fromClassDbObjectIds.at(0);
+
+	// Delete the from class from the AMDbObjectsType table.
+	if(!userDb->deleteRow(fromClassDbObjectId, "AMDbObjectTypes_table")){
+		userDb->rollbackTransaction();
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -278, QString("Database support: There was an error trying to rollback the AMDbObjectTypes table for %1.").arg(mergeFromClassName)));
+		return false;
+	}
+
+	// Loop over a list of tables related to AMDbObjectTypes. Remove all instances of the TypeId we just grabbed from the last db call.
+	QStringList relatedAMDbObjectTypesTables;
+	relatedAMDbObjectTypesTables << "allColumns" << "visibleColumns" << "loadColumns";
+	for(int x = 0; x < relatedAMDbObjectTypesTables.count(); x++){
+		if(userDb->deleteRows("AMDbObjectTypes_"%relatedAMDbObjectTypesTables.at(x), QString("TypeId='%1'").arg(fromClassDbObjectId)) == 0){
+			userDb->rollbackTransaction();
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -279, QString("Database support: There was an error trying to rollback the AMDbObjectTypes related table %1.").arg("AMDbObjectTypes_"%relatedAMDbObjectTypesTables.at(x))));
+			return false;
+		}
+	}
+
+	// Actually delete the "from" side class table.
+	q = userDb->query();
+	q.prepare("DROP TABLE "%mergeFromTableName);
+	if(!AMDatabase::execQuery(q)) {
+		q.finish();
+		userDb->rollbackTransaction();
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -280, QString("Database support: There was an error while trying to rollback table %1.").arg(mergeFromTableName)));
+		return false;
+	}
+	q.finish();
+
+	// Commit this transaction
+	userDb->commitTransaction();
 	return true;
 }
