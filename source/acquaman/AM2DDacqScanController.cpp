@@ -55,6 +55,8 @@ bool AM2DDacqScanController::startImplementation()
 		else
 			yPosition_ = -1;
 
+		prefillScanPoints();
+
 		acqRegisterOutputHandler( advAcq_->getMaster(), (acqKey_t) abop, &abop->handler);                // register the handler with the acquisition
 
 		QFileInfo fullPath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()));	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
@@ -142,8 +144,6 @@ bool AM2DDacqScanController::event(QEvent *e)
 
 AMnDIndex AM2DDacqScanController::toScanIndex(QMap<int, double> aeData)
 {
-	Q_UNUSED(aeData);
-
 	// Increment the fast axis.  If the fast axis is at the end of the road, set it to 0 and increment the slow axis.
 	switch(internal2DConfig_->fastAxis()){
 
@@ -189,6 +189,68 @@ AMnDIndex AM2DDacqScanController::toScanIndex(QMap<int, double> aeData)
 	}
 
 	return AMnDIndex(xPosition_, yPosition_);
+}
+
+void AM2DDacqScanController::prefillScanPoints()
+{
+	switch(internal2DConfig_->fastAxis()){
+
+		case AM2DScanConfiguration::X: {
+
+			int i = 0;
+			int j = 0;
+			AMnDIndex insertIndex;
+
+			for (double y = internal2DConfig_->yStart(); y <= internal2DConfig_->yEnd() + internal2DConfig_->yStep(); y += internal2DConfig_->yStep()){
+
+				for (double x = internal2DConfig_->xStart(); x <= internal2DConfig_->xEnd() + internal2DConfig_->xStep(); x += internal2DConfig_->xStep()){
+
+					insertIndex = AMnDIndex(i, j);
+					scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
+					scan_->rawData()->setAxisValue(0, insertIndex.i(), x);
+					scan_->rawData()->setAxisValue(1, insertIndex.j(), y);
+
+					for (int di = 0; di < scan_->dataSourceCount(); di++)
+						scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), 0);
+
+					scan_->rawData()->endInsertRows();
+					i++;
+				}
+
+				j++;
+				i = 0;
+			}
+			break;
+		}
+
+		case AM2DScanConfiguration::Y: {
+
+			int i = 0;
+			int j = 0;
+			AMnDIndex insertIndex;
+
+			for (double x = internal2DConfig_->xStart(); x <= internal2DConfig_->xEnd() + internal2DConfig_->xStep(); x += internal2DConfig_->xStep()){
+
+				for (double y = internal2DConfig_->yStart(); y <= internal2DConfig_->yEnd() + internal2DConfig_->yStep(); y += internal2DConfig_->yStep()){
+
+					insertIndex = AMnDIndex(i, j);
+					scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
+					scan_->rawData()->setAxisValue(0, insertIndex.i(), x);
+					scan_->rawData()->setAxisValue(1, insertIndex.j(), y);
+
+					for (int di = 0; di < scan_->dataSourceCount(); di++)
+						scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), 0);
+
+					scan_->rawData()->endInsertRows();
+					i++;
+				}
+
+				j++;
+				i = 0;
+			}
+			break;
+		}
+	}
 }
 
 bool AM2DDacqScanController::setConfigFile(const QString &filename)

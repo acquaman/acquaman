@@ -129,6 +129,8 @@ public:
 	bool closeScanEditor(AMGenericScanEditor* editor);
 	/// Create and add a new scan editor. Returns the new scan editor
 	AMGenericScanEditor* createNewScanEditor();
+	/// Overloaded.  Create and add a new scan editor.  Returns the new editor.  Determines whether new new editor should use AMScanView or AM2DScanView based on \param use2DScanView.
+	AMGenericScanEditor *createNewScanEditor(bool use2DScanView);
 
 	/// If a scan with this \c id and \c database are currently open, returns the editor that has it open. Otherwise returns 0.
 	AMGenericScanEditor* isScanOpenForEditing(int id, AMDatabase* db);

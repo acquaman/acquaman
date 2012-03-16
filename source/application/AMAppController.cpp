@@ -56,6 +56,8 @@ void AMAppController::goToWorkflow() {
 	mw_->setCurrentPane(workflowManagerView_);
 }
 
+#include "dataman/AMScan.h"
+
 void AMAppController::openScanInEditorAndTakeOwnership(AMScan *scan, bool bringEditorToFront, bool openInExistingEditor)
 {
 	AMGenericScanEditor* editor;
@@ -64,7 +66,11 @@ void AMAppController::openScanInEditorAndTakeOwnership(AMScan *scan, bool bringE
 		editor = scanEditorAt(scanEditorCount()-1);
 	}
 	else {
-		editor = createNewScanEditor();
+
+		if (scan->scanRank() == 2)
+			editor = createNewScanEditor(true);
+		else
+			editor = createNewScanEditor();
 	}
 
 	editor->addScan(scan);
@@ -78,7 +84,6 @@ void AMAppController::openScanInEditorAndTakeOwnership(AMScan *scan, bool bringE
 #include "ui/acquaman/AMScanConfigurationViewHolder.h"
 #include "dataman/database/AMDatabase.h"
 #include "dataman/database/AMDbObjectSupport.h"
-#include "dataman/AMScan.h"
 
 void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 {

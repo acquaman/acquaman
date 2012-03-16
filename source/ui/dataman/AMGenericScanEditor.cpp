@@ -132,7 +132,7 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	connect(oneSecondTimer, SIGNAL(timeout()), this, SLOT(onOneSecondTimer()));
 }
 
-AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, AM2DScanConfiguration *config, QWidget *parent)
+AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 	: QWidget(parent)
 {
 	ui_.setupUi(this);
@@ -155,8 +155,6 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, AM2DScanConfigurati
 
 		// share the scan set model with the AMScanView
 		scanSetModel_ = scanView2D_->model();
-
-		config_ = config;
 	}
 
 	else {
@@ -167,9 +165,6 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, AM2DScanConfigurati
 
 		// share the scan set model with the AMScanView
 		scanSetModel_ = scanView_->model();
-
-		// There is no 2D config necessary for
-		config_ = 0;
 	}
 
 	// And set this model on the list view of scans:

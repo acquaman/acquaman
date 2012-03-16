@@ -59,6 +59,8 @@ protected:
 	virtual bool event(QEvent *e);
 	/// Re-implementing the toScanIndex method to properly add the next point in 2D space.  Handles incrementing xPosition_ and yPosition_ as appropriate.
 	virtual AMnDIndex toScanIndex(QMap<int, double> aeData);
+	/// Method that fleshes out the scan's raw data store with all of the points it will need.
+	void prefillScanPoints();
 
 	/// Holds the current position in the x axis.
 	int xPosition_;

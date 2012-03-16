@@ -193,9 +193,6 @@ MPlotGW * AM2DScanViewInternal::createDefaultPlot()
 	rv->plot()->setMarginBottom(15);
 	rv->plot()->setMarginTop(15);
 
-	rv->plot()->axisScaleLeft()->setAutoScaleEnabled();
-	rv->plot()->axisScaleBottom()->setAutoScaleEnabled();
-
 	return rv;
 }
 
