@@ -9,6 +9,7 @@
 #include "dataman/AMScan.h"
 
 #include <QSizePolicy>
+#include <QStringBuilder>
 
 AM2DScanView::AM2DScanView(AMScanSetModel* model, QWidget *parent)
 	: QWidget(parent)
@@ -20,11 +21,16 @@ AM2DScanView::AM2DScanView(AMScanSetModel* model, QWidget *parent)
 	setupUI();
 	makeConnections();
 
-	scanBars_->setModel(scansModel_);
+	exclusiveScanBars_->setModel(scansModel_);
+	multiScanBars_->setModel(scansModel_);
 
-	modeAnim_ = new QPropertyAnimation(gview_->graphicsWidget(), "geometry", this);
-	modeAnim_->setDuration(500);
-	modeAnim_->setEasingCurve(QEasingCurve::InOutCubic);
+	exclusiveModeAnim_ = new QPropertyAnimation(gExclusiveView_->graphicsWidget(), "geometry", this);
+	exclusiveModeAnim_->setDuration(500);
+	exclusiveModeAnim_->setEasingCurve(QEasingCurve::InOutCubic);
+
+	multiViewModeAnim_ = new QPropertyAnimation(gMultiView_->graphicsWidget(), "geometry", this);
+	multiViewModeAnim_->setDuration(500);
+	multiViewModeAnim_->setEasingCurve(QEasingCurve::InOutCubic);
 }
 
 AM2DScanView::~AM2DScanView()
@@ -39,50 +45,87 @@ void AM2DScanView::setupUI()
 	vl->setMargin(6);
 	vl->setSpacing(0);
 
-	gview_ = new AMGraphicsViewAndWidget();
-	gview_->setMinimumSize(400,300);
-	gview_->graphicsWidget()->setGeometry(0,0,640*4, 480);
+	gExclusiveView_ = new AMGraphicsViewAndWidget();
+	gExclusiveView_->setMinimumSize(400,300);
+	gExclusiveView_->graphicsWidget()->setGeometry(0,0,640, 480);
 
-	vl->addWidget(gview_);
+	vl->addWidget(gExclusiveView_);
 
-	scanBars_ = new AMScanViewSourceSelector();
-	scanBars_->setExclusiveModeOn();
-	vl->addWidget(scanBars_);
+	exclusiveScanBars_ = new AMScanViewSourceSelector();
+	exclusiveScanBars_->setExclusiveModeOn();
+	vl->addWidget(exclusiveScanBars_);
 
 	setLayout(vl);
 
 	// setup linear layout within main graphics area:
-	glayout_ = new QGraphicsLinearLayout();
-	glayout_->setSpacing(0);
-	glayout_->setContentsMargins(0,0,0,0);
-	gview_->graphicsWidget()->setLayout(glayout_);
+	gExclusiveLayout_ = new QGraphicsLinearLayout();
+	gExclusiveLayout_->setSpacing(0);
+	gExclusiveLayout_->setContentsMargins(0,0,0,0);
+	gExclusiveView_->graphicsWidget()->setLayout(gExclusiveLayout_);
+
+	QVBoxLayout *multiViewLayout = new QVBoxLayout;
+	multiViewLayout->setMargin(6);
+	multiViewLayout->setSpacing(0);
+
+	gMultiView_ = new AMGraphicsViewAndWidget();
+	gMultiView_->setMinimumSize(400, 300);
+	gMultiView_->graphicsWidget()->setGeometry(0, 0, 640, 640);
+
+	multiViewLayout->addWidget(gMultiView_);
+
+	multiScanBars_ = new AMScanViewSourceSelector();
+	multiViewLayout->addWidget(multiScanBars_);
+
+	multiViewBox_ = new QGroupBox;
+	multiViewBox_->setLayout(multiViewLayout);
+
+	gMultiViewLayout_ = new QGraphicsLinearLayout();
+	gMultiViewLayout_->setSpacing(0);
+	gMultiViewLayout_->setContentsMargins(0, 0, 0, 0);
+	gMultiView_->graphicsWidget()->setLayout(gMultiViewLayout_);
 
 	views_ << new AM2DScanViewExclusiveView(this);
-//	views_ << new AM2DScanViewMultiSourcesView(this);
+	views_ << new AM2DScanViewMultiSourcesView(this);
 
-	glayout_->addItem(views_.first());
-//	views_.at(1)->show();
+	gExclusiveLayout_->addItem(views_.first());
+	gMultiViewLayout_->addItem(views_.at(1));
 }
 
 void AM2DScanView::makeConnections()
 {
 	// connect resize event from graphicsView to resize the stuff inside the view
-	connect(gview_, SIGNAL(resized(QSizeF)), this, SLOT(resizeViews()), Qt::QueuedConnection);
+	connect(gExclusiveView_, SIGNAL(resized(QSizeF)), this, SLOT(resizeExclusiveViews()), Qt::QueuedConnection);
+	connect(gMultiView_, SIGNAL(resized(QSizeF)), this, SLOT(resizeMultiViews()), Qt::QueuedConnection);
 }
 
-void AM2DScanView::resizeViews()
+void AM2DScanView::resizeExclusiveViews()
 {
-	QSize viewSize = gview_->size();
-	QSizeF mainWidgetSize = QSizeF(viewSize.width()*views_.count(), viewSize.height());
+	QSize viewSize = gExclusiveView_->size();
+	QSizeF mainWidgetSize = QSizeF(viewSize.width(), viewSize.height());
 
-	gview_->setSceneRect(QRectF(QPointF(0,0), viewSize ));
+	gExclusiveView_->setSceneRect(QRectF(QPointF(0,0), viewSize ));
 
 	QPointF pos = QPointF(-viewSize.width()*0, 0);
 
-	modeAnim_->stop();
-	modeAnim_->setStartValue(gview_->graphicsWidget()->geometry());
-	modeAnim_->setEndValue(QRectF(pos, mainWidgetSize));
-	modeAnim_->start();
+	exclusiveModeAnim_->stop();
+	exclusiveModeAnim_->setStartValue(gExclusiveView_->graphicsWidget()->geometry());
+	exclusiveModeAnim_->setEndValue(QRectF(pos, mainWidgetSize));
+	exclusiveModeAnim_->start();
+}
+
+void AM2DScanView::resizeMultiViews()
+{
+	QSize viewSize = gMultiView_->size();
+	QSizeF mainWidgetSize = QSizeF(viewSize.width(), viewSize.height());
+
+	gMultiView_->setSceneRect(QRectF(QPointF(0,0), viewSize ));
+
+	QPointF pos = QPointF(-viewSize.width()*0, 0);
+
+	multiViewModeAnim_->stop();
+	multiViewModeAnim_->setStartValue(gMultiView_->graphicsWidget()->geometry());
+	multiViewModeAnim_->setEndValue(QRectF(pos, mainWidgetSize));
+	multiViewModeAnim_->start();
 }
 
 void AM2DScanView::addScan(AMScan *newScan)
@@ -98,16 +141,16 @@ void AM2DScanView::removeScan(AMScan* scan)
 
 void AM2DScanView::showEvent(QShowEvent *e)
 {
-//	if (!views_.at(1)->isVisible())
-//		views_.at(1)->show();
+	if (!multiViewBox_->isVisible())
+		multiViewBox_->show();
 
 	QWidget::showEvent(e);
 }
 
 void AM2DScanView::hideEvent(QHideEvent *e)
 {
-//	if (views_.at(1)->isVisible())
-//		views_.at(1)->hide();
+	if (multiViewBox_->isVisible())
+		multiViewBox_->hide();
 
 	QWidget::hideEvent(e);
 }
@@ -145,6 +188,13 @@ MPlotGW * AM2DScanViewInternal::createDefaultPlot()
 
 	rv->plot()->axisBottom()->showAxisName(true);
 	rv->plot()->axisLeft()->showAxisName(true);
+
+	rv->plot()->setMarginLeft(13);
+	rv->plot()->setMarginBottom(15);
+	rv->plot()->setMarginTop(15);
+
+	rv->plot()->axisScaleLeft()->setAutoScaleEnabled();
+	rv->plot()->axisScaleBottom()->setAutoScaleEnabled();
 
 	return rv;
 }
@@ -350,7 +400,7 @@ void AM2DScanViewExclusiveView::addScan(int scanIndex)
 	if(newItem) {
 
 		newItem->setDescription(model()->scanAt(scanIndex)->fullName());
-		plot_->plot()->addItem(newItem, MPlot::Left);qDebug() << newItem->dataRect();
+		plot_->plot()->addItem(newItem, MPlot::Left);
 	}
 
 	plotItems_.insert(scanIndex, newItem);
@@ -387,6 +437,19 @@ void AM2DScanViewExclusiveView::reviewScan(int scanIndex)
 
 				newItem->setDescription(model()->scanAt(scanIndex)->fullName());
 				plot_->plot()->addItem(newItem, MPlot::Left);
+				AMScan *scan = model()->scanAt(scanIndex);
+
+				switch(scan->scanRank()){
+
+				case 1:
+					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).name : scan->rawData()->scanAxisAt(0).name % ", " % scan->rawData()->scanAxisAt(0).units);
+					break;
+
+				case 2:
+					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).name : scan->rawData()->scanAxisAt(0).name % ", " % scan->rawData()->scanAxisAt(0).units);
+					plot_->plot()->axisLeft()->setAxisName(scan->rawData()->scanAxisAt(1).units.isEmpty() ? scan->rawData()->scanAxisAt(1).name : scan->rawData()->scanAxisAt(1).name % ", " % scan->rawData()->scanAxisAt(1).units);
+					break;
+				}
 			}
 
 			plotItemDataSources_[scanIndex] = dataSource;
@@ -655,6 +718,8 @@ bool AM2DScanViewMultiSourcesView::reviewDataSources() {
 		dataSource2Plot_.insert(sourceName, newPlot);
 		sourceAndScan2PlotItem_.insert(sourceName, QHash<AMScan*, MPlotItem*>());
 		newPlot->plot()->legend()->setTitleText(sourceName);
+		newPlot->plot()->axisTop()->setAxisName(sourceName);
+		newPlot->plot()->axisTop()->showAxisName();
 	}
 
 
@@ -690,7 +755,22 @@ bool AM2DScanViewMultiSourcesView::reviewDataSources() {
 				if(newItem) {
 					sourcesNeedingAxesReview << sourceName;
 					newItem->setDescription(scan->fullName());
-					dataSource2Plot_[sourceName]->plot()->addItem(newItem, (scan->dataSourceAt(di)->rank() == 2 ? MPlot::Right : MPlot::Left));
+					dataSource2Plot_[sourceName]->plot()->addItem(newItem, MPlot::Left);
+
+					AMScan *scan = model()->scanAt(si);
+
+					switch(scan->scanRank()){
+
+					case 1:
+						dataSource2Plot_[sourceName]->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).name : scan->rawData()->scanAxisAt(0).name % ", " % scan->rawData()->scanAxisAt(0).units);
+						break;
+
+					case 2:
+						dataSource2Plot_[sourceName]->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).name : scan->rawData()->scanAxisAt(0).name % ", " % scan->rawData()->scanAxisAt(0).units);
+						dataSource2Plot_[sourceName]->plot()->axisLeft()->setAxisName(scan->rawData()->scanAxisAt(1).units.isEmpty() ? scan->rawData()->scanAxisAt(1).name : scan->rawData()->scanAxisAt(1).name % ", " % scan->rawData()->scanAxisAt(1).units);
+						break;
+					}
+
 					// zzzzzzzz Always add, even if 0? (requires checking everywhere for null plot items). Or only add if valid? (Going with latter... hope this is okay, in event someone tries at add 0d, 3d or 4d data source.
 					sourceAndScan2PlotItem_[sourceName].insert(scan, newItem);
 				}

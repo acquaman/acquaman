@@ -224,7 +224,8 @@ AMNumber AM2DNormalizationAB::axisValue(int axisNumber, int index, bool doBounds
 	return data_->axisValue(axisNumber, index, doBoundsChecking);
 }
 
-void AM2DNormalizationAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end) {
+void AM2DNormalizationAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
+{
 	emitValuesChanged(start, end);
 }
 

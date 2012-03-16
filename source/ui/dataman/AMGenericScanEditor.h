@@ -37,14 +37,17 @@ class AMSampleEditor;
 class AMDataSourcesEditor;
 class AMChooseScanDialog;
 class AMControlInfoListTableView;
+class AM2DScanConfiguration;
 
 class AMGenericScanEditor : public QWidget
 {
 Q_OBJECT
 public:
 
-	/// Construct an empty editor:
+	/// Construct an empty editor.  This builds an editor using the default AMScanView.
 	explicit AMGenericScanEditor(QWidget *parent = 0);
+	/// Overloaded.  Constructs an empty editor using the scan view chosen by \param use2DScanView.  If use2DscanView is true then a valid AM2DScanConfiguration must also be provided.
+	explicit AMGenericScanEditor(bool use2DScanView, AM2DScanConfiguration *config, QWidget *parent = 0);
 
 	/// Deletes self and releases all scan objects that were added
 	virtual ~AMGenericScanEditor();
@@ -162,8 +165,10 @@ protected:
 
 	/// Plot view capable of holding multiple scans.
 	AMScanView* scanView_;
-	//Testing AM2DScanView.
+	/// Plot view used for specifically viewing 2D scans.
 	AM2DScanView *scanView2D_;
+	/// Pointer to the scan configuration that AM2DScanView uses for setting up plots.
+	AM2DScanConfiguration *config_;
 
 	/// Sample editor
 	AMSampleEditor* sampleEditor_;

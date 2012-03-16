@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QPropertyAnimation>
+#include <QGroupBox>
 
 #include "MPlot/MPlot.h"
 #include "ui/dataman/AMScanViewUtilities.h"
@@ -33,8 +34,10 @@ public slots:
 	void removeScan(AMScan* scan);
 
 protected slots:
-	/// Slot that resizes the views as needed.
-	void resizeViews();
+	/// Slot that resizes the exclusive view as needed.
+	void resizeExclusiveViews();
+	/// Slot that resizes the multi view as needed.
+	void resizeMultiViews();
 
 protected:
 	/// Reimplements the show event to hide the multi view.
@@ -53,11 +56,18 @@ protected:
 	QList<AM2DScanViewInternal*> views_;
 
 	// ui components:
-	AMGraphicsViewAndWidget* gview_;
-	QGraphicsLinearLayout* glayout_;
-	AMScanViewSourceSelector* scanBars_;
+	AMGraphicsViewAndWidget* gExclusiveView_;
+	QGraphicsLinearLayout* gExclusiveLayout_;
+	AMScanViewSourceSelector* exclusiveScanBars_;
 
-	QPropertyAnimation* modeAnim_;
+	AMGraphicsViewAndWidget* gMultiView_;
+	QGraphicsLinearLayout *gMultiViewLayout_;
+	AMScanViewSourceSelector* multiScanBars_;
+
+	QGroupBox *multiViewBox_;
+
+	QPropertyAnimation* exclusiveModeAnim_;
+	QPropertyAnimation *multiViewModeAnim_;
 };
 
 /// This class handles changes in the scan set model and propogates it to both views inside of it.
