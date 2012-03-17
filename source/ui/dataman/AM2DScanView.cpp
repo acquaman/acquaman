@@ -6,6 +6,7 @@
 
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 #include "dataman/datasource/AMDataSourceImageData.h"
+#include "dataman/datasource/AMDataSourceImageDatawDefault.h"
 #include "dataman/AMScan.h"
 
 #include <QSizePolicy>
@@ -193,6 +194,9 @@ MPlotGW * AM2DScanViewInternal::createDefaultPlot()
 	rv->plot()->setMarginBottom(15);
 	rv->plot()->setMarginTop(15);
 
+	rv->plot()->axisScaleBottom()->setPadding(0);
+	rv->plot()->axisScaleLeft()->setPadding(0);
+
 	return rv;
 }
 
@@ -209,8 +213,8 @@ MPlotItem* AM2DScanViewInternal::createPlotItemForDataSource(const AMDataSource*
 	switch(dataSource->rank()) {	// depending on the rank, we'll need an XY-series or an image to display it. 3D and 4D, etc. we don't handle for now.
 
 	case 2: {
-		MPlotImageBasic* image = new MPlotImageBasic();
-		image->setModel(new AMDataSourceImageData(dataSource), true);
+		MPlotImageBasicwDefault* image = new MPlotImageBasicwDefault();
+		image->setModel(new AMDataSourceImageDatawDefault(dataSource, 0), true);
 		image->setColorMap(plotSettings.colorMap);
 		image->setZValue(-1000);
 		rv = image;

@@ -474,6 +474,7 @@ bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource, bool 
 #include "MPlot/MPlotImage.h"
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 #include "dataman/datasource/AMDataSourceImageData.h"
+#include "dataman/datasource/AMDataSourceImageDatawDefault.h"
 #include "util/AMDateTimeUtils.h"
 
 int AMScan::thumbnailCount() const{
@@ -550,10 +551,22 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 		plot->doDelayedAutoScale();
 		break; }
 	case 2: {
-		MPlotImageBasic* image = new MPlotImageBasic();
-		image->setModel(new AMDataSourceImageData(dataSource), true);
-		plot->addItem(image);
-		plot->doDelayedAutoScale();
+		if (scanRank() == 2){
+
+			MPlotImageBasicwDefault* image = new MPlotImageBasicwDefault();
+			image->setModel(new AMDataSourceImageDatawDefault(dataSource, 0), true);
+			plot->addItem(image);
+			plot->doDelayedAutoScale();
+		}
+
+		else{
+
+			MPlotImageBasic* image = new MPlotImageBasic();
+			image->setModel(new AMDataSourceImageData(dataSource), true);
+			plot->addItem(image);
+			plot->doDelayedAutoScale();
+		}
+
 		break; }
 	default: {
 		// what?
