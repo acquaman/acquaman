@@ -41,8 +41,10 @@ REIXSXESCalibration::REIXSXESCalibration(QObject *parent) :
 	detectorPos0_ = QVector3D(-2.548, 498.977, 25.279);
 
 	slitPos_ = QVector3D(-0.32, -349.95, -6.10);
-	opticalOrigin_ = QVector3D(0, 0, 0);
 
+	opticalOriginsX_ << 0 << 0 << 0 << 0 << 0;
+	opticalOriginsY_ << 0 << 0 << 0 << 0 << 0;
+	opticalOriginsZ_ << 0 << 0 << 0 << 0 << 0;
 
 	detectorHeightError_ = 3.03; //mm
 
@@ -109,9 +111,9 @@ AMControlInfoList REIXSXESCalibration::computeSpectrometerPosition(int gratingIn
 
 	qDebug() << "   Alpha required for rowland condition (deg):" << r2d(alpha(gratingIndex));
 	qDebug() << "   Beta using that alpha, at " << eV << "eV:" << r2d(beta(eV, gratingIndex));
-	qDebug() << "   Angle of slit-origin ray above y axis (deg)" << r2d(sTheta());
+	qDebug() << "   Angle of slit-origin ray above y axis (deg)" << r2d(sTheta(gratingIndex));
 	qDebug() << "   Grating tilt to achieve required alpha (deg):" << hexU;
-	qDebug() << "   r (mm):" << r();
+	qDebug() << "   r (mm):" << r(gratingIndex);
 	qDebug() << "   r-prime (mm):" << rPrime(eV, gratingIndex);
 	qDebug() << "   Spectrometer dTheta: angle up from y axis to center of detector:" << r2d(dTheta(eV, gratingIndex));
 	qDebug() << "   Detector position:" << detPos;
@@ -127,7 +129,7 @@ double REIXSXESCalibration::computeEVFromSpectrometerPosition(int gratingIndex, 
 {
 	double theta = spectrometerTheta(spectrometerRotationDriveMm);
 	QVector3D pos = detectorPosFromThetaAndTranslation(theta, detectorTranslationMm);
-	double dTheta = dThetaFromDetectorPos(pos);
+	double dTheta = dThetaFromDetectorPos(pos, gratingIndex);
 
 	// qDebug() << "theta:" << theta << "pos" << pos << "dTheta" << dTheta;
 
