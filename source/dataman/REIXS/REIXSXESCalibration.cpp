@@ -40,8 +40,7 @@ REIXSXESCalibration::REIXSXESCalibration(QObject *parent) :
 
 	detectorPos0_ = QVector3D(0.032, 499.609, 23.895);
 
-	slitPos_ = QVector3D(-0.32, -349.95, -6.912450037);  //Initial Survey: (-0.32, -349.95, -6.10), -5.8422 for -0.06, now at +0.115
-
+	slitPos_ = QVector3D(-0.32, -349.95, -6.912450037);  //Initial Survey: (-0.32, -349.95, -6.10), -5.8422 for -0.06, -6.912450037 now at +0.115
 
 	opticalOriginsX_ << 0 << 0 << 0 << 0 << 0;
 	opticalOriginsY_ << 0 << 0 << 0 << 0 << 0;
