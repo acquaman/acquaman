@@ -937,7 +937,7 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 	if (scan->scanRank() == 2){
 
 		if (editor)
-			delete editor;
+			closeScanEditor(editor);
 
 		editor = createNewScanEditor(true);
 	}
@@ -961,15 +961,3 @@ void AMDatamanAppController::onActionImportAcquamanDatabase()
 	AMScanDatabaseImportWizard* wizard = new AMScanDatabaseImportWizard(importController);
 	wizard->show();
 }
-
-
-
-
-
-
-
-
-
-
-
-
