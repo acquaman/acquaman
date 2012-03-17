@@ -82,6 +82,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions2/actions/AMControlMoveActionInfo.h"
 #include "actions2/actions/AMScanControllerActionInfo.h"
 #include "dataman/AM2DScan.h"
+#include "analysis/AM2DNormalizationAB.h"
 
 
 #include "dataman/database/AMDbObjectSupport.h"
@@ -263,6 +264,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMExternalScanDataSourceAB>();
 	AMDbObjectSupport::s()->registerClass<AM1DSummingAB>();
 	AMDbObjectSupport::s()->registerClass<AMDeadTimeAB>();
+	AMDbObjectSupport::s()->registerClass<AM2DNormalizationAB>();
 
 	AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
 	AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
@@ -699,6 +701,13 @@ AMGenericScanEditor * AMDatamanAppController::createNewScanEditor()
 	return editor;
 }
 
+AMGenericScanEditor *AMDatamanAppController::createNewScanEditor(bool use2DScanView)
+{
+	AMGenericScanEditor* editor = new AMGenericScanEditor(use2DScanView);
+	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, this, ":/applications-science.png"));
+	return editor;
+}
+
 bool AMDatamanAppController::canCloseScanEditors() const
 {
 	//	bool canCloseEditors = true;
@@ -925,10 +934,20 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 	}
 
 	// success!
-	if(!editor) {
+	if (scan->scanRank() == 2){
+
+		if (editor)
+			closeScanEditor(editor);
+
+		editor = createNewScanEditor(true);
+	}
+
+	else if(!editor) {
 		editor = createNewScanEditor();
 	}
+
 	editor->addScan(scan);
+
 	return true;
 }
 
@@ -942,15 +961,3 @@ void AMDatamanAppController::onActionImportAcquamanDatabase()
 	AMScanDatabaseImportWizard* wizard = new AMScanDatabaseImportWizard(importController);
 	wizard->show();
 }
-
-
-
-
-
-
-
-
-
-
-
-

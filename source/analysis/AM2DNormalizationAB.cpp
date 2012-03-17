@@ -7,6 +7,7 @@ AM2DNormalizationAB::AM2DNormalizationAB(const QString &outputName, QObject *par
 	normalizer_ = 0;
 	canAnalyze_ = false;
 	dataName_ = "";
+	normalizationName_ = "";
 	axes_ << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 }
@@ -91,9 +92,11 @@ void AM2DNormalizationAB::setInputDataSourcesImplementation(const QList<AMDataSo
 
 	reviewState();
 
-	emitSizeChanged();
+	emitSizeChanged(0);
+	emitSizeChanged(1);
 	emitValuesChanged();
-	emitAxisInfoChanged();
+	emitAxisInfoChanged(0);
+	emitAxisInfoChanged(1);
 	emitInfoChanged();
 }
 
@@ -157,7 +160,6 @@ void AM2DNormalizationAB::setInputSources()
 
 		data_ = 0;
 		normalizer_ = 0;
-		sources_.clear();
 		canAnalyze_ = false;
 
 		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
@@ -167,9 +169,11 @@ void AM2DNormalizationAB::setInputSources()
 
 	reviewState();
 
-	emitSizeChanged();
+	emitSizeChanged(0);
+	emitSizeChanged(1);
 	emitValuesChanged();
-	emitAxisInfoChanged();
+	emitAxisInfoChanged(0);
+	emitAxisInfoChanged(1);
 	emitInfoChanged();
 }
 
@@ -211,7 +215,7 @@ AMNumber AM2DNormalizationAB::axisValue(int axisNumber, int index, bool doBounds
 	if (!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	if (axisNumber != 0 || axisNumber != 1)
+	if (axisNumber != 0 && axisNumber != 1)
 		return AMNumber(AMNumber::DimensionError);
 
 	if (index >= axes_.at(axisNumber).size)
@@ -220,14 +224,24 @@ AMNumber AM2DNormalizationAB::axisValue(int axisNumber, int index, bool doBounds
 	return data_->axisValue(axisNumber, index, doBoundsChecking);
 }
 
-void AM2DNormalizationAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end) {
+void AM2DNormalizationAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
+{
 	emitValuesChanged(start, end);
 }
 
-void AM2DNormalizationAB::onInputSourceSizeChanged() {
-	axes_[0].size = data_->size(0);
-	axes_[1].size = data_->size(1);
-	emitSizeChanged();
+void AM2DNormalizationAB::onInputSourceSizeChanged()
+{
+	if(axes_.at(0).size != data_->size(0)){
+
+		axes_[0].size = data_->size(0);
+		emitSizeChanged(0);
+	}
+
+	if(axes_.at(1).size != data_->size(1)){
+
+		axes_[1].size = data_->size(1);
+		emitSizeChanged(1);
+	}
 }
 
 void AM2DNormalizationAB::onInputSourceStateChanged() {

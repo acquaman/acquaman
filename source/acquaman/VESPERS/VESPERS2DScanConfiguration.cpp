@@ -68,7 +68,52 @@ QString VESPERS2DScanConfiguration::detailedDescription() const
 
 QString VESPERS2DScanConfiguration::headerText() const
 {
-	return QString("");
+	QString header("Configuration of the Scan\n\n");
+
+	switch(fluorescenceDetectorChoice()){
+
+	case None:
+		header.append("Fluorescence Detector:\tNone\n");
+		break;
+	case SingleElement:
+		header.append("Fluorescence Detector:\tSingle Element Vortex Detector\n");
+		break;
+	case FourElement:
+		header.append("Fluorescence Detector:\tFour Element Vortex Detector\n");
+		break;
+	}
+
+	switch(incomingChoice()){
+
+	case Isplit:
+		header.append("I0:\tIsplit - The split ion chamber.\n");
+		break;
+	case Iprekb:
+		header.append("I0:\tIprekb - The ion chamber before the KB mirror box.\n");
+		break;
+	case Imini:
+		header.append("I0:\tImini - The small ion chamber immediately after the KB mirror box.\n");
+		break;
+	case Ipost:
+		header.append("I0:\tIpost - The ion chamber at the end of the beamline.\n");
+		break;
+	}
+
+	header.append("\nRegions of Interest\n");
+
+	for (int i = 0; i < roiInfoList_.count(); i++)
+		header.append(roiInfoList_.at(i).name() + "\t" + QString::number(roiInfoList_.at(i).low()) + " eV\t" + QString::number(roiInfoList_.at(i).high()) + " eV\n");
+
+	header.append("\n");
+	header.append("Map Dimensions\n");
+	header.append("X Axis\n");
+	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(xStart()).arg(xEnd()));
+	header.append(QString("Step Size:\t%1 mm\n").arg(xStep()));
+	header.append("Y Axis\n");
+	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(yStart()).arg(yEnd()));
+	header.append(QString("Step Size:\t%1 mm\n").arg(yStep()));
+
+	return header;
 }
 
 QString VESPERS2DScanConfiguration::readRoiList() const
@@ -86,7 +131,7 @@ void VESPERS2DScanConfiguration::computeTotalTime()
 	double time = 0;
 
 	// Get the number of points.
-	time = 	fabs((xEnd()-xStart())/xStep())*fabs((yEnd()-yStart())/yStep());
+	time = 	fabs((xEnd()-xStart())/xStep()+1)*fabs((yEnd()-yStart())/yStep()+1);
 
 	// Factor in the time per point.  There is an extra 6 seconds for CCD images.
 	if (usingCCD())

@@ -45,6 +45,9 @@ int main(int argc, char *argv[])
 
 	/// Program Shutdown:
 	// =================================
+	if (appController->isRunning())
+		appController->shutdown();
+
 	delete appController;
 
 	return retVal;

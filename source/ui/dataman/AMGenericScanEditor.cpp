@@ -40,6 +40,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMDataSourcesEditor.h"
 #include "ui/dataman/AMChooseScanDialog.h"
 #include "ui/dataman/AMControlInfoListTableView.h"
+#include "ui/dataman/AM2DScanView.h"
 
 #include "util/AMFontSizes.h"
 
@@ -101,11 +102,101 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	stackWidget_->addItem("Beamline Information", conditionsTableView_);
 	stackWidget_->collapseItem(2);
 
+	connect(ui_.notesEdit, SIGNAL(textChanged()), this, SLOT(onNotesTextChanged()));
+
+	// watch for changes in the selected/deselected scans:
+	connect(ui_.scanListView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentChanged(QModelIndex,QModelIndex)));
+
+	// \todo make this whole window accept drops of scans, with the 'amd://database/table/id' uri-list mime type
+	setAcceptDrops(true);
+
+	currentScan_ = 0;
+
+	// disable drops on text fields that we don't want to accept drops
+	ui_.scanName->setAcceptDrops(false);
+	ui_.notesEdit->setAcceptDrops(false);
 
 
+	// Connect open,save,close buttons
+	connect(ui_.openScanButton, SIGNAL(clicked()), this, SLOT(onOpenScanButtonClicked()));
+	connect(ui_.closeScanButton, SIGNAL(clicked()), this, SLOT(onCloseScanButtonClicked()));
+	connect(ui_.saveScanButton, SIGNAL(clicked()), this, SLOT(onSaveScanButtonClicked()));
+
+	// close button and save buttons are initially disabled; there's no scan to act on
+	ui_.closeScanButton->setEnabled(false);
+	ui_.saveScanButton->setEnabled(false);
+
+	chooseScanDialog_ = 0;
+
+	QTimer* oneSecondTimer = new QTimer(this);
+	connect(oneSecondTimer, SIGNAL(timeout()), this, SLOT(onOneSecondTimer()));
+}
+
+AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
+	: QWidget(parent)
+{
+	ui_.setupUi(this);
+	ui_.topFrameTitle->setStyleSheet("font: " AM_FONT_LARGE_ "pt \"Lucida Grande\";\ncolor: rgb(79, 79, 79);");
+	ui_.statusTextLabel->setStyleSheet("color: white;\nfont: bold " AM_FONT_SMALL_ "pt \"Lucida Grande\"");
+	setWindowTitle("Scan Editor");
+
+	// Add extra UI components:
+	stackWidget_ = new AMVerticalStackWidget();
+	stackWidget_->setMinimumWidth(200);
+	stackWidget_->setMaximumWidth(360);
+	ui_.rightVerticalLayout->addWidget(stackWidget_);
+
+	// Add scan view (plots)
+	if (use2DScanView){
+
+		scanView2D_ = new AM2DScanView();
+		scanView2D_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+		ui_.leftVerticalLayout->insertWidget(0, scanView2D_, 2);
+
+		// share the scan set model with the AMScanView
+		scanSetModel_ = scanView2D_->model();
+	}
+
+	else {
+
+		scanView_ = new AMScanView();
+		scanView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+		ui_.leftVerticalLayout->insertWidget(0, scanView_, 2);
+
+		// share the scan set model with the AMScanView
+		scanSetModel_ = scanView_->model();
+	}
+
+	// And set this model on the list view of scans:
+	ui_.scanListView->setModel(scanSetModel_);
+	ui_.scanListView->setSelectionMode(QAbstractItemView::SingleSelection);
+
+	AMDetailedItemDelegate* del = new AMDetailedItemDelegate(this);
+	del->setCloseButtonsEnabled(true);
+	connect(del, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onScanModelCloseClicked(QModelIndex)));
+	ui_.scanListView->setItemDelegate(del);
+	ui_.scanListView->setAlternatingRowColors(true);
+	ui_.scanListView->setAttribute( Qt::WA_MacShowFocusRect, false);
+
+	// Add run selector:
+	runSelector_ = new AMRunSelector(AMDatabase::database("user"));
+	ui_.scanInfoLayout->insertWidget(1, runSelector_);
 
 
+	// Add detailed editor widgets:
+	QWidget* sampleEditorHolder = new QWidget();	// just used to add a margin around the sample editor itself, which has no margins.
+	sampleEditorHolder->setLayout(new QVBoxLayout);
+	sampleEditor_ = new AMSampleEditor(AMDatabase::database("user"));
+	sampleEditorHolder->layout()->addWidget(sampleEditor_);
+	stackWidget_->addItem("Sample Information", sampleEditorHolder);
 
+	dataSourcesEditor_ = new AMDataSourcesEditor(scanSetModel_);
+	stackWidget_->addItem("Data Sets", dataSourcesEditor_);
+
+	conditionsTableView_ = new AMControlInfoListTableView();
+	conditionsTableView_->setMinimumHeight(200);
+	stackWidget_->addItem("Beamline Information", conditionsTableView_);
+	stackWidget_->collapseItem(2);
 
 	connect(ui_.notesEdit, SIGNAL(textChanged()), this, SLOT(onNotesTextChanged()));
 
@@ -137,7 +228,6 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	QTimer* oneSecondTimer = new QTimer(this);
 	connect(oneSecondTimer, SIGNAL(timeout()), this, SLOT(onOneSecondTimer()));
 }
-
 
 AMGenericScanEditor::~AMGenericScanEditor() {
 	while(scanSetModel_->scanCount()) {

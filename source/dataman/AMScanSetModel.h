@@ -48,7 +48,7 @@ public:
 
 		colorMap.setContrast(2.1);
 		colorMap.setBrightness(0.08);
-		colorMap.setGamma(1.0);
+		colorMap.setGamma(0.8);
 	}
 
 
