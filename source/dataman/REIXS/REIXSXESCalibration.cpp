@@ -40,9 +40,11 @@ REIXSXESCalibration::REIXSXESCalibration(QObject *parent) :
 
 	detectorPos0_ = QVector3D(0.032, 499.609, 23.895);
 
-	slitPos_ = QVector3D(-0.32, -349.95, -6.10);
-	opticalOrigin_ = QVector3D(0, 0, 0);
+	slitPos_ = QVector3D(-0.32, -349.95, -6.912450037);  //Initial Survey: (-0.32, -349.95, -6.10), -5.8422 for -0.06, -6.912450037 now at +0.115
 
+	opticalOriginsX_ << 0 << 0 << 0 << 0 << 0;
+	opticalOriginsY_ << 0 << 0 << 0 << 0 << 0;
+	opticalOriginsZ_ << 0 << 0 << 0 << 0 << 0;
 
 	detectorHeightError_ = 0;// !!!! -3.03 from old calculations. Who knows?; //mm
 
@@ -64,7 +66,7 @@ REIXSXESCalibration::REIXSXESCalibration(QObject *parent) :
 	spectrometerRotDrive0_ = -3.7; //mm
 
 
-	detectorTranslation0_ = 499.609; //mm
+	detectorTranslation0_ = 0; //mm  Was 499.609
 
 	gratingEVRangesMin_ << 100 << 100 << 100 << 100 << 100;
 	gratingEVRangesMax_ << 1000 << 1000 << 1000 << 1000 << 1000;
@@ -109,9 +111,9 @@ AMControlInfoList REIXSXESCalibration::computeSpectrometerPosition(int gratingIn
 
 	qDebug() << "   Alpha required for rowland condition (deg):" << r2d(alpha(gratingIndex));
 	qDebug() << "   Beta using that alpha, at " << eV << "eV:" << r2d(beta(eV, gratingIndex));
-	qDebug() << "   Angle of slit-origin ray above y axis (deg)" << r2d(sTheta());
+	qDebug() << "   Angle of slit-origin ray above y axis (deg)" << r2d(sTheta(gratingIndex));
 	qDebug() << "   Grating tilt to achieve required alpha (deg):" << hexU;
-	qDebug() << "   r (mm):" << r();
+	qDebug() << "   r (mm):" << r(gratingIndex);
 	qDebug() << "   r-prime (mm):" << rPrime(eV, gratingIndex);
 	qDebug() << "   Spectrometer dTheta: angle up from y axis to center of detector (deg):" << r2d(dTheta(eV, gratingIndex));
 	qDebug() << "   Detector position:" << detPos;
@@ -129,7 +131,7 @@ double REIXSXESCalibration::computeEVFromSpectrometerPosition(int gratingIndex, 
 {
 	double theta = spectrometerTheta(spectrometerRotationDriveMm);
 	QVector3D pos = detectorPosFromThetaAndTranslation(theta, detectorTranslationMm);
-	double dTheta = dThetaFromDetectorPos(pos);
+	double dTheta = dThetaFromDetectorPos(pos, gratingIndex);
 
 	// qDebug() << "theta:" << theta << "pos" << pos << "dTheta" << dTheta;
 
