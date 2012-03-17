@@ -40,7 +40,7 @@ REIXSXESCalibration::REIXSXESCalibration(QObject *parent) :
 
 	detectorPos0_ = QVector3D(0.032, 499.609, 23.895);
 
-	slitPos_ = QVector3D(-0.32, -349.95, -6.10);
+	slitPos_ = QVector3D(-0.32, -349.95, -6.912450037);  //Initial Survey: (-0.32, -349.95, -6.10), -5.8422 for -0.06, now at +0.115
 	opticalOrigin_ = QVector3D(0, 0, 0);
 
 
@@ -64,7 +64,7 @@ REIXSXESCalibration::REIXSXESCalibration(QObject *parent) :
 	spectrometerRotDrive0_ = -3.7; //mm
 
 
-	detectorTranslation0_ = 499.609; //mm
+	detectorTranslation0_ = 0; //mm  Was 499.609
 
 	gratingEVRangesMin_ << 100 << 100 << 100 << 100 << 100;
 	gratingEVRangesMax_ << 1000 << 1000 << 1000 << 1000 << 1000;
