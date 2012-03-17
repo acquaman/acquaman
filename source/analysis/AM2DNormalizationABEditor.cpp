@@ -34,14 +34,14 @@ void AM2DNormalizationABEditor::populateComboBox()
 	AMDataSource *tempSource = 0;
 	int inputCount = analysisBlock_->inputDataSourceCount();
 
-	if (inputCount < 2)
-		return;
+//	if (inputCount < 2)
+//		return;
 
 	for (int i = 0; i < inputCount; i++){
 
 		tempSource = analysisBlock_->inputDataSourceAt(i);
 
-		if (analysisBlock_->name() != tempSource->name() && !tempSource->hiddenFromUsers()){
+		if (analysisBlock_->name() != tempSource->name()){
 
 			dataNames_->addItem(tempSource->description(), tempSource->name());
 			normalizationNames_->addItem(tempSource->description(), tempSource->name());

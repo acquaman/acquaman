@@ -89,6 +89,25 @@ QString VESPERSExporter2DAscii::exportScan(const AMScan *scan, const QString &de
 	return mainFileName_;
 }
 
+void VESPERSExporter2DAscii::writeHeader()
+{
+	if(!option_->headerIncluded())
+		return;
+
+	QString headerText = parseKeywordString(option_->headerText());
+	headerText.prepend("# ");
+
+	normalizeLineEndings(headerText);
+	if(headerText.right(1) != "\n")
+		headerText.append("\n");	// ensure ends in newline
+	convertNormalizedLineEndingsTo(option_->newlineDelimiter(), headerText);
+
+	headerText.replace("\n", "\n# ");
+
+	QTextStream ts(file_);
+	ts << headerText;
+}
+
 void VESPERSExporter2DAscii::writeMainTable()
 {
 	QTextStream ts(file_);

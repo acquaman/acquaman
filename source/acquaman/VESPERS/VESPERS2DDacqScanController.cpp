@@ -37,6 +37,12 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	scan_->setScanConfiguration(config_);
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setIndexType("fileSystem");
+//	scan_->rawData()->scanAxisAt(0).name = "H";
+//	scan_->rawData()->scanAxisAt(0).name = "mm";
+//	scan_->rawData()->scanAxisAt(0).name = "Horizontal Position";
+//	scan_->rawData()->scanAxisAt(1).name = "V";
+//	scan_->rawData()->scanAxisAt(1).name = "mm";
+//	scan_->rawData()->scanAxisAt(1).name = "Vertical Position";
 
 	if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement && !config_->usingCCD())
 		scan_->setFileFormat("vespers2012XRF1El");
@@ -79,7 +85,7 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	for (int i = 0; i < roiCount; i++){
 
 		scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
 	}
 
 	// Add the rest (includes the ion chambers).  This sets I0 as well; it is the only visible raw data source.

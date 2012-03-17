@@ -701,6 +701,13 @@ AMGenericScanEditor * AMDatamanAppController::createNewScanEditor()
 	return editor;
 }
 
+AMGenericScanEditor *AMDatamanAppController::createNewScanEditor(bool use2DScanView)
+{
+	AMGenericScanEditor* editor = new AMGenericScanEditor(use2DScanView);
+	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, this, ":/applications-science.png"));
+	return editor;
+}
+
 bool AMDatamanAppController::canCloseScanEditors() const
 {
 	//	bool canCloseEditors = true;
@@ -927,10 +934,20 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 	}
 
 	// success!
-	if(!editor) {
+	if (scan->scanRank() == 2){
+
+		if (editor)
+			closeScanEditor(editor);
+
+		editor = createNewScanEditor(true);
+	}
+
+	else if(!editor) {
 		editor = createNewScanEditor();
 	}
+
 	editor->addScan(scan);
+
 	return true;
 }
 
@@ -944,15 +961,3 @@ void AMDatamanAppController::onActionImportAcquamanDatabase()
 	AMScanDatabaseImportWizard* wizard = new AMScanDatabaseImportWizard(importController);
 	wizard->show();
 }
-
-
-
-
-
-
-
-
-
-
-
-
