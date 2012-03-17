@@ -105,6 +105,9 @@ bool REIXSXESScanController::initializeImplementation() {
 			return false;
 		}
 
+		// temporary, for commissioning: Watch out... this persists after the scan.
+		REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->setDetectorHeightError(config_->detectorHeightError());
+
 		if(!REIXSBeamline::bl()->spectrometer()->specifyGrating(config_->gratingNumber())) {
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 11, "There was no grating like the one specified in this scan configuration."));
 			return false;

@@ -120,6 +120,8 @@ public:
 
 	/// The spectrometer calibration object we are using
 	const REIXSXESCalibration* spectrometerCalibration() const { return &calibration_; }
+	// temporary, for commissioning.
+	REIXSXESCalibration* spectrometerCalibration() { return &calibration_; }
 
 	int gratingCount() const { return calibration_.gratingCount(); }
 

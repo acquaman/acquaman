@@ -34,6 +34,9 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 	shouldStartFromCurrentPosition_ = false;
 	doNotClearExistingCounts_ = false;
 
+	// temporary, for comissioning
+	detectorHeightError_ = 0;	//mm
+
 	maximumTotalCounts_ = 1000000;
 	maximumDurationSeconds_ = 300;
 }
