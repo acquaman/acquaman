@@ -26,7 +26,7 @@ public:
 
 protected:
 	/// Searches for minimum z value
-//	virtual qreal minZ() const;
+	virtual qreal minZ() const;
 
 	/// The default value.
 	qreal defaultValue_;
