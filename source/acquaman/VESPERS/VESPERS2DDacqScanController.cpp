@@ -207,7 +207,7 @@ void VESPERS2DDacqScanController::addExtraDatasources()
 			temp = AMMeasurementInfo(*(ionChambers->detectorAt(i)->toInfo()));
 			temp.name = ionChambers->detectorAt(i)->detectorName();
 			scan_->rawData()->addMeasurement(temp);
-			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
+			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, false);
 		}
 	}
 

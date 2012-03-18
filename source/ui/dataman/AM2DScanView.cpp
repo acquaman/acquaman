@@ -466,7 +466,7 @@ void AM2DScanViewExclusiveView::reviewScan(int scanIndex)
 
 				MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItems_.at(scanIndex));
 				if(plotItemDataSources_.at(scanIndex) != dataSource) {
-					AMDataSourceImageData* newData = new AMDataSourceImageData(dataSource);
+					AMDataSourceImageDatawDefault* newData = new AMDataSourceImageDatawDefault(dataSource, 0);
 					image->setModel(newData, true);
 					plotItemDataSources_[scanIndex] = dataSource;
 				}

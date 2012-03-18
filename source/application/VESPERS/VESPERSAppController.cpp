@@ -258,9 +258,10 @@ void VESPERSAppController::onCurrentScanControllerStarted()
 	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
 		return;
 
-	openScanInEditorAndTakeOwnership(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
+	AMScan *scan = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan();
+	openScanInEditorAndTakeOwnership(scan);
 
-	VESPERSEXAFSScanConfiguration *config = qobject_cast<VESPERSEXAFSScanConfiguration *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->scanConfiguration());
+	VESPERSEXAFSScanConfiguration *config = qobject_cast<VESPERSEXAFSScanConfiguration *>(scan->scanConfiguration());
 
 	if (config){
 
@@ -290,6 +291,11 @@ void VESPERSAppController::onCurrentScanControllerStarted()
 			}
 		}
 	}
+
+	VESPERS2DScanConfiguration *config2D = qobject_cast<VESPERS2DScanConfiguration *>(scan->scanConfiguration());
+
+	if (config2D)
+		scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName(scan->analyzedDataSources()->at(0)->name());
 }
 
 void VESPERSAppController::onCurrentScanControllerCreated()
