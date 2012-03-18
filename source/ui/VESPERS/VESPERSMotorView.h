@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QToolButton>
 #include <QMessageBox>
 
-#include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
 
 class VESPERSMotorView : public QWidget
 {

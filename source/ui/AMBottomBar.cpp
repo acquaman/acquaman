@@ -20,9 +20,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMBottomBar.h"
 
+#include "util/AMFontSizes.h"
+
 AMBottomBar::AMBottomBar(QWidget *parent) : QWidget(parent)
 {
 	setupUi(this);
+	timeElapsedLabel->setStyleSheet("color: white; font: " AM_FONT_SMALL_ "pt \"Lucida Grande\";");
+	timeRemainingLabel->setStyleSheet("color: white; font: " AM_FONT_SMALL_ "pt \"Lucida Grande\";");
 	addButton->setToolTip("Add Experiment Folder...");
 
 	statusView_ = new AMStatusView();

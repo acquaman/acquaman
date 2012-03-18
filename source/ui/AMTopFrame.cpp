@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QIcon>
+#include "util/AMFontSizes.h"
 
 AMTopFrame::AMTopFrame(const QString &title, QWidget *parent) :
 		QFrame(parent)
@@ -33,7 +34,7 @@ AMTopFrame::AMTopFrame(const QString &title, QWidget *parent) :
 	iconLabel_->setScaledContents(true);
 
 	titleLabel_ = new QLabel(title);
-	QString titleStyle = "QLabel{ font: 16pt \"Lucida Grande\"; color: rgb(79,79,79)}";
+	QString titleStyle = "QLabel{ font: " AM_FONT_LARGE_ "pt \"Lucida Grande\"; color: rgb(79,79,79)}";
 	titleLabel_->setStyleSheet(titleStyle);
 	titleLabel_->setFixedHeight(36);
 

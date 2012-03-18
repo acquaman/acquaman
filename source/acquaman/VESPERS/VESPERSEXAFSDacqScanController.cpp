@@ -32,6 +32,9 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	scan_->setScanConfiguration(config_);
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setIndexType("fileSystem");
+//	scan_->rawData()->scanAxisAt(0).name = QString("Energy");
+//	scan_->rawData()->scanAxisAt(0).units = "eV";
+//	scan_->rawData()->scanAxisAt(0).description = "Scanned Energy";
 
 	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 

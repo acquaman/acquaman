@@ -40,6 +40,9 @@ class REIXSXESScanConfiguration : public AMScanConfiguration
 	Q_PROPERTY(bool doNotClearExistingCounts READ doNotClearExistingCounts WRITE setDoNotClearExistingCounts)
 	Q_PROPERTY(AMDbObject* mcpDetectorInfo READ dbGetMcpDetectorInfo WRITE dbLoadMcpDetectorInfo)
 
+	// temporary, for comissioning:
+	Q_PROPERTY(double detectorHeightError READ detectorHeightError WRITE setDetectorHeightError)
+
 public:
 	/// Default Constructor
 	Q_INVOKABLE explicit REIXSXESScanConfiguration(QObject *parent = 0);
@@ -71,6 +74,9 @@ public:
 	REIXSXESMCPDetectorInfo* mcpDetectorInfo() { return &mcpDetectorInfo_; }
 
 
+	// temporary, for comissioning
+	double detectorHeightError() const { return detectorHeightError_; }
+
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;
@@ -92,25 +98,28 @@ signals:
 public slots:
 
 	/// Set the number of the grating to use for this scan
-	void setGratingNumber(int gratingNumber) { gratingNumber_ = gratingNumber; setModified(true); }
+	void setGratingNumber(int gratingNumber) { if(gratingNumber_ == gratingNumber) return; gratingNumber_ = gratingNumber;  setModified(true); emit configurationChanged(); }
 	/// Where we should place the detector (ie: the energy at the center of the detector)
-	void setCenterEV(double centerEV) { centerEV_ = centerEV; setModified(true); }
+	void setCenterEV(double centerEV) { if(centerEV_ == centerEV) return; centerEV_ = centerEV; setModified(true); emit configurationChanged(); }
 	/// Set how long to count for. We should stop this scan when we get this many counts. (Using double so that we can go higher than maximum int value)
-	void setMaximumTotalCounts(double counts) { maximumTotalCounts_ = counts; setModified(true); }
+	void setMaximumTotalCounts(double counts) { if(maximumTotalCounts_ == counts) return; maximumTotalCounts_ = counts; setModified(true); emit configurationChanged(); }
 	/// Set how long to count for. We should stop this scan after this many seconds have elapsed
-	void setMaximumDurationSeconds(double seconds) { maximumDurationSeconds_ = int(seconds); setModified(true); }
+	void setMaximumDurationSeconds(double seconds) { if(maximumDurationSeconds_ == int(seconds)) return; maximumDurationSeconds_ = int(seconds); setModified(true); emit configurationChanged(); }
 	/// Set any lateral offset we should introduce along the angle at this energy, to slide the detector into or out of the focus position (Useful for calibration and testing)
-	void setDefocusDistanceMm(double defocusDistanceMm) { defocusDistanceMm_ = defocusDistanceMm; setModified(true); }
+	void setDefocusDistanceMm(double defocusDistanceMm) { if(defocusDistanceMm_ == defocusDistanceMm) return; defocusDistanceMm_ = defocusDistanceMm; setModified(true); emit configurationChanged(); }
 	/// Set the database id of the stored spectrometer calibration we should use. (This spectromter calibration is found in the user database, for now)
-	void setSpectrometerCalibrationId(int id) { spectrometerCalibrationId_ = id; setModified(true); }
+	void setSpectrometerCalibrationId(int id) { if(spectrometerCalibrationId_ == id) return; spectrometerCalibrationId_ = id; setModified(true); emit configurationChanged(); }
 	// REMOVED: Set the orientation of the detector: 0 for horizontal (wide window, low resolution), 1 for vertical (narrow window, high resolution)
 	// void setDetectorOrientation(bool orientationIsVertical) { detectorOrientation_ = orientationIsVertical; setModified(true); }
 	/// Set the detector incidence angle offset (tilt), in degrees, up from tangent to the rowland circle. Normally, the detector should be tangent to the rowland circle for best focussing.  This is an offset tilt, in degrees, where positive means more normal; negative means more grazing.
-	void setDetectorTiltOffset(double detectorTilt) { detectorTiltOffset_ = detectorTilt; setModified(true); }
+	void setDetectorTiltOffset(double detectorTilt) { if(detectorTiltOffset_ == detectorTilt) return; detectorTiltOffset_ = detectorTilt; setModified(true); emit configurationChanged(); }
 	/// Set a flag indicating that we should start the scan in whatever position the spectrometer is now. (ie: don't compute the desired position and move things before starting the scan)
-	void setShouldStartFromCurrentPosition(bool startInCurrentPosition) { shouldStartFromCurrentPosition_ = startInCurrentPosition; setModified(true); }
+	void setShouldStartFromCurrentPosition(bool startInCurrentPosition) { if(shouldStartFromCurrentPosition_ == startInCurrentPosition) return; shouldStartFromCurrentPosition_ = startInCurrentPosition; setModified(true); emit configurationChanged(); }
 	/// Set a flag indicating that we should start the scan without clearing the existing counts on the detector.
-	void setDoNotClearExistingCounts(bool doNotClear) { doNotClearExistingCounts_ = doNotClear; setModified(true); }
+	void setDoNotClearExistingCounts(bool doNotClear) { if(doNotClearExistingCounts_ == doNotClear) return; doNotClearExistingCounts_ = doNotClear; setModified(true); emit configurationChanged(); }
+
+	// temporary, for comissioning:
+	void setDetectorHeightError(double heightMm) { detectorHeightError_ = heightMm; setModified(true); emit configurationChanged(); }
 
 protected:
 
@@ -137,6 +146,10 @@ protected:
 
 	/// Detector configuration information:
 	REIXSXESMCPDetectorInfo mcpDetectorInfo_;
+
+
+	// temporary, for comissioning:
+	double detectorHeightError_;
 
 
 

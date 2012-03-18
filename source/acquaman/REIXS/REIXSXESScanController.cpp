@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions2/actions/AMInternalControlMoveAction.h"
 #include "util/AMSettings.h"
 
-#include "analysis/AM2DSummingAB.h"
+#include "analysis/REIXS/REIXSXESImageAB.h"
 
 REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* configuration, QObject *parent) :
 	AMScanController(configuration, parent)
@@ -62,11 +62,10 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 	AMRawDataSource* imageDataSource = new AMRawDataSource(scan_->rawData(), 0);
 	scan_->addRawDataSource(imageDataSource);
 
-	AM2DSummingAB* xesSpectrum = new AM2DSummingAB("xesSpectrum");
+	REIXSXESImageAB* xesSpectrum = new REIXSXESImageAB("xesSpectrum");
 	xesSpectrum->setInputDataSources(QList<AMDataSource*>() << imageDataSource);
-	xesSpectrum->setSumAxis(1);
-	xesSpectrum->setSumRangeMax(45);
-	xesSpectrum->setSumRangeMin(15);
+	xesSpectrum->setSumRangeMax(60);
+	xesSpectrum->setSumRangeMin(3);
 	scan_->addAnalyzedDataSource(xesSpectrum);
 }
 
@@ -105,6 +104,9 @@ bool REIXSXESScanController::initializeImplementation() {
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 10, QString("Could not load the spectrometer calibration (%1) that was specified in this scan configuration.").arg(config_->spectrometerCalibrationId())));
 			return false;
 		}
+
+		// temporary, for commissioning: Watch out... this persists after the scan.
+		REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->setDetectorHeightError(config_->detectorHeightError());
 
 		if(!REIXSBeamline::bl()->spectrometer()->specifyGrating(config_->gratingNumber())) {
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 11, "There was no grating like the one specified in this scan configuration."));

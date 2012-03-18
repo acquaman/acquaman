@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "dataman/export/AMExporter.h"
 #include "dataman/export/AMExporterOption.h"
+#include "ui/AMStartScreen.h"
 
 AMAppController::AMAppController(QObject *parent)
 	: AMDatamanAppController(parent)
@@ -39,22 +40,23 @@ bool AMAppController::startupCreateUserInterface() {
 		mw_->insertHeading("Experiment Tools", 1);
 		mw_->addPane(workflowManagerView_, "Experiment Tools", "Workflow", ":/user-away.png");
 
+		AMStartScreen* chooseRunDialog = new AMStartScreen(true, mw_);
+		chooseRunDialog->show();
+
 		return true;
 	}
 
 	return false;
 }
 
-// Program shutdown:
-AMAppController::~AMAppController() {
-
-}
 
 
 
 void AMAppController::goToWorkflow() {
 	mw_->setCurrentPane(workflowManagerView_);
 }
+
+#include "dataman/AMScan.h"
 
 void AMAppController::openScanInEditorAndTakeOwnership(AMScan *scan, bool bringEditorToFront, bool openInExistingEditor)
 {
@@ -64,7 +66,11 @@ void AMAppController::openScanInEditorAndTakeOwnership(AMScan *scan, bool bringE
 		editor = scanEditorAt(scanEditorCount()-1);
 	}
 	else {
-		editor = createNewScanEditor();
+
+		if (scan->scanRank() == 2)
+			editor = createNewScanEditor(true);
+		else
+			editor = createNewScanEditor();
 	}
 
 	editor->addScan(scan);
@@ -78,7 +84,6 @@ void AMAppController::openScanInEditorAndTakeOwnership(AMScan *scan, bool bringE
 #include "ui/acquaman/AMScanConfigurationViewHolder.h"
 #include "dataman/database/AMDatabase.h"
 #include "dataman/database/AMDbObjectSupport.h"
-#include "dataman/AMScan.h"
 
 void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 {
@@ -125,12 +130,12 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 	// need to check that this scan actually has a valid config. This hasn't always been guaranteed, especially when scans move between beamlines.
 	AMScanConfiguration* config = scan->scanConfiguration();
 	if(!config) {
-		delete scan;
+		scan->release();
 		return;
 	}
 	// need to create a copy of the config so we can delete the scan (and hence the config instance owned by the scan). The view will take ownership of the copy.
 	config = config->createCopy();
-	delete scan;
+	scan->release();
 	if(!config)
 		return;
 
@@ -212,3 +217,27 @@ bool AMAppController::canCloseActionRunner()
 	// No objections. Can quit.
 	return true;
 }
+
+void AMAppController::showChooseRunDialog()
+{
+	AMStartScreen* d = new AMStartScreen(false, mw_);
+	d->show();
+}
+
+#include <QMenu>
+bool AMAppController::startupInstallActions()
+{
+	if(AMDatamanAppController::startupInstallActions()) {
+
+		QAction* changeRunAction = new QAction("Change Run...", mw_);
+		// changeRunAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_B));
+		changeRunAction->setStatusTip("Change the current run, or create a new one");
+		connect(changeRunAction, SIGNAL(triggered()), this, SLOT(showChooseRunDialog()));
+
+		fileMenu_->addAction(changeRunAction);
+		return true;
+	}
+	else
+		return false;
+}
+

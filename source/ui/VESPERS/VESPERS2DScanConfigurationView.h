@@ -11,6 +11,7 @@
 #include <QDoubleSpinBox>
 #include <QToolButton>
 #include <QComboBox>
+#include <QCheckBox>
 #include <QLabel>
 
 /// This class builds the view for configuring a 2D map scan for the VESPERS beamline.
@@ -49,6 +50,10 @@ protected slots:
 	/// Helper slot that manages setting the time per point.
 	void onDwellTimeChanged();
 
+	/// Handles passing the name of the CCD file name to the scan configuration when the usingCCD check box is enabled.
+	void onUsingCCDChanged(bool useCCD);
+	/// Handles changes in the name of the CCD file name and sets the label that corresponds to it.
+	void onCCDFileNameChanged(QString name) { currentCCDFileName_->setText(QString("Current CCD file name:\t%1").arg(name)); }
 	/// Handles setting the name of the configuration from the line edit.
 	void onScanNameEdited() { config_->setName(scanName_->text()); }
 	/// Passes on the selection for I0 to the configuration.
@@ -96,6 +101,11 @@ protected:
 
 	/// Pointer to the label that holds the current map settings.
 	QLabel *mapInfo_;
+
+	/// Pointer to the check box for doing XRD maps as well.
+	QCheckBox *usingCCDCheckBox_;
+	/// Pointer to the label holding the current file name.
+	QLabel *currentCCDFileName_;
 
 	/// Line edit for changing the name of the scan.
 	QLineEdit *scanName_;

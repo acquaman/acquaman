@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMMainWindow.h"
 #include <QDebug>
 #include "ui/AMCloseItemDelegate.h"
+#include "util/AMFontSizes.h"
 
 // Default constructor
 AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
@@ -47,7 +48,7 @@ AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 	sidebar_->setAutoExpandDelay(300);
 	sidebar_->setMinimumWidth(200);
 	sidebar_->setMaximumWidth(200);
-	sidebar_->setStyleSheet("QTreeView { font: 500 10pt \"Lucida Grande\"; border-width: 1px;   border-style: solid;   border-color: rgb(221, 227, 234);  border-right-color: rgb(64, 64, 64); background-color: rgb(221, 227, 234); show-decoration-selected: 1; selection-background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(91, 146, 213, 255), stop:1 rgba(22, 84, 170, 255)); }"
+	sidebar_->setStyleSheet("QTreeView { font: 500 " AM_FONT_SMALL_ "pt \"Lucida Grande\"; border-width: 1px;   border-style: solid;   border-color: rgb(221, 227, 234);  border-right-color: rgb(64, 64, 64); background-color: rgb(221, 227, 234); show-decoration-selected: 1; selection-background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(91, 146, 213, 255), stop:1 rgba(22, 84, 170, 255)); }"
 							" QTreeView::item { height: 30; } "
 							" QTreeView::item::selected { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(91, 146, 213, 255), stop:1 rgba(22, 84, 170, 255)); } ");
 	AMCloseItemDelegate* del = new AMCloseItemDelegate();

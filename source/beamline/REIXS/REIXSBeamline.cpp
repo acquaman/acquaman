@@ -90,6 +90,9 @@ REIXSBeamline::REIXSBeamline() :
 }
 
 
+REIXSBeamline::~REIXSBeamline() {
+}
+
 
 REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 	: AMCompositeControl("sampleChamber", "n/a", parent) {

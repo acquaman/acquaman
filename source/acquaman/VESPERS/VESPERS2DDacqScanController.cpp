@@ -13,9 +13,6 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 {
 	config_ = cfg;
 
-	xAxisCount_ = int(fabs((config_->xEnd()-config_->xStart())/config_->xStep())) + 1;
-	yAxisCount_ = int(fabs((config_->yEnd()-config_->yStart())/config_->yStep())) + 1;
-
 	AMPVwStatusControl *control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz());
 	xAxisPVName_ = control != 0 ? control->writePVName() : "";
 	control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->vert());
@@ -25,7 +22,7 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	cleanupActions_ = 0;
 
 	secondsElapsed_ = 0;
-	secondsTotal_ = config_->totalTime();
+	secondsTotal_ = config_->totalTime(true);
 	elapsedTime_.setInterval(1000);
 	connect(this, SIGNAL(started()), &elapsedTime_, SLOT(start()));
 	connect(this, SIGNAL(cancelled()), &elapsedTime_, SLOT(stop()));
@@ -40,6 +37,12 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	scan_->setScanConfiguration(config_);
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setIndexType("fileSystem");
+//	scan_->rawData()->scanAxisAt(0).name = "H";
+//	scan_->rawData()->scanAxisAt(0).name = "mm";
+//	scan_->rawData()->scanAxisAt(0).name = "Horizontal Position";
+//	scan_->rawData()->scanAxisAt(1).name = "V";
+//	scan_->rawData()->scanAxisAt(1).name = "mm";
+//	scan_->rawData()->scanAxisAt(1).name = "Vertical Position";
 
 	if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement && !config_->usingCCD())
 		scan_->setFileFormat("vespers2012XRF1El");
@@ -94,12 +97,34 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 															<< scan_->dataSourceAt(scan_->indexOfDataSource("Imini")));
 	AMDataSource *rawDataSource = 0;
 	AM2DNormalizationAB *normROI = 0;
+	QString i0Name("");
+
+	switch (config_->incomingChoice()){
+
+	case VESPERS2DScanConfiguration::Isplit:
+		i0Name = i0List.at(0)->name();
+		break;
+
+	case VESPERS2DScanConfiguration::Iprekb:
+		i0Name = i0List.at(1)->name();
+		break;
+
+	case VESPERS2DScanConfiguration::Imini:
+		i0Name = i0List.at(2)->name();
+		break;
+
+	case VESPERS2DScanConfiguration::Ipost:
+		i0Name = "";
+		break;
+	}
 
 	for (int i = 0; i < roiCount; i++){
 
 		rawDataSource = scan_->rawDataSources()->at(i+2);
 		normROI = new AM2DNormalizationAB("norm_"+rawDataSource->name());
 		normROI->setDescription("Normalized "+rawDataSource->description());
+		normROI->setDataName(rawDataSource->name());
+		normROI->setNormalizationName(i0Name);
 		normROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource << i0List);
 		scan_->addAnalyzedDataSource(normROI, true, false);
 	}
@@ -182,7 +207,7 @@ void VESPERS2DDacqScanController::addExtraDatasources()
 			temp = AMMeasurementInfo(*(ionChambers->detectorAt(i)->toInfo()));
 			temp.name = ionChambers->detectorAt(i)->detectorName();
 			scan_->rawData()->addMeasurement(temp);
-			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
+			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, false);
 		}
 	}
 

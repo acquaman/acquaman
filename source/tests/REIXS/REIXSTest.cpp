@@ -52,7 +52,7 @@ void REIXSTest::checkCalibration()
 	QVERIFY(fabs(c.alpha(0)-1.50122074) < 0.0001 );
 	QVERIFY(fabs(c.beta(395, 0)-1.478234377) < 0.0001);
 
-	QVERIFY(fabs(c.sTheta() - 0.00147693) < 0.000001);
+	QVERIFY(fabs(c.sTheta(0) - 0.00147693) < 0.000001);
 
 	QVERIFY(fabs(c.hexapodU(0) - -0.168234494) < 0.0001);
 
@@ -84,7 +84,7 @@ void REIXSTest::checkCalibration()
 
 }
 
-#include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
 
 void REIXSTest::testHexapodPVChanges()
 {

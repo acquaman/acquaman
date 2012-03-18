@@ -32,7 +32,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMRun.h"
-#include "ui/AMStartScreen.h"
 
 SGMSSAAppController::SGMSSAAppController(QObject *parent) :
 	AMAppController(parent)
@@ -57,9 +56,6 @@ bool SGMSSAAppController::startup() {
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 
-		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
-		AMStartScreen* startScreen = new AMStartScreen(0);
-		startScreen->show();
 
 
 

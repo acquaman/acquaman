@@ -245,10 +245,12 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/actions/AMBeamlineActionItem.h \
 	source/actions/AMBeamlineControlAction.h \
 	source/beamline/AMControl.h \
+	source/beamline/AMPVControl.h \
 	source/beamline/AMControlSet.h \
 	source/beamline/AMControlState.h \
 	source/beamline/AMDetector.h \
 	source/beamline/AMProcessVariable.h \
+	source/beamline/AMProcessVariablePrivate.h \
 	source/beamline/AMPVNames.h \
 	source/dataman/database/AMDatabase.h \
 	source/dataman/database/AMDbObject.h \
@@ -507,7 +509,12 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/acquaman/AM2DScanConfiguration.h \
 	source/dataman/AM2DScan.h \
     source/analysis/AM2DNormalizationAB.h \
-    source/analysis/AM2DNormalizationABEditor.h
+	source/analysis/AM2DNormalizationABEditor.h \
+    source/util/AMFontSizes.h \
+    source/ui/dataman/AMScanViewUtilities.h \
+    source/ui/dataman/AM2DScanView.h \
+    source/dataman/datasource/AMDataSourceImageDatawDefault.h
+
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
 	 HEADERS += source/util/AMGenericLinuxJoystick.h
@@ -600,9 +607,11 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/actions/AMBeamlineActionItem.cpp \
 	source/actions/AMBeamlineControlAction.cpp \
 	source/beamline/AMControl.cpp \
+	source/beamline/AMPVControl.cpp \
 	source/beamline/AMControlSet.cpp \
 	source/beamline/AMControlState.cpp \
 	source/beamline/AMProcessVariable.cpp \
+	source/beamline/AMProcessVariablePrivate.cpp \
 	source/beamline/AMPVNames.cpp \
 	source/dataman/database/AMDatabase.cpp \
 	source/dataman/database/AMDbObject.cpp \
@@ -841,7 +850,11 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/acquaman/AM2DScanConfiguration.cpp \
 	source/dataman/AM2DScan.cpp \
     source/analysis/AM2DNormalizationAB.cpp \
-    source/analysis/AM2DNormalizationABEditor.cpp
+	source/analysis/AM2DNormalizationABEditor.cpp \
+    source/ui/dataman/AMScanViewUtilities.cpp \
+    source/ui/dataman/AM2DScanView.cpp \
+    source/dataman/datasource/AMDataSourceImageDatawDefault.cpp
+
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
 	SOURCES += source/util/AMGenericLinuxJoystick.cpp
@@ -864,6 +877,12 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
 
 
 

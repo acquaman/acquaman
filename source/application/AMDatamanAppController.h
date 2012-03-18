@@ -57,8 +57,8 @@ public:
 	/// This constructor is empty. Call AMDatamanAppController::startup() to create all of the application windows, widgets, and data objects that are needed on program startup.
 	explicit AMDatamanAppController(QObject *parent = 0);
 
-	/// This destructor automatically calls shutdown() if required. (ie: if startup() has run successfully, and shutdown() hasn't been called yet.)
-	virtual ~AMDatamanAppController();
+	/// This destructor is empty.  You should call shutdown() to delete everything and clean up.
+	virtual ~AMDatamanAppController() {}
 
 	// 1. Lifecycle control
 	//////////////////////////////
@@ -129,6 +129,8 @@ public:
 	bool closeScanEditor(AMGenericScanEditor* editor);
 	/// Create and add a new scan editor. Returns the new scan editor
 	AMGenericScanEditor* createNewScanEditor();
+	/// Overloaded.  Create and add a new scan editor.  Returns the new editor.  Determines whether new new editor should use AMScanView or AM2DScanView based on \param use2DScanView.
+	AMGenericScanEditor *createNewScanEditor(bool use2DScanView);
 
 	/// If a scan with this \c id and \c database are currently open, returns the editor that has it open. Otherwise returns 0.
 	AMGenericScanEditor* isScanOpenForEditing(int id, AMDatabase* db);

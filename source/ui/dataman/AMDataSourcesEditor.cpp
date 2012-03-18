@@ -63,8 +63,8 @@ AMDataSourcesEditor::AMDataSourcesEditor(AMScanSetModel* model, QWidget *parent)
 	connect(ui_.descriptionEdit, SIGNAL(editingFinished()), this, SLOT(descriptionEditingFinished()));
 
 	showAllDataSources_ = false;
-	setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
+	ui_.scanSetView->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(ui_.scanSetView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
 }
 
 void AMDataSourcesEditor::onCustomContextMenuRequested(QPoint point)
@@ -74,7 +74,7 @@ void AMDataSourcesEditor::onCustomContextMenuRequested(QPoint point)
 	temp->setCheckable(true);
 	temp->setChecked(showAllDataSources_);
 
-	temp = popup.exec(mapToGlobal(point));
+	temp = popup.exec(mapToGlobal(ui_.scanSetView->mapToParent(point)));
 
 	// If a valid action was selected.
 	if (temp && temp->text() == "Show all data sources"){

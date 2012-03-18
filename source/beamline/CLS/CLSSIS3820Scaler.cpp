@@ -1,5 +1,5 @@
 #include "CLSSIS3820Scaler.h"
-
+#include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineControlMoveAction.h"
 
 // CLSSIS3820Scalar

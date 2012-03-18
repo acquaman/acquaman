@@ -9,7 +9,6 @@
 #include <QGroupBox>
 #include <QButtonGroup>
 #include <QRadioButton>
-#include <QCheckBox>
 #include <QPushButton>
 #include <QSpinBox>
 #include <QMenu>
@@ -126,10 +125,22 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	timeLayout->addWidget(dwellTime_);
 
 	// Using the CCD.
-	QCheckBox *usingCCDCheckBox = new QCheckBox("Do XRD simultaneously");
-	usingCCDCheckBox->setChecked(config_->usingCCD());
-	connect(config_, SIGNAL(usingCCDChanged(bool)), usingCCDCheckBox, SLOT(setChecked(bool)));
-	connect(usingCCDCheckBox, SIGNAL(toggled(bool)), config_, SLOT(setUsingCCD(bool)));
+	QGroupBox *ccdBox = new QGroupBox("XRD maps");
+
+	usingCCDCheckBox_ = new QCheckBox("Do XRD simultaneously");
+	usingCCDCheckBox_->setChecked(config_->usingCCD());
+	connect(config_, SIGNAL(usingCCDChanged(bool)), this, SLOT(onUsingCCDChanged(bool)));
+	connect(usingCCDCheckBox_, SIGNAL(toggled(bool)), config_, SLOT(setUsingCCD(bool)));
+
+	currentCCDFileName_ = new QLabel;
+	onCCDFileNameChanged(config_->ccdFileName());
+	currentCCDFileName_->setVisible(config_->usingCCD());
+
+	QVBoxLayout *ccdBoxLayout = new QVBoxLayout;
+	ccdBoxLayout->addWidget(usingCCDCheckBox_);
+	ccdBoxLayout->addWidget(currentCCDFileName_);
+
+	ccdBox->setLayout(ccdBoxLayout);
 
 	// The fluorescence detector setup
 	QButtonGroup *fluorescenceButtonGroup = new QButtonGroup;
@@ -226,7 +237,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(positionsBox, 0, 0, 1, 3);
 	contentsLayout->addLayout(timeLayout, 1, 0, 1, 1);
-	contentsLayout->addWidget(usingCCDCheckBox, 2, 0, 1, 1);
+	contentsLayout->addWidget(ccdBox, 2, 0, 1, 1);
 	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 0, 3, 1, 1);
 	contentsLayout->addLayout(scanNameLayout, 3, 0, 1, 1);
 	contentsLayout->addWidget(I0GroupBox, 1, 3, 4, 1);
@@ -282,6 +293,26 @@ void VESPERS2DScanConfigurationView::onConfigureDetectorClicked()
 	case VESPERS2DScanConfiguration::FourElement:
 		emit configureDetector("Four Element");
 		break;
+	}
+}
+
+void VESPERS2DScanConfigurationView::onUsingCCDChanged(bool useCCD)
+{
+	usingCCDCheckBox_->setChecked(useCCD);
+
+	if (useCCD){
+
+		connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), config_, SLOT(setCCDFileName(QString)));
+		config_->setCCDFileName(VESPERSBeamline::vespers()->roperCCD()->ccdFileName());
+		onCCDFileNameChanged(VESPERSBeamline::vespers()->roperCCD()->ccdFileName());
+		currentCCDFileName_->show();
+	}
+	else {
+
+		disconnect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), config_, SLOT(setCCDFileName(QString)));
+		config_->setCCDFileName("");
+		onCCDFileNameChanged("");
+		currentCCDFileName_->hide();
 	}
 }
 

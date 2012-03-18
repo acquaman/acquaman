@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define CLSIONCHAMBER_H
 
 #include "beamline/AMIonChamber.h"
-#include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
 #include "beamline/CLS/CLSSR570.h"
 
 /*!

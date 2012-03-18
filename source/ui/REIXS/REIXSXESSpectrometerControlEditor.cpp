@@ -24,11 +24,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include <QStringBuilder>
 
+#include "util/AMFontSizes.h"
+
 REIXSXESSpectrometerControlEditor::REIXSXESSpectrometerControlEditor(REIXSSpectrometer* spectrometer, QWidget *parent) :
 	QGroupBox(parent),
 	ui_(new Ui::REIXSXESSpectrometerControlEditor)
 {
 	ui_->setupUi(this);
+	QFont font = ui_->gratingFeedbackLabel->font();
+	font.setPointSize(AM_FONT_SMALL);
+	ui_->gratingFeedbackLabel->setFont(font);
+	ui_->energyFeedbackLabel->setFont(font);
 
 	spectrometer_ = spectrometer;
 
@@ -89,7 +95,7 @@ void REIXSXESSpectrometerControlEditor::populateGratingComboBox()
 void REIXSXESSpectrometerControlEditor::updateCurrentEnergyStatus(double eV)
 {
 	if(eV < 0) {
-		ui_->energyFeedbackLabel->setText("Currently: not ready");
+		ui_->energyFeedbackLabel->setText("Currently: unknown");
 	}
 
 	else if(fabs(eV - ui_->energyBox->value()) < 0.001) {
@@ -107,7 +113,7 @@ void REIXSXESSpectrometerControlEditor::updateCurrentEnergyStatus() {
 void REIXSXESSpectrometerControlEditor::updateCurrentGratingStatus()
 {
 	if(spectrometer_->grating() == -1) {
-		ui_->gratingFeedbackLabel->setText("Currently: no grating ready");
+		ui_->gratingFeedbackLabel->setText("Currently: unknown");
 	}
 	else if(spectrometer_->gratingInPosition() == false) {
 		ui_->gratingFeedbackLabel->setText(

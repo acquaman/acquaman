@@ -44,7 +44,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMRun.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
-#include "ui/AMStartScreen.h"
 
 #include "application/AMAppControllerSupport.h"
 
@@ -146,9 +145,6 @@ bool SGMAppController::startup() {
 			AMAppControllerSupport::registerClass<SGMFastScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
 		}
 
-		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
-		AMStartScreen* startScreen = new AMStartScreen(0);
-		startScreen->show();
 
 
 

@@ -82,6 +82,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions2/actions/AMControlMoveActionInfo.h"
 #include "actions2/actions/AMScanControllerActionInfo.h"
 #include "dataman/AM2DScan.h"
+#include "analysis/AM2DNormalizationAB.h"
 
 
 #include "dataman/database/AMDbObjectSupport.h"
@@ -263,6 +264,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMExternalScanDataSourceAB>();
 	AMDbObjectSupport::s()->registerClass<AM1DSummingAB>();
 	AMDbObjectSupport::s()->registerClass<AMDeadTimeAB>();
+	AMDbObjectSupport::s()->registerClass<AM2DNormalizationAB>();
 
 	AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
 	AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
@@ -442,15 +444,6 @@ bool AMDatamanAppController::startupInstallActions()
 }
 
 
-
-
-/// Program shutdown:
-AMDatamanAppController::~AMDatamanAppController() {
-
-	if(isRunning())
-		shutdown();
-}
-
 void AMDatamanAppController::shutdown() {
 
 	isShuttingDown_ = true;
@@ -460,7 +453,6 @@ void AMDatamanAppController::shutdown() {
 
 	// Close down connection to the user Database
 	AMDatabase::deleteDatabase("user");
-
 
 }
 
@@ -597,12 +589,12 @@ void AMDatamanAppController::launchScanConfigurationFromDb(const QUrl &url)
 	// Does the scan have a configuration?
 	AMScanConfiguration* config = scan->scanConfiguration();
 	if(!config) {
-		delete scan;
+		scan->release();
 		return;
 	}
 	// need to create a copy of the config so we can delete the scan (and hence the config instance owned by the scan). The view will take ownership of the copy.
 	config = config->createCopy();
-	delete scan;
+	scan->release();
 	if(!config)
 		return;
 
@@ -705,6 +697,13 @@ bool AMDatamanAppController::closeScanEditor(AMGenericScanEditor* editor)
 AMGenericScanEditor * AMDatamanAppController::createNewScanEditor()
 {
 	AMGenericScanEditor* editor = new AMGenericScanEditor();
+	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, this, ":/applications-science.png"));
+	return editor;
+}
+
+AMGenericScanEditor *AMDatamanAppController::createNewScanEditor(bool use2DScanView)
+{
+	AMGenericScanEditor* editor = new AMGenericScanEditor(use2DScanView);
 	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, this, ":/applications-science.png"));
 	return editor;
 }
@@ -935,10 +934,20 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 	}
 
 	// success!
-	if(!editor) {
+	if (scan->scanRank() == 2){
+
+		if (editor)
+			closeScanEditor(editor);
+
+		editor = createNewScanEditor(true);
+	}
+
+	else if(!editor) {
 		editor = createNewScanEditor();
 	}
+
 	editor->addScan(scan);
+
 	return true;
 }
 
@@ -952,15 +961,3 @@ void AMDatamanAppController::onActionImportAcquamanDatabase()
 	AMScanDatabaseImportWizard* wizard = new AMScanDatabaseImportWizard(importController);
 	wizard->show();
 }
-
-
-
-
-
-
-
-
-
-
-
-

@@ -120,6 +120,8 @@ public:
 
 	/// The spectrometer calibration object we are using
 	const REIXSXESCalibration* spectrometerCalibration() const { return &calibration_; }
+	// temporary, for commissioning.
+	REIXSXESCalibration* spectrometerCalibration() { return &calibration_; }
 
 	int gratingCount() const { return calibration_.gratingCount(); }
 
@@ -260,11 +262,15 @@ class REIXSBeamline : public AMBeamline
 {
 	Q_OBJECT
 public:
+	/// Acccess the REIXSBeamline singleton instance through REIXSBeamline::bl()
 	static REIXSBeamline* bl() {
 		if(!instance_)
 			instance_ = new REIXSBeamline();
 		return static_cast<REIXSBeamline*>(instance_);
 	}
+
+	/// Destructor
+	~REIXSBeamline();
 
 	// Accessing control elements:
 

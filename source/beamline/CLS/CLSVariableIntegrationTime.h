@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineActionItem.h"
 
 /*!
