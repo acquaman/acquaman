@@ -12,6 +12,26 @@
 #include <QSizePolicy>
 #include <QStringBuilder>
 
+AM2DScanBar::AM2DScanBar(QWidget *parent)
+	: QWidget(parent)
+{
+	dataPosition_ = new QLabel("Current Position:");
+
+	QHBoxLayout *layout = new QHBoxLayout;
+	layout->addWidget(dataPosition_);
+	layout->addStretch();
+
+	setLayout(layout);
+}
+
+void AM2DScanBar::setDataPosition(const QPointF &point)
+{
+	dataPosition_->setText(QString("Current Position: (%1, %2)").arg(point.x()).arg(point.y()));
+}
+
+// AM2DScanView
+/////////////////////////////////////
+
 AM2DScanView::AM2DScanView(AMScanSetModel* model, QWidget *parent)
 	: QWidget(parent)
 {
@@ -36,8 +56,8 @@ AM2DScanView::AM2DScanView(AMScanSetModel* model, QWidget *parent)
 
 AM2DScanView::~AM2DScanView()
 {
-	for(int i=0; i<views_.count(); i++)
-		delete views_.at(i);
+	delete exclusiveView_;
+	delete multiView_;
 }
 
 void AM2DScanView::setupUI()
@@ -55,6 +75,9 @@ void AM2DScanView::setupUI()
 	exclusiveScanBars_ = new AMScanViewSourceSelector();
 	exclusiveScanBars_->setExclusiveModeOn();
 	vl->addWidget(exclusiveScanBars_);
+
+	exclusive2DScanBar_ = new AM2DScanBar;
+	vl->addWidget(exclusive2DScanBar_);
 
 	setLayout(vl);
 
@@ -85,11 +108,11 @@ void AM2DScanView::setupUI()
 	gMultiViewLayout_->setContentsMargins(0, 0, 0, 0);
 	gMultiView_->graphicsWidget()->setLayout(gMultiViewLayout_);
 
-	views_ << new AM2DScanViewExclusiveView(this);
-	views_ << new AM2DScanViewMultiSourcesView(this);
+	exclusiveView_ = new AM2DScanViewExclusiveView(this);
+	multiView_ = new AM2DScanViewMultiSourcesView(this);
 
-	gExclusiveLayout_->addItem(views_.first());
-	gMultiViewLayout_->addItem(views_.at(1));
+	gExclusiveLayout_->addItem(exclusiveView_);
+	gMultiViewLayout_->addItem(multiView_);
 }
 
 void AM2DScanView::makeConnections()
@@ -97,6 +120,8 @@ void AM2DScanView::makeConnections()
 	// connect resize event from graphicsView to resize the stuff inside the view
 	connect(gExclusiveView_, SIGNAL(resized(QSizeF)), this, SLOT(resizeExclusiveViews()), Qt::QueuedConnection);
 	connect(gMultiView_, SIGNAL(resized(QSizeF)), this, SLOT(resizeMultiViews()), Qt::QueuedConnection);
+
+	connect(exclusiveView_, SIGNAL(dataPositionChanged(QPointF)), exclusive2DScanBar_, SLOT(setDataPosition(QPointF)));
 }
 
 void AM2DScanView::resizeExclusiveViews()
@@ -237,6 +262,12 @@ AM2DScanViewExclusiveView::AM2DScanViewExclusiveView(AM2DScanView* masterView)
 	// create our main plot:
 	plot_ = createDefaultPlot();
 
+	MPlotDataPositionTool *positionTool = new MPlotDataPositionTool;
+	plot_->plot()->addTool(positionTool);
+	positionTool->addDataPositionIndicator(plot_->plot()->axisScaleBottom(), plot_->plot()->axisScaleLeft());
+
+	connect(plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(uint,QPointF)), this, SLOT(onDataPositionChanged(uint,QPointF)));
+
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
 	gl->setContentsMargins(0,0,0,0);
 	gl->setSpacing(0);
@@ -371,6 +402,13 @@ void AM2DScanViewExclusiveView::onExclusiveDataSourceChanged(const QString& excl
 		reviewScan(i);
 
 	refreshTitle();
+}
+
+void AM2DScanViewExclusiveView::onDataPositionChanged(uint index, const QPointF &point)
+{
+	Q_UNUSED(index)
+	qDebug() << "Made it into AM2DScanViewExclusiveView";
+	emit dataPositionChanged(point);
 }
 
 void AM2DScanViewExclusiveView::refreshTitle() {

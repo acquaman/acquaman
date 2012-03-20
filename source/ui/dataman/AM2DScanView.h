@@ -9,6 +9,26 @@
 #include "ui/dataman/AMScanViewUtilities.h"
 
 class AM2DScanViewInternal;
+class AM2DScanViewExclusiveView;
+class AM2DScanViewMultiSourcesView;
+
+/// This class is a small horizontal bar that holds some information for the 2D scan view, such as: current data position, whether to see the spectra or not, etc.
+class AM2DScanBar : public QWidget
+{
+	Q_OBJECT
+
+public:
+	/// Constructor.
+	AM2DScanBar(QWidget *parent = 0);
+
+public slots:
+	/// Handles setting the label with the new data coordinates.
+	void setDataPosition(const QPointF &point);
+
+protected:
+	/// Label holding the data position coordinates.
+	QLabel *dataPosition_;
+};
 
 /*! This class makes a scan view that is more suitable for 2D scans.  It has been built in the same spirit as AMScanView by having an
 	AM2DScanViewInternal class.  This is primarily to reduce confusion when looking at either scan view.  This one is much more limited
@@ -52,13 +72,16 @@ protected:
 
 	AMScanSetModel* scansModel_;
 
-	/// List of the different views available
-	QList<AM2DScanViewInternal*> views_;
+	/// The exclusive view
+	AM2DScanViewExclusiveView *exclusiveView_;
+	/// The multi view.
+	AM2DScanViewMultiSourcesView *multiView_;
 
 	// ui components:
 	AMGraphicsViewAndWidget* gExclusiveView_;
 	QGraphicsLinearLayout* gExclusiveLayout_;
 	AMScanViewSourceSelector* exclusiveScanBars_;
+	AM2DScanBar *exclusive2DScanBar_;
 
 	AMGraphicsViewAndWidget* gMultiView_;
 	QGraphicsLinearLayout *gMultiViewLayout_;
@@ -111,6 +134,10 @@ public:
 	explicit AM2DScanViewExclusiveView(AM2DScanView *masterView);
 	virtual ~AM2DScanViewExclusiveView();
 
+signals:
+	/// Notifier that the data position marker has changed.
+	void dataPositionChanged(const QPointF &);
+
 protected slots:
 	/// after a scan or data source is added in the model
 	virtual void onRowInserted(const QModelIndex& parent, int start, int end);
@@ -123,6 +150,8 @@ protected slots:
 
 	/// when the model's "exclusive data source" changes. This is the one data source that we display for all of our scans (as long as they have it).
 	void onExclusiveDataSourceChanged(const QString& exclusiveDataSource);
+	/// Handles the signals about data position changed from the plot window.
+	void onDataPositionChanged(uint index, const QPointF &point);
 
 protected:
 	/// Helper function to handle adding a scan (at row scanIndex in the model)

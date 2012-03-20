@@ -68,6 +68,9 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	scanView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	ui_.leftVerticalLayout->insertWidget(0, scanView_, 2);
 
+	// Ensure that the 2D scan view is pointing to nowhere.
+	scanView2D_ = 0;
+
 	// share the scan set model with the AMScanView
 	scanSetModel_ = scanView_->model();
 
@@ -149,6 +152,7 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 	// Add scan view (plots)
 	if (use2DScanView){
 
+		scanView_ = 0;
 		scanView2D_ = new AM2DScanView();
 		scanView2D_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		ui_.leftVerticalLayout->insertWidget(0, scanView2D_, 2);
@@ -159,6 +163,7 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 
 	else {
 
+		scanView2D_ = 0;
 		scanView_ = new AMScanView();
 		scanView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		ui_.leftVerticalLayout->insertWidget(0, scanView_, 2);
