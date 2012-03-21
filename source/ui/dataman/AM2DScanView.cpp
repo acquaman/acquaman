@@ -26,7 +26,21 @@ AM2DScanBar::AM2DScanBar(QWidget *parent)
 
 void AM2DScanBar::setDataPosition(const QPointF &point)
 {
-	dataPosition_->setText(QString("Current Position: (%1, %2)").arg(point.x()).arg(point.y()));
+	QString text = "Current Position: (";
+	text.append(QString::number(point.x(), 'g', 3));
+
+	if (!xUnits().isEmpty())
+		text.append(QString(" %1").arg(xUnits()));
+
+	text.append(", ");
+	text.append(QString::number(point.y(), 'g', 3));
+
+	if (!yUnits().isEmpty())
+		text.append(QString(" %1").arg(yUnits()));
+
+	text.append(")");
+
+	dataPosition_->setText(text);
 }
 
 // AM2DScanView
@@ -122,6 +136,17 @@ void AM2DScanView::makeConnections()
 	connect(gMultiView_, SIGNAL(resized(QSizeF)), this, SLOT(resizeMultiViews()), Qt::QueuedConnection);
 
 	connect(exclusiveView_, SIGNAL(dataPositionChanged(QPointF)), exclusive2DScanBar_, SLOT(setDataPosition(QPointF)));
+}
+
+void AM2DScanView::setCurrentScan(AMScan *scan)
+{
+	currentScan_ = scan;
+
+	if (currentScan_)
+		exclusive2DScanBar_->setUnits(scan->rawData()->scanAxisAt(0).units, scan->rawData()->scanAxisAt(1).units);
+
+	else
+		exclusive2DScanBar_->setUnits("", "");
 }
 
 void AM2DScanView::resizeExclusiveViews()

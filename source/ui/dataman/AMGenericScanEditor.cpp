@@ -346,6 +346,10 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		dataSourcesEditor_->setCurrentScan(scan);
 		conditionsTableView_->setFromInfoList(scan->scanInitialConditions());
 
+		// Only the 2D scan view currently uses a current scan.  But only pass it if it exists.
+		if (scanView2D_)
+			scanView2D_->setCurrentScan(scan);
+
 		//ui_.topFrameTitle->setText(QString("Editing %1 #%2").arg(scan->name()).arg(scan->number()));
 		ui_.topFrameTitle->setText(QString("Editing %1").arg(scan->fullName()));
 	}
@@ -363,6 +367,10 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		sampleEditor_->setCurrentSample(-1);
 		dataSourcesEditor_->setCurrentScan(0);
 		conditionsTableView_->setFromInfoList(0);
+
+		// Only the 2D scan view currently uses a current scan.  But only pass it if it exists.
+		if (scanView2D_)
+			scanView2D_->setCurrentScan(0);
 
 		ui_.topFrameTitle->setText("Scan Editor");
 	}

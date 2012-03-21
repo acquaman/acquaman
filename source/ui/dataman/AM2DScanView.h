@@ -21,13 +21,28 @@ public:
 	/// Constructor.
 	AM2DScanBar(QWidget *parent = 0);
 
+	/// Returns the x axis units.
+	QString xUnits() const { return xUnits_; }
+	/// Returns the y axis units.
+	QString yUnits() const { return yUnits_; }
+
 public slots:
 	/// Handles setting the label with the new data coordinates.
 	void setDataPosition(const QPointF &point);
+	/// Sets the units for both x and y axes.
+	void setUnits(const QString &xUnits, const QString &yUnits) { xUnits_ = xUnits; yUnits_ = yUnits; }
+	/// Sets the x axis units.
+	void setXAxisUnits(const QString &units) { xUnits_ = units; }
+	/// Sets the y axis units.
+	void setYAxisUnits(const QString &units) { yUnits_ = units; }
 
 protected:
 	/// Label holding the data position coordinates.
 	QLabel *dataPosition_;
+	/// String holding the x axis units.
+	QString xUnits_;
+	/// String holding the y axis units.
+	QString yUnits_;
 };
 
 /*! This class makes a scan view that is more suitable for 2D scans.  It has been built in the same spirit as AMScanView by having an
@@ -46,12 +61,16 @@ public:
 
 	/// returns the AMScanSetModel used internally to hold the scans/data sources.
 	AMScanSetModel* model() const { return scansModel_; }
+	/// Returns a pointer to the current scan the view is looking at.
+	AMScan *currentScan() const { return currentScan_; }
 
 public slots:
 	/// add a scan to the view:
 	void addScan(AMScan* scan);
 	/// remove a scan from the view:
 	void removeScan(AMScan* scan);
+	/// Sets the current scan.  This is so that the scan view is looking at the same scan as all of the other pieces of the editor.
+	void setCurrentScan(AMScan *scan);
 
 protected slots:
 	/// Slot that resizes the exclusive view as needed.
@@ -70,7 +89,10 @@ protected:
 	/// internal helper function to setup all UI event-handling connections
 	void makeConnections();
 
+	/// The scans set model.
 	AMScanSetModel* scansModel_;
+	/// Pointer to the current scan.  Used for ensuring units are correct in the AMScanBar.
+	AMScan *currentScan_;
 
 	/// The exclusive view
 	AM2DScanViewExclusiveView *exclusiveView_;
