@@ -297,6 +297,9 @@ public:
 		data_->clearScanDataPoints();
 	}
 
+	/// Clears the scan axes for this scan.  This should be called before configuring the scan axes to ensure you don't have extra, misleading scan axes.
+	void clearScanAxes() { data_->clearScanAxes(); }
+
 
 	// Role 5: DataStore (Raw Data) Interface
 	//////////////////////////////////

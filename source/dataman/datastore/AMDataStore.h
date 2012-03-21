@@ -188,7 +188,8 @@ public:
 		clearMeasurementsImplementation();
 	}
 
-
+	/// Clears the scan axes for this data store.
+	void clearScanAxes() { clearScanAxesImplementation(); }
 
 	// Signal source
 	///////////////////////
@@ -212,6 +213,8 @@ protected:
 
 	/// Implementing subclasses must provide a clearMeasurementsImplementation(), which clears the set of configured measurements.  They can assume that the set of scan data values is already cleared.
 	virtual void clearMeasurementsImplementation() = 0;
+	/// Implementing subclasses must provide a clearScanAxesImplementation(), which clears all the axes for the scan.
+	virtual void clearScanAxesImplementation() = 0;
 
 	/// Implementing subclasses must call this whenever a measurement value changes. (For example, in their setValue implementation).  \c scanIndexStart and \c scanIndexEnd describe the scan range affected.  Use an invalid \c scanIndexStart to indicate the whole scan space is affected.  For performance, subclasses can opt to avoid calling this on every setValue(), and combine multiple emits into one (as long as the last one covers the complete affected range.)  A separate emitDataChanged() should be sent for each different measurement.  For multi-dimensional measurements, it's suggested to delay emits until all the values for a complete measurement have been received (if you can figure out how...).
 	void emitDataChanged(const AMnDIndex& scanIndexStart, const AMnDIndex& scanIndexEnd, int measurementId) {

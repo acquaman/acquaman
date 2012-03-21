@@ -718,6 +718,12 @@ protected:
 		scalarScanPoint_->clear();
 		measurements_.clear();
 	}
+
+	/// Implementing subclasses must provide a clearScanAxesImplementation(), which clears all the axes for the scan.
+	virtual void clearScanAxesImplementation()
+	{
+		axes_.clear();
+	}
 };
 
 #endif // AMINMEMORYDATASTORE_H

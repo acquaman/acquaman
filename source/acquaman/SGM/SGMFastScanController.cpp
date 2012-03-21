@@ -28,6 +28,7 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 	beamlineInitialized_ = false;
 
 	specificScan_ = new AMFastScan();
+	specificScan_->rawData()->addScanAxis(AMAxisInfo("ev", 0, "Incident Energy", "eV"));
 	specificScan_->setName("SGM Fast Scan");
 	specificScan_->setFileFormat("sgm2010Fast");
 	specificScan_->setRunId(AMUser::user()->currentRunId());
