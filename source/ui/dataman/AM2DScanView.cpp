@@ -27,13 +27,13 @@ AM2DScanBar::AM2DScanBar(QWidget *parent)
 void AM2DScanBar::setDataPosition(const QPointF &point)
 {
 	QString text = "Current Position: (";
-	text.append(QString::number(point.x(), 'g', 3));
+	text.append(QString::number(point.x(), 'f', 3));
 
 	if (!xUnits().isEmpty())
 		text.append(QString(" %1").arg(xUnits()));
 
 	text.append(", ");
-	text.append(QString::number(point.y(), 'g', 3));
+	text.append(QString::number(point.y(), 'f', 3));
 
 	if (!yUnits().isEmpty())
 		text.append(QString(" %1").arg(yUnits()));
@@ -506,12 +506,12 @@ void AM2DScanViewExclusiveView::reviewScan(int scanIndex)
 				switch(scan->scanRank()){
 
 				case 1:
-					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).name : scan->rawData()->scanAxisAt(0).name % ", " % scan->rawData()->scanAxisAt(0).units);
+					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
 					break;
 
 				case 2:
-					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).name : scan->rawData()->scanAxisAt(0).name % ", " % scan->rawData()->scanAxisAt(0).units);
-					plot_->plot()->axisLeft()->setAxisName(scan->rawData()->scanAxisAt(1).units.isEmpty() ? scan->rawData()->scanAxisAt(1).name : scan->rawData()->scanAxisAt(1).name % ", " % scan->rawData()->scanAxisAt(1).units);
+					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
+					plot_->plot()->axisLeft()->setAxisName(scan->rawData()->scanAxisAt(1).units.isEmpty() ? scan->rawData()->scanAxisAt(1).description : scan->rawData()->scanAxisAt(1).description % ", " % scan->rawData()->scanAxisAt(1).units);
 					break;
 				}
 			}
@@ -826,12 +826,12 @@ bool AM2DScanViewMultiSourcesView::reviewDataSources() {
 					switch(scan->scanRank()){
 
 					case 1:
-						dataSource2Plot_[sourceName]->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).name : scan->rawData()->scanAxisAt(0).name % ", " % scan->rawData()->scanAxisAt(0).units);
+						dataSource2Plot_[sourceName]->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
 						break;
 
 					case 2:
-						dataSource2Plot_[sourceName]->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).name : scan->rawData()->scanAxisAt(0).name % ", " % scan->rawData()->scanAxisAt(0).units);
-						dataSource2Plot_[sourceName]->plot()->axisLeft()->setAxisName(scan->rawData()->scanAxisAt(1).units.isEmpty() ? scan->rawData()->scanAxisAt(1).name : scan->rawData()->scanAxisAt(1).name % ", " % scan->rawData()->scanAxisAt(1).units);
+						dataSource2Plot_[sourceName]->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
+						dataSource2Plot_[sourceName]->plot()->axisLeft()->setAxisName(scan->rawData()->scanAxisAt(1).units.isEmpty() ? scan->rawData()->scanAxisAt(1).description : scan->rawData()->scanAxisAt(1).description % ", " % scan->rawData()->scanAxisAt(1).units);
 						break;
 					}
 
