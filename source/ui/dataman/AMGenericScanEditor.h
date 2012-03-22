@@ -90,9 +90,16 @@ public:
 	/// Exposing scan set model method that returns a list of all data source names that exist and are visible in at least one scan. Warning: this is slow.  O(n), where n is the total number of data sources in all scans.
 	QStringList visibleDataSourceNames() const { return scanSetModel_->visibleDataSourceNames(); }
 
+	/// Returns the data position inside a two dimensional scan.  This returns a null point if AMGenericScanEditor is not using AM2DScanView, or if no valid point was been chosen yet.
+	QPointF dataPosition() const;
+	/// Returns whether the generic scan editor is using AMScanView or AM2DScanView.
+	bool using2DScanView() const { return scanView2D_ ? true : false; }
+
 signals:
 	/// Internal signal to forward the textChanged() from ui_.notesEdit
 	void notesChanged(const QString&);
+	/// Emits a signal that the data position tool has changed positions.  This is only emitted if AMGenericScanEditor is using AM2DScanView.
+	void dataPositionChanged(AMGenericScanEditor *);
 
 public slots:
 
@@ -129,6 +136,9 @@ protected slots:
 
 	/// Called on a one-second timer: Right now, we only use this to update the duration display for currentlyAcquiring() scans
 	void onOneSecondTimer();
+
+	/// Helper slot that emits the dataPositionChanged signal.
+	void onDataPositionChanged() { emit dataPositionChanged(this); }
 
 protected:
 

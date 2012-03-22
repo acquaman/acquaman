@@ -223,6 +223,8 @@ bool VESPERSAppController::startup() {
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");
 
+		connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
+
 		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
 		ROIHelper *roiHelper = new ROIHelper(this);
 		Q_UNUSED(roiHelper)
@@ -261,6 +263,8 @@ void VESPERSAppController::onCurrentScanControllerStarted()
 	AMScan *scan = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan();
 	openScanInEditorAndTakeOwnership(scan);
 
+	AMGenericScanEditor *newEditor = scanEditorAt(scanEditorCount() -1);
+
 	VESPERSEXAFSScanConfiguration *config = qobject_cast<VESPERSEXAFSScanConfiguration *>(scan->scanConfiguration());
 
 	if (config){
@@ -269,13 +273,13 @@ void VESPERSAppController::onCurrentScanControllerStarted()
 
 			case VESPERSEXAFSScanConfiguration::None:
 
-				scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("trans");
+				newEditor->setExclusiveDataSourceByName("trans");
 				break;
 
 			case VESPERSEXAFSScanConfiguration::SingleElement:
 			case VESPERSEXAFSScanConfiguration::FourElement:
 			{
-				QStringList dataSources(scanEditorAt(scanEditorCount()-1)->visibleDataSourceNames());
+				QStringList dataSources(newEditor->visibleDataSourceNames());
 				int index = 0;
 
 				for (int i = 0; i < dataSources.size(); i++){
@@ -285,7 +289,7 @@ void VESPERSAppController::onCurrentScanControllerStarted()
 						index = i;
 				}
 
-				scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName(dataSources.at(index));
+				newEditor->setExclusiveDataSourceByName(dataSources.at(index));
 
 				break;
 			}
@@ -295,7 +299,7 @@ void VESPERSAppController::onCurrentScanControllerStarted()
 	VESPERS2DScanConfiguration *config2D = qobject_cast<VESPERS2DScanConfiguration *>(scan->scanConfiguration());
 
 	if (config2D)
-		scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName(scan->analyzedDataSources()->at(0)->name());
+		newEditor->setExclusiveDataSourceByName(scan->analyzedDataSources()->at(0)->name());
 }
 
 void VESPERSAppController::onCurrentScanControllerCreated()
@@ -355,4 +359,18 @@ void VESPERSAppController::onCancelScanIssued()
 
 	if (controller)
 		controller->cancel();
+}
+
+void VESPERSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
+{
+	if (editor->using2DScanView())
+		connect(editor, SIGNAL(dataPositionChanged(AMGenericScanEditor*)), this, SLOT(onDataPositionChanged(AMGenericScanEditor*)));
+}
+
+void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor)
+{
+	QMenu popup(editor);
+
+	QAction *temp = popup.addAction("test");
+	temp = popup.exec();
 }

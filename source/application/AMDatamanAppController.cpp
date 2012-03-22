@@ -698,6 +698,7 @@ AMGenericScanEditor * AMDatamanAppController::createNewScanEditor()
 {
 	AMGenericScanEditor* editor = new AMGenericScanEditor();
 	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, this, ":/applications-science.png"));
+	emit scanEditorCreated(editor);
 	return editor;
 }
 
@@ -705,6 +706,7 @@ AMGenericScanEditor *AMDatamanAppController::createNewScanEditor(bool use2DScanV
 {
 	AMGenericScanEditor* editor = new AMGenericScanEditor(use2DScanView);
 	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, this, ":/applications-science.png"));
+	emit scanEditorCreated(editor);
 	return editor;
 }
 

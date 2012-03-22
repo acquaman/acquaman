@@ -16,6 +16,9 @@ AM2DScanBar::AM2DScanBar(QWidget *parent)
 	: QWidget(parent)
 {
 	dataPosition_ = new QLabel("Current Position:");
+	xUnits_ = "";
+	yUnits_ = "";
+	position_ = QPointF();
 
 	QHBoxLayout *layout = new QHBoxLayout;
 	layout->addWidget(dataPosition_);
@@ -26,6 +29,8 @@ AM2DScanBar::AM2DScanBar(QWidget *parent)
 
 void AM2DScanBar::setDataPosition(const QPointF &point)
 {
+	position_ = point;
+
 	QString text = "Current Position: (";
 	text.append(QString::number(point.x(), 'f', 3));
 
@@ -136,6 +141,7 @@ void AM2DScanView::makeConnections()
 	connect(gMultiView_, SIGNAL(resized(QSizeF)), this, SLOT(resizeMultiViews()), Qt::QueuedConnection);
 
 	connect(exclusiveView_, SIGNAL(dataPositionChanged(QPointF)), exclusive2DScanBar_, SLOT(setDataPosition(QPointF)));
+	connect(exclusiveView_, SIGNAL(dataPositionChanged(QPointF)), this, SIGNAL(dataPositionChanged()));
 }
 
 void AM2DScanView::setCurrentScan(AMScan *scan)
@@ -204,6 +210,16 @@ void AM2DScanView::hideEvent(QHideEvent *e)
 		multiViewBox_->hide();
 
 	QWidget::hideEvent(e);
+}
+
+void AM2DScanView::mouseReleaseEvent(QMouseEvent *e)
+{qDebug() << "Inside mouseReleaseEvent.";
+	if (e->button() == Qt::RightButton){
+		qDebug() << "Made it into AM2DScanView.";
+		emit dataPositionChanged();
+	}
+
+	QWidget::mouseReleaseEvent(e);
 }
 
 // AM2DScanViewInternal
@@ -432,7 +448,7 @@ void AM2DScanViewExclusiveView::onExclusiveDataSourceChanged(const QString& excl
 void AM2DScanViewExclusiveView::onDataPositionChanged(uint index, const QPointF &point)
 {
 	Q_UNUSED(index)
-	qDebug() << "Made it into AM2DScanViewExclusiveView";
+
 	emit dataPositionChanged(point);
 }
 

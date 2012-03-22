@@ -25,6 +25,8 @@ public:
 	QString xUnits() const { return xUnits_; }
 	/// Returns the y axis units.
 	QString yUnits() const { return yUnits_; }
+	/// Returns the position.
+	QPointF dataPosition() const { return position_; }
 
 public slots:
 	/// Handles setting the label with the new data coordinates.
@@ -43,6 +45,8 @@ protected:
 	QString xUnits_;
 	/// String holding the y axis units.
 	QString yUnits_;
+	/// The current point.
+	QPointF position_;
 };
 
 /*! This class makes a scan view that is more suitable for 2D scans.  It has been built in the same spirit as AMScanView by having an
@@ -63,6 +67,8 @@ public:
 	AMScanSetModel* model() const { return scansModel_; }
 	/// Returns a pointer to the current scan the view is looking at.
 	AMScan *currentScan() const { return currentScan_; }
+	/// Returns the current position.  This holds the x and y coordinates from the last time the data position tool was moved.
+	QPointF dataPosition() const { return exclusive2DScanBar_->dataPosition(); }
 
 public slots:
 	/// add a scan to the view:
@@ -71,6 +77,10 @@ public slots:
 	void removeScan(AMScan* scan);
 	/// Sets the current scan.  This is so that the scan view is looking at the same scan as all of the other pieces of the editor.
 	void setCurrentScan(AMScan *scan);
+
+signals:
+	/// Notifier that the data position tool has changed locations.
+	void dataPositionChanged();
 
 protected slots:
 	/// Slot that resizes the exclusive view as needed.
@@ -83,6 +93,8 @@ protected:
 	virtual void showEvent(QShowEvent *e);
 	/// Reimplements the hide event to hide the multi view.
 	virtual void hideEvent(QHideEvent *e);
+	/// Reimplementing the mouse release event so that it will emit a signal on right clicks to notify parent classes that the data position tool has changed.
+	virtual void mouseReleaseEvent(QMouseEvent *e);
 
 	/// internal helper function to build the UI
 	void setupUI();
