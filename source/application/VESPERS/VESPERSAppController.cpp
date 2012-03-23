@@ -102,17 +102,7 @@ bool VESPERSAppController::startup() {
 		// Initialize the periodic table object.
 		AMPeriodicTable::table();
 
-		AMDbObjectSupport::s()->registerClass<XRFDetectorInfo>();
-		AMDbObjectSupport::s()->registerClass<VESPERSXRFScanConfiguration>();
-		AMDbObjectSupport::s()->registerClass<AMXRFScan>();
-		AMDbObjectSupport::s()->registerClass<VESPERSEXAFSScanConfiguration>();
-		AMDbObjectSupport::s()->registerClass<VESPERS2DScanConfiguration>();
-
-		AMDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
-		AMDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
-		AMDetectorViewSupport::registerClass<VESPERSRoperCCDDetectorView, VESPERSRoperCCDDetector>();
-
-		AMExportController::registerExporter<VESPERSExporter2DAscii>();
+		registerClasses();
 
 		// Testing and making the first run in the database, if there isn't one already.  Make this it's own function if you think startup() is getting too big ; )
 		////////////////////////////////////////
@@ -124,107 +114,12 @@ bool VESPERSAppController::startup() {
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 
-		QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
-
-		AMExporterOptionGeneralAscii *vespersDefault = new AMExporterOptionGeneralAscii();
-
-		if (matchIDs.count() != 0)
-			vespersDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
-
-		vespersDefault->setName("VESPERSDefault");
-		vespersDefault->setFileName("$name_$fsIndex.dat");
-		vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\nActual Vertical Position:\t$controlValue[Vertical Sample Stage] mm\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
-		vespersDefault->setHeaderIncluded(true);
-		vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
-		vespersDefault->setColumnHeaderIncluded(true);
-		vespersDefault->setColumnHeaderDelimiter("");
-		vespersDefault->setSectionHeader("");
-		vespersDefault->setSectionHeaderIncluded(true);
-		vespersDefault->setIncludeAllDataSources(true);
-		vespersDefault->setFirstColumnOnly(true);
-		vespersDefault->setSeparateHigherDimensionalSources(true);
-		vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
-		vespersDefault->storeToDb(AMDatabase::database("user"));
-		qDebug() << "Added the VESPERSDefault to exporter options";
-
-		// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
-		matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
-		if(matchIDs.count() > 0){
-
-			AMAppControllerSupport::registerClass<VESPERSEXAFSScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(matchIDs.at(0));
-			AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporter2DAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
-		}
-
-
-		// Create panes in the main window:
-		////////////////////////////////////
-
-		assistant_ = new VESPERSWorkflowAssistant(workflowManagerView_, this);
-		VESPERSWorkflowAssistantView *assistantView = new VESPERSWorkflowAssistantView(assistant_);
-		mw_->insertVerticalWidget(2, assistantView);
-
-		// Setup the general endstation control view.
-		VESPERSEndstationView *endstationView = new VESPERSEndstationView(VESPERSBeamline::vespers()->endstation());
-		VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
-
-		mw_->insertHeading("Beamline Control", 0);
-		mw_->addPane(endstationView, "Beamline Control", "Endstation", ":/system-software-update.png");
-		mw_->addPane(statusPage, "Beamline Control", "Device Status", ":/system-software-update.png");
-
-		// Setup the XRF views for the single element vortex and the four element vortex detectors.  Since they have scans that are added to the workflow, it gets the workflow manager view passed into it as well.
-		// This means that the FreeRunView kind of doubles as a regular detector view and a configuration view holder.
-		xrf1EFreeRunView_ = new VESPERSXRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF1E()), workflowManagerView_);
-		xrf4EFreeRunView_ = new VESPERSXRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF4E()), workflowManagerView_);
-
-		VESPERSRoperCCDDetectorView *roperCCDView = new VESPERSRoperCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
-
-		mw_->insertHeading("Free run", 1);
-		mw_->addPane(xrf1EFreeRunView_, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");
-		mw_->addPane(xrf4EFreeRunView_, "Free run", "XRF 4-el", ":/utilities-system-monitor.png");
-		mw_->addPane(roperCCDView, "Free run", "XRD - Roper", ":/utilities-system-monitor.png");
-
-		// Setup page that auto-enables detectors.
-		VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
-
-		// Setup XAS for the beamline.  Builds the config, view, and view holder.
-		exafsScanConfig_ = new VESPERSEXAFSScanConfiguration();
-		exafsScanConfig_->addRegion(0, -30, 0.5, 40, 1);
-		VESPERSEXAFSScanConfigurationView *exafsConfigView = new VESPERSEXAFSScanConfigurationView(exafsScanConfig_);
-		exafsConfigViewHolder_ = new AMScanConfigurationViewHolder( workflowManagerView_, exafsConfigView);
-
-		// Setup 2D maps for the beamline.  Builds the config, view, and view holder.
-		VESPERS2DScanConfiguration *mapScanConfiguration = new VESPERS2DScanConfiguration();
-		mapScanConfiguration->setStepSize(0.005, 0.005);
-		mapScanConfiguration->setTimeStep(1);
-		VESPERS2DScanConfigurationView *mapScanConfigurationView = new VESPERS2DScanConfigurationView(mapScanConfiguration);
-		AMScanConfigurationViewHolder *mapScanConfigurationViewHolder = new AMScanConfigurationViewHolder(workflowManagerView_, mapScanConfigurationView);
-		connect(mapScanConfigurationView, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
-
-		/// \todo this can likely be somewhere else in the framework.
-		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
-		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
-		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerFinished()));
-
-		mw_->insertHeading("Scans", 2);
-		mw_->addPane(experimentConfigurationView, "Scans", "Experiment Setup", ":/utilities-system-monitor.png");
-		mw_->addPane(exafsConfigViewHolder_, "Scans", "XAS", ":/utilities-system-monitor.png");
-		mw_->addPane(mapScanConfigurationViewHolder, "Scans", "2D Maps", ":/utilities-system-monitor.png");
-
-		// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
-		VESPERSPersistentView *persistentView = new VESPERSPersistentView;
-		mw_->addRightWidget(persistentView);
-
-		// Show the endstation control view first.
-		mw_->setCurrentPane(experimentConfigurationView);
-
-		// Bottom bar connections.
-		connect(this, SIGNAL(pauseScanIssued()), this, SLOT(onPauseScanIssued()));
-		connect(this, SIGNAL(stopScanIssued()), this, SLOT(onCancelScanIssued()));
+		setupExporterOptions();
+		setupUserInterface();
+		makeConnections();
 
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");
-
-		connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 
 		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
 		ROIHelper *roiHelper = new ROIHelper(this);
@@ -244,6 +139,128 @@ void VESPERSAppController::shutdown() {
 	// Make sure we release/clean-up the beamline interface
 	AMBeamline::releaseBl();
 	AMAppController::shutdown();
+}
+
+void VESPERSAppController::registerClasses()
+{
+	AMDbObjectSupport::s()->registerClass<XRFDetectorInfo>();
+	AMDbObjectSupport::s()->registerClass<VESPERSXRFScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<AMXRFScan>();
+	AMDbObjectSupport::s()->registerClass<VESPERSEXAFSScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<VESPERS2DScanConfiguration>();
+
+	AMDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
+	AMDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
+	AMDetectorViewSupport::registerClass<VESPERSRoperCCDDetectorView, VESPERSRoperCCDDetector>();
+
+	AMExportController::registerExporter<VESPERSExporter2DAscii>();
+}
+
+void VESPERSAppController::setupExporterOptions()
+{
+	QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
+
+	AMExporterOptionGeneralAscii *vespersDefault = new AMExporterOptionGeneralAscii();
+
+	if (matchIDs.count() != 0)
+		vespersDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
+
+	vespersDefault->setName("VESPERSDefault");
+	vespersDefault->setFileName("$name_$fsIndex.dat");
+	vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\nActual Vertical Position:\t$controlValue[Vertical Sample Stage] mm\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
+	vespersDefault->setHeaderIncluded(true);
+	vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
+	vespersDefault->setColumnHeaderIncluded(true);
+	vespersDefault->setColumnHeaderDelimiter("");
+	vespersDefault->setSectionHeader("");
+	vespersDefault->setSectionHeaderIncluded(true);
+	vespersDefault->setIncludeAllDataSources(true);
+	vespersDefault->setFirstColumnOnly(true);
+	vespersDefault->setSeparateHigherDimensionalSources(true);
+	vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
+	vespersDefault->storeToDb(AMDatabase::database("user"));
+	qDebug() << "Added the VESPERSDefault to exporter options";
+
+	// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
+	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
+	if(matchIDs.count() > 0){
+
+		AMAppControllerSupport::registerClass<VESPERSEXAFSScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(matchIDs.at(0));
+		AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporter2DAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
+	}
+}
+
+void VESPERSAppController::setupUserInterface()
+{
+	// Create panes in the main window:
+	////////////////////////////////////
+
+	assistant_ = new VESPERSWorkflowAssistant(workflowManagerView_, this);
+	VESPERSWorkflowAssistantView *assistantView = new VESPERSWorkflowAssistantView(assistant_);
+	mw_->insertVerticalWidget(2, assistantView);
+
+	// Setup the general endstation control view.
+	VESPERSEndstationView *endstationView = new VESPERSEndstationView(VESPERSBeamline::vespers()->endstation());
+	VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
+
+	mw_->insertHeading("Beamline Control", 0);
+	mw_->addPane(endstationView, "Beamline Control", "Endstation", ":/system-software-update.png");
+	mw_->addPane(statusPage, "Beamline Control", "Device Status", ":/system-software-update.png");
+
+	// Setup the XRF views for the single element vortex and the four element vortex detectors.  Since they have scans that are added to the workflow, it gets the workflow manager view passed into it as well.
+	// This means that the FreeRunView kind of doubles as a regular detector view and a configuration view holder.
+	xrf1EFreeRunView_ = new VESPERSXRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF1E()), workflowManagerView_);
+	xrf4EFreeRunView_ = new VESPERSXRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF4E()), workflowManagerView_);
+
+	VESPERSRoperCCDDetectorView *roperCCDView = new VESPERSRoperCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
+
+	mw_->insertHeading("Free run", 1);
+	mw_->addPane(xrf1EFreeRunView_, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");
+	mw_->addPane(xrf4EFreeRunView_, "Free run", "XRF 4-el", ":/utilities-system-monitor.png");
+	mw_->addPane(roperCCDView, "Free run", "XRD - Roper", ":/utilities-system-monitor.png");
+
+	// Setup page that auto-enables detectors.
+	VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
+
+	// Setup XAS for the beamline.  Builds the config, view, and view holder.
+	exafsScanConfig_ = new VESPERSEXAFSScanConfiguration();
+	exafsScanConfig_->addRegion(0, -30, 0.5, 40, 1);
+	VESPERSEXAFSScanConfigurationView *exafsConfigView = new VESPERSEXAFSScanConfigurationView(exafsScanConfig_);
+	exafsConfigViewHolder_ = new AMScanConfigurationViewHolder( workflowManagerView_, exafsConfigView);
+
+	// Setup 2D maps for the beamline.  Builds the config, view, and view holder.
+	VESPERS2DScanConfiguration *mapScanConfiguration = new VESPERS2DScanConfiguration();
+	mapScanConfiguration->setStepSize(0.005, 0.005);
+	mapScanConfiguration->setTimeStep(1);
+	VESPERS2DScanConfigurationView *mapScanConfigurationView = new VESPERS2DScanConfigurationView(mapScanConfiguration);
+	AMScanConfigurationViewHolder *mapScanConfigurationViewHolder = new AMScanConfigurationViewHolder(workflowManagerView_, mapScanConfigurationView);
+	connect(mapScanConfigurationView, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
+
+	mw_->insertHeading("Scans", 2);
+	mw_->addPane(experimentConfigurationView, "Scans", "Experiment Setup", ":/utilities-system-monitor.png");
+	mw_->addPane(exafsConfigViewHolder_, "Scans", "XAS", ":/utilities-system-monitor.png");
+	mw_->addPane(mapScanConfigurationViewHolder, "Scans", "2D Maps", ":/utilities-system-monitor.png");
+
+	// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
+	VESPERSPersistentView *persistentView = new VESPERSPersistentView;
+	mw_->addRightWidget(persistentView);
+
+	// Show the endstation control view first.
+	mw_->setCurrentPane(experimentConfigurationView);
+}
+
+void VESPERSAppController::makeConnections()
+{
+	/// \todo this can likely be somewhere else in the framework.
+	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
+	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
+	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerFinished()));
+
+	// Bottom bar connections.
+	connect(this, SIGNAL(pauseScanIssued()), this, SLOT(onPauseScanIssued()));
+	connect(this, SIGNAL(stopScanIssued()), this, SLOT(onCancelScanIssued()));
+
+	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 }
 
 void VESPERSAppController::onConfigureDetectorRequested(const QString &detector)

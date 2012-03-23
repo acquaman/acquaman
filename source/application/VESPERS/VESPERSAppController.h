@@ -83,6 +83,16 @@ protected:
 	/// Cleans up the moveImmediatelyAction after every move to ensure that the list action is always cleaned and is initialized for another move.
 	void cleanMoveImmediatelyAction();
 
+	// Things to do on startup.
+	/// Registers all of the necessary classes that are VESPERS specific.
+	void registerClasses();
+	/// Sets up all of the exporter options for the various scan types.
+	void setupExporterOptions();
+	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
+	void setupUserInterface();
+	/// Sets up all of the connections.
+	void makeConnections();
+
 	/// Temporary workflow assistant.
 	VESPERSWorkflowAssistant *assistant_;
 
