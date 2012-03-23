@@ -55,6 +55,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/VESPERS/VESPERSExporter2DAscii.h"
 
 #include <QFileDialog>
+#include <QMessageBox>
 
 #include "dataman/AMRun.h"
 
@@ -380,6 +381,8 @@ void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor, co
 	popup.addSeparator();
 	popup.addAction("XANES scan");
 	popup.addAction("EXAFS scan");
+	popup.addSeparator();
+	popup.addAction("Go to immediately");
 
 	temp = popup.exec(pos);
 
@@ -390,7 +393,55 @@ void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor, co
 
 		else if (temp->text() == "EXAFS scan")
 			setupXASScan(editor, true);
+
+		else if (temp->text() == "Go to immediately"){
+
+			cleanMoveImmediatelyAction();	// Clean up the action just in case.
+
+			AMBeamlineParallelActionsList *moveImmediatelyList = new AMBeamlineParallelActionsList;
+			moveImmediatelyAction_ = new AMBeamlineListAction(moveImmediatelyList);
+			moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
+			moveImmediatelyList->appendAction(0, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(pos.x()));
+			moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
+			moveImmediatelyList->appendAction(1, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(pos.y()));
+
+			connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
+			connect(moveImmediatelyAction_, SIGNAL(failed(int)), this, SLOT(onMoveImmediatelyFailure()));
+			moveImmediatelyAction_->start();
+		}
 	}
+}
+
+
+void VESPERSAppController::onMoveImmediatelySuccess()
+{
+	cleanMoveImmediatelyAction();
+}
+
+void VESPERSAppController::onMoveImmediatelyFailure()
+{
+	cleanMoveImmediatelyAction();
+
+	QMessageBox::warning(mw_, "Sample Stage Error", "The sample stage was unable to complete the desired movement.");
+}
+
+void VESPERSAppController::cleanMoveImmediatelyAction()
+{
+	if (moveImmediatelyAction_ == 0)
+		return;
+
+	// Disconnect all signals and return all memory.
+	moveImmediatelyAction_->disconnect();
+	AMBeamlineParallelActionsList *actionList = moveImmediatelyAction_->list();
+
+	for (int i = 0; i < actionList->stageCount(); i++){
+
+		while (actionList->stage(i)->size())
+			actionList->stage(i)->takeAt(0)->deleteLater();
+	}
+
+	moveImmediatelyAction_->deleteLater();
+	moveImmediatelyAction_ = 0;
 }
 
 void VESPERSAppController::setupXASScan(const AMGenericScanEditor *editor, bool setupEXAFS)

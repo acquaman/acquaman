@@ -28,6 +28,7 @@ class VESPERSXRFFreeRunView;
 class VESPERSPersistentView;
 class VESPERSEXAFSScanConfiguration;
 class AMScanConfigurationViewHolder;
+class AMBeamlineListAction;
 
 class AMGenericScanEditor;
 
@@ -71,9 +72,16 @@ protected slots:
 	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
 	void onScanEditorCreated(AMGenericScanEditor *editor);
 
+	/// Slot that handles success for moves using the moveImmediatelyAction.
+	void onMoveImmediatelySuccess();
+	/// Slot that handles the failure for moves using the moveImmediatelyAction.
+	void onMoveImmediatelyFailure();
+
 protected:
 	/// Sets up a default XAS scan.  It will setup XANES or EXAFS based on the bool \param setupEXAFS using the information from AMGenericScanEditor \param editor.
 	void setupXASScan(const AMGenericScanEditor *, bool setupEXAFS);
+	/// Cleans up the moveImmediatelyAction after every move to ensure that the list action is always cleaned and is initialized for another move.
+	void cleanMoveImmediatelyAction();
 
 	/// Temporary workflow assistant.
 	VESPERSWorkflowAssistant *assistant_;
@@ -87,6 +95,9 @@ protected:
 	VESPERSEXAFSScanConfiguration *exafsScanConfig_;
 	/// The holder for the XAS scan configuration.
 	AMScanConfigurationViewHolder *exafsConfigViewHolder_;
+
+	/// Pointer to the list action that is used to move the sample stage.
+	AMBeamlineListAction *moveImmediatelyAction_;
 };
 
 #endif // VESPERSAPPCONTROLLER_H
