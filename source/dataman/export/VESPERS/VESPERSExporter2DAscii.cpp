@@ -190,5 +190,8 @@ bool VESPERSExporter2DAscii::writeSeparateFiles(const QString &destinationFolder
 	QString originalFileName = sourceFileInfo.absoluteFilePath();
 	QString separateFileName = parseKeywordString( destinationFolderPath % "/" % option_->separateSectionFileName().replace("$dataSetName", "spectra") );
 
+	if (QFile::exists(separateFileName))
+		QFile::remove(separateFileName);
+
 	return QFile::copy(originalFileName, separateFileName);
 }

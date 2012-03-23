@@ -251,7 +251,6 @@ void VESPERSAppController::setupUserInterface()
 
 void VESPERSAppController::makeConnections()
 {
-	/// \todo this can likely be somewhere else in the framework.
 	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
 	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
 	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerFinished()));
