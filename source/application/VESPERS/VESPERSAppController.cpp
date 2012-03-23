@@ -186,10 +186,10 @@ bool VESPERSAppController::startup() {
 		VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
 
 		// Setup XAS for the beamline.  Builds the config, view, and view holder.
-		VESPERSEXAFSScanConfiguration *exafsScanConfig = new VESPERSEXAFSScanConfiguration();
-		exafsScanConfig->addRegion(0, -30, 0.5, 40, 1);
-		VESPERSEXAFSScanConfigurationView *exafsConfigView = new VESPERSEXAFSScanConfigurationView(exafsScanConfig);
-		AMScanConfigurationViewHolder *exafsConfigViewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, exafsConfigView);
+		exafsScanConfig_ = new VESPERSEXAFSScanConfiguration();
+		exafsScanConfig_->addRegion(0, -30, 0.5, 40, 1);
+		VESPERSEXAFSScanConfigurationView *exafsConfigView = new VESPERSEXAFSScanConfigurationView(exafsScanConfig_);
+		exafsConfigViewHolder_ = new AMScanConfigurationViewHolder( workflowManagerView_, exafsConfigView);
 
 		// Setup 2D maps for the beamline.  Builds the config, view, and view holder.
 		VESPERS2DScanConfiguration *mapScanConfiguration = new VESPERS2DScanConfiguration();
@@ -206,8 +206,8 @@ bool VESPERSAppController::startup() {
 
 		mw_->insertHeading("Scans", 2);
 		mw_->addPane(experimentConfigurationView, "Scans", "Experiment Setup", ":/utilities-system-monitor.png");
-		mw_->addPane(exafsConfigViewHolder, "Scans", "XAS", ":/utilities-system-monitor.png");
-		mw_->addPane(mapScanConfigurationViewHolder, "Scans", "2DMaps", ":/utilities-system-monitor.png");
+		mw_->addPane(exafsConfigViewHolder_, "Scans", "XAS", ":/utilities-system-monitor.png");
+		mw_->addPane(mapScanConfigurationViewHolder, "Scans", "2D Maps", ":/utilities-system-monitor.png");
 
 		// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
 		VESPERSPersistentView *persistentView = new VESPERSPersistentView;
@@ -364,13 +364,87 @@ void VESPERSAppController::onCancelScanIssued()
 void VESPERSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
 {
 	if (editor->using2DScanView())
-		connect(editor, SIGNAL(dataPositionChanged(AMGenericScanEditor*)), this, SLOT(onDataPositionChanged(AMGenericScanEditor*)));
+		connect(editor, SIGNAL(dataPositionChanged(AMGenericScanEditor*,QPoint)), this, SLOT(onDataPositionChanged(AMGenericScanEditor*,QPoint)));
 }
 
-void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor)
+void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos)
 {
-	QMenu popup(editor);
+	QString text = "Setup at: (";
+	text.append(QString::number(editor->dataPosition().x(), 'f', 3));
+	text.append(" mm, ");
+	text.append(QString::number(editor->dataPosition().y(), 'f', 3));
+	text.append(" mm)");
 
-	QAction *temp = popup.addAction("test");
-	temp = popup.exec();
+	QMenu popup(text, editor);
+	QAction *temp = popup.addAction(text);
+	popup.addSeparator();
+	popup.addAction("XANES scan");
+	popup.addAction("EXAFS scan");
+
+	temp = popup.exec(pos);
+
+	if (temp){
+
+		if (temp->text() == "XANES scan")
+			setupXASScan(editor, false);
+
+		else if (temp->text() == "EXAFS scan")
+			setupXASScan(editor, true);
+	}
+}
+
+void VESPERSAppController::setupXASScan(const AMGenericScanEditor *editor, bool setupEXAFS)
+{
+	exafsScanConfig_->setGoToPosition(true);
+	exafsScanConfig_->setX(editor->dataPosition().x());
+	exafsScanConfig_->setY(editor->dataPosition().y());
+
+	QString edge = editor->exclusiveDataSourceName();
+	edge = edge.remove("norm_");
+	edge.chop(2);
+	edge.insert(edge.size()-1, " ");
+
+	if (edge.at(edge.size()-1) == 'L')
+		edge.append("1");
+
+	exafsScanConfig_->setEdge(edge);
+
+	// This should always succeed because the only way to get into this function is using the 2D scan view which currently only is accessed by 2D scans.
+	VESPERS2DScanConfiguration *config = qobject_cast<VESPERS2DScanConfiguration *>(editor->currentScan()->scanConfiguration());
+	if (config){
+
+		exafsScanConfig_->setName(config->name());
+		exafsScanConfig_->setFluorescenceDetectorChoice(config->fluorescenceDetectorChoice());
+		exafsScanConfig_->setIncomingChoice(config->incomingChoice());
+	}
+
+	while (exafsScanConfig_->regionCount() != 1)
+		exafsScanConfig_->deleteRegion(0);
+
+	if (setupEXAFS){
+
+		exafsScanConfig_->exafsRegions()->setType(0, AMEXAFSRegion::Energy);
+		exafsScanConfig_->setRegionStart(0, -200);
+		exafsScanConfig_->setRegionDelta(0, 10);
+		exafsScanConfig_->setRegionEnd(0, -30);
+		exafsScanConfig_->setRegionTime(0, 1);
+
+		exafsScanConfig_->regions()->addRegion(1, -30, 0.5, 40, 1);
+		exafsScanConfig_->exafsRegions()->setType(1, AMEXAFSRegion::Energy);
+
+		exafsScanConfig_->regions()->addRegion(2, 40, 0.05, 857.4627, 10); // 857.4627 = 15k
+		exafsScanConfig_->exafsRegions()->setType(2, AMEXAFSRegion::kSpace);
+		exafsScanConfig_->exafsRegions()->setEndByType(2, 15, AMEXAFSRegion::kSpace);
+	}
+
+	else {
+
+		exafsScanConfig_->setRegionStart(0, -30);
+		exafsScanConfig_->setRegionDelta(0, 0.5);
+		exafsScanConfig_->setRegionEnd(0, 40);
+		exafsScanConfig_->setRegionTime(0, 1);
+		exafsScanConfig_->exafsRegions()->setType(0, AMEXAFSRegion::Energy);
+	}
+
+	mw_->undock(exafsConfigViewHolder_);
 }

@@ -79,8 +79,8 @@ public slots:
 	void setCurrentScan(AMScan *scan);
 
 signals:
-	/// Notifier that the data position tool has changed locations.
-	void dataPositionChanged();
+	/// Notifier that the data position tool has changed locations.  Passes the location of the mouse.
+	void dataPositionChanged(const QPoint &);
 
 protected slots:
 	/// Slot that resizes the exclusive view as needed.
@@ -94,7 +94,7 @@ protected:
 	/// Reimplements the hide event to hide the multi view.
 	virtual void hideEvent(QHideEvent *e);
 	/// Reimplementing the mouse release event so that it will emit a signal on right clicks to notify parent classes that the data position tool has changed.
-	virtual void mouseReleaseEvent(QMouseEvent *e);
+	virtual void mousePressEvent(QMouseEvent *e);
 
 	/// internal helper function to build the UI
 	void setupUI();
@@ -190,10 +190,8 @@ protected slots:
 protected:
 	/// Helper function to handle adding a scan (at row scanIndex in the model)
 	void addScan(int scanIndex);
-
 	/// Helper function to handle review a scan when a data source is added or the exclusive data source changes.
 	void reviewScan(int scanIndex);
-
 	/// Helper function to review how many scans are actually displayed (ie: how many have the exclusive data source), and update the plot legend title
 	void refreshTitle();
 

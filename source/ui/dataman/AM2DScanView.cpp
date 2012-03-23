@@ -141,7 +141,7 @@ void AM2DScanView::makeConnections()
 	connect(gMultiView_, SIGNAL(resized(QSizeF)), this, SLOT(resizeMultiViews()), Qt::QueuedConnection);
 
 	connect(exclusiveView_, SIGNAL(dataPositionChanged(QPointF)), exclusive2DScanBar_, SLOT(setDataPosition(QPointF)));
-	connect(exclusiveView_, SIGNAL(dataPositionChanged(QPointF)), this, SIGNAL(dataPositionChanged()));
+//	connect(exclusiveView_, SIGNAL(dataPositionChanged(QPointF)), this, SIGNAL(dataPositionChanged()));
 }
 
 void AM2DScanView::setCurrentScan(AMScan *scan)
@@ -212,14 +212,12 @@ void AM2DScanView::hideEvent(QHideEvent *e)
 	QWidget::hideEvent(e);
 }
 
-void AM2DScanView::mouseReleaseEvent(QMouseEvent *e)
-{qDebug() << "Inside mouseReleaseEvent.";
-	if (e->button() == Qt::RightButton){
-		qDebug() << "Made it into AM2DScanView.";
-		emit dataPositionChanged();
-	}
+void AM2DScanView::mousePressEvent(QMouseEvent *e)
+{
+	if (e->button() == Qt::RightButton)
+		emit dataPositionChanged(e->globalPos());
 
-	QWidget::mouseReleaseEvent(e);
+	QWidget::mousePressEvent(e);
 }
 
 // AM2DScanViewInternal

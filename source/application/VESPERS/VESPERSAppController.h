@@ -26,7 +26,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class VESPERSEndstationView;
 class VESPERSXRFFreeRunView;
 class VESPERSPersistentView;
-class VESPERSXASScanConfigurationView;
+class VESPERSEXAFSScanConfiguration;
+class AMScanConfigurationViewHolder;
 
 class AMGenericScanEditor;
 
@@ -66,11 +67,14 @@ protected slots:
 	/// Helper slot that handles the configureDetector signal from the 2D maps configuration view and goes to the right detector view.
 	void onConfigureDetectorRequested(const QString &detector);
 	/// Helper slot that pops up a menu to enable easy configuration of an XAS scan.  This slot is only used for 2D scans because AMGenericScanEditor only emits the necessary signal when using AM2DScanView.  The editor is passed so that the app controller knows of which (of the potentially many) scan editor to ask questions.
-	void onDataPositionChanged(AMGenericScanEditor *editor);
+	void onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos);
 	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
 	void onScanEditorCreated(AMGenericScanEditor *editor);
 
 protected:
+	/// Sets up a default XAS scan.  It will setup XANES or EXAFS based on the bool \param setupEXAFS using the information from AMGenericScanEditor \param editor.
+	void setupXASScan(const AMGenericScanEditor *, bool setupEXAFS);
+
 	/// Temporary workflow assistant.
 	VESPERSWorkflowAssistant *assistant_;
 
@@ -78,6 +82,11 @@ protected:
 	VESPERSXRFFreeRunView *xrf1EFreeRunView_;
 	/// XRF free run view for the four element detector.
 	VESPERSXRFFreeRunView *xrf4EFreeRunView_;
+
+	/// Pointer to the XAS scan configuration.
+	VESPERSEXAFSScanConfiguration *exafsScanConfig_;
+	/// The holder for the XAS scan configuration.
+	AMScanConfigurationViewHolder *exafsConfigViewHolder_;
 };
 
 #endif // VESPERSAPPCONTROLLER_H

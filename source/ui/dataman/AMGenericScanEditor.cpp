@@ -160,7 +160,7 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 		// share the scan set model with the AMScanView
 		scanSetModel_ = scanView2D_->model();
 
-		connect(scanView2D_, SIGNAL(dataPositionChanged()), this, SLOT(onDataPositionChanged()));
+		connect(scanView2D_, SIGNAL(dataPositionChanged(QPoint)), this, SLOT(onDataPositionChanged(QPoint)));
 	}
 
 	else {

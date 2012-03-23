@@ -270,3 +270,130 @@ void VESPERSEXAFSScanConfiguration::computeTotalTime()
 	totalTime_ = time + 9; // There is a 9 second miscellaneous startup delay.
 	emit totalTimeChanged(totalTime_);
 }
+
+void VESPERSEXAFSScanConfiguration::setFluorescenceDetectorChoice(FluorescenceDetector detector)
+{
+	if (fluorescenceDetectorChoice_ != detector){
+
+		fluorescenceDetectorChoice_ = detector;
+		emit fluorescenceDetectorChoiceChanged(fluorescenceDetectorChoice_);
+		emit fluorescenceDetectorChoiceChanged(int(fluorescenceDetectorChoice_));
+		setModified(true);
+	}
+}
+
+void VESPERSEXAFSScanConfiguration::setTransmissionChoice(IonChamber It)
+{
+	if (It_ != It){
+
+		It_ = It;
+		emit transmissionChoiceChanged(It_);
+		emit transmissionChoiceChanged(int(It_));
+		setModified(true);
+	}
+}
+
+void VESPERSEXAFSScanConfiguration::setIncomingChoice(IonChamber I0)
+{
+	if (I0_ != I0){
+
+		I0_ = I0;
+		emit incomingChoiceChanged(I0_);
+		emit incomingChoiceChanged(int(I0_));
+		setModified(true);
+	}
+}
+
+void VESPERSEXAFSScanConfiguration::setEdge(QString edgeName)
+{
+	if (edge_ != edgeName){
+
+		edge_ = edgeName;
+		emit edgeChanged(edgeName);
+		setModified(true);
+	}
+}
+
+void VESPERSEXAFSScanConfiguration::setEnergy(double edgeEnergy)
+{
+	if (energy_ != edgeEnergy){
+
+		exafsRegions()->setDefaultEdgeEnergy(edgeEnergy);
+		energy_ = edgeEnergy;
+		emit energyChanged(energy_);
+		setModified(true);
+	}
+}
+
+void VESPERSEXAFSScanConfiguration::setGoToPosition(bool state)
+{
+	if (goToPosition_ != state){
+
+		goToPosition_ = state;
+		emit gotoPositionChanged(goToPosition_);
+		setModified(true);
+	}
+}
+
+void VESPERSEXAFSScanConfiguration::setPosition(QPair<double, double> pos)
+{
+	setX(pos.first);
+	setY(pos.second);
+}
+
+void VESPERSEXAFSScanConfiguration::setX(double xPos)
+{
+	if (position_.first != xPos){
+
+		position_.first = xPos;
+		emit xPositionChanged(xPos);
+		setModified(true);
+	}
+}
+
+void VESPERSEXAFSScanConfiguration::setY(double yPos)
+{
+	if (position_.second != yPos){
+
+		position_.second = yPos;
+		emit yPositionChanged(yPos);
+		setModified(true);
+	}
+}
+
+void VESPERSEXAFSScanConfiguration::setUseFixedTime(bool fixed)
+{
+	if (useFixedTime_ != fixed){
+
+		useFixedTime_ = fixed;
+		emit useFixedTimeChanged(useFixedTime_);
+		computeTotalTime();
+		setModified(true);
+	}
+}
+
+void VESPERSEXAFSScanConfiguration::setNumberOfScans(int num)
+{
+	if (numberOfScans_ != num){
+
+		numberOfScans_ = num;
+		emit numberOfScansChanged(numberOfScans_);
+		setModified(true);
+	}
+}
+
+void VESPERSEXAFSScanConfiguration::setTimeOffset(double offset)
+{
+	if (timeOffset_ != offset){
+
+		timeOffset_ = offset;
+		computeTotalTime();
+	}
+}
+
+void VESPERSEXAFSScanConfiguration::setRoiInfoList(const AMROIInfoList &list)
+{
+	roiInfoList_ = list;
+	setModified(true);
+}
+

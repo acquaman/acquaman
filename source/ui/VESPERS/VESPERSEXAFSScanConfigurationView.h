@@ -35,10 +35,16 @@ protected slots:
 	void onScanNameEdited() { config_->setName(scanName_->text()); }
 	/// Handles changing what are acceptable choices for I0 based on It clicks.  Takes in the id of the new It choice.  Passes choice on to the configuration.
 	void onItClicked(int id);
+	/// Handles propogating changes in the config to the It buttons.
+	void updateItButtons(int It);
 	/// Passes on the selection for I0 to the configuration.
 	void onI0Clicked(int id) { config_->setIncomingChoice(id); }
+	/// Handles propogating changes in the config to the I0 buttons.
+	void updateI0Buttons(int I0);
 	/// Handles changes to the fluorescence detector choice.
 	void onFluorescenceChoiceChanged(int id);
+	/// Handles propogating changes in the config to the detector buttons.
+	void updateFluorescenceChoiceButtons(int detector);
 	/// Sets the new energy.
 	void setEnergy() { config_->setEnergy(energy_->value()); }
 	/// Handles choosing a new element when the element button is clicked.
@@ -47,6 +53,8 @@ protected slots:
 	void fillLinesComboBox(AMElement *el);
 	/// Handles changes in the combo box index.
 	void onLinesComboBoxIndexChanged(int index);
+	/// Handles setting the proper information if the edge is changed.
+	void onEdgeChanged();
 	/// Sets the current horizontal and vertical positions and saves them in the configuration.
 	void setScanPosition()
 	{
@@ -122,6 +130,8 @@ protected:
 	/// Label holding the current estimated time for the set of scans to complete.
 	QLabel *estimatedSetTime_;
 
+	/// Button group for the fluorescence detector selection.
+	QButtonGroup *fluorescenceButtonGroup_;
 	/// Button group for the It ion chamber selection.
 	QButtonGroup *ItGroup_;
 	/// Button group for the I0 ion chamber selection.

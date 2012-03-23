@@ -78,9 +78,14 @@ public:
 		return scanSetModel_->scanAt(index);
 	}
 
+	/// Returns the current scan that the generic scan editor is looking at.
+	AMScan *currentScan() const { return currentScan_; }
+
 	/// Call this function to find out if this editor can be closed. Checks for scans in progress and prompts the user for what to do with modified scans.  Returns true if the editor can be closed; returns false if any scans are acquiring or if the user responded "cancel" to a save-request.
 	bool canCloseEditor();
 
+	/// Returns the current exclusive data source name for the model.
+	QString exclusiveDataSourceName() const { return scanSetModel_->exclusiveDataSourceName(); }
 	/// Sets which data source should be viewed by exclusive views.  Returns true if the data source was found and set.  Returns false otherwise.
 	bool setExclusiveDataSourceByName(const QString &name) { return scanSetModel_->setExclusiveDataSourceByName(name); }
 
@@ -98,8 +103,8 @@ public:
 signals:
 	/// Internal signal to forward the textChanged() from ui_.notesEdit
 	void notesChanged(const QString&);
-	/// Emits a signal that the data position tool has changed positions.  This is only emitted if AMGenericScanEditor is using AM2DScanView.
-	void dataPositionChanged(AMGenericScanEditor *);
+	/// Emits a signal that the data position tool has changed positions.  This is only emitted if AMGenericScanEditor is using AM2DScanView.  Passes a reference to the scan editor and also the position of the mouse.
+	void dataPositionChanged(AMGenericScanEditor *, const QPoint &);
 
 public slots:
 
@@ -138,7 +143,7 @@ protected slots:
 	void onOneSecondTimer();
 
 	/// Helper slot that emits the dataPositionChanged signal.
-	void onDataPositionChanged() { emit dataPositionChanged(this); }
+	void onDataPositionChanged(const QPoint &pos) { emit dataPositionChanged(this, pos); }
 
 protected:
 
