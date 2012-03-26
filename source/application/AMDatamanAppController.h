@@ -35,6 +35,7 @@ class AMRunExperimentInsert;
 class AMGenericScanEditor;
 class AMSettingsMasterView;
 class AMGithubIssueSubmissionView;
+class AMDatamanStartupSplashScreen;
 
 class QMenuBar;
 class QMenu;
@@ -90,6 +91,7 @@ public slots:
 	virtual bool startupIsFirstTime();
 		virtual bool startupOnFirstTime(); ///< Run on first time only
 		virtual bool startupOnEveryTime(); ///< Run on every time except the first time
+		virtual bool startupCreateDatabases(); ///< Run every time to create the databases (reimplement to create additional databases). This is always called before startupDatabaseUpgrades().
 		virtual bool startupDatabaseUpgrades(); ///< Run every time except the first time, to see if non-trivial database upgrades are necessary
 	virtual bool startupRegisterDatabases();
 		virtual bool startupPopulateNewDatabase(); ///< Run on first time only
@@ -246,6 +248,9 @@ protected:
 	AMBottomBar* bottomBar_;
 	AMDataViewWithActionButtons* dataView_;
 	AMRunExperimentInsert* runExperimentInsert_;
+
+	/// The startup splash screen for loading
+	AMDatamanStartupSplashScreen *splashScreen_;
 
 	/// Persistent view for AMSettings
 	AMSettingsMasterView *settingsMasterView_;

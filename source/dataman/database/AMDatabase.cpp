@@ -573,11 +573,12 @@ bool AMDatabase::ensureColumn(const QString& tableName, const QString& columnNam
 
 	if(execQuery(q)) {
 		q.finish();
-		// Error suppressed: this happens all the time if the column exists alread. AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Adding database column %1 to table %2.").arg(columnName).arg(tableName)));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Adding database column %1 to table %2.").arg(columnName).arg(tableName)));
 		return true;
 	}
 	else {
 		q.finish();	// make sure that sqlite lock is released before emitting signals
+		// Error suppressed: this happens all the time if the column exists already. AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Error adding database column %1 to table %2. Maybe it's already there? Sql reply says: %3").arg(columnName).arg(tableName).arg(q.lastError().text())));
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Error adding database column %1 to table %2. Maybe it's already there? Sql reply says: %3").arg(columnName).arg(tableName).arg(q.lastError().text())));
 		return false;
 	}

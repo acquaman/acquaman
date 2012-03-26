@@ -33,6 +33,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 
+class QSystemTrayIcon;
+
 /// This widget can be used to keep a log (or history) of AMErrorReport messages in a table view.  It's opened by double-clicking on an AMStatusView.
 class AMStatusLogView : public QWidget {
 	Q_OBJECT
@@ -75,6 +77,9 @@ protected:
 
 	/// A widget to display a log of recent events
 	AMStatusLogView* logView_;
+
+	/// SystemTrayIcon object used to display error notifications very visibly on-screen.
+	QSystemTrayIcon* sicon_;
 
 	virtual void paintEvent(QPaintEvent *e) {
 		QWidget::paintEvent(e);

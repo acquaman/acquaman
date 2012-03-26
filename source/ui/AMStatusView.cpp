@@ -25,9 +25,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMUser.h"
 
 #include <QHeaderView>
+#include <QSystemTrayIcon>
 
 AMStatusView::AMStatusView(QWidget *parent) : QAbstractButton(parent)
 {
+	sicon_ = new QSystemTrayIcon(QIcon(":/utilities-system-monitor.png"), this);
+	sicon_->show();
+
 	/// widget layout
 	hl_ = new QHBoxLayout();
 
@@ -88,19 +92,24 @@ void AMStatusView::onAnyError(AMErrorReport e) {
 	/// switch icons:
 	currentIcon_->hide();
 
+	QString reportMessage = QString("%1 (code %2)").arg(e.description).arg(e.errorCode);
+
 	switch(e.level) {
 	case AMErrorReport::Information:
 		currentIcon_ = iconInfo_;
+		sicon_->showMessage(QString("Information:"), reportMessage, QSystemTrayIcon::Information, 5000);
 		break;
 
 	case AMErrorReport::Alert:
 		currentIcon_ = iconAlert_;
 		msg.append("Alert: ");
+		sicon_->showMessage(QString("Alert:"), reportMessage, QSystemTrayIcon::Warning, 5000);
 		break;
 
 	case AMErrorReport::Serious:
 		currentIcon_ = iconSerious_;
 		msg.append("Error: ");
+		sicon_->showMessage(QString("Serious Error:"), reportMessage, QSystemTrayIcon::Critical, 5000);
 		break;
 
 	case AMErrorReport::Debug:

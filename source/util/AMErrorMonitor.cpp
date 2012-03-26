@@ -20,7 +20,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMErrorMonitor.h"
 
-#include <QSystemTrayIcon>
 #include <QMutableMapIterator>
 #include <QDebug>
 #include <QMutexLocker>
@@ -34,9 +33,6 @@ QMutex AMErrorMon::instanceMutex_(QMutex::Recursive);
 
 AMErrorMon::AMErrorMon() : QObject(), subsMutex_(QReadWriteLock::Recursive) {
 	qRegisterMetaType<AMErrorReport>("AMErrorReport");
-	sicon_ = new QSystemTrayIcon(QIcon(":/utilities-system-monitor.png"), this);
-	sicon_->show();
-
 
 	// don't display debug notifications by default:
 	debugEnabled_ = false;
@@ -151,20 +147,16 @@ void AMErrorMon::reportI(AMErrorReport e) {
 	switch(e.level) {
 	case AMErrorReport::Information:
 		emit information(e);
-		sicon_->showMessage(QString("Information:"), reportMessage, QSystemTrayIcon::Information, 5000);
 		break;
 	case AMErrorReport::Alert:
 		emit alert(e);
-		sicon_->showMessage(QString("Alert:"), reportMessage, QSystemTrayIcon::Warning, 5000);
 		break;
 	case AMErrorReport::Serious:
 		emit serious(e);
-		sicon_->showMessage(QString("Serious Error:"), reportMessage, QSystemTrayIcon::Critical, 5000);
 		break;
 	case AMErrorReport::Debug:
 		if(debugEnabled_) {
 			emit debug(e);
-			sicon_->showMessage(QString("Debug Message:"), reportMessage, QSystemTrayIcon::Information, 5000);
 		}
 		break;
 	}

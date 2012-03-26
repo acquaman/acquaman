@@ -47,14 +47,17 @@ public:
 	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
 	virtual bool startup();
 
-	/// Re-implemented from AMAppController to create and register the SGM database with the database system.
-	virtual bool startupRegisterDatabases();
-
 	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
 	virtual void shutdown();
 
 public slots:
+	virtual bool startupCreateDatabases();
 	virtual bool startupDatabaseUpgrades();
+
+	/// Re-implemented from AMAppController to create and register the SGM database with the database system.
+	virtual bool startupRegisterDatabases();
+	virtual bool startupPopulateNewDatabase();
+	virtual bool startupLoadFromExistingDatabase();
 
 protected slots:
 	/// This slot catches changes in the current widget of the AMMainWindow. \c pane is the new current widget.  Re-implement to catch any widget-specific responses that you need here.
@@ -76,8 +79,12 @@ protected slots:
 
 protected:
 	bool startupSGMInstallActions();
-	bool setupSGMDatabase();
+	bool setupSGMConfigurationFiles();
+	bool setupSGMPlugins();
+	bool setupSGMExporterOptions();
 	bool setupSGMPeriodicTable();
+
+	bool setupSGMViews();
 
 	/// Upgrades an AMDbObject class originally called \c originalClassName to \c newClassName. Use this function carefully, incorrect or incomplete parameters can lead to corrupted databases.
 	/*! This takes care of the problem where a class used in the database needs to be renamed. There are several caveats on this one.

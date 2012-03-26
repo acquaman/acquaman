@@ -28,8 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMutex>
 #include <QReadWriteLock>
 
-class QSystemTrayIcon;
-
 /// This class encapsulates an error message (who it's from, the level or "severity", an error code defined by the originator, and a description)
 /*! Error levels are defined as:
 
@@ -238,9 +236,6 @@ private:
 
 	/// class-wide instance variable
 	static AMErrorMon* instance_;
-
-	/// SystemTrayIcon object used to display error notifications very visibly on-screen.
-	QSystemTrayIcon* sicon_;
 
 	/// Whether we display debug messages
 	bool debugEnabled_;
