@@ -26,6 +26,4 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMFastScan::AMFastScan(QObject *parent) :
 		AMScan(parent)
 {
-	AMAxisInfo energyAxis("ev", 0, "Incident Energy", "eV");
-	data_->addScanAxis(energyAxis);
 }

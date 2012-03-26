@@ -12,6 +12,45 @@
 #include <QSizePolicy>
 #include <QStringBuilder>
 
+AM2DScanBar::AM2DScanBar(QWidget *parent)
+	: QWidget(parent)
+{
+	dataPosition_ = new QLabel("Current Position:");
+	xUnits_ = "";
+	yUnits_ = "";
+	position_ = QPointF();
+
+	QHBoxLayout *layout = new QHBoxLayout;
+	layout->addWidget(dataPosition_);
+	layout->addStretch();
+
+	setLayout(layout);
+}
+
+void AM2DScanBar::setDataPosition(const QPointF &point)
+{
+	position_ = point;
+
+	QString text = "Current Position: (";
+	text.append(QString::number(point.x(), 'f', 3));
+
+	if (!xUnits().isEmpty())
+		text.append(QString(" %1").arg(xUnits()));
+
+	text.append(", ");
+	text.append(QString::number(point.y(), 'f', 3));
+
+	if (!yUnits().isEmpty())
+		text.append(QString(" %1").arg(yUnits()));
+
+	text.append(")");
+
+	dataPosition_->setText(text);
+}
+
+// AM2DScanView
+/////////////////////////////////////
+
 AM2DScanView::AM2DScanView(AMScanSetModel* model, QWidget *parent)
 	: QWidget(parent)
 {
@@ -36,8 +75,8 @@ AM2DScanView::AM2DScanView(AMScanSetModel* model, QWidget *parent)
 
 AM2DScanView::~AM2DScanView()
 {
-	for(int i=0; i<views_.count(); i++)
-		delete views_.at(i);
+	delete exclusiveView_;
+	delete multiView_;
 }
 
 void AM2DScanView::setupUI()
@@ -55,6 +94,9 @@ void AM2DScanView::setupUI()
 	exclusiveScanBars_ = new AMScanViewSourceSelector();
 	exclusiveScanBars_->setExclusiveModeOn();
 	vl->addWidget(exclusiveScanBars_);
+
+	exclusive2DScanBar_ = new AM2DScanBar;
+	vl->addWidget(exclusive2DScanBar_);
 
 	setLayout(vl);
 
@@ -85,11 +127,11 @@ void AM2DScanView::setupUI()
 	gMultiViewLayout_->setContentsMargins(0, 0, 0, 0);
 	gMultiView_->graphicsWidget()->setLayout(gMultiViewLayout_);
 
-	views_ << new AM2DScanViewExclusiveView(this);
-	views_ << new AM2DScanViewMultiSourcesView(this);
+	exclusiveView_ = new AM2DScanViewExclusiveView(this);
+	multiView_ = new AM2DScanViewMultiSourcesView(this);
 
-	gExclusiveLayout_->addItem(views_.first());
-	gMultiViewLayout_->addItem(views_.at(1));
+	gExclusiveLayout_->addItem(exclusiveView_);
+	gMultiViewLayout_->addItem(multiView_);
 }
 
 void AM2DScanView::makeConnections()
@@ -97,6 +139,20 @@ void AM2DScanView::makeConnections()
 	// connect resize event from graphicsView to resize the stuff inside the view
 	connect(gExclusiveView_, SIGNAL(resized(QSizeF)), this, SLOT(resizeExclusiveViews()), Qt::QueuedConnection);
 	connect(gMultiView_, SIGNAL(resized(QSizeF)), this, SLOT(resizeMultiViews()), Qt::QueuedConnection);
+
+	connect(exclusiveView_, SIGNAL(dataPositionChanged(QPointF)), exclusive2DScanBar_, SLOT(setDataPosition(QPointF)));
+//	connect(exclusiveView_, SIGNAL(dataPositionChanged(QPointF)), this, SIGNAL(dataPositionChanged()));
+}
+
+void AM2DScanView::setCurrentScan(AMScan *scan)
+{
+	currentScan_ = scan;
+
+	if (currentScan_)
+		exclusive2DScanBar_->setUnits(scan->rawData()->scanAxisAt(0).units, scan->rawData()->scanAxisAt(1).units);
+
+	else
+		exclusive2DScanBar_->setUnits("", "");
 }
 
 void AM2DScanView::resizeExclusiveViews()
@@ -154,6 +210,14 @@ void AM2DScanView::hideEvent(QHideEvent *e)
 		multiViewBox_->hide();
 
 	QWidget::hideEvent(e);
+}
+
+void AM2DScanView::mousePressEvent(QMouseEvent *e)
+{
+	if (e->button() == Qt::RightButton)
+		emit dataPositionChanged(e->globalPos());
+
+	QWidget::mousePressEvent(e);
 }
 
 // AM2DScanViewInternal
@@ -236,6 +300,12 @@ AM2DScanViewExclusiveView::AM2DScanViewExclusiveView(AM2DScanView* masterView)
 {
 	// create our main plot:
 	plot_ = createDefaultPlot();
+
+	MPlotDataPositionTool *positionTool = new MPlotDataPositionTool;
+	plot_->plot()->addTool(positionTool);
+	positionTool->addDataPositionIndicator(plot_->plot()->axisScaleBottom(), plot_->plot()->axisScaleLeft());
+
+	connect(plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(uint,QPointF)), this, SLOT(onDataPositionChanged(uint,QPointF)));
 
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
 	gl->setContentsMargins(0,0,0,0);
@@ -373,6 +443,13 @@ void AM2DScanViewExclusiveView::onExclusiveDataSourceChanged(const QString& excl
 	refreshTitle();
 }
 
+void AM2DScanViewExclusiveView::onDataPositionChanged(uint index, const QPointF &point)
+{
+	Q_UNUSED(index)
+
+	emit dataPositionChanged(point);
+}
+
 void AM2DScanViewExclusiveView::refreshTitle() {
 
 	int numScansShown = 0;
@@ -443,12 +520,12 @@ void AM2DScanViewExclusiveView::reviewScan(int scanIndex)
 				switch(scan->scanRank()){
 
 				case 1:
-					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).name : scan->rawData()->scanAxisAt(0).name % ", " % scan->rawData()->scanAxisAt(0).units);
+					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
 					break;
 
 				case 2:
-					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).name : scan->rawData()->scanAxisAt(0).name % ", " % scan->rawData()->scanAxisAt(0).units);
-					plot_->plot()->axisLeft()->setAxisName(scan->rawData()->scanAxisAt(1).units.isEmpty() ? scan->rawData()->scanAxisAt(1).name : scan->rawData()->scanAxisAt(1).name % ", " % scan->rawData()->scanAxisAt(1).units);
+					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
+					plot_->plot()->axisLeft()->setAxisName(scan->rawData()->scanAxisAt(1).units.isEmpty() ? scan->rawData()->scanAxisAt(1).description : scan->rawData()->scanAxisAt(1).description % ", " % scan->rawData()->scanAxisAt(1).units);
 					break;
 				}
 			}
@@ -763,12 +840,12 @@ bool AM2DScanViewMultiSourcesView::reviewDataSources() {
 					switch(scan->scanRank()){
 
 					case 1:
-						dataSource2Plot_[sourceName]->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).name : scan->rawData()->scanAxisAt(0).name % ", " % scan->rawData()->scanAxisAt(0).units);
+						dataSource2Plot_[sourceName]->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
 						break;
 
 					case 2:
-						dataSource2Plot_[sourceName]->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).name : scan->rawData()->scanAxisAt(0).name % ", " % scan->rawData()->scanAxisAt(0).units);
-						dataSource2Plot_[sourceName]->plot()->axisLeft()->setAxisName(scan->rawData()->scanAxisAt(1).units.isEmpty() ? scan->rawData()->scanAxisAt(1).name : scan->rawData()->scanAxisAt(1).name % ", " % scan->rawData()->scanAxisAt(1).units);
+						dataSource2Plot_[sourceName]->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
+						dataSource2Plot_[sourceName]->plot()->axisLeft()->setAxisName(scan->rawData()->scanAxisAt(1).units.isEmpty() ? scan->rawData()->scanAxisAt(1).description : scan->rawData()->scanAxisAt(1).description % ", " % scan->rawData()->scanAxisAt(1).units);
 						break;
 					}
 

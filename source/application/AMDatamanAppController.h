@@ -143,6 +143,8 @@ signals:
 	void pauseScanIssued();
 	/// Passing on the continue scan signal from the bottom bar.
 	void continueScanIssued();
+	/// Notifier that a new generic scan editor has been created. Passes the reference to the new editor.
+	void scanEditorCreated(AMGenericScanEditor *);
 
 public slots:
 	/// Open a list of scans, specified by a database URL, in the given \c editor. (If \c editor is 0, a new editor will be opened.)  The scans are checked to make sure that they're not already open, and that they're not still scanning somewhere else.

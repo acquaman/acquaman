@@ -24,6 +24,10 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 	if (!scan)
 		return false;
 
+	// Clear the old scan axes to ensure we don't have any extras.
+	scan->clearRawDataCompletely();
+	scan->rawData()->addScanAxis( AMAxisInfo("eV", 0, "Incident Energy", "eV") );
+
 	QFileInfo sourceFileInfo(scan->filePath());
 	if(sourceFileInfo.isRelative())
 		sourceFileInfo.setFile(userDataFolder + "/" + scan->filePath());

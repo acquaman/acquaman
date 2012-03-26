@@ -68,6 +68,9 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	scanView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	ui_.leftVerticalLayout->insertWidget(0, scanView_, 2);
 
+	// Ensure that the 2D scan view is pointing to nowhere.
+	scanView2D_ = 0;
+
 	// share the scan set model with the AMScanView
 	scanSetModel_ = scanView_->model();
 
@@ -149,16 +152,20 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 	// Add scan view (plots)
 	if (use2DScanView){
 
+		scanView_ = 0;
 		scanView2D_ = new AM2DScanView();
 		scanView2D_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		ui_.leftVerticalLayout->insertWidget(0, scanView2D_, 2);
 
 		// share the scan set model with the AMScanView
 		scanSetModel_ = scanView2D_->model();
+
+		connect(scanView2D_, SIGNAL(dataPositionChanged(QPoint)), this, SLOT(onDataPositionChanged(QPoint)));
 	}
 
 	else {
 
+		scanView2D_ = 0;
 		scanView_ = new AMScanView();
 		scanView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		ui_.leftVerticalLayout->insertWidget(0, scanView_, 2);
@@ -236,6 +243,13 @@ AMGenericScanEditor::~AMGenericScanEditor() {
 	}
 }
 
+QPointF AMGenericScanEditor::dataPosition() const
+{
+	if (scanView2D_)
+		return scanView2D_->dataPosition();
+
+	return QPointF();
+}
 
 void AMGenericScanEditor::addScan(AMScan* newScan) {
 	scanSetModel_->addScan(newScan);
@@ -341,6 +355,10 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		dataSourcesEditor_->setCurrentScan(scan);
 		conditionsTableView_->setFromInfoList(scan->scanInitialConditions());
 
+		// Only the 2D scan view currently uses a current scan.  But only pass it if it exists.
+		if (scanView2D_)
+			scanView2D_->setCurrentScan(scan);
+
 		//ui_.topFrameTitle->setText(QString("Editing %1 #%2").arg(scan->name()).arg(scan->number()));
 		ui_.topFrameTitle->setText(QString("Editing %1").arg(scan->fullName()));
 	}
@@ -358,6 +376,10 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		sampleEditor_->setCurrentSample(-1);
 		dataSourcesEditor_->setCurrentScan(0);
 		conditionsTableView_->setFromInfoList(0);
+
+		// Only the 2D scan view currently uses a current scan.  But only pass it if it exists.
+		if (scanView2D_)
+			scanView2D_->setCurrentScan(0);
 
 		ui_.topFrameTitle->setText("Scan Editor");
 	}
