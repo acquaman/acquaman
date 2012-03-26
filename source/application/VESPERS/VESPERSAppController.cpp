@@ -125,8 +125,8 @@ bool VESPERSAppController::startup() {
 		ROIHelper *roiHelper = new ROIHelper(this);
 		Q_UNUSED(roiHelper)
 		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE MCA AND DXP STATUS UPDATE PVS THAT DON'T SEEM TO FOLLOW THE STANDARD NAMING CONVENTIONS.
-		VortexDetectorStatusHelper *statusHelper = new VortexDetectorStatusHelper(this);
-		Q_UNUSED(statusHelper)
+//		VortexDetectorStatusHelper *statusHelper = new VortexDetectorStatusHelper(this);
+//		Q_UNUSED(statusHelper)
 
 		return true;
 	}
