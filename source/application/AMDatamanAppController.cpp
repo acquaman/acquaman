@@ -53,7 +53,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMSettings.h"
 #include "dataman/AMScan.h"
-
+#include "acquaman/AMScanConfiguration.h"
 
 // Necessary for registering database types:
 ////////////////////////////
