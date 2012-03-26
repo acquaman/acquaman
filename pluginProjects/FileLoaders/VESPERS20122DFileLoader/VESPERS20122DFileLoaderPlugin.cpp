@@ -28,7 +28,7 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 		return false;
 
 	// Clear the old scan axes to ensure we don't have any extras.
-	scan->clearScanAxes();
+	scan->clearRawDataCompletely();
 	scan->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 	scan->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
 

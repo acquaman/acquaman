@@ -278,7 +278,7 @@ public:
 	static void setAutoLoadData(bool autoLoadDataOn);
 
 
-	/// Clears the scan's raw data completely, including all measurements configured within the rawData() data store, and all rawDataSources() which expose this data.
+	/// Clears the scan's rawData() completely, including all measurements configured within the data store. Also deletes all rawDataSources() that expose this data.
 	void clearRawDataPointsAndMeasurementsAndDataSources() {
 		while(rawDataSources_.count())
 			delete rawDataSources_.takeAt(rawDataSources_.count()-1);
@@ -286,19 +286,21 @@ public:
 		data_->clearAllMeasurements();
 	}
 
-	/// Clears the scan's raw data completely, including all measurements configured within the rawData() data store.
+	/// Clears the scan's rawData(), including all measurements configured within the data store. Leaves the configured scan axes as-is.
 	/*! Caution: Leaves the rawDataSources() as-is; make sure that they don't attempt to access non-existent raw data.*/
 	void clearRawDataPointsAndMeasurements() {
 		data_->clearAllMeasurements();
 	}
 
-	/// Clears all of scans's data points, but leaves all measurements and raw data sources as-is.
+	/// Clears the scan's rawData() completely, including all configured measurements and scan axes in the data store. If a scan instance has held data previously, it is recommended that file loaders and scan controllers call this to start with a "clean slate".
+	void clearRawDataCompletely() {
+		data_->clearAll();
+	}
+
+	/// Clears the scans's raw data, but leaves all measurements, scan axes, and raw data sources as-is.
 	void clearRawDataPoints() {
 		data_->clearScanDataPoints();
 	}
-
-	/// Clears the scan axes for this scan.  This should be called before configuring the scan axes to ensure you don't have extra, misleading scan axes.
-	void clearScanAxes() { data_->clearScanAxes(); }
 
 
 	// Role 5: DataStore (Raw Data) Interface

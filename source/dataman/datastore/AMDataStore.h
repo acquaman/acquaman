@@ -177,7 +177,7 @@ public:
 
 	// Ok, I guess you can clear the whole thing
 	////////////////////////////////////////////////////
-	/// Clear the entire data set. This maintains the set of measurements, but deletes every point in the scan space. The size of every scan axis will become 0. Implementing subclasses must provide a clearImplementation().
+	/// Clear all the data. This maintains the set of measurements and the scan axes, but deletes every point in the scan space. The size of every scan axis will become 1, except for the first axis, which will have size 0. Implementing subclasses must provide a clearScanDataPointsImplementation().
 	void clearScanDataPoints() {
 		clearScanDataPointsImplementation();
 		emitSizeChanged(-1);
@@ -188,8 +188,18 @@ public:
 		clearMeasurementsImplementation();
 	}
 
-	/// Clears the scan axes for this data store.
-	void clearScanAxes() { clearScanAxesImplementation(); }
+	/// Clears the entire data set, and also delete all configured scan axes.  This function calls clearScanDataPoints() first.  Implementing subclasses must provide a clearScanAxesImplementation().
+	void clearAllScanAxes() {
+		clearScanDataPoints();
+		clearScanAxesImplementation();
+	}
+
+	/// Clears all data, including all configured measurements and scan axes.
+	void clearAll() {
+		clearScanDataPoints();
+		clearMeasurementsImplementation();
+		clearScanAxesImplementation();
+	}
 
 	// Signal source
 	///////////////////////
@@ -208,12 +218,11 @@ protected:
 		Q_UNUSED(atRowIndex);
 	}
 
-	/// Implementing subclasses must provide a clearImplementation(), which removes all data values and sets the size of each axis to 1... except for the first axis (axisId == 0), which should have a size of 0.  It should leave the set of configured measurements as-is.
+	/// Implementing subclasses must provide a clearScanDataPointsImplementation(), which removes all data values and sets the size of each axis to 1... except for the first axis (axisId == 0), which should have a size of 0.  It should leave the set of configured measurements as-is.
 	virtual void clearScanDataPointsImplementation() = 0;
-
-	/// Implementing subclasses must provide a clearMeasurementsImplementation(), which clears the set of configured measurements.  They can assume that the set of scan data values is already cleared.
+	/// Implementing subclasses must provide a clearMeasurementsImplementation(), which clears the set of configured measurements.  They can assume that the data values have already been cleared with clearScanDataPoints().
 	virtual void clearMeasurementsImplementation() = 0;
-	/// Implementing subclasses must provide a clearScanAxesImplementation(), which clears all the axes for the scan.
+	/// Implementing subclasses must provide a clearScanAxesImplementation(), which clears all the configured scan axes. They can assume that the data values have already been cleared with clearScanDataPoints().
 	virtual void clearScanAxesImplementation() = 0;
 
 	/// Implementing subclasses must call this whenever a measurement value changes. (For example, in their setValue implementation).  \c scanIndexStart and \c scanIndexEnd describe the scan range affected.  Use an invalid \c scanIndexStart to indicate the whole scan space is affected.  For performance, subclasses can opt to avoid calling this on every setValue(), and combine multiple emits into one (as long as the last one covers the complete affected range.)  A separate emitDataChanged() should be sent for each different measurement.  For multi-dimensional measurements, it's suggested to delay emits until all the values for a complete measurement have been received (if you can figure out how...).

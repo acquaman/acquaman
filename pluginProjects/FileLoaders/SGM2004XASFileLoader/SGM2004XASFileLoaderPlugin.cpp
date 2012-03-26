@@ -57,7 +57,7 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		return false;
 
 	// Clear the old scan axes to ensure we don't have any extras.
-	scan->clearScanAxes();
+	scan->clearRawDataCompletely();
 	scan->rawData()->addScanAxis( AMAxisInfo("eV", 0, "Incident Energy", "eV") );
 
 	QFileInfo sourceFileInfo(scan->filePath());
