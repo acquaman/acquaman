@@ -7,31 +7,32 @@
 
 #include "util/AMErrorMonitor.h"
 
-AMDbUpgrade::AMDbUpgrade(QList<AMDatabase*> databasesToUpgrade, QObject *parent) :
+AMDbUpgrade::AMDbUpgrade(QStringList databaseNamesToUpgrade, QObject *parent) :
 	QObject(parent)
 {
-	databasesToUpgrade_ = databasesToUpgrade;
+	databaseNamesToUpgrade_ = databaseNamesToUpgrade;
 }
 
 bool AMDbUpgrade::upgrade(){
-	// This will only work as long as all registered classes get registered to all databases
-	AMDatabase *userDb = AMDatabase::database("user");
-
-	if(upgradeFromTags().count() > 0){
-		QString allFromStrings = upgradeFromTags().join("','");
-		allFromStrings.prepend("('");
-		allFromStrings.append("')");
-		qDebug() << "Looking for " << allFromStrings;
-		QList<int> allFromIDs = userDb->objectsWhere("AMDbObjectUpgrades_table", QString("upgradeTag IN %1").arg(allFromStrings));
-		if(allFromIDs.count() != upgradeFromTags().count()){
-			AMErrorMon::error(0, -270101, QString("Database upgrade: Could not process upgrade because one or more of the following upgrades is missing %1").arg(upgradeFromTags().join(" ")));
-			return false;
+	// Loop over all the requested databases and make sure the dependencies in upgradeFromTags are present
+	for(int x = 0; x < databasesToUpgrade_.count(); x++){
+		if(upgradeFromTags().count() > 0){
+			QString allFromStrings = upgradeFromTags().join("','");
+			allFromStrings.prepend("('");
+			allFromStrings.append("')");
+			QList<int> allFromIDs = databasesToUpgrade_.at(x)->objectsWhere("AMDbObjectUpgrades_table", QString("upgradeTag IN %1").arg(allFromStrings));
+			if(allFromIDs.count() != upgradeFromTags().count()){
+				AMErrorMon::error(0, -270101, QString("Database upgrade: Could not process upgrade because one or more of the following upgrades is missing %1 from %2").arg(upgradeFromTags().join(" ")).arg(databasesToUpgrade_.at(x)->connectionName()));
+				return false;
+			}
 		}
 	}
+	// If so, call and return the specific upgradeImplementation for the subclass
 	return upgradeImplementation();
 }
 
 bool AMDbUpgrade::updateUpgradeTable(bool isNecessary, bool duringCreation){
+	// Create the list of columns and values to be put into the new upgrade table rows for each requested database
 	QStringList columnNames;
 	columnNames << "description" << "upgradeTag" << "necessaryUpgrade" << "upgradeDate" << "duringCreation";
 	QVariantList upgradeValues;
@@ -42,52 +43,86 @@ bool AMDbUpgrade::updateUpgradeTable(bool isNecessary, bool duringCreation){
 	if(duringCreation)
 		duringCreationString = "true";
 	upgradeValues << QVariant(description()) << QVariant(upgradeToTag()) << QVariant(isNecessaryString) << QVariant(QDateTime::currentDateTime()) << QVariant(duringCreationString);
-	qDebug() << "Need to update columns " << columnNames << " with " << upgradeValues;
+
+	// Loop over all of the requested databases and add the new row (ensure this is successful)
 	for(int x = 0; x < databasesToUpgrade_.count(); x++){
 		int upgradeId = databasesToUpgrade_.at(x)->insertOrUpdate(0, "AMDbObjectUpgrades_table", columnNames, upgradeValues);
 		if(upgradeId < 1){
-			AMErrorMon::error(0, -270102, QString("Database upgrade: Could not write to the database upgrades table"));
+			AMErrorMon::error(0, -270102, QString("Database upgrade: Could not write to the database upgrades table for %1").arg(databasesToUpgrade_.at(x)->connectionName()));
 			return false;
 		}
 	}
 	return true;
 }
 
-bool AMDbUpgrade::upgradeRequired(){
-	// This will only work as long as all registered classes get registered to all databases
-	AMDatabase *userDb = AMDatabase::database("user");
-
-	// Query and record all the column names (except id) from the from table. We need this string list to pass around.
-	QSqlQuery q = userDb->query();
-	q.prepare("PRAGMA table_info(AMDbObjectUpgrades_table)");
-	if(!AMDatabase::execQuery(q)) {
+bool AMDbUpgrade::upgradeRequired() const{
+	bool atLeastOneRequiredUpgradeTable = false;
+	// Loop over all of the requested databases and check to make sure each has the upgrade table using the PRAGMA query
+	for(int x = 0; x < databasesToUpgrade_.count(); x++){
+		QSqlQuery q = databasesToUpgrade_.at(x)->query();
+		q.prepare("PRAGMA table_info(AMDbObjectUpgrades_table)");
+		if(!AMDatabase::execQuery(q)) {
+			q.finish();
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -270103, QString("Database support: There was an error while trying to read meta data on the upgrades table.")));
+			return false;
+		}
+		QStringList upgradeTableColumns;
+		while(q.next()){
+			upgradeTableColumns << q.value(1).toString();
+		}
 		q.finish();
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -270103, QString("Database support: There was an error while trying to read meta data on the upgrades table.")));
-		return false;
-	}
-	QStringList upgradeTableColumns;
-	while(q.next()){
-		upgradeTableColumns << q.value(1).toString();
-	}
-	q.finish();
-	if(upgradeTableColumns.count() == 0){
-		qDebug() << "This is an OLD database and doesn't have the AMDbObjectUpgrades_table yet, need to upgrade for sure";
-		// This table stores database upgrade information for all these object types.
-		userDb->ensureTable(AMDbObjectSupport::upgradesTableName(),
-				    QString("description,upgradeTag,necessaryUpgrade,upgradeDate,duringCreation").split(','),
-				    QString("TEXT,TEXT,TEXT,TEXT,TEXT").split(','),
-				    false);
-		return true;
-	}
 
-	QList<int> thisTagID = userDb->objectsWhere("AMDbObjectUpgrades_table", QString("upgradeTag='%1'").arg(upgradeToTag()));
-	if(thisTagID.count() == 0)
+		// If the upgrade table is missing, make it and log that at least one requested database is missing the table
+		if(upgradeTableColumns.count() == 0){
+			databasesToUpgrade_.at(x)->ensureTable(AMDbObjectSupport::upgradesTableName(),
+					    QString("description,upgradeTag,necessaryUpgrade,upgradeDate,duringCreation").split(','),
+					    QString("TEXT,TEXT,TEXT,TEXT,TEXT").split(','),
+					    false);
+			atLeastOneRequiredUpgradeTable = true;
+		}
+	}
+	// Return true (upgrade is required) if at least one was missing the table
+	if(atLeastOneRequiredUpgradeTable)
 		return true;
+
+	// Check each requested database to make sure that the specified upgrade tag is present. If not, return true (database upgrade is required).
+	for(int x = 0; x < databasesToUpgrade_.count(); x++){
+		QList<int> thisTagID = databasesToUpgrade_.at(x)->objectsWhere("AMDbObjectUpgrades_table", QString("upgradeTag='%1'").arg(upgradeToTag()));
+		if(thisTagID.count() == 0)
+			return true;
+	}
 	return false;
 }
 
-bool AMDbUpgradeSupport::dbObjectClassBecomes(const QString &originalClassName, const QString &newClassName, QMap<QString, QString> parentTablesToColumnNames, QMap<QString, int> indexTablesToIndexSide){
-	AMDatabase *userDb = AMDatabase::database("user");
+bool AMDbUpgrade::loadDatabasesFromNames(){
+	AMDatabase *database;
+	for(int x = 0; x < databaseNamesToUpgrade_.count(); x++){
+		database = AMDatabase::database(databaseNamesToUpgrade().at(x));
+		if(!database)
+			return false;
+		databasesToUpgrade_.append(database);
+	}
+	return true;
+}
+
+QStringList AMDbUpgrade::databaseNamesToUpgrade() const{
+	return databaseNamesToUpgrade_;
+}
+
+QList<AMDatabase*> AMDbUpgrade::databasesToUpgrade() const{
+	return databasesToUpgrade_;
+}
+
+bool AMDbUpgrade::addDatabaseNameToUpgrade(QString databaseNameToUpgrade){
+	if(databaseNamesToUpgrade_.contains(databaseNameToUpgrade))
+		return false;
+	databaseNamesToUpgrade_.append(databaseNameToUpgrade);
+	return true;
+}
+
+bool AMDbUpgradeSupport::dbObjectClassBecomes(AMDatabase *databaseToEdit, const QString &originalClassName, const QString &newClassName, QMap<QString, QString> parentTablesToColumnNames, QMap<QString, int> indexTablesToIndexSide){
+	//AMDatabase *userDb = AMDatabase::database("user");
+	AMDatabase *userDb = databaseToEdit;
 
 	QString originalTableName = originalClassName%"_table";
 	QString newTableName = newClassName%"_table";
@@ -98,14 +133,11 @@ bool AMDbUpgradeSupport::dbObjectClassBecomes(const QString &originalClassName, 
 	// Find the number of objects matching the original and new class names in the AMDbObjectTypes table
 	matchingOriginial = userDb->objectsMatching("AMDbObjectTypes_table", "AMDbObjectType", originalClassName);
 	matchingNew = userDb->objectsMatching("AMDbObjectTypes_table", "AMDbObjectType", newClassName);
-	qDebug() << "Original " << matchingOriginial.count() << " New " << matchingNew.count();
 
 
 	// If they're both non-zero, then roll the database back by converting all of the "new" side instances to "original" side instances by using the classMerge function.
 	if(matchingOriginial.count() > 0 && matchingNew.count() > 0){
-		qDebug() << "OKAY, WE HAVE A PROBLEM! BOTH OF THOSE TABLES ARE IN THE DATABASE. We need to rollback to the original, then we can apply the upgrade algorithm";
-
-		if(!dbObjectClassMerge(originalClassName, newClassName, parentTablesToColumnNames, indexTablesToIndexSide))
+		if(!dbObjectClassMerge(userDb, originalClassName, newClassName, parentTablesToColumnNames, indexTablesToIndexSide))
 			return false;
 
 		matchingNew = userDb->objectsMatching("AMDbObjectTypes_table", "AMDbObjectType", newClassName);
@@ -113,7 +145,6 @@ bool AMDbUpgradeSupport::dbObjectClassBecomes(const QString &originalClassName, 
 
 	// If there are no instances of the new class, then we can upgrade in this fashion
 	if(matchingOriginial.count() > 0 && matchingNew.count() == 0){
-		qDebug() << "WE'RE OKAY, WE CAN DO A NON-TRIVIAL UPGRADE";
 		// Start the transaction, we can rollback to here if things go badly
 		userDb->startTransaction();
 
@@ -182,17 +213,16 @@ bool AMDbUpgradeSupport::dbObjectClassBecomes(const QString &originalClassName, 
 	}
 	// If there are no instances of the original class then no upgrade is necessary
 	else if(matchingOriginial.count() == 0 && matchingNew.count() > 0){
-		qDebug() << "UPGRADE ALREADY DONE OR UNNECESSARY";
 	}
-	// Neither class name can be found, did you type something in wrong?
+	// Neither class name can be found, did you type something in wrong or maybe they aren't in this database
 	else{
-		qDebug() << "THAT'S ODD ... WE DON'T HAVE EITHER OF THOSE";
 	}
 	return true;
 }
 
-bool AMDbUpgradeSupport::dbObjectClassMerge(const QString &mergeToClassName, const QString &mergeFromClassName, QMap<QString, QString> parentTablesToColumnNames, QMap<QString, int> indexTablesToIndexSide){
-	AMDatabase *userDb = AMDatabase::database("user");
+bool AMDbUpgradeSupport::dbObjectClassMerge(AMDatabase *databaseToEdit, const QString &mergeToClassName, const QString &mergeFromClassName, QMap<QString, QString> parentTablesToColumnNames, QMap<QString, int> indexTablesToIndexSide){
+	//AMDatabase *userDb = AMDatabase::database("user");
+	AMDatabase *userDb = databaseToEdit;
 
 	QString mergeToTableName = mergeToClassName%"_table";
 	QString mergeFromTableName = mergeFromClassName%"_table";

@@ -10,19 +10,59 @@ class AMDbUpgrade : public QObject
 {
 Q_OBJECT
 public:
-	AMDbUpgrade(QList<AMDatabase*> databasesToUpgrade, QObject *parent = 0);
+	/// The general constructor. The \c databasesToUpgrade is the list of AMDatabases that you wish to apply this upgrade to.
+	AMDbUpgrade(QStringList databaseNamesToUpgrade, QObject *parent = 0);
 
-	virtual QStringList upgradeFromTags() = 0;
-	virtual bool upgradeNecessary() = 0;
+	/// The tags that this upgrade depends on. If a particular upgrade cannot be attempted if certain upgrades haven't already happened, the list of tags should be returned by this function. This function can return an empty list (it has no dependencies).
+	virtual QStringList upgradeFromTags() const = 0;
+
+	/// Returns true if the upgrade is necessary based on the contents of the databases examined. For example, an upgrade can be required (that tag is not found in the upgrade table) but not be necessary because those classes are not in this database.
+	/*! In this case, the database upgrade will be tagged as completed but no changes are made to the databases (there is a column for this in the upgrade table).
+	    Each subclass must provide this, likely by interogating the databases' AMDbObjectTypes_table.
+	  */
+	virtual bool upgradeNecessary() const = 0;
+
+	/// This function is called by upgrade to complete the work of your specific database upgrade.
+	/*! It is IMPORTANT TO NOTE that you must iterate over all of the databases in databasesToUpgrade_.
+	    You can call custom code here or use functions in the AMDbUpgradeSupport namespace.
+	  */
 	virtual bool upgradeImplementation() = 0;
-	virtual QString upgradeToTag() = 0;
-	virtual QString description() = 0;
 
+	/// Returns the tag that will be inserted into the upgrades table upon completion. This tag will be searched for to determine whether or not this upgrade is required.
+	virtual QString upgradeToTag() const = 0;
+
+	/// Returns a string describing the upgrade to be saved in the upgrade table
+	virtual QString description() const = 0;
+
+	/// This function calls upgradeImplementation() to do the work of the actual upgrade. Additionally, this call makes sure that the dependencies for the upgrade listed by upgradeFromTags exist in each of the databases requested. If not, this function will fail before calling upgradeImplementation().
 	bool upgrade();
+
+	/// This function is called to update the upgrade table once the upgrade() call is successfully completed. It iterates over all the requested databases and ensures that the new upgrade data and tags are inserted into each database.
 	bool updateUpgradeTable(bool isNecessary, bool duringCreation);
-	bool upgradeRequired();
+
+	/// Returns true if the upgrade has not happened yet. That is, false is returned if the tag specified by this upgrade is already in the upgrade table.
+	/*! This should not be confused with upgradeNecessary().
+	    This function iterates over all of the requested databases and returns true if any lack the specified tag. It will also return true if the upgrade table does not exist yet (and it will ensure that the table does exist in all requested databases before the value true is returned).
+	  */
+	bool upgradeRequired() const;
+
+	/// Loads up the databases from the names supplied. Returns false if one or more databases cannot be loaded.
+	bool loadDatabasesFromNames();
+
+	/// Returns the list of database names requested for this upgrade
+	QStringList databaseNamesToUpgrade() const;
+
+	/// Returns the list of databases requested for this upgrade (this will be empty until loadDatabasesFromNames() is called).
+	QList<AMDatabase*> databasesToUpgrade() const;
+
+public slots:
+	/// Add another database to be upgraded. Use this if you wish to add your App-specific databases to upgrades that AMDatamanAppController or AMAppController have set up.
+	bool addDatabaseNameToUpgrade(QString databaseNameToUpgrade);
 
 protected:
+	/// The list of database names that have been requested for this upgrade
+	QStringList databaseNamesToUpgrade_;
+	/// The list of databases that have been requested for this upgrade.
 	QList<AMDatabase*> databasesToUpgrade_;
 };
 
@@ -35,7 +75,7 @@ namespace AMDbUpgradeSupport{
 	  The \c indexTablesToIndexSide will map an index table to a side (either the id1/table1 side or the id2/table2 side BUT THE id1/table1 SIDE IS NOT YET TESTED AND MAY NOT WORK) and change instances of the "from" table name to the "to" table name.
 	  For example, if you have an index table you can speficy the index table name and the column to check in. This will run through all of the row of that index table and update instances of the old class name to the new class name.
 	  */
-	bool dbObjectClassBecomes(const QString &originalClassName, const QString &newClassName, QMap<QString, QString> parentTablesToColumnNames, QMap<QString, int> indexTablesToIndexSide);
+	bool dbObjectClassBecomes(AMDatabase *databaseToEdit, const QString &originalClassName, const QString &newClassName, QMap<QString, QString> parentTablesToColumnNames, QMap<QString, int> indexTablesToIndexSide);
 
 	/// Merges two AMDbObject classes by taking the \c mergeFromClassName, converting them into the \c mergeToClassName and removing all of the database entities related to \c mergeFromClassName. Use this function carefully, incorrect or incomplete parameters can lead to corrupted databases. Not fully tested for the parentTables portion.
 	/*! This function should be used if you have two IDENTICAL classes (all the same AMDbObjectProperties/database columns) and you want to remove the "from" class and keep the "to" class by converting the former to the latter.
@@ -44,7 +84,7 @@ namespace AMDbUpgradeSupport{
 	  The \c parentTablesToColumnNames will map a table name to a column name and look in that table under that column to change instances of the "from" table name to the "to" table name.
 	  The \c indexTablesToIndexSide will map an index table to a side (either the id1/table1 side or the id2/table2 side BUT THE id1/table1 SIDE IS NOT YET TESTED AND MAY NOT WORK) and update to new ids and change instances of the "from" table name to the "to" table name.
 	  */
-	bool dbObjectClassMerge(const QString &mergeToClassName, const QString &mergeFromClassName, QMap<QString, QString> parentTablesToColumnNames, QMap<QString, int> indexTablesToIndexSide);
+	bool dbObjectClassMerge(AMDatabase *databaseToEdit, const QString &mergeToClassName, const QString &mergeFromClassName, QMap<QString, QString> parentTablesToColumnNames, QMap<QString, int> indexTablesToIndexSide);
 
 }
 

@@ -93,6 +93,10 @@ The parameters by which to access the database are given in \c dbAccessString. (
 		return connectionName_;
 	}
 
+	/// This is the full path to the database
+	QString dbAccessString() const{
+		return dbAccessString_;
+	}
 
 
 	/// Inserting or updating a row in the database.

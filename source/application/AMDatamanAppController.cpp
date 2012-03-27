@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman.h"
 
 #include "dataman/database/AMDatabase.h"
+#include "dataman/database/AMDbUpgrade.h"
 #include "dataman/AMImportController.h"
 
 #include "dataman/export/AMExportController.h"
@@ -51,6 +52,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFile>
 #include <QMessageBox>
 #include <QInputDialog>
+#include <QStringBuilder>
 
 #include "util/AMSettings.h"
 #include "dataman/AMScan.h"
@@ -227,6 +229,27 @@ bool AMDatamanAppController::startupOnFirstTime()
 	if(!startupCreateDatabases())
 		return false;
 
+	// Loop over the database upgrades and make sure the upgrade table reflects the current starting state
+	bool success = true;
+	AMDbUpgrade *upgrade;
+	for(int x = 0; x < databaseUpgrades_.count(); x++){
+		upgrade = databaseUpgrades_.at(x);
+		if(!upgrade->loadDatabasesFromNames()){
+			AMErrorMon::alert(0, 270201, "Failure to load requested databases for initialization of upgrade table");
+			return false;
+		}
+		// This needs to return false on the first time through ... otherwise things are going really bad
+		if(!upgrade->upgradeRequired()){
+			AMErrorMon::alert(0, 270202, "Failure in initialization of upgrade table, there must be tracking required for new databases");
+			return false;
+		}
+		success &= upgrade->updateUpgradeTable(false, true);
+		if(!success){
+			AMErrorMon::alert(0, 270203, "Failure to write initialization for upgrade table");
+			return false;
+		}
+	}
+
 	AMErrorMon::information(this, 42001, "Acquaman Startup: First-Time Successful");
 	qApp->processEvents();
 	return true;
@@ -239,7 +262,6 @@ bool AMDatamanAppController::startupOnEveryTime()
 
 	// check for and run any database upgrades we require...
 	if(!startupDatabaseUpgrades()) return false;
-	AMErrorMon::information(this, 42001, "Acquaman Startup: Database Upgrade Successful");
 	qApp->processEvents();
 
 	return true;
@@ -257,6 +279,68 @@ bool AMDatamanAppController::startupCreateDatabases()
 
 bool AMDatamanAppController::startupDatabaseUpgrades()
 {
+	bool success = true;
+	bool atLeastOneUpgrade = false;
+	bool upgradeIsNecessary;
+	int upgradesCompleted = 0;
+	AMDbUpgrade *upgrade;
+	// Loop over the database upgrades and apply them if necessary
+	for(int x = 0; x < databaseUpgrades_.count(); x++){
+		upgradeIsNecessary = false;
+		upgrade = databaseUpgrades_.at(x);
+		if(!upgrade->loadDatabasesFromNames()){
+			AMErrorMon::alert(0, 270204, QString("Failure to load requested databases for upgrade %1").arg(upgrade->upgradeToTag()));
+			return false;
+		}
+		// Only apply upgrades that are required
+		if(upgrade->upgradeRequired()){
+			AMErrorMon::information(this, 42001, QString("Acquaman Startup: Starting Database Advanced Upgrade %1").arg(upgrade->upgradeToTag()));
+			qApp->processEvents();
+			// For the first required upgrade, make a backup of each database (... what if the first one doesn't use all the databases that are editted?)
+			if(!atLeastOneUpgrade){
+				atLeastOneUpgrade = true;
+				for(int y = 0; y < upgrade->databasesToUpgrade().count(); y++){
+					QString pathToDatabase = upgrade->databasesToUpgrade().at(y)->dbAccessString().replace("//", "/").section("/", 0, -2);
+					QString databaseName = upgrade->databasesToUpgrade().at(y)->dbAccessString().replace("//", "/").section("/", -1);
+					QDir databaseDir(pathToDatabase);
+					databaseDir.mkdir(".BACKUPS");
+					if(QFile::exists(pathToDatabase%"/.BACKUPS/"%databaseName%".before"%upgrade->upgradeToTag()))
+						QFile::remove(pathToDatabase%"/.BACKUPS/"%databaseName%".before"%upgrade->upgradeToTag());
+					if(!QFile::copy(pathToDatabase%"/"%databaseName, pathToDatabase%"/.BACKUPS/"%databaseName%".before"%upgrade->upgradeToTag())){
+						AMErrorMon::alert(0, 270205, QString("Failure to backup requested databases for upgrade %1").arg(upgrade->upgradeToTag()));
+						return false;
+					}
+				}
+			}
+			// Actually call the upgrade if it's necessary
+			if(upgrade->upgradeNecessary()){
+				upgradeIsNecessary = true;
+				success &= upgrade->upgrade();
+			}
+			// Modify the upgrade table to reflect the changes
+			if(success)
+				success &= upgrade->updateUpgradeTable(upgradeIsNecessary, false);
+			if(!success){
+				// Restore from backups
+				for(int y = 0; y < upgrade->databasesToUpgrade().count(); y++){
+					qDebug() << "Need to reload save on " << upgrade->databasesToUpgrade().at(y)->connectionName();
+					QString pathToDatabase = upgrade->databasesToUpgrade().at(y)->dbAccessString().replace("//", "/").section("/", 0, -2);
+					QString databaseName = upgrade->databasesToUpgrade().at(y)->dbAccessString().replace("//", "/").section("/", -1);
+					QFile::remove(pathToDatabase%"/"%databaseName);
+					QFile::copy(pathToDatabase%"/.BACKUPS/"%databaseName%".before"%upgrade->upgradeToTag(), pathToDatabase%"/"%databaseName);
+				}
+				AMErrorMon::alert(0, 270206, QString("Failure to apply upgrade %1 or to update the upgrade table").arg(upgrade->upgradeToTag()));
+				return false;
+			}
+			AMErrorMon::information(this, 42001, QString("Acquaman Startup: Finalizing Database Advanced Upgrade %1").arg(upgrade->upgradeToTag()));
+			qApp->processEvents();
+			upgradesCompleted++;
+		}
+	}
+	if(upgradesCompleted > 0)
+		AMErrorMon::information(this, 42001, QString("Acquaman Startup: Database Upgrade Stage Successful, applied %1 upgrades").arg(upgradesCompleted));
+	else
+		AMErrorMon::information(this, 42001, QString("Acquaman Startup: Database Upgrade Stage Successful, no upgrades necessary"));
 	return true;
 }
 

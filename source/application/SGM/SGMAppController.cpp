@@ -56,9 +56,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/SGM/SGMPeriodicTable.h"
 #include "ui/util/AMGithubIssueSubmissionView.h"
 
+#include "dataman/SGM/SGMDbUpgrade1Pt1.h"
+
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
 {
+	QStringList databaseNamesToUpgrade;
+	databaseNamesToUpgrade.append("user");
+	databaseNamesToUpgrade.append("SGMBeamline");
+	AMDbUpgrade *sgm1Pt1 = new SGMDbUpgrade1Pt1(databaseNamesToUpgrade, this);
+	databaseUpgrades_.prepend(sgm1Pt1);
 }
 
 bool SGMAppController::startup() {
@@ -115,36 +122,26 @@ bool SGMAppController::startupCreateDatabases(){
 	return true;
 }
 
-#include "dataman/SGM/SGMDbUpgrade1Pt1.h"
-bool SGMAppController::startupDatabaseUpgrades(){
-	qDebug() << "In SGMAppController startupDatabaseUpgrades";
+//bool SGMAppController::startupDatabaseUpgrades(){
+//	qDebug() << "In SGMAppController startupDatabaseUpgrades";
 
-	QList<AMDatabase*> databasesToUpgrade;
-	databasesToUpgrade.append(AMDatabase::database("user"));
-	AMDbUpgrade *sgm1Pt1 = new SGMDbUpgrade1Pt1(databasesToUpgrade, this);
+//	QList<AMDatabase*> databasesToUpgrade;
+//	databasesToUpgrade.append(AMDatabase::database("user"));
+//	databasesToUpgrade.append(AMDatabase::database("SGMBeamline"));
+//	AMDbUpgrade *sgm1Pt1 = new SGMDbUpgrade1Pt1(databasesToUpgrade, this);
 
-	if(sgm1Pt1->upgradeRequired()){
-		qDebug() << "Upgrade is REQUIRED";
-		if(sgm1Pt1->upgradeNecessary()){
-			qDebug() << "Upgrade is NECESSARY";
-			if(sgm1Pt1->upgrade()){
-				qDebug() << "Upgrade is successful";
-				sgm1Pt1->updateUpgradeTable(true, false);
-			}
-		}
-	}
-	else
-		qDebug() << "This upgrade is not required";
-
-//	QMap<QString, QString> parentTablesToColumnsNames;
-//	QMap<QString, int> indexTablesToIndexSide;
-//	indexTablesToIndexSide.insert("AMDetectorInfoSet_table_detectorInfos", 2);
-//	dbObjectClassBecomes("PGTDetectorInfo", "CLSPGTDetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide);
-//	dbObjectClassBecomes("OceanOptics65000DetectorInfo", "CLSOceanOptics65000DetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide);
-//	dbObjectClassBecomes("MCPDetectorInfo", "SGMMCPDetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide);
-
-	return true;
-}
+//	if(sgm1Pt1->upgradeRequired()){
+//		qDebug() << "Upgrade is REQUIRED";
+//		if(sgm1Pt1->upgradeNecessary()){
+//			qDebug() << "Upgrade is NECESSARY";
+//			if(sgm1Pt1->upgrade()){
+//				qDebug() << "Upgrade is successful";
+//				sgm1Pt1->updateUpgradeTable(true, false);
+//			}
+//		}
+//	}
+//	return true;
+//}
 
 bool SGMAppController::startupRegisterDatabases(){
 	// Call the AMAppController database registrations
