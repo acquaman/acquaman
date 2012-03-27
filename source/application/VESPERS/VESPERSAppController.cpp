@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSEndstationView.h"
 #include "ui/AMMainWindow.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder.h"
+#include "ui/acquaman/AM2DScanConfigurationViewHolder.h"
 
 #include "ui/VESPERS/XRFDetectorView.h"
 #include "ui/VESPERS/VESPERSXRFFreeRunView.h"
@@ -212,12 +213,12 @@ void VESPERSAppController::setupUserInterface()
 	xrf1EFreeRunView_ = new VESPERSXRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF1E()), workflowManagerView_);
 	xrf4EFreeRunView_ = new VESPERSXRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF4E()), workflowManagerView_);
 
-	VESPERSRoperCCDDetectorView *roperCCDView = new VESPERSRoperCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
+	roperCCDView_ = new VESPERSRoperCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
 
 	mw_->insertHeading("Free run", 1);
 	mw_->addPane(xrf1EFreeRunView_, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");
 	mw_->addPane(xrf4EFreeRunView_, "Free run", "XRF 4-el", ":/utilities-system-monitor.png");
-	mw_->addPane(roperCCDView, "Free run", "XRD - Roper", ":/utilities-system-monitor.png");
+	mw_->addPane(roperCCDView_, "Free run", "XRD - Roper", ":/utilities-system-monitor.png");
 
 	// Setup page that auto-enables detectors.
 	VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
@@ -227,13 +228,14 @@ void VESPERSAppController::setupUserInterface()
 	exafsScanConfig_->addRegion(0, -30, 0.5, 40, 1);
 	VESPERSEXAFSScanConfigurationView *exafsConfigView = new VESPERSEXAFSScanConfigurationView(exafsScanConfig_);
 	exafsConfigViewHolder_ = new AMScanConfigurationViewHolder( workflowManagerView_, exafsConfigView);
+	connect(exafsConfigView, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
 	// Setup 2D maps for the beamline.  Builds the config, view, and view holder.
 	VESPERS2DScanConfiguration *mapScanConfiguration = new VESPERS2DScanConfiguration();
 	mapScanConfiguration->setStepSize(0.005, 0.005);
 	mapScanConfiguration->setTimeStep(1);
 	VESPERS2DScanConfigurationView *mapScanConfigurationView = new VESPERS2DScanConfigurationView(mapScanConfiguration);
-	AMScanConfigurationViewHolder *mapScanConfigurationViewHolder = new AMScanConfigurationViewHolder(workflowManagerView_, mapScanConfigurationView);
+	AM2DScanConfigurationViewHolder *mapScanConfigurationViewHolder = new AM2DScanConfigurationViewHolder(workflowManagerView_, mapScanConfigurationView);
 	connect(mapScanConfigurationView, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
 	mw_->insertHeading("Scans", 2);
@@ -268,6 +270,8 @@ void VESPERSAppController::onConfigureDetectorRequested(const QString &detector)
 		mw_->setCurrentPane(xrf1EFreeRunView_);
 	else if (detector == "Four Element")
 		mw_->setCurrentPane(xrf4EFreeRunView_);
+	else if (detector == "Roper CCD")
+		mw_->setCurrentPane(roperCCDView_);
 }
 
 void VESPERSAppController::onCurrentScanControllerStarted()

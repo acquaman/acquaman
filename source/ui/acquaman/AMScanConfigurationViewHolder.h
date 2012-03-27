@@ -69,7 +69,7 @@ protected slots:
 	/// Called when the "Start Scan" button is clicked
 	void onStartScanRequested();
 	/// Called when the "Add to Queue" button is clicked.
-	void onAddToQueueRequested();
+	virtual void onAddToQueueRequested();
 
 	/// This re-evaluates the state of the workflow and provides user feedback on the "Start Scan" button as required.
 	/*! If the scan configuration view or scan configuration are invalid, sets the button disabled with a message. If the workflow cannot be started because the beamline is busy (ie: one of your scans, or someone else's scan, is running), sets the button disabled with a message. Otherwise enables the button. */
