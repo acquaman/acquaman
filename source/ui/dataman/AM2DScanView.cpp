@@ -11,6 +11,7 @@
 
 #include <QSizePolicy>
 #include <QStringBuilder>
+#include <QCheckBox>
 
 AM2DScanBar::AM2DScanBar(QWidget *parent)
 	: QWidget(parent)
@@ -20,9 +21,14 @@ AM2DScanBar::AM2DScanBar(QWidget *parent)
 	yUnits_ = "";
 	position_ = QPointF();
 
+	QCheckBox *showSpectra = new QCheckBox("Show Spectra");
+	showSpectra->setChecked(false);
+	connect(showSpectra, SIGNAL(toggled(bool)), this, SIGNAL(showSpectra(bool)));
+
 	QHBoxLayout *layout = new QHBoxLayout;
 	layout->addWidget(dataPosition_);
 	layout->addStretch();
+	layout->addWidget(showSpectra, 0, Qt::AlignRight);
 
 	setLayout(layout);
 }
@@ -247,8 +253,8 @@ MPlotGW * AM2DScanViewInternal::createDefaultPlot()
 {
 	MPlotGW* rv = new MPlotGW();
 	rv->plot()->plotArea()->setBrush(QBrush(QColor(Qt::white)));
-	rv->plot()->axisBottom()->setTicks(4);
-	rv->plot()->axisTop()->setTicks(4);
+	rv->plot()->axisBottom()->setTicks(5);
+	rv->plot()->axisTop()->setTicks(5);
 	rv->plot()->axisLeft()->showGrid(false);
 
 	rv->plot()->axisBottom()->showAxisName(true);
@@ -863,4 +869,18 @@ bool AM2DScanViewMultiSourcesView::reviewDataSources() {
 	}
 
 	return layoutChanges;
+}
+
+// AM2DScanViewSingleSpectrumView
+//////////////////////////////////////////////////
+
+AM2DScanViewSingleSpectrumView::AM2DScanViewSingleSpectrumView(QWidget *parent)
+	: QWidget(parent)
+{
+
+}
+
+void AM2DScanViewSingleSpectrumView::setScale(double scale)
+{
+	Q_UNUSED(scale)
 }

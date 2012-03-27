@@ -28,6 +28,10 @@ public:
 	/// Returns the position.
 	QPointF dataPosition() const { return position_; }
 
+signals:
+	/// Notifier that the state of whether or not the scan view should show individual spectra has been toggled.
+	void showSpectra(bool);
+
 public slots:
 	/// Handles setting the label with the new data coordinates.
 	void setDataPosition(const QPointF &point);
@@ -246,6 +250,30 @@ protected:
 	bool firstPlotEmpty_;
 	/// When dataSource2Plot_ is empty, we keep a single plot here, to make sure that there's always at least one shown.
 	MPlotGW* firstPlot_;
+};
+
+#include "util/AMFetchSpectrumThread.h"
+#include "MPlot/MPlotSeriesData.h"
+
+/// This class holds a plot window and shows individual spectra when the mouse is clicked on image points.
+class AM2DScanViewSingleSpectrumView : public QWidget
+{
+	Q_OBJECT
+
+public:
+	/// Constructor.  Builds a plot.
+	AM2DScanViewSingleSpectrumView(QWidget *parent = 0);
+
+	/// Sets the scale for each point along the x-axis.
+	void setScale(double scale);
+
+protected:
+	/// The thread that retrieves the spectrum from a given point.
+	AMFetchSpectrumThread fetcher_;
+	/// The MPlot series that holds the data.
+	MPlotVectorSeriesData *model_;
+	/// The scaling for each point along the x axis.
+	double scale_;
 };
 
 #endif // AM2DSCANVIEW_H
