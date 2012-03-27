@@ -253,6 +253,12 @@ bool AMDbObjectSupport::registerDatabase(AMDatabase* db) {
 	db->ensureTable(thumbnailTableName(), QString("objectId,objectTableName,number,type,title,subtitle,thumbnail").split(','), QString("INTEGER,TEXT,INTEGER,TEXT,TEXT,TEXT,BLOB").split(','), false);
 	db->createIndex(thumbnailTableName(), "objectId,objectTableName");
 
+	// This table stores database upgrade information for all these object types.
+	db->ensureTable(upgradesTableName(),
+			   QString("description,upgradeTag,necessaryUpgrade,upgradeDate,duringCreation").split(','),
+			   QString("TEXT,TEXT,TEXT,TEXT,TEXT").split(','),
+			   false);
+
 	// temporary... this should all be cleaned up and moved and handled generically
 	////////////////////////////
 	db->ensureTable(elementTableName(), QString("AMDbObjectType,thumbnailCount,thumbnailFirstId,symbol,name,atomicNumber").split(','), QString("TEXT,INTEGER,INTEGER,TEXT,TEXT,INTEGER").split(','));
@@ -627,6 +633,7 @@ QString AMDbObjectSupport::typeTableName() { return "AMDbObjectTypes_table"; }
 QString AMDbObjectSupport::allColumnsTableName() { return "AMDbObjectTypes_allColumns"; }
 QString AMDbObjectSupport::visibleColumnsTableName() { return "AMDbObjectTypes_visibleColumns"; }
 QString AMDbObjectSupport::loadColumnsTableName() { return "AMDbObjectTypes_loadColumns"; }
+QString AMDbObjectSupport::upgradesTableName() { return "AMDbObjectUpgrades_table"; }
 
 
 bool AMDbObjectSupport::ensureTableForDbObjects(const QString& tableName, AMDatabase* db, bool reuseDeletedIds) {

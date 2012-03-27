@@ -177,6 +177,7 @@ public:
 	static QString allColumnsTableName();
 	static QString visibleColumnsTableName();
 	static QString loadColumnsTableName();
+	static QString upgradesTableName();
 
 
 	// Temporary tables (to be generalized?)

@@ -152,6 +152,7 @@ bool AMDatamanAppController::startup() {
 bool AMDatamanAppController::startupLoadSettings()
 {
 	AMErrorMon::information(this, 42001, "Acquaman Startup: Loading Settings");
+	qApp->processEvents();
 	// Load settings from disk:
 	AMSettings::s()->load();
 	AMUserSettings::load();
@@ -161,6 +162,7 @@ bool AMDatamanAppController::startupLoadSettings()
 bool AMDatamanAppController::startupLoadPlugins()
 {
 	AMErrorMon::information(this, 42001, "Acquaman Startup: Loading Plugins");
+	qApp->processEvents();
 	// Load plugins:
 	AMPluginsManager::s()->loadApplicationPlugins();
 	return true;
@@ -226,6 +228,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 		return false;
 
 	AMErrorMon::information(this, 42001, "Acquaman Startup: First-Time Successful");
+	qApp->processEvents();
 	return true;
 }
 
@@ -237,6 +240,7 @@ bool AMDatamanAppController::startupOnEveryTime()
 	// check for and run any database upgrades we require...
 	if(!startupDatabaseUpgrades()) return false;
 	AMErrorMon::information(this, 42001, "Acquaman Startup: Database Upgrade Successful");
+	qApp->processEvents();
 
 	return true;
 }
@@ -260,6 +264,7 @@ bool AMDatamanAppController::startupDatabaseUpgrades()
 bool AMDatamanAppController::startupRegisterDatabases()
 {
 	AMErrorMon::information(this, 42001, "Acquaman Startup: Registering Databases");
+	qApp->processEvents();
 	AMDatabase* db = AMDatabase::database("user");
 	if(!db) {
 		return false;
@@ -316,6 +321,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 bool AMDatamanAppController::startupPopulateNewDatabase()
 {
 	AMErrorMon::information(this, 42001, "Acquaman Startup: Populating Databases for First-Time");
+	qApp->processEvents();
 	AMDatabase* db = AMDatabase::database("user");
 	if(!db)
 		return false;
@@ -341,6 +347,7 @@ bool AMDatamanAppController::startupPopulateNewDatabase()
 bool AMDatamanAppController::startupLoadFromExistingDatabase()
 {
 	AMErrorMon::information(this, 42001, "Acquaman Startup: Loading Databases");
+	qApp->processEvents();
 	AMUser::user()->loadFromDb(AMDatabase::database("user"), 1);
 	return true;
 }
@@ -348,6 +355,7 @@ bool AMDatamanAppController::startupLoadFromExistingDatabase()
 bool AMDatamanAppController::startupRegisterExporters()
 {
 	AMErrorMon::information(this, 42001, "Acquaman Startup: Registering Exporters");
+	qApp->processEvents();
 	// Install exporters
 	AMExportController::registerExporter<AMExporterGeneralAscii>();
 	AMExportController::registerExporter<AMExporterAthena>();
@@ -358,6 +366,7 @@ bool AMDatamanAppController::startupRegisterExporters()
 bool AMDatamanAppController::startupCreateUserInterface()
 {
 	AMErrorMon::information(this, 42001, "Acquaman Startup: Populating User Interface");
+	qApp->processEvents();
 	settingsMasterView_ = 0;
 	issueSubmissionView_ = 0;
 
@@ -428,6 +437,7 @@ bool AMDatamanAppController::startupCreateUserInterface()
 bool AMDatamanAppController::startupInstallActions()
 {
 	AMErrorMon::information(this, 42001, "Acquaman Startup: Populating User Menus");
+	qApp->processEvents();
 	// make/install actions:
 	/////////////////////////////////
 	QAction* importLegacyFilesAction = new QAction("Import Legacy Files...", mw_);

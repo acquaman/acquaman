@@ -517,7 +517,8 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/util/AMFontSizes.h \
 	source/ui/dataman/AMScanViewUtilities.h \
 	source/ui/dataman/AM2DScanView.h \
-	source/ui/AMDatamanStartupSplashScreen.h
+	source/ui/AMDatamanStartupSplashScreen.h \
+	source/dataman/database/AMDbUpgrade.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -861,7 +862,8 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/CLS/CLSAmptekSDD123DetectorView.cpp \
 	source/ui/dataman/AMScanViewUtilities.cpp \
 	source/ui/dataman/AM2DScanView.cpp \
-	source/ui/AMDatamanStartupSplashScreen.cpp
+	source/ui/AMDatamanStartupSplashScreen.cpp \
+	source/dataman/database/AMDbUpgrade.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -885,5 +887,7 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
