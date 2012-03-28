@@ -12,6 +12,7 @@
 #include <QSizePolicy>
 #include <QStringBuilder>
 #include <QCheckBox>
+#include <QFileInfo>
 
 AM2DScanBar::AM2DScanBar(QWidget *parent)
 	: QWidget(parent)
@@ -64,6 +65,8 @@ AM2DScanView::AM2DScanView(AMScanSetModel* model, QWidget *parent)
 	if(scansModel_ == 0)
 		scansModel_ = new AMScanSetModel(this);
 
+	spectrumViewIsVisible_ = false;
+
 	setupUI();
 	makeConnections();
 
@@ -81,8 +84,6 @@ AM2DScanView::AM2DScanView(AMScanSetModel* model, QWidget *parent)
 
 AM2DScanView::~AM2DScanView()
 {
-	delete exclusiveView_;
-	delete multiView_;
 }
 
 void AM2DScanView::setupUI()
@@ -127,6 +128,7 @@ void AM2DScanView::setupUI()
 
 	multiViewBox_ = new QGroupBox;
 	multiViewBox_->setLayout(multiViewLayout);
+	multiViewBox_->setWindowTitle("Multi-Region Of Interest View");
 
 	gMultiViewLayout_ = new QGraphicsLinearLayout();
 	gMultiViewLayout_->setSpacing(0);
@@ -135,6 +137,13 @@ void AM2DScanView::setupUI()
 
 	exclusiveView_ = new AM2DScanViewExclusiveView(this);
 	multiView_ = new AM2DScanViewMultiSourcesView(this);
+	spectrumView_ = new AM2DScanViewSingleSpectrumView(this);
+
+	spectrumViewBox_ = new QGroupBox;
+	QHBoxLayout *spectrumViewBoxLayout = new QHBoxLayout;
+	spectrumViewBoxLayout->addWidget(spectrumView_);
+	spectrumViewBox_->setLayout(spectrumViewBoxLayout);
+	spectrumViewBox_->setWindowTitle("View Single Spectrum");
 
 	gExclusiveLayout_->addItem(exclusiveView_);
 	gMultiViewLayout_->addItem(multiView_);
@@ -147,7 +156,36 @@ void AM2DScanView::makeConnections()
 	connect(gMultiView_, SIGNAL(resized(QSizeF)), this, SLOT(resizeMultiViews()), Qt::QueuedConnection);
 
 	connect(exclusiveView_, SIGNAL(dataPositionChanged(QPointF)), exclusive2DScanBar_, SLOT(setDataPosition(QPointF)));
-//	connect(exclusiveView_, SIGNAL(dataPositionChanged(QPointF)), this, SIGNAL(dataPositionChanged()));
+	connect(exclusive2DScanBar_, SIGNAL(showSpectra(bool)), this, SLOT(setSpectrumViewVisibility(bool)));
+	connect(exclusiveView_, SIGNAL(dataPositionChanged(QPointF)), this, SLOT(onDataPositionChanged(QPointF)));
+}
+
+void AM2DScanView::setSpectrumViewVisibility(bool visible)
+{
+	spectrumViewIsVisible_ = visible;
+	spectrumViewBox_->setVisible(spectrumViewIsVisible_);
+}
+
+void AM2DScanView::onDataPositionChanged(const QPointF &point)
+{
+	int x = -1;
+	int y = -1;
+	AMDataSource *datasource = currentScan_->dataSourceAt(currentScan_->indexOfDataSource(scansModel_->exclusiveDataSourceName()));
+
+	for (int i = 0; i < currentScan_->scanSize(0); i++)
+		if (double(datasource->axisValue(0, i)) <= point.x())
+			x = i;
+
+	for (int i = 0; i < currentScan_->scanSize(1); i++)
+		if (double(datasource->axisValue(1, i)) <= point.y())
+			y = i;
+
+	QString filename = currentScan_->additionalFilePaths().first();
+	QFileInfo sourceFileInfo(currentScan_->additionalFilePaths().first());
+	if(sourceFileInfo.isRelative())
+		filename = AMUserSettings::userDataFolder % filename;
+
+	spectrumView_->onDataPositionChanged(AMnDIndex(x, y), currentScan_->scanSize(0), filename);
 }
 
 void AM2DScanView::setCurrentScan(AMScan *scan)
@@ -207,6 +245,9 @@ void AM2DScanView::showEvent(QShowEvent *e)
 	if (!multiViewBox_->isVisible())
 		multiViewBox_->show();
 
+	if (!spectrumViewBox_->isVisible() && spectrumViewIsVisible_)
+		spectrumViewBox_->show();
+
 	QWidget::showEvent(e);
 }
 
@@ -214,6 +255,9 @@ void AM2DScanView::hideEvent(QHideEvent *e)
 {
 	if (multiViewBox_->isVisible())
 		multiViewBox_->hide();
+
+	if (spectrumViewBox_->isVisible())
+		spectrumViewBox_->hide();
 
 	QWidget::hideEvent(e);
 }
@@ -224,6 +268,11 @@ void AM2DScanView::mousePressEvent(QMouseEvent *e)
 		emit dataPositionChanged(e->globalPos());
 
 	QWidget::mousePressEvent(e);
+}
+
+void AM2DScanView::setAxisInfoForSpectrumView(const AMAxisInfo &info)
+{
+	spectrumView_->setAxisInfo(info);
 }
 
 // AM2DScanViewInternal
@@ -877,10 +926,80 @@ bool AM2DScanViewMultiSourcesView::reviewDataSources() {
 AM2DScanViewSingleSpectrumView::AM2DScanViewSingleSpectrumView(QWidget *parent)
 	: QWidget(parent)
 {
+	qRegisterMetaType<QVector<double> >("QVector<double>");
+	connect(&fetcher_, SIGNAL(fetchedSpectrum(QVector<double>)), this, SLOT(updatePlot(QVector<double>)));
 
+	x_.resize(0);
+
+	setupPlot();
+
+	model_ = new MPlotVectorSeriesData;
+	MPlotSeriesBasic *series = new MPlotSeriesBasic(model_);
+	series->setMarker(MPlotMarkerShape::None);
+	plot_->plot()->addItem(series);
+
+	QHBoxLayout *layout = new QHBoxLayout;
+	layout->addWidget(plot_);
+
+	setLayout(layout);
+	setMinimumSize(600, 400);
 }
 
-void AM2DScanViewSingleSpectrumView::setScale(double scale)
+void AM2DScanViewSingleSpectrumView::setupPlot()
 {
-	Q_UNUSED(scale)
+	MPlot *plot = new MPlot;
+	plot_ = new MPlotWidget(this);
+	plot_->setPlot(plot);
+
+	plot_->plot()->legend()->setVisible(false);
+	plot_->plot()->plotArea()->setBrush(QBrush(Qt::white));
+	plot_->plot()->axisBottom()->setTicks(5);
+	plot_->plot()->axisLeft()->setTicks(5);
+	plot_->plot()->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
+	plot_->plot()->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
+	plot_->plot()->axisBottom()->showAxisName(true);
+	plot_->plot()->axisLeft()->showAxisName(false);
+
+	// Set the margins for the plot.
+	plot_->plot()->setMarginLeft(10);
+	plot_->plot()->setMarginBottom(15);
+	plot_->plot()->setMarginRight(2);
+	plot_->plot()->setMarginTop(2);
+
+	plot_->plot()->addTool(new MPlotDragZoomerTool());
+	plot_->plot()->addTool(new MPlotWheelZoomerTool());
+}
+
+void AM2DScanViewSingleSpectrumView::onDataPositionChanged(AMnDIndex index, int rowLength, const QString &filename)
+{
+	if (isVisible())
+		fetcher_.fetch(index, rowLength, filename);
+}
+
+void AM2DScanViewSingleSpectrumView::setAxisInfo(AMAxisInfo info)
+{
+	if (info.units.isEmpty())
+		plot_->plot()->axisBottom()->setAxisName(info.name);
+
+	else
+		plot_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
+
+	x_.resize(info.size);
+
+	for (int i = 0; i < info.size; i++)
+		x_[i] = double(info.start) + i*double(info.increment);
+}
+
+void AM2DScanViewSingleSpectrumView::updatePlot(QVector<double> spectrum)
+{
+	if (x_.size() == 0){
+
+		x_.resize(spectrum.size());
+
+		for (int i = 0; i < x_.size(); i++)
+			x_[i] = i;
+	}
+
+	QVector<double> y = spectrum;
+	model_->setValues(x_, y);
 }

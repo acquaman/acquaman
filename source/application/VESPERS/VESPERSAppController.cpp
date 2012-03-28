@@ -384,8 +384,11 @@ void VESPERSAppController::onCancelScanIssued()
 
 void VESPERSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
 {
-	if (editor->using2DScanView())
+	if (editor->using2DScanView()){
+
 		connect(editor, SIGNAL(dataPositionChanged(AMGenericScanEditor*,QPoint)), this, SLOT(onDataPositionChanged(AMGenericScanEditor*,QPoint)));
+		editor->setAxisInfoForSpectrumView(VESPERSBeamline::vespers()->vortexAM1E()->toInfo()->axes().first());
+	}
 }
 
 void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos)

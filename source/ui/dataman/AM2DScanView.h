@@ -7,10 +7,12 @@
 
 #include "MPlot/MPlot.h"
 #include "ui/dataman/AMScanViewUtilities.h"
+#include "dataman/AMAxisInfo.h"
 
 class AM2DScanViewInternal;
 class AM2DScanViewExclusiveView;
 class AM2DScanViewMultiSourcesView;
+class AM2DScanViewSingleSpectrumView;
 
 /// This class is a small horizontal bar that holds some information for the 2D scan view, such as: current data position, whether to see the spectra or not, etc.
 class AM2DScanBar : public QWidget
@@ -73,6 +75,8 @@ public:
 	AMScan *currentScan() const { return currentScan_; }
 	/// Returns the current position.  This holds the x and y coordinates from the last time the data position tool was moved.
 	QPointF dataPosition() const { return exclusive2DScanBar_->dataPosition(); }
+	/// Sets the default axis information for the spectrum view.
+	void setAxisInfoForSpectrumView(const AMAxisInfo &info);
 
 public slots:
 	/// add a scan to the view:
@@ -91,6 +95,10 @@ protected slots:
 	void resizeExclusiveViews();
 	/// Slot that resizes the multi view as needed.
 	void resizeMultiViews();
+	/// Slots that handles the visibility of the spectrum view based on the information from the scan bar.
+	void setSpectrumViewVisibility(bool visible);
+	/// Helper slot that makes sure all of the information that the spectrum fetcher needs is setup.
+	void onDataPositionChanged(const QPointF &point);
 
 protected:
 	/// Reimplements the show event to hide the multi view.
@@ -115,6 +123,11 @@ protected:
 	/// The multi view.
 	AM2DScanViewMultiSourcesView *multiView_;
 
+	/// The individual spectrum view.
+	AM2DScanViewSingleSpectrumView *spectrumView_;
+	/// Flag used to determine whether the single spectrum view should be visible.
+	bool spectrumViewIsVisible_;
+
 	// ui components:
 	AMGraphicsViewAndWidget* gExclusiveView_;
 	QGraphicsLinearLayout* gExclusiveLayout_;
@@ -126,6 +139,7 @@ protected:
 	AMScanViewSourceSelector* multiScanBars_;
 
 	QGroupBox *multiViewBox_;
+	QGroupBox *spectrumViewBox_;
 
 	QPropertyAnimation* exclusiveModeAnim_;
 	QPropertyAnimation *multiViewModeAnim_;
@@ -254,6 +268,7 @@ protected:
 
 #include "util/AMFetchSpectrumThread.h"
 #include "MPlot/MPlotSeriesData.h"
+#include "MPlot/MPlotWidget.h"
 
 /// This class holds a plot window and shows individual spectra when the mouse is clicked on image points.
 class AM2DScanViewSingleSpectrumView : public QWidget
@@ -265,15 +280,28 @@ public:
 	AM2DScanViewSingleSpectrumView(QWidget *parent = 0);
 
 	/// Sets the scale for each point along the x-axis.
-	void setScale(double scale);
+	void setAxisInfo(AMAxisInfo info);
+
+public slots:
+	/// Gives a new coordinate (along with the file name) to grab a new spectrum.
+	void onDataPositionChanged(AMnDIndex index, int rowLength, const QString &filename);
+
+protected slots:
+	/// Slot that updates the plot whenever AMFetchSpectrumThread is finished.
+	void updatePlot(QVector<double> spectrum);
 
 protected:
+	/// Sets up the plot.
+	void setupPlot();
+
 	/// The thread that retrieves the spectrum from a given point.
 	AMFetchSpectrumThread fetcher_;
 	/// The MPlot series that holds the data.
 	MPlotVectorSeriesData *model_;
-	/// The scaling for each point along the x axis.
-	double scale_;
+	/// The plot widget that holds everything about the plot.
+	MPlotWidget *plot_;
+	/// Holds the x-axis values so that they do not need to be recomputed everytime.
+	QVector<double> x_;
 };
 
 #endif // AM2DSCANVIEW_H

@@ -55,14 +55,16 @@ void AMFetchSpectrumThread::run()
 
 		// The work.
 		QFile file(filename);
-		QVector<int> spectrum;
+		QVector<double> spectrum;
 
 		if (file.open(QIODevice::ReadOnly)){
 
 			QTextStream in(&file);
 			QStringList currentLine;
+			int iterations = rowLength*index.j() + index.i() -1;
+			for (int i = 0; i < iterations; i++)
+				in.readLine();
 
-			in.seek(rowLength*index.j()+index.i());
 			currentLine = in.readLine().split(",");
 			spectrum.resize(currentLine.size());
 

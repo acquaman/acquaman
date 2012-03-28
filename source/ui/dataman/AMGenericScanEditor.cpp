@@ -251,6 +251,12 @@ QPointF AMGenericScanEditor::dataPosition() const
 	return QPointF();
 }
 
+void AMGenericScanEditor::setAxisInfoForSpectrumView(const AMAxisInfo &info)
+{
+	if (scanView2D_)
+		scanView2D_->setAxisInfoForSpectrumView(info);
+}
+
 void AMGenericScanEditor::addScan(AMScan* newScan) {
 	scanSetModel_->addScan(newScan);
 	ui_.scanListView->setCurrentIndex(scanSetModel_->indexForScan(scanSetModel_->indexOf(newScan)));

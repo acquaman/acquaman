@@ -27,7 +27,7 @@ public:
 
 signals:
 	/// Notifier that a new spectrum has been fetched.
-	void fetchedSpectrum(const QVector<int> &);
+	void fetchedSpectrum(const QVector<double> &);
 
 protected:
 	/// Reimplemented.  Method that is called when the thread is started.
