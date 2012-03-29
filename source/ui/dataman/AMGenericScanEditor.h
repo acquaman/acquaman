@@ -97,6 +97,7 @@ public:
 	QStringList visibleDataSourceNames() const { return scanSetModel_->visibleDataSourceNames(); }
 
 	// Methods for 2D scans only.
+	/////////////////////////////////////////////////
 
 	/// Returns the data position inside a two dimensional scan.  This returns a null point if AMGenericScanEditor is not using AM2DScanView, or if no valid point was been chosen yet.
 	QPointF dataPosition() const;

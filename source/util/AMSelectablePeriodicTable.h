@@ -33,6 +33,8 @@ public:
 	void selectElement(int atomicNumber);
 	/// Removes a selected element from the list.
 	void deselectElement(int atomicNumber);
+	/// Returns the list of selected elements.
+	QList<int> selectedElements() const { return savedElements_; }
 
 	/// Clear the list.
 	void clearList();

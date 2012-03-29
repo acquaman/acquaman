@@ -269,6 +269,9 @@ protected:
 #include "util/AMFetchSpectrumThread.h"
 #include "MPlot/MPlotSeriesData.h"
 #include "MPlot/MPlotWidget.h"
+#include "util/AMSelectablePeriodicTable.h"
+#include "ui/util/AMSelectablePeriodicTableView.h"
+
 
 /// This class holds a plot window and shows individual spectra when the mouse is clicked on image points.
 class AM2DScanViewSingleSpectrumView : public QWidget
@@ -289,6 +292,12 @@ public slots:
 protected slots:
 	/// Slot that updates the plot whenever AMFetchSpectrumThread is finished.
 	void updatePlot(QVector<double> spectrum);
+	/// Sets the plot range used for placing markers inside the plot.
+	void setPlotRange(double low, double high);
+	/// Helper slot that adds lines to the plot based on elements being selected from the table.
+	void onElementSelected(int atomicNumber);
+	/// Helper slot that removes lines from the plot based on elements being deselected fromm the table.
+	void onElementDeselected(int atomicNumber);
 
 protected:
 	/// Sets up the plot.
@@ -302,6 +311,13 @@ protected:
 	MPlotWidget *plot_;
 	/// Holds the x-axis values so that they do not need to be recomputed everytime.
 	QVector<double> x_;
+
+	/// The periodic table model that holds all of the selected elements.
+	AMSelectablePeriodicTable *table_;
+	/// The view that looks at the selectable periodic table model.
+	AMSelectablePeriodicTableView *tableView_;
+	/// Pair that holds the plot range that should be considered.
+	QPair<double, double> range_;
 };
 
 #endif // AM2DSCANVIEW_H

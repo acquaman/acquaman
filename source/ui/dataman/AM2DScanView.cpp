@@ -937,12 +937,19 @@ AM2DScanViewSingleSpectrumView::AM2DScanViewSingleSpectrumView(QWidget *parent)
 	MPlotSeriesBasic *series = new MPlotSeriesBasic(model_);
 	series->setMarker(MPlotMarkerShape::None);
 	plot_->plot()->addItem(series);
+	plot_->setMinimumSize(600, 400);
 
-	QHBoxLayout *layout = new QHBoxLayout;
-	layout->addWidget(plot_);
+	table_ = new AMSelectablePeriodicTable(this);
+	connect(table_, SIGNAL(elementSelected(int)), this, SLOT(onElementSelected(int)));
+	connect(table_, SIGNAL(elementDeselected(int)), this, SLOT(onElementDeselected(int)));
+	tableView_ = new AMSelectablePeriodicTableView(table_);
+
+	QVBoxLayout *layout = new QVBoxLayout;
+	layout->addWidget(plot_, 0, Qt::AlignCenter);
+	layout->addStretch();
+	layout->addWidget(tableView_, 0, Qt::AlignCenter);
 
 	setLayout(layout);
-	setMinimumSize(600, 400);
 }
 
 void AM2DScanViewSingleSpectrumView::setupPlot()
@@ -970,6 +977,52 @@ void AM2DScanViewSingleSpectrumView::setupPlot()
 	plot_->plot()->addTool(new MPlotWheelZoomerTool());
 }
 
+void AM2DScanViewSingleSpectrumView::onElementSelected(int atomicNumber)
+{
+	QString symbol = table_->elementByAtomicNumber(atomicNumber)->symbol();
+	QList<QPair<QString, QString> > lines = table_->elementByAtomicNumber(atomicNumber)->emissionLines();
+	QColor color = AMDataSourcePlotSettings::nextColor();
+	MPlotPoint *newLine;
+	QPair<QString, QString> line;
+
+	foreach(line, lines){
+
+		if (line.second.toDouble() >= range_.first && line.second.toDouble() <= range_.second
+				&& line.first.contains("1") && line.first.compare("-"))	{
+
+			newLine = new MPlotPoint(QPointF(line.second.toDouble(), 0));
+			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(color), QBrush(color));
+			newLine->setDescription(symbol % " " % line.first);
+			plot_->plot()->addItem(newLine);
+		}
+	}
+}
+
+void AM2DScanViewSingleSpectrumView::onElementDeselected(int atomicNumber)
+{
+	QString symbol = table_->elementByAtomicNumber(atomicNumber)->symbol();
+	MPlot *plot = plot_->plot();
+
+	foreach(MPlotItem *item, plot->plotItems()){
+
+		if (item->description().contains(symbol))
+			if (plot->removeItem(item))
+				delete item;
+	}
+}
+
+void AM2DScanViewSingleSpectrumView::setPlotRange(double low, double high)
+{
+	range_ = qMakePair(low, high);
+	tableView_->setRange(low, high);
+
+	foreach(int atomicNumber, table_->selectedElements())
+		onElementDeselected(atomicNumber);
+
+	foreach(int atomicNumber, table_->selectedElements())
+		onElementSelected(atomicNumber);
+}
+
 void AM2DScanViewSingleSpectrumView::onDataPositionChanged(AMnDIndex index, int rowLength, const QString &filename)
 {
 	if (isVisible())
@@ -988,6 +1041,8 @@ void AM2DScanViewSingleSpectrumView::setAxisInfo(AMAxisInfo info)
 
 	for (int i = 0; i < info.size; i++)
 		x_[i] = double(info.start) + i*double(info.increment);
+
+	setPlotRange(double(info.start), double(info.start) + info.size*double(info.increment));
 }
 
 void AM2DScanViewSingleSpectrumView::updatePlot(QVector<double> spectrum)
