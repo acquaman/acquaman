@@ -855,6 +855,20 @@ void AMScanViewMultiView::addScan(int si) {
 				plot_->plot()->addItem(newItem, (dataSource->rank() == 2 ? MPlot::Right : MPlot::Left));
 				/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
 
+				AMScan *scan = model()->scanAt(si);
+
+				if (scan->scanRank() == 0)
+					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->measurementAt(0).units.isEmpty() ? scan->rawData()->measurementAt(0).description : scan->rawData()->measurementAt(0).description % ", " % scan->rawData()->measurementAt(0).units);
+
+				if (scan->scanRank() == 1)
+					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
+
+				if (scan->dataSourceAt(di)->rank() == 2)
+					plot_->plot()->axisRight()->setAxisName(scan->dataSourceAt(di)->axisInfoAt(1).units.isEmpty() ? scan->dataSourceAt(di)->axisInfoAt(1).description : scan->dataSourceAt(di)->axisInfoAt(1).description % ", " % scan->dataSourceAt(di)->axisInfoAt(1).units);
+
+				else
+					plot_->plot()->axisRight()->setAxisName("");
+
 				newItem->setDescription(model()->scanAt(si)->fullName() + ": " + dataSource->name());
 			}
 			scanList << newItem;
@@ -984,19 +998,6 @@ void AMScanViewMultiView::onModelDataChanged(const QModelIndex& topLeft, const Q
 					if(plotItem) {
 						plotItemsAddedOrRemoved = true;
 						plot_->plot()->addItem(plotItem, (model()->dataSourceAt(si, di)->rank() == 2 ? MPlot::Right : MPlot::Left));
-						AMScan *scan = model()->scanAt(si);
-
-						if (scan->scanRank() == 0)
-							plot_->plot()->axisBottom()->setAxisName(scan->rawData()->measurementAt(0).units.isEmpty() ? scan->rawData()->measurementAt(0).description : scan->rawData()->measurementAt(0).description % ", " % scan->rawData()->measurementAt(0).units);
-
-						if (scan->scanRank() == 1)
-							plot_->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
-
-						if (scan->dataSourceAt(di)->rank() == 2)
-							plot_->plot()->axisRight()->setAxisName(scan->dataSourceAt(di)->axisInfoAt(1).units.isEmpty() ? scan->dataSourceAt(di)->axisInfoAt(1).description : scan->dataSourceAt(di)->axisInfoAt(1).description % ", " % scan->dataSourceAt(di)->axisInfoAt(1).units);
-
-						else
-							plot_->plot()->axisRight()->setAxisName("");
 
 						/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
 						plotItem->setDescription(model()->scanAt(si)->fullName() + ": " + model()->dataSourceAt(si, di)->description());
@@ -1169,6 +1170,20 @@ void AMScanViewMultiScansView::addScan(int si) {
 			if(newItem) {
 				newItem->setDescription(dataSource->description());
 				plots_.at(si)->plot()->addItem(newItem, (dataSource->rank() == 2 ? MPlot::Right : MPlot::Left));
+
+				AMScan *scan = model()->scanAt(si);
+				if (scan->scanRank() == 0)
+					plots_.at(si)->plot()->axisBottom()->setAxisName(scan->rawData()->measurementAt(0).units.isEmpty() ? scan->rawData()->measurementAt(0).description : scan->rawData()->measurementAt(0).description % ", " % scan->rawData()->measurementAt(0).units);
+
+				if (scan->scanRank() == 1)
+					plots_.at(si)->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
+
+				if (scan->dataSourceAt(di)->rank() == 2)
+					plots_.at(si)->plot()->axisRight()->setAxisName(scan->dataSourceAt(di)->axisInfoAt(1).units.isEmpty() ? scan->dataSourceAt(di)->axisInfoAt(1).description : scan->dataSourceAt(di)->axisInfoAt(1).description % ", " % scan->dataSourceAt(di)->axisInfoAt(1).units);
+
+				else
+					plots_.at(si)->plot()->axisRight()->setAxisName("");
+
 				/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
 			}
 			scanList << newItem;
@@ -1339,19 +1354,6 @@ void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, co
 						visibilityChanges = true;
 						plotItem->setDescription(model()->dataSourceAt(si, di)->description());
 						plots_.at(si)->plot()->addItem(plotItem, (model()->dataSourceAt(si, di)->rank() == 2 ? MPlot::Right : MPlot::Left));
-						AMScan *scan = model()->scanAt(si);
-
-						if (scan->scanRank() == 0)
-							plots_.at(si)->plot()->axisBottom()->setAxisName(scan->rawData()->measurementAt(0).units.isEmpty() ? scan->rawData()->measurementAt(0).description : scan->rawData()->measurementAt(0).description % ", " % scan->rawData()->measurementAt(0).units);
-
-						if (scan->scanRank() == 1)
-							plots_.at(si)->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
-
-						if (scan->dataSourceAt(di)->rank() == 2)
-							plots_.at(si)->plot()->axisRight()->setAxisName(scan->dataSourceAt(di)->axisInfoAt(1).units.isEmpty() ? scan->dataSourceAt(di)->axisInfoAt(1).description : scan->dataSourceAt(di)->axisInfoAt(1).description % ", " % scan->dataSourceAt(di)->axisInfoAt(1).units);
-
-						else
-							plots_.at(si)->plot()->axisRight()->setAxisName("");
 					}
 				}
 				else {	// apply data changes to existing plot item
