@@ -42,10 +42,10 @@ public:
 	AMPeriodicTableView(QWidget *parent = 0);
 	~AMPeriodicTableView();
 
-	/// Returns a pointer to the periodic table model used by the view.
-	AMPeriodicTable *table() const { return table_; }
 	/// Returns the mapped QToolButton for a given element.
 	QToolButton *button(AMElement *el) { return qobject_cast<QToolButton *>(elementMapper_->mapping(el->atomicNumber())); }
+	/// Returns the mapped QToolButton for a given element.
+	QToolButton *button(const AMElement *el) { return qobject_cast<QToolButton *>(elementMapper_->mapping(el->atomicNumber())); }
 
 signals:
 	/// Mapped signal that passes the atomic number of an element.
@@ -75,8 +75,6 @@ private:
 	// Member variables.
 	// The signal mapper.
 	QSignalMapper *elementMapper_;
-	// The table.
-	AMPeriodicTable *table_;
 };
 
 #endif // PERIODICTABLEVIEW_H
