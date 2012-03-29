@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSet>
 #include <QHash>
 #include <QMutex>
+#include <QStringlist>
 
 
 /// This class provides thread-safe, general access to an SQL database.
@@ -96,6 +97,13 @@ The parameters by which to access the database are given in \c dbAccessString. (
 	/// This is the full path to the database
 	QString dbAccessString() const{
 		return dbAccessString_;
+	}
+
+	/// This returns whether or not the database has any tables (if no tables, then it's empty)
+	bool isEmpty() const{
+		if(qdb().tables().count() == 0)
+			return true;
+		return false;
 	}
 
 

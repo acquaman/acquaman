@@ -52,7 +52,6 @@ public:
 
 public slots:
 	virtual bool startupCreateDatabases();
-	//virtual bool startupDatabaseUpgrades();
 
 	/// Re-implemented from AMAppController to create and register the SGM database with the database system.
 	virtual bool startupRegisterDatabases();

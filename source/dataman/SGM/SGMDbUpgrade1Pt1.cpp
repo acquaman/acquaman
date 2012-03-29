@@ -1,7 +1,7 @@
 #include "SGMDbUpgrade1Pt1.h"
 
-SGMDbUpgrade1Pt1::SGMDbUpgrade1Pt1(QStringList databaseNamesToUpgrade, QObject *parent) :
-	AMDbUpgrade(databaseNamesToUpgrade, parent)
+SGMDbUpgrade1Pt1::SGMDbUpgrade1Pt1(QString databaseNameToUpgrade, QObject *parent) :
+	AMDbUpgrade(databaseNameToUpgrade, parent)
 {
 }
 
@@ -15,15 +15,13 @@ bool SGMDbUpgrade1Pt1::upgradeNecessary() const{
 	QList<int> matchingOceanOptics;
 	QList<int> matchingMCP;
 
-	// Loop over all of the requested databases to check if any of these types are in the AMDbObjectTypes_table
-	for(int x = 0; x < databasesToUpgrade_.count(); x++){
-		matchingPGT = databasesToUpgrade_.at(x)->objectsMatching("AMDbObjectTypes_table", "AMDbObjectType", "PGTDetectorInfo");
-		matchingOceanOptics = databasesToUpgrade_.at(x)->objectsMatching("AMDbObjectTypes_table", "AMDbObjectType", "OceanOptics65000DetectorInfo");
-		matchingMCP = databasesToUpgrade_.at(x)->objectsMatching("AMDbObjectTypes_table", "AMDbObjectType", "MCPDetectorInfo");
+	// Check if any of these types are in the AMDbObjectTypes_table
+	matchingPGT = databaseToUpgrade_->objectsMatching("AMDbObjectTypes_table", "AMDbObjectType", "PGTDetectorInfo");
+	matchingOceanOptics = databaseToUpgrade_->objectsMatching("AMDbObjectTypes_table", "AMDbObjectType", "OceanOptics65000DetectorInfo");
+	matchingMCP = databaseToUpgrade_->objectsMatching("AMDbObjectTypes_table", "AMDbObjectType", "MCPDetectorInfo");
 
-		if(matchingPGT.count() > 0 || matchingOceanOptics.count() > 0 || matchingMCP.count() > 0)
-			return true;
-	}
+	if(matchingPGT.count() > 0 || matchingOceanOptics.count() > 0 || matchingMCP.count() > 0)
+		return true;
 	return false;
 }
 
@@ -33,14 +31,20 @@ bool SGMDbUpgrade1Pt1::upgradeImplementation(){
 	QMap<QString, QString> parentTablesToColumnsNames;
 	QMap<QString, int> indexTablesToIndexSide;
 	indexTablesToIndexSide.insert("AMDetectorInfoSet_table_detectorInfos", 2);
-	// Loop over all of the requested databases to use dbObjectClassBecomes to upgrade each detectorInfo to its new counterpart
-	for(int x = 0; x < databasesToUpgrade_.count(); x++){
-		success &= AMDbUpgradeSupport::dbObjectClassBecomes(databasesToUpgrade_.at(x), "PGTDetectorInfo", "CLSPGTDetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide);
-		success &= AMDbUpgradeSupport::dbObjectClassBecomes(databasesToUpgrade_.at(x), "OceanOptics65000DetectorInfo", "CLSOceanOptics65000DetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide);
-		success &= AMDbUpgradeSupport::dbObjectClassBecomes(databasesToUpgrade_.at(x), "MCPDetectorInfo", "SGMMCPDetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide);
-	}
+
+	// Use dbObjectClassBecomes to upgrade each detectorInfo to its new counterpart
+	success &= AMDbUpgradeSupport::dbObjectClassBecomes(databaseToUpgrade_, "PGTDetectorInfo", "CLSPGTDetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide);
+	success &= AMDbUpgradeSupport::dbObjectClassBecomes(databaseToUpgrade_, "OceanOptics65000DetectorInfo", "CLSOceanOptics65000DetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide);
+	success &= AMDbUpgradeSupport::dbObjectClassBecomes(databaseToUpgrade_, "MCPDetectorInfo", "SGMMCPDetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide);
 
 	return success;
+}
+
+AMDbUpgrade* SGMDbUpgrade1Pt1::createCopy() const{
+	AMDbUpgrade* retVal = new SGMDbUpgrade1Pt1(this->databaseNameToUpgrade());
+	if(this->databaseToUpgrade())
+		retVal->loadDatabaseFromName();
+	return retVal;
 }
 
 QString SGMDbUpgrade1Pt1::upgradeToTag() const{

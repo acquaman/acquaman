@@ -44,6 +44,19 @@ class QStandardItem;
 class AMDatabase;
 class AMDbUpgrade;
 
+#define AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES 42001
+#define AMDATAMANAPPCONTROLLER_STARTUP_FINISHED 42002
+
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_LOAD_FAILURE 270201
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_REQUIREMENT_FAILURE 270202
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_UPGRADE_TABLE_FAILURE 270203
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_LOAD_FAILURE 270204
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_BACKUPS_DIRECTORY_NOT_FOUND 270205
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_BACKUPS_SUBDIRECTORY_NOT_FOUND 270206
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_BACKUP_FAILURE 270207
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_UPGRADE_FAILURE 270208
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_UPGRADE_TABLE_FAILURE 270209
+
 /// This class takes the role of the main application controller for your particular version of the Acquaman program. It marshalls communication between separate widgets/objects, handles menus and menu actions, and all other cross-cutting issues that don't reside within a specific view or controller.  It creates and knows about all top-level GUI objects, and manages them within an AMMainWindow.
 /// This is the bare bones version of the GUI framework because it has no acquisition code inside and therefore forms the basis of a take home Dataman program for users.  It contains the ability to scan through the database, create experiments, and view scans using the scan editor.
 /*! The AMMainWindow class is a reusable GUI framework class that should not contain application-specific code.  Instead, you should subclass this class for your specific version of Acquaman.

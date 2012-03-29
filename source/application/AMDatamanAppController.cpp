@@ -111,8 +111,8 @@ bool AMDatamanAppController::startup() {
 	splashScreen_ = new AMDatamanStartupSplashScreen();
 	splashScreen_->show();
 
-	AMErrorMon::subscribeToCode(42001, splashScreen_, "onErrorMonStartupCode");
-	AMErrorMon::subscribeToCode(42002, splashScreen_, "onErrorMonStartupFinished");
+	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, splashScreen_, "onErrorMonStartupCode");
+	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_FINISHED, splashScreen_, "onErrorMonStartupFinished");
 
 	if(!startupLoadSettings()) { qWarning() << "Problem with Acquaman startup: loading settings."; return false; }
 
@@ -142,7 +142,7 @@ bool AMDatamanAppController::startup() {
 
 	if(!startupInstallActions()) { qWarning() << "Problem with Acquaman startup: installing menu actions."; return false; }
 
-	AMErrorMon::information(this, 42002, "Acquaman Startup: Finished");
+	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_FINISHED, "Acquaman Startup: Finished");
 	// show main window
 	mw_->show();
 	splashScreen_->raise();
@@ -153,7 +153,7 @@ bool AMDatamanAppController::startup() {
 
 bool AMDatamanAppController::startupLoadSettings()
 {
-	AMErrorMon::information(this, 42001, "Acquaman Startup: Loading Settings");
+	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: Loading Settings");
 	qApp->processEvents();
 	// Load settings from disk:
 	AMSettings::s()->load();
@@ -163,7 +163,7 @@ bool AMDatamanAppController::startupLoadSettings()
 
 bool AMDatamanAppController::startupLoadPlugins()
 {
-	AMErrorMon::information(this, 42001, "Acquaman Startup: Loading Plugins");
+	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: Loading Plugins");
 	qApp->processEvents();
 	// Load plugins:
 	AMPluginsManager::s()->loadApplicationPlugins();
@@ -234,23 +234,23 @@ bool AMDatamanAppController::startupOnFirstTime()
 	AMDbUpgrade *upgrade;
 	for(int x = 0; x < databaseUpgrades_.count(); x++){
 		upgrade = databaseUpgrades_.at(x);
-		if(!upgrade->loadDatabasesFromNames()){
-			AMErrorMon::alert(0, 270201, "Failure to load requested databases for initialization of upgrade table");
+		if(!upgrade->loadDatabaseFromName()){
+			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_LOAD_FAILURE, "Failure to load requested databases for initialization of upgrade table");
 			return false;
 		}
 		// This needs to return false on the first time through ... otherwise things are going really bad
 		if(!upgrade->upgradeRequired()){
-			AMErrorMon::alert(0, 270202, "Failure in initialization of upgrade table, there must be tracking required for new databases");
+			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_REQUIREMENT_FAILURE, "Failure in initialization of upgrade table, there must be tracking required for new databases");
 			return false;
 		}
 		success &= upgrade->updateUpgradeTable(false, true);
 		if(!success){
-			AMErrorMon::alert(0, 270203, "Failure to write initialization for upgrade table");
+			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_UPGRADE_TABLE_FAILURE, "Failure to write initialization for upgrade table");
 			return false;
 		}
 	}
 
-	AMErrorMon::information(this, 42001, "Acquaman Startup: First-Time Successful");
+	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: First-Time Successful");
 	qApp->processEvents();
 	return true;
 }
@@ -280,74 +280,121 @@ bool AMDatamanAppController::startupCreateDatabases()
 bool AMDatamanAppController::startupDatabaseUpgrades()
 {
 	bool success = true;
-	bool atLeastOneUpgrade = false;
+	bool atLeastOneDatabaseAccessible = false;
+	bool databaseIsEmpty;
 	bool upgradeIsNecessary;
 	int upgradesCompleted = 0;
 	AMDbUpgrade *upgrade;
+	QString backupsSubFolder = QDateTime::currentDateTime().toString("MMMddyyy_hhmmss");
+	QDir databaseBackupDir;
+	QString lastErrorString;
+	int lastErrorCode;
+
 	// Loop over the database upgrades and apply them if necessary
 	for(int x = 0; x < databaseUpgrades_.count(); x++){
 		upgradeIsNecessary = false;
+		databaseIsEmpty = false;
 		upgrade = databaseUpgrades_.at(x);
-		if(!upgrade->loadDatabasesFromNames()){
-			AMErrorMon::alert(0, 270204, QString("Failure to load requested databases for upgrade %1").arg(upgrade->upgradeToTag()));
+		QString pathToDatabase;
+		QString databaseName;
+
+		// Load up the database in question. Figure out the path information if that was successful.
+		if(!upgrade->loadDatabaseFromName()){
+			lastErrorString = QString("Failure to load requested databases for upgrade %1").arg(upgrade->upgradeToTag());
+			lastErrorCode = AMDATAMANAPPCONTROLLER_DB_UPGRADE_LOAD_FAILURE;
+			success = false;
+		}
+		else{
+			pathToDatabase = upgrade->databaseToUpgrade()->dbAccessString().replace("//", "/").section("/", 0, -2);
+			databaseName = upgrade->databaseToUpgrade()->dbAccessString().replace("//", "/").section("/", -1);
+			atLeastOneDatabaseAccessible = true;
+		}
+
+		// Make a note if the database is empty
+		if(success && upgrade->databaseToUpgrade()->isEmpty())
+			databaseIsEmpty = true;
+
+		// Only apply upgrades that are required
+		if(success && upgrade->upgradeRequired()){
+			AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("Acquaman Startup: Starting Database Advanced Upgrade %1").arg(upgrade->upgradeToTag()));
+			qApp->processEvents();
+
+			// Back up the database in question if haven't done so already for this set of upgrades. Also make the folders if necessary.
+			databaseBackupDir.setPath(pathToDatabase);
+			if(!databaseBackupDir.cd(".BACKUPS")){
+				databaseBackupDir.mkdir(".BACKUPS");
+				if(!databaseBackupDir.cd(".BACKUPS")){
+					lastErrorString = QString("Failure to create or find backup directory for upgrade %1").arg(upgrade->upgradeToTag());
+					lastErrorCode = AMDATAMANAPPCONTROLLER_DB_UPGRADE_BACKUPS_DIRECTORY_NOT_FOUND;
+					success = false;
+				}
+			}
+			if(success && !databaseBackupDir.cd(backupsSubFolder)){
+				databaseBackupDir.mkdir(backupsSubFolder);
+				if(!databaseBackupDir.cd(backupsSubFolder)){
+					lastErrorString = QString("Failure to create or find backup sub directory for upgrade %1").arg(upgrade->upgradeToTag());
+					lastErrorCode = AMDATAMANAPPCONTROLLER_DB_UPGRADE_BACKUPS_SUBDIRECTORY_NOT_FOUND;
+					success = false;
+				}
+			}
+			QStringList backupFilter;
+			backupFilter << QString("%1.before*").arg(databaseName);
+			if(success && databaseBackupDir.entryList(backupFilter).count() == 0){
+				if(!QFile::copy(pathToDatabase%"/"%databaseName, databaseBackupDir.absolutePath()%"/"%databaseName%".before"%upgrade->upgradeToTag())){
+					lastErrorString = QString("Failure to backup requested databases for upgrade %1").arg(upgrade->upgradeToTag());
+					lastErrorCode = AMDATAMANAPPCONTROLLER_DB_UPGRADE_BACKUP_FAILURE;
+					success = false;
+				}
+			}
+
+			// Actually call the upgrade if it's necessary
+			if(success && upgrade->upgradeNecessary()){
+				upgradeIsNecessary = true;
+				if(!upgrade->upgrade()){
+					lastErrorString = QString("Upgrade run failed for upgrade %1").arg(upgrade->upgradeToTag());
+					lastErrorCode = AMDATAMANAPPCONTROLLER_DB_UPGRADE_UPGRADE_FAILURE;
+					success = false;
+				}
+			}
+
+			// Modify the upgrade table to reflect the changes ... marking as necessary or not. We can also label those upgrades that were done when the database is newly created using the empty flag.
+			if(success && !upgrade->updateUpgradeTable(upgradeIsNecessary, databaseIsEmpty)){
+					lastErrorString = QString("Failure to apply upgrade %1 or to update the upgrade table").arg(upgrade->upgradeToTag());
+					lastErrorCode = AMDATAMANAPPCONTROLLER_DB_UPGRADE_UPGRADE_TABLE_FAILURE;
+					success = false;
+			}
+		}
+		if(!success && atLeastOneDatabaseAccessible){
+			// Restore from backups in case of failure. We must restore all of the databases that we tried to upgrade. Only do this if we managed to load up any of the databases.
+			QStringList backupDatabaseFilter;
+			backupDatabaseFilter << "*.before*";
+			QStringList backupDatabases = databaseBackupDir.entryList(backupDatabaseFilter);
+			for(int y = 0; y < backupDatabases.count(); y++){
+				QString databaseBaseName = backupDatabases.at(y);
+				databaseBaseName.remove(QRegExp("\\.before.*"));
+				QFile::remove(pathToDatabase%"/"%databaseBaseName);
+				QFile::copy(databaseBackupDir.absolutePath()%"/"%backupDatabases.at(y), pathToDatabase%"/"%databaseBaseName);
+			}
+			AMErrorMon::alert(0, lastErrorCode, lastErrorString);
 			return false;
 		}
-		// Only apply upgrades that are required
-		if(upgrade->upgradeRequired()){
-			AMErrorMon::information(this, 42001, QString("Acquaman Startup: Starting Database Advanced Upgrade %1").arg(upgrade->upgradeToTag()));
-			qApp->processEvents();
-			// For the first required upgrade, make a backup of each database (... what if the first one doesn't use all the databases that are editted?)
-			if(!atLeastOneUpgrade){
-				atLeastOneUpgrade = true;
-				for(int y = 0; y < upgrade->databasesToUpgrade().count(); y++){
-					QString pathToDatabase = upgrade->databasesToUpgrade().at(y)->dbAccessString().replace("//", "/").section("/", 0, -2);
-					QString databaseName = upgrade->databasesToUpgrade().at(y)->dbAccessString().replace("//", "/").section("/", -1);
-					QDir databaseDir(pathToDatabase);
-					databaseDir.mkdir(".BACKUPS");
-					if(QFile::exists(pathToDatabase%"/.BACKUPS/"%databaseName%".before"%upgrade->upgradeToTag()))
-						QFile::remove(pathToDatabase%"/.BACKUPS/"%databaseName%".before"%upgrade->upgradeToTag());
-					if(!QFile::copy(pathToDatabase%"/"%databaseName, pathToDatabase%"/.BACKUPS/"%databaseName%".before"%upgrade->upgradeToTag())){
-						AMErrorMon::alert(0, 270205, QString("Failure to backup requested databases for upgrade %1").arg(upgrade->upgradeToTag()));
-						return false;
-					}
-				}
-			}
-			// Actually call the upgrade if it's necessary
-			if(upgrade->upgradeNecessary()){
-				upgradeIsNecessary = true;
-				success &= upgrade->upgrade();
-			}
-			// Modify the upgrade table to reflect the changes
-			if(success)
-				success &= upgrade->updateUpgradeTable(upgradeIsNecessary, false);
-			if(!success){
-				// Restore from backups
-				for(int y = 0; y < upgrade->databasesToUpgrade().count(); y++){
-					qDebug() << "Need to reload save on " << upgrade->databasesToUpgrade().at(y)->connectionName();
-					QString pathToDatabase = upgrade->databasesToUpgrade().at(y)->dbAccessString().replace("//", "/").section("/", 0, -2);
-					QString databaseName = upgrade->databasesToUpgrade().at(y)->dbAccessString().replace("//", "/").section("/", -1);
-					QFile::remove(pathToDatabase%"/"%databaseName);
-					QFile::copy(pathToDatabase%"/.BACKUPS/"%databaseName%".before"%upgrade->upgradeToTag(), pathToDatabase%"/"%databaseName);
-				}
-				AMErrorMon::alert(0, 270206, QString("Failure to apply upgrade %1 or to update the upgrade table").arg(upgrade->upgradeToTag()));
-				return false;
-			}
-			AMErrorMon::information(this, 42001, QString("Acquaman Startup: Finalizing Database Advanced Upgrade %1").arg(upgrade->upgradeToTag()));
-			qApp->processEvents();
-			upgradesCompleted++;
-		}
+		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("Acquaman Startup: Finalizing Database Advanced Upgrade %1").arg(upgrade->upgradeToTag()));
+		qApp->processEvents();
+		upgradesCompleted++;
 	}
+
+	// If we completed some upgrades (or not) let the user know
 	if(upgradesCompleted > 0)
-		AMErrorMon::information(this, 42001, QString("Acquaman Startup: Database Upgrade Stage Successful, applied %1 upgrades").arg(upgradesCompleted));
+		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("Acquaman Startup: Database Upgrade Stage Successful, applied %1 upgrades").arg(upgradesCompleted));
 	else
-		AMErrorMon::information(this, 42001, QString("Acquaman Startup: Database Upgrade Stage Successful, no upgrades necessary"));
+		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("Acquaman Startup: Database Upgrade Stage Successful, no upgrades necessary"));
 	return true;
 }
 
 #include "util/SGM/SGMSettings.h"
 bool AMDatamanAppController::startupRegisterDatabases()
 {
-	AMErrorMon::information(this, 42001, "Acquaman Startup: Registering Databases");
+	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: Registering Databases");
 	qApp->processEvents();
 	AMDatabase* db = AMDatabase::database("user");
 	if(!db) {
@@ -404,7 +451,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 
 bool AMDatamanAppController::startupPopulateNewDatabase()
 {
-	AMErrorMon::information(this, 42001, "Acquaman Startup: Populating Databases for First-Time");
+	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: Populating Databases for First-Time");
 	qApp->processEvents();
 	AMDatabase* db = AMDatabase::database("user");
 	if(!db)
@@ -430,7 +477,7 @@ bool AMDatamanAppController::startupPopulateNewDatabase()
 
 bool AMDatamanAppController::startupLoadFromExistingDatabase()
 {
-	AMErrorMon::information(this, 42001, "Acquaman Startup: Loading Databases");
+	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: Loading Databases");
 	qApp->processEvents();
 	AMUser::user()->loadFromDb(AMDatabase::database("user"), 1);
 	return true;
@@ -438,7 +485,7 @@ bool AMDatamanAppController::startupLoadFromExistingDatabase()
 
 bool AMDatamanAppController::startupRegisterExporters()
 {
-	AMErrorMon::information(this, 42001, "Acquaman Startup: Registering Exporters");
+	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: Registering Exporters");
 	qApp->processEvents();
 	// Install exporters
 	AMExportController::registerExporter<AMExporterGeneralAscii>();
@@ -449,7 +496,7 @@ bool AMDatamanAppController::startupRegisterExporters()
 
 bool AMDatamanAppController::startupCreateUserInterface()
 {
-	AMErrorMon::information(this, 42001, "Acquaman Startup: Populating User Interface");
+	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: Populating User Interface");
 	qApp->processEvents();
 	settingsMasterView_ = 0;
 	issueSubmissionView_ = 0;
@@ -520,7 +567,7 @@ bool AMDatamanAppController::startupCreateUserInterface()
 
 bool AMDatamanAppController::startupInstallActions()
 {
-	AMErrorMon::information(this, 42001, "Acquaman Startup: Populating User Menus");
+	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: Populating User Menus");
 	qApp->processEvents();
 	// make/install actions:
 	/////////////////////////////////

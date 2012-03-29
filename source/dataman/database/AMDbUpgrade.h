@@ -10,23 +10,25 @@ class AMDbUpgrade : public QObject
 {
 Q_OBJECT
 public:
-	/// The general constructor. The \c databasesToUpgrade is the list of AMDatabases that you wish to apply this upgrade to.
-	AMDbUpgrade(QStringList databaseNamesToUpgrade, QObject *parent = 0);
+	/// The general constructor. The \c databaseNameToUpgrade is the name of the AMDatabases that you wish to apply this upgrade to.
+	AMDbUpgrade(QString databaseNameToUpgrade, QObject *parent = 0);
 
 	/// The tags that this upgrade depends on. If a particular upgrade cannot be attempted if certain upgrades haven't already happened, the list of tags should be returned by this function. This function can return an empty list (it has no dependencies).
 	virtual QStringList upgradeFromTags() const = 0;
 
-	/// Returns true if the upgrade is necessary based on the contents of the databases examined. For example, an upgrade can be required (that tag is not found in the upgrade table) but not be necessary because those classes are not in this database.
-	/*! In this case, the database upgrade will be tagged as completed but no changes are made to the databases (there is a column for this in the upgrade table).
-	    Each subclass must provide this, likely by interogating the databases' AMDbObjectTypes_table.
+	/// Returns true if the upgrade is necessary based on the contents of the database examined. For example, an upgrade can be required (that tag is not found in the upgrade table) but not be necessary because those classes are not in this database.
+	/*! In this case, the database upgrade will be tagged as completed but no changes are made to the database (there is a column for this in the upgrade table).
+	    Each subclass must provide this, likely by interogating the database's AMDbObjectTypes_table.
 	  */
 	virtual bool upgradeNecessary() const = 0;
 
 	/// This function is called by upgrade to complete the work of your specific database upgrade.
-	/*! It is IMPORTANT TO NOTE that you must iterate over all of the databases in databasesToUpgrade_.
-	    You can call custom code here or use functions in the AMDbUpgradeSupport namespace.
+	/*! You can call custom code here or use functions in the AMDbUpgradeSupport namespace.
 	  */
 	virtual bool upgradeImplementation() = 0;
+
+	/// Creates new copy of this upgrade (caller is responsible for memory). You must reimplement this in your subclass to ensure the correct type is new'd.
+	virtual AMDbUpgrade* createCopy() const = 0;
 
 	/// Returns the tag that will be inserted into the upgrades table upon completion. This tag will be searched for to determine whether or not this upgrade is required.
 	virtual QString upgradeToTag() const = 0;
@@ -34,36 +36,39 @@ public:
 	/// Returns a string describing the upgrade to be saved in the upgrade table
 	virtual QString description() const = 0;
 
-	/// This function calls upgradeImplementation() to do the work of the actual upgrade. Additionally, this call makes sure that the dependencies for the upgrade listed by upgradeFromTags exist in each of the databases requested. If not, this function will fail before calling upgradeImplementation().
+	/// This function calls upgradeImplementation() to do the work of the actual upgrade. Additionally, this call makes sure that the dependencies for the upgrade listed by upgradeFromTags exist in the database requested. If not, this function will fail before calling upgradeImplementation().
 	bool upgrade();
 
-	/// This function is called to update the upgrade table once the upgrade() call is successfully completed. It iterates over all the requested databases and ensures that the new upgrade data and tags are inserted into each database.
+	/// This function is called to update the upgrade table once the upgrade() call is successfully completed. It ensures that the new upgrade data and tags are inserted into the database.
 	bool updateUpgradeTable(bool isNecessary, bool duringCreation);
 
 	/// Returns true if the upgrade has not happened yet. That is, false is returned if the tag specified by this upgrade is already in the upgrade table.
 	/*! This should not be confused with upgradeNecessary().
-	    This function iterates over all of the requested databases and returns true if any lack the specified tag. It will also return true if the upgrade table does not exist yet (and it will ensure that the table does exist in all requested databases before the value true is returned).
+	    It will also return true if the upgrade table does not exist yet (and it will ensure that the table does exist before the value true is returned).
 	  */
 	bool upgradeRequired() const;
 
-	/// Loads up the databases from the names supplied. Returns false if one or more databases cannot be loaded.
-	bool loadDatabasesFromNames();
+	/// Loads up the database from the name supplied. Returns false if the database cannot be loaded.
+	bool loadDatabaseFromName();
 
-	/// Returns the list of database names requested for this upgrade
-	QStringList databaseNamesToUpgrade() const;
+	/// Returns the database name requested for this upgrade
+	QString databaseNameToUpgrade() const;
 
-	/// Returns the list of databases requested for this upgrade (this will be empty until loadDatabasesFromNames() is called).
-	QList<AMDatabase*> databasesToUpgrade() const;
+	/// Returns database requested for this upgrade (this will be empty until loadDatabaseFromName() is called).
+	AMDatabase* databaseToUpgrade() const;
 
 public slots:
-	/// Add another database to be upgraded. Use this if you wish to add your App-specific databases to upgrades that AMDatamanAppController or AMAppController have set up.
-	bool addDatabaseNameToUpgrade(QString databaseNameToUpgrade);
+	/// Sets the name of the database to be upgraded. You must call loadDatabaseFromName() to actually load up the database at the correct time.
+	void setDatabaseNameToUpgrade(const QString &databaseNameToUpgrade);
+
+	/// Convenience call to load after setting. Returns true if the database was successfully loaded.
+	bool setDatabaseNameToUpgradeAndLoad(const QString &databaseNameToUpgrade);
 
 protected:
-	/// The list of database names that have been requested for this upgrade
-	QStringList databaseNamesToUpgrade_;
-	/// The list of databases that have been requested for this upgrade.
-	QList<AMDatabase*> databasesToUpgrade_;
+	/// The database name that has been requested for this upgrade
+	QString databaseNameToUpgrade_;
+	/// The database that has been requested for this upgrade.
+	AMDatabase* databaseToUpgrade_;
 };
 
 namespace AMDbUpgradeSupport{

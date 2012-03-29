@@ -61,11 +61,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
 {
-	QStringList databaseNamesToUpgrade;
-	databaseNamesToUpgrade.append("user");
-	databaseNamesToUpgrade.append("SGMBeamline");
-	AMDbUpgrade *sgm1Pt1 = new SGMDbUpgrade1Pt1(databaseNamesToUpgrade, this);
-	databaseUpgrades_.prepend(sgm1Pt1);
+	// Prepend the SGM upgrade 1.1 to the list for both the user database and the SGM Beamline database
+	AMDbUpgrade *sgm1Pt1SGMDb = new SGMDbUpgrade1Pt1("SGMBeamline", this);
+	databaseUpgrades_.prepend(sgm1Pt1SGMDb);
+	AMDbUpgrade *sgm1Pt1UserDb = new SGMDbUpgrade1Pt1("user", this);
+	databaseUpgrades_.prepend(sgm1Pt1UserDb);
 }
 
 bool SGMAppController::startup() {
@@ -121,27 +121,6 @@ bool SGMAppController::startupCreateDatabases(){
 
 	return true;
 }
-
-//bool SGMAppController::startupDatabaseUpgrades(){
-//	qDebug() << "In SGMAppController startupDatabaseUpgrades";
-
-//	QList<AMDatabase*> databasesToUpgrade;
-//	databasesToUpgrade.append(AMDatabase::database("user"));
-//	databasesToUpgrade.append(AMDatabase::database("SGMBeamline"));
-//	AMDbUpgrade *sgm1Pt1 = new SGMDbUpgrade1Pt1(databasesToUpgrade, this);
-
-//	if(sgm1Pt1->upgradeRequired()){
-//		qDebug() << "Upgrade is REQUIRED";
-//		if(sgm1Pt1->upgradeNecessary()){
-//			qDebug() << "Upgrade is NECESSARY";
-//			if(sgm1Pt1->upgrade()){
-//				qDebug() << "Upgrade is successful";
-//				sgm1Pt1->updateUpgradeTable(true, false);
-//			}
-//		}
-//	}
-//	return true;
-//}
 
 bool SGMAppController::startupRegisterDatabases(){
 	// Call the AMAppController database registrations
