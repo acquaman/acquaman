@@ -42,7 +42,7 @@ public:
 
 protected:
 	/// Holds the additional SGM Information for elements
-	AMOrderedSet<AMElement*, SGMElementInfo*> sgmPeriodicTableInfo_;
+	AMOrderedSet<const AMElement*, SGMElementInfo*> sgmPeriodicTableInfo_;
 
 	/// Singleton instance variable
 	static SGMPeriodicTable *instance_;

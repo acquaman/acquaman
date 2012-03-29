@@ -54,7 +54,7 @@ protected slots:
 	/// Handles choosing a new element when the element button is clicked.
 	void onElementChoiceClicked();
 	/// Fills in the combo box with lines that can be scanned.
-	void fillLinesComboBox(AMElement *el);
+	void fillLinesComboBox(const AMElement *el);
 	/// Handles changes in the combo box index.
 	void onLinesComboBoxIndexChanged(int index);
 	/// Handles setting the proper information if the edge is changed.

@@ -517,7 +517,8 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
     source/actions/AMBeamline2DScanAction.h \
     source/ui/acquaman/AM2DScanConfigurationViewHolder.h \
     source/util/AMFetchSpectrumThread.h \
-    source/util/AMDataSourcePlotSettings.h
+    source/util/AMDataSourcePlotSettings.h \
+    source/util/AMSelectablePeriodicTable.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -860,7 +861,8 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
     source/dataman/datasource/AMDataSourceImageDatawDefault.cpp \
     source/actions/AMBeamline2DScanAction.cpp \
     source/ui/acquaman/AM2DScanConfigurationViewHolder.cpp \
-    source/util/AMFetchSpectrumThread.cpp
+    source/util/AMFetchSpectrumThread.cpp \
+    source/util/AMSelectablePeriodicTable.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -884,6 +886,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 

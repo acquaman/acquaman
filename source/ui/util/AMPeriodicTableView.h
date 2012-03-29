@@ -51,7 +51,7 @@ signals:
 	/// Mapped signal that passes the atomic number of an element.
 	void clicked(int);
 	/// When an element is clicked on, this signal will be emitted carrying a pointer to the element.
-	void elementSelected(AMElement *);
+	void elementSelected(const AMElement *);
 
 private slots:
 	/// Slot that emits a signal carrying a pointer to the particular Element.
@@ -59,7 +59,7 @@ private slots:
 
 private:
 	/// This is a convenience function that takes an Element and returns a mapped QToolButton where the clicked signal is mapped to that element.  Must be called after elementMapper_ has been new'ed.
-	QToolButton *mapElement(AMElement *element)
+	QToolButton *mapElement(const AMElement *element)
 	{
 		QToolButton *button = new QToolButton;
 		button->setFont(QFont("Times New Roman", 12));
