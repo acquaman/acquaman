@@ -252,11 +252,21 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	roiText_ = new QTextEdit;
 	roiText_->setReadOnly(true);
 
+	QPushButton *configureXRFDetectorButton = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure XRF Detector");
+	connect(configureXRFDetectorButton, SIGNAL(clicked()), this, SLOT(onConfigureXRFDetectorClicked()));
+
+	QFormLayout *roiTextLayout = new QFormLayout;
+	roiTextLayout->addRow(roiText_);
+	roiTextLayout->addRow(configureXRFDetectorButton);
+
+	roiTextBox_ = new QGroupBox("Regions Of Interest");
+	roiTextBox_->setLayout(roiTextLayout);
+
 	if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::None)
-		roiText_->hide();
+		roiTextBox_->hide();
 
 	else
-		roiText_->show();
+		roiTextBox_->show();
 
 	// Label showing where the data will be saved.
 	QLabel *exportPath = new QLabel(QString("Data exported to: %1exportData").arg(AMUserSettings::userDataFolder));
@@ -306,7 +316,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	contentsLayout->addLayout(energyLayout, 0, 1, 1, 3);
 	contentsLayout->addLayout(positionLayout, 4, 3, 4, 1);
 	contentsLayout->addLayout(ionChambersLayout, 2, 3, 2, 1);
-	contentsLayout->addWidget(roiText_, 1, 4, 2, 2);
+	contentsLayout->addWidget(roiTextBox_, 1, 4, 2, 2);
 	contentsLayout->addWidget(useFixedTime, 3, 1);
 	contentsLayout->addWidget(estimatedTime_, 6, 1, 1, 2);
 	contentsLayout->addWidget(estimatedSetTime_, 7, 1, 1, 2);
@@ -342,21 +352,38 @@ void VESPERSEXAFSScanConfigurationView::updateFluorescenceChoiceButtons(int dete
 
 	case 0:
 		config_->setRoiInfoList(AMROIInfoList());
-		roiText_->hide();
+		roiTextBox_->hide();
 		break;
 
 	case 1:
 		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
-		roiText_->show();
+		roiTextBox_->show();
 		break;
 
 	case 2:
 		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
-		roiText_->show();
+		roiTextBox_->show();
 		break;
 	}
 
 	updateRoiText();
+}
+
+void VESPERSEXAFSScanConfigurationView::onConfigureXRFDetectorClicked()
+{
+	switch(config_->fluorescenceDetectorChoice()){
+
+	case VESPERSEXAFSScanConfiguration::None:
+		break;
+
+	case VESPERSEXAFSScanConfiguration::SingleElement:
+		emit configureDetector("Single Element");
+		break;
+
+	case VESPERSEXAFSScanConfiguration::FourElement:
+		emit configureDetector("Four Element");
+		break;
+	}
 }
 
 void VESPERSEXAFSScanConfigurationView::updateItButtons(int It)
@@ -377,17 +404,17 @@ void VESPERSEXAFSScanConfigurationView::onFluorescenceChoiceChanged(int id)
 
 	case 0:
 		config_->setRoiInfoList(AMROIInfoList());
-		roiText_->hide();
+		roiTextBox_->hide();
 		break;
 
 	case 1:
 		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
-		roiText_->show();
+		roiTextBox_->show();
 		break;
 
 	case 2:
 		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
-		roiText_->show();
+		roiTextBox_->show();
 		break;
 	}
 
@@ -419,7 +446,7 @@ void VESPERSEXAFSScanConfigurationView::updateRoiText()
 
 void VESPERSEXAFSScanConfigurationView::onElementChoiceClicked()
 {
-	AMElement *el = AMPeriodicTableDialog::getElement(this);
+	const AMElement *el = AMPeriodicTableDialog::getElement(this);
 
 	if (el){
 
@@ -429,7 +456,7 @@ void VESPERSEXAFSScanConfigurationView::onElementChoiceClicked()
 	}
 }
 
-void VESPERSEXAFSScanConfigurationView::fillLinesComboBox(AMElement *el)
+void VESPERSEXAFSScanConfigurationView::fillLinesComboBox(const AMElement *el)
 {
 	if (!el)
 		return;

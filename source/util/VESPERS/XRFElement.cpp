@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "XRFElement.h"
 
-XRFElement::XRFElement(AMElement *el, QObject *parent)
+XRFElement::XRFElement(const AMElement *el, QObject *parent)
 	: AMElement(el->name(), el->symbol(), QString::number(el->atomicNumber()), toStringList(el->edges()), toStringList(el->emissionLines()), parent)
 {
 	for (int i = 0; i < el->emissionLines().size(); i++)

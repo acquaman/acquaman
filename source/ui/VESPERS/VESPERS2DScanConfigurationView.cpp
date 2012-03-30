@@ -136,8 +136,17 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	onCCDFileNameChanged(config_->ccdFileName());
 	currentCCDFileName_->setVisible(config_->usingCCD());
 
+	QPushButton *configureRoperDetectorButton = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure Roper CCD");
+	configureRoperDetectorButton->setEnabled(config_->usingCCD());
+	connect(configureRoperDetectorButton, SIGNAL(clicked()), this, SLOT(onConfigureRoperDetectorClicked()));
+	connect(usingCCDCheckBox_, SIGNAL(toggled(bool)), configureRoperDetectorButton, SLOT(setEnabled(bool)));
+
+	QHBoxLayout *ccdBoxFirstRowLayout = new QHBoxLayout;
+	ccdBoxFirstRowLayout->addWidget(usingCCDCheckBox_);
+	ccdBoxFirstRowLayout->addWidget(configureRoperDetectorButton);
+
 	QVBoxLayout *ccdBoxLayout = new QVBoxLayout;
-	ccdBoxLayout->addWidget(usingCCDCheckBox_);
+	ccdBoxLayout->addLayout(ccdBoxFirstRowLayout);
 	ccdBoxLayout->addWidget(currentCCDFileName_);
 
 	ccdBox->setLayout(ccdBoxLayout);
@@ -200,12 +209,12 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	roiText_ = new QTextEdit;
 	roiText_->setReadOnly(true);
 
-	QPushButton *configureDetectorButton = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure Detector");
-	connect(configureDetectorButton, SIGNAL(clicked()), this, SLOT(onConfigureDetectorClicked()));
+	QPushButton *configureXRFDetectorButton = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure XRF Detector");
+	connect(configureXRFDetectorButton, SIGNAL(clicked()), this, SLOT(onConfigureXRFDetectorClicked()));
 
 	QFormLayout *roiTextLayout = new QFormLayout;
 	roiTextLayout->addRow(roiText_);
-	roiTextLayout->addRow(configureDetectorButton);
+	roiTextLayout->addRow(configureXRFDetectorButton);
 
 	QGroupBox *roiTextBox = new QGroupBox("Regions Of Interest");
 	roiTextBox->setLayout(roiTextLayout);
@@ -279,7 +288,7 @@ void VESPERS2DScanConfigurationView::onFluorescenceChoiceChanged(int id)
 	updateRoiText();
 }
 
-void VESPERS2DScanConfigurationView::onConfigureDetectorClicked()
+void VESPERS2DScanConfigurationView::onConfigureXRFDetectorClicked()
 {
 	switch(config_->fluorescenceDetectorChoice()){
 
@@ -294,6 +303,11 @@ void VESPERS2DScanConfigurationView::onConfigureDetectorClicked()
 		emit configureDetector("Four Element");
 		break;
 	}
+}
+
+void VESPERS2DScanConfigurationView::onConfigureRoperDetectorClicked()
+{
+	emit configureDetector("Roper CCD");
 }
 
 void VESPERS2DScanConfigurationView::onUsingCCDChanged(bool useCCD)

@@ -292,14 +292,14 @@ void SGMScanInfo::setEnd(const SGMEnergyPosition &end) {
 	}
 }
 
-SGMElementInfo::SGMElementInfo(const QString &name, AMElement *element, QObject *parent) :
+SGMElementInfo::SGMElementInfo(const QString &name, const AMElement *element, QObject *parent) :
 		AMDbObject(parent)
 {
 	setName(name);
 	element_ = element;
 }
 
-AMElement* SGMElementInfo::element() const{
+const AMElement* SGMElementInfo::element() const{
 	return element_;
 }
 
@@ -469,20 +469,20 @@ SGMFastScanParameters::SGMFastScanParameters(const QString &name, const QString 
 
 bool SGMFastScanParameters::operator ==(const SGMFastScanParameters &other){
 	if( element() == other.element() &&
-	    runSeconds() == other.runSeconds() &&
-	    energyStart() == other.energyStart() &&
-	    energyMidpoint() == other.energyMidpoint() &&
-	    energyEnd() == other.energyEnd() &&
-	    velocity() == other.velocity() &&
-	    velocityBase() == other.velocityBase() &&
-	    acceleration() == other.acceleration() &&
-	    scalerTime() == other.scalerTime() &&
-	    baseLine() == other.baseLine() &&
-	    undulatorStartStep() == other.undulatorStartStep() &&
-	    undulatorVelocity() == other.undulatorVelocity() &&
-	    undulatorRelativeStep() == other.undulatorRelativeStep() &&
-	    exitSlitDistance() == other.exitSlitDistance() &&
-	    sgmGrating() == other.sgmGrating()){
+		runSeconds() == other.runSeconds() &&
+		energyStart() == other.energyStart() &&
+		energyMidpoint() == other.energyMidpoint() &&
+		energyEnd() == other.energyEnd() &&
+		velocity() == other.velocity() &&
+		velocityBase() == other.velocityBase() &&
+		acceleration() == other.acceleration() &&
+		scalerTime() == other.scalerTime() &&
+		baseLine() == other.baseLine() &&
+		undulatorStartStep() == other.undulatorStartStep() &&
+		undulatorVelocity() == other.undulatorVelocity() &&
+		undulatorRelativeStep() == other.undulatorRelativeStep() &&
+		exitSlitDistance() == other.exitSlitDistance() &&
+		sgmGrating() == other.sgmGrating()){
 		return true;
 	}
 	return false;

@@ -30,6 +30,10 @@ public:
 	/// Getter for the configuration.
 	const AMScanConfiguration* configuration() const { return config_; }
 
+signals:
+	/// Sends out a request that the current detector (based on FluorescenceDetectorChoice) to be configured.  Asks the app controller to change to the detector view.  String will be either "Single Element" or "Four Element".
+	void configureDetector(const QString &);
+
 protected slots:
 	/// Handles setting the name of the configuration from the line edit.
 	void onScanNameEdited() { config_->setName(scanName_->text()); }
@@ -50,7 +54,7 @@ protected slots:
 	/// Handles choosing a new element when the element button is clicked.
 	void onElementChoiceClicked();
 	/// Fills in the combo box with lines that can be scanned.
-	void fillLinesComboBox(AMElement *el);
+	void fillLinesComboBox(const AMElement *el);
 	/// Handles changes in the combo box index.
 	void onLinesComboBoxIndexChanged(int index);
 	/// Handles setting the proper information if the edge is changed.
@@ -86,6 +90,8 @@ protected slots:
 	/// Slot that sets up the regions for standard EXAFS scans.
 	void onDefaultEXAFSScanClicked();
 
+	/// Emits the configureDetector signal based on the current fluorescence detector choice.
+	void onConfigureXRFDetectorClicked();
 	/// Updates roiText_ based on the current state of the ROI list.
 	void updateRoiText();
 	/// Handles the context menu.
@@ -137,8 +143,10 @@ protected:
 	/// Button group for the I0 ion chamber selection.
 	QButtonGroup *I0Group_;
 
-	/// The text edit that holds all the names of the regions of interest.
+	/// The group box that holds all the names of the regions of interest.
 	QTextEdit *roiText_;
+	/// The group box that holds all the names of the regions of interest.
+	QGroupBox *roiTextBox_;
 
 	/// A label holding text for the the time offset spin box.
 	QLabel *timeOffsetLabel_;
