@@ -195,7 +195,7 @@ void VESPERSAppController::setupExporterOptions()
 
 	vespersDefault->setName("VESPERS2DDefault");
 	vespersDefault->setFileName("$name_$fsIndex.dat");
-	vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n");
+	vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n");
 	vespersDefault->setHeaderIncluded(true);
 	vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
 	vespersDefault->setColumnHeaderIncluded(true);
