@@ -54,7 +54,13 @@ void AMFetchSpectrumThread::run()
 		AMnDIndex index = index_;
 		int rowLength = rowLength_;
 		int size = size_;
+		bool abort = abort_;
+		bool restart = restart_;
 		mutex_.unlock();
+
+		// Check to see if the thread has been aborted.
+		if (abort)
+			return;
 
 		// The work.
 		QFile file(filename);
@@ -77,7 +83,7 @@ void AMFetchSpectrumThread::run()
 				spectrum[i] = currentLine.at(i).toInt();
 
 			// Pass the spectrum along as long as a new spectrum hasn't been requested.
-			if (!restart_)
+			if (!restart)
 				emit fetchedSpectrum(spectrum);
 		}
 
