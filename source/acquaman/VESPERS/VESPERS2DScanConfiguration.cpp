@@ -113,6 +113,9 @@ QString VESPERS2DScanConfiguration::headerText() const
 	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(yStart()).arg(yEnd()));
 	header.append(QString("Step Size:\t%1 mm\n").arg(yStep()));
 
+	if (usingCCD())
+		header.append(QString("Filename for XRD images:\t%1").arg(ccdFileName()));
+
 	return header;
 }
 
