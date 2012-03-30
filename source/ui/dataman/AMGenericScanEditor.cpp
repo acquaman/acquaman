@@ -251,10 +251,16 @@ QPointF AMGenericScanEditor::dataPosition() const
 	return QPointF();
 }
 
-void AMGenericScanEditor::setAxisInfoForSpectrumView(const AMAxisInfo &info)
+void AMGenericScanEditor::setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange)
 {
 	if (scanView2D_)
-		scanView2D_->setAxisInfoForSpectrumView(info);
+		scanView2D_->setAxisInfoForSpectrumView(info, propogateToPlotRange);
+}
+
+void AMGenericScanEditor::setPlotRange(double low, double high)
+{
+	if (scanView2D_)
+		scanView2D_->setPlotRange(low, high);
 }
 
 void AMGenericScanEditor::addScan(AMScan* newScan) {

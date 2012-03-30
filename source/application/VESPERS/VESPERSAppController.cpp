@@ -388,6 +388,7 @@ void VESPERSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
 
 		connect(editor, SIGNAL(dataPositionChanged(AMGenericScanEditor*,QPoint)), this, SLOT(onDataPositionChanged(AMGenericScanEditor*,QPoint)));
 		editor->setAxisInfoForSpectrumView(VESPERSBeamline::vespers()->vortexAM1E()->toInfo()->axes().first());
+		editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().second.toDouble(), VESPERSBeamline::vespers()->vortexXRF1E()->maximumEnergy()*1000);
 	}
 }
 

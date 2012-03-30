@@ -75,8 +75,10 @@ public:
 	AMScan *currentScan() const { return currentScan_; }
 	/// Returns the current position.  This holds the x and y coordinates from the last time the data position tool was moved.
 	QPointF dataPosition() const { return exclusive2DScanBar_->dataPosition(); }
-	/// Sets the default axis information for the spectrum view.
-	void setAxisInfoForSpectrumView(const AMAxisInfo &info);
+	/// Sets the default axis information for the spectrum view. Set \param propogateToPlotRange to false if you don't want the information to propogate.
+	void setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange = true);
+	/// Sets the plot range for the spectrum view.
+	void setPlotRange(double low, double high);
 
 public slots:
 	/// add a scan to the view:
@@ -282,8 +284,10 @@ public:
 	/// Constructor.  Builds a plot.
 	AM2DScanViewSingleSpectrumView(QWidget *parent = 0);
 
-	/// Sets the scale for each point along the x-axis.
-	void setAxisInfo(AMAxisInfo info);
+	/// Sets the scale for each point along the x-axis.  This also calls setPlotRange to make the ranges match.  Set \param propogateToPlotRange to false if you don't want the information to propogate.
+	void setAxisInfo(AMAxisInfo info, bool propogateToPlotRange);
+	/// Sets the plot range used for placing markers inside the plot.
+	void setPlotRange(double low, double high);
 
 public slots:
 	/// Gives a new coordinate (along with the file name) to grab a new spectrum.
@@ -292,8 +296,6 @@ public slots:
 protected slots:
 	/// Slot that updates the plot whenever AMFetchSpectrumThread is finished.
 	void updatePlot(QVector<double> spectrum);
-	/// Sets the plot range used for placing markers inside the plot.
-	void setPlotRange(double low, double high);
 	/// Helper slot that adds lines to the plot based on elements being selected from the table.
 	void onElementSelected(int atomicNumber);
 	/// Helper slot that removes lines from the plot based on elements being deselected fromm the table.

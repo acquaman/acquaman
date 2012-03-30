@@ -10,6 +10,7 @@ AMFetchSpectrumThread::AMFetchSpectrumThread(QObject *parent)
 	restart_ = false;
 	abort_ = false;
 	filename_ = "";
+	size_ = 0;
 	index_ = AMnDIndex();
 	rowLength_ = 0;
 }
@@ -24,13 +25,14 @@ AMFetchSpectrumThread::~AMFetchSpectrumThread()
 	wait();
 }
 
-void AMFetchSpectrumThread::fetch(AMnDIndex index, int rowLength, const QString &filename)
+void AMFetchSpectrumThread::fetch(AMnDIndex index, int rowLength, const QString &filename, int size)
 {
 	QMutexLocker locker(&mutex_);
 
 	filename_ = filename;
 	index_ = index;
 	rowLength_ = rowLength;
+	size_ = size;
 
 	if (!isRunning())
 		start(LowPriority);
@@ -51,6 +53,7 @@ void AMFetchSpectrumThread::run()
 		QString filename = filename_;
 		AMnDIndex index = index_;
 		int rowLength = rowLength_;
+		int size = size_;
 		mutex_.unlock();
 
 		// The work.
@@ -67,8 +70,10 @@ void AMFetchSpectrumThread::run()
 
 			currentLine = in.readLine().split(",");
 			spectrum.resize(currentLine.size());
+			if (size == 0)
+				size = spectrum.size();
 
-			for (int i = 0; i < spectrum.size(); i++)
+			for (int i = 0; i < size; i++)
 				spectrum[i] = currentLine.at(i).toInt();
 
 			// Pass the spectrum along as long as a new spectrum hasn't been requested.

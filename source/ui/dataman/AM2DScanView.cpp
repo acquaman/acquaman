@@ -270,9 +270,14 @@ void AM2DScanView::mousePressEvent(QMouseEvent *e)
 	QWidget::mousePressEvent(e);
 }
 
-void AM2DScanView::setAxisInfoForSpectrumView(const AMAxisInfo &info)
+void AM2DScanView::setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange)
 {
-	spectrumView_->setAxisInfo(info);
+	spectrumView_->setAxisInfo(info, propogateToPlotRange);
+}
+
+void AM2DScanView::setPlotRange(double low, double high)
+{
+	spectrumView_->setPlotRange(low, high);
 }
 
 // AM2DScanViewInternal
@@ -936,8 +941,10 @@ AM2DScanViewSingleSpectrumView::AM2DScanViewSingleSpectrumView(QWidget *parent)
 	model_ = new MPlotVectorSeriesData;
 	MPlotSeriesBasic *series = new MPlotSeriesBasic(model_);
 	series->setMarker(MPlotMarkerShape::None);
+	series->setDescription("Spectrum");
 	plot_->plot()->addItem(series);
 	plot_->setMinimumSize(600, 400);
+	plot_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
 	table_ = new AMSelectablePeriodicTable(this);
 	connect(table_, SIGNAL(elementSelected(int)), this, SLOT(onElementSelected(int)));
@@ -945,8 +952,8 @@ AM2DScanViewSingleSpectrumView::AM2DScanViewSingleSpectrumView(QWidget *parent)
 	tableView_ = new AMSelectablePeriodicTableView(table_);
 
 	QVBoxLayout *layout = new QVBoxLayout;
-	layout->addWidget(plot_, 0, Qt::AlignCenter);
-	layout->addStretch();
+	layout->addWidget(plot_);
+//	layout->addStretch();
 	layout->addWidget(tableView_, 0, Qt::AlignCenter);
 
 	setLayout(layout);
@@ -958,7 +965,6 @@ void AM2DScanViewSingleSpectrumView::setupPlot()
 	plot_ = new MPlotWidget(this);
 	plot_->setPlot(plot);
 
-	plot_->plot()->legend()->setVisible(false);
 	plot_->plot()->plotArea()->setBrush(QBrush(Qt::white));
 	plot_->plot()->axisBottom()->setTicks(5);
 	plot_->plot()->axisLeft()->setTicks(5);
@@ -1026,10 +1032,10 @@ void AM2DScanViewSingleSpectrumView::setPlotRange(double low, double high)
 void AM2DScanViewSingleSpectrumView::onDataPositionChanged(AMnDIndex index, int rowLength, const QString &filename)
 {
 	if (isVisible())
-		fetcher_.fetch(index, rowLength, filename);
+		fetcher_.fetch(index, rowLength, filename, x_.size());
 }
 
-void AM2DScanViewSingleSpectrumView::setAxisInfo(AMAxisInfo info)
+void AM2DScanViewSingleSpectrumView::setAxisInfo(AMAxisInfo info, bool propogateToPlotRange)
 {
 	if (info.units.isEmpty())
 		plot_->plot()->axisBottom()->setAxisName(info.name);
@@ -1042,7 +1048,8 @@ void AM2DScanViewSingleSpectrumView::setAxisInfo(AMAxisInfo info)
 	for (int i = 0; i < info.size; i++)
 		x_[i] = double(info.start) + i*double(info.increment);
 
-	setPlotRange(double(info.start), double(info.start) + info.size*double(info.increment));
+	if (propogateToPlotRange)
+		setPlotRange(double(info.start), double(info.start) + info.size*double(info.increment));
 }
 
 void AM2DScanViewSingleSpectrumView::updatePlot(QVector<double> spectrum)

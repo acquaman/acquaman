@@ -22,8 +22,8 @@ public:
 	/// Destructor.
 	~AMFetchSpectrumThread();
 
-	/// Function that goes into a spectra file and grabs the spectrum specified by AMnDIndex.
-	void fetch(AMnDIndex index, int rowLength, const QString &filename);
+	/// Function that goes into a spectra file and grabs the spectrum specified by AMnDIndex.  The \param size specifies how big the spectrum is.  If 0 then grab the whole line.  If it is specified then only grab that many elements.
+	void fetch(AMnDIndex index, int rowLength, const QString &filename, int size);
 
 signals:
 	/// Notifier that a new spectrum has been fetched.
@@ -44,6 +44,8 @@ private:
 	int rowLength_;
 	/// Name of the file that will be searched.
 	QString filename_;
+	/// The size of the spectrum.
+	int size_;
 	/// Flag holding whether or not the thread should restart with new info.
 	bool restart_;
 	/// Flag holding whether or not the thread should stop working.
