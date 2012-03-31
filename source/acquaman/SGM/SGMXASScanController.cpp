@@ -41,6 +41,8 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	specificScan_->setScanConfiguration(config_);
 	specificScan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
 	specificScan_->setIndexType("fileSystem");
+	specificScan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
+
 	QString scanName;
 	QString sampleName;
 	if(specificScan_->sampleId() == -1)
@@ -210,7 +212,7 @@ bool SGMXASScanController::beamlineInitialize(){
 
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 
-        tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
+		tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
 		tmpAction->setSetpoint(config_->startEnergy());
 	initializationActions_->appendAction(2, tmpAction);
 

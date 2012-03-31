@@ -27,22 +27,23 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	regionsLineView_ = new AMEXAFSLineView(config_->exafsRegions());
 
 	// The fluorescence detector setup
-	QButtonGroup *fluorescenceButtonGroup = new QButtonGroup;
+	fluorescenceButtonGroup_ = new QButtonGroup;
 	QRadioButton *tempButton;
 	QVBoxLayout *fluorescenceDetectorLayout = new QVBoxLayout;
 
 	tempButton = new QRadioButton("None");
-	fluorescenceButtonGroup->addButton(tempButton, 0);
+	fluorescenceButtonGroup_->addButton(tempButton, 0);
 	fluorescenceDetectorLayout->addWidget(tempButton);
 	tempButton = new QRadioButton("Single Element Vortex");
-	fluorescenceButtonGroup->addButton(tempButton, 1);
+	fluorescenceButtonGroup_->addButton(tempButton, 1);
 	fluorescenceDetectorLayout->addWidget(tempButton);
 	tempButton = new QRadioButton("Four Element Vortex");
-	fluorescenceButtonGroup->addButton(tempButton, 2);
+	fluorescenceButtonGroup_->addButton(tempButton, 2);
 	fluorescenceDetectorLayout->addWidget(tempButton);
-	connect(fluorescenceButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
+	connect(fluorescenceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
+	connect(config_, SIGNAL(fluorescenceDetectorChoiceChanged(int)), this, SLOT(updateFluorescenceChoiceButtons(int)));
 
-	fluorescenceButtonGroup->button((int)config_->fluorescenceDetectorChoice())->setChecked(true);
+	fluorescenceButtonGroup_->button((int)config_->fluorescenceDetectorChoice())->setChecked(true);
 
 	QGroupBox *fluorescenceDetectorGroupBox = new QGroupBox("Fluorescence Detector");
 	fluorescenceDetectorGroupBox->setLayout(fluorescenceDetectorLayout);
@@ -65,6 +66,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	ItGroup_->addButton(tempButton, 3);
 	ItGroupLayout->addWidget(tempButton);
 	connect(ItGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onItClicked(int)));
+	connect(config_, SIGNAL(transmissionChoiceChanged(int)), this, SLOT(updateItButtons(int)));
 
 	QVBoxLayout *I0GroupLayout = new QVBoxLayout;
 
@@ -83,6 +85,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	I0Group_->addButton(tempButton, 3);
 	I0GroupLayout->addWidget(tempButton);
 	connect(I0Group_, SIGNAL(buttonClicked(int)), this, SLOT(onI0Clicked(int)));
+	connect(config_, SIGNAL(incomingChoiceChanged(int)), this, SLOT(updateI0Buttons(int)));
 
 	I0Group_->button((int)config_->incomingChoice())->click();
 	ItGroup_->button((int)config_->transmissionChoice())->click();
@@ -102,6 +105,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	scanName_->setText(config_->name());
 	scanName_->setAlignment(Qt::AlignCenter);
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
+	connect(config_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 	onScanNameEdited();
 
 	QFormLayout *scanNameLayout = new QFormLayout;
@@ -127,19 +131,10 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 		onLinesComboBoxIndexChanged(0);
 	}
 	// Resets the view for the view to what it should be.  Using the saved for the energy in case it is different from the original line energy.
-	else {
+	else
+		onEdgeChanged();
 
-		double energy = config_->energy();
-		QString edgeName(config_->edge());
-
-		elementChoice_->setText(config_->edge().split(" ").first());
-		fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol(elementChoice_->text()));
-		config_->setEdge(edgeName);
-		lineChoice_->setCurrentIndex(lineChoice_->findText(config_->edge().split(" ").last(), Qt::MatchStartsWith | Qt::MatchCaseSensitive));
-
-		if (energy_->value() != energy)
-			energy_->setValue(energy);
-	}
+	connect(config_, SIGNAL(edgeChanged(QString)), this, SLOT(onEdgeChanged()));
 
 	QCheckBox *useFixedTime = new QCheckBox("Use fixed time (EXAFS)");
 	useFixedTime->setEnabled(config_->useFixedTime());
@@ -212,6 +207,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	xPosition_->setSuffix(" mm");
 	connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
 	connect(xPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
+	connect(config_, SIGNAL(xPositionChanged(double)), xPosition_, SLOT(setValue(double)));
 
 	QHBoxLayout *xLayout = new QHBoxLayout;
 	xLayout->addWidget(xPosition_);
@@ -225,11 +221,13 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	yPosition_->setSuffix(" mm");
 	connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
 	connect(yPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
+	connect(config_, SIGNAL(yPositionChanged(double)), yPosition_, SLOT(setValue(double)));
 
 	QHBoxLayout *yLayout = new QHBoxLayout;
 	yLayout->addWidget(yPosition_);
 	yLayout->addWidget(savedYPosition_);
 
+	connect(config_, SIGNAL(gotoPositionChanged(bool)), goToPosition, SLOT(setChecked(bool)));
 	connect(goToPosition, SIGNAL(toggled(bool)), config_, SLOT(setGoToPosition(bool)));
 	connect(goToPosition, SIGNAL(toggled(bool)), setCurrentPosition, SLOT(setEnabled(bool)));
 	connect(goToPosition, SIGNAL(toggled(bool)), xPosition_, SLOT(setEnabled(bool)));
@@ -336,6 +334,41 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	setLayout(configViewLayout);
 }
 
+void VESPERSEXAFSScanConfigurationView::updateFluorescenceChoiceButtons(int detector)
+{
+	fluorescenceButtonGroup_->button(detector)->setChecked(true);
+
+	switch(detector){
+
+	case 0:
+		config_->setRoiInfoList(AMROIInfoList());
+		roiText_->hide();
+		break;
+
+	case 1:
+		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
+		roiText_->show();
+		break;
+
+	case 2:
+		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
+		roiText_->show();
+		break;
+	}
+
+	updateRoiText();
+}
+
+void VESPERSEXAFSScanConfigurationView::updateItButtons(int It)
+{
+	ItGroup_->button(It)->setChecked(true);
+}
+
+void VESPERSEXAFSScanConfigurationView::updateI0Buttons(int I0)
+{
+	I0Group_->button(I0)->setChecked(true);
+}
+
 void VESPERSEXAFSScanConfigurationView::onFluorescenceChoiceChanged(int id)
 {
 	config_->setFluorescenceDetectorChoice(id);
@@ -398,6 +431,9 @@ void VESPERSEXAFSScanConfigurationView::onElementChoiceClicked()
 
 void VESPERSEXAFSScanConfigurationView::fillLinesComboBox(AMElement *el)
 {
+	if (!el)
+		return;
+
 	QPair<QString, QString> edge;
 	lineChoice_->clear();
 
@@ -473,6 +509,16 @@ QString VESPERSEXAFSScanConfigurationView::convertTimeToString(double time)
 	timeString += QString::number(seconds) + "s";
 
 	return timeString;
+}
+
+void VESPERSEXAFSScanConfigurationView::onEdgeChanged()
+{
+	elementChoice_->setText(config_->edge().split(" ").first());
+	fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol(elementChoice_->text()));
+	lineChoice_->setCurrentIndex(lineChoice_->findText(config_->edge().split(" ").last(), Qt::MatchStartsWith | Qt::MatchCaseSensitive));
+
+	if (energy_->value() != config_->energy())
+		energy_->setValue(config_->energy());
 }
 
 void VESPERSEXAFSScanConfigurationView::onDefaultXANESScanClicked()

@@ -78,9 +78,14 @@ public:
 		return scanSetModel_->scanAt(index);
 	}
 
+	/// Returns the current scan that the generic scan editor is looking at.
+	AMScan *currentScan() const { return currentScan_; }
+
 	/// Call this function to find out if this editor can be closed. Checks for scans in progress and prompts the user for what to do with modified scans.  Returns true if the editor can be closed; returns false if any scans are acquiring or if the user responded "cancel" to a save-request.
 	bool canCloseEditor();
 
+	/// Returns the current exclusive data source name for the model.
+	QString exclusiveDataSourceName() const { return scanSetModel_->exclusiveDataSourceName(); }
 	/// Sets which data source should be viewed by exclusive views.  Returns true if the data source was found and set.  Returns false otherwise.
 	bool setExclusiveDataSourceByName(const QString &name) { return scanSetModel_->setExclusiveDataSourceByName(name); }
 
@@ -90,9 +95,16 @@ public:
 	/// Exposing scan set model method that returns a list of all data source names that exist and are visible in at least one scan. Warning: this is slow.  O(n), where n is the total number of data sources in all scans.
 	QStringList visibleDataSourceNames() const { return scanSetModel_->visibleDataSourceNames(); }
 
+	/// Returns the data position inside a two dimensional scan.  This returns a null point if AMGenericScanEditor is not using AM2DScanView, or if no valid point was been chosen yet.
+	QPointF dataPosition() const;
+	/// Returns whether the generic scan editor is using AMScanView or AM2DScanView.
+	bool using2DScanView() const { return scanView2D_ ? true : false; }
+
 signals:
 	/// Internal signal to forward the textChanged() from ui_.notesEdit
 	void notesChanged(const QString&);
+	/// Emits a signal that the data position tool has changed positions.  This is only emitted if AMGenericScanEditor is using AM2DScanView.  Passes a reference to the scan editor and also the position of the mouse.
+	void dataPositionChanged(AMGenericScanEditor *, const QPoint &);
 
 public slots:
 
@@ -129,6 +141,9 @@ protected slots:
 
 	/// Called on a one-second timer: Right now, we only use this to update the duration display for currentlyAcquiring() scans
 	void onOneSecondTimer();
+
+	/// Helper slot that emits the dataPositionChanged signal.
+	void onDataPositionChanged(const QPoint &pos) { emit dataPositionChanged(this, pos); }
 
 protected:
 

@@ -76,7 +76,7 @@ bool REIXSXESRawFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 		return false;
 	}
 
-	scan->clearRawDataPointsAndMeasurements();
+	scan->clearRawDataCompletely();
 
 	detectorAxes.append(AMAxisInfo("x", pixelsX, "x - energy axis", "pixels"));
 	detectorAxes.append(AMAxisInfo("y", pixelsY, "y - vertical axis", "pixels"));
