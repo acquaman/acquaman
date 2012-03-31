@@ -468,8 +468,8 @@ void VESPERSEXAFSScanConfigurationView::fillLinesComboBox(const AMElement *el)
 
 		edge = el->edges().at(i);
 
-		if (edge.second.toDouble() <= 30000 && edge.second.toDouble() >= 6700)
-			lineChoice_->addItem(edge.first+": "+edge.second+" eV", edge.second.toDouble());
+        if (edge.second.toDouble() <= 30000 && edge.second.toDouble() >= 6700)
+            lineChoice_->addItem(edge.first+": "+edge.second+" eV", edge.second.toDouble());
 	}
 }
 
@@ -540,12 +540,16 @@ QString VESPERSEXAFSScanConfigurationView::convertTimeToString(double time)
 
 void VESPERSEXAFSScanConfigurationView::onEdgeChanged()
 {
-	elementChoice_->setText(config_->edge().split(" ").first());
-	fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol(elementChoice_->text()));
-	lineChoice_->setCurrentIndex(lineChoice_->findText(config_->edge().split(" ").last(), Qt::MatchStartsWith | Qt::MatchCaseSensitive));
+    QString currentChoice = elementChoice_->text() % " " % lineChoice_->itemText(lineChoice_->currentIndex()).split(":").first();
+    if (config_->edge() == currentChoice)
+        return;
 
-	if (energy_->value() != config_->energy())
-		energy_->setValue(config_->energy());
+    elementChoice_->setText(config_->edge().split(" ").first());
+    fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol(elementChoice_->text()));
+    lineChoice_->setCurrentIndex(lineChoice_->findText(config_->edge().split(" ").last(), Qt::MatchStartsWith | Qt::MatchCaseSensitive));
+
+    if (energy_->value() != config_->energy())
+        energy_->setValue(config_->energy());
 }
 
 void VESPERSEXAFSScanConfigurationView::onDefaultXANESScanClicked()
