@@ -64,7 +64,9 @@ protected slots:
 	void onEstimatedTimeChanged();
 
 	/// Emits the configureDetector signal based on the current fluorescence detector choice.
-	void onConfigureDetectorClicked();
+	void onConfigureXRFDetectorClicked();
+	/// Emits the configureDetector signal based with 'Roper CCD'.
+	void onConfigureRoperDetectorClicked();
 	/// Updates roiText_ based on the current state of the ROI list.
 	void updateRoiText();
 	/// Handles the context menu.

@@ -8,8 +8,9 @@ AM2DDacqScanController::AM2DDacqScanController(AM2DScanConfiguration *cfg, QObje
 	internal2DConfig_ = cfg;
 	xPosition_ = 0;
 	yPosition_ = 0;
-	fastAxisPosition_ = 0;
+	fastAxisStartPosition_ = 0;
 	useDwellTimes_ = false;
+	stopAtEndOfLine_ = false;
 }
 
 bool AM2DDacqScanController::startImplementation()
@@ -122,6 +123,14 @@ bool AM2DDacqScanController::event(QEvent *e)
 			}
 
 			scan_->rawData()->endInsertRows();
+
+			if (stopAtEndOfLine_ && atEndOfLine(aeData)){
+
+				// Make sure that the AMScanController knows that the scan has NOT been cancelled.  This way the scan will still be auto-exported.
+				dacqCancelled_ = false;
+				advAcq_->Stop();
+			}
+
 		}
 
 		e->accept();
@@ -151,11 +160,11 @@ AMnDIndex AM2DDacqScanController::toScanIndex(QMap<int, double> aeData)
 
 			if (xPosition_ == -1 && yPosition_ == 0){
 
-				fastAxisPosition_ = aeData.value(0);
+				fastAxisStartPosition_ = aeData.value(0);
 				xPosition_++;
 			}
 
-			else if (fastAxisPosition_ == aeData.value(0)){
+			else if (fastAxisStartPosition_ == aeData.value(0)){
 
 				xPosition_ = 0;
 				yPosition_++;
@@ -171,11 +180,11 @@ AMnDIndex AM2DDacqScanController::toScanIndex(QMap<int, double> aeData)
 
 		if (yPosition_ == -1 && xPosition_ == 0){
 
-			fastAxisPosition_ = aeData.value(1);
+			fastAxisStartPosition_ = aeData.value(1);
 			yPosition_++;
 		}
 
-		else if (fastAxisPosition_ == aeData.value(1)){
+		else if (fastAxisStartPosition_ == aeData.value(1)){
 
 			yPosition_ = 0;
 			xPosition_++;
@@ -189,6 +198,17 @@ AMnDIndex AM2DDacqScanController::toScanIndex(QMap<int, double> aeData)
 	}
 
 	return AMnDIndex(xPosition_, yPosition_);
+}
+
+bool AM2DDacqScanController::atEndOfLine(QMap<int, double> aeData) const
+{
+	if (internal2DConfig_->fastAxis() == AM2DScanConfiguration::X && internal2DConfig_->xEnd() == aeData.value(0))
+		return true;
+
+	else if (internal2DConfig_->fastAxis() == AM2DScanConfiguration::Y && internal2DConfig_->yEnd() == aeData.value(1))
+		return true;
+
+	return false;
 }
 
 void AM2DDacqScanController::prefillScanPoints()

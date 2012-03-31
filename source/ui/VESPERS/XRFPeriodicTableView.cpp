@@ -59,7 +59,7 @@ XRFPeriodicTableView::XRFPeriodicTableView(XRFPeriodicTable *xrfTable, QWidget *
 
 	disableElements();
 
-	connect(tableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
+	connect(tableView_, SIGNAL(elementSelected(const AMElement*)), this, SLOT(onElementSelected(const AMElement*)));
 
 	QVBoxLayout *legendLayout = new QVBoxLayout;
 	legendLayout->addWidget(legend);

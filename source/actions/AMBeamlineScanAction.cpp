@@ -513,20 +513,24 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	connect(playPauseButton_, SIGNAL(clicked()), this, SLOT(onPlayPauseButtonClicked()));
 	connect(moveActionUpButton_, SIGNAL(clicked()), this, SLOT(onMoveUpButtonClicked()));
 	connect(moveActionDownButton_, SIGNAL(clicked()), this, SLOT(onMoveDownButtonClicked()));
-	hl_ = new QHBoxLayout();
-	hl_->addWidget(scanNameLabel_, 0, Qt::AlignTop | Qt::AlignLeft);
-	hl_->addLayout(progressVL);
-	hl_->addWidget(playPauseButton_, 0, Qt::AlignTop | Qt::AlignRight);
-	hl_->addWidget(stopCancelButton_, 0, Qt::AlignTop | Qt::AlignRight);
+	firstRowLayout_ = new QHBoxLayout();
+	firstRowLayout_->addWidget(scanNameLabel_, 0, Qt::AlignTop | Qt::AlignLeft);
+	firstRowLayout_->addLayout(progressVL);
+	firstRowLayout_->addWidget(playPauseButton_, 0, Qt::AlignTop | Qt::AlignRight);
+	firstRowLayout_->addWidget(stopCancelButton_, 0, Qt::AlignTop | Qt::AlignRight);
 	QVBoxLayout *swapVL = new QVBoxLayout();
 	swapVL->addWidget(moveActionUpButton_);
 	swapVL->addWidget(moveActionDownButton_);
 	swapVL->setContentsMargins(0,0,0,0);
 	swapVL->setSpacing(0);
-	hl_->addLayout(swapVL);
+	firstRowLayout_->addLayout(swapVL);
+	secondRowLayout_ = new QHBoxLayout;
+	secondRowLayout_->addWidget(exportNameLabel_);
+
 	vl_ = new QVBoxLayout();
-	vl_->addLayout(hl_);
-	vl_->addWidget(exportNameLabel_);
+	vl_->addLayout(firstRowLayout_);
+	vl_->addLayout(secondRowLayout_);
+
 	//setLayout(hl_);
 	setLayout(vl_);
 	onPreviousNextChanged();
@@ -625,8 +629,8 @@ void AMBeamlineScanActionView::onScanFinished(){
 	cancelLatch_ = false;
 	disconnect(stopCancelButton_, SIGNAL(clicked()), this, SLOT(onStopCancelButtonClicked()));
 	disconnect(playPauseButton_, SIGNAL(clicked()), this, SLOT(onPlayPauseButtonClicked()));
-	hl_->removeWidget(stopCancelButton_);
-	hl_->removeWidget(playPauseButton_);
+	firstRowLayout_->removeWidget(stopCancelButton_);
+	firstRowLayout_->removeWidget(playPauseButton_);
 	stopCancelButton_->hide();
 	playPauseButton_->hide();
 	qDebug() << "Has succeeded " << scanAction_->hasSucceeded() << " has failed " << scanAction_->hasFailed() << " is running " << scanAction_->isRunning();
@@ -643,8 +647,8 @@ void AMBeamlineScanActionView::onScanFailed(int explanation){
 		timeRemainingLabel_->setText("Scan Failed");
 	disconnect(stopCancelButton_, SIGNAL(clicked()), this, SLOT(onStopCancelButtonClicked()));
 	disconnect(playPauseButton_, SIGNAL(clicked()), this, SLOT(onPlayPauseButtonClicked()));
-	hl_->removeWidget(stopCancelButton_);
-	hl_->removeWidget(playPauseButton_);
+	firstRowLayout_->removeWidget(stopCancelButton_);
+	firstRowLayout_->removeWidget(playPauseButton_);
 	stopCancelButton_->hide();
 	playPauseButton_->hide();
 

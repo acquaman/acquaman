@@ -164,9 +164,9 @@ Q_PROPERTY(AMDbObjectList sgmFastScanParameters READ dbReadSGMFastScanParameters
 Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Element Info")
 
 public:
-	Q_INVOKABLE SGMElementInfo(const QString &name = QString(), AMElement *element = 0, QObject *parent = 0);
+	Q_INVOKABLE SGMElementInfo(const QString &name = QString(), const AMElement *element = 0, QObject *parent = 0);
 
-	AMElement* element() const;
+	const AMElement* element() const;
 
 	AMOrderedSet<QString, SGMScanInfo> sgmEdgeInfos() const;
 	AMOrderedSet<int, SGMFastScanParameters*> availableFastScanParameters() const;
@@ -183,7 +183,7 @@ protected:
 	void dbLoadSGMFastScanParameters(const AMDbObjectList &sgmFastScanParameters);
 
 protected:
-	AMElement *element_;
+	const AMElement *element_;
 	AMOrderedSet<QString, SGMScanInfo> sgmEdgeInfos_;
 	AMOrderedSet<int, SGMFastScanParameters*> availableFastScanParameters_;
 };

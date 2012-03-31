@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_AMGenericScanEditor.h"
 
 #include "dataman/AMScanSetModel.h"
+#include "dataman/AMAxisInfo.h"
 
 class AMScan;
 
@@ -95,10 +96,17 @@ public:
 	/// Exposing scan set model method that returns a list of all data source names that exist and are visible in at least one scan. Warning: this is slow.  O(n), where n is the total number of data sources in all scans.
 	QStringList visibleDataSourceNames() const { return scanSetModel_->visibleDataSourceNames(); }
 
+	// Methods for 2D scans only.
+	/////////////////////////////////////////////////
+
 	/// Returns the data position inside a two dimensional scan.  This returns a null point if AMGenericScanEditor is not using AM2DScanView, or if no valid point was been chosen yet.
 	QPointF dataPosition() const;
 	/// Returns whether the generic scan editor is using AMScanView or AM2DScanView.
 	bool using2DScanView() const { return scanView2D_ ? true : false; }
+	/// Sets the axis information for the spectrum view.  Does nothing if not using 2D scan view.  This will automatically set the plot range for markers as well.  If you need to customize the plot range to something more specific, set \param propogateToPlotRange to false and call setPlotRange().
+	void setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange = true);
+	/// Sets the plot range for markers to be displayed on the spectrum view.  Does nothing if not using 2D scan view.
+	void setPlotRange(double low, double high);
 
 signals:
 	/// Internal signal to forward the textChanged() from ui_.notesEdit

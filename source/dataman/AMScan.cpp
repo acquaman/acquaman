@@ -466,9 +466,7 @@ bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource, bool 
 #include <QByteArray>
 #include <QFile>
 
-/// \todo Hackish... just needed for colors. Move the color table somewhere else besides AMScanSetModel.
-#include "dataman/AMScanSetModel.h"
-
+#include "util/AMDataSourcePlotSettings.h"
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotSeries.h"
 #include "MPlot/MPlotImage.h"
