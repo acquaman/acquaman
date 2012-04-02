@@ -292,7 +292,7 @@ void VESPERSXRFFreeRunView::onShowCombinationPileUpPeaks(bool showPeaks)
 
 void VESPERSXRFFreeRunView::getCombinationElement()
 {
-	AMElement *el = AMPeriodicTableDialog::getElement(this);
+	const AMElement *el = AMPeriodicTableDialog::getElement(this);
 
 	if (el){
 

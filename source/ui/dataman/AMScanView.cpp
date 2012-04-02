@@ -382,9 +382,11 @@ MPlotGW * AMScanViewInternal::createDefaultPlot()
 	rv->plot()->axisScaleBottom()->setAutoScaleEnabled();
 	rv->plot()->axisScaleRight()->setAutoScaleEnabled();
 
-	rv->plot()->axisBottom()->showAxisName(false);
+	rv->plot()->axisBottom()->showAxisName(true);
 	rv->plot()->axisLeft()->showAxisName(false);
-	rv->plot()->axisRight()->showAxisName(false);
+	rv->plot()->axisRight()->showAxisName(true);
+
+	rv->plot()->setMarginRight(rv->plot()->marginLeft());
 
 	// DragZoomerTools need to be added first ("on the bottom") so they don't steal everyone else's mouse events
 	rv->plot()->addTool(new MPlotDragZoomerTool);
@@ -692,6 +694,19 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 			if(newItem) {
 				newItem->setDescription(model()->scanAt(scanIndex)->fullName());
 				plot_->plot()->addItem(newItem, (dataSource->rank() == 2? MPlot::Right : MPlot::Left));
+				AMScan *scan = model()->scanAt(scanIndex);
+
+				if (scan->scanRank() == 0)
+					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->measurementAt(0).units.isEmpty() ? scan->rawData()->measurementAt(0).description : scan->rawData()->measurementAt(0).description % ", " % scan->rawData()->measurementAt(0).units);
+
+				if (scan->scanRank() == 1)
+					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
+
+				if (scan->dataSourceAt(dataSourceIndex)->rank() == 2)
+					plot_->plot()->axisRight()->setAxisName(scan->dataSourceAt(dataSourceIndex)->axisInfoAt(1).units.isEmpty() ? scan->dataSourceAt(dataSourceIndex)->axisInfoAt(1).description : scan->dataSourceAt(dataSourceIndex)->axisInfoAt(1).description % ", " % scan->dataSourceAt(dataSourceIndex)->axisInfoAt(1).units);
+
+				else
+					plot_->plot()->axisRight()->setAxisName("");
 			}
 			/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
 			// testing 3D
@@ -840,6 +855,20 @@ void AMScanViewMultiView::addScan(int si) {
 				plot_->plot()->addItem(newItem, (dataSource->rank() == 2 ? MPlot::Right : MPlot::Left));
 				/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
 
+				AMScan *scan = model()->scanAt(si);
+
+				if (scan->scanRank() == 0)
+					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->measurementAt(0).units.isEmpty() ? scan->rawData()->measurementAt(0).description : scan->rawData()->measurementAt(0).description % ", " % scan->rawData()->measurementAt(0).units);
+
+				if (scan->scanRank() == 1)
+					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
+
+				if (scan->dataSourceAt(di)->rank() == 2)
+					plot_->plot()->axisRight()->setAxisName(scan->dataSourceAt(di)->axisInfoAt(1).units.isEmpty() ? scan->dataSourceAt(di)->axisInfoAt(1).description : scan->dataSourceAt(di)->axisInfoAt(1).description % ", " % scan->dataSourceAt(di)->axisInfoAt(1).units);
+
+				else
+					plot_->plot()->axisRight()->setAxisName("");
+
 				newItem->setDescription(model()->scanAt(si)->fullName() + ": " + dataSource->name());
 			}
 			scanList << newItem;
@@ -969,6 +998,7 @@ void AMScanViewMultiView::onModelDataChanged(const QModelIndex& topLeft, const Q
 					if(plotItem) {
 						plotItemsAddedOrRemoved = true;
 						plot_->plot()->addItem(plotItem, (model()->dataSourceAt(si, di)->rank() == 2 ? MPlot::Right : MPlot::Left));
+
 						/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
 						plotItem->setDescription(model()->scanAt(si)->fullName() + ": " + model()->dataSourceAt(si, di)->description());
 					}
@@ -1140,6 +1170,20 @@ void AMScanViewMultiScansView::addScan(int si) {
 			if(newItem) {
 				newItem->setDescription(dataSource->description());
 				plots_.at(si)->plot()->addItem(newItem, (dataSource->rank() == 2 ? MPlot::Right : MPlot::Left));
+
+				AMScan *scan = model()->scanAt(si);
+				if (scan->scanRank() == 0)
+					plots_.at(si)->plot()->axisBottom()->setAxisName(scan->rawData()->measurementAt(0).units.isEmpty() ? scan->rawData()->measurementAt(0).description : scan->rawData()->measurementAt(0).description % ", " % scan->rawData()->measurementAt(0).units);
+
+				if (scan->scanRank() == 1)
+					plots_.at(si)->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
+
+				if (scan->dataSourceAt(di)->rank() == 2)
+					plots_.at(si)->plot()->axisRight()->setAxisName(scan->dataSourceAt(di)->axisInfoAt(1).units.isEmpty() ? scan->dataSourceAt(di)->axisInfoAt(1).description : scan->dataSourceAt(di)->axisInfoAt(1).description % ", " % scan->dataSourceAt(di)->axisInfoAt(1).units);
+
+				else
+					plots_.at(si)->plot()->axisRight()->setAxisName("");
+
 				/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
 			}
 			scanList << newItem;
@@ -1749,6 +1793,18 @@ bool AMScanViewMultiSourcesView::reviewDataSources() {
 					dataSource2Plot_[sourceName]->plot()->addItem(newItem, (scan->dataSourceAt(di)->rank() == 2 ? MPlot::Right : MPlot::Left));
 					// zzzzzzzz Always add, even if 0? (requires checking everywhere for null plot items). Or only add if valid? (Going with latter... hope this is okay, in event someone tries at add 0d, 3d or 4d data source.
 					sourceAndScan2PlotItem_[sourceName].insert(scan, newItem);
+
+					if (scan->scanRank() == 0)
+						dataSource2Plot_[sourceName]->plot()->axisBottom()->setAxisName(scan->rawData()->measurementAt(0).units.isEmpty() ? scan->rawData()->measurementAt(0).description : scan->rawData()->measurementAt(0).description % ", " % scan->rawData()->measurementAt(0).units);
+
+					if (scan->scanRank() == 1)
+						dataSource2Plot_[sourceName]->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
+
+					if (scan->dataSourceAt(di)->rank() == 2)
+						dataSource2Plot_[sourceName]->plot()->axisRight()->setAxisName(scan->dataSourceAt(di)->axisInfoAt(1).units.isEmpty() ? scan->dataSourceAt(di)->axisInfoAt(1).description : scan->dataSourceAt(di)->axisInfoAt(1).description % ", " % scan->dataSourceAt(di)->axisInfoAt(1).units);
+
+					else
+						dataSource2Plot_[sourceName]->plot()->axisRight()->setAxisName("");
 				}
 			}
 		}

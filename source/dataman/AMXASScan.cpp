@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMXASScan::AMXASScan(QObject *parent)
 	: AMScan(parent)
 {
-	data_->addScanAxis( AMAxisInfo("eV", 0, "Incident Energy", "eV") );
+
 }
 
 

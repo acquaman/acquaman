@@ -67,13 +67,12 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	scanView_ = new AMScanView();
 	scanView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	ui_.leftVerticalLayout->insertWidget(0, scanView_, 2);
-//	scanView2D_ = new AM2DScanView();
-//	scanView2D_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-//	ui_.leftVerticalLayout->insertWidget(0, scanView2D_, 2);
+
+	// Ensure that the 2D scan view is pointing to nowhere.
+	scanView2D_ = 0;
 
 	// share the scan set model with the AMScanView
 	scanSetModel_ = scanView_->model();
-//	scanSetModel_ = scanView2D_->model();
 
 	// And set this model on the list view of scans:
 	ui_.scanListView->setModel(scanSetModel_);
@@ -106,11 +105,105 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	stackWidget_->addItem("Beamline Information", conditionsTableView_);
 	stackWidget_->collapseItem(2);
 
+	connect(ui_.notesEdit, SIGNAL(textChanged()), this, SLOT(onNotesTextChanged()));
+
+	// watch for changes in the selected/deselected scans:
+	connect(ui_.scanListView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentChanged(QModelIndex,QModelIndex)));
+
+	// \todo make this whole window accept drops of scans, with the 'amd://database/table/id' uri-list mime type
+	setAcceptDrops(true);
+
+	currentScan_ = 0;
+
+	// disable drops on text fields that we don't want to accept drops
+	ui_.scanName->setAcceptDrops(false);
+	ui_.notesEdit->setAcceptDrops(false);
 
 
+	// Connect open,save,close buttons
+	connect(ui_.openScanButton, SIGNAL(clicked()), this, SLOT(onOpenScanButtonClicked()));
+	connect(ui_.closeScanButton, SIGNAL(clicked()), this, SLOT(onCloseScanButtonClicked()));
+	connect(ui_.saveScanButton, SIGNAL(clicked()), this, SLOT(onSaveScanButtonClicked()));
+
+	// close button and save buttons are initially disabled; there's no scan to act on
+	ui_.closeScanButton->setEnabled(false);
+	ui_.saveScanButton->setEnabled(false);
+
+	chooseScanDialog_ = 0;
+
+	QTimer* oneSecondTimer = new QTimer(this);
+	connect(oneSecondTimer, SIGNAL(timeout()), this, SLOT(onOneSecondTimer()));
+}
+
+AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
+	: QWidget(parent)
+{
+	ui_.setupUi(this);
+	ui_.topFrameTitle->setStyleSheet("font: " AM_FONT_LARGE_ "pt \"Lucida Grande\";\ncolor: rgb(79, 79, 79);");
+	ui_.statusTextLabel->setStyleSheet("color: white;\nfont: bold " AM_FONT_SMALL_ "pt \"Lucida Grande\"");
+	setWindowTitle("Scan Editor");
+
+	// Add extra UI components:
+	stackWidget_ = new AMVerticalStackWidget();
+	stackWidget_->setMinimumWidth(200);
+	stackWidget_->setMaximumWidth(360);
+	ui_.rightVerticalLayout->addWidget(stackWidget_);
+
+	// Add scan view (plots)
+	if (use2DScanView){
+
+		scanView_ = 0;
+		scanView2D_ = new AM2DScanView();
+		scanView2D_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+		ui_.leftVerticalLayout->insertWidget(0, scanView2D_, 2);
+
+		// share the scan set model with the AMScanView
+		scanSetModel_ = scanView2D_->model();
+
+		connect(scanView2D_, SIGNAL(dataPositionChanged(QPoint)), this, SLOT(onDataPositionChanged(QPoint)));
+	}
+
+	else {
+
+		scanView2D_ = 0;
+		scanView_ = new AMScanView();
+		scanView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+		ui_.leftVerticalLayout->insertWidget(0, scanView_, 2);
+
+		// share the scan set model with the AMScanView
+		scanSetModel_ = scanView_->model();
+	}
+
+	// And set this model on the list view of scans:
+	ui_.scanListView->setModel(scanSetModel_);
+	ui_.scanListView->setSelectionMode(QAbstractItemView::SingleSelection);
+
+	AMDetailedItemDelegate* del = new AMDetailedItemDelegate(this);
+	del->setCloseButtonsEnabled(true);
+	connect(del, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onScanModelCloseClicked(QModelIndex)));
+	ui_.scanListView->setItemDelegate(del);
+	ui_.scanListView->setAlternatingRowColors(true);
+	ui_.scanListView->setAttribute( Qt::WA_MacShowFocusRect, false);
+
+	// Add run selector:
+	runSelector_ = new AMRunSelector(AMDatabase::database("user"));
+	ui_.scanInfoLayout->insertWidget(1, runSelector_);
 
 
+	// Add detailed editor widgets:
+	QWidget* sampleEditorHolder = new QWidget();	// just used to add a margin around the sample editor itself, which has no margins.
+	sampleEditorHolder->setLayout(new QVBoxLayout);
+	sampleEditor_ = new AMSampleEditor(AMDatabase::database("user"));
+	sampleEditorHolder->layout()->addWidget(sampleEditor_);
+	stackWidget_->addItem("Sample Information", sampleEditorHolder);
 
+	dataSourcesEditor_ = new AMDataSourcesEditor(scanSetModel_);
+	stackWidget_->addItem("Data Sets", dataSourcesEditor_);
+
+	conditionsTableView_ = new AMControlInfoListTableView();
+	conditionsTableView_->setMinimumHeight(200);
+	stackWidget_->addItem("Beamline Information", conditionsTableView_);
+	stackWidget_->collapseItem(2);
 
 	connect(ui_.notesEdit, SIGNAL(textChanged()), this, SLOT(onNotesTextChanged()));
 
@@ -143,7 +236,6 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	connect(oneSecondTimer, SIGNAL(timeout()), this, SLOT(onOneSecondTimer()));
 }
 
-
 AMGenericScanEditor::~AMGenericScanEditor() {
 	while(scanSetModel_->scanCount()) {
 		AMScan* s = scanSetModel_->scanAt(scanSetModel_->scanCount()-1);
@@ -151,6 +243,25 @@ AMGenericScanEditor::~AMGenericScanEditor() {
 	}
 }
 
+QPointF AMGenericScanEditor::dataPosition() const
+{
+	if (scanView2D_)
+		return scanView2D_->dataPosition();
+
+	return QPointF();
+}
+
+void AMGenericScanEditor::setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange)
+{
+	if (scanView2D_)
+		scanView2D_->setAxisInfoForSpectrumView(info, propogateToPlotRange);
+}
+
+void AMGenericScanEditor::setPlotRange(double low, double high)
+{
+	if (scanView2D_)
+		scanView2D_->setPlotRange(low, high);
+}
 
 void AMGenericScanEditor::addScan(AMScan* newScan) {
 	scanSetModel_->addScan(newScan);
@@ -256,6 +367,10 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		dataSourcesEditor_->setCurrentScan(scan);
 		conditionsTableView_->setFromInfoList(scan->scanInitialConditions());
 
+		// Only the 2D scan view currently uses a current scan.  But only pass it if it exists.
+		if (scanView2D_)
+			scanView2D_->setCurrentScan(scan);
+
 		//ui_.topFrameTitle->setText(QString("Editing %1 #%2").arg(scan->name()).arg(scan->number()));
 		ui_.topFrameTitle->setText(QString("Editing %1").arg(scan->fullName()));
 	}
@@ -273,6 +388,10 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		sampleEditor_->setCurrentSample(-1);
 		dataSourcesEditor_->setCurrentScan(0);
 		conditionsTableView_->setFromInfoList(0);
+
+		// Only the 2D scan view currently uses a current scan.  But only pass it if it exists.
+		if (scanView2D_)
+			scanView2D_->setCurrentScan(0);
 
 		ui_.topFrameTitle->setText("Scan Editor");
 	}

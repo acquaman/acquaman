@@ -56,7 +56,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMSettings.h"
 #include "dataman/AMScan.h"
-
+#include "acquaman/AMScanConfiguration.h"
 
 // Necessary for registering database types:
 ////////////////////////////
@@ -867,6 +867,15 @@ AMGenericScanEditor * AMDatamanAppController::createNewScanEditor()
 {
 	AMGenericScanEditor* editor = new AMGenericScanEditor();
 	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, this, ":/applications-science.png"));
+	emit scanEditorCreated(editor);
+	return editor;
+}
+
+AMGenericScanEditor *AMDatamanAppController::createNewScanEditor(bool use2DScanView)
+{
+	AMGenericScanEditor* editor = new AMGenericScanEditor(use2DScanView);
+	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, this, ":/applications-science.png"));
+	emit scanEditorCreated(editor);
 	return editor;
 }
 
@@ -1096,10 +1105,20 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 	}
 
 	// success!
-	if(!editor) {
+	if (scan->scanRank() == 2){
+
+		if (editor)
+			closeScanEditor(editor);
+
+		editor = createNewScanEditor(true);
+	}
+
+	else if(!editor) {
 		editor = createNewScanEditor();
 	}
+
 	editor->addScan(scan);
+
 	return true;
 }
 
@@ -1113,15 +1132,3 @@ void AMDatamanAppController::onActionImportAcquamanDatabase()
 	AMScanDatabaseImportWizard* wizard = new AMScanDatabaseImportWizard(importController);
 	wizard->show();
 }
-
-
-
-
-
-
-
-
-
-
-
-

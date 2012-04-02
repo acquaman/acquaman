@@ -126,16 +126,26 @@ public:
 signals:
 	/// Notifier that the fluorescence choice has changed.
 	void fluorescenceDetectorChoiceChanged(FluorescenceDetector);
+	/// Same signal.  Just passing as an int.
+	void fluorescenceDetectorChoiceChanged(int);
 	/// Notifier that the incoming choice has changed.
 	void incomingChoiceChanged(IonChamber);
+	/// Same signal.  Just passing as an int.
+	void incomingChoiceChanged(int);
 	/// Notifier that the transmition choice has changed.
 	void transmissionChoiceChanged(IonChamber);
+	/// Same signal.  Just passing as an int.
+	void transmissionChoiceChanged(int);
 	/// Notifier that the edge name has changed.
 	void edgeChanged(QString);
 	/// Notifier that the edge energy has changed.
 	void energyChanged(double);
 	/// Notifier about whether the scan will move somewhere specific before scanning.
 	void gotoPositionChanged(bool);
+	/// Notifier that the x coordinate of the position has changed.
+	void xPositionChanged(double);
+	/// Notifier that the y coordinate of the position has changed.
+	void yPositionChanged(double);
 	/// Notifier about whether the scan should use fixed or variabled integration time.
 	void useFixedTimeChanged(bool);
 	/// Notifier that the total time estimate has changed.
@@ -146,49 +156,43 @@ signals:
 public slots:
 
 	/// Sets the choice for the fluorescence detector.
-	void setFluorescenceDetectorChoice(FluorescenceDetector detector) { fluorescenceDetectorChoice_ = detector; emit fluorescenceDetectorChoiceChanged(fluorescenceDetectorChoice_); setModified(true); }
+	void setFluorescenceDetectorChoice(FluorescenceDetector detector);
 	/// Overloaded.  Used for database loading.
 	void setFluorescenceDetectorChoice(int detector) { setFluorescenceDetectorChoice((FluorescenceDetector)detector); }
 	/// Sets the choice for It ion chamber.
-	void setTransmissionChoice(IonChamber It) { It_ = It; emit transmissionChoiceChanged(It_); setModified(true); }
+	void setTransmissionChoice(IonChamber It);
 	/// Overloaded.  Used for database loading.
 	void setTransmissionChoice(int It) { setTransmissionChoice((IonChamber)It); }
 	/// Sets the choice for I0 ion chamber.
-	void setIncomingChoice(IonChamber I0) { I0_ = I0; emit incomingChoiceChanged(I0_); setModified(true); }
+	void setIncomingChoice(IonChamber I0);
 	/// Overloaded.  Used for database loading.
 	void setIncomingChoice(int I0) { setIncomingChoice((IonChamber)I0); }
 	/// Sets the current edge for the scan.
-	void setEdge(QString edgeName) { edge_ = edgeName; emit edgeChanged(edgeName); setModified(true); }
+	void setEdge(QString edgeName);
 	/// Sets the edge energy.
-	void setEnergy(double edgeEnergy)
-	{
-		exafsRegions()->setDefaultEdgeEnergy(edgeEnergy);
-		energy_ = edgeEnergy;
-		emit energyChanged(energy_);
-		setModified(true);
-	}
+	void setEnergy(double edgeEnergy);
 
 	/// Sets whether the scan should move to a new position before starting.
-	void setGoToPosition(bool state) { goToPosition_ = state; emit gotoPositionChanged(goToPosition_); setModified(true); }
+	void setGoToPosition(bool state);
 	/// Sets the position the scan should move to before starting.
-	void setPosition(QPair<double, double> pos) { position_ = pos; setModified(true); }
+	void setPosition(QPair<double, double> pos);
 	/// Overloaded.  Takes the x and y position explicitly.
 	void setPosition(double xPos, double yPos) { setPosition(qMakePair(xPos, yPos)); }
 	/// Sets the x coordinate of the starting position of the scan.
-	void setX(double xPos) { position_.first = xPos; setModified(true); }
+	void setX(double xPos);
 	/// Sets the y coordinate of the starting position of the scan.
-	void setY(double yPos) { position_.second = yPos; setModified(true); }
+	void setY(double yPos);
 
 	/// Sets whether the scan should use fixed or variable integration time for EXAFS.
-	void setUseFixedTime(bool fixed) { useFixedTime_ = fixed; emit useFixedTimeChanged(useFixedTime_); computeTotalTime(); setModified(true); }
+	void setUseFixedTime(bool fixed);
 	/// Sets the number of times this scan should be repeated.
-	void setNumberOfScans(int num) { numberOfScans_ = num; emit numberOfScansChanged(numberOfScans_); setModified(true); }
+	void setNumberOfScans(int num);
 
 	/// Sets the time offset used for estimating the scan time.
-	void setTimeOffset(double offset) { timeOffset_ = offset; computeTotalTime(); }
+	void setTimeOffset(double offset);
 
 	/// Sets the ROI list.
-	void setRoiInfoList(const AMROIInfoList &list) { roiInfoList_ = list; setModified(true); }
+	void setRoiInfoList(const AMROIInfoList &list);
 
 protected slots:
 	/// Computes the total time any time the regions list changes.

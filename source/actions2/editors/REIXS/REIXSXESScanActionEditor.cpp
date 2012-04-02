@@ -28,6 +28,13 @@ REIXSXESScanActionEditor::REIXSXESScanActionEditor(REIXSXESScanActionInfo *info,
 	tiltOffset_->setRange(-6, 6);
 	tiltOffset_->setSingleStep(0.1);
 
+	// temp:
+	detectorHeightError_ = new QDoubleSpinBox();
+	detectorHeightError_->setDecimals(2);
+	detectorHeightError_->setSingleStep(0.1);
+	detectorHeightError_->setRange(-20, 20);
+	detectorHeightError_->setValue(info_->xesConfig()->detectorHeightError());
+
 	QPushButton* moreDetailsButton = new QPushButton("More...");
 
 	QHBoxLayout* hl = new QHBoxLayout(this);
@@ -37,6 +44,8 @@ REIXSXESScanActionEditor::REIXSXESScanActionEditor(REIXSXESScanActionInfo *info,
 	hl->addWidget(focusOffset_);
 	hl->addWidget(new QLabel("Tilt offset (deg)"));
 	hl->addWidget(tiltOffset_);
+	hl->addWidget(new QLabel("Height error (mm)"));
+	hl->addWidget(detectorHeightError_);
 	hl->addStretch();
 	hl->addWidget(moreDetailsButton);
 
@@ -51,6 +60,9 @@ REIXSXESScanActionEditor::REIXSXESScanActionEditor(REIXSXESScanActionInfo *info,
 	connect(moreDetailsButton, SIGNAL(clicked()), this, SLOT(onMoreDetailsButtonClicked()));
 
 	connect(info_->xesConfig(), SIGNAL(configurationChanged()), this, SLOT(onScanConfigurationChanged()));
+
+	// temp:
+	connect(detectorHeightError_, SIGNAL(editingFinished()), this, SLOT(onDetectorHeightErrorEditingFinished()));
 }
 
 void REIXSXESScanActionEditor::onEnergyEditingFinished()
@@ -100,4 +112,9 @@ void REIXSXESScanActionEditor::onScanConfigurationChanged()
 		focusOffset_->setValue(defocus);
 		focusOffset_->blockSignals(false);
 	}
+}
+
+void REIXSXESScanActionEditor::onDetectorHeightErrorEditingFinished()
+{
+	info_->xesConfig()->setDetectorHeightError(detectorHeightError_->value());
 }

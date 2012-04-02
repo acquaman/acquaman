@@ -24,8 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/datasource/AMDataSource.h"
 #include "dataman/AMScan.h"
 
-
-
 QModelIndex AMScanSetModel::index ( int row, int column, const QModelIndex & parent ) const {
 	// top level:
 	if(!parent.isValid()) {

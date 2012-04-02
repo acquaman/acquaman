@@ -45,7 +45,9 @@ class REIXSXESCalibration : public AMDbObject
 	Q_PROPERTY(QVector3D hexapodOrigin READ hexapodOrigin WRITE setHexapodOrigin)
 	Q_PROPERTY(QVector3D detectorPos0 READ detectorPos0 WRITE setDetectorPos0)
 	Q_PROPERTY(QVector3D slitPos READ slitPos WRITE setSlitPos)
-	Q_PROPERTY(QVector3D opticalOrigin READ opticalOrigin WRITE setOpticalOrigin)
+	Q_PROPERTY(AMDoubleList opticalOriginsX READ opticalOriginsX WRITE setOpticalOriginsX)
+	Q_PROPERTY(AMDoubleList opticalOriginsY READ opticalOriginsY WRITE setOpticalOriginsY)
+	Q_PROPERTY(AMDoubleList opticalOriginsZ READ opticalOriginsZ WRITE setOpticalOriginsZ)
 	Q_PROPERTY(double spectrometerTheta0 READ spectrometerTheta0 WRITE setSpectrometerTheta0)
 	Q_PROPERTY(double spectrometerTheta0m READ spectrometerTheta0m WRITE setSpectrometerTheta0m)
 	Q_PROPERTY(double spectrometerRotDrive0 READ spectrometerRotDrive0 WRITE setSpectrometerRotDrive0)
@@ -77,9 +79,13 @@ public:
 	AMDoubleList gratingMountTilt() const{ return gratingMountTilt_; } ///< The angle between the long axis of the grating and the y-axis (deg), when the gratings are in the hexapod home position. Positive if the angle is above the positive y-axis.
 	AMDoubleList gratingMountRoll() const { return gratingMountRoll_; } ///< The angle between the short axis of the grating and the positive x-axis (deg), when the gratings are in the hexapod home position.
 	QVector3D hexapodOrigin() const { return hexapodOrigin_; } ///< 3D Point. The center of the top plate of the hexapod
-	QVector3D detectorPos0() const { return detectorPos0_; } ///< 3D Point. Important: the height (y coord) and distance (z coord) of the detector center, when at home position.
+	QVector3D detectorPos0() const { return detectorPos0_; } ///< 3D Point. The position of the detector, when at home position.
 	QVector3D slitPos() const { return slitPos_; } ///< 3D point. Center of the entrance slit
-	QVector3D opticalOrigin() const { return opticalOrigin_; } ///< 3D point. Optical origin (ie: where the top center of the grating in use should be placed)  This should have a y-z value of 0 (on the x axis / spectrometer rotation axis) and possibly a non-zero x value (to account for the hexapod being mounted with an offset)
+
+	AMDoubleList opticalOriginsX() const { return opticalOriginsX_; } ///< X coordinate of the optical origin (ie: where the grating top center should be placed.) Can have a different value for each grating. Nominally this should be 0 (the origin of the working coordinates and center of mechanical rotation), but we can place it elsewhere if required.  If it's too far away, light may be blocked from reaching or leaving the grating.
+	AMDoubleList opticalOriginsY() const { return opticalOriginsY_; } ///< Y coordinate of the optical origin (ie: where the grating top center should be placed.)  Can have a different value for each grating.
+	AMDoubleList opticalOriginsZ() const { return opticalOriginsZ_; } ///< Z coordinate of the optical origin (ie: where the grating top center should be placed.)  Can have a different value for each grating.
+
 	double spectrometerTheta0() const { return spectrometerTheta0_; } ///< The angle (deg) the detector ray makes above the positive y-axis, when at the spectrometer rotation motor's calibration position.  This is still in working coordinates (ie: oriented to hexapod, not frame rails)
 	double spectrometerTheta0m() const { return spectrometerTheta0m_; } ///< The angle (deg) the inclineable frame rail makes about the stationary frame rail, when at the spectrometer motor's calibration position. This makes the transition to "frame rail relative" coordinates.
 	double spectrometerRotDrive0() const { return spectrometerRotDrive0_; } 	///< The linear position offset (mm) of the spectrometer rotation motor when at the RESTING position
@@ -114,7 +120,9 @@ public slots:
 	void setHexapodOrigin(const QVector3D& hexapodOrigin) { hexapodOrigin_ = hexapodOrigin; setModified(true); }
 	void setDetectorPos0(const QVector3D& detectorPos0) { detectorPos0_ = detectorPos0; setModified(true); }
 	void setSlitPos(const QVector3D& slitPos) { slitPos_ = slitPos; setModified(true); }
-	void setOpticalOrigin(const QVector3D& opticalOrigin) { opticalOrigin_ = opticalOrigin; setModified(true); }
+	void setOpticalOriginsX(const AMDoubleList& opticalOriginsX) { opticalOriginsX_ = opticalOriginsX; setModified(true); }
+	void setOpticalOriginsY(const AMDoubleList& opticalOriginsY) { opticalOriginsY_ = opticalOriginsY; setModified(true); }
+	void setOpticalOriginsZ(const AMDoubleList& opticalOriginsZ) { opticalOriginsZ_ = opticalOriginsZ; setModified(true); }
 	void setSpectrometerTheta0(double spectrometerTheta0) { spectrometerTheta0_ = spectrometerTheta0; setModified(true); }
 	void setSpectrometerTheta0m(double spectrometerTheta0m) { spectrometerTheta0m_ = spectrometerTheta0m; setModified(true); }
 
@@ -153,6 +161,8 @@ public slots:
 	// Math helper functions - can be used publicly
 	////////////////////////
 
+	/// Returns the optical origin (X,Y,Z) for a given grating. \c gratingIndex must be valid.)
+	QVector3D opticalOrigin(int gratingIndex) const { return QVector3D(opticalOriginsX_.at(gratingIndex), opticalOriginsY_.at(gratingIndex), opticalOriginsZ_.at(gratingIndex)); }
 	/// Returns the hexapodOrigin(), lowered by 26.433mm. (This offset due to the fact that hexapodOrigin() is the top surface of the plate, but the hexapod's internal rotation coord system is 26.443mm below that)).
 	QVector3D hexapodRotationOrigin() const { return hexapodOrigin_ + QVector3D(0,0,-26.443); }
 
@@ -177,29 +187,31 @@ public slots:
 		QVector3D gratingWC(gratingCenterPositionsX_.at(gi),
 							gratingCenterPositionsY_.at(gi),
 							gratingCenterPositionsZ_.at(gi));
-		return opticalOrigin_ - gratingWC;
+		return opticalOrigin(gi) - gratingWC;
 	}
 
+	/// Converts degrees to radians.
 	static double d2r(double degrees) { return degrees / 180. * M_PI; }
+	/// Converts radians to degrees.
 	static double r2d(double rad) { return rad * 180. / M_PI; }
 
-	/// distance from slit to grating center, in mm.  ('r' in Rowlond circle nomenclature)
-	double r() const { return (slitPos_ - opticalOrigin_).length(); }
+	/// distance from slit to grating center, in mm.  ('r' in Rowlond circle nomenclature). Depends on the grating ( \c gratingIndex) because each can use a different optical origin.
+	double r(int gratingIndex) const { return (slitPos_ - opticalOrigin(gratingIndex)).length(); }
 
 	/// Alpha (in rad) calculated using rowland circle condition from r() and grating radius.  alpha = acos(r/R)
-	double alpha(int gi) const { return acos( r() / gratingRadii_.at(gi) ); }
+	double alpha(int gi) const { return acos( r(gi) / gratingRadii_.at(gi) ); }
 
 	/// Beta (in rad) calculated using rowland circle condition from alpha() and \c energy (in eV).
 	double beta(double eV, int gi) const { return asin(sin(alpha(gi))-0.0012398417*gratingGrooveDensities_.at(gi)/eV); }
 
-	/// Angle (in rad) of line from slit to optical origin (sTheta), up from y axis
-	double sTheta() const {
-		QVector3D v = opticalOrigin_ - slitPos_;
+	/// Angle (in rad) of line from slit to optical origin (sTheta), up from y axis.  The optical origin can depend on the grating.
+	double sTheta(int gratingIndex) const {
+		QVector3D v = opticalOrigin(gratingIndex) - slitPos_;
 		return atan2(-v.z(), v.y());
 	}
 
 	/// Required angle (in rad) of the grating surface, up from y axis
-	double gratingAngle(int gi) const { return M_PI/2.0 - sTheta() - alpha(gi); }
+	double gratingAngle(int gi) const { return M_PI/2.0 - sTheta(gi) - alpha(gi); }
 
 
 	/// The length (mm) of the exit arm (r', in rowland circle nomenclature)
@@ -207,13 +219,13 @@ public slots:
 
 
 	/// The angle (rad) of the center of the detector, up from the positive y-axis.  dTheta and rPrime provide polar coordinates for the center of the detector, around the optical origin.
-	double dTheta(double eV, int gi) const { return -sTheta() - alpha(gi) - beta(eV, gi) + M_PI; }
+	double dTheta(double eV, int gi) const { return -sTheta(gi) - alpha(gi) - beta(eV, gi) + M_PI; }
 
 	/// The required position (mm) of the center of the detector for a given eV and grating, in working coordinates (x,y,z)
 	QVector3D detectorPos(double eV, int gi) const {
 		double rPrime__ = rPrime(eV, gi);
 		double dTheta__ = dTheta(eV, gi);
-		return opticalOrigin_ + QVector3D(0,
+		return opticalOrigin(gi) + QVector3D(0,
 										  rPrime__ * cos(dTheta__),
 										  rPrime__ * sin(dTheta__));
 	}
@@ -267,17 +279,17 @@ public slots:
 		return rv;
 	}
 
-	/// Inverse of detectorPos()... Calculates the polar angle dTheta [rad] for a given detectorPos() [mm]
-	double dThetaFromDetectorPos(const QVector3D& pos) const {
+	/// Inverse of detectorPos()... Calculates the polar angle dTheta [rad] for a given detectorPos() [mm].  Requires the grating \c gratingIndex to know which optical origin was used.
+	double dThetaFromDetectorPos(const QVector3D& pos, int gratingIndex) const {
 
-		QVector3D rPrimeVector = pos - opticalOrigin_; // = r' cos(dtheta) j^ + r' sin(dtheta) k^
+		QVector3D rPrimeVector = pos - opticalOrigin(gratingIndex); // = r' cos(dtheta) j^ + r' sin(dtheta) k^
 
 		return atan2(rPrimeVector.z(), rPrimeVector.y());
 	}
 
 	/// Inverse of beta()... Calculates the center energy [eV] at a polar angle \c dTheta [rad], assuming a grating \c gratingIndex
 	double eVFromDTheta(double dTheta, int gratingIndex) const {
-		double beta = -sTheta() - alpha(gratingIndex) - dTheta + M_PI;
+		double beta = -sTheta(gratingIndex) - alpha(gratingIndex) - dTheta + M_PI;
 
 		return 0.0012398417*gratingGrooveDensities_.at(gratingIndex) / (sin(alpha(gratingIndex)) - sin(beta) );
 	}
@@ -288,7 +300,7 @@ public slots:
 
 	/// Angle (rad) that the detector surface should make down to the y-axis (working coordinates) to make it tangent to the rowland circle
 	double detectorPhi(double eV, int gi) const {
-		return M_PI*3./2. - alpha(gi) - sTheta() - 2*beta(eV, gi);
+		return M_PI*3./2. - alpha(gi) - sTheta(gi) - 2*beta(eV, gi);
 	}
 
 	/// Motor position (mm) of the tilt stage, incorporating an angle offset (deg., positive = more normal, negative = more grazing) from the default position of tangent to the rowland circle.
@@ -340,7 +352,9 @@ protected:
 	QVector3D detectorPos0_;	///< 3D Point. Important: the height (y coord) and distance (z coord) of the detector center, when at home position.
 
 	QVector3D slitPos_;	///< 3D point. Center of the entrance slit
-	QVector3D opticalOrigin_; ///< 3D point. Optical origin (ie: where the top center of the grating in use should be placed)  This should have a y-z value of 0 (on the x axis / spectrometer rotation axis) and possibly a non-zero x value (to account for the hexapod being mounted with an offset)
+	AMDoubleList opticalOriginsX_; ///< X coordinate of the optical origin (ie: where the grating top center should be placed.)  Can have a different value for each grating.
+	AMDoubleList opticalOriginsY_; ///< Y coordinate of the optical origin (ie: where the grating top center should be placed.)  Can have a different value for each grating.
+	AMDoubleList opticalOriginsZ_; ///< Z coordinate of the optical origin (ie: where the grating top center should be placed.)  Can have a different value for each grating.
 
 
 	double spectrometerTheta0_;	///< The angle (deg) the detector ray makes above the positive y-axis, when at the spectrometer rotation motor's calibration position. This is still in working coordinates (ie: oriented to hexapod, not frame rails)

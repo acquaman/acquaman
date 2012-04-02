@@ -103,6 +103,7 @@ void VESPERSExporter2DAscii::writeHeader()
 	convertNormalizedLineEndingsTo(option_->newlineDelimiter(), headerText);
 
 	headerText.replace("\n", "\n# ");
+	headerText.append("-------------------------------------\n");
 
 	QTextStream ts(file_);
 	ts << headerText;
@@ -114,6 +115,8 @@ void VESPERSExporter2DAscii::writeMainTable()
 
 	// 1. Column header.
 	if(option_->columnHeaderIncluded()) {
+
+		ts << "# ";
 
 		for(int c=0; c<mainTableDataSources_.count(); c++) {
 
@@ -189,6 +192,9 @@ bool VESPERSExporter2DAscii::writeSeparateFiles(const QString &destinationFolder
 
 	QString originalFileName = sourceFileInfo.absoluteFilePath();
 	QString separateFileName = parseKeywordString( destinationFolderPath % "/" % option_->separateSectionFileName().replace("$dataSetName", "spectra") );
+
+	if (QFile::exists(separateFileName))
+		QFile::remove(separateFileName);
 
 	return QFile::copy(originalFileName, separateFileName);
 }

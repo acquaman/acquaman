@@ -8,8 +8,9 @@ AM2DDacqScanController::AM2DDacqScanController(AM2DScanConfiguration *cfg, QObje
 	internal2DConfig_ = cfg;
 	xPosition_ = 0;
 	yPosition_ = 0;
-	fastAxisPosition_ = 0;
+	fastAxisStartPosition_ = 0;
 	useDwellTimes_ = false;
+	stopAtEndOfLine_ = false;
 }
 
 bool AM2DDacqScanController::startImplementation()
@@ -54,6 +55,8 @@ bool AM2DDacqScanController::startImplementation()
 			xPosition_ = -1;
 		else
 			yPosition_ = -1;
+
+		prefillScanPoints();
 
 		acqRegisterOutputHandler( advAcq_->getMaster(), (acqKey_t) abop, &abop->handler);                // register the handler with the acquisition
 
@@ -120,6 +123,14 @@ bool AM2DDacqScanController::event(QEvent *e)
 			}
 
 			scan_->rawData()->endInsertRows();
+
+			if (stopAtEndOfLine_ && atEndOfLine(aeData)){
+
+				// Make sure that the AMScanController knows that the scan has NOT been cancelled.  This way the scan will still be auto-exported.
+				dacqCancelled_ = false;
+				advAcq_->Stop();
+			}
+
 		}
 
 		e->accept();
@@ -142,8 +153,6 @@ bool AM2DDacqScanController::event(QEvent *e)
 
 AMnDIndex AM2DDacqScanController::toScanIndex(QMap<int, double> aeData)
 {
-	Q_UNUSED(aeData);
-
 	// Increment the fast axis.  If the fast axis is at the end of the road, set it to 0 and increment the slow axis.
 	switch(internal2DConfig_->fastAxis()){
 
@@ -151,11 +160,11 @@ AMnDIndex AM2DDacqScanController::toScanIndex(QMap<int, double> aeData)
 
 			if (xPosition_ == -1 && yPosition_ == 0){
 
-				fastAxisPosition_ = aeData.value(0);
+				fastAxisStartPosition_ = aeData.value(0);
 				xPosition_++;
 			}
 
-			else if (fastAxisPosition_ == aeData.value(0)){
+			else if (fastAxisStartPosition_ == aeData.value(0)){
 
 				xPosition_ = 0;
 				yPosition_++;
@@ -171,11 +180,11 @@ AMnDIndex AM2DDacqScanController::toScanIndex(QMap<int, double> aeData)
 
 		if (yPosition_ == -1 && xPosition_ == 0){
 
-			fastAxisPosition_ = aeData.value(1);
+			fastAxisStartPosition_ = aeData.value(1);
 			yPosition_++;
 		}
 
-		else if (fastAxisPosition_ == aeData.value(1)){
+		else if (fastAxisStartPosition_ == aeData.value(1)){
 
 			yPosition_ = 0;
 			xPosition_++;
@@ -189,6 +198,79 @@ AMnDIndex AM2DDacqScanController::toScanIndex(QMap<int, double> aeData)
 	}
 
 	return AMnDIndex(xPosition_, yPosition_);
+}
+
+bool AM2DDacqScanController::atEndOfLine(QMap<int, double> aeData) const
+{
+	if (internal2DConfig_->fastAxis() == AM2DScanConfiguration::X && internal2DConfig_->xEnd() == aeData.value(0))
+		return true;
+
+	else if (internal2DConfig_->fastAxis() == AM2DScanConfiguration::Y && internal2DConfig_->yEnd() == aeData.value(1))
+		return true;
+
+	return false;
+}
+
+void AM2DDacqScanController::prefillScanPoints()
+{
+	switch(internal2DConfig_->fastAxis()){
+
+		case AM2DScanConfiguration::X: {
+
+			int i = 0;
+			int j = 0;
+			AMnDIndex insertIndex;
+
+			for (double y = internal2DConfig_->yStart(); y <= internal2DConfig_->yEnd() + internal2DConfig_->yStep(); y += internal2DConfig_->yStep()){
+
+				for (double x = internal2DConfig_->xStart(); x <= internal2DConfig_->xEnd() + internal2DConfig_->xStep(); x += internal2DConfig_->xStep()){
+
+					insertIndex = AMnDIndex(i, j);
+					scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
+					scan_->rawData()->setAxisValue(0, insertIndex.i(), x);
+					scan_->rawData()->setAxisValue(1, insertIndex.j(), y);
+
+					for (int di = 0; di < scan_->dataSourceCount(); di++)
+						scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), 0);
+
+					scan_->rawData()->endInsertRows();
+					i++;
+				}
+
+				j++;
+				i = 0;
+			}
+			break;
+		}
+
+		case AM2DScanConfiguration::Y: {
+
+			int i = 0;
+			int j = 0;
+			AMnDIndex insertIndex;
+
+			for (double x = internal2DConfig_->xStart(); x <= internal2DConfig_->xEnd() + internal2DConfig_->xStep(); x += internal2DConfig_->xStep()){
+
+				for (double y = internal2DConfig_->yStart(); y <= internal2DConfig_->yEnd() + internal2DConfig_->yStep(); y += internal2DConfig_->yStep()){
+
+					insertIndex = AMnDIndex(i, j);
+					scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
+					scan_->rawData()->setAxisValue(0, insertIndex.i(), x);
+					scan_->rawData()->setAxisValue(1, insertIndex.j(), y);
+
+					for (int di = 0; di < scan_->dataSourceCount(); di++)
+						scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), 0);
+
+					scan_->rawData()->endInsertRows();
+					i++;
+				}
+
+				j++;
+				i = 0;
+			}
+			break;
+		}
+	}
 }
 
 bool AM2DDacqScanController::setConfigFile(const QString &filename)

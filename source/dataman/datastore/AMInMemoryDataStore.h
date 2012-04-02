@@ -718,6 +718,18 @@ protected:
 		scalarScanPoint_->clear();
 		measurements_.clear();
 	}
+
+	/// Implementing subclasses must provide a clearScanAxesImplementation(), which clears all the axes for the scan.
+	virtual void clearScanAxesImplementation()
+	{
+		if(axes_.count() >= 1)
+			clearScanDataPointsImplementationRecursive(dataRoot_, axes_.count()-1, false);	// to clear memory: need to delete all recursively and not leave any first nodes.
+		delete dataRoot_;
+		dataRoot_ = 0;
+
+		axes_.clear();
+		axisValues_.clear();
+	}
 };
 
 #endif // AMINMEMORYDATASTORE_H

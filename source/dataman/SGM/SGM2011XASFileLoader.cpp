@@ -52,7 +52,7 @@ SGM2011XASFileLoader::SGM2011XASFileLoader(AMXASScan *scan) :
 		columns2pvNames_.set("EnergyFeedback", "BL1611-ID-1:Energy:fbk");
 		//TOM THIS IS STEP 4.15
 		columns2pvNames_.set("RingCurrent", "PCT1402-01:mA:fbk");
-		
+
 		columns2pvNames_.set("VFilterDiode", "BL1611-ID-1:mcs06:fbk");
 		columns2pvNames_.set("CrFilterDiode", "BL1611-ID-1:mcs07:fbk");
 		columns2pvNames_.set("TiCFilterDiode", "BL1611-ID-1:mcs08:fbk");
@@ -88,6 +88,10 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 	AMXASScan* scan = qobject_cast<AMXASScan*>(scan_);
 	if(!scan)
 		return false;
+
+	// Clear the old scan axes to ensure we don't have any extras.
+	scan->clearRawDataCompletely();
+	scan->rawData()->addScanAxis( AMAxisInfo("eV", 0, "Incident Energy", "eV") );
 
 	// used in parsing the data file
 	QString line;

@@ -37,6 +37,8 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	scan_->setScanConfiguration(config_);
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setIndexType("fileSystem");
+	scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+	scan_->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
 
 	if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement && !config_->usingCCD())
 		scan_->setFileFormat("vespers2012XRF1El");
@@ -201,7 +203,7 @@ void VESPERS2DDacqScanController::addExtraDatasources()
 			temp = AMMeasurementInfo(*(ionChambers->detectorAt(i)->toInfo()));
 			temp.name = ionChambers->detectorAt(i)->detectorName();
 			scan_->rawData()->addMeasurement(temp);
-			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
+			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, false);
 		}
 	}
 

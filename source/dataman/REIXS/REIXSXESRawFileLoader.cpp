@@ -96,8 +96,7 @@ bool REIXSXESRawFileLoader::loadFromFile(const QString &filepath, bool setMetaDa
 	// clear the existing raw data (and raw data sources, if we're supposed to)
 	if(setRawDataSources)
 		scan->clearRawDataPointsAndMeasurementsAndDataSources();
-	else
-		scan->clearRawDataPointsAndMeasurements();
+	scan->clearRawDataCompletely();
 
 	detectorAxes.append(AMAxisInfo("x", pixelsX, "x - energy axis", "pixels"));
 	detectorAxes.append(AMAxisInfo("y", pixelsY, "y - vertical axis", "pixels"));

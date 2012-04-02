@@ -145,6 +145,8 @@ public:
 	bool closeScanEditor(AMGenericScanEditor* editor);
 	/// Create and add a new scan editor. Returns the new scan editor
 	AMGenericScanEditor* createNewScanEditor();
+	/// Overloaded.  Create and add a new scan editor.  Returns the new editor.  Determines whether new new editor should use AMScanView or AM2DScanView based on \param use2DScanView.
+	AMGenericScanEditor *createNewScanEditor(bool use2DScanView);
 
 	/// If a scan with this \c id and \c database are currently open, returns the editor that has it open. Otherwise returns 0.
 	AMGenericScanEditor* isScanOpenForEditing(int id, AMDatabase* db);
@@ -157,6 +159,8 @@ signals:
 	void pauseScanIssued();
 	/// Passing on the continue scan signal from the bottom bar.
 	void continueScanIssued();
+	/// Notifier that a new generic scan editor has been created. Passes the reference to the new editor.
+	void scanEditorCreated(AMGenericScanEditor *);
 
 public slots:
 	/// Open a list of scans, specified by a database URL, in the given \c editor. (If \c editor is 0, a new editor will be opened.)  The scans are checked to make sure that they're not already open, and that they're not still scanning somewhere else.
