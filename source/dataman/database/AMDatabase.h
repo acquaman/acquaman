@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSet>
 #include <QHash>
 #include <QMutex>
-#include <QStringlist>
+#include <QStringList>
 
 
 /// This class provides thread-safe, general access to an SQL database.
