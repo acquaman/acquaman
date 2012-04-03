@@ -28,6 +28,14 @@ public:
 	/// Destructor: deletes the sub-actions
     virtual ~AMListAction3();
 
+    // Re-implemented methods
+    ///////////////////////////////////
+
+    /// Pure virtual function that denotes that this action has children underneath it or not.
+    bool hasChildren() const { return true; }
+    /// Pure virtual function that returns the number of children for this action.
+    int numberOfChildren() const { return -1; }
+
 	// Sub-actions API
 	//////////////////////
 

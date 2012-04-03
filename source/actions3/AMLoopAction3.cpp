@@ -27,7 +27,7 @@ AMLoopAction3::AMLoopAction3(const AMLoopAction3 &other) : AMNestedAction3(other
     foreach(AMAction3* action, other.subActions_)
 		subActions_ << action->createCopy();
     foreach(AMAction3* action, subActions_)
-		action->internalSetParentAction(this);
+        action->setParentAction(this);
 }
 
 AMLoopAction3::~AMLoopAction3() {

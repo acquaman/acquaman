@@ -21,6 +21,12 @@ public:
 	/// IMPORANT: subclasses should ensure to delete their subActions in their own destructor
     virtual ~AMNestedAction3() {}
 
+
+    /// Pure virtual function that denotes that this action has children underneath it or not.
+    bool hasChildren() const { return true; }
+    /// Pure virtual function that returns the number of children for this action.
+    int numberOfChildren() const { return -1; }
+
 	// Additional public functions:
 	/////////////////////////////////
 

@@ -25,10 +25,13 @@ public:
 	/// Destructor: Deletes all the subActions_
     virtual ~AMLoopAction3();
 
-
-
 	// Public virtual functions: re-implemented:
 	//////////////////////
+
+    /// Pure virtual function that denotes that this action has children underneath it or not.
+    bool hasChildren() const { return true; }
+    /// Pure virtual function that returns the number of children for this action.
+    int numberOfChildren() const { return -1; }
 
 	/// Specifies whether, when logging actions that are run with AMActionRunner, to log the entire action, or log the individual sub-actions as they complete.
 	virtual bool shouldLogSubActionsSeparately() { return logSubActionsSeparately_; }
@@ -91,10 +94,10 @@ protected:
 	virtual void startImplementation();
 
 //	/// For actions which support pausing, this function is called from the Pausing state when the implementation should pause the action. Once the action is paused, you should call notifyPaused().  The base class implementation does nothing and must be re-implemented.
-//	virtual void pauseImplementation() { notifyPaused(); }
+    virtual void pauseImplementation() { notifyPaused(); }
 
 //	/// For actions that support resuming, this function is called from the Paused state when the implementation should resume the action. Once the action is running again, you should call notifyResumed().
-//	virtual void resumeImplementation() { notifyResumed(); }
+    virtual void resumeImplementation() { notifyResumed(); }
 
 	/// All implementations must support cancelling. This function will be called from the Cancelling state. Implementations will probably want to examine the previousState(), which could be any of Starting, Running, Pausing, Paused, or Resuming. Once the action is cancelled and can be deleted, you should call notifyCancelled().
 	/*! \note If startImplementation() was never called, you won't receive this when a user tries to cancel(); the base class will handle it for you. */

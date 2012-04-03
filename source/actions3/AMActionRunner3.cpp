@@ -514,7 +514,7 @@ QModelIndex AMActionRunnerQueueModel3::indexForAction(AMAction3 *action) const
 	if(!action)
 		return QModelIndex();
 
-    AMNestedAction3* parentAction = action->parentAction();
+    AMAction3* parentAction = action->parentAction();
 	if(!parentAction) {
 		// action is in the top-level. Do a linear search for it in the actionRunner_ API.
 		int row = actionRunner_->indexOfQueuedAction(action);
@@ -526,7 +526,7 @@ QModelIndex AMActionRunnerQueueModel3::indexForAction(AMAction3 *action) const
 	}
 	else {
 		// we do a have parent action. Do a linear search for ourself in the parent AMNestedAction.
-		int row = parentAction->indexOfSubAction(action);
+        int row = ((AMNestedAction3 *)parentAction)->indexOfSubAction(action);
 		if(row == -1) {
 			qWarning() << "AMActionRunnerQueueModel: Warning: action not found in nested action.";
 			return QModelIndex();

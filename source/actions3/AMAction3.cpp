@@ -14,12 +14,11 @@ AMAction3::AMAction3(AMActionInfo3* info, QObject *parent)
 	progress_ = QPair<double,double>(-1.0, -1.0);
 	state_ = previousState_ = Constructed;
 	statusText_ = "Not yet started";
-	secondsSpentPaused_ = secondsSpentWaitingForPrereqs_ = 0;
+    secondsSpentPaused_ = 0;
 	parentAction_ = 0;
 
 	connect(info_, SIGNAL(expectedDurationChanged(double)), this, SIGNAL(expectedDurationChanged(double)));
 
-	prereqBehaviour_ = WaitPrereqBehaviour;
 	failureResponseInActionRunner_ = MoveOnResponse;
 	failureResponseAsSubAction_ = MoveOnResponse;
 }
@@ -31,17 +30,14 @@ AMAction3::AMAction3(const AMAction3& other)
 	progress_ = QPair<double,double>(-1.0, -1.0);
 	state_ = previousState_ = Constructed;
 	statusText_ = "Not yet started";
-	secondsSpentPaused_ = secondsSpentWaitingForPrereqs_ = 0;
+    secondsSpentPaused_ = 0;
 	parentAction_ = 0;
 
-	prereqBehaviour_ = other.prereqBehaviour_;
 	failureResponseInActionRunner_ = other.failureResponseInActionRunner_;
 	failureResponseAsSubAction_ = other.failureResponseAsSubAction_;
 
 	info_ = other.info()->createCopy();
 	connect(info_, SIGNAL(expectedDurationChanged(double)), this, SIGNAL(expectedDurationChanged(double)));
-    foreach(AMActionPrereq3* prereq, other.prereqs_)
-		prereqs_ << prereq->createCopy();
 }
 
 
@@ -50,8 +46,6 @@ AMAction3::~AMAction3() {
 	// qDebug() << "Deleting action:" << info_->shortDescription();
 
 	delete info_;
-	while(!prereqs_.isEmpty())
-		delete prereqs_.takeLast();
 }
 
 
@@ -62,42 +56,9 @@ bool AMAction3::start()
 		return false;
 
 	startDateTime_ = QDateTime::currentDateTime();
+    setState(Starting);
+    startImplementation();
 
-	// Do we have prerequisites that aren't satisfied?
-	if(prereqs_.count() && !prereqsSatisfied()) {
-
-		PrereqBehaviour p = prereqBehaviour();
-		if(p == PromptUserPrereqBehaviour)
-			p = promptUserForPrereqBehaviour();
-
-		switch(p) {
-		case WaitPrereqBehaviour:
-			setState(WaitingForPrereqs);
-			setProgress(0,0);
-			// connect prereq changed signals to our slot, so we can detect when they are satisfied
-            foreach(AMActionPrereq3* prereq, prereqs_)
-				connect(prereq, SIGNAL(satisfiedChanged(bool)), this, SLOT(internalOnPrereqChanged()));
-			// the prereqs might have been satisfied in the time we were waiting for the user response. Check again...
-			internalOnPrereqChanged();
-			break;
-		case CancelActionPrereqBehaviour:
-			endDateTime_ = QDateTime::currentDateTime();
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -1, "The action '" % info()->shortDescription() % "' was cancelled because it had prerequisites that weren't ready."));
-			setState(Cancelled);	// we don't need to go through Cancelling, because we haven't started yet.
-			break;
-		case FailActionPrereqBehaviour:
-		default:
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -1, "The action '" % info()->shortDescription() % "' failed because it had prerequisites that weren't ready."));
-			setState(Failed);
-			break;
-		}
-	}
-
-	// No prereqs... start the action directly.
-	else {
-		setState(Starting);
-		startImplementation();
-	}
 	return true;
 }
 
@@ -115,13 +76,6 @@ bool AMAction3::cancel()
 	case Constructed:
 		endDateTime_ = QDateTime::currentDateTime();
 		setState(Cancelled);	// can cancel directly; haven't started yet
-		return true;
-
-	case WaitingForPrereqs:
-        foreach(AMActionPrereq3* prereq, prereqs_)
-			disconnect(prereq, SIGNAL(satisfiedChanged(bool)), this, SLOT(internalOnPrereqChanged()));
-		endDateTime_ = QDateTime::currentDateTime();
-		setState(Cancelled);
 		return true;
 
 	case Starting:
@@ -144,12 +98,6 @@ bool AMAction3::pause()
 		return false;
 	}
 
-	if(state() == WaitingForPrereqs) {
-		lastPausedAt_ = QDateTime::currentDateTime();
-		setProgress(0,0	);
-		setState(Paused);	// that's all we need... As long as the state is set to Paused, we won't advance if the prereqs become satisfied until we've been resumed.
-		return true;
-	}
 	if(state() == Running) {
 		lastPausedAt_ = QDateTime::currentDateTime();
 		setProgress(0,0);
@@ -166,43 +114,13 @@ bool AMAction3::resume()
 {
 	if(state() == Paused) {
 		secondsSpentPaused_ += double(lastPausedAt_.msecsTo(QDateTime::currentDateTime()))/1000.0;
-
-		if(previousState() == WaitingForPrereqs) {
-			setState(WaitingForPrereqs);
-			internalOnPrereqChanged();	// review all prereqs to see if we should carry on.  They might have changed while paused.
-			return true;
-		}
-		else {
-			setState(Resuming);
-			resumeImplementation();
-			return true;
-		}
+        setState(Resuming);
+        resumeImplementation();
+        return true;
 	}
 
 	qWarning() << "AMAction: Warning: You can not resume this action because it is not paused.";
 	return false;	// cannot resume from any other states except Pause.
-}
-
-bool AMAction3::addPrereq(AMActionPrereq3 *newPrereq)
-{
-	if(state() != Constructed) {
-		qWarning() << "AMAction: Warning: You can not set action prerequisites after the action is running.";
-		return false;
-	}
-
-	prereqs_ << newPrereq;
-	return true;
-}
-
-bool AMAction3::setPrereqBehaviour(AMAction3::PrereqBehaviour prereqBehaviour)
-{
-	if(state() != Constructed) {
-		qWarning() << "AMAction: Warning: You can not set action prerequisites after the action is running.";
-		return false;
-	}
-
-	prereqBehaviour_ = prereqBehaviour;
-	return true;
 }
 
 void AMAction3::notifyStarted()
@@ -286,65 +204,15 @@ void AMAction3::notifyCancelled()
 	setState(Cancelled);
 }
 
-void AMAction3::internalOnPrereqChanged()
-{
-	if(state() != WaitingForPrereqs)
-		return;	// only check this and possibly move on if we're in the correct state. If we're paused while the prereqs are connected, we won't enter the remainder of this function.
-
-	if(prereqsSatisfied()) {
-		// we're done here; disconnect prereqs and move on to the Starting state
-        foreach(AMActionPrereq3* prereq, prereqs_) {
-			disconnect(prereq, SIGNAL(satisfiedChanged(bool)), this, SLOT(internalOnPrereqChanged()));
-		}
-		secondsSpentWaitingForPrereqs_ = elapsedTime() - secondsSpentPaused_;
-		setState(Starting);	// move on to the next state
-		startImplementation();
-	}
-}
-
-bool AMAction3::prereqsSatisfied() const
-{
-	bool allSatisfied = true;
-    foreach(AMActionPrereq3* prereq, prereqs_)
-		allSatisfied &= prereq->satisfied();
-	return allSatisfied;
-}
-
 #include <QMessageBox>
 #include <QStringBuilder>
 #include <QPushButton>
-
-AMAction3::PrereqBehaviour AMAction3::promptUserForPrereqBehaviour()
-{
-	QMessageBox box;
-	box.setWindowTitle("Prerequisites not ready");
-	box.setText("There are some prerequisites for running this action that aren't ready yet. Would you like to wait for them to be ready, or cancel the action?");
-
-	QStringList explanations;
-    foreach(AMActionPrereq3* prereq, prereqs_)
-		if(!prereq->satisfied())
-			explanations << prereq->explanation();
-
-	box.setInformativeText("Action: " % info()->shortDescription() % "\n\n" % explanations.join("\n"));
-	QPushButton* waitButton = new QPushButton("Wait for Prerequsites");
-	box.addButton(waitButton, QMessageBox::AcceptRole);
-	QPushButton* cancelButton = new QPushButton("Cancel Action");
-	box.addButton(cancelButton, QMessageBox::RejectRole);
-
-	box.exec();
-	if(box.clickedButton() == waitButton)
-		return WaitPrereqBehaviour;
-	else
-		return CancelActionPrereqBehaviour;
-}
 
 QString AMAction3::stateDescription(AMAction3::State state)
 {
 	switch(state) {
 	case Constructed:
 		return "Not yet started";
-	case WaitingForPrereqs:
-		return "Wating for Prerequisites";
 	case Starting:
 		return "Starting";
 	case Running:
@@ -369,7 +237,11 @@ QString AMAction3::stateDescription(AMAction3::State state)
 }
 
 void AMAction3::setState(AMAction3::State newState) {
-	previousState_ = state_;
+
+    if (!canChangeState(newState))
+        return;
+
+    previousState_ = state_;
 	state_ = newState;
 	// qDebug() << "AMAction:" << info()->name() << ": Entering state:" << stateDescription(state_);
 	setStatusText(stateDescription(state_));
@@ -383,6 +255,64 @@ void AMAction3::setState(AMAction3::State newState) {
 		emit cancelled();
 }
 
+bool AMAction3::canChangeState(State newState) const
+{
+    bool canTransition = false;
+
+    switch(newState){
+
+    case Constructed:
+        break;
+
+    case Starting:
+        if (state_ == Constructed)
+            canTransition = true;
+        break;
+
+    case Running:
+        if (state_ == Starting || state_ == Resuming)
+            canTransition = true;
+        break;
+
+    case Pausing:
+        if (state_ == Running)
+            canTransition = true;
+        break;
+
+    case Paused:
+        if (state_ == Pausing)
+            canTransition = true;
+        break;
+
+    case Resuming:
+        if (state_ == Paused)
+            canTransition = true;
+        break;
+
+    case Cancelling:
+        canTransition = true;
+        break;
+
+    case Cancelled:
+        if (state_ == Cancelling)
+            canTransition = true;
+        break;
+
+    case Succeeded:
+        if (state_ == Running || state_ == Starting)
+            canTransition = true;
+        break;
+
+    case Failed:
+        if (state_ == Starting || state_ == Running || state_ == Pausing
+                || state_ == Paused || state_ == Resuming || state_ == Cancelling)
+            canTransition = true;
+        break;
+    }
+
+    return canTransition;
+}
+
 double AMAction3::pausedTime() const
 {
 	if(!startDateTime_.isValid())
@@ -393,18 +323,4 @@ double AMAction3::pausedTime() const
 		return secondsSpentPaused_ + double(lastPausedAt_.msecsTo(QDateTime::currentDateTime()))/1000.0;
 	else
 		return secondsSpentPaused_;
-}
-
-double AMAction3::waitingForPrereqsTime() const
-{
-	if(!startDateTime_.isValid())
-		return -1.0;
-
-	// Are we before secondsSpentWaitingForPrereqs_ has been set?
-	if(state() == WaitingForPrereqs ||
-			(state() == Paused && previousState() == WaitingForPrereqs))
-		return elapsedTime() - pausedTime();	// Our whole elapsed time so far is WaitingForPrereqs time. Except for any paused time, which needs to be counted separately.
-
-	// otherwise, this has been set already. Just use it.
-	return secondsSpentWaitingForPrereqs_;
 }

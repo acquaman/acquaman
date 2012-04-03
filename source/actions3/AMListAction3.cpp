@@ -93,13 +93,11 @@ bool AMListAction3::canPause() const
 			return false;
 		// if we just have one sub-action and it cannot pause, then we can't pause.
 		if(subActionCount() == 1)
-			return ((subActionAt(0)->state() == Running
-					 || subActionAt(0)->state() == WaitingForPrereqs)
+            return (subActionAt(0)->state() == Running
 					&& subActionAt(0)->canPause());
 		// More than one action. Are we on the last action? Then whether we can pause depends on whether that last action can pause
 		if(currentSubActionIndex() == subActionCount()-1)
-			return ((currentSubAction()->state() == Running
-					 || currentSubAction()->state() == WaitingForPrereqs)
+            return (currentSubAction()->state() == Running
 					&& currentSubAction()->canPause());
 		// If we've made it here, we have more than one action and we're not on the last action. Therefore, at least we can pause between actions even if they can't pause themselves.
 		return true;
@@ -110,7 +108,7 @@ bool AMListAction3::canPause() const
 		bool canDoPause = true;
         foreach(AMAction3* action, subActions_)
 			canDoPause &= (action->inFinalState()
-						   || ((action->state() == Running || action->state() == WaitingForPrereqs)
+                           || (action->state() == Running
 							   && action->canPause()));
 
 		return canDoPause;
@@ -236,11 +234,6 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 	// sequential mode: could only come from the current action
 	if(subActionMode() == SequentialMode) {
 		switch(newState) {
-		case WaitingForPrereqs:
-			// If we were paused between actions and resuming, the next action is now running...
-			if(state() == Resuming)
-				notifyResumed();
-			return;
 		case Starting:
 			// If we were paused between actions and resuming, the next action is now running...
 			if(state() == Resuming)
@@ -308,8 +301,6 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 	/////////////////////////
 	else {
 		switch(newState) {
-		case WaitingForPrereqs:
-			return;
 		case Starting:
 			return;
 		case Running:

@@ -4,23 +4,6 @@
 #include <QObject>
 #include "actions3/AMActionInfo3.h"
 
-/// You can subclass this to define a prerequisite for AMActions: a condition that must be satisfied before the action can start. It should return satisfied() and have a signal satisfiedChanged() to notify whenever that changes.
-class AMActionPrereq3 : public QObject {
-	Q_OBJECT
-public:
-	/// Returns whether this prereq is satisfied
-	virtual bool satisfied() const = 0;
-	/// Returns an explanation that will make sense to users when we tell them why we can't proceed with their action
-	virtual QString explanation() const = 0;
-	/// This function is used as a virtual copy constructor. It should return an independent copy of the prereq instance.
-    virtual AMActionPrereq3* createCopy() const = 0;
-
-signals:
-	void satisfiedChanged(bool isSatisfied);
-};
-
-class AMNestedAction3;
-
 /// AMAction defines the interface for "actions" which can be run asynchronously in Acquaman's Workflow system. Actions (especially AMListAction) can also be useful on their own, outside of the workflow environment, to (a) make a set of events happen in a defined order, and (b) receive notification when those events succeed or fail. They can be used to easily build up complicated behaviour when moving beamlines around or building scan controllers.
 /*!
   <b>Running actions</b>
@@ -66,7 +49,6 @@ public:
 
 	/// This enum describes the states that an action can be in.
 	enum State { Constructed = 0,
-				 WaitingForPrereqs,
 				 Starting,
 				 Running,
 				 Pausing,
@@ -82,14 +64,6 @@ public:
 						   AttemptAnotherCopyResponse,
 						   PromptUserResponse
 						 };
-	/// When there are pre-requisites for the action, this specifies what to do if any pre-reqs aren't satisfied
-	enum PrereqBehaviour { WaitPrereqBehaviour = 0,
-						   CancelActionPrereqBehaviour,
-						   FailActionPrereqBehaviour,
-						   PromptUserPrereqBehaviour
-						 };
-
-
 
 	// Constructor and life-cycle management
 	/////////////////
@@ -100,9 +74,9 @@ public:
 	/// Copy constructor. Takes care of making copies of the info and prerequisites. NOTE that the state() is reset to Constructed: the copy should look like a new action that hasn't been run yet.
     AMAction3(const AMAction3& other);
 
-	/// This virtual function takes the role of a virtual copy constructor. All actions MUST RE-IMPLEMENT to be able to create and return a an independent copy of themselves. (This allows us to get a detailed subclass copy without knowing the type of the action.) NOTE that the returned instance should be a perfect copy except for the state() -- which will be reset to Constructed -- and any other subclass-specific state information: the copy should look like a new action that hasn't been run yet.
+    /// This virtual function takes the role of a virtual copy constructor. This implementation always returns 0; therefore, all actions MUST RE-IMPLEMENT to be able to create and return a an independent copy of themselves. (This allows us to get a detailed subclass copy without knowing the type of the action.) NOTE that the returned instance should be a perfect copy except for the state() -- which will be reset to Constructed -- and any other subclass-specific state information: the copy should look like a new action that hasn't been run yet.
 	/*! It's recommended to make use of the copy constructor when implementing this, to ensure that the base class is copied properly.*/
-    virtual AMAction3* createCopy() const { return new AMAction3(*this); }
+    virtual AMAction3* createCopy() const { return 0; }
 
 	/// Destructor: deletes the info and prerequisites
     virtual ~AMAction3();
@@ -129,10 +103,8 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 	double elapsedTime() const { if(!startDateTime_.isValid()) return -1.0; return double(startDateTime_.msecsTo(QDateTime::currentDateTime()))/1000.0; }
 	/// Returns the number of seconds that this action has been in the Paused and Pausing states for.
 	double pausedTime() const;
-	/// Returns the number of seconds that this action has been in the WaitingForPrereqs state for
-	double waitingForPrereqsTime() const;
 	/// Returns the number of seconds that this action has actually been running for, <i>excluding</i> time spent in the Paused (and Pausing) and WaitingForPrereqs states.
-	double runningTime() const { if(!startDateTime_.isValid()) return -1.0; return elapsedTime() - pausedTime() - waitingForPrereqsTime(); }
+    double runningTime() const { if(!startDateTime_.isValid()) return -1.0; return elapsedTime() - pausedTime(); }
 
 	/// Returns a description of the action's status, for example, "Waiting for the beamline energy to reach the setpoint".  Implementations should update this while the action is running using setStatusText().
 	/*! Even if you don't ever call this, the base class implementation will at at least call it on every state change with the name of the state. (For example: when the state changes to running, the status text will change to "Running".) You can always call it again after the state change/in-between state changes to provide more details to the user.*/
@@ -159,11 +131,16 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 	///////////////////////
 
 	/// Sometimes, actions are formally bundled inside other actions using the AMNestedAction API. If this action happens to be found inside a nested action, this returns a pointer to the nested action. Normally, it returns 0.
-    const AMNestedAction3* parentAction() const { return parentAction_; }
+    const AMAction3* parentAction() const { return parentAction_; }
 	/// Sometimes, actions are formally bundled inside other actions using the AMNestedAction API. If this action happens to be found inside a nested action, this returns a pointer to the nested action. Normally, it returns 0.
-    AMNestedAction3* parentAction() { return parentAction_; }
+    AMAction3* parentAction() { return parentAction_; }
 	/// This function should not be considered part of the public interface. It is used by nested actions to set the parent action. NEVER CALL THIS FUNCTION.
-    void internalSetParentAction(AMNestedAction3* parentAction) { parentAction_ = parentAction; }
+    void setParentAction(AMAction3* parentAction) { parentAction_ = parentAction; }
+
+    /// Pure virtual function that denotes that this action has children underneath it or not.
+    virtual bool hasChildren() const = 0;
+    /// Pure virtual function that returns the number of children for this action.
+    virtual int numberOfChildren() const = 0;
 
 
 public slots:
@@ -191,28 +168,6 @@ public:
 	QPair<double, double> progress() const { return progress_; }
 	/// Returns the total expected duration in seconds. If the time to completion is unknown, this will return -1.
 	double expectedDuration() const { return info_->expectedDuration(); }
-
-
-	// Prerequisite API
-	/////////////////////////
-
-	/// Returns the current list of prerequisites
-    QList<AMActionPrereq3*> prereqs() const { return prereqs_; }
-	/// Returns the prereq behaviour: what to do when a prereq is not satisfied. The options are to wait for the prereq to be satisfied, cancel the action, fail the action, or prompt the user for what to do.
-	PrereqBehaviour prereqBehaviour() const { return prereqBehaviour_; }
-
-	/// Add a new prerequisite for this action. Prereqs (defined by a subclass of AMActionPrereq) specify whether the action can run right now or not. The action takes ownership of the prereq and will delete it when deleted. Returns false if the action is already running and it would be meaningless to add a prereq.
-    bool addPrereq(AMActionPrereq3* newPrereq);
-	/// Specify what should be done in the event that a prereq is not satisfied. The options are to wait for the prereq to be satisfied, cancel the action, fail the action, or prompt the user for what to do. In the future, we might add an attempt to fix the situation causing the prereq.  The default is to wait for the prereq to be satistifed.
-	/*! This function returns false if the action is already running and it would be meaningless to set the prereq behaviour.
-
-   \note The difference between cancelling and failing the action has to do with the failure response... When cancelled, the failure response isn't invoked; when the action fails, it is.
-*/
-	bool setPrereqBehaviour(PrereqBehaviour prereqBehaviour);
-
-	/// Returns true if all the prerequisites are satisfied; false if any aren't.
-	bool prereqsSatisfied() const;
-
 
 	// Recommended Response to failure:
 	//////////////////////////
@@ -264,20 +219,20 @@ protected:
 
 	// The following functions are used to define the unique behaviour of the action.  We set them up in this way so that subclasses don't need to worry about (and cannot) break the state machine logic; they only need to fill in their pieces.
 
-	// These virtual functions allow subclasses to implement their unique action behaviour.  They are called at the appropriate time by the base class, when base-class-initiated state changes happen: ->Starting, ->Cancelling, ->Pausing, ->Resuming
+    // These pure-virtual functions allow subclasses to implement their unique action behaviour.  They are called at the appropriate time by the base class, when base-class-initiated state changes happen: ->Starting, ->Cancelling, ->Pausing, ->Resuming
 	/////////////////////////
 	/// This function is called from the Starting state when the implementation should initiate the action. Once the action is started, you should call notifyStarted().
-	virtual void startImplementation() { notifyStarted(); }
+    virtual void startImplementation() = 0;
 
 	/// For actions which support pausing, this function is called from the Pausing state when the implementation should pause the action. Once the action is paused, you should call notifyPaused().  The base class implementation does nothing and must be re-implemented.
-	virtual void pauseImplementation() { notifyPaused(); }
+    virtual void pauseImplementation() = 0;
 
 	/// For actions that support resuming, this function is called from the Paused state when the implementation should resume the action. Once the action is running again, you should call notifyResumed().
-	virtual void resumeImplementation() { notifyResumed(); }
+    virtual void resumeImplementation() = 0;
 
 	/// All implementations must support cancelling. This function will be called from the Cancelling state. Implementations will probably want to examine the previousState(), which could be any of Starting, Running, Pausing, Paused, or Resuming. Once the action is cancelled and can be deleted, you should call notifyCancelled().
 	/*! \note If startImplementation() was never called, you won't receive this when a user tries to cancel(); the base class will handle it for you. */
-	virtual void cancelImplementation() { notifyCancelled(); }
+    virtual void cancelImplementation() = 0;
 
 
 
@@ -299,10 +254,10 @@ protected:
 
 private:
 	State state_, previousState_;
+    /// Changes states (if possible).
 	void setState(State newState);
-
-    QList<AMActionPrereq3*> prereqs_;
-	PrereqBehaviour prereqBehaviour_;
+    /// Checks whether you can make the the transition to the new state.
+    bool canChangeState(State newState) const;
 
 	FailureResponse failureResponseInActionRunner_;
 	FailureResponse failureResponseAsSubAction_;
@@ -311,16 +266,7 @@ private:
 	QDateTime startDateTime_, endDateTime_;
 	QString statusText_;
 
-    AMNestedAction3* parentAction_;
-
-private slots:
-	// These slots are used to respond to events as the state machine runs.
-	///////////////////
-	void internalOnPrereqChanged();
-
-private:
-	/// Helper function to prompt the user for whether to cancel the action or wait for the prereqs to be satisfied
-	PrereqBehaviour promptUserForPrereqBehaviour();
+    AMAction3* parentAction_;
 
 private:
 	/// A pointer to our associated AMActionInfo object
@@ -328,8 +274,6 @@ private:
 	/// This variable tracks the number of seconds that the action has spent in the Paused or Pausing states; we use it to implement runningTime().
 	/*! \note It is only updated _after_ the action has resume()d.*/
 	double secondsSpentPaused_;
-	/// This variable tracks the number of seconds that the action spent in the WaitingForPrereqs state; we use it to implement runningTime(). It is not valid until we get past that state.
-	double secondsSpentWaitingForPrereqs_;
 	/// This variable stores the time at which we were last paused. It is set in pause().
 	QDateTime lastPausedAt_;
 };

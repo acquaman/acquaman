@@ -12,7 +12,7 @@ bool AMNestedAction3::insertSubAction(AMAction3 *action, int index)
 		index = subActionCount();
 
 	emit subActionAboutToBeAdded(index);
-	action->internalSetParentAction(this);
+    action->setParentAction(this);
 	insertSubActionImplementation(action, index);
 	emit subActionAdded(index);
 
@@ -75,7 +75,7 @@ AMAction3 * AMNestedAction3::takeSubAction(int index)
 
 	emit subActionAboutToBeRemoved(index);
     AMAction3* action = takeSubActionImplementation(index);
-	action->internalSetParentAction(0);
+    action->setParentAction(0);
 	emit subActionRemoved(index);
 
 	return action;

@@ -206,7 +206,7 @@ void AMActionRunnerCurrentView3::onPauseButtonClicked()
 		return;
 	}
 
-    if((currentAction->state() == AMAction3::Running || currentAction->state() == AMAction3::WaitingForPrereqs) && currentAction->pause())
+    if(currentAction->state() == AMAction3::Running && currentAction->pause())
 		;	// successfully paused; do nothing.
 	else
 		QMessageBox::warning(this, "This action can't be paused", QString("This '%1' action cannot be paused right now.\n\n(Some actions just can't be paused, and others can't be paused at certain points in time.)").arg(currentAction->info()->typeDescription()), QMessageBox::Ok);
@@ -225,7 +225,7 @@ void AMActionRunnerCurrentView3::onStateChanged(int state, int previousState)
 	}
 
 	// Can pause or resume from only these states:
-    pauseButton_->setEnabled(state == AMAction3::Running || state == AMAction3::WaitingForPrereqs || state == AMAction3::Paused);
+    pauseButton_->setEnabled(state == AMAction3::Running || state == AMAction3::Paused);
 }
 
 
@@ -359,7 +359,7 @@ QModelIndex AMActionRunnerCurrentModel3::indexForAction(AMAction3 *action) const
 	if(!action)
 		return QModelIndex();
 
-    AMNestedAction3* parentAction = action->parentAction();
+    AMAction3* parentAction = action->parentAction();
 	if(!parentAction) {
 		// action is in the top-level. It must be the current action.
 		if(action == currentAction_)
@@ -371,7 +371,7 @@ QModelIndex AMActionRunnerCurrentModel3::indexForAction(AMAction3 *action) const
 	}
 	else {
 		// we do a have parent action. Do a linear search for ourself in the parent AMNestedAction to find our row.
-		int row = parentAction->indexOfSubAction(action);
+        int row = ((AMNestedAction3 *)parentAction)->indexOfSubAction(action);
 		if(row == -1) {
 			qWarning() << "AMActionRunnerCurrentModel: Warning: action not found in nested action.";
 			return QModelIndex();
