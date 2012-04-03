@@ -526,7 +526,6 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/util/AMDataSourcePlotSettings.h \
 	source/util/AMSelectablePeriodicTable.h \
 	source/ui/util/AMSelectablePeriodicTableView.h \
-    source/actions3/AMNestedAction3.h \
     source/actions3/AMLoopActionInfo3.h \
     source/actions3/AMLoopAction3.h \
     source/actions3/AMListAction3.h \
@@ -894,7 +893,6 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/util/AMFetchSpectrumThread.cpp \
 	source/util/AMSelectablePeriodicTable.cpp \
 	source/ui/util/AMSelectablePeriodicTableView.cpp \
-    source/actions3/AMNestedAction3.cpp \
     source/actions3/AMLoopActionInfo3.cpp \
     source/actions3/AMLoopAction3.cpp \
     source/actions3/AMListAction3.cpp \

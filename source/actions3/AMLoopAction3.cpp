@@ -3,21 +3,21 @@
 
 #include <QDebug>
 
-AMLoopAction3::AMLoopAction3(AMLoopActionInfo3 *info, QObject *parent) : AMNestedAction3(info, parent) {
+AMLoopAction3::AMLoopAction3(AMLoopActionInfo3 *info, QObject *parent) : AMListAction3(info, AMListAction3::Sequential, parent) {
 	currentIteration_ = 0;
 	currentSubActionIndex_ = -1;
 	logSubActionsSeparately_ = true;
 	currentSubAction_ = 0;
 }
 
-AMLoopAction3::AMLoopAction3(int iterations, QObject *parent) : AMNestedAction3(new AMLoopActionInfo3(iterations), parent) {
+AMLoopAction3::AMLoopAction3(int iterations, QObject *parent) : AMListAction3(new AMLoopActionInfo3(iterations), AMListAction3::Sequential, parent) {
 	currentIteration_ = 0;
 	currentSubActionIndex_ = -1;
 	logSubActionsSeparately_ = true;
 	currentSubAction_ = 0;
 }
 
-AMLoopAction3::AMLoopAction3(const AMLoopAction3 &other) : AMNestedAction3(other) {
+AMLoopAction3::AMLoopAction3(const AMLoopAction3 &other) : AMListAction3(other) {
 	logSubActionsSeparately_ = other.logSubActionsSeparately_;
 	// These are runtime, not configure, properties. This is supposed to be a new action:
 	currentIteration_ = 0;
@@ -208,6 +208,6 @@ void AMLoopAction3::internalOnCurrentActionStatusTextChanged(const QString &stat
 
 bool AMLoopAction3::internalShouldLogSubAction(AMAction3 *action)
 {
-    AMNestedAction3* nestedAction = qobject_cast<AMNestedAction3*>(action);
+    AMListAction3* nestedAction = qobject_cast<AMListAction3*>(action);
 	return shouldLogSubActionsSeparately() && !(nestedAction && nestedAction->shouldLogSubActionsSeparately());
 }

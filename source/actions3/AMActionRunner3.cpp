@@ -8,7 +8,7 @@
 #include <QPixmapCache>
 #include <QTimer>
 
-#include "actions3/AMNestedAction3.h"
+#include "actions3/AMListAction3.h"
 
 #include <QDebug>
 
@@ -71,7 +71,7 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
             state == AMAction3::Succeeded) {
 
 		// log it, unless it's a nested action that wants to take care of logging its sub-actions itself.
-        AMNestedAction3* nestedAction = qobject_cast<AMNestedAction3*>(currentAction_);
+        AMListAction3* nestedAction = qobject_cast<AMListAction3*>(currentAction_);
 		if(!(nestedAction && nestedAction->shouldLogSubActionsSeparately())) {
             if(!AMActionLog3::logCompletedAction(currentAction_)) {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem logging the completed action to your database.  Please report this problem to the Acquaman developers."));
@@ -374,7 +374,7 @@ QModelIndex AMActionRunnerQueueModel3::index(int row, int column, const QModelIn
 	}
 	// otherwise this is an index for a sub-action of an AMNestedAction.
 	else {
-        AMNestedAction3* parentAction = qobject_cast<AMNestedAction3*>(actionAtIndex(parent));
+        AMListAction3* parentAction = qobject_cast<AMListAction3*>(actionAtIndex(parent));
 		if(!parentAction) {
 			qWarning() << "AMActionRunnerQueueModel: Warning: requested a child index when the parent was not an AMNestedAction.";
 			return QModelIndex();
@@ -404,7 +404,7 @@ int AMActionRunnerQueueModel3::rowCount(const QModelIndex &parent) const
 		return actionRunner_->queuedActionCount();
 	}
 
-    AMNestedAction3* nestedAction = qobject_cast<AMNestedAction3*>(actionAtIndex(parent));
+    AMListAction3* nestedAction = qobject_cast<AMListAction3*>(actionAtIndex(parent));
 	if(nestedAction)
 		return nestedAction->subActionCount();
 	else
@@ -457,7 +457,7 @@ Qt::ItemFlags AMActionRunnerQueueModel3::flags(const QModelIndex &index) const
 	Qt::ItemFlags rv = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
 
 	// Nested actions can accept drops onto them (to insert actions)
-    AMNestedAction3* nestedAction = qobject_cast<AMNestedAction3*>(actionAtIndex(index));
+    AMListAction3* nestedAction = qobject_cast<AMListAction3*>(actionAtIndex(index));
 	if(nestedAction)
 		rv |= Qt::ItemIsDropEnabled;
 
@@ -474,7 +474,7 @@ bool AMActionRunnerQueueModel3::hasChildren(const QModelIndex &parent) const
 		return true;	// top level: must have children.
 	else {
 		// other levels: have children if its a nested action.
-        AMNestedAction3* nestedAction = qobject_cast<AMNestedAction3*>(actionAtIndex(parent));
+        AMListAction3* nestedAction = qobject_cast<AMListAction3*>(actionAtIndex(parent));
 		return (nestedAction != 0);
 	}
 }
@@ -526,7 +526,7 @@ QModelIndex AMActionRunnerQueueModel3::indexForAction(AMAction3 *action) const
 	}
 	else {
 		// we do a have parent action. Do a linear search for ourself in the parent AMNestedAction.
-        int row = ((AMNestedAction3 *)parentAction)->indexOfSubAction(action);
+        int row = ((AMListAction3 *)parentAction)->indexOfSubAction(action);
 		if(row == -1) {
 			qWarning() << "AMActionRunnerQueueModel: Warning: action not found in nested action.";
 			return QModelIndex();
@@ -537,7 +537,7 @@ QModelIndex AMActionRunnerQueueModel3::indexForAction(AMAction3 *action) const
 
 void AMActionRunnerQueueModel3::internalConnectNestedActions(AMAction3 *action)
 {
-    AMNestedAction3* nestedAction = qobject_cast<AMNestedAction3*>(action);
+    AMListAction3* nestedAction = qobject_cast<AMListAction3*>(action);
 	if(nestedAction) {
 		// qDebug() << "Connecting and remembering nested action" << action->info()->shortDescription();
 		disconnect(nestedAction, 0, this, 0);
@@ -553,7 +553,7 @@ void AMActionRunnerQueueModel3::internalConnectNestedActions(AMAction3 *action)
 
 void AMActionRunnerQueueModel3::internalDisconnectNestedActions(AMAction3 *action)
 {
-    AMNestedAction3* nestedAction = qobject_cast<AMNestedAction3*>(action);
+    AMListAction3* nestedAction = qobject_cast<AMListAction3*>(action);
 	if(nestedAction) {
 		// qDebug() << "Disconnecting and forgetting nested action" << action->info()->shortDescription();
 		disconnect(nestedAction, 0, this, 0);
@@ -565,7 +565,7 @@ void AMActionRunnerQueueModel3::internalDisconnectNestedActions(AMAction3 *actio
 
 void AMActionRunnerQueueModel3::onSubActionAboutToBeAdded(int index)
 {
-    AMNestedAction3* parentAction = qobject_cast<AMNestedAction3*>(sender());
+    AMListAction3* parentAction = qobject_cast<AMListAction3*>(sender());
 	lastSender_ = parentAction;
 	if(!parentAction) {
 		qWarning() << "AMActionRunnerQueueModel: Warning: invalid parent sent subActionAboutToBeAdded().";
@@ -583,7 +583,7 @@ void AMActionRunnerQueueModel3::onSubActionAboutToBeAdded(int index)
 
 void AMActionRunnerQueueModel3::onSubActionAdded(int index)
 {
-    AMNestedAction3* parentAction = qobject_cast<AMNestedAction3*>(sender());
+    AMListAction3* parentAction = qobject_cast<AMListAction3*>(sender());
 	if(parentAction != lastSender_) {
 		qWarning() << "AMActionRunnerQueueModel: Warning: Unmatched calls to onSubActionAboutToBeAdded/onSubActionAdded.";
 	}
@@ -595,7 +595,7 @@ void AMActionRunnerQueueModel3::onSubActionAdded(int index)
 
 void AMActionRunnerQueueModel3::onSubActionAboutToBeRemoved(int index)
 {
-    AMNestedAction3* parentAction = qobject_cast<AMNestedAction3*>(sender());
+    AMListAction3* parentAction = qobject_cast<AMListAction3*>(sender());
 	lastSender_ = parentAction;
 	if(!parentAction) {
 		qWarning() << "AMActionRunnerQueueModel: Warning: invalid parent sent subActionAboutToBeRemoved().";
@@ -616,7 +616,7 @@ void AMActionRunnerQueueModel3::onSubActionAboutToBeRemoved(int index)
 void AMActionRunnerQueueModel3::onSubActionRemoved(int index)
 {
 	Q_UNUSED(index)
-    if(qobject_cast<AMNestedAction3*>(sender()) != lastSender_) {
+    if(qobject_cast<AMListAction3*>(sender()) != lastSender_) {
 		qWarning() << "AMActionRunnerQueueModel: Warning: Unmatched calls to onSubActionAboutToBeRemoved/onSubActionRemoved.";
 	}
 	endRemoveRows();
@@ -646,7 +646,7 @@ void AMActionRunnerQueueModel3::deleteActionsInQueue(QModelIndexList indexesToDe
 	foreach(QPersistentModelIndex i, nestedIndexesToDelete) {
 		if(i.isValid()) {
 			// get their parent model item... which should represent a nested action
-            AMNestedAction3* nestedAction = qobject_cast<AMNestedAction3*>(actionAtIndex(i.parent()));
+            AMListAction3* nestedAction = qobject_cast<AMListAction3*>(actionAtIndex(i.parent()));
 			if(nestedAction) {
 				nestedAction->deleteSubAction(i.row());
 			}
@@ -677,7 +677,7 @@ void AMActionRunnerQueueModel3::duplicateActionsInQueue(const QModelIndexList &i
 	// Otherwise, these indexes are sub-actions of some AMNestedAction
 	else {
 		// find the nested action:
-        AMNestedAction3* nestedAction = qobject_cast<AMNestedAction3*>(actionAtIndex(firstParent));
+        AMListAction3* nestedAction = qobject_cast<AMListAction3*>(actionAtIndex(firstParent));
 		if(nestedAction) {
 			QList<int> subActionIndexes;
 			foreach(QModelIndex i, indexesToCopy)
@@ -736,7 +736,7 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 					// qDebug() << "Moving from top level to nested action.";
 
 					// parent is valid... It represents the nested action we're supposed to drop these actions inside of.
-                    AMNestedAction3* nestedAction = qobject_cast<AMNestedAction3*>(actionAtIndex(parent));
+                    AMListAction3* nestedAction = qobject_cast<AMListAction3*>(actionAtIndex(parent));
 					if(!nestedAction) {
 						qWarning() << "AMActionRunnerQueueModel: Warning: Asked to drop actions inside a nested action that wasn't valid.";
 						return false;
@@ -753,7 +753,7 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 			}
 			// Case B: Source: These are sub-actions inside a nested action...
 			else {
-                AMNestedAction3* sourceParentAction = qobject_cast<AMNestedAction3*>(actionAtIndex(first.parent()));
+                AMListAction3* sourceParentAction = qobject_cast<AMListAction3*>(actionAtIndex(first.parent()));
 				if(!sourceParentAction) {
 					qWarning() << "AMActionQueueModel: Warning: Asked to move actions from inside a nested action that wasn't valid.";
 					return false;
@@ -763,7 +763,7 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 				if(first.parent() == parent) {
 					QPersistentModelIndex destinationIndex(index(row, 0, parent));
 					for(int i=0,cc=mil.count(); i<cc; i++) {
-                        AMAction3* moveAction = sourceParentAction->takeSubAction(mil.at(i).row());
+                        AMAction3* moveAction = sourceParentAction->takeSubActionAt(mil.at(i).row());
 						if(moveAction)
 							sourceParentAction->insertSubAction(moveAction, destinationIndex.row());
 						else
@@ -780,14 +780,14 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 						if(targetRow < 0 || targetRow > actionRunner_->queuedActionCount())
 							targetRow = actionRunner_->queuedActionCount();
 						for(int i=0,cc=mil.count(); i<cc; i++) {
-							actionRunner_->insertActionInQueue(sourceParentAction->takeSubAction(mil.at(i).row()), targetRow++);
+                            actionRunner_->insertActionInQueue(sourceParentAction->takeSubActionAt(mil.at(i).row()), targetRow++);
 						}
 						return true;
 					}
 					// Subcase B2: The destination is a different sub-action.
 					else {
 						// qDebug() << "Move from one nested action to another.";
-                        AMNestedAction3* destParentAction = qobject_cast<AMNestedAction3*>(actionAtIndex(parent));
+                        AMListAction3* destParentAction = qobject_cast<AMListAction3*>(actionAtIndex(parent));
 						if(!destParentAction) {
 							qWarning() << "AMActionQueueModel: Warning: Asked to move actions into a nested action that wasn't valid.";
 							return false;
@@ -796,7 +796,7 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 						if(targetRow < 0 || targetRow > destParentAction->subActionCount())
 							targetRow = destParentAction->subActionCount();
 						for(int i=0,cc=mil.count(); i<cc; i++) {
-							destParentAction->insertSubAction(sourceParentAction->takeSubAction(mil.at(i).row()), targetRow++);
+                            destParentAction->insertSubAction(sourceParentAction->takeSubActionAt(mil.at(i).row()), targetRow++);
 						}
 						return true;
 					}
