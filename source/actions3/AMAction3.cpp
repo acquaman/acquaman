@@ -52,43 +52,29 @@ AMAction3::~AMAction3() {
 
 bool AMAction3::start()
 {
-	if(state() != Constructed)
-		return false;
+    if (canChangeState(Starting)){
 
-	startDateTime_ = QDateTime::currentDateTime();
-    setState(Starting);
-    startImplementation();
+        startDateTime_ = QDateTime::currentDateTime();
+        setState(Starting);
+        startImplementation();
 
-	return true;
+        return true;
+    }
+
+    return false;
 }
 
 bool AMAction3::cancel()
 {
-	switch(state()) {
+    if (canChangeState(Cancelling)){
 
-	case Cancelling:
-	case Cancelled:
-	case Succeeded:
-	case Failed:
-		qWarning() << "AMAction: Warning: You cannot cancel this action because it is already in a final state.";
-		return false;	// can't cancel from these states. Already cancelling, or in a final state.
+        setState(Cancelling);
+        cancelImplementation();
+        return true;
+    }
 
-	case Constructed:
-		endDateTime_ = QDateTime::currentDateTime();
-		setState(Cancelled);	// can cancel directly; haven't started yet
-		return true;
-
-	case Starting:
-	case Running:
-	case Pausing:
-	case Paused:
-	case Resuming:
-		setState(Cancelling);
-		cancelImplementation();
-		return true;
-	default:
-		return false;
-	}
+    qWarning() << "AMAction: Warning: You cannot cancel this action because it is already in a final state.";
+    return false;
 }
 
 bool AMAction3::pause()
@@ -98,7 +84,8 @@ bool AMAction3::pause()
 		return false;
 	}
 
-	if(state() == Running) {
+    if(canChangeState(Pausing)) {
+
 		lastPausedAt_ = QDateTime::currentDateTime();
 		setProgress(0,0);
 		setState(Pausing);
@@ -112,7 +99,8 @@ bool AMAction3::pause()
 
 bool AMAction3::resume()
 {
-	if(state() == Paused) {
+    if(canChangeState(Resuming)) {
+
 		secondsSpentPaused_ += double(lastPausedAt_.msecsTo(QDateTime::currentDateTime()))/1000.0;
         setState(Resuming);
         resumeImplementation();
@@ -123,85 +111,87 @@ bool AMAction3::resume()
 	return false;	// cannot resume from any other states except Pause.
 }
 
-void AMAction3::notifyStarted()
+void AMAction3::setStarted()
 {
-	if(state() != Starting) {
-		qWarning() << "AMAction: Warning: An implementation told us it has started, but we did not tell it to start.";
-		qWarning() << "    Action name:" << info()->name();
-		qWarning() << "    Current state:" << stateDescription(state());
-		return;
-	}
+    if (canChangeState(Running)){
 
-	setState(Running);
+        setState(Running);
+        emit started();
+    }
+
+    else{
+
+        qWarning() << "AMAction: Warning: An implementation told us it has started, but we did not tell it to start.";
+        qWarning() << "    Action name:" << info()->name();
+        qWarning() << "    Current state:" << stateDescription(state());
+    }
 }
 
-void AMAction3::notifySucceeded()
+void AMAction3::setSucceeded()
 {
-	switch(state()) {
+    if (canChangeState(Succeeded)){
 
-	case Starting:
-	case Running:
-	case Pausing:
-	case Paused:
-	case Resuming:
-	case Cancelling:
-		endDateTime_ = QDateTime::currentDateTime();
-		setState(Succeeded);
-		break;
+        endDateTime_ = QDateTime::currentDateTime();
+        setState(Succeeded);
+        emit succeeded();
+    }
 
-	default:
-		qWarning() << "AMAction: Warning: An implementation told us it had succeeded before it could possibly be running.";
-		qWarning() << "    Action name:" << info()->name();
-		qWarning() << "    Current state:" << stateDescription(state());
-	}
+    else {
+
+        qWarning() << "AMAction: Warning: An implementation told us it had succeeded before it could possibly be running.";
+        qWarning() << "    Action name:" << info()->name();
+        qWarning() << "    Current state:" << stateDescription(state());
+    }
 }
 
-void AMAction3::notifyFailed()
+void AMAction3::setFailed()
 {
-	switch(state()) {
+    if (canChangeState(Failed)){
 
-	case Starting:
-	case Running:
-	case Pausing:
-	case Paused:
-	case Resuming:
-	case Cancelling:
-		endDateTime_ = QDateTime::currentDateTime();
-		setState(Failed);
-		break;
+        endDateTime_ = QDateTime::currentDateTime();
+        setState(Failed);
+        emit failed();
+    }
 
-	default:
-		qWarning() << "AMAction: Warning: An implementation told us it had failed before it could possibly be running.";
-	}
+    else
+        qWarning() << "AMAction: Warning: An implementation told us it had failed before it could possibly be running.";
 }
 
-void AMAction3::notifyPaused()
+void AMAction3::setPaused()
 {
-	if(state() != Pausing) {
-		qWarning() << "AMAction: Warning: An action notified us it had paused, when it should not be pausing.";
-		return;
-	}
-	setState(Paused);
+    if (canChangeState(Paused)){
+
+        setState(Paused);
+        emit paused();
+    }
+
+    else
+        qWarning() << "AMAction: Warning: An action notified us it had paused, when it should not be pausing.";
 }
 
-void AMAction3::notifyResumed()
+void AMAction3::setResumed()
 {
-	if(state() != Resuming) {
-		qWarning() << "AMAction: Warning: An action notified us it had resumed, when it should not be resuming.";
-		return;
-	}
-	setState(Running);
+    if (canChangeState(Running)){
+
+        setState(Running);
+        emit resumed();
+    }
+
+    else
+        qWarning() << "AMAction: Warning: An action notified us it had resumed, when it should not be resuming.";
 }
 
-void AMAction3::notifyCancelled()
+void AMAction3::setCancelled()
 {
-	// only called by implementation when finished cancelling.
-	if(state() != Cancelling) {
-		qWarning() << "AMAction: Warning: An action notified us it was cancelled before we could possibly cancel it.";
-		return;
-	}
-	endDateTime_ = QDateTime::currentDateTime();
-	setState(Cancelled);
+    if (canChangeState(Cancelled)){
+
+        endDateTime_ = QDateTime::currentDateTime();
+        setState(Cancelled);
+        emit cancelled();
+    }
+
+    else
+        qWarning() << "AMAction: Warning: An action notified us it was cancelled before we could possibly cancel it.";
 }
 
 #include <QMessageBox>
@@ -246,13 +236,6 @@ void AMAction3::setState(AMAction3::State newState) {
 	// qDebug() << "AMAction:" << info()->name() << ": Entering state:" << stateDescription(state_);
 	setStatusText(stateDescription(state_));
 	emit stateChanged(state_, previousState_);
-	// convenience signals for final states:
-	if(state_ == Succeeded)
-		emit succeeded();
-	else if(state_ == Failed)
-		emit failed();
-	else if(state_ == Cancelled)
-		emit cancelled();
 }
 
 bool AMAction3::canChangeState(State newState) const
@@ -290,7 +273,8 @@ bool AMAction3::canChangeState(State newState) const
         break;
 
     case Cancelling:
-        canTransition = true;
+        if (!inFinalState())
+            canTransition = true;
         break;
 
     case Cancelled:

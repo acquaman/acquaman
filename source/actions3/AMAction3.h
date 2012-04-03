@@ -189,11 +189,17 @@ signals:
 
 	// convenience synonyms for state changed to a final state.
 	//////////////////////////
-	/// Emitted when the state changes to Succeeded
+    /// Emitted when the state changes to Paused.  Synonym for stateChanged(Pausing, Paused).
+    void paused();
+    /// Emitted when the state changes to Resumed.  Synonym for stateChanged(Resuming, Running).
+    void resumed();
+    /// Emitted when the state changes to Running.  Synonym for stateChanged(Constructed, Running).
+    void started();
+    /// Emitted when the state changes to Succeeded.
 	void succeeded();
-	/// Emitted when the state changes to Failed
+    /// Emitted when the state changes to Failed.
 	void failed();
-	/// Emitted when the state changes to Cancelled
+    /// Emitted when the state changes to Cancelled.
 	void cancelled();
 
 
@@ -240,24 +246,25 @@ protected:
 	///////////////////////
 
 	/// Call this after receiving startImplementation() to inform the base class that the action has started, and we should go from Starting to Running.
-	void notifyStarted();
+    void setStarted();
 	/// Call this to inform the base class that the action has succeeded. It should be OK to delete the action after receiving this.
-	void notifySucceeded();
+    void setSucceeded();
 	/// Call this to inform the base class that the action has failed. It should be OK to delete the action after receiving this.
-	void notifyFailed();
+    void setFailed();
 	/// Call this after receiving pauseImplementation() to inform the base class that the action has been paused, and we should go from Pausing to Paused.
-	void notifyPaused();
+    void setPaused();
 	/// Call this after receiving resumeImplementation() to inform the base class that the action has been resumed, and we should go from Resuming to Running.
-	void notifyResumed();
+    void setResumed();
 	/// Call this after receiving cancelImplementation() to inform the base class that the action has been cancelled, and we should go from Cancelling to Cancelled.
-	void notifyCancelled();
+    void setCancelled();
 
 private:
-	State state_, previousState_;
     /// Changes states (if possible).
 	void setState(State newState);
     /// Checks whether you can make the the transition to the new state.
     bool canChangeState(State newState) const;
+
+    State state_, previousState_;
 
 	FailureResponse failureResponseInActionRunner_;
 	FailureResponse failureResponseAsSubAction_;

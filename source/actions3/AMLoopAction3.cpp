@@ -49,12 +49,12 @@ void AMLoopAction3::startImplementation()
 {
 	// done already with nothing to do.
 	if(subActionCount() == 0 || loopCount() == 0) {
-		notifyStarted();
-		notifySucceeded();
+        setStarted();
+        setSucceeded();
 		return;
 	}
 
-	notifyStarted();
+    setStarted();
 	setStatusText(QString("Loop %1 of %2").arg(currentIteration_+1).arg(loopCount()));
 	internalDoNextAction();
 }
@@ -63,7 +63,7 @@ void AMLoopAction3::cancelImplementation()
 {
 	// haven't started running anything... Easy to cancel.
 	if(currentSubActionIndex_ < 0) {
-		notifyCancelled();
+        setCancelled();
 		return;
 	}
 
@@ -76,7 +76,7 @@ void AMLoopAction3::internalOnCurrentActionStateChanged(int newState, int oldSta
 {
     if(newState == AMAction3::Paused) {
         if(state() == AMAction3::Pausing) {
-			notifyPaused();
+            setPaused();
 		}
 		else {
 			qWarning() << "AMLoopAction: Warning: One of our sub-actions was paused, but not by us.";
@@ -84,7 +84,7 @@ void AMLoopAction3::internalOnCurrentActionStateChanged(int newState, int oldSta
 	}
     else if(newState == AMAction3::Running && oldState == AMAction3::Resuming) {
         if(state() == AMAction3::Resuming) {
-			notifyResumed();
+            setResumed();
 		}
 		else {
 			qWarning() << "AMLoopAction: Warning: One of our sub-actions was resumed, but not by us.";
@@ -96,7 +96,7 @@ void AMLoopAction3::internalOnCurrentActionStateChanged(int newState, int oldSta
 			if(internalShouldLogSubAction(currentSubAction_))
                 AMActionLog3::logCompletedAction(currentSubAction_);
 			currentSubAction_->deleteLater();
-			notifyCancelled();
+            setCancelled();
 		}
 		else {
 			qWarning() << "AMLoopAction: Warning: One of our sub-actions was cancelled, but not by us. This will cause this action to fail.";
@@ -104,7 +104,7 @@ void AMLoopAction3::internalOnCurrentActionStateChanged(int newState, int oldSta
 			if(internalShouldLogSubAction(currentSubAction_))
                 AMActionLog3::logCompletedAction(currentSubAction_);
 			currentSubAction_->deleteLater();
-			notifyFailed();
+            setFailed();
 		}
 	}
     else if(newState == AMAction3::Failed) {
@@ -112,7 +112,7 @@ void AMLoopAction3::internalOnCurrentActionStateChanged(int newState, int oldSta
 		if(internalShouldLogSubAction(currentSubAction_))
             AMActionLog3::logCompletedAction(currentSubAction_);
 		currentSubAction_->deleteLater();
-		notifyFailed();
+        setFailed();
 	}
     else if(newState == AMAction3::Succeeded) {
 		internalDoNextAction();
@@ -156,7 +156,7 @@ void AMLoopAction3::internalDoNextAction()
 		}
 		// Nope, that's the end.
 		else {
-			notifySucceeded();
+            setSucceeded();
 		}
 	}
 }

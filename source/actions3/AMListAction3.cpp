@@ -121,20 +121,20 @@ void AMListAction3::startImplementation()
 
 	// no actions? That's easy...
 	if(subActionCount() == 0) {
-		notifyStarted();
-		notifySucceeded();	// done and done.
+		setStarted();
+		setSucceeded();	// done and done.
 		return;
 	}
 
 	if(subActionMode() == SequentialMode) {
 		emit currentSubActionChanged(currentSubActionIndex_ = 0);
-		notifyStarted();
+		setStarted();
 		internalConnectAction(currentSubAction());
 		currentSubAction()->start();
 	}
 	// parallel mode
 	else {
-		notifyStarted();
+		setStarted();
         foreach(AMAction3* action, subActions_) {
 			internalConnectAction(action);
 		}
@@ -209,12 +209,12 @@ void AMListAction3::cancelImplementation()
 	if(subActionMode() == SequentialMode) {
 		if(currentSubAction()) {
 			if(currentSubAction()->state() == Constructed)	// this sub-action not connected or run yet. Don't need to cancel it. (This could happen if we are paused between actions and currentSubAction() hasn't been started yet.)
-				notifyCancelled();
+				setCancelled();
 			else
 				currentSubAction()->cancel(); // action is already connected and running. Need to cancel it. We'll pick it up in internalOnSubActionStateChanged
 		}
 		else {
-			notifyCancelled();
+			setCancelled();
 		}
 	}
 	// Parallel mode:
@@ -237,19 +237,19 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 		case Starting:
 			// If we were paused between actions and resuming, the next action is now running...
 			if(state() == Resuming)
-				notifyResumed();
+				setResumed();
 			return;
 		case Running:
 			// If we had a current action paused:
 			if(state() == Resuming)
-				notifyResumed();
+				setResumed();
 			return;
 		case Pausing:
 			return;
 		case Paused:
 			// the current action paused, so now we're paused. This will only happen if the current action supports pause and transitioned to it.
 			if(state() == Pausing) {
-				notifyPaused();
+				setPaused();
 			}
 			else {
 				qWarning() << "AMListAction: Warning: A sub-action was paused without cancelling its parent list action. This should not happen.";
@@ -262,7 +262,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 		case Cancelled:
 			if(state() == Cancelling) {
 				internalDisconnectAction(currentSubAction());
-				notifyCancelled();
+				setCancelled();
 			}
 			else {
 				qWarning() << "AMListAction: Warning: A sub-action was cancelled without cancelling its parent list action. This should not happen.";
@@ -274,12 +274,12 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 			emit currentSubActionChanged(++currentSubActionIndex_);
 			// Are we done the last action? If we are, we're done no matter what [even if supposed to be pausing]
 			if(currentSubActionIndex_ == subActionCount()) {
-				notifySucceeded();
+				setSucceeded();
 				return;
 			}
 			// if we were waiting to pause and had to wait for a (non-pausable) action to finish, we're there now.
 			if(state() == Pausing) {
-				notifyPaused();
+				setPaused();
 				return;
 			}
 			// if we were running and an action has completed, time to start the next action. currentSubAction() has already been advanced for us.
@@ -292,7 +292,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 			return;
 		case Failed:
 			internalDisconnectAction(currentSubAction());
-			notifyFailed();
+			setFailed();
 			return;
 		}
 	}
@@ -306,7 +306,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 		case Running:
 			if(state() == Resuming) {
 				if(internalAllActionsRunningOrFinal())
-					notifyResumed();
+					setResumed();
 			}
 			return;
 		case Pausing:
@@ -315,7 +315,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 			if(state() == Pausing) {
 				// one of them paused. Are all the actions paused now?
 				if(internalAllActionsPausedOrFinal())
-					notifyPaused();
+					setPaused();
 			}
 			else
 				qWarning() << "AMListAction: Warning: A sub-action was paused without pausing its parent list action. This should not happen.";
@@ -337,12 +337,12 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 					internalDisconnectAction(action);
 				// Any failures?
 				if(internalAnyActionsFailed())
-					notifyFailed();
+					setFailed();
 				// Any cancelled?
 				else if(internalAnyActionsCancelled())
-					notifyCancelled();
+					setCancelled();
 				else	 // well, I guess they're all good then. We're done!
-					notifySucceeded();
+					setSucceeded();
 			}
 			return;
 		}
