@@ -26,32 +26,44 @@ AMListAction3::~AMListAction3() {
 		delete subActions_.takeLast();
 }
 
+int AMListAction3::indexOfSubAction(const AMAction3 *action) const
+{
+    for(int i=0,cc=subActionCount(); i<cc; i++) {
+        if(action == subActionAt(i))
+            return i;
+    }
+    return -1;
+}
 
 AMAction3 * AMListAction3::subActionAt(int index)
 {
-	if(index < 0 || index >= subActions_.count())
+    if(index < 0 || index >= subActionCount())
 		return 0;
 	return subActions_.at(index);
 }
 
 const AMAction3 * AMListAction3::subActionAt(int index) const
 {
-	if(index < 0 || index >= subActions_.count())
-		return 0;
+    if(index < 0 || index >= subActionCount())
+        return 0;
 	return subActions_.at(index);
 }
 
 bool AMListAction3::insertSubAction(AMAction3 *action, int index)
 {
-	if(!(state() == Constructed || state() == Starting)) {
+    if(state() != Constructed) {
 		qWarning() << "AMListAction: Cannot add sub-actions once the action is already running.";
 		return false;
 	}
 
-	if(index<0 || index > subActions_.count())
-		index = subActions_.count();
+    if (!action)
+        return false;
+
+    if(index<0 || index > subActionCount())
+        index = subActionCount();
 
 	emit subActionAboutToBeAdded(index);
+    action->setParentAction(this);
 	subActions_.insert(index, action);
 	emit subActionAdded(index);
 
@@ -60,8 +72,7 @@ bool AMListAction3::insertSubAction(AMAction3 *action, int index)
 
 AMAction3 * AMListAction3::takeSubActionAt(int index)
 {
-
-	if(!(state() == Constructed || state() == Starting)) {
+    if(state() != Constructed) {
 		qWarning() << "AMListAction: Cannot remove sub-actions once the action is already running.";
 		return 0;
 	}
@@ -71,23 +82,51 @@ AMAction3 * AMListAction3::takeSubActionAt(int index)
 
 	emit subActionAboutToBeRemoved(index);
     AMAction3* action = subActions_.takeAt(index);
+    action->setParentAction(0);
 	emit subActionRemoved(index);
 
 	return action;
 }
 
-bool AMListAction3::setSubActionMode(AMListAction3::SubActionMode parallelOrSequential)
+bool AMListAction3::deleteSubAction(int index)
 {
-	if(state() != Constructed)
-		return false;
+    AMAction3* action = takeSubActionAt(index);
+    delete action;	// harmless if 0
 
-	subActionMode_ = parallelOrSequential;
-	return true;
+    return (action != 0);
+}
+
+bool AMListAction3::duplicateSubActions(const QList<int> &indexesToCopy)
+{
+    if(state() != Constructed)
+        return false;
+
+    if(indexesToCopy.isEmpty())
+        return true;	// done
+
+    // sort the list, so we know the highest index in it.
+    QList<int> sIndexesToCopy = indexesToCopy;
+    qSort(sIndexesToCopy);
+
+    // any indexes out of range?
+    if(sIndexesToCopy.first() < 0)
+        return false;
+    if(sIndexesToCopy.last() >= subActionCount())
+        return false;
+
+    // insert at the position after last existing subAction to copy
+    int insertionIndex = sIndexesToCopy.last() + 1;
+
+    // insert copies of all, using regular insertSubAction().
+    foreach(int i, sIndexesToCopy)
+        insertSubAction(subActionAt(i)->createCopy(), insertionIndex++);
+
+    return true;
 }
 
 bool AMListAction3::canPause() const
 {
-	if(subActionMode() == SequentialMode) {
+    if(subActionMode() == Sequential) {
 		// if we have no actions, then cannot pause; we'll complete instantly.
 		if(subActionCount() == 0)
 			return false;
@@ -126,7 +165,7 @@ void AMListAction3::startImplementation()
 		return;
 	}
 
-	if(subActionMode() == SequentialMode) {
+    if(subActionMode() == Sequential) {
 		emit currentSubActionChanged(currentSubActionIndex_ = 0);
 		setStarted();
 		internalConnectAction(currentSubAction());
@@ -149,7 +188,7 @@ void AMListAction3::pauseImplementation()
 
 	// sequential mode:
 	////////////////////////
-	if(subActionMode() == SequentialMode) {
+    if(subActionMode() == Sequential) {
 		if(currentSubAction()) {
 			// Can this action pause?
 			if(currentSubAction()->canPause())
@@ -176,7 +215,7 @@ void AMListAction3::pauseImplementation()
 void AMListAction3::resumeImplementation()
 {
 	// If this is called by the base class, we know that we're now in Resuming and used to be in Pause.
-	if(subActionMode() == SequentialMode) {
+    if(subActionMode() == Sequential) {
 		// The currentSubAction() will either be Paused (if it supported pausing when we were paused), or Constructed (if the last action didn't support pausing and completed; now we're at the beginning of the next one).
 		if(currentSubAction()) {
 			if(currentSubAction()->state() == Paused)
@@ -206,7 +245,7 @@ void AMListAction3::resumeImplementation()
 void AMListAction3::cancelImplementation()
 {
 	// sequential mode
-	if(subActionMode() == SequentialMode) {
+    if(subActionMode() == Sequential) {
 		if(currentSubAction()) {
 			if(currentSubAction()->state() == Constructed)	// this sub-action not connected or run yet. Don't need to cancel it. (This could happen if we are paused between actions and currentSubAction() hasn't been started yet.)
 				setCancelled();
@@ -232,7 +271,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 	Q_UNUSED(oldState)
 
 	// sequential mode: could only come from the current action
-	if(subActionMode() == SequentialMode) {
+    if(subActionMode() == Sequential) {
 		switch(newState) {
 		case Starting:
 			// If we were paused between actions and resuming, the next action is now running...
@@ -352,7 +391,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 void AMListAction3::internalOnSubActionProgressChanged(double numerator, double denominator)
 {
 	// sequential mode:
-	if(subActionMode() == SequentialMode) {
+    if(subActionMode() == Sequential) {
 		// If all still-running actions specify an expected duration, then we use this to specify the relative size of each action's "work chunk". The denominator of our progress will be in total (expected) seconds for all actions to complete.
 		if(internalAllActionsHaveExpectedDuration()) {
 			double totalNumerator = 0, totalDenominator = 0;
@@ -428,7 +467,7 @@ void AMListAction3::internalOnSubActionProgressChanged(double numerator, double 
 void AMListAction3::internalOnSubActionStatusTextChanged(const QString &statusText)
 {
 	// sequential mode:
-	if(subActionMode() == SequentialMode) {
+    if(subActionMode() == Sequential) {
 		setStatusText("Step " % QString::number(currentSubActionIndex()+1) % " (" % currentSubAction()->info()->shortDescription() % "): " % statusText);
 	}
 	// parallel mode:

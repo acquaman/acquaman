@@ -11,12 +11,12 @@ class AMListAction3 : public AMAction3
 public:
 
 	/// Specifies whether the sub-actions should be run in parallel or sequentially.
-	enum SubActionMode { SequentialMode = 0,
-						 ParallelMode
+    enum SubActionMode { Sequential = 0,
+                         Parallel
 					   };
 
 	/// Constructor
-    AMListAction3(AMActionInfo3* info, SubActionMode subActionMode = SequentialMode, QObject *parent = 0);
+    AMListAction3(AMActionInfo3* info, SubActionMode subActionMode = Sequential, QObject *parent = 0);
 
 	/// Copy constructor. Takes care of making copies of the sub-actions
     AMListAction3(const AMListAction3& other);
@@ -28,13 +28,16 @@ public:
 	/// Destructor: deletes the sub-actions
     virtual ~AMListAction3();
 
-    // Re-implemented methods
-    ///////////////////////////////////
+    // Re-implemented public functions
+    ///////////////////////
+
+    /// Re-implemented from AMAction to indicate we can pause. In sequential mode we can pause if the current action is running and can pause, OR if there's more than one action (ie: we can pause between actions). In parallel mode, we can pause if all of our still-running parallel actions can pause.  If there are no sub-actions, we cannot pause because the action would run instantly -- there would be no time to pause.
+    virtual bool canPause() const;
 
     /// Pure virtual function that denotes that this action has children underneath it or not.
     bool hasChildren() const { return true; }
     /// Pure virtual function that returns the number of children for this action.
-    int numberOfChildren() const { return -1; }
+    int numberOfChildren() const { return subActions_.size(); }
 
 	// Sub-actions API
 	//////////////////////
@@ -45,19 +48,21 @@ public:
 	SubActionMode subActionMode() const { return subActionMode_; }
 
 	/// Returns the number of sub-actions
-	int subActionCount() const { return subActions_.count(); }
+    virtual int subActionCount() const { return subActions_.count(); }
 	/// Returns the sub-action at the given index, or 0 if the index is out of range.
-    AMAction3* subActionAt(int index);
+    virtual AMAction3* subActionAt(int index);
 	/// Returns the sub-action at the given index, or 0 if the index is out of range.
-    const AMAction3* subActionAt(int index) const;
+    virtual const AMAction3* subActionAt(int index) const;
 
 	/// In SequentialMode, returns the currently-running sub-action, or 0 if none is running.  Always returns 0 in ParallelMode.
     const AMAction3* currentSubAction() const { return subActionAt(currentSubActionIndex()); }
 	/// In SequentialMode, returns the currently-running sub-action, or 0 if none is running.  Always returns 0 in ParallelMode.
     AMAction3* currentSubAction() { return subActionAt(currentSubActionIndex()); }
 	/// In SequentialMode, returns the index of the currently-running sub-action. Returns -1 if prior to running any sub-actions, and subActionCount() if all sub-actions have been run.  Always returns -1 in ParalleMode.
-	int currentSubActionIndex() const { return currentSubActionIndex_; }
+    virtual int currentSubActionIndex() const { return currentSubActionIndex_; }
 
+    /// Find the index of a sub-action \c action, or -1 if not found.
+    int indexOfSubAction(const AMAction3* action) const;
 
 	// Modification methods:
 
@@ -67,18 +72,20 @@ public:
 	/// Inserts a sub-action into the sub-actions list. \c index is the position the sub-action will end up in. (Fails and returns false if the action is already running.) If \c index is 0, the sub-action is inserted at the beginning. If \c index >= subActionCount() or < 0, the sub-action is inserted at the end.
 	/*! The action takes ownership of its sub-actions, and will delete them when deleted */
     bool insertSubAction(AMAction3* action, int index);
+    /// Public interface to delete the sub-action at \c index. Takes care of emitting signals subActionAboutToBeRemoved(), and subActionRemoved(). If \c index >= subActionCount(), returns false.  Only allowed while the action is in the AMAction::Constructed state... Once it's running, you can no longer remove sub-actions and this will return false.
+    bool deleteSubAction(int index);
 
 	/// Remove and return the sub-action at \c index. Returns 0 if the index is out of range, or if the action is already running and this is not allowed. Ownership of the sub-action becomes the responsibility of the caller.
     AMAction3* takeSubActionAt(int index);
 
-	/// Control whether to run sub-actions in parallel or sequentially. The default is to run them sequentially. (Returns false if the action is already running and you can't change this.)
-	bool setSubActionMode(SubActionMode parallelOrSequential);
+    /// Public function to duplicate a set of sub-actions at \c indexesToCopy. The new sub-actions will all be inserted at the position after the last existing sub-action in \c indexesToCopy.  It uses insertSubAction() to add copies of the existing ones, and therefore will fail if the action is not in the AMAction::Constructed state.
+    bool duplicateSubActions(const QList<int>& indexesToCopy);
 
-	// Re-implemented public functions
-	///////////////////////
+    // Other methods that should be reimplemented.
+    ////////////////////////////////////////////
 
-	/// Re-implemented from AMAction to indicate we can pause. In sequential mode we can pause if the current action is running and can pause, OR if there's more than one action (ie: we can pause between actions). In parallel mode, we can pause if all of our still-running parallel actions can pause.  If there are no sub-actions, we cannot pause because the action would run instantly -- there would be no time to pause.
-	virtual bool canPause() const;
+    /// Specifies whether, when logging actions that are run with AMActionRunner, to log the entire action, or log the individual sub-actions as they complete.
+    virtual bool shouldLogSubActionsSeparately() { return true; }
 
 signals:
 
@@ -96,7 +103,8 @@ signals:
 	/// Only in Sequential Mode: Emitted when one action finishes. currentSubActionIndex() and currentSubAction() will be updated to refer to the next action _as soon as_ the preceeding action succeeds. Note that this will be emitted with \c newSubActionIndex == subActionCount() when finishing the last action.
 	/*! (If we are Pausing and waiting to stop between sequential actions, this signal will still be emitted and currentSubAction() will point to the next action, but that action will not be started yet.)  */
 	void currentSubActionChanged(int newSubActionIndex);
-
+    /// Emitted when a sub-action completes.
+    void subActionCompleted(AMAction3* completedAction);
 
 public slots:
 
