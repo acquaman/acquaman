@@ -525,7 +525,23 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/util/AMFetchSpectrumThread.h \
 	source/util/AMDataSourcePlotSettings.h \
 	source/util/AMSelectablePeriodicTable.h \
-	source/ui/util/AMSelectablePeriodicTableView.h
+	source/ui/util/AMSelectablePeriodicTableView.h \
+    source/actions3/AMNestedAction3.h \
+    source/actions3/AMLoopActionInfo3.h \
+    source/actions3/AMLoopAction3.h \
+    source/actions3/AMListAction3.h \
+    source/actions3/AMActionRunner3.h \
+    source/actions3/AMActionRegistry3.h \
+    source/actions3/AMActionLog3.h \
+    source/actions3/AMActionInfo3.h \
+    source/actions3/AMAction3.h \
+    source/actions3/editors/AMLoopActionEditor3.h \
+    source/ui/actions3/AMWorkflowView3.h \
+    source/ui/actions3/AMAddActionDialog3.h \
+    source/ui/actions3/AMActionRunnerQueueView3.h \
+    source/ui/actions3/AMActionRunnerCurrentView3.h \
+    source/ui/actions3/AMActionRunnerAddActionBar3.h \
+    source/ui/actions3/AMActionHistoryView3.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -559,7 +575,8 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/AMLinePropertyEditor.ui \
 	source/ui/dataman/AMImagePropertyEditor.ui \
 	source/ui/actions2/AMAddActionDialog.ui \
-	source/ui/util/AMJoystickTestView.ui
+	source/ui/util/AMJoystickTestView.ui \
+    source/ui/actions3/AMAddActionDialog3.ui
 
 SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAbstractTool.cpp \
@@ -876,7 +893,23 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/acquaman/AM2DScanConfigurationViewHolder.cpp \
 	source/util/AMFetchSpectrumThread.cpp \
 	source/util/AMSelectablePeriodicTable.cpp \
-	source/ui/util/AMSelectablePeriodicTableView.cpp
+	source/ui/util/AMSelectablePeriodicTableView.cpp \
+    source/actions3/AMNestedAction3.cpp \
+    source/actions3/AMLoopActionInfo3.cpp \
+    source/actions3/AMLoopAction3.cpp \
+    source/actions3/AMListAction3.cpp \
+    source/actions3/AMActionRunner3.cpp \
+    source/actions3/AMActionRegistry3.cpp \
+    source/actions3/AMActionLog3.cpp \
+    source/actions3/AMActionInfo3.cpp \
+    source/actions3/AMAction3.cpp \
+    source/actions3/editors/AMLoopActionEditor3.cpp \
+    source/ui/actions3/AMWorkflowView3.cpp \
+    source/ui/actions3/AMAddActionDialog3.cpp \
+    source/ui/actions3/AMActionRunnerQueueView3.cpp \
+    source/ui/actions3/AMActionRunnerCurrentView3.cpp \
+    source/ui/actions3/AMActionRunnerAddActionBar3.cpp \
+    source/ui/actions3/AMActionHistoryView3.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
