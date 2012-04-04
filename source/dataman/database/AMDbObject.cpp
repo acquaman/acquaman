@@ -132,12 +132,16 @@ const AMDbObjectInfo* AMDbObject::dbObjectInfo() const {
 // This member function updates a scan in the database (if it exists already in that database), otherwise it adds it to the database.
 bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 
-	if(!db)
+	if(!db){
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_STORE_TO_DB_INVALID_DB, "Could not store to database, the database is invalid. Please report this problem to the Acquaman developers."));
 		return false;
+	}
 
 	const AMDbObjectInfo* myInfo = dbObjectInfo();
-	if(!myInfo)
+	if(!myInfo){
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_STORE_TO_DB_CLASS_NOT_REGISTERED, "Could not store to database, the class is not registered in the database. Please report this problem to the Acquaman developers."));
 		return false;	// class has not been registered yet in the database system.
+	}
 
 	QTime saveTime;
 	qDebug() << "Starting storeToDb() of" << myInfo->className;
@@ -264,6 +268,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 	if(retVal == 0) {
 		if(openedTransaction)
 			db->rollbackTransaction();	// this is good for consistency. Even all the child object changes will be reverted if this save failed.
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_STORE_TO_DB_INSERT_OR_UPDATE_FAILED, "Could not store to db, the insert or update call failed. Please report this problem to the Acquaman developers."));
 		return false;
 	}
 
@@ -355,13 +360,13 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 
 	// All valid database id's start at 1. This is an optimization to omit the db query if it won't find anything.
 	if(sourceId < 1){
-		qDebug() << "No valid id fail";
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_LOAD_FROM_DB_INVALID_ID, "Could not load from database, the database id is invalid. Please report this problem to the Acquaman developers."));
 		return false;
 	}
 
 	const AMDbObjectInfo* myInfo = dbObjectInfo();
 	if(!myInfo){
-		qDebug() << "No registered info fail";
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_LOAD_FROM_DB_CLASS_NOT_REGISTERED, "Could not load from database, the class is not registered with the database. Please report this problem to the Acquaman developers."));
 		return false;	// class hasn't been registered yet with the database system.
 	}
 
@@ -376,7 +381,7 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 	QVariantList values = db->retrieve( sourceId, myInfo->tableName, keys);
 
 	if(values.isEmpty()){
-		qDebug() << "Empty values fail";
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_LOAD_FROM_DB_NO_VALUES_RETRIEVED_FROM_TABLE, "Could not load from database, the request to retrieve values returned empty. Please report this problem to the Acquaman developers."));
 		return false;
 	}
 
@@ -416,7 +421,7 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 			for(int r=0; r<storedObjectRows.count(); r++) {
 				QVariantList objectLocation = db->retrieve(storedObjectRows.at(r), auxTableName, clist);
 				if(objectLocation.isEmpty()){
-					qDebug() << "Object location empty fail";
+					AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_LOAD_FROM_DB_AMDBOBJECTLIST_TABLE_LOCATION_INVALID, "Could not load from database, the request to get an AMDbObjectList points to an invalid table location. Please report this problem to the Acquaman developers."));
 					return false;
 				}
 				QString objectTable = objectLocation.at(1).toString();

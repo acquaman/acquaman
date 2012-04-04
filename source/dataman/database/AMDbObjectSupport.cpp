@@ -184,8 +184,10 @@ bool AMDbObjectSupport::registerClass(const QMetaObject* mo) {
 	QWriteLocker wl(&registryMutex_);
 
 	// is this a subclass of AMDbObject? (Or an AMDbObject itself?)
-	if(!inheritsAMDbObject(mo))
+	if(!inheritsAMDbObject(mo)){
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECTSUPPORT_CANNOT_REGISTER_CLASS_NOT_DBOBJECT, "Could not register class to database, it does not inherit AMDbObject. Please report this problem to the Acquaman developers."));
 		return false;	// can't register a non AMDbObject subclass.
+	}
 
 	// is it already registered? return true.
 	QString className(mo->className());
@@ -207,8 +209,10 @@ bool AMDbObjectSupport::registerClass(const QMetaObject* mo) {
 		registeredClassesInOrder_ << newInfo;
 		return true;
 	}
-	else
+	else{
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECTSUPPORT_CANNOT_REGISTER_CLASS_CANNOT_READY_DATABASE, "Could not register class to database, could not make the database ready for this class. Please report this problem to the Acquaman developers."));
 		return false;
+	}
 }
 
 
@@ -292,8 +296,10 @@ bool AMDbObjectSupport::registerDatabase(AMDatabase* db) {
 		connect(db, SIGNAL(destroyed()), this, SLOT(onRegisteredDatabaseDeleted()));
 		return true;
 	}
-	else
+	else{
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECTSUPPORT_CANNOT_REGISTER_DATABASE_PREVIOUS_CLASSES_PROBLEM, "Could not register this database, could not apply previous classes to this database. Please report this problem to the Acquaman developers."));
 		return false;
+	}
 }
 
 bool AMDbObjectSupport::getDatabaseReadyForClass(AMDatabase* db, const AMDbObjectInfo& info) {

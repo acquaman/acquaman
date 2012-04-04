@@ -60,6 +60,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMDBOBJECTSUPPORT_CANNOT_COMPLETE_TRANSACTION_TO_SAVE_THUMBNAILS -496
 #define AMDBOBJECTSUPPORT_RECEIVED_THUMBNAIL_UPDATE_FROM_UNREGISTERED_DATABASE -967
 
+#define AMDBOBJECTSUPPORT_CANNOT_REGISTER_CLASS_NOT_DBOBJECT -278001
+#define AMDBOBJECTSUPPORT_CANNOT_REGISTER_CLASS_CANNOT_READY_DATABASE -278002
+#define AMDBOBJECTSUPPORT_CANNOT_REGISTER_DATABASE_PREVIOUS_CLASSES_PROBLEM -278003
+
 class AMDbObject;
 
 /// This value class contains essential information about a registered AMDbObject class: the class name, database table name, and a pointer to the class's static meta-object
