@@ -190,7 +190,7 @@ bool AMDbObjectSupport::registerClass(const QMetaObject* mo) {
 	// is it already registered? return true.
 	QString className(mo->className());
 	if(registeredClasses_.contains(className)) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, 0, QString("Database Support: The class '%1' has already been registered in the database. Skipping duplicate registration.").arg(className)));
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, AMDBOBJECTSUPPORT_CLASS_ALREADY_REGISTERED, QString("Database Support: The class '%1' has already been registered in the database. Skipping duplicate registration.").arg(className)));
 		return true;
 	}
 
@@ -218,7 +218,7 @@ bool AMDbObjectSupport::registerDatabase(AMDatabase* db) {
 
 	// is it already registered? return true.
 	if(registeredDatabases_.contains(db)) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, 0, QString("Database Support: The database '%1' has already been registered in the system. Skipping duplicate registration.").arg(db->connectionName())));
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, AMDBOBJECTSUPPORT_DATABASE_ALREADY_REGISTERED, QString("Database Support: The database '%1' has already been registered in the system. Skipping duplicate registration.").arg(db->connectionName())));
 		return true;
 	}
 
@@ -343,7 +343,7 @@ bool AMDbObjectSupport::getDatabaseReadyForClass(AMDatabase* db, const AMDbObjec
 
 	// Possibility 3: more than one entry found for this class, in the type info table. This should never happen.
 	else {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -6, QString("Database support: Multiple versions of the '%1' object were found in your database. This likely means that your database has been corrupted.").arg(info.className)));
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDBOBJECTSUPPORT_ERROR_MULTIPLE_VERSIONS_OF_CLASS, QString("Database support: Multiple versions of the '%1' object were found in your database. This likely means that your database has been corrupted.").arg(info.className)));
 		return false;
 	}
 }
@@ -357,7 +357,7 @@ bool AMDbObjectSupport::initializeDatabaseForClass(AMDatabase* db, const AMDbObj
 	// \bug attempts to re-create table when sharing tables with other already-registered objects...
 	if ( !info.sharedTable && !ensureTableForDbObjects(info.tableName, db, !info.doNotReuseIds) ) {
 		db->rollbackTransaction();
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, QString("Database support: There was an error trying to create a table in the database for class %1.").arg(info.className)));
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDBOBJECTSUPPORT_ERROR_CREATING_TABLE, QString("Database support: There was an error trying to create a table in the database for class %1.").arg(info.className)));
 		return false;
 	}
 	// go through properties and create columns for each, (with some exceptions...)
@@ -376,7 +376,7 @@ bool AMDbObjectSupport::initializeDatabaseForClass(AMDatabase* db, const AMDbObj
 				/// \todo For more reliability, could ensure that _unique columns_ in shared-table classes have actually been created.
 				if(!info.sharedTable) {
 					db->rollbackTransaction();
-					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -16, QString("Database support: There was an error trying to create (initialize) an auxiliary table (%1) in the database for class %2.").arg(auxTableName).arg(info.className)));
+					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDBOBJECTSUPPORT_ERROR_INITIALIZING_AUXILIARY_TABLE, QString("Database support: There was an error trying to create (initialize) an auxiliary table (%1) in the database for class %2.").arg(auxTableName).arg(info.className)));
 					return false;
 				}
 			}
@@ -391,7 +391,7 @@ bool AMDbObjectSupport::initializeDatabaseForClass(AMDatabase* db, const AMDbObj
 				/// \todo For more reliability, could ensure that _unique columns_ in shared-table classes have actually been created.
 				if(!info.sharedTable) {
 					db->rollbackTransaction();
-					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -2, QString("Database support: There was an error trying to create a column (%1) in the database for class %2.").arg(info.columns.at(i)).arg(info.className)));
+					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDBOBJECTSUPPORT_ERROR_CREATING_COLUMN, QString("Database support: There was an error trying to create a column (%1) in the database for class %2.").arg(info.columns.at(i)).arg(info.className)));
 					return false;
 				}
 			}
@@ -400,7 +400,7 @@ bool AMDbObjectSupport::initializeDatabaseForClass(AMDatabase* db, const AMDbObj
 			if(info.isIndexed.at(i)) {
 				if( !db->createIndex(info.tableName, info.columns.at(i)) ) {
 					if(!info.sharedTable) {
-						AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, QString("Database support: There was an error trying to create an index (%1) in the database for class %2.").arg(info.columns.at(i)).arg(info.className)));
+						AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDBOBJECTSUPPORT_ERROR_CREATING_INDEX, QString("Database support: There was an error trying to create an index (%1) in the database for class %2.").arg(info.columns.at(i)).arg(info.className)));
 						db->rollbackTransaction();
 						return false;
 					}
@@ -418,7 +418,7 @@ bool AMDbObjectSupport::initializeDatabaseForClass(AMDatabase* db, const AMDbObj
 
 	if(typeId < 1) {
 		db->rollbackTransaction();
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -4, QString("Database support: There was an error trying to register the class '%1' in the database").arg(info.className)));
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDBOBJECTSUPPORT_ERROR_REGISTERING_CLASS_TYPE_TABLE, QString("Database support: There was an error trying to register the class '%1' in the database").arg(info.className)));
 		return false;
 	}
 
@@ -445,7 +445,7 @@ bool AMDbObjectSupport::initializeDatabaseForClass(AMDatabase* db, const AMDbObj
 
 		if(!success) {
 			db->rollbackTransaction();
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -5, QString("Database support: There was an error trying to register the class '%1' in the database").arg(info.className)));
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDBOBJECTSUPPORT_ERROR_REGISTERING_CLASS_HELPER_TABLES, QString("Database support: There was an error trying to register the class '%1' in the database").arg(info.className)));
 			return false;
 		}
 	}
@@ -465,7 +465,7 @@ bool AMDbObjectSupport::isUpgradeRequiredForClass(AMDatabase* db, const AMDbObje
 	q.prepare("SELECT columnName FROM " % allColumnsTableName() % " WHERE typeId = '" % QString::number(typeIdInDatabase) % "';");
 	if(!AMDatabase::execQuery(q)) {
 		q.finish();
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -205, QString("Database support: There was an error while trying to check if the class '%1' in the database needs an upgrade.").arg(info.className)));
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, AMDBOBJECTSUPPORT_ERROR_WHILE_CHECKING_UPGRADE, QString("Database support: There was an error while trying to check if the class '%1' in the database needs an upgrade.").arg(info.className)));
 		return false;
 	}
 	while(q.next()) {
@@ -513,7 +513,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 	QSqlQuery q = db->query();
 	q.prepare("SELECT columnName FROM " % allColumnsTableName() % " WHERE typeId = '" % QString::number(typeIdInDatabase) % "';");
 	if(!AMDatabase::execQuery(q)) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -105, QString("Database support: There was an error while trying to check if the class '%1' in the database needs an upgrade.").arg(info.className)));
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, AMDBOBJECTSUPPORT_ERROR_WHILE_ATTEMPTING_UPGRADE, QString("Database support: There was an error while trying to upgrade class '%1' in the database.").arg(info.className)));
 		return false;
 	}
 	while(q.next()) {
@@ -531,7 +531,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 
 	db->startTransaction();	// exiting this function for any error should roll back to here.
 
-	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Information, 300, QString("AMDbObjectSupport: Database Upgrade starting for class '%1'.").arg(info.className)));
+	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Information, AMDBOBJECTSUPPORT_NOTIFYING_CLASS_UPGRADE_START, QString("AMDbObjectSupport: Database Upgrade starting for class '%1'.").arg(info.className)));
 
 	// 3) For all the columns we have:
 	for(int i=0; i<info.columns.count(); i++) {
@@ -552,7 +552,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 						|| !db->createIndex(auxTableName, "id2") ) {
 
 					db->rollbackTransaction();
-					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -106, QString("Database support: There was an error trying to create (upgrade) an auxiliary table (%1) in the database while upgrading class %2.").arg(auxTableName).arg(info.className)));
+					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDBOBJECTSUPPORT_ERROR_INITIALIZING_AUXILIARY_TABLE_FOR_UPGRADE, QString("Database support: There was an error trying to create (upgrade) an auxiliary table (%1) in the database while upgrading class %2.").arg(auxTableName).arg(info.className)));
 					return false;
 				}
 			}
@@ -570,7 +570,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 					/// \todo For more reliability, could ensure that _unique columns_ in shared-table classes have actually been created.
 					if(!info.sharedTable) {
 						db->rollbackTransaction();
-						AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -102, QString("Database support: There was an error trying to create a column (%1) in the database while upgrading class %2.").arg(info.columns.at(i)).arg(info.className)));
+						AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDBOBJECTSUPPORT_ERROR_CREATING_COLUMN_FOR_UPGRADE, QString("Database support: There was an error trying to create a column (%1) in the database while upgrading class %2.").arg(info.columns.at(i)).arg(info.className)));
 						return false;
 					}
 				}
@@ -580,7 +580,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 					if( !db->createIndex(info.tableName, info.columns.at(i)) ) {
 						if(!info.sharedTable) {
 							db->rollbackTransaction();
-							AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -103, QString("Database support: There was an error trying to create an index (%1) in the database while upgrading class %2.").arg(info.columns.at(i)).arg(info.className)));
+							AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDBOBJECTSUPPORT_ERROR_CREATING_INDEX_FOR_UPGRADE, QString("Database support: There was an error trying to create an index (%1) in the database while upgrading class %2.").arg(info.columns.at(i)).arg(info.className)));
 							return false;
 						}
 					}
@@ -595,7 +595,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 
 					if(!AMDatabase::execQuery(q)) {
 						q.finish();
-						AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -403, QString("AMDbObjectSupport: Could not insert default value '%1' for column '%2'").arg(defaultValue).arg(info.columns.at(i))));
+						AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, AMDBOBJECTSUPPORT_CANNOT_INSERT_DEFAULT_VALUE_FOR_UPGRADE, QString("AMDbObjectSupport: Could not insert default value '%1' for column '%2'").arg(defaultValue).arg(info.columns.at(i))));
 					}
 				}
 
@@ -612,7 +612,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 
 				if(!success) {
 					db->rollbackTransaction();
-					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -105, QString("Database support: There was an error trying to update the schema tables while upgrading the class '%1' in the database").arg(info.className)));
+					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDBOBJECTSUPPORT_ERROR_UPDATING_SCHEMA_TABLE_FOR_UPGRADE, QString("Database support: There was an error trying to update the schema tables while upgrading the class '%1' in the database").arg(info.className)));
 					return false;
 				}
 			}
@@ -621,7 +621,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 
 
 	db->commitTransaction();
-	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Information, 301, QString("AMDbObjectSupport: Database Upgrade completed for class '%1'.").arg(info.className)));
+	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Information, AMDBOBJECTSUPPORT_NOTIFYING_CLASS_UPGRADE_COMPLETE, QString("AMDbObjectSupport: Database Upgrade completed for class '%1'.").arg(info.className)));
 	return true;
 }
 
@@ -690,14 +690,14 @@ AMDbObject* AMDbObjectSupport::createAndLoadObjectAt(AMDatabase* db, const QStri
 
 	QString className = typeOfObjectAt(db, tableName, id);
 	if(className.isEmpty()) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -90, QString("[AMDbObjectSupport] Could not load the object with ID %1 from the table '%2', because we couldn't determine the type of the object.").arg(id).arg(tableName)));
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, AMDBOBJECTSUPPORT_CANNOT_LOAD_OBJECT_CANNOT_DETERMINE_TYPE, QString("[AMDbObjectSupport] Could not load the object with ID %1 from the table '%2', because we couldn't determine the type of the object.").arg(id).arg(tableName)));
 		return 0;
 	}
 
 	const AMDbObjectInfo* objInfo = objectInfoForClass(className);
 
 	if(!objInfo) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -91, QString("[AMDbObjectSupport] Could not load the object with ID %1 from the table '%2', because the class '%3' hasn't yet been registered in the database system.").arg(id).arg(tableName).arg(className)));
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, AMDBOBJECTSUPPORT_CANNOT_LOAD_OBJECT_NOT_REGISTERED_TYPE, QString("[AMDbObjectSupport] Could not load the object with ID %1 from the table '%2', because the class '%3' hasn't yet been registered in the database system.").arg(id).arg(tableName).arg(className)));
 		return 0;
 	}
 
@@ -722,11 +722,11 @@ AMDbObject* AMDbObjectSupport::createAndLoadObjectAt(AMDatabase* db, const QStri
 			return newObject;
 		else {
 			delete newObject;	// loading failed, and we're not going to return anything. Make sure not to leak the newly-created object.
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -93, QString("[AMDbObjectSupport] Could not load the object with ID %1 from the table '%2': loadFromDb() failed. Please report this bug to the Acquaman developers").arg(id).arg(tableName)));
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, AMDBOBJECTSUPPORT_CANNOT_LOAD_OBJECT_LOAD_CALL_FAILED, QString("[AMDbObjectSupport] Could not load the object with ID %1 from the table '%2': loadFromDb() failed. Please report this bug to the Acquaman developers").arg(id).arg(tableName)));
 		}
 	}
 	else {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -93, QString("[AMDbObjectSupport] Could not load the object with ID %1 from the table '%2', because there are no suitable (Q_INVOKABLE) constructors. Please report this bug to the Acquaman developers").arg(id).arg(tableName)));
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, AMDBOBJECTSUPPORT_CANNOT_LOAD_OBJECT_NO_SUITABLE_CONSTRUCTORS, QString("[AMDbObjectSupport] Could not load the object with ID %1 from the table '%2', because there are no suitable (Q_INVOKABLE) constructors. Please report this bug to the Acquaman developers").arg(id).arg(tableName)));
 	}
 	return 0;
 }
@@ -798,7 +798,7 @@ bool AMDbObjectSupport::event(QEvent *e)
 	registryMutex_.lockForRead();
 	if(!registeredDatabases_.contains(db)) {
 		registryMutex_.unlock();
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -967, "Received a thumbnail update event for an unregistered database. It's possible that the database was deleted since this event was posted."));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, AMDBOBJECTSUPPORT_RECEIVED_THUMBNAIL_UPDATE_FROM_UNREGISTERED_DATABASE, "Received a thumbnail update event for an unregistered database. It's possible that the database was deleted since this event was posted."));
 		return true;	// still want the event, but can't do anything.
 	}
 	registryMutex_.unlock();
@@ -816,7 +816,7 @@ bool AMDbObjectSupport::event(QEvent *e)
 			qDebug() << "Opened transaction for thumbnail save of object at [" << dbTableName << id << "].";
 		}
 		else {
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -495, "Could not start a transaction to save the thumbnails for object '" % dbTableName % ":" % QString::number(id) % "' in the database. Please report this problem to the Acquaman developers."));
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDBOBJECTSUPPORT_CANNOT_START_TRANSACTION_TO_SAVE_THUMBNAILS, "Could not start a transaction to save the thumbnails for object '" % dbTableName % ":" % QString::number(id) % "' in the database. Please report this problem to the Acquaman developers."));
 			return true;
 		}
 	}
@@ -882,7 +882,7 @@ bool AMDbObjectSupport::event(QEvent *e)
 			retVal = db->insertOrUpdate(0, AMDbObjectSupport::thumbnailTableName(), keys, values);
 		}
 		if(retVal == 0) {
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -314, QString("AMDbObject: error trying to save thumbnails for object with ID %1 in table '%2'. Please report this bug to the Acquaman developers.").arg(id).arg(dbTableName)));
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, AMDBOBJECTSUPPORT_ERROR_SAVING_THUMBNAILS, QString("AMDbObject: error trying to save thumbnails for object with ID %1 in table '%2'. Please report this bug to the Acquaman developers.").arg(id).arg(dbTableName)));
 			if(openedTransaction) {
 				db->rollbackTransaction();
 				return true;
@@ -897,7 +897,7 @@ bool AMDbObjectSupport::event(QEvent *e)
 	if(!db->update(id, dbTableName,
 				   QStringList() << "thumbnailCount" << "thumbnailFirstId",
 				   QVariantList() << thumbsCount << firstThumbnailId)) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -315, QString("AMDbObject: error trying to store the updated thumbnail count and firstThumbnailId for database object %1 in table '%2'. Please report this bug to the Acquaman developers.").arg(id).arg(dbTableName)));
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, AMDBOBJECTSUPPORT_ERROR_STORING_UPDATED_THUMBNAIL_COUNT_AND_FIRST_ID, QString("AMDbObject: error trying to store the updated thumbnail count and firstThumbnailId for database object %1 in table '%2'. Please report this bug to the Acquaman developers.").arg(id).arg(dbTableName)));
 		if(openedTransaction) {
 			db->rollbackTransaction();
 			return true;
@@ -907,11 +907,28 @@ bool AMDbObjectSupport::event(QEvent *e)
 	// only commit the transaction if we opened it.
 	if(openedTransaction && !db->commitTransaction()) {
 		db->rollbackTransaction();
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -495, "AMDbObject: Could not commit a transaction to save the thumbnails for object '" % dbTableName % ":" % QString::number(id) % "' in the database. Please report this problem to the Acquaman developers."));
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDBOBJECTSUPPORT_CANNOT_COMPLETE_TRANSACTION_TO_SAVE_THUMBNAILS, "AMDbObject: Could not commit a transaction to save the thumbnails for object '" % dbTableName % ":" % QString::number(id) % "' in the database. Please report this problem to the Acquaman developers."));
 	}
 
 	qDebug() << "Storing thumbnails for [" << dbTableName << ":" << id << "] took" << saveTime.elapsed() << "ms to store thumbnails in the database. Used own transaction = " << openedTransaction;
 	return true;
 }
 
+AMDbLoadErrorInfo::AMDbLoadErrorInfo(QString dbName, QString tableName, int dbId)
+{
+	dbName_ = dbName;
+	tableName_ = tableName;
+	dbId_ = dbId;
+}
 
+QString AMDbLoadErrorInfo::dbName() const{
+	return dbName_;
+}
+
+QString AMDbLoadErrorInfo::tableName() const{
+	return tableName_;
+}
+
+int AMDbLoadErrorInfo::dbId() const{
+	return dbId_;
+}

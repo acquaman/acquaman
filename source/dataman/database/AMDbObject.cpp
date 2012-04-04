@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMDbObject.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "acquaman.h"
+#include "util/AMErrorMonitor.h"
 
 #include <QMetaType>
 #include "dataman/AMnDIndex.h"
@@ -108,6 +109,10 @@ QString AMDbObject::dbPropertyAttribute(const QString& propertyName, const QStri
 	return AMDbObjectSupport::dbPropertyAttribute(this->metaObject(), propertyName, key);
 }
 
+QMap<QString, AMDbLoadErrorInfo*> AMDbObject::loadingErrors() const{
+	return loadingErrors_;
+}
+
 
 bool AMDbObject::isReloading() const{
 	return isReloading_;
@@ -146,7 +151,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			qDebug() << "Opening transaction for save of " << myInfo->tableName << id();
 		}
 		else {
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -496, "Could not start a transaction to save the object '" % myInfo->tableName % ":" % QString::number(id()) % "' in the database. Please report this problem to the Acquaman developers."));
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_START_TRANSACTION_TO_SAVE_OBJECT, "Could not start a transaction to save the object '" % myInfo->tableName % ":" % QString::number(id()) % "' in the database. Please report this problem to the Acquaman developers."));
 			return false;
 		}
 	}
@@ -297,7 +302,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 						db->insertOrUpdate(0, auxTableName, clist, vlist);
 					}
 					else {	// problem storing the object...
-						AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -47, QString("While storing '%1' to the database, there was an error trying to store its child object '%2'").arg(this->name()).arg(obj->name())));
+						AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_ERROR_STORING_CHILD_OBJECT, QString("While storing '%1' to the database, there was an error trying to store its child object '%2'").arg(this->name()).arg(obj->name())));
 						// We let this slide and don't give up on ourself and the rest of the child objects.
 					}
 				}
@@ -327,7 +332,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 		}
 		else {
 			db->rollbackTransaction();
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -497, "Could not commit a transaction to save the object '" % myInfo->tableName % ":" % QString::number(id()) % "' in the database. Please report this problem to the Acquaman developers."));
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_COMPLETE_TRANSACTION_TO_SAVE_OBJECT, "Could not commit a transaction to save the object '" % myInfo->tableName % ":" % QString::number(id()) % "' in the database. Please report this problem to the Acquaman developers."));
 			return false;
 		}
 	}
@@ -349,12 +354,16 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 
 	// All valid database id's start at 1. This is an optimization to omit the db query if it won't find anything.
-	if(sourceId < 1)
+	if(sourceId < 1){
+		qDebug() << "No valid id fail";
 		return false;
+	}
 
 	const AMDbObjectInfo* myInfo = dbObjectInfo();
-	if(!myInfo)
+	if(!myInfo){
+		qDebug() << "No registered info fail";
 		return false;	// class hasn't been registered yet with the database system.
+	}
 
 
 	// Retrieve all columns from the database.
@@ -366,8 +375,10 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 
 	QVariantList values = db->retrieve( sourceId, myInfo->tableName, keys);
 
-	if(values.isEmpty())
+	if(values.isEmpty()){
+		qDebug() << "Empty values fail";
 		return false;
+	}
 
 	isReloading_ = true;
 	// if we just successfully loaded out of here, then we have our new id() and database().
@@ -404,8 +415,10 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 			QStringList clist;  clist << "id2" << "table2";
 			for(int r=0; r<storedObjectRows.count(); r++) {
 				QVariantList objectLocation = db->retrieve(storedObjectRows.at(r), auxTableName, clist);
-				if(objectLocation.isEmpty())
+				if(objectLocation.isEmpty()){
+					qDebug() << "Object location empty fail";
 					return false;
+				}
 				QString objectTable = objectLocation.at(1).toString();
 				int objectId = objectLocation.at(0).toInt();
 				storedObjectTables << objectTable;
@@ -442,8 +455,11 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 						AMDbObject* reloadedObject = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, dbId);
 						if(reloadedObject)
 							setProperty(columnName, QVariant::fromValue(reloadedObject));
-						else
+						else{
 							setProperty(columnName, QVariant::fromValue((AMDbObject*)0));	// if it wasn't reloaded successfully, you'll still get a setProperty call, but it will be with a null pointer.
+							if(AMErrorMon::lastErrorCode() == AMDBOBJECTSUPPORT_CANNOT_LOAD_OBJECT_NOT_REGISTERED_TYPE)
+								loadingErrors_.insert(QString(columnName), new AMDbLoadErrorInfo(db->connectionName(), tableName, dbId));
+						}
 					}
 				}
 				else
@@ -478,7 +494,7 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 					vector = QVector3D(stringList.at(0).toDouble(), stringList.at(1).toDouble(), stringList.at(2).toDouble());
 				}
 				else
-					AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -57, "Couldn't find 3 numbers when attempting to load a 3D geometry point from the database."));
+					AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_3D_POINT_MISSING_3_NUMBERS, "Couldn't find 3 numbers when attempting to load a 3D geometry point from the database."));
 				setProperty(columnName, QVariant::fromValue(vector));
 			}
 			else if(columnType == QVariant::StringList || columnType == QVariant::List) {	// string list, and anything-else-lists saved as string lists: must convert back from separated string.
@@ -550,7 +566,7 @@ void AMDbObject::updateThumbnailsInSeparateThread(AMDatabase *db, int id, const 
 	// Step 1: try to load the object.
 	AMDbObject* object = AMDbObjectSupport::s()->createAndLoadObjectAt(db, dbTableName, id);
 	if(!object) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -313, QString("AMDbObject: error trying to load object with ID %1 out of '%2' to create thumbnails. Please report this bug to the Acquaman developers.").arg(id).arg(dbTableName)));
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, AMDBOBJECT_ERROR_LOADING_OBJECT_TO_CREATE_THUMBNAILS, QString("AMDbObject: error trying to load object with ID %1 out of '%2' to create thumbnails. Please report this bug to the Acquaman developers.").arg(id).arg(dbTableName)));
 		return;
 	}
 
@@ -597,7 +613,7 @@ void AMDbObject::updateThumbnailsInCurrentThread(bool neverSavedHereBefore)
 			openedTransaction = true;
 		}
 		else {
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -495, "Could not start a transaction to save the thumbnails for object '" % databaseTableName % ":" % QString::number(id()) % "' in the database. Please report this problem to the Acquaman developers."));
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_START_TRANSACTION_TO_SAVE_THUMBNAILS, "Could not start a transaction to save the thumbnails for object '" % databaseTableName % ":" % QString::number(id()) % "' in the database. Please report this problem to the Acquaman developers."));
 			return;
 		}
 	}
@@ -665,7 +681,7 @@ void AMDbObject::updateThumbnailsInCurrentThread(bool neverSavedHereBefore)
 			retVal = database()->insertOrUpdate(0, AMDbObjectSupport::thumbnailTableName(), keys, values);
 		}
 		if(retVal == 0) {
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -314, QString("AMDbObject: error trying to save thumbnails for object with ID %1 in table '%2'. Please report this bug to the Acquaman developers.").arg(id()).arg(databaseTableName)));
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, AMDBOBJECT_ERROR_SAVING_THUMBNAILS, QString("AMDbObject: error trying to save thumbnails for object with ID %1 in table '%2'. Please report this bug to the Acquaman developers.").arg(id()).arg(databaseTableName)));
 			if(openedTransaction) {
 				database()->rollbackTransaction();
 				return;
@@ -681,7 +697,7 @@ void AMDbObject::updateThumbnailsInCurrentThread(bool neverSavedHereBefore)
 						   databaseTableName,
 						   QStringList() << "thumbnailCount" << "thumbnailFirstId",
 						   QVariantList() << thumbsCount << firstThumbnailId)) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -315, QString("AMDbObject: error trying to store the updated thumbnail count and firstThumbnailId for database object %1 in table '%2'. Please report this bug to the Acquaman developers.").arg(id()).arg(databaseTableName)));
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, AMDBOBJECT_ERROR_STORING_UPDATED_THUMBNAIL_COUNT_AND_FIRST_ID, QString("AMDbObject: error trying to store the updated thumbnail count and firstThumbnailId for database object %1 in table '%2'. Please report this bug to the Acquaman developers.").arg(id()).arg(databaseTableName)));
 		if(openedTransaction) {
 			database()->rollbackTransaction();
 			return;
@@ -691,7 +707,7 @@ void AMDbObject::updateThumbnailsInCurrentThread(bool neverSavedHereBefore)
 	// only commit the transaction if we started it.
 	if(openedTransaction && !database()->commitTransaction()) {
 		database()->rollbackTransaction();
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -495, "Could not commit a transaction to save the thumbnails for object '" % databaseTableName % ":" % QString::number(id()) % "' in the database. Please report this problem to the Acquaman developers."));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_COMPLETE_TRANSACTION_TO_SAVE_THUMBNAILS, "Could not commit a transaction to save the thumbnails for object '" % databaseTableName % ":" % QString::number(id()) % "' in the database. Please report this problem to the Acquaman developers."));
 	}
 }
 
