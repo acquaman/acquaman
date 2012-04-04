@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMutex>
 #include <QStringList>
 
+#define AMDATABASE_ERROR_COLUMN_VALUE_COUNT_MISMATCH -3102
 
 /// This class provides thread-safe, general access to an SQL database.
 /*! Instances of this class are used to query or modify a database; all of the functions are thread-safe and will operate using a per-thread connection to the same underlying database.
