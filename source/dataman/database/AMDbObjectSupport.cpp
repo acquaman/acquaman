@@ -231,7 +231,7 @@ bool AMDbObjectSupport::registerDatabase(AMDatabase* db) {
 	if( db->ensureTable(	typeTableName(),
 							QString("AMDbObjectType,tableName,description,version").split(','),
 							QString("TEXT,TEXT,TEXT,INTEGER").split(','),
-							false) )
+				false) && db->ensureColumn(typeTableName(), QString("inheritance")))
 		db->createIndex(typeTableName(), "AMDbObjectType");
 
 	// ensure supporting type tables: (These map types to column names: an entry for each type / field-name combintion)
@@ -302,10 +302,28 @@ bool AMDbObjectSupport::registerDatabase(AMDatabase* db) {
 	}
 }
 
+#include <QDebug>
 bool AMDbObjectSupport::getDatabaseReadyForClass(AMDatabase* db, const AMDbObjectInfo& info) {
 
 	// have the tables already been created in this database for this class? check the types table:
 	QList<int> foundRows = db->objectsMatching(typeTableName(), "AMDbObjectType", info.className );
+
+	// Possibility 1a: (Sorry about this) Need to check that the inheritance information is good in the AMDbObjectTypes_table
+	if(foundRows.count() == 1){
+		QString inheritanceInformationFromDb = db->retrieve(foundRows.at(0), typeTableName(), QString("inheritance")).toString();
+		QString inheritanceInformationFromMetaObject;
+		const QMetaObject *mo = info.metaObject;
+		do{
+			inheritanceInformationFromMetaObject.append(QString("%1;").arg(mo->className()));
+			mo = mo->superClass();
+		}while(mo);
+		inheritanceInformationFromMetaObject.remove(inheritanceInformationFromMetaObject.lastIndexOf(';'), 1);
+		if(inheritanceInformationFromDb != inheritanceInformationFromMetaObject)
+			if(!db->update(foundRows.at(0), typeTableName(), QString("inheritance"), inheritanceInformationFromMetaObject)){
+				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDBOBJECTSUPPORT_CANNOT_WRITE_CLASS_INHERITANCE, QString("Database support: Could not write database for '%1' inheritance information.").arg(info.className)));
+				return false;
+			}
+	}
 
 	// Possibility 1: This type has never been stored in this database... need to create new table for it, create columns and indexes in that table, add row for this class in the type information table, and add column entries in the allColumns, visibleColumns, and loadColumns tables.
 	/////////////////////////
@@ -415,11 +433,19 @@ bool AMDbObjectSupport::initializeDatabaseForClass(AMDatabase* db, const AMDbObj
 		}
 	}	// end of loop over properties
 
+	QString inheritanceInformationFromMetaObject;
+	const QMetaObject *mo = info.metaObject;
+	do{
+		inheritanceInformationFromMetaObject.append(QString("%1;").arg(mo->className()));
+		mo = mo->superClass();
+	}while(mo);
+	inheritanceInformationFromMetaObject.remove(inheritanceInformationFromMetaObject.lastIndexOf(';'), 1);
+
 	// add to type table:
 	QStringList typeTableCols;
-	typeTableCols << "AMDbObjectType" << "tableName" << "description" << "version";
+	typeTableCols << "AMDbObjectType" << "tableName" << "description" << "version" << "inheritance";
 	QVariantList typeTableValues;
-	typeTableValues << info.className << info.tableName << info.classDescription << info.version;
+	typeTableValues << info.className << info.tableName << info.classDescription << info.version << inheritanceInformationFromMetaObject;
 	int typeId = db->insertOrUpdate(0, typeTableName(), typeTableCols, typeTableValues);
 
 	if(typeId < 1) {
