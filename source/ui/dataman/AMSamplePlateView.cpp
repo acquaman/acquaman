@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMDetailedItemDelegate.h"
 
 #include "beamline/AMSampleManipulator.h"
+#include "util/AMErrorMonitor.h"
 
 AMSamplePlateItemModel::AMSamplePlateItemModel(AMSamplePlate* plate, QObject* parent) :
 	QAbstractListModel(parent)
