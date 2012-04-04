@@ -62,6 +62,7 @@ void AMPluginsManager::loadApplicationPlugins(){
 	loadApplicationPlugins(AMSettings::s()->fileLoaderPluginsFolder(), AMSettings::s()->analysisBlockPluginsFolder());
 }
 
+#include <QDebug>
 void AMPluginsManager::loadApplicationPlugins(const QString &fileLoaderFolder, const QString &analysisBlocksFolder) {
 
 	QWriteLocker wl(&mutex_);
@@ -71,9 +72,11 @@ void AMPluginsManager::loadApplicationPlugins(const QString &fileLoaderFolder, c
 	// Load file loader plugins
 	fileFormats2fileLoaderFactories_.clear();
 
+	//qDebug() << "Folder is " << fileLoaderFolder;
+
 	QDir fileLoaderPluginsDirectory(fileLoaderFolder);
 	foreach (QString fileName, fileLoaderPluginsDirectory.entryList(QDir::Files)) {
-		// qDebug() << " trying plugin file" << fileName;
+		//qDebug() << " trying plugin file" << fileName;
 		QPluginLoader pluginLoader(fileLoaderPluginsDirectory.absoluteFilePath(fileName));
 		QObject *plugin = pluginLoader.instance();
 		if(plugin) {
@@ -98,6 +101,7 @@ void AMPluginsManager::loadApplicationPlugins(const QString &fileLoaderFolder, c
 	// Load analysis block plugins
 	availableAnalysisBlocks_.clear();
 
+	/* Not Building these at the current time
 	QDir analysisBlockPluginsDirectory(analysisBlocksFolder);
 	foreach (QString fileName, analysisBlockPluginsDirectory.entryList(QDir::Files)) {
 		QPluginLoader pluginLoader(analysisBlockPluginsDirectory.absoluteFilePath(fileName));
@@ -109,4 +113,5 @@ void AMPluginsManager::loadApplicationPlugins(const QString &fileLoaderFolder, c
 			}
 		}
 	}
+	*/
 }
