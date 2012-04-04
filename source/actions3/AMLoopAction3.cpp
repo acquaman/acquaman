@@ -34,15 +34,32 @@ AMLoopAction3::~AMLoopAction3() {
 	qDeleteAll(subActions_);
 }
 
-
-void AMLoopAction3::insertSubActionImplementation(AMAction3 *action, int index)
+bool AMLoopAction3::duplicateSubActions(const QList<int> &indexesToCopy)
 {
-	subActions_.insert(index, action);
-}
+    if(state() != Constructed)
+        return false;
 
-AMAction3* AMLoopAction3::takeSubActionImplementation(int index)
-{
-	return subActions_.takeAt(index);
+    if(indexesToCopy.isEmpty())
+        return true;	// done
+
+    // sort the list, so we know the highest index in it.
+    QList<int> sIndexesToCopy = indexesToCopy;
+    qSort(sIndexesToCopy);
+
+    // any indexes out of range?
+    if(sIndexesToCopy.first() < 0)
+        return false;
+    if(sIndexesToCopy.last() >= subActionCount())
+        return false;
+
+    // insert at the position after last existing subAction to copy
+    int insertionIndex = sIndexesToCopy.last() + 1;
+
+    // insert copies of all, using regular insertSubAction().
+    foreach(int i, sIndexesToCopy)
+        insertSubAction(subActionAt(i)->createCopy(), insertionIndex++);
+
+    return true;
 }
 
 void AMLoopAction3::startImplementation()
@@ -59,72 +76,71 @@ void AMLoopAction3::startImplementation()
 	internalDoNextAction();
 }
 
-void AMLoopAction3::cancelImplementation()
-{
-	// haven't started running anything... Easy to cancel.
-	if(currentSubActionIndex_ < 0) {
-        setCancelled();
-		return;
-	}
-
-	// tell the current action to cancel
-	currentSubAction_->cancel();
-	// when we receive the cancelled signal, we'll notifyCancelled.
-}
-
 void AMLoopAction3::internalOnCurrentActionStateChanged(int newState, int oldState)
 {
-    if(newState == AMAction3::Paused) {
-        if(state() == AMAction3::Pausing) {
-            setPaused();
-		}
-		else {
-			qWarning() << "AMLoopAction: Warning: One of our sub-actions was paused, but not by us.";
-		}
-	}
-    else if(newState == AMAction3::Running && oldState == AMAction3::Resuming) {
-        if(state() == AMAction3::Resuming) {
+    Q_UNUSED(oldState)
+
+    switch(newState) {
+    case Starting:
+        // If we were paused between actions and resuming, the next action is now running...
+        if(state() == Resuming)
             setResumed();
-		}
-		else {
-			qWarning() << "AMLoopAction: Warning: One of our sub-actions was resumed, but not by us.";
-		}
-	}
-    else if(newState == AMAction3::Cancelled) {
-        if(state() == AMAction3::Cancelling) {
-			disconnect(currentSubAction_, 0, this, 0);
-			if(internalShouldLogSubAction(currentSubAction_))
+        return;
+    case Running:
+        // If we had a current action paused:
+        if(state() == Resuming)
+            setResumed();
+        return;
+    case Pausing:
+        return;
+    case Paused:
+        // the current action paused, so now we're paused. This will only happen if the current action supports pause and transitioned to it.
+        if(state() == Pausing) {
+            setPaused();
+        }
+        else {
+            qWarning() << "AMListAction: Warning: A sub-action was paused without cancelling its parent list action. This should not happen.";
+        }
+        return;
+    case Resuming:
+        return;
+    case Cancelling:
+        return;
+    case Cancelled:
+        if(state() == Cancelling) {
+
+            internalDisconnectAction(currentSubAction_);
+            if(internalShouldLogSubAction(currentSubAction_))
                 AMActionLog3::logCompletedAction(currentSubAction_);
-			currentSubAction_->deleteLater();
+            // delete it later (since we might still be executing inside the action's functions).
+            currentSubAction_->deleteLater();
             setCancelled();
-		}
-		else {
-			qWarning() << "AMLoopAction: Warning: One of our sub-actions was cancelled, but not by us. This will cause this action to fail.";
-			disconnect(currentSubAction_, 0, this, 0);
-			if(internalShouldLogSubAction(currentSubAction_))
-                AMActionLog3::logCompletedAction(currentSubAction_);
-			currentSubAction_->deleteLater();
-            setFailed();
-		}
-	}
-    else if(newState == AMAction3::Failed) {
-		disconnect(currentSubAction_, 0, this, 0);
-		if(internalShouldLogSubAction(currentSubAction_))
+        }
+        else {
+            qWarning() << "AMListAction: Warning: A sub-action was cancelled without cancelling its parent list action. This should not happen.";
+        }
+        return;
+    case Succeeded:
+        internalDoNextAction();
+        return;
+    case Failed:
+        internalDisconnectAction(currentSubAction_);
+        if(internalShouldLogSubAction(currentSubAction_))
             AMActionLog3::logCompletedAction(currentSubAction_);
-		currentSubAction_->deleteLater();
+        // delete it later (since we might still be executing inside the action's functions).
+        currentSubAction_->deleteLater();(currentSubAction());
         setFailed();
-	}
-    else if(newState == AMAction3::Succeeded) {
-		internalDoNextAction();
-	}
+        return;
+    }
 }
 
 void AMLoopAction3::internalDoNextAction()
 {
 	// did an action just finish completing?
 	if(currentSubActionIndex_ >= 0) {
-		disconnect(currentSubAction_, 0, this, 0);
-		if(internalShouldLogSubAction(currentSubAction_))
+
+        internalDisconnectAction(currentSubAction_);
+        if(internalShouldLogSubAction(currentSubAction_))
             AMActionLog3::logCompletedAction(currentSubAction_);
 		// delete it later (since we might still be executing inside the action's functions).
 		currentSubAction_->deleteLater();
@@ -135,9 +151,7 @@ void AMLoopAction3::internalDoNextAction()
 		emit currentSubActionChanged(++currentSubActionIndex_);
 
 		currentSubAction_ = subActions_.at(currentSubActionIndex_)->createCopy();
-		connect(currentSubAction_, SIGNAL(stateChanged(int,int)), this, SLOT(internalOnCurrentActionStateChanged(int,int)));
-		connect(currentSubAction_, SIGNAL(progressChanged(double,double)), this, SLOT(internalOnCurrentActionProgressChanged(double,double)));
-		connect(currentSubAction_, SIGNAL(statusTextChanged(QString)), this, SLOT(internalOnCurrentActionStatusTextChanged(QString)));
+        internalConnectAction(currentSubAction_);
 		currentSubAction_->start();
 	}
 	else {
@@ -149,9 +163,7 @@ void AMLoopAction3::internalDoNextAction()
 			emit currentSubActionChanged(currentSubActionIndex_ = 0);
 
 			currentSubAction_ = subActions_.at(currentSubActionIndex_)->createCopy();
-			connect(currentSubAction_, SIGNAL(stateChanged(int,int)), this, SLOT(internalOnCurrentActionStateChanged(int,int)));
-			connect(currentSubAction_, SIGNAL(progressChanged(double,double)), this, SLOT(internalOnCurrentActionProgressChanged(double,double)));
-			connect(currentSubAction_, SIGNAL(statusTextChanged(QString)), this, SLOT(internalOnCurrentActionStatusTextChanged(QString)));
+            internalConnectAction(currentSubAction_);
 			currentSubAction_->start();
 		}
 		// Nope, that's the end.
@@ -163,16 +175,7 @@ void AMLoopAction3::internalDoNextAction()
 
 void AMLoopAction3::internalOnCurrentActionProgressChanged(double numerator, double denominator)
 {
-	bool allActionsHaveExpectedDuration = true;
-    foreach(AMAction3* action, subActions_) {
-		if(action->info()->expectedDuration() < 0) {
-			allActionsHaveExpectedDuration = false;
-			break;
-		}
-	}
-
-
-	if(allActionsHaveExpectedDuration) {
+    if(internalAllActionsHaveExpectedDuration()) {
 		double totalNumerator = 0, totalDenominator = 0;
 		for(int i=0, cc=subActionCount(); i<cc; i++) {
             AMAction3* action = subActionAt(i);
@@ -199,15 +202,4 @@ void AMLoopAction3::internalOnCurrentActionProgressChanged(double numerator, dou
 		setProgress(totalNumerator, totalDenominator);
 		setExpectedDuration(runningTime()*totalDenominator/totalNumerator);
 	}
-}
-
-void AMLoopAction3::internalOnCurrentActionStatusTextChanged(const QString &statusText)
-{
-	setStatusText(QString("Loop %1 of %2 (%3: %4)").arg(currentIteration_+1).arg(loopCount()).arg(currentSubAction_->info()->shortDescription()).arg(statusText));
-}
-
-bool AMLoopAction3::internalShouldLogSubAction(AMAction3 *action)
-{
-    AMListAction3* nestedAction = qobject_cast<AMListAction3*>(action);
-	return shouldLogSubActionsSeparately() && !(nestedAction && nestedAction->shouldLogSubActionsSeparately());
 }

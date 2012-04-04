@@ -78,14 +78,13 @@ public:
 	/// Remove and return the sub-action at \c index. Returns 0 if the index is out of range, or if the action is already running and this is not allowed. Ownership of the sub-action becomes the responsibility of the caller.
     AMAction3* takeSubActionAt(int index);
 
-    /// Public function to duplicate a set of sub-actions at \c indexesToCopy. The new sub-actions will all be inserted at the position after the last existing sub-action in \c indexesToCopy.  It uses insertSubAction() to add copies of the existing ones, and therefore will fail if the action is not in the AMAction::Constructed state.
-    bool duplicateSubActions(const QList<int>& indexesToCopy);
-
     // Other methods that should be reimplemented.
     ////////////////////////////////////////////
 
     /// Specifies whether, when logging actions that are run with AMActionRunner, to log the entire action, or log the individual sub-actions as they complete.
-    virtual bool shouldLogSubActionsSeparately() { return true; }
+    virtual bool shouldLogSubActionsSeparately() { return logSubActionsSeparately_; }
+    /// Set whether each individual sub-action should be logged separately as soon as it completes, or if the whole loop action should be logged as one long single action (in the user's action history log).
+    void setShouldLogSubActionsSeparately(bool logSeparately) { logSubActionsSeparately_ = logSeparately; }
 
 signals:
 
@@ -106,8 +105,13 @@ signals:
     /// Emitted when a sub-action completes.
     void subActionCompleted(AMAction3* completedAction);
 
-public slots:
-
+protected slots:
+    /// Called when any of the sub-actions changes state.
+    virtual void internalOnSubActionStateChanged(int newstate, int oldstate);
+    /// Called when any of the sub-actions emit progressChanged(). Time to re-calculate our progress.
+    virtual void internalOnSubActionProgressChanged(double numerator, double denominator);
+    /// Called when any of the sub-actions emits statusTextChanged()
+    virtual void internalOnSubActionStatusTextChanged(const QString &statusText);
 
 protected:
 
@@ -115,15 +119,18 @@ protected:
 
 	/// This function is called from the Starting state when the implementation should initiate the action. In SequentialMode, we start() the first action. In ParallelMode, we start() all of them.  If there are no sub-actions, we will report starting and finishing immediately.
 	virtual void startImplementation();
-
 	/// For actions which support pausing, this function is called from the Pausing state when the implementation should pause the action. If running in sequential mode, we can pause -- either the current action, or pause between actions. In parallel mode, we pause all the still-running actions. (If actions have finished or failed already, we ignore those and pause the ones still running.)
 	virtual void pauseImplementation();
-
 	/// For actions that support resuming, this function is called from the Paused state when the implementation should resume the action. In SequentialMode, this will either resume the current action (if it supported pausing), or -- when paused between actions -- start the next one. In ParallelMode, this will resume all actions that haven't finished already.
 	virtual void resumeImplementation();
-
 	/// All implementations must support cancelling. This function will be called from the Cancelling state. In SequentialMode, we cancel() the currently running action (unless we're paused between actions.)  In ParallelMode, we cancel all the still-running actions.
 	virtual void cancelImplementation();
+
+    // Helper function to help move through a sequential list of actions.
+    //////////////////////////////////////
+
+    /// Helper function to step through the various actions in a sequential list.
+    virtual void internalDoNextAction();
 
 	// Helper functions to check the state of all actions when running in ParallelMode
 	/////////////////
@@ -141,29 +148,22 @@ protected:
 	/// Returns true if all actions specify an expected duration (ie: AMActionInfo::expectedDuration() does not return -1)
 	bool internalAllActionsHaveExpectedDuration() const;
 
+    /// Helper function to connect a sub-action to our state-monitoring slots
+    void internalConnectAction(AMAction3* action);
+    /// Helper function to disconnect a sub-action from our state-monitoring slots
+    void internalDisconnectAction(AMAction3* action);
 
+    /// Helper function that returns true if we should log a sub-action ourselves when it finishes. True if: we're running inside AMActionRunner, we're supposed to log our sub-actions separately, AND \c action is not itself a nested action that is supposed to log its own sub-actions seperately.  (If \c action IS a nested action, but it's supposed to be logged as one unit, then we'll still log it ourselves.)
+    bool internalShouldLogSubAction(AMAction3* action);
 
-private:
 	/// Ordered list of sub-actions
     QList<AMAction3*> subActions_;
 	/// Whether to run sub-actions sequentially or in parallel
 	SubActionMode subActionMode_;
 	/// In SequentialMode, indicates the current sub-action. This is -1 before starting, 0 immediately after starting, and equals subActionCount() when all actions are done.  It is updated immediately after the previous sub-action succeeds. If we are Pausing and supposed to stop between actions, it is still advanced, but the next action is not yet started().
 	int currentSubActionIndex_;
-
-	/// Helper function to connect a sub-action to our state-monitoring slots
-    void internalConnectAction(AMAction3* action);
-	/// Helper function to disconnect a sub-action from our state-monitoring slots
-    void internalDisconnectAction(AMAction3* action);
-
-private slots:
-	/// Called when any of the sub-actions changes state.
-	void internalOnSubActionStateChanged(int newstate, int oldstate);
-	/// Called when any of the sub-actions emit progressChanged(). Time to re-calculate our progress.
-	void internalOnSubActionProgressChanged(double numerator, double denominator);
-	/// Called when any of the sub-actions emits statusTextChanged()
-	void internalOnSubActionStatusTextChanged(const QString& statusText);
-
+    /// Flag that holds whether the sub actions should be logged separately.
+    bool logSubActionsSeparately_;
 };
 
 #endif // AMLISTACTION_H

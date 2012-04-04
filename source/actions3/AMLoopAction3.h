@@ -28,36 +28,17 @@ public:
 	// Public virtual functions: re-implemented:
 	//////////////////////
 
-    /// Pure virtual function that denotes that this action has children underneath it or not.
-    bool hasChildren() const { return true; }
-    /// Pure virtual function that returns the number of children for this action.
-    int numberOfChildren() const { return -1; }
-
-	/// Specifies whether, when logging actions that are run with AMActionRunner, to log the entire action, or log the individual sub-actions as they complete.
-	virtual bool shouldLogSubActionsSeparately() { return logSubActionsSeparately_; }
-
-	/// Returns the number of sub-actions inside the loop
-	virtual int subActionCount() const { return subActions_.count(); }
-	/// Returns the subAction at \c index within the loop.
-    virtual const AMAction3* subActionAt(int index) const { if(index<0 || index>=subActions_.count()) return 0; return subActions_.at(index); }
-	/// Returns the subAction at \c index within the loop.
-    virtual AMAction3* subActionAt(int index) { if(index<0 || index>=subActions_.count()) return 0; return subActions_.at(index); }
-
-	/// Returns the index of the currently-active subaction. Return -1 if it doesn't make sense to consider any as current.
-	virtual int currentSubActionIndex() const { return currentSubActionIndex_; }
-
 	/// Returns the current loop iteration (ie: loop counter).  Will be 0 before and while running the first loop, 1 during the second loop, and finally loopCount() after the last loop is done.
 	int currentIteration() const { return currentIteration_; }
 
 	// new public functions:
 	/////////////////////////////
 
-	/// Set whether each individual sub-action should be logged separately as soon as it completes, or if the whole loop action should be logged as one long single action (in the user's action history log).
-	void setShouldLogSubActionsSeparately(bool logSeparately) { logSubActionsSeparately_ = logSeparately; }
-
 	/// Returns the number of iterations to loop for:
 	int loopCount() const { return loopInfo()->loopCount(); }
 
+    /// Public function to duplicate a set of sub-actions at \c indexesToCopy. The new sub-actions will all be inserted at the position after the last existing sub-action in \c indexesToCopy.  It uses insertSubAction() to add copies of the existing ones, and therefore will fail if the action is not in the AMAction::Constructed state.
+    bool duplicateSubActions(const QList<int>& indexesToCopy);
 
 signals:
 	// see AMNestedAction::currentSubActionChanged(int) for when the current sub-action changes.
@@ -69,58 +50,40 @@ public slots:
 	/// Set the number of iterations to loop for. If the action is running and this is smaller than the number already completed, it will finish at the end of the current loop.
 	void setLoopCount(int newLoopCount) { loopInfo()->setLoopCount(newLoopCount); }
 
-protected:
-	int currentIteration_, currentSubActionIndex_;
-    QList<AMAction3*> subActions_;
-	bool logSubActionsSeparately_;
-    AMAction3* currentSubAction_;
-
-
-	// Protected virtual functions to re-implement
-	/////////////////////////////////////
-
-	// AMNestedAction api:
-	///////////////////////
-
-	/// Implement to insert a sub- \c action at \c index. Can be assured by the base class that \c index is valid and that we're not running yet.
-    virtual void insertSubActionImplementation(AMAction3 *action, int index);
-	/// Implement to remove and return the sub-action at \c index. Can be assured by the base class that \c index is valid and that we're not running yet.
-    virtual AMAction3* takeSubActionImplementation(int index);
-
-
-	// These virtual functions allow subclasses to implement their unique action behaviour.  They are called at the appropriate time by the base class, when base-class-initiated state changes happen: ->Starting, ->Cancelling, ->Pausing, ->Resuming
-	/////////////////////////
-	/// This function is called from the Starting state when the implementation should initiate the action. Once the action is started, you should call notifyStarted().
-	virtual void startImplementation();
-
-//	/// For actions which support pausing, this function is called from the Pausing state when the implementation should pause the action. Once the action is paused, you should call notifyPaused().  The base class implementation does nothing and must be re-implemented.
-    virtual void pauseImplementation() { setPaused(); }
-
-//	/// For actions that support resuming, this function is called from the Paused state when the implementation should resume the action. Once the action is running again, you should call notifyResumed().
-    virtual void resumeImplementation() { setResumed(); }
-
-	/// All implementations must support cancelling. This function will be called from the Cancelling state. Implementations will probably want to examine the previousState(), which could be any of Starting, Running, Pausing, Paused, or Resuming. Once the action is cancelled and can be deleted, you should call notifyCancelled().
-	/*! \note If startImplementation() was never called, you won't receive this when a user tries to cancel(); the base class will handle it for you. */
-	virtual void cancelImplementation();
-
-	/// Helper function to manage action and loop iterations. Does everything we need to do to move onto the next action (either at the beginning, or after the last one completes).
-	void internalDoNextAction();
-	/// Helper function that returns true if we should log a sub-action ourselves when it finishes. True if: we're running inside AMActionRunner, we're supposed to log our sub-actions separately, AND \c action is not itself a nested action that is supposed to log its own sub-actions seperately.  (If \c action IS a nested action, but it's supposed to be logged as one unit, then we'll still log it ourselves.)
-    bool internalShouldLogSubAction(AMAction3* action);
-
-	/// Our info() will always be an AMLoopActionInfo, but info() returns it as an AMActionInfo*.  This makes it easier to access.
-    AMLoopActionInfo3* loopInfo() { return qobject_cast<AMLoopActionInfo3*>(info()); }
-	/// Our info() will always be an AMLoopActionInfo, but info() returns it as an AMActionInfo*.  This makes it easier to access.
-    const AMLoopActionInfo3* loopInfo() const { return qobject_cast<const AMLoopActionInfo3*>(info()); }
-
 protected slots:
 	/// Called when the current action's state changes in any way. We do all of our decision making here on whether to succeed, fail, go on to the next sub-action or loop, etc.
-	void internalOnCurrentActionStateChanged(int newState, int oldState);
+    virtual void internalOnCurrentActionStateChanged(int newState, int oldState);
 	/// Called when the current action's progress is updated. We use it to update our own progress
-	void internalOnCurrentActionProgressChanged(double numerator, double denominator);
-	/// Callend when the current action updates its status text.
-	void internalOnCurrentActionStatusTextChanged(const QString& statusText);
+    virtual void internalOnCurrentActionProgressChanged(double numerator, double denominator);
 
+protected:
+    // Protected virtual functions to re-implement
+    /////////////////////////////////////
+
+    // These virtual functions allow subclasses to implement their unique action behaviour.  They are called at the appropriate time by the base class, when base-class-initiated state changes happen: ->Starting, ->Cancelling, ->Pausing, ->Resuming
+    /////////////////////////
+    /// This function is called from the Starting state when the implementation should initiate the action. Once the action is started, you should call notifyStarted().
+    virtual void startImplementation();
+//	/// For actions which support pausing, this function is called from the Pausing state when the implementation should pause the action. Once the action is paused, you should call notifyPaused().  The base class implementation does nothing and must be re-implemented.
+//    virtual void pauseImplementation() { setPaused(); }  // Using the AMListAction pauseImplementation().
+//	/// For actions that support resuming, this function is called from the Paused state when the implementation should resume the action. Once the action is running again, you should call notifyResumed().
+//    virtual void resumeImplementation() { setResumed(); }  // Using the the AMListAction resumeImplementation().
+    /// All implementations must support cancelling. This function will be called from the Cancelling state. Implementations will probably want to examine the previousState(), which could be any of Starting, Running, Pausing, Paused, or Resuming. Once the action is cancelled and can be deleted, you should call notifyCancelled().
+//    virtual void cancelImplementation();
+
+    /// Helper function to manage action and loop iterations. Does everything we need to do to move onto the next action (either at the beginning, or after the last one completes).
+    virtual void internalDoNextAction();
+
+    /// Our info() will always be an AMLoopActionInfo, but info() returns it as an AMActionInfo*.  This makes it easier to access.
+    AMLoopActionInfo3* loopInfo() { return qobject_cast<AMLoopActionInfo3*>(info()); }
+    /// Our info() will always be an AMLoopActionInfo, but info() returns it as an AMActionInfo*.  This makes it easier to access.
+    const AMLoopActionInfo3* loopInfo() const { return qobject_cast<const AMLoopActionInfo3*>(info()); }
+
+
+    /// The iterator that keeps track of how far along the loop is.
+    int currentIteration_;
+    /// The current action that is being run in the loop.
+    AMAction3 *currentSubAction_;
 };
 
 #endif // AMLOOPACTION_H

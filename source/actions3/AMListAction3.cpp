@@ -1,4 +1,5 @@
 #include "AMListAction3.h"
+#include "actions3/AMActionLog3.h"
 
 #include <QStringBuilder>
 
@@ -20,7 +21,7 @@ AMListAction3::AMListAction3(const AMListAction3& other) : AMAction3(other) {
     foreach(AMAction3* action, other.subActions_)
 		subActions_ << action->createCopy();
 }
-/// Destructor: deletes the sub-actions
+// Destructor: deletes the sub-actions
 AMListAction3::~AMListAction3() {
 	while(!subActions_.isEmpty())
 		delete subActions_.takeLast();
@@ -28,7 +29,7 @@ AMListAction3::~AMListAction3() {
 
 int AMListAction3::indexOfSubAction(const AMAction3 *action) const
 {
-    for(int i=0,cc=subActionCount(); i<cc; i++) {
+    for(int i=0, count = subActionCount(); i<count; i++) {
         if(action == subActionAt(i))
             return i;
     }
@@ -39,6 +40,7 @@ AMAction3 * AMListAction3::subActionAt(int index)
 {
     if(index < 0 || index >= subActionCount())
 		return 0;
+
 	return subActions_.at(index);
 }
 
@@ -46,6 +48,7 @@ const AMAction3 * AMListAction3::subActionAt(int index) const
 {
     if(index < 0 || index >= subActionCount())
         return 0;
+
 	return subActions_.at(index);
 }
 
@@ -96,34 +99,6 @@ bool AMListAction3::deleteSubAction(int index)
     return (action != 0);
 }
 
-bool AMListAction3::duplicateSubActions(const QList<int> &indexesToCopy)
-{
-    if(state() != Constructed)
-        return false;
-
-    if(indexesToCopy.isEmpty())
-        return true;	// done
-
-    // sort the list, so we know the highest index in it.
-    QList<int> sIndexesToCopy = indexesToCopy;
-    qSort(sIndexesToCopy);
-
-    // any indexes out of range?
-    if(sIndexesToCopy.first() < 0)
-        return false;
-    if(sIndexesToCopy.last() >= subActionCount())
-        return false;
-
-    // insert at the position after last existing subAction to copy
-    int insertionIndex = sIndexesToCopy.last() + 1;
-
-    // insert copies of all, using regular insertSubAction().
-    foreach(int i, sIndexesToCopy)
-        insertSubAction(subActionAt(i)->createCopy(), insertionIndex++);
-
-    return true;
-}
-
 bool AMListAction3::canPause() const
 {
     if(subActionMode() == Sequential) {
@@ -132,23 +107,20 @@ bool AMListAction3::canPause() const
 			return false;
 		// if we just have one sub-action and it cannot pause, then we can't pause.
 		if(subActionCount() == 1)
-            return (subActionAt(0)->state() == Running
-					&& subActionAt(0)->canPause());
+            return subActionAt(0)->canPause();
 		// More than one action. Are we on the last action? Then whether we can pause depends on whether that last action can pause
 		if(currentSubActionIndex() == subActionCount()-1)
-            return (currentSubAction()->state() == Running
-					&& currentSubAction()->canPause());
+            return currentSubAction()->canPause();
 		// If we've made it here, we have more than one action and we're not on the last action. Therefore, at least we can pause between actions even if they can't pause themselves.
 		return true;
 	}
 
-	// in parallel mode, we can pause if all still-running sub-actions can.  If ALL the actions are in a final state, then we won't be Running, so the base class will never let someone call pause().
+    // in parallel mode, we can pause if all still-running sub-actions can.
 	else {
+
 		bool canDoPause = true;
         foreach(AMAction3* action, subActions_)
-			canDoPause &= (action->inFinalState()
-                           || (action->state() == Running
-							   && action->canPause()));
+            canDoPause &= action->canPause();
 
 		return canDoPause;
 	}
@@ -166,10 +138,9 @@ void AMListAction3::startImplementation()
 	}
 
     if(subActionMode() == Sequential) {
-		emit currentSubActionChanged(currentSubActionIndex_ = 0);
-		setStarted();
-		internalConnectAction(currentSubAction());
-		currentSubAction()->start();
+
+        setStarted();
+        internalDoNextAction();
 	}
 	// parallel mode
 	else {
@@ -190,9 +161,9 @@ void AMListAction3::pauseImplementation()
 	////////////////////////
     if(subActionMode() == Sequential) {
 		if(currentSubAction()) {
-			// Can this action pause?
-			if(currentSubAction()->canPause())
-				currentSubAction()->pause();
+            // Can this action pause?  Required to be asked since the list can always pause, but the current action might not be able to.
+            if(currentSubAction()->canPause())
+                currentSubAction()->pause();
 			// If it can't, we'll pause by stopping at the next action. When the current action transitions to Succeeded, we simply won't start the next one and will notifyPaused(). In this case, we could stay at Pausing for quite some time until the current action finishes.
 		}
 		else {
@@ -206,7 +177,7 @@ void AMListAction3::pauseImplementation()
 	else {
 		// because we can trust that canPause() was true for all, let's just tell all of our actions to pause.
         foreach(AMAction3* action, subActions_) {
-			action->pause();	// this will fail for completed actions, but that's OK.
+            action->pause();	// this will fail for completed actions, but that's OK.  Addition DH: You should never make it into this function if you're done.
 		}
 		// when ALL of the still-running actions change to the Paused state, we'll pick that up in internalOnSubActionStateChanged() and notifyPaused().
 	}
@@ -247,10 +218,10 @@ void AMListAction3::cancelImplementation()
 	// sequential mode
     if(subActionMode() == Sequential) {
 		if(currentSubAction()) {
-			if(currentSubAction()->state() == Constructed)	// this sub-action not connected or run yet. Don't need to cancel it. (This could happen if we are paused between actions and currentSubAction() hasn't been started yet.)
-				setCancelled();
-			else
-				currentSubAction()->cancel(); // action is already connected and running. Need to cancel it. We'll pick it up in internalOnSubActionStateChanged
+            if(currentSubAction()->state() == Constructed)	// this sub-action not connected or run yet. Don't need to cancel it. (This could happen if we are paused between actions and currentSubAction() hasn't been started yet.)
+                setCancelled();
+            else
+                currentSubAction()->cancel(); // action is already connected and running. Need to cancel it. We'll pick it up in internalOnSubActionStateChanged
 		}
 		else {
 			setCancelled();
@@ -272,8 +243,9 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 
 	// sequential mode: could only come from the current action
     if(subActionMode() == Sequential) {
+
 		switch(newState) {
-		case Starting:
+        case Starting:
 			// If we were paused between actions and resuming, the next action is now running...
 			if(state() == Resuming)
 				setResumed();
@@ -308,27 +280,8 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 			}
 			return;
 		case Succeeded:
-			// in sequential mode, always move on to the next action here.
-			internalDisconnectAction(currentSubAction());
-			emit currentSubActionChanged(++currentSubActionIndex_);
-			// Are we done the last action? If we are, we're done no matter what [even if supposed to be pausing]
-			if(currentSubActionIndex_ == subActionCount()) {
-				setSucceeded();
-				return;
-			}
-			// if we were waiting to pause and had to wait for a (non-pausable) action to finish, we're there now.
-			if(state() == Pausing) {
-				setPaused();
-				return;
-			}
-			// if we were running and an action has completed, time to start the next action. currentSubAction() has already been advanced for us.
-			if(state() == Running) {
-				internalConnectAction(currentSubAction());
-				currentSubAction()->start();
-				return;
-			}
-			qWarning() << "AMListAction: Warning: A sub-action succeeded when we weren't expecting it to be running.";
-			return;
+            internalDoNextAction();
+            return;
 		case Failed:
 			internalDisconnectAction(currentSubAction());
 			setFailed();
@@ -388,6 +341,33 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 	}
 }
 
+void AMListAction3::internalDoNextAction()
+{
+    // in sequential mode, always move on to the next action here.
+    if (currentSubActionIndex_ >= 0){
+
+        internalDisconnectAction(currentSubAction());
+        if(internalShouldLogSubAction(currentSubAction()))
+            AMActionLog3::logCompletedAction(currentSubAction());
+    }
+
+    // Are we done the last action? If we are, we're done no matter what [even if supposed to be pausing]
+    if(currentSubActionIndex_ < subActionCount()-1) {
+
+        emit currentSubActionChanged(++currentSubActionIndex_);
+        internalConnectAction(currentSubAction());
+
+        if (state() == Pausing)
+            setPaused();
+
+        else if (state() == Running)
+            currentSubAction()->start();
+    }
+
+    else
+        setSucceeded();
+}
+
 void AMListAction3::internalOnSubActionProgressChanged(double numerator, double denominator)
 {
 	// sequential mode:
@@ -413,6 +393,7 @@ void AMListAction3::internalOnSubActionProgressChanged(double numerator, double 
 				}
 			}
 			setProgress(totalNumerator, totalDenominator);
+            setExpectedDuration(totalDenominator);
 		}
 		// Otherwise, assume every subaction makes up an equal fraction of the total amount of work. Our denominator will be the number of sub-actions, and our numerator will be the sub-action we are on (plus its fraction done). For ex: with 8 sub-actions: At the beginning, this will be 0/8.  Half-way through the first action it will be (0+0.5)/8.  At the very end it will be (7+1)/8.
 		else {
@@ -480,8 +461,6 @@ void AMListAction3::internalOnSubActionStatusTextChanged(const QString &statusTe
 	}
 }
 
-
-
 void AMListAction3::internalConnectAction(AMAction3 *action)
 {
 	connect(action, SIGNAL(stateChanged(int,int)), this, SLOT(internalOnSubActionStateChanged(int,int)));
@@ -542,4 +521,10 @@ bool AMListAction3::internalAllActionsHaveExpectedDuration() const
 		if(action->info()->expectedDuration() < 0)
 			return false;
 	return true;
+}
+
+bool AMListAction3::internalShouldLogSubAction(AMAction3 *action)
+{
+    AMListAction3* nestedAction = qobject_cast<AMListAction3*>(action);
+    return shouldLogSubActionsSeparately() && !(nestedAction && nestedAction->shouldLogSubActionsSeparately());
 }

@@ -258,7 +258,7 @@ bool AMAction3::canChangeState(State newState) const
         break;
 
     case Pausing:
-        if (state_ == Running)
+        if (canPause() && state_ == Running)
             canTransition = true;
         break;
 
