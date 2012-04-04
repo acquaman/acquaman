@@ -525,7 +525,10 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/util/AMFetchSpectrumThread.h \
 	source/util/AMDataSourcePlotSettings.h \
 	source/util/AMSelectablePeriodicTable.h \
-	source/ui/util/AMSelectablePeriodicTableView.h
+	source/ui/util/AMSelectablePeriodicTableView.h \
+	source/ui/dataman/AMDbObjectGeneralView.h \
+	source/ui/dataman/AMDbObjectGeneralViewSupport.h \
+	source/ui/dataman/AM2DScanConfigurationGeneralView.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -876,7 +879,10 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/acquaman/AM2DScanConfigurationViewHolder.cpp \
 	source/util/AMFetchSpectrumThread.cpp \
 	source/util/AMSelectablePeriodicTable.cpp \
-	source/ui/util/AMSelectablePeriodicTableView.cpp
+	source/ui/util/AMSelectablePeriodicTableView.cpp \
+	source/ui/dataman/AMDbObjectGeneralView.cpp \
+	source/ui/dataman/AMDbObjectGeneralViewSupport.cpp \
+	source/ui/dataman/AM2DScanConfigurationGeneralView.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -900,3 +906,9 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+

@@ -87,8 +87,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AM2DScan.h"
 #include "analysis/AM2DNormalizationAB.h"
 
-
 #include "dataman/database/AMDbObjectSupport.h"
+#include "ui/dataman/AMDbObjectGeneralView.h"
+#include "ui/dataman/AMDbObjectGeneralViewSupport.h"
+#include "acquaman/AM2DScanConfiguration.h"
+#include "ui/dataman/AM2DScanConfigurationGeneralView.h"
 
 
 AMDatamanAppController::AMDatamanAppController(QObject *parent) :
@@ -445,6 +448,9 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMWaitActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMControlMoveActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMScanControllerActionInfo>();
+
+	AMDbObjectGeneralViewSupport::registerClass<AMDbObject, AMDbObjectGeneralView>();
+	AMDbObjectGeneralViewSupport::registerClass<AM2DScanConfiguration, AM2DScanConfigurationGeneralView>();
 
 	return true;
 }
@@ -976,8 +982,6 @@ bool AMDatamanAppController::dropScanURLs(const QList<QUrl> &urls, AMGenericScan
 
 	return accepted;
 }
-
-#include "dataman/database/AMDbObjectSupport.h"
 
 bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *editor)
 {
