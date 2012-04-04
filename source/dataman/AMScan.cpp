@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMScanConfiguration.h"
 #include "application/AMPluginsManager.h"
 #include "dataman/AMScanDictionary.h"
+#include "util/AMErrorMonitor.h"
 
 #include <QDebug>
 
@@ -598,7 +599,7 @@ bool AMScan::loadData()
 
 	}
 	if(!accepts)
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -47, QString("Could not find a suitable plugin for loading the file format '%1'.  Check the Acquaman preferences for the correct plugin locations, and contact the Acquaman developers for assistance.").arg(fileFormat())));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMSCAN_CANNOT_FIND_SUITABLE_PLUGIN_FOR_FILE_FORMAT, QString("Could not find a suitable plugin for loading the file format '%1'.  Check the Acquaman preferences for the correct plugin locations, and contact the Acquaman developers for assistance.").arg(fileFormat())));
 
 	if(success)
 		for(int i=rawDataSources_.count()-1; i>=0; i--)

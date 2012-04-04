@@ -45,6 +45,8 @@ class AMScanDictionary;
 class AMScanController;
 #endif
 
+#define AMSCAN_CANNOT_FIND_SUITABLE_PLUGIN_FOR_FILE_FORMAT -2147
+
 /// This class is the base of all objects that represent a single 'scan' on a beamline.
 /*! AMScan provides access to the following information:
 
