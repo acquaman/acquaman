@@ -76,62 +76,18 @@ void AMLoopAction3::startImplementation()
 	internalDoNextAction();
 }
 
-void AMLoopAction3::internalOnCurrentActionStateChanged(int newState, int oldState)
+void AMLoopAction3::internalCleanupAction(AMAction3 *action)
 {
-    Q_UNUSED(oldState)
+    AMAction3 *cleanupAction = action ? action : currentSubAction_;
 
-    switch(newState) {
-    case Starting:
-        // If we were paused between actions and resuming, the next action is now running...
-        if(state() == Resuming)
-            setResumed();
-        return;
-    case Running:
-        // If we had a current action paused:
-        if(state() == Resuming)
-            setResumed();
-        return;
-    case Pausing:
-        return;
-    case Paused:
-        // the current action paused, so now we're paused. This will only happen if the current action supports pause and transitioned to it.
-        if(state() == Pausing) {
-            setPaused();
-        }
-        else {
-            qWarning() << "AMListAction: Warning: A sub-action was paused without cancelling its parent list action. This should not happen.";
-        }
-        return;
-    case Resuming:
-        return;
-    case Cancelling:
-        return;
-    case Cancelled:
-        if(state() == Cancelling) {
+    internalDisconnectAction(cleanupAction);
+    if(internalShouldLogSubAction(cleanupAction))
+        AMActionLog3::logCompletedAction(cleanupAction);
+    // delete it later (since we might still be executing inside the action's functions).
+    cleanupAction->deleteLater();
 
-            internalDisconnectAction(currentSubAction_);
-            if(internalShouldLogSubAction(currentSubAction_))
-                AMActionLog3::logCompletedAction(currentSubAction_);
-            // delete it later (since we might still be executing inside the action's functions).
-            currentSubAction_->deleteLater();
-            setCancelled();
-        }
-        else {
-            qWarning() << "AMListAction: Warning: A sub-action was cancelled without cancelling its parent list action. This should not happen.";
-        }
-        return;
-    case Succeeded:
-        internalDoNextAction();
-        return;
-    case Failed:
-        internalDisconnectAction(currentSubAction_);
-        if(internalShouldLogSubAction(currentSubAction_))
-            AMActionLog3::logCompletedAction(currentSubAction_);
-        // delete it later (since we might still be executing inside the action's functions).
-        currentSubAction_->deleteLater();(currentSubAction());
-        setFailed();
-        return;
-    }
+    if (!action)
+        currentSubAction_ = 0;
 }
 
 void AMLoopAction3::internalDoNextAction()

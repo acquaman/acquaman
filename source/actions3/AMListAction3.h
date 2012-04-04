@@ -55,9 +55,9 @@ public:
     virtual const AMAction3* subActionAt(int index) const;
 
 	/// In SequentialMode, returns the currently-running sub-action, or 0 if none is running.  Always returns 0 in ParallelMode.
-    const AMAction3* currentSubAction() const { return subActionAt(currentSubActionIndex()); }
+    virtual const AMAction3* currentSubAction() const { return subActionAt(currentSubActionIndex()); }
 	/// In SequentialMode, returns the currently-running sub-action, or 0 if none is running.  Always returns 0 in ParallelMode.
-    AMAction3* currentSubAction() { return subActionAt(currentSubActionIndex()); }
+    virtual AMAction3* currentSubAction() { return subActionAt(currentSubActionIndex()); }
 	/// In SequentialMode, returns the index of the currently-running sub-action. Returns -1 if prior to running any sub-actions, and subActionCount() if all sub-actions have been run.  Always returns -1 in ParalleMode.
     virtual int currentSubActionIndex() const { return currentSubActionIndex_; }
 
@@ -152,6 +152,8 @@ protected:
     void internalConnectAction(AMAction3* action);
     /// Helper function to disconnect a sub-action from our state-monitoring slots
     void internalDisconnectAction(AMAction3* action);
+    /// Virtual helper function to handle all clean up responsibilities for an action.  Disconnects and logs the action.  If no parameter is passed it will perform it's own custom cleanup based on the implementation.
+    virtual void internalCleanupAction(AMAction3 *action = 0);
 
     /// Helper function that returns true if we should log a sub-action ourselves when it finishes. True if: we're running inside AMActionRunner, we're supposed to log our sub-actions separately, AND \c action is not itself a nested action that is supposed to log its own sub-actions seperately.  (If \c action IS a nested action, but it's supposed to be logged as one unit, then we'll still log it ourselves.)
     bool internalShouldLogSubAction(AMAction3* action);
@@ -164,6 +166,30 @@ protected:
 	int currentSubActionIndex_;
     /// Flag that holds whether the sub actions should be logged separately.
     bool logSubActionsSeparately_;
+};
+
+/// This is a convenience class that builds a sequential list action.  Equivalent to AMListAction(info, SubActionMode::Sequential, parent).
+class AMSequentialListAction3 : public AMListAction3
+{
+    Q_OBJECT
+
+public:
+    /// Constructor.  Builds a sequential list action.
+    AMSequentialListAction3(AMActionInfo3 *info, QObject *parent = 0)
+        : AMListAction3(info, Sequential, parent)
+    {}
+};
+
+/// is a convenience class that builds a parallel list action.  Equivalent to AMListAction(info, SubActionMode::Parallel, parent).
+class AMParallelListAction3 : public AMListAction3
+{
+    Q_OBJECT
+
+public:
+    /// Constructor.  Builds a parallel list action.
+    AMParallelListAction3(AMActionInfo3 *info, QObject *parent = 0)
+        : AMListAction3(info, Parallel, parent)
+    {}
 };
 
 #endif // AMLISTACTION_H

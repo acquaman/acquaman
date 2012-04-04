@@ -31,6 +31,11 @@ public:
 	/// Returns the current loop iteration (ie: loop counter).  Will be 0 before and while running the first loop, 1 during the second loop, and finally loopCount() after the last loop is done.
 	int currentIteration() const { return currentIteration_; }
 
+    /// Returns the currently-running sub-action, or 0 if none is running.
+    virtual const AMAction3* currentSubAction() const { return currentSubAction_; }
+    /// Returns the currently-running sub-action, or 0 if none is running.
+    virtual AMAction3* currentSubAction() { return currentSubAction_; }
+
 	// new public functions:
 	/////////////////////////////
 
@@ -51,8 +56,6 @@ public slots:
 	void setLoopCount(int newLoopCount) { loopInfo()->setLoopCount(newLoopCount); }
 
 protected slots:
-	/// Called when the current action's state changes in any way. We do all of our decision making here on whether to succeed, fail, go on to the next sub-action or loop, etc.
-    virtual void internalOnCurrentActionStateChanged(int newState, int oldState);
 	/// Called when the current action's progress is updated. We use it to update our own progress
     virtual void internalOnCurrentActionProgressChanged(double numerator, double denominator);
 
@@ -64,15 +67,11 @@ protected:
     /////////////////////////
     /// This function is called from the Starting state when the implementation should initiate the action. Once the action is started, you should call notifyStarted().
     virtual void startImplementation();
-//	/// For actions which support pausing, this function is called from the Pausing state when the implementation should pause the action. Once the action is paused, you should call notifyPaused().  The base class implementation does nothing and must be re-implemented.
-//    virtual void pauseImplementation() { setPaused(); }  // Using the AMListAction pauseImplementation().
-//	/// For actions that support resuming, this function is called from the Paused state when the implementation should resume the action. Once the action is running again, you should call notifyResumed().
-//    virtual void resumeImplementation() { setResumed(); }  // Using the the AMListAction resumeImplementation().
-    /// All implementations must support cancelling. This function will be called from the Cancelling state. Implementations will probably want to examine the previousState(), which could be any of Starting, Running, Pausing, Paused, or Resuming. Once the action is cancelled and can be deleted, you should call notifyCancelled().
-//    virtual void cancelImplementation();
 
     /// Helper function to manage action and loop iterations. Does everything we need to do to move onto the next action (either at the beginning, or after the last one completes).
     virtual void internalDoNextAction();
+    /// Re-implemented.  Helper function to handle all clean up responsibilities for an action.  Disconnects, logs, and deletes the action.
+    virtual void internalCleanupAction(AMAction3 *action = 0);
 
     /// Our info() will always be an AMLoopActionInfo, but info() returns it as an AMActionInfo*.  This makes it easier to access.
     AMLoopActionInfo3* loopInfo() { return qobject_cast<AMLoopActionInfo3*>(info()); }

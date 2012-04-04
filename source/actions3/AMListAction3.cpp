@@ -272,7 +272,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 			return;
 		case Cancelled:
 			if(state() == Cancelling) {
-				internalDisconnectAction(currentSubAction());
+                internalCleanupAction();
 				setCancelled();
 			}
 			else {
@@ -283,8 +283,8 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
             internalDoNextAction();
             return;
 		case Failed:
-			internalDisconnectAction(currentSubAction());
-			setFailed();
+            internalCleanupAction();
+            setFailed();
 			return;
 		}
 	}
@@ -326,7 +326,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 			if(internalAllActionsInFinalState()) {
 				// disconnect all actions
                 foreach(AMAction3* action, subActions_)
-					internalDisconnectAction(action);
+                    internalCleanupAction(action);
 				// Any failures?
 				if(internalAnyActionsFailed())
 					setFailed();
@@ -344,12 +344,8 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 void AMListAction3::internalDoNextAction()
 {
     // in sequential mode, always move on to the next action here.
-    if (currentSubActionIndex_ >= 0){
-
-        internalDisconnectAction(currentSubAction());
-        if(internalShouldLogSubAction(currentSubAction()))
-            AMActionLog3::logCompletedAction(currentSubAction());
-    }
+    if (currentSubActionIndex_ >= 0)
+        internalCleanupAction();
 
     // Are we done the last action? If we are, we're done no matter what [even if supposed to be pausing]
     if(currentSubActionIndex_ < subActionCount()-1) {
@@ -473,6 +469,15 @@ void AMListAction3::internalDisconnectAction(AMAction3 *action)
 	disconnect(action, SIGNAL(stateChanged(int,int)), this, SLOT(internalOnSubActionStateChanged(int,int)));
 	disconnect(action, SIGNAL(progressChanged(double,double)), this, SLOT(internalOnSubActionProgressChanged(double,double)));
 	disconnect(action, SIGNAL(statusTextChanged(QString)), this, SLOT(internalOnSubActionStatusTextChanged(QString)));
+}
+
+void AMListAction3::internalCleanupAction(AMAction3 *action)
+{
+    AMAction3 *cleanupAction = action ? action : currentSubAction();
+
+    internalDisconnectAction(cleanupAction);
+    if (internalShouldLogSubAction(cleanupAction))
+        AMActionLog3::logCompletedAction(cleanupAction);
 }
 
 bool AMListAction3::internalAllActionsRunningOrFinal() const
