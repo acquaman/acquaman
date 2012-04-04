@@ -110,6 +110,7 @@ void AMErrorMon::reportF(AMErrorReport e) {
 		e.source = 0;
 	}
 
+	lastErrorCode_ = e.errorCode;
 	emit reportFF(e);
 }
 
