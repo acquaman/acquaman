@@ -55,8 +55,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterAthena.h"
 #include "dataman/export/VESPERS/VESPERSExporter2DAscii.h"
 
-#include "ui/actions3/AMWorkflowView3.h"
-
 #include <QFileDialog>
 #include <QMessageBox>
 
@@ -220,9 +218,6 @@ void VESPERSAppController::setupUserInterface()
 {
 	// Create panes in the main window:
 	////////////////////////////////////
-
-    AMWorkflowView3 *workflow = new AMWorkflowView3;
-    mw_->addPane(workflow, "Experiment Tools", "Workflow 3", ":/user-away.png");
 
 	assistant_ = new VESPERSWorkflowAssistant(workflowManagerView_, this);
 	VESPERSWorkflowAssistantView *assistantView = new VESPERSWorkflowAssistantView(assistant_);
