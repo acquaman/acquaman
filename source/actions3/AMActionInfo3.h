@@ -22,6 +22,7 @@ class AMActionInfo3 : public AMDbObject
 	Q_PROPERTY(QString longDescription READ longDescription WRITE setLongDescription)
 	Q_PROPERTY(QString iconFileName READ iconFileName WRITE setIconFileName)
 	Q_PROPERTY(double expectedDuration READ expectedDuration WRITE setExpectedDuration)
+	Q_PROPERTY(bool canCopy READ canCopy WRITE setCanCopy)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Action Info3")
 
@@ -53,6 +54,8 @@ public:
 	/// Returns the total expected duration in seconds. If the time to completion is unknown, this will return -1. This is usually set by the action implementation while running, but if you have an estimate of how long it will take before the action runs, it's fine to pre-load this.
 	double expectedDuration() const { return expectedDuration_; }
 
+	/// Returns whether this action can be copied.  There may be instances (ie: sub actions within a list) that you don't want to provide individual access to.  This way even if you see this action in the history, this flag will determine whether or not you can copy it or not.
+	bool canCopy() const { return canCopy_; }
 
 public slots:
 
@@ -66,6 +69,9 @@ public slots:
 	/// Sets the expected duration (total run time) of the action in seconds. It's good for action implementations to update this while running if they can figure it out.
 	void setExpectedDuration(double expectedDurationSeconds) { expectedDuration_ = expectedDurationSeconds; setModified(true); emit infoChanged(); emit expectedDurationChanged(expectedDuration_); }
 
+	/// Sets whether or not this action can be copied inside the workflow.
+	void setCanCopy(bool copy) { canCopy_ = copy; setModified(true); emit infoChanged(); }
+
 public:
 	// Database thumbnails: None for now... Use in AMActionLogItem later?
 	/////////////////////
@@ -75,7 +81,7 @@ public:
 	//	virtual AMDbThumbnail thumbnail(int index) const;
 
 signals:
-	/// Emitted when any basic information changes: shortDescription(), longDescription(), iconFileName().
+	/// Emitted when any basic information changes: shortDescription(), longDescription(), iconFileName(), canCopy().
 	void infoChanged();
 	/// Emitted when the expected duration changes.
 	void expectedDurationChanged(double seconds);
@@ -86,6 +92,7 @@ protected:
 	QString longDescription_;
 	QString iconFileName_;
 	double expectedDuration_;
+	bool canCopy_;
 };
 
 #endif // AMACTIONINFO3_H

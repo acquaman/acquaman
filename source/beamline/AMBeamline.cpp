@@ -23,9 +23,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMBeamline* AMBeamline::instance_ = 0;
 
 
-AMBeamline::AMBeamline(const QString& controlName) : AMControl(controlName, "n/a") {
-
-
+AMBeamline::AMBeamline(const QString& controlName)
+	: AMControl(controlName, "n/a")
+{
+	exposedControls_ = new AMControlSet(this);
 }
 
 AMBeamline::~AMBeamline()

@@ -7,6 +7,7 @@ AMActionInfo3::AMActionInfo3(const QString &shortDescription, const QString & lo
 {
 	setName(shortDescription);
 	expectedDuration_ = -1;
+	canCopy_ = true;
 }
 
 AMActionInfo3::AMActionInfo3(const AMActionInfo3& other)
@@ -16,6 +17,7 @@ AMActionInfo3::AMActionInfo3(const AMActionInfo3& other)
 {
 	setName(other.name());
 	expectedDuration_ = other.expectedDuration_;
+	canCopy_ = other.canCopy();
 }
 
 //AMDbThumbnail AMActionInfo3::thumbnail(int index) const

@@ -70,6 +70,15 @@ public:
 	/// Returns the current sample description if available (if not, should like be <Unknown Sample>)
 	virtual QString currentSampleDescription() { return "<Unknown Sample>"; }
 
+	/// Returns the control set that contains all of the public controls.  These are used with actions for automatic lookup.
+	AMControlSet *exposedControls() const { return exposedControls_; }
+	/// Returns a control based on the name of the control.  Returns 0 if no control is found.
+	AMControl *exposedControlByName(const QString &name) { return exposedControls_->controlNamed(name); }
+	/// Returns a control based on the control info.  Returns 0 if no control is found.
+	AMControl *exposedControlByInfo(const AMControlInfo &info) { return exposedControls_->controlNamed(info.name()); }
+
+	/// Adds a control to the exposed set.
+	void addExposedControl(AMControl *control) { exposedControls_->addControl(control); }
 
 signals:
 	/// Emit this signal whenever isBeamlineScanning() changes.
@@ -81,6 +90,8 @@ protected:
 	/// Instance variable
 	static AMBeamline* instance_;
 
+	/// A control set that contains all of the publicly (throughout the program) available controls for a beamline.  This is primarily used for AMControlMoveAction.
+	AMControlSet *exposedControls_;
 };
 
 #endif /*BEAMLINE_H_*/
