@@ -193,7 +193,10 @@ void AMActionRunner3::internalDoNextAction()
             AMAction3* oldAction = currentAction_;
 			emit currentActionChanged(currentAction_ = 0);
 			oldAction->deleteLater(); // the action might have sent notifyFailed() or notifySucceeded() in the middle a deep call stack... In that case, we might actually still be executing inside the action's code, so better not delete it until that all has a chance to finish. (Otherwise... Crash!)
-		}
+
+            if (queuedActionCount() == 0)
+                setQueuePaused(true);
+        }
 	}
 
 	// Otherwise, keep on keepin' on. Disconnect and delete the old current action (if there is one... If we're resuming from pause or starting for the first time, there won't be)., and connect and start the next one.

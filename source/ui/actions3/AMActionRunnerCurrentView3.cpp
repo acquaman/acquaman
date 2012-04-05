@@ -103,6 +103,8 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 void AMActionRunnerCurrentView3::onCurrentActionChanged(AMAction3* nextAction)
 {
 	cancelButton_->setDisabled((nextAction == 0));
+    pauseButton_->setEnabled(nextAction->canPause());
+
     if(nextAction && nextAction->state() == AMAction3::Paused) {
 		pauseButton_->setIcon(QIcon(":/22x22/media-playback-start.png"));
 		pauseButton_->setText("Resume");
@@ -225,7 +227,7 @@ void AMActionRunnerCurrentView3::onStateChanged(int state, int previousState)
 	}
 
 	// Can pause or resume from only these states:
-    pauseButton_->setEnabled(state == AMAction3::Running || state == AMAction3::Paused);
+    pauseButton_->setEnabled(actionRunner_->currentAction()->canPause() && (state == AMAction3::Running || state == AMAction3::Paused));
 }
 
 
