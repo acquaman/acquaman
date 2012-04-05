@@ -86,7 +86,7 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 	currentActionView_->setHeaderHidden(true);
 	currentActionView_->setAttribute(Qt::WA_MacShowFocusRect, false);
 
-	connect(actionRunner_, SIGNAL(currentActionChanged(AMAction*)), this, SLOT(onCurrentActionChanged(AMAction*)));
+	connect(actionRunner_, SIGNAL(currentActionChanged(AMAction3*)), this, SLOT(onCurrentActionChanged(AMAction3*)));
 	connect(cancelButton_, SIGNAL(clicked()), actionRunner_, SLOT(cancelCurrentAction()));
 	connect(pauseButton_, SIGNAL(clicked()), this, SLOT(onPauseButtonClicked()));
 
@@ -101,7 +101,7 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 }
 
 void AMActionRunnerCurrentView3::onCurrentActionChanged(AMAction3* nextAction)
-{
+{qDebug() << "Current View: " << (nextAction == 0) << nextAction;
 	cancelButton_->setDisabled((nextAction == 0));
 	pauseButton_->setEnabled(nextAction->canPause());
 
@@ -114,10 +114,10 @@ void AMActionRunnerCurrentView3::onCurrentActionChanged(AMAction3* nextAction)
 		pauseButton_->setText("Pause");
 	}
 
-	// model will handle the tree view on its own. But... we want to make some more visible room if it's a nested action, to show the sub-actions.
-	AMListAction3* nestedAction = qobject_cast<AMListAction3*>(nextAction);
-	if(nestedAction) {
-		currentActionView_->setMaximumHeight(qMin(168, int((nestedAction->subActionCount()+1)*48)));
+	// model will handle the tree view on its own. But... we want to make some more visible room if it's a list action, to show the sub-actions.
+	AMListAction3* listAction = qobject_cast<AMListAction3*>(nextAction);
+	if(listAction) {
+		currentActionView_->setMaximumHeight(qMin(168, int((listAction->subActionCount()+1)*48)));
 		QTimer::singleShot(0, currentActionView_, SLOT(expandAll()));
 	}
 	else {
@@ -289,9 +289,9 @@ int AMActionRunnerCurrentModel3::rowCount(const QModelIndex &parent) const
 	}
 
 	// otherwise, parent must represent an AMNestedAction
-	AMListAction3* nestedAction = qobject_cast<AMListAction3*>(actionAtIndex(parent));
-	if(nestedAction)
-		return nestedAction->subActionCount();
+	AMListAction3* listAction = qobject_cast<AMListAction3*>(actionAtIndex(parent));
+	if(listAction)
+		return listAction->subActionCount();
 	else
 		return 0;
 }
@@ -343,9 +343,9 @@ bool AMActionRunnerCurrentModel3::hasChildren(const QModelIndex &parent) const
 	if(!parent.isValid())
 		return true;	// top level: must have children.
 	else {
-		// other levels: have children if its a nested action, and the nested action has children.
-		AMListAction3* nestedAction = qobject_cast<AMListAction3*>(actionAtIndex(parent));
-		return (nestedAction && nestedAction->subActionCount() > 0);
+		// other levels: have children if its a list action, and the list action has children.
+		AMListAction3* listAction = qobject_cast<AMListAction3*>(actionAtIndex(parent));
+		return (listAction && listAction->subActionCount() > 0);
 	}
 }
 
@@ -375,7 +375,7 @@ QModelIndex AMActionRunnerCurrentModel3::indexForAction(AMAction3 *action) const
 		// we do a have parent action. Do a linear search for ourself in the parent AMNestedAction to find our row.
 		int row = ((AMListAction3 *)parentAction)->indexOfSubAction(action);
 		if(row == -1) {
-			qWarning() << "AMActionRunnerCurrentModel: Warning: action not found in nested action.";
+			qWarning() << "AMActionRunnerCurrentModel: Warning: action not found in list action.";
 			return QModelIndex();
 		}
 		return createIndex(row, 0, action);
