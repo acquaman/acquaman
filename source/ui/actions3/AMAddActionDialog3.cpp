@@ -10,9 +10,9 @@
 
 AMAddActionDialog3::AMAddActionDialog3(QWidget *parent) :
 	QDialog(parent, Qt::Tool),
-    ui(new Ui::AMAddActionDialog3)
+	ui(new Ui::AMAddActionDialog3)
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 
 	connect(ui->actionsListWidget, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this, SLOT(onListWidgetCurrentIndexChanged(QListWidgetItem*,QListWidgetItem*)));
 	populateWithRegisteredActions();
@@ -48,14 +48,14 @@ void AMAddActionDialog3::populateWithRegisteredActions()
 	ui->actionsListWidget->clear();
 
 	// grab the set of registered actions
-    QHash<QString, AMActionInfoActionRegistration3> registeredActions = AMActionRegistry3::s()->infoAndActionRegistry();
+	QHash<QString, AMActionInfoActionRegistration3> registeredActions = AMActionRegistry3::s()->infoAndActionRegistry();
 
 	// iterate through it, and add items to the list widget
-    QHashIterator<QString, AMActionInfoActionRegistration3> i(registeredActions);
+	QHashIterator<QString, AMActionInfoActionRegistration3> i(registeredActions);
 	while (i.hasNext()) {
 		i.next();
 
-        const AMActionInfoActionRegistration3& registration = i.value();
+		const AMActionInfoActionRegistration3& registration = i.value();
 		QListWidgetItem* item = new QListWidgetItem(registration.shortDescription, ui->actionsListWidget);
 		item->setIcon(QIcon(registration.iconFileName));
 		item->setData(AM::DescriptionRole, registration.longDescription);
@@ -76,23 +76,23 @@ void AMAddActionDialog3::onAddToWorkflowButtonClicked()
 	// Get the class name (key) of the selected actionInfo
 	QString className = currentItem->data(AM::NameRole).toString();
 	// Get the registration for that actionInfo
-    AMActionInfoActionRegistration3 registration = AMActionRegistry3::s()->infoAndActionRegistry().value(className);
+	AMActionInfoActionRegistration3 registration = AMActionRegistry3::s()->infoAndActionRegistry().value(className);
 	// Get the metaObject for the actionInfo. (If this class was no longer found in the registry, for whatever reason, this will be a default-constructed null registration.
 	if(!registration.actionInfoMetaObject)
 		return;
 
 	// Every actionInfo should have a default constructor, (since they are database objects, and we thought that would be a good requirement anyway)
-    AMActionInfo3* actionInfo = qobject_cast<AMActionInfo3*>(registration.actionInfoMetaObject->newInstance());
+	AMActionInfo3* actionInfo = qobject_cast<AMActionInfo3*>(registration.actionInfoMetaObject->newInstance());
 	if(!actionInfo) {
 		AMErrorMon::alert(this, -1, QString("There was a problem creating the action info '%1', likely because no Q_INVOKABLE constructor was specified. Please report this bug to the Acquaman developers.").arg(className));
 		return;
 	}
 
-    AMAction3* action = AMActionRegistry3::s()->createActionFromInfo(actionInfo);
+	AMAction3* action = AMActionRegistry3::s()->createActionFromInfo(actionInfo);
 	if(!action) {
 		AMErrorMon::alert(this, -2, QString("There was an error creating the action for '%1', because of a problem in the registration system. Please report this bug to the Acquaman developers.").arg(className));
 		return;
 	}
 
-    AMActionRunner3::s()->addActionToQueue(action);
+	AMActionRunner3::s()->addActionToQueue(action);
 }

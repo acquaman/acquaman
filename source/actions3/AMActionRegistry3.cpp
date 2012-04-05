@@ -70,7 +70,7 @@ bool AMActionRegistry3::registerInfoAndAction(const QMetaObject *infoMetaObject,
 	// insert into registry
 	actionInfo2Actions_.insert(
 				QString(infoMetaObject->className()),
-                AMActionInfoActionRegistration3(infoMetaObject, actionMetaObject, shortDescription, longDescription, iconFileName));
+				AMActionInfoActionRegistration3(infoMetaObject, actionMetaObject, shortDescription, longDescription, iconFileName));
 	// success!
 	return true;
 }
@@ -93,15 +93,15 @@ AMAction3 * AMActionRegistry3::createActionFromInfo(AMActionInfo3 *info)
 	const QMetaObject* actionMetaObject = actionInfo2Actions_.value(infoClassName).actionMetaObject;
 
 	// this usage of QGenericArgument (instead of the Q_ARG macro) is technically unsupported, but the only way to do it because we don't have the type at compile-time.
-    return qobject_cast<AMAction3*>(actionMetaObject->newInstance(
-									   QGenericArgument(infoClassName.append("*").toAscii().constData(),
-														static_cast<const void*>(&info))));
+	return qobject_cast<AMAction3*>(actionMetaObject->newInstance(
+						QGenericArgument(infoClassName.append("*").toAscii().constData(),
+								 static_cast<const void*>(&info))));
 }
 
 AMActionRegistry3 * AMActionRegistry3::s()
 {
 	if(!instance_)
-        instance_ = new AMActionRegistry3();
+		instance_ = new AMActionRegistry3();
 	return instance_;
 }
 
@@ -161,7 +161,7 @@ bool AMActionRegistry3::registerInfoAndEditor(const QMetaObject *infoMetaObject,
 	// insert into registry
 	actionInfo2Editors_.insert(
 				QString(infoMetaObject->className()),
-                AMActionInfoEditorRegistration3(infoMetaObject, editorMetaObject));
+				AMActionInfoEditorRegistration3(infoMetaObject, editorMetaObject));
 	// success!
 	return true;
 }
@@ -186,6 +186,6 @@ QWidget * AMActionRegistry3::createEditorForInfo(AMActionInfo3 *info)
 
 	// this usage of QGenericArgument (instead of the Q_ARG macro) is technically unsupported, but the only way to do it because we don't know the type at compile-time.
 	return qobject_cast<QWidget*>(editorMetaObject->newInstance(
-									  QGenericArgument(infoClassName.append("*").toAscii().constData(),
-													   static_cast<const void*>(&info))));
+					      QGenericArgument(infoClassName.append("*").toAscii().constData(),
+							       static_cast<const void*>(&info))));
 }

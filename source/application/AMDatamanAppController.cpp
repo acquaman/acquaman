@@ -281,6 +281,11 @@ bool AMDatamanAppController::startupCreateDatabases()
 	if(!db)
 		return false;
 
+	// Create the Actions database
+	AMDatabase *dbActions = AMDatabase::createDatabase("actions", AMUserSettings::userDataFolder%"/actionsData.db" );
+	if(!dbActions)
+		return false;
+
 	return true;
 }
 
@@ -409,6 +414,17 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	}
 
 	AMDbObjectSupport::s()->registerDatabase(db);
+
+	// Grab the Action database
+	AMDatabase *dbActions = AMDatabase::database("actions");
+	if(!dbActions)
+		return false;
+
+	// Register the Actions database
+	if(!AMDbObjectSupport::s()->registerDatabase(dbActions)) {
+		//AMErrorMon::alert(this, -702, "Error registering the SGM Database. Please report this problem to the Acquaman developers.");
+		return false;
+	}
 
 	AMDbObjectSupport::s()->registerClass<AMDbObject>();
 	AMDbObjectSupport::s()->registerClass<AMScan>();

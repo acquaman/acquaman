@@ -11,13 +11,13 @@ class AMLoopActionInfo3 : public AMActionInfo3
 
 public:
 	/// Constructor. Specify the \c loopCount: number of iterations you want to loop for
-    Q_INVOKABLE AMLoopActionInfo3(int iterations = 3, QObject *parent = 0);
+	Q_INVOKABLE AMLoopActionInfo3(int iterations = 3, QObject *parent = 0);
 
 	/// Copy Constructor
-    AMLoopActionInfo3(const AMLoopActionInfo3& other) : AMActionInfo3(other), loopCount_(other.loopCount_) {}
+	AMLoopActionInfo3(const AMLoopActionInfo3& other) : AMActionInfo3(other), loopCount_(other.loopCount_) {}
 
 	/// This function is used as a virtual copy constructor
-    virtual AMActionInfo3* createCopy() const { return new AMLoopActionInfo3(*this); }
+	virtual AMActionInfo3* createCopy() const { return new AMLoopActionInfo3(*this); }
 
 	// Re-implemented public functions
 	/////////////////////////////////

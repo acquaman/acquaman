@@ -22,7 +22,7 @@
 #include <QDebug>
 
 AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRunner, QWidget *parent) :
-    QWidget(parent)
+	QWidget(parent)
 {
 	actionRunner_ = actionRunner;
 
@@ -81,7 +81,7 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 	currentActionView_->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 	vl->addWidget(currentActionView_);
 
-    currentActionView_->setModel(new AMActionRunnerCurrentModel3(actionRunner_, this));
+	currentActionView_->setModel(new AMActionRunnerCurrentModel3(actionRunner_, this));
 	currentActionView_->setSelectionMode(QAbstractItemView::NoSelection);
 	currentActionView_->setHeaderHidden(true);
 	currentActionView_->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -103,7 +103,7 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 void AMActionRunnerCurrentView3::onCurrentActionChanged(AMAction3* nextAction)
 {
 	cancelButton_->setDisabled((nextAction == 0));
-    if(nextAction && nextAction->state() == AMAction3::Paused) {
+	if(nextAction && nextAction->state() == AMAction3::Paused) {
 		pauseButton_->setIcon(QIcon(":/22x22/media-playback-start.png"));
 		pauseButton_->setText("Resume");
 	}
@@ -113,7 +113,7 @@ void AMActionRunnerCurrentView3::onCurrentActionChanged(AMAction3* nextAction)
 	}
 
 	// model will handle the tree view on its own. But... we want to make some more visible room if it's a nested action, to show the sub-actions.
-    AMListAction3* nestedAction = qobject_cast<AMListAction3*>(nextAction);
+	AMListAction3* nestedAction = qobject_cast<AMListAction3*>(nextAction);
 	if(nestedAction) {
 		currentActionView_->setMaximumHeight(qMin(168, int((nestedAction->subActionCount()+1)*48)));
 		QTimer::singleShot(0, currentActionView_, SLOT(expandAll()));
@@ -162,7 +162,7 @@ void AMActionRunnerCurrentView3::onProgressChanged(double numerator, double deno
 
 void AMActionRunnerCurrentView3::onTimeUpdateTimer()
 {
-    AMAction3* currentAction = actionRunner_->currentAction();
+	AMAction3* currentAction = actionRunner_->currentAction();
 	if(currentAction) {
 		double elapsed = currentAction->runningTime();
 		double expectedDuration = currentAction->expectedDuration();
@@ -197,16 +197,16 @@ QString AMActionRunnerCurrentView3::formatSeconds(double seconds)
 
 void AMActionRunnerCurrentView3::onPauseButtonClicked()
 {
-    AMAction3* currentAction = actionRunner_->currentAction();
+	AMAction3* currentAction = actionRunner_->currentAction();
 	if(!currentAction)
 		return;
 
-    if(currentAction->state() == AMAction3::Paused) {
+	if(currentAction->state() == AMAction3::Paused) {
 		currentAction->resume();
 		return;
 	}
 
-    if(currentAction->state() == AMAction3::Running && currentAction->pause())
+	if(currentAction->state() == AMAction3::Running && currentAction->pause())
 		;	// successfully paused; do nothing.
 	else
 		QMessageBox::warning(this, "This action can't be paused", QString("This '%1' action cannot be paused right now.\n\n(Some actions just can't be paused, and others can't be paused at certain points in time.)").arg(currentAction->info()->typeDescription()), QMessageBox::Ok);
@@ -214,18 +214,18 @@ void AMActionRunnerCurrentView3::onPauseButtonClicked()
 
 void AMActionRunnerCurrentView3::onStateChanged(int state, int previousState)
 {
-    if(state == AMAction3::Paused) {
+	if(state == AMAction3::Paused) {
 		pauseButton_->setText("Resume");
 		pauseButton_->setIcon(QIcon(":/22x22/media-playback-start.png"));
 	}
 
-    if(previousState == AMAction3::Resuming) {
+	if(previousState == AMAction3::Resuming) {
 		pauseButton_->setText("Pause");
 		pauseButton_->setIcon(QIcon(":/22x22/media-playback-pause.png"));
 	}
 
 	// Can pause or resume from only these states:
-    pauseButton_->setEnabled(state == AMAction3::Running || state == AMAction3::Paused);
+	pauseButton_->setEnabled(state == AMAction3::Running || state == AMAction3::Paused);
 }
 
 
@@ -235,7 +235,7 @@ AMActionRunnerCurrentModel3::AMActionRunnerCurrentModel3(AMActionRunner3 *action
 	actionRunner_ = actionRunner;
 	currentAction_ = 0;
 
-    connect(actionRunner_, SIGNAL(currentActionChanged(AMAction3*)), this, SLOT(onCurrentActionChanged(AMAction3*)));
+	connect(actionRunner_, SIGNAL(currentActionChanged(AMAction3*)), this, SLOT(onCurrentActionChanged(AMAction3*)));
 }
 
 QModelIndex AMActionRunnerCurrentModel3::index(int row, int column, const QModelIndex &parent) const
@@ -253,7 +253,7 @@ QModelIndex AMActionRunnerCurrentModel3::index(int row, int column, const QModel
 	}
 	// There is a parent, so this is an index for a sub-action inside an AMNestedAction.
 	else {
-        AMListAction3* parentAction = qobject_cast<AMListAction3*>(actionAtIndex(parent));
+		AMListAction3* parentAction = qobject_cast<AMListAction3*>(actionAtIndex(parent));
 		if(!parentAction) {
 			qWarning() << "AMActionRunnerCurrentModel: Warning: Requested child index with invalid parent action.";
 			return QModelIndex();
@@ -271,7 +271,7 @@ QModelIndex AMActionRunnerCurrentModel3::parent(const QModelIndex &child) const
 	if(!child.isValid())
 		return QModelIndex();
 
-    AMAction3* childAction = actionAtIndex(child);
+	AMAction3* childAction = actionAtIndex(child);
 	if(!childAction)
 		return QModelIndex();
 
@@ -287,7 +287,7 @@ int AMActionRunnerCurrentModel3::rowCount(const QModelIndex &parent) const
 	}
 
 	// otherwise, parent must represent an AMNestedAction
-    AMListAction3* nestedAction = qobject_cast<AMListAction3*>(actionAtIndex(parent));
+	AMListAction3* nestedAction = qobject_cast<AMListAction3*>(actionAtIndex(parent));
 	if(nestedAction)
 		return nestedAction->subActionCount();
 	else
@@ -302,7 +302,7 @@ int AMActionRunnerCurrentModel3::columnCount(const QModelIndex &parent) const
 
 QVariant AMActionRunnerCurrentModel3::data(const QModelIndex &index, int role) const
 {
-    AMAction3* action = actionAtIndex(index);
+	AMAction3* action = actionAtIndex(index);
 	if(!action) {
 		qWarning() << "AMActionRunnerQueueModel: Warning: No action at index " << index;
 		return QVariant();
@@ -342,7 +342,7 @@ bool AMActionRunnerCurrentModel3::hasChildren(const QModelIndex &parent) const
 		return true;	// top level: must have children.
 	else {
 		// other levels: have children if its a nested action, and the nested action has children.
-        AMListAction3* nestedAction = qobject_cast<AMListAction3*>(actionAtIndex(parent));
+		AMListAction3* nestedAction = qobject_cast<AMListAction3*>(actionAtIndex(parent));
 		return (nestedAction && nestedAction->subActionCount() > 0);
 	}
 }
@@ -351,7 +351,7 @@ AMAction3 * AMActionRunnerCurrentModel3::actionAtIndex(const QModelIndex &index)
 {
 	if(!index.isValid())
 		return 0;
-    return static_cast<AMAction3*>(index.internalPointer());
+	return static_cast<AMAction3*>(index.internalPointer());
 }
 
 QModelIndex AMActionRunnerCurrentModel3::indexForAction(AMAction3 *action) const
@@ -359,7 +359,7 @@ QModelIndex AMActionRunnerCurrentModel3::indexForAction(AMAction3 *action) const
 	if(!action)
 		return QModelIndex();
 
-    AMAction3* parentAction = action->parentAction();
+	AMAction3* parentAction = action->parentAction();
 	if(!parentAction) {
 		// action is in the top-level. It must be the current action.
 		if(action == currentAction_)
@@ -371,7 +371,7 @@ QModelIndex AMActionRunnerCurrentModel3::indexForAction(AMAction3 *action) const
 	}
 	else {
 		// we do a have parent action. Do a linear search for ourself in the parent AMNestedAction to find our row.
-        int row = ((AMListAction3 *)parentAction)->indexOfSubAction(action);
+		int row = ((AMListAction3 *)parentAction)->indexOfSubAction(action);
 		if(row == -1) {
 			qWarning() << "AMActionRunnerCurrentModel: Warning: action not found in nested action.";
 			return QModelIndex();

@@ -48,7 +48,7 @@ bool AMActionLogItem3::loadLogDetailsFromDb() const
 
 	QStringList columns;
 	columns << "name" << "longDescription" << "iconFileName" << "startDateTime" << "endDateTime" << "finalState";
-    QVariantList values = db_->retrieve(id_, AMDbObjectSupport::s()->tableNameForClass<AMActionLog3>(), columns);
+	QVariantList values = db_->retrieve(id_, AMDbObjectSupport::s()->tableNameForClass<AMActionLog3>(), columns);
 	if(values.isEmpty())
 		return false;
 
@@ -117,7 +117,7 @@ QString AMActionLogItem3::iconFileName() const
 AMActionHistoryModel3::AMActionHistoryModel3(AMDatabase *db, QObject *parent) : QAbstractItemModel(parent)
 {
 	db_ = db;
-    actionLogTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMActionLog3>();
+	actionLogTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMActionLog3>();
 	visibleActionsCount_ = 0;
 	maximumActionsLimit_ = 200;
 
@@ -176,49 +176,49 @@ void AMActionHistoryModel3::refreshFromDb()
 	// both newest and oldest limits:
 	if(visibleRangeOldest_.isValid() && visibleRangeNewest_.isValid()) {
 		q = db_->select(actionLogTableName_,
-						"id",
-						"endDateTime BETWEEN ? AND ? ORDER BY endDateTime DESC LIMIT ?");
+				"id",
+				"endDateTime BETWEEN ? AND ? ORDER BY endDateTime DESC LIMIT ?");
 		q.bindValue(0, visibleRangeOldest_);
 		q.bindValue(1, visibleRangeNewest_);
 		q.bindValue(2, maximumActionsLimit_);
 		q2 = db_->select(actionLogTableName_,
-						 "COUNT(1)",
-						 "endDateTime BETWEEN ? AND ?");
+				 "COUNT(1)",
+				 "endDateTime BETWEEN ? AND ?");
 		q2.bindValue(0, visibleRangeOldest_);
 		q2.bindValue(1, visibleRangeNewest_);
 	}
 	// only an oldest limit:
 	else if(visibleRangeOldest_.isValid()) {
 		q = db_->select(actionLogTableName_,
-						"id",
-						"endDateTime >= ? ORDER BY endDateTime DESC LIMIT ?");
+				"id",
+				"endDateTime >= ? ORDER BY endDateTime DESC LIMIT ?");
 		q.bindValue(0, visibleRangeOldest_);
 		q.bindValue(1, maximumActionsLimit_);
 		q2 = db_->select(actionLogTableName_,
-						 "COUNT(1)",
-						 "endDateTime >= ?");
+				 "COUNT(1)",
+				 "endDateTime >= ?");
 		q2.bindValue(0, visibleRangeOldest_);
 	}
 	// only a newest limit:
 	else if(visibleRangeNewest_.isValid()) {
 		q = db_->select(actionLogTableName_,
-						"id",
-						"endDateTime <= ? ORDER BY endDateTime DESC LIMIT ?");
+				"id",
+				"endDateTime <= ? ORDER BY endDateTime DESC LIMIT ?");
 		q.bindValue(0, visibleRangeNewest_);
 		q.bindValue(1, maximumActionsLimit_);
 		q2 = db_->select(actionLogTableName_,
-						 "COUNT(1)",
-						 "endDateTime <= ?");
+				 "COUNT(1)",
+				 "endDateTime <= ?");
 		q2.bindValue(0, visibleRangeNewest_);
 	}
 	// everything:
 	else {
 		q = db_->select(actionLogTableName_,
-						"id",
-						"1 ORDER BY endDateTime DESC LIMIT ?");
+				"id",
+				"1 ORDER BY endDateTime DESC LIMIT ?");
 		q.bindValue(0, maximumActionsLimit_);
 		q2 = db_->select(actionLogTableName_,
-						 "COUNT(1)");
+				 "COUNT(1)");
 	}
 
 	// run the query and get the ids:
@@ -243,7 +243,7 @@ void AMActionHistoryModel3::refreshFromDb()
 		// add AMActionLogItem items going backward, so they are now in ascending order (ie: most recent at bottom).
 		beginInsertRows(QModelIndex(), 0, ids.count()-1);
 		for(int i=ids.count()-1; i>=0; i--)
-            items_ << new AMActionLogItem3(db_, ids.at(i));
+			items_ << new AMActionLogItem3(db_, ids.at(i));
 		endInsertRows();
 	}
 
@@ -267,7 +267,7 @@ void AMActionHistoryModel3::onDatabaseItemCreated(const QString &tableName, int 
 
 	// OK, this is a specific update.
 	// find out if this action's endDateTime is within our visible date range
-    AMActionLogItem3* item = new AMActionLogItem3(db_, id);
+	AMActionLogItem3* item = new AMActionLogItem3(db_, id);
 	if(insideVisibleDateTimeRange(item->endDateTime())) {
 		emit modelAboutToBeRefreshed();
 		/// \todo Ordering... This may end up at the wrong spot until a full refresh is done.  Most of the time, any actions added will be the most recent ones, however that is not guaranteed.
@@ -312,7 +312,7 @@ void AMActionHistoryModel3::refreshSpecificIds()
 
 	// go through all our rows, and see if any of them need to be updated.
 	for(int i=0, cc=rowCount(); i<cc; i++) {
-        AMActionLogItem3* itemToRefresh = items_.at(i);
+		AMActionLogItem3* itemToRefresh = items_.at(i);
 		if(idsRequiringRefresh_.contains(itemToRefresh->id())) {
 			itemToRefresh->refresh();
 			// If the end date time has changed to be outside of our visible range, it shouldn't be shown any more.
@@ -356,7 +356,7 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	actionRunner_ = actionRunner;
 	db_ = db;
 
-    model_ = new AMActionHistoryModel3(db_, this);
+	model_ = new AMActionHistoryModel3(db_, this);
 	model_->setMaximumActionsToDisplay(100);
 	QDateTime fourHoursAgo = QDateTime::currentDateTime().addSecs(-4*60*60);
 	model_->setVisibleDateTimeRange(fourHoursAgo);
@@ -574,7 +574,7 @@ QVariant AMActionHistoryModel3::data(const QModelIndex &index, int role) const
 	if(index.row() >= items_.count())
 		return QVariant();
 
-    AMActionLogItem3* item = items_.at(index.row());
+	AMActionLogItem3* item = items_.at(index.row());
 
 	if(role == Qt::DisplayRole) {
 		switch(index.column()) {
@@ -603,9 +603,9 @@ QVariant AMActionHistoryModel3::data(const QModelIndex &index, int role) const
 		// column 1: return the status icon
 		else if(index.column() == 1) {
 			switch(item->finalState()) {
-            case AMAction3::Succeeded: return succeededIcon_;
-            case AMAction3::Cancelled: return cancelledIcon_;
-            case AMAction3::Failed: return failedIcon_;
+			case AMAction3::Succeeded: return succeededIcon_;
+			case AMAction3::Cancelled: return cancelledIcon_;
+			case AMAction3::Failed: return failedIcon_;
 			default: return unknownIcon_;
 			}
 		}
@@ -627,20 +627,20 @@ QVariant AMActionHistoryModel3::data(const QModelIndex &index, int role) const
 		}
 		else if(index.column() == 1) {
 			switch(item->finalState()) {
-            case AMAction3::Succeeded: return "Succeeded";
-            case AMAction3::Cancelled: return "Cancelled";
-            case AMAction3::Failed: return "Failed";
+			case AMAction3::Succeeded: return "Succeeded";
+			case AMAction3::Cancelled: return "Cancelled";
+			case AMAction3::Failed: return "Failed";
 			default: return "[?]";
 			}
 		}
 	}
 	else if(role == Qt::BackgroundRole) {
 		switch(item->finalState()) {
-        case AMAction3::Succeeded:
+		case AMAction3::Succeeded:
 			return QColor(126, 255, 106);// light green
-        case AMAction3::Cancelled:
+		case AMAction3::Cancelled:
 			return QColor(255, 176, 106);// light orange
-        case AMAction3::Failed:
+		case AMAction3::Failed:
 			return QColor(255, 104, 106);// light red
 		default:
 			return QVariant();
@@ -694,7 +694,7 @@ bool AMActionHistoryModel3::deleteRow(int index)
 		return false;
 
 	beginRemoveRows(QModelIndex(), index, index);
-    AMActionLogItem3* deleteMe = items_.takeAt(index);
+	AMActionLogItem3* deleteMe = items_.takeAt(index);
 	endRemoveRows();
 	delete deleteMe;
 	return true;
@@ -708,11 +708,11 @@ void AMActionHistoryView3::onReRunActionButtonClicked()
 
 	// go through all selected rows.
 	foreach(QModelIndex i, treeView_->selectionModel()->selectedRows(0)) {
-        AMActionLogItem3* item = model_->logItem(i);
+		AMActionLogItem3* item = model_->logItem(i);
 		if(!item)
 			continue;
 		// load the full actionLog.
-        AMActionLog3 actionLog;
+		AMActionLog3 actionLog;
 		if(!actionLog.loadFromDb(item->database(), item->id())) {
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -57, "Could not load the action log for id " % QString::number(item->id()) % " from the database. Please report this problem to the Acquaman developers."));
 			continue;
@@ -722,10 +722,10 @@ void AMActionHistoryView3::onReRunActionButtonClicked()
 			continue;
 		}
 		// make a copy of the AMActionInfo.
-        AMActionInfo3* info = actionLog.info()->createCopy();
+		AMActionInfo3* info = actionLog.info()->createCopy();
 
 		// make an action (assuming the actionInfo is registered with a corresponding action)
-        AMAction3* action = AMActionRegistry3::s()->createActionFromInfo(info);
+		AMAction3* action = AMActionRegistry3::s()->createActionFromInfo(info);
 		if(!action) {
 			QMessageBox::warning(this, "Cannot re-run this action", "Could not re-run this action because running the '" % info->typeDescription() %  "' action isn't enabled for your beamline's version of Acquaman. If you don't think this should be the case, please report this to the Acquaman developers.");
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -59, "Could not re-run this action because running '" % actionLog.name() % "' isn't enabled for your beamline's version of Acquaman. If you don't think this should be the case, please report this to the Acquaman developers."));

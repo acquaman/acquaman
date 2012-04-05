@@ -1,7 +1,7 @@
 #include "AMActionLog3.h"
 
 AMActionLog3::AMActionLog3(QObject *parent) :
-    AMDbObject(parent)
+	AMDbObject(parent)
 {
 	info_ = 0;
 	finalState_ = 0;
@@ -81,7 +81,7 @@ void AMActionLog3::dbLoadFinalState(int finalState)
 
 void AMActionLog3::dbLoadInfo(AMDbObject *newInfo)
 {
-    AMActionInfo3* info = qobject_cast<AMActionInfo3*>(newInfo);
+	AMActionInfo3* info = qobject_cast<AMActionInfo3*>(newInfo);
 	if(info) {
 		delete info_;
 		info_ = info;
@@ -97,7 +97,7 @@ void AMActionLog3::dbLoadInfo(AMDbObject *newInfo)
 bool AMActionLog3::logCompletedAction(const AMAction3 *completedAction, AMDatabase *database)
 {
 	if(completedAction && completedAction->inFinalState()) {
-        AMActionLog3 actionLog(completedAction);
+		AMActionLog3 actionLog(completedAction);
 		return actionLog.storeToDb(database);
 	}
 	else {

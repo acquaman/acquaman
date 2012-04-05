@@ -18,10 +18,12 @@ AMNumberChangeActionEditor::AMNumberChangeActionEditor(AMNumberChangeActionInfo 
 	hl->addWidget(new QLabel("Index: "));
 	indexSpinBox_ = new QSpinBox();
 	indexSpinBox_->setRange(0, AMNumberChangeActionSupport::AMNumberChangeActionList()->count()-1);
+	indexSpinBox_->setValue(info_->indexToChange());
 	hl->addWidget(indexSpinBox_);
 	hl->addWidget(new QLabel("New Number: "));
 	newNumberSpinBox_ = new QSpinBox();
 	newNumberSpinBox_->setRange(-9999, 9999);
+	newNumberSpinBox_->setValue(info_->newNumber());
 	hl->addWidget(newNumberSpinBox_);
 	hl->addStretch(0);
 

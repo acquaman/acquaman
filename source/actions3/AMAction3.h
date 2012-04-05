@@ -49,37 +49,37 @@ public:
 
 	/// This enum describes the states that an action can be in.
 	enum State { Constructed = 0,
-				 Starting,
-				 Running,
-				 Pausing,
-				 Paused,
-				 Resuming,
-				 Cancelling,
-				 Cancelled,
-				 Succeeded,
-				 Failed
-			   };
+		     Starting,
+		     Running,
+		     Pausing,
+		     Paused,
+		     Resuming,
+		     Cancelling,
+		     Cancelled,
+		     Succeeded,
+		     Failed
+		   };
 	/// When running inside AMActionRunner, or as a sub-action in AMListAction, this enum specifies what to do if the action fails
 	enum FailureResponse { MoveOnResponse = 0,
-						   AttemptAnotherCopyResponse,
-						   PromptUserResponse
-						 };
+			       AttemptAnotherCopyResponse,
+			       PromptUserResponse
+			     };
 
 	// Constructor and life-cycle management
 	/////////////////
 
 	/// Constructor: create an action to run the specified AMActionInfo.
-    AMAction3(AMActionInfo3* info, QObject *parent = 0);
+	AMAction3(AMActionInfo3* info, QObject *parent = 0);
 
 	/// Copy constructor. Takes care of making copies of the info and prerequisites. NOTE that the state() is reset to Constructed: the copy should look like a new action that hasn't been run yet.
-    AMAction3(const AMAction3& other);
+	AMAction3(const AMAction3& other);
 
-    /// This virtual function takes the role of a virtual copy constructor. This implementation always returns 0; therefore, all actions MUST RE-IMPLEMENT to be able to create and return a an independent copy of themselves. (This allows us to get a detailed subclass copy without knowing the type of the action.) NOTE that the returned instance should be a perfect copy except for the state() -- which will be reset to Constructed -- and any other subclass-specific state information: the copy should look like a new action that hasn't been run yet.
+	/// This virtual function takes the role of a virtual copy constructor. This implementation always returns 0; therefore, all actions MUST RE-IMPLEMENT to be able to create and return a an independent copy of themselves. (This allows us to get a detailed subclass copy without knowing the type of the action.) NOTE that the returned instance should be a perfect copy except for the state() -- which will be reset to Constructed -- and any other subclass-specific state information: the copy should look like a new action that hasn't been run yet.
 	/*! It's recommended to make use of the copy constructor when implementing this, to ensure that the base class is copied properly.*/
-    virtual AMAction3* createCopy() const { return 0; }
+	virtual AMAction3* createCopy() const { return 0; }
 
 	/// Destructor: deletes the info and prerequisites
-    virtual ~AMAction3();
+	virtual ~AMAction3();
 
 
 	// Info API
@@ -89,8 +89,8 @@ public:
 	/*! (For example: a user viewing a history of their SGM beamline actions inside their take-home Dataman program, or when on another beamline. Theoretically, this approach could even let someone plan and queue up beamline actions at home to run once they get to the beamline.)
 
 You can use a generic AMActionInfo in an AMAction-subclass constructor, but if you want to be able to re-create live actions from historical ones, you should provide a unique info subclass with sufficient information to completely specify/re-create the action, and register your Info-Action pair with AMActionRegistry::registerInfoAndAction().*/
-    const AMActionInfo3* info() const { return info_; }
-    AMActionInfo3* info() { return info_; }
+	const AMActionInfo3* info() const { return info_; }
+	AMActionInfo3* info() { return info_; }
 
 	// Action Timing: start time, end time, cumulative elapsed time, etc.  All of this is managed by the base class for you.
 	////////////////////////
@@ -104,7 +104,7 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 	/// Returns the number of seconds that this action has been in the Paused and Pausing states for.
 	double pausedTime() const;
 	/// Returns the number of seconds that this action has actually been running for, <i>excluding</i> time spent in the Paused (and Pausing) and WaitingForPrereqs states.
-    double runningTime() const { if(!startDateTime_.isValid()) return -1.0; return elapsedTime() - pausedTime(); }
+	double runningTime() const { if(!startDateTime_.isValid()) return -1.0; return elapsedTime() - pausedTime(); }
 
 	/// Returns a description of the action's status, for example, "Waiting for the beamline energy to reach the setpoint".  Implementations should update this while the action is running using setStatusText().
 	/*! Even if you don't ever call this, the base class implementation will at at least call it on every state change with the name of the state. (For example: when the state changes to running, the status text will change to "Running".) You can always call it again after the state change/in-between state changes to provide more details to the user.*/
@@ -131,16 +131,16 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 	///////////////////////
 
 	/// Sometimes, actions are formally bundled inside other actions using the AMNestedAction API. If this action happens to be found inside a nested action, this returns a pointer to the nested action. Normally, it returns 0.
-    const AMAction3* parentAction() const { return parentAction_; }
+	const AMAction3* parentAction() const { return parentAction_; }
 	/// Sometimes, actions are formally bundled inside other actions using the AMNestedAction API. If this action happens to be found inside a nested action, this returns a pointer to the nested action. Normally, it returns 0.
-    AMAction3* parentAction() { return parentAction_; }
+	AMAction3* parentAction() { return parentAction_; }
 	/// This function should not be considered part of the public interface. It is used by nested actions to set the parent action. NEVER CALL THIS FUNCTION.
-    void setParentAction(AMAction3* parentAction) { parentAction_ = parentAction; }
+	void setParentAction(AMAction3* parentAction) { parentAction_ = parentAction; }
 
-    /// Pure virtual function that denotes that this action has children underneath it or not.
-    virtual bool hasChildren() const = 0;
-    /// Pure virtual function that returns the number of children for this action.
-    virtual int numberOfChildren() const = 0;
+	/// Pure virtual function that denotes that this action has children underneath it or not.
+	virtual bool hasChildren() const = 0;
+	/// Pure virtual function that returns the number of children for this action.
+	virtual int numberOfChildren() const = 0;
 
 
 public slots:
@@ -189,17 +189,17 @@ signals:
 
 	// convenience synonyms for state changed to a final state.
 	//////////////////////////
-    /// Emitted when the state changes to Paused.  Synonym for stateChanged(Pausing, Paused).
-    void paused();
-    /// Emitted when the state changes to Resumed.  Synonym for stateChanged(Resuming, Running).
-    void resumed();
-    /// Emitted when the state changes to Running.  Synonym for stateChanged(Constructed, Running).
-    void started();
-    /// Emitted when the state changes to Succeeded.
+	/// Emitted when the state changes to Paused.  Synonym for stateChanged(Pausing, Paused).
+	void paused();
+	/// Emitted when the state changes to Resumed.  Synonym for stateChanged(Resuming, Running).
+	void resumed();
+	/// Emitted when the state changes to Running.  Synonym for stateChanged(Constructed, Running).
+	void started();
+	/// Emitted when the state changes to Succeeded.
 	void succeeded();
-    /// Emitted when the state changes to Failed.
+	/// Emitted when the state changes to Failed.
 	void failed();
-    /// Emitted when the state changes to Cancelled.
+	/// Emitted when the state changes to Cancelled.
 	void cancelled();
 
 
@@ -225,20 +225,20 @@ protected:
 
 	// The following functions are used to define the unique behaviour of the action.  We set them up in this way so that subclasses don't need to worry about (and cannot) break the state machine logic; they only need to fill in their pieces.
 
-    // These pure-virtual functions allow subclasses to implement their unique action behaviour.  They are called at the appropriate time by the base class, when base-class-initiated state changes happen: ->Starting, ->Cancelling, ->Pausing, ->Resuming
+	// These pure-virtual functions allow subclasses to implement their unique action behaviour.  They are called at the appropriate time by the base class, when base-class-initiated state changes happen: ->Starting, ->Cancelling, ->Pausing, ->Resuming
 	/////////////////////////
 	/// This function is called from the Starting state when the implementation should initiate the action. Once the action is started, you should call notifyStarted().
-    virtual void startImplementation() = 0;
+	virtual void startImplementation() = 0;
 
 	/// For actions which support pausing, this function is called from the Pausing state when the implementation should pause the action. Once the action is paused, you should call notifyPaused().  The base class implementation does nothing and must be re-implemented.
-    virtual void pauseImplementation() = 0;
+	virtual void pauseImplementation() = 0;
 
 	/// For actions that support resuming, this function is called from the Paused state when the implementation should resume the action. Once the action is running again, you should call notifyResumed().
-    virtual void resumeImplementation() = 0;
+	virtual void resumeImplementation() = 0;
 
 	/// All implementations must support cancelling. This function will be called from the Cancelling state. Implementations will probably want to examine the previousState(), which could be any of Starting, Running, Pausing, Paused, or Resuming. Once the action is cancelled and can be deleted, you should call notifyCancelled().
 	/*! \note If startImplementation() was never called, you won't receive this when a user tries to cancel(); the base class will handle it for you. */
-    virtual void cancelImplementation() = 0;
+	virtual void cancelImplementation() = 0;
 
 
 
@@ -246,25 +246,25 @@ protected:
 	///////////////////////
 
 	/// Call this after receiving startImplementation() to inform the base class that the action has started, and we should go from Starting to Running.
-    void setStarted();
+	void setStarted();
 	/// Call this to inform the base class that the action has succeeded. It should be OK to delete the action after receiving this.
-    void setSucceeded();
+	void setSucceeded();
 	/// Call this to inform the base class that the action has failed. It should be OK to delete the action after receiving this.
-    void setFailed();
+	void setFailed();
 	/// Call this after receiving pauseImplementation() to inform the base class that the action has been paused, and we should go from Pausing to Paused.
-    void setPaused();
+	void setPaused();
 	/// Call this after receiving resumeImplementation() to inform the base class that the action has been resumed, and we should go from Resuming to Running.
-    void setResumed();
+	void setResumed();
 	/// Call this after receiving cancelImplementation() to inform the base class that the action has been cancelled, and we should go from Cancelling to Cancelled.
-    void setCancelled();
+	void setCancelled();
 
 private:
-    /// Changes states (if possible).
+	/// Changes states (if possible).
 	void setState(State newState);
-    /// Checks whether you can make the the transition to the new state.
-    bool canChangeState(State newState) const;
+	/// Checks whether you can make the the transition to the new state.
+	bool canChangeState(State newState) const;
 
-    State state_, previousState_;
+	State state_, previousState_;
 
 	FailureResponse failureResponseInActionRunner_;
 	FailureResponse failureResponseAsSubAction_;
@@ -273,11 +273,11 @@ private:
 	QDateTime startDateTime_, endDateTime_;
 	QString statusText_;
 
-    AMAction3* parentAction_;
+	AMAction3* parentAction_;
 
 private:
 	/// A pointer to our associated AMActionInfo object
-    AMActionInfo3* info_;
+	AMActionInfo3* info_;
 	/// This variable tracks the number of seconds that the action has spent in the Paused or Pausing states; we use it to implement runningTime().
 	/*! \note It is only updated _after_ the action has resume()d.*/
 	double secondsSpentPaused_;

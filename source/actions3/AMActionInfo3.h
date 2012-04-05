@@ -23,19 +23,19 @@ class AMActionInfo3 : public AMDbObject
 	Q_PROPERTY(QString iconFileName READ iconFileName WRITE setIconFileName)
 	Q_PROPERTY(double expectedDuration READ expectedDuration WRITE setExpectedDuration)
 
-    Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Action Info3")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Action Info3")
 
 public:
 	/// Constructor
-    Q_INVOKABLE AMActionInfo3(const QString& shortDescription = "Generic Action", const QString& longDescription = QString(), const QString& iconFileName = QString(), QObject *parent = 0);
+	Q_INVOKABLE AMActionInfo3(const QString& shortDescription = "Generic Action", const QString& longDescription = QString(), const QString& iconFileName = QString(), QObject *parent = 0);
 	/// Copy Constructor
-    AMActionInfo3(const AMActionInfo3& other);
+	AMActionInfo3(const AMActionInfo3& other);
 
 	/// This function is used as a virtual copy constructor, so we can make detailed copies of info instances without knowing their detailed type. It must be re-implemented by each subclass, and we strongly suggest implementing and using the copy constructor, ie: createCopy() { return new MyAMActionInfo(*this); }
-    virtual AMActionInfo3* createCopy() const { return new AMActionInfo3(*this); }
+	virtual AMActionInfo3* createCopy() const { return new AMActionInfo3(*this); }
 
 	/// Destructor: nothing required in the base class
-    virtual ~AMActionInfo3() {}
+	virtual ~AMActionInfo3() {}
 
 
 	/// This should describe the type of the action, for example, "REIXS Sample Move Action"; it should be re-implemented by subclasses.

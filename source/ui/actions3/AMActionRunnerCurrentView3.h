@@ -19,7 +19,7 @@ class AMActionRunnerCurrentModel3 : public QAbstractItemModel {
 	Q_OBJECT
 public:
 	/// Constructor.
-    AMActionRunnerCurrentModel3(AMActionRunner3* actionRunner, QObject* parent = 0);
+	AMActionRunnerCurrentModel3(AMActionRunner3* actionRunner, QObject* parent = 0);
 
 	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
 
@@ -34,16 +34,16 @@ public:
 
 	bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
 
-    AMAction3* actionAtIndex(const QModelIndex& index) const;
+	AMAction3* actionAtIndex(const QModelIndex& index) const;
 	// requires a linear search of the \c action's parentAction(), or of the actionRunner queue if the action is at the top level.
-    QModelIndex indexForAction(AMAction3* action) const;
+	QModelIndex indexForAction(AMAction3* action) const;
 
 protected slots:
-    void onCurrentActionChanged(AMAction3* currentAction);
+	void onCurrentActionChanged(AMAction3* currentAction);
 
 protected:
-    AMActionRunner3* actionRunner_;
-    AMAction3* currentAction_;
+	AMActionRunner3* actionRunner_;
+	AMAction3* currentAction_;
 };
 
 // Previously:
@@ -69,10 +69,10 @@ protected:
 /// This class provides a view of the currently-running action in the AMActionRunner. It is part of the overall AMWorkflowView.
 class AMActionRunnerCurrentView3 : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	/// Constructor. Should pass in AMActionRunner::s() for \c actionRunner
-    AMActionRunnerCurrentView3(AMActionRunner3* actionRunner, QWidget *parent = 0);
+	AMActionRunnerCurrentView3(AMActionRunner3* actionRunner, QWidget *parent = 0);
 
 signals:
 
@@ -80,7 +80,7 @@ public slots:
 
 protected slots:
 	/// When the current action in the AMActionRunner changes
-    void onCurrentActionChanged(AMAction3*);
+	void onCurrentActionChanged(AMAction3*);
 
 	/// When the pause button is clicked for the current action
 	void onPauseButtonClicked();
@@ -104,13 +104,13 @@ protected:
 	QString formatSeconds(double seconds);
 
 	QTreeView* currentActionView_;
-//	QStandardItemModel* currentActionModel_;
+	//	QStandardItemModel* currentActionModel_;
 
 	QPushButton* cancelButton_, *pauseButton_;
 	QProgressBar* progressBar_;
 	QLabel* timeElapsedLabel_, * timeRemainingLabel_, *headerTitle_, *headerSubTitle_;
 
-    AMActionRunner3* actionRunner_;
+	AMActionRunner3* actionRunner_;
 
 
 };

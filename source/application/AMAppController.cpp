@@ -18,8 +18,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
+#include <QStringBuilder>
+
 #include "AMAppController.h"
 
+#include "dataman/database/AMDbObjectSupport.h"
 #include "ui/AMWorkflowManagerView.h"
 #include "ui/AMMainWindow.h"
 #include "ui/dataman/AMGenericScanEditor.h"
@@ -31,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMActionRunner3.h"
 #include "actions3/AMActionRegistry3.h"
 #include "actions3/AMLoopAction3.h"
+#include "actions3/editors/AMLoopActionEditor3.h"
 #include "actions3/actions/AMNumberChangeAction.h"
 #include "actions3/editors/AMNumberChangeActionEditor.h"
 
@@ -56,6 +60,8 @@ bool AMAppController::startup(){
 		bool success = true;
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMNumberChangeActionInfo, AMNumberChangeAction>("Number Change", "Changes a number in the list", ":/system-run.png");
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMNumberChangeActionInfo, AMNumberChangeActionEditor>();
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMLoopActionInfo3, AMLoopAction3>("Loop", "This action repeats a set of sub-actions a specific number of times.\n\nAfter adding it, you can drag-and-drop other actions inside it.", ":/32x32/media-playlist-repeat.png");
+		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMLoopActionInfo3, AMLoopActionEditor3>();
 
 		return success;
 	}

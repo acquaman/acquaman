@@ -15,7 +15,7 @@ class AMActionLog3;
 class AMActionLogItem3 {
 public:
 	/// Constructor requires the \c id of the AMActionLog and the database \c db where it is stored.
-    AMActionLogItem3(AMDatabase* db, int id);
+	AMActionLogItem3(AMDatabase* db, int id);
 
 	/// Call this to refresh the item's content from the database
 	void refresh() { loadedFromDb_ = false; }
@@ -66,9 +66,9 @@ class AMActionHistoryModel3 : public QAbstractItemModel
 public:
 
 	/// Constructor: \c db is the user database to show completed actions from.  Does not refresh the model automatically on creation; you will need to call refreshFromDb().
-    AMActionHistoryModel3(AMDatabase* db, QObject* parent = 0);
+	AMActionHistoryModel3(AMDatabase* db, QObject* parent = 0);
 	/// Destructor: deletes all the AMActionItemLog instances in items_
-    virtual ~AMActionHistoryModel3();
+	virtual ~AMActionHistoryModel3();
 
 	// Public accessor methods
 	////////////////////
@@ -92,7 +92,7 @@ public:
 	virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
 	/// Returns the AMActionLogItem at \c index
-    AMActionLogItem3* logItem(const QModelIndex& index) const;
+	AMActionLogItem3* logItem(const QModelIndex& index) const;
 
 public slots:
 	/// Set the date/time range of actions that should be shown. Specificy an invalid QDateTime for \c oldest to show all.  Specify an invalid QDateTime for \c newest to always be the current date time.
@@ -129,7 +129,7 @@ protected:
 	bool insideVisibleDateTimeRange(const QDateTime& dateTime);
 
 	/// Helper function to append a row to the model with a given AMActionLogItem \c item. We don't have a public addRow() / insertRow() interface.
-    void appendItem(AMActionLogItem3* item);
+	void appendItem(AMActionLogItem3* item);
 	/// Helper function to delete a row in the model, and delete the item at that row. We don't have a public removeRow() / removeRows() interface.
 	bool deleteRow(int index);
 
@@ -145,7 +145,7 @@ protected:
 	QString actionLogTableName_;
 
 	/// A list of these holds the actionLog data that we return in data()
-    QList<AMActionLogItem3*> items_;
+	QList<AMActionLogItem3*> items_;
 
 	/// Used to schedule a delayed call to refreshFromDb()
 	AMDeferredFunctionCall refreshFunctionCall_;
@@ -170,10 +170,10 @@ class QPushButton;
 /*! The view can be used to browse completed actions, as well as re-instantiate copies of them in the AMActionRunner queue (as long as the specific AMAction/AMActionInfo pair has been registered with AMActionRegistry).*/
 class AMActionHistoryView3 : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	/// Constructor. If you want this history view to be able to re-instantiate and re-queue actions, pass in valid AMActionRunner, ie: AMActionRunner::s().  The default (\c actionRunner = 0) is suitable for a Dataman-only program, and can only browse the user's action history.
-    AMActionHistoryView3(AMActionRunner3* actionRunner = 0, AMDatabase* db = AMDatabase::database("user"), QWidget *parent = 0);
+	AMActionHistoryView3(AMActionRunner3* actionRunner = 0, AMDatabase* db = AMDatabase::database("actions"), QWidget *parent = 0);
 
 	/// Returns true if the view is currently collapsed to show only the header bar, and false if it is fully shown.
 	bool isCollapsed() const { return isCollapsed_; }
@@ -205,10 +205,10 @@ protected slots:
 
 
 protected:
-    AMActionRunner3* actionRunner_;
+	AMActionRunner3* actionRunner_;
 	AMDatabase* db_;
 
-    AMActionHistoryModel3* model_;
+	AMActionHistoryModel3* model_;
 
 	QTreeView* treeView_;
 	QComboBox* rangeComboBox_;

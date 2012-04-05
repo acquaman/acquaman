@@ -10,7 +10,7 @@
 #include <QPushButton>
 
 AMWorkflowView3::AMWorkflowView3(QWidget *parent) :
-    QWidget(parent)
+	QWidget(parent)
 {
 	layoutSpacer_ = 0;
 
@@ -30,9 +30,9 @@ AMWorkflowView3::AMWorkflowView3(QWidget *parent) :
 	addActionButton_ = new QPushButton("Add Action...");
 	hl->addWidget(addActionButton_);
 
-    currentView_ = new AMActionRunnerCurrentView3(AMActionRunner3::s());
-    queueView_ = new AMActionRunnerQueueView3(AMActionRunner3::s());
-    historyView_ = new AMActionHistoryView3(AMActionRunner3::s());
+	currentView_ = new AMActionRunnerCurrentView3(AMActionRunner3::s());
+	queueView_ = new AMActionRunnerQueueView3(AMActionRunner3::s());
+	historyView_ = new AMActionHistoryView3(AMActionRunner3::s());
 	addActionDialog_ = 0;
 
 	QVBoxLayout* vl = new QVBoxLayout(this);
@@ -73,7 +73,7 @@ void AMWorkflowView3::onViewCollapsed()
 void AMWorkflowView3::onAddActionButtonClicked()
 {
 	if(!addActionDialog_) {
-        addActionDialog_ = new AMAddActionDialog3(this);
+		addActionDialog_ = new AMAddActionDialog3(this);
 	}
 	addActionDialog_->show();
 }

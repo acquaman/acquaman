@@ -4,20 +4,20 @@
 #include <QDialog>
 
 namespace Ui {
-    class AMAddActionDialog3;
+class AMAddActionDialog3;
 }
 
 class QListWidgetItem;
 
 class AMAddActionDialog3 : public QDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
 	/// Constructor. The view is populated during construction with all actions currently registered in the AMActionRegistry [ActionInfo/Action].
-    explicit AMAddActionDialog3(QWidget *parent = 0);
+	explicit AMAddActionDialog3(QWidget *parent = 0);
 
-    ~AMAddActionDialog3();
+	~AMAddActionDialog3();
 
 
 protected slots:
@@ -32,7 +32,7 @@ protected:
 	void populateWithRegisteredActions();
 
 	/// UI elements
-    Ui::AMAddActionDialog3 *ui;
+	Ui::AMAddActionDialog3 *ui;
 };
 
 #endif // AMADDACTIONDIALOG_H

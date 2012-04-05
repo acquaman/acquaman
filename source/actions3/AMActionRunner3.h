@@ -17,7 +17,7 @@ class AMActionRunner3 : public QObject
 	Q_OBJECT
 public:
 	/// This is a singleton class. You access the only instance of it using AMActionRunner::s().
-    static AMActionRunner3* s();
+	static AMActionRunner3* s();
 	/// Release and delete the singleton instance
 	static void releaseActionRunner();
 
@@ -27,16 +27,16 @@ public:
 	/// The number of actions that are in the queue. (Does not include the possible currently-running action.)
 	int queuedActionCount() const { return queuedActions_.count(); }
 	/// Returns a pointer to an action in the queue, or 0 if the index is out of range.
-    const AMAction3* queuedActionAt(int index) const { if(index < 0 || index >= queuedActions_.count()) return 0; return queuedActions_.at(index); }
+	const AMAction3* queuedActionAt(int index) const { if(index < 0 || index >= queuedActions_.count()) return 0; return queuedActions_.at(index); }
 	/// Returns a pointer to an action in the queue, or 0 if the index is out of range.
-    AMAction3* queuedActionAt(int index) { if(index < 0 || index >= queuedActions_.count()) return 0; return queuedActions_.at(index); }
+	AMAction3* queuedActionAt(int index) { if(index < 0 || index >= queuedActions_.count()) return 0; return queuedActions_.at(index); }
 	/// Returns the index of an action in the (top level of the) queue, or -1 if not found.
-    int indexOfQueuedAction(const AMAction3* action);
+	int indexOfQueuedAction(const AMAction3* action);
 
 	/// Add an action to the end of the queue. This class takes ownership of the \c action and will log and delete it after running it.
-    void addActionToQueue(AMAction3* action) { insertActionInQueue(action, -1); }
+	void addActionToQueue(AMAction3* action) { insertActionInQueue(action, -1); }
 	/// Insert an action at a position \c index in the queue.  If \c index is -1 or > queuedActionCount(), will append to the end of the queue. If \c index is 0, will insert at the beginning of the queue. This class takes ownership of the \c action and will log and delete it after running it.
-    void insertActionInQueue(AMAction3* action, int index);
+	void insertActionInQueue(AMAction3* action, int index);
 	/// Delete the action at \c index in the queue. This will remove it from the queue and delete the action object. Returns false if \c index out of range.
 	bool deleteActionInQueue(int index);
 	/// Duplicate an action in the queue. The new copy will be inserted immediately after \c index. Returns false if \c index out of range.
@@ -48,14 +48,14 @@ public:
 
 	/// Assuming no actions are running (ie: actionRunning() returns false), sometimes it's desireable to run an action immediately without affecting other actions that might already be in the queue. This function will run a single action immediately by adding it to the front of the queue, starting it, and then restoring the queuePaused() state. Obviously, this is not possible if there is already an action running; in that case, it will simply return false.
 	/*! If instead you want to run an action immediately "in the background" regardless of whether actions are running in the queue, use the immediate mode interface with runActionImmediately() */
-    bool runActionImmediatelyInQueue(AMAction3* action);
+	bool runActionImmediatelyInQueue(AMAction3* action);
 
 	/// Whether the queue is paused or running. If the queue is running, it will advance automatically to the next action whenever there are actions in the queue.  \see setQueuePaused().
 	bool queuePaused() const { return isPaused_; }
 
 
 	/// This QAbstractItemModel is a useful model for standard Qt views of the AMActionRunner's queue (like AMActionRunnerQueueView). It simply wraps ourself (AMActionRunner) in the interface required of Qt models.
-    AMActionRunnerQueueModel3* queueModel() { return queueModel_; }
+	AMActionRunnerQueueModel3* queueModel() { return queueModel_; }
 
 
 	// The Current Action that we (might be)/are executing
@@ -64,20 +64,20 @@ public:
 	/// Whether there is an action currently running.
 	bool actionRunning() const { return currentAction_ != 0; }
 	/// A pointer to the current action. Will be 0 if actionRunning() is false, when no action is running.
-    AMAction3* currentAction() { return currentAction_; }
+	AMAction3* currentAction() { return currentAction_; }
 	/// A pointer to the current action. Will be 0 if actionRunning() is false, when no action is running.
-    const AMAction3* currentAction() const { return currentAction_; }
+	const AMAction3* currentAction() const { return currentAction_; }
 
 
 	// Immediate-mode interface
 	////////////////////////////////
 
 	/// Instead of going through the queue, it's possible to ask the Action Runner to take an action and run it immediately.  Immediate actions will be run in parallel/independently of the currentAction() if there is one, (although they might wait for their prerequisites to be satisfied, just like any other action.)  When the action finishes, the Action Runner will take care of logging and deleting it.  If it fails, the action's failureResponseInActionRunner() will be respected.
-    void runActionImmediately(AMAction3* action);
+	void runActionImmediately(AMAction3* action);
 	/// Returns the number of immediate actions currently running
 	int immediateActionsCount() const { return immediateActions_.count(); }
 	/// Returns the immediately-running action at \c index (which must be >= 0 and < immediateActionsCount()
-    AMAction3* immediateActionAt(int index);
+	AMAction3* immediateActionAt(int index);
 
 
 signals:
@@ -86,7 +86,7 @@ signals:
 	////////////////////////////
 
 	/// Emitted whenever the currently-running action changes.  If the queue reaches the end and is empty, this will be emitted with 0 (for no current action).
-    void currentActionChanged(AMAction3* action);
+	void currentActionChanged(AMAction3* action);
 
 	// These signals are useful to views of the current action. This saves them from having to connect and disconnect from all the individual actions
 	/// Forwards the progressChanged() signal from the current action, for convenience
@@ -137,26 +137,26 @@ protected slots:
 	void onImmediateActionStateChanged(int state, int previousState);
 
 protected:
-    AMAction3* currentAction_;
+	AMAction3* currentAction_;
 	bool isPaused_;
-    QList<AMAction3*> immediateActions_;
-    QList<AMAction3*> queuedActions_;
+	QList<AMAction3*> immediateActions_;
+	QList<AMAction3*> queuedActions_;
 
-    AMActionRunnerQueueModel3* queueModel_;
+	AMActionRunnerQueueModel3* queueModel_;
 
 	/// Helper function called when the previous action finishes. If the queue is running and there are more actions, it starts the next one. If the queue is paused or if we're out of actions, it sets the currentAction() to 0. Either way, it emits the currentActionChanged() signal.
 	void internalDoNextAction();
 	/// Helper function to prompt the user about what to do given that the current action failed, and it specified a "prompt user" failure response. Do they want to retry or move on?
-    int internalAskUserWhatToDoAboutFailedAction(AMAction3* action);
+	int internalAskUserWhatToDoAboutFailedAction(AMAction3* action);
 
 private:
 	/// This is a singleton class, so the constructor is private. Access the only instance of it via s().
-    explicit AMActionRunner3(QObject *parent = 0);
+	explicit AMActionRunner3(QObject *parent = 0);
 	/// Destructor. Deletes any actions in the queue. For implementation reasons, does not delete the currently running action, because it might take this action a while to stop and clean-up.
-    ~AMActionRunner3();
+	~AMActionRunner3();
 
 	/// The singleton instance
-    static AMActionRunner3* instance_;
+	static AMActionRunner3* instance_;
 
 };
 
@@ -165,7 +165,7 @@ class AMActionRunnerQueueModel3 : public QAbstractItemModel {
 	Q_OBJECT
 public:
 	/// Constructor.
-    AMActionRunnerQueueModel3(AMActionRunner3* actionRunner, QObject* parent = 0);
+	AMActionRunnerQueueModel3(AMActionRunner3* actionRunner, QObject* parent = 0);
 
 	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
 
@@ -180,9 +180,9 @@ public:
 
 	bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
 
-    AMAction3* actionAtIndex(const QModelIndex& index) const;
+	AMAction3* actionAtIndex(const QModelIndex& index) const;
 	// requires a linear search of the \c action's parentAction(), or of the actionRunner queue if the action is at the top level.
-    QModelIndex indexForAction(AMAction3* action) const;
+	QModelIndex indexForAction(AMAction3* action) const;
 
 
 	// Drag and Drop functions:
@@ -220,12 +220,12 @@ protected slots:
 	void onSubActionRemoved(int index);
 
 protected:
-    AMActionRunner3* actionRunner_;
+	AMActionRunner3* actionRunner_;
 
-    AMAction3* lastSender_;
+	AMAction3* lastSender_;
 
-    void internalConnectNestedActions(AMAction3* action);
-    void internalDisconnectNestedActions(AMAction3* action);
+	void internalConnectNestedActions(AMAction3* action);
+	void internalDisconnectNestedActions(AMAction3* action);
 };
 
 #include <QMimeData>
@@ -237,7 +237,7 @@ class AMModelIndexListMimeData3 : public QMimeData {
 	Q_OBJECT
 public:
 	/// Constructor
-    AMModelIndexListMimeData3(const QModelIndexList& mil) : QMimeData() {
+	AMModelIndexListMimeData3(const QModelIndexList& mil) : QMimeData() {
 		foreach(const QModelIndex& mi, mil)
 			mil_ << mi;
 	}

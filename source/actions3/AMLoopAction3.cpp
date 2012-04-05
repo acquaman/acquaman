@@ -24,70 +24,69 @@ AMLoopAction3::AMLoopAction3(const AMLoopAction3 &other) : AMListAction3(other) 
 	currentSubActionIndex_ = -1;
 	currentSubAction_ = 0;
 
-    foreach(AMAction3* action, other.subActions_)
+	foreach(AMAction3* action, other.subActions_)
 		subActions_ << action->createCopy();
-    foreach(AMAction3* action, subActions_)
-        action->setParentAction(this);
+	foreach(AMAction3* action, subActions_)
+		action->setParentAction(this);
 }
 
 AMLoopAction3::~AMLoopAction3() {
-	qDeleteAll(subActions_);
 }
 
 bool AMLoopAction3::duplicateSubActions(const QList<int> &indexesToCopy)
 {
-    if(state() != Constructed)
-        return false;
+	if(state() != Constructed)
+		return false;
 
-    if(indexesToCopy.isEmpty())
-        return true;	// done
+	if(indexesToCopy.isEmpty())
+		return true;	// done
 
-    // sort the list, so we know the highest index in it.
-    QList<int> sIndexesToCopy = indexesToCopy;
-    qSort(sIndexesToCopy);
+	// sort the list, so we know the highest index in it.
+	QList<int> sIndexesToCopy = indexesToCopy;
+	qSort(sIndexesToCopy);
 
-    // any indexes out of range?
-    if(sIndexesToCopy.first() < 0)
-        return false;
-    if(sIndexesToCopy.last() >= subActionCount())
-        return false;
+	// any indexes out of range?
+	if(sIndexesToCopy.first() < 0)
+		return false;
+	if(sIndexesToCopy.last() >= subActionCount())
+		return false;
 
-    // insert at the position after last existing subAction to copy
-    int insertionIndex = sIndexesToCopy.last() + 1;
+	// insert at the position after last existing subAction to copy
+	int insertionIndex = sIndexesToCopy.last() + 1;
 
-    // insert copies of all, using regular insertSubAction().
-    foreach(int i, sIndexesToCopy)
-        insertSubAction(subActionAt(i)->createCopy(), insertionIndex++);
+	// insert copies of all, using regular insertSubAction().
+	foreach(int i, sIndexesToCopy)
+		insertSubAction(subActionAt(i)->createCopy(), insertionIndex++);
 
-    return true;
+	return true;
 }
 
 void AMLoopAction3::startImplementation()
 {
 	// done already with nothing to do.
 	if(subActionCount() == 0 || loopCount() == 0) {
-        setStarted();
-        setSucceeded();
+		setStarted();
+		setSucceeded();
 		return;
 	}
 
-    setStarted();
+	setStarted();
 	setStatusText(QString("Loop %1 of %2").arg(currentIteration_+1).arg(loopCount()));
 	internalDoNextAction();
 }
 
 void AMLoopAction3::internalCleanupAction(AMAction3 *action)
 {
-    AMAction3 *cleanupAction = action ? action : currentSubAction_;
+	AMAction3 *cleanupAction = action ? action : currentSubAction_;
 
-    internalDisconnectAction(cleanupAction);
-    if(internalShouldLogSubAction(cleanupAction))
-        AMActionLog3::logCompletedAction(cleanupAction);
-    // delete it later (since we might still be executing inside the action's functions).
-    cleanupAction->deleteLater();
+	internalDisconnectAction(cleanupAction);
+	if(internalShouldLogSubAction(cleanupAction))
+		AMActionLog3::logCompletedAction(cleanupAction);
+	// delete it later (since we might still be executing inside the action's functions).
+	cleanupAction->deleteLater();
 
-    if (!action)
-        currentSubAction_ = 0;
+	if (!action)
+		currentSubAction_ = 0;
 }
 
 void AMLoopAction3::internalDoNextAction()
@@ -95,9 +94,9 @@ void AMLoopAction3::internalDoNextAction()
 	// did an action just finish completing?
 	if(currentSubActionIndex_ >= 0) {
 
-        internalDisconnectAction(currentSubAction_);
-        if(internalShouldLogSubAction(currentSubAction_))
-            AMActionLog3::logCompletedAction(currentSubAction_);
+		internalDisconnectAction(currentSubAction_);
+		if(internalShouldLogSubAction(currentSubAction_))
+			AMActionLog3::logCompletedAction(currentSubAction_);
 		// delete it later (since we might still be executing inside the action's functions).
 		currentSubAction_->deleteLater();
 	}
@@ -107,7 +106,7 @@ void AMLoopAction3::internalDoNextAction()
 		emit currentSubActionChanged(++currentSubActionIndex_);
 
 		currentSubAction_ = subActions_.at(currentSubActionIndex_)->createCopy();
-        internalConnectAction(currentSubAction_);
+		internalConnectAction(currentSubAction_);
 		currentSubAction_->start();
 	}
 	else {
@@ -119,22 +118,22 @@ void AMLoopAction3::internalDoNextAction()
 			emit currentSubActionChanged(currentSubActionIndex_ = 0);
 
 			currentSubAction_ = subActions_.at(currentSubActionIndex_)->createCopy();
-            internalConnectAction(currentSubAction_);
+			internalConnectAction(currentSubAction_);
 			currentSubAction_->start();
 		}
 		// Nope, that's the end.
 		else {
-            setSucceeded();
+			setSucceeded();
 		}
 	}
 }
 
 void AMLoopAction3::internalOnCurrentActionProgressChanged(double numerator, double denominator)
 {
-    if(internalAllActionsHaveExpectedDuration()) {
+	if(internalAllActionsHaveExpectedDuration()) {
 		double totalNumerator = 0, totalDenominator = 0;
 		for(int i=0, cc=subActionCount(); i<cc; i++) {
-            AMAction3* action = subActionAt(i);
+			AMAction3* action = subActionAt(i);
 
 			double expectedSecs = action->info()->expectedDuration();
 			totalDenominator += expectedSecs*loopCount();

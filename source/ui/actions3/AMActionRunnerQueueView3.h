@@ -15,11 +15,11 @@ class AMActionRunnerQueueItemDelegate3 : public QStyledItemDelegate {
 	Q_OBJECT
 public:
 
-    explicit AMActionRunnerQueueItemDelegate3(QObject* parent = 0) : QStyledItemDelegate(parent) {}
+	explicit AMActionRunnerQueueItemDelegate3(QObject* parent = 0) : QStyledItemDelegate(parent) {}
 
 	virtual QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
-//    virtual void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+	//    virtual void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
 	virtual bool eventFilter(QObject *object, QEvent *event);
 
@@ -28,10 +28,10 @@ public:
 /// This UI class provides a view of the upcoming (queued) actions in an AMActionRunner. It is part of the overall AMWorkflowView.
 class AMActionRunnerQueueView3 : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	/// Constructor. Should pass in the instance of AMActionRunner::s() for \c actionRunner.
-    AMActionRunnerQueueView3(AMActionRunner3* actionRunner, QWidget *parent = 0);
+	AMActionRunnerQueueView3(AMActionRunner3* actionRunner, QWidget *parent = 0);
 
 	/// Returns true if the view is currently collapsed to show only the header bar, and false if it is fully shown.
 	bool isCollapsed() const { return isCollapsed_; }
@@ -62,7 +62,7 @@ protected slots:
 
 
 protected:
-    AMActionRunner3* actionRunner_;
+	AMActionRunner3* actionRunner_;
 	QTreeView* treeView_;
 	QLabel* headerTitle_, *headerSubTitle_;
 

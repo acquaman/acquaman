@@ -14,7 +14,7 @@
 #include <QStandardItemModel>
 
 AMActionRunnerQueueView3::AMActionRunnerQueueView3(AMActionRunner3* actionRunner, QWidget *parent) :
-    QWidget(parent)
+	QWidget(parent)
 {
 	actionRunner_ = actionRunner;
 
@@ -36,7 +36,7 @@ AMActionRunnerQueueView3::AMActionRunnerQueueView3(AMActionRunner3* actionRunner
 	treeView_->setDropIndicatorShown(true);
 	treeView_->setDragDropMode(QTreeView::DragDrop);
 
-    treeView_->setItemDelegate(new AMActionRunnerQueueItemDelegate3(this));
+	treeView_->setItemDelegate(new AMActionRunnerQueueItemDelegate3(this));
 
 	QFrame* topFrame = new QFrame();
 	topFrame->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
@@ -167,15 +167,15 @@ QWidget * AMActionRunnerQueueItemDelegate3::createEditor(QWidget *parent, const 
 {
 	Q_UNUSED(option)
 
-    const AMActionRunnerQueueModel3* model = qobject_cast<const AMActionRunnerQueueModel3*>(index.model());
+	const AMActionRunnerQueueModel3* model = qobject_cast<const AMActionRunnerQueueModel3*>(index.model());
 	if(!model)
 		return 0;
 
-    AMAction3* action = model->actionAtIndex(index);
+	AMAction3* action = model->actionAtIndex(index);
 	if(!action)
 		return 0;
 
-    QWidget* rv = AMActionRegistry3::s()->createEditorForInfo(action->info());
+	QWidget* rv = AMActionRegistry3::s()->createEditorForInfo(action->info());
 	if(rv) {
 		rv->setParent(parent);
 		rv->setFocusPolicy(Qt::StrongFocus);
