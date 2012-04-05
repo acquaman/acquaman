@@ -21,7 +21,7 @@ public:
 	/// Release and delete the singleton instance
 	static void releaseActionRunner();
 
-	// The Queue of Upcoming Actions:  (These all refer to top-level actions. To manage ordering and moving sub-actions within nested actions like loop actions, programmers should use the AMNestedAction interface.)
+	// The Queue of Upcoming Actions:  (These all refer to top-level actions. To manage ordering and moving sub-actions within list actions like loop actions, programmers should use the AMNestedAction interface.)
 	///////////////////////////////////
 
 	/// The number of actions that are in the queue. (Does not include the possible currently-running action.)
@@ -160,7 +160,7 @@ private:
 
 };
 
-/// This class wraps an AMActionRunner into a model that works with the Qt Model/View system. Nominally, it's usually a list model, but it uses the full tree model API so that actions inside nested actions (AMNestedAction subclasses) appear hierarchically.  There is only ever one column.
+/// This class wraps an AMActionRunner into a model that works with the Qt Model/View system. Nominally, it's usually a list model, but it uses the full tree model API so that actions inside list actions (AMNestedAction subclasses) appear hierarchically.  There is only ever one column.
 class AMActionRunnerQueueModel3 : public QAbstractItemModel {
 	Q_OBJECT
 public:
@@ -202,9 +202,9 @@ public:
 
 	// extra public functions
 	///////////////////////////
-	/// This version of deleteActionsInQueue is  used by the AMActionRunnerQueueView, since it has a list of QModelIndex that it needs to delete. If \c indexesToDelete contains non-top-level model indexes, this will use the AMNestedAction API to delete sub-actions inside nested actions.
+	/// This version of deleteActionsInQueue is  used by the AMActionRunnerQueueView, since it has a list of QModelIndex that it needs to delete. If \c indexesToDelete contains non-top-level model indexes, this will use the AMNestedAction API to delete sub-actions inside list actions.
 	void deleteActionsInQueue(QModelIndexList indexesToDelete);
-	/// This version of duplicateActionsInQueue is used by the AMActionRunnerQueueView, since it has a list of QModelIndex that it needs to duplicate.  If \c indexesToDuplicate contains non-top-level model indexes, this will use the AMNestedAction API to duplicate the sub-actions within the nested action.  If it contains all top-level model indexes, then it simply calls the regular duplicateActionsInQueue().  If there is a combination of top-level and nested indexes, it does nothing (Since what should be done in that situation is ambiguous as to where the duplicated actions should end up.)
+	/// This version of duplicateActionsInQueue is used by the AMActionRunnerQueueView, since it has a list of QModelIndex that it needs to duplicate.  If \c indexesToDuplicate contains non-top-level model indexes, this will use the AMNestedAction API to duplicate the sub-actions within the list action.  If it contains all top-level model indexes, then it simply calls the regular duplicateActionsInQueue().  If there is a combination of top-level and list indexes, it does nothing (Since what should be done in that situation is ambiguous as to where the duplicated actions should end up.)
 	void duplicateActionsInQueue(const QModelIndexList& indexesToCopy);
 
 protected slots:
@@ -213,7 +213,7 @@ protected slots:
 	void onActionAboutToBeRemoved(int index);
 	void onActionRemoved(int index);
 
-	// called when any nested action
+	// called when any list action
 	void onSubActionAboutToBeAdded(int index);
 	void onSubActionAdded(int index);
 	void onSubActionAboutToBeRemoved(int index);
@@ -224,8 +224,8 @@ protected:
 
 	AMAction3* lastSender_;
 
-	void internalConnectNestedActions(AMAction3* action);
-	void internalDisconnectNestedActions(AMAction3* action);
+	void internalConnectListActions(AMAction3* action);
+	void internalDisconnectListActions(AMAction3* action);
 };
 
 #include <QMimeData>
