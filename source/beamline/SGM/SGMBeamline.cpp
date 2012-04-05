@@ -1332,6 +1332,10 @@ void SGMBeamline::onCriticalControlsConnectedChanged(bool isConnected, AMControl
 }
 
 void SGMBeamline::onDetectorSignalSourceChanged(double value){
+	/* NTBA - April 3rd, 2012 (David Chevrier)
+	I don't think this is necessary at all anymore.
+	*/
+	Q_UNUSED(value)
 	/*
 	if(value == 0){// ENUM 0 is "Picoammeters"
 		if(allDetectors_->indexOf(teyScalerDetector_) >= 0)

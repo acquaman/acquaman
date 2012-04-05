@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <application/AMDatamanAppController.h>
 #include <QHash>
 
+class AMWorkflowView3;
 class AMWorkflowManagerView;
 class AMMainWindow;
 class AMScan;
@@ -42,6 +43,9 @@ public:
 	explicit AMAppController(QObject *parent = 0);
 	/// The destructor is empty.  Call AMAppController::shutdown() to delete all objects and clean up.
 	virtual ~AMAppController() {}
+
+	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
+	virtual bool startup();
 
 	/// Re-implemented from AMDatamanAppController to add the workflow pane, and show the run selection dialog / splash screen.
 	virtual bool startupCreateUserInterface();
@@ -75,6 +79,7 @@ If \c openInExistingEditor is set to true, and if there is an existing editor, t
 protected:
 	/// Top-level panes in the main window
 	AMWorkflowManagerView* workflowManagerView_;
+	AMWorkflowView3* workflowView_;
 
 	/// Filters the closeEvent on the main window, in case there's any reason why we can't quit directly. (ie: scans modified and still open, or an action is still running)
 	virtual bool eventFilter(QObject *, QEvent *);

@@ -10,6 +10,7 @@
 
 #include "util/AMDateTimeUtils.h"
 #include "util/AMFontSizes.h"
+#include "util/AMErrorMonitor.h"
 
 #include <QTreeView>
 #include <QBoxLayout>

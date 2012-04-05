@@ -10,6 +10,8 @@
 
 class AMActionLog;
 
+#define AMACTIONHISTORYVIEW_CANNOT_LOAD_ACTION_LOG -2257
+
 /// This item class is used to cache the details of a completed workflow action inside AMActionHistoryModel. You should never need to use this class directly.
 /*! We use it instead of full AMActionLog instances, so that we don't have to load the complete AMActionInfo (which, depending on the subclass, could be a lot to load.)*/
 class AMActionLogItem {

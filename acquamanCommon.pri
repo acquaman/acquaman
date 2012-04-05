@@ -526,21 +526,27 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/util/AMDataSourcePlotSettings.h \
 	source/util/AMSelectablePeriodicTable.h \
 	source/ui/util/AMSelectablePeriodicTableView.h \
-    source/actions3/AMLoopActionInfo3.h \
-    source/actions3/AMLoopAction3.h \
-    source/actions3/AMListAction3.h \
-    source/actions3/AMActionRunner3.h \
-    source/actions3/AMActionRegistry3.h \
-    source/actions3/AMActionLog3.h \
-    source/actions3/AMActionInfo3.h \
-    source/actions3/AMAction3.h \
-    source/actions3/editors/AMLoopActionEditor3.h \
-    source/ui/actions3/AMWorkflowView3.h \
-    source/ui/actions3/AMAddActionDialog3.h \
-    source/ui/actions3/AMActionRunnerQueueView3.h \
-    source/ui/actions3/AMActionRunnerCurrentView3.h \
-    source/ui/actions3/AMActionRunnerAddActionBar3.h \
-    source/ui/actions3/AMActionHistoryView3.h
+	source/ui/dataman/AMDbObjectGeneralView.h \
+	source/ui/dataman/AMDbObjectGeneralViewSupport.h \
+	source/ui/dataman/AM2DScanConfigurationGeneralView.h \
+	source/actions3/AMLoopActionInfo3.h \
+	source/actions3/AMLoopAction3.h \
+	source/actions3/AMListAction3.h \
+	source/actions3/AMActionRunner3.h \
+	source/actions3/AMActionRegistry3.h \
+	source/actions3/AMActionLog3.h \
+	source/actions3/AMActionInfo3.h \
+	source/actions3/AMAction3.h \
+	source/actions3/editors/AMLoopActionEditor3.h \
+	source/ui/actions3/AMWorkflowView3.h \
+	source/ui/actions3/AMAddActionDialog3.h \
+	source/ui/actions3/AMActionRunnerQueueView3.h \
+	source/ui/actions3/AMActionRunnerCurrentView3.h \
+	source/ui/actions3/AMActionRunnerAddActionBar3.h \
+	source/ui/actions3/AMActionHistoryView3.h \
+	source/actions3/actions/AMNumberChangeAction.h \
+	source/actions3/actions/AMNumberChangeActionInfo.h \
+	source/actions3/editors/AMNumberChangeActionEditor.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -893,21 +899,27 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/util/AMFetchSpectrumThread.cpp \
 	source/util/AMSelectablePeriodicTable.cpp \
 	source/ui/util/AMSelectablePeriodicTableView.cpp \
-    source/actions3/AMLoopActionInfo3.cpp \
-    source/actions3/AMLoopAction3.cpp \
-    source/actions3/AMListAction3.cpp \
-    source/actions3/AMActionRunner3.cpp \
-    source/actions3/AMActionRegistry3.cpp \
-    source/actions3/AMActionLog3.cpp \
-    source/actions3/AMActionInfo3.cpp \
-    source/actions3/AMAction3.cpp \
-    source/actions3/editors/AMLoopActionEditor3.cpp \
-    source/ui/actions3/AMWorkflowView3.cpp \
-    source/ui/actions3/AMAddActionDialog3.cpp \
-    source/ui/actions3/AMActionRunnerQueueView3.cpp \
-    source/ui/actions3/AMActionRunnerCurrentView3.cpp \
-    source/ui/actions3/AMActionRunnerAddActionBar3.cpp \
-    source/ui/actions3/AMActionHistoryView3.cpp
+	source/ui/dataman/AMDbObjectGeneralView.cpp \
+	source/ui/dataman/AMDbObjectGeneralViewSupport.cpp \
+	source/ui/dataman/AM2DScanConfigurationGeneralView.cpp \
+	source/actions3/AMLoopActionInfo3.cpp \
+	source/actions3/AMLoopAction3.cpp \
+	source/actions3/AMListAction3.cpp \
+	source/actions3/AMActionRunner3.cpp \
+	source/actions3/AMActionRegistry3.cpp \
+	source/actions3/AMActionLog3.cpp \
+	source/actions3/AMActionInfo3.cpp \
+	source/actions3/AMAction3.cpp \
+	source/actions3/editors/AMLoopActionEditor3.cpp \
+	source/ui/actions3/AMWorkflowView3.cpp \
+	source/ui/actions3/AMAddActionDialog3.cpp \
+	source/ui/actions3/AMActionRunnerQueueView3.cpp \
+	source/ui/actions3/AMActionRunnerCurrentView3.cpp \
+	source/ui/actions3/AMActionRunnerAddActionBar3.cpp \
+	source/ui/actions3/AMActionHistoryView3.cpp \
+	source/actions3/actions/AMNumberChangeAction.cpp \
+	source/actions3/actions/AMNumberChangeActionInfo.cpp \
+	source/actions3/editors/AMNumberChangeActionEditor.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -931,3 +943,15 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
+
+
+
+
+
+

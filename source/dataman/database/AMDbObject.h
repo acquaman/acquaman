@@ -31,6 +31,23 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QImage>
 #include <QBuffer>
 
+#define AMDBOBJECT_ERROR_STORING_CHILD_OBJECT -47
+#define AMDBOBJECT_3D_POINT_MISSING_3_NUMBERS -57
+#define AMDBOBJECT_ERROR_LOADING_OBJECT_TO_CREATE_THUMBNAILS -1313
+#define AMDBOBJECT_ERROR_SAVING_THUMBNAILS -1314
+#define AMDBOBJECT_ERROR_STORING_UPDATED_THUMBNAIL_COUNT_AND_FIRST_ID -1315
+#define AMDBOBJECT_CANNOT_START_TRANSACTION_TO_SAVE_THUMBNAILS -1495
+#define AMDBOBJECT_CANNOT_COMPLETE_TRANSACTION_TO_SAVE_THUMBNAILS -1496
+#define AMDBOBJECT_CANNOT_COMPLETE_TRANSACTION_TO_SAVE_OBJECT -1497
+#define AMDBOBJECT_CANNOT_START_TRANSACTION_TO_SAVE_OBJECT -1498
+
+#define AMDBOBJECT_CANNOT_STORE_TO_DB_INVALID_DB -277001
+#define AMDBOBJECT_CANNOT_STORE_TO_DB_CLASS_NOT_REGISTERED -277002
+#define AMDBOBJECT_CANNOT_STORE_TO_DB_INSERT_OR_UPDATE_FAILED -277003
+#define AMDBOBJECT_CANNOT_LOAD_FROM_DB_INVALID_ID -277004
+#define AMDBOBJECT_CANNOT_LOAD_FROM_DB_CLASS_NOT_REGISTERED -277005
+#define AMDBOBJECT_CANNOT_LOAD_FROM_DB_NO_VALUES_RETRIEVED_FROM_TABLE -277006
+#define AMDBOBJECT_CANNOT_LOAD_FROM_DB_AMDBOBJECTLIST_TABLE_LOCATION_INVALID -277007
 
 /// Thumbnails are fast little blobs of data used as icons or images to visually represent AMDbObjects.
 class AMDbThumbnail {
@@ -73,6 +90,7 @@ public:
 };
 
 class AMDbObjectInfo;
+class AMDbLoadErrorInfo;
 
 
 /// This is the base class for all persistent user-data objects that can be stored in the database.  A generic AMScan inherits from this class.  (This class is re-entrant but not thread-safe. You can have AMDbObjects in multiple threads, but you shouldn't access the same instance from multiple threads.)
@@ -330,7 +348,7 @@ public:
 This virtual function should return true for AMDbObject classes where it is both safe and desirable to generate thumbnails in another thread. */
 	virtual bool shouldGenerateThumbnailsInSeparateThread() const { return false; }
 
-
+	QMap<QString, AMDbLoadErrorInfo*> loadingErrors() const;
 
 
 signals:
@@ -387,6 +405,7 @@ private:
 	/// holds whether this object is currently being reloaded from the database
 	bool isReloading_;
 
+	QMap<QString, AMDbLoadErrorInfo*> loadingErrors_;
 };
 
 /// This global function enables using the insertion operator to store objects in a database. It simply calls AMDbObject::storeToDb() with the given \c database.

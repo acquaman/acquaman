@@ -36,6 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMExperiment.h"
 #include "dataman/AMSample.h"
 #include "dataman/AMScan.h"
+#include "util/AMErrorMonitor.h"
 
 #include <QApplication>
 
@@ -532,7 +533,7 @@ void AMScanDatabaseImportController::copyScans()
 								   scanTableName,
 								   QStringList() << "thumbnailCount" << "thumbnailFirstId",
 								   QVariantList() << thumbnailCount << thumbnailFirstId)) {
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -315, QString("While importing, error trying to store the updated thumbnail count and firstThumbnailId for database object %1. Please report this problem to the Acquaman developers.").arg(scanIds.at(i))));
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMSCANDATABASEIMPORTCONTROLLER_ERROR_STORING_UPDATED_THUMBNAIL_COUNT_AND_FIRST_ID, QString("While importing, error trying to store the updated thumbnail count and firstThumbnailId for database object %1. Please report this problem to the Acquaman developers.").arg(scanIds.at(i))));
 		}
 
 

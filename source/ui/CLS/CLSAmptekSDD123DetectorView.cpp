@@ -17,6 +17,10 @@ AMDetector* CLSAmptekSDD123BriefDetectorView::detector(){
 }
 
 bool CLSAmptekSDD123BriefDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+	/* NTBA - April 3rd, 2012 (David Chevrier)
+	Need to implement the configureOnly part.
+	*/
+	Q_UNUSED(configureOnly)
 	if(!detector)
 		return false;
 
@@ -55,6 +59,10 @@ MPlot* CLSAmptekSDD123DetailedDetectorView::plot() const{
 }
 
 bool CLSAmptekSDD123DetailedDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+	/* NTBA - April 3rd, 2012 (David Chevrier)
+	Need to implement the configureOnly part.
+	*/
+	Q_UNUSED(configureOnly)
 	if(!detector)
 		return false;
 

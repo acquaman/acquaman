@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMQueryTableModel.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "util/AMDateTimeUtils.h"
+#include "util/AMErrorMonitor.h"
 
 #include <QStringBuilder>
 

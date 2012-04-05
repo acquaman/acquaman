@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMExperiment.h"
 #include "database/AMDbObjectSupport.h"
+#include "util/AMErrorMonitor.h"
 
 AMExperiment::AMExperiment(QObject *parent) :
 		AMDbObject(parent)

@@ -207,7 +207,7 @@ bool AMDatabase::update(int id, const QString& table, const QStringList& columns
 	QSqlDatabase db = qdb();
 
 	if(columns.count() != values.count()) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -102, "Error trying to update the database: the number of columns provided doesn't match the number of values."));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDATABASE_ERROR_COLUMN_VALUE_COUNT_MISMATCH, "Error trying to update the database: the number of columns provided doesn't match the number of values."));
 		return false;
 	}
 	if(!db.isOpen()) {

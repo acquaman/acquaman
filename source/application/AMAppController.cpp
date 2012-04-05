@@ -27,9 +27,40 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOption.h"
 #include "ui/AMStartScreen.h"
 
+#include "ui/actions3/AMWorkflowView3.h"
+#include "actions3/AMActionRunner3.h"
+#include "actions3/AMActionRegistry3.h"
+#include "actions3/AMLoopAction3.h"
+#include "actions3/actions/AMNumberChangeAction.h"
+#include "actions3/editors/AMNumberChangeActionEditor.h"
+
 AMAppController::AMAppController(QObject *parent)
 	: AMDatamanAppController(parent)
 {
+}
+
+bool AMAppController::startup(){
+
+	AMNumberChangeActionSupport::appendNumber(12);
+	AMNumberChangeActionSupport::appendNumber(27);
+	AMNumberChangeActionSupport::appendNumber(100);
+	AMNumberChangeActionSupport::appendNumber(1000);
+	AMNumberChangeActionSupport::appendNumber(0);
+	AMNumberChangeActionSupport::appendNumber(15);
+	AMNumberChangeActionSupport::appendNumber(8888);
+	AMNumberChangeActionSupport::appendNumber(42);
+	AMNumberChangeActionSupport::appendNumber(99);
+	AMNumberChangeActionSupport::appendNumber(1);
+
+	if(AMDatamanAppController::startup()){
+		bool success = true;
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMNumberChangeActionInfo, AMNumberChangeAction>("Number Change", "Changes a number in the list", ":/system-run.png");
+		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMNumberChangeActionInfo, AMNumberChangeActionEditor>();
+
+		return success;
+	}
+	else
+		return false;
 }
 
 bool AMAppController::startupCreateUserInterface() {
@@ -40,8 +71,19 @@ bool AMAppController::startupCreateUserInterface() {
 		mw_->insertHeading("Experiment Tools", 1);
 		mw_->addPane(workflowManagerView_, "Experiment Tools", "Workflow", ":/user-away.png");
 
+		// add the workflow control UI
+		workflowView_ = new AMWorkflowView3();
+		mw_->addPane(workflowView_, "Experiment Tools", "Workflow", ":/user-away.png");
+		// remove the old one:
+		mw_->removePane(workflowManagerView_);
+		workflowManagerView_->hide();
+
 		AMStartScreen* chooseRunDialog = new AMStartScreen(true, mw_);
 		chooseRunDialog->show();
+
+		QListView *listView = new QListView();
+		listView->setModel(AMNumberChangeActionSupport::AMNumberChangeActionModel_);
+		listView->show();
 
 		return true;
 	}

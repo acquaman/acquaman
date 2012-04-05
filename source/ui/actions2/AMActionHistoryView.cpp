@@ -10,6 +10,7 @@
 
 #include "util/AMDateTimeUtils.h"
 #include "util/AMFontSizes.h"
+#include "util/AMErrorMonitor.h"
 
 #include <QTreeView>
 #include <QBoxLayout>
@@ -713,7 +714,7 @@ void AMActionHistoryView::onReRunActionButtonClicked()
 		// load the full actionLog.
 		AMActionLog actionLog;
 		if(!actionLog.loadFromDb(item->database(), item->id())) {
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -57, "Could not load the action log for id " % QString::number(item->id()) % " from the database. Please report this problem to the Acquaman developers."));
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, AMACTIONHISTORYVIEW_CANNOT_LOAD_ACTION_LOG, "Could not load the action log for id " % QString::number(item->id()) % " from the database. Please report this problem to the Acquaman developers."));
 			continue;
 		}
 		if(!actionLog.info()) {

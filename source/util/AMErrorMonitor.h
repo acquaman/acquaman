@@ -180,6 +180,7 @@ public:
 	/// Get access to the single instance of this class. This function is thread-safe.
 	static AMErrorMon* mon();
 
+	static int lastErrorCode() { return mon()->lastErrorCode_;}
 
 signals:
 	/// emitted for all errors
@@ -239,6 +240,8 @@ private:
 
 	/// Whether we display debug messages
 	bool debugEnabled_;
+
+	int lastErrorCode_;
 
 	/// This mutex is used to ensure thread-safe access to the instance_ variable.
 	static QMutex instanceMutex_;
