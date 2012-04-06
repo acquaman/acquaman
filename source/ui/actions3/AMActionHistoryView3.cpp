@@ -48,7 +48,7 @@ bool AMActionLogItem3::loadLogDetailsFromDb() const
 		return false;
 
 	QStringList columns;
-	columns << "name" << "longDescription" << "iconFileName" << "startDateTime" << "endDateTime" << "finalState" << "info";
+	columns << "name" << "longDescription" << "iconFileName" << "startDateTime" << "endDateTime" << "finalState" << "info" << "parentId";
 	QVariantList values = db_->retrieve(id_, AMDbObjectSupport::s()->tableNameForClass<AMActionLog3>(), columns);
 	if(values.isEmpty())
 		return false;
@@ -60,6 +60,7 @@ bool AMActionLogItem3::loadLogDetailsFromDb() const
 	endDateTime_ = values.at(4).toDateTime();
 	finalState_ = values.at(5).toInt();
 	canCopy_ = db_->retrieve(values.at(6).toString().section(';', -1).toInt(), values.at(6).toString().split(';').first(), "canCopy").toBool();
+	parentId_ = values.at(7).toInt();
 	loadedFromDb_ = true;
 
 	return true;
@@ -118,6 +119,12 @@ bool AMActionLogItem3::canCopy() const
 	if (!loadedFromDb_)
 		loadLogDetailsFromDb();
 	return canCopy_;
+}
+
+int AMActionLogItem3::parentId() const{
+	if(!loadedFromDb_)
+		loadLogDetailsFromDb();
+	return parentId_;
 }
 
 // AMActionHistoryModel
@@ -569,9 +576,20 @@ QModelIndex AMActionHistoryModel3::index(int row, int column, const QModelIndex 
 
 QModelIndex AMActionHistoryModel3::parent(const QModelIndex &child) const
 {
+	/**/
 	Q_UNUSED(child)
 	// this is a non-hierarchical model, so the parent of any valid child is the root (QModelIndex()).
 	return QModelIndex();
+	/**/
+	/*
+	if(!child.isValid())
+		return QModelIndex();
+
+	AMActionLogItem3 *childLogItem = logItem(child);
+	if(!childLogItem)
+		return QModelIndex();
+	*/
+
 }
 
 int AMActionHistoryModel3::rowCount(const QModelIndex &parent) const
@@ -795,6 +813,17 @@ AMActionLogItem3 * AMActionHistoryModel3::logItem(const QModelIndex &index) cons
 		return 0;
 	return items_.at(index.row());
 }
+
+/*
+QModelIndex AMActionHistoryModel3::indexForLogItem(AMActionLogItem3 *logItem) const{
+	if(!logItem)
+		return QModelIndex();
+
+	if(logItem->parentId() == -1){
+		//
+	}
+}
+*/
 
 void AMActionHistoryView3::showEvent(QShowEvent *e)
 {

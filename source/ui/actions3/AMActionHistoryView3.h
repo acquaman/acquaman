@@ -39,6 +39,8 @@ public:
 	QString iconFileName() const;
 	/// Returns the copy-ability of the action, loading it from the database if required.
 	bool canCopy() const;
+	/// Returns the database id of the parent log action, if none then returns -1
+	int parentId() const;
 
 protected:
 
@@ -60,6 +62,7 @@ protected:
 	mutable QString iconFileName_;
 	mutable QDateTime startDateTime_, endDateTime_;
 	mutable bool canCopy_;
+	mutable int parentId_;
 };
 
 /// This QAbstractItemModel implements a model for completed workflow actions, used by AMActionHistoryView. You should never need to use this class directly.
@@ -98,6 +101,7 @@ public:
 
 	/// Returns the AMActionLogItem at \c index
 	AMActionLogItem3* logItem(const QModelIndex& index) const;
+	//QModelIndex indexForLogItem(AMActionLogItem3 *logItem) const;
 
 public slots:
 	/// Set the date/time range of actions that should be shown. Specificy an invalid QDateTime for \c oldest to show all.  Specify an invalid QDateTime for \c newest to always be the current date time.
