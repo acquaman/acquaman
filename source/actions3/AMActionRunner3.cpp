@@ -744,7 +744,7 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 				// Subcase A1: destination: They are being moved to another location at the top level. We can move them using the AMActionRunner API.
 				if(!parent.isValid()) {
 
-					// qDebug() << "Moving from top level to top level.";
+//					 qDebug() << "Moving from top level to top level.";
 
 					// Get a persistent model index corresponding to the destination. (It might move as we move things around.)
 					QPersistentModelIndex destinationIndex(index(row, 0, parent));
@@ -759,7 +759,7 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 				}
 				// Subcase A2: destination: They are being moved to inside a list action.
 				else {
-					// qDebug() << "Moving from top level to list action.";
+//					 qDebug() << "Moving from top level to list action.";
 					// parent is valid... It represents the list action we're supposed to drop these actions inside of.
 					AMListAction3* listAction = qobject_cast<AMListAction3*>(actionAtIndex(parent));
 					if(!listAction) {
@@ -784,8 +784,9 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 					return false;
 				}
 
-				// Subcase B0: The destination is the same as the source. Just rearranging within one AMNestedAction.
+				// Subcase B0: The destination is the same as the source. Just rearranging within one AMListAction.
 				if(first.parent() == parent) {
+//					qDebug() << "Rearranging within one list action.";
 					QPersistentModelIndex destinationIndex(index(row, 0, parent));
 					for(int i=0,cc=mil.count(); i<cc; i++) {
 						AMAction3* moveAction = sourceParentAction->takeSubActionAt(mil.at(i).row());
@@ -800,7 +801,7 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 				else {
 					// Subcase B1: The destination is the top level. Need to add the copied actions directly to AMActionRunner.
 					if(!parent.isValid()) {
-						// qDebug() << "Move from one list action to top level.";
+//						 qDebug() << "Move from one list action to top level.";
 						int targetRow = row;
 						if(targetRow < 0 || targetRow > actionRunner_->queuedActionCount())
 							targetRow = actionRunner_->queuedActionCount();
@@ -811,7 +812,7 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 					}
 					// Subcase B2: The destination is a different sub-action.
 					else {
-						// qDebug() << "Move from one list action to another.";
+//						 qDebug() << "Move from one list action to another.";
 						AMListAction3* destParentAction = qobject_cast<AMListAction3*>(actionAtIndex(parent));
 						if(!destParentAction) {
 							qWarning() << "AMActionQueueModel: Warning: Asked to move actions into a list action that wasn't valid.";

@@ -99,9 +99,11 @@ public:
 	Qt::ItemFlags flags(const QModelIndex &index) const;
 	virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
+	bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
+
 	/// Returns the AMActionLogItem at \c index
 	AMActionLogItem3* logItem(const QModelIndex& index) const;
-	//QModelIndex indexForLogItem(AMActionLogItem3 *logItem) const;
+	QModelIndex indexForLogItem(AMActionLogItem3 *logItem) const;
 
 public slots:
 	/// Set the date/time range of actions that should be shown. Specificy an invalid QDateTime for \c oldest to show all.  Specify an invalid QDateTime for \c newest to always be the current date time.
