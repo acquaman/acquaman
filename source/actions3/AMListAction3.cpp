@@ -253,21 +253,21 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 	Q_UNUSED(oldState)
 
 	if(newState == AMListAction3::Starting){
-
-		qDebug() << "\nSTARTING A SUBACTION\n";
-		/*
-		AMListAction3* listAction = qobject_cast<AMListAction3*>(currentAction_);
+		AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
 		if(listAction){
-			int parentLogId = -1;
-			AMListAction3* parentAction = qobject_cast<AMListAction3*>(listAction->parentAction());
-			if(parentAction)
-				parentLogId = parentAction->logActionId();
-			qDebug() << "Doing initial startup log on list or loop with parent " << parentLogId;
-			if(!AMActionLog3::logUncompletedAction(currentAction_, parentLogId)) {
-				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem logging the uncompleted action to your database.  Please report this problem to the Acquaman developers."));
+			int parentLogId = logActionId();
+			if(!AMActionLog3::logUncompletedAction(listAction, parentLogId)) {
+				//NEM April 5th, 2012
 			}
 		}
-		*/
+	}
+	else if(newState == AMListAction3::Succeeded || newState == AMListAction3::Cancelled || newState == AMListAction3::Failed){
+		AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
+		if(listAction){
+			if(!AMActionLog3::updateCompletedAction(listAction)) {
+				//NEM April 5th, 2012
+			}
+		}
 	}
 
 	// sequential mode: could only come from the current action
