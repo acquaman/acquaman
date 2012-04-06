@@ -67,12 +67,6 @@ bool AMActionLogItem3::loadLogDetailsFromDb() const
 	return true;
 }
 
-//void AMActionLogItem3::setId(int newId)
-//{
-//	loadedFromDb_ = false;
-//	id_ = newId;
-//}
-
 QDateTime AMActionLogItem3::endDateTime() const
 {
 	if(!loadedFromDb_)
@@ -265,7 +259,7 @@ void AMActionHistoryModel3::refreshFromDb()
 		for(int i=ids.count()-1; i>=0; i--)
 			parentIdsAndIdsAscending.insertMulti(parentIds.at(i), ids.at(i));
 
-		if(!recurseActionsLogLevel(-1, parentIdsAndIdsAscending)){
+		if(!recurseActionsLogLevelCreate(-1, parentIdsAndIdsAscending)){
 			//NEM April 6th, 2012 ... problem generating internal model
 		}
 	}
@@ -330,7 +324,7 @@ void AMActionHistoryModel3::onDatabaseItemRemoved(const QString &tableName, int 
 
 void AMActionHistoryModel3::refreshSpecificIds()
 {
-	/*
+	//NTBA David Chevrier, April 6th, 2012 ... not taking care of separating out master lists/loops
 	// will contain the indexes of any rows that should be deleted.
 	QList<int> rowsToDelete;
 
@@ -344,7 +338,11 @@ void AMActionHistoryModel3::refreshSpecificIds()
 				rowsToDelete << i;
 			}
 			else {
-				emit dataChanged(index(i, 0), index(i, 2));
+				QModelIndex changedIndexFirst = indexForLogItem(itemToRefresh);
+				QModelIndex changedIndexLast = indexForLogItem(itemToRefresh).sibling(changedIndexFirst.row(), 2);
+				qDebug() << "Data changed in refreshSpecificIds for " << changedIndexFirst.row() << changedIndexFirst.column() << changedIndexLast.row() << changedIndexLast.column();
+				emit dataChanged(changedIndexFirst, changedIndexLast);
+				//emit dataChanged(index(i, 0), index(i, 2));
 			}
 		}
 	}
@@ -360,7 +358,6 @@ void AMActionHistoryModel3::refreshSpecificIds()
 		}
 		emit modelRefreshed();
 	}
-	*/
 }
 
 bool AMActionHistoryModel3::insideVisibleDateTimeRange(const QDateTime &dateTime)
@@ -799,10 +796,24 @@ void AMActionHistoryModel3::appendItem(AMActionLogItem3 *item)
 	items_.append(item);
 	endInsertRows();
 	*/
+	QModelIndex parentIndex = indexForLogItem(item).parent();
+	int parentRowCount = rowCount(parentIndex);
+	beginInsertRows(parentIndex, parentRowCount, parentRowCount);
+	items_.append(item);
+	endInsertRows();
 }
 
 void AMActionHistoryModel3::clear()
 {
+	qDebug() << "\n\nYO YO, A CLEAR IS BEING ATTEMPTED";
+	if(items_.isEmpty()){
+		qDebug() << "Nothing to clear\n\n";
+		return;
+	}
+	qDebug() << "Something to clear\n\n";
+	if(!recurseActionsLogLevelClear(QModelIndex())){
+		//NEM April 6th, 2012 ... something went wrong clearing
+	}
 	/*
 	if(items_.isEmpty())
 		return;
@@ -815,7 +826,7 @@ void AMActionHistoryModel3::clear()
 	*/
 }
 
-bool AMActionHistoryModel3::recurseActionsLogLevel(int parentId, QMap<int, int> parentIdsAndIds){
+bool AMActionHistoryModel3::recurseActionsLogLevelCreate(int parentId, QMap<int, int> parentIdsAndIds){
 	QList<int> childIdsInReverse = parentIdsAndIds.values(parentId);
 	if(childIdsInReverse.count() == 0)
 		return true;
@@ -835,26 +846,32 @@ bool AMActionHistoryModel3::recurseActionsLogLevel(int parentId, QMap<int, int> 
 	// Ask to place the children for each child in order
 	bool success = true;
 	for(int x = childIdsInReverse.count()-1; x >= 0; x--)
-		success &= recurseActionsLogLevel(childIdsInReverse.at(x), parentIdsAndIds);
+		success &= recurseActionsLogLevelCreate(childIdsInReverse.at(x), parentIdsAndIds);
+	return success;
+}
+
+bool AMActionHistoryModel3::recurseActionsLogLevelClear(QModelIndex parentIndex){
+	int childrenCount = rowCount(parentIndex);
+	if(childrenCount == 0)
+		return true;
+	bool success = true;
+	for(int x = childrenCount-1; x >= 0; x--)
+		success &= recurseActionsLogLevelClear(index(x, 0, parentIndex));
+
+	AMActionLogItem3 *item;
+	beginRemoveRows(parentIndex, 0, childrenCount);
+	for(int x = childrenCount-1; x >= 0; x--){
+		item = logItem(index(x, 0, parentIndex));
+		success &= items_.removeOne(item);
+		delete item;
+	}
+	endRemoveRows();
+
 	return success;
 }
 
 AMActionHistoryModel3::~AMActionHistoryModel3() {
 	clear();
-}
-
-bool AMActionHistoryModel3::deleteRow(int index)
-{
-	/*
-	if(index < 0 || index >= items_.count())
-		return false;
-
-	beginRemoveRows(QModelIndex(), index, index);
-	AMActionLogItem3* deleteMe = items_.takeAt(index);
-	endRemoveRows();
-	delete deleteMe;
-	return true;
-	*/
 }
 
 void AMActionHistoryView3::onReRunActionButtonClicked()

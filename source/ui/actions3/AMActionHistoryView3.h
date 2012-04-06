@@ -141,14 +141,14 @@ protected:
 
 	/// Helper function to append a row to the model with a given AMActionLogItem \c item. We don't have a public addRow() / insertRow() interface.
 	void appendItem(AMActionLogItem3* item);
-	/// Helper function to delete a row in the model, and delete the item at that row. We don't have a public removeRow() / removeRows() interface.
-	bool deleteRow(int index);
 
 	/// Helper function to clear the whole model. (Deletes all the items)
 	void clear();
 
-	/// Helper function to recurse through the actions log database information
-	bool recurseActionsLogLevel(int parentId, QMap<int, int> parentIdsAndIds);
+	/// Helper function to recurse through the actions log database information and populate the list
+	bool recurseActionsLogLevelCreate(int parentId, QMap<int, int> parentIdsAndIds);
+	/// Helper function to recurse through the items list and clear each level in order
+	bool recurseActionsLogLevelClear(QModelIndex parentIndex);
 
 protected:
 
