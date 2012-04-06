@@ -23,6 +23,7 @@
 #include <QToolButton>
 #include <QMessageBox>
 #include <QMenu>
+#include <QAction>
 
 #include <QStringBuilder>
 #include <QPixmapCache>
@@ -470,9 +471,21 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 void AMActionHistoryView3::onCustomContextMenuRequested(QPoint point)
 {
 	QMenu popup(treeView_);
-	popup.addAction(treeView_->selectionModel()->selectedRows().size() == 1 ? "Re-run this action" : "Re-run these actions");
+	QAction *temp = popup.addAction("");
 
-	QAction *temp = popup.exec(treeView_->mapToGlobal(point));
+	if (treeView_->selectionModel()->selectedRows().size() == 0){
+
+		temp->setText("Re-run this action");
+		temp->setEnabled(false);
+	}
+
+	else if (treeView_->selectionModel()->selectedRows().size() == 1)
+		temp->setText("Re-run this action");
+
+	else
+		temp->setText("Re-run these actions");
+
+	temp = popup.exec(treeView_->mapToGlobal(point));
 
 	if (temp && (temp->text() == "Re-run this action" || temp->text() == "Re-run these actions"))
 		onReRunActionButtonClicked();

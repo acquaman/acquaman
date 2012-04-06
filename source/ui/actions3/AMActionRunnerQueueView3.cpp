@@ -73,7 +73,7 @@ AMActionRunnerQueueView3::AMActionRunnerQueueView3(AMActionRunner3* actionRunner
 	hl->addWidget(deleteButton_);
 	hl->addSpacing(20);
 
-	pauseButton_ = new QPushButton(actionRunner_->queuePaused() ? "Queue Stopped\n(Click to start)" : "Queue Running\n(Click to stop at next action)");
+	pauseButton_ = new QPushButton;
 	QIcon pauseIcon(":/22x22/media-playback-pause.png");
 	pauseIcon.addPixmap(QPixmap(":/22x22/media-playback-start.png"), QIcon::Normal, QIcon::On);
 	pauseButton_->setIcon(pauseIcon);
@@ -82,6 +82,7 @@ AMActionRunnerQueueView3::AMActionRunnerQueueView3(AMActionRunner3* actionRunner
 	pauseButton_->setChecked(true);
 	pauseButton_->setStyleSheet("QPushButton { border: 2px solid #8f8f91; border-radius: 6px;background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 rgb(102,255,102), stop: 1 #dadbde);min-width: 140px; padding: 0px 5px 0 5px;} QPushButton:pressed { background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #dadbde, stop: 1 #f6f7fa); } QPushButton:flat { border: none; /* no border for a flat push button */ } QPushButton:checked { background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 rgb(102,102,255), stop: 1 #f6f7fa); } QPushButton:checked:pressed { background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #dadbde, stop: 1 #f6f7fa); }");
 	hl->addWidget(pauseButton_);
+	pauseButtonConfiguration();
 
 	QVBoxLayout* vl = new QVBoxLayout(this);
 	vl->setContentsMargins(0,0,0,0);
@@ -100,17 +101,36 @@ AMActionRunnerQueueView3::AMActionRunnerQueueView3(AMActionRunner3* actionRunner
 	connect(treeView_->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onSelectionChanged()));
 
 	connect(actionRunner_, SIGNAL(queuePausedChanged(bool)), this, SLOT(onQueuePaused(bool)));
+	connect(actionRunner_, SIGNAL(currentActionChanged(AMAction3*)), this, SLOT(onCurrentActionChanged()));
 }
 
 void AMActionRunnerQueueView3::onPauseButtonClicked(bool isPaused)
 {
-	pauseButton_->setText(isPaused ? "Queue Stopped\n(Click to start)" : "Queue Running\n(Click to stop at next action)");
 	actionRunner_->setQueuePaused(isPaused);
+	pauseButtonConfiguration();
 }
 
 void AMActionRunnerQueueView3::onQueueActionAddedOrRemoved()
 {
 	headerSubTitle_->setText(QString("%1 actions in the workflow queue").arg(actionRunner_->queuedActionCount()));
+	pauseButtonConfiguration();
+}
+
+void AMActionRunnerQueueView3::pauseButtonConfiguration()
+{
+	if (actionRunner_->queuedActionCount() == 0 && !actionRunner_->actionRunning())
+		pauseButton_->setText("Queue Empty\n(No actions to run)");
+
+	else if (actionRunner_->queuePaused() && actionRunner_->actionRunning())
+		pauseButton_->setText("Queue Stopping\n(Click to resume)");
+
+	else if (actionRunner_->queuePaused())
+		pauseButton_->setText("Queue Stopped\n(Click to start)");
+
+	else
+		pauseButton_->setText("Queue Running\n(Click to stop at next action)");
+
+	pauseButton_->setDisabled(actionRunner_->queuedActionCount() == 0);
 }
 
 void AMActionRunnerQueueView3::onSelectionChanged()
