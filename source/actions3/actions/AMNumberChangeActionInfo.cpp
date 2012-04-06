@@ -6,6 +6,7 @@ AMNumberChangeActionInfo::AMNumberChangeActionInfo(int newNumber, int indexToCha
 	newNumber_ = newNumber;
 	indexToChange_ = indexToChange;
 	updateDescriptionText();
+	canCopy_ = false;
 }
 
 AMNumberChangeActionInfo::AMNumberChangeActionInfo(const AMNumberChangeActionInfo &other) :
@@ -14,6 +15,7 @@ AMNumberChangeActionInfo::AMNumberChangeActionInfo(const AMNumberChangeActionInf
 	newNumber_ = other.newNumber();
 	indexToChange_ = other.indexToChange();
 	updateDescriptionText();
+	canCopy_ = false;
 }
 
 AMActionInfo3* AMNumberChangeActionInfo::createCopy() const{

@@ -101,9 +101,10 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 }
 
 void AMActionRunnerCurrentView3::onCurrentActionChanged(AMAction3* nextAction)
-{qDebug() << "Current View: " << (nextAction == 0) << nextAction;
+{
 	cancelButton_->setDisabled((nextAction == 0));
-	pauseButton_->setEnabled(nextAction->canPause());
+	if (nextAction)
+		pauseButton_->setEnabled(nextAction->canPause());
 
 	if(nextAction && nextAction->state() == AMAction3::Paused) {
 		pauseButton_->setIcon(QIcon(":/22x22/media-playback-start.png"));
