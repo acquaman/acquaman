@@ -30,9 +30,9 @@ AMWorkflowView3::AMWorkflowView3(QWidget *parent) :
 	addActionButton_ = new QPushButton("Add Action...");
 	hl->addWidget(addActionButton_);
 
-	currentView_ = new AMActionRunnerCurrentView3(AMActionRunner3::s());
-	queueView_ = new AMActionRunnerQueueView3(AMActionRunner3::s());
-	historyView_ = new AMActionHistoryView3(AMActionRunner3::s());
+	currentView_ = new AMActionRunnerCurrentView3(AMActionRunner3::workflow());
+	queueView_ = new AMActionRunnerQueueView3(AMActionRunner3::workflow());
+	historyView_ = new AMActionHistoryView3(AMActionRunner3::workflow());
 	addActionDialog_ = 0;
 
 	QVBoxLayout* vl = new QVBoxLayout(this);
