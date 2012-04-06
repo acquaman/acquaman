@@ -66,13 +66,13 @@ protected:
 };
 
 /// This QAbstractItemModel implements a model for completed workflow actions, used by AMActionHistoryView. You should never need to use this class directly.
-/*! In contrast to AMActionRunner's AMActionQueueModel, this model is flat and non-hierarchichal, since we're storing only completed actions -- no loop actions. */
+/*! Like AMActionRunner's AMActionQueueModel, this model is hierarchichal, since we're storing completed actions inside their respective loop and list actions. */
 class AMActionHistoryModel3 : public QAbstractItemModel
 {
 	Q_OBJECT
 public:
 
-	/// Constructor: \c db is the user database to show completed actions from.  Does not refresh the model automatically on creation; you will need to call refreshFromDb().
+	/// Constructor: \c db is the actions database to show completed actions from.  Does not refresh the model automatically on creation; you will need to call refreshFromDb().
 	AMActionHistoryModel3(AMDatabase* db, QObject* parent = 0);
 	/// Destructor: deletes all the AMActionItemLog instances in items_
 	virtual ~AMActionHistoryModel3();
@@ -103,6 +103,7 @@ public:
 
 	/// Returns the AMActionLogItem at \c index
 	AMActionLogItem3* logItem(const QModelIndex& index) const;
+	/// Returns the model index for a given AMActionLogItem
 	QModelIndex indexForLogItem(AMActionLogItem3 *logItem) const;
 
 public slots:

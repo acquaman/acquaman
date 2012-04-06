@@ -634,7 +634,15 @@ bool AMActionHistoryModel3::insideVisibleDateTimeRange(const QDateTime &dateTime
 
 void AMActionHistoryModel3::appendItem(AMActionLogItem3 *item)
 {
-	QModelIndex parentIndex = indexForLogItem(item).parent();
+	int parentId = item->parentId();
+	QModelIndex parentIndex = QModelIndex();
+
+	// If the parent id isn't -1 (no parent) then find the parent
+	if(parentId != -1)
+		for(int x = 0; x < items_.count(); x++)
+			if(items_.at(x)->id() == parentId)
+				parentIndex = indexForLogItem(items_.at(x));
+
 	int parentRowCount = rowCount(parentIndex);
 	beginInsertRows(parentIndex, parentRowCount, parentRowCount);
 	items_.append(item);
