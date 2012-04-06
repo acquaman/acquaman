@@ -73,7 +73,7 @@ AMActionRunnerQueueView3::AMActionRunnerQueueView3(AMActionRunner3* actionRunner
 	hl->addWidget(deleteButton_);
 	hl->addSpacing(20);
 
-	pauseButton_ = new QPushButton(actionRunner_->queuePaused() ? "Queue Paused\n(Click to run)" : "Queue Running\n(Click to pause)");
+	pauseButton_ = new QPushButton(actionRunner_->queuePaused() ? "Queue Stopped\n(Click to start)" : "Queue Running\n(Click to stop at next action)");
 	QIcon pauseIcon(":/22x22/media-playback-pause.png");
 	pauseIcon.addPixmap(QPixmap(":/22x22/media-playback-start.png"), QIcon::Normal, QIcon::On);
 	pauseButton_->setIcon(pauseIcon);
@@ -104,7 +104,7 @@ AMActionRunnerQueueView3::AMActionRunnerQueueView3(AMActionRunner3* actionRunner
 
 void AMActionRunnerQueueView3::onPauseButtonClicked(bool isPaused)
 {
-	pauseButton_->setText(isPaused ? "Queue Paused\n(Click to run)" : "Queue Running\n(Click to pause)");
+	pauseButton_->setText(isPaused ? "Queue Stopped\n(Click to start)" : "Queue Running\n(Click to stop at next action)");
 	actionRunner_->setQueuePaused(isPaused);
 }
 

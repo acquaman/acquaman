@@ -31,7 +31,7 @@ AMActionRunner3::~AMActionRunner3() {
 	}
 }
 
-AMActionRunner3 * AMActionRunner3::s()
+AMActionRunner3 * AMActionRunner3::workflow()
 {
 	if(!instance_)
 		instance_ = new AMActionRunner3();

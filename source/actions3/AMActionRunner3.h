@@ -16,8 +16,8 @@ class AMActionRunner3 : public QObject
 {
 	Q_OBJECT
 public:
-	/// This is a singleton class. You access the only instance of it using AMActionRunner::s().
-	static AMActionRunner3* s();
+	/// This is a singleton class. You access the only instance of it using AMActionRunner::workflow().
+	static AMActionRunner3* workflow();
 	/// Release and delete the singleton instance
 	static void releaseActionRunner();
 

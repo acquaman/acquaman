@@ -46,7 +46,7 @@ AMActionRunnerAddActionBar3::AMActionRunnerAddActionBar3(const QString& actionCa
 	connect(startActionButton_, SIGNAL(clicked()), this, SLOT(onStartActionRequested()));
 	connect(addToQueueButton_, SIGNAL(clicked()), this, SLOT(onAddToQueueRequested()));
 
-	connect(AMActionRunner3::s(), SIGNAL(currentActionChanged(AMAction3*)), this, SLOT(reviewStartActionButtonState()));
+	connect(AMActionRunner3::workflow(), SIGNAL(currentActionChanged(AMAction3*)), this, SLOT(reviewStartActionButtonState()));
 
 	reviewStartActionButtonState();
 }
@@ -55,13 +55,13 @@ AMActionRunnerAddActionBar3::AMActionRunnerAddActionBar3(const QString& actionCa
 #include <QMessageBox>
 void AMActionRunnerAddActionBar3::onStartActionRequested(){
 
-	if(AMActionRunner3::s()->actionRunning())
+	if(AMActionRunner3::workflow()->actionRunning())
 		return;
 
 	// check first: if there's already items queue up in the workflow, we need to find out if they want to add this action to the end of the queue and run, add this action to the beginning of the queue and run, add to end but not run, or just run this one first and leave the rest of the queue alone.
 	QAbstractButton* result = 0;
 	QPushButton* cancel=0, *addToBeginningAndStart=0, *addToEndAndStart=0, *addToEnd=0, *runOnlyThisOne=0;
-	if(AMActionRunner3::s()->queuedActionCount()) {
+	if(AMActionRunner3::workflow()->queuedActionCount()) {
 
 		QMessageBox questionBox;
 		questionBox.setText("There are already actions waiting in the workflow queue.");
@@ -89,23 +89,23 @@ void AMActionRunnerAddActionBar3::onStartActionRequested(){
 
 	if(result == 0) {
 		// no other actions in queue... Just run now.
-		AMActionRunner3::s()->runActionImmediatelyInQueue(action);
+		AMActionRunner3::workflow()->runActionImmediatelyInQueue(action);
 	}
 
 	else if(result == addToEnd) {
-		AMActionRunner3::s()->addActionToQueue(action);
+		AMActionRunner3::workflow()->addActionToQueue(action);
 	}
 	else if(result == addToEndAndStart) {
-		AMActionRunner3::s()->addActionToQueue(action);
-		AMActionRunner3::s()->setQueuePaused(false);
+		AMActionRunner3::workflow()->addActionToQueue(action);
+		AMActionRunner3::workflow()->setQueuePaused(false);
 	}
 	else if(result == addToBeginningAndStart) {
-		AMActionRunner3::s()->insertActionInQueue(action, 0);
-		AMActionRunner3::s()->setQueuePaused(false);
+		AMActionRunner3::workflow()->insertActionInQueue(action, 0);
+		AMActionRunner3::workflow()->setQueuePaused(false);
 	}
 	else if(result == runOnlyThisOne) {
 		// there are other actions, but we only want to run this one.
-		AMActionRunner3::s()->runActionImmediatelyInQueue(action);
+		AMActionRunner3::workflow()->runActionImmediatelyInQueue(action);
 	}
 }
 
@@ -116,7 +116,7 @@ void AMActionRunnerAddActionBar3::onAddToQueueRequested() {
 	if(!action)
 		return;
 
-	AMActionRunner3::s()->addActionToQueue(action);
+	AMActionRunner3::workflow()->addActionToQueue(action);
 
 	if(goToWorkflowOption_->isChecked())
 		emit showWorkflowRequested();
@@ -126,7 +126,7 @@ void AMActionRunnerAddActionBar3::onAddToQueueRequested() {
 void AMActionRunnerAddActionBar3::reviewStartActionButtonState() {
 
 	// if we can't start the action immediately because another action is already running in the workflow.
-	if(AMActionRunner3::s()->actionRunning()) {
+	if(AMActionRunner3::workflow()->actionRunning()) {
 		startActionButton_->setEnabled(false);
 		addToQueueButton_->setEnabled(true);
 		startActionButton_->setText("[Actions currently running]");

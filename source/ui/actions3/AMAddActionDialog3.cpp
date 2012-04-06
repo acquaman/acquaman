@@ -94,5 +94,5 @@ void AMAddActionDialog3::onAddToWorkflowButtonClicked()
 		return;
 	}
 
-	AMActionRunner3::s()->addActionToQueue(action);
+	AMActionRunner3::workflow()->addActionToQueue(action);
 }
