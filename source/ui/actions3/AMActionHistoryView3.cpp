@@ -186,6 +186,7 @@ void AMActionHistoryModel3::refreshFromDb()
 	// Get all of the ids of the AMActionLogs to display. Need to order in descending (most recent first) so we get the right limit.
 	QList<int> ids;
 	QList<int> parentIds;
+	QMap<int, int> parentIdsAndIds;
 	QSqlQuery q;
 	QSqlQuery q2;	// used to count the total number in the visible range, if we didn't have a limit.
 
@@ -245,6 +246,7 @@ void AMActionHistoryModel3::refreshFromDb()
 	while(q.next()){
 		ids << q.value(0).toInt();
 		parentIds << q.value(1).toInt();
+		parentIdsAndIds.insertMulti(q.value(1).toInt(), q.value(0).toInt());
 	}
 	q.finish();
 
@@ -263,57 +265,56 @@ void AMActionHistoryModel3::refreshFromDb()
 		// switch order
 		QMap<int, int> parentIdsAndIdsAscending;
 		for(int i=ids.count()-1; i>=0; i--){
-			parentIdsAndIdsAscending.insert(parentIds.at(i), ids.at(i));
+			parentIdsAndIdsAscending.insertMulti(parentIds.at(i), ids.at(i));
 		}
 		int numberInserted = 0;
-		QList<int> topLevelItems = parentIdsAndIdsAscending.values(-1);
+		QList<int> topLevelItemsAscending = parentIdsAndIdsAscending.values(-1);
+		QList<int> topLevelItemsDescending = parentIdsAndIds.values(-1);
+		QList<int> bigLoopAscending = parentIdsAndIdsAscending.values(1);
 
-		beginInsertRows(QModelIndex(), 0, 1);
-		items_ << new AMActionLogItem3(db_, 1);
+		qDebug() << "Ascending: " << topLevelItemsAscending;
+		qDebug() << "Descending: " << topLevelItemsDescending;
+		qDebug() << "Big loop ascending: " << bigLoopAscending;
+
+		beginInsertRows(QModelIndex(), 0, 2);
+		items_.insert(0, new AMActionLogItem3(db_, 23));
+		items_.insert(0, new AMActionLogItem3(db_, 1));
 		endInsertRows();
 
-		beginInsertRows(indexForLogItem(items_.at(0)), 0, 1);
-		items_ << new AMActionLogItem3(db_, 2);
+		beginInsertRows(indexForLogItem(items_.at(0)), 0, 9);
+		items_.insert(1, new AMActionLogItem3(db_, 22));
+		items_.insert(1, new AMActionLogItem3(db_, 21));
+		items_.insert(1, new AMActionLogItem3(db_, 16));
+		items_.insert(1, new AMActionLogItem3(db_, 15));
+		items_.insert(1, new AMActionLogItem3(db_, 14));
+		items_.insert(1, new AMActionLogItem3(db_, 9));
+		items_.insert(1, new AMActionLogItem3(db_, 8));
+		items_.insert(1, new AMActionLogItem3(db_, 7));
+		items_.insert(1, new AMActionLogItem3(db_, 2));
 		endInsertRows();
 
 		beginInsertRows(indexForLogItem(items_.at(1)), 0, 4);
-		items_ << new AMActionLogItem3(db_, 3);
-		items_ << new AMActionLogItem3(db_, 4);
-		items_ << new AMActionLogItem3(db_, 5);
-		items_ << new AMActionLogItem3(db_, 6);
-		endInsertRows();
-
-		beginInsertRows(indexForLogItem(items_.at(0)), 1, 4);
-		items_ << new AMActionLogItem3(db_, 7);
-		items_ << new AMActionLogItem3(db_, 8);
-		items_ << new AMActionLogItem3(db_, 9);
+		items_.insert(2, new AMActionLogItem3(db_, 6));
+		items_.insert(2, new AMActionLogItem3(db_, 5));
+		items_.insert(2, new AMActionLogItem3(db_, 4));
+		items_.insert(2, new AMActionLogItem3(db_, 3));
 		endInsertRows();
 
 		beginInsertRows(indexForLogItem(items_.at(8)), 0, 4);
-		items_ << new AMActionLogItem3(db_, 10);
-		items_ << new AMActionLogItem3(db_, 11);
-		items_ << new AMActionLogItem3(db_, 12);
-		items_ << new AMActionLogItem3(db_, 13);
-		endInsertRows();
-
-		beginInsertRows(indexForLogItem(items_.at(0)), 4, 7);
-		items_ << new AMActionLogItem3(db_, 14);
-		items_ << new AMActionLogItem3(db_, 15);
-		items_ << new AMActionLogItem3(db_, 16);
+		items_.insert(9, new AMActionLogItem3(db_, 13));
+		items_.insert(9, new AMActionLogItem3(db_, 12));
+		items_.insert(9, new AMActionLogItem3(db_, 11));
+		items_.insert(9, new AMActionLogItem3(db_, 10));
 		endInsertRows();
 
 		beginInsertRows(indexForLogItem(items_.at(15)), 0, 4);
-		items_ << new AMActionLogItem3(db_, 17);
-		items_ << new AMActionLogItem3(db_, 18);
-		items_ << new AMActionLogItem3(db_, 19);
-		items_ << new AMActionLogItem3(db_, 20);
+		items_.insert(16, new AMActionLogItem3(db_, 20));
+		items_.insert(16, new AMActionLogItem3(db_, 19));
+		items_.insert(16, new AMActionLogItem3(db_, 18));
+		items_.insert(16, new AMActionLogItem3(db_, 17));
 		endInsertRows();
 
-		beginInsertRows(indexForLogItem(items_.at(0)), 7, 9);
-		items_ << new AMActionLogItem3(db_, 21);
-		items_ << new AMActionLogItem3(db_, 22);
-		endInsertRows();
-
+		/*
 		QList<QModelIndex> indices;
 		qDebug() << "Row of QModelIndex()" << QModelIndex().row() << " children: " << rowCount(QModelIndex());
 		QModelIndex firstChild = index(0, 0, QModelIndex());
@@ -324,6 +325,7 @@ void AMActionHistoryModel3::refreshFromDb()
 			qDebug() << "I must be top level";
 		else
 			qDebug() << "My parent is " << logItem(parentIndex)->id();
+		qDebug() << "\n";
 		for(int x = 0; x < items_.count(); x++){
 			indices.append(indexForLogItem(items_.at(x)));
 			qDebug() << "Row of " << x+1 << indices.last().row() << " children: " << rowCount(indices.last());
@@ -335,14 +337,12 @@ void AMActionHistoryModel3::refreshFromDb()
 				qDebug() << "I must be top level";
 			else
 				qDebug() << "My parent is " << logItem(parentIndex)->id();
+			qDebug() << "\n";
 		}
 
 		for(int x = 0; x < indices.count(); x++)
 			qDebug() << logItem(indices.at(x))->id();
-
-		QTreeView *newTreeView = new QTreeView();
-		newTreeView->setModel(this);
-		newTreeView->show();
+		*/
 
 		/*
 		beginInsertRows(QModelIndex(), 0, topLevelItems.count());
