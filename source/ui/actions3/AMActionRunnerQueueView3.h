@@ -59,9 +59,12 @@ protected slots:
 	/// Called when the queue notifies us that it's been paused or unpaused. We use it to set the state of the pause button
 	void onQueuePaused(bool isPaused);
 
-
-
 protected:
+	/// Helper function to determine if all the selected indexes are at the same level of the hierarchy. We need this to be true in order to enable the 'duplicate actions' button.  Then a user can either duplicate top-level actions, or duplicate actions within an AMNestedAction, but there's no ambiguity as to what we would do for a combination of both.
+	bool allSelectedIndexesAtSameLevel(const QModelIndexList& selectedIndexes);
+	/// Helper function to determine everything about the state of the pause button.
+	void pauseButtonConfiguration();
+
 	AMActionRunner3* actionRunner_;
 	QTreeView* treeView_;
 	QLabel* headerTitle_, *headerSubTitle_;
@@ -72,10 +75,6 @@ protected:
 	QPushButton* deleteButton_, *duplicateButton_;
 
 	bool isCollapsed_;
-
-
-	/// Helper function to determine if all the selected indexes are at the same level of the hierarchy. We need this to be true in order to enable the 'duplicate actions' button.  Then a user can either duplicate top-level actions, or duplicate actions within an AMNestedAction, but there's no ambiguity as to what we would do for a combination of both.
-	bool allSelectedIndexesAtSameLevel(const QModelIndexList& selectedIndexes);
 };
 
 
