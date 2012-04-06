@@ -12,12 +12,14 @@ AMListAction3::AMListAction3(AMListActionInfo3* info, SubActionMode subActionMod
 	currentSubActionIndex_ = -1;	// prior to running any subactions
 	subActionMode_ = subActionMode;
 	logSubActionsSeparately_ = true;
+	logActionId_ = -1;
 }
 
 // Copy constructor. Takes care of making copies of the sub-actions
 AMListAction3::AMListAction3(const AMListAction3& other) : AMAction3(other) {
 	subActionMode_ = other.subActionMode_;
 	currentSubActionIndex_ = -1; // prior to running an subactions
+	logActionId_ = other.logActionId();
 
 	foreach(AMAction3* action, other.subActions_)
 		subActions_ << action->createCopy();
@@ -35,6 +37,10 @@ int AMListAction3::indexOfSubAction(const AMAction3 *action) const
 			return i;
 	}
 	return -1;
+}
+
+int AMListAction3::logActionId() const{
+	return logActionId_;
 }
 
 AMAction3 * AMListAction3::subActionAt(int index)
@@ -90,6 +96,10 @@ AMAction3 * AMListAction3::takeSubActionAt(int index)
 	emit subActionRemoved(index);
 
 	return action;
+}
+
+void AMListAction3::setLogActionId(int logActionId){
+	logActionId_ = logActionId;
 }
 
 bool AMListAction3::deleteSubAction(int index)
@@ -241,6 +251,24 @@ void AMListAction3::cancelImplementation()
 void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 {
 	Q_UNUSED(oldState)
+
+	if(newState == AMListAction3::Starting){
+
+		qDebug() << "\nSTARTING A SUBACTION\n";
+		/*
+		AMListAction3* listAction = qobject_cast<AMListAction3*>(currentAction_);
+		if(listAction){
+			int parentLogId = -1;
+			AMListAction3* parentAction = qobject_cast<AMListAction3*>(listAction->parentAction());
+			if(parentAction)
+				parentLogId = parentAction->logActionId();
+			qDebug() << "Doing initial startup log on list or loop with parent " << parentLogId;
+			if(!AMActionLog3::logUncompletedAction(currentAction_, parentLogId)) {
+				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem logging the uncompleted action to your database.  Please report this problem to the Acquaman developers."));
+			}
+		}
+		*/
+	}
 
 	// sequential mode: could only come from the current action
 	if(subActionMode() == Sequential) {
@@ -477,8 +505,10 @@ void AMListAction3::internalCleanupAction(AMAction3 *action)
 	AMAction3 *cleanupAction = action ? action : currentSubAction();
 
 	internalDisconnectAction(cleanupAction);
-	if (internalShouldLogSubAction(cleanupAction))
-		AMActionLog3::logCompletedAction(cleanupAction);
+	if (internalShouldLogSubAction(cleanupAction)){
+		int parentLogId = logActionId();
+		AMActionLog3::logCompletedAction(cleanupAction, parentLogId);
+	}
 }
 
 bool AMListAction3::internalAllActionsRunningOrFinal() const

@@ -85,6 +85,10 @@ bool AMActionLog3::setFromAction(const AMAction3 *completedAction)
 	}
 }
 
+void AMActionLog3::setParentId(int parentId){
+	parentId_ = parentId;
+}
+
 void AMActionLog3::dbLoadStartDateTime(const QDateTime &startDateTime)
 {
 	startDateTime_ = startDateTime;
@@ -119,10 +123,16 @@ void AMActionLog3::dbLoadInfo(AMDbObject *newInfo)
 	}
 }
 
-bool AMActionLog3::logUncompletedAction(const AMAction3 *uncompletedAction, AMDatabase *database){
+bool AMActionLog3::logUncompletedAction(const AMAction3 *uncompletedAction, int parentLogId, AMDatabase *database){
 	if(uncompletedAction && !uncompletedAction->inFinalState()){
 		AMActionLog3 actionLog(uncompletedAction);
+		actionLog.setParentId(parentLogId);
 		bool success = actionLog.storeToDb(database);
+		const AMListAction3 *listAction = qobject_cast<const AMListAction3*>(uncompletedAction);
+		if(success && listAction){
+			AMListAction3 *modifyListAction = const_cast<AMListAction3*>(listAction);
+			modifyListAction->setLogActionId(actionLog.id());
+		}
 		return success;
 	}
 	return false;
@@ -153,10 +163,10 @@ bool AMActionLog3::updateCompletedAction(const AMAction3 *completedAction, AMDat
 	}
 }
 
-bool AMActionLog3::logCompletedAction(const AMAction3 *completedAction, AMDatabase *database)
-{
+bool AMActionLog3::logCompletedAction(const AMAction3 *completedAction, int parentLogId, AMDatabase *database){
 	if(completedAction && completedAction->inFinalState()) {
 		AMActionLog3 actionLog(completedAction);
+		actionLog.setParentId(parentLogId);
 		return actionLog.storeToDb(database);
 	}
 	else {

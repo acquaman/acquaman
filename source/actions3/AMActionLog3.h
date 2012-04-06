@@ -21,6 +21,7 @@ class AMActionLog3 : public AMDbObject
 	// The associated ActionInfo's longDescription and iconFileName are duplicated in the database table for quick access, but they don't need to be member variables of this object since we can always retrieve them from the info().
 	Q_PROPERTY(QString longDescription READ longDescription)
 	Q_PROPERTY(QString iconFileName READ iconFileName)
+	Q_PROPERTY(int parentId READ parentId WRITE setParentId)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Completed Action Log3")
 	// Index by completion time (This is how we will sort/present them in order.)
@@ -39,11 +40,12 @@ public:
 
 	// Static functions:
 	////////////////////////////
-	static bool logUncompletedAction(const AMAction3 *uncompletedAction, AMDatabase* database = AMDatabase::database("actions"));
+	/// Call this function to log an uncompleted action (start of an AMListAction or AMLoopAction) to the database. Returns true if the action was successfully logged, and false if there was a problem accessing or storing in the database. Optionally pass a parent log id go enforce parent-child relationship.
+	static bool logUncompletedAction(const AMAction3 *uncompletedAction, int parentLogId = -1, AMDatabase* database = AMDatabase::database("actions"));
 	static bool updateCompletedAction(const AMAction3 *completedAction, AMDatabase* database = AMDatabase::database("actions"));
 
-	/// Call this function to log a completed action to the database. Returns false and does nothing if the action is still running.  Returns true if the action was successfully logged, and false if there was a problem accessing or storing in the database.
-	static bool logCompletedAction(const AMAction3* completedAction, AMDatabase* database = AMDatabase::database("actions"));
+	/// Call this function to log a completed action to the database. Returns false and does nothing if the action is still running.  Returns true if the action was successfully logged, and false if there was a problem accessing or storing in the database. Optionally pass a parent log id go enforce parent-child relationship.
+	static bool logCompletedAction(const AMAction3* completedAction, int parentLogId = -1, AMDatabase* database = AMDatabase::database("actions"));
 
 	// Public accessors
 	////////////////////////////
@@ -70,10 +72,16 @@ public:
 	/// Convenience function to get the info()'s iconFileName
 	QString iconFileName() const { if(info_) return info_->iconFileName(); else return QString(); }
 
+	/// Convenience function to get the database id of the parent (AMLogAction) of this AMLogAction. No parent returns -1.
+	int parentId() const { return parentId_;}
+
 	// Public setters:
 	/////////////////////////
 	/// Set up this log based on the given \c completedAction. If the action is not in a final state, does nothing and returns false.
 	bool setFromAction(const AMAction3* completedAction);
+
+	/// Set the parent AMLogAction database id for this AMLogAction (no parent is -1)
+	void setParentId(int parentId);
 
 	// For use by the database system ONLY, during loadFromDb():
 	//////////////////////////
@@ -92,6 +100,7 @@ protected:
 	int finalState_;
 	QDateTime startDateTime_, endDateTime_;
 	bool actionInheritedList_;
+	int parentId_;
 };
 
 #endif // AMACTIONLOG3_H

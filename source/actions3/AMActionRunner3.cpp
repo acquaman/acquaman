@@ -51,7 +51,12 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 	if(state == AMAction3::Starting){
 		AMListAction3* listAction = qobject_cast<AMListAction3*>(currentAction_);
 		if(listAction){
-			if(!AMActionLog3::logUncompletedAction(currentAction_)) {
+			int parentLogId = -1;
+			AMListAction3* parentAction = qobject_cast<AMListAction3*>(listAction->parentAction());
+			if(parentAction)
+				parentLogId = parentAction->logActionId();
+			qDebug() << "DOING INTIAL STARTUP log on list or loop with parent " << parentLogId << "\n";
+			if(!AMActionLog3::logUncompletedAction(currentAction_, parentLogId)) {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem logging the uncompleted action to your database.  Please report this problem to the Acquaman developers."));
 			}
 		}
@@ -82,8 +87,12 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 
 		// log it, unless it's a list action that wants to take care of logging its sub-actions itself.
 		AMListAction3* listAction = qobject_cast<AMListAction3*>(currentAction_);
+		int parentLogId = -1;
+		AMListAction3* parentAction = qobject_cast<AMListAction3*>(currentAction_->parentAction());
+		if(parentAction)
+			parentLogId = parentAction->logActionId();
 		if(!(listAction && listAction->shouldLogSubActionsSeparately())) {
-			if(!AMActionLog3::logCompletedAction(currentAction_)) {
+			if(!AMActionLog3::logCompletedAction(currentAction_, parentLogId)) {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem logging the completed action to your database.  Please report this problem to the Acquaman developers."));
 			}
 		}
@@ -302,8 +311,12 @@ void AMActionRunner3::onImmediateActionStateChanged(int state, int previousState
 		// remove from the list of current immediate actions
 		immediateActions_.removeAll(action);
 
+		int parentLogId = -1;
+		AMListAction3* parentAction = qobject_cast<AMListAction3*>(action->parentAction());
+		if(parentAction)
+			parentLogId = parentAction->logActionId();
 		// log it:
-		if(!AMActionLog3::logCompletedAction(action)) {
+		if(!AMActionLog3::logCompletedAction(action, parentLogId)) {
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -201, "There was a problem logging the completed action to your database.  Please report this problem to the Acquaman developers."));
 		}
 

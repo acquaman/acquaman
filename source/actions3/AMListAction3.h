@@ -64,6 +64,9 @@ public:
 	/// Find the index of a sub-action \c action, or -1 if not found.
 	int indexOfSubAction(const AMAction3* action) const;
 
+	/// Find the database id of the log action for this list, or -1 if not found.
+	int logActionId() const;
+
 	// Modification methods:
 
 	/// Appends a sub-action to the end of the sub-actions list. (Fails and returns false if the action is already running.)
@@ -85,6 +88,10 @@ public:
 	virtual bool shouldLogSubActionsSeparately() { return logSubActionsSeparately_; }
 	/// Set whether each individual sub-action should be logged separately as soon as it completes, or if the whole loop action should be logged as one long single action (in the user's action history log).
 	void setShouldLogSubActionsSeparately(bool logSeparately) { logSubActionsSeparately_ = logSeparately; }
+
+public slots:
+	/// Sets the database id of the log action associated with this instance
+	void setLogActionId(int logActionId);
 
 signals:
 
@@ -166,6 +173,9 @@ protected:
 	int currentSubActionIndex_;
 	/// Flag that holds whether the sub actions should be logged separately.
 	bool logSubActionsSeparately_;
+
+	/// Holds the id of the log action (these actions are logged first when they start). Will hold -1 until it gets something valid
+	int logActionId_;
 };
 
 /// This is a convenience class that builds a sequential list action.  Equivalent to AMListAction(info, SubActionMode::Sequential, parent).
