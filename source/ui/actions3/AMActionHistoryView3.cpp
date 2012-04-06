@@ -590,21 +590,19 @@ void AMActionHistoryModel3::refreshSpecificIds()
 	// will contain the indexes of any rows that should be deleted.
 	QList<int> rowsToDelete;
 
-	// go through all our rows, and see if any of them need to be updated.
-	for(int i=0, cc=rowCount(); i<cc; i++) {
-		AMActionLogItem3* itemToRefresh = items_.at(i);
+	// go through all our items, and see if any of them need to be updated.
+	for(int x = 0; x < items_.count(); x++){
+		AMActionLogItem3* itemToRefresh = items_.at(x);
 		if(idsRequiringRefresh_.contains(itemToRefresh->id())) {
 			itemToRefresh->refresh();
 			// If the end date time has changed to be outside of our visible range, it shouldn't be shown any more.
 			if(!insideVisibleDateTimeRange(itemToRefresh->endDateTime())) {
-				rowsToDelete << i;
+				rowsToDelete << x;
 			}
 			else {
 				QModelIndex changedIndexFirst = indexForLogItem(itemToRefresh);
 				QModelIndex changedIndexLast = indexForLogItem(itemToRefresh).sibling(changedIndexFirst.row(), 2);
-				qDebug() << "Data changed in refreshSpecificIds for " << changedIndexFirst.row() << changedIndexFirst.column() << changedIndexLast.row() << changedIndexLast.column();
 				emit dataChanged(changedIndexFirst, changedIndexLast);
-				//emit dataChanged(index(i, 0), index(i, 2));
 			}
 		}
 	}
@@ -613,6 +611,7 @@ void AMActionHistoryModel3::refreshSpecificIds()
 
 	// Now delete any rows that shouldn't be there anymore. Need to go backwards so that indexes don't change as we delete.
 	if(!rowsToDelete.isEmpty()) {
+		qDebug() << "\nThere are rows to be deleted\n";
 		emit modelAboutToBeRefreshed();
 		for(int i=rowsToDelete.count()-1; i>=0; i--) {
 			removeRow(rowsToDelete.at(i));
