@@ -541,6 +541,8 @@ protected:
 	void setupExperimentStatus();
 	/// Sets up various beamline components.
 	void setupComponents();
+	/// Sets up the exposed actions.
+	void setupExposedControls();
 
 	/// Constructor. This is a singleton class; access it through VESPERSBeamline::vespers().
 	VESPERSBeamline();

@@ -46,7 +46,7 @@ AMActionRunnerAddActionBar3::AMActionRunnerAddActionBar3(const QString& actionCa
 	connect(startActionButton_, SIGNAL(clicked()), this, SLOT(onStartActionRequested()));
 	connect(addToQueueButton_, SIGNAL(clicked()), this, SLOT(onAddToQueueRequested()));
 
-	connect(AMActionRunner3::s(), SIGNAL(currentActionChanged(AMAction*)), this, SLOT(reviewStartActionButtonState()));
+	connect(AMActionRunner3::s(), SIGNAL(currentActionChanged(AMAction3*)), this, SLOT(reviewStartActionButtonState()));
 
 	reviewStartActionButtonState();
 }

@@ -36,6 +36,7 @@ VESPERSBeamline::VESPERSBeamline()
 	setupControlSets();
 	setupMono();
 	setupExperimentStatus();
+	setupExposedControls();
 }
 
 void VESPERSBeamline::setupDiagnostics()
@@ -396,6 +397,12 @@ void VESPERSBeamline::setupExperimentStatus()
 {
 	experimentConfiguration_ = new VESPERSExperimentConfiguration(synchronizedDwellTime_, pseudoSampleStage_, (XRFDetector *)vortex1E_, (XRFDetector *)vortex4E_, this);
 	connect(experimentConfiguration_, SIGNAL(beamDumped()), this, SIGNAL(beamDumped()));
+}
+
+void VESPERSBeamline::setupExposedControls()
+{
+	addExposedControl(pseudoSampleStage()->horiz());
+	addExposedControl(pseudoSampleStage()->vert());
 }
 
 AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(Beam beam)

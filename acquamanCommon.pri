@@ -548,7 +548,10 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/actions3/actions/AMNumberChangeActionInfo.h \
 	source/actions3/editors/AMNumberChangeActionEditor.h \
 	source/actions3/AMListActionInfo3.h \
-	source/actions3/editors/AMListActionEditor3.h
+	source/actions3/editors/AMListActionEditor3.h \
+	source/actions3/actions/AMControlMoveActionInfo3.h \
+	source/actions3/actions/AMControlMoveAction3.h \
+	source/actions3/editors/AMControlMoveActionEditor3.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -923,7 +926,10 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/actions3/actions/AMNumberChangeActionInfo.cpp \
 	source/actions3/editors/AMNumberChangeActionEditor.cpp \
 	source/actions3/AMListActionInfo3.cpp \
-	source/actions3/editors/AMListActionEditor3.cpp
+	source/actions3/editors/AMListActionEditor3.cpp \
+	source/actions3/actions/AMControlMoveActionInfo3.cpp \
+	source/actions3/actions/AMControlMoveAction3.cpp \
+	source/actions3/editors/AMControlMoveActionEditor3.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {

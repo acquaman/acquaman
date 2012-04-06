@@ -38,6 +38,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/editors/AMListActionEditor3.h"
 #include "actions3/actions/AMNumberChangeAction.h"
 #include "actions3/editors/AMNumberChangeActionEditor.h"
+#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/editors/AMControlMoveActionEditor3.h"
 
 AMAppController::AMAppController(QObject *parent)
 	: AMDatamanAppController(parent)
@@ -65,6 +67,8 @@ bool AMAppController::startup(){
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMLoopActionInfo3, AMLoopActionEditor3>();
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMListActionInfo3, AMListAction3>("List", "This action runs a list of other actions", ":/32x32/media-playlist-repeat.png");
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMListActionInfo3, AMListActionEditor3>();
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMControlMoveActionInfo3, AMControlMoveAction3>("Control Move", "Moves a control to an absolute position or a relative position from its current state.", ":system-run.png");
+		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMControlMoveActionInfo3, AMControlMoveActionEditor3>();
 
 		return success;
 	}
