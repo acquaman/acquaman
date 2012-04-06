@@ -22,6 +22,7 @@
 #include <QPushButton>
 #include <QToolButton>
 #include <QMessageBox>
+#include <QMenu>
 
 #include <QStringBuilder>
 #include <QPixmapCache>
@@ -47,7 +48,7 @@ bool AMActionLogItem3::loadLogDetailsFromDb() const
 		return false;
 
 	QStringList columns;
-	columns << "name" << "longDescription" << "iconFileName" << "startDateTime" << "endDateTime" << "finalState";
+	columns << "name" << "longDescription" << "iconFileName" << "startDateTime" << "endDateTime" << "finalState" << "info";
 	QVariantList values = db_->retrieve(id_, AMDbObjectSupport::s()->tableNameForClass<AMActionLog3>(), columns);
 	if(values.isEmpty())
 		return false;
@@ -58,6 +59,7 @@ bool AMActionLogItem3::loadLogDetailsFromDb() const
 	startDateTime_ = values.at(3).toDateTime();
 	endDateTime_ = values.at(4).toDateTime();
 	finalState_ = values.at(5).toInt();
+	canCopy_ = db_->retrieve(values.at(6).toString().section(';', -1).toInt(), values.at(6).toString().split(';').first(), "canCopy").toBool();
 	loadedFromDb_ = true;
 
 	return true;
@@ -109,6 +111,13 @@ QString AMActionLogItem3::iconFileName() const
 	if(!loadedFromDb_)
 		loadLogDetailsFromDb();
 	return iconFileName_;
+}
+
+bool AMActionLogItem3::canCopy() const
+{
+	if (!loadedFromDb_)
+		loadLogDetailsFromDb();
+	return canCopy_;
 }
 
 // AMActionHistoryModel
@@ -439,6 +448,8 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	vl->addWidget(topFrame);
 	vl->addWidget(treeView_);
 
+	treeView_->setContextMenuPolicy(Qt::CustomContextMenu);
+
 	// Make connections:
 	////////////////
 
@@ -452,6 +463,19 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 
 	connect(reRunActionButton_, SIGNAL(clicked()), this, SLOT(onReRunActionButtonClicked()));
 	connect(treeView_->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onSelectionChanged()));
+
+	connect(treeView_, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
+}
+
+void AMActionHistoryView3::onCustomContextMenuRequested(QPoint point)
+{
+	QMenu popup(treeView_);
+	popup.addAction(treeView_->selectionModel()->selectedRows().size() == 1 ? "Re-run this action" : "Re-run these actions");
+
+	QAction *temp = popup.exec(treeView_->mapToGlobal(point));
+
+	if (temp && (temp->text() == "Re-run this action" || temp->text() == "Re-run these actions"))
+		onReRunActionButtonClicked();
 }
 
 void AMActionHistoryView3::onModelAboutToBeRefreshed()
@@ -564,6 +588,14 @@ int AMActionHistoryModel3::columnCount(const QModelIndex &parent) const
 		return 4;
 	else
 		return 0;
+}
+
+Qt::ItemFlags AMActionHistoryModel3::flags(const QModelIndex &index) const
+{
+	if (logItem(index)->canCopy())
+		return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+
+	return Qt::ItemIsEnabled;
 }
 
 QVariant AMActionHistoryModel3::data(const QModelIndex &index, int role) const
