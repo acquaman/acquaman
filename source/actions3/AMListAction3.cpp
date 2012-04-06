@@ -6,11 +6,12 @@
 // Used for qWarning() messages that may be useful to developers trying to debug action implementatons
 #include <QDebug>
 
-AMListAction3::AMListAction3(AMActionInfo3* info, SubActionMode subActionMode, QObject *parent) :
+AMListAction3::AMListAction3(AMListActionInfo3* info, SubActionMode subActionMode, QObject *parent) :
 	AMAction3(info, parent)
 {
 	currentSubActionIndex_ = -1;	// prior to running any subactions
 	subActionMode_ = subActionMode;
+	logSubActionsSeparately_ = true;
 }
 
 // Copy constructor. Takes care of making copies of the sub-actions

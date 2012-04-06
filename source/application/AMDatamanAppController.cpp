@@ -87,6 +87,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AM2DScan.h"
 #include "analysis/AM2DNormalizationAB.h"
 
+#include "actions3/AMLoopActionInfo3.h"
 #include "actions3/actions/AMNumberChangeAction.h"
 #include "actions3/AMActionInfo3.h"
 #include "actions3/AMActionLog3.h"
@@ -470,6 +471,8 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMScanControllerActionInfo>();
 
 	AMDbObjectSupport::s()->registerClass<AMActionInfo3>();
+	AMDbObjectSupport::s()->registerClass<AMListActionInfo3>();
+	AMDbObjectSupport::s()->registerClass<AMLoopActionInfo3>();
 	AMDbObjectSupport::s()->registerClass<AMActionLog3>();
 	AMDbObjectSupport::s()->registerClass<AMNumberChangeActionInfo>();
 

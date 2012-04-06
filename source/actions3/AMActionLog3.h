@@ -39,13 +39,19 @@ public:
 
 	// Static functions:
 	////////////////////////////
+	static bool logUncompletedAction(const AMAction3 *uncompletedAction, AMDatabase* database = AMDatabase::database("actions"));
+	static bool updateCompletedAction(const AMAction3 *completedAction, AMDatabase* database = AMDatabase::database("actions"));
+
 	/// Call this function to log a completed action to the database. Returns false and does nothing if the action is still running.  Returns true if the action was successfully logged, and false if there was a problem accessing or storing in the database.
 	static bool logCompletedAction(const AMAction3* completedAction, AMDatabase* database = AMDatabase::database("actions"));
 
 	// Public accessors
 	////////////////////////////
-	/// Returns true of this is a valid log (ie: it has been created from a finished action)
+	/// Returns true if this is a valid log (ie: it has been created from a finished action)
 	bool isValid() const { return info_ != 0; }
+
+	/// Returns true if this log was started on a list action or loop action
+	bool actionInheritedList() const { return actionInheritedList_;}
 
 	/// Access the AMActionInfo associated with the logged action. Returns 0 if this is a null log.
 	const AMActionInfo3* info() const { return info_; }
@@ -85,6 +91,7 @@ protected:
 	AMActionInfo3* info_;
 	int finalState_;
 	QDateTime startDateTime_, endDateTime_;
+	bool actionInheritedList_;
 };
 
 #endif // AMACTIONLOG3_H

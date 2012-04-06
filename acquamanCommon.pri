@@ -546,7 +546,9 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/ui/actions3/AMActionHistoryView3.h \
 	source/actions3/actions/AMNumberChangeAction.h \
 	source/actions3/actions/AMNumberChangeActionInfo.h \
-	source/actions3/editors/AMNumberChangeActionEditor.h
+	source/actions3/editors/AMNumberChangeActionEditor.h \
+	source/actions3/AMListActionInfo3.h \
+	source/actions3/editors/AMListActionEditor3.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -919,7 +921,9 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/actions3/AMActionHistoryView3.cpp \
 	source/actions3/actions/AMNumberChangeAction.cpp \
 	source/actions3/actions/AMNumberChangeActionInfo.cpp \
-	source/actions3/editors/AMNumberChangeActionEditor.cpp
+	source/actions3/editors/AMNumberChangeActionEditor.cpp \
+	source/actions3/AMListActionInfo3.cpp \
+	source/actions3/editors/AMListActionEditor3.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -943,6 +947,10 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
 
 
 

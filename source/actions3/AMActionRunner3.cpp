@@ -48,6 +48,15 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 {
 	emit currentActionStateChanged(state, previousState);
 
+	if(state == AMAction3::Starting){
+		AMListAction3* listAction = qobject_cast<AMListAction3*>(currentAction_);
+		if(listAction){
+			if(!AMActionLog3::logUncompletedAction(currentAction_)) {
+				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem logging the uncompleted action to your database.  Please report this problem to the Acquaman developers."));
+			}
+		}
+	}
+
 	if(state == AMAction3::Failed) {
 		// What should we do?
 		int failureResponse = currentAction_->failureResponseInActionRunner();
@@ -76,6 +85,11 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 		if(!(listAction && listAction->shouldLogSubActionsSeparately())) {
 			if(!AMActionLog3::logCompletedAction(currentAction_)) {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem logging the completed action to your database.  Please report this problem to the Acquaman developers."));
+			}
+		}
+		else if(listAction){
+			if(!AMActionLog3::updateCompletedAction(currentAction_)) {
+				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem updating the log of the completed action to your database.  Please report this problem to the Acquaman developers."));
 			}
 		}
 

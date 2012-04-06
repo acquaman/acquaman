@@ -2,7 +2,7 @@
 #define AMLISTACTION3_H
 
 #include "actions3/AMAction3.h"
-#include "actions3/AMActionInfo3.h"
+#include "actions3/AMListActionInfo3.h"
 
 /// This subclass of AMAction provides an easy way to run a list of sub-actions either sequentially or in parallel.
 class AMListAction3 : public AMAction3
@@ -16,7 +16,7 @@ public:
 			   };
 
 	/// Constructor
-	AMListAction3(AMActionInfo3* info, SubActionMode subActionMode = Sequential, QObject *parent = 0);
+	Q_INVOKABLE AMListAction3(AMListActionInfo3* info, AMListAction3::SubActionMode subActionMode = Sequential, QObject *parent = 0);
 
 	/// Copy constructor. Takes care of making copies of the sub-actions
 	AMListAction3(const AMListAction3& other);
@@ -175,7 +175,7 @@ class AMSequentialListAction3 : public AMListAction3
 
 public:
 	/// Constructor.  Builds a sequential list action.
-	AMSequentialListAction3(AMActionInfo3 *info, QObject *parent = 0)
+	AMSequentialListAction3(AMListActionInfo3 *info, QObject *parent = 0)
 		: AMListAction3(info, Sequential, parent)
 	{}
 };
@@ -187,7 +187,7 @@ class AMParallelListAction3 : public AMListAction3
 
 public:
 	/// Constructor.  Builds a parallel list action.
-	AMParallelListAction3(AMActionInfo3 *info, QObject *parent = 0)
+	AMParallelListAction3(AMListActionInfo3 *info, QObject *parent = 0)
 		: AMListAction3(info, Parallel, parent)
 	{}
 };
