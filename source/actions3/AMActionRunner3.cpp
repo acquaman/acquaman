@@ -467,7 +467,12 @@ Qt::ItemFlags AMActionRunnerQueueModel3::flags(const QModelIndex &index) const
 	if(!index.isValid())
 		return Qt::ItemIsDropEnabled;
 
-	Qt::ItemFlags rv = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
+	Qt::ItemFlags rv = 0;
+
+	if (actionAtIndex(index)->info()->canCopy())
+		rv = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
+	else
+		rv = Qt::ItemIsEnabled | Qt::ItemIsDragEnabled;
 
 	// List actions can accept drops onto them (to insert actions)
 	AMListAction3* listAction = qobject_cast<AMListAction3*>(actionAtIndex(index));
