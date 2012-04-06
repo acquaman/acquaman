@@ -23,6 +23,8 @@ AMListAction3::AMListAction3(const AMListAction3& other) : AMAction3(other) {
 
 	foreach(AMAction3* action, other.subActions_)
 		subActions_ << action->createCopy();
+	foreach(AMAction3* action, subActions_)
+		action->setParentAction(this);
 }
 // Destructor: deletes the sub-actions
 AMListAction3::~AMListAction3() {
@@ -254,7 +256,6 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 
 	if(newState == AMListAction3::Starting){
 
-		qDebug() << "\nSTARTING A SUBACTION\n";
 		/*
 		AMListAction3* listAction = qobject_cast<AMListAction3*>(currentAction_);
 		if(listAction){

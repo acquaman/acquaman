@@ -17,15 +17,16 @@ AMLoopAction3::AMLoopAction3(int iterations, QObject *parent) : AMListAction3(ne
 	currentSubAction_ = 0;
 }
 
-AMLoopAction3::AMLoopAction3(const AMLoopAction3 &other) : AMListAction3(other) {
+AMLoopAction3::AMLoopAction3(const AMLoopAction3 &other)
+	: AMListAction3(other)
+{
 	logSubActionsSeparately_ = other.logSubActionsSeparately_;
 	// These are runtime, not configure, properties. This is supposed to be a new action:
 	currentIteration_ = 0;
 	currentSubActionIndex_ = -1;
 	currentSubAction_ = 0;
 
-	foreach(AMAction3* action, other.subActions_)
-		subActions_ << action->createCopy();
+	// AMListAction already handles copying the actions, so we just need to make sure the parents are set properly.
 	foreach(AMAction3* action, subActions_)
 		action->setParentAction(this);
 }
