@@ -41,33 +41,6 @@ AMActionLogItem3::AMActionLogItem3(AMDatabase *db, int id)
 	loadedFromDb_ = false;
 }
 
-
-bool AMActionLogItem3::loadLogDetailsFromDb() const
-{
-	if(!db_)
-		return false;
-	if(id_ < 1)
-		return false;
-
-	QStringList columns;
-	columns << "name" << "longDescription" << "iconFileName" << "startDateTime" << "endDateTime" << "finalState" << "info" << "parentId";
-	QVariantList values = db_->retrieve(id_, AMDbObjectSupport::s()->tableNameForClass<AMActionLog3>(), columns);
-	if(values.isEmpty())
-		return false;
-
-	shortDescription_ = values.at(0).toString();
-	longDescription_  = values.at(1).toString();
-	iconFileName_ = values.at(2).toString();
-	startDateTime_ = values.at(3).toDateTime();
-	endDateTime_ = values.at(4).toDateTime();
-	finalState_ = values.at(5).toInt();
-	canCopy_ = db_->retrieve(values.at(6).toString().section(';', -1).toInt(), values.at(6).toString().split(';').first(), "canCopy").toBool();
-	parentId_ = values.at(7).toInt();
-	loadedFromDb_ = true;
-
-	return true;
-}
-
 QDateTime AMActionLogItem3::endDateTime() const
 {
 	if(!loadedFromDb_)
@@ -123,6 +96,32 @@ int AMActionLogItem3::parentId() const{
 	return parentId_;
 }
 
+bool AMActionLogItem3::loadLogDetailsFromDb() const
+{
+	if(!db_)
+		return false;
+	if(id_ < 1)
+		return false;
+
+	QStringList columns;
+	columns << "name" << "longDescription" << "iconFileName" << "startDateTime" << "endDateTime" << "finalState" << "info" << "parentId";
+	QVariantList values = db_->retrieve(id_, AMDbObjectSupport::s()->tableNameForClass<AMActionLog3>(), columns);
+	if(values.isEmpty())
+		return false;
+
+	shortDescription_ = values.at(0).toString();
+	longDescription_  = values.at(1).toString();
+	iconFileName_ = values.at(2).toString();
+	startDateTime_ = values.at(3).toDateTime();
+	endDateTime_ = values.at(4).toDateTime();
+	finalState_ = values.at(5).toInt();
+	canCopy_ = db_->retrieve(values.at(6).toString().section(';', -1).toInt(), values.at(6).toString().split(';').first(), "canCopy").toBool();
+	parentId_ = values.at(7).toInt();
+	loadedFromDb_ = true;
+
+	return true;
+}
+
 // AMActionHistoryModel
 ////////////////////////////
 
@@ -146,6 +145,268 @@ AMActionHistoryModel3::AMActionHistoryModel3(AMDatabase *db, QObject *parent) : 
 	cancelledIcon_ = QPixmap(":/22x22/orangeX.png");
 	failedIcon_ = QPixmap(":/22x22/redCrash.png");
 	unknownIcon_ = QPixmap(":/22x22/dialog-question.png");
+}
+
+AMActionHistoryModel3::~AMActionHistoryModel3() {
+	clear();
+}
+
+QModelIndex AMActionHistoryModel3::index(int row, int column, const QModelIndex &parent) const
+{
+	// Return bad index if it's outside the column range
+	if(column < 0 || column > 4)
+		return QModelIndex();
+
+	// if no parent is top level
+	if(!parent.isValid()){
+		//qDebug() << "Looking at no parent, must be top level";
+		if(row < 0){// what about other limit?
+			//NEM April 5th, 2012 ... invalid?
+			return QModelIndex();
+		}
+		int foundTopLevels = 0;
+		for(int x = 0; x < items_.count(); x++){
+			if(items_.at(x)->parentId() == -1)
+				foundTopLevels++;
+			if(foundTopLevels == row+1)
+				return createIndex(row, column, items_.at(x));
+		}
+		//NEM April 5th, 2012 ... ran out of list to check?
+		return QModelIndex();
+	}
+	// if parent then it's sub-level
+	else{
+		//qDebug() << "Looking at something sub-level";
+		AMActionLogItem3 *parentLogItem = logItem(parent);
+		if(!parentLogItem){
+			//NEM April 5th, 2012 ... returned bad parent pointer
+			return QModelIndex();
+		}
+		int parentIndexInList = items_.indexOf(parentLogItem);
+		int siblingsFound = 0;
+		for(int x = parentIndexInList; x < items_.count(); x++){
+			if(items_.at(x)->parentId() == parentLogItem->id())
+				siblingsFound++;
+			if(siblingsFound == row+1)
+				return createIndex(row, column, items_.at(x));
+		}
+		// NEM April 5th, 2012 ... ran out of list to check?
+		return QModelIndex();
+	}
+}
+
+QModelIndex AMActionHistoryModel3::parent(const QModelIndex &child) const
+{
+	if(!child.isValid())
+		return QModelIndex();
+
+	AMActionLogItem3 *childLogItem = logItem(child);
+	if(!childLogItem)
+		return QModelIndex();
+
+	for(int x = 0; x < items_.count(); x++)
+		if(items_.at(x)->id() == childLogItem->parentId())
+			return indexForLogItem(items_.at(x));
+
+	//NEM April 5th, 2012 ... couldn't find parent
+	return QModelIndex();
+}
+
+int AMActionHistoryModel3::rowCount(const QModelIndex &parent) const
+{
+	// top level
+	if(!parent.isValid()){
+		int topLevelsFound = 0;
+		for(int x = 0; x < items_.count(); x++)
+			if(items_.at(x)->parentId() == -1)
+				topLevelsFound++;
+
+		return topLevelsFound;
+	}
+	// some sub-level
+	else{
+		AMActionLogItem3 *parentLogItem = logItem(parent);
+		if(!parentLogItem){
+			//NEM April 5th, 2012 ... returned bad parent pointer
+			return 0;
+		}
+		int childrenFound = 0;
+		int parentIndexInList = items_.indexOf(parentLogItem);
+		for(int x = parentIndexInList; x < items_.count(); x++)//might optimize to figure a good ending point
+			if(items_.at(x)->parentId() == parentLogItem->id())
+				childrenFound++;
+
+		return childrenFound;
+	}
+}
+
+int AMActionHistoryModel3::columnCount(const QModelIndex &parent) const
+{
+	if(!parent.isValid())
+		return 4;
+	else
+		return 0;
+}
+
+QVariant AMActionHistoryModel3::data(const QModelIndex &index, int role) const
+{
+	AMActionLogItem3 *item = logItem(index);
+	if(!item){
+		//NEM April 5th, 2012 ... no logItem at index
+		return QVariant();
+	}
+
+	if(role == Qt::DisplayRole) {
+		switch(index.column()) {
+		case 0: return item->shortDescription();
+		case 1: return QVariant();
+		case 2: return AMDateTimeUtils::prettyDateTime(item->endDateTime());
+		case 3: return AMDateTimeUtils::prettyDuration(item->startDateTime(), item->endDateTime());
+		}
+	}
+	else if(role == Qt::DecorationRole) {
+		// column 0: return the action icon.
+		if(index.column() == 0) {
+			QString iconFileName = item->iconFileName();
+			if(iconFileName.isEmpty())
+				iconFileName = ":/64x64/generic-action.png";
+			QPixmap p;
+			if(QPixmapCache::find("AMActionLogItemIcon" % iconFileName, &p))
+				return p;
+			else {
+				p.load(iconFileName);
+				p = p.scaledToHeight(22, Qt::SmoothTransformation);
+				QPixmapCache::insert("AMActionLogItemIcon" % iconFileName, p);
+				return p;
+			}
+		}
+		// column 1: return the status icon
+		else if(index.column() == 1) {
+			switch(item->finalState()) {
+			case AMAction3::Succeeded: return succeededIcon_;
+			case AMAction3::Cancelled: return cancelledIcon_;
+			case AMAction3::Failed: return failedIcon_;
+			default: return unknownIcon_;
+			}
+		}
+		else
+			return QVariant();
+	}
+	else if(role == Qt::SizeHintRole) {
+		return QSize(-1, 32);
+	}
+	else if(role == Qt::ToolTipRole) {
+		if(index.column() == 0) {
+			return item->longDescription();
+		}
+		else if(index.column() == 1) {
+			switch(item->finalState()) {
+			case AMAction3::Succeeded: return "Succeeded";
+			case AMAction3::Cancelled: return "Cancelled";
+			case AMAction3::Failed: return "Failed";
+			default: return "[?]";
+			}
+		}
+	}
+	else if(role == Qt::BackgroundRole) {
+		switch(item->finalState()) {
+		case AMAction3::Succeeded:
+			return QColor(126, 255, 106);// light green
+		case AMAction3::Cancelled:
+			return QColor(255, 176, 106);// light orange
+		case AMAction3::Failed:
+			return QColor(255, 104, 106);// light red
+		default:
+			return QVariant();
+		}
+	}
+
+	return QVariant();
+}
+
+Qt::ItemFlags AMActionHistoryModel3::flags(const QModelIndex &index) const
+{
+	AMActionLogItem3 *item = logItem(index);
+	if (item && item->canCopy())
+		return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+
+	return Qt::ItemIsEnabled;
+}
+
+QVariant AMActionHistoryModel3::headerData(int section, Qt::Orientation orientation, int role) const
+{
+	if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
+		switch(section) {
+		case 0: return QString("Action");
+		case 1: return QString("Status");
+		case 2: return QString("Finished");
+		case 3: return QString("Duration");
+		default: return QVariant();
+		}
+	}
+	return QVariant();
+}
+
+bool AMActionHistoryModel3::hasChildren(const QModelIndex &parent) const{
+	if(!parent.isValid())
+		return true; // top level must have children
+	else{
+		AMActionLogItem3 *parentLogItem = logItem(parent);
+		if(!parentLogItem){
+			//NEM April 5th, 2012 ... returned bad parent pointer
+			return false;
+		}
+		int parentIndexInList = items_.indexOf(parentLogItem);
+		for(int x = parentIndexInList; x < items_.count(); x++)//might optimize to figure a good ending point
+			if(items_.at(x)->parentId() == parentLogItem->id())
+				return true;
+
+		return false;
+	}
+}
+
+AMActionLogItem3 * AMActionHistoryModel3::logItem(const QModelIndex &index) const
+{
+	if(!index.isValid())
+		return 0;
+	return static_cast<AMActionLogItem3*>(index.internalPointer());
+}
+
+QModelIndex AMActionHistoryModel3::indexForLogItem(AMActionLogItem3 *logItem) const{
+	if(!logItem)
+		return QModelIndex();
+
+	if(logItem->parentId() == -1){
+		// top level logItem
+		int topLevelBefore = 0;
+		for(int x = 0; x < items_.count(); x++){
+			if(items_.at(x) == logItem){
+				return createIndex(topLevelBefore, 0, logItem);
+			}
+			if(items_.at(x)->parentId() == -1)
+				topLevelBefore++;
+		}
+		//NEM April 5th, 2012 ... logItem not found
+		return QModelIndex();
+	}
+	else{
+		// we have a parent logitem
+		bool foundParent = false;
+		int backwardsIndex = items_.indexOf(logItem); //find myself
+		int numberOfSiblings = 0;
+		while(!foundParent){
+			if(backwardsIndex == 0){
+				//NEM April 5th, 2012 ... logItem couldn't find parent
+				return QModelIndex();
+			}
+			backwardsIndex--;
+			if(items_.at(backwardsIndex)->id() == logItem->parentId()) //mark parent found if id matches
+				foundParent = true;
+			else if(items_.at(backwardsIndex)->parentId() == logItem->parentId())
+				numberOfSiblings++; //or incremement the number of your siblings
+		}
+		return createIndex(numberOfSiblings, 0, logItem);
+	}
 }
 
 void AMActionHistoryModel3::setVisibleDateTimeRange(const QDateTime &oldest, const QDateTime &newest)
@@ -371,8 +632,72 @@ bool AMActionHistoryModel3::insideVisibleDateTimeRange(const QDateTime &dateTime
 	return true;
 }
 
+void AMActionHistoryModel3::appendItem(AMActionLogItem3 *item)
+{
+	QModelIndex parentIndex = indexForLogItem(item).parent();
+	int parentRowCount = rowCount(parentIndex);
+	beginInsertRows(parentIndex, parentRowCount, parentRowCount);
+	items_.append(item);
+	endInsertRows();
+}
+
+void AMActionHistoryModel3::clear()
+{
+	if(items_.isEmpty())
+		return;
+
+	if(!recurseActionsLogLevelClear(QModelIndex())){
+		//NEM April 6th, 2012 ... something went wrong clearing
+	}
+}
+
+bool AMActionHistoryModel3::recurseActionsLogLevelCreate(int parentId, QMap<int, int> parentIdsAndIds){
+	QList<int> childIdsInReverse = parentIdsAndIds.values(parentId);
+	if(childIdsInReverse.count() == 0)
+		return true;
+	int indexOfParent;
+	if(!items_.count() == 0){
+		for(int x = 0; x < items_.count(); x++)
+			if(items_.at(x)->id() == parentId)
+				indexOfParent = x+1;
+	}
+	else
+		indexOfParent = 0;
+
+	// Place this level of items in reverse order
+	for(int x = 0; x < childIdsInReverse.count(); x++)
+		items_.insert(indexOfParent, new AMActionLogItem3(db_, childIdsInReverse.at(x)));
+
+	// Ask to place the children for each child in order
+	bool success = true;
+	for(int x = childIdsInReverse.count()-1; x >= 0; x--)
+		success &= recurseActionsLogLevelCreate(childIdsInReverse.at(x), parentIdsAndIds);
+	return success;
+}
+
+bool AMActionHistoryModel3::recurseActionsLogLevelClear(QModelIndex parentIndex){
+	int childrenCount = rowCount(parentIndex);
+	if(childrenCount == 0)
+		return true;
+	bool success = true;
+	for(int x = childrenCount-1; x >= 0; x--)
+		success &= recurseActionsLogLevelClear(index(x, 0, parentIndex));
+
+	AMActionLogItem3 *item;
+	beginRemoveRows(parentIndex, 0, childrenCount);
+	for(int x = childrenCount-1; x >= 0; x--){
+		item = logItem(index(x, 0, parentIndex));
+		success &= items_.removeOne(item);
+		delete item;
+	}
+	endRemoveRows();
+
+	return success;
+}
 
 
+// AMActionHistoryView
+////////////////////////////
 
 AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMDatabase *db, QWidget *parent) : QWidget(parent)
 {
@@ -587,305 +912,7 @@ void AMActionHistoryView3::onRangeComboBoxActivated(int rangeIndex)
 	model_->setVisibleDateTimeRange(oldest);
 }
 
-QModelIndex AMActionHistoryModel3::index(int row, int column, const QModelIndex &parent) const
-{
-	// Return bad index if it's outside the column range
-	if(column < 0 || column > 4)
-		return QModelIndex();
 
-	// if no parent is top level
-	if(!parent.isValid()){
-		//qDebug() << "Looking at no parent, must be top level";
-		if(row < 0){// what about other limit?
-			//NEM April 5th, 2012 ... invalid?
-			return QModelIndex();
-		}
-		int foundTopLevels = 0;
-		for(int x = 0; x < items_.count(); x++){
-			if(items_.at(x)->parentId() == -1)
-				foundTopLevels++;
-			if(foundTopLevels == row+1)
-				return createIndex(row, column, items_.at(x));
-		}
-		//NEM April 5th, 2012 ... ran out of list to check?
-		return QModelIndex();
-	}
-	// if parent then it's sub-level
-	else{
-		//qDebug() << "Looking at something sub-level";
-		AMActionLogItem3 *parentLogItem = logItem(parent);
-		if(!parentLogItem){
-			//NEM April 5th, 2012 ... returned bad parent pointer
-			return QModelIndex();
-		}
-		int parentIndexInList = items_.indexOf(parentLogItem);
-		int siblingsFound = 0;
-		for(int x = parentIndexInList; x < items_.count(); x++){
-			if(items_.at(x)->parentId() == parentLogItem->id())
-				siblingsFound++;
-			if(siblingsFound == row+1)
-				return createIndex(row, column, items_.at(x));
-		}
-		// NEM April 5th, 2012 ... ran out of list to check?
-		return QModelIndex();
-	}
-}
-
-QModelIndex AMActionHistoryModel3::parent(const QModelIndex &child) const
-{
-	if(!child.isValid())
-		return QModelIndex();
-
-	AMActionLogItem3 *childLogItem = logItem(child);
-	if(!childLogItem)
-		return QModelIndex();
-
-	for(int x = 0; x < items_.count(); x++)
-		if(items_.at(x)->id() == childLogItem->parentId())
-			return indexForLogItem(items_.at(x));
-
-	//NEM April 5th, 2012 ... couldn't find parent
-	return QModelIndex();
-}
-
-int AMActionHistoryModel3::rowCount(const QModelIndex &parent) const
-{
-	// top level
-	if(!parent.isValid()){
-		int topLevelsFound = 0;
-		for(int x = 0; x < items_.count(); x++)
-			if(items_.at(x)->parentId() == -1)
-				topLevelsFound++;
-
-		return topLevelsFound;
-	}
-	// some sub-level
-	else{
-		AMActionLogItem3 *parentLogItem = logItem(parent);
-		if(!parentLogItem){
-			//NEM April 5th, 2012 ... returned bad parent pointer
-			return 0;
-		}
-		int childrenFound = 0;
-		int parentIndexInList = items_.indexOf(parentLogItem);
-		for(int x = parentIndexInList; x < items_.count(); x++)//might optimize to figure a good ending point
-			if(items_.at(x)->parentId() == parentLogItem->id())
-				childrenFound++;
-
-		return childrenFound;
-	}
-}
-
-int AMActionHistoryModel3::columnCount(const QModelIndex &parent) const
-{
-	if(!parent.isValid())
-		return 4;
-	else
-		return 0;
-}
-
-Qt::ItemFlags AMActionHistoryModel3::flags(const QModelIndex &index) const
-{
-	AMActionLogItem3 *item = logItem(index);
-	if (item && item->canCopy())
-		return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-
-	return Qt::ItemIsEnabled;
-}
-
-QVariant AMActionHistoryModel3::data(const QModelIndex &index, int role) const
-{
-	AMActionLogItem3 *item = logItem(index);
-	if(!item){
-		//NEM April 5th, 2012 ... no logItem at index
-		return QVariant();
-	}
-
-	if(role == Qt::DisplayRole) {
-		switch(index.column()) {
-		case 0: return item->shortDescription();
-		case 1: return QVariant();
-		case 2: return AMDateTimeUtils::prettyDateTime(item->endDateTime());
-		case 3: return AMDateTimeUtils::prettyDuration(item->startDateTime(), item->endDateTime());
-		}
-	}
-	else if(role == Qt::DecorationRole) {
-		// column 0: return the action icon.
-		if(index.column() == 0) {
-			QString iconFileName = item->iconFileName();
-			if(iconFileName.isEmpty())
-				iconFileName = ":/64x64/generic-action.png";
-			QPixmap p;
-			if(QPixmapCache::find("AMActionLogItemIcon" % iconFileName, &p))
-				return p;
-			else {
-				p.load(iconFileName);
-				p = p.scaledToHeight(22, Qt::SmoothTransformation);
-				QPixmapCache::insert("AMActionLogItemIcon" % iconFileName, p);
-				return p;
-			}
-		}
-		// column 1: return the status icon
-		else if(index.column() == 1) {
-			switch(item->finalState()) {
-			case AMAction3::Succeeded: return succeededIcon_;
-			case AMAction3::Cancelled: return cancelledIcon_;
-			case AMAction3::Failed: return failedIcon_;
-			default: return unknownIcon_;
-			}
-		}
-		else
-			return QVariant();
-	}
-	else if(role == Qt::SizeHintRole) {
-		return QSize(-1, 32);
-	}
-	else if(role == Qt::ToolTipRole) {
-		if(index.column() == 0) {
-			return item->longDescription();
-		}
-		else if(index.column() == 1) {
-			switch(item->finalState()) {
-			case AMAction3::Succeeded: return "Succeeded";
-			case AMAction3::Cancelled: return "Cancelled";
-			case AMAction3::Failed: return "Failed";
-			default: return "[?]";
-			}
-		}
-	}
-	else if(role == Qt::BackgroundRole) {
-		switch(item->finalState()) {
-		case AMAction3::Succeeded:
-			return QColor(126, 255, 106);// light green
-		case AMAction3::Cancelled:
-			return QColor(255, 176, 106);// light orange
-		case AMAction3::Failed:
-			return QColor(255, 104, 106);// light red
-		default:
-			return QVariant();
-		}
-	}
-
-	return QVariant();
-}
-
-QVariant AMActionHistoryModel3::headerData(int section, Qt::Orientation orientation, int role) const
-{
-	if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
-		switch(section) {
-		case 0: return QString("Action");
-		case 1: return QString("Status");
-		case 2: return QString("Finished");
-		case 3: return QString("Duration");
-		default: return QVariant();
-		}
-	}
-	return QVariant();
-}
-
-bool AMActionHistoryModel3::hasChildren(const QModelIndex &parent) const{
-	if(!parent.isValid())
-		return true; // top level must have children
-	else{
-		AMActionLogItem3 *parentLogItem = logItem(parent);
-		if(!parentLogItem){
-			//NEM April 5th, 2012 ... returned bad parent pointer
-			return false;
-		}
-		int parentIndexInList = items_.indexOf(parentLogItem);
-		for(int x = parentIndexInList; x < items_.count(); x++)//might optimize to figure a good ending point
-			if(items_.at(x)->parentId() == parentLogItem->id())
-				return true;
-
-		return false;
-	}
-}
-
-void AMActionHistoryModel3::appendItem(AMActionLogItem3 *item)
-{
-	/*
-	int currentCount = items_.count();
-	beginInsertRows(QModelIndex(), currentCount, currentCount);
-	items_.append(item);
-	endInsertRows();
-	*/
-	QModelIndex parentIndex = indexForLogItem(item).parent();
-	int parentRowCount = rowCount(parentIndex);
-	beginInsertRows(parentIndex, parentRowCount, parentRowCount);
-	items_.append(item);
-	endInsertRows();
-}
-
-void AMActionHistoryModel3::clear()
-{
-	qDebug() << "\n\nYO YO, A CLEAR IS BEING ATTEMPTED";
-	if(items_.isEmpty()){
-		qDebug() << "Nothing to clear\n\n";
-		return;
-	}
-	qDebug() << "Something to clear\n\n";
-	if(!recurseActionsLogLevelClear(QModelIndex())){
-		//NEM April 6th, 2012 ... something went wrong clearing
-	}
-	/*
-	if(items_.isEmpty())
-		return;
-
-	int currentCount = items_.count();
-	beginRemoveRows(QModelIndex(), 0, currentCount-1);
-	qDeleteAll(items_);
-	items_.clear();
-	endRemoveRows();
-	*/
-}
-
-bool AMActionHistoryModel3::recurseActionsLogLevelCreate(int parentId, QMap<int, int> parentIdsAndIds){
-	QList<int> childIdsInReverse = parentIdsAndIds.values(parentId);
-	if(childIdsInReverse.count() == 0)
-		return true;
-	int indexOfParent;
-	if(!items_.count() == 0){
-		for(int x = 0; x < items_.count(); x++)
-			if(items_.at(x)->id() == parentId)
-				indexOfParent = x+1;
-	}
-	else
-		indexOfParent = 0;
-
-	// Place this level of items in reverse order
-	for(int x = 0; x < childIdsInReverse.count(); x++)
-		items_.insert(indexOfParent, new AMActionLogItem3(db_, childIdsInReverse.at(x)));
-
-	// Ask to place the children for each child in order
-	bool success = true;
-	for(int x = childIdsInReverse.count()-1; x >= 0; x--)
-		success &= recurseActionsLogLevelCreate(childIdsInReverse.at(x), parentIdsAndIds);
-	return success;
-}
-
-bool AMActionHistoryModel3::recurseActionsLogLevelClear(QModelIndex parentIndex){
-	int childrenCount = rowCount(parentIndex);
-	if(childrenCount == 0)
-		return true;
-	bool success = true;
-	for(int x = childrenCount-1; x >= 0; x--)
-		success &= recurseActionsLogLevelClear(index(x, 0, parentIndex));
-
-	AMActionLogItem3 *item;
-	beginRemoveRows(parentIndex, 0, childrenCount);
-	for(int x = childrenCount-1; x >= 0; x--){
-		item = logItem(index(x, 0, parentIndex));
-		success &= items_.removeOne(item);
-		delete item;
-	}
-	endRemoveRows();
-
-	return success;
-}
-
-AMActionHistoryModel3::~AMActionHistoryModel3() {
-	clear();
-}
 
 void AMActionHistoryView3::onReRunActionButtonClicked()
 {
@@ -939,50 +966,6 @@ void AMActionHistoryView3::onSelectionChanged()
 			reRunActionButton_->setEnabled(true);
 			reRunActionButton_->setText("Re-run these actions");
 		}
-	}
-}
-
-AMActionLogItem3 * AMActionHistoryModel3::logItem(const QModelIndex &index) const
-{
-	if(!index.isValid())
-		return 0;
-	return static_cast<AMActionLogItem3*>(index.internalPointer());
-}
-
-QModelIndex AMActionHistoryModel3::indexForLogItem(AMActionLogItem3 *logItem) const{
-	if(!logItem)
-		return QModelIndex();
-
-	if(logItem->parentId() == -1){
-		// top level logItem
-		int topLevelBefore = 0;
-		for(int x = 0; x < items_.count(); x++){
-			if(items_.at(x) == logItem){
-				return createIndex(topLevelBefore, 0, logItem);
-			}
-			if(items_.at(x)->parentId() == -1)
-				topLevelBefore++;
-		}
-		//NEM April 5th, 2012 ... logItem not found
-		return QModelIndex();
-	}
-	else{
-		// we have a parent logitem
-		bool foundParent = false;
-		int backwardsIndex = items_.indexOf(logItem); //find myself
-		int numberOfSiblings = 0;
-		while(!foundParent){
-			if(backwardsIndex == 0){
-				//NEM April 5th, 2012 ... logItem couldn't find parent
-				return QModelIndex();
-			}
-			backwardsIndex--;
-			if(items_.at(backwardsIndex)->id() == logItem->parentId()) //mark parent found if id matches
-				foundParent = true;
-			else if(items_.at(backwardsIndex)->parentId() == logItem->parentId())
-				numberOfSiblings++; //or incremement the number of your siblings
-		}
-		return createIndex(numberOfSiblings, 0, logItem);
 	}
 }
 
