@@ -7,6 +7,7 @@
 
 #include "dataman/database/AMDatabase.h"
 #include "util/AMDeferredFunctionCall.h"
+#include "actions3/AMActionInfo3.h"
 
 class AMActionLog3;
 
@@ -36,6 +37,8 @@ public:
 	int finalState() const;
 	/// Returns the iconFileName of the action, loading it from the database if required.
 	QString iconFileName() const;
+	/// Returns the copy-ability of the action, loading it from the database if required.
+	bool canCopy() const;
 
 protected:
 
@@ -56,6 +59,7 @@ protected:
 	mutable int finalState_;
 	mutable QString iconFileName_;
 	mutable QDateTime startDateTime_, endDateTime_;
+	mutable bool canCopy_;
 };
 
 /// This QAbstractItemModel implements a model for completed workflow actions, used by AMActionHistoryView. You should never need to use this class directly.
@@ -89,6 +93,7 @@ public:
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
 	virtual QVariant data(const QModelIndex &index, int role) const;
+	Qt::ItemFlags flags(const QModelIndex &index) const;
 	virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
 	/// Returns the AMActionLogItem at \c index
@@ -203,6 +208,8 @@ protected slots:
 	/// Called right after the model is refreshed.  If we were scrolled to the bottom, let's go back to the new bottom. This lets users always see the most recently-completed actions.
 	void onModelRefreshed();
 
+	/// A custom context menu that offers the same functionality as "Re-run this/these action(s)".
+	void onCustomContextMenuRequested(QPoint point);
 
 protected:
 	AMActionRunner3* actionRunner_;
