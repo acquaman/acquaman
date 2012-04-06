@@ -186,7 +186,6 @@ void AMActionHistoryModel3::refreshFromDb()
 	// Get all of the ids of the AMActionLogs to display. Need to order in descending (most recent first) so we get the right limit.
 	QList<int> ids;
 	QList<int> parentIds;
-	QMap<int, int> parentIdsAndIds;
 	QSqlQuery q;
 	QSqlQuery q2;	// used to count the total number in the visible range, if we didn't have a limit.
 
@@ -246,7 +245,6 @@ void AMActionHistoryModel3::refreshFromDb()
 	while(q.next()){
 		ids << q.value(0).toInt();
 		parentIds << q.value(1).toInt();
-		parentIdsAndIds.insertMulti(q.value(1).toInt(), q.value(0).toInt());
 	}
 	q.finish();
 
@@ -264,100 +262,12 @@ void AMActionHistoryModel3::refreshFromDb()
 	if(!ids.isEmpty()) {
 		// switch order
 		QMap<int, int> parentIdsAndIdsAscending;
-		for(int i=ids.count()-1; i>=0; i--){
-			parentIdsAndIdsAscending.insertMulti(parentIds.at(i), ids.at(i));
-		}
-		int numberInserted = 0;
-		QList<int> topLevelItemsAscending = parentIdsAndIdsAscending.values(-1);
-		QList<int> topLevelItemsDescending = parentIdsAndIds.values(-1);
-		QList<int> bigLoopAscending = parentIdsAndIdsAscending.values(1);
-
-		qDebug() << "Ascending: " << topLevelItemsAscending;
-		qDebug() << "Descending: " << topLevelItemsDescending;
-		qDebug() << "Big loop ascending: " << bigLoopAscending;
-
-		beginInsertRows(QModelIndex(), 0, 2);
-		items_.insert(0, new AMActionLogItem3(db_, 23));
-		items_.insert(0, new AMActionLogItem3(db_, 1));
-		endInsertRows();
-
-		beginInsertRows(indexForLogItem(items_.at(0)), 0, 9);
-		items_.insert(1, new AMActionLogItem3(db_, 22));
-		items_.insert(1, new AMActionLogItem3(db_, 21));
-		items_.insert(1, new AMActionLogItem3(db_, 16));
-		items_.insert(1, new AMActionLogItem3(db_, 15));
-		items_.insert(1, new AMActionLogItem3(db_, 14));
-		items_.insert(1, new AMActionLogItem3(db_, 9));
-		items_.insert(1, new AMActionLogItem3(db_, 8));
-		items_.insert(1, new AMActionLogItem3(db_, 7));
-		items_.insert(1, new AMActionLogItem3(db_, 2));
-		endInsertRows();
-
-		beginInsertRows(indexForLogItem(items_.at(1)), 0, 4);
-		items_.insert(2, new AMActionLogItem3(db_, 6));
-		items_.insert(2, new AMActionLogItem3(db_, 5));
-		items_.insert(2, new AMActionLogItem3(db_, 4));
-		items_.insert(2, new AMActionLogItem3(db_, 3));
-		endInsertRows();
-
-		beginInsertRows(indexForLogItem(items_.at(8)), 0, 4);
-		items_.insert(9, new AMActionLogItem3(db_, 13));
-		items_.insert(9, new AMActionLogItem3(db_, 12));
-		items_.insert(9, new AMActionLogItem3(db_, 11));
-		items_.insert(9, new AMActionLogItem3(db_, 10));
-		endInsertRows();
-
-		beginInsertRows(indexForLogItem(items_.at(15)), 0, 4);
-		items_.insert(16, new AMActionLogItem3(db_, 20));
-		items_.insert(16, new AMActionLogItem3(db_, 19));
-		items_.insert(16, new AMActionLogItem3(db_, 18));
-		items_.insert(16, new AMActionLogItem3(db_, 17));
-		endInsertRows();
-
-		/*
-		QList<QModelIndex> indices;
-		qDebug() << "Row of QModelIndex()" << QModelIndex().row() << " children: " << rowCount(QModelIndex());
-		QModelIndex firstChild = index(0, 0, QModelIndex());
-		if(firstChild.isValid())
-			qDebug() << "First child is " << logItem(firstChild)->id();
-		QModelIndex parentIndex = parent(QModelIndex());
-		if(!parentIndex.isValid())
-			qDebug() << "I must be top level";
-		else
-			qDebug() << "My parent is " << logItem(parentIndex)->id();
-		qDebug() << "\n";
-		for(int x = 0; x < items_.count(); x++){
-			indices.append(indexForLogItem(items_.at(x)));
-			qDebug() << "Row of " << x+1 << indices.last().row() << " children: " << rowCount(indices.last());
-			QModelIndex firstChild = index(0, 0, indices.last());
-			if(firstChild.isValid())
-				qDebug() << "First child is " << logItem(firstChild)->id();
-			QModelIndex parentIndex = parent(indices.last());
-			if(!parentIndex.isValid())
-				qDebug() << "I must be top level";
-			else
-				qDebug() << "My parent is " << logItem(parentIndex)->id();
-			qDebug() << "\n";
-		}
-
-		for(int x = 0; x < indices.count(); x++)
-			qDebug() << logItem(indices.at(x))->id();
-		*/
-
-		/*
-		beginInsertRows(QModelIndex(), 0, topLevelItems.count());
-		for(int x = 0; x < topLevelItems.count(); x++)
-			items_ << new AMActionLogItem3(db_, topLevelItems.at(x));
-		endInsertRows();
-		*/
-
-		/*
-		// add AMActionLogItem items going backward, so they are now in ascending order (ie: most recent at bottom).
-		beginInsertRows(QModelIndex(), 0, ids.count()-1);
 		for(int i=ids.count()-1; i>=0; i--)
-			items_ << new AMActionLogItem3(db_, ids.at(i));
-		endInsertRows();
-		*/
+			parentIdsAndIdsAscending.insertMulti(parentIds.at(i), ids.at(i));
+
+		if(!recurseActionsLogLevel(-1, parentIdsAndIdsAscending)){
+			//NEM April 6th, 2012 ... problem generating internal model
+		}
 	}
 
 	emit modelRefreshed();
@@ -669,13 +579,7 @@ void AMActionHistoryView3::onRangeComboBoxActivated(int rangeIndex)
 
 QModelIndex AMActionHistoryModel3::index(int row, int column, const QModelIndex &parent) const
 {
-	/*
-	// only allow top-level items for now, where parent is invalid. No trees in this model -- it's flat.
-	if(!parent.isValid())
-		return createIndex(row, column, 0);
-	else
-		return QModelIndex();
-	*/
+	// Return bad index if it's outside the column range
 	if(column < 0 || column > 4)
 		return QModelIndex();
 
@@ -702,12 +606,10 @@ QModelIndex AMActionHistoryModel3::index(int row, int column, const QModelIndex 
 		AMActionLogItem3 *parentLogItem = logItem(parent);
 		if(!parentLogItem){
 			//NEM April 5th, 2012 ... returned bad parent pointer
-			qDebug() << "Bad parent pointer returned";
 			return QModelIndex();
 		}
 		int parentIndexInList = items_.indexOf(parentLogItem);
 		int siblingsFound = 0;
-		//qDebug() << "I think parent is id " << parentLogItem->id() << " at list index " << parentIndexInList;
 		for(int x = parentIndexInList; x < items_.count(); x++){
 			if(items_.at(x)->parentId() == parentLogItem->id())
 				siblingsFound++;
@@ -721,12 +623,6 @@ QModelIndex AMActionHistoryModel3::index(int row, int column, const QModelIndex 
 
 QModelIndex AMActionHistoryModel3::parent(const QModelIndex &child) const
 {
-	/*
-	Q_UNUSED(child)
-	// this is a non-hierarchical model, so the parent of any valid child is the root (QModelIndex()).
-	return QModelIndex();
-	*/
-	/**/
 	if(!child.isValid())
 		return QModelIndex();
 
@@ -740,18 +636,10 @@ QModelIndex AMActionHistoryModel3::parent(const QModelIndex &child) const
 
 	//NEM April 5th, 2012 ... couldn't find parent
 	return QModelIndex();
-	/**/
-
 }
 
 int AMActionHistoryModel3::rowCount(const QModelIndex &parent) const
 {
-	/*
-	if(!parent.isValid())
-		return items_.count();
-	else
-		return 0;
-	*/
 	// top level
 	if(!parent.isValid()){
 		int topLevelsFound = 0;
@@ -802,16 +690,6 @@ QVariant AMActionHistoryModel3::data(const QModelIndex &index, int role) const
 		//NEM April 5th, 2012 ... no logItem at index
 		return QVariant();
 	}
-
-	/*
-	// only handle top-level items
-	if(index.parent().isValid())
-		return QVariant();
-	if(index.row() >= items_.count())
-		return QVariant();
-
-	AMActionLogItem3* item = items_.at(index.row());
-	*/
 
 	if(role == Qt::DisplayRole) {
 		switch(index.column()) {
@@ -935,6 +813,30 @@ void AMActionHistoryModel3::clear()
 	items_.clear();
 	endRemoveRows();
 	*/
+}
+
+bool AMActionHistoryModel3::recurseActionsLogLevel(int parentId, QMap<int, int> parentIdsAndIds){
+	QList<int> childIdsInReverse = parentIdsAndIds.values(parentId);
+	if(childIdsInReverse.count() == 0)
+		return true;
+	int indexOfParent;
+	if(!items_.count() == 0){
+		for(int x = 0; x < items_.count(); x++)
+			if(items_.at(x)->id() == parentId)
+				indexOfParent = x+1;
+	}
+	else
+		indexOfParent = 0;
+
+	// Place this level of items in reverse order
+	for(int x = 0; x < childIdsInReverse.count(); x++)
+		items_.insert(indexOfParent, new AMActionLogItem3(db_, childIdsInReverse.at(x)));
+
+	// Ask to place the children for each child in order
+	bool success = true;
+	for(int x = childIdsInReverse.count()-1; x >= 0; x--)
+		success &= recurseActionsLogLevel(childIdsInReverse.at(x), parentIdsAndIds);
+	return success;
 }
 
 AMActionHistoryModel3::~AMActionHistoryModel3() {

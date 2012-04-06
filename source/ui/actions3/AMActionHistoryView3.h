@@ -147,6 +147,10 @@ protected:
 	/// Helper function to clear the whole model. (Deletes all the items)
 	void clear();
 
+	/// Helper function to recurse through the actions log database information
+	bool recurseActionsLogLevel(int parentId, QMap<int, int> parentIdsAndIds);
+
+protected:
 
 	AMDatabase* db_;
 	QDateTime visibleRangeOldest_, visibleRangeNewest_;
