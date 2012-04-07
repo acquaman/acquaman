@@ -31,6 +31,19 @@
 #include <QHeaderView>
 #include <QDebug>
 
+
+void AMActionLogItemDelegate3::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const{
+	QStyleOptionViewItemV4 optionV4 = option;
+	initStyleOption(&optionV4, index);
+	if( (index.column() == 0) && (optionV4.state & QStyle::State_Selected == QStyle::State_Selected) ){
+		QBrush highlightBrush = optionV4.palette.highlight();
+		QColor highlightColor = highlightBrush.color();
+		highlightColor.setAlpha(170);
+		optionV4.palette.setColor(optionV4.palette.currentColorGroup(), QPalette::Highlight, highlightColor);
+	}
+	QStyledItemDelegate::paint(painter, optionV4, index);
+}
+
 // AMActionLogItem
 ////////////////////////////
 
@@ -326,6 +339,10 @@ QVariant AMActionHistoryModel3::data(const QModelIndex &index, int role) const
 
 Qt::ItemFlags AMActionHistoryModel3::flags(const QModelIndex &index) const
 {
+	if(!index.isValid())
+		return Qt::NoItemFlags;
+	if( index.column() != 0)
+		return Qt::ItemIsEnabled;
 	AMActionLogItem3 *item = logItem(index);
 	if (item && item->canCopy())
 		return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
@@ -703,6 +720,66 @@ bool AMActionHistoryModel3::recurseActionsLogLevelClear(QModelIndex parentIndex)
 }
 
 
+AMActionHistoryTreeView3::AMActionHistoryTreeView3(QWidget *parent) :
+	QTreeView(parent)
+{
+
+}
+
+void AMActionHistoryTreeView3::setActuallySelectedByClickingCount(int actuallySelectedByClickingCount){
+	actuallySelectedByClickingCount_ = actuallySelectedByClickingCount;
+}
+
+#include <QMouseEvent>
+QItemSelectionModel::SelectionFlags AMActionHistoryTreeView3::selectionCommand(const QModelIndex &index, const QEvent *selectionEvent) const{
+	//qDebug() << "IN THE TREEVIEW SELECTION COMMAND";
+	QItemSelectionModel::SelectionFlags retFlags = QTreeView::selectionCommand(index, selectionEvent);
+	bool hasShiftModifier;
+	if(index.isValid()){
+		//qDebug() << "Event type is " << selectionEvent->type();
+		if(!selectionEvent->type() == QEvent::MouseButtonPress)
+			return QTreeView::selectionCommand(index, selectionEvent);
+		QMouseEvent *mouseEvent = (QMouseEvent*)selectionEvent;
+		Qt::KeyboardModifiers currentModifiers = mouseEvent->modifiers();
+		bool hasControlModifier = currentModifiers&Qt::ControlModifier;
+		hasShiftModifier = currentModifiers&Qt::ShiftModifier;
+
+		if(hasShiftModifier)
+			qDebug() << "Interesting ... a shift-click";
+
+		if( !hasControlModifier && (actuallySelectedByClickingCount_ == 1) && (selectionModel()->selectedIndexes().contains(index)) ){
+			qDebug() << "I think this index is already selected at row " << index.row();
+			return QItemSelectionModel::NoUpdate;
+		}
+	}
+
+	bool clearFlag = (retFlags&QItemSelectionModel::Clear);
+	bool selectFlag = (retFlags&QItemSelectionModel::Select);
+	bool deselectFlag = (retFlags&QItemSelectionModel::Deselect);
+	bool toggleFlag = (retFlags&QItemSelectionModel::Toggle);
+	bool indexAlreadyOn = selectionModel()->selectedIndexes().contains(index);
+	bool noUpdateFlag = (retFlags&QItemSelectionModel::NoUpdate);
+	bool selectedTrue = selectFlag || (toggleFlag && !indexAlreadyOn) || (noUpdateFlag && indexAlreadyOn);
+	bool selectedFalse = deselectFlag || (toggleFlag && indexAlreadyOn) || (noUpdateFlag && !indexAlreadyOn) || (selectedTrue && !index.isValid());
+	qDebug() << "Clear: " << clearFlag << "Select: " << selectFlag << "Deselect: " << deselectFlag << "Toggle: " << toggleFlag << "Already On: " << indexAlreadyOn;
+
+	if(selectedTrue){
+		emit actuallySelectedByClicking(index, clearFlag, hasShiftModifier);
+		qDebug() << "This one turns ON";
+	}
+	if(selectedFalse){
+		emit actuallyDeselectedByClicking(index, clearFlag, hasShiftModifier);
+		qDebug() << "This one turns OFF";
+	}
+
+	return retFlags;
+	//return QTreeView::selectionCommand(index, selectionEvent);
+}
+
+void AMActionHistoryTreeView3::mouseMoveEvent(QMouseEvent *event){
+	event->ignore();
+}
+
 // AMActionHistoryView
 ////////////////////////////
 
@@ -710,6 +787,7 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 {
 	actionRunner_ = actionRunner;
 	db_ = db;
+	shiftModifierUsed_ = false;
 
 	model_ = new AMActionHistoryModel3(db_, this);
 	model_->setMaximumActionsToDisplay(100);
@@ -771,10 +849,12 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	rangeComboBox_->setCurrentIndex(4);
 	hl->addWidget(rangeComboBox_);
 
-	treeView_ = new QTreeView();
+	//treeView_ = new QTreeView();
+	treeView_ = new AMActionHistoryTreeView3();
 	treeView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	treeView_->setModel(model_);
-	treeView_->setSelectionBehavior(QAbstractItemView::SelectRows);
+	//treeView_->setSelectionBehavior(QAbstractItemView::SelectRows);
+	treeView_->setSelectionBehavior(QAbstractItemView::SelectItems);
 	treeView_->setSelectionMode(QAbstractItemView::ExtendedSelection);
 	treeView_->setAlternatingRowColors(true);
 	//treeView_->setRootIsDecorated(false);	// gets rid of indentation at top level.
@@ -790,6 +870,8 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	treeView_->header()->resizeSection(2, 180);
 	treeView_->header()->resizeSection(3, 160);
 	treeView_->setAttribute(Qt::WA_MacShowFocusRect, false);
+
+	treeView_->setItemDelegate(new AMActionLogItemDelegate3(this));
 
 	QVBoxLayout* vl = new QVBoxLayout(this);
 	vl->setSpacing(0);
@@ -811,6 +893,9 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	connect(showMoreActionsButton_, SIGNAL(clicked()), this, SLOT(onShowMoreActionsButtonClicked()));
 
 	connect(reRunActionButton_, SIGNAL(clicked()), this, SLOT(onReRunActionButtonClicked()));
+	//connect(treeView_, SIGNAL(clicked(QModelIndex)), this, SLOT(onTreeViewClicked(QModelIndex)));
+	connect(treeView_, SIGNAL(actuallySelectedByClicking(QModelIndex, bool, bool)), this, SLOT(onSelectedByClicked(QModelIndex, bool, bool)));
+	connect(treeView_, SIGNAL(actuallyDeselectedByClicking(QModelIndex, bool, bool)), this, SLOT(onDeselectedByClicked(QModelIndex, bool, bool)));
 	connect(treeView_->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onSelectionChanged()));
 
 	connect(treeView_, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
@@ -821,13 +906,20 @@ void AMActionHistoryView3::onCustomContextMenuRequested(QPoint point)
 	QMenu popup(treeView_);
 	QAction *temp = popup.addAction("");
 
-	if (treeView_->selectionModel()->selectedRows().size() == 0){
+	if(treeView_->selectionModel()->hasSelection())
+		qDebug() << "Model has a selection";
+	else
+		qDebug() << "Model claims no selection";
+
+	//if (treeView_->selectionModel()->selectedRows().size() == 0){
+	if (treeView_->selectionModel()->selectedIndexes().size() == 0){
 
 		temp->setText("Re-run this action");
 		temp->setEnabled(false);
 	}
 
-	else if (treeView_->selectionModel()->selectedRows().size() == 1)
+	//else if (treeView_->selectionModel()->selectedRows().size() == 1)
+	else if (treeView_->selectionModel()->selectedIndexes().size() == 1)
 		temp->setText("Re-run this action");
 
 	else
@@ -928,10 +1020,13 @@ void AMActionHistoryView3::onReRunActionButtonClicked()
 		return;
 
 	// go through all selected rows.
-	foreach(QModelIndex i, treeView_->selectionModel()->selectedRows(0)) {
+	//foreach(QModelIndex i, treeView_->selectionModel()->selectedRows(0)) {
+	foreach(QModelIndex i, treeView_->selectionModel()->selectedIndexes()) {
 		AMActionLogItem3* item = model_->logItem(i);
 		if(!item)
 			continue;
+		qDebug() << "Found item " << item->id() << " index row " << i.row();
+		/*
 		// load the full actionLog.
 		AMActionLog3 actionLog;
 		if(!actionLog.loadFromDb(item->database(), item->id())) {
@@ -954,14 +1049,28 @@ void AMActionHistoryView3::onReRunActionButtonClicked()
 			continue;
 		}
 		actionRunner_->addActionToQueue(action);
+		*/
 	}
 }
 
 void AMActionHistoryView3::onSelectionChanged()
 {
+	qDebug() << "SELECTION CHANGED";
+	if(shiftModifierUsed_){
+		qDebug() << "OH SHIT, SHIFT WAS USED I NEED TO HANDLE THAT";
+		shiftModifierUsed_ = false;
+	}
+	//treeView_->selectionModel()->select(internalAllSelections_, QItemSelectionModel::Current | QItemSelectionModel::Select);
+
 	// can only re-run actions if we have a valid actionRunner_
 	if(actionRunner_) {
-		int numSelected = treeView_->selectionModel()->selectedRows().count();
+		QModelIndexList selectedIndices = treeView_->selectionModel()->selectedIndexes();
+		for(int x = 0; x < selectedIndices.count(); x++){
+
+		}
+
+		//int numSelected = treeView_->selectionModel()->selectedRows().count();
+		int numSelected = treeView_->selectionModel()->selectedIndexes().count();
 		if(numSelected == 0) {
 			reRunActionButton_->setDisabled(true);
 		}
@@ -974,6 +1083,43 @@ void AMActionHistoryView3::onSelectionChanged()
 			reRunActionButton_->setText("Re-run these actions");
 		}
 	}
+}
+
+void AMActionHistoryView3::onSelectedByClicked(const QModelIndex &index, bool othersCleared, bool shiftModifierWasUsed){
+	if(othersCleared)
+		actuallyBeenClicked_.clear();
+	if(index.isValid()){
+		shiftModifierUsed_ = shiftModifierWasUsed;
+		actuallyBeenClicked_.append(index);
+	}
+	treeView_->setActuallySelectedByClickingCount(actuallyBeenClicked_.count());
+
+	QString clickedIds;
+	for(int x = 0; x < actuallyBeenClicked_.count(); x++)
+		clickedIds.append(QString(" %1").arg(model_->logItem(actuallyBeenClicked_.at(x))->id()));
+	qDebug() << "Actually been clicked" << clickedIds;
+	/*
+	qDebug() << "onTreeViewClicked doing subselects";
+	for(int x = 0; x < model_->rowCount(index); x++){
+		qDebug() << "Need to subSelect " << model_->logItem(model_->index(x,0,index))->id();
+		internalAllSelections_.append(QItemSelectionRange(model_->index(x, 0, index), model_->index(x, 0, index)));
+	}
+	*/
+}
+
+void AMActionHistoryView3::onDeselectedByClicked(const QModelIndex &index, bool othersCleared, bool shiftModifierWasUsed){
+	if(othersCleared)
+		actuallyBeenClicked_.clear();
+	if(index.isValid()){
+		shiftModifierUsed_ = shiftModifierWasUsed;
+		actuallyBeenClicked_.removeOne(index);
+	}
+	treeView_->setActuallySelectedByClickingCount(actuallyBeenClicked_.count());
+
+	QString clickedIds;
+	for(int x = 0; x < actuallyBeenClicked_.count(); x++)
+		clickedIds.append(QString(" %1").arg(model_->logItem(actuallyBeenClicked_.at(x))->id()));
+	qDebug() << "Actually been clicked" << clickedIds;
 }
 
 void AMActionHistoryView3::showEvent(QShowEvent *e)

@@ -11,6 +11,18 @@
 
 class AMActionLog3;
 
+#include <QStyledItemDelegate>
+/// This delegate is used by the tree view in AMActionRunnerQueueView to show custom editor widgets depending on the action. The available editors depend on those that have been registered with AMActionRegistry.  You should never need to use this class directly.
+class AMActionLogItemDelegate3 : public QStyledItemDelegate {
+	Q_OBJECT
+public:
+
+	explicit AMActionLogItemDelegate3(QObject* parent = 0) : QStyledItemDelegate(parent) {}
+
+	virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
+};
+
 /// This item class is used to cache the details of a completed workflow action inside AMActionHistoryModel. You should never need to use this class directly.
 /*! We use it instead of full AMActionLog instances, so that we don't have to load the complete AMActionInfo (which, depending on the subclass, could be a lot to load.)*/
 class AMActionLogItem3 {
@@ -176,11 +188,34 @@ protected:
 };
 
 class AMActionRunner3;
-class QTreeView;
+//class QTreeView;
 class QFrame;
 class QComboBox;
 class QLabel;
 class QPushButton;
+
+#include <QTreeView>
+
+class AMActionHistoryTreeView3 : public QTreeView
+{
+Q_OBJECT
+public:
+	AMActionHistoryTreeView3(QWidget *parent = 0);
+
+public slots:
+	void setActuallySelectedByClickingCount(int actuallySelectedByClickingCount);
+
+signals:
+	void actuallySelectedByClicking(const QModelIndex &index, bool othersCleared, bool shiftModifierWasUsed) const;
+	void actuallyDeselectedByClicking(const QModelIndex &index, bool othersCleared, bool shiftModifierWasUsed) const;
+
+protected:
+	virtual QItemSelectionModel::SelectionFlags selectionCommand(const QModelIndex &index, const QEvent *selectionEvent) const;
+	virtual void mouseMoveEvent(QMouseEvent *event);
+
+protected:
+	int actuallySelectedByClickingCount_;
+};
 
 /// This UI class provides a view of a user's completed actions that were run with AMActionRunner. It is part of the overall AMWorkflowView.
 /*! The view can be used to browse completed actions, as well as re-instantiate copies of them in the AMActionRunner queue (as long as the specific AMAction/AMActionInfo pair has been registered with AMActionRegistry).*/
@@ -212,6 +247,8 @@ protected slots:
 	void onReRunActionButtonClicked();
 	/// Called when the selection changes... We use this to determine whether to enable the reRunActionButton_
 	void onSelectionChanged();
+	void onSelectedByClicked(const QModelIndex &index, bool othersCleared, bool shiftModifierWasUsed);
+	void onDeselectedByClicked(const QModelIndex &index, bool othersCleared, bool shiftModifierWasUsed);
 
 
 	/// Called right before the model is refreshed. Remember if we're scrolled right to the bottom, so we can go back there.
@@ -228,7 +265,7 @@ protected:
 
 	AMActionHistoryModel3* model_;
 
-	QTreeView* treeView_;
+	AMActionHistoryTreeView3* treeView_;
 	QComboBox* rangeComboBox_;
 	QLabel* headerTitle_, *headerSubTitle_;
 	QPushButton* showMoreActionsButton_;
@@ -236,6 +273,11 @@ protected:
 
 	bool scrolledToBottom_;
 	bool isCollapsed_;
+
+	QModelIndexList lastSelections_;
+	QModelIndexList actuallyBeenClicked_;
+	QItemSelection internalAllSelections_;
+	bool shiftModifierUsed_;
 
 	/// If we should be scrolled to the bottom of the treeView_, sometimes the scrolling doesn't happen if we're not visible. Here we make sure it does.
 	void showEvent(QShowEvent *);
