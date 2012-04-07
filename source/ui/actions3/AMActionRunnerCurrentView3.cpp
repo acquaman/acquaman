@@ -136,7 +136,8 @@ void AMActionRunnerCurrentView3::onCurrentActionChanged(AMAction3* nextAction)
 			whatIsRunning_ = listAction->subActionCount() > 1 ? "Actions currently running:\n\n" : "Action currently running:\n\n";
 
 			for (int i = 0; i < listAction->subActionCount(); i++)
-				whatIsRunning_.append(listAction->subActionAt(i)->info()->name() % ", ");
+				if (listAction->subActionAt(i)->state() == AMAction3::Running)
+					whatIsRunning_.append(listAction->subActionAt(i)->info()->name() % ", ");
 
 			whatIsRunning_.chop(2);
 		}
@@ -155,7 +156,7 @@ void AMActionRunnerCurrentView3::onCurrentActionChanged(AMAction3* nextAction)
 
 	if(nextAction) {
 		headerTitle_->setText("Current Action: " % nextAction->info()->typeDescription());
-		headerSubTitle_->setText("<b>Status</b>:\n " % nextAction->statusText());
+		headerSubTitle_->setText(nextAction->statusText());
 		timeElapsedLabel_->setText("0:00");
 		double expectedDuration = nextAction->expectedDuration();
 		timeRemainingLabel_->setText(expectedDuration > 0 ? formatSeconds(expectedDuration) : "?:??");
@@ -173,7 +174,7 @@ void AMActionRunnerCurrentView3::onCurrentActionChanged(AMAction3* nextAction)
 
 void AMActionRunnerCurrentView3::onStatusTextChanged(const QString &newStatus)
 {
-	headerSubTitle_->setText("<b>Status</b>: " % newStatus);
+	headerSubTitle_->setText(newStatus);
 }
 
 void AMActionRunnerCurrentView3::onExpectedDurationChanged(double totalSeconds)

@@ -480,11 +480,36 @@ void AMListAction3::internalOnSubActionStatusTextChanged(const QString &statusTe
 	}
 	// parallel mode:
 	else {
-		QStringList allStatuses;
-		for(int i=0, cc=subActionCount(); i<cc; i++)
-			allStatuses << "Step " % QString::number(i+1) % " (" % subActionAt(i)->info()->shortDescription() % "): " % subActionAt(i)->statusText();
 
-		setStatusText(allStatuses.join("\n"));
+		int numRunning = 0;
+		int numFailed = 0;
+		int numSucceeded = 0;
+		AMAction3 *action = 0;
+
+		for(int i=0, cc=subActionCount(); i<cc; i++){
+
+			action = subActionAt(i);
+
+			if (action->state() == Running)
+				numRunning++;
+
+			else if (action->state() == Failed)
+				numFailed++;
+
+			else if (action->state() == Succeeded)
+				numSucceeded++;
+		}
+
+		QString text = QString("Parallel List with %1 actions.\n").arg(QString::number(subActionCount()+1));
+
+		if (numRunning > 0)
+			text.append(QString("Running: %1 ").arg(numRunning));
+		if (numSucceeded > 0)
+			text.append(QString("Succeeded: %1 ").arg(numSucceeded));
+		if (numFailed > 0)
+			text.append(QString("Failed: %1").arg(numFailed));
+
+		setStatusText(text);
 	}
 }
 

@@ -1,6 +1,7 @@
 #include "AMLoopAction3.h"
 #include "actions3/AMActionLog3.h"
 
+#include <QStringBuilder>
 #include <QDebug>
 
 AMLoopAction3::AMLoopAction3(AMLoopActionInfo3 *info, QObject *parent) : AMListAction3(info, AMListAction3::Sequential, parent) {
@@ -162,4 +163,9 @@ void AMLoopAction3::internalOnCurrentActionProgressChanged(double numerator, dou
 		setProgress(totalNumerator, totalDenominator);
 		setExpectedDuration(runningTime()*totalDenominator/totalNumerator);
 	}
+}
+
+void AMLoopAction3::internalOnSubActionStatusTextChanged(const QString &statusText)
+{
+	setStatusText("Step " % QString::number(currentSubActionIndex()+1) % " of loop " % QString::number(currentIteration()+1) % "\n(" % currentSubAction()->info()->shortDescription() % "): " % statusText);
 }
