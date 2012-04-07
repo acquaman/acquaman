@@ -112,7 +112,8 @@ protected:
 
 	AMActionRunner3* actionRunner_;
 
-
+	/// This string holds a small message that states what is currently running.  This is used when someone might be interested on what is "hanging up" the current action, or if they are just curious where they are.
+	QString whatIsRunning_;
 };
 
 #endif // AMACTIONRUNNERCURRENTVIEW3_H

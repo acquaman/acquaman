@@ -25,6 +25,7 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 	QWidget(parent)
 {
 	actionRunner_ = actionRunner;
+	whatIsRunning_ = "";
 
 	// setup UI
 	QFrame* topFrame = new QFrame();
@@ -67,8 +68,6 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 	cancelButton_ = new QPushButton(QIcon(":/22x22/list-remove-2.png"), "Cancel");
 	cancelButton_->setEnabled(false);
 	hl->addWidget(cancelButton_);
-
-
 
 	QVBoxLayout* vl = new QVBoxLayout(this);
 	vl->setSpacing(0);
@@ -125,9 +124,38 @@ void AMActionRunnerCurrentView3::onCurrentActionChanged(AMAction3* nextAction)
 		currentActionView_->setMaximumHeight(48);
 	}
 
+	// Figure out the toop tip.
+	if (listAction){
+
+		if (listAction->subActionMode() == AMListAction3::Sequential && listAction->currentSubAction())
+			whatIsRunning_ = "Action currently running:\n\n" % listAction->currentSubAction()->info()->name();
+
+		// Parallel
+		else{
+
+			whatIsRunning_ = listAction->subActionCount() > 1 ? "Actions currently running:\n\n" : "Action currently running:\n\n";
+
+			for (int i = 0; i < listAction->subActionCount(); i++)
+				whatIsRunning_.append(listAction->subActionAt(i)->info()->name() % ", ");
+
+			whatIsRunning_.chop(2);
+		}
+
+	}
+
+	else if (nextAction){
+
+		whatIsRunning_ = "Action currently running:\n\n" % nextAction->info()->name();
+	}
+
+	else
+		whatIsRunning_ = "";
+
+	setToolTip(whatIsRunning_);
+
 	if(nextAction) {
 		headerTitle_->setText("Current Action: " % nextAction->info()->typeDescription());
-		headerSubTitle_->setText("<b>Status</b>: " % nextAction->statusText());
+		headerSubTitle_->setText("<b>Status</b>:\n " % nextAction->statusText());
 		timeElapsedLabel_->setText("0:00");
 		double expectedDuration = nextAction->expectedDuration();
 		timeRemainingLabel_->setText(expectedDuration > 0 ? formatSeconds(expectedDuration) : "?:??");
@@ -228,7 +256,11 @@ void AMActionRunnerCurrentView3::onStateChanged(int state, int previousState)
 	}
 
 	// Can pause or resume from only these states:
-	pauseButton_->setEnabled(actionRunner_->currentAction()->canPause() && (state == AMAction3::Running || state == AMAction3::Paused));
+	if (actionRunner_->currentAction())
+		pauseButton_->setEnabled(actionRunner_->currentAction()->canPause() && (state == AMAction3::Running || state == AMAction3::Paused));
+
+	else
+		pauseButton_->setEnabled(state == AMAction3::Running || state == AMAction3::Paused);
 }
 
 

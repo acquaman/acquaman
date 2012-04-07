@@ -115,8 +115,8 @@ bool AMListAction3::deleteSubAction(int index)
 bool AMListAction3::canPause() const
 {
 	if(subActionMode() == Sequential) {
-		// if we have no actions, then cannot pause; we'll complete instantly.
-		if(subActionCount() == 0)
+		// if we have no actions or null sub actions at 0 or currentSubAction, then cannot pause; we'll complete instantly.
+		if(subActionCount() == 0 || subActionAt(0) || currentSubAction())
 			return false;
 		// if we just have one sub-action and it cannot pause, then we can't pause.
 		if(subActionCount() == 1)

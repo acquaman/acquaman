@@ -101,7 +101,6 @@ AMActionRunnerQueueView3::AMActionRunnerQueueView3(AMActionRunner3* actionRunner
 	connect(treeView_->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onSelectionChanged()));
 
 	connect(actionRunner_, SIGNAL(queuePausedChanged(bool)), this, SLOT(onQueuePaused(bool)));
-	connect(actionRunner_, SIGNAL(currentActionChanged(AMAction3*)), this, SLOT(onCurrentActionChanged()));
 }
 
 void AMActionRunnerQueueView3::onPauseButtonClicked(bool isPaused)

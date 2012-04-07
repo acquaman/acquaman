@@ -1,7 +1,10 @@
 #include "AMListActionInfo3.h"
 
-AMListActionInfo3::AMListActionInfo3(QObject *parent) :
-	AMActionInfo3("List", "List of Actions to Run", ":/32x32/media-playlist-repeat.png", parent)
+// AMListActionInfo
+////////////////////////////////
+
+AMListActionInfo3::AMListActionInfo3(const QString &shortDescription, const QString &longDescription, const QString &iconFileName, QObject *parent)
+	: AMActionInfo3(shortDescription, longDescription, iconFileName, parent)
 {
 }
 
@@ -16,4 +19,46 @@ AMActionInfo3* AMListActionInfo3::createCopy() const{
 
 QString AMListActionInfo3::typeDescription() const{
 	return "List";
+}
+
+// AMSequentialListActionInfo
+////////////////////////////////
+
+AMSequentialListActionInfo3::AMSequentialListActionInfo3(const QString &shortDescription, const QString &longDescription, const QString &iconFileName, QObject *parent)
+	: AMListActionInfo3(shortDescription, longDescription, iconFileName, parent)
+{
+}
+
+AMSequentialListActionInfo3::AMSequentialListActionInfo3(const AMSequentialListActionInfo3 &other) :
+	AMListActionInfo3(other)
+{
+}
+
+AMActionInfo3* AMSequentialListActionInfo3::createCopy() const{
+	return new AMSequentialListActionInfo3(*this);
+}
+
+QString AMSequentialListActionInfo3::typeDescription() const{
+	return "Sequential List";
+}
+
+// AMParallelListActionInfo
+////////////////////////////////
+
+AMParallelListActionInfo3::AMParallelListActionInfo3(const QString &shortDescription, const QString &longDescription, const QString &iconFileName, QObject *parent)
+	: AMListActionInfo3(shortDescription, longDescription, iconFileName, parent)
+{
+}
+
+AMParallelListActionInfo3::AMParallelListActionInfo3(const AMParallelListActionInfo3 &other) :
+	AMListActionInfo3(other)
+{
+}
+
+AMActionInfo3* AMParallelListActionInfo3::createCopy() const{
+	return new AMParallelListActionInfo3(*this);
+}
+
+QString AMParallelListActionInfo3::typeDescription() const{
+	return "Parallel List";
 }

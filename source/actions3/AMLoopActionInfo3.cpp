@@ -1,7 +1,7 @@
 #include "AMLoopActionInfo3.h"
 
-AMLoopActionInfo3::AMLoopActionInfo3(int iterations, QObject *parent) :
-	AMListActionInfo3(parent)
+AMLoopActionInfo3::AMLoopActionInfo3(int iterations, const QString &shortDescription, const QString &longDescription, const QString &iconFileName, QObject *parent)
+	: AMListActionInfo3(shortDescription, longDescription, iconFileName, parent)
 {
 	setShortDescription(QString("Looping %1 times").arg(iterations));
 	setLongDescription(QString("This action repeats all of its sub-actions in order, %1 times").arg(iterations));
