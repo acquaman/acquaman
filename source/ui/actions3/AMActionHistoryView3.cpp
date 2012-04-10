@@ -31,17 +31,44 @@
 #include <QHeaderView>
 #include <QDebug>
 
+AMActionLogItemDelegate3::AMActionLogItemDelegate3(AMActionHistoryTreeView3 *viewer, QObject *parent) :
+	QStyledItemDelegate(parent)
+{
+	viewer_ = viewer;
+	styleOptionAlreadyInit_ = false;
+}
 
+#include <QApplication>
 void AMActionLogItemDelegate3::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const{
 	QStyleOptionViewItemV4 optionV4 = option;
 	initStyleOption(&optionV4, index);
-	if( (index.column() == 0) && (optionV4.state & QStyle::State_Selected == QStyle::State_Selected) ){
+	const AMActionHistoryModel3 *historyModel = qobject_cast<const AMActionHistoryModel3*>(index.model());
+	if(historyModel){
+		AMActionLogItem3 *logItem = historyModel->logItem(index);
+		if(logItem->parentSelected(viewer_)){
+			qDebug() << "Found a paint event where my parent tells me to partial highlight";
+			QBrush highlightBrush = optionV4.palette.highlight();
+			QColor highlightColor = highlightBrush.color();
+			highlightColor.setAlpha(170);
+			optionV4.backgroundBrush.setColor(highlightColor);
+			styleOptionAlreadyInit_ = true;
+		}
+	}
+	/*
+	if( (index.column() == 0) && ( (optionV4.state & QStyle::State_Selected) == QStyle::State_Selected) ){
 		QBrush highlightBrush = optionV4.palette.highlight();
 		QColor highlightColor = highlightBrush.color();
 		highlightColor.setAlpha(170);
 		optionV4.palette.setColor(optionV4.palette.currentColorGroup(), QPalette::Highlight, highlightColor);
 	}
+	*/
 	QStyledItemDelegate::paint(painter, optionV4, index);
+	styleOptionAlreadyInit_ = false;
+}
+
+void AMActionLogItemDelegate3::initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const{
+	if(!styleOptionAlreadyInit_)
+		QStyledItemDelegate::initStyleOption(option, index);
 }
 
 // AMActionLogItem
@@ -107,6 +134,16 @@ int AMActionLogItem3::parentId() const{
 	if(!loadedFromDb_)
 		loadLogDetailsFromDb();
 	return parentId_;
+}
+
+bool AMActionLogItem3::parentSelected(QAbstractItemView *viewer) const{
+	if(parentSelected_.contains(viewer))
+		return parentSelected_.value(viewer);
+	return false;
+}
+
+void AMActionLogItem3::setParentSelected(QAbstractItemView *viewer, bool parentIsSelected){
+	parentSelected_.insert(viewer, parentIsSelected);
 }
 
 bool AMActionLogItem3::loadLogDetailsFromDb() const
@@ -546,6 +583,10 @@ void AMActionHistoryModel3::refreshFromDb()
 	emit modelRefreshed();
 }
 
+void AMActionHistoryModel3::forceModelRefreshAt(QModelIndex first, QModelIndex last){
+	emit dataChanged(first, last);
+}
+
 
 void AMActionHistoryModel3::onDatabaseItemCreated(const QString &tableName, int id)
 {
@@ -871,7 +912,7 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	treeView_->header()->resizeSection(3, 160);
 	treeView_->setAttribute(Qt::WA_MacShowFocusRect, false);
 
-	treeView_->setItemDelegate(new AMActionLogItemDelegate3(this));
+	treeView_->setItemDelegate(new AMActionLogItemDelegate3(treeView_, this));
 
 	QVBoxLayout* vl = new QVBoxLayout(this);
 	vl->setSpacing(0);
@@ -1086,11 +1127,39 @@ void AMActionHistoryView3::onSelectionChanged()
 }
 
 void AMActionHistoryView3::onSelectedByClicked(const QModelIndex &index, bool othersCleared, bool shiftModifierWasUsed){
-	if(othersCleared)
+	if(othersCleared){
+		for(int x = 0; x < actuallyBeenClicked_.count(); x++){
+			QModelIndex firstChild, lastChild;
+			for(int y = 0; y < model_->rowCount(actuallyBeenClicked_.at(x)); y++){
+				if(y == 0)
+					firstChild = model_->index(y,0,actuallyBeenClicked_.at(x));
+				if(y == model_->rowCount(actuallyBeenClicked_.at(x)))
+					lastChild = model_->index(y,0,actuallyBeenClicked_.at(x));
+				qDebug() << "Need to turn off for " << model_->logItem(model_->index(y,0,actuallyBeenClicked_.at(x)))->id();
+				model_->logItem(model_->index(y,0,actuallyBeenClicked_.at(x)))->setParentSelected(treeView_, false);
+			}
+			model_->forceModelRefreshAt(firstChild, lastChild);
+		}
 		actuallyBeenClicked_.clear();
+	}
 	if(index.isValid()){
 		shiftModifierUsed_ = shiftModifierWasUsed;
 		actuallyBeenClicked_.append(index);
+		qDebug() << "onTreeViewClicked doing subselects";
+		QModelIndex firstChild, lastChild;
+		for(int x = 0; x < model_->rowCount(index); x++){
+			if(x == 0)
+				firstChild = model_->index(x,0,index);
+			if(x == model_->rowCount(index) - 1)
+				lastChild = model_->index(x,0,index);
+			qDebug() << "Need to subSelect " << model_->logItem(model_->index(x,0,index))->id();
+		//	internalAllSelections_.append(QItemSelectionRange(model_->index(x, 0, index), model_->index(x, 0, index)));
+			model_->logItem(model_->index(x,0,index))->setParentSelected(treeView_, true);
+		}
+		if(treeView_->isExpanded(index)){
+			qDebug() << "That index is expanded, if it has children they need to redraw";
+			model_->forceModelRefreshAt(firstChild, lastChild);
+		}
 	}
 	treeView_->setActuallySelectedByClickingCount(actuallyBeenClicked_.count());
 
@@ -1098,21 +1167,42 @@ void AMActionHistoryView3::onSelectedByClicked(const QModelIndex &index, bool ot
 	for(int x = 0; x < actuallyBeenClicked_.count(); x++)
 		clickedIds.append(QString(" %1").arg(model_->logItem(actuallyBeenClicked_.at(x))->id()));
 	qDebug() << "Actually been clicked" << clickedIds;
-	/*
-	qDebug() << "onTreeViewClicked doing subselects";
-	for(int x = 0; x < model_->rowCount(index); x++){
-		qDebug() << "Need to subSelect " << model_->logItem(model_->index(x,0,index))->id();
-		internalAllSelections_.append(QItemSelectionRange(model_->index(x, 0, index), model_->index(x, 0, index)));
-	}
-	*/
 }
 
 void AMActionHistoryView3::onDeselectedByClicked(const QModelIndex &index, bool othersCleared, bool shiftModifierWasUsed){
-	if(othersCleared)
+	if(othersCleared){
+		for(int x = 0; x < actuallyBeenClicked_.count(); x++){
+			QModelIndex firstChild, lastChild;
+			for(int y = 0; y < model_->rowCount(actuallyBeenClicked_.at(x)); y++){
+				if(y == 0)
+					firstChild = model_->index(y,0,actuallyBeenClicked_.at(x));
+				if(y == model_->rowCount(actuallyBeenClicked_.at(x)))
+					lastChild = model_->index(y,0,actuallyBeenClicked_.at(x));
+				qDebug() << "Need to turn off for " << model_->logItem(model_->index(y,0,actuallyBeenClicked_.at(x)))->id();
+				model_->logItem(model_->index(y,0,actuallyBeenClicked_.at(x)))->setParentSelected(treeView_, false);
+			}
+			model_->forceModelRefreshAt(firstChild, lastChild);
+		}
 		actuallyBeenClicked_.clear();
+	}
 	if(index.isValid()){
 		shiftModifierUsed_ = shiftModifierWasUsed;
 		actuallyBeenClicked_.removeOne(index);
+		qDebug() << "onTreeViewClicked doing subselects";
+		QModelIndex firstChild, lastChild;
+		for(int x = 0; x < model_->rowCount(index); x++){
+			if(x == 0)
+				firstChild = model_->index(x,0,index);
+			if(x == model_->rowCount(index) - 1)
+				lastChild = model_->index(x,0,index);
+			qDebug() << "Need to subSelect " << model_->logItem(model_->index(x,0,index))->id();
+		//	internalAllSelections_.append(QItemSelectionRange(model_->index(x, 0, index), model_->index(x, 0, index)));
+			model_->logItem(model_->index(x,0,index))->setParentSelected(treeView_, false);
+		}
+		if(treeView_->isExpanded(index)){
+			qDebug() << "That index is expanded, if it has children they need to redraw";
+			model_->forceModelRefreshAt(firstChild, lastChild);
+		}
 	}
 	treeView_->setActuallySelectedByClickingCount(actuallyBeenClicked_.count());
 

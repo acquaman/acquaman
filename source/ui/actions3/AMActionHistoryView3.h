@@ -10,6 +10,7 @@
 #include "actions3/AMActionInfo3.h"
 
 class AMActionLog3;
+class AMActionHistoryTreeView3;
 
 #include <QStyledItemDelegate>
 /// This delegate is used by the tree view in AMActionRunnerQueueView to show custom editor widgets depending on the action. The available editors depend on those that have been registered with AMActionRegistry.  You should never need to use this class directly.
@@ -17,10 +18,16 @@ class AMActionLogItemDelegate3 : public QStyledItemDelegate {
 	Q_OBJECT
 public:
 
-	explicit AMActionLogItemDelegate3(QObject* parent = 0) : QStyledItemDelegate(parent) {}
+	explicit AMActionLogItemDelegate3(AMActionHistoryTreeView3 *viewer, QObject* parent = 0);
 
 	virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
+protected:
+	virtual void initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const;
+
+protected:
+	AMActionHistoryTreeView3 *viewer_;
+	mutable bool styleOptionAlreadyInit_;
 };
 
 /// This item class is used to cache the details of a completed workflow action inside AMActionHistoryModel. You should never need to use this class directly.
@@ -54,6 +61,10 @@ public:
 	/// Returns the database id of the parent log action, if none then returns -1
 	int parentId() const;
 
+	bool parentSelected(QAbstractItemView *viewer) const;
+
+	void setParentSelected(QAbstractItemView *viewer, bool parentIsSelected);
+
 protected:
 
 	/// Helper function to retrieve the log information from the database (without loading the full AMActionLog, which would require loading its entire AMActionInfo as well.) Returns true and sets loadedFromDb_ = true on success.
@@ -75,6 +86,8 @@ protected:
 	mutable QDateTime startDateTime_, endDateTime_;
 	mutable bool canCopy_;
 	mutable int parentId_;
+
+	QMap<QAbstractItemView*, bool> parentSelected_;
 };
 
 /// This QAbstractItemModel implements a model for completed workflow actions, used by AMActionHistoryView. You should never need to use this class directly.
@@ -129,6 +142,8 @@ public slots:
 
 	/// Refreshes the entire model immediately by reading from the database.
 	void refreshFromDb();
+
+	void forceModelRefreshAt(QModelIndex first, QModelIndex last);
 
 signals:
 	/// This signal is emitted before the model is refreshed or updated. Views might want to use it to remember their scrolling position, etc.
