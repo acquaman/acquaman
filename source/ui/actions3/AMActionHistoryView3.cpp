@@ -40,7 +40,7 @@ AMActionLogItemDelegate3::AMActionLogItemDelegate3(AMActionHistoryTreeView3 *vie
 void AMActionLogItemDelegate3::initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const{
 	QStyledItemDelegate::initStyleOption(option, index);
 	QStyleOptionViewItemV4 *optionV4 = qstyleoption_cast<QStyleOptionViewItemV4 *>(option);
-	if(!optionV4 || !index.model())
+	if(!optionV4 || !index.model() || (index.column() != 0) )
 		return;
 	const AMActionHistoryModel3 *historyModel = qobject_cast<const AMActionHistoryModel3*>(index.model());
 	if(historyModel){
@@ -50,6 +50,24 @@ void AMActionLogItemDelegate3::initStyleOption(QStyleOptionViewItem *option, con
 			QColor highlightColor = highlightBrush.color();
 			highlightColor.setAlpha(170);
 			optionV4->backgroundBrush.setColor(highlightColor);
+
+			/*
+			qDebug() << "Why don't I try id as " << qMetaTypeId<ParentSelectMap>();
+
+			ParentSelectMap directMap = logItem->allParentSelected();
+			ParentSelectMap variantMap = index.model()->data(index, AMActionHistoryModel3::ParentSelectRole).value<ParentSelectMap>();
+
+			ParentSelectMap::const_iterator i = directMap.constBegin();
+			while (i != directMap.constEnd()) {
+				qDebug() << "Direct: " << (intptr_t)(i.key()) << ": " << i.value();
+				++i;
+			}
+			i = variantMap.constBegin();
+			while (i != variantMap.constEnd()) {
+				qDebug() << "Variant: " << (intptr_t)(i.key()) << ": " << i.value();
+				++i;
+			}
+			*/
 		}
 	}
 }
@@ -123,6 +141,10 @@ bool AMActionLogItem3::parentSelected(QAbstractItemView *viewer) const{
 	if(parentSelected_.contains(viewer))
 		return parentSelected_.value(viewer);
 	return false;
+}
+
+ParentSelectMap AMActionLogItem3::allParentSelected() const{
+	return parentSelected_;
 }
 
 void AMActionLogItem3::setParentSelected(QAbstractItemView *viewer, bool parentIsSelected){
@@ -353,8 +375,39 @@ QVariant AMActionHistoryModel3::data(const QModelIndex &index, int role) const
 			return QVariant();
 		}
 	}
+	else if(role == AMActionHistoryModel3::ParentSelectRole) {
+		qDebug() << "Trying for parent select role";
+		ParentSelectMap selectMap;
+		ParentSelectMap::const_iterator i = item->allParentSelected().constBegin();
+		while (i != item->allParentSelected().constEnd()) {
+			selectMap.insert(i.key(), i.value());
+			++i;
+		}
+		return QVariant::fromValue(selectMap);
+	}
 
 	return QVariant();
+}
+
+bool AMActionHistoryModel3::setData(const QModelIndex &index, const QVariant &value, int role){
+	if(role == AMActionHistoryModel3::ParentSelectRole){
+		ParentSelectMap selectMap = value.value<ParentSelectMap>();
+		ParentSelectMap::const_iterator i = selectMap.constBegin();
+		AMActionLogItem3 *item = logItem(index);
+		ParentSelectMap itemSelectMap = item->allParentSelected();
+		bool changedAnItem = false;
+		while (i != selectMap.constEnd()) {
+			if(itemSelectMap.value(i.key()) != i.value()){
+				item->setParentSelected(i.key(), i.value());
+				changedAnItem = true;
+			}
+			++i;
+		}
+		if(changedAnItem)
+			emit dataChanged(index, index);
+		return true;
+	}
+	return false;
 }
 
 Qt::ItemFlags AMActionHistoryModel3::flags(const QModelIndex &index) const
@@ -1112,16 +1165,11 @@ void AMActionHistoryView3::onSelectionChanged()
 void AMActionHistoryView3::onSelectedByClicked(const QModelIndex &index, bool othersCleared, bool shiftModifierWasUsed){
 	if(othersCleared){
 		for(int x = 0; x < actuallyBeenClicked_.count(); x++){
-			QModelIndex firstChild, lastChild;
 			for(int y = 0; y < model_->rowCount(actuallyBeenClicked_.at(x)); y++){
-				if(y == 0)
-					firstChild = model_->index(y,0,actuallyBeenClicked_.at(x));
-				if(y == model_->rowCount(actuallyBeenClicked_.at(x)))
-					lastChild = model_->index(y,0,actuallyBeenClicked_.at(x));
-				qDebug() << "Need to turn off for " << model_->logItem(model_->index(y,0,actuallyBeenClicked_.at(x)))->id();
-				model_->logItem(model_->index(y,0,actuallyBeenClicked_.at(x)))->setParentSelected(treeView_, false);
+				ParentSelectMap selectMap = model_->data(model_->index(y,0,actuallyBeenClicked_.at(x)), AMActionHistoryModel3::ParentSelectRole).value<ParentSelectMap>();
+				selectMap.insert(treeView_, false);
+				model_->setData(model_->index(y,0,actuallyBeenClicked_.at(x)), QVariant::fromValue(selectMap), AMActionHistoryModel3::ParentSelectRole);
 			}
-			model_->forceModelRefreshAt(firstChild, lastChild);
 		}
 		actuallyBeenClicked_.clear();
 	}
@@ -1129,19 +1177,10 @@ void AMActionHistoryView3::onSelectedByClicked(const QModelIndex &index, bool ot
 		shiftModifierUsed_ = shiftModifierWasUsed;
 		actuallyBeenClicked_.append(index);
 		qDebug() << "onTreeViewClicked doing subselects";
-		QModelIndex firstChild, lastChild;
 		for(int x = 0; x < model_->rowCount(index); x++){
-			if(x == 0)
-				firstChild = model_->index(x,0,index);
-			if(x == model_->rowCount(index) - 1)
-				lastChild = model_->index(x,0,index);
-			qDebug() << "Need to subSelect " << model_->logItem(model_->index(x,0,index))->id();
-		//	internalAllSelections_.append(QItemSelectionRange(model_->index(x, 0, index), model_->index(x, 0, index)));
-			model_->logItem(model_->index(x,0,index))->setParentSelected(treeView_, true);
-		}
-		if(treeView_->isExpanded(index)){
-			qDebug() << "That index is expanded, if it has children they need to redraw";
-			model_->forceModelRefreshAt(firstChild, lastChild);
+			ParentSelectMap selectMap = model_->data(model_->index(x,0,index), AMActionHistoryModel3::ParentSelectRole).value<ParentSelectMap>();
+			selectMap.insert(treeView_, true);
+			model_->setData(model_->index(x,0,index), QVariant::fromValue(selectMap), AMActionHistoryModel3::ParentSelectRole);
 		}
 	}
 	treeView_->setActuallySelectedByClickingCount(actuallyBeenClicked_.count());
@@ -1155,16 +1194,11 @@ void AMActionHistoryView3::onSelectedByClicked(const QModelIndex &index, bool ot
 void AMActionHistoryView3::onDeselectedByClicked(const QModelIndex &index, bool othersCleared, bool shiftModifierWasUsed){
 	if(othersCleared){
 		for(int x = 0; x < actuallyBeenClicked_.count(); x++){
-			QModelIndex firstChild, lastChild;
 			for(int y = 0; y < model_->rowCount(actuallyBeenClicked_.at(x)); y++){
-				if(y == 0)
-					firstChild = model_->index(y,0,actuallyBeenClicked_.at(x));
-				if(y == model_->rowCount(actuallyBeenClicked_.at(x)))
-					lastChild = model_->index(y,0,actuallyBeenClicked_.at(x));
-				qDebug() << "Need to turn off for " << model_->logItem(model_->index(y,0,actuallyBeenClicked_.at(x)))->id();
-				model_->logItem(model_->index(y,0,actuallyBeenClicked_.at(x)))->setParentSelected(treeView_, false);
+				ParentSelectMap selectMap = model_->data(model_->index(y,0,actuallyBeenClicked_.at(x)), AMActionHistoryModel3::ParentSelectRole).value<ParentSelectMap>();
+				selectMap.insert(treeView_, false);
+				model_->setData(model_->index(y,0,actuallyBeenClicked_.at(x)), QVariant::fromValue(selectMap), AMActionHistoryModel3::ParentSelectRole);
 			}
-			model_->forceModelRefreshAt(firstChild, lastChild);
 		}
 		actuallyBeenClicked_.clear();
 	}
@@ -1172,19 +1206,10 @@ void AMActionHistoryView3::onDeselectedByClicked(const QModelIndex &index, bool 
 		shiftModifierUsed_ = shiftModifierWasUsed;
 		actuallyBeenClicked_.removeOne(index);
 		qDebug() << "onTreeViewClicked doing subselects";
-		QModelIndex firstChild, lastChild;
 		for(int x = 0; x < model_->rowCount(index); x++){
-			if(x == 0)
-				firstChild = model_->index(x,0,index);
-			if(x == model_->rowCount(index) - 1)
-				lastChild = model_->index(x,0,index);
-			qDebug() << "Need to subSelect " << model_->logItem(model_->index(x,0,index))->id();
-		//	internalAllSelections_.append(QItemSelectionRange(model_->index(x, 0, index), model_->index(x, 0, index)));
-			model_->logItem(model_->index(x,0,index))->setParentSelected(treeView_, false);
-		}
-		if(treeView_->isExpanded(index)){
-			qDebug() << "That index is expanded, if it has children they need to redraw";
-			model_->forceModelRefreshAt(firstChild, lastChild);
+			ParentSelectMap selectMap = model_->data(model_->index(x,0,index), AMActionHistoryModel3::ParentSelectRole).value<ParentSelectMap>();
+			selectMap.insert(treeView_, false);
+			model_->setData(model_->index(x,0,index), QVariant::fromValue(selectMap), AMActionHistoryModel3::ParentSelectRole);
 		}
 	}
 	treeView_->setActuallySelectedByClickingCount(actuallyBeenClicked_.count());

@@ -4,15 +4,19 @@
 #include <QWidget>
 #include <QDateTime>
 #include <QAbstractItemModel>
+#include <QStyledItemDelegate>
+#include <QMetaType>
 
 #include "dataman/database/AMDatabase.h"
 #include "util/AMDeferredFunctionCall.h"
 #include "actions3/AMActionInfo3.h"
 
+typedef QMap<QAbstractItemView*, bool> ParentSelectMap;
+Q_DECLARE_METATYPE(ParentSelectMap);
+
 class AMActionLog3;
 class AMActionHistoryTreeView3;
 
-#include <QStyledItemDelegate>
 /// This delegate is used by the tree view in AMActionRunnerQueueView to show custom editor widgets depending on the action. The available editors depend on those that have been registered with AMActionRegistry.  You should never need to use this class directly.
 class AMActionLogItemDelegate3 : public QStyledItemDelegate {
 	Q_OBJECT
@@ -59,6 +63,7 @@ public:
 	int parentId() const;
 
 	bool parentSelected(QAbstractItemView *viewer) const;
+	ParentSelectMap allParentSelected() const;
 
 	void setParentSelected(QAbstractItemView *viewer, bool parentIsSelected);
 
@@ -84,7 +89,8 @@ protected:
 	mutable bool canCopy_;
 	mutable int parentId_;
 
-	QMap<QAbstractItemView*, bool> parentSelected_;
+	//QMap<QAbstractItemView*, bool> parentSelected_;
+	ParentSelectMap parentSelected_;
 };
 
 /// This QAbstractItemModel implements a model for completed workflow actions, used by AMActionHistoryView. You should never need to use this class directly.
@@ -93,6 +99,7 @@ class AMActionHistoryModel3 : public QAbstractItemModel
 {
 	Q_OBJECT
 public:
+	enum DataRoles { ParentSelectRole = AM::UserRole +27000 };
 
 	/// Constructor: \c db is the actions database to show completed actions from.  Does not refresh the model automatically on creation; you will need to call refreshFromDb().
 	AMActionHistoryModel3(AMDatabase* db, QObject* parent = 0);
@@ -118,6 +125,7 @@ public:
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
 	virtual QVariant data(const QModelIndex &index, int role) const;
+	virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
 	Qt::ItemFlags flags(const QModelIndex &index) const;
 	virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
@@ -200,7 +208,6 @@ protected:
 };
 
 class AMActionRunner3;
-//class QTreeView;
 class QFrame;
 class QComboBox;
 class QLabel;
