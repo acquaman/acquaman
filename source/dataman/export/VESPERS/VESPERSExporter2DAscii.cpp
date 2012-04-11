@@ -164,10 +164,11 @@ void VESPERSExporter2DAscii::writeMainTable()
 					ts << option_->columnDelimiter();
 				}
 
-				if(doPrint && x == indexOfCCDName)
+				if(doPrint && c == indexOfCCDName)
 					ts << QString("%1_%2.spe").arg(ccdFileName).arg(int(ds->value(AMnDIndex(x, y))));
 				else if (doPrint)
 					ts << ds->value(AMnDIndex(x, y)).toString();
+
 				ts << option_->columnDelimiter();
 			}
 

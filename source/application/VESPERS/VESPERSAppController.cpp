@@ -205,6 +205,7 @@ void VESPERSAppController::setupExporterOptions()
 	vespersDefault->setIncludeAllDataSources(true);
 	vespersDefault->setFirstColumnOnly(true);
 	vespersDefault->setSeparateHigherDimensionalSources(true);
+	vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
 	vespersDefault->storeToDb(AMDatabase::database("user"));
 	qDebug() << "Added the VESPERSDefault to exporter options";
 
