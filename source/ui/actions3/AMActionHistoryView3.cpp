@@ -499,6 +499,14 @@ QModelIndex AMActionHistoryModel3::indexForLogItem(AMActionLogItem3 *logItem) co
 	}
 }
 
+void AMActionHistoryModel3::markIndexAsSelected(const QModelIndex &index, QAbstractItemView *viewer){
+	recurseMarkParentSelected(index, viewer, true);
+}
+
+void AMActionHistoryModel3::markIndexAsDeselected(const QModelIndex &index, QAbstractItemView *viewer){
+	recurseMarkParentSelected(index, viewer, false);
+}
+
 void AMActionHistoryModel3::setVisibleDateTimeRange(const QDateTime &oldest, const QDateTime &newest)
 {
 	if(oldest == visibleRangeOldest_ && newest == visibleRangeNewest_)
@@ -794,6 +802,17 @@ bool AMActionHistoryModel3::recurseActionsLogLevelClear(QModelIndex parentIndex)
 	endRemoveRows();
 
 	return success;
+}
+
+void AMActionHistoryModel3::recurseMarkParentSelected(const QModelIndex &index, QAbstractItemView *viewer, bool selected){
+	int childrenCount = rowCount(index);
+	ParentSelectMap selectMap = data(index, AMActionHistoryModel3::ParentSelectRole).value<ParentSelectMap>();
+	selectMap.insert(viewer, selected);
+	setData(index, QVariant::fromValue(selectMap), AMActionHistoryModel3::ParentSelectRole);
+	if(childrenCount == 0)
+		return;
+	for(int x = 0; x < childrenCount; x++)
+		recurseMarkParentSelected(this->index(x, 0, index), viewer, selected);
 }
 
 
@@ -1164,24 +1183,15 @@ void AMActionHistoryView3::onSelectionChanged()
 
 void AMActionHistoryView3::onSelectedByClicked(const QModelIndex &index, bool othersCleared, bool shiftModifierWasUsed){
 	if(othersCleared){
-		for(int x = 0; x < actuallyBeenClicked_.count(); x++){
-			for(int y = 0; y < model_->rowCount(actuallyBeenClicked_.at(x)); y++){
-				ParentSelectMap selectMap = model_->data(model_->index(y,0,actuallyBeenClicked_.at(x)), AMActionHistoryModel3::ParentSelectRole).value<ParentSelectMap>();
-				selectMap.insert(treeView_, false);
-				model_->setData(model_->index(y,0,actuallyBeenClicked_.at(x)), QVariant::fromValue(selectMap), AMActionHistoryModel3::ParentSelectRole);
-			}
-		}
+		for(int x = 0; x < actuallyBeenClicked_.count(); x++)
+			model_->markIndexAsDeselected(actuallyBeenClicked_.at(x), treeView_);
 		actuallyBeenClicked_.clear();
 	}
 	if(index.isValid()){
 		shiftModifierUsed_ = shiftModifierWasUsed;
 		actuallyBeenClicked_.append(index);
 		qDebug() << "onTreeViewClicked doing subselects";
-		for(int x = 0; x < model_->rowCount(index); x++){
-			ParentSelectMap selectMap = model_->data(model_->index(x,0,index), AMActionHistoryModel3::ParentSelectRole).value<ParentSelectMap>();
-			selectMap.insert(treeView_, true);
-			model_->setData(model_->index(x,0,index), QVariant::fromValue(selectMap), AMActionHistoryModel3::ParentSelectRole);
-		}
+		model_->markIndexAsSelected(index, treeView_);
 	}
 	treeView_->setActuallySelectedByClickingCount(actuallyBeenClicked_.count());
 
@@ -1193,24 +1203,15 @@ void AMActionHistoryView3::onSelectedByClicked(const QModelIndex &index, bool ot
 
 void AMActionHistoryView3::onDeselectedByClicked(const QModelIndex &index, bool othersCleared, bool shiftModifierWasUsed){
 	if(othersCleared){
-		for(int x = 0; x < actuallyBeenClicked_.count(); x++){
-			for(int y = 0; y < model_->rowCount(actuallyBeenClicked_.at(x)); y++){
-				ParentSelectMap selectMap = model_->data(model_->index(y,0,actuallyBeenClicked_.at(x)), AMActionHistoryModel3::ParentSelectRole).value<ParentSelectMap>();
-				selectMap.insert(treeView_, false);
-				model_->setData(model_->index(y,0,actuallyBeenClicked_.at(x)), QVariant::fromValue(selectMap), AMActionHistoryModel3::ParentSelectRole);
-			}
-		}
+		for(int x = 0; x < actuallyBeenClicked_.count(); x++)
+			model_->markIndexAsDeselected(actuallyBeenClicked_.at(x), treeView_);
 		actuallyBeenClicked_.clear();
 	}
 	if(index.isValid()){
 		shiftModifierUsed_ = shiftModifierWasUsed;
 		actuallyBeenClicked_.removeOne(index);
 		qDebug() << "onTreeViewClicked doing subselects";
-		for(int x = 0; x < model_->rowCount(index); x++){
-			ParentSelectMap selectMap = model_->data(model_->index(x,0,index), AMActionHistoryModel3::ParentSelectRole).value<ParentSelectMap>();
-			selectMap.insert(treeView_, false);
-			model_->setData(model_->index(x,0,index), QVariant::fromValue(selectMap), AMActionHistoryModel3::ParentSelectRole);
-		}
+		model_->markIndexAsDeselected(index, treeView_);
 	}
 	treeView_->setActuallySelectedByClickingCount(actuallyBeenClicked_.count());
 

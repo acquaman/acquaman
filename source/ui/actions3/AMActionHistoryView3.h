@@ -136,6 +136,9 @@ public:
 	/// Returns the model index for a given AMActionLogItem
 	QModelIndex indexForLogItem(AMActionLogItem3 *logItem) const;
 
+	void markIndexAsSelected(const QModelIndex &index, QAbstractItemView *viewer);
+	void markIndexAsDeselected(const QModelIndex &index, QAbstractItemView *viewer);
+
 public slots:
 	/// Set the date/time range of actions that should be shown. Specificy an invalid QDateTime for \c oldest to show all.  Specify an invalid QDateTime for \c newest to always be the current date time.
 	/*! Automatically calls refreshFromDb() if the time range has changed, when control returns to the event loop.*/
@@ -182,6 +185,8 @@ protected:
 	bool recurseActionsLogLevelCreate(int parentId, QMap<int, int> parentIdsAndIds);
 	/// Helper function to recurse through the items list and clear each level in order
 	bool recurseActionsLogLevelClear(QModelIndex parentIndex);
+
+	void recurseMarkParentSelected(const QModelIndex &index, QAbstractItemView *viewer, bool selected);
 
 protected:
 
