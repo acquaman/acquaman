@@ -20,14 +20,11 @@ public:
 
 	explicit AMActionLogItemDelegate3(AMActionHistoryTreeView3 *viewer, QObject* parent = 0);
 
-	virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-
 protected:
 	virtual void initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const;
 
 protected:
 	AMActionHistoryTreeView3 *viewer_;
-	mutable bool styleOptionAlreadyInit_;
 };
 
 /// This item class is used to cache the details of a completed workflow action inside AMActionHistoryModel. You should never need to use this class directly.

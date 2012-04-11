@@ -35,40 +35,23 @@ AMActionLogItemDelegate3::AMActionLogItemDelegate3(AMActionHistoryTreeView3 *vie
 	QStyledItemDelegate(parent)
 {
 	viewer_ = viewer;
-	styleOptionAlreadyInit_ = false;
 }
 
-#include <QApplication>
-void AMActionLogItemDelegate3::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const{
-	QStyleOptionViewItemV4 optionV4 = option;
-	initStyleOption(&optionV4, index);
+void AMActionLogItemDelegate3::initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const{
+	QStyledItemDelegate::initStyleOption(option, index);
+	QStyleOptionViewItemV4 *optionV4 = qstyleoption_cast<QStyleOptionViewItemV4 *>(option);
+	if(!optionV4 || !index.model())
+		return;
 	const AMActionHistoryModel3 *historyModel = qobject_cast<const AMActionHistoryModel3*>(index.model());
 	if(historyModel){
 		AMActionLogItem3 *logItem = historyModel->logItem(index);
 		if(logItem->parentSelected(viewer_)){
-			qDebug() << "Found a paint event where my parent tells me to partial highlight";
-			QBrush highlightBrush = optionV4.palette.highlight();
+			QBrush highlightBrush = optionV4->palette.highlight();
 			QColor highlightColor = highlightBrush.color();
 			highlightColor.setAlpha(170);
-			optionV4.backgroundBrush.setColor(highlightColor);
-			styleOptionAlreadyInit_ = true;
+			optionV4->backgroundBrush.setColor(highlightColor);
 		}
 	}
-	/*
-	if( (index.column() == 0) && ( (optionV4.state & QStyle::State_Selected) == QStyle::State_Selected) ){
-		QBrush highlightBrush = optionV4.palette.highlight();
-		QColor highlightColor = highlightBrush.color();
-		highlightColor.setAlpha(170);
-		optionV4.palette.setColor(optionV4.palette.currentColorGroup(), QPalette::Highlight, highlightColor);
-	}
-	*/
-	QStyledItemDelegate::paint(painter, optionV4, index);
-	styleOptionAlreadyInit_ = false;
-}
-
-void AMActionLogItemDelegate3::initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const{
-	if(!styleOptionAlreadyInit_)
-		QStyledItemDelegate::initStyleOption(option, index);
 }
 
 // AMActionLogItem
