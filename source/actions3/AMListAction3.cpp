@@ -17,8 +17,9 @@ AMListAction3::AMListAction3(AMListActionInfo3* info, SubActionMode subActionMod
 
 // Copy constructor. Takes care of making copies of the sub-actions
 AMListAction3::AMListAction3(const AMListAction3& other) : AMAction3(other) {
-	subActionMode_ = other.subActionMode_;
 	currentSubActionIndex_ = -1; // prior to running an subactions
+	subActionMode_ = other.subActionMode_;
+	logSubActionsSeparately_ = other.shouldLogSubActionsSeparately();
 	logActionId_ = other.logActionId();
 
 	foreach(AMAction3* action, other.subActions_)
@@ -264,10 +265,17 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 		}
 	}
 	else if(newState == AMListAction3::Succeeded || newState == AMListAction3::Cancelled || newState == AMListAction3::Failed){
+		AMAction3 *generalAction = qobject_cast<AMAction3*>(QObject::sender());
 		AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
 		if(listAction){
 			if(!AMActionLog3::updateCompletedAction(listAction)) {
 				//NEM April 5th, 2012
+			}
+		}
+		else{
+			if(internalShouldLogSubAction(generalAction)){
+				int parentLogId = logActionId();
+				AMActionLog3::logCompletedAction(generalAction, parentLogId);
 			}
 		}
 	}
@@ -532,10 +540,6 @@ void AMListAction3::internalCleanupAction(AMAction3 *action)
 	AMAction3 *cleanupAction = action ? action : currentSubAction();
 
 	internalDisconnectAction(cleanupAction);
-	if (internalShouldLogSubAction(cleanupAction)){
-		int parentLogId = logActionId();
-		AMActionLog3::logCompletedAction(cleanupAction, parentLogId);
-	}
 }
 
 bool AMListAction3::internalAllActionsRunningOrFinal() const

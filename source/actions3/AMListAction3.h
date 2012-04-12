@@ -85,7 +85,7 @@ public:
 	////////////////////////////////////////////
 
 	/// Specifies whether, when logging actions that are run with AMActionRunner, to log the entire action, or log the individual sub-actions as they complete.
-	virtual bool shouldLogSubActionsSeparately() { return logSubActionsSeparately_; }
+	virtual bool shouldLogSubActionsSeparately() const { return logSubActionsSeparately_; }
 	/// Set whether each individual sub-action should be logged separately as soon as it completes, or if the whole loop action should be logged as one long single action (in the user's action history log).
 	void setShouldLogSubActionsSeparately(bool logSeparately) { logSubActionsSeparately_ = logSeparately; }
 
