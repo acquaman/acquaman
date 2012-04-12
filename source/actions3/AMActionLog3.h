@@ -22,6 +22,7 @@ class AMActionLog3 : public AMDbObject
 	Q_PROPERTY(QString longDescription READ longDescription)
 	Q_PROPERTY(QString iconFileName READ iconFileName)
 	Q_PROPERTY(int parentId READ parentId WRITE setParentId)
+	Q_PROPERTY(bool actionInheritedLoop READ actionInheritedLoop WRITE dbLoadActionInheritedLoop)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Completed Action Log3")
 	// Index by completion time (This is how we will sort/present them in order.)
@@ -54,6 +55,9 @@ public:
 
 	/// Returns true if this log was started on a list action or loop action
 	bool actionInheritedList() const { return actionInheritedList_;}
+
+	/// Returns true if this log was started on an action that inherits loop action
+	bool actionInheritedLoop() const { return actionInheritedLoop_;}
 
 	/// Access the AMActionInfo associated with the logged action. Returns 0 if this is a null log.
 	const AMActionInfo3* info() const { return info_; }
@@ -90,6 +94,7 @@ public:
 	void dbLoadEndDateTime(const QDateTime& endDateTime);
 	void dbLoadFinalState(int finalState);
 	void dbLoadInfo(AMDbObject* newInfo);
+	void dbLoadActionInheritedLoop(bool actionInheritedLoop);
 
 signals:
 
@@ -100,6 +105,7 @@ protected:
 	int finalState_;
 	QDateTime startDateTime_, endDateTime_;
 	bool actionInheritedList_;
+	bool actionInheritedLoop_;
 	int parentId_;
 };
 

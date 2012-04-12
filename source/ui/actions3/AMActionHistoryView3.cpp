@@ -121,6 +121,18 @@ int AMActionLogItem3::parentId() const{
 	return parentId_;
 }
 
+bool AMActionLogItem3::actionInheritedLoop() const{
+	if(!loadedFromDb_)
+		loadLogDetailsFromDb();
+	return actionInheritedLoop_;
+}
+
+int AMActionLogItem3::numberOfLoops() const{
+	if(!loadedFromDb_)
+		loadLogDetailsFromDb();
+	return numberOfLoops_;
+}
+
 bool AMActionLogItem3::parentSelected(QAbstractItemView *viewer) const{
 	if(parentSelected_.contains(viewer))
 		return parentSelected_.value(viewer);
@@ -143,7 +155,7 @@ bool AMActionLogItem3::loadLogDetailsFromDb() const
 		return false;
 
 	QStringList columns;
-	columns << "name" << "longDescription" << "iconFileName" << "startDateTime" << "endDateTime" << "finalState" << "info" << "parentId";
+	columns << "name" << "longDescription" << "iconFileName" << "startDateTime" << "endDateTime" << "finalState" << "info" << "parentId" << "actionInheritedLoop";
 	QVariantList values = db_->retrieve(id_, AMDbObjectSupport::s()->tableNameForClass<AMActionLog3>(), columns);
 	if(values.isEmpty())
 		return false;
@@ -156,6 +168,11 @@ bool AMActionLogItem3::loadLogDetailsFromDb() const
 	finalState_ = values.at(5).toInt();
 	canCopy_ = db_->retrieve(values.at(6).toString().section(';', -1).toInt(), values.at(6).toString().split(';').first(), "canCopy").toBool();
 	parentId_ = values.at(7).toInt();
+	actionInheritedLoop_ = values.at(8).toBool();
+	if(actionInheritedLoop_)
+		numberOfLoops_ = db_->retrieve(values.at(6).toString().section(';', -1).toInt(), values.at(6).toString().split(';').first(), "loopCount").toInt();
+	else
+		numberOfLoops_ = -1;
 	loadedFromDb_ = true;
 
 	return true;
@@ -480,6 +497,14 @@ void AMActionHistoryModel3::markIndexAsDeselected(const QModelIndex &index, QAbs
 	recurseMarkParentSelected(index, viewer, false);
 }
 
+void AMActionHistoryModel3::markIndexGroupAsSelected(const QModelIndex &index, QAbstractItemView *viewer){
+	markIndexGroup(index, viewer, true);
+}
+
+void AMActionHistoryModel3::markIndexGroupAsDeselected(const QModelIndex &index, QAbstractItemView *viewer){
+	markIndexGroup(index, viewer, false);
+}
+
 void AMActionHistoryModel3::setVisibleDateTimeRange(const QDateTime &oldest, const QDateTime &newest)
 {
 	if(oldest == visibleRangeOldest_ && newest == visibleRangeNewest_)
@@ -789,12 +814,36 @@ void AMActionHistoryModel3::recurseMarkParentSelected(const QModelIndex &index, 
 	emit dataChanged(this->index(0, 0, index), this->index(childrenCount, 0, index));
 }
 
+void AMActionHistoryModel3::markIndexGroup(const QModelIndex &index, QAbstractItemView *viewer, bool selected){
+	if(!index.parent().isValid()){
+		recurseMarkParentSelected(index, viewer, selected);
+		return;
+	}
+	AMActionLogItem3 *item = logItem(index.parent());
+	if(item->actionInheritedLoop()){
+		int actionsPerLoop = rowCount(index.parent())/item->numberOfLoops();
+		int indexInLoop = (index.row()%actionsPerLoop);
+		QModelIndex markingIndex;
+		for(int x = 0; x < rowCount(index.parent()); x++){
+			if(x%actionsPerLoop == indexInLoop){
+				markingIndex = this->index(x, 0, index.parent());
+				recurseMarkParentSelected(markingIndex, viewer, selected);
+				emit dataChanged(markingIndex, markingIndex);
+			}
+		}
+	}
+	else
+		recurseMarkParentSelected(index, viewer, selected);
+}
+
 
 AMActionHistoryTreeView3::AMActionHistoryTreeView3(QWidget *parent) :
 	QTreeView(parent)
 {
 	shiftKeyDown_ = false;
-	hasOverriddenCursor_ = false;
+	controlKeyDown_ = false;
+	hasOverriddenShiftCursor_ = false;
+	hasOverriddenControlCursor_ = false;
 	forbiddenCursor_ = new QCursor();
 	forbiddenCursor_->setShape(Qt::ForbiddenCursor);
 	regularCursor_ = new QCursor();
@@ -814,28 +863,51 @@ void AMActionHistoryTreeView3::onEnteredIndex(const QModelIndex &index){
 		return;
 	//qDebug() << "Hovering: " << historyModel->logItem(index)->id() << " sibling: " << (index.parent() == lastClickedIndex_.parent()) << " CURSOR: " << (intptr_t)QApplication::overrideCursor();
 	if(shiftKeyDown_){
-		if(!hasOverriddenCursor_ && (index.parent() != lastClickedIndex_.parent()) ){
-			hasOverriddenCursor_ = true;
+		if(!hasOverriddenShiftCursor_ && (index.parent() != lastClickedIndex_.parent()) ){
+			hasOverriddenShiftCursor_ = true;
 			setCursor(*forbiddenCursor_);
 		}
-		else if(hasOverriddenCursor_ && (index.parent() == lastClickedIndex_.parent() && !lastClickWasDeselect_) ){
-			hasOverriddenCursor_ = false;
+		else if(hasOverriddenShiftCursor_ && (index.parent() == lastClickedIndex_.parent() && !lastClickWasDeselect_) ){
+			hasOverriddenShiftCursor_ = false;
 			setCursor(*regularCursor_);
+		}
+	}
+	if(controlKeyDown_){
+		ParentSelectMap selectMap = model()->data(index, AMActionHistoryModel3::ParentSelectRole).value<ParentSelectMap>();
+		if(hasOverriddenControlCursor_){
+			hasOverriddenControlCursor_ = false;
+			setCursor(*regularCursor_);
+		}
+		if(!hasOverriddenControlCursor_ && selectMap.contains(this) && !selectMap.value(this) && hasSelectedParent(index) && !selectionModel()->isSelected(index.parent())){
+			hasOverriddenControlCursor_ = true;
+			setCursor(*forbiddenCursor_);
 		}
 	}
 }
 
 QItemSelectionModel::SelectionFlags AMActionHistoryTreeView3::selectionCommand(const QModelIndex &index, const QEvent *selectionEvent) const{
 	QItemSelectionModel::SelectionFlags retFlags = QTreeView::selectionCommand(index, selectionEvent);
-	bool hasShiftModifier;
+	bool hasShiftModifier, hasControlModifier;
 	if(index.isValid()){
 		//qDebug() << "Event type is " << selectionEvent->type();
-		if(!selectionEvent->type() == QEvent::MouseButtonPress)
+		AMActionHistoryModel3 *historyModel = qobject_cast<AMActionHistoryModel3*>(model());
+		if( !historyModel || (selectionEvent->type() != QEvent::MouseButtonPress) )
 			return QTreeView::selectionCommand(index, selectionEvent);
 		QMouseEvent *mouseEvent = (QMouseEvent*)selectionEvent;
 		Qt::KeyboardModifiers currentModifiers = mouseEvent->modifiers();
-		bool hasControlModifier = currentModifiers&Qt::ControlModifier;
+		hasControlModifier = currentModifiers&Qt::ControlModifier;
 		hasShiftModifier = currentModifiers&Qt::ShiftModifier;
+
+		ParentSelectMap selectMap = model()->data(index, AMActionHistoryModel3::ParentSelectRole).value<ParentSelectMap>();
+		AMActionHistoryTreeView3 *checkViewer = const_cast<AMActionHistoryTreeView3*>(this);
+		if(hasControlModifier && selectMap.contains(checkViewer) && selectMap.value(checkViewer)){
+			historyModel->markIndexGroupAsDeselected(index, checkViewer);
+			return QItemSelectionModel::NoUpdate;
+		}
+		else if(hasControlModifier && selectMap.contains(checkViewer) && !selectMap.value(checkViewer)){
+			historyModel->markIndexGroupAsSelected(index, checkViewer);
+			return QItemSelectionModel::NoUpdate;
+		}
 
 		if( !hasControlModifier && (actuallySelectedByClickingCount_ == 1) && (selectionModel()->selectedIndexes().contains(index)) ){
 			//qDebug() << "I think this index is already selected at row " << index.row();
@@ -886,9 +958,16 @@ void AMActionHistoryTreeView3::keyPressEvent(QKeyEvent *event){
 	if(event->key() == Qt::Key_Shift){
 		shiftKeyDown_ = true;
 		if(lastClickWasDeselect_){
-			hasOverriddenCursor_ = true;
+			hasOverriddenShiftCursor_ = true;
 			setCursor(*forbiddenCursor_);
 		}
+		else
+			onEnteredIndex(indexAt(viewport()->mapFromGlobal(QCursor::pos())));
+	}
+	else if(event->key() == Qt::Key_Control){
+		controlKeyDown_ = true;
+		//onEnteredIndex(indexAt(mapFromGlobal(QCursor::pos())));
+		onEnteredIndex(indexAt(viewport()->mapFromGlobal(QCursor::pos())));
 	}
 }
 
@@ -896,8 +975,15 @@ void AMActionHistoryTreeView3::keyReleaseEvent(QKeyEvent *event){
 	if(event->key() == Qt::Key_Shift){
 		//qDebug() << "Got the key release event";
 		shiftKeyDown_ = false;
-		if(hasOverriddenCursor_){
-			hasOverriddenCursor_ = false;
+		if(hasOverriddenShiftCursor_){
+			hasOverriddenShiftCursor_ = false;
+			setCursor(*regularCursor_);
+		}
+	}
+	else if(event->key() == Qt::Key_Control){
+		controlKeyDown_ = false;
+		if(hasOverriddenControlCursor_){
+			hasOverriddenControlCursor_ = false;
 			setCursor(*regularCursor_);
 		}
 	}
@@ -908,7 +994,7 @@ void AMActionHistoryTreeView3::mouseMoveEvent(QMouseEvent *event){
 }
 
 void AMActionHistoryTreeView3::mousePressEvent(QMouseEvent *event){
-	if(shiftKeyDown_ && hasOverriddenCursor_){
+	if(shiftKeyDown_ && hasOverriddenShiftCursor_){
 		//qDebug() << "Detected illegal shift click";
 		event->ignore();
 	}
@@ -953,8 +1039,19 @@ void AMActionHistoryTreeView3::mousePressEvent(QMouseEvent *event){
 
 		event->accept();
 	}
+	else if(controlKeyDown_ && hasOverriddenControlCursor_){
+		event->ignore();
+	}
 	else
 		QTreeView::mousePressEvent(event);
+}
+
+bool AMActionHistoryTreeView3::hasSelectedParent(const QModelIndex &index){
+	if(!index.parent().isValid())
+		return false;
+	if(selectionModel()->isSelected(index.parent()))
+		return true;
+	return hasSelectedParent(index.parent());
 }
 
 // AMActionHistoryView

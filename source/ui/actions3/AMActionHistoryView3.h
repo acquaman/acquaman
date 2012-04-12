@@ -63,6 +63,10 @@ public:
 	bool canCopy() const;
 	/// Returns the database id of the parent log action, if none then returns -1
 	int parentId() const;
+	/// Returns whether or not the action logged here inhereted the loop action
+	bool actionInheritedLoop() const;
+	/// Returns the number of loops this action performed or -1 is this was not a loop action
+	int numberOfLoops() const;
 
 	bool parentSelected(QAbstractItemView *viewer) const;
 	ParentSelectMap allParentSelected() const;
@@ -90,6 +94,8 @@ protected:
 	mutable QDateTime startDateTime_, endDateTime_;
 	mutable bool canCopy_;
 	mutable int parentId_;
+	mutable bool actionInheritedLoop_;
+	mutable int numberOfLoops_;
 
 	//QMap<QAbstractItemView*, bool> parentSelected_;
 	ParentSelectMap parentSelected_;
@@ -142,6 +148,9 @@ public:
 	void markIndexAsSelected(const QModelIndex &index, QAbstractItemView *viewer);
 	void markIndexAsDeselected(const QModelIndex &index, QAbstractItemView *viewer);
 
+	void markIndexGroupAsSelected(const QModelIndex &index, QAbstractItemView *viewer);
+	void markIndexGroupAsDeselected(const QModelIndex &index, QAbstractItemView *viewer);
+
 public slots:
 	/// Set the date/time range of actions that should be shown. Specificy an invalid QDateTime for \c oldest to show all.  Specify an invalid QDateTime for \c newest to always be the current date time.
 	/*! Automatically calls refreshFromDb() if the time range has changed, when control returns to the event loop.*/
@@ -190,6 +199,7 @@ protected:
 	bool recurseActionsLogLevelClear(QModelIndex parentIndex);
 
 	void recurseMarkParentSelected(const QModelIndex &index, QAbstractItemView *viewer, bool selected);
+	void markIndexGroup(const QModelIndex &index, QAbstractItemView *viewer, bool selected);
 
 protected:
 
@@ -245,10 +255,12 @@ protected:
 	virtual void mouseMoveEvent(QMouseEvent *event);
 	virtual void mousePressEvent(QMouseEvent *event);
 
+	bool hasSelectedParent(const QModelIndex &index);
+
 protected:
 	int actuallySelectedByClickingCount_;
-	bool shiftKeyDown_;
-	bool hasOverriddenCursor_;
+	bool shiftKeyDown_, controlKeyDown_;
+	bool hasOverriddenShiftCursor_, hasOverriddenControlCursor_;
 	QCursor *forbiddenCursor_, *regularCursor_;
 	mutable QModelIndex lastClickedIndex_;
 	mutable bool lastClickWasDeselect_;

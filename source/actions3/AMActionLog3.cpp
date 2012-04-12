@@ -1,6 +1,7 @@
 #include "AMActionLog3.h"
 
-#include "actions3/AMListAction3.h"
+//#include "actions3/AMListAction3.h"
+#include "actions3/AMLoopAction3.h"
 #include "dataman/database/AMDbObjectSupport.h"
 
 AMActionLog3::AMActionLog3(QObject *parent) :
@@ -15,6 +16,7 @@ AMActionLog3::AMActionLog3(const AMAction3 *completedAction, QObject *parent) :
 {
 	if(completedAction){
 		const AMListAction3 *listAction = qobject_cast<const AMListAction3*>(completedAction);
+		const AMLoopAction3 *loopAction = qobject_cast<const AMLoopAction3*>(completedAction);
 		if(listAction){
 			actionInheritedList_ = true;
 			info_ = const_cast<AMActionInfo3*>(completedAction->info());
@@ -23,6 +25,10 @@ AMActionLog3::AMActionLog3(const AMAction3 *completedAction, QObject *parent) :
 			actionInheritedList_ = false;
 			info_ = completedAction->info()->createCopy();
 		}
+		if(loopAction)
+			actionInheritedLoop_ = true;
+		else
+			actionInheritedLoop_ = false;
 		startDateTime_ = completedAction->startDateTime();
 		finalState_ = completedAction->state();
 		setName(info_->shortDescription());
@@ -50,6 +56,7 @@ AMActionLog3::AMActionLog3(const AMActionLog3 &other) :
 			info_ = const_cast<AMActionInfo3*>(other.info());
 		else
 			info_ = other.info()->createCopy();
+		actionInheritedLoop_ = other.actionInheritedLoop();
 		finalState_ = other.finalState();
 		startDateTime_ = other.startDateTime();
 		endDateTime_ = other.endDateTime();
@@ -121,6 +128,11 @@ void AMActionLog3::dbLoadInfo(AMDbObject *newInfo)
 		// not doing anything with this object because it's the wrong type. However, it's our responsibility now, so delete it.
 		delete newInfo;
 	}
+}
+
+void AMActionLog3::dbLoadActionInheritedLoop(bool actionInheritedLoop){
+	actionInheritedLoop_ = actionInheritedLoop;
+	setModified(true);
 }
 
 bool AMActionLog3::logUncompletedAction(const AMAction3 *uncompletedAction, int parentLogId, AMDatabase *database){
