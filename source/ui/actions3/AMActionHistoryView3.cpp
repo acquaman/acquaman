@@ -803,6 +803,10 @@ bool AMActionHistoryModel3::recurseActionsLogLevelClear(QModelIndex parentIndex)
 }
 
 void AMActionHistoryModel3::recurseMarkParentSelected(const QModelIndex &index, QAbstractItemView *viewer, bool selected){
+	qDebug() << "Maybe its child " << index.row() << " is already selected and needs to be fixed " << index.parent().isValid() << viewer->selectionModel()->isSelected(index.parent()) << viewer->selectionModel()->isSelected(index);
+	if(index.parent().isValid() && viewer->selectionModel()->isSelected(index.parent()) && viewer->selectionModel()->isSelected(index))
+		viewer->selectionModel()->select(index, QItemSelectionModel::Deselect);
+
 	int childrenCount = rowCount(index);
 	AMActionLogItem3 *item = logItem(index);
 	if(item)
@@ -1028,6 +1032,11 @@ void AMActionHistoryTreeView3::mousePressEvent(QMouseEvent *event){
 
 		selectionModel()->clearSelection();
 		selectionModel()->select(currentSelection, command);
+
+		qDebug() << "SELECTION MODEL";
+		for(int x = 0; x < selectionModel()->selection().count(); x++)
+			for(int y = 0; y < selectionModel()->selection().at(x).indexes().count(); y++)
+				qDebug() << selectionModel()->selection().at(x).indexes().at(y).row();
 
 		QModelIndexList interiorIndices = newSelection.indexes();
 		if(interiorIndices.count() >= 2){
@@ -1365,6 +1374,7 @@ void AMActionHistoryView3::onSelectedByClicked(const QModelIndex &index, bool ot
 	if(index.isValid()){
 		shiftModifierUsed_ = shiftModifierWasUsed;
 		actuallyBeenClicked_.append(index);
+		qDebug() << "Marking index " << index.row() << " as selected " << treeView_->selectionModel()->isSelected(index);
 		model_->markIndexAsSelected(index, treeView_);
 	}
 	treeView_->setActuallySelectedByClickingCount(actuallyBeenClicked_.count());
