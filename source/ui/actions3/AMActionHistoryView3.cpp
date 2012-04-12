@@ -834,6 +834,28 @@ void AMActionHistoryModel3::markIndexGroup(const QModelIndex &index, QAbstractIt
 	}
 	else
 		recurseMarkParentSelected(index, viewer, selected);
+
+	int siblingsSelected = 0;
+	for(int x = 0; x < rowCount(index.parent()); x++){
+		ParentSelectMap selectMap = data(this->index(x, 0, index.parent()), AMActionHistoryModel3::ParentSelectRole).value<ParentSelectMap>();
+		if(selectMap.contains(viewer) && selectMap.value(viewer))
+			siblingsSelected++;
+	}
+
+	if(siblingsSelected == 0){
+		if(viewer->selectionModel()->isSelected(index.parent())){
+			QItemSelectionModel::SelectionFlags deselectFlag = QItemSelectionModel::Deselect;
+			viewer->selectionModel()->select(index.parent(), deselectFlag);
+			ParentSelectMap selectMap = data(index.parent(), AMActionHistoryModel3::ParentSelectRole).value<ParentSelectMap>();
+			if(selectMap.contains(viewer)){
+				AMActionLogItem3 *item = logItem(index.parent());
+				item->setParentSelected(viewer, false);
+			}
+			emit dataChanged(index.parent(), index.parent());
+		}
+		else
+			markIndexGroupAsDeselected(index.parent(), viewer);
+	}
 }
 
 
@@ -898,11 +920,18 @@ QItemSelectionModel::SelectionFlags AMActionHistoryTreeView3::selectionCommand(c
 
 		ParentSelectMap selectMap = model()->data(index, AMActionHistoryModel3::ParentSelectRole).value<ParentSelectMap>();
 		AMActionHistoryTreeView3 *checkViewer = const_cast<AMActionHistoryTreeView3*>(this);
-		if(hasControlModifier && selectMap.contains(checkViewer) && selectMap.value(checkViewer)){
+		bool parentIsSelected = false;
+		if(index.parent().isValid()){
+			ParentSelectMap parentsSelectMap = model()->data(index.parent(), AMActionHistoryModel3::ParentSelectRole).value<ParentSelectMap>();
+			if(parentsSelectMap.contains(checkViewer))
+				parentIsSelected |= parentsSelectMap.value(checkViewer);
+			parentIsSelected |= selectionModel()->isSelected(index.parent());
+		}
+		if(hasControlModifier && index.parent().isValid() && parentIsSelected && selectMap.contains(checkViewer) && selectMap.value(checkViewer)){
 			historyModel->markIndexGroupAsDeselected(index, checkViewer);
 			return QItemSelectionModel::NoUpdate;
 		}
-		else if(hasControlModifier && selectMap.contains(checkViewer) && !selectMap.value(checkViewer)){
+		else if(hasControlModifier && index.parent().isValid() && parentIsSelected && selectMap.contains(checkViewer) && !selectMap.value(checkViewer)){
 			historyModel->markIndexGroupAsSelected(index, checkViewer);
 			return QItemSelectionModel::NoUpdate;
 		}
@@ -1033,7 +1062,7 @@ void AMActionHistoryTreeView3::mousePressEvent(QMouseEvent *event){
 		QTreeView::mousePressEvent(event);
 }
 
-bool AMActionHistoryTreeView3::hasSelectedParent(const QModelIndex &index){
+bool AMActionHistoryTreeView3::hasSelectedParent(const QModelIndex &index) const{
 	if(!index.parent().isValid())
 		return false;
 	if(selectionModel()->isSelected(index.parent()))

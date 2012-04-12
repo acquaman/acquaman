@@ -254,7 +254,7 @@ protected:
 	virtual void mouseMoveEvent(QMouseEvent *event);
 	virtual void mousePressEvent(QMouseEvent *event);
 
-	bool hasSelectedParent(const QModelIndex &index);
+	bool hasSelectedParent(const QModelIndex &index) const;
 
 protected:
 	int actuallySelectedByClickingCount_;
