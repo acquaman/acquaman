@@ -93,6 +93,8 @@ protected:
 	ParentSelectMap parentSelected_;
 };
 
+#include <QItemSelection>
+
 /// This QAbstractItemModel implements a model for completed workflow actions, used by AMActionHistoryView. You should never need to use this class directly.
 /*! Like AMActionRunner's AMActionQueueModel, this model is hierarchichal, since we're storing completed actions inside their respective loop and list actions. */
 class AMActionHistoryModel3 : public QAbstractItemModel
@@ -125,7 +127,6 @@ public:
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
 	virtual QVariant data(const QModelIndex &index, int role) const;
-	virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
 	Qt::ItemFlags flags(const QModelIndex &index) const;
 	virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
@@ -135,6 +136,8 @@ public:
 	AMActionLogItem3* logItem(const QModelIndex& index) const;
 	/// Returns the model index for a given AMActionLogItem
 	QModelIndex indexForLogItem(AMActionLogItem3 *logItem) const;
+
+	const QItemSelection indicesBetween(const QModelIndex &brother, const QModelIndex &sister) const;
 
 	void markIndexAsSelected(const QModelIndex &index, QAbstractItemView *viewer);
 	void markIndexAsDeselected(const QModelIndex &index, QAbstractItemView *viewer);
@@ -232,13 +235,25 @@ public slots:
 signals:
 	void actuallySelectedByClicking(const QModelIndex &index, bool othersCleared, bool shiftModifierWasUsed) const;
 	void actuallyDeselectedByClicking(const QModelIndex &index, bool othersCleared, bool shiftModifierWasUsed) const;
+	void clearedByClicking() const;
+
+protected slots:
+	void onEnteredIndex(const QModelIndex &index);
 
 protected:
 	virtual QItemSelectionModel::SelectionFlags selectionCommand(const QModelIndex &index, const QEvent *selectionEvent) const;
+	virtual void keyPressEvent(QKeyEvent *event);
+	virtual void keyReleaseEvent(QKeyEvent *event);
 	virtual void mouseMoveEvent(QMouseEvent *event);
+	virtual void mousePressEvent(QMouseEvent *event);
 
 protected:
 	int actuallySelectedByClickingCount_;
+	bool shiftKeyDown_;
+	bool hasOverriddenCursor_;
+	QCursor *forbiddenCursor_, *regularCursor_;
+	mutable QModelIndex lastClickedIndex_;
+	mutable bool lastClickWasDeselect_;
 };
 
 /// This UI class provides a view of a user's completed actions that were run with AMActionRunner. It is part of the overall AMWorkflowView.
@@ -273,6 +288,7 @@ protected slots:
 	void onSelectionChanged();
 	void onSelectedByClicked(const QModelIndex &index, bool othersCleared, bool shiftModifierWasUsed);
 	void onDeselectedByClicked(const QModelIndex &index, bool othersCleared, bool shiftModifierWasUsed);
+	void onClearedByClicked();
 
 
 	/// Called right before the model is refreshed. Remember if we're scrolled right to the bottom, so we can go back there.
