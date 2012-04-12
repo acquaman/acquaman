@@ -97,7 +97,6 @@ protected:
 	mutable bool actionInheritedLoop_;
 	mutable int numberOfLoops_;
 
-	//QMap<QAbstractItemView*, bool> parentSelected_;
 	ParentSelectMap parentSelected_;
 };
 
