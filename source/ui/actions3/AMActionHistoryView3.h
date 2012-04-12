@@ -6,6 +6,8 @@
 #include <QAbstractItemModel>
 #include <QStyledItemDelegate>
 #include <QMetaType>
+#include <QItemSelection>
+#include <QTreeView>
 
 #include "dataman/database/AMDatabase.h"
 #include "util/AMDeferredFunctionCall.h"
@@ -92,8 +94,6 @@ protected:
 	//QMap<QAbstractItemView*, bool> parentSelected_;
 	ParentSelectMap parentSelected_;
 };
-
-#include <QItemSelection>
 
 /// This QAbstractItemModel implements a model for completed workflow actions, used by AMActionHistoryView. You should never need to use this class directly.
 /*! Like AMActionRunner's AMActionQueueModel, this model is hierarchichal, since we're storing completed actions inside their respective loop and list actions. */
@@ -220,8 +220,6 @@ class QFrame;
 class QComboBox;
 class QLabel;
 class QPushButton;
-
-#include <QTreeView>
 
 class AMActionHistoryTreeView3 : public QTreeView
 {
