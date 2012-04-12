@@ -58,6 +58,8 @@ public slots:
 protected slots:
 	/// Called when the current action's progress is updated. We use it to update our own progress
 	virtual void internalOnCurrentActionProgressChanged(double numerator, double denominator);
+	/// Called when any of the sub-actions emits statusTextChanged()
+	virtual void internalOnSubActionStatusTextChanged(const QString &statusText);
 
 protected:
 	// Protected virtual functions to re-implement

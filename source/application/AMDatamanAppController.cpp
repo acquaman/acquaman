@@ -473,6 +473,8 @@ bool AMDatamanAppController::startupRegisterDatabases()
 
 	AMDbObjectSupport::s()->registerClass<AMActionInfo3>();
 	AMDbObjectSupport::s()->registerClass<AMListActionInfo3>();
+	AMDbObjectSupport::s()->registerClass<AMSequentialListActionInfo3>();
+	AMDbObjectSupport::s()->registerClass<AMParallelListActionInfo3>();
 	AMDbObjectSupport::s()->registerClass<AMLoopActionInfo3>();
 	AMDbObjectSupport::s()->registerClass<AMActionLog3>();
 	AMDbObjectSupport::s()->registerClass<AMNumberChangeActionInfo>();
@@ -1120,55 +1122,6 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 		delete dbo;
 		return false;
 	}
-
-	/* Playing with actions3
-	AMNumberChangeActionSupport::appendNumber(1);
-	AMNumberChangeActionSupport::appendNumber(2);
-	AMNumberChangeActionSupport::appendNumber(3);
-	AMNumberChangeActionSupport::appendNumber(1);
-	AMNumberChangeActionSupport::appendNumber(4);
-
-	QListView *listView = new QListView();
-	listView->setModel(AMNumberChangeActionSupport::AMNumberChangeActionModel_);
-	listView->show();
-
-	AMNumberChangeActionInfo *firstChangeInfo = new AMNumberChangeActionInfo(27, 0);
-	AMNumberChangeAction *firstChange = new AMNumberChangeAction(firstChangeInfo);
-	QTimer::singleShot(2000, firstChange, SLOT(start()));
-
-	QList<int> indices;
-	QList<int> newNumbers;
-	indices << 3 << 1 << 4 << 0 << 1;
-	newNumbers << 12 << 0 << 962 << 19 << 7;
-	AMNumberChangeActionInfo *tempChangeInfo;
-	AMNumberChangeAction *tempChange;
-	AMListAction3 *firstListAction = new AMListAction3(new AMActionInfo3("List"));
-	for(int x = 0; x < indices.count(); x++){
-		tempChangeInfo = new AMNumberChangeActionInfo(newNumbers.at(x), indices.at(x));
-		tempChange = new AMNumberChangeAction(tempChangeInfo);
-		firstListAction->addSubAction(tempChange);
-	}
-	QTimer::singleShot(5000, firstListAction, SLOT(start()));
-
-	indices.clear();
-	newNumbers.clear();
-	indices << 0 << 1 << 2 << 3 << 4;
-	newNumbers << 4 << 3 << 2 << 1 << 0;
-	AMListAction3 *secondListAction = new AMListAction3(new AMActionInfo3("List"), AMListAction3::Parallel);
-	for(int x = 0; x < indices.count(); x++){
-		tempChangeInfo = new AMNumberChangeActionInfo(newNumbers.at(x), indices.at(x));
-		tempChange = new AMNumberChangeAction(tempChangeInfo);
-		secondListAction->addSubAction(tempChange);
-	}
-	QTimer::singleShot(13000, secondListAction, SLOT(start()));
-
-	AMListAction3 *thirdListAction = new AMListAction3(new AMActionInfo3("List"));
-	thirdListAction->addSubAction(firstListAction->createCopy());
-	thirdListAction->addSubAction(secondListAction->createCopy());
-	thirdListAction->addSubAction(firstChange->createCopy());
-
-	QTimer::singleShot(16000, thirdListAction, SLOT(start()));
-	*/
 
 	// Change the scan in the database if necessary and then reload it.
 	if (overwriteNecessary){

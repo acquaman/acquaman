@@ -115,8 +115,8 @@ bool AMListAction3::deleteSubAction(int index)
 bool AMListAction3::canPause() const
 {
 	if(subActionMode() == Sequential) {
-		// if we have no actions, then cannot pause; we'll complete instantly.
-		if(subActionCount() == 0)
+		// if we have no actions or null sub actions at 0 or currentSubAction, then cannot pause; we'll complete instantly.
+		if(subActionCount() == 0 || subActionAt(0) || currentSubAction())
 			return false;
 		// if we just have one sub-action and it cannot pause, then we can't pause.
 		if(subActionCount() == 1)
@@ -480,11 +480,36 @@ void AMListAction3::internalOnSubActionStatusTextChanged(const QString &statusTe
 	}
 	// parallel mode:
 	else {
-		QStringList allStatuses;
-		for(int i=0, cc=subActionCount(); i<cc; i++)
-			allStatuses << "Step " % QString::number(i+1) % " (" % subActionAt(i)->info()->shortDescription() % "): " % subActionAt(i)->statusText();
 
-		setStatusText(allStatuses.join("\n"));
+		int numRunning = 0;
+		int numFailed = 0;
+		int numSucceeded = 0;
+		AMAction3 *action = 0;
+
+		for(int i=0, cc=subActionCount(); i<cc; i++){
+
+			action = subActionAt(i);
+
+			if (action->state() == Running)
+				numRunning++;
+
+			else if (action->state() == Failed)
+				numFailed++;
+
+			else if (action->state() == Succeeded)
+				numSucceeded++;
+		}
+
+		QString text = QString("Parallel List with %1 actions.\n").arg(QString::number(subActionCount()+1));
+
+		if (numRunning > 0)
+			text.append(QString("Running: %1 ").arg(numRunning));
+		if (numSucceeded > 0)
+			text.append(QString("Succeeded: %1 ").arg(numSucceeded));
+		if (numFailed > 0)
+			text.append(QString("Failed: %1").arg(numFailed));
+
+		setStatusText(text);
 	}
 }
 
