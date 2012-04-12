@@ -552,7 +552,9 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/actions3/actions/AMControlMoveActionInfo3.h \
 	source/actions3/actions/AMControlMoveAction3.h \
 	source/actions3/editors/AMControlMoveActionEditor3.h \
-    source/actions3/AMActionCondition.h
+    source/actions3/AMActionCondition.h \
+    source/actions3/actions/AMScanAction.h \
+    source/actions3/actions/AMScanActionInfo.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -931,7 +933,9 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/actions3/actions/AMControlMoveActionInfo3.cpp \
 	source/actions3/actions/AMControlMoveAction3.cpp \
 	source/actions3/editors/AMControlMoveActionEditor3.cpp \
-    source/actions3/AMActionCondition.cpp
+    source/actions3/AMActionCondition.cpp \
+    source/actions3/actions/AMScanAction.cpp \
+    source/actions3/actions/AMScanActionInfo.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -955,6 +959,10 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
 
 
 
