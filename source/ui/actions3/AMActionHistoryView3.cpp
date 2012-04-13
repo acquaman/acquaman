@@ -206,48 +206,18 @@ void AMActionHistoryView3::onReRunActionButtonClicked()
 		return;
 
 	// go through all selected rows.
-	//foreach(QModelIndex i, treeView_->selectionModel()->selectedRows(0)) {
-	foreach(QModelIndex i, treeView_->selectionModel()->selectedIndexes()) {
-		AMActionLogItem3* item = model_->logItem(i);
-		if(!item)
-			continue;
-		qDebug() << "Found item " << item->id() << " index row " << i.row();
+	bool success = true;
+	foreach(QModelIndex i, treeView_->selectionModel()->selectedIndexes())
+		success &= recurseDbLoadIndex(i, 0);
 
-		// load the full actionLog.
-		AMActionLog3 actionLog;
-		if(!actionLog.loadFromDb(item->database(), item->id())) {
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -57, "Could not load the action log for id " % QString::number(item->id()) % " from the database. Please report this problem to the Acquaman developers."));
-			continue;
-		}
-		if(!actionLog.info()) {
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -58, "Could not load the action info for the action log with id " % QString::number(item->id()) % " from the database. It is likely because the action info class hasn't been registered with the database system. Please report this problem to the Acquaman developers."));
-			continue;
-		}
-		// make a copy of the AMActionInfo.
-		AMActionInfo3* info = actionLog.info()->createCopy();
-
-		// make an action (assuming the actionInfo is registered with a corresponding action)
-		AMAction3* action = AMActionRegistry3::s()->createActionFromInfo(info);
-		if(!action) {
-			QMessageBox::warning(this, "Cannot re-run this action", "Could not re-run this action because running the '" % info->typeDescription() %  "' action isn't enabled for your beamline's version of Acquaman. If you don't think this should be the case, please report this to the Acquaman developers.");
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -59, "Could not re-run this action because running '" % actionLog.name() % "' isn't enabled for your beamline's version of Acquaman. If you don't think this should be the case, please report this to the Acquaman developers."));
-			delete info;
-			continue;
-		}
-		actionRunner_->addActionToQueue(action);
-
-	}
+	if(!success)
+		AMErrorMon::debug(this, AMACTIONHISTORYVIEW_COULD_RERUN_ACTIONS, "Could not re-run action(s) because running one or more failed to load. Please report this to the Acquaman developers.");
 }
 
 void AMActionHistoryView3::onSelectionChanged()
 {
 	// can only re-run actions if we have a valid actionRunner_
 	if(actionRunner_) {
-		QModelIndexList selectedIndices = treeView_->selectionModel()->selectedIndexes();
-		for(int x = 0; x < selectedIndices.count(); x++){
-
-		}
-
 		int numSelected = treeView_->selectionModel()->selectedIndexes().count();
 		if(numSelected == 0) {
 			reRunActionButton_->setDisabled(true);
@@ -378,17 +348,17 @@ void AMActionHistoryView3::showEvent(QShowEvent *e)
 bool AMActionHistoryView3::recurseDbLoadIndex(const QModelIndex &index, AMListAction3 *parentAction){
 
 	AMActionLogItem3* item = model_->logItem(index);
-	if(!item || !parentAction)
+	if(!item)
 		return false;
 
 	// load the full actionLog.
 	AMActionLog3 actionLog;
 	if(!actionLog.loadFromDb(item->database(), item->id())) {
-		//AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -57, "Could not load the action log for id " % QString::number(item->id()) % " from the database. Please report this problem to the Acquaman developers."));
+		AMErrorMon::debug(this, AMACTIONHISTORYVIEW_ACTIONLOG_DB_LOAD_FAILED, "Could not load the action log for id " % QString::number(item->id()) % " from the database. Please report this problem to the Acquaman developers.");
 		return false;
 	}
 	if(!actionLog.info()) {
-		//AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -58, "Could not load the action info for the action log with id " % QString::number(item->id()) % " from the database. It is likely because the action info class hasn't been registered with the database system. Please report this problem to the Acquaman developers."));
+		AMErrorMon::debug(this, AMACTIONHISTORYVIEW_ACTIONINFO_DB_LOAD_FAILED, "Could not load the action info for the action log with id " % QString::number(item->id()) % " from the database. It is likely because the action info class hasn't been registered with the database system. Please report this problem to the Acquaman developers.");
 		return false;
 	}
 	// make a copy of the AMActionInfo.
@@ -397,11 +367,33 @@ bool AMActionHistoryView3::recurseDbLoadIndex(const QModelIndex &index, AMListAc
 	// make an action (assuming the actionInfo is registered with a corresponding action)
 	AMAction3* action = AMActionRegistry3::s()->createActionFromInfo(info);
 	if(!action) {
-		//QMessageBox::warning(this, "Cannot re-run this action", "Could not re-run this action because running the '" % info->typeDescription() %  "' action isn't enabled for your beamline's version of Acquaman. If you don't think this should be the case, please report this to the Acquaman developers.");
-		//AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -59, "Could not re-run this action because running '" % actionLog.name() % "' isn't enabled for your beamline's version of Acquaman. If you don't think this should be the case, please report this to the Acquaman developers."));
+		QMessageBox::warning(this, "Cannot re-run this action", "Could not re-run this action because running the '" % info->typeDescription() %  "' action isn't enabled for your beamline's version of Acquaman. If you don't think this should be the case, please report this to the Acquaman developers.");
+		AMErrorMon::debug(this, AMACTIONHISTORYVIEW_COULD_NOT_CREATE_ACTION, "Could not re-run this action because running '" % actionLog.name() % "' isn't enabled for your beamline's version of Acquaman. If you don't think this should be the case, please report this to the Acquaman developers.");
 		delete info;
 		return false;
 	}
 
+	AMListAction3 *listAction = qobject_cast<AMListAction3*>(action);
+	AMLoopAction3 *loopAction = qobject_cast<AMLoopAction3*>(action);
+	bool childrenSuccess = true;
+	if(listAction){
+		int effectiveNumberOfChildren = model_->rowCount(index);
+		if(loopAction)
+			effectiveNumberOfChildren = effectiveNumberOfChildren/loopAction->loopCount();
+		for(int x = 0; x < effectiveNumberOfChildren; x++)
+			childrenSuccess &= recurseDbLoadIndex(index.child(x, 0), listAction);
+	}
+	if(!childrenSuccess){
+		if(!parentAction)
+			delete action;
+		AMErrorMon::debug(this, AMACTIONHISTORYVIEW_COULD_NOT_LOAD_CHILD, "Could not re-run this action because running one or more children failed to load. Please report this to the Acquaman developers.");
+		return false;
+	}
 
+	if(parentAction)
+		return parentAction->addSubAction(action);
+	else{
+		actionRunner_->addActionToQueue(action);
+		return true;
+	}
 }

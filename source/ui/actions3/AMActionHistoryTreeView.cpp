@@ -27,6 +27,7 @@ void AMActionHistoryTreeView3::setActuallySelectedByClickingCount(int actuallySe
 	actuallySelectedByClickingCount_ = actuallySelectedByClickingCount;
 }
 
+#include <QDebug>
 void AMActionHistoryTreeView3::onEnteredIndex(const QModelIndex &index){
 	AMActionHistoryModel3 *historyModel = qobject_cast<AMActionHistoryModel3*>(model());
 	if(!historyModel)
@@ -52,9 +53,9 @@ void AMActionHistoryTreeView3::onEnteredIndex(const QModelIndex &index){
 			setCursor(*regularCursor_);
 		}
 		// If control key is down and we don't already have the forbidden cursor and this viewer is in the selection map and this index isn't parentSelected
-		//  and we have a parent somewhere selected and our direct parent isn't actually selected in the selection model ... go forbidden
+		//  and we have a parent somewhere selected and our direct parent isn't selected one way or the other ... go forbidden
 		// Just trying to make sure that you if you have three levels (A parents B, B parents C) if A or above is selected but B is not then you can't control-click in C or below ... what would that mean anyway
-		if(!hasOverriddenControlCursor_ && selectMap.contains(this) && !selectMap.value(this) && hasSelectedParent(index) && !selectionModel()->isSelected(index.parent())){
+		if(!hasOverriddenControlCursor_ && selectMap.contains(this) && !selectMap.value(this) && hasSelectedParent(index) && !(selectionModel()->isSelected(index.parent()) || model()->data(index.parent(), AMActionHistoryModel3::ParentSelectRole).value<ParentSelectMap>().value(this)) ){
 			hasOverriddenControlCursor_ = true;
 			setCursor(*forbiddenCursor_);
 		}
