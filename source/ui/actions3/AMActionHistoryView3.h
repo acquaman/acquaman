@@ -12,6 +12,8 @@ class AMActionHistoryModel3;
 class AMActionHistoryTreeView3;
 
 class AMActionRunner3;
+class AMListAction3;
+
 class QFrame;
 class QComboBox;
 class QLabel;
@@ -64,6 +66,13 @@ protected slots:
 	void onCustomContextMenuRequested(QPoint point);
 
 protected:
+	/// If we should be scrolled to the bottom of the treeView_, sometimes the scrolling doesn't happen if we're not visible. Here we make sure it does.
+	void showEvent(QShowEvent *);
+
+	/// Helper function for reloading actions (recursive for lists and loops)
+	bool recurseDbLoadIndex(const QModelIndex &index, AMListAction3 *parentAction);
+
+protected:
 	/// The action runner we get logged actions from
 	AMActionRunner3* actionRunner_;
 	/// The database we're logging to
@@ -84,10 +93,6 @@ protected:
 
 	/// The list of indexes that have actually been clicked
 	QModelIndexList actuallyBeenClicked_;
-
-	/// If we should be scrolled to the bottom of the treeView_, sometimes the scrolling doesn't happen if we're not visible. Here we make sure it does.
-	void showEvent(QShowEvent *);
-
 };
 
 #endif // AMACTIONHISTORYVIEW3_H

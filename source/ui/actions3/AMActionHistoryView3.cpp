@@ -2,6 +2,8 @@
 
 #include "actions3/AMActionRunner3.h"
 #include "actions3/AMActionRegistry3.h"
+#include "actions3/AMActionLog3.h"
+#include "actions3/AMLoopAction3.h"
 
 #include "ui/actions3/AMActionHistoryModel.h"
 #include "ui/actions3/AMActionHistoryTreeView.h"
@@ -150,70 +152,14 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	connect(treeView_, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
 }
 
-void AMActionHistoryView3::onCustomContextMenuRequested(QPoint point)
+void AMActionHistoryView3::collapse(bool doCollapse)
 {
-	QMenu popup(treeView_);
-	QAction *temp = popup.addAction("");
+	bool wasCollapsed = isCollapsed();
+	treeView_->setHidden(doCollapse);
+	isCollapsed_ = doCollapse;
 
-	if (treeView_->selectionModel()->selectedIndexes().size() == 0){
-
-		temp->setText("Re-run this action");
-		temp->setEnabled(false);
-	}
-	else if (treeView_->selectionModel()->selectedIndexes().size() == 1)
-		temp->setText("Re-run this action");
-	else
-		temp->setText("Re-run these actions");
-
-	temp = popup.exec(treeView_->mapToGlobal(point));
-
-	if (temp && (temp->text() == "Re-run this action" || temp->text() == "Re-run these actions"))
-		onReRunActionButtonClicked();
-}
-
-void AMActionHistoryView3::onModelAboutToBeRefreshed()
-{
-	// we're scrolled to the bottom if the vertical scroll bar value is at maximum. Remember that so we can go back to the bottom after the refresh.
-	scrolledToBottom_ = (treeView_->verticalScrollBar()->value() == treeView_->verticalScrollBar()->maximum());
-	// qDebug() << "Scrolled to bottom:" << scrolledToBottom_;
-}
-
-void AMActionHistoryView3::onModelRefreshed()
-{
-	// if we were scrolled to the most recent (bottom) action before the refresh, let's scroll back there.
-	if(scrolledToBottom_) {
-		// doesn't work: treeView_->verticalScrollBar()->triggerAction(QScrollBar::SliderToMaximum);
-
-		// also doesn't work... Sometimes only goes most of the way there.
-		treeView_->scrollToBottom();
-		// looks like if the tree view is not visible at this time, this won't take effect. Adding another check in our showEvent() to scroll the treeView_ to the bottom if should be scrolledToBottom_
-		// qDebug() << "ScrollING to bottom";
-	}
-
-	// update subtitle text with how many, of how many total.
-	QString filterText;
-	switch(rangeComboBox_->currentIndex()) {
-	case 0: filterText = " in the last hour."; break;
-	case 1: filterText = " in the last 4 hours."; break;
-	case 2: filterText = " in the last day."; break;
-	case 3: filterText = " in this run."; break;
-	case 4: filterText = " ever done."; break;
-	}
-
-	int actionsShown = model_->rowCount();
-	int totalActions = model_->visibleActionsCount();
-	if(actionsShown == 0) {
-		showMoreActionsButton_->hide();
-		headerSubTitle_->setText("No actions" % filterText);
-	}
-	else if(actionsShown == totalActions) {
-		showMoreActionsButton_->hide();
-		headerSubTitle_->setText("Showing " % QString::number(actionsShown) % " actions" % filterText);
-	}
-	else {
-		showMoreActionsButton_->show();
-		headerSubTitle_->setText("Showing " % QString::number(actionsShown) % " of " % QString::number(totalActions) % " actions" % filterText);
-	}
+	if(isCollapsed_ != wasCollapsed)
+		emit collapsed(doCollapse);
 }
 
 void AMActionHistoryView3::onShowMoreActionsButtonClicked()
@@ -266,7 +212,7 @@ void AMActionHistoryView3::onReRunActionButtonClicked()
 		if(!item)
 			continue;
 		qDebug() << "Found item " << item->id() << " index row " << i.row();
-		/*
+
 		// load the full actionLog.
 		AMActionLog3 actionLog;
 		if(!actionLog.loadFromDb(item->database(), item->id())) {
@@ -289,7 +235,7 @@ void AMActionHistoryView3::onReRunActionButtonClicked()
 			continue;
 		}
 		actionRunner_->addActionToQueue(action);
-		*/
+
 	}
 }
 
@@ -355,6 +301,72 @@ void AMActionHistoryView3::onClearedByClicked(){
 	actuallyBeenClicked_.clear();
 }
 
+void AMActionHistoryView3::onModelAboutToBeRefreshed()
+{
+	// we're scrolled to the bottom if the vertical scroll bar value is at maximum. Remember that so we can go back to the bottom after the refresh.
+	scrolledToBottom_ = (treeView_->verticalScrollBar()->value() == treeView_->verticalScrollBar()->maximum());
+	// qDebug() << "Scrolled to bottom:" << scrolledToBottom_;
+}
+
+void AMActionHistoryView3::onModelRefreshed()
+{
+	// if we were scrolled to the most recent (bottom) action before the refresh, let's scroll back there.
+	if(scrolledToBottom_) {
+		// doesn't work: treeView_->verticalScrollBar()->triggerAction(QScrollBar::SliderToMaximum);
+
+		// also doesn't work... Sometimes only goes most of the way there.
+		treeView_->scrollToBottom();
+		// looks like if the tree view is not visible at this time, this won't take effect. Adding another check in our showEvent() to scroll the treeView_ to the bottom if should be scrolledToBottom_
+		// qDebug() << "ScrollING to bottom";
+	}
+
+	// update subtitle text with how many, of how many total.
+	QString filterText;
+	switch(rangeComboBox_->currentIndex()) {
+	case 0: filterText = " in the last hour."; break;
+	case 1: filterText = " in the last 4 hours."; break;
+	case 2: filterText = " in the last day."; break;
+	case 3: filterText = " in this run."; break;
+	case 4: filterText = " ever done."; break;
+	}
+
+	int actionsShown = model_->rowCount();
+	int totalActions = model_->visibleActionsCount();
+	if(actionsShown == 0) {
+		showMoreActionsButton_->hide();
+		headerSubTitle_->setText("No actions" % filterText);
+	}
+	else if(actionsShown == totalActions) {
+		showMoreActionsButton_->hide();
+		headerSubTitle_->setText("Showing " % QString::number(actionsShown) % " actions" % filterText);
+	}
+	else {
+		showMoreActionsButton_->show();
+		headerSubTitle_->setText("Showing " % QString::number(actionsShown) % " of " % QString::number(totalActions) % " actions" % filterText);
+	}
+}
+
+void AMActionHistoryView3::onCustomContextMenuRequested(QPoint point)
+{
+	QMenu popup(treeView_);
+	QAction *temp = popup.addAction("");
+
+	if (treeView_->selectionModel()->selectedIndexes().size() == 0){
+
+		temp->setText("Re-run this action");
+		temp->setEnabled(false);
+	}
+	else if (treeView_->selectionModel()->selectedIndexes().size() == 1)
+		temp->setText("Re-run this action");
+	else
+		temp->setText("Re-run these actions");
+
+	temp = popup.exec(treeView_->mapToGlobal(point));
+
+	if (temp && (temp->text() == "Re-run this action" || temp->text() == "Re-run these actions"))
+		onReRunActionButtonClicked();
+}
+
 void AMActionHistoryView3::showEvent(QShowEvent *e)
 {
 	QWidget::showEvent(e);
@@ -363,15 +375,33 @@ void AMActionHistoryView3::showEvent(QShowEvent *e)
 		treeView_->scrollToBottom();
 }
 
+bool AMActionHistoryView3::recurseDbLoadIndex(const QModelIndex &index, AMListAction3 *parentAction){
 
-void AMActionHistoryView3::collapse(bool doCollapse)
-{
-	bool wasCollapsed = isCollapsed();
-	treeView_->setHidden(doCollapse);
-	isCollapsed_ = doCollapse;
+	AMActionLogItem3* item = model_->logItem(index);
+	if(!item || !parentAction)
+		return false;
 
-	if(isCollapsed_ != wasCollapsed)
-		emit collapsed(doCollapse);
+	// load the full actionLog.
+	AMActionLog3 actionLog;
+	if(!actionLog.loadFromDb(item->database(), item->id())) {
+		//AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -57, "Could not load the action log for id " % QString::number(item->id()) % " from the database. Please report this problem to the Acquaman developers."));
+		return false;
+	}
+	if(!actionLog.info()) {
+		//AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -58, "Could not load the action info for the action log with id " % QString::number(item->id()) % " from the database. It is likely because the action info class hasn't been registered with the database system. Please report this problem to the Acquaman developers."));
+		return false;
+	}
+	// make a copy of the AMActionInfo.
+	AMActionInfo3* info = actionLog.info()->createCopy();
+
+	// make an action (assuming the actionInfo is registered with a corresponding action)
+	AMAction3* action = AMActionRegistry3::s()->createActionFromInfo(info);
+	if(!action) {
+		//QMessageBox::warning(this, "Cannot re-run this action", "Could not re-run this action because running the '" % info->typeDescription() %  "' action isn't enabled for your beamline's version of Acquaman. If you don't think this should be the case, please report this to the Acquaman developers.");
+		//AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -59, "Could not re-run this action because running '" % actionLog.name() % "' isn't enabled for your beamline's version of Acquaman. If you don't think this should be the case, please report this to the Acquaman developers."));
+		delete info;
+		return false;
+	}
+
+
 }
-
-
