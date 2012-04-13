@@ -119,6 +119,8 @@ bool VESPERSAppController::startup() {
 		setupUserInterface();
 		makeConnections();
 
+		moveImmediatelyAction_ = 0;
+
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");
 
@@ -449,9 +451,9 @@ void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor, co
 			AMBeamlineParallelActionsList *moveImmediatelyList = new AMBeamlineParallelActionsList;
 			moveImmediatelyAction_ = new AMBeamlineListAction(moveImmediatelyList);
 			moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
-			moveImmediatelyList->appendAction(0, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(pos.x()));
+			moveImmediatelyList->appendAction(0, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(editor->dataPosition().x()));
 			moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
-			moveImmediatelyList->appendAction(1, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(pos.y()));
+			moveImmediatelyList->appendAction(1, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(editor->dataPosition().y()));
 
 			connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
 			connect(moveImmediatelyAction_, SIGNAL(failed(int)), this, SLOT(onMoveImmediatelyFailure()));

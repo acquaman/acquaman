@@ -552,9 +552,11 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/actions3/actions/AMControlMoveActionInfo3.h \
 	source/actions3/actions/AMControlMoveAction3.h \
 	source/actions3/editors/AMControlMoveActionEditor3.h \
-    source/actions3/AMActionCondition.h \
-    source/ui/actions3/AMActionHistoryTreeView.h \
-    source/ui/actions3/AMActionHistoryModel.h
+	source/actions3/AMActionCondition.h \
+	source/ui/actions3/AMActionHistoryTreeView.h \
+	source/ui/actions3/AMActionHistoryModel.h \
+	source/actions3/actions/AMScanAction.h \
+	source/actions3/actions/AMScanActionInfo.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -933,9 +935,11 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/actions3/actions/AMControlMoveActionInfo3.cpp \
 	source/actions3/actions/AMControlMoveAction3.cpp \
 	source/actions3/editors/AMControlMoveActionEditor3.cpp \
-    source/actions3/AMActionCondition.cpp \
-    source/ui/actions3/AMActionHistoryTreeView.cpp \
-    source/ui/actions3/AMActionHistoryModel.cpp
+	source/actions3/AMActionCondition.cpp \
+	source/ui/actions3/AMActionHistoryTreeView.cpp \
+	source/ui/actions3/AMActionHistoryModel.cpp \
+	source/actions3/actions/AMScanAction.cpp \
+	source/actions3/actions/AMScanActionInfo.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
