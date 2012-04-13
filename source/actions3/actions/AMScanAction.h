@@ -21,7 +21,7 @@ class AMScanAction : public AMAction3
 
 public:
 	/// Constructor.  Takes an AMScanConfiguration \param config and builds a scan action around it.  This will create a scan controller which can be controlled from within the workflow.
-	explicit AMScanAction(AMScanConfiguration *config, QObject *parent = 0);
+	Q_INVOKABLE AMScanAction(AMScanActionInfo *info, QObject *parent = 0);
 
 	// Re-implemented public functions.
 	//////////////////////////////////////////////////
@@ -31,8 +31,18 @@ public:
 	virtual int numberOfChildren() const { return 0; }
 
 protected:
-	/// The pointer holding the configuration that everything is based on.
-	AMScanConfiguration *config_;
+	/// This function is called from the Starting state when the implementation should initiate the action. Once the action is started, you should call notifyStarted().
+	virtual void startImplementation() {}
+
+	/// For actions which support pausing, this function is called from the Pausing state when the implementation should pause the action. Once the action is paused, you should call notifyPaused().  The base class implementation does nothing and must be re-implemented.
+	virtual void pauseImplementation() {}
+
+	/// For actions that support resuming, this function is called from the Paused state when the implementation should resume the action. Once the action is running again, you should call notifyResumed().
+	virtual void resumeImplementation() {}
+
+	/// All implementations must support cancelling. This function will be called from the Cancelling state. Implementations will probably want to examine the previousState(), which could be any of Starting, Running, Pausing, Paused, or Resuming. Once the action is cancelled and can be deleted, you should call notifyCancelled().
+	/*! \note If startImplementation() was never called, you won't receive this when a user tries to cancel(); the base class will handle it for you. */
+	virtual void cancelImplementation() {}
 };
 
 #endif // AMSCANACTION_H
