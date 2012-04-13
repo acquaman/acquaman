@@ -25,9 +25,9 @@ public slots:
 
 signals:
 	/// Signal emitted when we know an index was selected (ON) by a click. This is done in selectionCommand ... which seems like a bad place to do it in hindsight.
-	void actuallySelectedByClicking(const QModelIndex &index, bool othersCleared, bool shiftModifierWasUsed) const;
+	void actuallySelectedByClicking(const QModelIndex &index, bool othersCleared) const;
 	/// Signal emitted when we know an index was deselected (OFF) by a click. This is done in selectionCommand ... which seems like a bad place to do it in hindsight.
-	void actuallyDeselectedByClicking(const QModelIndex &index, bool othersCleared, bool shiftModifierWasUsed) const;
+	void actuallyDeselectedByClicking(const QModelIndex &index, bool othersCleared) const;
 	/// Signal emitted nothing was selected or deselected but a general clear took place. This is done in selectionCommand ... which seems like a bad place to do it in hindsight.
 	void clearedByClicking() const;
 

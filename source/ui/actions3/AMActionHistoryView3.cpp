@@ -34,7 +34,6 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 {
 	actionRunner_ = actionRunner;
 	db_ = db;
-	shiftModifierUsed_ = false;
 
 	model_ = new AMActionHistoryModel3(db_, this);
 	model_->setMaximumActionsToDisplay(100);
@@ -100,10 +99,12 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	treeView_ = new AMActionHistoryTreeView3();
 	treeView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	treeView_->setModel(model_);
+	// Had to change to ::SelectItems ... SelectRows seems to behave poorly with the multi-tier, multi-column setup
 	//treeView_->setSelectionBehavior(QAbstractItemView::SelectRows);
 	treeView_->setSelectionBehavior(QAbstractItemView::SelectItems);
 	treeView_->setSelectionMode(QAbstractItemView::ExtendedSelection);
 	treeView_->setAlternatingRowColors(true);
+	// Got rid of this too so we can see the drill downs for the lists and loops
 	//treeView_->setRootIsDecorated(false);	// gets rid of indentation at top level.
 	//treeView_->setHeaderHidden(true);
 	treeView_->scrollToBottom();
@@ -140,9 +141,9 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	connect(showMoreActionsButton_, SIGNAL(clicked()), this, SLOT(onShowMoreActionsButtonClicked()));
 
 	connect(reRunActionButton_, SIGNAL(clicked()), this, SLOT(onReRunActionButtonClicked()));
-	//connect(treeView_, SIGNAL(clicked(QModelIndex)), this, SLOT(onTreeViewClicked(QModelIndex)));
-	connect(treeView_, SIGNAL(actuallySelectedByClicking(QModelIndex, bool, bool)), this, SLOT(onSelectedByClicked(QModelIndex, bool, bool)));
-	connect(treeView_, SIGNAL(actuallyDeselectedByClicking(QModelIndex, bool, bool)), this, SLOT(onDeselectedByClicked(QModelIndex, bool, bool)));
+
+	connect(treeView_, SIGNAL(actuallySelectedByClicking(QModelIndex, bool)), this, SLOT(onSelectedByClicked(QModelIndex, bool)));
+	connect(treeView_, SIGNAL(actuallyDeselectedByClicking(QModelIndex, bool)), this, SLOT(onDeselectedByClicked(QModelIndex, bool)));
 	connect(treeView_, SIGNAL(clearedByClicking()), this, SLOT(onClearedByClicked()));
 	connect(treeView_->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onSelectionChanged()));
 
@@ -316,39 +317,41 @@ void AMActionHistoryView3::onSelectionChanged()
 	}
 }
 
-void AMActionHistoryView3::onSelectedByClicked(const QModelIndex &index, bool othersCleared, bool shiftModifierWasUsed){
+void AMActionHistoryView3::onSelectedByClicked(const QModelIndex &index, bool othersCleared){
+	// Clear if necessary
 	if(othersCleared)
 		onClearedByClicked();
+
+	// If the index is valid add it to our list and mark any children it has as parentSelected true
 	if(index.isValid()){
-		shiftModifierUsed_ = shiftModifierWasUsed;
 		actuallyBeenClicked_.append(index);
 		model_->markIndexAsSelected(index, treeView_);
 	}
-	treeView_->setActuallySelectedByClickingCount(actuallyBeenClicked_.count());
 
-	QString clickedIds;
-	for(int x = 0; x < actuallyBeenClicked_.count(); x++)
-		clickedIds.append(QString(" %1").arg(model_->logItem(actuallyBeenClicked_.at(x))->id()));
+	// Send information back to the tree view about the number of actually clicked items
+	treeView_->setActuallySelectedByClickingCount(actuallyBeenClicked_.count());
 }
 
-void AMActionHistoryView3::onDeselectedByClicked(const QModelIndex &index, bool othersCleared, bool shiftModifierWasUsed){
+void AMActionHistoryView3::onDeselectedByClicked(const QModelIndex &index, bool othersCleared){
+	// Clear if necessary
 	if(othersCleared)
 		onClearedByClicked();
+
+	// If the index is valid remove it from our list and mark any children it has as parentSelected false
 	if(index.isValid()){
-		shiftModifierUsed_ = shiftModifierWasUsed;
 		actuallyBeenClicked_.removeOne(index);
 		model_->markIndexAsDeselected(index, treeView_);
 	}
+	// Send information back to the tree view about the number of actually clicked items
 	treeView_->setActuallySelectedByClickingCount(actuallyBeenClicked_.count());
-
-	QString clickedIds;
-	for(int x = 0; x < actuallyBeenClicked_.count(); x++)
-		clickedIds.append(QString(" %1").arg(model_->logItem(actuallyBeenClicked_.at(x))->id()));
 }
 
 void AMActionHistoryView3::onClearedByClicked(){
+	// Clear any possible children using the index deselect method for parentSelected flag mapping
 	for(int x = 0; x < actuallyBeenClicked_.count(); x++)
 		model_->markIndexAsDeselected(actuallyBeenClicked_.at(x), treeView_);
+
+	// Clear our local list
 	actuallyBeenClicked_.clear();
 }
 

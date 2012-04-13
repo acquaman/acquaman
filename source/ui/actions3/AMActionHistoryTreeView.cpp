@@ -126,7 +126,7 @@ QItemSelectionModel::SelectionFlags AMActionHistoryTreeView3::selectionCommand(c
 	if(selectedTrue && (index.column() == 0) ){
 		lastClickWasDeselect_ = false;
 		lastClickedIndex_ = index;
-		emit actuallySelectedByClicking(index, clearFlag, hasShiftModifier);
+		emit actuallySelectedByClicking(index, clearFlag);
 	}
 	// If we actually deselected and the column is 0 (we only care about that one) log the state (particularily lastClickWasDeselect) and emit actuallyDeselectedByClicking
 	else if(selectedFalse && (index.column() == 0) ){
@@ -138,7 +138,7 @@ QItemSelectionModel::SelectionFlags AMActionHistoryTreeView3::selectionCommand(c
 		}
 		else
 			lastClickWasDeselect_ = true;
-		emit actuallyDeselectedByClicking(index, clearFlag, hasShiftModifier);
+		emit actuallyDeselectedByClicking(index, clearFlag);
 	}
 	// If neither selected nor deselected but clear flag is on then emit clearedByClicking
 	else if(clearFlag){
@@ -243,7 +243,7 @@ void AMActionHistoryTreeView3::mousePressEvent(QMouseEvent *event){
 
 			// For all interior indices emulate a click by emitting the actuallySelectedByClicking signal ... then the regular chain of events can happen to parentSelect the children
 			for(int x = 0; x < interiorIndices.count(); x++)
-				emit actuallySelectedByClicking(interiorIndices.at(x), clearFlag, true);
+				emit actuallySelectedByClicking(interiorIndices.at(x), clearFlag);
 		}
 
 		// Accept the event

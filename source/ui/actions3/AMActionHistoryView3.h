@@ -47,8 +47,11 @@ protected slots:
 	void onReRunActionButtonClicked();
 	/// Called when the selection changes... We use this to determine whether to enable the reRunActionButton_
 	void onSelectionChanged();
-	void onSelectedByClicked(const QModelIndex &index, bool othersCleared, bool shiftModifierWasUsed);
-	void onDeselectedByClicked(const QModelIndex &index, bool othersCleared, bool shiftModifierWasUsed);
+	/// Called when the tree view tells us that an index was actually clicked. We use this to keep track of the index list and mark children with the parentSelected mapping flags.
+	void onSelectedByClicked(const QModelIndex &index, bool othersCleared);
+	/// Called when the tree view tells us that an index was actually un-clicked. We use this to keep track of the index list and mark children with the parentSelected mapping flags.
+	void onDeselectedByClicked(const QModelIndex &index, bool othersCleared);
+	/// Called when the tree view tells us that no index was clicked but a clear took place. We use this to keep track of the index list.
 	void onClearedByClicked();
 
 
@@ -61,11 +64,15 @@ protected slots:
 	void onCustomContextMenuRequested(QPoint point);
 
 protected:
+	/// The action runner we get logged actions from
 	AMActionRunner3* actionRunner_;
+	/// The database we're logging to
 	AMDatabase* db_;
 
+	/// The model we're using for the log items (which will be visualized by the AMActionHistoryTreeView)
 	AMActionHistoryModel3* model_;
 
+	/// The custom tree view for viewing the action log items
 	AMActionHistoryTreeView3* treeView_;
 	QComboBox* rangeComboBox_;
 	QLabel* headerTitle_, *headerSubTitle_;
@@ -75,10 +82,8 @@ protected:
 	bool scrolledToBottom_;
 	bool isCollapsed_;
 
-	QModelIndexList lastSelections_;
+	/// The list of indexes that have actually been clicked
 	QModelIndexList actuallyBeenClicked_;
-	QItemSelection internalAllSelections_;
-	bool shiftModifierUsed_;
 
 	/// If we should be scrolled to the bottom of the treeView_, sometimes the scrolling doesn't happen if we're not visible. Here we make sure it does.
 	void showEvent(QShowEvent *);
