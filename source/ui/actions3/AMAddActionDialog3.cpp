@@ -56,10 +56,14 @@ void AMAddActionDialog3::populateWithRegisteredActions()
 		i.next();
 
 		const AMActionInfoActionRegistration3& registration = i.value();
-		QListWidgetItem* item = new QListWidgetItem(registration.shortDescription, ui->actionsListWidget);
-		item->setIcon(QIcon(registration.iconFileName));
-		item->setData(AM::DescriptionRole, registration.longDescription);
-		item->setData(AM::NameRole, i.key());	// this holds the class name of the AMActionInfo, so we can pull it out of AMActionRegistry later.
+
+		if (registration.exposeToAddActionDialog){
+
+			QListWidgetItem* item = new QListWidgetItem(registration.shortDescription, ui->actionsListWidget);
+			item->setIcon(QIcon(registration.iconFileName));
+			item->setData(AM::DescriptionRole, registration.longDescription);
+			item->setData(AM::NameRole, i.key());	// this holds the class name of the AMActionInfo, so we can pull it out of AMActionRegistry later.
+		}
 	}
 
 	if(ui->actionsListWidget->count())

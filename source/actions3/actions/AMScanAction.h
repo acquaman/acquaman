@@ -77,6 +77,8 @@ protected:
 
 	/// A pointer to the scan controller that this action is encapsulating.
 	AMScanController *controller_;
+	/// A pointer to the specific scan info this action uses.
+	AMScanActionInfo *scanInfo_;
 };
 
 #endif // AMSCANACTION_H

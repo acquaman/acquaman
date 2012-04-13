@@ -15,12 +15,14 @@ AMScanAction::AMScanAction(AMScanActionInfo *info, QObject *parent)
 	: AMAction3(info, parent)
 {
 	controller_ = 0;
+	scanInfo_ = info;
 }
 
 AMScanAction::AMScanAction(const AMScanAction &other)
 	: AMAction3(other)
 {
 	controller_ = 0;
+	scanInfo_ = other.scanInfo_;
 }
 
 AMScanAction::~AMScanAction()
@@ -78,7 +80,7 @@ void AMScanAction::startImplementation()
 void AMScanAction::pauseImplementation()
 {
 	if (controller_->pause())
-		setPause();
+		setPaused();
 }
 
 void AMScanAction::resumeImplementation()
@@ -104,7 +106,7 @@ void AMScanAction::onControllerInitialized()
 void AMScanAction::onControllerStarted()
 {
 	if (controller_->scan()->storeToDb(AMDatabase::database("user")))
-		scanID_ = controller_->scan()->id();
+		scanInfo_->setScanID(controller_->scan()->id());
 
 	else
 		AMErrorMon::alert(this, AMSCANACTION_CANT_SAVE_TO_DB, "The scan action was unable to store the scan to the database.");
@@ -113,7 +115,7 @@ void AMScanAction::onControllerStarted()
 void AMScanAction::onControllerCancelled()
 {
 	// If the scan was successfully added to the database then store whatever state it made it to.
-	if (scanID_ != -1)
+	if (scanInfo_->scanID() != -1)
 		if (!controller_->scan()->storeToDb(AMDatabase::database("user")))
 			AMErrorMon::alert(this, AMSCANACTION_CANT_SAVE_TO_DB, "The scan action was unable to update the scan in the database.");
 
@@ -123,7 +125,7 @@ void AMScanAction::onControllerCancelled()
 void AMScanAction::onControllerFailed()
 {
 	// If the scan was successfully added to the database then store whatever state it made it to.
-	if (scanID_ != -1)
+	if (scanInfo_->scanID() != -1)
 		if (!controller_->scan()->storeToDb(AMDatabase::database("user")))
 			AMErrorMon::alert(this, AMSCANACTION_CANT_SAVE_TO_DB, "The scan action was unable to update the scan in the database.");
 
@@ -160,7 +162,7 @@ void AMScanAction::onControllerSucceeded()
 
 				exportDir.cd("exportData");
 				exportController->setDestinationFolderPath(exportDir.absolutePath());
-				AMExporter *autoExporter = AMAppControllerSupport::createExporter(cfg_);
+				AMExporter *autoExporter = AMAppControllerSupport::createExporter(scanInfo_->config());
 
 				if(!autoExporter){
 
@@ -171,7 +173,7 @@ void AMScanAction::onControllerSucceeded()
 				exportController->chooseExporter(autoExporter->metaObject()->className());
 
 				// This next creation involves a loadFromDb ... I tested it and it seems fast (milliseconds) ... if that's a Mac only thing then we can figure out a caching system, let me know I have a few ideas
-				AMExporterOption *autoExporterOption = AMAppControllerSupport::createExporterOption(cfg_);
+				AMExporterOption *autoExporterOption = AMAppControllerSupport::createExporterOption(scanInfo_->config());
 				if(!autoExporterOption){
 
 					AMErrorMon::alert(this, AMSCANACTION_NO_REGISTERED_EXPORTER_OPTION, "No exporter option registered for this scan type.");

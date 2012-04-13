@@ -40,6 +40,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/editors/AMNumberChangeActionEditor.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/editors/AMControlMoveActionEditor3.h"
+#include "actions3/actions/AMScanAction.h"
+#include "actions3/actions/AMScanActionInfo.h"
 
 AMAppController::AMAppController(QObject *parent)
 	: AMDatamanAppController(parent)
@@ -71,6 +73,8 @@ bool AMAppController::startup(){
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMListActionInfo3, AMListActionEditor3>();
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMControlMoveActionInfo3, AMControlMoveAction3>("Control Move", "Moves a control to an absolute position or a relative position from its current state.", ":system-run.png");
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMControlMoveActionInfo3, AMControlMoveActionEditor3>();
+
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMScanActionInfo, AMScanAction>("Scan Action", "Runs a scan.", ":/spectrum.png", false);
 
 		return success;
 	}
