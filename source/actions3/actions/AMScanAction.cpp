@@ -9,6 +9,7 @@
 #include "dataman/export/AMExporterOption.h"
 
 #include <QDir>
+#include <QStringBuilder>
 
 AMScanAction::AMScanAction(AMScanActionInfo *info, QObject *parent)
 	: AMAction3(info, parent)
@@ -24,8 +25,11 @@ AMScanAction::AMScanAction(const AMScanAction &other)
 
 AMScanAction::~AMScanAction()
 {
-	if (controller_)
+	if (controller_){
+
+		controller_->disconnect();
 		delete controller_;
+	}
 }
 
 void AMScanAction::startImplementation()
@@ -55,6 +59,7 @@ void AMScanAction::startImplementation()
 	connect(controller_, SIGNAL(failed()), this, SLOT(onControllerFailed()));
 	connect(controller_, SIGNAL(finished()), this, SLOT(onControllerSucceeded()));
 	connect(controller_, SIGNAL(progress(double,double)), this, SLOT(onControllerProgressChanged(double,double)));
+	connect(controller_, SIGNAL(stateChanged(int,int)), this, SLOT(onControllerStateChanged()));
 
 	// The action is started the moment it tries to start the controller.
 	setStarted();
@@ -188,5 +193,71 @@ void AMScanAction::onControllerSucceeded()
 
 void AMScanAction::onControllerProgressChanged(double elapsed, double total)
 {
+	setProgress(elapsed, total);
+}
 
+QString AMScanAction::controllerStateString() const
+{
+	if (!controller_)
+		return "";
+
+	QString controllerString = "Scan is ";
+
+	switch(controller_->state()){
+
+	case AMScanController::Constructed:
+		controllerString.append("constructed.");
+		break;
+
+	case AMScanController::Initializing:
+		controllerString.append("initializing.");
+		break;
+
+	case AMScanController::Initialized:
+		controllerString.append("initialized.");
+		break;
+
+	case AMScanController::Starting:
+		controllerString.append("starting.");
+		break;
+
+	case AMScanController::Running:
+		controllerString.append("running.");
+		break;
+
+	case AMScanController::Pausing:
+		controllerString.append("pausing.");
+		break;
+
+	case AMScanController::Paused:
+		controllerString.append("paused.");
+		break;
+
+	case AMScanController::Resuming:
+		controllerString.append("resuming.");
+		break;
+
+	case AMScanController::Cancelling:
+		controllerString.append("cancelling.");
+		break;
+
+	case AMScanController::Cancelled:
+		controllerString.append("cancelled.");
+		break;
+
+	case AMScanController::Finished:
+		controllerString.append("finished.");
+		break;
+
+	case AMScanController::Failed:
+		controllerString.append("failed.");
+		break;
+	}
+
+	return controllerString;
+}
+
+void AMScanAction::onControllerStateChanged()
+{
+	setStatusText(stateDescription(state()) % "\n" % controllerStateString());
 }

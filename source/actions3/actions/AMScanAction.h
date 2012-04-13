@@ -8,7 +8,6 @@ class AMScanController;
 
 #define AMSCANACTION_NO_VALID_ACTION_INFO 103100
 #define AMSCANACTION_CANT_CREATE_CONTROLLER 103101
-#define AMSCANACTION_SCAN_CANCELLED 103102
 #define AMSCANACTION_CANT_INITIALIZE_CONTROLLER 103104
 #define AMSCANACTION_CANT_START_CONTROLLER 103105
 #define AMSCANACTION_CANT_SAVE_TO_DB 103106
@@ -57,8 +56,10 @@ protected slots:
 	void onControllerFailed();
 	/// Handles all the wrap up and clean up if the controller succeeds.
 	void onControllerSucceeded();
-
+	/// Handles the progress changed passed up from the controller.
 	void onControllerProgressChanged(double elapsed, double total);
+	/// Helper slot that updates the status text when the controller changes state.
+	void onControllerStateChanged();
 
 protected:
 	/// This function is called from the Starting state when the implementation should initiate the action. Once the action is started, you should call notifyStarted().
@@ -70,6 +71,9 @@ protected:
 	/// All implementations must support cancelling. This function will be called from the Cancelling state. Implementations will probably want to examine the previousState(), which could be any of Starting, Running, Pausing, Paused, or Resuming. Once the action is cancelled and can be deleted, you should call notifyCancelled().
 	/*! \note If startImplementation() was never called, you won't receive this when a user tries to cancel(); the base class will handle it for you. */
 	virtual void cancelImplementation();
+
+	/// Method that returns a string with the state of the scan controller.
+	QString controllerStateString() const;
 
 	/// A pointer to the scan controller that this action is encapsulating.
 	AMScanController *controller_;
