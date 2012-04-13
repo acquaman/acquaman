@@ -67,8 +67,8 @@ void AMNumberChangeAction::goSucceed(){
 void AMNumberChangeAction::startImplementation(){
 	setStarted();
 	if(!AMNumberChangeActionSupport::replaceNumber(numberChangeInfo()->indexToChange(), numberChangeInfo()->newNumber()))
-		QTimer::singleShot(4000, this, SLOT(goFail()));
-	QTimer::singleShot(4000, this, SLOT(goSucceed()));
+		QTimer::singleShot(1000, this, SLOT(goFail()));
+	QTimer::singleShot(1000, this, SLOT(goSucceed()));
 }
 
 void AMNumberChangeAction::pauseImplementation(){

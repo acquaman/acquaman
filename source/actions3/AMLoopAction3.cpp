@@ -82,10 +82,6 @@ void AMLoopAction3::internalCleanupAction(AMAction3 *action)
 	AMAction3 *cleanupAction = action ? action : currentSubAction_;
 
 	internalDisconnectAction(cleanupAction);
-	if(internalShouldLogSubAction(cleanupAction)){
-		int parentLogId = logActionId();
-		AMActionLog3::logCompletedAction(cleanupAction, parentLogId);
-	}
 	// delete it later (since we might still be executing inside the action's functions).
 	cleanupAction->deleteLater();
 
@@ -99,10 +95,6 @@ void AMLoopAction3::internalDoNextAction()
 	if(currentSubActionIndex_ >= 0) {
 
 		internalDisconnectAction(currentSubAction_);
-		if(internalShouldLogSubAction(currentSubAction_)){
-			int parentLogId = logActionId();
-			AMActionLog3::logCompletedAction(currentSubAction_, parentLogId);
-		}
 		// delete it later (since we might still be executing inside the action's functions).
 		currentSubAction_->deleteLater();
 	}

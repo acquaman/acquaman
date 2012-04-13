@@ -2,181 +2,18 @@
 #define AMACTIONHISTORYVIEW3_H
 
 #include <QWidget>
-#include <QDateTime>
-#include <QAbstractItemModel>
+#include <QItemSelection>
 
 #include "dataman/database/AMDatabase.h"
 #include "util/AMDeferredFunctionCall.h"
 #include "actions3/AMActionInfo3.h"
 
-class AMActionLog3;
-
-/// This item class is used to cache the details of a completed workflow action inside AMActionHistoryModel. You should never need to use this class directly.
-/*! We use it instead of full AMActionLog instances, so that we don't have to load the complete AMActionInfo (which, depending on the subclass, could be a lot to load.)*/
-class AMActionLogItem3 {
-public:
-	/// Constructor requires the \c id of the AMActionLog and the database \c db where it is stored.
-	AMActionLogItem3(AMDatabase* db, int id);
-
-	/// Call this to refresh the item's content from the database
-	void refresh() { loadedFromDb_ = false; }
-
-	/// Returns the id of the corresponding AMActionLog in the database
-	int id() const { return id_; }
-	/// Returns the database that the corresponding AMActionLog is in
-	AMDatabase* database() const { return db_; }
-	/// Returns the endDateTime of the corresponding AMActionLog, loading it from the database if required.
-	QDateTime endDateTime() const;
-	/// Returns the startDateTime of the corresponding AMActionLog, loading it from the database if required.
-	QDateTime startDateTime() const;
-	/// Returns the shortDescription, loading if from the database if required.
-	QString shortDescription() const;
-	/// Returns the longDescription, loading it from the database if required.
-	QString longDescription() const;
-	/// Returns the final state of the action, loading it from the database if required.
-	int finalState() const;
-	/// Returns the iconFileName of the action, loading it from the database if required.
-	QString iconFileName() const;
-	/// Returns the copy-ability of the action, loading it from the database if required.
-	bool canCopy() const;
-	/// Returns the database id of the parent log action, if none then returns -1
-	int parentId() const;
-
-protected:
-
-	/// Helper function to retrieve the log information from the database (without loading the full AMActionLog, which would require loading its entire AMActionInfo as well.) Returns true and sets loadedFromDb_ = true on success.
-	bool loadLogDetailsFromDb() const;
-
-	/// The database that stores this action log:
-	AMDatabase* db_;
-	/// The id of this action log in the database:
-	int id_;
-	/// True if we've already loaded and cached the remaining information from the database
-	mutable bool loadedFromDb_;
-
-	// These variables cache the content that was loaded from the database
-	/////////////////
-	mutable QString shortDescription_;
-	mutable QString longDescription_;
-	mutable int finalState_;
-	mutable QString iconFileName_;
-	mutable QDateTime startDateTime_, endDateTime_;
-	mutable bool canCopy_;
-	mutable int parentId_;
-};
-
-/// This QAbstractItemModel implements a model for completed workflow actions, used by AMActionHistoryView. You should never need to use this class directly.
-/*! Like AMActionRunner's AMActionQueueModel, this model is hierarchichal, since we're storing completed actions inside their respective loop and list actions. */
-class AMActionHistoryModel3 : public QAbstractItemModel
-{
-	Q_OBJECT
-public:
-
-	/// Constructor: \c db is the actions database to show completed actions from.  Does not refresh the model automatically on creation; you will need to call refreshFromDb().
-	AMActionHistoryModel3(AMDatabase* db, QObject* parent = 0);
-	/// Destructor: deletes all the AMActionItemLog instances in items_
-	virtual ~AMActionHistoryModel3();
-
-	// Public accessor methods
-	////////////////////
-
-	/// Returns the limit on the number of actions that will be pulled from the database and displayed. This might be larger than rowCount() if there aren't enough actions in the visible range to hit the limit.  Caveat: sometimes it will also be smaller than rowCount(), if we've appended new recently-finished actions since a full database refresh -- In that operation, the limit is not obeyed.
-	int maximumActionsToDisplay() const { return maximumActionsLimit_; }
-	/// Returns the oldest dateTime limit of our visible range. Actions older than this will not be shown.  Returns an invalid QDateTime if there is no oldest limit.
-	QDateTime visibleRangeOldestDateTime() const { return visibleRangeOldest_; }
-	/// Returns the newest (ie: most recent) dateTime limit of our visible range.  Actions more recent than this will not be shown. Returns an invalid QDateTime if there is no newest limit.
-	QDateTime visibleRangeNewestDateTime() const { return visibleRangeNewest_; }
-	/// Returns the total number of actions that would be included in the visible range, if maximumActionsToDisplay() was not restricting anything.
-	int visibleActionsCount() const { return visibleActionsCount_; }
-
-	// Re-implemented public functions from QAbstractItemModel
-	/////////////////////
-	virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-	virtual QModelIndex parent(const QModelIndex &child) const;
-	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
-	virtual QVariant data(const QModelIndex &index, int role) const;
-	Qt::ItemFlags flags(const QModelIndex &index) const;
-	virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-
-	bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
-
-	/// Returns the AMActionLogItem at \c index
-	AMActionLogItem3* logItem(const QModelIndex& index) const;
-	/// Returns the model index for a given AMActionLogItem
-	QModelIndex indexForLogItem(AMActionLogItem3 *logItem) const;
-
-public slots:
-	/// Set the date/time range of actions that should be shown. Specificy an invalid QDateTime for \c oldest to show all.  Specify an invalid QDateTime for \c newest to always be the current date time.
-	/*! Automatically calls refreshFromDb() if the time range has changed, when control returns to the event loop.*/
-	void setVisibleDateTimeRange(const QDateTime& oldest, const QDateTime& newest = QDateTime());
-
-	/// Set the default maximum number of actions to show. If more actions exist within the visibleDateTimeRange, only the most recent \c maximumActionsCount will be shown.
-	/*! Automatically calls refreshFromDb() if the maximumActionsCount has changed, when control returns to the event loop.*/
-	void setMaximumActionsToDisplay(int maximumActionsLimit);
-
-	/// Refreshes the entire model immediately by reading from the database.
-	void refreshFromDb();
-
-signals:
-	/// This signal is emitted before the model is refreshed or updated. Views might want to use it to remember their scrolling position, etc.
-	void modelAboutToBeRefreshed();
-	/// This signal is emitted after the model is refreshed or updated. Views might want to use it to restore their scrolling position, etc.
-	void modelRefreshed();
-
-protected slots:
-	/// Called when the database table has an actionLog added. If possible, simply appends that action to the model instead of doing a full refresh.
-	void onDatabaseItemCreated(const QString& tableName, int id);
-	/// Called when the database table has an actionLog changed. Simply updates the action instead of doing a full refresh.
-	void onDatabaseItemUpdated(const QString& tableName, int id);
-	/// Called when the database table has an actionLog removed. Triggers a full refresh of the model.
-	void onDatabaseItemRemoved(const QString& tableName, int id);
-
-	/// Called to refresh only the items belonging to a specific set of AMActionLog ids, found in idsRequiringRefresh_.  Used to optimize our response when one or more actionLogs are updated in the database. Note that these ids may or may not be visible for us.
-	void refreshSpecificIds();
-
-protected:
-	/// Helper function that returns true if the given \c dateTime is within the visibleDateTimeRange.
-	/*! Remember that visibleRangeOldest_ and visibleRangeNewest_ are ignored (no restrictions) if they are invalid. */
-	bool insideVisibleDateTimeRange(const QDateTime& dateTime);
-
-	/// Helper function to append a row to the model with a given AMActionLogItem \c item. We don't have a public addRow() / insertRow() interface.
-	void appendItem(AMActionLogItem3* item);
-
-	/// Helper function to clear the whole model. (Deletes all the items)
-	void clear();
-
-	/// Helper function to recurse through the actions log database information and populate the list
-	bool recurseActionsLogLevelCreate(int parentId, QMap<int, int> parentIdsAndIds);
-	/// Helper function to recurse through the items list and clear each level in order
-	bool recurseActionsLogLevelClear(QModelIndex parentIndex);
-
-protected:
-
-	AMDatabase* db_;
-	QDateTime visibleRangeOldest_, visibleRangeNewest_;
-	int maximumActionsLimit_;
-	int visibleActionsCount_;
-
-	QString actionLogTableName_;
-
-	/// A list of these holds the actionLog data that we return in data()
-	QList<AMActionLogItem3*> items_;
-
-	/// Used to schedule a delayed call to refreshFromDb()
-	AMDeferredFunctionCall refreshFunctionCall_;
-	/// Used to schedule a delayed call to refreshSpecificIds()
-	AMDeferredFunctionCall specificRefreshFunctionCall_;
-
-	/// Used to optimize our response when one or more actionLogs are updated in the database. Contains a set of ids that need to be refreshed. Note that these ids may or may not be visible for us.
-	QSet<int> idsRequiringRefresh_;
-
-	/// Caches some icons to represent Succeeded, Cancelled, Failed
-	QPixmap succeededIcon_, cancelledIcon_, failedIcon_, unknownIcon_;
-};
+class AMActionHistoryModel3;
+class AMActionHistoryTreeView3;
 
 class AMActionRunner3;
-class QTreeView;
+class AMListAction3;
+
 class QFrame;
 class QComboBox;
 class QLabel;
@@ -212,6 +49,12 @@ protected slots:
 	void onReRunActionButtonClicked();
 	/// Called when the selection changes... We use this to determine whether to enable the reRunActionButton_
 	void onSelectionChanged();
+	/// Called when the tree view tells us that an index was actually clicked. We use this to keep track of the index list and mark children with the parentSelected mapping flags.
+	void onSelectedByClicked(const QModelIndex &index, bool othersCleared);
+	/// Called when the tree view tells us that an index was actually un-clicked. We use this to keep track of the index list and mark children with the parentSelected mapping flags.
+	void onDeselectedByClicked(const QModelIndex &index, bool othersCleared);
+	/// Called when the tree view tells us that no index was clicked but a clear took place. We use this to keep track of the index list.
+	void onClearedByClicked();
 
 
 	/// Called right before the model is refreshed. Remember if we're scrolled right to the bottom, so we can go back there.
@@ -223,12 +66,23 @@ protected slots:
 	void onCustomContextMenuRequested(QPoint point);
 
 protected:
+	/// If we should be scrolled to the bottom of the treeView_, sometimes the scrolling doesn't happen if we're not visible. Here we make sure it does.
+	void showEvent(QShowEvent *);
+
+	/// Helper function for reloading actions (recursive for lists and loops)
+	bool recurseDbLoadIndex(const QModelIndex &index, AMListAction3 *parentAction);
+
+protected:
+	/// The action runner we get logged actions from
 	AMActionRunner3* actionRunner_;
+	/// The database we're logging to
 	AMDatabase* db_;
 
+	/// The model we're using for the log items (which will be visualized by the AMActionHistoryTreeView)
 	AMActionHistoryModel3* model_;
 
-	QTreeView* treeView_;
+	/// The custom tree view for viewing the action log items
+	AMActionHistoryTreeView3* treeView_;
 	QComboBox* rangeComboBox_;
 	QLabel* headerTitle_, *headerSubTitle_;
 	QPushButton* showMoreActionsButton_;
@@ -237,9 +91,8 @@ protected:
 	bool scrolledToBottom_;
 	bool isCollapsed_;
 
-	/// If we should be scrolled to the bottom of the treeView_, sometimes the scrolling doesn't happen if we're not visible. Here we make sure it does.
-	void showEvent(QShowEvent *);
-
+	/// The list of indexes that have actually been clicked
+	QModelIndexList actuallyBeenClicked_;
 };
 
 #endif // AMACTIONHISTORYVIEW3_H
