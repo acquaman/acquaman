@@ -8,6 +8,19 @@
 #include "acquaman.h"
 #include "util/AMDeferredFunctionCall.h"
 
+#define AMACTIONHISTORYMODEL_MODELINDEX_OUT_OF_BOUNDS 213001
+#define AMACTIONHISTORYMODEL_MODELINDEX_INDEX_NOT_IN_LIST 213002
+#define AMACTIONHISTORYMODEL_MODELINDEX_BAD_PARENT_ITEM 213003
+#define AMACTIONHISTORYMODEL_MODELINDEX_SUBINDEX_NOT_IN_LIST 213004
+#define AMACTIONHISTORYMODEL_MODELPARENT_PARENT_NOT_IN_LIST 213005
+#define AMACTIONHISTORYMODEL_ROWCOUNT_BAD_PARENT_ITEM 213006
+#define AMACTIONHISTORYMODEL_MODELDATA_BAD_ITEM 213007
+#define AMACTIONHISTORYMODEL_HASCHILDREN_BAD_PARENT_ITEM 213008
+#define AMACTIONHISTORYMODEL_INDEXFORLOGITEM_INDEX_NOT_IN_LIST 213009
+#define AMACTIONHISTORYMODEL_INDEXFORLOGITEM_PARENT_NOT_IN_LIST 213010
+#define AMACTIONHISTORYMODEL_REFRESHFROMDB_FAILED_TO_CREATE_LIST 213011
+#define AMACTIONHISTORYMODEL_FAILED_TO_CLEAR_LIST 213012
+
 class AMDatabase;
 
 /// typedef for using a QMap of QAbstractItemView pointers and bools. Used to map out which items have selected parents and should show a different color even though they're not selected. Mapping is to ensure that multiple views can look at the model. Introduces some coupling.
@@ -122,6 +135,7 @@ public:
 
 	/// Returns whether or not this item has children (determines this from the underlying list)
 	bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
+	/// Returns the number of children below a certain model index (rowCount and combined rowCount of children recursively)
 	int childrenCount(const QModelIndex &parent = QModelIndex()) const;
 
 	/// Returns the AMActionLogItem at \c index
@@ -129,6 +143,7 @@ public:
 	/// Returns the model index for a given AMActionLogItem
 	QModelIndex indexForLogItem(AMActionLogItem3 *logItem) const;
 
+	/// Returns the top level parent of a given item (one level down from the root item)
 	QModelIndex topLevelParent(const QModelIndex &child) const;
 
 	/// Returns the indices in between two model indexes. Used in shift-clicking routine.
