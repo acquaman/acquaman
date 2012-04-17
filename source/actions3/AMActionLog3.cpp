@@ -2,6 +2,7 @@
 
 #include "actions3/AMLoopAction3.h"
 #include "dataman/database/AMDbObjectSupport.h"
+#include "util/AMErrorMonitor.h"
 
 AMActionLog3::AMActionLog3(QObject *parent) :
 	AMDbObject(parent)
@@ -31,14 +32,10 @@ AMActionLog3::AMActionLog3(const AMAction3 *completedAction, QObject *parent) :
 		startDateTime_ = completedAction->startDateTime();
 		finalState_ = completedAction->state();
 		setName(info_->shortDescription());
-		if(completedAction->inFinalState()) {
+		if(completedAction->inFinalState())
 			endDateTime_ = completedAction->endDateTime();
-		}
-		else {
-			//info_ = 0;
-			//finalState_ = 0;
+		else
 			endDateTime_ = QDateTime::currentDateTime();
-		}
 	}
 	else{
 		info_ = 0;
@@ -134,9 +131,7 @@ void AMActionLog3::dbLoadActionInheritedLoop(bool actionInheritedLoop){
 	setModified(true);
 }
 
-#include <QDebug>
 bool AMActionLog3::logUncompletedAction(const AMAction3 *uncompletedAction, int parentLogId, AMDatabase *database){
-	qDebug() << "Called logUncompletedAction " << uncompletedAction->info()->shortDescription();
 	if(uncompletedAction && !uncompletedAction->inFinalState()){
 		AMActionLog3 actionLog(uncompletedAction);
 		actionLog.setParentId(parentLogId);
@@ -152,17 +147,16 @@ bool AMActionLog3::logUncompletedAction(const AMAction3 *uncompletedAction, int 
 }
 
 bool AMActionLog3::updateCompletedAction(const AMAction3 *completedAction, AMDatabase *database){
-	qDebug() << "Called updateCompletedAction " << completedAction->info()->shortDescription();
 	if(completedAction && completedAction->inFinalState()) {
 		int infoId = completedAction->info()->id();
 		if(infoId < 1){
-			//NEM April 5th, 2012
+			AMErrorMon::alert(this, AMACTIONLOG_CANNOT_UPDATE_UNSAVED_ACTIONLOG, "The actions logging system attempted to update a log action that hadn't already been saved. Please report this problem to the Acquaman developers.");
 			return false;
 		}
 		QString infoValue = QString("%1;%2").arg(AMDbObjectSupport::s()->tableNameForClass(completedAction->info()->metaObject()->className())).arg(infoId);
 		QList<int> matchingIds = database->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMActionLog3>(), "info", QVariant(infoValue));
 		if(matchingIds.count() == 0){
-			//NEM April 5th, 2012
+			AMErrorMon::alert(this, AMACTIONLOG_CANNOT_UPDATE_BAD_INDEX, QString("The actions logging system attempted to update a log action with a bad database index (%1). Please report this problem to the Acquaman developers.").arg(infoId));
 			return false;
 		}
 		int logId = matchingIds.last();
@@ -172,13 +166,12 @@ bool AMActionLog3::updateCompletedAction(const AMAction3 *completedAction, AMDat
 		return actionLog.storeToDb(database);
 	}
 	else {
-		//NEM April 5th, 2012
+		AMErrorMon::alert(this, AMACTIONLOG_CANNOT_UPDATE_UNCOMPLETED_ACTION, QString("The actions logging system attempted to update a log action that hadn't yet finished running. Please report this problem to the Acquaman developers.").arg(infoId));
 		return false;
 	}
 }
 
 bool AMActionLog3::logCompletedAction(const AMAction3 *completedAction, int parentLogId, AMDatabase *database){
-	qDebug() << "Called logCompletedAction " << completedAction->info()->shortDescription();
 	if(completedAction && completedAction->inFinalState()) {
 		AMActionLog3 actionLog(completedAction);
 		actionLog.setParentId(parentLogId);

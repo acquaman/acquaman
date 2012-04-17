@@ -5,6 +5,10 @@
 #include "actions3/AMAction3.h"
 #include <QDateTime>
 
+#define AMACTIONLOG_CANNOT_UPDATE_UNSAVED_ACTIONLOG 214001
+#define AMACTIONLOG_CANNOT_UPDATE_BAD_INDEX 214002
+#define AMACTIONLOG_CANNOT_UPDATE_UNCOMPLETED_ACTION 214003
+
 /// This database object is used to log a user's completed actions (AMAction) in the Acquaman Workflow/Action system.  It contains the start and end times of the action, the final state of the action (Succeeded, Failed, or Cancelled), and a child database object to store the corresponding AMActionInfo.
 /*! The database table is indexed by endDateTime for fast searching/sorting by when actions finished.
 

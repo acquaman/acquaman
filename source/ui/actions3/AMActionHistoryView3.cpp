@@ -167,8 +167,11 @@ void AMActionHistoryView3::collapse(bool doCollapse)
 
 void AMActionHistoryView3::onShowMoreActionsButtonClicked()
 {
+	// If we're showing all the available actions, don't do anything
 	if(model_->maximumActionsToDisplay() > model_->visibleActionsCount())
 		return;
+
+	// Latch these states for when the deferred call in setMaximumActionsToDisplay finishes
 	showingMoreActions_ = true;
 	countBeforeShowMoreActions_ = model_->childrenCount();
 	model_->setMaximumActionsToDisplay(model_->maximumActionsToDisplay()*1.5 + 1);
@@ -323,6 +326,9 @@ void AMActionHistoryView3::onModelRefreshed()
 		headerSubTitle_->setText("Showing " % QString::number(topLevelActionsShown) % " top level actions\n(" % QString::number(totalActionsShown) % " of " % QString::number(totalActions) % " actions" % filterText % ")");
 	}
 
+	// If we were showing more actions check to see if we actually got more (we might not if there's a big list or loop trying to be loaded)
+	// If not, then call the onShowMoreActionsButtonClicked (effectively recursively)
+	// If yes, then unlatch that bool
 	if(showingMoreActions_){
 		if(countBeforeShowMoreActions_ == totalActionsShown)
 			onShowMoreActionsButtonClicked();

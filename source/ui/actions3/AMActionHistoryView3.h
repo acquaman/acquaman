@@ -98,7 +98,9 @@ protected:
 	/// The list of indexes that have actually been clicked
 	QModelIndexList actuallyBeenClicked_;
 
+	/// Used to latch when the showing more actions button has been clicked (need to hold onto this because the refresh is a deferred call)
 	bool showingMoreActions_;
+	/// Used to monitor if more actions were actually able to load (sometimes you could increase the number of actions, but not get anymore because of a big list or loop)
 	int countBeforeShowMoreActions_;
 };
 
