@@ -27,7 +27,6 @@ void AMActionHistoryTreeView3::setActuallySelectedByClickingCount(int actuallySe
 	actuallySelectedByClickingCount_ = actuallySelectedByClickingCount;
 }
 
-#include <QDebug>
 void AMActionHistoryTreeView3::onEnteredIndex(const QModelIndex &index){
 	AMActionHistoryModel3 *historyModel = qobject_cast<AMActionHistoryModel3*>(model());
 	if(!historyModel)

@@ -242,6 +242,9 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			// most importantly, DON'T add anything to values, since we didn't add a matching key.
 		}
 
+		else if(myInfo->className == "AMActionLog3" && columnType == QVariant::DateTime){
+			values << property(columnName).toDateTime().toString("yyyy-MM-ddThh:mm:ss.zzz");
+		}
 		// everything else
 		else
 			values << property(columnName);
@@ -369,7 +372,6 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_LOAD_FROM_DB_CLASS_NOT_REGISTERED, "Could not load from database, the class is not registered with the database. Please report this problem to the Acquaman developers."));
 		return false;	// class hasn't been registered yet with the database system.
 	}
-
 
 	// Retrieve all columns from the database.
 	// optimization: not necessary to retrieve anything with the doNotLoad attribute set. Also, if the type is AMDbObjectList, there is no actual database column for this "column"... instead, its an auxiliary table.
@@ -504,6 +506,10 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 			}
 			else if(columnType == QVariant::StringList || columnType == QVariant::List) {	// string list, and anything-else-lists saved as string lists: must convert back from separated string.
 				setProperty(columnName, values.at(ri).toString().split(AMDbObjectSupport::stringListSeparator(), QString::SkipEmptyParts));
+			}
+			else if(myInfo->className == "AMActionLog3" && columnType == QVariant::DateTime){
+				setProperty(columnName, values.at(ri));
+				qDebug() << "Date time " << property(columnName);
 			}
 			else {	// the simple case.
 				setProperty(columnName, values.at(ri));

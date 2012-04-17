@@ -37,8 +37,11 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	actionRunner_ = actionRunner;
 	db_ = db;
 
+	showingMoreActions_ = false;
+	countBeforeShowMoreActions_ = 0;
+
 	model_ = new AMActionHistoryModel3(db_, this);
-	model_->setMaximumActionsToDisplay(100);
+	model_->setMaximumActionsToDisplay(60);
 	//QDateTime fourHoursAgo = QDateTime::currentDateTime().addSecs(-4*60*60);
 	//model_->setVisibleDateTimeRange(fourHoursAgo);
 	QDateTime everAgo = QDateTime();
@@ -164,7 +167,11 @@ void AMActionHistoryView3::collapse(bool doCollapse)
 
 void AMActionHistoryView3::onShowMoreActionsButtonClicked()
 {
-	model_->setMaximumActionsToDisplay(model_->maximumActionsToDisplay()*2);
+	if(model_->maximumActionsToDisplay() > model_->visibleActionsCount())
+		return;
+	showingMoreActions_ = true;
+	countBeforeShowMoreActions_ = model_->childrenCount();
+	model_->setMaximumActionsToDisplay(model_->maximumActionsToDisplay()*1.5 + 1);
 }
 
 void AMActionHistoryView3::onRangeComboBoxActivated(int rangeIndex)
@@ -293,26 +300,34 @@ void AMActionHistoryView3::onModelRefreshed()
 	// update subtitle text with how many, of how many total.
 	QString filterText;
 	switch(rangeComboBox_->currentIndex()) {
-	case 0: filterText = " in the last hour."; break;
-	case 1: filterText = " in the last 4 hours."; break;
-	case 2: filterText = " in the last day."; break;
-	case 3: filterText = " in this run."; break;
-	case 4: filterText = " ever done."; break;
+	case 0: filterText = " in the last hour"; break;
+	case 1: filterText = " in the last 4 hours"; break;
+	case 2: filterText = " in the last day"; break;
+	case 3: filterText = " in this run"; break;
+	case 4: filterText = " ever done"; break;
 	}
 
-	int actionsShown = model_->rowCount();
+	int topLevelActionsShown = model_->rowCount();
+	int totalActionsShown = model_->childrenCount();
 	int totalActions = model_->visibleActionsCount();
-	if(actionsShown == 0) {
+	if(topLevelActionsShown == 0) {
 		showMoreActionsButton_->hide();
 		headerSubTitle_->setText("No actions" % filterText);
 	}
-	else if(actionsShown == totalActions) {
+	else if(totalActionsShown == totalActions) {
 		showMoreActionsButton_->hide();
-		headerSubTitle_->setText("Showing " % QString::number(actionsShown) % " actions" % filterText);
+		headerSubTitle_->setText("Showing " % QString::number(topLevelActionsShown) % " top level actions\n(" % QString::number(totalActionsShown) % " actions" % filterText % ")");
 	}
 	else {
 		showMoreActionsButton_->show();
-		headerSubTitle_->setText("Showing " % QString::number(actionsShown) % " of " % QString::number(totalActions) % " actions" % filterText);
+		headerSubTitle_->setText("Showing " % QString::number(topLevelActionsShown) % " top level actions\n(" % QString::number(totalActionsShown) % " of " % QString::number(totalActions) % " actions" % filterText % ")");
+	}
+
+	if(showingMoreActions_){
+		if(countBeforeShowMoreActions_ == totalActionsShown)
+			onShowMoreActionsButtonClicked();
+		else
+			showingMoreActions_ = false;
 	}
 }
 

@@ -122,11 +122,14 @@ public:
 
 	/// Returns whether or not this item has children (determines this from the underlying list)
 	bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
+	int childrenCount(const QModelIndex &parent = QModelIndex()) const;
 
 	/// Returns the AMActionLogItem at \c index
 	AMActionLogItem3* logItem(const QModelIndex& index) const;
 	/// Returns the model index for a given AMActionLogItem
 	QModelIndex indexForLogItem(AMActionLogItem3 *logItem) const;
+
+	QModelIndex topLevelParent(const QModelIndex &child) const;
 
 	/// Returns the indices in between two model indexes. Used in shift-clicking routine.
 	const QItemSelection indicesBetween(const QModelIndex &brother, const QModelIndex &sister) const;

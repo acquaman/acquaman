@@ -388,6 +388,16 @@ bool AMActionHistoryModel3::hasChildren(const QModelIndex &parent) const{
 	}
 }
 
+int AMActionHistoryModel3::childrenCount(const QModelIndex &parent) const{
+	if(rowCount() == 0)
+		return 0;
+	int subChildCount = 0;
+	for(int x = 0; x < rowCount(parent); x++)
+		if(hasChildren(index(x, 0, parent)))
+			subChildCount += childrenCount(index(x, 0, parent));
+	return rowCount(parent) + subChildCount;
+}
+
 AMActionLogItem3 * AMActionHistoryModel3::logItem(const QModelIndex &index) const
 {
 	if(!index.isValid())
@@ -430,6 +440,16 @@ QModelIndex AMActionHistoryModel3::indexForLogItem(AMActionLogItem3 *logItem) co
 		}
 		return createIndex(numberOfSiblings, 0, logItem);
 	}
+}
+
+QModelIndex AMActionHistoryModel3::topLevelParent(const QModelIndex &child) const{
+	if(!child.isValid())
+		return QModelIndex();
+
+	if(!child.parent().isValid())
+		return child;
+
+	return topLevelParent(child.parent());
 }
 
 const QItemSelection AMActionHistoryModel3::indicesBetween(const QModelIndex &brother, const QModelIndex &sister) const{
@@ -511,6 +531,7 @@ void AMActionHistoryModel3::refreshFromDb()
 
 	// need to setup the query differently based on whether we have oldest and newest visible range limits.
 
+	/*
 	// both newest and oldest limits:
 	if(visibleRangeOldest_.isValid() && visibleRangeNewest_.isValid()) {
 		q = db_->select(actionLogTableName_,
@@ -558,6 +579,54 @@ void AMActionHistoryModel3::refreshFromDb()
 		q2 = db_->select(actionLogTableName_,
 				 "COUNT(1)");
 	}
+	*/
+	// both newest and oldest limits:
+	if(visibleRangeOldest_.isValid() && visibleRangeNewest_.isValid()) {
+		q = db_->select(actionLogTableName_,
+				"id,parentId",
+				"startDateTime BETWEEN ? AND ? ORDER BY startDateTime DESC LIMIT ?");
+		q.bindValue(0, visibleRangeOldest_);
+		q.bindValue(1, visibleRangeNewest_);
+		q.bindValue(2, maximumActionsLimit_);
+		q2 = db_->select(actionLogTableName_,
+				 "COUNT(1)",
+				 "startDateTime BETWEEN ? AND ?");
+		q2.bindValue(0, visibleRangeOldest_);
+		q2.bindValue(1, visibleRangeNewest_);
+	}
+	// only an oldest limit:
+	else if(visibleRangeOldest_.isValid()) {
+		q = db_->select(actionLogTableName_,
+				"id,parentId",
+				"startDateTime >= ? ORDER BY startDateTime DESC LIMIT ?");
+		q.bindValue(0, visibleRangeOldest_);
+		q.bindValue(1, maximumActionsLimit_);
+		q2 = db_->select(actionLogTableName_,
+				 "COUNT(1)",
+				 "startDateTime >= ?");
+		q2.bindValue(0, visibleRangeOldest_);
+	}
+	// only a newest limit:
+	else if(visibleRangeNewest_.isValid()) {
+		q = db_->select(actionLogTableName_,
+				"id,parentId",
+				"startDateTime <= ? ORDER BY startDateTime DESC LIMIT ?");
+		q.bindValue(0, visibleRangeNewest_);
+		q.bindValue(1, maximumActionsLimit_);
+		q2 = db_->select(actionLogTableName_,
+				 "COUNT(1)",
+				 "startDateTime <= ?");
+		q2.bindValue(0, visibleRangeNewest_);
+	}
+	// everything:
+	else {
+		q = db_->select(actionLogTableName_,
+				"id,parentId",
+				"1 ORDER BY startDateTime DESC LIMIT ?");
+		q.bindValue(0, maximumActionsLimit_);
+		q2 = db_->select(actionLogTableName_,
+				 "COUNT(1)");
+	}
 
 	// run the query and get the ids:
 	if(!q.exec())
@@ -578,6 +647,21 @@ void AMActionHistoryModel3::refreshFromDb()
 	}
 	q2.finish();
 
+	qDebug() << "Ids: " << ids;
+	qDebug() << "Parent Ids: " << parentIds;
+	qDebug() << "Counts before: " << ids.count() << parentIds.count();
+	bool prunedLists = false;
+	while(!prunedLists && (ids.count() > 0) ){
+		if(parentIds.last() != -1){
+			parentIds.removeLast();
+			ids.removeLast();
+		}
+		else
+			prunedLists = true;
+	}
+	qDebug() << "Ids: " << ids;
+	qDebug() << "Parent Ids: " << parentIds;
+	qDebug() << "Counts after: " << ids.count() << parentIds.count();
 
 	if(!ids.isEmpty()) {
 		// switch order
@@ -611,7 +695,8 @@ void AMActionHistoryModel3::onDatabaseItemCreated(const QString &tableName, int 
 	// OK, this is a specific update.
 	// find out if this action's endDateTime is within our visible date range
 	AMActionLogItem3* item = new AMActionLogItem3(db_, id);
-	if(insideVisibleDateTimeRange(item->endDateTime())) {
+	//if(insideVisibleDateTimeRange(item->endDateTime())) {
+	if(insideVisibleDateTimeRange(item->startDateTime())) {
 		emit modelAboutToBeRefreshed();
 		/// \todo Ordering... This may end up at the wrong spot until a full refresh is done.  Most of the time, any actions added will be the most recent ones, however that is not guaranteed.
 		appendItem(item);
@@ -652,16 +737,26 @@ void AMActionHistoryModel3::refreshSpecificIds()
 {
 	//NTBA David Chevrier, April 6th, 2012 ... not taking care of separating out master lists/loops
 	// will contain the indexes of any rows that should be deleted.
-	QList<int> rowsToDelete;
+	//QList<int> rowsToDelete;
+	QModelIndexList topLevelsToDelete;
 
 	// go through all our items, and see if any of them need to be updated.
 	for(int x = 0; x < items_.count(); x++){
 		AMActionLogItem3* itemToRefresh = items_.at(x);
 		if(idsRequiringRefresh_.contains(itemToRefresh->id())) {
 			itemToRefresh->refresh();
+			QModelIndex itemIndex = indexForLogItem(itemToRefresh);
+			QModelIndex topLevelParentIndex = topLevelParent(itemIndex);
+			AMActionLogItem3 *itemTopLevelParent = itemToRefresh;
+			if(itemIndex != topLevelParentIndex)
+				itemTopLevelParent = logItem(topLevelParentIndex);
+
 			// If the end date time has changed to be outside of our visible range, it shouldn't be shown any more.
-			if(!insideVisibleDateTimeRange(itemToRefresh->endDateTime())) {
-				rowsToDelete << x;
+			// Now we're checking against the start time of the top level parent, then we can let the remove algorithm take care of all of the children
+			//if(!insideVisibleDateTimeRange(itemToRefresh->endDateTime())) {
+			if(!insideVisibleDateTimeRange(itemTopLevelParent->startDateTime()) && !topLevelsToDelete.contains(topLevelParentIndex)) {
+				topLevelsToDelete.append(topLevelParentIndex);
+				//rowsToDelete << x;
 			}
 			else {
 				QModelIndex changedIndexFirst = indexForLogItem(itemToRefresh);
@@ -674,13 +769,17 @@ void AMActionHistoryModel3::refreshSpecificIds()
 	idsRequiringRefresh_.clear();
 
 	// Now delete any rows that shouldn't be there anymore. Need to go backwards so that indexes don't change as we delete.
-	if(!rowsToDelete.isEmpty()) {
+	if(!topLevelsToDelete.isEmpty()) {
 		qDebug() << "\nThere are rows to be deleted\n";
 		emit modelAboutToBeRefreshed();
+		/*
 		for(int i=rowsToDelete.count()-1; i>=0; i--) {
 			removeRow(rowsToDelete.at(i));
 			visibleActionsCount_--;
 		}
+		*/
+		for(int x = 0; x < topLevelsToDelete.count(); x++)
+			recurseActionsLogLevelClear(topLevelsToDelete.at(x));
 		emit modelRefreshed();
 	}
 }
