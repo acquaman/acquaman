@@ -6,9 +6,24 @@
 #include <QStandardItemModel>
 #include <QStandardItem>
 
+#define AMACTIONRUNNER_MODELINDEX_REQUESTED_CHILD_OF_NON_LIST_TYPE 215001
+#define AMACTIONRUNNER_MODELDATA_NO_ACTION_AT_INDEX 215002
+#define AMACTIONRUNNER_RETRIEVE_INDEX_FAILED_NO_MATCHING_ACTION_IN_QUEUE 215003
+#define AMACTIONRUNNER_RETRIEVE_INDEX_FAILED_NO_MATCHING_ACTION_IN_LIST_TYPE 215004
+#define AMACTIONRUNNER_CANNOT_ADD_SUBBACTION_WITH_INVALID_PARENT 215005
+#define AMACTIONRUNNER_CANNOT_ADD_SUBACTION_WITH_PARENT_NOT_IN_QUEUE 215006
+#define AMACTIONRUNNER_CANNOT_ADD_SUBACTION_CALL_MISMATCH 215007
+#define AMACTIONRUNNER_CANNOT_REMOVE_SUBBACTION_WITH_INVALID_PARENT 215008
+#define AMACTIONRUNNER_CANNOT_REMOVE_SUBACTION_WITH_PARENT_NOT_IN_QUEUE 215009
+#define AMACTIONRUNNER_CANNOT_REMOVE_SUBACTION_CALL_MISMATCH 215010
+#define AMACTIONRUNNER_FAILED_TO_DROP_INSIDE_INVALID_LIST_TYPE 215011
+#define AMACTIONRUNNER_FAILED_TO_MOVE_INSIDE_INVALID_LIST_TYPE 215012
+#define AMACTIONRUNNER_FAILED_TO_REARRANGE_INVALID_ITEM_FOUND 215013
+#define AMACTIONRUNNER_FAILED_TO_MOVE_INTO_INVALID_LIST_TYPE 215014
+#define AMACTIONRUNNER_IGNORING_REQUEST_FROM_VIEW_TO_REMOVE_ROWS 215015
+
 class AMAction3;
 class AMActionRunnerQueueModel3;
-
 
 /// This singleton class provides the API for Acquaman's workflow manager. You can queue up actions for it to run, manage the queue of upcoming actions, and receive notifications when actions are completed. After an action is completed, it will automatically log the actions with AMActionLog::logCompletedAction().  The AMActionRunnerCurrentView and AMActionRunnerQueueView provide graphical user interfaces to this API.
 /*! Note that the AMActionRunner's queue is initially paused when it is first created. To have it start executing actions as soon as they become available, call AMActionRunner::s()->setPaused(false).*/
