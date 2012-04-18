@@ -137,7 +137,7 @@ int AMAcqScanOutput::putValue( acqKey_t key, int eventno, int pvno, const void *
 	}
 
 
-	double dataVal;
+	double dataVal = 0;
 
 	switch( pvpr->colp->columnType)
 	{

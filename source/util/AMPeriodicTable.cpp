@@ -40,7 +40,7 @@ AMPeriodicTable::AMPeriodicTable(QObject *parent) :
 
 	QTextStream in(&file);
 
-	AMElement *temp;
+	AMElement *temp = 0;
 	QStringList current;
 
 	while(!in.atEnd()){
