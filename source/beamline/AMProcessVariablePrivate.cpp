@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMProcessVariablePrivate.h"
 #include "AMProcessVariable.h"
+#include "util/AMErrorMonitor.h"
 
 #include <float.h>
 #include <QDebug>
@@ -40,7 +41,7 @@ AMProcessVariableSupport::AMProcessVariableSupport() : QObject() {
 
 	connect(&flushIOCaller_, SIGNAL(executed()), this, SLOT(executeFlushIO()));
 
-	qWarning("AMProcessVariableSupport: Starting up channel access...");
+	AMErrorMon::information(this, AMPROCESSVARIABLESUPPORT_STARTING_CHANNEL_ACCESS, "Starting up channel access...");
 
 
 	setenv(QString("EPICS_CA_MAX_ARRAY_BYTES").toAscii().data(), QString("%1").arg(AMPROCESSVARIABLE_MAX_CA_ARRAY_BYTES).toAscii().data(), 1);

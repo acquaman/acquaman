@@ -595,9 +595,6 @@ void AMActionHistoryModel3::refreshFromDb()
 	}
 	q2.finish();
 
-	qDebug() << "Ids: " << ids;
-	qDebug() << "Parent Ids: " << parentIds;
-	qDebug() << "Counts before: " << ids.count() << parentIds.count();
 	bool prunedLists = false;
 	while(!prunedLists && (ids.count() > 0) ){
 		if(parentIds.last() != -1){
@@ -607,9 +604,6 @@ void AMActionHistoryModel3::refreshFromDb()
 		else
 			prunedLists = true;
 	}
-	qDebug() << "Ids: " << ids;
-	qDebug() << "Parent Ids: " << parentIds;
-	qDebug() << "Counts after: " << ids.count() << parentIds.count();
 
 	if(!ids.isEmpty()) {
 		// switch order

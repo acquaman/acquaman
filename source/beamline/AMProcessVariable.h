@@ -23,6 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMProcessVariablePrivate.h"
 
+#define AMPROCESSVARIABLE_CONNECTION_TIMED_OUT 112001
+
 /**
   \addtogroup control
   @{
