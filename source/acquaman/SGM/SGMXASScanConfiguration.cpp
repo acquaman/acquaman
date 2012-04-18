@@ -39,7 +39,7 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectors()->count(); x++)
 		allDetectors_->addDetector(SGMBeamline::sgm()->feedbackDetectors()->detectorAt(x), true);
 	for(int x = 0; x < xasDetectors_->count(); x++){
-		qDebug() << "Adding detector named " << xasDetectors_->detectorAt(x)->detectorName();
+//		qDebug() << "Adding detector named " << xasDetectors_->detectorAt(x)->detectorName();
 		allDetectors_->addDetector(xasDetectors_->detectorAt(x), xasDetectors_->isDefaultAt(x));
 	}
 	xasDetectorsCfg_ = xasDetectors_->toInfoSet();
@@ -286,5 +286,7 @@ bool SGMXASScanConfiguration::setDetectorConfigurations(const AMDetectorInfoSet 
 }
 
 void SGMXASScanConfiguration::detectorAvailabilityChanged(AMDetector *detector, bool isAvailable){
-	qDebug() << "Detector named " << detector->detectorName() << " is now avaialbe " << isAvailable;
+	Q_UNUSED(detector)
+	Q_UNUSED(isAvailable)
+//	qDebug() << "Detector named " << detector->detectorName() << " is now avaialbe " << isAvailable;
 }

@@ -36,8 +36,6 @@ AMRegionScanConfiguration::AMRegionScanConfiguration(const AMRegionScanConfigura
 	: AMScanConfiguration(original.parent())
 {
 	if (setup){
-
-		qDebug() << "Using AMScanConfiguration copy constructor";
 		setUserScanName(original.userScanName());
 		regions_ = new AMRegionsList(this);
 		connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
