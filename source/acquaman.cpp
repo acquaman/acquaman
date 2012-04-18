@@ -65,5 +65,6 @@ namespace AM {
 		qRegisterMetaType<AMDoubleList>();
 		qRegisterMetaType<AMDbObjectList>();
 		qRegisterMetaType<AMDbObject*>();
+		qRegisterMetaType<AMHighPrecisionDateTime>();
 	}
 }

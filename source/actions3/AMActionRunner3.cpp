@@ -55,7 +55,6 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 			AMListAction3* parentAction = qobject_cast<AMListAction3*>(listAction->parentAction());
 			if(parentAction)
 				parentLogId = parentAction->logActionId();
-			qDebug() << "DOING INTIAL STARTUP log on list or loop with parent " << parentLogId << "\n";
 			if(!AMActionLog3::logUncompletedAction(currentAction_, parentLogId)) {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem logging the uncompleted action to your database.  Please report this problem to the Acquaman developers."));
 			}
@@ -565,7 +564,6 @@ void AMActionRunnerQueueModel3::internalConnectListActions(AMAction3 *action)
 {
 	AMListAction3* listAction = qobject_cast<AMListAction3*>(action);
 	if(listAction) {
-		// qDebug() << "Connecting and remembering list action" << action->info()->shortDescription();
 		disconnect(listAction, 0, this, 0);
 		connect(listAction, SIGNAL(subActionAboutToBeAdded(int)), this, SLOT(onSubActionAboutToBeAdded(int)));
 		connect(listAction, SIGNAL(subActionAdded(int)), this, SLOT(onSubActionAdded(int)));
@@ -581,7 +579,6 @@ void AMActionRunnerQueueModel3::internalDisconnectListActions(AMAction3 *action)
 {
 	AMListAction3* listAction = qobject_cast<AMListAction3*>(action);
 	if(listAction) {
-		// qDebug() << "Disconnecting and forgetting list action" << action->info()->shortDescription();
 		disconnect(listAction, 0, this, 0);
 
 		for(int i=0,cc=listAction->subActionCount(); i<cc; i++)
@@ -744,8 +741,6 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 				// Subcase A1: destination: They are being moved to another location at the top level. We can move them using the AMActionRunner API.
 				if(!parent.isValid()) {
 
-//					 qDebug() << "Moving from top level to top level.";
-
 					// Get a persistent model index corresponding to the destination. (It might move as we move things around.)
 					QPersistentModelIndex destinationIndex(index(row, 0, parent));
 					// go backward through the list of indexes to move, inserting at destination. This will ensure that we maintain ordering. The persistent indexes adjust themselves to keep pointing to the same objects as we insert/remove.
@@ -759,7 +754,6 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 				}
 				// Subcase A2: destination: They are being moved to inside a list action.
 				else {
-//					 qDebug() << "Moving from top level to list action.";
 					// parent is valid... It represents the list action we're supposed to drop these actions inside of.
 					AMListAction3* listAction = qobject_cast<AMListAction3*>(actionAtIndex(parent));
 					if(!listAction) {
@@ -786,7 +780,6 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 
 				// Subcase B0: The destination is the same as the source. Just rearranging within one AMListAction.
 				if(first.parent() == parent) {
-//					qDebug() << "Rearranging within one list action.";
 					QPersistentModelIndex destinationIndex(index(row, 0, parent));
 					for(int i=0,cc=mil.count(); i<cc; i++) {
 						AMAction3* moveAction = sourceParentAction->takeSubActionAt(mil.at(i).row());
@@ -801,7 +794,6 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 				else {
 					// Subcase B1: The destination is the top level. Need to add the copied actions directly to AMActionRunner.
 					if(!parent.isValid()) {
-//						 qDebug() << "Move from one list action to top level.";
 						int targetRow = row;
 						if(targetRow < 0 || targetRow > actionRunner_->queuedActionCount())
 							targetRow = actionRunner_->queuedActionCount();
@@ -812,7 +804,6 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 					}
 					// Subcase B2: The destination is a different sub-action.
 					else {
-//						 qDebug() << "Move from one list action to another.";
 						AMListAction3* destParentAction = qobject_cast<AMListAction3*>(actionAtIndex(parent));
 						if(!destParentAction) {
 							qWarning() << "AMActionQueueModel: Warning: Asked to move actions into a list action that wasn't valid.";
@@ -884,87 +875,4 @@ bool AMActionRunner3::runActionImmediatelyInQueue(AMAction3 *action)
 	setQueuePaused(queueWasPaused);
 	return true;
 }
-
-
-
-//void AMActionQueueModel::traverse1(const QModelIndex &parent, QString &outstring, int level)
-//{
-//	for(int row=0, cc=rowCount(parent); row<cc; row++) {
-//		QModelIndex i = index(row, 0, parent);
-//		// print the action:
-//		AMActionQueueModelItem* item = static_cast<AMActionQueueModelItem*>(itemFromIndex(i));
-//		if(item) {
-//			AMAction* action = item->action();
-//			if(action) {
-//				outstring.append(nSpaces(level*4)).append(action->info()->shortDescription()).append("\n");
-//			}
-//			else
-//				outstring.append(nSpaces(level*4)).append("[Invalid Action?]").append("\n");
-//		}
-//		else
-//			outstring.append(nSpaces(level*4)).append("[Invalid Item?]").append("\n");
-
-//		traverse1(i, outstring, level+1);
-//	}
-//}
-
-//QString AMActionQueueModel::nSpaces(int n)
-//{
-//	QString rv;
-//	for(int i=0; i<n; i++)
-//		rv.append(" ");
-//	return rv;
-//}
-
-//void AMActionQueueModel::traverse2(const AMNestedAction *parent, QString &outstring, int level)
-//{
-//	if(!parent) {
-//		for(int i=0,cc=actionRunner_->queuedActionCount(); i<cc; i++) {
-//			AMAction* action = actionRunner_->queuedActionAt(i);
-//			if(action) {
-//				outstring.append(nSpaces(level*4)).append(action->info()->shortDescription()).append("\n");
-//				AMNestedAction* na = qobject_cast<AMNestedAction*>(action);
-//				if(na) {
-//					traverse2(na, outstring, level+1);
-//				}
-//			}
-//			else {
-//				outstring.append(nSpaces(level*4)).append("[Invalid Action?]").append("\n");
-//			}
-//		}
-//	}
-//	else {
-//		for(int i=0, cc=parent->subActionCount(); i<cc; i++) {
-//			const AMAction* action = parent->subActionAt(i);
-//			if(action) {
-//				outstring.append(nSpaces(level*4)).append(action->info()->shortDescription()).append("\n");
-//				const AMNestedAction* na = qobject_cast<const AMNestedAction*>(action);
-//				if(na) {
-//					traverse2(na, outstring, level+1);
-//				}
-//			}
-//			else {
-//				outstring.append(nSpaces(level*4)).append("[Invalid Action?]").append("\n");
-//			}
-//		}
-//	}
-//}
-
-//void AMActionQueueModel::checkTreeConsistency()
-//{
-//	QString t1;
-//	traverse1(QModelIndex(), t1);
-//	QString t2;
-//	traverse2(0, t2);
-
-//	if(t1 == t2)
-//		qDebug() << "****MODEL CHECKED OK***";
-//	else {
-//		qDebug() << "T1:";
-//		qDebug() << t1;
-//		qDebug() << "\n\nT2:";
-//		qDebug() << t2;
-//		qDebug() << "\n\n***MODEL CHECK FAILED***";
-//	}
-//}
 

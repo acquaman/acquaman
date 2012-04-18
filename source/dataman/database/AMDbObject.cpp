@@ -242,8 +242,8 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			// most importantly, DON'T add anything to values, since we didn't add a matching key.
 		}
 
-		else if(myInfo->className == "AMActionLog3" && columnType == QVariant::DateTime){
-			values << property(columnName).toDateTime().toString("yyyy-MM-ddThh:mm:ss.zzz");
+		else if(columnType == qMetaTypeId<AMHighPrecisionDateTime>()){
+			values << property(columnName).value<AMHighPrecisionDateTime>().dateTime().toString("yyyy-MM-ddThh:mm:ss.zzz");
 		}
 		// everything else
 		else
@@ -507,9 +507,10 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 			else if(columnType == QVariant::StringList || columnType == QVariant::List) {	// string list, and anything-else-lists saved as string lists: must convert back from separated string.
 				setProperty(columnName, values.at(ri).toString().split(AMDbObjectSupport::stringListSeparator(), QString::SkipEmptyParts));
 			}
-			else if(myInfo->className == "AMActionLog3" && columnType == QVariant::DateTime){
-				setProperty(columnName, values.at(ri));
-				qDebug() << "Date time " << property(columnName);
+			else if(columnType == qMetaTypeId<AMHighPrecisionDateTime>()){
+				AMHighPrecisionDateTime hpDateTime;
+				hpDateTime.setDateTime(values.at(ri).toDateTime());
+				setProperty(columnName, QVariant::fromValue(hpDateTime));
 			}
 			else {	// the simple case.
 				setProperty(columnName, values.at(ri));

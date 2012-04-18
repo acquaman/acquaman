@@ -118,8 +118,8 @@ bool AMActionLogItem3::loadLogDetailsFromDb() const
 	shortDescription_ = values.at(0).toString();
 	longDescription_  = values.at(1).toString();
 	iconFileName_ = values.at(2).toString();
-	startDateTime_ = values.at(3).toDateTime();
-	endDateTime_ = values.at(4).toDateTime();
+	startDateTime_ = QDateTime::fromString(values.at(3).toString(), "yyyy-MM-ddThh:mm:ss.zzz");
+	endDateTime_ = QDateTime::fromString(values.at(4).toString(), "yyyy-MM-ddThh:mm:ss.zzz");
 	finalState_ = values.at(5).toInt();
 	canCopy_ = db_->retrieve(values.at(6).toString().section(';', -1).toInt(), values.at(6).toString().split(';').first(), "canCopy").toBool();
 	parentId_ = values.at(7).toInt();
@@ -200,7 +200,6 @@ QModelIndex AMActionHistoryModel3::index(int row, int column, const QModelIndex 
 			if(siblingsFound == row+1)
 				return createIndex(row, column, items_.at(x));
 		}
-		AMErrorMon::alert(this, AMACTIONHISTORYMODEL_MODELINDEX_SUBINDEX_NOT_IN_LIST, "The action history attempted to access a sub-index that was not in the history list. Please report this problem to the Acquaman developers ");
 		return QModelIndex();
 	}
 }
@@ -218,7 +217,6 @@ QModelIndex AMActionHistoryModel3::parent(const QModelIndex &child) const
 		if(items_.at(x)->id() == childLogItem->parentId())
 			return indexForLogItem(items_.at(x));
 
-	AMErrorMon::alert(this, AMACTIONHISTORYMODEL_MODELPARENT_PARENT_NOT_IN_LIST, "The action history attempted to find a parent not in the history list. Please report this problem to the Acquaman developers ");
 	return QModelIndex();
 }
 
@@ -580,7 +578,7 @@ void AMActionHistoryModel3::refreshFromDb()
 
 	// run the query and get the ids:
 	if(!q.exec())
-		AMErrorMon::alert(this, -333, "Could not execute the query to refresh the action history. Please report this problem to the Acquaman developers." % q.lastError().text());
+		AMErrorMon::alert(this, AMACTIONHISTORYMODEL_FAILED_TO_EXECUTE_DB_QUERY, "Could not execute the query to refresh the action history. Please report this problem to the Acquaman developers." % q.lastError().text());
 	while(q.next()){
 		ids << q.value(0).toInt();
 		parentIds << q.value(1).toInt();
@@ -592,7 +590,7 @@ void AMActionHistoryModel3::refreshFromDb()
 		visibleActionsCount_ = q2.value(0).toInt();
 	}
 	else {
-		AMErrorMon::alert(this, -333, "Could not execute the query to refresh the action history. Please report this problem to the Acquaman developers." % q.lastError().text());
+		AMErrorMon::alert(this, AMACTIONHISTORYMODEL_FAILED_TO_EXECUTE_DB_QUERY_NUMBER_OF_ITEMS, "Could not execute the query to determine the number of items in the action history. Please report this problem to the Acquaman developers." % q.lastError().text());
 		visibleActionsCount_ = -1;	// you should never see this
 	}
 	q2.finish();
