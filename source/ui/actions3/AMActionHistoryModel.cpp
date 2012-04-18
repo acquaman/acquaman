@@ -260,7 +260,7 @@ QVariant AMActionHistoryModel3::data(const QModelIndex &index, int role) const
 {
 	AMActionLogItem3 *item = logItem(index);
 	if(!item){
-		AMErrorMon::alert(this, AMACTIONHISTORYMODEL_MODELDATA_BAD_ITEM, "The action history attempted to access data with a bad item. Please report this problem to the Acquaman developers ");
+		AMErrorMon::alert(this, AMACTIONHISTORYMODEL_MODELDATA_BAD_ITEM, QString("The action history attempted to access data with a bad item (row: %1 column: %2). Please report this problem to the Acquaman developers ").arg(index.row()).arg(index.column()));
 		return QVariant();
 	}
 
