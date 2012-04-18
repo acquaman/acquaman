@@ -362,7 +362,7 @@ QString VESPERS2DScanConfigurationView::convertTimeToString(double time)
 {
 	QString timeString;
 
-	int days = time/3600/24;
+	int days = int(time/3600.0/24.0);
 
 	if (days > 0){
 
@@ -370,7 +370,7 @@ QString VESPERS2DScanConfigurationView::convertTimeToString(double time)
 		timeString += QString::number(days) + "d:";
 	}
 
-	int hours = time/3600;
+	int hours = int(time/3600.0);
 
 	if (hours > 0){
 
@@ -378,7 +378,7 @@ QString VESPERS2DScanConfigurationView::convertTimeToString(double time)
 		timeString += QString::number(hours) + "h:";
 	}
 
-	int minutes = time/60;
+	int minutes = int(time/60.0);
 
 	if (minutes > 0){
 

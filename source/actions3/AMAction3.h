@@ -49,21 +49,21 @@ public:
 
 	/// This enum describes the states that an action can be in.
 	enum State { Constructed = 0,
-		     Starting,
-		     Running,
-		     Pausing,
-		     Paused,
-		     Resuming,
-		     Cancelling,
-		     Cancelled,
-		     Succeeded,
-		     Failed
+			 Starting,
+			 Running,
+			 Pausing,
+			 Paused,
+			 Resuming,
+			 Cancelling,
+			 Cancelled,
+			 Succeeded,
+			 Failed
 		   };
 	/// When running inside AMActionRunner, or as a sub-action in AMListAction, this enum specifies what to do if the action fails
 	enum FailureResponse { MoveOnResponse = 0,
-			       AttemptAnotherCopyResponse,
-			       PromptUserResponse
-			     };
+				   AttemptAnotherCopyResponse,
+				   PromptUserResponse
+				 };
 
 	// Constructor and life-cycle management
 	/////////////////
@@ -264,18 +264,28 @@ private:
 	/// Checks whether you can make the the transition to the new state.
 	bool canChangeState(State newState) const;
 
-	State state_, previousState_;
+	/// The current state.
+	State state_;
+	/// The previous state.
+	State previousState_;
 
+	/// Failure response that should be shown in the action runner.
 	FailureResponse failureResponseInActionRunner_;
+	/// Failure response if the current action is a sub action.
 	FailureResponse failureResponseAsSubAction_;
 
+	/// The progress of the action. <elapsed, total>
 	QPair<double,double> progress_;
-	QDateTime startDateTime_, endDateTime_;
+	/// The time when the action was started.
+	QDateTime startDateTime_;
+	/// The time when the action was finished.
+	QDateTime endDateTime_;
+	/// The status text that is displayed in the current action view of the action runner view (ie: Workflow).
 	QString statusText_;
 
+	/// A pointer to the parent action of this action.  If this is not a list action this will likely always be 0.
 	AMAction3* parentAction_;
 
-private:
 	/// A pointer to our associated AMActionInfo object
 	AMActionInfo3* info_;
 	/// This variable tracks the number of seconds that the action has spent in the Paused or Pausing states; we use it to implement runningTime().

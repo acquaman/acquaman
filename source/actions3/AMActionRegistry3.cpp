@@ -7,8 +7,8 @@
 
 #include <QWidget>
 
-AMActionInfoActionRegistration3::AMActionInfoActionRegistration3(const QMetaObject *actionInfoMetaObjectI, const QMetaObject *actionMetaObjectI, const QString &shortDescriptionI, const QString &longDescriptionI, const QString& iconFileNameI)
-	: shortDescription(shortDescriptionI), longDescription(longDescriptionI), iconFileName(iconFileNameI)
+AMActionInfoActionRegistration3::AMActionInfoActionRegistration3(const QMetaObject *actionInfoMetaObjectI, const QMetaObject *actionMetaObjectI, const QString &shortDescriptionI, const QString &longDescriptionI, const QString& iconFileNameI, bool exposeToAddActionDialogI)
+	: shortDescription(shortDescriptionI), longDescription(longDescriptionI), iconFileName(iconFileNameI), exposeToAddActionDialog(exposeToAddActionDialogI)
 {
 	actionMetaObject = actionMetaObjectI;
 	actionInfoMetaObject = actionInfoMetaObjectI;
@@ -26,8 +26,8 @@ AMActionRegistry3::AMActionRegistry3(QObject *parent) :
 
 
 
-bool AMActionRegistry3::registerInfoAndAction(const QMetaObject *infoMetaObject, const QMetaObject *actionMetaObject, const QString &shortDescription, const QString &longDescription, const QString &iconFileName) {
-
+bool AMActionRegistry3::registerInfoAndAction(const QMetaObject *infoMetaObject, const QMetaObject *actionMetaObject, const QString &shortDescription, const QString &longDescription, const QString &iconFileName, bool exposeToAddActionDialog)
+{
 	if(!infoMetaObject)
 		return false;
 	if(!actionMetaObject)
@@ -70,7 +70,7 @@ bool AMActionRegistry3::registerInfoAndAction(const QMetaObject *infoMetaObject,
 	// insert into registry
 	actionInfo2Actions_.insert(
 				QString(infoMetaObject->className()),
-				AMActionInfoActionRegistration3(infoMetaObject, actionMetaObject, shortDescription, longDescription, iconFileName));
+				AMActionInfoActionRegistration3(infoMetaObject, actionMetaObject, shortDescription, longDescription, iconFileName, exposeToAddActionDialog));
 	// success!
 	return true;
 }
@@ -186,6 +186,6 @@ QWidget * AMActionRegistry3::createEditorForInfo(AMActionInfo3 *info)
 
 	// this usage of QGenericArgument (instead of the Q_ARG macro) is technically unsupported, but the only way to do it because we don't know the type at compile-time.
 	return qobject_cast<QWidget*>(editorMetaObject->newInstance(
-					      QGenericArgument(infoClassName.append("*").toAscii().constData(),
-							       static_cast<const void*>(&info))));
+						  QGenericArgument(infoClassName.append("*").toAscii().constData(),
+								   static_cast<const void*>(&info))));
 }

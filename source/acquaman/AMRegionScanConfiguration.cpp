@@ -114,7 +114,7 @@ void AMRegionScanConfiguration::dbLoadRegions(const QString &regionsString)
 		return;
 	QStringList allRegions = regionsString.split("\n", QString::SkipEmptyParts);
 	QStringList oneRegion;
-	bool addRegionSuccess;
+	bool addRegionSuccess = false;
 
 	for(int x = 0; x < allRegions.count(); x++){
 		oneRegion = allRegions.at(x).split(",", QString::SkipEmptyParts);

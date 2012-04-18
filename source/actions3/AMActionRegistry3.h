@@ -13,13 +13,14 @@ public:
 	AMActionInfoActionRegistration3() { actionInfoMetaObject = 0; actionMetaObject = 0; }
 	/// This constructor requires the static QMetaObject* for both the AMActionInfo and AMAction, as well as a \c shortDescription and \c longDescription of the type that will be exposed to users. For ex: "REIXS XES Scan" / "This action runs a single XES scan on the REIXS beamline at a given detector energy."  You can optionally include an \c iconFileName that will be presented to users in GUIs that let them choose from a set of registered actions.
 	/*! Assumes that \c actionInfoMetaObject and \c actionMetaObject are both valid pointers and of the correct type */
-	AMActionInfoActionRegistration3(const QMetaObject* actionInfoMetaObject, const QMetaObject* actionMetaObject, const QString& shortDescription, const QString& longDescription, const QString& iconFileName);
+	AMActionInfoActionRegistration3(const QMetaObject* actionInfoMetaObject, const QMetaObject* actionMetaObject, const QString& shortDescription, const QString& longDescription, const QString& iconFileName, bool exposeToAddActionDialog);
 
 	const QMetaObject* actionInfoMetaObject;
 	const QMetaObject* actionMetaObject;
 	QString shortDescription;
 	QString longDescription;
 	QString iconFileName;
+	bool exposeToAddActionDialog;
 
 	QString actionInfoClassName() const { return actionInfoMetaObject->className(); }
 	QString actionClassName() const { return actionMetaObject->className(); }
@@ -57,7 +58,7 @@ public:
 
    \note It's OK to have multiple registrations referring to the same AMAction, but an AMActionInfo can only be registered once. This is because we need to be able to instantiate an AMAction from an AMActionInfo stored in the users database, and if there were multiple registrations we wouldn't know how to resolve that ambguity.
 */
-	bool registerInfoAndAction(const QMetaObject* infoMetaObject, const QMetaObject* actionMetaObject, const QString& shortDescription, const QString& longDescription, const QString& iconFileName = QString());
+	bool registerInfoAndAction(const QMetaObject* infoMetaObject, const QMetaObject* actionMetaObject, const QString& shortDescription, const QString& longDescription, const QString& iconFileName = QString(), bool exposeToAddActionDialog = true);
 
 	/// Register an AMActionInfo / AMAction pair.  The \c shortDescription and \c longDescription describe the type of the AMAction, and will be exposed to users when browsing the available actions.  You can optionally include an \c iconFileName that will be presented to users in GUIs that let them choose from a set of registered actions.  Returns true on success, or false if the Info and Action template classes don't inherit AMActionInfo and AMAction respectively.  Also returns false if the AMActionInfo class has already been registered, or if the AMAction doesn't have a Q_INVOKABLE constructor that takes an AMActionInfo* as argument.
 	/*! \c shortDescription should be a human-ified version of the class name, and \c longDescription gives the user more of a preview of what they're getting: for ex: "REIXS XES Scan" / "This action runs a single XES scan on the REIXS beamline at a given detector energy."   You don't need to include "SomethingSomething <i>Action</i>" in the shortDescription, as this will be implied by the context.
@@ -65,8 +66,8 @@ public:
    \note It's OK to have multiple registrations referring to the same AMAction, but an AMActionInfo can only be registered once. This is because we need to be able to instantiate an AMAction from an AMActionInfo stored in the users database, and if there were multiple registrations we wouldn't know how to resolve that ambguity.
 */
 	template <class Info, class Action>
-	bool registerInfoAndAction(const QString& shortDescription, const QString& longDescription, const QString& iconFileName = QString()) {
-		return registerInfoAndAction( &(Info::staticMetaObject), &(Action::staticMetaObject), shortDescription, longDescription, iconFileName );
+	bool registerInfoAndAction(const QString& shortDescription, const QString& longDescription, const QString& iconFileName = QString(), bool exposeToAddActionDialog = true) {
+		return registerInfoAndAction( &(Info::staticMetaObject), &(Action::staticMetaObject), shortDescription, longDescription, iconFileName, exposeToAddActionDialog);
 	}
 
 

@@ -97,7 +97,7 @@ void AMEXAFSScanConfiguration::dbLoadRegions(const QString &exafsRegionsString){
 		return;
 	QStringList allRegions = exafsRegionsString.split("\n", QString::SkipEmptyParts);
 	QStringList oneRegion;
-	bool addRegionSuccess;
+	bool addRegionSuccess = false;
 
 	for(int x = 0; x < allRegions.count(); x++){
 		oneRegion = allRegions.at(x).split(",", QString::SkipEmptyParts);
