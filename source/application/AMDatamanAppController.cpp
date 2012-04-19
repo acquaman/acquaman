@@ -669,20 +669,29 @@ void AMDatamanAppController::onActionImportLegacyFiles() {
 
 }
 
-void AMDatamanAppController::onActionSettings(){
+void AMDatamanAppController::onActionSettings()
+{
 	if(!settingsMasterView_)
 		settingsMasterView_ = new AMSettingsMasterView();
+
 	settingsMasterView_->show();
 }
 
-void AMDatamanAppController::onActionIssueSubmission(){
+void AMDatamanAppController::onActionIssueSubmission()
+{
 	if(!issueSubmissionView_){
+
 		issueSubmissionView_ = new AMGithubIssueSubmissionView();
+
 		for(int x = 0; x < additionalIssueTypesAndAssignees_.count(); x++)
 			issueSubmissionView_->addIssueType(additionalIssueTypesAndAssignees_.at(x), additionalIssueTypesAndAssignees_.keyAt(x));
+
 		connect(issueSubmissionView_, SIGNAL(finished()), this, SLOT(onIssueSubmissionViewFinished()));
 	}
+
 	issueSubmissionView_->show();
+	issueSubmissionView_->raise();
+	issueSubmissionView_->activateWindow();
 }
 
 void AMDatamanAppController::onCurrentPaneChanged(QWidget *pane) {

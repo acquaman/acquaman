@@ -1,7 +1,7 @@
 #ifndef AMGITHUBISSUESUBMISSIONVIEW_H
 #define AMGITHUBISSUESUBMISSIONVIEW_H
 
-#include <QWidget>
+#include <QDialog>
 #include "util/AMOrderedSet.h"
 #include "util/AMGithubManager.h"
 
@@ -13,29 +13,39 @@ class QProgressBar;
 class QLabel;
 class QTimer;
 
-class AMGithubIssueSubmissionView : public QWidget
+class AMGithubIssueSubmissionView : public QDialog
 {
-Q_OBJECT
+	Q_OBJECT
 
 public:
+	/// Constructor.  Builds the standard Github submission view dialog.
 	AMGithubIssueSubmissionView(QWidget *parent = 0);
 
 public slots:
+	/// Adds to the end of the issue type list a new issue type and who would be assigned to it.
 	void addIssueType(const QString &issueType, const QString &assigneeForType);
 
 signals:
+	/// Notifier that the creation of a new issue has finished (whether it is successful or not).
 	void finished();
 
 protected slots:
+	/// Helper slot handling the cancel.
 	void onCancelButtonClicked();
+	/// Helper slot that handles when a request to submit a new issue is submitted.
 	void onSubmitIssueButtonClicked();
 
+	/// Helper slot that handles when the setting up the dialog based on whether its successfully authenticated or not to Github.
 	void onGitAuthenticated(bool authenticated);
+	/// Helper slot handling the behaviour of hte dialog if a new issue is created or not.
 	void onGitIssueCreated(bool issueCreated);
 
+	/// Handles enabling the submit button based on whether there is text in the title and body of the issue.
 	void onEditsChanged();
 
+	/// Handles updating the small widget that says thanks to the user for their input and after 5 seconds it closes itself.
 	void onExitCountDownTimeout();
+	/// Handles hiding the dialog and emits the finished signal.
 	void hideAndFinish();
 
 protected:
