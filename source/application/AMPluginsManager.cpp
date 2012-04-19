@@ -62,30 +62,24 @@ void AMPluginsManager::loadApplicationPlugins(){
 	loadApplicationPlugins(AMSettings::s()->fileLoaderPluginsFolder(), AMSettings::s()->analysisBlockPluginsFolder());
 }
 
-#include <QDebug>
 void AMPluginsManager::loadApplicationPlugins(const QString &fileLoaderFolder, const QString &analysisBlocksFolder) {
+	Q_UNUSED(analysisBlocksFolder) //Darren removed these a while ago
 
 	QWriteLocker wl(&mutex_);
 
-	// qDebug() << "Loading file loader plugins...";
 
 	// Load file loader plugins
 	fileFormats2fileLoaderFactories_.clear();
 
-	//qDebug() << "Folder is " << fileLoaderFolder;
 
 	QDir fileLoaderPluginsDirectory(fileLoaderFolder);
 	foreach (QString fileName, fileLoaderPluginsDirectory.entryList(QDir::Files)) {
-		//qDebug() << " trying plugin file" << fileName;
 		QPluginLoader pluginLoader(fileLoaderPluginsDirectory.absoluteFilePath(fileName));
 		QObject *plugin = pluginLoader.instance();
 		if(plugin) {
-			// qDebug() << "  ...was a plugin.";
 			AMFileLoaderFactory *factory = qobject_cast<AMFileLoaderFactory *>(plugin);
 			if(factory) {
-				// qDebug() << "   was a file loader factory. Good!";
 				foreach(QString fileFormat, factory->acceptedFileFormats()) {
-					// qDebug() << "     accepts file format:" << fileFormat;
 					fileFormats2fileLoaderFactories_.insert(fileFormat, factory);
 				}
 			}

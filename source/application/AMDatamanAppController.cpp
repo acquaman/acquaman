@@ -113,7 +113,7 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 
 bool AMDatamanAppController::startup() {
 
-	AMErrorMon::enableDebugNotifications(true);
+	//AMErrorMon::enableDebugNotifications(true);
 
 	AM::registerTypes();
 

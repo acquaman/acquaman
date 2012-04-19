@@ -309,7 +309,7 @@ void AMBeamlineActionItemView::setMovable(bool movable){
 void AMBeamlineActionItemView::onCreateCopyClicked(){
 	AMBeamlineActionItem *actionCopy = action_->createCopy();
 	if(actionCopy){
-		qDebug() << "ActionView has a copy to send out";
+//		qDebug() << "ActionView has a copy to send out";
 		emit copyRequested(actionCopy);
 	}
 }

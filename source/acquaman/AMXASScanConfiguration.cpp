@@ -37,8 +37,6 @@ AMXASScanConfiguration::AMXASScanConfiguration(const AMXASScanConfiguration &ori
 	: AMRegionScanConfiguration(original, false)
 {
 	if (setup){
-
-		qDebug() << "Using AMXASScanConfiguration copy constructor";
 		setUserScanName(original.userScanName());
 		regions_ = new AMXASRegionsList(this);
 		connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));

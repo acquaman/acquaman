@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMProcessVariable.h"
 #include <QDebug>
+#include "util/AMErrorMonitor.h"
 
 // AMProcessVariable
 /////////////////////////
@@ -107,7 +108,7 @@ void AMProcessVariable::onConnectionTimeout() {
 
 	// If we haven't connected by now:
 	if(!isConnected()) {
-		qWarning() << QString("AMProcessVariable: channel connect timed out for %1").arg(pvName());
+		AMErrorMon::alert(this, AMPROCESSVARIABLE_CONNECTION_TIMED_OUT, QString("AMProcessVariable: channel connect timed out for %1").arg(pvName()));
 		emit connectionTimeout();
 	}
 

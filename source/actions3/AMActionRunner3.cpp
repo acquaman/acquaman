@@ -55,7 +55,6 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 			AMListAction3* parentAction = qobject_cast<AMListAction3*>(listAction->parentAction());
 			if(parentAction)
 				parentLogId = parentAction->logActionId();
-			qDebug() << "DOING INTIAL STARTUP log on list or loop with parent " << parentLogId << "\n";
 			if(!AMActionLog3::logUncompletedAction(currentAction_, parentLogId)) {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem logging the uncompleted action to your database.  Please report this problem to the Acquaman developers."));
 			}
@@ -402,7 +401,7 @@ QModelIndex AMActionRunnerQueueModel3::index(int row, int column, const QModelIn
 	else {
 		AMListAction3* parentAction = qobject_cast<AMListAction3*>(actionAtIndex(parent));
 		if(!parentAction) {
-			qWarning() << "AMActionRunnerQueueModel: Warning: requested a child index when the parent was not an AMNestedAction.";
+			AMErrorMon::debug(this, AMACTIONRUNNER_MODELINDEX_REQUESTED_CHILD_OF_NON_LIST_TYPE, "Requested a child index when the parent was not an AMListAction or subclass.");
 			return QModelIndex();
 		}
 		if(row < 0 || row >= parentAction->subActionCount())
@@ -448,7 +447,7 @@ QVariant AMActionRunnerQueueModel3::data(const QModelIndex &index, int role) con
 {
 	AMAction3* action = actionAtIndex(index);
 	if(!action) {
-		qWarning() << "AMActionRunnerQueueModel: Warning: No action at index " << index;
+		AMErrorMon::debug(this, AMACTIONRUNNER_MODELDATA_NO_ACTION_AT_INDEX, QString("No action at index (row: %1 column: %2) in AMActionRunnerQueueModel.").arg(index.row()).arg(index.column()));
 		return QVariant();
 	}
 
@@ -545,7 +544,7 @@ QModelIndex AMActionRunnerQueueModel3::indexForAction(AMAction3 *action) const
 		// action is in the top-level. Do a linear search for it in the actionRunner_ API.
 		int row = actionRunner_->indexOfQueuedAction(action);
 		if(row == -1) {
-			qWarning() << "AMActionRunnerQueueModel: Warning: action not found in AMActionRunner.";
+			AMErrorMon::debug(this, AMACTIONRUNNER_RETRIEVE_INDEX_FAILED_NO_MATCHING_ACTION_IN_QUEUE, "Action not found in AMActionRunner.");
 			return QModelIndex();
 		}
 		return createIndex(row, 0, action);
@@ -554,7 +553,7 @@ QModelIndex AMActionRunnerQueueModel3::indexForAction(AMAction3 *action) const
 		// we do a have parent action. Do a linear search for ourself in the parent AMNestedAction.
 		int row = ((AMListAction3 *)parentAction)->indexOfSubAction(action);
 		if(row == -1) {
-			qWarning() << "AMActionRunnerQueueModel: Warning: action not found in list action.";
+			AMErrorMon::debug(this, AMACTIONRUNNER_RETRIEVE_INDEX_FAILED_NO_MATCHING_ACTION_IN_LIST_TYPE, "Action not found in list action.");
 			return QModelIndex();
 		}
 		return createIndex(row, 0, action);
@@ -565,7 +564,6 @@ void AMActionRunnerQueueModel3::internalConnectListActions(AMAction3 *action)
 {
 	AMListAction3* listAction = qobject_cast<AMListAction3*>(action);
 	if(listAction) {
-		// qDebug() << "Connecting and remembering list action" << action->info()->shortDescription();
 		disconnect(listAction, 0, this, 0);
 		connect(listAction, SIGNAL(subActionAboutToBeAdded(int)), this, SLOT(onSubActionAboutToBeAdded(int)));
 		connect(listAction, SIGNAL(subActionAdded(int)), this, SLOT(onSubActionAdded(int)));
@@ -581,7 +579,6 @@ void AMActionRunnerQueueModel3::internalDisconnectListActions(AMAction3 *action)
 {
 	AMListAction3* listAction = qobject_cast<AMListAction3*>(action);
 	if(listAction) {
-		// qDebug() << "Disconnecting and forgetting list action" << action->info()->shortDescription();
 		disconnect(listAction, 0, this, 0);
 
 		for(int i=0,cc=listAction->subActionCount(); i<cc; i++)
@@ -594,13 +591,13 @@ void AMActionRunnerQueueModel3::onSubActionAboutToBeAdded(int index)
 	AMListAction3* parentAction = qobject_cast<AMListAction3*>(sender());
 	lastSender_ = parentAction;
 	if(!parentAction) {
-		qWarning() << "AMActionRunnerQueueModel: Warning: invalid parent sent subActionAboutToBeAdded().";
+		AMErrorMon::debug(this, AMACTIONRUNNER_CANNOT_ADD_SUBBACTION_WITH_INVALID_PARENT, "Invalid parent sent subActionAboutToBeAdded().");
 		return;
 	}
 
 	QModelIndex parentIndex = indexForAction(parentAction);
 	if(!parentIndex.isValid()) {
-		qWarning() << "AMActionRunnerQueueModel: Warning: Nested Action parent not found for the added sub-action.";
+		AMErrorMon::debug(this, AMACTIONRUNNER_CANNOT_ADD_SUBACTION_WITH_PARENT_NOT_IN_QUEUE, "List Action (or subclass) parent not found for the added sub-action.");
 		return;
 	}
 
@@ -611,7 +608,7 @@ void AMActionRunnerQueueModel3::onSubActionAdded(int index)
 {
 	AMListAction3* parentAction = qobject_cast<AMListAction3*>(sender());
 	if(parentAction != lastSender_) {
-		qWarning() << "AMActionRunnerQueueModel: Warning: Unmatched calls to onSubActionAboutToBeAdded/onSubActionAdded.";
+		AMErrorMon::debug(this, AMACTIONRUNNER_CANNOT_ADD_SUBACTION_CALL_MISMATCH, "Unmatched calls to onSubActionAboutToBeAdded/onSubActionAdded.");
 	}
 	else {
 		internalConnectListActions(parentAction->subActionAt(index));
@@ -624,7 +621,7 @@ void AMActionRunnerQueueModel3::onSubActionAboutToBeRemoved(int index)
 	AMListAction3* parentAction = qobject_cast<AMListAction3*>(sender());
 	lastSender_ = parentAction;
 	if(!parentAction) {
-		qWarning() << "AMActionRunnerQueueModel: Warning: invalid parent sent subActionAboutToBeRemoved().";
+		AMErrorMon::debug(this, AMACTIONRUNNER_CANNOT_REMOVE_SUBBACTION_WITH_INVALID_PARENT, "Invalid parent sent subActionAboutToBeRemoved().");
 		return;
 	}
 
@@ -632,7 +629,7 @@ void AMActionRunnerQueueModel3::onSubActionAboutToBeRemoved(int index)
 
 	QModelIndex parentIndex = indexForAction(parentAction);
 	if(!parentIndex.isValid()) {
-		qWarning() << "AMActionRunnerQueueModel: Warning: Nested Action parent not found for the removed sub-action.";
+		AMErrorMon::debug(this, AMACTIONRUNNER_CANNOT_REMOVE_SUBACTION_WITH_PARENT_NOT_IN_QUEUE, "List Action (or subclass) parent not found for the removed sub-action.");
 		return;
 	}
 
@@ -643,7 +640,7 @@ void AMActionRunnerQueueModel3::onSubActionRemoved(int index)
 {
 	Q_UNUSED(index)
 	if(qobject_cast<AMListAction3*>(sender()) != lastSender_) {
-		qWarning() << "AMActionRunnerQueueModel: Warning: Unmatched calls to onSubActionAboutToBeRemoved/onSubActionRemoved.";
+		AMErrorMon::debug(this, AMACTIONRUNNER_CANNOT_REMOVE_SUBACTION_CALL_MISMATCH, "Unmatched calls to onSubActionAboutToBeRemoved/onSubActionRemoved.");
 	}
 	endRemoveRows();
 }
@@ -744,8 +741,6 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 				// Subcase A1: destination: They are being moved to another location at the top level. We can move them using the AMActionRunner API.
 				if(!parent.isValid()) {
 
-//					 qDebug() << "Moving from top level to top level.";
-
 					// Get a persistent model index corresponding to the destination. (It might move as we move things around.)
 					QPersistentModelIndex destinationIndex(index(row, 0, parent));
 					// go backward through the list of indexes to move, inserting at destination. This will ensure that we maintain ordering. The persistent indexes adjust themselves to keep pointing to the same objects as we insert/remove.
@@ -759,11 +754,10 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 				}
 				// Subcase A2: destination: They are being moved to inside a list action.
 				else {
-//					 qDebug() << "Moving from top level to list action.";
 					// parent is valid... It represents the list action we're supposed to drop these actions inside of.
 					AMListAction3* listAction = qobject_cast<AMListAction3*>(actionAtIndex(parent));
 					if(!listAction) {
-						qWarning() << "AMActionRunnerQueueModel: Warning: Asked to drop actions inside a list action that wasn't valid.";
+						AMErrorMon::debug(this, AMACTIONRUNNER_FAILED_TO_DROP_INSIDE_INVALID_LIST_TYPE, "Asked to drop actions inside a list action that wasn't valid.");
 						return false;
 					}
 					int targetRow = row;
@@ -780,20 +774,19 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 			else {
 				AMListAction3* sourceParentAction = qobject_cast<AMListAction3*>(actionAtIndex(first.parent()));
 				if(!sourceParentAction) {
-					qWarning() << "AMActionQueueModel: Warning: Asked to move actions from inside a list action that wasn't valid.";
+					AMErrorMon::debug(this, AMACTIONRUNNER_FAILED_TO_MOVE_INSIDE_INVALID_LIST_TYPE, "Asked to move actions from inside a list action that wasn't valid.");
 					return false;
 				}
 
 				// Subcase B0: The destination is the same as the source. Just rearranging within one AMListAction.
 				if(first.parent() == parent) {
-//					qDebug() << "Rearranging within one list action.";
 					QPersistentModelIndex destinationIndex(index(row, 0, parent));
 					for(int i=0,cc=mil.count(); i<cc; i++) {
 						AMAction3* moveAction = sourceParentAction->takeSubActionAt(mil.at(i).row());
 						if(moveAction)
 							sourceParentAction->insertSubAction(moveAction, destinationIndex.row());
 						else
-							qWarning() << "AMActionRunnerQueueModel: Warning: Received an invalid item when rearranging actions inside a list action.";
+							AMErrorMon::debug(this, AMACTIONRUNNER_FAILED_TO_REARRANGE_INVALID_ITEM_FOUND, "Received an invalid item when rearranging actions inside a list action.");
 					}
 					return true;
 				}
@@ -801,7 +794,6 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 				else {
 					// Subcase B1: The destination is the top level. Need to add the copied actions directly to AMActionRunner.
 					if(!parent.isValid()) {
-//						 qDebug() << "Move from one list action to top level.";
 						int targetRow = row;
 						if(targetRow < 0 || targetRow > actionRunner_->queuedActionCount())
 							targetRow = actionRunner_->queuedActionCount();
@@ -812,10 +804,9 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 					}
 					// Subcase B2: The destination is a different sub-action.
 					else {
-//						 qDebug() << "Move from one list action to another.";
 						AMListAction3* destParentAction = qobject_cast<AMListAction3*>(actionAtIndex(parent));
 						if(!destParentAction) {
-							qWarning() << "AMActionQueueModel: Warning: Asked to move actions into a list action that wasn't valid.";
+							AMErrorMon::debug(this, AMACTIONRUNNER_FAILED_TO_MOVE_INTO_INVALID_LIST_TYPE, "Asked to move actions into a list action that wasn't valid.");
 							return false;
 						}
 						int targetRow = row;
@@ -866,7 +857,7 @@ bool AMActionRunnerQueueModel3::removeRows(int row, int count, const QModelIndex
 	Q_UNUSED(count)
 	Q_UNUSED(parent)
 
-	qWarning() << "AMActionRunnerQueueModel: Warning: Ignoring request from view to remove rows.";
+	AMErrorMon::debug(this, AMACTIONRUNNER_IGNORING_REQUEST_FROM_VIEW_TO_REMOVE_ROWS, "Ignoring request from view to remove rows.");
 
 	return false;
 }
@@ -884,87 +875,4 @@ bool AMActionRunner3::runActionImmediatelyInQueue(AMAction3 *action)
 	setQueuePaused(queueWasPaused);
 	return true;
 }
-
-
-
-//void AMActionQueueModel::traverse1(const QModelIndex &parent, QString &outstring, int level)
-//{
-//	for(int row=0, cc=rowCount(parent); row<cc; row++) {
-//		QModelIndex i = index(row, 0, parent);
-//		// print the action:
-//		AMActionQueueModelItem* item = static_cast<AMActionQueueModelItem*>(itemFromIndex(i));
-//		if(item) {
-//			AMAction* action = item->action();
-//			if(action) {
-//				outstring.append(nSpaces(level*4)).append(action->info()->shortDescription()).append("\n");
-//			}
-//			else
-//				outstring.append(nSpaces(level*4)).append("[Invalid Action?]").append("\n");
-//		}
-//		else
-//			outstring.append(nSpaces(level*4)).append("[Invalid Item?]").append("\n");
-
-//		traverse1(i, outstring, level+1);
-//	}
-//}
-
-//QString AMActionQueueModel::nSpaces(int n)
-//{
-//	QString rv;
-//	for(int i=0; i<n; i++)
-//		rv.append(" ");
-//	return rv;
-//}
-
-//void AMActionQueueModel::traverse2(const AMNestedAction *parent, QString &outstring, int level)
-//{
-//	if(!parent) {
-//		for(int i=0,cc=actionRunner_->queuedActionCount(); i<cc; i++) {
-//			AMAction* action = actionRunner_->queuedActionAt(i);
-//			if(action) {
-//				outstring.append(nSpaces(level*4)).append(action->info()->shortDescription()).append("\n");
-//				AMNestedAction* na = qobject_cast<AMNestedAction*>(action);
-//				if(na) {
-//					traverse2(na, outstring, level+1);
-//				}
-//			}
-//			else {
-//				outstring.append(nSpaces(level*4)).append("[Invalid Action?]").append("\n");
-//			}
-//		}
-//	}
-//	else {
-//		for(int i=0, cc=parent->subActionCount(); i<cc; i++) {
-//			const AMAction* action = parent->subActionAt(i);
-//			if(action) {
-//				outstring.append(nSpaces(level*4)).append(action->info()->shortDescription()).append("\n");
-//				const AMNestedAction* na = qobject_cast<const AMNestedAction*>(action);
-//				if(na) {
-//					traverse2(na, outstring, level+1);
-//				}
-//			}
-//			else {
-//				outstring.append(nSpaces(level*4)).append("[Invalid Action?]").append("\n");
-//			}
-//		}
-//	}
-//}
-
-//void AMActionQueueModel::checkTreeConsistency()
-//{
-//	QString t1;
-//	traverse1(QModelIndex(), t1);
-//	QString t2;
-//	traverse2(0, t2);
-
-//	if(t1 == t2)
-//		qDebug() << "****MODEL CHECKED OK***";
-//	else {
-//		qDebug() << "T1:";
-//		qDebug() << t1;
-//		qDebug() << "\n\nT2:";
-//		qDebug() << t2;
-//		qDebug() << "\n\n***MODEL CHECK FAILED***";
-//	}
-//}
 

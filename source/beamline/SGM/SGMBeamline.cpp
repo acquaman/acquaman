@@ -373,7 +373,8 @@ void SGMBeamline::usingSGMBeamline(){
 
 	scaler_ = new CLSSIS3820Scaler("BL1611-ID-1:mcs", this);
 
-	qDebug() << "\nPV Name Look Ups Failed: " << pvNameLookUpFail << "\n";
+	if(pvNameLookUpFail)
+		AMErrorMon::alert(this, SGMBEAMLINE_PV_NAME_LOOKUPS_FAILED, "PV Name lookups in the SGM Beamline failed");
 }
 
 SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {

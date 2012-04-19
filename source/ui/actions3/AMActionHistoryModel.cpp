@@ -118,8 +118,8 @@ bool AMActionLogItem3::loadLogDetailsFromDb() const
 	shortDescription_ = values.at(0).toString();
 	longDescription_  = values.at(1).toString();
 	iconFileName_ = values.at(2).toString();
-	startDateTime_ = values.at(3).toDateTime();
-	endDateTime_ = values.at(4).toDateTime();
+	startDateTime_ = QDateTime::fromString(values.at(3).toString(), "yyyy-MM-ddThh:mm:ss.zzz");
+	endDateTime_ = QDateTime::fromString(values.at(4).toString(), "yyyy-MM-ddThh:mm:ss.zzz");
 	finalState_ = values.at(5).toInt();
 	canCopy_ = db_->retrieve(values.at(6).toString().section(';', -1).toInt(), values.at(6).toString().split(';').first(), "canCopy").toBool();
 	parentId_ = values.at(7).toInt();
@@ -172,7 +172,7 @@ QModelIndex AMActionHistoryModel3::index(int row, int column, const QModelIndex 
 	// if no parent is top level
 	if(!parent.isValid()){
 		if(row < 0){// what about other limit?
-			//NEM April 5th, 2012 ... invalid?
+			AMErrorMon::alert(this, AMACTIONHISTORYMODEL_MODELINDEX_OUT_OF_BOUNDS, "The action history attempted to access information that was entirely out of bounds. Please report this problem to the Acquaman developers ");
 			return QModelIndex();
 		}
 		int foundTopLevels = 0;
@@ -182,14 +182,14 @@ QModelIndex AMActionHistoryModel3::index(int row, int column, const QModelIndex 
 			if(foundTopLevels == row+1)
 				return createIndex(row, column, items_.at(x));
 		}
-		//NEM April 5th, 2012 ... ran out of list to check?
+		AMErrorMon::alert(this, AMACTIONHISTORYMODEL_MODELINDEX_INDEX_NOT_IN_LIST, "The action history attempted to access an index that was not in the history list. Please report this problem to the Acquaman developers ");
 		return QModelIndex();
 	}
 	// if parent then it's sub-level
 	else{
 		AMActionLogItem3 *parentLogItem = logItem(parent);
 		if(!parentLogItem){
-			//NEM April 5th, 2012 ... returned bad parent pointer
+			AMErrorMon::alert(this, AMACTIONHISTORYMODEL_MODELINDEX_BAD_PARENT_ITEM, "The action history attempted to access an index with a bad parent item. Please report this problem to the Acquaman developers ");
 			return QModelIndex();
 		}
 		int parentIndexInList = items_.indexOf(parentLogItem);
@@ -200,7 +200,6 @@ QModelIndex AMActionHistoryModel3::index(int row, int column, const QModelIndex 
 			if(siblingsFound == row+1)
 				return createIndex(row, column, items_.at(x));
 		}
-		// NEM April 5th, 2012 ... ran out of list to check?
 		return QModelIndex();
 	}
 }
@@ -218,7 +217,6 @@ QModelIndex AMActionHistoryModel3::parent(const QModelIndex &child) const
 		if(items_.at(x)->id() == childLogItem->parentId())
 			return indexForLogItem(items_.at(x));
 
-	//NEM April 5th, 2012 ... couldn't find parent
 	return QModelIndex();
 }
 
@@ -237,7 +235,7 @@ int AMActionHistoryModel3::rowCount(const QModelIndex &parent) const
 	else{
 		AMActionLogItem3 *parentLogItem = logItem(parent);
 		if(!parentLogItem){
-			//NEM April 5th, 2012 ... returned bad parent pointer
+			AMErrorMon::alert(this, AMACTIONHISTORYMODEL_ROWCOUNT_BAD_PARENT_ITEM, "The action history attempted to access a rowCount with a bad parent item. Please report this problem to the Acquaman developers ");
 			return 0;
 		}
 		int childrenFound = 0;
@@ -262,7 +260,7 @@ QVariant AMActionHistoryModel3::data(const QModelIndex &index, int role) const
 {
 	AMActionLogItem3 *item = logItem(index);
 	if(!item){
-		//NEM April 5th, 2012 ... no logItem at index
+		AMErrorMon::alert(this, AMACTIONHISTORYMODEL_MODELDATA_BAD_ITEM, QString("The action history attempted to access data with a bad item (row: %1 column: %2). Please report this problem to the Acquaman developers ").arg(index.row()).arg(index.column()));
 		return QVariant();
 	}
 
@@ -376,7 +374,7 @@ bool AMActionHistoryModel3::hasChildren(const QModelIndex &parent) const{
 	else{
 		AMActionLogItem3 *parentLogItem = logItem(parent);
 		if(!parentLogItem){
-			//NEM April 5th, 2012 ... returned bad parent pointer
+			AMErrorMon::alert(this, AMACTIONHISTORYMODEL_HASCHILDREN_BAD_PARENT_ITEM, "The action history attempted to check hasChildren on a bad parent item. Please report this problem to the Acquaman developers ");
 			return false;
 		}
 		int parentIndexInList = items_.indexOf(parentLogItem);
@@ -386,6 +384,16 @@ bool AMActionHistoryModel3::hasChildren(const QModelIndex &parent) const{
 
 		return false;
 	}
+}
+
+int AMActionHistoryModel3::childrenCount(const QModelIndex &parent) const{
+	if(rowCount() == 0)
+		return 0;
+	int subChildCount = 0;
+	for(int x = 0; x < rowCount(parent); x++)
+		if(hasChildren(index(x, 0, parent)))
+			subChildCount += childrenCount(index(x, 0, parent));
+	return rowCount(parent) + subChildCount;
 }
 
 AMActionLogItem3 * AMActionHistoryModel3::logItem(const QModelIndex &index) const
@@ -409,7 +417,7 @@ QModelIndex AMActionHistoryModel3::indexForLogItem(AMActionLogItem3 *logItem) co
 			if(items_.at(x)->parentId() == -1)
 				topLevelBefore++;
 		}
-		//NEM April 5th, 2012 ... logItem not found
+		AMErrorMon::alert(this, AMACTIONHISTORYMODEL_INDEXFORLOGITEM_INDEX_NOT_IN_LIST, "The action history attempted to find the index for an item with a bad parent item. Please report this problem to the Acquaman developers ");
 		return QModelIndex();
 	}
 	else{
@@ -419,7 +427,7 @@ QModelIndex AMActionHistoryModel3::indexForLogItem(AMActionLogItem3 *logItem) co
 		int numberOfSiblings = 0;
 		while(!foundParent){
 			if(backwardsIndex == 0){
-				//NEM April 5th, 2012 ... logItem couldn't find parent
+				AMErrorMon::alert(this, AMACTIONHISTORYMODEL_INDEXFORLOGITEM_PARENT_NOT_IN_LIST, "The action history attempted to find the index for an item where the parent was not in the list. Please report this problem to the Acquaman developers ");
 				return QModelIndex();
 			}
 			backwardsIndex--;
@@ -430,6 +438,16 @@ QModelIndex AMActionHistoryModel3::indexForLogItem(AMActionLogItem3 *logItem) co
 		}
 		return createIndex(numberOfSiblings, 0, logItem);
 	}
+}
+
+QModelIndex AMActionHistoryModel3::topLevelParent(const QModelIndex &child) const{
+	if(!child.isValid())
+		return QModelIndex();
+
+	if(!child.parent().isValid())
+		return child;
+
+	return topLevelParent(child.parent());
 }
 
 const QItemSelection AMActionHistoryModel3::indicesBetween(const QModelIndex &brother, const QModelIndex &sister) const{
@@ -510,18 +528,17 @@ void AMActionHistoryModel3::refreshFromDb()
 	QSqlQuery q2;	// used to count the total number in the visible range, if we didn't have a limit.
 
 	// need to setup the query differently based on whether we have oldest and newest visible range limits.
-
 	// both newest and oldest limits:
 	if(visibleRangeOldest_.isValid() && visibleRangeNewest_.isValid()) {
 		q = db_->select(actionLogTableName_,
 				"id,parentId",
-				"endDateTime BETWEEN ? AND ? ORDER BY endDateTime DESC LIMIT ?");
+				"startDateTime BETWEEN ? AND ? ORDER BY startDateTime DESC LIMIT ?");
 		q.bindValue(0, visibleRangeOldest_);
 		q.bindValue(1, visibleRangeNewest_);
 		q.bindValue(2, maximumActionsLimit_);
 		q2 = db_->select(actionLogTableName_,
 				 "COUNT(1)",
-				 "endDateTime BETWEEN ? AND ?");
+				 "startDateTime BETWEEN ? AND ?");
 		q2.bindValue(0, visibleRangeOldest_);
 		q2.bindValue(1, visibleRangeNewest_);
 	}
@@ -529,31 +546,31 @@ void AMActionHistoryModel3::refreshFromDb()
 	else if(visibleRangeOldest_.isValid()) {
 		q = db_->select(actionLogTableName_,
 				"id,parentId",
-				"endDateTime >= ? ORDER BY endDateTime DESC LIMIT ?");
+				"startDateTime >= ? ORDER BY startDateTime DESC LIMIT ?");
 		q.bindValue(0, visibleRangeOldest_);
 		q.bindValue(1, maximumActionsLimit_);
 		q2 = db_->select(actionLogTableName_,
 				 "COUNT(1)",
-				 "endDateTime >= ?");
+				 "startDateTime >= ?");
 		q2.bindValue(0, visibleRangeOldest_);
 	}
 	// only a newest limit:
 	else if(visibleRangeNewest_.isValid()) {
 		q = db_->select(actionLogTableName_,
 				"id,parentId",
-				"endDateTime <= ? ORDER BY endDateTime DESC LIMIT ?");
+				"startDateTime <= ? ORDER BY startDateTime DESC LIMIT ?");
 		q.bindValue(0, visibleRangeNewest_);
 		q.bindValue(1, maximumActionsLimit_);
 		q2 = db_->select(actionLogTableName_,
 				 "COUNT(1)",
-				 "endDateTime <= ?");
+				 "startDateTime <= ?");
 		q2.bindValue(0, visibleRangeNewest_);
 	}
 	// everything:
 	else {
 		q = db_->select(actionLogTableName_,
 				"id,parentId",
-				"1 ORDER BY endDateTime DESC LIMIT ?");
+				"1 ORDER BY startDateTime DESC LIMIT ?");
 		q.bindValue(0, maximumActionsLimit_);
 		q2 = db_->select(actionLogTableName_,
 				 "COUNT(1)");
@@ -561,7 +578,7 @@ void AMActionHistoryModel3::refreshFromDb()
 
 	// run the query and get the ids:
 	if(!q.exec())
-		AMErrorMon::alert(this, -333, "Could not execute the query to refresh the action history. Please report this problem to the Acquaman developers." % q.lastError().text());
+		AMErrorMon::alert(this, AMACTIONHISTORYMODEL_FAILED_TO_EXECUTE_DB_QUERY, "Could not execute the query to refresh the action history. Please report this problem to the Acquaman developers." % q.lastError().text());
 	while(q.next()){
 		ids << q.value(0).toInt();
 		parentIds << q.value(1).toInt();
@@ -573,11 +590,20 @@ void AMActionHistoryModel3::refreshFromDb()
 		visibleActionsCount_ = q2.value(0).toInt();
 	}
 	else {
-		AMErrorMon::alert(this, -333, "Could not execute the query to refresh the action history. Please report this problem to the Acquaman developers." % q.lastError().text());
+		AMErrorMon::alert(this, AMACTIONHISTORYMODEL_FAILED_TO_EXECUTE_DB_QUERY_NUMBER_OF_ITEMS, "Could not execute the query to determine the number of items in the action history. Please report this problem to the Acquaman developers." % q.lastError().text());
 		visibleActionsCount_ = -1;	// you should never see this
 	}
 	q2.finish();
 
+	bool prunedLists = false;
+	while(!prunedLists && (ids.count() > 0) ){
+		if(parentIds.last() != -1){
+			parentIds.removeLast();
+			ids.removeLast();
+		}
+		else
+			prunedLists = true;
+	}
 
 	if(!ids.isEmpty()) {
 		// switch order
@@ -585,9 +611,8 @@ void AMActionHistoryModel3::refreshFromDb()
 		for(int i=ids.count()-1; i>=0; i--)
 			parentIdsAndIdsAscending.insertMulti(parentIds.at(i), ids.at(i));
 
-		if(!recurseActionsLogLevelCreate(-1, parentIdsAndIdsAscending)){
-			//NEM April 6th, 2012 ... problem generating internal model
-		}
+		if(!recurseActionsLogLevelCreate(-1, parentIdsAndIdsAscending))
+			AMErrorMon::alert(this, AMACTIONHISTORYMODEL_REFRESHFROMDB_FAILED_TO_CREATE_LIST, "The action history failed to generate its internal list. Please report this problem to the Acquaman developers ");
 	}
 
 	emit modelRefreshed();
@@ -611,7 +636,7 @@ void AMActionHistoryModel3::onDatabaseItemCreated(const QString &tableName, int 
 	// OK, this is a specific update.
 	// find out if this action's endDateTime is within our visible date range
 	AMActionLogItem3* item = new AMActionLogItem3(db_, id);
-	if(insideVisibleDateTimeRange(item->endDateTime())) {
+	if(insideVisibleDateTimeRange(item->startDateTime())) {
 		emit modelAboutToBeRefreshed();
 		/// \todo Ordering... This may end up at the wrong spot until a full refresh is done.  Most of the time, any actions added will be the most recent ones, however that is not guaranteed.
 		appendItem(item);
@@ -650,18 +675,24 @@ void AMActionHistoryModel3::onDatabaseItemRemoved(const QString &tableName, int 
 
 void AMActionHistoryModel3::refreshSpecificIds()
 {
-	//NTBA David Chevrier, April 6th, 2012 ... not taking care of separating out master lists/loops
 	// will contain the indexes of any rows that should be deleted.
-	QList<int> rowsToDelete;
+	QModelIndexList topLevelsToDelete;
 
 	// go through all our items, and see if any of them need to be updated.
 	for(int x = 0; x < items_.count(); x++){
 		AMActionLogItem3* itemToRefresh = items_.at(x);
 		if(idsRequiringRefresh_.contains(itemToRefresh->id())) {
 			itemToRefresh->refresh();
+			QModelIndex itemIndex = indexForLogItem(itemToRefresh);
+			QModelIndex topLevelParentIndex = topLevelParent(itemIndex);
+			AMActionLogItem3 *itemTopLevelParent = itemToRefresh;
+			if(itemIndex != topLevelParentIndex)
+				itemTopLevelParent = logItem(topLevelParentIndex);
+
 			// If the end date time has changed to be outside of our visible range, it shouldn't be shown any more.
-			if(!insideVisibleDateTimeRange(itemToRefresh->endDateTime())) {
-				rowsToDelete << x;
+			// Now we're checking against the start time of the top level parent, then we can let the remove algorithm take care of all of the children
+			if(!insideVisibleDateTimeRange(itemTopLevelParent->startDateTime()) && !topLevelsToDelete.contains(topLevelParentIndex)) {
+				topLevelsToDelete.append(topLevelParentIndex);
 			}
 			else {
 				QModelIndex changedIndexFirst = indexForLogItem(itemToRefresh);
@@ -673,14 +704,11 @@ void AMActionHistoryModel3::refreshSpecificIds()
 
 	idsRequiringRefresh_.clear();
 
-	// Now delete any rows that shouldn't be there anymore. Need to go backwards so that indexes don't change as we delete.
-	if(!rowsToDelete.isEmpty()) {
-		qDebug() << "\nThere are rows to be deleted\n";
+	// Now delete any rows that shouldn't be there anymore. Do it by QModelIndex and things should be fine.
+	if(!topLevelsToDelete.isEmpty()) {
 		emit modelAboutToBeRefreshed();
-		for(int i=rowsToDelete.count()-1; i>=0; i--) {
-			removeRow(rowsToDelete.at(i));
-			visibleActionsCount_--;
-		}
+		for(int x = 0; x < topLevelsToDelete.count(); x++)
+			recurseActionsLogLevelClear(topLevelsToDelete.at(x));
 		emit modelRefreshed();
 	}
 }
@@ -717,9 +745,8 @@ void AMActionHistoryModel3::clear()
 	if(items_.isEmpty())
 		return;
 
-	if(!recurseActionsLogLevelClear(QModelIndex())){
-		//NEM April 6th, 2012 ... something went wrong clearing
-	}
+	if(!recurseActionsLogLevelClear(QModelIndex()))
+		AMErrorMon::alert(this, AMACTIONHISTORYMODEL_FAILED_TO_CLEAR_LIST, "The action history failed to clear its internal list. Please report this problem to the Acquaman developers ");
 }
 
 bool AMActionHistoryModel3::recurseActionsLogLevelCreate(int parentId, QMap<int, int> parentIdsAndIds){

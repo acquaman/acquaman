@@ -5,6 +5,10 @@
 #include "actions3/AMAction3.h"
 #include <QDateTime>
 
+#define AMACTIONLOG_CANNOT_UPDATE_UNSAVED_ACTIONLOG 214001
+#define AMACTIONLOG_CANNOT_UPDATE_BAD_INDEX 214002
+#define AMACTIONLOG_CANNOT_UPDATE_UNCOMPLETED_ACTION 214003
+
 /// This database object is used to log a user's completed actions (AMAction) in the Acquaman Workflow/Action system.  It contains the start and end times of the action, the final state of the action (Succeeded, Failed, or Cancelled), and a child database object to store the corresponding AMActionInfo.
 /*! The database table is indexed by endDateTime for fast searching/sorting by when actions finished.
 
@@ -14,8 +18,8 @@ class AMActionLog3 : public AMDbObject
 {
 	Q_OBJECT
 
-	Q_PROPERTY(QDateTime startDateTime READ startDateTime WRITE dbLoadStartDateTime)
-	Q_PROPERTY(QDateTime endDateTime READ endDateTime WRITE dbLoadEndDateTime)
+	Q_PROPERTY(AMHighPrecisionDateTime startDateTime READ highPrecisionStartDateTime WRITE dbLoadStartDateTime)
+	Q_PROPERTY(AMHighPrecisionDateTime endDateTime READ highPrecisionEndDateTime WRITE dbLoadEndDateTime)
 	Q_PROPERTY(int finalState READ finalState WRITE dbLoadFinalState)
 	Q_PROPERTY(AMDbObject* info READ info WRITE dbLoadInfo)
 	// The associated ActionInfo's longDescription and iconFileName are duplicated in the database table for quick access, but they don't need to be member variables of this object since we can always retrieve them from the info().
@@ -66,8 +70,10 @@ public:
 
 	/// The dateTime when the action was started
 	QDateTime startDateTime() const { return startDateTime_; }
+	AMHighPrecisionDateTime highPrecisionStartDateTime() const { return startDateTime_; }
 	/// The dateTime when the action finished
 	QDateTime endDateTime() const { return endDateTime_; }
+	AMHighPrecisionDateTime highPrecisionEndDateTime() const { return endDateTime_; }
 	/// The final state of the action: will be either AMAction::Succeeded, AMAction::Cancelled, or AMAction::Failed.
 	int finalState() const { return finalState_; }
 
@@ -90,8 +96,8 @@ public:
 	// For use by the database system ONLY, during loadFromDb():
 	//////////////////////////
 
-	void dbLoadStartDateTime(const QDateTime& startDateTime);
-	void dbLoadEndDateTime(const QDateTime& endDateTime);
+	void dbLoadStartDateTime(const AMHighPrecisionDateTime& startDateTime);
+	void dbLoadEndDateTime(const AMHighPrecisionDateTime& endDateTime);
 	void dbLoadFinalState(int finalState);
 	void dbLoadInfo(AMDbObject* newInfo);
 	void dbLoadActionInheritedLoop(bool actionInheritedLoop);
@@ -103,7 +109,7 @@ public slots:
 protected:
 	AMActionInfo3* info_;
 	int finalState_;
-	QDateTime startDateTime_, endDateTime_;
+	AMHighPrecisionDateTime startDateTime_, endDateTime_;
 	bool actionInheritedList_;
 	bool actionInheritedLoop_;
 	int parentId_;

@@ -84,7 +84,6 @@ bool SGMSSAAppController::startup() {
 
 		/*! \todo: hook up bottom-bar signals to the active scan controller.
 	void MainWindow::onScanControllerReady(AMScanController *scanController){
-		qDebug() << "\n\nScan controller is ready\n\n";
 		connect(bottomBar_, SIGNAL(pauseScanIssued()), scanController, SLOT(pause()));
 		connect(bottomBar_, SIGNAL(stopScanIssued()), scanController, SLOT(cancel()));
 		connect(scanController, SIGNAL(progress(double,double)), bottomBar_, SLOT(updateScanProgress(double,double)));

@@ -37,6 +37,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMDeferredFunctionCall.h"
 
+#define AMPROCESSVARIABLESUPPORT_STARTING_CHANNEL_ACCESS 113001
+
 /// Qt does not register QVector<int> and QVector<double> with qRegisterMetaType(), so we'll need to do this to use them in queued signal-slot connections.
 typedef QVector<double> AMProcessVariableDoubleVector;
 typedef QVector<int> AMProcessVariableIntVector;

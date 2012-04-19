@@ -50,6 +50,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMControlOptimization.h"
 
+#define SGMBEAMLINE_PV_NAME_LOOKUPS_FAILED 312001
+
 class SGMGratingAction;
 class AMSamplePlate;
 class SGMMAXvMotor;

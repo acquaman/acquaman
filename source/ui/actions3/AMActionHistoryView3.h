@@ -42,7 +42,6 @@ signals:
 	void collapsed(bool isCollapsed);
 
 public slots:
-
 	/// Collapses the view to show only the header bar.
 	void collapse(bool doCollapse);
 
@@ -61,7 +60,6 @@ protected slots:
 	void onDeselectedByClicked(const QModelIndex &index, bool othersCleared);
 	/// Called when the tree view tells us that no index was clicked but a clear took place. We use this to keep track of the index list.
 	void onClearedByClicked();
-
 
 	/// Called right before the model is refreshed. Remember if we're scrolled right to the bottom, so we can go back there.
 	void onModelAboutToBeRefreshed();
@@ -99,6 +97,11 @@ protected:
 
 	/// The list of indexes that have actually been clicked
 	QModelIndexList actuallyBeenClicked_;
+
+	/// Used to latch when the showing more actions button has been clicked (need to hold onto this because the refresh is a deferred call)
+	bool showingMoreActions_;
+	/// Used to monitor if more actions were actually able to load (sometimes you could increase the number of actions, but not get anymore because of a big list or loop)
+	int countBeforeShowMoreActions_;
 };
 
 #endif // AMACTIONHISTORYVIEW3_H
