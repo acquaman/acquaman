@@ -60,6 +60,8 @@ protected slots:
 	void onI0Clicked(int id) { config_->setIncomingChoice(id); }
 	/// Handles changes to the fluorescence detector choice.
 	void onFluorescenceChoiceChanged(int id);
+	/// Handles changes in the motor selection choice.
+	void onMotorsChoiceChanged(int id);
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();
 

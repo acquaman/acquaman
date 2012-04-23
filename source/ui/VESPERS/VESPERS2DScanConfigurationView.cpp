@@ -190,6 +190,23 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	QGroupBox *I0GroupBox = new QGroupBox("I0");
 	I0GroupBox->setLayout(I0GroupLayout);
 
+	// Motor selection.
+	QGroupBox *motorSetChoiceBox = new QGroupBox("Motors Selection");
+	QVBoxLayout *motorChoiceLayout = new QVBoxLayout;
+	QButtonGroup *motorChoiceButtonGroup = new QButtonGroup;
+
+	tempButton = new QRadioButton("H and V");
+	motorChoiceButtonGroup->addButton(tempButton, 0);
+	motorChoiceLayout->addWidget(tempButton);
+	tempButton = new QRadioButton("X and Z");
+	motorChoiceButtonGroup->addButton(tempButton, 1);
+	motorChoiceLayout->addWidget(tempButton);
+
+	connect(motorChoiceButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(onMotorsChoiceChanged(int)));
+
+	motorChoiceButtonGroup->button(int(config_->motorsChoice()))->click();
+	motorSetChoiceBox->setLayout(motorChoiceLayout);
+
 	// Scan name selection
 	scanName_ = new QLineEdit;
 	scanName_->setText(config_->name());
@@ -247,12 +264,13 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	contentsLayout->addWidget(positionsBox, 0, 0, 1, 3);
 	contentsLayout->addLayout(timeLayout, 1, 0, 1, 1);
 	contentsLayout->addWidget(ccdBox, 2, 0, 1, 1);
-	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 0, 3, 1, 1);
+	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 1, 3, 1, 1);
 	contentsLayout->addLayout(scanNameLayout, 3, 0, 1, 1);
-	contentsLayout->addWidget(I0GroupBox, 1, 3, 4, 1);
-	contentsLayout->addWidget(roiTextBox, 0, 5, 4, 3);
+	contentsLayout->addWidget(I0GroupBox, 2, 3, 4, 1);
+	contentsLayout->addWidget(roiTextBox, 0, 5, 3, 3);
 	contentsLayout->addWidget(estimatedTime_, 4, 0, 1, 1);
 	contentsLayout->addLayout(timeOffsetLayout, 5, 0, 1, 1);
+	contentsLayout->addWidget(motorSetChoiceBox, 0, 3);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
@@ -286,6 +304,11 @@ void VESPERS2DScanConfigurationView::onFluorescenceChoiceChanged(int id)
 	}
 
 	updateRoiText();
+}
+
+void VESPERS2DScanConfigurationView::onMotorsChoiceChanged(int id)
+{
+	config_->setMotorsChoice(id);
 }
 
 void VESPERS2DScanConfigurationView::onConfigureXRFDetectorClicked()
