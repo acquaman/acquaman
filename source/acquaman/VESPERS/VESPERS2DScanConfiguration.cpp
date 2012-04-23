@@ -9,6 +9,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
 	setName("2D Map");
 	I0_ = Imini;
 	fluorescenceDetectorChoice_ = SingleElement;
+	motorsChoice_ = HAndV;
 	usingCCD_ = false;
 	ccdFileName_ = "";
 	roiInfoList_ = AMROIInfoList();
@@ -29,6 +30,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfig
 	setName(original.name());
 	I0_ = original.incomingChoice();
 	fluorescenceDetectorChoice_ = original.fluorescenceDetectorChoice();
+	motorsChoice_ = original.motorsChoice();
 	usingCCD_ = original.usingCCD();
 	ccdFileName_ = original.ccdFileName();
 	roiInfoList_ = original.roiList();
@@ -127,6 +129,62 @@ QString VESPERS2DScanConfiguration::readRoiList() const
 		prettyRois.append(roiInfoList_.at(i).name() + "\t" + QString::number(roiInfoList_.at(i).low()) + " eV\t" + QString::number(roiInfoList_.at(i).high()) + " eV\n");
 
 	return prettyRois;
+}
+
+QString VESPERS2DScanConfiguration::xAxisName() const
+{
+	switch(motorsChoice_){
+
+	case HAndV:
+		return "Horizontal (H)";
+
+	case XAndZ:
+		return "Horizontal (X)";
+	}
+
+	return "Horizontal";
+}
+
+QString VESPERS2DScanConfiguration::xAxisUnits() const
+{
+	switch(motorsChoice_){
+
+	case HAndV:
+		return "mm";
+
+	case XAndZ:
+		return "mm";
+	}
+
+	return "mm";
+}
+
+QString VESPERS2DScanConfiguration::yAxisName() const
+{
+	switch(motorsChoice_){
+
+	case HAndV:
+		return "Vertical (V)";
+
+	case XAndZ:
+		return "Vertical (Z)";
+	}
+
+	return "Vertical";
+}
+
+QString VESPERS2DScanConfiguration::yAxisUnits() const
+{
+	switch(motorsChoice_){
+
+	case HAndV:
+		return "mm";
+
+	case XAndZ:
+		return "mm";
+	}
+
+	return "mm";
 }
 
 void VESPERS2DScanConfiguration::computeTotalTime()

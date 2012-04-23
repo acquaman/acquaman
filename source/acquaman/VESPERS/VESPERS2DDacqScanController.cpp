@@ -13,10 +13,29 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 {
 	config_ = cfg;
 
-	AMPVwStatusControl *control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz());
-	xAxisPVName_ = control != 0 ? control->writePVName() : "";
-	control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->vert());
-	yAxisPVName_ = control != 0 ? control->writePVName() : "";
+	AMPVwStatusControl *control = 0;
+
+	switch(config_->motorsChoice()){
+
+	case VESPERS2DScanConfiguration::HAndV:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz());
+		xAxisPVName_ = control != 0 ? control->writePVName() : "";
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->vert());
+		yAxisPVName_ = control != 0 ? control->writePVName() : "";
+		break;
+
+	case VESPERS2DScanConfiguration::XAndZ:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->sampleStageX());
+		xAxisPVName_ = control != 0 ? control->writePVName() : "";
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->sampleStageZ());
+		yAxisPVName_ = control != 0 ? control->writePVName() : "";
+		break;
+
+	default:
+		xAxisPVName_ = "";
+		yAxisPVName_ = "";
+		break;
+	}
 
 	initializationActions_ = 0;
 	cleanupActions_ = 0;
