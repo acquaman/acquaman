@@ -65,9 +65,9 @@ public:
 		hlayout_->addWidget(rightWidget);
 	}
 
-	/// Add a new \c pane to manage.  It will show up in the sidebar under category \c categoryName, with a \c title and an icon from \c iconFileName.  Returns a pointer to the newly-created window pane item in the model.
+	/// Add a new \c pane to manage.  It will show up in the sidebar under category \c categoryName, with a \c title and an icon from \c iconFileName.  The \c resizeOnUndock is used to tell the manager to resize the pane to its sizeHint when it undocks. Returns a pointer to the newly-created window pane item in the model.
 	/*! \note Don't use this to add the same pane more than once. If you want to add an alias entry to an existing pane, use the model() directly. You can call AMWindowPaneModel::initAliasItem() to setup an item suitable for adding to the model as an alias. */
-	QStandardItem* addPane(QWidget* pane, const QString& categoryName, const QString& title, const QString& iconFileName);
+	QStandardItem* addPane(QWidget* pane, const QString& categoryName, const QString& title, const QString& iconFileName, bool resizeOnUndock = false);
 
 
 	/// Remove and delete a pane widget (whether docked or undocked)
@@ -137,8 +137,8 @@ protected slots:
 	/// Catches when items are about to be removed from the model, and removes the corresponding widgets
 	void onModelRowsAboutToBeRemoved(const QModelIndex& parent, int start, int end);
 
-	/// Catches when the dock state of a widget changes in the model, and handles the actual docking/undocking of it
-	void onDockStateChanged(QWidget* pane, bool isDocked);
+	/// Catches when the dock state of a widget changes in the model, and handles the actual docking/undocking of it. Also handles resizing if necessary.
+	void onDockStateChanged(QWidget* pane, bool isDocked, bool shouldResize);
 
 	/// Catches when an item has been 'closed' by clicking on it's 'X' in the sidebar
 	void onItemCloseButtonClicked(const QModelIndex& index);

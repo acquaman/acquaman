@@ -229,7 +229,7 @@ void SGMAppController::onSGMBeamlineConnected(){
 void SGMAppController::onSGMScalerConnected(bool connected){
 	if(connected && !sgmScalerView_){
 		sgmScalerView_ = new CLSSIS3820ScalerView(SGMBeamline::sgm()->scaler());
-		mw_->addPane(sgmScalerView_, "Beamline Control", "SGM Scaler", ":/system-software-update.png");
+		mw_->addPane(sgmScalerView_, "Beamline Control", "SGM Scaler", ":/system-software-update.png", true);
 	}
 }
 
