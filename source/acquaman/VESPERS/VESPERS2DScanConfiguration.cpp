@@ -107,6 +107,19 @@ QString VESPERS2DScanConfiguration::headerText() const
 		header.append(roiInfoList_.at(i).name() + "\t" + QString::number(roiInfoList_.at(i).low()) + " eV\t" + QString::number(roiInfoList_.at(i).high()) + " eV\n");
 
 	header.append("\n");
+
+	switch(motorsChoice()){
+
+	case HAndV:
+		header.append("Using pseudo motors: H and V.\n");
+		break;
+
+	case XAndZ:
+		header.append("Using real motors: X and Z.\n");
+		break;
+	}
+
+	header.append("\n");
 	header.append("Map Dimensions\n");
 	header.append("X Axis\n");
 	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(xStart()).arg(xEnd()));
