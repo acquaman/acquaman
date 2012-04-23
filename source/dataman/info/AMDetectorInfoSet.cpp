@@ -83,10 +83,8 @@ QString AMDetectorInfoSet::description(){
 // Returns a list of pointers to the AMDetectorInfo objects we store, for use by the database system in storeToDb() / loadFromDb().
 AMDbObjectList AMDetectorInfoSet::dbReadDetectorInfos() {
 	AMDbObjectList rv;
-	for(int x = 0; x < count(); x++){
-		qDebug() << "dbReadDetectorInfos as " << at(x).first->name();
+	for(int x = 0; x < count(); x++)
 		rv << at(x).first;
-	}
 	return rv;
 }
 
