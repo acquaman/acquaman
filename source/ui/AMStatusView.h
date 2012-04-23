@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 #include <QAbstractButton>
 #include <QLabel>
+#include <QCheckBox>
 #include <QTextEdit>
 #include <QBoxLayout>
 #include <QStandardItemModel>
@@ -45,9 +46,16 @@ public:
 public slots:
 	void addError(const AMErrorReport& e);
 
+protected slots:
+	/// Handles the toggling of AMErrorMon debugging messages
+	void onEnableDebuggingCheckBoxStateChanged(int state);
+
 protected:
 	QStandardItemModel* logModel_;
 	QTableView* logView_;
+
+	/// Check box to enable and disable the debugging from AMErrorMon
+	QCheckBox *enableDebuggingCheckBox_;
 
 	QIcon debugIcon_, alertIcon_, infoIcon_, seriousIcon_;
 };

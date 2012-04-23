@@ -142,8 +142,13 @@ AMStatusLogView::AMStatusLogView(QWidget *parent)
 	logView_ = new QTableView();
 	logView_->setModel(logModel_);
 
+	enableDebuggingCheckBox_ = new QCheckBox("Enable Debugging");
+	QHBoxLayout *hl = new QHBoxLayout();
+	hl->addWidget(enableDebuggingCheckBox_);
+
 	QVBoxLayout* vl = new QVBoxLayout();
 	vl->setContentsMargins(0,0,0,0);
+	vl->addLayout(hl);
 	vl->addWidget(logView_);
 	setLayout(vl);
 
@@ -184,6 +189,8 @@ AMStatusLogView::AMStatusLogView(QWidget *parent)
 	logView_->setEditTriggers(QTableView::NoEditTriggers);
 
 	resize(400, 120);
+
+	connect(enableDebuggingCheckBox_, SIGNAL(stateChanged(int)), this, SLOT(onEnableDebuggingCheckBoxStateChanged(int)));
 }
 
 
@@ -227,5 +234,12 @@ void AMStatusLogView::addError(const AMErrorReport &e)
 	list << icon << message << from << time << errorCode;
 
 	logModel_->appendRow(list);
+}
+
+void AMStatusLogView::onEnableDebuggingCheckBoxStateChanged(int state){
+	if(state == Qt::Unchecked)
+		AMErrorMon::enableDebugNotifications(false);
+	else if(state == Qt::Checked)
+		AMErrorMon::enableDebugNotifications(true);
 }
 
