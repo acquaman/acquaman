@@ -172,12 +172,16 @@ void AM2DScanView::onDataPositionChanged(const QPointF &point)
 	int y = -1;
 	AMDataSource *datasource = currentScan_->dataSourceAt(currentScan_->indexOfDataSource(scansModel_->exclusiveDataSourceName()));
 
+	// This assumes 2D maps where the size is greater than 1x1, 1xN, or Nx1.
+	double delX = (double(datasource->axisValue(0, 1)) - double(datasource->axisValue(0, 0)))/2;
+	double delY = (double(datasource->axisValue(1, 1)) - double(datasource->axisValue(1, 0)))/2;
+
 	for (int i = 0; i < currentScan_->scanSize(0); i++)
-		if (double(datasource->axisValue(0, i)) <= point.x())
+		if (fabs(point.x() - double(datasource->axisValue(0, i))) < delX)
 			x = i;
 
 	for (int i = 0; i < currentScan_->scanSize(1); i++)
-		if (double(datasource->axisValue(1, i)) <= point.y())
+		if (fabs(point.y() - double(datasource->axisValue(1, i))) < delY)
 			y = i;
 
 	QString filename = currentScan_->additionalFilePaths().first();

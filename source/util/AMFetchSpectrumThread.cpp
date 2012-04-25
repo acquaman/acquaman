@@ -43,7 +43,7 @@ void AMFetchSpectrumThread::fetch(AMnDIndex index, int rowLength, const QString 
 		condition_.wakeOne();
 	}
 }
-
+#include <QDebug>
 void AMFetchSpectrumThread::run()
 {
 	forever {
@@ -70,7 +70,8 @@ void AMFetchSpectrumThread::run()
 
 			QTextStream in(&file);
 			QStringList currentLine;
-			int iterations = rowLength*index.j() + index.i() -1;
+			int iterations = rowLength*index.j() + index.i();
+
 			for (int i = 0; i < iterations; i++)
 				in.readLine();
 
