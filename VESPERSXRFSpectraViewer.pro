@@ -1,6 +1,6 @@
 include ( acquamanCommon.pri )
 
-TARGET = XRFSpectraViewer
+TARGET = VESPERSXRFSpectraViewer
 
 FORMS +=
 
@@ -9,7 +9,7 @@ HEADERS += \
 	source/ui/VESPERS/VESPERSDeadTimeButton.h
 
 SOURCES += \
-	source/application/VESPERS/XRFMain.cpp \
+	source/application/VESPERS/VESPERSXRFSpectraViewerMain.cpp \
 	source/ui/VESPERS/VESPERSXRFViewer.cpp \
 	source/ui/VESPERS/VESPERSDeadTimeButton.cpp
 

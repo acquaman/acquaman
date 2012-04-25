@@ -3,5 +3,7 @@
 # #####################################################################
 
 TEMPLATE = subdirs
-SUBDIRS +=	VESPERSAcquaman.pro \
-		pluginProjects/FileLoaders/AMFileLoaderPlugins.pro
+SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
+		VESPERSXRFSpectraViewer.pro \
+		VESPERSBendingMirrors.pro \
+		VESPERSAcquaman.pro
