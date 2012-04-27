@@ -74,6 +74,8 @@ public slots:
 protected slots:
 	/// Handles when controls change their connected state
 	void onControlsConnected(bool connected);
+	/// Handles if one or more the controls times out
+	void onControlsTimedOut();
 	/// Handles when the values for the reading controls change
 	void onReadingsControlValuesChanged();
 	/// Handles when the values for the settings controls change

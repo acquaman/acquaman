@@ -74,6 +74,8 @@ signals:
 
 protected slots:
 	void onControlsConnected(bool connected);
+	/// Handles if one or more the controls times out
+	void onControlsTimedOut();
 	void onReadingsControlValuesChanged();
 	void onSettingsControlValuesChanged();
 

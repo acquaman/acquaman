@@ -55,12 +55,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMPluginsManager.h"
 #include "util/SGM/SGMPeriodicTable.h"
 #include "ui/util/AMGithubIssueSubmissionView.h"
+#include "ui/AMDatamanStartupSplashScreen.h"
 
 #include "dataman/SGM/SGMDbUpgrade1Pt1.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
 {
+	if(!resetFinishedSignal(SGMBeamline::sgm(), SIGNAL(beamlineInitialized())))
+		qDebug() << "Couldn't reset the finished signal to the SGM Beamline";
+
 	// Prepend the SGM upgrade 1.1 to the list for both the user database and the SGM Beamline database
 	AMDbUpgrade *sgm1Pt1SGMDb = new SGMDbUpgrade1Pt1("SGMBeamline", this);
 	databaseUpgrades_.prepend(sgm1Pt1SGMDb);
@@ -75,12 +79,17 @@ bool SGMAppController::startup() {
 	if(!AMAppController::startup())
 		return false;
 
+	//splashScreen_->setNumberOfStages(splashScreen_->numberOfStages()+1);
+
 	// Places the SGM specific actions in the menu bar
 	if(!startupSGMInstallActions())
 		return false;
 
 	// Creates the SGM Beamline object
 	SGMBeamline::sgm();
+	connect(SGMBeamline::sgm(), SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)), this, SLOT(onSGMBeamlineDetectorAvailabilityChanged(AMDetector*,bool)));
+	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("SGM Startup: Waiting for detectors"));
+	onSGMBeamlineDetectorAvailabilityChanged(0, false);
 
 	// Retrieve the current run or create one if there is none
 	AMRun existingRun;
@@ -282,6 +291,24 @@ void SGMAppController::onActionSGMSettings(){
 	if(!sgmSettingsMasterView_)
 		sgmSettingsMasterView_ = new SGMSettingsMasterView();
 	sgmSettingsMasterView_->show();
+}
+
+void SGMAppController::onSGMBeamlineDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable){
+	Q_UNUSED(detector)
+	Q_UNUSED(isAvailable)
+	QStringList waitingForDetectorNames;
+	QList<AMDetector*> possibleDetectors = SGMBeamline::sgm()->possibleDetectorsForSet(SGMBeamline::sgm()->allDetectors());
+	for(int x = 0; x < possibleDetectors.count(); x++)
+		if(!possibleDetectors.at(x)->isConnected())
+			waitingForDetectorNames.append(possibleDetectors.at(x)->toInfo()->description());
+
+	QString waitingDetectors = QString("Waiting for:\n %1").arg(waitingForDetectorNames.join("\n"));
+
+	if(lastWaitingDetectors_ != waitingDetectors){
+		lastWaitingDetectors_ = waitingDetectors;
+		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_SUBTEXT,  lastWaitingDetectors_);
+		qApp->processEvents();
+	}
 }
 
 bool SGMAppController::startupSGMInstallActions(){

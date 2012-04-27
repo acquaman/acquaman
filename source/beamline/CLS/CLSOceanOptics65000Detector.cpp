@@ -36,6 +36,7 @@ CLSOceanOptics65000Detector::CLSOceanOptics65000Detector(const QString &name, co
 	allControls_->addControl(integrationTimeControl_);
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
+	connect(allControls_, SIGNAL(controlSetTimedOut()), this, SLOT(onControlsTimedOut()));
 	connect(signalSource(), SIGNAL(connected(bool)), this, SLOT(onSettingsControlValuesChanged()));
 	connect(dataWaveformControl_, SIGNAL(valueChanged(double)), this, SLOT(onReadingsControlValuesChanged()));
 	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(onSettingsControlValuesChanged()));
@@ -124,6 +125,10 @@ bool CLSOceanOptics65000Detector::setControls(CLSOceanOptics65000DetectorInfo *s
 void CLSOceanOptics65000Detector::onControlsConnected(bool connected){
 	if(connected != isConnected())
 		setConnected(connected);
+}
+
+void CLSOceanOptics65000Detector::onControlsTimedOut(){
+	setTimedOut();
 }
 
 void CLSOceanOptics65000Detector::onSettingsControlValuesChanged(){

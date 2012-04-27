@@ -47,6 +47,7 @@ CLSPGTDetector::CLSPGTDetector(const QString &name, const QString &baseName, AMB
 	allControls_->addControl(integrationModeControl_);
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
+	connect(allControls_, SIGNAL(controlSetTimedOut()), this, SLOT(onControlsTimedOut()));
 	connect(signalSource(), SIGNAL(connected(bool)), this, SLOT(onSettingsControlValuesChanged()));
 	connect(dataWaveformControl_, SIGNAL(valueChanged(double)), this, SLOT(onReadingsControlValuesChanged()));
 	connect(hvControl_, SIGNAL(valueChanged(double)), this, SLOT(onSettingsControlValuesChanged()));
@@ -184,6 +185,10 @@ bool CLSPGTDetector::setControls(CLSPGTDetectorInfo *pgtSettings){
 void CLSPGTDetector::onControlsConnected(bool connected){
 	if(connected != isConnected())
 		setConnected(connected);
+}
+
+void CLSPGTDetector::onControlsTimedOut(){
+	setTimedOut();
 }
 
 void CLSPGTDetector::onSettingsControlValuesChanged(){

@@ -46,6 +46,7 @@ class AMDbUpgrade;
 
 #define AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES 42001
 #define AMDATAMANAPPCONTROLLER_STARTUP_FINISHED 42002
+#define AMDATAMANAPPCONTROLLER_STARTUP_SUBTEXT 42003
 
 #define AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_LOAD_FAILURE 270201
 #define AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_REQUIREMENT_FAILURE 270202
@@ -162,6 +163,9 @@ signals:
 	/// Notifier that a new generic scan editor has been created. Passes the reference to the new editor.
 	void scanEditorCreated(AMGenericScanEditor *);
 
+	/// Notifies that the AMDatamanAppController startup routine is finished
+	void datamanStartupFinished();
+
 public slots:
 	/// Open a list of scans, specified by a database URL, in the given \c editor. (If \c editor is 0, a new editor will be opened.)  The scans are checked to make sure that they're not already open, and that they're not still scanning somewhere else.
 	/*! To open each scan in a new editor, set \c openInIndividualEditors to true. (The \c editor value will be ignored in this case.)
@@ -240,6 +244,9 @@ protected slots:
 	/// This is called when the issue submission view is finished and no longer needed
 	virtual void onIssueSubmissionViewFinished();
 
+	/// This is called by a signal (chosen with the resetFinishedSignal function) to run when the startup is actually finished. Can be reimplemented in subclasses, but you show call this function in it at some point.
+	virtual void onStartupFinished();
+
 protected:
 	/// Helper function to go through all the scan editors and see if we can close all of them.
 	bool canCloseScanEditors() const;
@@ -250,7 +257,8 @@ protected:
 //	/// Helper function to process all events for \c ms milliseconds, but stay in the calling function.
 //	void processEventsFor(int ms);
 
-
+	/// This can be called to reset the signal that will cause the startupFinished slot to run. Pass the object and in something with the signal macro, such as SIGNAL(mySignal(bool itsArgument))
+	bool resetFinishedSignal(QObject *sender, const char *signal);
 
 
 
@@ -291,6 +299,10 @@ protected:
 
 	/// Holds the list of database upgrades to do in order (holds these as QMetaObjects so they can be new'd at the correct time)
 	QList<AMDbUpgrade*> databaseUpgrades_;
+
+private:
+	/// Holds the QObject whose signal is currently being used to connect to the onStartupFinished slot
+	QObject *finishedSender_;
 };
 
 #endif // AMDATAMANAPPCONTROLLER_H

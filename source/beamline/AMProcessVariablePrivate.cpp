@@ -126,9 +126,23 @@ void AMProcessVariableSupport::reportTimeoutError(QString pvName){
 }
 
 void AMProcessVariableSupport::executeTimeoutError(){
-	for(int x = 0; x < s()->timeoutPVNames_.count(); x++)
-		AMErrorMon::alert(this, AMPROCESSVARIABLE_CONNECTION_TIMED_OUT, QString("AMProcessVariable: channel connect timed out for %1").arg(s()->timeoutPVNames_.at(x)));
-	s()->timeoutPVNames_.clear();
+	// This seems kinda stupid, but if we get a lot of these alerts going up the system tray icon can't keep up
+	//  so we make sure that we put out no more than 6 actual alerts (they might have a lot of pvs in them if there was
+	//  no connection on startup ... but that's fine)
+	int pvsPerAlert = s()->timeoutPVNames_.count()/6;
+	if(pvsPerAlert < 5)
+		pvsPerAlert = 5;
+	QString pvsInThisAlert;
+	int thisAlertCounter;
+	while(s()->timeoutPVNames_.count() > 0){
+		pvsInThisAlert.clear();
+		thisAlertCounter = 0;
+		while( (s()->timeoutPVNames_.count() > 0) && (thisAlertCounter < pvsPerAlert) ){
+			pvsInThisAlert.append(QString("\n%1").arg(s()->timeoutPVNames_.takeFirst()));
+			thisAlertCounter++;
+		}
+		AMErrorMon::alert(this, AMPROCESSVARIABLE_CONNECTION_TIMED_OUT, QString("AMProcessVariable: channel connect timed out for %1").arg(pvsInThisAlert));
+	}
 }
 
 AMProcessVariablePrivate::AMProcessVariablePrivate(const QString& pvName) : QObject() {

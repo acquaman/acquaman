@@ -268,6 +268,9 @@ public:
 	QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> forBestFlux(double minEnergy, double maxEnergy) const;
 	QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> forBestResolution(double minEnergy, double maxEnergy) const;
 
+	/// Returns back the list of detectors that this set has registered against it. They may not be in the set yet, because they're not connected (or not yet connected on startup)
+	QList<AMDetector*> possibleDetectorsForSet(AMDetectorSet *set);
+
 public slots:
 	void setCurrentSamplePlate(AMSamplePlate *newSamplePlate);
 
@@ -314,6 +317,7 @@ signals:
 protected slots:
 	void onBeamlineScanningValueChanged(double value);
 	void onControlSetConnected(bool csConnected);
+	void onDetectorConnected(bool isConnected);
 	void onCriticalControlsConnectedChanged(bool isConnected, AMControl *controll);
 
 	void onDetectorSignalSourceChanged(double value);
@@ -425,7 +429,15 @@ protected:
 	AMDetectorSet *XASDetectors_;
 	AMDetectorSet *FastDetectors_;
 
+	/// Mapping detectors to their sets and whether they are default or not
 	QMultiMap<AMDetector*, QPair<AMDetectorSet*, bool> > *detectorMap_;
+	/// Generally listing all detectors this beamline can have
+	QList<AMDetector*> detectorRegistry_;
+	/// Listing the detectors that haven't responded (either as connected or timed out)
+	QList<AMDetector*> unrespondedDetectors_;
+
+	/// Holds a boolean for whether everything the beamline cares about has reported back as either connected or timed out ... then we've initialized
+	bool beamlineIsInitialized_;
 
 	QList<AMControlSet*> unconnectedSets_;
 

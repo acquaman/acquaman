@@ -39,6 +39,7 @@ SGMMCPDetector::SGMMCPDetector(const QString &name, const QString &fullReadingNa
 	allControls_->addControl(hvControl_);
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
+	connect(allControls_, SIGNAL(controlSetTimedOut()), this, SLOT(onControlsTimedOut()));
 	connect(signalSource(), SIGNAL(connected(bool)), this, SLOT(onSettingsControlValuesChanged()));
 	connect(readingControl_, SIGNAL(valueChanged(double)), this, SLOT(onReadingsControlValuesChanged()));
 	connect(hvControl_, SIGNAL(valueChanged(double)), this, SLOT(onSettingsControlValuesChanged()));
@@ -150,6 +151,10 @@ void SGMMCPDetector::setDescription(const QString &description){
 void SGMMCPDetector::onControlsConnected(bool connected){
 	if(connected != isConnected())
 		setConnected(connected);
+}
+
+void SGMMCPDetector::onControlsTimedOut(){
+	setTimedOut();
 }
 
 void SGMMCPDetector::onReadingsControlValuesChanged(){

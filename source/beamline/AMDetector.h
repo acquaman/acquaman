@@ -121,6 +121,7 @@ public:
 
 protected:
 	void setConnected(bool isConnected);
+	void setTimedOut();
 
 	void emitConnected(bool isConnected);
 	/// This is emitted when the meta-info changes. (Right now, this only includes a detector's description() )

@@ -557,7 +557,7 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/ui/actions3/AMActionHistoryModel.h \
 	source/actions3/actions/AMScanAction.h \
 	source/actions3/actions/AMScanActionInfo.h \
-    source/actions3/editors/AMScanActionEditor.h
+	source/actions3/editors/AMScanActionEditor.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -592,7 +592,7 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/dataman/AMImagePropertyEditor.ui \
 	source/ui/actions2/AMAddActionDialog.ui \
 	source/ui/util/AMJoystickTestView.ui \
-    source/ui/actions3/AMAddActionDialog3.ui
+	source/ui/actions3/AMAddActionDialog3.ui
 
 SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAbstractTool.cpp \
@@ -941,7 +941,7 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/actions3/AMActionHistoryModel.cpp \
 	source/actions3/actions/AMScanAction.cpp \
 	source/actions3/actions/AMScanActionInfo.cpp \
-    source/actions3/editors/AMScanActionEditor.cpp
+	source/actions3/editors/AMScanActionEditor.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {

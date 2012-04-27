@@ -113,6 +113,8 @@ signals:
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
 	void onControlsConnected(bool connected);
+	/// Handles if one or more the controls times out
+	void onControlsTimedOut();
 	/// Emits the statusChanged signal.
 	void onStatusChanged(double status);
 

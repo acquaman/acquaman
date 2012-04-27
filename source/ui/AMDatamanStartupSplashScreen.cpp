@@ -46,6 +46,10 @@ AMDatamanStartupSplashScreen::AMDatamanStartupSplashScreen(QWidget *parent) :
 	setNumberOfStages(8);
 }
 
+int AMDatamanStartupSplashScreen::numberOfStages() const{
+	return numberOfStages_;
+}
+
 void AMDatamanStartupSplashScreen::onErrorMonStartupCode(AMErrorReport e)
 {
 	startupProgressBar_->setValue(currentStage_);
@@ -69,6 +73,7 @@ void AMDatamanStartupSplashScreen::onErrorMonDebug(AMErrorReport e){
 	QRegExp rx(removeString);
 	subStepText.remove(rx);
 	subStepTextLabel_->setText(subStepText);
+	resize(sizeHint());
 }
 
 void AMDatamanStartupSplashScreen::setNumberOfStages(int numberOfStages){

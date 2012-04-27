@@ -95,6 +95,11 @@ void AMDetector::setConnected(bool isConnected){
 	emitConnected(isConnected);
 }
 
+void AMDetector::setTimedOut(){
+	connected_ = false;
+	emitConnected(false);
+}
+
 void AMDetector::setReadMethod(AMDetector::ReadMethod readMethod){
 	readMethod_ = readMethod;
 }

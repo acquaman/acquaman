@@ -33,6 +33,8 @@ Q_OBJECT
 public:
 	AMDatamanStartupSplashScreen(QWidget *parent = 0);
 
+	int numberOfStages() const;
+
 public slots:
 	void onErrorMonStartupCode(AMErrorReport e);
 	void onErrorMonStartupFinished(AMErrorReport e);

@@ -42,6 +42,7 @@ CLSAmptekSDD123Detector::CLSAmptekSDD123Detector(const QString &name, const QStr
 	allControls_->addControl(detectorTemperatureControl_);
 	allControls_->addControl(spectrumControl_);
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
+	connect(allControls_, SIGNAL(controlSetTimedOut()), this, SLOT(onControlsTimedOut()));
 
 	AMReadOnlyPVControl *tmpControl = qobject_cast<AMReadOnlyPVControl*>(spectrumControl_);
 	spectrumDataSource_ = new AM1DProcessVariableDataSource(tmpControl->readPV(), "Spectrum", this);
@@ -136,6 +137,10 @@ void CLSAmptekSDD123Detector::setDescription(const QString &description){
 void CLSAmptekSDD123Detector::onControlsConnected(bool connected){
 	if(connected != isConnected())
 		setConnected(connected);
+}
+
+void CLSAmptekSDD123Detector::onControlsTimedOut(){
+	setTimedOut();
 }
 
 void CLSAmptekSDD123Detector::onStatusChanged(double status){

@@ -33,6 +33,7 @@ class SGMFastScanConfigurationView;
 class SGMSidebar;
 class SGMSettingsMasterView;
 class AMGithubManager;
+class AMDetector;
 
 class SGMAppController : public AMAppController {
 	Q_OBJECT
@@ -76,6 +77,8 @@ protected slots:
 
 	void onActionSGMSettings();
 
+	void onSGMBeamlineDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
+
 protected:
 	bool startupSGMInstallActions();
 	bool setupSGMConfigurationFiles();
@@ -100,6 +103,8 @@ protected:
 
 	/// Persistent view for SGMSettings
 	SGMSettingsMasterView *sgmSettingsMasterView_;
+
+	QString lastWaitingDetectors_;
 };
 
 #endif // SGMAPPCONTROLLER_H

@@ -106,6 +106,9 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	isStarting_ = true;
 	isShuttingDown_ = false;
 
+	finishedSender_ = 0;
+	resetFinishedSignal(this, SIGNAL(datamanStartupFinished()));
+
 	// shutdown is called automatically from the destructor if necessary, but Qt recommends that clean-up be handled in the aboutToQuit() signal. MS Windows doesn't always let the main function finish during logouts.
 	// HOWEVER, we're not doing this for now, since this change could cause some existing applications to crash on shutdown, because they're not ready for events to be delivered during their shutdown process.
 	// connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(shutdown()));
@@ -122,6 +125,7 @@ bool AMDatamanAppController::startup() {
 
 	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, splashScreen_, "onErrorMonStartupCode");
 	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_FINISHED, splashScreen_, "onErrorMonStartupFinished");
+	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_SUBTEXT, splashScreen_, "onErrorMonDebug");
 
 	if(!startupLoadSettings()) { qWarning() << "Problem with Acquaman startup: loading settings."; return false; }
 
@@ -151,7 +155,7 @@ bool AMDatamanAppController::startup() {
 
 	if(!startupInstallActions()) { qWarning() << "Problem with Acquaman startup: installing menu actions."; return false; }
 
-	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_FINISHED, "Acquaman Startup: Finished");
+	emit datamanStartupFinished();
 	// show main window
 	mw_->show();
 	splashScreen_->raise();
@@ -869,6 +873,10 @@ void AMDatamanAppController::onIssueSubmissionViewFinished(){
 	issueSubmissionView_ = 0;
 }
 
+void AMDatamanAppController::onStartupFinished(){
+	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_FINISHED, "Acquaman Startup: Finished");
+}
+
 #include "dataman/export/AMExportController.h"
 #include "ui/dataman/AMExportWizard.h"
 
@@ -969,6 +977,16 @@ bool AMDatamanAppController::eventFilter(QObject* o, QEvent* e)
 	}
 	// anything else, allow unfiltered
 	return QObject::eventFilter(o,e);
+}
+
+bool AMDatamanAppController::resetFinishedSignal(QObject *sender, const char *signal){
+	QString normalizedSignalName = QString("%1").arg(signal).remove(0,1);
+	if(!sender || sender->metaObject()->indexOfSignal(normalizedSignalName.toAscii()) < 0)
+		return false;
+	if(finishedSender_)
+		disconnect(finishedSender_, 0, this, SLOT(onStartupFinished()));
+	finishedSender_ = sender;
+	return connect(sender, signal, this, SLOT(onStartupFinished()));
 }
 
 AMGenericScanEditor * AMDatamanAppController::isScanOpenForEditing(int id, AMDatabase *db)
