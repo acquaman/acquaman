@@ -96,11 +96,17 @@ public:
 		s()->flushIOCaller_.schedule();
 	}
 
+	/// Call this function to report that a timeout occured and AMProcessVariableSupport will schedule a deferred call to broadcast the error monitor
+	static void reportTimeoutError(QString pvName);
+
 protected slots:
 	/// Executes one call to ca_flush_io() for all the flushIO() requests that happened during the past event loop.
 	void executeFlushIO() {
 		ca_flush_io();
 	}
+
+	/// Handles the list of AMErrorMon timeout alerts
+	void executeTimeoutError();
 
 protected:
 
@@ -130,6 +136,10 @@ protected:
 	/// This schedules and combines requests to flush channel-access IO a maximum of once every event loop.
 	AMDeferredFunctionCall flushIOCaller_;
 
+	/// This deferred call runs after 2.5 seconds to throw out the error monitors regarding PV connection timeout. This can be quite expensive if there's no connectivity on startup
+	AMDeferredFunctionCall timeoutErrorFunctionCall_;
+	/// Holds the list of pv names to report as timed out
+	QStringList timeoutPVNames_;
 };
 
 namespace PVDataType {

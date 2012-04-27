@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDebug>
 
 #include "util/AMErrorMonitor.h"
+#include "util/AMDeferredFunctionCall.h"
 
 class QSystemTrayIcon;
 
@@ -74,6 +75,15 @@ public slots:
 	/// Handles any errors that are logged using AMErrorMon::report(AMErrorCode())
 	void onAnyError(AMErrorReport e);
 
+protected slots:
+	/// Handles calling the system tray icon messages
+	void handleSystemTrayIconRequests();
+
+protected:
+	virtual void paintEvent(QPaintEvent *e) {
+		QWidget::paintEvent(e);
+	}
+
 protected:
 	/// Icons representing the nature of the last notification
 	QLabel *iconInfo_, *iconAlert_, *iconSerious_, *iconDebug_, *currentIcon_;
@@ -89,9 +99,10 @@ protected:
 	/// SystemTrayIcon object used to display error notifications very visibly on-screen.
 	QSystemTrayIcon* sicon_;
 
-	virtual void paintEvent(QPaintEvent *e) {
-		QWidget::paintEvent(e);
-	}
+	/// Deferred call for handling the actual system tray icon calls
+	AMDeferredFunctionCall systemTrayIconFunctionCall_;
+	/// List of deferred messages to report
+	QStringList messagesToReport_;
 };
 
 #endif // AMSTATUSVIEW_H

@@ -40,6 +40,7 @@ AMProcessVariableSupport::AMProcessVariableSupport() : QObject() {
 	qRegisterMetaType<AMProcessVariableIntVector>();
 
 	connect(&flushIOCaller_, SIGNAL(executed()), this, SLOT(executeFlushIO()));
+	connect(&timeoutErrorFunctionCall_, SIGNAL(executed()), this, SLOT(executeTimeoutError()));
 
 	AMErrorMon::information(this, AMPROCESSVARIABLESUPPORT_STARTING_CHANNEL_ACCESS, "Starting up channel access...");
 
@@ -119,7 +120,16 @@ void AMProcessVariableSupport::PVExceptionCB(struct exception_handler_args args)
 
 }
 
+void AMProcessVariableSupport::reportTimeoutError(QString pvName){
+	s()->timeoutPVNames_.append(pvName);
+	s()->timeoutErrorFunctionCall_.runLater(2500);
+}
 
+void AMProcessVariableSupport::executeTimeoutError(){
+	for(int x = 0; x < s()->timeoutPVNames_.count(); x++)
+		AMErrorMon::alert(this, AMPROCESSVARIABLE_CONNECTION_TIMED_OUT, QString("AMProcessVariable: channel connect timed out for %1").arg(s()->timeoutPVNames_.at(x)));
+	s()->timeoutPVNames_.clear();
+}
 
 AMProcessVariablePrivate::AMProcessVariablePrivate(const QString& pvName) : QObject() {
 
