@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -38,7 +38,11 @@ public:
 	/// Returns the meta object
 	const QMetaObject* getMetaObject();
 
+	/// Returns the PV name the dacq library wants to use
 	virtual QString dacqName() const;
+
+	/// Returns a string list of dacq "Action Dwell" statements. The strings should be divided into three sections by ||=||. Three sections are the command (SetPV, WaitPV, etc), the PV, and the value.
+	virtual QStringList dacqDwell() const;
 
 	/// General reading value (in this case, the total counts in all bins)
 	virtual double reading() const;
@@ -74,6 +78,8 @@ public slots:
 protected slots:
 	/// Handles when controls change their connected state
 	void onControlsConnected(bool connected);
+	/// Handles if one or more the controls times out
+	void onControlsTimedOut();
 	/// Handles when the values for the reading controls change
 	void onReadingsControlValuesChanged();
 	/// Handles when the values for the settings controls change
@@ -87,6 +93,8 @@ protected:
 
 	/// A control set for all the controls (for ease of signalling)
 	AMControlSet *allControls_;
+
+	QString baseName_;
 };
 
 #endif // CLSOCEANOPTICS65000DETECTOR_H

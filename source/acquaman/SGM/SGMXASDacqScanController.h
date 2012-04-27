@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -26,8 +26,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #define SGMXASDACQSCANCONTROLLER_CANT_INTIALIZE 27001
 #define SGMXASDACQSCANCONTROLLER_CANT_START_BL_SCANNING 27002
-
+#define SGMXASDACQSCANCONTROLLER_CANT_START_NO_TEMPLATE_SAVE_PATH 27003
 #define SGMXASDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE 27004
+#define SGMXASDACQSCANCONTROLLER_CANT_START_CANT_WRITE_TEMPLATE 27005
 
 class SGMXASDacqScanController : public AMDacqScanController, public SGMXASScanController
 {

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -29,6 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 AMStatusView::AMStatusView(QWidget *parent) : QAbstractButton(parent)
 {
+	connect(&systemTrayIconFunctionCall_, SIGNAL(executed()), this, SLOT(handleSystemTrayIconRequests()));
+
 	sicon_ = new QSystemTrayIcon(QIcon(":/utilities-system-monitor.png"), this);
 	sicon_->show();
 
@@ -86,7 +88,6 @@ AMStatusView::AMStatusView(QWidget *parent) : QAbstractButton(parent)
 
 /// Handles any errors that are logged using AMErrorMon::report(AMErrorCode())
 void AMStatusView::onAnyError(AMErrorReport e) {
-
 	QString msg;
 
 	/// switch icons:
@@ -97,19 +98,22 @@ void AMStatusView::onAnyError(AMErrorReport e) {
 	switch(e.level) {
 	case AMErrorReport::Information:
 		currentIcon_ = iconInfo_;
-		sicon_->showMessage(QString("Information:"), reportMessage, QSystemTrayIcon::Information, 5000);
+		messagesToReport_.append(QString("%1||=||%2").arg(reportMessage).arg("Information"));
+		systemTrayIconFunctionCall_.runLater(1000);
 		break;
 
 	case AMErrorReport::Alert:
 		currentIcon_ = iconAlert_;
 		msg.append("Alert: ");
-		sicon_->showMessage(QString("Alert:"), reportMessage, QSystemTrayIcon::Warning, 5000);
+		messagesToReport_.append(QString("%1||=||%2").arg(reportMessage).arg("Alert"));
+		systemTrayIconFunctionCall_.runLater(1000);
 		break;
 
 	case AMErrorReport::Serious:
 		currentIcon_ = iconSerious_;
 		msg.append("Error: ");
-		sicon_->showMessage(QString("Serious Error:"), reportMessage, QSystemTrayIcon::Critical, 5000);
+		messagesToReport_.append(QString("%1||=||%2").arg(reportMessage).arg("Error"));
+		systemTrayIconFunctionCall_.runLater(1000);
 		break;
 
 	case AMErrorReport::Debug:
@@ -132,7 +136,19 @@ void AMStatusView::onAnyError(AMErrorReport e) {
 
 	/// Log to detail window:
 	logView_->addError(e);
+}
 
+void AMStatusView::handleSystemTrayIconRequests(){
+	QString tempString;
+	while(messagesToReport_.count() > 0){
+		tempString = messagesToReport_.takeFirst();
+		if(tempString.section("||=||", -1) == "Information")
+			sicon_->showMessage(QString("Information:"), tempString.section("||=||", 0, 1), QSystemTrayIcon::Information, 5000);
+		else if(tempString.section("||=||", -1) == "Alert")
+			sicon_->showMessage(QString("Alert:"), tempString.section("||=||", 0, 1), QSystemTrayIcon::Warning, 5000);
+		else if(tempString.section("||=||", -1) == "Error")
+			sicon_->showMessage(QString("Serious Error:"), tempString.section("||=||", 0, 1), QSystemTrayIcon::Critical, 5000);
+	}
 }
 
 AMStatusLogView::AMStatusLogView(QWidget *parent)

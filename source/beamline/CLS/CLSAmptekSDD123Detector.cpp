@@ -1,8 +1,28 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "CLSAmptekSDD123Detector.h"
 
 CLSAmptekSDD123Detector::CLSAmptekSDD123Detector(const QString &name, const QString &baseName, AMDetector::ReadMethod readMethod, QObject *parent) :
 	CLSAmptekSDD123DetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
+	baseName_ = baseName;
 	connect(signalSource(), SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
 
 	setElements(1);
@@ -23,6 +43,7 @@ CLSAmptekSDD123Detector::CLSAmptekSDD123Detector(const QString &name, const QStr
 	allControls_->addControl(detectorTemperatureControl_);
 	allControls_->addControl(spectrumControl_);
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
+	connect(allControls_, SIGNAL(controlSetTimedOut()), this, SLOT(onControlsTimedOut()));
 
 	AMReadOnlyPVControl *tmpControl = qobject_cast<AMReadOnlyPVControl*>(spectrumControl_);
 	spectrumDataSource_ = new AM1DProcessVariableDataSource(tmpControl->readPV(), "Spectrum", this);
@@ -51,6 +72,18 @@ QString CLSAmptekSDD123Detector::dacqName() const{
 		return tmpControl->readPVName();
 	else
 		return "";
+}
+
+QStringList CLSAmptekSDD123Detector::dacqMove() const{
+	QStringList retVal;
+	retVal << QString("%1||=||%2%3||=||%4").arg("WaitPV").arg(baseName_).arg(":spectrum:state").arg("Done");
+	return retVal;
+}
+
+QStringList CLSAmptekSDD123Detector::dacqDwell() const{
+	QStringList retVal;
+	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":spectrum:startAcquisition").arg("1");
+	return retVal;
 }
 
 QString CLSAmptekSDD123Detector::description() const{
@@ -117,6 +150,10 @@ void CLSAmptekSDD123Detector::setDescription(const QString &description){
 void CLSAmptekSDD123Detector::onControlsConnected(bool connected){
 	if(connected != isConnected())
 		setConnected(connected);
+}
+
+void CLSAmptekSDD123Detector::onControlsTimedOut(){
+	setTimedOut();
 }
 
 void CLSAmptekSDD123Detector::onStatusChanged(double status){

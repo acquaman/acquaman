@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 CLSPGTDetector::CLSPGTDetector(const QString &name, const QString &baseName, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod, QObject *parent) :
 	CLSPGTDetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
+	baseName_ = baseName;
 	toggleOnAction_ = toggleOnAction;
 	toggleOffAction_ = toggleOffAction;
 	allControls_ = new AMControlSet();
@@ -47,6 +48,7 @@ CLSPGTDetector::CLSPGTDetector(const QString &name, const QString &baseName, AMB
 	allControls_->addControl(integrationModeControl_);
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
+	connect(allControls_, SIGNAL(controlSetTimedOut()), this, SLOT(onControlsTimedOut()));
 	connect(signalSource(), SIGNAL(connected(bool)), this, SLOT(onSettingsControlValuesChanged()));
 	connect(dataWaveformControl_, SIGNAL(valueChanged(double)), this, SLOT(onReadingsControlValuesChanged()));
 	connect(hvControl_, SIGNAL(valueChanged(double)), this, SLOT(onSettingsControlValuesChanged()));
@@ -73,6 +75,37 @@ QString CLSPGTDetector::dacqName() const{
 		return tmpControl->readPVName();
 	else
 		return "";
+}
+
+QStringList CLSPGTDetector::dacqBegin() const{
+	QStringList retVal;
+	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":AcqUpdateWaveform").arg("0");
+	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":AcqUpdateROI").arg("0");
+	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":AcqUpdateStatus").arg("0");
+	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":AcqUpdateElapsed").arg("0");
+	return retVal;
+}
+
+QStringList CLSPGTDetector::dacqMove() const{
+	QStringList retVal;
+	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":ClearSpectrum.PROC").arg("1");
+	retVal << QString("%1||=||%2%3||=||%4").arg("WaitPV").arg(baseName_).arg(":ROI:0").arg("0");
+	return retVal;
+}
+
+QStringList CLSPGTDetector::dacqDwell() const{
+	QStringList retVal;
+	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":StartAcquisition.PROC").arg("1");
+	return retVal;
+}
+
+QStringList CLSPGTDetector::dacqFinish() const{
+	QStringList retVal;
+	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":AcqUpdateWaveform").arg("1");
+	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":AcqUpdateROI").arg("1");
+	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":AcqUpdateStatus").arg("1");
+	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":AcqUpdateElapsed").arg("1");
+	return retVal;
 }
 
 double CLSPGTDetector::reading() const{
@@ -184,6 +217,10 @@ bool CLSPGTDetector::setControls(CLSPGTDetectorInfo *pgtSettings){
 void CLSPGTDetector::onControlsConnected(bool connected){
 	if(connected != isConnected())
 		setConnected(connected);
+}
+
+void CLSPGTDetector::onControlsTimedOut(){
+	setTimedOut();
 }
 
 void CLSPGTDetector::onSettingsControlValuesChanged(){

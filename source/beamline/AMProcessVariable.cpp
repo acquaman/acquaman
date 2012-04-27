@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -108,7 +108,8 @@ void AMProcessVariable::onConnectionTimeout() {
 
 	// If we haven't connected by now:
 	if(!isConnected()) {
-		AMErrorMon::alert(this, AMPROCESSVARIABLE_CONNECTION_TIMED_OUT, QString("AMProcessVariable: channel connect timed out for %1").arg(pvName()));
+		// Reporting an error monitor here is expensive (especially if you have a lot of timeouts on startup) ... so we'll let the process variable support take care of it with a deferred call
+		AMProcessVariableSupport::reportTimeoutError(pvName());
 		emit connectionTimeout();
 	}
 

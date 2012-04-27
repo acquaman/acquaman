@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -63,54 +63,117 @@ bool SGMXASDacqScanController::startImplementation(){
 	}
 	bool loadSuccess = false;
 
-	SGMDacqConfigurationFile *configFile = new SGMDacqConfigurationFile();
-	QList<int> matchIDs;
-	if( SGMBeamline::sgm()->pgtDetector() && SGMBeamline::sgm()->oos65000Detector() && config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())
-		&& config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->oos65000Detector()->detectorName())){
-//		qDebug() << "Using SDD and OOS";
-		if(SGMBeamline::sgm()->usingPicoammeterSource())
-			matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTXEOLAmmeter");
-		else if(SGMBeamline::sgm()->usingScalerSource())
-			matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTXEOLScaler");
-		usingSpectraDotDatFile_ = true;
-	}
-	else if(SGMBeamline::sgm()->pgtDetector() && SGMBeamline::sgm()->amptekSDD1() && SGMBeamline::sgm()->amptekSDD2() && config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())
-			&& config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->amptekSDD1()->detectorName()) && config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->amptekSDD2()->detectorName())){
-//		qDebug() << "USING PGT AND BOTH AMPTEKs";
-		matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTAmpBScaler");
-		usingSpectraDotDatFile_ = true;
-	}
-	else if(SGMBeamline::sgm()->pgtDetector() && SGMBeamline::sgm()->amptekSDD1() && config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())
-			&& config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->amptekSDD1()->detectorName())){
-//		qDebug() << "USING PGT AND AMPTEK1";
-		matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTAmp1Scaler");
-		usingSpectraDotDatFile_ = true;
-	}
-	else if(SGMBeamline::sgm()->pgtDetector() && config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())){
-//		qDebug() << "Using SDD";
-		if(SGMBeamline::sgm()->usingPicoammeterSource())
-			matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTAmmeter");
-		else if(SGMBeamline::sgm()->usingScalerSource())
-			matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTScaler");
-		usingSpectraDotDatFile_ = true;
-	}
-	else if(SGMBeamline::sgm()->oos65000Detector() && config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->oos65000Detector()->detectorName())){
-//		qDebug() << "Using OOS";
-		if(SGMBeamline::sgm()->usingPicoammeterSource())
-			matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "XEOLAmmeter");
-		else if(SGMBeamline::sgm()->usingScalerSource())
-			matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "XEOLScaler");
-		usingSpectraDotDatFile_ = true;
-	}
-	else if(SGMBeamline::sgm()->usingPicoammeterSource())
-		matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "DefaultAmmeter");
-	else if(SGMBeamline::sgm()->usingScalerSource())
-		matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "DefaultScaler");
+	QStringList sgmBeginStage, sgmMoveStage, sgmFinishStage;
+	sgmBeginStage << QString("%1||=||%2||=||%3").arg("SetPV").arg("BL1611-ID-1:scanning").arg("1");
+	sgmMoveStage << QString("%1||=||%2||=||%3").arg("WaitPV").arg("BL1611-ID-1:ready").arg("STOPPED");
+	sgmFinishStage << QString("%1||=||%2||=||%3").arg("SetPV").arg("BL1611-ID-1:scanning").arg("0");
 
-	if(matchIDs.count() > 0){
-		configFile->loadFromDb(AMDatabase::database("SGMBeamline"), matchIDs.at(0));
-		loadSuccess = advAcq_->setConfigFile(configFile->configurationFileFullPath());
+	QStringList scalerDwellStage;
+	scalerDwellStage << QString("%1||=||%2||=||%3").arg("SetPV").arg("BL1611-ID-1:mcs:startScan").arg("1");
+
+	QStringList allBeginStage, allMoveStage, allDwellStage, allFinishStage;
+	allBeginStage.append(sgmBeginStage);
+	allMoveStage.append(sgmMoveStage);
+	allDwellStage.append(scalerDwellStage);
+	allFinishStage.append(sgmFinishStage);
+
+	for(int i = 0; i < config_->allDetectorConfigurations().count(); i++){
+		if(config_->allDetectorConfigurations().isActiveAt(i)){
+			AMDetector *dtctr = config_->allDetectors()->detectorNamed(config_->allDetectorConfigurations().detectorInfoAt(i)->name());
+			if(!dtctr->dacqBegin().isEmpty())
+				allBeginStage.append(dtctr->dacqBegin());
+			if(!dtctr->dacqMove().isEmpty())
+				allMoveStage.append(dtctr->dacqMove());
+			if(!dtctr->dacqDwell().isEmpty())
+				allDwellStage.append(dtctr->dacqDwell());
+			if(!dtctr->dacqFinish().isEmpty())
+				allFinishStage.append(dtctr->dacqFinish());
+		}
 	}
+
+	QString dacqConfigFile;
+	dacqConfigFile.append("# Version 20600\n");
+	dacqConfigFile.append("# Scan \"newScan\" 2 onStart:1\n");
+	dacqConfigFile.append("# Control \"BL1611-ID-1:Energy\" start:1500 delta:1 final:1600 active:7\n");
+
+	dacqConfigFile.append("# Action Begin CallEvent \"header\" 1\n");
+	for(int x = 0; x < allBeginStage.count(); x++){
+		dacqConfigFile.append(QString("# Action Begin %1 ").arg(allBeginStage.at(x).section("||=||", 0, 0)));
+		dacqConfigFile.append(QString("\"%1\" ").arg(allBeginStage.at(x).section("||=||", 1, 1)));
+		dacqConfigFile.append(QString("\"%1\"\n").arg(allBeginStage.at(x).section("||=||", 2, 2)));
+	}
+	dacqConfigFile.append("# Action Begin Delay 0.1\n");
+	dacqConfigFile.append("# Action Move Delay 0.1\n");
+	for(int x = 0; x < allMoveStage.count(); x++){
+		if(allMoveStage.at(x).section("||=||", 0, 0) == "SetPV"){
+			dacqConfigFile.append(QString("# Action Move %1 ").arg(allMoveStage.at(x).section("||=||", 0, 0)));
+			dacqConfigFile.append(QString("\"%1\" ").arg(allMoveStage.at(x).section("||=||", 1, 1)));
+			dacqConfigFile.append(QString("\"%1\"\n").arg(allMoveStage.at(x).section("||=||", 2, 2)));
+		}
+	}
+	for(int x = 0; x < allMoveStage.count(); x++){
+		if(allMoveStage.at(x).section("||=||", 0, 0) != "SetPV"){
+			dacqConfigFile.append(QString("# Action Move %1 ").arg(allMoveStage.at(x).section("||=||", 0, 0)));
+			dacqConfigFile.append(QString("\"%1\" ").arg(allMoveStage.at(x).section("||=||", 1, 1)));
+			dacqConfigFile.append(QString("\"%1\"\n").arg(allMoveStage.at(x).section("||=||", 2, 2)));
+		}
+	}
+	for(int x = 0; x < allDwellStage.count(); x++){
+		dacqConfigFile.append(QString("# Action Dwell %1 ").arg(allDwellStage.at(x).section("||=||", 0, 0)));
+		dacqConfigFile.append(QString("\"%1\" ").arg(allDwellStage.at(x).section("||=||", 1, 1)));
+		dacqConfigFile.append(QString("\"%1\"\n").arg(allDwellStage.at(x).section("||=||", 2, 2)));
+	}
+	dacqConfigFile.append("# Action Dwell CallEvent \"read\" 1\n");
+	for(int x = 0; x < allFinishStage.count(); x++){
+		dacqConfigFile.append(QString("# Action Finish %1 ").arg(allFinishStage.at(x).section("||=||", 0, 0)));
+		dacqConfigFile.append(QString("\"%1\" ").arg(allFinishStage.at(x).section("||=||", 1, 1)));
+		dacqConfigFile.append(QString("\"%1\"\n").arg(allFinishStage.at(x).section("||=||", 2, 2)));
+	}
+	dacqConfigFile.append("# Event \"read\" 1\n");
+	dacqConfigFile.append("# datastream columns: eventID, absolute/relative time stamps\n");
+	dacqConfigFile.append("# eventID:1 AbsTime:0 Rel0Time:0 relPTime:0\n");
+	dacqConfigFile.append("# commentPrefix: 0\n");
+	dacqConfigFile.append("# PV 0: \"BL1611-ID-1:Energy\" disable:0 format:\"%3.6e\" spectrum:0 ready:0\n");
+	dacqConfigFile.append("#\n");
+	dacqConfigFile.append("# Event \"header\" 2\n");
+	dacqConfigFile.append("# datastream columns: eventID, absolute/relative time stamps\n");
+	dacqConfigFile.append("# eventID:1 AbsTime:0 Rel0Time:0 relPTime:0\n");
+	dacqConfigFile.append("# commentPrefix: 1\n");
+	dacqConfigFile.append("# PV 0: \"BL1611-ID-1:Energy\" disable:0 format:\"Crystal=%g\" spectrum:0 ready:0\n");
+	dacqConfigFile.append("#\n");
+	dacqConfigFile.append("# File: \"/home/sgm\" sequence:0 time:0 datedir:0\n");
+	dacqConfigFile.append("# Template: \"Test_%d.dat\"\n");
+	dacqConfigFile.append("# Sequence: 1\n");
+	dacqConfigFile.append("# Header: 0\n");
+	dacqConfigFile.append("# SpectrumFormat: 2\n");
+
+	SGMDacqConfigurationFile *configFile = new SGMDacqConfigurationFile();
+	QList<int> matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "FastScaler");
+	if(matchIDs.count() == 0){
+		AMErrorMon::report(AMErrorReport(this,
+				AMErrorReport::Alert,
+				SGMXASDACQSCANCONTROLLER_CANT_START_NO_TEMPLATE_SAVE_PATH,
+				"Error, SGM XAS DACQ Scan Controller failed to start (couldn't find a save path for the template'). Please report this bug to the Acquaman developers."));
+		return false;
+	}
+	configFile->loadFromDb(AMDatabase::database("SGMBeamline"), matchIDs.at(0));
+
+	QString templateFullFilePath = configFile->configurationFilePath()+"/template.cfg";
+	qDebug() << "Trying to save template to " << templateFullFilePath;
+	QFile file(templateFullFilePath);
+	if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
+		AMErrorMon::report(AMErrorReport(this,
+				AMErrorReport::Alert,
+				SGMXASDACQSCANCONTROLLER_CANT_START_CANT_WRITE_TEMPLATE,
+				"Error, SGM XAS DACQ Scan Controller failed to start (couldn't write the template'). Please report this bug to the Acquaman developers."));
+		return false;
+	}
+
+	QTextStream out(&file);
+	out << dacqConfigFile;
+	file.close();
+
+	loadSuccess = advAcq_->setConfigFile(templateFullFilePath);
 	if(!loadSuccess){
 		AMErrorMon::report(AMErrorReport(this,
 				AMErrorReport::Alert,
@@ -147,7 +210,6 @@ bool SGMXASDacqScanController::startImplementation(){
 	}
 	advAcq_->saveConfigFile("/Users/fawkes/dev/acquaman/devConfigurationFiles/davidTest.cfg");
 
-//	qDebug() << "Calling startImplementation for dacq";
 	return AMDacqScanController::startImplementation();
 }
 

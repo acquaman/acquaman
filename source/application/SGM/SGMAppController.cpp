@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -55,12 +55,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMPluginsManager.h"
 #include "util/SGM/SGMPeriodicTable.h"
 #include "ui/util/AMGithubIssueSubmissionView.h"
+#include "ui/AMDatamanStartupSplashScreen.h"
 
 #include "dataman/SGM/SGMDbUpgrade1Pt1.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
 {
+	if(!resetFinishedSignal(SGMBeamline::sgm(), SIGNAL(beamlineInitialized())))
+		qDebug() << "Couldn't reset the finished signal to the SGM Beamline";
+
 	// Prepend the SGM upgrade 1.1 to the list for both the user database and the SGM Beamline database
 	AMDbUpgrade *sgm1Pt1SGMDb = new SGMDbUpgrade1Pt1("SGMBeamline", this);
 	databaseUpgrades_.prepend(sgm1Pt1SGMDb);
@@ -75,12 +79,17 @@ bool SGMAppController::startup() {
 	if(!AMAppController::startup())
 		return false;
 
+	//splashScreen_->setNumberOfStages(splashScreen_->numberOfStages()+1);
+
 	// Places the SGM specific actions in the menu bar
 	if(!startupSGMInstallActions())
 		return false;
 
 	// Creates the SGM Beamline object
 	SGMBeamline::sgm();
+	connect(SGMBeamline::sgm(), SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)), this, SLOT(onSGMBeamlineDetectorAvailabilityChanged(AMDetector*,bool)));
+	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("SGM Startup: Waiting for detectors"));
+	onSGMBeamlineDetectorAvailabilityChanged(0, false);
 
 	// Retrieve the current run or create one if there is none
 	AMRun existingRun;
@@ -284,6 +293,24 @@ void SGMAppController::onActionSGMSettings(){
 	sgmSettingsMasterView_->show();
 }
 
+void SGMAppController::onSGMBeamlineDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable){
+	Q_UNUSED(detector)
+	Q_UNUSED(isAvailable)
+	QStringList waitingForDetectorNames;
+	QList<AMDetector*> possibleDetectors = SGMBeamline::sgm()->possibleDetectorsForSet(SGMBeamline::sgm()->allDetectors());
+	for(int x = 0; x < possibleDetectors.count(); x++)
+		if(!possibleDetectors.at(x)->isConnected())
+			waitingForDetectorNames.append(possibleDetectors.at(x)->toInfo()->description());
+
+	QString waitingDetectors = QString("Waiting for:\n %1").arg(waitingForDetectorNames.join("\n"));
+
+	if(lastWaitingDetectors_ != waitingDetectors){
+		lastWaitingDetectors_ = waitingDetectors;
+		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_SUBTEXT,  lastWaitingDetectors_);
+		qApp->processEvents();
+	}
+}
+
 bool SGMAppController::startupSGMInstallActions(){
 	QAction *sgmSettingAction = new QAction("SGM Beamline Settings...", mw_);
 	sgmSettingAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_T));
@@ -307,88 +334,7 @@ bool SGMAppController::setupSGMConfigurationFiles()
 		return false;
 
 	QList<int> matchIDs;
-
 	SGMDacqConfigurationFile *configFile;
-	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTXEOLAmmeter");
-	if(matchIDs.count() == 0){
-		configFile = new SGMDacqConfigurationFile();
-		configFile->setName("PGTXEOLAmmeter");
-		configFile->setConfigurationFileName("pgtxeolAmmeter.cfg");
-		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
-		success &= configFile->storeToDb(dbSGM);
-	}
-	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTXEOLScaler");
-	if(matchIDs.count() == 0){
-		configFile = new SGMDacqConfigurationFile();
-		configFile->setName("PGTXEOLScaler");
-		configFile->setConfigurationFileName("pgtxeolScaler.cfg");
-		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
-		success &= configFile->storeToDb(dbSGM);
-	}
-	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTAmmeter");
-	if(matchIDs.count() == 0){
-		configFile = new SGMDacqConfigurationFile();
-		configFile->setName("PGTAmmeter");
-		configFile->setConfigurationFileName("pgtAmmeter.cfg");
-		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
-		success &= configFile->storeToDb(dbSGM);
-	}
-	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTScaler");
-	if(matchIDs.count() == 0){
-		configFile = new SGMDacqConfigurationFile();
-		configFile->setName("PGTScaler");
-		configFile->setConfigurationFileName("pgtScaler.cfg");
-		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
-		success &= configFile->storeToDb(dbSGM);
-	}
-	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTAmp1Scaler");
-	if(matchIDs.count() == 0){
-		configFile = new SGMDacqConfigurationFile();
-		configFile->setName("PGTAmp1Scaler");
-		configFile->setConfigurationFileName("pgtAmp1Scaler.cfg");
-		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
-		success &= configFile->storeToDb(dbSGM);
-	}
-	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "PGTAmpBScaler");
-	if(matchIDs.count() == 0){
-		configFile = new SGMDacqConfigurationFile();
-		configFile->setName("PGTAmpBScaler");
-		configFile->setConfigurationFileName("pgtAmpBScaler.cfg");
-		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
-		success &= configFile->storeToDb(dbSGM);
-	}
-	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "XEOLAmmeter");
-	if(matchIDs.count() == 0){
-		configFile = new SGMDacqConfigurationFile();
-		configFile->setName("XEOLAmmeter");
-		configFile->setConfigurationFileName("xeolAmmeter.cfg");
-		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
-		success &= configFile->storeToDb(dbSGM);
-	}
-	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "XEOLScaler");
-	if(matchIDs.count() == 0){
-		configFile = new SGMDacqConfigurationFile();
-		configFile->setName("XEOLScaler");
-		configFile->setConfigurationFileName("xeolScaler.cfg");
-		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
-		success &= configFile->storeToDb(dbSGM);
-	}
-	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "DefaultAmmeter");
-	if(matchIDs.count() == 0){
-		configFile = new SGMDacqConfigurationFile();
-		configFile->setName("DefaultAmmeter");
-		configFile->setConfigurationFileName("defaultEnergyAmmeter.cfg");
-		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
-		success &= configFile->storeToDb(dbSGM);
-	}
-	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "DefaultScaler");
-	if(matchIDs.count() == 0){
-		configFile = new SGMDacqConfigurationFile();
-		configFile->setName("DefaultScaler");
-		configFile->setConfigurationFileName("defaultEnergyScaler.cfg");
-		configFile->setConfigurationFilePath("/home/sgm/beamline/programming/acquaman/devConfigurationFiles");
-		success &= configFile->storeToDb(dbSGM);
-	}
 	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "FastScaler");
 	if(matchIDs.count() == 0){
 		configFile = new SGMDacqConfigurationFile();

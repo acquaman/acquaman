@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -82,6 +82,22 @@ QString AMDetector::dacqName() const{
 	return "";
 }
 
+QStringList AMDetector::dacqBegin() const{
+	return QStringList();
+}
+
+QStringList AMDetector::dacqMove() const{
+	return QStringList();
+}
+
+QStringList AMDetector::dacqDwell() const{
+	return QStringList();
+}
+
+QStringList AMDetector::dacqFinish() const{
+	return QStringList();
+}
+
 double AMDetector::reading() const{
 	return -1;
 }
@@ -93,6 +109,11 @@ QString AMDetector::detectorName() const {
 void AMDetector::setConnected(bool isConnected){
 	connected_ = isConnected;
 	emitConnected(isConnected);
+}
+
+void AMDetector::setTimedOut(){
+	connected_ = false;
+	emitConnected(false);
 }
 
 void AMDetector::setReadMethod(AMDetector::ReadMethod readMethod){

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 CLSOceanOptics65000Detector::CLSOceanOptics65000Detector(const QString &name, const QString &baseName, AMDetector::ReadMethod readMethod, QObject *parent) :
 	CLSOceanOptics65000DetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
+	baseName_ = baseName;
 	allControls_ = new AMControlSet();
 
 	dataWaveformControl_ = new AMReadOnlyWaveformBinningPVControl(name+"Spectrum", baseName+":DarkCorrectedSpectra", 0, 1024, this);
@@ -36,6 +37,7 @@ CLSOceanOptics65000Detector::CLSOceanOptics65000Detector(const QString &name, co
 	allControls_->addControl(integrationTimeControl_);
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
+	connect(allControls_, SIGNAL(controlSetTimedOut()), this, SLOT(onControlsTimedOut()));
 	connect(signalSource(), SIGNAL(connected(bool)), this, SLOT(onSettingsControlValuesChanged()));
 	connect(dataWaveformControl_, SIGNAL(valueChanged(double)), this, SLOT(onReadingsControlValuesChanged()));
 	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(onSettingsControlValuesChanged()));
@@ -54,6 +56,12 @@ QString CLSOceanOptics65000Detector::dacqName() const{
 		return tmpControl->readPVName();
 	else
 		return "";
+}
+
+QStringList CLSOceanOptics65000Detector::dacqDwell() const{
+	QStringList retVal;
+	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":Acquire").arg("1");
+	return retVal;
 }
 
 double CLSOceanOptics65000Detector::reading() const{
@@ -124,6 +132,10 @@ bool CLSOceanOptics65000Detector::setControls(CLSOceanOptics65000DetectorInfo *s
 void CLSOceanOptics65000Detector::onControlsConnected(bool connected){
 	if(connected != isConnected())
 		setConnected(connected);
+}
+
+void CLSOceanOptics65000Detector::onControlsTimedOut(){
+	setTimedOut();
 }
 
 void CLSOceanOptics65000Detector::onSettingsControlValuesChanged(){

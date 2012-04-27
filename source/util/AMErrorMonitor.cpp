@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -96,7 +96,6 @@ void AMErrorMon::unsubscribeI(QObject* notifyMe, const char* errorSlot) {
 
 
 void AMErrorMon::reportF(AMErrorReport e) {
-
 	QString className;
 	if(e.source && e.source->metaObject()) {
 		className = e.source->metaObject()->className();
@@ -183,8 +182,6 @@ void AMErrorMon::reportI(AMErrorReport e) {
 	QPair<QObject*, QString> target;
 	foreach(target, targets)
 		target.first->metaObject()->invokeMethod( target.first, target.second.toAscii().data(), Q_ARG(AMErrorReport, e));
-
-
 }
 
 AMErrorMon * AMErrorMon::mon() {

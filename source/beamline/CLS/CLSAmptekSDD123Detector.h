@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef CLSAMPTEKSDD123DETECTOR_H
 #define CLSAMPTEKSDD123DETECTOR_H
 
@@ -24,6 +43,11 @@ public:
 
 	/// Return the dacq compatible name for this detector
 	virtual QString dacqName() const;
+
+	/// Returns a string list of dacq "Action Move" statements. The strings should be divided into three sections by ||=||. Three sections are the command (SetPV, WaitPV, etc), the PV, and the value.
+	virtual QStringList dacqMove() const;
+	/// Returns a string list of dacq "Action Dwell" statements. The strings should be divided into three sections by ||=||. Three sections are the command (SetPV, WaitPV, etc), the PV, and the value.
+	virtual QStringList dacqDwell() const;
 
 	/// Returns the description for the detector.
 	virtual QString description() const;
@@ -94,6 +118,8 @@ signals:
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
 	void onControlsConnected(bool connected);
+	/// Handles if one or more the controls times out
+	void onControlsTimedOut();
 	/// Emits the statusChanged signal.
 	void onStatusChanged(double status);
 
@@ -119,6 +145,8 @@ protected:
 
 	/// The list of all the raw spectrum data sources.
 	AM1DProcessVariableDataSource *spectrumDataSource_;
+
+	QString baseName_;
 };
 
 #endif // CLSAMPTEKSDD123DETECTOR_H
