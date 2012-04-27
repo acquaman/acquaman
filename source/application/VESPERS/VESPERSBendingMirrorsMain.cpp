@@ -1,6 +1,6 @@
 
 #include <QApplication>
-#include "ui/VESPERS/VESPERSBendingMirrors.h"
+#include "ui/VESPERS/VESPERSBendingMirrorsView.h"
 
 int main(int argc, char *argv[])
 {
@@ -9,8 +9,12 @@ int main(int argc, char *argv[])
 	QApplication app(argc, argv);
 	app.setApplicationName("VESPERS - Mirror Bending Applications");
 
-	VESPERSBendingMirrors bending;
-	bending.show();
+	VESPERSBendingMirrorsView *bending = new VESPERSBendingMirrorsView;
+	bending->show();
 
-	return app.exec();
+	int retVal = app.exec();
+
+	delete bending;
+
+	return retVal;
 }
