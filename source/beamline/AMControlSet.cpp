@@ -139,9 +139,10 @@ void AMControlSet::onConnected(bool ctrlConnected){
 }
 
 void AMControlSet::onConnectionsTimedOut(){
-	if(!wasConnected_)
+	if(!wasConnected_){
 		emit connected(false);
-	emit controlSetTimedOut();
+		emit controlSetTimedOut();
+	}
 }
 
 void AMControlSet::onControlValueChanged(){
