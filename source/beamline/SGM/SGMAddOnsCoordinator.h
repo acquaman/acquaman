@@ -1,22 +1,3 @@
-/*
-Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
-
-This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
-Acquaman is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Acquaman is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
 #ifndef SGMADDONSCOORDINATOR_H
 #define SGMADDONSCOORDINATOR_H
 
@@ -26,18 +7,51 @@ class SGMAddOnsCoordinator : public QObject
 {
 Q_OBJECT
 public:
+	/// Simple constructor for class
 	SGMAddOnsCoordinator(QObject *parent = 0);
 
 protected slots:
+	/// Handles changes coming from the old SGM grating and propogating those (when necessary) to the AddOns version
 	void onSGMGratingControlChanged(double sgmGrating);
+	/// Handles changes coming from the AddOns grating and propogating those (when necessary) to the old SGM version
 	void onAddOnsGratingControlChanged(double addOnsGrating);
+
+	/// Handles changes coming from the old SGM exit slit gap and propogating those (when necessary) to the AddOns version
+	void onSGMExitSlitGapControlChanged(double sgmExitSlitGap);
+	/// Handles changes coming from the AddOns exit slit gap and propogating those (when necessary) to the old SGM version
+	void onAddOnsExitSlitGapControlChanged(double addOnsExitSlitGap);
+	/// Handles changes coming from the SGM exit slit gap status and propograting those (almost always) to the AddOns version
+	void onSGMExitSlitGapStatusControlChanged(double sgmExitSlitGapStatus);
+
+	/// Handles the backlash correction and monitors when the exit slit gap hits fully open
+	void onSGMGratingControlFullyOpened(double sgmExitSlitGap);
+
+	/// Handles watching for when the controls actually connect
 	void onAllControlsConnected(bool connected);
 
 protected:
+	/// Old SGM grating control setpoint
 	AMControl *SGMGratingControl_;
+	/// New AddOns grating control setpoint
 	AMControl *AddOnsGratingControl_;
 
+	/// Old SGM exit slit gap control setpoint
+	AMControl *SGMExitSlitGapControl_;
+	/// New AddOns exit slit gap control setpoitn
+	AMControl *AddOnsExitSlitGapControl_;
+	/// SGM exit slit gap control feedback (actual value for both sides)
+	AMControl *SGMExitSlitGapFeedbackControl_;
+	/// Holds whether or not we're doing the backlash double movement
+	bool movingAddOnsExitSlitGap_;
+
+	/// Old SGM exit slit gap status control
+	AMControl *SGMExitSlitGapStatusControl_;
+	/// New AddOns exit slit gap status control (different because it won't give a MOVE DONE when it gets fully open before starting to close again)
+	AMControl *AddOnsExitSlitGapStatusControl_;
+
+	/// All the controls (for checking connectivity)
 	AMControlSet *allControls_;
+	/// Holds whether or not we've connected at least once
 	bool connectedOnce_;
 };
 
