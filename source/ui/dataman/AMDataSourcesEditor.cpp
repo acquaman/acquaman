@@ -268,6 +268,7 @@ void AMDataSourcesEditor::onAddDataSourceButtonClicked() {
 			temp = popup.addAction("Add Integral");
 			temp = popup.addAction("Add Expression");
 			temp = popup.addAction("Add 2D Summing");
+			temp = popup.addAction("Add Normalization");
 
 			temp = popup.exec(mapToGlobal(ui_.addDataSourceButton->pos()));
 
@@ -282,6 +283,8 @@ void AMDataSourcesEditor::onAddDataSourceButtonClicked() {
 					nameOfAnalysisBlockToBeAdded_ = "Expression";
 				else if (temp->text() == "Add 2D Summing")
 					nameOfAnalysisBlockToBeAdded_ = "2D Summing";
+				else if (temp->text() == "Add Normalization")
+					nameOfAnalysisBlockToBeAdded_ = "Normalization";
 			}
 
 			break;
@@ -319,6 +322,7 @@ void AMDataSourcesEditor::onAddDataSourceButtonClicked() {
 #include "analysis/AM2DSummingAB.h"
 #include "analysis/AM1DIntegralAB.h"
 #include "analysis/AM2DNormalizationAB.h"
+#include "analysis/AM1DNormalizationAB.h"
 
 /// \todo Eventually, this button should support creating all kinds of available data sources (raw, and analysis blocks), using a beautiful popup dialogue with buttons and icons and descriptions. For now, we only create AM1DExpressionAB (expression editors for 1D channels, to allow simply 1D normalization and calibration)
 void AMDataSourcesEditor::onNewDataSourceNamed() {
@@ -392,6 +396,12 @@ void AMDataSourcesEditor::onNewDataSourceNamed() {
 
 		newAnalysisBlock = new AM2DSummingAB(chName);
 		newAnalysisBlock->setInputDataSources(twoDimDataSources);
+	}
+
+	else if (nameOfAnalysisBlockToBeAdded_ == "Normalization"){
+
+		newAnalysisBlock = new AM1DNormalizationAB(chName);
+		newAnalysisBlock->setInputDataSources(singleDimDataSources);
 	}
 
 	else if (nameOfAnalysisBlockToBeAdded_ == "2D Map Normalization"){

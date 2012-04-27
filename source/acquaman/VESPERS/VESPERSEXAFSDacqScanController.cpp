@@ -154,6 +154,7 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::SingleElement){
 
 		AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
+		pfy->setDescription("PFY");
 		QList<AMDataSource*> pfySource;
 		pfySource << scan_->rawDataSources()->at(scan_->rawDataSourceCount()-1);
 		pfy->setInputDataSources(pfySource);
@@ -196,6 +197,7 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	else if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::FourElement){
 
 		AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
+		pfy->setDescription("PFY");
 		QList<AMDataSource*> pfySource;
 		pfySource << scan_->rawDataSources()->at(scan_->rawDataSourceCount()-5);
 		pfy->setInputDataSources(pfySource);

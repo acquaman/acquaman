@@ -557,7 +557,9 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/ui/actions3/AMActionHistoryModel.h \
 	source/actions3/actions/AMScanAction.h \
 	source/actions3/actions/AMScanActionInfo.h \
-	source/actions3/editors/AMScanActionEditor.h
+	source/actions3/editors/AMScanActionEditor.h \
+    source/analysis/AM1DNormalizationAB.h \
+    source/analysis/AM1DNormalizationABEditor.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -941,7 +943,9 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/actions3/AMActionHistoryModel.cpp \
 	source/actions3/actions/AMScanAction.cpp \
 	source/actions3/actions/AMScanActionInfo.cpp \
-	source/actions3/editors/AMScanActionEditor.cpp
+	source/actions3/editors/AMScanActionEditor.cpp \
+    source/analysis/AM1DNormalizationAB.cpp \
+    source/analysis/AM1DNormalizationABEditor.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -965,6 +969,10 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
 
 
 

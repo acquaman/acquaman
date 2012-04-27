@@ -1,28 +1,9 @@
-/*
-Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
-
-This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
-Acquaman is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Acquaman is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
-#include "AM2DNormalizationABEditor.h"
+#include "AM1DNormalizationABEditor.h"
 
 #include <QLabel>
 #include <QFormLayout>
 
-AM2DNormalizationABEditor::AM2DNormalizationABEditor(AM2DNormalizationAB *analysisBlock, QWidget *parent)
+AM1DNormalizationABEditor::AM1DNormalizationABEditor(AM1DNormalizationAB *analysisBlock, QWidget *parent)
 	: QWidget(parent)
 {
 	analysisBlock_ = analysisBlock;
@@ -48,7 +29,7 @@ AM2DNormalizationABEditor::AM2DNormalizationABEditor(AM2DNormalizationAB *analys
 	setLayout(layout);
 }
 
-void AM2DNormalizationABEditor::populateComboBox()
+void AM1DNormalizationABEditor::populateComboBox()
 {
 	AMDataSource *tempSource = 0;
 	int inputCount = analysisBlock_->inputDataSourceCount();
@@ -65,13 +46,13 @@ void AM2DNormalizationABEditor::populateComboBox()
 	}
 }
 
-void AM2DNormalizationABEditor::onDataNameChoiceChanged(int index)
+void AM1DNormalizationABEditor::onDataNameChoiceChanged(int index)
 {
 	QString name = dataNames_->itemData(index).toString();
 	analysisBlock_->setDataName(name);
 }
 
-void AM2DNormalizationABEditor::onNormalizationNameChoiceChanged(int index)
+void AM1DNormalizationABEditor::onNormalizationNameChoiceChanged(int index)
 {
 	QString name = normalizationNames_->itemData(index).toString();
 	analysisBlock_->setNormalizationName(name);
