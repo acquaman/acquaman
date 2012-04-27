@@ -44,6 +44,11 @@ public:
 	/// Return the dacq compatible name for this detector
 	virtual QString dacqName() const;
 
+	/// Returns a string list of dacq "Action Move" statements. The strings should be divided into three sections by ||=||. Three sections are the command (SetPV, WaitPV, etc), the PV, and the value.
+	virtual QStringList dacqMove() const;
+	/// Returns a string list of dacq "Action Dwell" statements. The strings should be divided into three sections by ||=||. Three sections are the command (SetPV, WaitPV, etc), the PV, and the value.
+	virtual QStringList dacqDwell() const;
+
 	/// Returns the description for the detector.
 	virtual QString description() const;
 
@@ -140,6 +145,8 @@ protected:
 
 	/// The list of all the raw spectrum data sources.
 	AM1DProcessVariableDataSource *spectrumDataSource_;
+
+	QString baseName_;
 };
 
 #endif // CLSAMPTEKSDD123DETECTOR_H

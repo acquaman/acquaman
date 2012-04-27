@@ -38,7 +38,11 @@ public:
 	/// Returns the meta object
 	const QMetaObject* getMetaObject();
 
+	/// Returns the PV name the dacq library wants to use
 	virtual QString dacqName() const;
+
+	/// Returns a string list of dacq "Action Dwell" statements. The strings should be divided into three sections by ||=||. Three sections are the command (SetPV, WaitPV, etc), the PV, and the value.
+	virtual QStringList dacqDwell() const;
 
 	/// General reading value (in this case, the total counts in all bins)
 	virtual double reading() const;
@@ -89,6 +93,8 @@ protected:
 
 	/// A control set for all the controls (for ease of signalling)
 	AMControlSet *allControls_;
+
+	QString baseName_;
 };
 
 #endif // CLSOCEANOPTICS65000DETECTOR_H

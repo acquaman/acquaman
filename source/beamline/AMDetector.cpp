@@ -82,6 +82,22 @@ QString AMDetector::dacqName() const{
 	return "";
 }
 
+QStringList AMDetector::dacqBegin() const{
+	return QStringList();
+}
+
+QStringList AMDetector::dacqMove() const{
+	return QStringList();
+}
+
+QStringList AMDetector::dacqDwell() const{
+	return QStringList();
+}
+
+QStringList AMDetector::dacqFinish() const{
+	return QStringList();
+}
+
 double AMDetector::reading() const{
 	return -1;
 }

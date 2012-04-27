@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 CLSAmptekSDD123Detector::CLSAmptekSDD123Detector(const QString &name, const QString &baseName, AMDetector::ReadMethod readMethod, QObject *parent) :
 	CLSAmptekSDD123DetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
+	baseName_ = baseName;
 	connect(signalSource(), SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
 
 	setElements(1);
@@ -71,6 +72,18 @@ QString CLSAmptekSDD123Detector::dacqName() const{
 		return tmpControl->readPVName();
 	else
 		return "";
+}
+
+QStringList CLSAmptekSDD123Detector::dacqMove() const{
+	QStringList retVal;
+	retVal << QString("%1||=||%2%3||=||%4").arg("WaitPV").arg(baseName_).arg(":spectrum:state").arg("Done");
+	return retVal;
+}
+
+QStringList CLSAmptekSDD123Detector::dacqDwell() const{
+	QStringList retVal;
+	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":spectrum:startAcquisition").arg("1");
+	return retVal;
 }
 
 QString CLSAmptekSDD123Detector::description() const{

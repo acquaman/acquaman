@@ -35,7 +35,17 @@ public:
 
 	const QMetaObject* getMetaObject();
 
+	/// Returns the PV name the dacq library wants to use
 	virtual QString dacqName() const;
+
+	/// Returns a string list of dacq "Action Begin" statements. The strings should be divided into three sections by ||=||. Three sections are the command (SetPV, WaitPV, etc), the PV, and the value.
+	virtual QStringList dacqBegin() const;
+	/// Returns a string list of dacq "Action Move" statements. The strings should be divided into three sections by ||=||. Three sections are the command (SetPV, WaitPV, etc), the PV, and the value.
+	virtual QStringList dacqMove() const;
+	/// Returns a string list of dacq "Action Dwell" statements. The strings should be divided into three sections by ||=||. Three sections are the command (SetPV, WaitPV, etc), the PV, and the value.
+	virtual QStringList dacqDwell() const;
+	/// Returns a string list of dacq "Action Finish" statements. The strings should be divided into three sections by ||=||. Three sections are the command (SetPV, WaitPV, etc), the PV, and the value.
+	virtual QStringList dacqFinish() const;
 
 	virtual double reading() const;
 
@@ -94,6 +104,9 @@ protected:
 	AMBeamlineActionItem *toggleOnAction_;
 	/// The action for toggling the HV off (right now comes from somewhere else)
 	AMBeamlineActionItem *toggleOffAction_;
+
+protected:
+	QString baseName_;
 
 private:
 	bool poweredOn_;

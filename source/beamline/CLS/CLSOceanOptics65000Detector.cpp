@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 CLSOceanOptics65000Detector::CLSOceanOptics65000Detector(const QString &name, const QString &baseName, AMDetector::ReadMethod readMethod, QObject *parent) :
 	CLSOceanOptics65000DetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
+	baseName_ = baseName;
 	allControls_ = new AMControlSet();
 
 	dataWaveformControl_ = new AMReadOnlyWaveformBinningPVControl(name+"Spectrum", baseName+":DarkCorrectedSpectra", 0, 1024, this);
@@ -55,6 +56,12 @@ QString CLSOceanOptics65000Detector::dacqName() const{
 		return tmpControl->readPVName();
 	else
 		return "";
+}
+
+QStringList CLSOceanOptics65000Detector::dacqDwell() const{
+	QStringList retVal;
+	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":Acquire").arg("1");
+	return retVal;
 }
 
 double CLSOceanOptics65000Detector::reading() const{
