@@ -168,5 +168,8 @@
         <file>16x16/view-refresh.png</file>
         <file>32x32/media-eject.png</file>
         <file>spectrum.png</file>
+        <file>integral.png</file>
+        <file>expression.png</file>
+        <file>derivative.png</file>
     </qresource>
 </RCC>
