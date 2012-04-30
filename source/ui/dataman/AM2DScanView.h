@@ -48,6 +48,8 @@ public:
 	QString yUnits() const { return yUnits_; }
 	/// Returns the position.
 	QPointF dataPosition() const { return position_; }
+	/// Returns the selected rectangle.
+	QRectF selectedRect() const { return rect_; }
 
 signals:
 	/// Notifier that the state of whether or not the scan view should show individual spectra has been toggled.
@@ -56,6 +58,8 @@ signals:
 public slots:
 	/// Handles setting the label with the new data coordinates.
 	void setDataPosition(const QPointF &point);
+	/// Handles setting the label based on the selected rectangle.
+	void setSelectedRect(const QRectF &rect);
 	/// Sets the units for both x and y axes.
 	void setUnits(const QString &xUnits, const QString &yUnits) { xUnits_ = xUnits; yUnits_ = yUnits; }
 	/// Sets the x axis units.
@@ -66,12 +70,16 @@ public slots:
 protected:
 	/// Label holding the data position coordinates.
 	QLabel *dataPosition_;
+	/// Label holding the selected rectangle coordinates.
+	QLabel *selectedRect_;
 	/// String holding the x axis units.
 	QString xUnits_;
 	/// String holding the y axis units.
 	QString yUnits_;
 	/// The current point.
 	QPointF position_;
+	/// The current selected rectangle.
+	QRectF rect_;
 };
 
 /*! This class makes a scan view that is more suitable for 2D scans.  It has been built in the same spirit as AMScanView by having an
@@ -210,6 +218,8 @@ public:
 signals:
 	/// Notifier that the data position marker has changed.
 	void dataPositionChanged(const QPointF &);
+	/// Notifier that the selected rectangle coordinates have changed.
+	void selectedRectChanged(const QRectF &);
 
 protected slots:
 	/// after a scan or data source is added in the model
@@ -225,6 +235,8 @@ protected slots:
 	void onExclusiveDataSourceChanged(const QString& exclusiveDataSource);
 	/// Handles the signals about data position changed from the plot window.
 	void onDataPositionChanged(uint index, const QPointF &point);
+	/// Handles the signals about the selected rectangle change from the plot window.
+	void onSelectedRectChanged(uint index, const QRectF &rect);
 
 protected:
 	/// Helper function to handle adding a scan (at row scanIndex in the model)

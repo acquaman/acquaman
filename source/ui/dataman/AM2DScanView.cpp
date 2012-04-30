@@ -37,9 +37,11 @@ AM2DScanBar::AM2DScanBar(QWidget *parent)
 	: QWidget(parent)
 {
 	dataPosition_ = new QLabel("Current Position:");
+	selectedRect_ = new QLabel("");
 	xUnits_ = "";
 	yUnits_ = "";
 	position_ = QPointF();
+	rect_ = QRectF();
 
 	QCheckBox *showSpectra = new QCheckBox("Show Spectra");
 	showSpectra->setChecked(false);
@@ -50,7 +52,11 @@ AM2DScanBar::AM2DScanBar(QWidget *parent)
 	layout->addStretch();
 	layout->addWidget(showSpectra, 0, Qt::AlignRight);
 
-	setLayout(layout);
+	QVBoxLayout *barLayout = new QVBoxLayout;
+	barLayout->addLayout(layout);
+	barLayout->addWidget(selectedRect_);
+
+	setLayout(barLayout);
 }
 
 void AM2DScanBar::setDataPosition(const QPointF &point)
@@ -72,6 +78,31 @@ void AM2DScanBar::setDataPosition(const QPointF &point)
 	text.append(")");
 
 	dataPosition_->setText(text);
+}
+
+void AM2DScanBar::setSelectedRect(const QRectF &rect)
+{
+	rect_ = rect;
+
+	if (rect_.isNull()){
+
+		selectedRect_->setText("");
+	}
+
+	else{
+
+		QString text = QString("Highlighted Region - Start: (%1 %5, %2 %6) End: (%3 %7, %4 %8)")
+				.arg(QString::number(rect_.bottomLeft().x(), 'f', 3))
+				.arg(QString::number(rect_.bottomLeft().y(), 'f', 3))
+				.arg(QString::number(rect_.topRight().x(), 'f', 3))
+				.arg(QString::number(rect_.topRight().y(), 'f', 3))
+				.arg(xUnits())
+				.arg(xUnits())
+				.arg(yUnits())
+				.arg(yUnits());
+
+		selectedRect_->setText(text);
+	}
 }
 
 // AM2DScanView
@@ -175,6 +206,7 @@ void AM2DScanView::makeConnections()
 	connect(gMultiView_, SIGNAL(resized(QSizeF)), this, SLOT(resizeMultiViews()), Qt::QueuedConnection);
 
 	connect(exclusiveView_, SIGNAL(dataPositionChanged(QPointF)), exclusive2DScanBar_, SLOT(setDataPosition(QPointF)));
+	connect(exclusiveView_, SIGNAL(selectedRectChanged(QRectF)), exclusive2DScanBar_, SLOT(setSelectedRect(QRectF)));
 	connect(exclusive2DScanBar_, SIGNAL(showSpectra(bool)), this, SLOT(setSpectrumViewVisibility(bool)));
 	connect(exclusiveView_, SIGNAL(dataPositionChanged(QPointF)), this, SLOT(onDataPositionChanged(QPointF)));
 }
@@ -389,6 +421,7 @@ AM2DScanViewExclusiveView::AM2DScanViewExclusiveView(AM2DScanView* masterView)
 	positionTool->addDataPositionIndicator(plot_->plot()->axisScaleBottom(), plot_->plot()->axisScaleLeft());
 
 	connect(plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(uint,QPointF)), this, SLOT(onDataPositionChanged(uint,QPointF)));
+	connect(plot_->plot()->signalSource(), SIGNAL(selectedDataRectChanged(uint,QRectF)), this, SLOT(onSelectedRectChanged(uint,QRectF)));
 
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
 	gl->setContentsMargins(0,0,0,0);
@@ -531,6 +564,13 @@ void AM2DScanViewExclusiveView::onDataPositionChanged(uint index, const QPointF 
 	Q_UNUSED(index)
 
 	emit dataPositionChanged(point);
+}
+
+void AM2DScanViewExclusiveView::onSelectedRectChanged(uint index, const QRectF &rect)
+{
+	Q_UNUSED(index)
+
+	emit selectedRectChanged(rect);
 }
 
 void AM2DScanViewExclusiveView::refreshTitle() {
