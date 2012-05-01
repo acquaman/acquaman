@@ -125,10 +125,16 @@ public:
 signals:
 	/// Notifier that the incoming choice has changed.
 	void incomingChoiceChanged(IonChamber);
+	/// Same signal.  Just passing as an int.
+	void incomingChoiceChanged(int);
 	/// Notifier that the fluorescence choice has changed.
 	void fluorescenceDetectorChoiceChanged(FluorescenceDetector);
+	/// Same signal.  Just passing as an int.
+	void fluorescenceDetectorChoiceChanged(int);
 	/// Notifier that the motors choice has changed.
 	void motorsChoiceChanged(MotorsChoice);
+	/// Same signal.  Just passing as an int.
+	void motorsChoiceChanged(int);
 	/// Notifier that the flag for whether the CCD will be used has changed.
 	void usingCCDChanged(bool);
 	/// Notifier that the name of the CCD file name has changed.
@@ -138,15 +144,15 @@ signals:
 
 public slots:
 	/// Sets the choice for I0 ion chamber.
-	void setIncomingChoice(IonChamber I0) { I0_ = I0; emit incomingChoiceChanged(I0_); setModified(true); }
+	void setIncomingChoice(IonChamber I0);
 	/// Overloaded.  Used for database loading.
 	void setIncomingChoice(int I0) { setIncomingChoice((IonChamber)I0); }
 	/// Sets the choice for the fluorescence detector.
-	void setFluorescenceDetectorChoice(FluorescenceDetector detector) { fluorescenceDetectorChoice_ = detector; emit fluorescenceDetectorChoiceChanged(fluorescenceDetectorChoice_); setModified(true); }
+	void setFluorescenceDetectorChoice(FluorescenceDetector detector);
 	/// Overloaded.  Used for database loading.
 	void setFluorescenceDetectorChoice(int detector) { setFluorescenceDetectorChoice((FluorescenceDetector)detector); }
 	/// Sets the choice for the set of motors used for scanning.
-	void setMotorsChoice(MotorsChoice choice) { motorsChoice_ = choice; emit motorsChoiceChanged(motorsChoice_); setModified(true); }
+	void setMotorsChoice(MotorsChoice choice);
 	/// Overloaded.  Used for database loading.
 	void setMotorsChoice(int choice) { setMotorsChoice((MotorsChoice)choice); }
 	/// Sets whether the scan should be using the CCD or not.

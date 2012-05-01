@@ -45,6 +45,9 @@ public:
 	/// Getter for the configuration.
 	const AMScanConfiguration *configuration() const { return config_; }
 
+	/// Method that updates the map info label based on the current values of the start, end, and step size.
+	void updateMapInfo();
+
 signals:
 	/// Sends out a request that the current detector (based on FluorescenceDetectorChoice) to be configured.  Asks the app controller to change to the detector view.  String will be either "Single Element" or "Four Element".
 	void configureDetector(const QString &);
@@ -93,13 +96,22 @@ protected slots:
 	/// Handles the context menu.
 	void onCustomContextMenuRequested(QPoint pos);
 
+	/// Slot that updates the horizontal step size spin box.
+	void updateXStep(double val) { hStep_->setValue(val*1000); }
+	/// Slot that updates the vertical step size spin box.
+	void updateYStep(double val) { vStep_->setValue(val*1000); }
+	/// Slot that updates the I0 buttons.
+	void updateI0Buttons(int I0) { I0Group_->button(I0)->setChecked(true); }
+	/// Slot that updates the fluorescence detector buttons.
+	void updateFluorescenceDetector(int detector) { fluorescenceButtonGroup_->button(detector)->setChecked(true); }
+	/// Slot that updates the motor choice buttons.
+	void updateMotorsChoice(int choice) { motorChoiceButtonGroup_->button(choice)->setChecked(true); }
+
 protected:
 	/// Reimplements the show event to update the Regions of Interest text.
 	virtual void showEvent(QShowEvent *e) { updateRoiText(); AMScanConfigurationView::showEvent(e); }
 	/// Helper method that takes a time in seconds and returns a string of d:h:m:s.
 	QString convertTimeToString(double time);
-	/// Helper method that updates the map info label based on the current values of the start, end, and step size.
-	void updateMapInfo();
 	/// Helper method that updates the x and y step spin boxes if the map is not possible to change.
 	void axesAcceptable();
 
@@ -136,6 +148,10 @@ protected:
 	QLabel *estimatedTime_;
 	/// Button group for the I0 ion chamber selection.
 	QButtonGroup *I0Group_;
+	/// Button group for the fluorescence detector selection.
+	QButtonGroup *fluorescenceButtonGroup_;
+	/// Button group for the motor choice selection.
+	QButtonGroup *motorChoiceButtonGroup_;
 	/// The text edit that holds all the names of the regions of interest.
 	QTextEdit *roiText_;
 

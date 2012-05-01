@@ -257,17 +257,17 @@ void VESPERSAppController::setupUserInterface()
 	connect(exafsConfigView, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
 	// Setup 2D maps for the beamline.  Builds the config, view, and view holder.
-	VESPERS2DScanConfiguration *mapScanConfiguration = new VESPERS2DScanConfiguration();
-	mapScanConfiguration->setStepSize(0.005, 0.005);
-	mapScanConfiguration->setTimeStep(1);
-	VESPERS2DScanConfigurationView *mapScanConfigurationView = new VESPERS2DScanConfigurationView(mapScanConfiguration);
-	AM2DScanConfigurationViewHolder *mapScanConfigurationViewHolder = new AM2DScanConfigurationViewHolder(workflowManagerView_, mapScanConfigurationView);
-	connect(mapScanConfigurationView, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
+	mapScanConfiguration_ = new VESPERS2DScanConfiguration();
+	mapScanConfiguration_->setStepSize(0.005, 0.005);
+	mapScanConfiguration_->setTimeStep(1);
+	mapScanConfigurationView_ = new VESPERS2DScanConfigurationView(mapScanConfiguration_);
+	mapScanConfigurationViewHolder_ = new AM2DScanConfigurationViewHolder(workflowManagerView_, mapScanConfigurationView_);
+	connect(mapScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
 	mw_->insertHeading("Scans", 2);
 	mw_->addPane(experimentConfigurationView, "Scans", "Experiment Setup", ":/utilities-system-monitor.png");
 	mw_->addPane(exafsConfigViewHolder_, "Scans", "XAS", ":/utilities-system-monitor.png");
-	mw_->addPane(mapScanConfigurationViewHolder, "Scans", "2D Maps", ":/utilities-system-monitor.png");
+	mw_->addPane(mapScanConfigurationViewHolder_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
 
 	// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
 	VESPERSPersistentView *persistentView = new VESPERSPersistentView;
@@ -433,6 +433,9 @@ void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor, co
 	popup.addAction("EXAFS scan");
 	popup.addSeparator();
 	popup.addAction("Go to immediately");
+	popup.addSeparator();
+	temp = popup.addAction("2D XRF Scan");
+	temp->setDisabled(editor->selectedRect().isNull());
 
 	temp = popup.exec(pos);
 
@@ -459,6 +462,9 @@ void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor, co
 			connect(moveImmediatelyAction_, SIGNAL(failed(int)), this, SLOT(onMoveImmediatelyFailure()));
 			moveImmediatelyAction_->start();
 		}
+
+		else if (temp->text() == "2D XRF Scan")
+			setup2DXRFScan(editor);
 	}
 }
 
@@ -548,4 +554,29 @@ void VESPERSAppController::setupXASScan(const AMGenericScanEditor *editor, bool 
 	}
 
 	mw_->undock(exafsConfigViewHolder_);
+}
+
+void VESPERSAppController::setup2DXRFScan(const AMGenericScanEditor *editor)
+{
+	QRectF mapRect = editor->selectedRect();
+
+	// This should always succeed because the only way to get into this function is using the 2D scan view which currently only is accessed by 2D scans.
+	VESPERS2DScanConfiguration *config = qobject_cast<VESPERS2DScanConfiguration *>(editor->currentScan()->scanConfiguration());
+
+	if (config){
+
+		mapScanConfiguration_->setName(config->name());
+		mapScanConfiguration_->setFluorescenceDetectorChoice(config->fluorescenceDetectorChoice());
+		mapScanConfiguration_->setIncomingChoice(config->incomingChoice());
+		mapScanConfiguration_->setFastAxis(config->fastAxis());
+		mapScanConfiguration_->setXRange(mapRect.left(), mapRect.right());
+		mapScanConfiguration_->setYRange(mapRect.bottom(), mapRect.top());
+		mapScanConfiguration_->setStepSize(config->steps());
+		mapScanConfiguration_->setTimeStep(config->timeStep());
+		mapScanConfiguration_->setMotorsChoice(config->motorsChoice());
+		mapScanConfiguration_->setUsingCCD(config->usingCCD());
+		mapScanConfigurationView_->updateMapInfo();
+	}
+
+	mw_->undock(mapScanConfigurationViewHolder_);
 }

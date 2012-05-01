@@ -102,6 +102,8 @@ public:
 	AMScan *currentScan() const { return currentScan_; }
 	/// Returns the current position.  This holds the x and y coordinates from the last time the data position tool was moved.
 	QPointF dataPosition() const { return exclusive2DScanBar_->dataPosition(); }
+	/// Returns the current selected rectangle.
+	QRectF selectedRect() const { return exclusive2DScanBar_->selectedRect(); }
 	/// Sets the default axis information for the spectrum view. Set \param propogateToPlotRange to false if you don't want the information to propogate.
 	void setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange = true);
 	/// Sets the plot range for the spectrum view.

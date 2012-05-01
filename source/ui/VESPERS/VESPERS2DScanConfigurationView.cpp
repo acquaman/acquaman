@@ -49,6 +49,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	hStart_->setDecimals(3);
 	hStart_->setAlignment(Qt::AlignCenter);
 	connect(hStart_, SIGNAL(editingFinished()), this, SLOT(onXStartChanged()));
+	connect(config_, SIGNAL(xStartChanged(double)), hStart_, SLOT(setValue(double)));
 
 	vStart_ = new QDoubleSpinBox;
 	vStart_->setPrefix("V: ");
@@ -58,6 +59,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	vStart_->setDecimals(3);
 	vStart_->setAlignment(Qt::AlignCenter);
 	connect(vStart_, SIGNAL(editingFinished()), this, SLOT(onYStartChanged()));
+	connect(config_, SIGNAL(yStartChanged(double)), vStart_, SLOT(setValue(double)));
 
 	QPushButton *startUseCurrentButton = new QPushButton("Use Current");
 	connect(startUseCurrentButton, SIGNAL(clicked()), this, SLOT(onSetStartPosition()));
@@ -76,6 +78,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	hEnd_->setDecimals(3);
 	hEnd_->setAlignment(Qt::AlignCenter);
 	connect(hEnd_, SIGNAL(editingFinished()), this, SLOT(onXEndChanged()));
+	connect(config_, SIGNAL(xEndChanged(double)), hEnd_, SLOT(setValue(double)));
 
 	vEnd_ = new QDoubleSpinBox;
 	vEnd_->setPrefix("V: ");
@@ -85,6 +88,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	vEnd_->setDecimals(3);
 	vEnd_->setAlignment(Qt::AlignCenter);
 	connect(vEnd_, SIGNAL(editingFinished()), this, SLOT(onYEndChanged()));
+	connect(config_, SIGNAL(yEndChanged(double)), vEnd_, SLOT(setValue(double)));
 
 	QPushButton *endUseCurrentButton = new QPushButton("Use Current");
 	connect(endUseCurrentButton, SIGNAL(clicked()), this, SLOT(onSetEndPosition()));
@@ -103,6 +107,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	hStep_->setAlignment(Qt::AlignCenter);
 	hStep_->setValue(config_->xStep()*1000);		// xStep needs to be in mm.
 	connect(hStep_, SIGNAL(editingFinished()), this, SLOT(onXStepChanged()));
+	connect(config_, SIGNAL(xStepChanged(double)), this, SLOT(updateXStep(double)));
 
 	vStep_ = new QDoubleSpinBox;
 	vStep_->setPrefix("V: ");
@@ -112,6 +117,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	vStep_->setAlignment(Qt::AlignCenter);
 	vStep_->setValue(config_->yStep()*1000);		// yStep needs to be in mm.
 	connect(vStep_, SIGNAL(editingFinished()), this, SLOT(onYStepChanged()));
+	connect(config_, SIGNAL(yStepChanged(double)), this, SLOT(updateYStep(double)));
 
 	QHBoxLayout *stepSizeLayout = new QHBoxLayout;
 	stepSizeLayout->addWidget(new QLabel("Step Size:"));
@@ -138,6 +144,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	dwellTime_->setAlignment(Qt::AlignCenter);
 	dwellTime_->setDecimals(1);
 	connect(dwellTime_, SIGNAL(editingFinished()), this, SLOT(onDwellTimeChanged()));
+	connect(config_, SIGNAL(timeStepChanged(double)), dwellTime_, SLOT(setValue(double)));
 
 	QHBoxLayout *timeLayout = new QHBoxLayout;
 	timeLayout->addWidget(new QLabel("Dwell Time:"));
@@ -171,19 +178,21 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	ccdBox->setLayout(ccdBoxLayout);
 
 	// The fluorescence detector setup
-	QButtonGroup *fluorescenceButtonGroup = new QButtonGroup;
+	fluorescenceButtonGroup_ = new QButtonGroup;
 	QRadioButton *tempButton;
 	QVBoxLayout *fluorescenceDetectorLayout = new QVBoxLayout;
 
 	tempButton = new QRadioButton("Single Element Vortex");
-	fluorescenceButtonGroup->addButton(tempButton, 1);
+	fluorescenceButtonGroup_->addButton(tempButton, 1);
 	fluorescenceDetectorLayout->addWidget(tempButton);
 	tempButton = new QRadioButton("Four Element Vortex");
-	fluorescenceButtonGroup->addButton(tempButton, 2);
+	fluorescenceButtonGroup_->addButton(tempButton, 2);
 	fluorescenceDetectorLayout->addWidget(tempButton);
-	connect(fluorescenceButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
 
-	fluorescenceButtonGroup->button((int)config_->fluorescenceDetectorChoice())->setChecked(true);
+	connect(fluorescenceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
+	connect(config_, SIGNAL(fluorescenceDetectorChoiceChanged(int)), this, SLOT(updateFluorescenceDetector(int)));
+
+	fluorescenceButtonGroup_->button((int)config_->fluorescenceDetectorChoice())->setChecked(true);
 
 	QGroupBox *fluorescenceDetectorGroupBox = new QGroupBox("Fluorescence Detector");
 	fluorescenceDetectorGroupBox->setLayout(fluorescenceDetectorLayout);
@@ -204,6 +213,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	I0GroupLayout->addWidget(tempButton);
 
 	connect(I0Group_, SIGNAL(buttonClicked(int)), this, SLOT(onI0Clicked(int)));
+	connect(config_, SIGNAL(incomingChoiceChanged(int)), this, SLOT(updateI0Buttons(int)));
 
 	I0Group_->button((int)config_->incomingChoice())->click();
 	QGroupBox *I0GroupBox = new QGroupBox("I0");
@@ -212,18 +222,18 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	// Motor selection.
 	QGroupBox *motorSetChoiceBox = new QGroupBox("Motors Selection");
 	QVBoxLayout *motorChoiceLayout = new QVBoxLayout;
-	QButtonGroup *motorChoiceButtonGroup = new QButtonGroup;
+	motorChoiceButtonGroup_ = new QButtonGroup;
 
 	tempButton = new QRadioButton("H and V");
-	motorChoiceButtonGroup->addButton(tempButton, 0);
+	motorChoiceButtonGroup_->addButton(tempButton, 0);
 	motorChoiceLayout->addWidget(tempButton);
 	tempButton = new QRadioButton("X and Z");
-	motorChoiceButtonGroup->addButton(tempButton, 1);
+	motorChoiceButtonGroup_->addButton(tempButton, 1);
 	motorChoiceLayout->addWidget(tempButton);
 
-	connect(motorChoiceButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(onMotorsChoiceChanged(int)));
+	connect(motorChoiceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onMotorsChoiceChanged(int)));
 
-	motorChoiceButtonGroup->button(int(config_->motorsChoice()))->click();
+	motorChoiceButtonGroup_->button(int(config_->motorsChoice()))->click();
 	motorSetChoiceBox->setLayout(motorChoiceLayout);
 
 	// Scan name selection
@@ -231,6 +241,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	scanName_->setText(config_->name());
 	scanName_->setAlignment(Qt::AlignCenter);
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
+	connect(config_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 	onScanNameEdited();
 
 	QFormLayout *scanNameLayout = new QFormLayout;

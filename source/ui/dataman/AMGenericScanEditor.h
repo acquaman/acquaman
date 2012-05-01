@@ -101,6 +101,8 @@ public:
 
 	/// Returns the data position inside a two dimensional scan.  This returns a null point if AMGenericScanEditor is not using AM2DScanView, or if no valid point was been chosen yet.
 	QPointF dataPosition() const;
+	/// Returns the selected rectangle inside a two dimensional scan.  This returns a null rect if AMGenericScanEditor is not using AM2DScanView, or if there is no valid rectangle displayed.
+	QRectF selectedRect() const;
 	/// Returns whether the generic scan editor is using AMScanView or AM2DScanView.
 	bool using2DScanView() const { return scanView2D_ ? true : false; }
 	/// Sets the axis information for the spectrum view.  Does nothing if not using 2D scan view.  This will automatically set the plot range for markers as well.  If you need to customize the plot range to something more specific, set \param propogateToPlotRange to false and call setPlotRange().

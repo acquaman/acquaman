@@ -251,6 +251,13 @@ QPointF AMGenericScanEditor::dataPosition() const
 	return QPointF();
 }
 
+QRectF AMGenericScanEditor::selectedRect() const
+{
+	if (scanView2D_)
+		return scanView2D_->selectedRect();
+
+	return QRectF();
+}
 void AMGenericScanEditor::setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange)
 {
 	if (scanView2D_)

@@ -153,6 +153,39 @@ QString VESPERS2DScanConfiguration::headerText() const
 	return header;
 }
 
+void VESPERS2DScanConfiguration::setIncomingChoice(IonChamber I0)
+ {
+	if (I0_ != I0){
+
+		I0_ = I0;
+		emit incomingChoiceChanged(I0_);
+		emit incomingChoiceChanged(int(I0_));
+		setModified(true);
+	}
+}
+
+void VESPERS2DScanConfiguration::setFluorescenceDetectorChoice(FluorescenceDetector detector)
+{
+	if (fluorescenceDetectorChoice_ != detector){
+
+		fluorescenceDetectorChoice_ = detector;
+		emit fluorescenceDetectorChoiceChanged(fluorescenceDetectorChoice_);
+		emit fluorescenceDetectorChoiceChanged(int(fluorescenceDetectorChoice_));
+		setModified(true);
+	}
+}
+
+void VESPERS2DScanConfiguration::setMotorsChoice(MotorsChoice choice)
+{
+	if (motorsChoice_ != choice) {
+
+		motorsChoice_ = choice;
+		emit motorsChoiceChanged(motorsChoice_);
+		emit motorsChoiceChanged(int(motorsChoice_));
+		setModified(true);
+	}
+}
+
 QString VESPERS2DScanConfiguration::readRoiList() const
 {
 	QString prettyRois = "Regions of Interest\n";
