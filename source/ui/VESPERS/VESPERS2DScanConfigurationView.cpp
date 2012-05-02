@@ -475,8 +475,19 @@ void VESPERS2DScanConfigurationView::onSetStartPosition()
 
 void VESPERS2DScanConfigurationView::onSetEndPosition()
 {
-	double h = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
-	double v = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
+	double h = 0;
+	double v = 0;
+
+	if (config_->motorsChoice() == VESPERS2DScanConfiguration::HAndV){
+
+		h = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
+		v = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
+	}
+	else if (config_->motorsChoice() == VESPERS2DScanConfiguration::XAndZ){
+
+		h = VESPERSBeamline::vespers()->sampleStageX()->value();
+		v = VESPERSBeamline::vespers()->sampleStageZ()->value();
+	}
 
 	config_->setXEnd(h);
 	hEnd_->setValue(h);
@@ -551,9 +562,9 @@ void VESPERS2DScanConfigurationView::updateMapInfo()
 		vPoints++;
 
 	mapInfo_->setText(QString("Map Size: %1 %2 x %3 %2\t Points: %4 x %5")
-					  .arg(hSize*1000)
+					  .arg(QString::number(hSize*1000, 'f', 1))
 					  .arg(QString::fromUtf8("µm"))
-					  .arg(vSize*1000)
+					  .arg(QString::number(vSize*1000, 'f', 1))
 					  .arg(hPoints)
 					  .arg(vPoints)
 					  );
