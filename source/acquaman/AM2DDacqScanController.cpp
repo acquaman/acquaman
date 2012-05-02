@@ -236,57 +236,87 @@ void AM2DDacqScanController::prefillScanPoints()
 
 		case AM2DScanConfiguration::X: {
 
-			int i = 0;
-			int j = 0;
 			AMnDIndex insertIndex;
+			int xCount = 0;
+			int yCount = 0;
+			double xStart = internal2DConfig_->xStart();
+			double xStep = internal2DConfig_->xStep();
+			double xEnd = internal2DConfig_->xEnd();
+			double yStart = internal2DConfig_->yStart();
+			double yStep = internal2DConfig_->yStep();
+			double yEnd = internal2DConfig_->yEnd();
+			double floatNumX = (xEnd-xStart)/xStep;
+			double floatNumY = (yEnd-yStart)/yStep;
 
-			for (double y = internal2DConfig_->yStart(); y <= internal2DConfig_->yEnd() + internal2DConfig_->yStep(); y += internal2DConfig_->yStep()){
+			if ((floatNumX-int(floatNumX)) == 0)
+				xCount = int(floatNumX) + 1;
+			else
+				xCount = int(floatNumX) + 2;
 
-				for (double x = internal2DConfig_->xStart(); x <= internal2DConfig_->xEnd() + internal2DConfig_->xStep(); x += internal2DConfig_->xStep()){
+			if ((floatNumY-int(floatNumY)) == 0)
+				yCount = int(floatNumY) + 1;
+			else
+				yCount = int(floatNumY) + 2;
+
+			for (int j = 0; j < yCount; j++){
+
+				for (int i = 0; i < xCount; i++){
 
 					insertIndex = AMnDIndex(i, j);
 					scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
-					scan_->rawData()->setAxisValue(0, insertIndex.i(), x);
-					scan_->rawData()->setAxisValue(1, insertIndex.j(), y);
+					scan_->rawData()->setAxisValue(0, insertIndex.i(), xStart + i*xStep);
+					scan_->rawData()->setAxisValue(1, insertIndex.j(), yStart + j*yStep);
 
 					for (int di = 0; di < scan_->dataSourceCount(); di++)
 						scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), 0);
 
 					scan_->rawData()->endInsertRows();
-					i++;
 				}
-
-				j++;
-				i = 0;
 			}
+
 			break;
 		}
 
 		case AM2DScanConfiguration::Y: {
 
-			int i = 0;
-			int j = 0;
 			AMnDIndex insertIndex;
+			int xCount = 0;
+			int yCount = 0;
+			double xStart = internal2DConfig_->xStart();
+			double xStep = internal2DConfig_->xStep();
+			double xEnd = internal2DConfig_->xEnd();
+			double yStart = internal2DConfig_->yStart();
+			double yStep = internal2DConfig_->yStep();
+			double yEnd = internal2DConfig_->yEnd();
+			double floatNumX = (xEnd-xStart)/xStep;
+			double floatNumY = (yEnd-yStart)/yStep;
 
-			for (double x = internal2DConfig_->xStart(); x <= internal2DConfig_->xEnd() + internal2DConfig_->xStep(); x += internal2DConfig_->xStep()){
+			if ((floatNumX-int(floatNumX)) == 0)
+				xCount = int(floatNumX) + 1;
+			else
+				xCount = int(floatNumX) + 2;
 
-				for (double y = internal2DConfig_->yStart(); y <= internal2DConfig_->yEnd() + internal2DConfig_->yStep(); y += internal2DConfig_->yStep()){
+			if ((floatNumY-int(floatNumY)) == 0)
+				yCount = int(floatNumY) + 1;
+			else
+				yCount = int(floatNumY) + 2;
+
+			for (int i = 0; i < yCount; i++){
+
+				for (int j = 0; j < xCount; j++){
 
 					insertIndex = AMnDIndex(i, j);
 					scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
-					scan_->rawData()->setAxisValue(0, insertIndex.i(), x);
-					scan_->rawData()->setAxisValue(1, insertIndex.j(), y);
+					scan_->rawData()->setAxisValue(0, insertIndex.i(), xStart + i*xStep);
+					scan_->rawData()->setAxisValue(1, insertIndex.j(), yStart + j*yStep);
 
 					for (int di = 0; di < scan_->dataSourceCount(); di++)
 						scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), 0);
 
 					scan_->rawData()->endInsertRows();
-					i++;
 				}
-
-				j++;
-				i = 0;
 			}
+
 			break;
 		}
 	}
