@@ -28,6 +28,7 @@ class AMSampleManagementWidget;
 class CLSSIS3820ScalerView;
 class AMDetectorView;
 class AMScanConfigurationViewHolder;
+class AMScanConfigurationViewHolder3;
 class SGMXASScanConfigurationView;
 class SGMFastScanConfigurationView;
 class SGMSidebar;
@@ -99,6 +100,7 @@ protected:
 	SGMFastScanConfigurationView *fastScanConfigurationView_;
 	AMScanConfigurationViewHolder *xasScanConfigurationHolder_;
 	AMScanConfigurationViewHolder *fastScanConfigurationHolder_;
+	AMScanConfigurationViewHolder3 *xasScanConfigurationHolder3_;
 	SGMSidebar *sgmSidebar_;
 
 	/// Persistent view for SGMSettings
