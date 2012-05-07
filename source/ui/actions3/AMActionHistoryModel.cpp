@@ -140,7 +140,10 @@ bool AMActionLogItem3::loadLogDetailsFromDb() const
 	startDateTime_ = QDateTime::fromString(values.at(3).toString(), "yyyy-MM-ddThh:mm:ss.zzz");
 	endDateTime_ = QDateTime::fromString(values.at(4).toString(), "yyyy-MM-ddThh:mm:ss.zzz");
 	finalState_ = values.at(5).toInt();
-	canCopy_ = db_->retrieve(values.at(6).toString().section(';', -1).toInt(), values.at(6).toString().split(';').first(), "canCopy").toBool();
+	if(values.at(6).toString().contains("|$^$|"))
+		canCopy_ = db_->retrieve(values.at(6).toString().section(';', -1).toInt(), values.at(6).toString().split(';').first().split("|$^$|").last(), "canCopy").toBool();
+	else
+		canCopy_ = db_->retrieve(values.at(6).toString().section(';', -1).toInt(), values.at(6).toString().split(';').first(), "canCopy").toBool();
 	parentId_ = values.at(7).toInt();
 	actionInheritedLoop_ = values.at(8).toBool();
 	// Only set number of loops from the database if this logAction inherited the loop action
@@ -162,6 +165,7 @@ AMActionHistoryModel3::AMActionHistoryModel3(AMDatabase *db, QObject *parent) : 
 	actionLogTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMActionLog3>();
 	visibleActionsCount_ = 0;
 	maximumActionsLimit_ = 200;
+	visibleRangeOldest_ = QDateTime::fromString("M1d1y70", "'M'M'd'd'y'yy");
 
 	connect(&refreshFunctionCall_, SIGNAL(executed()), this, SLOT(refreshFromDb()));
 	connect(&specificRefreshFunctionCall_, SIGNAL(executed()), this, SLOT(refreshSpecificIds()));

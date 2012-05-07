@@ -60,7 +60,7 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	countBeforeShowMoreActions_ = 0;
 
 	model_ = new AMActionHistoryModel3(db_, this);
-	model_->setMaximumActionsToDisplay(60);
+	model_->setMaximumActionsToDisplay(200);
 	//QDateTime fourHoursAgo = QDateTime::currentDateTime().addSecs(-4*60*60);
 	//model_->setVisibleDateTimeRange(fourHoursAgo);
 	QDateTime everAgo = QDateTime();
