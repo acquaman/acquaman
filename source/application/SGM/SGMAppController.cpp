@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/dataman/AMSampleManagementWidget.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/SGM/SGMXASScanConfigurationView.h"
 #include "ui/SGM/SGMFastScanConfigurationView.h"
 #include "ui/SGM/SGMSidebar.h"
@@ -227,7 +228,8 @@ void SGMAppController::onSGMBeamlineConnected(){
 		double goodEnergy = 10 * floor(SGMBeamline::sgm()->energy()->value() / 10);
 		sxsc->addRegion(0, goodEnergy, 1, goodEnergy+10, 1);
 		xasScanConfigurationView_ = new SGMXASScanConfigurationView(sxsc);
-		xasScanConfigurationHolder_->setView(xasScanConfigurationView_);
+		//xasScanConfigurationHolder_->setView(xasScanConfigurationView_);
+		xasScanConfigurationHolder3_->setView(xasScanConfigurationView_);
 
 		SGMFastScanConfiguration *sfsc = new SGMFastScanConfiguration(this);
 		fastScanConfigurationView_ = new SGMFastScanConfigurationView(sfsc);
@@ -955,14 +957,17 @@ bool SGMAppController::setupSGMViews(){
 
 	mw_->insertHeading("Experiment Setup", 1);
 	xasScanConfigurationView_ = 0; //NULL
-	xasScanConfigurationHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_);
-	mw_->addPane(xasScanConfigurationHolder_, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
+	//xasScanConfigurationHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_);
+	//mw_->addPane(xasScanConfigurationHolder_, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
+	xasScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3();
+	mw_->addPane(xasScanConfigurationHolder3_, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
 
 	fastScanConfigurationView_ = 0; //NULL
 	fastScanConfigurationHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_);
 	mw_->addPane(fastScanConfigurationHolder_, "Experiment Setup", "SGM Fast Scan", ":/utilities-system-monitor.png");
 
-	connect(xasScanConfigurationHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+	//connect(xasScanConfigurationHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+	connect(xasScanConfigurationHolder3_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 	connect(fastScanConfigurationHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 
 	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
