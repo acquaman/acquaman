@@ -48,6 +48,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMDBOBJECT_CANNOT_LOAD_FROM_DB_CLASS_NOT_REGISTERED -277005
 #define AMDBOBJECT_CANNOT_LOAD_FROM_DB_NO_VALUES_RETRIEVED_FROM_TABLE -277006
 #define AMDBOBJECT_CANNOT_LOAD_FROM_DB_AMDBOBJECTLIST_TABLE_LOCATION_INVALID -277007
+#define AMDBOBJECT_CANNOT_LOAD_FROM_DB_BAD_DB_REDIRECT -277008
 
 /// Thumbnails are fast little blobs of data used as icons or images to visually represent AMDbObjects.
 class AMDbThumbnail {

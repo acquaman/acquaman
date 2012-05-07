@@ -450,22 +450,37 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 		else {
 
 			if(columnType == qMetaTypeId<AMDbObject*>()) {	// stored owned AMDbObject. reload from separate location in database.
-				QStringList objectLocation = values.at(ri).toString().split(AMDbObjectSupport::listSeparator());	// location was saved as string: "tableName;id"
+
+				AMDatabase *databaseToUse;
+				QString columnValue = values.at(ri).toString();
+				if(columnValue.contains("|$^$|") && values.at(ri).toString().count("|$^$|") == 2 ){ // check to determine if this AMDbObject is actually in a differen database (in case this is in the actions database and some information it needs is in the user database)
+					QString databaseName = columnValue.split("|$^$|").at(1);
+					columnValue = columnValue.split("|$^$|").last();
+					databaseToUse = AMDatabase::database(databaseName);
+					if(!databaseToUse){
+						AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_LOAD_FROM_DB_BAD_DB_REDIRECT, QString("Could not load from database, id %1 in table %2 (%3 database) attempted to redirect to a bad database named %4. Please report this problem to the Acquaman developers.").arg(sourceId).arg(myInfo->tableName).arg(db->connectionName()).arg(databaseName)));
+						return false;	// bad redirection to another database
+					}
+				}
+				else
+					databaseToUse = db;
+
+				QStringList objectLocation = columnValue.split(AMDbObjectSupport::listSeparator());	// location was saved as string: "tableName;id"
 				if(objectLocation.count() == 2) {
 					QString tableName = objectLocation.at(0);
 					int dbId = objectLocation.at(1).toInt();
 					AMDbObject* existingObject = property(columnName).value<AMDbObject*>();
 					// have a valid existing object, and its type matches the type to load? Just call loadFromDb() and keep the existing object.
-					if(existingObject && existingObject->type() == AMDbObjectSupport::typeOfObjectAt(db, tableName, dbId))
-						existingObject->loadFromDb(db, dbId);
+					if(existingObject && existingObject->type() == AMDbObjectSupport::typeOfObjectAt(databaseToUse, tableName, dbId))
+						existingObject->loadFromDb(databaseToUse, dbId);
 					else {
-						AMDbObject* reloadedObject = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, dbId);
+						AMDbObject* reloadedObject = AMDbObjectSupport::s()->createAndLoadObjectAt(databaseToUse, tableName, dbId);
 						if(reloadedObject)
 							setProperty(columnName, QVariant::fromValue(reloadedObject));
 						else{
 							setProperty(columnName, QVariant::fromValue((AMDbObject*)0));	// if it wasn't reloaded successfully, you'll still get a setProperty call, but it will be with a null pointer.
 							if(AMErrorMon::lastErrorCode() == AMDBOBJECTSUPPORT_CANNOT_LOAD_OBJECT_NOT_REGISTERED_TYPE)
-								loadingErrors_.insert(QString(columnName), new AMDbLoadErrorInfo(db->connectionName(), tableName, dbId));
+								loadingErrors_.insert(QString(columnName), new AMDbLoadErrorInfo(databaseToUse->connectionName(), tableName, dbId));
 						}
 					}
 				}
