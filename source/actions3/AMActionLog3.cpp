@@ -150,8 +150,10 @@ void AMActionLog3::dbLoadActionInheritedLoop(bool actionInheritedLoop){
 	setModified(true);
 }
 
+#include <QDebug>
 bool AMActionLog3::logUncompletedAction(const AMAction3 *uncompletedAction, int parentLogId, AMDatabase *database){
 	if(uncompletedAction && !uncompletedAction->inFinalState()){
+		qDebug() << "Logging uncompleted action";
 		AMActionLog3 actionLog(uncompletedAction);
 		actionLog.setParentId(parentLogId);
 		bool success = actionLog.storeToDb(database);
@@ -192,6 +194,7 @@ bool AMActionLog3::updateCompletedAction(const AMAction3 *completedAction, AMDat
 
 bool AMActionLog3::logCompletedAction(const AMAction3 *completedAction, int parentLogId, AMDatabase *database){
 	if(completedAction && completedAction->inFinalState()) {
+		qDebug() << "Logging completed action";
 		AMActionLog3 actionLog(completedAction);
 		actionLog.setParentId(parentLogId);
 		return actionLog.storeToDb(database);

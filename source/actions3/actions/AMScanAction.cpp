@@ -74,6 +74,10 @@ void AMScanAction::startImplementation()
 		return;
 	}
 
+	if(!AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(controller_)){
+		qDebug() << "Uh oh, can't set current scan controller";
+	}
+
 	connect(controller_, SIGNAL(initialized()), this, SLOT(onControllerInitialized()));
 	connect(controller_, SIGNAL(started()), this, SLOT(onControllerStarted()));
 	connect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerCancelled()));
@@ -124,9 +128,10 @@ void AMScanAction::onControllerInitialized()
 
 void AMScanAction::onControllerStarted()
 {
-	if (controller_->scan()->storeToDb(AMDatabase::database("user")))
+	if (controller_->scan()->storeToDb(AMDatabase::database("user"))){
+		qDebug() << "Logging started scan config id is " << controller_->scan()->scanConfiguration()->id() << (intptr_t)controller_->scan()->scanConfiguration();
 		scanInfo_->setScanID(controller_->scan()->id());
-
+	}
 	else
 		AMErrorMon::alert(this, AMSCANACTION_CANT_SAVE_TO_DB, "The scan action was unable to store the scan to the database.");
 }

@@ -25,10 +25,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/database/AMDbObjectSupport.h"
 
 AMScanActionInfo::AMScanActionInfo(AMScanConfiguration *config, const QString &iconFileName, QObject *parent)
-	: AMActionInfo3(config->name(), config->description(), iconFileName, parent)
+	: AMActionInfo3(config->userScanName(), config->description(), iconFileName, parent)
 {
 	config_ = config;
 	scanID_ = -1;
+	qDebug() << "How about " << config->userScanName() << " and " << config->description();
 }
 
 AMScanActionInfo::AMScanActionInfo(const AMScanActionInfo &other)
@@ -40,8 +41,8 @@ AMScanActionInfo::AMScanActionInfo(const AMScanActionInfo &other)
 
 AMScanActionInfo::~AMScanActionInfo()
 {
-	if (config_)
-		delete config_;
+//	if (config_)
+//		delete config_;
 }
 
 const AMScanConfiguration *AMScanActionInfo::config() const
@@ -59,6 +60,16 @@ AMScanConfiguration *AMScanActionInfo::config()
 
 	config_ = getConfigurationFromDb();
 	return config_;
+}
+
+AMDbObject* AMScanActionInfo::dbGetConfig() const{
+	return config_;
+}
+
+void AMScanActionInfo::dbLoadConfig(AMDbObject *newConfig){
+	AMScanConfiguration *configuration = qobject_cast<AMScanConfiguration*>(newConfig);
+	if(configuration)
+		config_ = configuration;
 }
 
 AMScanConfiguration *AMScanActionInfo::getConfigurationFromDb() const

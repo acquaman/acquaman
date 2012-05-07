@@ -34,6 +34,7 @@ class AMScanActionInfo : public AMActionInfo3
 {
 	Q_OBJECT
 
+	Q_PROPERTY(AMDbObject* config READ dbGetConfig WRITE dbLoadConfig)
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Scan Action")
 
 public:
@@ -67,6 +68,12 @@ public:
 	int scanID() const { return scanID_; }
 	/// Sets the id of the scan this action is associated with.
 	void setScanID(int id) { scanID_ = id; }
+
+protected:
+	/// Helper to save to db
+	AMDbObject* dbGetConfig() const;
+	/// Helper to load from db
+	void dbLoadConfig(AMDbObject *newConfig);
 
 protected:
 	/// The pointer holding the configuration that everything is based on.

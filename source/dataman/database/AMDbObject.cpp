@@ -223,8 +223,34 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 		else if(columnType == qMetaTypeId<AMDbObject*>()) {
 			AMDbObject* obj = property(columnName).value<AMDbObject*>();
 			if(obj && obj!=this) {	// if its a valid object, and not ourself (avoid recursion)
-				if(!obj->modified() && obj->database()==db && obj->id() >=1)	// if it's not modified, and already part of this database... don't need to store it. Just remember where it is...
+
+				if(obj->dbObjectInfo()->className == "SGMXASScanConfiguration" && obj->database())
+					qDebug() << "Its db: " << obj->database()->connectionName();
+				else if(obj->dbObjectInfo()->className == "SGMXASScanConfiguration")
+					qDebug() << "It has no db right now " << (intptr_t)(obj);
+
+
+				if(obj->database() && (obj->database() != db) ){
+					qDebug() << "StoreToDb detected mismatch in database store request " << myInfo->className << obj->dbObjectInfo()->className;
+					if(!obj->modified() && (obj->id() >= 1) ){
+						qDebug() << "Not modified and valid, so just save other db location";
+						values << QString("%1%2%3%4%5%6").arg("|$^$|").arg(obj->database()->connectionName()).arg("|$^$|").arg(obj->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(obj->id());
+					}
+					else{
+						if(obj->storeToDb(obj->database())){
+							qDebug() << "Modified or invalid, so saved to db and record other db location";
+							values << QString("%1%2%3%4%5%6").arg("|$^$|").arg(obj->database()->connectionName()).arg("|$^$|").arg(obj->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(obj->id());
+						}
+						else{
+							qDebug() << "Modified or invalid, BUT FAILED save to db and record other db location";
+							values << QString();// storing empty string: indicates failure to save object here.
+						}
+					}
+				}
+
+				else if(!obj->modified() && obj->database()==db && obj->id() >=1){	// if it's not modified, and already part of this database... don't need to store it. Just remember where it is...
 					values << QString("%1%2%3").arg(obj->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(obj->id());
+				}
 				else {
 					if(obj->storeToDb(db))
 						values << QString("%1%2%3").arg(obj->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(obj->id());

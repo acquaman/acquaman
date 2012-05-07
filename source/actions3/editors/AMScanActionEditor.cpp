@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMScanConfiguration.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
 
+
 AMScanActionEditor::AMScanActionEditor(AMScanActionInfo *info, QWidget *parent)
 	: QFrame(parent)
 {
