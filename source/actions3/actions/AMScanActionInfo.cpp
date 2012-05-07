@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/database/AMDbObjectSupport.h"
 
 AMScanActionInfo::AMScanActionInfo(AMScanConfiguration *config, const QString &iconFileName, QObject *parent)
-	: AMActionInfo3(config->name(), config->description(), iconFileName, parent)
+	: AMActionInfo3(config->userScanName(), config->description(), iconFileName, parent)
 {
 	config_ = config;
 	scanID_ = -1;
