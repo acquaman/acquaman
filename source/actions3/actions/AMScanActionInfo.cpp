@@ -40,8 +40,8 @@ AMScanActionInfo::AMScanActionInfo(const AMScanActionInfo &other)
 
 AMScanActionInfo::~AMScanActionInfo()
 {
-	if (config_)
-		delete config_;
+//	if (config_)
+//		delete config_;
 }
 
 const AMScanConfiguration *AMScanActionInfo::config() const
