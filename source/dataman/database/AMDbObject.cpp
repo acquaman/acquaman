@@ -224,19 +224,13 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			AMDbObject* obj = property(columnName).value<AMDbObject*>();
 			if(obj && obj!=this) {	// if its a valid object, and not ourself (avoid recursion)
 				if(obj->database() && (obj->database() != db) ){
-					if(!obj->modified() && (obj->id() >= 1) ){
-						qDebug() << "Not modified and valid, so just save other db location";
+					if(!obj->modified() && (obj->id() >= 1) )
 						values << QString("%1%2%3%4%5%6").arg("|$^$|").arg(obj->database()->connectionName()).arg("|$^$|").arg(obj->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(obj->id());
-					}
 					else{
-						if(obj->storeToDb(obj->database())){
-							qDebug() << "Modified or invalid, so saved to db and record other db location";
+						if(obj->storeToDb(obj->database()))
 							values << QString("%1%2%3%4%5%6").arg("|$^$|").arg(obj->database()->connectionName()).arg("|$^$|").arg(obj->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(obj->id());
-						}
-						else{
-							qDebug() << "Modified or invalid, BUT FAILED save to db and record other db location";
+						else
 							values << QString();// storing empty string: indicates failure to save object here.
-						}
 					}
 				}
 
