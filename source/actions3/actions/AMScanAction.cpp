@@ -128,10 +128,8 @@ void AMScanAction::onControllerInitialized()
 
 void AMScanAction::onControllerStarted()
 {
-	if (controller_->scan()->storeToDb(AMDatabase::database("user"))){
-		qDebug() << "Logging started scan config id is " << controller_->scan()->scanConfiguration()->id() << (intptr_t)controller_->scan()->scanConfiguration();
+	if (controller_->scan()->storeToDb(AMDatabase::database("user")))
 		scanInfo_->setScanID(controller_->scan()->id());
-	}
 	else
 		AMErrorMon::alert(this, AMSCANACTION_CANT_SAVE_TO_DB, "The scan action was unable to store the scan to the database.");
 }
