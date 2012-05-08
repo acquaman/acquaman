@@ -558,10 +558,11 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/actions3/actions/AMScanAction.h \
 	source/actions3/actions/AMScanActionInfo.h \
 	source/actions3/editors/AMScanActionEditor.h \
-    source/analysis/AM1DNormalizationAB.h \
-    source/analysis/AM1DNormalizationABEditor.h \
-    source/ui/AMAddAnalysisBlockDialog.h \
-    ../MPlot/src/MPlot/MPlotColorLegend.h
+	source/analysis/AM1DNormalizationAB.h \
+	source/analysis/AM1DNormalizationABEditor.h \
+	source/ui/AMAddAnalysisBlockDialog.h \
+	../MPlot/src/MPlot/MPlotColorLegend.h \
+	source/ui/acquaman/AMScanConfigurationViewHolder3.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -946,10 +947,11 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/actions3/actions/AMScanAction.cpp \
 	source/actions3/actions/AMScanActionInfo.cpp \
 	source/actions3/editors/AMScanActionEditor.cpp \
-    source/analysis/AM1DNormalizationAB.cpp \
-    source/analysis/AM1DNormalizationABEditor.cpp \
-    source/ui/AMAddAnalysisBlockDialog.cpp \
-    ../MPlot/src/MPlot/MPlotColorLegend.cpp
+	source/analysis/AM1DNormalizationAB.cpp \
+	source/analysis/AM1DNormalizationABEditor.cpp \
+	source/ui/AMAddAnalysisBlockDialog.cpp \
+	../MPlot/src/MPlot/MPlotColorLegend.cpp \
+	source/ui/acquaman/AMScanConfigurationViewHolder3.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
