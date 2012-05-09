@@ -41,6 +41,10 @@ macx {
 		# LibXML Dependencies (required by dacq library)
 		XML_LIB = -lxml2
 		XML_INCLUDE_DIR = /usr/include/libxml2
+
+		# CDFlib dependencies
+		CDF_LIB = /Applications/cdf34_0-dist/lib/libcdf.a
+		CDF_INCLUDE_DIR = /Applications/cdf34_0-dist/include
 }
 linux-g++ {
 
@@ -145,13 +149,15 @@ INCLUDEPATH += $$EPICS_INCLUDE_DIRS \
 		$$MPLOT_INCLUDE_DIR \
 		$$GSL_INCLUDE_DIR \
 		$$XML_INCLUDE_DIR \
-		$$QWTPLOT3D_INCLUDE_DIR
+		$$QWTPLOT3D_INCLUDE_DIR \
+		$$CDF_INCLUDE_DIR
 
 LIBS += $$GSL_LIB \
 		$$GSL_CBLAS_LIB \
 		$$XML_LIB \
 #	-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
-		-L$$EPICS_LIB_DIR -lca -lCom
+		-L$$EPICS_LIB_DIR -lca -lCom \
+		$$CDF_LIB_DIR
 
 # Set standard level of compiler warnings for everyone. (Otherwise the warnings shown will be system-dependent.)
 QMAKE_CXXFLAGS += -Wextra
