@@ -248,12 +248,12 @@ void AM2DDacqScanController::prefillScanPoints()
 			double floatNumX = (xEnd-xStart)/xStep;
 			double floatNumY = (yEnd-yStart)/yStep;
 
-			if ((floatNumX-int(floatNumX)) == 0)
+			if (fabs((floatNumX-int(floatNumX))) < 0.1*xStep)
 				xCount = int(floatNumX) + 1;
 			else
 				xCount = int(floatNumX) + 2;
 
-			if ((floatNumY-int(floatNumY)) == 0)
+			if (fabs((floatNumY-int(floatNumY))) < 0.1*yStep)
 				yCount = int(floatNumY) + 1;
 			else
 				yCount = int(floatNumY) + 2;

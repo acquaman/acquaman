@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QToolButton>
 #include <QDoubleSpinBox>
+#include <QLineEdit>
 
 VESPERSBendingMirrorsView::VESPERSBendingMirrorsView(QWidget *parent)
 	: QWidget(parent)
@@ -48,14 +49,10 @@ VESPERSBendingMirrorsElementView::VESPERSBendingMirrorsElementView(AMControl *co
 	status_->setFixedSize(25, 25);
 	connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onStatusChanged(bool)));
 
-	setpoint_ = new QDoubleSpinBox;
-	setpoint_->setRange(-10000000, 100000000);
-	setpoint_->setSuffix(QString(" %1").arg(control_->units()));
-	setpoint_->setDecimals(3);
-	setpoint_->setValue(control_->setpoint());
+	setpoint_ = new QLineEdit;
+	setpoint_->setAlignment(Qt::AlignCenter);
 	setpoint_->setFixedSize(90, 25);
-	connect(control_, SIGNAL(setpointChanged(double)), setpoint_, SLOT(setValue(double)));
-	connect(setpoint_, SIGNAL(editingFinished()), this, SLOT(onMoveRequested()));
+	connect(control_, SIGNAL(setpointChanged(double)), this, SLOT(onSetpointChanged(double)));
 
 	jog_ = new QDoubleSpinBox;
 	jog_->setRange(-10000000, 10000000);
@@ -99,10 +96,9 @@ VESPERSBendingMirrorsElementView::VESPERSBendingMirrorsElementView(AMControl *co
 
 void VESPERSBendingMirrorsElementView::onControlConnected(bool isConnected)
 {
-	setpoint_->setValue(control_->setpoint());
-	setpoint_->setSuffix(QString(" %1").arg(control_->units()));
 	jog_->setSuffix(QString(" %1").arg(control_->units()));
 	setEnabled(isConnected);
+	connect(setpoint_, SIGNAL(returnPressed()), this, SLOT(onMoveRequested()));
 }
 
 void VESPERSBendingMirrorsElementView::onStatusChanged(bool moving)
@@ -110,19 +106,24 @@ void VESPERSBendingMirrorsElementView::onStatusChanged(bool moving)
 	status_->setPixmap(moving ? QIcon(":/22x22/greenLEDOn.png").pixmap(22) : QIcon(":/22x22/greenLEDOff.png").pixmap(22));
 }
 
+void VESPERSBendingMirrorsElementView::onSetpointChanged(double val)
+{
+	setpoint_->setText(QString::number(val, 'f', 3));
+}
+
 void VESPERSBendingMirrorsElementView::onMoveRequested()
 {
-	control_->move(setpoint_->value());
+	control_->move(setpoint_->text().toDouble());
 }
 
 void VESPERSBendingMirrorsElementView::onJogMinus()
 {
-	control_->move(setpoint_->value()-jog_->value());
+	control_->move(setpoint_->text().toDouble()-jog_->value());
 }
 
 void VESPERSBendingMirrorsElementView::onJogPlus()
 {
-	control_->move(setpoint_->value()+jog_->value());
+	control_->move(setpoint_->text().toDouble()+jog_->value());
 }
 
 void VESPERSBendingMirrorsElementView::onFeedbackChanged()
