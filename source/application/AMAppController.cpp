@@ -103,6 +103,8 @@ bool AMAppController::startupCreateUserInterface() {
 
 		AMStartScreen* chooseRunDialog = new AMStartScreen(true, mw_);
 		chooseRunDialog->show();
+		chooseRunDialog->activateWindow();
+		chooseRunDialog->raise();
 
 		/* Commented out, put it back in to play with the change number action
 		QListView *listView = new QListView();
