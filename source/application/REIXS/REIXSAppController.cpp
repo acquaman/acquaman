@@ -77,140 +77,154 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/util/AMJoystickTestView.h"
 #endif
 
+#include "ui/actions3/AMWorkflowView3.h"
+
 REIXSAppController::REIXSAppController(QObject *parent) :
     AMAppController(parent)
 {
 }
 
-bool REIXSAppController::startup() {
+// Re-implemented to create the REIXSBeamline object
+bool REIXSAppController::startupBeforeAnything() {
+	if(!AMAppController::startupBeforeAnything()) return false;
 
-    // Initialize central beamline object
-    REIXSBeamline::bl();
+	// Initialize the central beamline object
+	REIXSBeamline::bl();
 
-    if(AMAppController::startup()) {
+	return true;
+}
 
-        AMDbObjectSupport::s()->registerClass<REIXSXESScanConfiguration>();
-        AMDbObjectSupport::s()->registerClass<REIXSXESMCPDetectorInfo>();
-        AMDbObjectSupport::s()->registerClass<REIXSXESCalibration>();
-		AMDbObjectSupport::s()->registerClass<REIXSXESImageAB>();
+// Re-implemented to register REIXS-specific database classes
+bool REIXSAppController::startupRegisterDatabases() {
+	if(!AMAppController::startupRegisterDatabases()) return false;
 
-        AMDbObjectSupport::s()->registerClass<REIXSControlMoveActionInfo>();
-        AMDbObjectSupport::s()->registerClass<REIXSXESScanActionInfo>();
-        AMDbObjectSupport::s()->registerClass<REIXSSampleMoveActionInfo>();
-		AMDbObjectSupport::s()->registerClass<REIXSBeamOnOffActionInfo>();
+	AMDbObjectSupport::s()->registerClass<REIXSXESScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<REIXSXESMCPDetectorInfo>();
+	AMDbObjectSupport::s()->registerClass<REIXSXESCalibration>();
+	AMDbObjectSupport::s()->registerClass<REIXSXESImageAB>();
 
-        // Testing and making the first run in the database, if there isn't one already.  Make this it's own function if you think startup() is getting too big ; )
-        ////////////////////////////////////////
+	AMDbObjectSupport::s()->registerClass<REIXSControlMoveActionInfo>();
+	AMDbObjectSupport::s()->registerClass<REIXSXESScanActionInfo>();
+	AMDbObjectSupport::s()->registerClass<REIXSSampleMoveActionInfo>();
+	AMDbObjectSupport::s()->registerClass<REIXSBeamOnOffActionInfo>();
 
-        AMRun existingRun;
-        if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
-            // no run yet... let's create one.
-            AMRun firstRun("REIXS", 5);	/// \todo For now, we know that 5 is the ID of the REIXS facility, but this is a hardcoded hack. See AMFirstTimeController::onFirstTime() for where the facilities are created.
-            firstRun.storeToDb(AMDatabase::database("user"));
-        }
+	// Register Actions:
+	////////////////////////////////
+
+	/// \todo Move common ones to main app controller.
+	AMActionRegistry::s()->registerInfoAndAction<AMWaitActionInfo, AMWaitAction>("Wait", "This action simply waits for a specified amount of time.", ":/user-away.png");
+	AMActionRegistry::s()->registerInfoAndAction<REIXSControlMoveActionInfo, REIXSControlMoveAction>("Move Control", "This action moves any REIXS beamline control to a target position.\n\nYou can specify an absolute or a relative move.", ":/system-run.png");
+	AMActionRegistry::s()->registerInfoAndAction<REIXSXESScanActionInfo, REIXSXESScanAction>("XES Scan", "This action conducts a single XES scan at a given detector energy.", ":/utilities-system-monitor.png");
+	AMActionRegistry::s()->registerInfoAndAction<AMLoopActionInfo, AMLoopAction>("Loop", "This action repeats a set of sub-actions a specific number of times.\n\nAfter adding it, you can drag-and-drop other actions inside it.", ":/32x32/media-playlist-repeat.png");
+	AMActionRegistry::s()->registerInfoAndAction<REIXSSampleMoveActionInfo, REIXSSampleMoveAction>("Move Sample: Measure", "This action moves the REIXS sample manipulator to the default measurement position.", ":/32x32/gnome-display-properties.png");
+	AMActionRegistry::s()->registerInfoAndAction<REIXSMoveToSampleTransferPositionActionInfo, REIXSMoveToSampleTransferPositionAction>("Move Sample: Transfer", "This action moves the REIXS sample manipulator to the sample transfer position.", ":/32x32/media-eject.png");
+	AMActionRegistry::s()->registerInfoAndAction<REIXSBeamOnOffActionInfo, REIXSBeamOnOffAction>("Beam On/Off", "This action takes care of turning the beam on or off.");
+
+	AMActionRegistry::s()->registerInfoAndEditor<AMWaitActionInfo, AMWaitActionEditor>();
+	AMActionRegistry::s()->registerInfoAndEditor<AMLoopActionInfo, AMLoopActionEditor>();
+	AMActionRegistry::s()->registerInfoAndEditor<REIXSXESScanActionInfo, REIXSXESScanActionEditor>();
+	AMActionRegistry::s()->registerInfoAndEditor<REIXSControlMoveActionInfo, REIXSControlMoveActionEditor>();
+	AMActionRegistry::s()->registerInfoAndEditor<REIXSBeamOnOffActionInfo, REIXSBeamOnOffActionEditor>();
+
+	return true;
+}
+
+// Re-implemented to add REIXS-specific user interfaces
+bool REIXSAppController::startupCreateUserInterface() {
+	if(!AMAppController::startupCreateUserInterface()) return false;
+
+	// Create panes in the main window:
+	////////////////////////////////////
+
+	// remove the Actions3 workflow:
+	mw_->removePane(AMAppController::workflowView_);
+	delete AMAppController::workflowView_;
+
+	// add the workflow UI
+	workflowView_ = new AMWorkflowView();
+	mw_->addPane(workflowView_, "Experiment Tools", "Workflow", ":/user-away.png");
 
 
-		// Register Actions:
-		////////////////////////////////
+	mw_->insertHeading("Experiment Setup", 1);
+	//////////
+	xesScanConfigurationView_ = new REIXSXESScanConfigurationDetailedView(REIXSBeamline::bl()->mcpDetector());
+	REIXSScanConfigurationViewHolder* scanConfigurationHolder = new REIXSScanConfigurationViewHolder(xesScanConfigurationView_);
+	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Emission Scan", ":/utilities-system-monitor.png");
+	connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 
-        /// \todo Move common ones to main app controller.
-        AMActionRegistry::s()->registerInfoAndAction<AMWaitActionInfo, AMWaitAction>("Wait", "This action simply waits for a specified amount of time.", ":/user-away.png");
-		AMActionRegistry::s()->registerInfoAndAction<REIXSControlMoveActionInfo, REIXSControlMoveAction>("Move Control", "This action moves any REIXS beamline control to a target position.\n\nYou can specify an absolute or a relative move.", ":/system-run.png");
-        AMActionRegistry::s()->registerInfoAndAction<REIXSXESScanActionInfo, REIXSXESScanAction>("XES Scan", "This action conducts a single XES scan at a given detector energy.", ":/utilities-system-monitor.png");
-        AMActionRegistry::s()->registerInfoAndAction<AMLoopActionInfo, AMLoopAction>("Loop", "This action repeats a set of sub-actions a specific number of times.\n\nAfter adding it, you can drag-and-drop other actions inside it.", ":/32x32/media-playlist-repeat.png");
-		AMActionRegistry::s()->registerInfoAndAction<REIXSSampleMoveActionInfo, REIXSSampleMoveAction>("Move Sample: Measure", "This action moves the REIXS sample manipulator to the default measurement position.", ":/32x32/gnome-display-properties.png");
-		AMActionRegistry::s()->registerInfoAndAction<REIXSMoveToSampleTransferPositionActionInfo, REIXSMoveToSampleTransferPositionAction>("Move Sample: Transfer", "This action moves the REIXS sample manipulator to the sample transfer position.", ":/32x32/media-eject.png");
-		AMActionRegistry::s()->registerInfoAndAction<REIXSBeamOnOffActionInfo, REIXSBeamOnOffAction>("Beam On/Off", "This action takes care of turning the beam on or off.");
+	REIXSSampleChamberButtonPanel* buttonPanel = new REIXSSampleChamberButtonPanel();
+	AMSampleManagementWidget* sampleManagementPane = new AMSampleManagementWidget(buttonPanel,
+																				  QUrl("http://v2e1610-101.clsi.ca/mjpg/1/video.mjpg"),
+																				  "Sample Camera: down beam path",
+																				  0,
+																				  new REIXSSampleManipulator(),
+																				  0);
 
-        AMActionRegistry::s()->registerInfoAndEditor<AMWaitActionInfo, AMWaitActionEditor>();
-        AMActionRegistry::s()->registerInfoAndEditor<AMLoopActionInfo, AMLoopActionEditor>();
-        AMActionRegistry::s()->registerInfoAndEditor<REIXSXESScanActionInfo, REIXSXESScanActionEditor>();
-        AMActionRegistry::s()->registerInfoAndEditor<REIXSControlMoveActionInfo, REIXSControlMoveActionEditor>();
-		AMActionRegistry::s()->registerInfoAndEditor<REIXSBeamOnOffActionInfo, REIXSBeamOnOffActionEditor>();
-
-
-        // Create panes in the main window:
-        ////////////////////////////////////
-
-        // add the workflow control UI
-        workflowView_ = new AMWorkflowView();
-        mw_->addPane(workflowView_, "Experiment Tools", "Workflow", ":/user-away.png");
-        // remove the old one:
-        mw_->removePane(workflowManagerView_);
-        workflowManagerView_->hide();
-
-
-        mw_->insertHeading("Experiment Setup", 1);
-        //////////
-        xesScanConfigurationView_ = new REIXSXESScanConfigurationDetailedView(REIXSBeamline::bl()->mcpDetector());
-        REIXSScanConfigurationViewHolder* scanConfigurationHolder = new REIXSScanConfigurationViewHolder(xesScanConfigurationView_);
-        mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Emission Scan", ":/utilities-system-monitor.png");
-        connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
-
-		REIXSSampleChamberButtonPanel* buttonPanel = new REIXSSampleChamberButtonPanel();
-		AMSampleManagementWidget* sampleManagementPane = new AMSampleManagementWidget(buttonPanel,
-                                                                                      QUrl("http://v2e1610-101.clsi.ca/mjpg/1/video.mjpg"),
-                                                                                      "Sample Camera: down beam path",
-                                                                                      0,
-                                                                                      new REIXSSampleManipulator(),
-                                                                                      0);
-
-        mw_->addPane(sampleManagementPane, "Experiment Setup", "Sample Positions", ":/22x22/gnome-display-properties.png");
-		// Testing Joystick:
+	mw_->addPane(sampleManagementPane, "Experiment Setup", "Sample Positions", ":/22x22/gnome-display-properties.png");
+	// Testing Joystick:
 #ifdef Q_OS_LINUX
-		 AMJoystick* joystick = new AMGenericLinuxJoystick("/dev/input/js0", this);
-		 connect(joystick, SIGNAL(buttonChanged(int,bool,quint32)), buttonPanel, SLOT(onJoystickButtonChanged(int,bool)));
+	 AMJoystick* joystick = new AMGenericLinuxJoystick("/dev/input/js0", this);
+	 connect(joystick, SIGNAL(buttonChanged(int,bool,quint32)), buttonPanel, SLOT(onJoystickButtonChanged(int,bool)));
 //         AMJoystickTestView* testView = new AMJoystickTestView(joystick);
 //         testView->show();
 #endif
 
-        ////////////////// Testing junk; move somewhere clean ////////////////////
-        QWidget* spectrometerControlWidget = new QWidget();
-        QHBoxLayout* hl = new QHBoxLayout();
-        hl->addWidget(new REIXSXESHexapodControlEditor(REIXSBeamline::bl()->spectrometer()->hexapod()));
+	////////////////// Temporary testing/commissioning widgets ////////////////////
+	QWidget* spectrometerControlWidget = new QWidget();
+	QHBoxLayout* hl = new QHBoxLayout();
+	hl->addWidget(new REIXSXESHexapodControlEditor(REIXSBeamline::bl()->spectrometer()->hexapod()));
 
-        QGroupBox* gb = new QGroupBox("Motors");
-        QVBoxLayout* vl = new QVBoxLayout();
-        vl->addWidget(new QLabel("Spectrometer Rotation"));
-        vl->addWidget(new AMBasicControlEditor(REIXSBeamline::bl()->spectrometer()->spectrometerRotationDrive()));
+	QGroupBox* gb = new QGroupBox("Motors");
+	QVBoxLayout* vl = new QVBoxLayout();
+	vl->addWidget(new QLabel("Spectrometer Rotation"));
+	vl->addWidget(new AMBasicControlEditor(REIXSBeamline::bl()->spectrometer()->spectrometerRotationDrive()));
 
-        vl->addWidget(new QLabel("Detector Translation"));
-        vl->addWidget(new AMBasicControlEditor(REIXSBeamline::bl()->spectrometer()->detectorTranslation()));
+	vl->addWidget(new QLabel("Detector Translation"));
+	vl->addWidget(new AMBasicControlEditor(REIXSBeamline::bl()->spectrometer()->detectorTranslation()));
 
-        vl->addWidget(new QLabel("Detector Tilt"));
-        vl->addWidget(new AMBasicControlEditor(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()));
+	vl->addWidget(new QLabel("Detector Tilt"));
+	vl->addWidget(new AMBasicControlEditor(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()));
 
-        gb->setLayout(vl);
+	gb->setLayout(vl);
 
-        hl->addWidget(gb);
+	hl->addWidget(gb);
 
-        hl->addWidget(new REIXSXESSpectrometerControlEditor(REIXSBeamline::bl()->spectrometer()));
+	hl->addWidget(new REIXSXESSpectrometerControlEditor(REIXSBeamline::bl()->spectrometer()));
 
-        hl->addStretch(1);
+	hl->addStretch(1);
 
-        spectrometerControlWidget->setLayout(hl);
-        mw_->addPane(spectrometerControlWidget, "Experiment Setup", "Spectrometer controls", ":/utilities-system-monitor.png");
-        ////////////////// End of testing junk; move somewhere clean ////////////////////
-
-
+	spectrometerControlWidget->setLayout(hl);
+	mw_->addPane(spectrometerControlWidget, "Experiment Setup", "Spectrometer controls", ":/utilities-system-monitor.png");
+	////////////////// End of Temporary testing/commissioning widgets ////////////////////
 
 
-		// Add the sidebar, for real-time display of the beamline.
-		////////////////////////
-		REIXSSidebar* sidebar = new REIXSSidebar();
-		mw_->addRightWidget(sidebar);
+	// Add the sidebar, for real-time display of the beamline.
+	////////////////////////
+	REIXSSidebar* sidebar = new REIXSSidebar();
+	mw_->addRightWidget(sidebar);
 
-		// Make connections
-		//////////////////////////
-		/// \todo Eventually move into AMAppController
-        connect(AMActionRunner::s(), SIGNAL(currentActionStateChanged(int,int)), this, SLOT(onCurrentActionStateChanged(int,int)));
+	return true;
+}
 
 
+bool REIXSAppController::startupAfterEverything() {
+	if(!AMAppController::startupAfterEverything()) return false;
 
-        return true;
-    }
-    else
-        return false;
+	// Checking for and making the first run in the database, if there isn't one already.
+	////////////////////////////////////////
+	AMRun existingRun;
+	if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
+		// no run yet... let's create one.
+		AMRun firstRun("REIXS", 5);	/// \todo For now, we know that 5 is the ID of the REIXS facility, but this is a hardcoded hack. See AMFirstTimeController::onFirstTime() for where the facilities are created.
+		firstRun.storeToDb(AMDatabase::database("user"));
+	}
+
+	// Make connections
+	//////////////////////////
+	/// \todo Eventually move into AMAppController
+	connect(AMActionRunner::s(), SIGNAL(currentActionStateChanged(int,int)), this, SLOT(onCurrentActionStateChanged(int,int)));
+
+	return true;
 }
 
 void REIXSAppController::shutdown() {
@@ -219,20 +233,6 @@ void REIXSAppController::shutdown() {
     AMBeamline::releaseBl();
     AMAppController::shutdown();
 }
-
-//void REIXSAppController::tempAddLoopActions()
-//{
-//	AMLoopAction* loopAction = qobject_cast<AMLoopAction*>(AMActionRunner::s()->queuedActionAt(0));
-
-//	loopAction->insertSubAction(new AMWaitAction(10), -1);
-//	loopAction->insertSubAction(new AMWaitAction(11), -1);
-//	AMLoopAction* inner1 = new AMLoopAction(2);
-//	loopAction->insertSubAction(inner1, -1);
-
-//	inner1->insertSubAction(new AMWaitAction(12), -1);
-
-//	// inner1->insertSubAction(new AMWaitAction(13), -1);
-//}
 
 void REIXSAppController::goToWorkflow()
 {
