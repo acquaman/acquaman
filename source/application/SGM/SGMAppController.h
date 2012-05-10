@@ -75,6 +75,7 @@ protected slots:
 	void onCurrentScanControllerCreated();
 	void onCurrentScanControllerDestroyed();
 	void onCurrentScanControllerStarted();
+	void onCurrentScanControllerFinished();
 
 	void onActionSGMSettings();
 

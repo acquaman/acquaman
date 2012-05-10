@@ -74,10 +74,6 @@ void AMScanAction::startImplementation()
 		return;
 	}
 
-	if(!AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(controller_)){
-		qDebug() << "Uh oh, can't set current scan controller";
-	}
-
 	connect(controller_, SIGNAL(initialized()), this, SLOT(onControllerInitialized()));
 	connect(controller_, SIGNAL(started()), this, SLOT(onControllerStarted()));
 	connect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerCancelled()));
