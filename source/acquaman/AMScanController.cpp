@@ -17,7 +17,6 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <QDebug>
 #include <QDateTime>
 #include "AMScanController.h"
 
@@ -327,10 +326,7 @@ void AMScanControllerSupervisor::onCurrentScanControllerFinished(){
 	disconnect(currentScanController_, SIGNAL(finished()), this, SLOT(onCurrentScanControllerFinished()));
 	disconnect(currentScanController_, SIGNAL(started()), this, SIGNAL(currentScanControllerStarted()));
 	disconnect(currentScanController_, SIGNAL(cancelled()), this, SLOT(onCurrentScanControllerFinished()));
-	/* Playing with actions3
-	qDebug() << "Called deleteLater on currentScanController";
 	currentScanController_->deleteLater();
-	*/
 	currentScanController_ = 0;
 }
 

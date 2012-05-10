@@ -168,10 +168,8 @@ void AMBeamlineControlSetMoveAction::onSucceeded(){
 }
 
 void AMBeamlineControlSetMoveAction::onFailed(int explanation){
-	if(VERBOSE_ACTION_ITEMS){
-		AMControl *tmpCtrl = (AMControl*)QObject::sender();
-		qDebug() << "ControlSetMoveAction thinks someone failed " << tmpCtrl->name() << tmpCtrl->value() << tmpCtrl->setpoint() << tmpCtrl->tolerance() << " as " << explanation;
-	}
+	AMControl *tmpCtrl = (AMControl*)QObject::sender();
+	AMErrorMon::debug(this, AMBEAMLINECONTROLSETMOVEACTION_ONFAILED_MESSAGE, QString("ControlSetMoveAction detected failure in %1 as %2. Position: %3 Setpoint: %4 Tolerance: %5").arg(tmpCtrl->name()).arg(explanation).arg(tmpCtrl->value()).arg(tmpCtrl->setpoint()).arg(tmpCtrl->tolerance()) );
 	setFailed(true, explanation);
 }
 

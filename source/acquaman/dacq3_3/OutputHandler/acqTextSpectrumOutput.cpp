@@ -19,8 +19,6 @@ using namespace std;
 #define TRUE 1
 #define FALSE 0
 
-#include <QDebug>
-
 static acqOutputHandlerFactoryRegister registerMe( "Text", acqTextSpectrumOutput::new_acqTextSpectrumOutput);
 
 /// Only constructor. This over-rides the default handler entries from a base class.

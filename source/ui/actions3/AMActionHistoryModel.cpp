@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QPixmapCache>
 #include <QStringBuilder>
-#include <QDebug>
 
 #include "actions3/AMActionLog3.h"
 

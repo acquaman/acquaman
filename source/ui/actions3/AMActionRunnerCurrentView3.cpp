@@ -37,7 +37,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 #include <QMessageBox>
 #include <QPixmapCache>
-
 #include <QDebug>
 
 AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRunner, QWidget *parent) :

@@ -19,7 +19,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMDacqScanController.h"
-#include <QDebug>
 #include <QTime>
 #include <QStringList>
 #include <QDir>

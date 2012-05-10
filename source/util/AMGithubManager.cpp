@@ -19,8 +19,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMGithubManager.h"
 
-#include <QDebug>
-
 AMGithubManager::AMGithubManager(QObject *parent) :
 	QObject(parent)
 {
@@ -179,7 +177,7 @@ void AMGithubManager::createNewIssue(const QString &title, const QString &body, 
 		jdata["assignee"] = assignee;
 	QJson::Serializer jserializer;
 	QByteArray jsonData = jserializer.serialize(jdata);
-	qDebug() << jsonData;
+	//qDebug() << jsonData;
 
 	createNewIssueReply_ = manager_->post(request, jsonData);
 	connect(createNewIssueReply_, SIGNAL(readyRead()), this, SLOT(onCreateNewIssueReturned()));
@@ -206,7 +204,7 @@ void AMGithubManager::onAuthenicatedRequestReturned(){
 void AMGithubManager::onIssuesReturned(){
 	QJson::Parser parser;
 	QVariant githubFullReply = parser.parse(getIssuesReply_->readAll());
-	qDebug() << githubFullReply;
+	//qDebug() << githubFullReply;
 	bool doEmit = false;
 	QVariantMap retVal;
 	if(githubFullReply.canConvert(QVariant::List)){

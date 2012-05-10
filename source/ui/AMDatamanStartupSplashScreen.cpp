@@ -74,7 +74,6 @@ void AMDatamanStartupSplashScreen::onErrorMonStartupFinished(AMErrorReport e){
 	QTimer::singleShot(1000, this, SLOT(hide()));
 }
 
-#include <QDebug>
 void AMDatamanStartupSplashScreen::onErrorMonDebug(AMErrorReport e){
 	QString subStepText = e.description;
 	QString removeString = "in \\[.*\\]: ";
@@ -90,7 +89,6 @@ void AMDatamanStartupSplashScreen::onErrorMonChangeMode(AMErrorReport e){
 	QRegExp rx(removeString);
 	modeText.remove(rx);
 	if(modeText == "Waiting" || modeText == "waiting"){
-		qDebug() << "Going into waiting mode";
 		specialMode_ = AMDatamanStartupSplashScreen::waitingMode;
 		subTextHL_->addWidget(waitingProgressBar_);
 	}
