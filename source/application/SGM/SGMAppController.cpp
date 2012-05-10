@@ -319,6 +319,7 @@ void SGMAppController::onSGMBeamlineDetectorAvailabilityChanged(AMDetector *dete
 
 	if(lastWaitingDetectors_ != waitingDetectors){
 		lastWaitingDetectors_ = waitingDetectors;
+		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MODECHANGE,  "Waiting");
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_SUBTEXT,  lastWaitingDetectors_);
 		qApp->processEvents();
 	}

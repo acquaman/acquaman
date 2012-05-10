@@ -223,6 +223,8 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 		else if(columnType == qMetaTypeId<AMDbObject*>()) {
 			AMDbObject* obj = property(columnName).value<AMDbObject*>();
 			if(obj && obj!=this) {	// if its a valid object, and not ourself (avoid recursion)
+
+				// Handle situations where the object to be stored is already stored in another database (use redirection)
 				if(obj->database() && (obj->database() != db) ){
 					if(!obj->modified() && (obj->id() >= 1) )
 						values << QString("%1%2%3%4%5%6").arg("|$^$|").arg(obj->database()->connectionName()).arg("|$^$|").arg(obj->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(obj->id());
@@ -463,6 +465,7 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 
 			if(columnType == qMetaTypeId<AMDbObject*>()) {	// stored owned AMDbObject. reload from separate location in database.
 
+				// Determine the database to load from, in case this is a redirected object
 				AMDatabase *databaseToUse;
 				QString columnValue = values.at(ri).toString();
 				if(columnValue.contains("|$^$|") && values.at(ri).toString().count("|$^$|") == 2 ){ // check to determine if this AMDbObject is actually in a differen database (in case this is in the actions database and some information it needs is in the user database)
@@ -474,7 +477,7 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 						return false;	// bad redirection to another database
 					}
 				}
-				else
+				else // not a redirected object
 					databaseToUse = db;
 
 				QStringList objectLocation = columnValue.split(AMDbObjectSupport::listSeparator());	// location was saved as string: "tableName;id"

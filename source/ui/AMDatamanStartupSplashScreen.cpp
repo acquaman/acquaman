@@ -30,19 +30,27 @@ AMDatamanStartupSplashScreen::AMDatamanStartupSplashScreen(QWidget *parent) :
 	startupTextLabel_ = new QLabel("Starting up Acquaman");
 	startupProgressBar_ = new QProgressBar();
 	subStepTextLabel_ = new QLabel("");
+	waitingProgressBar_ = new QProgressBar();
+	waitingProgressBar_->setMinimum(0);
+	waitingProgressBar_->setMaximum(0);
+	waitingProgressBar_->setMaximumWidth(200);
 
-	QVBoxLayout *mainVL = new QVBoxLayout();
-	mainVL->addWidget(startupTextLabel_);
-	mainVL->addWidget(startupProgressBar_);
-	mainVL->addWidget(subStepTextLabel_);
+	mainVL_ = new QVBoxLayout();
+	mainVL_->addWidget(startupTextLabel_);
+	mainVL_->addWidget(startupProgressBar_);
+
+	subTextHL_ = new QHBoxLayout();
+	subTextHL_->addWidget(subStepTextLabel_);
+	mainVL_->addLayout(subTextHL_);
 
 	connect(AMErrorMon::mon(), SIGNAL(debug(AMErrorReport)), this, SLOT(onErrorMonDebug(AMErrorReport)));
 
-	setLayout(mainVL);
+	setLayout(mainVL_);
 
 	setMinimumSize(600, 100);
 
 	currentStage_ = 0;
+	specialMode_ = AMDatamanStartupSplashScreen::noMode;
 	setNumberOfStages(8);
 }
 
@@ -74,6 +82,22 @@ void AMDatamanStartupSplashScreen::onErrorMonDebug(AMErrorReport e){
 	subStepText.remove(rx);
 	subStepTextLabel_->setText(subStepText);
 	resize(sizeHint());
+}
+
+void AMDatamanStartupSplashScreen::onErrorMonChangeMode(AMErrorReport e){
+	QString modeText = e.description;
+	QString removeString = "in \\[.*\\]: ";
+	QRegExp rx(removeString);
+	modeText.remove(rx);
+	if(modeText == "Waiting" || modeText == "waiting"){
+		qDebug() << "Going into waiting mode";
+		specialMode_ = AMDatamanStartupSplashScreen::waitingMode;
+		subTextHL_->addWidget(waitingProgressBar_);
+	}
+	else{
+		specialMode_ = AMDatamanStartupSplashScreen::noMode;
+		subTextHL_->removeWidget(waitingProgressBar_);
+	}
 }
 
 void AMDatamanStartupSplashScreen::setNumberOfStages(int numberOfStages){

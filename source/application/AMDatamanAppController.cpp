@@ -127,6 +127,7 @@ bool AMDatamanAppController::startup() {
 	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, splashScreen_, "onErrorMonStartupCode");
 	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_FINISHED, splashScreen_, "onErrorMonStartupFinished");
 	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_SUBTEXT, splashScreen_, "onErrorMonDebug");
+	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_MODECHANGE, splashScreen_, "onErrorMonChangeMode");
 
 	if(!startupLoadSettings()) { qWarning() << "Problem with Acquaman startup: loading settings."; return false; }
 
@@ -153,6 +154,7 @@ bool AMDatamanAppController::startup() {
 
 	if(!startupCreateUserInterface()) { qWarning() << "Problem with Acquaman startup: setting up the user interface."; return false; }
 	splashScreen_->raise();
+	splashScreen_->activateWindow();
 
 	if(!startupInstallActions()) { qWarning() << "Problem with Acquaman startup: installing menu actions."; return false; }
 
@@ -160,6 +162,7 @@ bool AMDatamanAppController::startup() {
 	// show main window
 	mw_->show();
 	splashScreen_->raise();
+	splashScreen_->activateWindow();
 
 	isStarting_ = false;
 	return true;
