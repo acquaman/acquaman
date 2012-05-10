@@ -18,12 +18,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMListAction3.h"
-#include "actions3/AMActionLog3.h"
 
 #include <QStringBuilder>
 
-// Used for qWarning() messages that may be useful to developers trying to debug action implementatons
-#include <QDebug>
+#include "actions3/AMActionLog3.h"
+#include "util/AMErrorMonitor.h"
 
 AMListAction3::AMListAction3(AMListActionInfo3* info, SubActionMode subActionMode, QObject *parent) :
 	AMAction3(info, parent)
@@ -84,7 +83,7 @@ const AMAction3 * AMListAction3::subActionAt(int index) const
 bool AMListAction3::insertSubAction(AMAction3 *action, int index)
 {
 	if(state() != Constructed) {
-		qWarning() << "AMListAction: Cannot add sub-actions once the action is already running.";
+		AMErrorMon::debug(this, AMLISTACTION3_CANNOT_ADD_SUBACTION_ONCE_RUNNING, "Cannot add sub-actions once the action is already running.");
 		return false;
 	}
 
@@ -105,7 +104,7 @@ bool AMListAction3::insertSubAction(AMAction3 *action, int index)
 AMAction3 * AMListAction3::takeSubActionAt(int index)
 {
 	if(state() != Constructed) {
-		qWarning() << "AMListAction: Cannot remove sub-actions once the action is already running.";
+		AMErrorMon::debug(this, AMLISTACTION3_CANNOT_REMOVE_SUBACTION_ONCE_RUNNING, "Cannot remove sub-actions once the action is already running.");
 		return 0;
 	}
 
@@ -200,7 +199,7 @@ void AMListAction3::pauseImplementation()
 			// If it can't, we'll pause by stopping at the next action. When the current action transitions to Succeeded, we simply won't start the next one and will notifyPaused(). In this case, we could stay at Pausing for quite some time until the current action finishes.
 		}
 		else {
-			qWarning() << "AMListAction: Warning: pauseImplementation() was called at an unexpected time. No action is running.";
+			AMErrorMon::debug(this, AMLISTACTION3_PAUSE_CALLED_WITH_NO_ACTION_RUNNING, "pauseImplementation() was called at an unexpected time. No action is running.");
 		}
 		// when the action changes to the Paused state, we'll pick that up in internalOnSubActionStateChanged() and notifyPaused().
 	}
@@ -229,10 +228,10 @@ void AMListAction3::resumeImplementation()
 				currentSubAction()->start();
 			}
 			else
-				qWarning() << "AMListAction: Warning: Asked to resume, but the current action is not paused.";
+				AMErrorMon::debug(this, AMLISTACTION3_RESUME_CALLED_WHEN_NOT_PAUSED, "Asked to resume, but the current action is not paused.");
 		}
 		else {
-			qWarning() << "AMListAction: Warning: Asked to resume unexpectedly: there is no current action to resume.";
+			AMErrorMon::debug(this, AMLISTACTION3_RESUME_CALLED_WITH_NO_ACTION_RUNNING, "Asked to resume unexpectedly: there is no current action to resume.");
 		}
 	}
 	// Parallel mode:
@@ -321,7 +320,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 				setPaused();
 			}
 			else {
-				qWarning() << "AMListAction: Warning: A sub-action was paused without cancelling its parent list action. This should not happen.";
+				AMErrorMon::debug(this, AMLISTACTION3_SEQUENTIAL_SUBACTION_PAUSED_WITHOUT_PAUSING_PARENT, "A sub-action was paused without pausing its parent list action. This should not happen.");
 			}
 			return;
 		case Resuming:
@@ -334,7 +333,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 				setCancelled();
 			}
 			else {
-				qWarning() << "AMListAction: Warning: A sub-action was cancelled without cancelling its parent list action. This should not happen.";
+				AMErrorMon::debug(this, AMLISTACTION3_SEQUENTIAL_SUBACTION_CANCELLED_WITHOUT_CANCELLING_PARENT, "A sub-action was cancelled without cancelling its parent list action. This should not happen.");
 			}
 			return;
 		case Succeeded:
@@ -368,7 +367,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 					setPaused();
 			}
 			else
-				qWarning() << "AMListAction: Warning: A sub-action was paused without pausing its parent list action. This should not happen.";
+				AMErrorMon::debug(this, AMLISTACTION3_PARALLEL_SUBACTION_PAUSED_WITHOUT_PAUSING_PARENT, "A sub-action was paused without pausing its parent list action. This should not happen.");
 			return;
 		case Resuming:
 			return;
@@ -376,7 +375,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 			return;
 		case Cancelled:
 			if(state() != Cancelling)
-				qWarning() << "AMListAction: Warning: A sub-action was cancelled with cancelling its parent list action. This should not happen.";
+				AMErrorMon::debug(this, AMLISTACTION3_PARALLEL_SUBACTION_CANCELLED_WITHOUT_CANCELLING_PARENT, "A sub-action was cancelled with cancelling its parent list action. This should not happen.");
 			// Continue on to common handling with Succeeded and Failed:
 		case Succeeded:
 		case Failed:

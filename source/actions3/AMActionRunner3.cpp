@@ -18,10 +18,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMActionRunner3.h"
-#include "actions3/AMAction3.h"
-#include "actions3/AMActionLog3.h"
-
-#include "util/AMErrorMonitor.h"
 
 #include <QStringBuilder>
 #include <QPixmapCache>
@@ -29,12 +25,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "actions3/AMListAction3.h"
 #include "actions3/AMLoopAction3.h"
-
-#include "acquaman/AMScanController.h"
-
-#include <QDebug>
-
 #include "actions3/AMActionRegistry3.h"
+#include "actions3/AMAction3.h"
+#include "actions3/AMActionLog3.h"
+
+#include "util/AMErrorMonitor.h"
+#include "acquaman/AMScanController.h"
 
 AMActionRunner3* AMActionRunner3::instance_ = 0;
 
@@ -875,7 +871,7 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 
 	// if we return false to the DropAction, it might retry with IgnoreAction. We need to accept that one.
 	else if(action == Qt::IgnoreAction) {
-		qDebug() << "AMActionRunnerQueueModel: Wow: Qt actually behaved according to spec and offered the IgnoreAction. Too bad this never happens...";
+		//qDebug() << "AMActionRunnerQueueModel: Wow: Qt actually behaved according to spec and offered the IgnoreAction. Too bad this never happens...";
 		return true;
 	}
 

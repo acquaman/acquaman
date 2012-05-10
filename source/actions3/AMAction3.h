@@ -23,6 +23,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include "actions3/AMActionInfo3.h"
 
+#define AMACTION3_CANNOT_CANCEL_NOT_IN_FINAL_STATE 270701
+#define AMACTION3_CANNOT_PAUSE_ACCORDING_TO_ACTION 270702
+#define AMACTION3_CANNOT_PAUSE_NOT_IN_PAUSABLE_STATE 270703
+#define AMACTION3_CANNOT_RESUME_NOT_CURRENTLY_PAUSED 270704
+#define AMACTION3_NOTIFIED_STARTED_BUT_NOT_TOLD_TO_START 270705
+#define AMACTION3_NOTIFIED_SUCCEEDED_BUT_NOT_YET_POSSIBLE 270706
+#define AMACTION3_NOTIFIED_FAILED_BUT_NOT_YET_POSSIBLE 270707
+#define AMACTION3_NOTIFIED_PAUSED_BUT_NOT_CURRENTLY_POSSIBLE 270708
+#define AMACTION3_NOTIFIED_RESUMED_BUT_NOT_CURRENTLY_POSSIBLE 270709
+#define AMACTION3_NOTIFIED_CANCELLED_BUT_NOT_YET_POSSIBLE 270710
+
 /// AMAction defines the interface for "actions" which can be run asynchronously in Acquaman's Workflow system. Actions (especially AMListAction) can also be useful on their own, outside of the workflow environment, to (a) make a set of events happen in a defined order, and (b) receive notification when those events succeed or fail. They can be used to easily build up complicated behaviour when moving beamlines around or building scan controllers.
 /*!
   <b>Running actions</b>
