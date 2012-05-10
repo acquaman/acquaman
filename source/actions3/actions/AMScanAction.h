@@ -50,6 +50,9 @@ public:
 	/// Creates an identical copy of the action with the exception of setting the state to Constructed.
 	virtual AMAction3 *createCopy() const { return new AMScanAction(*this); }
 
+	/// Returns a pointer to the scan controller that is encapsulated by this action.
+	AMScanController *controller() const { return controller_; }
+
 	// Re-implemented public functions.
 	//////////////////////////////////////////////////
 	/// Pure virtual function that denotes that this action has children underneath it or not.

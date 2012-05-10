@@ -561,6 +561,7 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/analysis/AM1DNormalizationAB.h \
 	source/analysis/AM1DNormalizationABEditor.h \
 	source/ui/AMAddAnalysisBlockDialog.h \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorLegend.h \
 	source/ui/acquaman/AMScanConfigurationViewHolder3.h
 
 # OS-specific files:
@@ -949,6 +950,7 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/analysis/AM1DNormalizationAB.cpp \
 	source/analysis/AM1DNormalizationABEditor.cpp \
 	source/ui/AMAddAnalysisBlockDialog.cpp \
+	$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorLegend.cpp \
 	source/ui/acquaman/AMScanConfigurationViewHolder3.cpp
 
 # OS-specific files

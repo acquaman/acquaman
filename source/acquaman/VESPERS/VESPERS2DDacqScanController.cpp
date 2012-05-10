@@ -380,8 +380,9 @@ void VESPERS2DDacqScanController::cleanup()
 	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(1.0));
 	// Variable integration time.
 	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->variableIntegrationTime()->createModeAction(CLSVariableIntegrationTime::Disabled));
-	// Energy.
-	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->roperCCD()->createStopAction());
+	// CCD.
+	if (config_->usingCCD())
+		cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->roperCCD()->createStopAction());
 
 	// Second stage.
 	cleanupActionsList->appendStage(new QList<AMBeamlineActionItem *>());

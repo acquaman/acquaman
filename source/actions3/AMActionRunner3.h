@@ -25,6 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStandardItemModel>
 #include <QStandardItem>
 
+#include "actions3/actions/AMScanAction.h"
+
 #define AMACTIONRUNNER_MODELINDEX_REQUESTED_CHILD_OF_NON_LIST_TYPE 215001
 #define AMACTIONRUNNER_MODELDATA_NO_ACTION_AT_INDEX 215002
 #define AMACTIONRUNNER_RETRIEVE_INDEX_FAILED_NO_MATCHING_ACTION_IN_QUEUE 215003
@@ -43,6 +45,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMAction3;
 class AMActionRunnerQueueModel3;
+class AMScanController;
 
 /// This singleton class provides the API for Acquaman's workflow manager. You can queue up actions for it to run, manage the queue of upcoming actions, and receive notifications when actions are completed. After an action is completed, it will automatically log the actions with AMActionLog::logCompletedAction().  The AMActionRunnerCurrentView and AMActionRunnerQueueView provide graphical user interfaces to this API.
 /*! Note that the AMActionRunner's queue is initially paused when it is first created. To have it start executing actions as soon as they become available, call AMActionRunner::s()->setPaused(false).*/
@@ -102,6 +105,9 @@ public:
 	/// A pointer to the current action. Will be 0 if actionRunning() is false, when no action is running.
 	const AMAction3* currentAction() const { return currentAction_; }
 
+	/// Convenience method that extracts the scan controller from scan actions.  Returns 0 if the action is not a scan action.
+	AMScanController *scanController() const;
+
 
 	// Immediate-mode interface
 	////////////////////////////////
@@ -147,6 +153,14 @@ signals:
 	void queuedActionAboutToBeRemoved(int index);
 	void queuedActionRemoved(int index);
 
+	// Signals specific to AMScanAction.  Since other parts of the application will likely want to know some of these things.
+	/// Notifier that the scan action has been created.  Note that a scan controller is not created at this point.
+	void scanActionCreated();
+	/// Notifier that the scan action has been started.
+	void scanActionStarted();
+	/// Notifier that the scan action has finished (made it to either Succeeded, Failed, or Cancelled).
+	void scanActionFinished();
+
 public slots:
 
 	/// Set whether the queue is paused or running.  If the queue is running, it will advance automatically to the next action whenever there are actions in the queue, or when an action is added to an empty queue. Note that setting the queue to paused does not pause the current action... It only pauses the workflow from moving on to the <i>next</i> action after the current one is completed.
@@ -182,6 +196,8 @@ protected:
 	void internalDoNextAction();
 	/// Helper function to prompt the user about what to do given that the current action failed, and it specified a "prompt user" failure response. Do they want to retry or move on?
 	int internalAskUserWhatToDoAboutFailedAction(AMAction3* action);
+	/// Helper method that returns whether the current action is a scan action or not.
+	bool isScanAction() const { return qobject_cast<AMScanAction *>(currentAction_) ? true : false; }
 
 private:
 	/// This is a singleton class, so the constructor is private. Access the only instance of it via s().

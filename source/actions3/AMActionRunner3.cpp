@@ -30,6 +30,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMListAction3.h"
 #include "actions3/AMLoopAction3.h"
 
+#include "acquaman/AMScanController.h"
+
 #include <QDebug>
 
 #include "actions3/AMActionRegistry3.h"
@@ -68,16 +70,31 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 	emit currentActionStateChanged(state, previousState);
 
 	if(state == AMAction3::Starting){
+
 		AMListAction3* listAction = qobject_cast<AMListAction3*>(currentAction_);
+
 		if(listAction){
+
 			int parentLogId = -1;
 			AMListAction3* parentAction = qobject_cast<AMListAction3*>(listAction->parentAction());
+
 			if(parentAction)
 				parentLogId = parentAction->logActionId();
+
 			if(!AMActionLog3::logUncompletedAction(currentAction_, parentLogId)) {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem logging the uncompleted action to your database.  Please report this problem to the Acquaman developers."));
 			}
 		}
+
+		if (isScanAction())
+			emit scanActionCreated();
+	}
+
+	if (state == AMAction3::Running){
+
+
+		if (isScanAction())
+			emit scanActionStarted();
 	}
 
 	if(state == AMAction3::Failed) {
@@ -120,9 +137,23 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 			}
 		}
 
+		if (isScanAction())
+			emit scanActionFinished();
+
 		// move onto the next, if there is one, and disconnect and delete the old one.
 		internalDoNextAction();
 	}
+}
+
+AMScanController *AMActionRunner3::scanController() const
+{
+	if (isScanAction()){
+
+		AMScanAction *action = qobject_cast<AMScanAction *>(currentAction_);
+		return action->controller();
+	}
+
+	return 0;
 }
 
 void AMActionRunner3::insertActionInQueue(AMAction3 *action, int index)
@@ -188,7 +219,7 @@ bool AMActionRunner3::duplicateActionsInQueue(const QList<int> &indexesToCopy)
 	// note: because we're inserting at higher indexes than any of indexesToCopy, we know that any that we're supposed to copy won't change positions as we start inserting.
 	foreach(int index, indexesToCopy) {
 		insertActionInQueue(queuedActionAt(index)->createCopy(),
-				    ++maxIndex);
+					++maxIndex);
 	}
 	return true;
 }

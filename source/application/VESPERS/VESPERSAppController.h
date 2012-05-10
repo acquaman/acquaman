@@ -29,6 +29,7 @@ class VESPERSRoperCCDDetectorView;
 class VESPERSPersistentView;
 class VESPERSEXAFSScanConfiguration;
 class AMScanConfigurationViewHolder;
+class AMScanConfigurationViewHolder3;
 class VESPERS2DScanConfiguration;
 class VESPERS2DScanConfigurationView;
 class AM2DScanConfigurationViewHolder;
@@ -113,6 +114,8 @@ protected:
 	VESPERSEXAFSScanConfiguration *exafsScanConfig_;
 	/// The holder for the XAS scan configuration.
 	AMScanConfigurationViewHolder *exafsConfigViewHolder_;
+	/// The (new) holder for the XAS scan configuration.
+	AMScanConfigurationViewHolder3 *exafsConfigViewHolder3_;
 
 	/// Pointer to the 2D XRF scan configuration.
 	VESPERS2DScanConfiguration *mapScanConfiguration_;
@@ -120,6 +123,8 @@ protected:
 	VESPERS2DScanConfigurationView *mapScanConfigurationView_;
 	/// The holder for the 2D scan configuration.
 	AM2DScanConfigurationViewHolder *mapScanConfigurationViewHolder_;
+	/// The (new) holder for the 2D scan configuration.
+	AMScanConfigurationViewHolder3 *mapScanConfigurationViewHolder3_;
 
 	/// Pointer to the list action that is used to move the sample stage.
 	AMBeamlineListAction *moveImmediatelyAction_;
