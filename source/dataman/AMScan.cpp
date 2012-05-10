@@ -81,7 +81,7 @@ AMScan::~AMScan() {
 	AMErrorMon::debug(this, AMSCAN_DEBUG_DELETING_SCAN, QString("Deleting %1").arg(fullName()));
 
 	if(!owners_.isEmpty()) {
-		qWarning() << "AMScan: Warning: The scan was deleted while other objects were still interested in it. You should never delete a scan directly; instead, call AMScan::release().  Those objects might now attempt to access a deleted scan.";
+		AMErrorMon::alert(this, AMSCAN_SCAN_DELETE_DIRECTLY, "The scan was deleted while other objects were still interested in it. You should never delete a scan directly; instead, call AMScan::release().  Those objects might now attempt to access a deleted scan.");
 	}
 
 	// delete all data sources.

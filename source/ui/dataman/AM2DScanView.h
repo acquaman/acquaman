@@ -33,6 +33,9 @@ class AM2DScanViewExclusiveView;
 class AM2DScanViewMultiSourcesView;
 class AM2DScanViewSingleSpectrumView;
 
+#define AM2DSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_NULL_DATA_SOURCE 280201
+#define AM2DSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_UNHANDLED_RANK 280202
+
 /// This class is a small horizontal bar that holds some information for the 2D scan view, such as: current data position, whether to see the spectra or not, etc.
 class AM2DScanBar : public QWidget
 {

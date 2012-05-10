@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMControl.h"
 #include "beamline/AMControlSet.h"
 
+#define AMBEAMLINE_BEAMLINE_NOT_CREATED_YET 280301
+
 /// One good way for components in the Acquaman framework to access and set a variety of beamline controls is through a centralized AMBeamline object.  This class provides the basic functionality expected of every beamline, and can be subclassed to include the specific controls available on a particular machine.  It uses the singleton design pattern to ensure that only a single instance of the beamline object exists; you can access this object through AMBeamline::bl().
 
 /*! <b>Note on subclassing and inheritance</b>

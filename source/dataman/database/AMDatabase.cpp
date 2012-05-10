@@ -677,10 +677,10 @@ bool AMDatabase::commitTransaction(int timeoutMs)
 
 	if(attempt > 1) {
 		if(success) {
-			qWarning() << "Warning: AMDatabase detected contention for database access in commitTransaction(). It took" << attempt << "tries for the commit to succeed";
+			AMErrorMon::debug(this, AMDATABASE_COMMIT_CONTENTION_SUCCEEDED, QString("AMDatabase detected contention for database access in commitTransaction(). It took %1 tries for the commit to succeed.").arg(attempt) );
 		}
 		else {
-			qWarning() << "Warning: AMDatabase detected contention for database access in commitTransaction(). After" << attempt << "attempts, the commit still did not succeed.";
+			AMErrorMon::debug(this, AMDATABASE_COMMIT_CONTENTION_FAILED, QString("AMDatabase detected contention for database access in commitTransaction(). After %1 attempts, the commit still did not succeed.").arg(attempt) );
 		}
 	}
 
@@ -729,10 +729,10 @@ bool AMDatabase::execQuery(QSqlQuery &query, int timeoutMs)
 
 	if(attempt > 1) {
 		if(success) {
-			qWarning() << "Warning: AMDatabase detected contention for database locking in execQuery(). It took" << attempt << "tries for the query to succeed";
+			AMErrorMon::debug(0, AMDATABASE_LOCK_FOR_EXECQUERY_CONTENTION_SUCCEEDED, QString("AMDatabase detected contention for database locking in execQuery(). It took %1 tries for the query to succeed.").arg(attempt) );
 		}
 		else {
-			qWarning() << "Warning: AMDatabase detected contention for database locking in execQuery(). After" << attempt << "attempts, the query still did not succeed.";
+			AMErrorMon::debug(0, AMDATABASE_LOCK_FOR_EXECQUERY_CONTENTION_FAILED, QString("AMDatabase detected contention for database locking in execQuery(). After %1 attempts, the query still did not succeed.").arg(attempt) );
 		}
 	}
 
