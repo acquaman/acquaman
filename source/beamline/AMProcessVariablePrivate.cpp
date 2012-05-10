@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 
 #include <float.h>
-#include <QDebug>
 
 #include <cstdlib>
 

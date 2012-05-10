@@ -20,8 +20,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMBeamlineParallelActionsList.h"
 
-#include <QDebug>
-
 AMBeamlineParallelActionsList::AMBeamlineParallelActionsList(QObject *parent) :
 		QObject(parent)
 {

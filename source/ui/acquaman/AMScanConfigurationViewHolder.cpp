@@ -17,7 +17,6 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <QDebug>
 #include <QRadioButton>
 #include <QPushButton>
 #include <QLabel>

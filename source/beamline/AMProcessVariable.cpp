@@ -19,7 +19,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMProcessVariable.h"
-#include <QDebug>
 #include "util/AMErrorMonitor.h"
 
 // AMProcessVariable

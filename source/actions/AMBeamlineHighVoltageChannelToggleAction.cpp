@@ -20,8 +20,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMBeamlineHighVoltageChannelToggleAction.h"
 
-#include <QDebug>
-
 AMBeamlineHighVoltageChannelToggleAction::AMBeamlineHighVoltageChannelToggleAction(AMHighVoltageChannel *highVoltageChannel, QObject *parent) :
 		AMBeamlineActionItem(parent)
 {

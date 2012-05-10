@@ -19,7 +19,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDbUpgrade.h"
 
-#include <QDebug>
 #include <QDateTime>
 #include <QStringBuilder>
 #include "dataman/database/AMDbObjectSupport.h"

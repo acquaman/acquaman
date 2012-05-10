@@ -474,7 +474,6 @@ void AMThumbnailScrollGraphicsWidget::hoverMoveEvent(QGraphicsSceneHoverEvent *e
 }
 
 #include <QGraphicsDropShadowEffect>
-#include <QDebug>
 
 void AMThumbnailScrollGraphicsWidget::hoverEnterEvent(QGraphicsSceneHoverEvent *event) {
 

@@ -111,7 +111,6 @@ AMElementValidator::AMElementValidator(AMElementsModel* model, QObject* parent)
 	model_ = model;
 	convertToSymbol_ = true;
 }
-#include <QDebug>
 
 void AMElementValidator::fixup(QString & text) const {
 

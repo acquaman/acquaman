@@ -62,7 +62,7 @@ void AMFetchSpectrumThread::fetch(AMnDIndex index, int rowLength, const QString 
 		condition_.wakeOne();
 	}
 }
-#include <QDebug>
+
 void AMFetchSpectrumThread::run()
 {
 	forever {

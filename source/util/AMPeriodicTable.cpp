@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFile>
 #include <QMessageBox>
 #include <QTextStream>
-#include <QDebug>
 
 // Singleton instance
 AMPeriodicTable* AMPeriodicTable::instance_ = 0;

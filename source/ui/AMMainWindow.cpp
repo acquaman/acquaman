@@ -19,7 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMMainWindow.h"
-#include <QDebug>
+
 #include "ui/AMCloseItemDelegate.h"
 #include "util/AMFontSizes.h"
 

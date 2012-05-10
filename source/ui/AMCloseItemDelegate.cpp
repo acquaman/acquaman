@@ -82,9 +82,6 @@ void AMCloseItemDelegate::drawCloseButton(QPainter *painter, const QStyleOptionV
 #include <QMouseEvent>
 #include <QApplication>
 
-
-#include <QDebug>
-
 bool AMCloseItemDelegate::editorEvent ( QEvent * event, QAbstractItemModel * model, const QStyleOptionViewItem & option, const QModelIndex & index ) {
 
 	//qDebug() << "CLOSE ITEM: editor event: " << event;

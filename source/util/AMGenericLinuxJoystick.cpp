@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QFile>
 #include <QFileInfo>
-#include <QDebug>
 #include <QTimer>
 
 #include <sys/types.h>

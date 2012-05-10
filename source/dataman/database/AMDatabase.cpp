@@ -21,19 +21,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMDatabase.h"
 
 #include <QStringList>
-
-#include "util/AMErrorMonitor.h"
 #include <QStringBuilder>
 #include <QThread>
 #include <QSet>
 #include <QMutexLocker>
 #include <QApplication>
 #include <QSqlDriver>
-
 #include <QTime>
-#include <QDebug>
 
-
+#include "util/AMErrorMonitor.h"
 
 // Internal instance records:
 QHash<QString, AMDatabase*> AMDatabase::connectionName2Instance_;

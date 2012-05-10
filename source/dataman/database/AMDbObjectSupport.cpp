@@ -812,7 +812,6 @@ AMDbObjectSupport * AMDbObjectSupport::s() {
 	return instance_;
 }
 
-#include <QDebug>
 bool AMDbObjectSupport::event(QEvent *e)
 {
 	if(e->type() != (QEvent::Type)AM::ThumbnailsGeneratedEvent)

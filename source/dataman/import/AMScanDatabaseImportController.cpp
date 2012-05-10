@@ -21,26 +21,22 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMScanDatabaseImportController.h"
 
 #include <QDir>
-#include "util/AMSettings.h"
+#include <QStringBuilder>
+#include <QTime>
+#include <QApplication>
 
 #include "dataman/database/AMDatabase.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/database/AMDbObject.h"
 
-#include "util/AMDateTimeUtils.h"
-
-#include <QStringBuilder>
-#include <QTime>
-
 #include "dataman/AMRun.h"
 #include "dataman/AMExperiment.h"
 #include "dataman/AMSample.h"
 #include "dataman/AMScan.h"
+
+#include "util/AMSettings.h"
+#include "util/AMDateTimeUtils.h"
 #include "util/AMErrorMonitor.h"
-
-#include <QApplication>
-
-#include <QDebug>
 
 AMScanDatabaseImportController::AMScanDatabaseImportController(AMDatabase* destinationDb, const QString& destinationPath, QObject *parent) :
 	QObject(parent)
