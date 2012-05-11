@@ -242,7 +242,7 @@ void AMBeamlineScanAction::start(){
 		connect(ctrl_, SIGNAL(resumed()), this, SLOT(onScanResumed()));
 	}
 	else {
-//		qDebug() << "Reinitialized, no controller creation";
+//		qdebug() << "Reinitialized, no controller creation";
 	}
 
 	//Moved from onScanStarted. This action is started once we start initializing
@@ -631,7 +631,7 @@ void AMBeamlineScanActionView::onScanFinished(){
 	firstRowLayout_->removeWidget(playPauseButton_);
 	stopCancelButton_->hide();
 	playPauseButton_->hide();
-//	qDebug() << "Has succeeded " << scanAction_->hasSucceeded() << " has failed " << scanAction_->hasFailed() << " is running " << scanAction_->isRunning();
+//	qdebug() << "Has succeeded " << scanAction_->hasSucceeded() << " has failed " << scanAction_->hasFailed() << " is running " << scanAction_->isRunning();
 	updateLook();
 }
 

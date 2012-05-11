@@ -25,6 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "SGMXASScanConfiguration.h"
 #include "dataman/AMXASScan.h"
 
+#define SGMXASSCANCONTROLLER_CANNOT_ADD_MEASUREMENT 290201
+
 class SGMXASScanController
 {
 public:

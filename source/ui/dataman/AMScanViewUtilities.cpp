@@ -137,7 +137,7 @@ void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int 
 
 		newButton->setContextMenuPolicy(Qt::CustomContextMenu);
 		connect(newButton, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onDataSourceButtonRightClicked(QPoint)));
-		// qDebug() << "added a data source. exclusiveModeOn is: " << exclusiveModeOn_ << ", source name is:" << source->dataSourceAt(i)->name() << ", exclusiveDataSourceName is:" << model_->exclusiveDataSourceName();
+		// qdebug() << "added a data source. exclusiveModeOn is: " << exclusiveModeOn_ << ", source name is:" << source->dataSourceAt(i)->name() << ", exclusiveDataSourceName is:" << model_->exclusiveDataSourceName();
 	}
 
 }

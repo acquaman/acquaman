@@ -871,7 +871,7 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 
 	// if we return false to the DropAction, it might retry with IgnoreAction. We need to accept that one.
 	else if(action == Qt::IgnoreAction) {
-		//qDebug() << "AMActionRunnerQueueModel: Wow: Qt actually behaved according to spec and offered the IgnoreAction. Too bad this never happens...";
+		//qdebug() << "AMActionRunnerQueueModel: Wow: Qt actually behaved according to spec and offered the IgnoreAction. Too bad this never happens...";
 		return true;
 	}
 

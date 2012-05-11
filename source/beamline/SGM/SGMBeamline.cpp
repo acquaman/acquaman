@@ -1362,7 +1362,7 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 void SGMBeamline::onDetectorConnected(bool isConnected){
 	AMDetectorSignalSource *detectorSignalSource = qobject_cast<AMDetectorSignalSource*>(QObject::sender());
 	if(detectorSignalSource){
-		//qDebug() << detectorSignalSource->detector()->detectorName() << " is connected " << isConnected;
+		//qdebug() << detectorSignalSource->detector()->detectorName() << " is connected " << isConnected;
 	}
 }
 
@@ -1506,7 +1506,7 @@ void SGMBeamline::onDetectorAvailabilityChanged(AMDetector *detector, bool isAva
 				if(detectorSets.at(x).first->detectorAt(y)->detectorName() == detector->detectorName())
 					hasDetector = true;
 			if(!hasDetector){
-				//qDebug() << "Adding detector " << detector->detectorName() << " as default " << detectorSets.at(x).second;
+				//qdebug() << "Adding detector " << detector->detectorName() << " as default " << detectorSets.at(x).second;
 				detectorSets.at(x).first->addDetector(detector, detectorSets.at(x).second);
 			}
 		}

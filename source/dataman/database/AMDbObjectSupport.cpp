@@ -95,7 +95,7 @@ QMutex AMDbObjectSupport::instanceMutex_(QMutex::Recursive);
 QString AMDbObjectSupport::dbObjectAttribute(const QMetaObject* mo, const QString& key) {
 	int i = mo->indexOfClassInfo("AMDbObject_Attributes");
 	if(i < 0) {
-		//qDebug() << "AMDBOBJECT" << mo->className() << ": no dbobject attributes set";
+		//qdebug() << "AMDBOBJECT" << mo->className() << ": no dbobject attributes set";
 		return QString();
 	}
 	QString allAttributes( mo->classInfo(i).value() );
@@ -105,7 +105,7 @@ QString AMDbObjectSupport::dbObjectAttribute(const QMetaObject* mo, const QStrin
 		if(attributeList.at(i).trimmed().startsWith(key+"="))
 			return attributeList.at(i).section(QChar('='), 1);// return section after "key=".
 	}
-	//qDebug() << "AMDBOBJECT" << mo->className() << ": could not find object attribute " << key;
+	//qdebug() << "AMDBOBJECT" << mo->className() << ": could not find object attribute " << key;
 	return QString();
 }
 
@@ -113,7 +113,7 @@ QString AMDbObjectSupport::dbObjectAttribute(const QMetaObject* mo, const QStrin
 QString AMDbObjectSupport::dbPropertyAttribute(const QMetaObject* mo, const QString& propertyName, const QString& key) {
 	int i = mo->indexOfClassInfo(propertyName.toAscii().constData());
 	if(i < 0) {
-		//qDebug() << "AMDBOBJECT" << mo->className() << ": no property attributes set for " << propertyName;
+		//qdebug() << "AMDBOBJECT" << mo->className() << ": no property attributes set for " << propertyName;
 		return QString();	// property attributes not found for this property
 	}
 	QString allAttributes( mo->classInfo(i).value() );
@@ -123,7 +123,7 @@ QString AMDbObjectSupport::dbPropertyAttribute(const QMetaObject* mo, const QStr
 		if(attributeList.at(i).startsWith(key+"="))
 			return attributeList.at(i).section(QChar('='), 1);// return section after "key=".
 	}
-	//qDebug() << "AMDBOBJECT" << mo->className() << ": could not find property attribute " << propertyName << key;
+	//qdebug() << "AMDBOBJECT" << mo->className() << ": could not find property attribute " << propertyName << key;
 
 	return QString();
 }
@@ -905,11 +905,11 @@ bool AMDbObjectSupport::event(QEvent *e)
 
 		int retVal;
 		if(reuseThumbnailIds) {
-			// qDebug() << "Thumbnail save: reusing row" << i+existingThumbnailIds.at(0) << "in other thread";
+			// qdebug() << "Thumbnail save: reusing row" << i+existingThumbnailIds.at(0) << "in other thread";
 			retVal = db->insertOrUpdate(i+existingThumbnailIds.at(0), AMDbObjectSupport::thumbnailTableName(), keys, values);
 		}
 		else {
-			// qDebug() << "THumnail save: inserting new row in other thread";
+			// qdebug() << "THumnail save: inserting new row in other thread";
 			retVal = db->insertOrUpdate(0, AMDbObjectSupport::thumbnailTableName(), keys, values);
 		}
 		if(retVal == 0) {

@@ -243,7 +243,7 @@ AMElementListEdit::AMElementListEdit(QWidget *parent) :
 void AMElementListEdit::onTextEdited(const QString& text) {
 
 	QStringList split = text.split(QRegExp("\\s*,+\\s*|\\s+"));
-	// qDebug() << split;
+	// qdebug() << split;
 	if(split.isEmpty())
 		completer_->setCompletionPrefix(QString());
 	else
@@ -251,7 +251,7 @@ void AMElementListEdit::onTextEdited(const QString& text) {
 
 	priorToPrefix_ = split.join(", ");
 
-	// qDebug() << "completion prefix:" << completer_->completionPrefix();
+	// qdebug() << "completion prefix:" << completer_->completionPrefix();
 	if(!completer_->completionPrefix().isEmpty())
 		completer_->complete();
 	else {

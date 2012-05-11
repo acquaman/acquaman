@@ -144,7 +144,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 	}
 
 	QTime saveTime;
-	//qDebug() << "Starting storeToDb() of" << myInfo->className;
+	//qdebug() << "Starting storeToDb() of" << myInfo->className;
 	saveTime.start();
 
 	// For performance when storing many child objects, we can speed things up (especially with SQLite, which needs to do a flush and reload of the db file on every write) by doing all the updates in one big transaction. This also ensure consistency.  Because storeToDb() calls could be nested, we don't want to start a transaction if one has already been started.
@@ -152,7 +152,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 	if(db->supportsTransactions() && !db->transactionInProgress()) {
 		if(db->startTransaction()) {
 			openedTransaction = true;
-			//qDebug() << "Opening transaction for save of " << myInfo->tableName << id();
+			//qdebug() << "Opening transaction for save of " << myInfo->tableName << id();
 		}
 		else {
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_START_TRANSACTION_TO_SAVE_OBJECT, "Could not start a transaction to save the object '" % myInfo->tableName % ":" % QString::number(id()) % "' in the database. Please report this problem to the Acquaman developers."));
@@ -346,7 +346,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 		if(db->commitTransaction()) {
 			// we were just stored to the database, so our properties must be in sync with it.
 			setModified(false);
-			//qDebug() << "Finished save of " << myInfo->className << "in" << saveTime.elapsed() << "ms; transaction committed.";
+			//qdebug() << "Finished save of " << myInfo->className << "in" << saveTime.elapsed() << "ms; transaction committed.";
 			if(shouldGenerateThumbnailsInSeparateThread() && generateThumbnails && thumbnailCount() > 0) {
 				QtConcurrent::run(&AMDbObject::updateThumbnailsInSeparateThread, db, id_, myInfo->tableName, neverSavedHere);
 			}
@@ -360,7 +360,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 	}
 	// if we didn't open the transaction, no need to commit it.
 	else {
-		//qDebug() << "Finished save of " << myInfo->className << "in" << saveTime.elapsed() << "ms;  not closing transaction.";
+		//qdebug() << "Finished save of " << myInfo->className << "in" << saveTime.elapsed() << "ms;  not closing transaction.";
 		// we were just stored to the database, so our properties must be in sync with it.
 		setModified(false);
 		if(shouldGenerateThumbnailsInSeparateThread() && generateThumbnails && thumbnailCount() > 0) {
@@ -715,11 +715,11 @@ void AMDbObject::updateThumbnailsInCurrentThread(bool neverSavedHereBefore)
 
 		int retVal;
 		if(reuseThumbnailIds) {
-			// qDebug() << "Thumbnail save: reusing row" << i+existingThumbnailIds.at(0) << "in main thread";
+			// qdebug() << "Thumbnail save: reusing row" << i+existingThumbnailIds.at(0) << "in main thread";
 			retVal = database()->insertOrUpdate(i+existingThumbnailIds.at(0), AMDbObjectSupport::thumbnailTableName(), keys, values);
 		}
 		else {
-			// qDebug() << "Thumbnail save: adding new row in main thread";
+			// qdebug() << "Thumbnail save: adding new row in main thread";
 			retVal = database()->insertOrUpdate(0, AMDbObjectSupport::thumbnailTableName(), keys, values);
 		}
 		if(retVal == 0) {

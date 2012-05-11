@@ -303,7 +303,7 @@ void AMActionHistoryView3::onModelAboutToBeRefreshed()
 {
 	// we're scrolled to the bottom if the vertical scroll bar value is at maximum. Remember that so we can go back to the bottom after the refresh.
 	scrolledToBottom_ = (treeView_->verticalScrollBar()->value() == treeView_->verticalScrollBar()->maximum());
-	// qDebug() << "Scrolled to bottom:" << scrolledToBottom_;
+	// qdebug() << "Scrolled to bottom:" << scrolledToBottom_;
 }
 
 void AMActionHistoryView3::onModelRefreshed()
@@ -315,7 +315,7 @@ void AMActionHistoryView3::onModelRefreshed()
 		// also doesn't work... Sometimes only goes most of the way there.
 		treeView_->scrollToBottom();
 		// looks like if the tree view is not visible at this time, this won't take effect. Adding another check in our showEvent() to scroll the treeView_ to the bottom if should be scrolledToBottom_
-		// qDebug() << "ScrollING to bottom";
+		// qdebug() << "ScrollING to bottom";
 	}
 
 	// update subtitle text with how many, of how many total.

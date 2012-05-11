@@ -48,7 +48,7 @@ bool AMControl::setState(const QMap<QString, double> controlList, unsigned int e
 	while (i != controlList.constEnd()) {
 		if(!tmpList->contains(i.key()) && fabs(i.value() - executeList->value(i.key())->value()) > executeList->value(i.key())->tolerance() )
 			executeList->value(i.key())->move(i.value());
-		//             qDebug() << "Name is " << i.key() << " value should be " << i.value() << " value is " << executeList->value(i.key())->value();
+		//             qdebug() << "Name is " << i.key() << " value should be " << i.value() << " value is " << executeList->value(i.key())->value();
 		++i;
 	}
 	return TRUE;

@@ -185,7 +185,7 @@ bool SGMXASDacqScanController::startImplementation(){
 	for(int i = 0; i < config_->allDetectorConfigurations().count(); i++){
 		if(config_->allDetectorConfigurations().isActiveAt(i)){
 			AMDetector *dtctr = config_->allDetectors()->detectorNamed(config_->allDetectorConfigurations().detectorInfoAt(i)->name());
-//			qDebug() << "Dacq append record as " << dtctr->detectorName() << dtctr->toInfo()->rank() << dtctr->dacqName() << dtctr->readMethod();
+//			qdebug() << "Dacq append record as " << dtctr->detectorName() << dtctr->toInfo()->rank() << dtctr->dacqName() << dtctr->readMethod();
 			if(dtctr->toInfo()->rank() > 0)
 				advAcq_->appendRecord(dtctr->dacqName(), true, true, detectorReadMethodToDacqReadMethod(dtctr->readMethod()));
 			else
@@ -216,7 +216,7 @@ bool SGMXASDacqScanController::startImplementation(){
 void SGMXASDacqScanController::cancelImplementation(){
 	dacqCancelled_ = true;
 	if(initializationActions_ && initializationActions_->isRunning()){
-//		qDebug() << "Need to stop the intialization actions";
+//		qdebug() << "Need to stop the intialization actions";
 		disconnect(initializationActions_, 0);
 		connect(initializationActions_, SIGNAL(listSucceeded()), this, SLOT(onScanCancelledBeforeInitialized()));
 		connect(initializationActions_, SIGNAL(listFailed(int)), this, SLOT(onScanCancelledBeforeInitialized()));
@@ -261,24 +261,24 @@ void SGMXASDacqScanController::onDwellTimeTriggerChanged(double newValue){
 }
 
 void SGMXASDacqScanController::onInitializationActionsSucceeded(){
-//	qDebug() << "The actions list succeeded";
+//	qdebug() << "The actions list succeeded";
 	setInitialized();
 }
 
 void SGMXASDacqScanController::onInitializationActionsFailed(int explanation){
 	Q_UNUSED(explanation)
-//	qDebug() << "The actions list failed";
+//	qdebug() << "The actions list failed";
 	setFailed();
 }
 
 void SGMXASDacqScanController::onInitializationActionsProgress(double elapsed, double total){
 	Q_UNUSED(elapsed)
 	Q_UNUSED(total)
-	//qDebug() << "Initialization is " << elapsed/total << "% completed";
+	//qdebug() << "Initialization is " << elapsed/total << "% completed";
 }
 
 void SGMXASDacqScanController::onScanFinished(){
-//	qDebug() << "HEARD XAS SCAN FINISHED";
+//	qdebug() << "HEARD XAS SCAN FINISHED";
 	if(cleanUpActions_){
 		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(setFinished()));
 		cleanUpActions_->start();
@@ -288,7 +288,7 @@ void SGMXASDacqScanController::onScanFinished(){
 }
 
 void SGMXASDacqScanController::onScanCancelledBeforeInitialized(){
-//	qDebug() << "HEARD XAS SCAN CANCELLED BEFORE INITIALIZED";
+//	qdebug() << "HEARD XAS SCAN CANCELLED BEFORE INITIALIZED";
 	if(cleanUpActions_){
 		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(onDacqStop()));
 		cleanUpActions_->start();

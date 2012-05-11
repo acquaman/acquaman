@@ -161,7 +161,7 @@ int AMBeamlineCameraWidget::crosshairLineThickness() const
 void AMBeamlineCameraWidget::playSource(const QUrl& sourceUrl)
 {
 	videoWidget_->mediaPlayer()->setMedia(sourceUrl);
-	// qDebug() << "AMBeamlineCameraWidget: Loading and playing" << url.toString();
+	// qdebug() << "AMBeamlineCameraWidget: Loading and playing" << url.toString();
 	videoWidget_->mediaPlayer()->play();
 }
 

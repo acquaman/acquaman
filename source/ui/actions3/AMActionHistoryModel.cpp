@@ -648,12 +648,12 @@ void AMActionHistoryModel3::onDatabaseItemCreated(const QString &tableName, int 
 
 	// if id is -1, there could be updates to the whole table.
 	if(id < 1) {
-		// qDebug() << "AMActionHistoryModel: global refresh";
+		// qdebug() << "AMActionHistoryModel: global refresh";
 		refreshFunctionCall_.schedule();
 		return;
 	}
 
-	// qDebug() << "AMActionHistoryModel: precision refresh";
+	// qdebug() << "AMActionHistoryModel: precision refresh";
 
 	// OK, this is a specific update.
 	// find out if this action's endDateTime is within our visible date range

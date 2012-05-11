@@ -70,7 +70,7 @@ void AMBeamlineControlSetMoveAction::start(){
 		startpoint_ = controlSet_->toInfoList();
 		connect(&progressTimer_, SIGNAL(timeout()), this, SLOT(calculateProgress()));
 		progressTimer_.start(500);
-//		qDebug() << "Setpoint is " << setpoint_;
+//		qdebug() << "Setpoint is " << setpoint_;
 		controlSet_->setFromInfoList(setpoint_);
 	}
 	else
@@ -106,7 +106,7 @@ bool AMBeamlineControlSetMoveAction::setSetpoint(const AMControlInfoList &setpoi
 		for(int y = 0; y < setpoint_.count(); y++)
 			if(fullSetpoint_.at(x).name() == setpoint_.at(y).name()){
 				fullSetpoint_[x].setValue(setpoint_.at(y).value());
-//				qDebug() << "Setting " << fullSetpoint_.at(x).name() << " to " << fullSetpoint_.at(x).value() << " with tolerance " << fullSetpoint_.at(x).tolerance();
+//				qdebug() << "Setting " << fullSetpoint_.at(x).name() << " to " << fullSetpoint_.at(x).value() << " with tolerance " << fullSetpoint_.at(x).tolerance();
 			}
 	}
 	return true;
@@ -161,7 +161,7 @@ void AMBeamlineControlSetMoveAction::onSucceeded(){
 	if(numSucceeded_ != controlSet_->count())
 		return;
 	for(int x = 0; x < controlSet_->count(); x++){
-//		qDebug() << "Succeeded at " << x << " " << controlSet_->at(x)->name();
+//		qdebug() << "Succeeded at " << x << " " << controlSet_->at(x)->name();
 		disconnect(controlSet_->at(x), 0, this, 0);
 	}
 	setSucceeded(true);

@@ -143,13 +143,13 @@ void AMMainWindow::onModelRowsInserted(const QModelIndex &parent, int start, int
 	for(int row=start; row<=end; row++) {
 		QModelIndex i = model_->index(row, 0, parent);
 
-		// qDebug() << "Inserting new item. isAlias() = " << model_->isAlias(i) << "isHeading = " << model_->isHeading(i);
+		// qdebug() << "Inserting new item. isAlias() = " << model_->isAlias(i) << "isHeading = " << model_->isHeading(i);
 
 		// for "real" item entries. (Nothing to do for aliases or headings)
 		if(!model_->isAlias(i) && !model_->isHeading(i)) {
 
 			QWidget* pane = model_->pane(i);
-			// qDebug() << "  Still inserting new item. pane is:" << pane;
+			// qdebug() << "  Still inserting new item. pane is:" << pane;
 
 			if(model_->isDocked(i) && pane) {
 				stackWidget_->addWidget(pane);
@@ -183,7 +183,7 @@ void AMMainWindow::onModelRowsAboutToBeRemoved(const QModelIndex &parent, int st
 					if(stackWidget_->currentWidget() == pane)
 						sidebar_->setCurrentIndex(getPreviousSelection(i));
 					else {
-						// qDebug() << "Not current widget";
+						// qdebug() << "Not current widget";
 					}
 
 					QSize oldSize = pane->size();
@@ -262,7 +262,7 @@ void AMMainWindow::onSidebarItemSelectionChanged() {
 		index = selectedItems.at(0);
 	}
 
-	// qDebug() << "Sidebar selection changed with index " << index;
+	// qdebug() << "Sidebar selection changed with index " << index;
 
 	if(!index.isValid()) {
 		// do nothing?
@@ -307,8 +307,8 @@ void AMMainWindow::addToPreviousSelectionsQueue(const QModelIndex &current)
 
 QModelIndex AMMainWindow::getPreviousSelection(const QModelIndex &current)
 {
-	// qDebug() << "Current index:" << current;
-	// qDebug()<< "Previous selections list:" << previousSelections_;
+	// qdebug() << "Current index:" << current;
+	// qdebug()<< "Previous selections list:" << previousSelections_;
 
 	QPersistentModelIndex potential;
 	bool searchSuccess = false;
@@ -320,7 +320,7 @@ QModelIndex AMMainWindow::getPreviousSelection(const QModelIndex &current)
 
 	QModelIndex rv = searchSuccess ? QModelIndex(potential) : QModelIndex();
 
-	// qDebug() << "Recommending go to" << rv;
+	// qdebug() << "Recommending go to" << rv;
 	return rv;
 }
 

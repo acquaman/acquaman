@@ -200,7 +200,7 @@ signals:
 protected:
 	/// disable the editor closing / committing?
 	bool eventFilter(QObject *object, QEvent *event) {
-		// qDebug() << "Event:" << event << "Type:" << event->type();
+		// qdebug() << "Event:" << event << "Type:" << event->type();
 
 		if(event->type() == QEvent::FocusOut)
 			return false;

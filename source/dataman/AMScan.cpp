@@ -338,9 +338,7 @@ void AMScan::dbLoadAnalyzedDataSourcesConnections(const QString& connectionStrin
 	QStringList allConnections = connectionString.split("\n", QString::SkipEmptyParts);
 
 	if(allConnections.count() != analyzedDataSources_.count()) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "There was an error re-connecting the analysis and processing components for this scan; the number of analysis blocks didn't match. Your database might be corrupted. Please report this bug to the Acquaman developers."));
-		qDebug() << "    AMScan: loading analyzedDataSourcesConnections: allConnections is:" << allConnections;
-		qDebug() << "        but number of analyzedDataSources_ is : " << analyzedDataSources_.count();
+		AMErrorMon::alert(this, AMSCAN_ANALYZED_DATASOURCE_COUNT_MISMATCH, QString("There was an error re-connecting the analysis and processing components for this scan; the number of analysis blocks didn't match. Your database might be corrupted. Please report this bug to the Acquaman developers. All connection: %1. Number of analyzed datasources: %2").arg(allConnections.join(" ")).arg(analyzedDataSources_.count()) );
 		return;
 	}
 
@@ -491,7 +489,7 @@ int AMScan::thumbnailCount() const{
 AMDbThumbnail AMScan::thumbnail(int index) const {
 	if(currentlyScanning()) {
 
-		qDebug() << "thumbnail: AMScan knows it's scanning.";
+		AMErrorMon::debug(this, AMSCAN_THUMBNAIL_SCANNING_MESSAGE, "Thumbnail: AMScan know it's scanning");
 		QFile file(":/240x180/currentlyScanningThumbnail.png");
 		file.open(QIODevice::ReadOnly);
 		return AMDbThumbnail("Started",

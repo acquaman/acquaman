@@ -177,7 +177,7 @@ void AMGithubManager::createNewIssue(const QString &title, const QString &body, 
 		jdata["assignee"] = assignee;
 	QJson::Serializer jserializer;
 	QByteArray jsonData = jserializer.serialize(jdata);
-	//qDebug() << jsonData;
+	//qdebug() << jsonData;
 
 	createNewIssueReply_ = manager_->post(request, jsonData);
 	connect(createNewIssueReply_, SIGNAL(readyRead()), this, SLOT(onCreateNewIssueReturned()));
@@ -204,7 +204,7 @@ void AMGithubManager::onAuthenicatedRequestReturned(){
 void AMGithubManager::onIssuesReturned(){
 	QJson::Parser parser;
 	QVariant githubFullReply = parser.parse(getIssuesReply_->readAll());
-	//qDebug() << githubFullReply;
+	//qdebug() << githubFullReply;
 	bool doEmit = false;
 	QVariantMap retVal;
 	if(githubFullReply.canConvert(QVariant::List)){

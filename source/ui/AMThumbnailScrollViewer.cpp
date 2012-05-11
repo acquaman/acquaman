@@ -387,7 +387,7 @@ void AMThumbnailScrollGraphicsWidget::displayThumbnail(AMDatabase* db, int id) {
 		return;
 	}
 
-	// qDebug() << "AMThumbnailScrollGraphicsWidget::displayThumbnail() -- Doing database lookup";
+	// qdebug() << "AMThumbnailScrollGraphicsWidget::displayThumbnail() -- Doing database lookup";
 
 	QSqlQuery q = db->query();
 	q.prepare(QString("SELECT title,subtitle,type,thumbnail FROM %1 WHERE id = ?").arg(AMDbObjectSupport::thumbnailTableName()));
