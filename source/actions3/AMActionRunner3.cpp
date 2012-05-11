@@ -61,6 +61,28 @@ void AMActionRunner3::releaseActionRunner()
 	instance_ = 0;
 }
 
+bool AMActionRunner3::isScanAction() const
+{
+	//return qobject_cast<AMScanAction *>(currentAction_) ? true : false;
+	qDebug() << (qobject_cast<const AMScanAction *>(currentSubAction()) ? true : false);
+	return qobject_cast<const AMScanAction *>(currentSubAction()) ? true : false;
+}
+
+#include "dataman/database/AMDbObjectSupport.h"
+const AMAction3* AMActionRunner3::currentSubActionHelper(const AMAction3 *parentAction) const
+{
+	if (parentAction)
+		qDebug() << parentAction->info()->dbObjectInfo()->className;
+	const AMListAction3 *listAction = qobject_cast<const AMListAction3*>(parentAction);
+	qDebug() << "Do I need to look deeper?";
+	if(listAction)
+		return currentSubActionHelper(listAction->currentSubAction());
+	qDebug() << "Nope.";
+	if(parentAction)
+		qDebug() << parentAction->metaObject()->className();
+	return parentAction;
+}
+
 void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 {
 	emit currentActionStateChanged(state, previousState);
@@ -82,6 +104,7 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 			}
 		}
 
+		qDebug() << "Asking isScanAction for created";
 		if (isScanAction())
 			emit scanActionCreated();
 	}
@@ -89,6 +112,7 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 	if (state == AMAction3::Running){
 
 
+		qDebug() << "Asking isScanAction for running/started";
 		if (isScanAction())
 			emit scanActionStarted();
 	}
@@ -133,6 +157,7 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 			}
 		}
 
+		qDebug() << "Asking isScanAction for finished";
 		if (isScanAction())
 			emit scanActionFinished();
 
@@ -141,11 +166,19 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 	}
 }
 
+const AMAction3* AMActionRunner3::currentSubAction() const{
+	if(!currentAction())
+		qDebug() << "CurrentAction not valid";
+	return currentSubActionHelper(currentAction());
+}
+
 AMScanController *AMActionRunner3::scanController() const
 {
+	qDebug() << "Asking isScanAction for scan controller";
 	if (isScanAction()){
 
-		AMScanAction *action = qobject_cast<AMScanAction *>(currentAction_);
+		//AMScanAction *action = qobject_cast<AMScanAction *>(currentAction_);
+		const AMScanAction *action = qobject_cast<const AMScanAction *>(currentSubAction());
 		return action->controller();
 	}
 

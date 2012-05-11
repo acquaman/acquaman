@@ -105,6 +105,9 @@ public:
 	/// A pointer to the current action. Will be 0 if actionRunning() is false, when no action is running.
 	const AMAction3* currentAction() const { return currentAction_; }
 
+	/// A pointer to the current bottom-level running action (deeper than current if the current running action is a list/loop). Will be 0 if actionRunning() is false, when no action is running.
+	const AMAction3* currentSubAction() const;
+
 	/// Convenience method that extracts the scan controller from scan actions.  Returns 0 if the action is not a scan action.
 	AMScanController *scanController() const;
 
@@ -197,7 +200,9 @@ protected:
 	/// Helper function to prompt the user about what to do given that the current action failed, and it specified a "prompt user" failure response. Do they want to retry or move on?
 	int internalAskUserWhatToDoAboutFailedAction(AMAction3* action);
 	/// Helper method that returns whether the current action is a scan action or not.
-	bool isScanAction() const { return qobject_cast<AMScanAction *>(currentAction_) ? true : false; }
+	bool isScanAction() const;
+	/// Helper method for recursive bottom-level subAction call
+	const AMAction3* currentSubActionHelper(const AMAction3 *parentAction) const;
 
 private:
 	/// This is a singleton class, so the constructor is private. Access the only instance of it via s().

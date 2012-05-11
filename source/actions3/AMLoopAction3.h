@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMListAction3.h"
 
 #include "actions3/AMLoopActionInfo3.h"
+#include <QDebug>
 
 /// An AMLoopAction contains a list of sub-actions that, when the loop action is run, will be executed a fixed number of times.  It implements the AMNestedAction interface so that the sub-actions are visible inside the AMActionRunner views, so that users can drag-and-drop existing actions into/out-of the loop.
 /*! The sub-actions are effectively used as templates, because a new copy of each sub-action will be made every time it is executed. You can configure whether you want the entire loop action logged as one, or every sub-action to be logged individually, by calling setShouldLogSubActionsSeparately(). */
@@ -51,7 +52,12 @@ public:
 	int currentIteration() const { return currentIteration_; }
 
 	/// Returns the currently-running sub-action, or 0 if none is running.
-	virtual const AMAction3* currentSubAction() const { return currentSubAction_; }
+	virtual const AMAction3* currentSubAction() const
+	{
+		if (!currentSubAction_)
+			qDebug() << "Current sub action is not valid.";
+		return currentSubAction_;
+	}
 	/// Returns the currently-running sub-action, or 0 if none is running.
 	virtual AMAction3* currentSubAction() { return currentSubAction_; }
 

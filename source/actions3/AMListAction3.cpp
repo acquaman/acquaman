@@ -72,11 +72,14 @@ AMAction3 * AMListAction3::subActionAt(int index)
 	return subActions_.at(index);
 }
 
+#include <QDebug>
 const AMAction3 * AMListAction3::subActionAt(int index) const
 {
+	qDebug() << "Trying for list subaction at " << index;
 	if(index < 0 || index >= subActionCount())
 		return 0;
 
+	qDebug() << "Returning list subaction at " << index;
 	return subActions_.at(index);
 }
 

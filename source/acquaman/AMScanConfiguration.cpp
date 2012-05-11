@@ -28,7 +28,9 @@ AMScanConfiguration::AMScanConfiguration(QObject *parent) :
 	autoExportEnabled_ = true;
 }
 
+#include <QDebug>
 const QMetaObject* AMScanConfiguration::getMetaObject(){
+	qDebug() << "Just before calling metaObject()";
 	return metaObject();
 }
 
