@@ -36,6 +36,8 @@ class SGMSettingsMasterView;
 class AMGithubManager;
 class AMDetector;
 
+#define SGMAPPCONTROLLER_COULD_NOT_RESET_FINISHED_SIGNAL 290301
+
 class SGMAppController : public AMAppController {
 	Q_OBJECT
 

@@ -65,7 +65,7 @@ SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
 {
 	if(!resetFinishedSignal(SGMBeamline::sgm(), SIGNAL(beamlineInitialized())))
-		qDebug() << "Couldn't reset the finished signal to the SGM Beamline";
+		AMErrorMon::alert(this, SGMAPPCONTROLLER_COULD_NOT_RESET_FINISHED_SIGNAL, "Could not reset the finish signal to the SGM Beamline");
 
 	// Prepend the SGM upgrade 1.1 to the list for both the user database and the SGM Beamline database
 	AMDbUpgrade *sgm1Pt1SGMDb = new SGMDbUpgrade1Pt1("SGMBeamline", this);
