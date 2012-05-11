@@ -193,7 +193,7 @@ public:
 	}
 
 	/// Check to see if another AMnDIndex refers to valid index within this one.
-	/// \warning Assumes that \c other is the same rank as this one.
+	/*! \warning Assumes that \c other is the same rank as us. */
 	inline bool inBounds(const AMnDIndex& other){
 		for(int x=0; x < rank_; x++)
 			if( other.at(x) >= at(x) )
@@ -201,6 +201,7 @@ public:
 		return true;
 	}
 
+	/// Comparison operator
 	inline bool operator==(const AMnDIndex& other) const {
 		if(other.rank_ != rank_)
 			return false;
@@ -211,9 +212,72 @@ public:
 		return true;
 	}
 
+	/// Inequality operator
 	inline bool operator!=(const AMnDIndex& other) const {
 		return !(*this == other);
 	}
+
+	/// Adds \c other to this index, dimension by dimension.
+	/*! \warning Assumes that \c other is the same rank as us. */
+	inline AMnDIndex& operator+=(const AMnDIndex& other) {
+		for(int mu=0; mu<rank_; ++mu)
+			(*this)[mu] += other.at(mu);
+		return *this;
+	}
+
+	/// Returns an index that is the dimension-by-dimension sum of us and \c other.
+	/*! \warning Assumes that \c other has the same rank as us. */
+	inline AMnDIndex operator+(const AMnDIndex& other) const {
+		AMnDIndex rv(*this);
+		rv += other;
+		return rv;
+	}
+
+	/// Subtracts \c other from this index, dimension by dimension.
+	/*! \warning Assumes that \c other has the same rank as us. */
+	inline AMnDIndex& operator-=(const AMnDIndex& other) {
+		for(int mu=0; mu<rank_; ++mu)
+			(*this)[mu] -= other.at(mu);
+		return *this;
+	}
+
+	/// Returns an index that is the dimension-by-dimension subtraction of \c other from this index.
+	/*! \warning Assumes that \c other has the same rank as us. */
+	inline AMnDIndex operator-(const AMnDIndex& other) const {
+		AMnDIndex rv(*this);
+		rv -= other;
+		return rv;
+	}
+
+	/// Adds \c offset to every dimension in this index.
+	inline AMnDIndex& operator+=(int offset) {
+		for(int mu=0; mu<rank_; ++mu)
+			(*this)[mu] += offset;
+		return *this;
+	}
+
+	/// Returns an index created by adding \c offset to every dimension of this index.
+	inline AMnDIndex operator+(int offset) const {
+		AMnDIndex rv(*this);
+		rv += offset;
+		return rv;
+	}
+
+	/// Subtracts \c offset from every dimension in this index.
+	inline AMnDIndex& operator-=(int offset) {
+		for(int mu=0; mu<rank_; ++mu)
+			(*this)[mu] -= offset;
+		return *this;
+	}
+
+	/// Returns an index created by subtracting \c offset from every dimension of this index.
+	inline AMnDIndex operator-(int offset) const {
+		AMnDIndex rv(*this);
+		rv -= offset;
+		return rv;
+	}
+
+
 
 	/// Print out dimensions: ex: "3 x 7 x 256"
 	QString toString(const QString& separator = QString(" x ")) const;

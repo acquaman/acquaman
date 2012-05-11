@@ -328,7 +328,7 @@ public:
 	}
 
 	/// Performance optimization of value(): this allows a block of multi-dimensional data to be retrieved in a single setValue call. The data is returned in a flat array, ordered in row-major form with the first scan index varying the slowest, and the measurement index's last axis varying the fastest.   /c scanIndexStart and \c scanIndexEnd specify the (inclusive) range in scan space; you can use the same start and end values to access the measurement values for a single scan point.  Which measurement to access is specified with \c measurementId, and \c measurementIndexStart and \c measurementIndexEnd specify the (inclusive) range in measurement space.  Returns false if any of the indexes are the wrong dimension or out of range.  It is the responsibility of the caller to make sure that \c outputValues is pre-allocated with enough room for all the data; use valuesSize() to calculate this conveniently.
-	virtual bool values(const AMnDIndex& scanIndexStart, const AMnDIndex& scanIndexEnd, int measurementId, const AMnDIndex& measurementIndexStart, const AMnDIndex& measurementIndexEnd, double* outputValues) {
+	virtual bool values(const AMnDIndex& scanIndexStart, const AMnDIndex& scanIndexEnd, int measurementId, const AMnDIndex& measurementIndexStart, const AMnDIndex& measurementIndexEnd, double* outputValues) const {
 
 		if(scanIndexStart.rank() != axes_.count() || scanIndexEnd.rank() != axes_.count())
 			return false;
@@ -525,7 +525,7 @@ public:
 	}
 
 	/// Helper function: implements a nested for-loop up to the required number of scan dimensions; used by values() when there is more than 4 scan dimensions.
-	void valuesImplementationRecursive(const AMnDIndex& siStart, const AMnDIndex& siEnd, int measurementId, const AMnDIndex& miStart, const AMnDIndex& miEnd, double** outputValues, int scanDimension, AMIMDSColumn* scanCol, const AMnDIndex& fullSize, int measurementSpaceSize) {
+	void valuesImplementationRecursive(const AMnDIndex& siStart, const AMnDIndex& siEnd, int measurementId, const AMnDIndex& miStart, const AMnDIndex& miEnd, double** outputValues, int scanDimension, AMIMDSColumn* scanCol, const AMnDIndex& fullSize, int measurementSpaceSize) const {
 
 		if(scanDimension == axes_.count()-1) { // base case: last (final) dimension
 			for(int i=siStart.at(scanDimension); i<=siEnd.at(scanDimension); ++i) {
@@ -901,7 +901,7 @@ protected:
 
 
 	/// Helper function: read a block out of a single measurement, from \c indexStart to \c indexEnd (inclusive), into \c outputValues.  There is no error checking that the size or dimension of the indexes is correct, and \c outputValues must be pre-allocated with enough space to hold the results.
-	void measurementValues(const AMIMDSMeasurement& measurement, const AMnDIndex& fullSize, const AMnDIndex& indexStart, const AMnDIndex& indexEnd, double* outputValues) {
+	void measurementValues(const AMIMDSMeasurement& measurement, const AMnDIndex& fullSize, const AMnDIndex& indexStart, const AMnDIndex& indexEnd, double* outputValues) const {
 
 		/// \todo Use memcpy once we move to a packed 64-bit size for AMNumber storage.
 
@@ -965,7 +965,7 @@ protected:
 	}
 
 	/// Helper function to implement measurementValues() for arbitrary dimensions
-	void measurementValuesImplementationRecursive(const AMIMDSMeasurement& measurement, const AMnDIndex& indexStart, const AMnDIndex& indexEnd, const AMnDIndex& fullSize, double** outputValues, int dimension, int cOffset) {
+	void measurementValuesImplementationRecursive(const AMIMDSMeasurement& measurement, const AMnDIndex& indexStart, const AMnDIndex& indexEnd, const AMnDIndex& fullSize, double** outputValues, int dimension, int cOffset) const {
 
 		if(dimension == indexStart.rank()-1) { // base case: final dimension
 			for(int i=indexStart.at(dimension); i<=indexEnd.at(dimension); ++i) {
@@ -986,7 +986,7 @@ protected:
 	}
 
 	/// Helper function: read a complete measurement (\c fullSize points) directly into \c outputValues. This is faster than the other version of measurementValues when you want the whole thing.
-	void measurementValues(const AMIMDSMeasurement& measurement, int fullSize, double* outputValues) {
+	void measurementValues(const AMIMDSMeasurement& measurement, int fullSize, double* outputValues) const {
 		for(int i=0; i<fullSize; ++i)
 			*(outputValues++) = double(measurement.at(i));
 	}
