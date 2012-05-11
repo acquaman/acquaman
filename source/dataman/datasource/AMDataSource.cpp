@@ -43,7 +43,7 @@ AMDataSource::~AMDataSource() {
 
 // Performance optimization of value(): instead of a single value, copies a block of values from \c indexStart to \c indexEnd (inclusive), into \c outputValues.  The values are returned in row-major order (ie: with the first index varying the slowest). Returns false if the indexes have the wrong dimension, or (if AM_ENABLE_BOUNDS_CHECKING is defined, the indexes are out-of-range).
 /* This base-class implementation simply calls value() repeatedly and should absolutely be re-implemented for better performance. */
-bool AMDataSource::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues)
+bool AMDataSource::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
 	static bool programmerWarningIssued = false;
 	if(!programmerWarningIssued) {
@@ -109,7 +109,7 @@ bool AMDataSource::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd
 }
 
 // Helper function to implement the base-class version of values() when rank > 4.
-void AMDataSource::valuesImplementationRecursive(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, AMnDIndex current, int dimension, double **outputValues)
+void AMDataSource::valuesImplementationRecursive(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, AMnDIndex current, int dimension, double **outputValues) const
 {
 	if(dimension == current.rank()-1) {	// base case: final dimension
 		for(int i=indexStart.at(dimension); i<=indexEnd.at(dimension); ++i) {

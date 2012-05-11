@@ -32,8 +32,8 @@ qreal AMDataSourceImageDatawDefault::minZ() const
 
 	for(int xx=0; xx<c.x(); xx++)
 		for(int yy=0; yy<c.y(); yy++)
-			if(value(xx, yy) < extreme && value(xx, yy) != defaultValue_)
-				extreme = value(xx, yy);
+			if(z(xx, yy) < extreme && z(xx, yy) != defaultValue_)
+				extreme = z(xx, yy);
 
 	return extreme;
 }

@@ -148,7 +148,7 @@ public:
 int outputSize = indexStart.totalPointsTo(indexEnd);
 \endcode
 */
-	virtual bool values(const AMnDIndex& indexStart, const AMnDIndex& indexEnd, double* outputValues);
+	virtual bool values(const AMnDIndex& indexStart, const AMnDIndex& indexEnd, double* outputValues) const;
 
 
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index).
@@ -230,7 +230,7 @@ private:
 	AMDataSourceSignalSource* signalSource_;
 
 	/// Helper function to implement the base-class version of values(), when rank > 4.
-	void valuesImplementationRecursive(const AMnDIndex& indexStart, const AMnDIndex& indexEnd, AMnDIndex current, int dimension, double** outputValues);
+	void valuesImplementationRecursive(const AMnDIndex& indexStart, const AMnDIndex& indexEnd, AMnDIndex current, int dimension, double** outputValues) const;
 
 };
 

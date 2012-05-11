@@ -81,7 +81,7 @@ public:
 int outputSize = indexStart.totalPointsTo(indexEnd);
 \endcode
 */
-	virtual bool values(const AMnDIndex& indexStart, const AMnDIndex& indexEnd, double* outputValues);
+	virtual bool values(const AMnDIndex& indexStart, const AMnDIndex& indexEnd, double* outputValues) const;
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 	virtual AMNumber axisValue(int axisNumber, int index) const;
 

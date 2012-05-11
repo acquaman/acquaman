@@ -275,7 +275,7 @@ AMNumber REIXSXESImageAB::value(const AMnDIndex &indexes) const
 		return rv;
 }
 
-bool REIXSXESImageAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues)
+bool REIXSXESImageAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
 	if(indexStart.rank() != 1 || indexEnd.rank() != 1)
 		return false;	// dimension error
