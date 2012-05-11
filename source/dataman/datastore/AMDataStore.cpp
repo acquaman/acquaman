@@ -135,3 +135,35 @@ void AMDataStore::endInsertRows() {
 			emitDataChanged(start, end, d);	// emitted once for each set of measurements.
 	}
 }
+
+// This function calculates the total size of the array required for values(), spanned by \c scanIndexStart, \c scanIndexEnd, \c measurementIndexStart, and \c measurementIndexEnd.
+int AMDataStore::valuesSize(const AMnDIndex &scanIndexStart, const AMnDIndex &scanIndexEnd, const AMnDIndex &measurementIndexStart, const AMnDIndex &measurementIndexEnd)
+{
+	if(scanIndexStart.rank() != scanIndexEnd.rank())
+		return -1;
+	if(measurementIndexStart.rank() != measurementIndexEnd.rank())
+		return -1;
+
+
+	int totalSize = 1;
+	for(int mu = 0; mu < scanIndexStart.rank(); mu++) {
+		if(scanIndexEnd.at(mu) < scanIndexStart.at(mu))
+			return -1;
+		totalSize *= (scanIndexEnd.at(mu) - scanIndexStart.at(mu) + 1);
+	}
+
+	for(int mu = 0; mu < measurementIndexStart.rank(); mu++) {
+		if(measurementIndexEnd.at(mu) < measurementIndexStart.at(mu))
+			return -1;
+		totalSize *= (measurementIndexEnd.at(mu) - measurementIndexStart.at(mu) + 1);
+	}
+
+	return totalSize;
+}
+
+QVector<double> AMDataStore::values(const AMnDIndex &scanIndexStart, const AMnDIndex &scanIndexEnd, int measurementId, const AMnDIndex &measurementIndexStart, const AMnDIndex &measurementIndexEnd) {
+	   QVector<double> rv(valuesSize(scanIndexStart, scanIndexEnd, measurementIndexStart, measurementIndexEnd));
+	   if(!values(scanIndexStart, scanIndexEnd, measurementId, measurementIndexStart, measurementIndexEnd, rv.data()))
+		   return QVector<double>();
+	   return rv;
+   }

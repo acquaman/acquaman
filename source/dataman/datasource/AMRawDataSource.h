@@ -95,36 +95,36 @@ public:
 	////////////////////////////
 
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient/wrong dimensionality, or if the data is not ready.
-	virtual AMNumber value(const AMnDIndex& indexes, bool doBoundsChecking = true) const {
+	virtual AMNumber value(const AMnDIndex& indexes) const {
 
 		if(!isValid())
 			return AMNumber(AMNumber::InvalidError);
-		if(doBoundsChecking && indexes.rank() != rank())
+		if(indexes.rank() != rank())
 			return AMNumber(AMNumber::DimensionError);
 
 
 		/// optimize for common dimensional cases, to avoid the for-loop overhead
 		switch(scanAxesCount_) {
 		case 0:	// scalar scan space. indexes are all in measurement space.
-			return dataStore_->value(AMnDIndex(), measurementId_, indexes, doBoundsChecking);
+			return dataStore_->value(AMnDIndex(), measurementId_, indexes);
 			break;
 		case 1:
 			switch(measurementAxesCount_) {
 			case 0:
-				return dataStore_->value(indexes.i(), measurementId_, AMnDIndex(), doBoundsChecking);	// 1d data: one scan axis, scalar measurements
+				return dataStore_->value(indexes.i(), measurementId_, AMnDIndex());	// 1d data: one scan axis, scalar measurements
 			case 1:
-				return dataStore_->value(indexes.i(), measurementId_, indexes.j(), doBoundsChecking); // 2d data: one scan axis, one measurement axis (ie: XAS scan with 1D detector, like SDD)
+				return dataStore_->value(indexes.i(), measurementId_, indexes.j()); // 2d data: one scan axis, one measurement axis (ie: XAS scan with 1D detector, like SDD)
 			case 2:
-				return dataStore_->value(indexes.i(), measurementId_, AMnDIndex(indexes.j(), indexes.k()), doBoundsChecking);	// 3d data: one scan axis, two measurement axes (ie: XAS scan with 2D detector, like XES)
+				return dataStore_->value(indexes.i(), measurementId_, AMnDIndex(indexes.j(), indexes.k()));	// 3d data: one scan axis, two measurement axes (ie: XAS scan with 2D detector, like XES)
 			}
 		case 2:
 			switch(measurementAxesCount_) {
 			case 0:
-				return dataStore_->value(AMnDIndex(indexes.i(), indexes.j()), measurementId_, AMnDIndex(), doBoundsChecking);
+				return dataStore_->value(AMnDIndex(indexes.i(), indexes.j()), measurementId_, AMnDIndex());
 			case 1:
-				return dataStore_->value(AMnDIndex(indexes.i(), indexes.j()), measurementId_, indexes.k(), doBoundsChecking);
+				return dataStore_->value(AMnDIndex(indexes.i(), indexes.j()), measurementId_, indexes.k());
 			case 2:
-				return dataStore_->value(AMnDIndex(indexes.i(), indexes.j()), measurementId_, AMnDIndex(indexes.k(), indexes.l()), doBoundsChecking);	// 4D data: really?
+				return dataStore_->value(AMnDIndex(indexes.i(), indexes.j()), measurementId_, AMnDIndex(indexes.k(), indexes.l()));	// 4D data: really?
 			}
 
 		default:
@@ -140,15 +140,15 @@ public:
 		for(int i=0; i<measurementAxesCount_; i++)
 			measurementIndex[i] = indexes.at(i+scanAxesCount_);
 
-		return dataStore_->value(scanIndex, measurementId_, measurementIndex, doBoundsChecking);
+		return dataStore_->value(scanIndex, measurementId_, measurementIndex);
 	}
 
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-	virtual AMNumber axisValue(int axisNumber, int index, bool doBoundsChecking = true) const {
+	virtual AMNumber axisValue(int axisNumber, int index) const {
 		if(!isValid())
 			return AMNumber(AMNumber::InvalidError);
 		if(axisNumber < scanAxesCount_)
-			return dataStore_->axisValue(axisNumber, index, doBoundsChecking);	// value along a scan axis
+			return dataStore_->axisValue(axisNumber, index);	// value along a scan axis
 		else if (axisNumber < rank() ){
 
 			const AMAxisInfo& axis = axes_.at(axisNumber);

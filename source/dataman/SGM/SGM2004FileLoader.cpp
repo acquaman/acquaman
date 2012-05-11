@@ -319,7 +319,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 				memset(specValues+specCounter, 0,  (sddSize-specCounter)*sizeof(int));
 
 			// insert the detector values (all at once, for performance)
-			scan->rawData()->setValue(x, sddMeasurementId, specValues, sddSize);
+			scan->rawData()->setValue(x, sddMeasurementId, specValues);
 
 			// Check specCounter is the right size... Not too big, not too small.
 			if(specCounter != sddSize) {

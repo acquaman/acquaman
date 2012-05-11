@@ -227,7 +227,7 @@ void REIXSXESImageAB::setInputDataSourcesImplementation(const QList<AMDataSource
 }
 
 
-AMNumber REIXSXESImageAB::value(const AMnDIndex &indexes, bool doBoundsChecking) const
+AMNumber REIXSXESImageAB::value(const AMnDIndex &indexes) const
 {
 	if((indexes.rank() != 1))
 		return AMNumber(AMNumber::DimensionError);
@@ -240,9 +240,10 @@ AMNumber REIXSXESImageAB::value(const AMnDIndex &indexes, bool doBoundsChecking)
 	// Max x pixel value:
 	int maxI = inputSource_->size(0);
 
-	if(doBoundsChecking)
-		if(((unsigned)i >= (unsigned)axes_.at(0).size))
-			return AMNumber(AMNumber::OutOfBoundsError);
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if(((unsigned)i >= (unsigned)axes_.at(0).size))
+		return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 	AMNumber rv = cachedValues_.at(i);
 	// if we haven't calculated this sum yet, the cached value will be invalid. Sum using shifting, and store.
@@ -253,7 +254,7 @@ AMNumber REIXSXESImageAB::value(const AMnDIndex &indexes, bool doBoundsChecking)
 		for(int j=sumRangeMin_; j<=sumRangeMax_; j++) { // loop through rows
 			int sourceI = i + shiftValues_.at(j);
 			if(sourceI < maxI && sourceI >= 0) {
-				newVal += double(inputSource_->value(AMnDIndex(sourceI, j), false));
+				newVal += double(inputSource_->value(AMnDIndex(sourceI, j)));
 				contributingRows++;
 			}
 		}
@@ -274,15 +275,15 @@ AMNumber REIXSXESImageAB::value(const AMnDIndex &indexes, bool doBoundsChecking)
 		return rv;
 }
 
-AMNumber REIXSXESImageAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const
+AMNumber REIXSXESImageAB::axisValue(int axisNumber, int index) const
 {
 	if((axisNumber != 0))
 		return AMNumber(AMNumber::DimensionError);
 
-	if(doBoundsChecking) {
-		if(((unsigned)index >= (unsigned)axes_.at(0).size))
-			return AMNumber(AMNumber::OutOfBoundsError);
-	}
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if(((unsigned)index >= (unsigned)axes_.at(0).size))
+		return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 	return index;
 }
@@ -396,7 +397,7 @@ void REIXSXESImageAB::correlateNow()
 			double correlationSum = 0;
 			for(int i = correlationCenterPx_ - correlationHalfWidth_, ic = correlationCenterPx_+correlationHalfWidth_; i<=ic; i++)
 				if(i+shift<sizeX && i+shift>=0 && i<sizeX && i>=0)
-					correlationSum += double(inputSource_->value(AMnDIndex(i,midY), false)) * double(inputSource_->value(AMnDIndex(i+shift, j), false));
+					correlationSum += double(inputSource_->value(AMnDIndex(i,midY))) *  double(inputSource_->value(AMnDIndex(i+shift, j)));
 			if(correlationSum > bestSum) {
 				bestSum = correlationSum;
 				bestShift = shift;

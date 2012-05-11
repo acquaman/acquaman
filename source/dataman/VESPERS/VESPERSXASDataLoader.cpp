@@ -146,7 +146,7 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 			for (int j = 0; j < 2048; j++)
 				data[j] = spectraTokenized.at(j).toInt();
 
-			scan_->rawData()->setValue(axisValueIndex, scan_->rawDataSourceCount()-1, data.constData(), data.size());
+			scan_->rawData()->setValue(axisValueIndex, scan_->rawDataSourceCount()-1, data.constData());
 		}
 
 		else{

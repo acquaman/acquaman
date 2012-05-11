@@ -183,7 +183,7 @@ void REIXSXESScanController::onNewImageValues() {
 
 	QVector<int> imageData = REIXSBeamline::bl()->mcpDetector()->imageData();
 
-	if(!scan_->rawData()->setValue(AMnDIndex(), 0, imageData.constData(), imageData.size()))
+	if(!scan_->rawData()->setValue(AMnDIndex(), 0, imageData.constData()))
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 37, "Error setting the new values from the MCP Detector. The size of the image didn't match what it should be.  This is probably a problem with the network connection to the detector, or a bug in the detector driver."));
 
 }

@@ -41,11 +41,11 @@ public:
 
 	/// Return the x-value at \c index. \c index must be greater or equal to 0, and less than count().
 	virtual double x(unsigned index) const {
-		return source_->axisValue(0, index, false);
+		return source_->axisValue(0, index);
 	}
 	/// Return the y-value at \c index, which must be >= 0 and less than count().
 	virtual double y(unsigned index) const {
-		return source_->value(AMnDIndex(index), false);
+		return source_->value(AMnDIndex(index));
 	}
 
 	/// Return the number of elements

@@ -209,7 +209,7 @@ bool AM2DNormalizationAB::canAnalyze(const QString &dataName, const QString &nor
 	return false;
 }
 
-AMNumber AM2DNormalizationAB::value(const AMnDIndex &indexes, bool doBoundsChecking) const
+AMNumber AM2DNormalizationAB::value(const AMnDIndex &indexes) const
 {
 	if (indexes.rank() != 2)
 		return AMNumber(AMNumber::DimensionError);
@@ -217,10 +217,11 @@ AMNumber AM2DNormalizationAB::value(const AMnDIndex &indexes, bool doBoundsCheck
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	if(doBoundsChecking)
-		if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size
-				&& (unsigned)indexes.j() >= (unsigned)axes_.at(1).size)
-			return AMNumber(AMNumber::OutOfBoundsError);
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size
+			&& (unsigned)indexes.j() >= (unsigned)axes_.at(1).size)
+		return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 	// Can't divide by zero.
 	if (double(normalizer_->value(indexes)) == 0)
@@ -229,7 +230,7 @@ AMNumber AM2DNormalizationAB::value(const AMnDIndex &indexes, bool doBoundsCheck
 	return double(data_->value(indexes))/double(normalizer_->value(indexes));
 }
 
-AMNumber AM2DNormalizationAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const
+AMNumber AM2DNormalizationAB::axisValue(int axisNumber, int index) const
 {
 	if (!isValid())
 		return AMNumber(AMNumber::InvalidError);
@@ -240,7 +241,7 @@ AMNumber AM2DNormalizationAB::axisValue(int axisNumber, int index, bool doBounds
 	if (index >= axes_.at(axisNumber).size)
 		return AMNumber(AMNumber::DimensionError);
 
-	return data_->axisValue(axisNumber, index, doBoundsChecking);
+	return data_->axisValue(axisNumber, index);
 }
 
 void AM2DNormalizationAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)

@@ -365,7 +365,7 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 
 				// insert the detector values (all at once, for performance)
 				//offset two columns for event-ID and eV
-				scan->rawData()->setValue(x, offsetColumns.at(y)-2, allSpecValues[y], allSpecSizes.at(y));
+				scan->rawData()->setValue(x, offsetColumns.at(y)-2, allSpecValues[y]);
 				// Check specCounter is the right size... Not too big, not too small.
 				if(allSpecCounters.at(y) != allSpecSizes.at(y)) {
 					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, QString("SGM2011XASFileLoader found corrupted data in the SDD spectra file '%1' on row %2. There should be %3 elements in the spectra, but we only found %4").arg(spectraFile).arg(x).arg(allSpecSizes.at(y)).arg(allSpecCounters.at(y))));

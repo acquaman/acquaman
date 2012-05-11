@@ -159,6 +159,8 @@ LIBS += $$GSL_LIB \
 		-L$$EPICS_LIB_DIR -lca -lCom \
 		$$CDF_LIB_DIR
 
+DEFINES += AM_ENABLE_BOUNDS_CHECKING
+
 # Set standard level of compiler warnings for everyone. (Otherwise the warnings shown will be system-dependent.)
 QMAKE_CXXFLAGS += -Wextra
 

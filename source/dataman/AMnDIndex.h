@@ -218,6 +218,115 @@ public:
 	/// Print out dimensions: ex: "3 x 7 x 256"
 	QString toString(const QString& separator = QString(" x ")) const;
 
+	/// Calculate the product of all the dimensions. (If the AMnDIndex represents the size of a multidimensional array, this calculates the total number of elements in that array.)
+	inline int product() const {
+		int rv = 1;
+		for(int mu=rank_-1; mu>=0; --mu)
+			rv *= at(mu);
+		return rv;
+	}
+
+	/// Calculate the total number of points in the space of the data block between this index and \c toIndex (inclusive).  For example, if this index is (2,2) and \c toIndex = (3,3), the block includes (2,2),(2,3),(3,2),(3,3) and this function would return 4.
+	/*! \note Assumes that \c toIndex has the same rank as us, and also that all of its corresponding values are larger than ours. */
+	inline int totalPointsTo(const AMnDIndex& toIndex) const {
+		int rv = 1;
+		for(int mu = rank_-1; mu >= 0; --mu)
+			rv *= (toIndex.at(mu) - at(mu) + 1);
+		return rv;
+	}
+
+	/// Calculate the location where this index would end up in a flattened (1D) array, where \c fullSize gives the total size of the multi-dimensional array.  (This assumes row-major order, where the first index varies the slowest.)  For example, for a 4-dimensional AMnDIndex(3,4,5,600) and an array that has dimensions \c fullSize = (5,10,100,1000), the flat index is 3*10*100*1000 + 4*100*1000 + 5*1000 + 600.
+	/*! \note Assumes that \c fullSize has the same rank() as us.*/
+	int flatIndexInArrayOfSize(const AMnDIndex& fullSize) const {
+		int rv;
+
+		switch(rank_) {
+		case 0:
+			rv =  0; break;
+		case 1:
+			rv = i();
+			break;
+		case 2:
+			rv = i()*fullSize.at(1)
+					+ j();
+			break;
+		case 3: {
+			rv = i()*fullSize.at(1)*fullSize.at(2)
+					+ j()*fullSize.at(2)
+					+ k();
+			break; }
+
+		case 4: {
+			rv = i()*fullSize.at(1)*fullSize.at(2)*fullSize.at(3)
+					+ j()*fullSize.at(2)*fullSize.at(3)
+					+ k()*fullSize.at(3);
+			+ l();
+			break; }
+
+		default: {
+			rv = 0;
+			for(int mu=0; mu<rank_; ++mu) {
+				int multiplier = 1;
+				for(int nu=mu+1; nu<rank_; ++nu)
+					multiplier *= fullSize.at(nu);
+				rv += at(mu)*multiplier;
+			}
+			break; }
+		}
+
+		return rv;
+	}
+
+	/// Returns a multidimensional index corresponding to the \c flatIndex in a 1D array , where the multidimensional array has size \c fullSize.    Like flatIndexInArrayOfSize(), this assumes row-major order where the last index varies the fastest.
+	static AMnDIndex fromFlatIndexInArrayOfSize(const AMnDIndex& fullSize, int flatIndex) {
+		int rank = fullSize.rank_;
+		AMnDIndex rv(rank, false);
+
+		switch(rank) {
+		case 0:
+			break;
+		case 1:
+			rv[0] = flatIndex;
+			break;
+		case 2:
+			rv[0] = flatIndex / fullSize.j_;
+			rv[1] = flatIndex % fullSize.j_;
+			break;
+		case 3: {
+			int multiplier = fullSize.j_*fullSize.k_;
+			rv[0] = flatIndex / multiplier;
+			flatIndex = flatIndex % multiplier;
+			rv[1] = flatIndex / fullSize.k_;
+			rv[2] = flatIndex % fullSize.k_;
+			break; }
+
+		case 4: {
+			int multiplier = fullSize.j_*fullSize.k_*fullSize.l_;
+			rv[0] = flatIndex / multiplier;
+			flatIndex = flatIndex % multiplier;
+
+			multiplier = fullSize.k_*fullSize.l_;
+			rv[1] = flatIndex / multiplier;
+			flatIndex = flatIndex % multiplier;
+
+			multiplier = fullSize.l_;
+			rv[2] = flatIndex / multiplier;
+			rv[3] = flatIndex % multiplier;
+			break; }
+
+		default: {
+			for(int mu=0; mu<rank; ++mu) {
+				int multiplier = 1;
+				for(int nu=mu+1; nu<rank; ++nu)
+					multiplier *= fullSize.at(nu);
+				rv[mu] = flatIndex / multiplier;
+				flatIndex = flatIndex % multiplier;
+			}
+			break; }
+		}
+
+		return rv;
+	}
 };
 
 

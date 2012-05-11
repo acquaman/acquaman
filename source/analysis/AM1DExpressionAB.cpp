@@ -223,25 +223,26 @@ AMAxisInfo AM1DExpressionAB::axisInfoAt(int axisNumber) const {
 ////////////////////////////
 
 // Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
-AMNumber AM1DExpressionAB::value(const AMnDIndex& indexes, bool doBoundsChecking) const {
+AMNumber AM1DExpressionAB::value(const AMnDIndex& indexes) const {
 	if(!isValid())	// will catch most invalid situations: non matching sizes, invalid inputs, invalid expressions.
 		return AMNumber(AMNumber::InvalidError);
 
 	if(indexes.rank() != 1)
 		return AMNumber(AMNumber::DimensionError);
 
-	if(doBoundsChecking)
+#ifdef AM_ENABLE_BOUNDS_CHECKING
 		if(indexes.i() < 0 || indexes.i() >= size_)
 			return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 
 	// can we get it directly? Single-value expressions don't require the parser.
 	if(direct_) {
 		// info on which variable to use is contained in directVar_.
 		if(directVar_.useAxisValue)
-			return sources_.at(directVar_.sourceIndex)->axisValue(0, indexes.i(), doBoundsChecking);
+			return sources_.at(directVar_.sourceIndex)->axisValue(0, indexes.i());
 		else
-			return sources_.at(directVar_.sourceIndex)->value(indexes, doBoundsChecking);
+			return sources_.at(directVar_.sourceIndex)->value(indexes);
 	}
 
 	// otherwise we need the parser
@@ -250,9 +251,9 @@ AMNumber AM1DExpressionAB::value(const AMnDIndex& indexes, bool doBoundsChecking
 		for(int i=0; i<usedVariables_.count(); i++) {
 			AMParserVariable* usedVar = usedVariables_.at(i);
 			if(usedVar->useAxisValue)
-				usedVar->value = sources_.at(usedVar->sourceIndex)->axisValue(0, indexes.i(), doBoundsChecking);
+				usedVar->value = sources_.at(usedVar->sourceIndex)->axisValue(0, indexes.i());
 			else
-				usedVar->value = sources_.at(usedVar->sourceIndex)->value(indexes, doBoundsChecking);
+				usedVar->value = sources_.at(usedVar->sourceIndex)->value(indexes);
 		}
 
 		// evaluate using the parser:
@@ -274,25 +275,26 @@ AMNumber AM1DExpressionAB::value(const AMnDIndex& indexes, bool doBoundsChecking
 }
 
 // When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-AMNumber AM1DExpressionAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const  {
+AMNumber AM1DExpressionAB::axisValue(int axisNumber, int index) const  {
 	if(!isValid())	// will catch most invalid situations: non matching sizes, invalid inputs, invalid expressions.
 		return AMNumber(AMNumber::InvalidError);
 
 	if(axisNumber != 0)	// someone gave us a multi-dim index for a 1D dataset
 		return AMNumber(AMNumber::DimensionError);
 
-	if(doBoundsChecking)
+#ifdef AM_ENABLE_BOUNDS_CHECKING
 		if(index < 0 || index >= size_)
 			return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 
 	// can we get it directly? Single-value expressions don't require the parser.
 	if(xDirect_) {
 		// info on which variable to use is contained in xDirectVar_.
 		if(xDirectVar_.useAxisValue)
-			return sources_.at(xDirectVar_.sourceIndex)->axisValue(0, index, doBoundsChecking);
+			return sources_.at(xDirectVar_.sourceIndex)->axisValue(0, index);
 		else
-			return sources_.at(xDirectVar_.sourceIndex)->value(index, doBoundsChecking);
+			return sources_.at(xDirectVar_.sourceIndex)->value(index);
 	}
 
 	// otherwise we need the parser
@@ -301,9 +303,9 @@ AMNumber AM1DExpressionAB::axisValue(int axisNumber, int index, bool doBoundsChe
 		for(int i=0; i<xUsedVariables_.count(); i++) {
 			AMParserVariable* usedVar = xUsedVariables_.at(i);
 			if(usedVar->useAxisValue)
-				usedVar->value = sources_.at(usedVar->sourceIndex)->axisValue(0, index, doBoundsChecking);
+				usedVar->value = sources_.at(usedVar->sourceIndex)->axisValue(0, index);
 			else
-				usedVar->value = sources_.at(usedVar->sourceIndex)->value(index, doBoundsChecking);
+				usedVar->value = sources_.at(usedVar->sourceIndex)->value(index);
 		}
 
 		// evaluate using the parser:

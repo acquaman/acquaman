@@ -190,19 +190,18 @@ public:
 
 
 	/// Retrieve a value from a measurement, at a specific scan point.
-	virtual AMNumber value(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex, bool doBoundsChecking = true) const {
+	virtual AMNumber value(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex) const {
 
-		if(doBoundsChecking) {
-			// scan axis index doesn't provide enough / too many dimensions
-			if(scanIndex.rank() != axes_.count())
-				return AMNumber(AMNumber::DimensionError);
+		// scan axis index doesn't provide enough / too many dimensions
+		if(scanIndex.rank() != axes_.count())
+			return AMNumber(AMNumber::DimensionError);
 
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		for(int mu=axes_.count()-1; mu>=0; mu--)
+			if((unsigned)scanIndex.at(mu) >= (unsigned)axes_.at(mu).size)
+				return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
-
-			for(int mu=axes_.count()-1; mu>=0; mu--)
-				if((unsigned)scanIndex.at(mu) >= (unsigned)axes_.at(mu).size)
-					return AMNumber(AMNumber::OutOfBoundsError);
-		}
 
 		// performance optimization: avoid recursive function calls for known dimensions
 		AMIMDSScanPoint* scanPoint;
@@ -245,17 +244,17 @@ public:
 			return AMNumber(AMNumber::DimensionError);
 
 		int flatIndex = flatIndexForMeasurement(measurementId, measurementIndex);
-		if(doBoundsChecking) {
-			if((unsigned)flatIndex >= (unsigned)scanPoint->at(measurementId).size())
-				return AMNumber(AMNumber::OutOfBoundsError);
-		}
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if((unsigned)flatIndex >= (unsigned)scanPoint->at(measurementId).size())
+			return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 		return scanPoint->at(measurementId).at(flatIndex);
 	}
 
 
 	/// Set the value of a measurement, at a specific scan point
-	virtual bool setValue(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex, const AMNumber& newValue, bool doBoundsChecking = true) {
+	virtual bool setValue(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex, const AMNumber& newValue) {
 		// scan axis index doesn't provide enough / too many dimensions
 		if(scanIndex.rank() != axes_.count()) {
 			//qDebug() << "err 1";
@@ -263,13 +262,13 @@ public:
 		}
 
 
-		if(doBoundsChecking) {
-			for(int mu=axes_.count()-1; mu>=0; mu--)
-				if((unsigned)scanIndex.at(mu) >= (unsigned)axes_.at(mu).size) {
-					//qDebug() << "err 2";
-					return false;
-				}
-		}
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		for(int mu=axes_.count()-1; mu>=0; mu--)
+			if((unsigned)scanIndex.at(mu) >= (unsigned)axes_.at(mu).size) {
+				//qDebug() << "err 2";
+				return false;
+			}
+#endif
 
 		// performance optimization: avoid recursive function calls for known dimensions
 		AMIMDSScanPoint* scanPoint;
@@ -316,31 +315,244 @@ public:
 		}
 
 		int flatIndex = flatIndexForMeasurement(measurementId, measurementIndex);
-		if(doBoundsChecking) {
-			if((unsigned)flatIndex >= (unsigned)scanPoint->at(measurementId).size()) {
-				//qDebug() << "err 6";
-				return false;
-			}
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if((unsigned)flatIndex >= (unsigned)scanPoint->at(measurementId).size()) {
+			//qDebug() << "err 6";
+			return false;
 		}
+#endif
 
 		(*scanPoint)[measurementId][flatIndex] = newValue;
 		emitDataChanged(scanIndex, scanIndex, measurementId);
 		return true;
 	}
 
+	/// Performance optimization of value(): this allows a block of multi-dimensional data to be retrieved in a single setValue call. The data is returned in a flat array, ordered in row-major form with the first scan index varying the slowest, and the measurement index's last axis varying the fastest.   /c scanIndexStart and \c scanIndexEnd specify the (inclusive) range in scan space; you can use the same start and end values to access the measurement values for a single scan point.  Which measurement to access is specified with \c measurementId, and \c measurementIndexStart and \c measurementIndexEnd specify the (inclusive) range in measurement space.  Returns false if any of the indexes are the wrong dimension or out of range.  It is the responsibility of the caller to make sure that \c outputValues is pre-allocated with enough room for all the data; use valuesSize() to calculate this conveniently.
+	virtual bool values(const AMnDIndex& scanIndexStart, const AMnDIndex& scanIndexEnd, int measurementId, const AMnDIndex& measurementIndexStart, const AMnDIndex& measurementIndexEnd, double* outputValues) {
+
+		if(scanIndexStart.rank() != axes_.count() || scanIndexEnd.rank() != axes_.count())
+			return false;
+		if(measurementId >= measurements_.count())
+			return false;
+
+		const AMMeasurementInfo& mi = measurements_.at(measurementId);
+		if(measurementIndexStart.rank() != mi.rank() || measurementIndexEnd.rank() != mi.rank())
+			return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		// check bounds for scan axes
+		for(int mu=axes_.count()-1; mu >= 0; --mu) {
+			if(scanIndexEnd.at(mu) < scanIndexStart.at(mu))
+				return false;
+			if(scanIndexEnd.at(mu) >= axes_.at(mu).size)
+				return false;
+		}
+
+		// check bounds for measurement axes
+		for(int mu=mi.rank()-1; mu >= 0; --mu) {
+			if(measurementIndexEnd.at(mu) < measurementIndexStart.at(mu))
+				return false;
+			if(measurementIndexEnd.at(mu) >= mi.size(mu))
+				return false;
+		}
+#endif
+
+		// Determine the full size of the measurement (not necessarily the size of the block that we want to read out).
+		AMnDIndex measurementSize = mi.size();
+		int flatMeasurementSize = measurementSize.product();
+
+		// specific cases of scan rank:
+		switch(scanIndexStart.rank()) {
+		case 0: {
+			// null scan space; just copy in the measurement block
+
+			if(measurementIndexStart.rank() == 0) {	// If measurements are scalar values, can optimize.
+				outputValues[0] = double(scalarScanPoint_->at(measurementId).at(0));
+			}
+
+			else {
+				// need to find out how many points one measurement block takes
+				int measurementSpaceSize = measurementIndexStart.totalPointsTo(measurementIndexEnd);
+
+				if(measurementSpaceSize == flatMeasurementSize)	// if asking for the whole measurement, can optimize.
+					measurementValues(scalarScanPoint_->at(measurementId), flatMeasurementSize, outputValues);
+				else
+					measurementValues(scalarScanPoint_->at(measurementId), measurementSize, measurementIndexStart, measurementIndexEnd, outputValues);
+			}
+			break;
+		}
+
+		case 1:{
+			if(measurementIndexStart.rank() == 0) {	// If measurements are scalar values, can optimize.
+				for(int i=scanIndexStart.i(); i<=scanIndexEnd.i(); ++i)
+					*(outputValues++) = double(dataRoot_->at(i).scanPoint->at(measurementId).at(0));
+			}
+
+			else {
+				// need to find out how many points one measurement block takes
+				int measurementSpaceSize = measurementIndexStart.totalPointsTo(measurementIndexEnd);
+
+				if(measurementSpaceSize == flatMeasurementSize)	// if asking for the whole measurement, can optimize.
+					for(int i=scanIndexStart.i(); i<=scanIndexEnd.i(); ++i) {
+						measurementValues(dataRoot_->at(i).scanPoint->at(measurementId), flatMeasurementSize, outputValues);
+						outputValues += measurementSpaceSize;
+					}
+				else
+					for(int i=scanIndexStart.i(); i<=scanIndexEnd.i(); ++i) {
+						measurementValues(dataRoot_->at(i).scanPoint->at(measurementId), measurementSize, measurementIndexStart, measurementIndexEnd, outputValues);
+						outputValues += measurementSpaceSize;
+					}
+			}
+			break;
+		}
+
+		case 2:{
+			if(measurementIndexStart.rank() == 0) {	// If measurements are scalar values, can optimize.
+				for(int i=scanIndexStart.i(); i<=scanIndexEnd.i(); ++i)
+					for(int j=scanIndexStart.j(); j<=scanIndexEnd.j(); ++j)
+						*(outputValues++) = double(dataRoot_->at(i).nextColumn->at(j).scanPoint->at(measurementId).at(0));
+			}
+
+			else {
+				// need to find out how many points one measurement block takes
+				int measurementSpaceSize = measurementIndexStart.totalPointsTo(measurementIndexEnd);
+
+				if(measurementSpaceSize == flatMeasurementSize) {	// if asking for the whole measurement, can optimize.
+					for(int i=scanIndexStart.i(); i<=scanIndexEnd.i(); ++i) {
+						for(int j=scanIndexStart.j(); j<=scanIndexEnd.j(); ++j) {
+							measurementValues(dataRoot_->at(i).nextColumn->at(j).scanPoint->at(measurementId), flatMeasurementSize, outputValues);
+							outputValues += measurementSpaceSize;
+						}
+					}
+				}
+				else {
+					for(int i=scanIndexStart.i(); i<=scanIndexEnd.i(); ++i) {
+						for(int j=scanIndexStart.j(); j<=scanIndexEnd.j(); ++j) {
+							measurementValues(dataRoot_->at(i).nextColumn->at(j).scanPoint->at(measurementId), measurementSize, measurementIndexStart, measurementIndexEnd, outputValues);
+							outputValues += measurementSpaceSize;
+						}
+					}
+				}
+			}
+			break;
+		}
+
+		case 3:{
+			if(measurementIndexStart.rank() == 0) {	// If measurements are scalar values, can optimize.
+				for(int i=scanIndexStart.i(); i<=scanIndexEnd.i(); ++i)
+					for(int j=scanIndexStart.j(); j<=scanIndexEnd.j(); ++j)
+						for(int k=scanIndexStart.k(); k<=scanIndexEnd.k(); ++k)
+							*(outputValues++) = double(dataRoot_->at(i).nextColumn->at(j).nextColumn->at(k).scanPoint->at(measurementId).at(0));
+			}
+
+			else {
+				// need to find out how many points one measurement block takes
+				int measurementSpaceSize = measurementIndexStart.totalPointsTo(measurementIndexEnd);
+
+				if(measurementSpaceSize == flatMeasurementSize) {	// if asking for the whole measurement, can optimize.
+					for(int i=scanIndexStart.i(); i<=scanIndexEnd.i(); ++i) {
+						for(int j=scanIndexStart.j(); j<=scanIndexEnd.j(); ++j) {
+							for(int k=scanIndexStart.k(); k<=scanIndexEnd.k(); ++k) {
+								measurementValues(dataRoot_->at(i).nextColumn->at(j).nextColumn->at(k).scanPoint->at(measurementId), flatMeasurementSize, outputValues);
+								outputValues += measurementSpaceSize;
+							}
+						}
+					}
+				}
+				else {
+					for(int i=scanIndexStart.i(); i<=scanIndexEnd.i(); ++i) {
+						for(int j=scanIndexStart.j(); j<=scanIndexEnd.j(); ++j) {
+							for(int k=scanIndexStart.k(); k<=scanIndexEnd.k(); ++k) {
+								measurementValues(dataRoot_->at(i).nextColumn->at(j).nextColumn->at(k).scanPoint->at(measurementId), measurementSize, measurementIndexStart, measurementIndexEnd, outputValues);
+								outputValues += measurementSpaceSize;
+							}
+						}
+					}
+				}
+			}
+			break;
+		}
+
+		case 4:{
+			if(measurementIndexStart.rank() == 0) {	// If measurements are scalar values, can optimize.
+				for(int i=scanIndexStart.i(); i<=scanIndexEnd.i(); ++i)
+					for(int j=scanIndexStart.j(); j<=scanIndexEnd.j(); ++j)
+						for(int k=scanIndexStart.k(); k<=scanIndexEnd.k(); ++k)
+							for(int l=scanIndexStart.l(); l<=scanIndexEnd.l(); ++l)
+								*(outputValues++) = double(dataRoot_->at(i).nextColumn->at(j).nextColumn->at(k).nextColumn->at(l).scanPoint->at(measurementId).at(0));
+			}
+
+			else {
+				int measurementSpaceSize = measurementIndexStart.totalPointsTo(measurementIndexEnd);
+
+				if(measurementSpaceSize == flatMeasurementSize) {	// if asking for the whole measurement, can optimize.
+					for(int i=scanIndexStart.i(); i<=scanIndexEnd.i(); ++i) {
+						for(int j=scanIndexStart.j(); j<=scanIndexEnd.j(); ++j) {
+							for(int k=scanIndexStart.k(); k<=scanIndexEnd.k(); ++k) {
+								for(int l=scanIndexStart.l(); l<=scanIndexEnd.l(); ++l) {
+									measurementValues(dataRoot_->at(i).nextColumn->at(j).nextColumn->at(k).nextColumn->at(l).scanPoint->at(measurementId), flatMeasurementSize, outputValues);
+									outputValues += measurementSpaceSize;
+								}
+							}
+						}
+					}
+				}
+				else {
+					for(int i=scanIndexStart.i(); i<=scanIndexEnd.i(); ++i) {
+						for(int j=scanIndexStart.j(); j<=scanIndexEnd.j(); ++j) {
+							for(int k=scanIndexStart.k(); k<=scanIndexEnd.k(); ++k) {
+								for(int l=scanIndexStart.l(); l<=scanIndexEnd.l(); ++l) {
+									measurementValues(dataRoot_->at(i).nextColumn->at(j).nextColumn->at(k).nextColumn->at(l).scanPoint->at(measurementId), measurementSize, measurementIndexStart, measurementIndexEnd, outputValues);
+									outputValues += measurementSpaceSize;
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		}
+		default:{
+			int measurementSpaceSize = measurementIndexStart.totalPointsTo(measurementIndexEnd);
+
+			valuesImplementationRecursive(scanIndexStart, scanIndexEnd, measurementId, measurementIndexStart, measurementIndexEnd, &outputValues, 0, dataRoot_, measurementSize, measurementSpaceSize);
+			return false;
+			break;
+		}
+		}
+
+		return true;
+	}
+
+	/// Helper function: implements a nested for-loop up to the required number of scan dimensions; used by values() when there is more than 4 scan dimensions.
+	void valuesImplementationRecursive(const AMnDIndex& siStart, const AMnDIndex& siEnd, int measurementId, const AMnDIndex& miStart, const AMnDIndex& miEnd, double** outputValues, int scanDimension, AMIMDSColumn* scanCol, const AMnDIndex& fullSize, int measurementSpaceSize) {
+
+		if(scanDimension == axes_.count()-1) { // base case: last (final) dimension
+			for(int i=siStart.at(scanDimension); i<=siEnd.at(scanDimension); ++i) {
+				measurementValues(scanCol->at(i).scanPoint->at(measurementId), fullSize, miStart, miEnd, *outputValues);
+				*outputValues += measurementSpaceSize;
+			}
+		}
+		else {
+			for(int i=siStart.at(scanDimension); i<=siEnd.at(scanDimension); ++i) {
+				valuesImplementationRecursive(siStart, siEnd, measurementId, miStart, miEnd, outputValues, scanDimension+1, dataRoot_->at(i).nextColumn, fullSize, measurementSpaceSize);
+			}
+		}
+	}
+
 
 	/// Performance optimization for setValue(): this allows multi-dimensional measurements to be set in a single setValue call.  \c inputData is interpreted as being in a flat array, ordered where the measurement's first axis varies the slowest, and the measurement's last axis varies the fastest (as you step through the array).  The size of the \c inputData must match the product of the sizes of all dimensions in the measurement.
-	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const int* inputData, int numArrayElements, bool doBoundsChecking = true) {
+	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const int* inputData) {
 		// scan axis index doesn't provide enough / too many dimensions
 		if(scanIndex.rank() != axes_.count())
 			return false;
 
 
-		if(doBoundsChecking) {
-			for(int mu=axes_.count()-1; mu>=0; mu--)
-				if((unsigned)scanIndex.at(mu) >= (unsigned)axes_.at(mu).size)
-					return false;
-		}
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		for(int mu=axes_.count()-1; mu>=0; mu--)
+			if((unsigned)scanIndex.at(mu) >= (unsigned)axes_.at(mu).size)
+				return false;
+#endif
 
 		// performance optimization: avoid recursive function calls for known dimensions
 		AMIMDSScanPoint* scanPoint;
@@ -380,8 +592,6 @@ public:
 			return false;	// invalid measurement specified;
 
 		AMIMDSMeasurement& measurement = (*scanPoint)[measurementId];
-		if(numArrayElements != measurement.size())
-			return false;
 
 		for(int i=0; i<measurement.size(); i++)
 			measurement[i] = inputData[i];
@@ -390,17 +600,17 @@ public:
 		return true;
 	}
 
-	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const double* inputData, int numArrayElements, bool doBoundsChecking = true) {
+	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const double* inputData) {
 		// scan axis index doesn't provide enough / too many dimensions
 		if(scanIndex.rank() != axes_.count())
 			return false;
 
 
-		if(doBoundsChecking) {
-			for(int mu=axes_.count()-1; mu>=0; mu--)
-				if((unsigned)scanIndex.at(mu) >= (unsigned)axes_.at(mu).size)
-					return false;
-		}
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		for(int mu=axes_.count()-1; mu>=0; mu--)
+			if((unsigned)scanIndex.at(mu) >= (unsigned)axes_.at(mu).size)
+				return false;
+#endif
 
 		// performance optimization: avoid recursive function calls for known dimensions
 		AMIMDSScanPoint* scanPoint;
@@ -440,8 +650,6 @@ public:
 			return false;	// invalid measurement specified;
 
 		AMIMDSMeasurement& measurement = (*scanPoint)[measurementId];
-		if(numArrayElements != measurement.size())
-			return false;
 
 		for(int i=0; i<measurement.size(); i++)
 			measurement[i] = inputData[i];
@@ -454,15 +662,15 @@ public:
 
 
 	/// Retrieve the independent variable along an axis \c axisId, at a specific scan point \c axisIndex.  If the axis scale is uniform (see AMAxisInfo::isUniform) this can be calculated from the axis' \c start and \c increment.
-	virtual AMNumber axisValue(int axisId, int axisIndex, bool doBoundsChecking = true) const {
+	virtual AMNumber axisValue(int axisId, int axisIndex) const {
 
 		if((unsigned)axisId >= (unsigned)axes_.count())
 			return AMNumber(AMNumber::InvalidError);	// invalid axis specified.
 
-		if(doBoundsChecking) {
-			if((unsigned)axisIndex >= (unsigned)axes_.at(axisId).size)
-				return AMNumber(AMNumber::OutOfBoundsError);
-		}
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if((unsigned)axisIndex >= (unsigned)axes_.at(axisId).size)
+			return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 		const AMAxisInfo& ai = axes_.at(axisId);
 		if(ai.isUniform)
@@ -473,15 +681,15 @@ public:
 	}
 
 	/// Set the independent variable along an axis \c axisId, at a specific scan point \c axisIndex. This is necessary after adding a "row" with beginInsertRows(), unless the axis scale is uniform. (See AMAxisInfo::isUniform).
-	virtual bool setAxisValue(int axisId, int axisIndex, AMNumber newValue, bool doBoundsChecking = true) {
+	virtual bool setAxisValue(int axisId, int axisIndex, AMNumber newValue) {
 
 		if((unsigned)axisId >= (unsigned)axes_.count())
 			return false;	// invalid axis specified.
 
-		if(doBoundsChecking) {
-			if((unsigned)axisIndex >= (unsigned)axes_.at(axisId).size)
-				return false;
-		}
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if((unsigned)axisIndex >= (unsigned)axes_.at(axisId).size)
+			return false;
+#endif
 
 		if(axes_.at(axisId).isUniform)
 			return false;
@@ -521,47 +729,7 @@ protected:
 	/// Returns the flat array index for a multi-dimensional measurement.  For example, for a 4-dimensional \c measurementIndex AMnDIndex(3,4,5,600) and a measurement that has dimensions (5,10,100,1000), the flat index is 3*10*100*1000 + 4*100*1000 + 5*1000 + 600.
 	/*! Note: assumes measurementId is a valid one of our measurements, and that measurementIndex is the right size for it.*/
 	int flatIndexForMeasurement(int measurementId, const AMnDIndex& measurementIndex) const {
-		int rv;
-		int rank = measurementIndex.rank();
-
-		switch(rank) {
-		case 0:
-			rv =  0; break;
-		case 1:
-			rv = measurementIndex.i();
-			break;
-		case 2:
-			rv = measurementIndex.i()*measurements_.at(measurementId).size(1)
-					+ measurementIndex.j();
-			break;
-		case 3: {
-			const AMMeasurementInfo& mi = measurements_.at(measurementId);
-			rv = measurementIndex.i()*mi.size(1)*mi.size(2)
-					+ measurementIndex.j()*mi.size(2)
-					+ measurementIndex.k();
-			break; }
-
-		case 4: {
-			const AMMeasurementInfo& mi = measurements_.at(measurementId);
-			rv = measurementIndex.i()*mi.size(1)*mi.size(2)*mi.size(3)
-					+ measurementIndex.j()*mi.size(2)*mi.size(3)
-					+ measurementIndex.k()*mi.size(3);
-			+ measurementIndex.l();
-			break; }
-
-		default: {
-			const AMMeasurementInfo& mi = measurements_.at(measurementId);
-			rv = 0;
-			for(int mu=0; mu<rank; mu++) {
-				int multiplier = 1;
-				for(int nu=mu+1; nu<rank; nu++)
-					multiplier *= mi.size(nu);
-				rv += measurementIndex.at(mu)*multiplier;
-			}
-			break; }
-		}
-
-		return rv;
+		return measurementIndex.flatIndexInArrayOfSize(measurements_.at(measurementId).size());
 	}
 
 	/// This function appends a null measurement (matching the size of \c measurementDetails) to all existing scan points. It loops through columns and recurses through dimensions, starting at \c columnRoot.  \c atDimension is the dimension index that it will open on this call; for example, on a 4d data structure, \c atDimension should equal 3 at the start.  When \c atDimension = 0, we're at the final dimension.
@@ -729,6 +897,98 @@ protected:
 
 		axes_.clear();
 		axisValues_.clear();
+	}
+
+
+	/// Helper function: read a block out of a single measurement, from \c indexStart to \c indexEnd (inclusive), into \c outputValues.  There is no error checking that the size or dimension of the indexes is correct, and \c outputValues must be pre-allocated with enough space to hold the results.
+	void measurementValues(const AMIMDSMeasurement& measurement, const AMnDIndex& fullSize, const AMnDIndex& indexStart, const AMnDIndex& indexEnd, double* outputValues) {
+
+		/// \todo Use memcpy once we move to a packed 64-bit size for AMNumber storage.
+
+		switch(indexStart.rank()) {
+		case 0: {
+			outputValues[0] = double(measurement.at(0));
+			break;
+		}
+
+		case 1: {
+			for(int i=indexStart.i(); i<=indexEnd.i(); ++i)
+				*(outputValues++) = double(measurement.at(i));
+			break;
+		}
+
+		case 2: {
+			for(int i=indexStart.i(); i<=indexEnd.i(); ++i) {
+				int ic = i*fullSize.j();
+				for(int j=indexStart.j(); j<=indexEnd.j(); ++j) {
+					*(outputValues++) = double(measurement.at(ic+j));
+				}
+			}
+			break;
+		}
+
+		case 3: {
+			for(int i=indexStart.i(); i<=indexEnd.i(); ++i) {
+				int ic = i*fullSize.j()*fullSize.k();
+				for(int j=indexStart.j(); j<=indexEnd.j(); ++j) {
+					int jc = j*fullSize.k();
+					for(int k=indexStart.k(); k<=indexEnd.k(); ++k) {
+						*(outputValues++) = double(measurement.at(ic+jc+k));
+					}
+				}
+			}
+			break;
+		}
+
+		case 4: {
+			for(int i=indexStart.i(); i<=indexEnd.i(); ++i) {
+				int ic = i*fullSize.j()*fullSize.k()*fullSize.l();
+				for(int j=indexStart.j(); j<=indexEnd.j(); ++j) {
+					int jc = j*fullSize.k()*fullSize.l();
+					for(int k=indexStart.k(); k<=indexEnd.k(); ++k) {
+						int kc = k*fullSize.l();
+						for(int l=indexStart.l(); l<=indexEnd.l(); ++l) {
+							*(outputValues++) = double(measurement.at(ic+jc+kc+l));
+						}
+					}
+				}
+			}
+			break;
+		}
+
+		default: {
+			// general recursive case:
+			measurementValuesImplementationRecursive(measurement, indexStart, indexEnd, fullSize, &outputValues, 0, 0);
+			break;
+		}
+		}
+	}
+
+	/// Helper function to implement measurementValues() for arbitrary dimensions
+	void measurementValuesImplementationRecursive(const AMIMDSMeasurement& measurement, const AMnDIndex& indexStart, const AMnDIndex& indexEnd, const AMnDIndex& fullSize, double** outputValues, int dimension, int cOffset) {
+
+		if(dimension == indexStart.rank()-1) { // base case: final dimension
+			for(int i=indexStart.at(dimension); i<=indexEnd.at(dimension); ++i) {
+				*((*outputValues)++) = double(measurement.at(cOffset+i));
+			}
+		}
+		else {
+			for(int i=indexStart.at(dimension); i<=indexEnd.at(dimension); ++i) {
+				// get product of all higher dimensions:
+				int multiplier = 1;
+				for(int mu=dimension+1; mu<indexStart.rank(); ++mu)
+					multiplier *= fullSize.at(mu);
+
+				// recurse:
+				measurementValuesImplementationRecursive(measurement, indexStart, indexEnd, fullSize, outputValues, dimension+1, cOffset + i*multiplier);
+			}
+		}
+	}
+
+	/// Helper function: read a complete measurement (\c fullSize points) directly into \c outputValues. This is faster than the other version of measurementValues when you want the whole thing.
+	void measurementValues(const AMIMDSMeasurement& measurement, int fullSize, double* outputValues) {
+		for(int i=0; i<fullSize; ++i)
+			*(outputValues++) = double(measurement.at(i));
 	}
 };
 

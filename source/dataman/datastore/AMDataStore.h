@@ -134,19 +134,28 @@ public:
 	// Setting and getting values
 	////////////////////////////////
 	/// Retrieve a value from a measurement, at a specific scan point.
-	virtual AMNumber value(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex, bool doBoundsChecking = true) const = 0;
+	virtual AMNumber value(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex) const = 0;
 	/// Retrieve the independent variable along an axis \c axisId, at a specific scan point \c axisIndex.  If the axis scale is uniform (see AMAxisInfo::isUniform) this can be calculated from the axis' \c start and \c increment.
-	virtual AMNumber axisValue(int axisId, int axisIndex, bool doBoundsChecking = true) const = 0;
+	virtual AMNumber axisValue(int axisId, int axisIndex) const = 0;
 	/// Set the value of a measurement, at a specific scan point
-	virtual bool setValue(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex, const AMNumber& newValue, bool doBoundsChecking = true) = 0;
+	virtual bool setValue(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex, const AMNumber& newValue) = 0;
 	/// Set the independent variable along an axis \c axisId, at a specific scan point \c axisIndex. This is necessary after adding a "row" with beginInsertRows(), unless the axis scale is uniform. (See AMAxisInfo::isUniform).
-	virtual bool setAxisValue(int axisId, int axisIndex, AMNumber newValue, bool doBoundsChecking = true) = 0;
+	virtual bool setAxisValue(int axisId, int axisIndex, AMNumber newValue) = 0;
 
 
+	/// Performance optimization of value(): this allows a block of multi-dimensional data to be retrieved in a single call. The data is returned in a flat array, ordered in row-major form with the first scan index varying the slowest, and the measurement index's last axis varying the fastest.   /c scanIndexStart and \c scanIndexEnd specify the (inclusive) range in scan space; you can use the same start and end values to access the measurement values for a single scan point.  Which measurement to access is specified with \c measurementId, and \c measurementIndexStart and \c measurementIndexEnd specify the (inclusive) data block in measurement space.  Returns false if any of the indexes are the wrong dimension or out of range.  It is the responsibility of the caller to make sure that \c outputValues is pre-allocated with enough room for all the data; use valuesSize() to calculate this conveniently.
+	virtual bool values(const AMnDIndex& scanIndexStart, const AMnDIndex& scanIndexEnd, int measurementId, const AMnDIndex& measurementIndexStart, const AMnDIndex& measurementIndexEnd, double* outputValues) = 0;
+	/// Synonym for values(), but allocates and returns a QVector of doubles. Implemented in the base class by calling values(); implementations do not need to provide this version.
+	QVector<double> values(const AMnDIndex &scanIndexStart, const AMnDIndex &scanIndexEnd, int measurementId, const AMnDIndex &measurementIndexStart, const AMnDIndex &measurementIndexEnd);
 
-	/// Performance optimization for setValue(): this allows multi-dimensional measurements to be set in a single setValue call.  \c inputData is interpreted as being in a flat array, ordered where the measurement's first axis varies the slowest, and the measurement's last axis varies the fastest (as you step through the array).  The size of the \c inputData must match the product of the sizes of all dimensions in the measurement.
-	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const int* inputData, int numArrayElements, bool doBoundsChecking = true) = 0;
-	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const double* inputData, int numArrayElements, bool doBoundsChecking = true) = 0;
+	/// Calculates the total size of the array required for values(), ie: spanned by \c scanIndexStart, \c scanIndexEnd, \c measurementIndexStart, and \c measurementIndexEnd. Returns -1 if the dimensionality of the start and end indexes don't agree.
+	/*! \note This does a simple multiplication of the dimension ranges; it does not check that the indexes have the right dimensionality or size for the current data store. */
+	int valuesSize(const AMnDIndex& scanIndexStart, const AMnDIndex& scanIndexEnd, const AMnDIndex& measurementIndexStart, const AMnDIndex& measurementIndexEnd);
+
+	/// Performance optimization for setValue(): this allows multi-dimensional measurements to be set in a single setValue call.  \c inputData is interpreted as being in a flat array, ordered in row-major form (where the measurement's first axis varies the slowest, and the measurement's last axis varies the fastest as you step through the array).  The size of the \c inputData must match the product of the sizes of all dimensions in the measurement.
+	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const int* inputData) = 0;
+	/// Performance optimization for setValue(): this allows multi-dimensional measurements to be set in a single setValue call.  \c inputData is interpreted as being in a flat array, ordered in row-major form (where the measurement's first axis varies the slowest, and the measurement's last axis varies the fastest as you step through the array).  The size of the \c inputData must match the product of the sizes of all dimensions in the measurement.
+	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const double* inputData) = 0;
 
 
 	// Adding new data points: increasing the size of the scan space

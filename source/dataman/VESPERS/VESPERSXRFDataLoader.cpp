@@ -84,7 +84,7 @@ bool VESPERSXRFDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 
 			scan->rawData()->addMeasurement(AMMeasurementInfo(QString("Element %1").arg(i+1), QString("Element %1").arg(i+1), "eV", config->detectorInfo().axes()));
 			scan->rawData()->setAxisValue(i, 0, i*config->detectorInfo().scale());
-			scan->rawData()->setValue(AMnDIndex(), i, data.constData(), data.size());
+			scan->rawData()->setValue(AMnDIndex(), i, data.constData());
 		}
 		else{
 

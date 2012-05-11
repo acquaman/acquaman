@@ -77,10 +77,10 @@ public:
 	////////////////////////////
 
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
-	virtual AMNumber value(const AMnDIndex& indexes, bool doBoundsChecking = true) const;
+	virtual AMNumber value(const AMnDIndex& indexes) const;
 
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-	virtual AMNumber axisValue(int axisNumber, int index, bool doBoundsChecking = true) const;
+	virtual AMNumber axisValue(int axisNumber, int index) const;
 
 
 	// Reading properties
