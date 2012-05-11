@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <float.h>
 
 #include <cstdlib>
+#include <stdio.h>
 
 
 ///////////////////////////////
