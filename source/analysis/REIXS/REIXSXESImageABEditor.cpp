@@ -383,3 +383,15 @@ void REIXSXESImageABEditorShiftModel::onShiftValuesChanged()
 	emitDataChanged();
 }
 
+void REIXSXESImageABEditorShiftModel::xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const
+{
+	for(unsigned i=indexStart; i<=indexEnd; ++i)
+		*(outputValues++) = analysisBlock_->shiftValues().at(i) + displayXOffset_;
+}
+
+void REIXSXESImageABEditorShiftModel::yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const
+{
+	for(unsigned i=indexStart; i<=indexEnd; ++i)
+		*(outputValues++) = i;
+}
+

@@ -48,7 +48,9 @@ public:
 	REIXSXESImageABEditorShiftModel(REIXSXESImageAB* analysisBlock, QObject* parent = 0);
 
 	virtual qreal x(unsigned index) const;
+	virtual void xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
 	virtual qreal y(unsigned index) const;
+	virtual void yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
 	virtual int count() const;
 
 public slots:
