@@ -275,6 +275,59 @@ AMNumber REIXSXESImageAB::value(const AMnDIndex &indexes) const
 		return rv;
 }
 
+bool REIXSXESImageAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues)
+{
+	if(indexStart.rank() != 1 || indexEnd.rank() != 1)
+		return false;	// dimension error
+
+	if(!isValid())
+		return false; // invalid error
+
+	// Max x pixel value:
+	int maxI = inputSource_->size(0);
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if(indexEnd.i() < indexStart.i())
+		return false;
+	if(indexEnd.i() >= maxI)
+		return false;
+#endif
+
+	for(int i=indexStart.i(); i<=indexEnd.i(); ++i) {
+		AMNumber rv = cachedValues_.at(i);
+		// if we haven't calculated this sum yet, the cached value will be invalid. Sum using shifting, and store.
+		if(!rv.isValid()) {
+
+			double newVal = 0.0;
+			int contributingRows = 0;
+			for(int j=sumRangeMin_; j<=sumRangeMax_; ++j) { // loop through rows
+				int sourceI = i + shiftValues_.at(j);
+				if(sourceI < maxI && sourceI >= 0) {
+					newVal += double(inputSource_->value(AMnDIndex(sourceI, j)));
+					contributingRows++;
+				}
+			}
+
+			// normalize by dividing by the number of rows that contributed. Since we want to keep the output in units similar to raw counts, multiply by the nominal (usual) number of contributing rows.
+			// Essentially, this normalization prevents columns near the edge that miss out on some rows due to shifting from being artificially suppressed.  For inner columns, contributingRows will (sumRangeMax_ - sumRangeMin_ + 1).
+			if(contributingRows == 0)
+				newVal = 0;
+			else
+				newVal = newVal * double(sumRangeMax_ - sumRangeMin_ + 1) / double(contributingRows);
+
+			cachedValues_[i] = newVal;
+			cacheCompletelyInvalid_ = false;
+			*(outputValues++) = newVal;
+		}
+		// otherwise return the value we have cached.
+		else
+			*(outputValues++) = double(rv);
+	}
+
+	return true;
+}
+
+
 AMNumber REIXSXESImageAB::axisValue(int axisNumber, int index) const
 {
 	if((axisNumber != 0))
@@ -499,3 +552,5 @@ QWidget * REIXSXESImageAB::createEditorWidget()
 {
 	return new REIXSXESImageABEditor(this);
 }
+
+
