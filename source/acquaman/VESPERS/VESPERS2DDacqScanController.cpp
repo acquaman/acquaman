@@ -31,6 +31,7 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	: AM2DDacqScanController(cfg, parent)
 {
 	config_ = cfg;
+	config_->setUserScanName(config_->name());
 
 	AMPVwStatusControl *control = 0;
 

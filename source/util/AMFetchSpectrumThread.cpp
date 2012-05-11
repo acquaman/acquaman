@@ -94,17 +94,20 @@ void AMFetchSpectrumThread::run()
 			for (int i = 0; i < iterations; i++)
 				in.readLine();
 
-			currentLine = in.readLine().split(",");
-			spectrum.resize(currentLine.size());
-			if (size == 0)
-				size = spectrum.size();
+			if (!in.atEnd()){
 
-			for (int i = 0; i < size; i++)
-				spectrum[i] = currentLine.at(i).toInt();
+				currentLine = in.readLine().split(",");
+				spectrum.resize(currentLine.size());
+				if (size == 0)
+					size = spectrum.size();
 
-			// Pass the spectrum along as long as a new spectrum hasn't been requested.
-			if (!restart)
-				emit fetchedSpectrum(spectrum);
+				for (int i = 0; i < size; i++)
+					spectrum[i] = currentLine.at(i).toInt();
+
+				// Pass the spectrum along as long as a new spectrum hasn't been requested.
+				if (!restart)
+					emit fetchedSpectrum(spectrum);
+			}
 		}
 
 		// The clean up.  Puts thread to sleep if it's done.

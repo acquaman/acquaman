@@ -170,7 +170,7 @@ void AM2DScanView::setupUI()
 	multiViewLayout->setSpacing(0);
 
 	gMultiView_ = new AMGraphicsViewAndWidget();
-	gMultiView_->setMinimumSize(400, 300);
+	gMultiView_->setMinimumSize(400, 400);
 	gMultiView_->graphicsWidget()->setGeometry(0, 0, 640, 640);
 
 	multiViewLayout->addWidget(gMultiView_);
@@ -181,6 +181,7 @@ void AM2DScanView::setupUI()
 	multiViewBox_ = new QGroupBox;
 	multiViewBox_->setLayout(multiViewLayout);
 	multiViewBox_->setWindowTitle("Multi-Region Of Interest View");
+	multiViewBox_->setMaximumSize(800, 800);
 
 	gMultiViewLayout_ = new QGraphicsLinearLayout();
 	gMultiViewLayout_->setSpacing(0);
