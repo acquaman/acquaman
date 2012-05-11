@@ -84,7 +84,6 @@ bool AMScanConfigurationObjectInfo::inheritsExporterOption(const QMetaObject *me
 	return inheritsExporterOption;
 }
 
-#include <QDebug>
 namespace AMAppControllerSupport{
 	QHash<QString, AMScanConfigurationObjectInfo> registeredClasses_;
 
@@ -97,10 +96,6 @@ namespace AMAppControllerSupport{
 			return 0;
 		QHash<QString, AMScanConfigurationObjectInfo>::const_iterator i = registeredClasses_.constBegin();
 		while( i != registeredClasses_.constEnd()){
-			qDebug() << i.value().scanConfigurationClassName;
-			qDebug() << (intptr_t)scanConfiguration;
-			qDebug() << (intptr_t)scanConfiguration->getMetaObject();
-			qDebug() << scanConfiguration->getMetaObject()->className();
 			if(i.value().scanConfigurationClassName == scanConfiguration->getMetaObject()->className()){
 				AMExporter *exporter = qobject_cast<AMExporter*>(i.value().exporterMetaObject->newInstance());
 				if(exporter)

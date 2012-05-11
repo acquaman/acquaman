@@ -152,7 +152,7 @@ void AMScanAction::onControllerFailed()
 
 void AMScanAction::onControllerSucceeded()
 {
-	setSucceeded();
+	//setSucceeded();
 
 	// If we managed to save the scan to the database, we should check if the scan should be auto exported, and if it should - export it.
 	if (controller_->scan()->database()){
@@ -195,6 +195,7 @@ void AMScanAction::onControllerSucceeded()
 				if(!autoExporterOption){
 
 					AMErrorMon::alert(this, AMSCANACTION_NO_REGISTERED_EXPORTER_OPTION, "No exporter option registered for this scan type.");
+					setSucceeded();
 					return;
 				}
 
@@ -209,6 +210,8 @@ void AMScanAction::onControllerSucceeded()
 
 	else
 		AMErrorMon::alert(this, AMSCANACTION_DATABASE_NOT_FOUND, "Could not find the database associated with this scan.");
+
+	setSucceeded();
 }
 
 void AMScanAction::onControllerProgressChanged(double elapsed, double total)
