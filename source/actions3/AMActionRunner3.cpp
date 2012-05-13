@@ -63,24 +63,7 @@ void AMActionRunner3::releaseActionRunner()
 
 bool AMActionRunner3::isScanAction() const
 {
-	//return qobject_cast<AMScanAction *>(currentAction_) ? true : false;
-	qDebug() << (qobject_cast<const AMScanAction *>(currentSubAction()) ? true : false);
-	return qobject_cast<const AMScanAction *>(currentSubAction()) ? true : false;
-}
-
-#include "dataman/database/AMDbObjectSupport.h"
-const AMAction3* AMActionRunner3::currentSubActionHelper(const AMAction3 *parentAction) const
-{
-	if (parentAction)
-		qDebug() << parentAction->info()->dbObjectInfo()->className;
-	const AMListAction3 *listAction = qobject_cast<const AMListAction3*>(parentAction);
-	qDebug() << "Do I need to look deeper?";
-	if(listAction)
-		return currentSubActionHelper(listAction->currentSubAction());
-	qDebug() << "Nope.";
-	if(parentAction)
-		qDebug() << parentAction->metaObject()->className();
-	return parentAction;
+	return qobject_cast<const AMScanAction *>(currentAction_) ? true : false;
 }
 
 void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
@@ -104,17 +87,14 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 			}
 		}
 
-		qDebug() << "Asking isScanAction for created";
 		if (isScanAction())
-			emit scanActionCreated();
+			emit scanActionCreated((AMScanAction *)currentAction());
 	}
 
 	if (state == AMAction3::Running){
 
-
-		qDebug() << "Asking isScanAction for running/started";
 		if (isScanAction())
-			emit scanActionStarted();
+			emit scanActionStarted((AMScanAction *)currentAction());
 	}
 
 	if(state == AMAction3::Failed) {
@@ -157,32 +137,12 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 			}
 		}
 
-		qDebug() << "Asking isScanAction for finished";
 		if (isScanAction())
-			emit scanActionFinished();
+			emit scanActionFinished((AMScanAction *)currentAction());
 
 		// move onto the next, if there is one, and disconnect and delete the old one.
 		internalDoNextAction();
 	}
-}
-
-const AMAction3* AMActionRunner3::currentSubAction() const{
-	if(!currentAction())
-		qDebug() << "CurrentAction not valid";
-	return currentSubActionHelper(currentAction());
-}
-
-AMScanController *AMActionRunner3::scanController() const
-{
-	qDebug() << "Asking isScanAction for scan controller";
-	if (isScanAction()){
-
-		//AMScanAction *action = qobject_cast<AMScanAction *>(currentAction_);
-		const AMScanAction *action = qobject_cast<const AMScanAction *>(currentSubAction());
-		return action->controller();
-	}
-
-	return 0;
 }
 
 void AMActionRunner3::insertActionInQueue(AMAction3 *action, int index)
@@ -320,6 +280,14 @@ void AMActionRunner3::internalDoNextAction()
 		connect(currentAction_, SIGNAL(progressChanged(double,double)), this, SIGNAL(currentActionProgressChanged(double,double)));
 		connect(currentAction_, SIGNAL(statusTextChanged(QString)), this, SIGNAL(currentActionStatusTextChanged(QString)));
 		connect(currentAction_, SIGNAL(expectedDurationChanged(double)), this, SIGNAL(currentActionExpectedDurationChanged(double)));
+
+		AMListAction3 *listAction = qobject_cast<AMListAction3 *>(currentAction_);
+		if (listAction){
+
+			connect(listAction, SIGNAL(scanActionCreated(AMScanAction*)), this, SIGNAL(scanActionCreated(AMScanAction*)));
+			connect(listAction, SIGNAL(scanActionStarted(AMScanAction*)), this, SIGNAL(scanActionStarted(AMScanAction*)));
+			connect(listAction, SIGNAL(scanActionFinished(AMScanAction*)), this, SIGNAL(scanActionFinished(AMScanAction*)));
+		}
 
 		// to avoid a growing call stack if a long series of actions are all failing inside their start() method... We wait to run the next one until we get back to the even loop.
 		QTimer::singleShot(0, currentAction_, SLOT(start()));

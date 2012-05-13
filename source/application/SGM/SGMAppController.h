@@ -35,6 +35,7 @@ class SGMSidebar;
 class SGMSettingsMasterView;
 class AMGithubManager;
 class AMDetector;
+class AMScanAction;
 
 #define SGMAPPCONTROLLER_COULD_NOT_RESET_FINISHED_SIGNAL 290301
 
@@ -76,7 +77,7 @@ protected slots:
 	/// \todo comment this, David...
 	void onCurrentScanControllerCreated();
 	void onCurrentScanControllerDestroyed();
-	void onCurrentScanControllerStarted();
+	void onCurrentScanControllerStarted(AMScanAction *action);
 	void onCurrentScanControllerFinished();
 
 	void onActionSGMSettings();

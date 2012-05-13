@@ -52,12 +52,7 @@ public:
 	int currentIteration() const { return currentIteration_; }
 
 	/// Returns the currently-running sub-action, or 0 if none is running.
-	virtual const AMAction3* currentSubAction() const
-	{
-		if (!currentSubAction_)
-			qDebug() << "Current sub action is not valid.";
-		return currentSubAction_;
-	}
+	virtual const AMAction3* currentSubAction() const { return currentSubAction_; }
 	/// Returns the currently-running sub-action, or 0 if none is running.
 	virtual AMAction3* currentSubAction() { return currentSubAction_; }
 

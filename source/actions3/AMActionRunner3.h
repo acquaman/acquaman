@@ -105,12 +105,6 @@ public:
 	/// A pointer to the current action. Will be 0 if actionRunning() is false, when no action is running.
 	const AMAction3* currentAction() const { return currentAction_; }
 
-	/// A pointer to the current bottom-level running action (deeper than current if the current running action is a list/loop). Will be 0 if actionRunning() is false, when no action is running.
-	const AMAction3* currentSubAction() const;
-
-	/// Convenience method that extracts the scan controller from scan actions.  Returns 0 if the action is not a scan action.
-	AMScanController *scanController() const;
-
 
 	// Immediate-mode interface
 	////////////////////////////////
@@ -158,11 +152,11 @@ signals:
 
 	// Signals specific to AMScanAction.  Since other parts of the application will likely want to know some of these things.
 	/// Notifier that the scan action has been created.  Note that a scan controller is not created at this point.
-	void scanActionCreated();
+	void scanActionCreated(AMScanAction *);
 	/// Notifier that the scan action has been started.
-	void scanActionStarted();
+	void scanActionStarted(AMScanAction *);
 	/// Notifier that the scan action has finished (made it to either Succeeded, Failed, or Cancelled).
-	void scanActionFinished();
+	void scanActionFinished(AMScanAction *);
 
 public slots:
 
@@ -201,8 +195,6 @@ protected:
 	int internalAskUserWhatToDoAboutFailedAction(AMAction3* action);
 	/// Helper method that returns whether the current action is a scan action or not.
 	bool isScanAction() const;
-	/// Helper method for recursive bottom-level subAction call
-	const AMAction3* currentSubActionHelper(const AMAction3 *parentAction) const;
 
 private:
 	/// This is a singleton class, so the constructor is private. Access the only instance of it via s().

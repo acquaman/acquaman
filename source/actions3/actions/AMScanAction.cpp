@@ -162,7 +162,9 @@ void AMScanAction::onControllerSucceeded()
 
 		if (saveSucceeded){
 
-			if (controller_->scan()->scanConfiguration()->autoExportEnabled()){
+			AMScanConfiguration *config = controller_->scan()->scanConfiguration();
+
+			if (config->autoExportEnabled()){
 
 				AMExportController *exportController = new AMExportController(QList<AMScan *>() << controller_->scan());
 
@@ -180,7 +182,7 @@ void AMScanAction::onControllerSucceeded()
 
 				exportDir.cd("exportData");
 				exportController->setDestinationFolderPath(exportDir.absolutePath());
-				AMExporter *autoExporter = AMAppControllerSupport::createExporter(scanInfo_->config());
+				AMExporter *autoExporter = AMAppControllerSupport::createExporter(config);
 
 				if(!autoExporter){
 
@@ -191,7 +193,7 @@ void AMScanAction::onControllerSucceeded()
 				exportController->chooseExporter(autoExporter->metaObject()->className());
 
 				// This next creation involves a loadFromDb ... I tested it and it seems fast (milliseconds) ... if that's a Mac only thing then we can figure out a caching system, let me know I have a few ideas
-				AMExporterOption *autoExporterOption = AMAppControllerSupport::createExporterOption(scanInfo_->config());
+				AMExporterOption *autoExporterOption = AMAppControllerSupport::createExporterOption(config);
 				if(!autoExporterOption){
 
 					AMErrorMon::alert(this, AMSCANACTION_NO_REGISTERED_EXPORTER_OPTION, "No exporter option registered for this scan type.");

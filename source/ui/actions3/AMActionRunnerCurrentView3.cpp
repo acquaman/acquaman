@@ -189,7 +189,6 @@ void AMActionRunnerCurrentView3::onCurrentActionChanged(AMAction3* nextAction)
 	}
 }
 
-
 void AMActionRunnerCurrentView3::onStatusTextChanged(const QString &newStatus)
 {
 	headerSubTitle_->setText(newStatus);

@@ -269,11 +269,11 @@ void SGMAppController::onCurrentScanControllerCreated(){
 void SGMAppController::onCurrentScanControllerDestroyed(){
 }
 
-void SGMAppController::onCurrentScanControllerStarted(){
+void SGMAppController::onCurrentScanControllerStarted(AMScanAction *action){
 	connect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
 
 	//AMScan *scan = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan();
-	AMScan *scan = AMActionRunner3::workflow()->scanController()->scan();
+	AMScan *scan = action->controller()->scan();
 	openScanInEditorAndTakeOwnership(scan);
 
 	//SGMXASScanConfiguration *xasConfig = qobject_cast<SGMXASScanConfiguration *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->scanConfiguration());
@@ -986,7 +986,7 @@ bool SGMAppController::setupSGMViews(){
 	//connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerDestroyed()));
 	//connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
 
-	connect(AMActionRunner3::workflow(), SIGNAL(scanActionStarted()), this, SLOT(onCurrentScanControllerStarted()));
+	connect(AMActionRunner3::workflow(), SIGNAL(scanActionStarted(AMScanAction*)), this, SLOT(onCurrentScanControllerStarted(AMScanAction*)));
 	connect(AMActionRunner3::workflow(), SIGNAL(scanActionFinished()), this, SLOT(onCurrentScanControllerFinished()));
 
 	//connect(SGMBeamline::sgm(), SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(onSGMBeamlineConnected()));

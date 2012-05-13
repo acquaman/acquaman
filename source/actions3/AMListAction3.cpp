@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "actions3/AMActionLog3.h"
 #include "util/AMErrorMonitor.h"
+#include "actions3/actions/AMScanAction.h"
 
 AMListAction3::AMListAction3(AMListActionInfo3* info, SubActionMode subActionMode, QObject *parent) :
 	AMAction3(info, parent)
@@ -72,14 +73,11 @@ AMAction3 * AMListAction3::subActionAt(int index)
 	return subActions_.at(index);
 }
 
-#include <QDebug>
 const AMAction3 * AMListAction3::subActionAt(int index) const
 {
-	qDebug() << "Trying for list subaction at " << index;
 	if(index < 0 || index >= subActionCount())
 		return 0;
 
-	qDebug() << "Returning list subaction at " << index;
 	return subActions_.at(index);
 }
 
@@ -306,11 +304,18 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 
 		switch(newState) {
 		case Starting:
+
+			if (isScanAction())
+				emit scanActionCreated((AMScanAction *)currentSubAction());
 			// If we were paused between actions and resuming, the next action is now running...
 			if(state() == Resuming)
 				setResumed();
 			return;
 		case Running:
+
+			if (isScanAction())
+				emit scanActionStarted((AMScanAction *)currentSubAction());
+
 			// If we had a current action paused:
 			if(state() == Resuming)
 				setResumed();
@@ -331,6 +336,10 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 		case Cancelling:
 			return;
 		case Cancelled:
+
+			if (isScanAction())
+				emit scanActionFinished((AMScanAction *)currentSubAction());
+
 			if(state() == Cancelling) {
 				internalCleanupAction();
 				setCancelled();
@@ -340,9 +349,17 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 			}
 			return;
 		case Succeeded:
+
+			if (isScanAction())
+				emit scanActionFinished((AMScanAction *)currentSubAction());
+
 			internalDoNextAction();
 			return;
 		case Failed:
+
+			if (isScanAction())
+				emit scanActionFinished((AMScanAction *)currentSubAction());
+
 			internalCleanupAction();
 			setFailed();
 			return;
@@ -399,6 +416,11 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 			return;
 		}
 	}
+}
+
+bool AMListAction3::isScanAction() const
+{
+	return qobject_cast<const AMScanAction *>(currentSubAction()) ? true : false;
 }
 
 void AMListAction3::internalDoNextAction()
@@ -547,6 +569,14 @@ void AMListAction3::internalConnectAction(AMAction3 *action)
 	connect(action, SIGNAL(stateChanged(int,int)), this, SLOT(internalOnSubActionStateChanged(int,int)));
 	connect(action, SIGNAL(progressChanged(double,double)), this, SLOT(internalOnSubActionProgressChanged(double,double)));
 	connect(action, SIGNAL(statusTextChanged(QString)), this, SLOT(internalOnSubActionStatusTextChanged(QString)));
+
+	AMListAction3 *listAction = qobject_cast<AMListAction3 *>(action);
+	if (listAction){
+
+		connect(listAction, SIGNAL(scanActionCreated(AMScanAction*)), this, SIGNAL(scanActionCreated(AMScanAction*)));
+		connect(listAction, SIGNAL(scanActionStarted(AMScanAction*)), this, SIGNAL(scanActionStarted(AMScanAction*)));
+		connect(listAction, SIGNAL(scanActionFinished(AMScanAction*)), this, SIGNAL(scanActionFinished(AMScanAction*)));
+	}
 }
 
 void AMListAction3::internalDisconnectAction(AMAction3 *action)
@@ -554,6 +584,14 @@ void AMListAction3::internalDisconnectAction(AMAction3 *action)
 	disconnect(action, SIGNAL(stateChanged(int,int)), this, SLOT(internalOnSubActionStateChanged(int,int)));
 	disconnect(action, SIGNAL(progressChanged(double,double)), this, SLOT(internalOnSubActionProgressChanged(double,double)));
 	disconnect(action, SIGNAL(statusTextChanged(QString)), this, SLOT(internalOnSubActionStatusTextChanged(QString)));
+
+	AMListAction3 *listAction = qobject_cast<AMListAction3 *>(action);
+	if (listAction){
+
+		disconnect(listAction, SIGNAL(scanActionCreated(const AMScanAction*)), this, SIGNAL(scanActionCreated(const AMScanAction*)));
+		disconnect(listAction, SIGNAL(scanActionStarted(const AMScanAction*)), this, SIGNAL(scanActionStarted(const AMScanAction*)));
+		disconnect(listAction, SIGNAL(scanActionFinished(const AMScanAction*)), this, SIGNAL(scanActionFinished(const AMScanAction*)));
+	}
 }
 
 void AMListAction3::internalCleanupAction(AMAction3 *action)
