@@ -155,6 +155,8 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 
 	/// This virtual function can be re-implemented to specify whether the action has the capability to pause. By default, it returns false (ie: cannot pause).
 	virtual bool canPause() const { return false; }
+	/// This virtual function can be reimplemented to specify whether the action can be placed inside a parallel list.  By default, it returns true (eg: can be parallelized).
+	virtual bool canParallelize() const { return true; }
 
 
 	// Nesting actions

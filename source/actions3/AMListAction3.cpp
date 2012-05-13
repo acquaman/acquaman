@@ -83,6 +83,9 @@ const AMAction3 * AMListAction3::subActionAt(int index) const
 
 bool AMListAction3::insertSubAction(AMAction3 *action, int index)
 {
+	if (subActionMode() == Parallel && !action->canParallelize())
+		return false;
+
 	if(state() != Constructed) {
 		AMErrorMon::debug(this, AMLISTACTION3_CANNOT_ADD_SUBACTION_ONCE_RUNNING, "Cannot add sub-actions once the action is already running.");
 		return false;

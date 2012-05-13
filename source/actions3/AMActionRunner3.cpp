@@ -811,8 +811,12 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 					if(targetRow < 0 || targetRow > listAction->subActionCount())
 						targetRow = listAction->subActionCount();
 					for(int i=0,cc=mil.count(); i<cc; i++) {
-						listAction->insertSubAction(actionRunner_->queuedActionAt(mil.at(i).row())->createCopy(), targetRow++);
-						actionRunner_->deleteActionInQueue(mil.at(i).row());
+
+						if (listAction->subActionMode() == AMListAction3::Sequential || (listAction->subActionMode() == AMListAction3::Parallel && actionRunner_->queuedActionAt(mil.at(i).row())->canParallelize())){
+
+							listAction->insertSubAction(actionRunner_->queuedActionAt(mil.at(i).row())->createCopy(), targetRow++);
+							actionRunner_->deleteActionInQueue(mil.at(i).row());
+						}
 					}
 					return true;
 				}
