@@ -487,10 +487,14 @@ bool VESPERS2DDacqScanController::setupSingleElementMap()
 {
 	bool loadSuccess = false;
 
-	if (!config_->usingCCD())
-		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-1Elem.cfg"));
-	else
-		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-1Elem-CCD.cfg"));
+	if (!config_->usingCCD() && config_->motorsChoice() == VESPERS2DScanConfiguration::HAndV)
+		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-hv-1Elem.cfg"));
+	else if (config_->usingCCD() && config_->motorsChoice() == VESPERS2DScanConfiguration::HAndV)
+		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-hv-1Elem-CCD.cfg"));
+	else if (!config_->usingCCD() && config_->motorsChoice() == VESPERS2DScanConfiguration::XAndZ)
+		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-xz-1Elem.cfg"));
+	else if (config_->usingCCD() && config_->motorsChoice() == VESPERS2DScanConfiguration::XAndZ)
+		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-xz-1Elem-CCD.cfg"));
 
 	if(!loadSuccess){
 		AMErrorMon::alert(this,
@@ -538,10 +542,14 @@ bool VESPERS2DDacqScanController::setupFourElementMap()
 {
 	bool loadSuccess = false;
 
-	if (!config_->usingCCD())
-		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-4Elem.cfg"));
-	else
-		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-4Elem-CCD.cfg"));
+	if (!config_->usingCCD() && config_->motorsChoice() == VESPERS2DScanConfiguration::HAndV)
+		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-hv-4Elem.cfg"));
+	else if (config_->usingCCD() && config_->motorsChoice() == VESPERS2DScanConfiguration::HAndV)
+		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-hv-4Elem-CCD.cfg"));
+	else if (!config_->usingCCD() && config_->motorsChoice() == VESPERS2DScanConfiguration::XAndZ)
+		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-xz-4Elem.cfg"));
+	else if (config_->usingCCD() && config_->motorsChoice() == VESPERS2DScanConfiguration::XAndZ)
+		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-xz-4Elem-CCD.cfg"));
 
 	if(!loadSuccess){
 		AMErrorMon::alert(this,
