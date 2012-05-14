@@ -26,6 +26,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
 	: AM2DScanConfiguration(parent)
 {
 	setName("2D Map");
+	setUserScanName("2D Map");
 	I0_ = Imini;
 	fluorescenceDetectorChoice_ = SingleElement;
 	motorsChoice_ = HAndV;
@@ -47,6 +48,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfig
 	: AM2DScanConfiguration(original)
 {
 	setName(original.name());
+	setUserScanName(original.userScanName());
 	I0_ = original.incomingChoice();
 	fluorescenceDetectorChoice_ = original.fluorescenceDetectorChoice();
 	motorsChoice_ = original.motorsChoice();

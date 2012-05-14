@@ -34,6 +34,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	regions_->setDefaultUnits(" eV");
 	regions_->setDefaultTimeUnits(" s");
 	setName("XAS Scan");
+	setUserScanName("XAS Scan");
 	fluorescenceDetectorChoice_ = None;
 	It_ = Ipost;
 	I0_ = Imini;
@@ -77,6 +78,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(const VESPERSEXAFSS
 	}
 
 	setName(original.name());
+	setUserScanName(original.userScanName());
 	fluorescenceDetectorChoice_ = original.fluorescenceDetectorChoice();
 	It_ = original.transmissionChoice();
 	I0_ = original.incomingChoice();
