@@ -51,6 +51,8 @@ public:
 	double maximumEnergy() const { return maxEnergy_; }
 	/// Returns the scale that would transform an energy and width into upper and lower bounds for a detector.
 	double scale() const { return maximumEnergy()*1000/channels(); }
+	/// Re-implementing to get axes() to take into account scale().  Returns a list of AMAxisInfo describing the size and nature of each detector axis, in order.
+	virtual QList<AMAxisInfo> axes() const;
 
 	/// Returns a constant reference of the current ROI List.
 	const AMROIInfoList *roiInfoList() const { return &roiInfoList_; }
