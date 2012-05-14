@@ -98,17 +98,6 @@ public:
 	inline int p() const { return p_; }
 
 
-
-
-	/// Synonym for i()
-	inline int row() const { return i_; }
-	/// Synonym for j()
-	inline int col() const { return j_; }
-	/// Synonym for k()
-	inline int slice() const { return k_; }
-	/// Synonym for l()
-	inline int segment() const { return l_; }
-
 	/// Index-based read-only access:
 	inline int at(int dimIndex) const {
 		switch(dimIndex) {
@@ -140,23 +129,6 @@ public:
 			return extras_->operator[](dimIndex-8);
 		}
 	}
-
-	/*
-	/// Index-based modify access:
-	inline const int& operator[](int dimIndex) const {
-		switch(dimIndex) {
-		case 0: return i_;
-		case 1: return j_;
-		case 2: return k_;
-		case 3: return l_;
-		case 4: return m_;
-		case 5: return n_;
-		case 6: return o_;
-		case 7: return p_;
-		default:
-			return extras_->operator[](dimIndex-8);
-		}
-	}*/
 
 
 	/// Change the size (rank) of the index
@@ -301,7 +273,7 @@ public:
 
 	/// Calculate the location where this index would end up in a flattened (1D) array, where \c fullSize gives the total size of the multi-dimensional array.  (This assumes row-major order, where the first index varies the slowest.)  For example, for a 4-dimensional AMnDIndex(3,4,5,600) and an array that has dimensions \c fullSize = (5,10,100,1000), the flat index is 3*10*100*1000 + 4*100*1000 + 5*1000 + 600.
 	/*! \note Assumes that \c fullSize has the same rank() as us.*/
-	int flatIndexInArrayOfSize(const AMnDIndex& fullSize) const {
+	inline int flatIndexInArrayOfSize(const AMnDIndex& fullSize) const {
 		int rv;
 
 		switch(rank_) {

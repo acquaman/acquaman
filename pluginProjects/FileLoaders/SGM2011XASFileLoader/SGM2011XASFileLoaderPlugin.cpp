@@ -197,7 +197,7 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		// event id 1.  If the line starts with "1," and there are the correct number of columns:
 		if(line.startsWith("1,") && (lp = line.split(',')).count() == colNames1.count() ) {
 
-			scan->rawData()->beginInsertRows(0);
+			scan->rawData()->beginInsertRows(1, -1);
 			scan->rawData()->setAxisValue(0, eVAxisIndex, lp.at(eVIndex).toDouble()); // insert eV
 
 			// add data from all columns (but ignore the first (Event-ID) and the eV column)

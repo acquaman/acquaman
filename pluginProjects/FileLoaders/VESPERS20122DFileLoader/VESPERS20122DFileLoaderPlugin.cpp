@@ -29,8 +29,9 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 
 	// Clear the old scan axes to ensure we don't have any extras.
 	scan->clearRawDataCompletely();
-	scan->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
-	scan->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
+	// Moved down below, once we know how long the axes are: (Mark, May 13 2012)
+//	scan->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+//	scan->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
 
 	QFileInfo sourceFileInfo(scan->filePath());
 	if(sourceFileInfo.isRelative())
@@ -68,21 +69,51 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 	int x = 0;
 	int y = 0;
 	int xLength = 0;
-
-	// Clear any old data so we can start fresh.
-	scan->clearRawDataPointsAndMeasurements();
+	int yLength = 0;
 
 	// Include all for now.
 	for (int i = 0; i < scan->rawDataSourceCount(); i++)
 		scan->rawData()->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description()));
 
-	while (!in.atEnd()){
 
-		// The first time we enter this loop we'll already have the first line of data.
-		if (!(x == 0 && y == 0))
-			line = in.readLine();
+	// added by Mark (May 13, 2012) to determine the number of y lines, since we need to know that before creating the scan axes.
+	/////////////////////
+	QStringList fileLines;
+	fileLines << line;	// we have the first valid line already.
+	while(!in.atEnd())
+		fileLines << in.readLine();
 
-		lineTokenized << line.split(", ");
+	foreach(QString line, fileLines) {
+		QStringList lineTokenized = line.split(", ");
+		double startingXValue;
+		// Used for determining how long the x axis is.
+		if(x == 0 && xLength == 0)
+			startingXValue = lineTokenized.at(1).toDouble();
+
+		// once we wrap around to that x value again, it's the beginning of the next y line.
+		if(x != 0 && xLength == 0 && lineTokenized.at(1).toDouble() == startingXValue) {
+			xLength = x;
+			x = 0;
+			y++;
+		}
+	}
+	yLength = y+1; // y is the largest y-index.
+
+	scan->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+	scan->rawData()->addScanAxis(AMAxisInfo("V", yLength, "Vertical Position", "mm"));
+	scan->rawData()->beginInsertRows(xLength, -1);
+	///////////////////
+
+	foreach(QString line, fileLines) {
+
+		// MB: no longer necessary:
+//		// The first time we enter this loop we'll already have the first line of data.
+//		if (!(x == 0 && y == 0))
+//			line = in.readLine();
+
+//		lineTokenized << line.split(", ");
+		lineTokenized = line.split(", "); // MB: is more efficient
+
 
 		// Used for determining how long the x axis is.
 		if (xLength == 0 && lineTokenized.at(1).toDouble() == double(scan->rawData()->axisValue(0, 0))){
@@ -94,7 +125,7 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 
 		// Add in the data at the right spot.
 		AMnDIndex axisValueIndex(x, y);
-		scan->rawData()->beginInsertRowsAsNecessaryForScanPoint(axisValueIndex);
+		// MB: not needed: all rows added already: scan->rawData()->beginInsertRowsAsNecessaryForScanPoint(axisValueIndex);
 
 		scan->rawData()->setAxisValue(0, axisValueIndex.i(), lineTokenized.at(1).toDouble());
 		scan->rawData()->setAxisValue(1, axisValueIndex.j(), lineTokenized.at(2).toDouble());
@@ -102,7 +133,7 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 		for (int i = 0; i < scan->rawDataSourceCount(); i++)
 			scan->rawData()->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+3).toDouble());
 
-		scan->rawData()->endInsertRows();
+		// MB: moving down to where we're all done filling everything: scan->rawData()->endInsertRows();
 
 		// Advance to the next spot.
 		x++;
@@ -113,7 +144,7 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 			y++;
 		}
 
-		lineTokenized.clear();
+//		lineTokenized.clear();
 	}
 
 	// Pad the rest of the line with zeroes for proper visualization.
@@ -123,7 +154,7 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 
 			// Add in the data at the right spot.
 			AMnDIndex axisValueIndex(x, y);
-			scan->rawData()->beginInsertRowsAsNecessaryForScanPoint(axisValueIndex);
+//MB: 		scan->rawData()->beginInsertRowsAsNecessaryForScanPoint(axisValueIndex);
 
 			scan->rawData()->setAxisValue(0, axisValueIndex.i(), scan->rawData()->axisValue(0, axisValueIndex.i()));
 			scan->rawData()->setAxisValue(1, axisValueIndex.j(), scan->rawData()->axisValue(1, axisValueIndex.j()-1));
@@ -131,9 +162,11 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 			for (int i = 0; i < scan->rawDataSourceCount(); i++)
 				scan->rawData()->setValue(axisValueIndex, i, AMnDIndex(), 0);
 
-			scan->rawData()->endInsertRows();
+//MB:		scan->rawData()->endInsertRows();
 		}
 	}
+
+	scan->rawData()->endInsertRows();
 
 	file.close();
 

@@ -126,7 +126,11 @@ bool AM2DDacqScanController::event(QEvent *e)
 		if(i.key() == 0 && aeData.count() > 1){
 
 			AMnDIndex insertIndex = toScanIndex(aeData);
-			scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
+			// MB: Modified May 13 2012 for changes to AMDataStore. Assumes data store already has sufficient space for scan axes beyond the first axis.
+//			scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
+			if(insertIndex.i() >= scan_->rawData()->scanSize(0))
+				scan_->rawData()->beginInsertRows(insertIndex.i()-scan_->rawData()->scanSize(0)+1, -1);
+			////////////////
 
 			// Because this is a 2D specific scan controller, I am forcing the format to be a certain way.
 			scan_->rawData()->setAxisValue(0, insertIndex.i(), i.value());
@@ -278,7 +282,11 @@ void AM2DDacqScanController::prefillScanPoints()
 				for (int i = 0; i < xCount; i++){
 
 					insertIndex = AMnDIndex(i, j);
-					scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
+					// MB: Modified May 13 2012 for changes to AMDataStore. Assumes data store already has sufficient space for scan axes beyond the first axis.
+//					scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
+					if(insertIndex.i() >= scan_->rawData()->scanSize(0))
+						scan_->rawData()->beginInsertRows(insertIndex.i()-scan_->rawData()->scanSize(0)+1, -1);
+					////////////////
 					scan_->rawData()->setAxisValue(0, insertIndex.i(), xStart + i*xStep);
 					scan_->rawData()->setAxisValue(1, insertIndex.j(), yStart + j*yStep);
 
@@ -321,7 +329,11 @@ void AM2DDacqScanController::prefillScanPoints()
 				for (int j = 0; j < xCount; j++){
 
 					insertIndex = AMnDIndex(i, j);
-					scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
+					// MB: Modified May 13 2012 for changes to AMDataStore. Assumes data store already has sufficient space for scan axes beyond the first axis.
+//					scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
+					if(insertIndex.i() >= scan_->rawData()->scanSize(0))
+						scan_->rawData()->beginInsertRows(insertIndex.i()-scan_->rawData()->scanSize(0)+1, -1);
+					////////////////
 					scan_->rawData()->setAxisValue(0, insertIndex.i(), xStart + i*xStep);
 					scan_->rawData()->setAxisValue(1, insertIndex.j(), yStart + j*yStep);
 

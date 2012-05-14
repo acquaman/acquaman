@@ -93,7 +93,7 @@ bool ALSBL8XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder
 		if( (lp = line.split('\t', QString::SkipEmptyParts)).count() == colNames1.count() ) {
 
 			// append a new datapoint to the data tree (supply primary eV value here)
-			scan->rawData()->beginInsertRows(0);
+			scan->rawData()->beginInsertRows(1, -1);
 			scan->rawData()->setAxisValue(0, eVAxisIndex, lp.at(eVIndex).toDouble());	// insert eV
 
 			// add all columns (but ignore the eV column)

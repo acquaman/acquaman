@@ -255,7 +255,7 @@ private slots:
 		QVERIFY(s->setValue(AMnDIndex(), 0, AMnDIndex(), AMNumber(4)) == false);
 		QVERIFY(s->value(AMnDIndex(), 0, AMnDIndex()) == AMNumber(AMNumber::DimensionError));
 
-		QVERIFY(s->isEmpty());
+		QVERIFY(s->scanSpaceIsEmpty());
 		QVERIFY(s->scanAxesCount() == 1);
 		QVERIFY(s->scanAxisAt(0).name == "x");
 
@@ -271,7 +271,7 @@ private slots:
 		QVERIFY(s->value(AMnDIndex(0), 0, AMnDIndex()) == 3.1415);
 		QVERIFY(s->axisValue(0,0) == 1.2);
 
-		QVERIFY(s->beginInsertRows(0, 9, 0));	// prepend 9 rows
+		QVERIFY(s->beginInsertRows(9, 0));	// prepend 9 rows
 		s->endInsertRows();
 		// check that initial values are AMNumber::Null.
 		for(int i=0; i<9; i++) {
@@ -382,7 +382,7 @@ private slots:
 
 		QVERIFY(s->scanSize() == AMnDIndex(10,10));
 		s->clearScanDataPoints();
-		QVERIFY(s->isEmpty());
+		QVERIFY(s->scanSpaceIsEmpty());
 		QVERIFY(s->scanSize() == AMnDIndex(0,1));
 
 		// repeat test after clearing, to make sure data structure still has integrity.

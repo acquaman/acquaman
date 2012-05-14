@@ -153,9 +153,14 @@ bool AMDacqScanController::event(QEvent *e){
 		QMap<int, QList<double> >::const_iterator j = aeSpectra.constBegin();
 		if(i.key() == 0 && aeData.count() > 1){
 			AMnDIndex insertIndex = toScanIndex(aeData);
-			scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
+			// MB: Modified May 13 2012 for changes to AMDataStore. Assumes data store already has sufficient space for scan axes beyond the first axis.
+//			scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
+			if(insertIndex.i() >= scan_->rawData()->scanSize(0))
+				scan_->rawData()->beginInsertRows(insertIndex.i()-scan_->rawData()->scanSize(0)+1, -1);
+			////////////////
+
 			/// \bug CRITICAL: This is ASSUMING ONE AXIS, need to fix that somewhere
-			scan_->rawData()->setAxisValue(0, insertIndex.row(), i.value());
+			scan_->rawData()->setAxisValue(0, insertIndex.i(), i.value());
 			++i;
 			while(i != aeData.constEnd()){
 				scan_->rawData()->setValue(insertIndex, i.key()-1, AMnDIndex(), i.value());

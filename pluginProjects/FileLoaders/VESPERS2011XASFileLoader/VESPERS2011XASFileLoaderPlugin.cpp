@@ -184,7 +184,7 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 
 		lineTokenized << line.split(", ");
 
-		scan->rawData()->beginInsertRows(0);
+		scan->rawData()->beginInsertRows(1, -1);
 
 		scan->rawData()->setAxisValue(0, axisValueIndex, lineTokenized.at(1).toDouble());
 

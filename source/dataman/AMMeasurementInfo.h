@@ -66,7 +66,7 @@ public:
 	/// Returns the number of points this measurement spans (A scalar value is "1" point, a 1D Detector is the same as its dimension, higher-D detectors are the products of their dimensions)
 	int inline spanSize() const {
 		int aSize = 1;
-		for(int i=0; i<axes.count(); i++)
+		for(int i=axes.count()-1; i>=0; --i)
 			aSize *= axes.at(i).size;
 		return aSize;
 	}

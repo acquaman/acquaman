@@ -128,7 +128,7 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 
 		lineTokenized << line.split(", ");
 
-		scan->rawData()->beginInsertRows(0);
+		scan->rawData()->beginInsertRows(1, -1);
 
 		scan_->rawData()->setAxisValue(0, axisValueIndex, lineTokenized.at(1).toDouble());
 

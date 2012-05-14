@@ -176,7 +176,7 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 				qDebug() << "Going for fast scan without energy calib";
 				for(int x = 0; x < numScalerReadings; x++){
 					if(x%4 == 0){
-						scan->rawData()->beginInsertRows(0);
+						scan->rawData()->beginInsertRows(1, -1);
 						scan->rawData()->setAxisValue(0, x/4, x/4);
 					}
 					sfls >> scalerVal;
@@ -249,7 +249,7 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 						//energyFbk = (1.0e-9*1239.842*511.292)/(2*9.16358e-7*2.46204e-5*-1.59047*(double)encoderReading*cos(3.05478/2));
 						energyFbk = (1.0e-9*1239.842*sParam)/(2*spacingParam*c1Param*c2Param*(double)encoderReading*cos(thetaParam/2));
 						//if( ( (readings.at(0) > 200) && (scan->rawData()->scanSize(0) == 0) ) || ( (scan->rawData()->scanSize(0) > 0) && (fabs(energyFbk - (double)scan->rawData()->axisValue(0, scan->rawData()->scanSize(0)-1)) > 0.001) ) ){
-						scan->rawData()->beginInsertRows(0);
+						scan->rawData()->beginInsertRows(1, -1);
 						scan->rawData()->setAxisValue(0, scan->rawData()->scanSize(0)-1, energyFbk);
 						//scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 0, AMnDIndex(), readings.at(0));
 						scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 0, AMnDIndex(), std::max(readings.at(0), 1.0));
