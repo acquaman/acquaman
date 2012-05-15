@@ -15,10 +15,8 @@ AMSamplePlateMoveAction::AMSamplePlateMoveAction(AMSamplePlateMoveActionInfo *in
 	else
 		sampleManipulator_ = 0; //NULL
 
-	if( (samplePlateMoveInfo()->samplePlateId() == -1) && (AMBeamline::bl()->currentSamplePlateId() != -1) ){
+	if( (samplePlateMoveInfo()->samplePlateId() == -1) && (AMBeamline::bl()->currentSamplePlateId() != -1) )
 		samplePlateMoveInfo()->setSamplePlateId(AMBeamline::bl()->currentSamplePlateId());
-		qDebug() << "Setting plate id as " << AMBeamline::bl()->currentSamplePlateId();
-	}
 
 	moveListAction_ = 0; //NULL
 }

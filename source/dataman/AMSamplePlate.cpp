@@ -24,6 +24,32 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "math.h"
 
+bool AMSamplePosition::matchesPosition(const AMControlInfoList &other) const{
+	if(position() == other)
+		return true;
+
+	if(topLeftPosition().isEmpty() || bottomRightPosition().isEmpty())
+		return false;
+
+	if(position().count() != other.count() || topLeftPosition().count() != other.count() || bottomRightPosition().count() != other.count())
+		return false;
+
+	for(int x = 0; x < position().count(); x++){
+		double otherValue = other.at(x).value();
+		double topLeftValue = topLeftPosition().at(x).value();
+		double topLeftTolerance = topLeftPosition().at(x).tolerance();
+		double bottomRightValue = bottomRightPosition().at(x).value();
+		double bottomRightTolerance = bottomRightPosition().at(x).tolerance();
+
+		if(otherValue > std::max(topLeftValue+topLeftTolerance, bottomRightValue+bottomRightTolerance) )
+			return false;
+		if(otherValue < std::min(topLeftValue-topLeftTolerance, bottomRightValue-bottomRightTolerance) )
+			return false;
+	}
+
+	return true;
+}
+
 AMSamplePlate::AMSamplePlate(QObject *parent) : AMDbObject(parent), AMOrderedList<AMSamplePosition>() {
 
 	setName("New Sample Plate");
@@ -50,9 +76,12 @@ AMSamplePlate::AMSamplePlate(const AMSamplePlate& other) : AMDbObject(), AMOrder
 
 int AMSamplePlate::sampleIdAtPosition(const AMControlInfoList &position, const QList<double> tolerances) const{
 	if(tolerances.count() == 0){
-		for(int x = count()-1; x >= 0; x--)
-			if( at(x).position() == position )
+		for(int x = count()-1; x >= 0; x--){
+			if( at(x).matchesPosition(position) ){
+			//if( at(x).position() == position ){
 				return at(x).sampleId();
+			}
+		}
 	}
 	else{
 		double rmsDistance = 10000;

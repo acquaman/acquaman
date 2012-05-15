@@ -50,15 +50,6 @@ void AMSamplePlateMoveActionEditor::onSamplePlateSeletectorBoxCurrentIndexChange
 
 void AMSamplePlateMoveActionEditor::onSamplePositionSelectorBoxCurrentIndexChanged(int index){
 	info_->setSamplePositionIndex(samplePositionSelectorBox_->itemData(index).toInt());
-
-	if( (info_->samplePlateId() > 0) && (info_->samplePositionIndex() > 0) ){
-		AMSamplePlate samplePlate;
-		samplePlate.loadFromDb(AMDatabase::database("user"), info_->samplePlateId());
-		AMControlInfoList samplePosition = samplePlate.at(info_->samplePositionIndex()).position();
-		qDebug() << "That would require a move to ";
-		for(int x = 0; x < samplePosition.count(); x++)
-			qDebug() << samplePosition.at(x).value();
-	}
 }
 
 void AMSamplePlateMoveActionEditor::onChangeSamplePlateCheckBoxToggled(bool canChangePlate){
@@ -66,7 +57,6 @@ void AMSamplePlateMoveActionEditor::onChangeSamplePlateCheckBoxToggled(bool canC
 }
 
 void AMSamplePlateMoveActionEditor::populateSamplePlates(){
-	qDebug() << "Thinks current action sample plate id is " << info_->samplePlateId();
 	int currentPlateIndex = 0;
 
 	samplePlateSelectorBox_->clear();
@@ -115,13 +105,10 @@ void AMSamplePlateMoveActionEditor::populateSamplePositions(){
 		QString sampleIdsSearchString;
 		QMap<int, int> sampleIndexToPlateIndex;
 		for(int x = 0; x < samplePlate.count(); x++){
-			qDebug() << "SamplePlate at " << x << samplePlate.at(x).sampleId();
 			sampleIndexToPlateIndex.insert(samplePlate.at(x).sampleId(), x);
 			sampleIdsSearchString.append( QString("%1,").arg(samplePlate.at(x).sampleId()) );
 		}
 
-		QString testString = sampleIdsSearchString;
-		qDebug() << "Selecting on " << QString("id IN (%1)").arg(testString.remove(testString.count()-1, 1));
 		QSqlQuery q2 = AMDatabase::database("user")->select(AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "id,name", QString("id IN (%1)").arg(sampleIdsSearchString.remove(sampleIdsSearchString.count()-1, 1)) );
 		q2.exec();
 		QString name;
@@ -129,7 +116,6 @@ void AMSamplePlateMoveActionEditor::populateSamplePositions(){
 		while(q2.next()) {
 			sampleId = q2.value(0).toInt();
 			name = q2.value(1).toString();
-			qDebug() << "Sample id: " << sampleId << " On Plate: " << sampleIndexToPlateIndex.value(sampleId) << " Name: " << name;
 			samplePositionSelectorBox_->addItem(name, sampleIndexToPlateIndex.value(sampleId));
 
 			if(sampleIndexToPlateIndex.value(sampleId) == info_->samplePositionIndex())
