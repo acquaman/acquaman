@@ -225,6 +225,7 @@ public:
 	AMDetectorSet* FastDetectors() const { return FastDetectors_;}
 
 	AMSamplePlate* currentSamplePlate() const { return currentSamplePlate_; }
+	virtual int currentSamplePlateId() const;
 	int currentSampleId();
 	QString currentSampleDescription();
 
@@ -329,6 +330,10 @@ protected slots:
 	void onDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
 
 	void computeBeamlineInitialized();
+
+protected:
+	/// Sets up the exposed controls for the SGM beamine (accessible through AMControlMoveAction)
+	void setupExposedControls();
 
 protected:
 	// Singleton implementation:

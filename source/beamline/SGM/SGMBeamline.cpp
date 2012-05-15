@@ -695,7 +695,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	transferChamberInAction4Help_.append(QPixmap(":/ChamberIn/action4Image1.jpg"), "1");
 	transferChamberInAction4Help_.append(QPixmap(":/ChamberIn/action42Image2.jpg"), "2");
 
-	//QTimer::singleShot(5000, this, SLOT(computeBeamlineInitialized()));
+	setupExposedControls();
 }
 
 SGMBeamline::~SGMBeamline()
@@ -814,6 +814,12 @@ bool SGMBeamline::usingScalerSource(){
 	if(detectorSignalSource_ && detectorSignalSource_->isConnected())
 		return (detectorSignalSource_->value() == 1);//ENUM 1 is Scaler
 	return false;
+}
+
+int SGMBeamline::currentSamplePlateId() const{
+	if(currentSamplePlate_)
+		return currentSamplePlate()->id();
+	return -1;
 }
 
 int SGMBeamline::currentSampleId(){
@@ -1530,6 +1536,12 @@ void SGMBeamline::computeBeamlineInitialized(){
 		beamlineIsInitialized_ = true;
 		emit beamlineInitialized();
 	}
+}
+
+void SGMBeamline::setupExposedControls(){
+	addExposedControl(ssaManipulatorX_);
+	addExposedControl(ssaManipulatorY_);
+	addExposedControl(ssaManipulatorZ_);
 }
 
 SGMBeamline* SGMBeamline::sgm() {

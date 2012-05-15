@@ -72,6 +72,9 @@ public:
 	/// Returns the current sample description if available (if not, should like be <Unknown Sample>)
 	virtual QString currentSampleDescription() { return "<Unknown Sample>"; }
 
+	/// Returns the current sample plate id if available (if no sample plate is loaded, then returns -1)
+	virtual int currentSamplePlateId() const { return -1;}
+
 	/// Returns the control set that contains all of the public controls.  These are used with actions for automatic lookup.
 	AMControlSet *exposedControls() const { return exposedControls_; }
 	/// Returns a control based on the name of the control.  Returns 0 if no control is found.

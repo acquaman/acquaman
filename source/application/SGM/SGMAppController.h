@@ -105,6 +105,7 @@ protected:
 	AMScanConfigurationViewHolder *xasScanConfigurationHolder_;
 	AMScanConfigurationViewHolder *fastScanConfigurationHolder_;
 	AMScanConfigurationViewHolder3 *xasScanConfigurationHolder3_;
+	AMScanConfigurationViewHolder3 *fastScanConfigurationHolder3_;
 	SGMSidebar *sgmSidebar_;
 
 	/// Persistent view for SGMSettings

@@ -562,7 +562,10 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/analysis/AM1DNormalizationABEditor.h \
 	source/ui/AMAddAnalysisBlockDialog.h \
 	$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorLegend.h \
-	source/ui/acquaman/AMScanConfigurationViewHolder3.h
+	source/ui/acquaman/AMScanConfigurationViewHolder3.h \
+	source/actions3/actions/AMSamplePlateMoveActionInfo.h \
+	source/actions3/actions/AMSamplePlateMoveAction.h \
+	source/actions3/editors/AMSamplePlateMoveActionEditor.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -951,7 +954,10 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/analysis/AM1DNormalizationABEditor.cpp \
 	source/ui/AMAddAnalysisBlockDialog.cpp \
 	$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorLegend.cpp \
-	source/ui/acquaman/AMScanConfigurationViewHolder3.cpp
+	source/ui/acquaman/AMScanConfigurationViewHolder3.cpp \
+	source/actions3/actions/AMSamplePlateMoveActionInfo.cpp \
+	source/actions3/actions/AMSamplePlateMoveAction.cpp \
+	source/actions3/editors/AMSamplePlateMoveActionEditor.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -975,6 +981,12 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
 
 
 

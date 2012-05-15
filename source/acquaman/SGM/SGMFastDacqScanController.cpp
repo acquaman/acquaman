@@ -67,6 +67,7 @@ bool SGMFastDacqScanController::startImplementation(){
 	}
 	bool loadSuccess;
 
+	/*
 	for(int x = 0; x < config_->allDetectors()->count(); x++){
 		if(config_->allDetectors()->isDefaultAt(x) && !SGMBeamline::sgm()->detectorValidForCurrentSignalSource(config_->allDetectors()->detectorAt(x)->toInfo())){
 			AMErrorMon::report(AMErrorReport(this,
@@ -76,6 +77,7 @@ bool SGMFastDacqScanController::startImplementation(){
 			return false;
 		}
 	}
+	*/
 
 	SGMDacqConfigurationFile *configFile = new SGMDacqConfigurationFile();
 	QList<int> matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "FastScaler");

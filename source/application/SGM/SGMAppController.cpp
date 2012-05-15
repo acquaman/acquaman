@@ -234,7 +234,8 @@ void SGMAppController::onSGMBeamlineConnected(){
 
 		SGMFastScanConfiguration *sfsc = new SGMFastScanConfiguration(this);
 		fastScanConfigurationView_ = new SGMFastScanConfigurationView(sfsc);
-		fastScanConfigurationHolder_->setView(fastScanConfigurationView_);
+		//fastScanConfigurationHolder_->setView(fastScanConfigurationView_);
+		fastScanConfigurationHolder3_->setView(fastScanConfigurationView_);
 	}
 }
 
@@ -975,12 +976,15 @@ bool SGMAppController::setupSGMViews(){
 	mw_->addPane(xasScanConfigurationHolder3_, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
 
 	fastScanConfigurationView_ = 0; //NULL
-	fastScanConfigurationHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_);
-	mw_->addPane(fastScanConfigurationHolder_, "Experiment Setup", "SGM Fast Scan", ":/utilities-system-monitor.png");
+	//fastScanConfigurationHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_);
+	//mw_->addPane(fastScanConfigurationHolder_, "Experiment Setup", "SGM Fast Scan", ":/utilities-system-monitor.png");
+	fastScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3();
+	mw_->addPane(fastScanConfigurationHolder3_, "Experiment Setup", "SGM Fast Scan", ":/utilities-system-monitor.png");
 
 	//connect(xasScanConfigurationHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 	connect(xasScanConfigurationHolder3_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
-	connect(fastScanConfigurationHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+	//connect(fastScanConfigurationHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+	connect(fastScanConfigurationHolder3_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 
 	//connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
 	//connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerDestroyed()));

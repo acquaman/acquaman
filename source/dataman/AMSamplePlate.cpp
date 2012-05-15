@@ -70,7 +70,9 @@ int AMSamplePlate::sampleIdAtPosition(const AMControlInfoList &position, const Q
 				}
 			}
 		}
-		return at(closestIndex).sampleId();
+		if(closestIndex != -1)
+			return at(closestIndex).sampleId();
+		return -1;
 	}
 	return -1;
 }
