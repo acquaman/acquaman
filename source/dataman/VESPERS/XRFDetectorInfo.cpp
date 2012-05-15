@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -21,21 +21,31 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "XRFDetectorInfo.h"
 
 XRFDetectorInfo::XRFDetectorInfo(const QString &name, const QString &description, QObject *parent)
-	: AMDetectorInfo(name, description, parent)
+	: AMBasicXRFDetectorInfo(name, description, parent)
 {
 	setUnits("Counts");
 }
 
 XRFDetectorInfo::XRFDetectorInfo(const XRFDetectorInfo &original)
-	: AMDetectorInfo(original.name(), original.description(), original.parent())
+	: AMBasicXRFDetectorInfo(original)
 {
-	retreiveAndSetProperties(original);
+//	retreiveAndSetProperties(original);
+	this->operator =(original);
 }
 
 XRFDetectorInfo &XRFDetectorInfo::operator =(const XRFDetectorInfo &other)
 {
-	if (this != &other)
-		retreiveAndSetProperties(other);
+	if (this != &other){
+		//retreiveAndSetProperties(other);
+		AMBasicXRFDetectorInfo::operator =(other);
+		setElements(other.elements());
+		setChannels(other.channels());
+		setIntegrationTime(other.integrationTime());
+		setPeakingTime(other.peakingTime());
+		AMROIInfoList *roiInfoList = const_cast<AMROIInfoList *>(other.roiInfoList());
+		setROIList(*roiInfoList);
+		setMaximumEnergy(other.maximumEnergy());
+	}
 	return *this;
 }
 
@@ -48,4 +58,15 @@ void XRFDetectorInfo::setMaximumEnergy(double energy)
 		(*roiInfoList())[i].setScale(newScale);
 
 	setModified(true);
+}
+
+QList<AMAxisInfo> XRFDetectorInfo::axes() const
+{
+	QList<AMAxisInfo> axisInfo;
+	AMAxisInfo ai("Energy", channels(), "Energy", "eV");
+	ai.increment = AMNumber(scale());
+	ai.start = AMNumber(0);
+	ai.isUniform = true;
+	axisInfo << ai;
+	return axisInfo;
 }

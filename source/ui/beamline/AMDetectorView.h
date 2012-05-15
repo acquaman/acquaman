@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -24,8 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMControlSetView.h"
 #include "AMDetectorViewSupport.h"
 #include "beamline/AMSingleControlDetector.h"
-#include "beamline/MCPDetector.h"
-#include "beamline/PGTDetector.h"
+#include "beamline/SGM/SGMMCPDetector.h"
+#include "beamline/CLS/CLSPGTDetector.h"
 #include "ui/beamline/AMControlEditor.h"
 #include "QMessageBox"
 #include "QMetaMethod"

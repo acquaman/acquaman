@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStandardItem>
 #include <QList>
 #include <QEvent>
-
+#include <QDateTime>
 
 /// This namespace contains global definitions for the Acquaman / Dataman framework.
 
@@ -71,6 +71,22 @@ public:
 	QString errorExplanation_;
 };
 
+class AMHighPrecisionDateTime
+{
+public:
+	AMHighPrecisionDateTime(){}
+
+	QDateTime dateTime() const { return dateTime_; }
+
+	operator QDateTime() const { return dateTime_; }
+	AMHighPrecisionDateTime& operator =(const QDateTime &dateTime) { setDateTime(dateTime); return *this;}
+
+	void setDateTime(QDateTime dateTime) { dateTime_ = dateTime; }
+
+protected:
+	QDateTime dateTime_;
+};
+
 class AMDbObject;
 typedef QList<int> AMIntList;
 typedef QList<double> AMDoubleList;
@@ -79,5 +95,6 @@ typedef QList<AMDbObject*> AMDbObjectList;
 Q_DECLARE_METATYPE(AMIntList);
 Q_DECLARE_METATYPE(AMDoubleList);
 Q_DECLARE_METATYPE(AMDbObjectList);
+Q_DECLARE_METATYPE(AMHighPrecisionDateTime);
 
 #endif // ACQUAMAN_H

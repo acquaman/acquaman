@@ -39,11 +39,15 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		columns2pvNames_.set("SDD", "MCA1611-01:GetChannels");
 		columns2pvNames_.set("OceanOptics65000Old", "SA0000-03:Spectra");
 		columns2pvNames_.set("OceanOptics65000", "SA0000-03:DarkCorrectedSpectra");
+		columns2pvNames_.set("AmptekSDD1", "amptek:sdd1:spectrum");
+		columns2pvNames_.set("AmptekSDD2", "amptek:sdd2:spectrum");
 	}
 
 	if(offsets2MeasurementInfos_.isEmpty()) {
 		offsets2MeasurementInfos_ << "SDD";
 		offsets2MeasurementInfos_ << "OceanOptics65000";
+		offsets2MeasurementInfos_ << "AmptekSDD1";
+		offsets2MeasurementInfos_ << "AmptekSDD2";
 	}
 
 	if(defaultUserVisibleColumns_.isEmpty()) {
@@ -54,6 +58,8 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		defaultUserVisibleColumns_ << "EnergyFeedback";
 		defaultUserVisibleColumns_ << "SDD";
 		defaultUserVisibleColumns_ << "OceanOptics65000";
+		defaultUserVisibleColumns_ << "AmptekSDD1";
+		defaultUserVisibleColumns_ << "AmptekSDD2";
 	}
 
 	if(!scan)
@@ -159,6 +165,20 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 					oosAxes << oosWavelengthAxisInfo;
 					AMMeasurementInfo oosInfo("OceanOptics65000", "OceanOptics 65000", "counts", oosAxes);
 					scan->rawData()->addMeasurement(oosInfo);
+				}
+				else if(colName == "AmptekSDD1"){
+					AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
+					QList<AMAxisInfo> sddAxes;
+					sddAxes << sddEVAxisInfo;
+					AMMeasurementInfo sddInfo("Amptek SDD1", "Amptek Silicon Drift Detector 1", "counts", sddAxes);
+					scan->rawData()->addMeasurement(sddInfo);
+				}
+				else if(colName == "AmptekSDD2"){
+					AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
+					QList<AMAxisInfo> sddAxes;
+					sddAxes << sddEVAxisInfo;
+					AMMeasurementInfo sddInfo("Amptek SDD2", "Amptek Silicon Drift Detector 2", "counts", sddAxes);
+					scan->rawData()->addMeasurement(sddInfo);
 				}
 			}
 			else

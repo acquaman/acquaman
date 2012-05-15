@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -44,6 +44,9 @@ class AMScanDictionary;
 #ifndef ACQUAMAN_NO_ACQUISITION
 class AMScanController;
 #endif
+
+#define AMSCAN_CANNOT_FIND_SUITABLE_PLUGIN_FOR_FILE_FORMAT -2147
+#define AMSCAN_DEBUG_DELETING_SCAN -2148
 
 /// This class is the base of all objects that represent a single 'scan' on a beamline.
 /*! AMScan provides access to the following information:

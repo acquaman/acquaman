@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -110,11 +110,11 @@ void AMExportController::continueAvailableDataSourceSearch()
 	if(usingScanURLs_) {
 		const QUrl& url = scanURLsToExport_.at(searchScanIndex_++);	// incrementing searchScanIndex_ here.
 
-		AMDatabase* db;
+		AMDatabase* db = 0;
 		QStringList path;
 		QString tableName;
-		int id;
-		bool idOkay;
+		int id = 0;
+		bool idOkay = false;
 
 		// parse the URL and make sure it's valid
 		if(url.scheme() == "amd" &&
@@ -252,15 +252,15 @@ void AMExportController::continueScanExport()
 		// 2. Load scan from db and check loaded successfully
 
 
-		AMScan* scan;
-		AMDbObject* databaseObject;
+		AMScan* scan = 0;
+		AMDbObject* databaseObject = 0;
 		if(usingScanURLs_){
 			const QUrl& url = scanURLsToExport_.at(exportScanIndex_);
-			AMDatabase* db;
+			AMDatabase* db = 0;
 			QStringList path;
 			QString tableName;
-			int id;
-			bool idOkay;
+			int id = 0;
+			bool idOkay = false;
 
 			// parse the URL and make sure it's valid
 			if(!( url.scheme() == "amd" &&

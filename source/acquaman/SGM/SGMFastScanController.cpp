@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -70,7 +70,6 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 	*/
 
 	if(SGMBeamline::sgm()->usingScalerSource()){
-		qDebug() << "In here, setting measurements";
 		specificScan_->rawData()->addMeasurement(AMMeasurementInfo(* (config_->allDetectors()->detectorNamed("teyScaler")->toInfo()) ));
 		specificScan_->addRawDataSource(new AMRawDataSource(specificScan_->rawData(), 0));
 		specificScan_->rawData()->addMeasurement(AMMeasurementInfo(* (config_->allDetectors()->detectorNamed("I0Scaler")->toInfo()) ));
@@ -190,7 +189,7 @@ bool SGMFastScanController::beamlineInitialize(){
 	}
 
 	if( SGMBeamline::sgm()->energy()->withinTolerance(settings->energyStart()) ){
-		qDebug() << "Too close to start energy";
+//		qDebug() << "Too close to start energy";
 		initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 		tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
 		tmpAction->setSetpoint(settings->energyStart()+1.0);
@@ -218,7 +217,7 @@ bool SGMFastScanController::beamlineInitialize(){
 			//config_->allDetectors()->detectorAt(x)->setFromInfo(config_->allDetectorConfigurations().detectorInfoAt(x));
 			config_->allDetectors()->detectorAt(x)->activate();
 			if(config_->allDetectors()->detectorAt(x)->turnOnAction()){
-				qDebug() << "Fast scan wants to turn on HV";
+//				qDebug() << "Fast scan wants to turn on HV";
 				initializationActions_->appendAction(initializationActions_->stageCount()-1, config_->allDetectors()->detectorAt(x)->turnOnAction());
 			}
 		}
@@ -263,7 +262,6 @@ bool SGMFastScanController::beamlineInitialize(){
 		tmpBAction ? initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpBAction) : initializationFailed = true;
 	}
 
-	qDebug() << "Relative step to " << settings->undulatorRelativeStep() << " velocity to " << settings->undulatorVelocity();
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorRelativeStepStorage());
 	tmpAction->setSetpoint(settings->undulatorRelativeStep());
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);

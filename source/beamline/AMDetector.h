@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -51,6 +51,7 @@ protected:
 signals:
 	/// Indicates that the detector is ready (each detector sub class can define this however makes most sense)
 	void connected(bool isConnected);
+	void availabilityChagned(AMDetector *detector, bool isAvailable);
 	/// Indicates that the meta-information for this detector (currently just description()) has changed.
 	void infoChanged();
 	void readingsChanged();
@@ -86,6 +87,18 @@ public:
 	/// The read method this detector is using (see AMDetector::ReadMethod enum)
 	virtual AMDetector::ReadMethod readMethod() const;
 
+	/// Returns the PV name the dacq library wants to use
+	virtual QString dacqName() const;
+
+	/// Returns a string list of dacq "Action Begin" statements. The strings should be divided into three sections by ||=||. Three sections are the command (SetPV, WaitPV, etc), the PV, and the value.
+	virtual QStringList dacqBegin() const;
+	/// Returns a string list of dacq "Action Move" statements. The strings should be divided into three sections by ||=||. Three sections are the command (SetPV, WaitPV, etc), the PV, and the value.
+	virtual QStringList dacqMove() const;
+	/// Returns a string list of dacq "Action Dwell" statements. The strings should be divided into three sections by ||=||. Three sections are the command (SetPV, WaitPV, etc), the PV, and the value.
+	virtual QStringList dacqDwell() const;
+	/// Returns a string list of dacq "Action Finish" statements. The strings should be divided into three sections by ||=||. Three sections are the command (SetPV, WaitPV, etc), the PV, and the value.
+	virtual QStringList dacqFinish() const;
+
 	/// Get the current reading
 	virtual double reading() const;
 
@@ -117,6 +130,7 @@ public:
 
 protected:
 	void setConnected(bool isConnected);
+	void setTimedOut();
 
 	void emitConnected(bool isConnected);
 	/// This is emitted when the meta-info changes. (Right now, this only includes a detector's description() )

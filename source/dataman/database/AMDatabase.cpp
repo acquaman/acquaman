@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -207,7 +207,7 @@ bool AMDatabase::update(int id, const QString& table, const QStringList& columns
 	QSqlDatabase db = qdb();
 
 	if(columns.count() != values.count()) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -102, "Error trying to update the database: the number of columns provided doesn't match the number of values."));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDATABASE_ERROR_COLUMN_VALUE_COUNT_MISMATCH, "Error trying to update the database: the number of columns provided doesn't match the number of values."));
 		return false;
 	}
 	if(!db.isOpen()) {
@@ -573,11 +573,12 @@ bool AMDatabase::ensureColumn(const QString& tableName, const QString& columnNam
 
 	if(execQuery(q)) {
 		q.finish();
-		// Error suppressed: this happens all the time if the column exists alread. AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Adding database column %1 to table %2.").arg(columnName).arg(tableName)));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Adding database column %1 to table %2.").arg(columnName).arg(tableName)));
 		return true;
 	}
 	else {
 		q.finish();	// make sure that sqlite lock is released before emitting signals
+		// Error suppressed: this happens all the time if the column exists already. AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Error adding database column %1 to table %2. Maybe it's already there? Sql reply says: %3").arg(columnName).arg(tableName).arg(q.lastError().text())));
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Error adding database column %1 to table %2. Maybe it's already there? Sql reply says: %3").arg(columnName).arg(tableName).arg(q.lastError().text())));
 		return false;
 	}

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -36,8 +36,6 @@ AMRegionScanConfiguration::AMRegionScanConfiguration(const AMRegionScanConfigura
 	: AMScanConfiguration(original.parent())
 {
 	if (setup){
-
-		qDebug() << "Using AMScanConfiguration copy constructor";
 		setUserScanName(original.userScanName());
 		regions_ = new AMRegionsList(this);
 		connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
@@ -116,7 +114,7 @@ void AMRegionScanConfiguration::dbLoadRegions(const QString &regionsString)
 		return;
 	QStringList allRegions = regionsString.split("\n", QString::SkipEmptyParts);
 	QStringList oneRegion;
-	bool addRegionSuccess;
+	bool addRegionSuccess = false;
 
 	for(int x = 0; x < allRegions.count(); x++){
 		oneRegion = allRegions.at(x).split(",", QString::SkipEmptyParts);

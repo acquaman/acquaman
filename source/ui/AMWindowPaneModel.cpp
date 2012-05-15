@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -104,6 +104,9 @@ QVariant AMWindowPaneModel::data(const QModelIndex &index, int role) const {
 			return AMDragDropItemModel::data(index, role);
 		break;
 
+	case AMWindowPaneModel::UndockResizeRole:
+		return AMDragDropItemModel::data(index, role);
+		break;
 
 	default:
 		return AMDragDropItemModel::data(index, role);
@@ -168,9 +171,9 @@ bool AMWindowPaneModel::setData(const QModelIndex &index, const QVariant &value,
 			QWidget* w = pane_(index);
 
 			if(wasDocked && !nowDocked)
-				emit dockStateChanged(w, false);
+				emit dockStateChanged(w, false, index.data(AMWindowPaneModel::UndockResizeRole).toBool());
 			else if(!wasDocked && nowDocked)
-				emit dockStateChanged(w, true);
+				emit dockStateChanged(w, true, index.data(AMWindowPaneModel::UndockResizeRole).toBool());
 
 			return true;
 		}
@@ -178,17 +181,21 @@ bool AMWindowPaneModel::setData(const QModelIndex &index, const QVariant &value,
 			return false;
 		break;
 	}
+	case AMWindowPaneModel::UndockResizeRole:
+		return AMDragDropItemModel::setData(index, value, role);
+		break;
 
 	default:
 		return AMDragDropItemModel::setData(index, value, role);
 	}
 }
 
-QStandardItem* AMWindowPaneModel::addPane(QWidget* pane, const QString& headingText) {
+QStandardItem* AMWindowPaneModel::addPane(QWidget* pane, const QString& headingText, bool resizeOnUndock) {
 
 	QStandardItem* newItem = new QStandardItem();
 	newItem->setData(qVariantFromValue(pane), AM::WidgetRole);
 	newItem->setData(true, AMWindowPaneModel::DockStateRole);
+	newItem->setData(resizeOnUndock, AMWindowPaneModel::UndockResizeRole);
 
 	newItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
@@ -197,12 +204,12 @@ QStandardItem* AMWindowPaneModel::addPane(QWidget* pane, const QString& headingT
 	return newItem;
 }
 
-QStandardItem* AMWindowPaneModel::addPane(QWidget *pane, const QString &headingText, const QString& windowTitle, const QIcon& windowIcon) {
+QStandardItem* AMWindowPaneModel::addPane(QWidget *pane, const QString &headingText, const QString& windowTitle, const QIcon& windowIcon, bool resizeOnUndock) {
 
 	pane->setWindowTitle(windowTitle);
 	pane->setWindowIcon(windowIcon);
 
-	return addPane(pane, headingText);
+	return addPane(pane, headingText, resizeOnUndock);
 }
 
 

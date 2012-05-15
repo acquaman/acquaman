@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -86,7 +86,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 	// information about the scan we hope to locate:
 	QString comments;
 	QDateTime datetime;
-	double integrationTime;
+	double integrationTime = 0;
 	QString grating;
 
 	// used in parsing the data file
@@ -267,7 +267,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 			return false;
 		}
 
-		int startByte, endByte;
+		int startByte = 0, endByte = 0;
 		int specCounter = 0;
 		int scanSize = scan->rawData()->scanSize(0);
 		int fileOffsetMeasurementId = scan->rawData()->idOfMeasurement("sdd_fileOffset");

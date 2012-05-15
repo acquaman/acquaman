@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -25,6 +25,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMMainWindow.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder.h"
 #include "ui/acquaman/AM2DScanConfigurationViewHolder.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+
+#include "actions3/AMActionRunner3.h"
 
 #include "ui/VESPERS/XRFDetectorView.h"
 #include "ui/VESPERS/VESPERSXRFFreeRunView.h"
@@ -119,6 +122,8 @@ bool VESPERSAppController::startup() {
 		setupUserInterface();
 		makeConnections();
 
+		moveImmediatelyAction_ = 0;
+
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");
 
@@ -205,6 +210,7 @@ void VESPERSAppController::setupExporterOptions()
 	vespersDefault->setIncludeAllDataSources(true);
 	vespersDefault->setFirstColumnOnly(true);
 	vespersDefault->setSeparateHigherDimensionalSources(true);
+	vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
 	vespersDefault->storeToDb(AMDatabase::database("user"));
 	qDebug() << "Added the VESPERSDefault to exporter options";
 
@@ -251,20 +257,24 @@ void VESPERSAppController::setupUserInterface()
 	exafsScanConfig_->addRegion(0, -30, 0.5, 40, 1);
 	VESPERSEXAFSScanConfigurationView *exafsConfigView = new VESPERSEXAFSScanConfigurationView(exafsScanConfig_);
 	exafsConfigViewHolder_ = new AMScanConfigurationViewHolder( workflowManagerView_, exafsConfigView);
+//	exafsConfigViewHolder3_ = new AMScanConfigurationViewHolder3(exafsConfigView);
 	connect(exafsConfigView, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
 	// Setup 2D maps for the beamline.  Builds the config, view, and view holder.
-	VESPERS2DScanConfiguration *mapScanConfiguration = new VESPERS2DScanConfiguration();
-	mapScanConfiguration->setStepSize(0.005, 0.005);
-	mapScanConfiguration->setTimeStep(1);
-	VESPERS2DScanConfigurationView *mapScanConfigurationView = new VESPERS2DScanConfigurationView(mapScanConfiguration);
-	AM2DScanConfigurationViewHolder *mapScanConfigurationViewHolder = new AM2DScanConfigurationViewHolder(workflowManagerView_, mapScanConfigurationView);
-	connect(mapScanConfigurationView, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
+	mapScanConfiguration_ = new VESPERS2DScanConfiguration();
+	mapScanConfiguration_->setStepSize(0.005, 0.005);
+	mapScanConfiguration_->setTimeStep(1);
+	mapScanConfigurationView_ = new VESPERS2DScanConfigurationView(mapScanConfiguration_);
+	mapScanConfigurationViewHolder_ = new AM2DScanConfigurationViewHolder(workflowManagerView_, mapScanConfigurationView_);
+//	mapScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(mapScanConfigurationView_);
+	connect(mapScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
 	mw_->insertHeading("Scans", 2);
 	mw_->addPane(experimentConfigurationView, "Scans", "Experiment Setup", ":/utilities-system-monitor.png");
 	mw_->addPane(exafsConfigViewHolder_, "Scans", "XAS", ":/utilities-system-monitor.png");
-	mw_->addPane(mapScanConfigurationViewHolder, "Scans", "2D Maps", ":/utilities-system-monitor.png");
+	mw_->addPane(mapScanConfigurationViewHolder_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
+//	mw_->addPane(exafsConfigViewHolder3_, "Scans", "XAS", ":/utilities-system-monitor.png");
+//	mw_->addPane(mapScanConfigurationViewHolder3_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
 
 	// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
 	VESPERSPersistentView *persistentView = new VESPERSPersistentView;
@@ -279,6 +289,10 @@ void VESPERSAppController::makeConnections()
 	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
 	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
 	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerFinished()));
+
+//	connect(AMActionRunner3::workflow(), SIGNAL(scanActionCreated()), this, SLOT(onCurrentScanControllerCreated()));
+//	connect(AMActionRunner3::workflow(), SIGNAL(scanActionStarted()), this, SLOT(onCurrentScanControllerStarted()));
+//	connect(AMActionRunner3::workflow(), SIGNAL(scanActionFinished()), this, SLOT(onCurrentScanControllerFinished()));
 
 	// Bottom bar connections.
 	connect(this, SIGNAL(pauseScanIssued()), this, SLOT(onPauseScanIssued()));
@@ -300,11 +314,16 @@ void VESPERSAppController::onConfigureDetectorRequested(const QString &detector)
 void VESPERSAppController::onCurrentScanControllerStarted()
 {
 	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
+//	QString fileFormat(AMActionRunner3::workflow()->scanController()->scan()->fileFormat());
 
 	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
 		return;
 
+//	connect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
+//	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
+
 	AMScan *scan = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan();
+//	AMScan *scan = AMActionRunner3::workflow()->scanController()->scan();
 	openScanInEditorAndTakeOwnership(scan);
 
 	AMGenericScanEditor *newEditor = scanEditorAt(scanEditorCount() -1);
@@ -349,11 +368,13 @@ void VESPERSAppController::onCurrentScanControllerStarted()
 void VESPERSAppController::onCurrentScanControllerCreated()
 {
 	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
+//	QString fileFormat(AMActionRunner3::workflow()->scanController()->scan()->fileFormat());
 
 	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
 		return;
 
 	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
+//	connect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
 	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
 
 	if (fileFormat == "vespersXAS" || fileFormat == "vespers2011XAS" || fileFormat == "vespers2011EXAFS")
@@ -363,6 +384,7 @@ void VESPERSAppController::onCurrentScanControllerCreated()
 void VESPERSAppController::onCurrentScanControllerFinished()
 {
 	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
+//	QString fileFormat(AMActionRunner3::workflow()->scanController()->scan()->fileFormat());
 
 	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
 		return;
@@ -375,6 +397,7 @@ void VESPERSAppController::onCurrentScanControllerFinished()
 	}
 
 	disconnect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
+//	disconnect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
 	disconnect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
 }
 
@@ -384,6 +407,11 @@ void VESPERSAppController::onBeamDump()
 
 	if (controller && controller->isRunning())
 		controller->pause();
+
+//	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
+
+//	if (action && action->canPause() && action->state() == AMAction3::Running)
+//		action->pause();
 }
 
 void VESPERSAppController::onPauseScanIssued()
@@ -395,6 +423,14 @@ void VESPERSAppController::onPauseScanIssued()
 
 	else if (controller && controller->isPaused())
 		controller->resume();
+
+//	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
+
+//	if (action && action->canPause() && action->state() == AMAction3::Running)
+//		action->pause();
+
+//	else if (action && action->canPause() && action->state() == AMAction3::Paused)
+//		action->resume();
 }
 
 void VESPERSAppController::onCancelScanIssued()
@@ -403,6 +439,11 @@ void VESPERSAppController::onCancelScanIssued()
 
 	if (controller)
 		controller->cancel();
+
+//	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
+
+//	if (action)
+//		action->cancel();
 }
 
 void VESPERSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
@@ -430,6 +471,9 @@ void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor, co
 	popup.addAction("EXAFS scan");
 	popup.addSeparator();
 	popup.addAction("Go to immediately");
+	popup.addSeparator();
+	temp = popup.addAction("2D XRF Scan");
+	temp->setDisabled(editor->selectedRect().isNull());
 
 	temp = popup.exec(pos);
 
@@ -448,14 +492,17 @@ void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor, co
 			AMBeamlineParallelActionsList *moveImmediatelyList = new AMBeamlineParallelActionsList;
 			moveImmediatelyAction_ = new AMBeamlineListAction(moveImmediatelyList);
 			moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
-			moveImmediatelyList->appendAction(0, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(pos.x()));
+			moveImmediatelyList->appendAction(0, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(editor->dataPosition().x()));
 			moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
-			moveImmediatelyList->appendAction(1, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(pos.y()));
+			moveImmediatelyList->appendAction(1, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(editor->dataPosition().y()));
 
 			connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
 			connect(moveImmediatelyAction_, SIGNAL(failed(int)), this, SLOT(onMoveImmediatelyFailure()));
 			moveImmediatelyAction_->start();
 		}
+
+		else if (temp->text() == "2D XRF Scan")
+			setup2DXRFScan(editor);
 	}
 }
 
@@ -545,4 +592,29 @@ void VESPERSAppController::setupXASScan(const AMGenericScanEditor *editor, bool 
 	}
 
 	mw_->undock(exafsConfigViewHolder_);
+}
+
+void VESPERSAppController::setup2DXRFScan(const AMGenericScanEditor *editor)
+{
+	QRectF mapRect = editor->selectedRect();
+
+	// This should always succeed because the only way to get into this function is using the 2D scan view which currently only is accessed by 2D scans.
+	VESPERS2DScanConfiguration *config = qobject_cast<VESPERS2DScanConfiguration *>(editor->currentScan()->scanConfiguration());
+
+	if (config){
+
+		mapScanConfiguration_->setName(config->name());
+		mapScanConfiguration_->setFluorescenceDetectorChoice(config->fluorescenceDetectorChoice());
+		mapScanConfiguration_->setIncomingChoice(config->incomingChoice());
+		mapScanConfiguration_->setFastAxis(config->fastAxis());
+		mapScanConfiguration_->setXRange(mapRect.left(), mapRect.right());
+		mapScanConfiguration_->setYRange(mapRect.bottom(), mapRect.top());
+		mapScanConfiguration_->setStepSize(config->steps());
+		mapScanConfiguration_->setTimeStep(config->timeStep());
+		mapScanConfiguration_->setMotorsChoice(config->motorsChoice());
+		mapScanConfiguration_->setUsingCCD(config->usingCCD());
+		mapScanConfigurationView_->updateMapInfo();
+	}
+
+	mw_->undock(mapScanConfigurationViewHolder_);
 }

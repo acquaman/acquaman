@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -440,7 +440,7 @@ void XRFDetailedDetectorView::sortRegionsOfInterest()
 		plot_->removeItem(markers_.at(i));
 
 	// Sort the list.
-	double smallest = 0;
+	int smallest = 0;
 
 	for (int i = 0; i < markers_.size(); i++){
 

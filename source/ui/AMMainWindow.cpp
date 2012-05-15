@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -72,7 +72,7 @@ AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 	hlayout_->addWidget(stackWidget_);
 
 	// connect signals from the model:
-	connect(model_, SIGNAL(dockStateChanged(QWidget*,bool)), this, SLOT(onDockStateChanged(QWidget*,bool)));
+	connect(model_, SIGNAL(dockStateChanged(QWidget*,bool,bool)), this, SLOT(onDockStateChanged(QWidget*,bool,bool)));
 	connect(model_, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(onModelRowsInserted(QModelIndex,int,int)));
 	connect(model_, SIGNAL(rowsAboutToBeAboutToBeRemoved(QModelIndex,int,int)), this, SLOT(onModelRowsAboutToBeRemoved(QModelIndex,int,int)));
 
@@ -102,9 +102,9 @@ AMMainWindow::~AMMainWindow() {
 
 
 
-QStandardItem* AMMainWindow::addPane(QWidget* pane, const QString& categoryName, const QString& title, const QString& iconFileName) {
+QStandardItem* AMMainWindow::addPane(QWidget* pane, const QString& categoryName, const QString& title, const QString& iconFileName, bool resizeOnUndock) {
 
-	return model_->addPane(pane, categoryName, title, QIcon(iconFileName));
+	return model_->addPane(pane, categoryName, title, QIcon(iconFileName), resizeOnUndock);
 }
 
 
@@ -202,7 +202,7 @@ void AMMainWindow::onItemCloseButtonClicked(const QModelIndex &index) {
 	emit itemCloseButtonClicked(index);
 }
 
-void AMMainWindow::onDockStateChanged(QWidget* pane, bool isDocked) {
+void AMMainWindow::onDockStateChanged(QWidget* pane, bool isDocked, bool shouldResize) {
 	// dock it
 	if(isDocked) {
 		stackWidget_->addWidget(pane);
@@ -211,6 +211,8 @@ void AMMainWindow::onDockStateChanged(QWidget* pane, bool isDocked) {
 	// undock it
 	else {
 		QSize oldSize = pane->size();
+		if(shouldResize)
+			oldSize = pane->sizeHint();
 		QPoint oldPos = pane->mapToGlobal(pane->geometry().topLeft());
 
 		// If this was the currently-selected item, select something different in the main window. (Can't have a non-existent pane selected in the sidebar)

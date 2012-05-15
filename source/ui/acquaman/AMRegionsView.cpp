@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -100,6 +100,8 @@ bool AMRegionsView::deleteRegion(){
 		tmpStr.setNum(x);
 		tmpAction = deleteRegionMenu_->addAction(tmpStr.prepend("Region "));
 		tmpAction->setData(x);
+		if(regions_->count() == 1)
+			tmpAction->setEnabled(false);
 		connect(tmpAction, SIGNAL(hovered()), this, SLOT(setRemoveIndex()));
 		connect(tmpAction, SIGNAL(triggered()), this, SLOT(removeRegion()));
 	}

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -251,6 +251,13 @@ QPointF AMGenericScanEditor::dataPosition() const
 	return QPointF();
 }
 
+QRectF AMGenericScanEditor::selectedRect() const
+{
+	if (scanView2D_)
+		return scanView2D_->selectedRect();
+
+	return QRectF();
+}
 void AMGenericScanEditor::setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange)
 {
 	if (scanView2D_)

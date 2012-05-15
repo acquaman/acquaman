@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -26,12 +26,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class SGMSampleTransferView;
 class AMSampleManagementWidget;
 class CLSSIS3820ScalerView;
+class AMDetectorView;
 class AMScanConfigurationViewHolder;
+class AMScanConfigurationViewHolder3;
 class SGMXASScanConfigurationView;
 class SGMFastScanConfigurationView;
 class SGMSidebar;
 class SGMSettingsMasterView;
 class AMGithubManager;
+class AMDetector;
 
 class SGMAppController : public AMAppController {
 	Q_OBJECT
@@ -46,12 +49,16 @@ public:
 	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
 	virtual bool startup();
 
-	/// Re-implemented from AMAppController to create and register the SGM database with the database system.
-	virtual bool startupRegisterDatabases();
-
 	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
 	virtual void shutdown();
 
+public slots:
+	virtual bool startupCreateDatabases();
+
+	/// Re-implemented from AMAppController to create and register the SGM database with the database system.
+	virtual bool startupRegisterDatabases();
+	virtual bool startupPopulateNewDatabase();
+	virtual bool startupLoadFromExistingDatabase();
 
 protected slots:
 	/// This slot catches changes in the current widget of the AMMainWindow. \c pane is the new current widget.  Re-implement to catch any widget-specific responses that you need here.
@@ -61,6 +68,8 @@ protected slots:
 
 	void onSGMBeamlineConnected();
 	void onSGMScalerConnected(bool connected);
+	void onSGMAmptekSDD1Connected(bool connected);
+	void onSGMAmptekSDD2Connected(bool connected);
 
 	/// \todo comment this, David...
 	void onCurrentScanControllerCreated();
@@ -69,24 +78,35 @@ protected slots:
 
 	void onActionSGMSettings();
 
+	void onSGMBeamlineDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
+
 protected:
 	bool startupSGMInstallActions();
-	bool setupSGMDatabase();
+	bool setupSGMConfigurationFiles();
+	bool setupSGMPlugins();
+	bool setupSGMExporterOptions();
 	bool setupSGMPeriodicTable();
+
+	bool setupSGMViews();
 
 protected:
 
 	SGMSampleTransferView *sampleTransferView_;
 	AMSampleManagementWidget *samplePositionView_;
 	CLSSIS3820ScalerView *sgmScalerView_;
+	AMDetectorView *amptekSDD1View_;
+	AMDetectorView *amptekSDD2View_;
 	SGMXASScanConfigurationView *xasScanConfigurationView_;
 	SGMFastScanConfigurationView *fastScanConfigurationView_;
 	AMScanConfigurationViewHolder *xasScanConfigurationHolder_;
 	AMScanConfigurationViewHolder *fastScanConfigurationHolder_;
+	AMScanConfigurationViewHolder3 *xasScanConfigurationHolder3_;
 	SGMSidebar *sgmSidebar_;
 
 	/// Persistent view for SGMSettings
 	SGMSettingsMasterView *sgmSettingsMasterView_;
+
+	QString lastWaitingDetectors_;
 };
 
 #endif // SGMAPPCONTROLLER_H
