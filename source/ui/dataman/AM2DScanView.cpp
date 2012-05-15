@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "AM2DScanView.h"
 
 #include "MPlot/MPlotImage.h"
@@ -18,9 +37,11 @@ AM2DScanBar::AM2DScanBar(QWidget *parent)
 	: QWidget(parent)
 {
 	dataPosition_ = new QLabel("Current Position:");
+	selectedRect_ = new QLabel("");
 	xUnits_ = "";
 	yUnits_ = "";
 	position_ = QPointF();
+	rect_ = QRectF();
 
 	QCheckBox *showSpectra = new QCheckBox("Show Spectra");
 	showSpectra->setChecked(false);
@@ -31,7 +52,11 @@ AM2DScanBar::AM2DScanBar(QWidget *parent)
 	layout->addStretch();
 	layout->addWidget(showSpectra, 0, Qt::AlignRight);
 
-	setLayout(layout);
+	QVBoxLayout *barLayout = new QVBoxLayout;
+	barLayout->addLayout(layout);
+	barLayout->addWidget(selectedRect_);
+
+	setLayout(barLayout);
 }
 
 void AM2DScanBar::setDataPosition(const QPointF &point)
@@ -53,6 +78,31 @@ void AM2DScanBar::setDataPosition(const QPointF &point)
 	text.append(")");
 
 	dataPosition_->setText(text);
+}
+
+void AM2DScanBar::setSelectedRect(const QRectF &rect)
+{
+	rect_ = rect;
+
+	if (rect_.isNull()){
+
+		selectedRect_->setText("");
+	}
+
+	else{
+
+		QString text = QString("Highlighted Region - Start: (%1 %5, %2 %6) End: (%3 %7, %4 %8)")
+				.arg(QString::number(rect_.bottomLeft().x(), 'f', 3))
+				.arg(QString::number(rect_.bottomLeft().y(), 'f', 3))
+				.arg(QString::number(rect_.topRight().x(), 'f', 3))
+				.arg(QString::number(rect_.topRight().y(), 'f', 3))
+				.arg(xUnits())
+				.arg(xUnits())
+				.arg(yUnits())
+				.arg(yUnits());
+
+		selectedRect_->setText(text);
+	}
 }
 
 // AM2DScanView
@@ -118,7 +168,7 @@ void AM2DScanView::setupUI()
 	multiViewLayout->setSpacing(0);
 
 	gMultiView_ = new AMGraphicsViewAndWidget();
-	gMultiView_->setMinimumSize(400, 300);
+	gMultiView_->setMinimumSize(400, 400);
 	gMultiView_->graphicsWidget()->setGeometry(0, 0, 640, 640);
 
 	multiViewLayout->addWidget(gMultiView_);
@@ -129,6 +179,7 @@ void AM2DScanView::setupUI()
 	multiViewBox_ = new QGroupBox;
 	multiViewBox_->setLayout(multiViewLayout);
 	multiViewBox_->setWindowTitle("Multi-Region Of Interest View");
+	multiViewBox_->setMaximumSize(800, 800);
 
 	gMultiViewLayout_ = new QGraphicsLinearLayout();
 	gMultiViewLayout_->setSpacing(0);
@@ -156,6 +207,7 @@ void AM2DScanView::makeConnections()
 	connect(gMultiView_, SIGNAL(resized(QSizeF)), this, SLOT(resizeMultiViews()), Qt::QueuedConnection);
 
 	connect(exclusiveView_, SIGNAL(dataPositionChanged(QPointF)), exclusive2DScanBar_, SLOT(setDataPosition(QPointF)));
+	connect(exclusiveView_, SIGNAL(selectedRectChanged(QRectF)), exclusive2DScanBar_, SLOT(setSelectedRect(QRectF)));
 	connect(exclusive2DScanBar_, SIGNAL(showSpectra(bool)), this, SLOT(setSpectrumViewVisibility(bool)));
 	connect(exclusiveView_, SIGNAL(dataPositionChanged(QPointF)), this, SLOT(onDataPositionChanged(QPointF)));
 }
@@ -172,12 +224,16 @@ void AM2DScanView::onDataPositionChanged(const QPointF &point)
 	int y = -1;
 	AMDataSource *datasource = currentScan_->dataSourceAt(currentScan_->indexOfDataSource(scansModel_->exclusiveDataSourceName()));
 
+	// This assumes 2D maps where the size is greater than 1x1, 1xN, or Nx1.
+	double delX = (double(datasource->axisValue(0, 1)) - double(datasource->axisValue(0, 0)))/2;
+	double delY = (double(datasource->axisValue(1, 1)) - double(datasource->axisValue(1, 0)))/2;
+
 	for (int i = 0; i < currentScan_->scanSize(0); i++)
-		if (double(datasource->axisValue(0, i)) <= point.x())
+		if (fabs(point.x() - double(datasource->axisValue(0, i))) < delX)
 			x = i;
 
 	for (int i = 0; i < currentScan_->scanSize(1); i++)
-		if (double(datasource->axisValue(1, i)) <= point.y())
+		if (fabs(point.y() - double(datasource->axisValue(1, i))) < delY)
 			y = i;
 
 	QString filename = currentScan_->additionalFilePaths().first();
@@ -366,6 +422,7 @@ AM2DScanViewExclusiveView::AM2DScanViewExclusiveView(AM2DScanView* masterView)
 	positionTool->addDataPositionIndicator(plot_->plot()->axisScaleBottom(), plot_->plot()->axisScaleLeft());
 
 	connect(plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(uint,QPointF)), this, SLOT(onDataPositionChanged(uint,QPointF)));
+	connect(plot_->plot()->signalSource(), SIGNAL(selectedDataRectChanged(uint,QRectF)), this, SLOT(onSelectedRectChanged(uint,QRectF)));
 
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
 	gl->setContentsMargins(0,0,0,0);
@@ -508,6 +565,13 @@ void AM2DScanViewExclusiveView::onDataPositionChanged(uint index, const QPointF 
 	Q_UNUSED(index)
 
 	emit dataPositionChanged(point);
+}
+
+void AM2DScanViewExclusiveView::onSelectedRectChanged(uint index, const QRectF &rect)
+{
+	Q_UNUSED(index)
+
+	emit selectedRectChanged(rect);
 }
 
 void AM2DScanViewExclusiveView::refreshTitle() {

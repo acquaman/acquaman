@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -20,7 +20,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMErrorMonitor.h"
 
-#include <QSystemTrayIcon>
 #include <QMutableMapIterator>
 #include <QDebug>
 #include <QMutexLocker>
@@ -34,9 +33,6 @@ QMutex AMErrorMon::instanceMutex_(QMutex::Recursive);
 
 AMErrorMon::AMErrorMon() : QObject(), subsMutex_(QReadWriteLock::Recursive) {
 	qRegisterMetaType<AMErrorReport>("AMErrorReport");
-	sicon_ = new QSystemTrayIcon(QIcon(":/utilities-system-monitor.png"), this);
-	sicon_->show();
-
 
 	// don't display debug notifications by default:
 	debugEnabled_ = false;
@@ -100,7 +96,6 @@ void AMErrorMon::unsubscribeI(QObject* notifyMe, const char* errorSlot) {
 
 
 void AMErrorMon::reportF(AMErrorReport e) {
-
 	QString className;
 	if(e.source && e.source->metaObject()) {
 		className = e.source->metaObject()->className();
@@ -114,6 +109,7 @@ void AMErrorMon::reportF(AMErrorReport e) {
 		e.source = 0;
 	}
 
+	lastErrorCode_ = e.errorCode;
 	emit reportFF(e);
 }
 
@@ -151,20 +147,16 @@ void AMErrorMon::reportI(AMErrorReport e) {
 	switch(e.level) {
 	case AMErrorReport::Information:
 		emit information(e);
-		sicon_->showMessage(QString("Information:"), reportMessage, QSystemTrayIcon::Information, 5000);
 		break;
 	case AMErrorReport::Alert:
 		emit alert(e);
-		sicon_->showMessage(QString("Alert:"), reportMessage, QSystemTrayIcon::Warning, 5000);
 		break;
 	case AMErrorReport::Serious:
 		emit serious(e);
-		sicon_->showMessage(QString("Serious Error:"), reportMessage, QSystemTrayIcon::Critical, 5000);
 		break;
 	case AMErrorReport::Debug:
 		if(debugEnabled_) {
 			emit debug(e);
-			sicon_->showMessage(QString("Debug Message:"), reportMessage, QSystemTrayIcon::Information, 5000);
 		}
 		break;
 	}
@@ -190,8 +182,6 @@ void AMErrorMon::reportI(AMErrorReport e) {
 	QPair<QObject*, QString> target;
 	foreach(target, targets)
 		target.first->metaObject()->invokeMethod( target.first, target.second.toAscii().data(), Q_ARG(AMErrorReport, e));
-
-
 }
 
 AMErrorMon * AMErrorMon::mon() {

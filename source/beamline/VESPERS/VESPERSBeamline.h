@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -541,6 +541,8 @@ protected:
 	void setupExperimentStatus();
 	/// Sets up various beamline components.
 	void setupComponents();
+	/// Sets up the exposed actions.
+	void setupExposedControls();
 
 	/// Constructor. This is a singleton class; access it through VESPERSBeamline::vespers().
 	VESPERSBeamline();

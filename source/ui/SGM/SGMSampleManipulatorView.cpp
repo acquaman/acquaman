@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -543,8 +543,8 @@ void SGMSampleManipulatorView::onHVButtonClicked(){
 }
 
 void SGMSampleManipulatorView::onHVStateChanged(){
-	if(SGMBeamline::sgm()->tfyDetector() && ((MCPDetector*)SGMBeamline::sgm()->tfyDetector())->hvCtrl()){
-		double curHVValue = ((MCPDetector*)SGMBeamline::sgm()->tfyDetector())->hvCtrl()->value();
+	if(SGMBeamline::sgm()->tfyDetector() && ((SGMMCPDetector*)SGMBeamline::sgm()->tfyDetector())->hvCtrl()){
+		double curHVValue = ((SGMMCPDetector*)SGMBeamline::sgm()->tfyDetector())->hvCtrl()->value();
 		switch( (int)(SGMBeamline::sgm()->tfyHVToggle()->value()) ){
 		case 0:
 			hvButton_->setText("HV is OFF");

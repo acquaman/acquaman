@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -29,6 +29,10 @@ class VESPERSRoperCCDDetectorView;
 class VESPERSPersistentView;
 class VESPERSEXAFSScanConfiguration;
 class AMScanConfigurationViewHolder;
+class AMScanConfigurationViewHolder3;
+class VESPERS2DScanConfiguration;
+class VESPERS2DScanConfigurationView;
+class AM2DScanConfigurationViewHolder;
 class AMBeamlineListAction;
 
 class AMGenericScanEditor;
@@ -80,7 +84,9 @@ protected slots:
 
 protected:
 	/// Sets up a default XAS scan.  It will setup XANES or EXAFS based on the bool \param setupEXAFS using the information from AMGenericScanEditor \param editor.
-	void setupXASScan(const AMGenericScanEditor *, bool setupEXAFS);
+	void setupXASScan(const AMGenericScanEditor *editor, bool setupEXAFS);
+	/// Sets up a default 2D XRF scan.  It setup the 2D scan as best as it can based on the information provided by AMGenericScanEditor.
+	void setup2DXRFScan(const AMGenericScanEditor *editor);
 	/// Cleans up the moveImmediatelyAction after every move to ensure that the list action is always cleaned and is initialized for another move.
 	void cleanMoveImmediatelyAction();
 
@@ -108,6 +114,17 @@ protected:
 	VESPERSEXAFSScanConfiguration *exafsScanConfig_;
 	/// The holder for the XAS scan configuration.
 	AMScanConfigurationViewHolder *exafsConfigViewHolder_;
+	/// The (new) holder for the XAS scan configuration.
+	AMScanConfigurationViewHolder3 *exafsConfigViewHolder3_;
+
+	/// Pointer to the 2D XRF scan configuration.
+	VESPERS2DScanConfiguration *mapScanConfiguration_;
+	/// The 2D XRF scan configuration view.
+	VESPERS2DScanConfigurationView *mapScanConfigurationView_;
+	/// The holder for the 2D scan configuration.
+	AM2DScanConfigurationViewHolder *mapScanConfigurationViewHolder_;
+	/// The (new) holder for the 2D scan configuration.
+	AMScanConfigurationViewHolder3 *mapScanConfigurationViewHolder3_;
 
 	/// Pointer to the list action that is used to move the sample stage.
 	AMBeamlineListAction *moveImmediatelyAction_;

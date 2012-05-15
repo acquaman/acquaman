@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -32,7 +32,18 @@ AMDetectorInfo::AMDetectorInfo(const QString& name, const QString& description, 
 AMDetectorInfo::AMDetectorInfo(const AMDetectorInfo &original) :
 		AMDbObject(original)
 {
-	retreiveAndSetProperties(original);
+	//retreiveAndSetProperties(original);
+	this->operator =(original);
+}
+
+AMDetectorInfo& AMDetectorInfo::operator =(const AMDetectorInfo &other)
+{
+	if(this != &other){
+		AMDbObject::operator =(other);
+		description_ = other.description();
+		setUnits(other.units());
+	}
+	return *this;
 }
 
 AMDetectorInfo* AMDetectorInfo::toNewInfo() const{
@@ -44,10 +55,11 @@ QDebug operator<<(QDebug d, const AMDetectorInfo& di){
 }
 
 QDebug AMDetectorInfo::qDebugPrint(QDebug &d) const{
-	d << "AMDetectorInfo default";
+	d << "AMDetectorInfo " << name();
 	return d;
 }
 
+/*
 void AMDetectorInfo::retreiveAndSetProperties(const AMDetectorInfo &original){
 	const QMetaObject *metaobject = original.metaObject();
 	int count = metaobject->propertyCount();
@@ -61,3 +73,4 @@ void AMDetectorInfo::retreiveAndSetProperties(const AMDetectorInfo &original){
 			this->setProperty(name, value);
 	}
 }
+*/

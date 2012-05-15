@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -44,6 +44,9 @@ public:
 	Q_INVOKABLE AMIonChamberInfo(const QString& name = "ionChamber", const QString& description = "Ion Chamber", QObject *parent = 0);
 	/// Constructor that takes in a detector info and retrieves all the settings.
 	AMIonChamberInfo(const AMIonChamberInfo &original);
+
+	/// Implements assignment operator
+	AMIonChamberInfo& operator=(const AMIonChamberInfo &other);
 
 	/// Returns the minimum voltage range for the ion chamber.
 	double minimumVoltage() const { return voltageRange_.first; }

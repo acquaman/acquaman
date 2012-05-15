@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSEXAFSScanConfigurationView.h"
 #include "ui/AMTopFrame.h"
 #include "ui/util/AMPeriodicTableDialog.h"
@@ -508,7 +527,7 @@ QString VESPERSEXAFSScanConfigurationView::convertTimeToString(double time)
 {
 	QString timeString;
 
-	int days = time/3600/24;
+	int days = int(time/3600.0/24.0);
 
 	if (days > 0){
 
@@ -516,7 +535,7 @@ QString VESPERSEXAFSScanConfigurationView::convertTimeToString(double time)
 		timeString += QString::number(days) + "d:";
 	}
 
-	int hours = time/3600;
+	int hours = int(time/3600.0);
 
 	if (hours > 0){
 
@@ -524,7 +543,7 @@ QString VESPERSEXAFSScanConfigurationView::convertTimeToString(double time)
 		timeString += QString::number(hours) + "h:";
 	}
 
-	int minutes = time/60;
+	int minutes = int(time/60.0);
 
 	if (minutes > 0){
 
@@ -540,6 +559,10 @@ QString VESPERSEXAFSScanConfigurationView::convertTimeToString(double time)
 
 void VESPERSEXAFSScanConfigurationView::onEdgeChanged()
 {
+	QString currentChoice = elementChoice_->text() % " " % lineChoice_->itemText(lineChoice_->currentIndex()).split(":").first();
+	if (config_->edge() == currentChoice)
+		return;
+
 	elementChoice_->setText(config_->edge().split(" ").first());
 	fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol(elementChoice_->text()));
 	lineChoice_->setCurrentIndex(lineChoice_->findText(config_->edge().split(" ").last(), Qt::MatchStartsWith | Qt::MatchCaseSensitive));

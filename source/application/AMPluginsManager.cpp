@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -63,26 +63,23 @@ void AMPluginsManager::loadApplicationPlugins(){
 }
 
 void AMPluginsManager::loadApplicationPlugins(const QString &fileLoaderFolder, const QString &analysisBlocksFolder) {
+	Q_UNUSED(analysisBlocksFolder) //Darren removed these a while ago
 
 	QWriteLocker wl(&mutex_);
 
-	// qDebug() << "Loading file loader plugins...";
 
 	// Load file loader plugins
 	fileFormats2fileLoaderFactories_.clear();
 
+
 	QDir fileLoaderPluginsDirectory(fileLoaderFolder);
 	foreach (QString fileName, fileLoaderPluginsDirectory.entryList(QDir::Files)) {
-		// qDebug() << " trying plugin file" << fileName;
 		QPluginLoader pluginLoader(fileLoaderPluginsDirectory.absoluteFilePath(fileName));
 		QObject *plugin = pluginLoader.instance();
 		if(plugin) {
-			// qDebug() << "  ...was a plugin.";
 			AMFileLoaderFactory *factory = qobject_cast<AMFileLoaderFactory *>(plugin);
 			if(factory) {
-				// qDebug() << "   was a file loader factory. Good!";
 				foreach(QString fileFormat, factory->acceptedFileFormats()) {
-					// qDebug() << "     accepts file format:" << fileFormat;
 					fileFormats2fileLoaderFactories_.insert(fileFormat, factory);
 				}
 			}
@@ -98,6 +95,7 @@ void AMPluginsManager::loadApplicationPlugins(const QString &fileLoaderFolder, c
 	// Load analysis block plugins
 	availableAnalysisBlocks_.clear();
 
+	/* Not Building these at the current time
 	QDir analysisBlockPluginsDirectory(analysisBlocksFolder);
 	foreach (QString fileName, analysisBlockPluginsDirectory.entryList(QDir::Files)) {
 		QPluginLoader pluginLoader(analysisBlockPluginsDirectory.absoluteFilePath(fileName));
@@ -109,4 +107,5 @@ void AMPluginsManager::loadApplicationPlugins(const QString &fileLoaderFolder, c
 			}
 		}
 	}
+	*/
 }

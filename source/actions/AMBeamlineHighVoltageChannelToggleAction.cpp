@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -55,9 +55,9 @@ AMHighVoltageChannel::highVoltageChannelPowerState AMBeamlineHighVoltageChannelT
 }
 
 void AMBeamlineHighVoltageChannelToggleAction::start(){
-	qDebug() << "Trying to start";
+//	qDebug() << "Trying to start";
 	if(isReady()){
-		qDebug() << "Is ready, so start";
+//		qDebug() << "Is ready, so start";
 		connect(this, SIGNAL(finished()), this, SLOT(onFinsihed()));
 		if(setpoint_ == AMHighVoltageChannel::isPowerOn){
 			connect(highVoltageChannel_, SIGNAL(fullyPowered()), this, SLOT(onSucceeded()));
@@ -70,23 +70,23 @@ void AMBeamlineHighVoltageChannelToggleAction::start(){
 		progressTimer_.start(250);
 		if(setpoint_ == AMHighVoltageChannel::isPowerOn){
 			if(highVoltageChannel_->isFullyPowered()){
-				qDebug() << "Already on, no worries";
+//				qDebug() << "Already on, no worries";
 				onStarted();
 				onSucceeded();
 			}
 			else{
-				qDebug() << "Trying to turn on";
+//				qDebug() << "Trying to turn on";
 				highVoltageChannel_->setOn(true);
 			}
 		}
 		else if(setpoint_ == AMHighVoltageChannel::isPowerOff){
 			if(highVoltageChannel_->isOff()){
-				qDebug() << "Already off, no worries";
+//				qDebug() << "Already off, no worries";
 				onStarted();
 				onSucceeded();
 			}
 			else{
-				qDebug() << "Trying to turn off";
+//				qDebug() << "Trying to turn off";
 				highVoltageChannel_->setOff();
 			}
 		}

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -309,7 +309,7 @@ void AMBeamlineActionItemView::setMovable(bool movable){
 void AMBeamlineActionItemView::onCreateCopyClicked(){
 	AMBeamlineActionItem *actionCopy = action_->createCopy();
 	if(actionCopy){
-		qDebug() << "ActionView has a copy to send out";
+//		qDebug() << "ActionView has a copy to send out";
 		emit copyRequested(actionCopy);
 	}
 }

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -187,7 +187,7 @@ bool SGMXASScanController::beamlineInitialize(){
 			//config_->allDetectors()->detectorAt(x)->setFromInfo(config_->allDetectorConfigurations().detectorInfoAt(x));
 			config_->allDetectors()->detectorAt(x)->activate();
 			if(config_->allDetectors()->detectorAt(x)->turnOnAction()){
-				qDebug() << "Adding HV turn on to initialization actions";
+//				qDebug() << "Adding HV turn on to initialization actions";
 				initializationActions_->appendAction(0, config_->allDetectors()->detectorAt(x)->turnOnAction());
 			}
 		}

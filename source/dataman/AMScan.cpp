@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMScanConfiguration.h"
 #include "application/AMPluginsManager.h"
 #include "dataman/AMScanDictionary.h"
+#include "util/AMErrorMonitor.h"
 
 #include <QDebug>
 
@@ -77,7 +78,7 @@ AMScan::AMScan(QObject *parent)
 
 AMScan::~AMScan() {
 
-	qDebug() << "AMScan: Deleting" << fullName();
+	AMErrorMon::debug(this, AMSCAN_DEBUG_DELETING_SCAN, QString("Deleting %1").arg(fullName()));
 
 	if(!owners_.isEmpty()) {
 		qWarning() << "AMScan: Warning: The scan was deleted while other objects were still interested in it. You should never delete a scan directly; instead, call AMScan::release().  Those objects might now attempt to access a deleted scan.";
@@ -598,7 +599,7 @@ bool AMScan::loadData()
 
 	}
 	if(!accepts)
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -47, QString("Could not find a suitable plugin for loading the file format '%1'.  Check the Acquaman preferences for the correct plugin locations, and contact the Acquaman developers for assistance.").arg(fileFormat())));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMSCAN_CANNOT_FIND_SUITABLE_PLUGIN_FOR_FILE_FORMAT, QString("Could not find a suitable plugin for loading the file format '%1'.  Check the Acquaman preferences for the correct plugin locations, and contact the Acquaman developers for assistance.").arg(fileFormat())));
 
 	if(success)
 		for(int i=rawDataSources_.count()-1; i>=0; i--)

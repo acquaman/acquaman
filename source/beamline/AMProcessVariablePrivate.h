@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -36,6 +36,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMetaType>
 
 #include "util/AMDeferredFunctionCall.h"
+
+#define AMPROCESSVARIABLESUPPORT_STARTING_CHANNEL_ACCESS 113001
 
 /// Qt does not register QVector<int> and QVector<double> with qRegisterMetaType(), so we'll need to do this to use them in queued signal-slot connections.
 typedef QVector<double> AMProcessVariableDoubleVector;
@@ -94,11 +96,17 @@ public:
 		s()->flushIOCaller_.schedule();
 	}
 
+	/// Call this function to report that a timeout occured and AMProcessVariableSupport will schedule a deferred call to broadcast the error monitor
+	static void reportTimeoutError(QString pvName);
+
 protected slots:
 	/// Executes one call to ca_flush_io() for all the flushIO() requests that happened during the past event loop.
 	void executeFlushIO() {
 		ca_flush_io();
 	}
+
+	/// Handles the list of AMErrorMon timeout alerts
+	void executeTimeoutError();
 
 protected:
 
@@ -128,6 +136,10 @@ protected:
 	/// This schedules and combines requests to flush channel-access IO a maximum of once every event loop.
 	AMDeferredFunctionCall flushIOCaller_;
 
+	/// This deferred call runs after 2.5 seconds to throw out the error monitors regarding PV connection timeout. This can be quite expensive if there's no connectivity on startup
+	AMDeferredFunctionCall timeoutErrorFunctionCall_;
+	/// Holds the list of pv names to report as timed out
+	QStringList timeoutPVNames_;
 };
 
 namespace PVDataType {

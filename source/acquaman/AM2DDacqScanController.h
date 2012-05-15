@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef AM2DDACQSCANCONTROLLER_H
 #define AM2DDACQSCANCONTROLLER_H
 
@@ -9,6 +28,7 @@
 #define AM2DDACQSCANCONTROLLER_NO_X_COLUMN 73003
 #define AM2DDACQSCANCONTROLLER_NO_Y_COLUMN 73004
 #define AM2DDACQSCANCONTROLLER_NO_SPECTRUM_FILE 73005
+#define AM2DDACQSCANCONTROLLER_DUPLICATE_COLUMNS_DETECTED 73006
 
 /// This class allows the building of a 2D map scan controller using the DACQ library.
 /*!
@@ -87,6 +107,9 @@ protected:
 
 	/// Flag that holds whether the controller should stop once the end of the current fast axis is finshed.
 	bool stopAtEndOfLine_;
+
+	/// Flag that holds whether or not the duplicate columns bug has happened.
+	bool duplicateColumnsDetected_;
 
 private:
 	/// Private method that takes the current start's, delta's, and end's for each axis and sets them inside of the config file.  It then loads the configuration file again to ensure that the dacq has the correct values.

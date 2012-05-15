@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -23,9 +23,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMBeamline* AMBeamline::instance_ = 0;
 
 
-AMBeamline::AMBeamline(const QString& controlName) : AMControl(controlName, "n/a") {
-
-
+AMBeamline::AMBeamline(const QString& controlName)
+	: AMControl(controlName, "n/a")
+{
+	exposedControls_ = new AMControlSet(this);
 }
 
 AMBeamline::~AMBeamline()

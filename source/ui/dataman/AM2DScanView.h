@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef AM2DSCANVIEW_H
 #define AM2DSCANVIEW_H
 
@@ -29,6 +48,8 @@ public:
 	QString yUnits() const { return yUnits_; }
 	/// Returns the position.
 	QPointF dataPosition() const { return position_; }
+	/// Returns the selected rectangle.
+	QRectF selectedRect() const { return rect_; }
 
 signals:
 	/// Notifier that the state of whether or not the scan view should show individual spectra has been toggled.
@@ -37,6 +58,8 @@ signals:
 public slots:
 	/// Handles setting the label with the new data coordinates.
 	void setDataPosition(const QPointF &point);
+	/// Handles setting the label based on the selected rectangle.
+	void setSelectedRect(const QRectF &rect);
 	/// Sets the units for both x and y axes.
 	void setUnits(const QString &xUnits, const QString &yUnits) { xUnits_ = xUnits; yUnits_ = yUnits; }
 	/// Sets the x axis units.
@@ -47,12 +70,16 @@ public slots:
 protected:
 	/// Label holding the data position coordinates.
 	QLabel *dataPosition_;
+	/// Label holding the selected rectangle coordinates.
+	QLabel *selectedRect_;
 	/// String holding the x axis units.
 	QString xUnits_;
 	/// String holding the y axis units.
 	QString yUnits_;
 	/// The current point.
 	QPointF position_;
+	/// The current selected rectangle.
+	QRectF rect_;
 };
 
 /*! This class makes a scan view that is more suitable for 2D scans.  It has been built in the same spirit as AMScanView by having an
@@ -75,6 +102,8 @@ public:
 	AMScan *currentScan() const { return currentScan_; }
 	/// Returns the current position.  This holds the x and y coordinates from the last time the data position tool was moved.
 	QPointF dataPosition() const { return exclusive2DScanBar_->dataPosition(); }
+	/// Returns the current selected rectangle.
+	QRectF selectedRect() const { return exclusive2DScanBar_->selectedRect(); }
 	/// Sets the default axis information for the spectrum view. Set \param propogateToPlotRange to false if you don't want the information to propogate.
 	void setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange = true);
 	/// Sets the plot range for the spectrum view.
@@ -191,6 +220,8 @@ public:
 signals:
 	/// Notifier that the data position marker has changed.
 	void dataPositionChanged(const QPointF &);
+	/// Notifier that the selected rectangle coordinates have changed.
+	void selectedRectChanged(const QRectF &);
 
 protected slots:
 	/// after a scan or data source is added in the model
@@ -206,6 +237,8 @@ protected slots:
 	void onExclusiveDataSourceChanged(const QString& exclusiveDataSource);
 	/// Handles the signals about data position changed from the plot window.
 	void onDataPositionChanged(uint index, const QPointF &point);
+	/// Handles the signals about the selected rectangle change from the plot window.
+	void onSelectedRectChanged(uint index, const QRectF &rect);
 
 protected:
 	/// Helper function to handle adding a scan (at row scanIndex in the model)
