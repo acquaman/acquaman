@@ -151,6 +151,7 @@ void AMAppController::openScanInEditorAndTakeOwnership(AMScan *scan, bool bringE
 #include "acquaman/AMScanConfiguration.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "dataman/database/AMDatabase.h"
 #include "dataman/database/AMDbObjectSupport.h"
 
@@ -215,7 +216,8 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 		return;
 	}
 
-	AMScanConfigurationViewHolder *viewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, view);
+//	AMScanConfigurationViewHolder *viewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, view);
+	AMScanConfigurationViewHolder3 *viewHolder = new AMScanConfigurationViewHolder3(view);
 	viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
 	viewHolder->show();
 }
