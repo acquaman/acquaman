@@ -55,8 +55,13 @@ public:
 	/// Sets the description because currently we call AMDataSource::setDescription which doesn't take care of setting setModified.  This adds that.
 	void setDescription(const QString &description) { AMDataSource::setDescription(description); setModified(true); }
 
-	/// Provided to reconnect this source to a valid \c dataStore, after using the second constructor. The current measurementId() must be a valid id within the new \c dataStore, and the scan and measurement dimensions of the new datastore must match our old ones. (This is a requirement of AMDataSources never changing rank.). Returns false if the new \c dataStore cannot work, and this source is going to remain Invalid.
+	/// Provided to reconnect this source to a valid \c dataStore, either after using the second constructor, or when replacing an AMScan's underlying data store. The current measurementId() must be a valid id within the new \c dataStore, and the scan and measurement dimensions of the new datastore must match our old ones. (This is a requirement of AMDataSources never changing rank.).
+	/*! Returns false if the new \c dataStore cannot work.  (If this happens after using the second constructor, the source will remain in the Invalid state.) */
 	bool setDataStore(const AMDataStore* dataStore);
+
+	/// Returns true if a replacement \c dataStore would be valid for this data source.  The current measurementId() must be a valid id within the new \c dataStore, and the scan and measurement dimensions of the new datastore must match our old ones. (This is a requirement of AMDataSources never changing rank.).
+	/*! Called by setDataStore() to check these conditions before accepting the new \c dataStore. */
+	bool isDataStoreCompatible(const AMDataStore* dataStore) const;
 
 
 	/// Returns an OR-combination of StateFlags describing the current state of the data. Implementing classes should return InvalidFlag when they don't have valid data, and/or ProcessingFlag if their data might be changing. No flags indicate the data is valid and generally static.

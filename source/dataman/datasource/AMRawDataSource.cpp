@@ -76,15 +76,10 @@ AMRawDataSource::AMRawDataSource(AMDatabase* db, int id)
 }
 
 bool AMRawDataSource::setDataStore(const AMDataStore *dataStore) {
-	// verify that this new dataStore is suitable. It needs to match our old sizes, and measurementId_ must be a valid for it.
-	if(!dataStore)
-		return false;
-	if(dataStore->scanRank() != scanAxesCount_)
-		return false;
-	if(measurementId_ >= dataStore->measurementCount())
-		return false;
-	AMMeasurementInfo measurementInfo = dataStore->measurementAt(measurementId_);
-	if(measurementInfo.rank() != measurementAxesCount_)
+	if(dataStore_ == dataStore)
+		return true;	// nothing to do.
+
+	if(!isDataStoreCompatible(dataStore))
 		return false;
 
 	// ok, you're good.
@@ -93,6 +88,8 @@ bool AMRawDataSource::setDataStore(const AMDataStore *dataStore) {
 	if(dataStore_) {
 		disconnect(dataStore_->signalSource(), 0, this, 0);
 	}
+
+	AMMeasurementInfo measurementInfo = dataStore->measurementAt(measurementId_);
 
 	dataStore_ = dataStore;
 	axes_.clear();
@@ -108,7 +105,7 @@ bool AMRawDataSource::setDataStore(const AMDataStore *dataStore) {
 
 	// create connections to the new datastore:
 	connect(dataStore_->signalSource(), SIGNAL(dataChanged(AMnDIndex,AMnDIndex,int)), SLOT(onDataChanged(AMnDIndex, AMnDIndex,int)) );
-	connect(dataStore->signalSource(), SIGNAL(sizeChanged()), this, SLOT(onScanAxisSizeChanged()));
+	connect(dataStore_->signalSource(), SIGNAL(sizeChanged()), this, SLOT(onScanAxisSizeChanged()));
 
 	setValid();
 	emitSizeChanged(-1);
@@ -150,6 +147,21 @@ void AMRawDataSource::onScanAxisSizeChanged() {
 //	}
 
 	emitSizeChanged(0);
+}
+
+bool AMRawDataSource::isDataStoreCompatible(const AMDataStore *dataStore) const
+{
+	// verify that this new dataStore is suitable. It needs to match our old sizes, and measurementId_ must be a valid for it.
+	if(!dataStore)
+		return false;
+	if(dataStore->scanRank() != scanAxesCount_)
+		return false;
+	if(measurementId_ >= dataStore->measurementCount())
+		return false;
+	if(dataStore->measurementAt(measurementId_).rank() != measurementAxesCount_)
+		return false;
+
+	return true;
 }
 
 

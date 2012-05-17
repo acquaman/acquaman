@@ -52,8 +52,7 @@ AMScan::AMScan(QObject *parent)
 
 	currentlyScanning_ = false;
 
-	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured in specific subclasses.
-	//data_ = new AMDataTreeDataStore(AMAxisInfo("eV", 0, "Incidence Energy", "eV"));
+	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured by scan controllers or file loader plugins.  The default implementation uses AMInMemoryDataStore(); replace via replaceDataStore() to use one of the disk-based data stores if you have a lot of data.
 
 	sampleNameLoaded_ = false;
 
@@ -714,6 +713,30 @@ void AMScan::release(QObject *pastOwner)
 
 	if(owners_.isEmpty())	// nobody wants us anymore... So sad.
 		delete this;			// commit suicide.
+}
+
+bool AMScan::replaceRawDataStore(AMDataStore *dataStore)
+{
+	if(data_ == dataStore)
+		return true;	// nothing to do.
+
+	// check first before we make any chagnes that it's compatible with any existing data sources.
+	for(int i=rawDataSourceCount()-1; i>=0; --i) {
+		if(!rawDataSources_.at(i)->isDataStoreCompatible(dataStore)) {
+			AMErrorMon::debug(this, -982, QString("Could not replace the scan's data store because the new one is not valid for the existing raw data source '%1'.").arg(rawDataSources_.at(i)->name()));
+			return false;
+		}
+	}
+
+	// Given that we checked already, this should always succeed.
+	for(int i=rawDataSourceCount()-1; i>=0; --i) {
+		rawDataSources_[i]->setDataStore(dataStore);
+	}
+
+	delete data_;
+	data_ = dataStore;
+
+	return true;
 }
 
 #endif

@@ -272,8 +272,26 @@ public:
 	/// Load raw data into memory from storage, using the AMFileLoaderInterface plugin system to find the appropriate file loader based on fileFormat(). Returns true on success.
 	bool loadData();
 
+	/// Replace the scan's raw data store (rawData()) with a different instance/implementation of AMDataStore.  Returns false and does nothing if the new \c dataStore is incompatible with any existing raw data sources.  The scan takes ownership of the new \c dataStore and will delete it when deleted.
+	/*! Some types of file loader plugins and scan controllers may recognize that it would be more efficient for a certain scan to use one of the disk-based raw data stores, rather than the default AMInMemoryDataStore implementation. (This is critically important for scans with huge data sets.)  They can call this function to replace the existing rawData() instance of AMDataStore with another instance.
 
-	/// Static function: Controls whether raw data is loaded automatically inside loadFromDb().  This function is thread-safe and can be set on a per-thread basis.
+	  For scan controllers, it is recommended to do this before creating any raw data sources.
+
+	  File loaders must remember that there will already be AMRawDataSources created when the scan was loaded from the database. Therefore...
+
+When the scan already has raw data sources present, the replacement \c dataStore must be compatible with all the existing raw data sources:
+
+- It must have the same scan rank
+- Each raw data source's \c measurementId must be valid within it, and
+- The measurement rank for each raw data source must match.
+
+[The easiest way to ensure this is to fill the new \c dataStore appropriately, and then call replaceDataStore().]
+
+Returns false and does nothing if the new \c dataStore is incompatible with any existing raw data sources.
+	  */
+	bool replaceRawDataStore(AMDataStore* dataStore);
+
+	/// Static function: Controls whether raw data is loaded automatically inside loadFromDb(), FOR ALL AMScan INSTANCES.  This function is thread-safe and can be set on a per-thread basis.
 	/*! If autoLoadData() is true, then whenever loadFromDb() is called and the new filePath() is different than the old filePath(), loadData() will be called as well.  If you want to turn off loading raw data for performance reasons, call setAutoLoadData(false).  Auto-loading is enabled by default.*/
 	static bool autoLoadData();
 
@@ -488,7 +506,7 @@ protected:
 	// Composite members
 	//////////////////////
 
-	/// Raw data storage. All scans will have one of these, but the implementation will vary.
+	/// Raw data storage. All scans will have one of these, but the implementation can vary.  The default is an AMInMemoryDataStore; replace using replaceDataStore().
 	AMDataStore* data_;
 	/// Raw data sources.  Provide AMDataSource interfaces to the data_.
 	AMRawDataSourceSet rawDataSources_;
