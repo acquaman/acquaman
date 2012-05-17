@@ -52,9 +52,11 @@ void AMSamplePlateMoveActionEditor::onSamplePlateSeletectorBoxCurrentIndexChange
 void AMSamplePlateMoveActionEditor::onSamplePositionSelectorBoxCurrentIndexChanged(int index){
 	info_->setSamplePositionIndex(samplePositionSelectorBox_->itemData(index).toInt());
 
+	/*
 	if(info_->samplePlateId() > 0 && info_->samplePositionIndex() >= 0){
 		qDebug() << "Wants " << info_->samplePlateId() << info_->samplePositionIndex() << "Would go to " << info_->samplePosition()->at(0).value() << info_->samplePosition()->at(1).value() << info_->samplePosition()->at(2).value();
 	}
+	*/
 }
 
 void AMSamplePlateMoveActionEditor::onChangeSamplePlateCheckBoxToggled(bool canChangePlate){

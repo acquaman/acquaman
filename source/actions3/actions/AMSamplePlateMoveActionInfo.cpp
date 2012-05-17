@@ -55,7 +55,6 @@ const AMControlInfoList* AMSamplePlateMoveActionInfo::samplePosition(){
 	if(samplePositionIndex_ < samplePlate.count()){
 		//samplePositionId = samplePlate.at(samplePositionIndex_).id();
 		samplePositionId = samplePlate.at(samplePositionIndex_).position().id();
-		qDebug() << "Want to retrieve id " << samplePositionId;
 	}
 	/*
 	int indexOfSamplePosition = -1;
