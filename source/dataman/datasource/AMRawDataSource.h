@@ -274,8 +274,8 @@ protected slots:
 	//////////////////////
 	/// Called when the data changes within the region described. We only care when \c measurementId matches our measurementId_
 	void onDataChanged(const AMnDIndex& scanIndexStart, const AMnDIndex scanIndexEnd, int measurementId);
-	/// Called when the size of a scan axis changes.  \c axisId is the id of the changing axis, or -1 if they all did.
-	void onScanAxisSizeChanged(int axisId);
+	/// Called when the size of a scan axis changes. (Data stores can only change the size of their FIRST scan axis.)
+	void onScanAxisSizeChanged();
 
 protected:
 	/// Call to add the InvalidFlag to the state, and emit stateChanged() if required.
