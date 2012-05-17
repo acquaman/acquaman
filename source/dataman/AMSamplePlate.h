@@ -57,6 +57,8 @@ public:
 	const AMControlInfoList& topLeftPosition() const { return topLeftPosition_;}
 	const AMControlInfoList& bottomRightPosition() const { return bottomRightPosition_;}
 	bool matchesPosition(const AMControlInfoList &other) const;
+	bool matchesPositionWithinTolerances(const AMControlInfoList &other, const QList<double> tolerances) const;
+	double rms3SpaceDistance(const AMControlInfoList &other) const;
 
 
 	/// Set the database id of the stored sample at this position. This corresponds to the id of a sample in the database's AMSample table.

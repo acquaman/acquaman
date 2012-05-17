@@ -297,7 +297,8 @@ void SGMAppController::onCurrentScanControllerStarted(AMScanAction *action){
 	}
 }
 
-void SGMAppController::onCurrentScanControllerFinished(){
+void SGMAppController::onCurrentScanControllerFinished(AMScanAction *action){
+	Q_UNUSED(action)
 	disconnect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
 }
 
@@ -991,7 +992,7 @@ bool SGMAppController::setupSGMViews(){
 	//connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
 
 	connect(AMActionRunner3::workflow(), SIGNAL(scanActionStarted(AMScanAction*)), this, SLOT(onCurrentScanControllerStarted(AMScanAction*)));
-	connect(AMActionRunner3::workflow(), SIGNAL(scanActionFinished()), this, SLOT(onCurrentScanControllerFinished()));
+	connect(AMActionRunner3::workflow(), SIGNAL(scanActionFinished(AMScanAction*)), this, SLOT(onCurrentScanControllerFinished(AMScanAction*)));
 
 	//connect(SGMBeamline::sgm(), SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(onSGMBeamlineConnected()));
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineInitialized()), this, SLOT(onSGMBeamlineConnected()));

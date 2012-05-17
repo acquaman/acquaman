@@ -677,6 +677,8 @@ AMSamplePositionAdditionalInformationView::AMSamplePositionAdditionalInformation
 
 	setLayout(mainVL);
 
+	cancelButton_->setDefault(true);
+
 	connect(setTopLeftFromManipulatorButton_, SIGNAL(clicked()), this, SLOT(onTopLeftSetFromManipulator()));
 	connect(setBottomRightFromManipulatorButton_, SIGNAL(clicked()), this, SLOT(onBottomRightSetFromManipulator()));
 
@@ -762,8 +764,10 @@ void AMSamplePositionAdditionalInformationView::checkValidity(){
 		for(int x = 0; x < samplePosition_->topLeftPosition().count(); x++){
 			double positionValue = samplePosition_->position().at(x).value();
 			double topLeftValue = samplePosition_->topLeftPosition().at(x).value();
+			double topLeftTolerance = samplePosition_->topLeftPosition().at(x).tolerance();
 			double bottomRightValue = samplePosition_->bottomRightPosition().at(x).value();
-			if( (positionValue > std::max(topLeftValue, bottomRightValue)) || (positionValue < std::min(topLeftValue, bottomRightValue)) ){
+			double bottomRightTolerance = samplePosition_->bottomRightPosition().at(x).tolerance();
+			if( (positionValue > std::max(topLeftValue+topLeftTolerance, bottomRightValue+bottomRightTolerance)) || (positionValue < std::min(topLeftValue-topLeftTolerance, bottomRightValue-bottomRightTolerance)) ){
 				errorLabel_->setText(QString("Problem on axis %1").arg(x));
 				applyButton_->setEnabled(false);
 				return;

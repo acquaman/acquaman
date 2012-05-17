@@ -50,6 +50,61 @@ bool AMSamplePosition::matchesPosition(const AMControlInfoList &other) const{
 	return true;
 }
 
+bool AMSamplePosition::matchesPositionWithinTolerances(const AMControlInfoList &other, const QList<double> tolerances) const{
+	if(position() == other)
+		return true;
+
+	if( (topLeftPosition().isEmpty() || bottomRightPosition().isEmpty()) && (tolerances.count() != position().count()) )
+		return false;
+	else if( (topLeftPosition().isEmpty() || bottomRightPosition().isEmpty()) && (tolerances.count() == position().count()) ){
+		for(int x = 0; x < position().count(); x++){
+			double otherValue = other.at(x).value();
+			double topLeftValue = otherValue + tolerances.at(x);
+			double bottomRightValue = otherValue - tolerances.at(x);
+
+			if(otherValue > topLeftValue )
+				return false;
+			if(otherValue < bottomRightValue)
+				return false;
+		}
+		return true;
+	}
+
+	if(position().count() != other.count() || topLeftPosition().count() != other.count() || bottomRightPosition().count() != other.count())
+		return false;
+
+	for(int x = 0; x < position().count(); x++){
+		double otherValue = other.at(x).value();
+		double topLeftValue = topLeftPosition().at(x).value();
+		//double topLeftTolerance = topLeftPosition().at(x).tolerance();
+		double topLeftTolerance = tolerances.at(x);
+		double bottomRightValue = bottomRightPosition().at(x).value();
+		//double bottomRightTolerance = bottomRightPosition().at(x).tolerance();
+		double bottomRightTolerance = tolerances.at(x);
+
+		if(otherValue > std::max(topLeftValue+topLeftTolerance, bottomRightValue+bottomRightTolerance) )
+			return false;
+		if(otherValue < std::min(topLeftValue-topLeftTolerance, bottomRightValue-bottomRightTolerance) )
+			return false;
+	}
+
+	return true;
+}
+
+double AMSamplePosition::rms3SpaceDistance(const AMControlInfoList &other) const{
+	if(matchesPosition(other))
+		return 0;
+
+	if( (other.count() != position().count()) || (other.count() < 3) )
+		return 9999998;
+
+	if( (topLeftPosition().isEmpty() || bottomRightPosition().isEmpty()) ){
+		return sqrt( pow((position().at(0).value()-other.at(0).value()), 2) + pow((position().at(1).value()-other.at(1).value()), 2) + pow((position().at(2).value()-other.at(2).value()), 2) );
+	}
+
+	return 9999997;
+}
+
 AMSamplePlate::AMSamplePlate(QObject *parent) : AMDbObject(parent), AMOrderedList<AMSamplePosition>() {
 
 	setName("New Sample Plate");
@@ -74,11 +129,13 @@ AMSamplePlate::AMSamplePlate(const AMSamplePlate& other) : AMDbObject(), AMOrder
 
 // Using auto-generated assignment operator is fine
 
+#include <QDebug>
 int AMSamplePlate::sampleIdAtPosition(const AMControlInfoList &position, const QList<double> tolerances) const{
-	if(tolerances.count() == 0){
+	if( tolerances.count() == 0 ){
 		for(int x = count()-1; x >= 0; x--){
 			if( at(x).matchesPosition(position) ){
 			//if( at(x).position() == position ){
+				qDebug() << "Position at " << x << " matches " << position;
 				return at(x).sampleId();
 			}
 		}
@@ -89,10 +146,14 @@ int AMSamplePlate::sampleIdAtPosition(const AMControlInfoList &position, const Q
 		int closestIndex = -1;
 		for(int x = count()-1; x >= 0; x--){
 			tmpRMS = 0;
-			if( at(x).position().compareWithinTolerance(position, tolerances)){
+			//if( at(x).position().compareWithinTolerance(position, tolerances)){
+			if( at(x).matchesPositionWithinTolerances(position, tolerances)){
+				/*
 				for(int y = 0; y < position.count(); y++)
 					tmpRMS += fabs(at(x).position().at(y).value() - position.at(y).value()) * fabs(at(x).position().at(y).value() - position.at(y).value());
 				tmpRMS = sqrt(tmpRMS);
+				*/
+				tmpRMS = at(x).rms3SpaceDistance(position);
 				if(tmpRMS < rmsDistance){
 					rmsDistance = tmpRMS;
 					closestIndex = x;
