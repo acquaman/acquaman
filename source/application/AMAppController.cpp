@@ -42,6 +42,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/editors/AMControlMoveActionEditor3.h"
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/actions/AMScanActionInfo.h"
+#include "actions3/editors/AMScanActionEditor.h"
 #include "actions3/actions/AMSamplePlateMoveAction.h"
 #include "actions3/actions/AMSamplePlateMoveActionInfo.h"
 #include "actions3/editors/AMSamplePlateMoveActionEditor.h"
@@ -82,6 +83,7 @@ bool AMAppController::startup(){
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMControlMoveActionInfo3, AMControlMoveActionEditor3>();
 
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMScanActionInfo, AMScanAction>("Scan Action", "Runs a scan.", ":/spectrum.png", false);
+		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMScanActionInfo, AMScanActionEditor>();
 
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMSamplePlateMoveActionInfo, AMSamplePlateMoveAction>("Move Sample Position", "Move to a different marked sample position", ":/32x32/media-playlist-repeat.png");
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMSamplePlateMoveActionInfo, AMSamplePlateMoveActionEditor>();

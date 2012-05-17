@@ -338,6 +338,37 @@ protected:
 };
 
 #include <QDialog>
+#include <QDoubleSpinBox>
+class AMSamplePositionManuallyEnterView : public QDialog
+{
+Q_OBJECT
+public:
+	AMSamplePositionManuallyEnterView(QWidget *parent = 0);
+
+signals:
+	void finished(double upDown, double inOut, double upStDownSt, double rot);
+
+protected slots:
+	void onCancelButtonClicked();
+	void onApplyButtonClicked();
+
+	void hideAndFinish();
+
+protected:
+	virtual void closeEvent(QCloseEvent *);
+
+protected:
+	QPushButton *applyButton_;
+	QPushButton *cancelButton_;
+
+	QDoubleSpinBox *upDownDSBox_;
+	QDoubleSpinBox *inOutDSBox_;
+	QDoubleSpinBox *upStDownStDSBox_;
+	QDoubleSpinBox *rotDSBox_;
+
+	double upDown_, inOut_, upStDownSt_, rot_;
+};
+
 class AMSamplePositionAdditionalInformationView : public QDialog
 {
 Q_OBJECT
@@ -350,6 +381,12 @@ signals:
 protected slots:
 	void onTopLeftSetFromManipulator();
 	void onBottomRightSetFromManipulator();
+	void onTopLeftManuallyEnterClicked();
+	void onBottomRightManuallyEnterClicked();
+
+	void onTopLeftManualEnterFinished(double upDown, double inOut, double upStDownSt, double rot);
+	void onBottomRightManualEnterFinished(double upDown, double inOut, double upStDownSt, double rot);
+
 	void onCancelButtonClicked();
 	void onApplyButtonClicked();
 
@@ -373,11 +410,16 @@ protected:
 	QLabel *bottomRightLabel_;
 
 	QPushButton *setTopLeftFromManipulatorButton_;
+	QPushButton *manuallyEnterTopLeftButton_;
 	QPushButton *setBottomRightFromManipulatorButton_;
+	QPushButton *manuallyEnterBottomRightButton_;
 
 	QPushButton *applyButton_;
 	QPushButton *cancelButton_;
 	QLabel *errorLabel_;
+
+	AMSamplePositionManuallyEnterView *enterTopLeftDialog_;
+	AMSamplePositionManuallyEnterView *enterBottomRightDialog_;
 };
 
 #endif // AMSAMPLEPLATEVIEW_H

@@ -240,21 +240,27 @@ void SGMAppController::onSGMBeamlineConnected(){
 }
 
 void SGMAppController::onSGMScalerConnected(bool connected){
-	if(connected && !sgmScalerView_){
+	Q_UNUSED(connected)
+	//if(connected && !sgmScalerView_){
+	if(SGMBeamline::sgm()->rawScaler() && SGMBeamline::sgm()->rawScaler()->isConnected() && !sgmScalerView_){
 		sgmScalerView_ = new CLSSIS3820ScalerView(SGMBeamline::sgm()->scaler());
 		mw_->addPane(sgmScalerView_, "Beamline Control", "SGM Scaler", ":/system-software-update.png", true);
 	}
 }
 
 void SGMAppController::onSGMAmptekSDD1Connected(bool connected){
-	if(connected && ! amptekSDD1View_){
+	Q_UNUSED(connected)
+	//if(connected && ! amptekSDD1View_){
+	if(SGMBeamline::sgm()->amptekSDD1() && SGMBeamline::sgm()->amptekSDD1()->isConnected() && ! amptekSDD1View_){
 		amptekSDD1View_ = AMDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->amptekSDD1());
 		mw_->addPane(amptekSDD1View_, "Beamline Control", "SGM Amptek1", ":/system-software-update.png");
 	}
 }
 
 void SGMAppController::onSGMAmptekSDD2Connected(bool connected){
-	if(connected && ! amptekSDD2View_){
+	Q_UNUSED(connected)
+	//if(connected && ! amptekSDD2View_){
+	if(SGMBeamline::sgm()->amptekSDD2() && SGMBeamline::sgm()->amptekSDD2()->isConnected() && ! amptekSDD2View_){
 		amptekSDD2View_ = AMDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->amptekSDD2());
 		mw_->addPane(amptekSDD2View_, "Beamline Control", "SGM Amptek2", ":/system-software-update.png");
 	}
@@ -962,11 +968,14 @@ bool SGMAppController::setupSGMViews(){
 
 	sgmScalerView_ = 0;
 	connect(SGMBeamline::sgm()->rawScaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onSGMScalerConnected(bool)));
+	onSGMScalerConnected(false);
 
 	amptekSDD1View_ = 0;
 	connect(SGMBeamline::sgm()->amptekSDD1()->signalSource(), SIGNAL(connected(bool)), this, SLOT(onSGMAmptekSDD1Connected(bool)));
+	onSGMAmptekSDD1Connected(false);
 	amptekSDD2View_ = 0;
 	connect(SGMBeamline::sgm()->amptekSDD2()->signalSource(), SIGNAL(connected(bool)), this, SLOT(onSGMAmptekSDD2Connected(bool)));
+	onSGMAmptekSDD2Connected(false);
 
 
 	mw_->insertHeading("Experiment Setup", 1);

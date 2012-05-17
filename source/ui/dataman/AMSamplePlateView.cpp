@@ -622,11 +622,82 @@ void AMSamplePlateItemModel::onSamplePositionChanged(int r)
 
 #include <QFormLayout>
 
+AMSamplePositionManuallyEnterView::AMSamplePositionManuallyEnterView(QWidget *parent) :
+	QDialog(parent)
+{
+	QFormLayout *fl = new QFormLayout();
+
+	inOutDSBox_ = new QDoubleSpinBox();
+	inOutDSBox_->setMaximum(10);
+	inOutDSBox_->setMinimum(-10);
+	fl->addRow("In/Out", inOutDSBox_);
+
+	upStDownStDSBox_ = new QDoubleSpinBox();
+	upStDownStDSBox_->setMaximum(10);
+	upStDownStDSBox_->setMinimum(-10);
+	fl->addRow("UpStr/DownStr", upStDownStDSBox_);
+
+	upDownDSBox_ = new QDoubleSpinBox();
+	upDownDSBox_->setMaximum(40);
+	upDownDSBox_->setMinimum(-40);
+	fl->addRow("Up/Down", upDownDSBox_);
+
+	rotDSBox_ = new QDoubleSpinBox();
+	rotDSBox_->setMaximum(180);
+	rotDSBox_->setMinimum(-180);
+	fl->addRow("Rotation", rotDSBox_);
+
+	QHBoxLayout *hl = new QHBoxLayout();
+	applyButton_ = new QPushButton("Apply");
+	cancelButton_ = new QPushButton("Cancel");
+	hl->addWidget(applyButton_);
+	hl->addWidget(cancelButton_);
+
+	QVBoxLayout *vl = new QVBoxLayout();
+	vl->addLayout(fl);
+	vl->addLayout(hl);
+
+	setLayout(vl);
+
+	connect(applyButton_, SIGNAL(clicked()), this, SLOT(onApplyButtonClicked()));
+	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()));
+
+	upDown_ = -999999;
+	inOut_ = -999999;
+	upStDownSt_ = -999999;
+	rot_ = -999999;
+}
+
+void AMSamplePositionManuallyEnterView::onCancelButtonClicked(){
+	hideAndFinish();
+}
+
+void AMSamplePositionManuallyEnterView::onApplyButtonClicked(){
+	upDown_ = upDownDSBox_->value();
+	inOut_ = inOutDSBox_->value();
+	upStDownSt_ = upStDownStDSBox_->value();
+	rot_ = rotDSBox_->value();
+	hideAndFinish();
+}
+
+void AMSamplePositionManuallyEnterView::hideAndFinish(){
+	hide();
+	emit finished(upDown_, inOut_, upStDownSt_, rot_);
+}
+
+void AMSamplePositionManuallyEnterView::closeEvent(QCloseEvent *e){
+	e->accept();
+	hideAndFinish();
+}
+
 AMSamplePositionAdditionalInformationView::AMSamplePositionAdditionalInformationView(AMSampleManipulator *manipulator, AMSamplePosition *samplePosition, QWidget *parent) :
 	QDialog(parent)
 {
 	manipulator_ = manipulator;
 	samplePosition_ = samplePosition;
+
+	enterTopLeftDialog_ = 0; //NULL
+	enterBottomRightDialog_ = 0; //NULL
 
 	QGroupBox *positionGroupBox = new QGroupBox("Position");
 	QFormLayout *fl = new QFormLayout();
@@ -639,19 +710,23 @@ AMSamplePositionAdditionalInformationView::AMSamplePositionAdditionalInformation
 	originalTopLeft_ = samplePosition_->topLeftPosition();
 	setTopLeftText();
 	setTopLeftFromManipulatorButton_ = new QPushButton("Mark as Current Position");
+	manuallyEnterTopLeftButton_ = new QPushButton("Manually Enter");
 	QHBoxLayout *topLeftHL = new QHBoxLayout();
 	topLeftHL->addWidget(new QLabel("Top Left: "));
 	topLeftHL->addWidget(topLeftLabel_);
 	topLeftHL->addWidget(setTopLeftFromManipulatorButton_);
+	topLeftHL->addWidget(manuallyEnterTopLeftButton_);
 
 	bottomRightLabel_ = new QLabel();
 	originalBottomRight_ = samplePosition_->bottomRightPosition();
 	setBottomRightText();
 	setBottomRightFromManipulatorButton_ = new QPushButton("Mark as Current Position");
+	manuallyEnterBottomRightButton_ = new QPushButton("Manually Enter");
 	QHBoxLayout *bottomRightHL = new QHBoxLayout();
 	bottomRightHL->addWidget(new QLabel("Bottom Right: "));
 	bottomRightHL->addWidget(bottomRightLabel_);
 	bottomRightHL->addWidget(setBottomRightFromManipulatorButton_);
+	bottomRightHL->addWidget(manuallyEnterBottomRightButton_);
 
 	QVBoxLayout *vl = new QVBoxLayout();
 	vl->addLayout(topLeftHL);
@@ -681,6 +756,8 @@ AMSamplePositionAdditionalInformationView::AMSamplePositionAdditionalInformation
 
 	connect(setTopLeftFromManipulatorButton_, SIGNAL(clicked()), this, SLOT(onTopLeftSetFromManipulator()));
 	connect(setBottomRightFromManipulatorButton_, SIGNAL(clicked()), this, SLOT(onBottomRightSetFromManipulator()));
+	connect(manuallyEnterTopLeftButton_, SIGNAL(clicked()), this, SLOT(onTopLeftManuallyEnterClicked()));
+	connect(manuallyEnterBottomRightButton_, SIGNAL(clicked()), this, SLOT(onBottomRightManuallyEnterClicked()));
 
 	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()));
 	connect(applyButton_, SIGNAL(clicked()), this, SLOT(onApplyButtonClicked()));
@@ -696,6 +773,51 @@ void AMSamplePositionAdditionalInformationView::onBottomRightSetFromManipulator(
 	samplePosition_->setBottomRightPosition(manipulator_->position());
 	setBottomRightText();
 	checkValidity();
+}
+
+void AMSamplePositionAdditionalInformationView::onTopLeftManuallyEnterClicked(){
+	enterTopLeftDialog_ = new AMSamplePositionManuallyEnterView();
+	connect(enterTopLeftDialog_, SIGNAL(finished(double,double,double,double)), this, SLOT(onTopLeftManualEnterFinished(double,double,double,double)));
+	enterTopLeftDialog_->show();
+}
+
+void AMSamplePositionAdditionalInformationView::onBottomRightManuallyEnterClicked(){
+	enterBottomRightDialog_ = new AMSamplePositionManuallyEnterView();
+	connect(enterBottomRightDialog_, SIGNAL(finished(double,double,double,double)), this, SLOT(onBottomRightManualEnterFinished(double,double,double,double)));
+	enterBottomRightDialog_->show();
+}
+
+#include <QDebug>
+
+void AMSamplePositionAdditionalInformationView::onTopLeftManualEnterFinished(double upDown, double inOut, double upStDownSt, double rot){
+	qDebug() << "Want to set as " << upDown << inOut << upStDownSt << rot;
+	AMControlInfoList newTopLeft;
+	newTopLeft.setValuesFrom(manipulator_->position());
+	newTopLeft[0].setValue(inOut);
+	newTopLeft[1].setValue(upStDownSt);
+	newTopLeft[2].setValue(upDown);
+	newTopLeft[3].setValue(rot);
+
+	samplePosition_->setTopLeftPosition(newTopLeft);
+	setTopLeftText();
+	checkValidity();
+	enterTopLeftDialog_->deleteLater();
+	enterTopLeftDialog_ = 0; //NULL
+}
+
+void AMSamplePositionAdditionalInformationView::onBottomRightManualEnterFinished(double upDown, double inOut, double upStDownSt, double rot){
+	AMControlInfoList newBottomRight;
+	newBottomRight.setValuesFrom(manipulator_->position());
+	newBottomRight[0].setValue(inOut);
+	newBottomRight[1].setValue(upStDownSt);
+	newBottomRight[2].setValue(upDown);
+	newBottomRight[3].setValue(rot);
+
+	samplePosition_->setBottomRightPosition(newBottomRight);
+	setBottomRightText();
+	checkValidity();
+	enterBottomRightDialog_->deleteLater();
+	enterBottomRightDialog_ = 0; //NULL
 }
 
 void AMSamplePositionAdditionalInformationView::onCancelButtonClicked(){

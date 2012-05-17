@@ -104,6 +104,12 @@ AMScanController* SGMFastScanConfiguration::createController(){
 	return new SGMFastDacqScanController(this);
 }
 
+#include "ui/SGM/SGMFastScanConfigurationView.h"
+
+AMScanConfigurationView* SGMFastScanConfiguration::createView(){
+	return new SGMFastScanConfigurationView(this);
+}
+
 QString SGMFastScanConfiguration::detailedDescription() const{
 	return QString("Fast Scan from %1 to %2\nIntegration Time: %3").arg(startEnergy())
 			.arg(endEnergy())
