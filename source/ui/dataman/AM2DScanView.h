@@ -32,6 +32,7 @@ class AM2DScanViewInternal;
 class AM2DScanViewExclusiveView;
 class AM2DScanViewMultiSourcesView;
 class AM2DScanViewSingleSpectrumView;
+class AM3dDataSourceView;
 
 /// This class is a small horizontal bar that holds some information for the 2D scan view, such as: current data position, whether to see the spectra or not, etc.
 class AM2DScanBar : public QWidget
@@ -257,6 +258,8 @@ protected:
 
 	/// Our plot.
 	MPlotGW* plot_;
+
+	AM3dDataSourceView* tempView;
 };
 
 class AM2DScanViewMultiSourcesView : public AM2DScanViewInternal

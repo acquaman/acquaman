@@ -83,6 +83,10 @@ linux-g++-32 {
 		GSL_LIB = -lgsl
 		GSL_CBLAS_LIB = -lgslcblas
 
+		# QwtPlot3d dependencies (Disabled for now...)
+		QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/lib
+		QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/include
+
 		# LibXML Dependencies (required by dacq library)
 		XML_LIB = -lxml2
 		XML_INCLUDE_DIR = /usr/include/libxml2
@@ -106,6 +110,10 @@ linux-g++-64 {
 		GSL_INCLUDE_DIR = /home/beamline/tools/gsl/gsl-1.14-install/include
 		GSL_LIB = -L/home/beamline/tools/gsl/gsl-1.14-install/lib -lgsl
 		GSL_CBLAS_LIB = -lgslcblas
+
+		# QwtPlot3d dependencies (Disabled for now...)
+		# QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/lib
+		# QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/include
 
 		# LibXML Dependencies (required by dacq library)
 		XML_LIB = -lxml2
@@ -150,7 +158,7 @@ INCLUDEPATH += $$EPICS_INCLUDE_DIRS \
 LIBS += $$GSL_LIB \
 		$$GSL_CBLAS_LIB \
 		$$XML_LIB \
-#	-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
+	-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
 		-L$$EPICS_LIB_DIR -lca -lCom
 
 # Set standard level of compiler warnings for everyone. (Otherwise the warnings shown will be system-dependent.)
@@ -390,7 +398,7 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/ui/AMFolderPathLineEdit.h \
 	source/util/AMTagReplacementParser.h \
 	source/ui/dataman/AMExporterOptionGeneralAsciiView.h \
-#	source/ui/dataman/AM3dDataSourceView.h \
+	source/ui/dataman/AM3dDataSourceView.h \
 	source/ui/AMTopFrame.h \
 	source/actions/AMBeamlineSamplePlateMoveAction.h \
 	source/actions/AMBeamlineFiducializationMoveAction.h \
@@ -791,7 +799,7 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/dataman/AMExporterOptionGeneralAsciiView.cpp \
 	source/ui/AMTopFrame.cpp \
 	source/dataman/export/AMExporter.cpp \
-#	source/ui/dataman/AM3dDataSourceView.cpp \
+	source/ui/dataman/AM3dDataSourceView.cpp \
 	source/actions/AMBeamlineSamplePlateMoveAction.cpp \
 	source/actions/AMBeamlineFiducializationMoveAction.cpp \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.cpp \
