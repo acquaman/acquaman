@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMNumber.h"
 
-AMAxisInfo::AMAxisInfo(const QString& mName, int mSize, const QString& mDescription, const QString& mUnits)
+AMAxisInfo::AMAxisInfo(const QString& mName, long mSize, const QString& mDescription, const QString& mUnits)
 {
 	name = mName;
 	size = mSize;
