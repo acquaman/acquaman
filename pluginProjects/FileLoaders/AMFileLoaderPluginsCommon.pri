@@ -15,6 +15,10 @@ macx {
 
 		# MPlot Source
 		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+
+		# CDFlib dependencies
+		CDF_LIB = /Applications/cdf34_0-dist/lib/libcdf.a
+		CDF_INCLUDE_DIR = /Applications/cdf34_0-dist/include
 }
 linux-g++ {
 
@@ -87,7 +91,11 @@ CONFIG(jenkins_build) {
 
 QT +=		sql
 INCLUDEPATH    += $$AM_INCLUDE_DIR \
-		$$MPLOT_INCLUDE_DIR
+		$$MPLOT_INCLUDE_DIR \
+		$$CDF_INCLUDE_DIR
+
+LIBS +=	$$CDF_LIB
+
 HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/dataman/AMScan.h \
 		$$AM_INCLUDE_DIR/dataman/AMScanDictionary.h \
@@ -104,6 +112,7 @@ HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMRawDataSource.h \
 		$$AM_INCLUDE_DIR/dataman/datastore/AMDataStore.h \
 		$$AM_INCLUDE_DIR/dataman/datastore/AMInMemoryDataStore.h \
+		$$AM_INCLUDE_DIR/dataman/datastore/AMCDFDataStore.h \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceImageData.h \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceSeriesData.h \
 		$$AM_INCLUDE_DIR/dataman/AMAnalysisBlock.h \
@@ -117,7 +126,7 @@ HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/util/AMPeriodicTable.h \
 		$$AM_INCLUDE_DIR/util/AMElement.h \
 		$$AM_INCLUDE_DIR/application/AMPluginsManager.h \
-                $$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceImageDatawDefault.h \
+		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceImageDatawDefault.h \
 		$$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 		$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorMap.h \
 		$$MPLOT_INCLUDE_DIR/MPlot/MPlotLegend.h \
@@ -144,6 +153,7 @@ SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMRawDataSource.cpp \
 		$$AM_INCLUDE_DIR/dataman/datastore/AMDataStore.cpp \
 		$$AM_INCLUDE_DIR/dataman/datastore/AMInMemoryDataStore.cpp \
+		$$AM_INCLUDE_DIR/dataman/datastore/AMCDFDataStore.cpp \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceImageData.cpp \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceSeriesData.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMAnalysisBlock.cpp \
@@ -157,7 +167,7 @@ SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/util/AMPeriodicTable.cpp \
 		$$AM_INCLUDE_DIR/util/AMElement.cpp \
 		$$AM_INCLUDE_DIR/application/AMPluginsManager.cpp \
-                $$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceImageDatawDefault.cpp \
+		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceImageDatawDefault.cpp \
 		$$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 		$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorMap.cpp \
 		$$MPLOT_INCLUDE_DIR/MPlot/MPlotLegend.cpp \

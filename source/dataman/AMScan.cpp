@@ -32,6 +32,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDebug>
 
+#include "dataman/datastore/AMCDFDataStore.h"
+
 AMScan::AMScan(QObject *parent)
 	: AMDbObject(parent)
 {
@@ -52,7 +54,8 @@ AMScan::AMScan(QObject *parent)
 
 	currentlyScanning_ = false;
 
-	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured by scan controllers or file loader plugins.  The default implementation uses AMInMemoryDataStore(); replace via replaceDataStore() to use one of the disk-based data stores if you have a lot of data.
+//	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured by scan controllers or file loader plugins.  The default implementation uses AMInMemoryDataStore(); replace via replaceDataStore() to use one of the disk-based data stores if you have a lot of data.
+	data_ = new AMCDFDataStore();
 
 	sampleNameLoaded_ = false;
 

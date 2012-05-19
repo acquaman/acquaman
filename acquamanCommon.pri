@@ -157,7 +157,7 @@ LIBS += $$GSL_LIB \
 		$$XML_LIB \
 #	-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
 		-L$$EPICS_LIB_DIR -lca -lCom \
-		$$CDF_LIB_DIR
+		$$CDF_LIB
 
 DEFINES += AM_ENABLE_BOUNDS_CHECKING
 
@@ -570,7 +570,9 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/analysis/AM1DNormalizationABEditor.h \
 	source/ui/AMAddAnalysisBlockDialog.h \
 	$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorLegend.h \
-	source/ui/acquaman/AMScanConfigurationViewHolder3.h
+	source/ui/acquaman/AMScanConfigurationViewHolder3.h \
+    source/dataman/datastore/AMCDFDataStore.h \
+    source/util/amlikely.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -959,7 +961,8 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/analysis/AM1DNormalizationABEditor.cpp \
 	source/ui/AMAddAnalysisBlockDialog.cpp \
 	$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorLegend.cpp \
-	source/ui/acquaman/AMScanConfigurationViewHolder3.cpp
+	source/ui/acquaman/AMScanConfigurationViewHolder3.cpp \
+    source/dataman/datastore/AMCDFDataStore.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -983,6 +986,9 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
 
 
 

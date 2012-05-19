@@ -480,28 +480,6 @@ If you want to retrieve axes by name, \c axisDetails must contain a unique \c na
 		return true;
 	}
 
-	/// Helper function: implements a nested for-loop up to the required number of scan dimensions; used by values() when there is more than 4 scan dimensions.
-	void valuesImplementationRecursive(const AMnDIndex& siStart, const AMnDIndex& siEnd, int measurementId, const AMnDIndex& miStart, const AMnDIndex& miEnd, double** outputValues, int scanDimension, int scanSpaceOffset, const AMnDIndex& fullSize, int measurementSpaceSize) const {
-
-		if(scanDimension == axes_.count()-1) { // base case: last (final) dimension
-			for(int i=siStart.at(scanDimension); i<=siEnd.at(scanDimension); ++i) {
-				measurementValues(scanPoints_.at(scanSpaceOffset+i).at(measurementId), fullSize, miStart, miEnd, *outputValues);
-				*outputValues += measurementSpaceSize;
-			}
-		}
-		else {
-			for(int i=siStart.at(scanDimension); i<=siEnd.at(scanDimension); ++i) {
-				// get product of all higher scan dimensions:
-				int multiplier = 1;
-				for(int mu=scanDimension+1; mu<siStart.rank(); ++mu)
-					multiplier *= scanSize_.at(mu);
-
-				// recurse:
-				valuesImplementationRecursive(siStart, siEnd, measurementId, miStart, miEnd, outputValues, scanDimension+1, scanSpaceOffset + i*multiplier, fullSize, measurementSpaceSize);
-			}
-		}
-	}
-
 
 	/// Performance optimization for setValue(): this allows multi-dimensional measurements to be set in a single setValue call.  \c inputData is interpreted as being in a flat array, ordered where the measurement's first axis varies the slowest, and the measurement's last axis varies the fastest (as you step through the array).  The size of the \c inputData must match the product of the sizes of all dimensions in the measurement.
 	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const int* inputData) {
@@ -780,6 +758,28 @@ protected:
 	void measurementValues(const AMIMDSMeasurement& measurement, int fullSize, double* outputValues) const {
 		for(int i=0; i<fullSize; ++i)
 			*(outputValues++) = double(measurement.at(i));
+	}
+
+	/// Helper function: implements a nested for-loop up to the required number of scan dimensions; used by values() when there is more than 4 scan dimensions.
+	void valuesImplementationRecursive(const AMnDIndex& siStart, const AMnDIndex& siEnd, int measurementId, const AMnDIndex& miStart, const AMnDIndex& miEnd, double** outputValues, int scanDimension, int scanSpaceOffset, const AMnDIndex& fullSize, int measurementSpaceSize) const {
+
+		if(scanDimension == axes_.count()-1) { // base case: last (final) dimension
+			for(int i=siStart.at(scanDimension); i<=siEnd.at(scanDimension); ++i) {
+				measurementValues(scanPoints_.at(scanSpaceOffset+i).at(measurementId), fullSize, miStart, miEnd, *outputValues);
+				*outputValues += measurementSpaceSize;
+			}
+		}
+		else {
+			for(int i=siStart.at(scanDimension); i<=siEnd.at(scanDimension); ++i) {
+				// get product of all higher scan dimensions:
+				int multiplier = 1;
+				for(int mu=scanDimension+1; mu<siStart.rank(); ++mu)
+					multiplier *= scanSize_.at(mu);
+
+				// recurse:
+				valuesImplementationRecursive(siStart, siEnd, measurementId, miStart, miEnd, outputValues, scanDimension+1, scanSpaceOffset + i*multiplier, fullSize, measurementSpaceSize);
+			}
+		}
 	}
 };
 
