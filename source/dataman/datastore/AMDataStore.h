@@ -127,7 +127,7 @@ If you want to retrieve axes by name, \c axisDetails must contain a unique \c na
 	/// Return the sizes of all the scan axes, in order.
 	virtual AMnDIndex scanSize() const = 0;
 	/// Return the size along a specific axis, by \c id.  (\c id must be >= 0 and < scanAxesCount().)
-	virtual int scanSize(int axisId) const = 0;
+	virtual long scanSize(int axisId) const = 0;
 
 	/// Indicates that the scan space is empty (no scan points yet). This is true when the size of the first axis is 0.
 	bool scanSpaceIsEmpty() const {
@@ -140,11 +140,11 @@ If you want to retrieve axes by name, \c axisDetails must contain a unique \c na
 	/// Retrieve a value from a measurement, at a specific scan point.
 	virtual AMNumber value(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex) const = 0;
 	/// Retrieve the independent variable along an axis \c axisId, at a specific scan point \c axisIndex.  If the axis scale is uniform (see AMAxisInfo::isUniform) this can be calculated from the axis' \c start and \c increment.
-	virtual AMNumber axisValue(int axisId, int axisIndex) const = 0;
+	virtual AMNumber axisValue(int axisId, long axisIndex) const = 0;
 	/// Set the value of a measurement, at a specific scan point
 	virtual bool setValue(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex, const AMNumber& newValue) = 0;
 	/// Set the independent variable along an axis \c axisId, at a specific scan point \c axisIndex. This is necessary after adding a row with beginInsertRows(), unless the axis scale is uniform. (See AMAxisInfo::isUniform).
-	virtual bool setAxisValue(int axisId, int axisIndex, AMNumber newValue) = 0;
+	virtual bool setAxisValue(int axisId, long axisIndex, AMNumber newValue) = 0;
 
 
 	/// Performance optimization of value(): this allows a block of multi-dimensional data to be retrieved in a single call. The data is returned in a flat array, ordered in row-major form with the first scan index varying the slowest, and the measurement index's last axis varying the fastest.   /c scanIndexStart and \c scanIndexEnd specify the (inclusive) range in scan space; you can use the same start and end values to access the measurement values for a single scan point.  Which measurement to access is specified with \c measurementId, and \c measurementIndexStart and \c measurementIndexEnd specify the (inclusive) data block in measurement space.  Returns false if any of the indexes are the wrong dimension or out of range.  It is the responsibility of the caller to make sure that \c outputValues is pre-allocated with enough room for all the data; use valuesSize() to calculate this conveniently.
@@ -171,7 +171,7 @@ If you want to retrieve axes by name, \c axisDetails must contain a unique \c na
 
 	 Subclasses should re-implement beginInsertRowsImplementation() instead of this function.
 	*/
-	bool beginInsertRows(int numRows, int atRowIndex);
+	bool beginInsertRows(long numRows, long atRowIndex);
 
 
 	/// Call this after calling beginInsertRows() and setting all the new measurement values with setValue() and setAxisValue().
@@ -217,10 +217,10 @@ If you want to retrieve axes by name, \c axisDetails must contain a unique \c na
 
 protected:
 	/// Implementing subclasses must provide a beginInsertRowsImplementation() which creates space for the new measurements.  When this function completes, it should be valid to setValue()s within the new scan space. Return false if the request is not possible (ie: out of memory, etc.)  You can assume that the pre-conditions for insert are satisfied: \c atRowIndex is valid (possibly equal to the size of the first scan axis for append, but no larger), and there is at least one scan axis.
-	virtual bool beginInsertRowsImplementation(int numRows, int atRowIndex) = 0;
+	virtual bool beginInsertRowsImplementation(long numRows, long atRowIndex) = 0;
 
 	/// Implementing subclasses may provide a endInsertRowsImplementation(), which will be called at the beginning of endInsertRows(). You don't need to take care of emitting sizeChanged() and dataChanged().... that's done for you in endInsertRows().  The base class implementation of this does nothing.
-	virtual void endInsertRowsImplementation(int numRows, int atRowIndex) {
+	virtual void endInsertRowsImplementation(long numRows, long atRowIndex) {
 		Q_UNUSED(numRows);
 		Q_UNUSED(atRowIndex);
 	}
@@ -249,7 +249,7 @@ protected:
 
 private:
 	bool isInsertingRows_;
-	int insertingAtRowIndex_, insertingNumRows_;
+	long insertingAtRowIndex_, insertingNumRows_;
 
 	AMDataStoreSignalSource* signalSource_;
 

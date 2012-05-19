@@ -77,7 +77,7 @@ public:
 	/// Returns the size of (ie: count along) each dimension
 	virtual AMnDIndex size() const {
 		int r = axes_.count();
-		AMnDIndex rv(r, false);
+		AMnDIndex rv(r, AMnDIndex::DoNotInit);
 		for(int i=0; i<r; i++)
 			rv[i] = axes_.at(i).size;
 		return rv;

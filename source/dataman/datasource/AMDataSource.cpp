@@ -101,7 +101,7 @@ bool AMDataSource::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd
 	}
 
 	default: {
-		valuesImplementationRecursive(indexStart, indexEnd, AMnDIndex(_rank, false), 0, &outputValues);
+		valuesImplementationRecursive(indexStart, indexEnd, AMnDIndex(_rank, AMnDIndex::DoNotInit), 0, &outputValues);
 		break;
 	}
 	}

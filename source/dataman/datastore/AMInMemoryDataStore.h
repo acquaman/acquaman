@@ -176,7 +176,7 @@ If you want to retrieve axes by name, \c axisDetails must contain a unique \c na
 		return scanSize_;
 	}
 	/// Return the size along a specific axis, by \c id.  \c id assumed to be >= 0 and < scanAxesCount().
-	virtual int scanSize(int axisId) const {
+	virtual long scanSize(int axisId) const {
 		return scanSize_.at(axisId);
 	}
 
@@ -550,7 +550,7 @@ If you want to retrieve axes by name, \c axisDetails must contain a unique \c na
 
 
 	/// Retrieve the independent variable along an axis \c axisId, at a specific scan point \c axisIndex.  If the axis scale is uniform (see AMAxisInfo::isUniform) this can be calculated from the axis' \c start and \c increment.
-	virtual AMNumber axisValue(int axisId, int axisIndex) const {
+	virtual AMNumber axisValue(int axisId, long axisIndex) const {
 
 		if((unsigned)axisId >= (unsigned)axes_.count())
 			return AMNumber(AMNumber::InvalidError);	// invalid axis specified.
@@ -569,7 +569,7 @@ If you want to retrieve axes by name, \c axisDetails must contain a unique \c na
 	}
 
 	/// Set the independent variable along an axis \c axisId, at a specific scan point \c axisIndex. This is necessary after adding a "row" with beginInsertRows(), unless the axis scale is uniform. (See AMAxisInfo::isUniform).
-	virtual bool setAxisValue(int axisId, int axisIndex, AMNumber newValue) {
+	virtual bool setAxisValue(int axisId, long axisIndex, AMNumber newValue) {
 
 		if((unsigned)axisId >= (unsigned)axes_.count())
 			return false;	// invalid axis specified.
@@ -616,7 +616,7 @@ protected:
 
 
 	/// Implementing subclasses must provide a beginInsertRowsImplementation() which creates space for the new measurements.  When this function completes, it should be valid to setValue()s within the new scan space. Return false if the request is not possible (ie: out of memory, etc.)  You can assume that the pre-conditions for insert are satisfied: \c atRowIndex is valid (possibly equal to the size of the first axis for append, but no larger), and there is at least one scan axis.
-	virtual bool beginInsertRowsImplementation(int numRows, int atRowIndex) {
+	virtual bool beginInsertRowsImplementation(long numRows, long atRowIndex) {
 
 		axes_[0].size += numRows;
 		scanSize_[0] += numRows;

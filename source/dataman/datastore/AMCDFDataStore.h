@@ -68,7 +68,7 @@ If you want to retrieve axes by name, \c axisDetails must contain a unique \c na
 		return scanSize_;
 	}
 	/// Return the size along a specific axis, by \c id.  \c id assumed to be >= 0 and < scanAxesCount().
-	virtual int scanSize(int axisId) const {
+	virtual long scanSize(int axisId) const {
 		return scanSize_.at(axisId);
 	}
 
@@ -95,10 +95,10 @@ If you want to retrieve axes by name, \c axisDetails must contain a unique \c na
 	/////////////////////////////////////////////////
 
 	/// Retrieve the independent variable along an axis \c axisId, at a specific scan point \c axisIndex.  If the axis scale is uniform (see AMAxisInfo::isUniform) this can be calculated from the axis' \c start and \c increment.
-	virtual AMNumber axisValue(int axisId, int axisIndex) const;
+	virtual AMNumber axisValue(int axisId, long axisIndex) const;
 
 	/// Set the independent variable along an axis \c axisId, at a specific scan point \c axisIndex. This is necessary after adding a "row" with beginInsertRows(), unless the axis scale is uniform. (See AMAxisInfo::isUniform).
-	virtual bool setAxisValue(int axisId, int axisIndex, AMNumber newValue);
+	virtual bool setAxisValue(int axisId, long axisIndex, AMNumber newValue);
 
 
 protected:
@@ -107,7 +107,7 @@ protected:
 	////////////////////////////////////////
 
 	/// Implementing subclasses must provide a beginInsertRowsImplementation() which creates space for the new measurements.  When this function completes, it should be valid to setValue()s within the new scan space. Return false if the request is not possible (ie: out of memory, etc.)  You can assume that the pre-conditions for insert are satisfied: \c atRowIndex is valid (possibly equal to the size of the first axis for append, but no larger), and there is at least one scan axis.
-	virtual bool beginInsertRowsImplementation(int numRows, int atRowIndex);
+	virtual bool beginInsertRowsImplementation(long numRows, long atRowIndex);
 
 	/// Implementing subclasses must provide a clearImplementation(), which removes all data values and sets the size of the first axis to 0.  It should leave the set of configured measurements as-is.
 	virtual void clearScanDataPointsImplementation();
@@ -130,16 +130,13 @@ protected:
 	/// Maintains the set of measurements that we have at each scan point
 	QList<AMMeasurementInfo> measurements_;
 	/// This list is the same size as measurements_, and holds the CDF var num for each
-	QList<int> measurementVarNums_;
+	QList<long> measurementVarNums_;
 	/// Maintains information about each scan axis
 	QList<AMAxisInfo> axes_;
 	/// This list is the same size as axes_, and holdes the CDF var num for the axis values along that axis (or -1 if the axis is uniform and we are not storing it.)
-	QList<int> axisValueVarNums_;
+	QList<long> axisValueVarNums_;
 	/// This stores the size of each axis in axes_.  (The information is duplicated, but this version is needed for performance in some situations. They should always be updated together.)
 	AMnDIndex scanSize_;
-
-	/// Total number of points in scan space. Starts out at 1 to handle a null scan space. Otherwise equal to scanSize_.product().
-	int scanPointsCount_;
 
 
 	// Helper Functions:
@@ -149,10 +146,10 @@ protected:
 	QString tempFileName() const;
 
 	/// Creates a CDF variable for a measurement, and instantiates \c numInitialRecords records.
-	bool createVarForMeasurement(const AMMeasurementInfo& mi, int numInitialRecords);
+	bool createVarForMeasurement(const AMMeasurementInfo& mi, long numInitialRecords);
 
 	/// Implements values() for scan ranks larger than 4.
-	bool valuesImplementationRecursive(const AMnDIndex &siStart, const AMnDIndex &siEnd, int varNum, const int* miStart, const int* miSize, const int* miInterval, double **outputValues, int flatReadSize, int currentDimension, int scanSpaceOffset) const;
+	bool valuesImplementationRecursive(const AMnDIndex &siStart, const AMnDIndex &siEnd, long varNum, const long* miStart, const long* miSize, const long* miInterval, double **outputValues, long flatReadSize, int currentDimension, long scanSpaceOffset) const;
 
 };
 

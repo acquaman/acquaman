@@ -44,7 +44,8 @@ bool AMCDFDataStore::addMeasurement(const AMMeasurementInfo &measurementDetails)
 			return false;
 
 	// create a CDF variable for this measurement:
-	if(!createVarForMeasurement(measurementDetails, scanPointsCount_))
+	long totalScanPoints = axes_.count() ? scanSize_.product() : 1;	// if no scan axes yet, just have one record for the null scan space.
+	if(!createVarForMeasurement(measurementDetails, totalScanPoints))
 		return false;
 
 	// add this measurement to our registry
@@ -56,22 +57,17 @@ bool AMCDFDataStore::addMeasurement(const AMMeasurementInfo &measurementDetails)
 }
 
 #include <QDebug>
-bool AMCDFDataStore::createVarForMeasurement(const AMMeasurementInfo &mi, int numInitialRecords)
+bool AMCDFDataStore::createVarForMeasurement(const AMMeasurementInfo &mi, long numInitialRecords)
 {
 	// create CDF variable:
-	int varNum;
+	long varNum;
 	AMnDIndex dimSizes(mi.size());
-	AMnDIndex dimVariances(dimSizes.rank(), false);
-	for(int mu=dimVariances.rank()-1; mu>=0; --mu)
-		dimVariances[mu] = VARY;
-
-	long numDims = mi.rank();
-	qDebug() << "Size of int: " << sizeof(int) << "Size of long:" << sizeof(long);
+	AMnDIndex dimVariances(dimSizes.rank(), AMnDIndex::DoInit, VARY);
 
 	QByteArray variableName = mi.name.toAscii();
-	CDFstatus s = CDFcreatezVar(cdfId_, variableName.data(), CDF_DOUBLE, 1, numDims, dimSizes.constData(), VARY, dimVariances.constData(), &varNum);
-	if(s != CDF_OK) {
-		AMErrorMon::debug(0, -102, QString("AMCDFDataStore: Could not create CDF variable for measurement '%1'. The CDF error was: %2. Num dims: %3. Size of int: %4. Size of long: %5.").arg(mi.name).arg(s).arg(mi.rank()).arg(sizeof(int)).arg(sizeof(long)));
+	CDFstatus s = CDFcreatezVar(cdfId_, variableName.data(), CDF_DOUBLE, 1L, long(mi.rank()), dimSizes.constData(), VARY, dimVariances.constData(), &varNum);
+	if(s < CDF_OK) {
+		AMErrorMon::debug(0, -102, QString("AMCDFDataStore: Could not create CDF variable for measurement '%1'. The CDF error was: %2.").arg(mi.name).arg(s));
 		return false;
 	}
 
@@ -85,10 +81,11 @@ bool AMCDFDataStore::createVarForMeasurement(const AMMeasurementInfo &mi, int nu
 
 
 	// create initial records: 1 if the scan axes are still empty (for null scan space), or the total number of points in scan space.
-	s = CDFsetzVarInitialRecs(cdfId_, varNum, numInitialRecords);
-	if(s != CDF_OK)
-		AMErrorMon::debug(0, -102, QString("AMCDFDataStore: Could not allocate space for measurement '%1'.").arg(mi.name)); // not a critical error... We have already created the variable.
-
+	if(numInitialRecords > 0) {
+		s = CDFsetzVarInitialRecs(cdfId_, varNum, numInitialRecords);
+		if(s != CDF_OK)
+			AMErrorMon::debug(0, -102, QString("AMCDFDataStore: Could not allocate space for measurement '%1'. CDF error was: %2.").arg(mi.name).arg(s)); // not a critical error... We have already created the variable.
+	}
 
 	return true;
 }
@@ -141,11 +138,12 @@ bool AMCDFDataStore::addScanAxis(const AMAxisInfo &axisDetails)
 	else {
 		// make space in CDF to store axis values:
 		QString measurementName = "AxisValues::" % axisInfo.name;
-		int varNum;
+		QByteArray measurementNameBA = measurementName.toAscii();
+		long varNum;
 
 		// create a scalar variable for holding this axis's independent values. There will be just one number per record, and as many records as points along the axis.
-		CDFstatus s = CDFcreatezVar(cdfId_, measurementName.toAscii().data(), CDF_DOUBLE, 1, 0, 0, VARY, 0, &varNum);
-		if(s != CDF_OK) {
+		CDFstatus s = CDFcreatezVar(cdfId_, measurementNameBA.data(), CDF_DOUBLE, 1L, 0L, 0, VARY, 0, &varNum);
+		if(s < CDF_OK) {
 			AMErrorMon::debug(0, -724, QString("AMCDFDataStore: Could not create axis values CDF variable for axis '%1'. The CDF error was: %2").arg(axisDetails.name).arg(s));
 			axisValueVarNums_ << -1;
 			axes_.last().isUniform = true;	// save us so we don't go trying to access this spot that we couldn't create.
@@ -156,10 +154,18 @@ bool AMCDFDataStore::addScanAxis(const AMAxisInfo &axisDetails)
 			s = CDFsetzVarPadValue(cdfId_, varNum, &padValue);
 			if(s != CDF_OK)
 				AMErrorMon::debug(0, -104, "AMCDFDataStore: Could not set pad value for scan axis values.");
-			int allocateRecords = axisInfo.size ? axisInfo.size : 500; // for subsequent axes, we already know how long they're going to be. otherwise, pre-allocate room for at least 500, since we're sure we'll likely fill this up, and access will be faster if it's alloc'd in large blocks.
-			s = CDFsetzVarAllocRecords(cdfId_, varNum, allocateRecords);
-			if(s != CDF_OK)
-				AMErrorMon::debug(0, -105, "AMCDFDataStore: Could not allocate scan axis value records.");
+
+			// if this is the first scan axis, set a large blocking factor of (say, 500) since we're going to be appending in possibly single rows, and we want the CDF library to automatically allocate large blocks for us when we write to unallocated records.
+			if(axisInfo.size == 0) {
+				s = CDFsetzVarBlockingFactor(cdfId_, varNum, 500L);
+				if(s != CDF_OK)
+					AMErrorMon::debug(0, -125, "AMCDFDataStore: Could not set blocking factor for first scan axis value records.");
+			}
+			else {
+				s = CDFsetzVarAllocRecords(cdfId_, varNum, long(axisInfo.size));
+				if(s != CDF_OK)
+					AMErrorMon::debug(0, -105, "AMCDFDataStore: Could not allocate scan axis value records.");
+			}
 		}
 	}
 
@@ -193,13 +199,13 @@ AMNumber AMCDFDataStore::value(const AMnDIndex &scanIndex, int measurementId, co
 		return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
-	int recordIndex = axes_.count() ? scanIndex.flatIndexInArrayOfSize(scanSize_) : 0;
+	long recordIndex = axes_.count() ? scanIndex.flatIndexInArrayOfSize(scanSize_) : 0;
 
 	// read value:
-	int varNum = measurementVarNums_.at(measurementId);
+	long varNum = measurementVarNums_.at(measurementId);
 	double rv;
 	CDFstatus s = CDFgetzVarData(cdfId_, varNum, recordIndex, measurementIndex.constData(), &rv);
-	if(s != CDF_OK) {
+	if(s < CDF_OK) {
 		AMErrorMon::debug(0, -107, "AMCDFDataStore: Error retrieving single value from data store.");
 		return AMNumber(AMNumber::InvalidError);
 	}
@@ -236,88 +242,94 @@ bool AMCDFDataStore::values(const AMnDIndex &scanIndexStart, const AMnDIndex &sc
 #endif
 
 	// Which CDF variable corresponds to this measurement:
-	int varNum = measurementVarNums_.at(measurementId);
+	long varNum = measurementVarNums_.at(measurementId);
 
 	// the size of a measurement block to read: size from measurementIndexStart to measurementIndexEnd.
 	AMnDIndex measurementBlockSize(measurementIndexEnd);
 	measurementBlockSize -= measurementIndexStart;
 	measurementBlockSize += 1;
-	AMnDIndex measurementInterval(measurementIndexStart.rank(), true, 1);	// an array of 1's
+	AMnDIndex measurementInterval(measurementIndexStart.rank(), AMnDIndex::DoInit, 1);	// an array of 1's
 
-	CDFstatus s = CDF_OK;
+	CDFstatus s;
 	// Handle specific cases of scan rank:
 	switch(scanIndexStart.rank()) {
 	case 0:
-		s = CDFhyperGetzVarData(cdfId_, varNum, 0, 1, 1, measurementIndexStart.constData(), measurementBlockSize.constData(), measurementInterval.constData(), outputValues);
-		return (s == CDF_OK);
+		s = CDFhyperGetzVarData(cdfId_, varNum, 0L, 1L, 1L, measurementIndexStart.constData(), measurementBlockSize.constData(), measurementInterval.constData(), outputValues);
+		return (s >= CDF_OK);
 
 	case 1:
-		s = CDFhyperGetzVarData(cdfId_, varNum, scanIndexStart.i(), scanIndexEnd.i()-scanIndexStart.i()+1, 1, measurementIndexStart.constData(), measurementBlockSize.constData(), measurementInterval.constData(), outputValues);
-		return (s == CDF_OK);
+		s = CDFhyperGetzVarData(cdfId_, varNum, scanIndexStart.i(), scanIndexEnd.i()-scanIndexStart.i()+1L, 1L, measurementIndexStart.constData(), measurementBlockSize.constData(), measurementInterval.constData(), outputValues);
+		return (s >= CDF_OK);
 
 	case 2: {
 		// hyper-reading one j-axis row x one measurement block at a time. Need to figure out how big that is:
-		int flatReadSize = measurementIndexStart.totalPointsTo(measurementIndexEnd) * (scanIndexEnd.j()-scanIndexStart.j()+1);
-		for(int i=scanIndexStart.i(); i<=scanIndexEnd.i(); ++i) {
-			int ic = i*scanSize_.j();
-			s |= CDFhyperGetzVarData(cdfId_, varNum, ic+scanIndexStart.j(), scanIndexEnd.j()-scanIndexStart.j()+1, 1, measurementIndexStart.constData(), measurementBlockSize.constData(), measurementInterval.constData(), outputValues);
+		long flatReadSize = measurementIndexStart.totalPointsTo(measurementIndexEnd) * (scanIndexEnd.j()-scanIndexStart.j()+1);
+		for(long i=scanIndexStart.i(); i<=scanIndexEnd.i(); ++i) {
+			long ic = i*scanSize_.j();
+			s = CDFhyperGetzVarData(cdfId_, varNum, ic+scanIndexStart.j(), scanIndexEnd.j()-scanIndexStart.j()+1L, 1L, measurementIndexStart.constData(), measurementBlockSize.constData(), measurementInterval.constData(), outputValues);
 			outputValues += flatReadSize;
+			if(s < CDF_OK)
+				return false;
 		}
-		return (s == CDF_OK);
+		return true;
 	}
 
 	case 3: {
 		// reading one k-axis row x one measurement block at a time. Need to figure out how big that is.
-		int flatReadSize = measurementIndexStart.totalPointsTo(measurementIndexEnd) * (scanIndexEnd.k()-scanIndexStart.k()+1);
-		for(int i=scanIndexStart.i(); i<=scanIndexEnd.i(); ++i) {
-			int ic = i*scanSize_.j()*scanSize_.k();
-			for(int j=scanIndexStart.j(); j<=scanIndexEnd.j(); ++j) {
-				int jc = j*scanSize_.k();
-				s |= CDFhyperGetzVarData(cdfId_, varNum, ic+jc+scanIndexStart.k(), scanIndexEnd.k()-scanIndexStart.k()+1, 1, measurementIndexStart.constData(), measurementBlockSize.constData(), measurementInterval.constData(), outputValues);
+		long flatReadSize = measurementIndexStart.totalPointsTo(measurementIndexEnd) * (scanIndexEnd.k()-scanIndexStart.k()+1);
+		for(long i=scanIndexStart.i(); i<=scanIndexEnd.i(); ++i) {
+			long ic = i*scanSize_.j()*scanSize_.k();
+			for(long j=scanIndexStart.j(); j<=scanIndexEnd.j(); ++j) {
+				long jc = j*scanSize_.k();
+				s = CDFhyperGetzVarData(cdfId_, varNum, ic+jc+scanIndexStart.k(), scanIndexEnd.k()-scanIndexStart.k()+1L, 1L, measurementIndexStart.constData(), measurementBlockSize.constData(), measurementInterval.constData(), outputValues);
 				outputValues += flatReadSize;
+				if(s < CDF_OK)
+					return false;
 			}
 		}
-		return (s == CDF_OK);
+		return true;
 	}
 
 	case 4: {
-		int flatReadSize = measurementIndexStart.totalPointsTo(measurementIndexEnd) * (scanIndexEnd.l() - scanIndexStart.l() + 1);
-		for(int i=scanIndexStart.i(); i<=scanIndexEnd.i(); ++i) {
-			int ic = i*scanSize_.j()*scanSize_.k()*scanSize_.l();
-			for(int j=scanIndexStart.j(); j<=scanIndexEnd.j(); ++j) {
-				int jc = j*scanSize_.k()*scanSize_.l();
-				for(int k=scanIndexStart.k(); k<=scanIndexEnd.k(); ++k) {
-					int kc = k*scanSize_.l();
-					s |= CDFhyperGetzVarData(cdfId_, varNum, ic+jc+kc+scanIndexStart.l(), scanIndexEnd.l()-scanIndexStart.l()+1, 1, measurementIndexStart.constData(), measurementBlockSize.constData(), measurementInterval.constData(), outputValues);
+		long flatReadSize = measurementIndexStart.totalPointsTo(measurementIndexEnd) * (scanIndexEnd.l() - scanIndexStart.l() + 1);
+		for(long i=scanIndexStart.i(); i<=scanIndexEnd.i(); ++i) {
+			long ic = i*scanSize_.j()*scanSize_.k()*scanSize_.l();
+			for(long j=scanIndexStart.j(); j<=scanIndexEnd.j(); ++j) {
+				long jc = j*scanSize_.k()*scanSize_.l();
+				for(long k=scanIndexStart.k(); k<=scanIndexEnd.k(); ++k) {
+					long kc = k*scanSize_.l();
+					s = CDFhyperGetzVarData(cdfId_, varNum, ic+jc+kc+scanIndexStart.l(), scanIndexEnd.l()-scanIndexStart.l()+1L, 1L, measurementIndexStart.constData(), measurementBlockSize.constData(), measurementInterval.constData(), outputValues);
 					outputValues += flatReadSize;
+					if(s < CDF_OK)
+						return false;
 				}
 			}
 		}
-		return (s == CDF_OK);
+		return true;
 	}
 
 	default: {
 		// reading blocks at a time: will have size of the measurement block x the span of the last axis:
 		int lastIndex = scanIndexStart.rank()-1;
-		int flatReadSize = measurementIndexStart.totalPointsTo(measurementIndexEnd) * (scanIndexEnd.at(lastIndex)-scanIndexStart.at(lastIndex)+1);
+		long flatReadSize = measurementIndexStart.totalPointsTo(measurementIndexEnd) * (scanIndexEnd.at(lastIndex)-scanIndexStart.at(lastIndex)+1);
 
 		return valuesImplementationRecursive(scanIndexStart, scanIndexEnd, varNum, measurementIndexStart.constData(), measurementBlockSize.constData(), measurementInterval.constData(), &outputValues, flatReadSize, 0, 0);
 	}
 	}
 }
 
-bool AMCDFDataStore::valuesImplementationRecursive(const AMnDIndex &siStart, const AMnDIndex &siEnd, int varNum, const int* miStart, const int* miSize, const int* miInterval, double **outputValues, int flatReadSize, int currentDimension, int scanSpaceOffset) const
+bool AMCDFDataStore::valuesImplementationRecursive(const AMnDIndex &siStart, const AMnDIndex &siEnd, long varNum, const long* miStart, const long* miSize, const long* miInterval, double **outputValues, long flatReadSize, int currentDimension, long scanSpaceOffset) const
 {
 	if(currentDimension == axes_.count()-1) {	// base case: hyper read over last scan dimension records and measurement blocks
-		CDFstatus s = CDFhyperGetzVarData(cdfId_, varNum, scanSpaceOffset+siStart.at(currentDimension), siEnd.at(currentDimension)-siStart.at(currentDimension)+1, 1, miStart, miSize, miInterval, *outputValues);
+		CDFstatus s = CDFhyperGetzVarData(cdfId_, varNum, scanSpaceOffset+siStart.at(currentDimension), siEnd.at(currentDimension)-siStart.at(currentDimension)+1L, 1L, miStart, miSize, miInterval, *outputValues);
 		*outputValues += flatReadSize;
-		return (s == CDF_OK);
+		return (s >= CDF_OK);
 	}
 
 	else {
-		for(int i=siStart.at(currentDimension); i<=siEnd.at(currentDimension); ++i) {
+		for(long i=siStart.at(currentDimension); i<=siEnd.at(currentDimension); ++i) {
 			// get product of all higher dimensions:
-			int multiplier = 1;
+			long multiplier = 1;
 			for(int mu=currentDimension+1; mu<siStart.rank(); ++mu)
 				multiplier *= scanSize_.at(mu);
 
@@ -348,13 +360,13 @@ bool AMCDFDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, con
 		return false;
 #endif
 
-	int recordIndex = axes_.count() ? scanIndex.flatIndexInArrayOfSize(scanSize_) : 0;
+	long recordIndex = axes_.count() ? scanIndex.flatIndexInArrayOfSize(scanSize_) : 0L;
 
 	// read value:
-	int varNum = measurementVarNums_.at(measurementId);
+	long varNum = measurementVarNums_.at(measurementId);
 	double dValue = newValue;
 	CDFstatus s = CDFputzVarData(cdfId_, varNum, recordIndex, measurementIndex.constData(), &dValue);
-	if(s != CDF_OK) {
+	if(s < CDF_OK) {
 		AMErrorMon::debug(0, -108, "AMCDFDataStore: could not put to variable. Please report this bug to the Acquaman developers.");
 		return false;
 	}
@@ -376,12 +388,12 @@ bool AMCDFDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, con
 		return false;
 #endif
 
-	int recordIndex = axes_.count() ? scanIndex.flatIndexInArrayOfSize(scanSize_) : 0;
+	long recordIndex = axes_.count() ? scanIndex.flatIndexInArrayOfSize(scanSize_) : 0L;
 
-	int varNum = measurementVarNums_.at(measurementId);
+	long varNum = measurementVarNums_.at(measurementId);
 
 	CDFstatus s = CDFputzVarRecordData(cdfId_, varNum, recordIndex, (void*)inputData);
-	if(s != CDF_OK) {
+	if(s < CDF_OK) {
 		AMErrorMon::debug(0, -109, "AMCDFDataStore: could not put measurement block to variable. Please report this bug to the Acquaman developers.");
 		return false;
 	}
@@ -396,7 +408,7 @@ bool AMCDFDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, con
 		return false;	// invalid measurement specified;
 
 	// need to convert into double format of the data store
-	int flatSize = measurements_.at(measurementId).size().product();
+	long flatSize = measurements_.at(measurementId).size().product();
 
 	QVector<double> d(flatSize);
 	double* pd = d.data();
@@ -408,7 +420,7 @@ bool AMCDFDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, con
 	return setValue(scanIndex, measurementId, d.constData());
 }
 
-AMNumber AMCDFDataStore::axisValue(int axisId, int axisIndex) const
+AMNumber AMCDFDataStore::axisValue(int axisId, long axisIndex) const
 {
 	if((unsigned)axisId >= (unsigned)axes_.count())
 		return AMNumber(AMNumber::InvalidError);	// invalid axis specified.
@@ -422,7 +434,7 @@ AMNumber AMCDFDataStore::axisValue(int axisId, int axisIndex) const
 		return (double)ai.start + axisIndex*(double)ai.increment;
 	else {
 		// find out the CDF variable we're storing this in:
-		int varNum = axisValueVarNums_.at(axisId);
+		long varNum = axisValueVarNums_.at(axisId);
 		if(varNum < 0) {
 			AMErrorMon::debug(0, -109, "AMCDFDataStore: Could not access axis value: there was no CDF variable stored for that axis. Please report this bug to the Acquaman developers.");
 			return AMNumber(AMNumber::InvalidError);
@@ -430,7 +442,7 @@ AMNumber AMCDFDataStore::axisValue(int axisId, int axisIndex) const
 
 		double rv;
 		CDFstatus s = CDFgetzVarData(cdfId_, varNum, axisIndex, 0, &rv);
-		if(s != CDF_OK) {
+		if(s < CDF_OK) {
 			AMErrorMon::debug(0, -109, "AMCDFDataStore: Could not retrieve axis value. Please report this bug to the Acquaman developers.");
 			return AMNumber(AMNumber::InvalidError);
 		}
@@ -439,7 +451,7 @@ AMNumber AMCDFDataStore::axisValue(int axisId, int axisIndex) const
 	}
 }
 
-bool AMCDFDataStore::setAxisValue(int axisId, int axisIndex, AMNumber newValue)
+bool AMCDFDataStore::setAxisValue(int axisId, long axisIndex, AMNumber newValue)
 {
 	if((unsigned)axisId >= (unsigned)axes_.count())
 		return false;	// invalid axis specified.
@@ -452,7 +464,7 @@ bool AMCDFDataStore::setAxisValue(int axisId, int axisIndex, AMNumber newValue)
 	if(axes_.at(axisId).isUniform)
 		return false;
 
-	int varNum = axisValueVarNums_.at(axisId);
+	long varNum = axisValueVarNums_.at(axisId);
 	if(varNum < 0) {
 		AMErrorMon::debug(0, -109, "AMCDFDataStore: Could not set axis value: there was no CDF variable stored for that axis. Please report this bug to the Acquaman developers.");
 		return false;
@@ -460,7 +472,7 @@ bool AMCDFDataStore::setAxisValue(int axisId, int axisIndex, AMNumber newValue)
 
 	double dValue = newValue;
 	CDFstatus s = CDFputzVarData(cdfId_, varNum, axisIndex, 0, &dValue);
-	if(s != CDF_OK) {
+	if(s < CDF_OK) {
 		AMErrorMon::debug(0, -108, "AMCDFDataStore: could not put to variable. Please report this bug to the Acquaman developers.");
 		return false;
 	}
@@ -468,35 +480,38 @@ bool AMCDFDataStore::setAxisValue(int axisId, int axisIndex, AMNumber newValue)
 	return true;
 }
 
-bool AMCDFDataStore::beginInsertRowsImplementation(int numRows, int atRowIndex)
+bool AMCDFDataStore::beginInsertRowsImplementation(long numRows, long atRowIndex)
 {
 	/// \todo Temporary: inserts are not yet supported. Only append.
 	if(atRowIndex != scanSize_.i())
 		return false;
 
 	// number of scan points to add, for every row of the first axis
-	int pointsPerRow = 1;
+	long pointsPerRow = 1;
 	for(int mu=axes_.count()-1; mu>=1; --mu)
 		pointsPerRow *= scanSize_.at(mu);
-	int numberOfNewRecords = pointsPerRow*numRows;
+	long numberOfNewRecords = pointsPerRow*numRows;
 
 	CDFstatus s;
 	// for all measurements, allocate these records:
 	for(int measurementId=0; measurementId<measurements_.count(); ++measurementId) {
-		int varNum = measurementVarNums_.at(measurementId);
-		s = CDFsetzVarAllocBlockRecords(cdfId_, varNum, atRowIndex*pointsPerRow, atRowIndex*pointsPerRow+numberOfNewRecords-1);
+		long varNum = measurementVarNums_.at(measurementId);
+		s = CDFsetzVarAllocBlockRecords(cdfId_, varNum, atRowIndex*pointsPerRow, atRowIndex*pointsPerRow+numberOfNewRecords-1L);
 		if(s != CDF_OK)
-			AMErrorMon::debug(0, -110, "AMCDFDataStore: Could not allocate records for beginInsertRows.");
+			AMErrorMon::debug(0, -110, QString("AMCDFDataStore: Could not allocate records for beginInsertRows. CDF error was: %2.").arg(s));
 	}
 
 	// for the first scan axis: allocate more records:
 	/// \todo Also move down existing records on insert.
-	int varNum = axisValueVarNums_.at(0);
-	if(varNum >= 0) {	// valid, non-uniform
-		s = CDFsetzVarAllocBlockRecords(cdfId_, varNum, atRowIndex, atRowIndex+numRows-1);
-		if(s != CDF_OK)
-			AMErrorMon::debug(0, -111, "AMCDFDataStore: Could not allocate records for axis values in beginInsertRows.");
-	}
+//	long varNum = axisValueVarNums_.at(0);
+//	if(varNum >= 0) {	// valid, non-uniform
+//		s = CDFsetzVarAllocBlockRecords(cdfId_, varNum, atRowIndex, atRowIndex+numRows-1);
+//		if(s != CDF_OK)
+//			AMErrorMon::debug(0, -111, QString("AMCDFDataStore: Could not allocate records for axis values in beginInsertRows. CDF error was: %2.").arg(s));
+//	}
+
+	axes_[0].size += numRows;
+	scanSize_[0] += numRows;
 
 	return true;
 }
@@ -508,12 +523,12 @@ void AMCDFDataStore::clearScanDataPointsImplementation()
 		if(scanSize_.i() == 0)
 			return;	// nothing to do; already cleared.
 
-		// clear all records for all measurements:
-		int totalRecords = scanSize_.product();
+		// clear all records of all measurements (except leave one record, which we use to store a the null scan space)
+		long totalRecords = scanSize_.product();
 		if(totalRecords > 1) {
 			for(int i=0; i<measurements_.count(); ++i) {
-				int varNum = measurementVarNums_.at(i);
-				s = CDFdeletezVarRecords(cdfId_, varNum, 1, totalRecords-1);
+				long varNum = measurementVarNums_.at(i);
+				s = CDFdeletezVarRecords(cdfId_, varNum, 1L, totalRecords-1L);
 				if(s != CDF_OK)
 					AMErrorMon::debug(0, -112, QString("AMCDFDataStore: Could not delete records to clear scan points for measurement '%1'. Please report this bug to the Acquaman developers.").arg(measurements_.at(i).name));
 			}
@@ -521,16 +536,16 @@ void AMCDFDataStore::clearScanDataPointsImplementation()
 
 
 		// clear first scan axis values:
-		int varNum = axisValueVarNums_.at(0);
+		long varNum = axisValueVarNums_.at(0);
 		if(varNum >= 0) {
-			s = CDFdeletezVarRecords(cdfId_, varNum, 0, scanSize_.i()-1);
+			s = CDFdeletezVarRecords(cdfId_, varNum, 0L, scanSize_.i()-1L);
 			if(s != CDF_OK)
 				AMErrorMon::debug(0, -113, "AMCDFDataStore: Could not delete axis values when clearing scan data points. Please report this bug to the Acquaman developers.");
 		}
 
 		// reset axis size:
-		axes_[0].size = 0;
-		scanSize_[0] = 0;
+		axes_[0].size = 0L;
+		scanSize_[0] = 0L;
 	}
 
 	// if no scan axes: nothing to do. Leave the first record for each measurement for storing scalar scan-space values.
@@ -541,7 +556,8 @@ void AMCDFDataStore::clearMeasurementsImplementation()
 	CDFstatus s;
 	// delete all the measurement variables:
 	for(int i=0; i<measurements_.count(); ++i) {
-		int varNum = CDFgetVarNum(cdfId_, measurements_.at(i).name.toAscii().data());
+		QByteArray variableName = measurements_.at(i).name.toAscii();
+		long varNum = CDFgetVarNum(cdfId_, variableName.data());
 		s = CDFdeletezVar(cdfId_, varNum);
 		if(s != CDF_OK)
 			AMErrorMon::debug(0, -114, QString("AMCDFDataStore: Could not delete CDF variable to clear measurement '%1'. Please report this bug to the Acquaman developers.").arg(measurements_.at(i).name));
@@ -557,8 +573,8 @@ void AMCDFDataStore::clearMeasurementsImplementation()
 	for(int i=0; i<axes_.count(); ++i) {
 
 		if(axisValueVarNums_.at(i) >= 0) {	// if this axis is supposed to have an axisValue variable:
-			QString variableName = "AxisValues::" % axes_.at(i).name;
-			int newVarNum = CDFgetVarNum(cdfId_, variableName.toAscii().data());
+			QByteArray variableName = QString("AxisValues::" % axes_.at(i).name).toAscii();
+			long newVarNum = CDFgetVarNum(cdfId_, variableName.data());
 			if(newVarNum<0) {
 				AMErrorMon::debug(0, -115, QString("AMCDFDataStore: Could not find the CDF variable number for axis '%1' after clearing the measurements. Please report this bug to the Acquaman developers.").arg(axes_.at(i).name));
 				axisValueVarNums_[i] = -1;
@@ -581,8 +597,8 @@ void AMCDFDataStore::clearScanAxesImplementation()
 	// delete the variables for the scan axis values:
 	for(int i=0; i<axes_.count(); ++i) {
 		if(axisValueVarNums_.at(i) >= 0) {	// supposed to have an axisValue variable.
-			QString variableName = "AxisValues::" % axes_.at(i).name;
-			int varNum = CDFgetVarNum(cdfId_, variableName.toAscii().data());
+			QByteArray variableName = QString("AxisValues::" % axes_.at(i).name).toAscii();
+			long varNum = CDFgetVarNum(cdfId_, variableName.data());
 			if(varNum >= 0) {
 				s = CDFdeletezVar(cdfId_, varNum);
 				if(s != CDF_OK)
@@ -598,7 +614,8 @@ void AMCDFDataStore::clearScanAxesImplementation()
 
 	// if we have any measurements, we'll have messed up the variable numbers of the measurements stored in measurementVarNums_.  Let's fix that now...
 	for(int i=0; i<measurements_.count(); ++i) {
-		int newVarNum = CDFgetVarNum(cdfId_, measurements_.at(i).name.toAscii().data());
+		QByteArray variableName = measurements_.at(i).name.toAscii();
+		long newVarNum = CDFgetVarNum(cdfId_, variableName.data());
 		if(newVarNum >= 0)
 			measurementVarNums_[i] = newVarNum;
 		else {

@@ -52,7 +52,7 @@ public:
 	/// Returns the length of all the axes
 	AMnDIndex inline size() const {
 		int rank = axes.count();
-		AMnDIndex s(rank, false);
+		AMnDIndex s(rank, AMnDIndex::DoNotInit);
 		for(int i=0; i<rank; i++)
 			s[i] = axes.at(i).size;
 		return s;

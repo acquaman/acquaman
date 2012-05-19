@@ -40,7 +40,7 @@ AMDataStore::~AMDataStore() {
 }
 
 
-bool AMDataStore::beginInsertRows(int numRows, int atRowIndex) {
+bool AMDataStore::beginInsertRows(long numRows, long atRowIndex) {
 	if(isInsertingRows_)
 		return false;	// nested inserts not supported. Finish the last insert first, and then call endInsertRows().
 
@@ -49,7 +49,7 @@ bool AMDataStore::beginInsertRows(int numRows, int atRowIndex) {
 		return false;
 
 	// put atRowIndex within range. (-1, or anything beyond the rowCount, should append)
-	int rowCount = scanSize(0);
+	long rowCount = scanSize(0);
 	if(atRowIndex < 0 || atRowIndex > rowCount)
 		atRowIndex = rowCount;
 
@@ -74,8 +74,8 @@ void AMDataStore::endInsertRows() {
 	endInsertRowsImplementation(insertingNumRows_, insertingAtRowIndex_);
 
 	// determine a region that covers the whole new scan space. It will be from min to max index in all axes, except for the first axis, which we are inserting into.
-	AMnDIndex start(scanAxesCount(), false);
-	AMnDIndex end(scanAxesCount(), false);
+	AMnDIndex start(scanAxesCount(), AMnDIndex::DoNotInit);
+	AMnDIndex end(scanAxesCount(), AMnDIndex::DoNotInit);
 
 	start[0] = insertingAtRowIndex_;
 	// any data that got pushed down by the insert should also be considered changed. Therefore, end should be the new maximum index

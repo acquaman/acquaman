@@ -78,7 +78,7 @@ public:
 	/// Returns the size of (ie: count along) each dimension
 	virtual AMnDIndex size() const {
 		int rank = axes_.count();
-		AMnDIndex s(rank, false);
+		AMnDIndex s(rank, AMnDIndex::DoNotInit);
 		for(int i=0; i<rank; i++)
 			s[i] = axes_.at(i).size;
 		return s;
@@ -137,11 +137,11 @@ public:
 		}
 
 		// general case:
-		AMnDIndex scanIndex(scanAxesCount_, false);
+		AMnDIndex scanIndex(scanAxesCount_, AMnDIndex::DoNotInit);
 		for(int i=0; i<scanAxesCount_; i++)
 			scanIndex[i] = indexes.at(i);
 
-		AMnDIndex measurementIndex(measurementAxesCount_, false);
+		AMnDIndex measurementIndex(measurementAxesCount_, AMnDIndex::DoNotInit);
 		for(int i=0; i<measurementAxesCount_; i++)
 			measurementIndex[i] = indexes.at(i+scanAxesCount_);
 
@@ -196,15 +196,15 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 
 		default: {
 			// general case:
-			AMnDIndex scanIndexStart(scanAxesCount_, false);
-			AMnDIndex scanIndexEnd(scanAxesCount_, false);
+			AMnDIndex scanIndexStart(scanAxesCount_, AMnDIndex::DoNotInit);
+			AMnDIndex scanIndexEnd(scanAxesCount_, AMnDIndex::DoNotInit);
 			for(int mu=0; mu<scanAxesCount_; ++mu) {
 				scanIndexStart[mu] = indexStart.at(mu);
 				scanIndexEnd[mu] = indexEnd.at(mu);
 			}
 
-			AMnDIndex measurementIndexStart(measurementAxesCount_, false);
-			AMnDIndex measurementIndexEnd(measurementAxesCount_, false);
+			AMnDIndex measurementIndexStart(measurementAxesCount_, AMnDIndex::DoNotInit);
+			AMnDIndex measurementIndexEnd(measurementAxesCount_, AMnDIndex::DoNotInit);
 			for(int mu=0; mu<measurementAxesCount_; ++mu) {
 				measurementIndexStart[mu] = indexStart.at(mu+scanAxesCount_);
 				measurementIndexEnd[mu] = indexEnd.at(mu+scanAxesCount_);

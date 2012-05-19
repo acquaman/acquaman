@@ -57,28 +57,30 @@ class AMnDIndex
 {
 protected:
 	/// For ranks less than 9, dimension values are stored in this static array.
-	int dims_[8];
+	long dims_[8];
 	/// The number of dimensions.
 	int rank_;
 	/// For ranks larger than 9, the remaining dimension values are stored in extras_, but at indexes 8 and higher. This allows a fast implementation of constData(). Note that dims_ is always the authoritative storage location for the first 8 indexes.
-	QVector<int>* extras_;
+	QVector<long>* extras_;
 
 public:
 	/// Create an invalid index (rank of 0)
 	AMnDIndex();
 	/// Create an index for 1D data
-	AMnDIndex(int row);
+	AMnDIndex(long row);
 	/// Create an index for 2D data
-	AMnDIndex(int row, int col);
+	AMnDIndex(long row, long col);
 	/// Create an index for 3D data
-	AMnDIndex(int row, int col, int slice);
+	AMnDIndex(long row, long col, long slice);
 	/// Create an index for 4D data
-	AMnDIndex(int i, int j, int k, int l);
+	AMnDIndex(long i, long j, long k, long l);
 	/// Create an index for 5D data
-	AMnDIndex(int i, int j, int k, int l, int m);
+	AMnDIndex(long i, long j, long k, long l, long m);
 
-	/// Optimized for performance: create an index of the initial size \c dimension.  If \c initToZero is true, all the values are initialized to 0.
-	AMnDIndex(int dimension, bool initialize, int initialValue = 0);
+	/// Flag to indicate whether the dimension values should be initialized in the following constructor.
+	enum InitializeFlag { DoNotInit, DoInit };
+	/// Optimized for performance: Construct an index with the initial size of \c rank.  If \c initialize is AMnDIndex::Init, all the values are initialized to \c initialValue.
+	AMnDIndex(int rank, InitializeFlag initialize, long initialValue = 0);
 
 
 	/// Copy constructor
@@ -96,35 +98,35 @@ public:
 	inline bool isValid() const { return rank_ != 0; }
 
 	/// Return the index for 1st independent axis of the multi-dimensional data set
-	inline int i() const { return dims_[0]; }
+	inline long i() const { return dims_[0]; }
 	/// Return the index for 2nd independent axis of the multi-dimensional data set
-	inline int j() const { return dims_[1]; }
+	inline long j() const { return dims_[1]; }
 	/// Return the index for 3rd independent axis of the multi-dimensional data set
-	inline int k() const { return dims_[2]; }
+	inline long k() const { return dims_[2]; }
 	/// Return the index for 4th independent axis of the multi-dimensional data set
-	inline int l() const { return dims_[3]; }
+	inline long l() const { return dims_[3]; }
 
-	inline int m() const { return dims_[4]; }
-	inline int n() const { return dims_[5]; }
-	inline int o() const { return dims_[6]; }
-	inline int p() const { return dims_[7]; }
+	inline long m() const { return dims_[4]; }
+	inline long n() const { return dims_[5]; }
+	inline long o() const { return dims_[6]; }
+	inline long p() const { return dims_[7]; }
 
 
 	/// Index-based read-only access:
-	inline int at(int dimIndex) const {
+	inline long at(int dimIndex) const {
 		if(AM_LIKELY(dimIndex < 8))
 			return dims_[dimIndex];
 		else
 			return extras_->at(dimIndex);
 	}
 
-	/// Lots of C math / data handling libraries often need a plain array of ints to use as multi-dimension indexes. The pointer returned by this function is only valid while the AMnDIndex still exists.
-	inline const int* constData() const {
+	/// Lots of C math / data handling libraries often need a plain array of longs to use as multi-dimension indexes. The pointer returned by this function is only valid while the AMnDIndex still exists.
+	inline const long* constData() const {
 		if(AM_LIKELY(rank_ <= 8))
 			return dims_;
 		else {
 			// copy first 8 elements from dims_ into extras_, before we return extras_. [Most of the time, the first 8 elements of extras_ are ignored/garbage.]
-			memcpy(extras_->data(), dims_, 8*sizeof(int));
+			memcpy(extras_->data(), dims_, 8*sizeof(long));
 			return extras_->constData();
 		}
 	}
@@ -133,7 +135,7 @@ public:
 	////////////////////////////////
 
 	/// Index-based modify access:
-	inline int& operator[](int dimIndex) {
+	inline long& operator[](int dimIndex) {
 		if(AM_LIKELY(dimIndex < 8))
 			return dims_[dimIndex];
 		else
@@ -150,14 +152,14 @@ public:
 		}
 		else {	// rank > 8. need extra space
 			if(!extras_)
-				extras_ = new QVector<int>(rank_);
+				extras_ = new QVector<long>(rank_);
 			else
 				extras_->resize(rank_);
 		}
 	}
 
 	/// Set all the dimensions of the index to \c value
-	inline void setAll(int value) {
+	inline void setAll(long value) {
 		for(int mu=0; mu<rank_; ++mu)
 			operator[](mu) = value;
 	}
@@ -216,8 +218,8 @@ public:
 	}
 
 	/// Calculate the product of all the dimensions. (If the AMnDIndex represents the size of a multidimensional array, this calculates the total number of elements in that array.)
-	inline int product() const {
-		int rv = 1;
+	inline long product() const {
+		long rv = 1;
 		for(int mu=rank_-1; mu>=0; --mu)
 			rv *= at(mu);
 		return rv;
@@ -225,8 +227,8 @@ public:
 
 	/// Calculate the total number of points in the space of the data block between this index and \c toIndex (inclusive).  For example, if this index is (2,2) and \c toIndex = (3,3), the block includes (2,2),(2,3),(3,2),(3,3) and this function would return 4.
 	/*! \note Assumes that \c toIndex has the same rank as us, and also that all of its corresponding values are larger than ours. */
-	inline int totalPointsTo(const AMnDIndex& toIndex) const {
-		int rv = 1;
+	inline long totalPointsTo(const AMnDIndex& toIndex) const {
+		long rv = 1;
 		for(int mu = rank_-1; mu >= 0; --mu)
 			rv *= (toIndex.at(mu) - at(mu) + 1);
 		return rv;
@@ -234,8 +236,8 @@ public:
 
 	/// Calculate the location where this index would end up in a flattened (1D) array, where \c fullSize gives the total size of the multi-dimensional array.  (This assumes row-major order, where the first index varies the slowest.)  For example, for a 4-dimensional AMnDIndex(3,4,5,600) and an array that has dimensions \c fullSize = (5,10,100,1000), the flat index is 3*10*100*1000 + 4*100*1000 + 5*1000 + 600.
 	/*! \note Assumes that \c fullSize has the same rank() as us.*/
-	inline int flatIndexInArrayOfSize(const AMnDIndex& fullSize) const {
-		int rv;
+	inline long flatIndexInArrayOfSize(const AMnDIndex& fullSize) const {
+		long rv;
 
 		switch(rank_) {
 		case 0:
@@ -263,7 +265,7 @@ public:
 		default: {
 			rv = 0;
 			for(int mu=0; mu<rank_; ++mu) {
-				int multiplier = 1;
+				long multiplier = 1;
 				for(int nu=mu+1; nu<rank_; ++nu)
 					multiplier *= fullSize.at(nu);
 				rv += at(mu)*multiplier;
@@ -275,9 +277,9 @@ public:
 	}
 
 	/// Returns a multidimensional index corresponding to the \c flatIndex in a 1D array , where the multidimensional array has size \c fullSize.    Like flatIndexInArrayOfSize(), this assumes row-major order where the last index varies the fastest.
-	static AMnDIndex fromFlatIndexInArrayOfSize(const AMnDIndex& fullSize, int flatIndex) {
+	static AMnDIndex fromFlatIndexInArrayOfSize(const AMnDIndex& fullSize, long flatIndex) {
 		int rank = fullSize.rank_;
-		AMnDIndex rv(rank, false);
+		AMnDIndex rv(rank, AMnDIndex::DoNotInit);
 
 		switch(rank) {
 		case 0:
@@ -290,7 +292,7 @@ public:
 			rv[1] = flatIndex % fullSize.j();
 			break;
 		case 3: {
-			int multiplier = fullSize.j()*fullSize.k();
+			long multiplier = fullSize.j()*fullSize.k();
 			rv[0] = flatIndex / multiplier;
 			flatIndex = flatIndex % multiplier;
 			rv[1] = flatIndex / fullSize.k();
@@ -298,7 +300,7 @@ public:
 			break; }
 
 		case 4: {
-			int multiplier = fullSize.j()*fullSize.k()*fullSize.l();
+			long multiplier = fullSize.j()*fullSize.k()*fullSize.l();
 			rv[0] = flatIndex / multiplier;
 			flatIndex = flatIndex % multiplier;
 
@@ -313,7 +315,7 @@ public:
 
 		default: {
 			for(int mu=0; mu<rank; ++mu) {
-				int multiplier = 1;
+				long multiplier = 1;
 				for(int nu=mu+1; nu<rank; ++nu)
 					multiplier *= fullSize.at(nu);
 				rv[mu] = flatIndex / multiplier;
@@ -362,28 +364,28 @@ public:
 	}
 
 	/// Adds \c offset to every dimension in this index.
-	inline AMnDIndex& operator+=(int offset) {
+	inline AMnDIndex& operator+=(long offset) {
 		for(int mu=0; mu<rank_; ++mu)
 			(*this)[mu] += offset;
 		return *this;
 	}
 
 	/// Returns an index created by adding \c offset to every dimension of this index.
-	inline AMnDIndex operator+(int offset) const {
+	inline AMnDIndex operator+(long offset) const {
 		AMnDIndex rv(*this);
 		rv += offset;
 		return rv;
 	}
 
 	/// Subtracts \c offset from every dimension in this index.
-	inline AMnDIndex& operator-=(int offset) {
+	inline AMnDIndex& operator-=(long offset) {
 		for(int mu=0; mu<rank_; ++mu)
 			(*this)[mu] -= offset;
 		return *this;
 	}
 
 	/// Returns an index created by subtracting \c offset from every dimension of this index.
-	inline AMnDIndex operator-(int offset) const {
+	inline AMnDIndex operator-(long offset) const {
 		AMnDIndex rv(*this);
 		rv -= offset;
 		return rv;

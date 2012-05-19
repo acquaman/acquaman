@@ -27,21 +27,21 @@ AMnDIndex::AMnDIndex() {
 }
 
 // Create an index for 1D data
-AMnDIndex::AMnDIndex(int row) {
+AMnDIndex::AMnDIndex(long row) {
 	rank_ = 1;
 	extras_ = 0;
 	dims_[0] = row;
 }
 
 // Create an index for 2D data
-AMnDIndex::AMnDIndex(int row, int col) {
+AMnDIndex::AMnDIndex(long row, long col) {
 	rank_ = 2;
 	extras_ = 0;
 	dims_[0] = row;
 	dims_[1] = col;
 }
 // Create an index for 3D data
-AMnDIndex::AMnDIndex(int row, int col, int slice) {
+AMnDIndex::AMnDIndex(long row, long col, long slice) {
 	rank_ = 3;
 	extras_ = 0;
 	dims_[0] = row;
@@ -50,7 +50,7 @@ AMnDIndex::AMnDIndex(int row, int col, int slice) {
 }
 
 // Create an index for 4D data
-AMnDIndex::AMnDIndex(int i, int j, int k, int l) {
+AMnDIndex::AMnDIndex(long i, long j, long k, long l) {
 	rank_ = 4;
 	extras_ = 0;
 	dims_[0] = i;
@@ -60,7 +60,7 @@ AMnDIndex::AMnDIndex(int i, int j, int k, int l) {
 }
 
 // Create an index for 5D data
-AMnDIndex::AMnDIndex(int i, int j, int k, int l, int m) {
+AMnDIndex::AMnDIndex(long i, long j, long k, long l, long m) {
 	rank_ = 5;
 	extras_ = 0;
 	dims_[0] = i;
@@ -70,16 +70,16 @@ AMnDIndex::AMnDIndex(int i, int j, int k, int l, int m) {
 	dims_[4] = m;
 }
 
-AMnDIndex::AMnDIndex(int dimension, bool initialize, int initialValue)  {
-	rank_ = dimension;
-	if(initialize) {
+AMnDIndex::AMnDIndex(int rank, InitializeFlag initialize, long initialValue)  {
+	rank_ = rank;
+	if(initialize == DoInit) {
 		if(rank_ > 8)
-			extras_ = new QVector<int>(rank_, initialValue);
+			extras_ = new QVector<long>(rank_, initialValue);
 		else
 			extras_ = 0;
 
 		if(initialValue == 0)
-			memset(dims_, 0, 8*sizeof(int));
+			memset(dims_, 0, 8*sizeof(long));
 		else
 			for(int mu=0;mu<8;++mu)
 				dims_[mu] = initialValue;
@@ -87,7 +87,7 @@ AMnDIndex::AMnDIndex(int dimension, bool initialize, int initialValue)  {
 
 	else {	// do not init
 		if(rank_ > 8)
-			extras_ = new QVector<int>(rank_);
+			extras_ = new QVector<long>(rank_);
 		else
 			extras_ = 0;
 	}
@@ -95,10 +95,10 @@ AMnDIndex::AMnDIndex(int dimension, bool initialize, int initialValue)  {
 
 AMnDIndex::AMnDIndex(const AMnDIndex &other) {
 	rank_ = other.rank_;
-	memcpy(dims_, other.dims_, 8*sizeof(int));
+	memcpy(dims_, other.dims_, 8*sizeof(long));
 
 	if(AM_UNLIKELY(rank_ > 8))
-		extras_ = new QVector<int>(*(other.extras_));
+		extras_ = new QVector<long>(*(other.extras_));
 	else
 		extras_ = 0;
 }
@@ -108,7 +108,7 @@ AMnDIndex& AMnDIndex::operator=(const AMnDIndex& other) {
 		if(rank_ > 8)	// already have an extras_; assign from other's.
 			*extras_ = *(other.extras_);
 		else	// need to make an extras_
-			extras_ = new QVector<int>(*(other.extras_));
+			extras_ = new QVector<long>(*(other.extras_));
 	}
 
 	// need to get rid of our extras_ ?
@@ -118,7 +118,7 @@ AMnDIndex& AMnDIndex::operator=(const AMnDIndex& other) {
 	}
 
 	rank_ = other.rank();
-	memcpy(dims_, other.dims_, 8*sizeof(int));
+	memcpy(dims_, other.dims_, 8*sizeof(long));
 
 	return *this;
 }
