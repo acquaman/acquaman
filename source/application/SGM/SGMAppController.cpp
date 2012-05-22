@@ -1011,12 +1011,11 @@ bool SGMAppController::setupSGMViews(){
 	sgmSidebar_ = new SGMSidebar();
 	mw_->addRightWidget(sgmSidebar_);
 
-	//TelnetClient *myClient = new TelnetClient();
-	//myClient->show();
-
+	/*
 	CLSProcServManager *testerProcServ = new CLSProcServManager("opi1611-408", 10033, this);
 	connect(testerProcServ, SIGNAL(loggedIn()), testerProcServ, SLOT(restartService()));
 	connect(testerProcServ, SIGNAL(restarted()), testerProcServ, SLOT(deleteLater()));
+	*/
 
 	return true;
 }
