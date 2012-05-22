@@ -205,11 +205,16 @@ bool AMSamplePlate::loadFromDb(AMDatabase *db, int id)
 {
 	int oldPositionsCount = count();
 
+	QDateTime beforeTime = QDateTime::currentDateTime();
+
 	if(AMDbObject::loadFromDb(db,id)) {	// use normal loadFromDb(), but...
 		if(count() == oldPositionsCount) {	// if the number of sample positions stayed the same, the dataChanged() notifications will be missing, because the new positions were loaded in-place to the old objects.
 			for(int i=0; i<oldPositionsCount; i++)
 				emit samplePositionChanged(i); // emit our own notification.
 		}
+
+		QDateTime afterTime = QDateTime::currentDateTime();
+		qDebug() << "Started at " << beforeTime.toString("hh:mm:ss.zzz") << " Ended at " << afterTime.toString("hh:mm:ss.zzz") << " Difference of " << afterTime.msecsTo(beforeTime);
 
 		return true;
 	}
