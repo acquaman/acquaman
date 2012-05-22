@@ -32,6 +32,11 @@ SGMXASDacqScanController::SGMXASDacqScanController(SGMXASScanConfiguration *cfg,
 	useDwellTimes(SGMBeamline::sgm()->nextDwellTimeTrigger(), SGMBeamline::sgm()->nextDwellTimeConfirmed());
 }
 
+SGMXASDacqScanController::~SGMXASDacqScanController()
+{
+
+}
+
 bool SGMXASDacqScanController::initializeImplementation(){
 	if(SGMXASScanController::beamlineInitialize() && initializationActions_){
 		/* NTBA - August 25th, 2011 (David Chevrier)
@@ -156,16 +161,29 @@ bool SGMXASDacqScanController::startImplementation(){
 				"Error, SGM XAS DACQ Scan Controller failed to start (couldn't find a save path for the template'). Please report this bug to the Acquaman developers."));
 		return false;
 	}
-	configFile->loadFromDb(AMDatabase::database("SGMBeamline"), matchIDs.at(0));
 
-	QString templateFullFilePath = configFile->configurationFilePath()+"/template.cfg";
+	QString pathToUserDb = AMDatabase::database("user")->dbAccessString().replace("//", "/").section("/", 0, -2);
+	QDir configTemplateDir;
+	configTemplateDir.setPath(pathToUserDb);
+	if(!configTemplateDir.cd(".TEMPLATE")){
+		configTemplateDir.mkdir(".TEMPLATE");
+		if(!configTemplateDir.cd(".TEMPLATE")){
+			AMErrorMon::report(AMErrorReport(this,
+					AMErrorReport::Alert,
+					SGMXASDACQSCANCONTROLLER_CANT_START_CANT_FIND_TEMPLATE_DIRECTORY,
+					"Error, SGM XAS DACQ Scan Controller failed to start (couldn't find the template directory). Please report this bug to the Acquaman developers."));
+			return false;
+		}
+	}
+	QString templateFullFilePath = configTemplateDir.absolutePath()+"/template.cfg";
+
 	qDebug() << "Trying to save template to " << templateFullFilePath;
 	QFile file(templateFullFilePath);
 	if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
 		AMErrorMon::report(AMErrorReport(this,
 				AMErrorReport::Alert,
 				SGMXASDACQSCANCONTROLLER_CANT_START_CANT_WRITE_TEMPLATE,
-				"Error, SGM XAS DACQ Scan Controller failed to start (couldn't write the template'). Please report this bug to the Acquaman developers."));
+				"Error, SGM XAS DACQ Scan Controller failed to start (couldn't write the template). Please report this bug to the Acquaman developers."));
 		return false;
 	}
 
