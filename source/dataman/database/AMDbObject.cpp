@@ -387,6 +387,8 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 		return false;	// class hasn't been registered yet with the database system.
 	}
 
+	QDateTime beforeTime = QDateTime::currentDateTime();
+
 	// Retrieve all columns from the database.
 	// optimization: not necessary to retrieve anything with the doNotLoad attribute set. Also, if the type is AMDbObjectList, there is no actual database column for this "column"... instead, its an auxiliary table.
 	QStringList keys;	// keys is the set of database columns to retrieve; all the columns that are loadable, and are not of type AMDbObjectList.
@@ -555,6 +557,11 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 
 	isReloading_ = false;
 	emit loadedFromDb();
+
+	QDateTime afterTime = QDateTime::currentDateTime();
+	//qDebug() << myInfo->className << " " << this->name() << "Started at " << beforeTime.toString("hh:mm:ss.zzz") << " Ended at " << afterTime.toString("hh:mm:ss.zzz") << " Difference of " << afterTime.msecsTo(beforeTime);
+
+
 	return true;
 }
 

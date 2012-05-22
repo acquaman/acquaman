@@ -118,7 +118,7 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 
 bool AMDatamanAppController::startup() {
 
-	AMErrorMon::enableDebugNotifications(true);
+	//AMErrorMon::enableDebugNotifications(true);
 
 	AM::registerTypes();
 
@@ -256,15 +256,24 @@ bool AMDatamanAppController::startupOnFirstTime()
 			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_LOAD_FAILURE, "Failure to load requested databases for initialization of upgrade table");
 			return false;
 		}
-		// This needs to return false on the first time through ... otherwise things are going really bad
-		if(!upgrade->upgradeRequired()){
-			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_REQUIREMENT_FAILURE, "Failure in initialization of upgrade table, there must be tracking required for new databases");
+		// For the databases we are responsible for (not the beamline database) this needs to return false on the first time through ... otherwise things are going really bad
+		if(upgrade->isResponsibleForUpgrade() && !upgrade->upgradeRequired()){
+			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_REQUIREMENT_FAILURE, "Failure in initialization of upgrade table, there must be tracking required for new databases that the user application is responsible for");
 			return false;
 		}
-		success &= upgrade->updateUpgradeTable(false, true);
-		if(!success){
-			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_UPGRADE_TABLE_FAILURE, "Failure to write initialization for upgrade table");
+
+		// For the beamline database (and others like it) the upgrade better be done already
+		if(!upgrade->isResponsibleForUpgrade() && upgrade->upgradeRequired()){
+			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_SHARED_DB_FAILURE, "Failure in initialization of upgrade table, an upgrade is not done on a (shared) database the user application is not responsible for");
 			return false;
+		}
+		// Only upgrade things we're responsible for
+		else if(upgrade->isResponsibleForUpgrade()){
+			success &= upgrade->updateUpgradeTable(false, true);
+			if(!success){
+				AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_UPGRADE_TABLE_FAILURE, "Failure to write initialization for upgrade table");
+				return false;
+			}
 		}
 	}
 
@@ -337,8 +346,11 @@ bool AMDatamanAppController::startupDatabaseUpgrades()
 		if(success && upgrade->databaseToUpgrade()->isEmpty())
 			databaseIsEmpty = true;
 
+		if(upgrade->isResponsibleForUpgrade())
+			qDebug() << "Responsible for " << upgrade->databaseNameToUpgrade();
+
 		// Only apply upgrades that are required
-		if(success && upgrade->upgradeRequired()){
+		if(success && upgrade->isResponsibleForUpgrade() && upgrade->upgradeRequired()){
 			AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("Acquaman Startup: Starting Database Advanced Upgrade %1").arg(upgrade->upgradeToTag()));
 			qApp->processEvents();
 
