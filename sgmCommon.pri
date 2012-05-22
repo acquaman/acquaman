@@ -59,8 +59,7 @@ HEADERS += \
 	source/beamline/SGM/SGMMAXvMotor.h \
 	source/ui/util/SGM/SGMFastScanSettingsView.h \
 	source/dataman/SGM/SGMDbUpgrade1Pt1.h \
-	source/ui/SGM/SGMBeamlineDetectorConnectionView.h \
-	source/qttelnet/qttelnet.h
+	source/ui/SGM/SGMBeamlineDetectorConnectionView.h
 
 SOURCES += \
 	source/application/SGM/SGMAppController.cpp \
@@ -91,8 +90,7 @@ SOURCES += \
 	source/beamline/SGM/SGMMAXvMotor.cpp \
 	source/ui/util/SGM/SGMFastScanSettingsView.cpp \
 	source/dataman/SGM/SGMDbUpgrade1Pt1.cpp \
-	source/ui/SGM/SGMBeamlineDetectorConnectionView.cpp \
-	source/qttelnet/qttelnet.cpp
+	source/ui/SGM/SGMBeamlineDetectorConnectionView.cpp
 
 
 

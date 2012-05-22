@@ -565,7 +565,9 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/ui/acquaman/AMScanConfigurationViewHolder3.h \
 	source/actions3/actions/AMSamplePlateMoveActionInfo.h \
 	source/actions3/actions/AMSamplePlateMoveAction.h \
-	source/actions3/editors/AMSamplePlateMoveActionEditor.h
+	source/actions3/editors/AMSamplePlateMoveActionEditor.h \
+	source/qttelnet/qttelnet.h \
+    source/beamline/CLS/CLSProcServManager.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -957,7 +959,9 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/acquaman/AMScanConfigurationViewHolder3.cpp \
 	source/actions3/actions/AMSamplePlateMoveActionInfo.cpp \
 	source/actions3/actions/AMSamplePlateMoveAction.cpp \
-	source/actions3/editors/AMSamplePlateMoveActionEditor.cpp
+	source/actions3/editors/AMSamplePlateMoveActionEditor.cpp \
+	source/qttelnet/qttelnet.cpp \
+    source/beamline/CLS/CLSProcServManager.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -981,6 +985,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 

@@ -36,9 +36,6 @@ AMScanAction::AMScanAction(AMScanActionInfo *info, QObject *parent)
 	controller_ = 0;
 	hasValidScanController_ = false;
 	scanInfo_ = info;
-
-	if(controller_)
-		qDebug() << "\n\nHOLY CRAP, HOW IS THIS NON-ZERO? (Default)\n";
 }
 
 AMScanAction::AMScanAction(const AMScanAction &other)
@@ -47,16 +44,13 @@ AMScanAction::AMScanAction(const AMScanAction &other)
 	controller_ = 0;
 	hasValidScanController_ = false;
 	scanInfo_ = other.scanInfo_;
-
-	if(controller_)
-		qDebug() << "\n\nHOLY CRAP, HOW IS THIS NON-ZERO? (Copy)\n";
 }
 
 AMScanAction::~AMScanAction()
 {
-	qDebug() << "Going to delete AMScanAction " << (intptr_t)this;
+	//qdebug() << "Going to delete AMScanAction " << (intptr_t)this;
 	if (controller_ && hasValidScanController_){
-		qDebug() << "I am " << (intptr_t)this << ". Thinks the controller is at " << (intptr_t)controller_ << " versus boolean check " << hasValidScanController_;
+		//qdebug() << "I am " << (intptr_t)this << ". Thinks the controller is at " << (intptr_t)controller_ << " versus boolean check " << hasValidScanController_;
 
 		controller_->disconnect();
 		delete controller_;
@@ -241,11 +235,11 @@ void AMScanAction::onControllerProgressChanged(double elapsed, double total)
 QString AMScanAction::controllerStateString() const
 {
 	if (!controller_){
-		qDebug() << "No controller to pull";
+		//qdebug() << "No controller to pull";
 		return "";
 	}
-	qDebug() << "I think I have a controller " << (intptr_t)controller_;
-	qDebug() << controller_->objectName();
+	//qdebug() << "I think I have a controller " << (intptr_t)controller_;
+	//qdebug() << controller_->objectName();
 
 	QString controllerString = "Scan is ";
 
@@ -305,6 +299,6 @@ QString AMScanAction::controllerStateString() const
 
 void AMScanAction::onControllerStateChanged()
 {
-	qDebug() << "Calling for controllerStateString, need a valid controller";
+	//qdebug() << "Calling for controllerStateString, need a valid controller";
 	setStatusText(stateDescription(state()) % "\n" % controllerStateString());
 }

@@ -36,6 +36,8 @@ class SGMSettingsMasterView;
 class AMGithubManager;
 class AMDetector;
 class AMScanAction;
+class CLSProcServManager;
+class CLSProcServManagerView;
 
 #define SGMAPPCONTROLLER_COULD_NOT_RESET_FINISHED_SIGNAL 290301
 
@@ -81,6 +83,7 @@ protected slots:
 	void onCurrentScanControllerFinished(AMScanAction *action);
 
 	void onActionSGMSettings();
+	void onActionProcServManager();
 
 	void onSGMBeamlineDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
 
@@ -111,114 +114,12 @@ protected:
 	/// Persistent view for SGMSettings
 	SGMSettingsMasterView *sgmSettingsMasterView_;
 
+	/// List of procServs we might want to fiddle with
+	QList<CLSProcServManager*> procServs_;
+	CLSProcServManagerView *procServsView_;
+
+
 	QString lastWaitingDetectors_;
-};
-
-#include "qttelnet/qttelnet.h"
-#include <QTimer>
-
-class CLSProcServManager : public QObject
-{
-	Q_OBJECT
-public:
-	CLSProcServManager(const QString &hostname, quint16 port, QObject *parent = 0) :
-		QObject(parent)
-	{
-		hostname_ = hostname;
-		port_ = port;
-
-		startedLoginReply_ = false;
-		startedShutDownReply_ = false;
-		startedRestartReply_ = false;
-
-		telnet_ = new QtTelnet(this);
-		connect(telnet_, SIGNAL(message(QString)), this, SLOT(onLoginReply(QString)));
-		telnet_->connectToHost(hostname, port);
-	}
-
-public slots:
-	void restartService(){
-		connect(telnet_, SIGNAL(message(QString)), this, SLOT(onShutDownReply(QString)));
-
-		QString myHex = "18";
-		telnet_->sendData(QString(QByteArray::fromHex(myHex.toAscii())));
-	}
-
-signals:
-	void loggedIn();
-	void restarted();
-
-protected slots:
-	void onLoginReply(const QString &msg){
-		qDebug() << "LOGIN REPLY";
-		loginReplyStrings_.append(msg);
-		if(!startedLoginReply_){
-			startedLoginReply_ = true;
-			QTimer::singleShot(1000, this, SLOT(disconnectLoginReply()));
-		}
-	}
-
-	void disconnectLoginReply(){
-		qDebug() << "Disconnecting login \n" << loginReplyStrings_;
-		disconnect(telnet_, SIGNAL(message(QString)), this, SLOT(onLoginReply(QString)));
-		emit loggedIn();
-	}
-
-	void onShutDownReply(const QString &msg){
-		qDebug() << "SHUTDOWN REPLY";
-		shutDownReplyStrings_.append(msg);
-		if(!startedShutDownReply_){
-			startedShutDownReply_ = true;
-			QTimer::singleShot(1000, this, SLOT(disconnectShutDownReply()));
-		}
-	}
-
-	void disconnectShutDownReply(){
-		qDebug() << "Disconnecting shutdown \n" << shutDownReplyStrings_;
-		disconnect(telnet_, SIGNAL(message(QString)), this, SLOT(onShutDownReply(QString)));
-		connect(telnet_, SIGNAL(message(QString)), this, SLOT(onRestartReply(QString)));
-
-		QString myHex = "12";
-		telnet_->sendData(QString(QByteArray::fromHex(myHex.toAscii())));
-	}
-
-	void onRestartReply(const QString &msg){
-		qDebug() << "RESTART REPLY";
-		restartReplyStrings_.append(msg);
-		if(!startedRestartReply_){
-			startedRestartReply_ = true;
-			QTimer::singleShot(1000, this, SLOT(disconnectRestartReply()));
-		}
-	}
-
-	void disconnectRestartReply(){
-		qDebug() << "Disconnecting restart \n" << restartReplyStrings_;
-		disconnect(telnet_, SIGNAL(message(QString)), this, SLOT(onRestartReply(QString)));
-		emit restarted();
-	}
-
-protected:
-	QString stripCR(const QString &msg)
-	{
-		QString nmsg(msg);
-		nmsg.remove('\r');
-		nmsg.remove(QRegExp("\033\\[[0-9;]*[A-Za-z]")); // Also remove terminal control codes
-		return nmsg;
-	}
-
-protected:
-	QtTelnet *telnet_;
-
-	QString hostname_;
-	quint16 port_;
-
-	bool startedLoginReply_;
-	bool startedShutDownReply_;
-	bool startedRestartReply_;
-
-	QString loginReplyStrings_;
-	QString shutDownReplyStrings_;
-	QString restartReplyStrings_;
 };
 
 #endif // SGMAPPCONTROLLER_H

@@ -54,7 +54,7 @@ void AMSamplePlateMoveActionEditor::onSamplePositionSelectorBoxCurrentIndexChang
 
 	/*
 	if(info_->samplePlateId() > 0 && info_->samplePositionIndex() >= 0){
-		qDebug() << "Wants " << info_->samplePlateId() << info_->samplePositionIndex() << "Would go to " << info_->samplePosition()->at(0).value() << info_->samplePosition()->at(1).value() << info_->samplePosition()->at(2).value();
+		qdebug() << "Wants " << info_->samplePlateId() << info_->samplePositionIndex() << "Would go to " << info_->samplePosition()->at(0).value() << info_->samplePosition()->at(1).value() << info_->samplePosition()->at(2).value();
 	}
 	*/
 }

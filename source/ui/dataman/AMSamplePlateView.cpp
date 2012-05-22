@@ -790,7 +790,7 @@ void AMSamplePositionAdditionalInformationView::onBottomRightManuallyEnterClicke
 #include <QDebug>
 
 void AMSamplePositionAdditionalInformationView::onTopLeftManualEnterFinished(double upDown, double inOut, double upStDownSt, double rot){
-	qDebug() << "Want to set as " << upDown << inOut << upStDownSt << rot;
+	//qdebug() << "Want to set as " << upDown << inOut << upStDownSt << rot;
 	AMControlInfoList newTopLeft;
 	newTopLeft.setValuesFrom(manipulator_->position());
 	newTopLeft[0].setValue(inOut);

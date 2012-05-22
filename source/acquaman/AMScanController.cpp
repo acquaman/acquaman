@@ -36,7 +36,7 @@ AMScanController::~AMScanController() {
 	if(scan_)
 		scan_->release(this);
 
-	qDebug() << "A call to AMScanController destructor";
+	//qdebug() << "A call to AMScanController destructor";
 }
 
 AMScanController::ScanState AMScanController::state() const {
@@ -266,7 +266,7 @@ bool AMScanController::changeState(ScanState newState){
 	if(canChangeStateTo(newState)) {
 		ScanState oldState = state_;
 		state_= newState;
-		qDebug() << "Changing from " << oldState << " to " << newState;
+		//qdebug() << "Changing from " << oldState << " to " << newState;
 		emit stateChanged(oldState, newState);
 		return true;
 	}

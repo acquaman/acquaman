@@ -559,7 +559,7 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 	emit loadedFromDb();
 
 	QDateTime afterTime = QDateTime::currentDateTime();
-	//qDebug() << myInfo->className << " " << this->name() << "Started at " << beforeTime.toString("hh:mm:ss.zzz") << " Ended at " << afterTime.toString("hh:mm:ss.zzz") << " Difference of " << afterTime.msecsTo(beforeTime);
+	//qdebug() << myInfo->className << " " << this->name() << "Started at " << beforeTime.toString("hh:mm:ss.zzz") << " Ended at " << afterTime.toString("hh:mm:ss.zzz") << " Difference of " << afterTime.msecsTo(beforeTime);
 
 
 	return true;

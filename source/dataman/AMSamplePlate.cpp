@@ -135,7 +135,7 @@ int AMSamplePlate::sampleIdAtPosition(const AMControlInfoList &position, const Q
 		for(int x = count()-1; x >= 0; x--){
 			if( at(x).matchesPosition(position) ){
 			//if( at(x).position() == position ){
-				qDebug() << "Position at " << x << " matches " << position;
+				//qdebug() << "Position at " << x << " matches " << position;
 				return at(x).sampleId();
 			}
 		}
@@ -183,7 +183,7 @@ AMDbObjectList AMSamplePlate::dbGetPositions() {
 // Load the positions for an existing sample plate from the database
 void AMSamplePlate::dbLoadPositions(const AMDbObjectList& newPositions) {
 
-	qDebug() << "AMSamplePlate: loading positions in loadFromDb()";
+	//qdebug() << "AMSamplePlate: loading positions in loadFromDb()";
 
 	clear();	// get rid of our existing
 
@@ -214,7 +214,7 @@ bool AMSamplePlate::loadFromDb(AMDatabase *db, int id)
 		}
 
 		QDateTime afterTime = QDateTime::currentDateTime();
-		qDebug() << "Started at " << beforeTime.toString("hh:mm:ss.zzz") << " Ended at " << afterTime.toString("hh:mm:ss.zzz") << " Difference of " << afterTime.msecsTo(beforeTime);
+		//qdebug() << "Started at " << beforeTime.toString("hh:mm:ss.zzz") << " Ended at " << afterTime.toString("hh:mm:ss.zzz") << " Difference of " << afterTime.msecsTo(beforeTime);
 
 		return true;
 	}

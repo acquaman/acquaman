@@ -59,6 +59,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/util/AMGithubIssueSubmissionView.h"
 #include "ui/AMDatamanStartupSplashScreen.h"
 
+#include "beamline/CLS/CLSProcServManager.h"
+
 #include "dataman/SGM/SGMDbUpgrade1Pt1.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
@@ -72,7 +74,6 @@ SGMAppController::SGMAppController(QObject *parent) :
 
 	// Don't need to do SGMBeamline ... that's not the user's responsibility unless we're SGM or fawkes
 	QString userName = QDir::fromNativeSeparators(QDir::homePath()).section("/", -1);
-	qDebug() << "The user is " << userName;
 	if( !(userName == "sgm" || userName == "fawkes") )
 		sgm1Pt1SGMDb->setIsResponsibleForUpgrade(false);
 
@@ -110,6 +111,9 @@ bool SGMAppController::startup() {
 		AMRun firstRun("SGM", 3);	/// \todo For now, we know that 3 is the ID of the SGM facility, but this is a hardcoded hack.
 		firstRun.storeToDb(AMDatabase::database("user"));
 	}
+
+	procServs_.append(new CLSProcServManager("IOC1611-427", 10004, "Scaler", this));
+	procServs_.append(new CLSProcServManager("VIOC1611-446", 10028, "Coordination AddOns", this));
 
 	// Set up the GUI portions of the SGMAcquamanAppController
 	if(!setupSGMViews())
@@ -324,6 +328,12 @@ void SGMAppController::onActionSGMSettings(){
 	sgmSettingsMasterView_->show();
 }
 
+void SGMAppController::onActionProcServManager(){
+	if(!procServsView_)
+		procServsView_ = new CLSProcServManagerView(procServs_);
+	procServsView_->show();
+}
+
 void SGMAppController::onSGMBeamlineDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable){
 	Q_UNUSED(detector)
 	Q_UNUSED(isAvailable)
@@ -351,8 +361,16 @@ bool SGMAppController::startupSGMInstallActions(){
 
 	sgmSettingsMasterView_ = 0;
 
+	QAction *sgmProcServAction = new QAction("SGM Proc Servs...", mw_);
+	sgmProcServAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Y));
+	sgmProcServAction->setStatusTip("Restart stuck servers");
+	connect(sgmProcServAction, SIGNAL(triggered()), this, SLOT(onActionProcServManager()));
+
+	procServsView_ = 0;
+
 	fileMenu_->addSeparator();
 	fileMenu_->addAction(sgmSettingAction);
+	fileMenu_->addAction(sgmProcServAction);
 
 	return true;
 }
@@ -1021,12 +1039,6 @@ bool SGMAppController::setupSGMViews(){
 
 	sgmSidebar_ = new SGMSidebar();
 	mw_->addRightWidget(sgmSidebar_);
-
-	/*
-	CLSProcServManager *testerProcServ = new CLSProcServManager("opi1611-408", 10033, this);
-	connect(testerProcServ, SIGNAL(loggedIn()), testerProcServ, SLOT(restartService()));
-	connect(testerProcServ, SIGNAL(restarted()), testerProcServ, SLOT(deleteLater()));
-	*/
 
 	return true;
 }
