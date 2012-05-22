@@ -32,6 +32,11 @@ SGMXASDacqScanController::SGMXASDacqScanController(SGMXASScanConfiguration *cfg,
 	useDwellTimes(SGMBeamline::sgm()->nextDwellTimeTrigger(), SGMBeamline::sgm()->nextDwellTimeConfirmed());
 }
 
+SGMXASDacqScanController::~SGMXASDacqScanController()
+{
+
+}
+
 bool SGMXASDacqScanController::initializeImplementation(){
 	if(SGMXASScanController::beamlineInitialize() && initializationActions_){
 		/* NTBA - August 25th, 2011 (David Chevrier)

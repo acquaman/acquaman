@@ -37,6 +37,8 @@ Q_OBJECT
 public:
 	explicit SGMXASDacqScanController(SGMXASScanConfiguration *cfg, QObject *parent = 0);
 
+	virtual ~SGMXASDacqScanController();
+
 protected:
 	bool initializeImplementation();
 	bool startImplementation();

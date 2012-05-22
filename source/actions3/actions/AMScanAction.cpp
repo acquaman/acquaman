@@ -34,19 +34,29 @@ AMScanAction::AMScanAction(AMScanActionInfo *info, QObject *parent)
 	: AMAction3(info, parent)
 {
 	controller_ = 0;
+	hasValidScanController_ = false;
 	scanInfo_ = info;
+
+	if(controller_)
+		qDebug() << "\n\nHOLY CRAP, HOW IS THIS NON-ZERO? (Default)\n";
 }
 
 AMScanAction::AMScanAction(const AMScanAction &other)
 	: AMAction3(other)
 {
 	controller_ = 0;
+	hasValidScanController_ = false;
 	scanInfo_ = other.scanInfo_;
+
+	if(controller_)
+		qDebug() << "\n\nHOLY CRAP, HOW IS THIS NON-ZERO? (Copy)\n";
 }
 
 AMScanAction::~AMScanAction()
 {
-	if (controller_){
+	qDebug() << "Going to delete AMScanAction " << (intptr_t)this;
+	if (controller_ && hasValidScanController_){
+		qDebug() << "I am " << (intptr_t)this << ". Thinks the controller is at " << (intptr_t)controller_ << " versus boolean check " << hasValidScanController_;
 
 		controller_->disconnect();
 		delete controller_;
@@ -73,6 +83,7 @@ void AMScanAction::startImplementation()
 		setFailed();
 		return;
 	}
+	hasValidScanController_ = true;
 
 	connect(controller_, SIGNAL(initialized()), this, SLOT(onControllerInitialized()));
 	connect(controller_, SIGNAL(started()), this, SLOT(onControllerStarted()));
@@ -92,6 +103,7 @@ void AMScanAction::startImplementation()
 		controller_->disconnect();
 		controller_->deleteLater();
 		controller_ = 0;
+		hasValidScanController_ = false;
 		setFailed();
 	}
 }
@@ -153,6 +165,11 @@ void AMScanAction::onControllerFailed()
 void AMScanAction::onControllerSucceeded()
 {
 	//setSucceeded();
+
+	if(!controller_){
+		AMErrorMon::alert(this, AMSCANACTION_CONTROLLER_NOT_VALID_FOR_AUTOEXPORT, "Could not export, somehow the scan controller is not available.");
+		return;
+	}
 
 	// If we managed to save the scan to the database, we should check if the scan should be auto exported, and if it should - export it.
 	if (controller_->scan()->database()){
@@ -223,8 +240,12 @@ void AMScanAction::onControllerProgressChanged(double elapsed, double total)
 
 QString AMScanAction::controllerStateString() const
 {
-	if (!controller_)
+	if (!controller_){
+		qDebug() << "No controller to pull";
 		return "";
+	}
+	qDebug() << "I think I have a controller " << (intptr_t)controller_;
+	qDebug() << controller_->objectName();
 
 	QString controllerString = "Scan is ";
 
@@ -284,5 +305,6 @@ QString AMScanAction::controllerStateString() const
 
 void AMScanAction::onControllerStateChanged()
 {
+	qDebug() << "Calling for controllerStateString, need a valid controller";
 	setStatusText(stateDescription(state()) % "\n" % controllerStateString());
 }

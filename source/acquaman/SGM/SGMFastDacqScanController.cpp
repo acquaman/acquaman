@@ -103,6 +103,9 @@ bool SGMFastDacqScanController::startImplementation(){
 	fastScanTimer_ = new QTimer(this);
 	connect(fastScanTimer_, SIGNAL(timeout()), this, SLOT(onFastScanTimerTimeout()));
 	advAcq_->saveConfigFile("/Users/fawkes/dev/acquaman/devConfigurationFiles/davidTest.cfg");
+
+	qDebug() << "About to call into the dacq";
+
 	return AMDacqScanController::startImplementation();
 }
 
