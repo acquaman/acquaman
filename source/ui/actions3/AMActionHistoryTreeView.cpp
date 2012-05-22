@@ -89,10 +89,16 @@ QItemSelectionModel::SelectionFlags AMActionHistoryTreeView3::selectionCommand(c
 	if(index.isValid()){
 		AMActionHistoryModel3 *historyModel = qobject_cast<AMActionHistoryModel3*>(model());
 
+
 		// We only care about the mouse button press events otherwise return the parent class call
 		if( !historyModel || (selectionEvent->type() != QEvent::MouseButtonPress) )
 			return QTreeView::selectionCommand(index, selectionEvent);
 		QMouseEvent *mouseEvent = (QMouseEvent*)selectionEvent;
+
+		// Ignore clicks on non-selectable indices
+		// We can ignore: not enabled indexes, and not selectable indexes
+		if(!index.flags().testFlag(Qt::ItemIsEnabled) || !index.flags().testFlag(Qt::ItemIsSelectable))
+			return QTreeView::selectionCommand(index, selectionEvent);
 
 		// Grab keyboard shift and control modifiers
 		Qt::KeyboardModifiers currentModifiers = mouseEvent->modifiers();

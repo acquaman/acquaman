@@ -327,9 +327,15 @@ QVariant AMActionHistoryModel3::data(const QModelIndex &index, int role) const
 	}
 	else if(role == Qt::ToolTipRole) {
 		if(index.column() == 0) {
-			if(item && item->canCopy() && item->actionInheritedLoop() && (childrenCount(index) == 0) )//In case a loop or list had no logged actions in it
+
+			// In case the item didn't (or isn't yet) in some sort of finished state
+			if(item && item->canCopy() && !(item->finalState() == 7 || item->finalState() == 8 || item->finalState() == 9) )
+				return "Cannot select this item, it has not yet completed";
+			//In case a loop or list had no logged actions in it
+			if(item && item->canCopy() && item->actionInheritedLoop() && (childrenCount(index) == 0) )
 				return "Cannot select this item, it has no children.";
-			if(item && item->canCopy() && item->actionInheritedLoop() && (successfulChildrenCount(index) == 0) ) //In case a loop or list had no logged actions in it
+			//In case a loop or list had no logged actions in it
+			if(item && item->canCopy() && item->actionInheritedLoop() && (successfulChildrenCount(index) == 0) )
 				return "Cannot select this item, none of its children succeeded.";
 
 			return item->longDescription();
@@ -375,9 +381,14 @@ Qt::ItemFlags AMActionHistoryModel3::flags(const QModelIndex &index) const
 	if( index.column() != 0)
 		return Qt::ItemIsEnabled;
 	AMActionLogItem3 *item = logItem(index);
-	if(item && item->canCopy() && item->actionInheritedLoop() && (childrenCount(index) == 0) )//In case a loop or list had no logged actions in it
+	// In case the item didn't (or isn't yet) in some sort of finished state
+	if(item && item->canCopy() && !(item->finalState() == 7 || item->finalState() == 8 || item->finalState() == 9) )
 		return Qt::ItemIsEnabled;
-	if(item && item->canCopy() && item->actionInheritedLoop() && (successfulChildrenCount(index) == 0) )//In case a loop or list had no logged actions in it
+	//In case a loop or list had no logged actions in it
+	if(item && item->canCopy() && item->actionInheritedLoop() && (childrenCount(index) == 0) )
+		return Qt::ItemIsEnabled;
+	//In case a loop or list had no logged actions in it
+	if(item && item->canCopy() && item->actionInheritedLoop() && (successfulChildrenCount(index) == 0) )
 		return Qt::ItemIsEnabled;
 	if (item && item->canCopy())
 		return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
