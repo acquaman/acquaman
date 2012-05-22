@@ -69,9 +69,19 @@ SGMAppController::SGMAppController(QObject *parent) :
 
 	// Prepend the SGM upgrade 1.1 to the list for both the user database and the SGM Beamline database
 	AMDbUpgrade *sgm1Pt1SGMDb = new SGMDbUpgrade1Pt1("SGMBeamline", this);
+
+	// Don't need to do SGMBeamline ... that's not the user's responsibility unless we're SGM or fawkes
+	QString userName = QDir::fromNativeSeparators(QDir::homePath()).section("/", -1);
+	qDebug() << "The user is " << userName;
+	if( !(userName == "sgm" || userName == "fawkes") )
+		sgm1Pt1SGMDb->setIsResponsibleForUpgrade(false);
+
+
 	databaseUpgrades_.prepend(sgm1Pt1SGMDb);
 	AMDbUpgrade *sgm1Pt1UserDb = new SGMDbUpgrade1Pt1("user", this);
 	databaseUpgrades_.prepend(sgm1Pt1UserDb);
+	AMDbUpgrade *sgm1Pt1ActionsDb = new SGMDbUpgrade1Pt1("actions", this);
+	databaseUpgrades_.prepend(sgm1Pt1ActionsDb);
 }
 
 bool SGMAppController::startup() {
