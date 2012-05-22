@@ -327,6 +327,11 @@ QVariant AMActionHistoryModel3::data(const QModelIndex &index, int role) const
 	}
 	else if(role == Qt::ToolTipRole) {
 		if(index.column() == 0) {
+			if(item && item->canCopy() && item->actionInheritedLoop() && (childrenCount(index) == 0) )//In case a loop or list had no logged actions in it
+				return "Cannot select this item, it has no children.";
+			if(item && item->canCopy() && item->actionInheritedLoop() && (successfulChildrenCount(index) == 0) ) //In case a loop or list had no logged actions in it
+				return "Cannot select this item, none of its children succeeded.";
+
 			return item->longDescription();
 		}
 		else if(index.column() == 1) {
@@ -370,6 +375,10 @@ Qt::ItemFlags AMActionHistoryModel3::flags(const QModelIndex &index) const
 	if( index.column() != 0)
 		return Qt::ItemIsEnabled;
 	AMActionLogItem3 *item = logItem(index);
+	if(item && item->canCopy() && item->actionInheritedLoop() && (childrenCount(index) == 0) )//In case a loop or list had no logged actions in it
+		return Qt::ItemIsEnabled;
+	if(item && item->canCopy() && item->actionInheritedLoop() && (successfulChildrenCount(index) == 0) )//In case a loop or list had no logged actions in it
+		return Qt::ItemIsEnabled;
 	if (item && item->canCopy())
 		return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
@@ -416,6 +425,21 @@ int AMActionHistoryModel3::childrenCount(const QModelIndex &parent) const{
 		if(hasChildren(index(x, 0, parent)))
 			subChildCount += childrenCount(index(x, 0, parent));
 	return rowCount(parent) + subChildCount;
+}
+
+int AMActionHistoryModel3::successfulChildrenCount(const QModelIndex &parent) const{
+	if( rowCount() == 0 )
+		return 0;
+	int successfulSubChildCount = 0;
+	int successfulChildCount = 0;
+	for(int x = 0; x < rowCount(parent); x++){
+		if(hasChildren(index(x, 0, parent)))
+			successfulSubChildCount += successfulChildrenCount(index(x, 0, parent));
+		AMActionLogItem3 *childLogItem = logItem(index(x, 0, parent));
+		if(childLogItem->finalState() == 8)
+			successfulChildCount++;
+	}
+	return successfulChildCount + successfulSubChildCount;
 }
 
 AMActionLogItem3 * AMActionHistoryModel3::logItem(const QModelIndex &index) const

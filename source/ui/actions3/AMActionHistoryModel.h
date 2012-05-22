@@ -157,6 +157,8 @@ public:
 	bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
 	/// Returns the number of children below a certain model index (rowCount and combined rowCount of children recursively)
 	int childrenCount(const QModelIndex &parent = QModelIndex()) const;
+	/// Returns the number of children below a certain model index that actually succeeded (recursive)
+	int successfulChildrenCount(const QModelIndex &parent = QModelIndex()) const;
 
 	/// Returns the AMActionLogItem at \c index
 	AMActionLogItem3* logItem(const QModelIndex& index) const;
