@@ -714,4 +714,5 @@ void AMScan::release(QObject *pastOwner)
 		delete this;			// commit suicide.
 }
 
+// REALLY CONCERNED ABOUT THE LOCATION OF THIS ENDIF
 #endif

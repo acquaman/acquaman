@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "dataman/database/AMDbObjectSupport.h"
 
+#include <QStringBuilder>
+
 AMScanActionInfo::AMScanActionInfo(QObject *parent)
 	: AMActionInfo3("ScanName", "Description", ":/spectrum.png" , parent)
 {
@@ -36,6 +38,11 @@ AMScanActionInfo::AMScanActionInfo(AMScanConfiguration *config, const QString &i
 {
 	config_ = config;
 	scanID_ = -1;
+
+	if(!config_->detailedDescription().isEmpty()){
+		setShortDescription(config_->userScanName()%"\n"%config_->description());
+		setLongDescription(config_->detailedDescription());
+	}
 }
 
 AMScanActionInfo::AMScanActionInfo(const AMScanActionInfo &other)
@@ -44,6 +51,11 @@ AMScanActionInfo::AMScanActionInfo(const AMScanActionInfo &other)
 	config_ = other.config_ ? other.config_->createCopy() : 0;
 	//scanID_ = other.scanID_;
 	scanID_ = -1;
+
+	if(!config_->detailedDescription().isEmpty()){
+		setShortDescription(config_->userScanName()%"\n"%config_->description());
+		setLongDescription(config_->detailedDescription());
+	}
 }
 
 AMScanActionInfo::~AMScanActionInfo()

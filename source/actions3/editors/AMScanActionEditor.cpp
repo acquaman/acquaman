@@ -46,6 +46,7 @@ AMScanActionEditor::AMScanActionEditor(AMScanActionInfo *info, QWidget *parent)
 	layout->addWidget(scanName_);
 	layout->addStretch();
 	layout->addWidget(configViewButton);
+	layout->setContentsMargins(0,0,0,0);
 
 	setLayout(layout);
 }
