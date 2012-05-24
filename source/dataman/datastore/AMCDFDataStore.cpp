@@ -482,33 +482,44 @@ bool AMCDFDataStore::setAxisValue(int axisId, long axisIndex, AMNumber newValue)
 
 bool AMCDFDataStore::beginInsertRowsImplementation(long numRows, long atRowIndex)
 {
-	/// \todo Temporary: inserts are not yet supported. Only append.
-	if(atRowIndex != scanSize_.i())
-		return false;
-
-	// number of scan points to add, for every row of the first axis
-	long pointsPerRow = 1;
+	// number of scan points (records) to add, for every row of the first axis
+	long recordsPerRow = 1;
 	for(int mu=axes_.count()-1; mu>=1; --mu)
-		pointsPerRow *= scanSize_.at(mu);
-	long numberOfNewRecords = pointsPerRow*numRows;
+		recordsPerRow *= scanSize_.at(mu);
+	long numberOfNewRecords = recordsPerRow*numRows;
+
+	// we're always going to have to allocate new records at the END of the existing ones. If this is an insert, then we'll have to copy existing records down.
+	long beginningOfNewRecords = scanSize_.i()*recordsPerRow;	// record index of the first soon-to-be newly-allocated record.
+	long insertRecordNumber = atRowIndex*recordsPerRow;
+	long recordsToMoveDown = beginningOfNewRecords - insertRecordNumber;
 
 	CDFstatus s;
-	// for all measurements, allocate these records:
+	// for all measurements, allocate these records AT THE END (even if inserting)
 	for(int measurementId=0; measurementId<measurements_.count(); ++measurementId) {
 		long varNum = measurementVarNums_.at(measurementId);
-		s = CDFsetzVarAllocBlockRecords(cdfId_, varNum, atRowIndex*pointsPerRow, atRowIndex*pointsPerRow+numberOfNewRecords-1L);
+		s = CDFsetzVarAllocBlockRecords(cdfId_, varNum, beginningOfNewRecords, beginningOfNewRecords+numberOfNewRecords-1L);
 		if(s != CDF_OK)
 			AMErrorMon::debug(0, -110, QString("AMCDFDataStore: Could not allocate records for beginInsertRows. CDF error was: %2.").arg(s));
+
+		// if not appending:
+		if(insertRecordNumber != beginningOfNewRecords) {
+			if(!cdfCopyZRecords(cdfId_, varNum, insertRecordNumber, recordsToMoveDown, insertRecordNumber+numberOfNewRecords))
+				return false;
+			/// \todo set the value of the "newly inserted" records to the null value. (They will still have old data values right now.)
+		}
 	}
 
-	// for the first scan axis: allocate more records:
-	/// \todo Also move down existing records on insert.
-//	long varNum = axisValueVarNums_.at(0);
-//	if(varNum >= 0) {	// valid, non-uniform
-//		s = CDFsetzVarAllocBlockRecords(cdfId_, varNum, atRowIndex, atRowIndex+numRows-1);
-//		if(s != CDF_OK)
-//			AMErrorMon::debug(0, -111, QString("AMCDFDataStore: Could not allocate records for axis values in beginInsertRows. CDF error was: %2.").arg(s));
-//	}
+
+	// for the first scan axis: move down existing records on insert.
+	if(atRowIndex != scanSize_.i()) {
+		long varNum = axisValueVarNums_.at(0);
+
+		if(varNum >= 0) {	// valid, non-uniform scan axis.
+			// don't worry about allocation; we let the CDF library auto-alloc this variable in blocks of 500. Just need to write to the new values at the end, as we shift the existing values down.
+			if(!cdfCopyZRecords(cdfId_, varNum, atRowIndex, scanSize_.i()-atRowIndex, atRowIndex+numRows))
+				return false;
+		}
+	}
 
 	axes_[0].size += numRows;
 	scanSize_[0] += numRows;
@@ -623,6 +634,146 @@ void AMCDFDataStore::clearScanAxesImplementation()
 			AMErrorMon::debug(0, -117, QString("Could not find the CDF variable for measurement '%1', after deleting the scan axes. Please report this bug to the Acquaman developers.").arg(measurements_.at(i).name));
 		}
 	}
+}
+
+bool AMCDFDataStore::cdfCopyZRecords(void *cdfId, long varNum, long sourceRecordStart, long recordCount, long destinationRecordStart)
+{
+	CDFstatus s;
+
+	// Moving up, down, or not at all?
+	if(sourceRecordStart == destinationRecordStart)
+		return true;	// nothing to do!
+
+	if(recordCount == 0)
+		return true; // nothing to do!
+
+	// find out size of variable:
+	AMnDIndex varDims = cdfGetVarDimensions(cdfId, varNum);
+	if(varDims.rank()==1 and varDims.i()<0) {	// error
+		return false;
+	}
+
+	// Moving DOWNWARD
+	if(destinationRecordStart > sourceRecordStart) {
+		// Overlapping?
+		if(sourceRecordStart+recordCount-1 >= destinationRecordStart) {
+
+			int varByteSize = varDims.product()*sizeof(double);
+			QByteArray buffer(varByteSize, Qt::Uninitialized);
+
+			// for now, copy one-by-one from last record in source to last record in destination, moving upward.
+			// Could optimize this in some cases by doing a block copy of the non-overlapping block after using this process on the overlapping block.
+			for(long recI=recordCount-1; recI>=0; --recI) {
+				long si = sourceRecordStart+recI;
+				long di = destinationRecordStart+recI;
+
+				s = CDFgetzVarRecordData(cdfId, varNum, si, buffer.data());
+				if(s < CDF_OK)
+					return false;
+				s = CDFputzVarRecordData(cdfId, varNum, di, buffer.data());
+				if(s < CDF_OK)
+					return false;
+			}
+		}
+		// Non-overlapping
+		else {
+			// Can copy the whole thing without overwriting source. Let's do lots of records at once.  How many records to copy at once depends on how many we can fit in memory.
+			long varByteSize = varDims.product()*sizeof(double);
+			// Use a maximum of 10MB of memory to copy:
+			long recordsAtOnce = AM_CDFDATASTORE_MOVERECORDS_MEM_BYTES / varByteSize;
+			recordsAtOnce = qBound(1L, recordsAtOnce, recordCount);
+
+			QByteArray buffer(recordsAtOnce*sizeof(double), Qt::Uninitialized);
+
+			for(long recI=0; recI<recordCount; recI+=recordsAtOnce) {
+				long count = qMin(recordsAtOnce, recordCount-recI);	// the last block we copy might have less than recordsAtOnce
+
+				long si = sourceRecordStart + recI;
+				long di = destinationRecordStart + recI;
+
+				s = CDFgetzVarRangeRecordsByVarID(cdfId, varNum, si, si+count-1, buffer.data());
+				if(s < CDF_OK)
+					return false;
+				s = CDFputzVarRangeRecordsByVarID(cdfId, varNum, di, di+count-1, buffer.data());
+				if(s < CDF_OK)
+					return false;
+			}
+		}
+	}
+
+
+	// Moving UPWARD:
+	else {
+		// overlapping?
+		if(destinationRecordStart+recordCount-1 >= sourceRecordStart) {
+			// For now, copy record-by-record, starting with the first record in source. This makes sure the source is only overwriten after it's been copied out of.  Could optimize by moving the overlapping region record-by-record, and then moving the non-overlapping block all at once.
+			int varByteSize = varDims.product()*sizeof(double);
+			QByteArray buffer(varByteSize, Qt::Uninitialized);
+
+			for(long recI=0; recI<recordCount; ++recI) {
+				long si = sourceRecordStart+recI;
+				long di = destinationRecordStart+recI;
+
+				s = CDFgetzVarRecordData(cdfId, varNum, si, buffer.data());
+				if(s < CDF_OK)
+					return false;
+				s = CDFputzVarRecordData(cdfId, varNum, di, buffer.data());
+				if(s < CDF_OK)
+					return false;
+			}
+		}
+		// Not overlapping:
+		else {
+			// Can copy the whole thing without overwriting source. Let's do lots of records at once.  How many records to copy at once depends on how many we can fit in memory.
+			long varByteSize = varDims.product()*sizeof(double);
+			// Use a maximum of 10MB of memory to copy:
+			long recordsAtOnce = AM_CDFDATASTORE_MOVERECORDS_MEM_BYTES / varByteSize;
+			recordsAtOnce = qBound(1L, recordsAtOnce, recordCount);
+
+			QByteArray buffer(recordsAtOnce*sizeof(double), Qt::Uninitialized);
+
+			for(long recI=0; recI<recordCount; recI+=recordsAtOnce) {
+				long count = qMin(recordsAtOnce, recordCount-recI);	// the last block we copy might have less than recordsAtOnce
+
+				long si = sourceRecordStart + recI;
+				long di = destinationRecordStart + recI;
+
+				s = CDFgetzVarRangeRecordsByVarID(cdfId, varNum, si, si+count-1, buffer.data());
+				if(s < CDF_OK)
+					return false;
+				s = CDFputzVarRangeRecordsByVarID(cdfId, varNum, di, di+count-1, buffer.data());
+				if(s < CDF_OK)
+					return false;
+			}
+		}
+	}
+	return true;
+}
+
+AMnDIndex AMCDFDataStore::cdfGetVarDimensions(void *cdfId, long varNum)
+{
+	long numDims;
+	CDFstatus s = CDFgetzVarNumDims(cdfId, varNum, &numDims);
+	if(s < CDF_OK) {
+		AMErrorMon::debug(0, -300, "Could not retrieve number of dimensions from CDF for variable.");
+		return AMnDIndex(-1);
+	}
+
+	if(numDims == 0)
+		return AMnDIndex();	// scalar variable.
+
+	QVector<long> dims(numDims);
+	s = CDFgetzVarDimSizes(cdfId, varNum, dims.data());
+	if(s < CDF_OK) {
+		AMErrorMon::debug(0, -301, "Could not retrieve dimensions from CDF for variable.");
+		return AMnDIndex(-1);
+	}
+
+	AMnDIndex rv(int(numDims), AMnDIndex::DoNotInit);
+	for(int mu=rv.rank()-1; mu>=0; --mu)
+		rv[mu] = dims.at(mu);
+
+	return rv;
 }
 
 

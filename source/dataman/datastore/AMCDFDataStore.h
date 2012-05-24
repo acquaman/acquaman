@@ -8,6 +8,9 @@
 #include "dataman/AMAxisInfo.h"
 #include "dataman/AMMeasurementInfo.h"
 
+/// How many bytes of memory to allocate when copying for an insertRows operation
+#define AM_CDFDATASTORE_MOVERECORDS_MEM_BYTES 10000000
+
 /// This class implements multi-dimensional storage of scan data, according to the AMDataStore interface.  It is optimized for scan data sets that are too large to store completely in memory.  Data is stored on disk in a CDF formatted file, but accessing the values should be reasonably fast thanks to reading and caching of chunks at a time.  Like AMInMemoryDataStore, using the values() method to access data is much faster than reading by individual value().
 class AMCDFDataStore : public AMDataStore
 {
@@ -130,11 +133,11 @@ protected:
 	/// Maintains the set of measurements that we have at each scan point
 	QList<AMMeasurementInfo> measurements_;
 	/// This list is the same size as measurements_, and holds the CDF var num for each
-	QList<long> measurementVarNums_;
+	QVector<long> measurementVarNums_;
 	/// Maintains information about each scan axis
 	QList<AMAxisInfo> axes_;
 	/// This list is the same size as axes_, and holdes the CDF var num for the axis values along that axis (or -1 if the axis is uniform and we are not storing it.)
-	QList<long> axisValueVarNums_;
+	QVector<long> axisValueVarNums_;
 	/// This stores the size of each axis in axes_.  (The information is duplicated, but this version is needed for performance in some situations. They should always be updated together.)
 	AMnDIndex scanSize_;
 
@@ -150,6 +153,13 @@ protected:
 
 	/// Implements values() for scan ranks larger than 4.
 	bool valuesImplementationRecursive(const AMnDIndex &siStart, const AMnDIndex &siEnd, long varNum, const long* miStart, const long* miSize, const long* miInterval, double **outputValues, long flatReadSize, int currentDimension, long scanSpaceOffset) const;
+
+	/// Moves records in a CDF for a single variable. The source records will overwrite the records in the destination block.  It is OK for the source and destination blocks to overlap; in this case, the records will be copied one-by-one in reverse order to preserve integrity.
+	static bool cdfCopyZRecords(void* cdfId, long varNum, long sourceRecordStart, long recordCount, long destinationRecordStart);
+
+	/// Returns the dimensions of a zVariable in a CDF, by introspecting the CDF. If there is a failure, returns AMnDIndex(-1);  If the variable is 0-dimensional (scalar), returns AMnDIndex().
+	static AMnDIndex cdfGetVarDimensions(void* cdfId, long varNum);
+
 
 };
 
