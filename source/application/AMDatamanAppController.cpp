@@ -152,13 +152,13 @@ bool AMDatamanAppController::startup() {
 	if(!startupRegisterExporters()) { qWarning() << "Problem with Acquaman startup: registering exporters"; return false; }
 
 	if(!startupCreateUserInterface()) { qWarning() << "Problem with Acquaman startup: setting up the user interface."; return false; }
+	splashScreen_->activateWindow();
 	splashScreen_->raise();
 
 	if(!startupInstallActions()) { qWarning() << "Problem with Acquaman startup: installing menu actions."; return false; }
 
 	emit datamanStartupFinished();
-	// show main window
-	mw_->show();
+	splashScreen_->activateWindow();
 	splashScreen_->raise();
 
 	isStarting_ = false;
@@ -604,6 +604,9 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	//////////////////////////////
 
 	connect(mw_, SIGNAL(currentPaneChanged(QWidget*)), this, SLOT(onCurrentPaneChanged(QWidget*)));
+
+	// show main window
+	mw_->show();
 
 	return true;
 }
