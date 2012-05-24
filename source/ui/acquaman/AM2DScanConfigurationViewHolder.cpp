@@ -46,3 +46,59 @@ void AM2DScanConfigurationViewHolder::onAddToQueueRequested()
 	if(goToWorkflowOption_->isChecked())
 		emit showWorkflowRequested();
 }
+
+#include <QMessageBox>
+void AM2DScanConfigurationViewHolder::onStartScanRequested(){
+
+	if(!view_ || !view_->configuration())
+		return;
+
+	if(workflow_->isRunning() || workflow_->beamlineBusy())
+		return;
+
+	bool startNow = true;
+	int position = 0;
+
+	// check first: if there's already items in the workflow, we need to find out if they want to add this action to the end of the queue, add this action to the beginning of the queue,
+	if(workflow_->actionItemCount()) {
+
+		qDebug() << workflow_->actionItemCount();
+
+		QMessageBox questionBox;
+		questionBox.setText("There are already scans waiting in the workflow queue.");
+		questionBox.setInformativeText("What do you want to do with this scan?");
+		questionBox.setIcon(QMessageBox::Question);
+		QPushButton* cancel = questionBox.addButton("Cancel", QMessageBox::RejectRole);
+		QPushButton* addToBeginningAndStart = questionBox.addButton("Add to beginning and start", QMessageBox::YesRole);
+		QPushButton* addToEndAndStart = questionBox.addButton("Add to end and start workflow", QMessageBox::YesRole);
+		QPushButton* addToEnd = questionBox.addButton("Add to end", QMessageBox::YesRole);
+		questionBox.setDefaultButton(addToEndAndStart);
+
+		questionBox.exec();
+
+		QAbstractButton* result = questionBox.clickedButton();
+		if(result == cancel) {
+			return;
+		}
+		else if(result == addToEnd) {
+			position = -1;
+			startNow = false;
+		}
+		else if(result == addToEndAndStart) {
+			position = -1;
+			startNow = false;
+		}
+		else if(result == addToBeginningAndStart) {
+			position = 0;
+			startNow = true;
+		}
+	}
+
+	AMScanConfiguration *config = view_->configuration()->createCopy();
+	/*
+	config->setUserScanName(scanNameDictionaryLineEdit_->text());
+	config->setUserExportNmae(exportNameDictionaryLineEdit_->text());
+	*/
+	AMBeamline2DScanAction* action = new AMBeamline2DScanAction(config);
+	workflow_->insertBeamlineAction(position, action, startNow);
+}
