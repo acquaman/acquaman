@@ -413,6 +413,8 @@ public:
 	// The sample stage.
 	/// Returns the sample stage control built with the pseudo-motors.
 	VESPERSSampleStageControl *pseudoSampleStage() const { return pseudoSampleStage_; }
+	/// Returns the real sample stage control.
+	VESPERSSampleStageControl *realSampleStage() const { return realSampleStage_; }
 
 	// Sample stage PID controls.
 	/// Returns the PID control for the x-direction of the sample stage.
