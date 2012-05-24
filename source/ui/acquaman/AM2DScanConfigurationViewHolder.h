@@ -32,6 +32,8 @@ public:
 	AM2DScanConfigurationViewHolder(AMWorkflowManagerView *workflow, AMScanConfigurationView *view = 0, QWidget *parent = 0);
 
 protected slots:
+	/// Called when the "Start Scan" button is clicked
+	virtual void onStartScanRequested();
 	/// Reimplemented to add 2D scan actions instead of 1D.
 	virtual void onAddToQueueRequested();
 };
