@@ -31,6 +31,8 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	: AMDacqScanController(cfg, parent)
 {
 	config_ = cfg;
+	config_->setUserScanName(config_->name());
+
 	setupXASAction_ = 0;
 	cleanupXASAction_ = 0;
 

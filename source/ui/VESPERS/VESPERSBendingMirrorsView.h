@@ -7,6 +7,7 @@
 
 class QLabel;
 class QDoubleSpinBox;
+class QLineEdit;
 
 /// This class handles the layout for an individual line in (and conversely, motor).  It has the status indicator, the position, feedback, and stop button.
 class VESPERSBendingMirrorsElementView : public QWidget
@@ -22,6 +23,8 @@ protected slots:
 	void onControlConnected(bool isConnected);
 	/// Helper slot that changes the pixmap for the status label.
 	void onStatusChanged(bool moving);
+	/// Helper slot that updates the setpoint line edit if the setpoint changes.
+	void onSetpointChanged(double val);
 	/// Helper slot that tells the control to move based on the setpoint.
 	void onMoveRequested();
 	/// Helper slot that performs a negative jog movement from the current position.
@@ -36,8 +39,8 @@ protected:
 	AMControl *control_;
 	/// Pointer to the status label.
 	QLabel *status_;
-	/// Pointer to the spin box holding setpoint.
-	QDoubleSpinBox *setpoint_;
+	/// Pointer to the line edit holding setpoint.
+	QLineEdit *setpoint_;
 	/// Pointer to the spin box holding the jog size.
 	QDoubleSpinBox *jog_;
 	/// Pointer to the label holding the feedback.

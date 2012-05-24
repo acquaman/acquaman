@@ -30,6 +30,7 @@ AM2DDacqScanController::AM2DDacqScanController(AM2DScanConfiguration *cfg, QObje
 	fastAxisStartPosition_ = 0;
 	useDwellTimes_ = false;
 	stopAtEndOfLine_ = false;
+	duplicateColumnsDetected_ = false;
 }
 
 bool AM2DDacqScanController::startImplementation()
@@ -109,6 +110,9 @@ bool AM2DDacqScanController::startImplementation()
 	}
 }
 
+/// Hackish for now.
+#include <QMessageBox>
+
 bool AM2DDacqScanController::event(QEvent *e)
 {
 	// This makes sure that the data is put in the appropriate location.
@@ -129,6 +133,17 @@ bool AM2DDacqScanController::event(QEvent *e)
 			++i;
 			scan_->rawData()->setAxisValue(1, insertIndex.j(), i.value());
 			++i;
+
+			QList<double> temp = aeData.values();
+
+			if (temp.size() > 5 && !duplicateColumnsDetected_)
+				for (int x = 5; x < temp.size(); x++)
+					if (temp.at(x) == temp.at(x-1)){
+
+						duplicateColumnsDetected_ = true;
+						AMErrorMon::alert(this, AM2DDACQSCANCONTROLLER_DUPLICATE_COLUMNS_DETECTED, QString("Duplicate columns detected at %1 and %2").arg(x).arg(x-1));
+						QMessageBox::warning(0, "Duplicate Columns Detected", "An error has occurred within the scan engine where data is not being saved correctly.  Please contact Darren at 290-5418.");
+					}
 
 			while(i != aeData.constEnd()){
 				scan_->rawData()->setValue(insertIndex, i.key()-2, AMnDIndex(), i.value());
@@ -248,12 +263,12 @@ void AM2DDacqScanController::prefillScanPoints()
 			double floatNumX = (xEnd-xStart)/xStep;
 			double floatNumY = (yEnd-yStart)/yStep;
 
-			if ((floatNumX-int(floatNumX)) == 0)
+			if (fabs((floatNumX-int(floatNumX))) < 0.1*xStep)
 				xCount = int(floatNumX) + 1;
 			else
 				xCount = int(floatNumX) + 2;
 
-			if ((floatNumY-int(floatNumY)) == 0)
+			if (fabs((floatNumY-int(floatNumY))) < 0.1*yStep)
 				yCount = int(floatNumY) + 1;
 			else
 				yCount = int(floatNumY) + 2;
