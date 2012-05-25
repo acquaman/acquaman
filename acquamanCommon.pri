@@ -84,8 +84,8 @@ linux-g++-32 {
 		GSL_CBLAS_LIB = -lgslcblas
 
 		# QwtPlot3d dependencies (Disabled for now...)
-		QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/lib
-		QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/include
+#		QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/lib
+#		QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/include
 
 		# LibXML Dependencies (required by dacq library)
 		XML_LIB = -lxml2
@@ -398,7 +398,7 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/ui/AMFolderPathLineEdit.h \
 	source/util/AMTagReplacementParser.h \
 	source/ui/dataman/AMExporterOptionGeneralAsciiView.h \
-	source/ui/dataman/AM3dDataSourceView.h \
+	#source/ui/dataman/AM3dDataSourceView.h \
 	source/ui/AMTopFrame.h \
 	source/actions/AMBeamlineSamplePlateMoveAction.h \
 	source/actions/AMBeamlineFiducializationMoveAction.h \
@@ -799,7 +799,7 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/ui/dataman/AMExporterOptionGeneralAsciiView.cpp \
 	source/ui/AMTopFrame.cpp \
 	source/dataman/export/AMExporter.cpp \
-	source/ui/dataman/AM3dDataSourceView.cpp \
+	#source/ui/dataman/AM3dDataSourceView.cpp \
 	source/actions/AMBeamlineSamplePlateMoveAction.cpp \
 	source/actions/AMBeamlineFiducializationMoveAction.cpp \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.cpp \

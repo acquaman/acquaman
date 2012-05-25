@@ -654,12 +654,12 @@ void AM2DScanViewExclusiveView::reviewScan(int scanIndex)
 					plot_->plot()->axisLeft()->setAxisName(scan->rawData()->scanAxisAt(1).units.isEmpty() ? scan->rawData()->scanAxisAt(1).description : scan->rawData()->scanAxisAt(1).description % ", " % scan->rawData()->scanAxisAt(1).units);
 
 					// testing 3D
-					if(dataSource->rank() == 2) {
-						tempView = new AM3dDataSourceView(model()->scanAt(scanIndex), model()->scanAt(scanIndex)->indexOfDataSource(dataSource));
+//					if(dataSource->rank() == 2) {
+//						tempView = new AM3dDataSourceView(model()->scanAt(scanIndex), model()->scanAt(scanIndex)->indexOfDataSource(dataSource));
 //						tempView->setLogScaleEnabled();
-						tempView->resize(640,480);
-						tempView->show();
-					}
+//						tempView->resize(640,480);
+//						tempView->show();
+//					}
 					break;
 				}
 			}
@@ -683,7 +683,7 @@ void AM2DScanViewExclusiveView::reviewScan(int scanIndex)
 				}
 				image->setColorMap(model()->plotColorMap(scanIndex, dataSourceIndex));
 
-				tempView->setScanAndDataSource(model()->scanAt(scanIndex), model()->scanAt(scanIndex)->indexOfDataSource(dataSource));
+//				tempView->setScanAndDataSource(model()->scanAt(scanIndex), model()->scanAt(scanIndex)->indexOfDataSource(dataSource));
 				break;
 			}
 
