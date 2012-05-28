@@ -251,11 +251,21 @@ void SGMAppController::onSGMBeamlineConnected(){
 		//fastScanConfigurationHolder_->setView(fastScanConfigurationView_);
 		fastScanConfigurationHolder3_->setView(fastScanConfigurationView_);
 	}
+	else if(!SGMBeamline::sgm()->isConnected() && !xasScanConfigurationView_ && !fastScanConfigurationView_){
+		//do nothing
+	}
+	else if(SGMBeamline::sgm()->isConnected() && !xasScanConfigurationHolder3_->isEnabled() && !fastScanConfigurationHolder3_->isEnabled()){
+		xasScanConfigurationHolder3_->setEnabled(true);
+		fastScanConfigurationHolder3_->setEnabled(true);
+	}
+	else if(!SGMBeamline::sgm()->isConnected() && xasScanConfigurationView_->isVisible() && fastScanConfigurationView_->isVisible()){
+		xasScanConfigurationHolder3_->setEnabled(false);
+		fastScanConfigurationHolder3_->setEnabled(false);
+	}
 }
 
 void SGMAppController::onSGMScalerConnected(bool connected){
 	Q_UNUSED(connected)
-	//if(connected && !sgmScalerView_){
 	if(SGMBeamline::sgm()->rawScaler() && SGMBeamline::sgm()->rawScaler()->isConnected() && !sgmScalerView_){
 		sgmScalerView_ = new CLSSIS3820ScalerView(SGMBeamline::sgm()->scaler());
 		mw_->addPane(sgmScalerView_, "Beamline Control", "SGM Scaler", ":/system-software-update.png", true);
@@ -264,7 +274,6 @@ void SGMAppController::onSGMScalerConnected(bool connected){
 
 void SGMAppController::onSGMAmptekSDD1Connected(bool connected){
 	Q_UNUSED(connected)
-	//if(connected && ! amptekSDD1View_){
 	if(SGMBeamline::sgm()->amptekSDD1() && SGMBeamline::sgm()->amptekSDD1()->isConnected() && ! amptekSDD1View_){
 		amptekSDD1View_ = AMDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->amptekSDD1());
 		mw_->addPane(amptekSDD1View_, "Beamline Control", "SGM Amptek1", ":/system-software-update.png");
@@ -273,7 +282,6 @@ void SGMAppController::onSGMAmptekSDD1Connected(bool connected){
 
 void SGMAppController::onSGMAmptekSDD2Connected(bool connected){
 	Q_UNUSED(connected)
-	//if(connected && ! amptekSDD2View_){
 	if(SGMBeamline::sgm()->amptekSDD2() && SGMBeamline::sgm()->amptekSDD2()->isConnected() && ! amptekSDD2View_){
 		amptekSDD2View_ = AMDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->amptekSDD2());
 		mw_->addPane(amptekSDD2View_, "Beamline Control", "SGM Amptek2", ":/system-software-update.png");
@@ -1033,6 +1041,7 @@ bool SGMAppController::setupSGMViews(){
 
 	//connect(SGMBeamline::sgm(), SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(onSGMBeamlineConnected()));
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineInitialized()), this, SLOT(onSGMBeamlineConnected()));
+	connect(SGMBeamline::sgm(), SIGNAL(criticalConnectionsChanged()), this, SLOT(onSGMBeamlineConnected()));
 	onSGMBeamlineConnected();
 
 	additionalIssueTypesAndAssignees_.append("I think it's an SGM specific issue", "davidChevrier");

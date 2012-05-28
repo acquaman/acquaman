@@ -30,6 +30,7 @@ SGMSettingsMasterView::SGMSettingsMasterView(QWidget *parent) :
 
 	connect(sgmPluginsLocationView_, SIGNAL(unsavedChanges(bool)), this, SLOT(onUnsavedChanges(bool)));
 	connect(sgmDacqConfigurationFileView_, SIGNAL(unsavedChanges(bool)), this, SLOT(onUnsavedChanges(bool)));
+	connect(sgmDetectorsMasterView_, SIGNAL(unsavedChanges(bool)), this, SLOT(onUnsavedChanges(bool)));
 
 	vl_ = new QVBoxLayout();
 	vl_->addWidget(sgmPluginsLocationView_);
@@ -65,12 +66,14 @@ void SGMSettingsMasterView::onUnsavedChanges(bool hasUnsavedChanges){
 void SGMSettingsMasterView::onCancelButtonClicked(){
 	sgmPluginsLocationView_->discardChanges();
 	sgmDacqConfigurationFileView_->discardChanges();
+	sgmDetectorsMasterView_->discardChanges();
 	close();
 }
 
 void SGMSettingsMasterView::onApplyButtonClicked(){
 	sgmPluginsLocationView_->applyChanges();
 	sgmDacqConfigurationFileView_->applyChanges();
+	sgmDetectorsMasterView_->applyChanges();
 }
 
 void SGMSettingsMasterView::onOkButtonClicked(){
@@ -80,7 +83,7 @@ void SGMSettingsMasterView::onOkButtonClicked(){
 
 #include <QCloseEvent>
 void SGMSettingsMasterView::closeEvent(QCloseEvent *e){
-	if(!sgmPluginsLocationView_->hasUnsavedChanges() && !sgmDacqConfigurationFileView_->hasUnsavedChanges()){
+	if(!sgmPluginsLocationView_->hasUnsavedChanges() && !sgmDacqConfigurationFileView_->hasUnsavedChanges() && !sgmDetectorsMasterView_->hasUnsavedChanges()){
 		e->accept();
 		return;
 	}
@@ -93,11 +96,13 @@ void SGMSettingsMasterView::closeEvent(QCloseEvent *e){
 		if(ret == QMessageBox::Save){
 			sgmPluginsLocationView_->applyChanges();
 			sgmDacqConfigurationFileView_->applyChanges();
+			sgmDetectorsMasterView_->applyChanges();
 			e->accept();
 		}
 		else if(ret == QMessageBox::Discard){
 			sgmPluginsLocationView_->discardChanges();
 			sgmDacqConfigurationFileView_->discardChanges();
+			sgmDetectorsMasterView_->discardChanges();
 			e->accept();
 		}
 		else
@@ -429,8 +434,83 @@ SGMDetectorsMasterView::SGMDetectorsMasterView(QWidget *parent) :
 	setLayout(fl_);
 }
 
-void SGMDetectorsMasterView::onCheckBoxesChanged(bool toggled){
+bool SGMDetectorsMasterView::hasUnsavedChanges() const{
+	return unsavedChanges_;
+}
 
+void SGMDetectorsMasterView::applyChanges(){
+	if(unsavedChanges_){
+		AMDetectorSet *allDetectors = SGMBeamline::sgm()->rawDetectors();
+		AMDetectorSet *criticalDetectors = SGMBeamline::sgm()->criticalDetectorsSet();
+
+		QList<bool> newRequiredDetectors;
+		for(int x = 0; x < fl_->rowCount(); x++){
+			QCheckBox *checkBox = qobject_cast<QCheckBox*>(fl_->itemAt(x, QFormLayout::FieldRole)->layout()->itemAt(0)->widget());
+			if(checkBox && checkBox->isChecked())
+				newRequiredDetectors.append(true);
+			else
+				newRequiredDetectors.append(false);
+		}
+
+		for(int x = 0; x < initialRequiredDetectors_.count(); x++){
+			if(initialRequiredDetectors_.at(x) != newRequiredDetectors.at(x)){
+				if(newRequiredDetectors.at(x))
+					criticalDetectors->addDetector(allDetectors->detectorAt(x));
+				else
+					criticalDetectors->removeDetector(allDetectors->detectorAt(x));
+			}
+		}
+
+		storeInitialState();
+	}
+}
+
+void SGMDetectorsMasterView::discardChanges(){
+	if(unsavedChanges_){
+		for(int x = 0; x < fl_->rowCount(); x++){
+			QCheckBox *checkBox = qobject_cast<QCheckBox*>(fl_->itemAt(x, QFormLayout::FieldRole)->layout()->itemAt(0)->widget());
+			if(checkBox && (checkBox->isChecked() != initialRequiredDetectors_.at(x)) )
+				checkBox->setChecked(initialRequiredDetectors_.at(x));
+		}
+
+		storeInitialState();
+	}
+}
+
+#include <QShowEvent>
+void SGMDetectorsMasterView::showEvent(QShowEvent *e){
+	storeInitialState();
+	e->accept();
+}
+
+void SGMDetectorsMasterView::storeInitialState(){
+	unsavedChanges_ = false;
+	initialRequiredDetectors_.clear();
+	for(int x = 0; x < fl_->rowCount(); x++){
+		QCheckBox *checkBox = qobject_cast<QCheckBox*>(fl_->itemAt(x, QFormLayout::FieldRole)->layout()->itemAt(0)->widget());
+		if(checkBox && checkBox->isChecked())
+			initialRequiredDetectors_.append(true);
+		else
+			initialRequiredDetectors_.append(false);
+	}
+}
+
+void SGMDetectorsMasterView::onCheckBoxesChanged(bool toggled){
+	Q_UNUSED(toggled)
+	for(int x = 0; x < fl_->rowCount(); x++){
+		QCheckBox *checkBox = qobject_cast<QCheckBox*>(fl_->itemAt(x, QFormLayout::FieldRole)->layout()->itemAt(0)->widget());
+		if(checkBox && (checkBox->isChecked() != initialRequiredDetectors_.at(x)) ){
+			if(!unsavedChanges_){
+				unsavedChanges_ = true;
+				emit unsavedChanges(true);
+			}
+			return;
+		}
+	}
+	if(unsavedChanges_){
+		unsavedChanges_ = false;
+		emit unsavedChanges(false);
+	}
 }
 
 void SGMDetectorsMasterView::onDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable){

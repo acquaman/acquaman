@@ -377,13 +377,14 @@ void SGMSidebar::onStripToolTimerTimeout(){
 }
 
 void SGMSidebar::onBeamlineWarnings(const QString &newWarnings){
+	qDebug() << "Warnings are " << newWarnings << newWarnings.isEmpty();
 	if(newWarnings.isEmpty() && warningAndPlotHL_->itemAt(0)->widget() == beamlineWarningsLabel_){
 		warningAndPlotHL_->removeWidget(beamlineWarningsLabel_);
 		beamlineWarningsLabel_->hide();
 		warningAndPlotHL_->addWidget(imageView_);
 		imageView_->show();
 	}
-	else if(warningAndPlotHL_->itemAt(0)->widget() == imageView_){
+	else if(!newWarnings.isEmpty() && warningAndPlotHL_->itemAt(0)->widget() == imageView_){
 		warningAndPlotHL_->removeWidget(imageView_);
 		imageView_->hide();
 		warningAndPlotHL_->addWidget(beamlineWarningsLabel_);

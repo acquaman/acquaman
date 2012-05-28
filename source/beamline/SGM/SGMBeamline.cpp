@@ -385,7 +385,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	usingSGMBeamline();
 
 	beamlineWarnings_ = "";
-	connect(this, SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(recomputeWarnings()));
+	//connect(this, SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(recomputeWarnings()));
+	connect(this, SIGNAL(criticalConnectionsChanged()), this, SLOT(recomputeWarnings()));
 
 	addChildControl(energy_);
 	addChildControl(energySpacingParam_);
@@ -453,6 +454,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	connect(criticalControlsSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 	connect(criticalControlsSet_, SIGNAL(controlConnectedChanged(bool,AMControl*)), this, SLOT(onCriticalControlsConnectedChanged(bool,AMControl*)));
 
+	connect(criticalControlsSet_, SIGNAL(connected(bool)), this, SLOT(onCriticalsConnectedChanged()));
+
 	beamOnControlSet_ = new AMControlSet(this);
 	beamOnControlSet_->setName("Beam On Controls");
 	beamOnControlSet_->addControl(beamOn_);
@@ -476,6 +479,9 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	criticalDetectorsSet_->setName("Critical Beamline Detectors");
 	rawDetectorsSet_ = new AMDetectorSet(this);
 	rawDetectorsSet_->setName("All possible detectors for SGM Beamline");
+	connect(criticalDetectorsSet_, SIGNAL(connected(bool)), this, SLOT(onCriticalsConnectedChanged()));
+	connect(criticalDetectorsSet_, SIGNAL(detectorAdded(int)), this, SLOT(recomputeWarnings()));
+	connect(criticalDetectorsSet_, SIGNAL(detectorRemoved(int)), this, SLOT(recomputeWarnings()));
 
 	allDetectors_ = new AMDetectorSet(this);
 	allDetectors_->setName("All Detectors");
@@ -798,7 +804,11 @@ QString SGMBeamline::sgmEndstationName(SGMBeamline::sgmEndstation endstation) co
 }
 
 QStringList SGMBeamline::unconnectedCriticals() const{
-	return criticalControlsSet_->unconnected();
+	QStringList allUnconnected;
+	allUnconnected.append(criticalControlsSet_->unconnected());
+	allUnconnected.append(criticalDetectorsSet_->unconnected());
+	return allUnconnected;
+	//return criticalControlsSet_->unconnected();
 }
 
 bool SGMBeamline::detectorConnectedByName(QString name){
@@ -1407,6 +1417,12 @@ void SGMBeamline::onCriticalControlsConnectedChanged(bool isConnected, AMControl
 	emit criticalControlsConnectionsChanged();
 }
 
+void SGMBeamline::onCriticalsConnectedChanged(){
+	qDebug() << "Critical controls are connected: " << criticalControlsSet_->isConnected();
+	qDebug() << "Critical detectors are connected: " << criticalDetectorsSet_->isConnected();
+	emit criticalConnectionsChanged();
+}
+
 void SGMBeamline::onDetectorSignalSourceChanged(double value){
 	/* NTBA - April 3rd, 2012 (David Chevrier)
 	I don't think this is necessary at all anymore.
@@ -1504,7 +1520,8 @@ void SGMBeamline::onActiveEndstationChanged(double value){
 }
 
 void SGMBeamline::recomputeWarnings(){
-	if(!criticalControlsSet_->isConnected()){
+	//if(!criticalControlsSet_->isConnected()){
+	if(!isConnected()){
 		beamlineWarnings_ = "Warning some critical beamline\ncontrols are not connected:\n";
 		foreach(QString ctrlName, unconnectedCriticals())
 			beamlineWarnings_.append("  "+ctrlName+"\n");
