@@ -39,6 +39,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSExperimentConfigurationView.h"
 #include "ui/VESPERS/VESPERSRoperCCDDetectorView.h"
 #include "ui/VESPERS/VESPERS2DScanConfigurationView.h"
+#include "ui/VESPERS/VESPERSEndstationConfigurationView.h"
 
 #include "dataman/AMScanEditorModelItem.h"
 #include "ui/dataman/AMGenericScanEditor.h"
@@ -252,6 +253,9 @@ void VESPERSAppController::setupUserInterface()
 	// Setup page that auto-enables detectors.
 	VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
 
+	// Setup page for the endstation.  Will probably replace experiment configuration eventually.
+	VESPERSEndstationConfigurationView *endstationConfigurationView = new VESPERSEndstationConfigurationView(VESPERSBeamline::vespers()->endstationConfiguration());
+
 	// Setup XAS for the beamline.  Builds the config, view, and view holder.
 	exafsScanConfig_ = new VESPERSEXAFSScanConfiguration();
 	exafsScanConfig_->addRegion(0, -30, 0.5, 40, 1);
@@ -271,6 +275,7 @@ void VESPERSAppController::setupUserInterface()
 
 	mw_->insertHeading("Scans", 2);
 	mw_->addPane(experimentConfigurationView, "Scans", "Experiment Setup", ":/utilities-system-monitor.png");
+	mw_->addPane(endstationConfigurationView, "Scans", "Endstation Setup", ":/utilities-system-monitor.png");
 	mw_->addPane(exafsConfigViewHolder_, "Scans", "XAS", ":/utilities-system-monitor.png");
 	mw_->addPane(mapScanConfigurationViewHolder_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
 //	mw_->addPane(exafsConfigViewHolder3_, "Scans", "XAS", ":/utilities-system-monitor.png");

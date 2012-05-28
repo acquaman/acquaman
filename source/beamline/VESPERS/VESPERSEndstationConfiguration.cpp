@@ -81,7 +81,7 @@ void VESPERSEndstationConfiguration::setGeometry(Geometry newGeometry)
 		xrf_ = qMakePair(true, false);
 		xrd_ = qMakePair(true, false);
 		ionChambers_ = qMakePair(true, false);
-		vortex1E_ = qMakePair(true, false);
+		vortex1E_ = qMakePair(false, false);
 		vortex4E_ = qMakePair(true, false);
 		roperCCD_ = qMakePair(true, false);
 		break;
