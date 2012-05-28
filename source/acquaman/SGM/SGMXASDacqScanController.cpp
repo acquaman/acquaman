@@ -93,6 +93,9 @@ bool SGMXASDacqScanController::startImplementation(){
 				allDwellStage.append(dtctr->dacqDwell());
 			if(!dtctr->dacqFinish().isEmpty())
 				allFinishStage.append(dtctr->dacqFinish());
+
+			if(!usingSpectraDotDatFile_ && (dtctr->toInfo()->rank() != 0) )
+				usingSpectraDotDatFile_ = true;
 		}
 	}
 
