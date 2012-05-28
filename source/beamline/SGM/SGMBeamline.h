@@ -310,6 +310,7 @@ signals:
 	void beamlineScanningChanged(bool scanning);
 	void controlSetConnectionsChanged();
 	void criticalControlsConnectionsChanged();
+	void criticalConnectionsChanged();
 
 	void visibleLightStatusChanged(const QString& status);
 
@@ -330,6 +331,7 @@ protected slots:
 	void onControlSetConnected(bool csConnected);
 	void onDetectorConnected(bool isConnected);
 	void onCriticalControlsConnectedChanged(bool isConnected, AMControl *controll);
+	void onCriticalsConnectedChanged();
 
 	void onDetectorSignalSourceChanged(double value);
 	void onActiveEndstationChanged(double value);

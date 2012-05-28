@@ -130,13 +130,38 @@ Q_OBJECT
 public:
 	SGMDetectorsMasterView(QWidget *parent = 0);
 
+	/// Returns whether or not there are unsaved changed (see unsavedChanges_ member variable)
+	bool hasUnsavedChanges() const;
+
+public slots:
+	/// Applies any changes (this is, saves changes for this run-time instance)
+	void applyChanges();
+	/// Discards any changes and sets the line edits back to the last values
+	void discardChanges();
+
+signals:
+	/// Emitted whenever the value unsavedChanges changes from true to false or vice versa
+	void unsavedChanges(bool hasUnsavedChanges) const;
+
 protected slots:
+	/// Slot connected to each QCheckBox to determine if changes have been made
 	void onCheckBoxesChanged(bool toggled);
+	/// Slot connected to each detector to determine the connectivity state
 	void onDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
+
+protected:
+	/// Show event is reimplemented to save the initial state to check against future changes
+	virtual void showEvent(QShowEvent *);
+
+	/// Internal function to record the strings in the QLineEdits and reset unsavedChanges
+	void storeInitialState();
 
 protected:
 	QFormLayout *fl_;
 
+	/// Holds a cache of the startup values of the QCheckBoxes (to check against for future changes)
+	QList<bool> initialRequiredDetectors_;
+	/// Holds whether or not there are actual changes (compared to the initialLineEdits)
 	bool unsavedChanges_;
 };
 
