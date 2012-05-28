@@ -106,7 +106,8 @@ public:
 
 	bool isConnected() const {
 		//return criticalControlsSet_->isConnected() && pgtDetector()->isConnected() && oos65000Detector()->isConnected();
-		return criticalControlsSet_->isConnected() && pgtDetector()->isConnected() && teyScalerDetector_->isConnected();
+		//return criticalControlsSet_->isConnected() && pgtDetector()->isConnected() && teyScalerDetector_->isConnected();
+		return criticalControlsSet_->isConnected() && criticalDetectorsSet_->isConnected();
 	}
 
 	QStringList unconnectedCriticals() const;
@@ -219,9 +220,18 @@ public:
 
 	AMControlSetSampleManipulator* sampleManipulator() const { return sampleManipulator_; }
 
+	/// Critical detectors that must be there for the beamline to be considered "connected". Can be altered in the beamline settings view
+	AMDetectorSet* criticalDetectorsSet() const { return criticalDetectorsSet_;}
+	/// All of the detectors on the beamline, regardless of whether they're connnected or not
+	AMDetectorSet* rawDetectors() const { return rawDetectorsSet_;}
+
+	/// All of the detectors currently connected on the beamline
 	AMDetectorSet* allDetectors() const { return allDetectors_;}
+	/// List of connected feedback detectors
 	AMDetectorSet* feedbackDetectors() const { return feedbackDetectors_;}
+	/// List of connected detectors availabe for XAS scans
 	AMDetectorSet* XASDetectors() const { return XASDetectors_;}
+	/// List of connected detectors available for Fast scans
 	AMDetectorSet* FastDetectors() const { return FastDetectors_;}
 
 	AMSamplePlate* currentSamplePlate() const { return currentSamplePlate_; }
@@ -328,6 +338,7 @@ protected slots:
 
 	void onVisibleLightChanged(double value);
 	void onDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
+	void ensureDetectorTimeout();
 
 	void computeBeamlineInitialized();
 
@@ -415,6 +426,9 @@ protected:
 	AMDetector* amptekSDD2_;
 
 	AMControlSet *criticalControlsSet_;
+	AMDetectorSet *criticalDetectorsSet_;
+	AMDetectorSet *rawDetectorsSet_;
+
 	AMControlSet *beamOnControlSet_;
 	AMControlSet *transferLoadLockOutControlSet_;
 	AMControlSet *transferLoadLockInControlSet_;

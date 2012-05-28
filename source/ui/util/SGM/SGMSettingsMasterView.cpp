@@ -26,6 +26,7 @@ SGMSettingsMasterView::SGMSettingsMasterView(QWidget *parent) :
 {
 	sgmPluginsLocationView_ = new SGMPluginsLocationView();
 	sgmDacqConfigurationFileView_ = new SGMDacqConfigurationFileView();
+	sgmDetectorsMasterView_ = new SGMDetectorsMasterView();
 
 	connect(sgmPluginsLocationView_, SIGNAL(unsavedChanges(bool)), this, SLOT(onUnsavedChanges(bool)));
 	connect(sgmDacqConfigurationFileView_, SIGNAL(unsavedChanges(bool)), this, SLOT(onUnsavedChanges(bool)));
@@ -33,6 +34,7 @@ SGMSettingsMasterView::SGMSettingsMasterView(QWidget *parent) :
 	vl_ = new QVBoxLayout();
 	vl_->addWidget(sgmPluginsLocationView_);
 	vl_->addWidget(sgmDacqConfigurationFileView_);
+	vl_->addWidget(sgmDetectorsMasterView_);
 
 	applyButton_ = new QPushButton("Apply");
 	cancelButton_ = new QPushButton("Cancel");
@@ -380,5 +382,75 @@ void SGMDacqConfigurationFileView::onLineEditsChanged(){
 	if(unsavedChanges_){
 		unsavedChanges_ = false;
 		emit unsavedChanges(false);
+	}
+}
+
+#include "beamline/SGM/SGMBeamline.h"
+#include <QCheckBox>
+#include <QLabel>
+
+SGMDetectorsMasterView::SGMDetectorsMasterView(QWidget *parent) :
+	QGroupBox("Detectors", parent)
+{
+	unsavedChanges_ = false;
+
+	fl_ = new QFormLayout();
+
+	QCheckBox *tempCheckBox;
+	QLabel *tempLabel;
+	QHBoxLayout *tempHL;
+	AMDetectorSet *allDetectors = SGMBeamline::sgm()->rawDetectors();
+	AMDetectorSet *criticalDetectors = SGMBeamline::sgm()->criticalDetectorsSet();
+	for(int x = 0; x < allDetectors->count(); x++){
+		tempCheckBox = new QCheckBox("(Required)");
+		if(criticalDetectors->indexOf(allDetectors->detectorAt(x)) != -1)
+			tempCheckBox->setChecked(true);
+		tempLabel = new QLabel();
+		QPalette labelPallete = tempLabel->palette();
+		if(allDetectors->detectorAt(x)->isConnected()){
+			tempLabel->setText("Connected");
+			labelPallete.setColor(tempLabel->foregroundRole(), QColor(0, 255, 0));
+		}
+		else{
+			tempLabel->setText("Not Connected");
+			labelPallete.setColor(tempLabel->foregroundRole(), QColor(255, 0, 0));
+		}
+		tempLabel->setPalette(labelPallete);
+		tempHL = new QHBoxLayout();
+		tempHL->addWidget(tempCheckBox);
+		tempHL->addWidget(tempLabel);
+
+		//fl_->addRow(allDetectors->detectorAt(x)->detectorName(), tempCheckBox);
+		fl_->addRow(allDetectors->detectorAt(x)->description(), tempHL);
+		connect(tempCheckBox, SIGNAL(toggled(bool)), this, SLOT(onCheckBoxesChanged(bool)));
+		connect(allDetectors->detectorAt(x)->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SLOT(onDetectorAvailabilityChanged(AMDetector*,bool)));
+	}
+
+	setLayout(fl_);
+}
+
+void SGMDetectorsMasterView::onCheckBoxesChanged(bool toggled){
+
+}
+
+void SGMDetectorsMasterView::onDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable){
+	for(int x = 0; x < fl_->rowCount(); x++){
+		QLabel *label = qobject_cast<QLabel*>(fl_->itemAt(x, QFormLayout::LabelRole)->widget());
+		if(label && (label->text() == detector->description()) ){
+			QLabel *connectedLabel = qobject_cast<QLabel*>(fl_->itemAt(x, QFormLayout::FieldRole)->layout()->itemAt(1)->widget());
+			if(connectedLabel){
+				QPalette labelPallete = connectedLabel->palette();
+				if(isAvailable){
+					connectedLabel->setText("Connected");
+					labelPallete.setColor(connectedLabel->foregroundRole(), QColor(0, 255, 0));
+				}
+				else{
+					connectedLabel->setText("Not Connected");
+					labelPallete.setColor(connectedLabel->foregroundRole(), QColor(255, 0, 0));
+				}
+				connectedLabel->setPalette(labelPallete);
+			}
+			return;
+		}
 	}
 }

@@ -471,6 +471,12 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	transferLoadLockInControlSet_->addControl(loadlockTCG_);
 
 	detectorMap_ = new QMultiMap<AMDetector*, QPair<AMDetectorSet*, bool> >();
+
+	criticalDetectorsSet_ = new AMDetectorSet(this);
+	criticalDetectorsSet_->setName("Critical Beamline Detectors");
+	rawDetectorsSet_ = new AMDetectorSet(this);
+	rawDetectorsSet_->setName("All possible detectors for SGM Beamline");
+
 	allDetectors_ = new AMDetectorSet(this);
 	allDetectors_->setName("All Detectors");
 
@@ -489,6 +495,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	detectorMap_->insert(teyScalerDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(teyScalerDetector_, qMakePair(XASDetectors(), true));
 	detectorMap_->insert(teyScalerDetector_, qMakePair(FastDetectors(), true));
+	criticalDetectorsSet_->addDetector(teyScalerDetector_);
+	rawDetectorsSet_->addDetector(teyScalerDetector_);
 	connect(teyScalerDetector_->signalSource(), SIGNAL(connected(bool)), this, SLOT(onDetectorConnected(bool)));
 	connect(teyScalerDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 
@@ -498,6 +506,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	detectorMap_->insert(tfyScalerDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(tfyScalerDetector_, qMakePair(XASDetectors(), true));
 	detectorMap_->insert(tfyScalerDetector_, qMakePair(FastDetectors(), true));
+	criticalDetectorsSet_->addDetector(tfyScalerDetector_);
+	rawDetectorsSet_->addDetector(tfyScalerDetector_);
 	connect(tfyScalerDetector_->signalSource(), SIGNAL(connected(bool)), this, SLOT(onDetectorConnected(bool)));
 	connect(tfyScalerDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 	connect(tfyScalerDetector_->signalSource(), SIGNAL(settingsChanged()), this, SIGNAL(detectorHVChanged()));
@@ -510,6 +520,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	connect(pgtDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 	detectorMap_->insert(pgtDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(pgtDetector_, qMakePair(XASDetectors(), false));
+	criticalDetectorsSet_->addDetector(pgtDetector_);
+	rawDetectorsSet_->addDetector(pgtDetector_);
 
 	oos65000Detector_ = new CLSOceanOptics65000Detector("oos65000", "SA0000-03", AMDetector::WaitRead, this);
 	oos65000Detector_->setDescription("OceanOptics 65000");
@@ -518,12 +530,15 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	connect(oos65000Detector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 	detectorMap_->insert(oos65000Detector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(oos65000Detector_, qMakePair(XASDetectors(), false));
+	rawDetectorsSet_->addDetector(oos65000Detector_);
 
 	i0ScalerDetector_ = new AMSingleReadOnlyControlDetector("I0Scaler", "BL1611-ID-1:mcs01:fbk", AMDetector::WaitRead, this);
 	i0ScalerDetector_->setDescription("I0");
 	detectorRegistry_.append(i0ScalerDetector_);
 	detectorMap_->insert(i0ScalerDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(i0ScalerDetector_, qMakePair(feedbackDetectors(), false));
+	criticalDetectorsSet_->addDetector(i0ScalerDetector_);
+	rawDetectorsSet_->addDetector(i0ScalerDetector_);
 	connect(i0ScalerDetector_->signalSource(), SIGNAL(connected(bool)), this, SLOT(onDetectorConnected(bool)));
 	connect(i0ScalerDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 
@@ -532,6 +547,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	detectorRegistry_.append(eVFbkDetector_);
 	detectorMap_->insert(eVFbkDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(eVFbkDetector_, qMakePair(feedbackDetectors(), false));
+	criticalDetectorsSet_->addDetector(eVFbkDetector_);
+	rawDetectorsSet_->addDetector(eVFbkDetector_);
 	connect(eVFbkDetector_->signalSource(), SIGNAL(connected(bool)), this, SLOT(onDetectorConnected(bool)));
 	connect(eVFbkDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 
@@ -540,6 +557,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	detectorRegistry_.append(photodiodeScalerDetector_);
 	detectorMap_->insert(photodiodeScalerDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(photodiodeScalerDetector_, qMakePair(feedbackDetectors(), false));
+	criticalDetectorsSet_->addDetector(photodiodeScalerDetector_);
+	rawDetectorsSet_->addDetector(photodiodeScalerDetector_);
 	connect(photodiodeScalerDetector_->signalSource(), SIGNAL(connected(bool)), this, SLOT(onDetectorConnected(bool)));
 	connect(photodiodeScalerDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 
@@ -547,12 +566,14 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	encoderUpDetector_->setDescription("Encoder Up Counts");
 	detectorRegistry_.append(encoderUpDetector_);
 	detectorMap_->insert(encoderUpDetector_, qMakePair(allDetectors(), false));
+	rawDetectorsSet_->addDetector(encoderUpDetector_);
 	connect(encoderUpDetector_->signalSource(), SIGNAL(connected(bool)), this, SLOT(onDetectorConnected(bool)));
 	connect(encoderUpDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 
 	encoderDownDetector_ = new AMSingleReadOnlyControlDetector("encoderDown", "BL1611-ID-1:mcs04:fbk", AMDetector::WaitRead, this);
 	encoderDownDetector_->setDescription("Encoder Down Counts");
 	detectorRegistry_.append(encoderDownDetector_);
+	rawDetectorsSet_->addDetector(encoderDownDetector_);
 	detectorMap_->insert(encoderDownDetector_, qMakePair(allDetectors(), false));
 	connect(encoderDownDetector_->signalSource(), SIGNAL(connected(bool)), this, SLOT(onDetectorConnected(bool)));
 	connect(encoderDownDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
@@ -560,6 +581,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	ringCurrentDetector_ = new AMSingleReadOnlyControlDetector("ringCurrent", "PCT1402-01:mA:fbk", AMDetector::ImmediateRead, this);
 	ringCurrentDetector_->setDescription("Ring Current");
 	detectorRegistry_.append(ringCurrentDetector_);
+	rawDetectorsSet_->addDetector(ringCurrentDetector_);
 	detectorMap_->insert(ringCurrentDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(ringCurrentDetector_, qMakePair(feedbackDetectors(), false));
 	connect(ringCurrentDetector_->signalSource(), SIGNAL(connected(bool)), this, SLOT(onDetectorConnected(bool)));
@@ -568,6 +590,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	filterPD1ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD1Current", "BL1611-ID-1:mcs06:fbk", AMDetector::ImmediateRead, this);
 	filterPD1ScalarDetector_->setDescription("V Filter Diode");
 	detectorRegistry_.append(filterPD1ScalarDetector_);
+	rawDetectorsSet_->addDetector(filterPD1ScalarDetector_);
 	detectorMap_->insert(filterPD1ScalarDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(filterPD1ScalarDetector_, qMakePair(feedbackDetectors(), false));
 	connect(filterPD1ScalarDetector_->signalSource(), SIGNAL(connected(bool)), this, SLOT(onDetectorConnected(bool)));
@@ -576,6 +599,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	filterPD2ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD2Current", "BL1611-ID-1:mcs07:fbk", AMDetector::ImmediateRead, this);
 	filterPD2ScalarDetector_->setDescription("Cr Filter Diode");
 	detectorRegistry_.append(filterPD2ScalarDetector_);
+	rawDetectorsSet_->addDetector(filterPD2ScalarDetector_);
 	detectorMap_->insert(filterPD2ScalarDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(filterPD2ScalarDetector_, qMakePair(feedbackDetectors(), false));
 	connect(filterPD2ScalarDetector_->signalSource(), SIGNAL(connected(bool)), this, SLOT(onDetectorConnected(bool)));
@@ -584,6 +608,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	filterPD3ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD3Current", "BL1611-ID-1:mcs08:fbk", AMDetector::ImmediateRead, this);
 	filterPD3ScalarDetector_->setDescription("TiC Filter Diode");
 	detectorRegistry_.append(filterPD3ScalarDetector_);
+	rawDetectorsSet_->addDetector(filterPD3ScalarDetector_);
 	detectorMap_->insert(filterPD3ScalarDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(filterPD3ScalarDetector_, qMakePair(feedbackDetectors(), false));
 	connect(filterPD3ScalarDetector_->signalSource(), SIGNAL(connected(bool)), this, SLOT(onDetectorConnected(bool)));
@@ -592,6 +617,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	filterPD4ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD4Current", "BL1611-ID-1:mcs09:fbk", AMDetector::ImmediateRead, this);
 	filterPD4ScalarDetector_->setDescription("Fe Filter Diode");
 	detectorRegistry_.append(filterPD4ScalarDetector_);
+	rawDetectorsSet_->addDetector(filterPD4ScalarDetector_);
 	detectorMap_->insert(filterPD4ScalarDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(filterPD4ScalarDetector_, qMakePair(feedbackDetectors(), false));
 	connect(filterPD4ScalarDetector_->signalSource(), SIGNAL(connected(bool)), this, SLOT(onDetectorConnected(bool)));
@@ -599,6 +625,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 
 	amptekSDD1_ = new CLSAmptekSDD123Detector("AmptekSDD1", "amptek:sdd1", AMDetector::WaitRead, this);
 	detectorRegistry_.append(amptekSDD1_);
+	rawDetectorsSet_->addDetector(amptekSDD1_);
 	detectorMap_->insert(amptekSDD1_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(amptekSDD1_, qMakePair(XASDetectors(), false));
 	connect(amptekSDD1_->signalSource(), SIGNAL(connected(bool)), this, SLOT(onDetectorConnected(bool)));
@@ -606,12 +633,14 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 
 	amptekSDD2_ = new CLSAmptekSDD123Detector("AmptekSDD2", "amptek:sdd2", AMDetector::WaitRead, this);
 	detectorRegistry_.append(amptekSDD2_);
+	rawDetectorsSet_->addDetector(amptekSDD2_);
 	detectorMap_->insert(amptekSDD2_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(amptekSDD2_, qMakePair(XASDetectors(), false));
 	connect(amptekSDD2_->signalSource(), SIGNAL(connected(bool)), this, SLOT(onDetectorConnected(bool)));
 	connect(amptekSDD2_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 
 	unrespondedDetectors_ = detectorRegistry_;
+	QTimer::singleShot(10000, this, SLOT(ensureDetectorTimeout()));
 
 	fluxOptimization_ = new SGMFluxOptimization(this);
 	fluxOptimization_->setDescription("Flux");
@@ -1527,8 +1556,17 @@ void SGMBeamline::onDetectorAvailabilityChanged(AMDetector *detector, bool isAva
 
 	if(unrespondedDetectors_.contains(detector))
 		unrespondedDetectors_.removeAll(detector);
+
 	if(unrespondedDetectors_.count() == 0 && !beamlineIsInitialized_)
 		computeBeamlineInitialized();
+}
+
+void SGMBeamline::ensureDetectorTimeout(){
+	if(unrespondedDetectors_.count() == 0)
+		return;
+
+	while(unrespondedDetectors_.count() > 0)
+		onDetectorAvailabilityChanged(unrespondedDetectors_.last(), false);
 }
 
 void SGMBeamline::computeBeamlineInitialized(){

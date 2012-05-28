@@ -123,6 +123,23 @@ protected:
 	QFormLayout *fl_;
 };
 
+class AMDetector;
+class SGMDetectorsMasterView : public QGroupBox
+{
+Q_OBJECT
+public:
+	SGMDetectorsMasterView(QWidget *parent = 0);
+
+protected slots:
+	void onCheckBoxesChanged(bool toggled);
+	void onDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
+
+protected:
+	QFormLayout *fl_;
+
+	bool unsavedChanges_;
+};
+
 class SGMSettingsMasterView : public QWidget
 {
 Q_OBJECT
@@ -149,6 +166,9 @@ protected:
 	SGMPluginsLocationView *sgmPluginsLocationView_;
 	/// Instance of SGMDacqConfigurationFileView
 	SGMDacqConfigurationFileView *sgmDacqConfigurationFileView_;
+
+	/// Instance of SGMDetectorMasterView
+	SGMDetectorsMasterView *sgmDetectorsMasterView_;
 
 	/// Button to apply changes but not close
 	QPushButton *applyButton_;
