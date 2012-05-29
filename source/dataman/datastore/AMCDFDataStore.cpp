@@ -8,12 +8,21 @@
 
 AMCDFDataStore::AMCDFDataStore() {
 
-	cdfFilePath_ = tempFileName();
+	cdfId_ = 0;
+	readOnly_ = false;
+	cdfFilePath_ = tempFileName("amData");
 	fileIsTemporary_ = true;
 
 	CDFstatus s = CDFcreateCDF(cdfFilePath_.toAscii().data(), &cdfId_);
 	if(s != CDF_OK) {
-		AMErrorMon::report(0, AMErrorReport::Serious, -101, "Could not create temporary file for CDF data store. Please report this bug to the Acquaman developers.");
+		AMErrorMon::report(0, AMErrorReport::Serious, -101, "AMCDFDataStore: Could not create temporary file for CDF data store. Please report this bug to the Acquaman developers.");
+	}
+
+	else {
+		// create standard attributes for our self-descriptive CDF layout.
+		if(!createAttributes()) {
+			AMErrorMon::debug(0, -1001, "AMCDFDataStore: Could not create attributes within new CDF file.");
+		}
 	}
 }
 
@@ -24,9 +33,9 @@ AMCDFDataStore::~AMCDFDataStore() {
 		QFile::remove(cdfFilePath_);
 }
 
-QString AMCDFDataStore::tempFileName() const
+QString AMCDFDataStore::tempFileName(const QString& basename) const
 {
-	QString rv = QDir::tempPath() % "/amData";
+	QString rv = QDir::tempPath() % "/" % basename;
 
 	QFileInfo fi;
 	do {
@@ -38,6 +47,10 @@ QString AMCDFDataStore::tempFileName() const
 
 bool AMCDFDataStore::addMeasurement(const AMMeasurementInfo &measurementDetails)
 {
+	if(readOnly_) {
+		AMErrorMon::debug(0, -4000, "AMCDFDataStore: Modifications are not allowed in read-only mode.");
+		return false;
+	}
 	// already a measurement with this name?
 	for(int i=measurements_.count()-1; i>=0; i--)
 		if(measurements_.at(i).name == measurementDetails.name)
@@ -51,12 +64,12 @@ bool AMCDFDataStore::addMeasurement(const AMMeasurementInfo &measurementDetails)
 	// add this measurement to our registry
 	measurements_.append(measurementDetails);
 
-	/// \todo Make attribute with names of measurements.
+	// update attributes to describe this measurement in the CDF.
+	updateAttributesForMeasurement(measurements_.count()-1);
 
 	return true;
 }
 
-#include <QDebug>
 bool AMCDFDataStore::createVarForMeasurement(const AMMeasurementInfo &mi, long numInitialRecords)
 {
 	// create CDF variable:
@@ -100,6 +113,11 @@ int AMCDFDataStore::idOfMeasurement(const QString &measurementName) const
 
 bool AMCDFDataStore::addScanAxis(const AMAxisInfo &axisDetails)
 {
+	if(readOnly_) {
+		AMErrorMon::debug(0, -4001, "AMCDFDataStore: Modifications are not allowed in read-only mode.");
+		return false;
+	}
+
 	// axis already exists with this name... Not allowed.
 	for(int i=axes_.count()-1; i>=0; --i)
 		if(axes_.at(i).name == axisDetails.name) {
@@ -130,8 +148,8 @@ bool AMCDFDataStore::addScanAxis(const AMAxisInfo &axisDetails)
 	axes_.append(axisInfo);
 	scanSize_.append(axisInfo.size);
 
-	/// \todo Make attribute with names of scan axes.
-
+	// Make space for axis values if needed:
+	/////////////////////////////////
 	if(axisInfo.isUniform) {
 		axisValueVarNums_ << -1;	// don't need to store it; it's uniform.
 	}
@@ -168,6 +186,12 @@ bool AMCDFDataStore::addScanAxis(const AMAxisInfo &axisDetails)
 			}
 		}
 	}
+	////////////////////////////////////
+
+
+	// create attributes for this scan axis
+	updateAttributesForScanAxis(axes_.count()-1);
+
 
 	return true;
 }
@@ -344,6 +368,11 @@ bool AMCDFDataStore::valuesImplementationRecursive(const AMnDIndex &siStart, con
 
 bool AMCDFDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, const AMnDIndex &measurementIndex, const AMNumber &newValue)
 {
+	if(readOnly_) {
+		AMErrorMon::debug(0, -4002, "AMCDFDataStore: Modifications are not allowed in read-only mode.");
+		return false;
+	}
+
 	if(scanIndex.rank() != axes_.count())
 		return false; // scan axis index doesn't provide enough / too many dimensions
 
@@ -377,6 +406,11 @@ bool AMCDFDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, con
 
 
 bool AMCDFDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, const double *inputData) {
+	if(readOnly_) {
+		AMErrorMon::debug(0, -4004, "AMCDFDataStore: Modifications are not allowed in read-only mode.");
+		return false;
+	}
+
 	if(scanIndex.rank() != axes_.count())
 		return false; // scan axis index doesn't provide enough / too many dimensions
 
@@ -403,6 +437,11 @@ bool AMCDFDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, con
 }
 
 bool AMCDFDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, const int *inputData) {
+
+	if(readOnly_) {
+		AMErrorMon::debug(0, -4003, "AMCDFDataStore: Modifications are not allowed in read-only mode.");
+		return false;
+	}
 
 	if((unsigned)measurementId >= (unsigned)measurements_.count())
 		return false;	// invalid measurement specified;
@@ -453,6 +492,11 @@ AMNumber AMCDFDataStore::axisValue(int axisId, long axisIndex) const
 
 bool AMCDFDataStore::setAxisValue(int axisId, long axisIndex, AMNumber newValue)
 {
+	if(readOnly_) {
+		AMErrorMon::debug(0, -4005, "AMCDFDataStore: Modifications are not allowed in read-only mode.");
+		return false;
+	}
+
 	if((unsigned)axisId >= (unsigned)axes_.count())
 		return false;	// invalid axis specified.
 
@@ -482,6 +526,11 @@ bool AMCDFDataStore::setAxisValue(int axisId, long axisIndex, AMNumber newValue)
 
 bool AMCDFDataStore::beginInsertRowsImplementation(long numRows, long atRowIndex)
 {
+	if(readOnly_) {
+		AMErrorMon::debug(0, -4006, "AMCDFDataStore: Modifications are not allowed in read-only mode.");
+		return false;
+	}
+
 	// number of scan points (records) to add, for every row of the first axis
 	long recordsPerRow = 1;
 	for(int mu=axes_.count()-1; mu>=1; --mu)
@@ -524,11 +573,21 @@ bool AMCDFDataStore::beginInsertRowsImplementation(long numRows, long atRowIndex
 	axes_[0].size += numRows;
 	scanSize_[0] += numRows;
 
+	// update Axis::Size attribute (entry 0, for first scan axis).
+	qint32 newSize = scanSize_.i();
+	if(!cdfPutIntAttribute(cdfId_, "Axis::Size", 0, &newSize))
+		AMErrorMon::debug(0, -1021, "AMCDFDataStore: Could not update CDF attribute Axis::Size when inserting rows. Please report this bug to the Acquaman developers.");
+
 	return true;
 }
 
 void AMCDFDataStore::clearScanDataPointsImplementation()
 {
+	if(readOnly_) {
+		AMErrorMon::debug(0, -4007, "AMCDFDataStore: Modifications are not allowed in read-only mode.");
+		return;
+	}
+
 	CDFstatus s;
 	if(axes_.count() >= 1) {
 		if(scanSize_.i() == 0)
@@ -557,6 +616,11 @@ void AMCDFDataStore::clearScanDataPointsImplementation()
 		// reset axis size:
 		axes_[0].size = 0L;
 		scanSize_[0] = 0L;
+
+		// Set the first scan axis Axis::Size attribute to 0.
+		qint32 newSize = 0;
+		if(!cdfPutIntAttribute(cdfId_, "Axis::Size", 0L, &newSize))
+			AMErrorMon::debug(0, -1013, "AMCDFDataStore: Could not set scan axis size CDF attribute Axis::Size to 0 when clearing the scan data points. Please report this bug to the Acquaman developers.");
 	}
 
 	// if no scan axes: nothing to do. Leave the first record for each measurement for storing scalar scan-space values.
@@ -564,21 +628,29 @@ void AMCDFDataStore::clearScanDataPointsImplementation()
 
 void AMCDFDataStore::clearMeasurementsImplementation()
 {
+	if(readOnly_) {
+		AMErrorMon::debug(0, -4008, "AMCDFDataStore: Modifications are not allowed in read-only mode.");
+		return;
+	}
+
 	CDFstatus s;
 	// delete all the measurement variables:
-	for(int i=0; i<measurements_.count(); ++i) {
+	for(int i=measurements_.count()-1; i>=0; --i) {
 		QByteArray variableName = measurements_.at(i).name.toAscii();
 		long varNum = CDFgetVarNum(cdfId_, variableName.data());
 		s = CDFdeletezVar(cdfId_, varNum);
 		if(s != CDF_OK)
 			AMErrorMon::debug(0, -114, QString("AMCDFDataStore: Could not delete CDF variable to clear measurement '%1'. Please report this bug to the Acquaman developers.").arg(measurements_.at(i).name));
-		/// \todo Remove measurement from Measurements attribute
+
+		// Delete measurement attribute entries: "Measurement::Name".  All other measurement attributes are variable-scope, and should have been deleted with the variables.
+		if(!cdfDeleteAttributeEntry(cdfId_, "Measurement::Name", long(i)))
+			AMErrorMon::debug(0, -1014, QString("AMCDFDataStore: Could not delete CDF attribute entry Measurement::Name when clearing measurements. Please report this bug to the Acquaman developers."));
+
 	}
 
 	// clear measurements
 	measurements_.clear();
 	measurementVarNums_.clear();
-
 
 	// the remaining CDF variables (particularly, the axis values for the scan axes) will now be messed up, because the varNums will possibly move down as we delete. Let's fix that now...
 	for(int i=0; i<axes_.count(); ++i) {
@@ -600,13 +672,18 @@ void AMCDFDataStore::clearMeasurementsImplementation()
 
 void AMCDFDataStore::clearScanAxesImplementation()
 {
+	if(readOnly_) {
+		AMErrorMon::debug(0, -4009, "AMCDFDataStore: Modifications are not allowed in read-only mode.");
+		return;
+	}
+
 	if(axes_.count() == 0)
 		return;	// nothing to do.
 
 	CDFstatus s;
 
 	// delete the variables for the scan axis values:
-	for(int i=0; i<axes_.count(); ++i) {
+	for(int i=axes_.count()-1; i>=0; --i) {
 		if(axisValueVarNums_.at(i) >= 0) {	// supposed to have an axisValue variable.
 			QByteArray variableName = QString("AxisValues::" % axes_.at(i).name).toAscii();
 			long varNum = CDFgetVarNum(cdfId_, variableName.data());
@@ -615,6 +692,20 @@ void AMCDFDataStore::clearScanAxesImplementation()
 				if(s != CDF_OK)
 					AMErrorMon::debug(0, -116, QString("AMCDFDataStore: Could not delete the CDF variable number for axis '%1' after clearing the scan axes. Please report this bug to the Acquaman developers.").arg(axes_.at(i).name));
 			}
+		}
+
+		// delete the attribute entries for these scan axes
+		try {
+			if(!cdfDeleteAttributeEntry(cdfId_, "Axis::Name", long(i))) throw QString("Axis::Name");
+			if(!cdfDeleteAttributeEntry(cdfId_, "Axis::Size", long(i))) throw QString("Axis::Size");
+			if(!cdfDeleteAttributeEntry(cdfId_, "Axis::Description", long(i))) throw QString("Axis::Description");
+			if(!cdfDeleteAttributeEntry(cdfId_, "Axis::Units", long(i))) throw QString("Axis::Units");
+			if(!cdfDeleteAttributeEntry(cdfId_, "Axis::IsUniform", long(i))) throw QString("Axis::IsUniform");
+			if(!cdfDeleteAttributeEntry(cdfId_, "Axis::Start", long(i))) throw QString("Axis::Start");
+			if(!cdfDeleteAttributeEntry(cdfId_, "Axis::Increment", long(i))) throw QString("Axis::Increment");
+		}
+		catch(QString errAttribute) {
+			AMErrorMon::debug(0, -1016, QString("AMCDFDataStore: Could not delete the CDF attribute entry '%1' while clearing the scan axes.").arg(errAttribute));
 		}
 	}
 
@@ -775,6 +866,552 @@ AMnDIndex AMCDFDataStore::cdfGetVarDimensions(void *cdfId, long varNum)
 
 	return rv;
 }
+
+QString AMCDFDataStore::cdfGetStringAttribute(void *cdfId, const QString &attributeName, long entryNumber)
+{
+	CDFstatus s;
+	QByteArray attrName = attributeName.toAscii();
+
+	// Get attribute number / confirm existence
+	long attrNum = CDFgetAttrNum(cdfId, attrName.data());
+	if(attrNum < 0) return QString();
+
+	// get attr scope
+	long scope;
+	s = CDFgetAttrScope(cdfId, attrNum, &scope);
+	if(s < CDF_OK) return QString();
+
+	// global attribute
+	if(scope == GLOBAL_SCOPE) {
+		// get data type / confirm entry existence
+		long type, numChars;
+		s = CDFinquireAttrgEntry(cdfId, attrNum, entryNumber, &type, &numChars);
+		if(s < CDF_OK) return QString();
+		if(type != CDF_CHAR) return QString();
+
+		QByteArray rv(int(numChars), Qt::Uninitialized);
+		s = CDFgetAttrgEntry(cdfId, attrNum, entryNumber, rv.data());
+		if(s < CDF_OK) return QString();
+
+		return QString(rv);
+	}
+	// variable-scope attribute
+	else {
+		// get data type / confirm entry existence
+		long type, numChars;
+		s = CDFinquireAttrzEntry(cdfId, attrNum, entryNumber, &type, &numChars);
+		if(s < CDF_OK) return QString();
+		if(type != CDF_CHAR) return QString();
+
+		QByteArray rv(int(numChars), Qt::Uninitialized);
+		s = CDFgetAttrzEntry(cdfId, attrNum, entryNumber, rv.data());
+		if(s < CDF_OK) return QString();
+
+		return QString(rv);
+	}
+}
+
+bool AMCDFDataStore::cdfGetIntAttribute(void *cdfId, const QString &attributeName, long entryNumber, qint32 *out, long numElements)
+{
+	CDFstatus s;
+	QByteArray attrName = attributeName.toAscii();
+
+	// Get attribute number / confirm existence
+	long attrNum = CDFgetAttrNum(cdfId, attrName.data());
+	if(attrNum < 0) return false;
+
+	// get attr scope
+	long scope;
+	s = CDFgetAttrScope(cdfId, attrNum, &scope);
+	if(s < CDF_OK) return false;
+
+	// global attribute
+	if(scope == GLOBAL_SCOPE) {
+		// get data type / confirm entry existence
+		long type, num;
+		s = CDFinquireAttrgEntry(cdfId, attrNum, entryNumber, &type, &num);
+		if(s < CDF_OK) return false;
+		if(type != CDF_INT4) return false;
+		if(num != numElements) return false;
+
+		s = CDFgetAttrgEntry(cdfId, attrNum, entryNumber, out);
+		if(s < CDF_OK) return false;
+
+		return true;
+	}
+	// variable-scope attribute
+	else {
+		// get data type / confirm entry existence
+		long type, num;
+		s = CDFinquireAttrzEntry(cdfId, attrNum, entryNumber, &type, &num);
+		if(s < CDF_OK) return false;
+		if(type != CDF_INT4) return false;
+		if(num != numElements) return false;
+
+		s = CDFgetAttrzEntry(cdfId, attrNum, entryNumber, out);
+		if(s < CDF_OK) return false;
+
+		return true;
+	}
+}
+
+bool AMCDFDataStore::cdfGetDoubleAttribute(void *cdfId, const QString &attributeName, long entryNumber, double *out, long numElements)
+{
+	CDFstatus s;
+	QByteArray attrName = attributeName.toAscii();
+
+	// Get attribute number / confirm existence
+	long attrNum = CDFgetAttrNum(cdfId, attrName.data());
+	if(attrNum < 0) return false;
+
+	// get attr scope
+	long scope;
+	s = CDFgetAttrScope(cdfId, attrNum, &scope);
+	if(s < CDF_OK) return false;
+
+	// global attribute
+	if(scope == GLOBAL_SCOPE) {
+		// get data type / confirm entry existence
+		long type, num;
+		s = CDFinquireAttrgEntry(cdfId, attrNum, entryNumber, &type, &num);
+		if(s < CDF_OK) return false;
+		if(type != CDF_DOUBLE) return false;
+		if(num != numElements) return false;
+
+		s = CDFgetAttrgEntry(cdfId, attrNum, entryNumber, out);
+		if(s < CDF_OK) return false;
+
+		return true;
+	}
+	// variable-scope attribute
+	else {
+		// get data type / confirm entry existence
+		long type, num;
+		s = CDFinquireAttrzEntry(cdfId, attrNum, entryNumber, &type, &num);
+		if(s < CDF_OK) return false;
+		if(type != CDF_DOUBLE) return false;
+		if(num != numElements) return false;
+
+		s = CDFgetAttrzEntry(cdfId, attrNum, entryNumber, out);
+		if(s < CDF_OK) return false;
+
+		return true;
+	}
+}
+
+bool AMCDFDataStore::cdfPutStringAttribute(void *cdfId, const QString &attributeName, long entryNumber, const QString &newValue)
+{
+	CDFstatus s;
+	QByteArray attrName = attributeName.toAscii();
+
+	// CDF doesn't like empty string arguments. If value is empty, we'll add a blank space.
+	QString value(newValue);
+	if(value.isEmpty())
+		value = " ";
+	QByteArray stringValue = value.toAscii();
+
+	// Get attribute number / confirm existence.
+	long attrNum = CDFgetAttrNum(cdfId, attrName.data());
+	if(attrNum < 0) return false;
+
+	// get attr scope
+	long scope;
+	s = CDFgetAttrScope(cdfId, attrNum, &scope);
+	if(s < CDF_OK) return false;
+
+	// global attribute
+	if(scope == GLOBAL_SCOPE) {
+		s = CDFputAttrgEntry(cdfId, attrNum, entryNumber, CDF_CHAR, value.count(), stringValue.data());
+		return (s >= CDF_OK);
+	}
+	// variable-scope attribute
+	else {
+		s = CDFputAttrzEntry(cdfId, attrNum, entryNumber, CDF_CHAR, value.count(), stringValue.data());
+		return (s >= CDF_OK);
+	}
+}
+
+bool AMCDFDataStore::cdfPutIntAttribute(void *cdfId, const QString &attributeName, long entryNumber, const qint32 *value, long numElements)
+{
+	CDFstatus s;
+	QByteArray attrName = attributeName.toAscii();
+
+	// Get attribute number / confirm existence.
+	long attrNum = CDFgetAttrNum(cdfId, attrName.data());
+	if(attrNum < 0) {
+		AMErrorMon::debug(0, -1201, QString("AMCDFDataStore: Error while trying to set attribute %1. The CDF attribute was not found.").arg(attributeName));
+		return false;
+	}
+
+	// get attr scope
+	long scope;
+	s = CDFgetAttrScope(cdfId, attrNum, &scope);
+	if(s < CDF_OK) {
+		AMErrorMon::debug(0, -1201, QString("AMCDFDataStore: Could not get scope for CDF attribute %1. The CDF error was %2.").arg(attributeName).arg(s));
+		return false;
+	}
+
+	// global attribute
+	if(scope == GLOBAL_SCOPE) {
+		s = CDFputAttrgEntry(cdfId, attrNum, entryNumber, CDF_INT4, numElements, (void*)value);
+	}
+	// variable-scope attribute
+	else {
+		s = CDFputAttrzEntry(cdfId, attrNum, entryNumber, CDF_INT4, numElements, (void*)value);
+	}
+	if(s != CDF_OK)
+		AMErrorMon::debug(0, -1201, QString("AMCDFDataStore: Warning while trying to set attribute entry %1. The CDF error was %2.").arg(attributeName).arg(s));
+
+	return (s >= CDF_OK);
+}
+
+bool AMCDFDataStore::cdfPutDoubleAttribute(void *cdfId, const QString &attributeName, long entryNumber, const double* value, long numElements)
+{
+	CDFstatus s;
+	QByteArray attrName = attributeName.toAscii();
+
+	// Get attribute number / confirm existence.
+	long attrNum = CDFgetAttrNum(cdfId, attrName.data());
+	if(attrNum < 0) {
+		AMErrorMon::debug(0, -1201, QString("AMCDFDataStore: Error while trying to set attribute %1. The CDF attribute was not found.").arg(attributeName));
+		return false;
+	}
+
+	// get attr scope
+	long scope;
+	s = CDFgetAttrScope(cdfId, attrNum, &scope);
+	if(s < CDF_OK) {
+		AMErrorMon::debug(0, -1201, QString("AMCDFDataStore: Could not get scope for CDF attribute %1. The CDF error was %2.").arg(attributeName).arg(s));
+		return false;
+	}
+
+	// global attribute
+	if(scope == GLOBAL_SCOPE) {
+		s = CDFputAttrgEntry(cdfId, attrNum, entryNumber, CDF_DOUBLE, numElements, (void*)value);
+	}
+	// variable-scope attribute
+	else {
+		s = CDFputAttrzEntry(cdfId, attrNum, entryNumber, CDF_DOUBLE, numElements, (void*)value);
+	}
+	if(s != CDF_OK)
+		AMErrorMon::debug(0, -1201, QString("AMCDFDataStore: Warning while trying to set attribute entry %1. The CDF error was %2.").arg(attributeName).arg(s));
+
+	return (s >= CDF_OK);
+}
+
+bool AMCDFDataStore::createAttributes()
+{
+	CDFstatus s;
+
+	long attrNum;
+	s = CDFcreateAttr(cdfId_, "AMCDF::Version", GLOBAL_SCOPE, &attrNum); if( s < CDF_OK) return false;
+	s = CDFcreateAttr(cdfId_, "Measurement::Name", GLOBAL_SCOPE, &attrNum); if( s < CDF_OK) return false;
+	s = CDFcreateAttr(cdfId_, "Axis::Name", GLOBAL_SCOPE, &attrNum); if(s < CDF_OK) return false;
+	s = CDFcreateAttr(cdfId_, "Axis::Size", GLOBAL_SCOPE, &attrNum); if(s < CDF_OK) return false;
+	s = CDFcreateAttr(cdfId_, "Axis::Description", GLOBAL_SCOPE, &attrNum); if(s < CDF_OK) return false;
+	s = CDFcreateAttr(cdfId_, "Axis::Units", GLOBAL_SCOPE, &attrNum); if(s < CDF_OK) return false;
+	s = CDFcreateAttr(cdfId_, "Axis::IsUniform", GLOBAL_SCOPE, &attrNum); if(s < CDF_OK) return false;
+	s = CDFcreateAttr(cdfId_, "AxisValues::Start", GLOBAL_SCOPE, &attrNum); if(s < CDF_OK) return false;
+	s = CDFcreateAttr(cdfId_, "AxisValues::Increment", GLOBAL_SCOPE, &attrNum); if(s < CDF_OK) return false;
+
+	s = CDFcreateAttr(cdfId_, "Measurement::Description", VARIABLE_SCOPE, &attrNum); if(s < CDF_OK) return false;
+	s = CDFcreateAttr(cdfId_, "Measurement::Units", VARIABLE_SCOPE, &attrNum); if(s < CDF_OK) return false;
+	s = CDFcreateAttr(cdfId_, "Measurement::Axes::Names", VARIABLE_SCOPE, &attrNum); if(s < CDF_OK) return false;
+	s = CDFcreateAttr(cdfId_, "Measurement::Axes::Descriptions", VARIABLE_SCOPE, &attrNum); if(s < CDF_OK) return false;
+	s = CDFcreateAttr(cdfId_, "Measurement::Axes::Units", VARIABLE_SCOPE, &attrNum); if(s < CDF_OK) return false;
+	s = CDFcreateAttr(cdfId_, "Measurement::AxisValues::Start", VARIABLE_SCOPE, &attrNum); if(s < CDF_OK) return false;
+	s = CDFcreateAttr(cdfId_, "Measurement::AxisValues::Increment", VARIABLE_SCOPE, &attrNum); if(s < CDF_OK) return false;
+
+	if(!cdfPutStringAttribute(cdfId_, "AMCDF::Version", 0L, "AMCDFDataStore_1")) return false;
+
+	return true;
+}
+
+bool AMCDFDataStore::updateAttributesForMeasurement(int measurementId)
+{
+	const AMMeasurementInfo& measurementDetails = measurements_.at(measurementId);
+
+	try {
+		// global attributes:
+		if(!cdfPutStringAttribute(cdfId_, "Measurement::Name", long(measurementId), measurementDetails.name)) throw QString("Measurement::Name");
+
+		// variable-scope attributes: the entryNumber must be the CDF variable number.
+		long varNum = measurementVarNums_.at(measurementId);
+		if(!cdfPutStringAttribute(cdfId_, "Measurement::Description", varNum, measurementDetails.description)) throw QString("Measurement::Description");
+		if(!cdfPutStringAttribute(cdfId_, "Measurement::Units", varNum, measurementDetails.units)) throw QString("Measurement::Units");
+		if(!cdfPutStringAttribute(cdfId_, "Measurement::Description", varNum, measurementDetails.description)) throw QString("Measurement::Description");
+
+		if(measurementDetails.rank()) {	// Only if we have measurement axes...
+			// Make lists of the following (one item for each measurement axis)
+			QStringList mAxisNames, mAxisDescriptions, mAxisUnits;
+			QVector<double> mAxisValueStart, mAxisValueIncrement;
+			for(int mu=0, cc=measurementDetails.rank(); mu<cc; ++mu) {
+				const AMAxisInfo& ai = measurementDetails.axes.at(mu);
+				mAxisNames << ai.name;
+				mAxisDescriptions << ai.description;
+				mAxisUnits << ai.units;
+				mAxisValueStart << double(ai.start);
+				mAxisValueIncrement << double(ai.increment);
+			}
+
+			if(!cdfPutStringAttribute(cdfId_, "Measurement::Axes::Names", varNum, mAxisNames.join(AM_CDFDATSTORE_STRING_DELIMITER))) throw QString("Measurement::Axes::Names");
+			if(!cdfPutStringAttribute(cdfId_, "Measurement::Axes::Descriptions", varNum, mAxisDescriptions.join(AM_CDFDATSTORE_STRING_DELIMITER))) throw QString("Measurement::Axes::Descriptions");
+			if(!cdfPutStringAttribute(cdfId_, "Measurement::Axes::Units", varNum, mAxisUnits.join(AM_CDFDATSTORE_STRING_DELIMITER))) throw QString("Measurement::Axes::Units");
+
+			if(!cdfPutDoubleAttribute(cdfId_, "Measurement::AxisValues::Start", varNum, mAxisValueStart.constData(), mAxisValueStart.count())) throw QString("Measurement::AxisValues::Start");
+			if(!cdfPutDoubleAttribute(cdfId_, "Measurement::AxisValues::Increment", varNum, mAxisValueIncrement.constData(), mAxisValueIncrement.count())) throw QString("Measurement::AxisValues::Increment");
+		}
+	}
+	catch (QString errAttribute) {
+		AMErrorMon::debug(0, -1002, QString("AMCDFDataStore: could not set attribute %1 for measurement.").arg(errAttribute));
+		return false;
+	}
+	return true;
+}
+
+bool AMCDFDataStore::updateAttributesForScanAxis(int axisIdi)
+{
+	long axisId = axisIdi;
+
+	const AMAxisInfo& ai = axes_.at(axisIdi);
+
+	try {
+		if(!cdfPutStringAttribute(cdfId_, "Axis::Name", axisId, ai.name)) throw QString("Axis::Name");
+		qint32 size = ai.size;
+		if(!cdfPutIntAttribute(cdfId_, "Axis::Size", axisId, &size)) throw QString("Axis::Size");
+		if(!cdfPutStringAttribute(cdfId_, "Axis::Description", axisId, ai.description)) throw QString("Axis::Description");
+		if(!cdfPutStringAttribute(cdfId_, "Axis::Units", axisId, ai.units)) throw QString("Axis::Units");
+		qint32 isUniform = ai.isUniform;
+		if(!cdfPutIntAttribute(cdfId_, "Axis::IsUniform", axisId, &isUniform)) throw QString("Axis::IsUniform");
+		double start = double(ai.start), increment = double(ai.increment);
+		if(!cdfPutDoubleAttribute(cdfId_, "AxisValues::Start", axisId, &start)) throw QString("AxisValues::Start");
+		if(!cdfPutDoubleAttribute(cdfId_, "AxisValues::Increment", axisId, &increment)) throw QString("AxisValues::Increment");
+	}
+	catch(QString errAttribute) {
+		AMErrorMon::debug(0, -1003, QString("AMCDFDataStore: could not set attribute %1 for axis info.").arg(errAttribute));
+		return false;
+	}
+	return true;
+}
+
+bool AMCDFDataStore::cdfDeleteAttributeEntry(void *cdfId, const QString &attributeName, long entryNumber)
+{
+	CDFstatus s;
+	QByteArray attrName = attributeName.toAscii();
+
+	// Get attribute number / confirm existence.
+	long attrNum = CDFgetAttrNum(cdfId, attrName.data());
+	if(attrNum < 0) return false;
+
+	// get attr scope
+	long scope;
+	s = CDFgetAttrScope(cdfId, attrNum, &scope);
+	if(s < CDF_OK) return false;
+
+	// global attribute
+	if(scope == GLOBAL_SCOPE) {
+		s = CDFdeleteAttrgEntry(cdfId, attrNum, entryNumber);
+	}
+	// variable-scope attribute
+	else {
+		s = CDFdeleteAttrzEntry(cdfId, attrNum, entryNumber);
+	}
+
+	return (s >= CDF_OK);
+}
+
+void AMCDFDataStore::setReadOnlyMode(bool readOnlyOn)
+{
+	readOnly_ = readOnlyOn;
+
+	CDFstatus s = CDFsetReadOnlyMode(cdfId_, readOnly_ ? READONLYon : READONLYoff);
+	if(s != CDF_OK)
+		AMErrorMon::debug(0, -4040, "AMCDFDataStore: Warning: Could not change Read-Only state of the CDF file.");
+}
+
+bool AMCDFDataStore::initializeFromExistingCDF(const QString &filePath, bool createTemporaryCopy, bool setReadOnly)
+{
+	if(!QFile::exists(filePath))
+		return false;
+
+	QString newCDFFilePath = filePath;
+	CDFid newCDFid = 0;
+
+	// create copy?
+	////////////////////////
+	if(createTemporaryCopy) {
+		QFileInfo originalFileInfo(filePath);
+		newCDFFilePath = tempFileName(originalFileInfo.fileName());
+		if(!QFile::copy(filePath, newCDFFilePath)) {
+			AMErrorMon::debug(0, -5000, QString("AMCDFDataStore: Could not copy file '%1' to '%2' when opening in temporary file mode.").arg(filePath).arg(newCDFFilePath));
+			return false;
+		}
+	}
+
+	// Open new CDF:
+	/////////////////////////
+	QByteArray filePathBA = newCDFFilePath.toAscii();
+	CDFsetValidate(VALIDATEFILEon);
+	CDFstatus s = CDFopenCDF(filePathBA.constData(), &newCDFid);
+	if(s < CDF_OK) {
+		AMErrorMon::debug(0, -5001, QString("AMCDFDataStore: Could not open CDF file '%1'.").arg(newCDFFilePath));
+		return false;
+	}
+
+	// Check that the format matches:
+	QString format = cdfGetStringAttribute(newCDFid, "AMCDF::Version", 0L);
+	if(format.isNull() || format != "AMCDFDataStore_1") {
+		AMErrorMon::debug(0, -5001, QString("AMCDFDataStore: Could not open CDF file '%1'.  The file format is not correct, or the CDF file is damaged.").arg(newCDFFilePath));
+		CDFcloseCDF(newCDFid);
+		return false;
+	}
+
+	// Theoretically, if the file validated during opening, and the format string matches, it will contain everything we need to figure out the axes and measurements.  If not, then the writing of the file was messed up, and that's a bug somewhere else in AMCDFDataStore. Still, we'll gather this information into newMeasurements and newAxes for now, and only change everything over once we know we're fully successful.
+
+	// access and fill newMeasurements (will become measurements_ if everything successful)
+	/////////////////////////////////
+	QList<AMMeasurementInfo> newMeasurements;
+	QVector<long> newMeasurementVarNums;
+	long numMeasurements;
+	try {
+		if(CDFgetNumAttrgEntries(newCDFid, CDFgetAttrNum(newCDFid, (char*)("Measurement::Name")), &numMeasurements) < CDF_OK) throw QString("Measurement::Name");
+		for(long i=0; i<numMeasurements; ++i) {
+			// Grab measurement name:
+			QString measurementName = cdfGetStringAttribute(newCDFid, "Measurement::Name", i);
+			QByteArray measurementNameBA = measurementName.toAscii();
+
+			// find out variable number for this measurement.
+			long varNum = CDFgetVarNum(newCDFid, measurementNameBA.data());
+			if(varNum < 0) throw QString("Measurement '%1' not found.").arg(measurementName);
+			newMeasurementVarNums << varNum;
+
+			// Find out rank and dimensions
+			long rank;
+			if(CDFgetzVarNumDims(newCDFid, varNum, &rank) < CDF_OK) throw QString("Cannot read measurement rank.");
+
+			// Get measurement axis information
+			QList<AMAxisInfo> axes;
+			if(rank > 0) {
+				long dims[CDF_MAX_DIMS];
+				if(CDFgetzVarDimSizes(newCDFid, varNum, dims) < CDF_OK) throw QString("Cannot read measurement axis sizes.");
+
+				// Find out names, descriptions, units, start, and increment for each axis.
+				QStringList axisNames = cdfGetStringAttribute(newCDFid, "Measurement::Axes::Names", varNum).split(AM_CDFDATSTORE_STRING_DELIMITER, QString::SkipEmptyParts);
+				if(axisNames.count() != rank) throw QString("Cannot retrieve measurement axis names.");
+				QStringList axisDescriptions = cdfGetStringAttribute(newCDFid, "Measurement::Axes::Descriptions", varNum).split(AM_CDFDATSTORE_STRING_DELIMITER, QString::SkipEmptyParts);
+				if(axisDescriptions.count() != rank) throw QString("Cannot retrieve measurement axis description.");
+				QStringList axisUnits = cdfGetStringAttribute(newCDFid, "Measurement::Axes::Units", varNum).split(AM_CDFDATSTORE_STRING_DELIMITER, QString::SkipEmptyParts);
+				if(axisUnits.count() != rank) throw QString("Cannot retrieve measurement axis units.");
+				QVector<double> axisValueStart(rank);
+				QVector<double> axisValueIncrement(rank);
+				if(!cdfGetDoubleAttribute(newCDFid, "Measurement::AxisValues::Start", varNum, axisValueStart.data(), rank)) throw QString("Cannot retrieve measurement axis starting value.");
+				if(!cdfGetDoubleAttribute(newCDFid, "Measurement::AxisValues::Increment", varNum, axisValueIncrement.data(), rank)) throw QString("Cannot retrieve measurement axis increment value.");
+
+				axes.reserve(rank);
+				for(long i=0; i<rank; ++i) {
+					axes << AMAxisInfo(axisNames.at(i), dims[i], axisDescriptions.at(i), axisUnits.at(i));
+				}
+			}
+
+			// Get measurement description and units.
+			QString description = cdfGetStringAttribute(newCDFid, "Measurement::Description", varNum);
+			if(description.isNull()) throw QString("Cannot retrieve measurement description.");
+			QString units = cdfGetStringAttribute(newCDFid, "Measurement::Units", varNum);
+			if(units.isNull()) throw QString("Cannot retrieve measurement units.");
+
+			// Finally, we have all the info for this measurement:
+			newMeasurements << AMMeasurementInfo(measurementName, description, units, axes);
+		}
+	}
+	catch(QString errMsg) {
+		AMErrorMon::debug(0, -5003, "AMCDFDataStore: Error parsing measurement attribute in new CDF file: " % errMsg);
+		CDFcloseCDF(newCDFid);
+		return false;
+	}
+
+
+	// Access and fill newAxes (will become axes_ if everything is successful)
+	////////////////////////////////////
+	QList<AMAxisInfo> newAxes;
+	QVector<long> newAxisValueVarNums;
+	long numAxes;
+	try {
+		// How many scan axes?
+		if(CDFgetNumAttrgEntries(newCDFid, CDFgetAttrNum(newCDFid, (char*)("Axis::Name")), &numAxes) < CDF_OK) throw QString("number of Axis::Name");
+		for(long i=0; i<numAxes; ++i) {
+			// Grab axis name
+			QString axisName = cdfGetStringAttribute(newCDFid, "Axis::Name", i);
+			if(axisName.isNull()) throw QString("Axis::Name.");
+			// and axis size
+			qint32 axisSize;
+			if(!cdfGetIntAttribute(newCDFid, "Axis::Size", i, &axisSize)) throw QString("Axis::Size");
+
+			AMAxisInfo ai(axisName, axisSize);
+			ai.description = cdfGetStringAttribute(newCDFid, "Axis::Description", i);
+			if(ai.description.isNull()) throw QString("Axis::Description");
+			ai.units = cdfGetStringAttribute(newCDFid, "Axis::Units", i);
+			if(ai.units.isNull()) throw QString("Axis::Units");
+
+			qint32 isUniform;
+			if(!cdfGetIntAttribute(newCDFid, "Axis::IsUniform", i, &isUniform)) throw QString("Axis::IsUniform");
+			ai.isUniform = bool(isUniform);
+
+			if(ai.isUniform) {
+				// get start and increment values.
+				double start, increment;
+				if(!cdfGetDoubleAttribute(newCDFid, "AxisValues::Start", i, &start)) throw QString("AxisValues::Start");
+				ai.start = start;
+				if(!cdfGetDoubleAttribute(newCDFid, "AxisValues::Increment", i, &increment)) throw QString("AxisValues::Increment");
+				ai.increment = increment;
+
+				newAxisValueVarNums << -1;
+			}
+			else {
+				// Find out variable number for the actual axis values for this axis.
+				QByteArray scanAxisValueNameBA = QString("AxisValues::" % axisName).toAscii();
+				long axisValueVarNum = CDFgetVarNum(newCDFid, scanAxisValueNameBA.data());
+				if(axisValueVarNum < 0) throw QString("AxisValues::" % axisName);
+
+				newAxisValueVarNums << axisValueVarNum;
+			}
+
+			newAxes << ai;
+		}
+	}
+	catch(QString errMsg) {
+		AMErrorMon::debug(0, -5004, "AMCDFDataStore: Error parsing scan axis attribute in new CDF file: " % errMsg);
+		CDFcloseCDF(newCDFid);
+		return false;
+	}
+
+
+
+	// OK, we're good to go. Make the switch-over.
+	///////////////////////////////////////////
+	// Existing CDF? close it, and delete it if in temporary mode.
+	if(cdfId_) {
+		CDFcloseCDF(cdfId_);
+
+		if(fileIsTemporary_)
+			QFile::remove(cdfFilePath_);
+	}
+
+	cdfId_ = newCDFid;
+	cdfFilePath_ = newCDFFilePath;
+	fileIsTemporary_ = createTemporaryCopy;
+
+	axes_ = newAxes;
+	axisValueVarNums_ = newAxisValueVarNums;
+	measurements_ = newMeasurements;
+	measurementVarNums_ = newMeasurementVarNums;
+
+
+	// engage read-only mode?
+	setReadOnlyMode(setReadOnly);
+
+	return true;
+}
+
 
 
 

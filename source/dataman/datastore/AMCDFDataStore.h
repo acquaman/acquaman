@@ -11,7 +11,59 @@
 /// How many bytes of memory to allocate when copying for an insertRows operation
 #define AM_CDFDATASTORE_MOVERECORDS_MEM_BYTES 10000000
 
+/// Delimeter used for joining strings together when we need to store in a single CDF_CHAR attribute
+#define AM_CDFDATSTORE_STRING_DELIMITER "|@^@|"
+
 /// This class implements multi-dimensional storage of scan data, according to the AMDataStore interface.  It is optimized for scan data sets that are too large to store completely in memory.  Data is stored on disk in a CDF formatted file, but accessing the values should be reasonably fast thanks to reading and caching of chunks at a time.  Like AMInMemoryDataStore, using the values() method to access data is much faster than reading by individual value().
+/*!  <b>CDF Layout</b>
+
+  We use the following CDF layout to represent the AMDataStore scan space / measurement space concept:
+
+  Measurements:
+  =============
+
+  One CDF "zVariable" is created for each measurement.  The name of the CDF variable is the same as the name of the AMDataStore measurement.  The CDF provides native support for multi-dimensional variables, so a single multi-dimensional measurement reading can be stored in one record of a CDF variable.  The CDF library remembers the rank and size of the measurement.
+
+  One CDF "record" is used to represent a single point in scan space.  For a scalar scan space, there exists only a single record in the file.  For a multi-dimensional scan space, the scan points are stored by records in row major order (the first scan index varies the slowest; the last scan index varies the fastest).  For example, for a 2D scan with 3 x 3 points, there will be 9 records: (0,0), (0,1), (0,2), (1,0), (1,1)... stored for each variable.
+
+  One other set of CDF zVariables is created: for each scan axis that has non-uniform independent axisValue()s, there is a scalar measurement with the special name "AxisValues::[axisName]".  Each record stores a single axis value.
+
+  Attributes:
+  ===========
+
+  The above measurements are sufficient to hold all the raw data in memory, but depend on the AMAxisInfo and AMMeasurementInfo in-memory structures to describe the structure and meaning of that raw data. Therefore, AMCDFDataStore also creates additional CDF "attributes" to make the CDF file self-documenting; this means that a pre-existing CDF file with those attributes can be used to completely instantiate an AMCDFDataStore.  These attributes are only used by instantiateFromExistingFile().
+
+\code
+  Attribute Name						Data Type	Num Entries			Num Elements		Notes
+  ==========================================================================================
+  <i>Global Attributes</i>
+
+  AMCDF::Version						CDF_CHAR		1					<string length>	Version string of the CDF layout we're using: "AMCDFDataStore_1" for now.
+
+  Measurement::Name					CDF_CHAR		One per measurement	<string length>	Can be used to introspect available measurements
+
+  Axis::Name							CDF_CHAR		One per scan axis	<string length>	Can be used to introspect number of, names of scan axes
+  Axis::Size							CDF_INT4		One per scan axis	<string length>	Length of each scan axis (AMAxisInfo::size)
+  Axis::Description					CDF_CHAR		One per scan axis	<string length>	Scan axis AMAxisInfo::description
+  Axis::Units						CDF_CHAR		One per scan axis	<string length>	Scan axis AMAxisInfo::units
+  Axis::IsUniform					CDF_INT4		One per scan axis	1				Scan axis AMAxisInfo::isUniform (1 for true,
+  AxisValues::Start					CDF_DOUBLE	One per scan axis	1				Scan axis AMAxisInfo::start
+  AxisValues::Increment				CDF_DOUBLE	One per scan axis	1				Scan axis AMAxisInfo::increment
+
+  <i>Variable Attributes [only apply to measurement variables]</i>
+
+  Measurement::Description			CDF_CHAR		n/a	(index: varNum)	<string length>	AMMeasurementInfo::description
+  Measurement::Units					CDF_CHAR		n/a					<string length>	AMMeasurementInfo::units
+  // get rank and size from introspecting the measurement's zVariable
+  Measurement::Axes::Names			CDF_CHAR		n/a					<string length>	AMAxisInfo::name for all measurement axes, delimited with AM_CDFDATSTORE_STRING_DELIMITER
+  Measurement::Axes::Descriptions		CDF_CHAR		n/a					<string length>	AMAxisInfo::description for all meas. axes, delimited with AM_CDFDATSTORE_STRING_DELIMITER
+  Measurement::Axes::Units			CDF_CHAR		n/a					<string length>	AMAxisInfo::units for all meas. axes, delimited with AM_CDFDATSTORE_STRING_DELIMITER
+  Measurement::AxisValues::Start		CDF_DOUBLE	n/a					<meas. rank>		AMAxisInfo::start for all meas. axes.
+  Measurement::AxisValues::Increment	CDF_DOUBLE	n/a					<meas. rank>		AMAxisInfo::increment for all meas. axes.
+
+\endcode
+
+  */
 class AMCDFDataStore : public AMDataStore
 {
 public:
@@ -104,6 +156,20 @@ If you want to retrieve axes by name, \c axisDetails must contain a unique \c na
 	virtual bool setAxisValue(int axisId, long axisIndex, AMNumber newValue);
 
 
+	// New Public Functions:
+	////////////////////////////////////////
+
+	/// Call this to load everything (scan axes, measurements, and data points) from an existing CDF file. The file at \c filePath must be in the AMCDFDataStore layout.  If \c createTemporaryCopy is true, a copy of the file will be created in the system's temporary folder, opened instead of the original file, and deleted along with the data store. If \c setReadOnly is true, all modification (non-const) functions will be disabled.
+	/*! This function either succeeds completely, or leaves the CDF in its original state. */
+	bool initializeFromExistingCDF(const QString& filePath, bool createTemporaryCopy, bool setReadOnly);
+
+	/// Set Read-Only mode.  In read-only mode, all modification (non-const) functions (beginInsertRows(), setValue(), addScanAxis(), addMeasurement(), etc.) will be disabled and return false. This ensures that the underlying CDF file will not be changed.
+	/*! \note Also engages the read-only mode at the CDF library level; Read-only mode may improve performance because CDF "metadata" is copied fully into memory instead of being read from disk. */
+	void setReadOnlyMode(bool readOnlyOn);
+
+	/// In Read-Only mode, all modification functions are disabled to ensure that the underlying CDF file will not be changed.  \see setReadOnlyMode().  Returns true if readOnly mode is on.
+	bool readOnlyMode() const { return readOnly_; }
+
 protected:
 
 	// Re-implemented protected functions:
@@ -130,6 +196,9 @@ protected:
 	/// CDF id of the open file
 	void* cdfId_;
 
+	/// A flag to indicate that all functions that could modify the CDF should be disabled.
+	bool readOnly_;
+
 	/// Maintains the set of measurements that we have at each scan point
 	QList<AMMeasurementInfo> measurements_;
 	/// This list is the same size as measurements_, and holds the CDF var num for each
@@ -146,7 +215,7 @@ protected:
 	//////////////////////////////
 
 	/// Generates a safe temporary file name in the QDir::tempPath() directory. Returns the full path.
-	QString tempFileName() const;
+	QString tempFileName(const QString& basename) const;
 
 	/// Creates a CDF variable for a measurement, and instantiates \c numInitialRecords records.
 	bool createVarForMeasurement(const AMMeasurementInfo& mi, long numInitialRecords);
@@ -154,11 +223,47 @@ protected:
 	/// Implements values() for scan ranks larger than 4.
 	bool valuesImplementationRecursive(const AMnDIndex &siStart, const AMnDIndex &siEnd, long varNum, const long* miStart, const long* miSize, const long* miInterval, double **outputValues, long flatReadSize, int currentDimension, long scanSpaceOffset) const;
 
-	/// Moves records in a CDF for a single variable. The source records will overwrite the records in the destination block.  It is OK for the source and destination blocks to overlap; in this case, the records will be copied one-by-one in reverse order to preserve integrity.
+	/// Creates the attributes in a new CDF for our self-descriptive CDF layout. Returns false and gives up if any fail.
+	bool createAttributes();
+
+	/// Update the attributes for a given \c measurementId
+	bool updateAttributesForMeasurement(int measurementId);
+
+	/// Update the attributes for a given \c scanAxisId
+	bool updateAttributesForScanAxis(int axisId);
+
+	// CDF helper functions (Could be moved to a C++ CDF API wrapper)
+	///////////////
+
+	/// Moves records in a CDF for a single variable. The source records will overwrite the records in the destination block.  It is OK for the source and destination blocks to overlap; in this case, the records will be copied one-by-one in the correct order to preserve integrity.
 	static bool cdfCopyZRecords(void* cdfId, long varNum, long sourceRecordStart, long recordCount, long destinationRecordStart);
 
 	/// Returns the dimensions of a zVariable in a CDF, by introspecting the CDF. If there is a failure, returns AMnDIndex(-1);  If the variable is 0-dimensional (scalar), returns AMnDIndex().
 	static AMnDIndex cdfGetVarDimensions(void* cdfId, long varNum);
+
+	/// Returns the value of a string (CDF_CHAR) attribute in a CDF. Returns a Null string (QString()) on error [no attribute with that name, attribute date definition is not a string, etc.]  If the attribute is empty, may return a valid empty string (QString("")).
+	/*! \c entryNumber specifies which entry of that attribute; for variable-scope attributes it must be a valid variable number. For global-scope attributes it can be anything.*/
+	static QString cdfGetStringAttribute(void* cdfId, const QString& attributeName, long entryNumber);
+
+	/// Gets the value of an int (CDF_INT4) attribute in a CDF. Returns false on error (missing attribute or entry, entry does not match type or size \c numElements, etc.)
+	/*! \c entryNumber specifies which entry of that attribute; for variable-scope attributes it must be a valid variable number. For global-scope attributes it can be anything.*/
+	static bool cdfGetIntAttribute(void* cdfId, const QString& attributeName, long entryNumber, qint32* out, long numElements = 1L);
+
+	/// Gets the value of a double (CDF_DOUBLE) attribute in a CDF. Returns false on error (missing attribute or entry, entry does not match type or size \c numElements, etc.)
+	static bool cdfGetDoubleAttribute(void* cdfId, const QString& attributeName, long entryNumber, double* out, long numElements = 1L);
+
+	/// Put the value of a string attribute to an entry in the CDF. The entry data type is set to CDF_CHAR and resized according to the size of the string. Returns false if there is no such attribute.
+	static bool cdfPutStringAttribute(void* cdfId, const QString& attributeName, long entryNumber, const QString& value);
+
+	/// Put the value of an int (or int array) attribute to an entry in the CDF.  The entry data type is set to CDF_INT4 and resized according to \c numElements.  Returns false if there is no such attribute.
+	static bool cdfPutIntAttribute(void* cdfId, const QString& attributeName, long entryNumber, const qint32* value, long numElements = 1L);
+
+	/// Put the value of a double (or double array) attribute to an entry in the CDF.  The entry data type is set to CDF_DOUBLE and resized according to \c numElements.  Returns false if there is no such attribute.
+	static bool cdfPutDoubleAttribute(void* cdfId, const QString& attributeName, long entryNumber, const double* value, long numElements = 1L);
+
+
+	/// Delete an attribute entry in the CDF. Does not delete the attribute definition; just the entry at \c entryNumber.
+	static bool cdfDeleteAttributeEntry(void* cdfId, const QString& attributeName, long entryNumber);
 
 
 };
