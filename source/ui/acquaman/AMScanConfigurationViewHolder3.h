@@ -45,7 +45,7 @@ public:
 	void setView(AMScanConfigurationView* view);
 
 	/// Set the \c view as enabled or disabled. If there is a scan configuration view present, a red overlay warning will be present when set as disabled
-	virtual void setEnabled(bool enabled);
+	void setEnabled(bool enabled);
 
 protected:
 
