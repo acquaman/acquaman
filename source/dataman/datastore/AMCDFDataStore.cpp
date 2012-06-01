@@ -26,11 +26,44 @@ AMCDFDataStore::AMCDFDataStore() {
 	}
 }
 
-AMCDFDataStore::~AMCDFDataStore() {
-	CDFcloseCDF(cdfId_);
+AMCDFDataStore::AMCDFDataStore(const QString &newFilePath, bool isTemporary) {
+	cdfId_ = 0;
+	readOnly_ = false;
 
-	if(fileIsTemporary_)
-		QFile::remove(cdfFilePath_);
+	CDFstatus s = CDFcreateCDF(newFilePath.toAscii().data(), &cdfId_);
+	if(s != CDF_OK) {
+		AMErrorMon::report(0, AMErrorReport::Serious, -101, QString("AMCDFDataStore: Could not create file '%1' for the CDF data store. Maybe the file exists already? The CDF data store is now invalid.").arg(newFilePath));
+		cdfFilePath_ = QString();
+		fileIsTemporary_ = false;
+	}
+	else {
+		cdfFilePath_ = newFilePath;
+		fileIsTemporary_ = isTemporary;
+		// create standard attributes for our self-descriptive CDF layout.
+		if(!createAttributes()) {
+			AMErrorMon::debug(0, -1001, "AMCDFDataStore: Could not create attributes within new CDF file.");
+		}
+	}
+}
+
+AMCDFDataStore::AMCDFDataStore(const QString &existingFilePath, bool createTemporaryCopy, bool setReadOnly) {
+	cdfId_ = 0;
+	readOnly_ = false;
+	cdfFilePath_ = QString();
+	fileIsTemporary_ = false;
+
+	if(!initializeFromExistingCDF(existingFilePath, createTemporaryCopy, setReadOnly)) {
+		AMErrorMon::report(0, AMErrorReport::Serious, -101, QString("AMCDFDataStore: Could not open file '%1' for the CDF data store. It's possible that the file does not exist or is corrupted. The CDF data store is now invalid.").arg(existingFilePath));
+	}
+}
+
+AMCDFDataStore::~AMCDFDataStore() {
+	if(cdfId_) {
+		CDFcloseCDF(cdfId_);
+
+		if(fileIsTemporary_)
+			QFile::remove(cdfFilePath_);
+	}
 }
 
 QString AMCDFDataStore::tempFileName(const QString& basename) const
@@ -1410,6 +1443,27 @@ bool AMCDFDataStore::initializeFromExistingCDF(const QString &filePath, bool cre
 	setReadOnlyMode(setReadOnly);
 
 	return true;
+}
+
+bool AMCDFDataStore::flushToDisk()
+{
+	if(!isValid()) {
+		AMErrorMon::debug(0, -6001, "AMCDFDataStore: Could not flush CDF because there is no valid CDF file open.");
+		return false;
+	}
+
+	if(CDFcloseCDF(cdfId_) != CDF_OK) {
+		AMErrorMon::debug(0, -6002, "AMCDFDataStore: Could not close CDF for flushing to disk.");
+		return false;
+	}
+	cdfId_ = 0;
+	CDFsetValidate(VALIDATEFILEoff);
+	QByteArray cdfName = cdfFilePath_.toAscii();
+
+	if(CDFopenCDF(cdfName.data(), &cdfId_) != CDF_OK) {
+		AMErrorMon::debug(0, -6003, "AMCDFDataStore: Could not re-open CDF after flushing to disk.");
+		return false;
+	}
 }
 
 

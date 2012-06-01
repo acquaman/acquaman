@@ -67,9 +67,17 @@
 class AMCDFDataStore : public AMDataStore
 {
 public:
-	/// Construct an empty data store.  The data store uses a temporary file created in the system-appropriate temp space (ex: /tmp)
+	/// Construct an empty data store.  The data store creates a temporary CDF file in the system-appropriate temp directory (ex: /tmp), and deletes the CDF file when the data store is deleted.
     AMCDFDataStore();
-	/// Destructor. If the data store was using a temporary file, it will be deleted.
+	/// Construct an empty data store, by creating a new CDF file at \c newFilePath.  If \c isTemporary is true, the CDF file will be deleted when the data store instance is deleted.
+	/*! \note If a file already exists at \c newFilePath, this constructor will fail and the data store will be in an invalid state. You can check isValid() to make sure the CDF was created successfully. */
+	AMCDFDataStore(const QString& newFilePath, bool isTemporary);
+
+	/// Construct a new data store using the existing CDF file at \c existingFilePath. If \c createTemporaryCopy is true, the original file will be copied into the system-appropriate temp directory (ex: /tmp) first, and the copy will be opened instead of the original. If \c setReadOnly is true, the CDF will be put into read-only mode after opening; \see setReadOnlyMode().
+	/*! \note If the CDF file could not be found or opened correctly, this constructor will fail and the data store will be in an invalid state. You can check isValid() to make sure the CDF was opened successfully. */
+	AMCDFDataStore(const QString& existingFilePath, bool createTemporaryCopy, bool setReadOnly);
+
+	/// Destructor. If the data store was using a temporary file (cdfFileIsTemporary()), it will be deleted.
 	virtual ~AMCDFDataStore();
 
 
@@ -160,7 +168,7 @@ If you want to retrieve axes by name, \c axisDetails must contain a unique \c na
 	////////////////////////////////////////
 
 	/// Call this to load everything (scan axes, measurements, and data points) from an existing CDF file. The file at \c filePath must be in the AMCDFDataStore layout.  If \c createTemporaryCopy is true, a copy of the file will be created in the system's temporary folder, opened instead of the original file, and deleted along with the data store. If \c setReadOnly is true, all modification (non-const) functions will be disabled.
-	/*! This function either succeeds completely, or leaves the CDF in its original state. */
+	/*! This function either succeeds completely and returns true, or fails and leaves the CDF in its original state. */
 	bool initializeFromExistingCDF(const QString& filePath, bool createTemporaryCopy, bool setReadOnly);
 
 	/// Set Read-Only mode.  In read-only mode, all modification (non-const) functions (beginInsertRows(), setValue(), addScanAxis(), addMeasurement(), etc.) will be disabled and return false. This ensures that the underlying CDF file will not be changed.
@@ -169,6 +177,19 @@ If you want to retrieve axes by name, \c axisDetails must contain a unique \c na
 
 	/// In Read-Only mode, all modification functions are disabled to ensure that the underlying CDF file will not be changed.  \see setReadOnlyMode().  Returns true if readOnly mode is on.
 	bool readOnlyMode() const { return readOnly_; }
+
+	/// Returns the path of the CDF file currently in use.
+	QString cdfFilePath() const { return cdfFilePath_; }
+
+	/// Returns true if the CDF file is a temporary file that will be deleted when the data store instance is deleted.
+	bool cdfFileIsTemporary() const { return fileIsTemporary_; }
+
+	/// Returns true if the underlying CDF file has been created/opened successfully.
+	bool isValid() const { return cdfId_ != 0; }
+
+	/// Changes to the CDF can be cached, although they will be saved automatically to disk when the CDF is closed by the destructor. In between, the integrity of the CDF file is not guaranteed to be valid. Call this function to flush the cache and make sure the CDF is fully saved to disk.
+	bool flushToDisk();
+
 
 protected:
 
