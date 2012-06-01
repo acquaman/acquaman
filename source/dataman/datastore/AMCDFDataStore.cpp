@@ -1467,6 +1467,8 @@ bool AMCDFDataStore::flushToDisk()
 
 	// restore read-only mode set in previous instance of CDF access.
 	setReadOnlyMode(readOnlyMode());
+
+	return true;
 }
 
 
