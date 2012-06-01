@@ -1464,6 +1464,9 @@ bool AMCDFDataStore::flushToDisk()
 		AMErrorMon::debug(0, -6003, "AMCDFDataStore: Could not re-open CDF after flushing to disk.");
 		return false;
 	}
+
+	// restore read-only mode set in previous instance of CDF access.
+	setReadOnlyMode(readOnlyMode());
 }
 
 
