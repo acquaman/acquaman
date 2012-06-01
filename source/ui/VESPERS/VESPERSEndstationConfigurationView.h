@@ -6,6 +6,7 @@
 #include <QButtonGroup>
 #include <QGroupBox>
 #include <QCheckBox>
+#include <QLabel>
 
 #include "beamline/VESPERS/VESPERSEndstationConfiguration.h"
 
@@ -35,6 +36,8 @@ protected slots:
 protected:
 	/// Helper method that goes through all the possibilities of the endstation configuration and enables/disables detectors and techniques depending on the geometry.
 	void updateAppearance();
+	/// Helper method that updates the pixmap based on detector choices.
+	void updatePixmap();
 
 	/// Pointer to the configuration we are viewing.
 	VESPERSEndstationConfiguration *endstation_;
@@ -68,6 +71,9 @@ protected:
 	QCheckBox *vortex4E_;
 	/// The check box for the Roper CCD.
 	QCheckBox *roperCCD_;
+
+	/// The label holding the picture of the endstation cartoon.
+	QLabel *cartoon_;
 };
 
 #endif // VESPERSENDSTATIONCONFIGURATIONVIEW_H

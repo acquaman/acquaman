@@ -100,6 +100,7 @@ void VESPERSEndstationConfiguration::setGeometry(Geometry newGeometry)
 		break;
 	}
 
+	current_ = newGeometry;
 	emit geometryChanged();
 }
 
