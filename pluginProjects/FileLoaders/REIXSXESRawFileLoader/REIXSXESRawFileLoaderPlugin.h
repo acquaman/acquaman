@@ -5,7 +5,7 @@
 #include <QStringList>
 #include "dataman/AMFileLoaderInterface.h"
 
-/// This class implements loading and saving of raw XES data in the "reixsXESRaw" file format.  The file format is binary, big endian format, and consists of the following data:
+/// THIS CLASS IS DEPRECATED: We now use AMCDFv1FileLoader. This class implements loading and saving of raw XES data in the "reixsXESRaw" file format.  The file format is binary, big endian format, and consists of the following data:
 /*!
  - Magic string, in ASCII encoding: "REIXSXESRAW2011.1"
  - Number of x pixels (32-bit integer)

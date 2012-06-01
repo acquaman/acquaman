@@ -28,6 +28,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMSettings.h"
 
 #include "analysis/REIXS/REIXSXESImageAB.h"
+#include "dataman/datastore/AMCDFDataStore.h"
+
+#include <QStringBuilder>
 
 REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* configuration, QObject *parent) :
 	AMScanController(configuration, parent)
@@ -42,7 +45,8 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 	scan_->setName("REIXS XES Scan");
 
 	scan_->setFilePath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime())+".img");
-	scan_->setFileFormat("reixsXESRaw");
+	scan_->setFileFormat("amCDFv1");
+	scan_->replaceRawDataStore(new AMCDFDataStore(AMUserSettings::userDataFolder % "/" % scan_->filePath(), false));
 	scan_->setRunId(AMUser::user()->currentRunId());
 
 	// set the scan configuration within the scan:
@@ -188,8 +192,6 @@ void REIXSXESScanController::onNewImageValues() {
 
 }
 
-#include "dataman/REIXS/REIXSXESRawFileLoader.h"
-
 void REIXSXESScanController::onScanProgressCheck() {
 
 	int secondsElapsed = startTime_.secsTo(QDateTime::currentDateTime());
@@ -232,9 +234,9 @@ void REIXSXESScanController::onScanProgressCheck() {
 
 
 void REIXSXESScanController::saveRawData() {
-	REIXSXESRawFileLoader exporter(qobject_cast<AMXESScan*>(scan_));
-	if(!exporter.saveToFile(AMUserSettings::userDataFolder + "/" + scan_->filePath()))
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 38, "Error saving the currently-running XES scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to the Acquaman developers."));
+	AMCDFDataStore* cdfDataStore = static_cast<AMCDFDataStore*>(scan_->rawData());
+	if(!cdfDataStore || !cdfDataStore->flushToDisk())
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 38, "Error saving the currently-running XES scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to the beamline software developers."));
 }
 
 void REIXSXESScanController::onScanFinished() {
