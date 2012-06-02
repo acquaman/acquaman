@@ -26,34 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMMeasurementInfo.h"
 #include <QList>
 
-
-
-class AMDataStore;
-
 #include <QObject>
-/// This class acts as a proxy to emit signals for AMDataStore. You can receive the dataChanged() signal by hooking up to AMDataStore::signalSource().  You should never need to create an instance of this class directly.
-/*! To allow classes that implement AMDataStore to also inherit QObject, AMDataStore does NOT inherit QObject.  However, it still needs a way to emit signals notifying of changes to the data, which is the role of this class.
-  */
-class AMDataStoreSignalSource : public QObject {
-	Q_OBJECT
-public:
-	AMDataStore* dataStore() const { return data_; }
-
-protected slots:
-	void emitDataChanged(const AMnDIndex& scanIndexStart, const AMnDIndex& scanIndexEnd, int measurementId) {
-		emit dataChanged(scanIndexStart, scanIndexEnd, measurementId);
-	}
-	void emitSizeChanged() { emit sizeChanged(); }
-
-protected:
-	AMDataStoreSignalSource(AMDataStore* parent);
-	AMDataStore* data_;
-	friend class AMDataStore;
-
-signals:
-	void dataChanged(const AMnDIndex& scanIndexStart, const AMnDIndex& scanIndexEnd, int measurementId);
-	void sizeChanged();
-};
 
 /// The AMDataStore defines an interface for various implementations which store multi-dimensional experimental data (either in memory, or to disk).
 /*! <b>Concepts and terminology:<b>
@@ -85,11 +58,13 @@ Two more restrictions were added after commit f846098ca399b:
   Within the AMDataStore interface, we avoid talking about detectors (since they have nothing to do with storage). The functions that refer to 'measurements' in the API are actually referring to 'measurement classes' instead of single measurements (effectively, 'detectors' according to the terminology above).  For example, addMeasurement() is used to create space to store an additional measurement <i>for every scan point</i>... To match the terminology above, we should have said 'addDetector()' instead.
   */
 
-class AMDataStore
+class AMDataStore : public QObject
 {
+	Q_OBJECT
+
 public:
 	/// Constructs an empty data store
-	AMDataStore();
+	AMDataStore(QObject* parent = 0);
 	/// Destructor
 	virtual ~AMDataStore();
 
@@ -188,7 +163,7 @@ If you want to retrieve axes by name, \c axisDetails must contain a unique \c na
 	/// Clear all the data. This maintains the set of measurements and the scan axes, but deletes every point in the scan space. The size of every scan axis will become 1, except for the first axis, which will have size 0. Implementing subclasses must provide a clearScanDataPointsImplementation().
 	void clearScanDataPoints() {
 		clearScanDataPointsImplementation();
-		emitSizeChanged();
+		emit sizeChanged();
 	}
 	/// Clear the entire data set, and also delete all configured measurements.  This function calls clearScanDataPoints() first.  Implementing subclasses must provide a clearMeasurementsImplementation().
 	void clearAllMeasurements() {
@@ -209,10 +184,16 @@ If you want to retrieve axes by name, \c axisDetails must contain a unique \c na
 		clearScanAxesImplementation();
 	}
 
-	// Signal source
+	// Signals
 	///////////////////////
-	/// Access the signal source, which provides dataChanged() and sizeChanged().
-	const AMDataStoreSignalSource* signalSource() const { return signalSource_; }
+
+signals:
+	/// Emitted whenever the values() change. The changed data comes from \c measurementId, between \c scanIndexStart and \c scanIndexEnd. (If \c scanIndexStart is an invalid AMnDIndex, it means that all the data has changed.)
+	/*! Implementations should not emit this directly, but instead call emitDataChanged(). */
+	void dataChanged(const AMnDIndex& scanIndexStart, const AMnDIndex& scanIndexEnd, int measurementId);
+	/// Emitted whenever the size of the first scan axis changes.
+	/*! This is emitted automatically by the base-class implementation via endInsertRows(); implementations do not need to emit this explicitly. */
+	void sizeChanged();
 
 
 protected:
@@ -238,20 +219,14 @@ protected:
 		if(isInsertingRows_)
 			return;	/// \todo Check if the scanIndexStart and scanIndexEnd represent a range that extends outside of the inserting region. If they do, emit anyway.
 
-		signalSource_->emitDataChanged(scanIndexStart, scanIndexEnd, measurementId);
+		emit dataChanged(scanIndexStart, scanIndexEnd, measurementId);
 	}
 
-	/// The base class calls this when the size of the first scan axis changes (in endInsertRows()).  Subclasses do not need to worry about this, as long as they call the base class's endInsertRows() when re-implementing endInsertRows().
-	void emitSizeChanged() {
-		signalSource_->emitSizeChanged();
-	}
 
 
 private:
 	bool isInsertingRows_;
 	long insertingAtRowIndex_, insertingNumRows_;
-
-	AMDataStoreSignalSource* signalSource_;
 
 };
 

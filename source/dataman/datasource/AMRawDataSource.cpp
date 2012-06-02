@@ -50,8 +50,8 @@ AMRawDataSource::AMRawDataSource(const AMDataStore* dataStore, int measurementId
 	stateFlags_ = 0;
 
 	// create connections to datastore:
-	connect(dataStore_->signalSource(), SIGNAL(dataChanged(AMnDIndex,AMnDIndex,int)), this, SLOT(onDataChanged(AMnDIndex, AMnDIndex,int)) );
-	connect(dataStore_->signalSource(), SIGNAL(sizeChanged()), this, SLOT(onScanAxisSizeChanged()));
+	connect(dataStore_, SIGNAL(dataChanged(AMnDIndex,AMnDIndex,int)), this, SLOT(onDataChanged(AMnDIndex, AMnDIndex,int)) );
+	connect(dataStore_, SIGNAL(sizeChanged()), this, SLOT(onScanAxisSizeChanged()));
 
 	// raw data sources shouldn't be visible in plots, usually.  This is just a default; programmers can always call setVisibleInPlots(), or use the AMScan::addRawDataSource() version which calls this internally.
 	visibleInPlots_ = false;
@@ -86,7 +86,7 @@ bool AMRawDataSource::setDataStore(const AMDataStore *dataStore) {
 
 	// existing data store? Disconnect signals.
 	if(dataStore_) {
-		disconnect(dataStore_->signalSource(), 0, this, 0);
+		disconnect(dataStore_, 0, this, 0);
 	}
 
 	AMMeasurementInfo measurementInfo = dataStore->measurementAt(measurementId_);
@@ -104,8 +104,8 @@ bool AMRawDataSource::setDataStore(const AMDataStore *dataStore) {
 	}
 
 	// create connections to the new datastore:
-	connect(dataStore_->signalSource(), SIGNAL(dataChanged(AMnDIndex,AMnDIndex,int)), SLOT(onDataChanged(AMnDIndex, AMnDIndex,int)) );
-	connect(dataStore_->signalSource(), SIGNAL(sizeChanged()), this, SLOT(onScanAxisSizeChanged()));
+	connect(dataStore_, SIGNAL(dataChanged(AMnDIndex,AMnDIndex,int)), SLOT(onDataChanged(AMnDIndex, AMnDIndex,int)) );
+	connect(dataStore_, SIGNAL(sizeChanged()), this, SLOT(onScanAxisSizeChanged()));
 
 	setValid();
 	emitSizeChanged(-1);

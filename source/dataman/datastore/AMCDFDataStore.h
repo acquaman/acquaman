@@ -66,16 +66,17 @@
   */
 class AMCDFDataStore : public AMDataStore
 {
+	Q_OBJECT
 public:
 	/// Construct an empty data store.  The data store creates a temporary CDF file in the system-appropriate temp directory (ex: /tmp), and deletes the CDF file when the data store is deleted.
-    AMCDFDataStore();
+	AMCDFDataStore(QObject* parent = 0);
 	/// Construct an empty data store, by creating a new CDF file at \c newFilePath.  If \c isTemporary is true, the CDF file will be deleted when the data store instance is deleted.
 	/*! \note If a file already exists at \c newFilePath, this constructor will fail and the data store will be in an invalid state. You can check isValid() to make sure the CDF was created successfully. */
-	AMCDFDataStore(const QString& newFilePath, bool isTemporary);
+	AMCDFDataStore(const QString& newFilePath, bool isTemporary, QObject* parent = 0);
 
 	/// Construct a new data store using the existing CDF file at \c existingFilePath. If \c createTemporaryCopy is true, the original file will be copied into the system-appropriate temp directory (ex: /tmp) first, and the copy will be opened instead of the original. If \c setReadOnly is true, the CDF will be put into read-only mode after opening; \see setReadOnlyMode().
 	/*! \note If the CDF file could not be found or opened correctly, this constructor will fail and the data store will be in an invalid state. You can check isValid() to make sure the CDF was opened successfully. */
-	AMCDFDataStore(const QString& existingFilePath, bool createTemporaryCopy, bool setReadOnly);
+	AMCDFDataStore(const QString& existingFilePath, bool createTemporaryCopy, bool setReadOnly, QObject* parent = 0);
 
 	/// Destructor. If the data store was using a temporary file (cdfFileIsTemporary()), it will be deleted.
 	virtual ~AMCDFDataStore();

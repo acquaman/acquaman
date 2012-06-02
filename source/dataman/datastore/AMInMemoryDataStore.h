@@ -25,8 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMNumber.h"
 #include "dataman/datastore/AMDataStore.h"
 
-#include "util/AMErrorMonitor.h"
-
 
 /// (Internal class for AMInMemoryDataStore) One instance stores a single measurement. (Flat array; nD measurement data is stored in row-major order; last index varies the fastest.)
 typedef QVector<AMNumber> AMIMDSMeasurement;
@@ -54,9 +52,10 @@ With the exception of single detector blocks, the full data store is not stored 
 
 class AMInMemoryDataStore : public AMDataStore
 {
+	Q_OBJECT
 public:
 	/// Constructs an empty data store.
-	AMInMemoryDataStore();
+	AMInMemoryDataStore(QObject* parent = 0);
 
 	virtual ~AMInMemoryDataStore();
 

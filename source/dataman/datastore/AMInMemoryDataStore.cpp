@@ -19,9 +19,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMInMemoryDataStore.h"
+#include "util/AMErrorMonitor.h"
 
-AMInMemoryDataStore::AMInMemoryDataStore()
-	: AMDataStore()
+AMInMemoryDataStore::AMInMemoryDataStore(QObject* parent)
+	: AMDataStore(parent)
 {
 
 }

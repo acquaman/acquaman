@@ -22,21 +22,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-
-AMDataStoreSignalSource::AMDataStoreSignalSource(AMDataStore *parent)
-	: QObject() {
-	data_ = parent;
-}
-
-AMDataStore::AMDataStore()
+AMDataStore::AMDataStore(QObject* parent) : QObject(parent)
 {
-	signalSource_ = new AMDataStoreSignalSource(this);
 	isInsertingRows_ = false;
 }
 
 AMDataStore::~AMDataStore() {
-	delete signalSource_;
-	signalSource_ = 0;
 }
 
 
@@ -86,7 +77,7 @@ void AMDataStore::endInsertRows() {
 		end[mu] = scanSize(mu);
 	}
 
-	emitSizeChanged();
+	emit sizeChanged();
 	for(int d=0; d<measurementCount(); d++)
 		emitDataChanged(start, end, d);	// emitted once for each set of measurements.
 }

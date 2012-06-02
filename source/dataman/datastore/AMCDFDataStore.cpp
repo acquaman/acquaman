@@ -6,7 +6,7 @@
 #include "util/AMErrorMonitor.h"
 #include "cdf.h"
 
-AMCDFDataStore::AMCDFDataStore() {
+AMCDFDataStore::AMCDFDataStore(QObject* parent) : AMDataStore(parent) {
 
 	cdfId_ = 0;
 	readOnly_ = false;
@@ -26,7 +26,7 @@ AMCDFDataStore::AMCDFDataStore() {
 	}
 }
 
-AMCDFDataStore::AMCDFDataStore(const QString &newFilePath, bool isTemporary) {
+AMCDFDataStore::AMCDFDataStore(const QString &newFilePath, bool isTemporary, QObject* parent) : AMDataStore(parent) {
 	cdfId_ = 0;
 	readOnly_ = false;
 
@@ -46,7 +46,7 @@ AMCDFDataStore::AMCDFDataStore(const QString &newFilePath, bool isTemporary) {
 	}
 }
 
-AMCDFDataStore::AMCDFDataStore(const QString &existingFilePath, bool createTemporaryCopy, bool setReadOnly) {
+AMCDFDataStore::AMCDFDataStore(const QString &existingFilePath, bool createTemporaryCopy, bool setReadOnly, QObject* parent) : AMDataStore(parent) {
 	cdfId_ = 0;
 	readOnly_ = false;
 	cdfFilePath_ = QString();
