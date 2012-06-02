@@ -69,6 +69,11 @@ linux-g++-64 {
 
 		# MPlot Source
 		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+
+		# CDFlib dependencies
+		CDF_LIB = -L/home/beamline/tools/cdf/lib -lcdf
+		CDF_INCLUDE_DIR = /home/beamline/tools/cdf/include
+
 }
 
 # Special build paths and options for running on the Jenkins auto-build server (currently at http://beamteam.usask.ca:8080)
