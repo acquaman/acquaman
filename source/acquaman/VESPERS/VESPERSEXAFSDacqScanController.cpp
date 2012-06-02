@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSEXAFSDacqScanController.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "actions/AMBeamlineActionsList.h"
@@ -12,6 +31,8 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	: AMDacqScanController(cfg, parent)
 {
 	config_ = cfg;
+	config_->setUserScanName(config_->name());
+
 	setupXASAction_ = 0;
 	cleanupXASAction_ = 0;
 
@@ -32,9 +53,7 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	scan_->setScanConfiguration(config_);
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setIndexType("fileSystem");
-//	scan_->rawData()->scanAxisAt(0).name = QString("Energy");
-//	scan_->rawData()->scanAxisAt(0).units = "eV";
-//	scan_->rawData()->scanAxisAt(0).description = "Scanned Energy";
+	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
 	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
@@ -137,6 +156,7 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::SingleElement){
 
 		AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
+		pfy->setDescription("PFY");
 		QList<AMDataSource*> pfySource;
 		pfySource << scan_->rawDataSources()->at(scan_->rawDataSourceCount()-1);
 		pfy->setInputDataSources(pfySource);
@@ -179,6 +199,7 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	else if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::FourElement){
 
 		AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
+		pfy->setDescription("PFY");
 		QList<AMDataSource*> pfySource;
 		pfySource << scan_->rawDataSources()->at(scan_->rawDataSourceCount()-5);
 		pfy->setInputDataSources(pfySource);

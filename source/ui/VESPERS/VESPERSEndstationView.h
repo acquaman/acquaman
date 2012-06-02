@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -43,13 +43,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 		- Safe distance for the CCD.
 		- Limits on the different configurations.
 */
-class VESPERSEndstationConfigurationView : public QWidget
+class VESPERSEndstationLimitsView : public QWidget
 {
 	Q_OBJECT
 
 public:
 	/// Constructor for the configuration.
-	VESPERSEndstationConfigurationView(QWidget *parent = 0);
+	VESPERSEndstationLimitsView(QWidget *parent = 0);
 
 signals:
 	/// The limits and other possible configurations have changed.
@@ -177,7 +177,7 @@ protected:
 	QToolButton *laserPowerButton_;
 
 	// Config window.
-	VESPERSEndstationConfigurationView *config_;
+	VESPERSEndstationLimitsView *config_;
 
 	// Control Window.
 	VESPERSMotorView *window_;

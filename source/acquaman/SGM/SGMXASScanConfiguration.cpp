@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -33,12 +33,15 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	trackingSet_ = SGMBeamline::sgm()->trackingSet();
 
 	xasDetectors_ = SGMBeamline::sgm()->XASDetectors();
+	connect(SGMBeamline::sgm(), SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)), this, SLOT(detectorAvailabilityChanged(AMDetector*,bool)));
 
 	allDetectors_ = new AMDetectorSet(this);
 	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectors()->count(); x++)
 		allDetectors_->addDetector(SGMBeamline::sgm()->feedbackDetectors()->detectorAt(x), true);
-	for(int x = 0; x < xasDetectors_->count(); x++)
+	for(int x = 0; x < xasDetectors_->count(); x++){
+//		qDebug() << "Adding detector named " << xasDetectors_->detectorAt(x)->detectorName();
 		allDetectors_->addDetector(xasDetectors_->detectorAt(x), xasDetectors_->isDefaultAt(x));
+	}
 	xasDetectorsCfg_ = xasDetectors_->toInfoSet();
 
 	// default channels removed. Need to come up with new replacement system to create default analysis blocks instead.
@@ -280,4 +283,10 @@ bool SGMXASScanConfiguration::setDetectorConfigurations(const AMDetectorInfoSet 
 	xasDetectorsCfg_ = xasDetectorsCfg;
 	setModified(true);
 	return true;
+}
+
+void SGMXASScanConfiguration::detectorAvailabilityChanged(AMDetector *detector, bool isAvailable){
+	Q_UNUSED(detector)
+	Q_UNUSED(isAvailable)
+//	qDebug() << "Detector named " << detector->detectorName() << " is now avaialbe " << isAvailable;
 }

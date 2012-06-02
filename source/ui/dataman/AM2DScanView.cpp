@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "AM2DScanView.h"
 
 #include "MPlot/MPlotImage.h"
@@ -6,10 +25,90 @@
 
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 #include "dataman/datasource/AMDataSourceImageData.h"
+#include "dataman/datasource/AMDataSourceImageDatawDefault.h"
 #include "dataman/AMScan.h"
+
+#include "ui/dataman/AM3dDataSourceView.h"
 
 #include <QSizePolicy>
 #include <QStringBuilder>
+#include <QCheckBox>
+#include <QFileInfo>
+
+AM2DScanBar::AM2DScanBar(QWidget *parent)
+	: QWidget(parent)
+{
+	dataPosition_ = new QLabel("Current Position:");
+	selectedRect_ = new QLabel("");
+	xUnits_ = "";
+	yUnits_ = "";
+	position_ = QPointF();
+	rect_ = QRectF();
+
+	QCheckBox *showSpectra = new QCheckBox("Show Spectra");
+	showSpectra->setChecked(false);
+	connect(showSpectra, SIGNAL(toggled(bool)), this, SIGNAL(showSpectra(bool)));
+
+	QHBoxLayout *layout = new QHBoxLayout;
+	layout->addWidget(dataPosition_);
+	layout->addStretch();
+	layout->addWidget(showSpectra, 0, Qt::AlignRight);
+
+	QVBoxLayout *barLayout = new QVBoxLayout;
+	barLayout->addLayout(layout);
+	barLayout->addWidget(selectedRect_);
+
+	setLayout(barLayout);
+}
+
+void AM2DScanBar::setDataPosition(const QPointF &point)
+{
+	position_ = point;
+
+	QString text = "Current Position: (";
+	text.append(QString::number(point.x(), 'f', 3));
+
+	if (!xUnits().isEmpty())
+		text.append(QString(" %1").arg(xUnits()));
+
+	text.append(", ");
+	text.append(QString::number(point.y(), 'f', 3));
+
+	if (!yUnits().isEmpty())
+		text.append(QString(" %1").arg(yUnits()));
+
+	text.append(")");
+
+	dataPosition_->setText(text);
+}
+
+void AM2DScanBar::setSelectedRect(const QRectF &rect)
+{
+	rect_ = rect;
+
+	if (rect_.isNull()){
+
+		selectedRect_->setText("");
+	}
+
+	else{
+
+		QString text = QString("Highlighted Region - Start: (%1 %5, %2 %6) End: (%3 %7, %4 %8)")
+				.arg(QString::number(rect_.bottomLeft().x(), 'f', 3))
+				.arg(QString::number(rect_.bottomLeft().y(), 'f', 3))
+				.arg(QString::number(rect_.topRight().x(), 'f', 3))
+				.arg(QString::number(rect_.topRight().y(), 'f', 3))
+				.arg(xUnits())
+				.arg(xUnits())
+				.arg(yUnits())
+				.arg(yUnits());
+
+		selectedRect_->setText(text);
+	}
+}
+
+// AM2DScanView
+/////////////////////////////////////
 
 AM2DScanView::AM2DScanView(AMScanSetModel* model, QWidget *parent)
 	: QWidget(parent)
@@ -17,6 +116,8 @@ AM2DScanView::AM2DScanView(AMScanSetModel* model, QWidget *parent)
 	scansModel_ = model;
 	if(scansModel_ == 0)
 		scansModel_ = new AMScanSetModel(this);
+
+	spectrumViewIsVisible_ = false;
 
 	setupUI();
 	makeConnections();
@@ -35,8 +136,6 @@ AM2DScanView::AM2DScanView(AMScanSetModel* model, QWidget *parent)
 
 AM2DScanView::~AM2DScanView()
 {
-	for(int i=0; i<views_.count(); i++)
-		delete views_.at(i);
 }
 
 void AM2DScanView::setupUI()
@@ -55,6 +154,9 @@ void AM2DScanView::setupUI()
 	exclusiveScanBars_->setExclusiveModeOn();
 	vl->addWidget(exclusiveScanBars_);
 
+	exclusive2DScanBar_ = new AM2DScanBar;
+	vl->addWidget(exclusive2DScanBar_);
+
 	setLayout(vl);
 
 	// setup linear layout within main graphics area:
@@ -68,7 +170,7 @@ void AM2DScanView::setupUI()
 	multiViewLayout->setSpacing(0);
 
 	gMultiView_ = new AMGraphicsViewAndWidget();
-	gMultiView_->setMinimumSize(400, 300);
+	gMultiView_->setMinimumSize(400, 400);
 	gMultiView_->graphicsWidget()->setGeometry(0, 0, 640, 640);
 
 	multiViewLayout->addWidget(gMultiView_);
@@ -78,17 +180,26 @@ void AM2DScanView::setupUI()
 
 	multiViewBox_ = new QGroupBox;
 	multiViewBox_->setLayout(multiViewLayout);
+	multiViewBox_->setWindowTitle("Multi-Region Of Interest View");
+	multiViewBox_->setMaximumSize(800, 800);
 
 	gMultiViewLayout_ = new QGraphicsLinearLayout();
 	gMultiViewLayout_->setSpacing(0);
 	gMultiViewLayout_->setContentsMargins(0, 0, 0, 0);
 	gMultiView_->graphicsWidget()->setLayout(gMultiViewLayout_);
 
-	views_ << new AM2DScanViewExclusiveView(this);
-	views_ << new AM2DScanViewMultiSourcesView(this);
+	exclusiveView_ = new AM2DScanViewExclusiveView(this);
+	multiView_ = new AM2DScanViewMultiSourcesView(this);
+	spectrumView_ = new AM2DScanViewSingleSpectrumView(this);
 
-	gExclusiveLayout_->addItem(views_.first());
-	gMultiViewLayout_->addItem(views_.at(1));
+	spectrumViewBox_ = new QGroupBox;
+	QHBoxLayout *spectrumViewBoxLayout = new QHBoxLayout;
+	spectrumViewBoxLayout->addWidget(spectrumView_);
+	spectrumViewBox_->setLayout(spectrumViewBoxLayout);
+	spectrumViewBox_->setWindowTitle("View Single Spectrum");
+
+	gExclusiveLayout_->addItem(exclusiveView_);
+	gMultiViewLayout_->addItem(multiView_);
 }
 
 void AM2DScanView::makeConnections()
@@ -96,6 +207,54 @@ void AM2DScanView::makeConnections()
 	// connect resize event from graphicsView to resize the stuff inside the view
 	connect(gExclusiveView_, SIGNAL(resized(QSizeF)), this, SLOT(resizeExclusiveViews()), Qt::QueuedConnection);
 	connect(gMultiView_, SIGNAL(resized(QSizeF)), this, SLOT(resizeMultiViews()), Qt::QueuedConnection);
+
+	connect(exclusiveView_, SIGNAL(dataPositionChanged(QPointF)), exclusive2DScanBar_, SLOT(setDataPosition(QPointF)));
+	connect(exclusiveView_, SIGNAL(selectedRectChanged(QRectF)), exclusive2DScanBar_, SLOT(setSelectedRect(QRectF)));
+	connect(exclusive2DScanBar_, SIGNAL(showSpectra(bool)), this, SLOT(setSpectrumViewVisibility(bool)));
+	connect(exclusiveView_, SIGNAL(dataPositionChanged(QPointF)), this, SLOT(onDataPositionChanged(QPointF)));
+}
+
+void AM2DScanView::setSpectrumViewVisibility(bool visible)
+{
+	spectrumViewIsVisible_ = visible;
+	spectrumViewBox_->setVisible(spectrumViewIsVisible_);
+}
+
+void AM2DScanView::onDataPositionChanged(const QPointF &point)
+{
+	int x = -1;
+	int y = -1;
+	AMDataSource *datasource = currentScan_->dataSourceAt(currentScan_->indexOfDataSource(scansModel_->exclusiveDataSourceName()));
+
+	// This assumes 2D maps where the size is greater than 1x1, 1xN, or Nx1.
+	double delX = (double(datasource->axisValue(0, 1)) - double(datasource->axisValue(0, 0)))/2;
+	double delY = (double(datasource->axisValue(1, 1)) - double(datasource->axisValue(1, 0)))/2;
+
+	for (int i = 0; i < currentScan_->scanSize(0); i++)
+		if (fabs(point.x() - double(datasource->axisValue(0, i))) < delX)
+			x = i;
+
+	for (int i = 0; i < currentScan_->scanSize(1); i++)
+		if (fabs(point.y() - double(datasource->axisValue(1, i))) < delY)
+			y = i;
+
+	QString filename = currentScan_->additionalFilePaths().first();
+	QFileInfo sourceFileInfo(currentScan_->additionalFilePaths().first());
+	if(sourceFileInfo.isRelative())
+		filename = AMUserSettings::userDataFolder % filename;
+
+	spectrumView_->onDataPositionChanged(AMnDIndex(x, y), currentScan_->scanSize(0), filename);
+}
+
+void AM2DScanView::setCurrentScan(AMScan *scan)
+{
+	currentScan_ = scan;
+
+	if (currentScan_)
+		exclusive2DScanBar_->setUnits(scan->rawData()->scanAxisAt(0).units, scan->rawData()->scanAxisAt(1).units);
+
+	else
+		exclusive2DScanBar_->setUnits("", "");
 }
 
 void AM2DScanView::resizeExclusiveViews()
@@ -144,6 +303,9 @@ void AM2DScanView::showEvent(QShowEvent *e)
 	if (!multiViewBox_->isVisible())
 		multiViewBox_->show();
 
+	if (!spectrumViewBox_->isVisible() && spectrumViewIsVisible_)
+		spectrumViewBox_->show();
+
 	QWidget::showEvent(e);
 }
 
@@ -152,7 +314,28 @@ void AM2DScanView::hideEvent(QHideEvent *e)
 	if (multiViewBox_->isVisible())
 		multiViewBox_->hide();
 
+	if (spectrumViewBox_->isVisible())
+		spectrumViewBox_->hide();
+
 	QWidget::hideEvent(e);
+}
+
+void AM2DScanView::mousePressEvent(QMouseEvent *e)
+{
+	if (e->button() == Qt::RightButton)
+		emit dataPositionChanged(e->globalPos());
+
+	QWidget::mousePressEvent(e);
+}
+
+void AM2DScanView::setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange)
+{
+	spectrumView_->setAxisInfo(info, propogateToPlotRange);
+}
+
+void AM2DScanView::setPlotRange(double low, double high)
+{
+	spectrumView_->setPlotRange(low, high);
 }
 
 // AM2DScanViewInternal
@@ -182,8 +365,8 @@ MPlotGW * AM2DScanViewInternal::createDefaultPlot()
 {
 	MPlotGW* rv = new MPlotGW();
 	rv->plot()->plotArea()->setBrush(QBrush(QColor(Qt::white)));
-	rv->plot()->axisBottom()->setTicks(4);
-	rv->plot()->axisTop()->setTicks(4);
+	rv->plot()->axisBottom()->setTicks(5);
+	rv->plot()->axisTop()->setTicks(5);
 	rv->plot()->axisLeft()->showGrid(false);
 
 	rv->plot()->axisBottom()->showAxisName(true);
@@ -192,6 +375,9 @@ MPlotGW * AM2DScanViewInternal::createDefaultPlot()
 	rv->plot()->setMarginLeft(13);
 	rv->plot()->setMarginBottom(15);
 	rv->plot()->setMarginTop(15);
+
+	rv->plot()->axisScaleBottom()->setPadding(0);
+	rv->plot()->axisScaleLeft()->setPadding(0);
 
 	return rv;
 }
@@ -209,8 +395,8 @@ MPlotItem* AM2DScanViewInternal::createPlotItemForDataSource(const AMDataSource*
 	switch(dataSource->rank()) {	// depending on the rank, we'll need an XY-series or an image to display it. 3D and 4D, etc. we don't handle for now.
 
 	case 2: {
-		MPlotImageBasic* image = new MPlotImageBasic();
-		image->setModel(new AMDataSourceImageData(dataSource), true);
+		MPlotImageBasicwDefault* image = new MPlotImageBasicwDefault();
+		image->setModel(new AMDataSourceImageDatawDefault(dataSource, 0), true);
 		image->setColorMap(plotSettings.colorMap);
 		image->setZValue(-1000);
 		rv = image;
@@ -232,6 +418,13 @@ AM2DScanViewExclusiveView::AM2DScanViewExclusiveView(AM2DScanView* masterView)
 {
 	// create our main plot:
 	plot_ = createDefaultPlot();
+
+	MPlotDataPositionTool *positionTool = new MPlotDataPositionTool;
+	plot_->plot()->addTool(positionTool);
+	positionTool->addDataPositionIndicator(plot_->plot()->axisScaleBottom(), plot_->plot()->axisScaleLeft());
+
+	connect(plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(uint,QPointF)), this, SLOT(onDataPositionChanged(uint,QPointF)));
+	connect(plot_->plot()->signalSource(), SIGNAL(selectedDataRectChanged(uint,QRectF)), this, SLOT(onSelectedRectChanged(uint,QRectF)));
 
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
 	gl->setContentsMargins(0,0,0,0);
@@ -369,6 +562,20 @@ void AM2DScanViewExclusiveView::onExclusiveDataSourceChanged(const QString& excl
 	refreshTitle();
 }
 
+void AM2DScanViewExclusiveView::onDataPositionChanged(uint index, const QPointF &point)
+{
+	Q_UNUSED(index)
+
+	emit dataPositionChanged(point);
+}
+
+void AM2DScanViewExclusiveView::onSelectedRectChanged(uint index, const QRectF &rect)
+{
+	Q_UNUSED(index)
+
+	emit selectedRectChanged(rect);
+}
+
 void AM2DScanViewExclusiveView::refreshTitle() {
 
 	int numScansShown = 0;
@@ -439,12 +646,20 @@ void AM2DScanViewExclusiveView::reviewScan(int scanIndex)
 				switch(scan->scanRank()){
 
 				case 1:
-					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).name : scan->rawData()->scanAxisAt(0).name % ", " % scan->rawData()->scanAxisAt(0).units);
+					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
 					break;
 
 				case 2:
-					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).name : scan->rawData()->scanAxisAt(0).name % ", " % scan->rawData()->scanAxisAt(0).units);
-					plot_->plot()->axisLeft()->setAxisName(scan->rawData()->scanAxisAt(1).units.isEmpty() ? scan->rawData()->scanAxisAt(1).name : scan->rawData()->scanAxisAt(1).name % ", " % scan->rawData()->scanAxisAt(1).units);
+					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
+					plot_->plot()->axisLeft()->setAxisName(scan->rawData()->scanAxisAt(1).units.isEmpty() ? scan->rawData()->scanAxisAt(1).description : scan->rawData()->scanAxisAt(1).description % ", " % scan->rawData()->scanAxisAt(1).units);
+
+					// testing 3D
+//					if(dataSource->rank() == 2) {
+//						tempView = new AM3dDataSourceView(model()->scanAt(scanIndex), model()->scanAt(scanIndex)->indexOfDataSource(dataSource));
+//						tempView->setLogScaleEnabled();
+//						tempView->resize(640,480);
+//						tempView->show();
+//					}
 					break;
 				}
 			}
@@ -462,12 +677,13 @@ void AM2DScanViewExclusiveView::reviewScan(int scanIndex)
 
 				MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItems_.at(scanIndex));
 				if(plotItemDataSources_.at(scanIndex) != dataSource) {
-					AMDataSourceImageData* newData = new AMDataSourceImageData(dataSource);
+					AMDataSourceImageDatawDefault* newData = new AMDataSourceImageDatawDefault(dataSource, 0);
 					image->setModel(newData, true);
 					plotItemDataSources_[scanIndex] = dataSource;
 				}
 				image->setColorMap(model()->plotColorMap(scanIndex, dataSourceIndex));
 
+//				tempView->setScanAndDataSource(model()->scanAt(scanIndex), model()->scanAt(scanIndex)->indexOfDataSource(dataSource));
 				break;
 			}
 
@@ -759,12 +975,12 @@ bool AM2DScanViewMultiSourcesView::reviewDataSources() {
 					switch(scan->scanRank()){
 
 					case 1:
-						dataSource2Plot_[sourceName]->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).name : scan->rawData()->scanAxisAt(0).name % ", " % scan->rawData()->scanAxisAt(0).units);
+						dataSource2Plot_[sourceName]->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
 						break;
 
 					case 2:
-						dataSource2Plot_[sourceName]->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).name : scan->rawData()->scanAxisAt(0).name % ", " % scan->rawData()->scanAxisAt(0).units);
-						dataSource2Plot_[sourceName]->plot()->axisLeft()->setAxisName(scan->rawData()->scanAxisAt(1).units.isEmpty() ? scan->rawData()->scanAxisAt(1).name : scan->rawData()->scanAxisAt(1).name % ", " % scan->rawData()->scanAxisAt(1).units);
+						dataSource2Plot_[sourceName]->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
+						dataSource2Plot_[sourceName]->plot()->axisLeft()->setAxisName(scan->rawData()->scanAxisAt(1).units.isEmpty() ? scan->rawData()->scanAxisAt(1).description : scan->rawData()->scanAxisAt(1).description % ", " % scan->rawData()->scanAxisAt(1).units);
 						break;
 					}
 
@@ -782,4 +998,145 @@ bool AM2DScanViewMultiSourcesView::reviewDataSources() {
 	}
 
 	return layoutChanges;
+}
+
+// AM2DScanViewSingleSpectrumView
+//////////////////////////////////////////////////
+
+AM2DScanViewSingleSpectrumView::AM2DScanViewSingleSpectrumView(QWidget *parent)
+	: QWidget(parent)
+{
+	qRegisterMetaType<QVector<double> >("QVector<double>");
+	connect(&fetcher_, SIGNAL(fetchedSpectrum(QVector<double>)), this, SLOT(updatePlot(QVector<double>)));
+
+	x_.resize(0);
+
+	setupPlot();
+
+	model_ = new MPlotVectorSeriesData;
+	MPlotSeriesBasic *series = new MPlotSeriesBasic(model_);
+	series->setMarker(MPlotMarkerShape::None);
+	series->setDescription("Spectrum");
+	plot_->plot()->addItem(series);
+	plot_->setMinimumSize(600, 400);
+	plot_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+
+	table_ = new AMSelectablePeriodicTable(this);
+	connect(table_, SIGNAL(elementSelected(int)), this, SLOT(onElementSelected(int)));
+	connect(table_, SIGNAL(elementDeselected(int)), this, SLOT(onElementDeselected(int)));
+	tableView_ = new AMSelectablePeriodicTableView(table_);
+
+	QVBoxLayout *layout = new QVBoxLayout;
+	layout->addWidget(plot_);
+//	layout->addStretch();
+	layout->addWidget(tableView_, 0, Qt::AlignCenter);
+
+	setLayout(layout);
+}
+
+void AM2DScanViewSingleSpectrumView::setupPlot()
+{
+	MPlot *plot = new MPlot;
+	plot_ = new MPlotWidget(this);
+	plot_->setPlot(plot);
+
+	plot_->plot()->plotArea()->setBrush(QBrush(Qt::white));
+	plot_->plot()->axisBottom()->setTicks(5);
+	plot_->plot()->axisLeft()->setTicks(5);
+	plot_->plot()->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
+	plot_->plot()->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
+	plot_->plot()->axisBottom()->showAxisName(true);
+	plot_->plot()->axisLeft()->showAxisName(false);
+
+	// Set the margins for the plot.
+	plot_->plot()->setMarginLeft(10);
+	plot_->plot()->setMarginBottom(15);
+	plot_->plot()->setMarginRight(2);
+	plot_->plot()->setMarginTop(2);
+
+	plot_->plot()->addTool(new MPlotDragZoomerTool());
+	plot_->plot()->addTool(new MPlotWheelZoomerTool());
+}
+
+void AM2DScanViewSingleSpectrumView::onElementSelected(int atomicNumber)
+{
+	QString symbol = table_->elementByAtomicNumber(atomicNumber)->symbol();
+	QList<QPair<QString, QString> > lines = table_->elementByAtomicNumber(atomicNumber)->emissionLines();
+	QColor color = AMDataSourcePlotSettings::nextColor();
+	MPlotPoint *newLine;
+	QPair<QString, QString> line;
+
+	foreach(line, lines){
+
+		if (line.second.toDouble() >= range_.first && line.second.toDouble() <= range_.second
+				&& line.first.contains("1") && line.first.compare("-"))	{
+
+			newLine = new MPlotPoint(QPointF(line.second.toDouble(), 0));
+			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(color), QBrush(color));
+			newLine->setDescription(symbol % " " % line.first);
+			plot_->plot()->addItem(newLine);
+		}
+	}
+}
+
+void AM2DScanViewSingleSpectrumView::onElementDeselected(int atomicNumber)
+{
+	QString symbol = table_->elementByAtomicNumber(atomicNumber)->symbol();
+	MPlot *plot = plot_->plot();
+
+	foreach(MPlotItem *item, plot->plotItems()){
+
+		if (item->description().contains(symbol))
+			if (plot->removeItem(item))
+				delete item;
+	}
+}
+
+void AM2DScanViewSingleSpectrumView::setPlotRange(double low, double high)
+{
+	range_ = qMakePair(low, high);
+	tableView_->setRange(low, high);
+
+	foreach(int atomicNumber, table_->selectedElements())
+		onElementDeselected(atomicNumber);
+
+	foreach(int atomicNumber, table_->selectedElements())
+		onElementSelected(atomicNumber);
+}
+
+void AM2DScanViewSingleSpectrumView::onDataPositionChanged(AMnDIndex index, int rowLength, const QString &filename)
+{
+	if (isVisible())
+		fetcher_.fetch(index, rowLength, filename, x_.size());
+}
+
+void AM2DScanViewSingleSpectrumView::setAxisInfo(AMAxisInfo info, bool propogateToPlotRange)
+{
+	if (info.units.isEmpty())
+		plot_->plot()->axisBottom()->setAxisName(info.name);
+
+	else
+		plot_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
+
+	x_.resize(info.size);
+
+	for (int i = 0; i < info.size; i++)
+		x_[i] = double(info.start) + i*double(info.increment);
+
+	if (propogateToPlotRange)
+		setPlotRange(double(info.start), double(info.start) + info.size*double(info.increment));
+}
+
+void AM2DScanViewSingleSpectrumView::updatePlot(QVector<double> spectrum)
+{
+	if (x_.size() == 0){
+
+		x_.resize(spectrum.size());
+
+		for (int i = 0; i < x_.size(); i++)
+			x_[i] = i;
+	}
+
+	QVector<double> y = spectrum;
+	model_->setValues(x_, y);
 }

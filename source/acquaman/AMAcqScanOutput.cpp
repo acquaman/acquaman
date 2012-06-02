@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -137,7 +137,7 @@ int AMAcqScanOutput::putValue( acqKey_t key, int eventno, int pvno, const void *
 	}
 
 
-	double dataVal;
+	double dataVal = 0;
 
 	switch( pvpr->colp->columnType)
 	{

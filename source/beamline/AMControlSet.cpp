@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -139,9 +139,10 @@ void AMControlSet::onConnected(bool ctrlConnected){
 }
 
 void AMControlSet::onConnectionsTimedOut(){
-	if(!wasConnected_)
+	if(!wasConnected_){
 		emit connected(false);
-	emit controlSetTimedOut();
+		emit controlSetTimedOut();
+	}
 }
 
 void AMControlSet::onControlValueChanged(){

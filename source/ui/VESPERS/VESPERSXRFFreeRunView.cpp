@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -292,7 +292,7 @@ void VESPERSXRFFreeRunView::onShowCombinationPileUpPeaks(bool showPeaks)
 
 void VESPERSXRFFreeRunView::getCombinationElement()
 {
-	AMElement *el = AMPeriodicTableDialog::getElement(this);
+	const AMElement *el = AMPeriodicTableDialog::getElement(this);
 
 	if (el){
 

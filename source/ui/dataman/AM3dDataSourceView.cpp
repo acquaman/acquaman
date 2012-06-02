@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -20,12 +20,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM3dDataSourceView.h"
 
-#include "qwt3d_surfaceplot.h"
+#include "../contrib/qwtplot3d/include/qwt3d_surfaceplot.h"
 #include <QBoxLayout>
 #include <QStringBuilder>
 
 #include "dataman/AMScan.h"
-#include "dataman/AMDataSource.h"
+#include "dataman/datasource/AMDataSource.h"
+#include "util/AMDataSourcePlotSettings.h"
+
+#include <QGLColormap>
 
 AM3dDataSourceView::AM3dDataSourceView(const AMScan* scan, int dataSourceIndex, QWidget *parent) :
 	QWidget(parent)
@@ -33,7 +36,7 @@ AM3dDataSourceView::AM3dDataSourceView(const AMScan* scan, int dataSourceIndex, 
 	QVBoxLayout* vl = new QVBoxLayout();
 
 	surfacePlot_ = new Qwt3D::SurfacePlot();
-	surfacePlot_->setPlotStyle(Qwt3D::FILLED);
+	surfacePlot_->setPlotStyle(Qwt3D::FILLEDMESH);
 	surfacePlot_->setShading(Qwt3D::GOURAUD);
 
 	surfacePlot_->enableLighting();
@@ -45,8 +48,16 @@ AM3dDataSourceView::AM3dDataSourceView(const AMScan* scan, int dataSourceIndex, 
 	surfacePlot_->setZoom(0.90);
 
 
+	QGLColormap colors;
+	colors.setEntry(0, qRgb(0, 0, 131));
+	colors.setEntry(1, qRgb(0, 0, 255));
+	colors.setEntry(2, qRgb(0, 255, 255));
+	colors.setEntry(3, qRgb(255, 255, 0));
+	colors.setEntry(4, qRgb(255, 0, 0));
+	colors.setEntry(5, qRgb(128, 0, 0));
 
-	//surfacePlot_->setResolution(4);
+	surfacePlot_->setColormap(colors);
+	surfacePlot_->setResolution(4);
 	vl->addWidget(surfacePlot_);
 
 	setLayout(vl);

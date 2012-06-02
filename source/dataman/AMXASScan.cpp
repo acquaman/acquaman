@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMXASScan::AMXASScan(QObject *parent)
 	: AMScan(parent)
 {
-	data_->addScanAxis( AMAxisInfo("eV", 0, "Incident Energy", "eV") );
+
 }
 
 

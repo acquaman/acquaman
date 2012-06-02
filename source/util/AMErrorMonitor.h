@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -27,8 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMetaType>
 #include <QMutex>
 #include <QReadWriteLock>
-
-class QSystemTrayIcon;
 
 /// This class encapsulates an error message (who it's from, the level or "severity", an error code defined by the originator, and a description)
 /*! Error levels are defined as:
@@ -182,6 +180,7 @@ public:
 	/// Get access to the single instance of this class. This function is thread-safe.
 	static AMErrorMon* mon();
 
+	static int lastErrorCode() { return mon()->lastErrorCode_;}
 
 signals:
 	/// emitted for all errors
@@ -239,11 +238,10 @@ private:
 	/// class-wide instance variable
 	static AMErrorMon* instance_;
 
-	/// SystemTrayIcon object used to display error notifications very visibly on-screen.
-	QSystemTrayIcon* sicon_;
-
 	/// Whether we display debug messages
 	bool debugEnabled_;
+
+	int lastErrorCode_;
 
 	/// This mutex is used to ensure thread-safe access to the instance_ variable.
 	static QMutex instanceMutex_;

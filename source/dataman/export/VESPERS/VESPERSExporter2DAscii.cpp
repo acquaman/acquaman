@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSExporter2DAscii.h"
 
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
@@ -103,6 +122,7 @@ void VESPERSExporter2DAscii::writeHeader()
 	convertNormalizedLineEndingsTo(option_->newlineDelimiter(), headerText);
 
 	headerText.replace("\n", "\n# ");
+	headerText.append("-------------------------------------\n");
 
 	QTextStream ts(file_);
 	ts << headerText;
@@ -114,6 +134,8 @@ void VESPERSExporter2DAscii::writeMainTable()
 
 	// 1. Column header.
 	if(option_->columnHeaderIncluded()) {
+
+		ts << "# ";
 
 		for(int c=0; c<mainTableDataSources_.count(); c++) {
 
@@ -161,10 +183,11 @@ void VESPERSExporter2DAscii::writeMainTable()
 					ts << option_->columnDelimiter();
 				}
 
-				if(doPrint && x == indexOfCCDName)
+				if(doPrint && c == indexOfCCDName)
 					ts << QString("%1_%2.spe").arg(ccdFileName).arg(int(ds->value(AMnDIndex(x, y))));
 				else if (doPrint)
 					ts << ds->value(AMnDIndex(x, y)).toString();
+
 				ts << option_->columnDelimiter();
 			}
 
@@ -189,6 +212,9 @@ bool VESPERSExporter2DAscii::writeSeparateFiles(const QString &destinationFolder
 
 	QString originalFileName = sourceFileInfo.absoluteFilePath();
 	QString separateFileName = parseKeywordString( destinationFolderPath % "/" % option_->separateSectionFileName().replace("$dataSetName", "spectra") );
+
+	if (QFile::exists(separateFileName))
+		QFile::remove(separateFileName);
 
 	return QFile::copy(originalFileName, separateFileName);
 }

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMProcessVariablePrivate.h"
 #include "AMProcessVariable.h"
+#include "util/AMErrorMonitor.h"
 
 #include <float.h>
 #include <QDebug>
@@ -39,8 +40,9 @@ AMProcessVariableSupport::AMProcessVariableSupport() : QObject() {
 	qRegisterMetaType<AMProcessVariableIntVector>();
 
 	connect(&flushIOCaller_, SIGNAL(executed()), this, SLOT(executeFlushIO()));
+	connect(&timeoutErrorFunctionCall_, SIGNAL(executed()), this, SLOT(executeTimeoutError()));
 
-	qWarning("AMProcessVariableSupport: Starting up channel access...");
+	AMErrorMon::information(this, AMPROCESSVARIABLESUPPORT_STARTING_CHANNEL_ACCESS, "Starting up channel access...");
 
 
 	setenv(QString("EPICS_CA_MAX_ARRAY_BYTES").toAscii().data(), QString("%1").arg(AMPROCESSVARIABLE_MAX_CA_ARRAY_BYTES).toAscii().data(), 1);
@@ -118,7 +120,30 @@ void AMProcessVariableSupport::PVExceptionCB(struct exception_handler_args args)
 
 }
 
+void AMProcessVariableSupport::reportTimeoutError(QString pvName){
+	s()->timeoutPVNames_.append(pvName);
+	s()->timeoutErrorFunctionCall_.runLater(2500);
+}
 
+void AMProcessVariableSupport::executeTimeoutError(){
+	// This seems kinda stupid, but if we get a lot of these alerts going up the system tray icon can't keep up
+	//  so we make sure that we put out no more than 6 actual alerts (they might have a lot of pvs in them if there was
+	//  no connection on startup ... but that's fine)
+	int pvsPerAlert = s()->timeoutPVNames_.count()/6;
+	if(pvsPerAlert < 5)
+		pvsPerAlert = 5;
+	QString pvsInThisAlert;
+	int thisAlertCounter;
+	while(s()->timeoutPVNames_.count() > 0){
+		pvsInThisAlert.clear();
+		thisAlertCounter = 0;
+		while( (s()->timeoutPVNames_.count() > 0) && (thisAlertCounter < pvsPerAlert) ){
+			pvsInThisAlert.append(QString("\n%1").arg(s()->timeoutPVNames_.takeFirst()));
+			thisAlertCounter++;
+		}
+		AMErrorMon::alert(this, AMPROCESSVARIABLE_CONNECTION_TIMED_OUT, QString("AMProcessVariable: channel connect timed out for %1").arg(pvsInThisAlert));
+	}
+}
 
 AMProcessVariablePrivate::AMProcessVariablePrivate(const QString& pvName) : QObject() {
 

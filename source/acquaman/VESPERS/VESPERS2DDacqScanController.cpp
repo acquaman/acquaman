@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERS2DDacqScanController.h"
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
@@ -12,11 +31,31 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	: AM2DDacqScanController(cfg, parent)
 {
 	config_ = cfg;
+	config_->setUserScanName(config_->name());
 
-	AMPVwStatusControl *control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz());
-	xAxisPVName_ = control != 0 ? control->writePVName() : "";
-	control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->vert());
-	yAxisPVName_ = control != 0 ? control->writePVName() : "";
+	AMPVwStatusControl *control = 0;
+
+	switch(config_->motorsChoice()){
+
+	case VESPERS2DScanConfiguration::HAndV:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz());
+		xAxisPVName_ = control != 0 ? control->writePVName() : "";
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->vert());
+		yAxisPVName_ = control != 0 ? control->writePVName() : "";
+		break;
+
+	case VESPERS2DScanConfiguration::XAndZ:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->sampleStageX());
+		xAxisPVName_ = control != 0 ? control->writePVName() : "";
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->sampleStageZ());
+		yAxisPVName_ = control != 0 ? control->writePVName() : "";
+		break;
+
+	default:
+		xAxisPVName_ = "";
+		yAxisPVName_ = "";
+		break;
+	}
 
 	initializationActions_ = 0;
 	cleanupActions_ = 0;
@@ -37,12 +76,8 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	scan_->setScanConfiguration(config_);
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setIndexType("fileSystem");
-//	scan_->rawData()->scanAxisAt(0).name = "H";
-//	scan_->rawData()->scanAxisAt(0).name = "mm";
-//	scan_->rawData()->scanAxisAt(0).name = "Horizontal Position";
-//	scan_->rawData()->scanAxisAt(1).name = "V";
-//	scan_->rawData()->scanAxisAt(1).name = "mm";
-//	scan_->rawData()->scanAxisAt(1).name = "Vertical Position";
+	scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+	scan_->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
 
 	if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement && !config_->usingCCD())
 		scan_->setFileFormat("vespers2012XRF1El");
@@ -207,7 +242,7 @@ void VESPERS2DDacqScanController::addExtraDatasources()
 			temp = AMMeasurementInfo(*(ionChambers->detectorAt(i)->toInfo()));
 			temp.name = ionChambers->detectorAt(i)->detectorName();
 			scan_->rawData()->addMeasurement(temp);
-			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
+			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, false);
 		}
 	}
 
@@ -346,8 +381,9 @@ void VESPERS2DDacqScanController::cleanup()
 	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(1.0));
 	// Variable integration time.
 	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->variableIntegrationTime()->createModeAction(CLSVariableIntegrationTime::Disabled));
-	// Energy.
-	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->roperCCD()->createStopAction());
+	// CCD.
+	if (config_->usingCCD())
+		cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->roperCCD()->createStopAction());
 
 	// Second stage.
 	cleanupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
@@ -451,10 +487,14 @@ bool VESPERS2DDacqScanController::setupSingleElementMap()
 {
 	bool loadSuccess = false;
 
-	if (!config_->usingCCD())
-		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-1Elem.cfg"));
-	else
-		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-1Elem-CCD.cfg"));
+	if (!config_->usingCCD() && config_->motorsChoice() == VESPERS2DScanConfiguration::HAndV)
+		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-hv-1Elem.cfg"));
+	else if (config_->usingCCD() && config_->motorsChoice() == VESPERS2DScanConfiguration::HAndV)
+		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-hv-1Elem-CCD.cfg"));
+	else if (!config_->usingCCD() && config_->motorsChoice() == VESPERS2DScanConfiguration::XAndZ)
+		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-xz-1Elem.cfg"));
+	else if (config_->usingCCD() && config_->motorsChoice() == VESPERS2DScanConfiguration::XAndZ)
+		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-xz-1Elem-CCD.cfg"));
 
 	if(!loadSuccess){
 		AMErrorMon::alert(this,
@@ -502,10 +542,14 @@ bool VESPERS2DDacqScanController::setupFourElementMap()
 {
 	bool loadSuccess = false;
 
-	if (!config_->usingCCD())
-		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-4Elem.cfg"));
-	else
-		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-4Elem-CCD.cfg"));
+	if (!config_->usingCCD() && config_->motorsChoice() == VESPERS2DScanConfiguration::HAndV)
+		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-hv-4Elem.cfg"));
+	else if (config_->usingCCD() && config_->motorsChoice() == VESPERS2DScanConfiguration::HAndV)
+		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-hv-4Elem-CCD.cfg"));
+	else if (!config_->usingCCD() && config_->motorsChoice() == VESPERS2DScanConfiguration::XAndZ)
+		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-xz-4Elem.cfg"));
+	else if (config_->usingCCD() && config_->motorsChoice() == VESPERS2DScanConfiguration::XAndZ)
+		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-xz-4Elem-CCD.cfg"));
 
 	if(!loadSuccess){
 		AMErrorMon::alert(this,

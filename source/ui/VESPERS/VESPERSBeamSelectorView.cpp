@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -79,7 +79,7 @@ VESPERSBeamSelectorView::VESPERSBeamSelectorView(QWidget *parent)
 
 void VESPERSBeamSelectorView::changeBeam(int id)
 {
-	AMBeamlineActionItem *action;
+	AMBeamlineActionItem *action = 0;
 
 	switch(id){
 
@@ -99,6 +99,9 @@ void VESPERSBeamSelectorView::changeBeam(int id)
 		action = VESPERSBeamline::vespers()->createBeamChangeAction(VESPERSBeamline::Si);
 		break;
 	}
+
+	if (!action)
+		return;
 
 	progressBar_->show();
 	connect(action, SIGNAL(finished()), this, SLOT(onBeamChangeCompleted()));

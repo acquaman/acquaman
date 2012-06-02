@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -23,8 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/datasource/AMDataSource.h"
 #include "dataman/AMScan.h"
-
-
 
 QModelIndex AMScanSetModel::index ( int row, int column, const QModelIndex & parent ) const {
 	// top level:

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -717,6 +717,18 @@ protected:
 	virtual void clearMeasurementsImplementation() {
 		scalarScanPoint_->clear();
 		measurements_.clear();
+	}
+
+	/// Implementing subclasses must provide a clearScanAxesImplementation(), which clears all the axes for the scan.
+	virtual void clearScanAxesImplementation()
+	{
+		if(axes_.count() >= 1)
+			clearScanDataPointsImplementationRecursive(dataRoot_, axes_.count()-1, false);	// to clear memory: need to delete all recursively and not leave any first nodes.
+		delete dataRoot_;
+		dataRoot_ = 0;
+
+		axes_.clear();
+		axisValues_.clear();
 	}
 };
 

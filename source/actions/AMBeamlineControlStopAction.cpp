@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -38,29 +38,29 @@ AMControl* AMBeamlineControlStopAction::control(){
 
 void AMBeamlineControlStopAction::start(){
 	if(!control_){
-		qDebug() << "Failed: No Stop Control";
+//		qDebug() << "Failed: No Stop Control";
 		onFailed(0);
 		return;
 	}
 	if(!control_->isConnected()){
-		qDebug() << "Failed: Stop Control not connected";
+//		qDebug() << "Failed: Stop Control not connected";
 		onFailed(1);
 		return;
 	}
 
 	if(!control_->isMoving()){
-		qDebug() << "Auto-Succeed: Stop Control not moving";
+//		qDebug() << "Auto-Succeed: Stop Control not moving";
 		onStopped();
 		return;
 	}
 	if(control_->canStop()){
-		qDebug() << "Trying: Stop Control stop called";
+//		qDebug() << "Trying: Stop Control stop called";
 		connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onMovingChanged(bool)));
 		control_->stop();
 		return;
 	}
 	else{
-		qDebug() << "Failed: Control can't stop";
+//		qDebug() << "Failed: Control can't stop";
 		onFailed(2);
 		return;
 	}

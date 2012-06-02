@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -76,7 +76,7 @@ class AMWindowPaneModel : public AMDragDropItemModel
 
 public:
 
-	enum DataRoles { DockStateRole = AM::UserRole + 1, IsHeadingRole, IsAliasRole, AliasTargetRole, AliasKeyRole, AliasValueRole };
+	enum DataRoles { DockStateRole = AM::UserRole + 1, IsHeadingRole, IsAliasRole, AliasTargetRole, AliasKeyRole, AliasValueRole, UndockResizeRole };
 
 	AMWindowPaneModel(QObject* parent = 0);
 
@@ -91,12 +91,12 @@ public:
 	/*! It also ensures that when docking 'alias' items, the target items are docked instead.*/
 	bool setData(const QModelIndex &index, const QVariant &value, int role);
 
-	/// Insert a new window pane widget \c pane into the model, under the heading \c headingText.  It returns the newly-created model item representing that pane.
+	/// Insert a new window pane widget \c pane into the model, under the heading \c headingText. The \c resizeOnUndock is used to tell the manager to resize the pane to its sizeHint when it undocks. It returns the newly-created model item representing that pane.
 	/*! This is a convenience function. Alternatively, you can set the AM::WidgetRole pointer on any QStandardItem and add it using the conventional QStandardItemModel::addRow() interface.
 	\note \c pane must be a valid widget until this item is removed from the model */
-	QStandardItem* addPane(QWidget* pane, const QString& headingText = QString());
+	QStandardItem* addPane(QWidget* pane, const QString& headingText = QString(), bool resizeOnUndock = false);
 	/// This is an overloaded function to allow setting the window title and icon while calling addPane().
-	QStandardItem* addPane(QWidget *pane, const QString &headingText, const QString& windowTitle, const QIcon& windowIcon);
+	QStandardItem* addPane(QWidget *pane, const QString &headingText, const QString& windowTitle, const QIcon& windowIcon, bool resizeOnUndock = false);
 
 	/// This convenience function can be used to initialize any QStandardItem as a proper "alias" item, pointing to the existing window pane widget \c targetWindowPane.  Returns true on success, and false if the \c targetWindowPane was not found in the model.  It modifies \c newAliasItem to set the IsAliasRole, AliasTargetRole, AliasKeyRole, and AliasValueRole, but does not add the item to the model. (You should follow up by inserting it anywhere you want.)
 	bool initAliasItem(QStandardItem* newAliasItem, QWidget* targetWindowPane, const QString& aliasKey = QString(), const QVariant& aliasValue = QVariant());
@@ -143,8 +143,8 @@ public:
 	void undock(const QModelIndex& index) { setDocked(index, false); }
 
 signals:
-	/// Emitted when the dock state changes for an item (ie: true emitted when docked, false emitted when undocked)
-	void dockStateChanged(QWidget* pane, bool isDocked);
+	/// Emitted when the dock state changes for an item (ie: true emitted when docked, false emitted when undocked) and whether or not a resize is desired
+	void dockStateChanged(QWidget* pane, bool isDocked, bool shouldResize);
 
 	/// The default rowsAboutToBeRemoved() signal gets delivered to Qt views before any programmer-created connections are called. This can be a problem because the attached view will change its selection in response to the removal BEFORE the programmer can respond.  If this unacceptable to you (ie: you want to change the selection yourself, and just once to avoid flicker) then you can watch for this signal instead.  Both this and the normal signal will be delivered.
 	void rowsAboutToBeAboutToBeRemoved(const QModelIndex& parent, int first, int last);

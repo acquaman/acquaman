@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -39,6 +39,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSVariableIntegrationTime.h"
 #include "beamline/VESPERS/VESPERSRoperCCDDetector.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
+#include "beamline/VESPERS/VESPERSEndstationConfiguration.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -184,6 +185,10 @@ public:
 	// The experiment configuration.
 	/// Returns the experiment configuration model.
 	VESPERSExperimentConfiguration *experimentConfiguration() const { return experimentConfiguration_; }
+
+	// The endstation configuration.
+	/// Returns the endstation configuration model.
+	VESPERSEndstationConfiguration *endstationConfiguration() const { return endstationConfiguration_; }
 
 	// The helper controls for changing the dwell time for each region.
 	/// Returns the control in charge of changing the dwell time trigger for changing the dwell time between regions.
@@ -413,6 +418,8 @@ public:
 	// The sample stage.
 	/// Returns the sample stage control built with the pseudo-motors.
 	VESPERSSampleStageControl *pseudoSampleStage() const { return pseudoSampleStage_; }
+	/// Returns the real sample stage control (real as in, there are no pseudo motor levels in between).
+	VESPERSSampleStageControl *realSampleStage() const { return realSampleStage_; }
 
 	// Sample stage PID controls.
 	/// Returns the PID control for the x-direction of the sample stage.
@@ -541,6 +548,8 @@ protected:
 	void setupExperimentStatus();
 	/// Sets up various beamline components.
 	void setupComponents();
+	/// Sets up the exposed actions.
+	void setupExposedControls();
 
 	/// Constructor. This is a singleton class; access it through VESPERSBeamline::vespers().
 	VESPERSBeamline();
@@ -587,6 +596,8 @@ protected:
 
 	// Experiment Configuration
 	VESPERSExperimentConfiguration *experimentConfiguration_;
+	// Endstation Configuration
+	VESPERSEndstationConfiguration *endstationConfiguration_;
 
 	// Dwell time control helper functions for the dwell time.
 	AMControl *dwellTimeTrigger_;

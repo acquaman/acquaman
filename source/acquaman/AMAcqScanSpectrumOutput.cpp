@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -115,7 +115,6 @@ int AMAcqScanSpectrumOutput::endRecord( acqKey_t key, int eventno)
 	}
 	QMap<int, QList<double> >::const_iterator j = to->spectraPackage_.constBegin();
 	while(j != to->spectraPackage_.constEnd()){
-		//qDebug() << "In dacq " << j.value();
 		ae->spectraPackage_.insert(j.key(), j.value());
 		j++;
 	}
@@ -174,7 +173,6 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 			}
 		}
 		else{
-			qDebug() << "Spectrum of count " << count;
 			for(int x = 0; x < count; x++){
 				switch( pvpr->colp->columnType)
 				{

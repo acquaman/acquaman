@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -39,6 +39,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMScan* SGMLegacyImporter::createScanAndImport(const QString& fullPath) {
 
 	AMXASScan* rv = new AMXASScan();
+	rv->rawData()->addScanAxis( AMAxisInfo("eV", 0, "Incident Energy", "eV") );
+
 	SGM2004FileLoader loader(rv);
 
 	// check for spectra file, and set rv->additionalFilePaths()
@@ -84,6 +86,8 @@ AMScan* SGMLegacyImporter::createScanAndImport(const QString& fullPath) {
 AMScan* ALSBL8XASImporter::createScanAndImport(const QString& fullPath) {
 
 	AMXASScan* rv = new AMXASScan();
+	rv->rawData()->addScanAxis( AMAxisInfo("eV", 0, "Incident Energy", "eV") );
+
 	ALSBL8XASFileLoader loader(rv);
 	// load meta-data AND raw data, please...
 	if(loader.loadFromFile(fullPath, true, true, true)) {

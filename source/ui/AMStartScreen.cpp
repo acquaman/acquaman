@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -64,6 +64,8 @@ void AMStartScreen::accept()
 		QDialog::accept();
 	}
 	else {
+		runSelector_->activateWindow();
+		runSelector_->raise();
 		QMessageBox::information(this, "Please select a run", "You must select or create a valid run.");
 	}
 
@@ -78,6 +80,8 @@ void AMStartScreen::reject()
 	if(!mustAccept_ || QApplication::closingDown())
 		QDialog::reject();
 	else {
+		runSelector_->activateWindow();
+		runSelector_->raise();
 		QMessageBox::information(this, "Please select a run", "You must select or create a valid run.");
 	}
 }

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -250,9 +250,9 @@ bool AMRegionsListModel::setData(const QModelIndex &index, const QVariant &value
 	if (index.isValid() && index.row() < regions_->count() && role == Qt::EditRole) {
 
 		bool conversionOK = false;
-		bool retVal;
-		double dval;
-		bool bval;
+		bool retVal = false;
+		double dval = 0;
+		bool bval = false;
 
 		AMRegion *region = regions_->at(index.row());
 
@@ -591,9 +591,9 @@ bool AMEXAFSRegionsListModel::setData(const QModelIndex &index, const QVariant &
 	if (index.isValid() && index.row() < regions_->count() && role == Qt::EditRole) {
 
 		bool conversionOK = false;
-		bool retVal;
-		double dval;
-		bool bval;
+		bool retVal = false;
+		double dval = 0;
+		bool bval = false;
 
 		AMEXAFSRegion *region = qobject_cast<AMEXAFSRegion *>(regions_->at(index.row()));
 		// Need to be using an AMEXAFSRegion.

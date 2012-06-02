@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -29,7 +29,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSet>
 #include <QHash>
 #include <QMutex>
+#include <QStringList>
 
+#define AMDATABASE_ERROR_COLUMN_VALUE_COUNT_MISMATCH -3102
 
 /// This class provides thread-safe, general access to an SQL database.
 /*! Instances of this class are used to query or modify a database; all of the functions are thread-safe and will operate using a per-thread connection to the same underlying database.
@@ -93,6 +95,17 @@ The parameters by which to access the database are given in \c dbAccessString. (
 		return connectionName_;
 	}
 
+	/// This is the full path to the database
+	QString dbAccessString() const{
+		return dbAccessString_;
+	}
+
+	/// This returns whether or not the database has any tables (if no tables, then it's empty)
+	bool isEmpty() const{
+		if(qdb().tables().count() == 0)
+			return true;
+		return false;
+	}
 
 
 	/// Inserting or updating a row in the database.

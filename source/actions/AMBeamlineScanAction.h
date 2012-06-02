@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -97,7 +97,7 @@ protected slots:
 	/// Slot that handles propogating the paused signal from the controller.
 	void onScanPaused();
 	/// Slot that handles propogating the resumed signal from the controller.
-	void onScanResumed();
+	virtual void onScanResumed();
 	virtual void onScanCancelled();
 	virtual void onScanSucceeded();
 	virtual void onScanFailed();
@@ -124,6 +124,7 @@ class AMBeamlineScanActionView : public AMBeamlineActionItemView
 {
 Q_OBJECT
 public:
+	/// Constructor.
 	AMBeamlineScanActionView(AMBeamlineScanAction *scanAction, int index = 0, QWidget *parent = 0);
 
 	AMBeamlineActionItem* action() { return scanAction_;}
@@ -136,7 +137,7 @@ protected slots:
 	void onInfoChanged();
 	void updateScanNameLabel();
 	void updateProgressBar(double elapsed, double total);
-	void onScanStarted();
+	virtual void onScanStarted();
 	/// Slot that handles propogating the paused signal from the controller.
 	void onScanPaused();
 	/// Slot that handles propogating the resumed signal from the controller.
@@ -166,7 +167,8 @@ protected:
 	QPushButton *playPauseButton_;
 	QToolButton *moveActionUpButton_;
 	QToolButton *moveActionDownButton_;
-	QHBoxLayout *hl_;
+	QHBoxLayout *firstRowLayout_;
+	QHBoxLayout *secondRowLayout_;
 	QVBoxLayout *vl_;
 
 	AMScanConfigurationView *configurationView_;

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -96,8 +96,7 @@ bool REIXSXESRawFileLoader::loadFromFile(const QString &filepath, bool setMetaDa
 	// clear the existing raw data (and raw data sources, if we're supposed to)
 	if(setRawDataSources)
 		scan->clearRawDataPointsAndMeasurementsAndDataSources();
-	else
-		scan->clearRawDataPointsAndMeasurements();
+	scan->clearRawDataCompletely();
 
 	detectorAxes.append(AMAxisInfo("x", pixelsX, "x - energy axis", "pixels"));
 	detectorAxes.append(AMAxisInfo("y", pixelsY, "y - vertical axis", "pixels"));

@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef VESPERS2DSCANCONFIGURATIONVIEW_H
 #define VESPERS2DSCANCONFIGURATIONVIEW_H
 
@@ -25,6 +44,9 @@ public:
 
 	/// Getter for the configuration.
 	const AMScanConfiguration *configuration() const { return config_; }
+
+	/// Method that updates the map info label based on the current values of the start, end, and step size.
+	void updateMapInfo();
 
 signals:
 	/// Sends out a request that the current detector (based on FluorescenceDetectorChoice) to be configured.  Asks the app controller to change to the detector view.  String will be either "Single Element" or "Four Element".
@@ -55,28 +77,41 @@ protected slots:
 	/// Handles changes in the name of the CCD file name and sets the label that corresponds to it.
 	void onCCDFileNameChanged(QString name) { currentCCDFileName_->setText(QString("Current CCD file name:\t%1").arg(name)); }
 	/// Handles setting the name of the configuration from the line edit.
-	void onScanNameEdited() { config_->setName(scanName_->text()); }
+	void onScanNameEdited() { config_->setName(scanName_->text()); config_->setUserScanName(scanName_->text());}
 	/// Passes on the selection for I0 to the configuration.
 	void onI0Clicked(int id) { config_->setIncomingChoice(id); }
 	/// Handles changes to the fluorescence detector choice.
 	void onFluorescenceChoiceChanged(int id);
+	/// Handles changes in the motor selection choice.
+	void onMotorsChoiceChanged(int id);
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();
 
 	/// Emits the configureDetector signal based on the current fluorescence detector choice.
-	void onConfigureDetectorClicked();
+	void onConfigureXRFDetectorClicked();
+	/// Emits the configureDetector signal based with 'Roper CCD'.
+	void onConfigureRoperDetectorClicked();
 	/// Updates roiText_ based on the current state of the ROI list.
 	void updateRoiText();
 	/// Handles the context menu.
 	void onCustomContextMenuRequested(QPoint pos);
+
+	/// Slot that updates the horizontal step size spin box.
+	void updateXStep(double val) { hStep_->setValue(val*1000); }
+	/// Slot that updates the vertical step size spin box.
+	void updateYStep(double val) { vStep_->setValue(val*1000); }
+	/// Slot that updates the I0 buttons.
+	void updateI0Buttons(int I0) { I0Group_->button(I0)->setChecked(true); }
+	/// Slot that updates the fluorescence detector buttons.
+	void updateFluorescenceDetector(int detector) { fluorescenceButtonGroup_->button(detector)->setChecked(true); }
+	/// Slot that updates the motor choice buttons.
+	void updateMotorsChoice(int choice) { motorChoiceButtonGroup_->button(choice)->setChecked(true); }
 
 protected:
 	/// Reimplements the show event to update the Regions of Interest text.
 	virtual void showEvent(QShowEvent *e) { updateRoiText(); AMScanConfigurationView::showEvent(e); }
 	/// Helper method that takes a time in seconds and returns a string of d:h:m:s.
 	QString convertTimeToString(double time);
-	/// Helper method that updates the map info label based on the current values of the start, end, and step size.
-	void updateMapInfo();
 	/// Helper method that updates the x and y step spin boxes if the map is not possible to change.
 	void axesAcceptable();
 
@@ -113,6 +148,10 @@ protected:
 	QLabel *estimatedTime_;
 	/// Button group for the I0 ion chamber selection.
 	QButtonGroup *I0Group_;
+	/// Button group for the fluorescence detector selection.
+	QButtonGroup *fluorescenceButtonGroup_;
+	/// Button group for the motor choice selection.
+	QButtonGroup *motorChoiceButtonGroup_;
 	/// The text edit that holds all the names of the regions of interest.
 	QTextEdit *roiText_;
 

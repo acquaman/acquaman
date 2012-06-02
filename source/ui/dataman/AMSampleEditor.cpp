@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -318,7 +318,7 @@ QList<int> AMSampleEditor::parseElementString(const QString &elementString) {
 	foreach(QString s, elements) {
 		s = s.toLower();
 		s = s.left(1).toUpper() + s.mid(1);	// Capitalize as Cl, Chlorine, etc.
-		AMElement* element;
+		const AMElement* element;
 		if((element = AMPeriodicTable::table()->elementByName(s)))
 			rv << element->atomicNumber();
 		else if((element = AMPeriodicTable::table()->elementBySymbol(s)))

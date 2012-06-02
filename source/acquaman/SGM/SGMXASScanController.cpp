@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -41,6 +41,8 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	specificScan_->setScanConfiguration(config_);
 	specificScan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
 	specificScan_->setIndexType("fileSystem");
+	specificScan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
+
 	QString scanName;
 	QString sampleName;
 	if(specificScan_->sampleId() == -1)
@@ -185,7 +187,7 @@ bool SGMXASScanController::beamlineInitialize(){
 			//config_->allDetectors()->detectorAt(x)->setFromInfo(config_->allDetectorConfigurations().detectorInfoAt(x));
 			config_->allDetectors()->detectorAt(x)->activate();
 			if(config_->allDetectors()->detectorAt(x)->turnOnAction()){
-				qDebug() << "Adding HV turn on to initialization actions";
+//				qDebug() << "Adding HV turn on to initialization actions";
 				initializationActions_->appendAction(0, config_->allDetectors()->detectorAt(x)->turnOnAction());
 			}
 		}
@@ -210,7 +212,7 @@ bool SGMXASScanController::beamlineInitialize(){
 
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 
-        tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
+		tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
 		tmpAction->setSetpoint(config_->startEnergy());
 	initializationActions_->appendAction(2, tmpAction);
 

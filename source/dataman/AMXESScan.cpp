@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -23,34 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMXESScan::AMXESScan(QObject *parent) :
 	AMScan(parent)
 {
-	/// \todo Move this to AMScan eventually?
-	configuration_ = 0;
+
 }
-
-
-
-#include "dataman/REIXS/REIXSXESRawFileLoader.h"
-#include "util/AMErrorMonitor.h"
-
-//bool AMXESScan::loadDataImplementation() {
-
-//	REIXSXESRawFileLoader rawLoader(this);
-
-//	if(fileFormat() == rawLoader.formatTag()) {
-//		if(rawLoader.loadFromFile(filePath(), false, false, false)) {
-//			return true;
-//		}
-//		else {
-//			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, QString("Could not load raw XES scan data from '%1'").arg(filePath())));
-//			return false;
-//		}
-//	}
-
-
-
-//	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, QString("Could not load raw XES scan data. The '%1' file format isn't supported.").arg(fileFormat())));
-//	return false;
-//}
-
 
 

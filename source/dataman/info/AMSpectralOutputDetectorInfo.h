@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -41,6 +41,9 @@ public:
 	AMSpectralOutputDetectorInfo(const QString& name, const QString& description, int binCount = 0, QString axisName = "", QStringList binNames = QStringList(), QObject *parent = 0);
 
 	AMSpectralOutputDetectorInfo(const AMSpectralOutputDetectorInfo &original);
+
+	/// Implements assignment operator
+	AMSpectralOutputDetectorInfo& operator=(const AMSpectralOutputDetectorInfo &other);
 
 	/// Number of bins or pixels along the axis
 	int binCount() const;

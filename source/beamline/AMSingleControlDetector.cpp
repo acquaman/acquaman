@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -71,5 +71,68 @@ void AMSingleControlDetector::setDescription(const QString &description){
 }
 
 void AMSingleControlDetector::onControlConnected(bool connected){
+	setConnected(connected);
+}
+
+///////////////////////////////////////////////////
+
+AMSingleReadOnlyControlDetector::AMSingleReadOnlyControlDetector(const QString &name, const QString &baseName, AMDetector::ReadMethod readMethod, QObject *parent) :
+		AMDetectorInfo(name, name, parent), AMDetector(name, readMethod)
+{
+	control_ = new AMReadOnlyPVControl(name, baseName, this);
+	connect(control_, SIGNAL(connected(bool)), this, SLOT(onControlConnected(bool)));
+	connect(control_, SIGNAL(valueChanged(double)), AMDetector::signalSource(), SIGNAL(readingsChanged()));
+}
+
+AMSingleReadOnlyControlDetector::~AMSingleReadOnlyControlDetector(){
+}
+
+const QMetaObject* AMSingleReadOnlyControlDetector::getMetaObject() {
+	return metaObject();
+}
+
+QString AMSingleReadOnlyControlDetector::dacqName() const{
+	AMReadOnlyPVControl *tmpControl = qobject_cast<AMReadOnlyPVControl*>(control_);
+	if(isConnected() && tmpControl)
+		return tmpControl->readPVName();
+	else
+		return "";
+}
+
+double AMSingleReadOnlyControlDetector::reading() const{
+	if(isConnected())
+		return control_->value();
+	else
+		return -1;
+}
+
+AMDetectorInfo* AMSingleReadOnlyControlDetector::toInfo() const{
+	return new AMDetectorInfo(*this);
+}
+
+bool AMSingleReadOnlyControlDetector::setControls(AMDetectorInfo *detectorSettings){
+	Q_UNUSED(detectorSettings)
+	return false;
+}
+
+AMControl* AMSingleReadOnlyControlDetector::control() {
+	return control_;
+}
+
+bool AMSingleReadOnlyControlDetector::setFromInfo(const AMDetectorInfo *info){
+	Q_UNUSED(info)
+	return false;
+}
+
+QString AMSingleReadOnlyControlDetector::description() const{
+	return AMDetectorInfo::description();
+}
+
+void AMSingleReadOnlyControlDetector::setDescription(const QString &description){
+	AMDetectorInfo::setDescription(description);
+	control_->setDescription(description);
+}
+
+void AMSingleReadOnlyControlDetector::onControlConnected(bool connected){
 	setConnected(connected);
 }
