@@ -66,6 +66,10 @@ linux-g++ {
 		# LibXML Dependencies (required by dacq library)
 		XML_LIB = -lxml2
 		XML_INCLUDE_DIR = /usr/include/libxml2
+
+		#CDFLib dependencies
+		CDF_LIB = -lcdf
+		CDF_INCLUDE_DIR = /usr/local/include
 }
 linux-g++-32 {
 
@@ -94,6 +98,10 @@ linux-g++-32 {
 		# LibXML Dependencies (required by dacq library)
 		XML_LIB = -lxml2
 		XML_INCLUDE_DIR = /usr/include/libxml2
+
+		#CDFLib dependencies
+		CDF_LIB = -lcdf
+		CDF_INCLUDE_DIR = /usr/local/include
 }
 # The following works well for CLS beamline OPI machines, built using VMSL54.cs.clsi.ca
 
@@ -143,6 +151,7 @@ CONFIG(jenkins_build) {
 
 		# MPlot Source
 		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/src"
+
 }
 
 
