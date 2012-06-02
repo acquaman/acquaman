@@ -183,6 +183,7 @@ public:
 	AMControl* spectrometerRotationDrive() { return spectrometerRotationDrive_; }
 	AMControl* detectorTranslation() { return detectorTranslation_; }
 	AMControl* detectorTiltDrive() { return detectorTiltDrive_; }
+	AMControl* endstationTranslation() { return endstationTranslation_; }  //DAVID ADDED
 	// removed motor from endstation in Dec. 2011:
 		// AMControl* detectorRotationDrive() { return detectorRotationDrive_; }
 	REIXSHexapod* hexapod() { return hexapod_; }
@@ -196,7 +197,7 @@ public slots:
 	void specifyDetectorTiltOffset(double tiltOffsetDeg);
 
 protected:
-	AMControl *spectrometerRotationDrive_, *detectorTranslation_, *detectorTiltDrive_;
+	AMControl *spectrometerRotationDrive_, *detectorTranslation_, *detectorTiltDrive_, *endstationTranslation_;  //DAVID ADDED
 	REIXSHexapod* hexapod_;
 
 	REIXSXESCalibration calibration_;
