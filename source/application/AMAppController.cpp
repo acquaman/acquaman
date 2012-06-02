@@ -97,11 +97,11 @@ bool AMAppController::startupCreateUserInterface() {
 		mw_->addPane(workflowManagerView_, "Experiment Tools", "Workflow", ":/user-away.png");
 
 		// add the workflow control UI
-		workflowView_ = new AMWorkflowView3();
-		mw_->addPane(workflowView_, "Experiment Tools", "Workflow", ":/user-away.png");
+//		workflowView_ = new AMWorkflowView3();
+//		mw_->addPane(workflowView_, "Experiment Tools", "Workflow", ":/user-away.png");
 		// remove the old one:
-		mw_->removePane(workflowManagerView_);
-		workflowManagerView_->hide();
+//		mw_->removePane(workflowManagerView_);
+//		workflowManagerView_->hide();
 
 		AMStartScreen* chooseRunDialog = new AMStartScreen(true, mw_);
 		chooseRunDialog->show();
@@ -151,8 +151,11 @@ void AMAppController::openScanInEditorAndTakeOwnership(AMScan *scan, bool bringE
 }
 
 #include "acquaman/AMScanConfiguration.h"
+#include "acquaman/AM2DScanConfiguration.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+#include "ui/acquaman/AM2DScanConfigurationViewHolder.h"
 #include "dataman/database/AMDatabase.h"
 #include "dataman/database/AMDbObjectSupport.h"
 
@@ -210,6 +213,12 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 	if(!config)
 		return;
 
+	// Check if this is a regular scan configuration or a 2D one.
+	bool is2D_ = false;
+
+	if (qobject_cast<AM2DScanConfiguration *>(config))
+		is2D_ = true;
+
 	AMScanConfigurationView *view = config->createView();
 	if(!view) {
 		delete config;
@@ -217,9 +226,25 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 		return;
 	}
 
-	AMScanConfigurationViewHolder *viewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, view);
-	viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
-	viewHolder->show();
+//	AMScanConfigurationViewHolder *viewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, view);
+
+	// This is Actions3 stuff.
+//	AMScanConfigurationViewHolder3 *viewHolder = new AMScanConfigurationViewHolder3(view);
+//	viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
+//	viewHolder->show();
+
+	if (!is2D_){
+
+		AMScanConfigurationViewHolder *viewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, view);
+		viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
+		viewHolder->show();
+	}
+	else {
+
+		AM2DScanConfigurationViewHolder *viewHolder = new AM2DScanConfigurationViewHolder( workflowManagerView_, view);
+		viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
+		viewHolder->show();
+	}
 }
 
 

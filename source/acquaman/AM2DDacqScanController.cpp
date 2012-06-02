@@ -140,14 +140,15 @@ bool AM2DDacqScanController::event(QEvent *e)
 
 			QList<double> temp = aeData.values();
 
-			if (temp.size() > 5 && !duplicateColumnsDetected_)
-				for (int x = 5; x < temp.size(); x++)
-					if (temp.at(x) == temp.at(x-1)){
+			// This is too sensitive at the moment.
+//			if (temp.size() > 5 && !duplicateColumnsDetected_)
+//				for (int x = 5; x < temp.size(); x++)
+//					if (temp.at(x) == temp.at(x-1)){
 
-						duplicateColumnsDetected_ = true;
-						AMErrorMon::alert(this, AM2DDACQSCANCONTROLLER_DUPLICATE_COLUMNS_DETECTED, QString("Duplicate columns detected at %1 and %2").arg(x).arg(x-1));
-						QMessageBox::warning(0, "Duplicate Columns Detected", "An error has occurred within the scan engine where data is not being saved correctly.  Please contact Darren at 290-5418.");
-					}
+//						duplicateColumnsDetected_ = true;
+//						AMErrorMon::alert(this, AM2DDACQSCANCONTROLLER_DUPLICATE_COLUMNS_DETECTED, QString("Duplicate columns detected at %1 and %2").arg(x).arg(x-1));
+//						QMessageBox::warning(0, "Duplicate Columns Detected", "An error has occurred within the scan engine where data is not being saved correctly.  Please contact Darren at 290-5418.");
+//					}
 
 			while(i != aeData.constEnd()){
 				scan_->rawData()->setValue(insertIndex, i.key()-2, AMnDIndex(), i.value());
@@ -240,10 +241,10 @@ AMnDIndex AM2DDacqScanController::toScanIndex(QMap<int, double> aeData)
 
 bool AM2DDacqScanController::atEndOfLine(QMap<int, double> aeData) const
 {
-	if (internal2DConfig_->fastAxis() == AM2DScanConfiguration::X && internal2DConfig_->xEnd() == aeData.value(0))
+	if (internal2DConfig_->fastAxis() == AM2DScanConfiguration::X && (internal2DConfig_->xEnd() - aeData.value(0) < internal2DConfig_->xStep()/2))
 		return true;
 
-	else if (internal2DConfig_->fastAxis() == AM2DScanConfiguration::Y && internal2DConfig_->yEnd() == aeData.value(1))
+	else if (internal2DConfig_->fastAxis() == AM2DScanConfiguration::Y && (internal2DConfig_->yEnd() - aeData.value(1) < internal2DConfig_->yStep()/2))
 		return true;
 
 	return false;

@@ -397,6 +397,8 @@ void VESPERSBeamline::setupExperimentStatus()
 {
 	experimentConfiguration_ = new VESPERSExperimentConfiguration(synchronizedDwellTime_, pseudoSampleStage_, (XRFDetector *)vortex1E_, (XRFDetector *)vortex4E_, this);
 	connect(experimentConfiguration_, SIGNAL(beamDumped()), this, SIGNAL(beamDumped()));
+
+	endstationConfiguration_ = new VESPERSEndstationConfiguration(this);
 }
 
 void VESPERSBeamline::setupExposedControls()
