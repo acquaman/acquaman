@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <QApplication>
-#include "application/AMAppController.h"
+#include "application/BareBones/BareBonesAppController.h"
 
 int main(int argc, char *argv[])
 {
@@ -29,10 +29,9 @@ int main(int argc, char *argv[])
 	/// Program Startup:
 	// =================================
 	QApplication app(argc, argv);
-	app.setApplicationName("Acquaman");
+	app.setApplicationName("BareBonesAcquaman");
 
-
-	AMAppController* appController = new AMAppController();
+	BareBonesAppController* appController = new BareBonesAppController();
 
 	/// Program Run-loop:
 	// =================================
@@ -42,6 +41,9 @@ int main(int argc, char *argv[])
 
 	/// Program Shutdown:
 	// =================================
+	if(appController->isRunning())
+		appController->shutdown();
+
 	delete appController;
 
 	return retVal;
