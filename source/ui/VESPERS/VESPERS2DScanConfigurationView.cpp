@@ -462,8 +462,19 @@ void VESPERS2DScanConfigurationView::onCustomContextMenuRequested(QPoint pos)
 
 void VESPERS2DScanConfigurationView::onSetStartPosition()
 {
-	double h = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
-	double v = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
+	double h = 0;
+	double v = 0;
+
+	if (config_->motorsChoice() == VESPERS2DScanConfiguration::HAndV){
+
+		h = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
+		v = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
+	}
+	else if (config_->motorsChoice() == VESPERS2DScanConfiguration::XAndZ){
+
+		h = VESPERSBeamline::vespers()->sampleStageX()->value();
+		v = VESPERSBeamline::vespers()->sampleStageZ()->value();
+	}
 
 	config_->setXStart(h);
 	hStart_->setValue(h);

@@ -67,7 +67,7 @@ signals:
 protected slots:
 
 	/// Called when the "Start Scan" button is clicked
-	void onStartScanRequested();
+	virtual void onStartScanRequested();
 	/// Called when the "Add to Queue" button is clicked.
 	virtual void onAddToQueueRequested();
 

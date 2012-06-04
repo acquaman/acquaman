@@ -59,6 +59,11 @@ AMBeamlineActionItemView *AMBeamline2DScanAction::createView(int index)
 	return new AMBeamline2DScanActionView(this, index);
 }
 
+AMBeamlineActionItem *AMBeamline2DScanAction::createCopy() const
+{
+	return new AMBeamline2DScanAction(cfg()->createCopy());
+}
+
 // AMBeamline2DScanActionView
 ///////////////////////////////////////////////
 
@@ -89,4 +94,18 @@ void AMBeamline2DScanActionView::onScanStarted()
 {
 	stopAtEndOfLineButton_->setEnabled(true);
 	AMBeamlineScanActionView::onScanStarted();
+}
+
+void AMBeamline2DScanActionView::onScanFinished()
+{
+	stopAtEndOfLineButton_->setEnabled(false);
+	stopAtEndOfLineButton_->hide();
+	AMBeamlineScanActionView::onScanFinished();
+}
+
+void AMBeamline2DScanActionView::onScanFailed(int explanation)
+{
+	stopAtEndOfLineButton_->setEnabled(false);
+	stopAtEndOfLineButton_->hide();
+	AMBeamlineScanActionView::onScanFailed(explanation);
 }

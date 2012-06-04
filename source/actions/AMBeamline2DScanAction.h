@@ -36,6 +36,8 @@ public:
 
 	/// Returns a new instance of the view that represents this action.
 	virtual AMBeamlineActionItemView *createView(int index = 0);
+	/// Returns a new instance of this action.
+	virtual AMBeamlineActionItem *createCopy() const;
 
 public slots:
 	/// Tells the scan controller to stop at the end of the line it is currently scanning.
@@ -60,6 +62,10 @@ protected slots:
 	virtual void onStopScanAtEndOfLineButtonClicked();
 	/// Reimplemented.  Makes the look and feel of the stop at end of line button the same as the the other buttons.  Calls AMBeamlineScanAction::onScanStarted() at the end.
 	virtual void onScanStarted();
+	/// Reimplemented.  Hides the end of line button similar to pause and cancel buttons.  Calls AMBeamlineScanAction::onScanFinished() at the end.
+	virtual void onScanFinished();
+	/// Reimplemented.  Same as onScanFinished().
+	virtual void onScanFailed(int explanation);
 
 protected:
 	/// Button that stops the scan at the end of the line.
