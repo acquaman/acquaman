@@ -42,7 +42,27 @@ macx {
 		XML_LIB = -lxml2
 		XML_INCLUDE_DIR = /usr/include/libxml2
 }
+linux-g++ {
 
+		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
+		DEV_PATH = beamline/programming
+
+		# EPICS Dependencies:
+		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/epics/base/include \
+				$$HOME_FOLDER/$$DEV_PATH/epics/base/include/os/Linux
+		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/epics/base/lib/linux-x86
+
+		# MPlot Source
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+
+		# GSL Dependencies
+		GSL_LIB = -lgsl
+		GSL_CBLAS_LIB = -lgslcblas
+
+		# LibXML Dependencies (required by dacq library)
+		XML_LIB = -lxml2
+		XML_INCLUDE_DIR = /usr/include/libxml2
+}
 linux-g++-32 {
 
 		# Disable Qt Mobility Video until Darren's laptop is ready for that.
@@ -158,6 +178,12 @@ macx {
 }
 
 
+linux-g++ {
+				#QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
+				#QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
+				QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
+				QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
+}
 linux-g++-32 {
 				#QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
 				#QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
