@@ -737,7 +737,7 @@ void AMGenericScanEditor::exportGraphicsToFile()
 
 		if(!using2DScanView()) {
 			scanView_->exportGraphicsFile(fileName);
-			AMErrorMon::information(this, 0, QString("Exported the current plot to '%'").arg(fileName));
+			AMErrorMon::information(this, 0, QString("Exported the current plot to '%1'").arg(fileName));
 		}
 	}
 }
