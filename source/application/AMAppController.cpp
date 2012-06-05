@@ -161,45 +161,18 @@ void AMAppController::openScanInEditorAndTakeOwnership(AMScan *scan, bool bringE
 
 void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 {
-	// scheme correct?
-	if (url.scheme() != "amd")
-		return;
-
-	// Scan configurations only come from the user databases currently.
-	AMDatabase *db = AMDatabase::database("user");
-	if (!db)
-		return;
-
-	QStringList path = url.path().split('/', QString::SkipEmptyParts);
-	if(path.count() != 2)
-		return;
-
-	QString tableName = path.at(0);
-	bool idOkay;
-	int id = path.at(1).toInt(&idOkay);
-	if(!idOkay || id < 1)
-		return;
-
-	// Only open scans for now (ie: things in the scans table)
-	if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
-		return;
-
 	// turn off automatic raw-day loading for scans... This will make loading the scan to access it's config much faster.
 	bool scanAutoLoadingOn = AMScan::autoLoadData();
 	AMScan::setAutoLoadData(false);
-	// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
-	AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
-	if(!dbo)
-		return;
+
+	AMScan* scan = AMScan::createFromDatabaseUrl(url, true);
+
 	// restore AMScan's auto-loading of data to whatever it was before.
 	AMScan::setAutoLoadData(scanAutoLoadingOn);
 
-	// Is it a scan?
-	AMScan* scan = qobject_cast<AMScan*>( dbo );
-	if(!scan) {
-		delete dbo;
+	if(!scan)
 		return;
-	}
+
 
 	// need to check that this scan actually has a valid config. This hasn't always been guaranteed, especially when scans move between beamlines.
 	AMScanConfiguration* config = scan->scanConfiguration();
@@ -330,6 +303,7 @@ bool AMAppController::startupInstallActions()
 		changeRunAction->setStatusTip("Change the current run, or create a new one");
 		connect(changeRunAction, SIGNAL(triggered()), this, SLOT(showChooseRunDialog()));
 
+		fileMenu_->addSeparator();
 		fileMenu_->addAction(changeRunAction);
 		return true;
 	}

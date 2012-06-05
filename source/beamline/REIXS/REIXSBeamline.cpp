@@ -48,6 +48,7 @@ REIXSBeamline::REIXSBeamline() :
 	spectrometerPositionSet_->addControl(spectrometer()->hexapod()->r());
 	spectrometerPositionSet_->addControl(spectrometer()->hexapod()->s());
 	spectrometerPositionSet_->addControl(spectrometer()->hexapod()->t());
+	spectrometerPositionSet_->addControl(spectrometer()->endstationTranslation());  //DAVID ADDED
 
 	// Sample Chamber: controls and control set for positioners:
 	sampleChamber_ = new REIXSSampleChamber(this);
@@ -86,6 +87,7 @@ REIXSBeamline::REIXSBeamline() :
 	allControlsSet_->addControl(sampleChamber()->y());
 	allControlsSet_->addControl(sampleChamber()->z());
 	allControlsSet_->addControl(sampleChamber()->r());
+	allControlsSet_->addControl(spectrometer()->endstationTranslation());  //DAVID ADDED
 
 }
 
@@ -172,7 +174,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 														"SMTR1610-4-I21-01:status",
 														"SMTR1610-4-I21-01:stop", this, 1);
 
-	spectrometerRotationDrive_->setDescription("XES Lift Stage");
+
 
 	detectorTranslation_ = new AMPVwStatusControl("detectorTranslation",
 												  "SMTR1610-4-I21-04:mm:sp",
@@ -188,12 +190,20 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 												"SMTR1610-4-I21-02:stop", this, 0.5);
 	detectorTiltDrive_->setDescription("XES Detector Tilt Stage");
 
+	endstationTranslation_ = new AMPVwStatusControl("endstationTranslation",
+														"SMTR1610-4-I21-05:mm:sp",
+														"SMTR1610-4-I21-05:mm",
+														"SMTR1610-4-I21-05:status",
+														"SMTR1610-4-I21-05:stop", this, 1);  //DAVID ADDED
+
+	endstationTranslation_->setDescription("Endstation Translation");
 
 	hexapod_ = new REIXSHexapod(this);
 
 	addChildControl(spectrometerRotationDrive_);
 	addChildControl(detectorTranslation_);
 	addChildControl(detectorTiltDrive_);
+	addChildControl(endstationTranslation_);  //DAVID ADDED
 	addChildControl(hexapod_);
 
 	currentGrating_ = -1; specifiedGrating_ = 0;
@@ -210,6 +220,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 	connect(spectrometerRotationDrive_, SIGNAL(valueChanged(double)), this, SLOT(scheduleReviewValueChanged()));
 	connect(detectorTranslation_, SIGNAL(valueChanged(double)), this, SLOT(scheduleReviewValueChanged()));
 	connect(this, SIGNAL(gratingChanged(int)), this, SLOT(scheduleReviewValueChanged()));
+	connect(endstationTranslation_, SIGNAL(valueChanged(double)), this, SLOT(scheduleReviewValueChanged()));  //DAVID ADDED
 
 	connect(&reviewValueChangedFunction_, SIGNAL(executed()), this, SLOT(reviewValueChanged()));
 
@@ -283,6 +294,7 @@ void REIXSSpectrometer::move(double setpoint)
 	moveAction_->addSubAction(new AMInternalControlMoveAction(spectrometerRotationDrive_, moveSetpoint_.controlNamed("spectrometerRotationDrive").value()));
 	moveAction_->addSubAction(new AMInternalControlMoveAction(detectorTiltDrive_, moveSetpoint_.controlNamed("detectorTiltDrive").value()));
 	moveAction_->addSubAction(new AMInternalControlMoveAction(detectorTranslation_, moveSetpoint_.controlNamed("detectorTranslation").value()));
+	moveAction_->addSubAction(new AMInternalControlMoveAction(endstationTranslation_, moveSetpoint_.controlNamed("endstationTranslation").value()));
 
 	// Watch the move action: succeeded or failed (or cancelled)
 	connect(moveAction_, SIGNAL(stateChanged(int,int)), this, SLOT(onMoveActionStateChanged(int,int)));
@@ -308,6 +320,7 @@ bool REIXSSpectrometer::stop()
 	spectrometerRotationDrive_->stop();
 	detectorTranslation_->stop();
 	detectorTiltDrive_->stop();
+	endstationTranslation_->stop();
 	// hexapod: cannot stop without wrecking init. Don't worry for now... just let it stop over time. Not necessary for it to be not-moving before we re-send it somewhere new.
 
 	/// \todo Actually, have to flag that a stop has started, and also catch when the stop is finished... Motors will take a while to actually receive and decelerate.
@@ -422,16 +435,47 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 
 REIXSValvesAndShutters::REIXSValvesAndShutters(QObject *parent) : AMCompositeControl("valvesAndShutters", "n/a", parent)
 {
+	beamIsOn_ = false;
+
+	ssh1_ = new CLSBiStateControl("safetyShutter1", "Safety Shutter 1", "SSH1410-I00-01:state", "SSH1410-I00-01:opr:open", "SSH1410-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
 	psh2_ = new CLSBiStateControl("photonShutter2", "Photon Shutter 2", "PSH1410-I00-02:state", "PSH1410-I00-02:opr:open", "PSH1410-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this);
 
 	psh4_ = new CLSBiStateControl("photonShutter4", "Photon Shutter 4", "PSH1610-I20-01:state", "PSH1610-I20-01:opr:open", "PSH1610-I20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
 
 	endstationValve_ = new CLSBiStateControl("XESendstationValve", "XES Endstation Valve", "VVR1610-4-I21-01:state", "VVR1610-4-I21-01:opr:open", "VVR1610-4-I21-01:opr:close", new AMControlStatusCheckerDefault(2), this);
 
+	addChildControl(ssh1_);
 	addChildControl(psh2_);
 	addChildControl(psh4_);
 	addChildControl(endstationValve_);
 
+
+	// connect to monitor full beam status:
+	/////////////////////
+	connect(ssh1_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
+	connect(psh2_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
+	connect(psh4_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
+	connect(ssh1_, SIGNAL(stateChanged(int)), this, SLOT(reviewIsBeamOn()));
+	connect(psh2_, SIGNAL(stateChanged(int)), this, SLOT(reviewIsBeamOn()));
+	connect(psh4_, SIGNAL(stateChanged(int)), this, SLOT(reviewIsBeamOn()));
+
+	reviewIsBeamOn();
+}
+
+
+void REIXSValvesAndShutters::reviewIsBeamOn()
+{
+	bool beamWasOn = beamIsOn_;
+
+	beamIsOn_ = ssh1_->isConnected() &&
+			psh2_->isConnected() &&
+			psh4_->isConnected() &&
+			ssh1_->state() == 1 &&
+			psh2_->state() == 1 &&
+			psh4_->state() == 1;
+
+	if(beamIsOn_ != beamWasOn)
+		emit beamOnChanged(beamIsOn_);
 }
 
 

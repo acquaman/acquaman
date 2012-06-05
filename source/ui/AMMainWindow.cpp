@@ -324,5 +324,10 @@ QModelIndex AMMainWindow::getPreviousSelection(const QModelIndex &current)
 	return rv;
 }
 
+QWidget * AMMainWindow::currentPane() const
+{
+	return stackWidget_->currentWidget();
+}
+
 
 
