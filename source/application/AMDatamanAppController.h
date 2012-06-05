@@ -205,6 +205,12 @@ The Drag is accepted when:
 	/// this slot is called when the "add something" button is pushed. For now, it just creates a new experiment. This could be expanded to a drop-down menu that offers creating a new experiment, a new scan, a new run...
 	void onAddButtonClicked();
 
+	/// This slot is called when a menu action requests to export the current Scan Editor's graphics to a file.
+	void onActionExportGraphics();
+
+
+
+
 	/// Calling this updates the master progress bar
 	void onProgressUpdated(double elapsed, double total);
 

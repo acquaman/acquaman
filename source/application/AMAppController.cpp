@@ -330,6 +330,7 @@ bool AMAppController::startupInstallActions()
 		changeRunAction->setStatusTip("Change the current run, or create a new one");
 		connect(changeRunAction, SIGNAL(triggered()), this, SLOT(showChooseRunDialog()));
 
+		fileMenu_->addSeparator();
 		fileMenu_->addAction(changeRunAction);
 		return true;
 	}

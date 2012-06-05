@@ -636,6 +636,10 @@ bool AMDatamanAppController::startupInstallActions()
 	amIssueSubmissionAction->setStatusTip("Report an issue to the Acquaman Developers");
 	connect(amIssueSubmissionAction, SIGNAL(triggered()), this, SLOT(onActionIssueSubmission()));
 
+	QAction* exportGraphicsAction = new QAction("Export Plot...", mw_);
+	exportGraphicsAction->setStatusTip("Export the current plot to a PDF file.");
+	connect(exportGraphicsAction, SIGNAL(triggered()), this, SLOT(onActionExportGraphics()));
+
 	//install menu bar, and add actions
 	//////////////////////////////////////
 #ifdef Q_WS_MAC
@@ -648,6 +652,9 @@ bool AMDatamanAppController::startupInstallActions()
 	fileMenu_ = menuBar_->addMenu("File");
 	fileMenu_->addAction(importLegacyFilesAction);
 	fileMenu_->addAction(importAcquamanDatabaseAction);
+	fileMenu_->addSeparator();
+	fileMenu_->addAction(exportGraphicsAction);
+	fileMenu_->addSeparator();
 	fileMenu_->addAction(amSettingsAction);
 
 	helpMenu_ = menuBar_->addMenu("Help");
@@ -1216,3 +1223,17 @@ bool AMDatamanAppController::startupAfterEverything()
 	splashScreen_->raise();
 	return true;
 }
+
+void AMDatamanAppController::onActionExportGraphics()
+{
+	AMGenericScanEditor* scanEditor = qobject_cast<AMGenericScanEditor*>(mw_->currentPane());
+
+	if(scanEditor) {
+		scanEditor->exportGraphicsToFile();
+	}
+	else {
+		/// \todo Disable this menu action when an AMGenericScanEditor isn't the current pane.
+		AMErrorMon::alert(this, -1111, "To export graphics, you must have a plot open in a scan editor.");
+	}
+}
+
