@@ -57,6 +57,8 @@ class REIXSValvesAndShutters : public AMCompositeControl {
 public:
 	REIXSValvesAndShutters(QObject* parent = 0);
 
+	/// Safety shutter 1
+	CLSBiStateControl* ssh1() { return ssh1_; }
 	/// Photon shutter 2
 	CLSBiStateControl* psh2() { return psh2_; }
 	/// Photon shutter 4: Used for turning off the beam
@@ -67,10 +69,19 @@ public:
 
 	/// \todo Variable apertures: set to 4x4
 
+	/// Returns true if the beam (to the best of our knowledge) is on. Currently, requires ssh1, psh2, and psh4 to be open.
+	bool isBeamOn() const { return beamIsOn_; }
+
+signals:
+	void beamOnChanged(bool isOn);
+
+protected slots:
+	/// Called when any of ssh1, psh2, and psh4 connect, disconnect, or change state. Reviews beamIsOn_ and emits beamOnChanged()
+	void reviewIsBeamOn();
 
 protected:
-	CLSBiStateControl* psh2_, *psh4_, *endstationValve_;
-
+	CLSBiStateControl* ssh1_, *psh2_, *psh4_, *endstationValve_;
+	bool beamIsOn_;
 
 };
 
@@ -183,6 +194,7 @@ public:
 	AMControl* spectrometerRotationDrive() { return spectrometerRotationDrive_; }
 	AMControl* detectorTranslation() { return detectorTranslation_; }
 	AMControl* detectorTiltDrive() { return detectorTiltDrive_; }
+	AMControl* endstationTranslation() { return endstationTranslation_; }  //DAVID ADDED
 	// removed motor from endstation in Dec. 2011:
 		// AMControl* detectorRotationDrive() { return detectorRotationDrive_; }
 	REIXSHexapod* hexapod() { return hexapod_; }
@@ -196,7 +208,7 @@ public slots:
 	void specifyDetectorTiltOffset(double tiltOffsetDeg);
 
 protected:
-	AMControl *spectrometerRotationDrive_, *detectorTranslation_, *detectorTiltDrive_;
+	AMControl *spectrometerRotationDrive_, *detectorTranslation_, *detectorTiltDrive_, *endstationTranslation_;  //DAVID ADDED
 	REIXSHexapod* hexapod_;
 
 	REIXSXESCalibration calibration_;

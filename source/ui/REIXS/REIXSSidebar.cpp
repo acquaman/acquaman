@@ -52,10 +52,16 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 	// Make connections
 	//////////////////////
 
+	connect(REIXSBeamline::bl()->valvesAndShutters(), SIGNAL(beamOnChanged(bool)), this, SLOT(onBeamOnChanged(bool)));
 	connect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(countsPerSecondChanged(double)), this, SLOT(onMCPCountsPerSecondChanged(double)));
 
 	connect(ui->beamOnButton, SIGNAL(clicked()), this, SLOT(onBeamOnButtonClicked()));
 	connect(ui->beamOffButton, SIGNAL(clicked()), this, SLOT(onBeamOffButtonClicked()));
+
+	// Get initial status:
+	//////////////////////////
+
+	onBeamOnChanged(REIXSBeamline::bl()->valvesAndShutters()->isBeamOn());
 }
 
 REIXSSidebar::~REIXSSidebar()
@@ -97,5 +103,17 @@ void REIXSSidebar::onBeamOffButtonClicked()
 	}
 	else {
 		AMActionRunner::s()->runActionImmediatelyInQueue(new REIXSBeamOnOffAction(false));
+	}
+}
+
+void REIXSSidebar::onBeamOnChanged(bool isOn)
+{
+	if(isOn) {
+		ui->beamlineStatusLED->setPixmap(QPixmap(":/22x22/greenLEDOn.png"));
+		ui->beamOnButton->setChecked(true);
+	}
+	else {
+		ui->beamlineStatusLED->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
+		ui->beamOffButton->setChecked(true);
 	}
 }
