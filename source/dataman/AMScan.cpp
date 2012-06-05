@@ -621,6 +621,7 @@ void AMScan::setScanController(AMScanController* scanController)
 		emit currentlyScanningChanged(currentlyScanning_);
 	}
 }
+#endif
 
 #include <QThread>
 #include <QMutexLocker>
@@ -783,4 +784,4 @@ AMScan * AMScan::createFromDatabaseUrl(const QUrl &url, bool allowIfScanning, bo
 	return scan;
 }
 
-#endif
+
