@@ -115,6 +115,16 @@ public:
 	/// default constructor
 	Q_INVOKABLE explicit AMScan(QObject *parent = 0);
 
+	/// Static convenience function to create an AMScan from a database URL in the Acquaman URL format ("amd://databaseConnection/tableName/id"). Returns 0 if the scan could not be found or the URL is invalid.
+	/*! It is generally not advisable to open a second instance of scan from the DB if there is one currently scanning because of the potential for overwriting/saving (and because raw data likely won't be available.)  If \c allowIfScanning is false, will return 0 if the database indicates the scan is still scanning ('currentlyScanning' column).
+
+	Optional outputs:
+
+		- If \c isScanning is provided, will be set with whether the scan is still scanning.
+		- If \c scanName is provided, will be set the full name of the scan (assuming it is found).
+*/
+	static AMScan* createFromDatabaseUrl(const QUrl& url, bool allowIfScanning = false, bool* isScanning = 0, QString* scanName = 0);
+
 
 	/// Destructor: deletes all channels.
 	virtual ~AMScan();
