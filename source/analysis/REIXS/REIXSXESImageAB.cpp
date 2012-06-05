@@ -33,7 +33,7 @@ REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 	// shift values can start out empty.
 
 	inputSource_ = 0;
-	cacheCompletelyInvalid_ = false;
+	cacheInvalid_ = true;
 
 	// leave sources_ empty for now.
 
@@ -62,7 +62,7 @@ REIXSXESImageAB::REIXSXESImageAB(AMDatabase *db, int id) :
 	// shift values can start out empty.
 
 	inputSource_ = 0;
-	cacheCompletelyInvalid_ = false;
+	cacheInvalid_ = true;
 
 	// leave sources_ empty for now.
 
@@ -96,7 +96,7 @@ void REIXSXESImageAB::setSumRangeMin(int sumRangeMin)
 	if(liveCorrelation())
 		callCorrelation_.schedule();
 
-	invalidateCache();
+	cacheInvalid_ = true;
 	reviewState();
 
 	emitValuesChanged();
@@ -112,7 +112,7 @@ void REIXSXESImageAB::setSumRangeMax(int sumRangeMax)
 	if(liveCorrelation())
 		callCorrelation_.schedule();
 
-	invalidateCache();
+	cacheInvalid_ = true;
 	reviewState();
 
 	emitValuesChanged();
@@ -125,7 +125,7 @@ void REIXSXESImageAB::setShiftValues(const AMIntList &shiftValues)
 		return;
 
 	shiftValues_ = shiftValues;
-	invalidateCache();	// could change all our cached values
+	cacheInvalid_ = true;	// could change all our cached values
 	reviewState();	// might change the state to valid, if we didn't have proper number of shift values before.
 
 	emitValuesChanged();
@@ -162,13 +162,6 @@ void REIXSXESImageAB::reviewState()
 
 }
 
-void REIXSXESImageAB::invalidateCache()
-{
-	if(!cacheCompletelyInvalid_ || cachedValues_.size() != axes_.at(0).size) {
-		cachedValues_ = QVector<AMNumber>(axes_.at(0).size);	// everything in there is now AMNumber::Null.
-		cacheCompletelyInvalid_ = true;
-	}
-}
 
 bool REIXSXESImageAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
 {
@@ -217,8 +210,8 @@ void REIXSXESImageAB::setInputDataSourcesImplementation(const QList<AMDataSource
 
 	}
 
-
-	invalidateCache();
+	cacheInvalid_ = true;
+	cachedValues_ = QVector<double>(axes_.at(0).size);
 	reviewState();
 
 	emitSizeChanged(0);
@@ -235,44 +228,16 @@ AMNumber REIXSXESImageAB::value(const AMnDIndex &indexes) const
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	// x pixel value:
-	int i = indexes.i();
-	// Max x pixel value:
-	int maxI = inputSource_->size(0);
 
 #ifdef AM_ENABLE_BOUNDS_CHECKING
-	if(((unsigned)i >= (unsigned)axes_.at(0).size))
+	if(((unsigned long)indexes.i() >= (unsigned long)axes_.at(0).size))
 		return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
-	AMNumber rv = cachedValues_.at(i);
-	// if we haven't calculated this sum yet, the cached value will be invalid. Sum using shifting, and store.
-	if(!rv.isValid()) {
+	if(cacheInvalid_)
+		computeCachedValues();
 
-		double newVal = 0.0;
-		int contributingRows = 0;
-		for(int j=sumRangeMin_; j<=sumRangeMax_; j++) { // loop through rows
-			int sourceI = i + shiftValues_.at(j);
-			if(sourceI < maxI && sourceI >= 0) {
-				newVal += double(inputSource_->value(AMnDIndex(sourceI, j)));
-				contributingRows++;
-			}
-		}
-
-		// normalize by dividing by the number of rows that contributed. Since we want to keep the output in units similar to raw counts, multiply by the nominal (usual) number of contributing rows.
-		// Essentially, this normalization prevents columns near the edge that miss out on some rows due to shifting from being artificially suppressed.  For inner columns, contributingRows will (sumRangeMax_ - sumRangeMin_ + 1).
-		if(contributingRows == 0)
-			newVal = 0;
-		else
-			newVal = newVal * double(sumRangeMax_ - sumRangeMin_ + 1) / double(contributingRows);
-
-		cachedValues_[i] = newVal;
-		cacheCompletelyInvalid_ = false;
-		return newVal;
-	}
-	// otherwise return the value we have cached.
-	else
-		return rv;
+	return AMNumber(cachedValues_.at(indexes.i()));
 }
 
 bool REIXSXESImageAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -293,38 +258,51 @@ bool REIXSXESImageAB::values(const AMnDIndex &indexStart, const AMnDIndex &index
 		return false;
 #endif
 
-	for(int i=indexStart.i(); i<=indexEnd.i(); ++i) {
-		AMNumber rv = cachedValues_.at(i);
-		// if we haven't calculated this sum yet, the cached value will be invalid. Sum using shifting, and store.
-		if(!rv.isValid()) {
 
-			double newVal = 0.0;
-			int contributingRows = 0;
-			for(int j=sumRangeMin_; j<=sumRangeMax_; ++j) { // loop through rows
-				int sourceI = i + shiftValues_.at(j);
-				if(sourceI < maxI && sourceI >= 0) {
-					newVal += double(inputSource_->value(AMnDIndex(sourceI, j)));
-					contributingRows++;
-				}
-			}
+	if(cacheInvalid_)
+		computeCachedValues();
 
-			// normalize by dividing by the number of rows that contributed. Since we want to keep the output in units similar to raw counts, multiply by the nominal (usual) number of contributing rows.
-			// Essentially, this normalization prevents columns near the edge that miss out on some rows due to shifting from being artificially suppressed.  For inner columns, contributingRows will (sumRangeMax_ - sumRangeMin_ + 1).
-			if(contributingRows == 0)
-				newVal = 0;
-			else
-				newVal = newVal * double(sumRangeMax_ - sumRangeMin_ + 1) / double(contributingRows);
-
-			cachedValues_[i] = newVal;
-			cacheCompletelyInvalid_ = false;
-			*(outputValues++) = newVal;
-		}
-		// otherwise return the value we have cached.
-		else
-			*(outputValues++) = double(rv);
-	}
+	memcpy(outputValues, (cachedValues_.constData()+indexStart.i()), (indexEnd.i()-indexStart.i()+1)*sizeof(double));
 
 	return true;
+}
+
+
+void REIXSXESImageAB::computeCachedValues() const
+{
+	int maxI = inputSource_->size(0);
+	int maxJ = inputSource_->size(1);
+
+	// grab the full image
+	QVector<double> image(maxI*maxJ);
+	if(!inputSource_->values(AMnDIndex(0,0), AMnDIndex(maxI-1, maxJ-1), image.data())) {
+		AMErrorMon::report(this, AMErrorReport::Alert, -333, "Could not retrieve values from detector image. Please report this problem to the REIXS Acquaman developers.");
+		cacheInvalid_ = false;	// avoid repeating this error message for every single data point...
+		return;
+	}
+
+
+	for(int i=0; i<maxI; ++i) {
+		double newVal = 0.0;
+		int contributingRows = 0;
+		for(int j=sumRangeMin_; j<=sumRangeMax_; j++) { // loop through rows
+			int sourceI = i + shiftValues_.at(j);
+			if(sourceI < maxI && sourceI >= 0) {
+				newVal += image.at(sourceI*maxJ + j);
+				contributingRows++;
+			}
+		}
+
+		// normalize by dividing by the number of rows that contributed. Since we want to keep the output in units similar to raw counts, multiply by the nominal (usual) number of contributing rows.
+		// Essentially, this normalization prevents columns near the edge that miss out on some rows due to shifting from being artificially suppressed.  For inner columns, contributingRows will (sumRangeMax_ - sumRangeMin_ + 1).
+		if(contributingRows == 0)
+			newVal = 0;
+		else
+			newVal = newVal * double(sumRangeMax_ - sumRangeMin_ + 1) / double(contributingRows);
+
+		cachedValues_[i] = newVal;
+	}
+	cacheInvalid_ = false;
 }
 
 
@@ -349,26 +327,29 @@ void REIXSXESImageAB::onInputSourceValuesChanged(const AMnDIndex &start, const A
 	if(liveCorrelation())
 		callCorrelation_.schedule();
 
-	// invalidate the cache. We're not summing straight down, so values outside of the start - end range may change; we just invalidate everything.
-	invalidateCache();
+	// invalidate the cache.
+	cacheInvalid_ = true;
 	emitValuesChanged();
 }
 
 void REIXSXESImageAB::onInputSourceSizeChanged()
 {
+	cacheInvalid_ = true;
+
+	bool sizeChanged = false;
 	if(axes_.at(0).size != inputSource_->size(0)) {
 		axes_[0].size = inputSource_->size(0);
-		cachedValues_.resize(axes_.at(0).size);	// resize() will fill in with default-constructed value for AMNumber(), which is AMNumber::Null.
-		emitSizeChanged(0);
+		cachedValues_.resize(axes_.at(0).size);
+		sizeChanged = true;
 	}
 
 	if(liveCorrelation())
 		callCorrelation_.schedule();
 
-	// because of the shifting before summing, this could change values outside of the added/removed region; just invalidate everything.
-	invalidateCache();
 	// If the sumRangeMin/sumRangeMax were out of range before, they might be valid now.
 	reviewState();
+	if(sizeChanged)
+		emitSizeChanged(0);
 	emitValuesChanged();
 }
 
@@ -435,6 +416,13 @@ void REIXSXESImageAB::correlateNow()
 	int minShift = -correlationHalfWidth_;
 	int maxShift = correlationHalfWidth_;
 
+	// grab the whole input image for fast access. This is much faster than calling inputSource_->value() repeatedly.
+	QVector<double> image(sizeX*sizeY);
+	if(!inputSource_->values(AMnDIndex(0,0), AMnDIndex(sizeX-1, sizeY-1), image.data())) {
+		AMErrorMon::report(this, AMErrorReport::Alert, -333, "Could not retrieve values from detector image. Please report this problem to the REIXS Acquaman developers.");
+		return;
+	}
+
 	// initialize all shifts to 0.
 	QVector<int> shifts = QVector<int>(sizeY);
 
@@ -450,7 +438,7 @@ void REIXSXESImageAB::correlateNow()
 			double correlationSum = 0;
 			for(int i = correlationCenterPx_ - correlationHalfWidth_, ic = correlationCenterPx_+correlationHalfWidth_; i<=ic; i++)
 				if(i+shift<sizeX && i+shift>=0 && i<sizeX && i>=0)
-					correlationSum += double(inputSource_->value(AMnDIndex(i,midY))) *  double(inputSource_->value(AMnDIndex(i+shift, j)));
+					correlationSum += image.at(i*sizeY + midY) * image.at((i+shift)*sizeY + j);
 			if(correlationSum > bestSum) {
 				bestSum = correlationSum;
 				bestShift = shift;
@@ -552,5 +540,7 @@ QWidget * REIXSXESImageAB::createEditorWidget()
 {
 	return new REIXSXESImageABEditor(this);
 }
+
+
 
 

@@ -148,10 +148,10 @@ protected slots:
 
 protected:
 
-	/// Cached previously-summed values.  Either they don't need to be re-calculated, or they're AMNumber::Null and do need to be recalculated.
-	mutable QVector<AMNumber> cachedValues_;
-	/// Optimization: invalidating the cache with invalid() requires clearing all values in it. If we've just done this, we can avoid re-doing it until there's actually something to clear.
-	mutable bool cacheCompletelyInvalid_;
+	/// Caches the shifted and summed values.  Access only if cacheInvalid_ is false.
+	mutable QVector<double> cachedValues_;
+	/// True if the cachedValues_ needs to be re-calculated.
+	mutable bool cacheInvalid_;
 
 	AMDataSource* inputSource_;	// our single input source, or 0 if we don't have one.
 
@@ -178,8 +178,9 @@ protected:
 	// Helper Functions
 	///////////////////////
 
-	/// helper function to clear the cachedValues_
-	void invalidateCache();
+	/// helper function to compute and fill cachedValues_.
+	void computeCachedValues() const;
+
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState();
 

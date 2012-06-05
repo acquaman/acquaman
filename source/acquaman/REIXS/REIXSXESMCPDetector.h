@@ -84,6 +84,23 @@ public:
 		return imagePV_->getInt(indexes.i()*pixelsY_ + indexes.j());
 	}
 
+	virtual bool values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const {
+		if(!isConnected_)
+			return false;
+		if(indexStart.rank() != 2 || indexEnd.rank() != 2)
+			return false;
+		if(indexEnd.i() < indexStart.i() || indexEnd.j() < indexStart.j())
+			return false;
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if(indexEnd.i() >= pixelsX_ || indexEnd.j() >= pixelsY_)
+			return false;
+#endif
+		foreach(int v, imagePV_->lastIntegerValues())
+			*(outputValues++) = double(v);
+
+		return true;
+	}
+
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 	virtual AMNumber axisValue(int axisNumber, int index) const {
 		Q_UNUSED(axisNumber)
