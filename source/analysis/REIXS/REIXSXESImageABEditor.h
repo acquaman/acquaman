@@ -36,6 +36,7 @@ class MPlotSeriesBasic;
 class MPlotColorMap;
 class MPlotPoint;
 
+class AMChooseScanDialog;
 class REIXSXESImageAB;
 
 #include "MPlot/MPlotSeriesData.h"
@@ -94,6 +95,11 @@ public slots:
 	void onCorrelationCenterBoxChanged(int);
 	void onCorrelationPointsBoxChanged(int);
 
+	// The "Apply to other scans" button applies this shift curve to many scans at once.
+	/// Called to apply same shift curve to many XES scans. Shows the dialog to choose which scans.
+	void onApplyToOtherScansButtonClicked();
+	/// When a user chooses which scans to apply the current shift to.
+	void onApplyToOtherScansChosen();
 
 	/// signals from analysis block: if the block's input data source changes (to either null, or one with a different size.)
 	void onAnalysisBlockInputDataSourcesChanged();
@@ -114,6 +120,7 @@ protected:
 	QPushButton* correlateNowButton_;
 	QCheckBox* liveCorrelationCheckBox_;
 	QSlider* shiftDisplayOffsetSlider_;
+	QPushButton* applyToOtherScansButton_;
 
 	// plot widget to show what region is summed
 	MPlotWidget* plotWidget_;
@@ -124,6 +131,9 @@ protected:
 	MPlotSeriesBasic* shiftSeries_;
 	MPlotPoint* corrRegionLeft_, * corrRegionRight_;
 	REIXSXESImageABEditorShiftModel* shiftData_;
+
+	/// Dialog to ask the user for a set of scans (to apply the same shift curve to many at once)
+	AMChooseScanDialog* chooseScanDialog_;
 
 
 	/// called to position and show/hide the range rectangle, as appropriate.
