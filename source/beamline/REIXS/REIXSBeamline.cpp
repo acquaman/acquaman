@@ -435,16 +435,47 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 
 REIXSValvesAndShutters::REIXSValvesAndShutters(QObject *parent) : AMCompositeControl("valvesAndShutters", "n/a", parent)
 {
+	beamIsOn_ = false;
+
+	ssh1_ = new CLSBiStateControl("safetyShutter1", "Safety Shutter 1", "SSH1410-I00-01:state", "SSH1410-I00-01:opr:open", "SSH1410-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
 	psh2_ = new CLSBiStateControl("photonShutter2", "Photon Shutter 2", "PSH1410-I00-02:state", "PSH1410-I00-02:opr:open", "PSH1410-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this);
 
 	psh4_ = new CLSBiStateControl("photonShutter4", "Photon Shutter 4", "PSH1610-I20-01:state", "PSH1610-I20-01:opr:open", "PSH1610-I20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
 
 	endstationValve_ = new CLSBiStateControl("XESendstationValve", "XES Endstation Valve", "VVR1610-4-I21-01:state", "VVR1610-4-I21-01:opr:open", "VVR1610-4-I21-01:opr:close", new AMControlStatusCheckerDefault(2), this);
 
+	addChildControl(ssh1_);
 	addChildControl(psh2_);
 	addChildControl(psh4_);
 	addChildControl(endstationValve_);
 
+
+	// connect to monitor full beam status:
+	/////////////////////
+	connect(ssh1_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
+	connect(psh2_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
+	connect(psh4_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
+	connect(ssh1_, SIGNAL(stateChanged(int)), this, SLOT(reviewIsBeamOn()));
+	connect(psh2_, SIGNAL(stateChanged(int)), this, SLOT(reviewIsBeamOn()));
+	connect(psh4_, SIGNAL(stateChanged(int)), this, SLOT(reviewIsBeamOn()));
+
+	reviewIsBeamOn();
+}
+
+
+void REIXSValvesAndShutters::reviewIsBeamOn()
+{
+	bool beamWasOn = beamIsOn_;
+
+	beamIsOn_ = ssh1_->isConnected() &&
+			psh2_->isConnected() &&
+			psh4_->isConnected() &&
+			ssh1_->state() == 1 &&
+			psh2_->state() == 1 &&
+			psh4_->state() == 1;
+
+	if(beamIsOn_ != beamWasOn)
+		emit beamOnChanged(beamIsOn_);
 }
 
 
