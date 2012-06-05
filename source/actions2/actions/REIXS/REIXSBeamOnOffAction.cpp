@@ -28,6 +28,7 @@ void REIXSBeamOnOffAction::startImplementation()
 	REIXSBeamOnOffActionInfo* beamInfo = qobject_cast<REIXSBeamOnOffActionInfo*>(info());
 
 	if(beamInfo && beamInfo->beamOn()) {
+		addSubAction(new AMInternalControlMoveAction(REIXSBeamline::bl()->valvesAndShutters()->ssh1(), 1.0));
 		addSubAction(new AMInternalControlMoveAction(REIXSBeamline::bl()->valvesAndShutters()->psh2(), 1.0));
 		addSubAction(new AMInternalControlMoveAction(REIXSBeamline::bl()->valvesAndShutters()->psh4(), 1.0));
 		//addSubAction(new AMInternalControlMoveAction(REIXSBeamline::bl()->valvesAndShutters()->endstationValve(), 1.0));
