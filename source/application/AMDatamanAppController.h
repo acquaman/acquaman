@@ -114,9 +114,9 @@ public slots:
 	virtual bool startupRegisterExporters();
 	virtual bool startupBeforeUserInterface()  { return true; }
 	virtual bool startupCreateUserInterface();
-	virtual bool startupAfterUserInterface()  { return true; }
+	virtual bool startupAfterUserInterface();
 	virtual bool startupInstallActions();
-	virtual bool startupAfterEverything()  { return true; }
+	virtual bool startupAfterEverything();
 
 
 	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.

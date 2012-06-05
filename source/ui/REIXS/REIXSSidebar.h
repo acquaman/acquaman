@@ -49,10 +49,16 @@ protected slots:
 	// Responding to GUI events
 	////////////////////////////
 
-	void onMCPCountsPerSecondChanged(double countsPerSecond);
-
 	void onBeamOnButtonClicked();
 	void onBeamOffButtonClicked();
+
+	// Responding to beamline events:
+	///////////////////////////////////
+
+	void onMCPCountsPerSecondChanged(double countsPerSecond);
+
+	/// Monitors REIXSBeamline::bl()->valvesAndShutters()::beamOnChanged() to light up the "beam on" summary LED.
+	void onBeamOnChanged(bool isOn);
 };
 
 #endif // REIXSSIDEBAR_H
