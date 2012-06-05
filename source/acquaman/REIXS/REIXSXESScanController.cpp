@@ -44,7 +44,7 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 	scan_ = new AMXESScan();
 	scan_->setName("REIXS XES Scan");
 
-	scan_->setFilePath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime())+".img");
+	scan_->setFilePath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime())+".cdf");
 	scan_->setFileFormat("amCDFv1");
 	scan_->replaceRawDataStore(new AMCDFDataStore(AMUserSettings::userDataFolder % "/" % scan_->filePath(), false));
 	scan_->setRunId(AMUser::user()->currentRunId());
