@@ -2,6 +2,8 @@
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QPixmapCache>
+#include <QStringBuilder>
 
 #include "ui/AMTopFrame.h"
 
@@ -85,7 +87,7 @@ VESPERSEndstationConfigurationView::VESPERSEndstationConfigurationView(VESPERSEn
 
 	// The picture.
 	cartoon_ = new QLabel;
-	cartoon_->setPixmap(QIcon(":/VESPERS/endstation-unselected.png").pixmap(600, 400));
+	cartoon_->setPixmap(endstationPixmap("endstation-unselected"));
 
 	QHBoxLayout *boxLayout = new QHBoxLayout;
 	boxLayout->addStretch();
@@ -190,6 +192,9 @@ void VESPERSEndstationConfigurationView::updateAppearance()
 	vortex1E_->setEnabled(endstation_->canUseSingleElementVortex());
 	vortex4E_->setEnabled(endstation_->canUseFourElementVortex());
 	roperCCD_->setEnabled(endstation_->canUseRoperCCD());
+
+	foreach(QAbstractButton *button, detectors_->buttons())
+		button->setChecked(false);
 }
 
 void VESPERSEndstationConfigurationView::updatePixmap()
@@ -198,111 +203,125 @@ void VESPERSEndstationConfigurationView::updatePixmap()
 
 	case VESPERSEndstationConfiguration::Invalid:
 
-		cartoon_->setPixmap(QIcon(":/VESPERS/endstation-unselected.png").pixmap(600, 400));
+		cartoon_->setPixmap(endstationPixmap("endstation-unselected.png"));
 		break;
 
 	case VESPERSEndstationConfiguration::StraightOn:
 
 		if (endstation_->usingIonChambers() && endstation_->usingSingleElementVortex())
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-straight-on-ionChambers-vortex1.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-straight-on-ionChambers-vortex1"));
 
 		else if (endstation_->usingIonChambers())
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-straight-on-ionChambers.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-straight-on-ionChambers"));
 
 		else if (endstation_->usingSingleElementVortex())
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-straight-on-vortex1.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-straight-on-vortex1"));
 
 		else
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-straight-on-unselected.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-straight-on-unselected"));
 
 		break;
 
 	case VESPERSEndstationConfiguration::Single45Vertical:
 
 		if (endstation_->usingIonChambers() && endstation_->usingSingleElementVortex() && endstation_->usingRoperCCD())
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-vertical45-ionChambers-vortex1-roperCCD.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-vertical45-ionChambers-vortex1-roperCCD"));
 
 		else if (endstation_->usingSingleElementVortex() && endstation_->usingRoperCCD())
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-vertical45-vortex1-roperCCD.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-vertical45-vortex1-roperCCD"));
 
 		else if (endstation_->usingIonChambers() && endstation_->usingRoperCCD())
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-vertical45-ionChambers-roperCCD.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-vertical45-ionChambers-roperCCD"));
 
 		else if (endstation_->usingIonChambers() && endstation_->usingSingleElementVortex())
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-vertical45-ionChambers-vortex1.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-vertical45-ionChambers-vortex1"));
 
 		else if (endstation_->usingIonChambers())
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-vertical45-ionChambers.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-vertical45-ionChambers"));
 
 		else if (endstation_->usingSingleElementVortex())
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-vertical45-vortex1.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-vertical45-vortex1"));
 
 		else if (endstation_->usingRoperCCD())
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-vertical45-roperCCD.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-vertical45-roperCCD"));
 
 		else
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-vertical45-unselected.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-vertical45-unselected"));
 
 		break;
 
 	case VESPERSEndstationConfiguration::Single45Horizontal:
 
 		if (endstation_->usingIonChambers() && endstation_->usingFourElementVortex())
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-horizontal45-ionChambers-vortex4.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-horizontal45-ionChambers-vortex4"));
 
 		else if (endstation_->usingIonChambers())
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-horizontal45-ionChambers.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-horizontal45-ionChambers"));
 
 		else if (endstation_->usingFourElementVortex())
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-horizontal45-vortex4.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-horizontal45-vortex4"));
 
 		else
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-horizontal45-unselected.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-horizontal45-unselected"));
 
 		break;
 
 	case VESPERSEndstationConfiguration::Double45:
 
 		if (endstation_->usingIonChambers() && endstation_->usingFourElementVortex() && endstation_->usingRoperCCD())
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-double45-ionChambers-vortex4-roperCCD.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-double45-ionChambers-vortex4-roperCCD"));
 
 		else if (endstation_->usingFourElementVortex() && endstation_->usingRoperCCD())
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-double45-vortex4-roperCCD.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-double45-vortex4-roperCCD"));
 
 		else if (endstation_->usingIonChambers() && endstation_->usingRoperCCD())
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-double45-ionChambers-roperCCD.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-double45-ionChambers-roperCCD"));
 
 		else if (endstation_->usingIonChambers() && endstation_->usingFourElementVortex())
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-double45-ionChambers-vortex4.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-double45-ionChambers-vortex4"));
 
 		else if (endstation_->usingIonChambers())
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-double45-ionChambers.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-double45-ionChambers"));
 
 		else if (endstation_->usingFourElementVortex())
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-double45-vortex4.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-double45-vortex4"));
 
 		else if (endstation_->usingRoperCCD())
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-double45-roperCCD.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-double45-roperCCD"));
 
 		else
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-double45-unselected.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-double45-unselected"));
 
 		break;
 
 	case VESPERSEndstationConfiguration::BigBeam:
 
 		if (endstation_->usingIonChambers() && endstation_->usingFourElementVortex())
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-big-beam-ionChambers-vortex4.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-big-beam-ionChambers-vortex4"));
 
 		else if (endstation_->usingIonChambers())
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-big-beam-ionChambers.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-big-beam-ionChambers"));
 
 		else if (endstation_->usingFourElementVortex())
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-big-beam-vortex4.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-big-beam-vortex4"));
 
 		else
-			cartoon_->setPixmap(QIcon(":/VESPERS/endstation-big-beam-unselected.png").pixmap(600, 400));
+			cartoon_->setPixmap(endstationPixmap("endstation-big-beam-unselected"));
 
 		break;
 	}
+}
+
+QPixmap VESPERSEndstationConfigurationView::endstationPixmap(const QString &name) const
+{
+	QPixmap pixmap;
+
+	if (!QPixmapCache::find("VESPERSEndstation" % name, &pixmap)){
+
+		pixmap.load(":/VESPERS/" % name % ".png");
+		pixmap = pixmap.scaled(600, 400, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+		QPixmapCache::insert("VESPERSEndstationIcon" % name, pixmap);
+	}
+
+	return pixmap;
 }

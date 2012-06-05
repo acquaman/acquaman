@@ -38,6 +38,8 @@ protected:
 	void updateAppearance();
 	/// Helper method that updates the pixmap based on detector choices.
 	void updatePixmap();
+	/// Method that returns the appropriate pixmap based on the name provided.  Uses QPixmapCache for performance.
+	QPixmap endstationPixmap(const QString &name) const;
 
 	/// Pointer to the configuration we are viewing.
 	VESPERSEndstationConfiguration *endstation_;
