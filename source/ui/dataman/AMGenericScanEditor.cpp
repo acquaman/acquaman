@@ -725,3 +725,19 @@ void AMGenericScanEditor::onOneSecondTimer()
 	}
 
 }
+
+#include <QFileDialog>
+void AMGenericScanEditor::exportGraphicsToFile()
+{
+	QString fileName = QFileDialog::getSaveFileName(this, "Save Graphics As...", QString(), "PDF Files (*.pdf)", 0, 0);
+
+	if(!fileName.isEmpty()) {
+		if(!fileName.endsWith(".pdf", Qt::CaseInsensitive))
+			fileName.append(".pdf");
+
+		if(!using2DScanView()) {
+			scanView_->exportGraphicsFile(fileName);
+			AMErrorMon::information(this, 0, QString("Exported the current plot to '%'").arg(fileName));
+		}
+	}
+}
