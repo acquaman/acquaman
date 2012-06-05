@@ -128,8 +128,8 @@ bool AMDatamanAppController::startup() {
 	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_FINISHED, splashScreen_, "onErrorMonStartupFinished");
 	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_SUBTEXT, splashScreen_, "onErrorMonDebug");
 
+	if(!startupBeforeAnything()) { qWarning() << "Problem with Acquaman startup: before everything."; return false; }
 	if(!startupLoadSettings()) { qWarning() << "Problem with Acquaman startup: loading settings."; return false; }
-
 	if(!startupLoadPlugins()) { qWarning() << "Problem with Acquaman startup: loading plugins."; return false; }
 
 	if((isFirstTimeRun_ = startupIsFirstTime())) {
@@ -140,7 +140,6 @@ bool AMDatamanAppController::startup() {
 	}
 
 	if(!startupRegisterDatabases()) { qWarning() << "Problem with Acquaman startup: registering databases."; return false; }
-
 	// Now that we have a database: populate initial settings, or just load user settings
 	if(isFirstTimeRun_) {
 		if(!startupPopulateNewDatabase()) { qWarning() << "Problem with Acquaman startup: populating new user database."; return false; }
@@ -151,15 +150,14 @@ bool AMDatamanAppController::startup() {
 
 	if(!startupRegisterExporters()) { qWarning() << "Problem with Acquaman startup: registering exporters"; return false; }
 
+	if(!startupBeforeUserInterface()) { qWarning() << "Problem with Acquaman startup: prior to setting up the user interface."; return false; }
 	if(!startupCreateUserInterface()) { qWarning() << "Problem with Acquaman startup: setting up the user interface."; return false; }
-	splashScreen_->activateWindow();
-	splashScreen_->raise();
+	if(!startupAfterUserInterface()) { qWarning() << "Problem with Acquaman startup: after setting up the user interface."; return false; }
 
 	if(!startupInstallActions()) { qWarning() << "Problem with Acquaman startup: installing menu actions."; return false; }
+	if(!startupAfterEverything()) { qWarning() << "Problem with Acquaman startup: after all startup."; return false; }
 
 	emit datamanStartupFinished();
-	splashScreen_->activateWindow();
-	splashScreen_->raise();
 
 	isStarting_ = false;
 	return true;
@@ -1203,4 +1201,18 @@ void AMDatamanAppController::onActionImportAcquamanDatabase()
 	AMScanDatabaseImportController* importController = new AMScanDatabaseImportController();
 	AMScanDatabaseImportWizard* wizard = new AMScanDatabaseImportWizard(importController);
 	wizard->show();
+}
+
+bool AMDatamanAppController::startupAfterUserInterface()
+{
+	splashScreen_->activateWindow();
+	splashScreen_->raise();
+	return true;
+}
+
+bool AMDatamanAppController::startupAfterEverything()
+{
+	splashScreen_->activateWindow();
+	splashScreen_->raise();
+	return true;
 }
