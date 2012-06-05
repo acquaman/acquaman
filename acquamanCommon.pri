@@ -132,7 +132,8 @@ linux-g++-64 {
 		XML_INCLUDE_DIR = /usr/include/libxml2
 
 		# CDFlib dependencies
-		CDF_LIB = -L/home/beamline/tools/cdf/lib -lcdf
+		CDF_LIB_DIR = /home/beamline/tools/cdf/lib
+		CDF_LIB = -L$$CDF_LIB_DIR -lcdf
 		CDF_INCLUDE_DIR = /home/beamline/tools/cdf/include
 }
 
@@ -216,6 +217,8 @@ linux-g++-64 {
 				#QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
 				QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
 				QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
+				QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$CDF_LIB_DIR"
+				QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$CDF_LIB_DIR"
 }
 
 

@@ -30,6 +30,12 @@ AMCDFDataStore::AMCDFDataStore(const QString &newFilePath, bool isTemporary, QOb
 	cdfId_ = 0;
 	readOnly_ = false;
 
+	if(!newFilePath.endsWith(".cdf")) {
+		AMErrorMon::report(0, AMErrorReport::Serious, -100, QString("AMCDFDataStore: Could not create file '%1' for the CDF data store: The file name must end in '.cdf'.  The CDF data store is now invalid.").arg(newFilePath));
+		cdfFilePath_ = QString();
+		fileIsTemporary_ = false;
+	}
+
 	CDFstatus s = CDFcreateCDF(newFilePath.toAscii().data(), &cdfId_);
 	if(s != CDF_OK) {
 		AMErrorMon::report(0, AMErrorReport::Serious, -101, QString("AMCDFDataStore: Could not create file '%1' for the CDF data store. Maybe the file exists already? The CDF data store is now invalid.").arg(newFilePath));
