@@ -29,7 +29,9 @@ REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 	sumRangeMax_ = 61;
 	correlationCenterPx_ = 512;
 	correlationHalfWidth_ = 40;
-	liveCorrelation_ = false;
+
+	// Live correlation turned on by default. Need to make sure that this is OK for performance; it should be now that we're using block access.
+	liveCorrelation_ = true;
 	// shift values can start out empty.
 
 	inputSource_ = 0;
