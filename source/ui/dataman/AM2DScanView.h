@@ -118,8 +118,8 @@ public slots:
 	/// Sets the current scan.  This is so that the scan view is looking at the same scan as all of the other pieces of the editor.
 	void setCurrentScan(AMScan *scan);
 
-	/// Export the current view to a PDF file with \c outputFileName.
-	bool exportGraphicsFile(const QString& outputFileName);
+	/// Export the current view to a PDF file with \c outputFileName. Overwrites \c outputFileName if it exists.
+	void exportGraphicsFile(const QString& outputFileName);
 
 
 signals:

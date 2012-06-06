@@ -1939,17 +1939,8 @@ void AMScanViewMultiSourcesView::setDataRangeConstraint(int id)
 #include <QFileInfo>
 #include <QMessageBox>
 
-bool AMScanView::exportGraphicsFile(const QString& fileName)
+void AMScanView::exportGraphicsFile(const QString& fileName)
 {
-	QFileInfo info(fileName);
-
-	if (info.exists() && QMessageBox::Cancel == QMessageBox::warning(this,
-												"File already exists...",
-												QString("%1 already exists.  Would you like to overwrite it?").arg(info.fileName()),
-												QMessageBox::Cancel,
-												QMessageBox::Save))
-		return false;
-
 	QPrinter printer(QPrinter::HighResolution);
 	printer.setOutputFileName(fileName);
 	printer.setPageSize(QPrinter::Letter);
@@ -1960,6 +1951,4 @@ bool AMScanView::exportGraphicsFile(const QString& fileName)
 	gview_->render(&painter);
 
 	painter.end();
-
-	return true;
 }
