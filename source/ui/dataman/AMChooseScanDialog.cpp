@@ -159,3 +159,14 @@ QString AMChooseScanDialog::getScanDetails(QUrl url)
 	return results.at(0).toString() % " #" % results.at(1).toString() % ", taken " % AMDateTimeUtils::prettyDateTime(results.at(2).toDateTime());
 }
 
+void AMChooseScanDialog::setPrompt(const QString &prompt)
+{
+	ui_->promptLabel->setText(prompt);
+}
+
+void AMChooseScanDialog::setTitle(const QString &title)
+{
+	ui_->titleLabel->setText(title);
+}
+
+
