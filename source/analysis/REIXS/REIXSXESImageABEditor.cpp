@@ -441,6 +441,8 @@ void REIXSXESImageABEditor::onApplyToOtherScansChosen()
 			if(xesAB) {
 				xesABFound = true;
 				xesAB->setShiftValues(analysisBlock_->shiftValues());
+				xesAB->setSumRangeMax(analysisBlock_->sumRangeMax());
+				xesAB->setSumRangeMin(analysisBlock_->sumRangeMin());
 			}
 		}
 
