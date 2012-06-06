@@ -25,8 +25,8 @@ REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 	AMStandardAnalysisBlock(outputName, parent)
 {
 
-	sumRangeMin_ = 2;
-	sumRangeMax_ = 61;
+	sumRangeMin_ = 5;
+	sumRangeMax_ = 58;
 	correlationCenterPx_ = 512;
 	correlationHalfWidth_ = 40;
 	liveCorrelation_ = false;
