@@ -133,6 +133,7 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 
 	QTimer* oneSecondTimer = new QTimer(this);
 	connect(oneSecondTimer, SIGNAL(timeout()), this, SLOT(onOneSecondTimer()));
+	oneSecondTimer->start(1000);
 }
 
 AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
@@ -234,6 +235,7 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 
 	QTimer* oneSecondTimer = new QTimer(this);
 	connect(oneSecondTimer, SIGNAL(timeout()), this, SLOT(onOneSecondTimer()));
+	oneSecondTimer->start(1000);
 }
 
 AMGenericScanEditor::~AMGenericScanEditor() {
