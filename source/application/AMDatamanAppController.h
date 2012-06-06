@@ -39,6 +39,7 @@ class AMDatamanStartupSplashScreen;
 
 class QMenuBar;
 class QMenu;
+class QAction;
 class QStandardItem;
 
 class AMDatabase;
@@ -275,6 +276,8 @@ protected:
 	/// Menus
 	QMenuBar* menuBar_;
 	QMenu *fileMenu_, *helpMenu_;
+	/// The action that triggers saving the current AMScanView image.
+	QAction* exportGraphicsAction_;
 
 	/// Top-level panes in the main window
 	AMBottomBar* bottomBar_;
