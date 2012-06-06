@@ -7,6 +7,9 @@
 class AMChangeRunActionInfo : public AMActionInfo
 {
     Q_OBJECT
+	Q_PROPERTY(QString newRunName READ newRunName WRITE setNewRunName)
+	Q_PROPERTY(int runIdOrNewRun READ runId WRITE setRunId)
+
 public:
 	/// Default constructor: Changes to a new run called "New Run".
 	Q_INVOKABLE AMChangeRunActionInfo(QObject *parent = 0);
