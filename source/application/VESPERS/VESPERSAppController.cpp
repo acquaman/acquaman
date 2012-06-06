@@ -227,16 +227,23 @@ void VESPERSAppController::setupUserInterface()
 	////////////////////////////////////
 
 	assistant_ = new VESPERSWorkflowAssistant(workflowManagerView_, this);
-	VESPERSWorkflowAssistantView *assistantView = new VESPERSWorkflowAssistantView(assistant_);
-	mw_->insertVerticalWidget(2, assistantView);
+	assistantView_ = new VESPERSWorkflowAssistantView(assistant_);
+	mw_->insertVerticalWidget(2, assistantView_);
 
 	// Setup the general endstation control view.
 	VESPERSEndstationView *endstationView = new VESPERSEndstationView(VESPERSBeamline::vespers()->endstation());
+	// Setup the general status page.
 	VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
+	// Setup page that auto-enables detectors.
+	VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
+	// Setup page for the endstation.  Will probably replace experiment configuration eventually.
+	VESPERSEndstationConfigurationView *endstationConfigurationView = new VESPERSEndstationConfigurationView(VESPERSBeamline::vespers()->endstationConfiguration());
 
-	mw_->insertHeading("Beamline Control", 0);
-	mw_->addPane(endstationView, "Beamline Control", "Endstation", ":/system-software-update.png");
-	mw_->addPane(statusPage, "Beamline Control", "Device Status", ":/system-software-update.png");
+	mw_->insertHeading("General", 0);
+	mw_->addPane(endstationView, "General", "Endstation", ":/system-software-update.png");
+	mw_->addPane(statusPage, "General", "Device Status", ":/system-software-update.png");
+	mw_->addPane(experimentConfigurationView, "General", "Experiment Setup", ":/utilities-system-monitor.png");
+	mw_->addPane(endstationConfigurationView, "General", "Endstation Setup", ":/utilities-system-monitor.png");
 
 	// Setup the XRF views for the single element vortex and the four element vortex detectors.  Since they have scans that are added to the workflow, it gets the workflow manager view passed into it as well.
 	// This means that the FreeRunView kind of doubles as a regular detector view and a configuration view holder.
@@ -245,16 +252,10 @@ void VESPERSAppController::setupUserInterface()
 
 	roperCCDView_ = new VESPERSRoperCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
 
-	mw_->insertHeading("Free run", 1);
-	mw_->addPane(xrf1EFreeRunView_, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");
-	mw_->addPane(xrf4EFreeRunView_, "Free run", "XRF 4-el", ":/utilities-system-monitor.png");
-	mw_->addPane(roperCCDView_, "Free run", "XRD - Roper", ":/utilities-system-monitor.png");
-
-	// Setup page that auto-enables detectors.
-	VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
-
-	// Setup page for the endstation.  Will probably replace experiment configuration eventually.
-	VESPERSEndstationConfigurationView *endstationConfigurationView = new VESPERSEndstationConfigurationView(VESPERSBeamline::vespers()->endstationConfiguration());
+	mw_->insertHeading("Detectors", 1);
+	mw_->addPane(xrf1EFreeRunView_, "Detectors", "Fluorescence - 1-el", ":/system-search.png");
+	mw_->addPane(xrf4EFreeRunView_, "Detectors", "Fluorescence - 4-el", ":/system-search.png");
+	mw_->addPane(roperCCDView_, "Detectors", "CCD - Roper", ":/system-search.png");
 
 	// Setup XAS for the beamline.  Builds the config, view, and view holder.
 	exafsScanConfig_ = new VESPERSEXAFSScanConfiguration();
@@ -274,8 +275,6 @@ void VESPERSAppController::setupUserInterface()
 	connect(mapScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
 	mw_->insertHeading("Scans", 2);
-	mw_->addPane(experimentConfigurationView, "Scans", "Experiment Setup", ":/utilities-system-monitor.png");
-	mw_->addPane(endstationConfigurationView, "Scans", "Endstation Setup", ":/utilities-system-monitor.png");
 	mw_->addPane(exafsConfigViewHolder_, "Scans", "XAS", ":/utilities-system-monitor.png");
 	mw_->addPane(mapScanConfigurationViewHolder_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
 //	mw_->addPane(exafsConfigViewHolder3_, "Scans", "XAS", ":/utilities-system-monitor.png");
@@ -398,6 +397,7 @@ void VESPERSAppController::onCurrentScanControllerFinished()
 			&& (fileFormat == "vespersXAS" || fileFormat == "vespers2011XAS" || fileFormat == "vespers2011EXAFS")){
 
 		assistant_->onScanCancelled();
+		assistantView_->hide();
 		disconnect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));
 	}
 

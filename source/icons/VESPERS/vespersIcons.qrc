@@ -16,5 +16,19 @@
         <file>endstation-horizontal45-ionChambers.png</file>
         <file>endstation-horizontal45-ionChambers-vortex4.png</file>
         <file>endstation-horizontal45-vortex4.png</file>
+        <file>endstation-double45-ionChambers.png</file>
+        <file>endstation-double45-ionChambers-roperCCD.png</file>
+        <file>endstation-double45-ionChambers-vortex4.png</file>
+        <file>endstation-double45-ionChambers-vortex4-roperCCD.png</file>
+        <file>endstation-double45-roperCCD.png</file>
+        <file>endstation-double45-vortex4.png</file>
+        <file>endstation-double45-vortex4-roperCCD.png</file>
+        <file>endstation-vertical45-ionChambers.png</file>
+        <file>endstation-vertical45-ionChambers-roperCCD.png</file>
+        <file>endstation-vertical45-ionChambers-vortex1.png</file>
+        <file>endstation-vertical45-ionChambers-vortex1-roperCCD.png</file>
+        <file>endstation-vertical45-roperCCD.png</file>
+        <file>endstation-vertical45-vortex1.png</file>
+        <file>endstation-vertical45-vortex1-roperCCD.png</file>
     </qresource>
 </RCC>

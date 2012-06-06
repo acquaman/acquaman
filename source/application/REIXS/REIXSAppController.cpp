@@ -65,6 +65,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions2/editors/REIXS/REIXSXESScanActionEditor.h"
 #include "actions2/editors/REIXS/REIXSControlMoveActionEditor.h"
 #include "actions2/editors/REIXS/REIXSBeamOnOffActionEditor.h"
+#include "actions2/actions/AMChangeRunAction.h"
+#include "actions2/editors/AMChangeRunActionEditor.h"
 
 #include "analysis/REIXS/REIXSXESImageAB.h"
 
@@ -107,6 +109,7 @@ bool REIXSAppController::startupRegisterDatabases() {
 	AMDbObjectSupport::s()->registerClass<REIXSXESScanActionInfo>();
 	AMDbObjectSupport::s()->registerClass<REIXSSampleMoveActionInfo>();
 	AMDbObjectSupport::s()->registerClass<REIXSBeamOnOffActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMChangeRunActionInfo>();
 
 	// Register Actions:
 	////////////////////////////////
@@ -119,12 +122,14 @@ bool REIXSAppController::startupRegisterDatabases() {
 	AMActionRegistry::s()->registerInfoAndAction<REIXSSampleMoveActionInfo, REIXSSampleMoveAction>("Move Sample: Measure", "This action moves the REIXS sample manipulator to the default measurement position.", ":/32x32/gnome-display-properties.png");
 	AMActionRegistry::s()->registerInfoAndAction<REIXSMoveToSampleTransferPositionActionInfo, REIXSMoveToSampleTransferPositionAction>("Move Sample: Transfer", "This action moves the REIXS sample manipulator to the sample transfer position.", ":/32x32/media-eject.png");
 	AMActionRegistry::s()->registerInfoAndAction<REIXSBeamOnOffActionInfo, REIXSBeamOnOffAction>("Beam On/Off", "This action takes care of turning the beam on or off.");
+	AMActionRegistry::s()->registerInfoAndAction<AMChangeRunActionInfo, AMChangeRunAction>("Change Run", "This action changes the current run, or creates a new one.");
 
 	AMActionRegistry::s()->registerInfoAndEditor<AMWaitActionInfo, AMWaitActionEditor>();
 	AMActionRegistry::s()->registerInfoAndEditor<AMLoopActionInfo, AMLoopActionEditor>();
 	AMActionRegistry::s()->registerInfoAndEditor<REIXSXESScanActionInfo, REIXSXESScanActionEditor>();
 	AMActionRegistry::s()->registerInfoAndEditor<REIXSControlMoveActionInfo, REIXSControlMoveActionEditor>();
 	AMActionRegistry::s()->registerInfoAndEditor<REIXSBeamOnOffActionInfo, REIXSBeamOnOffActionEditor>();
+	AMActionRegistry::s()->registerInfoAndEditor<AMChangeRunActionInfo, AMChangeRunActionEditor>();
 
 	return true;
 }
