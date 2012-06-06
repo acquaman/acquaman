@@ -704,8 +704,8 @@ void AMGenericScanEditor::exportGraphicsToFile()
 			fileName.append(".pdf");
 
 		if(!using2DScanView()) {
-			scanView_->exportGraphicsFile(fileName);
-			AMErrorMon::information(this, 0, QString("Exported the current plot to '%1'").arg(fileName));
+			if (scanView_->exportGraphicsFile(fileName))
+				AMErrorMon::information(this, 0, QString("Exported the current plot to '%1'").arg(fileName));
 		}
 	}
 }
