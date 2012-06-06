@@ -38,6 +38,7 @@ class AMBeamlineListAction;
 class AMGenericScanEditor;
 
 class VESPERSWorkflowAssistant;
+class VESPERSWorkflowAssistantView;
 
 class VESPERSAppController : public AMAppController {
 	Q_OBJECT
@@ -102,6 +103,8 @@ protected:
 
 	/// Temporary workflow assistant.
 	VESPERSWorkflowAssistant *assistant_;
+	/// Temporary workflow assistant view.
+	VESPERSWorkflowAssistantView *assistantView_;
 
 	/// XRF free run view for the single element detector.
 	VESPERSXRFFreeRunView *xrf1EFreeRunView_;
