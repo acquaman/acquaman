@@ -170,7 +170,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 	setDescription("XES Detector Energy");
 	spectrometerRotationDrive_ = new AMPVwStatusControl("spectrometerRotationDrive",
 														"SMTR1610-4-I21-01:mm:sp",
-														"SMTR1610-4-I21-01:mm",
+														"SMTR1610-4-I21-01:mm:fbk",
 														"SMTR1610-4-I21-01:status",
 														"SMTR1610-4-I21-01:stop", this, 1);
 
@@ -178,7 +178,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 
 	detectorTranslation_ = new AMPVwStatusControl("detectorTranslation",
 												  "SMTR1610-4-I21-04:mm:sp",
-												  "SMTR1610-4-I21-04:mm",
+												  "SMTR1610-4-I21-04:mm:fbk",
 												  "SMTR1610-4-I21-04:status",
 												  "SMTR1610-4-I21-04:stop", this, 1);
 
@@ -192,7 +192,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 
 	endstationTranslation_ = new AMPVwStatusControl("endstationTranslation",
 														"SMTR1610-4-I21-05:mm:sp",
-														"SMTR1610-4-I21-05:mm",
+														"SMTR1610-4-I21-05:mm:fbk",
 														"SMTR1610-4-I21-05:status",
 														"SMTR1610-4-I21-05:stop", this, 1);  //DAVID ADDED
 

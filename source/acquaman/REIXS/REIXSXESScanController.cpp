@@ -68,8 +68,9 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 
 	REIXSXESImageAB* xesSpectrum = new REIXSXESImageAB("xesSpectrum");
 	xesSpectrum->setInputDataSources(QList<AMDataSource*>() << imageDataSource);
-	xesSpectrum->setSumRangeMax(60);
-	xesSpectrum->setSumRangeMin(3);
+	xesSpectrum->setSumRangeMax(58);
+	xesSpectrum->setSumRangeMin(5);
+	xesSpectrum->enableLiveCorrelation(true);
 	scan_->addAnalyzedDataSource(xesSpectrum);
 }
 
