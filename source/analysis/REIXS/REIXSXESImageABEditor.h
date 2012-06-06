@@ -26,6 +26,8 @@ class QSpinBox;
 class QCheckBox;
 class QPushButton;
 class QSlider;
+class QAction;
+class QToolButton;
 
 
 class MPlotWidget;
@@ -99,7 +101,7 @@ public slots:
 
 	// The "Apply to other scans" button applies this shift curve to many scans at once.
 	/// Called to apply same shift curve to many XES scans. Shows the dialog to choose which scans.
-	void onApplyToOtherScansButtonClicked();
+	void onApplyToOtherScansMenuClicked();
 	/// When a user chooses which scans to apply the current shift to.
 	void onApplyToOtherScansChosen();
 
@@ -122,7 +124,7 @@ protected:
 	QPushButton* correlateNowButton_;
 	QCheckBox* liveCorrelationCheckBox_;
 	QSlider* shiftDisplayOffsetSlider_;
-	QPushButton* applyToOtherScansButton_;
+	QToolButton* applyToOtherScansButton_;
 
 	// plot widget to show what region is summed
 	MPlotWidget* plotWidget_;
@@ -136,6 +138,12 @@ protected:
 
 	/// Dialog to ask the user for a set of scans (to apply the same shift curve to many at once)
 	AMChooseScanDialog* chooseScanDialog_;
+	/// A checkable menu action that indicates "batch apply" should apply correlation settings to all scans.
+	QAction* batchApplyCorrelationSettings_;
+	/// A checkable menu action that indicates "batch apply" should apply the shift curve to all scans.
+	QAction* batchApplyShiftCurve_;
+	/// A checkable menu action that indicates "batch apply" should apply the sum range (min, max) to all scans.
+	QAction* batchApplySumRange_;
 
 
 	/// called to position and show/hide the range rectangle, as appropriate.
