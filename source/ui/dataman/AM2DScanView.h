@@ -118,6 +118,10 @@ public slots:
 	/// Sets the current scan.  This is so that the scan view is looking at the same scan as all of the other pieces of the editor.
 	void setCurrentScan(AMScan *scan);
 
+	/// Export the current view to a PDF file with \c outputFileName.
+	bool exportGraphicsFile(const QString& outputFileName);
+
+
 signals:
 	/// Notifier that the data position tool has changed locations.  Passes the location of the mouse.
 	void dataPositionChanged(const QPoint &);

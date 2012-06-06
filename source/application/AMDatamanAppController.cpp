@@ -636,9 +636,9 @@ bool AMDatamanAppController::startupInstallActions()
 	amIssueSubmissionAction->setStatusTip("Report an issue to the Acquaman Developers");
 	connect(amIssueSubmissionAction, SIGNAL(triggered()), this, SLOT(onActionIssueSubmission()));
 
-	QAction* exportGraphicsAction = new QAction("Export Plot...", mw_);
-	exportGraphicsAction->setStatusTip("Export the current plot to a PDF file.");
-	connect(exportGraphicsAction, SIGNAL(triggered()), this, SLOT(onActionExportGraphics()));
+	exportGraphicsAction_ = new QAction("Export Plot...", mw_);
+	exportGraphicsAction_->setStatusTip("Export the current plot to a PDF file.");
+	connect(exportGraphicsAction_, SIGNAL(triggered()), this, SLOT(onActionExportGraphics()));
 
 	//install menu bar, and add actions
 	//////////////////////////////////////
@@ -653,7 +653,7 @@ bool AMDatamanAppController::startupInstallActions()
 	fileMenu_->addAction(importLegacyFilesAction);
 	fileMenu_->addAction(importAcquamanDatabaseAction);
 	fileMenu_->addSeparator();
-	fileMenu_->addAction(exportGraphicsAction);
+	fileMenu_->addAction(exportGraphicsAction_);
 	fileMenu_->addSeparator();
 	fileMenu_->addAction(amSettingsAction);
 
@@ -708,8 +708,10 @@ void AMDatamanAppController::onActionIssueSubmission()
 	issueSubmissionView_->activateWindow();
 }
 
-void AMDatamanAppController::onCurrentPaneChanged(QWidget *pane) {
-	Q_UNUSED(pane)
+void AMDatamanAppController::onCurrentPaneChanged(QWidget *pane)
+{
+	// This is okay because both AMScanView and AM2DScanView have export capabilities.
+	exportGraphicsAction_->setEnabled(qobject_cast<AMGenericScanEditor *>(pane) != 0);
 }
 
 void AMDatamanAppController::onMainWindowAliasItemActivated(QWidget *target, const QString &key, const QVariant &value) {
@@ -1205,7 +1207,7 @@ void AMDatamanAppController::onActionExportGraphics()
 		scanEditor->exportGraphicsToFile();
 	}
 	else {
-		/// \todo Disable this menu action when an AMGenericScanEditor isn't the current pane.
+		// This can't happen with the current code.  Only accessible from the QAction from the file drop down menu.  Takes into account whether the current pane is a scan editor already.
 		AMErrorMon::alert(this, -1111, "To export graphics, you must have a plot open in a scan editor.");
 	}
 }
