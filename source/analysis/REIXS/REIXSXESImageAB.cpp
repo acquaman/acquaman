@@ -29,7 +29,7 @@ REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 	sumRangeMax_ = 58;
 	correlationCenterPx_ = 512;
 	correlationHalfWidth_ = 40;
-	liveCorrelation_ = true;
+	liveCorrelation_ = false;
 	// shift values can start out empty.
 
 	inputSource_ = 0;
