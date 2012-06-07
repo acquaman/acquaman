@@ -228,6 +228,7 @@ void VESPERSAppController::setupUserInterface()
 
 	assistant_ = new VESPERSWorkflowAssistant(workflowManagerView_, this);
 	assistantView_ = new VESPERSWorkflowAssistantView(assistant_);
+	assistantView_->hide();
 	mw_->insertVerticalWidget(2, assistantView_);
 
 	// Setup the general endstation control view.
@@ -381,8 +382,11 @@ void VESPERSAppController::onCurrentScanControllerCreated()
 //	connect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
 	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
 
-	if (fileFormat == "vespersXAS" || fileFormat == "vespers2011XAS" || fileFormat == "vespers2011EXAFS")
+	if (fileFormat == "vespersXAS" || fileFormat == "vespers2011XAS" || fileFormat == "vespers2011EXAFS"){
+
 		connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));
+		assistantView_->show();
+	}
 }
 
 void VESPERSAppController::onCurrentScanControllerFinished()
@@ -393,11 +397,12 @@ void VESPERSAppController::onCurrentScanControllerFinished()
 	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
 		return;
 
+	assistantView_->hide();
+
 	if (AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->state() == AMScanController::Cancelled
 			&& (fileFormat == "vespersXAS" || fileFormat == "vespers2011XAS" || fileFormat == "vespers2011EXAFS")){
 
 		assistant_->onScanCancelled();
-		assistantView_->hide();
 		disconnect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));
 	}
 

@@ -97,9 +97,9 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	QString notes;
 
 	if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement)
-		notes.append(QString("\nFluorescence detector distance to sample:\t%1 mm\n")).arg(VESPERSBeamline::vespers()->endstation()->distanceToSingleElementVortex(), 0, 'f', 1);
+		notes.append(QString("\nFluorescence detector distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToSingleElementVortex(), 0, 'f', 1));
 	else
-		notes.append(QString("\nFluorescence detector distance to sample:\t%1 mm\n")).arg(VESPERSBeamline::vespers()->endstation()->distanceToFourElementVortex(), 0, 'f', 1);
+		notes.append(QString("\nFluorescence detector distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToFourElementVortex(), 0, 'f', 1));
 
 	if (config_->usingCCD())
 		notes.append(QString("CCD detector distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToRoperCCD(), 0, 'f', 1));

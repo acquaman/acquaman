@@ -34,13 +34,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
   */
 class CLSSR570 : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	/// Constructor.  Builds a SR570 model based on \param valueName and \param untisName.
 	explicit CLSSR570(const QString &valueName, const QString &unitsName, QObject *parent = 0);
 
-	/// Returns the value of the sensitivity.
-	int value() const { return value_->getInt(); }
+	/// Returns the value of the sensitivity (ie: 1, 2, 5, 10, 20, 50, 100, 200, 500).
+	int value() const { return indexToValue(value_->getInt()); }
+	/// Returns the index of the sensitivity (value between 0 and 8).
+	int valueIndex() const { return value_->getInt(); }
 	/// Returns the units of the sensitivity.
 	QString units() const { return units_->getString(); }
 
@@ -57,6 +59,8 @@ signals:
 	void sensitivityChanged();
 	/// Notifier that the sensitivity value has changed.  Passes the new value.
 	void valueChanged(int);
+	/// Notifier that the sensitivity value index has changed.  Passes the new index.
+	void valueIndexChanged(int);
 	/// Notifier that the sensitivity units have changed.  Passes the new value.
 	void unitsChanged(QString);
 	/// Notifier that the ion chamber is at the minimum sensitivity.  Passes the truth value.
@@ -68,7 +72,9 @@ signals:
 
 public slots:
 	/// Sets the sensitivity value.  Must be 1, 2, 5, 10, 20, 50, 100, 200, or 500.  Does nothing otherwise.
-	void setValue(int value) { if (valueOkay(value)) value_->setValue(value); }
+	void setValue(int value) { setValue(valueToIndex(value)); }
+	/// Sets the value index.  Must be between 0 and 8.
+	void setValueIndex(int index) { if (valueOkay(index)) value_->setValue(index); }
 	/// Sets the sensitivity units.  Must be pA/V, nA/V, uA/V, or mA/V.  Does nothing otherwise.
 	void setUnits(QString units) { if (unitsOkay(units)) units_->setValue(units); }
 
@@ -122,6 +128,10 @@ private:
 	int nextValue(bool increase, int current);
 	/// Helper function that returns the next sensitivity units.  Uses the bool \param increase to determine whether it should look up or down.  Returns a null string if not possible to move or the given unit is invalid.
 	QString nextUnits(bool increase, QString current);
+	/// Helper method that turns an index into a value.
+	int valueToIndex(int value) const;
+	/// Helper method that turns a value into an index.
+	int indexToValue(int index) const;
 };
 
 #endif // CLSSR570_H

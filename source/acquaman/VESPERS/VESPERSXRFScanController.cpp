@@ -50,9 +50,9 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 	QString notes;
 
 	if (elements == 1)
-		notes.append(QString("\nDetector distance to sample:\t%1 mm\n")).arg(VESPERSBeamline::vespers()->endstation()->distanceToSingleElementVortex(), 0, 'f', 1);
+		notes.append(QString("\nDetector distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToSingleElementVortex(), 0, 'f', 1));
 	else
-		notes.append(QString("\nDetector distance to sample:\t%1 mm\n")).arg(VESPERSBeamline::vespers()->endstation()->distanceToFourElementVortex(), 0, 'f', 1);
+		notes.append(QString("\nDetector distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToFourElementVortex(), 0, 'f', 1));
 
 	notes.append(QString("Filter thickness (aluminum):\t%1 %2m\n").arg(VESPERSBeamline::vespers()->endstation()->filterThickness()).arg(QString::fromUtf8("μ")));
 	notes.append(QString("Horizontal slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapX()));
@@ -81,6 +81,7 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 		break;
 	}
 
+	notes.append("\n");
 	detector_->setNotes(notes);
 	scan_->setNotes(notes);
 
