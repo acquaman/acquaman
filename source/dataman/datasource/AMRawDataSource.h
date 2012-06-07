@@ -201,6 +201,9 @@ public:
 	virtual void setHiddenFromUsers(bool isHidden = true) { AMDataSource::setHiddenFromUsers(isHidden); setModified(true); }
 
 
+	/// Creates an editor widget that reports the dimensions and size of the data source... And for 0D data sources, includes the value.
+	virtual QWidget* createEditorWidget();
+
 protected slots:
 
 	// Forwarding signals from the data store:

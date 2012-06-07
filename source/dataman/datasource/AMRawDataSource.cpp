@@ -148,4 +148,11 @@ void AMRawDataSource::onScanAxisSizeChanged(int axisId) {
 	}
 }
 
+#include "ui/dataman/AMSimpleDataSourceEditor.h"
+
+QWidget* AMRawDataSource::createEditorWidget()
+{
+	return new AMSimpleDataSourceEditor(this);
+}
+
 
