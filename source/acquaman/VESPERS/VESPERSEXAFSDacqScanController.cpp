@@ -55,6 +55,29 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	scan_->setIndexType("fileSystem");
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
+	QString notes;
+
+	if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::SingleElement)
+		notes.append(QString("\nFluorescence detector distance to sample:\t%1 mm\n")).arg(VESPERSBeamline::vespers()->endstation()->distanceToSingleElementVortex(), 0, 'f', 1);
+	else
+		notes.append(QString("\nFluorescence detector distance to sample:\t%1 mm\n")).arg(VESPERSBeamline::vespers()->endstation()->distanceToFourElementVortex(), 0, 'f', 1);
+
+	notes.append(QString("Filter thickness (aluminum):\t%1 %2m\n").arg(VESPERSBeamline::vespers()->endstation()->filterThickness()).arg(QString::fromUtf8("μ")));
+	notes.append(QString("Horizontal slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapX()));
+	notes.append(QString("Vertical slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapZ()));
+	notes.append(QString("Gas used in ion chambers:\tN2\n"));
+	notes.append(QString("\nIon Chamber Gain Settings\n"));
+	CLSSplitIonChamber *split = VESPERSBeamline::vespers()->iSplit();
+	notes.append(QString("%1:\t%2 %3\n").arg(split->name()).arg(split->sensitivityValueA()).arg(split->sensitivityUnitsA()));
+	CLSIonChamber *chamber = VESPERSBeamline::vespers()->iPreKB();
+	notes.append(QString("%1:\t%2 %3\n").arg(chamber->name()).arg(chamber->sensitivityValue()).arg(chamber->sensitivityUnits()));
+	chamber = VESPERSBeamline::vespers()->iMini();
+	notes.append(QString("%1:\t%2 %3\n").arg(chamber->name()).arg(chamber->sensitivityValue()).arg(chamber->sensitivityUnits()));
+	chamber = VESPERSBeamline::vespers()->iPost();
+	notes.append(QString("%1:\t%2 %3\n").arg(chamber->name()).arg(chamber->sensitivityValue()).arg(chamber->sensitivityUnits()));
+
+	scan_->setNotes(notes);
+
 	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
 	// Add all the raw datasources.

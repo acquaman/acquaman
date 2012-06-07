@@ -830,6 +830,8 @@ void XRFDetailedDetectorView::saveSpectra()
 		out << QString("Output Count Rate %1\t").arg(i+1) << double(detector_->ocrDataSource(i)->value(AMnDIndex())) << "\n";
 	}
 
+	out << detector_->notes();
+
 	out << "Regions of Interest\n";
 	out << "Name\t<Low, High>\tValue\n";
 	QList<AMROI *> rois(detector_->roiList());

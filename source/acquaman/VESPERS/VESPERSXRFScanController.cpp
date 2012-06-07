@@ -47,6 +47,43 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 
 	int elements = detector_->elements();
 
+	QString notes;
+
+	if (elements == 1)
+		notes.append(QString("\nDetector distance to sample:\t%1 mm\n")).arg(VESPERSBeamline::vespers()->endstation()->distanceToSingleElementVortex(), 0, 'f', 1);
+	else
+		notes.append(QString("\nDetector distance to sample:\t%1 mm\n")).arg(VESPERSBeamline::vespers()->endstation()->distanceToFourElementVortex(), 0, 'f', 1);
+
+	notes.append(QString("Filter thickness (aluminum):\t%1 %2m\n").arg(VESPERSBeamline::vespers()->endstation()->filterThickness()).arg(QString::fromUtf8("μ")));
+	notes.append(QString("Horizontal slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapX()));
+	notes.append(QString("Vertical slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapZ()));
+
+	switch(VESPERSBeamline::vespers()->currentBeam()){
+
+	case VESPERSBeamline::None:
+		// This should never happen.
+		break;
+
+	case VESPERSBeamline::Pink:
+		notes.append("Beam used:\tPink\n");
+		break;
+
+	case VESPERSBeamline::TenPercent:
+		notes.append(QString("Beam used:\t10% bandpass\nMonochromator energy:%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
+		break;
+
+	case VESPERSBeamline::OnePointSixPercent:
+		notes.append(QString("Beam used:\t1.6% bandpass\nMonochromator energy:%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
+		break;
+
+	case VESPERSBeamline::Si:
+		notes.append(QString("Beam used:\tSi (%2E/E = 10^-4)\nMonochromator energy:%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2).arg(QString::fromUtf8("Δ")));
+		break;
+	}
+
+	detector_->setNotes(notes);
+	scan_->setNotes(notes);
+
 	for (int i = 0; i < elements; i++){
 
 		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("raw%1").arg(i+1), QString("Element %1").arg(i+1), "eV", detector_->axes()));
