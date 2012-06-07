@@ -342,17 +342,8 @@ void AM2DScanView::setPlotRange(double low, double high)
 #include <QFileInfo>
 #include <QMessageBox>
 
-bool AM2DScanView::exportGraphicsFile(const QString& fileName)
+void AM2DScanView::exportGraphicsFile(const QString& fileName)
 {
-	QFileInfo info(fileName);
-
-	if (info.exists() && QMessageBox::Cancel == QMessageBox::warning(this,
-												"File already exists...",
-												QString("%1 already exists.  Would you like to overwrite it?").arg(info.fileName()),
-												QMessageBox::Cancel,
-												QMessageBox::Save))
-		return false;
-
 	QPrinter printer(QPrinter::HighResolution);
 	printer.setOutputFileName(fileName);
 	printer.setPageSize(QPrinter::Letter);
@@ -363,8 +354,6 @@ bool AM2DScanView::exportGraphicsFile(const QString& fileName)
 	gExclusiveView_->render(&painter);
 
 	painter.end();
-
-	return true;
 }
 
 // AM2DScanViewInternal

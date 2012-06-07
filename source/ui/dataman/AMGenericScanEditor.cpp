@@ -133,6 +133,7 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 
 	QTimer* oneSecondTimer = new QTimer(this);
 	connect(oneSecondTimer, SIGNAL(timeout()), this, SLOT(onOneSecondTimer()));
+	oneSecondTimer->start(1000);
 }
 
 AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
@@ -234,6 +235,7 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 
 	QTimer* oneSecondTimer = new QTimer(this);
 	connect(oneSecondTimer, SIGNAL(timeout()), this, SLOT(onOneSecondTimer()));
+	oneSecondTimer->start(1000);
 }
 
 AMGenericScanEditor::~AMGenericScanEditor() {
@@ -697,16 +699,28 @@ void AMGenericScanEditor::onOneSecondTimer()
 #include <QFileDialog>
 void AMGenericScanEditor::exportGraphicsToFile()
 {
-	QString fileName = QFileDialog::getSaveFileName(this, "Save Graphics As...", QString(), "PDF Files (*.pdf)", 0, 0);
+	QString fileName = QFileDialog::getSaveFileName(this, "Save Graphics As...", QString(), "PDF Files (*.pdf)", 0, QFileDialog::DontConfirmOverwrite);
 
 	if(!fileName.isEmpty()) {
 		if(!fileName.endsWith(".pdf", Qt::CaseInsensitive))
 			fileName.append(".pdf");
 
-		if(!using2DScanView() && scanView_->exportGraphicsFile(fileName))
-			AMErrorMon::information(this, 0, QString("Exported the current plot to '%1'").arg(fileName));
+		QFileInfo info(fileName);
+		if (info.exists() && QMessageBox::Cancel == QMessageBox::warning(this,
+													"File already exists...",
+													QString("%1 already exists.  Would you like to overwrite it?").arg(info.fileName()),
+													QMessageBox::Cancel,
+													QMessageBox::Save))
+			return;
 
-		else if (using2DScanView() && scanView2D_->exportGraphicsFile(fileName))
+		if(!using2DScanView()) {
+			scanView_->exportGraphicsFile(fileName);
 			AMErrorMon::information(this, 0, QString("Exported the current plot to '%1'").arg(fileName));
+		}
+
+		else {
+			scanView2D_->exportGraphicsFile(fileName);
+			AMErrorMon::information(this, 0, QString("Exported the current plot to '%1'").arg(fileName));
+		}
 	}
 }
