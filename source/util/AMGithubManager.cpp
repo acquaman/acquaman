@@ -91,6 +91,7 @@ void AMGithubManager::authenticate(){
 	request.setRawHeader("Authorization", headerData.toLocal8Bit());
 
 	authenticateReply_ = manager_->get(request);
+	authenticateReply_->ignoreSslErrors();
 	connect(authenticateReply_, SIGNAL(readyRead()), this, SLOT(onAuthenicatedRequestReturned()));
 	connect(authenticateReply_, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(onSomeErrorOccured(QNetworkReply::NetworkError)));
 	connect(authenticateReply_, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(onSomeSSLErrorOccurred(QList<QSslError>)));
@@ -182,6 +183,7 @@ void AMGithubManager::createNewIssue(const QString &title, const QString &body, 
 	//qdebug() << jsonData;
 
 	createNewIssueReply_ = manager_->post(request, jsonData);
+	createNewIssueReply_->ignoreSslErrors();
 	connect(createNewIssueReply_, SIGNAL(readyRead()), this, SLOT(onCreateNewIssueReturned()));
 }
 
