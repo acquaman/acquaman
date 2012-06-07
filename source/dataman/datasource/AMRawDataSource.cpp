@@ -164,4 +164,11 @@ bool AMRawDataSource::isDataStoreCompatible(const AMDataStore *dataStore) const
 	return true;
 }
 
+#include "ui/dataman/AMSimpleDataSourceEditor.h"
+
+QWidget* AMRawDataSource::createEditorWidget()
+{
+	return new AMSimpleDataSourceEditor(this);
+}
+
 

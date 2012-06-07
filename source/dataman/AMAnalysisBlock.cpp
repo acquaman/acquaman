@@ -68,3 +68,11 @@ void AMAnalysisBlock::onInputSourceDeleted(void* deletedSource) {
 	setInputDataSourcesImplementation(QList<AMDataSource*>());
 	emit inputSourcesChanged();
 }
+
+#include "ui/dataman/AMSimpleDataSourceEditor.h"
+
+QWidget* AMAnalysisBlock::createEditorWidget()
+{
+	return new AMSimpleDataSourceEditor(this);
+}
+

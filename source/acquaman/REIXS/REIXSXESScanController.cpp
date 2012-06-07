@@ -66,6 +66,10 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 	AMRawDataSource* imageDataSource = new AMRawDataSource(scan_->rawData(), 0);
 	scan_->addRawDataSource(imageDataSource);
 
+	scan_->rawData()->addMeasurement(AMMeasurementInfo("totalCounts", "Total Counts", "counts"));
+	AMRawDataSource* totalCountsDataSource = new AMRawDataSource(scan_->rawData(), 1);
+	scan_->addRawDataSource(totalCountsDataSource);
+
 	REIXSXESImageAB* xesSpectrum = new REIXSXESImageAB("xesSpectrum");
 	xesSpectrum->setInputDataSources(QList<AMDataSource*>() << imageDataSource);
 	xesSpectrum->setSumRangeMax(58);
@@ -191,6 +195,9 @@ void REIXSXESScanController::onNewImageValues() {
 
 	if(!scan_->rawData()->setValue(AMnDIndex(), 0, imageData.constData()))
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 37, "Error setting the new values from the MCP Detector. The size of the image didn't match what it should be.  This is probably a problem with the network connection to the detector, or a bug in the detector driver."));
+
+	if(!scan_->rawData()->setValue(AMnDIndex(), 1, AMnDIndex(), double(REIXSBeamline::bl()->mcpDetector()->totalCounts())))
+		AMErrorMon::debug(this, 377, "Error setting new values for the MCP Detector total counts. Please report this bug to the REIXS Acquaman developers.");
 
 }
 

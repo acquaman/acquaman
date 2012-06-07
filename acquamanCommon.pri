@@ -599,7 +599,8 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/util/amlikely.h \
 	source/actions2/actions/AMChangeRunAction.h \
 	source/actions2/actions/AMChangeRunActionInfo.h \
-	source/actions2/editors/AMChangeRunActionEditor.h
+	source/actions2/editors/AMChangeRunActionEditor.h \
+	source/ui/dataman/AMSimpleDataSourceEditor.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -992,7 +993,8 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/dataman/datastore/AMCDFDataStore.cpp \
 	source/actions2/actions/AMChangeRunAction.cpp \
 	source/actions2/actions/AMChangeRunActionInfo.cpp \
-	source/actions2/editors/AMChangeRunActionEditor.cpp
+	source/actions2/editors/AMChangeRunActionEditor.cpp \
+	source/ui/dataman/AMSimpleDataSourceEditor.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1017,3 +1019,46 @@ OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+>>>>>>> c3ec559c6df9dc180aa6412ee5a47700044c251e
