@@ -58,6 +58,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
 #include "dataman/export/VESPERS/VESPERSExporter2DAscii.h"
+#include "dataman/export/VESPERS/VESPERSExporterSMAK.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -161,6 +162,7 @@ void VESPERSAppController::registerClasses()
 	AMDetectorViewSupport::registerClass<VESPERSRoperCCDDetectorView, VESPERSRoperCCDDetector>();
 
 	AMExportController::registerExporter<VESPERSExporter2DAscii>();
+	AMExportController::registerExporter<VESPERSExporterSMAK>();
 }
 
 void VESPERSAppController::setupExporterOptions()
@@ -201,7 +203,7 @@ void VESPERSAppController::setupExporterOptions()
 
 	vespersDefault->setName("VESPERS2DDefault");
 	vespersDefault->setFileName("$name_$fsIndex.dat");
-	vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n");
+	vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n");
 	vespersDefault->setHeaderIncluded(true);
 	vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
 	vespersDefault->setColumnHeaderIncluded(true);
