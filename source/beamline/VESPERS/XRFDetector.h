@@ -126,6 +126,10 @@ public:
 	/// Returns the corrected sum spectrum data source.  Convenience function.
 	AMDataSource *correctedSumDataSource() const { return correctedSpectrumDataSources_.last(); }
 
+	// Little extra hacks.
+	/// Returns the notes.
+	QString notes() const { return notes_; }
+
 public slots:
 
 	/// Erases the current spectrum and starts collecting data.
@@ -270,6 +274,9 @@ public slots:
 	/// Sorts the list of ROIs.
 	void sortRegionsOfInterest();
 
+	/// Sets the extra notes for the detector.
+	void setNotes(const QString &notes) { notes_ = notes; }
+
 
 signals:
 	/// Only emitted as true when all of the controls in the detector are connected. Is emitted false when any of the controls within the detector become unconnected.
@@ -368,6 +375,9 @@ protected:
 	bool wasConnected_;
 	/// The refresh rate.
 	MCAUpdateRate refreshRate_;
+
+	/// A holder for extra information that should be saved inside the file created by saveSpectra().
+	QString notes_;
 
 	/// Timer used to periodically update the ROI lists.
 	QTimer timer_;

@@ -1,9 +1,10 @@
 include ( acquamanCommon.pri )
 
-TARGET = Acquaman
+TARGET = BareBonesAcquaman
 
 FORMS +=
 
-HEADERS += \
+HEADERS += source/application/BareBones/BareBonesAppController.h
 
-SOURCES +=	source/application/BareBones/BareBonesMain.cpp
+SOURCES += source/application/BareBones/BareBonesAppController.cpp \
+	source/application/BareBones/BareBonesMain.cpp

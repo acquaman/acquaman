@@ -38,12 +38,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlotColorMap.h"
 #include "MPlot/MPlotPoint.h"
 #include "dataman/datasource/AMDataSourceImageData.h"
+#include "ui/dataman/AMChooseScanDialog.h"
 
 #include "analysis/REIXS/REIXSXESImageAB.h"
+
+#include <QAction>
+#include <QMenu>
 
 REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWidget *parent) :
 	QWidget(parent)
 {
+	chooseScanDialog_ = 0;
+
 	analysisBlock_ = analysisBlock;
 
 	// setup GUI elements:
@@ -64,6 +70,25 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 
 	liveCorrelationCheckBox_ = new QCheckBox("Real-time correlation");
 	correlateNowButton_ = new QPushButton("Correlate Now");
+
+	applyToOtherScansButton_ = new QToolButton();
+	applyToOtherScansButton_->setText("Apply to Scans...");
+	applyToOtherScansButton_->setPopupMode(QToolButton::MenuButtonPopup);
+
+	batchApplyCorrelationSettings_ = new QAction("Correlation Settings", this);
+	batchApplyShiftCurve_ = new QAction("Shift Curve", this);
+	batchApplySumRange_ = new QAction("Sum Range min, max", this);
+	batchApplyCorrelationSettings_->setCheckable(true);
+	batchApplyCorrelationSettings_->setChecked(true);
+	batchApplyShiftCurve_->setCheckable(true);
+	batchApplyShiftCurve_->setChecked(false);
+	batchApplySumRange_->setCheckable(true);
+	batchApplySumRange_->setChecked(false);
+	QMenu* batchApplyMenu = new QMenu(this);
+	batchApplyMenu->addAction(batchApplyCorrelationSettings_);
+	batchApplyMenu->addAction(batchApplyShiftCurve_);
+	batchApplyMenu->addAction(batchApplySumRange_);
+	applyToOtherScansButton_->setMenu(batchApplyMenu);
 
 	shiftDisplayOffsetSlider_ = new QSlider(Qt::Horizontal);
 
@@ -141,8 +166,11 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	hl2->addWidget(correlationPointsBox_);
 	fl->addRow("Corr. Center", hl2);
 	fl->addRow(liveCorrelationCheckBox_);
-	fl->addRow(correlateNowButton_);
 	vl->addLayout(fl);
+	QHBoxLayout* hl3 = new QHBoxLayout();
+	hl3->addWidget(correlateNowButton_);
+	hl3->addWidget(applyToOtherScansButton_);
+	vl->addLayout(hl3);
 	vl->addWidget(plotWidget_);
 	vl->addWidget(shiftDisplayOffsetSlider_);
 	setLayout(vl);
@@ -164,6 +192,8 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	// direct connections:
 	connect(correlateNowButton_, SIGNAL(clicked()), analysisBlock_, SLOT(correlateNow()));
 	connect(liveCorrelationCheckBox_, SIGNAL(toggled(bool)), analysisBlock_, SLOT(enableLiveCorrelation(bool)));
+
+	connect(applyToOtherScansButton_, SIGNAL(clicked()), this, SLOT(onApplyToOtherScansMenuClicked()));
 }
 
 REIXSXESImageABEditor::~REIXSXESImageABEditor() {
@@ -381,5 +411,105 @@ void REIXSXESImageABEditorShiftModel::onOutputSizeChanged()
 void REIXSXESImageABEditorShiftModel::onShiftValuesChanged()
 {
 	emitDataChanged();
+}
+
+void REIXSXESImageABEditor::onApplyToOtherScansMenuClicked()
+{
+	if(!chooseScanDialog_) {
+		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose scans...", "Choose the scans you want to apply these analysis parameters to.", true, this);
+		// chooseScanDialog_->dataView_->setOrganizeMode(AMDataViews::OrganizeScanTypes);
+		connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onApplyToOtherScansChosen()));
+	}
+
+	// User feedback on what will happen:
+	QStringList operationsCompleted;
+	if(batchApplyCorrelationSettings_->isChecked())
+		operationsCompleted << "Correlation Settings";
+	if(batchApplyShiftCurve_->isChecked())
+		operationsCompleted << "Shift Curve";
+	if(batchApplySumRange_->isChecked())
+		operationsCompleted << "Sum Range";
+
+	chooseScanDialog_->setPrompt(QString("Choose the scans you want to apply these analysis parameters (%1) to.").arg(operationsCompleted.join(", ")));
+	chooseScanDialog_->show();
+}
+
+#include "dataman/AMScan.h"
+#include "util/AMErrorMonitor.h"
+#include <QProgressDialog>
+#include <QUrl>
+
+void REIXSXESImageABEditor::onApplyToOtherScansChosen()
+{
+	QList<QUrl> scans = chooseScanDialog_->getSelectedScans();
+	if(scans.isEmpty())
+		return;
+
+	QProgressDialog* progressDialog = new QProgressDialog(QString("Applying analysis parameters to %1 scans...").arg(scans.count()), "Stop", 0, scans.count(), chooseScanDialog_);
+	progressDialog->setMinimumDuration(0);
+	progressDialog->setWindowModality(Qt::WindowModal);
+
+	int scansModified = 0;
+
+	for(int s=0; s<scans.count(); ++s) {
+		progressDialog->setValue(s);
+		QUrl scanUrl = scans.at(s);
+		bool isScanning;
+		QString scanName;
+		AMScan* scan = AMScan::createFromDatabaseUrl(scanUrl, false, &isScanning, &scanName);
+		if(isScanning) {
+			AMErrorMon::alert(this, -333, QString("Batch shifting: Cannot apply shift parameters to scan '%1' because it's still acquiring data.").arg(scanName));
+			continue;
+		}
+
+		if(!scan) {
+			AMErrorMon::alert(this, -334, QString("Batch shifting: Could not open the scan at '%1'. This looks like a problem in the database; please report this problem to the REIXS Acquaman developers.").arg(scanUrl.toString()));
+			continue;
+		}
+
+		bool xesABFound = false;
+		for(int i=0, cc=scan->analyzedDataSourceCount(); i<cc; ++i) {
+			REIXSXESImageAB* xesAB = qobject_cast<REIXSXESImageAB*>(scan->analyzedDataSources()->at(i));
+			if(xesAB) {
+				xesABFound = true;
+				if(batchApplyCorrelationSettings_->isChecked()) {
+					xesAB->setCorrelationCenterPixel(analysisBlock_->correlationCenterPixel());
+					xesAB->setCorrelationHalfWidth(analysisBlock_->correlationHalfWidth());
+					xesAB->enableLiveCorrelation(analysisBlock_->liveCorrelation());
+				}
+				if(batchApplyShiftCurve_->isChecked()) {
+					xesAB->setShiftValues(analysisBlock_->shiftValues());
+				}
+				if(batchApplySumRange_->isChecked()) {
+					xesAB->setSumRangeMax(analysisBlock_->sumRangeMax());
+					xesAB->setSumRangeMin(analysisBlock_->sumRangeMin());
+				}
+			}
+		}
+
+		if(!xesABFound) {
+			AMErrorMon::alert(this, -335, QString("Batch shifting: Could not find an analyzed XES image in the scan '%1'").arg(scan->fullName()));
+		}
+		else {
+			scansModified++;
+			scan->storeToDb(scan->database());
+		}
+
+		scan->release();	// delete scan.
+	}
+
+	progressDialog->setValue(scans.count());
+
+	// User feedback on what just happened:
+	QStringList operationsCompleted;
+	if(batchApplyCorrelationSettings_->isChecked())
+		operationsCompleted << "Correlation Settings";
+	if(batchApplyShiftCurve_->isChecked())
+		operationsCompleted << "Shift Curve";
+	if(batchApplySumRange_->isChecked())
+		operationsCompleted << "Sum Range";
+
+	AMErrorMon::information(this, 0, QString("Batch shifting: set the analysis parameters (%1) successfully for %2 XES scans.").arg(operationsCompleted.join(", ")).arg(scansModified));
+	chooseScanDialog_->hide();
 }
 

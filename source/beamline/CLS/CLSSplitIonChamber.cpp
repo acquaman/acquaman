@@ -43,7 +43,9 @@ CLSSplitIonChamber::CLSSplitIonChamber(const QString &name, const QString &descr
 	connect(voltageB_, SIGNAL(valueChanged(double)), this, SLOT(onVoltageChanged()));
 
 	connect(sensitivityA_, SIGNAL(valueChanged(int)), this, SIGNAL(sensitivityValueAChanged(int)));
+	connect(sensitivityA_, SIGNAL(valueIndexChanged(int)), this, SIGNAL(sensitivityValueIndexAChanged(int)));
 	connect(sensitivityB_, SIGNAL(valueChanged(int)), this, SIGNAL(sensitivityValueBChanged(int)));
+	connect(sensitivityB_, SIGNAL(valueIndexChanged(int)), this, SIGNAL(sensitivityValueIndexBChanged(int)));
 	connect(sensitivityA_, SIGNAL(unitsChanged(QString)), this, SIGNAL(sensitivityUnitsAChanged(QString)));
 	connect(sensitivityB_, SIGNAL(unitsChanged(QString)), this, SIGNAL(sensitivityUnitsBChanged(QString)));
 	connect(sensitivityA_, SIGNAL(minimumSensitivity(bool)), this, SIGNAL(minimumSensitivityA(bool)));

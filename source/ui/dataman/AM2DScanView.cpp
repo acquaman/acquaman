@@ -28,6 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/datasource/AMDataSourceImageDatawDefault.h"
 #include "dataman/AMScan.h"
 
+#include "ui/dataman/AM3dDataSourceView.h"
+
 #include <QSizePolicy>
 #include <QStringBuilder>
 #include <QCheckBox>
@@ -334,6 +336,24 @@ void AM2DScanView::setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propo
 void AM2DScanView::setPlotRange(double low, double high)
 {
 	spectrumView_->setPlotRange(low, high);
+}
+
+#include <QPrinter>
+#include <QFileInfo>
+#include <QMessageBox>
+
+void AM2DScanView::exportGraphicsFile(const QString& fileName)
+{
+	QPrinter printer(QPrinter::HighResolution);
+	printer.setOutputFileName(fileName);
+	printer.setPageSize(QPrinter::Letter);
+	printer.setOutputFormat(QPrinter::PdfFormat);
+	printer.setOrientation(QPrinter::Landscape);
+
+	QPainter painter(&printer);
+	gExclusiveView_->render(&painter);
+
+	painter.end();
 }
 
 // AM2DScanViewInternal
@@ -650,6 +670,14 @@ void AM2DScanViewExclusiveView::reviewScan(int scanIndex)
 				case 2:
 					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
 					plot_->plot()->axisLeft()->setAxisName(scan->rawData()->scanAxisAt(1).units.isEmpty() ? scan->rawData()->scanAxisAt(1).description : scan->rawData()->scanAxisAt(1).description % ", " % scan->rawData()->scanAxisAt(1).units);
+
+					// testing 3D
+//					if(dataSource->rank() == 2) {
+//						tempView = new AM3dDataSourceView(model()->scanAt(scanIndex), model()->scanAt(scanIndex)->indexOfDataSource(dataSource));
+//						tempView->setLogScaleEnabled();
+//						tempView->resize(640,480);
+//						tempView->show();
+//					}
 					break;
 				}
 			}
@@ -673,6 +701,7 @@ void AM2DScanViewExclusiveView::reviewScan(int scanIndex)
 				}
 				image->setColorMap(model()->plotColorMap(scanIndex, dataSourceIndex));
 
+//				tempView->setScanAndDataSource(model()->scanAt(scanIndex), model()->scanAt(scanIndex)->indexOfDataSource(dataSource));
 				break;
 			}
 

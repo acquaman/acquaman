@@ -87,6 +87,10 @@ public:
 	/// Check whether a set of data sources would be acceptable, compatible, and sufficient to provide input for this analysis block.
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const = 0;
 
+
+	/// Provides a very simple editor widget for inside AMDataSourcesEditor, which only lists the rank and size of the analysis block (and the value, for 0D analysis blocks only). Re-implement to provide custom editors.
+	virtual QWidget* createEditorWidget();
+
 protected:
 	/// Implementing subclasses must provide a setInputDataSourcesImplementation(), which is called from setInputDataSources(). This will only be called if \c dataSources are acceptable and sufficient  (according to areInputDataSourcesAcceptable()), or if \c dataSources is empty, indicating the block is in the inactive/invalid state.
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources) = 0;

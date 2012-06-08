@@ -42,17 +42,17 @@ public:
 
 protected slots:
 	/// Handles passing changes in the value combo box to both sides of the ion chamber.
-	void onValueComboBoxChanged(int index) { splitIonChamberCLS()->setSensitivityValueA(index); splitIonChamberCLS()->setSensitivityValueB(index); }
+	void onValueComboBoxChanged(int index) { splitIonChamberCLS()->setSensitivityValueIndexA(index); splitIonChamberCLS()->setSensitivityValueIndexB(index); }
 	/// Handles passing changes in the units combo box to both sides of the ion chamber.
 	void onUnitsComboBoxChanged(int index) { splitIonChamberCLS()->setSensitivityUnitsA(unitsA_->itemText(index)); splitIonChamberCLS()->setSensitivityUnitsB(unitsB_->itemText(index)); }
 
 	/// Handles passing changes in the value combo box to one side of the ion chamber (A).
-	void onValueAComboBoxChanged(int index) { splitIonChamberCLS()->setSensitivityValueA(index); }
+	void onValueAComboBoxChanged(int index) { splitIonChamberCLS()->setSensitivityValueIndexA(index); }
 	/// Handles passing changes in the units combo box to one side of the ion chamber (A).
 	void onUnitsAComboBoxChanged(int index) { splitIonChamberCLS()->setSensitivityUnitsA(unitsA_->itemText(index)); }
 
 	/// Handles passing changes in the value combo box to the other side of the ion chamber (B).
-	void onValueBComboBoxChanged(int index) { splitIonChamberCLS()->setSensitivityValueB(index); }
+	void onValueBComboBoxChanged(int index) { splitIonChamberCLS()->setSensitivityValueIndexB(index); }
 	/// Handles passing changes in the units combo box to the other side of the ion chamber (B).
 	void onUnitsBComboBoxChanged(int index) { splitIonChamberCLS()->setSensitivityUnitsB(unitsB_->itemText(index)); }
 
