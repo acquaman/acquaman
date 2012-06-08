@@ -220,7 +220,7 @@ void VESPERSAppController::setupExporterOptions()
 	// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
 	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERS2DDefault");
 	if(matchIDs.count() > 0)
-		AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporter2DAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
+		AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporterSMAK, AMExporterOptionGeneralAscii>(matchIDs.at(0));
 }
 
 void VESPERSAppController::setupUserInterface()
@@ -240,13 +240,13 @@ void VESPERSAppController::setupUserInterface()
 	// Setup page that auto-enables detectors.
 	VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
 	// Setup page for the endstation.  Will probably replace experiment configuration eventually.
-	VESPERSEndstationConfigurationView *endstationConfigurationView = new VESPERSEndstationConfigurationView(VESPERSBeamline::vespers()->endstationConfiguration());
+//	VESPERSEndstationConfigurationView *endstationConfigurationView = new VESPERSEndstationConfigurationView(VESPERSBeamline::vespers()->endstationConfiguration());
 
 	mw_->insertHeading("General", 0);
 	mw_->addPane(endstationView, "General", "Endstation", ":/system-software-update.png");
 	mw_->addPane(statusPage, "General", "Device Status", ":/system-software-update.png");
 	mw_->addPane(experimentConfigurationView, "General", "Experiment Setup", ":/utilities-system-monitor.png");
-	mw_->addPane(endstationConfigurationView, "General", "Endstation Setup", ":/utilities-system-monitor.png");
+//	mw_->addPane(endstationConfigurationView, "General", "Endstation Setup", ":/utilities-system-monitor.png");
 
 	// Setup the XRF views for the single element vortex and the four element vortex detectors.  Since they have scans that are added to the workflow, it gets the workflow manager view passed into it as well.
 	// This means that the FreeRunView kind of doubles as a regular detector view and a configuration view holder.
