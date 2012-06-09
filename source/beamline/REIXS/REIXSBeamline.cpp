@@ -169,16 +169,16 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 
 	setDescription("XES Detector Energy");
 	spectrometerRotationDrive_ = new AMPVwStatusControl("spectrometerRotationDrive",
-														"SMTR1610-4-I21-01:mm:sp",
 														"SMTR1610-4-I21-01:mm:fbk",
+														"SMTR1610-4-I21-01:mm",
 														"SMTR1610-4-I21-01:status",
 														"SMTR1610-4-I21-01:stop", this, 1);
 
 
 
 	detectorTranslation_ = new AMPVwStatusControl("detectorTranslation",
-												  "SMTR1610-4-I21-04:mm:sp",
 												  "SMTR1610-4-I21-04:mm:fbk",
+												  "SMTR1610-4-I21-04:mm",
 												  "SMTR1610-4-I21-04:status",
 												  "SMTR1610-4-I21-04:stop", this, 1);
 
@@ -191,8 +191,8 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 	detectorTiltDrive_->setDescription("XES Detector Tilt Stage");
 
 	endstationTranslation_ = new AMPVwStatusControl("endstationTranslation",
-														"SMTR1610-4-I21-05:mm:sp",
 														"SMTR1610-4-I21-05:mm:fbk",
+														"SMTR1610-4-I21-05:mm",
 														"SMTR1610-4-I21-05:status",
 														"SMTR1610-4-I21-05:stop", this, 1);  //DAVID ADDED
 
@@ -294,7 +294,9 @@ void REIXSSpectrometer::move(double setpoint)
 	moveAction_->addSubAction(new AMInternalControlMoveAction(spectrometerRotationDrive_, moveSetpoint_.controlNamed("spectrometerRotationDrive").value()));
 	moveAction_->addSubAction(new AMInternalControlMoveAction(detectorTiltDrive_, moveSetpoint_.controlNamed("detectorTiltDrive").value()));
 	moveAction_->addSubAction(new AMInternalControlMoveAction(detectorTranslation_, moveSetpoint_.controlNamed("detectorTranslation").value()));
-	moveAction_->addSubAction(new AMInternalControlMoveAction(endstationTranslation_, moveSetpoint_.controlNamed("endstationTranslation").value()));
+	// Note for DavidM: Here's your crash:
+//	moveAction_->addSubAction(new AMInternalControlMoveAction(endstationTranslation_, moveSetpoint_.controlNamed("endstationTranslation").value()));
+	// Reason: there is no control named "endstationTranslation" in the moveSetpoint_ list of control positions that gets calculated by REIXSXESCalibration::calculateSpectrometerPosition().
 
 	// Watch the move action: succeeded or failed (or cancelled)
 	connect(moveAction_, SIGNAL(stateChanged(int,int)), this, SLOT(onMoveActionStateChanged(int,int)));

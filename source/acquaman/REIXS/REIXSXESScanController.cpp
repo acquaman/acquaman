@@ -68,7 +68,7 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 
 	scan_->rawData()->addMeasurement(AMMeasurementInfo("totalCounts", "Total Counts", "counts"));
 	AMRawDataSource* totalCountsDataSource = new AMRawDataSource(scan_->rawData(), 1);
-	scan_->addRawDataSource(totalCountsDataSource);
+	scan_->addRawDataSource(totalCountsDataSource, false, false);
 
 	REIXSXESImageAB* xesSpectrum = new REIXSXESImageAB("xesSpectrum");
 	xesSpectrum->setInputDataSources(QList<AMDataSource*>() << imageDataSource);
