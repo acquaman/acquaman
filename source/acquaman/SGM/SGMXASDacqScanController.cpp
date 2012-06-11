@@ -155,7 +155,7 @@ bool SGMXASDacqScanController::startImplementation(){
 	dacqConfigFile.append("# Header: 0\n");
 	dacqConfigFile.append("# SpectrumFormat: 2\n");
 
-	SGMDacqConfigurationFile *configFile = new SGMDacqConfigurationFile();
+//	SGMDacqConfigurationFile *configFile = new SGMDacqConfigurationFile();
 	QList<int> matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "FastScaler");
 	if(matchIDs.count() == 0){
 		AMErrorMon::report(AMErrorReport(this,
@@ -180,7 +180,6 @@ bool SGMXASDacqScanController::startImplementation(){
 	}
 	QString templateFullFilePath = configTemplateDir.absolutePath()+"/template.cfg";
 
-	qDebug() << "Trying to save template to " << templateFullFilePath;
 	QFile file(templateFullFilePath);
 	if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
 		AMErrorMon::report(AMErrorReport(this,
@@ -229,7 +228,7 @@ bool SGMXASDacqScanController::startImplementation(){
 			advAcq_->setEnd(x, config_->regionEnd(x));
 		}
 	}
-	advAcq_->saveConfigFile("/Users/fawkes/dev/acquaman/devConfigurationFiles/davidTest.cfg");
+	advAcq_->saveConfigFile(configTemplateDir.absolutePath()+"/fullyFormedTemplate.cfg");
 
 	return AMDacqScanController::startImplementation();
 }

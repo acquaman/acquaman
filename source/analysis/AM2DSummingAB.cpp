@@ -150,6 +150,7 @@ void AM2DSummingAB::setAnalyzedName(const QString &name)
 
 	invalidateCache();
 	reviewState();
+
 	emitSizeChanged(0);
 	emitValuesChanged();
 	emitAxisInfoChanged(0);
