@@ -102,6 +102,38 @@ void AMDetectorInfoSet::dbLoadDetectorInfos(const AMDbObjectList& newDetectorInf
 	}
 }
 
+QString AMDetectorInfoSet::dbReadActiveDetectorInfos() {
+	QString rv = "activeDetectorInfosVersion1.0";
+	for(int x = 0; x < count(); x++){
+		if(isActiveAt(x))
+			rv.append(",true");
+		else
+			rv.append(",false");
+	}
+	return rv;
+}
+
+void AMDetectorInfoSet::dbLoadActiveDetectorInfos(const QString &activeDetectorInfos){
+	if(activeDetectorInfos.isEmpty() || !activeDetectorInfos.contains("activeDetectorInfosVersion1.0")){
+		qDebug() << "THE DETECTOR INFO ACTIVE STATES WERE NOT SAVED FOR THIS AMDetectorInfoSet";
+		return;
+	}
+
+	if(activeDetectorInfos.count(',') != count()){
+		qDebug() << "Mismatch in number of detector infos and number of active indices";
+		return;
+	}
+
+	QStringList activeList = activeDetectorInfos.split(',');
+	activeList.removeFirst(); // Get rid of the version information
+
+	for(int x = 0; x < count(); x++)
+		if(activeList.at(x) == "true")
+			setActiveAt(x, true); // No need to set active at x as false ... it starts that way
+
+	return;
+}
+
 int AMDetectorInfoSet::indexOf(AMDetectorInfo *detectorInfo) const{
 	return indexOfValue(detectorInfo);
 }

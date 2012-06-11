@@ -32,6 +32,7 @@ class AMDetectorInfoSet : public AMDbObject, public AMOrderedSet<QString, QPair<
 Q_OBJECT
 	Q_PROPERTY(QString description READ description WRITE setDescription)
 	Q_PROPERTY(AMDbObjectList detectorInfos READ dbReadDetectorInfos WRITE dbLoadDetectorInfos)
+	Q_PROPERTY(QString activeDetectorInfos READ dbReadActiveDetectorInfos WRITE dbLoadActiveDetectorInfos)
 
 public:
 	explicit AMDetectorInfoSet(QObject *parent = 0);
@@ -53,6 +54,11 @@ public:
 	AMDbObjectList dbReadDetectorInfos();
 	/// Called by the database system on loadFromDb() to give us our new set of AMDetectorlInfo objects. We copy these ones into our internal list and then delete them.
 	void dbLoadDetectorInfos(const AMDbObjectList& newControlInfos);
+	/// Returns a formatted string detailing with AMDetectorInfos are active, for use by the database system in storeToDb()
+	QString dbReadActiveDetectorInfos();
+	/// Called by the database system on loadFromDb() to tell us which detector infos were active.
+	void dbLoadActiveDetectorInfos(const QString &activeDetectorInfos);
+
 
 	/// Return the index of a given \c detectorInfo in the set. The comparison is done on the name() function returned by the detectorInfo passed into the function, not the pointer value. (Returns -1 if not found in the set.)
 	int indexOf(AMDetectorInfo *detectorInfo) const;
