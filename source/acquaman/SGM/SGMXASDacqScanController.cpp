@@ -229,7 +229,7 @@ bool SGMXASDacqScanController::startImplementation(){
 			advAcq_->setEnd(x, config_->regionEnd(x));
 		}
 	}
-	advAcq_->saveConfigFile("/Users/fawkes/dev/acquaman/devConfigurationFiles/davidTest.cfg");
+	advAcq_->saveConfigFile(configTemplateDir.absolutePath()+"/fullyFormedTemplate.cfg");
 
 	return AMDacqScanController::startImplementation();
 }

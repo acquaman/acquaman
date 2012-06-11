@@ -162,6 +162,7 @@ void AMScanAction::onControllerSucceeded()
 
 	if(!controller_){
 		AMErrorMon::alert(this, AMSCANACTION_CONTROLLER_NOT_VALID_FOR_AUTOEXPORT, "Could not export, somehow the scan controller is not available.");
+		setSucceeded();
 		return;
 	}
 
@@ -187,6 +188,7 @@ void AMScanAction::onControllerSucceeded()
 					if(!exportDir.mkdir("exportData")){
 
 						AMErrorMon::alert(this, AMSCANACTION_CANT_CREATE_EXPORT_FOLDER, "Could not create the auto-export folder.");
+						setSucceeded();
 						return;
 					}
 				}
@@ -198,6 +200,7 @@ void AMScanAction::onControllerSucceeded()
 				if(!autoExporter){
 
 					AMErrorMon::alert(this, AMSCANACTION_NO_REGISTERED_EXPORTER, "No exporter registered for this scan type.");
+					setSucceeded();
 					return;
 				}
 

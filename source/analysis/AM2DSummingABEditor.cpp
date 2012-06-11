@@ -45,9 +45,6 @@ AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *
 	connect(names_, SIGNAL(currentIndexChanged(int)), this, SLOT(onNameChoiceChanged(int)));
 	connect(analysisBlock_, SIGNAL(inputSourcesChanged()), this, SLOT(populateComboBox()));
 
-	if (analysisBlock_->inputDataSourceCount() > 0)
-		onNameChoiceChanged(0);
-
 	axisSelector_ = new QComboBox();
 	axisSelector_->addItem("Horizontal");
 	axisSelector_->addItem("Vertical");
@@ -110,6 +107,10 @@ AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *
 
 	onAnalysisBlockInputDataSourcesChanged();
 
+	// This needs to be called last because it requires all of the pointer to valid. All of dem.
+	if (analysisBlock_->inputDataSourceCount() > 0)
+		onNameChoiceChanged(0);
+
 	// make connections
 	connect(analysisBlock_, SIGNAL(inputSourcesChanged()), this, SLOT(onAnalysisBlockInputDataSourcesChanged()));
 
@@ -135,6 +136,7 @@ void AM2DSummingABEditor::onNameChoiceChanged(int index)
 {
 	QString name = names_->itemData(index).toString();
 	analysisBlock_->setAnalyzedName(name);
+	image_->setModel(new AMDataSourceImageData(analysisBlock_->inputDataSourceAt(analysisBlock_->indexOfInputSource(name))), true);
 }
 
 
