@@ -32,7 +32,7 @@ CLSIonChamberView::CLSIonChamberView(CLSIonChamber *ionChamber, QWidget *parent)
 	value_->hide();
 	value_->addItems(QStringList() << "1" << "2" << "5" << "10" << "20" << "50" << "100" << "200" << "500");
 	connect(value_, SIGNAL(currentIndexChanged(int)), this, SLOT(onValueComboBoxChanged(int)));
-	connect(ionChamberCLS(), SIGNAL(sensitivityValueChanged(int)), this, SLOT(onValueChanged(int)));
+	connect(ionChamberCLS(), SIGNAL(sensitivityValueIndexChanged(int)), this, SLOT(onValueChanged(int)));
 
 	units_ = new QComboBox;
 	units_->hide();
@@ -47,38 +47,7 @@ CLSIonChamberView::CLSIonChamberView(CLSIonChamber *ionChamber, QWidget *parent)
 void CLSIonChamberView::onValueChanged(int value)
 {
 	chamber_->blockSignals(true);
-
-	switch(value){
-
-	case 1:
-		value_->setCurrentIndex(0);
-		break;
-	case 2:
-		value_->setCurrentIndex(1);
-		break;
-	case 5:
-		value_->setCurrentIndex(2);
-		break;
-	case 10:
-		value_->setCurrentIndex(3);
-		break;
-	case 20:
-		value_->setCurrentIndex(4);
-		break;
-	case 50:
-		value_->setCurrentIndex(5);
-		break;
-	case 100:
-		value_->setCurrentIndex(6);
-		break;
-	case 200:
-		value_->setCurrentIndex(7);
-		break;
-	case 500:
-		value_->setCurrentIndex(8);
-		break;
-	}
-
+	value_->setCurrentIndex(value);
 	chamber_->blockSignals(false);
 }
 

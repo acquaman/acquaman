@@ -144,6 +144,9 @@ public slots:
 	/// remove a scan from the view:
 	void removeScan(AMScan* scan);
 
+	/// Export the current view to a PDF file with \c outputFileName. Overwrites \c outputFileName if it already exists.
+	void exportGraphicsFile(const QString& outputFileName);
+
 protected slots:
 	void resizeViews();
 

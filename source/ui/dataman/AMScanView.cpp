@@ -1934,3 +1934,21 @@ void AMScanViewMultiSourcesView::setDataRangeConstraint(int id)
 		break;
 	}
 }
+
+#include <QPrinter>
+#include <QFileInfo>
+#include <QMessageBox>
+
+void AMScanView::exportGraphicsFile(const QString& fileName)
+{
+	QPrinter printer(QPrinter::HighResolution);
+	printer.setOutputFileName(fileName);
+	printer.setPageSize(QPrinter::Letter);
+	printer.setOutputFormat(QPrinter::PdfFormat);
+	printer.setOrientation(QPrinter::Landscape);
+
+	QPainter painter(&printer);
+	gview_->render(&painter);
+
+	painter.end();
+}

@@ -338,6 +338,24 @@ void AM2DScanView::setPlotRange(double low, double high)
 	spectrumView_->setPlotRange(low, high);
 }
 
+#include <QPrinter>
+#include <QFileInfo>
+#include <QMessageBox>
+
+void AM2DScanView::exportGraphicsFile(const QString& fileName)
+{
+	QPrinter printer(QPrinter::HighResolution);
+	printer.setOutputFileName(fileName);
+	printer.setPageSize(QPrinter::Letter);
+	printer.setOutputFormat(QPrinter::PdfFormat);
+	printer.setOrientation(QPrinter::Landscape);
+
+	QPainter painter(&printer);
+	gExclusiveView_->render(&painter);
+
+	painter.end();
+}
+
 // AM2DScanViewInternal
 ////////////////////////////////////////////////
 

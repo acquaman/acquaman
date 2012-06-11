@@ -128,8 +128,8 @@ bool AMDatamanAppController::startup() {
 	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_FINISHED, splashScreen_, "onErrorMonStartupFinished");
 	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_SUBTEXT, splashScreen_, "onErrorMonDebug");
 
+	if(!startupBeforeAnything()) { qWarning() << "Problem with Acquaman startup: before everything."; return false; }
 	if(!startupLoadSettings()) { qWarning() << "Problem with Acquaman startup: loading settings."; return false; }
-
 	if(!startupLoadPlugins()) { qWarning() << "Problem with Acquaman startup: loading plugins."; return false; }
 
 	if((isFirstTimeRun_ = startupIsFirstTime())) {
@@ -140,7 +140,6 @@ bool AMDatamanAppController::startup() {
 	}
 
 	if(!startupRegisterDatabases()) { qWarning() << "Problem with Acquaman startup: registering databases."; return false; }
-
 	// Now that we have a database: populate initial settings, or just load user settings
 	if(isFirstTimeRun_) {
 		if(!startupPopulateNewDatabase()) { qWarning() << "Problem with Acquaman startup: populating new user database."; return false; }
@@ -151,15 +150,14 @@ bool AMDatamanAppController::startup() {
 
 	if(!startupRegisterExporters()) { qWarning() << "Problem with Acquaman startup: registering exporters"; return false; }
 
+	if(!startupBeforeUserInterface()) { qWarning() << "Problem with Acquaman startup: prior to setting up the user interface."; return false; }
 	if(!startupCreateUserInterface()) { qWarning() << "Problem with Acquaman startup: setting up the user interface."; return false; }
-	splashScreen_->activateWindow();
-	splashScreen_->raise();
+	if(!startupAfterUserInterface()) { qWarning() << "Problem with Acquaman startup: after setting up the user interface."; return false; }
 
 	if(!startupInstallActions()) { qWarning() << "Problem with Acquaman startup: installing menu actions."; return false; }
+	if(!startupAfterEverything()) { qWarning() << "Problem with Acquaman startup: after all startup."; return false; }
 
 	emit datamanStartupFinished();
-	splashScreen_->activateWindow();
-	splashScreen_->raise();
 
 	isStarting_ = false;
 	return true;
@@ -638,6 +636,10 @@ bool AMDatamanAppController::startupInstallActions()
 	amIssueSubmissionAction->setStatusTip("Report an issue to the Acquaman Developers");
 	connect(amIssueSubmissionAction, SIGNAL(triggered()), this, SLOT(onActionIssueSubmission()));
 
+	exportGraphicsAction_ = new QAction("Export Plot...", mw_);
+	exportGraphicsAction_->setStatusTip("Export the current plot to a PDF file.");
+	connect(exportGraphicsAction_, SIGNAL(triggered()), this, SLOT(onActionExportGraphics()));
+
 	//install menu bar, and add actions
 	//////////////////////////////////////
 #ifdef Q_WS_MAC
@@ -650,6 +652,9 @@ bool AMDatamanAppController::startupInstallActions()
 	fileMenu_ = menuBar_->addMenu("File");
 	fileMenu_->addAction(importLegacyFilesAction);
 	fileMenu_->addAction(importAcquamanDatabaseAction);
+	fileMenu_->addSeparator();
+	fileMenu_->addAction(exportGraphicsAction_);
+	fileMenu_->addSeparator();
 	fileMenu_->addAction(amSettingsAction);
 
 	helpMenu_ = menuBar_->addMenu("Help");
@@ -703,8 +708,10 @@ void AMDatamanAppController::onActionIssueSubmission()
 	issueSubmissionView_->activateWindow();
 }
 
-void AMDatamanAppController::onCurrentPaneChanged(QWidget *pane) {
-	Q_UNUSED(pane)
+void AMDatamanAppController::onCurrentPaneChanged(QWidget *pane)
+{
+	// This is okay because both AMScanView and AM2DScanView have export capabilities.
+	exportGraphicsAction_->setEnabled(qobject_cast<AMGenericScanEditor *>(pane) != 0);
 }
 
 void AMDatamanAppController::onMainWindowAliasItemActivated(QWidget *target, const QString &key, const QVariant &value) {
@@ -770,43 +777,16 @@ void AMDatamanAppController::onLaunchScanConfigurationsFromDb(const QList<QUrl> 
 
 void AMDatamanAppController::launchScanConfigurationFromDb(const QUrl &url)
 {
-	// scheme correct?
-	if (url.scheme() != "amd")
-		return;
-
-	// Scan configurations only come from the user databases currently.
-	AMDatabase *db = AMDatabase::database("user");
-	if (!db)
-		return;
-
-	QStringList path = url.path().split('/', QString::SkipEmptyParts);
-	if(path.count() != 2)
-		return;
-
-	QString tableName = path.at(0);
-	bool idOkay;
-	int id = path.at(1).toInt(&idOkay);
-	if(!idOkay || id < 1)
-		return;
-
-	// Only open scans for now (ie: things in the scans table)
-	if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
-		return;
-
 	// turn off automatic raw-day loading for scans... This will make loading the scan to access it's config much faster.
 	bool scanAutoLoadingOn = AMScan::autoLoadData();
 	AMScan::setAutoLoadData(false);
-	// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
-	AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
-	if(!dbo)
-		return;
+
+	AMScan* scan = AMScan::createFromDatabaseUrl(url, true);
+
 	// restore AMScan's auto-loading of data to whatever it was before.
 	AMScan::setAutoLoadData(scanAutoLoadingOn);
 
-	// Is it a scan?
-	AMScan* scan = qobject_cast<AMScan*>( dbo );
 	if(!scan) {
-		delete dbo;
 		return;
 	}
 
@@ -1204,3 +1184,31 @@ void AMDatamanAppController::onActionImportAcquamanDatabase()
 	AMScanDatabaseImportWizard* wizard = new AMScanDatabaseImportWizard(importController);
 	wizard->show();
 }
+
+bool AMDatamanAppController::startupAfterUserInterface()
+{
+	splashScreen_->activateWindow();
+	splashScreen_->raise();
+	return true;
+}
+
+bool AMDatamanAppController::startupAfterEverything()
+{
+	splashScreen_->activateWindow();
+	splashScreen_->raise();
+	return true;
+}
+
+void AMDatamanAppController::onActionExportGraphics()
+{
+	AMGenericScanEditor* scanEditor = qobject_cast<AMGenericScanEditor*>(mw_->currentPane());
+
+	if(scanEditor) {
+		scanEditor->exportGraphicsToFile();
+	}
+	else {
+		// This can't happen with the current code.  Only accessible from the QAction from the file drop down menu.  Takes into account whether the current pane is a scan editor already.
+		AMErrorMon::alert(this, -1111, "To export graphics, you must have a plot open in a scan editor.");
+	}
+}
+

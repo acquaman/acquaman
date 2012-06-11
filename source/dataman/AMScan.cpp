@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMScanDictionary.h"
 #include "util/AMErrorMonitor.h"
 
+#include <QUrl>
 #include <QDebug>
 
 AMScan::AMScan(QObject *parent)
@@ -620,6 +621,7 @@ void AMScan::setScanController(AMScanController* scanController)
 		emit currentlyScanningChanged(currentlyScanning_);
 	}
 }
+#endif
 
 #include <QThread>
 #include <QMutexLocker>
@@ -716,4 +718,70 @@ void AMScan::release(QObject *pastOwner)
 		delete this;			// commit suicide.
 }
 
-#endif
+AMScan * AMScan::createFromDatabaseUrl(const QUrl &url, bool allowIfScanning, bool *wasScanning, QString *scanName)
+{
+	if(wasScanning)
+		*wasScanning = false;
+
+	// scheme correct?
+	if(url.scheme() != "amd")
+		return 0;
+
+	// Can we connect to the database?
+	AMDatabase* db = AMDatabase::database(url.host());
+	if(!db)
+		return 0;
+	// \bug This does not verify that the incoming scans came from the user database. In fact, it happily accepts scans from other databases. Check if we assume anywhere else inside AMGenericScanEditor that we're using the AMDatabase::database("user") database. (If we do, this could cause problems.)
+
+	QStringList path = url.path().split('/', QString::SkipEmptyParts);
+	if(path.count() != 2)
+		return 0;
+
+	QString tableName = path.at(0);
+	bool idOkay;
+	int id = path.at(1).toInt(&idOkay);
+	if(!idOkay || id < 1)
+		return 0;
+
+	// Only open AMScans or subclasses in the AMScans table.
+	if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
+		return 0;
+
+	// Check if this scan is acquiring.
+	// Use the currentlyScanning column stored in the database.
+	QVariant isScanning = db->retrieve(id, tableName, "currentlyScanning");
+	if(!isScanning.isValid())
+		return 0;
+
+	// Report back whether it was scanning, if \c wasScanning was provided.
+	if(wasScanning) {
+		*wasScanning = isScanning.toBool();
+	}
+
+	if(isScanning.toBool() && !allowIfScanning) {
+		// Don't allow because is scanning. We'll return false here; First, grab the name and number for feedback if requested.
+		if(scanName) {
+			QList<QVariant> nameAndNumber = db->retrieve(id, tableName, QStringList() << "name" << "number");
+			*scanName = QString("%1 (#%2)").arg(nameAndNumber.at(0).toString()).arg(nameAndNumber.at(1).toString());
+		}
+		return 0;
+	}
+
+	// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
+	AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
+	if(!dbo)
+		return 0;
+
+	AMScan* scan = qobject_cast<AMScan*>( dbo );
+	if(!scan) {
+		delete dbo;
+		return 0;
+	}
+
+	if(scanName)
+		*scanName = scan->fullName();
+
+	return scan;
+}
+
+

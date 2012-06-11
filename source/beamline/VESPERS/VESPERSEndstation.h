@@ -56,6 +56,15 @@ public:
 	/// Returns the microscope setpoint names as a QPair<QString, QString>.
 	QPair<QString, QString> microscopeNames() const { return microscopeNames_; }
 
+	/// Returns the current distance of the single element vortex from the sample.
+	double distanceToSingleElementVortex() const { return singleElControl_->value(); }
+	/// Returns the current distance of the four element vortex from the sample.
+	double distanceToFourElementVortex() const { return fourElControl_->value(); }
+	/// Returns the current distancce of the Roper CCD to the sample.
+	double distanceToRoperCCD() const { return ccdControl_->value(); }
+	/// Returns the current thickness of the filters in um.
+	int filterThickness() const { return filterThickness_; }
+
 signals:
 	/// Notifier that the endstation shutter has changed.  Returns the state.
 	void shutterChanged(bool);
@@ -151,6 +160,9 @@ protected:
 	AMControl *filter50umB_;
 	AMControl *filterShutterUpper_;
 	AMControl *filterShutterLower_;
+
+	/// Returns the thickness off the filters in um.
+	int filterThickness_;
 
 	// A list of all the filters, but not the upper or lower shutters.
 	QMap<QString, AMControl *> filterMap_;
