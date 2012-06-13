@@ -20,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDetectorInfoSet.h"
 
+#include "util/AMErrorMonitor.h"
+
 AMDetectorInfoSet::AMDetectorInfoSet(QObject *parent)
 	: AMDbObject(parent), AMOrderedSet<QString, QPair<AMDetectorInfo*, bool> >()
 {
@@ -31,6 +33,7 @@ AMDetectorInfoSet::AMDetectorInfoSet(QObject *parent)
 AMDetectorInfoSet::AMDetectorInfoSet(const AMDetectorInfoSet& other)
 	: AMDbObject(other), AMOrderedSet<QString, QPair<AMDetectorInfo*, bool> >(other)
 {
+	dbLoadWarnings_ = other.dbLoadWarnings();
 	connect(signalSource(), SIGNAL(itemAdded(int)), this, SLOT(onDetectorAdded(int)));
 	connect(signalSource(), SIGNAL(itemRemoved(int)), this, SLOT(onDetectorRemoved(int)));
 	connect(signalSource(), SIGNAL(itemChanged(int)), this, SLOT(onDetectorValuesChanged(int)));
@@ -52,6 +55,9 @@ AMDetectorInfoSet& AMDetectorInfoSet::operator=(const AMDetectorInfoSet& other) 
 		this->clear();
 		for(int x = 0; x < other.count(); x++)
 			addDetectorInfo(other.detectorInfoAt(x)->toNewInfo(), other.isActiveAt(x));
+
+		dbLoadWarnings_ = other.dbLoadWarnings();
+
 		AMDbObject::operator=(other);
 
 		// if the items in other have been modified, but the signal hasn't been emitted yet, other.modified_ will not be set to true yet. We know that things have changed, so ours should be true.
@@ -115,12 +121,14 @@ QString AMDetectorInfoSet::dbReadActiveDetectorInfos() {
 
 void AMDetectorInfoSet::dbLoadActiveDetectorInfos(const QString &activeDetectorInfos){
 	if(activeDetectorInfos.isEmpty() || !activeDetectorInfos.contains("activeDetectorInfosVersion1.0")){
-		qDebug() << "THE DETECTOR INFO ACTIVE STATES WERE NOT SAVED FOR THIS AMDetectorInfoSet";
+		dbLoadWarnings_ = "This scan was run before the detector enable states were saved, if you wish to proceed you may have to edit the configuration and reselect your detectors.";
+		AMErrorMon::alert(this, AMDETECTORSET_NO_ENABLE_INFO_IN_DB, "The detector info active states were not saved for this AMDetectorInfoSet");
 		return;
 	}
 
 	if(activeDetectorInfos.count(',') != count()){
-		qDebug() << "Mismatch in number of detector infos and number of active indices";
+		dbLoadWarnings_ = "Somehow there is a mismatch between the number of detectors available and the information about which were selected, if you wish to proceed you may have to edit the configuration and reselect your detectors.";
+		AMErrorMon::alert(this, AMDETECTORSET_ENABLE_INFO_COUNT_MISMATCH, "There was a mismatch in the counts for the saved active states and the number of detector infos for this AMDetectorInfoSet");
 		return;
 	}
 
@@ -225,6 +233,10 @@ bool AMDetectorInfoSet::setActiveAt(int index, bool active){
 		return false;
 	((*this)[index]).second = active;
 	return true;
+}
+
+QString AMDetectorInfoSet::dbLoadWarnings() const{
+	return dbLoadWarnings_;
 }
 
 void AMDetectorInfoSet::setDescription(const QString &description){

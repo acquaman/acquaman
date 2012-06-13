@@ -27,6 +27,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #define AMDETECTORSET_CONTROL_TIMEOUT_MS 5000
 
+#define AMDETECTORSET_NO_ENABLE_INFO_IN_DB 401001
+#define AMDETECTORSET_ENABLE_INFO_COUNT_MISMATCH 401002
+
 class AMDetectorInfoSet : public AMDbObject, public AMOrderedSet<QString, QPair<AMDetectorInfo*, bool> >
 {
 Q_OBJECT
@@ -99,6 +102,9 @@ public:
 	/// Changes whether or not the detectorInfo at the given index has been requested for a scan.
 	bool setActiveAt(int index, bool active);
 
+	/// Returns a string with any warnings that occured during the load from database phase. Empty string implies no warnings.
+	QString dbLoadWarnings() const;
+
 public slots:
 	void setDescription(const QString& description);
 
@@ -124,6 +130,8 @@ protected:
 protected:
 	QString description_;
 
+	/// Holds on to any warnings during the database load phase
+	QString dbLoadWarnings_;
 };
 
 #endif // AMDETECTORINFOSET_H

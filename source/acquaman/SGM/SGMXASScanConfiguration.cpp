@@ -158,6 +158,9 @@ QString SGMXASScanConfiguration::detailedDescription() const{
 	return QString("XAS Scan from %1 to %2\nExit Slit: %3\nGrating: %4\nHarmonic: %5").arg(regionStart(0)).arg(regionEnd(regionCount()-1)).arg(exitSlit, 0, 'f', 1).arg(SGMBeamline::sgm()->sgmGratingDescription(SGMBeamline::sgmGrating(grating))).arg(SGMBeamline::sgm()->sgmHarmonicDescription(SGMBeamline::sgmHarmonic(harmonic)));
 }
 
+QString SGMXASScanConfiguration::dbLoadWarnings() const{
+	return xasDetectorsCfg_.dbLoadWarnings();
+}
 
 bool SGMXASScanConfiguration::setTrackingGroup(AMControlInfoList trackingList){
 	bool oldUndulator = undulatorTracking_;

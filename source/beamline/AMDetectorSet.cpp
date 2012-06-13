@@ -111,7 +111,7 @@ bool AMDetectorSet::addDetector(AMDetector* newDetector, bool isDefault) {
 		return false;
 
 	if( append(QPair<AMDetector*, bool>(newDetector, isDefault), newDetector->detectorName()) ) {
-		qDebug() << "Adding detector as " << newDetector->detectorName();
+		//qdebug() << "Adding detector as " << newDetector->detectorName();
 		connect(newDetector->signalSource(), SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
 		connect(newDetector->signalSource(), SIGNAL(readingsChanged()), this, SIGNAL(detectorSetReadingsChanged()));
 		connect(newDetector->signalSource(), SIGNAL(settingsChanged()), this, SIGNAL(detectorSetSettingsChanged()));

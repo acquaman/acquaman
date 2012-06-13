@@ -71,6 +71,9 @@ public:
 	/// Sets the id of the scan this action is associated with.
 	void setScanID(int id) { scanID_ = id; }
 
+	/// Overrides the warnings string to check warnings from the scan configuration
+	virtual QString dbLoadWarnings() const;
+
 protected:
 	/// Helper to save to db
 	AMDbObject* dbGetConfig() const;

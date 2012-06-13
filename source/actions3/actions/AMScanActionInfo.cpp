@@ -81,6 +81,10 @@ AMScanConfiguration *AMScanActionInfo::config()
 	return config_;
 }
 
+QString AMScanActionInfo::dbLoadWarnings() const{
+	return config()->dbLoadWarnings();
+}
+
 AMDbObject* AMScanActionInfo::dbGetConfig() const{
 	return config_;
 }

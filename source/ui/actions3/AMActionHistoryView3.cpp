@@ -415,6 +415,11 @@ bool AMActionHistoryView3::recurseDbLoadIndex(const QModelIndex &index, AMListAc
 	// make a copy of the AMActionInfo.
 	AMActionInfo3* info = actionLog.info()->createCopy();
 
+	if(!info->dbLoadWarnings().isEmpty()){
+		QMessageBox::warning(this, "Warning from Action Reload", "Warning, the action is claiming that:\n\n " % info->dbLoadWarnings() % "\n\nYou may not wish to proceed." );
+		AMErrorMon::debug(this, AMACTIONHISTORYVIEW_DBLOADWARNING_IN_INFO, "There was a database load warning in the info: " % info->dbLoadWarnings());
+	}
+
 	// make an action (assuming the actionInfo is registered with a corresponding action)
 	AMAction3* action = AMActionRegistry3::s()->createActionFromInfo(info);
 	if(!action) {
