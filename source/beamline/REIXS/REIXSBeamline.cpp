@@ -172,7 +172,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 														"SMTR1610-4-I21-01:mm:fbk",
 														"SMTR1610-4-I21-01:mm",
 														"SMTR1610-4-I21-01:status",
-														"SMTR1610-4-I21-01:stop", this, 1);
+														"SMTR1610-4-I21-01:stop", this, 0.04);
 
 
 
@@ -180,21 +180,21 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 												  "SMTR1610-4-I21-04:mm:fbk",
 												  "SMTR1610-4-I21-04:mm",
 												  "SMTR1610-4-I21-04:status",
-												  "SMTR1610-4-I21-04:stop", this, 1);
+												  "SMTR1610-4-I21-04:stop", this, 0.04);
 
 	detectorTranslation_->setDescription("XES Detector Translation");
 	detectorTiltDrive_ = new AMPVwStatusControl("detectorTiltDrive",
 												"SMTR1610-4-I21-02:mm:sp",
 												"SMTR1610-4-I21-02:mm",
 												"SMTR1610-4-I21-02:status",
-												"SMTR1610-4-I21-02:stop", this, 0.5);
+												"SMTR1610-4-I21-02:stop", this, 0.04);
 	detectorTiltDrive_->setDescription("XES Detector Tilt Stage");
 
 	endstationTranslation_ = new AMPVwStatusControl("endstationTranslation",
 														"SMTR1610-4-I21-05:mm:fbk",
 														"SMTR1610-4-I21-05:mm",
 														"SMTR1610-4-I21-05:status",
-														"SMTR1610-4-I21-05:stop", this, 1);  //DAVID ADDED
+														"SMTR1610-4-I21-05:stop", this, 0.03);  //DAVID ADDED
 
 	endstationTranslation_->setDescription("Endstation Translation");
 
