@@ -74,10 +74,14 @@ void AMControlMoveAction::startImplementation() {
 	startPosition_ = control_->toInfo();
 
 	// start the move:
-	if(controlMoveInfo()->isRelativeMove())
-		control_->moveRelative(setpoint.value());
-	else
-		control_->move(setpoint.value());
+	if(controlMoveInfo()->isRelativeMove()) {
+		if(!control_->moveRelative(setpoint.value()))
+			onMoveFailed(AMControl::OtherFailure);
+	}
+	else {
+		if(!control_->move(setpoint.value()))
+			onMoveFailed(AMControl::OtherFailure);
+	}
 }
 
 void AMControlMoveAction::onMoveStarted()

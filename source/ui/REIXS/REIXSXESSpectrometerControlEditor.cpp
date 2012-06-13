@@ -69,7 +69,8 @@ void REIXSXESSpectrometerControlEditor::onMoveButtonClicked()
 	spectrometer_->specifyDetectorTiltOffset(ui_->tiltOffsetBox->value());
 	spectrometer_->specifyFocusOffset(ui_->defocusOffsetBox->value());
 
-	spectrometer_->move(ui_->energyBox->value());
+	if(!spectrometer_->move(ui_->energyBox->value()))
+		onSpectrometerMoveFailed(AMControl::OtherFailure);
 }
 
 void REIXSXESSpectrometerControlEditor::onGratingComboBoxActivated(int grating)

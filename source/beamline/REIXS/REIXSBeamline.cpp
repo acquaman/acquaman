@@ -237,19 +237,17 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 #include "actions2/AMListAction.h"
 #include "actions2/actions/AMInternalControlMoveAction.h"
 
-void REIXSSpectrometer::move(double setpoint)
+bool REIXSSpectrometer::move(double setpoint)
 {
 	if(!isConnected()) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 2, "Can't move the spectrometer: some motor controls are not connected. Check that the IOCs are running and the network connections are good."));
-		emit moveFailed(AMControl::NotConnectedFailure);
-		return;
+		return false;
 	}
 
 	// can't start a move while moving
 	if(moveInProgress() || isMoving()) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 2, "Can't move the spectrometer, because it's already moving.  Stop the spectrometer first before attempting another move."));
-		emit moveFailed(AMControl::OtherFailure);
-		return;
+		return false;
 	}
 
 	specifiedEV_ = setpoint;
@@ -300,6 +298,7 @@ void REIXSSpectrometer::move(double setpoint)
 	connect(moveAction_, SIGNAL(stateChanged(int,int)), this, SLOT(onMoveActionStateChanged(int,int)));
 	emit moveStarted();
 	moveAction_->start();
+	return true;
 }
 
 
