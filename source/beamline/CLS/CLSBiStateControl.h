@@ -77,7 +77,7 @@ public:
 	/// Indicates that this control \em should (assuming it's connected) be able to issue stop() commands while moves are in progress.  Bi-state controls cannot be stopped.
 	virtual bool shouldStop() const { return false; }
 	/// Indicates that this control is currently moving.  For a bi-state control this is defined as the "Between".
-	virtual bool isMoving() const { return (*statusChecker_)(statePV_->getInt()) || moveInProgress_; }
+	virtual bool isMoving() const { return (*statusChecker_)(statePV_->getInt()); }
 
 	/// Indicates that this control is moving (as a result of a move you specifically requested)
 	virtual bool moveInProgress() const { return moveInProgress_; }
@@ -140,7 +140,7 @@ public slots:
 	}
 	/// Opens the control.  This activates the control and moves it to the "Open" state.  Synonomous with move(1).
 	bool open() {
-		// already moving? Cannot send while moving.
+		// already transitioning? Cannot send while moving.
 		if(isMoving() && !allowsMovesWhileMoving()) {
 			qWarning() << QString("Cannot open %1: it's currently in the process of opening or closing.").arg(name());
 			return false;
@@ -161,7 +161,7 @@ public slots:
 	}
 	/// Closes the control.  This deactivates the control and moves it to the "Closed" state.  Synonomous with move(0).
 	bool close() {
-		// already moving? Cannot send while moving.
+		// already transitioning? Cannot send while moving.
 		if(isMoving() && !allowsMovesWhileMoving()) {
 			qWarning() << QString("Cannot close %1: it's currently in the process of opening or closing.").arg(name());
 			return false;
