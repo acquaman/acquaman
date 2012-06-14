@@ -69,7 +69,7 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 	}
 	*/
 
-	if(SGMBeamline::sgm()->usingScalerSource()){
+	//if(SGMBeamline::sgm()->usingScalerSource()){
 		specificScan_->rawData()->addMeasurement(AMMeasurementInfo(* (config_->allDetectors()->detectorNamed("teyScaler")->toInfo()) ));
 		specificScan_->addRawDataSource(new AMRawDataSource(specificScan_->rawData(), 0));
 		specificScan_->rawData()->addMeasurement(AMMeasurementInfo(* (config_->allDetectors()->detectorNamed("I0Scaler")->toInfo()) ));
@@ -78,7 +78,7 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 		specificScan_->addRawDataSource(new AMRawDataSource(specificScan_->rawData(), 2));
 		specificScan_->rawData()->addMeasurement(AMMeasurementInfo(* (config_->allDetectors()->detectorNamed("photodiodeScaler")->toInfo()) ));
 		specificScan_->addRawDataSource(new AMRawDataSource(specificScan_->rawData(), 3));
-	}
+	//}
 
 	QList<AMDataSource*> raw1DDataSources;
 	for(int i=0; i<specificScan_->rawDataSources()->count(); i++)

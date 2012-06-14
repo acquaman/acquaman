@@ -105,8 +105,6 @@ public:
 	virtual ~SGMBeamline();
 
 	bool isConnected() const {
-		//return criticalControlsSet_->isConnected() && pgtDetector()->isConnected() && oos65000Detector()->isConnected();
-		//return criticalControlsSet_->isConnected() && pgtDetector()->isConnected() && teyScalerDetector_->isConnected();
 		return criticalControlsSet_->isConnected() && criticalDetectorsSet_->isConnected();
 	}
 
@@ -141,6 +139,7 @@ public:
 	AMControl* monoTracking() const { return monoTracking_;}
 	AMControl* exitSlitTracking() const { return exitSlitTracking_;}
 
+	/*
 	QString detectorSignalSource() const {
 		if(detectorSignalSource_->value() == 0)
 			return sgmDetectorSignalSourceName(SGMBeamline::sourcePicoammeters);
@@ -149,6 +148,7 @@ public:
 		else
 			return sgmDetectorSignalSourceName((SGMBeamline::sgmDetectorSignalSource)272727);
 	}
+	*/
 
 	QString currentEndstation() const{
 		if(activeEndstation_->value() == 0)
@@ -176,10 +176,12 @@ public:
 	AMDetector* amptekSDD1() const { return amptekSDD1_;}
 	AMDetector* amptekSDD2() const { return amptekSDD2_;}
 
+	/*
 	bool detectorValidForCurrentSignalSource(AMDetector *detector);
 	bool detectorValidForCurrentSignalSource(AMDetectorInfo *detectorInfo);
 	bool usingPicoammeterSource();
 	bool usingScalerSource();
+	*/
 
 	AMControl* loadlockCCG() const { return loadlockCCG_;}
 	AMControl* loadlockTCG() const { return loadlockTCG_;}
@@ -290,6 +292,7 @@ public slots:
 
 	void closeVacuum();
 
+	/*
 	void setDetectorSignalSource(SGMBeamline::sgmDetectorSignalSource detectorSignalSource){
 		if(detectorSignalSource == SGMBeamline::sourcePicoammeters)
 			detectorSignalSource_->move(0);
@@ -297,6 +300,7 @@ public slots:
 			detectorSignalSource_->move(1);
 		return;
 	}
+	*/
 
 	void setCurrentEndstation(SGMBeamline::sgmEndstation endstation){
 		if(endstation == SGMBeamline::scienta)
@@ -318,7 +322,7 @@ signals:
 
 	void currentSamplePlateChanged(AMSamplePlate *newSamplePlate);
 
-	void detectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource);
+	//void detectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource);
 	void currentEndstationChanged(SGMBeamline::sgmEndstation);
 
 	void detectorHVChanged();
@@ -333,7 +337,7 @@ protected slots:
 	void onCriticalControlsConnectedChanged(bool isConnected, AMControl *controll);
 	void onCriticalsConnectedChanged();
 
-	void onDetectorSignalSourceChanged(double value);
+	//void onDetectorSignalSourceChanged(double value);
 	void onActiveEndstationChanged(double value);
 
 	void recomputeWarnings();
@@ -407,7 +411,7 @@ protected:
 	AMControl *visibleLightStatus_;
 	AMControl *activeEndstation_;
 	AMControl *scalerIntegrationTime_;
-	AMControl *detectorSignalSource_;
+	//AMControl *detectorSignalSource_;
 	AMControl *ssaIllumination_;
 
 	AMDetector *teyScalerDetector_;

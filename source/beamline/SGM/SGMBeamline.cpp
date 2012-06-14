@@ -89,7 +89,9 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("visibleLightToggle", "BL1611-ID-1:visible");
 	amNames2pvNames_.set("visibleLightStatus", "BL1611-ID-1:visible:cal");
 	amNames2pvNames_.set("activeEndstation", "BL1611-ID-1:AddOns:endstation:active");
+	/*
 	amNames2pvNames_.set("detectorSignalSource", "BL1611-ID-1:AddOns:signalSource");
+	*/
 	amNames2pvNames_.set("ssaIllumination", "ILC1611-4-I10-02");
 
 	bool pvNameLookUpFail = false;
@@ -360,11 +362,13 @@ void SGMBeamline::usingSGMBeamline(){
 	scalerIntegrationTime_->setDescription("Scaler Integration Time");
 	scalerIntegrationTime_->setContextKnownDescription("Integration Time");
 
+	/*
 	sgmPVName = amNames2pvNames_.valueF("detectorSignalSource");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	detectorSignalSource_ = new AMPVControl("detectorSignalSource", sgmPVName, sgmPVName, "", this, 0.5);
 	detectorSignalSource_->setDescription("Detector Sources Selection");
+	*/
 
 	sgmPVName = amNames2pvNames_.valueF("ssaIllumination");
 	if(sgmPVName.isEmpty())
@@ -430,8 +434,10 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	addChildControl(visibleLightStatus_);
 	connect(visibleLightStatus_, SIGNAL(valueChanged(double)), this, SLOT(onVisibleLightChanged(double)));
 	addChildControl(scalerIntegrationTime_);
+	/*
 	addChildControl(detectorSignalSource_);
 	connect(detectorSignalSource_, SIGNAL(valueChanged(double)), this, SLOT(onDetectorSignalSourceChanged(double)));
+	*/
 	connect(activeEndstation_, SIGNAL(valueChanged(double)), this, SLOT(onActiveEndstationChanged(double)));
 	addChildControl(ssaIllumination_);
 
@@ -823,6 +829,7 @@ QString SGMBeamline::beamlineWarnings(){
 	return beamlineWarnings_;
 }
 
+/*
 bool SGMBeamline::detectorValidForCurrentSignalSource(AMDetector *detector){
 	if(detectorSignalSource_->value() == 0)//ENUM 0 is Picoammeters
 //		if( (detector == teyPicoDetector_) || (detector == tfyPicoDetector_) || (detector == i0PicoDetector_) || (detector == photodiodePicoDetector_))
@@ -854,6 +861,7 @@ bool SGMBeamline::usingScalerSource(){
 		return (detectorSignalSource_->value() == 1);//ENUM 1 is Scaler
 	return false;
 }
+*/
 
 int SGMBeamline::currentSamplePlateId() const{
 	if(currentSamplePlate_)
@@ -1392,8 +1400,10 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			ssaInfoList[2].setValue( 1.0);
 			ssaFiducializations_.append(AMControlInfoList(ssaInfoList));
 		}
+		/*
 		if(detectorSignalSource_->isConnected())
 			onDetectorSignalSourceChanged(detectorSignalSource_->value());
+		*/
 		emit controlSetConnectionsChanged();
 	}
 	else{
@@ -1423,12 +1433,8 @@ void SGMBeamline::onCriticalsConnectedChanged(){
 	emit criticalConnectionsChanged();
 }
 
+/*
 void SGMBeamline::onDetectorSignalSourceChanged(double value){
-	/* NTBA - April 3rd, 2012 (David Chevrier)
-	I don't think this is necessary at all anymore.
-	*/
-	Q_UNUSED(value)
-	/*
 	if(value == 0){// ENUM 0 is "Picoammeters"
 		if(allDetectors_->indexOf(teyScalerDetector_) >= 0)
 			allDetectors_->removeDetector(teyScalerDetector_);
@@ -1512,8 +1518,8 @@ void SGMBeamline::onDetectorSignalSourceChanged(double value){
 			feedbackDetectors_->removeDetector(photodiodePicoDetector_);
 	}
 	emit detectorSignalSourceChanged((SGMBeamline::sgmDetectorSignalSource)value);
-	*/
 }
+*/
 
 void SGMBeamline::onActiveEndstationChanged(double value){
 	emit currentEndstationChanged((SGMBeamline::sgmEndstation)value);
