@@ -109,21 +109,6 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	shl->setSpacing(0);
 	shl->setContentsMargins(2, 2, 2, 2);
 
-	detectorSignalSources_ = new QButtonGroup();
-	picoammeterButton_ = new QRadioButton(SGMBeamline::sgm()->sgmDetectorSignalSourceName(SGMBeamline::sourcePicoammeters));
-	scalerButton_ = new QRadioButton(SGMBeamline::sgm()->sgmDetectorSignalSourceName(SGMBeamline::sourceScaler));
-	detectorSignalSources_->addButton(picoammeterButton_, 0);
-	detectorSignalSources_->addButton(scalerButton_, 1);
-	QGroupBox *detectorSourceBox = new QGroupBox("Detectors");
-	QVBoxLayout *dl = new QVBoxLayout();
-	dl->addWidget(picoammeterButton_);
-	dl->addWidget(scalerButton_);
-	dl->setSpacing(0);
-	dl->setContentsMargins(2, 2, 2, 2);
-	detectorSourceBox->setLayout(dl);
-	connect(SGMBeamline::sgm(), SIGNAL(detectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource)), this, SLOT(onDetectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource)));
-	connect(detectorSignalSources_, SIGNAL(buttonClicked(int)), this, SLOT(onDetectorButtonsClicked(int)));
-
 	endstationsAvailable_ = new QButtonGroup();
 	scientaButton_ = new QRadioButton(SGMBeamline::sgm()->sgmEndstationName(SGMBeamline::scienta));
 	ssaButton_ = new QRadioButton(SGMBeamline::sgm()->sgmEndstationName(SGMBeamline::ssa));
@@ -227,7 +212,6 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gl_->addWidget(entranceSlitNC_,		6, 0, 1, 3, 0);
 	gl_->addWidget(exitSlitNC_,		6, 3, 1, 3, 0);
 	gl_->addLayout(shl,			7, 0, 1, 3, 0);
-	gl_->addWidget(detectorSourceBox,	8, 0, 1, 3, 0);
 	gl_->addWidget(endstationsBox,		8, 3, 1, 3, 0);
 	//gl_->addWidget(hvOnButton_,		9, 0, 1, 2, 0);
 	//gl_->addWidget(hvOffButton_,		9, 2, 1, 2, 0);
@@ -240,6 +224,7 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
 
 	scanningResetButton_->setContentsMargins(2,2,2,2);
+	onBeamlineWarnings("");
 
 	//CLSSynchronizedDwellTimeView *synchronizedDwellTimeView = new CLSSynchronizedDwellTimeView(SGMBeamline::sgm()->synchronizedDwellTime());
 	//synchronizedDwellTimeView->show();
@@ -314,17 +299,6 @@ void SGMSidebar::onStopMotorsActionFinished(){
 	qDebug() << "Motor stop SUCCEEDED";
 	delete stopMotorsAction_;
 	stopMotorsAction_ = 0;//NULL
-}
-
-void SGMSidebar::onDetectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource newSource){
-	if(newSource == SGMBeamline::sourcePicoammeters)
-		picoammeterButton_->setChecked(true);
-	else if(newSource == SGMBeamline::sourceScaler)
-		scalerButton_->setChecked(true);
-}
-
-void SGMSidebar::onDetectorButtonsClicked(int buttonIndex){
-	SGMBeamline::sgm()->setDetectorSignalSource((SGMBeamline::sgmDetectorSignalSource)buttonIndex);
 }
 
 void SGMSidebar::onCurrentEndstationChanged(SGMBeamline::sgmEndstation newEndstation){

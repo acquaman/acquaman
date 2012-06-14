@@ -60,9 +60,6 @@ protected slots:
 	void onStopMotorsButtonClicked();
 	void onStopMotorsActionFinished();
 
-	void onDetectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource newSource);
-	void onDetectorButtonsClicked(int buttonIndex);
-
 	void onCurrentEndstationChanged(SGMBeamline::sgmEndstation newEndstation);
 	void onEndstationButtonsClicked(int buttonIndex);
 
@@ -98,9 +95,6 @@ protected:
 	AMControlEditor *exitSlitNC_;
 	AMControlEditor *scanningLabel_;
 	QToolButton *scanningResetButton_;
-	QButtonGroup *detectorSignalSources_;
-	QRadioButton *picoammeterButton_;
-	QRadioButton *scalerButton_;
 	QButtonGroup *endstationsAvailable_;
 	QRadioButton *scientaButton_;
 	QRadioButton *ssaButton_;
@@ -122,8 +116,6 @@ protected:
 
 	AMBeamlineListAction *beamOnAction_;
 	AMBeamlineListAction *stopMotorsAction_;
-
-
 };
 
 #endif // SGMSIDEBAR_H
