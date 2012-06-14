@@ -30,6 +30,7 @@ CLSAmptekSDD123Detector::CLSAmptekSDD123Detector(const QString &name, const QStr
 
 	allControls_ = new AMControlSet(this);
 	startAcquisitionControl_ = new AMPVControl(name+"StartAcquisition", baseName+":spectrum:startAcquisition", baseName+":spectrum:startAcquisition", QString(), this, 0.5);
+	startAcquisitionControl_->setAllowsMovesWhileMoving(true);
 	statusControl_ = new AMReadOnlyPVControl(name+"Status", baseName+":spectrum:state", this);
 	mcaChannelsControl_ = new AMReadOnlyPVControl(name+"MCAChannels", baseName+":parameters:MCAChannels", this);
 	integrationTimeControl_ = new AMReadOnlyPVControl(name+"IntegrationTime", baseName+":parameters:PresetTime", this);

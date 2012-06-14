@@ -58,6 +58,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
 #include "dataman/export/VESPERS/VESPERSExporter2DAscii.h"
+#include "dataman/export/VESPERS/VESPERSExporterSMAK.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -161,6 +162,7 @@ void VESPERSAppController::registerClasses()
 	AMDetectorViewSupport::registerClass<VESPERSRoperCCDDetectorView, VESPERSRoperCCDDetector>();
 
 	AMExportController::registerExporter<VESPERSExporter2DAscii>();
+	AMExportController::registerExporter<VESPERSExporterSMAK>();
 }
 
 void VESPERSAppController::setupExporterOptions()
@@ -201,7 +203,7 @@ void VESPERSAppController::setupExporterOptions()
 
 	vespersDefault->setName("VESPERS2DDefault");
 	vespersDefault->setFileName("$name_$fsIndex.dat");
-	vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n");
+	vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n");
 	vespersDefault->setHeaderIncluded(true);
 	vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
 	vespersDefault->setColumnHeaderIncluded(true);
@@ -228,6 +230,7 @@ void VESPERSAppController::setupUserInterface()
 
 	assistant_ = new VESPERSWorkflowAssistant(workflowManagerView_, this);
 	assistantView_ = new VESPERSWorkflowAssistantView(assistant_);
+	assistantView_->hide();
 	mw_->insertVerticalWidget(2, assistantView_);
 
 	// Setup the general endstation control view.
@@ -381,8 +384,11 @@ void VESPERSAppController::onCurrentScanControllerCreated()
 //	connect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
 	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
 
-	if (fileFormat == "vespersXAS" || fileFormat == "vespers2011XAS" || fileFormat == "vespers2011EXAFS")
+	if (fileFormat == "vespersXAS" || fileFormat == "vespers2011XAS" || fileFormat == "vespers2011EXAFS"){
+
 		connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));
+		assistantView_->show();
+	}
 }
 
 void VESPERSAppController::onCurrentScanControllerFinished()
@@ -393,11 +399,12 @@ void VESPERSAppController::onCurrentScanControllerFinished()
 	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
 		return;
 
+	assistantView_->hide();
+
 	if (AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->state() == AMScanController::Cancelled
 			&& (fileFormat == "vespersXAS" || fileFormat == "vespers2011XAS" || fileFormat == "vespers2011EXAFS")){
 
 		assistant_->onScanCancelled();
-		assistantView_->hide();
 		disconnect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));
 	}
 

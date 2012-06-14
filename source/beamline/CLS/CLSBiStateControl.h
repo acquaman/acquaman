@@ -77,7 +77,7 @@ public:
 	/// Indicates that this control \em should (assuming it's connected) be able to issue stop() commands while moves are in progress.  Bi-state controls cannot be stopped.
 	virtual bool shouldStop() const { return false; }
 	/// Indicates that this control is currently moving.  For a bi-state control this is defined as the "Between".
-	virtual bool isMoving() const { return (*statusChecker_)(statePV_->getInt()) || moveInProgress_; }
+	virtual bool isMoving() const { return (*statusChecker_)(statePV_->getInt()); }
 
 	/// Indicates that this control is moving (as a result of a move you specifically requested)
 	virtual bool moveInProgress() const { return moveInProgress_; }
@@ -128,41 +128,57 @@ signals:
 	void stateChanged(int);
 
 public slots:
-	/// This is used to move the control to a setpoint.  Must reimplement for actual controls
-	virtual void move(double setpoint)
+	/// This is used to move the control to a setpoint.
+	virtual bool move(double setpoint)
 	{
 		if ((int)setpoint == 1)
-			open();
+			return open();
 		else if ((int)setpoint == 0)
-			close();
+			return close();
 		else
-			emit moveFailed(AMControl::OtherFailure);
+			return false;
 	}
 	/// Opens the control.  This activates the control and moves it to the "Open" state.  Synonomous with move(1).
-	void open() {
+	bool open() {
+		// already transitioning? Cannot send while moving.
+		if(isMoving() && !allowsMovesWhileMoving()) {
+			qWarning() << QString("Cannot open %1: it's currently in the process of opening or closing.").arg(name());
+			return false;
+		}
 		setpoint_ = 1;
-		emit movingChanged(moveInProgress_ = true);
+		if(!moveInProgress_)
+			emit movingChanged(moveInProgress_ = true);
 		emit moveStarted();
 		// in position already?
 		if(inPosition()) {
 			emit movingChanged(moveInProgress_ = false);
 			emit moveSucceeded();
 		}
-
+		// in this case, it's harmless to re-send the value even if it's already there, since no status changes will occur; if you send open to an already-open CLS valve or shutter, nothing happens.
+		// This makes sure we never omit sending it when we should.
 		openPV_->setValue(1);
+		return true;
 	}
 	/// Closes the control.  This deactivates the control and moves it to the "Closed" state.  Synonomous with move(0).
-	void close() {
+	bool close() {
+		// already transitioning? Cannot send while moving.
+		if(isMoving() && !allowsMovesWhileMoving()) {
+			qWarning() << QString("Cannot close %1: it's currently in the process of opening or closing.").arg(name());
+			return false;
+		}
 		setpoint_ = 0;
-		emit movingChanged(moveInProgress_ = true);
+		if(!moveInProgress_)
+			emit movingChanged(moveInProgress_ = true);
 		emit moveStarted();
 		// in position already?
 		if(inPosition()) {
 			emit movingChanged(moveInProgress_ = false);
 			emit moveSucceeded();
 		}
-
+		// in this case, it's harmless to re-send the value even if it's already there, since no status changes will occur; if you send open to an already-open CLS valve or shutter, nothing happens.
+		// This makes sure we never omit sending it when we should.
 		closePV_->setValue(1);
+		return true;
 	}
 
 	// cannot stop() these kinds of controls.
