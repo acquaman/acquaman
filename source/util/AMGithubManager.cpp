@@ -94,7 +94,7 @@ void AMGithubManager::authenticate(){
 	authenticateReply_->ignoreSslErrors();
 	connect(authenticateReply_, SIGNAL(readyRead()), this, SLOT(onAuthenicatedRequestReturned()));
 	connect(authenticateReply_, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(onSomeErrorOccured(QNetworkReply::NetworkError)));
-	connect(authenticateReply_, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(onSomeSSLErrorOccurred(QList<QSslError>)));
+	//connect(authenticateReply_, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(onSomeSSLErrorOccurred(QList<QSslError>)));
 }
 
 void AMGithubManager::getIssues(AMGithubManager::IssuesFilter filter, AMGithubManager::IssuesState state, AMGithubManager::IssuesSort sort, AMGithubManager::IssuesDirection direction){
@@ -241,10 +241,10 @@ void AMGithubManager::onSomeErrorOccured(QNetworkReply::NetworkError nError){
 	qDebug() << "Error occurred " << nError;
 }
 
-void AMGithubManager::onSomeSSLErrorOccurred(QList<QSslError> sslErrors){
+//void AMGithubManager::onSomeSSLErrorOccurred(QList<QSslError> sslErrors){
 //	for(int x = 0; x < sslErrors.count(); x++)
 //		qDebug() << "SSL Error as " << sslErrors.at(x).errorString();
-}
+//}
 
 void AMGithubManager::initialize(){
 	manager_ = new QNetworkAccessManager(this);
