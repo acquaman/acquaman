@@ -34,8 +34,6 @@ AMHeaderButton::AMHeaderButton(QWidget *parent) :
 #include <QPaintEvent>
 #include <QPainter>
 
-#include <QDebug>
-
 void AMHeaderButton::paintEvent(QPaintEvent * event) {
 
 	QToolButton::paintEvent(event);

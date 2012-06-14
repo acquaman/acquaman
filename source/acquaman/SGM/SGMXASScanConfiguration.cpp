@@ -39,7 +39,7 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectors()->count(); x++)
 		allDetectors_->addDetector(SGMBeamline::sgm()->feedbackDetectors()->detectorAt(x), true);
 	for(int x = 0; x < xasDetectors_->count(); x++){
-//		qDebug() << "Adding detector named " << xasDetectors_->detectorAt(x)->detectorName();
+//		qdebug() << "Adding detector named " << xasDetectors_->detectorAt(x)->detectorName();
 		allDetectors_->addDetector(xasDetectors_->detectorAt(x), xasDetectors_->isDefaultAt(x));
 	}
 	xasDetectorsCfg_ = xasDetectors_->toInfoSet();
@@ -158,6 +158,9 @@ QString SGMXASScanConfiguration::detailedDescription() const{
 	return QString("XAS Scan from %1 to %2\nExit Slit: %3\nGrating: %4\nHarmonic: %5").arg(regionStart(0)).arg(regionEnd(regionCount()-1)).arg(exitSlit, 0, 'f', 1).arg(SGMBeamline::sgm()->sgmGratingDescription(SGMBeamline::sgmGrating(grating))).arg(SGMBeamline::sgm()->sgmHarmonicDescription(SGMBeamline::sgmHarmonic(harmonic)));
 }
 
+QString SGMXASScanConfiguration::dbLoadWarnings() const{
+	return xasDetectorsCfg_.dbLoadWarnings();
+}
 
 bool SGMXASScanConfiguration::setTrackingGroup(AMControlInfoList trackingList){
 	bool oldUndulator = undulatorTracking_;
@@ -288,5 +291,5 @@ bool SGMXASScanConfiguration::setDetectorConfigurations(const AMDetectorInfoSet 
 void SGMXASScanConfiguration::detectorAvailabilityChanged(AMDetector *detector, bool isAvailable){
 	Q_UNUSED(detector)
 	Q_UNUSED(isAvailable)
-//	qDebug() << "Detector named " << detector->detectorName() << " is now avaialbe " << isAvailable;
+//	qdebug() << "Detector named " << detector->detectorName() << " is now avaialbe " << isAvailable;
 }

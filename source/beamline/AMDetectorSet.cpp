@@ -111,9 +111,13 @@ bool AMDetectorSet::addDetector(AMDetector* newDetector, bool isDefault) {
 		return false;
 
 	if( append(QPair<AMDetector*, bool>(newDetector, isDefault), newDetector->detectorName()) ) {
+		//qdebug() << "Adding detector as " << newDetector->detectorName();
 		connect(newDetector->signalSource(), SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
 		connect(newDetector->signalSource(), SIGNAL(readingsChanged()), this, SIGNAL(detectorSetReadingsChanged()));
 		connect(newDetector->signalSource(), SIGNAL(settingsChanged()), this, SIGNAL(detectorSetSettingsChanged()));
+
+		onConnected(newDetector->isConnected());
+
 		return true;
 	}
 	return false;
@@ -126,7 +130,11 @@ bool AMDetectorSet::removeDetector(AMDetector* detector) {
 
 	// Check this one for a qobject_cast or the signal source or both
 	disconnect(detector->signalSource(), 0, this, 0);
+	qDebug() << "Removing at index " << index << " as " << detector->detectorName();
 	remove(index);
+	if(count() > 0)
+		onConnected(detectorAt(0)->isConnected());
+
 	return true;
 }
 

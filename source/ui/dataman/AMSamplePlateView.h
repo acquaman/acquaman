@@ -197,10 +197,13 @@ signals:
 	/// Emitted when the "Remove" button is pressed on a specific row in the list
 	void rowRemovePressed(int row);
 
+	/// Emitted when the custom context menu for "Additional Information" is activated
+	void additionalInformationRequested(int row);
+
 protected:
 	/// disable the editor closing / committing?
 	bool eventFilter(QObject *object, QEvent *event) {
-		// qDebug() << "Event:" << event << "Type:" << event->type();
+		// qdebug() << "Event:" << event << "Type:" << event->type();
 
 		if(event->type() == QEvent::FocusOut)
 			return false;
@@ -311,6 +314,8 @@ protected slots:
 	/// called by the delegate when the editor buttons (Mark, Move To, Remove) are clicked
 	void onRowRemovePressed(int row);
 
+	void onAdditionalInformationRequested(int row);
+
 protected:
 	/// Widget to select and swap current sample plate
 	AMSamplePlateSelector* samplePlateSelector_;
@@ -330,6 +335,91 @@ protected:
 
 	/// A model that wraps an AMSamplePlate object for exposing as a list view
 	AMSamplePlateItemModel* samplePlateModel_;
+};
+
+#include <QDialog>
+#include <QDoubleSpinBox>
+class AMSamplePositionManuallyEnterView : public QDialog
+{
+Q_OBJECT
+public:
+	AMSamplePositionManuallyEnterView(QWidget *parent = 0);
+
+signals:
+	void finished(double upDown, double inOut, double upStDownSt, double rot);
+
+protected slots:
+	void onCancelButtonClicked();
+	void onApplyButtonClicked();
+
+	void hideAndFinish();
+
+protected:
+	virtual void closeEvent(QCloseEvent *);
+
+protected:
+	QPushButton *applyButton_;
+	QPushButton *cancelButton_;
+
+	QDoubleSpinBox *upDownDSBox_;
+	QDoubleSpinBox *inOutDSBox_;
+	QDoubleSpinBox *upStDownStDSBox_;
+	QDoubleSpinBox *rotDSBox_;
+
+	double upDown_, inOut_, upStDownSt_, rot_;
+};
+
+class AMSamplePositionAdditionalInformationView : public QDialog
+{
+Q_OBJECT
+public:
+	AMSamplePositionAdditionalInformationView(AMSampleManipulator *manipulator, AMSamplePosition *samplePosition, QWidget *parent = 0);
+
+signals:
+	void finished();
+
+protected slots:
+	void onTopLeftSetFromManipulator();
+	void onBottomRightSetFromManipulator();
+	void onTopLeftManuallyEnterClicked();
+	void onBottomRightManuallyEnterClicked();
+
+	void onTopLeftManualEnterFinished(double upDown, double inOut, double upStDownSt, double rot);
+	void onBottomRightManualEnterFinished(double upDown, double inOut, double upStDownSt, double rot);
+
+	void onCancelButtonClicked();
+	void onApplyButtonClicked();
+
+	void hideAndFinish();
+
+protected:
+	virtual void closeEvent(QCloseEvent *);
+
+	void setTopLeftText();
+	void setBottomRightText();
+	void checkValidity();
+
+protected:
+	AMSampleManipulator *manipulator_;
+	AMSamplePosition *samplePosition_;
+
+	AMControlInfoList originalTopLeft_;
+	AMControlInfoList originalBottomRight_;
+
+	QLabel *topLeftLabel_;
+	QLabel *bottomRightLabel_;
+
+	QPushButton *setTopLeftFromManipulatorButton_;
+	QPushButton *manuallyEnterTopLeftButton_;
+	QPushButton *setBottomRightFromManipulatorButton_;
+	QPushButton *manuallyEnterBottomRightButton_;
+
+	QPushButton *applyButton_;
+	QPushButton *cancelButton_;
+	QLabel *errorLabel_;
+
+	AMSamplePositionManuallyEnterView *enterTopLeftDialog_;
+	AMSamplePositionManuallyEnterView *enterBottomRightDialog_;
 };
 
 #endif // AMSAMPLEPLATEVIEW_H

@@ -421,7 +421,9 @@ public slots:
   \param errorLevel specifies what counts as success. \todo David: write out what these are.
   \todo Change name to setChildrenState().
    */
+	/*
 	bool setState(const QMap<QString, double> controlList, unsigned int errorLevel = 0);
+	*/
 
 
 signals:
@@ -480,8 +482,10 @@ protected slots:
 	/// This is used internally to flag whether a Control is labelled isEnum(), and add the names for each state. If it IS a discrete control (enumStateNames != 0), then the tolerance is set to a value less than 1.  This makes sense when the values must be integer (discrete) values.
 	virtual void setEnumStates(const QStringList& enumStateNames) { enumNames_ = enumStateNames; if(enumNames_.count() > 0) {setTolerance(0.1);} emit enumChanges(enumNames_); }
 
+	/*
 	/// Used internally by setStateList, called recursively. \todo MIGHT NEED TO BE VIRTUAL for reimplementation in child classes
 	bool searchSetChildren(QMap<QString, double> *controlList, QMap<QString, AMControl*> *executeList, unsigned int errorLevel);
+	*/
 
 private:
 	// subclasses should use the protected methods to access these, to ensure signal generation.

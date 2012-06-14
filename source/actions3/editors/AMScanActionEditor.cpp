@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMScanConfiguration.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
 
+
 AMScanActionEditor::AMScanActionEditor(AMScanActionInfo *info, QWidget *parent)
 	: QFrame(parent)
 {
@@ -45,6 +46,7 @@ AMScanActionEditor::AMScanActionEditor(AMScanActionInfo *info, QWidget *parent)
 	layout->addWidget(scanName_);
 	layout->addStretch();
 	layout->addWidget(configViewButton);
+	layout->setContentsMargins(0,0,0,0);
 
 	setLayout(layout);
 }

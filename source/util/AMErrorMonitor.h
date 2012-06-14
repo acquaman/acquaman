@@ -160,10 +160,24 @@ public:
 		mon()->reportF(AMErrorReport(src, AMErrorReport::Alert, code, desc));
 	}
 
+	/// Report an alert level AMErrorReport and return either true or false (false by default). Builds an AMErrorReport using the information provided. This function is thread-safe.
+	static bool alertAndReturn(const QObject *src = 0, int code = 0, const QString &desc = "", bool returnValue = false)
+	{
+		mon()->reportF(AMErrorReport(src, AMErrorReport::Alert, code, desc));
+		return returnValue;
+	}
+
 	/// Report an error level AMErrorReport.  Builds an AMErrorReport using the information provided.  This function is thread-safe.
 	static void error(const QObject *src = 0, int code = 0, const QString &desc = "")
 	{
 		mon()->reportF(AMErrorReport(src, AMErrorReport::Serious, code, desc));
+	}
+
+	/// Report an error level AMErrorReport and return either true or false (false by default). Builds an AMErrorReport using the information provided. This function is thread-safe.
+	static bool errorAndReturn(const QObject *src = 0, int code = 0, const QString &desc = "", bool returnValue = false)
+	{
+		mon()->reportF(AMErrorReport(src, AMErrorReport::Serious, code, desc));
+		return returnValue;
 	}
 
 	/// Report a debug level AMErrorReport.  Builds an AMErrorREport using the information provided.  This function is thread-safe.

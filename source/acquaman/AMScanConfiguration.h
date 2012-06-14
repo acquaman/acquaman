@@ -110,6 +110,9 @@ public:
 		return 0;
 	}
 
+	/// Returns a string with any warnings that occured during the load from database phase. Can be overridden by subclasses. Empty string implies no warnings.
+	virtual QString dbLoadWarnings() const { return QString(); }
+
 public slots:
 	/// Sets the user-defined scan name. If set to an empty string, the auto-generated scan name will be used.
 	void setUserScanName(const QString &userScanName);

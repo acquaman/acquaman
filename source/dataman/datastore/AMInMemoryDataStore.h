@@ -258,7 +258,7 @@ public:
 	virtual bool setValue(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex, const AMNumber& newValue, bool doBoundsChecking = true) {
 		// scan axis index doesn't provide enough / too many dimensions
 		if(scanIndex.rank() != axes_.count()) {
-			//qDebug() << "err 1";
+			//qdebug() << "err 1";
 			return false;
 		}
 
@@ -266,7 +266,7 @@ public:
 		if(doBoundsChecking) {
 			for(int mu=axes_.count()-1; mu>=0; mu--)
 				if((unsigned)scanIndex.at(mu) >= (unsigned)axes_.at(mu).size) {
-					//qDebug() << "err 2";
+					//qdebug() << "err 2";
 					return false;
 				}
 		}
@@ -306,19 +306,19 @@ public:
 
 
 		if((unsigned)measurementId >= (unsigned)measurements_.count()) {
-			//qDebug() << "err 4";
+			//qdebug() << "err 4";
 			return false;	// invalid measurement specified;
 		}
 
 		if(measurementIndex.rank() != measurements_.at(measurementId).rank()) {
-			//qDebug() << "err 5";
+			//qdebug() << "err 5";
 			return false;
 		}
 
 		int flatIndex = flatIndexForMeasurement(measurementId, measurementIndex);
 		if(doBoundsChecking) {
 			if((unsigned)flatIndex >= (unsigned)scanPoint->at(measurementId).size()) {
-				//qDebug() << "err 6";
+				//qdebug() << "err 6";
 				return false;
 			}
 		}

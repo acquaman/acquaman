@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 
 #include "actions3/AMActionRunner3.h"
+#include "actions3/actions/AMScanAction.h"
 
 #include "ui/VESPERS/XRFDetectorView.h"
 #include "ui/VESPERS/VESPERSXRFFreeRunView.h"
@@ -297,9 +298,8 @@ void VESPERSAppController::makeConnections()
 	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
 	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerFinished()));
 
-//	connect(AMActionRunner3::workflow(), SIGNAL(scanActionCreated()), this, SLOT(onCurrentScanControllerCreated()));
-//	connect(AMActionRunner3::workflow(), SIGNAL(scanActionStarted()), this, SLOT(onCurrentScanControllerStarted()));
-//	connect(AMActionRunner3::workflow(), SIGNAL(scanActionFinished()), this, SLOT(onCurrentScanControllerFinished()));
+	//connect(AMActionRunner3::workflow(), SIGNAL(scanActionStarted(AMScanAction*)), this, SLOT(onCurrentScanControllerStarted(AMScanAction*)));
+	//connect(AMActionRunner3::workflow(), SIGNAL(scanActionFinished(AMScanAction *)), this, SLOT(onCurrentScanControllerFinished(AMScanAction*)));
 
 	// Bottom bar connections.
 	connect(this, SIGNAL(pauseScanIssued()), this, SLOT(onPauseScanIssued()));
@@ -318,7 +318,7 @@ void VESPERSAppController::onConfigureDetectorRequested(const QString &detector)
 		mw_->setCurrentPane(roperCCDView_);
 }
 
-void VESPERSAppController::onCurrentScanControllerStarted()
+void VESPERSAppController::onCurrentScanControllerStarted(AMScanAction *action)
 {
 	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
 //	QString fileFormat(AMActionRunner3::workflow()->scanController()->scan()->fileFormat());
@@ -372,7 +372,7 @@ void VESPERSAppController::onCurrentScanControllerStarted()
 		newEditor->setExclusiveDataSourceByName(scan->analyzedDataSources()->at(0)->name());
 }
 
-void VESPERSAppController::onCurrentScanControllerCreated()
+void VESPERSAppController::onCurrentScanControllerCreated(AMScanAction *action)
 {
 	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
 //	QString fileFormat(AMActionRunner3::workflow()->scanController()->scan()->fileFormat());
@@ -391,7 +391,7 @@ void VESPERSAppController::onCurrentScanControllerCreated()
 	}
 }
 
-void VESPERSAppController::onCurrentScanControllerFinished()
+void VESPERSAppController::onCurrentScanControllerFinished(AMScanAction *action)
 {
 	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
 //	QString fileFormat(AMActionRunner3::workflow()->scanController()->scan()->fileFormat());

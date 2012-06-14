@@ -48,6 +48,7 @@ void AM2DScanConfigurationViewHolder::onAddToQueueRequested()
 }
 
 #include <QMessageBox>
+#include <QDebug>
 void AM2DScanConfigurationViewHolder::onStartScanRequested(){
 
 	if(!view_ || !view_->configuration())

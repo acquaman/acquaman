@@ -21,9 +21,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMCONTROLSETINFO_H
 #define AMCONTROLSETINFO_H
 
+#include <QDebug>
+
 #include "dataman/database/AMDbObject.h"
 #include "util/AMOrderedList.h"
-#include <QDebug>
 
 /// This class can be used to store the essential information and state of an AMControl, without actually needing to have a live control object. This information includes the name, units, value, minimum value, and maximum value.
 class AMControlInfo : public AMDbObject {
