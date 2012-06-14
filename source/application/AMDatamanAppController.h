@@ -71,6 +71,10 @@ class AMDbUpgrade;
 #define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REGISTERING_EXPORTERS 270217
 #define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_SETTING_UP_USER_INTERFACE 270218
 #define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_INSTALLING_MENU_ACTIONS 270219
+#define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_BEFORE_ANYTHING 270220
+#define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_BEFORE_USER_INTERFACE 270221
+#define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_AFTER_USER_INTERFACE 270222
+#define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_AFTER_EVERYTHING 270223
 
 /// This class takes the role of the main application controller for your particular version of the Acquaman program. It marshalls communication between separate widgets/objects, handles menus and menu actions, and all other cross-cutting issues that don't reside within a specific view or controller.  It creates and knows about all top-level GUI objects, and manages them within an AMMainWindow.
 /// This is the bare bones version of the GUI framework because it has no acquisition code inside and therefore forms the basis of a take home Dataman program for users.  It contains the ability to scan through the database, create experiments, and view scans using the scan editor.

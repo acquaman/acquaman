@@ -130,39 +130,54 @@ bool AMDatamanAppController::startup() {
 	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_SUBTEXT, splashScreen_, "onErrorMonDebug");
 	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_MODECHANGE, splashScreen_, "onErrorMonChangeMode");
 
-	if(!startupBeforeAnything()) { qWarning() << "Problem with Acquaman startup: before everything."; return false; }
+	if(!startupBeforeAnything())
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_BEFORE_ANYTHING, "Problem with Acquaman startup: before any other startup routines.");
 
-	if(!startupLoadSettings()) { AMErrorMon::error(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_LOADING_SETTING, "Problem with Acquaman startup: loading settings."); return false; }
+	if(!startupLoadSettings())
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_LOADING_SETTING, "Problem with Acquaman startup: loading settings.");
 
-	if(!startupLoadPlugins()) { AMErrorMon::error(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_LOADING_PLUGINS, "Problem with Acquaman startup: loading plugins."); return false; }
+	if(!startupLoadPlugins())
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_LOADING_PLUGINS, "Problem with Acquaman startup: loading plugins.");
 
 	if((isFirstTimeRun_ = startupIsFirstTime())) {
-		if(!startupOnFirstTime()) { AMErrorMon::error(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_LOADING_SETTING, "Problem with Acquaman startup: handling first-time user."); return false; }
+		if(!startupOnFirstTime())
+			return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_LOADING_SETTING, "Problem with Acquaman startup: handling first-time user.");
 	}
 	else {
-		if(!startupOnEveryTime()) { AMErrorMon::error(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_HANDING_NON_FIRST_TIME_USER, "Problem with Acquaman startup: handling non-first-time user."); return false; }
+		if(!startupOnEveryTime())
+			return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_HANDING_NON_FIRST_TIME_USER, "Problem with Acquaman startup: handling non-first-time user.");
 	}
 
-	if(!startupRegisterDatabases()) { AMErrorMon::error(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REGISTERING_DATABASES, "Problem with Acquaman startup: registering databases."); return false; }
+	if(!startupRegisterDatabases())
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REGISTERING_DATABASES, "Problem with Acquaman startup: registering databases.");
 
 	// Now that we have a database: populate initial settings, or just load user settings
 	if(isFirstTimeRun_) {
-		if(!startupPopulateNewDatabase()) { AMErrorMon::error(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_POPULATING_NEW_USER_DATABASE, "Problem with Acquaman startup: populating new user database."); return false; }
+		if(!startupPopulateNewDatabase())
+			return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_POPULATING_NEW_USER_DATABASE, "Problem with Acquaman startup: populating new user database.");
 	}
 	else {
-		if(!startupLoadFromExistingDatabase()) { AMErrorMon::error(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REVIEWING_EXISTING_USER_DATABASE, "Problem with Acquaman startup: reviewing existing database."); return false; }
+		if(!startupLoadFromExistingDatabase())
+			return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REVIEWING_EXISTING_USER_DATABASE, "Problem with Acquaman startup: reviewing existing database.");
 	}
 
-	if(!startupRegisterExporters()) { AMErrorMon::error(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REGISTERING_EXPORTERS, "Problem with Acquaman startup: registering exporters."); return false; }
+	if(!startupRegisterExporters())
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REGISTERING_EXPORTERS, "Problem with Acquaman startup: registering exporters.");
 
-	if(!startupBeforeUserInterface()) { qWarning() << "Problem with Acquaman startup: prior to setting up the user interface."; return false; }
+	if(!startupBeforeUserInterface())
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_BEFORE_USER_INTERFACE, "Problem with Acquaman startup: prior to setting up the user interface.");
 
-	if(!startupCreateUserInterface()) { AMErrorMon::error(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_SETTING_UP_USER_INTERFACE, "Problem with Acquaman startup: setting up the user interface."); return false; }
+	if(!startupCreateUserInterface())
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_SETTING_UP_USER_INTERFACE, "Problem with Acquaman startup: setting up the user interface.");
 
-	if(!startupAfterUserInterface()) { qWarning() << "Problem with Acquaman startup: after setting up the user interface."; return false; }
+	if(!startupAfterUserInterface())
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_AFTER_USER_INTERFACE, "Problem with Acquaman startup: after setting up the user interface.");
 
-	if(!startupInstallActions()) { AMErrorMon::error(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_INSTALLING_MENU_ACTIONS, "Problem with Acquaman startup: installing menu actions."); return false; }
-	if(!startupAfterEverything()) { qWarning() << "Problem with Acquaman startup: after all startup."; return false; }
+	if(!startupInstallActions())
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_INSTALLING_MENU_ACTIONS, "Problem with Acquaman startup: installing menu actions.");
+
+	if(!startupAfterEverything())
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_AFTER_EVERYTHING, "Problem with Acquaman startup: after all other startup routines.");
 
 	emit datamanStartupFinished();	
 
