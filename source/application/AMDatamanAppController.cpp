@@ -362,9 +362,6 @@ bool AMDatamanAppController::startupDatabaseUpgrades()
 		if(success && upgrade->databaseToUpgrade()->isEmpty())
 			databaseIsEmpty = true;
 
-		if(upgrade->isResponsibleForUpgrade())
-			qDebug() << "Responsible for " << upgrade->databaseNameToUpgrade();
-
 		// Only apply upgrades that are required
 		if(success && upgrade->isResponsibleForUpgrade() && upgrade->upgradeRequired()){
 			AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("Acquaman Startup: Starting Database Advanced Upgrade %1").arg(upgrade->upgradeToTag()));
@@ -435,10 +432,14 @@ bool AMDatamanAppController::startupDatabaseUpgrades()
 	}
 
 	// If we completed some upgrades (or not) let the user know
-	if(upgradesCompleted > 0)
+	if(upgradesCompleted > 0){
+		qDebug() << "Applied " << upgradesCompleted << " upgrades";
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("Acquaman Startup: Database Upgrade Stage Successful, applied %1 upgrades").arg(upgradesCompleted));
-	else
+	}
+	else{
+		qDebug() << "No upgrades necessary";
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("Acquaman Startup: Database Upgrade Stage Successful, no upgrades necessary"));
+	}
 	return true;
 }
 

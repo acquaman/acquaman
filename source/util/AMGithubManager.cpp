@@ -243,7 +243,7 @@ void AMGithubManager::onSomeErrorOccured(QNetworkReply::NetworkError nError){
 
 void AMGithubManager::onSomeSSLErrorOccurred(QList<QSslError> sslErrors){
 	for(int x = 0; x < sslErrors.count(); x++)
-		qDebug() << "SSL Error as " << sslErrors.at(x).errorString() << (int)sslErrors.at(x).error();
+		qDebug() << "SSL Error as " << sslErrors.at(x).errorString();
 }
 
 void AMGithubManager::initialize(){

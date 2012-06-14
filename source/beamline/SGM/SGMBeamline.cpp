@@ -1418,8 +1418,8 @@ void SGMBeamline::onCriticalControlsConnectedChanged(bool isConnected, AMControl
 }
 
 void SGMBeamline::onCriticalsConnectedChanged(){
-	qDebug() << "Critical controls are connected: " << criticalControlsSet_->isConnected();
-	qDebug() << "Critical detectors are connected: " << criticalDetectorsSet_->isConnected();
+	//qdebug() << "Critical controls are connected: " << criticalControlsSet_->isConnected();
+	//qdebug() << "Critical detectors are connected: " << criticalDetectorsSet_->isConnected();
 	emit criticalConnectionsChanged();
 }
 
