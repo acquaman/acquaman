@@ -35,8 +35,8 @@ macx {
 		GSL_CBLAS_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgslcblas
 
 		# QwtPlot3d dependencies (Disabled for now...)
-		# QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/lib
-		# QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/include
+		 #QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/lib
+		 #QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/include
 
 		# LibXML Dependencies (required by dacq library)
 		XML_LIB = -lxml2
@@ -158,7 +158,7 @@ INCLUDEPATH += $$EPICS_INCLUDE_DIRS \
 LIBS += $$GSL_LIB \
 		$$GSL_CBLAS_LIB \
 		$$XML_LIB \
-	-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
+	#-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
 		-L$$EPICS_LIB_DIR -lca -lCom
 
 # Set standard level of compiler warnings for everyone. (Otherwise the warnings shown will be system-dependent.)
@@ -574,7 +574,12 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/actions2/actions/AMChangeRunAction.h \
 	source/actions2/actions/AMChangeRunActionInfo.h \
 	source/actions2/editors/AMChangeRunActionEditor.h \
-	source/ui/dataman/AMSimpleDataSourceEditor.h
+	source/ui/dataman/AMSimpleDataSourceEditor.h \
+	source/actions3/actions/AMSamplePlateMoveActionInfo.h \
+	source/actions3/actions/AMSamplePlateMoveAction.h \
+	source/actions3/editors/AMSamplePlateMoveActionEditor.h \
+	source/qttelnet/qttelnet.h \
+	source/beamline/CLS/CLSProcServManager.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -967,7 +972,12 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/actions2/actions/AMChangeRunAction.cpp \
 	source/actions2/actions/AMChangeRunActionInfo.cpp \
 	source/actions2/editors/AMChangeRunActionEditor.cpp \
-	source/ui/dataman/AMSimpleDataSourceEditor.cpp
+	source/ui/dataman/AMSimpleDataSourceEditor.cpp \
+	source/actions3/actions/AMSamplePlateMoveActionInfo.cpp \
+	source/actions3/actions/AMSamplePlateMoveAction.cpp \
+	source/actions3/editors/AMSamplePlateMoveActionEditor.cpp \
+	source/qttelnet/qttelnet.cpp \
+	source/beamline/CLS/CLSProcServManager.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -991,45 +1001,3 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

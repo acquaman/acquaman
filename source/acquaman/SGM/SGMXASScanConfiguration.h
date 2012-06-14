@@ -80,6 +80,9 @@ public:
 	/// Returns the AMControlInfo for the time control.
 	AMControlInfo timeControlInfo() const { return regions_->defaultTimeControl()->toInfo(); }
 
+	/// Overrides the warnings string to check warnings from the detector info set
+	virtual QString dbLoadWarnings() const;
+
 public slots:
 	bool setTrackingGroup(AMControlInfoList trackingList);
 	bool setFluxResolutionGroup(AMControlInfoList fluxResolutionList);

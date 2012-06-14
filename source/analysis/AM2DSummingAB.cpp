@@ -147,6 +147,14 @@ void AM2DSummingAB::setAnalyzedName(const QString &name)
 	setModified(true);
 	canAnalyze_ = canAnalyze(name);
 	setInputSource();
+
+	invalidateCache();
+	reviewState();
+
+	emitSizeChanged(0);
+	emitValuesChanged();
+	emitAxisInfoChanged(0);
+	emitInfoChanged();
 }
 
 void AM2DSummingAB::setInputSource()
@@ -184,13 +192,6 @@ void AM2DSummingAB::setInputSource()
 		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
 		setDescription("Sum");
 	}
-
-	reviewState();
-
-	emitSizeChanged(0);
-	emitValuesChanged();
-	emitAxisInfoChanged(0);
-	emitInfoChanged();
 }
 
 bool AM2DSummingAB::canAnalyze(const QString &name) const

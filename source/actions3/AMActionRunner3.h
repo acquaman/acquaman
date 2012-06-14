@@ -105,9 +105,6 @@ public:
 	/// A pointer to the current action. Will be 0 if actionRunning() is false, when no action is running.
 	const AMAction3* currentAction() const { return currentAction_; }
 
-	/// Convenience method that extracts the scan controller from scan actions.  Returns 0 if the action is not a scan action.
-	AMScanController *scanController() const;
-
 
 	// Immediate-mode interface
 	////////////////////////////////
@@ -155,11 +152,11 @@ signals:
 
 	// Signals specific to AMScanAction.  Since other parts of the application will likely want to know some of these things.
 	/// Notifier that the scan action has been created.  Note that a scan controller is not created at this point.
-	void scanActionCreated();
+	void scanActionCreated(AMScanAction *);
 	/// Notifier that the scan action has been started.
-	void scanActionStarted();
+	void scanActionStarted(AMScanAction *);
 	/// Notifier that the scan action has finished (made it to either Succeeded, Failed, or Cancelled).
-	void scanActionFinished();
+	void scanActionFinished(AMScanAction *);
 
 public slots:
 
@@ -197,7 +194,7 @@ protected:
 	/// Helper function to prompt the user about what to do given that the current action failed, and it specified a "prompt user" failure response. Do they want to retry or move on?
 	int internalAskUserWhatToDoAboutFailedAction(AMAction3* action);
 	/// Helper method that returns whether the current action is a scan action or not.
-	bool isScanAction() const { return qobject_cast<AMScanAction *>(currentAction_) ? true : false; }
+	bool isScanAction() const;
 
 private:
 	/// This is a singleton class, so the constructor is private. Access the only instance of it via s().

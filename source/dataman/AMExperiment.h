@@ -30,8 +30,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QByteArray>
 #include <QPixmap>
 
-#include <QDebug>
-
 /// This class represents instances of objects that map to Experiments in the database of user information.
 class AMExperiment : public AMDbObject
 {

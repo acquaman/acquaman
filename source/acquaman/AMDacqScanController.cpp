@@ -19,7 +19,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMDacqScanController.h"
-#include <QDebug>
 #include <QTime>
 #include <QStringList>
 #include <QDir>
@@ -67,6 +66,8 @@ bool AMDacqScanController::startImplementation(){
 		acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScanSpectrum", "File");
 		if( abop)
 		{
+			//qdebug() << "Setting up the dacq";
+
 			acqEvent_t *ev;
 			ev = first_acqEvent(advAcq_->getMaster());
 			if(!ev || !ev->numPvList ){
@@ -104,6 +105,9 @@ bool AMDacqScanController::startImplementation(){
 
 			((AMAcqScanSpectrumOutput*)abop)->setScan(scan_);
 			((AMAcqScanSpectrumOutput*)abop)->setScanController(this);
+
+			//qdebug() << "Tells the dacq to start";
+
 			advAcq_->Start();
 			return true;
 		}

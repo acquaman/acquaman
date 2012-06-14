@@ -173,7 +173,7 @@ void AMVerticalStackWidget::collapseItem(int index) {
 	QWidget* w = model_.data(model_.index(index, 0), AM::PointerRole).value<QWidget*>();
 	if(w){
 		w->hide();
-		// qDebug() << "Is visible " << w->isVisible();
+		// qdebug() << "Is visible " << w->isVisible();
 	}
 	AMHeaderButton* h = model_.data(model_.index(index,0), AM::WidgetRole).value<AMHeaderButton*>();
 	if(h){

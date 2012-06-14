@@ -24,10 +24,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 #include <QProgressBar>
 
-class QToolButton;
-
 #include "AMBeamlineActionItem.h"
 #include "beamline/AMControlSet.h"
+
+class QToolButton;
+
+#define AMBEAMLINECONTROLSETMOVEACTION_ONFAILED_MESSAGE 270601
 
 class AMBeamlineControlSetMoveAction : public AMBeamlineActionItem
 {

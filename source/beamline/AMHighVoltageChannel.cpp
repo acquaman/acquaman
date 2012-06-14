@@ -20,8 +20,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMHighVoltageChannel.h"
 
-#include <QDebug>
-
 AMHighVoltageChannel::AMHighVoltageChannel(const QString &name, QObject *parent) :
 		QObject(parent)
 {

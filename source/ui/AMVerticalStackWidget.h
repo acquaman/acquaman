@@ -28,8 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 #include <QSpacerItem>
 
-#include <QDebug>
-
 /// The AMVerticalStackWidget class provides a column of widget items, that can be expanded or hidden.
 class AMVerticalStackWidget : public QFrame
 {

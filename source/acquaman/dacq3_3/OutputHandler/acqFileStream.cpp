@@ -123,7 +123,6 @@ std::string &acqFileStream:: streamName()
 ///
 // build the file names to be used for output
 ///
-#include <QDebug>
 int acqFileStream::buildFileName()
 {
 	std::string namesel;

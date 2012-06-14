@@ -35,6 +35,11 @@ class SGMSidebar;
 class SGMSettingsMasterView;
 class AMGithubManager;
 class AMDetector;
+class AMScanAction;
+class CLSProcServManager;
+class CLSProcServManagerView;
+
+#define SGMAPPCONTROLLER_COULD_NOT_RESET_FINISHED_SIGNAL 290301
 
 class SGMAppController : public AMAppController {
 	Q_OBJECT
@@ -74,9 +79,11 @@ protected slots:
 	/// \todo comment this, David...
 	void onCurrentScanControllerCreated();
 	void onCurrentScanControllerDestroyed();
-	void onCurrentScanControllerStarted();
+	void onCurrentScanControllerStarted(AMScanAction *action);
+	void onCurrentScanControllerFinished(AMScanAction *action);
 
 	void onActionSGMSettings();
+	void onActionProcServManager();
 
 	void onSGMBeamlineDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
 
@@ -101,10 +108,16 @@ protected:
 	AMScanConfigurationViewHolder *xasScanConfigurationHolder_;
 	AMScanConfigurationViewHolder *fastScanConfigurationHolder_;
 	AMScanConfigurationViewHolder3 *xasScanConfigurationHolder3_;
+	AMScanConfigurationViewHolder3 *fastScanConfigurationHolder3_;
 	SGMSidebar *sgmSidebar_;
 
 	/// Persistent view for SGMSettings
 	SGMSettingsMasterView *sgmSettingsMasterView_;
+
+	/// List of procServs we might want to fiddle with
+	QList<CLSProcServManager*> procServs_;
+	CLSProcServManagerView *procServsView_;
+
 
 	QString lastWaitingDetectors_;
 };

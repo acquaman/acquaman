@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QtGui/QWidget>
 #include <QTime>
-#include <QDebug>
+
 #include "ui_AMBottomBar.h"
 #include "AMStatusView.h"
 

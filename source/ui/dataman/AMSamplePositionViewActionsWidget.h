@@ -45,6 +45,9 @@ signals:
 	/// Emitted with the row number when the "Remove" button is pressed
 	void rowRemovePressed(int row);
 
+	/// Emitted when the custom context menu for "Additional Information" is activated
+	void additionalInformationRequested(int row);
+
 protected:
 	/// The row that this editor is being used on. (Since we only handle list models, this is sufficient)
 	int row_;
@@ -53,6 +56,8 @@ protected slots:
 	void onMarkButtonPressed() { emit rowMarkPressed(row_); }
 	void onMoveToButtonPressed() { emit rowMoveToPressed(row_); }
 	void onRemoveButtonPressed() { emit rowRemovePressed(row_); }
+
+	void onCustomContextMenuRequested(QPoint point);
 
 private:
 	Ui::AMSamplePositionViewActionsWidget *ui;

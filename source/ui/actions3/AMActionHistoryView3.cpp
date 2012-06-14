@@ -46,7 +46,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QAction>
 #include <QStringBuilder>
 #include <QHeaderView>
-#include <QDebug>
 
 // AMActionHistoryView
 ////////////////////////////
@@ -60,7 +59,7 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	countBeforeShowMoreActions_ = 0;
 
 	model_ = new AMActionHistoryModel3(db_, this);
-	model_->setMaximumActionsToDisplay(60);
+	model_->setMaximumActionsToDisplay(200);
 	//QDateTime fourHoursAgo = QDateTime::currentDateTime().addSecs(-4*60*60);
 	//model_->setVisibleDateTimeRange(fourHoursAgo);
 	QDateTime everAgo = QDateTime();
@@ -236,8 +235,20 @@ void AMActionHistoryView3::onReRunActionButtonClicked()
 
 	// go through all selected rows.
 	bool success = true;
-	foreach(QModelIndex i, treeView_->selectionModel()->selectedIndexes())
-		success &= recurseDbLoadIndex(i, 0);
+	foreach(QModelIndex i, treeView_->selectionModel()->selectedIndexes()){
+
+		bool doLoad = true;
+		if(model_->logItem(i)->finalState() != 8){
+			int ret = QMessageBox::warning(this, tr("Acquaman - Workflow"),
+						       tr("The action you are copying did not succeed when it ran.\nYou are permitted to copy it, but you may not wish to do so."
+							  "\nProceed to copy?"),
+						       "Copy", "Cancel", QString(), 0);
+			if(ret == 1)
+				doLoad = false;
+		}
+		if(doLoad)
+			success &= recurseDbLoadIndex(i, 0);
+	}
 
 	if(!success)
 		AMErrorMon::debug(this, AMACTIONHISTORYVIEW_COULD_RERUN_ACTIONS, "Could not re-run action(s) because running one or more failed to load. Please report this to the Acquaman developers.");
@@ -304,7 +315,7 @@ void AMActionHistoryView3::onModelAboutToBeRefreshed()
 {
 	// we're scrolled to the bottom if the vertical scroll bar value is at maximum. Remember that so we can go back to the bottom after the refresh.
 	scrolledToBottom_ = (treeView_->verticalScrollBar()->value() == treeView_->verticalScrollBar()->maximum());
-	// qDebug() << "Scrolled to bottom:" << scrolledToBottom_;
+	// qdebug() << "Scrolled to bottom:" << scrolledToBottom_;
 }
 
 void AMActionHistoryView3::onModelRefreshed()
@@ -316,7 +327,7 @@ void AMActionHistoryView3::onModelRefreshed()
 		// also doesn't work... Sometimes only goes most of the way there.
 		treeView_->scrollToBottom();
 		// looks like if the tree view is not visible at this time, this won't take effect. Adding another check in our showEvent() to scroll the treeView_ to the bottom if should be scrolledToBottom_
-		// qDebug() << "ScrollING to bottom";
+		// qdebug() << "ScrollING to bottom";
 	}
 
 	// update subtitle text with how many, of how many total.
@@ -403,6 +414,11 @@ bool AMActionHistoryView3::recurseDbLoadIndex(const QModelIndex &index, AMListAc
 	}
 	// make a copy of the AMActionInfo.
 	AMActionInfo3* info = actionLog.info()->createCopy();
+
+	if(!info->dbLoadWarnings().isEmpty()){
+		QMessageBox::warning(this, "Warning from Action Reload", "Warning, the action is claiming that:\n\n " % info->dbLoadWarnings() % "\n\nYou may not wish to proceed." );
+		AMErrorMon::debug(this, AMACTIONHISTORYVIEW_DBLOADWARNING_IN_INFO, "There was a database load warning in the info: " % info->dbLoadWarnings());
+	}
 
 	// make an action (assuming the actionInfo is registered with a corresponding action)
 	AMAction3* action = AMActionRegistry3::s()->createActionFromInfo(info);
