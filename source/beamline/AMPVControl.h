@@ -418,7 +418,7 @@ public:
 	//virtual bool isConnected() const { return canMeasure() && movingPV_->canRead(); }
 	virtual bool isConnected() const { return readPV_->readReady() && movingPV_->readReady(); }
 
-	/// The movingPV now provides our moving status. (Masked with isMovingMask and compared to isMovingValue)
+	/// The movingPV now provides our moving status.
 	virtual bool isMoving() const { return (*statusChecker_)(movingPV_->getInt()); }
 
 	// Additional public functions:
