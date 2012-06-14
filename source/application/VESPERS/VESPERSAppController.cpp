@@ -318,7 +318,7 @@ void VESPERSAppController::onConfigureDetectorRequested(const QString &detector)
 		mw_->setCurrentPane(roperCCDView_);
 }
 
-void VESPERSAppController::onCurrentScanControllerStarted(AMScanAction *action)
+void VESPERSAppController::onCurrentScanControllerStarted()
 {
 	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
 //	QString fileFormat(AMActionRunner3::workflow()->scanController()->scan()->fileFormat());
@@ -372,7 +372,7 @@ void VESPERSAppController::onCurrentScanControllerStarted(AMScanAction *action)
 		newEditor->setExclusiveDataSourceByName(scan->analyzedDataSources()->at(0)->name());
 }
 
-void VESPERSAppController::onCurrentScanControllerCreated(AMScanAction *action)
+void VESPERSAppController::onCurrentScanControllerCreated()
 {
 	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
 //	QString fileFormat(AMActionRunner3::workflow()->scanController()->scan()->fileFormat());
@@ -391,7 +391,7 @@ void VESPERSAppController::onCurrentScanControllerCreated(AMScanAction *action)
 	}
 }
 
-void VESPERSAppController::onCurrentScanControllerFinished(AMScanAction *action)
+void VESPERSAppController::onCurrentScanControllerFinished()
 {
 	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
 //	QString fileFormat(AMActionRunner3::workflow()->scanController()->scan()->fileFormat());
