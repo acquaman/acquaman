@@ -564,7 +564,9 @@ void VESPERSEXAFSScanConfigurationView::onEdgeChanged()
 		return;
 
 	elementChoice_->setText(config_->edge().split(" ").first());
+	lineChoice_->blockSignals(true);
 	fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol(elementChoice_->text()));
+	lineChoice_->blockSignals(false);
 	lineChoice_->setCurrentIndex(lineChoice_->findText(config_->edge().split(" ").last(), Qt::MatchStartsWith | Qt::MatchCaseSensitive));
 
 	if (energy_->value() != config_->energy())
