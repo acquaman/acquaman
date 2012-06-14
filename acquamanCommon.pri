@@ -35,8 +35,8 @@ macx {
 		GSL_CBLAS_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgslcblas
 
 		# QwtPlot3d dependencies (Disabled for now...)
-		 QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/lib
-		 QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/include
+		 #QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/lib
+		 #QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/include
 
 		# LibXML Dependencies (required by dacq library)
 		XML_LIB = -lxml2
@@ -158,7 +158,7 @@ INCLUDEPATH += $$EPICS_INCLUDE_DIRS \
 LIBS += $$GSL_LIB \
 		$$GSL_CBLAS_LIB \
 		$$XML_LIB \
-	-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
+	#-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
 		-L$$EPICS_LIB_DIR -lca -lCom
 
 # Set standard level of compiler warnings for everyone. (Otherwise the warnings shown will be system-dependent.)
