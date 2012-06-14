@@ -27,5 +27,7 @@ CLSMDriveMotorControl::CLSMDriveMotorControl(const QString &name, const QString 
 
 	// Unlike MaxV controllers, these motors can support move updates while moving:
 	setAllowsMovesWhileMoving(true);
+	// Because of the polled communication, it can take a while for these motors to send MOVE ACTIVE then MOVE DONE for null moves.  We use the moveStartThreshold to say that moves within 5 microsteps can be considered to already be in position.
+	setMoveStartTolerance(5);	// in microsteps.
 
 }
