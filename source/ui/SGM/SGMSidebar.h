@@ -43,11 +43,6 @@ public:
 
 	~SGMSidebar();
 
-signals:
-
-public slots:
-	// debugging: void testingBoundsChanged();
-
 protected:
 	void showEvent(QShowEvent *);
 
@@ -68,11 +63,6 @@ protected slots:
 	void onStripToolTimerTimeout();
 
 	void onBeamlineWarnings(const QString &newWarnings);
-
-	void onHVOnClicked();
-	void onHVOffClicked();
-	void onHVOnSucceeded();
-	void onHVOffSucceeded();
 
 protected:
 	QGroupBox *mainBox_;
@@ -100,9 +90,6 @@ protected:
 	QRadioButton *ssaButton_;
 	QHBoxLayout *warningAndPlotHL_;
 	QLabel *beamlineWarningsLabel_;
-
-	QPushButton *hvOnButton_;
-	QPushButton *hvOffButton_;
 
 	/// UI components:
 	MPlotWidget* imageView_;

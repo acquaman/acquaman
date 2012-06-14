@@ -193,11 +193,6 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	warningAndPlotHL_ = new QHBoxLayout();
 	warningAndPlotHL_->addWidget(beamlineWarningsLabel_);
 
-	hvOnButton_ = new QPushButton("HV On");
-	hvOffButton_ = new QPushButton("HV Off");
-	//connect(hvOnButton_, SIGNAL(clicked()), this, SLOT(onHVOnClicked()));
-	//connect(hvOffButton_, SIGNAL(clicked()), this, SLOT(onHVOffClicked()));
-
 	gl_->addWidget(readyLabel_,		0, 0, 1, 6, 0);
 	gl_->addWidget(beamOnButton_,		1, 0, 1, 2, 0);
 	gl_->addWidget(beamOffCButton_,		1, 2, 1, 2, 0);
@@ -213,9 +208,6 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gl_->addWidget(exitSlitNC_,		6, 3, 1, 3, 0);
 	gl_->addLayout(shl,			7, 0, 1, 3, 0);
 	gl_->addWidget(endstationsBox,		8, 3, 1, 3, 0);
-	//gl_->addWidget(hvOnButton_,		9, 0, 1, 2, 0);
-	//gl_->addWidget(hvOffButton_,		9, 2, 1, 2, 0);
-
 	gl_->addLayout(warningAndPlotHL_,	10, 0, 1, 6, 0);
 
 	gl_->setRowStretch(9, 10);
@@ -364,26 +356,4 @@ void SGMSidebar::onBeamlineWarnings(const QString &newWarnings){
 		warningAndPlotHL_->addWidget(beamlineWarningsLabel_);
 		beamlineWarningsLabel_->show();
 	}
-}
-
-void SGMSidebar::onHVOnClicked(){
-	AMBeamlineActionItem* onAction = SGMBeamline::sgm()->createHV106OnActions();
-	connect(onAction, SIGNAL(succeeded()), this, SLOT(onHVOnSucceeded()));
-	onAction->start();
-}
-
-void SGMSidebar::onHVOffClicked(){
-	AMBeamlineActionItem* offAction = SGMBeamline::sgm()->createHV106OffActions();
-	connect(offAction, SIGNAL(succeeded()), this, SLOT(onHVOffSucceeded()));
-	offAction->start();
-}
-
-void SGMSidebar::onHVOnSucceeded(){
-	qDebug() << "Heard on action succeeded";
-	disconnect(QObject::sender(), 0, this, SLOT(onHVOnSucceeded()));
-}
-
-void SGMSidebar::onHVOffSucceeded(){
-	qDebug() << "Heard off action succeeded";
-	disconnect(QObject::sender(), 0, this, SLOT(onHVOffSucceeded()));
 }
