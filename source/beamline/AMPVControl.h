@@ -23,6 +23,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMControl.h"
 #include "beamline/AMProcessVariable.h"
 
+#define AMPVCONTROL_READ_PROCESS_VARIABLE_ERROR 280401
+#define AMPVCONTROL_COULD_NOT_MOVE_BASED_ON_CANMOVE 280402
+#define AMPVCONTROL_WRITE_PROCESS_VARIABLE_ERROR 280403
+#define AMPVCONTROL_MOVE_TIMEOUT_OCCURED_NOT_DURING_MOVE 280404
+#define AMPVCONTROL_STATUS_PROCESS_VARIABLE_ERROR 280405
+#define AMPVCONTROL_STATUS_WRITE_PROCESS_VARIABLE_ERROR 280406
+
 /**
  * \defgroup control Beamline Control with AMControl and AMProcessVariable
  @{

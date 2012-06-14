@@ -20,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMBeamline.h"
 
+#include "util/AMErrorMonitor.h"
+
 AMBeamline* AMBeamline::instance_ = 0;
 
 
@@ -47,7 +49,7 @@ void AMBeamline::releaseBl() {
 AMBeamline * AMBeamline::bl()
 {
 	 if(!instance_) {
-		 qWarning() << "WARNING: AMBeamline: No beamline created yet.  You need to call YourBeamline::bl() before calling AMBeamline::bl().";
+		 AMErrorMon::alert(0, AMBEAMLINE_BEAMLINE_NOT_CREATED_YET, "No beamline created yet.  You need to call YourBeamline::bl() before calling AMBeamline::bl().");
 	 }
 
 	return instance_;

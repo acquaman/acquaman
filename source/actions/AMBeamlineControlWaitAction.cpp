@@ -206,7 +206,7 @@ void AMBeamlineControlWaitAction::calculateProgress(){
 	}
 	else
 		elapsed = fabs(control_->value()-waitpoint_)/actionTolerance_;
-	//qDebug() << "Progress is " << elapsed/1.0;
+	//qdebug() << "Progress is " << elapsed/1.0;
 	emit progress(elapsed, 1.0);
 }
 

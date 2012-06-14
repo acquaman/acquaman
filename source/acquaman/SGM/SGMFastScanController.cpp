@@ -57,13 +57,13 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 	//for(int i=0; i<scanDetectors.count(); i++) {
 	for(int i = 0; i < config_->allDetectors()->count(); i++) {
 		AMDetectorInfo* detectorInfo = config_->allDetectors()->detectorAt(i)->toInfo();
-		qDebug() << "Detector named " << config_->allDetectors()->detectorAt(i)->detectorName();
+		qdebug() << "Detector named " << config_->allDetectors()->detectorAt(i)->detectorName();
 		if(config_->allDetectors()->isDefaultAt(i)){
 			if(specificScan_->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo)))
 				specificScan_->addRawDataSource(new AMRawDataSource(specificScan_->rawData(), i));
 			else{
 				/// \todo send out and errorMon?
-				qDebug() << "BIG PROBLEM!!!!!! WHAT JUST HAPPENED?!?!?" << detectorInfo->name();
+				qdebug() << "BIG PROBLEM!!!!!! WHAT JUST HAPPENED?!?!?" << detectorInfo->name();
 			}
 		}
 	}
@@ -189,7 +189,7 @@ bool SGMFastScanController::beamlineInitialize(){
 	}
 
 	if( SGMBeamline::sgm()->energy()->withinTolerance(settings->energyStart()) ){
-//		qDebug() << "Too close to start energy";
+//		qdebug() << "Too close to start energy";
 		initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 		tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
 		tmpAction->setSetpoint(settings->energyStart()+1.0);
@@ -217,7 +217,7 @@ bool SGMFastScanController::beamlineInitialize(){
 			//config_->allDetectors()->detectorAt(x)->setFromInfo(config_->allDetectorConfigurations().detectorInfoAt(x));
 			config_->allDetectors()->detectorAt(x)->activate();
 			if(config_->allDetectors()->detectorAt(x)->turnOnAction()){
-//				qDebug() << "Fast scan wants to turn on HV";
+//				qdebug() << "Fast scan wants to turn on HV";
 				initializationActions_->appendAction(initializationActions_->stageCount()-1, config_->allDetectors()->detectorAt(x)->turnOnAction());
 			}
 		}

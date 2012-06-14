@@ -318,9 +318,9 @@ bool QEpicsAdvAcq::addRegion(int region, double start, double delta, double end,
 		   Killing the not NULL part only going with the last region idea ... is this good?
 		   Don't delete this comment
 		if((sp->acqControlList[region-tmpOffset]).controlPV != NULL ){
-			qDebug() << "Claims NOT NULL in no name addRegion"; ipv = (sp->acqControlList[region-tmpOffset]).controlPV;}
+			qdebug() << "Claims NOT NULL in no name addRegion"; ipv = (sp->acqControlList[region-tmpOffset]).controlPV;}
 		else{
-			qDebug() << "Claims IS NULL in no name addRegion"; ipv = _regions.at(region-1)->_pv;}
+			qdebug() << "Claims IS NULL in no name addRegion"; ipv = _regions.at(region-1)->_pv;}
 		*/
 		ipv = _regions.at(region-1)->_pv;
 		return addRegion(region, ipv, start, delta, end, intTime);

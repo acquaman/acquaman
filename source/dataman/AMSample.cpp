@@ -53,8 +53,6 @@ void AMSample::destroySample(AMDatabase* db, int id) {
 
 #include "util/AMPeriodicTable.h"
 
-#include <QDebug>
-
 // Format the elements into a string: ex: "B, N, Cl"
 QString AMSample::elementString() const {
 

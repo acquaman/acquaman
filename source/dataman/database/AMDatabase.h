@@ -32,6 +32,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringList>
 
 #define AMDATABASE_ERROR_COLUMN_VALUE_COUNT_MISMATCH -3102
+#define AMDATABASE_COMMIT_CONTENTION_SUCCEEDED -3103
+#define AMDATABASE_COMMIT_CONTENTION_FAILED -3104
+#define AMDATABASE_LOCK_FOR_EXECQUERY_CONTENTION_SUCCEEDED -3105
+#define AMDATABASE_LOCK_FOR_EXECQUERY_CONTENTION_FAILED -3106
 
 /// This class provides thread-safe, general access to an SQL database.
 /*! Instances of this class are used to query or modify a database; all of the functions are thread-safe and will operate using a per-thread connection to the same underlying database.

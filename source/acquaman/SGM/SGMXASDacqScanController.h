@@ -29,12 +29,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define SGMXASDACQSCANCONTROLLER_CANT_START_NO_TEMPLATE_SAVE_PATH 27003
 #define SGMXASDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE 27004
 #define SGMXASDACQSCANCONTROLLER_CANT_START_CANT_WRITE_TEMPLATE 27005
+#define SGMXASDACQSCANCONTROLLER_CANT_START_CANT_FIND_TEMPLATE_DIRECTORY 27006
 
 class SGMXASDacqScanController : public AMDacqScanController, public SGMXASScanController
 {
 Q_OBJECT
 public:
 	explicit SGMXASDacqScanController(SGMXASScanConfiguration *cfg, QObject *parent = 0);
+
+	virtual ~SGMXASDacqScanController();
 
 protected:
 	bool initializeImplementation();

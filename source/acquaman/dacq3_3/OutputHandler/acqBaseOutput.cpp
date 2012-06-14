@@ -8,7 +8,6 @@
 #include <cstdlib>
 
 #include <QString>
-#include <QDebug>
 
 static eventDataHandler_t defaultAcqBaseOutput = {
 				NULL,

@@ -384,14 +384,14 @@ void AMDetectorSetViewInternal::onDetectorRemovedFromSet(int index){
 
 	/*
  int viewIndex = -1;
- qDebug() << "About to remove " << index << viewSet_->detectorAt(index) << viewSet_->count() << gl_->rowCount()-1;
+ qdebug() << "About to remove " << index << viewSet_->detectorAt(index) << viewSet_->count() << gl_->rowCount()-1;
  AMDetectorView *removeDV;
  for(int x = 0; x < gl_->rowCount()-1; x++){
   if(gl_->itemAtPosition(x, 2)){
    removeDV = qobject_cast<AMDetectorView*>(gl_->itemAtPosition(x, 2)->widget());
    if(removeDV->detector() == viewSet_->detectorAt(index)){
     viewIndex = x;
-    qDebug() << "Found the detector at " << viewIndex;
+    qdebug() << "Found the detector at " << viewIndex;
    }
   }
  }
@@ -417,6 +417,5 @@ void AMDetectorSetViewInternal::onDetectorSetSettingsChanged(){
 }
 
 void AMDetectorSetViewInternal::onDetectorSetConfigurationRequested(){
-	qDebug() << "Heard a check?";
 	emit configValuesChanged();
 }

@@ -18,10 +18,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMActionRunner3.h"
-#include "actions3/AMAction3.h"
-#include "actions3/AMActionLog3.h"
-
-#include "util/AMErrorMonitor.h"
 
 #include <QStringBuilder>
 #include <QPixmapCache>
@@ -29,12 +25,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "actions3/AMListAction3.h"
 #include "actions3/AMLoopAction3.h"
-
-#include "acquaman/AMScanController.h"
-
-#include <QDebug>
-
 #include "actions3/AMActionRegistry3.h"
+#include "actions3/AMAction3.h"
+#include "actions3/AMActionLog3.h"
+
+#include "util/AMErrorMonitor.h"
+#include "acquaman/AMScanController.h"
 
 AMActionRunner3* AMActionRunner3::instance_ = 0;
 
@@ -65,6 +61,11 @@ void AMActionRunner3::releaseActionRunner()
 	instance_ = 0;
 }
 
+bool AMActionRunner3::isScanAction() const
+{
+	return qobject_cast<const AMScanAction *>(currentAction_) ? true : false;
+}
+
 void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 {
 	emit currentActionStateChanged(state, previousState);
@@ -87,14 +88,13 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 		}
 
 		if (isScanAction())
-			emit scanActionCreated();
+			emit scanActionCreated((AMScanAction *)currentAction());
 	}
 
 	if (state == AMAction3::Running){
 
-
 		if (isScanAction())
-			emit scanActionStarted();
+			emit scanActionStarted((AMScanAction *)currentAction());
 	}
 
 	if(state == AMAction3::Failed) {
@@ -138,22 +138,11 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 		}
 
 		if (isScanAction())
-			emit scanActionFinished();
+			emit scanActionFinished((AMScanAction *)currentAction());
 
 		// move onto the next, if there is one, and disconnect and delete the old one.
 		internalDoNextAction();
 	}
-}
-
-AMScanController *AMActionRunner3::scanController() const
-{
-	if (isScanAction()){
-
-		AMScanAction *action = qobject_cast<AMScanAction *>(currentAction_);
-		return action->controller();
-	}
-
-	return 0;
 }
 
 void AMActionRunner3::insertActionInQueue(AMAction3 *action, int index)
@@ -291,6 +280,14 @@ void AMActionRunner3::internalDoNextAction()
 		connect(currentAction_, SIGNAL(progressChanged(double,double)), this, SIGNAL(currentActionProgressChanged(double,double)));
 		connect(currentAction_, SIGNAL(statusTextChanged(QString)), this, SIGNAL(currentActionStatusTextChanged(QString)));
 		connect(currentAction_, SIGNAL(expectedDurationChanged(double)), this, SIGNAL(currentActionExpectedDurationChanged(double)));
+
+		AMListAction3 *listAction = qobject_cast<AMListAction3 *>(currentAction_);
+		if (listAction){
+
+			connect(listAction, SIGNAL(scanActionCreated(AMScanAction*)), this, SIGNAL(scanActionCreated(AMScanAction*)));
+			connect(listAction, SIGNAL(scanActionStarted(AMScanAction*)), this, SIGNAL(scanActionStarted(AMScanAction*)));
+			connect(listAction, SIGNAL(scanActionFinished(AMScanAction*)), this, SIGNAL(scanActionFinished(AMScanAction*)));
+		}
 
 		// to avoid a growing call stack if a long series of actions are all failing inside their start() method... We wait to run the next one until we get back to the even loop.
 		QTimer::singleShot(0, currentAction_, SLOT(start()));
@@ -814,8 +811,12 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 					if(targetRow < 0 || targetRow > listAction->subActionCount())
 						targetRow = listAction->subActionCount();
 					for(int i=0,cc=mil.count(); i<cc; i++) {
-						listAction->insertSubAction(actionRunner_->queuedActionAt(mil.at(i).row())->createCopy(), targetRow++);
-						actionRunner_->deleteActionInQueue(mil.at(i).row());
+
+						if (listAction->subActionMode() == AMListAction3::Sequential || (listAction->subActionMode() == AMListAction3::Parallel && actionRunner_->queuedActionAt(mil.at(i).row())->canParallelize())){
+
+							listAction->insertSubAction(actionRunner_->queuedActionAt(mil.at(i).row())->createCopy(), targetRow++);
+							actionRunner_->deleteActionInQueue(mil.at(i).row());
+						}
 					}
 					return true;
 				}
@@ -875,7 +876,7 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 
 	// if we return false to the DropAction, it might retry with IgnoreAction. We need to accept that one.
 	else if(action == Qt::IgnoreAction) {
-		qDebug() << "AMActionRunnerQueueModel: Wow: Qt actually behaved according to spec and offered the IgnoreAction. Too bad this never happens...";
+		//qdebug() << "AMActionRunnerQueueModel: Wow: Qt actually behaved according to spec and offered the IgnoreAction. Too bad this never happens...";
 		return true;
 	}
 

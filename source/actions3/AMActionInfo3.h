@@ -76,6 +76,9 @@ public:
 	/// Returns whether this action can be copied.  There may be instances (ie: sub actions within a list) that you don't want to provide individual access to.  This way even if you see this action in the history, this flag will determine whether or not you can copy it or not.
 	bool canCopy() const { return canCopy_; }
 
+	/// Returns a string with any warnings that occured during the load from database phase. Can be overridden by subclasses. Empty string implies no warnings.
+	virtual QString dbLoadWarnings() const { return QString(); }
+
 public slots:
 
 	/// Set a short description of of the action, for ex: "Moving to Sample Fe2O3"

@@ -93,6 +93,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMActionLog3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/actions/AMScanAction.h"
+#include "actions3/actions/AMSamplePlateMoveAction.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "ui/dataman/AMDbObjectGeneralView.h"
@@ -127,37 +128,43 @@ bool AMDatamanAppController::startup() {
 	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, splashScreen_, "onErrorMonStartupCode");
 	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_FINISHED, splashScreen_, "onErrorMonStartupFinished");
 	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_SUBTEXT, splashScreen_, "onErrorMonDebug");
+	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_MODECHANGE, splashScreen_, "onErrorMonChangeMode");
 
 	if(!startupBeforeAnything()) { qWarning() << "Problem with Acquaman startup: before everything."; return false; }
-	if(!startupLoadSettings()) { qWarning() << "Problem with Acquaman startup: loading settings."; return false; }
-	if(!startupLoadPlugins()) { qWarning() << "Problem with Acquaman startup: loading plugins."; return false; }
+
+	if(!startupLoadSettings()) { AMErrorMon::error(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_LOADING_SETTING, "Problem with Acquaman startup: loading settings."); return false; }
+
+	if(!startupLoadPlugins()) { AMErrorMon::error(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_LOADING_PLUGINS, "Problem with Acquaman startup: loading plugins."); return false; }
 
 	if((isFirstTimeRun_ = startupIsFirstTime())) {
-		if(!startupOnFirstTime()) { qWarning() << "Problem with Acquaman startup: handling first-time user."; return false; }
+		if(!startupOnFirstTime()) { AMErrorMon::error(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_LOADING_SETTING, "Problem with Acquaman startup: handling first-time user."); return false; }
 	}
 	else {
-		if(!startupOnEveryTime()) { qWarning() << "Problem with Acquaman startup: handling non-first-time user."; return false; }
+		if(!startupOnEveryTime()) { AMErrorMon::error(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_HANDING_NON_FIRST_TIME_USER, "Problem with Acquaman startup: handling non-first-time user."); return false; }
 	}
 
-	if(!startupRegisterDatabases()) { qWarning() << "Problem with Acquaman startup: registering databases."; return false; }
+	if(!startupRegisterDatabases()) { AMErrorMon::error(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REGISTERING_DATABASES, "Problem with Acquaman startup: registering databases."); return false; }
+
 	// Now that we have a database: populate initial settings, or just load user settings
 	if(isFirstTimeRun_) {
-		if(!startupPopulateNewDatabase()) { qWarning() << "Problem with Acquaman startup: populating new user database."; return false; }
+		if(!startupPopulateNewDatabase()) { AMErrorMon::error(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_POPULATING_NEW_USER_DATABASE, "Problem with Acquaman startup: populating new user database."); return false; }
 	}
 	else {
-		if(!startupLoadFromExistingDatabase()) { qWarning() << "Problem with Acquaman startup: reviewing existing database."; return false; }
+		if(!startupLoadFromExistingDatabase()) { AMErrorMon::error(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REVIEWING_EXISTING_USER_DATABASE, "Problem with Acquaman startup: reviewing existing database."); return false; }
 	}
 
-	if(!startupRegisterExporters()) { qWarning() << "Problem with Acquaman startup: registering exporters"; return false; }
+	if(!startupRegisterExporters()) { AMErrorMon::error(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REGISTERING_EXPORTERS, "Problem with Acquaman startup: registering exporters."); return false; }
 
 	if(!startupBeforeUserInterface()) { qWarning() << "Problem with Acquaman startup: prior to setting up the user interface."; return false; }
-	if(!startupCreateUserInterface()) { qWarning() << "Problem with Acquaman startup: setting up the user interface."; return false; }
+
+	if(!startupCreateUserInterface()) { AMErrorMon::error(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_SETTING_UP_USER_INTERFACE, "Problem with Acquaman startup: setting up the user interface."); return false; }
+
 	if(!startupAfterUserInterface()) { qWarning() << "Problem with Acquaman startup: after setting up the user interface."; return false; }
 
-	if(!startupInstallActions()) { qWarning() << "Problem with Acquaman startup: installing menu actions."; return false; }
+	if(!startupInstallActions()) { AMErrorMon::error(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_INSTALLING_MENU_ACTIONS, "Problem with Acquaman startup: installing menu actions."); return false; }
 	if(!startupAfterEverything()) { qWarning() << "Problem with Acquaman startup: after all startup."; return false; }
 
-	emit datamanStartupFinished();
+	emit datamanStartupFinished();	
 
 	isStarting_ = false;
 	return true;
@@ -250,15 +257,24 @@ bool AMDatamanAppController::startupOnFirstTime()
 			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_LOAD_FAILURE, "Failure to load requested databases for initialization of upgrade table");
 			return false;
 		}
-		// This needs to return false on the first time through ... otherwise things are going really bad
-		if(!upgrade->upgradeRequired()){
-			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_REQUIREMENT_FAILURE, "Failure in initialization of upgrade table, there must be tracking required for new databases");
+		// For the databases we are responsible for (not the beamline database) this needs to return false on the first time through ... otherwise things are going really bad
+		if(upgrade->isResponsibleForUpgrade() && !upgrade->upgradeRequired()){
+			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_REQUIREMENT_FAILURE, "Failure in initialization of upgrade table, there must be tracking required for new databases that the user application is responsible for");
 			return false;
 		}
-		success &= upgrade->updateUpgradeTable(false, true);
-		if(!success){
-			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_UPGRADE_TABLE_FAILURE, "Failure to write initialization for upgrade table");
+
+		// For the beamline database (and others like it) the upgrade better be done already
+		if(!upgrade->isResponsibleForUpgrade() && upgrade->upgradeRequired()){
+			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_SHARED_DB_FAILURE, "Failure in initialization of upgrade table, an upgrade is not done on a (shared) database the user application is not responsible for");
 			return false;
+		}
+		// Only upgrade things we're responsible for
+		else if(upgrade->isResponsibleForUpgrade()){
+			success &= upgrade->updateUpgradeTable(false, true);
+			if(!success){
+				AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_UPGRADE_TABLE_FAILURE, "Failure to write initialization for upgrade table");
+				return false;
+			}
 		}
 	}
 
@@ -331,8 +347,11 @@ bool AMDatamanAppController::startupDatabaseUpgrades()
 		if(success && upgrade->databaseToUpgrade()->isEmpty())
 			databaseIsEmpty = true;
 
+		if(upgrade->isResponsibleForUpgrade())
+			qDebug() << "Responsible for " << upgrade->databaseNameToUpgrade();
+
 		// Only apply upgrades that are required
-		if(success && upgrade->upgradeRequired()){
+		if(success && upgrade->isResponsibleForUpgrade() && upgrade->upgradeRequired()){
 			AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("Acquaman Startup: Starting Database Advanced Upgrade %1").arg(upgrade->upgradeToTag()));
 			qApp->processEvents();
 
@@ -483,6 +502,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMNumberChangeActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMControlMoveActionInfo3>();
 	AMDbObjectSupport::s()->registerClass<AMScanActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMSamplePlateMoveActionInfo>();
 
 	AMDbObjectGeneralViewSupport::registerClass<AMDbObject, AMDbObjectGeneralView>();
 	AMDbObjectGeneralViewSupport::registerClass<AM2DScanConfiguration, AM2DScanConfigurationGeneralView>();

@@ -191,10 +191,10 @@ void SGM1DFastScanFilterAB::onInputSourceSizeChanged() {
 			if( fabs((double)inputSource_->axisValue(0,x)-(double)inputSource_->axisValue(0, x-1)) < 0.001 ){
 				ignoreIndices << x;
 				numLost++;
-				//qDebug() << "XX" << (double)inputSource_->axisValue(0,x) << (double)inputSource_->value(x);
+				//qdebug() << "XX" << (double)inputSource_->axisValue(0,x) << (double)inputSource_->value(x);
 			}
 			else{
-				//qDebug() << (double)inputSource_->axisValue(0,x) << (double)inputSource_->value(x);
+				//qdebug() << (double)inputSource_->axisValue(0,x) << (double)inputSource_->value(x);
 			}
 		}
 		*/
@@ -211,9 +211,9 @@ void SGM1DFastScanFilterAB::onInputSourceSizeChanged() {
 		}
 		cacheCompletelyInvalid_ = false;
 
-		//qDebug() << "\n\n";
-		//qDebug() << cachedValues_.size() << cachedAxisValues_.size() << axes_.at(0).size << inputAxis_.size << numLost;
-		//qDebug() << "\n\n";
+		//qdebug() << "\n\n";
+		//qdebug() << cachedValues_.size() << cachedAxisValues_.size() << axes_.at(0).size << inputAxis_.size << numLost;
+		//qdebug() << "\n\n";
 
 		emitSizeChanged(0);
 	}

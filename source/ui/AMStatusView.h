@@ -30,8 +30,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStandardItemModel>
 #include <QTableView>
 
-#include <QDebug>
-
 #include "util/AMErrorMonitor.h"
 #include "util/AMDeferredFunctionCall.h"
 

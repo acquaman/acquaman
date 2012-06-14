@@ -20,8 +20,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMBeamlineHighVoltageChannelToggleAction.h"
 
-#include <QDebug>
-
 AMBeamlineHighVoltageChannelToggleAction::AMBeamlineHighVoltageChannelToggleAction(AMHighVoltageChannel *highVoltageChannel, QObject *parent) :
 		AMBeamlineActionItem(parent)
 {
@@ -55,9 +53,9 @@ AMHighVoltageChannel::highVoltageChannelPowerState AMBeamlineHighVoltageChannelT
 }
 
 void AMBeamlineHighVoltageChannelToggleAction::start(){
-//	qDebug() << "Trying to start";
+//	qdebug() << "Trying to start";
 	if(isReady()){
-//		qDebug() << "Is ready, so start";
+//		qdebug() << "Is ready, so start";
 		connect(this, SIGNAL(finished()), this, SLOT(onFinsihed()));
 		if(setpoint_ == AMHighVoltageChannel::isPowerOn){
 			connect(highVoltageChannel_, SIGNAL(fullyPowered()), this, SLOT(onSucceeded()));
@@ -70,23 +68,23 @@ void AMBeamlineHighVoltageChannelToggleAction::start(){
 		progressTimer_.start(250);
 		if(setpoint_ == AMHighVoltageChannel::isPowerOn){
 			if(highVoltageChannel_->isFullyPowered()){
-//				qDebug() << "Already on, no worries";
+//				qdebug() << "Already on, no worries";
 				onStarted();
 				onSucceeded();
 			}
 			else{
-//				qDebug() << "Trying to turn on";
+//				qdebug() << "Trying to turn on";
 				highVoltageChannel_->setOn(true);
 			}
 		}
 		else if(setpoint_ == AMHighVoltageChannel::isPowerOff){
 			if(highVoltageChannel_->isOff()){
-//				qDebug() << "Already off, no worries";
+//				qdebug() << "Already off, no worries";
 				onStarted();
 				onSucceeded();
 			}
 			else{
-//				qDebug() << "Trying to turn off";
+//				qdebug() << "Trying to turn off";
 				highVoltageChannel_->setOff();
 			}
 		}

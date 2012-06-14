@@ -116,7 +116,6 @@ protected:
 
 #include <QGraphicsItem>
 #include <QGraphicsLayoutItem>
-#include <QDebug>
 #include <QPainterPath>
 
 /// This is a high-performance version of AMThumbnailScrollWidget for use inside the QGraphicsView system

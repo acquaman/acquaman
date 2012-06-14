@@ -31,15 +31,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLayout>
 #include <QButtonGroup>
 #include <QStringList>
+#include <QMenu>
 
 #include "MPlot/MPlot.h"
-
 #include "dataman/AMScanSetModel.h"
 
 #include "ui/dataman/AMCramBarHorizontal.h"
 #include "ui/dataman/AMScanViewUtilities.h"
 
-#include <QMenu>
+
+#define AMSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_NULL_DATA_SOURCE 280101
+#define AMSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_UNHANDLED_RANK 280102
 
 class QCheckBox;
 class QDoubleSpinBox;
