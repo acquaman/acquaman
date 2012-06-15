@@ -179,11 +179,6 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	pdSeries_->setMarker(MPlotMarkerShape::None);
 
 	imagePlot_->addItem(i0Series_);
-	// debugging:
-	// connect(i0Series_->signalSource(), SIGNAL(boundsChanged()), this, SLOT(testingBoundsChanged()));
-	//imagePlot_->addItem(teySeries_);
-	//imagePlot_->addItem(tfySeries_);
-	//imagePlot_->addItem(pdSeries_);
 
 	stripToolCounter_ = 0;
 	stripToolTimer_ = new QTimer(this);
@@ -270,7 +265,6 @@ void SGMSidebar::onBeamOnButtonClicked(){
 }
 
 void SGMSidebar::onBeamOnActionFinished(){
-	qDebug() << "Beam on action finished";
 	/* NTBA - August 25th, 2011 (David Chevrier)
 			Probably need to delete the internals too, list, actions, etc"
 	*/
@@ -281,14 +275,12 @@ void SGMSidebar::onBeamOnActionFinished(){
 void SGMSidebar::onStopMotorsButtonClicked(){
 	if(stopMotorsAction_)
 		return;
-	qDebug() << "Starting the stop motors action";
 	stopMotorsAction_ = SGMBeamline::sgm()->createStopMotorsAction();
 	connect(stopMotorsAction_, SIGNAL(finished()), this, SLOT(onStopMotorsActionFinished()));
 	stopMotorsAction_->start();
 }
 
 void SGMSidebar::onStopMotorsActionFinished(){
-	qDebug() << "Motor stop SUCCEEDED";
 	delete stopMotorsAction_;
 	stopMotorsAction_ = 0;//NULL
 }
@@ -343,7 +335,6 @@ void SGMSidebar::onStripToolTimerTimeout(){
 }
 
 void SGMSidebar::onBeamlineWarnings(const QString &newWarnings){
-	qDebug() << "Warnings are " << newWarnings << newWarnings.isEmpty();
 	if(newWarnings.isEmpty() && warningAndPlotHL_->itemAt(0)->widget() == beamlineWarningsLabel_){
 		warningAndPlotHL_->removeWidget(beamlineWarningsLabel_);
 		beamlineWarningsLabel_->hide();
