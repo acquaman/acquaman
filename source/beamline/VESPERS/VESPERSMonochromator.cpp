@@ -43,6 +43,13 @@ VESPERSMonochromator::VESPERSMonochromator(QObject *parent) :
 	connect(encoder_, SIGNAL(valueChanged(double)), this, SLOT(onEncoderChanged(double)));
 }
 
+void VESPERSMonochromator::setTolerance(double tolerance)
+{
+	Eo_->setTolerance(tolerance);
+	energy_->setTolerance(tolerance);
+	delE_->setTolerance(tolerance);
+}
+
 AMBeamlineActionItem *VESPERSMonochromator::createEoAction(double energy)
 {
 	if (!Eo_->isConnected())

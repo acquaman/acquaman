@@ -36,6 +36,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QWidget(parent)
 {
+	// Temporary hack.  This is to allow some users to use the beamline while the mono application is shitting itself.
+	setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(hackForEnergyTolerance(QPoint)));
+
 	// The shutter buttons.
 	psh1_ = new CLSStopLightButton(qobject_cast<CLSBiStateControl *>(VESPERSBeamline::vespers()->photonShutter1()));
 	connect(psh1_, SIGNAL(clicked()), this, SLOT(onPSH1Clicked()));
@@ -117,6 +121,9 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	energyFeedback_->setAlignment(Qt::AlignCenter);
 	connect(VESPERSBeamline::vespers()->mono(), SIGNAL(energyChanged(double)), this, SLOT(onEnergyFeedbackChanged(double)));
 
+	energyTolerance_ = new VESPERSChangeEnergyToleranceHackView;
+	energyTolerance_->hide();
+
 	QHBoxLayout *energySetpointLayout = new QHBoxLayout;
 	energySetpointLayout->addWidget(new QLabel("Energy:"));
 	energySetpointLayout->addWidget(energySetpoint_);
@@ -127,6 +134,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	beamSelectionLayout->addWidget(beamSelectionLabel);
 	beamSelectionLayout->addWidget(beamSelectorView, 0, Qt::AlignCenter);
 	beamSelectionLayout->addLayout(energySetpointLayout);
+	beamSelectionLayout->addWidget(energyTolerance_);
 
 	// The intermediate slits.
 	slits_ = VESPERSBeamline::vespers()->intermediateSlits();
@@ -281,6 +289,21 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	//setFixedSize(325, 1000);
 	setFixedSize(325, 900);
 //    setFixedSize(325, 800);
+}
+
+#include <QMenu>
+void VESPERSPersistentView::hackForEnergyTolerance(QPoint pos)
+{
+	QMenu popup(this);
+
+	QAction *temp = popup.addAction("Change energy tolerance");
+
+	temp = popup.exec(mapToGlobal(pos));
+
+	if (temp && temp->text() == "Change energy tolerance"){
+
+		energyTolerance_->setVisible(!energyTolerance_->isVisible());
+	}
 }
 
 void VESPERSPersistentView::onBeamChanged(VESPERSBeamline::Beam beam)

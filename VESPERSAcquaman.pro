@@ -57,7 +57,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
     source/dataman/export/VESPERS/VESPERSExporter2DAscii.h \
     source/beamline/VESPERS/VESPERSEndstationConfiguration.h \
     source/ui/VESPERS/VESPERSEndstationConfigurationView.h \
-    source/dataman/export/VESPERS/VESPERSExporterSMAK.h
+    source/dataman/export/VESPERS/VESPERSExporterSMAK.h \
+    source/ui/VESPERS/VESPERSChangeEnergyToleranceHackView.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -113,10 +114,13 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
     source/dataman/export/VESPERS/VESPERSExporter2DAscii.cpp \
     source/beamline/VESPERS/VESPERSEndstationConfiguration.cpp \
     source/ui/VESPERS/VESPERSEndstationConfigurationView.cpp \
-    source/dataman/export/VESPERS/VESPERSExporterSMAK.cpp
+    source/dataman/export/VESPERS/VESPERSExporterSMAK.cpp \
+    source/ui/VESPERS/VESPERSChangeEnergyToleranceHackView.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
 
 
 
