@@ -27,7 +27,6 @@ class SGMSampleTransferView;
 class AMSampleManagementWidget;
 class CLSSIS3820ScalerView;
 class AMDetectorView;
-//class AMScanConfigurationViewHolder;
 class AMScanConfigurationViewHolder3;
 class SGMXASScanConfigurationView;
 class SGMFastScanConfigurationView;
@@ -105,8 +104,6 @@ protected:
 	AMDetectorView *amptekSDD2View_;
 	SGMXASScanConfigurationView *xasScanConfigurationView_;
 	SGMFastScanConfigurationView *fastScanConfigurationView_;
-	//AMScanConfigurationViewHolder *xasScanConfigurationHolder_;
-	//AMScanConfigurationViewHolder *fastScanConfigurationHolder_;
 	AMScanConfigurationViewHolder3 *xasScanConfigurationHolder3_;
 	AMScanConfigurationViewHolder3 *fastScanConfigurationHolder3_;
 	SGMSidebar *sgmSidebar_;
