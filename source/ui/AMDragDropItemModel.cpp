@@ -21,9 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMDragDropItemModel.h"
 #include "dataman/AMRunExperimentItems.h"
 
-#include <QDebug>
-
-
 AMDragDropItem::AMDragDropItem(const QString& text) : QStandardItem(text) {
 	setDropEnabled(true);
 }

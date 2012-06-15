@@ -35,10 +35,6 @@ class QMenu;
 class QAction;
 class QStyle;
 
-
-/// Using this for debuggging purposes in all ActionItem descendents and views
-#define VERBOSE_ACTION_ITEMS 1
-
 /// Defines a default height for the workflow, all ActionItemViews can use it
 #define NATURAL_ACTION_VIEW_HEIGHT 92
 

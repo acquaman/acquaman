@@ -301,7 +301,6 @@ void CLSSIS3820Scaler::onTotalScansChanged(double totalScans){
 }
 
 void CLSSIS3820Scaler::onConnectedChanged(){
-
 	if(isConnected() && !connectedOnce_)
 		connectedOnce_ = true;
 

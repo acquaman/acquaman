@@ -34,6 +34,7 @@ AMScanAction::AMScanAction(AMScanActionInfo *info, QObject *parent)
 	: AMAction3(info, parent)
 {
 	controller_ = 0;
+	hasValidScanController_ = false;
 	scanInfo_ = info;
 }
 
@@ -41,12 +42,15 @@ AMScanAction::AMScanAction(const AMScanAction &other)
 	: AMAction3(other)
 {
 	controller_ = 0;
+	hasValidScanController_ = false;
 	scanInfo_ = other.scanInfo_;
 }
 
 AMScanAction::~AMScanAction()
 {
-	if (controller_){
+	//qdebug() << "Going to delete AMScanAction " << (intptr_t)this;
+	if (controller_ && hasValidScanController_){
+		//qdebug() << "I am " << (intptr_t)this << ". Thinks the controller is at " << (intptr_t)controller_ << " versus boolean check " << hasValidScanController_;
 
 		controller_->disconnect();
 		delete controller_;
@@ -73,6 +77,7 @@ void AMScanAction::startImplementation()
 		setFailed();
 		return;
 	}
+	hasValidScanController_ = true;
 
 	connect(controller_, SIGNAL(initialized()), this, SLOT(onControllerInitialized()));
 	connect(controller_, SIGNAL(started()), this, SLOT(onControllerStarted()));
@@ -92,6 +97,7 @@ void AMScanAction::startImplementation()
 		controller_->disconnect();
 		controller_->deleteLater();
 		controller_ = 0;
+		hasValidScanController_ = false;
 		setFailed();
 	}
 }
@@ -126,7 +132,6 @@ void AMScanAction::onControllerStarted()
 {
 	if (controller_->scan()->storeToDb(AMDatabase::database("user")))
 		scanInfo_->setScanID(controller_->scan()->id());
-
 	else
 		AMErrorMon::alert(this, AMSCANACTION_CANT_SAVE_TO_DB, "The scan action was unable to store the scan to the database.");
 }
@@ -153,7 +158,13 @@ void AMScanAction::onControllerFailed()
 
 void AMScanAction::onControllerSucceeded()
 {
-	setSucceeded();
+	//setSucceeded();
+
+	if(!controller_){
+		AMErrorMon::alert(this, AMSCANACTION_CONTROLLER_NOT_VALID_FOR_AUTOEXPORT, "Could not export, somehow the scan controller is not available.");
+		setSucceeded();
+		return;
+	}
 
 	// If we managed to save the scan to the database, we should check if the scan should be auto exported, and if it should - export it.
 	if (controller_->scan()->database()){
@@ -163,7 +174,9 @@ void AMScanAction::onControllerSucceeded()
 
 		if (saveSucceeded){
 
-			if (controller_->scan()->scanConfiguration()->autoExportEnabled()){
+			AMScanConfiguration *config = controller_->scan()->scanConfiguration();
+
+			if (config->autoExportEnabled()){
 
 				AMExportController *exportController = new AMExportController(QList<AMScan *>() << controller_->scan());
 
@@ -175,27 +188,30 @@ void AMScanAction::onControllerSucceeded()
 					if(!exportDir.mkdir("exportData")){
 
 						AMErrorMon::alert(this, AMSCANACTION_CANT_CREATE_EXPORT_FOLDER, "Could not create the auto-export folder.");
+						setSucceeded();
 						return;
 					}
 				}
 
 				exportDir.cd("exportData");
 				exportController->setDestinationFolderPath(exportDir.absolutePath());
-				AMExporter *autoExporter = AMAppControllerSupport::createExporter(scanInfo_->config());
+				AMExporter *autoExporter = AMAppControllerSupport::createExporter(config);
 
 				if(!autoExporter){
 
 					AMErrorMon::alert(this, AMSCANACTION_NO_REGISTERED_EXPORTER, "No exporter registered for this scan type.");
+					setSucceeded();
 					return;
 				}
 
 				exportController->chooseExporter(autoExporter->metaObject()->className());
 
 				// This next creation involves a loadFromDb ... I tested it and it seems fast (milliseconds) ... if that's a Mac only thing then we can figure out a caching system, let me know I have a few ideas
-				AMExporterOption *autoExporterOption = AMAppControllerSupport::createExporterOption(scanInfo_->config());
+				AMExporterOption *autoExporterOption = AMAppControllerSupport::createExporterOption(config);
 				if(!autoExporterOption){
 
 					AMErrorMon::alert(this, AMSCANACTION_NO_REGISTERED_EXPORTER_OPTION, "No exporter option registered for this scan type.");
+					setSucceeded();
 					return;
 				}
 
@@ -210,6 +226,8 @@ void AMScanAction::onControllerSucceeded()
 
 	else
 		AMErrorMon::alert(this, AMSCANACTION_DATABASE_NOT_FOUND, "Could not find the database associated with this scan.");
+
+	setSucceeded();
 }
 
 void AMScanAction::onControllerProgressChanged(double elapsed, double total)
@@ -219,8 +237,12 @@ void AMScanAction::onControllerProgressChanged(double elapsed, double total)
 
 QString AMScanAction::controllerStateString() const
 {
-	if (!controller_)
+	if (!controller_){
+		//qdebug() << "No controller to pull";
 		return "";
+	}
+	//qdebug() << "I think I have a controller " << (intptr_t)controller_;
+	//qdebug() << controller_->objectName();
 
 	QString controllerString = "Scan is ";
 
@@ -280,5 +302,6 @@ QString AMScanAction::controllerStateString() const
 
 void AMScanAction::onControllerStateChanged()
 {
+	//qdebug() << "Calling for controllerStateString, need a valid controller";
 	setStatusText(stateDescription(state()) % "\n" % controllerStateString());
 }

@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMActionLog3.h"
 
 #include <QStringBuilder>
-#include <QDebug>
 
 AMLoopAction3::AMLoopAction3(AMLoopActionInfo3 *info, QObject *parent) : AMListAction3(info, AMListAction3::Sequential, parent) {
 	currentIteration_ = 0;

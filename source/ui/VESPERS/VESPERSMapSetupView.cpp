@@ -28,7 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QCheckBox>
-#include <QDebug>
 
 VESPERSMapSetupView::VESPERSMapSetupView(VESPERSMapSetup *mapSetup, QWidget *parent)
 	: QWidget(parent)

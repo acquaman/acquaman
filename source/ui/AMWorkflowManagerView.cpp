@@ -108,9 +108,9 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 
 void AMWorkflowManagerView::startQueue(){
 	if(!workflowQueue_->isEmpty()){
-//		qDebug() << "Trying to start queue";
+//		qdebug() << "Trying to start queue";
 		if(!workflowQueue_->head()->hasFinished() ){
-//			qDebug() << "Initialized, so just start, no reset";
+//			qdebug() << "Initialized, so just start, no reset";
 			workflowQueue_->startQueue();
 		}
 		else{

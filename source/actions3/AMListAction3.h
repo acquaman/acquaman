@@ -23,6 +23,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMAction3.h"
 #include "actions3/AMListActionInfo3.h"
 
+#define AMLISTACTION3_CANNOT_ADD_SUBACTION_ONCE_RUNNING 270801
+#define AMLISTACTION3_CANNOT_REMOVE_SUBACTION_ONCE_RUNNING 270802
+#define AMLISTACTION3_PAUSE_CALLED_WITH_NO_ACTION_RUNNING 270803
+#define AMLISTACTION3_RESUME_CALLED_WHEN_NOT_PAUSED 270804
+#define AMLISTACTION3_RESUME_CALLED_WITH_NO_ACTION_RUNNING 270805
+#define AMLISTACTION3_SEQUENTIAL_SUBACTION_PAUSED_WITHOUT_PAUSING_PARENT 270806
+#define AMLISTACTION3_SEQUENTIAL_SUBACTION_CANCELLED_WITHOUT_CANCELLING_PARENT 270807
+#define AMLISTACTION3_PARALLEL_SUBACTION_PAUSED_WITHOUT_PAUSING_PARENT 270808
+#define AMLISTACTION3_PARALLEL_SUBACTION_CANCELLED_WITHOUT_CANCELLING_PARENT 270809
+
+class AMScanAction;
+
 /// This subclass of AMAction provides an easy way to run a list of sub-actions either sequentially or in parallel.
 class AMListAction3 : public AMAction3
 {
@@ -31,7 +43,7 @@ public:
 
 	/// Specifies whether the sub-actions should be run in parallel or sequentially.
 	enum SubActionMode { Sequential = 0,
-			     Parallel
+				 Parallel
 			   };
 
 	/// Constructor
@@ -131,6 +143,14 @@ signals:
 	/// Emitted when a sub-action completes.
 	void subActionCompleted(AMAction3* completedAction);
 
+	// Signals specific to AMScanAction.  Since other parts of the application will likely want to know some of these things.
+	/// Notifier that the scan action has been created.  Note that a scan controller is not created at this point.
+	void scanActionCreated(AMScanAction *);
+	/// Notifier that the scan action has been started.
+	void scanActionStarted(AMScanAction *);
+	/// Notifier that the scan action has finished (made it to either Succeeded, Failed, or Cancelled).
+	void scanActionFinished(AMScanAction *);
+
 protected slots:
 	/// Called when any of the sub-actions changes state.
 	virtual void internalOnSubActionStateChanged(int newstate, int oldstate);
@@ -183,6 +203,9 @@ protected:
 
 	/// Helper function that returns true if we should log a sub-action ourselves when it finishes. True if: we're running inside AMActionRunner, we're supposed to log our sub-actions separately, AND \c action is not itself a nested action that is supposed to log its own sub-actions seperately.  (If \c action IS a nested action, but it's supposed to be logged as one unit, then we'll still log it ourselves.)
 	bool internalShouldLogSubAction(AMAction3* action);
+
+	/// Helper method that returns whether the current action is a scan action or not.
+	bool isScanAction() const;
 
 	/// Ordered list of sub-actions
 	QList<AMAction3*> subActions_;

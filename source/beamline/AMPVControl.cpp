@@ -19,6 +19,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMPVControl.h"
 
+#include "util/AMErrorMonitor.h"
+
 // Class AMReadOnlyPVControl
 ///////////////////////////////////////
 
@@ -55,7 +57,7 @@ void AMReadOnlyPVControl::onReadPVError(int errorCode) {
 	if(source){
 		if( (errorCode == AMPROCESSVARIABLE_CANNOT_READ) && shouldMeasure() ){
 			emit error(AMControl::CannotReadError);
-			qWarning() << QString("AMReadOnlyPVControl: Read Process Variable error %1: code %2.").arg(source->pvName()).arg(errorCode);
+			AMErrorMon::debug(this, AMPVCONTROL_READ_PROCESS_VARIABLE_ERROR, QString("AMReadOnlyPVControl: Read Process Variable error %1: code %2.").arg(source->pvName()).arg(errorCode));
 		}
 	}
 }
@@ -121,14 +123,14 @@ bool AMPVControl::move(double setpoint) {
 
 	if(isMoving()) {
 		if(!allowsMovesWhileMoving()) {
-			qWarning() << QString("AMPVControl: Could not move %1 (%2) to %3, because the control is already moving.").arg(name()).arg(writePV_->pvName()).arg(setpoint);
+			AMErrorMon::debug(this, AMPVCONTROL_COULD_NOT_MOVE_WHILE_MOVING, QString("AMPVControl: Could not move %1 (%2) to %3, because the control is already moving.").arg(name()).arg(writePV_->pvName()).arg(setpoint_));
 			return false;
 		}
 
 		// assuming this control can accept mid-move updates. We just need to update our setpoint and send it.
 
 		if(!canMove()) {	// this would be rare: a past move worked, but now we're no longer connected?
-			qWarning() << QString("AMPVControl: Could not move %1 (%2) to %3.").arg(name()).arg(writePV_->pvName()).arg(setpoint_);
+			AMErrorMon::debug(this, AMPVCONTROL_COULD_NOT_MOVE_BASED_ON_CANMOVE, QString("AMPVControl: Could not move %1 (%2) to %3.").arg(name()).arg(writePV_->pvName()).arg(setpoint_));
 			return false;
 		}
 		setpoint_ = setpoint;
@@ -147,7 +149,7 @@ bool AMPVControl::move(double setpoint) {
 		completionTimer_.stop();
 
 		if(!canMove()) {
-			qWarning() << QString("AMPVControl: Could not move %1 (%2) to %3.").arg(name()).arg(writePV_->pvName()).arg(setpoint_);
+			AMErrorMon::debug(this, AMPVCONTROL_COULD_NOT_MOVE_BASED_ON_CANMOVE, QString("AMPVControl: Could not move %1 (%2) to %3.").arg(name()).arg(writePV_->pvName()).arg(setpoint_));
 			return false;
 		}
 
@@ -201,7 +203,7 @@ void AMPVControl::onWritePVError(int errorCode) {
 	if(source){
 		if(errorCode == AMPROCESSVARIABLE_CANNOT_WRITE && shouldMove() ){
 			emit error(AMControl::CannotWriteError);
-			qWarning() << QString("AMPVControl: Write Process Variable Error %1: code %2.").arg(source->pvName()).arg(errorCode);
+			AMErrorMon::debug(this, AMPVCONTROL_WRITE_PROCESS_VARIABLE_ERROR, QString("AMPVControl: Write Process Variable Error %1: code %2.").arg(source->pvName()).arg(errorCode));
 		}
 	}
 }
@@ -212,7 +214,7 @@ void AMPVControl::onCompletionTimeout() {
 	// if we weren't moving, this shouldn't have happened. someone forgot to shutoff the timer?
 	// todo: this is only included for state testing debugging... can remove if never happens
 	if(!moveInProgress_) {
-		qWarning() << "AMPVControl: timer timeout while move not in progress.  How did this happen?";
+		AMErrorMon::debug(this, AMPVCONTROL_MOVE_TIMEOUT_OCCURED_NOT_DURING_MOVE, QString("AMPVControl: timer timeout while move not in progress.  How did this happen?"));
 		return;
 	}
 
@@ -298,7 +300,7 @@ void AMReadOnlyPVwStatusControl::onStatusPVError(int errorCode) {
 	if(source){
 		if(errorCode == AMPROCESSVARIABLE_CANNOT_READ){
 			emit error(AMControl::CannotGetStatusError);
-			qWarning() << QString("AMReadOnlyPVwStatusControl: Status Process Variable error %1: code %2.").arg(source->pvName()).arg(errorCode);
+			AMErrorMon::debug(this, AMPVCONTROL_STATUS_PROCESS_VARIABLE_ERROR, QString("AMReadOnlyPVwStatusControl: Status Process Variable error %1: code %2.").arg(source->pvName()).arg(errorCode));
 		}
 	}
 }
@@ -379,13 +381,13 @@ bool AMPVwStatusControl::move(double setpoint) {
 
 	if(isMoving()) {
 		if(!allowsMovesWhileMoving()) {
-			qWarning() << QString("AMPVControl: Could not move %1 (%2) to %3, because the control is already moving.").arg(name()).arg(writePV_->pvName()).arg(setpoint);
+			AMErrorMon::debug(this, AMPVCONTROL_COULD_NOT_MOVE_WHILE_MOVING, QString("AMPVControl: Could not move %1 (%2) to %3, because the control is already moving.").arg(name()).arg(writePV_->pvName()).arg(setpoint_));
 			return false;
 		}
 
 		if(!moveInProgress()) {
 			// the control is already moving, but it's not one of our moves. In this situation, there is no way that we can start a move and be assured that we'll be notified when OUR move finishes.
-			qWarning() << QString("AMPVControl: Could not move %1 (%2) to %3, because the control is already moving under another system's control.").arg(name()).arg(writePV_->pvName()).arg(setpoint);
+			AMErrorMon::debug(this, AMPVCONTROL_COULD_NOT_MOVE_WHILE_MOVING_EXTERNAL, QString("AMPVControl: Could not move %1 (%2) to %3, because the control is already moving.").arg(name()).arg(writePV_->pvName()).arg(setpoint_));
 			return false;
 		}
 
@@ -443,7 +445,7 @@ void AMPVwStatusControl::onWritePVError(int errorCode) {
 	if(source){
 		if(errorCode == AMPROCESSVARIABLE_CANNOT_WRITE && shouldMove()){
 			emit error(AMControl::CannotWriteError);
-			qWarning() << QString("AMPVwStatusControl: Write Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
+			AMErrorMon::debug(this, AMPVCONTROL_STATUS_WRITE_PROCESS_VARIABLE_ERROR, QString("AMPVwStatusControl: Write Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode));
 		}
 	}
 }

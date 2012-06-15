@@ -26,7 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QFile>
 #include <QTextStream>
-#include <QDebug>
 
 VESPERSXRFDataLoader::VESPERSXRFDataLoader(AMXRFScan *scan)
 	: AMAbstractFileLoader(scan)

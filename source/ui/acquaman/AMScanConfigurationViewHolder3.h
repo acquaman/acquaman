@@ -44,6 +44,9 @@ public:
 	/*! You can pass in 0 to remove the existing view from the holder.*/
 	void setView(AMScanConfigurationView* view);
 
+	/// Set the \c view as enabled or disabled. If there is a scan configuration view present, a red overlay warning will be present when set as disabled
+	void setEnabled(bool enabled);
+
 protected:
 
 	/// This function is used to create the action that will be added to the queue. By default, it creates an AMScanControllerAction using a copy of the view's scan configuration. You can re-implement this to provide a specific kind of action (for ex: REIXSXESScanControllerAction, etc.) for use with the action registry system.
@@ -51,6 +54,9 @@ protected:
 
 	/// This is the scan configuration widget we're wrapping
 	AMScanConfigurationView* view_;
+
+	/// Warning label for disabled state
+	QLabel *disabledWarning_;
 };
 
 #endif // AMSCANCONFIGURATIONVIEWHOLDER3_H

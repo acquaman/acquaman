@@ -191,6 +191,9 @@ void AMRegionsLineView::handleRowsRemoved(const QModelIndex &parent, int start, 
 }
 
 void AMRegionsLineView::redrawRegionsLine(){
+	if(!regions_)
+		return;
+
 	int nlSize = 800;
 	scene->clear();
 	double range = regions_->maximumValue() - regions_->minimumValue();

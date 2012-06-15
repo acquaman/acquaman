@@ -43,6 +43,7 @@ AMFetchSpectrumThread::~AMFetchSpectrumThread()
 
 	wait();
 }
+#include <QDebug>
 
 void AMFetchSpectrumThread::fetch(AMnDIndex index, int rowLength, const QString &filename, int size)
 {
@@ -62,7 +63,7 @@ void AMFetchSpectrumThread::fetch(AMnDIndex index, int rowLength, const QString 
 		condition_.wakeOne();
 	}
 }
-#include <QDebug>
+
 void AMFetchSpectrumThread::run()
 {
 	forever {
@@ -97,9 +98,11 @@ void AMFetchSpectrumThread::run()
 			if (!in.atEnd()){
 
 				currentLine = in.readLine().split(",");
-				spectrum.resize(currentLine.size());
+
 				if (size == 0)
-					size = spectrum.size();
+					size = currentLine.size();
+
+				spectrum.resize(size);
 
 				for (int i = 0; i < size; i++)
 					spectrum[i] = currentLine.at(i).toInt();

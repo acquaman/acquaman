@@ -87,16 +87,6 @@ SGMEnergyPositionView::SGMEnergyPositionView(SGMEnergyPosition *energyPosition, 
 	vl1->addLayout(tmpHL);
 
 	alternateViewModeButton_ = new QPushButton("More");
-	if(alternateViewMode_ == SGMEnergyPositionView::ViewModeAll)
-		alternateViewModeButton_->hide();
-	else{
-		connect(alternateViewModeButton_, SIGNAL(clicked()), this, SLOT(onAlternateViewModeClicked()));
-		currentViewMode_ = alternateViewMode_;
-		onViewModeChanged();
-	}
-
-	setEnergyPosition(energyPosition);
-
 
 	vl2_ = new QVBoxLayout();
 	vl2_->addStretch(10);
@@ -107,6 +97,15 @@ SGMEnergyPositionView::SGMEnergyPositionView(SGMEnergyPosition *energyPosition, 
 	hl->addLayout(vl2_);
 
 	setLayout(hl);
+
+	if(alternateViewMode_ == SGMEnergyPositionView::ViewModeAll)
+		alternateViewModeButton_->hide();
+	else{
+		connect(alternateViewModeButton_, SIGNAL(clicked()), this, SLOT(onAlternateViewModeClicked()));
+		currentViewMode_ = alternateViewMode_;
+		onViewModeChanged();
+	}
+	setEnergyPosition(energyPosition);
 }
 
 void SGMEnergyPositionView::onEnergyEditingFinished(){

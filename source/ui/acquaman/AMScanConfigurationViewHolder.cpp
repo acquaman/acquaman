@@ -17,7 +17,6 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <QDebug>
 #include <QRadioButton>
 #include <QPushButton>
 #include <QLabel>
@@ -99,92 +98,6 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 	if(view_)
 		layout_->addWidget(view_);
 
-	/*
-	QGridLayout *gl = new QGridLayout();
-	QHBoxLayout *hl0 = new QHBoxLayout();
-	hl0->addWidget(scanNameLabel_);
-	hl0->setContentsMargins(0,0,0,0);
-	QHBoxLayout *hl1 = new QHBoxLayout();
-	hl1->setContentsMargins(0,0,0,0);
-	QHBoxLayout *hl2 = new QHBoxLayout();
-	hl2->addWidget(scanNameDictionaryLineEdit_);
-	hl2->setContentsMargins(0,0,0,0);
-	QHBoxLayout *hl3 = new QHBoxLayout();
-	hl3->setContentsMargins(0,0,0,0);
-	QHBoxLayout *hl4 = new QHBoxLayout();
-	hl4->setContentsMargins(0,0,0,0);
-	QHBoxLayout *hl5 = new QHBoxLayout();
-	hl5->setContentsMargins(0,0,0,0);
-	QHBoxLayout *hl6 = new QHBoxLayout();
-	hl6->addWidget(doExportNameCheckBox_);
-	hl6->setContentsMargins(0,0,0,0);
-	QHBoxLayout *hl7 = new QHBoxLayout();
-	hl7->setContentsMargins(0,0,0,0);
-	QHBoxLayout *hl8 = new QHBoxLayout();
-	hl8->addWidget(exportNameLabel_);
-	hl8->setContentsMargins(0,0,0,0);
-	QHBoxLayout *hl9 = new QHBoxLayout();
-	hl9->setContentsMargins(0,0,0,0);
-	QHBoxLayout *hl10 = new QHBoxLayout();
-	hl10->addWidget(exportNameDictionaryLineEdit_);
-	hl10->setContentsMargins(0,0,0,0);
-	QHBoxLayout *hl11 = new QHBoxLayout();
-	hl11->addWidget(scanNameExampleLabel_);
-	hl11->setContentsMargins(0,0,0,0);
-	QHBoxLayout *hl12 = new QHBoxLayout();
-	hl12->setContentsMargins(0,0,0,0);
-	QHBoxLayout *hl13 = new QHBoxLayout();
-	hl13->addWidget(autoExportLabel_);
-	hl13->setContentsMargins(0,0,0,0);
-	QHBoxLayout *hl14 = new QHBoxLayout();
-	hl14->setContentsMargins(0,0,0,0);
-	QHBoxLayout *hl15 = new QHBoxLayout();
-	hl15->addWidget(doAutoExportCheckBox_);
-	hl15->setContentsMargins(0,0,0,0);
-	QHBoxLayout *hl16 = new QHBoxLayout();
-	hl16->setContentsMargins(0,0,0,0);
-	QHBoxLayout *hl17 = new QHBoxLayout();
-	hl17->addWidget(exportNameExampleLabel_);
-	hl17->setContentsMargins(0,0,0,0);
-	gl->addLayout(hl0,	0, 0, 1, 1, Qt::AlignLeft);
-	gl->addLayout(hl1,	0, 1, 1, 1, Qt::AlignLeft);
-	gl->addLayout(hl2,	0, 2, 1, 1, Qt::AlignLeft);
-	gl->addLayout(hl3,	0, 3, 1, 1, Qt::AlignLeft);
-	gl->addLayout(hl4,	0, 4, 1, 1, Qt::AlignLeft);
-	gl->addLayout(hl4,	0, 5, 1, 1, Qt::AlignLeft);
-	gl->addLayout(hl6,	0, 6, 1, 1, Qt::AlignLeft);
-	gl->addLayout(hl7,	0, 7, 1, 1, Qt::AlignLeft);
-	gl->addLayout(hl8,	0, 8, 1, 1, Qt::AlignLeft);
-	gl->addLayout(hl9,	0, 9, 1, 1, Qt::AlignLeft);
-	gl->addLayout(hl10,	0, 10, 1, 1, Qt::AlignLeft);
-	gl->addLayout(hl11,	1, 0, 1, 3, Qt::AlignLeft);
-	gl->addLayout(hl12,	0, 3, 1, 1, Qt::AlignLeft);
-	gl->addLayout(hl13,	1, 4, 1, 1, Qt::AlignLeft);
-	gl->addLayout(hl14,	0, 5, 1, 1, Qt::AlignLeft);
-	gl->addLayout(hl15,	1, 6, 1, 1, Qt::AlignLeft);
-	gl->addLayout(hl16,	0, 7, 1, 1, Qt::AlignLeft);
-	gl->addLayout(hl17,	1, 8, 1, 3, Qt::AlignLeft);
-	gl->setContentsMargins(10, 10, 10, 0);
-	gl->setSpacing(1);
-	gl->setColumnMinimumWidth(1, 3);
-	gl->setColumnMinimumWidth(3, 3);
-	gl->setColumnMinimumWidth(4, 7);
-	gl->setColumnMinimumWidth(5, 3);
-	gl->setColumnMinimumWidth(7, 3);
-	gl->setColumnMinimumWidth(9, 3);
-	gl->setColumnStretch(0, 2);
-	gl->setColumnStretch(1, 0);
-	gl->setColumnStretch(2, 10);
-	gl->setColumnStretch(3, 0);
-	gl->setColumnStretch(4, 1);
-	gl->setColumnStretch(5, 0);
-	gl->setColumnStretch(6, 2);
-	gl->setColumnStretch(7, 0);
-	gl->setColumnStretch(8, 2);
-	gl->setColumnStretch(9, 0);
-	gl->setColumnStretch(10, 10);
-	*/
-
 	QHBoxLayout* optionsHL = new QHBoxLayout();
 	optionsHL->addWidget(whenDoneLabel_);
 	optionsHL->addWidget(goToWorkflowOption_);
@@ -194,7 +107,6 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 	optionsHL->addWidget(startScanButton_);
 	optionsHL->setContentsMargins(10, 0, 10, 20);
 
-	//layout_->addLayout(gl);
 	layout_->addLayout(optionsHL);
 	layout_->setContentsMargins(0,0,0,0);
 
@@ -284,8 +196,6 @@ void AMScanConfigurationViewHolder::onStartScanRequested(){
 
 	// check first: if there's already items in the workflow, we need to find out if they want to add this action to the end of the queue, add this action to the beginning of the queue,
 	if(workflow_->actionItemCount()) {
-
-		qDebug() << workflow_->actionItemCount();
 
 		QMessageBox questionBox;
 		questionBox.setText("There are already scans waiting in the workflow queue.");

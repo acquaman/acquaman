@@ -34,6 +34,7 @@ class VESPERS2DScanConfiguration;
 class VESPERS2DScanConfigurationView;
 class AM2DScanConfigurationViewHolder;
 class AMBeamlineListAction;
+class AMScanAction;
 
 class AMGenericScanEditor;
 
