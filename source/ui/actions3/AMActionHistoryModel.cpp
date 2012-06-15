@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QPixmapCache>
 #include <QStringBuilder>
-#include <QDebug>
 
 #include "actions3/AMActionLog3.h"
 
@@ -140,7 +139,10 @@ bool AMActionLogItem3::loadLogDetailsFromDb() const
 	startDateTime_ = QDateTime::fromString(values.at(3).toString(), "yyyy-MM-ddThh:mm:ss.zzz");
 	endDateTime_ = QDateTime::fromString(values.at(4).toString(), "yyyy-MM-ddThh:mm:ss.zzz");
 	finalState_ = values.at(5).toInt();
-	canCopy_ = db_->retrieve(values.at(6).toString().section(';', -1).toInt(), values.at(6).toString().split(';').first(), "canCopy").toBool();
+	if(values.at(6).toString().contains("|$^$|"))
+		canCopy_ = db_->retrieve(values.at(6).toString().section(';', -1).toInt(), values.at(6).toString().split(';').first().split("|$^$|").last(), "canCopy").toBool();
+	else
+		canCopy_ = db_->retrieve(values.at(6).toString().section(';', -1).toInt(), values.at(6).toString().split(';').first(), "canCopy").toBool();
 	parentId_ = values.at(7).toInt();
 	actionInheritedLoop_ = values.at(8).toBool();
 	// Only set number of loops from the database if this logAction inherited the loop action
@@ -162,6 +164,7 @@ AMActionHistoryModel3::AMActionHistoryModel3(AMDatabase *db, QObject *parent) : 
 	actionLogTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMActionLog3>();
 	visibleActionsCount_ = 0;
 	maximumActionsLimit_ = 200;
+	visibleRangeOldest_ = QDateTime::fromString("M1d1y70", "'M'M'd'd'y'yy");
 
 	connect(&refreshFunctionCall_, SIGNAL(executed()), this, SLOT(refreshFromDb()));
 	connect(&specificRefreshFunctionCall_, SIGNAL(executed()), this, SLOT(refreshSpecificIds()));
@@ -324,6 +327,17 @@ QVariant AMActionHistoryModel3::data(const QModelIndex &index, int role) const
 	}
 	else if(role == Qt::ToolTipRole) {
 		if(index.column() == 0) {
+
+			// In case the item didn't (or isn't yet) in some sort of finished state
+			if(item && item->canCopy() && !(item->finalState() == 7 || item->finalState() == 8 || item->finalState() == 9) )
+				return "Cannot select this item, it has not yet completed";
+			//In case a loop or list had no logged actions in it
+			if(item && item->canCopy() && item->actionInheritedLoop() && (childrenCount(index) == 0) )
+				return "Cannot select this item, it has no children.";
+			//In case a loop or list had no logged actions in it
+			if(item && item->canCopy() && item->actionInheritedLoop() && (successfulChildrenCount(index) == 0) )
+				return "Cannot select this item, none of its children succeeded.";
+
 			return item->longDescription();
 		}
 		else if(index.column() == 1) {
@@ -367,6 +381,15 @@ Qt::ItemFlags AMActionHistoryModel3::flags(const QModelIndex &index) const
 	if( index.column() != 0)
 		return Qt::ItemIsEnabled;
 	AMActionLogItem3 *item = logItem(index);
+	// In case the item didn't (or isn't yet) in some sort of finished state
+	if(item && item->canCopy() && !(item->finalState() == 7 || item->finalState() == 8 || item->finalState() == 9) )
+		return Qt::ItemIsEnabled;
+	//In case a loop or list had no logged actions in it
+	if(item && item->canCopy() && item->actionInheritedLoop() && (childrenCount(index) == 0) )
+		return Qt::ItemIsEnabled;
+	//In case a loop or list had no logged actions in it
+	if(item && item->canCopy() && item->actionInheritedLoop() && (successfulChildrenCount(index) == 0) )
+		return Qt::ItemIsEnabled;
 	if (item && item->canCopy())
 		return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
@@ -413,6 +436,21 @@ int AMActionHistoryModel3::childrenCount(const QModelIndex &parent) const{
 		if(hasChildren(index(x, 0, parent)))
 			subChildCount += childrenCount(index(x, 0, parent));
 	return rowCount(parent) + subChildCount;
+}
+
+int AMActionHistoryModel3::successfulChildrenCount(const QModelIndex &parent) const{
+	if( rowCount() == 0 )
+		return 0;
+	int successfulSubChildCount = 0;
+	int successfulChildCount = 0;
+	for(int x = 0; x < rowCount(parent); x++){
+		if(hasChildren(index(x, 0, parent)))
+			successfulSubChildCount += successfulChildrenCount(index(x, 0, parent));
+		AMActionLogItem3 *childLogItem = logItem(index(x, 0, parent));
+		if(childLogItem->finalState() == 8)
+			successfulChildCount++;
+	}
+	return successfulChildCount + successfulSubChildCount;
 }
 
 AMActionLogItem3 * AMActionHistoryModel3::logItem(const QModelIndex &index) const
@@ -645,12 +683,12 @@ void AMActionHistoryModel3::onDatabaseItemCreated(const QString &tableName, int 
 
 	// if id is -1, there could be updates to the whole table.
 	if(id < 1) {
-		// qDebug() << "AMActionHistoryModel: global refresh";
+		// qdebug() << "AMActionHistoryModel: global refresh";
 		refreshFunctionCall_.schedule();
 		return;
 	}
 
-	// qDebug() << "AMActionHistoryModel: precision refresh";
+	// qdebug() << "AMActionHistoryModel: precision refresh";
 
 	// OK, this is a specific update.
 	// find out if this action's endDateTime is within our visible date range

@@ -41,10 +41,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman.h"
 
-
-
-#include <QDebug>
-
 AMExportWizard::AMExportWizard(AMExportController* controller, QWidget *parent) :
 	QWizard(parent)
 {

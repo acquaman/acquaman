@@ -47,6 +47,9 @@ class AMScanController;
 
 #define AMSCAN_CANNOT_FIND_SUITABLE_PLUGIN_FOR_FILE_FORMAT -2147
 #define AMSCAN_DEBUG_DELETING_SCAN -2148
+#define AMSCAN_SCAN_DELETE_DIRECTLY -2149
+#define AMSCAN_ANALYZED_DATASOURCE_COUNT_MISMATCH -2150
+#define AMSCAN_THUMBNAIL_SCANNING_MESSAGE -2151
 
 /// This class is the base of all objects that represent a single 'scan' on a beamline.
 /*! AMScan provides access to the following information:

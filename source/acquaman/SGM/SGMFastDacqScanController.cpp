@@ -67,6 +67,7 @@ bool SGMFastDacqScanController::startImplementation(){
 	}
 	bool loadSuccess;
 
+	/*
 	for(int x = 0; x < config_->allDetectors()->count(); x++){
 		if(config_->allDetectors()->isDefaultAt(x) && !SGMBeamline::sgm()->detectorValidForCurrentSignalSource(config_->allDetectors()->detectorAt(x)->toInfo())){
 			AMErrorMon::report(AMErrorReport(this,
@@ -76,6 +77,7 @@ bool SGMFastDacqScanController::startImplementation(){
 			return false;
 		}
 	}
+	*/
 
 	SGMDacqConfigurationFile *configFile = new SGMDacqConfigurationFile();
 	QList<int> matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "FastScaler");
@@ -101,13 +103,16 @@ bool SGMFastDacqScanController::startImplementation(){
 	fastScanTimer_ = new QTimer(this);
 	connect(fastScanTimer_, SIGNAL(timeout()), this, SLOT(onFastScanTimerTimeout()));
 	advAcq_->saveConfigFile("/Users/fawkes/dev/acquaman/devConfigurationFiles/davidTest.cfg");
+
+	//qdebug() << "About to call into the dacq";
+
 	return AMDacqScanController::startImplementation();
 }
 
 void SGMFastDacqScanController::cancelImplementation(){
 	dacqCancelled_ = true;
 	if(initializationActions_ && initializationActions_->isRunning()){
-//		qDebug() << "Need to stop the intialization actions";
+//		qdebug() << "Need to stop the intialization actions";
 		disconnect(initializationActions_, 0);
 		connect(initializationActions_, SIGNAL(listSucceeded()), this, SLOT(onScanCancelledBeforeInitialized()));
 		connect(initializationActions_, SIGNAL(listFailed(int)), this, SLOT(onScanCancelledBeforeInitialized()));
@@ -141,18 +146,18 @@ bool SGMFastDacqScanController::event(QEvent *e){
 		double thetaParam = SGMBeamline::sgm()->energyThetaParam()->value();
 		QList<double> readings;
 		if(i.key() == 0 && aeData.count() == 2 && aeSpectra.count() == 1){
-//			qDebug() << "And doing something with it";
+//			qdebug() << "And doing something with it";
 			++i;
 
 			encoderEndpoint = i.value();
-//			qDebug() << "Encoder endpoint was " << encoderEndpoint;
+//			qdebug() << "Encoder endpoint was " << encoderEndpoint;
 			QString readingStr;
 			if(k.key() == 2 && aeExtras.count() == 1){
-//				qDebug() << "Using encoder start from event";
+//				qdebug() << "Using encoder start from event";
 				encoderStartPoint = k.value();
 			}
 			else{
-//				qDebug() << "Have to back calculate encoder start";
+//				qdebug() << "Have to back calculate encoder start";
 				while(j != aeSpectra.constEnd()){
 					encoderStartPoint = encoderEndpoint;
 					int maxVal = j.value().count()-1;
@@ -172,7 +177,7 @@ bool SGMFastDacqScanController::event(QEvent *e){
 				}
 			}
 			encoderReading = encoderStartPoint;
-//			qDebug() << "\n\nEnoder start was " << encoderStartPoint;// << " avg up is " << avgUp << " down is " << avgDown << " thresholds " << upMax << downMax;
+//			qdebug() << "\n\nEnoder start was " << encoderStartPoint;// << " avg up is " << avgUp << " down is " << avgDown << " thresholds " << upMax << downMax;
 			j = aeSpectra.constBegin();
 			while(j != aeSpectra.constEnd()){
 				int maxVal = j.value().count()-1;
@@ -257,7 +262,7 @@ void SGMFastDacqScanController::onInitializationActionsSucceeded(){
 }
 
 void SGMFastDacqScanController::onInitializationActionsStageSucceeded(int stageIndex){
-//	qDebug() << "Initialization stage " << stageIndex << " succeeded";
+//	qdebug() << "Initialization stage " << stageIndex << " succeeded";
 	initializationStagesComplete_ = stageIndex+1;
 	calculateProgress(-1, -1);
 }
@@ -310,11 +315,11 @@ void SGMFastDacqScanController::calculateProgress(double elapsed, double total){
 		else
 			starProgress.append("-");
 	}
-//	qDebug() << QString("%1 (%2)").arg(starProgress).arg(lastProgress_);
+//	qdebug() << QString("%1 (%2)").arg(starProgress).arg(lastProgress_);
 }
 
 void SGMFastDacqScanController::onScanFinished(){
-//	qDebug() << "HEARD FAST SCAN FINISHED";
+//	qdebug() << "HEARD FAST SCAN FINISHED";
 	if(cleanUpActions_){
 		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(setFinished()));
 		cleanUpActions_->start();
@@ -324,7 +329,7 @@ void SGMFastDacqScanController::onScanFinished(){
 }
 
 void SGMFastDacqScanController::onScanCancelledBeforeInitialized(){
-//	qDebug() << "HEARD FAST SCAN CANCELLED BEFORE INITIALIZED";
+//	qdebug() << "HEARD FAST SCAN CANCELLED BEFORE INITIALIZED";
 	if(cleanUpActions_){
 		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(onDacqStop()));
 		cleanUpActions_->start();
@@ -334,7 +339,7 @@ void SGMFastDacqScanController::onScanCancelledBeforeInitialized(){
 }
 
 void SGMFastDacqScanController::onScanCancelledWhileRunning(){
-//	qDebug() << "HEARD FAST SCAN CANCELLED WHILE RUNNING";
+//	qdebug() << "HEARD FAST SCAN CANCELLED WHILE RUNNING";
 	delete stopMotorsAction_;
 	if(cleanUpActions_){
 		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(onDacqStop()));

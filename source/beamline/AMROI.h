@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMROI_H
 
 #include <QObject>
-#include <QDebug>
 #include "dataman/info/AMROIInfo.h"
 #include "beamline/AMProcessVariable.h"
 

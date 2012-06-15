@@ -34,6 +34,7 @@ class AMScanController;
 #define AMSCANACTION_NO_REGISTERED_EXPORTER 103108
 #define AMSCANACTION_NO_REGISTERED_EXPORTER_OPTION 103109
 #define AMSCANACTION_DATABASE_NOT_FOUND 103110
+#define AMSCANACTION_CONTROLLER_NOT_VALID_FOR_AUTOEXPORT 103111
 
 class AMScanAction : public AMAction3
 {
@@ -62,6 +63,8 @@ public:
 
 	/// Scan actions have the ability to pause.
 	virtual bool canPause() const { return true; }
+	/// Scan actions CAN NOT be parallelized.  This is for everyones sake, too many things need to be working syncronously.
+	virtual bool canParallelize() const { return false; }
 
 protected slots:
 
@@ -101,6 +104,8 @@ protected:
 	AMScanController *controller_;
 	/// A pointer to the specific scan info this action uses.
 	AMScanActionInfo *scanInfo_;
+
+	bool hasValidScanController_;
 };
 
 #endif // AMSCANACTION_H

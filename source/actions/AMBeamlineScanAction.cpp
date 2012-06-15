@@ -174,16 +174,14 @@ bool AMBeamlineScanAction::configurationLocked() const{
 
 void AMBeamlineScanAction::start(){
 	if(!isReady()){
-		if(VERBOSE_ACTION_ITEMS)
-			qDebug() << "Not ready, connecting and waiting";
+		AMErrorMon::debug(this, AMBEAMLINEACTIONITEM_CONNECTEDWAITING_MESSAGE, QString("%1 Not ready, but connected and waiting.").arg((intptr_t)this));
 		connect(this, SIGNAL(ready(bool)), this, SLOT(start(bool)));
 		return;
 	}
 
 	if(!AMBeamlineActionItem::isReinitialized()){
 		configurationLocked_ = true;
-		if(VERBOSE_ACTION_ITEMS)
-			qDebug() << "Not reinitalized, creating new controller";
+		AMErrorMon::debug(this, AMBEAMLINEACTIONITEM_NOTREINITIALIZED_MESSAGE, QString("%1 Not reinitialized, creating new controller.").arg((intptr_t)this));
 		ctrl_ = cfg_->createController();
 		if(!ctrl_) {
 			AMErrorMon::report(AMErrorReport(this,
@@ -244,7 +242,7 @@ void AMBeamlineScanAction::start(){
 		connect(ctrl_, SIGNAL(resumed()), this, SLOT(onScanResumed()));
 	}
 	else {
-//		qDebug() << "Reinitialized, no controller creation";
+//		qdebug() << "Reinitialized, no controller creation";
 	}
 
 	//Moved from onScanStarted. This action is started once we start initializing
@@ -633,7 +631,7 @@ void AMBeamlineScanActionView::onScanFinished(){
 	firstRowLayout_->removeWidget(playPauseButton_);
 	stopCancelButton_->hide();
 	playPauseButton_->hide();
-//	qDebug() << "Has succeeded " << scanAction_->hasSucceeded() << " has failed " << scanAction_->hasFailed() << " is running " << scanAction_->isRunning();
+//	qdebug() << "Has succeeded " << scanAction_->hasSucceeded() << " has failed " << scanAction_->hasFailed() << " is running " << scanAction_->isRunning();
 	updateLook();
 }
 

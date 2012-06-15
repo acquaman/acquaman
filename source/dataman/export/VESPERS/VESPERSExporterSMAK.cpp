@@ -206,7 +206,8 @@ bool VESPERSExporterSMAK::writeSeparateFiles(const QString &destinationFolderPat
 		sourceFileInfo.setFile(AMUserSettings::userDataFolder % "/" % currentScan_->additionalFilePaths().first());
 
 	QString originalFileName = sourceFileInfo.absoluteFilePath();
-	QString separateFileName = parseKeywordString( destinationFolderPath % "/" % option_->separateSectionFileName().replace("$dataSetName", "spectra") );
+	QString temp = option_->separateSectionFileName();
+	QString separateFileName = parseKeywordString( destinationFolderPath % "/" % temp.replace("$dataSetName", "spectra") );
 	separateFileName = separateFileName.replace(".dat", ".mca");
 
 	VESPERS2DScanConfiguration *config = qobject_cast<VESPERS2DScanConfiguration *>(const_cast<AMScanConfiguration *>(currentScan_->scanConfiguration()));
@@ -234,9 +235,7 @@ bool VESPERSExporterSMAK::writeSeparateFiles(const QString &destinationFolderPat
 		while (!in.atEnd()){
 
 			in >> currentLine;
-			currentLine = currentLine.replace(",", "\t");
-			currentLine = QString("%1\t").arg(++index) % currentLine % "\n";
-			out << currentLine;
+			out << QString("%1\t").arg(++index) % currentLine.replace(",", "\t") % "\n";
 		}
 
 		input.close();
@@ -245,11 +244,67 @@ bool VESPERSExporterSMAK::writeSeparateFiles(const QString &destinationFolderPat
 
 	else if (config->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::FourElement){
 
-		separateFileName = separateFileName.replace("spectra", "corrSum");
-		QString raw1Name = separateFileName.replace("corrSum", "raw1");
-		QString raw2Name = separateFileName.replace("corrSum", "raw2");
-		QString raw3Name = separateFileName.replace("corrSum", "raw3");
-		QString raw4Name = separateFileName.replace("corrSum", "raw4");
+		QString temp = separateFileName;
+		QString sumName =  temp.replace("spectra", "corrSum");
+		QString raw1Name = temp.replace("corrSum", "raw1");
+		QString raw2Name = temp.replace("raw1", "raw2");
+		QString raw3Name = temp.replace("raw2", "raw3");
+		QString raw4Name = temp.replace("raw3", "raw4");
+
+		QFile input(originalFileName);
+		QFile outputSum(sumName);
+		QFile outputRaw1(raw1Name);
+		QFile outputRaw2(raw2Name);
+		QFile outputRaw3(raw3Name);
+		QFile outputRaw4(raw4Name);
+
+		if (!input.open(QIODevice::ReadOnly))
+			return false;
+
+		if (!outputSum.open(QIODevice::WriteOnly))
+			return false;
+
+		if (!outputRaw1.open(QIODevice::WriteOnly))
+			return false;
+
+		if (!outputRaw2.open(QIODevice::WriteOnly))
+			return false;
+
+		if (!outputRaw3.open(QIODevice::WriteOnly))
+			return false;
+
+		if (!outputRaw4.open(QIODevice::WriteOnly))
+			return false;
+
+		QTextStream in(&input);
+		QTextStream sum(&outputSum);
+		QTextStream raw1(&outputRaw1);
+		QTextStream raw2(&outputRaw2);
+		QTextStream raw3(&outputRaw3);
+		QTextStream raw4(&outputRaw4);
+
+		QString currentLine;
+		QStringList splitLine;
+		int index = 0;
+
+		while (!in.atEnd()){
+
+			++index;
+			in >> currentLine;
+			splitLine = currentLine.split(",");
+			sum << QString("%1\t").arg(index) % QStringList(splitLine.mid(0, 2048)).join("\t") % "\n";
+			raw1 << QString("%1\t").arg(index) % QStringList(splitLine.mid(2048, 2048)).join("\t") % "\n";
+			raw2 << QString("%1\t").arg(index) % QStringList(splitLine.mid(4096, 2048)).join("\t") % "\n";
+			raw3 << QString("%1\t").arg(index) % QStringList(splitLine.mid(6144, 2048)).join("\t") % "\n";
+			raw4 << QString("%1\t").arg(index) % QStringList(splitLine.mid(8192, 2048)).join("\t") % "\n";
+		}
+
+		input.close();
+		outputSum.close();
+		outputRaw1.close();
+		outputRaw2.close();
+		outputRaw3.close();
+		outputRaw4.close();
 	}
 
 	return true;

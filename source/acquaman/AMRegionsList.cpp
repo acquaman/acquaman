@@ -119,7 +119,10 @@ double AMRegionsList::time(int index) const
 
 QString AMRegionsList::units(int index) const
 {
-	if (index < regions_->regions()->size())
+	if(!regions_ || !regions_->regions())
+		return QString();
+
+	if (index < regions_->regions()->size() && regions_->regions()->at(index))
 		return regions_->regions()->at(index)->units();
 
 	return QString();

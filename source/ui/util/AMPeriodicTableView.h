@@ -29,7 +29,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMElement.h"
 #include "util/AMPeriodicTable.h"
-#include <QDebug>
 
 class AMPeriodicTableView : public QWidget
 {
