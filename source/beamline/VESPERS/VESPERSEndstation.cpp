@@ -20,13 +20,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSEndstation.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
+#include "beamline/VESPERS/VESPERSBeamline.h"
 
 #include <QMessageBox>
 #include <QDir>
 #include <QFile>
 #include <QTextStream>
 
-VESPERSEndstation::VESPERSEndstation(AMControl *normal, QObject *parent)
+VESPERSEndstation::VESPERSEndstation(QObject *parent)
 	: QObject(parent)
 {
 	current_ = 0;
@@ -38,7 +39,8 @@ VESPERSEndstation::VESPERSEndstation(AMControl *normal, QObject *parent)
 	fourElControl_ = new CLSMAXvMotor("4-Element Vortex motor", "SMTR1607-2-B21-27", "4-Element Vortex motor", false, 1.0, 2.0, this);
 	singleElControl_ = new CLSMAXvMotor("1-Element Vortex motor", "SMTR1607-2-B21-15", "1-Element Vortex motor", false, 1.0, 2.0, this);
 
-	focusControl_ = normal;
+	focusNormalControl_ = VESPERSBeamline::vespers()->pseudoSampleStage()->norm();
+	focusYControl_ = VESPERSBeamline::vespers()->realSampleStage()->norm();
 
 	// Microscope light PV.
 	micLightPV_ = new AMProcessVariable("07B2_PLC_Mic_Light_Inten", true, this);
@@ -78,7 +80,8 @@ VESPERSEndstation::VESPERSEndstation(AMControl *normal, QObject *parent)
 	connect(micLightPV_, SIGNAL(valueChanged(int)), this, SIGNAL(lightIntensityChanged(int)));
 	connect(ccdControl_, SIGNAL(valueChanged(double)), this, SIGNAL(ccdFbkChanged(double)));
 	connect(microscopeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(microscopeFbkChanged(double)));
-	connect(focusControl_, SIGNAL(valueChanged(double)), this, SIGNAL(focusFbkChanged(double)));
+	connect(focusNormalControl_, SIGNAL(valueChanged(double)), this, SIGNAL(focusNormalFbkChanged(double)));
+	connect(focusYControl_, SIGNAL(valueChanged(double)), this, SIGNAL(focusYFbkChanged(double)));
 	connect(singleElControl_, SIGNAL(valueChanged(double)), this, SIGNAL(singleElFbkChanged(double)));
 	connect(fourElControl_, SIGNAL(valueChanged(double)), this, SIGNAL(fourElFbkChanged(double)));
 
@@ -127,7 +130,9 @@ AMControl *VESPERSEndstation::control(QString name) const
 	else if (name.compare("Microscope motor") == 0)
 		return microscopeControl_;
 	else if (name.compare("Normal Sample Stage") == 0)
-		return focusControl_;
+		return focusNormalControl_;
+	else if (name.compare("Y (normal) motor") == 0)
+		return focusYControl_;
 
 	return 0;
 }
@@ -143,7 +148,9 @@ void VESPERSEndstation::setCurrent(QString name)
 	else if (name.compare("Microscope motor") == 0)
 		updateControl(microscopeControl_);
 	else if (name.compare("Normal Sample Stage") == 0)
-		updateControl(focusControl_);
+		updateControl(focusNormalControl_);
+	else if (name.compare("Y (normal) motor") == 0)
+		updateControl(focusYControl_);
 	else
 		current_ = 0;
 }
