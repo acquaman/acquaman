@@ -71,6 +71,9 @@ public:
 	/// Returns a newly created action to move the usingeV control.  Returns 0 if the control is not connected.
 	AMBeamlineActionItem *createUsingeVAction(bool useeV);
 
+	/// HACK TO RETURN THE TOLERANCE.
+	double tolerance() const { return Eo_->tolerance(); }
+
 signals:
 	/// Notifier that the energy setpoint has changed.  Passes the new energy.
 	void EoChanged(double);
@@ -106,6 +109,9 @@ public slots:
 	void setAllowScanning(bool allow) { allowScan_->move((allow == true) ? 1.0 : 0.0); }
 	/// Sets the encoder to use eV or keV depending of the given value.  True is eV, false is keV.
 	void setUsingeV(bool eV) { encoder_->move((eV == true) ? 1.0 : 0.0); }
+
+	/// HACK TO CHANGE THE TOLERANCE.
+	void setTolerance(double tolerance);
 
 protected slots:
 	/// Helper slot that emits the correct bool based on the value of allowScan.

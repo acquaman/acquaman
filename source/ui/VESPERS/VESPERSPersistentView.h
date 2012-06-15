@@ -30,6 +30,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/CLS/CLSStopLightButton.h"
 
+#include "ui/VESPERS/VESPERSChangeEnergyToleranceHackView.h"
+
+
 class VESPERSPersistentView : public QWidget
 {
 	Q_OBJECT
@@ -81,6 +84,9 @@ protected slots:
 	/// If a new value for the Z slit gap, passes it down to the slits model.
 	void setZGap() { if (zSlit_->value() != slits_->gapZ()) slits_->setGapZ(zSlit_->value()); }
 
+	/// Hack slot to help current users.
+	void hackForEnergyTolerance(QPoint pos);
+
 protected:
 	/// Button and label for the valves.
 	QPushButton *valvesButton_;
@@ -126,6 +132,10 @@ protected:
 
 	/// Pointer to the slits.
 	VESPERSIntermediateSlits *slits_;
+
+
+	/// HACK FOR TOLERANCE
+	VESPERSChangeEnergyToleranceHackView *energyTolerance_;
 };
 
 #endif // VESPERSPERSISTENTVIEW_H
