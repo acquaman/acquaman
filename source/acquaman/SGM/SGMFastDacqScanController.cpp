@@ -65,19 +65,8 @@ bool SGMFastDacqScanController::startImplementation(){
 						 "Error, SGM Fast DACQ Scan Controller failed to start (SGM is already scanning). Please report this bug to the Acquaman developers."));
 		return false;
 	}
-	bool loadSuccess;
 
-	/*
-	for(int x = 0; x < config_->allDetectors()->count(); x++){
-		if(config_->allDetectors()->isDefaultAt(x) && !SGMBeamline::sgm()->detectorValidForCurrentSignalSource(config_->allDetectors()->detectorAt(x)->toInfo())){
-			AMErrorMon::report(AMErrorReport(this,
-							 AMErrorReport::Alert,
-							 SGMFASTDACQSCANCONTROLLER_CANT_START_DETECTOR_SOURCE_MISMATCH,
-							 "Error, SGM Fast DACQ Scan Controller failed to start. The SGM Beamline thinks you're configured to use the wrong detectors (picoammeters versus scalers). Please report this bug to the Acquaman developers."));
-			return false;
-		}
-	}
-	*/
+	bool loadSuccess;
 
 	SGMDacqConfigurationFile *configFile = new SGMDacqConfigurationFile();
 	QList<int> matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "FastScaler");
@@ -93,18 +82,15 @@ bool SGMFastDacqScanController::startImplementation(){
 						 "Error, SGM Fast DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
 		return false;
 	}
-	/**/
+
 	advAcq_->setStart(0, config_->startEnergy());
 	advAcq_->setDelta(0, config_->endEnergy()-config_->startEnergy());
 	advAcq_->setEnd(0, config_->endEnergy());
-	/**/
 
 	usingSpectraDotDatFile_ = true;
 	fastScanTimer_ = new QTimer(this);
 	connect(fastScanTimer_, SIGNAL(timeout()), this, SLOT(onFastScanTimerTimeout()));
 	advAcq_->saveConfigFile("/Users/fawkes/dev/acquaman/devConfigurationFiles/davidTest.cfg");
-
-	//qdebug() << "About to call into the dacq";
 
 	return AMDacqScanController::startImplementation();
 }
@@ -112,7 +98,6 @@ bool SGMFastDacqScanController::startImplementation(){
 void SGMFastDacqScanController::cancelImplementation(){
 	dacqCancelled_ = true;
 	if(initializationActions_ && initializationActions_->isRunning()){
-//		qdebug() << "Need to stop the intialization actions";
 		disconnect(initializationActions_, 0);
 		connect(initializationActions_, SIGNAL(listSucceeded()), this, SLOT(onScanCancelledBeforeInitialized()));
 		connect(initializationActions_, SIGNAL(listFailed(int)), this, SLOT(onScanCancelledBeforeInitialized()));
@@ -262,7 +247,6 @@ void SGMFastDacqScanController::onInitializationActionsSucceeded(){
 }
 
 void SGMFastDacqScanController::onInitializationActionsStageSucceeded(int stageIndex){
-//	qdebug() << "Initialization stage " << stageIndex << " succeeded";
 	initializationStagesComplete_ = stageIndex+1;
 	calculateProgress(-1, -1);
 }
@@ -315,11 +299,9 @@ void SGMFastDacqScanController::calculateProgress(double elapsed, double total){
 		else
 			starProgress.append("-");
 	}
-//	qdebug() << QString("%1 (%2)").arg(starProgress).arg(lastProgress_);
 }
 
 void SGMFastDacqScanController::onScanFinished(){
-//	qdebug() << "HEARD FAST SCAN FINISHED";
 	if(cleanUpActions_){
 		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(setFinished()));
 		cleanUpActions_->start();
@@ -329,7 +311,6 @@ void SGMFastDacqScanController::onScanFinished(){
 }
 
 void SGMFastDacqScanController::onScanCancelledBeforeInitialized(){
-//	qdebug() << "HEARD FAST SCAN CANCELLED BEFORE INITIALIZED";
 	if(cleanUpActions_){
 		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(onDacqStop()));
 		cleanUpActions_->start();
@@ -339,7 +320,6 @@ void SGMFastDacqScanController::onScanCancelledBeforeInitialized(){
 }
 
 void SGMFastDacqScanController::onScanCancelledWhileRunning(){
-//	qdebug() << "HEARD FAST SCAN CANCELLED WHILE RUNNING";
 	delete stopMotorsAction_;
 	if(cleanUpActions_){
 		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(onDacqStop()));

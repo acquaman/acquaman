@@ -155,7 +155,6 @@ bool SGMXASDacqScanController::startImplementation(){
 	dacqConfigFile.append("# Header: 0\n");
 	dacqConfigFile.append("# SpectrumFormat: 2\n");
 
-//	SGMDacqConfigurationFile *configFile = new SGMDacqConfigurationFile();
 	QList<int> matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "FastScaler");
 	if(matchIDs.count() == 0){
 		AMErrorMon::report(AMErrorReport(this,
@@ -236,7 +235,6 @@ bool SGMXASDacqScanController::startImplementation(){
 void SGMXASDacqScanController::cancelImplementation(){
 	dacqCancelled_ = true;
 	if(initializationActions_ && initializationActions_->isRunning()){
-//		qdebug() << "Need to stop the intialization actions";
 		disconnect(initializationActions_, 0);
 		connect(initializationActions_, SIGNAL(listSucceeded()), this, SLOT(onScanCancelledBeforeInitialized()));
 		connect(initializationActions_, SIGNAL(listFailed(int)), this, SLOT(onScanCancelledBeforeInitialized()));
@@ -281,24 +279,20 @@ void SGMXASDacqScanController::onDwellTimeTriggerChanged(double newValue){
 }
 
 void SGMXASDacqScanController::onInitializationActionsSucceeded(){
-//	qdebug() << "The actions list succeeded";
 	setInitialized();
 }
 
 void SGMXASDacqScanController::onInitializationActionsFailed(int explanation){
 	Q_UNUSED(explanation)
-//	qdebug() << "The actions list failed";
 	setFailed();
 }
 
 void SGMXASDacqScanController::onInitializationActionsProgress(double elapsed, double total){
 	Q_UNUSED(elapsed)
 	Q_UNUSED(total)
-	//qdebug() << "Initialization is " << elapsed/total << "% completed";
 }
 
 void SGMXASDacqScanController::onScanFinished(){
-//	qdebug() << "HEARD XAS SCAN FINISHED";
 	if(cleanUpActions_){
 		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(setFinished()));
 		cleanUpActions_->start();
@@ -308,7 +302,6 @@ void SGMXASDacqScanController::onScanFinished(){
 }
 
 void SGMXASDacqScanController::onScanCancelledBeforeInitialized(){
-//	qdebug() << "HEARD XAS SCAN CANCELLED BEFORE INITIALIZED";
 	if(cleanUpActions_){
 		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(onDacqStop()));
 		cleanUpActions_->start();

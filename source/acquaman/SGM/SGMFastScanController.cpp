@@ -88,30 +88,22 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 	int rawI0Index = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->i0Detector()->description());
 
 	if(rawTeyIndex != -1 && rawI0Index != -1) {
-		//AM1DExpressionAB* teyChannel = new AM1DExpressionAB("tey_n");
 		AM1DExpressionAB* teyChannel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->teyDetector()->description()));
 		teyChannel->setDescription("Normalized TEY");
 		teyChannel->setInputDataSources(raw1DDataSources);
-		//teyChannel->setExpression("tey/I0");
 		teyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->teyDetector()->description()).arg(SGMBeamline::sgm()->i0Detector()->description()));
 
 		specificScan_->addAnalyzedDataSource(teyChannel);
 	}
 
 	if(rawTfyIndex != -1 && rawI0Index != -1) {
-		//AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("tfy_n");
 		AM1DExpressionAB* tfyChannel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->tfyDetector()->description()));
 		tfyChannel->setDescription("Normalized TFY");
 		tfyChannel->setInputDataSources(raw1DDataSources);
-		//tfyChannel->setExpression("tfy/I0");
 		tfyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->tfyDetector()->description()).arg(SGMBeamline::sgm()->i0Detector()->description()));
 
 		specificScan_->addAnalyzedDataSource(tfyChannel);
 	}
-
-
-	/// \bug CRITICAL Removed creating default channels. They were never set anyway (nothing called the old AMXASScan::setDefaultChannels(); )
-
 }
 
 bool SGMFastScanController::isBeamlineInitialized() {
@@ -187,7 +179,6 @@ bool SGMFastScanController::beamlineInitialize(){
 	}
 
 	if( SGMBeamline::sgm()->energy()->withinTolerance(settings->energyStart()) ){
-//		qdebug() << "Too close to start energy";
 		initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 		tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
 		tmpAction->setSetpoint(settings->energyStart()+1.0);
@@ -211,8 +202,6 @@ bool SGMFastScanController::beamlineInitialize(){
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 	for(int x = 0; x < config_->allDetectors()->count(); x++){
 		if(config_->allDetectorConfigurations().isActiveAt(x)){
-			// Not using settings in this way for Fast Scans right now
-			//config_->allDetectors()->detectorAt(x)->setFromInfo(config_->allDetectorConfigurations().detectorInfoAt(x));
 			config_->allDetectors()->detectorAt(x)->activate();
 			if(config_->allDetectors()->detectorAt(x)->turnOnAction()){
 //				qdebug() << "Fast scan wants to turn on HV";
@@ -270,12 +259,6 @@ bool SGMFastScanController::beamlineInitialize(){
 	tmpAction->setSetpoint(1);
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 
-	/* NTBA March 14, 2011 David Chevrier
-	AMDetector* tmpD;
-	What detectors, if any, do we need to take of for a fast scan?
-	*/
-
-	//beamlineInitialized_ = true;
 	beamlineInitialized_ = !initializationFailed;
 	return beamlineInitialized_;
 }
