@@ -33,46 +33,66 @@ class SGMFastDacqScanController : public AMDacqScanController, public SGMFastSca
 {
 	Q_OBJECT
 public:
+	/// Standard constructor, calls parent to set up the controller and sets the scan object given this configuration
 	explicit SGMFastDacqScanController(SGMFastScanConfiguration *cfg, QObject *parent = 0);
 
+protected slots:
+	/// Re-implementing to intercept finished() signal and do cleanup
+	void onDacqStop();
+	/// Re-implementing to incorporate initialization actions into progress
+	void onDacqSendCompletion(int completion);
+	/// Re-implementing to incorporate initialization actions into progress
+	void onDacqState(const QString &state);
+
+	/// Calls setInitialized() once the initialization actions have succeeded.
+	void onInitializationActionsSucceeded();
+	/// Causes a calculateProgress() to occur when each initialization action stage is completed.
+	void onInitializationActionsStageSucceeded(int stageIndex);
+	/// Calls the cleanup actions if available and sets the scan controller as cancelled.
+	void onInitializationActionsFailed(int explanation);
+	/// Assists with the timing reports for the fast scans
+	void onFastScanTimerTimeout();
+
+	/// Calculates the progress for the scan, including the initialization actions
+	void calculateProgress(double elapsed, double total);
+
+	/// Calls the cleanup actions when finished or calls AMDacqScanController::onDacqStop() if not available.
+	void onScanFinished();
+	/// Calls the cleanup actions when finished or calls AMDacqScanController::onDacqStop() if not available.
+	void onScanCancelledBeforeInitialized();
+	/// Calls the cleanup actions when finished or calls AMDacqScanController::onDacqStop() if not available.
+	void onScanCancelledWhileRunning();
+
 protected:
+	/// Calls SGMFastScanController's initialization functions and starts the initialization actions. Reports failure if unable to do so.
 	bool initializeImplementation();
+	/// Sets up the dacq configuration file and calls AMDacqScanController::startImplementation.
 	bool startImplementation();
+	/// Cancels either the initialization actions (if initializing) or the scan (using AMDacqScanController::cancelImplementation).
 	void cancelImplementation();
 
-protected:
+	/// Does all of the work to parse the full scan data from the scaler buffer. There's a lot of hardcoded information in here.
 	bool event(QEvent *e);
+	/// Simple scan index returns 1D scan size
 	AMnDIndex toScanIndex(QMap<int, double> aeData);
 
+protected:
+	/// Tracks the progress through the scan
 	double lastProgress_;
+	/// Tracks the number of initialization actions stages that have been finished
 	int initializationStagesComplete_;
+
+	/// Tracks the different dacq phases
 	bool dacqRunUpStarted_;
 	bool dacqRunUpCompleted_;
 	bool dacqRunCompleted_;
+
+	/// Helps with reporting the timing for the fast scan
 	QTimer *fastScanTimer_;
 	int timerSeconds_;
 
+	/// Used to stop the motors is cancel was called after the initalization actions were done but during the fast scan phase.
 	AMBeamlineActionItem *stopMotorsAction_;
-
-protected slots:
-	// Re-implementing to intercept finished() signal and do cleanup
-	void onDacqStop();
-	// Re-implementing to incorporate initialization actions into progress
-	void onDacqSendCompletion(int completion);
-	// Re-implementing to incorporate initialization actions into progress
-	void onDacqState(const QString &state);
-
-	void onInitializationActionsSucceeded();
-	void onInitializationActionsStageSucceeded(int stageIndex);
-	void onInitializationActionsFailed(int explanation);
-	void onFastScanTimerTimeout();
-
-	void calculateProgress(double elapsed, double total);
-
-	void onScanFinished();
-	void onScanCancelledBeforeInitialized();
-	void onScanCancelledWhileRunning();
-
 };
 
 #endif // SGMFASTDACQSCANCONTROLLER_H

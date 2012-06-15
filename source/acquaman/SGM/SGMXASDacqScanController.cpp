@@ -34,6 +34,70 @@ SGMXASDacqScanController::SGMXASDacqScanController(SGMXASScanConfiguration *cfg,
 
 SGMXASDacqScanController::~SGMXASDacqScanController()
 {
+}
+
+void SGMXASDacqScanController::onDacqStop(){
+	if(dacqCancelled_)
+		AMDacqScanController::onDacqStop();
+	else
+		onScanFinished();
+}
+
+#include "beamline/CLS/CLSSynchronizedDwellTime.h"
+
+void SGMXASDacqScanController::onDwellTimeTriggerChanged(double newValue){
+	if( fabs(newValue - 1.0) < 0.1 ){
+		int curDwell = ceil(SGMBeamline::sgm()->synchronizedDwellTime()->time());
+		switch(curDwell){
+		case 1:
+			SGMBeamline::sgm()->synchronizedDwellTime()->setTime(2);
+			break;
+		case 2:
+			SGMBeamline::sgm()->synchronizedDwellTime()->setTime(2.5);
+			break;
+		case 3:
+			SGMBeamline::sgm()->synchronizedDwellTime()->setTime(1);
+			break;
+		}
+
+		dwellTimeTrigger_->move(0);
+		dwellTimeConfirmed_->move(1);
+	}
+}
+
+void SGMXASDacqScanController::onInitializationActionsSucceeded(){
+	setInitialized();
+}
+
+void SGMXASDacqScanController::onInitializationActionsFailed(int explanation){
+	Q_UNUSED(explanation)
+	setFailed();
+}
+
+void SGMXASDacqScanController::onInitializationActionsProgress(double elapsed, double total){
+	Q_UNUSED(elapsed)
+	Q_UNUSED(total)
+}
+
+void SGMXASDacqScanController::onScanFinished(){
+	if(cleanUpActions_){
+		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(setFinished()));
+		cleanUpActions_->start();
+	}
+	else
+		AMDacqScanController::onDacqStop();
+}
+
+void SGMXASDacqScanController::onScanCancelledBeforeInitialized(){
+	if(cleanUpActions_){
+		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(onDacqStop()));
+		cleanUpActions_->start();
+	}
+	else
+		AMDacqScanController::onDacqStop();
+}
+
+void SGMXASDacqScanController::onScanCancelledWhileRunning(){
 
 }
 
@@ -247,69 +311,4 @@ AMnDIndex SGMXASDacqScanController::toScanIndex(QMap<int, double> aeData){
 	Q_UNUSED(aeData)
 	// SGM XAS Scan has only one dimension (energy), simply append to the end of this
 	return AMnDIndex(scan_->rawData()->scanSize(0));
-}
-
-void SGMXASDacqScanController::onDacqStop(){
-	if(dacqCancelled_)
-		AMDacqScanController::onDacqStop();
-	else
-		onScanFinished();
-}
-
-#include "beamline/CLS/CLSSynchronizedDwellTime.h"
-
-void SGMXASDacqScanController::onDwellTimeTriggerChanged(double newValue){
-	if( fabs(newValue - 1.0) < 0.1 ){
-		int curDwell = ceil(SGMBeamline::sgm()->synchronizedDwellTime()->time());
-		switch(curDwell){
-		case 1:
-			SGMBeamline::sgm()->synchronizedDwellTime()->setTime(2);
-			break;
-		case 2:
-			SGMBeamline::sgm()->synchronizedDwellTime()->setTime(2.5);
-			break;
-		case 3:
-			SGMBeamline::sgm()->synchronizedDwellTime()->setTime(1);
-			break;
-		}
-
-		dwellTimeTrigger_->move(0);
-		dwellTimeConfirmed_->move(1);
-	}
-}
-
-void SGMXASDacqScanController::onInitializationActionsSucceeded(){
-	setInitialized();
-}
-
-void SGMXASDacqScanController::onInitializationActionsFailed(int explanation){
-	Q_UNUSED(explanation)
-	setFailed();
-}
-
-void SGMXASDacqScanController::onInitializationActionsProgress(double elapsed, double total){
-	Q_UNUSED(elapsed)
-	Q_UNUSED(total)
-}
-
-void SGMXASDacqScanController::onScanFinished(){
-	if(cleanUpActions_){
-		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(setFinished()));
-		cleanUpActions_->start();
-	}
-	else
-		AMDacqScanController::onDacqStop();
-}
-
-void SGMXASDacqScanController::onScanCancelledBeforeInitialized(){
-	if(cleanUpActions_){
-		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(onDacqStop()));
-		cleanUpActions_->start();
-	}
-	else
-		AMDacqScanController::onDacqStop();
-}
-
-void SGMXASDacqScanController::onScanCancelledWhileRunning(){
-
 }
