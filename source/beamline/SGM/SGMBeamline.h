@@ -101,9 +101,7 @@ public:
 
 	virtual ~SGMBeamline();
 
-	bool isConnected() const {
-		return criticalControlsSet_->isConnected() && criticalDetectorsSet_->isConnected();
-	}
+	bool isConnected() const { return criticalControlsSet_->isConnected() && criticalDetectorsSet_->isConnected();}
 
 	QStringList unconnectedCriticals() const;
 
@@ -136,14 +134,7 @@ public:
 	AMControl* monoTracking() const { return monoTracking_;}
 	AMControl* exitSlitTracking() const { return exitSlitTracking_;}
 
-	QString currentEndstation() const{
-		if(activeEndstation_->value() == 0)
-			return sgmEndstationName(SGMBeamline::scienta);
-		else if(activeEndstation_->value() == 1)
-			return sgmEndstationName(SGMBeamline::ssa);
-		else
-			return sgmEndstationName((SGMBeamline::sgmEndstation)272727);
-	}
+	QString currentEndstation() const;
 
 	AMDetector* teyDetector() const { return teyScalerDetector_;}
 	AMDetector* tfyDetector() const { return tfyScalerDetector_;}
@@ -271,13 +262,7 @@ public slots:
 
 	void closeVacuum();
 
-	void setCurrentEndstation(SGMBeamline::sgmEndstation endstation){
-		if(endstation == SGMBeamline::scienta)
-			activeEndstation_->move(0);
-		else if(endstation == SGMBeamline::ssa)
-			activeEndstation_->move(1);
-		return;
-	}
+	void setCurrentEndstation(SGMBeamline::sgmEndstation endstation);
 
 signals:
 	void beamlineScanningChanged(bool scanning);
@@ -468,36 +453,6 @@ protected:
 
 private:
 	void usingSGMBeamline();
-};
-
-class SGMFluxOptimization : public AMControlOptimization
-{
-	Q_OBJECT
-public:
-	SGMFluxOptimization(QObject *parent=0);
-
-	virtual QMap<double, double> curve(QList<QVariant> stateParameters, AMRegionsList* contextParameters);
-	QMap< QString, QMap<double, double> > collapse(AMRegionsList *contextParameters);
-
-protected:
-	double collapser(QMap<double, double> optCurve);
-	double maximumEnergy(AMRegionsList* regions);
-	double minimumEnergy(AMRegionsList* regions);
-};
-
-class SGMResolutionOptimization : public AMControlOptimization
-{
-	Q_OBJECT
-public:
-	SGMResolutionOptimization(QObject *parent=0);
-
-	QMap<double, double> curve(QList<QVariant> stateParameters, AMRegionsList* contextParameters);
-	QMap< QString, QMap<double, double> > collapse(AMRegionsList *contextParameters);
-
-protected:
-	double collapser(QMap<double, double> optCurve);
-	double maximumEnergy(AMRegionsList* regions);
-	double minimumEnergy(AMRegionsList* regions);
 };
 
 
