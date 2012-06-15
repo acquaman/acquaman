@@ -112,9 +112,6 @@ public slots:
 	/// Sets the harmonvic value for this configuration (as an int)
 	bool setHarmonic(int harmonic);
 
-	/* NTBA March 14, 2011 David Chevrier
-	   Need something similar for detector set
-	*/
 	/// Sets the detector configurations based on a detector info set
 	bool setDetectorConfigurations(const AMDetectorInfoSet& xasDetectorsCfg);
 
