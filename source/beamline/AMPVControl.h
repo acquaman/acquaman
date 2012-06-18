@@ -232,7 +232,7 @@ public:
 public slots:
 
 	/// Start a move to the value setpoint (reimplemented)
-	virtual bool move(double setpoint);
+	virtual FailureExplanation move(double setpoint);
 
 	/// Stop a move in progress (reimplemented)
 	virtual bool stop() {
@@ -605,7 +605,7 @@ public:
 public slots:
 
 	/// Start a move to the value setpoint (reimplemented)
-	virtual bool move(double setpoint);
+	virtual FailureExplanation move(double setpoint);
 
 	/// Tell the motor to stop.  (Note: For safety, this will send the stop instruction whether we think we're moving or not.)
 	virtual bool stop();
@@ -775,7 +775,7 @@ public:
 	virtual double value() const { return readUnitConverter()->convertFromRaw(AMPVwStatusControl::value()); }
 
 	/// We overload move() to convert our units back to raw units for the writePV
-	virtual bool move(double setpoint) { return AMPVwStatusControl::move(writeUnitConverter()->convertToRaw(setpoint)); }
+	virtual FailureExplanation move(double setpoint) { return AMPVwStatusControl::move(writeUnitConverter()->convertToRaw(setpoint)); }
 
 	/// We overload setpoint() to convert the units
 	virtual double setpoint() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::setpoint()); }

@@ -92,14 +92,14 @@ void AMControlMoveAction3::startImplementation()
 	startPosition_ = control_->toInfo();
 
 	// start the move:
-	if(controlMoveInfo()->isRelativeMove()) {
-		if(!control_->moveRelative(setpoint.value()))
-			onMoveFailed(AMControl::OtherFailure);
-	}
-	else {
-		if(!control_->move(setpoint.value()))
-			onMoveFailed(AMControl::OtherFailure);
-	}
+	int failureExplanation;
+	if(controlMoveInfo()->isRelativeMove())
+		failureExplanation = control_->moveRelative(setpoint.value());
+	else
+		failureExplanation = control_->move(setpoint.value());
+
+	if(failureExplanation != AMControl::NoFailure)
+		onMoveFailed(failureExplanation);
 }
 
 void AMControlMoveAction3::onMoveStarted()
@@ -118,7 +118,7 @@ void AMControlMoveAction3::onMoveStarted()
 void AMControlMoveAction3::onMoveReTargetted()
 {
 	// someone is re-directing our move to a different setpoint, so this now counts as a failure.
-	onMoveFailed(6);	// AMControl::FailureExplanation goes up to 5; Using one higher to indicate that our desired move was re-directed somewhere else.
+	onMoveFailed(AMControl::RedirectedFailure);
 }
 
 void AMControlMoveAction3::onMoveFailed(int reason)
@@ -126,18 +126,6 @@ void AMControlMoveAction3::onMoveFailed(int reason)
 	disconnect(control_, 0, this, 0);
 	progressTick_.stop();
 	disconnect(&progressTick_, 0, this, 0);
-
-	QString failureExplanation;
-	switch(reason) {
-	case 1: failureExplanation = "The control was not connected."; break;
-	case 2: failureExplanation = "The required tolerance was not met."; break;
-	case 3: failureExplanation = "The move timed out without starting or reaching its destination."; break;
-	case 4: failureExplanation = "The move was manually interrupted or stopped."; break;
-	case 6: failureExplanation = "The move was externally re-directed to another destination."; break;
-	case 5:
-	default:
-		failureExplanation = "An undocumented failure happened."; break;
-	}
 
 	// error message with reason
 	AMErrorMon::alert(this,
@@ -148,7 +136,7 @@ void AMControlMoveAction3::onMoveFailed(int reason)
 					  .arg(control_->units())
 					  .arg(control_->value())
 					  .arg(control_->units())
-					  .arg(failureExplanation));
+					  .arg(AMControl::failureExplanation(reason)));
 	setFailed();
 }
 

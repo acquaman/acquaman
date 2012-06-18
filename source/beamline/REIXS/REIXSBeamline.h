@@ -185,7 +185,7 @@ public:
 	virtual double maximumValue() const { return calibration_.evRangeForGrating(specifiedGrating_).second; }
 
 	/// Move to the given energy, using the specified grating, focusOffset, tiltOffset, and the current calibration. (This will cause spectrometer motion)
-	virtual bool move(double setpoint);
+	virtual FailureExplanation move(double setpoint);
 
 	/// Stop the spectrometer if it's currently moving
 	virtual bool stop();

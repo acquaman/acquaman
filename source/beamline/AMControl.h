@@ -49,7 +49,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
   \b actions:
 
-  - bool move(double setpoint): set a Control to a requested target value. Returns false if the move() cannot be accepted for any reason [ex: control not connected, a move is already in progress and allowsMovesWhileMoving() is false, etc.].
+  - FailureExplanation move(double setpoint): set a Control to a requested target value. Returns a FailureExplanation if the move() cannot be accepted for any reason [ex: control not connected, a move is already in progress and allowsMovesWhileMoving() is false, etc.].  Returns NoFailure (0) on success.
 
   \b properties:
 
@@ -104,7 +104,7 @@ Defaults:
 - AMPVControl: allowsMovesWhileMoving() == true, since we have no really reliable way to tell if these controls are actually moving.
 - AMPVwStatusControl: allowsMovesWhileMoving() == false.
 
-If moves while moving are not accepted, move() will return false.  If they are accepted, moveReTargetted() will be emitted for each re-targetted move(); however, no moveSucceeded() or moveFailed() will be emitted for the initial move.  Instead, only one moveSucceeded() or moveFailed() will be emitted when motion finally stops.  This behaviour is chosen so that the moveSucceeded() or moveFailed() from the intial move would not be confused as a moveSucceeded() or moveFailed() for the subsequent moves, which may still be in progress.
+If moves while moving are not accepted, move() will return AlreadyMovingFailure and do nothing.  If they are accepted, moveReTargetted() will be emitted for each re-targetted move(); however, no moveSucceeded() or moveFailed() will be emitted for the initial move.  Instead, only one moveSucceeded() or moveFailed() will be emitted when motion finally stops.  This behaviour is chosen so that the moveSucceeded() or moveFailed() from the intial move would not be confused as a moveSucceeded() or moveFailed() for the subsequent moves.
 
 <b>Normal move:</b> moveStarted().... ...[moveSucceeded() or moveFailed()]
 <b>Re-targetted once:</b> moveStarted()... moveReTargetted()... ...[moveSucceeded() or moveFailed()]
@@ -221,12 +221,35 @@ public:
 	/*! Possible explanation codes are:
  */
 	enum FailureExplanation {
-		NotConnectedFailure = 1, ///< Could not start the move because the control's not connected / responding
+		NoFailure = 0,
+		NotConnectedFailure, ///< Could not start the move because the control's not connected / responding
 		ToleranceFailure,		///< The move finished, but failed to achieve the tolerance requested
 		TimeoutFailure,			///< The move did not complete within a timeout period specified
 		WasStoppedFailure,		///< The move was prematurely stopped with the stop() command.
-		OtherFailure 			///<  an error code defined by the specific control implementation
+		AlreadyMovingFailure,	///< The move could not be started because the control was already moving, and it does not allowsMovesWhileMoving().
+		RedirectedFailure,		///< Never emitted by AMControl classes. Can be used to represent that a move was redirected while already moving.
+		OtherFailure 			///< An error code defined by the specific control implementation
 	};
+
+	/// An english-language version of FailureExplanation
+	static QString failureExplanation(FailureExplanation f) {
+		QString explanation;
+		switch(f) {
+		case AMControl::NoFailure:				explanation = "There was no actual failure."; break;	// Nobody should ever see this.
+		case AMControl::NotConnectedFailure:	explanation = "The control was not connected."; break;
+		case AMControl::ToleranceFailure:		explanation = "The required tolerance was not met."; break;
+		case AMControl::TimeoutFailure:			explanation = "The move timed out without starting or reaching its destination."; break;
+		case AMControl::WasStoppedFailure:		explanation = "The move was manually interrupted or stopped."; break;
+		case AMControl::AlreadyMovingFailure:	explanation = "The control was already moving."; break;
+		case AMControl::RedirectedFailure:		explanation = "The move was externally re-directed to another destination."; break;
+		case AMControl::OtherFailure:
+		default:
+			explanation = "An undocumented failure happened."; break;
+		}
+		return explanation;
+	}
+	/// An english-language version of FailureExplanation
+	static QString failureExplanation(int f) { return failureExplanation(FailureExplanation(f)); }
 
 	/// This enum type is used to describe problematic states the control can be in
 	/*! Possible explanation codes are:
@@ -405,13 +428,13 @@ The Control abstraction provides two different properties (and associated signal
 	//@}
 
 public slots:
-	/// This is used to move the control to a \c setpoint.  Returns true if the move command was sent. (Does not guarantee that the move was actually started.)  Returns false if it is known immediately that the control cannot be moved. Must reimplement for actual controls.
-	virtual bool move(double setpoint) {
+	/// This is used to move the control to a \c setpoint.  Returns NoFailure (0) if the move command was sent. (Does not guarantee that the move was actually started.)  Returns a FailureExplanation if it is known immediately that the control cannot be moved. Must reimplement for actual controls.
+	virtual FailureExplanation move(double setpoint) {
 		Q_UNUSED(setpoint);
-		return false;
+		return NotConnectedFailure;
 	}
 	/// This is used to move a control a relative distance from its current position. The base class implementation simply issues a move() to the current value() plus \c distance. This may not be sufficient if moveRelative() will be called faster than value() updates in your implementation; in that case, it's recommended to re-implement this as appropriate.
-	virtual bool moveRelative(double distance) {
+	virtual FailureExplanation moveRelative(double distance) {
 		return move(value() + distance);
 	}
 

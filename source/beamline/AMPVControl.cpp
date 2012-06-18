@@ -119,19 +119,19 @@ AMSinglePVControl::AMSinglePVControl(const QString &name, const QString &PVname,
 }
 
 // Start a move to the value setpoint:
-bool AMPVControl::move(double setpoint) {
+AMControl::FailureExplanation AMPVControl::move(double setpoint) {
 
 	if(isMoving()) {
 		if(!allowsMovesWhileMoving()) {
 			AMErrorMon::debug(this, AMPVCONTROL_COULD_NOT_MOVE_WHILE_MOVING, QString("AMPVControl: Could not move %1 (%2) to %3, because the control is already moving.").arg(name()).arg(writePV_->pvName()).arg(setpoint_));
-			return false;
+			return AlreadyMovingFailure;
 		}
 
 		// assuming this control can accept mid-move updates. We just need to update our setpoint and send it.
 
 		if(!canMove()) {	// this would be rare: a past move worked, but now we're no longer connected?
 			AMErrorMon::debug(this, AMPVCONTROL_COULD_NOT_MOVE_BASED_ON_CANMOVE, QString("AMPVControl: Could not move %1 (%2) to %3.").arg(name()).arg(writePV_->pvName()).arg(setpoint_));
-			return false;
+			return NotConnectedFailure;
 		}
 		setpoint_ = setpoint;
 		writePV_->setValue(setpoint_);
@@ -154,7 +154,7 @@ bool AMPVControl::move(double setpoint) {
 
 		if(!canMove()) {
 			AMErrorMon::debug(this, AMPVCONTROL_COULD_NOT_MOVE_BASED_ON_CANMOVE, QString("AMPVControl: Could not move %1 (%2) to %3.").arg(name()).arg(writePV_->pvName()).arg(setpoint_));
-			return false;
+			return NotConnectedFailure;
 		}
 
 		// new move target:
@@ -177,7 +177,7 @@ bool AMPVControl::move(double setpoint) {
 			completionTimer_.start(int(completionTimeout_*1000.0));
 		}
 	}
-	return true;
+	return NoFailure;
 }
 
 // This is used to check every new value, to see if we entered tolerance:
@@ -381,18 +381,18 @@ void AMPVwStatusControl::onPVConnected(bool) {
 }
 
 // Start a move to the value setpoint:
-bool AMPVwStatusControl::move(double setpoint) {
+AMControl::FailureExplanation AMPVwStatusControl::move(double setpoint) {
 
 	if(isMoving()) {
 		if(!allowsMovesWhileMoving()) {
 			AMErrorMon::debug(this, AMPVCONTROL_COULD_NOT_MOVE_WHILE_MOVING, QString("AMPVControl: Could not move %1 (%2) to %3, because the control is already moving.").arg(name()).arg(writePV_->pvName()).arg(setpoint_));
-			return false;
+			return AlreadyMovingFailure;
 		}
 
 		if(!moveInProgress()) {
 			// the control is already moving, but it's not one of our moves. In this situation, there is no way that we can start a move and be assured that we'll be notified when OUR move finishes.
 			AMErrorMon::debug(this, AMPVCONTROL_COULD_NOT_MOVE_WHILE_MOVING_EXTERNAL, QString("AMPVControl: Could not move %1 (%2) to %3, because the control is already moving.").arg(name()).arg(writePV_->pvName()).arg(setpoint_));
-			return false;
+			return AlreadyMovingFailure;
 		}
 
 		// Otherwise: This control supports mid-move updates, and we're already moving. We just need to update the setpoint and send it.
@@ -433,7 +433,7 @@ bool AMPVwStatusControl::move(double setpoint) {
 		}
 	}
 
-	return true;
+	return NoFailure;
 }
 
 // Tell the motor to stop.  (Note: For safety, this will send the stop instruction whether we think we're moving or not.)
