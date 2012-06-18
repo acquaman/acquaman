@@ -136,6 +136,10 @@ bool AMPVControl::move(double setpoint) {
 		setpoint_ = setpoint;
 		writePV_->setValue(setpoint_);
 		completionTimer_.start(int(completionTimeout_*1000.0)); // restart the completion timer... Since this might be another move, give it some more time.
+		// re-targetted moves will emit moveReTargetted(), although no moveSucceeded()/moveFailed() will be issued for the first move.
+		emit moveReTargetted();
+
+		// check for done:
 		if(inPosition()) {
 			completionTimer_.stop();
 			emit movingChanged(moveInProgress_ = false);
@@ -214,7 +218,6 @@ void AMPVControl::onCompletionTimeout() {
 	// if we weren't moving, this shouldn't have happened. someone forgot to shutoff the timer?
 	// todo: this is only included for state testing debugging... can remove if never happens
 	if(!moveInProgress_) {
-		AMErrorMon::debug(this, AMPVCONTROL_MOVE_TIMEOUT_OCCURED_NOT_DURING_MOVE, QString("AMPVControl: timer timeout while move not in progress.  How did this happen?"));
 		return;
 	}
 
@@ -326,9 +329,12 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	moveInProgress_ = false;
 	stopInProgress_ = false;
 	startInProgress_ = false;
+	settlingInProgress_ = false;
+	settlingTime_ = 0.1;	/// \todo default to 0 for now.
 	setTolerance(tolerance);
 	setpoint_ = 0;
 	moveStartTimeout_ = moveStartTimeoutSeconds;
+	hardwareWasMoving_ = false;
 
 	// create new setpoint PV. Monitor it, in case someone else changes it
 	writePV_ = new AMProcessVariable(writePVname, true, this);
@@ -343,9 +349,7 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 
 	// connect the timer to the timeout handler:
 	connect(&moveStartTimer_, SIGNAL(timeout()), this, SLOT(onMoveStartTimeout()));
-
-	// watch out for the changes in the device moving:
-	connect(this, SIGNAL(movingChanged(bool)), this, SLOT(onIsMovingChanged(bool)));
+	connect(&settlingTimer_, SIGNAL(timeout()), this, SLOT(onSettlingTimeFinished()));
 
 	// Do we have a stopPV?
 	noStopPV_ = stopPVname.isEmpty();
@@ -394,9 +398,16 @@ bool AMPVwStatusControl::move(double setpoint) {
 		// Otherwise: This control supports mid-move updates, and we're already moving. We just need to update the setpoint and send it.
 		setpoint_ = setpoint;
 		writePV_->setValue(setpoint_);
+		// since the settling phase is considered part of a move, it's OK to be here while settling... But for Acquaman purposes, this will be considered a single re-targetted move, even though the hardware will see two.  If we're settling, disable the settling timer, because we only want to respond to the end of the second move.
+		if(settlingInProgress_) {
+			settlingInProgress_ = false;
+			settlingTimer_.stop();
+		}
+		emit moveReTargetted(); // re-targetted moves will emit moveReTargetted(), although no moveSucceeded()/moveFailed() will be issued for the initial move.
 	}
 
 	else {
+		settlingInProgress_ = false;
 		stopInProgress_ = false;
 		moveInProgress_ = false;
 		// Flag that "our" move started:
@@ -434,6 +445,7 @@ bool AMPVwStatusControl::stop() {
 	stopInProgress_ = true;	// flag that a stop is "in progress" -- we've issued the stop command.
 	moveInProgress_ = false;	// one of "our" moves is no longer in progress.
 	startInProgress_ = false;
+	settlingInProgress_ = false;
 	return true;
 }
 
@@ -464,12 +476,21 @@ void AMPVwStatusControl::onMoveStartTimeout() {
 	}
 }
 
-// This is used to add our own move tracking signals when isMoving() changes.
-//This slot will only be accessed on _changes_ in isMoving()
-void AMPVwStatusControl::onIsMovingChanged(bool isMoving) {
+// Re-implemented from AMReadOnlyPVwStatusControl:
+void AMPVwStatusControl::onMovingChanged(int isMovingValue) {
+	bool nowMoving = (*statusChecker_)(isMovingValue);	// according to the hardware.  For checking moveSucceeded/moveStarted/moveFailed, use the value delivered in the signal argument, instead of re-checking the PV, in case we respond late and the hardware has already changed again.
+
+	// In case the hardware is being silly and sending multiple MOVE ACTIVE, MOVE ACTIVE, MOVE ACTIVE states in a row, or MOVE DONE, MOVE DONE, MOVE DONE states in a row: only act on changes. [Edge detection]
+	if(nowMoving == hardwareWasMoving_)
+		return;
+
+	hardwareWasMoving_ = nowMoving;
+
+	// moveStarted, moveFailed, moveSucceeded, or transition to settling:
+	///////////////////////////////////////////////////////////////////////
 
 	// if we requested one of our moves, and moving just started:
-	if(startInProgress_ && isMoving) {
+	if(startInProgress_ && nowMoving) {
 		moveInProgress_ = true;
 		startInProgress_ = false;
 		// This is great... the device started moving within the timeout:
@@ -481,10 +502,63 @@ void AMPVwStatusControl::onIsMovingChanged(bool isMoving) {
 	}
 
 	// If one of our moves was running, and we stopped moving:
-	if(moveInProgress_ && !isMoving) {
-		// That's the end of our move
-		moveInProgress_ = false;
+	if(moveInProgress_ && !nowMoving) {
+		// Mode 1: No settling:
+		if(settlingTime_ == 0.0) {
+			// That's the end of our move
+			moveInProgress_ = false;
 
+			// Check if we succeeded...
+			if(inPosition()) {
+				emit moveSucceeded();
+			}
+			else {
+				emit moveFailed(AMControl::ToleranceFailure);
+			}
+		}
+		// Mode 2: allow settling
+		else {
+			if(!settlingInProgress_) {
+				settlingInProgress_ = true;
+				settlingTimer_.start(int(settlingTime_*1000));
+			}
+		}
+	}
+
+	// "sucessfully" stopped due to a stop() command.
+	if(stopInProgress_ && !nowMoving) {
+		stopInProgress_ = false;
+		// but the move itself has failed, due to a stop() intervention.
+		emit moveFailed(AMControl::WasStoppedFailure);
+	}
+
+
+
+	// Emitting movingChanged().
+	/////////////////////////////////////
+
+	// For external purposes, isMoving() depends on whether the hardware says we're moving, or we're in the settling phase.
+	nowMoving = isMoving();
+
+	if(nowMoving != wasMoving_)
+		emit movingChanged(wasMoving_ = nowMoving);
+}
+
+
+void AMPVwStatusControl::onSettlingTimeFinished()
+{
+	settlingTimer_.stop();
+
+	if(!settlingInProgress_) {
+		// temporary, for settling state testing:
+		qWarning() << "AMPVwStatusControl:" << name() << ": Settling timeout while settlingInProgress is not true.  This should never happen; please report this bug.";
+		return;
+	}
+
+	settlingInProgress_ = false;
+
+	if(moveInProgress_) {
+		moveInProgress_ = false;
 		// Check if we succeeded...
 		if(inPosition()) {
 			emit moveSucceeded();
@@ -493,14 +567,15 @@ void AMPVwStatusControl::onIsMovingChanged(bool isMoving) {
 			emit moveFailed(AMControl::ToleranceFailure);
 		}
 	}
-
-	// "sucessfully" stopped due to a stop() command.
-	if(stopInProgress_ && !isMoving) {
-		stopInProgress_ = false;
-		// but the move itself has failed, due to a stop() intervention.
-		emit moveFailed(AMControl::WasStoppedFailure);
+	else {
+		// temporary, for settling state testing:
+		qWarning() << "AMPVwStatusControl: " << name() << ": Settling time reached while moveInProgress_  == false. This should never happen; please report this bug.";
 	}
 
+	// possible that a change in settlingInProgress_ caused isMoving() to change. Emit signal if necessary:
+	bool nowMoving = isMoving();
+	if(nowMoving != wasMoving_)
+		emit movingChanged(wasMoving_ = nowMoving);
 }
 
 
@@ -578,5 +653,7 @@ void AMPVwStatusAndUnitConversionControl::setUnitConverters(AMAbstractUnitConver
 	if(newSetpoint != oldSetpoint)
 		emit setpointChanged(newSetpoint);
 }
+
+
 
 

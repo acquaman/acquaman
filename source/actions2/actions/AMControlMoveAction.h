@@ -79,6 +79,7 @@ protected slots:
 
 	/// Handle signals from our control:
 	void onMoveStarted();
+	void onMoveReTargetted();	///< Only connected after a control starts moving.  If it is re-directed in mid-move to a different setpoint, we can be sure our intended move failed.  Calls onMoveFailed(6);
 	void onMoveFailed(int reason);
 	void onMoveSucceeded();
 

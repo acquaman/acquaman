@@ -49,7 +49,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
   \b actions:
 
-  - bool move(double setpoint): set a Control to a requested target value
+  - bool move(double setpoint): set a Control to a requested target value. Returns false if the move() cannot be accepted for any reason [ex: control not connected, a move is already in progress and allowsMovesWhileMoving() is false, etc.].
 
   \b properties:
 
@@ -74,7 +74,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
   <b>Monitoring Motion</b>
 
-  There are two useful but distinct ideas on whether a control is "moving", particularly for distributed control systems like in a synchrotron.  Often, beamline parameters can be controlled from a user's software interface, but they can also spontaneously start moving due to external events or other control interfaces.
+  There are two useful but distinct ideas on whether a control is "moving", particularly for distributed control systems.  Often, beamline parameters can be controlled from a user's software interface, but they can also spontaneously start moving due to external events or other control interfaces.
 
 One concept of moving simply reflects what you would see in the physical world: is the value of the Control currently changing? (either triggered by the user, or by external inputs)
 In other cases, what you really want to know is whether the Control started or stopped moving <em>in response to your instructions</em>.  This is useful when scanning a value, and wanting to receive confirmation that the Control is doing what you told it to.
@@ -96,13 +96,19 @@ The second category only reflects motion due to instructions sent by \em this so
  -# The move did not complete within a timeout period specified
  -# an error code defined by the specific control implementation
 
-<b>Warning About Expected Behaviour</b>
+<b>Re-targetting moves while already moving</b>
+Some devices can accept new setpoints while in motion toward a first setpoint, while others cannot.  Use setAllowsMovesWhileMoving() to specify whether move() commands should be accepted while the device is already moving.
 
-All behaviour about the current state of a control is based on whether the control has made it to its destination within the tolerance() that has been set for it.
-However, this assumes that you set this tolerance yourself because the default is CONTROL_TOLERANCE_DONT_CARE.
-If the tolerance is left to its default value you are not able to trust the signals such as moveSucceeded() because they will be emitted the first time the system gets a feedback value, <b>even if the control is still moving</b>!
-Therefore, in order to use AMControl to the fullest of its capabilities make sure you set the tolerance.
+Defaults:
+- AMControl: allowsMovesWhileMoving() == false
+- AMPVControl: allowsMovesWhileMoving() == true, since we have no really reliable way to tell if these controls are actually moving.
+- AMPVwStatusControl: allowsMovesWhileMoving() == false.
 
+If moves while moving are not accepted, move() will return false.  If they are accepted, moveReTargetted() will be emitted for each re-targetted move(); however, no moveSucceeded() or moveFailed() will be emitted for the initial move.  Instead, only one moveSucceeded() or moveFailed() will be emitted when motion finally stops.  This behaviour is chosen so that the moveSucceeded() or moveFailed() from the intial move would not be confused as a moveSucceeded() or moveFailed() for the subsequent moves, which may still be in progress.
+
+<b>Normal move:</b> moveStarted().... ...[moveSucceeded() or moveFailed()]
+<b>Re-targetted once:</b> moveStarted()... moveReTargetted()... ...[moveSucceeded() or moveFailed()]
+<b>Re-targetted twice:</b> moveStarted()... moveReTargetted()... moveReTargetted()...[moveSucceeded() or moveFailed()]
 
 <b>Grouping Controls</b>
 
@@ -129,7 +135,7 @@ One powerful ability of the control grouping is being able to generate a list of
 
 <b> Implementing Real Controls</b>
 
-These properties are defined as the general characteristics that all Controls are expected to have, regardless of the actual hardware or connection method. (For example, they should be equally useful for representing Process Variables in an Epics-based control system, devices connected directly via TCP-IP or serial lines, or off-site hoofadinkuses interfaced using smoke signals or bongo drums.)
+These properties are defined as the general characteristics that all Controls are expected to have, regardless of the actual hardware or connection method. (For example, they should be equally useful for representing Process Variables in an Epics-based control system, devices connected directly via TCP-IP or serial lines, or off-site controls interfaced using smoke signals or bongo drums.)
 
 The AMControl interface should be inherited to implement real-world control devices.  The exact meaning of the properties might change depending on the physical device and its capabilities.  As a useful example, we've provided a set of real controls with different levels of capability that implement Epics Process-Variable type connections:
 
@@ -137,7 +143,7 @@ The AMControl interface should be inherited to implement real-world control devi
 <table>
 <tr><td>Class Name					<td>Description
 <tr><td>AMControl					<td>Interface definition. Can be instantiated, but not particularly useful.
-<tr><td>AMControlGroup				<td>Empty control that doesn't move or measure, but reports the combined moving status and connected status of its subcontrols
+<tr><td>AMCompositeControl			<td>Empty control that doesn't move or measure, but reports the combined moving status and connected status of its subcontrols
 <tr><td>AMReadOnlyPVControl			<td>Measures a single process variable.  Cannot be used to set values.
 <tr><td>AMPVControl					<td>Measures a feedback process variable, and moves a setpoint PV.
 <tr><td>AMReadOnlyPVwStatusControl	<td>Measures a single process variable, and monitors a second PV for moving status
@@ -149,7 +155,7 @@ The AMControl interface should be inherited to implement real-world control devi
 <table>
 <tr><td>Class Name					<td>Usage example
 <tr><td>AMControl					<td>
-<tr><td>AMControlGroup				<td>A "Beamline" group that shows whether anything on the beamline is moving or disconnected
+<tr><td>AMCompositeControl			<td>A "Beamline" group that shows whether anything on the beamline is moving or disconnected
 <tr><td>AMReadOnlyPVControl			<td>Observing the storage ring current ("isMoving()" is hard to define here, so its meaningless)
 <tr><td>AMPVControl					<td>High-voltage bias settings, with a setpoint and feedback value
 <tr><td>AMReadOnlyPVwStatusControl	<td>Another beamline's energy motor feedback, with moving/not-moving indicators
@@ -162,7 +168,7 @@ We need to carefully specify the behavior for all of these implementation-define
 
 <table>
 <tr><td>AMControl					<td>[is always false]
-<tr><td>AMControlGroup				<td>all children are connected
+<tr><td>AMCompositeControl			<td>all children are connected
 <tr><td>AMReadOnlyPVControl			<td>feedback PV is connected
 <tr><td>AMPVControl					<td>feedback and setpoint PVs are connected
 <tr><td>AMReadOnlyPVwStatusControl	<td>feedback and motion-status PVs are connected
@@ -173,7 +179,7 @@ We need to carefully specify the behavior for all of these implementation-define
 
 <table>
 <tr><td>AMControl					<td>[is always false]
-<tr><td>AMControlGroup				<td>any child is moving
+<tr><td>AMCompositeControl			<td>any child is moving
 <tr><td>AMReadOnlyPVControl			<td>[is always false: no good way to determine this]
 <tr><td>AMPVControl					<td>one of your moves is executing (moveInProgress = true)
 <tr><td>AMReadOnlyPVwStatusControl	<td>motion-status PV indicates that the control is moving
@@ -184,7 +190,7 @@ We need to carefully specify the behavior for all of these implementation-define
 
 <table>
 <tr><td>AMControl					<td>[never happens]
-<tr><td>AMControlGroup				<td>[never happens]
+<tr><td>AMCompositeControl			<td>[never happens]
 <tr><td>AMReadOnlyPVControl			<td>[never happens]
 <tr><td>AMPVControl					<td>after starting a move, the value() came within tolerance() of setpoint() before completionTimeout()
 <tr><td>AMReadOnlyPVwStatusControl	<td>[never happens]
@@ -194,12 +200,12 @@ We need to carefully specify the behavior for all of these implementation-define
 <b>moveFailed() means:</b>
 
 <table>
-<tr><td>AMControl					<td>[any move]
-<tr><td>AMControlGroup				<td>[any move]
-<tr><td>AMReadOnlyPVControl			<td>[any move]
+<tr><td>AMControl					<td>[never happens]
+<tr><td>AMCompositeControl			<td>[never happens]
+<tr><td>AMReadOnlyPVControl			<td>[never happens]
 <tr><td>AMPVControl					<td>after starting a move, the completionTimeout() occured before value() came within tolerance() of setpoint()
-<tr><td>AMReadOnlyPVwStatusControl	<td>[any move]
-<tr><td>AMPVwStatusControl			<td>motion-status PV indicated that the control stopped moving, and the value was not within tolerance() of setpoint.  OR... The PV did not start isMoving() within startTimeout().
+<tr><td>AMReadOnlyPVControl			<td>[never happens]
+<tr><td>AMPVwStatusControl			<td>The motion-status PV indicated that the control stopped moving, and the value was not within tolerance() of setpoint.  OR... The PV did not start isMoving() within startTimeout().
 </table>
 
 
@@ -340,13 +346,15 @@ The Control abstraction provides two different properties (and associated signal
 
   - bool moveInProgress(): A move that you requested is currently happening
   - signal: moveStarted(): emitted when moveInProgress first goes to true
+  - signal: moveReTargetted(): emitted when allowsMovesWhileMoving() is true, and a move is re-directed to a different setpoint while already moving.
   - signal: moveSucceeded(): emitted when a move completes successfully, and the final value() is within tolerance of the setpoint.
   - signal: moveFailed(int explanation): emitted when a move is not able to complete for some reason. Possible explanation codes are:
 
-  - \c AMControl::NotConnectedFailure: Could not start the move because the control's not connected or responding
-  - \c AMControl::ToleranceFailure: The move finished, but failed to achieve the tolerance requested
-  - \c AMControl::TimeoutFailure: The move failed to finish (or start) within a timeout period specified.
-  - \c AMControl::OtherFailure and higher: an error code defined by the specific control implementation
+  - \c AMControl::NotConnectedFailure (1): Could not start the move because the control's not connected or responding
+  - \c AMControl::ToleranceFailure (2): The move finished, but failed to achieve the tolerance requested
+  - \c AMControl::TimeoutFailure (3): The move failed to finish (or start) within a timeout period specified.
+  - \c AMContro::WasStoppedFailure (4): The move was interrupted by calling stop() before it could finish.
+  - \c AMControl::OtherFailure (5) and higher: an error code defined by the specific control implementation
 
 
 */
@@ -437,6 +445,8 @@ signals:
 	//@{
 	/// Emitted when moveInProgress() goes to true.
 	void moveStarted();
+	/// Emitted when allowsMovesWhileMoving() is true, and a move() is commanded while already moving. You can call setpoint() to find out where it's been updated to go to.
+	void moveReTargetted();
 	/// Emitted when a move successfully completes. (This is up to the implementation to define what counts as successful and complete.)
 	void moveSucceeded();
 	/// Emitted when a move is not able to complete successfully for some reason.

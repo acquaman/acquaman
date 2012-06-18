@@ -67,6 +67,7 @@ void AMControlMoveAction::startImplementation() {
 
 	// connect to its moveSucceeded and moveFailed signals
 	connect(control_, SIGNAL(moveStarted()), this, SLOT(onMoveStarted()));
+	connect(control_, SIGNAL(moveReTargetted()), this, SLOT(onMoveStarted()));	// For controls that support allowsMovesWhileMoving(), they might already be moving when we request our move(). A moveReTargetted() signal from them also counts as a moveStarted() for us.
 	connect(control_, SIGNAL(moveFailed(int)), this, SLOT(onMoveFailed(int)));
 	connect(control_, SIGNAL(moveSucceeded()), this, SLOT(onMoveSucceeded()));
 
@@ -87,10 +88,20 @@ void AMControlMoveAction::startImplementation() {
 void AMControlMoveAction::onMoveStarted()
 {
 	disconnect(control_, SIGNAL(moveStarted()), this, SLOT(onMoveStarted()));
+	disconnect(control_, SIGNAL(moveReTargetted()), this, SLOT(onMoveStarted()));
+	// From now on, if we get a moveReTargetted() signal, this would be bad: someone is re-directing our move to a different setpoint, so this now counts as a failure.
+	connect(control_, SIGNAL(moveReTargetted()), this, SLOT(onMoveReTargetted()));
+
 	notifyStarted();
 	// start the progressTick timer
 	connect(&progressTick_, SIGNAL(timeout()), this, SLOT(onProgressTick()));
 	progressTick_.start(250);
+}
+
+void AMControlMoveAction::onMoveReTargetted()
+{
+	// someone is re-directing our move to a different setpoint, so this now counts as a failure.
+	onMoveFailed(6);	// AMControl::FailureExplanation goes up to 5; Using one higher to indicate that our desired move was re-directed somewhere else.
 }
 
 void AMControlMoveAction::onMoveFailed(int reason)
@@ -98,6 +109,18 @@ void AMControlMoveAction::onMoveFailed(int reason)
 	disconnect(control_, 0, this, 0);
 	progressTick_.stop();
 	disconnect(&progressTick_, 0, this, 0);
+
+	QString failureExplanation;
+	switch(reason) {
+	case 1: failureExplanation = "The control was not connected."; break;
+	case 2: failureExplanation = "The required tolerance was not met."; break;
+	case 3: failureExplanation = "The move timed out without starting or reaching its destination."; break;
+	case 4: failureExplanation = "The move was manually interrupted or stopped."; break;
+	case 6: failureExplanation = "The move was externally re-directed to another destination."; break;
+	case 5:
+	default:
+		failureExplanation = "An undocumented failure happened."; break;
+	}
 
 	// error message with reason
 	AMErrorMon::report(AMErrorReport(this,
@@ -109,7 +132,7 @@ void AMControlMoveAction::onMoveFailed(int reason)
 									 .arg(control_->units())
 									 .arg(control_->value())
 									 .arg(control_->units())
-									 .arg(reason)));
+									 .arg(failureExplanation)));
 	notifyFailed();
 }
 

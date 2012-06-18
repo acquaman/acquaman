@@ -469,7 +469,7 @@ protected slots:
 	void onStatusPVError(int errorCode);
 
 	/// This is called whenever there is an update from the move status PV
-	void onMovingChanged(int isMovingValue);
+	virtual void onMovingChanged(int isMovingValue);
 
 };
 
@@ -565,6 +565,9 @@ public:
 	/// Maximum allowed value derived from the writePV's DRV_HIGH field, as defined by EPICS
 	virtual double maximumValue() const { return writePV_->upperControlLimit(); }
 
+	/// isMoving: according to the moving PV, and also while we're in the settling phase.
+	virtual bool isMoving() const { return (*statusChecker_)(movingPV_->getInt()) || settlingInProgress_; }
+
 	/// This is the target of the last requested move:
 	virtual double setpoint() const { return setpoint_; }
 	//@}
@@ -588,6 +591,15 @@ public:
 	By default, moveStartTolerance_ is 0 and has no effect.
 */
 	double moveStartTolerance() const { return moveStartTolerance_; }
+
+	/// The settling time that is allowed after the hardware reports "move done", in seconds, before checking the feedback and tolerance.
+	/*! EPICS channel access provides no guarantee on the order in which channel access monitors from different PVs are received. Therefore, it's highly likely that the status PV may receive the "Move Done" notification before the latest feedback value() is received from the read PV.  This can cause two problems: (1) depending on the tolerance and the monitoring rate, a physically-successful move may incorrectly report a tolerance failure, because the within-tolerance feedback value has not yet been received by the end of a move, and (2) the feedback value() read immediately after a move finishes may not actually be accurate. [In both cases, the true feedback value will probably be arriving a few ms later].
+
+	  If a settling time is specified, the control will wait for that many seconds before checking the tolerance and reporting either moveFailed() or moveSucceeded(), as well as changing isMoving() and moveInProgress().
+
+	  The default settling time is currently 0 [disabled].
+	  */
+	double settlingTime() const { return settlingTime_; }
 	//@}
 
 public slots:
@@ -603,6 +615,10 @@ public slots:
 
 	/// Set a non-zero moveStartTolerance() to allow "null moves" (setpoints within moveStartTolerance() of the current feedback value) to start and succeed immediately without any motion.  This is necessary for controls that do not change their move status when told to go to the current position. \see moveStartTolerance().
 	void setMoveStartTolerance(double moveStartTolerance) { moveStartTolerance_ = moveStartTolerance; }
+
+	/// Set the settling time that is allowed after the hardware reports "move done", in seconds. \see settlingTime().
+	void setSettlingTime(double seconds) { settlingTime_ = seconds; }
+
 
 signals:
 	/// These are specialized to report on the writePV's channel connection status.  You should be free to ignore them and use the signals defined in AMControl.
@@ -640,6 +656,16 @@ protected:
 	/// The value written to the stopPV_ when attempting to stop().
 	int stopValue_;
 
+	/// If non-zero, the control waits this many seconds after receiving MOVE DONE notification from the status PV before checking tolerance and reporting the end of a move.
+	double settlingTime_;
+	/// Used to track that we are in the settling phase.  \see setSettlingTime().
+	bool settlingInProgress_;
+	/// Used to catch the end of settling
+	QTimer settlingTimer_;
+
+	/// Used for change detection of the hardware's moving state.  AMPVwStatus::wasMoving_ is used for change detection of our public isMoving() state, which includes settlingInProgress_.  Instead, this is the last raw moving state of the harware.
+	bool hardwareWasMoving_;
+
 protected slots:
 
 	/// This is called when there is a Status PV channel error:
@@ -648,11 +674,14 @@ protected slots:
 	/// This is used to handle the timeout of a move start:
 	void onMoveStartTimeout();
 
-	/// This is used to add our own move tracking signals when isMoving() changes:
-	void onIsMovingChanged(bool);
+	/// Re-implemented: This is used to handle when the movingPV_ changes.
+	virtual void onMovingChanged(int isMovingValue);
 
 	/// This is called when a PV channel connects or disconnects
 	void onPVConnected(bool connected);
+
+	/// Called when the settling time expires
+	void onSettlingTimeFinished();
 
 };
 
