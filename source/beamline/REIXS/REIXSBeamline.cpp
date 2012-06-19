@@ -177,17 +177,14 @@ REIXSHexapod::REIXSHexapod(QObject* parent)
 	r_ = new AMPVControl("hexapodR", baseName+"R:sp", baseName+"R", QString(), this, 0.001);
 	r_->setDescription("Hexapod R");
 	r_->setAllowsMovesWhileMoving(true);
-	r_->setSettlingTime(0.1);
 
 	s_ = new AMPVControl("hexapodS", baseName+"S:sp", baseName+"S", QString(), this, 0.001);
 	s_->setDescription("Hexapod S");
 	s_->setAllowsMovesWhileMoving(true);
-	s_->setSettlingTime(0.1);
 
 	t_ = new AMPVControl("hexapodT", baseName+"T:sp", baseName+"T", QString(), this, 0.001);
 	t_->setDescription("Hexapod T");
 	t_->setAllowsMovesWhileMoving(true);
-	t_->setSettlingTime(0.1);
 
 	addChildControl(x_);
 	addChildControl(y_);
