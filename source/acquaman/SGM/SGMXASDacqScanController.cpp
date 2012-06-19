@@ -71,6 +71,10 @@ void SGMXASDacqScanController::onInitializationActionsSucceeded(){
 
 void SGMXASDacqScanController::onInitializationActionsFailed(int explanation){
 	Q_UNUSED(explanation)
+	AMErrorMon::report(AMErrorReport(this,
+			AMErrorReport::Alert,
+			SGMXASDACQSCANCONTROLLER_INITIALZATION_FAILED,
+			"Error, SGM XAS DACQ Scan Controller failed to initialize - one or more stages of initialization failed. Please report this bug to the Acquaman developers."));
 	setFailed();
 }
 
@@ -118,7 +122,7 @@ bool SGMXASDacqScanController::initializeImplementation(){
 	AMErrorMon::report(AMErrorReport(this,
 			AMErrorReport::Alert,
 			SGMXASDACQSCANCONTROLLER_CANT_INTIALIZE,
-			"Error, SGM XAS DACQ Scan Controller failed to initialize. Please report this bug to the Acquaman developers."));
+			"Error, SGM XAS DACQ Scan Controller failed to initialize - the initialization actions could not be created. Please report this bug to the Acquaman developers."));
 	return false;
 }
 
@@ -292,7 +296,6 @@ bool SGMXASDacqScanController::startImplementation(){
 		}
 	}
 	advAcq_->saveConfigFile(configTemplateDir.absolutePath()+"/fullyFormedTemplate.cfg");
-
 	return AMDacqScanController::startImplementation();
 }
 

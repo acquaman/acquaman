@@ -144,6 +144,7 @@ void SGMBeamline::usingSGMBeamline(){
 		pvNameLookUpFail = true;
 	//exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1017:status", "SMTR16114I1017:stop", this, 0.5);
 	exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", sgmPVName+":Y:mm:fbk", "BL1611-ID-1:AddOns:ExitSlitGap:Y:mm", "BL1611-ID-1:AddOns:ExitSlitGap:Y:status", "SMTR16114I1017:stop", this, 0.5);
+	((AMPVwStatusControl*)exitSlitGap_)->setMoveStartTolerance(0.01);
 	exitSlitGap_->setDescription("Exit Slit Gap");
 	sgmPVName = amNames2pvNames_.valueF("entranceSlitGap");
 	if(sgmPVName.isEmpty())
@@ -178,11 +179,13 @@ void SGMBeamline::usingSGMBeamline(){
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	grating_ = new AMPVwStatusControl("grating", sgmPVName, sgmPVName, "SMTR16114I1016:state", "SMTR16114I1016:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
+	((AMPVwStatusControl*)(grating_))->setMoveStartTolerance(0.1);
 	grating_->setDescription("Grating Selection");
 	sgmPVName = amNames2pvNames_.valueF("harmonic");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	harmonic_ = new AMPVwStatusControl("harmonic", sgmPVName, sgmPVName, "UND1411-01:moveStatus", "", this, 0.1);
+	((AMPVwStatusControl*)(harmonic_))->setMoveStartTolerance(0.1);
 	harmonic_->setDescription("Harmonic");
 
 	sgmPVName = amNames2pvNames_.valueF("undulatorMotor");

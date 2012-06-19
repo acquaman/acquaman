@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QUrl>
 #include <QList>
 #include <QModelIndex>
+#include <QStringList>
 
 #include "util/AMOrderedSet.h"
 
@@ -325,6 +326,9 @@ protected:
 
 	/// Holds the list of database upgrades to do in order (holds these as QMetaObjects so they can be new'd at the correct time)
 	QList<AMDbUpgrade*> databaseUpgrades_;
+
+	/// Holds a list of additional databases to look in for export options (the "user" database will always be searched")
+	QStringList additionalExporterOptionsDatabases_;
 
 private:
 	/// Holds the QObject whose signal is currently being used to connect to the onStartupFinished slot
