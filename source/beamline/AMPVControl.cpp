@@ -330,7 +330,7 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	stopInProgress_ = false;
 	startInProgress_ = false;
 	settlingInProgress_ = false;
-	settlingTime_ = 0.1;	/// \todo default to 0 for now.
+	settlingTime_ = 0.0;	/// \todo Once tested, this should maybe be enabled by default. All systems with separate status and feedback PVs will need it. How much time?
 	setTolerance(tolerance);
 	setpoint_ = 0;
 	moveStartTimeout_ = moveStartTimeoutSeconds;
