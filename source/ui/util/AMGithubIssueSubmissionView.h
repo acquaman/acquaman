@@ -85,6 +85,8 @@ protected:
 
 	QTimer *exitCountDownTimer_;
 	int exitCountDownCounter_;
+
+	bool issueCreatedSuccessfully_;
 };
 
 #endif // AMGITHUBISSUESUBMISSIONVIEW_H

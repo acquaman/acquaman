@@ -17,6 +17,7 @@ public:
 public slots:
 	void logInToService(){
 		telnet_ = new QtTelnet(this);
+		telnet_->setSocket(new QTcpSocket(this));
 		connect(telnet_, SIGNAL(message(QString)), this, SLOT(onLoginReply(QString)));
 		telnet_->connectToHost(hostname_, port_);
 	}
@@ -86,9 +87,8 @@ protected slots:
 
 	void startServerDisconnect(){
 		qDebug() << "Starting telnet disconnect";
-		QString myHex = "1d";
-		telnet_->sendData(QString(QByteArray::fromHex(myHex.toAscii())));
 		//telnet_->sendData("quit");
+		telnet_->socket()->close();
 
 		delete telnet_;
 		telnet_ = 0;
