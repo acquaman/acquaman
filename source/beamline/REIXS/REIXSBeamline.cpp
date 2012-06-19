@@ -18,7 +18,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "REIXSBeamline.h"
-#include "beamline/CLS/CLSMDriveMotorControl.h"
 #include "util/AMErrorMonitor.h"
 
 REIXSBeamline::REIXSBeamline() :
@@ -112,11 +111,22 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 
 	//								name	  PV base name        units unitsPerRev offset microsteps descript. tolerance startTimeoutSecs, parent
 	x_ = new CLSMDriveMotorControl("sampleX", "SMTR1610-4-I21-08", "mm", 2.116, 0, 256, "Sample Chamber X", 0.5, 1.0, this);
+	x_->setSettlingTime(0.1);
+
 	y_ = new CLSMDriveMotorControl("sampleY", "SMTR1610-4-I21-10", "mm", 2.116, 0, 256, "Sample Chamber Y", 0.5, 1.0, this);
+	y_->setSettlingTime(0.1);
+
 	z_ = new CLSMDriveMotorControl("sampleZ", "SMTR1610-4-I21-07", "mm", 0.25, 0, 256, "Sample Chamber Z", 0.5, 1.0, this);
+	z_->setSettlingTime(0.1);
+
 	r_ = new CLSMDriveMotorControl("sampleTheta", "SMTR1610-4-I21-11", "deg", 3.6, 0, 256, "Sample Chamber Theta", 0.5, 1.0, this);
+	r_->setSettlingTime(0.1);
+
 	loadLockZ_ = new CLSMDriveMotorControl("loadLockZ", "SMTR1610-4-I21-09", "mm", 0.125, 0, 256, "Load Lock Z", 0.5, 1.0, this);
+	loadLockZ_->setSettlingTime(0.1);
+
 	loadLockR_ = new CLSMDriveMotorControl("loadLockTheta", "SMTR1610-4-I21-12", "deg", 3.6, 0, 256, "Load Lock Theta", 0.5, 1.0, this);
+	loadLockR_->setSettlingTime(0.1);
 
 	addChildControl(x_);
 	addChildControl(y_);
@@ -133,33 +143,51 @@ REIXSHexapod::REIXSHexapod(QObject* parent)
 	setDescription("XES Hexapod");
 
 	QString baseName = "HXPD1610-4-I21-01:";
+
 	x_ = new AMPVwStatusControl("hexapodX", baseName+"X:sp", baseName+"X", baseName+"moving", QString(), this, 0.01);
 	x_->setDescription("Hexapod X");
 	x_->setAllowsMovesWhileMoving(true);
+	x_->setSettlingTime(0.1);
+
 	y_ = new AMPVwStatusControl("hexapodY", baseName+"Y:sp", baseName+"Y", baseName+"moving", QString(), this, 0.01);
 	y_->setDescription("Hexapod Y");
 	y_->setAllowsMovesWhileMoving(true);
+	y_->setSettlingTime(0.1);
+
 	z_ = new AMPVwStatusControl("hexapodZ", baseName+"Z:sp", baseName+"Z", baseName+"moving", QString(), this, 0.01);
 	z_->setDescription("Hexapod Z");
 	z_->setAllowsMovesWhileMoving(true);
+	z_->setSettlingTime(0.1);
+
 	u_ = new AMPVwStatusControl("hexapodU", baseName+"U:sp", baseName+"U", baseName+"moving", QString(), this, 0.05);
 	u_->setDescription("Hexapod U");
 	u_->setAllowsMovesWhileMoving(true);
+	u_->setSettlingTime(0.1);
+
 	v_ = new AMPVwStatusControl("hexapodV", baseName+"V:sp", baseName+"V", baseName+"moving", QString(), this, 0.05);
 	v_->setDescription("Hexapod V");
 	v_->setAllowsMovesWhileMoving(true);
+	v_->setSettlingTime(0.1);
+
 	w_ = new AMPVwStatusControl("hexapodW", baseName+"W:sp", baseName+"W", baseName+"moving", QString(), this, 0.05);
 	w_->setDescription("Hexapod W");
 	w_->setAllowsMovesWhileMoving(true);
+	w_->setSettlingTime(0.1);
+
 	r_ = new AMPVControl("hexapodR", baseName+"R:sp", baseName+"R", QString(), this, 0.001);
 	r_->setDescription("Hexapod R");
 	r_->setAllowsMovesWhileMoving(true);
+	r_->setSettlingTime(0.1);
+
 	s_ = new AMPVControl("hexapodS", baseName+"S:sp", baseName+"S", QString(), this, 0.001);
 	s_->setDescription("Hexapod S");
 	s_->setAllowsMovesWhileMoving(true);
+	s_->setSettlingTime(0.1);
+
 	t_ = new AMPVControl("hexapodT", baseName+"T:sp", baseName+"T", QString(), this, 0.001);
 	t_->setDescription("Hexapod T");
 	t_->setAllowsMovesWhileMoving(true);
+	t_->setSettlingTime(0.1);
 
 	addChildControl(x_);
 	addChildControl(y_);
@@ -177,11 +205,14 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 	: AMCompositeControl("spectrometer", "eV", parent) {
 
 	setDescription("XES Detector Energy");
+
 	spectrometerRotationDrive_ = new AMPVwStatusControl("spectrometerRotationDrive",
 														"SMTR1610-4-I21-01:mm:fbk",
 														"SMTR1610-4-I21-01:mm",
 														"SMTR1610-4-I21-01:status",
 														"SMTR1610-4-I21-01:stop", this, 0.05);
+	spectrometerRotationDrive_->setDescription("XES Spectrometer Lift");
+	spectrometerRotationDrive_->setSettlingTime(0.1);
 
 
 
@@ -192,20 +223,23 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 												  "SMTR1610-4-I21-04:stop", this, 0.05);
 
 	detectorTranslation_->setDescription("XES Detector Translation");
+	detectorTranslation_->setSettlingTime(0.1);
+
 	detectorTiltDrive_ = new AMPVwStatusControl("detectorTiltDrive",
 												"SMTR1610-4-I21-02:mm:sp",
 												"SMTR1610-4-I21-02:mm",
 												"SMTR1610-4-I21-02:status",
 												"SMTR1610-4-I21-02:stop", this, 0.05);
 	detectorTiltDrive_->setDescription("XES Detector Tilt Stage");
+	detectorTiltDrive_->setSettlingTime(0.1);
 
 	endstationTranslation_ = new AMPVwStatusControl("endstationTranslation",
 														"SMTR1610-4-I21-05:mm:fbk",
 														"SMTR1610-4-I21-05:mm",
 														"SMTR1610-4-I21-05:status",
 														"SMTR1610-4-I21-05:stop", this, 0.05);  //DAVID ADDED
-
 	endstationTranslation_->setDescription("Endstation Translation");
+	endstationTranslation_->setSettlingTime(0.1);
 
 	hexapod_ = new REIXSHexapod(this);
 
