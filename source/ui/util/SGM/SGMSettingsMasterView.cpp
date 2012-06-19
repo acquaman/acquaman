@@ -118,7 +118,6 @@ SGMPluginsLocationView::SGMPluginsLocationView(QWidget *parent) :
 	AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
 	SGMPluginsLocation *tempFileLoaderLocation = new SGMPluginsLocation();
 	QList<int> matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMPluginsLocation>(), "name", "FileLoaders");
-	//QList<int> matchIDs = AMDatabase::database("SGMBeamine")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMPluginsLocation>(), "name", "FileLoaders");
 	if(matchIDs.count() > 0)
 		tempFileLoaderLocation->loadFromDb(dbSGM, matchIDs.at(0));
 	SGMPluginsLocation *tempAnalysisBlockLocation = new SGMPluginsLocation();
@@ -309,7 +308,7 @@ void SGMDacqConfigurationFileView::applyChanges() {
 
 		for(int x = 0; x < allConfigurationFileIDs.count(); x++){
 			if(allConfigurationFileIDs.at(x) != configurationFileIDs_.at(x)){
-				//errormon here
+				//NEM June 15th, 2012
 				return;
 			}
 		}
@@ -317,7 +316,7 @@ void SGMDacqConfigurationFileView::applyChanges() {
 		for(int x = 0; x < configurationFileIDs_.count(); x++){
 			QLineEdit *lineEdit = qobject_cast<QLineEdit*>(fl_->itemAt(x, QFormLayout::FieldRole)->widget());
 			if(!configFile->loadFromDb(dbSGM, configurationFileIDs_.at(x))){
-				//errormon here
+				//NEM June 15th, 2012
 				return;
 			}
 			if(configFile->configurationFileFullPath() != lineEdit->text()){
@@ -339,7 +338,7 @@ void SGMDacqConfigurationFileView::discardChanges(){
 
 		for(int x = 0; x < allConfigurationFileIDs.count(); x++){
 			if(allConfigurationFileIDs.at(x) != configurationFileIDs_.at(x)){
-				//errormon here
+				//NEM June 15th, 2012
 				return;
 			}
 		}
@@ -347,7 +346,7 @@ void SGMDacqConfigurationFileView::discardChanges(){
 		for(int x = 0; x < configurationFileIDs_.count(); x++){
 			QLineEdit *lineEdit = qobject_cast<QLineEdit*>(fl_->itemAt(x, QFormLayout::FieldRole)->widget());
 			if(!configFile->loadFromDb(dbSGM, configurationFileIDs_.at(x))){
-				//errormon here
+				//NEM June 15th, 2012
 				return;
 			}
 			lineEdit->setText(configFile->configurationFileFullPath());
@@ -425,7 +424,6 @@ SGMDetectorsMasterView::SGMDetectorsMasterView(QWidget *parent) :
 		tempHL->addWidget(tempCheckBox);
 		tempHL->addWidget(tempLabel);
 
-		//fl_->addRow(allDetectors->detectorAt(x)->detectorName(), tempCheckBox);
 		fl_->addRow(allDetectors->detectorAt(x)->description(), tempHL);
 		connect(tempCheckBox, SIGNAL(toggled(bool)), this, SLOT(onCheckBoxesChanged(bool)));
 		connect(allDetectors->detectorAt(x)->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SLOT(onDetectorAvailabilityChanged(AMDetector*,bool)));

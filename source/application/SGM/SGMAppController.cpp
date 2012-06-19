@@ -243,12 +243,10 @@ void SGMAppController::onSGMBeamlineConnected(){
 		double goodEnergy = 10 * floor(SGMBeamline::sgm()->energy()->value() / 10);
 		sxsc->addRegion(0, goodEnergy, 1, goodEnergy+10, 1);
 		xasScanConfigurationView_ = new SGMXASScanConfigurationView(sxsc);
-		//xasScanConfigurationHolder_->setView(xasScanConfigurationView_);
 		xasScanConfigurationHolder3_->setView(xasScanConfigurationView_);
 
 		SGMFastScanConfiguration *sfsc = new SGMFastScanConfiguration(this);
 		fastScanConfigurationView_ = new SGMFastScanConfigurationView(sfsc);
-		//fastScanConfigurationHolder_->setView(fastScanConfigurationView_);
 		fastScanConfigurationHolder3_->setView(fastScanConfigurationView_);
 	}
 	else if(!SGMBeamline::sgm()->isConnected() && !xasScanConfigurationView_ && !fastScanConfigurationView_){
@@ -292,7 +290,6 @@ void SGMAppController::onSGMAmptekSDD2Connected(bool connected){
 #include "ui/dataman/AMGenericScanEditor.h"
 
 void SGMAppController::onCurrentScanControllerCreated(){
-	//connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
 }
 
 void SGMAppController::onCurrentScanControllerDestroyed(){
@@ -301,11 +298,9 @@ void SGMAppController::onCurrentScanControllerDestroyed(){
 void SGMAppController::onCurrentScanControllerStarted(AMScanAction *action){
 	connect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
 
-	//AMScan *scan = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan();
 	AMScan *scan = action->controller()->scan();
 	openScanInEditorAndTakeOwnership(scan);
 
-	//SGMXASScanConfiguration *xasConfig = qobject_cast<SGMXASScanConfiguration *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->scanConfiguration());
 	SGMXASScanConfiguration *xasConfig = qobject_cast<SGMXASScanConfiguration *>(scan->scanConfiguration());
 	if(xasConfig){
 		if(xasConfig->allDetectorConfigurations().isActiveNamed("teyScaler") || xasConfig->allDetectorConfigurations().isActiveNamed("teyPico"))
@@ -317,7 +312,6 @@ void SGMAppController::onCurrentScanControllerStarted(AMScanAction *action){
 		return;
 	}
 
-	//SGMFastScanConfiguration *fastConfig = qobject_cast<SGMFastScanConfiguration *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->scanConfiguration());
 	SGMFastScanConfiguration *fastConfig = qobject_cast<SGMFastScanConfiguration *>(scan->scanConfiguration());
 	if(fastConfig){
 		scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("TEY");
@@ -1016,30 +1010,19 @@ bool SGMAppController::setupSGMViews(){
 
 	mw_->insertHeading("Experiment Setup", 1);
 	xasScanConfigurationView_ = 0; //NULL
-	//xasScanConfigurationHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_);
-	//mw_->addPane(xasScanConfigurationHolder_, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
 	xasScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3();
 	mw_->addPane(xasScanConfigurationHolder3_, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
 
 	fastScanConfigurationView_ = 0; //NULL
-	//fastScanConfigurationHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_);
-	//mw_->addPane(fastScanConfigurationHolder_, "Experiment Setup", "SGM Fast Scan", ":/utilities-system-monitor.png");
 	fastScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3();
 	mw_->addPane(fastScanConfigurationHolder3_, "Experiment Setup", "SGM Fast Scan", ":/utilities-system-monitor.png");
 
-	//connect(xasScanConfigurationHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 	connect(xasScanConfigurationHolder3_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
-	//connect(fastScanConfigurationHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 	connect(fastScanConfigurationHolder3_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
-
-	//connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
-	//connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerDestroyed()));
-	//connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
 
 	connect(AMActionRunner3::workflow(), SIGNAL(scanActionStarted(AMScanAction*)), this, SLOT(onCurrentScanControllerStarted(AMScanAction*)));
 	connect(AMActionRunner3::workflow(), SIGNAL(scanActionFinished(AMScanAction*)), this, SLOT(onCurrentScanControllerFinished(AMScanAction*)));
 
-	//connect(SGMBeamline::sgm(), SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(onSGMBeamlineConnected()));
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineInitialized()), this, SLOT(onSGMBeamlineConnected()));
 	connect(SGMBeamline::sgm(), SIGNAL(criticalConnectionsChanged()), this, SLOT(onSGMBeamlineConnected()));
 	onSGMBeamlineConnected();
