@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -29,7 +29,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMElement.h"
 #include "util/AMPeriodicTable.h"
-#include <QDebug>
 
 class AMPeriodicTableView : public QWidget
 {
@@ -42,24 +41,26 @@ public:
 	AMPeriodicTableView(QWidget *parent = 0);
 	~AMPeriodicTableView();
 
-	/// Returns a pointer to the periodic table model used by the view.
-	AMPeriodicTable *table() const { return table_; }
+	/// Returns the mapped QToolButton for a given atomic number.
+	QToolButton *button(int atomicNumber) { return qobject_cast<QToolButton *>(elementMapper_->mapping(atomicNumber)); }
 	/// Returns the mapped QToolButton for a given element.
 	QToolButton *button(AMElement *el) { return qobject_cast<QToolButton *>(elementMapper_->mapping(el->atomicNumber())); }
+	/// Returns the mapped QToolButton for a given element.
+	QToolButton *button(const AMElement *el) { return qobject_cast<QToolButton *>(elementMapper_->mapping(el->atomicNumber())); }
 
 signals:
 	/// Mapped signal that passes the atomic number of an element.
 	void clicked(int);
 	/// When an element is clicked on, this signal will be emitted carrying a pointer to the element.
-	void elementSelected(AMElement *);
+	void elementSelected(const AMElement *);
 
-private slots:
+protected slots:
 	/// Slot that emits a signal carrying a pointer to the particular Element.
 	void showElement(int number);
 
-private:
+protected:
 	/// This is a convenience function that takes an Element and returns a mapped QToolButton where the clicked signal is mapped to that element.  Must be called after elementMapper_ has been new'ed.
-	QToolButton *mapElement(AMElement *element)
+	QToolButton *mapElement(const AMElement *element)
 	{
 		QToolButton *button = new QToolButton;
 		button->setFont(QFont("Times New Roman", 12));
@@ -75,8 +76,6 @@ private:
 	// Member variables.
 	// The signal mapper.
 	QSignalMapper *elementMapper_;
-	// The table.
-	AMPeriodicTable *table_;
 };
 
 #endif // PERIODICTABLEVIEW_H

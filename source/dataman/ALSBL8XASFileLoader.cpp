@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -30,9 +30,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "analysis/AM1DExpressionAB.h"
 
-#include <QDebug>
-
-
 AMBiHash<QString, QString> ALSBL8XASFileLoader::columns2fileFormatHeaders_;
 
 
@@ -61,6 +58,10 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool setMetaData
 	AMXASScan* scan = qobject_cast<AMXASScan*>(scan_);
 	if(!scan)
 		return false;
+
+	// Clear the old scan axes to ensure we don't have any extras.
+	scan->clearRawDataCompletely();
+	scan->rawData()->addScanAxis( AMAxisInfo("eV", 0, "Incident Energy", "eV") );
 
 	// information about the scan we hope to locate:
 	QString comments;

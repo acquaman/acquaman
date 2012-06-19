@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -45,9 +45,6 @@ AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *
 	connect(names_, SIGNAL(currentIndexChanged(int)), this, SLOT(onNameChoiceChanged(int)));
 	connect(analysisBlock_, SIGNAL(inputSourcesChanged()), this, SLOT(populateComboBox()));
 
-	if (analysisBlock_->inputDataSourceCount() > 0)
-		onNameChoiceChanged(0);
-
 	axisSelector_ = new QComboBox();
 	axisSelector_->addItem("Horizontal");
 	axisSelector_->addItem("Vertical");
@@ -58,8 +55,6 @@ AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *
 	rangeMaxControl_ = new QSpinBox();
 	rangeMaxControl_->setSingleStep(1);
 	rangeMaxControl_->setMinimum(0);
-
-	additionalEditor_ = 0;
 
 	plot_ = new MPlot();
 	plotWidget_ = new MPlotWidget();
@@ -112,6 +107,10 @@ AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *
 
 	onAnalysisBlockInputDataSourcesChanged();
 
+	// This needs to be called last because it requires all of the pointers to be valid.  All of dem.
+	if (analysisBlock_->inputDataSourceCount() > 0)
+		onNameChoiceChanged(0);
+
 	// make connections
 	connect(analysisBlock_, SIGNAL(inputSourcesChanged()), this, SLOT(onAnalysisBlockInputDataSourcesChanged()));
 
@@ -137,6 +136,7 @@ void AM2DSummingABEditor::onNameChoiceChanged(int index)
 {
 	QString name = names_->itemData(index).toString();
 	analysisBlock_->setAnalyzedName(name);
+	image_->setModel(new AMDataSourceImageData(analysisBlock_->inputDataSourceAt(analysisBlock_->indexOfInputSource(name))), true);
 }
 
 

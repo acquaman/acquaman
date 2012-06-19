@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -68,3 +68,11 @@ void AMAnalysisBlock::onInputSourceDeleted(void* deletedSource) {
 	setInputDataSourcesImplementation(QList<AMDataSource*>());
 	emit inputSourcesChanged();
 }
+
+#include "ui/dataman/AMSimpleDataSourceEditor.h"
+
+QWidget* AMAnalysisBlock::createEditorWidget()
+{
+	return new AMSimpleDataSourceEditor(this);
+}
+

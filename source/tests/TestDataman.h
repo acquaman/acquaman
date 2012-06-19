@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -338,8 +338,8 @@ private slots:
 		QString row = " :\t";
 		for(int j=0; j<s->scanSize(1); j++)
 			row.append(QString("%1\t").arg((double)s->axisValue(1, j)));
-		//qDebug() << row;
-		//qDebug() << "======================================================";
+		//qdebug() << row;
+		//qdebug() << "======================================================";
 		for(int i=0; i<s->scanSize(0); i++) {
 			QString row = QString("%1:\t").arg((double)s->axisValue(0,i));
 			for(int j=0; j<s->scanSize(1); j++) {
@@ -347,7 +347,7 @@ private slots:
 				row.append(QString("%1\t").arg(value));
 				QVERIFY(value == (i+1.0)*(j+1.0));
 			}
-			//qDebug() << row;
+			//qdebug() << row;
 		}
 
 
@@ -465,7 +465,7 @@ private slots:
 		AMDbObject dbo;
 
 		// generate unique name, and set properties:
-		//qDebug() << "Generating DbObject with unique properties.";
+		//qdebug() << "Generating DbObject with unique properties.";
 		QString uniqueName = QDateTime::currentDateTime().toString("ddddMMddhh:mm:ss.zzz");
 		dbo.setName("myTestDbObject" + uniqueName);
 
@@ -474,13 +474,13 @@ private slots:
 		*AMDatabase::database("user") << dbo;
 
 		// Was it inserted succesfully?
-		//qDebug() << "Testing DbObject insert into database: id should not be 0:" << dbo.id();
+		//qdebug() << "Testing DbObject insert into database: id should not be 0:" << dbo.id();
 		QVERIFY(dbo.id() > 0);	// check that insert succeeded.
 
 		// Load same scan back:
 		AMDbObject dbo2;
 		dbo2.loadFromDb(AMDatabase::database("user"), dbo.id());
-		//qDebug() << "Retrieving DbObject out of database: comparing all parameters with original:";
+		//qdebug() << "Retrieving DbObject out of database: comparing all parameters with original:";
 		QCOMPARE(dbo2.id(), dbo.id());
 		QCOMPARE(dbo2.name(), dbo.name());
 
@@ -491,7 +491,7 @@ private slots:
 		AMDbObject dbo;
 
 		// generate unique name, and set properties:
-		//qDebug() << "Generating DbObject with unique properties.";
+		//qdebug() << "Generating DbObject with unique properties.";
 		QString uniqueName = QDateTime::currentDateTime().toString("ddddMMddhh:mm:ss.zzz");
 		dbo.setName("myTestDbObject" + uniqueName);
 
@@ -499,7 +499,7 @@ private slots:
 		*AMDatabase::database("user") << dbo;
 
 		// Was it inserted succesfully?
-		//qDebug() << "Testing DbObject insert into database: id should not be 0:" << dbo.id();
+		//qdebug() << "Testing DbObject insert into database: id should not be 0:" << dbo.id();
 		QVERIFY(dbo.id() > 0);	// check that insert succeeded.
 
 		// Load same scan back:
@@ -507,13 +507,13 @@ private slots:
 		dbo2 = AMDbObjectSupport::s()->createAndLoadObjectAt(AMDatabase::database("user"), dbo.dbTableName(), dbo.id());
 
 
-		//qDebug() << "Confirming object was dynamically loaded: pointer is: " << dbo2;
+		//qdebug() << "Confirming object was dynamically loaded: pointer is: " << dbo2;
 		QVERIFY(dbo2 != 0);
 
-		//qDebug() << "Type of retrieved object should be AMDbObject: " << typeString;
+		//qdebug() << "Type of retrieved object should be AMDbObject: " << typeString;
 		QCOMPARE(dbo2->type(), QString("AMDbObject"));
 
-		//qDebug() << "Retrieved DbObject out of database: comparing all parameters with original:";
+		//qdebug() << "Retrieved DbObject out of database: comparing all parameters with original:";
 		QCOMPARE(dbo2->id(), dbo.id());
 		QCOMPARE(dbo2->name(), dbo.name());
 	}
@@ -523,7 +523,7 @@ private slots:
 		AMScan dbo;
 
 		// generate unique name, and set properties:
-		//qDebug() << "Generating AMScan with unique properties.";
+		//qdebug() << "Generating AMScan with unique properties.";
 		QString uniqueName = QDateTime::currentDateTime().toString("ddddMMddhh:mm:ss.zzz");
 		dbo.setName("myTestAMScan" + uniqueName);
 		dbo.setDateTime(QDateTime::currentDateTime());
@@ -535,13 +535,13 @@ private slots:
 		*AMDatabase::database("user") << dbo;
 
 		// Was it inserted succesfully?
-		//qDebug() << "Testing AMScan insert into database: id should not be 0:" << dbo.id();
+		//qdebug() << "Testing AMScan insert into database: id should not be 0:" << dbo.id();
 		QVERIFY(dbo.id() > 0);	// check that insert succeeded.
 
 		// Load same scan back:
 		AMScan dbo2;
 		dbo2.loadFromDb(AMDatabase::database("user"), dbo.id());
-		//qDebug() << "Retrieving AMScan out of database: comparing all parameters with original:";
+		//qdebug() << "Retrieving AMScan out of database: comparing all parameters with original:";
 		QCOMPARE(dbo2.id(), dbo.id());
 		QCOMPARE(dbo2.name(), dbo.name());
 		QCOMPARE(dbo2.number(), dbo.number());
@@ -555,7 +555,7 @@ private slots:
 		AMScan dbo;
 
 		// generate unique name, and set properties:
-		//qDebug() << "Generating AMScan with unique properties.";
+		//qdebug() << "Generating AMScan with unique properties.";
 		QString uniqueName = QDateTime::currentDateTime().toString("ddddMMddhh:mm:ss.zzz");
 		dbo.setName("myTestAMScan" + uniqueName);
 		dbo.setDateTime(QDateTime::currentDateTime());
@@ -567,7 +567,7 @@ private slots:
 		*AMDatabase::database("user") << dbo;
 
 		// Was it inserted succesfully?
-		//qDebug() << "Testing AMScan insert into database: id should not be 0:" << dbo.id();
+		//qdebug() << "Testing AMScan insert into database: id should not be 0:" << dbo.id();
 		QVERIFY(dbo.id() > 0);	// check that insert succeeded.
 
 		// Load same scan back:
@@ -575,18 +575,18 @@ private slots:
 		QString typeString;
 		dbo2d = AMDbObjectSupport::s()->createAndLoadObjectAt(dbo.database(), dbo.dbTableName(), dbo.id());
 
-		//qDebug() << "Confirming object was dynamically loaded: pointer is: " << dbo2d;
+		//qdebug() << "Confirming object was dynamically loaded: pointer is: " << dbo2d;
 		QVERIFY(dbo2d != 0);
 
-		//qDebug() << "Type of retrieved object should be AMScan: " << typeString;
+		//qdebug() << "Type of retrieved object should be AMScan: " << typeString;
 		QCOMPARE(dbo2d->type(), QString("AMScan"));
 
-		//qDebug() << "Confirming dynamically loaded object is an AMScan: pointer is: " << dbo2d;
+		//qdebug() << "Confirming dynamically loaded object is an AMScan: pointer is: " << dbo2d;
 		AMScan* dbo2 = qobject_cast<AMScan*>(dbo2d);
 		QVERIFY(dbo2 != 0);
 
 		// Load same scan back:
-		//qDebug() << "Retrieving AMScan out of database: comparing all parameters with original:";
+		//qdebug() << "Retrieving AMScan out of database: comparing all parameters with original:";
 		QCOMPARE(dbo2->id(), dbo.id());
 		QCOMPARE(dbo2->name(), dbo.name());
 		QCOMPARE(dbo2->number(), dbo.number());
@@ -600,7 +600,7 @@ private slots:
 		AMScan dbo;
 
 		// generate unique name, and set properties:
-		//qDebug() << "Generating AMScan with unique properties.";
+		//qdebug() << "Generating AMScan with unique properties.";
 		QString uniqueName = QDateTime::currentDateTime().toString("ddddMMddhh:mm:ss.zzz");
 		dbo.setName("myTestAMScan" + uniqueName);
 		dbo.setDateTime(QDateTime::currentDateTime());
@@ -612,12 +612,12 @@ private slots:
 		*AMDatabase::database("user") << dbo;
 
 		// Was it inserted succesfully?
-		//qDebug() << "Testing AMScan insert into database: id should not be 0:" << dbo.id();
+		//qdebug() << "Testing AMScan insert into database: id should not be 0:" << dbo.id();
 		QVERIFY(dbo.id() > 0);	// check that insert succeeded.
 
 		QList<int> lr;
 		// Check: all columns: scans matching should be 1:
-		//qDebug() << "Checking objectsMatching finds one matching for each column.";
+		//qdebug() << "Checking objectsMatching finds one matching for each column.";
 		//lr = AMDatabase::database("user")->objectsMatching("id", dbo.id());
 		//QCOMPARE(lr.count(), 1);
 		lr = AMDatabase::database("user")->objectsMatching(dbo.dbTableName(), "name", dbo.name());
@@ -652,7 +652,7 @@ private slots:
 		QCOMPARE(s1.scanSize(0), int(301));
 		QCOMPARE(s1.notes(), QString("0.916667"));	// NOTE: this test fails, because we're currently putting the Grating and Integration Time inside the comment field (for lack of a better place) Eventually, the Grating and Integration time should become part of the scan configuration, or beamline state.
 		QCOMPARE(s1.dateTime().toTime_t(), uint(1285706567));
-		//qDebug() << "s1 raw data columns ('detectors')" << s1.detectors();
+		//qdebug() << "s1 raw data columns ('detectors')" << s1.detectors();
 
 
 		int tey_n, tfy_n, tey, tfy, io;
@@ -678,7 +678,7 @@ private slots:
 		SGM2004FileLoader s1Loader(&s1);
 		/// \todo move this into proper storage location in data dir.
 		QString fileName = AMUserSettings::userDataFolder + "/testScriptData/sgm001.dat";
-		//qDebug() << "loading sgm data from file and checking for proper read:" << fileName;
+		//qdebug() << "loading sgm data from file and checking for proper read:" << fileName;
 		QVERIFY(s1Loader.loadFromFile(fileName, true, true, true));
 
 		// create simple math channel

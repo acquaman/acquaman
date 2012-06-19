@@ -40,7 +40,6 @@ QString defaultDEpicsFormator(QEpicsAdvAcq *acq, int region, QString field, QStr
 QEpicsAdvAcq::QEpicsAdvAcq(QEpicsAcqLocal *acq)
 {
 	_acq = acq;
-//    scan = NULL;
 	_defaultIntTime = 1;
 	_maxIntTime = 10;
 	_E0 = -1;
@@ -56,7 +55,6 @@ QEpicsAdvAcq::QEpicsAdvAcq(QEpicsAcqLocal *acq)
 	connect(_acq, SIGNAL(onState(const QString&)), SIGNAL(onState(const QString&)));
 	connect(_acq, SIGNAL(sendStatus(const QString&)), SIGNAL(sendStatus(const QString&)));
 	connect(_acq, SIGNAL(sendCompletion(int)), SIGNAL(sendCompletion(int)));
-//	connect(_acq, SIGNAL(nextOutputFile(const QString&)), SIGNAL(nextOutputFile(const QString&)));
 	connect(_acq, SIGNAL(changeRunNumber(int)), SIGNAL(changeRunNumber(int)));
 	connect(_acq, SIGNAL(sendMessage( const QString &)), SIGNAL(sendMessage(const QString&)));
 	connect(_acq, SIGNAL(sendOnelineMessage( const QString &)), SIGNAL(sendOnelineMessage(const QString &)));
@@ -66,8 +64,6 @@ QEpicsAdvAcq::QEpicsAdvAcq(QEpicsAcqLocal *acq)
 
 QString QEpicsAdvAcq::getPV(int region)
 {
-//	uint uregion = (uint)region;
-//	if(uregion >= _regions.count())
 	if(region >= _regions.count())
 		return "";
 	else
@@ -77,8 +73,6 @@ QString QEpicsAdvAcq::getPV(int region)
 
 double QEpicsAdvAcq::getStart(int region)
 {
-//	uint uregion = (uint)region;
-//	if(uregion >= _regions.count())
 	if(region >= _regions.count())
 		return -1;
 	else if( (_regions.at(region)->_start == 0) && (region != 0) )
@@ -95,8 +89,6 @@ QString QEpicsAdvAcq::getStrStart(int region)
 
 double QEpicsAdvAcq::getDelta(int region)
 {
-//	uint uregion = (uint)region;
-//	if(uregion >= _regions.count())
 	if(region >= _regions.count())
 		return 0;
 	else
@@ -111,8 +103,6 @@ QString	QEpicsAdvAcq::getStrDelta(int region)
 
 double QEpicsAdvAcq::getEnd(int region)
 {
-//	uint uregion = (uint)region;
-//	if(uregion >= _regions.count())
 	if(region >= _regions.count())
 		return -1;
 	else
@@ -127,8 +117,6 @@ QString	QEpicsAdvAcq::getStrEnd(int region)
 
 double QEpicsAdvAcq::getIntTime(int region)
 {
-//	uint uregion = (uint)region;
-//	if(uregion >= _regions.count())
 	if(region >= _regions.count())
 		return -1;
 	else
@@ -150,7 +138,6 @@ QString QEpicsAdvAcq::getQuickInputs()
 	bool isFirst = TRUE;
 	QString boundaries, steps, integrations, tempStr;
 	integrations = QString::null;
-//	for(uint x = 0; x < _regions.count(); x++)
 	for(int x = 0; x < _regions.count(); x++)
 	{
 		if(!isEnable(x))
@@ -218,8 +205,6 @@ QString QEpicsAdvAcq::getQuickInputs()
 
 bool QEpicsAdvAcq::isEnable(int region)
 {
-//	uint uregion = (uint)region;
-//	if(uregion >= _regions.count())
 	if(region >= _regions.count())
 		return FALSE;
 	else
@@ -230,8 +215,6 @@ bool QEpicsAdvAcq::addRegion(int region)
 {
 	int sz, tmpOffset;
 	tmpOffset = 0;
-//	uint uregion = (uint)region;
-//	if ( uregion > _regions.count() )
 	if ( region > _regions.count() )
 		return FALSE;
 	else if ( sp->numControlPV == 1 && sp->acqControlList->controlPV == NULL )
@@ -244,7 +227,6 @@ bool QEpicsAdvAcq::addRegion(int region)
 		sp->numControlPV++;
 		sz = sizeof (acqControl_t)*sp->numControlPV;
 		sp->acqControlList = (acqControl_t*)realloc( sp->acqControlList, sz);
-//		if( (uregion != _regions.count()) && (region != 0) )
 		if( (region != _regions.count()) && (region != 0) )
 			tmpOffset = _regions.at(region)->_offset;
 		for( int x = sp->numControlPV-1; x > region-tmpOffset; x--)
@@ -263,8 +245,6 @@ bool QEpicsAdvAcq::addRegion(int region)
 	idelta = _acq->getValue(sp->scanName, QString("delta").toAscii().data(), region);
 	iend = _acq->getValue(sp->scanName, QString("end").toAscii().data(), region);
 	iintTime = _defaultIntTime;
-//    if( (istart == 0) && (region != 0) )
-//        istart = _regions.at(region-1)->_end + idelta;
 	tempRegion = new QEpicsAcqRegion(ipv, istart, idelta, iend, iintTime, TRUE);
 	tempRegion->_offset = tmpOffset;
 	_regions.insert(region, tempRegion);
@@ -276,13 +256,8 @@ bool QEpicsAdvAcq::addRegion(int region, QString pv, double start, double delta,
 {
 	int sz, tmpOffset;
 	tmpOffset =	0;
-//	uint uregion = (uint)region;
-//	if ( uregion > _regions.count() )
 	if ( region > _regions.count() )
 		return FALSE;
-	//MB: Fixing memory bug Nov. 2011. Previously:
-//	char* PVNAME = const_cast<char*>(pv.toAscii().data());
-//	ctls.controlPV = strdup(PVNAME);	// BUG: PVNAME now points to invalid data; QByteArray returned by .toAscii() is out of scope.
 
 	ctls.controlPV = strdup(pv.toAscii().constData());
 
@@ -299,7 +274,6 @@ bool QEpicsAdvAcq::addRegion(int region, QString pv, double start, double delta,
 		sp->numControlPV++;
 		sz = sizeof (acqControl_t)*sp->numControlPV;
 		sp->acqControlList = (acqControl_t*)realloc( sp->acqControlList, sz);
-//		if( (uregion != _regions.count()) && (region != 0) )
 		if( (region != _regions.count()) && (region != 0) )
 			tmpOffset = _regions.at(region)->_offset;
 		for( int x = sp->numControlPV-1; x > region-tmpOffset; x--)
@@ -318,8 +292,6 @@ bool QEpicsAdvAcq::addRegion(int region, QString pv, double start, double delta,
 	idelta = _acq->getValue(sp->scanName, QString("delta").toAscii().data(), region);
 	iend = _acq->getValue(sp->scanName, QString("end").toAscii().data(), region);
 	iintTime = intTime;
-//    if( (istart == 0) && (region != 0) )
-//        istart = _regions.at(region-1)->_end + idelta;
 	tempRegion = new QEpicsAcqRegion(ipv, istart, idelta, iend, iintTime, TRUE);
 	tempRegion->_offset = tmpOffset;
 	_regions.insert(region, tempRegion);
@@ -331,8 +303,6 @@ bool QEpicsAdvAcq::addRegion(int region, double start, double delta, double end,
 {
 	int tmpOffset;
 	tmpOffset =	0;
-//	uint uregion = (uint)region;
-//	if ( uregion > _regions.count() )
 	if ( region > _regions.count() )
 		return FALSE;
 	else if( sp->numControlPV == 1 && sp->acqControlList->controlPV == NULL )
@@ -342,53 +312,18 @@ bool QEpicsAdvAcq::addRegion(int region, double start, double delta, double end,
 	else
 	{
 		QString ipv = "";
-//		if( (uregion != _regions.count()) && (region != 0) )
 		if( (region != _regions.count()) && (region != 0) )
 			tmpOffset = _regions.at(region)->_offset;
 		/* CHECK THIS OUT DAVE:
 		   Killing the not NULL part only going with the last region idea ... is this good?
 		   Don't delete this comment
 		if((sp->acqControlList[region-tmpOffset]).controlPV != NULL ){
-			qDebug() << "Claims NOT NULL in no name addRegion"; ipv = (sp->acqControlList[region-tmpOffset]).controlPV;}
+			qdebug() << "Claims NOT NULL in no name addRegion"; ipv = (sp->acqControlList[region-tmpOffset]).controlPV;}
 		else{
-			qDebug() << "Claims IS NULL in no name addRegion"; ipv = _regions.at(region-1)->_pv;}
+			qdebug() << "Claims IS NULL in no name addRegion"; ipv = _regions.at(region-1)->_pv;}
 		*/
 		ipv = _regions.at(region-1)->_pv;
 		return addRegion(region, ipv, start, delta, end, intTime);
-/*
-		char* PVNAME = const_cast<char*>(_regions.at(region)->_pv.ascii());
-		ctls.controlPV = strdup(PVNAME);
-		ctls.startVal = start;
-		ctls.deltaVal = delta;
-		ctls.finalVal = end;
-		sp->numControlPV++;
-	sz = sizeof (acqControl_t)*sp->numControlPV;
-		sp->acqControlList = (acqControl_t*)realloc( sp->acqControlList, sz);
-		if( (uregion != _regions.count()) && (region != 0) )
-			tmpOffset = _regions.at(region)->_offset;
-		for( int x = sp->numControlPV-1; x > region-tmpOffset; x--)
-			sp->acqControlList[x] = sp->acqControlList[x-1];
-	sp->acqControlList[region-tmpOffset] = ctls;
-		sp->acqControlList[region-tmpOffset].controlPV = strdup(ctls.controlPV);
-		QEpicsAcqRegion *tempRegion;
-		QString ipv;
-		double istart, idelta, iend, iintTime;
-		if((sp->acqControlList[region-tmpOffset]).controlPV != NULL )
-			ipv = (sp->acqControlList[region-tmpOffset]).controlPV;
-		else
-			ipv = _regions.at(region-1)->_pv;
-		istart = _acq->getValue(sp->scanName, "start", region);
-		idelta = _acq->getValue(sp->scanName, "delta", region);
-		iend = _acq->getValue(sp->scanName, "end", region);
-		iintTime = intTime;
-		if( (istart == 0) && (region != 0) )
-			istart = _regions.at(region-1)->_end + idelta;
-		tempRegion = new QEpicsAcqRegion(ipv, istart, idelta, iend, iintTime, TRUE);
-		tempRegion->_offset = tmpOffset;
-		_regions.insert(region, tempRegion);
-		makeEmptyCTLS();
-		return TRUE;
-*/
 	}
 }
 
@@ -396,8 +331,6 @@ bool QEpicsAdvAcq::addRegion(int region, double delta, double end, double intTim
 {
 	int tmpOffset;
 	tmpOffset =	0;
-//	uint uregion = (uint)region;
-//	if ( uregion > _regions.count() )
 	if ( region > _regions.count() )
 		return FALSE;
 	else if( sp->numControlPV == 1 && sp->acqControlList->controlPV == NULL )
@@ -407,7 +340,6 @@ bool QEpicsAdvAcq::addRegion(int region, double delta, double end, double intTim
 	else
 	{
 		QString ipv;
-//		if( (uregion != _regions.count()) && (region != 0) )
 		if( (region != _regions.count()) && (region != 0) )
 			tmpOffset = _regions.at(region)->_offset;
 		if((sp->acqControlList[region-tmpOffset]).controlPV != NULL )
@@ -418,47 +350,11 @@ bool QEpicsAdvAcq::addRegion(int region, double delta, double end, double intTim
 		//FIX ME PLEASE!!!! havestartval = 0 ????
 
 		return addRegion(region, ipv, 0, delta, end, intTime);
-/*
-		char* PVNAME = const_cast<char*>(_regions.at(region)->_pv.ascii());
-		ctls.controlPV = strdup(PVNAME);
-		ctls.startVal = _regions.at(region)->_end + delta;
-		ctls.deltaVal = delta;
-		ctls.finalVal = end;
-		sp->numControlPV++;
-	sz = sizeof (acqControl_t)*sp->numControlPV;
-		sp->acqControlList = (acqControl_t*)realloc( sp->acqControlList, sz);
-		if( (uregion != _regions.count()) && (region != 0) )
-			tmpOffset = _regions.at(region)->_offset;
-		for( int x = sp->numControlPV-1; x > region-tmpOffset; x--)
-			sp->acqControlList[x] = sp->acqControlList[x-1];
-		sp->acqControlList[region-tmpOffset] = ctls;
-		sp->acqControlList[region-tmpOffset].controlPV = strdup(ctls.controlPV);
-		QEpicsAcqRegion *tempRegion;
-		QString ipv;
-		double istart, idelta, iend, iintTime;
-		if((sp->acqControlList[region-tmpOffset]).controlPV != NULL )
-			ipv = (sp->acqControlList[region-tmpOffset]).controlPV;
-		else
-			ipv = _regions.at(region-1)->_pv;
-		istart = _acq->getValue(sp->scanName, "start", region);
-		idelta = _acq->getValue(sp->scanName, "delta", region);
-		iend = _acq->getValue(sp->scanName, "end", region);
-		iintTime = intTime;
-		if( (istart == 0) && (region != 0) )
-			istart = _regions.at(region-1)->_end + idelta;
-		tempRegion = new QEpicsAcqRegion(ipv, istart, idelta, iend, iintTime, TRUE);
-		tempRegion->_offset = tmpOffset;
-		_regions.insert(region, tempRegion);
-		makeEmptyCTLS();
-		return TRUE;
-*/
 	}
 }
 
 bool QEpicsAdvAcq::deleteRegion(int region)
 {
-//	uint uregion = (uint)region;
-//	if ( uregion > _regions.count() )
 	if ( region > _regions.count() )
 		return FALSE;
 	deleteScanControl(sp, region-_regions.at(region)->_offset);
@@ -489,23 +385,6 @@ bool QEpicsAdvAcq::addRecord(int record, QString pv, bool enable, bool spectrum,
 	ev = first_acqEvent(_acq->getMaster());
 	if(!ev || !ev->numPvList || (record > ev->numPvList) )
 		return FALSE;
-	//MB: Fixing memory bug Nov. 2011. Previously:
-//		char* PVNAME = const_cast<char*>(pv.toAscii().data());
-	// BUG: PVNAME now points to invalid data.
-	// QUESTION: Is it really necessary to make a copy of the strings here?
-	// ANSWER: No: they are copied again in addIndexEventPv() and not freed. This was also a memory leak.
-//	switch(mode)
-//	{
-//		case 0:{
-//			addIndexEventPv( ev, record, strdup(PVNAME), !enable, NULL, useCurrent, spectrum );
-//			break;}
-//		case 1:{
-//			addIndexEventPv( ev, record, strdup(PVNAME), !enable, NULL, usePvGet, spectrum );
-//			break;}
-//		case 2:{
-//			addIndexEventPv( ev, record, strdup(PVNAME), !enable, NULL, waitForMonitor, spectrum );
-//			break;}
-//	}
 	switch(mode)
 	{
 		case 0:{
@@ -532,20 +411,6 @@ bool QEpicsAdvAcq::appendRecord(QString pv, bool enable, bool spectrum, int mode
 	if(spectrum)
 		format = "";
 
-	// MB: Fixing memory leak, Nov. 2011. strdup() is not required here; the strings are copied again in addEventPv() and not freed there.
-	// Previously:
-//	switch(mode)
-//	{
-//		case 0:{
-//			addEventPv( ev, strdup(pv.toAscii().data()), !enable, strdup(format.toAscii().data()), useCurrent, spectrum );
-//			break;}
-//		case 1:{
-//			addEventPv( ev, strdup(pv.toAscii().data()), !enable, strdup(format.toAscii().data()), usePvGet, spectrum );
-//			break;}
-//		case 2:{
-//			addEventPv( ev, strdup(pv.toAscii().data()), !enable, strdup(format.toAscii().data()), waitForMonitor, spectrum );
-//			break;}
-//	}
 	switch(mode)
 	{
 		case 0:{
@@ -559,33 +424,6 @@ bool QEpicsAdvAcq::appendRecord(QString pv, bool enable, bool spectrum, int mode
 			break;}
 	}
 
-	/*
-	//char* PVNAME = const_cast<char*>(pv.toAscii().data());
-	char* PVNAME = pv.toAscii().data();
-	qDebug() << "Before " << pv << " after " << PVNAME << " other " << pv.toAscii().data() << " mode " << mode;
-	char* FORMAT = QString("%g").toAscii().data();
-	if(spectrum)
-		FORMAT = QString("").toAscii().data();
-		//FORMAT = "%ld";
-
-	switch(mode)
-	{
-		case 0:{
-			qDebug() << "Go mode0";
-			//addEventPv( ev, strdup(PVNAME), !enable, FORMAT, useCurrent, spectrum );
-			addEventPv( ev, strdup(pv.toAscii().data()), !enable, FORMAT, useCurrent, spectrum );
-			break;}
-		case 1:{
-			qDebug() << "Go mode1";
-			addEventPv( ev, strdup(PVNAME), !enable, FORMAT, usePvGet, spectrum );
-			break;}
-		case 2:{
-			qDebug() << "Go mode2";
-			//addEventPv( ev, strdup(PVNAME), !enable, FORMAT, waitForMonitor, spectrum );
-			addEventPv( ev, strdup(pv.toAscii().data()), !enable, FORMAT, waitForMonitor, spectrum );
-			break;}
-	}
-	*/
 	return TRUE;
 }
 
@@ -601,9 +439,7 @@ bool QEpicsAdvAcq::deleteRecord(int record)
 
 bool QEpicsAdvAcq::buildFromConfig()
 {
-//    acqFile_t *acqf = _acq->getMaster()->acqFile;
 	sp = first_acqScan(_acq->getMaster());
-//    if(sp == NULL || acqf == NULL)
 	if(sp == NULL)
 		return false;
 	while(_regions.count() > 0)
@@ -623,9 +459,6 @@ bool QEpicsAdvAcq::buildFromConfig()
 		delta = _acq->getValue(sp->scanName, QString("delta").toAscii().data(), x);
 		end = _acq->getValue(sp->scanName, QString("end").toAscii().data(), x);
 		intTime = _defaultIntTime;
-//        if( (start == 0) && (x != 0) )
-//            start = _regions.at(x-1)->_end + delta;
-//        std::cout << "Building " << pv << " " << start << " " << delta << " " << end << " " << intTime << "\n";
 		tempRegion = new QEpicsAcqRegion(pv, start, delta, end, intTime, TRUE);
 		_regions.append(tempRegion);
 	}
@@ -637,10 +470,6 @@ bool QEpicsAdvAcq::buildFromConfig()
 void QEpicsAdvAcq::makeEmptyCTLS()
 {
 	memset(&ctls, 0, sizeof ctls);
-	//MB: Fixing memory bug, Nov. 2011. Previously:
-//	QString temp_str = "InsertPVToControlHere";
-//	char* PVNAME = const_cast<char*>(temp_str.toAscii().data());
-//	ctls.controlPV = strdup(PVNAME); //BUG: PVNAME does not point to valid data at this point.
 
 	ctls.controlPV = strdup("InsertPVToControlHere"); //MB: MEMORY LEAK HERE
 	ctls.startVal = 0;
@@ -653,8 +482,6 @@ void QEpicsAdvAcq::makeEmptyCTLS()
 
 void QEpicsAdvAcq::setPV(int region, QString pvname)
 {
-	//MB: Fixing memory bug, Nov. 2011. Previously:
-	// char* PVNAME = const_cast<char*>(pvname.toAscii().data());
 	_regions.at(region)->_pv = pvname;
 	if(_regions.at(region)->_enable)
 		(sp->acqControlList[region-_regions.at(region)->_offset]).controlPV = strdup(pvname.toAscii().constData());
@@ -738,14 +565,11 @@ void QEpicsAdvAcq::setIntTime(int region, double intTime)
 void QEpicsAdvAcq::setEnable(int region, bool enable)
 {
 	int sz;
-	if( (enable && _regions.at(region)->_enable) || (!enable && !_regions.at(region)->_enable))
-		{std::cout << "Stays the same\n"; return;}
+	if( (enable && _regions.at(region)->_enable) || (!enable && !_regions.at(region)->_enable)){
+		return;
+	}
 	if(enable)
 	{
-		std::cout << "Add it back in\n";
-		//MB: Fixing memory bug, Nov. 2011. Previously:
-//		char* PVNAME = const_cast<char*>(_regions.at(region)->_pv.toAscii().data());
-//		ctls.controlPV = strdup(PVNAME);
 		ctls.controlPV = strdup(_regions.at(region)->_pv.toAscii().constData()); //MB: MEMORY LEAK STILL HERE
 
 		ctls.startVal = _regions.at(region)->_start;
@@ -753,16 +577,12 @@ void QEpicsAdvAcq::setEnable(int region, bool enable)
 		ctls.finalVal = _regions.at(region)->_end;
 		if ( sp->numControlPV == 1 && sp->acqControlList->controlPV == NULL )
 		{
-			std::cout << "Getting out of zero\n";
 			sp->acqControlList[0] = ctls;
-			//MB: Fixing memory leak, Nov. 2011. Previously:
-//			sp->acqControlList[region].controlPV = strdup(ctls.controlPV);
 			if(sp->acqControlList[region].controlPV) free(sp->acqControlList[region].controlPV);
 			sp->acqControlList[region].controlPV = strdup(ctls.controlPV);
 		}
 		else
 		{
-			std::cout << "Getting more as " << region-_regions.at(region)->_offset << "\n";
 			sp->numControlPV++;
 			sz = sizeof (acqControl_t)*sp->numControlPV;
 			sp->acqControlList = (acqControl_t*)realloc( sp->acqControlList, sz);
@@ -776,7 +596,6 @@ void QEpicsAdvAcq::setEnable(int region, bool enable)
 	}
 	else
 	{
-		std::cout << "Delete underlying record\n";
 		deleteScanControl(sp, region-_regions.at(region)->_offset);
 		_regions.at(region)->_enable = enable;
 	}
@@ -790,35 +609,17 @@ void QEpicsAdvAcq::setEnable(int region, bool enable)
 
 bool QEpicsAdvAcq::setQuickInputs(QString inputs)
 {
-	std::cout << "Start of quick inputs\n";
 	int tabx = 0;
 	static const QRegExp ws("[\\s,:;]+");
 	static const QColor warn("red");
-//    QStringList boundariesList = QStringList::split(ws, inputs.section('^', 0, 0));
 	QStringList boundariesList = inputs.section('^', 0, 0).split(ws);
-//    QStringList stepsList = QStringList::split(ws, inputs.section('^', 1, 1));
 	QStringList stepsList = inputs.section('^', 1, 1).split(ws);
-//    QStringList timesList = QStringList::split(ws, inputs.section('^', 2, 2));
 	QStringList timesList = inputs.section('^', 2, 2).split(ws);
 
 	if((stepsList.count() + 1 != boundariesList.count()) || (stepsList.count() != timesList.count()))
 	{
-//        statusBar()->message("Quick Inputs boundary/step/times mismatch");
-//        QuickInputsFlasher->start(250);
-//        updateQuickInputs();
 		return FALSE;
 	}
-//    onMaxTimeUpdate();
-
-/*    if(scan)
-	{
-		QMap<QString, QString> dwellVals;
-		for(uint x = 0; x < timesList.count(); x++)
-			dwellVals[boundariesList[x+1]] = timesList[x];
-		scan->setDwellTimesMap(dwellVals);
-	}
-*/
-
 	clearRegions();
 
 	QString tmpPV = "";
@@ -856,7 +657,6 @@ bool QEpicsAdvAcq::setQuickInputs(QString inputs)
 				tmpIntTime = 66276;
 			else
 				tmpIntTime = timesList[x].toDouble();
-//            std::cout << "New region " << tabx << " " << tmpPV << " " << tmpStart << " " << tmpDelta << " " << tmpEnd << "\n";fflush(stdout);
 			addRegion(tabx, tmpPV, tmpStart, tmpDelta, tmpEnd, tmpIntTime);
 			if(x+1 < stepsList.count())
 			{
@@ -879,31 +679,12 @@ bool QEpicsAdvAcq::setQuickInputs(QString inputs)
 
 void QEpicsAdvAcq::saveConfigFile(const QString &infile)
 {
-	// MB: Fixing memory bug, Nov. 2011. Previously:
-//	//char* SAVEFILE = const_cast<char*>(infile.toAscii().constData());
-//	const char* SAVEFILE = infile.toAscii().constData();
-//	acq_file_save_as(strdup(SAVEFILE), getMaster());//BUG: SAVEFILE points to invalid data. QByteArray returned by toAscii() is out of scope.
 	acq_file_save_as(infile.toAscii().constData(), getMaster());
 }
 
 void QEpicsAdvAcq::spit()
 {
-	/*
-	int last = 0;
-	for(uint x = 0; x < _regions.count(); x++)
-	{
-//        std::cout << "AcqRegion[" << x << "]:    " << getPV(x) << "\t" << getStart(x) << "\t" << getDelta(x) << "\t" << getEnd(x) << "\t" << getIntTime(x) << "\t" << _regions.at(x)->_offset << "\n";fflush(stdout);
-		if(_regions.at(x)->_enable)
-			if(sp->acqControlList[x-_regions.at(x)->_offset].controlPV == NULL)
-			{std::cout << "Region(H" << last << ")[" << x << "]:    " << sp->acqControlList[last-_regions.at(last)->_offset].controlPV << "\t" << getValue(sp->scanName, "start", x-_regions.at(x)->_offset) << "\t" << getValue(sp->scanName, "delta", x-_regions.at(x)->_offset) << "\t" << getValue(sp->scanName, "end", x-_regions.at(x)->_offset) << "\n";fflush(stdout);}
-			else
-			{std::cout << "Region(E)[" << x << "]:    " << sp->acqControlList[x-_regions.at(x)->_offset].controlPV << "\t" << getValue(sp->scanName, "start", x-_regions.at(x)->_offset) << "\t" << getValue(sp->scanName, "delta", x-_regions.at(x)->_offset) << "\t" << getValue(sp->scanName, "end", x-_regions.at(x)->_offset) << "\n";fflush(stdout);last = x;}
-		else
-			{std::cout << "N/A\n";fflush(stdout);}
-	}
-	*/
 }
-
 
 //#endif
 

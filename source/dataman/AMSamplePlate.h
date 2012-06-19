@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -37,12 +37,15 @@ class AMSamplePosition : public AMDbObject {
 	Q_PROPERTY(int facilityId READ facilityId WRITE setFacilityId)
 	Q_PROPERTY(AMDbObject* position READ dbGetPosition WRITE dbLoadPosition)
 
+	Q_PROPERTY(AMDbObject* topLeftPosition READ dbGetTopLeftPosition WRITE dbLoadTopLeftPosition)
+	Q_PROPERTY(AMDbObject* bottomRightPosition READ dbGetBottomRightPosition WRITE dbLoadBottomRightPosition)
+
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Spacial Coordinates of Sample")
 
 public:
 	/// Constructor: can specify initial values for sampleId, position, and facilityId
 	Q_INVOKABLE AMSamplePosition(int sampleId = 0, const AMControlInfoList& position = AMControlInfoList(), int facilityId = 0 ) :
-		sampleId_(sampleId), position_(position), facilityId_(facilityId) {}
+		sampleId_(sampleId), position_(position), facilityId_(facilityId), topLeftPosition_(AMControlInfoList()), bottomRightPosition_(AMControlInfoList()) {}
 
 	/// Returns the database id of the sample associated with this marked position. This corresponds to the samples in the database's AMSample table.
 	int sampleId() const { return sampleId_; }
@@ -50,6 +53,12 @@ public:
 	int facilityId() const { return facilityId_; }
 	/// Returns a non-modifiable reference to the sample position (stored as an AMControlInfoList). If you need a by-value copy of the position, just assign this to a local AMControlInfoList.
 	const AMControlInfoList& position() const { return position_; }
+
+	const AMControlInfoList& topLeftPosition() const { return topLeftPosition_;}
+	const AMControlInfoList& bottomRightPosition() const { return bottomRightPosition_;}
+	bool matchesPosition(const AMControlInfoList &other) const;
+	bool matchesPositionWithinTolerances(const AMControlInfoList &other, const QList<double> tolerances) const;
+	double rms3SpaceDistance(const AMControlInfoList &other) const;
 
 
 	/// Set the database id of the stored sample at this position. This corresponds to the id of a sample in the database's AMSample table.
@@ -59,12 +68,19 @@ public:
 	/// Set the position of this sample on the plate, as an AMControlInfoList.
 	void setPosition(const AMControlInfoList& newPosition) { position_.setValuesFrom(newPosition); setModified(true); }
 
+	void setTopLeftPosition(const AMControlInfoList& newPosition) { topLeftPosition_.setValuesFrom(newPosition); setModified(true);}
+	void setBottomRightPosition(const AMControlInfoList& newPosition) { bottomRightPosition_.setValuesFrom(newPosition); setModified(true);}
+
 
 	/// Copy all the values from \c other (including sampleId(), facilityId(), and position()), but retain our old database identity.  (Unlike the default assignment operator and copy constructor, our database() and id() will remain the same after calling this function.)
 	void setValuesFrom(const AMSamplePosition& other) {
 		sampleId_ = other.sampleId_;
 		facilityId_ = other.facilityId_;
 		position_.setValuesFrom(other.position_);
+
+		topLeftPosition_.setValuesFrom(other.topLeftPosition());
+		bottomRightPosition_.setValuesFrom(other.bottomRightPosition());
+
 		setModified(true);
 	}
 
@@ -76,10 +92,17 @@ protected:
 	/// The facility (ie: beamline) to which this position is relevant. The motor positions from the SGM sample manipulator won't make sense to the REIXS sample manipulator, etc.
 	int facilityId_;
 
+	AMControlInfoList topLeftPosition_, bottomRightPosition_;
+
 	/// Store the position to the database
 	AMDbObject* dbGetPosition() { return &position_; }
 	/// Load the position from the database: Never called, because dbGetPosition() is always valid.
 	void dbLoadPosition(AMDbObject*) {} // never called
+
+	AMDbObject* dbGetTopLeftPosition() { return &topLeftPosition_;}
+	void dbLoadTopLeftPosition(AMDbObject*) {}
+	AMDbObject* dbGetBottomRightPosition() { return &bottomRightPosition_;}
+	void dbLoadBottomRightPosition(AMDbObject*) {}
 };
 
 

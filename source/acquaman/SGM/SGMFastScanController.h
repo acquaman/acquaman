@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -29,18 +29,26 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class SGMFastScanController
 {
 public:
+	/// Standard constructor. Takes the scan configuration and readies a new scan object with the proper measurements and data sources
 	SGMFastScanController(SGMFastScanConfiguration *cfg);
 
+	/// Returns whether or not the initialization actions and cleanup actions were created successfully
 	bool isBeamlineInitialized();
+	/// Creates the initialization actions and the cleanup actions, returns the value of beamlineInitialized_
 	virtual bool beamlineInitialize();
 
 protected:
+	/// Holds the scan configuration pointer this controller is working with
 	SGMFastScanConfiguration *config_;
+	/// Holds the scan created here (specifically this will wind up being an AMFastScan)
 	AMScan* specificScan_;
-	AMBeamlineParallelActionsList *initializationActions_;
-	AMBeamlineParallelActionsList *cleanUpActions_;
-	bool beamlineInitialized_;
 
+	/// Actions list for initialization actions (as Actions3 become more fully tested this needs to be converted over)
+	AMBeamlineParallelActionsList *initializationActions_;
+	/// Actions list for cleanup actions (as Actions3 become more fully tested this needs to be converted over)
+	AMBeamlineParallelActionsList *cleanUpActions_;
+	/// Bool holding true if the initialization actions and cleanup actions lists were created successfully
+	bool beamlineInitialized_;
 };
 
 #endif // SGMFASTSCANCONTROLLER_H

@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef VESPERS2DDACQSCANCONTROLLER_H
 #define VESPERS2DDACQSCANCONTROLLER_H
 
@@ -24,11 +43,6 @@ public:
 	VESPERS2DDacqScanController(VESPERS2DScanConfiguration *cfg, QObject *parent = 0);
 	/// Destructor.  Makes sure all the memory from the actions that were created is freed.
 	~VESPERS2DDacqScanController() { onInitializationActionFinished(); onCleanupActionFinished(); }
-
-	/// Returns the number of values in the first independent axis.
-	virtual int xAxisCount() const { return xAxisCount_; }
-	/// Returns the number of values in the second independent axis.
-	virtual int yAxisCount() const { return yAxisCount_; }
 
 	/// Returns the PV name that will be used for the x-axis.
 	virtual QString xAxisPVName() const { return xAxisPVName_; }
@@ -88,10 +102,6 @@ protected:
 	QString xAxisPVName_;
 	/// Holds the y-axis PV name.
 	QString yAxisPVName_;
-	/// Holds the x-axis count.
-	int xAxisCount_;
-	/// Holds the y-axis count.
-	int yAxisCount_;
 
 	/// Action that contains all of the initialization actions for the controller.
 	AMBeamlineListAction *initializationActions_;

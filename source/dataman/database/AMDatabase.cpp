@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -21,19 +21,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMDatabase.h"
 
 #include <QStringList>
-
-#include "util/AMErrorMonitor.h"
 #include <QStringBuilder>
 #include <QThread>
 #include <QSet>
 #include <QMutexLocker>
 #include <QApplication>
 #include <QSqlDriver>
-
 #include <QTime>
-#include <QDebug>
 
-
+#include "util/AMErrorMonitor.h"
 
 // Internal instance records:
 QHash<QString, AMDatabase*> AMDatabase::connectionName2Instance_;
@@ -207,7 +203,7 @@ bool AMDatabase::update(int id, const QString& table, const QStringList& columns
 	QSqlDatabase db = qdb();
 
 	if(columns.count() != values.count()) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -102, "Error trying to update the database: the number of columns provided doesn't match the number of values."));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDATABASE_ERROR_COLUMN_VALUE_COUNT_MISMATCH, "Error trying to update the database: the number of columns provided doesn't match the number of values."));
 		return false;
 	}
 	if(!db.isOpen()) {
@@ -573,11 +569,12 @@ bool AMDatabase::ensureColumn(const QString& tableName, const QString& columnNam
 
 	if(execQuery(q)) {
 		q.finish();
-		// Error suppressed: this happens all the time if the column exists alread. AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Adding database column %1 to table %2.").arg(columnName).arg(tableName)));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Adding database column %1 to table %2.").arg(columnName).arg(tableName)));
 		return true;
 	}
 	else {
 		q.finish();	// make sure that sqlite lock is released before emitting signals
+		// Error suppressed: this happens all the time if the column exists already. AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Error adding database column %1 to table %2. Maybe it's already there? Sql reply says: %3").arg(columnName).arg(tableName).arg(q.lastError().text())));
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Error adding database column %1 to table %2. Maybe it's already there? Sql reply says: %3").arg(columnName).arg(tableName).arg(q.lastError().text())));
 		return false;
 	}
@@ -676,10 +673,10 @@ bool AMDatabase::commitTransaction(int timeoutMs)
 
 	if(attempt > 1) {
 		if(success) {
-			qWarning() << "Warning: AMDatabase detected contention for database access in commitTransaction(). It took" << attempt << "tries for the commit to succeed";
+			AMErrorMon::debug(this, AMDATABASE_COMMIT_CONTENTION_SUCCEEDED, QString("AMDatabase detected contention for database access in commitTransaction(). It took %1 tries for the commit to succeed.").arg(attempt) );
 		}
 		else {
-			qWarning() << "Warning: AMDatabase detected contention for database access in commitTransaction(). After" << attempt << "attempts, the commit still did not succeed.";
+			AMErrorMon::debug(this, AMDATABASE_COMMIT_CONTENTION_FAILED, QString("AMDatabase detected contention for database access in commitTransaction(). After %1 attempts, the commit still did not succeed.").arg(attempt) );
 		}
 	}
 
@@ -728,10 +725,10 @@ bool AMDatabase::execQuery(QSqlQuery &query, int timeoutMs)
 
 	if(attempt > 1) {
 		if(success) {
-			qWarning() << "Warning: AMDatabase detected contention for database locking in execQuery(). It took" << attempt << "tries for the query to succeed";
+			AMErrorMon::debug(0, AMDATABASE_LOCK_FOR_EXECQUERY_CONTENTION_SUCCEEDED, QString("AMDatabase detected contention for database locking in execQuery(). It took %1 tries for the query to succeed.").arg(attempt) );
 		}
 		else {
-			qWarning() << "Warning: AMDatabase detected contention for database locking in execQuery(). After" << attempt << "attempts, the query still did not succeed.";
+			AMErrorMon::debug(0, AMDATABASE_LOCK_FOR_EXECQUERY_CONTENTION_FAILED, QString("AMDatabase detected contention for database locking in execQuery(). After %1 attempts, the query still did not succeed.").arg(attempt) );
 		}
 	}
 

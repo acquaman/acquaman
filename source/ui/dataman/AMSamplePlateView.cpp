@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMDetailedItemDelegate.h"
 
 #include "beamline/AMSampleManipulator.h"
+#include "util/AMErrorMonitor.h"
 
 AMSamplePlateItemModel::AMSamplePlateItemModel(AMSamplePlate* plate, QObject* parent) :
 	QAbstractListModel(parent)
@@ -252,6 +253,8 @@ QWidget* AMSamplePlateItemDelegate::createEditor(QWidget *parent, const QStyleOp
 	connect(editor, SIGNAL(rowMoveToPressed(int)), this, SIGNAL(rowMoveToPressed(int)));
 	connect(editor, SIGNAL(rowRemovePressed(int)), this, SIGNAL(rowRemovePressed(int)));
 
+	connect(editor, SIGNAL(additionalInformationRequested(int)), this, SIGNAL(additionalInformationRequested(int)));
+
 	return editor;
 }
 
@@ -278,8 +281,6 @@ void AMSamplePlateItemDelegate::setModelData(QWidget *editor, QAbstractItemModel
 	Q_UNUSED(model)
 	Q_UNUSED(index)
 }
-
-
 
 
 AMSamplePlateSelector::AMSamplePlateSelector(AMSamplePlate* sourcePlate, QWidget *parent)
@@ -536,6 +537,8 @@ AMSamplePlateView::AMSamplePlateView(AMSamplePlate *existingPlate, QWidget *pare
 	connect(listViewDelegate, SIGNAL(rowMoveToPressed(int)), this, SLOT(onRowMoveToPressed(int)));
 	connect(listViewDelegate, SIGNAL(rowRemovePressed(int)), this, SLOT(onRowRemovePressed(int)));
 
+	connect(listViewDelegate, SIGNAL(additionalInformationRequested(int)), this, SLOT(onAdditionalInformationRequested(int)));
+
 	connect(samplePlateSelector_, SIGNAL(samplePlateChanged()), this, SIGNAL(newSamplePlateSelected()));
 
 	addSampleButton_->setIcon(QIcon(":/add.png"));
@@ -600,10 +603,299 @@ void AMSamplePlateView::onRowRemovePressed(int row) {
 	samplePlate_->storeToDb(AMDatabase::database("user"));
 }
 
+#include <QDebug>
+void AMSamplePlateView::onAdditionalInformationRequested(int row){
+	if(manipulator_){
+		AMSamplePosition *positionInQuestion = &(samplePlate_->operator [](row));
+		AMSamplePositionAdditionalInformationView *additionalInformationView = new AMSamplePositionAdditionalInformationView(manipulator_, positionInQuestion );
+		additionalInformationView->show();
+	}
+}
+
 void AMSamplePlateItemModel::onSamplePositionChanged(int r)
 {
 	if(r < plate_->count()) {
 		QModelIndex i = index(r,0);
 		emit dataChanged(i,i);
+	}
+}
+
+#include <QFormLayout>
+
+AMSamplePositionManuallyEnterView::AMSamplePositionManuallyEnterView(QWidget *parent) :
+	QDialog(parent)
+{
+	QFormLayout *fl = new QFormLayout();
+
+	inOutDSBox_ = new QDoubleSpinBox();
+	inOutDSBox_->setMaximum(10);
+	inOutDSBox_->setMinimum(-10);
+	fl->addRow("In/Out", inOutDSBox_);
+
+	upStDownStDSBox_ = new QDoubleSpinBox();
+	upStDownStDSBox_->setMaximum(10);
+	upStDownStDSBox_->setMinimum(-10);
+	fl->addRow("UpStr/DownStr", upStDownStDSBox_);
+
+	upDownDSBox_ = new QDoubleSpinBox();
+	upDownDSBox_->setMaximum(40);
+	upDownDSBox_->setMinimum(-40);
+	fl->addRow("Up/Down", upDownDSBox_);
+
+	rotDSBox_ = new QDoubleSpinBox();
+	rotDSBox_->setMaximum(180);
+	rotDSBox_->setMinimum(-180);
+	fl->addRow("Rotation", rotDSBox_);
+
+	QHBoxLayout *hl = new QHBoxLayout();
+	applyButton_ = new QPushButton("Apply");
+	cancelButton_ = new QPushButton("Cancel");
+	hl->addWidget(applyButton_);
+	hl->addWidget(cancelButton_);
+
+	QVBoxLayout *vl = new QVBoxLayout();
+	vl->addLayout(fl);
+	vl->addLayout(hl);
+
+	setLayout(vl);
+
+	connect(applyButton_, SIGNAL(clicked()), this, SLOT(onApplyButtonClicked()));
+	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()));
+
+	upDown_ = -999999;
+	inOut_ = -999999;
+	upStDownSt_ = -999999;
+	rot_ = -999999;
+}
+
+void AMSamplePositionManuallyEnterView::onCancelButtonClicked(){
+	hideAndFinish();
+}
+
+void AMSamplePositionManuallyEnterView::onApplyButtonClicked(){
+	upDown_ = upDownDSBox_->value();
+	inOut_ = inOutDSBox_->value();
+	upStDownSt_ = upStDownStDSBox_->value();
+	rot_ = rotDSBox_->value();
+	hideAndFinish();
+}
+
+void AMSamplePositionManuallyEnterView::hideAndFinish(){
+	hide();
+	emit finished(upDown_, inOut_, upStDownSt_, rot_);
+}
+
+void AMSamplePositionManuallyEnterView::closeEvent(QCloseEvent *e){
+	e->accept();
+	hideAndFinish();
+}
+
+AMSamplePositionAdditionalInformationView::AMSamplePositionAdditionalInformationView(AMSampleManipulator *manipulator, AMSamplePosition *samplePosition, QWidget *parent) :
+	QDialog(parent)
+{
+	manipulator_ = manipulator;
+	samplePosition_ = samplePosition;
+
+	enterTopLeftDialog_ = 0; //NULL
+	enterBottomRightDialog_ = 0; //NULL
+
+	QGroupBox *positionGroupBox = new QGroupBox("Position");
+	QFormLayout *fl = new QFormLayout();
+	AMControlInfoList samplePositionList = samplePosition_->position();
+	for(int x = 0; x < samplePositionList.count(); x++)
+		fl->addRow(samplePositionList.at(x).description(), new QLabel(QString("%1").arg(samplePositionList.at(x).value())));
+	positionGroupBox->setLayout(fl);
+
+	topLeftLabel_ = new QLabel();
+	originalTopLeft_ = samplePosition_->topLeftPosition();
+	setTopLeftText();
+	setTopLeftFromManipulatorButton_ = new QPushButton("Mark as Current Position");
+	manuallyEnterTopLeftButton_ = new QPushButton("Manually Enter");
+	QHBoxLayout *topLeftHL = new QHBoxLayout();
+	topLeftHL->addWidget(new QLabel("Top Left: "));
+	topLeftHL->addWidget(topLeftLabel_);
+	topLeftHL->addWidget(setTopLeftFromManipulatorButton_);
+	topLeftHL->addWidget(manuallyEnterTopLeftButton_);
+
+	bottomRightLabel_ = new QLabel();
+	originalBottomRight_ = samplePosition_->bottomRightPosition();
+	setBottomRightText();
+	setBottomRightFromManipulatorButton_ = new QPushButton("Mark as Current Position");
+	manuallyEnterBottomRightButton_ = new QPushButton("Manually Enter");
+	QHBoxLayout *bottomRightHL = new QHBoxLayout();
+	bottomRightHL->addWidget(new QLabel("Bottom Right: "));
+	bottomRightHL->addWidget(bottomRightLabel_);
+	bottomRightHL->addWidget(setBottomRightFromManipulatorButton_);
+	bottomRightHL->addWidget(manuallyEnterBottomRightButton_);
+
+	QVBoxLayout *vl = new QVBoxLayout();
+	vl->addLayout(topLeftHL);
+	vl->addLayout(bottomRightHL);
+
+	QHBoxLayout *mainHL = new QHBoxLayout();
+	mainHL->addWidget(positionGroupBox);
+	mainHL->addLayout(vl);
+
+	applyButton_ = new QPushButton("Apply");
+	applyButton_->setEnabled(false);
+	cancelButton_ = new QPushButton("Cancel");
+	errorLabel_ = new QLabel("");
+	QHBoxLayout *buttonsHL = new QHBoxLayout();
+	buttonsHL->addStretch();
+	buttonsHL->addWidget(errorLabel_);
+	buttonsHL->addWidget(applyButton_);
+	buttonsHL->addWidget(cancelButton_);
+
+	QVBoxLayout *mainVL = new QVBoxLayout();
+	mainVL->addLayout(mainHL);
+	mainVL->addLayout(buttonsHL);
+
+	setLayout(mainVL);
+
+	cancelButton_->setDefault(true);
+
+	connect(setTopLeftFromManipulatorButton_, SIGNAL(clicked()), this, SLOT(onTopLeftSetFromManipulator()));
+	connect(setBottomRightFromManipulatorButton_, SIGNAL(clicked()), this, SLOT(onBottomRightSetFromManipulator()));
+	connect(manuallyEnterTopLeftButton_, SIGNAL(clicked()), this, SLOT(onTopLeftManuallyEnterClicked()));
+	connect(manuallyEnterBottomRightButton_, SIGNAL(clicked()), this, SLOT(onBottomRightManuallyEnterClicked()));
+
+	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()));
+	connect(applyButton_, SIGNAL(clicked()), this, SLOT(onApplyButtonClicked()));
+}
+
+void AMSamplePositionAdditionalInformationView::onTopLeftSetFromManipulator(){
+	samplePosition_->setTopLeftPosition(manipulator_->position());
+	setTopLeftText();
+	checkValidity();
+}
+
+void AMSamplePositionAdditionalInformationView::onBottomRightSetFromManipulator(){
+	samplePosition_->setBottomRightPosition(manipulator_->position());
+	setBottomRightText();
+	checkValidity();
+}
+
+void AMSamplePositionAdditionalInformationView::onTopLeftManuallyEnterClicked(){
+	enterTopLeftDialog_ = new AMSamplePositionManuallyEnterView();
+	connect(enterTopLeftDialog_, SIGNAL(finished(double,double,double,double)), this, SLOT(onTopLeftManualEnterFinished(double,double,double,double)));
+	enterTopLeftDialog_->show();
+}
+
+void AMSamplePositionAdditionalInformationView::onBottomRightManuallyEnterClicked(){
+	enterBottomRightDialog_ = new AMSamplePositionManuallyEnterView();
+	connect(enterBottomRightDialog_, SIGNAL(finished(double,double,double,double)), this, SLOT(onBottomRightManualEnterFinished(double,double,double,double)));
+	enterBottomRightDialog_->show();
+}
+
+#include <QDebug>
+
+void AMSamplePositionAdditionalInformationView::onTopLeftManualEnterFinished(double upDown, double inOut, double upStDownSt, double rot){
+	//qdebug() << "Want to set as " << upDown << inOut << upStDownSt << rot;
+	AMControlInfoList newTopLeft;
+	newTopLeft.setValuesFrom(manipulator_->position());
+	newTopLeft[0].setValue(inOut);
+	newTopLeft[1].setValue(upStDownSt);
+	newTopLeft[2].setValue(upDown);
+	newTopLeft[3].setValue(rot);
+
+	samplePosition_->setTopLeftPosition(newTopLeft);
+	setTopLeftText();
+	checkValidity();
+	enterTopLeftDialog_->deleteLater();
+	enterTopLeftDialog_ = 0; //NULL
+}
+
+void AMSamplePositionAdditionalInformationView::onBottomRightManualEnterFinished(double upDown, double inOut, double upStDownSt, double rot){
+	AMControlInfoList newBottomRight;
+	newBottomRight.setValuesFrom(manipulator_->position());
+	newBottomRight[0].setValue(inOut);
+	newBottomRight[1].setValue(upStDownSt);
+	newBottomRight[2].setValue(upDown);
+	newBottomRight[3].setValue(rot);
+
+	samplePosition_->setBottomRightPosition(newBottomRight);
+	setBottomRightText();
+	checkValidity();
+	enterBottomRightDialog_->deleteLater();
+	enterBottomRightDialog_ = 0; //NULL
+}
+
+void AMSamplePositionAdditionalInformationView::onCancelButtonClicked(){
+	if( (samplePosition_->topLeftPosition().count() != 0) && !(samplePosition_->topLeftPosition() == originalTopLeft_)){
+		samplePosition_->setTopLeftPosition(originalTopLeft_);
+		setTopLeftText();
+	}
+	if( (samplePosition_->bottomRightPosition().count() != 0) && !(samplePosition_->bottomRightPosition() == originalBottomRight_)){
+		samplePosition_->setBottomRightPosition(originalBottomRight_);
+		setBottomRightText();
+	}
+	hideAndFinish();
+}
+
+void AMSamplePositionAdditionalInformationView::onApplyButtonClicked(){
+	if(samplePosition_->modified())
+		samplePosition_->storeToDb(samplePosition_->database());
+	hideAndFinish();
+}
+
+void AMSamplePositionAdditionalInformationView::hideAndFinish(){
+	hide();
+	emit finished();
+}
+
+void AMSamplePositionAdditionalInformationView::closeEvent(QCloseEvent *e){
+	if( (samplePosition_->topLeftPosition().count() != 0) && !(samplePosition_->topLeftPosition() == originalTopLeft_)){
+		samplePosition_->setTopLeftPosition(originalTopLeft_);
+		setTopLeftText();
+	}
+	if( (samplePosition_->bottomRightPosition().count() != 0) && !(samplePosition_->bottomRightPosition() == originalBottomRight_)){
+		samplePosition_->setBottomRightPosition(originalBottomRight_);
+		setBottomRightText();
+	}
+	e->accept();
+	hideAndFinish();
+}
+
+void AMSamplePositionAdditionalInformationView::setTopLeftText(){
+	if(samplePosition_->topLeftPosition().count() == 0)
+		topLeftLabel_->setText("No Values Set");
+	else{
+		QString topLeftText;
+		for(int x = 0; x < samplePosition_->topLeftPosition().count(); x++)
+			topLeftText.append(QString("%1, ").arg(samplePosition_->topLeftPosition().at(x).value()));
+		topLeftText.remove(topLeftText.count()-2, 2);
+		topLeftLabel_->setText(topLeftText);
+	}
+}
+
+void AMSamplePositionAdditionalInformationView::setBottomRightText(){
+	if(samplePosition_->bottomRightPosition().count() == 0)
+		bottomRightLabel_->setText("No Values Set");
+	else{
+		QString bottomRightText;
+		for(int x = 0; x < samplePosition_->bottomRightPosition().count(); x++)
+			bottomRightText.append(QString("%1, ").arg(samplePosition_->bottomRightPosition().at(x).value()));
+		bottomRightText.remove(bottomRightText.count()-2, 2);
+		bottomRightLabel_->setText(bottomRightText);
+	}
+}
+
+
+void AMSamplePositionAdditionalInformationView::checkValidity(){
+	if( (samplePosition_->topLeftPosition().count() != 0) && (samplePosition_->bottomRightPosition().count() != 0) ){
+		for(int x = 0; x < samplePosition_->topLeftPosition().count(); x++){
+			double positionValue = samplePosition_->position().at(x).value();
+			double topLeftValue = samplePosition_->topLeftPosition().at(x).value();
+			double topLeftTolerance = samplePosition_->topLeftPosition().at(x).tolerance();
+			double bottomRightValue = samplePosition_->bottomRightPosition().at(x).value();
+			double bottomRightTolerance = samplePosition_->bottomRightPosition().at(x).tolerance();
+			if( (positionValue > std::max(topLeftValue+topLeftTolerance, bottomRightValue+bottomRightTolerance)) || (positionValue < std::min(topLeftValue-topLeftTolerance, bottomRightValue-bottomRightTolerance)) ){
+				errorLabel_->setText(QString("Problem on axis %1").arg(x));
+				applyButton_->setEnabled(false);
+				return;
+			}
+		}
+		errorLabel_->setText("");
+		applyButton_->setEnabled(true);
 	}
 }

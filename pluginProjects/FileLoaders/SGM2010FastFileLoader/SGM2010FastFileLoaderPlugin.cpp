@@ -19,7 +19,7 @@ bool SGM2010FastFileLoaderPlugin::accepts(AMScan *scan){
 }
 
 bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder){
-	// qDebug() << "\n\nTRYING TO LOAD WITH sgm2010Fast PLUGIN";
+	// qdebug() << "\n\nTRYING TO LOAD WITH sgm2010Fast PLUGIN";
 
 	if(columns2pvNames_.count() == 0) {
 		columns2pvNames_.set("eV", "BL1611-ID-1:Energy");
@@ -39,9 +39,13 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 	if(!scan)
 		return false;
 
+	// Clear the old scan axes to ensure we don't have any extras.
+	scan->clearRawDataCompletely();
+	scan->rawData()->addScanAxis( AMAxisInfo("eV", 0, "Incident Energy", "eV") );
+
 	QFileInfo sourceFileInfo(scan->filePath());
 	if(sourceFileInfo.isRelative()){
-		//qDebug() << "Path IS relative, user data folder is " << AMUserSettings::userDataFolder;
+		//qdebug() << "Path IS relative, user data folder is " << AMUserSettings::userDataFolder;
 		//sourceFileInfo.setFile(AMUserSettings::userDataFolder + "/" + scan->filePath());
 		qDebug() << "Path IS relative, user data folder is " << userDataFolder;
 		sourceFileInfo.setFile(userDataFolder + "/" + scan->filePath());

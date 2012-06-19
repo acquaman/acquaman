@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -17,7 +17,6 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <QDebug>
 #include <QDateTime>
 #include "AMScanController.h"
 
@@ -31,6 +30,13 @@ AMScanController::AMScanController(AMScanConfiguration *cfg, QObject *parent) :
 
 	state_ = AMScanController::Constructed;
 
+}
+
+AMScanController::~AMScanController() {
+	if(scan_)
+		scan_->release(this);
+
+	//qdebug() << "A call to AMScanController destructor";
 }
 
 AMScanController::ScanState AMScanController::state() const {
@@ -126,8 +132,10 @@ void AMScanController::cancel(){
 
 bool AMScanController::setInitialized(){
 	if(canChangeStateTo(AMScanController::Initialized)){
-		if(scan_)
+		if(scan_) {
 			scan_->setScanController(this);
+			scan_->retain(this);
+		}
 		changeState(AMScanController::Initialized);
 		emit initialized();
 		return true;
@@ -137,8 +145,10 @@ bool AMScanController::setInitialized(){
 
 bool AMScanController::setStarted(){
 	if(canChangeStateTo(AMScanController::Running)){
-		if(scan_)
+		if(scan_) {
 			scan_->setScanController(this);
+			scan_->retain(this);
+		}
 		changeState(AMScanController::Running);
 		emit started();
 		return true;
@@ -256,6 +266,7 @@ bool AMScanController::changeState(ScanState newState){
 	if(canChangeStateTo(newState)) {
 		ScanState oldState = state_;
 		state_= newState;
+		//qdebug() << "Changing from " << oldState << " to " << newState;
 		emit stateChanged(oldState, newState);
 		return true;
 	}

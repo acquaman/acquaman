@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -26,10 +26,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_AMGenericScanEditor.h"
 
 #include "dataman/AMScanSetModel.h"
+#include "dataman/AMAxisInfo.h"
 
 class AMScan;
 
 class AMScanView;
+class AM2DScanView;
 class AMVerticalStackWidget;
 class AMRunSelector;
 class AMSampleEditor;
@@ -41,33 +43,29 @@ class AMGenericScanEditor : public QWidget
 {
 Q_OBJECT
 public:
-	enum ShouldStopAcquiringScanChoice{
-		ShouldStopNo =		0,
-		ShouldStopYes =		1,
-		ShouldStopForceQuit =	2
-	};
 
-	/// Construct an empty editor:
+	/// Construct an empty editor.  This builds an editor using the default AMScanView.
 	explicit AMGenericScanEditor(QWidget *parent = 0);
+	/// Overloaded.  Constructs an empty editor using the scan view chosen by \param use2DScanView.  If use2DscanView is true then a valid AM2DScanConfiguration must also be provided.
+	explicit AMGenericScanEditor(bool use2DScanView, QWidget *parent = 0);
 
-	/// Deletes self and all scan objects that were added
+	/// Deletes self and releases all scan objects that were added
 	virtual ~AMGenericScanEditor();
 
-	/// Add a scan to an editor. The editor takes ownership of the scan, and will delete it when closed or the scan is removed.
+	/// Add a scan to an editor. The editor retains an interest in \c newScan, keeping it in memory as long as required. \see AMScan::retain().
 	void addScan(AMScan* newScan);
 
+	/// Remove a scan, but ask the user for confirmation if it's been modified.  Returns true if the scan was deleted, and false if the user 'cancelled' the process.
+	bool removeScanWithModifiedCheck(AMScan* scan);
 
-	/// Remove a scan from the editor and delete the scan.
-	void deleteScan(AMScan* scan);
-
-	/// Remove a scan and delete it, but ask the user for confirmation if it's been modified.  Returns true if the scan was deleted, and false if the user 'cancelled' the process.
-	bool deleteScanWithModifiedCheck(AMScan* scan);
-
-	/// Remove a scan from the editor, but don't delete the scan. Ownership becomes the responsibility of the caller.
-	void removeScan(AMScan* scan) {
-		scanSetModel_->removeScan(scan);
-		refreshWindowTitle();
-	}
+	/// Remove a scan from the editor.  The editor releases its interest in \c scan, which might cause it to be deleted if nothing else is using it. \see AMScan::release().
+	/*! To prevent this from happening (for example, because you want to re-use the scan instance outside of this editor), you need to retain it first:
+	  \code
+	  scan->retain(newOwner);
+	  editor->removeScan(scan);
+	  \endcode
+	  */
+	void removeScan(AMScan* scan);
 
 	/// Returns the number of scans open in the editor.
 	int scanCount() const {
@@ -81,9 +79,14 @@ public:
 		return scanSetModel_->scanAt(index);
 	}
 
+	/// Returns the current scan that the generic scan editor is looking at.
+	AMScan *currentScan() const { return currentScan_; }
+
 	/// Call this function to find out if this editor can be closed. Checks for scans in progress and prompts the user for what to do with modified scans.  Returns true if the editor can be closed; returns false if any scans are acquiring or if the user responded "cancel" to a save-request.
 	bool canCloseEditor();
 
+	/// Returns the current exclusive data source name for the model.
+	QString exclusiveDataSourceName() const { return scanSetModel_->exclusiveDataSourceName(); }
 	/// Sets which data source should be viewed by exclusive views.  Returns true if the data source was found and set.  Returns false otherwise.
 	bool setExclusiveDataSourceByName(const QString &name) { return scanSetModel_->setExclusiveDataSourceByName(name); }
 
@@ -93,11 +96,30 @@ public:
 	/// Exposing scan set model method that returns a list of all data source names that exist and are visible in at least one scan. Warning: this is slow.  O(n), where n is the total number of data sources in all scans.
 	QStringList visibleDataSourceNames() const { return scanSetModel_->visibleDataSourceNames(); }
 
+	// Methods for 2D scans only.
+	/////////////////////////////////////////////////
+
+	/// Returns the data position inside a two dimensional scan.  This returns a null point if AMGenericScanEditor is not using AM2DScanView, or if no valid point was been chosen yet.
+	QPointF dataPosition() const;
+	/// Returns the selected rectangle inside a two dimensional scan.  This returns a null rect if AMGenericScanEditor is not using AM2DScanView, or if there is no valid rectangle displayed.
+	QRectF selectedRect() const;
+	/// Returns whether the generic scan editor is using AMScanView or AM2DScanView.
+	bool using2DScanView() const { return scanView2D_ ? true : false; }
+	/// Sets the axis information for the spectrum view.  Does nothing if not using 2D scan view.  This will automatically set the plot range for markers as well.  If you need to customize the plot range to something more specific, set \param propogateToPlotRange to false and call setPlotRange().
+	void setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange = true);
+	/// Sets the plot range for markers to be displayed on the spectrum view.  Does nothing if not using 2D scan view.
+	void setPlotRange(double low, double high);
+
 signals:
 	/// Internal signal to forward the textChanged() from ui_.notesEdit
 	void notesChanged(const QString&);
+	/// Emits a signal that the data position tool has changed positions.  This is only emitted if AMGenericScanEditor is using AM2DScanView.  Passes a reference to the scan editor and also the position of the mouse.
+	void dataPositionChanged(AMGenericScanEditor *, const QPoint &);
 
 public slots:
+
+	/// Call this to export the currently-visible plot to a graphics file. (Currently, the only supported format is a vector PDF.) This routine will prompt the user to choose a file name for the plot, and confirm on overwrite.
+	void exportGraphicsToFile();
 
 protected slots:
 	///  This catches changes in the scan that is currently selected, and hooks it up to the editor widgets. \todo Ultimately, we might handle more than one scan being "selected" at once.
@@ -129,6 +151,12 @@ protected slots:
 	/// Call this function to open a set of scans from the database. The scan information is contained inside a list of "amd://..." URLs.  For more information on the format, see dropEvent().   Returns true if the list contains at least one valid scan that was added.
 	/*! This function is used as an internal helper function by dropEvent(); Normally you should use the dropScanURLs function in AMDatamanAppController() since it can check for scans being open in other editors*/
 	bool dropScanURLs(const QList<QUrl>& urls);
+
+	/// Called on a one-second timer: Right now, we only use this to update the duration display for currentlyAcquiring() scans
+	void onOneSecondTimer();
+
+	/// Helper slot that emits the dataPositionChanged signal.
+	void onDataPositionChanged(const QPoint &pos) { emit dataPositionChanged(this, pos); }
 
 protected:
 
@@ -164,6 +192,8 @@ protected:
 
 	/// Plot view capable of holding multiple scans.
 	AMScanView* scanView_;
+	/// Plot view used for specifically viewing 2D scans.
+	AM2DScanView *scanView2D_;
 
 	/// Sample editor
 	AMSampleEditor* sampleEditor_;
@@ -190,7 +220,7 @@ protected:
 	void updateEditor(AMScan* scan);
 
 	/// Helper function to ask if a scan should be aborted when trying to close it. Returns true if the scan should be aborted.
-	AMGenericScanEditor::ShouldStopAcquiringScanChoice shouldStopAcquiringScan(AMScan* scan);
+	bool shouldStopAcquiringScan(AMScan* scan);
 	/// Helper function to ask if a scan should be saved when trying to close it. Returns an integer corresponding to QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel.
 	int shouldSaveModifiedScan(AMScan* scan);
 

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -18,17 +18,80 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
+#include <QStringBuilder>
+
 #include "AMAppController.h"
 
+#include "dataman/database/AMDbObjectSupport.h"
 #include "ui/AMWorkflowManagerView.h"
 #include "ui/AMMainWindow.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "dataman/export/AMExporter.h"
 #include "dataman/export/AMExporterOption.h"
+#include "ui/AMStartScreen.h"
+
+#include "ui/actions3/AMWorkflowView3.h"
+#include "actions3/AMActionRunner3.h"
+#include "actions3/AMActionRegistry3.h"
+#include "actions3/AMLoopAction3.h"
+#include "actions3/editors/AMLoopActionEditor3.h"
+#include "actions3/editors/AMListActionEditor3.h"
+#include "actions3/actions/AMNumberChangeAction.h"
+#include "actions3/editors/AMNumberChangeActionEditor.h"
+#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/editors/AMControlMoveActionEditor3.h"
+#include "actions3/actions/AMScanAction.h"
+#include "actions3/actions/AMScanActionInfo.h"
+#include "actions3/editors/AMScanActionEditor.h"
+#include "actions3/actions/AMSamplePlateMoveAction.h"
+#include "actions3/actions/AMSamplePlateMoveActionInfo.h"
+#include "actions3/editors/AMSamplePlateMoveActionEditor.h"
 
 AMAppController::AMAppController(QObject *parent)
 	: AMDatamanAppController(parent)
 {
+}
+
+bool AMAppController::startup(){
+
+	/* Commented out, put it back in to play with the change number action
+	AMNumberChangeActionSupport::appendNumber(12);
+	AMNumberChangeActionSupport::appendNumber(27);
+	AMNumberChangeActionSupport::appendNumber(100);
+	AMNumberChangeActionSupport::appendNumber(1000);
+	AMNumberChangeActionSupport::appendNumber(0);
+	AMNumberChangeActionSupport::appendNumber(15);
+	AMNumberChangeActionSupport::appendNumber(8888);
+	AMNumberChangeActionSupport::appendNumber(42);
+	AMNumberChangeActionSupport::appendNumber(99);
+	AMNumberChangeActionSupport::appendNumber(1);
+	*/
+
+	if(AMDatamanAppController::startup()){
+		bool success = true;
+		/* Commented out, put it back in to play with the change number action
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMNumberChangeActionInfo, AMNumberChangeAction>("Number Change", "Changes a number in the list", ":/system-run.png");
+		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMNumberChangeActionInfo, AMNumberChangeActionEditor>();
+		*/
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMLoopActionInfo3, AMLoopAction3>("Loop", "This action repeats a set of sub-actions a specific number of times.\n\nAfter adding it, you can drag-and-drop other actions inside it.", ":/32x32/media-playlist-repeat.png");
+		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMLoopActionInfo3, AMLoopActionEditor3>();
+
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMSequentialListActionInfo3, AMSequentialListAction3>("Sequential\nList", "This action runs a sequential list of other actions", ":/32x32/media-playlist-repeat.png");
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMParallelListActionInfo3, AMParallelListAction3>("Parallel\nList", "This action runs a parallel list of other actions.", ":/32x32/media-playlist-repeat.png");
+		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMListActionInfo3, AMListActionEditor3>();
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMControlMoveActionInfo3, AMControlMoveAction3>("Control Move", "Moves a control to an absolute position or a relative position from its current state.", ":system-run.png");
+		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMControlMoveActionInfo3, AMControlMoveActionEditor3>();
+
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMScanActionInfo, AMScanAction>("Scan Action", "Runs a scan.", ":/spectrum.png", false);
+		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMScanActionInfo, AMScanActionEditor>();
+
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMSamplePlateMoveActionInfo, AMSamplePlateMoveAction>("Move Sample Position", "Move to a different marked sample position", ":/32x32/media-playlist-repeat.png");
+		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMSamplePlateMoveActionInfo, AMSamplePlateMoveActionEditor>();
+
+		return success;
+	}
+	else
+		return false;
 }
 
 bool AMAppController::startupCreateUserInterface() {
@@ -39,22 +102,38 @@ bool AMAppController::startupCreateUserInterface() {
 		mw_->insertHeading("Experiment Tools", 1);
 		mw_->addPane(workflowManagerView_, "Experiment Tools", "Workflow", ":/user-away.png");
 
+		// add the workflow control UI
+//		workflowView_ = new AMWorkflowView3();
+//		mw_->addPane(workflowView_, "Experiment Tools", "Workflow", ":/user-away.png");
+		// remove the old one:
+//		mw_->removePane(workflowManagerView_);
+//		workflowManagerView_->hide();
+
+		AMStartScreen* chooseRunDialog = new AMStartScreen(true, mw_);
+		chooseRunDialog->show();
+		chooseRunDialog->activateWindow();
+		chooseRunDialog->raise();
+
+		/* Commented out, put it back in to play with the change number action
+		QListView *listView = new QListView();
+		listView->setModel(AMNumberChangeActionSupport::AMNumberChangeActionModel_);
+		listView->show();
+		*/
+
 		return true;
 	}
 
 	return false;
 }
 
-// Program shutdown:
-AMAppController::~AMAppController() {
-
-}
 
 
 
 void AMAppController::goToWorkflow() {
 	mw_->setCurrentPane(workflowManagerView_);
 }
+
+#include "dataman/AMScan.h"
 
 void AMAppController::openScanInEditorAndTakeOwnership(AMScan *scan, bool bringEditorToFront, bool openInExistingEditor)
 {
@@ -64,7 +143,11 @@ void AMAppController::openScanInEditorAndTakeOwnership(AMScan *scan, bool bringE
 		editor = scanEditorAt(scanEditorCount()-1);
 	}
 	else {
-		editor = createNewScanEditor();
+
+		if (scan->scanRank() == 2)
+			editor = createNewScanEditor(true);
+		else
+			editor = createNewScanEditor();
 	}
 
 	editor->addScan(scan);
@@ -74,65 +157,46 @@ void AMAppController::openScanInEditorAndTakeOwnership(AMScan *scan, bool bringE
 }
 
 #include "acquaman/AMScanConfiguration.h"
+#include "acquaman/AM2DScanConfiguration.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+#include "ui/acquaman/AM2DScanConfigurationViewHolder.h"
 #include "dataman/database/AMDatabase.h"
 #include "dataman/database/AMDbObjectSupport.h"
-#include "dataman/AMScan.h"
 
 void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 {
-	// scheme correct?
-	if (url.scheme() != "amd")
-		return;
-
-	// Scan configurations only come from the user databases currently.
-	AMDatabase *db = AMDatabase::database("user");
-	if (!db)
-		return;
-
-	QStringList path = url.path().split('/', QString::SkipEmptyParts);
-	if(path.count() != 2)
-		return;
-
-	QString tableName = path.at(0);
-	bool idOkay;
-	int id = path.at(1).toInt(&idOkay);
-	if(!idOkay || id < 1)
-		return;
-
-	// Only open scans for now (ie: things in the scans table)
-	if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
-		return;
-
 	// turn off automatic raw-day loading for scans... This will make loading the scan to access it's config much faster.
 	bool scanAutoLoadingOn = AMScan::autoLoadData();
 	AMScan::setAutoLoadData(false);
-	// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
-	AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
-	if(!dbo)
-		return;
+
+	AMScan* scan = AMScan::createFromDatabaseUrl(url, true);
+
 	// restore AMScan's auto-loading of data to whatever it was before.
 	AMScan::setAutoLoadData(scanAutoLoadingOn);
 
-	// Is it a scan?
-	AMScan* scan = qobject_cast<AMScan*>( dbo );
-	if(!scan) {
-		delete dbo;
+	if(!scan)
 		return;
-	}
+
 
 	// need to check that this scan actually has a valid config. This hasn't always been guaranteed, especially when scans move between beamlines.
 	AMScanConfiguration* config = scan->scanConfiguration();
 	if(!config) {
-		delete scan;
+		scan->release();
 		return;
 	}
 	// need to create a copy of the config so we can delete the scan (and hence the config instance owned by the scan). The view will take ownership of the copy.
 	config = config->createCopy();
-	delete scan;
+	scan->release();
 	if(!config)
 		return;
+
+	// Check if this is a regular scan configuration or a 2D one.
+	bool is2D_ = false;
+
+	if (qobject_cast<AM2DScanConfiguration *>(config))
+		is2D_ = true;
 
 	AMScanConfigurationView *view = config->createView();
 	if(!view) {
@@ -141,9 +205,25 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 		return;
 	}
 
-	AMScanConfigurationViewHolder *viewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, view);
-	viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
-	viewHolder->show();
+//	AMScanConfigurationViewHolder *viewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, view);
+
+	// This is Actions3 stuff.
+//	AMScanConfigurationViewHolder3 *viewHolder = new AMScanConfigurationViewHolder3(view);
+//	viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
+//	viewHolder->show();
+
+	if (!is2D_){
+
+		AMScanConfigurationViewHolder *viewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, view);
+		viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
+		viewHolder->show();
+	}
+	else {
+
+		AM2DScanConfigurationViewHolder *viewHolder = new AM2DScanConfigurationViewHolder( workflowManagerView_, view);
+		viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
+		viewHolder->show();
+	}
 }
 
 
@@ -212,3 +292,28 @@ bool AMAppController::canCloseActionRunner()
 	// No objections. Can quit.
 	return true;
 }
+
+void AMAppController::showChooseRunDialog()
+{
+	AMStartScreen* d = new AMStartScreen(false, mw_);
+	d->show();
+}
+
+#include <QMenu>
+bool AMAppController::startupInstallActions()
+{
+	if(AMDatamanAppController::startupInstallActions()) {
+
+		QAction* changeRunAction = new QAction("Change Run...", mw_);
+		// changeRunAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_B));
+		changeRunAction->setStatusTip("Change the current run, or create a new one");
+		connect(changeRunAction, SIGNAL(triggered()), this, SLOT(showChooseRunDialog()));
+
+		fileMenu_->addSeparator();
+		fileMenu_->addAction(changeRunAction);
+		return true;
+	}
+	else
+		return false;
+}
+

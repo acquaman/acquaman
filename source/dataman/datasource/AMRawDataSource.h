@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -200,6 +200,9 @@ public:
 	/*! Re-implemented from AMDataSource to call setModified().  */
 	virtual void setHiddenFromUsers(bool isHidden = true) { AMDataSource::setHiddenFromUsers(isHidden); setModified(true); }
 
+
+	/// Creates an editor widget that reports the dimensions and size of the data source... And for 0D data sources, includes the value.
+	virtual QWidget* createEditorWidget();
 
 protected slots:
 

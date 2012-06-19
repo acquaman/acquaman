@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -26,36 +26,51 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #define SGMXASDACQSCANCONTROLLER_CANT_INTIALIZE 27001
 #define SGMXASDACQSCANCONTROLLER_CANT_START_BL_SCANNING 27002
-#define SGMXASDACQSCANCONTROLLER_CANT_START_DETECTOR_SOURCE_MISMATCH 27003
+#define SGMXASDACQSCANCONTROLLER_CANT_START_NO_TEMPLATE_SAVE_PATH 27003
 #define SGMXASDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE 27004
+#define SGMXASDACQSCANCONTROLLER_CANT_START_CANT_WRITE_TEMPLATE 27005
+#define SGMXASDACQSCANCONTROLLER_CANT_START_CANT_FIND_TEMPLATE_DIRECTORY 27006
 
 class SGMXASDacqScanController : public AMDacqScanController, public SGMXASScanController
 {
 Q_OBJECT
 public:
+	/// Standard constructor, calls parent to set up the controller and sets the scan object given this configuration
 	explicit SGMXASDacqScanController(SGMXASScanConfiguration *cfg, QObject *parent = 0);
-
-protected:
-	bool initializeImplementation();
-	bool startImplementation();
-	void cancelImplementation();
-	AMnDIndex toScanIndex(QMap<int, double> aeData);
+	/// Destructor
+	virtual ~SGMXASDacqScanController();
 
 protected slots:
-	// Re-implementing to intercept finished() signal and do cleanup
+	/// Re-implementing to intercept finished() signal and do cleanup
 	void onDacqStop();
 
-	// Re-implementing to change actual dwell times for the SGM Beamline
+	/// Re-implementing to change actual dwell times for the SGM Beamline
 	void onDwellTimeTriggerChanged(double newValue);
 
+	/// Calls setInitialized() once the initialization actions have succeeded.
 	void onInitializationActionsSucceeded();
+	/// Calls setFailed() if the initialization actions fail.
 	void onInitializationActionsFailed(int explanation);
+	/// NOT USED AT THIS TIME
 	void onInitializationActionsProgress(double elapsed, double total);
 
+	/// Calls the cleanup actions or simply AMDacqScanController::onDacqStop() if none are available
 	void onScanFinished();
-
+	/// Calls the cleanup actions or simply AMDacqScanController::onDacqStop() if none are available
 	void onScanCancelledBeforeInitialized();
+	/// NOT USED AT THIS TIME
 	void onScanCancelledWhileRunning();
+
+protected:
+	/// Calls parent to create the initialization and cleanup actions and starts the initialization actions. Reports failure if unable to do so.
+	bool initializeImplementation();
+	/// Generates a dacq configuration file and sets up the dacq library based on the requested detectors, then calls AMDacqScanController::startImplementation().
+	bool startImplementation();
+	/// Cancels either the initialization actions (if initializing) or the scan (using AMDacqScanController::cancelImplementation).
+	void cancelImplementation();
+
+	/// Simple scan index returns 1D scan size
+	AMnDIndex toScanIndex(QMap<int, double> aeData);
 };
 
 #endif // ACQMAN_SGMXASDACQSCANCONTROLLER_H

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -133,12 +133,12 @@ AMScanConfiguration* AMBeamlineScanAction::cfg() const{
 	// Does the scan have a configuration?
 	AMScanConfiguration* config = scan->scanConfiguration();
 	if(!config) {
-		delete scan;
+		scan->release();
 		return 0; //NULL
 	}
 	// need to create a copy of the config so we can delete the scan (and hence the config instance owned by the scan). The view will take ownership of the copy.
 	config = config->createCopy();
-	delete scan;
+	scan->release();
 	if(!config)
 		return 0; //NULL
 	cfg_ = config;
@@ -174,16 +174,14 @@ bool AMBeamlineScanAction::configurationLocked() const{
 
 void AMBeamlineScanAction::start(){
 	if(!isReady()){
-		if(VERBOSE_ACTION_ITEMS)
-			qDebug() << "Not ready, connecting and waiting";
+		AMErrorMon::debug(this, AMBEAMLINEACTIONITEM_CONNECTEDWAITING_MESSAGE, QString("%1 Not ready, but connected and waiting.").arg((intptr_t)this));
 		connect(this, SIGNAL(ready(bool)), this, SLOT(start(bool)));
 		return;
 	}
 
 	if(!AMBeamlineActionItem::isReinitialized()){
 		configurationLocked_ = true;
-		if(VERBOSE_ACTION_ITEMS)
-			qDebug() << "Not reinitalized, creating new controller";
+		AMErrorMon::debug(this, AMBEAMLINEACTIONITEM_NOTREINITIALIZED_MESSAGE, QString("%1 Not reinitialized, creating new controller.").arg((intptr_t)this));
 		ctrl_ = cfg_->createController();
 		if(!ctrl_) {
 			AMErrorMon::report(AMErrorReport(this,
@@ -244,7 +242,7 @@ void AMBeamlineScanAction::start(){
 		connect(ctrl_, SIGNAL(resumed()), this, SLOT(onScanResumed()));
 	}
 	else {
-		qDebug() << "Reinitialized, no controller creation";
+//		qdebug() << "Reinitialized, no controller creation";
 	}
 
 	//Moved from onScanStarted. This action is started once we start initializing
@@ -513,20 +511,24 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	connect(playPauseButton_, SIGNAL(clicked()), this, SLOT(onPlayPauseButtonClicked()));
 	connect(moveActionUpButton_, SIGNAL(clicked()), this, SLOT(onMoveUpButtonClicked()));
 	connect(moveActionDownButton_, SIGNAL(clicked()), this, SLOT(onMoveDownButtonClicked()));
-	hl_ = new QHBoxLayout();
-	hl_->addWidget(scanNameLabel_, 0, Qt::AlignTop | Qt::AlignLeft);
-	hl_->addLayout(progressVL);
-	hl_->addWidget(playPauseButton_, 0, Qt::AlignTop | Qt::AlignRight);
-	hl_->addWidget(stopCancelButton_, 0, Qt::AlignTop | Qt::AlignRight);
+	firstRowLayout_ = new QHBoxLayout();
+	firstRowLayout_->addWidget(scanNameLabel_, 0, Qt::AlignTop | Qt::AlignLeft);
+	firstRowLayout_->addLayout(progressVL);
+	firstRowLayout_->addWidget(playPauseButton_, 0, Qt::AlignTop | Qt::AlignRight);
+	firstRowLayout_->addWidget(stopCancelButton_, 0, Qt::AlignTop | Qt::AlignRight);
 	QVBoxLayout *swapVL = new QVBoxLayout();
 	swapVL->addWidget(moveActionUpButton_);
 	swapVL->addWidget(moveActionDownButton_);
 	swapVL->setContentsMargins(0,0,0,0);
 	swapVL->setSpacing(0);
-	hl_->addLayout(swapVL);
+	firstRowLayout_->addLayout(swapVL);
+	secondRowLayout_ = new QHBoxLayout;
+	secondRowLayout_->addWidget(exportNameLabel_);
+
 	vl_ = new QVBoxLayout();
-	vl_->addLayout(hl_);
-	vl_->addWidget(exportNameLabel_);
+	vl_->addLayout(firstRowLayout_);
+	vl_->addLayout(secondRowLayout_);
+
 	//setLayout(hl_);
 	setLayout(vl_);
 	onPreviousNextChanged();
@@ -625,11 +627,11 @@ void AMBeamlineScanActionView::onScanFinished(){
 	cancelLatch_ = false;
 	disconnect(stopCancelButton_, SIGNAL(clicked()), this, SLOT(onStopCancelButtonClicked()));
 	disconnect(playPauseButton_, SIGNAL(clicked()), this, SLOT(onPlayPauseButtonClicked()));
-	hl_->removeWidget(stopCancelButton_);
-	hl_->removeWidget(playPauseButton_);
+	firstRowLayout_->removeWidget(stopCancelButton_);
+	firstRowLayout_->removeWidget(playPauseButton_);
 	stopCancelButton_->hide();
 	playPauseButton_->hide();
-	qDebug() << "Has succeeded " << scanAction_->hasSucceeded() << " has failed " << scanAction_->hasFailed() << " is running " << scanAction_->isRunning();
+//	qdebug() << "Has succeeded " << scanAction_->hasSucceeded() << " has failed " << scanAction_->hasFailed() << " is running " << scanAction_->isRunning();
 	updateLook();
 }
 
@@ -643,8 +645,8 @@ void AMBeamlineScanActionView::onScanFailed(int explanation){
 		timeRemainingLabel_->setText("Scan Failed");
 	disconnect(stopCancelButton_, SIGNAL(clicked()), this, SLOT(onStopCancelButtonClicked()));
 	disconnect(playPauseButton_, SIGNAL(clicked()), this, SLOT(onPlayPauseButtonClicked()));
-	hl_->removeWidget(stopCancelButton_);
-	hl_->removeWidget(playPauseButton_);
+	firstRowLayout_->removeWidget(stopCancelButton_);
+	firstRowLayout_->removeWidget(playPauseButton_);
 	stopCancelButton_->hide();
 	playPauseButton_->hide();
 

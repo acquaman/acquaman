@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -21,9 +21,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMCONTROLSETINFO_H
 #define AMCONTROLSETINFO_H
 
+#include <QDebug>
+
 #include "dataman/database/AMDbObject.h"
 #include "util/AMOrderedList.h"
-#include <QDebug>
 
 /// This class can be used to store the essential information and state of an AMControl, without actually needing to have a live control object. This information includes the name, units, value, minimum value, and maximum value.
 class AMControlInfo : public AMDbObject {

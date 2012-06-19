@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -111,7 +111,6 @@ AMElementValidator::AMElementValidator(AMElementsModel* model, QObject* parent)
 	model_ = model;
 	convertToSymbol_ = true;
 }
-#include <QDebug>
 
 void AMElementValidator::fixup(QString & text) const {
 
@@ -244,7 +243,7 @@ AMElementListEdit::AMElementListEdit(QWidget *parent) :
 void AMElementListEdit::onTextEdited(const QString& text) {
 
 	QStringList split = text.split(QRegExp("\\s*,+\\s*|\\s+"));
-	// qDebug() << split;
+	// qdebug() << split;
 	if(split.isEmpty())
 		completer_->setCompletionPrefix(QString());
 	else
@@ -252,7 +251,7 @@ void AMElementListEdit::onTextEdited(const QString& text) {
 
 	priorToPrefix_ = split.join(", ");
 
-	// qDebug() << "completion prefix:" << completer_->completionPrefix();
+	// qdebug() << "completion prefix:" << completer_->completionPrefix();
 	if(!completer_->completionPrefix().isEmpty())
 		completer_->complete();
 	else {

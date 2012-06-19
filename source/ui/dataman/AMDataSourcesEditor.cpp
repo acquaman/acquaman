@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -21,8 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMDataSourcesEditor.h"
 #include "ui/AMCloseItemDelegate.h"
 #include <QRegExpValidator>
-#include <QMenu>
-#include <QAction>
 
 #include "dataman/datasource/AMDataSource.h"
 #include "dataman/AMScan.h"
@@ -63,8 +61,8 @@ AMDataSourcesEditor::AMDataSourcesEditor(AMScanSetModel* model, QWidget *parent)
 	connect(ui_.descriptionEdit, SIGNAL(editingFinished()), this, SLOT(descriptionEditingFinished()));
 
 	showAllDataSources_ = false;
-	setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
+	ui_.scanSetView->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(ui_.scanSetView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
 }
 
 void AMDataSourcesEditor::onCustomContextMenuRequested(QPoint point)
@@ -74,7 +72,7 @@ void AMDataSourcesEditor::onCustomContextMenuRequested(QPoint point)
 	temp->setCheckable(true);
 	temp->setChecked(showAllDataSources_);
 
-	temp = popup.exec(mapToGlobal(point));
+	temp = popup.exec(mapToGlobal(ui_.scanSetView->mapToParent(point)));
 
 	// If a valid action was selected.
 	if (temp && temp->text() == "Show all data sources"){
@@ -250,66 +248,29 @@ int AMDataSourcesEditor::currentDataSourceIndex() const {
 	return i.row();
 }
 
-/// \todo Eventually, this button should support creating all kinds of available data sources, using a beautiful popup dialogue with buttons and icons and descriptions. For now, we only create AM1DExpressionAB (expression editors for 1D channels, to allow simply 1D normalization and calibration)
+#include "ui/AMAddAnalysisBlockDialog.h"
+
 void AMDataSourcesEditor::onAddDataSourceButtonClicked() {
 
-	QMenu popup(this);
-
 	int scanIndex = currentScanIndex();
+	QString newAnalysisBlock = AMAddAnalysisBlockDialog::getAnalysisBlock(model_->scanAt(scanIndex)->scanRank());
 
-	switch (model_->scanAt(scanIndex)->scanRank())	{
+	if (!newAnalysisBlock.isEmpty()){
 
-		case 0: // No specific options for 0D scans as of yet.
-		break;
+		nameOfAnalysisBlockToBeAdded_ = newAnalysisBlock;
+		removeDetailEditor();
 
-		case 1: {
+		// Data source names aren't editable after they've been created. Here we re-enable the nameEdit for editing shortly, and connect its editingFinished ... We'll complete the operation in onNewChannelNamed().
+		editingNewDataSourceName_ = true;
+		ui_.nameEdit->setReadOnly(false);
+		ui_.nameEdit->setText("newDataSourceName");
+		ui_.nameEdit->setFocus();
+		ui_.nameEdit->selectAll();
 
-			QAction *temp = popup.addAction("Add Derivative");
-			temp = popup.addAction("Add Integral");
-			temp = popup.addAction("Add Expression");
-			temp = popup.addAction("Add 2D Summing");
+		ui_.descriptionEdit->clear();
 
-			temp = popup.exec(mapToGlobal(ui_.addDataSourceButton->pos()));
-
-			// If a valid action was selected.
-			if (temp){
-
-				if (temp->text() == "Add Derivative")
-					nameOfAnalysisBlockToBeAdded_ = "Derivative";
-				else if (temp->text() == "Add Integral")
-					nameOfAnalysisBlockToBeAdded_ = "Integral";
-				else if (temp->text() == "Add Expression")
-					nameOfAnalysisBlockToBeAdded_ = "Expression";
-				else if (temp->text() == "Add 2D Summing")
-					nameOfAnalysisBlockToBeAdded_ = "2D Summing";
-			}
-
-			break;
-		}
-
-		case 2: {
-
-			QAction *temp = popup.addAction("2D Map Normalization");
-
-			temp = popup.exec(mapToGlobal(ui_.addDataSourceButton->pos()));
-
-			if (temp && temp->text() == "2D Map Normalization")
-				nameOfAnalysisBlockToBeAdded_ = "2D Map Normalization";
-		}
+		connect(ui_.nameEdit, SIGNAL(editingFinished()), this, SLOT(onNewDataSourceNamed()));
 	}
-
-	removeDetailEditor();
-
-	/// Data source names aren't editable after they've been created. Here we re-enable the nameEdit for editing shortly, and connect its editingFinished ... We'll complete the operation in onNewChannelNamed().
-	editingNewDataSourceName_ = true;
-	ui_.nameEdit->setReadOnly(false);
-	ui_.nameEdit->setText("newDataSourceName");
-	ui_.nameEdit->setFocus();
-	ui_.nameEdit->selectAll();
-
-	ui_.descriptionEdit->clear();
-
-	connect(ui_.nameEdit, SIGNAL(editingFinished()), this, SLOT(onNewDataSourceNamed()));
 
 }
 
@@ -319,8 +280,8 @@ void AMDataSourcesEditor::onAddDataSourceButtonClicked() {
 #include "analysis/AM2DSummingAB.h"
 #include "analysis/AM1DIntegralAB.h"
 #include "analysis/AM2DNormalizationAB.h"
+#include "analysis/AM1DNormalizationAB.h"
 
-/// \todo Eventually, this button should support creating all kinds of available data sources (raw, and analysis blocks), using a beautiful popup dialogue with buttons and icons and descriptions. For now, we only create AM1DExpressionAB (expression editors for 1D channels, to allow simply 1D normalization and calibration)
 void AMDataSourcesEditor::onNewDataSourceNamed() {
 
 	if(!editingNewDataSourceName_)
@@ -392,6 +353,12 @@ void AMDataSourcesEditor::onNewDataSourceNamed() {
 
 		newAnalysisBlock = new AM2DSummingAB(chName);
 		newAnalysisBlock->setInputDataSources(twoDimDataSources);
+	}
+
+	else if (nameOfAnalysisBlockToBeAdded_ == "Normalization"){
+
+		newAnalysisBlock = new AM1DNormalizationAB(chName);
+		newAnalysisBlock->setInputDataSources(singleDimDataSources);
 	}
 
 	else if (nameOfAnalysisBlockToBeAdded_ == "2D Map Normalization"){

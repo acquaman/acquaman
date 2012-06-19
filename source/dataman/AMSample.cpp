@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -52,8 +52,6 @@ void AMSample::destroySample(AMDatabase* db, int id) {
 }
 
 #include "util/AMPeriodicTable.h"
-
-#include <QDebug>
 
 // Format the elements into a string: ex: "B, N, Cl"
 QString AMSample::elementString() const {

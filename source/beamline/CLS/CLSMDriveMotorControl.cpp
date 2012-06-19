@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -24,5 +24,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 CLSMDriveMotorControl::CLSMDriveMotorControl(const QString &name, const QString &baseName, const QString& units, double unitsPerRev, double offset, int microsteps, const QString &description, double tolerance, double moveStartTimeoutSeconds, QObject *parent)
 	: AMPVwStatusAndUnitConversionControl(name, baseName % ":enc:fbk", baseName % ":step", baseName % ":status", baseName % ":stop", new AMScaleAndOffsetUnitConverter(units, unitsPerRev/4000.0, offset), new AMScaleAndOffsetUnitConverter(units, unitsPerRev/(200.0*microsteps), offset), parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerDefault(1), 1, description) {
+
+	// Unlike MaxV controllers, these motors can support move updates while moving:
+	setAllowsMovesWhileMoving(true);
+	// Because of the polled communication, it can take a while for these motors to send MOVE ACTIVE then MOVE DONE for null moves.  We use the moveStartThreshold to say that moves within 5 microsteps can be considered to already be in position.
+	setMoveStartTolerance(5);	// in microsteps.
 
 }

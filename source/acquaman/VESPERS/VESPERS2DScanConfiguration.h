@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef VESPERS2DSCANCONFIGURATION_H
 #define VESPERS2DSCANCONFIGURATION_H
 
@@ -21,9 +40,12 @@ class VESPERS2DScanConfiguration : public AM2DScanConfiguration
 
 	Q_PROPERTY(int incomingChoice READ incomingChoice WRITE setIncomingChoice)
 	Q_PROPERTY(int fluorescenceDetectorChoice READ fluorescenceDetectorChoice WRITE setFluorescenceDetectorChoice)
+	Q_PROPERTY(int motorsChoice READ motorsChoice WRITE setMotorsChoice)
 	Q_PROPERTY(bool usingCCD READ usingCCD WRITE setUsingCCD)
+	Q_PROPERTY(QString ccdFileName READ ccdFileName WRITE setCCDFileName)
 	Q_PROPERTY(AMDbObject* roiInfoList READ dbGetROIInfoList WRITE dbLoadROIInfoList)
 	Q_PROPERTY(QString rois READ readRoiList WRITE writeRoiList)
+	Q_PROPERTY(QString header READ headerText WRITE setHeaderText)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS 2D Scan Configuration")
 
@@ -32,6 +54,8 @@ public:
 	enum FluorescenceDetector { None = 0, SingleElement, FourElement };
 	/// Enum for the ion chambers.  Used when choosing It and I0.
 	enum IonChamber { Isplit = 0, Iprekb, Imini, Ipost };
+	/// Enum for which two motors should be used for scanning the horizontal and vertical directions.  Currently there are only HandV and XandZ, but in the future there will be more (eg: nanoCube, big beam).
+	enum MotorsChoice { HAndV = 0, XAndZ };
 
 	/// Constructor.
 	Q_INVOKABLE VESPERS2DScanConfiguration(QObject *parent = 0);
@@ -51,20 +75,24 @@ public:
 	virtual QString detailedDescription() const;
 
 	/// Returns the x-axis name.
-	virtual QString xAxisName() const { return "Horizontal"; }
+	virtual QString xAxisName() const;
 	/// Returns the x-axis units.
-	virtual QString xAxisUnits() const { return "mm"; }
+	virtual QString xAxisUnits() const;
 	/// Returns the y-axis name.
-	virtual QString yAxisName() const  { return "Vertical"; }
+	virtual QString yAxisName() const;
 	/// Returns teh y-axis units.
-	virtual QString yAxisUnits() const  { return "mm"; }
+	virtual QString yAxisUnits() const;
 
 	/// Returns the current I0 ion chamber choice.
 	IonChamber incomingChoice() const { return I0_; }
 	/// Returns the current fluorescence detector choice.
 	FluorescenceDetector fluorescenceDetectorChoice() const { return fluorescenceDetectorChoice_; }
+	/// Returns the current motor choice.
+	MotorsChoice motorsChoice() const { return motorsChoice_; }
 	/// Returns whether the scan is using the CCD or not.
 	bool usingCCD() const { return usingCCD_; }
+	/// Returns the CCD file name.
+	QString ccdFileName() const { return ccdFileName_; }
 
 	/// Returns the current total estimated time for a scan to complete.
 	double totalTime() const { return totalTime_; }
@@ -81,6 +109,11 @@ public:
 	/// This function does nothing.  It is there to preserve the fact that the database needs to be able to read and write.
 	void writeRoiList(QString) {}
 
+	/// Get a nice looking string that contains all the standard information in an XAS scan.   Used when exporting.
+	QString headerText() const;
+	/// This function does nothing.  It is there to preserve the fact that the database needs to be able to read and write.
+	void setHeaderText(QString) {}
+
 	// Database loading and storing
 	///////////////////////
 
@@ -92,24 +125,40 @@ public:
 signals:
 	/// Notifier that the incoming choice has changed.
 	void incomingChoiceChanged(IonChamber);
+	/// Same signal.  Just passing as an int.
+	void incomingChoiceChanged(int);
 	/// Notifier that the fluorescence choice has changed.
 	void fluorescenceDetectorChoiceChanged(FluorescenceDetector);
+	/// Same signal.  Just passing as an int.
+	void fluorescenceDetectorChoiceChanged(int);
+	/// Notifier that the motors choice has changed.
+	void motorsChoiceChanged(MotorsChoice);
+	/// Same signal.  Just passing as an int.
+	void motorsChoiceChanged(int);
 	/// Notifier that the flag for whether the CCD will be used has changed.
 	void usingCCDChanged(bool);
+	/// Notifier that the name of the CCD file name has changed.
+	void ccdFileNameChanged(QString);
 	/// Notifier that the total time estimate has changed.
 	void totalTimeChanged(double);
 
 public slots:
 	/// Sets the choice for I0 ion chamber.
-	void setIncomingChoice(IonChamber I0) { I0_ = I0; emit incomingChoiceChanged(I0_); setModified(true); }
+	void setIncomingChoice(IonChamber I0);
 	/// Overloaded.  Used for database loading.
 	void setIncomingChoice(int I0) { setIncomingChoice((IonChamber)I0); }
 	/// Sets the choice for the fluorescence detector.
-	void setFluorescenceDetectorChoice(FluorescenceDetector detector) { fluorescenceDetectorChoice_ = detector; emit fluorescenceDetectorChoiceChanged(fluorescenceDetectorChoice_); setModified(true); }
+	void setFluorescenceDetectorChoice(FluorescenceDetector detector);
 	/// Overloaded.  Used for database loading.
 	void setFluorescenceDetectorChoice(int detector) { setFluorescenceDetectorChoice((FluorescenceDetector)detector); }
+	/// Sets the choice for the set of motors used for scanning.
+	void setMotorsChoice(MotorsChoice choice);
+	/// Overloaded.  Used for database loading.
+	void setMotorsChoice(int choice) { setMotorsChoice((MotorsChoice)choice); }
 	/// Sets whether the scan should be using the CCD or not.
 	void setUsingCCD(bool use) { usingCCD_ = use; emit usingCCDChanged(use); setModified(true); }
+	/// Sets the file name for the CCD files.
+	void setCCDFileName(const QString &name) { ccdFileName_ = name; emit ccdFileNameChanged(ccdFileName_); setModified(true); }
 	/// Sets the time offset used for estimating the scan time.
 	void setTimeOffset(double offset) { timeOffset_ = offset; computeTotalTime(); }
 
@@ -125,8 +174,12 @@ protected:
 	IonChamber I0_;
 	/// Fluorescence detector choice.
 	FluorescenceDetector fluorescenceDetectorChoice_;
+	/// Motor choice for which set of motors will be used.
+	MotorsChoice motorsChoice_;
 	/// Flag holding whether the scan should use the CCD detector or not.
 	bool usingCCD_;
+	/// The file name (minus number, path and extension of the file) for the CCD.
+	QString ccdFileName_;
 	/// The list holding all the current ROIs for the detector.
 	AMROIInfoList roiInfoList_;
 	/// Holds the total time in seconds that the scan is estimated to take.

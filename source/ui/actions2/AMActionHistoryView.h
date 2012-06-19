@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef AMACTIONHISTORYVIEW_H
 #define AMACTIONHISTORYVIEW_H
 
@@ -9,6 +28,8 @@
 #include "util/AMDeferredFunctionCall.h"
 
 class AMActionLog;
+
+#define AMACTIONHISTORYVIEW_CANNOT_LOAD_ACTION_LOG -2257
 
 /// This item class is used to cache the details of a completed workflow action inside AMActionHistoryModel. You should never need to use this class directly.
 /*! We use it instead of full AMActionLog instances, so that we don't have to load the complete AMActionInfo (which, depending on the subclass, could be a lot to load.)*/

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDropEvent>
 #include <QList>
 #include <QUrl>
+#include <QTimer>
+#include <QStringBuilder>
 
 #include "acquaman.h"
 
@@ -38,6 +40,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMDataSourcesEditor.h"
 #include "ui/dataman/AMChooseScanDialog.h"
 #include "ui/dataman/AMControlInfoListTableView.h"
+#include "ui/dataman/AM2DScanView.h"
+
+#include "util/AMFontSizes.h"
 
 #ifndef ACQUAMAN_NO_ACQUISITION
 // needed to stop scans in progress, if requested from here during close events.
@@ -48,6 +53,8 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	QWidget(parent)
 {
 	ui_.setupUi(this);
+	ui_.topFrameTitle->setStyleSheet("font: " AM_FONT_LARGE_ "pt \"Lucida Grande\";\ncolor: rgb(79, 79, 79);");
+	ui_.statusTextLabel->setStyleSheet("color: white;\nfont: bold " AM_FONT_SMALL_ "pt \"Lucida Grande\"");
 	setWindowTitle("Scan Editor");
 
 	// Add extra UI components:
@@ -60,6 +67,9 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	scanView_ = new AMScanView();
 	scanView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	ui_.leftVerticalLayout->insertWidget(0, scanView_, 2);
+
+	// Ensure that the 2D scan view is pointing to nowhere.
+	scanView2D_ = 0;
 
 	// share the scan set model with the AMScanView
 	scanSetModel_ = scanView_->model();
@@ -95,11 +105,106 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	stackWidget_->addItem("Beamline Information", conditionsTableView_);
 	stackWidget_->collapseItem(2);
 
+	connect(ui_.notesEdit, SIGNAL(textChanged()), this, SLOT(onNotesTextChanged()));
+
+	// watch for changes in the selected/deselected scans:
+	connect(ui_.scanListView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentChanged(QModelIndex,QModelIndex)));
+
+	// \todo make this whole window accept drops of scans, with the 'amd://database/table/id' uri-list mime type
+	setAcceptDrops(true);
+
+	currentScan_ = 0;
+
+	// disable drops on text fields that we don't want to accept drops
+	ui_.scanName->setAcceptDrops(false);
+	ui_.notesEdit->setAcceptDrops(false);
 
 
+	// Connect open,save,close buttons
+	connect(ui_.openScanButton, SIGNAL(clicked()), this, SLOT(onOpenScanButtonClicked()));
+	connect(ui_.closeScanButton, SIGNAL(clicked()), this, SLOT(onCloseScanButtonClicked()));
+	connect(ui_.saveScanButton, SIGNAL(clicked()), this, SLOT(onSaveScanButtonClicked()));
+
+	// close button and save buttons are initially disabled; there's no scan to act on
+	ui_.closeScanButton->setEnabled(false);
+	ui_.saveScanButton->setEnabled(false);
+
+	chooseScanDialog_ = 0;
+
+	QTimer* oneSecondTimer = new QTimer(this);
+	connect(oneSecondTimer, SIGNAL(timeout()), this, SLOT(onOneSecondTimer()));
+	oneSecondTimer->start(1000);
+}
+
+AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
+	: QWidget(parent)
+{
+	ui_.setupUi(this);
+	ui_.topFrameTitle->setStyleSheet("font: " AM_FONT_LARGE_ "pt \"Lucida Grande\";\ncolor: rgb(79, 79, 79);");
+	ui_.statusTextLabel->setStyleSheet("color: white;\nfont: bold " AM_FONT_SMALL_ "pt \"Lucida Grande\"");
+	setWindowTitle("Scan Editor");
+
+	// Add extra UI components:
+	stackWidget_ = new AMVerticalStackWidget();
+	stackWidget_->setMinimumWidth(200);
+	stackWidget_->setMaximumWidth(360);
+	ui_.rightVerticalLayout->addWidget(stackWidget_);
+
+	// Add scan view (plots)
+	if (use2DScanView){
+
+		scanView_ = 0;
+		scanView2D_ = new AM2DScanView();
+		scanView2D_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+		ui_.leftVerticalLayout->insertWidget(0, scanView2D_, 2);
+
+		// share the scan set model with the AMScanView
+		scanSetModel_ = scanView2D_->model();
+
+		connect(scanView2D_, SIGNAL(dataPositionChanged(QPoint)), this, SLOT(onDataPositionChanged(QPoint)));
+	}
+
+	else {
+
+		scanView2D_ = 0;
+		scanView_ = new AMScanView();
+		scanView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+		ui_.leftVerticalLayout->insertWidget(0, scanView_, 2);
+
+		// share the scan set model with the AMScanView
+		scanSetModel_ = scanView_->model();
+	}
+
+	// And set this model on the list view of scans:
+	ui_.scanListView->setModel(scanSetModel_);
+	ui_.scanListView->setSelectionMode(QAbstractItemView::SingleSelection);
+
+	AMDetailedItemDelegate* del = new AMDetailedItemDelegate(this);
+	del->setCloseButtonsEnabled(true);
+	connect(del, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onScanModelCloseClicked(QModelIndex)));
+	ui_.scanListView->setItemDelegate(del);
+	ui_.scanListView->setAlternatingRowColors(true);
+	ui_.scanListView->setAttribute( Qt::WA_MacShowFocusRect, false);
+
+	// Add run selector:
+	runSelector_ = new AMRunSelector(AMDatabase::database("user"));
+	ui_.scanInfoLayout->insertWidget(1, runSelector_);
 
 
+	// Add detailed editor widgets:
+	QWidget* sampleEditorHolder = new QWidget();	// just used to add a margin around the sample editor itself, which has no margins.
+	sampleEditorHolder->setLayout(new QVBoxLayout);
+	sampleEditor_ = new AMSampleEditor(AMDatabase::database("user"));
+	sampleEditorHolder->layout()->addWidget(sampleEditor_);
+	stackWidget_->addItem("Sample Information", sampleEditorHolder);
 
+	dataSourcesEditor_ = new AMDataSourcesEditor(scanSetModel_);
+	stackWidget_->addItem("Data Sets", dataSourcesEditor_);
+
+	conditionsTableView_ = new AMControlInfoListTableView();
+	conditionsTableView_->setMinimumHeight(200);
+	stackWidget_->addItem("Beamline Information", conditionsTableView_);
+	stackWidget_->collapseItem(2);
 
 	connect(ui_.notesEdit, SIGNAL(textChanged()), this, SLOT(onNotesTextChanged()));
 
@@ -128,17 +233,44 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 
 	chooseScanDialog_ = 0;
 
+	QTimer* oneSecondTimer = new QTimer(this);
+	connect(oneSecondTimer, SIGNAL(timeout()), this, SLOT(onOneSecondTimer()));
+	oneSecondTimer->start(1000);
 }
-
 
 AMGenericScanEditor::~AMGenericScanEditor() {
 	while(scanSetModel_->scanCount()) {
 		AMScan* s = scanSetModel_->scanAt(scanSetModel_->scanCount()-1);
 		scanSetModel_->removeScan(s);
-		delete s;
 	}
 }
 
+QPointF AMGenericScanEditor::dataPosition() const
+{
+	if (scanView2D_)
+		return scanView2D_->dataPosition();
+
+	return QPointF();
+}
+
+QRectF AMGenericScanEditor::selectedRect() const
+{
+	if (scanView2D_)
+		return scanView2D_->selectedRect();
+
+	return QRectF();
+}
+void AMGenericScanEditor::setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange)
+{
+	if (scanView2D_)
+		scanView2D_->setAxisInfoForSpectrumView(info, propogateToPlotRange);
+}
+
+void AMGenericScanEditor::setPlotRange(double low, double high)
+{
+	if (scanView2D_)
+		scanView2D_->setPlotRange(low, high);
+}
 
 void AMGenericScanEditor::addScan(AMScan* newScan) {
 	scanSetModel_->addScan(newScan);
@@ -184,8 +316,6 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 
 	// disconnect the old scan:
 	if(currentScan_) {
-		// removed: disconnect(currentScan_, SIGNAL(metaDataChanged()), this, SLOT(onScanMetaDataChanged()));
-
 		disconnect(ui_.scanName, 0, currentScan_, 0);
 		disconnect(ui_.scanNumber, 0, currentScan_, 0);
 		disconnect(this, SIGNAL(notesChanged(QString)), currentScan_, SLOT(setNotes(QString)));
@@ -230,26 +360,25 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 
 }
 
-/* removed:
-void AMGenericScanEditor::onScanMetaDataChanged() {
-
-	// hmmm... should we change the editor values? What if the scan is altered elsewhere...
-	// what if they changed it first? But haven't saved yet?
-}*/
 
 void AMGenericScanEditor::updateEditor(AMScan *scan) {
 	if(scan) {
 
 		ui_.scanName->setText(scan->name());
-		//ui_.scanName->setText(scan->evaluatedName());
 		ui_.scanNumber->setValue(scan->number());
 		ui_.scanDate->setText( AMDateTimeUtils::prettyDate(scan->dateTime()));
+		ui_.scanDuration->setText(scan->currentlyScanning() ? ("Acquiring " % AMDateTimeUtils::prettyDuration(currentScan_->dateTime(), QDateTime::currentDateTime(), true))
+															: AMDateTimeUtils::prettyDuration(scan->dateTime(), scan->endDateTime()));
 		ui_.scanTime->setText( scan->dateTime().time().toString("h:mmap") );
 		ui_.notesEdit->setPlainText( scan->notes() );
 		runSelector_->setCurrentRunId(scan->runId());
 		sampleEditor_->setCurrentSample(scan->sampleId());
 		dataSourcesEditor_->setCurrentScan(scan);
 		conditionsTableView_->setFromInfoList(scan->scanInitialConditions());
+
+		// Only the 2D scan view currently uses a current scan.  But only pass it if it exists.
+		if (scanView2D_)
+			scanView2D_->setCurrentScan(scan);
 
 		//ui_.topFrameTitle->setText(QString("Editing %1 #%2").arg(scan->name()).arg(scan->number()));
 		ui_.topFrameTitle->setText(QString("Editing %1").arg(scan->fullName()));
@@ -259,6 +388,7 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		ui_.scanName->setText( QString() );
 		ui_.scanNumber->setValue(0);
 		ui_.scanDate->setText( QString() );
+		ui_.scanDuration->setText( QString() );
 		ui_.scanTime->setText( QString() );
 		ui_.notesEdit->clear();
 
@@ -267,6 +397,10 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		sampleEditor_->setCurrentSample(-1);
 		dataSourcesEditor_->setCurrentScan(0);
 		conditionsTableView_->setFromInfoList(0);
+
+		// Only the 2D scan view currently uses a current scan.  But only pass it if it exists.
+		if (scanView2D_)
+			scanView2D_->setCurrentScan(0);
 
 		ui_.topFrameTitle->setText("Scan Editor");
 	}
@@ -277,26 +411,25 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 void AMGenericScanEditor::onScanModelCloseClicked(const QModelIndex& index) {
 	// Just a quick check to make sure that this is a valid scan index (ie: parent is a top-level index; index.row() is the scan index)
 	if(index.parent() == QModelIndex() && index.isValid())
-		deleteScanWithModifiedCheck(scanSetModel_->scanAt(index.row()));
+		removeScanWithModifiedCheck(scanSetModel_->scanAt(index.row()));
 
 }
 
 #include <QMessageBox>
 #include <QApplication>
-// Remove a scan and delete it, but ask the user for confirmation if it's been modified.
-bool AMGenericScanEditor::deleteScanWithModifiedCheck(AMScan* scan) {
+// Remove a scan, but ask the user for confirmation if it's been modified.
+bool AMGenericScanEditor::removeScanWithModifiedCheck(AMScan* scan) {
 
 #ifndef ACQUAMAN_NO_ACQUISITION
 	// Potential problem 1: Is the scan acquiring?
 	if(scan->scanController()) {	// look for a valid scanController().
-		AMGenericScanEditor::ShouldStopAcquiringScanChoice response = shouldStopAcquiringScan(scan);
-		if(response == AMGenericScanEditor::ShouldStopYes) {
-			// stop the scan. Warning: this won't happen instantly... there's event driven handling in the scan controller. For now, the user will have to re-initiate whatever top-level action caused this.
+		if(shouldStopAcquiringScan(scan)) {
+			// stop the scan. Warning: this won't happen instantly... there's event driven handling in the scan controller. However, since we won't delete the scan (only release our interest), we can remove it.
 			scan->scanController()->cancel();
-			/// \todo Test out processing events from inside here, for maybe up to a few seconds, until the scan is done, and then delete it and return true?
+			removeScan(scan);
+			return true;
 		}
-		// because we can't ensure the scan has stopped, we can't continue and delete it. The user will have to re-initiate this action now that the scan is done.
-		else if(response == AMGenericScanEditor::ShouldStopNo)
+		else	// Note: it is possible to close the editor and let the scan keep acquiring. Is that something we want to let users do? For now, no.
 			return false;
 	}
 #endif
@@ -307,7 +440,7 @@ bool AMGenericScanEditor::deleteScanWithModifiedCheck(AMScan* scan) {
 		int result = shouldSaveModifiedScan(scan);
 
 		if(result == QMessageBox::Discard) {
-			deleteScan(scan);
+			removeScan(scan);
 			return true;
 		}
 		else if(result == QMessageBox::Save) {
@@ -318,7 +451,7 @@ bool AMGenericScanEditor::deleteScanWithModifiedCheck(AMScan* scan) {
 				saveSuccess = scan->storeToDb(AMDatabase::database("user"));
 
 			if(saveSuccess) {
-				deleteScan(scan);
+				removeScan(scan);
 				return true;
 			}
 			else {
@@ -330,11 +463,10 @@ bool AMGenericScanEditor::deleteScanWithModifiedCheck(AMScan* scan) {
 		}
 	}
 
-	// No issues, just delete and return success.
-	else {
-		deleteScan(scan);
-		return true;
-	}
+	// No issues, just remove and return success.
+
+	removeScan(scan);
+	return true;
 }
 
 // Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)
@@ -382,58 +514,26 @@ bool AMGenericScanEditor::dropScanURLs(const QList<QUrl>& urls) {
 	bool accepted = false;
 
 	foreach(QUrl url, urls) {
-		// scheme correct?
-		if(url.scheme() != "amd")
-			break;
 
-		// Can we connect to the database?
-		AMDatabase* db = AMDatabase::database(url.host());
-		if(!db)
-			break;
-		// \bug This does not verify that the incoming scans came from the user database. In fact, it happily accepts scans from other databases. Check if we assume anywhere else inside AMGenericScanEditor that we're using the AMDatabase::database("user") database. (If we do, this could cause problems.)
+		bool isScanning;
+		QString scanName;
+		AMScan* scan = AMScan::createFromDatabaseUrl(url, false, &isScanning, &scanName);
 
-		QStringList path = url.path().split('/', QString::SkipEmptyParts);
-		if(path.count() != 2)
-			break;
-
-		QString tableName = path.at(0);
-		bool idOkay;
-		int id = path.at(1).toInt(&idOkay);
-		if(!idOkay || id < 1)
-			break;
-
-		// Only open AMScans or subclasses in the AMScans table.
-		if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
-			break;
-
-		// Check if this scan is acquiring, and refuse to open if so.
-		// Use the currentlyScanning column stored in the database.
-		QVariant isScanning = db->retrieve(id, tableName, "currentlyScanning");
-		if(!isScanning.isValid())
-			return false;
-		if(isScanning.toBool()) {
-			QList<QVariant> nameAndNumber = db->retrieve(id, tableName, QStringList() << "name" << "number");
+		// See if this scan is acquiring, and refuse to create a new instance if so.
+		/// \todo With the new AMScan memory management model, we could actually open the existing AMScan* instance in multiple editors if desired... But propagation of changes under editing might be a problem; all editors currently assuming they are the only ones modifying the scan.
+		if(isScanning) {
 			QMessageBox stillScanningEnquiry;
 			stillScanningEnquiry.setWindowTitle("This scan is still acquiring.");
-			stillScanningEnquiry.setText(QString("The scan '%1' (#%2) is currently still acquiring data, so you can't open multiple copies of it yet.")
-										 .arg(nameAndNumber.at(0).toString())
-										 .arg(nameAndNumber.at(1).toString()));
+			stillScanningEnquiry.setText(QString("The scan '%1' is currently still acquiring data, so you can't open multiple copies of it yet.")
+										 .arg(scanName));
 			stillScanningEnquiry.setIcon(QMessageBox::Information);
 			stillScanningEnquiry.addButton(QMessageBox::Ok);
 			stillScanningEnquiry.exec();
-			return false;
+			continue;
 		}
 
-		// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
-		AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
-		if(!dbo)
-			break;
-
-		AMScan* scan = qobject_cast<AMScan*>( dbo );
-		if(!scan) {
-			delete dbo;
-			break;
-		}
+		if(!scan)
+			continue;
 
 		// success!
 		addScan(scan);
@@ -447,7 +547,7 @@ void AMGenericScanEditor::onCloseScanButtonClicked() {
 	// this function is ready for when multiple scan selection is enabled
 	QModelIndexList scanIndexes = ui_.scanListView->selectionModel()->selectedIndexes();
 	foreach(QModelIndex i, scanIndexes) {
-		deleteScanWithModifiedCheck(scanSetModel_->scanAt(i.row()));
+		removeScanWithModifiedCheck(scanSetModel_->scanAt(i.row()));
 	}
 }
 
@@ -472,9 +572,8 @@ void AMGenericScanEditor::onOpenScanButtonClicked() {
 	chooseScanDialog_->show();
 }
 
-void AMGenericScanEditor::deleteScan(AMScan *scan) {
+void AMGenericScanEditor::removeScan(AMScan *scan) {
 	scanSetModel_->removeScan(scan);
-	delete scan;
 	refreshWindowTitle();
 }
 
@@ -489,17 +588,16 @@ void AMGenericScanEditor::closeEvent(QCloseEvent* e)
 	e->setAccepted(canCloseEditor());
 
 	if(e->isAccepted()) {
-		// delete all scans
+		// remove all scans
 		while(scanSetModel_->scanCount()) {
 			AMScan* s = scanSetModel_->scanAt(scanSetModel_->scanCount()-1);
 			scanSetModel_->removeScan(s);
-			delete s;
 		}
 	}
 
 }
 
-AMGenericScanEditor::ShouldStopAcquiringScanChoice AMGenericScanEditor::shouldStopAcquiringScan(AMScan *scan)
+bool AMGenericScanEditor::shouldStopAcquiringScan(AMScan *scan)
 {
 	QMessageBox scanningEnquiry;
 	scanningEnquiry.setText(QString("The scan '%1' (#%2) is still acquiring.")
@@ -508,18 +606,15 @@ AMGenericScanEditor::ShouldStopAcquiringScanChoice AMGenericScanEditor::shouldSt
 	scanningEnquiry.setInformativeText("You can't close this scan while it's still acquiring. Do you want to stop it?");
 	scanningEnquiry.setIcon(QMessageBox::Question);
 	QPushButton* stopScanButton = scanningEnquiry.addButton("Stop Scan", QMessageBox::AcceptRole);
-	QPushButton *forceQuitButton = scanningEnquiry.addButton("Force Quit", QMessageBox::AcceptRole);
 	scanningEnquiry.addButton(QMessageBox::Cancel);
 	scanningEnquiry.setDefaultButton(QMessageBox::Cancel);
 	scanningEnquiry.setEscapeButton(QMessageBox::Cancel);
 
 	scanningEnquiry.exec();
 	if(scanningEnquiry.clickedButton() == stopScanButton)
-		return AMGenericScanEditor::ShouldStopYes;
-	else if(scanningEnquiry.clickedButton() == forceQuitButton)
-		return AMGenericScanEditor::ShouldStopForceQuit;
+		return true;
 	else
-		return AMGenericScanEditor::ShouldStopNo;
+		return false;
 }
 
 int AMGenericScanEditor::shouldSaveModifiedScan(AMScan *scan)
@@ -544,13 +639,11 @@ bool AMGenericScanEditor::canCloseEditor()
 	for(int i=0; i<scanCount(); i++) {
 		AMScan* scan = scanAt(i);
 		if(scan->scanController()) {
-			// is still scanning. Can't close.
-			AMGenericScanEditor::ShouldStopAcquiringScanChoice response = shouldStopAcquiringScan(scan);
-			if(response == AMGenericScanEditor::ShouldStopYes) {
-				scan->scanController()->cancel();
-				canClose=false; // unfortunately, still can't close, because we can't guaranntee right now that the scan was stopped
+			// is still scanning.
+			if(shouldStopAcquiringScan(scan)) {
+				scan->scanController()->cancel(); // Since we won't delete the scan ourselves, but we know it's going to stop at some point, we can safely close. Don't set canClose to false.
 			}
-			else if(response == AMGenericScanEditor::ShouldStopNo){
+			else {
 				return false;	// they chose to cancel, so don't bother asking about anything else.
 			}
 		}
@@ -586,4 +679,48 @@ bool AMGenericScanEditor::canCloseEditor()
 	}
 
 	return canClose;
+}
+
+void AMGenericScanEditor::onOneSecondTimer()
+{
+	if(currentScan_) {
+		if(currentScan_->currentlyScanning())
+			ui_.scanDuration->setText("Acquiring " % AMDateTimeUtils::prettyDuration(currentScan_->dateTime(), QDateTime::currentDateTime(), true));
+		else {
+			// this is a cheap easy way to find out if we've switched from acquiring to not acquiring, and therefore should put in the final duration
+			if(ui_.scanDuration->text().startsWith("Acqu")) {
+				ui_.scanDuration->setText(AMDateTimeUtils::prettyDuration(currentScan_->dateTime(), currentScan_->endDateTime()));
+			}
+		}
+	}
+
+}
+
+#include <QFileDialog>
+void AMGenericScanEditor::exportGraphicsToFile()
+{
+	QString fileName = QFileDialog::getSaveFileName(this, "Save Graphics As...", QString(), "PDF Files (*.pdf)", 0, QFileDialog::DontConfirmOverwrite);
+
+	if(!fileName.isEmpty()) {
+		if(!fileName.endsWith(".pdf", Qt::CaseInsensitive))
+			fileName.append(".pdf");
+
+		QFileInfo info(fileName);
+		if (info.exists() && QMessageBox::Cancel == QMessageBox::warning(this,
+													"File already exists...",
+													QString("%1 already exists.  Would you like to overwrite it?").arg(info.fileName()),
+													QMessageBox::Cancel,
+													QMessageBox::Save))
+			return;
+
+		if(!using2DScanView()) {
+			scanView_->exportGraphicsFile(fileName);
+			AMErrorMon::information(this, 0, QString("Exported the current plot to '%1'").arg(fileName));
+		}
+
+		else {
+			scanView2D_->exportGraphicsFile(fileName);
+			AMErrorMon::information(this, 0, QString("Exported the current plot to '%1'").arg(fileName));
+		}
+	}
 }

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -42,7 +42,7 @@ public:
 
 protected:
 	/// Holds the additional SGM Information for elements
-	AMOrderedSet<AMElement*, SGMElementInfo*> sgmPeriodicTableInfo_;
+	AMOrderedSet<const AMElement*, SGMElementInfo*> sgmPeriodicTableInfo_;
 
 	/// Singleton instance variable
 	static SGMPeriodicTable *instance_;

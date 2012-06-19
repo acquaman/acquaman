@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -24,7 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSBeamline.h"
 
 #include <QGridLayout>
-#include <QDebug>
 #include <QList>
 #include <QGroupBox>
 #include <QVBoxLayout>
@@ -85,7 +84,7 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	connect(lightBulb_, SIGNAL(toggled(bool)), this, SLOT(lightBulbToggled(bool)));
 
 	// Setup the GUI with the soft limits.
-	config_ = new VESPERSEndstationConfigurationView;
+	config_ = new VESPERSEndstationLimitsView;
 	config_->hide();
 	connect(config_, SIGNAL(configurationChanged()), endstation_, SLOT(loadConfiguration()));
 
@@ -226,7 +225,7 @@ void VESPERSEndstationView::lightBulbToggled(bool pressed)
 ///////////////////////////////////////////////////////////////////////
 // Endstation Configuration
 
-VESPERSEndstationConfigurationView::VESPERSEndstationConfigurationView(QWidget *parent)
+VESPERSEndstationLimitsView::VESPERSEndstationLimitsView(QWidget *parent)
 	: QWidget(parent)
 {
 	setWindowTitle("Endstation Configuration");
@@ -352,7 +351,7 @@ VESPERSEndstationConfigurationView::VESPERSEndstationConfigurationView(QWidget *
 	setLayout(configLayout);
 }
 
-void VESPERSEndstationConfigurationView::saveFile()
+void VESPERSEndstationLimitsView::saveFile()
 {
 	QFile file(QDir::currentPath() + "/endstation.config");
 
@@ -392,7 +391,7 @@ void VESPERSEndstationConfigurationView::saveFile()
 	emit configurationChanged();
 }
 
-void VESPERSEndstationConfigurationView::loadFile()
+void VESPERSEndstationLimitsView::loadFile()
 {
 	QFile file(QDir::currentPath() + "/endstation.config");
 

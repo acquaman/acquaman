@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -69,6 +69,6 @@ AMSampleManagementWidget::AMSampleManagementWidget(QWidget *manipulatorWidget, c
 }
 
 void AMSampleManagementWidget::onNewSamplePlateSelected() {
-	// qDebug() << "I heard that the current sample plate changed";
+	// qdebug() << "I heard that the current sample plate changed";
 	emit newSamplePlateSelected(plateView_->samplePlate());
 }

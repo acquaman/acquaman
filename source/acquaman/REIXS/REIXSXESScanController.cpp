@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions2/actions/AMInternalControlMoveAction.h"
 #include "util/AMSettings.h"
 
-#include "analysis/AM2DSummingAB.h"
+#include "analysis/REIXS/REIXSXESImageAB.h"
 
 REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* configuration, QObject *parent) :
 	AMScanController(configuration, parent)
@@ -62,11 +62,16 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 	AMRawDataSource* imageDataSource = new AMRawDataSource(scan_->rawData(), 0);
 	scan_->addRawDataSource(imageDataSource);
 
-	AM2DSummingAB* xesSpectrum = new AM2DSummingAB("xesSpectrum");
+	scan_->rawData()->addMeasurement(AMMeasurementInfo("totalCounts", "Total Counts", "counts"));
+	AMRawDataSource* totalCountsDataSource = new AMRawDataSource(scan_->rawData(), 1);
+	scan_->addRawDataSource(totalCountsDataSource);
+
+	REIXSXESImageAB* xesSpectrum = new REIXSXESImageAB("xesSpectrum");
 	xesSpectrum->setInputDataSources(QList<AMDataSource*>() << imageDataSource);
-	xesSpectrum->setSumAxis(1);
-	xesSpectrum->setSumRangeMax(45);
-	xesSpectrum->setSumRangeMin(15);
+	xesSpectrum->setSumRangeMax(58);
+	xesSpectrum->setSumRangeMin(5);
+	xesSpectrum->setCorrelationHalfWidth(100);	// monitor for performance. Makes nicer fits when wider.
+	xesSpectrum->enableLiveCorrelation(true);
 	scan_->addAnalyzedDataSource(xesSpectrum);
 }
 
@@ -105,6 +110,9 @@ bool REIXSXESScanController::initializeImplementation() {
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 10, QString("Could not load the spectrometer calibration (%1) that was specified in this scan configuration.").arg(config_->spectrometerCalibrationId())));
 			return false;
 		}
+
+		// temporary, for commissioning: Watch out... this persists after the scan.
+		REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->setDetectorHeightError(config_->detectorHeightError());
 
 		if(!REIXSBeamline::bl()->spectrometer()->specifyGrating(config_->gratingNumber())) {
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 11, "There was no grating like the one specified in this scan configuration."));
@@ -183,6 +191,9 @@ void REIXSXESScanController::onNewImageValues() {
 
 	if(!scan_->rawData()->setValue(AMnDIndex(), 0, imageData.constData(), imageData.size()))
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 37, "Error setting the new values from the MCP Detector. The size of the image didn't match what it should be.  This is probably a problem with the network connection to the detector, or a bug in the detector driver."));
+
+	if(!scan_->rawData()->setValue(AMnDIndex(), 1, AMnDIndex(), double(REIXSBeamline::bl()->mcpDetector()->totalCounts())))
+		AMErrorMon::debug(this, 377, "Error setting new values for the MCP Detector total counts. Please report this bug to the REIXS Acquaman developers.");
 
 }
 

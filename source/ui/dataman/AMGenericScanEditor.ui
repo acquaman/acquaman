@@ -119,13 +119,13 @@ border-bottom: 1px solid black;
        </spacer>
       </item>
       <item>
-       <widget class="QLabel" name="xPosLabel">
+       <widget class="QLabel" name="statusTextLabel">
         <property name="styleSheet">
          <string notr="true">color: white;
 font: bold 10pt &quot;Lucida Grande&quot;</string>
         </property>
         <property name="text">
-         <string>  </string>
+         <string/>
         </property>
        </widget>
       </item>
@@ -366,7 +366,7 @@ font-family: &quot;Lucida Grande&quot;;</string>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="0">
+                <item row="5" column="0">
                  <widget class="QLabel" name="scanRunLabel">
                   <property name="styleSheet">
                    <string notr="true">color: rgb(121, 121, 121);
@@ -375,6 +375,25 @@ font-family: &quot;Lucida Grande&quot;;</string>
                   </property>
                   <property name="text">
                    <string>run</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0">
+                 <widget class="QLabel" name="scanDurationLabel">
+                  <property name="styleSheet">
+                   <string notr="true">color: rgb(121, 121, 121);
+font-weight: bold;
+font-family: &quot;Lucida Grande&quot;;</string>
+                  </property>
+                  <property name="text">
+                   <string>duration</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QLabel" name="scanDuration">
+                  <property name="text">
+                   <string/>
                   </property>
                  </widget>
                 </item>

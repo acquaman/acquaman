@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "CLSPGTDwellTimeCoordinator.h"
+#include "beamline/AMPVControl.h"
 
 CLSPGTDwellTimeCoordinator::CLSPGTDwellTimeCoordinator(const QString &PGTStubName, const QString &beamlineStubName, QObject *parent) :
 	QObject(parent)
@@ -61,7 +62,7 @@ void CLSPGTDwellTimeCoordinator::onRealTimeControlChanged(double realTime){
 	}
 	dwellMode_ = determineMode();
 	dwellTime_ = determineTime();
-	//qDebug() << "Real time says mode " << dwellMode_ << " time " << dwellTime_;
+	//qdebug() << "Real time says mode " << dwellMode_ << " time " << dwellTime_;
 	internalSetDwellMode(dwellMode_);
 	internalSetDwellTime(dwellTime_);
 }
@@ -74,7 +75,7 @@ void CLSPGTDwellTimeCoordinator::onLiveTimeControlChanged(double liveTime){
 	}
 	dwellMode_ = determineMode();
 	dwellTime_ = determineTime();
-	//qDebug() << "Live time says mode " << dwellMode_ << " time " << dwellTime_;
+	//qdebug() << "Live time says mode " << dwellMode_ << " time " << dwellTime_;
 	internalSetDwellMode(dwellMode_);
 	internalSetDwellTime(dwellTime_);
 }
@@ -87,7 +88,7 @@ void CLSPGTDwellTimeCoordinator::onPeakTimeControlChanged(double peakTime){
 	}
 	dwellMode_ = determineMode();
 	dwellTime_ = determineTime();
-	//qDebug() << "Peak time says mode " << dwellMode_ << " time " << dwellTime_;
+	//qdebug() << "Peak time says mode " << dwellMode_ << " time " << dwellTime_;
 	internalSetDwellMode(dwellMode_);
 	internalSetDwellTime(dwellTime_);
 }
@@ -97,7 +98,7 @@ void CLSPGTDwellTimeCoordinator::onDwellTimeControlChanged(double dwellTime){
 		internalDwellTimeSet_ = false;
 		return;
 	}
-	//qDebug() << "Dwell time changing from " << dwellTime_ << " to " << dwellTime;
+	//qdebug() << "Dwell time changing from " << dwellTime_ << " to " << dwellTime;
 	dwellTime_ = dwellTime;
 	switch(dwellMode_){
 	case 0:
@@ -119,7 +120,7 @@ void CLSPGTDwellTimeCoordinator::onDwellTimeModeChanged(double dwellMode){
 		internalDwellModeSet_ = false;
 		return;
 	}
-	//qDebug() << "Switch dwell mode from " << dwellMode_ << " to " << dwellMode << " with time " << dwellTime_;
+	//qdebug() << "Switch dwell mode from " << dwellMode_ << " to " << dwellMode << " with time " << dwellTime_;
 	switch(dwellMode_){
 	case 0:
 		internalSetRealTime(0.0);
@@ -156,10 +157,10 @@ void CLSPGTDwellTimeCoordinator::onDwellTimeModeChanged(double dwellMode){
 }
 
 void CLSPGTDwellTimeCoordinator::onAllControlsConnected(bool connected){
-	//qDebug() << "Checking all PGT dwells";
+	//qdebug() << "Checking all PGT dwells";
 	if(connected){
 		connectedOnce_ = true;
-		//qDebug() << "All PGT dwells connected";
+		//qdebug() << "All PGT dwells connected";
 		dwellMode_ = determineMode();
 		dwellTime_ = determineTime();
 		internalSetDwellMode(dwellMode_);

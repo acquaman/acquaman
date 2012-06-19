@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSEXAFSDacqScanController.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "actions/AMBeamlineActionsList.h"
@@ -12,6 +31,8 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	: AMDacqScanController(cfg, parent)
 {
 	config_ = cfg;
+	config_->setUserScanName(config_->name());
+
 	setupXASAction_ = 0;
 	cleanupXASAction_ = 0;
 
@@ -32,6 +53,30 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	scan_->setScanConfiguration(config_);
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setIndexType("fileSystem");
+	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
+
+	QString notes;
+
+	if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::SingleElement)
+		notes.append(QString("\nFluorescence detector distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToSingleElementVortex(), 0, 'f', 1));
+	else
+		notes.append(QString("\nFluorescence detector distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToFourElementVortex(), 0, 'f', 1));
+
+	notes.append(QString("Filter thickness (aluminum):\t%1 %2m\n").arg(VESPERSBeamline::vespers()->endstation()->filterThickness()).arg(QString::fromUtf8("μ")));
+	notes.append(QString("Horizontal slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapX()));
+	notes.append(QString("Vertical slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapZ()));
+	notes.append(QString("Gas used in ion chambers:\tN2\n"));
+	notes.append(QString("\nIon Chamber Gain Settings\n"));
+	CLSSplitIonChamber *split = VESPERSBeamline::vespers()->iSplit();
+	notes.append(QString("%1:\t%2 %3\n").arg(split->name()).arg(split->sensitivityValueA()).arg(split->sensitivityUnitsA()));
+	CLSIonChamber *chamber = VESPERSBeamline::vespers()->iPreKB();
+	notes.append(QString("%1:\t%2 %3\n").arg(chamber->name()).arg(chamber->sensitivityValue()).arg(chamber->sensitivityUnits()));
+	chamber = VESPERSBeamline::vespers()->iMini();
+	notes.append(QString("%1:\t%2 %3\n").arg(chamber->name()).arg(chamber->sensitivityValue()).arg(chamber->sensitivityUnits()));
+	chamber = VESPERSBeamline::vespers()->iPost();
+	notes.append(QString("%1:\t%2 %3\n").arg(chamber->name()).arg(chamber->sensitivityValue()).arg(chamber->sensitivityUnits()));
+
+	scan_->setNotes(notes);
 
 	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
@@ -60,13 +105,18 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::SingleElement){
 
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF1E();
+		QString edge = config_->edge();
+
+		// If this is an L edge, chop out the number for comparison purposes.
+		if (edge.contains(QRegExp("L\\d$")))
+			edge.chop(1);
 
 		// This is safe and okay because I always have the regions of interest set taking up 0-X where X is the count-1 of the number of regions of interest.
 		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
 			scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
 
-			if (detector->roiInfoList()->at(i).name().contains(config_->edge()))
+			if (detector->roiInfoList()->at(i).name().contains(edge))
 				scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
 
 			else
@@ -84,13 +134,18 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	else if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::FourElement){
 
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF4E();
+		QString edge = config_->edge();
+
+		// If this is an L edge, chop out the number for comparison purposes.
+		if (edge.contains(QRegExp("L\\d$")))
+			edge.chop(1);
 
 		// This is safe and okay because I always have the regions of interest set taking up 0-X where X is the count-1 of the number of regions of interest.
 		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
 			scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
 
-			if (detector->roiInfoList()->at(i).name().contains(config_->edge()))
+			if (detector->roiInfoList()->at(i).name().contains(edge))
 				scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
 
 			else
@@ -124,6 +179,7 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::SingleElement){
 
 		AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
+		pfy->setDescription("PFY");
 		QList<AMDataSource*> pfySource;
 		pfySource << scan_->rawDataSources()->at(scan_->rawDataSourceCount()-1);
 		pfy->setInputDataSources(pfySource);
@@ -138,9 +194,15 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 		normPFY->setExpression(QString("%1/%2").arg(scan_->analyzedDataSources()->at(0)->name()).arg(scan_->rawDataSources()->at(0)->name()));
 		scan_->addAnalyzedDataSource(normPFY, true, false);
 
+		QString edge = config_->edge();
+
+		// If this is an L edge, chop out the number for comparison purposes.
+		if (edge.contains(QRegExp("L\\d$")))
+			edge.chop(1);
+
 		for (int i = 0; i < scan_->rawDataSourceCount(); i++){
 
-			if (scan_->rawDataSources()->at(i)->name().contains(config_->edge().remove(" "))){
+			if (scan_->rawDataSources()->at(i)->name().contains(edge.remove(" "))){
 
 				normPFY = new AM1DExpressionAB("norm_"+scan_->rawDataSources()->at(i)->name());
 				normPFY->setDescription("Normalized "+scan_->rawDataSources()->at(i)->description());
@@ -160,6 +222,7 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	else if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::FourElement){
 
 		AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
+		pfy->setDescription("PFY");
 		QList<AMDataSource*> pfySource;
 		pfySource << scan_->rawDataSources()->at(scan_->rawDataSourceCount()-5);
 		pfy->setInputDataSources(pfySource);
@@ -174,9 +237,15 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 		normPFY->setExpression(QString("%1/%2").arg(scan_->analyzedDataSources()->at(0)->name()).arg(scan_->rawDataSources()->at(0)->name()));
 		scan_->addAnalyzedDataSource(normPFY, true, false);
 
+		QString edge = config_->edge();
+
+		// If this is an L edge, chop out the number for comparison purposes.
+		if (edge.contains(QRegExp("L\\d$")))
+			edge.chop(1);
+
 		for (int i = 0; i < scan_->rawDataSourceCount(); i++){
 
-			if (scan_->rawDataSources()->at(i)->name().contains(config_->edge().remove(" "))){
+			if (scan_->rawDataSources()->at(i)->name().contains(edge.remove(" "))){
 
 				normPFY = new AM1DExpressionAB("norm_"+scan_->rawDataSources()->at(i)->name());
 				normPFY->setDescription("Normalized "+scan_->rawDataSources()->at(i)->description());

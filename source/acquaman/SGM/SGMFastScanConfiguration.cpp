@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -102,6 +102,12 @@ AMScanConfiguration* SGMFastScanConfiguration::createCopy() const{
 
 AMScanController* SGMFastScanConfiguration::createController(){
 	return new SGMFastDacqScanController(this);
+}
+
+#include "ui/SGM/SGMFastScanConfigurationView.h"
+
+AMScanConfigurationView* SGMFastScanConfiguration::createView(){
+	return new SGMFastScanConfigurationView(this);
 }
 
 QString SGMFastScanConfiguration::detailedDescription() const{

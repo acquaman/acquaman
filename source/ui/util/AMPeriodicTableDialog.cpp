@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -31,7 +31,7 @@ AMPeriodicTableDialog::AMPeriodicTableDialog(QWidget *parent)
 	element_ = 0;
 
 	AMPeriodicTableView *ptView = new AMPeriodicTableView;
-	connect(ptView, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
+	connect(ptView, SIGNAL(elementSelected(const AMElement*)), this, SLOT(onElementSelected(const AMElement*)));
 
 	QHBoxLayout *layout = new QHBoxLayout;
 	layout->addWidget(ptView);
@@ -39,13 +39,13 @@ AMPeriodicTableDialog::AMPeriodicTableDialog(QWidget *parent)
 	setLayout(layout);
 }
 
-void AMPeriodicTableDialog::onElementSelected(AMElement *el)
+void AMPeriodicTableDialog::onElementSelected(const AMElement *el)
 {
 	element_ = el;
 	accept();
 }
 
-AMElement *AMPeriodicTableDialog::getElement(QWidget *parent)
+const AMElement *AMPeriodicTableDialog::getElement(QWidget *parent)
 {
 	AMPeriodicTableDialog dialog(parent);
 

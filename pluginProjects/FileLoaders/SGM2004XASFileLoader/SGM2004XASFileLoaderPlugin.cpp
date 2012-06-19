@@ -18,7 +18,7 @@ bool SGM2004XASFileLoaderPlugin::accepts(AMScan *scan){
 }
 
 bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder){
-	// qDebug() << "\n\nTRYING TO LOAD WITH SGM2004XAS PLUGIN";
+	// qdebug() << "\n\nTRYING TO LOAD WITH SGM2004XAS PLUGIN";
 
 	if(columns2pvNames_.count() == 0) {
 		columns2pvNames_.set("eV", "BL1611-ID-1:Energy");
@@ -55,6 +55,10 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 
 	if(!scan)
 		return false;
+
+	// Clear the old scan axes to ensure we don't have any extras.
+	scan->clearRawDataCompletely();
+	scan->rawData()->addScanAxis( AMAxisInfo("eV", 0, "Incident Energy", "eV") );
 
 	QFileInfo sourceFileInfo(scan->filePath());
 	if(sourceFileInfo.isRelative())
@@ -146,13 +150,13 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 					AMMeasurementInfo sddInfo("SDD", "Silicon Drift Detector", "counts", sddAxes);
 					if(scan->rawData()->addMeasurement(sddInfo)){
 						/// \todo Throw an errorMon out?
-						//qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
+						//qdebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 					}
 				}
 			}
 			else if(scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName))){
 				/// \todo Throw an errorMon out?
-				//qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
+				//qdebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 			}
 		}
 	}

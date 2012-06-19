@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSCAEN2527HVChannel.h"
 
-#include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
 
 CLSCAEN2527HVChannel::CLSCAEN2527HVChannel(const QString &name, const QString &pvBaseName, AMHighVoltageChannel::highVoltageChannelPolarity polarity, QObject *parent) :
 		AMHighVoltageChannel(name, parent)
@@ -32,8 +32,10 @@ CLSCAEN2527HVChannel::CLSCAEN2527HVChannel(const QString &name, const QString &p
 	description_ = new AMProcessVariable(pvBaseName+":name", true, this);
 	descriptionFbk_ = new AMProcessVariable(pvBaseName+":name:fbk", true, this);
 	demand_ = new AMPVControl(name+"Demand", pvBaseName+":v0set:fbk", pvBaseName+":v0set", QString(), this, 5.0);
+	demand_->setAllowsMovesWhileMoving(true);
 	voltage_ = new AMReadOnlyPVControl(name+"Voltage", pvBaseName+":vmon", this);
 	toggle_ = new AMPVControl(name+"Toggle", pvBaseName+":pwonoff", pvBaseName+":pwonoff", QString(), this, 0.5);
+	toggle_->setAllowsMovesWhileMoving(true);
 	status_ = new AMReadOnlyPVControl(name+"Status", pvBaseName+":status", this);
 	current_ = new AMReadOnlyPVControl(name+"Current", pvBaseName+":imon", this);
 

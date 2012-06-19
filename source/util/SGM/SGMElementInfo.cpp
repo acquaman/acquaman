@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -292,14 +292,14 @@ void SGMScanInfo::setEnd(const SGMEnergyPosition &end) {
 	}
 }
 
-SGMElementInfo::SGMElementInfo(const QString &name, AMElement *element, QObject *parent) :
+SGMElementInfo::SGMElementInfo(const QString &name, const AMElement *element, QObject *parent) :
 		AMDbObject(parent)
 {
 	setName(name);
 	element_ = element;
 }
 
-AMElement* SGMElementInfo::element() const{
+const AMElement* SGMElementInfo::element() const{
 	return element_;
 }
 
@@ -355,8 +355,6 @@ void SGMElementInfo::dbLoadSGMFastScanParameters(const AMDbObjectList &sgmFastSc
 		SGMFastScanParameters* newFastScanParameter = qobject_cast<SGMFastScanParameters*>(sgmFastScanParameters.at(x));
 		if(newFastScanParameter)
 			availableFastScanParameters_.append(newFastScanParameter, (int)newFastScanParameter->runSeconds());// note: makes a copy of object pointed to by newStandardScanInfo, and stores in our internal list.
-
-		//delete sgmFastScanParameters.at(x); // we're copying these; don't need to keep these ones around. They're our responsibility to delete.
 	}
 }
 
@@ -469,20 +467,20 @@ SGMFastScanParameters::SGMFastScanParameters(const QString &name, const QString 
 
 bool SGMFastScanParameters::operator ==(const SGMFastScanParameters &other){
 	if( element() == other.element() &&
-	    runSeconds() == other.runSeconds() &&
-	    energyStart() == other.energyStart() &&
-	    energyMidpoint() == other.energyMidpoint() &&
-	    energyEnd() == other.energyEnd() &&
-	    velocity() == other.velocity() &&
-	    velocityBase() == other.velocityBase() &&
-	    acceleration() == other.acceleration() &&
-	    scalerTime() == other.scalerTime() &&
-	    baseLine() == other.baseLine() &&
-	    undulatorStartStep() == other.undulatorStartStep() &&
-	    undulatorVelocity() == other.undulatorVelocity() &&
-	    undulatorRelativeStep() == other.undulatorRelativeStep() &&
-	    exitSlitDistance() == other.exitSlitDistance() &&
-	    sgmGrating() == other.sgmGrating()){
+		runSeconds() == other.runSeconds() &&
+		energyStart() == other.energyStart() &&
+		energyMidpoint() == other.energyMidpoint() &&
+		energyEnd() == other.energyEnd() &&
+		velocity() == other.velocity() &&
+		velocityBase() == other.velocityBase() &&
+		acceleration() == other.acceleration() &&
+		scalerTime() == other.scalerTime() &&
+		baseLine() == other.baseLine() &&
+		undulatorStartStep() == other.undulatorStartStep() &&
+		undulatorVelocity() == other.undulatorVelocity() &&
+		undulatorRelativeStep() == other.undulatorRelativeStep() &&
+		exitSlitDistance() == other.exitSlitDistance() &&
+		sgmGrating() == other.sgmGrating()){
 		return true;
 	}
 	return false;

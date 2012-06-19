@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "SGMEnergyPositionView.h"
 
 #include <QDoubleSpinBox>
@@ -68,16 +87,6 @@ SGMEnergyPositionView::SGMEnergyPositionView(SGMEnergyPosition *energyPosition, 
 	vl1->addLayout(tmpHL);
 
 	alternateViewModeButton_ = new QPushButton("More");
-	if(alternateViewMode_ == SGMEnergyPositionView::ViewModeAll)
-		alternateViewModeButton_->hide();
-	else{
-		connect(alternateViewModeButton_, SIGNAL(clicked()), this, SLOT(onAlternateViewModeClicked()));
-		currentViewMode_ = alternateViewMode_;
-		onViewModeChanged();
-	}
-
-	setEnergyPosition(energyPosition);
-
 
 	vl2_ = new QVBoxLayout();
 	vl2_->addStretch(10);
@@ -88,6 +97,15 @@ SGMEnergyPositionView::SGMEnergyPositionView(SGMEnergyPosition *energyPosition, 
 	hl->addLayout(vl2_);
 
 	setLayout(hl);
+
+	if(alternateViewMode_ == SGMEnergyPositionView::ViewModeAll)
+		alternateViewModeButton_->hide();
+	else{
+		connect(alternateViewModeButton_, SIGNAL(clicked()), this, SLOT(onAlternateViewModeClicked()));
+		currentViewMode_ = alternateViewMode_;
+		onViewModeChanged();
+	}
+	setEnergyPosition(energyPosition);
 }
 
 void SGMEnergyPositionView::onEnergyEditingFinished(){

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -23,9 +23,86 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMDetectorSetView::AMDetectorSetView(AMDetectorSet *viewSet, bool configureOnly, QWidget *parent) :
 	QGroupBox(parent)
 {
+	internalView_ = new AMDetectorSetViewInternal(viewSet, configureOnly);
+	initializeWidget(viewSet);
+}
+
+AMDetectorSetView::AMDetectorSetView(AMDetectorSet *viewSet, const AMDetectorInfoSet &infoSet, QWidget *parent) :
+	QGroupBox(parent)
+{
+	internalView_ = new AMDetectorSetViewInternal(viewSet, infoSet);
+	initializeWidget(viewSet);
+}
+
+int AMDetectorSetView::count() const{
+	return internalView_->count();
+}
+
+AMDetectorSet* AMDetectorSetView::detectorSet(){
+	return internalView_->detectorSet();
+}
+
+AMDetectorView* AMDetectorSetView::boxByName(const QString &name){
+	return internalView_->boxByName(name);
+}
+
+const AMDetectorView* AMDetectorSetView::boxAt(int row) const{
+	return internalView_->boxAt(row);
+}
+
+AMDetectorView* AMDetectorSetView::detailByName(const QString &name){
+	return internalView_->detailByName(name);
+}
+
+const AMDetectorView* AMDetectorSetView::detailAt(int row) const{
+	return internalView_->detailAt(row);
+}
+
+bool AMDetectorSetView::checkedAt(int row) const{
+	return internalView_->checkedAt(row);
+}
+
+AMDetectorInfoSet AMDetectorSetView::currentValues(){
+	return internalView_->currentValues();
+}
+
+AMDetectorInfoSet AMDetectorSetView::configValues(){
+	return internalView_->configValues();
+}
+
+QDebug operator<<(QDebug d, const AMDetectorSetView& dsv){
+	d << dsv.internalView_;
+	return d;
+}
+
+void AMDetectorSetView::initializeWidget(AMDetectorSet *viewSet){
+	setTitle(viewSet->name());
+	scrollArea_ = new QScrollArea();
+	scrollArea_->setWidget(internalView_);
+	scrollArea_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+	connect(internalView_, SIGNAL(currentValuesChanged()), this, SIGNAL(currentValuesChanged()));
+	connect(internalView_, SIGNAL(configValuesChanged()), this, SIGNAL(configValuesChanged()));
+
+	QVBoxLayout *mainVL = new QVBoxLayout();
+	mainVL->addWidget(scrollArea_);
+	mainVL->setContentsMargins(0,0,0,0);
+	setLayout(mainVL);
+}
+
+/*
+QSize AMDetectorSetView::sizeHint() const{
+	QSize internalSize = internalView_->sizeHint();
+	internalSize.setWidth(internalSize.width()+10);
+	return internalSize;
+}*/
+
+AMDetectorSetViewInternal::AMDetectorSetViewInternal(AMDetectorSet *viewSet, bool configureOnly, QWidget *parent) :
+	QWidget(parent)
+	//QGroupBox(parent)
+{
 	viewSet_ = viewSet;
 	configureOnly_ = configureOnly;
-	setTitle(viewSet->name());
 	gl_ = new QGridLayout();
 	AMDetectorView *tmpDV;
 	AMDetector *tmpD;
@@ -75,12 +152,12 @@ AMDetectorSetView::AMDetectorSetView(AMDetectorSet *viewSet, bool configureOnly,
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
 }
 
-AMDetectorSetView::AMDetectorSetView(AMDetectorSet *viewSet, const AMDetectorInfoSet &infoSet, QWidget *parent) :
-	QGroupBox(parent)
+AMDetectorSetViewInternal::AMDetectorSetViewInternal(AMDetectorSet *viewSet, const AMDetectorInfoSet &infoSet, QWidget *parent) :
+	QWidget(parent)
+//	QGroupBox(parent)
 {
 	viewSet_ = viewSet;
 	configureOnly_ = true;
-	setTitle(viewSet->name());
 	gl_ = new QGridLayout();
 	AMDetectorView *tmpDV;
 	AMDetector *tmpD;
@@ -130,31 +207,31 @@ AMDetectorSetView::AMDetectorSetView(AMDetectorSet *viewSet, const AMDetectorInf
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
 }
 
-int AMDetectorSetView::count() const{
+int AMDetectorSetViewInternal::count() const{
 	return viewSet_->count();
 }
 
-AMDetectorSet* AMDetectorSetView::detectorSet(){
+AMDetectorSet* AMDetectorSetViewInternal::detectorSet(){
 	return viewSet_;
 }
 
-AMDetectorView* AMDetectorSetView::boxByName(const QString &name){
+AMDetectorView* AMDetectorSetViewInternal::boxByName(const QString &name){
 	return detectorBoxes_.at(viewSet_->indexOfKey(name));
 }
 
-const AMDetectorView *AMDetectorSetView::boxAt(int row) const{
+const AMDetectorView *AMDetectorSetViewInternal::boxAt(int row) const{
 	return detectorBoxes_.at(row);
 }
 
-AMDetectorView* AMDetectorSetView::detailByName(const QString &name){
+AMDetectorView* AMDetectorSetViewInternal::detailByName(const QString &name){
 	return detectorDetails_.at(viewSet_->indexOf(name));
 }
 
-const AMDetectorView *AMDetectorSetView::detailAt(int row) const{
+const AMDetectorView *AMDetectorSetViewInternal::detailAt(int row) const{
 	return detectorDetails_.at(row);
 }
 
-bool AMDetectorSetView::checkedAt(int row) const{
+bool AMDetectorSetViewInternal::checkedAt(int row) const{
 	if(!configureOnly_)
 		return false;
 	if(checkBoxes_.at(row))
@@ -162,11 +239,11 @@ bool AMDetectorSetView::checkedAt(int row) const{
 	return false;
 }
 
-AMDetectorInfoSet AMDetectorSetView::currentValues(){
+AMDetectorInfoSet AMDetectorSetViewInternal::currentValues(){
 	return viewSet_->toInfoSet();
 }
 
-AMDetectorInfoSet AMDetectorSetView::configValues(){
+AMDetectorInfoSet AMDetectorSetViewInternal::configValues(){
 	AMDetectorInfoSet rv;
 
 	if(!configureOnly_)
@@ -181,7 +258,7 @@ AMDetectorInfoSet AMDetectorSetView::configValues(){
 	return rv;
 }
 
-QDebug operator<<(QDebug d, const AMDetectorSetView& dsv){
+QDebug operator<<(QDebug d, const AMDetectorSetViewInternal& dsv){
 	for(int x = 0; x < dsv.count(); x++){
 		if(dsv.boxAt(x) && dsv.boxAt(x)->configurationSettings())
 			d << *(dsv.boxAt(x)->configurationSettings());
@@ -191,7 +268,7 @@ QDebug operator<<(QDebug d, const AMDetectorSetView& dsv){
 	return d;
 }
 
-void AMDetectorSetView::setDisabled(bool disabled){
+void AMDetectorSetViewInternal::setDisabled(bool disabled){
 	for(int x = checkBoxes_.count()-1; x >= 0; x--){
 		checkBoxes_[x]->setDisabled(disabled);
 		if(detectorDetails_[x])
@@ -199,7 +276,7 @@ void AMDetectorSetView::setDisabled(bool disabled){
 	}
 }
 
-void AMDetectorSetView::onDetectorAddedToSet(int index){
+void AMDetectorSetViewInternal::onDetectorAddedToSet(int index){
 	AMDetectorView *tmpDV;
 	AMDetector *tmpD;
 	QLabel *tmpLabel;
@@ -244,7 +321,7 @@ void AMDetectorSetView::onDetectorAddedToSet(int index){
 /* NTBA - August 25th, 2011 (David Chevrier)
   Working, but SUPER INNEFFICIENT. Redraws the whole thing every time"
 */
-void AMDetectorSetView::onDetectorRemovedFromSet(int index){
+void AMDetectorSetViewInternal::onDetectorRemovedFromSet(int index){
 	Q_UNUSED(index)
 	for(int x = gl_->rowCount()-1; x >= 0; x--){
 		if(gl_->itemAtPosition(x, 0))
@@ -307,14 +384,14 @@ void AMDetectorSetView::onDetectorRemovedFromSet(int index){
 
 	/*
  int viewIndex = -1;
- qDebug() << "About to remove " << index << viewSet_->detectorAt(index) << viewSet_->count() << gl_->rowCount()-1;
+ qdebug() << "About to remove " << index << viewSet_->detectorAt(index) << viewSet_->count() << gl_->rowCount()-1;
  AMDetectorView *removeDV;
  for(int x = 0; x < gl_->rowCount()-1; x++){
   if(gl_->itemAtPosition(x, 2)){
    removeDV = qobject_cast<AMDetectorView*>(gl_->itemAtPosition(x, 2)->widget());
    if(removeDV->detector() == viewSet_->detectorAt(index)){
     viewIndex = x;
-    qDebug() << "Found the detector at " << viewIndex;
+    qdebug() << "Found the detector at " << viewIndex;
    }
   }
  }
@@ -335,11 +412,10 @@ void AMDetectorSetView::onDetectorRemovedFromSet(int index){
  */
 }
 
-void AMDetectorSetView::onDetectorSetSettingsChanged(){
+void AMDetectorSetViewInternal::onDetectorSetSettingsChanged(){
 
 }
 
-void AMDetectorSetView::onDetectorSetConfigurationRequested(){
-	qDebug() << "Heard a check?";
+void AMDetectorSetViewInternal::onDetectorSetConfigurationRequested(){
 	emit configValuesChanged();
 }

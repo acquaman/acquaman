@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define CLSIONCHAMBER_H
 
 #include "beamline/AMIonChamber.h"
-#include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
 #include "beamline/CLS/CLSSR570.h"
 
 /*!
@@ -52,6 +52,8 @@ public:
 
 	/// Returns the current sensitivity value.
 	int sensitivityValue() const { return sensitivity_->value(); }
+	/// Returns the current sensitivity value index.
+	int sensitivityValueIndex() const { return sensitivity_->valueIndex(); }
 	/// Returns the current sensitivity units.
 	QString sensitivityUnits() const { return sensitivity_->units(); }
 
@@ -63,12 +65,16 @@ public slots:
 
 	/// Sets the value for the sensitivity directly.  Must be a valid SR570 input.
 	void setSensitivityValue(int value) { sensitivity_->setValue(value); }
+	/// Sets the value index for the sensitivity directly.  Must be a valid index.
+	void setSensitivityValueIndex(int index) { sensitivity_->setValueIndex(index); }
 	/// Sets the units for the sensitivity directly.  Must be a valid SR570 input.
 	void setSensitivityUnits(QString units) { sensitivity_->setUnits(units); }
 
 signals:
 	/// Notifier that the sensitivity value has changed.  Passes the new value.
 	void sensitivityValueChanged(int);
+	/// Notifier that the sensitivity value index has changed.  Passes the new value.
+	void sensitivityValueIndexChanged(int);
 	/// Notifier that the sensitivity units have changed.  Passes the new value.
 	void sensitivityUnitsChanged(QString);
 

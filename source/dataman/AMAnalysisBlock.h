@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -72,7 +72,7 @@ public:
 	/// Both AMDbObject:: and AMDataSource:: have a name() function. Here we resolve that ambiguity.
 	QString name() const { return AMDataSource::name(); }
 
-	/// Sets the description because currently we call AMDataSource::setDescription which doesn't take care of setting setModified.  This adds that.
+	/// Re-implemented from AMDataSource to call setModified().
 	void setDescription(const QString &description) { AMDataSource::setDescription(description); setModified(true); }
 
 	/// Set the input of this block as a list of data sources. Returns false if the inputs are not sufficient, or incompatible with this analysis block. It is okay to set AMDataSource inputs that are currently not isValid()... the calculation will simply start when they become valid.
@@ -87,11 +87,16 @@ public:
 	/// Check whether a set of data sources would be acceptable, compatible, and sufficient to provide input for this analysis block.
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const = 0;
 
+
+	/// Provides a very simple editor widget for inside AMDataSourcesEditor, which only lists the rank and size of the analysis block (and the value, for 0D analysis blocks only). Re-implement to provide custom editors.
+	virtual QWidget* createEditorWidget();
+
+protected:
 	/// Implementing subclasses must provide a setInputDataSourcesImplementation(), which is called from setInputDataSources(). This will only be called if \c dataSources are acceptable and sufficient  (according to areInputDataSourcesAcceptable()), or if \c dataSources is empty, indicating the block is in the inactive/invalid state.
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources) = 0;
 
 
-
+public:
 	// Access to input data sources
 	//////////////////////////
 

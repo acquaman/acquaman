@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -147,6 +147,14 @@ void AM2DSummingAB::setAnalyzedName(const QString &name)
 	setModified(true);
 	canAnalyze_ = canAnalyze(name);
 	setInputSource();
+
+	invalidateCache();
+	reviewState();
+
+	emitSizeChanged(0);
+	emitValuesChanged();
+	emitAxisInfoChanged(0);
+	emitInfoChanged();
 }
 
 void AM2DSummingAB::setInputSource()
@@ -166,7 +174,8 @@ void AM2DSummingAB::setInputSource()
 		inputSource_ = inputDataSourceAt(index);
 		canAnalyze_ = true;
 
-		axes_[0] = inputSource_->axisInfoAt(0);
+		int otherAxis = (sumAxis_ == 0) ? 1 : 0;
+		axes_[0] = inputSource_->axisInfoAt(otherAxis);
 		setDescription(QString("%1 Summed (over %2)")
 					   .arg(inputSource_->name())
 					   .arg(inputSource_->axisInfoAt(sumAxis_).name));
@@ -183,13 +192,6 @@ void AM2DSummingAB::setInputSource()
 		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
 		setDescription("Sum");
 	}
-
-	reviewState();
-
-	emitSizeChanged(0);
-	emitValuesChanged();
-	emitAxisInfoChanged(0);
-	emitInfoChanged();
 }
 
 bool AM2DSummingAB::canAnalyze(const QString &name) const

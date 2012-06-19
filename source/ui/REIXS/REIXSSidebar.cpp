@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "REIXSSidebar.h"
 #include "ui_REIXSSidebar.h"
 
@@ -33,10 +52,16 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 	// Make connections
 	//////////////////////
 
+	connect(REIXSBeamline::bl()->valvesAndShutters(), SIGNAL(beamOnChanged(bool)), this, SLOT(onBeamOnChanged(bool)));
 	connect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(countsPerSecondChanged(double)), this, SLOT(onMCPCountsPerSecondChanged(double)));
 
 	connect(ui->beamOnButton, SIGNAL(clicked()), this, SLOT(onBeamOnButtonClicked()));
 	connect(ui->beamOffButton, SIGNAL(clicked()), this, SLOT(onBeamOffButtonClicked()));
+
+	// Get initial status:
+	//////////////////////////
+
+	onBeamOnChanged(REIXSBeamline::bl()->valvesAndShutters()->isBeamOn());
 }
 
 REIXSSidebar::~REIXSSidebar()
@@ -78,5 +103,17 @@ void REIXSSidebar::onBeamOffButtonClicked()
 	}
 	else {
 		AMActionRunner::s()->runActionImmediatelyInQueue(new REIXSBeamOnOffAction(false));
+	}
+}
+
+void REIXSSidebar::onBeamOnChanged(bool isOn)
+{
+	if(isOn) {
+		ui->beamlineStatusLED->setPixmap(QPixmap(":/22x22/greenLEDOn.png"));
+		ui->beamOnButton->setChecked(true);
+	}
+	else {
+		ui->beamlineStatusLED->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
+		ui->beamOffButton->setChecked(true);
 	}
 }

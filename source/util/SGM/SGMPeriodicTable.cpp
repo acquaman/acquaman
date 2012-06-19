@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -20,8 +20,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMPeriodicTable.h"
 #include "dataman/database/AMDbObjectSupport.h"
-
-#include <QDebug>
 
 //Singleton instance
 SGMPeriodicTable* SGMPeriodicTable::instance_ = 0;

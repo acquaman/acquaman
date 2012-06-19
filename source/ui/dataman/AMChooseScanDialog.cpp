@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -158,4 +158,15 @@ QString AMChooseScanDialog::getScanDetails(QUrl url)
 
 	return results.at(0).toString() % " #" % results.at(1).toString() % ", taken " % AMDateTimeUtils::prettyDateTime(results.at(2).toDateTime());
 }
+
+void AMChooseScanDialog::setPrompt(const QString &prompt)
+{
+	ui_->promptLabel->setText(prompt);
+}
+
+void AMChooseScanDialog::setTitle(const QString &title)
+{
+	ui_->titleLabel->setText(title);
+}
+
 

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -21,30 +21,28 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMSTARTSCREEN_H
 #define AMSTARTSCREEN_H
 
+#include <QDialog>
+class AMRunSelector;
 
-#include <QWidget>
-#include <QVBoxLayout>
-#include <QGridLayout>
-#include <QPushButton>
-#include "ui/dataman/AMRunSelector.h"
-#include "dataman/database/AMDatabase.h"
-
-class AMStartScreen : public QWidget
+/// Provides a dialog (suitable for showing on startup) that allows users to choose the current run, or make a new one.  It saves the chosen run in AMUser::setCurrentRun(), and deletes itself when closed.
+class AMStartScreen : public QDialog
 {
 	Q_OBJECT
 public:
-	AMStartScreen(QWidget *parent = 0);
+	/// Default constructor. To prevent the dialog from being closed until the user accepts a choice, set \c mustAccept to true.
+	AMStartScreen(bool mustAccept = false, QWidget *parent = 0);
 
 signals:
 
-public slots:
-	bool storeCurrentRun();
+public slots:	
+	/// When the dialog is accepted, we store the current run in AMUser::setCurrentRun().
+	void accept();
+	/// When the dialog is rejected, if \c mustAccept_ is true, we simply show it again; a choice must be accepted. (Unless the application is shutting down.)
+	void reject();
 
 protected:
 	AMRunSelector *runSelector_;
-
-	virtual void closeEvent(QCloseEvent *);
-
+	bool mustAccept_;
 };
 
 

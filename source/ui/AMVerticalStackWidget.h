@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -27,8 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman.h"
 #include <QVBoxLayout>
 #include <QSpacerItem>
-
-#include <QDebug>
 
 /// The AMVerticalStackWidget class provides a column of widget items, that can be expanded or hidden.
 class AMVerticalStackWidget : public QFrame

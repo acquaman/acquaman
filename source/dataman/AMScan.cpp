@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -28,7 +28,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMScanConfiguration.h"
 #include "application/AMPluginsManager.h"
 #include "dataman/AMScanDictionary.h"
+#include "util/AMErrorMonitor.h"
 
+#include <QUrl>
+#include <QDebug>
 
 AMScan::AMScan(QObject *parent)
 	: AMDbObject(parent)
@@ -75,6 +78,13 @@ AMScan::AMScan(QObject *parent)
 
 
 AMScan::~AMScan() {
+
+	AMErrorMon::debug(this, AMSCAN_DEBUG_DELETING_SCAN, QString("Deleting %1").arg(fullName()));
+
+	if(!owners_.isEmpty()) {
+		AMErrorMon::alert(this, AMSCAN_SCAN_DELETE_DIRECTLY, "The scan was deleted while other objects were still interested in it. You should never delete a scan directly; instead, call AMScan::release().  Those objects might now attempt to access a deleted scan.");
+	}
+
 	// delete all data sources.
 	// \note This is expensive if an AMScanSetModel and associated plots are watching. It would be faster to tell those plots, "Peace out, all my data sources are about to disappear", so that they don't need to respond to each removal separately. For now, you should remove this scan from the AMScanSetModel FIRST, and then delete it.
 	int count;
@@ -329,9 +339,7 @@ void AMScan::dbLoadAnalyzedDataSourcesConnections(const QString& connectionStrin
 	QStringList allConnections = connectionString.split("\n", QString::SkipEmptyParts);
 
 	if(allConnections.count() != analyzedDataSources_.count()) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "There was an error re-connecting the analysis and processing components for this scan; the number of analysis blocks didn't match. Your database might be corrupted. Please report this bug to the Acquaman developers."));
-		qDebug() << "    AMScan: loading analyzedDataSourcesConnections: allConnections is:" << allConnections;
-		qDebug() << "        but number of analyzedDataSources_ is : " << analyzedDataSources_.count();
+		AMErrorMon::alert(this, AMSCAN_ANALYZED_DATASOURCE_COUNT_MISMATCH, QString("There was an error re-connecting the analysis and processing components for this scan; the number of analysis blocks didn't match. Your database might be corrupted. Please report this bug to the Acquaman developers. All connection: %1. Number of analyzed datasources: %2").arg(allConnections.join(" ")).arg(analyzedDataSources_.count()) );
 		return;
 	}
 
@@ -458,14 +466,13 @@ bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource, bool 
 #include <QByteArray>
 #include <QFile>
 
-/// \todo Hackish... just needed for colors. Move the color table somewhere else besides AMScanSetModel.
-#include "dataman/AMScanSetModel.h"
-
+#include "util/AMDataSourcePlotSettings.h"
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotSeries.h"
 #include "MPlot/MPlotImage.h"
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 #include "dataman/datasource/AMDataSourceImageData.h"
+#include "dataman/datasource/AMDataSourceImageDatawDefault.h"
 #include "util/AMDateTimeUtils.h"
 
 int AMScan::thumbnailCount() const{
@@ -483,7 +490,7 @@ int AMScan::thumbnailCount() const{
 AMDbThumbnail AMScan::thumbnail(int index) const {
 	if(currentlyScanning()) {
 
-		qDebug() << "thumbnail: AMScan knows it's scanning.";
+		AMErrorMon::debug(this, AMSCAN_THUMBNAIL_SCANNING_MESSAGE, "Thumbnail: AMScan know it's scanning");
 		QFile file(":/240x180/currentlyScanningThumbnail.png");
 		file.open(QIODevice::ReadOnly);
 		return AMDbThumbnail("Started",
@@ -542,10 +549,22 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 		plot->doDelayedAutoScale();
 		break; }
 	case 2: {
-		MPlotImageBasic* image = new MPlotImageBasic();
-		image->setModel(new AMDataSourceImageData(dataSource), true);
-		plot->addItem(image);
-		plot->doDelayedAutoScale();
+		if (scanRank() == 2){
+
+			MPlotImageBasicwDefault* image = new MPlotImageBasicwDefault();
+			image->setModel(new AMDataSourceImageDatawDefault(dataSource, 0), true);
+			plot->addItem(image);
+			plot->doDelayedAutoScale();
+		}
+
+		else{
+
+			MPlotImageBasic* image = new MPlotImageBasic();
+			image->setModel(new AMDataSourceImageData(dataSource), true);
+			plot->addItem(image);
+			plot->doDelayedAutoScale();
+		}
+
 		break; }
 	default: {
 		// what?
@@ -579,7 +598,7 @@ bool AMScan::loadData()
 
 	}
 	if(!accepts)
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -47, QString("Could not find a suitable plugin for loading the file format '%1'.  Check the Acquaman preferences for the correct plugin locations, and contact the Acquaman developers for assistance.").arg(fileFormat())));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMSCAN_CANNOT_FIND_SUITABLE_PLUGIN_FOR_FILE_FORMAT, QString("Could not find a suitable plugin for loading the file format '%1'.  Check the Acquaman preferences for the correct plugin locations, and contact the Acquaman developers for assistance.").arg(fileFormat())));
 
 	if(success)
 		for(int i=rawDataSources_.count()-1; i>=0; i--)
@@ -600,6 +619,7 @@ void AMScan::setScanController(AMScanController* scanController)
 		emit currentlyScanningChanged(currentlyScanning_);
 	}
 }
+#endif
 
 #include <QThread>
 #include <QMutexLocker>
@@ -681,4 +701,83 @@ QVector<int> AMScan::nonHiddenAnalyzedDataSourceIndexes() const
 	return rv;
 }
 
-#endif
+void AMScan::retain(QObject *owner)
+{
+	if(owner)
+		owners_ << owner;
+}
+
+void AMScan::release(QObject *pastOwner)
+{
+	if(pastOwner)
+		owners_.remove(pastOwner);
+
+	if(owners_.isEmpty())	// nobody wants us anymore... So sad.
+		delete this;			// commit suicide.
+}
+
+AMScan * AMScan::createFromDatabaseUrl(const QUrl &url, bool allowIfScanning, bool *wasScanning, QString *scanName)
+{
+	if(wasScanning)
+		*wasScanning = false;
+
+	// scheme correct?
+	if(url.scheme() != "amd")
+		return 0;
+
+	// Can we connect to the database?
+	AMDatabase* db = AMDatabase::database(url.host());
+	if(!db)
+		return 0;
+	// \bug This does not verify that the incoming scans came from the user database. In fact, it happily accepts scans from other databases. Check if we assume anywhere else inside AMGenericScanEditor that we're using the AMDatabase::database("user") database. (If we do, this could cause problems.)
+
+	QStringList path = url.path().split('/', QString::SkipEmptyParts);
+	if(path.count() != 2)
+		return 0;
+
+	QString tableName = path.at(0);
+	bool idOkay;
+	int id = path.at(1).toInt(&idOkay);
+	if(!idOkay || id < 1)
+		return 0;
+
+	// Only open AMScans or subclasses in the AMScans table.
+	if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
+		return 0;
+
+	// Check if this scan is acquiring.
+	// Use the currentlyScanning column stored in the database.
+	QVariant isScanning = db->retrieve(id, tableName, "currentlyScanning");
+	if(!isScanning.isValid())
+		return 0;
+
+	// Report back whether it was scanning, if \c wasScanning was provided.
+	if(wasScanning) {
+		*wasScanning = isScanning.toBool();
+	}
+
+	if(isScanning.toBool() && !allowIfScanning) {
+		// Don't allow because is scanning. We'll return false here; First, grab the name and number for feedback if requested.
+		if(scanName) {
+			QList<QVariant> nameAndNumber = db->retrieve(id, tableName, QStringList() << "name" << "number");
+			*scanName = QString("%1 (#%2)").arg(nameAndNumber.at(0).toString()).arg(nameAndNumber.at(1).toString());
+		}
+		return 0;
+	}
+
+	// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
+	AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
+	if(!dbo)
+		return 0;
+
+	AMScan* scan = qobject_cast<AMScan*>( dbo );
+	if(!scan) {
+		delete dbo;
+		return 0;
+	}
+
+	if(scanName)
+		*scanName = scan->fullName();
+
+	return scan;
+}

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -33,7 +33,7 @@ CLSSplitIonChamberView::CLSSplitIonChamberView(CLSSplitIonChamber *chamber, QWid
 	value_->hide();
 	value_->addItems(QStringList() << "1" << "2" << "5" << "10" << "20" << "50" << "100" << "200" << "500");
 	connect(value_, SIGNAL(currentIndexChanged(int)), this, SLOT(onValueComboBoxChanged(int)));
-	connect(splitIonChamberCLS(), SIGNAL(sensitivityValueAChanged(int)), this, SLOT(onValueChanged(int)));
+	connect(splitIonChamberCLS(), SIGNAL(sensitivityValueIndexAChanged(int)), this, SLOT(onValueChanged(int)));
 
 	units_ = new QComboBox;
 	units_->hide();
@@ -45,7 +45,7 @@ CLSSplitIonChamberView::CLSSplitIonChamberView(CLSSplitIonChamber *chamber, QWid
 	valueA_->hide();
 	valueA_->addItems(QStringList() << "1" << "2" << "5" << "10" << "20" << "50" << "100" << "200" << "500");
 	connect(valueA_, SIGNAL(currentIndexChanged(int)), this, SLOT(onValueAComboBoxChanged(int)));
-	connect(splitIonChamberCLS(), SIGNAL(sensitivityValueAChanged(int)), this, SLOT(onValueAChanged(int)));
+	connect(splitIonChamberCLS(), SIGNAL(sensitivityValueIndexAChanged(int)), this, SLOT(onValueAChanged(int)));
 
 	unitsA_ = new QComboBox;
 	unitsA_->hide();
@@ -57,7 +57,7 @@ CLSSplitIonChamberView::CLSSplitIonChamberView(CLSSplitIonChamber *chamber, QWid
 	valueB_->hide();
 	valueB_->addItems(QStringList() << "1" << "2" << "5" << "10" << "20" << "50" << "100" << "200" << "500");
 	connect(valueB_, SIGNAL(currentIndexChanged(int)), this, SLOT(onValueBComboBoxChanged(int)));
-	connect(splitIonChamberCLS(), SIGNAL(sensitivityValueBChanged(int)), this, SLOT(onValueBChanged(int)));
+	connect(splitIonChamberCLS(), SIGNAL(sensitivityValueIndexBChanged(int)), this, SLOT(onValueBChanged(int)));
 
 	unitsB_ = new QComboBox;
 	unitsB_->hide();
@@ -219,38 +219,7 @@ void CLSSplitIonChamberView::onCustomContextMenuRequested(QPoint pos)
 void CLSSplitIonChamberView::setValueComboBox(QComboBox *valueBox, int value)
 {
 	chamber_->blockSignals(true);
-
-	switch(value){
-
-	case 1:
-		valueBox->setCurrentIndex(0);
-		break;
-	case 2:
-		valueBox->setCurrentIndex(1);
-		break;
-	case 5:
-		valueBox->setCurrentIndex(2);
-		break;
-	case 10:
-		valueBox->setCurrentIndex(3);
-		break;
-	case 20:
-		valueBox->setCurrentIndex(4);
-		break;
-	case 50:
-		valueBox->setCurrentIndex(5);
-		break;
-	case 100:
-		valueBox->setCurrentIndex(6);
-		break;
-	case 200:
-		valueBox->setCurrentIndex(7);
-		break;
-	case 500:
-		valueBox->setCurrentIndex(8);
-		break;
-	}
-
+	valueBox->setCurrentIndex(value);
 	chamber_->blockSignals(false);
 }
 

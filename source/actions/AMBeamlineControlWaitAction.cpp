@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -206,7 +206,7 @@ void AMBeamlineControlWaitAction::calculateProgress(){
 	}
 	else
 		elapsed = fabs(control_->value()-waitpoint_)/actionTolerance_;
-	//qDebug() << "Progress is " << elapsed/1.0;
+	//qdebug() << "Progress is " << elapsed/1.0;
 	emit progress(elapsed, 1.0);
 }
 

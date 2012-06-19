@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <application/AMDatamanAppController.h>
 #include <QHash>
 
+class AMWorkflowView3;
 class AMWorkflowManagerView;
 class AMMainWindow;
 class AMScan;
@@ -40,13 +41,19 @@ Q_OBJECT
 public:
 	/// This constructor is empty. Call AMAppController::startup() to create all of the application windows, widgets, and data objects that are needed on program startup.
 	explicit AMAppController(QObject *parent = 0);
-	/// This destructor automatically calls shutdown() if required. (ie: if startup() has run successfully, and shutdown() hasn't been called yet.)
-	virtual ~AMAppController();
+	/// The destructor is empty.  Call AMAppController::shutdown() to delete all objects and clean up.
+	virtual ~AMAppController() {}
 
-	/// Re-implemented from AMDatamanAppController to add the workflow pane
+	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
+	virtual bool startup();
+
+	/// Re-implemented from AMDatamanAppController to add the workflow pane, and show the run selection dialog / splash screen.
 	virtual bool startupCreateUserInterface();
+	/// Re-implemented from AMDatamanAppController to provide a menu action for changing the current run.
+	virtual bool startupInstallActions();
 
-	// Not re-implemented: virtual void shutdown();
+	/// Shutdown: nothing special to do except call the base class shutdown().
+	virtual void shutdown() { AMDatamanAppController::shutdown(); }
 
 signals:
 
@@ -64,11 +71,15 @@ If \c openInExistingEditor is set to true, and if there is an existing editor, t
 	///	Opens a single scan configuration from a given database URL.  Reimplemented to put the scan into a config view holder to possibly add it to the workflow.
 	virtual void launchScanConfigurationFromDb(const QUrl &url);
 
+	/// Displays a dialog for changing the current run, if a user wants to do that while the app is still open.
+	void showChooseRunDialog();
+
 	///////////////////////////////////
 
 protected:
 	/// Top-level panes in the main window
 	AMWorkflowManagerView* workflowManagerView_;
+	AMWorkflowView3* workflowView_;
 
 	/// Filters the closeEvent on the main window, in case there's any reason why we can't quit directly. (ie: scans modified and still open, or an action is still running)
 	virtual bool eventFilter(QObject *, QEvent *);

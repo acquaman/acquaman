@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -160,7 +160,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	updateRate_->addItem("1 sec");
 	updateRate_->addItem("0.2 sec");
 	connect(updateRate_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxUpdate(int)));
-	//connect(detector_, SIGNAL(refreshRateChanged(int)), this, SLOT(onUpdateRateChanged(int)));
+	connect(detector_, SIGNAL(refreshRateChanged(int)), this, SLOT(onUpdateRateChanged(int)));
 
 	isWaterfall_ = false;
 
@@ -440,7 +440,7 @@ void XRFDetailedDetectorView::sortRegionsOfInterest()
 		plot_->removeItem(markers_.at(i));
 
 	// Sort the list.
-	double smallest = 0;
+	int smallest = 0;
 
 	for (int i = 0; i < markers_.size(); i++){
 
@@ -829,6 +829,8 @@ void XRFDetailedDetectorView::saveSpectra()
 		out << QString("Input Count Rate %1\t").arg(i+1) << double(detector_->icrDataSource(i)->value(AMnDIndex())) << "\n";
 		out << QString("Output Count Rate %1\t").arg(i+1) << double(detector_->ocrDataSource(i)->value(AMnDIndex())) << "\n";
 	}
+
+	out << detector_->notes();
 
 	out << "Regions of Interest\n";
 	out << "Name\t<Low, High>\tValue\n";

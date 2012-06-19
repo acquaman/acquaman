@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -24,11 +24,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QBoxLayout>
 #include <QGroupBox>
 
-#include <QDebug>
-
-REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(QWidget *parent) :
+REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfiguration* config, QWidget *parent) :
 		AMScanConfigurationView(parent)
 {
+	if(config) {
+		configuration_ = config;
+		ownsConfiguration_ = false;
+	}
+	else {
+		configuration_ = new REIXSXESScanConfiguration(this);
+		ownsConfiguration_ = true;
+	}
+
 	QGroupBox* detectorOptions = new QGroupBox("Detector Setup");
 	// detectorOptions->setFlat(true);
 	QGroupBox* stopScanOptions = new QGroupBox("Stop scan when...");
@@ -99,33 +106,33 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(QWidget *parent) :
 
 
 	//////////////////////
-	centerEVBox_->setValue(configuration_.centerEV());
-	defocusDistanceMmBox_->setValue(configuration_.defocusDistanceMm());
-	detectorTiltBox_->setValue(configuration_.detectorTiltOffset());
+	centerEVBox_->setValue(configuration_->centerEV());
+	defocusDistanceMmBox_->setValue(configuration_->defocusDistanceMm());
+	detectorTiltBox_->setValue(configuration_->detectorTiltOffset());
 	// removed:
-//	if(configuration_.detectorOrientation() == 0)
+//	if(configuration_->detectorOrientation() == 0)
 //		horizontalDetectorButton_->setChecked(true);
 //	else
 //		verticalDetectorButton_->setChecked(true);
 
-	maximumTotalCounts_->setValue(configuration_.maximumTotalCounts());
-	maximumTimeEdit_->setTime(QTime().addSecs(int(configuration_.maximumDurationSeconds())));
-	startFromCurrentPositionOption_->setChecked(configuration_.shouldStartFromCurrentPosition());
-	doNotClearExistingCountsOption_->setChecked(configuration_.doNotClearExistingCounts());
+	maximumTotalCounts_->setValue(configuration_->maximumTotalCounts());
+	maximumTimeEdit_->setTime(QTime().addSecs(int(configuration_->maximumDurationSeconds())));
+	startFromCurrentPositionOption_->setChecked(configuration_->shouldStartFromCurrentPosition());
+	doNotClearExistingCountsOption_->setChecked(configuration_->doNotClearExistingCounts());
 	/////////////////////////
 
 	connect(gratingSelector_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSelectedGratingChanged(int)));
-	connect(centerEVBox_, SIGNAL(valueChanged(double)), &configuration_, SLOT(setCenterEV(double)));
-	connect(defocusDistanceMmBox_, SIGNAL(valueChanged(double)), &configuration_, SLOT(setDefocusDistanceMm(double)));
-	connect(detectorTiltBox_, SIGNAL(valueChanged(double)), &configuration_, SLOT(setDetectorTiltOffset(double)));
+	connect(centerEVBox_, SIGNAL(valueChanged(double)), configuration_, SLOT(setCenterEV(double)));
+	connect(defocusDistanceMmBox_, SIGNAL(valueChanged(double)), configuration_, SLOT(setDefocusDistanceMm(double)));
+	connect(detectorTiltBox_, SIGNAL(valueChanged(double)), configuration_, SLOT(setDetectorTiltOffset(double)));
 
 	// removed:
-//	connect(verticalDetectorButton_, SIGNAL(toggled(bool)), &configuration_, SLOT(setDetectorOrientation(bool)));
+//	connect(verticalDetectorButton_, SIGNAL(toggled(bool)), configuration_, SLOT(setDetectorOrientation(bool)));
 
-	connect(startFromCurrentPositionOption_, SIGNAL(toggled(bool)), &configuration_, SLOT(setShouldStartFromCurrentPosition(bool)));
-	connect(doNotClearExistingCountsOption_, SIGNAL(toggled(bool)), &configuration_, SLOT(setDoNotClearExistingCounts(bool)));
+	connect(startFromCurrentPositionOption_, SIGNAL(toggled(bool)), configuration_, SLOT(setShouldStartFromCurrentPosition(bool)));
+	connect(doNotClearExistingCountsOption_, SIGNAL(toggled(bool)), configuration_, SLOT(setDoNotClearExistingCounts(bool)));
 
-	connect(maximumTotalCounts_, SIGNAL(valueChanged(double)), &configuration_, SLOT(setMaximumTotalCounts(double)));
+	connect(maximumTotalCounts_, SIGNAL(valueChanged(double)), configuration_, SLOT(setMaximumTotalCounts(double)));
 
 	connect(maximumTimeEdit_, SIGNAL(timeChanged(QTime)), this, SLOT(onMaximumTimeEditChanged(QTime)));
 
@@ -181,7 +188,7 @@ void REIXSXESScanConfigurationView::onCalibrationIndexChanged(int newIndex) {
 
 	currentCalibrationId_ = calibrationSelector_->itemData(newIndex).toInt();
 
-	configuration_.setSpectrometerCalibrationId(currentCalibrationId_);
+	configuration_->setSpectrometerCalibrationId(currentCalibrationId_);
 
 	if(currentCalibrationId_ > 0) {
 		calibration_.loadFromDb(AMDatabase::database("user"), currentCalibrationId_);
@@ -192,7 +199,6 @@ void REIXSXESScanConfigurationView::onCalibrationIndexChanged(int newIndex) {
 
 
 	QStringList gratingNames = calibration_.gratingNames();
-	qDebug() << gratingNames;
 	// remove any extra gratings from the selector that aren't in this configuration
 	while(gratingSelector_->count() > gratingNames.count())
 		gratingSelector_->removeItem(gratingSelector_->count()-1);
@@ -219,12 +225,12 @@ void REIXSXESScanConfigurationView::onSelectedGratingChanged(int newGrating) {
 	QPair<double, double> evRange = calibration_.evRangeForGrating(newGrating);
 	centerEVBox_->setRange(evRange.first, evRange.second);
 
-	configuration_.setGratingNumber(newGrating);
+	configuration_->setGratingNumber(newGrating);
 }
 
 void REIXSXESScanConfigurationView::onMaximumTimeEditChanged(const QTime &time) {
 
 	QTime baseTime(0,0);
 	double totalSeconds = baseTime.secsTo(time);
-	configuration_.setMaximumDurationSeconds(int(totalSeconds));
+	configuration_->setMaximumDurationSeconds(int(totalSeconds));
 }

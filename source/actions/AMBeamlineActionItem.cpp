@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -24,7 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
-#include <QDebug>
 #include <QMouseEvent>
 #include <QMenu>
 #include <QAction>
@@ -226,7 +225,6 @@ void AMBeamlineActionItem::setFinished(bool isFinished){
 }
 
 void AMBeamlineActionItem::initialize(){
-	//qDebug() << "AMBeamlineActionItem::initialize()";
 	ready_.setState(false);
 	started_.setState(false);
 	succeeded_.setState(false);
@@ -308,10 +306,8 @@ void AMBeamlineActionItemView::setMovable(bool movable){
 
 void AMBeamlineActionItemView::onCreateCopyClicked(){
 	AMBeamlineActionItem *actionCopy = action_->createCopy();
-	if(actionCopy){
-		qDebug() << "ActionView has a copy to send out";
+	if(actionCopy)
 		emit copyRequested(actionCopy);
-	}
 }
 
 void AMBeamlineActionItemView::mousePressEvent(QMouseEvent *event){
@@ -349,7 +345,6 @@ void AMBeamlineActionItemView::paintEvent(QPaintEvent *event){
 	QFrame::paintEvent(event);
 	if(oldHeight_ != height()){
 		oldHeight_ = height();
-		//qDebug() << "New height is " << height();
 		emit heightChanged(height());
 	}
 }

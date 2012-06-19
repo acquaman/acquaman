@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLSMDRIVEMOTORCONTROL_H
 #define CLSMDRIVEMOTORCONTROL_H
 
-#include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
 
 /// This class is a subclass of AMPVwStatusControl that is useful for IMS MDrive motors at the CLS using the initial version of the driver that doesn't support unit conversion. (Future versions of that driver will have unit conversion built-in, and this class can switch to using AMPVwStatusControl instead of AMPVwStatusAndUnitConversionControl.
 class CLSMDriveMotorControl : public AMPVwStatusAndUnitConversionControl

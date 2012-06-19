@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -42,7 +42,7 @@ public:
 
 protected slots:
 	/// Handles passing changes in the value combo box to the ion chamber.
-	void onValueComboBoxChanged(int index) { ionChamberCLS()->setSensitivityValue(index); }
+	void onValueComboBoxChanged(int index) { ionChamberCLS()->setSensitivityValueIndex(index); }
 	/// Handles passing changes in the units combo box to the ion chamber.
 	void onUnitsComboBoxChanged(int index) { ionChamberCLS()->setSensitivityUnits(units_->itemText(index)); }
 

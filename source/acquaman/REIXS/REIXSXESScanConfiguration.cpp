@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -33,6 +33,9 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 	// removed: detectorOrientation_ = 0;
 	shouldStartFromCurrentPosition_ = false;
 	doNotClearExistingCounts_ = false;
+
+	// temporary, for comissioning
+	detectorHeightError_ = 0;	//mm
 
 	maximumTotalCounts_ = 1000000;
 	maximumDurationSeconds_ = 300;

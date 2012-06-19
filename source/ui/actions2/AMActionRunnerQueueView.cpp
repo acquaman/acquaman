@@ -1,7 +1,28 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "AMActionRunnerQueueView.h"
 
 #include "actions2/AMActionRunner.h"
 #include "actions2/AMActionRegistry.h"
+
+#include "util/AMFontSizes.h"
 
 #include <QTreeView>
 #include <QBoxLayout>
@@ -55,9 +76,9 @@ AMActionRunnerQueueView::AMActionRunnerQueueView(AMActionRunner* actionRunner, Q
 	vl2->setContentsMargins(0,0,0,0);
 	vl2->setSpacing(0);
 	headerTitle_ = new QLabel("Upcoming Actions");
-	headerTitle_->setStyleSheet("color: white;\nfont: 20pt \"Lucida Grande\"");
+	headerTitle_->setStyleSheet("color: white;\nfont: " AM_FONT_XLARGE_ "pt \"Lucida Grande\"");
 	headerSubTitle_ = new QLabel(QString("%1 actions in the workflow queue.").arg(actionRunner_->queuedActionCount()));
-	headerSubTitle_->setStyleSheet("color: rgb(204, 204, 204);\nfont: 12pt \"Lucida Grande\"");
+	headerSubTitle_->setStyleSheet("color: rgb(204, 204, 204);\nfont: " AM_FONT_REGULAR_ "pt \"Lucida Grande\"");
 	vl2->addWidget(headerTitle_);
 	vl2->addWidget(headerSubTitle_);
 	hl->addLayout(vl2);
@@ -176,11 +197,26 @@ QWidget * AMActionRunnerQueueItemDelegate::createEditor(QWidget *parent, const Q
 	QWidget* rv = AMActionRegistry::s()->createEditorForInfo(action->info());
 	if(rv) {
 		rv->setParent(parent);
+		rv->setFocusPolicy(Qt::StrongFocus);
 		rv->setBackgroundRole(QPalette::Window);
 		rv->setAutoFillBackground(true);
 	}
 
 	return rv;
+}
+
+#include <QKeyEvent>
+bool AMActionRunnerQueueItemDelegate::eventFilter(QObject *object, QEvent *event)
+{
+	QWidget* widget = qobject_cast<QWidget*>(object);
+
+	if(widget && event->type() == QEvent::KeyRelease) {
+		QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+		if(keyEvent->key() == Qt::Key_Escape)
+			emit closeEditor(widget);
+
+	}
+	return QObject::eventFilter(object, event);
 }
 
 

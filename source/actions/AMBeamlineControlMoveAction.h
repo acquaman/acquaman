@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -23,11 +23,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QProgressBar>
 #include <QTime>
+#include <QIcon>
 
 #include "AMBeamlineActionItem.h"
 #include "beamline/AMControl.h"
 
-#include <QIcon>
+#define AMBEAMLINECONTROLMOVEACTION_ONSUCCEEDED_MESSAGE 270501
+#define AMBEAMLINECONTROLMOVEACTION_ONFAILED_MESSAGE 270502
+#define AMBEAMLINECONTROLMOVEACTION_ONFINISHED_MESSAGE 270503
+#define AMBEAMLINECONTROLMOVEACTION_CALCULATEPROGRESS_MESSAGE 270504
 
 class AMBeamlineControlMoveAction : public AMBeamlineActionItem
 {

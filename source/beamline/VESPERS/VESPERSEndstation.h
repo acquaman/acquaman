@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include <QMap>
 
-#include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
 
 class VESPERSEndstation : public QObject
 {
@@ -55,6 +55,15 @@ public:
 	QPair<double, double> getLimits(AMControl *control) { return qMakePair(softLimits_.value(control).first, softLimits_.value(control).second); }
 	/// Returns the microscope setpoint names as a QPair<QString, QString>.
 	QPair<QString, QString> microscopeNames() const { return microscopeNames_; }
+
+	/// Returns the current distance of the single element vortex from the sample.
+	double distanceToSingleElementVortex() const { return singleElControl_->value(); }
+	/// Returns the current distance of the four element vortex from the sample.
+	double distanceToFourElementVortex() const { return fourElControl_->value(); }
+	/// Returns the current distancce of the Roper CCD to the sample.
+	double distanceToRoperCCD() const { return ccdControl_->value(); }
+	/// Returns the current thickness of the filters in um.
+	int filterThickness() const { return filterThickness_; }
 
 signals:
 	/// Notifier that the endstation shutter has changed.  Returns the state.
@@ -151,6 +160,9 @@ protected:
 	AMControl *filter50umB_;
 	AMControl *filterShutterUpper_;
 	AMControl *filterShutterLower_;
+
+	/// Returns the thickness off the filters in um.
+	int filterThickness_;
 
 	// A list of all the filters, but not the upper or lower shutters.
 	QMap<QString, AMControl *> filterMap_;

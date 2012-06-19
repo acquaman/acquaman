@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -68,20 +68,28 @@ public:
 
 	/// Returns the sensitivity value for one side of the ion chamber (A).
 	int sensitivityValueA() const { return sensitivityA_->value(); }
+	/// Returns the sensitivity value index for one side of the ion chamber (A).
+	int sensitivityValueIndexA() const { return sensitivityA_->valueIndex(); }
 	/// Returns the sensitivity units for one side of the ion chamber (A).
 	QString sensitivityUnitsA() const { return sensitivityA_->units(); }
 	/// Returns the sensitivity value for the other side of the ion chamber (B).
 	int sensitivityValueB() const { return sensitivityB_->value(); }
+	/// Returns the sensitivity value index for the other side of the ion chamber (B).
+	int sensitivityValueIndexB() const { return sensitivityB_->valueIndex(); }
 	/// Returns the sensitivity units for the other side of the ion chamber (B).
 	QString sensitivityUnitsB() const { return sensitivityB_->units(); }
 
 signals:
 	/// Notifier that the sensitivity value on one side of the ion chamber (A) has changed.  Passes the new value.
 	void sensitivityValueAChanged(int);
+	/// Notifier that the sensitivity value index on one side of the ion chamber (A) has changed.  Passes the new value.
+	void sensitivityValueIndexAChanged(int);
 	/// Notifier that the sensitivity units on one side of the ion chamber (A) have changed.  Passes the new value.
 	void sensitivityUnitsAChanged(QString);
 	/// Notifier that the sensitivity value on the other side of the ion chamber (B) has changed.  Passes the new value.
 	void sensitivityValueBChanged(int);
+	/// Notifier that the sensitivity value index on the other side of thhe ion chamber (B) has changed.  Passes the new value.
+	void sensitivityValueIndexBChanged(int);
 	/// Notifier that the sensitivity units on the other side of the ion chamber (B) have changed.  Passes the new value.
 	void sensitivityUnitsBChanged(QString);
 
@@ -103,11 +111,15 @@ public slots:
 
 	/// Sets the value for the sensitivity directly for one side of the ion chamber (A).  Must be a valid SR570 input.
 	void setSensitivityValueA(int value) { sensitivityA_->setValue(value); }
+	/// Sets the value index for the sensitivity for one side of the ion chamber (A).  Must be between 0 and 8.
+	void setSensitivityValueIndexA(int index) { sensitivityA_->setValueIndex(index); }
 	/// Sets the units for the sensitivity directly for one side of the ion chamber (A).  Must be a valid SR570 input.
 	void setSensitivityUnitsA(QString units) { sensitivityA_->setUnits(units); }
 
 	/// Sets the value for the sensitivity directly for the other side of the ion chamber (B).  Must be a valid SR570 input.
 	void setSensitivityValueB(int value) { sensitivityB_->setValue(value); }
+	/// Sets the value index for the sensitivity for the other side of the ion chamber (B).  Must be between 0 and 8.
+	void setSensitivityValueIndexB(int index) { sensitivityB_->setValueIndex(index); }
 	/// Sets the units for the sensitivity directly for the other side of the ion chamber (B).  Must be a valid SR570 input.
 	void setSensitivityUnitsB(QString units) { sensitivityB_->setUnits(units); }
 

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -19,7 +19,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMDacqScanController.h"
-#include <QDebug>
 #include <QTime>
 #include <QStringList>
 #include <QDir>
@@ -56,6 +55,8 @@ void AMDacqScanController::useDwellTimes(AMControl *dwellTimeTrigger, AMControl 
 		useDwellTimes_ = true;
 		dwellTimeTrigger_ = dwellTimeTrigger;
 		dwellTimeConfirmed_ = dwellTimeConfirmed;
+		dwellTimeTrigger_->move(0);
+		dwellTimeConfirmed_->move(1);
 	}
 	else
 		useDwellTimes_ = false;
@@ -65,6 +66,8 @@ bool AMDacqScanController::startImplementation(){
 		acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScanSpectrum", "File");
 		if( abop)
 		{
+			//qdebug() << "Setting up the dacq";
+
 			acqEvent_t *ev;
 			ev = first_acqEvent(advAcq_->getMaster());
 			if(!ev || !ev->numPvList ){
@@ -94,16 +97,17 @@ bool AMDacqScanController::startImplementation(){
 
 			scan_->setFilePath(fullPath.filePath()+".dat");	// relative path and extension (is what the database wants)
 			if(usingSpectraDotDatFile_){
-				// qDebug() << "dacq scan controller: setting additional file paths: " << (QStringList() << fullPath.filePath()+"_spectra.dat");
 				scan_->setAdditionalFilePaths( QStringList() << fullPath.filePath()+"_spectra.dat" );
 				((AMAcqScanSpectrumOutput*)abop)->setExpectsSpectrumFromScanController(true);
 			}
 			else {
-				// qDebug() << "dacq scan controller: not using spectraDotDat file.";
 			}
 
 			((AMAcqScanSpectrumOutput*)abop)->setScan(scan_);
 			((AMAcqScanSpectrumOutput*)abop)->setScanController(this);
+
+			//qdebug() << "Tells the dacq to start";
+
 			advAcq_->Start();
 			return true;
 		}
@@ -190,7 +194,6 @@ AMnDIndex AMDacqScanController::toScanIndex(QMap<int, double> aeData){
 
 void AMDacqScanController::onDacqStart()
 {
-	qDebug() << "Heard that the dacq started";
 	startTime_.start();
 	setStarted();
 }
@@ -219,13 +222,11 @@ void AMDacqScanController::onDacqSendCompletion(int completion){
 }
 
 void AMDacqScanController::onDacqState(const QString& state){
-	Q_UNUSED(state)//qDebug() << "State of dacq is " << state;
+	Q_UNUSED(state)
 }
 
 void AMDacqScanController::onDwellTimeTriggerChanged(double newValue){
-	qDebug() << "Looks like dwell time trigger has changed to " << newValue;
 	if( fabs(newValue - 1.0) < 0.1 ){
-		qDebug() << "Confirm dwell time has been set and reset trigger";
 		dwellTimeTrigger_->move(0);
 		dwellTimeConfirmed_->move(1);
 	}

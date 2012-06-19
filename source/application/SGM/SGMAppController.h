@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -26,32 +26,44 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class SGMSampleTransferView;
 class AMSampleManagementWidget;
 class CLSSIS3820ScalerView;
-class AMScanConfigurationViewHolder;
+class AMDetectorView;
+class AMScanConfigurationViewHolder3;
 class SGMXASScanConfigurationView;
 class SGMFastScanConfigurationView;
 class SGMSidebar;
 class SGMSettingsMasterView;
 class AMGithubManager;
+class AMDetector;
+class AMScanAction;
+class CLSProcServManager;
+class CLSProcServManagerView;
+
+#define SGMAPPCONTROLLER_COULD_NOT_RESET_FINISHED_SIGNAL 290301
 
 class SGMAppController : public AMAppController {
 	Q_OBJECT
 
 public:
-	/// This constructor should be empty. Call SGMAppController::startup() to create all of the application windows, widgets, and data objects that are needed on program startup.
+	/// This constructor is used to reset the finished signal and determine which database upgrades should be run.
 	explicit SGMAppController(QObject* parent = 0);
-
 	/// Destructor
 	virtual ~SGMAppController() {}
 
-	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
+	/// Create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
 	virtual bool startup();
+	/// Destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
+	virtual void shutdown();
+
+public slots:
+	/// Reimplemented to call the parent and create the SGM beamline database if necessary (not already created)
+	virtual bool startupCreateDatabases();
 
 	/// Re-implemented from AMAppController to create and register the SGM database with the database system.
 	virtual bool startupRegisterDatabases();
-
-	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
-	virtual void shutdown();
-
+	/// Re-implemented  to call the parent and setup the SGM configuration files, plugins, periodic table, and exporter options
+	virtual bool startupPopulateNewDatabase();
+	/// Re-implemented  to call the parent and setup the SGM configuration files, plugins, periodic table, and exporter options
+	virtual bool startupLoadFromExistingDatabase();
 
 protected slots:
 	/// This slot catches changes in the current widget of the AMMainWindow. \c pane is the new current widget.  Re-implement to catch any widget-specific responses that you need here.
@@ -59,34 +71,79 @@ protected slots:
 	  */
 	virtual void onCurrentPaneChanged(QWidget* pane);
 
+	/// When the SGM Beamline object first connects the XAS and Fast scan panes are created. They are enabled or disabled as the connection status changes.
 	void onSGMBeamlineConnected();
+	/// When the SGM's scaler connects the view is created and added as a pane to the main window.
 	void onSGMScalerConnected(bool connected);
+	/// When the SGM's first amptek SDD connects the view is created and added as a pane to the main window.
+	void onSGMAmptekSDD1Connected(bool connected);
+	/// When the SGM's second amptek SDD connects the view is created and added as a pane to the main window.
+	void onSGMAmptekSDD2Connected(bool connected);
 
-	/// \todo comment this, David...
+	/// CURRENTLY UNUSED
 	void onCurrentScanControllerCreated();
+	/// CURRENTLY UNUSED
 	void onCurrentScanControllerDestroyed();
-	void onCurrentScanControllerStarted();
+	/// When a scan starts in the Workflow3 system, a scan editor is opened and the default data source is set as the viewed source
+	void onCurrentScanControllerStarted(AMScanAction *action);
+	/// When a scan finishes in the Workflow3 system, the progress bar is disconnected
+	void onCurrentScanControllerFinished(AMScanAction *action);
 
+	/// Creates the SGM settings view if necessary and shows it
 	void onActionSGMSettings();
+	/// Creates the SGM proc serv manager view if necessary and shows it
+	void onActionProcServManager();
+
+	/// Used during startup to display a list of detectors that the beamline is still looking for
+	void onSGMBeamlineDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
 
 protected:
+	/// Installs the menu options for the settings manager and proc serv manager
 	bool startupSGMInstallActions();
-	bool setupSGMDatabase();
+	/// Grabs the dacq configuration file locations
+	bool setupSGMConfigurationFiles();
+	/// Determines the plugin locations for file loaders
+	bool setupSGMPlugins();
+	/// Either creates, retrieves, or updates the exporter options for the provided and auto- export options
+	bool setupSGMExporterOptions();
+	/// Either creates or retrieves the SGM periodic table information
 	bool setupSGMPeriodicTable();
 
-protected:
+	/// Creates views and makes connections. Some views have to wait for signals from the SGM Beamline object
+	bool setupSGMViews();
 
+protected:
+	/// View to manage transfer of samples (NOT IN USE CURRENTLY)
 	SGMSampleTransferView *sampleTransferView_;
+	/// View to manage the sample positioner and the sample plates
 	AMSampleManagementWidget *samplePositionView_;
+	/// View for controlling the SGM scaler
 	CLSSIS3820ScalerView *sgmScalerView_;
+	/// View for controlling the first SGM amptek SDD
+	AMDetectorView *amptekSDD1View_;
+	/// View for controlling the second SGM amptek SDD
+	AMDetectorView *amptekSDD2View_;
+	/// View for the SGM's XAS scan configurations
 	SGMXASScanConfigurationView *xasScanConfigurationView_;
+	/// View for the SGM's Fast scan configurations
 	SGMFastScanConfigurationView *fastScanConfigurationView_;
-	AMScanConfigurationViewHolder *xasScanConfigurationHolder_;
-	AMScanConfigurationViewHolder *fastScanConfigurationHolder_;
+	/// View holder for XAS
+	AMScanConfigurationViewHolder3 *xasScanConfigurationHolder3_;
+	/// View holder for Fast scans
+	AMScanConfigurationViewHolder3 *fastScanConfigurationHolder3_;
+	/// Persistent sidebar for beamline control
 	SGMSidebar *sgmSidebar_;
 
 	/// Persistent view for SGMSettings
 	SGMSettingsMasterView *sgmSettingsMasterView_;
+
+	/// List of procServs we might want to fiddle with
+	QList<CLSProcServManager*> procServs_;
+	/// View for the proc serv manager
+	CLSProcServManagerView *procServsView_;
+
+	/// Updating list of detectors we have been waiting for on startup
+	QString lastWaitingDetectors_;
 };
 
 #endif // SGMAPPCONTROLLER_H

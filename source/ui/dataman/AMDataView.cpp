@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -36,6 +36,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QColor>
 #include <QApplication>
 
+#include "util/AMFontSizes.h"
+
 AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	QWidget(parent)
 {
@@ -47,6 +49,7 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	itemSize_ = 50;
 
 	setupUi(this);
+	headingLabel_->setStyleSheet("font: " AM_FONT_XLARGE_ "pt \"Lucida Grande\";color: rgb(79, 79, 79);");
 
 	// add additional UI components: the QGraphicsView and QGraphicsScene
 	////////////////////////////
@@ -1043,6 +1046,8 @@ AMDataViewSection::AMDataViewSection(const QString& title, const QString& subtit
 
 	proxiedWidget_ = new QFrame();
 	setupUi(proxiedWidget_);
+	titleLabel_->setStyleSheet("color: white;\nfont: " AM_FONT_XLARGE_ "pt \"Lucida Grande\";");
+	subtitleLabel_->setStyleSheet("color: rgb(204, 204, 204);\nfont: " AM_FONT_REGULAR_ "pt \"Lucida Grande\";");
 	proxyWidget_ = new QGraphicsProxyWidget(this);
 	proxyWidget_->setWidget(proxiedWidget_);
 	proxyWidget_->setZValue(30000);
@@ -1124,7 +1129,7 @@ QSizeF AMDataViewSection::sizeHint(Qt::SizeHint which, const QSizeF &constraint)
 
 void AMDataViewSection::setGeometry(const QRectF &rect) {
 
-	// qDebug() << "calling section setGeometry with rect" << rect;
+	// qdebug() << "calling section setGeometry with rect" << rect;
 
 	QGraphicsWidget::setGeometry(rect);
 
@@ -1137,7 +1142,7 @@ void AMDataViewSection::layoutHeaderItem() {
 
 	/// \todo Optimization: if this is being called from above on all, get rid of calling proxyWidget_->effectiveSizeHint() on each scroll.
 	QRectF entireRect = rect();
-	// qDebug() << "Calling Layout Header. entireRect = " << entireRect;
+	// qdebug() << "Calling Layout Header. entireRect = " << entireRect;
 
 	qreal headerHeight = qMin(entireRect.height(),
 							  proxyWidget_->effectiveSizeHint(Qt::MinimumSize, QSizeF(entireRect.width(), -1)).height());
@@ -1171,7 +1176,7 @@ void AMDataViewSection::layoutHeaderItem() {
 
 	QRectF headerRect = QRectF(QPointF(entireRect.topLeft())+QPointF(0, yOffset),
 							   QSizeF(entireRect.width(), headerHeight));
-	// qDebug() << "Calling proxyWidget setGeometry with rect" << headerRect;
+	// qdebug() << "Calling proxyWidget setGeometry with rect" << headerRect;
 	proxyWidget_->setGeometry(headerRect);
 }
 
@@ -1181,7 +1186,7 @@ void AMDataViewSection::layoutContents() {
 
 	qreal verticalOffset = proxyWidget_->rect().height();
 	QSizeF size = rect().size() - QSizeF(0, verticalOffset);
-	// qDebug() << "calling contents setGeometry with rect" << QRectF(QPointF(0,verticalOffset), size);
+	// qdebug() << "calling contents setGeometry with rect" << QRectF(QPointF(0,verticalOffset), size);
 	subview_->setGeometry(QRectF(QPointF(0,verticalOffset), size));
 }
 
@@ -1236,7 +1241,7 @@ void AMDataViewSectionThumbnailView::populate() {
 
 	setVisible(false);
 
-	// qDebug() << "AMDataViewSectionThumbnailView::populate(): \n   starting at " << QTime::currentTime().toString("mm:ss.zzz");
+	// qdebug() << "AMDataViewSectionThumbnailView::populate(): \n   starting at " << QTime::currentTime().toString("mm:ss.zzz");
 
 	/// \todo This won't work for samples, because they don't have a number column. Generalize or specificized.
 	QSqlQuery q = db_->query();
@@ -1246,14 +1251,14 @@ void AMDataViewSectionThumbnailView::populate() {
 	query.append(" ORDER BY dateTime");
 	q.prepare( query );
 
-	//qDebug() << "   prior to executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
+	//qdebug() << "   prior to executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
 
 	if(!q.exec()) {
 		q.finish();
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -1, QString("Error executing database query '%1'. The error was %2").arg(q.executedQuery()).arg(q.lastError().text())));
 	}
 
-	// qDebug() << "   after executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
+	// qdebug() << "   after executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
 
 	// int processEventsBreakCounter = 0;
 
@@ -1287,7 +1292,7 @@ void AMDataViewSectionThumbnailView::populate() {
 		}
 	}
 
-	// qDebug() << "   ending at " << QTime::currentTime().toString("mm:ss.zzz") << "\n";
+	// qdebug() << "   ending at " << QTime::currentTime().toString("mm:ss.zzz") << "\n";
 	// layout_->activate();
 
 	setVisible(true);
@@ -1303,7 +1308,7 @@ bool AMLayoutControlledGraphicsWidget::event(QEvent *event)
 		if(layout()) {
 			QSizeF layoutSizeHint = layout()->effectiveSizeHint(Qt::PreferredSize);
 			if(size() != layoutSizeHint) {
-				//				qDebug() << "AMLayoutControlledGraphicsWidget: Catching a LayoutRequest and resizing ourself to match instead.";
+				//				qdebug() << "AMLayoutControlledGraphicsWidget: Catching a LayoutRequest and resizing ourself to match instead.";
 				resize(layoutSizeHint);
 				return true;	// don't pass this on like usual. Our resize() will trigger another LayoutRequest, but by then the size will match, so it'll be passed on through to the layout (below).
 			}
@@ -1315,7 +1320,7 @@ bool AMLayoutControlledGraphicsWidget::event(QEvent *event)
 
 void AMLayoutControlledGraphicsWidget::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
-	//	qDebug() << "AMLayoutControlledGraphicsWidget: Getting resized, and emitting resized signal.";
+	//	qdebug() << "AMLayoutControlledGraphicsWidget: Getting resized, and emitting resized signal.";
 	QGraphicsWidget::resizeEvent(event);
 	emit resized();
 }
@@ -1494,7 +1499,7 @@ void AMDataView::onDatabaseItemCreatedOrRemoved(const QString &tableName, int id
 
 void AMDataView::onDragStarted(const QPoint &startPos, const QPoint &currentPos)
 {
-	// qDebug() << "Drag started...";
+	// qdebug() << "Drag started...";
 
 	// we use this to indicate if we're tracking a rubber-band selection drag.
 	if(rubberBand_) {
@@ -1827,6 +1832,22 @@ void AMDataView::onViewDoubleClicked(const QPoint &clickPos)
 
 
 
+AMDataViewEmptyHeader::AMDataViewEmptyHeader(const QString &message, double initialWidthConstraint, QGraphicsItem *parent) :
+	AMAbstractDataViewSection(parent)
+{
+	widthConstraint_ = initialWidthConstraint;
+	proxiedWidget_ = new QFrame();
+	setupUi(proxiedWidget_);
+	messageText_->setStyleSheet("color: rgb(25, 25, 25);\nfont: italic " AM_FONT_REGULAR_ "pt \"Lucida Grande\";");
+	QGraphicsProxyWidget* proxy = new QGraphicsProxyWidget(this);
+	proxy->setWidget(proxiedWidget_);
+	layout_ = new QGraphicsLinearLayout(Qt::Vertical);
+	layout_->setContentsMargins(0,0,0,0);
+	setLayout(layout_);
+	layout_->addItem(proxy);
+
+	messageText_->setText(message);
+}
 
 
 

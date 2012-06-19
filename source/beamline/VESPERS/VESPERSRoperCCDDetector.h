@@ -1,9 +1,28 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef VESPERSROPERCCDDETECTOR_H
 #define VESPERSROPERCCDDETECTOR_H
 
 #include "beamline/AMDetector.h"
 #include "dataman/VESPERS/VESPERSRoperCCDDetectorInfo.h"
-#include "beamline/AMControl.h"
+#include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineActionItem.h"
 
 /*!
@@ -63,6 +82,12 @@ public:
 	bool autoSaveEnabled() const { return autoSaveControl_->value() == 1 ? true : false; }
 	/// Returns whether the file is being saved.
 	bool fileBeingSaved() const { return saveFileControl_->isMoving(); }
+	/// Returns the current file path set for the detector.
+	QString ccdFilePath() const { return AMPVtoString(ccdPath_); }
+	/// Returns the current file name for the detector.
+	QString ccdFileName() const { return AMPVtoString(ccdFile_); }
+	/// Returns the current number that is used for auto indexing of the file names.
+	int ccdFileNumber() const { return ccdNumber_->getInt(); }
 
 	// End of getters that aren't included in the info.
 	/////////////////////////////////////////////////////
@@ -173,7 +198,7 @@ protected slots:
 
 protected:
 	/// Converts the bizarre string output of the pv to a real QString.
-	QString AMPVtoString(AMProcessVariable *pv);
+	QString AMPVtoString(AMProcessVariable *pv) const;
 	/// Converts the string to the array of integers it needs to be.
 	void StringtoAMPV(AMProcessVariable *pv, QString toConvert);
 

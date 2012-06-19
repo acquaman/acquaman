@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -79,10 +79,14 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 	if(!scan)
 		return false;
 
+	// Clear the old scan axes to ensure we don't have any extras.
+	scan->clearRawDataCompletely();
+	scan->rawData()->addScanAxis( AMAxisInfo("eV", 0, "Incident Energy", "eV") );
+
 	// information about the scan we hope to locate:
 	QString comments;
 	QDateTime datetime;
-	double integrationTime;
+	double integrationTime = 0;
 	QString grating;
 
 	// used in parsing the data file
@@ -188,13 +192,13 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 					AMMeasurementInfo sddInfo("SDD", "Silicon Drift Detector", "counts", sddAxes);
 					if(scan->rawData()->addMeasurement(sddInfo)){
 						/// \todo Throw an errorMon out?
-						//qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
+						//qdebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 					}
 				}
 			}
 			else if(scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName))){
 				/// \todo Throw an errorMon out?
-				//qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
+				//qdebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 			}
 		}
 	}
@@ -263,7 +267,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 			return false;
 		}
 
-		int startByte, endByte;
+		int startByte = 0, endByte = 0;
 		int specCounter = 0;
 		int scanSize = scan->rawData()->scanSize(0);
 		int fileOffsetMeasurementId = scan->rawData()->idOfMeasurement("sdd_fileOffset");

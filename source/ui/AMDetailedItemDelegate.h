@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPainter>
 #include <QPixmap>
 
+#include "util/AMFontSizes.h"
 #include "util/AMDateTimeUtils.h"
 
 class AMDetailedItemDelegate : public AMCloseItemDelegate
@@ -58,7 +59,7 @@ public:
 	/// Set the text color used for the top and bottom lines.
 	void setTextColor(const QColor &topLineColor= QColor(47,79,79), const QColor &bottomLineColor = QColor(96,123,139));
 	/// Set the font size used for the top and bottom lines
-	void setFontSize(int size1=12,int size2=10);
+	void setFontSize(int size1 = AM_FONT_REGULAR,int size2 = AM_FONT_SMALL);
 	/// Request a specific \c height for each item
 	void setItemHeight(int height=40);
 

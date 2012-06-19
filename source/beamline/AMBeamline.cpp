@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -20,12 +20,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMBeamline.h"
 
+#include "util/AMErrorMonitor.h"
+
 AMBeamline* AMBeamline::instance_ = 0;
 
 
-AMBeamline::AMBeamline(const QString& controlName) : AMControl(controlName, "n/a") {
-
-
+AMBeamline::AMBeamline(const QString& controlName)
+	: AMControl(controlName, "n/a")
+{
+	exposedControls_ = new AMControlSet(this);
 }
 
 AMBeamline::~AMBeamline()
@@ -46,7 +49,7 @@ void AMBeamline::releaseBl() {
 AMBeamline * AMBeamline::bl()
 {
 	 if(!instance_) {
-		 qWarning() << "WARNING: AMBeamline: No beamline created yet.  You need to call YourBeamline::bl() before calling AMBeamline::bl().";
+		 AMErrorMon::alert(0, AMBEAMLINE_BEAMLINE_NOT_CREATED_YET, "No beamline created yet.  You need to call YourBeamline::bl() before calling AMBeamline::bl().");
 	 }
 
 	return instance_;

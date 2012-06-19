@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>330</width>
+    <width>246</width>
     <height>362</height>
    </rect>
   </property>
@@ -63,10 +63,16 @@
         <item>
          <widget class="QPushButton" name="beamOnButton">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>55</width>
+            <height>16777215</height>
+           </size>
           </property>
           <property name="text">
            <string>On</string>
@@ -82,10 +88,16 @@
         <item>
          <widget class="QPushButton" name="beamOffButton">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>55</width>
+            <height>16777215</height>
+           </size>
           </property>
           <property name="text">
            <string>Off</string>
@@ -153,14 +165,14 @@
       <item row="4" column="0">
        <widget class="QLabel" name="label_6">
         <property name="text">
-         <string>Exit slit width</string>
+         <string>Exit slit</string>
         </property>
        </widget>
       </item>
       <item row="5" column="0" colspan="2">
        <widget class="QPushButton" name="fluxResolutionWizardButton">
         <property name="text">
-         <string>Flux/Resolution Wizard...</string>
+         <string>Flux/Resolution Wizard</string>
         </property>
        </widget>
       </item>

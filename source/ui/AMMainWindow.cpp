@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -19,8 +19,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMMainWindow.h"
-#include <QDebug>
+
 #include "ui/AMCloseItemDelegate.h"
+#include "util/AMFontSizes.h"
 
 // Default constructor
 AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
@@ -47,7 +48,7 @@ AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 	sidebar_->setAutoExpandDelay(300);
 	sidebar_->setMinimumWidth(200);
 	sidebar_->setMaximumWidth(200);
-	sidebar_->setStyleSheet("QTreeView { font: 500 10pt \"Lucida Grande\"; border-width: 1px;   border-style: solid;   border-color: rgb(221, 227, 234);  border-right-color: rgb(64, 64, 64); background-color: rgb(221, 227, 234); show-decoration-selected: 1; selection-background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(91, 146, 213, 255), stop:1 rgba(22, 84, 170, 255)); }"
+	sidebar_->setStyleSheet("QTreeView { font: 500 " AM_FONT_SMALL_ "pt \"Lucida Grande\"; border-width: 1px;   border-style: solid;   border-color: rgb(221, 227, 234);  border-right-color: rgb(64, 64, 64); background-color: rgb(221, 227, 234); show-decoration-selected: 1; selection-background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(91, 146, 213, 255), stop:1 rgba(22, 84, 170, 255)); }"
 							" QTreeView::item { height: 30; } "
 							" QTreeView::item::selected { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(91, 146, 213, 255), stop:1 rgba(22, 84, 170, 255)); } ");
 	AMCloseItemDelegate* del = new AMCloseItemDelegate();
@@ -71,7 +72,7 @@ AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 	hlayout_->addWidget(stackWidget_);
 
 	// connect signals from the model:
-	connect(model_, SIGNAL(dockStateChanged(QWidget*,bool)), this, SLOT(onDockStateChanged(QWidget*,bool)));
+	connect(model_, SIGNAL(dockStateChanged(QWidget*,bool,bool)), this, SLOT(onDockStateChanged(QWidget*,bool,bool)));
 	connect(model_, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(onModelRowsInserted(QModelIndex,int,int)));
 	connect(model_, SIGNAL(rowsAboutToBeAboutToBeRemoved(QModelIndex,int,int)), this, SLOT(onModelRowsAboutToBeRemoved(QModelIndex,int,int)));
 
@@ -101,9 +102,9 @@ AMMainWindow::~AMMainWindow() {
 
 
 
-QStandardItem* AMMainWindow::addPane(QWidget* pane, const QString& categoryName, const QString& title, const QString& iconFileName) {
+QStandardItem* AMMainWindow::addPane(QWidget* pane, const QString& categoryName, const QString& title, const QString& iconFileName, bool resizeOnUndock) {
 
-	return model_->addPane(pane, categoryName, title, QIcon(iconFileName));
+	return model_->addPane(pane, categoryName, title, QIcon(iconFileName), resizeOnUndock);
 }
 
 
@@ -142,13 +143,13 @@ void AMMainWindow::onModelRowsInserted(const QModelIndex &parent, int start, int
 	for(int row=start; row<=end; row++) {
 		QModelIndex i = model_->index(row, 0, parent);
 
-		// qDebug() << "Inserting new item. isAlias() = " << model_->isAlias(i) << "isHeading = " << model_->isHeading(i);
+		// qdebug() << "Inserting new item. isAlias() = " << model_->isAlias(i) << "isHeading = " << model_->isHeading(i);
 
 		// for "real" item entries. (Nothing to do for aliases or headings)
 		if(!model_->isAlias(i) && !model_->isHeading(i)) {
 
 			QWidget* pane = model_->pane(i);
-			// qDebug() << "  Still inserting new item. pane is:" << pane;
+			// qdebug() << "  Still inserting new item. pane is:" << pane;
 
 			if(model_->isDocked(i) && pane) {
 				stackWidget_->addWidget(pane);
@@ -182,7 +183,7 @@ void AMMainWindow::onModelRowsAboutToBeRemoved(const QModelIndex &parent, int st
 					if(stackWidget_->currentWidget() == pane)
 						sidebar_->setCurrentIndex(getPreviousSelection(i));
 					else {
-						// qDebug() << "Not current widget";
+						// qdebug() << "Not current widget";
 					}
 
 					QSize oldSize = pane->size();
@@ -201,7 +202,7 @@ void AMMainWindow::onItemCloseButtonClicked(const QModelIndex &index) {
 	emit itemCloseButtonClicked(index);
 }
 
-void AMMainWindow::onDockStateChanged(QWidget* pane, bool isDocked) {
+void AMMainWindow::onDockStateChanged(QWidget* pane, bool isDocked, bool shouldResize) {
 	// dock it
 	if(isDocked) {
 		stackWidget_->addWidget(pane);
@@ -210,6 +211,8 @@ void AMMainWindow::onDockStateChanged(QWidget* pane, bool isDocked) {
 	// undock it
 	else {
 		QSize oldSize = pane->size();
+		if(shouldResize)
+			oldSize = pane->sizeHint();
 		QPoint oldPos = pane->mapToGlobal(pane->geometry().topLeft());
 
 		// If this was the currently-selected item, select something different in the main window. (Can't have a non-existent pane selected in the sidebar)
@@ -259,7 +262,7 @@ void AMMainWindow::onSidebarItemSelectionChanged() {
 		index = selectedItems.at(0);
 	}
 
-	// qDebug() << "Sidebar selection changed with index " << index;
+	// qdebug() << "Sidebar selection changed with index " << index;
 
 	if(!index.isValid()) {
 		// do nothing?
@@ -304,8 +307,8 @@ void AMMainWindow::addToPreviousSelectionsQueue(const QModelIndex &current)
 
 QModelIndex AMMainWindow::getPreviousSelection(const QModelIndex &current)
 {
-	// qDebug() << "Current index:" << current;
-	// qDebug()<< "Previous selections list:" << previousSelections_;
+	// qdebug() << "Current index:" << current;
+	// qdebug()<< "Previous selections list:" << previousSelections_;
 
 	QPersistentModelIndex potential;
 	bool searchSuccess = false;
@@ -317,8 +320,13 @@ QModelIndex AMMainWindow::getPreviousSelection(const QModelIndex &current)
 
 	QModelIndex rv = searchSuccess ? QModelIndex(potential) : QModelIndex();
 
-	// qDebug() << "Recommending go to" << rv;
+	// qdebug() << "Recommending go to" << rv;
 	return rv;
+}
+
+QWidget * AMMainWindow::currentPane() const
+{
+	return stackWidget_->currentWidget();
 }
 
 

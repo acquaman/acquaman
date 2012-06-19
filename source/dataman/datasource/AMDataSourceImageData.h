@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -53,6 +53,9 @@ public:
 
 	/// Return the extent of the data. We assume the axis values are ordered... is this a valid assumption?
 	virtual inline QRectF boundingRect() const {
+		if(!isValid_)
+			return QRectF();
+
 		int sizeX = source_->size(0);
 		int sizeY = source_->size(1);
 

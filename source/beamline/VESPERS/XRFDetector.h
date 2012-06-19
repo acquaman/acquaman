@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -126,6 +126,10 @@ public:
 	/// Returns the corrected sum spectrum data source.  Convenience function.
 	AMDataSource *correctedSumDataSource() const { return correctedSpectrumDataSources_.last(); }
 
+	// Little extra hacks.
+	/// Returns the notes.
+	QString notes() const { return notes_; }
+
 public slots:
 
 	/// Erases the current spectrum and starts collecting data.
@@ -147,38 +151,112 @@ public slots:
 	/// Sets the spectra update rate.
 	void setSpectraRefreshRate(MCAUpdateRate rate)
 	{
-		switch(rate){
-		case Passive:
-			for (int i = 0; i < elements_; i++)
-				mcaUpdateRatePV_.at(i)->setValue(0);
-			break;
-		case Slow:
-			for (int i = 0; i < elements_; i++)
-				mcaUpdateRatePV_.at(i)->setValue(6);
-			break;
-		case Fast:
-			for (int i = 0; i < elements_; i++)
-				mcaUpdateRatePV_.at(i)->setValue(8);
-			break;
+		if (elements_ == 1){
+
+			switch(rate){
+
+			case Passive:
+				singleElSpectraPV_->setValue(0);
+				break;
+
+			case Slow:
+				singleElSpectraPV_->setValue(6);
+				break;
+
+			case Fast:
+				singleElSpectraPV_->setValue(8);
+				break;
+			}
 		}
+
+		else{
+
+			switch(rate){
+
+			case Passive:
+				fourElSpectraPV_->setValue(0);
+				fourElAllPV_->setValue(0);
+				break;
+
+			case Slow:
+				fourElSpectraPV_->setValue(6);
+				fourElAllPV_->setValue(6);
+				break;
+
+			case Fast:
+				fourElSpectraPV_->setValue(8);
+				fourElAllPV_->setValue(8);
+				break;
+			}
+		}
+//		switch(rate){
+//		case Passive:
+//			for (int i = 0; i < elements_; i++)
+//				mcaUpdateRatePV_.at(i)->setValue(0);
+//			break;
+//		case Slow:
+//			for (int i = 0; i < elements_; i++)
+//				mcaUpdateRatePV_.at(i)->setValue(6);
+//			break;
+//		case Fast:
+//			for (int i = 0; i < elements_; i++)
+//				mcaUpdateRatePV_.at(i)->setValue(8);
+//			break;
+//		}
 	}
 	/// Sets the status refresh rate.
 	void setStatusRefreshRate(MCAUpdateRate rate)
 	{
-		switch(rate){
-		case Passive:
-			for (int i = 0; i < elements_; i++)
-				statusUpdateRatePV_.at(i)->setValue(0);
-			break;
-		case Slow:
-			for (int i = 0; i < elements_; i++)
-				statusUpdateRatePV_.at(i)->setValue(6);
-			break;
-		case Fast:
-			for (int i = 0; i < elements_; i++)
-				statusUpdateRatePV_.at(i)->setValue(8);
-			break;
+		if (elements_ == 1){
+
+			switch(rate){
+
+			case Passive:
+				singleElStatusPV_->setValue(0);
+				break;
+
+			case Slow:
+				singleElStatusPV_->setValue(6);
+				break;
+
+			case Fast:
+				singleElStatusPV_->setValue(8);
+				break;
+			}
 		}
+
+		else{
+
+			switch(rate){
+
+			case Passive:
+				fourElStatusPV_->setValue(0);
+				break;
+
+			case Slow:
+				fourElStatusPV_->setValue(6);
+				break;
+
+			case Fast:
+				fourElStatusPV_->setValue(8);
+				break;
+			}
+		}
+
+//		switch(rate){
+//		case Passive:
+//			for (int i = 0; i < elements_; i++)
+//				statusUpdateRatePV_.at(i)->setValue(0);
+//			break;
+//		case Slow:
+//			for (int i = 0; i < elements_; i++)
+//				statusUpdateRatePV_.at(i)->setValue(6);
+//			break;
+//		case Fast:
+//			for (int i = 0; i < elements_; i++)
+//				statusUpdateRatePV_.at(i)->setValue(8);
+//			break;
+//		}
 	}
 
 	/// Sets the size of the spectra channels.
@@ -195,6 +273,9 @@ public slots:
 	void clearRegionsOfInterest();
 	/// Sorts the list of ROIs.
 	void sortRegionsOfInterest();
+
+	/// Sets the extra notes for the detector.
+	void setNotes(const QString &notes) { notes_ = notes; }
 
 
 signals:
@@ -266,7 +347,17 @@ protected slots:
 		}
 	}
 	/// Helper slot.  Sets the status update rate to Fast once it is connected.
-	void onStatusUpdateRateInitialized() { setStatusRefreshRate(Fast); disconnect(statusUpdateRatePV_.first(), SIGNAL(valueChanged()), this, SLOT(onStatusUpdateRateInitialized())); }
+	void onStatusUpdateRateInitialized()
+	{
+		setStatusRefreshRate(Fast);
+//		disconnect(statusUpdateRatePV_.first(), SIGNAL(valueChanged()), this, SLOT(onStatusUpdateRateInitialized()));
+
+		if (elements_ == 1)
+			disconnect(singleElStatusPV_, SIGNAL(valueChanged()), this, SLOT(onStatusUpdateRateInitialized()));
+
+		else
+			disconnect(fourElStatusPV_, SIGNAL(valueChanged()), this, SLOT(onStatusUpdateRateInitialized()));
+	}
 	/// Handles changes to the peaking time.
 	void onPeakingTimeChanged(double pktime){ setPeakingTime(pktime); emit peakingTimeChanged(pktime); }
 	/// Handles changes to the maximum energy.
@@ -285,6 +376,9 @@ protected:
 	/// The refresh rate.
 	MCAUpdateRate refreshRate_;
 
+	/// A holder for extra information that should be saved inside the file created by saveSpectra().
+	QString notes_;
+
 	/// Timer used to periodically update the ROI lists.
 	QTimer timer_;
 
@@ -292,9 +386,9 @@ protected:
 	/// The status of the scan.
 	QList<AMProcessVariable *> statusPV_;
 	/// The spectra refresh rate.
-	QList<AMProcessVariable *> mcaUpdateRatePV_;
+//	QList<AMProcessVariable *> mcaUpdateRatePV_;
 	/// The status refresh rate.
-	QList<AMProcessVariable *> statusUpdateRatePV_;
+//	QList<AMProcessVariable *> statusUpdateRatePV_;
 	/// The peaking time.
 	QList<AMProcessVariable *> peakingTimePV_;
 	/// The maximum energy.
@@ -327,6 +421,18 @@ protected:
 	QList<AM0DProcessVariableDataSource *> ocrDataSources_;
 	/// The corrected spectra.  If the number of elements is greater than one then the last spectra is always the corrected sum.
 	QList<AMDataSource *> correctedSpectrumDataSources_;
+
+	// THIS IS A TEMPORARY MEASURE TO ENSURE THAT THE STATUS RATES ARE SET CORRECTLY.
+	/// The PV for the single element vortex spectra refresh rate.
+	AMProcessVariable *singleElSpectraPV_;
+	/// The PV for the single element vortex status refresh rate.
+	AMProcessVariable *singleElStatusPV_;
+	/// The PV for the four element spectra refresh rate.
+	AMProcessVariable *fourElSpectraPV_;
+	/// The PV for the four element status refresh rate.
+	AMProcessVariable *fourElStatusPV_;
+	/// The PV for the four element general refresh rate.
+	AMProcessVariable *fourElAllPV_;
 };
 
 #endif // XRFDETECTOR_H

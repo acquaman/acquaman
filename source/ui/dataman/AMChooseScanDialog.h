@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -52,6 +52,10 @@ public:
 signals:
 
 public slots:
+	/// Set the prompt shown at the top for user instructions:
+	void setPrompt(const QString& prompt);
+	/// Set the title at the top:
+	void setTitle(const QString& title);
 
 protected slots:
 	/// called when the selection in the data-view changes. We update the status text and enable/disable the OK button according to the number of scans selected.

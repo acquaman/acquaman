@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -20,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMSamplePositionViewActionsWidget.h"
 #include "ui_AMSamplePositionViewActionsWidget.h"
+
+#include <QMenu>
 
 AMSamplePositionViewActionsWidget::AMSamplePositionViewActionsWidget(int row, QWidget *parent) :
 	QFrame(parent),
@@ -45,9 +47,21 @@ AMSamplePositionViewActionsWidget::AMSamplePositionViewActionsWidget(int row, QW
 	connect(ui->markButton, SIGNAL(clicked()), this, SLOT(onMarkButtonPressed()));
 	connect(ui->moveToButton, SIGNAL(clicked()), this, SLOT(onMoveToButtonPressed()));
 	connect(ui->removeButton, SIGNAL(clicked()), this, SLOT(onRemoveButtonPressed()));
+
+	setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
 }
 
 AMSamplePositionViewActionsWidget::~AMSamplePositionViewActionsWidget()
 {
 	delete ui;
+}
+
+void AMSamplePositionViewActionsWidget::onCustomContextMenuRequested(QPoint point){
+	QMenu popup(this);
+	QAction *tempAction = popup.addAction("Additional Information");
+	tempAction = popup.exec(this->mapToGlobal(point));
+
+	if(tempAction && (tempAction->text() == "Additional Information") )
+		emit additionalInformationRequested(row_);
 }

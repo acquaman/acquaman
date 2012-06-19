@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -57,6 +57,8 @@ class REIXSValvesAndShutters : public AMCompositeControl {
 public:
 	REIXSValvesAndShutters(QObject* parent = 0);
 
+	/// Safety shutter 1
+	CLSBiStateControl* ssh1() { return ssh1_; }
 	/// Photon shutter 2
 	CLSBiStateControl* psh2() { return psh2_; }
 	/// Photon shutter 4: Used for turning off the beam
@@ -67,10 +69,19 @@ public:
 
 	/// \todo Variable apertures: set to 4x4
 
+	/// Returns true if the beam (to the best of our knowledge) is on. Currently, requires ssh1, psh2, and psh4 to be open.
+	bool isBeamOn() const { return beamIsOn_; }
+
+signals:
+	void beamOnChanged(bool isOn);
+
+protected slots:
+	/// Called when any of ssh1, psh2, and psh4 connect, disconnect, or change state. Reviews beamIsOn_ and emits beamOnChanged()
+	void reviewIsBeamOn();
 
 protected:
-	CLSBiStateControl* psh2_, *psh4_, *endstationValve_;
-
+	CLSBiStateControl* ssh1_, *psh2_, *psh4_, *endstationValve_;
+	bool beamIsOn_;
 
 };
 
@@ -120,6 +131,8 @@ public:
 
 	/// The spectrometer calibration object we are using
 	const REIXSXESCalibration* spectrometerCalibration() const { return &calibration_; }
+	// temporary, for commissioning.
+	REIXSXESCalibration* spectrometerCalibration() { return &calibration_; }
 
 	int gratingCount() const { return calibration_.gratingCount(); }
 
@@ -172,7 +185,7 @@ public:
 	virtual double maximumValue() const { return calibration_.evRangeForGrating(specifiedGrating_).second; }
 
 	/// Move to the given energy, using the specified grating, focusOffset, tiltOffset, and the current calibration. (This will cause spectrometer motion)
-	virtual void move(double setpoint);
+	virtual bool move(double setpoint);
 
 	/// Stop the spectrometer if it's currently moving
 	virtual bool stop();
@@ -181,6 +194,7 @@ public:
 	AMControl* spectrometerRotationDrive() { return spectrometerRotationDrive_; }
 	AMControl* detectorTranslation() { return detectorTranslation_; }
 	AMControl* detectorTiltDrive() { return detectorTiltDrive_; }
+	AMControl* endstationTranslation() { return endstationTranslation_; }  //DAVID ADDED
 	// removed motor from endstation in Dec. 2011:
 		// AMControl* detectorRotationDrive() { return detectorRotationDrive_; }
 	REIXSHexapod* hexapod() { return hexapod_; }
@@ -194,7 +208,7 @@ public slots:
 	void specifyDetectorTiltOffset(double tiltOffsetDeg);
 
 protected:
-	AMControl *spectrometerRotationDrive_, *detectorTranslation_, *detectorTiltDrive_;
+	AMControl *spectrometerRotationDrive_, *detectorTranslation_, *detectorTiltDrive_, *endstationTranslation_;  //DAVID ADDED
 	REIXSHexapod* hexapod_;
 
 	REIXSXESCalibration calibration_;
@@ -260,11 +274,15 @@ class REIXSBeamline : public AMBeamline
 {
 	Q_OBJECT
 public:
+	/// Acccess the REIXSBeamline singleton instance through REIXSBeamline::bl()
 	static REIXSBeamline* bl() {
 		if(!instance_)
 			instance_ = new REIXSBeamline();
 		return static_cast<REIXSBeamline*>(instance_);
 	}
+
+	/// Destructor
+	~REIXSBeamline();
 
 	// Accessing control elements:
 

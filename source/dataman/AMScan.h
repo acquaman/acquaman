@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -31,7 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMOrderedSet.h"
 #include "dataman/datasource/AMRawDataSource.h"
 #include "dataman/AMAnalysisBlock.h"
-#include "dataman/info/AMControlInfoList.h"	/// \todo change to AMControlInfoSet, using standard set API.
+#include "dataman/info/AMControlInfoList.h"
 
 #include "dataman/AMFileLoaderInterface.h"
 
@@ -45,7 +45,34 @@ class AMScanDictionary;
 class AMScanController;
 #endif
 
-/// This class is the base of all objects that represent a single 'scan' on a beamline.  It's also used as the standard container for a set of raw and/or processed AMDataSources, which can be visualized together in
+#define AMSCAN_CANNOT_FIND_SUITABLE_PLUGIN_FOR_FILE_FORMAT -2147
+#define AMSCAN_DEBUG_DELETING_SCAN -2148
+#define AMSCAN_SCAN_DELETE_DIRECTLY -2149
+#define AMSCAN_ANALYZED_DATASOURCE_COUNT_MISMATCH -2150
+#define AMSCAN_THUMBNAIL_SCANNING_MESSAGE -2151
+
+/// This class is the base of all objects that represent a single 'scan' on a beamline.
+/*! AMScan provides access to the following information:
+
+  - Basic meta-data: the start and end time, the run (including facility where it was taken), arbitrary notes,
+  - The file format of, and paths to, the raw data: fileFormat(), filePath(), additionalFilePaths()
+  - A container for the raw data sources and analyzed data sources \see AMDataSource, AMRawDataSource, AMAnalysisBlock
+  - The scan configuration, which is a customized class based on the type of the scan: scanConfiguration()
+  - A list of control values, which can store conditions at the time the scan was taken: scanInitialConditions()
+
+  You can load raw data into memory using loadData(), which will attempt to find an available file loader plugin that works with the scan's fileFormat()
+
+  You can use currentlyScanning() to find out if a scan is currently still acquiring data (ie: it has an associated scan controller).
+
+  <b>Memory Management</b>
+
+  Because multiple objects may be interested in interacting with an AMScan instance, this class uses a retain/release memory management model.  This is different from the conventional Qt memory management system, where objects are owned by a single parent object.  Instead, any QObject that is interested in working with an AMScan instance should call retain() to guarantee that it will remain available in memory.  Once you're finished with it, instead of deleting it directly, you should call release().  When all interested parties have release()'d a scan, it will delete itself.
+
+  \note This means that you should never \c delete an AMScan explicitly.  Instead, always call release().
+
+  For example, a common situation is for a scan controller to want to put data into an AMScan, while an AMScanView visualizes that same instance.  Initially, they both call retain() on the scan to declare this interest.  When the scan controller finishes, it calls release(), but nothing happens because the scan is still "called for" by the AMScanView.  When the scan is removed from the AMScanView, AMScanView also calls release().  With no one interested in the scan anymore, it deletes itself.
+
+*/
 class AMScan : public AMDbObject {
 
 	Q_OBJECT
@@ -90,6 +117,16 @@ public:
 
 	/// default constructor
 	Q_INVOKABLE explicit AMScan(QObject *parent = 0);
+
+	/// Static convenience function to create an AMScan from a database URL in the Acquaman URL format ("amd://databaseConnection/tableName/id"). Returns 0 if the scan could not be found or the URL is invalid.
+	/*! It is generally not advisable to open a second instance of scan from the DB if there is one currently scanning because of the potential for overwriting/saving (and because raw data likely won't be available.)  If \c allowIfScanning is false, will return 0 if the database indicates the scan is still scanning ('currentlyScanning' column).
+
+	Optional outputs:
+
+		- If \c isScanning is provided, will be set with whether the scan is still scanning.
+		- If \c scanName is provided, will be set the full name of the scan (assuming it is found).
+*/
+	static AMScan* createFromDatabaseUrl(const QUrl& url, bool allowIfScanning = false, bool* isScanning = 0, QString* scanName = 0);
 
 
 	/// Destructor: deletes all channels.
@@ -257,7 +294,7 @@ public:
 	static void setAutoLoadData(bool autoLoadDataOn);
 
 
-	/// Clears the scan's raw data completely, including all measurements configured within the rawData() data store, and all rawDataSources() which expose this data.
+	/// Clears the scan's rawData() completely, including all measurements configured within the data store. Also deletes all rawDataSources() that expose this data.
 	void clearRawDataPointsAndMeasurementsAndDataSources() {
 		while(rawDataSources_.count())
 			delete rawDataSources_.takeAt(rawDataSources_.count()-1);
@@ -265,13 +302,18 @@ public:
 		data_->clearAllMeasurements();
 	}
 
-	/// Clears the scan's raw data completely, including all measurements configured within the rawData() data store.
+	/// Clears the scan's rawData(), including all measurements configured within the data store. Leaves the configured scan axes as-is.
 	/*! Caution: Leaves the rawDataSources() as-is; make sure that they don't attempt to access non-existent raw data.*/
 	void clearRawDataPointsAndMeasurements() {
 		data_->clearAllMeasurements();
 	}
 
-	/// Clears all of scans's data points, but leaves all measurements and raw data sources as-is.
+	/// Clears the scan's rawData() completely, including all configured measurements and scan axes in the data store. If a scan instance has held data previously, it is recommended that file loaders and scan controllers call this to start with a "clean slate".
+	void clearRawDataCompletely() {
+		data_->clearAll();
+	}
+
+	/// Clears the scans's raw data, but leaves all measurements, scan axes, and raw data sources as-is.
 	void clearRawDataPoints() {
 		data_->clearScanDataPoints();
 	}
@@ -326,7 +368,7 @@ public:
 	virtual bool shouldGenerateThumbnailsInSeparateThread() const { return false; }
 
 
-	// Acquisition status, and link to scan controller
+	// Role 9: Acquisition status, and link to scan controller
 	///////////////////////////////
 
 #ifndef ACQUAMAN_NO_ACQUISITION
@@ -337,6 +379,17 @@ public:
 #endif
 	/// Returns true if currently scanning (ie: there is a valid scan controller, or the currentlyScanning column was true when we were loaded out of the database). This is useful because we want to know this at the database level even while scans are in progress.
 	bool currentlyScanning() const { return currentlyScanning_; }
+
+
+	// Role 10: Memory Management:
+	/////////////////////////////////
+
+	/// Call this to assert that \c owner is interested in using this scan instance, and wants it to stay in memory.
+	/*! \note It is harmless to call this multiple times with the same \c owner; only one interest will be registered. */
+	void retain(QObject* owner);
+	/// Call this to release an interest in this scan instance.  If no objects are interested in it anymore (ie: no one else has retain()'d it), it will be deleted instantly.
+	/*! You can call this with \c pastOwner = 0 to check and delete the scan if no other objects have registered an interest. You should always do this instead of calling \c delete. */
+	void release(QObject* pastOwner = 0);
 
 
 
@@ -515,6 +568,10 @@ Lines are separated by single '\n', so a full string could look like:
 #endif
 	/// This variable is set to true while a scan is in progress (ie: scan controller running), or if the scan was loaded out of the database with the currentlyScanning column true.
 	bool currentlyScanning_;
+
+
+	/// A set of QObjects that want to make sure that this AMScan instance is kept in memory.
+	QSet<QObject*> owners_;
 
 
 private:

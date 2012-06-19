@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -35,12 +35,46 @@ class AMRunExperimentInsert;
 class AMGenericScanEditor;
 class AMSettingsMasterView;
 class AMGithubIssueSubmissionView;
+class AMDatamanStartupSplashScreen;
 
 class QMenuBar;
 class QMenu;
+class QAction;
 class QStandardItem;
 
 class AMDatabase;
+class AMDbUpgrade;
+
+#define AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES 42001
+#define AMDATAMANAPPCONTROLLER_STARTUP_FINISHED 42002
+#define AMDATAMANAPPCONTROLLER_STARTUP_SUBTEXT 42003
+#define AMDATAMANAPPCONTROLLER_STARTUP_MODECHANGE 42004
+
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_LOAD_FAILURE 270201
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_REQUIREMENT_FAILURE 270202
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_SHARED_DB_FAILURE 270220
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_UPGRADE_TABLE_FAILURE 270203
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_LOAD_FAILURE 270204
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_BACKUPS_DIRECTORY_NOT_FOUND 270205
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_BACKUPS_SUBDIRECTORY_NOT_FOUND 270206
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_BACKUP_FAILURE 270207
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_UPGRADE_FAILURE 270208
+#define AMDATAMANAPPCONTROLLER_DB_UPGRADE_UPGRADE_TABLE_FAILURE 270209
+
+#define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_LOADING_SETTING 270210
+#define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_LOADING_PLUGINS 270211
+#define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_HANDLING_FIRST_TIME_USER 270212
+#define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_HANDING_NON_FIRST_TIME_USER 270213
+#define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REGISTERING_DATABASES 270214
+#define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_POPULATING_NEW_USER_DATABASE 270215
+#define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REVIEWING_EXISTING_USER_DATABASE 270216
+#define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REGISTERING_EXPORTERS 270217
+#define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_SETTING_UP_USER_INTERFACE 270218
+#define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_INSTALLING_MENU_ACTIONS 270219
+#define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_BEFORE_ANYTHING 270220
+#define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_BEFORE_USER_INTERFACE 270221
+#define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_AFTER_USER_INTERFACE 270222
+#define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_AFTER_EVERYTHING 270223
 
 /// This class takes the role of the main application controller for your particular version of the Acquaman program. It marshalls communication between separate widgets/objects, handles menus and menu actions, and all other cross-cutting issues that don't reside within a specific view or controller.  It creates and knows about all top-level GUI objects, and manages them within an AMMainWindow.
 /// This is the bare bones version of the GUI framework because it has no acquisition code inside and therefore forms the basis of a take home Dataman program for users.  It contains the ability to scan through the database, create experiments, and view scans using the scan editor.
@@ -54,11 +88,11 @@ class AMDatamanAppController : public QObject
 {
 	Q_OBJECT
 public:
-	/// This constructor is empty. Call AMDatamanAppController::startup() to create all of the application windows, widgets, and data objects that are needed on program startup.
+	/// This constructor contains the list of database upgrades that need to be done at the dataman level, you must modify this list in your AppController. Call AMDatamanAppController::startup() to create all of the application windows, widgets, and data objects that are needed on program startup.
 	explicit AMDatamanAppController(QObject *parent = 0);
 
-	/// This destructor automatically calls shutdown() if required. (ie: if startup() has run successfully, and shutdown() hasn't been called yet.)
-	virtual ~AMDatamanAppController();
+	/// This destructor is empty.  You should call shutdown() to delete everything and clean up.
+	virtual ~AMDatamanAppController() {}
 
 	// 1. Lifecycle control
 	//////////////////////////////
@@ -90,16 +124,17 @@ public slots:
 	virtual bool startupIsFirstTime();
 		virtual bool startupOnFirstTime(); ///< Run on first time only
 		virtual bool startupOnEveryTime(); ///< Run on every time except the first time
-		virtual bool startupDatabaseUpgrades(); ///< Run every time except the first time, to see if non-trivial database upgrades are necessary
+		virtual bool startupCreateDatabases(); ///< Run every time to create the databases (reimplement to create additional databases). This is always called before startupDatabaseUpgrades().
+		bool startupDatabaseUpgrades(); ///< Run every time except the first time, to see if non-trivial database upgrades are necessary. This SHOULD NOT BE SUBCLASSED, if you want other upgrades completed, add them to the databaseUpgrades_.
 	virtual bool startupRegisterDatabases();
 		virtual bool startupPopulateNewDatabase(); ///< Run on first time only
 		virtual bool startupLoadFromExistingDatabase(); ///< Run on every time except the first time
 	virtual bool startupRegisterExporters();
 	virtual bool startupBeforeUserInterface()  { return true; }
 	virtual bool startupCreateUserInterface();
-	virtual bool startupAfterUserInterface()  { return true; }
+	virtual bool startupAfterUserInterface();
 	virtual bool startupInstallActions();
-	virtual bool startupAfterEverything()  { return true; }
+	virtual bool startupAfterEverything();
 
 
 	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
@@ -129,6 +164,8 @@ public:
 	bool closeScanEditor(AMGenericScanEditor* editor);
 	/// Create and add a new scan editor. Returns the new scan editor
 	AMGenericScanEditor* createNewScanEditor();
+	/// Overloaded.  Create and add a new scan editor.  Returns the new editor.  Determines whether new new editor should use AMScanView or AM2DScanView based on \param use2DScanView.
+	AMGenericScanEditor *createNewScanEditor(bool use2DScanView);
 
 	/// If a scan with this \c id and \c database are currently open, returns the editor that has it open. Otherwise returns 0.
 	AMGenericScanEditor* isScanOpenForEditing(int id, AMDatabase* db);
@@ -141,6 +178,11 @@ signals:
 	void pauseScanIssued();
 	/// Passing on the continue scan signal from the bottom bar.
 	void continueScanIssued();
+	/// Notifier that a new generic scan editor has been created. Passes the reference to the new editor.
+	void scanEditorCreated(AMGenericScanEditor *);
+
+	/// Notifies that the AMDatamanAppController startup routine is finished
+	void datamanStartupFinished();
 
 public slots:
 	/// Open a list of scans, specified by a database URL, in the given \c editor. (If \c editor is 0, a new editor will be opened.)  The scans are checked to make sure that they're not already open, and that they're not still scanning somewhere else.
@@ -181,6 +223,12 @@ The Drag is accepted when:
 	/// this slot is called when the "add something" button is pushed. For now, it just creates a new experiment. This could be expanded to a drop-down menu that offers creating a new experiment, a new scan, a new run...
 	void onAddButtonClicked();
 
+	/// This slot is called when a menu action requests to export the current Scan Editor's graphics to a file.
+	void onActionExportGraphics();
+
+
+
+
 	/// Calling this updates the master progress bar
 	void onProgressUpdated(double elapsed, double total);
 
@@ -220,6 +268,9 @@ protected slots:
 	/// This is called when the issue submission view is finished and no longer needed
 	virtual void onIssueSubmissionViewFinished();
 
+	/// This is called by a signal (chosen with the resetFinishedSignal function) to run when the startup is actually finished. Can be reimplemented in subclasses, but you show call this function in it at some point.
+	virtual void onStartupFinished();
+
 protected:
 	/// Helper function to go through all the scan editors and see if we can close all of them.
 	bool canCloseScanEditors() const;
@@ -230,7 +281,8 @@ protected:
 //	/// Helper function to process all events for \c ms milliseconds, but stay in the calling function.
 //	void processEventsFor(int ms);
 
-
+	/// This can be called to reset the signal that will cause the startupFinished slot to run. Pass the object and in something with the signal macro, such as SIGNAL(mySignal(bool itsArgument))
+	bool resetFinishedSignal(QObject *sender, const char *signal);
 
 
 
@@ -241,11 +293,16 @@ protected:
 	/// Menus
 	QMenuBar* menuBar_;
 	QMenu *fileMenu_, *helpMenu_;
+	/// The action that triggers saving the current AMScanView image.
+	QAction* exportGraphicsAction_;
 
 	/// Top-level panes in the main window
 	AMBottomBar* bottomBar_;
 	AMDataViewWithActionButtons* dataView_;
 	AMRunExperimentInsert* runExperimentInsert_;
+
+	/// The startup splash screen for loading
+	AMDatamanStartupSplashScreen *splashScreen_;
 
 	/// Persistent view for AMSettings
 	AMSettingsMasterView *settingsMasterView_;
@@ -265,6 +322,13 @@ protected:
 	bool isStarting_, isShuttingDown_;
 	/// This will be set to true if this is the first time a user has run Acquaman
 	bool isFirstTimeRun_;
+
+	/// Holds the list of database upgrades to do in order (holds these as QMetaObjects so they can be new'd at the correct time)
+	QList<AMDbUpgrade*> databaseUpgrades_;
+
+private:
+	/// Holds the QObject whose signal is currently being used to connect to the onStartupFinished slot
+	QObject *finishedSender_;
 };
 
 #endif // AMDATAMANAPPCONTROLLER_H

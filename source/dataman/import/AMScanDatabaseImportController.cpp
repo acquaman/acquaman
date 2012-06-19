@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -21,25 +21,22 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMScanDatabaseImportController.h"
 
 #include <QDir>
-#include "util/AMSettings.h"
+#include <QStringBuilder>
+#include <QTime>
+#include <QApplication>
 
 #include "dataman/database/AMDatabase.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/database/AMDbObject.h"
-
-#include "util/AMDateTimeUtils.h"
-
-#include <QStringBuilder>
-#include <QTime>
 
 #include "dataman/AMRun.h"
 #include "dataman/AMExperiment.h"
 #include "dataman/AMSample.h"
 #include "dataman/AMScan.h"
 
-#include <QApplication>
-
-#include <QDebug>
+#include "util/AMSettings.h"
+#include "util/AMDateTimeUtils.h"
+#include "util/AMErrorMonitor.h"
 
 AMScanDatabaseImportController::AMScanDatabaseImportController(AMDatabase* destinationDb, const QString& destinationPath, QObject *parent) :
 	QObject(parent)
@@ -436,6 +433,7 @@ void AMScanDatabaseImportController::copyScans()
 			delete object;
 			continue;
 		}
+		scan->retain(this);
 
 		// update scan fields:
 		scan->setRunId(s2dRunIds_.value(scan->runId(), -1));
@@ -450,7 +448,7 @@ void AMScanDatabaseImportController::copyScans()
 		if(destinationDir.exists(filePath)) {
 			// I know we're not supposed to be a GUI module... but is it okay to prompt here for what to do?
 			if(userSaysShouldSkipDuplicateScan(scan)) {
-				delete scan;
+				scan->release(this);
 				continue;
 			}
 			filePath = makeUniqueFileName(destinationPath_, filePath);
@@ -479,7 +477,7 @@ void AMScanDatabaseImportController::copyScans()
 											 AMErrorReport::Alert,
 											 -4,
 											 QString("Error copying the scan with ID '%1' into the new database. Your database might be corrupted. Please report this problem to the Acquaman developers.").arg(scanIds.at(i))));
-			delete scan;
+			scan->release(this);
 			continue;
 		}
 
@@ -531,7 +529,7 @@ void AMScanDatabaseImportController::copyScans()
 								   scanTableName,
 								   QStringList() << "thumbnailCount" << "thumbnailFirstId",
 								   QVariantList() << thumbnailCount << thumbnailFirstId)) {
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -315, QString("While importing, error trying to store the updated thumbnail count and firstThumbnailId for database object %1. Please report this problem to the Acquaman developers.").arg(scanIds.at(i))));
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMSCANDATABASEIMPORTCONTROLLER_ERROR_STORING_UPDATED_THUMBNAIL_COUNT_AND_FIRST_ID, QString("While importing, error trying to store the updated thumbnail count and firstThumbnailId for database object %1. Please report this problem to the Acquaman developers.").arg(scanIds.at(i))));
 		}
 
 
@@ -544,7 +542,7 @@ void AMScanDatabaseImportController::copyScans()
 		}
 
 		// All done!
-		delete scan;
+		scan->release();
 		qApp->sendPostedEvents();
 		qApp->processEvents();
 	}

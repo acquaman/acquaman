@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -82,12 +82,9 @@ void AMCloseItemDelegate::drawCloseButton(QPainter *painter, const QStyleOptionV
 #include <QMouseEvent>
 #include <QApplication>
 
-
-#include <QDebug>
-
 bool AMCloseItemDelegate::editorEvent ( QEvent * event, QAbstractItemModel * model, const QStyleOptionViewItem & option, const QModelIndex & index ) {
 
-	//qDebug() << "CLOSE ITEM: editor event: " << event;
+	//qdebug() << "CLOSE ITEM: editor event: " << event;
 
 	if(!closeButtonEnabled_ || !index.data(AM::CanCloseRole).toBool()) {
 		return QStyledItemDelegate::editorEvent(event, model, option, index);
@@ -98,15 +95,15 @@ bool AMCloseItemDelegate::editorEvent ( QEvent * event, QAbstractItemModel * mod
 		mouseDownPosition_ = static_cast<QMouseEvent*>(event)->pos();
 		QPoint localPos = mouseDownPosition_ - option.rect.topLeft();
 
-		// qDebug() << "CLOSE ITEM: mouseDownPosition" << mouseDownPosition_ << "local pos:" << localPos << "close button rect:" << closeButtonRect_;
+		// qdebug() << "CLOSE ITEM: mouseDownPosition" << mouseDownPosition_ << "local pos:" << localPos << "close button rect:" << closeButtonRect_;
 
 		if(closeButtonRect_.contains(localPos)) {
-			// qDebug() << "CLOSE ITEM: do close!";
+			// qdebug() << "CLOSE ITEM: do close!";
 
 			// On mac, qlistviews in comboboxes don't report mouse-button release events. So we have to handle it here.
 #ifdef Q_WS_MAC
 			emit closeButtonClicked(index);
-			// qDebug() << "CLOSE ITEM: do close!";
+			// qdebug() << "CLOSE ITEM: do close!";
 
 			if(closeButtonAction_ == RemoveFromModel) {
 				model->removeRow(index.row(), index.parent());

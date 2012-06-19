@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -63,7 +63,7 @@ protected:
 	const AMExporterOptionGeneralAscii* option_;
 
 	/// Parse the data sources in option_, find their index within the scan, and fill mainTableDataSources_, separateSectionDataSources_, and separateFileDataSources_.  Returns true if all required data sources are found.
-	bool prepareDataSources();
+	virtual bool prepareDataSources();
 
 	// These functions are virtual because you may want most of the options already existing in AMExporterGeneralAscii, but redefine certain behaviours.
 	/// Method that writes the header piece of the exported file.

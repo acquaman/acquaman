@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -45,6 +45,9 @@ class AMScanController : public QObject
 
 public:
 	explicit AMScanController(AMScanConfiguration *configuration, QObject *parent = 0);
+
+	/// Destructor: If the scan_ has been created, releases it.
+	virtual ~AMScanController();
 
 	/// Enum describing the state/progress of the scan
 	enum ScanState { Constructed,

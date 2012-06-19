@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -21,14 +21,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMDetectorInfo_H
 #define AMDetectorInfo_H
 
+#include <QMetaProperty>
+#include <QDebug>
+
 #include "acquaman.h"
 #include "dataman/database/AMDbObject.h"
 #include "dataman/AMMeasurementInfo.h"
 
 class QStringList;
 
-#include <QDebug>
-#include <QMetaProperty>
 
 /// This is the base class of all customizeable detectors and detector information objects. It gets associated with AMScans to indicate how their data was collected.  Subclasses should eventually contain the unique configuration and state of a particular physical detector (ex: the integration time and gain of a pico-ammeter, the HV setting for a CMA/channeltron, the bin configuration of a spectral detector like the Silicon Drift Detector.)  This base class is suitable for an un-configurable, single-point-recording generic detector.
 class AMDetectorInfo : public AMDbObject
@@ -55,6 +56,8 @@ public:
 	  The parent QObject is not set when using this copy constructor; the copy's parent() will be 0.  If you want the copy to share the same parent(), you must call QObject::setParent() afterward.
 	  */
 	AMDetectorInfo(const AMDetectorInfo& original);
+
+	AMDetectorInfo& operator=(const AMDetectorInfo &other);
 
 	~AMDetectorInfo() {}
 
@@ -109,8 +112,8 @@ public slots:
 	/// Set the size of the detector. This may not be applicable or valid for some detectors (for example, a single-point detector, or one with a fixed dimensionality.  Returns false if it's invalid to set the size.
 	virtual bool setSize(const AMnDIndex& size) { Q_UNUSED(size); return false; }
 
-protected:
-	void retreiveAndSetProperties(const AMDetectorInfo &original);
+//protected:
+	//void retreiveAndSetProperties(const AMDetectorInfo &original);
 
 protected:
 	QString description_;

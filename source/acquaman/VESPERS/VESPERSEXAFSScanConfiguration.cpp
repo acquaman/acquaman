@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSEXAFSScanConfiguration.h"
 #include "acquaman/VESPERS/VESPERSEXAFSDacqScanController.h"
 #include "ui/VESPERS/VESPERSEXAFSScanConfigurationView.h"
@@ -15,6 +34,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	regions_->setDefaultUnits(" eV");
 	regions_->setDefaultTimeUnits(" s");
 	setName("XAS Scan");
+	setUserScanName("XAS Scan");
 	fluorescenceDetectorChoice_ = None;
 	It_ = Ipost;
 	I0_ = Imini;
@@ -58,6 +78,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(const VESPERSEXAFSS
 	}
 
 	setName(original.name());
+	setUserScanName(original.userScanName());
 	fluorescenceDetectorChoice_ = original.fluorescenceDetectorChoice();
 	It_ = original.transmissionChoice();
 	I0_ = original.incomingChoice();
@@ -270,3 +291,130 @@ void VESPERSEXAFSScanConfiguration::computeTotalTime()
 	totalTime_ = time + 9; // There is a 9 second miscellaneous startup delay.
 	emit totalTimeChanged(totalTime_);
 }
+
+void VESPERSEXAFSScanConfiguration::setFluorescenceDetectorChoice(FluorescenceDetector detector)
+{
+	if (fluorescenceDetectorChoice_ != detector){
+
+		fluorescenceDetectorChoice_ = detector;
+		emit fluorescenceDetectorChoiceChanged(fluorescenceDetectorChoice_);
+		emit fluorescenceDetectorChoiceChanged(int(fluorescenceDetectorChoice_));
+		setModified(true);
+	}
+}
+
+void VESPERSEXAFSScanConfiguration::setTransmissionChoice(IonChamber It)
+{
+	if (It_ != It){
+
+		It_ = It;
+		emit transmissionChoiceChanged(It_);
+		emit transmissionChoiceChanged(int(It_));
+		setModified(true);
+	}
+}
+
+void VESPERSEXAFSScanConfiguration::setIncomingChoice(IonChamber I0)
+{
+	if (I0_ != I0){
+
+		I0_ = I0;
+		emit incomingChoiceChanged(I0_);
+		emit incomingChoiceChanged(int(I0_));
+		setModified(true);
+	}
+}
+
+void VESPERSEXAFSScanConfiguration::setEdge(QString edgeName)
+{
+	if (edge_ != edgeName){
+
+		edge_ = edgeName;
+		emit edgeChanged(edgeName);
+		setModified(true);
+	}
+}
+
+void VESPERSEXAFSScanConfiguration::setEnergy(double edgeEnergy)
+{
+	if (energy_ != edgeEnergy){
+
+		exafsRegions()->setDefaultEdgeEnergy(edgeEnergy);
+		energy_ = edgeEnergy;
+		emit energyChanged(energy_);
+		setModified(true);
+	}
+}
+
+void VESPERSEXAFSScanConfiguration::setGoToPosition(bool state)
+{
+	if (goToPosition_ != state){
+
+		goToPosition_ = state;
+		emit gotoPositionChanged(goToPosition_);
+		setModified(true);
+	}
+}
+
+void VESPERSEXAFSScanConfiguration::setPosition(QPair<double, double> pos)
+{
+	setX(pos.first);
+	setY(pos.second);
+}
+
+void VESPERSEXAFSScanConfiguration::setX(double xPos)
+{
+	if (position_.first != xPos){
+
+		position_.first = xPos;
+		emit xPositionChanged(xPos);
+		setModified(true);
+	}
+}
+
+void VESPERSEXAFSScanConfiguration::setY(double yPos)
+{
+	if (position_.second != yPos){
+
+		position_.second = yPos;
+		emit yPositionChanged(yPos);
+		setModified(true);
+	}
+}
+
+void VESPERSEXAFSScanConfiguration::setUseFixedTime(bool fixed)
+{
+	if (useFixedTime_ != fixed){
+
+		useFixedTime_ = fixed;
+		emit useFixedTimeChanged(useFixedTime_);
+		computeTotalTime();
+		setModified(true);
+	}
+}
+
+void VESPERSEXAFSScanConfiguration::setNumberOfScans(int num)
+{
+	if (numberOfScans_ != num){
+
+		numberOfScans_ = num;
+		emit numberOfScansChanged(numberOfScans_);
+		setModified(true);
+	}
+}
+
+void VESPERSEXAFSScanConfiguration::setTimeOffset(double offset)
+{
+	if (timeOffset_ != offset){
+
+		timeOffset_ = offset;
+		computeTotalTime();
+	}
+}
+
+void VESPERSEXAFSScanConfiguration::setRoiInfoList(const AMROIInfoList &list)
+{
+	roiInfoList_ = list;
+	setModified(true);
+}
+

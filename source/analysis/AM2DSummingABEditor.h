@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -39,10 +39,6 @@ public:
 	/// Construct an editor for the analysis block \c analysisBlock. (Must be valid)
 	AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *parent = 0);
 
-	~AM2DSummingABEditor() {
-		if(additionalEditor_)
-			delete additionalEditor_;
-	}
 
 
 
@@ -82,8 +78,6 @@ protected:
 	/// called to position and show/hide the range rectangle, as appropriate.
 	void placeRangeRectangle();
 
-	/// Expanded editor, which can opened up to provide a gui for editing the fields.
-	QWidget* additionalEditor_;
 
 	/// The combo box that contains all of the names.
 	QComboBox *names_;

@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -29,8 +29,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QBuffer>
 #include <QByteArray>
 #include <QPixmap>
-
-#include <QDebug>
 
 /// This class represents instances of objects that map to Experiments in the database of user information.
 class AMExperiment : public AMDbObject

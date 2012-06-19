@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -108,9 +108,9 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 
 void AMWorkflowManagerView::startQueue(){
 	if(!workflowQueue_->isEmpty()){
-//		qDebug() << "Trying to start queue";
+//		qdebug() << "Trying to start queue";
 		if(!workflowQueue_->head()->hasFinished() ){
-//			qDebug() << "Initialized, so just start, no reset";
+//			qdebug() << "Initialized, so just start, no reset";
 			workflowQueue_->startQueue();
 		}
 		else{

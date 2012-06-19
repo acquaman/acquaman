@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -25,12 +25,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class VESPERSEndstationView;
 class VESPERSXRFFreeRunView;
+class VESPERSRoperCCDDetectorView;
 class VESPERSPersistentView;
-class VESPERSXASScanConfigurationView;
+class VESPERSEXAFSScanConfiguration;
+class AMScanConfigurationViewHolder;
+class AMScanConfigurationViewHolder3;
+class VESPERS2DScanConfiguration;
+class VESPERS2DScanConfigurationView;
+class AM2DScanConfigurationViewHolder;
+class AMBeamlineListAction;
+class AMScanAction;
 
 class AMGenericScanEditor;
 
 class VESPERSWorkflowAssistant;
+class VESPERSWorkflowAssistantView;
 
 class VESPERSAppController : public AMAppController {
 	Q_OBJECT
@@ -65,15 +74,64 @@ protected slots:
 
 	/// Helper slot that handles the configureDetector signal from the 2D maps configuration view and goes to the right detector view.
 	void onConfigureDetectorRequested(const QString &detector);
+	/// Helper slot that pops up a menu to enable easy configuration of an XAS scan.  This slot is only used for 2D scans because AMGenericScanEditor only emits the necessary signal when using AM2DScanView.  The editor is passed so that the app controller knows of which (of the potentially many) scan editor to ask questions.
+	void onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos);
+	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
+	void onScanEditorCreated(AMGenericScanEditor *editor);
+
+	/// Slot that handles success for moves using the moveImmediatelyAction.
+	void onMoveImmediatelySuccess();
+	/// Slot that handles the failure for moves using the moveImmediatelyAction.
+	void onMoveImmediatelyFailure();
 
 protected:
+	/// Sets up a default XAS scan.  It will setup XANES or EXAFS based on the bool \param setupEXAFS using the information from AMGenericScanEditor \param editor.
+	void setupXASScan(const AMGenericScanEditor *editor, bool setupEXAFS);
+	/// Sets up a default 2D XRF scan.  It setup the 2D scan as best as it can based on the information provided by AMGenericScanEditor.
+	void setup2DXRFScan(const AMGenericScanEditor *editor);
+	/// Cleans up the moveImmediatelyAction after every move to ensure that the list action is always cleaned and is initialized for another move.
+	void cleanMoveImmediatelyAction();
+
+	// Things to do on startup.
+	/// Registers all of the necessary classes that are VESPERS specific.
+	void registerClasses();
+	/// Sets up all of the exporter options for the various scan types.
+	void setupExporterOptions();
+	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
+	void setupUserInterface();
+	/// Sets up all of the connections.
+	void makeConnections();
+
 	/// Temporary workflow assistant.
 	VESPERSWorkflowAssistant *assistant_;
+	/// Temporary workflow assistant view.
+	VESPERSWorkflowAssistantView *assistantView_;
 
 	/// XRF free run view for the single element detector.
 	VESPERSXRFFreeRunView *xrf1EFreeRunView_;
 	/// XRF free run view for the four element detector.
 	VESPERSXRFFreeRunView *xrf4EFreeRunView_;
+	/// Roper CCD detector view.
+	VESPERSRoperCCDDetectorView *roperCCDView_;
+
+	/// Pointer to the XAS scan configuration.
+	VESPERSEXAFSScanConfiguration *exafsScanConfig_;
+	/// The holder for the XAS scan configuration.
+	AMScanConfigurationViewHolder *exafsConfigViewHolder_;
+	/// The (new) holder for the XAS scan configuration.
+	AMScanConfigurationViewHolder3 *exafsConfigViewHolder3_;
+
+	/// Pointer to the 2D XRF scan configuration.
+	VESPERS2DScanConfiguration *mapScanConfiguration_;
+	/// The 2D XRF scan configuration view.
+	VESPERS2DScanConfigurationView *mapScanConfigurationView_;
+	/// The holder for the 2D scan configuration.
+	AM2DScanConfigurationViewHolder *mapScanConfigurationViewHolder_;
+	/// The (new) holder for the 2D scan configuration.
+	AMScanConfigurationViewHolder3 *mapScanConfigurationViewHolder3_;
+
+	/// Pointer to the list action that is used to move the sample stage.
+	AMBeamlineListAction *moveImmediatelyAction_;
 };
 
 #endif // VESPERSAPPCONTROLLER_H

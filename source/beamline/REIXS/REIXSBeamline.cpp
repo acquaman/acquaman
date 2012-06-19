@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -48,6 +48,7 @@ REIXSBeamline::REIXSBeamline() :
 	spectrometerPositionSet_->addControl(spectrometer()->hexapod()->r());
 	spectrometerPositionSet_->addControl(spectrometer()->hexapod()->s());
 	spectrometerPositionSet_->addControl(spectrometer()->hexapod()->t());
+	spectrometerPositionSet_->addControl(spectrometer()->endstationTranslation());  //DAVID ADDED
 
 	// Sample Chamber: controls and control set for positioners:
 	sampleChamber_ = new REIXSSampleChamber(this);
@@ -86,9 +87,13 @@ REIXSBeamline::REIXSBeamline() :
 	allControlsSet_->addControl(sampleChamber()->y());
 	allControlsSet_->addControl(sampleChamber()->z());
 	allControlsSet_->addControl(sampleChamber()->r());
+	allControlsSet_->addControl(spectrometer()->endstationTranslation());  //DAVID ADDED
 
 }
 
+
+REIXSBeamline::~REIXSBeamline() {
+}
 
 
 REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
@@ -130,22 +135,31 @@ REIXSHexapod::REIXSHexapod(QObject* parent)
 	QString baseName = "HXPD1610-4-I21-01:";
 	x_ = new AMPVwStatusControl("hexapodX", baseName+"X:sp", baseName+"X", baseName+"moving", QString(), this, 0.01);
 	x_->setDescription("Hexapod X");
+	x_->setAllowsMovesWhileMoving(true);
 	y_ = new AMPVwStatusControl("hexapodY", baseName+"Y:sp", baseName+"Y", baseName+"moving", QString(), this, 0.01);
 	y_->setDescription("Hexapod Y");
+	y_->setAllowsMovesWhileMoving(true);
 	z_ = new AMPVwStatusControl("hexapodZ", baseName+"Z:sp", baseName+"Z", baseName+"moving", QString(), this, 0.01);
 	z_->setDescription("Hexapod Z");
+	z_->setAllowsMovesWhileMoving(true);
 	u_ = new AMPVwStatusControl("hexapodU", baseName+"U:sp", baseName+"U", baseName+"moving", QString(), this, 0.05);
 	u_->setDescription("Hexapod U");
+	u_->setAllowsMovesWhileMoving(true);
 	v_ = new AMPVwStatusControl("hexapodV", baseName+"V:sp", baseName+"V", baseName+"moving", QString(), this, 0.05);
 	v_->setDescription("Hexapod V");
+	v_->setAllowsMovesWhileMoving(true);
 	w_ = new AMPVwStatusControl("hexapodW", baseName+"W:sp", baseName+"W", baseName+"moving", QString(), this, 0.05);
 	w_->setDescription("Hexapod W");
+	w_->setAllowsMovesWhileMoving(true);
 	r_ = new AMPVControl("hexapodR", baseName+"R:sp", baseName+"R", QString(), this, 0.001);
 	r_->setDescription("Hexapod R");
+	r_->setAllowsMovesWhileMoving(true);
 	s_ = new AMPVControl("hexapodS", baseName+"S:sp", baseName+"S", QString(), this, 0.001);
 	s_->setDescription("Hexapod S");
+	s_->setAllowsMovesWhileMoving(true);
 	t_ = new AMPVControl("hexapodT", baseName+"T:sp", baseName+"T", QString(), this, 0.001);
 	t_->setDescription("Hexapod T");
+	t_->setAllowsMovesWhileMoving(true);
 
 	addChildControl(x_);
 	addChildControl(y_);
@@ -164,33 +178,41 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 
 	setDescription("XES Detector Energy");
 	spectrometerRotationDrive_ = new AMPVwStatusControl("spectrometerRotationDrive",
-														"SMTR1610-4-I21-01:mm:sp",
+														"SMTR1610-4-I21-01:mm:fbk",
 														"SMTR1610-4-I21-01:mm",
 														"SMTR1610-4-I21-01:status",
-														"SMTR1610-4-I21-01:stop", this, 1);
+														"SMTR1610-4-I21-01:stop", this, 0.05);
 
-	spectrometerRotationDrive_->setDescription("XES Lift Stage");
+
 
 	detectorTranslation_ = new AMPVwStatusControl("detectorTranslation",
-												  "SMTR1610-4-I21-04:mm:sp",
+												  "SMTR1610-4-I21-04:mm:fbk",
 												  "SMTR1610-4-I21-04:mm",
 												  "SMTR1610-4-I21-04:status",
-												  "SMTR1610-4-I21-04:stop", this, 1);
+												  "SMTR1610-4-I21-04:stop", this, 0.05);
 
 	detectorTranslation_->setDescription("XES Detector Translation");
 	detectorTiltDrive_ = new AMPVwStatusControl("detectorTiltDrive",
 												"SMTR1610-4-I21-02:mm:sp",
 												"SMTR1610-4-I21-02:mm",
 												"SMTR1610-4-I21-02:status",
-												"SMTR1610-4-I21-02:stop", this, 0.5);
+												"SMTR1610-4-I21-02:stop", this, 0.05);
 	detectorTiltDrive_->setDescription("XES Detector Tilt Stage");
 
+	endstationTranslation_ = new AMPVwStatusControl("endstationTranslation",
+														"SMTR1610-4-I21-05:mm:fbk",
+														"SMTR1610-4-I21-05:mm",
+														"SMTR1610-4-I21-05:status",
+														"SMTR1610-4-I21-05:stop", this, 0.05);  //DAVID ADDED
+
+	endstationTranslation_->setDescription("Endstation Translation");
 
 	hexapod_ = new REIXSHexapod(this);
 
 	addChildControl(spectrometerRotationDrive_);
 	addChildControl(detectorTranslation_);
 	addChildControl(detectorTiltDrive_);
+	addChildControl(endstationTranslation_);  //DAVID ADDED
 	addChildControl(hexapod_);
 
 	currentGrating_ = -1; specifiedGrating_ = 0;
@@ -207,6 +229,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 	connect(spectrometerRotationDrive_, SIGNAL(valueChanged(double)), this, SLOT(scheduleReviewValueChanged()));
 	connect(detectorTranslation_, SIGNAL(valueChanged(double)), this, SLOT(scheduleReviewValueChanged()));
 	connect(this, SIGNAL(gratingChanged(int)), this, SLOT(scheduleReviewValueChanged()));
+	connect(endstationTranslation_, SIGNAL(valueChanged(double)), this, SLOT(scheduleReviewValueChanged()));  //DAVID ADDED
 
 	connect(&reviewValueChangedFunction_, SIGNAL(executed()), this, SLOT(reviewValueChanged()));
 
@@ -223,19 +246,17 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 #include "actions2/AMListAction.h"
 #include "actions2/actions/AMInternalControlMoveAction.h"
 
-void REIXSSpectrometer::move(double setpoint)
+bool REIXSSpectrometer::move(double setpoint)
 {
 	if(!isConnected()) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 2, "Can't move the spectrometer: some motor controls are not connected. Check that the IOCs are running and the network connections are good."));
-		emit moveFailed(AMControl::NotConnectedFailure);
-		return;
+		return false;
 	}
 
 	// can't start a move while moving
 	if(moveInProgress() || isMoving()) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 2, "Can't move the spectrometer, because it's already moving.  Stop the spectrometer first before attempting another move."));
-		emit moveFailed(AMControl::OtherFailure);
-		return;
+		return false;
 	}
 
 	specifiedEV_ = setpoint;
@@ -280,11 +301,13 @@ void REIXSSpectrometer::move(double setpoint)
 	moveAction_->addSubAction(new AMInternalControlMoveAction(spectrometerRotationDrive_, moveSetpoint_.controlNamed("spectrometerRotationDrive").value()));
 	moveAction_->addSubAction(new AMInternalControlMoveAction(detectorTiltDrive_, moveSetpoint_.controlNamed("detectorTiltDrive").value()));
 	moveAction_->addSubAction(new AMInternalControlMoveAction(detectorTranslation_, moveSetpoint_.controlNamed("detectorTranslation").value()));
+	moveAction_->addSubAction(new AMInternalControlMoveAction(endstationTranslation_, moveSetpoint_.controlNamed("endstationTranslation").value()));
 
 	// Watch the move action: succeeded or failed (or cancelled)
 	connect(moveAction_, SIGNAL(stateChanged(int,int)), this, SLOT(onMoveActionStateChanged(int,int)));
 	emit moveStarted();
 	moveAction_->start();
+	return true;
 }
 
 
@@ -305,6 +328,7 @@ bool REIXSSpectrometer::stop()
 	spectrometerRotationDrive_->stop();
 	detectorTranslation_->stop();
 	detectorTiltDrive_->stop();
+	endstationTranslation_->stop();
 	// hexapod: cannot stop without wrecking init. Don't worry for now... just let it stop over time. Not necessary for it to be not-moving before we re-send it somewhere new.
 
 	/// \todo Actually, have to flag that a stop has started, and also catch when the stop is finished... Motors will take a while to actually receive and decelerate.
@@ -419,16 +443,47 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 
 REIXSValvesAndShutters::REIXSValvesAndShutters(QObject *parent) : AMCompositeControl("valvesAndShutters", "n/a", parent)
 {
+	beamIsOn_ = false;
+
+	ssh1_ = new CLSBiStateControl("safetyShutter1", "Safety Shutter 1", "SSH1410-I00-01:state", "SSH1410-I00-01:opr:open", "SSH1410-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
 	psh2_ = new CLSBiStateControl("photonShutter2", "Photon Shutter 2", "PSH1410-I00-02:state", "PSH1410-I00-02:opr:open", "PSH1410-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this);
 
 	psh4_ = new CLSBiStateControl("photonShutter4", "Photon Shutter 4", "PSH1610-I20-01:state", "PSH1610-I20-01:opr:open", "PSH1610-I20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
 
 	endstationValve_ = new CLSBiStateControl("XESendstationValve", "XES Endstation Valve", "VVR1610-4-I21-01:state", "VVR1610-4-I21-01:opr:open", "VVR1610-4-I21-01:opr:close", new AMControlStatusCheckerDefault(2), this);
 
+	addChildControl(ssh1_);
 	addChildControl(psh2_);
 	addChildControl(psh4_);
 	addChildControl(endstationValve_);
 
+
+	// connect to monitor full beam status:
+	/////////////////////
+	connect(ssh1_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
+	connect(psh2_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
+	connect(psh4_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
+	connect(ssh1_, SIGNAL(stateChanged(int)), this, SLOT(reviewIsBeamOn()));
+	connect(psh2_, SIGNAL(stateChanged(int)), this, SLOT(reviewIsBeamOn()));
+	connect(psh4_, SIGNAL(stateChanged(int)), this, SLOT(reviewIsBeamOn()));
+
+	reviewIsBeamOn();
+}
+
+
+void REIXSValvesAndShutters::reviewIsBeamOn()
+{
+	bool beamWasOn = beamIsOn_;
+
+	beamIsOn_ = ssh1_->isConnected() &&
+			psh2_->isConnected() &&
+			psh4_->isConnected() &&
+			ssh1_->state() == 1 &&
+			psh2_->state() == 1 &&
+			psh4_->state() == 1;
+
+	if(beamIsOn_ != beamWasOn)
+		emit beamOnChanged(beamIsOn_);
 }
 
 

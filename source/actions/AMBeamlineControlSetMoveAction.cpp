@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -70,7 +70,7 @@ void AMBeamlineControlSetMoveAction::start(){
 		startpoint_ = controlSet_->toInfoList();
 		connect(&progressTimer_, SIGNAL(timeout()), this, SLOT(calculateProgress()));
 		progressTimer_.start(500);
-		qDebug() << "Setpoint is " << setpoint_;
+//		qdebug() << "Setpoint is " << setpoint_;
 		controlSet_->setFromInfoList(setpoint_);
 	}
 	else
@@ -106,7 +106,7 @@ bool AMBeamlineControlSetMoveAction::setSetpoint(const AMControlInfoList &setpoi
 		for(int y = 0; y < setpoint_.count(); y++)
 			if(fullSetpoint_.at(x).name() == setpoint_.at(y).name()){
 				fullSetpoint_[x].setValue(setpoint_.at(y).value());
-				qDebug() << "Setting " << fullSetpoint_.at(x).name() << " to " << fullSetpoint_.at(x).value() << " with tolerance " << fullSetpoint_.at(x).tolerance();
+//				qdebug() << "Setting " << fullSetpoint_.at(x).name() << " to " << fullSetpoint_.at(x).value() << " with tolerance " << fullSetpoint_.at(x).tolerance();
 			}
 	}
 	return true;
@@ -161,7 +161,7 @@ void AMBeamlineControlSetMoveAction::onSucceeded(){
 	if(numSucceeded_ != controlSet_->count())
 		return;
 	for(int x = 0; x < controlSet_->count(); x++){
-		qDebug() << "Succeeded at " << x << " " << controlSet_->at(x)->name();
+//		qdebug() << "Succeeded at " << x << " " << controlSet_->at(x)->name();
 		disconnect(controlSet_->at(x), 0, this, 0);
 	}
 	setSucceeded(true);
@@ -169,7 +169,7 @@ void AMBeamlineControlSetMoveAction::onSucceeded(){
 
 void AMBeamlineControlSetMoveAction::onFailed(int explanation){
 	AMControl *tmpCtrl = (AMControl*)QObject::sender();
-	qDebug() << "ControlSetMoveAction thinks someone failed " << tmpCtrl->name() << tmpCtrl->value() << tmpCtrl->setpoint() << tmpCtrl->tolerance() << " as " << explanation;
+	AMErrorMon::debug(this, AMBEAMLINECONTROLSETMOVEACTION_ONFAILED_MESSAGE, QString("ControlSetMoveAction detected failure in %1 as %2. Position: %3 Setpoint: %4 Tolerance: %5").arg(tmpCtrl->name()).arg(explanation).arg(tmpCtrl->value()).arg(tmpCtrl->setpoint()).arg(tmpCtrl->tolerance()) );
 	setFailed(true, explanation);
 }
 

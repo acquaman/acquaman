@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -161,7 +161,7 @@ int AMBeamlineCameraWidget::crosshairLineThickness() const
 void AMBeamlineCameraWidget::playSource(const QUrl& sourceUrl)
 {
 	videoWidget_->mediaPlayer()->setMedia(sourceUrl);
-	// qDebug() << "AMBeamlineCameraWidget: Loading and playing" << url.toString();
+	// qdebug() << "AMBeamlineCameraWidget: Loading and playing" << url.toString();
 	videoWidget_->mediaPlayer()->play();
 }
 

@@ -27,6 +27,11 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 	if (!scan)
 		return false;
 
+	// Clear the old scan axes to ensure we don't have any extras.
+	scan->clearRawDataCompletely();
+	scan->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+	scan->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
+
 	QFileInfo sourceFileInfo(scan->filePath());
 	if(sourceFileInfo.isRelative())
 		sourceFileInfo.setFile(userDataFolder + "/" + scan->filePath());
@@ -109,6 +114,25 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 		}
 
 		lineTokenized.clear();
+	}
+
+	// Pad the rest of the line with zeroes for proper visualization.
+	if (x != 0 && xLength != 0){
+
+		for ( ; x < xLength; x++){
+
+			// Add in the data at the right spot.
+			AMnDIndex axisValueIndex(x, y);
+			scan->rawData()->beginInsertRowsAsNecessaryForScanPoint(axisValueIndex);
+
+			scan->rawData()->setAxisValue(0, axisValueIndex.i(), scan->rawData()->axisValue(0, axisValueIndex.i()));
+			scan->rawData()->setAxisValue(1, axisValueIndex.j(), scan->rawData()->axisValue(1, axisValueIndex.j()-1));
+
+			for (int i = 0; i < scan->rawDataSourceCount(); i++)
+				scan->rawData()->setValue(axisValueIndex, i, AMnDIndex(), 0);
+
+			scan->rawData()->endInsertRows();
+		}
 	}
 
 	file.close();

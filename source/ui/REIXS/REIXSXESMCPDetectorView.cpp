@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -89,7 +89,7 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 	MPlotColorMap colorMap(MPlotColorMap::Bone);
 	colorMap.setContrast(2.1);
 	colorMap.setBrightness(0.08);
-	colorMap.setGamma(0.7);
+	colorMap.setGamma(1.0);
 	image_->setColorMap(colorMap);
 	imagePlot_->addItem(image_);
 
@@ -157,7 +157,6 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 
 }
 
-#include <QDebug>
 void REIXSXESMCPDetectorView::onCountsPerSecondChanged(double countsPerSecond) {
 
 

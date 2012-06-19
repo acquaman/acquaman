@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -27,11 +27,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #define AMDETECTORSET_CONTROL_TIMEOUT_MS 5000
 
+#define AMDETECTORSET_NO_ENABLE_INFO_IN_DB 401001
+#define AMDETECTORSET_ENABLE_INFO_COUNT_MISMATCH 401002
+
 class AMDetectorInfoSet : public AMDbObject, public AMOrderedSet<QString, QPair<AMDetectorInfo*, bool> >
 {
 Q_OBJECT
 	Q_PROPERTY(QString description READ description WRITE setDescription)
 	Q_PROPERTY(AMDbObjectList detectorInfos READ dbReadDetectorInfos WRITE dbLoadDetectorInfos)
+	Q_PROPERTY(QString activeDetectorInfos READ dbReadActiveDetectorInfos WRITE dbLoadActiveDetectorInfos)
 
 public:
 	explicit AMDetectorInfoSet(QObject *parent = 0);
@@ -53,6 +57,11 @@ public:
 	AMDbObjectList dbReadDetectorInfos();
 	/// Called by the database system on loadFromDb() to give us our new set of AMDetectorlInfo objects. We copy these ones into our internal list and then delete them.
 	void dbLoadDetectorInfos(const AMDbObjectList& newControlInfos);
+	/// Returns a formatted string detailing with AMDetectorInfos are active, for use by the database system in storeToDb()
+	QString dbReadActiveDetectorInfos();
+	/// Called by the database system on loadFromDb() to tell us which detector infos were active.
+	void dbLoadActiveDetectorInfos(const QString &activeDetectorInfos);
+
 
 	/// Return the index of a given \c detectorInfo in the set. The comparison is done on the name() function returned by the detectorInfo passed into the function, not the pointer value. (Returns -1 if not found in the set.)
 	int indexOf(AMDetectorInfo *detectorInfo) const;
@@ -93,6 +102,9 @@ public:
 	/// Changes whether or not the detectorInfo at the given index has been requested for a scan.
 	bool setActiveAt(int index, bool active);
 
+	/// Returns a string with any warnings that occured during the load from database phase. Empty string implies no warnings.
+	QString dbLoadWarnings() const;
+
 public slots:
 	void setDescription(const QString& description);
 
@@ -118,6 +130,8 @@ protected:
 protected:
 	QString description_;
 
+	/// Holds on to any warnings during the database load phase
+	QString dbLoadWarnings_;
 };
 
 #endif // AMDETECTORINFOSET_H

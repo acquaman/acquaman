@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -23,76 +23,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 #include <QAbstractItemModel>
-#include <QPen>
-#include <QColor>
 
-#include "MPlot/MPlotColorMap.h"
-
+#include "util/AMDataSourcePlotSettings.h"
 #include "acquaman.h"
 
 class AMScan;
 class AMDataSource;
-
-/// This class holds visualization information about AMDataSources; all the plot settings that are associated with a particular plot/layout, rather than with the AMDataSource itself.
-class AMDataSourcePlotSettings {
-public:
-	/// Default Constructor
-	AMDataSourcePlotSettings(double Priority = 1, const QPen& LinePen = QPen(nextColor()))
-		: priority(Priority),
-		  // visible(Visible),
-		  linePen(LinePen),
-		  colorMap(MPlotColorMap::Jet)
-	{
-
-		areaFilled = false;
-
-		colorMap.setContrast(2.1);
-		colorMap.setBrightness(0.08);
-		colorMap.setGamma(0.7);
-	}
-
-
-
-	/// Priority level for this data source (used for ordering... lower numbers appear first.)
-	double priority;
-	/// Whether this data source is shown/enabled in non-exclusive views. This option is available to users; they can toggle it on or off.
-	// Now stored in AMDataSource::visibleInPlots(). bool visible;
-
-	// 1D plot settings:
-	/// Pen used for this data source (dots, dashes, etc.), as well as width and color
-	QPen linePen;
-	/// True if the area below the plot should be filled \note These don't work yet, since MPlot doesn't yet support filled plots
-	bool areaFilled;
-	/// The brush of the fill, if used (ie: areaFilled is true) \note These don't work yet, since MPlot doesn't yet support filled plots
-	QBrush fillBrush;
-
-	// 2D plot settings:
-
-	/// Resultant colormap used for multi-dimensional data
-	MPlotColorMap colorMap;
-
-
-	/// Globally-accessible function to get the "next" data source color to use.
-	static QColor nextColor() {
-		static int i = 0;
-
-		switch(i++ % 11) {
-		case 0: return QColor(255, 0, 128);
-		case 1: return QColor(0, 128, 255);
-		case 2: return QColor(128, 255, 0);
-		case 3: return QColor(255, 128, 0);
-		case 4: return QColor(128, 0, 255);
-		case 5: return QColor(0, 0, 255);
-		case 6: return QColor(0, 128, 0);
-			// Yellow is hard to see: case 7: return QColor(255, 255, 0);
-		case 7: return QColor(255, 0, 0);
-		case 8: return QColor(0, 64, 128);
-		case 9: return QColor(128, 64, 0);
-		case 10: default: return QColor(128, 0, 64);
-		}
-	}
-
-};
 
 /// This class provides a standard Qt model for a set of AMScans, with the 2nd level in the tree containing their AMDataSources.  It can be used with a standard Qt view (ex: QTreeView), and it's also used with custom views like AMScanView.
 /*!
@@ -239,10 +175,11 @@ public:
 
 	// Resizable Interface:
 
-	/// Add a scan to this model.  The AMScan must exist elsewhere, for the lifetime that it is added to the model.  The model does not take ownership of the scan.
+	/// Add a scan to this model.  The model retains an interest in the scan, keeping it in memory as long as required. \see AMScan::retain().
 	void addScan(AMScan* newScan);
 
-	/// removes an AMScan from this model. Does not delete the scan.  You must call this before deleting a scan that has been added to the model.
+	/// removes an AMScan from this model. The model releases an interest in the scan, which might delete it if nothing else is using it.
+	/*! To prevent this from happening (for example, you want to re-use the scan instance outside this model), call removeMe->retain() before calling removeScan(removeMe). */
 	bool removeScan(AMScan* removeMe);
 
 	/// edit interface. Not all roles/values can be edited.

@@ -1,6 +1,23 @@
-#include "AMGithubManager.h"
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
-#include <QDebug>
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
+#include "AMGithubManager.h"
 
 AMGithubManager::AMGithubManager(QObject *parent) :
 	QObject(parent)
@@ -74,7 +91,10 @@ void AMGithubManager::authenticate(){
 	request.setRawHeader("Authorization", headerData.toLocal8Bit());
 
 	authenticateReply_ = manager_->get(request);
+	authenticateReply_->ignoreSslErrors();
 	connect(authenticateReply_, SIGNAL(readyRead()), this, SLOT(onAuthenicatedRequestReturned()));
+	connect(authenticateReply_, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(onSomeErrorOccured(QNetworkReply::NetworkError)));
+	//connect(authenticateReply_, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(onSomeSSLErrorOccurred(QList<QSslError>)));
 }
 
 void AMGithubManager::getIssues(AMGithubManager::IssuesFilter filter, AMGithubManager::IssuesState state, AMGithubManager::IssuesSort sort, AMGithubManager::IssuesDirection direction){
@@ -160,9 +180,10 @@ void AMGithubManager::createNewIssue(const QString &title, const QString &body, 
 		jdata["assignee"] = assignee;
 	QJson::Serializer jserializer;
 	QByteArray jsonData = jserializer.serialize(jdata);
-	qDebug() << jsonData;
+	//qdebug() << jsonData;
 
 	createNewIssueReply_ = manager_->post(request, jsonData);
+	createNewIssueReply_->ignoreSslErrors();
 	connect(createNewIssueReply_, SIGNAL(readyRead()), this, SLOT(onCreateNewIssueReturned()));
 }
 
@@ -187,7 +208,7 @@ void AMGithubManager::onAuthenicatedRequestReturned(){
 void AMGithubManager::onIssuesReturned(){
 	QJson::Parser parser;
 	QVariant githubFullReply = parser.parse(getIssuesReply_->readAll());
-	qDebug() << githubFullReply;
+	//qdebug() << githubFullReply;
 	bool doEmit = false;
 	QVariantMap retVal;
 	if(githubFullReply.canConvert(QVariant::List)){
@@ -214,6 +235,16 @@ void AMGithubManager::onCreateNewIssueReturned(){
 	createNewIssueReply_ = 0;
 	emit issueCreated(retVal);
 }
+
+#include <QDebug>
+void AMGithubManager::onSomeErrorOccured(QNetworkReply::NetworkError nError){
+	qDebug() << "Error occurred " << nError;
+}
+
+//void AMGithubManager::onSomeSSLErrorOccurred(QList<QSslError> sslErrors){
+//	for(int x = 0; x < sslErrors.count(); x++)
+//		qDebug() << "SSL Error as " << sslErrors.at(x).errorString();
+//}
 
 void AMGithubManager::initialize(){
 	manager_ = new QNetworkAccessManager(this);

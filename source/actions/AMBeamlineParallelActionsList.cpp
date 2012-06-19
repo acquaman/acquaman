@@ -1,5 +1,5 @@
 /*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -19,8 +19,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMBeamlineParallelActionsList.h"
-
-#include <QDebug>
 
 AMBeamlineParallelActionsList::AMBeamlineParallelActionsList(QObject *parent) :
 		QObject(parent)
@@ -121,7 +119,7 @@ void AMBeamlineParallelActionsList::puke(){
 		}
 		if(x != stageCount()-1)
 			stageString.append("--V");
-		qDebug() << stageString;
+//		qdebug() << stageString;
 	}
 }
 
@@ -681,7 +679,7 @@ bool AMBeamlineParallelActionListModel::insertRows(int row, int count, const QMo
 }
 
 bool AMBeamlineParallelActionListModel::removeRows(int row, int count, const QModelIndex &parent){
-	qDebug() << parent.isValid() << row << row+count << actions_->count();
+//	qdebug() << parent.isValid() << row << row+count << actions_->count();
 	//Need to check logic on this, looks like last row can't be removed if row+count<actions_->count() is used
 	if( !parent.isValid() && (row >= 0) && (row+count <= actions_->count()) ){
 		beginRemoveRows(parent, row, row+count-1);
