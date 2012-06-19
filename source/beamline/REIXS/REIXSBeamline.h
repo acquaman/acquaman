@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
 #include "acquaman/REIXS/REIXSXESMCPDetector.h"	///< \todo Move this to beamline, not acquaman.
-#include "dataman/REIXS/REIXSXESCalibration.h"
+#include "dataman/REIXS/REIXSXESCalibration2.h"
 #include "beamline/AMCompositeControl.h"
 #include "beamline/CLS/CLSMDriveMotorControl.h"
 
@@ -132,9 +132,9 @@ public:
 	REIXSSpectrometer(QObject* parent = 0);
 
 	/// The spectrometer calibration object we are using
-	const REIXSXESCalibration* spectrometerCalibration() const { return &calibration_; }
+	const REIXSXESCalibration2* spectrometerCalibration() const { return &calibration_; }
 	// temporary, for commissioning.
-	REIXSXESCalibration* spectrometerCalibration() { return &calibration_; }
+	REIXSXESCalibration2* spectrometerCalibration() { return &calibration_; }
 
 	int gratingCount() const { return calibration_.gratingCount(); }
 
@@ -183,8 +183,8 @@ public:
 	virtual bool moveInProgress() const { return moveAction_ != 0; }
 
 	/// Returns the minimum and maximum value for the current grating
-	virtual double minimumValue() const { return calibration_.evRangeForGrating(specifiedGrating_).first; }
-	virtual double maximumValue() const { return calibration_.evRangeForGrating(specifiedGrating_).second; }
+	virtual double minimumValue() const { return calibration_.gratingAt(specifiedGrating_).evRangeMin(); }
+	virtual double maximumValue() const { return calibration_.gratingAt(specifiedGrating_).evRangeMax(); }
 
 	/// Move to the given energy, using the specified grating, focusOffset, tiltOffset, and the current calibration. (This will cause spectrometer motion)
 	virtual FailureExplanation move(double setpoint);
@@ -213,7 +213,7 @@ protected:
 	AMPVwStatusControl *spectrometerRotationDrive_, *detectorTranslation_, *detectorTiltDrive_, *endstationTranslation_;  //DAVID ADDED
 	REIXSHexapod* hexapod_;
 
-	REIXSXESCalibration calibration_;
+	REIXSXESCalibration2 calibration_;
 
 	/// Current grating is -1 if a grating hasn't been positioned yet
 	int currentGrating_, specifiedGrating_;

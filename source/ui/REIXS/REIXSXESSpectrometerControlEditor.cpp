@@ -86,9 +86,8 @@ void REIXSXESSpectrometerControlEditor::populateGratingComboBox()
 
 	ui_->gratingSelectorBox->clear();
 
-	QStringList gratingNames = spectrometer_->spectrometerCalibration()->gratingNames();
-
-	ui_->gratingSelectorBox->addItems(gratingNames);
+	for(int i=0, cc=spectrometer_->spectrometerCalibration()->gratingCount(); i<cc; i++)
+		ui_->gratingSelectorBox->addItem(spectrometer_->spectrometerCalibration()->gratingAt(i).name());
 
 	ui_->gratingSelectorBox->blockSignals(false);
 	updateCurrentGratingStatus();
@@ -120,10 +119,10 @@ void REIXSXESSpectrometerControlEditor::updateCurrentGratingStatus()
 	else if(spectrometer_->gratingInPosition() == false) {
 		ui_->gratingFeedbackLabel->setText(
 					QString("Currently: %1 (out of position)")
-					.arg(spectrometer_->spectrometerCalibration()->gratingName(spectrometer_->grating())));
+					.arg(spectrometer_->spectrometerCalibration()->gratingAt(spectrometer_->grating()).name()));
 	}
 	else if(spectrometer_->grating() != ui_->gratingSelectorBox->currentIndex()) {
-		ui_->gratingFeedbackLabel->setText(("Currently: " % spectrometer_->spectrometerCalibration()->gratingName(spectrometer_->grating())));
+		ui_->gratingFeedbackLabel->setText(("Currently: " % spectrometer_->spectrometerCalibration()->gratingAt(spectrometer_->grating()).name()));
 	}
 	else {
 		// our drop-down selection matches the current grating, and it's in position. All is well -- don't need to tell the user anything.

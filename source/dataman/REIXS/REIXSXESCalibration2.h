@@ -131,6 +131,12 @@ public:
 	/// returns the number of gratings defined in this calibration
 	int gratingCount() const { return gratings_.count(); }
 
+	/// Access the details of a grating
+	const REIXSXESGratingInfo& gratingAt(int i) const { return gratings_.at(i); }
+
+	/// Modify the details of a grating
+	REIXSXESGratingInfo& gratingAt(int i) { return gratings_[i]; }
+
 	// Positioning results and calculations
 	//////////////////////////////////////////
 
