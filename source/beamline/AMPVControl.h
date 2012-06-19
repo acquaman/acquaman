@@ -29,6 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMPVCONTROL_MOVE_TIMEOUT_OCCURED_NOT_DURING_MOVE 280404
 #define AMPVCONTROL_STATUS_PROCESS_VARIABLE_ERROR 280405
 #define AMPVCONTROL_STATUS_WRITE_PROCESS_VARIABLE_ERROR 280406
+#define AMPVCONTROL_COULD_NOT_MOVE_WHILE_MOVING 280407
+#define AMPVCONTROL_COULD_NOT_MOVE_WHILE_MOVING_EXTERNAL 280408
 
 /**
  * \defgroup control Beamline Control with AMControl and AMProcessVariable
@@ -140,6 +142,8 @@ Since we don't have a way to determine if the control is actually moving, this c
 
 For these to make sense, make sure to use intelligent values for the tolerance and the timeout.  The default (AMCONTROL_TOLERANCE_DONT_CARE) will result in moves completing right away, regardless of where they get to.
 
+Because we don't have a great idea of whether this control is actually moving or not, we set the default allowsMovesWhileMoving() to true... To make sure we never omit sending moves we actually should have, because we think we're moving.  Call setAllowsMovesWhileMoving(false) if your device does not support receiving move() commands while it's already in motion.
+
 <b>Most useful members for using this class:</b>
 
 - value()
@@ -228,7 +232,7 @@ public:
 public slots:
 
 	/// Start a move to the value setpoint (reimplemented)
-	virtual void move(double setpoint);
+	virtual bool move(double setpoint);
 
 	/// Stop a move in progress (reimplemented)
 	virtual bool stop() {
@@ -246,7 +250,6 @@ public slots:
 
 	/// set the completion timeout (new public slot)
 	void setCompletionTimeout(double seconds) { completionTimeout_ = seconds; }
-
 
 signals:
 	/// Reports that the writePV failed to connect to the EPICS server within the timeout.
@@ -424,7 +427,7 @@ public:
 	//virtual bool isConnected() const { return canMeasure() && movingPV_->canRead(); }
 	virtual bool isConnected() const { return readPV_->readReady() && movingPV_->readReady(); }
 
-	/// The movingPV now provides our moving status. (Masked with isMovingMask and compared to isMovingValue)
+	/// The movingPV now provides our moving status.
 	virtual bool isMoving() const { return (*statusChecker_)(movingPV_->getInt()); }
 
 	// Additional public functions:
@@ -578,20 +581,28 @@ public:
 	double moveStartTimeout() { return moveStartTimeout_; }
 	/// Switches the writePV to using ca_put instead of ca_put_callback.  This seems to be necessary when using some of the more exotic record types such as the mca record type.  This is set to false by default.
 	void disableWritePVPutCallback(bool disable) { writePV_->disablePutCallbackMode(disable); }
+
+	/// A non-zero moveStartTolerance() allows "null moves" (moves with setpoints within moveStartTolerance() of the current feedback value) to start and succeed immediately without any motion.  This is necessary for controls that do not change their move status when told to go to the current position. (By default, this is 0 and has no effect.)
+	/*! A "null move" is a move to the current position (or something very close to it).  Some controls may not change their move status on a null move; in this case, the move would appear to fail, even though the control "reached" its target. This provides an optional work-around: if moveStartTolerance() is non-zero, and the current feedback value() is within moveStartTolerance() of the setpoint, a move() command will start and succeed immediately without any physical motion.  Note that the hardware is NOT told to move in this mode. (It if was, any move status change might be interpreted as the end of a subsequent move.)
+
+	By default, moveStartTolerance_ is 0 and has no effect.
+*/
+	double moveStartTolerance() const { return moveStartTolerance_; }
 	//@}
 
 public slots:
 
 	/// Start a move to the value setpoint (reimplemented)
-	virtual void move(double setpoint);
-
-	/// Stop a move in progress (reimplemented)
+	virtual bool move(double setpoint);
 
 	/// Tell the motor to stop.  (Note: For safety, this will send the stop instruction whether we think we're moving or not.)
 	virtual bool stop();
 
 	/// set the completion timeout:
 	void setMoveStartTimeout(double seconds) { moveStartTimeout_ = seconds; }
+
+	/// Set a non-zero moveStartTolerance() to allow "null moves" (setpoints within moveStartTolerance() of the current feedback value) to start and succeed immediately without any motion.  This is necessary for controls that do not change their move status when told to go to the current position. \see moveStartTolerance().
+	void setMoveStartTolerance(double moveStartTolerance) { moveStartTolerance_ = moveStartTolerance; }
 
 signals:
 	/// These are specialized to report on the writePV's channel connection status.  You should be free to ignore them and use the signals defined in AMControl.
@@ -608,8 +619,11 @@ protected:
 
 	/// Used to detect moveStart timeouts:
 	QTimer moveStartTimer_;
-	/// Used to detect moveStart timeouts:
+	/// Used to detect moveStart timeouts: timeout in seconds
 	double moveStartTimeout_;
+
+	/// If non-zero, reports moveSucceeded() immediately for move() requests that are within moveStartTolerance_ of the setpoint.  By default, this is zero and has no effect. \see moveStartTolerance()
+	double moveStartTolerance_;
 
 	/// used internally to track whether we're waiting for a physical control to actually start moving, after we've told it to.
 	bool startInProgress_;
@@ -732,7 +746,7 @@ public:
 	virtual double value() const { return readUnitConverter()->convertFromRaw(AMPVwStatusControl::value()); }
 
 	/// We overload move() to convert our units back to raw units for the writePV
-	virtual void move(double setpoint) { AMPVwStatusControl::move(writeUnitConverter()->convertToRaw(setpoint)); }
+	virtual bool move(double setpoint) { return AMPVwStatusControl::move(writeUnitConverter()->convertToRaw(setpoint)); }
 
 	/// We overload setpoint() to convert the units
 	virtual double setpoint() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::setpoint()); }

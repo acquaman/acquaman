@@ -135,22 +135,31 @@ REIXSHexapod::REIXSHexapod(QObject* parent)
 	QString baseName = "HXPD1610-4-I21-01:";
 	x_ = new AMPVwStatusControl("hexapodX", baseName+"X:sp", baseName+"X", baseName+"moving", QString(), this, 0.01);
 	x_->setDescription("Hexapod X");
+	x_->setAllowsMovesWhileMoving(true);
 	y_ = new AMPVwStatusControl("hexapodY", baseName+"Y:sp", baseName+"Y", baseName+"moving", QString(), this, 0.01);
 	y_->setDescription("Hexapod Y");
+	y_->setAllowsMovesWhileMoving(true);
 	z_ = new AMPVwStatusControl("hexapodZ", baseName+"Z:sp", baseName+"Z", baseName+"moving", QString(), this, 0.01);
 	z_->setDescription("Hexapod Z");
+	z_->setAllowsMovesWhileMoving(true);
 	u_ = new AMPVwStatusControl("hexapodU", baseName+"U:sp", baseName+"U", baseName+"moving", QString(), this, 0.05);
 	u_->setDescription("Hexapod U");
+	u_->setAllowsMovesWhileMoving(true);
 	v_ = new AMPVwStatusControl("hexapodV", baseName+"V:sp", baseName+"V", baseName+"moving", QString(), this, 0.05);
 	v_->setDescription("Hexapod V");
+	v_->setAllowsMovesWhileMoving(true);
 	w_ = new AMPVwStatusControl("hexapodW", baseName+"W:sp", baseName+"W", baseName+"moving", QString(), this, 0.05);
 	w_->setDescription("Hexapod W");
+	w_->setAllowsMovesWhileMoving(true);
 	r_ = new AMPVControl("hexapodR", baseName+"R:sp", baseName+"R", QString(), this, 0.001);
 	r_->setDescription("Hexapod R");
+	r_->setAllowsMovesWhileMoving(true);
 	s_ = new AMPVControl("hexapodS", baseName+"S:sp", baseName+"S", QString(), this, 0.001);
 	s_->setDescription("Hexapod S");
+	s_->setAllowsMovesWhileMoving(true);
 	t_ = new AMPVControl("hexapodT", baseName+"T:sp", baseName+"T", QString(), this, 0.001);
 	t_->setDescription("Hexapod T");
+	t_->setAllowsMovesWhileMoving(true);
 
 	addChildControl(x_);
 	addChildControl(y_);
@@ -169,32 +178,32 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 
 	setDescription("XES Detector Energy");
 	spectrometerRotationDrive_ = new AMPVwStatusControl("spectrometerRotationDrive",
-														"SMTR1610-4-I21-01:mm:sp",
 														"SMTR1610-4-I21-01:mm:fbk",
+														"SMTR1610-4-I21-01:mm",
 														"SMTR1610-4-I21-01:status",
-														"SMTR1610-4-I21-01:stop", this, 1);
+														"SMTR1610-4-I21-01:stop", this, 0.05);
 
 
 
 	detectorTranslation_ = new AMPVwStatusControl("detectorTranslation",
-												  "SMTR1610-4-I21-04:mm:sp",
 												  "SMTR1610-4-I21-04:mm:fbk",
+												  "SMTR1610-4-I21-04:mm",
 												  "SMTR1610-4-I21-04:status",
-												  "SMTR1610-4-I21-04:stop", this, 1);
+												  "SMTR1610-4-I21-04:stop", this, 0.05);
 
 	detectorTranslation_->setDescription("XES Detector Translation");
 	detectorTiltDrive_ = new AMPVwStatusControl("detectorTiltDrive",
 												"SMTR1610-4-I21-02:mm:sp",
 												"SMTR1610-4-I21-02:mm",
 												"SMTR1610-4-I21-02:status",
-												"SMTR1610-4-I21-02:stop", this, 0.5);
+												"SMTR1610-4-I21-02:stop", this, 0.05);
 	detectorTiltDrive_->setDescription("XES Detector Tilt Stage");
 
 	endstationTranslation_ = new AMPVwStatusControl("endstationTranslation",
-														"SMTR1610-4-I21-05:mm:sp",
 														"SMTR1610-4-I21-05:mm:fbk",
+														"SMTR1610-4-I21-05:mm",
 														"SMTR1610-4-I21-05:status",
-														"SMTR1610-4-I21-05:stop", this, 1);  //DAVID ADDED
+														"SMTR1610-4-I21-05:stop", this, 0.05);  //DAVID ADDED
 
 	endstationTranslation_->setDescription("Endstation Translation");
 
@@ -237,19 +246,17 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 #include "actions2/AMListAction.h"
 #include "actions2/actions/AMInternalControlMoveAction.h"
 
-void REIXSSpectrometer::move(double setpoint)
+bool REIXSSpectrometer::move(double setpoint)
 {
 	if(!isConnected()) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 2, "Can't move the spectrometer: some motor controls are not connected. Check that the IOCs are running and the network connections are good."));
-		emit moveFailed(AMControl::NotConnectedFailure);
-		return;
+		return false;
 	}
 
 	// can't start a move while moving
 	if(moveInProgress() || isMoving()) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 2, "Can't move the spectrometer, because it's already moving.  Stop the spectrometer first before attempting another move."));
-		emit moveFailed(AMControl::OtherFailure);
-		return;
+		return false;
 	}
 
 	specifiedEV_ = setpoint;
@@ -300,6 +307,7 @@ void REIXSSpectrometer::move(double setpoint)
 	connect(moveAction_, SIGNAL(stateChanged(int,int)), this, SLOT(onMoveActionStateChanged(int,int)));
 	emit moveStarted();
 	moveAction_->start();
+	return true;
 }
 
 
