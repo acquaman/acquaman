@@ -383,6 +383,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 
 	beamlineWarnings_ = "";
 	connect(this, SIGNAL(criticalConnectionsChanged()), this, SLOT(recomputeWarnings()));
+	connect(energy(), SIGNAL(valueChanged(double)), this, SLOT(onEnergyValueChanged()));
 
 	addChildControl(energy_);
 	addChildControl(energySpacingParam_);
@@ -713,6 +714,17 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 
 SGMBeamline::~SGMBeamline()
 {
+}
+
+bool SGMBeamline::isConnected() const{
+	return criticalControlsSet_->isConnected() && criticalDetectorsSet_->isConnected();
+}
+
+bool SGMBeamline::isReady() const{
+	if(isConnected())
+		if( (energy()->value() > 150) && (energy()->value() < 2100) )
+			return true;
+	return false;
 }
 
 QString SGMBeamline::sgmGratingName(SGMBeamline::sgmGrating grating) const {
@@ -1152,7 +1164,7 @@ bool SGMBeamline::isBeamlineScanning(){
 	return false;
 }
 
-bool SGMBeamline::isVisibleLightOn(){
+bool SGMBeamline::isVisibleLightOn() const{
 	if(visibleLightToggle_->value() == 1)
 		return true;
 	return false;
@@ -1374,6 +1386,22 @@ void SGMBeamline::onCriticalsConnectedChanged(){
 	//qdebug() << "Critical controls are connected: " << criticalControlsSet_->isConnected();
 	//qdebug() << "Critical detectors are connected: " << criticalDetectorsSet_->isConnected();
 	emit criticalConnectionsChanged();
+}
+
+void SGMBeamline::onEnergyValueChanged(){
+	if(isConnected()){
+		bool wasOutsideGoodRange = false;
+		bool isOutsideGoodRange = false;
+		if( (lastEnergyValue_ < 150) || (lastEnergyValue_ > 2100) )
+			wasOutsideGoodRange = true;
+		if( (energy()->value() < 150) || (energy()->value() > 2100) )
+			isOutsideGoodRange = true;
+
+		if(wasOutsideGoodRange != isOutsideGoodRange)
+			emit beamlineReadyChanged();
+
+		lastEnergyValue_ = energy()->value();
+	}
 }
 
 void SGMBeamline::onActiveEndstationChanged(double value){
