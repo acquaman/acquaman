@@ -112,7 +112,8 @@ public:
 
 protected:
 	/// Controls, connected to the hexapod PVs
-	AMPVwStatusControl *x_, *y_, *z_, *u_, *v_, *w_, *r_, *s_, *t_;
+	AMPVwStatusControl *x_, *y_, *z_, *u_, *v_, *w_;
+	AMPVControl *r_, *s_, *t_;
 
 };
 
