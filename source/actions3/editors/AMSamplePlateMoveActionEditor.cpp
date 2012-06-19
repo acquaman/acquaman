@@ -4,7 +4,7 @@
 #include <QLabel>
 #include <QBoxLayout>
 #include <QCheckBox>
-
+#include <QMessageBox>
 #include <QDebug>
 
 #include "beamline/AMBeamline.h"
@@ -42,13 +42,15 @@ void AMSamplePlateMoveActionEditor::onSamplePlateSeletectorBoxCurrentIndexChange
 
 	if(info_->samplePlateId() < 0)
 		samplePositionSelectorBox_->setEnabled(false);
-	else
+	else{
 		samplePositionSelectorBox_->setEnabled(true);
+		if(info_->samplePlateId() != AMBeamline::bl()->currentSamplePlateId())
+			QMessageBox::information(this, "Plate Mismatch", "You've chosen to use a sample plate that is different from the currently loaded beamline sample plate. You can do this; however, it may lead to unexpected results.", QMessageBox::Ok);
+	}
 
 	populateSamplePositions();
 }
 
-#include <QDebug>
 void AMSamplePlateMoveActionEditor::onSamplePositionSelectorBoxCurrentIndexChanged(int index){
 	info_->setSamplePositionIndex(samplePositionSelectorBox_->itemData(index).toInt());
 
