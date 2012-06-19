@@ -94,12 +94,6 @@ protected:
 	AMBeamlineListAction *measurementPositionActions_;
 	QPushButton *hvButton_;
 
-	/*
-	AMControl *mVerticalCtrl_;
-	AMControl *mHorizontalCtrl_;
-	AMControl *mInPlaneCtrl_;
-	AMControl *mRotationCtrl_;
-	*/
 	SGMMAXvMotor *mVerticalCtrl_;
 	SGMMAXvMotor *mHorizontalCtrl_;
 	SGMMAXvMotor *mInPlaneCtrl_;

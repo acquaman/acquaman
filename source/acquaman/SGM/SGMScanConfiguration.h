@@ -26,28 +26,45 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class SGMScanConfiguration
 {
 public:
+	/// Standard constructor, sets up nominal beamline values
 	SGMScanConfiguration();
 
+	/// Returns a control info list regarding the tracking group (mono tracking, exit slit tracking, and undulator tracking)
 	AMControlInfoList trackingGroup() const;
+	/// Returns a control info list regarding the flux/resolution group (exit slit gap, grating, and harmonic)
 	AMControlInfoList fluxResolutionGroup() const;
 
+	/// Returns whether the undulator is tracking for this configuration
 	bool undulatorTracking() const;
+	/// Returns whether the mono is tracking for this configuration
 	bool monoTracking() const;
+	/// Returns whether the exit slit is tracking for this configuration
 	bool exitSlitTracking() const;
 
+	/// Returns the exit slit gap setting for this configuration
 	double exitSlitGap() const;
+	/// Returns the grating chosen for this configuration
 	SGMBeamline::sgmGrating grating() const;
+	/// Returns the harmonic chosen for this configuration
 	SGMBeamline::sgmHarmonic harmonic() const;
 
+	/// Sets the tracking group from an existing control info list
 	bool setTrackingGroup(AMControlInfoList trackingGroup);
+	/// Sets the flux/resolution group from an existing control info list
 	bool setFluxResolutionGroup(AMControlInfoList fluxResolutionGroup);
 
+	/// Sets the undulator tracking for this configuration
 	bool setUndulatorTracking(bool undulatorTracking);
+	/// Sets the mono tracking for this configuration
 	bool setMonoTracking(bool monoTracking);
+	/// Sets the exit slit tracking for this configuration
 	bool setExitSlitTracking(bool exitSlitTracking);
 
+	/// Sets the exit slit gap setting for this configuration
 	bool setExitSlitGap(double exitSlitGap);
+	/// Sets which grating to use for this configuration
 	bool setGrating(SGMBeamline::sgmGrating grating);
+	/// Sets which harmonic to use for this configuration
 	bool setHarmonic(SGMBeamline::sgmHarmonic harmonic);
 
 	/* NTBA March 14, 2011 David Chevrier
@@ -55,15 +72,23 @@ public:
 	*/
 
 protected:
+	/// Info list for the tracking group (track mono, track undulator, track exit slit)
 	AMControlInfoList trackingGroup_;
+	/// Info list for the flux/resolution group (exit slit gap, grating, harmonic)
 	AMControlInfoList fluxResolutionGroup_;
 
+	/// Whether or not the undulator tracking is on
 	bool undulatorTracking_;
+	/// Whether or not the mono tracking is on
 	bool monoTracking_;
+	/// Whether or not the exit slit tracking is on
 	bool exitSlitTracking_;
 
+	/// Value for the exit slit for this configuration
 	double exitSlitGap_;
+	/// Which grating will be used for this configuration
 	SGMBeamline::sgmGrating grating_;
+	/// Which harmonic will be used for this configuration
 	SGMBeamline::sgmHarmonic harmonic_;
 };
 
