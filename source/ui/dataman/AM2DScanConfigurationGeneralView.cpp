@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QFormLayout>
 #include <QLabel>
-#include <QDebug>
 #include <QStringBuilder>
 
 #include "dataman/database/AMDbObjectSupport.h"

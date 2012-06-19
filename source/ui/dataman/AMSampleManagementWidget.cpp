@@ -69,6 +69,6 @@ AMSampleManagementWidget::AMSampleManagementWidget(QWidget *manipulatorWidget, c
 }
 
 void AMSampleManagementWidget::onNewSamplePlateSelected() {
-	// qDebug() << "I heard that the current sample plate changed";
+	// qdebug() << "I heard that the current sample plate changed";
 	emit newSamplePlateSelected(plateView_->samplePlate());
 }

@@ -76,6 +76,7 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguratio
 
 	setDetectorConfigurations(original.detectorChoiceConfigurations());
 
+	dbLoadWarnings_ = original.dbLoadWarnings();
 }
 
 SGMFastScanConfiguration::~SGMFastScanConfiguration(){
@@ -102,6 +103,12 @@ AMScanConfiguration* SGMFastScanConfiguration::createCopy() const{
 
 AMScanController* SGMFastScanConfiguration::createController(){
 	return new SGMFastDacqScanController(this);
+}
+
+#include "ui/SGM/SGMFastScanConfigurationView.h"
+
+AMScanConfigurationView* SGMFastScanConfiguration::createView(){
+	return new SGMFastScanConfigurationView(this);
 }
 
 QString SGMFastScanConfiguration::detailedDescription() const{
@@ -200,6 +207,10 @@ SGMFastScanParameters* SGMFastScanConfiguration::currentParameters() const{
 
 SGMEnergyParameters* SGMFastScanConfiguration::currentEnergyParameters() const{
 	return currentEnergyParameters_;
+}
+
+QString SGMFastScanConfiguration::dbLoadWarnings() const{
+	return dbLoadWarnings_;
 }
 
 bool SGMFastScanConfiguration::setParametersFromPreset(int index){
@@ -418,4 +429,16 @@ bool SGMFastScanConfiguration::setDetectorConfigurations(AMDetectorInfoSet detec
 	fastDetectorsConfigurations_ = detectorConfigurations;
 	setModified(true);
 	return true;
+}
+
+AMDbObject* SGMFastScanConfiguration::dbReadFastScanParameters(){
+	return currentSettings_;
+}
+
+void SGMFastScanConfiguration::dbLoadFastScanParameters(AMDbObject *fastScanParameters){
+	SGMFastScanParameters *scanParameters = qobject_cast<SGMFastScanParameters*>(fastScanParameters);
+	if(scanParameters)
+		currentSettings_ = scanParameters;
+	else
+		dbLoadWarnings_ = "This scan was run before fast scans were saving necessary information. YOU SHOULD NOT PROCEED WITH THIS SCAN.";
 }

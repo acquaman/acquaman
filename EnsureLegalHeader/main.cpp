@@ -10,5 +10,7 @@ int main(int argc, char *argv[])
     QString newNotice = "Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.";
     LegalHeaderChecker *checker = new LegalHeaderChecker(oldNotice, newNotice);
 
+    Q_UNUSED(checker)
+
     return a.exec();
 }

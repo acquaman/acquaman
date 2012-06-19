@@ -59,6 +59,7 @@ VESPERSEndstation::VESPERSEndstation(AMControl *normal, QObject *parent)
 	filter50umB_ = new AMPVControl("Filter 50um B", "07B2_PLC_PFIL_02_F2_Ctrl", "07B2_PLC_PFIL_02_F2_Toggle", QString(), this);
 	filterShutterUpper_ = new AMPVControl("Filter Shutter Upper", "07B2_PLC_PFIL_01_F3_Ctrl", "07B2_PLC_PFIL_01_F3_Toggle", QString(), this);
 	filterShutterLower_ = new AMPVControl("Filter Shutter Lower", "07B2_PLC_PFIL_01_F4_Ctrl", "07B2_PLC_PFIL_01_F4_Toggle", QString(), this);
+	filterThickness_ = -1;
 
 	// Setup filters.
 	filterMap_.insert("50A", filter50umA_);
@@ -193,6 +194,7 @@ void VESPERSEndstation::onFiltersChanged()
 	if ((int)filterMap_.value("250B")->value() == 1)
 		sum += 5;
 
+	filterThickness_ = sum*50;
 	emit filterThicknessChanged(sum);
 }
 

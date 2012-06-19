@@ -224,7 +224,6 @@ bool AMOldScanParametersDictionary::operatingOnExportName() const{
 	return operatingOnExportName_;
 }
 
-#include <QDebug>
 void AMOldScanParametersDictionary::reoperate(){
 	if(canOperate())
 		parseKeywordStringAndOperate(lastInputString_);

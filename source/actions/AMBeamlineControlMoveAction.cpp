@@ -57,7 +57,10 @@ void AMBeamlineControlMoveAction::start(){
 		startPoint_ = control_->value();
 		connect(&progressTimer_, SIGNAL(timeout()), this, SLOT(calculateProgress()));
 		progressTimer_.start(500);
-		control_->move(setpoint_);
+
+		int f = control_->move(setpoint_);
+		if(f != AMControl::NoFailure)
+			onFailed(f);
 	}
 	else
 		connect(this, SIGNAL(ready(bool)), this, SLOT(delayedStart(bool)));
@@ -129,30 +132,24 @@ void AMBeamlineControlMoveAction::onStarted(){
 }
 
 void AMBeamlineControlMoveAction::onSucceeded(){
-	if(VERBOSE_ACTION_ITEMS)
-		qDebug() << this << control_->description() << " SUCEEDED";
+	AMErrorMon::debug(this, AMBEAMLINECONTROLMOVEACTION_ONSUCCEEDED_MESSAGE, QString("%1 %2 SUCCEEDED").arg((intptr_t)this).arg(control_->description()));
 	disconnect(control_, 0, this, 0);
 	setSucceeded(true);
 }
 
 void AMBeamlineControlMoveAction::onFailed(int explanation){
-        if(VERBOSE_ACTION_ITEMS) {
-                qDebug() << this << "FAILED as " << control_->description() << "/" << control_->description() << " with " << explanation;
-                qDebug() << "     Position:" << control_->value() << "Setpoint:" << control_->setpoint() << "Tolerance:" << control_->tolerance();
-        }
+	AMErrorMon::debug(this, AMBEAMLINECONTROLMOVEACTION_ONFAILED_MESSAGE, QString("%1 FAILED as %2 with %3. Position: %4 Setpoint: %5 Tolerance: %6").arg((intptr_t)this).arg(control_->description()).arg(explanation).arg(control_->value()).arg(control_->setpoint()).arg(control_->tolerance()) );
 	setFailed(true, explanation);
 }
 
 void AMBeamlineControlMoveAction::onFinished(){
-	if(VERBOSE_ACTION_ITEMS)
-		qDebug() << this << "FINISHED";
+	AMErrorMon::debug(this, AMBEAMLINECONTROLMOVEACTION_ONFINISHED_MESSAGE, QString("%1 %2 FINISHED").arg((intptr_t)this).arg(control_->description()));
 	progressTimer_.stop();
 	emit progress(1, 1);
 }
 
 void AMBeamlineControlMoveAction::calculateProgress(){
-	if(VERBOSE_ACTION_ITEMS)
-		qDebug() << "Calculate progress for " << this;
+	AMErrorMon::debug(this, AMBEAMLINECONTROLMOVEACTION_ONFINISHED_MESSAGE, QString("Calculate progress for %1 %2").arg((intptr_t)this).arg(control_->description()));
 	if(control_)
 		emit progress(fabs(control_->value()-startPoint_), fabs(setpoint_-startPoint_));
 }

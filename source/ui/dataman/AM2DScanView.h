@@ -34,6 +34,9 @@ class AM2DScanViewMultiSourcesView;
 class AM2DScanViewSingleSpectrumView;
 //class AM3dDataSourceView;
 
+#define AM2DSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_NULL_DATA_SOURCE 280201
+#define AM2DSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_UNHANDLED_RANK 280202
+
 /// This class is a small horizontal bar that holds some information for the 2D scan view, such as: current data position, whether to see the spectra or not, etc.
 class AM2DScanBar : public QWidget
 {
@@ -117,6 +120,10 @@ public slots:
 	void removeScan(AMScan* scan);
 	/// Sets the current scan.  This is so that the scan view is looking at the same scan as all of the other pieces of the editor.
 	void setCurrentScan(AMScan *scan);
+
+	/// Export the current view to a PDF file with \c outputFileName. Overwrites \c outputFileName if it exists.
+	void exportGraphicsFile(const QString& outputFileName);
+
 
 signals:
 	/// Notifier that the data position tool has changed locations.  Passes the location of the mouse.

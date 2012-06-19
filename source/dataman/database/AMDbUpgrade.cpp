@@ -19,7 +19,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDbUpgrade.h"
 
-#include <QDebug>
 #include <QDateTime>
 #include <QStringBuilder>
 #include "dataman/database/AMDbObjectSupport.h"
@@ -31,6 +30,7 @@ AMDbUpgrade::AMDbUpgrade(QString databaseNameToUpgrade, QObject *parent) :
 {
 	databaseToUpgrade_ = 0; //NULL
 	databaseNameToUpgrade_ = databaseNameToUpgrade;
+	isResponsibleForUpgrade_ = true; // responsible by default
 }
 
 bool AMDbUpgrade::upgrade(){
@@ -113,6 +113,10 @@ bool AMDbUpgrade::loadDatabaseFromName(){
 	return true;
 }
 
+bool AMDbUpgrade::isResponsibleForUpgrade() const{
+	return isResponsibleForUpgrade_;
+}
+
 QString AMDbUpgrade::databaseNameToUpgrade() const{
 	return databaseNameToUpgrade_;
 }
@@ -128,6 +132,10 @@ void AMDbUpgrade::setDatabaseNameToUpgrade(const QString &databaseNameToUpgrade)
 bool AMDbUpgrade::setDatabaseNameToUpgradeAndLoad(const QString &databaseNameToUpgrade){
 	setDatabaseNameToUpgrade(databaseNameToUpgrade);
 	return loadDatabaseFromName();
+}
+
+void AMDbUpgrade::setIsResponsibleForUpgrade(bool isResponsibleForUpgrade){
+	isResponsibleForUpgrade_ = isResponsibleForUpgrade;
 }
 
 bool AMDbUpgradeSupport::dbObjectClassBecomes(AMDatabase *databaseToEdit, const QString &originalClassName, const QString &newClassName, QMap<QString, QString> parentTablesToColumnNames, QMap<QString, int> indexTablesToIndexSide){

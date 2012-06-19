@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMACTIONRUNNERCURRENTVIEW3_H
 
 #include <QWidget>
+#include <QStandardItem>
 
 class AMActionRunner3;
 class AMAction3;
@@ -31,7 +32,12 @@ class QPushButton;
 class QStandardItemModel;
 class QProgressBar;
 
-#include <QStandardItem>
+#define AMACTIONRUNNERCURRENTMODEL3_REQUESTED_CHILD_INDEX_WITH_INVALID_PARENT_ACTION 270901
+#define AMACTIONRUNNERCURRENTMODEL3_SUBACTION_NOT_FOUND_AT_CHILD_INDEX_ROW 270902
+#define AMACTIONRUNNERCURRENTMODEL3_NO_ACTION_AT_INDEX 270903
+#define AMACTIONRUNNERCURRENTMODEL3_ACTION_NOT_FOUND_AS_CURRENT_ACTION 270904
+#define AMACTIONRUNNERCURRENTMODEL3_ACTION_NOT_FOUND_IN_LIST_ACTION 270905
+
 
 /// This QAbstractItemModel wraps the current action of AMActionRunner, and is used by AMActionRunnerCurrentView. It is hierarchical to display nested actions as they run.  You should never need to use this class directly.
 class AMActionRunnerCurrentModel3 : public QAbstractItemModel {

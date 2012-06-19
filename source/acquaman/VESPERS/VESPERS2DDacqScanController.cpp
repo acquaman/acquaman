@@ -97,6 +97,55 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	else
 		AMErrorMon::error(this, VESPERS2DDACQSCANCONTROLLER_CANT_INTIALIZE, "Could not recognize the format type of the scan.");
 
+	QString notes;
+
+	if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement)
+		notes.append(QString("\nFluorescence detector distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToSingleElementVortex(), 0, 'f', 1));
+	else
+		notes.append(QString("\nFluorescence detector distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToFourElementVortex(), 0, 'f', 1));
+
+	if (config_->usingCCD())
+		notes.append(QString("CCD detector distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToRoperCCD(), 0, 'f', 1));
+
+	switch(VESPERSBeamline::vespers()->currentBeam()){
+
+	case VESPERSBeamline::None:
+		// This should never happen.
+		break;
+
+	case VESPERSBeamline::Pink:
+		notes.append("Beam used:\tPink\n");
+		break;
+
+	case VESPERSBeamline::TenPercent:
+		notes.append(QString("Beam used:\t10% bandpass\nMonochromator energy:%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
+		break;
+
+	case VESPERSBeamline::OnePointSixPercent:
+		notes.append(QString("Beam used:\t1.6% bandpass\nMonochromator energy:%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
+		break;
+
+	case VESPERSBeamline::Si:
+		notes.append(QString("Beam used:\tSi (%2E/E = 10^-4)\nMonochromator energy:%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2).arg(QString::fromUtf8("Δ")));
+		break;
+	}
+
+	notes.append(QString("Filter thickness (aluminum):\t%1 %2m\n").arg(VESPERSBeamline::vespers()->endstation()->filterThickness()).arg(QString::fromUtf8("μ")));
+	notes.append(QString("Horizontal slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapX()));
+	notes.append(QString("Vertical slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapZ()));
+	notes.append(QString("Gas used in ion chambers:\tN2\n"));
+	notes.append(QString("\nIon Chamber Gain Settings\n"));
+	CLSSplitIonChamber *split = VESPERSBeamline::vespers()->iSplit();
+	notes.append(QString("%1:\t%2 %3\n").arg(split->name()).arg(split->sensitivityValueA()).arg(split->sensitivityUnitsA()));
+	CLSIonChamber *chamber = VESPERSBeamline::vespers()->iPreKB();
+	notes.append(QString("%1:\t%2 %3\n").arg(chamber->name()).arg(chamber->sensitivityValue()).arg(chamber->sensitivityUnits()));
+	chamber = VESPERSBeamline::vespers()->iMini();
+	notes.append(QString("%1:\t%2 %3\n").arg(chamber->name()).arg(chamber->sensitivityValue()).arg(chamber->sensitivityUnits()));
+	chamber = VESPERSBeamline::vespers()->iPost();
+	notes.append(QString("%1:\t%2 %3\n").arg(chamber->name()).arg(chamber->sensitivityValue()).arg(chamber->sensitivityUnits()));
+
+	scan_->setNotes(notes);
+
 	// Add all the data sources.
 	////////////////////////////////////////////////
 

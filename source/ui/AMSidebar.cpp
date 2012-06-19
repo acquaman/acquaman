@@ -20,7 +20,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMSidebar.h"
 
-#include <QDebug>
 AMSidebar::AMSidebar(QWidget* parent)
 	: QTreeView(parent) {
 
@@ -151,7 +150,6 @@ void AMSidebar::currentChanged ( const QModelIndex & current, const QModelIndex 
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QDragMoveEvent>
-#include <QDebug>
 
 void AMSidebar::dragEnterEvent(QDragEnterEvent *event) {
 	qDebug() << "Drag enter event!";

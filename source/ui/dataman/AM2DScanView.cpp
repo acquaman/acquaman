@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMScan.h"
 
 #include "ui/dataman/AM3dDataSourceView.h"
+#include "util/AMErrorMonitor.h"
 
 #include <QSizePolicy>
 #include <QStringBuilder>
@@ -338,6 +339,24 @@ void AM2DScanView::setPlotRange(double low, double high)
 	spectrumView_->setPlotRange(low, high);
 }
 
+#include <QPrinter>
+#include <QFileInfo>
+#include <QMessageBox>
+
+void AM2DScanView::exportGraphicsFile(const QString& fileName)
+{
+	QPrinter printer(QPrinter::HighResolution);
+	printer.setOutputFileName(fileName);
+	printer.setPageSize(QPrinter::Letter);
+	printer.setOutputFormat(QPrinter::PdfFormat);
+	printer.setOrientation(QPrinter::Landscape);
+
+	QPainter painter(&printer);
+	gExclusiveView_->render(&painter);
+
+	painter.end();
+}
+
 // AM2DScanViewInternal
 ////////////////////////////////////////////////
 
@@ -388,7 +407,7 @@ MPlotItem* AM2DScanViewInternal::createPlotItemForDataSource(const AMDataSource*
 	MPlotItem* rv = 0;
 
 	if(dataSource == 0) {
-		qWarning() << "WARNING: AMScanViewInternal: Asked to create a plot item for a null data source.";
+		AMErrorMon::alert(this, AM2DSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_NULL_DATA_SOURCE, "Asked to create a plot item for a null data source.");
 		return 0;
 	}
 
@@ -402,7 +421,7 @@ MPlotItem* AM2DScanViewInternal::createPlotItemForDataSource(const AMDataSource*
 		rv = image;
 		break; }
 	default:
-		qWarning() << "WARNING: AMScanViewInternal: Asked to create a plot item for a rank that we don't handle.";
+		AMErrorMon::alert(this, AM2DSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_UNHANDLED_RANK, "Asked to create a plot item for a rank that we don't handle.");
 		rv = 0;
 		break;
 	}

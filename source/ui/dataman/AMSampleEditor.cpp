@@ -168,8 +168,6 @@ void AMSampleEditor::setCurrentSample(int id) {
 	newSampleActive_ = false;
 }
 
-#include <QDebug>
-
 /// Call this to refresh the list of samples in the ComboBox from the database
 void AMSampleEditor::refreshSamples() {
 

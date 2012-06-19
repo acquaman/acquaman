@@ -26,8 +26,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM2DSummingAB.h"
 #include "dataman/datasource/AMRawDataSource.h"
 #include "dataman/AMUser.h"
-
 #include "dataman/AMSamplePlate.h"
+#include "util/AMErrorMonitor.h"
 
 SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	config_ = cfg;
@@ -66,7 +66,7 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 			if(specificScan_->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo)))
 				specificScan_->addRawDataSource(new AMRawDataSource(specificScan_->rawData(), specificScan_->rawData()->measurementCount()-1));
 			else
-				qDebug() << "BIG PROBLEM!!!!!! WHAT JUST HAPPENED?!?!?" << detectorInfo->name();
+				AMErrorMon::alert(0, SGMXASSCANCONTROLLER_CANNOT_ADD_MEASUREMENT, QString("Could not add measurement to SGMXASScanController by name %1").arg(detectorInfo->name()) );
 		}
 	}
 
@@ -184,10 +184,9 @@ bool SGMXASScanController::beamlineInitialize(){
 
 	for(int x = 0; x < config_->allDetectors()->count(); x++){
 		if(config_->allDetectorConfigurations().isActiveAt(x)){
-			//config_->allDetectors()->detectorAt(x)->setFromInfo(config_->allDetectorConfigurations().detectorInfoAt(x));
 			config_->allDetectors()->detectorAt(x)->activate();
 			if(config_->allDetectors()->detectorAt(x)->turnOnAction()){
-//				qDebug() << "Adding HV turn on to initialization actions";
+//				qdebug() << "Adding HV turn on to initialization actions";
 				initializationActions_->appendAction(0, config_->allDetectors()->detectorAt(x)->turnOnAction());
 			}
 		}

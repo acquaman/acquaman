@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <linux/joystick.h>
 
+#define AMGENERICLINUXJOYSTICK_READ_ERROR_POSSIBLE_DISCONNECT 290701
+
 /// Structure used to represent joystick events by the Linux joystick API.
 //typedef struct js_event {
 //    quint32 time;     /* event timestamp in milliseconds */

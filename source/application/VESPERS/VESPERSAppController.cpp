@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 
 #include "actions3/AMActionRunner3.h"
+#include "actions3/actions/AMScanAction.h"
 
 #include "ui/VESPERS/XRFDetectorView.h"
 #include "ui/VESPERS/VESPERSXRFFreeRunView.h"
@@ -58,6 +59,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
 #include "dataman/export/VESPERS/VESPERSExporter2DAscii.h"
+#include "dataman/export/VESPERS/VESPERSExporterSMAK.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -161,6 +163,7 @@ void VESPERSAppController::registerClasses()
 	AMDetectorViewSupport::registerClass<VESPERSRoperCCDDetectorView, VESPERSRoperCCDDetector>();
 
 	AMExportController::registerExporter<VESPERSExporter2DAscii>();
+	AMExportController::registerExporter<VESPERSExporterSMAK>();
 }
 
 void VESPERSAppController::setupExporterOptions()
@@ -201,7 +204,7 @@ void VESPERSAppController::setupExporterOptions()
 
 	vespersDefault->setName("VESPERS2DDefault");
 	vespersDefault->setFileName("$name_$fsIndex.dat");
-	vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n");
+	vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n");
 	vespersDefault->setHeaderIncluded(true);
 	vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
 	vespersDefault->setColumnHeaderIncluded(true);
@@ -227,16 +230,24 @@ void VESPERSAppController::setupUserInterface()
 	////////////////////////////////////
 
 	assistant_ = new VESPERSWorkflowAssistant(workflowManagerView_, this);
-	VESPERSWorkflowAssistantView *assistantView = new VESPERSWorkflowAssistantView(assistant_);
-	mw_->insertVerticalWidget(2, assistantView);
+	assistantView_ = new VESPERSWorkflowAssistantView(assistant_);
+	assistantView_->hide();
+	mw_->insertVerticalWidget(2, assistantView_);
 
 	// Setup the general endstation control view.
 	VESPERSEndstationView *endstationView = new VESPERSEndstationView(VESPERSBeamline::vespers()->endstation());
+	// Setup the general status page.
 	VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
+	// Setup page that auto-enables detectors.
+	VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
+	// Setup page for the endstation.  Will probably replace experiment configuration eventually.
+	VESPERSEndstationConfigurationView *endstationConfigurationView = new VESPERSEndstationConfigurationView(VESPERSBeamline::vespers()->endstationConfiguration());
 
-	mw_->insertHeading("Beamline Control", 0);
-	mw_->addPane(endstationView, "Beamline Control", "Endstation", ":/system-software-update.png");
-	mw_->addPane(statusPage, "Beamline Control", "Device Status", ":/system-software-update.png");
+	mw_->insertHeading("General", 0);
+	mw_->addPane(endstationView, "General", "Endstation", ":/system-software-update.png");
+	mw_->addPane(statusPage, "General", "Device Status", ":/system-software-update.png");
+	mw_->addPane(experimentConfigurationView, "General", "Experiment Setup", ":/utilities-system-monitor.png");
+	mw_->addPane(endstationConfigurationView, "General", "Endstation Setup", ":/utilities-system-monitor.png");
 
 	// Setup the XRF views for the single element vortex and the four element vortex detectors.  Since they have scans that are added to the workflow, it gets the workflow manager view passed into it as well.
 	// This means that the FreeRunView kind of doubles as a regular detector view and a configuration view holder.
@@ -245,16 +256,10 @@ void VESPERSAppController::setupUserInterface()
 
 	roperCCDView_ = new VESPERSRoperCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
 
-	mw_->insertHeading("Free run", 1);
-	mw_->addPane(xrf1EFreeRunView_, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");
-	mw_->addPane(xrf4EFreeRunView_, "Free run", "XRF 4-el", ":/utilities-system-monitor.png");
-	mw_->addPane(roperCCDView_, "Free run", "XRD - Roper", ":/utilities-system-monitor.png");
-
-	// Setup page that auto-enables detectors.
-	VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
-
-	// Setup page for the endstation.  Will probably replace experiment configuration eventually.
-	VESPERSEndstationConfigurationView *endstationConfigurationView = new VESPERSEndstationConfigurationView(VESPERSBeamline::vespers()->endstationConfiguration());
+	mw_->insertHeading("Detectors", 1);
+	mw_->addPane(xrf1EFreeRunView_, "Detectors", "Fluorescence - 1-el", ":/system-search.png");
+	mw_->addPane(xrf4EFreeRunView_, "Detectors", "Fluorescence - 4-el", ":/system-search.png");
+	mw_->addPane(roperCCDView_, "Detectors", "CCD - Roper", ":/system-search.png");
 
 	// Setup XAS for the beamline.  Builds the config, view, and view holder.
 	exafsScanConfig_ = new VESPERSEXAFSScanConfiguration();
@@ -274,8 +279,6 @@ void VESPERSAppController::setupUserInterface()
 	connect(mapScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
 	mw_->insertHeading("Scans", 2);
-	mw_->addPane(experimentConfigurationView, "Scans", "Experiment Setup", ":/utilities-system-monitor.png");
-	mw_->addPane(endstationConfigurationView, "Scans", "Endstation Setup", ":/utilities-system-monitor.png");
 	mw_->addPane(exafsConfigViewHolder_, "Scans", "XAS", ":/utilities-system-monitor.png");
 	mw_->addPane(mapScanConfigurationViewHolder_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
 //	mw_->addPane(exafsConfigViewHolder3_, "Scans", "XAS", ":/utilities-system-monitor.png");
@@ -295,9 +298,8 @@ void VESPERSAppController::makeConnections()
 	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
 	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerFinished()));
 
-//	connect(AMActionRunner3::workflow(), SIGNAL(scanActionCreated()), this, SLOT(onCurrentScanControllerCreated()));
-//	connect(AMActionRunner3::workflow(), SIGNAL(scanActionStarted()), this, SLOT(onCurrentScanControllerStarted()));
-//	connect(AMActionRunner3::workflow(), SIGNAL(scanActionFinished()), this, SLOT(onCurrentScanControllerFinished()));
+	//connect(AMActionRunner3::workflow(), SIGNAL(scanActionStarted(AMScanAction*)), this, SLOT(onCurrentScanControllerStarted(AMScanAction*)));
+	//connect(AMActionRunner3::workflow(), SIGNAL(scanActionFinished(AMScanAction *)), this, SLOT(onCurrentScanControllerFinished(AMScanAction*)));
 
 	// Bottom bar connections.
 	connect(this, SIGNAL(pauseScanIssued()), this, SLOT(onPauseScanIssued()));
@@ -382,8 +384,11 @@ void VESPERSAppController::onCurrentScanControllerCreated()
 //	connect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
 	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
 
-	if (fileFormat == "vespersXAS" || fileFormat == "vespers2011XAS" || fileFormat == "vespers2011EXAFS")
+	if (fileFormat == "vespersXAS" || fileFormat == "vespers2011XAS" || fileFormat == "vespers2011EXAFS"){
+
 		connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));
+		assistantView_->show();
+	}
 }
 
 void VESPERSAppController::onCurrentScanControllerFinished()
@@ -393,6 +398,8 @@ void VESPERSAppController::onCurrentScanControllerFinished()
 
 	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
 		return;
+
+	assistantView_->hide();
 
 	if (AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->state() == AMScanController::Cancelled
 			&& (fileFormat == "vespersXAS" || fileFormat == "vespers2011XAS" || fileFormat == "vespers2011EXAFS")){

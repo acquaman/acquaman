@@ -50,36 +50,84 @@ void CLSSR570::onConnectedChanged()
 
 void CLSSR570::onValueChanged(int index)
 {
+	emit valueChanged(indexToValue(index));
+	emit valueIndexChanged(index);
+}
+
+int CLSSR570::valueToIndex(int value) const
+{
+	int val = -1;
+
+	switch(value){
+
+	case 1:
+		val = 0;
+		break;
+	case 2:
+		val = 1;
+		break;
+	case 5:
+		val = 2;
+		break;
+	case 10:
+		val = 3;
+		break;
+	case 20:
+		val = 4;
+		break;
+	case 50:
+		val = 5;
+		break;
+	case 100:
+		val = 6;
+		break;
+	case 200:
+		val = 7;
+		break;
+	case 500:
+		val = 8;
+		break;
+	}
+
+	return val;
+}
+
+int CLSSR570::indexToValue(int index) const
+{
+	int val = -1;
+
 	switch(index){
 
 	case 0:
-		emit valueChanged(1);
+		val = 1;
 		break;
 	case 1:
-		emit valueChanged(2);
+		val = 2;
 		break;
 	case 2:
-		emit valueChanged(5);
+		val = 5;
 		break;
 	case 3:
-		emit valueChanged(10);
+		val = 10;
 		break;
 	case 4:
-		emit valueChanged(20);
+		val = 20;
 		break;
 	case 5:
-		emit valueChanged(50);
+		val = 50;
 		break;
 	case 6:
-		emit valueChanged(100);
+		val = 100;
 		break;
 	case 7:
-		emit valueChanged(200);
+		val = 200;
 		break;
 	case 8:
-		emit valueChanged(500);
+		val = 500;
 		break;
 	}
+
+	return val;
 }
 
 bool CLSSR570::increaseSensitivity()

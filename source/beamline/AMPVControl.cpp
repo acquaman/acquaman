@@ -19,6 +19,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMPVControl.h"
 
+#include "util/AMErrorMonitor.h"
+
 // Class AMReadOnlyPVControl
 ///////////////////////////////////////
 
@@ -55,7 +57,7 @@ void AMReadOnlyPVControl::onReadPVError(int errorCode) {
 	if(source){
 		if( (errorCode == AMPROCESSVARIABLE_CANNOT_READ) && shouldMeasure() ){
 			emit error(AMControl::CannotReadError);
-			qWarning() << QString("AMReadOnlyPVControl: Read Process Variable error %1: code %2.").arg(source->pvName()).arg(errorCode);
+			AMErrorMon::debug(this, AMPVCONTROL_READ_PROCESS_VARIABLE_ERROR, QString("AMReadOnlyPVControl: Read Process Variable error %1: code %2.").arg(source->pvName()).arg(errorCode));
 		}
 	}
 }
@@ -70,6 +72,7 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 	: AMReadOnlyPVControl(name, readPVname, parent, description)
 {
 	setTolerance(tolerance);
+	allowsMovesWhileMoving_ = true;
 
 	//not moving yet:
 	moveInProgress_ = false;
@@ -116,30 +119,56 @@ AMSinglePVControl::AMSinglePVControl(const QString &name, const QString &PVname,
 }
 
 // Start a move to the value setpoint:
-/// \todo: figure out if dave and tom want handling for already-moving... (practical example: HV supply)
-void AMPVControl::move(double setpoint) {
+AMControl::FailureExplanation AMPVControl::move(double setpoint) {
 
-	// new move target:
-	setpoint_ = setpoint;
+	if(isMoving()) {
+		if(!allowsMovesWhileMoving()) {
+			AMErrorMon::debug(this, AMPVCONTROL_COULD_NOT_MOVE_WHILE_MOVING, QString("AMPVControl: Could not move %1 (%2) to %3, because the control is already moving.").arg(name()).arg(writePV_->pvName()).arg(setpoint_));
+			return AlreadyMovingFailure;
+		}
 
-	// kill any old countdowns:
-	completionTimer_.stop();
+		// assuming this control can accept mid-move updates. We just need to update our setpoint and send it.
 
-	if( canMove() ) {
+		if(!canMove()) {	// this would be rare: a past move worked, but now we're no longer connected?
+			AMErrorMon::debug(this, AMPVCONTROL_COULD_NOT_MOVE_BASED_ON_CANMOVE, QString("AMPVControl: Could not move %1 (%2) to %3.").arg(name()).arg(writePV_->pvName()).arg(setpoint_));
+			return NotConnectedFailure;
+		}
+		setpoint_ = setpoint;
+		writePV_->setValue(setpoint_);
+		completionTimer_.start(int(completionTimeout_*1000.0)); // restart the completion timer... Since this might be another move, give it some more time.
+		// re-targetted moves will emit moveReTargetted(), although no moveSucceeded()/moveFailed() will be issued for the first move.
+		emit moveReTargetted();
+
+		// check for done:
+		if(inPosition()) {
+			completionTimer_.stop();
+			emit movingChanged(moveInProgress_ = false);
+			emit moveSucceeded();
+		}
+	}
+
+	// Regular case: start of a new move.
+	else {
+		// kill any old countdowns:
+		completionTimer_.stop();
+
+		if(!canMove()) {
+			AMErrorMon::debug(this, AMPVCONTROL_COULD_NOT_MOVE_BASED_ON_CANMOVE, QString("AMPVControl: Could not move %1 (%2) to %3.").arg(name()).arg(writePV_->pvName()).arg(setpoint_));
+			return NotConnectedFailure;
+		}
+
+		// new move target:
+		setpoint_ = setpoint;
 		// Issue the move
 		writePV_->setValue(setpoint_);
 
-		// We're now moving! Let's hope this hoofedinkus makes it... (No way to actually check.)
+		// We're now moving! Let's hope this control makes it... (No way to actually check.)
 		emit movingChanged(moveInProgress_ = true);
-
 		// emit the signal that we started:
 		emit moveStarted();
 
-		// Special case added:
-		// =======================
-		// If we're already in-position (ie: moving to where we are already). In this situation, you won't see any feedback values change (onNewFeedbackValue() won't be called), but probably want to get the moveSucceeded() signal right away -- ie: instead of waiting for the move timeout.
-		// This check is only possible if you've actually specified a non-default, appropriate timeout:
-		if(tolerance() != AMCONTROL_TOLERANCE_DONT_CARE && inPosition()) {
+		// Are we in-position? [With the default tolerance of AMCONTROL_TOLERANCE_DONT_CARE, we will always be in-position, and moves will complete right away; that's the intended behaviour, because we have no other way of knowing when they'll finish.]
+		if(inPosition()) {
 			emit movingChanged(moveInProgress_ = false);
 			emit moveSucceeded();
 		}
@@ -148,16 +177,7 @@ void AMPVControl::move(double setpoint) {
 			completionTimer_.start(int(completionTimeout_*1000.0));
 		}
 	}
-	else {
-		qWarning() << QString("AMPVControl: Could not move %1 to %2").arg(writePV_->pvName()).arg(setpoint_);
-
-		// Notify the failure right away:
-		emit moveFailed(AMControl::NotConnectedFailure);
-		// And we're definitely not moving.
-		if(moveInProgress_)
-			emit movingChanged(moveInProgress_ = false);
-	}
-
+	return NoFailure;
 }
 
 // This is used to check every new value, to see if we entered tolerance:
@@ -187,7 +207,7 @@ void AMPVControl::onWritePVError(int errorCode) {
 	if(source){
 		if(errorCode == AMPROCESSVARIABLE_CANNOT_WRITE && shouldMove() ){
 			emit error(AMControl::CannotWriteError);
-			qWarning() << QString("AMPVControl: Write Process Variable Error %1: code %2.").arg(source->pvName()).arg(errorCode);
+			AMErrorMon::debug(this, AMPVCONTROL_WRITE_PROCESS_VARIABLE_ERROR, QString("AMPVControl: Write Process Variable Error %1: code %2.").arg(source->pvName()).arg(errorCode));
 		}
 	}
 }
@@ -198,7 +218,6 @@ void AMPVControl::onCompletionTimeout() {
 	// if we weren't moving, this shouldn't have happened. someone forgot to shutoff the timer?
 	// todo: this is only included for state testing debugging... can remove if never happens
 	if(!moveInProgress_) {
-		qWarning() << "AMPVControl: timer timeout while move not in progress.  How did this happen?";
 		return;
 	}
 
@@ -284,7 +303,7 @@ void AMReadOnlyPVwStatusControl::onStatusPVError(int errorCode) {
 	if(source){
 		if(errorCode == AMPROCESSVARIABLE_CANNOT_READ){
 			emit error(AMControl::CannotGetStatusError);
-			qWarning() << QString("AMReadOnlyPVwStatusControl: Status Process Variable error %1: code %2.").arg(source->pvName()).arg(errorCode);
+			AMErrorMon::debug(this, AMPVCONTROL_STATUS_PROCESS_VARIABLE_ERROR, QString("AMReadOnlyPVwStatusControl: Status Process Variable error %1: code %2.").arg(source->pvName()).arg(errorCode));
 		}
 	}
 }
@@ -306,12 +325,16 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	: AMReadOnlyPVwStatusControl(name, readPVname, movingPVname, parent, statusChecker, description) {
 
 	// Initialize:
+	moveStartTolerance_ = 0;
 	moveInProgress_ = false;
 	stopInProgress_ = false;
 	startInProgress_ = false;
+	settlingInProgress_ = false;
+	settlingTime_ = 0.0;	/// \todo Once tested, this should maybe be enabled by default. All systems with separate status and feedback PVs will need it. How much time?
 	setTolerance(tolerance);
 	setpoint_ = 0;
 	moveStartTimeout_ = moveStartTimeoutSeconds;
+	hardwareWasMoving_ = false;
 
 	// create new setpoint PV. Monitor it, in case someone else changes it
 	writePV_ = new AMProcessVariable(writePVname, true, this);
@@ -326,9 +349,7 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 
 	// connect the timer to the timeout handler:
 	connect(&moveStartTimer_, SIGNAL(timeout()), this, SLOT(onMoveStartTimeout()));
-
-	// watch out for the changes in the device moving:
-	connect(this, SIGNAL(movingChanged(bool)), this, SLOT(onIsMovingChanged(bool)));
+	connect(&settlingTimer_, SIGNAL(timeout()), this, SLOT(onSettlingTimeFinished()));
 
 	// Do we have a stopPV?
 	noStopPV_ = stopPVname.isEmpty();
@@ -360,34 +381,59 @@ void AMPVwStatusControl::onPVConnected(bool) {
 }
 
 // Start a move to the value setpoint:
-void AMPVwStatusControl::move(double setpoint) {
+AMControl::FailureExplanation AMPVwStatusControl::move(double setpoint) {
 
-	stopInProgress_ = false;
-	moveInProgress_ = false;
-	// Flag that "our" move started:
-	startInProgress_ = true;
+	if(isMoving()) {
+		if(!allowsMovesWhileMoving()) {
+			AMErrorMon::debug(this, AMPVCONTROL_COULD_NOT_MOVE_WHILE_MOVING, QString("AMPVControl: Could not move %1 (%2) to %3, because the control is already moving.").arg(name()).arg(writePV_->pvName()).arg(setpoint_));
+			return AlreadyMovingFailure;
+		}
 
-	// This is our new target:
-	setpoint_ = setpoint;
-	// Issue the move command:
-	writePV_->setValue(setpoint_);
+		if(!moveInProgress()) {
+			// the control is already moving, but it's not one of our moves. In this situation, there is no way that we can start a move and be assured that we'll be notified when OUR move finishes.
+			AMErrorMon::debug(this, AMPVCONTROL_COULD_NOT_MOVE_WHILE_MOVING_EXTERNAL, QString("AMPVControl: Could not move %1 (%2) to %3, because the control is already moving.").arg(name()).arg(writePV_->pvName()).arg(setpoint_));
+			return AlreadyMovingFailure;
+		}
 
-	// Special case added:
-	// =======================
-	// If we're already in-position (ie: moving to where we are already). In this situation, you won't see any feedback values change (onNewFeedbackValue() won't be called), but probably want to get the moveSucceeded() signal right away -- ie: instead of waiting for the move timeout.
-	// This check is only possible if you've actually specified a non-default, appropriate tolerance:
-	if(tolerance() != AMCONTROL_TOLERANCE_DONT_CARE && inPosition()) {
-		startInProgress_ = false;
-		moveInProgress_ = true;
-		emit moveStarted();
-		moveInProgress_ = false;
-		emit moveSucceeded();
+		// Otherwise: This control supports mid-move updates, and we're already moving. We just need to update the setpoint and send it.
+		setpoint_ = setpoint;
+		writePV_->setValue(setpoint_);
+		// since the settling phase is considered part of a move, it's OK to be here while settling... But for Acquaman purposes, this will be considered a single re-targetted move, even though the hardware will see two.  If we're settling, disable the settling timer, because we only want to respond to the end of the second move.
+		if(settlingInProgress_) {
+			settlingInProgress_ = false;
+			settlingTimer_.stop();
+		}
+		emit moveReTargetted(); // re-targetted moves will emit moveReTargetted(), although no moveSucceeded()/moveFailed() will be issued for the initial move.
 	}
+
 	else {
-		// start the timer to check if our move failed to start:
-		moveStartTimer_.start(int(moveStartTimeout_*1000.0));
+		settlingInProgress_ = false;
+		stopInProgress_ = false;
+		moveInProgress_ = false;
+		// Flag that "our" move started:
+		startInProgress_ = true;
+
+		// This is our new target:
+		setpoint_ = setpoint;
+
+		// Special case: "null move" should complete immediately. Use only if moveStartTolerance() is non-zero, and the move distance is within moveStartTolerance().
+		if(moveStartTolerance() != 0 && fabs(setpoint_-value()) < moveStartTolerance()) {
+			startInProgress_ = false;
+			moveInProgress_ = true;
+			emit moveStarted();
+			moveInProgress_ = false;
+			emit moveSucceeded();
+		}
+		// Normal move:
+		else {
+			// Issue the move command:
+			writePV_->setValue(setpoint_);
+			// start the timer to check if our move failed to start:
+			moveStartTimer_.start(int(moveStartTimeout_*1000.0));
+		}
 	}
 
+	return NoFailure;
 }
 
 // Tell the motor to stop.  (Note: For safety, this will send the stop instruction whether we think we're moving or not.)
@@ -399,6 +445,7 @@ bool AMPVwStatusControl::stop() {
 	stopInProgress_ = true;	// flag that a stop is "in progress" -- we've issued the stop command.
 	moveInProgress_ = false;	// one of "our" moves is no longer in progress.
 	startInProgress_ = false;
+	settlingInProgress_ = false;
 	return true;
 }
 
@@ -410,7 +457,7 @@ void AMPVwStatusControl::onWritePVError(int errorCode) {
 	if(source){
 		if(errorCode == AMPROCESSVARIABLE_CANNOT_WRITE && shouldMove()){
 			emit error(AMControl::CannotWriteError);
-			qWarning() << QString("AMPVwStatusControl: Write Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
+			AMErrorMon::debug(this, AMPVCONTROL_STATUS_WRITE_PROCESS_VARIABLE_ERROR, QString("AMPVwStatusControl: Write Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode));
 		}
 	}
 }
@@ -429,12 +476,21 @@ void AMPVwStatusControl::onMoveStartTimeout() {
 	}
 }
 
-// This is used to add our own move tracking signals when isMoving() changes.
-//This slot will only be accessed on _changes_ in isMoving()
-void AMPVwStatusControl::onIsMovingChanged(bool isMoving) {
+// Re-implemented from AMReadOnlyPVwStatusControl:
+void AMPVwStatusControl::onMovingChanged(int isMovingValue) {
+	bool nowMoving = (*statusChecker_)(isMovingValue);	// according to the hardware.  For checking moveSucceeded/moveStarted/moveFailed, use the value delivered in the signal argument, instead of re-checking the PV, in case we respond late and the hardware has already changed again.
+
+	// In case the hardware is being silly and sending multiple MOVE ACTIVE, MOVE ACTIVE, MOVE ACTIVE states in a row, or MOVE DONE, MOVE DONE, MOVE DONE states in a row: only act on changes. [Edge detection]
+	if(nowMoving == hardwareWasMoving_)
+		return;
+
+	hardwareWasMoving_ = nowMoving;
+
+	// moveStarted, moveFailed, moveSucceeded, or transition to settling:
+	///////////////////////////////////////////////////////////////////////
 
 	// if we requested one of our moves, and moving just started:
-	if(startInProgress_ && isMoving) {
+	if(startInProgress_ && nowMoving) {
 		moveInProgress_ = true;
 		startInProgress_ = false;
 		// This is great... the device started moving within the timeout:
@@ -446,10 +502,63 @@ void AMPVwStatusControl::onIsMovingChanged(bool isMoving) {
 	}
 
 	// If one of our moves was running, and we stopped moving:
-	if(moveInProgress_ && !isMoving) {
-		// That's the end of our move
-		moveInProgress_ = false;
+	if(moveInProgress_ && !nowMoving) {
+		// Mode 1: No settling:
+		if(settlingTime_ == 0.0) {
+			// That's the end of our move
+			moveInProgress_ = false;
 
+			// Check if we succeeded...
+			if(inPosition()) {
+				emit moveSucceeded();
+			}
+			else {
+				emit moveFailed(AMControl::ToleranceFailure);
+			}
+		}
+		// Mode 2: allow settling
+		else {
+			if(!settlingInProgress_) {
+				settlingInProgress_ = true;
+				settlingTimer_.start(int(settlingTime_*1000));
+			}
+		}
+	}
+
+	// "sucessfully" stopped due to a stop() command.
+	if(stopInProgress_ && !nowMoving) {
+		stopInProgress_ = false;
+		// but the move itself has failed, due to a stop() intervention.
+		emit moveFailed(AMControl::WasStoppedFailure);
+	}
+
+
+
+	// Emitting movingChanged().
+	/////////////////////////////////////
+
+	// For external purposes, isMoving() depends on whether the hardware says we're moving, or we're in the settling phase.
+	nowMoving = isMoving();
+
+	if(nowMoving != wasMoving_)
+		emit movingChanged(wasMoving_ = nowMoving);
+}
+
+
+void AMPVwStatusControl::onSettlingTimeFinished()
+{
+	settlingTimer_.stop();
+
+	if(!settlingInProgress_) {
+		// temporary, for settling state testing:
+		qWarning() << "AMPVwStatusControl:" << name() << ": Settling timeout while settlingInProgress is not true.  This should never happen; please report this bug.";
+		return;
+	}
+
+	settlingInProgress_ = false;
+
+	if(moveInProgress_) {
+		moveInProgress_ = false;
 		// Check if we succeeded...
 		if(inPosition()) {
 			emit moveSucceeded();
@@ -458,14 +567,15 @@ void AMPVwStatusControl::onIsMovingChanged(bool isMoving) {
 			emit moveFailed(AMControl::ToleranceFailure);
 		}
 	}
-
-	// "sucessfully" stopped due to a stop() command.
-	if(stopInProgress_ && !isMoving) {
-		stopInProgress_ = false;
-		// but the move itself has failed, due to a stop() intervention.
-		emit moveFailed(AMControl::WasStoppedFailure);
+	else {
+		// temporary, for settling state testing:
+		qWarning() << "AMPVwStatusControl: " << name() << ": Settling time reached while moveInProgress_  == false. This should never happen; please report this bug.";
 	}
 
+	// possible that a change in settlingInProgress_ caused isMoving() to change. Emit signal if necessary:
+	bool nowMoving = isMoving();
+	if(nowMoving != wasMoving_)
+		emit movingChanged(wasMoving_ = nowMoving);
 }
 
 
@@ -543,5 +653,7 @@ void AMPVwStatusAndUnitConversionControl::setUnitConverters(AMAbstractUnitConver
 	if(newSetpoint != oldSetpoint)
 		emit setpointChanged(newSetpoint);
 }
+
+
 
 

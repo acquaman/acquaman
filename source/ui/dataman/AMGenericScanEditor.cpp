@@ -133,6 +133,7 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 
 	QTimer* oneSecondTimer = new QTimer(this);
 	connect(oneSecondTimer, SIGNAL(timeout()), this, SLOT(onOneSecondTimer()));
+	oneSecondTimer->start(1000);
 }
 
 AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
@@ -234,6 +235,7 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 
 	QTimer* oneSecondTimer = new QTimer(this);
 	connect(oneSecondTimer, SIGNAL(timeout()), this, SLOT(onOneSecondTimer()));
+	oneSecondTimer->start(1000);
 }
 
 AMGenericScanEditor::~AMGenericScanEditor() {
@@ -512,58 +514,26 @@ bool AMGenericScanEditor::dropScanURLs(const QList<QUrl>& urls) {
 	bool accepted = false;
 
 	foreach(QUrl url, urls) {
-		// scheme correct?
-		if(url.scheme() != "amd")
-			break;
 
-		// Can we connect to the database?
-		AMDatabase* db = AMDatabase::database(url.host());
-		if(!db)
-			break;
-		// \bug This does not verify that the incoming scans came from the user database. In fact, it happily accepts scans from other databases. Check if we assume anywhere else inside AMGenericScanEditor that we're using the AMDatabase::database("user") database. (If we do, this could cause problems.)
+		bool isScanning;
+		QString scanName;
+		AMScan* scan = AMScan::createFromDatabaseUrl(url, false, &isScanning, &scanName);
 
-		QStringList path = url.path().split('/', QString::SkipEmptyParts);
-		if(path.count() != 2)
-			break;
-
-		QString tableName = path.at(0);
-		bool idOkay;
-		int id = path.at(1).toInt(&idOkay);
-		if(!idOkay || id < 1)
-			break;
-
-		// Only open AMScans or subclasses in the AMScans table.
-		if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
-			break;
-
-		// Check if this scan is acquiring, and refuse to open if so.
-		// Use the currentlyScanning column stored in the database.
-		QVariant isScanning = db->retrieve(id, tableName, "currentlyScanning");
-		if(!isScanning.isValid())
-			return false;
-		if(isScanning.toBool()) {
-			QList<QVariant> nameAndNumber = db->retrieve(id, tableName, QStringList() << "name" << "number");
+		// See if this scan is acquiring, and refuse to create a new instance if so.
+		/// \todo With the new AMScan memory management model, we could actually open the existing AMScan* instance in multiple editors if desired... But propagation of changes under editing might be a problem; all editors currently assuming they are the only ones modifying the scan.
+		if(isScanning) {
 			QMessageBox stillScanningEnquiry;
 			stillScanningEnquiry.setWindowTitle("This scan is still acquiring.");
-			stillScanningEnquiry.setText(QString("The scan '%1' (#%2) is currently still acquiring data, so you can't open multiple copies of it yet.")
-										 .arg(nameAndNumber.at(0).toString())
-										 .arg(nameAndNumber.at(1).toString()));
+			stillScanningEnquiry.setText(QString("The scan '%1' is currently still acquiring data, so you can't open multiple copies of it yet.")
+										 .arg(scanName));
 			stillScanningEnquiry.setIcon(QMessageBox::Information);
 			stillScanningEnquiry.addButton(QMessageBox::Ok);
 			stillScanningEnquiry.exec();
-			return false;
+			continue;
 		}
 
-		// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
-		AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
-		if(!dbo)
-			break;
-
-		AMScan* scan = qobject_cast<AMScan*>( dbo );
-		if(!scan) {
-			delete dbo;
-			break;
-		}
+		if(!scan)
+			continue;
 
 		// success!
 		addScan(scan);
@@ -729,14 +699,27 @@ void AMGenericScanEditor::onOneSecondTimer()
 #include <QFileDialog>
 void AMGenericScanEditor::exportGraphicsToFile()
 {
-	QString fileName = QFileDialog::getSaveFileName(this, "Save Graphics As...", QString(), "PDF Files (*.pdf)", 0, 0);
+	QString fileName = QFileDialog::getSaveFileName(this, "Save Graphics As...", QString(), "PDF Files (*.pdf)", 0, QFileDialog::DontConfirmOverwrite);
 
 	if(!fileName.isEmpty()) {
 		if(!fileName.endsWith(".pdf", Qt::CaseInsensitive))
 			fileName.append(".pdf");
 
+		QFileInfo info(fileName);
+		if (info.exists() && QMessageBox::Cancel == QMessageBox::warning(this,
+													"File already exists...",
+													QString("%1 already exists.  Would you like to overwrite it?").arg(info.fileName()),
+													QMessageBox::Cancel,
+													QMessageBox::Save))
+			return;
+
 		if(!using2DScanView()) {
 			scanView_->exportGraphicsFile(fileName);
+			AMErrorMon::information(this, 0, QString("Exported the current plot to '%1'").arg(fileName));
+		}
+
+		else {
+			scanView2D_->exportGraphicsFile(fileName);
 			AMErrorMon::information(this, 0, QString("Exported the current plot to '%1'").arg(fileName));
 		}
 	}

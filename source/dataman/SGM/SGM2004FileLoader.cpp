@@ -192,13 +192,13 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 					AMMeasurementInfo sddInfo("SDD", "Silicon Drift Detector", "counts", sddAxes);
 					if(scan->rawData()->addMeasurement(sddInfo)){
 						/// \todo Throw an errorMon out?
-						//qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
+						//qdebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 					}
 				}
 			}
 			else if(scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName))){
 				/// \todo Throw an errorMon out?
-				//qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
+				//qdebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 			}
 		}
 	}

@@ -20,7 +20,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMDbObjectGeneralViewSupport.h"
 
 #include <QMetaObject>
-#include <QDebug>
 
 #include "dataman/database/AMDbObject.h"
 #include "ui/dataman/AMDbObjectGeneralView.h"

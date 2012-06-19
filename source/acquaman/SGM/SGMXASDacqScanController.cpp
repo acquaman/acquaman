@@ -32,6 +32,79 @@ SGMXASDacqScanController::SGMXASDacqScanController(SGMXASScanConfiguration *cfg,
 	useDwellTimes(SGMBeamline::sgm()->nextDwellTimeTrigger(), SGMBeamline::sgm()->nextDwellTimeConfirmed());
 }
 
+SGMXASDacqScanController::~SGMXASDacqScanController()
+{
+}
+
+void SGMXASDacqScanController::onDacqStop(){
+	if(dacqCancelled_)
+		AMDacqScanController::onDacqStop();
+	else
+		onScanFinished();
+}
+
+#include "beamline/CLS/CLSSynchronizedDwellTime.h"
+
+void SGMXASDacqScanController::onDwellTimeTriggerChanged(double newValue){
+	if( fabs(newValue - 1.0) < 0.1 ){
+		int curDwell = ceil(SGMBeamline::sgm()->synchronizedDwellTime()->time());
+		switch(curDwell){
+		case 1:
+			SGMBeamline::sgm()->synchronizedDwellTime()->setTime(2);
+			break;
+		case 2:
+			SGMBeamline::sgm()->synchronizedDwellTime()->setTime(2.5);
+			break;
+		case 3:
+			SGMBeamline::sgm()->synchronizedDwellTime()->setTime(1);
+			break;
+		}
+
+		dwellTimeTrigger_->move(0);
+		dwellTimeConfirmed_->move(1);
+	}
+}
+
+void SGMXASDacqScanController::onInitializationActionsSucceeded(){
+	setInitialized();
+}
+
+void SGMXASDacqScanController::onInitializationActionsFailed(int explanation){
+	Q_UNUSED(explanation)
+	AMErrorMon::report(AMErrorReport(this,
+			AMErrorReport::Alert,
+			SGMXASDACQSCANCONTROLLER_INITIALZATION_FAILED,
+			"Error, SGM XAS DACQ Scan Controller failed to initialize - one or more stages of initialization failed. Please report this bug to the Acquaman developers."));
+	setFailed();
+}
+
+void SGMXASDacqScanController::onInitializationActionsProgress(double elapsed, double total){
+	Q_UNUSED(elapsed)
+	Q_UNUSED(total)
+}
+
+void SGMXASDacqScanController::onScanFinished(){
+	if(cleanUpActions_){
+		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(setFinished()));
+		cleanUpActions_->start();
+	}
+	else
+		AMDacqScanController::onDacqStop();
+}
+
+void SGMXASDacqScanController::onScanCancelledBeforeInitialized(){
+	if(cleanUpActions_){
+		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(onDacqStop()));
+		cleanUpActions_->start();
+	}
+	else
+		AMDacqScanController::onDacqStop();
+}
+
+void SGMXASDacqScanController::onScanCancelledWhileRunning(){
+
+}
+
 bool SGMXASDacqScanController::initializeImplementation(){
 	if(SGMXASScanController::beamlineInitialize() && initializationActions_){
 		/* NTBA - August 25th, 2011 (David Chevrier)
@@ -49,7 +122,7 @@ bool SGMXASDacqScanController::initializeImplementation(){
 	AMErrorMon::report(AMErrorReport(this,
 			AMErrorReport::Alert,
 			SGMXASDACQSCANCONTROLLER_CANT_INTIALIZE,
-			"Error, SGM XAS DACQ Scan Controller failed to initialize. Please report this bug to the Acquaman developers."));
+			"Error, SGM XAS DACQ Scan Controller failed to initialize - the initialization actions could not be created. Please report this bug to the Acquaman developers."));
 	return false;
 }
 
@@ -88,6 +161,9 @@ bool SGMXASDacqScanController::startImplementation(){
 				allDwellStage.append(dtctr->dacqDwell());
 			if(!dtctr->dacqFinish().isEmpty())
 				allFinishStage.append(dtctr->dacqFinish());
+
+			if(!usingSpectraDotDatFile_ && (dtctr->toInfo()->rank() != 0) )
+				usingSpectraDotDatFile_ = true;
 		}
 	}
 
@@ -147,7 +223,6 @@ bool SGMXASDacqScanController::startImplementation(){
 	dacqConfigFile.append("# Header: 0\n");
 	dacqConfigFile.append("# SpectrumFormat: 2\n");
 
-	SGMDacqConfigurationFile *configFile = new SGMDacqConfigurationFile();
 	QList<int> matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "FastScaler");
 	if(matchIDs.count() == 0){
 		AMErrorMon::report(AMErrorReport(this,
@@ -156,16 +231,28 @@ bool SGMXASDacqScanController::startImplementation(){
 				"Error, SGM XAS DACQ Scan Controller failed to start (couldn't find a save path for the template'). Please report this bug to the Acquaman developers."));
 		return false;
 	}
-	configFile->loadFromDb(AMDatabase::database("SGMBeamline"), matchIDs.at(0));
 
-	QString templateFullFilePath = configFile->configurationFilePath()+"/template.cfg";
-	qDebug() << "Trying to save template to " << templateFullFilePath;
+	QString pathToUserDb = AMDatabase::database("user")->dbAccessString().replace("//", "/").section("/", 0, -2);
+	QDir configTemplateDir;
+	configTemplateDir.setPath(pathToUserDb);
+	if(!configTemplateDir.cd(".TEMPLATE")){
+		configTemplateDir.mkdir(".TEMPLATE");
+		if(!configTemplateDir.cd(".TEMPLATE")){
+			AMErrorMon::report(AMErrorReport(this,
+					AMErrorReport::Alert,
+					SGMXASDACQSCANCONTROLLER_CANT_START_CANT_FIND_TEMPLATE_DIRECTORY,
+					"Error, SGM XAS DACQ Scan Controller failed to start (couldn't find the template directory). Please report this bug to the Acquaman developers."));
+			return false;
+		}
+	}
+	QString templateFullFilePath = configTemplateDir.absolutePath()+"/template.cfg";
+
 	QFile file(templateFullFilePath);
 	if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
 		AMErrorMon::report(AMErrorReport(this,
 				AMErrorReport::Alert,
 				SGMXASDACQSCANCONTROLLER_CANT_START_CANT_WRITE_TEMPLATE,
-				"Error, SGM XAS DACQ Scan Controller failed to start (couldn't write the template'). Please report this bug to the Acquaman developers."));
+				"Error, SGM XAS DACQ Scan Controller failed to start (couldn't write the template). Please report this bug to the Acquaman developers."));
 		return false;
 	}
 
@@ -185,7 +272,7 @@ bool SGMXASDacqScanController::startImplementation(){
 	for(int i = 0; i < config_->allDetectorConfigurations().count(); i++){
 		if(config_->allDetectorConfigurations().isActiveAt(i)){
 			AMDetector *dtctr = config_->allDetectors()->detectorNamed(config_->allDetectorConfigurations().detectorInfoAt(i)->name());
-//			qDebug() << "Dacq append record as " << dtctr->detectorName() << dtctr->toInfo()->rank() << dtctr->dacqName() << dtctr->readMethod();
+//			qdebug() << "Dacq append record as " << dtctr->detectorName() << dtctr->toInfo()->rank() << dtctr->dacqName() << dtctr->readMethod();
 			if(dtctr->toInfo()->rank() > 0)
 				advAcq_->appendRecord(dtctr->dacqName(), true, true, detectorReadMethodToDacqReadMethod(dtctr->readMethod()));
 			else
@@ -208,15 +295,13 @@ bool SGMXASDacqScanController::startImplementation(){
 			advAcq_->setEnd(x, config_->regionEnd(x));
 		}
 	}
-	advAcq_->saveConfigFile("/Users/fawkes/dev/acquaman/devConfigurationFiles/davidTest.cfg");
-
+	advAcq_->saveConfigFile(configTemplateDir.absolutePath()+"/fullyFormedTemplate.cfg");
 	return AMDacqScanController::startImplementation();
 }
 
 void SGMXASDacqScanController::cancelImplementation(){
 	dacqCancelled_ = true;
 	if(initializationActions_ && initializationActions_->isRunning()){
-//		qDebug() << "Need to stop the intialization actions";
 		disconnect(initializationActions_, 0);
 		connect(initializationActions_, SIGNAL(listSucceeded()), this, SLOT(onScanCancelledBeforeInitialized()));
 		connect(initializationActions_, SIGNAL(listFailed(int)), this, SLOT(onScanCancelledBeforeInitialized()));
@@ -229,74 +314,4 @@ AMnDIndex SGMXASDacqScanController::toScanIndex(QMap<int, double> aeData){
 	Q_UNUSED(aeData)
 	// SGM XAS Scan has only one dimension (energy), simply append to the end of this
 	return AMnDIndex(scan_->rawData()->scanSize(0));
-}
-
-void SGMXASDacqScanController::onDacqStop(){
-	if(dacqCancelled_)
-		AMDacqScanController::onDacqStop();
-	else
-		onScanFinished();
-}
-
-#include "beamline/CLS/CLSSynchronizedDwellTime.h"
-
-void SGMXASDacqScanController::onDwellTimeTriggerChanged(double newValue){
-	if( fabs(newValue - 1.0) < 0.1 ){
-		int curDwell = ceil(SGMBeamline::sgm()->synchronizedDwellTime()->time());
-		switch(curDwell){
-		case 1:
-			SGMBeamline::sgm()->synchronizedDwellTime()->setTime(2);
-			break;
-		case 2:
-			SGMBeamline::sgm()->synchronizedDwellTime()->setTime(2.5);
-			break;
-		case 3:
-			SGMBeamline::sgm()->synchronizedDwellTime()->setTime(1);
-			break;
-		}
-
-		dwellTimeTrigger_->move(0);
-		dwellTimeConfirmed_->move(1);
-	}
-}
-
-void SGMXASDacqScanController::onInitializationActionsSucceeded(){
-//	qDebug() << "The actions list succeeded";
-	setInitialized();
-}
-
-void SGMXASDacqScanController::onInitializationActionsFailed(int explanation){
-	Q_UNUSED(explanation)
-//	qDebug() << "The actions list failed";
-	setFailed();
-}
-
-void SGMXASDacqScanController::onInitializationActionsProgress(double elapsed, double total){
-	Q_UNUSED(elapsed)
-	Q_UNUSED(total)
-	//qDebug() << "Initialization is " << elapsed/total << "% completed";
-}
-
-void SGMXASDacqScanController::onScanFinished(){
-//	qDebug() << "HEARD XAS SCAN FINISHED";
-	if(cleanUpActions_){
-		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(setFinished()));
-		cleanUpActions_->start();
-	}
-	else
-		AMDacqScanController::onDacqStop();
-}
-
-void SGMXASDacqScanController::onScanCancelledBeforeInitialized(){
-//	qDebug() << "HEARD XAS SCAN CANCELLED BEFORE INITIALIZED";
-	if(cleanUpActions_){
-		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(onDacqStop()));
-		cleanUpActions_->start();
-	}
-	else
-		AMDacqScanController::onDacqStop();
-}
-
-void SGMXASDacqScanController::onScanCancelledWhileRunning(){
-
 }

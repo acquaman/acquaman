@@ -40,12 +40,17 @@ class SGMXASScanConfiguration : public AMXASScanConfiguration, public SGMScanCon
 
 
 public:
+	/// Standard constructor, queries the SGMBeamline and retrieves some detector information
 	Q_INVOKABLE explicit SGMXASScanConfiguration(QObject *parent=0);
+	/// Copy constructor
 	SGMXASScanConfiguration(const SGMXASScanConfiguration &original);
 
+	/// Returns the metaObject
 	const QMetaObject* getMetaObject();
 
+	/// Returns the control set for flux/resolution (exit slit gap, grating, harmonic)
 	AMControlSet *fluxResolutionSet() const { return fluxResolutionSet_;}
+	/// Returns the control set for tracking (mono tracking, undulator tracking, exit slit tracking)
 	AMControlSet *trackingSet() const { return trackingSet_;}
 
 	/// Returns an AMDetectorSet that consists of the detectors a user can choose (or choose not) to use. In this case TEY, TFY, and SDD
@@ -80,54 +85,80 @@ public:
 	/// Returns the AMControlInfo for the time control.
 	AMControlInfo timeControlInfo() const { return regions_->defaultTimeControl()->toInfo(); }
 
+	/// Overrides the warnings string to check warnings from the detector info set
+	virtual QString dbLoadWarnings() const;
+
 public slots:
+	/// Sets the tracking group's values from an info list
 	bool setTrackingGroup(AMControlInfoList trackingList);
+	/// Sets the flux/resolution group's values from an info list
 	bool setFluxResolutionGroup(AMControlInfoList fluxResolutionList);
 
+	/// Sets the undulator tracking directly
 	bool setUndulatorTracking(bool undulatorTracking);
+	/// Sets the mono tracking directly
 	bool setMonoTracking(bool monoTracking);
+	/// Sets the exit slit tracking directly
 	bool setExitSlitTracking(bool exitSlitTracking);
 
+	/// Sets the exit slit gap value for this configuration
 	bool setExitSlitGap(double exitSlitGap);
+	/// Sets the grating value for this configuration (as the SGMBeamline enum)
 	bool setGrating(SGMBeamline::sgmGrating grating);
+	/// Sets the grating value for this configuration (as an int)
 	bool setGrating(int grating);
+	/// Sets the harmonvic value for this configuration (as the SGMBeamline enum)
 	bool setHarmonic(SGMBeamline::sgmHarmonic harmonic);
+	/// Sets the harmonvic value for this configuration (as an int)
 	bool setHarmonic(int harmonic);
 
-	/* NTBA March 14, 2011 David Chevrier
-	   Need something similar for detector set
-	*/
-
+	/// Sets the detector configurations based on a detector info set
 	bool setDetectorConfigurations(const AMDetectorInfoSet& xasDetectorsCfg);
 
 signals:
+	/// Emitted when something about the tracking group changes (information in the control info list)
 	void trackingGroupChanged(AMControlInfoList);
+	/// Emitted when something about the flux/resolution group changes (information in the control info list)
 	void fluxResolutionGroupChanged(AMControlInfoList);
 
+	/// Emitted when the requested tracking for the undulator changes
 	void undulatorTrackingChanged(bool undulatorTracking);
+	/// Emitted when the requested tracking for the mono changes
 	void monoTrackingChanged(bool monoTracking);
+	/// Emitted when the requested tracking for the exit slit changes
 	void exitSlitTrackingChanged(bool exitSlitTracking);
 
+	/// Emitted when the requested exit slit gap value changes
 	void exitSlitGapChanged(double exitSlitGap);
+	/// Emitted when the requested grating value changes
 	void gratingChanged(int grating);
+	/// Emitted when the requested harmonic value changes
 	void harmonicChanged(int harmonic);
 	/* NTBA March 14, 2011 David Chevrier
 	   Need something similar for detector set
 	*/
 
 protected slots:
+	/// NOT CURRENTLY IN USE
 	void detectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
 
 protected:
+	/// Used to write the detector configurations to the database
 	AMDbObject* dbReadDetectorConfigs() { return &xasDetectorsCfg_;}
+	/// For database loading (never called)
 	void dbLoadDetectorConfigs(AMDbObject*) {} //Never called, xasDetectorsCfg_ is always valid
 
 protected:
+	/// Control Set for flux/resolution (exit slit gap, grating, harmonic)
 	AMControlSet *fluxResolutionSet_;
+	/// Control set for the tracking (mono tracking, undulator tracking, exit slit tracking)
 	AMControlSet *trackingSet_;
 
+	/// The detectors specific to XAS retrieved from the SGM Beamline object
 	AMDetectorSet *xasDetectors_;
+	/// All the detectors in this configuration
 	AMDetectorSet *allDetectors_;
+	/// The configurations for the detectors
 	AMDetectorInfoSet xasDetectorsCfg_;
 };
 

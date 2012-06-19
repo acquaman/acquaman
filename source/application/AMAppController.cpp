@@ -43,6 +43,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/actions/AMScanActionInfo.h"
 #include "actions3/editors/AMScanActionEditor.h"
+#include "actions3/actions/AMSamplePlateMoveAction.h"
+#include "actions3/actions/AMSamplePlateMoveActionInfo.h"
+#include "actions3/editors/AMSamplePlateMoveActionEditor.h"
 
 AMAppController::AMAppController(QObject *parent)
 	: AMDatamanAppController(parent)
@@ -82,6 +85,9 @@ bool AMAppController::startup(){
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMScanActionInfo, AMScanAction>("Scan Action", "Runs a scan.", ":/spectrum.png", false);
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMScanActionInfo, AMScanActionEditor>();
 
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMSamplePlateMoveActionInfo, AMSamplePlateMoveAction>("Move Sample Position", "Move to a different marked sample position", ":/32x32/media-playlist-repeat.png");
+		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMSamplePlateMoveActionInfo, AMSamplePlateMoveActionEditor>();
+
 		return success;
 	}
 	else
@@ -97,11 +103,11 @@ bool AMAppController::startupCreateUserInterface() {
 		mw_->addPane(workflowManagerView_, "Experiment Tools", "Workflow", ":/user-away.png");
 
 		// add the workflow control UI
-//		workflowView_ = new AMWorkflowView3();
-//		mw_->addPane(workflowView_, "Experiment Tools", "Workflow", ":/user-away.png");
+		workflowView_ = new AMWorkflowView3();
+		mw_->addPane(workflowView_, "Experiment Tools", "Workflow", ":/user-away.png");
 		// remove the old one:
-//		mw_->removePane(workflowManagerView_);
-//		workflowManagerView_->hide();
+		mw_->removePane(workflowManagerView_);
+		workflowManagerView_->hide();
 
 		AMStartScreen* chooseRunDialog = new AMStartScreen(true, mw_);
 		chooseRunDialog->show();
@@ -161,45 +167,18 @@ void AMAppController::openScanInEditorAndTakeOwnership(AMScan *scan, bool bringE
 
 void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 {
-	// scheme correct?
-	if (url.scheme() != "amd")
-		return;
-
-	// Scan configurations only come from the user databases currently.
-	AMDatabase *db = AMDatabase::database("user");
-	if (!db)
-		return;
-
-	QStringList path = url.path().split('/', QString::SkipEmptyParts);
-	if(path.count() != 2)
-		return;
-
-	QString tableName = path.at(0);
-	bool idOkay;
-	int id = path.at(1).toInt(&idOkay);
-	if(!idOkay || id < 1)
-		return;
-
-	// Only open scans for now (ie: things in the scans table)
-	if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
-		return;
-
 	// turn off automatic raw-day loading for scans... This will make loading the scan to access it's config much faster.
 	bool scanAutoLoadingOn = AMScan::autoLoadData();
 	AMScan::setAutoLoadData(false);
-	// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
-	AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
-	if(!dbo)
-		return;
+
+	AMScan* scan = AMScan::createFromDatabaseUrl(url, true);
+
 	// restore AMScan's auto-loading of data to whatever it was before.
 	AMScan::setAutoLoadData(scanAutoLoadingOn);
 
-	// Is it a scan?
-	AMScan* scan = qobject_cast<AMScan*>( dbo );
-	if(!scan) {
-		delete dbo;
+	if(!scan)
 		return;
-	}
+
 
 	// need to check that this scan actually has a valid config. This hasn't always been guaranteed, especially when scans move between beamlines.
 	AMScanConfiguration* config = scan->scanConfiguration();

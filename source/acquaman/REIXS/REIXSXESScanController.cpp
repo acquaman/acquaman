@@ -66,10 +66,16 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 	AMRawDataSource* imageDataSource = new AMRawDataSource(scan_->rawData(), 0);
 	scan_->addRawDataSource(imageDataSource);
 
+	scan_->rawData()->addMeasurement(AMMeasurementInfo("totalCounts", "Total Counts", "counts"));
+	AMRawDataSource* totalCountsDataSource = new AMRawDataSource(scan_->rawData(), 1);
+	scan_->addRawDataSource(totalCountsDataSource, false, false);
+
 	REIXSXESImageAB* xesSpectrum = new REIXSXESImageAB("xesSpectrum");
 	xesSpectrum->setInputDataSources(QList<AMDataSource*>() << imageDataSource);
-	xesSpectrum->setSumRangeMax(60);
-	xesSpectrum->setSumRangeMin(3);
+	xesSpectrum->setSumRangeMax(58);
+	xesSpectrum->setSumRangeMin(5);
+	xesSpectrum->setCorrelationHalfWidth(100);	// monitor for performance. Makes nicer fits when wider.
+	xesSpectrum->enableLiveCorrelation(true);
 	scan_->addAnalyzedDataSource(xesSpectrum);
 }
 
@@ -109,8 +115,8 @@ bool REIXSXESScanController::initializeImplementation() {
 			return false;
 		}
 
-		// temporary, for commissioning: Watch out... this persists after the scan.
-		REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->setDetectorHeightError(config_->detectorHeightError());
+//		// temporary, for commissioning: Watch out... this persists after the scan.
+//		REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(config_->gratingNumber()).setHeightCorrection(config_->detectorHeightError());
 
 		if(!REIXSBeamline::bl()->spectrometer()->specifyGrating(config_->gratingNumber())) {
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 11, "There was no grating like the one specified in this scan configuration."));
@@ -189,6 +195,9 @@ void REIXSXESScanController::onNewImageValues() {
 
 	if(!scan_->rawData()->setValue(AMnDIndex(), 0, imageData.constData()))
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 37, "Error setting the new values from the MCP Detector. The size of the image didn't match what it should be.  This is probably a problem with the network connection to the detector, or a bug in the detector driver."));
+
+	if(!scan_->rawData()->setValue(AMnDIndex(), 1, AMnDIndex(), double(REIXSBeamline::bl()->mcpDetector()->totalCounts())))
+		AMErrorMon::debug(this, 377, "Error setting new values for the MCP Detector total counts. Please report this bug to the REIXS Acquaman developers.");
 
 }
 
