@@ -29,9 +29,9 @@ REIXSXESCalibration2::REIXSXESCalibration2(QObject *parent) :
 	// LEG:
 	gratings_ << REIXSXESGratingInfo("LEG", 593.02, 5025.6, 86, 350, QVector3D(20.529, -25.865, 12.892), QVector3D(0,0,0), QVector3D(-0.175, -0.175, -0.41), 4.05666014, 0.349, -0.15, 50, 1000);
 	// IMP:
-	gratings_ << REIXSXESGratingInfo("Impurity", 892.86, 6699.8, 87, 350, QVector3D(-14.970, -25.723, 13.507), QVector3D(0,0,0), QVector3D(0.1, -0.261, -0.41), 2.947598786, 1.608997311, -0.15, 50, 1000);
+	gratings_ << REIXSXESGratingInfo("Impurity", 892.86, 6699.8, 87, 350, QVector3D(-14.970, -25.723, 13.507), QVector3D(0,0,0), QVector3D(0.1, -0.261, -0.41), 3.02695496, 0.64573899, -0.15, 50, 1000); //2.947598786, 1.608997311
 	// MEG:
-	gratings_ << REIXSXESGratingInfo("MEG", 1187.819, 10018, 88, 350, QVector3D(20.374, 2.697, -18.923), QVector3D(0,0,-0.5), QVector3D(0.225, -0.1, -0.41), 1.813308264, -0.019207904, -0.15, 50, 1000);
+	gratings_ << REIXSXESGratingInfo("MEG", 1187.819, 10018, 88, 350, QVector3D(20.374, 2.697, -18.923), QVector3D(0,-0.014,-1), QVector3D(0.225, -0.1, -0.41), 1.813308264, -0.019207904, -0.15, 50, 1000);
 	// HEG*(HRHEG)
 	gratings_ << REIXSXESGratingInfo("HEG*(HRHEG)", 2600, 11461, 88.25, 350, QVector3D(20.278, 26.808, 16.465), QVector3D(0,0,0), QVector3D(0.5,-0.261,-0.41), 2.8, 0.35, -0.15, 50, 1000); /// \todo angleCorrection, heightCorrection
 	// HRMEG
@@ -82,7 +82,7 @@ AMControlInfoList REIXSXESCalibration2::computeSpectrometerPosition(int gratingI
 
 	double _beta = beta(gratingIndex, eV);
 	double _rPrime = rPrime(gratingIndex, _beta) + focusOffsetMm;
-
+//	double _spectrometerAngle = spectrometerAngle(gratingIndex, _beta, _rPrime);
 	double _liftHeight = liftHeight(spectrometerAngle(gratingIndex, _beta, _rPrime));
 
 	double _tiltStage = tiltStage(_beta, tiltOffsetDeg);
@@ -103,6 +103,7 @@ AMControlInfoList REIXSXESCalibration2::computeSpectrometerPosition(int gratingI
 
 	qDebug() << "Spectrometer Geometry calculations for: " << gratings_.at(gratingIndex).name() << eV << "eV," << focusOffsetMm << "mm defocus," << tiltOffsetDeg << "deg tilt offset:";
 	qDebug() << "   beta:" << _beta;
+//	qDebug() << "   spectrometerAngle:" << _spectrometerAngle;
 	qDebug() << "   lift (spectrometer rotation):" << _liftHeight;
 	qDebug() << "   rPrime (including defocus):" << _rPrime;
 	qDebug() << "   tilt drive (including offset):" << _tiltStage;
