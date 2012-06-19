@@ -361,6 +361,7 @@ bool REIXSSpectrometer::stop()
 		delete moveAction_;
 		moveAction_ = 0;
 		emit moveFailed(AMControl::WasStoppedFailure);
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMControl::WasStoppedFailure, "Spectrometer Move Stopped."));
 	}
 
 	// just in case anything was moving from outside our instructions (ie: commanded from somewhere else in the building)
@@ -452,10 +453,14 @@ void REIXSSpectrometer::onMoveActionStateChanged(int state, int previousState)
 	if(state == AMAction::Succeeded || state == AMAction::Failed || state == AMAction::Cancelled) {
 		moveAction_->deleteLater();	// cannot delete right away, because we might still be executing inside the moveAction_'s code.
 		moveAction_ = 0;
-		if(state == AMAction::Succeeded)
+		if(state == AMAction::Succeeded) {
 			emit moveSucceeded();
-		else if(state == AMAction::Failed)
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Information, 0, QString("Spectrometer move to %1 finished.").arg(value())));
+		}
+		else if(state == AMAction::Failed) {
 			emit moveFailed(AMControl::OtherFailure);
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMControl::OtherFailure, "Spectrometer Move Failed."));
+		}
 		// cancelled: handled previously in stop().
 	}
 }
