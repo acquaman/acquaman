@@ -138,6 +138,7 @@ void REIXSXESSpectrometerControlEditor::onSpectrometerMoveSucceeded()
 
 void REIXSXESSpectrometerControlEditor::onSpectrometerMoveFailed(int reason)
 {
+	Q_UNUSED(reason)
 //	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, reason, "Spectrometer Move Failed"));
 }
 
