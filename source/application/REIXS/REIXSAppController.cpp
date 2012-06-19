@@ -143,12 +143,13 @@ bool REIXSAppController::startupCreateUserInterface() {
 
 	// This workflow stuff needs to get sorted out at the App controller level.
 	///////////////////////////////////////////////////
-//	// remove the Actions3 workflow:
-//	mw_->removePane(AMAppController::workflowView_);
-//	delete AMAppController::workflowView_;
+	// remove the Actions3 workflow:
+	mw_->removePane(AMAppController::workflowView_);
+	delete AMAppController::workflowView_;
+
 	// remove the OLD OLD workflow:
-	mw_->removePane(AMAppController::workflowManagerView_);
-	AMAppController::workflowManagerView_->hide();
+//	mw_->removePane(AMAppController::workflowManagerView_);
+//	AMAppController::workflowManagerView_->hide();
 
 	// add the actual workflow UI (Using version in Actions2)
 	workflowView_ = new AMWorkflowView();

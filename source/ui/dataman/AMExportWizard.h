@@ -68,6 +68,10 @@ public:
 	virtual void initializePage();
 	virtual bool validatePage();
 
+public slots:
+	/// Sets the list of databases we'll look in for exporter options
+	void setOptionsDatabases(const QStringList &optionsDatabases);
+
 protected slots:
 	/// Called when the user chooses a different pre-saved option from the selector list.
 	void onOptionSelectorIndexChanged(int index);
@@ -75,18 +79,23 @@ protected slots:
 	/// Called when the save button is clicked to save a current option.
 	bool onSaveOptionButtonClicked();
 
+	/// Called when the "save as" button is clicked to make a copy of the current option
+	bool onSaveAsOptionButtonClicked();
+
 	/// Fills the option selector with available stored options. Returns true if saved, false if cancelled.
 	void populateOptionSelector();
 
 protected:
 	QWidget* optionViewContainer_;
 	QComboBox* optionSelector_;
-	QPushButton* saveOptionButton_, *newOptionButton_;
+	QPushButton* saveOptionButton_, *newOptionButton_, *saveAsOptionButton_;
 
 	AMExporterOption* option_;
 	AMExporter* exporter_;
 	QWidget* optionView_;
 	AMExportController* controller_;
+
+	QStringList optionsDatabases_;
 };
 
 /// This widget provides the first screen in an export wizard, allowing the user to choose an exporter (General Ascii, Excel, etc.) from the set of registered exporters.
@@ -131,9 +140,12 @@ public:
 
 	AMExportController* controller() { return controller_; }
 
+	QStringList optionsDatabases() const { return optionsDatabases_; }
+
 signals:
 
 public slots:
+	void setOptionsDatabases(const QStringList &optionsDatabases);
 
 protected slots:
 	void onControllerDeleted() {
@@ -144,6 +156,10 @@ protected slots:
 
 protected:
 	AMExportController* controller_;
+
+	AMExportWizardOptionPage *optionsPage_;
+
+	QStringList optionsDatabases_;
 
 };
 

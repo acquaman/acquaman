@@ -606,7 +606,8 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/actions3/actions/AMSamplePlateMoveAction.h \
 	source/actions3/editors/AMSamplePlateMoveActionEditor.h \
 	source/qttelnet/qttelnet.h \
-	source/beamline/CLS/CLSProcServManager.h
+	source/beamline/CLS/CLSProcServManager.h \
+	source/dataman/REIXS/REIXSXESCalibration2.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1005,7 +1006,8 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/actions3/actions/AMSamplePlateMoveAction.cpp \
 	source/actions3/editors/AMSamplePlateMoveActionEditor.cpp \
 	source/qttelnet/qttelnet.cpp \
-	source/beamline/CLS/CLSProcServManager.cpp
+	source/beamline/CLS/CLSProcServManager.cpp \
+	source/dataman/REIXS/REIXSXESCalibration2.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {

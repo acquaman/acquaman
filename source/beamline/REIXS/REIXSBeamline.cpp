@@ -309,16 +309,24 @@ AMControl::FailureExplanation REIXSSpectrometer::move(double setpoint)
 		AMListAction* gratingAction = new AMListAction(new AMActionInfo("grating move"));	// sequential by default.
 		// first, move Z to 0
 		gratingAction->addSubAction(new AMInternalControlMoveAction(hexapod_->z(), 0));
-		// then move U to 0
-		gratingAction->addSubAction(new AMInternalControlMoveAction(hexapod_->u(), 0));
+		// then move U,V,W to 0
+		AMListAction* uvw0Action = new AMListAction(new AMActionInfo("grating UVW move to 0"), AMListAction::ParallelMode);
+		uvw0Action->addSubAction(new AMInternalControlMoveAction(hexapod_->u(), 0));
+		uvw0Action->addSubAction(new AMInternalControlMoveAction(hexapod_->v(), 0));
+		uvw0Action->addSubAction(new AMInternalControlMoveAction(hexapod_->w(), 0));
+		gratingAction->addSubAction(uvw0Action);
 		// then move R,S,T into position (Can do simultaneously with parallel action)
 		AMListAction* rstAction = new AMListAction(new AMActionInfo("grating RST move"), AMListAction::ParallelMode);
 		rstAction->addSubAction(new AMInternalControlMoveAction(hexapod_->r(), moveSetpoint_.controlNamed("hexapodR").value()));
 		rstAction->addSubAction(new AMInternalControlMoveAction(hexapod_->s(), moveSetpoint_.controlNamed("hexapodS").value()));
 		rstAction->addSubAction(new AMInternalControlMoveAction(hexapod_->t(), moveSetpoint_.controlNamed("hexapodT").value()));
 		gratingAction->addSubAction(rstAction);
-		// move U to actual position
-		gratingAction->addSubAction(new AMInternalControlMoveAction(hexapod_->u(), moveSetpoint_.controlNamed("hexapodU").value()));
+		// move U,V,W to actual position
+		AMListAction* uvwAction = new AMListAction(new AMActionInfo("grating UVW move"), AMListAction::ParallelMode);
+		uvwAction->addSubAction(new AMInternalControlMoveAction(hexapod_->u(), moveSetpoint_.controlNamed("hexapodU").value()));
+		uvwAction->addSubAction(new AMInternalControlMoveAction(hexapod_->v(), moveSetpoint_.controlNamed("hexapodV").value()));
+		uvwAction->addSubAction(new AMInternalControlMoveAction(hexapod_->w(), moveSetpoint_.controlNamed("hexapodW").value()));
+		gratingAction->addSubAction(uvwAction);
 		// then move X,Y,Z into position (can do simultaneously with parallel action)
 		AMListAction* xyzAction = new AMListAction(new AMActionInfo("grating XYZ move"), AMListAction::ParallelMode);
 		xyzAction->addSubAction(new AMInternalControlMoveAction(hexapod_->x(), moveSetpoint_.controlNamed("hexapodX").value()));
@@ -332,9 +340,7 @@ AMControl::FailureExplanation REIXSSpectrometer::move(double setpoint)
 	moveAction_->addSubAction(new AMInternalControlMoveAction(spectrometerRotationDrive_, moveSetpoint_.controlNamed("spectrometerRotationDrive").value()));
 	moveAction_->addSubAction(new AMInternalControlMoveAction(detectorTiltDrive_, moveSetpoint_.controlNamed("detectorTiltDrive").value()));
 	moveAction_->addSubAction(new AMInternalControlMoveAction(detectorTranslation_, moveSetpoint_.controlNamed("detectorTranslation").value()));
-	// Note for DavidM: Here's your crash:
-//	moveAction_->addSubAction(new AMInternalControlMoveAction(endstationTranslation_, moveSetpoint_.controlNamed("endstationTranslation").value()));
-	// Reason: there is no control named "endstationTranslation" in the moveSetpoint_ list of control positions that gets calculated by REIXSXESCalibration::calculateSpectrometerPosition().
+	// Disabled for now: moveAction_->addSubAction(new AMInternalControlMoveAction(endstationTranslation_, moveSetpoint_.controlNamed("endstationTranslation").value()));
 
 	// Watch the move action: succeeded or failed (or cancelled)
 	connect(moveAction_, SIGNAL(stateChanged(int,int)), this, SLOT(onMoveActionStateChanged(int,int)));
@@ -376,7 +382,7 @@ bool REIXSSpectrometer::loadSpectrometerCalibration(AMDatabase *db, int database
 			return false;
 	}
 	else {
-		calibration_ = REIXSXESCalibration();
+		calibration_ = REIXSXESCalibration2();
 	}
 
 	// need to check grating indexes... Are they too big?
@@ -426,7 +432,7 @@ bool REIXSSpectrometer::gratingInPosition() const
 
 	QVector3D xyz = calibration_.hexapodXYZ(currentGrating_);
 	QVector3D rst = calibration_.hexapodRST(currentGrating_);
-	double u = calibration_.hexapodU(currentGrating_);
+	QVector3D uvw = calibration_.hexapodUVW(currentGrating_);
 
 	return hexapod_->x()->withinTolerance(xyz.x()) &&
 			hexapod_->y()->withinTolerance(xyz.y()) &&
@@ -434,9 +440,9 @@ bool REIXSSpectrometer::gratingInPosition() const
 			hexapod_->r()->withinTolerance(rst.x()) &&
 			hexapod_->s()->withinTolerance(rst.y()) &&
 			hexapod_->t()->withinTolerance(rst.z()) &&
-			hexapod_->u()->withinTolerance(u) &&
-			hexapod_->v()->withinTolerance(0) &&
-			hexapod_->w()->withinTolerance(0);
+			hexapod_->u()->withinTolerance(uvw.x()) &&
+			hexapod_->v()->withinTolerance(uvw.y()) &&
+			hexapod_->w()->withinTolerance(uvw.z());
 }
 
 void REIXSSpectrometer::onMoveActionStateChanged(int state, int previousState)

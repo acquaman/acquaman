@@ -83,6 +83,9 @@ SGMAppController::SGMAppController(QObject *parent) :
 	databaseUpgrades_.prepend(sgm1Pt1UserDb);
 	AMDbUpgrade *sgm1Pt1ActionsDb = new SGMDbUpgrade1Pt1("actions", this);
 	databaseUpgrades_.prepend(sgm1Pt1ActionsDb);
+
+	// Add the SGM Beamline database as a source of exporter options
+	additionalExporterOptionsDatabases_.append("SGMBeamline");
 }
 
 bool SGMAppController::startup() {
@@ -437,17 +440,17 @@ bool SGMAppController::setupSGMPlugins()
 bool SGMAppController::setupSGMExporterOptions(){
 	bool success = true;
 
-	AMDatabase *dbUser = AMDatabase::database("user");
-	if(!dbUser)
+	AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
+	if(!dbSGM)
 		return false;
 
-	QList<int> matchIDs = dbUser->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "SGMDefault");
+	QList<int> matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "SGMDefault");
 
 	AMExporterOptionGeneralAscii *sgmDefault;
 	// Don't have one called "SGMDefault", so make one. If we have one, retreive it and check it.
 	sgmDefault = new AMExporterOptionGeneralAscii();
 	if(matchIDs.count() != 0)
-		sgmDefault->loadFromDb(dbUser, matchIDs.at(0));
+		sgmDefault->loadFromDb(dbSGM, matchIDs.at(0));
 	sgmDefault->setName("SGMDefault");
 	sgmDefault->setFileName("$name_$fsIndex.txt");
 	sgmDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\nGrating: $scanConfiguration[grating%enumConvert]\nHarmonic: $scanConfiguration[harmonic%enumConvert]\nExit Slit Gap: $scanConfiguration[exitSlitGap%double%2] um");
@@ -474,9 +477,9 @@ bool SGMAppController::setupSGMExporterOptions(){
 	sgmDefault->ensureDataSource("PLY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
 	sgmDefault->ensureDataSource("PLYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
 	sgmDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.txt");
-	sgmDefault->storeToDb(dbUser);
+	sgmDefault->storeToDb(dbSGM);
 
-	matchIDs = dbUser->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "SGMDefault");
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "SGMDefault");
 
 	if(matchIDs.count() > 0){
 		success &= AMAppControllerSupport::registerClass<SGMXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
