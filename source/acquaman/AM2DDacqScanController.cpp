@@ -90,12 +90,12 @@ bool AM2DDacqScanController::startImplementation()
 
 		scan_->setFilePath(fullPath.filePath()+".dat");	// relative path and extension (is what the database wants)
 		if(usingSpectraDotDatFile_){
-			// qDebug() << "dacq scan controller: setting additional file paths: " << (QStringList() << fullPath.filePath()+"_spectra.dat");
+			// qdebug() << "dacq scan controller: setting additional file paths: " << (QStringList() << fullPath.filePath()+"_spectra.dat");
 			scan_->setAdditionalFilePaths( QStringList() << fullPath.filePath()+"_spectra.dat" );
 			((AMAcqScanSpectrumOutput*)abop)->setExpectsSpectrumFromScanController(true);
 		}
 		else {
-			// qDebug() << "dacq scan controller: not using spectraDotDat file.";
+			// qdebug() << "dacq scan controller: not using spectraDotDat file.";
 		}
 
 		((AMAcqScanSpectrumOutput*)abop)->setScan(scan_);

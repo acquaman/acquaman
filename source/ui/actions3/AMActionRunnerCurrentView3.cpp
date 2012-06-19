@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMListAction3.h"
 
 #include "util/AMFontSizes.h"
+#include "util/AMErrorMonitor.h"
 
 #include <QTreeView>
 #include <QBoxLayout>
@@ -37,8 +38,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 #include <QMessageBox>
 #include <QPixmapCache>
-
-#include <QDebug>
 
 AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRunner, QWidget *parent) :
 	QWidget(parent)
@@ -190,7 +189,6 @@ void AMActionRunnerCurrentView3::onCurrentActionChanged(AMAction3* nextAction)
 	}
 }
 
-
 void AMActionRunnerCurrentView3::onStatusTextChanged(const QString &newStatus)
 {
 	headerSubTitle_->setText(newStatus);
@@ -310,11 +308,11 @@ QModelIndex AMActionRunnerCurrentModel3::index(int row, int column, const QModel
 	else {
 		AMListAction3* parentAction = qobject_cast<AMListAction3*>(actionAtIndex(parent));
 		if(!parentAction) {
-			qWarning() << "AMActionRunnerCurrentModel: Warning: Requested child index with invalid parent action.";
+			AMErrorMon::debug(this, AMACTIONRUNNERCURRENTMODEL3_REQUESTED_CHILD_INDEX_WITH_INVALID_PARENT_ACTION, "Requested child index with invalid parent action.");
 			return QModelIndex();
 		}
 		if(row < 0 || row >= parentAction->subActionCount()) {
-			qWarning() << "AMActionRunnerCurrentModel: Warning: sub-action not found at child index row" << row << "with parent" << parent;
+			AMErrorMon::debug(this, AMACTIONRUNNERCURRENTMODEL3_SUBACTION_NOT_FOUND_AT_CHILD_INDEX_ROW, QString("Sub-action not found at child index row %1 with parent row %2").arg(row).arg(parent.row()) );
 			return QModelIndex();
 		}
 		return createIndex(row, 0, parentAction->subActionAt(row));
@@ -359,7 +357,7 @@ QVariant AMActionRunnerCurrentModel3::data(const QModelIndex &index, int role) c
 {
 	AMAction3* action = actionAtIndex(index);
 	if(!action) {
-		qWarning() << "AMActionRunnerQueueModel: Warning: No action at index " << index;
+		AMErrorMon::debug(this, AMACTIONRUNNERCURRENTMODEL3_NO_ACTION_AT_INDEX, QString("No action at index row %1 column %2").arg(index.row()).arg(index.column()) );
 		return QVariant();
 	}
 
@@ -420,7 +418,7 @@ QModelIndex AMActionRunnerCurrentModel3::indexForAction(AMAction3 *action) const
 		if(action == currentAction_)
 			return createIndex(0, 0, action);
 		else {
-			qWarning() << "AMActionRunnerCurrentModel: Warning: Action not found as the current action.";
+			AMErrorMon::debug(this, AMACTIONRUNNERCURRENTMODEL3_ACTION_NOT_FOUND_AS_CURRENT_ACTION, "Action not found as the current action." );
 			return QModelIndex();
 		}
 	}
@@ -428,7 +426,7 @@ QModelIndex AMActionRunnerCurrentModel3::indexForAction(AMAction3 *action) const
 		// we do a have parent action. Do a linear search for ourself in the parent AMNestedAction to find our row.
 		int row = ((AMListAction3 *)parentAction)->indexOfSubAction(action);
 		if(row == -1) {
-			qWarning() << "AMActionRunnerCurrentModel: Warning: action not found in list action.";
+			AMErrorMon::debug(this, AMACTIONRUNNERCURRENTMODEL3_ACTION_NOT_FOUND_IN_LIST_ACTION, "Action not found in list action." );
 			return QModelIndex();
 		}
 		return createIndex(row, 0, action);

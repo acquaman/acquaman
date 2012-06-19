@@ -123,7 +123,8 @@ public:
 
 signals:
 
-public slots:
+protected slots:
+	void onInfoDestroyed();
 
 protected:
 	AMActionInfo3* info_;
@@ -132,6 +133,7 @@ protected:
 	bool actionInheritedList_;
 	bool actionInheritedLoop_;
 	int parentId_;
+	bool loadedInfoFromDb_;
 };
 
 #endif // AMACTIONLOG3_H

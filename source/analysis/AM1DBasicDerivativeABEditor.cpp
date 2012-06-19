@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QLabel>
 #include <QHBoxLayout>
-
+#include <QDebug>
 AM1DBasicDerivativeABEditor::AM1DBasicDerivativeABEditor(AM1DDerivativeAB *analysisBlock, QWidget *parent)
 	: QWidget(parent)
 {
@@ -30,11 +30,14 @@ AM1DBasicDerivativeABEditor::AM1DBasicDerivativeABEditor(AM1DDerivativeAB *analy
 	names_ = new QComboBox;
 	populateComboBox();
 
+	if (analysisBlock_->inputDataSourceCount() > 0 && !analysisBlock_->analyzedName().isNull())
+		names_->setCurrentIndex(names_->findData(analysisBlock_->analyzedName()));
+
+	else if (analysisBlock_->inputDataSourceCount() > 0)
+		onNameChoiceChanged(0);
+
 	connect(names_, SIGNAL(currentIndexChanged(int)), this, SLOT(onNameChoiceChanged(int)));
 	connect(analysisBlock_, SIGNAL(inputSourcesChanged()), this, SLOT(populateComboBox()));
-
-	if (analysisBlock_->inputDataSourceCount() > 0)
-		onNameChoiceChanged(0);
 
 	QHBoxLayout *layout = new QHBoxLayout;
 	layout->addWidget(new QLabel("Input:"), 0, Qt::AlignRight);

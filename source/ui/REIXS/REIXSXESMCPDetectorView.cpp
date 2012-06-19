@@ -157,7 +157,6 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 
 }
 
-#include <QDebug>
 void REIXSXESMCPDetectorView::onCountsPerSecondChanged(double countsPerSecond) {
 
 

@@ -91,6 +91,9 @@ protected slots:
 	/// Slot handling the response when creating a new issue.
 	void onCreateNewIssueReturned();
 
+	void onSomeErrorOccured(QNetworkReply::NetworkError nError);
+	//void onSomeSSLErrorOccurred(QList<QSslError> sslErrors);
+
 protected:
 	/// Helper method that intializes all of the classes member variables.
 	void initialize();

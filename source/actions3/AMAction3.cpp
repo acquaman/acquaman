@@ -19,11 +19,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMAction3.h"
 
-// Used for qWarning() messages that may be helpful to people trying to debug AMAction implementations.
-#include <QDebug>
+#include <QStringBuilder>
 
 #include "util/AMErrorMonitor.h"
-#include <QStringBuilder>
 
 // Constructor: create an action to run the specified AMActionInfo.
 AMAction3::AMAction3(AMActionInfo3* info, QObject *parent)
@@ -62,8 +60,6 @@ AMAction3::AMAction3(const AMAction3& other)
 
 // Destructor: deletes the info and prerequisites
 AMAction3::~AMAction3() {
-	// qDebug() << "Deleting action:" << info_->shortDescription();
-
 	delete info_;
 }
 
@@ -92,14 +88,14 @@ bool AMAction3::cancel()
 		return true;
 	}
 
-	qWarning() << "AMAction: Warning: You cannot cancel this action because it is already in a final state.";
+	AMErrorMon::debug(this, AMACTION3_CANNOT_CANCEL_NOT_IN_FINAL_STATE, "You cannot cancel this action because it is already in a final state.");
 	return false;
 }
 
 bool AMAction3::pause()
 {
 	if(!canPause()) {
-		qWarning() << "AMAction: Warning: Tried to pause an action that specifies that it cannot pause (at the moment).";
+		AMErrorMon::debug(this, AMACTION3_CANNOT_PAUSE_ACCORDING_TO_ACTION, "Tried to pause an action that specifies that it cannot pause (at the moment).");
 		return false;
 	}
 
@@ -112,7 +108,7 @@ bool AMAction3::pause()
 		return true;
 	}
 
-	qWarning() << "AMAction: Warning: You can not pause this action, because it is not in a pausable state.";
+	AMErrorMon::debug(this, AMACTION3_CANNOT_PAUSE_NOT_IN_PAUSABLE_STATE, "You can not pause this action, because it is not in a pausable state.");
 	return false;	// any other state: cannot pause from there.
 }
 
@@ -126,7 +122,7 @@ bool AMAction3::resume()
 		return true;
 	}
 
-	qWarning() << "AMAction: Warning: You can not resume this action because it is not paused.";
+	AMErrorMon::debug(this, AMACTION3_CANNOT_RESUME_NOT_CURRENTLY_PAUSED, "You can not resume this action because it is not paused.");
 	return false;	// cannot resume from any other states except Pause.
 }
 
@@ -138,12 +134,8 @@ void AMAction3::setStarted()
 		emit started();
 	}
 
-	else{
-
-		qWarning() << "AMAction: Warning: An implementation told us it has started, but we did not tell it to start.";
-		qWarning() << "    Action name:" << info()->name();
-		qWarning() << "    Current state:" << stateDescription(state());
-	}
+	else
+		AMErrorMon::debug(this, AMACTION3_NOTIFIED_STARTED_BUT_NOT_TOLD_TO_START, QString("An implementation told us it has started, but we did not tell it to start. Action name: %1. Current state: %2.").arg(info()->name()).arg(stateDescription(state())) );
 }
 
 void AMAction3::setSucceeded()
@@ -155,12 +147,8 @@ void AMAction3::setSucceeded()
 		emit succeeded();
 	}
 
-	else {
-
-		qWarning() << "AMAction: Warning: An implementation told us it had succeeded before it could possibly be running.";
-		qWarning() << "    Action name:" << info()->name();
-		qWarning() << "    Current state:" << stateDescription(state());
-	}
+	else
+		AMErrorMon::debug(this, AMACTION3_NOTIFIED_SUCCEEDED_BUT_NOT_YET_POSSIBLE, QString("An implementation told us it had succeeded before it could possibly be running. Action name: %1. Current state: %2.").arg(info()->name()).arg(stateDescription(state())) );
 }
 
 void AMAction3::setFailed()
@@ -173,7 +161,7 @@ void AMAction3::setFailed()
 	}
 
 	else
-		qWarning() << "AMAction: Warning: An implementation told us it had failed before it could possibly be running.";
+		AMErrorMon::debug(this, AMACTION3_NOTIFIED_FAILED_BUT_NOT_YET_POSSIBLE, "An implementation told us it had failed before it could possibly be running.");
 }
 
 void AMAction3::setPaused()
@@ -185,7 +173,7 @@ void AMAction3::setPaused()
 	}
 
 	else
-		qWarning() << "AMAction: Warning: An action notified us it had paused, when it should not be pausing.";
+		AMErrorMon::debug(this, AMACTION3_NOTIFIED_PAUSED_BUT_NOT_CURRENTLY_POSSIBLE, "An action notified us it had paused, when it should not be pausing.");
 }
 
 void AMAction3::setResumed()
@@ -197,7 +185,7 @@ void AMAction3::setResumed()
 	}
 
 	else
-		qWarning() << "AMAction: Warning: An action notified us it had resumed, when it should not be resuming.";
+		AMErrorMon::debug(this, AMACTION3_NOTIFIED_RESUMED_BUT_NOT_CURRENTLY_POSSIBLE, "An action notified us it had resumed, when it should not be resuming.");
 }
 
 void AMAction3::setCancelled()
@@ -210,7 +198,7 @@ void AMAction3::setCancelled()
 	}
 
 	else
-		qWarning() << "AMAction: Warning: An action notified us it was cancelled before we could possibly cancel it.";
+		AMErrorMon::debug(this, AMACTION3_NOTIFIED_CANCELLED_BUT_NOT_YET_POSSIBLE, "An action notified us it was cancelled before we could possibly cancel it.");
 }
 
 #include <QMessageBox>
@@ -252,7 +240,6 @@ void AMAction3::setState(AMAction3::State newState) {
 
 	previousState_ = state_;
 	state_ = newState;
-	// qDebug() << "AMAction:" << info()->name() << ": Entering state:" << stateDescription(state_);
 	setStatusText(stateDescription(state_));
 	emit stateChanged(state_, previousState_);
 }

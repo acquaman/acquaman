@@ -17,7 +17,6 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <QDebug>
 #include <QDateTime>
 #include "AMScanController.h"
 
@@ -36,6 +35,8 @@ AMScanController::AMScanController(AMScanConfiguration *cfg, QObject *parent) :
 AMScanController::~AMScanController() {
 	if(scan_)
 		scan_->release(this);
+
+	//qdebug() << "A call to AMScanController destructor";
 }
 
 AMScanController::ScanState AMScanController::state() const {
@@ -265,6 +266,7 @@ bool AMScanController::changeState(ScanState newState){
 	if(canChangeStateTo(newState)) {
 		ScanState oldState = state_;
 		state_= newState;
+		//qdebug() << "Changing from " << oldState << " to " << newState;
 		emit stateChanged(oldState, newState);
 		return true;
 	}

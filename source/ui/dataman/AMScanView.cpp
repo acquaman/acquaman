@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlotTools.h"
 #include <QScrollBar>
 #include "ui/dataman/AMColoredTextToolButton.h"
+#include "util/AMErrorMonitor.h"
 
 #include <QAction>
 
@@ -413,7 +414,7 @@ MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* d
 	MPlotItem* rv = 0;
 
 	if(dataSource == 0) {
-		qWarning() << "WARNING: AMScanViewInternal: Asked to create a plot item for a null data source.";
+		AMErrorMon::alert(this, AMSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_NULL_DATA_SOURCE, "Asked to create a plot item for a null data source.");
 		return 0;
 	}
 
@@ -435,7 +436,7 @@ MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* d
 		rv = image;
 		break; }
 	default:
-		qWarning() << "WARNING: AMScanViewInternal: Asked to create a plot item for a rank that we don't handle.";
+		AMErrorMon::alert(this, AMSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_UNHANDLED_RANK, "Asked to create a plot item for a rank that we don't handle.");
 		rv = 0;
 		break;
 	}

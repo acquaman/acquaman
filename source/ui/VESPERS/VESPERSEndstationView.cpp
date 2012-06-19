@@ -24,7 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSBeamline.h"
 
 #include <QGridLayout>
-#include <QDebug>
 #include <QList>
 #include <QGroupBox>
 #include <QVBoxLayout>

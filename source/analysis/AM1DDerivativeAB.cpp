@@ -117,7 +117,7 @@ void AM1DDerivativeAB::setAnalyzedName(const QString &name)
 	canAnalyze_ = canAnalyze(name);
 	setInputSource();
 }
-
+#include <QDebug>
 void AM1DDerivativeAB::setInputSource()
 {
 	// disconnect connections from old source, if it exists.
@@ -192,6 +192,9 @@ AMNumber AM1DDerivativeAB::value(const AMnDIndex& indexes) const{
 	// Forward difference.
 	if(index == 0){
 
+		if ((double)inputSource_->axisValue(0, 1) == (double)inputSource_->axisValue(0, 0))
+			return 0;
+
 		return ((double)inputSource_->value(1)-
 				(double)inputSource_->value(0))/
 				((double)inputSource_->axisValue(0, 1)-
@@ -200,6 +203,9 @@ AMNumber AM1DDerivativeAB::value(const AMnDIndex& indexes) const{
 	// Backward difference.
 	else if(index+1 == axes_.at(0).size){
 
+		if ((double)inputSource_->axisValue(0, index) == (double)inputSource_->axisValue(0, index-1))
+				return 0;
+
 		return ((double)inputSource_->value(index)-
 				(double)inputSource_->value(index-1))/
 				((double)inputSource_->axisValue(0, index)-
@@ -207,6 +213,9 @@ AMNumber AM1DDerivativeAB::value(const AMnDIndex& indexes) const{
 	}
 	// Central difference.
 	else {
+
+		if ((double)inputSource_->axisValue(0, index+1) == (double)inputSource_->axisValue(0, index-1))
+				return 0;
 
 		return ((double)inputSource_->value(index+1)-
 				(double)inputSource_->value(index-1))/

@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDataSource.h"
 #include "beamline/AMProcessVariable.h"
-#include <QDebug>
 
 class AMXYScatterPVDataSource : public QObject, public AMDataSource
 {

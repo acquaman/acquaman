@@ -70,6 +70,9 @@ public:
 	/// Loads up the database from the name supplied. Returns false if the database cannot be loaded.
 	bool loadDatabaseFromName();
 
+	/// Returns whether or not this upgrade instance is responsible for doing the upgrade (or just checking that it happened). The default value is true.
+	bool isResponsibleForUpgrade() const;
+
 	/// Returns the database name requested for this upgrade
 	QString databaseNameToUpgrade() const;
 
@@ -83,11 +86,17 @@ public slots:
 	/// Convenience call to load after setting. Returns true if the database was successfully loaded.
 	bool setDatabaseNameToUpgradeAndLoad(const QString &databaseNameToUpgrade);
 
+	/// Sets whether or not this instance is responsible for doing the upgrade (for shared databases) or just checking that it's been done
+	void setIsResponsibleForUpgrade(bool isResponsibleForUpgrade);
+
 protected:
 	/// The database name that has been requested for this upgrade
 	QString databaseNameToUpgrade_;
 	/// The database that has been requested for this upgrade.
 	AMDatabase* databaseToUpgrade_;
+
+	/// Holds whether or not this upgrade is the responsibility of this app controller, the default value is true. An upgrade might be required, but the database in question might be a shared database, in which case the user application should not be responsible. At the same time, an upgrade might have already occured on a shared database and a first time user need not do anything.
+	bool isResponsibleForUpgrade_;
 };
 
 namespace AMDbUpgradeSupport{

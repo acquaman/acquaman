@@ -20,7 +20,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMControl.h"
 
-// DEPRECATED
 //// Set the control object's children (and grandchildren, etc) based on a QMap of QString and double pairs
 //// QString is the name of the child (as in child's objectName) and value is the desired move position
 //// errorLevel specifies what constitutes an error (shouldn't move it, can't move it, can't find it)
@@ -28,11 +27,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 //bool AMControl::setState(const QMap<QString, double> controlList, unsigned int errorLevel){
 
 //	if(errorLevel & 0x4)
-//		qDebug() << "Fail on shouldn't";
+//		qdebug() << "Fail on shouldn't";
 //	if(errorLevel & 0x2)
-//		qDebug() << "Fail on can't";
+//		qdebug() << "Fail on can't";
 //	if(errorLevel & 0x1)
-//		qDebug() << "Fail on unfound";
+//		qdebug() << "Fail on unfound";
 
 //	// Copy of the QMap to pass around, remove found instances from it
 //	QMap<QString, double> *tmpList = new QMap<QString, double>(controlList);
@@ -49,7 +48,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 //	while (i != controlList.constEnd()) {
 //		if(!tmpList->contains(i.key()) && fabs(i.value() - executeList->value(i.key())->value()) > executeList->value(i.key())->tolerance() )
 //			executeList->value(i.key())->move(i.value());
-//		//             qDebug() << "Name is " << i.key() << " value should be " << i.value() << " value is " << executeList->value(i.key())->value();
+//		//             qdebug() << "Name is " << i.key() << " value should be " << i.value() << " value is " << executeList->value(i.key())->value();
 //		++i;
 //	}
 //	return TRUE;
@@ -62,9 +61,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 //	// Insert in the list of executable instances, remove from the "unfounds" list
 //	for(int x = 0; x < childControlCount(); x++){
 //		tmpCtrl = childControlAt(x);
-//		qDebug() << "Inspecting " << tmpCtrl->objectName();
+//		qdebug() << "Inspecting " << tmpCtrl->objectName();
 //		if(controlList->contains(tmpCtrl->objectName())){
-//			qDebug() << "Checking against " << tmpCtrl->objectName() << " should " << tmpCtrl->shouldMove() << " can " << tmpCtrl->canMove();
+//			qdebug() << "Checking against " << tmpCtrl->objectName() << " should " << tmpCtrl->shouldMove() << " can " << tmpCtrl->canMove();
 //			if(!tmpCtrl->shouldMove() && (errorLevel & 0x4) )
 //				return false;
 //			if(!tmpCtrl->canMove() && tmpCtrl->shouldMove() && (errorLevel & 0x2) )
@@ -83,4 +82,3 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 //	}
 //	return true;
 //}
-

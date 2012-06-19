@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/REIXS/REIXSXESMCPDetector.h"	///< \todo Move this to beamline, not acquaman.
 #include "dataman/REIXS/REIXSXESCalibration.h"
 #include "beamline/AMCompositeControl.h"
+#include "beamline/CLS/CLSMDriveMotorControl.h"
 
 #include "util/AMDeferredFunctionCall.h"
 #include "beamline/CLS/CLSBiStateControl.h"
@@ -111,7 +112,7 @@ public:
 
 protected:
 	/// Controls, connected to the hexapod PVs
-	AMControl *x_, *y_, *z_, *u_, *v_, *w_, *r_, *s_, *t_;
+	AMPVwStatusControl *x_, *y_, *z_, *u_, *v_, *w_, *r_, *s_, *t_;
 
 };
 
@@ -185,7 +186,7 @@ public:
 	virtual double maximumValue() const { return calibration_.evRangeForGrating(specifiedGrating_).second; }
 
 	/// Move to the given energy, using the specified grating, focusOffset, tiltOffset, and the current calibration. (This will cause spectrometer motion)
-	virtual bool move(double setpoint);
+	virtual FailureExplanation move(double setpoint);
 
 	/// Stop the spectrometer if it's currently moving
 	virtual bool stop();
@@ -208,7 +209,7 @@ public slots:
 	void specifyDetectorTiltOffset(double tiltOffsetDeg);
 
 protected:
-	AMControl *spectrometerRotationDrive_, *detectorTranslation_, *detectorTiltDrive_, *endstationTranslation_;  //DAVID ADDED
+	AMPVwStatusControl *spectrometerRotationDrive_, *detectorTranslation_, *detectorTiltDrive_, *endstationTranslation_;  //DAVID ADDED
 	REIXSHexapod* hexapod_;
 
 	REIXSXESCalibration calibration_;
@@ -266,7 +267,7 @@ public:
 	AMControl* loadLockR() { return loadLockR_; }
 
 protected:
-	AMControl* x_, *y_, *z_, *r_, *loadLockZ_, *loadLockR_;
+	CLSMDriveMotorControl* x_, *y_, *z_, *r_, *loadLockZ_, *loadLockR_;
 };
 
 /// This class creates and provides access to the AMControl objects with the power to move the REIXS beamline and spectrometer

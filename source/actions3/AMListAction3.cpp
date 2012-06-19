@@ -18,12 +18,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMListAction3.h"
-#include "actions3/AMActionLog3.h"
 
 #include <QStringBuilder>
 
-// Used for qWarning() messages that may be useful to developers trying to debug action implementatons
-#include <QDebug>
+#include "actions3/AMActionLog3.h"
+#include "util/AMErrorMonitor.h"
+#include "actions3/actions/AMScanAction.h"
 
 AMListAction3::AMListAction3(AMListActionInfo3* info, SubActionMode subActionMode, QObject *parent) :
 	AMAction3(info, parent)
@@ -48,8 +48,10 @@ AMListAction3::AMListAction3(const AMListAction3& other) : AMAction3(other) {
 }
 // Destructor: deletes the sub-actions
 AMListAction3::~AMListAction3() {
-	qDeleteAll(subActions_);
-	subActions_.clear();
+	//qDeleteAll(subActions_);
+	//subActions_.clear();
+	while(subActions_.count() > 0)
+		delete subActions_.takeLast();
 }
 
 int AMListAction3::indexOfSubAction(const AMAction3 *action) const
@@ -83,8 +85,11 @@ const AMAction3 * AMListAction3::subActionAt(int index) const
 
 bool AMListAction3::insertSubAction(AMAction3 *action, int index)
 {
+	if (subActionMode() == Parallel && !action->canParallelize())
+		return false;
+
 	if(state() != Constructed) {
-		qWarning() << "AMListAction: Cannot add sub-actions once the action is already running.";
+		AMErrorMon::debug(this, AMLISTACTION3_CANNOT_ADD_SUBACTION_ONCE_RUNNING, "Cannot add sub-actions once the action is already running.");
 		return false;
 	}
 
@@ -105,7 +110,7 @@ bool AMListAction3::insertSubAction(AMAction3 *action, int index)
 AMAction3 * AMListAction3::takeSubActionAt(int index)
 {
 	if(state() != Constructed) {
-		qWarning() << "AMListAction: Cannot remove sub-actions once the action is already running.";
+		AMErrorMon::debug(this, AMLISTACTION3_CANNOT_REMOVE_SUBACTION_ONCE_RUNNING, "Cannot remove sub-actions once the action is already running.");
 		return 0;
 	}
 
@@ -200,7 +205,7 @@ void AMListAction3::pauseImplementation()
 			// If it can't, we'll pause by stopping at the next action. When the current action transitions to Succeeded, we simply won't start the next one and will notifyPaused(). In this case, we could stay at Pausing for quite some time until the current action finishes.
 		}
 		else {
-			qWarning() << "AMListAction: Warning: pauseImplementation() was called at an unexpected time. No action is running.";
+			AMErrorMon::debug(this, AMLISTACTION3_PAUSE_CALLED_WITH_NO_ACTION_RUNNING, "pauseImplementation() was called at an unexpected time. No action is running.");
 		}
 		// when the action changes to the Paused state, we'll pick that up in internalOnSubActionStateChanged() and notifyPaused().
 	}
@@ -229,10 +234,10 @@ void AMListAction3::resumeImplementation()
 				currentSubAction()->start();
 			}
 			else
-				qWarning() << "AMListAction: Warning: Asked to resume, but the current action is not paused.";
+				AMErrorMon::debug(this, AMLISTACTION3_RESUME_CALLED_WHEN_NOT_PAUSED, "Asked to resume, but the current action is not paused.");
 		}
 		else {
-			qWarning() << "AMListAction: Warning: Asked to resume unexpectedly: there is no current action to resume.";
+			AMErrorMon::debug(this, AMLISTACTION3_RESUME_CALLED_WITH_NO_ACTION_RUNNING, "Asked to resume unexpectedly: there is no current action to resume.");
 		}
 	}
 	// Parallel mode:
@@ -304,11 +309,18 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 
 		switch(newState) {
 		case Starting:
+
+			if (isScanAction())
+				emit scanActionCreated((AMScanAction *)currentSubAction());
 			// If we were paused between actions and resuming, the next action is now running...
 			if(state() == Resuming)
 				setResumed();
 			return;
 		case Running:
+
+			if (isScanAction())
+				emit scanActionStarted((AMScanAction *)currentSubAction());
+
 			// If we had a current action paused:
 			if(state() == Resuming)
 				setResumed();
@@ -321,7 +333,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 				setPaused();
 			}
 			else {
-				qWarning() << "AMListAction: Warning: A sub-action was paused without cancelling its parent list action. This should not happen.";
+				AMErrorMon::debug(this, AMLISTACTION3_SEQUENTIAL_SUBACTION_PAUSED_WITHOUT_PAUSING_PARENT, "A sub-action was paused without pausing its parent list action. This should not happen.");
 			}
 			return;
 		case Resuming:
@@ -329,18 +341,30 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 		case Cancelling:
 			return;
 		case Cancelled:
+
+			if (isScanAction())
+				emit scanActionFinished((AMScanAction *)currentSubAction());
+
 			if(state() == Cancelling) {
 				internalCleanupAction();
 				setCancelled();
 			}
 			else {
-				qWarning() << "AMListAction: Warning: A sub-action was cancelled without cancelling its parent list action. This should not happen.";
+				AMErrorMon::debug(this, AMLISTACTION3_SEQUENTIAL_SUBACTION_CANCELLED_WITHOUT_CANCELLING_PARENT, "A sub-action was cancelled without cancelling its parent list action. This should not happen.");
 			}
 			return;
 		case Succeeded:
+
+			if (isScanAction())
+				emit scanActionFinished((AMScanAction *)currentSubAction());
+
 			internalDoNextAction();
 			return;
 		case Failed:
+
+			if (isScanAction())
+				emit scanActionFinished((AMScanAction *)currentSubAction());
+
 			internalCleanupAction();
 			setFailed();
 			return;
@@ -368,7 +392,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 					setPaused();
 			}
 			else
-				qWarning() << "AMListAction: Warning: A sub-action was paused without pausing its parent list action. This should not happen.";
+				AMErrorMon::debug(this, AMLISTACTION3_PARALLEL_SUBACTION_PAUSED_WITHOUT_PAUSING_PARENT, "A sub-action was paused without pausing its parent list action. This should not happen.");
 			return;
 		case Resuming:
 			return;
@@ -376,7 +400,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 			return;
 		case Cancelled:
 			if(state() != Cancelling)
-				qWarning() << "AMListAction: Warning: A sub-action was cancelled with cancelling its parent list action. This should not happen.";
+				AMErrorMon::debug(this, AMLISTACTION3_PARALLEL_SUBACTION_CANCELLED_WITHOUT_CANCELLING_PARENT, "A sub-action was cancelled with cancelling its parent list action. This should not happen.");
 			// Continue on to common handling with Succeeded and Failed:
 		case Succeeded:
 		case Failed:
@@ -397,6 +421,11 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 			return;
 		}
 	}
+}
+
+bool AMListAction3::isScanAction() const
+{
+	return qobject_cast<const AMScanAction *>(currentSubAction()) ? true : false;
 }
 
 void AMListAction3::internalDoNextAction()
@@ -545,6 +574,14 @@ void AMListAction3::internalConnectAction(AMAction3 *action)
 	connect(action, SIGNAL(stateChanged(int,int)), this, SLOT(internalOnSubActionStateChanged(int,int)));
 	connect(action, SIGNAL(progressChanged(double,double)), this, SLOT(internalOnSubActionProgressChanged(double,double)));
 	connect(action, SIGNAL(statusTextChanged(QString)), this, SLOT(internalOnSubActionStatusTextChanged(QString)));
+
+	AMListAction3 *listAction = qobject_cast<AMListAction3 *>(action);
+	if (listAction){
+
+		connect(listAction, SIGNAL(scanActionCreated(AMScanAction*)), this, SIGNAL(scanActionCreated(AMScanAction*)));
+		connect(listAction, SIGNAL(scanActionStarted(AMScanAction*)), this, SIGNAL(scanActionStarted(AMScanAction*)));
+		connect(listAction, SIGNAL(scanActionFinished(AMScanAction*)), this, SIGNAL(scanActionFinished(AMScanAction*)));
+	}
 }
 
 void AMListAction3::internalDisconnectAction(AMAction3 *action)
@@ -552,6 +589,14 @@ void AMListAction3::internalDisconnectAction(AMAction3 *action)
 	disconnect(action, SIGNAL(stateChanged(int,int)), this, SLOT(internalOnSubActionStateChanged(int,int)));
 	disconnect(action, SIGNAL(progressChanged(double,double)), this, SLOT(internalOnSubActionProgressChanged(double,double)));
 	disconnect(action, SIGNAL(statusTextChanged(QString)), this, SLOT(internalOnSubActionStatusTextChanged(QString)));
+
+	AMListAction3 *listAction = qobject_cast<AMListAction3 *>(action);
+	if (listAction){
+
+		connect(listAction, SIGNAL(scanActionCreated(AMScanAction*)), this, SIGNAL(scanActionCreated(AMScanAction*)));
+		connect(listAction, SIGNAL(scanActionStarted(AMScanAction*)), this, SIGNAL(scanActionStarted(AMScanAction*)));
+		connect(listAction, SIGNAL(scanActionFinished(AMScanAction*)), this, SIGNAL(scanActionFinished(AMScanAction*)));
+	}
 }
 
 void AMListAction3::internalCleanupAction(AMAction3 *action)
