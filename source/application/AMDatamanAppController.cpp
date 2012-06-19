@@ -903,6 +903,12 @@ void AMDatamanAppController::onDataViewItemsExported(const QList<QUrl> &itemUrls
 	// will delete itself when finished
 	AMExportController* exportController = new AMExportController(itemUrls);
 	AMExportWizard* wizard = new AMExportWizard(exportController);
+
+	// Add in any additional databases to look in for exporter options
+	QStringList optionsDatabases = wizard->optionsDatabases();
+	optionsDatabases.append(additionalExporterOptionsDatabases_);
+	wizard->setOptionsDatabases(optionsDatabases);
+
 	wizard->show();
 }
 

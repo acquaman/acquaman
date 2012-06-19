@@ -36,6 +36,8 @@ public:
 
 	virtual const QMetaObject* getMetaObject();
 
+	virtual AMExporterOption* createCopy() const = 0;
+
 	/// The file name to save at (not including the destination folder prefix).  Can include "$keyword" replacement tags.  If it includes "/" separators, subfolders will be generated as required within the destination folder.
 	QString fileName() const { return fileName_; }
 
