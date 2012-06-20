@@ -39,6 +39,7 @@ REIXSXESCalibration2::REIXSXESCalibration2(QObject *parent) :
 
 
 	hexapodOrigin_ = QVector3D(2.418, 4.145, -430.478);
+	detectorWidth_ = 40.;
 }
 
 AMDbObjectList REIXSXESCalibration2::dbReadGratings()

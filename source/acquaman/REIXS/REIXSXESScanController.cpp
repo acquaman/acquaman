@@ -151,10 +151,14 @@ void REIXSXESScanController::onInitialSetupMoveFailed() {
 }
 
 void REIXSXESScanController::onInitialSetupMoveSucceeded() {
-	// remember the state of the beamline at the beginning of the scan.
-	scan_->scanInitialConditions()->setValuesFrom(REIXSBeamline::bl()->allControlsSet()->toInfoList());
 
 	disconnect(initialMoveAction_, 0, this, 0);
+
+	// remember the state of the beamline at the beginning of the scan.
+	AMControlInfoList positions(REIXSBeamline::bl()->allControlsSet()->toInfoList());
+	positions.append(AMControlInfo("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating"));	// add the spectrometer grating selection, since it's not a "control" anywhere.
+
+	scan_->scanInitialConditions()->setValuesFrom(positions);
 
 	// tell the controller API we're now ready to go.
 	setInitialized();

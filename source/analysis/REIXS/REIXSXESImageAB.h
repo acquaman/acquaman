@@ -153,6 +153,11 @@ protected:
 	/// True if the cachedValues_ needs to be re-calculated.
 	mutable bool cacheInvalid_;
 
+	/// Cache of axis values.
+	mutable QVector<double> cachedAxisValues_;
+	/// True if the cachedAxisValues_ needs to be re-calculated.
+	mutable bool axisValueCacheInvalid_;
+
 	AMDataSource* inputSource_;	// our single input source, or 0 if we don't have one.
 
 	// Parameters:
@@ -180,6 +185,8 @@ protected:
 
 	/// helper function to compute and fill cachedValues_.
 	void computeCachedValues() const;
+	/// Helper to compute energy axis scale, and fill cachedAxisValues_.
+	void computeCachedAxisValues() const;
 
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState();

@@ -36,6 +36,7 @@ REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 
 	inputSource_ = 0;
 	cacheInvalid_ = true;
+	axisValueCacheInvalid_ = true;
 
 	// leave sources_ empty for now.
 
@@ -65,6 +66,7 @@ REIXSXESImageAB::REIXSXESImageAB(AMDatabase *db, int id) :
 
 	inputSource_ = 0;
 	cacheInvalid_ = true;
+	axisValueCacheInvalid_ = true;
 
 	// leave sources_ empty for now.
 
@@ -214,6 +216,8 @@ void REIXSXESImageAB::setInputDataSourcesImplementation(const QList<AMDataSource
 
 	cacheInvalid_ = true;
 	cachedValues_ = QVector<double>(axes_.at(0).size);
+	axisValueCacheInvalid_ = true;
+	cachedAxisValues_ = QVector<double>(axes_.at(0).size);
 	reviewState();
 
 	emitSizeChanged(0);
@@ -318,7 +322,14 @@ AMNumber REIXSXESImageAB::axisValue(int axisNumber, int index) const
 		return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
-	return index;
+	if(axisValueCacheInvalid_)
+		computeCachedAxisValues();
+
+	// if still invalid, means we couldn't calculate proper axis values. [no access to the scan initial conditions]
+	if(axisValueCacheInvalid_)
+		return index;
+
+	return cachedAxisValues_.at(index);
 }
 
 void REIXSXESImageAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
@@ -337,11 +348,13 @@ void REIXSXESImageAB::onInputSourceValuesChanged(const AMnDIndex &start, const A
 void REIXSXESImageAB::onInputSourceSizeChanged()
 {
 	cacheInvalid_ = true;
+	axisValueCacheInvalid_ = true;
 
 	bool sizeChanged = false;
 	if(axes_.at(0).size != inputSource_->size(0)) {
 		axes_[0].size = inputSource_->size(0);
 		cachedValues_.resize(axes_.at(0).size);
+		cachedAxisValues_.resize(axes_.at(0).size);
 		sizeChanged = true;
 	}
 
@@ -541,6 +554,112 @@ QVector<int> REIXSXESImageAB::quadraticSmooth(const QVector<int> &shifts)
 QWidget * REIXSXESImageAB::createEditorWidget()
 {
 	return new REIXSXESImageABEditor(this);
+}
+
+#include "dataman/AMScan.h"
+#include "dataman/REIXS/REIXSXESCalibration2.h"
+
+void REIXSXESImageAB::computeCachedAxisValues() const
+{
+	axisValueCacheInvalid_ = false;
+
+	// Accessing spectrometer positions: get from scan's scanInitialConditions
+	if(scan() == 0) {
+		AMErrorMon::alert(this, -1, "Could not calculate energy axis: could not access the XES scan.");
+		return;
+	}
+	AMControlInfoList* positions = scan()->scanInitialConditions();
+	if(!positions) {
+		AMErrorMon::alert(this, -1, "Could not calculate energy axis: could not access the spectrometer positions at the start of the scan.");
+		return;
+	}
+
+	// Grab position variables:
+	if(positions->indexOf("spectrometerGrating") == -1 ||
+			positions->indexOf("spectrometerRotationDrive") == -1 ||
+			positions->indexOf("detectorTranslation") == -1 ||
+			positions->indexOf("detectorTiltDrive") == -1) {
+		AMErrorMon::alert(this, -1, "Could not calculate energy axis: missing some required spectrometer positions at the start of the scan.");
+		return;
+	}
+
+	int grating = int(positions->controlNamed("spectrometerGrating").value());
+	double liftHeight = positions->controlNamed("spectrometerRotationDrive").value();
+	double rPrime = positions->controlNamed("detectorTranslation").value();
+	double tiltStage = positions->controlNamed("detectorTiltDrive").value();
+
+	// accessing the calibration. For dataman, what version to use? Ok to be compiled in? Need ability to have separate cal for each scan?
+	REIXSXESCalibration2 cal;
+	if(grating >= cal.gratingCount()) {
+		AMErrorMon::alert(this, -1, "Could not calculate energy axis: the scan's grating was not valid.");
+		return;
+	}
+
+	// Variables. From here on, we work in radians, instead of the degree convention used by REIXSXESCalibration.
+
+	double mmPerPixel = cal.detectorWidth() / size(0);
+	double grooveDensity = cal.gratingAt(grating).grooveDensity();
+	double sinAlpha = sin(cal.d2r(cal.gratingAt(grating).alpha()));
+
+	// beta is also the nominal incidence angle onto the detector. Get beta from spectrometer position:
+	double beta = cal.d2r(cal.betaFromPosition(grating, cal.spectrometerAngle(liftHeight), rPrime));
+	// Any detector tilt offset from nominal: get from position of tilt stage:
+	double tiltOffset = cal.d2r(cal.tiltOffset(tiltStage, beta));
+
+	double sinBeta = sin(beta);
+	double cosBeta = cos(beta);
+
+	// Gamma is the actual incidence angle onto the detector, with the tilt offset applied.
+	double gamma = beta - tiltOffset;
+
+	// Gamma' (gp) is the angle between the ray and the detector surface; it is acute for higher-than-center energies, and obtuse for lower-than-center energies.   "sign" will be defined inside the loop to be '1' for higher energies (pixel i > 512), and '-1' for lower energies (pixel i < 512).
+	// We calculate sin(gp) and cos(gp) just once, recognizing that we'll need to multiply by sign once we get into the pixel-loop.
+
+	/* gamma' (gp) = pi/2 +(gamma-beta)*sign...so...
+
+		sin(gp) = sin(pi/2 + (gamma-beta)*sign)
+			 = cos( (gamma-beta)*sign )
+			 = cos(gamma-beta)
+			 = [ cosb*cos( gamma ) + sinb*sin( gamma ) ]
+		cos(gp) = cos(pi/2 + (gamma-beta)*sign)
+		  = -sin( (gamma-beta)*sign )
+		  = -sign* sin(gamma-beta)
+		  = sign* sin(beta - gamma)
+		  = sign* sinb*cos( gamma ) - sin( gamma )*cosb	// Note: we'll fill in the sign inside the loop.
+	*/
+
+	double singp = cosBeta*cos(gamma) + sinBeta*sin(gamma);
+	double cosgp = sinBeta*cos(gamma) - cosBeta*sin(gamma);
+
+	// Calculate bottom half of the axis. (low energies). Sign is -1
+	int sign = -1;
+	int centerPixel = size(0)/2;
+
+	for(int i=0; i<centerPixel; ++i) {
+		// distance away from center; always positive.
+		double dx = (centerPixel-i)*mmPerPixel;
+		// sindb: sin("delta Beta"): the angle difference from the nominal beta.
+		double sindb = sign*( dx*singp/sqrt(rPrime*rPrime + dx*dx - 2*rPrime*dx*cosgp*sign) );	//you can derive this from sinA/a=sinB/b and c^2=a^2+b^2-2ab*cosC
+		//bp ("beta-prime") is the diffraction angle at detector point 'i'; sinbp = sin( beta + db )
+		//																		 = sinb*cos(db) + cosb*sindb
+		//																		 = sinb*sqrt(1-sin^2(db)) + cosb*sindb
+		double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
+		//solving the grating equation for eV:
+		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp);
+	}
+
+	// midpoint:
+	cachedAxisValues_[centerPixel] = 0.0012398417*grooveDensity / (sinAlpha - sinBeta);
+
+	// Calculate top half of axis. (high energies). Sign is 1:
+	sign = 1;
+	for(int i=centerPixel+1, cc=size(0); i<cc; ++i) {
+		// distance away from center; always positive.
+		double dx = (i-centerPixel)*mmPerPixel;
+		double sindb = sign*( dx*singp/sqrt(rPrime*rPrime + dx*dx - 2*rPrime*dx*cosgp*sign) );
+		double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
+		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp);
+	}
 }
 
 
