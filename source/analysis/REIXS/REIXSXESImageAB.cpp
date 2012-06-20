@@ -202,6 +202,8 @@ void REIXSXESImageAB::setInputDataSourcesImplementation(const QList<AMDataSource
 		sources_ = dataSources;
 
 		axes_[0] = inputSource_->axisInfoAt(0);	// take the X axis info from the data source.
+		axes_[0].description = "Emission Energy";
+		axes_[0].units = "eV";
 
 		if(shiftValues_.isEmpty()) {
 			for(int i=0,cc=inputSource_->size(1); i<cc; i++)
