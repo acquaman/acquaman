@@ -157,6 +157,8 @@ protected:
 	mutable QVector<double> cachedAxisValues_;
 	/// True if the cachedAxisValues_ needs to be re-calculated.
 	mutable bool axisValueCacheInvalid_;
+	/// True if the axis values could not be calculated [no access to the scan, required positions, etc.]
+	mutable bool axisValuesInvalid_;
 
 	AMDataSource* inputSource_;	// our single input source, or 0 if we don't have one.
 

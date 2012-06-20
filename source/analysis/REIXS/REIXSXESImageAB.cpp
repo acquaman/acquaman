@@ -37,6 +37,7 @@ REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 	inputSource_ = 0;
 	cacheInvalid_ = true;
 	axisValueCacheInvalid_ = true;
+	axisValuesInvalid_ = false;
 
 	// leave sources_ empty for now.
 
@@ -327,8 +328,7 @@ AMNumber REIXSXESImageAB::axisValue(int axisNumber, int index) const
 	if(axisValueCacheInvalid_)
 		computeCachedAxisValues();
 
-	// if still invalid, means we couldn't calculate proper axis values. [no access to the scan initial conditions]
-	if(axisValueCacheInvalid_)
+	if(axisValuesInvalid_)
 		return index;
 
 	return cachedAxisValues_.at(index);
@@ -564,6 +564,7 @@ QWidget * REIXSXESImageAB::createEditorWidget()
 void REIXSXESImageAB::computeCachedAxisValues() const
 {
 	axisValueCacheInvalid_ = false;
+	axisValuesInvalid_ = true;
 
 	// Accessing spectrometer positions: get from scan's scanInitialConditions
 	if(scan() == 0) {
@@ -662,6 +663,8 @@ void REIXSXESImageAB::computeCachedAxisValues() const
 		double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
 		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp);
 	}
+
+	axisValuesInvalid_ = false;
 }
 
 
