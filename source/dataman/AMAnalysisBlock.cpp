@@ -27,6 +27,7 @@ AMAnalysisBlock::AMAnalysisBlock(const QString& outputName, QObject* parent)
 {
 	AMDbObject::setName(outputName);
 	state_ = AMDataSource::InvalidFlag;
+	scan_ = 0;
 }
 
 bool AMAnalysisBlock::setInputDataSources(const QList<AMDataSource*>& dataSources) {

@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/datasource/AMDataSource.h"
 
 class QWidget;
+class AMScan;
 
 /// This class defines the interface for any data-processing operation object ("block") that can take 0 or more AMDataSources as input, and provide an AMDataSource output. By connecting AMDataSources and AMAnalysisBlocks together, a powerful data-processing chain can be created. The processing can take place in real-time, or operate in the background and notify when finished.
 /*!
@@ -133,6 +134,14 @@ public:
 	/*! Re-implemented from AMDataSource to call setModified().  */
 	virtual void setHiddenFromUsers(bool isHidden = true) { AMDataSource::setHiddenFromUsers(isHidden); setModified(true); }
 
+	// New public functions
+	//////////////////////////////
+
+	/// If this analysis block is added to a scan, this can be used to access a pointer to that scan. [Some analysis blocks might need this to access calculation parameters that are part of the scan configuration or scan initial conditions.] If not part of a scan, returns 0.
+	AMScan* scan() const { return scan_; }
+	/// Used internally when this analysis block as added to a scan.
+	void setScan(AMScan* scan) { scan_ = scan; }
+
 
 protected slots:
 	/// called automatically when a current input source is deleted. The default response is to discard ALL input sources and go into the invalid/inactive state. The base class implementation of this function is effectively the same as calling setInputDataSources() with an empty list. setInputDataSourcesImplementation() will be called with an empty list to tell the subclass to put itself in the invalid/inactive state.
@@ -157,6 +166,8 @@ private:
 	/// OR-combination of AMDataSource::StateFlag's returned by the default implementation of state().
 	int state_;
 
+	/// If added to a scan using AMScan::addAnalyzedDataSource(), contains a pointer to the scan.
+	AMScan* scan_;
 
 };
 

@@ -304,6 +304,7 @@ void AMScan::dbLoadAnalyzedDataSources(const AMDbObjectList& newAnalyzedSources)
 		if(newSource) {
 
 			analyzedDataSources_.append(newSource, newSource->name());
+			newSource->setScan(this);
 			connect(newSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified()));
 		}
 		else
@@ -447,6 +448,7 @@ bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource)
 {
 	if(newAnalyzedDataSource && analyzedDataSources_.append(newAnalyzedDataSource, newAnalyzedDataSource->name())){
 
+		newAnalyzedDataSource->setScan(this);
 		connect(newAnalyzedDataSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified()));
 		return true;
 	}
