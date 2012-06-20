@@ -445,8 +445,10 @@ void REIXSXESImageAB::correlateNow()
 
 	// Loop through all the rows (j), but skip the middle one. Find the best shift at each row.
 	for(int j=0; j<sizeY; j++) {
-		if(j == midY)
+		if(j == midY) {
+			shifts[j] = 0;
 			continue;
+		}
 
 		double bestSum = 0;
 		int bestShift = 0;
@@ -468,6 +470,11 @@ void REIXSXESImageAB::correlateNow()
 
 	// Apply quadratic fit to smooth out the noise:
 	shifts = quadraticSmooth(shifts);
+
+	// Ensure the center-row shift is 0. [Not sure why it ends up being non-zero]. Slide everything so it is.
+	int centerShift = shifts[midY];
+	for(int j=0; j<sizeY; ++j)
+		shifts[j] -= centerShift;
 
 	// use the new shift values.
 	setShiftValues(shifts.toList());
