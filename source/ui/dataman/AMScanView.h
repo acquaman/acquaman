@@ -107,6 +107,11 @@ protected:
 	  */
 	void reviewPlotAxesConfiguration(MPlotGW* plot);
 
+	/// Returns a suitable bottom axis name for a \c scan and \c dataSource
+	QString bottomAxisName(AMScan* scan, AMDataSource* dataSource);
+	/// Returns a suitable right axis name for a \c scan and \c dataSource
+	QString rightAxisName(AMScan* scan, AMDataSource* dataSource);
+
 	AMScanView* masterView_;
 
 	AMScanSetModel* model() const;
