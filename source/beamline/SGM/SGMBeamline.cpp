@@ -579,35 +579,39 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	connect(ringCurrentDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 
 	filterPD1ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD1Current", "BL1611-ID-1:mcs06:fbk", AMDetector::ImmediateRead, this);
-	filterPD1ScalarDetector_->setDescription("V Filter Diode");
+	filterPD1ScalarDetector_->setDescription("Aux 1 Diode");
 	detectorRegistry_.append(filterPD1ScalarDetector_);
 	rawDetectorsSet_->addDetector(filterPD1ScalarDetector_);
 	detectorMap_->insert(filterPD1ScalarDetector_, qMakePair(allDetectors(), false));
-	detectorMap_->insert(filterPD1ScalarDetector_, qMakePair(feedbackDetectors(), false));
+	//detectorMap_->insert(filterPD1ScalarDetector_, qMakePair(feedbackDetectors(), false));
+	detectorMap_->insert(filterPD1ScalarDetector_, qMakePair(XASDetectors(), false));
 	connect(filterPD1ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 
 	filterPD2ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD2Current", "BL1611-ID-1:mcs07:fbk", AMDetector::ImmediateRead, this);
-	filterPD2ScalarDetector_->setDescription("Cr Filter Diode");
+	filterPD2ScalarDetector_->setDescription("Aux 2 Diode");
 	detectorRegistry_.append(filterPD2ScalarDetector_);
 	rawDetectorsSet_->addDetector(filterPD2ScalarDetector_);
 	detectorMap_->insert(filterPD2ScalarDetector_, qMakePair(allDetectors(), false));
-	detectorMap_->insert(filterPD2ScalarDetector_, qMakePair(feedbackDetectors(), false));
+	//detectorMap_->insert(filterPD2ScalarDetector_, qMakePair(feedbackDetectors(), false));
+	detectorMap_->insert(filterPD2ScalarDetector_, qMakePair(XASDetectors(), false));
 	connect(filterPD2ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 
 	filterPD3ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD3Current", "BL1611-ID-1:mcs08:fbk", AMDetector::ImmediateRead, this);
-	filterPD3ScalarDetector_->setDescription("TiC Filter Diode");
+	filterPD3ScalarDetector_->setDescription("Aux 3 Diode");
 	detectorRegistry_.append(filterPD3ScalarDetector_);
 	rawDetectorsSet_->addDetector(filterPD3ScalarDetector_);
 	detectorMap_->insert(filterPD3ScalarDetector_, qMakePair(allDetectors(), false));
-	detectorMap_->insert(filterPD3ScalarDetector_, qMakePair(feedbackDetectors(), false));
+	//detectorMap_->insert(filterPD3ScalarDetector_, qMakePair(feedbackDetectors(), false));
+	detectorMap_->insert(filterPD3ScalarDetector_, qMakePair(XASDetectors(), false));
 	connect(filterPD3ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 
 	filterPD4ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD4Current", "BL1611-ID-1:mcs09:fbk", AMDetector::ImmediateRead, this);
-	filterPD4ScalarDetector_->setDescription("Fe Filter Diode");
+	filterPD4ScalarDetector_->setDescription("Aux 4 Diode");
 	detectorRegistry_.append(filterPD4ScalarDetector_);
 	rawDetectorsSet_->addDetector(filterPD4ScalarDetector_);
 	detectorMap_->insert(filterPD4ScalarDetector_, qMakePair(allDetectors(), false));
-	detectorMap_->insert(filterPD4ScalarDetector_, qMakePair(feedbackDetectors(), false));
+	//detectorMap_->insert(filterPD4ScalarDetector_, qMakePair(feedbackDetectors(), false));
+	detectorMap_->insert(filterPD4ScalarDetector_, qMakePair(XASDetectors(), false));
 	connect(filterPD4ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 
 	amptekSDD1_ = new CLSAmptekSDD123Detector("AmptekSDD1", "amptek:sdd1", AMDetector::WaitRead, this);
