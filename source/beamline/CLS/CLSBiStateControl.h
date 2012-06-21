@@ -129,21 +129,21 @@ signals:
 
 public slots:
 	/// This is used to move the control to a setpoint.
-	virtual bool move(double setpoint)
+	virtual FailureExplanation move(double setpoint)
 	{
 		if ((int)setpoint == 1)
 			return open();
 		else if ((int)setpoint == 0)
 			return close();
 		else
-			return false;
+			return OtherFailure;
 	}
 	/// Opens the control.  This activates the control and moves it to the "Open" state.  Synonomous with move(1).
-	bool open() {
+	FailureExplanation open() {
 		// already transitioning? Cannot send while moving.
 		if(isMoving() && !allowsMovesWhileMoving()) {
 			qWarning() << QString("Cannot open %1: it's currently in the process of opening or closing.").arg(name());
-			return false;
+			return AlreadyMovingFailure;
 		}
 		setpoint_ = 1;
 		if(!moveInProgress_)
@@ -157,14 +157,14 @@ public slots:
 		// in this case, it's harmless to re-send the value even if it's already there, since no status changes will occur; if you send open to an already-open CLS valve or shutter, nothing happens.
 		// This makes sure we never omit sending it when we should.
 		openPV_->setValue(1);
-		return true;
+		return NoFailure;
 	}
 	/// Closes the control.  This deactivates the control and moves it to the "Closed" state.  Synonomous with move(0).
-	bool close() {
+	FailureExplanation close() {
 		// already transitioning? Cannot send while moving.
 		if(isMoving() && !allowsMovesWhileMoving()) {
 			qWarning() << QString("Cannot close %1: it's currently in the process of opening or closing.").arg(name());
-			return false;
+			return AlreadyMovingFailure;
 		}
 		setpoint_ = 0;
 		if(!moveInProgress_)
@@ -178,7 +178,7 @@ public slots:
 		// in this case, it's harmless to re-send the value even if it's already there, since no status changes will occur; if you send open to an already-open CLS valve or shutter, nothing happens.
 		// This makes sure we never omit sending it when we should.
 		closePV_->setValue(1);
-		return true;
+		return NoFailure;
 	}
 
 	// cannot stop() these kinds of controls.

@@ -71,7 +71,7 @@ REIXSSidebar::~REIXSSidebar()
 
 void REIXSSidebar::onMCPCountsPerSecondChanged(double countsPerSecond)
 {
-	ui->signalXESValue->setText(QString("%1").arg(countsPerSecond, 0, 'e', 1));
+	ui->signalXESValue->setText(QString("%1").arg(countsPerSecond, 0, 'f', 0));
 
 	if(countsPerSecond == 0)
 		countsPerSecond = 1;	// log(0) is undefined.

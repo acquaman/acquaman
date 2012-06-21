@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "acquaman/REIXS/REIXSXESScanConfiguration.h"
-#include "dataman/REIXS/REIXSXESCalibration.h"
+#include "dataman/REIXS/REIXSXESCalibration2.h"
 
 #include <QComboBox>
 #include <QDoubleSpinBox>
@@ -83,7 +83,7 @@ protected:
 	QComboBox* calibrationSelector_;
 
 	/// A spectrometer calibration object to work with. Used to determine the options for other parameters.
-	REIXSXESCalibration calibration_;
+	REIXSXESCalibration2 calibration_;
 
 	/// The current calibrationId that we're working with (initially -1)
 	int currentCalibrationId_;
