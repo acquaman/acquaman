@@ -194,23 +194,27 @@ void REIXSXESScanConfigurationView::onCalibrationIndexChanged(int newIndex) {
 		calibration_.loadFromDb(AMDatabase::database("user"), currentCalibrationId_);
 	}
 	else {
-		calibration_ = REIXSXESCalibration();
+		calibration_ = REIXSXESCalibration2();
 	}
 
 
-	QStringList gratingNames = calibration_.gratingNames();
+	int gratingCount = calibration_.gratingCount();
 	// remove any extra gratings from the selector that aren't in this configuration
-	while(gratingSelector_->count() > gratingNames.count())
+	while(gratingSelector_->count() > gratingCount)
 		gratingSelector_->removeItem(gratingSelector_->count()-1);
 	// set corresponding names
 	for(int i=0; i<gratingSelector_->count(); i++) {
-		QPair<double, double> evRange = calibration_.evRangeForGrating(i);
-		gratingSelector_->setItemText(i, QString("%1 (%2 - %3 eV)").arg(gratingNames.at(i)).arg(evRange.first).arg(evRange.second));
+		const REIXSXESGratingInfo& g = calibration_.gratingAt(i);
+		double min = g.evRangeMin();
+		double max = g.evRangeMax();
+		gratingSelector_->setItemText(i, QString("%1 (%2 - %3 eV)").arg(g.name()).arg(min).arg(max));
 	}
 	// add extra names
-	for(int i=gratingSelector_->count(); i<gratingNames.count(); i++) {
-		QPair<double, double> evRange = calibration_.evRangeForGrating(i);
-		gratingSelector_->addItem(QString("%1 (%2 - %3 eV)").arg(gratingNames.at(i)).arg(evRange.first).arg(evRange.second));
+	for(int i=gratingSelector_->count(); i<gratingCount; i++) {
+		const REIXSXESGratingInfo& g = calibration_.gratingAt(i);
+		double min = g.evRangeMin();
+		double max = g.evRangeMax();
+		gratingSelector_->addItem(QString("%1 (%2 - %3 eV)").arg(g.name()).arg(min).arg(max));
 	}
 
 	onSelectedGratingChanged(gratingSelector_->currentIndex());
@@ -222,8 +226,8 @@ void REIXSXESScanConfigurationView::onSelectedGratingChanged(int newGrating) {
 	if(newGrating < 0)
 		return;
 
-	QPair<double, double> evRange = calibration_.evRangeForGrating(newGrating);
-	centerEVBox_->setRange(evRange.first, evRange.second);
+	const REIXSXESGratingInfo& g = calibration_.gratingAt(newGrating);
+	centerEVBox_->setRange(g.evRangeMin(), g.evRangeMax());
 
 	configuration_->setGratingNumber(newGrating);
 }

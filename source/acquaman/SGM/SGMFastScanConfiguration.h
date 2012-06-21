@@ -44,6 +44,7 @@ class SGMFastScanConfiguration : public AMFastScanConfiguration, public SGMScanC
 	Q_PROPERTY(double sParameter READ sParameter WRITE setSParameter)
 	Q_PROPERTY(double thetaParameter READ thetaParameter WRITE setThetaParameter)
 	Q_PROPERTY(AMDbObject* detectorConfigs READ dbReadDetectorConfigs WRITE dbLoadDetectorConfigs)
+	Q_PROPERTY(AMDbObject* fastScanParameters READ dbReadFastScanParameters WRITE dbLoadFastScanParameters)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=SGM XAS Scan Configuration")
 
@@ -133,6 +134,9 @@ public:
 	SGMFastScanParameters* currentParameters() const;
 	/// Returns the SGMEnergyParameters object currently being used
 	SGMEnergyParameters* currentEnergyParameters() const;
+
+	/// Overrides the warnings string to check warnings from the fast scan parameters in the database
+	virtual QString dbLoadWarnings() const;
 
 public slots:
 	/// Changes the currentSettings based on selecting one of the presets in the list
@@ -248,6 +252,11 @@ protected:
 	/// For loading the detector configurations from the database (but unnecessary, so never called)
 	void dbLoadDetectorConfigs(AMDbObject*) {} //Never called, fastDetectorsConfigurations_ is always valid
 
+	/// Used for writing the fast scan parameters to the database
+	AMDbObject* dbReadFastScanParameters();
+	/// For loading the fast scan parameters from the database
+	void dbLoadFastScanParameters(AMDbObject *fastScanParameters);
+
 protected:
 	/// Detector set for detectors particular to fast scanning (retrieved from SGM Beamline object)
 	AMDetectorSet *fastDetectors_;
@@ -263,6 +272,9 @@ protected:
 
 	/// Holds beamline information on how to calculate the energy based on the beamline settings
 	SGMEnergyParameters *currentEnergyParameters_;
+
+	/// Holds a warning regarding old saved versions of fast scans if no parameters were saved
+	QString dbLoadWarnings_;
 };
 
 #endif // SGMFASTSCANCONFIGURATION_H

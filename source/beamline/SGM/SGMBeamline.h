@@ -101,7 +101,8 @@ public:
 
 	virtual ~SGMBeamline();
 
-	bool isConnected() const { return criticalControlsSet_->isConnected() && criticalDetectorsSet_->isConnected();}
+	bool isConnected() const;
+	bool isReady() const;
 
 	QStringList unconnectedCriticals() const;
 
@@ -240,7 +241,7 @@ public:
 	virtual AMControlSet* currentSamplePositioner() { return ssaManipulatorSet(); }
 	virtual QList<AMControlInfoList> currentFiducializations() { return ssaFiducializations(); }
 
-	bool isVisibleLightOn();
+	bool isVisibleLightOn() const;
 
 	bool energyValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double energy);
 	bool energyRangeValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double minEnergy, double maxEnergy);
@@ -269,6 +270,7 @@ signals:
 	void controlSetConnectionsChanged();
 	void criticalControlsConnectionsChanged();
 	void criticalConnectionsChanged();
+	void beamlineReadyChanged();
 
 	void visibleLightStatusChanged(const QString& status);
 
@@ -288,6 +290,7 @@ protected slots:
 	void onControlSetConnected(bool csConnected);
 	void onCriticalControlsConnectedChanged(bool isConnected, AMControl *controll);
 	void onCriticalsConnectedChanged();
+	void onEnergyValueChanged();
 
 	void onActiveEndstationChanged(double value);
 
@@ -448,6 +451,8 @@ protected:
 	QString beamlineWarnings_;
 
 	AMBiHash<QString, QString> amNames2pvNames_;
+
+	double lastEnergyValue_;
 
 	friend class SGMGratingAction;
 
