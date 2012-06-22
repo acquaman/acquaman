@@ -27,7 +27,7 @@ REIXSXESCalibration2::REIXSXESCalibration2(QObject *parent) :
 	// create all default gratings
 
 	// LEG:
-	gratings_ << REIXSXESGratingInfo("LEG", 593.02, 5025.6, 86, 350, QVector3D(20.529, -25.865, 12.892), QVector3D(0,0,0), QVector3D(-0.175, -0.175, -0.41), 4.05666014, 0.349, -0.15, 50, 1000);
+	gratings_ << REIXSXESGratingInfo("LEG", 593.02, 5025.6, 86, 350, QVector3D(20.529, -25.865, 12.892), QVector3D(0,0,0), QVector3D(-0.175, -0.175, -0.41), 3.973429915, 0.731106463, -0.15, 50, 1000);//4.05666014, 0.349
 	// IMP:
 	gratings_ << REIXSXESGratingInfo("Impurity", 892.86, 6699.8, 87, 350, QVector3D(-14.970, -25.723, 13.507), QVector3D(0,0,0), QVector3D(0.1, -0.261, -0.41), 3.02695496, 0.64573899, -0.15, 50, 1000); //2.947598786, 1.608997311
 	// MEG:
