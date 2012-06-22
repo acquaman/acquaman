@@ -88,6 +88,11 @@ public:
 	virtual double minimumValue() const { return readPV_->lowerGraphicalLimit(); }
 	/// Maximum value taken from the readPV's upper graphing limit within EPICS.
 	virtual double maximumValue() const { return readPV_->upperGraphicalLimit(); }
+
+	/// Returns the alarm severity for the readPV:
+	virtual int alarmSeverity() const { return readPV_->alarmSeverity(); }
+	/// Returns the alarm status for the readPV:
+	virtual int alarmStatus() const { return readPV_->alarmStatus(); }
 	//@}
 
 	/// \name Additional public functions:

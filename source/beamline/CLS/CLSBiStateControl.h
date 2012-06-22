@@ -123,6 +123,12 @@ public:
 	/// Returns the PV name of the close PV.
 	QString closePVName() const { return closePV_->pvName(); }
 
+
+	/// Returns the alarm severity for the statePV:
+	virtual int alarmSeverity() const { return statePV_->alarmSeverity(); }
+	/// Returns the alarm status for the statePV:
+	virtual int alarmStatus() const { return statePV_->alarmStatus(); }
+
 signals:
 	/// Notifies that the statePV_ has changed and passes on the state.
 	void stateChanged(int);

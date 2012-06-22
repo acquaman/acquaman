@@ -36,6 +36,7 @@ CLSBiStateControl::CLSBiStateControl(const QString &name, const QString &descrip
 	closePV_ = new AMProcessVariable(close, true, this); // should these actually be monitoring? Necessary?
 
 	connect(statePV_, SIGNAL(valueChanged(int)), this, SLOT(onStateChanged()));
+	connect(statePV_, SIGNAL(alarmChanged(int,int)), this, SIGNAL(alarmChanged(int,int)));
 
 	// connection state monitoring
 	connect(statePV_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged()));

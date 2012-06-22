@@ -261,6 +261,14 @@ public:
 		CannotGetStatusError	///< Cannot read the status when we are connected
 	};
 
+	/// Alarm levels defined for controls. These correspond to traditional EPICS alarm severity levels, but can be used by other control systems as well.
+	enum AlarmLevel {
+		NoAlarm = 0,
+		MinorAlarm,
+		MajorAlarm,
+		InvalidAlarm
+	};
+
 	/// Base Class Constructor
 	/*! \param name A unique descriptive name for this control.
   \param units The default unit description.
@@ -427,6 +435,12 @@ The Control abstraction provides two different properties (and associated signal
 
 	//@}
 
+
+	/// Returns the alarm severity for this control.  This indicates how "serious" the alarm is; it is one of the values in AMControl::AlarmLevel.
+	virtual int alarmSeverity() const { return NoAlarm; }
+	/// Returns the alarm status for this control.  The alarm status is an integer that can be defined by the control implementation to explain the reason for the alarm.
+	virtual int alarmStatus() const { return 0; }
+
 public slots:
 	/// This is used to move the control to a \c setpoint.  Returns NoFailure (0) if the move command was sent. (Does not guarantee that the move was actually started.)  Returns a FailureExplanation if it is known immediately that the control cannot be moved. Must reimplement for actual controls.
 	virtual FailureExplanation move(double setpoint) {
@@ -506,6 +520,9 @@ signals:
   */
 	void error(int);
 	void error(const QString&);
+
+	/// Emitted when the control's alarm status or severity changes.  \c status is defined by the particular control implementation. \c severity is one of the levels in AMControl::AlarmLevel.
+	void alarmChanged(int status, int severity);
 
 protected:
 	/// List of pointers to our subcontrols
