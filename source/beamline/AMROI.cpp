@@ -45,11 +45,6 @@ void AMROI::buildAllPVs(QString baseName, int elements, int number)
 		highPV = new AMProcessVariable(baseName+":mca"+QString::number(i+1)+".R"+QString::number(number)+"HI", true, this);
 		valPV = new AMProcessVariable(baseName+":mca"+QString::number(i+1)+".R"+QString::number(number), true, this);
 
-		namePV->disablePutCallbackMode(true);
-		lowPV->disablePutCallbackMode(true);
-		highPV->disablePutCallbackMode(true);
-		valPV->disablePutCallbackMode(true);
-
 		if (i == 0){
 
 			connect(namePV, SIGNAL(valueChanged(QString)), this, SIGNAL(nameUpdate(QString)));

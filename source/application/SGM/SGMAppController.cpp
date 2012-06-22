@@ -239,7 +239,7 @@ void SGMAppController::onCurrentPaneChanged(QWidget *pane) {
 }
 
 void SGMAppController::onSGMBeamlineConnected(){
-	if(SGMBeamline::sgm()->isConnected() && !xasScanConfigurationView_ && !fastScanConfigurationView_){
+	if(SGMBeamline::sgm()->isConnected() && SGMBeamline::sgm()->isReady() && !xasScanConfigurationView_ && !fastScanConfigurationView_){
 		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
 		sxsc->xasRegions()->setEnergyControl(SGMBeamline::sgm()->energy());
 		sxsc->regions()->setDefaultTimeControl(SGMBeamline::sgm()->scalerIntegrationTime());
@@ -1028,6 +1028,7 @@ bool SGMAppController::setupSGMViews(){
 
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineInitialized()), this, SLOT(onSGMBeamlineConnected()));
 	connect(SGMBeamline::sgm(), SIGNAL(criticalConnectionsChanged()), this, SLOT(onSGMBeamlineConnected()));
+	connect(SGMBeamline::sgm(), SIGNAL(beamlineReadyChanged()), this, SLOT(onSGMBeamlineConnected()));
 	onSGMBeamlineConnected();
 
 	additionalIssueTypesAndAssignees_.append("I think it's an SGM specific issue", "davidChevrier");

@@ -189,8 +189,8 @@ AMProcessVariablePrivate::AMProcessVariablePrivate(const QString& pvName) : QObj
 	upperGraphLimit_ = DBL_MAX;
 	lowerGraphLimit_ = -DBL_MAX;
 
-	// Sets disablePutCallback to false so that setValue uses ca_put_callback() by default.
-	disablePutCallback_ = false;
+	// Use ca_put() instead of ca_put_callback() by default.
+	putCallbackEnabled_ = false;
 
 	chid_ = 0;
 	evid_ = 0;
@@ -841,7 +841,7 @@ void AMProcessVariablePrivate::setValue(int value) {
 
 	dbr_long_t setpoint = value;
 
-	if (disablePutCallback_)
+	if (!putCallbackEnabled_)
 		lastError_ = ca_put( DBR_LONG, chid_, &setpoint );
 	else
 		lastError_ = ca_put_callback( DBR_LONG, chid_, &setpoint, PVPutRequestCBWrapper, this );
@@ -856,7 +856,7 @@ void AMProcessVariablePrivate::setValue(int value) {
 
 void AMProcessVariablePrivate::setValues(dbr_long_t setpoints[], int num) {
 
-	if (disablePutCallback_)
+	if (!putCallbackEnabled_)
 		lastError_ = ca_array_put( DBR_LONG, num, chid_, setpoints );
 	else
 		lastError_ = ca_array_put_callback( DBR_LONG, num, chid_, setpoints, PVPutRequestCBWrapper, this );
@@ -873,7 +873,7 @@ void AMProcessVariablePrivate::setValue(double value) {
 
 	dbr_double_t setpoint = value;
 
-	if (disablePutCallback_)
+	if (!putCallbackEnabled_)
 		lastError_ = ca_put( DBR_DOUBLE, chid_, &setpoint );
 	else
 		lastError_ = ca_put_callback( DBR_DOUBLE, chid_, &setpoint, PVPutRequestCBWrapper, this );
@@ -888,7 +888,7 @@ void AMProcessVariablePrivate::setValue(double value) {
 
 void AMProcessVariablePrivate::setValues(dbr_double_t setpoints[], int num) {
 
-	if (disablePutCallback_)
+	if (!putCallbackEnabled_)
 		lastError_ = ca_array_put( DBR_DOUBLE, num, chid_, setpoints );
 	else
 		lastError_ = ca_array_put_callback( DBR_DOUBLE, num, chid_, setpoints, PVPutRequestCBWrapper, this );
@@ -907,7 +907,7 @@ void AMProcessVariablePrivate::setValue(const QString& value) {
 	QByteArray d1 = value.toAscii();
 	strcpy(setpoint, d1.constData());
 
-	if (disablePutCallback_)
+	if (!putCallbackEnabled_)
 		lastError_ = ca_put( DBR_STRING, chid_, setpoint );
 	else
 		lastError_ = ca_put_callback( DBR_STRING, chid_, setpoint, PVPutRequestCBWrapper, this );
@@ -931,7 +931,7 @@ void AMProcessVariablePrivate::setValues(const QStringList& setpoints) {
 		stringArray[i] = asciiData[i].constData();
 	}
 
-	if (disablePutCallback_)
+	if (!putCallbackEnabled_)
 		lastError_ = ca_array_put( DBR_STRING, setpoints.size(), chid_, stringArray );
 	else
 		lastError_ = ca_array_put_callback( DBR_STRING, setpoints.size(), chid_, stringArray, PVPutRequestCBWrapper, this );
@@ -940,7 +940,6 @@ void AMProcessVariablePrivate::setValues(const QStringList& setpoints) {
 		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUES_STRING, QString("AMProcessVariable: Error while trying to put values: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
 		emit error(lastError_);
 	}
-	// TODO: check that ca_array_put_callback doesn't require this left in memory after this function goes out of scope?
 	delete[] stringArray;
 
 	AMProcessVariableSupport::flushIO();
