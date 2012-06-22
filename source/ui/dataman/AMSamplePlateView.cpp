@@ -505,6 +505,8 @@ AMSamplePlateView::AMSamplePlateView(AMSamplePlate *existingPlate, QWidget *pare
 	QVBoxLayout* vl2 = new QVBoxLayout();
 
 	samplePlateSelector_ = new AMSamplePlateSelector(samplePlate_);
+	moreInformationButton_ = new QPushButton("More Information");
+	moreInformationButton_->setEnabled(false);
 	sampleSelector_ = new AMSampleEditor(AMDatabase::database("user"));
 	addSampleButton_ = new QPushButton("Add Sample to Plate");
 
@@ -519,6 +521,7 @@ AMSamplePlateView::AMSamplePlateView(AMSamplePlate *existingPlate, QWidget *pare
 	sampleListView_->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
 	vl1->addWidget(samplePlateSelector_);
+	vl1->addWidget(moreInformationButton_);
 	vl1->addWidget(sampleListView_, 1);
 	samplePlateGroupBox->setLayout(vl1);
 
@@ -538,8 +541,10 @@ AMSamplePlateView::AMSamplePlateView(AMSamplePlate *existingPlate, QWidget *pare
 	connect(listViewDelegate, SIGNAL(rowRemovePressed(int)), this, SLOT(onRowRemovePressed(int)));
 
 	connect(listViewDelegate, SIGNAL(additionalInformationRequested(int)), this, SLOT(onAdditionalInformationRequested(int)));
+	connect(moreInformationButton_, SIGNAL(clicked()), this, SLOT(onAdditionalPlateInformationRequested()));
 
-	connect(samplePlateSelector_, SIGNAL(samplePlateChanged()), this, SIGNAL(newSamplePlateSelected()));
+	//connect(samplePlateSelector_, SIGNAL(samplePlateChanged()), this, SIGNAL(newSamplePlateSelected()));
+	connect(samplePlateSelector_, SIGNAL(samplePlateChanged()), this, SLOT(onSamplePlateChanged()));
 
 	addSampleButton_->setIcon(QIcon(":/add.png"));
 
@@ -612,12 +617,148 @@ void AMSamplePlateView::onAdditionalInformationRequested(int row){
 	}
 }
 
+void AMSamplePlateView::onAdditionalPlateInformationRequested(){
+	AMSamplePlateAdditionalInformationView *additionalPlateInformation = new AMSamplePlateAdditionalInformationView(samplePlate_, samplePlateModel_);
+	additionalPlateInformation->show();
+}
+
+void AMSamplePlateView::onSamplePlateChanged(){
+	moreInformationButton_->setEnabled(true);
+	emit newSamplePlateSelected();
+}
+
 void AMSamplePlateItemModel::onSamplePositionChanged(int r)
 {
 	if(r < plate_->count()) {
 		QModelIndex i = index(r,0);
 		emit dataChanged(i,i);
 	}
+}
+
+AMSamplePlatePositionInfo::AMSamplePlatePositionInfo(AMSamplePlate *samplePlate, int index, const QString &description, MPlotAxisScale *horizontalScale, MPlotAxisScale *verticalScale, QObject *parent) :
+	QObject(parent)
+{
+	samplePlate_ = samplePlate;
+	index_ = index;
+	description_ = description;
+	horizontalScale_ = horizontalScale;
+	verticalScale_ = verticalScale;
+
+	position_ = 0;
+	area_ = 0;
+
+	QColor rColor = Qt::green;
+	QPen rPen = QPen(rColor, 0, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
+	rColor.setAlphaF(0.5);
+
+	position_ = new MPlotPoint();
+	position_->setValue(QPointF(samplePlate_->at(index_).position().at(0).value(), samplePlate_->at(index_).position().at(2).value()));
+	position_->setMarker(MPlotMarkerShape::Cross, 10, QPen(QColor(Qt::blue)));
+	//imagePlot_->addItem(position_);
+	position_->setXAxisTarget(horizontalScale_);
+	position_->setYAxisTarget(verticalScale_);
+
+	if(samplePlate_->at(index_).topLeftPosition().count() == 4 && samplePlate_->at(index_).bottomRightPosition().count() == 4){
+		double left, top, width, height;
+		left = std::min(samplePlate_->at(index_).topLeftPosition().at(0).value(), samplePlate_->at(index_).bottomRightPosition().at(0).value());
+		top = std::min(samplePlate_->at(index_).topLeftPosition().at(2).value(), samplePlate_->at(index_).bottomRightPosition().at(2).value());
+		width = fabs(samplePlate_->at(index_).topLeftPosition().at(0).value() - samplePlate_->at(index_).bottomRightPosition().at(0).value());
+		height = fabs(samplePlate_->at(index_).topLeftPosition().at(2).value() - samplePlate_->at(index_).bottomRightPosition().at(2).value());
+		area_ = new MPlotRectangle(QRectF(left, top, width, height), rPen, QBrush(rColor));
+		//imagePlot_->addItem(area_);
+		area_->setDescription(description_);
+		area_->setXAxisTarget(horizontalScale_);
+		area_->setYAxisTarget(verticalScale_);
+	}
+}
+
+MPlotRectangle* AMSamplePlatePositionInfo::area() const{
+	return area_;
+}
+
+MPlotPoint* AMSamplePlatePositionInfo::position() const{
+	return position_;
+}
+
+AMSamplePlateAdditionalInformationView::AMSamplePlateAdditionalInformationView(AMSamplePlate *samplePlate, AMSamplePlateItemModel *samplePlateModel, QWidget *parent) :
+	QWidget(parent)
+{
+	setWindowModality(Qt::ApplicationModal);
+
+	samplePlate_ = samplePlate;
+	samplePlateModel_ = samplePlateModel;
+
+	imageView_ = new MPlotWidget();
+	imageView_->setMinimumHeight(400);
+	imagePlot_ = new MPlot();
+
+	MPlotAxisScale *horizontalScale = new MPlotAxisScale(Qt::Horizontal);
+	MPlotAxisScale *verticalScale = new MPlotAxisScale(Qt::Vertical);
+	horizontalScale->setDataRange(MPlotAxisRange(-10, 10));
+	verticalScale->setDataRange(MPlotAxisRange(-10, 15));
+	imagePlot_->addAxisScale(horizontalScale);
+	imagePlot_->addAxisScale(verticalScale);
+	imagePlot_->axisLeft()->setAxisScale(verticalScale);
+	imagePlot_->axisBottom()->setAxisScale(horizontalScale);
+
+	imageView_->setPlot(imagePlot_);
+	//imagePlot_->axisScaleLeft()->setAutoScaleEnabled();
+	imagePlot_->axisScaleLeft()->setPadding(2);
+	//imagePlot_->axisScaleBottom()->setAutoScaleEnabled();
+	imagePlot_->axisScaleBottom()->setPadding(2);
+	imagePlot_->setMarginBottom(10);
+	imagePlot_->setMarginLeft(10);
+	imagePlot_->setMarginRight(5);
+	imagePlot_->setMarginTop(5);
+	imagePlot_->plotArea()->setBrush(QBrush(QColor(Qt::white)));
+	imagePlot_->axisRight()->setTicks(4);
+	imagePlot_->axisBottom()->setTicks(4);
+	imagePlot_->axisLeft()->showGrid(false);
+	imagePlot_->axisBottom()->showAxisName(false);
+	imagePlot_->axisLeft()->showAxisName(false);
+	imagePlot_->legend()->hide();
+
+	AMSamplePlatePositionInfo *positionInfo;
+	for(int x = 0; x < samplePlate_->count(); x++){
+		positionInfo = new AMSamplePlatePositionInfo(samplePlate_, x, samplePlateModel_->sampleName(x), horizontalScale, verticalScale);
+		imagePlot_->addItem(positionInfo->position());
+		if(positionInfo->area())
+			imagePlot_->addItem(positionInfo->area());
+
+		positionInfos_.append(positionInfo);
+	}
+	/*
+	QColor rColor = Qt::green;
+	QPen rPen = QPen(rColor, 0, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
+	rColor.setAlphaF(0.5);
+	MPlotRectangle* r;
+	MPlotPoint *p;
+	for(int x = 0; x < samplePlate_->count(); x++){
+		p = new MPlotPoint();
+		p->setValue(QPointF(samplePlate_->at(x).position().at(0).value(), samplePlate_->at(x).position().at(2).value()));
+		p->setMarker(MPlotMarkerShape::Cross, 10, QPen(QColor(Qt::blue)));
+		imagePlot_->addItem(p);
+		p->setXAxisTarget(horizontalScale);
+		p->setYAxisTarget(verticalScale);
+
+		if(samplePlate_->at(x).topLeftPosition().count() == 4 && samplePlate_->at(x).bottomRightPosition().count() == 4){
+			double left, top, width, height;
+			left = std::min(samplePlate_->at(x).topLeftPosition().at(0).value(), samplePlate_->at(x).bottomRightPosition().at(0).value());
+			top = std::min(samplePlate_->at(x).topLeftPosition().at(2).value(), samplePlate_->at(x).bottomRightPosition().at(2).value());
+			width = fabs(samplePlate_->at(x).topLeftPosition().at(0).value() - samplePlate_->at(x).bottomRightPosition().at(0).value());
+			height = fabs(samplePlate_->at(x).topLeftPosition().at(2).value() - samplePlate_->at(x).bottomRightPosition().at(2).value());
+			r = new MPlotRectangle(QRectF(left, top, width, height), rPen, QBrush(rColor));
+			imagePlot_->addItem(r);
+			r->setDescription(samplePlateModel_->sampleName(x));
+			r->setXAxisTarget(horizontalScale);
+			r->setYAxisTarget(verticalScale);
+		}
+	}
+	*/
+
+	QVBoxLayout *vl = new QVBoxLayout();
+	vl->addWidget(imageView_);
+	setLayout(vl);
 }
 
 #include <QFormLayout>

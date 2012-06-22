@@ -315,6 +315,9 @@ protected slots:
 	void onRowRemovePressed(int row);
 
 	void onAdditionalInformationRequested(int row);
+	void onAdditionalPlateInformationRequested();
+
+	void onSamplePlateChanged();
 
 protected:
 	/// Widget to select and swap current sample plate
@@ -323,6 +326,9 @@ protected:
 	QListView *sampleListView_;
 	/// A widget to select a sample
 	AMSampleEditor* sampleSelector_;
+
+	QPushButton *moreInformationButton_;
+
 	/// A button to add a sample / current position to the sample plate
 	QPushButton* addSampleButton_;
 	/// Layout for GUI items
@@ -335,6 +341,45 @@ protected:
 
 	/// A model that wraps an AMSamplePlate object for exposing as a list view
 	AMSamplePlateItemModel* samplePlateModel_;
+};
+
+#include "MPlot/MPlotRectangle.h"
+#include "MPlot/MPlotPoint.h"
+class AMSamplePlatePositionInfo : public QObject
+{
+Q_OBJECT
+public:
+	AMSamplePlatePositionInfo(AMSamplePlate *samplePlate, int index, const QString &description, MPlotAxisScale *horizontalScale, MPlotAxisScale *verticalScale, QObject *parent = 0);
+
+	MPlotRectangle* area() const;
+	MPlotPoint* position() const;
+
+protected:
+	AMSamplePlate *samplePlate_;
+	int index_;
+	QString description_;
+
+	MPlotAxisScale *horizontalScale_;
+	MPlotAxisScale *verticalScale_;
+	MPlotRectangle *area_;
+	MPlotPoint *position_;
+};
+
+#include "MPlot/MPlotWidget.h"
+class AMSamplePlateAdditionalInformationView : public QWidget
+{
+Q_OBJECT
+public:
+	AMSamplePlateAdditionalInformationView(AMSamplePlate *samplePlate, AMSamplePlateItemModel* samplePlateModel, QWidget *parent = 0);
+
+protected:
+	AMSamplePlate *samplePlate_;
+	AMSamplePlateItemModel* samplePlateModel_;
+
+	QList<AMSamplePlatePositionInfo*> positionInfos_;
+
+	MPlotWidget *imageView_;
+	MPlot *imagePlot_;
 };
 
 #include <QDialog>
