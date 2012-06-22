@@ -82,7 +82,7 @@ public:
 	int connectionState() const { return d_->connectionState(); }
 	/// Indicates that a connection is established to the Epics CA server for this Process Variable.
 	bool isConnected() const { return d_->isConnected(); }
-	/// Indicates that a connection was established to the Epics CA server, and we managed to download control information (meta information) for this Process Variable. Does not mean that we've retrieved the values yet.
+	/// Indicates that a connection was established to the Epics CA server, and we managed to download control information (units, limits, enum strings, etc.) for this Process Variable. Does not mean that we've retrieved the values yet.
 	bool isInitialized() const { return d_->isInitialized(); }
 	/// Returns true if the connection has a monitoring subscription to receive value changes. \see startMonitoring(), startMonitoring().
 	bool isMonitoring() const { return d_->isMonitoring(); }
@@ -204,7 +204,7 @@ public:
 	double lowerGraphicalLimit() const { return d_->lowerGraphicalLimit(); }
 
 
-	/// All PV dataTypes() except for String can always be retrieved as numbers. However, some integer types are used to provide a list of choices. For example, a grating selector might let you choose "Grating #1", "Grating #2", etc.  For PVs of this nature, isEnum() will be true.  This is just a convenient way of checking that dataType() == AMProcessVariable::Enum.
+	/// All PV dataTypes() except for String can always be retrieved as numbers. However, some integer types are used to provide a list of choices. For example, a grating selector might let you choose "LEG", "MEG", "HEG", etc.  For PVs of this nature, isEnum() will be true.  This is just a convenient way of checking that dataType() == AMProcessVariable::Enum.
 	bool isEnum() const { return d_->isEnum(); }
 	/// For Enum dataType()s, sometimes a list of descriptions are provided for each numeric option.  For example, the gratings might be described as "LEG", "MEG", and "HEG".  enumStrings() will give you these titles.
 	QStringList enumStrings() const { return d_->enumStrings(); }
@@ -292,7 +292,7 @@ signals:
 	/// PV failed to connect within the timeout.
 	void connectionTimeout();
 
-	/// Connection was established, and control information was retrieved. However, we may not have retrieved that actual values yet...
+	/// Connection was established, and control information was retrieved. After initialized() is emitted, we'll know the data type, units, limits, enum strings, etc.  However, we may not have retrieved the actual values yet...
 	void initialized();
 	/// Signals changes in hasValues(). \see hasValues().
 	void hasValuesChanged(bool);

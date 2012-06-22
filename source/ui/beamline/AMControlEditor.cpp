@@ -27,8 +27,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QFont>
+#include <QPixmap>
+#include <QMovie>
+#include <QMenu>
 
 #include "util/AMFontSizes.h"
+
+QMovie* AMBasicControlEditor::movingIcon_ = 0;
+QPixmap* AMBasicControlEditor::invalidIcon_ = 0;
+QPixmap* AMBasicControlEditor::minorIcon_ = 0;
+QPixmap* AMBasicControlEditor::majorIcon_ = 0;
+QPixmap* AMBasicControlEditor::lockedIcon_ = 0;
 
 AMBasicControlEditor::AMBasicControlEditor(AMControl* control, QWidget *parent) :
 	QFrame(parent)
@@ -37,27 +46,80 @@ AMBasicControlEditor::AMBasicControlEditor(AMControl* control, QWidget *parent) 
 
 	control_ = control;
 
-	// Create objects:
-	valueLabel_ = new QLabel("[Not Connected]");
-	unitsLabel_ = new QLabel("?");
+	// create static caches, if not already here:
+	if(!movingIcon_) {
+		movingIcon_ = new QMovie(":/loading2_transparent.gif");
+		movingIcon_->start();
+	}
+	if(!invalidIcon_)
+		invalidIcon_ = new QPixmap(":/16x16/network-error.png");
+	if(!minorIcon_)
+		minorIcon_ = new QPixmap(":/16x16/dialog-warning.png");
+	if(!majorIcon_)
+		majorIcon_ = new QPixmap(":/22x22/redCrash.png");
+	if(!lockedIcon_)
+		lockedIcon_ = new QPixmap(":/16x16/locked.png");
 
+	// Create objects. Thanks to implicit sharing of QPixmap, all instances of this widget will all use the same QPixmap storage, created in the static icons.
+	valueLabel_ = new QLabel();
+	enumButton_ = new QToolButton();
+	QMenu* menu = new QMenu(this);
+	enumButton_->setMenu(menu);
+	enumButton_->setPopupMode(QToolButton::InstantPopup);
+	connect(menu, SIGNAL(triggered(QAction*)), this, SLOT(onEnumValueChosen(QAction*)));
+
+	movingLabel_ = new QLabel();
+	movingLabel_->setMovie(movingIcon_);
+	movingLabel_->setToolTip("Moving...");
+
+	invalidLabel_ = new QLabel();
+	invalidLabel_->setPixmap(*invalidIcon_);
+
+	minorLabel_ = new QLabel();
+	minorLabel_->setPixmap(*minorIcon_);
+	minorLabel_->setToolTip("Alarm: Minor");
+
+	majorLabel_ = new QLabel();
+	majorLabel_->setPixmap(*majorIcon_);
+	majorLabel_->setToolTip("Alarm: Major");
+
+	lockedLabel_ = new QLabel();
+	lockedLabel_->setPixmap(*lockedIcon_);
+	lockedLabel_->setToolTip("Cannot Move");
+
+	statusFrame_ = new QFrame();
+	statusFrame_->setMinimumWidth(22);
+	statusFrame_->setMinimumHeight(22);
+	statusFrame_->setObjectName("StatusFrame");
+
+	QHBoxLayout* shl = new QHBoxLayout();
+	shl->addWidget(movingLabel_);
+	shl->addWidget(lockedLabel_);
+	shl->addWidget(invalidLabel_);
+	shl->addWidget(minorLabel_);
+	shl->addWidget(majorLabel_);
+	shl->setContentsMargins(0,0,0,0);
+	statusFrame_->setLayout(shl);
+	movingLabel_->hide();
 
 	// Layout:
 	QHBoxLayout* hl = new QHBoxLayout();
 	hl->addWidget(valueLabel_, 2);
-	hl->addSpacing(2);
-	hl->addWidget(unitsLabel_, 0);
-	hl->setMargin(2);
+	hl->addWidget(enumButton_, 2);
+	hl->addWidget(statusFrame_, 0);
+	hl->setSpacing(1);
+	hl->setContentsMargins(2,2,2,2);
 
 	setLayout(hl);
+	enumButton_->hide();
 
-	// Style: TODO: move out of this constructor into app-wide stylesheet
-	valueLabel_->setStyleSheet("color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);");
 	valueLabel_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+	enumButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 	setFrameStyle(QFrame::StyledPanel);
-	setStyleSheet("QFrame#AMControlEditor { background: white; } ");
-	setValidState(false);
+	setStyleSheet("#AMControlEditor { background: white; } ");
 	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+
+	reviewControlState();
 
 	// Create the editor dialog:
 	dialog_ = new AMBasicControlEditorStyledInputDialog(this);
@@ -68,41 +130,100 @@ AMBasicControlEditor::AMBasicControlEditor(AMControl* control, QWidget *parent) 
 	// Make connections:
 	if(control_) {
 		connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
+		connect(control_, SIGNAL(connected(bool)), this, SLOT(reviewControlState()));
 		connect(control_, SIGNAL(unitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));
-		connect(control_, SIGNAL(connected(bool)), this, SLOT(setValidState(bool)));
+		// todo: alarm changes.
 		connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onMotion(bool)));
 
-		// If the control is connected already, update our state right now. (We won't get the connected() signal later.)
+		// If the control is connected already, update our state right now.
 		if(control_->isConnected()) {
-			setValidState(true);
 			onValueChanged(control_->value());
-			onUnitsChanged(control_->units());
 			onMotion(control_->isMoving());
+			onEnumChanges();
 		}
 	}
 	connect(this, SIGNAL(clicked()), this, SLOT(onEditStart()));
 }
 
 void AMBasicControlEditor::onValueChanged(double newVal) {
-	valueLabel_->setText(QString("%1").arg(newVal));
-}
-void AMBasicControlEditor::onUnitsChanged(const QString& units) {
-	unitsLabel_->setText(units);
-}
-
-
-void AMBasicControlEditor::setValidState(bool isConnected) {
-	if(isConnected)
-		unitsLabel_->setStyleSheet("border: 1px outset #00df00; background: #d4ffdf; padding: 1px; width: 100%; color: #00df00;");
+	if(control_->isEnum())
+		enumButton_->setText(control_->enumNameAt(newVal));
 	else
-		unitsLabel_->setStyleSheet("border: 1px outset #f20000; background: #ffdfdf;	padding: 1px; color: #f20000;");
+		valueLabel_->setText(QString("%1 %2").arg(newVal).arg(control_->units()));
+}
+
+void AMBasicControlEditor::onUnitsChanged(const QString &units) {
+	valueLabel_->setText(QString("%1 %2").arg(control_->value()).arg(units));
+}
+
+void AMBasicControlEditor::reviewControlState() {
+	invalidLabel_->hide();
+	minorLabel_->hide();
+	majorLabel_->hide();
+	lockedLabel_->hide();
+
+	if(!control_ || !control_->isConnected()) {
+		invalidLabel_->show();
+		invalidLabel_->setToolTip("Not Connected");
+		setStyleSheet("#AMControlEditor {border: 1px outset #f20000; background: #ffffff;}");
+		return;
+	}
+
+	lockedLabel_->setVisible(!control_->canMove());
+
+//	switch(AMControl::NoAlarm) {	/// \todo hook up to alarm severity
+//	case AMControl::InvalidAlarm:
+//		invalidLabel_->show();
+//		invalidLabel_->setToolTip("Alarm: Invalid");
+//		setStyleSheet("#AMControlEditor {border: 1px outset #f20000; background: #ffffff;}");
+//		break;
+//	case AMControl::MinorAlarm:
+//		minorLabel_->show();
+//		setStyleSheet("#AMControlEditor {border: 1px outset rgb(242,242,0); background: rgb(255,255,240);}");
+//		break;
+//	case AMControl::MajorAlarm:
+//		majorLabel_->show();
+//		setStyleSheet("#AMControlEditor {border: 1px outset #f20000; background: #ffdfdf;}");
+//		break;
+//	default: // all good. Normal look.
+//		setStyleSheet("#AMControlEditor { background: white; } ");
+//		//	Traditional green: setStyleSheet("#AMControlEditor {border: 1px outset #00df00; background: #d4ffdf;}");
+//		break;
+//	}
+}
+
+void AMBasicControlEditor::onEnumChanges() {
+	if(control_->isEnum()) {
+		enumButton_->show();
+		valueLabel_->hide();
+
+		// With new enum values, we might have to update the text value on the button.
+		onValueChanged(control_->value());
+
+		QMenu* menu = enumButton_->menu();
+		menu->clear();
+		int i=0;
+		foreach(QString enumString, control_->enumNames()) {
+			QAction* action = menu->addAction(enumString);
+			action->setData(i++);	// remember the index inside this action.
+		}
+	}
+	else {
+		enumButton_->hide();
+		valueLabel_->show();
+	}
+}
+
+void AMBasicControlEditor::onEnumValueChosen(QAction *action) {
+	int value = action->data().toInt();
+	onNewSetpointChosen(double(value));
 }
 
 void AMBasicControlEditor::onMotion(bool moving) {
 	if(moving)
-		unitsLabel_->setStyleSheet("border: 1px outset blue; background: #ffdfdf;	padding: 1px; color: blue;");
+		movingLabel_->show();
 	else
-		setValidState(control_->isConnected());
+		movingLabel_->hide();
 }
 
 void AMBasicControlEditor::onEditStart() {
@@ -112,10 +233,13 @@ void AMBasicControlEditor::onEditStart() {
 		return;
 	}
 
+	if(control_->isEnum())
+		return;	// don't show the editor in this situation; users use the tool button menu directly;
+
 	dialog_->setDoubleMaximum(control_->maximumValue());
 	dialog_->setDoubleMinimum(control_->minimumValue());
+	dialog_->setDoubleDecimals(3);	/// \todo Display precision
 	dialog_->setDoubleValue(control_->value());
-	dialog_->setDoubleDecimals(3);	// todo: display precision?
 	dialog_->setLabelText(control_->description().isEmpty() ? control_->name() : control_->description());
 	dialog_->setSuffix(control_->units());
 	dialog_->show();
@@ -148,7 +272,7 @@ void AMBasicControlEditorStyledInputDialog::resizeEvent(QResizeEvent *  event )
 
 AMBasicControlEditorStyledInputDialog::AMBasicControlEditorStyledInputDialog( QWidget * parent, Qt::WindowFlags flags ) : QDialog(parent, flags) {
 	setObjectName("styledDialog");
-	setStyleSheet("#styledDialog { background-color: rgb(31,62,125); border: 2px outset white; border-radius: 10px; }  QLabel { color: white; font: bold " AM_FONT_REGULAR_ " \"Helvetica\"; } QPushButton { color: white; border: 1px outset rgb(158,158,158); border-radius: 5px; min-height: 24px; padding: 3px; width: 80px; margin: 3px;} #okButton { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(191, 218, 178, 255), stop:0.34 rgba(135, 206, 96, 255), stop:1 rgba(65, 157, 0, 255));} #cancelButton { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(232, 209, 209, 255), stop:0.34 rgba(229, 112, 119, 255), stop:1 rgba(197, 20, 32, 255)); } QDoubleSpinBox { padding: 3px; color: black; font: bold " AM_FONT_REGULAR_ " \"Helvetica\"; border: 1px outset rgb(158,158,158); selection-background-color: rgb(205, 220, 243); selection-color: black;}");// TODO: continue here...
+	setStyleSheet("#styledDialog { background-color: rgb(31,62,125); border: 2px outset white; border-radius: 10px; }  QLabel { color: white; font: bold " AM_FONT_REGULAR_ " \"Helvetica\"; } QPushButton { color: white; border: 1px outset rgb(158,158,158); border-radius: 5px; min-height: 24px; padding: 3px; width: 80px; margin: 3px;} #okButton { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(191, 218, 178, 255), stop:0.34 rgba(135, 206, 96, 255), stop:1 rgba(65, 157, 0, 255));} #cancelButton { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(232, 209, 209, 255), stop:0.34 rgba(229, 112, 119, 255), stop:1 rgba(197, 20, 32, 255)); } QDoubleSpinBox { padding: 3px; color: black; font: bold " AM_FONT_REGULAR_ " \"Helvetica\"; border: 1px outset rgb(158,158,158); selection-background-color: rgb(205, 220, 243); selection-color: black;}");
 
 	label_ = new QLabel("New value:");
 	label_->setAlignment(Qt::AlignCenter);
@@ -189,7 +313,7 @@ void AMBasicControlEditorStyledInputDialog::setDoubleDecimals(int d) { spinBox_-
 void AMBasicControlEditorStyledInputDialog::setLabelText(const QString& s) { label_->setText(s); }
 void AMBasicControlEditorStyledInputDialog::setSuffix(const QString& s) { spinBox_->setSuffix(QString(" ") + s); }
 
-void AMBasicControlEditorStyledInputDialog::showEvent ( QShowEvent * event ) { QDialog::showEvent(event); spinBox_->setFocus(); }
+void AMBasicControlEditorStyledInputDialog::showEvent ( QShowEvent * event ) { QDialog::showEvent(event); spinBox_->setFocus(); spinBox_->selectAll(); }
 
 
 void AMBasicControlEditor::onNewSetpointChosen(double value)

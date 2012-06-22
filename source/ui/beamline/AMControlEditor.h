@@ -36,8 +36,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class QLabel;
 class QDoubleSpinBox;
 class QPushButton;
+class QMovie;
+class QPixmap;
 
-// TODO: finish this for numeric controls only... and then generalize this and Control to: Numeric, Item, String.
 
 /// This helper class for AMBasicControlEditor provides a dialog box to get new setpoints. You should never need to use it directly.
 class AMBasicControlEditorStyledInputDialog : public QDialog {
@@ -84,17 +85,20 @@ signals:
 public slots:
 
 protected slots:
-	/// Called to color the dialog to indicate the control is connected and can be moved.
-	void setValidState(bool isValid = true);
-	/// Called to color the dialog to indicate the control is disconnected.
-	void setInvalidState() { setValidState(false); }
+	/// Called to review the color of the unit box and any status icons that need to be shown. Called on the control's connected(), initialized(), alarmChanged() signals.
+	void reviewControlState();
 
 	/// Called when the control's value changes; updates the valueLabel_.
 	void onValueChanged(double newVal);
-	/// Called when the control's units change; updates the unitsLabel_.
+	/// Called when the control's units change; updates the value suffix.
 	void onUnitsChanged(const QString& units);
-	/// Called when the control's isMoving() state changes.
+
+	/// Called when the control's isMoving() state changes; shows the moving icon.
 	void onMotion(bool moving);
+	/// Called when the control's enum information changes. We show or hide the enum button, and configure the entries in it.
+	void onEnumChanges();
+	/// Called when the user chooses an enum value from the enumButton_ popup. Calls onNewSetpointChosen with the value for that enum.
+	void onEnumValueChosen(QAction* action);
 
 	/// Called to bring up the setpoint editor dialog.
 	void onEditStart();
@@ -104,8 +108,14 @@ protected slots:
 protected:
 	AMControl *control_;
 	QLabel *valueLabel_;
-	QLabel *unitsLabel_;
+	QFrame* statusFrame_;
+	QToolButton* enumButton_;
 	AMBasicControlEditorStyledInputDialog* dialog_;
+
+	static QMovie* movingIcon_;
+	static QPixmap* invalidIcon_, *minorIcon_, *majorIcon_, *lockedIcon_;
+
+	QLabel* movingLabel_, *invalidLabel_, *minorLabel_, *majorLabel_, *lockedLabel_;
 
 	/// Re-implemented to emit clicked() when clicked anywhere. (Normally, QFrames don't act like buttons.)
 	void mouseReleaseEvent ( QMouseEvent *event );
