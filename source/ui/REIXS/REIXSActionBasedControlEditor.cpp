@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QApplication>
 
 REIXSActionBasedControlEditor::REIXSActionBasedControlEditor(AMControl* control, bool okToRunInBackground, QWidget *parent) :
-	AMBasicControlEditor(control, parent)
+	AMControlEditor(control, parent)
 {
 	okToRunInBackground_ = okToRunInBackground;
 }

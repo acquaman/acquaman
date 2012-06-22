@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class QLineEdit;
 class QPushButton;
 class QVBoxLayout;
-class AMControlEditor;
+class AMExtendedControlEditor;
 class CLSCAEN2527HVChannel;
 
 class CLSCAEN2527ChannelBasicView : public QGroupBox
@@ -44,11 +44,11 @@ protected slots:
 protected:
 	CLSCAEN2527HVChannel *hvChannel_;
 	QLineEdit *descriptionEdit_;
-	AMControlEditor *demandCE_;
-	AMControlEditor *voltageCE_;
+	AMExtendedControlEditor *demandCE_;
+	AMExtendedControlEditor *voltageCE_;
 	QPushButton *toggleButton_;
-	AMControlEditor *statusCE_;
-	AMControlEditor *currentCE_;
+	AMExtendedControlEditor *statusCE_;
+	AMExtendedControlEditor *currentCE_;
 	QVBoxLayout *vl_;
 };
 

@@ -34,8 +34,8 @@ CLSCAEN2527ChannelBasicView::CLSCAEN2527ChannelBasicView(CLSCAEN2527HVChannel *h
 		hvChannel_ = hvChannel;
 		setTitle(hvChannel_->name());
 		descriptionEdit_ = new QLineEdit();
-		demandCE_ = new AMControlEditor(hvChannel_->demandControl());
-		voltageCE_ = new AMControlEditor(hvChannel_->voltageControl(), 0, true);
+		demandCE_ = new AMExtendedControlEditor(hvChannel_->demandControl());
+		voltageCE_ = new AMExtendedControlEditor(hvChannel_->voltageControl(), 0, true);
 		toggleButton_ = new QPushButton();
 		toggleButton_->setCheckable(true);
 		if(hvChannel_->isConnected() && hvChannel_->isOn())
@@ -46,8 +46,8 @@ CLSCAEN2527ChannelBasicView::CLSCAEN2527ChannelBasicView(CLSCAEN2527HVChannel *h
 		connect(hvChannel_, SIGNAL(connected(bool)), this, SLOT(onHVChannelConnected(bool)));
 		connect(hvChannel_, SIGNAL(powerStateChanged(AMHighVoltageChannel::highVoltageChannelPowerState)), this, SLOT(onPowerStateChanged(AMHighVoltageChannel::highVoltageChannelPowerState)));
 		connect(toggleButton_, SIGNAL(toggled(bool)), this, SLOT(onToggleButtonToggled(bool)));
-		statusCE_ = new AMControlEditor(hvChannel_->statusControl(), 0, true);
-		currentCE_ = new AMControlEditor(hvChannel_->currentControl(), 0, true);
+		statusCE_ = new AMExtendedControlEditor(hvChannel_->statusControl(), 0, true);
+		currentCE_ = new AMExtendedControlEditor(hvChannel_->currentControl(), 0, true);
 
 		vl_ = new QVBoxLayout();
 		vl_->addWidget(descriptionEdit_);

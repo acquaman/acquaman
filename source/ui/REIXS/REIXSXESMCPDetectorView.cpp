@@ -44,9 +44,9 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 	clearButton_ = new QPushButton("Clear All Counts");
 
 	imageSelector_ = new QComboBox();
-	averagingPeriodControl_ = new AMBasicControlEditor(detector_->averagingPeriodControl());
+	averagingPeriodControl_ = new AMControlEditor(detector_->averagingPeriodControl());
 
-	persistDurationControl_ = new AMBasicControlEditor(detector_->persistDurationControl());
+	persistDurationControl_ = new AMControlEditor(detector_->persistDurationControl());
 
 	// removed: orientationControl_ = new AMBasicControlEditor(detector_->orientationControl());
 

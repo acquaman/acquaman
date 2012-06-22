@@ -35,7 +35,7 @@ protected slots:
 	void onPoweredOnChanged(bool poweredOn);
 
 protected:
-	AMControlEditor *readingCE_;
+	AMExtendedControlEditor *readingCE_;
 	QToolButton *powerState_;
 	QIcon powerOnState_, powerOffState_;
 	QHBoxLayout *hl_;
@@ -70,10 +70,10 @@ protected:
 	CLSPGTDetector *detector_;
 	CLSPGTDetectorInfo *configurationSettings_;
 	QGridLayout *gl_;
-	AMControlEditor *readingCE_;
-	AMControlEditor *hvCE_;
-	AMControlEditor *integrationModeCE_;
-	AMControlEditor *integrationTimeCE_;
+	AMExtendedControlEditor *readingCE_;
+	AMExtendedControlEditor *hvCE_;
+	AMExtendedControlEditor *integrationModeCE_;
+	AMExtendedControlEditor *integrationTimeCE_;
 
 	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
 	bool setDetector(AMDetector *detector, bool configureOnly = false);

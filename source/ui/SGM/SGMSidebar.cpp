@@ -40,7 +40,7 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 
 	setMaximumWidth(350);
 
-	readyLabel_ = new AMControlEditor(SGMBeamline::sgm()->beamlineReady(), NULL, true);
+	readyLabel_ = new AMExtendedControlEditor(SGMBeamline::sgm()->beamlineReady(), NULL, true);
 	readyLabel_->setNoUnitsBox(true);
 	readyLabel_->overrideTitle("");
 	readyLabel_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -67,7 +67,7 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	visibleLightButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 	connect(visibleLightButton_, SIGNAL(clicked()), this, SLOT(onVisibleLightClicked()));
 	connect(SGMBeamline::sgm(), SIGNAL(visibleLightStatusChanged(QString)), this, SLOT(onVisibleLightStatusChanged(QString)));
-	energyNC_ = new AMControlEditor(SGMBeamline::sgm()->energy(), SGMBeamline::sgm()->energyMovingStatus());
+	energyNC_ = new AMExtendedControlEditor(SGMBeamline::sgm()->energy(), SGMBeamline::sgm()->energyMovingStatus());
 	energyNC_->setControlFormat('f', 2);
 	energyNC_->overrideTitle("Energy");
 	energyNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -83,19 +83,19 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	trackExitSlitCButton_->overrideText("Exit Slit");
 	trackExitSlitCButton_->setCheckable(true);
 	trackExitSlitCButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-	gratingNC_ = new AMControlEditor(SGMBeamline::sgm()->grating());
+	gratingNC_ = new AMExtendedControlEditor(SGMBeamline::sgm()->grating());
 	gratingNC_->overrideTitle("Grating");
 	gratingNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	entranceSlitNC_ = new AMControlEditor(SGMBeamline::sgm()->entranceSlitGap());
+	entranceSlitNC_ = new AMExtendedControlEditor(SGMBeamline::sgm()->entranceSlitGap());
 	entranceSlitNC_->setControlFormat('f', 1);
 	entranceSlitNC_->overrideTitle("Entrance Slit");
 	entranceSlitNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	exitSlitNC_ = new AMControlEditor(SGMBeamline::sgm()->exitSlitGap());
+	exitSlitNC_ = new AMExtendedControlEditor(SGMBeamline::sgm()->exitSlitGap());
 	exitSlitNC_->setControlFormat('f', 1);
 	exitSlitNC_->overrideTitle("Exit Slit");
 	exitSlitNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
-	scanningLabel_ = new AMControlEditor(SGMBeamline::sgm()->beamlineScanning(), NULL, true);
+	scanningLabel_ = new AMExtendedControlEditor(SGMBeamline::sgm()->beamlineScanning(), NULL, true);
 	scanningLabel_->setNoUnitsBox(true);
 	scanningLabel_->overrideTitle("");
 	scanningLabel_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);

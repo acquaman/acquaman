@@ -34,7 +34,7 @@ class QGridLayout;
 
 class AMBeamlineListAction;
 class SGMMAXvMotor;
-class AMControlEditor;
+class AMExtendedControlEditor;
 
 class SGMSampleManipulatorView : public QGroupBox
 {
@@ -99,10 +99,10 @@ protected:
 	SGMMAXvMotor *mInPlaneCtrl_;
 	SGMMAXvMotor *mRotationCtrl_;
 
-	AMControlEditor *mVerticalNC_;
-	AMControlEditor *mHorizontalNC_;
-	AMControlEditor *mInPlaneNC_;
-	AMControlEditor *mRotationNC_;
+	AMExtendedControlEditor *mVerticalNC_;
+	AMExtendedControlEditor *mHorizontalNC_;
+	AMExtendedControlEditor *mInPlaneNC_;
+	AMExtendedControlEditor *mRotationNC_;
 
 	QSlider *illuminatorSlider_;
 	QButtonGroup *illuminatorPresets_;

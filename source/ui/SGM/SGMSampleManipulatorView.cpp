@@ -91,10 +91,10 @@ SGMSampleManipulatorView::SGMSampleManipulatorView(bool bigButtons, QWidget *par
 	mInPlaneCtrl_ = SGMBeamline::sgm()->ssaManipulatorY();
 	mRotationCtrl_ = SGMBeamline::sgm()->ssaManipulatorRot();
 
-	mVerticalNC_ = new AMControlEditor(mVerticalCtrl_);
-	mHorizontalNC_ = new AMControlEditor(mHorizontalCtrl_);
-	mInPlaneNC_ = new AMControlEditor(mInPlaneCtrl_);
-	mRotationNC_ = new AMControlEditor(mRotationCtrl_);
+	mVerticalNC_ = new AMExtendedControlEditor(mVerticalCtrl_);
+	mHorizontalNC_ = new AMExtendedControlEditor(mHorizontalCtrl_);
+	mInPlaneNC_ = new AMExtendedControlEditor(mInPlaneCtrl_);
+	mRotationNC_ = new AMExtendedControlEditor(mRotationCtrl_);
 
 	illuminatorSlider_ = new QSlider(Qt::Horizontal);
 	illuminatorSlider_->setRange(0, 100);

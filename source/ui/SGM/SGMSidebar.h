@@ -70,20 +70,20 @@ protected:
 	QVBoxLayout *mainLayout_;
 	QGridLayout *gl_;
 
-	AMControlEditor *readyLabel_;
+	AMExtendedControlEditor *readyLabel_;
 	QToolButton *beamOnButton_;
 	AMControlButton *beamOffCButton_;
 	QToolButton *stopMotorsButton_;
 	QToolButton *closeVacuumButton_;
 	QToolButton *visibleLightButton_;
-	AMControlEditor *energyNC_;
+	AMExtendedControlEditor *energyNC_;
 	AMControlButton *trackUndulatorCButton_;
 	AMControlButton *trackGratingCButton_;
 	AMControlButton *trackExitSlitCButton_;
-	AMControlEditor *gratingNC_;
-	AMControlEditor *entranceSlitNC_;
-	AMControlEditor *exitSlitNC_;
-	AMControlEditor *scanningLabel_;
+	AMExtendedControlEditor *gratingNC_;
+	AMExtendedControlEditor *entranceSlitNC_;
+	AMExtendedControlEditor *exitSlitNC_;
+	AMExtendedControlEditor *scanningLabel_;
 	QToolButton *scanningResetButton_;
 	QButtonGroup *endstationsAvailable_;
 	QRadioButton *scientaButton_;

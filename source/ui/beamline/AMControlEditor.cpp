@@ -33,13 +33,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMFontSizes.h"
 
-QMovie* AMBasicControlEditor::movingIcon_ = 0;
-QPixmap* AMBasicControlEditor::invalidIcon_ = 0;
-QPixmap* AMBasicControlEditor::minorIcon_ = 0;
-QPixmap* AMBasicControlEditor::majorIcon_ = 0;
-QPixmap* AMBasicControlEditor::lockedIcon_ = 0;
+QMovie* AMControlEditor::movingIcon_ = 0;
+QPixmap* AMControlEditor::invalidIcon_ = 0;
+QPixmap* AMControlEditor::minorIcon_ = 0;
+QPixmap* AMControlEditor::majorIcon_ = 0;
+QPixmap* AMControlEditor::lockedIcon_ = 0;
 
-AMBasicControlEditor::AMBasicControlEditor(AMControl* control, QWidget *parent) :
+AMControlEditor::AMControlEditor(AMControl* control, QWidget *parent) :
 	QFrame(parent)
 {
 	setObjectName("AMControlEditor");
@@ -123,7 +123,7 @@ AMBasicControlEditor::AMBasicControlEditor(AMControl* control, QWidget *parent) 
 	reviewControlState();
 
 	// Create the editor dialog:
-	dialog_ = new AMBasicControlEditorStyledInputDialog(this);
+	dialog_ = new AMControlEditorStyledInputDialog(this);
 	dialog_->hide();
 	dialog_->setWindowModality(Qt::NonModal);
 	connect(dialog_, SIGNAL(doubleValueSelected(double)), this, SLOT(onNewSetpointChosen(double)));
@@ -146,7 +146,7 @@ AMBasicControlEditor::AMBasicControlEditor(AMControl* control, QWidget *parent) 
 	connect(this, SIGNAL(clicked()), this, SLOT(onEditStart()));
 }
 
-void AMBasicControlEditor::setReadOnly(bool readOnly) {
+void AMControlEditor::setReadOnly(bool readOnly) {
 	readOnly_ = readOnly;
 
 	// disable the popup menu for the enum button
@@ -156,18 +156,18 @@ void AMBasicControlEditor::setReadOnly(bool readOnly) {
 	reviewControlState();
 }
 
-void AMBasicControlEditor::onValueChanged(double newVal) {
+void AMControlEditor::onValueChanged(double newVal) {
 	if(control_->isEnum())
 		enumButton_->setText(control_->enumNameAt(newVal));
 	else
 		valueLabel_->setText(QString("%1 %2").arg(newVal).arg(control_->units()));
 }
 
-void AMBasicControlEditor::onUnitsChanged(const QString &units) {
+void AMControlEditor::onUnitsChanged(const QString &units) {
 	valueLabel_->setText(QString("%1 %2").arg(control_->value()).arg(units));
 }
 
-void AMBasicControlEditor::reviewControlState() {
+void AMControlEditor::reviewControlState() {
 	invalidLabel_->hide();
 	minorLabel_->hide();
 	majorLabel_->hide();
@@ -203,7 +203,7 @@ void AMBasicControlEditor::reviewControlState() {
 	}
 }
 
-void AMBasicControlEditor::onEnumChanges() {
+void AMControlEditor::onEnumChanges() {
 	if(control_->isEnum()) {
 		enumButton_->show();
 		valueLabel_->hide();
@@ -224,19 +224,19 @@ void AMBasicControlEditor::onEnumChanges() {
 	}
 }
 
-void AMBasicControlEditor::onEnumValueChosen(QAction *action) {
+void AMControlEditor::onEnumValueChosen(QAction *action) {
 	int value = action->data().toInt();
 	onNewSetpointChosen(double(value));
 }
 
-void AMBasicControlEditor::onMotion(bool moving) {
+void AMControlEditor::onMotion(bool moving) {
 	if(moving)
 		movingLabel_->show();
 	else
 		movingLabel_->hide();
 }
 
-void AMBasicControlEditor::onEditStart() {
+void AMControlEditor::onEditStart() {
 
 	if(!control_ || !control_->canMove() || readOnly_) {
 		QApplication::beep();
@@ -257,7 +257,7 @@ void AMBasicControlEditor::onEditStart() {
 
 }
 
-void AMBasicControlEditor::mouseReleaseEvent ( QMouseEvent * event ) {
+void AMControlEditor::mouseReleaseEvent ( QMouseEvent * event ) {
 	if(event->button() == Qt::LeftButton) {
 		event->accept();
 		emit clicked();
@@ -267,7 +267,7 @@ void AMBasicControlEditor::mouseReleaseEvent ( QMouseEvent * event ) {
 
 }
 
-void AMBasicControlEditorStyledInputDialog::resizeEvent(QResizeEvent *  event )
+void AMControlEditorStyledInputDialog::resizeEvent(QResizeEvent *  event )
 {
 	QDialog::resizeEvent(event);
 
@@ -280,7 +280,7 @@ void AMBasicControlEditorStyledInputDialog::resizeEvent(QResizeEvent *  event )
 
 }
 
-AMBasicControlEditorStyledInputDialog::AMBasicControlEditorStyledInputDialog( QWidget * parent, Qt::WindowFlags flags ) : QDialog(parent, flags) {
+AMControlEditorStyledInputDialog::AMControlEditorStyledInputDialog( QWidget * parent, Qt::WindowFlags flags ) : QDialog(parent, flags) {
 	setObjectName("styledDialog");
 	setStyleSheet("#styledDialog { background-color: rgb(31,62,125); border: 2px outset white; border-radius: 10px; }  QLabel { color: white; font: bold " AM_FONT_REGULAR_ " \"Helvetica\"; } QPushButton { color: white; border: 1px outset rgb(158,158,158); border-radius: 5px; min-height: 24px; padding: 3px; width: 80px; margin: 3px;} #okButton { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(191, 218, 178, 255), stop:0.34 rgba(135, 206, 96, 255), stop:1 rgba(65, 157, 0, 255));} #cancelButton { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(232, 209, 209, 255), stop:0.34 rgba(229, 112, 119, 255), stop:1 rgba(197, 20, 32, 255)); } QDoubleSpinBox { padding: 3px; color: black; font: bold " AM_FONT_REGULAR_ " \"Helvetica\"; border: 1px outset rgb(158,158,158); selection-background-color: rgb(205, 220, 243); selection-color: black;}");
 
@@ -312,21 +312,21 @@ AMBasicControlEditorStyledInputDialog::AMBasicControlEditorStyledInputDialog( QW
 	okButton_->setDefault(true);
 }
 
-void AMBasicControlEditorStyledInputDialog::onAccepted() {
+void AMControlEditorStyledInputDialog::onAccepted() {
 	emit doubleValueSelected(spinBox_->value());
 }
 
-void AMBasicControlEditorStyledInputDialog::setDoubleValue(double d) { spinBox_->setValue(d); }
-void AMBasicControlEditorStyledInputDialog::setDoubleMaximum(double d) { spinBox_->setMaximum(d); }
-void AMBasicControlEditorStyledInputDialog::setDoubleMinimum(double d) { spinBox_->setMinimum(d); }
-void AMBasicControlEditorStyledInputDialog::setDoubleDecimals(int d) { spinBox_->setDecimals(d); }
-void AMBasicControlEditorStyledInputDialog::setLabelText(const QString& s) { label_->setText(s); }
-void AMBasicControlEditorStyledInputDialog::setSuffix(const QString& s) { spinBox_->setSuffix(QString(" ") + s); }
+void AMControlEditorStyledInputDialog::setDoubleValue(double d) { spinBox_->setValue(d); }
+void AMControlEditorStyledInputDialog::setDoubleMaximum(double d) { spinBox_->setMaximum(d); }
+void AMControlEditorStyledInputDialog::setDoubleMinimum(double d) { spinBox_->setMinimum(d); }
+void AMControlEditorStyledInputDialog::setDoubleDecimals(int d) { spinBox_->setDecimals(d); }
+void AMControlEditorStyledInputDialog::setLabelText(const QString& s) { label_->setText(s); }
+void AMControlEditorStyledInputDialog::setSuffix(const QString& s) { spinBox_->setSuffix(QString(" ") + s); }
 
-void AMBasicControlEditorStyledInputDialog::showEvent ( QShowEvent * event ) { QDialog::showEvent(event); spinBox_->setFocus(); spinBox_->selectAll(); }
+void AMControlEditorStyledInputDialog::showEvent ( QShowEvent * event ) { QDialog::showEvent(event); spinBox_->setFocus(); spinBox_->selectAll(); }
 
 
-void AMBasicControlEditor::onNewSetpointChosen(double value)
+void AMControlEditor::onNewSetpointChosen(double value)
 {
 	if(control_)
 		control_->move(value);
@@ -338,7 +338,7 @@ void AMBasicControlEditor::onNewSetpointChosen(double value)
 // AMControlEditor
 ////////////////////////////
 
-AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl, bool readOnly, bool configureOnly, QWidget *parent) :
+AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* statusTagControl, bool readOnly, bool configureOnly, QWidget *parent) :
 	QGroupBox(parent)
 {
 	setObjectName("AMControlEdit");
@@ -401,7 +401,7 @@ AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl
 
 	// Create the editor dialog:
 	QStringList enumNames = QStringList();
-	dialog_ = new AMControlEditorStyledInputDialog(enumNames, this);
+	dialog_ = new AMExtendedControlEditorStyledInputDialog(enumNames, this);
 	dialog_->hide();
 	dialog_->setWindowModality(Qt::NonModal);
 	if(!configureOnly_)
@@ -437,15 +437,15 @@ AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl
 
 }
 
-double AMControlEditor::setpoint() const{
+double AMExtendedControlEditor::setpoint() const{
 	return dialog_->setpoint();
 }
 
-AMControl* AMControlEditor::control() const{
+AMControl* AMExtendedControlEditor::control() const{
 	return control_;
 }
 
-bool AMControlEditor::setControlFormat(const QChar& format, int precision){
+bool AMExtendedControlEditor::setControlFormat(const QChar& format, int precision){
 	if(format == 'g' || format == 'G' || format == 'e' || format == 'E' || format == 'f'){
 		format_ = format;
 		precision_ = precision;
@@ -456,29 +456,29 @@ bool AMControlEditor::setControlFormat(const QChar& format, int precision){
 	return false;
 }
 
-void AMControlEditor::setReadOnly(bool readOnly){
+void AMExtendedControlEditor::setReadOnly(bool readOnly){
 	readOnly_ = readOnly;
 	if(!control_->canMove())
 		readOnly_ = true;
 }
 
-void AMControlEditor::setNoUnitsBox(bool noUnitsBox){
+void AMExtendedControlEditor::setNoUnitsBox(bool noUnitsBox){
 	if(noUnitsBox && !unitsLabel_->isHidden())
 		unitsLabel_->hide();
 	else if(!noUnitsBox && unitsLabel_->isHidden())
 		unitsLabel_->show();
 }
 
-void AMControlEditor::overrideTitle(const QString &title){
+void AMExtendedControlEditor::overrideTitle(const QString &title){
 	setTitle(title);
 }
 
-void AMControlEditor::setSetpoint(double newSetpoint){
+void AMExtendedControlEditor::setSetpoint(double newSetpoint){
 	dialog_->setDoubleValue(newSetpoint);
 	onNewSetpoint(newSetpoint);
 }
 
-void AMControlEditor::onValueChanged(double newVal) {
+void AMExtendedControlEditor::onValueChanged(double newVal) {
 	if(configureOnly_ && connectedOnce_)
 		return;
 	if(control_->isEnum()){
@@ -489,7 +489,7 @@ void AMControlEditor::onValueChanged(double newVal) {
 		valueLabel_->setText(QString("%1").arg(newVal, 0, format_.toAscii(), precision_));
 }
 
-void AMControlEditor::onUnitsChanged(const QString& units) {
+void AMExtendedControlEditor::onUnitsChanged(const QString& units) {
 	if(configureOnly_ && connectedOnce_)
 		return;
 	if(control_->isEnum())
@@ -499,7 +499,7 @@ void AMControlEditor::onUnitsChanged(const QString& units) {
 }
 
 
-void AMControlEditor::setHappy(bool happy) {
+void AMExtendedControlEditor::setHappy(bool happy) {
 	if(happy){
 		unitsLabel_->setStyleSheet("border: 1px outset #00df00; background: #d4ffdf; padding: 1px; width: 100%; color: #00df00;");
 		readOnly_ = !control_->canMove();
@@ -516,14 +516,14 @@ void AMControlEditor::setHappy(bool happy) {
 		unitsLabel_->setStyleSheet("border: 1px outset #f20000; background: #ffdfdf;	padding: 1px; color: #f20000;");
 }
 
-void AMControlEditor::onMotion(bool moving) {
+void AMExtendedControlEditor::onMotion(bool moving) {
 	if(moving)
 		unitsLabel_->setStyleSheet("border: 1px outset blue; background: #ffdfdf;	padding: 1px; color: blue;");
 	else
 		setHappy(control_->isConnected());
 }
 
-void AMControlEditor::onEditStart() {
+void AMExtendedControlEditor::onEditStart() {
 
 	if(readOnly_ || !control_->canMove()) {
 		QApplication::beep();
@@ -542,7 +542,7 @@ void AMControlEditor::onEditStart() {
 
 }
 
-void AMControlEditor::onNewSetpoint(double newVal){
+void AMExtendedControlEditor::onNewSetpoint(double newVal){
 	if(!configureOnly_)
 		return;
 	if(control_->isEnum()){
@@ -561,20 +561,20 @@ void AMControlEditor::onNewSetpoint(double newVal){
 	emit setpointRequested(newVal);
 }
 
-void AMControlEditor::onStatusValueChanged(double newVal){
+void AMExtendedControlEditor::onStatusValueChanged(double newVal){
 	if(statusTagControl_->isEnum())
 		statusLabel_->setText(statusTagControl_->enumNameAt(newVal));
 	else
 		statusLabel_->setText(QString("%1").arg(newVal));
 }
 
-QSize AMControlEditor::sizeHint() const{
+QSize AMExtendedControlEditor::sizeHint() const{
 	QSize newHint = QGroupBox::sizeHint();
 	newHint.setHeight(newHint.height()+6);
 	return newHint;
 }
 
-void AMControlEditor::mouseReleaseEvent ( QMouseEvent * event ) {
+void AMExtendedControlEditor::mouseReleaseEvent ( QMouseEvent * event ) {
 	if(event->button() == Qt::LeftButton) {
 		event->accept();
 		emit clicked();
@@ -584,7 +584,7 @@ void AMControlEditor::mouseReleaseEvent ( QMouseEvent * event ) {
 
 }
 
-AMControlEditorStyledInputDialog::AMControlEditorStyledInputDialog( QStringList enumNames, QWidget * parent, Qt::WindowFlags flags ) : QDialog(parent, flags) {
+AMExtendedControlEditorStyledInputDialog::AMExtendedControlEditorStyledInputDialog( QStringList enumNames, QWidget * parent, Qt::WindowFlags flags ) : QDialog(parent, flags) {
 	setObjectName("styledDialog");
 	setStyleSheet("#styledDialog { background-color: rgb(31,62,125); border: 2px outset white; border-radius: 10px; }  QLabel { color: white; font: bold " AM_FONT_REGULAR_ " \"Helvetica\"; } QPushButton { color: white; border: 1px outset rgb(158,158,158); border-radius: 5px; min-height: 24px; padding: 3px; width: 80px; margin: 3px;} #okButton { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(191, 218, 178, 255), stop:0.34 rgba(135, 206, 96, 255), stop:1 rgba(65, 157, 0, 255));} #cancelButton { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(232, 209, 209, 255), stop:0.34 rgba(229, 112, 119, 255), stop:1 rgba(197, 20, 32, 255)); } QDoubleSpinBox { padding: 3px; color: black; font: bold " AM_FONT_REGULAR_ " \"Helvetica\"; border: 1px outset rgb(158,158,158); selection-background-color: rgb(205, 220, 243); selection-color: black;}");// TODO: continue here...
 
@@ -630,40 +630,40 @@ AMControlEditorStyledInputDialog::AMControlEditorStyledInputDialog( QStringList 
 	okButton_->setDefault(true);
 }
 
-double AMControlEditorStyledInputDialog::setpoint() const{
+double AMExtendedControlEditorStyledInputDialog::setpoint() const{
 	if(!isEnum_)
 		return spinBox_->value();
 	else
 		return comboBox_->currentIndex();
 }
 
-void AMControlEditorStyledInputDialog::setDoubleValue(double d) {
+void AMExtendedControlEditorStyledInputDialog::setDoubleValue(double d) {
 	if(!isEnum_)
 		spinBox_->setValue(d);
 	else
 		comboBox_->setCurrentIndex((int)d);
 }
 
-void AMControlEditorStyledInputDialog::setDoubleMaximum(double d) {
+void AMExtendedControlEditorStyledInputDialog::setDoubleMaximum(double d) {
 	if(!isEnum_)
 	spinBox_->setMaximum(d);
 }
 
-void AMControlEditorStyledInputDialog::setDoubleMinimum(double d) {
+void AMExtendedControlEditorStyledInputDialog::setDoubleMinimum(double d) {
 	if(!isEnum_)
 		spinBox_->setMinimum(d);
 }
 
-void AMControlEditorStyledInputDialog::setDoubleDecimals(int d) {
+void AMExtendedControlEditorStyledInputDialog::setDoubleDecimals(int d) {
 	if(!isEnum_)
 		spinBox_->setDecimals(d);
 }
 
-void AMControlEditorStyledInputDialog::setLabelText(const QString& s) {
+void AMExtendedControlEditorStyledInputDialog::setLabelText(const QString& s) {
 	label_->setText(s);
 }
 
-void AMControlEditorStyledInputDialog::setEnumNames(const QStringList &sl){
+void AMExtendedControlEditorStyledInputDialog::setEnumNames(const QStringList &sl){
 	bool oldIsEnum = isEnum_;
 	if(sl.count() > 0)
 		isEnum_ = true;
@@ -688,11 +688,11 @@ void AMControlEditorStyledInputDialog::setEnumNames(const QStringList &sl){
 	}
 }
 
-void AMControlEditorStyledInputDialog::setSuffix(const QString& s) {
+void AMExtendedControlEditorStyledInputDialog::setSuffix(const QString& s) {
 	spinBox_->setSuffix(QString(" ") + s);
 }
 
-void AMControlEditorStyledInputDialog::onAccepted() {
+void AMExtendedControlEditorStyledInputDialog::onAccepted() {
 	double eVal;
 	if(!isEnum_)
 		eVal = spinBox_->value();
@@ -701,7 +701,7 @@ void AMControlEditorStyledInputDialog::onAccepted() {
 	emit doubleValueSelected(eVal);
 }
 
-void AMControlEditorStyledInputDialog::resizeEvent(QResizeEvent *  event )
+void AMExtendedControlEditorStyledInputDialog::resizeEvent(QResizeEvent *  event )
 {
 	QDialog::resizeEvent(event);
 
@@ -714,7 +714,7 @@ void AMControlEditorStyledInputDialog::resizeEvent(QResizeEvent *  event )
 
 }
 
-void AMControlEditorStyledInputDialog::showEvent ( QShowEvent * event ) {
+void AMExtendedControlEditorStyledInputDialog::showEvent ( QShowEvent * event ) {
 	QDialog::showEvent(event);
 	if(!isEnum_)
 		spinBox_->setFocus();

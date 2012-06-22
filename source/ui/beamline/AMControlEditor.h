@@ -41,10 +41,10 @@ class QPixmap;
 
 
 /// This helper class for AMBasicControlEditor provides a dialog box to get new setpoints. You should never need to use it directly.
-class AMBasicControlEditorStyledInputDialog : public QDialog {
+class AMControlEditorStyledInputDialog : public QDialog {
 	Q_OBJECT
 public:
-	AMBasicControlEditorStyledInputDialog( QWidget * parent = 0, Qt::WindowFlags flags = (Qt::Dialog | Qt::FramelessWindowHint) );
+	AMControlEditorStyledInputDialog( QWidget * parent = 0, Qt::WindowFlags flags = (Qt::Dialog | Qt::FramelessWindowHint) );
 
 public slots:
 	void setDoubleValue(double d);
@@ -71,12 +71,12 @@ protected slots:
 
 
 /// This widget can be used to view the feedback position and move the setpoint of any AMControl, in a compact space-efficient way.  Normally, the control's value(), units(), and isMoving() status are shown. When a user clicks on the widget, a popup dialog is opened under their mouse; they can enter a new setpoint and hit enter to move the control.
-class AMBasicControlEditor : public QFrame
+class AMControlEditor : public QFrame
 {
 Q_OBJECT
 public:
 	/// Constructor: requires a pointer to the \c control to show, or 0.
-	AMBasicControlEditor(AMControl *control, QWidget *parent = 0);
+	AMControlEditor(AMControl *control, QWidget *parent = 0);
 
 	/// Returns true if the widget is in readOnly() mode, and cannot be used to move() the control.
 	bool readOnly() const { return readOnly_; }
@@ -117,7 +117,7 @@ protected:
 	QFrame* statusFrame_;
 	QToolButton* enumButton_;
 	QMenu* enumMenu_;
-	AMBasicControlEditorStyledInputDialog* dialog_;
+	AMControlEditorStyledInputDialog* dialog_;
 
 	static QMovie* movingIcon_;
 	static QPixmap* invalidIcon_, *minorIcon_, *majorIcon_, *lockedIcon_;
@@ -131,10 +131,10 @@ protected:
 
 };
 
-class AMControlEditorStyledInputDialog : public QDialog {
+class AMExtendedControlEditorStyledInputDialog : public QDialog {
 	Q_OBJECT
 public:
-	AMControlEditorStyledInputDialog( QStringList enumNames = QStringList(), QWidget *parent = 0, Qt::WindowFlags flags = (Qt::Dialog | Qt::FramelessWindowHint) );
+	AMExtendedControlEditorStyledInputDialog( QStringList enumNames = QStringList(), QWidget *parent = 0, Qt::WindowFlags flags = (Qt::Dialog | Qt::FramelessWindowHint) );
 
 	double setpoint() const;
 
@@ -168,11 +168,11 @@ protected:
 	QHBoxLayout *hl_;
 };
 
-class AMControlEditor : public QGroupBox
+class AMExtendedControlEditor : public QGroupBox
 {
 Q_OBJECT
 public:
-	explicit AMControlEditor(AMControl* control, AMControl* statusTagControl = NULL, bool readOnly = false, bool configureOnly = false, QWidget *parent = 0);
+	explicit AMExtendedControlEditor(AMControl* control, AMControl* statusTagControl = NULL, bool readOnly = false, bool configureOnly = false, QWidget *parent = 0);
 
 	double setpoint() const;
 	AMControl* control() const;
@@ -225,7 +225,7 @@ protected:
 	QLabel* valueLabel_;
 	QLabel* unitsLabel_;
 	QLabel* statusLabel_;
-	AMControlEditorStyledInputDialog* dialog_;
+	AMExtendedControlEditorStyledInputDialog* dialog_;
 };
 
 class AMControlButton : public QToolButton

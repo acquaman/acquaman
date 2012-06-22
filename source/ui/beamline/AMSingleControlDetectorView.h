@@ -38,7 +38,7 @@ public:
 	AMDetectorInfo* configurationSettings() const;
 
 protected:
-	AMControlEditor *fbk_;
+	AMExtendedControlEditor *fbk_;
 	QHBoxLayout *hl_;
 	AMSingleControlDetector *detector_;
 	AMDetectorInfo *configurationSettings_;
@@ -62,7 +62,7 @@ public:
 	AMDetectorInfo* configurationSettings() const;
 
 protected:
-	AMControlEditor *fbk_;
+	AMExtendedControlEditor *fbk_;
 	QHBoxLayout *hl_;
 	AMSingleReadOnlyControlDetector *detector_;
 	AMDetectorInfo *configurationSettings_;
