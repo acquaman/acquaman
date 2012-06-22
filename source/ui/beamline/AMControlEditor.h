@@ -78,14 +78,20 @@ public:
 	/// Constructor: requires a pointer to the \c control to show, or 0.
 	AMBasicControlEditor(AMControl *control, QWidget *parent = 0);
 
+	/// Returns true if the widget is in readOnly() mode, and cannot be used to move() the control.
+	bool readOnly() const { return readOnly_; }
+
 signals:
 	/// Emitted when the widget is clicked to bring up the setpoint editor dialog.
 	void clicked();
 
 public slots:
+	/// If you want to prevent users from editing a control using this widget, you can set it to readOnly().
+	void setReadOnly(bool readOnly);
 
 protected slots:
 	/// Called to review the color of the unit box and any status icons that need to be shown. Called on the control's connected(), initialized(), alarmChanged() signals.
+	/*! It's OK to call this when control_ == 0; all other onChanged() slots should only be called under signals from a valid control_*/
 	void reviewControlState();
 
 	/// Called when the control's value changes; updates the valueLabel_.
@@ -110,12 +116,15 @@ protected:
 	QLabel *valueLabel_;
 	QFrame* statusFrame_;
 	QToolButton* enumButton_;
+	QMenu* enumMenu_;
 	AMBasicControlEditorStyledInputDialog* dialog_;
 
 	static QMovie* movingIcon_;
 	static QPixmap* invalidIcon_, *minorIcon_, *majorIcon_, *lockedIcon_;
 
 	QLabel* movingLabel_, *invalidLabel_, *minorLabel_, *majorLabel_, *lockedLabel_;
+
+	bool readOnly_;
 
 	/// Re-implemented to emit clicked() when clicked anywhere. (Normally, QFrames don't act like buttons.)
 	void mouseReleaseEvent ( QMouseEvent *event );

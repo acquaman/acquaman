@@ -45,6 +45,7 @@ AMBasicControlEditor::AMBasicControlEditor(AMControl* control, QWidget *parent) 
 	setObjectName("AMControlEditor");
 
 	control_ = control;
+	readOnly_ = false;
 
 	// create static caches, if not already here:
 	if(!movingIcon_) {
@@ -63,10 +64,10 @@ AMBasicControlEditor::AMBasicControlEditor(AMControl* control, QWidget *parent) 
 	// Create objects. Thanks to implicit sharing of QPixmap, all instances of this widget will all use the same QPixmap storage, created in the static icons.
 	valueLabel_ = new QLabel();
 	enumButton_ = new QToolButton();
-	QMenu* menu = new QMenu(this);
-	enumButton_->setMenu(menu);
+	enumMenu_ = new QMenu(this);
+	enumButton_->setMenu(enumMenu_);
 	enumButton_->setPopupMode(QToolButton::InstantPopup);
-	connect(menu, SIGNAL(triggered(QAction*)), this, SLOT(onEnumValueChosen(QAction*)));
+	connect(enumMenu_, SIGNAL(triggered(QAction*)), this, SLOT(onEnumValueChosen(QAction*)));
 
 	movingLabel_ = new QLabel();
 	movingLabel_->setMovie(movingIcon_);
@@ -132,7 +133,7 @@ AMBasicControlEditor::AMBasicControlEditor(AMControl* control, QWidget *parent) 
 		connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
 		connect(control_, SIGNAL(connected(bool)), this, SLOT(reviewControlState()));
 		connect(control_, SIGNAL(unitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));
-		// todo: alarm changes.
+		connect(control_, SIGNAL(alarmChanged(int,int)), this, SLOT(reviewControlState()));
 		connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onMotion(bool)));
 
 		// If the control is connected already, update our state right now.
@@ -143,6 +144,16 @@ AMBasicControlEditor::AMBasicControlEditor(AMControl* control, QWidget *parent) 
 		}
 	}
 	connect(this, SIGNAL(clicked()), this, SLOT(onEditStart()));
+}
+
+void AMBasicControlEditor::setReadOnly(bool readOnly) {
+	readOnly_ = readOnly;
+
+	// disable the popup menu for the enum button
+	enumButton_->setMenu(readOnly_ ? 0 : enumMenu_);
+
+	// update whether the lock label is shown. It's shown if we cannot move the control, or if this widget is configured read-only.
+	reviewControlState();
 }
 
 void AMBasicControlEditor::onValueChanged(double newVal) {
@@ -160,7 +171,7 @@ void AMBasicControlEditor::reviewControlState() {
 	invalidLabel_->hide();
 	minorLabel_->hide();
 	majorLabel_->hide();
-	lockedLabel_->hide();
+	lockedLabel_->setVisible(readOnly_);
 
 	if(!control_ || !control_->isConnected()) {
 		invalidLabel_->show();
@@ -169,27 +180,27 @@ void AMBasicControlEditor::reviewControlState() {
 		return;
 	}
 
-	lockedLabel_->setVisible(!control_->canMove());
+	lockedLabel_->setVisible(!control_->canMove() || readOnly_);
 
-//	switch(AMControl::NoAlarm) {	/// \todo hook up to alarm severity
-//	case AMControl::InvalidAlarm:
-//		invalidLabel_->show();
-//		invalidLabel_->setToolTip("Alarm: Invalid");
-//		setStyleSheet("#AMControlEditor {border: 1px outset #f20000; background: #ffffff;}");
-//		break;
-//	case AMControl::MinorAlarm:
-//		minorLabel_->show();
-//		setStyleSheet("#AMControlEditor {border: 1px outset rgb(242,242,0); background: rgb(255,255,240);}");
-//		break;
-//	case AMControl::MajorAlarm:
-//		majorLabel_->show();
-//		setStyleSheet("#AMControlEditor {border: 1px outset #f20000; background: #ffdfdf;}");
-//		break;
-//	default: // all good. Normal look.
-//		setStyleSheet("#AMControlEditor { background: white; } ");
-//		//	Traditional green: setStyleSheet("#AMControlEditor {border: 1px outset #00df00; background: #d4ffdf;}");
-//		break;
-//	}
+	switch(control_->alarmSeverity()) {
+	case AMControl::InvalidAlarm:
+		invalidLabel_->show();
+		invalidLabel_->setToolTip("Alarm: Invalid");
+		setStyleSheet("#AMControlEditor {border: 1px outset #f20000; background: #ffffff;}");
+		break;
+	case AMControl::MinorAlarm:
+		minorLabel_->show();
+		setStyleSheet("#AMControlEditor {border: 1px outset rgb(242,242,0); background: rgb(255,255,240);}");
+		break;
+	case AMControl::MajorAlarm:
+		majorLabel_->show();
+		setStyleSheet("#AMControlEditor {border: 1px outset #f20000; background: #ffdfdf;}");
+		break;
+	default: // all good. Normal look.
+		setStyleSheet("#AMControlEditor { background: white; } ");
+		//	Traditional green: setStyleSheet("#AMControlEditor {border: 1px outset #00df00; background: #d4ffdf;}");
+		break;
+	}
 }
 
 void AMBasicControlEditor::onEnumChanges() {
@@ -200,11 +211,10 @@ void AMBasicControlEditor::onEnumChanges() {
 		// With new enum values, we might have to update the text value on the button.
 		onValueChanged(control_->value());
 
-		QMenu* menu = enumButton_->menu();
-		menu->clear();
+		enumMenu_->clear();
 		int i=0;
 		foreach(QString enumString, control_->enumNames()) {
-			QAction* action = menu->addAction(enumString);
+			QAction* action = enumMenu_->addAction(enumString);
 			action->setData(i++);	// remember the index inside this action.
 		}
 	}
@@ -228,7 +238,7 @@ void AMBasicControlEditor::onMotion(bool moving) {
 
 void AMBasicControlEditor::onEditStart() {
 
-	if(!control_ || !control_->canMove()) {
+	if(!control_ || !control_->canMove() || readOnly_) {
 		QApplication::beep();
 		return;
 	}
