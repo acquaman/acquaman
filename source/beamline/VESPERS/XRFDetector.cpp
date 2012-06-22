@@ -65,8 +65,6 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 		connect(fourElAllPV_, SIGNAL(valueChanged(int)), this, SLOT(onRefreshRateChanged(int)));
 	}
 
-	startPV_->disablePutCallbackMode(true);
-	stopPV_->disablePutCallbackMode(true);
 
 	connect(startPV_, SIGNAL(writeReadyChanged(bool)), this, SLOT(isDetectorConnected()));
 	connect(stopPV_, SIGNAL(writeReadyChanged(bool)), this, SLOT(isDetectorConnected()));
@@ -101,18 +99,6 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 		icrPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".ICR", true, this);
 		ocrPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".OCR", true, this);
 		spectraPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1), true, this);
-
-		statusPV_.at(i)->disablePutCallbackMode(true);
-//		mcaUpdateRatePV_.at(i)->disablePutCallbackMode(true);
-//		statusUpdateRatePV_.at(i)->disablePutCallbackMode(true);
-		peakingTimePV_.at(i)->disablePutCallbackMode(true);
-		maximumEnergyPV_.at(i)->disablePutCallbackMode(true);
-		integrationTimePV_.at(i)->disablePutCallbackMode(true);
-		liveTimePV_.at(i)->disablePutCallbackMode(true);
-		elapsedTimePV_.at(i)->disablePutCallbackMode(true);
-		icrPV_.at(i)->disablePutCallbackMode(true);
-		ocrPV_.at(i)->disablePutCallbackMode(true);
-		spectraPV_.at(i)->disablePutCallbackMode(true);
 
 		connect(statusPV_.at(i), SIGNAL(readReadyChanged(bool)), this, SLOT(isDetectorConnected()));
 //		connect(mcaUpdateRatePV_.at(i), SIGNAL(readReadyChanged(bool)), this, SLOT(isDetectorConnected()));

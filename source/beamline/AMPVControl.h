@@ -225,8 +225,8 @@ public:
 	const AMProcessVariable* writePV() const { return writePV_; }
 	/// Returns the number of seconds allowed for a move() to reach its target setpoint().
 	double completionTimeout() const { return completionTimeout_; }
-	/// Switches the writePV to using ca_put instead of ca_put_callback.  This seems to be necessary when using some of the more exotic record types such as the mca record type.  This is set to false by default.
-	void disableWritePVPutCallback(bool disable) { writePV_->disablePutCallbackMode(disable); }
+	/// Switches the writePV to use ca_put_callback() instead of ca_put(), if you want confirmation from the IOC when the put is actually processed, and the IOC can handle queuing instead of caching of PV puts.  The default uses ca_put().  \see AMProcessVariable::enablePutCallback().
+	void enableWritePVPutCallback(bool putCallbackEnabled) { writePV_->enablePutCallback(putCallbackEnabled); }
 	//@}
 
 public slots:
@@ -582,8 +582,8 @@ public:
 	const AMProcessVariable* writePV() const { return writePV_; }
 	/// The maximum time allowed for the Control to start isMoving() after a move() is issued.
 	double moveStartTimeout() { return moveStartTimeout_; }
-	/// Switches the writePV to using ca_put instead of ca_put_callback.  This seems to be necessary when using some of the more exotic record types such as the mca record type.  This is set to false by default.
-	void disableWritePVPutCallback(bool disable) { writePV_->disablePutCallbackMode(disable); }
+	/// Switches the writePV to use ca_put_callback() instead of ca_put(), if you want confirmation from the IOC when the put is actually processed, and the IOC can handle queuing instead of caching of PV puts. The default uses ca_put().  \see AMProcessVariable::enablePutCallback().
+	void enableWritePVPutCallback(bool putCallbackEnabled) { writePV_->enablePutCallback(putCallbackEnabled); }
 
 	/// A non-zero moveStartTolerance() allows "null moves" (moves with setpoints within moveStartTolerance() of the current feedback value) to start and succeed immediately without any motion.  This is necessary for controls that do not change their move status when told to go to the current position. (By default, this is 0 and has no effect.)
 	/*! A "null move" is a move to the current position (or something very close to it).  Some controls may not change their move status on a null move; in this case, the move would appear to fail, even though the control "reached" its target. This provides an optional work-around: if moveStartTolerance() is non-zero, and the current feedback value() is within moveStartTolerance() of the setpoint, a move() command will start and succeed immediately without any physical motion.  Note that the hardware is NOT told to move in this mode. (It if was, any move status change might be interpreted as the end of a subsequent move.)
