@@ -114,6 +114,8 @@ signals:
 protected:
 	/// Pointer to ProcessVariable used to read feedback value
 	AMProcessVariable* readPV_;
+	/// Used for change-detection of isConnected() for the connected() signal
+	bool wasConnected_;
 
 
 protected slots:
@@ -125,7 +127,7 @@ protected slots:
 	/// You can also monitor the readConnectionTimeoutOccurred() signal.
 	void onConnectionTimeout() { setUnits("?"); emit connected(false); emit error(AMControl::CannotConnectError); }
 
-	/// This is called when a PV channel connects or disconnects
+	/// This is called when a PV channel connects or disconnects. Emits connected(bool) if isConnected() has changed compared to wasConnected_.
 	void onPVConnected(bool connected);
 	/// This is called when there is a Read PV channel error:
 	void onReadPVError(int errorCode);
@@ -282,9 +284,6 @@ protected:
 	/// the target of our attempted move:
 	double setpoint_;
 
-	/// used for change-detection of the connection state:
-	bool wasConnected_;
-
 	/// true if no stopPVname was provided... Means we can't stop(), and shouldStop() and canStop() are false.
 	bool noStopPV_;
 	/// The value written to the stopPV_ when attempting to stop().
@@ -296,9 +295,6 @@ protected slots:
 	/*! The units come from the readPV, so if it's out, we don't know what the units are.
   In any case, if either one doesn't connected, we're not connected.*/
 	void onConnectionTimeout() { if(sender() == readPV_) { setUnits("?"); } emit connected(false); emit error(AMControl::CannotConnectError); }
-
-	/// This is called when a PV channel (read or write) connects or disconnects
-	void onPVConnected(bool connected);
 
 	/// This is called when there is a Write PV channel error:
 	void onWritePVError(int errorCode);
@@ -469,9 +465,6 @@ protected slots:
 	/// Since the units come from the read-PV, we need the readPV for that.
 	/// All connection timeouts cause us to be not connected.
 	void onConnectionTimeout() { if(sender() == readPV_) { setUnits("?"); } emit connected(false); emit error(AMControl::CannotConnectError); }
-
-	/// This is called when a PV channel connects or disconnects
-	void onPVConnected(bool connected);
 
 	/// This is called when there is a Status PV channel error:
 	void onStatusPVError(int errorCode);
@@ -683,9 +676,6 @@ protected slots:
 
 	/// Re-implemented: This is used to handle when the movingPV_ changes.
 	virtual void onMovingChanged(int isMovingValue);
-
-	/// This is called when a PV channel connects or disconnects
-	void onPVConnected(bool connected);
 
 	/// Called when the settling time expires
 	void onSettlingTimeFinished();
