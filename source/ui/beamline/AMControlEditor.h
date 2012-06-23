@@ -93,6 +93,8 @@ protected slots:
 	void onValueChanged(double newVal);
 	/// Called when the control's units change; updates the value suffix.
 	void onUnitsChanged(const QString& units);
+	/// Called when the control's display precision changes; updates the number of decimals for the setpoint box.
+	void onDisplayPrecisionChanged(int displayPrecision);
 
 	/// Called when the control's isMoving() state changes; shows the moving icon.
 	void onMotion(bool moving);

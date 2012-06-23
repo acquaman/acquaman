@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMReadOnlyPVControl::AMReadOnlyPVControl(const QString& name, const QString& readPVname, QObject* parent, const QString description)
 	: AMControl(name, "?", parent, description)  {
 
+	wasConnected_ = false;
 	readPV_ = new AMProcessVariable(readPVname, true, this);
 
 	connect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
@@ -40,16 +41,21 @@ AMReadOnlyPVControl::AMReadOnlyPVControl(const QString& name, const QString& rea
 
 	connect(readPV_, SIGNAL(initialized()), this, SLOT(onReadPVInitialized()));
 
+	// If the readPV_ is already initialized as soon as we create it [possible if it's sharing an existing connection], we'll never get the inialized() signal; do it here now:
+	wasConnected_ = readPV_->readReady();	// same as isConnected(), but we cannot call virtual functions from a constructor; potentially breaks subclasses.
+	if(readPV_->isInitialized())
+		onReadPVInitialized();
+
 }
 
-// This is written out fully (rather than simply connected SIGNALs to SIGNALs
-// So that we can override it in other AMPVControls with multiple PVs.
+// This will work for subclasses with more PVs, since it checks virtual isConnected(). Subclasses should reimplement isConnected() to specify what counts as connected.
 void AMReadOnlyPVControl::onPVConnected(bool) {
 
-	// For the read-only control, just having the readPV is enough to be connected or disconnected.
-	emit connected( isConnected() );
+	bool nowConnected = isConnected();
 
-	// don't need to do anything else here.  isConnected() and canRead() come dynamically from the PV state canRead().
+	// Do change detection so that we don't emit disconnected() when already disconnected()...
+	if(wasConnected_ != nowConnected)
+		emit connected(wasConnected_ = nowConnected);
 }
 
 void AMReadOnlyPVControl::onReadPVError(int errorCode) {
@@ -67,6 +73,7 @@ void AMReadOnlyPVControl::onReadPVError(int errorCode) {
 void AMReadOnlyPVControl::onReadPVInitialized() {
 	setUnits(readPV_->units());	// copy over the new unit string
 	setEnumStates(readPV_->enumStrings());
+	setDisplayPrecision(readPV_->displayPrecision());
 }
 
 
@@ -114,15 +121,16 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 		connect(stopPV_, SIGNAL(error(int)), this, SLOT(onReadPVError(int)));	/// \todo Does this need separate error handling? What if the stop write fails? That's really important.
 	}
 	stopValue_ = stopValue;
+
+
+	// If any PVs are already connected [possible if they're sharing an existing connection]:
+	wasConnected_ = (readPV_->readReady() && writePV_->writeReady());	// equivalent to isConnected(), but we cannot call virtual functions inside a constructor; that will break subclasses.
+	if(writePV_->isInitialized())
+		onWritePVInitialized();
 }
 
 void AMPVControl::onWritePVInitialized() {
 	setMoveEnumStates(writePV_->enumStrings());
-}
-
-AMSinglePVControl::AMSinglePVControl(const QString &name, const QString &PVname, QObject *parent, double tolerance, double completionTimeoutSeconds, const QString &description)
-	: AMPVControl(name, PVname, PVname, QString(), parent, tolerance, completionTimeoutSeconds, 1, description)
-{
 }
 
 // Start a move to the value setpoint:
@@ -243,27 +251,14 @@ void AMPVControl::onCompletionTimeout() {
 }
 
 
-// This is called when a PV channel connects or disconnects
-void AMPVControl::onPVConnected(bool) {
+// Class AMSinglePVControl
+///////////////////////////////////////
 
-	// we'll receive this when any PV connects or disconnects.
-
-	// We need both connected to count as connected. That's not hard to figure out.
-	// But, we should do some change detection so that if we're already disconnected,
-	// we don't re-emit disconnected. (Or, emit disconnected after the first PV connects and the second hasn't come up yet)
-
-	bool nowConnected = isConnected();
-
-	// Losing the connection:
-	if(wasConnected_ && !nowConnected ) {
-		emit connected(wasConnected_ = nowConnected);
-	}
-
-	// gaining the connection:
-	if(!wasConnected_ && nowConnected ) {
-		emit connected(wasConnected_ = nowConnected);
-	}
+AMSinglePVControl::AMSinglePVControl(const QString &name, const QString &PVname, QObject *parent, double tolerance, double completionTimeoutSeconds, const QString &description)
+	: AMPVControl(name, PVname, PVname, QString(), parent, tolerance, completionTimeoutSeconds, 1, description)
+{
 }
+
 
 // Class AMReadOnlyPVwStatusControl
 ///////////////////////////////////////
@@ -284,23 +279,13 @@ AMReadOnlyPVwStatusControl::AMReadOnlyPVwStatusControl(const QString& name, cons
 	connect(movingPV_, SIGNAL(connectionTimeout()), this, SIGNAL(movingConnectionTimeoutOccurred()));
 	connect(movingPV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
 
+	// If any PVs were already connected on creation [possible if sharing an existing connection]:
+	wasConnected_ = (readPV_->readReady() && movingPV_->readReady());	// equivalent to isConnected(), but we cannot call virtual functions inside a constructor; potentially breaks subclasses.
+	if(movingPV_->readReady())
+		wasMoving_ = (*statusChecker_)(movingPV_->lastValue());
+
 }
 
-// This is called when a PV channel connects or disconnects
-void AMReadOnlyPVwStatusControl::onPVConnected(bool) {
-	bool nowConnected = isConnected();
-
-	// Due change detection so that we don't emit disconnected() when already disconnected()...
-	// This could happen when the first PV connects but the move PV hasn't come up yet.
-
-	// disconnected:
-	if(wasConnected_ && !nowConnected)
-		emit connected(wasConnected_ = nowConnected);
-
-	// connection gained:
-	if(!wasConnected_ && nowConnected)
-		emit connected(wasConnected_ = nowConnected);
-}
 
 // This is used to handle errors from the status pv
 void AMReadOnlyPVwStatusControl::onStatusPVError(int errorCode) {
@@ -321,10 +306,7 @@ void AMReadOnlyPVwStatusControl::onMovingChanged(int movingValue) {
 
 	bool nowMoving = (*statusChecker_)(movingValue);
 
-	if(wasMoving_ && !nowMoving)
-		emit movingChanged(wasMoving_ = nowMoving);
-
-	if(!wasMoving_ && nowMoving)
+	if(wasMoving_ != nowMoving)
 		emit movingChanged(wasMoving_ = nowMoving);
 }
 
@@ -370,26 +352,18 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	}
 	stopValue_ = stopValue;
 
+
+	// If any PVs were already connected on creation [possible if sharing an existing connection]:
+	wasConnected_ = (readPV_->readReady() && writePV_->writeReady() && movingPV_->readReady());	// equivalent to isConnected(), but we cannot call virtual functions from the constructor; potentially breaks subclasses.
+	if(writePV_->isInitialized())
+		setMoveEnumStates(writePV_->enumStrings());
+	if(movingPV_->readReady())
+		hardwareWasMoving_ = (*statusChecker_)(movingPV_->lastValue());
+
 }
 
 void AMPVwStatusControl::onWritePVInitialized() {
 	setMoveEnumStates(writePV_->enumStrings());
-}
-
-// This is called when a PV channel connects or disconnects
-void AMPVwStatusControl::onPVConnected(bool) {
-	bool nowConnected = isConnected();
-
-	// Due change detection so that we don't emit disconnected() when already disconnected()...
-	// This could happen when the first PV connects but the move PV hasn't come up yet.
-
-	// disconnected:
-	if(wasConnected_ && !nowConnected)
-		emit connected(wasConnected_ = nowConnected);
-
-	// connection gained:
-	if(!wasConnected_ && nowConnected)
-		emit connected(wasConnected_ = nowConnected);
 }
 
 // Start a move to the value setpoint:
@@ -630,6 +604,10 @@ AMPVwStatusAndUnitConversionControl::AMPVwStatusAndUnitConversionControl(const Q
 	disconnect(writePV_, SIGNAL(valueChanged(double)), this, SIGNAL(setpointChanged(double)));
 	connect(writePV_, SIGNAL(valueChanged(double)), this, SLOT(onWritePVValueChanged(double)));
 
+	disconnect(readPV_, SIGNAL(initialized()), this, SLOT(onReadPVInitialized()));	// don't allow AMReadOnlyPV to change our units or enum names.
+
+	setUnits(readConverter_->units());
+
 }
 
 void AMPVwStatusAndUnitConversionControl::onReadPVValueChanged(double newValue)
@@ -644,7 +622,6 @@ void AMPVwStatusAndUnitConversionControl::onWritePVValueChanged(double newValue)
 
 void AMPVwStatusAndUnitConversionControl::setUnitConverters(AMAbstractUnitConverter *readUnitConverter, AMAbstractUnitConverter* writeUnitConverter)
 {
-	QString oldUnits = units();
 	double oldValue = value();
 	double oldSetpoint = setpoint();
 
@@ -655,16 +632,16 @@ void AMPVwStatusAndUnitConversionControl::setUnitConverters(AMAbstractUnitConver
 	writeConverter_ = writeUnitConverter;
 
 	double newValue = value();
-	QString newUnits = units();
 	double newSetpoint = setpoint();
 
-	if(newUnits != oldUnits)
-		emit unitsChanged(newUnits);
+	setUnits(readConverter_->units());
+
 	if(newValue != oldValue)
 		emit valueChanged(newValue);
 	if(newSetpoint != oldSetpoint)
 		emit setpointChanged(newSetpoint);
 }
+
 
 
 
