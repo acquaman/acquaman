@@ -274,7 +274,7 @@ public:
   \param units The default unit description.
   \param parent QObject parent for memory management
   */
-	AMControl(const QString& name, const QString& units = "n/a", QObject* parent = 0, const QString description = "") : QObject(parent), units_(units), description_(description) {
+	AMControl(const QString& name, const QString& units = "", QObject* parent = 0, const QString description = "") : QObject(parent), units_(units), description_(description) {
 		setObjectName(name);
 		wasConnected_ = false;
 		tolerance_ = AMCONTROL_TOLERANCE_DONT_CARE;
