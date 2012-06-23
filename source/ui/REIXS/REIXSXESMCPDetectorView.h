@@ -70,9 +70,9 @@ protected:
 
 	QPushButton* clearButton_;
 	QComboBox* imageSelector_;
-	AMBasicControlEditor* averagingPeriodControl_;
-	AMBasicControlEditor* persistDurationControl_;
-	// removed: AMBasicControlEditor* orientationControl_;
+	AMControlEditor* averagingPeriodControl_;
+	AMControlEditor* persistDurationControl_;
+	// removed: AMControlEditor* orientationControl_;
 
 	QLabel* countsPerSecondIndicator_;
 	QProgressBar* countsPerSecondBar_;

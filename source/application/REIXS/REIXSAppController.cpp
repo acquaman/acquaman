@@ -188,13 +188,13 @@ bool REIXSAppController::startupCreateUserInterface() {
 	QGroupBox* gb = new QGroupBox("Motors");
 	QVBoxLayout* vl = new QVBoxLayout();
 	vl->addWidget(new QLabel("Spectrometer Rotation"));
-	vl->addWidget(new AMBasicControlEditor(REIXSBeamline::bl()->spectrometer()->spectrometerRotationDrive()));
+	vl->addWidget(new AMControlEditor(REIXSBeamline::bl()->spectrometer()->spectrometerRotationDrive()));
 
 	vl->addWidget(new QLabel("Detector Translation"));
-	vl->addWidget(new AMBasicControlEditor(REIXSBeamline::bl()->spectrometer()->detectorTranslation()));
+	vl->addWidget(new AMControlEditor(REIXSBeamline::bl()->spectrometer()->detectorTranslation()));
 
 	vl->addWidget(new QLabel("Detector Tilt"));
-	vl->addWidget(new AMBasicControlEditor(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()));
+	vl->addWidget(new AMControlEditor(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()));
 
 	gb->setLayout(vl);
 

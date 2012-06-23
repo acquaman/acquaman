@@ -182,7 +182,7 @@ AMProcessVariablePrivate::AMProcessVariablePrivate(const QString& pvName) : QObj
 
 	// Initialize control information:
 	units_ = "?";
-	precision_ = 0;
+	precision_ = 3;
 	// Limits are initialized to the widest possible range at the start. Is this safe? Don't know what else to use, until we find out from the PV itself.
 	lowerLimit_ = -DBL_MAX;
 	upperLimit_ = DBL_MAX;

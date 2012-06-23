@@ -88,6 +88,11 @@ public:
 	virtual double minimumValue() const { return readPV_->lowerGraphicalLimit(); }
 	/// Maximum value taken from the readPV's upper graphing limit within EPICS.
 	virtual double maximumValue() const { return readPV_->upperGraphicalLimit(); }
+
+	/// Returns the alarm severity for the readPV:
+	virtual int alarmSeverity() const { return readPV_->alarmSeverity(); }
+	/// Returns the alarm status for the readPV:
+	virtual int alarmStatus() const { return readPV_->alarmStatus(); }
 	//@}
 
 	/// \name Additional public functions:
@@ -304,6 +309,9 @@ protected slots:
 	/// This is used to check every new value, to see if we entered tolerance
 	void onNewFeedbackValue(double val);
 
+	/// Called when the writePV is initialized(); calls setMoveEnumStates() if applicable.
+	void onWritePVInitialized();
+
 
 };
 
@@ -514,7 +522,6 @@ The unique behavior is defined as:
 
 */
 
-
 class AMPVwStatusControl : public AMReadOnlyPVwStatusControl {
 
 	Q_OBJECT
@@ -682,6 +689,9 @@ protected slots:
 
 	/// Called when the settling time expires
 	void onSettlingTimeFinished();
+
+	/// Called when the writePV is initialized(). Calls setMoveEnumStates() if applicable.
+	void onWritePVInitialized();
 
 };
 

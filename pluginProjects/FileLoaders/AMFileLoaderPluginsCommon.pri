@@ -112,6 +112,7 @@ HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/dataman/database/AMDatabase.h \
 		$$AM_INCLUDE_DIR/dataman/AMnDIndex.h \
 		$$AM_INCLUDE_DIR/dataman/database/AMDbObjectSupport.h \
+		$$AM_INCLUDE_DIR/dataman/info/AMControlInfo.h \
 		$$AM_INCLUDE_DIR/dataman/info/AMControlInfoList.h \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSource.h \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMRawDataSource.h \
@@ -154,6 +155,7 @@ SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/dataman/database/AMDatabase.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMnDIndex.cpp \
 		$$AM_INCLUDE_DIR/dataman/database/AMDbObjectSupport.cpp \
+		$$AM_INCLUDE_DIR/dataman/info/AMControlInfo.cpp \
 		$$AM_INCLUDE_DIR/dataman/info/AMControlInfoList.cpp \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSource.cpp \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMRawDataSource.cpp \

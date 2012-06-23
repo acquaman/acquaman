@@ -145,9 +145,9 @@ SGMFluxResolutionPickerView::SGMFluxResolutionPickerView(AMXASRegionsList *regio
 	bestFluxButton_ = new QPushButton("Best Flux");
 	bestResolutionButton_ = new QPushButton("Best Resolution");
 
-	exitSlitGapCE_ = new AMControlEditor(SGMBeamline::sgm()->exitSlitGap(), 0, false, true);
-	gratingCE_ = new AMControlEditor(SGMBeamline::sgm()->grating(), 0, false, true);
-	harmonicCE_ = new AMControlEditor(SGMBeamline::sgm()->harmonic(), 0, false, true);
+	exitSlitGapCE_ = new AMExtendedControlEditor(SGMBeamline::sgm()->exitSlitGap(), 0, false, true);
+	gratingCE_ = new AMExtendedControlEditor(SGMBeamline::sgm()->grating(), 0, false, true);
+	harmonicCE_ = new AMExtendedControlEditor(SGMBeamline::sgm()->harmonic(), 0, false, true);
 
 	warningsLabel_ = new QLabel("");
 	QFont warningsFont;

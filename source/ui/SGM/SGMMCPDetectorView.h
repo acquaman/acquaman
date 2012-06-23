@@ -22,6 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define SGMMCPDETECTORVIEW_H
 
 #include "ui/beamline/AMDetectorView.h"
+#include "beamline/SGM/SGMMCPDetector.h"
+
+class QToolButton;
 
 class SGMMCPBriefDetectorView : public AMBriefDetectorView
 {
@@ -35,7 +38,7 @@ protected slots:
 	void onPoweredOnChanged(bool poweredOn);
 
 protected:
-	AMControlEditor *readingCE_;
+	AMExtendedControlEditor *readingCE_;
 	QToolButton *powerState_;
 	QIcon powerOnState_, powerOffState_;
 	QHBoxLayout *hl_;
@@ -64,8 +67,8 @@ protected slots:
 	void onControlSetpointRequested();
 
 protected:
-	AMControlEditor *readingCE_;
-	AMControlEditor *hvCE_;
+	AMExtendedControlEditor *readingCE_;
+	AMExtendedControlEditor *hvCE_;
 	QGridLayout *gl_;
 	SGMMCPDetector *detector_;
 	SGMMCPDetectorInfo *configurationSettings_;

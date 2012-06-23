@@ -26,7 +26,7 @@ AMInternalControlMoveAction::AMInternalControlMoveAction(AMControl *control, dou
 											setpoint,
 											control ? control->minimumValue() : 0,
 											control ? control->maximumValue() : 0,
-											control ? control->units() : "n/a",
+											control ? control->units() : "",
 											control ? control->tolerance() : 0,
 											control ? control->description() : "[Internal Use Only]")),
 						  parent) {
