@@ -410,11 +410,11 @@ The Control abstraction provides two different properties (and associated signal
 
 	/// Indicates that a control is discrete.
 
-	/*! \note This may not be valid the instant you create the control.  Watch for enumChanges(const QStringList& newEnumNames).)
+	/*! \note This may not be valid the instant you create the control.  Watch for enumChanged().)
    \return true if this control represents a discrete set of choices.
   \sa enumNames(), enumCount()
   */
-	bool isEnum() const { return (enumNames_.count() > 0); }
+	bool isEnum() const { return (!enumNames_.isEmpty()); }
 
 	/// If it is a discrete control, this gives you a list of descriptions for each state. (They match with numerical values 0, 1, 2, ...)
 
@@ -422,9 +422,9 @@ The Control abstraction provides two different properties (and associated signal
 	QStringList enumNames() const { return enumNames_; }
 
 	/// If it is a discrete control, this tells you how many discrete options/states are available:
-	unsigned enumCount() const { return enumNames_.count(); }	/// \todo there could be problems if you use a feedback PV and a setpoint PV with different number of enum choices. How to handle this?
+	unsigned enumCount() const { return enumNames_.count(); }
 
-	/// Returns the enum string for a given \c controlValue. This function will check to make sure the control value is within the range of the set of enums.
+	/// Returns the enum string for a given \c controlValue. This function will check to make sure the control value is within the range of the set of enums, and return "[enum value out of range]" if not.
 	QString enumNameAt(double controlValue) {
 		int enumValue = (int)controlValue;
 		if((unsigned)enumValue < (unsigned)enumNames_.count())
@@ -432,6 +432,29 @@ The Control abstraction provides two different properties (and associated signal
 		else
 			return "[enum value out of range]";
 	}
+
+
+	/// Sometimes the valid enum choices to use for move() may be different than the choices that describe value().  For example, value() might be described by "Open", "Closed", and "Moving", whereas for move(), only "Open" and "Close" may be relevant. This returns the enum values acceptable for move().
+	/*! Note that if a control does not explicitly specify separate enums for move(), the regular enumNames() will be used.*/
+	QStringList moveEnumNames() const { if(moveEnumNames_.isEmpty()) return enumNames(); return moveEnumNames_; }
+
+	/// This indicates how many discrete options/states are available for move() choices.
+	/*! Note that if a control does not explicitly specify separate enums for move(), the regular enumCount() will be used.*/
+	unsigned moveEnumCount() const { if(moveEnumNames_.isEmpty()) return enumCount(); return moveEnumNames_.count(); }
+
+	/// Returns the move()-relevant enum string for a given \c controlValue. This function will check to make sure the control value is within the range of moveEnumCount(), and return "[enum value out of range]" if not.
+	/*! Note that if a control does not explicitly specify separate enums for move(), the regular enumNameAt() will be used.*/
+	QString moveEnumNameAt(double controlValue) {
+		if(moveEnumNames_.isEmpty())
+			return enumNameAt(controlValue);
+
+		int enumValue = (int)controlValue;
+		if((unsigned)enumValue < (unsigned)moveEnumNames_.count())
+			return moveEnumNames_.at(enumValue);
+		else
+			return "[enum value out of range]";
+	}
+
 
 	//@}
 
@@ -506,9 +529,9 @@ signals:
 
 	/// Announces when the unit string text has changed. Necessary because we might not know this until after a delayed control connects.
 	void unitsChanged(const QString& units);
-	/// Announces when the number or descriptions of discrete states changes.  Necessary because we might not know this when the Control is first created.
-	/// \sa isEnum(), enumNames(), and enumCount().
-	void enumChanges(const QStringList& enumStateNames);
+	/// Announces when the number or descriptions of discrete states changes.  Necessary because we might not know this when the Control is first created.  When receiving this, you can check isEnum(), enumNames(), and moveEnumNames().
+	/// \sa isEnum(), enumNames(), enumCount(), moveEnumNames(), moveEnumCount().
+	void enumChanged();
 
 	/// Announces changes in isConnected().
 	/*! Emitted (true) when full functionality is achieved. Emitted (false) when full functionality is lost. What counts as functionality can be decided by the subclasses.
@@ -533,11 +556,17 @@ protected:
 	bool allowsMovesWhileMoving_;
 
 
+
 protected slots:
 	/// This is used internally to set the unit text:
-	virtual void setUnits(const QString& newUnits) { units_ = newUnits; emit unitsChanged(units()); }
-	/// This is used internally to flag whether a Control is labelled isEnum(), and add the names for each state. If it IS a discrete control (enumStateNames != 0), then the tolerance is set to a value less than 1.  This makes sense when the values must be integer (discrete) values.
-	virtual void setEnumStates(const QStringList& enumStateNames) { enumNames_ = enumStateNames; if(enumNames_.count() > 0) {setTolerance(0.1);} emit enumChanges(enumNames_); }
+	void setUnits(const QString& newUnits) { units_ = newUnits; emit unitsChanged(units()); }
+
+	/// This is used internally to flag whether a Control is labelled isEnum(), and add the names for each state. If it IS a discrete control (\c enumStateNames is not empty), then the tolerance is automatically set to a value less than 1 (0.1).  This makes sense when the values must be integer (discrete) values.
+	void setEnumStates(const QStringList& enumStateNames) { enumNames_ = enumStateNames; if(enumNames_.count() > 0) {setTolerance(0.1);} emit enumChanged(); }
+
+	/// This is used internally to specify the allowed enum names for the move() aspect of the control, if they happen to be different than the enums that apply to value().  This can sometimes happen when there are status enums included in the value() [ex: "Open", "Closed", and "Moving"], so the valid choices for move() are different [ex: "Open" and "Close"].
+	/*! If isEnum() returns true and this is not specified by a subclass implementation, the regular enumNames() will be assumed to apply for both move() and value(). moveEnumNames() will return enumNames(). */
+	void setMoveEnumStates(const QStringList& enumStateNames) { moveEnumNames_ = enumStateNames; emit enumChanged(); }
 
 	// Deprecated:
 //	/// Used internally by setStateList, called recursively. \todo MIGHT NEED TO BE VIRTUAL for reimplementation in child classes
@@ -548,6 +577,7 @@ private:
 	double tolerance_;
 	QString units_;
 	QStringList enumNames_;
+	QStringList moveEnumNames_;
 	/// Human-readable description
 	QString description_;
 	/// Human-readable description. Very short, for when the context is known. Might be "X" as opposed to "SSA Manipulator X"

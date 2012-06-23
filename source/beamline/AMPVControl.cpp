@@ -65,7 +65,7 @@ void AMReadOnlyPVControl::onReadPVError(int errorCode) {
 
 void AMReadOnlyPVControl::onReadPVInitialized() {
 	setUnits(readPV_->units());	// copy over the new unit string
-	setEnumStates(readPV_->enumStrings());	// todo: for subclasses, what to do if readPV and writePV have different number of enum states? Protect against invalid access somehow...
+	setEnumStates(readPV_->enumStrings());
 }
 
 
@@ -98,6 +98,7 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeoutOccurred()));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
 	connect(writePV_, SIGNAL(valueChanged(double)), this, SIGNAL(setpointChanged(double)));
+	connect(writePV_, SIGNAL(initialized()), this, SLOT(onWritePVInitialized()));
 
 	// We now need to monitor the feedback position ourselves, to see if we get where we want to go:
 	connect(readPV_, SIGNAL(valueChanged(double)), this, SLOT(onNewFeedbackValue(double)));
@@ -112,6 +113,10 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 		connect(stopPV_, SIGNAL(error(int)), this, SLOT(onReadPVError(int)));	/// \todo Does this need separate error handling? What if the stop write fails? That's really important.
 	}
 	stopValue_ = stopValue;
+}
+
+void AMPVControl::onWritePVInitialized() {
+	setMoveEnumStates(writePV_->enumStrings());
 }
 
 AMSinglePVControl::AMSinglePVControl(const QString &name, const QString &PVname, QObject *parent, double tolerance, double completionTimeoutSeconds, const QString &description)
@@ -347,6 +352,7 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeoutOccurred()));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
 	connect(writePV_, SIGNAL(valueChanged(double)), this, SIGNAL(setpointChanged(double)));
+	connect(writePV_, SIGNAL(initialized()), this, SLOT(onWritePVInitialized()));
 
 	// connect the timer to the timeout handler:
 	connect(&moveStartTimer_, SIGNAL(timeout()), this, SLOT(onMoveStartTimeout()));
@@ -363,6 +369,10 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	}
 	stopValue_ = stopValue;
 
+}
+
+void AMPVwStatusControl::onWritePVInitialized() {
+	setMoveEnumStates(writePV_->enumStrings());
 }
 
 // This is called when a PV channel connects or disconnects

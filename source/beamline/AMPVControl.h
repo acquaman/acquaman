@@ -309,6 +309,9 @@ protected slots:
 	/// This is used to check every new value, to see if we entered tolerance
 	void onNewFeedbackValue(double val);
 
+	/// Called when the writePV is initialized(); calls setMoveEnumStates() if applicable.
+	void onWritePVInitialized();
+
 
 };
 
@@ -519,7 +522,6 @@ The unique behavior is defined as:
 
 */
 
-
 class AMPVwStatusControl : public AMReadOnlyPVwStatusControl {
 
 	Q_OBJECT
@@ -687,6 +689,9 @@ protected slots:
 
 	/// Called when the settling time expires
 	void onSettlingTimeFinished();
+
+	/// Called when the writePV is initialized(). Calls setMoveEnumStates() if applicable.
+	void onWritePVInitialized();
 
 };
 

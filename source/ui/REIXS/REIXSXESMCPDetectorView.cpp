@@ -48,7 +48,7 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 
 	persistDurationControl_ = new AMControlEditor(detector_->persistDurationControl());
 
-	// removed: orientationControl_ = new AMBasicControlEditor(detector_->orientationControl());
+	// removed: orientationControl_ = new AMControlEditor(detector_->orientationControl());
 
 	countsPerSecondIndicator_ = new QLabel();
 	countsPerSecondIndicator_->setFixedWidth(70);

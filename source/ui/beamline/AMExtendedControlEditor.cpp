@@ -112,7 +112,7 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 		connect(control_, SIGNAL(unitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));
 		connect(control_, SIGNAL(connected(bool)), this, SLOT(setHappy(bool)));
 		connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onMotion(bool)));
-		connect(control_, SIGNAL(enumChanges(QStringList)), dialog_, SLOT(setEnumNames(QStringList)));
+		connect(control_, SIGNAL(enumChanged()), this, SLOT(onControlEnumChanged()));
 		// If the control is connected already, update our state right now. (We won't get the connected() signal later.)
 		if(control_->isConnected()) {
 			setHappy(true);
@@ -417,4 +417,9 @@ void AMExtendedControlEditorStyledInputDialog::showEvent ( QShowEvent * event ) 
 		spinBox_->setFocus();
 	else
 		comboBox_->setFocus();
+}
+
+void AMExtendedControlEditor::onControlEnumChanged()
+{
+	dialog_->setEnumNames(control_->enumNames());
 }

@@ -35,7 +35,7 @@ class QMovie;
 class QPixmap;
 
 
-/// This helper class for AMBasicControlEditor provides a dialog box to get new setpoints. You should never need to use it directly.
+/// This helper class for AMControlEditor provides a dialog box to get new setpoints. You should never need to use it directly.
 class AMControlEditorStyledInputDialog : public QDialog {
 	Q_OBJECT
 public:
@@ -97,7 +97,7 @@ protected slots:
 	/// Called when the control's isMoving() state changes; shows the moving icon.
 	void onMotion(bool moving);
 	/// Called when the control's enum information changes. We show or hide the enum button, and configure the entries in it.
-	void onEnumChanges();
+	void onEnumChanged();
 	/// Called when the user chooses an enum value from the enumButton_ popup. Calls onNewSetpointChosen with the value for that enum.
 	void onEnumValueChosen(QAction* action);
 

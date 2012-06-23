@@ -53,7 +53,7 @@ AMControlEditor::AMControlEditor(AMControl* control, QWidget *parent) :
 
 	// create static caches, if not already here:
 	if(!movingIcon_) {
-		movingIcon_ = new QMovie(":/loading2_transparent.gif");
+		movingIcon_ = new QMovie(":/16x16/loading2_transparent.gif");
 		movingIcon_->start();
 	}
 	if(!invalidIcon_)
@@ -139,12 +139,13 @@ AMControlEditor::AMControlEditor(AMControl* control, QWidget *parent) :
 		connect(control_, SIGNAL(unitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));
 		connect(control_, SIGNAL(alarmChanged(int,int)), this, SLOT(reviewControlState()));
 		connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onMotion(bool)));
+		connect(control_, SIGNAL(enumChanged()), this, SLOT(onEnumChanged()));
 
 		// If the control is connected already, update our state right now.
 		if(control_->isConnected()) {
 			onValueChanged(control_->value());
 			onMotion(control_->isMoving());
-			onEnumChanges();
+			onEnumChanged();
 		}
 	}
 	connect(this, SIGNAL(clicked()), this, SLOT(onEditStart()));
@@ -168,7 +169,8 @@ void AMControlEditor::onValueChanged(double newVal) {
 }
 
 void AMControlEditor::onUnitsChanged(const QString &units) {
-	valueLabel_->setText(QString("%1 %2").arg(control_->value()).arg(units));
+	if(control_->isConnected())
+		valueLabel_->setText(QString("%1 %2").arg(control_->value()).arg(units));
 }
 
 void AMControlEditor::reviewControlState() {
@@ -207,7 +209,7 @@ void AMControlEditor::reviewControlState() {
 	}
 }
 
-void AMControlEditor::onEnumChanges() {
+void AMControlEditor::onEnumChanged() {
 	if(control_->isEnum()) {
 		enumButton_->show();
 		valueLabel_->hide();
@@ -217,7 +219,7 @@ void AMControlEditor::onEnumChanges() {
 
 		enumMenu_->clear();
 		int i=0;
-		foreach(QString enumString, control_->enumNames()) {
+		foreach(QString enumString, control_->moveEnumNames()) {
 			QAction* action = enumMenu_->addAction(enumString);
 			action->setData(i++);	// remember the index inside this action.
 		}

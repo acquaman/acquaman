@@ -109,6 +109,7 @@ protected slots:
 	void onNewSetpoint(double newVal);
 
 	void onStatusValueChanged(double newVal);
+	void onControlEnumChanged();
 
 protected:
 	void mouseReleaseEvent ( QMouseEvent * event );
