@@ -123,6 +123,12 @@ public:
 	/// Returns the PV name of the close PV.
 	QString closePVName() const { return closePV_->pvName(); }
 
+
+	/// Returns the alarm severity for the statePV:
+	virtual int alarmSeverity() const { return statePV_->alarmSeverity(); }
+	/// Returns the alarm status for the statePV:
+	virtual int alarmStatus() const { return statePV_->alarmStatus(); }
+
 signals:
 	/// Notifies that the statePV_ has changed and passes on the state.
 	void stateChanged(int);
@@ -139,47 +145,9 @@ public slots:
 			return OtherFailure;
 	}
 	/// Opens the control.  This activates the control and moves it to the "Open" state.  Synonomous with move(1).
-	FailureExplanation open() {
-		// already transitioning? Cannot send while moving.
-		if(isMoving() && !allowsMovesWhileMoving()) {
-			qWarning() << QString("Cannot open %1: it's currently in the process of opening or closing.").arg(name());
-			return AlreadyMovingFailure;
-		}
-		setpoint_ = 1;
-		if(!moveInProgress_)
-			emit movingChanged(moveInProgress_ = true);
-		emit moveStarted();
-		// in position already?
-		if(inPosition()) {
-			emit movingChanged(moveInProgress_ = false);
-			emit moveSucceeded();
-		}
-		// in this case, it's harmless to re-send the value even if it's already there, since no status changes will occur; if you send open to an already-open CLS valve or shutter, nothing happens.
-		// This makes sure we never omit sending it when we should.
-		openPV_->setValue(1);
-		return NoFailure;
-	}
+	FailureExplanation open();
 	/// Closes the control.  This deactivates the control and moves it to the "Closed" state.  Synonomous with move(0).
-	FailureExplanation close() {
-		// already transitioning? Cannot send while moving.
-		if(isMoving() && !allowsMovesWhileMoving()) {
-			qWarning() << QString("Cannot close %1: it's currently in the process of opening or closing.").arg(name());
-			return AlreadyMovingFailure;
-		}
-		setpoint_ = 0;
-		if(!moveInProgress_)
-			emit movingChanged(moveInProgress_ = true);
-		emit moveStarted();
-		// in position already?
-		if(inPosition()) {
-			emit movingChanged(moveInProgress_ = false);
-			emit moveSucceeded();
-		}
-		// in this case, it's harmless to re-send the value even if it's already there, since no status changes will occur; if you send open to an already-open CLS valve or shutter, nothing happens.
-		// This makes sure we never omit sending it when we should.
-		closePV_->setValue(1);
-		return NoFailure;
-	}
+	FailureExplanation close();
 
 	// cannot stop() these kinds of controls.
 

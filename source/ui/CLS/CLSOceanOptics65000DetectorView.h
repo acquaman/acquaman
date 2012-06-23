@@ -36,7 +36,7 @@ public:
 
 protected:
 	/// Control editor to display the current reading
-	AMControlEditor *readingCE_;
+	AMExtendedControlEditor *readingCE_;
 	QHBoxLayout *hl_;
 	/// Pointer to the detector
 	CLSOceanOptics65000Detector *detector_;
@@ -73,9 +73,9 @@ protected:
 	CLSOceanOptics65000DetectorInfo *configurationSettings_;
 	QGridLayout *gl_;
 	/// Control editor to display the current reading
-	AMControlEditor *readingCE_;
+	AMExtendedControlEditor *readingCE_;
 	/// Control editor to read/set the integration time
-	AMControlEditor *integrationTimeCE_;
+	AMExtendedControlEditor *integrationTimeCE_;
 
 	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
 	bool setDetector(AMDetector *detector, bool configureOnly = false);

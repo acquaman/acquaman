@@ -92,7 +92,7 @@ protected:
 };
 
 
-/// This widget is used as a custom context menu for AMControlMoveButton. It lets the user choose from a range of step sizes, and provides an AMBasicControlEditor for viewing and setting the absolute position.
+/// This widget is used as a custom context menu for AMControlMoveButton. It lets the user choose from a range of step sizes, and provides an AMControlEditor for viewing and setting the absolute position.
 class AMControlMoveButtonContextMenu : public QDialog {
 	Q_OBJECT
 public:

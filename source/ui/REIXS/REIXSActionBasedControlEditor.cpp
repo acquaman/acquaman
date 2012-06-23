@@ -21,11 +21,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions2/actions/REIXS/REIXSControlMoveAction.h"
 #include "actions2/AMActionRunner.h"
 #include "util/AMErrorMonitor.h"
+#include "beamline/AMControl.h"
 
 #include <QApplication>
 
 REIXSActionBasedControlEditor::REIXSActionBasedControlEditor(AMControl* control, bool okToRunInBackground, QWidget *parent) :
-	AMBasicControlEditor(control, parent)
+	AMControlEditor(control, parent)
 {
 	okToRunInBackground_ = okToRunInBackground;
 }
