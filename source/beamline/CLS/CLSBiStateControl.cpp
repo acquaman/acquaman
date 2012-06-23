@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "CLSBiStateControl.h"
+#include "util/AMErrorMonitor.h"
 
 CLSBiStateControl::CLSBiStateControl(const QString &name, const QString &description, const QString &state, const QString &open, const QString &close, AMAbstractControlStatusChecker *statusChecker, QObject *parent)
 	: AMControl(name, "", parent, description)
@@ -74,4 +75,46 @@ void CLSBiStateControl::onStateChanged()
 	isMoving_ = isMoving();
 	if(isMoving_ != wasMoving)
 		emit movingChanged(isMoving_);
+}
+
+AMControl::FailureExplanation CLSBiStateControl::open() {
+	// already transitioning? Cannot send while moving.
+	if(isMoving() && !allowsMovesWhileMoving()) {
+		AMErrorMon::alert(this, -1, QString("Cannot open %1: it's currently in the process of opening or closing.").arg(name()));
+		return AlreadyMovingFailure;
+	}
+	setpoint_ = 1;
+	if(!moveInProgress_)
+		emit movingChanged(moveInProgress_ = true);
+	emit moveStarted();
+	// in position already?
+	if(inPosition()) {
+		emit movingChanged(moveInProgress_ = false);
+		emit moveSucceeded();
+	}
+	// in this case, it's harmless to re-send the value even if it's already there, since no status changes will occur; if you send open to an already-open CLS valve or shutter, nothing happens.
+	// This makes sure we never omit sending it when we should.
+	openPV_->setValue(1);
+	return NoFailure;
+}
+
+AMControl::FailureExplanation CLSBiStateControl::close() {
+	// already transitioning? Cannot send while moving.
+	if(isMoving() && !allowsMovesWhileMoving()) {
+		AMErrorMon::alert(this, -2, QString("Cannot close %1: it's currently in the process of opening or closing.").arg(name()));
+		return AlreadyMovingFailure;
+	}
+	setpoint_ = 0;
+	if(!moveInProgress_)
+		emit movingChanged(moveInProgress_ = true);
+	emit moveStarted();
+	// in position already?
+	if(inPosition()) {
+		emit movingChanged(moveInProgress_ = false);
+		emit moveSucceeded();
+	}
+	// in this case, it's harmless to re-send the value even if it's already there, since no status changes will occur; if you send open to an already-open CLS valve or shutter, nothing happens.
+	// This makes sure we never omit sending it when we should.
+	closePV_->setValue(1);
+	return NoFailure;
 }

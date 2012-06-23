@@ -22,21 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <cmath>
 
-AMControlInfo::AMControlInfo(const QString& name, double value, double minimum, double maximum, const QString& units, double tolerance, const QString &description, const QString &contextKnownDescription, const QString& enumString, QObject* parent)
-	: AMDbObject(parent)
-{
-	setName(name);
-	value_ = value;
-	minimum_ = minimum;
-	maximum_ = maximum;
-	units_ = units;
-	tolerance_ = tolerance;
-	description_ = description;
-	contextKnownDescription_ = contextKnownDescription;
-	enumString_ = enumString;
-}
-
-
 AMControlInfoList::AMControlInfoList(QObject *parent)
 	: AMDbObject(parent), AMOrderedList<AMControlInfo>()
 {

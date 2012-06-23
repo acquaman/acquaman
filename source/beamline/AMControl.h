@@ -27,10 +27,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPair>
 #include <QTimer>
 #include <cmath>
-
 #include <float.h>
 
-#include "dataman/info/AMControlInfoList.h"
+#include "dataman/info/AMControlInfo.h"
 
 /**
  * \defgroup control Beamline Control with AMControl and AMProcessVariable

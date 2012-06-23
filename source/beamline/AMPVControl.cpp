@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMPVControl.h"
 
 #include "util/AMErrorMonitor.h"
+#include <QDebug>
 
 // Class AMReadOnlyPVControl
 ///////////////////////////////////////
