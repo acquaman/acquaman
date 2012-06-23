@@ -20,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMMCPDetectorView.h"
 
+#include <QToolButton>
+
 SGMMCPBriefDetectorView::SGMMCPBriefDetectorView(SGMMCPDetector *detector, bool configureOnly, QWidget *parent) :
 	AMBriefDetectorView(configureOnly, parent)
 {

@@ -22,6 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define CLSPGTDETECTORVIEW_H
 
 #include "ui/beamline/AMDetectorView.h"
+#include "beamline/CLS/CLSPGTDetector.h"
+
+class QToolButton;
 
 class CLSPGTBriefDetectorView : public AMBriefDetectorView
 {

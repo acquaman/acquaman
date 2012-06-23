@@ -22,6 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define SGMMCPDETECTORVIEW_H
 
 #include "ui/beamline/AMDetectorView.h"
+#include "beamline/SGM/SGMMCPDetector.h"
+
+class QToolButton;
 
 class SGMMCPBriefDetectorView : public AMBriefDetectorView
 {

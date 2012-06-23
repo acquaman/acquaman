@@ -30,9 +30,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSlider>
 #include <QIcon>
 #include <QGridLayout>
+#include <QToolButton>
 
 #include "actions/AMBeamlineListAction.h"
-#include "ui/beamline/AMControlEditor.h"
+#include "ui/beamline/AMExtendedControlEditor.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
 
 SGMSampleManipulatorView::SGMSampleManipulatorView(bool bigButtons, QWidget *parent) :

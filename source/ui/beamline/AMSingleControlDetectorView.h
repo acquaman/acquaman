@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMSINGLECONTROLDETECTORVIEW_H
 
 #include "ui/beamline/AMDetectorView.h"
+#include "beamline/AMSingleControlDetector.h"
 
 class AMSingleControlBriefDetectorView : public AMBriefDetectorView
 {

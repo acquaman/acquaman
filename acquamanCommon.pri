@@ -580,7 +580,9 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/actions3/editors/AMSamplePlateMoveActionEditor.h \
 	source/qttelnet/qttelnet.h \
 	source/beamline/CLS/CLSProcServManager.h \
-	source/dataman/REIXS/REIXSXESCalibration2.h
+	source/dataman/REIXS/REIXSXESCalibration2.h \
+    source/ui/beamline/AMExtendedControlEditor.h \
+    source/ui/beamline/AMControlButton.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -979,7 +981,9 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/actions3/editors/AMSamplePlateMoveActionEditor.cpp \
 	source/qttelnet/qttelnet.cpp \
 	source/beamline/CLS/CLSProcServManager.cpp \
-	source/dataman/REIXS/REIXSXESCalibration2.cpp
+	source/dataman/REIXS/REIXSXESCalibration2.cpp \
+    source/ui/beamline/AMExtendedControlEditor.cpp \
+    source/ui/beamline/AMControlButton.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1003,3 +1007,7 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+

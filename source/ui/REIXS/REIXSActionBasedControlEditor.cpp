@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions2/actions/REIXS/REIXSControlMoveAction.h"
 #include "actions2/AMActionRunner.h"
 #include "util/AMErrorMonitor.h"
+#include "beamline/AMControl.h"
 
 #include <QApplication>
 

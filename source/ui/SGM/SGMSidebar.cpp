@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QRadioButton>
 #include <QButtonGroup>
 
+#include "ui/beamline/AMControlButton.h"
+
 #include "ui/CLS/CLSSynchronizedDwellTimeView.h"
 
 SGMSidebar::SGMSidebar(QWidget *parent) :

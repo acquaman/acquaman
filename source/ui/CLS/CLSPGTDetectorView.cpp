@@ -20,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSPGTDetectorView.h"
 
+#include <QToolButton>
+
 CLSPGTBriefDetectorView::CLSPGTBriefDetectorView(CLSPGTDetector *detector, bool configureOnly, QWidget *parent) :
 	AMBriefDetectorView(configureOnly, parent)
 {
