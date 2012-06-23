@@ -93,7 +93,7 @@ AMControlEditor::AMControlEditor(AMControl* control, QWidget *parent) :
 	lockedLabel_->setToolTip("Cannot Move");
 
 	statusFrame_ = new QFrame();
-	statusFrame_->setMinimumWidth(22);
+//	statusFrame_->setMinimumWidth(22);
 	statusFrame_->setMinimumHeight(22);
 	statusFrame_->setObjectName("StatusFrame");
 
@@ -104,6 +104,7 @@ AMControlEditor::AMControlEditor(AMControl* control, QWidget *parent) :
 	shl->addWidget(minorLabel_);
 	shl->addWidget(majorLabel_);
 	shl->setContentsMargins(0,0,0,0);
+	shl->setSpacing(1);
 	statusFrame_->setLayout(shl);
 	movingLabel_->hide();
 
@@ -112,7 +113,7 @@ AMControlEditor::AMControlEditor(AMControl* control, QWidget *parent) :
 	hl->addWidget(valueLabel_, 2);
 	hl->addWidget(enumButton_, 2);
 	hl->addWidget(statusFrame_, 0);
-	hl->setSpacing(1);
+	hl->setSpacing(0);
 	hl->setContentsMargins(2,2,2,2);
 
 	setLayout(hl);
@@ -254,7 +255,7 @@ void AMControlEditor::onEditStart() {
 
 	dialog_->setDoubleMaximum(control_->maximumValue());
 	dialog_->setDoubleMinimum(control_->minimumValue());
-	dialog_->setDoubleDecimals(3);	/// \todo Display precision
+	dialog_->setDoubleDecimals(3);
 	dialog_->setDoubleValue(control_->value());
 	dialog_->setLabelText(control_->description().isEmpty() ? control_->name() : control_->description());
 	dialog_->setSuffix(control_->units());
@@ -336,5 +337,10 @@ void AMControlEditor::onNewSetpointChosen(double value)
 {
 	if(control_)
 		control_->move(value);
+}
+
+void AMControlEditor::onDisplayPrecisionChanged(int displayPrecision)
+{
+	dialog_->setDoubleDecimals(displayPrecision);
 }
 

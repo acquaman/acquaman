@@ -273,13 +273,7 @@ public:
   \param units The default unit description.
   \param parent QObject parent for memory management
   */
-	AMControl(const QString& name, const QString& units = "", QObject* parent = 0, const QString description = "") : QObject(parent), units_(units), description_(description) {
-		setObjectName(name);
-		wasConnected_ = false;
-		tolerance_ = AMCONTROL_TOLERANCE_DONT_CARE;
-		contextKnownDescription_ = "";
-		allowsMovesWhileMoving_ = false;
-	}
+	AMControl(const QString& name, const QString& units = "", QObject* parent = 0, const QString description = "");
 
 	/// \name Control info
 	/// One feature of a control is that it can create a snapshot of its current state and pass it on as an AMControlInfo.
@@ -391,7 +385,9 @@ The Control abstraction provides two different properties (and associated signal
 	virtual bool moveInProgress() const { return false; }
 
 	/// Indicates the units associated with the value of this control.
-	virtual QString units() const { return units_; }
+	QString units() const { return units_; }
+	/// Indicates the number of digits after the decimal point that are recommended for displaying this control's value.
+	int displayPrecision() const { return displayPrecision_; }
 
 	/// \name Information on the allowed range for this control:
 	//@{
@@ -526,9 +522,11 @@ signals:
 	void setpointChanged(double);
 	//@}
 
-	/// Announces when the unit string text has changed. Necessary because we might not know this until after a delayed control connects.
+	/// Announces when the unit string text has changed. Necessary because we might not know this until after a control connects.
 	void unitsChanged(const QString& units);
-	/// Announces when the number or descriptions of discrete states changes.  Necessary because we might not know this when the Control is first created.  When receiving this, you can check isEnum(), enumNames(), and moveEnumNames().
+	/// Announces when the displayPrecision() has changed. Necessary because we might not know this until after a control connects.
+	void displayPrecisionChanged(int displayPrecision);
+	/// Announces when the number or descriptions of discrete states changes.  Necessary because we might not know this until after a control connects.  When receiving this, you can check isEnum(), enumNames(), and moveEnumNames().
 	/// \sa isEnum(), enumNames(), enumCount(), moveEnumNames(), moveEnumCount().
 	void enumChanged();
 
@@ -557,15 +555,18 @@ protected:
 
 
 protected slots:
-	/// This is used internally to set the unit text:
-	void setUnits(const QString& newUnits) { units_ = newUnits; emit unitsChanged(units()); }
+	/// This is used internally by subclasses to set the unit text:
+	void setUnits(const QString& newUnits) { if(units_ == newUnits) return; units_ = newUnits; emit unitsChanged(units_); }
+
+	/// This is used internally by subclasses to set the display precision
+	void setDisplayPrecision(int displayPrecision) { if(displayPrecision_ == displayPrecision) return; displayPrecision_ = displayPrecision; emit displayPrecisionChanged(displayPrecision_); }
 
 	/// This is used internally to flag whether a Control is labelled isEnum(), and add the names for each state. If it IS a discrete control (\c enumStateNames is not empty), then the tolerance is automatically set to a value less than 1 (0.1).  This makes sense when the values must be integer (discrete) values.
-	void setEnumStates(const QStringList& enumStateNames) { enumNames_ = enumStateNames; if(enumNames_.count() > 0) {setTolerance(0.1);} emit enumChanged(); }
+	void setEnumStates(const QStringList& enumStateNames) { if(enumNames_ == enumStateNames) return; enumNames_ = enumStateNames; if(enumNames_.count() > 0) {setTolerance(0.1);} emit enumChanged(); }
 
 	/// This is used internally to specify the allowed enum names for the move() aspect of the control, if they happen to be different than the enums that apply to value().  This can sometimes happen when there are status enums included in the value() [ex: "Open", "Closed", and "Moving"], so the valid choices for move() are different [ex: "Open" and "Close"].
 	/*! If isEnum() returns true and this is not specified by a subclass implementation, the regular enumNames() will be assumed to apply for both move() and value(). moveEnumNames() will return enumNames(). */
-	void setMoveEnumStates(const QStringList& enumStateNames) { moveEnumNames_ = enumStateNames; emit enumChanged(); }
+	void setMoveEnumStates(const QStringList& enumStateNames) { if(moveEnumNames_ == enumStateNames) return; moveEnumNames_ = enumStateNames; emit enumChanged(); }
 
 	// Deprecated:
 //	/// Used internally by setStateList, called recursively. \todo MIGHT NEED TO BE VIRTUAL for reimplementation in child classes
@@ -577,6 +578,7 @@ private:
 	QString units_;
 	QStringList enumNames_;
 	QStringList moveEnumNames_;
+	int displayPrecision_;
 	/// Human-readable description
 	QString description_;
 	/// Human-readable description. Very short, for when the context is known. Might be "X" as opposed to "SSA Manipulator X"

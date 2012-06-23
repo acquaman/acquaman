@@ -73,6 +73,7 @@ void AMReadOnlyPVControl::onReadPVError(int errorCode) {
 void AMReadOnlyPVControl::onReadPVInitialized() {
 	setUnits(readPV_->units());	// copy over the new unit string
 	setEnumStates(readPV_->enumStrings());
+	setDisplayPrecision(readPV_->displayPrecision());
 }
 
 
@@ -603,6 +604,10 @@ AMPVwStatusAndUnitConversionControl::AMPVwStatusAndUnitConversionControl(const Q
 	disconnect(writePV_, SIGNAL(valueChanged(double)), this, SIGNAL(setpointChanged(double)));
 	connect(writePV_, SIGNAL(valueChanged(double)), this, SLOT(onWritePVValueChanged(double)));
 
+	disconnect(readPV_, SIGNAL(initialized()), this, SLOT(onReadPVInitialized()));	// don't allow AMReadOnlyPV to change our units or enum names.
+
+	setUnits(readConverter_->units());
+
 }
 
 void AMPVwStatusAndUnitConversionControl::onReadPVValueChanged(double newValue)
@@ -617,7 +622,6 @@ void AMPVwStatusAndUnitConversionControl::onWritePVValueChanged(double newValue)
 
 void AMPVwStatusAndUnitConversionControl::setUnitConverters(AMAbstractUnitConverter *readUnitConverter, AMAbstractUnitConverter* writeUnitConverter)
 {
-	QString oldUnits = units();
 	double oldValue = value();
 	double oldSetpoint = setpoint();
 
@@ -628,16 +632,16 @@ void AMPVwStatusAndUnitConversionControl::setUnitConverters(AMAbstractUnitConver
 	writeConverter_ = writeUnitConverter;
 
 	double newValue = value();
-	QString newUnits = units();
 	double newSetpoint = setpoint();
 
-	if(newUnits != oldUnits)
-		emit unitsChanged(newUnits);
+	setUnits(readConverter_->units());
+
 	if(newValue != oldValue)
 		emit valueChanged(newValue);
 	if(newSetpoint != oldSetpoint)
 		emit setpointChanged(newSetpoint);
 }
+
 
 
 

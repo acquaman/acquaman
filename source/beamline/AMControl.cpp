@@ -20,6 +20,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMControl.h"
 
+AMControl::AMControl(const QString& name, const QString& units, QObject* parent, const QString description) : QObject(parent), units_(units), description_(description) {
+	setObjectName(name);
+	wasConnected_ = false;
+	tolerance_ = AMCONTROL_TOLERANCE_DONT_CARE;
+	allowsMovesWhileMoving_ = false;
+	displayPrecision_ = 3;
+}
+
 //// Set the control object's children (and grandchildren, etc) based on a QMap of QString and double pairs
 //// QString is the name of the child (as in child's objectName) and value is the desired move position
 //// errorLevel specifies what constitutes an error (shouldn't move it, can't move it, can't find it)

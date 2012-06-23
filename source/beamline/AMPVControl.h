@@ -122,8 +122,6 @@ protected slots:
 	/// This is called when reading the PV's control information completes successfully.
 	void onReadPVInitialized();
 
-	/// Override this if you want custom handling if the readPV fails to connect.
-
 	/// You can also monitor the readConnectionTimeoutOccurred() signal.
 	void onConnectionTimeout() { setUnits("?"); emit connected(false); emit error(AMControl::CannotConnectError); }
 
@@ -766,10 +764,8 @@ public:
 	/// Returns the unit converter currently in-use for the write (setpoint, move) values
 	AMAbstractUnitConverter* writeUnitConverter() const { return writeConverter_ ? writeConverter_ : readConverter_; }
 
-	/// For units, we return the units given by our unit converter
-	virtual QString units() const { return readConverter_->units(); }
-	/// But you can still access the underlying "raw" units if you want
-	virtual QString rawUnits() const { return AMPVwStatusControl::units(); }
+	/// For units(), we return the units given by our unit converter. But you can still access the underlying "raw" units if you want:
+	QString rawUnits() const { return AMPVwStatusControl::units(); }
 
 	/// We overload value() to convert to our desired units
 	virtual double value() const { return readUnitConverter()->convertFromRaw(AMPVwStatusControl::value()); }
