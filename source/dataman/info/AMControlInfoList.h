@@ -39,12 +39,13 @@ class AMControlInfo : public AMDbObject {
 	Q_PROPERTY(double tolerance READ tolerance WRITE setTolerance)
 	Q_PROPERTY(QString description READ description WRITE setDescription)
 	Q_PROPERTY(QString contextKnownDescription READ contextKnownDescription WRITE setContextKnownDescription)
+	Q_PROPERTY(QString enumString READ enumString WRITE setEnumString)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Saved Control State")
 
 
 public:
-	Q_INVOKABLE AMControlInfo(const QString& name = "Invalid Control", double value = 0.0, double minimum = 0.0, double maximum = 0.0, const QString& units = "", double tolerance = 0.0, const QString &description = "", const QString &contextKnownDescription = "", QObject* parent = 0);
+	Q_INVOKABLE AMControlInfo(const QString& name = "Invalid Control", double value = 0.0, double minimum = 0.0, double maximum = 0.0, const QString& units = "", double tolerance = 0.0, const QString &description = "", const QString &contextKnownDescription = "", const QString& enumString = QString(), QObject* parent = 0);
 
 	double value() const { return value_; }
 	double minimum() const { return minimum_; }
@@ -53,6 +54,10 @@ public:
 	double tolerance() const { return tolerance_; }
 	QString description() const { return description_; }
 	QString contextKnownDescription() const { return contextKnownDescription_; }
+	/// Returns true if this was derived from an "enum" control with discrete states; it means that enumString() contains the state corresponding to value().
+	bool isEnum() const { return !enumString_.isEmpty(); }
+	/// If this info was derived from an "enum" control with discrete states, this will contain the state that corresponds to value().
+	QString enumString() const { return enumString_; }
 
 	/// The default copy constructor and assignment operator will copy the values from \c other, but they will also copy over the database identity (ie: id(), database(), modified() state, etc.).  This means that calling storeToDb() will now save to \c other's database location.  If you want to copy the values but retain your old database identity, call this function instead.
 	void setValuesFrom(const AMControlInfo& other) {
@@ -63,6 +68,7 @@ public:
 		tolerance_ = other.tolerance_;
 		description_ = other.description_;
 		contextKnownDescription_ = other.contextKnownDescription_;
+		enumString_ = other.enumString_;
 		setName(other.name());
 		setModified(true);
 	}
@@ -75,6 +81,7 @@ public slots:
 	void setTolerance(double tolerance) { tolerance_ = tolerance; setModified(true); }
 	void setDescription(const QString &description) { description_ = description; setModified(true); }
 	void setContextKnownDescription(const QString &contextKnownDescription) { contextKnownDescription_ = contextKnownDescription; setModified(true); }
+	void setEnumString(const QString& enumString) { enumString_ = enumString; setModified(true); }
 
 protected:
 	double value_;
@@ -84,6 +91,7 @@ protected:
 	double tolerance_;
 	QString description_;
 	QString contextKnownDescription_;
+	QString enumString_;
 };
 
 
