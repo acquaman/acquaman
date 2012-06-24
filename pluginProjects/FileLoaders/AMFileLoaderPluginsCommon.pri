@@ -14,7 +14,8 @@ macx {
 		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/lib/darwin-x86
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
 
 		# CDFlib dependencies
 		CDF_LIB = /Applications/cdf34_0-dist/lib/libcdf.a
@@ -34,7 +35,8 @@ linux-g++ {
 		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/epics/base/lib/linux-x86
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
 }
 linux-g++-32 {
 
@@ -50,7 +52,8 @@ linux-g++-32 {
 		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/epics/base/lib/linux-x86
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
 }
 # The following works well for CLS beamline OPI machines, built using VMSL54.cs.clsi.ca
 
@@ -68,12 +71,12 @@ linux-g++-64 {
 		EPICS_LIB_DIR = /home/epics/src/R3.14.12/base/lib/linux-x86_64
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
 
 		# CDFlib dependencies
 		CDF_LIB = -L/home/beamline/tools/cdf/lib -lcdf
 		CDF_INCLUDE_DIR = /home/beamline/tools/cdf/include
-
 }
 
 # Special build paths and options for running on the Jenkins auto-build server (currently at http://beamteam.usask.ca:8080)
@@ -90,7 +93,8 @@ CONFIG(jenkins_build) {
 		EPICS_LIB_DIR = /home/mark/dev/epics/base/lib/linux-x86
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/src"
+		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/include"
+		MPLOT_LIB_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/lib"
 }
 
 
@@ -99,7 +103,12 @@ INCLUDEPATH    += $$AM_INCLUDE_DIR \
 		$$MPLOT_INCLUDE_DIR \
 		$$CDF_INCLUDE_DIR
 
-LIBS +=	$$CDF_LIB
+LIBS +=	$$CDF_LIB \
+		-L$$MPLOT_LIB_DIR -lMPlot
+
+QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$MPLOT_LIB_DIR"
+QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$MPLOT_LIB_DIR"
+
 
 HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/dataman/AMScan.h \
@@ -133,18 +142,8 @@ HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/util/AMElement.h \
 		$$AM_INCLUDE_DIR/application/AMPluginsManager.h \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceImageDatawDefault.h \
-		$$AM_INCLUDE_DIR/ui/dataman/AMSimpleDataSourceEditor.h \
-		$$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
-		$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorMap.h \
-		$$MPLOT_INCLUDE_DIR/MPlot/MPlotLegend.h \
-		$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxisScale.h \
-		$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxis.h \
-		$$MPLOT_INCLUDE_DIR/MPlot/MPlotItem.h \
-		$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeries.h \
-		$$MPLOT_INCLUDE_DIR/MPlot/MPlotImage.h \
-		$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeriesData.h \
-		$$MPLOT_INCLUDE_DIR/MPlot/MPlotImageData.h \
-		$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarker.h
+		$$AM_INCLUDE_DIR/ui/dataman/AMSimpleDataSourceEditor.h
+
 SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMScanDictionary.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMScanParametersDictionary.cpp \
@@ -176,17 +175,6 @@ SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/util/AMElement.cpp \
 		$$AM_INCLUDE_DIR/application/AMPluginsManager.cpp \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceImageDatawDefault.cpp \
-		$$AM_INCLUDE_DIR/ui/dataman/AMSimpleDataSourceEditor.cpp \
-		$$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
-		$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorMap.cpp \
-		$$MPLOT_INCLUDE_DIR/MPlot/MPlotLegend.cpp \
-		$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxisScale.cpp \
-		$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxis.cpp \
-		$$MPLOT_INCLUDE_DIR/MPlot/MPlotItem.cpp \
-		$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeries.cpp \
-		$$MPLOT_INCLUDE_DIR/MPlot/MPlotImage.cpp \
-		$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeriesData.cpp \
-		$$MPLOT_INCLUDE_DIR/MPlot/MPlotImageData.cpp \
-		$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarker.cpp
+		$$AM_INCLUDE_DIR/ui/dataman/AMSimpleDataSourceEditor.cpp
 
 
