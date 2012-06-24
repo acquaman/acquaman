@@ -22,12 +22,14 @@ macx {
 		DEV_PATH = dev
 
 		# EPICS Dependencies:
-				EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include \
-								$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include/os/Darwin
-				EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/lib/darwin-x86
+		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include \
+				$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include/os/Darwin
+		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/lib/darwin-x86
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
+
 		GSL_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/include
 
 		# GSL Dependencies
@@ -53,7 +55,8 @@ linux-g++ {
 		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/epics/base/lib/linux-x86
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
 
 		# GSL Dependencies
 		GSL_LIB = -lgsl
@@ -77,7 +80,8 @@ linux-g++-32 {
 		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/epics/base/lib/linux-x86
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
 
 		# GSL Dependencies
 		GSL_LIB = -lgsl
@@ -104,7 +108,8 @@ linux-g++-64 {
 		EPICS_LIB_DIR = /home/epics/src/R3.14.12/base/lib/linux-x86_64
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
 
 		# GSL Dependencies
 		GSL_INCLUDE_DIR = /home/beamline/tools/gsl/gsl-1.14-install/include
@@ -134,7 +139,8 @@ CONFIG(jenkins_build) {
 		EPICS_LIB_DIR = /home/mark/dev/epics/base/lib/linux-x86
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/src"
+		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/include"
+		MPLOT_LIB_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/lib"
 }
 
 
@@ -157,6 +163,7 @@ INCLUDEPATH += $$EPICS_INCLUDE_DIRS \
 
 LIBS += $$GSL_LIB \
 		$$GSL_CBLAS_LIB \
+		-L$$MPLOT_LIB_DIR -lMPlot \
 		$$XML_LIB \
 	#-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
 		-L$$EPICS_LIB_DIR -lca -lCom
@@ -164,61 +171,21 @@ LIBS += $$GSL_LIB \
 # Set standard level of compiler warnings for everyone. (Otherwise the warnings shown will be system-dependent.)
 QMAKE_CXXFLAGS += -Wextra
 
-# Specify runtime search locations for libraries (Must change for release bundle, if epics in a different location)
-macx {
-# For Qt 4.7.1 and earlier, need to use
+# Specify RPATH (runtime library search paths) so that libraries can be found without requiring LD_LIBRARY_PATH
+# For Qt 4.7.1 and earlier, need to use this instead:
 								#QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
 								#QMAKE_LFLAGS_RPATH += "$$QWTPLOT3D_LIB_DIR"
-# instead of this:
+QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
+QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 
-		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
-		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
-#		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QWTPLOT3D_LIB_DIR"
-#		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QWTPLOT3D_LIB_DIR"
-}
-
-
-linux-g++ {
-				#QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
-				#QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
-				QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
-				QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
-}
-linux-g++-32 {
-				#QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
-				#QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
-				QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
-				QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
-}
-linux-g++-64 {
-				#QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
-				#QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
-				QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
-				QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
-}
+QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$MPLOT_LIB_DIR"
+QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$MPLOT_LIB_DIR"
 
 
 # Source Files (Acquaman Framework Common)
 #######################
 
-HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAbstractTool.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxis.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxisScale.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorMap.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotImage.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotImageData.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotItem.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotLegend.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarker.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotPoint.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotRectangle.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeries.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeriesData.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotTools.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotWidget.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarkerTransparentVerticalRectangle.h \
-	source/acquaman/AMAcqScanOutput.h \
+HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/acquaman/AMAcqScanSpectrumOutput.h \
 	source/acquaman/AMDacqScanController.h \
 	source/acquaman/AMRegion.h \
@@ -568,7 +535,6 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/analysis/AM1DNormalizationAB.h \
 	source/analysis/AM1DNormalizationABEditor.h \
 	source/ui/AMAddAnalysisBlockDialog.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorLegend.h \
 	source/ui/acquaman/AMScanConfigurationViewHolder3.h \
 	source/actions2/actions/AMChangeRunAction.h \
 	source/actions2/actions/AMChangeRunActionInfo.h \
@@ -619,24 +585,7 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/util/AMJoystickTestView.ui \
 	source/ui/actions3/AMAddActionDialog3.ui
 
-SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAbstractTool.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxis.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxisScale.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorMap.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotImage.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotImageData.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotItem.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotLegend.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarker.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotPoint.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotRectangle.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeries.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeriesData.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotTools.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotWidget.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarkerTransparentVerticalRectangle.cpp \
-	source/acquaman/AMAcqScanOutput.cpp \
+SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/AMAcqScanSpectrumOutput.cpp \
 	source/acquaman/AMDacqScanController.cpp \
 	source/acquaman/AMRegion.cpp \
@@ -969,7 +918,6 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/analysis/AM1DNormalizationAB.cpp \
 	source/analysis/AM1DNormalizationABEditor.cpp \
 	source/ui/AMAddAnalysisBlockDialog.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorLegend.cpp \
 	source/ui/acquaman/AMScanConfigurationViewHolder3.cpp \
 	source/actions2/actions/AMChangeRunAction.cpp \
 	source/actions2/actions/AMChangeRunActionInfo.cpp \
