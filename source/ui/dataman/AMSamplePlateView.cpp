@@ -359,7 +359,7 @@ void AMSamplePlateSelector::populateSamplePlates() {
 	ui_.plateComboBox->setItemData(0, -777);	// as a safety check, this makes sure that the "Sample Plate Id" of the "Create New..." item is an invalid index.
 
 	QSqlQuery q2 = AMDatabase::database("user")->query();
-	q2.prepare(QString("SELECT id,name,dateTime FROM %1 ORDER BY dateTime ASC").arg(samplePlateTableName_));
+	q2.prepare(QString("SELECT id,name,dateTime FROM %1 ORDER BY dateTime DESC").arg(samplePlateTableName_));
 	q2.exec();
 	int id;
 	QString name;

@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMEXAFSScanConfiguration.h"
 #include "util/AMErrorMonitor.h"
+#include <QDebug>
 
 AMEXAFSScanConfiguration::AMEXAFSScanConfiguration(QObject *parent, bool setup)
 	: AMXASScanConfiguration(parent, false)

@@ -20,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMMCPDetectorView.h"
 
+#include <QToolButton>
+
 SGMMCPBriefDetectorView::SGMMCPBriefDetectorView(SGMMCPDetector *detector, bool configureOnly, QWidget *parent) :
 	AMBriefDetectorView(configureOnly, parent)
 {
@@ -64,7 +66,7 @@ bool SGMMCPBriefDetectorView::setDetector(AMDetector *detector, bool configureOn
 		delete powerState_;
 		powerState_ = 0;
 	}
-	readingCE_ = new AMControlEditor(detector_->readingCtrl(), 0, true);
+	readingCE_ = new AMExtendedControlEditor(detector_->readingCtrl(), 0, true);
 	powerState_ = new QToolButton();
 	powerState_->setIcon(powerOffState_);
 //	powerState_->setEnabled(false);
@@ -125,8 +127,8 @@ bool SGMMCPDetailedDetectorView::setDetector(AMDetector *detector, bool configur
 		delete hvCE_;
 		hvCE_ = 0;
 	}
-	readingCE_ = new AMControlEditor(detector_->readingCtrl(), 0, true);
-	hvCE_ = new AMControlEditor(detector_->hvCtrl(), 0, false, configureOnly_);
+	readingCE_ = new AMExtendedControlEditor(detector_->readingCtrl(), 0, true);
+	hvCE_ = new AMExtendedControlEditor(detector_->hvCtrl(), 0, false, configureOnly_);
 	gl_->addWidget(new QLabel("TFY"),	0, 0, 1, 1, 0);
 	gl_->addWidget(readingCE_,		0, 1, 1, 2, 0);
 	gl_->addWidget(new QLabel("HV"),	1, 0, 1, 1, 0);

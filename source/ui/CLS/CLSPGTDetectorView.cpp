@@ -20,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSPGTDetectorView.h"
 
+#include <QToolButton>
+
 CLSPGTBriefDetectorView::CLSPGTBriefDetectorView(CLSPGTDetector *detector, bool configureOnly, QWidget *parent) :
 	AMBriefDetectorView(configureOnly, parent)
 {
@@ -64,7 +66,7 @@ bool CLSPGTBriefDetectorView::setDetector(AMDetector *detector, bool configureOn
 		delete powerState_;
 		powerState_ = 0;
 	}
-	readingCE_ = new AMControlEditor(detector_->dataWaveformCtrl(), 0, true);
+	readingCE_ = new AMExtendedControlEditor(detector_->dataWaveformCtrl(), 0, true);
 	readingCE_->setControlFormat('f', 0);
 	powerState_ = new QToolButton();
 	powerState_->setIcon(powerOffState_);
@@ -141,11 +143,11 @@ bool CLSPGTDetailedDetectorView::setDetector(AMDetector *detector, bool configur
 		delete integrationTimeCE_;
 		integrationTimeCE_ = 0;
 	}
-	readingCE_ = new AMControlEditor(detector_->dataWaveformCtrl());
+	readingCE_ = new AMExtendedControlEditor(detector_->dataWaveformCtrl());
 	readingCE_->setControlFormat('f', 0);
-	hvCE_ = new AMControlEditor(detector_->hvCtrl(), 0, false, configureOnly_);
-	integrationModeCE_ = new AMControlEditor(detector_->integrationModeCtrl(), 0, false, configureOnly_);
-	integrationTimeCE_ = new AMControlEditor(detector_->integrationTimeCtrl(), 0, false, configureOnly_);
+	hvCE_ = new AMExtendedControlEditor(detector_->hvCtrl(), 0, false, configureOnly_);
+	integrationModeCE_ = new AMExtendedControlEditor(detector_->integrationModeCtrl(), 0, false, configureOnly_);
+	integrationTimeCE_ = new AMExtendedControlEditor(detector_->integrationTimeCtrl(), 0, false, configureOnly_);
 	gl_->addWidget(new QLabel("SDD"),	0, 0, 1, 1, 0);
 	gl_->addWidget(readingCE_,		0, 1, 1, 2, 0);
 	gl_->addWidget(new QLabel("HV"),	1, 0, 1, 1, 0);

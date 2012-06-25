@@ -96,7 +96,7 @@ REIXSBeamline::~REIXSBeamline() {
 
 
 REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
-	: AMCompositeControl("sampleChamber", "n/a", parent) {
+	: AMCompositeControl("sampleChamber", "", parent) {
 
 	setDescription("XES Sample Chamber Controls");
 
@@ -138,7 +138,7 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 
 
 REIXSHexapod::REIXSHexapod(QObject* parent)
-	: AMCompositeControl("hexapod", "n/a", parent) {
+	: AMCompositeControl("hexapod", "", parent) {
 
 	setDescription("XES Hexapod");
 
@@ -466,7 +466,7 @@ void REIXSSpectrometer::onMoveActionStateChanged(int state, int previousState)
 }
 
 REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
-	AMCompositeControl("photonSource", "n/a", parent, "EPU and Monochromator")
+	AMCompositeControl("photonSource", "", parent, "EPU and Monochromator")
 {
 	energy_ = new AMPVwStatusControl("beamlineEV", "REIXS:MONO1610-I20-01:energy:fbk", "REIXS:energy", "REIXS:status", "REIXS:energy:stop", this, 0.01);
 	energy_->setDescription("Beamline Energy");
@@ -485,7 +485,7 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	monoMirrorSelector_->setDescription("Mono Mirror");
 }
 
-REIXSValvesAndShutters::REIXSValvesAndShutters(QObject *parent) : AMCompositeControl("valvesAndShutters", "n/a", parent)
+REIXSValvesAndShutters::REIXSValvesAndShutters(QObject *parent) : AMCompositeControl("valvesAndShutters", "", parent)
 {
 	beamIsOn_ = false;
 

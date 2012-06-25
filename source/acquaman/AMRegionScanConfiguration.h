@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include "AMScanConfiguration.h"
 #include "acquaman/AMRegionsList.h"
-#include "dataman/info/AMControlInfoList.h"
+#include "dataman/info/AMControlInfo.h"
 
 /// An AMRegionScanConfiguration is the parent class for any beamline that wants to implement a simple regions based scan.
 /*!

@@ -47,7 +47,7 @@ bool CLSOceanOptics65000BriefDetectorView::setDetector(AMDetector *detector, boo
 		delete readingCE_;
 		readingCE_ = 0;
 	}
-	readingCE_ = new AMControlEditor(detector_->dataWaveformControl(), 0, true);
+	readingCE_ = new AMExtendedControlEditor(detector_->dataWaveformControl(), 0, true);
 	readingCE_->setControlFormat('f', 0);
 	hl_->addWidget(readingCE_);
 	return true;
@@ -102,9 +102,9 @@ bool CLSOceanOptics65000DetailedDetectorView::setDetector(AMDetector *detector, 
 		delete integrationTimeCE_;
 		integrationTimeCE_ = 0;
 	}
-	readingCE_ = new AMControlEditor(detector_->dataWaveformControl());
+	readingCE_ = new AMExtendedControlEditor(detector_->dataWaveformControl());
 	readingCE_->setControlFormat('f', 0);
-	integrationTimeCE_ = new AMControlEditor(detector_->integrationTimeControl(), 0, false, configureOnly_);
+	integrationTimeCE_ = new AMExtendedControlEditor(detector_->integrationTimeControl(), 0, false, configureOnly_);
 	gl_->addWidget(new QLabel("QE65000"),	0, 0, 1, 1, 0);
 	gl_->addWidget(readingCE_,		0, 1, 1, 2, 0);
 	gl_->addWidget(new QLabel("Time"),	1, 0, 1, 1, 0);
