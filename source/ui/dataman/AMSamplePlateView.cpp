@@ -654,7 +654,6 @@ AMSamplePlatePositionInfo::AMSamplePlatePositionInfo(AMSamplePlate *samplePlate,
 	position_ = new MPlotPoint();
 	position_->setValue(QPointF(samplePlate_->at(index_).position().at(0).value(), samplePlate_->at(index_).position().at(2).value()));
 	position_->setMarker(MPlotMarkerShape::Cross, 10, QPen(QColor(Qt::blue)));
-	//imagePlot_->addItem(position_);
 	position_->setXAxisTarget(horizontalScale_);
 	position_->setYAxisTarget(verticalScale_);
 
@@ -665,11 +664,39 @@ AMSamplePlatePositionInfo::AMSamplePlatePositionInfo(AMSamplePlate *samplePlate,
 		width = fabs(samplePlate_->at(index_).topLeftPosition().at(0).value() - samplePlate_->at(index_).bottomRightPosition().at(0).value());
 		height = fabs(samplePlate_->at(index_).topLeftPosition().at(2).value() - samplePlate_->at(index_).bottomRightPosition().at(2).value());
 		area_ = new MPlotRectangle(QRectF(left, top, width, height), rPen, QBrush(rColor));
-		//imagePlot_->addItem(area_);
 		area_->setDescription(description_);
 		area_->setXAxisTarget(horizontalScale_);
 		area_->setYAxisTarget(verticalScale_);
 	}
+
+	QPen positionPen = QPen(getPositionColor(), 0, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
+	position_->marker()->setPen(positionPen);
+	if(area_){
+		QPen areaPen = QPen(getAreaColor(), 0, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
+		area_->setPen(areaPen);
+		area_->setBrush(getAreaColor());
+	}
+	/*
+	if(!samplePlate_->at(index_).positionWithinBounds()){
+		QColor badColor = Qt::darkRed;
+		QPen badPen = QPen(badColor, 0, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
+		position_->marker()->setPen(badPen);
+		area_->setPen(badPen);
+		badColor.setAlphaF(0.5);
+		area_->setBrush(badColor);
+	}
+
+	if(samplePlate_->sampleAtIndexOverlaps(index_)){
+		QColor badColor = Qt::red;
+		QPen badPen = QPen(badColor, 0, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
+		position_->marker()->setPen(badPen);
+		if(area_){
+			area_->setPen(badPen);
+			badColor.setAlphaF(0.5);
+			area_->setBrush(badColor);
+		}
+	}
+	*/
 }
 
 MPlotRectangle* AMSamplePlatePositionInfo::area() const{
@@ -678,6 +705,161 @@ MPlotRectangle* AMSamplePlatePositionInfo::area() const{
 
 MPlotPoint* AMSamplePlatePositionInfo::position() const{
 	return position_;
+}
+
+QString AMSamplePlatePositionInfo::description() const{
+	return description_;
+}
+
+QString AMSamplePlatePositionInfo::errors() const{
+	QString retVal;
+	if(!samplePlate_->at(index_).positionWithinBounds())
+		retVal.append("Position is not within its boundaries.");
+	if(samplePlate_->sampleAtIndexOverlaps(index_))
+		retVal.append(" Position boundaries overlap another sample.");
+
+	return retVal;
+}
+
+QColor AMSamplePlatePositionInfo::getAreaColor(bool isHighlighted) const{
+	QColor retVal;
+	if(!samplePlate_->at(index_).positionWithinBounds() && isHighlighted)
+		retVal = Qt::darkMagenta;
+	else if(!samplePlate_->at(index_).positionWithinBounds())
+		retVal = Qt::darkRed;
+	else if(samplePlate_->sampleAtIndexOverlaps(index_) && isHighlighted)
+		retVal = Qt::magenta;
+	else if(samplePlate_->sampleAtIndexOverlaps(index_))
+		retVal = Qt::red;
+	else if(isHighlighted)
+		retVal = Qt::yellow;
+	else
+		retVal = Qt::green;
+
+	retVal.setAlphaF(0.5);
+	return retVal;
+}
+
+QColor AMSamplePlatePositionInfo::getPositionColor(bool isHighlighted) const{
+	QColor retVal;
+	if(!samplePlate_->at(index_).positionWithinBounds() && isHighlighted)
+		retVal = Qt::black;
+	else if(!samplePlate_->at(index_).positionWithinBounds())
+		retVal = Qt::black;
+	else if(samplePlate_->sampleAtIndexOverlaps(index_) && isHighlighted)
+		retVal = Qt::black;
+	else if(samplePlate_->sampleAtIndexOverlaps(index_))
+		retVal = Qt::black;
+	else if(isHighlighted)
+		retVal = Qt::darkBlue;
+	else
+		retVal = Qt::blue;
+
+	return retVal;
+}
+
+AMSamplePlatePositionInfoView::AMSamplePlatePositionInfoView(AMSamplePlatePositionInfo *positionInfo, QWidget *parent) :
+	QFrame(parent)
+{
+	setFrameStyle(QFrame::StyledPanel);
+	setLineWidth(2);
+	setMidLineWidth(0);
+
+	setMinimumWidth(200);
+	setMaximumWidth(250);
+
+	isHighlighted_ = false;
+	positionInfo_ = positionInfo;
+
+	nameLabel_ = new QLabel(positionInfo_->description());
+	QString errorsString = positionInfo_->errors();
+	QColor errorLabelColor;
+	if(errorsString.isEmpty()){
+		errorLabelColor = Qt::green;
+		errorsString = "No Problems";
+	}
+	else
+		errorLabelColor = Qt::red;
+	errorsLabel_ = new QLabel(errorsString);
+	QPalette errorLabelPalette = errorsLabel_->palette();
+	errorLabelPalette.setBrush(QPalette::WindowText, QBrush(errorLabelColor));
+	errorsLabel_->setPalette(errorLabelPalette);
+
+	normalPalette_ = QPalette(palette());
+	highlightedPalette_ = QPalette(palette());
+	highlightedPalette_.setBrush(QPalette::Window, Qt::darkGray);
+	setAutoFillBackground(true);
+
+	QVBoxLayout *vl = new QVBoxLayout();
+	vl->addWidget(nameLabel_);
+	vl->addWidget(errorsLabel_);
+	vl->setContentsMargins(1,1,1,1);
+	setLayout(vl);
+}
+
+void AMSamplePlatePositionInfoView::mouseReleaseEvent(QMouseEvent *e){
+	setHighlighted(!isHighlighted_);
+	e->accept();
+}
+
+void AMSamplePlatePositionInfoView::setHighlighted(bool isHighlighted){
+	if(isHighlighted == isHighlighted_)
+		return;
+
+	isHighlighted_ = isHighlighted;
+	QPen positionPen = QPen(positionInfo_->getPositionColor(isHighlighted_), 0, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
+	positionInfo_->position()->marker()->setPen(positionPen);
+	if(positionInfo_->area()){
+		QPen areaPen = QPen(positionInfo_->getAreaColor(isHighlighted_), 0, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
+		positionInfo_->area()->setPen(areaPen);
+		positionInfo_->area()->setBrush(positionInfo_->getAreaColor(isHighlighted_));
+	}
+
+	if(isHighlighted_)
+		setPalette(highlightedPalette_);
+	else
+		setPalette(normalPalette_);
+
+	emit becameHighlighted(isHighlighted_);
+}
+
+AMSamplePlatePositionInfoListView::AMSamplePlatePositionInfoListView(QList<AMSamplePlatePositionInfoView *> infoViews, QWidget *parent) :
+	QWidget(parent)
+{
+	infoViews_ = infoViews;
+
+	QVBoxLayout *positionInfosVL = new QVBoxLayout();
+
+	for(int x = 0; x < infoViews_.count(); x++){
+		positionInfosVL->addWidget(infoViews_.at(x));
+		connect(infoViews_.at(x), SIGNAL(becameHighlighted(bool)), this, SLOT(onSamplePlatePositionInfoViewBecameHighlighted(bool)));
+	}
+
+	positionInfosVL->addSpacing(10);
+	positionInfosVL->setContentsMargins(2,2,2,2);
+	positionInfosVL->setSpacing(0);
+	AMScrollViewWidget *positionInfosScroll = new AMScrollViewWidget(positionInfosVL);
+	QScrollArea *positionInfosScrollArea = new QScrollArea();
+	positionInfosScrollArea->setWidget(positionInfosScroll);
+	positionInfosScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+	QVBoxLayout *vl = new QVBoxLayout();
+	vl->addWidget(positionInfosScrollArea);
+	setLayout(vl);
+}
+
+void AMSamplePlatePositionInfoListView::onSamplePlatePositionInfoViewBecameHighlighted(bool isHighlighted){
+	AMSamplePlatePositionInfoView *infoView = qobject_cast<AMSamplePlatePositionInfoView*>(QObject::sender());
+	if(infoView && isHighlighted)
+		for(int x = 0; x < infoViews_.count(); x++)
+			if(infoViews_.at(x) != infoView)
+				infoViews_.at(x)->setHighlighted(false);
+}
+
+AMScrollViewWidget::AMScrollViewWidget(QLayout *layout, QWidget *parent) :
+	QWidget(parent)
+{
+	setLayout(layout);
 }
 
 AMSamplePlateAdditionalInformationView::AMSamplePlateAdditionalInformationView(AMSamplePlate *samplePlate, AMSamplePlateItemModel *samplePlateModel, QWidget *parent) :
@@ -702,9 +884,7 @@ AMSamplePlateAdditionalInformationView::AMSamplePlateAdditionalInformationView(A
 	imagePlot_->axisBottom()->setAxisScale(horizontalScale);
 
 	imageView_->setPlot(imagePlot_);
-	//imagePlot_->axisScaleLeft()->setAutoScaleEnabled();
 	imagePlot_->axisScaleLeft()->setPadding(2);
-	//imagePlot_->axisScaleBottom()->setAutoScaleEnabled();
 	imagePlot_->axisScaleBottom()->setPadding(2);
 	imagePlot_->setMarginBottom(10);
 	imagePlot_->setMarginLeft(10);
@@ -718,6 +898,8 @@ AMSamplePlateAdditionalInformationView::AMSamplePlateAdditionalInformationView(A
 	imagePlot_->axisLeft()->showAxisName(false);
 	imagePlot_->legend()->hide();
 
+	//QVBoxLayout *positionInfosVL = new QVBoxLayout();
+
 	AMSamplePlatePositionInfo *positionInfo;
 	for(int x = 0; x < samplePlate_->count(); x++){
 		positionInfo = new AMSamplePlatePositionInfo(samplePlate_, x, samplePlateModel_->sampleName(x), horizontalScale, verticalScale);
@@ -726,39 +908,27 @@ AMSamplePlateAdditionalInformationView::AMSamplePlateAdditionalInformationView(A
 			imagePlot_->addItem(positionInfo->area());
 
 		positionInfos_.append(positionInfo);
+		positionInfoViews_.append(new AMSamplePlatePositionInfoView(positionInfo));
+		//positionInfosVL->addWidget(positionInfoViews_.last());
 	}
+
 	/*
-	QColor rColor = Qt::green;
-	QPen rPen = QPen(rColor, 0, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
-	rColor.setAlphaF(0.5);
-	MPlotRectangle* r;
-	MPlotPoint *p;
-	for(int x = 0; x < samplePlate_->count(); x++){
-		p = new MPlotPoint();
-		p->setValue(QPointF(samplePlate_->at(x).position().at(0).value(), samplePlate_->at(x).position().at(2).value()));
-		p->setMarker(MPlotMarkerShape::Cross, 10, QPen(QColor(Qt::blue)));
-		imagePlot_->addItem(p);
-		p->setXAxisTarget(horizontalScale);
-		p->setYAxisTarget(verticalScale);
-
-		if(samplePlate_->at(x).topLeftPosition().count() == 4 && samplePlate_->at(x).bottomRightPosition().count() == 4){
-			double left, top, width, height;
-			left = std::min(samplePlate_->at(x).topLeftPosition().at(0).value(), samplePlate_->at(x).bottomRightPosition().at(0).value());
-			top = std::min(samplePlate_->at(x).topLeftPosition().at(2).value(), samplePlate_->at(x).bottomRightPosition().at(2).value());
-			width = fabs(samplePlate_->at(x).topLeftPosition().at(0).value() - samplePlate_->at(x).bottomRightPosition().at(0).value());
-			height = fabs(samplePlate_->at(x).topLeftPosition().at(2).value() - samplePlate_->at(x).bottomRightPosition().at(2).value());
-			r = new MPlotRectangle(QRectF(left, top, width, height), rPen, QBrush(rColor));
-			imagePlot_->addItem(r);
-			r->setDescription(samplePlateModel_->sampleName(x));
-			r->setXAxisTarget(horizontalScale);
-			r->setYAxisTarget(verticalScale);
-		}
-	}
+	positionInfosVL->addSpacing(10);
+	positionInfosVL->setContentsMargins(2,2,2,2);
+	positionInfosVL->setSpacing(0);
+	AMScrollViewWidget *positionInfosScroll = new AMScrollViewWidget(positionInfosVL);
+	QScrollArea *positionInfosScrollArea = new QScrollArea();
+	positionInfosScrollArea->setWidget(positionInfosScroll);
+	positionInfosScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	*/
+	AMSamplePlatePositionInfoListView *infoViewsList = new AMSamplePlatePositionInfoListView(positionInfoViews_);
 
-	QVBoxLayout *vl = new QVBoxLayout();
-	vl->addWidget(imageView_);
-	setLayout(vl);
+	QHBoxLayout *hl = new QHBoxLayout();
+	hl->addWidget(imageView_);
+	//hl->addLayout(positionInfosVL);
+	//hl->addWidget(positionInfosScrollArea);
+	hl->addWidget(infoViewsList);
+	setLayout(hl);
 }
 
 #include <QFormLayout>

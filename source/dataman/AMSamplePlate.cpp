@@ -24,6 +24,55 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "math.h"
 
+bool AMSamplePosition::positionWithinBounds() const{
+	if(topLeftPosition().isEmpty() || bottomRightPosition().isEmpty())
+		return true;
+
+	if( (position().count() != topLeftPosition().count()) || (position().count() != bottomRightPosition().count()) )
+		return false;
+
+	for(int x = 0; x < position().count(); x++){
+		double value = position().at(x).value();
+		double topLeftValue = topLeftPosition().at(x).value();
+		double topLeftTolerance = topLeftPosition().at(x).tolerance();
+		double bottomRightValue = bottomRightPosition().at(x).value();
+		double bottomRightTolerance = bottomRightPosition().at(x).tolerance();
+
+		if(value > std::max(topLeftValue+topLeftTolerance, bottomRightValue+bottomRightTolerance) )
+			return false;
+		if(value < std::min(topLeftValue-topLeftTolerance, bottomRightValue-bottomRightTolerance) )
+			return false;
+	}
+
+	return true;
+}
+
+bool AMSamplePosition::overlaps(const AMSamplePosition &other) const{
+	if( ((topLeftPosition().isEmpty()) || (bottomRightPosition().isEmpty())) && ((other.topLeftPosition().isEmpty()) || (other.bottomRightPosition().isEmpty())) )
+		return false;
+
+	if( (topLeftPosition().isEmpty()) || (bottomRightPosition().isEmpty()) ){
+		return other.matchesPosition(position());
+	}
+	else if( (other.topLeftPosition().isEmpty()) || (other.bottomRightPosition().isEmpty())){
+		return matchesPosition(other.position());
+	}
+	else{
+		double ax1, ax2, ay1, ay2, bx1, bx2, by1, by2;
+		ax1 = std::min(topLeftPosition().at(0).value(), bottomRightPosition().at(0).value());
+		ax2 = std::max(topLeftPosition().at(0).value(), bottomRightPosition().at(0).value());
+		ay1 = std::min(topLeftPosition().at(2).value(), bottomRightPosition().at(2).value());
+		ay2 = std::max(topLeftPosition().at(2).value(), bottomRightPosition().at(2).value());
+
+		bx1 = std::min(other.topLeftPosition().at(0).value(), other.bottomRightPosition().at(0).value());
+		bx2 = std::max(other.topLeftPosition().at(0).value(), other.bottomRightPosition().at(0).value());
+		by1 = std::min(other.topLeftPosition().at(2).value(), other.bottomRightPosition().at(2).value());
+		by2 = std::max(other.topLeftPosition().at(2).value(), other.bottomRightPosition().at(2).value());
+
+		return (ax1 < bx2) && (ax2 > bx1) && (ay1 < by2) && (ay2 > by1);
+	}
+}
+
 bool AMSamplePosition::matchesPosition(const AMControlInfoList &other) const{
 	if(position() == other)
 		return true;
@@ -167,6 +216,13 @@ int AMSamplePlate::sampleIdAtPosition(const AMControlInfoList &position, const Q
 	return -1;
 }
 
+bool AMSamplePlate::sampleAtIndexOverlaps(int index) const{
+	for(int x = 0; x < count(); x++)
+		if( (x != index) && (at(x).overlaps(at(index))))
+			return true;
+
+	return false;
+}
 
 
 // Export the current positions to the database

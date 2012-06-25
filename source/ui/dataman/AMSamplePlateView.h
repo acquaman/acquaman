@@ -354,6 +354,12 @@ public:
 	MPlotRectangle* area() const;
 	MPlotPoint* position() const;
 
+	QString description() const;
+	QString errors() const;
+
+	QColor getAreaColor(bool isHighlighted = false) const;
+	QColor getPositionColor(bool isHighlighted = false) const;
+
 protected:
 	AMSamplePlate *samplePlate_;
 	int index_;
@@ -363,6 +369,53 @@ protected:
 	MPlotAxisScale *verticalScale_;
 	MPlotRectangle *area_;
 	MPlotPoint *position_;
+};
+
+class AMSamplePlatePositionInfoView : public QFrame
+{
+Q_OBJECT
+public:
+	AMSamplePlatePositionInfoView(AMSamplePlatePositionInfo *positionInfo, QWidget *parent = 0);
+
+public slots:
+	void setHighlighted(bool isHighlighted);
+
+signals:
+	void becameHighlighted(bool isHighlighted);
+
+protected:
+	virtual void mouseReleaseEvent(QMouseEvent *e);
+
+protected:
+	QLabel *nameLabel_;
+	QLabel *errorsLabel_;
+
+	QPalette normalPalette_;
+	QPalette highlightedPalette_;
+
+	bool isHighlighted_;
+
+	AMSamplePlatePositionInfo *positionInfo_;
+};
+
+class AMSamplePlatePositionInfoListView : public QWidget
+{
+Q_OBJECT
+public:
+	AMSamplePlatePositionInfoListView(QList<AMSamplePlatePositionInfoView*> infoViews, QWidget *parent = 0);
+
+protected slots:
+	void onSamplePlatePositionInfoViewBecameHighlighted(bool isHighlighted);
+
+protected:
+	QList<AMSamplePlatePositionInfoView*> infoViews_;
+};
+
+class AMScrollViewWidget : public QWidget
+{
+Q_OBJECT
+public:
+	AMScrollViewWidget(QLayout *layout, QWidget *parent = 0);
 };
 
 #include "MPlot/MPlotWidget.h"
@@ -377,9 +430,12 @@ protected:
 	AMSamplePlateItemModel* samplePlateModel_;
 
 	QList<AMSamplePlatePositionInfo*> positionInfos_;
+	QList<AMSamplePlatePositionInfoView*> positionInfoViews_;
 
 	MPlotWidget *imageView_;
 	MPlot *imagePlot_;
+
+
 };
 
 #include <QDialog>
