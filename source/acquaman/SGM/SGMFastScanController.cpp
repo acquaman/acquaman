@@ -205,7 +205,7 @@ bool SGMFastScanController::beamlineInitialize(){
 			config_->allDetectors()->detectorAt(x)->activate();
 			if(config_->allDetectors()->detectorAt(x)->turnOnAction()){
 //				qdebug() << "Fast scan wants to turn on HV";
-				initializationActions_->appendAction(initializationActions_->stageCount()-1, config_->allDetectors()->detectorAt(x)->turnOnAction());
+//				initializationActions_->appendAction(initializationActions_->stageCount()-1, config_->allDetectors()->detectorAt(x)->turnOnAction());
 			}
 		}
 	}

@@ -80,6 +80,8 @@ protected slots:
 	void onDetectorTemperatureChanged(double detectorTemperature);
 	/// Handles changes in the number of MCA Channels
 	void onMCAChannelsChanged(double mcaChannels);
+	/// Handles changes in the spectra's total counts
+	void onTotalCountsChanged(double totalCounts);
 
 	/// Handles button clicks from the start acqusition button
 	void onStartAcquisitionButtonClicked();
@@ -98,6 +100,8 @@ protected:
 	QLabel *statusLabel_;
 	/// The integration time indicator
 	QDoubleSpinBox *integrationTimeDSB_;
+	/// The total counts in the entire spectra
+	QDoubleSpinBox *totalCountsDSB_;
 	/// The detector temperature indicator
 	QLabel *detectorTemperatureLabel_;
 	/// The MCA Channel indicator
