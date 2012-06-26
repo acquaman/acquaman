@@ -28,7 +28,7 @@ class AMCompositeControl : public AMControl
 {
 	Q_OBJECT
 public:
-	explicit AMCompositeControl(const QString& name, const QString& units = "n/a", QObject* parent = 0, const QString description = "");
+	explicit AMCompositeControl(const QString& name, const QString& units = "", QObject* parent = 0, const QString description = "");
 
 	virtual void addChildControl(AMControl *control);
 

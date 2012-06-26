@@ -504,7 +504,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	tfyScalerDetector_->setDescription("TFY");
 	detectorRegistry_.append(tfyScalerDetector_);
 	detectorMap_->insert(tfyScalerDetector_, qMakePair(allDetectors(), false));
-	detectorMap_->insert(tfyScalerDetector_, qMakePair(XASDetectors(), true));
+	detectorMap_->insert(tfyScalerDetector_, qMakePair(XASDetectors(), false));
 	detectorMap_->insert(tfyScalerDetector_, qMakePair(FastDetectors(), true));
 	criticalDetectorsSet_->addDetector(tfyScalerDetector_);
 	rawDetectorsSet_->addDetector(tfyScalerDetector_);
@@ -583,7 +583,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	detectorRegistry_.append(filterPD1ScalarDetector_);
 	rawDetectorsSet_->addDetector(filterPD1ScalarDetector_);
 	detectorMap_->insert(filterPD1ScalarDetector_, qMakePair(allDetectors(), false));
-	//detectorMap_->insert(filterPD1ScalarDetector_, qMakePair(feedbackDetectors(), false));
 	detectorMap_->insert(filterPD1ScalarDetector_, qMakePair(XASDetectors(), false));
 	connect(filterPD1ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 
@@ -592,7 +591,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	detectorRegistry_.append(filterPD2ScalarDetector_);
 	rawDetectorsSet_->addDetector(filterPD2ScalarDetector_);
 	detectorMap_->insert(filterPD2ScalarDetector_, qMakePair(allDetectors(), false));
-	//detectorMap_->insert(filterPD2ScalarDetector_, qMakePair(feedbackDetectors(), false));
 	detectorMap_->insert(filterPD2ScalarDetector_, qMakePair(XASDetectors(), false));
 	connect(filterPD2ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 
@@ -601,7 +599,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	detectorRegistry_.append(filterPD3ScalarDetector_);
 	rawDetectorsSet_->addDetector(filterPD3ScalarDetector_);
 	detectorMap_->insert(filterPD3ScalarDetector_, qMakePair(allDetectors(), false));
-	//detectorMap_->insert(filterPD3ScalarDetector_, qMakePair(feedbackDetectors(), false));
 	detectorMap_->insert(filterPD3ScalarDetector_, qMakePair(XASDetectors(), false));
 	connect(filterPD3ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 
@@ -610,7 +607,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	detectorRegistry_.append(filterPD4ScalarDetector_);
 	rawDetectorsSet_->addDetector(filterPD4ScalarDetector_);
 	detectorMap_->insert(filterPD4ScalarDetector_, qMakePair(allDetectors(), false));
-	//detectorMap_->insert(filterPD4ScalarDetector_, qMakePair(feedbackDetectors(), false));
 	detectorMap_->insert(filterPD4ScalarDetector_, qMakePair(XASDetectors(), false));
 	connect(filterPD4ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 

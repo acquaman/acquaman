@@ -88,6 +88,11 @@ public:
 	virtual double minimumValue() const { return readPV_->lowerGraphicalLimit(); }
 	/// Maximum value taken from the readPV's upper graphing limit within EPICS.
 	virtual double maximumValue() const { return readPV_->upperGraphicalLimit(); }
+
+	/// Returns the alarm severity for the readPV:
+	virtual int alarmSeverity() const { return readPV_->alarmSeverity(); }
+	/// Returns the alarm status for the readPV:
+	virtual int alarmStatus() const { return readPV_->alarmStatus(); }
 	//@}
 
 	/// \name Additional public functions:
@@ -109,18 +114,18 @@ signals:
 protected:
 	/// Pointer to ProcessVariable used to read feedback value
 	AMProcessVariable* readPV_;
+	/// Used for change-detection of isConnected() for the connected() signal
+	bool wasConnected_;
 
 
 protected slots:
 	/// This is called when reading the PV's control information completes successfully.
 	void onReadPVInitialized();
 
-	/// Override this if you want custom handling if the readPV fails to connect.
-
 	/// You can also monitor the readConnectionTimeoutOccurred() signal.
 	void onConnectionTimeout() { setUnits("?"); emit connected(false); emit error(AMControl::CannotConnectError); }
 
-	/// This is called when a PV channel connects or disconnects
+	/// This is called when a PV channel connects or disconnects. Emits connected(bool) if isConnected() has changed compared to wasConnected_.
 	void onPVConnected(bool connected);
 	/// This is called when there is a Read PV channel error:
 	void onReadPVError(int errorCode);
@@ -225,8 +230,8 @@ public:
 	const AMProcessVariable* writePV() const { return writePV_; }
 	/// Returns the number of seconds allowed for a move() to reach its target setpoint().
 	double completionTimeout() const { return completionTimeout_; }
-	/// Switches the writePV to using ca_put instead of ca_put_callback.  This seems to be necessary when using some of the more exotic record types such as the mca record type.  This is set to false by default.
-	void disableWritePVPutCallback(bool disable) { writePV_->disablePutCallbackMode(disable); }
+	/// Switches the writePV to use ca_put_callback() instead of ca_put(), if you want confirmation from the IOC when the put is actually processed, and the IOC can handle queuing instead of caching of PV puts.  The default uses ca_put().  \see AMProcessVariable::enablePutCallback().
+	void enableWritePVPutCallback(bool putCallbackEnabled) { writePV_->enablePutCallback(putCallbackEnabled); }
 	//@}
 
 public slots:
@@ -277,9 +282,6 @@ protected:
 	/// the target of our attempted move:
 	double setpoint_;
 
-	/// used for change-detection of the connection state:
-	bool wasConnected_;
-
 	/// true if no stopPVname was provided... Means we can't stop(), and shouldStop() and canStop() are false.
 	bool noStopPV_;
 	/// The value written to the stopPV_ when attempting to stop().
@@ -292,9 +294,6 @@ protected slots:
   In any case, if either one doesn't connected, we're not connected.*/
 	void onConnectionTimeout() { if(sender() == readPV_) { setUnits("?"); } emit connected(false); emit error(AMControl::CannotConnectError); }
 
-	/// This is called when a PV channel (read or write) connects or disconnects
-	void onPVConnected(bool connected);
-
 	/// This is called when there is a Write PV channel error:
 	void onWritePVError(int errorCode);
 
@@ -303,6 +302,9 @@ protected slots:
 
 	/// This is used to check every new value, to see if we entered tolerance
 	void onNewFeedbackValue(double val);
+
+	/// Called when the writePV is initialized(); calls setMoveEnumStates() if applicable.
+	void onWritePVInitialized();
 
 
 };
@@ -462,9 +464,6 @@ protected slots:
 	/// All connection timeouts cause us to be not connected.
 	void onConnectionTimeout() { if(sender() == readPV_) { setUnits("?"); } emit connected(false); emit error(AMControl::CannotConnectError); }
 
-	/// This is called when a PV channel connects or disconnects
-	void onPVConnected(bool connected);
-
 	/// This is called when there is a Status PV channel error:
 	void onStatusPVError(int errorCode);
 
@@ -513,7 +512,6 @@ The unique behavior is defined as:
 - moveSucceeded()
 
 */
-
 
 class AMPVwStatusControl : public AMReadOnlyPVwStatusControl {
 
@@ -582,8 +580,8 @@ public:
 	const AMProcessVariable* writePV() const { return writePV_; }
 	/// The maximum time allowed for the Control to start isMoving() after a move() is issued.
 	double moveStartTimeout() { return moveStartTimeout_; }
-	/// Switches the writePV to using ca_put instead of ca_put_callback.  This seems to be necessary when using some of the more exotic record types such as the mca record type.  This is set to false by default.
-	void disableWritePVPutCallback(bool disable) { writePV_->disablePutCallbackMode(disable); }
+	/// Switches the writePV to use ca_put_callback() instead of ca_put(), if you want confirmation from the IOC when the put is actually processed, and the IOC can handle queuing instead of caching of PV puts. The default uses ca_put().  \see AMProcessVariable::enablePutCallback().
+	void enableWritePVPutCallback(bool putCallbackEnabled) { writePV_->enablePutCallback(putCallbackEnabled); }
 
 	/// A non-zero moveStartTolerance() allows "null moves" (moves with setpoints within moveStartTolerance() of the current feedback value) to start and succeed immediately without any motion.  This is necessary for controls that do not change their move status when told to go to the current position. (By default, this is 0 and has no effect.)
 	/*! A "null move" is a move to the current position (or something very close to it).  Some controls may not change their move status on a null move; in this case, the move would appear to fail, even though the control "reached" its target. This provides an optional work-around: if moveStartTolerance() is non-zero, and the current feedback value() is within moveStartTolerance() of the setpoint, a move() command will start and succeed immediately without any physical motion.  Note that the hardware is NOT told to move in this mode. (It if was, any move status change might be interpreted as the end of a subsequent move.)
@@ -677,11 +675,11 @@ protected slots:
 	/// Re-implemented: This is used to handle when the movingPV_ changes.
 	virtual void onMovingChanged(int isMovingValue);
 
-	/// This is called when a PV channel connects or disconnects
-	void onPVConnected(bool connected);
-
 	/// Called when the settling time expires
 	void onSettlingTimeFinished();
+
+	/// Called when the writePV is initialized(). Calls setMoveEnumStates() if applicable.
+	void onWritePVInitialized();
 
 };
 
@@ -766,10 +764,8 @@ public:
 	/// Returns the unit converter currently in-use for the write (setpoint, move) values
 	AMAbstractUnitConverter* writeUnitConverter() const { return writeConverter_ ? writeConverter_ : readConverter_; }
 
-	/// For units, we return the units given by our unit converter
-	virtual QString units() const { return readConverter_->units(); }
-	/// But you can still access the underlying "raw" units if you want
-	virtual QString rawUnits() const { return AMPVwStatusControl::units(); }
+	/// For units(), we return the units given by our unit converter. But you can still access the underlying "raw" units if you want:
+	QString rawUnits() const { return AMPVwStatusControl::units(); }
 
 	/// We overload value() to convert to our desired units
 	virtual double value() const { return readUnitConverter()->convertFromRaw(AMPVwStatusControl::value()); }

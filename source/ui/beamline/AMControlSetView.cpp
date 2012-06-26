@@ -30,11 +30,11 @@ AMControlSetView::AMControlSetView(AMControlSet *viewSet, bool configureOnly, QW
 	configureOnly_ = configureOnly;
 	setTitle(viewSet->name());
 	QVBoxLayout *vl = new QVBoxLayout();
-	AMControlEditor *tmpCE;
+	AMExtendedControlEditor *tmpCE;
 	AMControl *tmpCtrl;
 	for(int x = 0; x < viewSet_->count(); x++){
 		tmpCtrl = viewSet_->at(x);
-		tmpCE = new AMControlEditor(tmpCtrl, 0, false, configureOnly_);
+		tmpCE = new AMExtendedControlEditor(tmpCtrl, 0, false, configureOnly_);
 		vl->addWidget(tmpCE);
 		controlBoxes_.append(tmpCE);
 		connect(tmpCE, SIGNAL(setpointRequested(double)), this, SLOT(onConfigurationValueChanged()));

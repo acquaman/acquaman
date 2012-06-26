@@ -56,7 +56,7 @@ bool AMSingleControlBriefDetectorView::setDetector(AMDetector *detector, bool co
 		delete fbk_;
 		fbk_ = 0;
 	}
-	fbk_ = new AMControlEditor(detector_->control(), 0, true);
+	fbk_ = new AMExtendedControlEditor(detector_->control(), 0, true);
 	hl_->addWidget(fbk_);
 	return true;
 }
@@ -100,7 +100,7 @@ bool AMSingleReadOnlyControlBriefDetectorView::setDetector(AMDetector *detector,
 		delete fbk_;
 		fbk_ = 0;
 	}
-	fbk_ = new AMControlEditor(detector_->control(), 0, true);
+	fbk_ = new AMExtendedControlEditor(detector_->control(), 0, true);
 	hl_->addWidget(fbk_);
 	return true;
 }

@@ -56,6 +56,8 @@ public:
 
 	const AMControlInfoList& topLeftPosition() const { return topLeftPosition_;}
 	const AMControlInfoList& bottomRightPosition() const { return bottomRightPosition_;}
+	bool positionWithinBounds() const;
+	bool overlaps(const AMSamplePosition &other) const;
 	bool matchesPosition(const AMControlInfoList &other) const;
 	bool matchesPositionWithinTolerances(const AMControlInfoList &other, const QList<double> tolerances) const;
 	double rms3SpaceDistance(const AMControlInfoList &other) const;
@@ -136,6 +138,7 @@ public:
 	/// Returns the sample id at the given position. If no sample is at the given position, -1 is returned. Can optionally take a list of alternate tolerance (rather than the motion tolerances) for the controls.
 	int sampleIdAtPosition(const AMControlInfoList &position, const QList<double> tolerances = QList<double>()) const;
 
+	bool sampleAtIndexOverlaps(int index) const;
 
 signals:
 	// The following signals are forwarded from our signalSource().
