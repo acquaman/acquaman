@@ -178,9 +178,13 @@ bool SGMXASScanController::beamlineInitialize(){
 	initializationActions_ = new AMBeamlineParallelActionsList();
 
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
-	AMBeamlineControlSetMoveAction* tmpSetAction = new AMBeamlineControlSetMoveAction(SGMBeamline::sgm()->fluxResolutionSet());
-	tmpSetAction->setSetpoint((config_->fluxResolutionGroup()));
-	initializationActions_->appendAction(0, tmpSetAction);
+
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->grating());
+	tmpAction->setSetpoint(config_->fluxResolutionGroup().controlNamed(SGMBeamline::sgm()->grating()->name()).value());
+	initializationActions_->appendAction(0, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->exitSlitGap());
+	tmpAction->setSetpoint(config_->fluxResolutionGroup().controlNamed(SGMBeamline::sgm()->exitSlitGap()->name()).value());
+	initializationActions_->appendAction(0, tmpAction);
 
 	for(int x = 0; x < config_->allDetectors()->count(); x++){
 		if(config_->allDetectorConfigurations().isActiveAt(x)){
@@ -191,10 +195,6 @@ bool SGMXASScanController::beamlineInitialize(){
 			}
 		}
 	}
-
-	tmpSetAction = new AMBeamlineControlSetMoveAction(SGMBeamline::sgm()->trackingSet());
-	tmpSetAction->setSetpoint(config_->trackingGroup());
-	initializationActions_->appendAction(0, tmpSetAction);
 
 	tmpBAction = SGMBeamline::sgm()->scaler()->createStartAction(0);
 	tmpBAction ? initializationActions_->appendAction(0, tmpBAction) : initializationFailed = true;
@@ -207,16 +207,23 @@ bool SGMXASScanController::beamlineInitialize(){
 	tmpBAction = SGMBeamline::sgm()->scaler()->createTotalScansAction(1);
 	tmpBAction ? initializationActions_->appendAction(1, tmpBAction) : initializationFailed = true;
 
-
-
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 
-		tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
-		tmpAction->setSetpoint(config_->startEnergy());
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
+	tmpAction->setSetpoint(config_->startEnergy());
 	initializationActions_->appendAction(2, tmpAction);
 
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
-	initializationActions_->appendAction(3, SGMBeamline::sgm()->createBeamOnActions());
+	AMBeamlineControlSetMoveAction* tmpSetAction = new AMBeamlineControlSetMoveAction(SGMBeamline::sgm()->trackingSet());
+	tmpSetAction->setSetpoint(config_->trackingGroup());
+	initializationActions_->appendAction(3, tmpSetAction);
+
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->harmonic());
+	tmpAction->setSetpoint(config_->fluxResolutionGroup().controlNamed(SGMBeamline::sgm()->harmonic()->name()).value());
+	initializationActions_->appendAction(3, tmpAction);
+
+	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
+	initializationActions_->appendAction(4, SGMBeamline::sgm()->createBeamOnActions());
 
 	beamlineInitialized_ = true;
 	return beamlineInitialized_;
