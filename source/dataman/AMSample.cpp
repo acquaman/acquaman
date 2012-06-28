@@ -65,5 +65,14 @@ QString AMSample::elementString() const {
 	return sl.join(", ");
 }
 
+QString AMSample::sampleNameForId(AMDatabase *db, int sampleId)
+{
+	QVariant rv = db->retrieve(sampleId, AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "name");
+	if(!rv.isValid())
+		return "[Invalid Sample]";
+	else
+		return rv.toString();
+}
+
 
 ///
