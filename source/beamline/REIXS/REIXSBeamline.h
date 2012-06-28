@@ -30,6 +30,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMDeferredFunctionCall.h"
 #include "beamline/CLS/CLSBiStateControl.h"
 
+class AMSamplePlate;
+
 class AMAction;
 
 /// The REIXSPhotonSource control is a container for the set of controls that make up the mono and EPU
@@ -298,6 +300,9 @@ public:
 	REIXSXESMCPDetector* mcpDetector() { return mcpDetector_; }
 	/// Access the valves and shutters
 	REIXSValvesAndShutters* valvesAndShutters() { return valvesAndShutters_; }
+	/// Returns the current (active) sample plate, ie:the one that is currently loaded. When a user uses the UI to switch sample plates, we simple re-load this one from the database to become a different sample plate.
+	AMSamplePlate* samplePlate() { return samplePlate_; }
+
 
 	// These Control Sets are logical groups of controls, that are commonly used by different Acquaman components
 
@@ -335,6 +340,10 @@ protected:
 	AMControlSet* spectrometerPositionSet_;
 	/// All the controls we want to expose to users for available motions in REIXSControlMoveAction.
 	AMControlSet* allControlsSet_;
+
+
+	/// This is the active sample plate object, ie:the one that is currently loaded. When a user uses the UI to switch sample plates, we simple re-load this one from the database to become a different sample plate.
+	AMSamplePlate* samplePlate_;
 
 
 };
