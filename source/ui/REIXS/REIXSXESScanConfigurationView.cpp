@@ -105,15 +105,14 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 	setLayout(vl);
 
 
+	currentCalibrationId_ = -1;
+	onLoadCalibrations();
+
 	//////////////////////
 	centerEVBox_->setValue(configuration_->centerEV());
 	defocusDistanceMmBox_->setValue(configuration_->defocusDistanceMm());
 	detectorTiltBox_->setValue(configuration_->detectorTiltOffset());
-	// removed:
-//	if(configuration_->detectorOrientation() == 0)
-//		horizontalDetectorButton_->setChecked(true);
-//	else
-//		verticalDetectorButton_->setChecked(true);
+	gratingSelector_->setCurrentIndex(configuration_->gratingNumber());
 
 	maximumTotalCounts_->setValue(configuration_->maximumTotalCounts());
 	maximumTimeEdit_->setTime(QTime().addSecs(int(configuration_->maximumDurationSeconds())));
@@ -126,24 +125,15 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 	connect(defocusDistanceMmBox_, SIGNAL(valueChanged(double)), configuration_, SLOT(setDefocusDistanceMm(double)));
 	connect(detectorTiltBox_, SIGNAL(valueChanged(double)), configuration_, SLOT(setDetectorTiltOffset(double)));
 
-	// removed:
-//	connect(verticalDetectorButton_, SIGNAL(toggled(bool)), configuration_, SLOT(setDetectorOrientation(bool)));
-
 	connect(startFromCurrentPositionOption_, SIGNAL(toggled(bool)), configuration_, SLOT(setShouldStartFromCurrentPosition(bool)));
 	connect(doNotClearExistingCountsOption_, SIGNAL(toggled(bool)), configuration_, SLOT(setDoNotClearExistingCounts(bool)));
 
 	connect(maximumTotalCounts_, SIGNAL(valueChanged(double)), configuration_, SLOT(setMaximumTotalCounts(double)));
-
 	connect(maximumTimeEdit_, SIGNAL(timeChanged(QTime)), this, SLOT(onMaximumTimeEditChanged(QTime)));
 
 	connect(calibrationSelector_, SIGNAL(currentIndexChanged(int)), this, SLOT(onCalibrationIndexChanged(int)));
 
 	///////////////////////
-
-
-	currentCalibrationId_ = -1;
-
-	QTimer::singleShot(0, this, SLOT(onLoadCalibrations()));
 }
 
 
@@ -217,6 +207,9 @@ void REIXSXESScanConfigurationView::onCalibrationIndexChanged(int newIndex) {
 		gratingSelector_->addItem(QString("%1 (%2 - %3 eV)").arg(g.name()).arg(min).arg(max));
 	}
 
+	// Select the calibration's current grating, if that's legit.
+	gratingSelector_->setCurrentIndex(configuration_->gratingNumber());
+	// This will update the energy range, and change the configuration's gratingNumber if the current one doesn't exist in this calibration.
 	onSelectedGratingChanged(gratingSelector_->currentIndex());
 
 }
