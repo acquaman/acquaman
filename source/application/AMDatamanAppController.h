@@ -286,6 +286,14 @@ protected:
 	bool resetFinishedSignal(QObject *sender, const char *signal);
 
 
+	/// Call this in startupBeforeAnything() if you want to let users choose the AMUserSettings::userDataFolder, before the app starts looking for and loading the database.
+	/*! It opens a dialog to choose the folder, and saves that folder back to AMUserSettings::userDataFolder in the acquaman ini file.  If the user cancels the dialog, no changes are made; the existing AMUserSettings::userDataFolder is left alone.
+
+	  \param presentAsParentFolder If you want users to select the actual AMUserSettings::userDataFolder, this should remain false. [The userDataFolder is the folder that contains the user's database file (typically userData.db), and their raw data (typically organized in folders by date).]  Some beamlines have chosen to encapsulate this inside another folder. If you want the user to select the <i>encapsulating</i> folder in the dialog, set \c presentAsParentFolder to true.  A "userData" folder will be created inside the encapsulating folder if it doesn't exist already, and set as the actual AMUserSettings::userDataFolder.
+*/
+	void getUserDataFolderFromDialog(bool presentAsParentFolder = false);
+
+
 
 protected:
 	/// UI structure components

@@ -91,6 +91,10 @@ REIXSAppController::REIXSAppController(QObject *parent) :
 bool REIXSAppController::startupBeforeAnything() {
 	if(!AMAppController::startupBeforeAnything()) return false;
 
+	// If a command-line option has been specified to choose a new userDataFolder:
+	if(qApp->arguments().contains("--ChooseUserDataFolder"))
+		getUserDataFolderFromDialog();
+
 	// Initialize the central beamline object
 	REIXSBeamline::bl();
 
