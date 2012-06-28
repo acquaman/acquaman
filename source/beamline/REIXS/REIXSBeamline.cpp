@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "REIXSBeamline.h"
 #include "util/AMErrorMonitor.h"
+#include "dataman/AMSamplePlate.h"
 
 REIXSBeamline::REIXSBeamline() :
 	AMBeamline("REIXSBeamline")
@@ -88,6 +89,8 @@ REIXSBeamline::REIXSBeamline() :
 	allControlsSet_->addControl(sampleChamber()->r());
 	allControlsSet_->addControl(spectrometer()->endstationTranslation());  //DAVID ADDED
 
+
+	samplePlate_ = new AMSamplePlate();
 }
 
 
@@ -112,15 +115,19 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 	//								name	  PV base name        units unitsPerRev offset microsteps descript. tolerance startTimeoutSecs, parent
 	x_ = new CLSMDriveMotorControl("sampleX", "SMTR1610-4-I21-08", "mm", 2.116, 0, 256, "Sample Chamber X", 0.5, 1.0, this);
 	x_->setSettlingTime(0.1);
+	x_->setContextKnownDescription("X");
 
 	y_ = new CLSMDriveMotorControl("sampleY", "SMTR1610-4-I21-10", "mm", 2.116, 0, 256, "Sample Chamber Y", 0.5, 1.0, this);
 	y_->setSettlingTime(0.1);
+	y_->setContextKnownDescription("Y");
 
 	z_ = new CLSMDriveMotorControl("sampleZ", "SMTR1610-4-I21-07", "mm", 0.25, 0, 256, "Sample Chamber Z", 0.5, 1.0, this);
 	z_->setSettlingTime(0.1);
+	z_->setContextKnownDescription("Z");
 
 	r_ = new CLSMDriveMotorControl("sampleTheta", "SMTR1610-4-I21-11", "deg", 3.6, 0, 256, "Sample Chamber Theta", 0.5, 1.0, this);
 	r_->setSettlingTime(0.1);
+	r_->setContextKnownDescription("Theta");
 
 	loadLockZ_ = new CLSMDriveMotorControl("loadLockZ", "SMTR1610-4-I21-09", "mm", 0.125, 0, 256, "Load Lock Z", 0.5, 1.0, this);
 	loadLockZ_->setSettlingTime(0.1);
