@@ -140,6 +140,10 @@ linux-g++-64 {
 		CDF_LIB_DIR = /home/beamline/tools/cdf/lib
 		CDF_LIB = -L$$CDF_LIB_DIR -lcdf
 		CDF_INCLUDE_DIR = /home/beamline/tools/cdf/include
+
+		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$CDF_LIB_DIR"
+		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$CDF_LIB_DIR"
+
 }
 
 # Special build paths and options for running on the Jenkins auto-build server (currently at http://beamteam.usask.ca:8080)
@@ -158,6 +162,7 @@ CONFIG(jenkins_build) {
 		# MPlot Source
 		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/include"
 		MPLOT_LIB_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/lib"
+
 }
 
 
