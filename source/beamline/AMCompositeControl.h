@@ -80,6 +80,8 @@ protected slots:
 protected:
 	/// used to detect changes in the moving state
 	bool wasMoving_;
+	/// Used to detect changes in isConnected()
+	bool wasConnected_;
 
 };
 
