@@ -52,7 +52,9 @@ void REIXSActionBasedControlEditor::onNewSetpointChosen(double value)
 		}
 		else {
 			AMAction* action = new REIXSControlMoveAction(new REIXSControlMoveActionInfo(setpoint));
-			AMActionRunner::s()->runActionImmediatelyInQueue(action);
+
+//			AMActionRunner::s()->runActionImmediatelyInQueue(action);
+			AMActionRunner::s()->runActionImmediately(action);	// Although we only want to start this when the queue is empty, we don't want it to prevent other real-time adjustment moves from running. Ex: We should be able to move the mono energy and the mirror/grating selectors at the same time. If we run the first action in the queue [even though the queue was initially empty], the queue will now be non-empty and it will block other ones from running.
 		}
 	}
 }
