@@ -58,6 +58,9 @@ REIXSSampleMoveActionInfo::REIXSSampleMoveActionInfo(const AMControlInfoList &ta
 	z_ = 0;
 	theta_ = 45;
 
+	samplePlateId_ = 0;
+	sampleIndex_ = 0;
+
 	int index;
 	if((index = targetPosition.indexOf("sampleX")) != -1)
 		x_ = targetPosition.at(index).value();
@@ -107,15 +110,16 @@ void REIXSSampleMoveActionInfo::updateDescriptions()
 			setLongDescription("Sample Move to [Invalid Sample Plate]");
 			return;
 		}
-		AMControlInfoList positions = plate.at(sampleIndex_).position();
+//		AMControlInfoList positions = plate.at(sampleIndex_).position();
 		QString sampleName = AMSample::sampleNameForId(plate.database(), plate.at(sampleIndex_).sampleId());
 		QString shortDesc = QString("Move to sample '%1' on plate '%2'.").arg(sampleName).arg(plate.name());
-		QStringList posString;
-		for(int i=0, cc=positions.count(); i<cc; ++i) {
-			const AMControlInfo& pos = positions.at(i);
-			posString << QString("%1: %2 %3  ").arg(pos.contextKnownDescription()).arg(pos.value()).arg(pos.units());
-		}
-		shortDesc.append(" (").append(posString.join(QString())).append(")");
+		// Problem with appending the positions: currently we don't update the description when that sample is re-marked, so this position string could be misleading in that situation. Just leave it out.
+//		QStringList posString;
+//		for(int i=0, cc=positions.count(); i<cc; ++i) {
+//			const AMControlInfo& pos = positions.at(i);
+//			posString << QString("%1: %2 %3  ").arg(pos.contextKnownDescription()).arg(pos.value()).arg(pos.units());
+//		}
+//		shortDesc.append(" (").append(posString.join(QString())).append(")");
 
 		setShortDescription(shortDesc);
 		setLongDescription(shortDesc);
