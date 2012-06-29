@@ -195,16 +195,16 @@ AMStatusLogView::AMStatusLogView(QWidget *parent)
 	logView_->horizontalHeader()->setResizeMode(4, QHeaderView::Interactive);
 	logView_->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 	logView_->setColumnWidth(0, 24);
-	logView_->setColumnWidth(2, 80);
+	logView_->setColumnWidth(2, 120);
 	logView_->setColumnWidth(3, 80);
-	logView_->setColumnWidth(4, 40);
+	logView_->setColumnWidth(4, 60);
 	logView_->setMinimumWidth(320);
 
 	logView_->setSelectionBehavior(QAbstractItemView::SelectRows);
 	logView_->setSelectionMode(QAbstractItemView::ExtendedSelection);
 	logView_->setEditTriggers(QTableView::NoEditTriggers);
 
-	resize(400, 120);
+	resize(700, 500);
 
 	connect(enableDebuggingCheckBox_, SIGNAL(stateChanged(int)), this, SLOT(onEnableDebuggingCheckBoxStateChanged(int)));
 }
