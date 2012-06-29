@@ -42,8 +42,24 @@ void REIXSSampleMoveAction::startImplementation()
 	// Mode 1: moving to sample on sample plate:
 	if(sampleMoveInfo()->samplePlateId() > 0) {
 
-		if(sampleMoveInfo()->samplePlateId() != REIXSBeamline::bl()->samplePlate()->id() || sampleMoveInfo()->sampleIndex() >= REIXSBeamline::bl()->samplePlate()->count() || sampleMoveInfo()->sampleIndex() < 0) {
+		int infoPlateId = sampleMoveInfo()->samplePlateId();
+		int currentPlateId = REIXSBeamline::bl()->samplePlate()->id();
+		int sampleIndex = sampleMoveInfo()->sampleIndex();
+
+		if(infoPlateId != currentPlateId) {
 			AMErrorMon::alert(this, -2, "Could not move to the sample because the sample plate is not the current sample plate. Use the 'Sample Positions' page to change the current sample plate.");
+			notifyFailed();
+			return;
+		}
+
+		if(sampleIndex >= REIXSBeamline::bl()->samplePlate()->count()) {
+			AMErrorMon::alert(this, -201, QString("Could not move to the sample because the sample chosen (# %1) is not on the plate (%2 samples)").arg(sampleIndex).arg(REIXSBeamline::bl()->samplePlate()->count()));
+			notifyFailed();
+			return;
+		}
+
+		if(sampleIndex < 0) {
+			AMErrorMon::alert(this, -202, QString("Could not move to the sample because an invalid sample was chosen (# %1)").arg(sampleIndex));
 			notifyFailed();
 			return;
 		}
