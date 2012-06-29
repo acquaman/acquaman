@@ -547,8 +547,6 @@ signals:
 protected:
 	/// List of pointers to our subcontrols
 	QList<AMControl*> children_;
-	/// Used to detect changes in isConnected()
-	bool wasConnected_;
 	/// True if the control should allow additional move() commands while it's already moving. Some hardware can handle this. If this is false, move() requests issued while the control is moving are ignored.  It is false by default; subclassses should change this if required.
 	bool allowsMovesWhileMoving_;
 

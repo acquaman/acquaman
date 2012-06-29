@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 AMControl::AMControl(const QString& name, const QString& units, QObject* parent, const QString description) : QObject(parent), units_(units), description_(description) {
 	setObjectName(name);
-	wasConnected_ = false;
 	tolerance_ = AMCONTROL_TOLERANCE_DONT_CARE;
 	allowsMovesWhileMoving_ = false;
 	displayPrecision_ = 3;
