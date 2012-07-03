@@ -59,6 +59,9 @@ public:
 
 
 
+	/// Convenience static function to return the sample name corresponding to a \c sampleId in \c database.  Returns "[Invalid Sample]" if not found.
+	/*! Often we want to grab the sample name corresponding to a sampleId, but it's not necesary to load all the fields for the sample; this offers better performance than calling loadFromDb() just to access .name(). */
+	static QString sampleNameForId(AMDatabase* db, int sampleId);
 
 
 
@@ -106,8 +109,6 @@ public:
 	}
 
 	QByteArray rawImage() const { return image_; }
-	QImage image() const { return qimage_; }
-
 
 signals:
 
@@ -135,7 +136,6 @@ public slots:
 
 	/// Add a photograph or image of this sample. These will be used as thumbnails in the database views as well.
 	void setImage(const QImage& sampleImage) {
-		qimage_ = sampleImage;
 		QBuffer boutput;
 		boutput.open(QIODevice::WriteOnly);
 		sampleImage.save(&boutput, "PNG");
@@ -146,8 +146,6 @@ public slots:
 	void setRawImage(const QByteArray& rawPngImage) { image_ = rawPngImage; }
 
 protected:
-	/// Image for this sample
-	QImage qimage_;
 	/// Image stored as PNG byte array for persistent (db) storage
 	QByteArray image_;
 

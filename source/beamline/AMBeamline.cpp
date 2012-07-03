@@ -26,7 +26,7 @@ AMBeamline* AMBeamline::instance_ = 0;
 
 
 AMBeamline::AMBeamline(const QString& controlName)
-	: AMControl(controlName, "n/a")
+	: AMControl(controlName, "")
 {
 	exposedControls_ = new AMControlSet(this);
 }

@@ -40,9 +40,6 @@ class REIXSXESScanConfiguration : public AMScanConfiguration
 	Q_PROPERTY(bool doNotClearExistingCounts READ doNotClearExistingCounts WRITE setDoNotClearExistingCounts)
 	Q_PROPERTY(AMDbObject* mcpDetectorInfo READ dbGetMcpDetectorInfo WRITE dbLoadMcpDetectorInfo)
 
-	// temporary, for comissioning:
-	Q_PROPERTY(double detectorHeightError READ detectorHeightError WRITE setDetectorHeightError)
-
 public:
 	/// Default Constructor
 	Q_INVOKABLE explicit REIXSXESScanConfiguration(QObject *parent = 0);
@@ -69,13 +66,13 @@ public:
 	bool shouldStartFromCurrentPosition() const { return shouldStartFromCurrentPosition_; }
 	/// A flag indicating that we should start the scan without clearing the existing counts on the detector.
 	bool doNotClearExistingCounts() const { return doNotClearExistingCounts_; }
+
+
 	/// Configuration information for the MCP detector itself
 	const REIXSXESMCPDetectorInfo* mcpDetectorInfo() const { return &mcpDetectorInfo_; }
 	REIXSXESMCPDetectorInfo* mcpDetectorInfo() { return &mcpDetectorInfo_; }
 
 
-	// temporary, for comissioning
-	double detectorHeightError() const { return detectorHeightError_; }
 
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
@@ -118,8 +115,6 @@ public slots:
 	/// Set a flag indicating that we should start the scan without clearing the existing counts on the detector.
 	void setDoNotClearExistingCounts(bool doNotClear) { if(doNotClearExistingCounts_ == doNotClear) return; doNotClearExistingCounts_ = doNotClear; setModified(true); emit configurationChanged(); }
 
-	// temporary, for comissioning:
-	void setDetectorHeightError(double heightMm) { detectorHeightError_ = heightMm; setModified(true); emit configurationChanged(); }
 
 protected:
 
@@ -148,8 +143,6 @@ protected:
 	REIXSXESMCPDetectorInfo mcpDetectorInfo_;
 
 
-	// temporary, for comissioning:
-	double detectorHeightError_;
 
 
 

@@ -91,7 +91,7 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 			emit scanActionCreated((AMScanAction *)currentAction());
 	}
 
-	if (state == AMAction3::Running){
+	if ( (state == AMAction3::Running) && (previousState != AMAction3::Resuming) ){
 
 		if (isScanAction())
 			emit scanActionStarted((AMScanAction *)currentAction());

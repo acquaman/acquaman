@@ -30,18 +30,26 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class SGMXASScanController
 {
 public:
+	/// Standard constructor. Takes the scan configuration and readies a new scan object with the proper measurements and data sources for the detectors in use
 	SGMXASScanController(SGMXASScanConfiguration *cfg);
 
+	/// Returns whether or not the initialization actions and cleanup actions were created successfully
 	bool isBeamlineInitialized();
+	/// Creates the initialization actions and the cleanup actions, returns the value of beamlineInitialized_
 	virtual bool beamlineInitialize();
 
 protected:
+	/// Holds the scan configuration pointer this controller is working with
 	SGMXASScanConfiguration *config_;
-	AMBeamlineParallelActionsList *initializationActions_;
-	AMBeamlineParallelActionsList *cleanUpActions_;
-	bool beamlineInitialized_;
+	/// Holds the scan created here (specifically this will wind up being an AMXASScan)
 	AMXASScan *specificScan_;
 
+	/// Actions list for initialization actions (as Actions3 become more fully tested this needs to be converted over)
+	AMBeamlineParallelActionsList *initializationActions_;
+	/// Actions list for cleanup actions (as Actions3 become more fully tested this needs to be converted over)
+	AMBeamlineParallelActionsList *cleanUpActions_;
+	/// Bool holding true if the initialization actions and cleanup actions lists were created successfully
+	bool beamlineInitialized_;
 };
 
 #endif // AMSGMXASSCANCONTROLLER_H

@@ -30,11 +30,13 @@ CLSAmptekSDD123Detector::CLSAmptekSDD123Detector(const QString &name, const QStr
 
 	allControls_ = new AMControlSet(this);
 	startAcquisitionControl_ = new AMPVControl(name+"StartAcquisition", baseName+":spectrum:startAcquisition", baseName+":spectrum:startAcquisition", QString(), this, 0.5);
+	startAcquisitionControl_->setAllowsMovesWhileMoving(true);
 	statusControl_ = new AMReadOnlyPVControl(name+"Status", baseName+":spectrum:state", this);
 	mcaChannelsControl_ = new AMReadOnlyPVControl(name+"MCAChannels", baseName+":parameters:MCAChannels", this);
 	integrationTimeControl_ = new AMReadOnlyPVControl(name+"IntegrationTime", baseName+":parameters:PresetTime", this);
 	detectorTemperatureControl_ = new AMReadOnlyPVControl(name+"DetectorTemperature", baseName+":parameters:DetectorTemperature", this);
 	spectrumControl_ = new AMReadOnlyPVControl(name+"Spectrum", baseName+":spectrum", this);
+	binnedSpectrumControl_ = new AMReadOnlyWaveformBinningPVControl(name+"BinnedSpectrum", baseName+":spectrum", 0, 1024, this);
 
 	allControls_->addControl(startAcquisitionControl_);
 	allControls_->addControl(statusControl_);
@@ -42,6 +44,7 @@ CLSAmptekSDD123Detector::CLSAmptekSDD123Detector(const QString &name, const QStr
 	allControls_->addControl(integrationTimeControl_);
 	allControls_->addControl(detectorTemperatureControl_);
 	allControls_->addControl(spectrumControl_);
+	allControls_->addControl(binnedSpectrumControl_);
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
 	connect(allControls_, SIGNAL(controlSetTimedOut()), this, SLOT(onControlsTimedOut()));
 
@@ -55,6 +58,7 @@ CLSAmptekSDD123Detector::CLSAmptekSDD123Detector(const QString &name, const QStr
 	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(integrationTimeChanged(double)));
 	connect(detectorTemperatureControl_, SIGNAL(valueChanged(double)), this, SLOT(setDetectorTemperature(double)));
 	connect(detectorTemperatureControl_, SIGNAL(valueChanged(double)), this, SIGNAL(detectorTemperatureChanged(double)));
+	connect(binnedSpectrumControl_, SIGNAL(valueChanged(double)), this, SIGNAL(totalCountsChanged(double)));
 }
 
 CLSAmptekSDD123Detector::~CLSAmptekSDD123Detector()
@@ -128,6 +132,12 @@ QVector<int> CLSAmptekSDD123Detector::spectraValues()
 {
 	AMReadOnlyPVControl *tmpControl = qobject_cast<AMReadOnlyPVControl*>(spectrumControl_);
 	return tmpControl->readPV()->lastIntegerValues();
+}
+
+int CLSAmptekSDD123Detector::spectraTotalCounts()
+{
+	AMReadOnlyWaveformBinningPVControl *tmpControl = qobject_cast<AMReadOnlyWaveformBinningPVControl*>(binnedSpectrumControl_);
+	return tmpControl->value();
 }
 
 AMDataSource* CLSAmptekSDD123Detector::spectrumDataSource() const{

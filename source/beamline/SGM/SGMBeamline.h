@@ -43,11 +43,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions/AMBeamlineParallelActionsList.h"
 #include "actions/AMBeamlineListAction.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-
 #include "beamline/AMControlSetSampleManipulator.h"
-
 #include "beamline/AMDetectorSet.h"
-
 #include "beamline/AMControlOptimization.h"
 
 #define SGMBEAMLINE_PV_NAME_LOOKUPS_FAILED 312001
@@ -104,11 +101,8 @@ public:
 
 	virtual ~SGMBeamline();
 
-	bool isConnected() const {
-		//return criticalControlsSet_->isConnected() && pgtDetector()->isConnected() && oos65000Detector()->isConnected();
-		//return criticalControlsSet_->isConnected() && pgtDetector()->isConnected() && teyScalerDetector_->isConnected();
-		return criticalControlsSet_->isConnected() && criticalDetectorsSet_->isConnected();
-	}
+	bool isConnected() const;
+	bool isReady() const;
 
 	QStringList unconnectedCriticals() const;
 
@@ -141,23 +135,7 @@ public:
 	AMControl* monoTracking() const { return monoTracking_;}
 	AMControl* exitSlitTracking() const { return exitSlitTracking_;}
 
-	QString detectorSignalSource() const {
-		if(detectorSignalSource_->value() == 0)
-			return sgmDetectorSignalSourceName(SGMBeamline::sourcePicoammeters);
-		else if(detectorSignalSource_->value() == 1)
-			return sgmDetectorSignalSourceName(SGMBeamline::sourceScaler);
-		else
-			return sgmDetectorSignalSourceName((SGMBeamline::sgmDetectorSignalSource)272727);
-	}
-
-	QString currentEndstation() const{
-		if(activeEndstation_->value() == 0)
-			return sgmEndstationName(SGMBeamline::scienta);
-		else if(activeEndstation_->value() == 1)
-			return sgmEndstationName(SGMBeamline::ssa);
-		else
-			return sgmEndstationName((SGMBeamline::sgmEndstation)272727);
-	}
+	QString currentEndstation() const;
 
 	AMDetector* teyDetector() const { return teyScalerDetector_;}
 	AMDetector* tfyDetector() const { return tfyScalerDetector_;}
@@ -175,11 +153,6 @@ public:
 	AMDetector* filterPD4ScalarDetector() const { return filterPD4ScalarDetector_;}
 	AMDetector* amptekSDD1() const { return amptekSDD1_;}
 	AMDetector* amptekSDD2() const { return amptekSDD2_;}
-
-	bool detectorValidForCurrentSignalSource(AMDetector *detector);
-	bool detectorValidForCurrentSignalSource(AMDetectorInfo *detectorInfo);
-	bool usingPicoammeterSource();
-	bool usingScalerSource();
 
 	AMControl* loadlockCCG() const { return loadlockCCG_;}
 	AMControl* loadlockTCG() const { return loadlockTCG_;}
@@ -268,7 +241,7 @@ public:
 	virtual AMControlSet* currentSamplePositioner() { return ssaManipulatorSet(); }
 	virtual QList<AMControlInfoList> currentFiducializations() { return ssaFiducializations(); }
 
-	bool isVisibleLightOn();
+	bool isVisibleLightOn() const;
 
 	bool energyValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double energy);
 	bool energyRangeValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double minEnergy, double maxEnergy);
@@ -290,27 +263,14 @@ public slots:
 
 	void closeVacuum();
 
-	void setDetectorSignalSource(SGMBeamline::sgmDetectorSignalSource detectorSignalSource){
-		if(detectorSignalSource == SGMBeamline::sourcePicoammeters)
-			detectorSignalSource_->move(0);
-		else if(detectorSignalSource == SGMBeamline::sourceScaler)
-			detectorSignalSource_->move(1);
-		return;
-	}
-
-	void setCurrentEndstation(SGMBeamline::sgmEndstation endstation){
-		if(endstation == SGMBeamline::scienta)
-			activeEndstation_->move(0);
-		else if(endstation == SGMBeamline::ssa)
-			activeEndstation_->move(1);
-		return;
-	}
+	void setCurrentEndstation(SGMBeamline::sgmEndstation endstation);
 
 signals:
 	void beamlineScanningChanged(bool scanning);
 	void controlSetConnectionsChanged();
 	void criticalControlsConnectionsChanged();
 	void criticalConnectionsChanged();
+	void beamlineReadyChanged();
 
 	void visibleLightStatusChanged(const QString& status);
 
@@ -318,7 +278,6 @@ signals:
 
 	void currentSamplePlateChanged(AMSamplePlate *newSamplePlate);
 
-	void detectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource);
 	void currentEndstationChanged(SGMBeamline::sgmEndstation);
 
 	void detectorHVChanged();
@@ -329,11 +288,10 @@ signals:
 protected slots:
 	void onBeamlineScanningValueChanged(double value);
 	void onControlSetConnected(bool csConnected);
-	void onDetectorConnected(bool isConnected);
 	void onCriticalControlsConnectedChanged(bool isConnected, AMControl *controll);
 	void onCriticalsConnectedChanged();
+	void onEnergyValueChanged();
 
-	void onDetectorSignalSourceChanged(double value);
 	void onActiveEndstationChanged(double value);
 
 	void recomputeWarnings();
@@ -407,7 +365,6 @@ protected:
 	AMControl *visibleLightStatus_;
 	AMControl *activeEndstation_;
 	AMControl *scalerIntegrationTime_;
-	AMControl *detectorSignalSource_;
 	AMControl *ssaIllumination_;
 
 	AMDetector *teyScalerDetector_;
@@ -495,40 +452,12 @@ protected:
 
 	AMBiHash<QString, QString> amNames2pvNames_;
 
+	double lastEnergyValue_;
+
 	friend class SGMGratingAction;
 
 private:
 	void usingSGMBeamline();
-};
-
-class SGMFluxOptimization : public AMControlOptimization
-{
-	Q_OBJECT
-public:
-	SGMFluxOptimization(QObject *parent=0);
-
-	virtual QMap<double, double> curve(QList<QVariant> stateParameters, AMRegionsList* contextParameters);
-	QMap< QString, QMap<double, double> > collapse(AMRegionsList *contextParameters);
-
-protected:
-	double collapser(QMap<double, double> optCurve);
-	double maximumEnergy(AMRegionsList* regions);
-	double minimumEnergy(AMRegionsList* regions);
-};
-
-class SGMResolutionOptimization : public AMControlOptimization
-{
-	Q_OBJECT
-public:
-	SGMResolutionOptimization(QObject *parent=0);
-
-	QMap<double, double> curve(QList<QVariant> stateParameters, AMRegionsList* contextParameters);
-	QMap< QString, QMap<double, double> > collapse(AMRegionsList *contextParameters);
-
-protected:
-	double collapser(QMap<double, double> optCurve);
-	double maximumEnergy(AMRegionsList* regions);
-	double minimumEnergy(AMRegionsList* regions);
 };
 
 

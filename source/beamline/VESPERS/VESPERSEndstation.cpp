@@ -44,7 +44,6 @@ VESPERSEndstation::VESPERSEndstation(QObject *parent)
 
 	// Microscope light PV.
 	micLightPV_ = new AMProcessVariable("07B2_PLC_Mic_Light_Inten", true, this);
-	micLightPV_->disablePutCallbackMode(true);
 
 	// Laser on/off control.
 	laserPower_ = new AMPVControl("Laser Power Control", "07B2_PLC_LaserDistON", "07B2_PLC_LaserDistON_Tog", QString(), this);

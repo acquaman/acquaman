@@ -57,7 +57,10 @@ void AMBeamlineControlMoveAction::start(){
 		startPoint_ = control_->value();
 		connect(&progressTimer_, SIGNAL(timeout()), this, SLOT(calculateProgress()));
 		progressTimer_.start(500);
-		control_->move(setpoint_);
+
+		int f = control_->move(setpoint_);
+		if(f != AMControl::NoFailure)
+			onFailed(f);
 	}
 	else
 		connect(this, SIGNAL(ready(bool)), this, SLOT(delayedStart(bool)));

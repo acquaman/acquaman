@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMScanConfiguration.h"	/// \todo Move to dataman!
 #include "util/AMDateTimeUtils.h"
 #include "dataman/AMRun.h"
-#include "dataman/info/AMControlInfoList.h"
+#include "dataman/info/AMControlInfo.h"
 #include "dataman/AMSample.h"
 
 AMScanDictionary::AMScanDictionary(AMScan *scan, QObject *parent) :

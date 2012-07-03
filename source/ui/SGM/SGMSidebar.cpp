@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QRadioButton>
 #include <QButtonGroup>
 
+#include "ui/beamline/AMControlButton.h"
+
 #include "ui/CLS/CLSSynchronizedDwellTimeView.h"
 
 SGMSidebar::SGMSidebar(QWidget *parent) :
@@ -40,7 +42,7 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 
 	setMaximumWidth(350);
 
-	readyLabel_ = new AMControlEditor(SGMBeamline::sgm()->beamlineReady(), NULL, true);
+	readyLabel_ = new AMExtendedControlEditor(SGMBeamline::sgm()->beamlineReady(), NULL, true);
 	readyLabel_->setNoUnitsBox(true);
 	readyLabel_->overrideTitle("");
 	readyLabel_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -67,7 +69,7 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	visibleLightButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 	connect(visibleLightButton_, SIGNAL(clicked()), this, SLOT(onVisibleLightClicked()));
 	connect(SGMBeamline::sgm(), SIGNAL(visibleLightStatusChanged(QString)), this, SLOT(onVisibleLightStatusChanged(QString)));
-	energyNC_ = new AMControlEditor(SGMBeamline::sgm()->energy(), SGMBeamline::sgm()->energyMovingStatus());
+	energyNC_ = new AMExtendedControlEditor(SGMBeamline::sgm()->energy(), SGMBeamline::sgm()->energyMovingStatus());
 	energyNC_->setControlFormat('f', 2);
 	energyNC_->overrideTitle("Energy");
 	energyNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -83,19 +85,19 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	trackExitSlitCButton_->overrideText("Exit Slit");
 	trackExitSlitCButton_->setCheckable(true);
 	trackExitSlitCButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-	gratingNC_ = new AMControlEditor(SGMBeamline::sgm()->grating());
+	gratingNC_ = new AMExtendedControlEditor(SGMBeamline::sgm()->grating());
 	gratingNC_->overrideTitle("Grating");
 	gratingNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	entranceSlitNC_ = new AMControlEditor(SGMBeamline::sgm()->entranceSlitGap());
+	entranceSlitNC_ = new AMExtendedControlEditor(SGMBeamline::sgm()->entranceSlitGap());
 	entranceSlitNC_->setControlFormat('f', 1);
 	entranceSlitNC_->overrideTitle("Entrance Slit");
 	entranceSlitNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	exitSlitNC_ = new AMControlEditor(SGMBeamline::sgm()->exitSlitGap());
+	exitSlitNC_ = new AMExtendedControlEditor(SGMBeamline::sgm()->exitSlitGap());
 	exitSlitNC_->setControlFormat('f', 1);
 	exitSlitNC_->overrideTitle("Exit Slit");
 	exitSlitNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
-	scanningLabel_ = new AMControlEditor(SGMBeamline::sgm()->beamlineScanning(), NULL, true);
+	scanningLabel_ = new AMExtendedControlEditor(SGMBeamline::sgm()->beamlineScanning(), NULL, true);
 	scanningLabel_->setNoUnitsBox(true);
 	scanningLabel_->overrideTitle("");
 	scanningLabel_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -108,21 +110,6 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	shl->addWidget(scanningResetButton_);
 	shl->setSpacing(0);
 	shl->setContentsMargins(2, 2, 2, 2);
-
-	detectorSignalSources_ = new QButtonGroup();
-	picoammeterButton_ = new QRadioButton(SGMBeamline::sgm()->sgmDetectorSignalSourceName(SGMBeamline::sourcePicoammeters));
-	scalerButton_ = new QRadioButton(SGMBeamline::sgm()->sgmDetectorSignalSourceName(SGMBeamline::sourceScaler));
-	detectorSignalSources_->addButton(picoammeterButton_, 0);
-	detectorSignalSources_->addButton(scalerButton_, 1);
-	QGroupBox *detectorSourceBox = new QGroupBox("Detectors");
-	QVBoxLayout *dl = new QVBoxLayout();
-	dl->addWidget(picoammeterButton_);
-	dl->addWidget(scalerButton_);
-	dl->setSpacing(0);
-	dl->setContentsMargins(2, 2, 2, 2);
-	detectorSourceBox->setLayout(dl);
-	connect(SGMBeamline::sgm(), SIGNAL(detectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource)), this, SLOT(onDetectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource)));
-	connect(detectorSignalSources_, SIGNAL(buttonClicked(int)), this, SLOT(onDetectorButtonsClicked(int)));
 
 	endstationsAvailable_ = new QButtonGroup();
 	scientaButton_ = new QRadioButton(SGMBeamline::sgm()->sgmEndstationName(SGMBeamline::scienta));
@@ -194,11 +181,6 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	pdSeries_->setMarker(MPlotMarkerShape::None);
 
 	imagePlot_->addItem(i0Series_);
-	// debugging:
-	// connect(i0Series_->signalSource(), SIGNAL(boundsChanged()), this, SLOT(testingBoundsChanged()));
-	//imagePlot_->addItem(teySeries_);
-	//imagePlot_->addItem(tfySeries_);
-	//imagePlot_->addItem(pdSeries_);
 
 	stripToolCounter_ = 0;
 	stripToolTimer_ = new QTimer(this);
@@ -207,11 +189,6 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 
 	warningAndPlotHL_ = new QHBoxLayout();
 	warningAndPlotHL_->addWidget(beamlineWarningsLabel_);
-
-	hvOnButton_ = new QPushButton("HV On");
-	hvOffButton_ = new QPushButton("HV Off");
-	//connect(hvOnButton_, SIGNAL(clicked()), this, SLOT(onHVOnClicked()));
-	//connect(hvOffButton_, SIGNAL(clicked()), this, SLOT(onHVOffClicked()));
 
 	gl_->addWidget(readyLabel_,		0, 0, 1, 6, 0);
 	gl_->addWidget(beamOnButton_,		1, 0, 1, 2, 0);
@@ -227,11 +204,7 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gl_->addWidget(entranceSlitNC_,		6, 0, 1, 3, 0);
 	gl_->addWidget(exitSlitNC_,		6, 3, 1, 3, 0);
 	gl_->addLayout(shl,			7, 0, 1, 3, 0);
-	gl_->addWidget(detectorSourceBox,	8, 0, 1, 3, 0);
 	gl_->addWidget(endstationsBox,		8, 3, 1, 3, 0);
-	//gl_->addWidget(hvOnButton_,		9, 0, 1, 2, 0);
-	//gl_->addWidget(hvOffButton_,		9, 2, 1, 2, 0);
-
 	gl_->addLayout(warningAndPlotHL_,	10, 0, 1, 6, 0);
 
 	gl_->setRowStretch(9, 10);
@@ -240,6 +213,7 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
 
 	scanningResetButton_->setContentsMargins(2,2,2,2);
+	onBeamlineWarnings("");
 
 	//CLSSynchronizedDwellTimeView *synchronizedDwellTimeView = new CLSSynchronizedDwellTimeView(SGMBeamline::sgm()->synchronizedDwellTime());
 	//synchronizedDwellTimeView->show();
@@ -293,7 +267,6 @@ void SGMSidebar::onBeamOnButtonClicked(){
 }
 
 void SGMSidebar::onBeamOnActionFinished(){
-	qDebug() << "Beam on action finished";
 	/* NTBA - August 25th, 2011 (David Chevrier)
 			Probably need to delete the internals too, list, actions, etc"
 	*/
@@ -304,27 +277,14 @@ void SGMSidebar::onBeamOnActionFinished(){
 void SGMSidebar::onStopMotorsButtonClicked(){
 	if(stopMotorsAction_)
 		return;
-	qDebug() << "Starting the stop motors action";
 	stopMotorsAction_ = SGMBeamline::sgm()->createStopMotorsAction();
 	connect(stopMotorsAction_, SIGNAL(finished()), this, SLOT(onStopMotorsActionFinished()));
 	stopMotorsAction_->start();
 }
 
 void SGMSidebar::onStopMotorsActionFinished(){
-	qDebug() << "Motor stop SUCCEEDED";
 	delete stopMotorsAction_;
 	stopMotorsAction_ = 0;//NULL
-}
-
-void SGMSidebar::onDetectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource newSource){
-	if(newSource == SGMBeamline::sourcePicoammeters)
-		picoammeterButton_->setChecked(true);
-	else if(newSource == SGMBeamline::sourceScaler)
-		scalerButton_->setChecked(true);
-}
-
-void SGMSidebar::onDetectorButtonsClicked(int buttonIndex){
-	SGMBeamline::sgm()->setDetectorSignalSource((SGMBeamline::sgmDetectorSignalSource)buttonIndex);
 }
 
 void SGMSidebar::onCurrentEndstationChanged(SGMBeamline::sgmEndstation newEndstation){
@@ -377,7 +337,6 @@ void SGMSidebar::onStripToolTimerTimeout(){
 }
 
 void SGMSidebar::onBeamlineWarnings(const QString &newWarnings){
-	qDebug() << "Warnings are " << newWarnings << newWarnings.isEmpty();
 	if(newWarnings.isEmpty() && warningAndPlotHL_->itemAt(0)->widget() == beamlineWarningsLabel_){
 		warningAndPlotHL_->removeWidget(beamlineWarningsLabel_);
 		beamlineWarningsLabel_->hide();
@@ -390,26 +349,4 @@ void SGMSidebar::onBeamlineWarnings(const QString &newWarnings){
 		warningAndPlotHL_->addWidget(beamlineWarningsLabel_);
 		beamlineWarningsLabel_->show();
 	}
-}
-
-void SGMSidebar::onHVOnClicked(){
-	AMBeamlineActionItem* onAction = SGMBeamline::sgm()->createHV106OnActions();
-	connect(onAction, SIGNAL(succeeded()), this, SLOT(onHVOnSucceeded()));
-	onAction->start();
-}
-
-void SGMSidebar::onHVOffClicked(){
-	AMBeamlineActionItem* offAction = SGMBeamline::sgm()->createHV106OffActions();
-	connect(offAction, SIGNAL(succeeded()), this, SLOT(onHVOffSucceeded()));
-	offAction->start();
-}
-
-void SGMSidebar::onHVOnSucceeded(){
-	qDebug() << "Heard on action succeeded";
-	disconnect(QObject::sender(), 0, this, SLOT(onHVOnSucceeded()));
-}
-
-void SGMSidebar::onHVOffSucceeded(){
-	qDebug() << "Heard off action succeeded";
-	disconnect(QObject::sender(), 0, this, SLOT(onHVOffSucceeded()));
 }

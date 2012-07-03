@@ -164,7 +164,7 @@ AMControlMoveButtonContextMenu::AMControlMoveButtonContextMenu(AMControlMoveButt
 	connect(&stepSizeButtons_, SIGNAL(buttonClicked(int)), this, SLOT(hide()));
 
 	if(moveButton_->control()) {
-		AMBasicControlEditor* editor = new AMBasicControlEditor(moveButton_->control());
+		AMControlEditor* editor = new AMControlEditor(moveButton_->control());
 		hl->addSpacing(10);
 		hl->addWidget(editor);
 	}

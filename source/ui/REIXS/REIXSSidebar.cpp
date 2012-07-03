@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/REIXS/REIXSXESSpectrometerControlEditor.h"
 #include "beamline/REIXS/REIXSBeamline.h"
 #include "ui/REIXS/REIXSActionBasedControlEditor.h"
-#include "ui/REIXS/REIXSActionBasedEnumControlEditor.h"
 
 
 REIXSSidebar::REIXSSidebar(QWidget *parent) :
@@ -43,9 +42,9 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 	monoSlitEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoSlit());
 	ui->beamlineFormLayout->setWidget(4, QFormLayout::FieldRole, monoSlitEditor_);
 
-	gratingSelector_ = new REIXSActionBasedEnumControlEditor(REIXSBeamline::bl()->photonSource()->monoGratingSelector());
+	gratingSelector_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoGratingSelector());
 	ui->beamlineFormLayout->setWidget(2, QFormLayout::FieldRole, gratingSelector_);
-	mirrorSelector_ = new REIXSActionBasedEnumControlEditor(REIXSBeamline::bl()->photonSource()->monoMirrorSelector());
+	mirrorSelector_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoMirrorSelector());
 	ui->beamlineFormLayout->setWidget(3, QFormLayout::FieldRole, mirrorSelector_);
 
 
@@ -71,7 +70,7 @@ REIXSSidebar::~REIXSSidebar()
 
 void REIXSSidebar::onMCPCountsPerSecondChanged(double countsPerSecond)
 {
-	ui->signalXESValue->setText(QString("%1").arg(countsPerSecond, 0, 'e', 1));
+	ui->signalXESValue->setText(QString("%1").arg(countsPerSecond, 0, 'f', 0));
 
 	if(countsPerSecond == 0)
 		countsPerSecond = 1;	// log(0) is undefined.

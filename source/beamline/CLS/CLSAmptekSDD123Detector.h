@@ -76,6 +76,9 @@ public:
 	/// Turns the spectra controls into an array of ints and returns the spectra
 	QVector<int> spectraValues();
 
+	/// Returns the total spectra counts using the binned version
+	int spectraTotalCounts();
+
 	// Data sources
 	///////////////////////////////////////
 	/// Returns the raw spectrum data source at \c index.  It is assumed that the data sources will be in order of element.  Must be between 0 and size()-1.
@@ -114,6 +117,8 @@ signals:
 	void detectorTemperatureChanged(double);
 	/// Notifies that the number of MCA Channels has changed
 	void mcaChannelsChanged(double);
+	/// Notifies that the total counts in the spectrum has changed
+	void totalCountsChanged(double);
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
@@ -139,6 +144,8 @@ protected:
 	AMControl *startAcquisitionControl_;
 	/// The detector spectrum control
 	AMControl *spectrumControl_;
+	/// A binned version of the detector spectrum control
+	AMControl *binnedSpectrumControl_;
 
 	/// The master set of controls
 	AMControlSet *allControls_;

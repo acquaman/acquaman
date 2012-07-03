@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMRun.h"
 #include "dataman/AMExperiment.h"
 
+#include <QStringBuilder>
 
 
 AMRunExperimentInsert::AMRunExperimentInsert(AMDatabase* db, QStandardItem* runParent, QStandardItem* experimentParent, QObject *parent) :
@@ -113,8 +114,8 @@ void AMRunExperimentInsert::refreshRuns() {
 					item->setData(p.scaledToHeight(22, Qt::SmoothTransformation), Qt::DecorationRole);
 			}
 
-			/// "toolTipRole" is the long description of the facility
-			item->setData(q.value(2).toString(), Qt::ToolTipRole);
+			/// "toolTipRole" is the full name, followed by the long description of the facility
+			item->setData(QString(item->data(Qt::DisplayRole).toString() % ": " % q.value(2).toString()), Qt::ToolTipRole);
 
 			/// Fill the alias information for this to be a valid 'Alias' item
 			AMWindowPaneModel::initAliasItem(item, runItem_->data(AMWindowPaneModel::AliasTargetRole).value<QStandardItem*>(), "Runs", q.value(5).toInt());

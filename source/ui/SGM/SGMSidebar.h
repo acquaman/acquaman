@@ -28,7 +28,9 @@ class QVBoxLayout;
 class QGridLayout;
 class QRadioButton;
 
-#include "ui/beamline/AMControlEditor.h"
+class AMControlButton;
+
+#include "ui/beamline/AMExtendedControlEditor.h"
 #include "beamline/SGM/SGMBeamline.h"
 #include "actions/AMBeamlineParallelActionsList.h"
 #include "MPlot/MPlotWidget.h"
@@ -43,11 +45,6 @@ public:
 
 	~SGMSidebar();
 
-signals:
-
-public slots:
-	// debugging: void testingBoundsChanged();
-
 protected:
 	void showEvent(QShowEvent *);
 
@@ -60,9 +57,6 @@ protected slots:
 	void onStopMotorsButtonClicked();
 	void onStopMotorsActionFinished();
 
-	void onDetectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource newSource);
-	void onDetectorButtonsClicked(int buttonIndex);
-
 	void onCurrentEndstationChanged(SGMBeamline::sgmEndstation newEndstation);
 	void onEndstationButtonsClicked(int buttonIndex);
 
@@ -72,43 +66,32 @@ protected slots:
 
 	void onBeamlineWarnings(const QString &newWarnings);
 
-	void onHVOnClicked();
-	void onHVOffClicked();
-	void onHVOnSucceeded();
-	void onHVOffSucceeded();
-
 protected:
 	QGroupBox *mainBox_;
 
 	QVBoxLayout *mainLayout_;
 	QGridLayout *gl_;
 
-	AMControlEditor *readyLabel_;
+	AMExtendedControlEditor *readyLabel_;
 	QToolButton *beamOnButton_;
 	AMControlButton *beamOffCButton_;
 	QToolButton *stopMotorsButton_;
 	QToolButton *closeVacuumButton_;
 	QToolButton *visibleLightButton_;
-	AMControlEditor *energyNC_;
+	AMExtendedControlEditor *energyNC_;
 	AMControlButton *trackUndulatorCButton_;
 	AMControlButton *trackGratingCButton_;
 	AMControlButton *trackExitSlitCButton_;
-	AMControlEditor *gratingNC_;
-	AMControlEditor *entranceSlitNC_;
-	AMControlEditor *exitSlitNC_;
-	AMControlEditor *scanningLabel_;
+	AMExtendedControlEditor *gratingNC_;
+	AMExtendedControlEditor *entranceSlitNC_;
+	AMExtendedControlEditor *exitSlitNC_;
+	AMExtendedControlEditor *scanningLabel_;
 	QToolButton *scanningResetButton_;
-	QButtonGroup *detectorSignalSources_;
-	QRadioButton *picoammeterButton_;
-	QRadioButton *scalerButton_;
 	QButtonGroup *endstationsAvailable_;
 	QRadioButton *scientaButton_;
 	QRadioButton *ssaButton_;
 	QHBoxLayout *warningAndPlotHL_;
 	QLabel *beamlineWarningsLabel_;
-
-	QPushButton *hvOnButton_;
-	QPushButton *hvOffButton_;
 
 	/// UI components:
 	MPlotWidget* imageView_;
@@ -122,8 +105,6 @@ protected:
 
 	AMBeamlineListAction *beamOnAction_;
 	AMBeamlineListAction *stopMotorsAction_;
-
-
 };
 
 #endif // SGMSIDEBAR_H
