@@ -69,6 +69,7 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	connect(endstation_, SIGNAL(focusNormalFbkChanged(double)), this, SLOT(normalFocusUpdate(double)));
 
 	yFocusButton_ = new QToolButton;
+	yFocusButton_->hide();
 	connect(yFocusButton_, SIGNAL(clicked()), this, SLOT(yFocusClicked()));
 	connect(endstation_, SIGNAL(focusYFbkChanged(double)), this, SLOT(yFocusUpdate(double)));
 

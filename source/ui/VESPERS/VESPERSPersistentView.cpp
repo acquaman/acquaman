@@ -47,11 +47,21 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	connect(ssh2_, SIGNAL(clicked()), this, SLOT(onSSH2Clicked()));
 
 	// Sample stage widget.
-	VESPERSSampleStageView *motors = new VESPERSSampleStageView;
+	VESPERSSampleStageView *pseudoMotors = new VESPERSSampleStageView(VESPERSBeamline::vespers()->pseudoSampleStage());
+	pseudoMotors->setTitle("H & V");
+	pseudoMotors->setHorizontalTitle("H");
+	pseudoMotors->setVerticalTitle("V");
+
+	VESPERSSampleStageView *realMotors = new VESPERSSampleStageView(VESPERSBeamline::vespers()->realSampleStage());
+	realMotors->setTitle("X & Z");
+	realMotors->setHorizontalTitle("X");
+	realMotors->setVerticalTitle("Z");
+	realMotors->hide();
 
 	// PID control view widget.
 	VESPERSPIDLoopControlView *pidView = new VESPERSPIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());
-	connect(VESPERSBeamline::vespers()->sampleStagePID(), SIGNAL(stateChanged(bool)), motors, SLOT(setEnabled(bool)));
+	connect(VESPERSBeamline::vespers()->sampleStagePID(), SIGNAL(stateChanged(bool)), pseudoMotors, SLOT(setEnabled(bool)));
+	connect(VESPERSBeamline::vespers()->sampleStagePID(), SIGNAL(stateChanged(bool)), realMotors, SLOT(setEnabled(bool)));
 
 	// The temperature control.
 	temperature_ = VESPERSBeamline::vespers()->temperatureSet();
@@ -72,8 +82,6 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QFont font(this->font());
 	font.setBold(true);
 
-	QLabel *sampleStageLabel = new QLabel("Sample Stage Control");
-	sampleStageLabel->setFont(font);
 	QLabel *pshShutterLabel = new QLabel("Front End Shutters");
 	pshShutterLabel->setFont(font);
 	QLabel *sshShutterLabel = new QLabel("Beamline Shutters");
@@ -254,13 +262,16 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	statusLayout->addWidget(valvesButton_, 1, 4, 1, 2);
 	statusLayout->setContentsMargins(15, 7, 11, 7);
 
+	QHBoxLayout *sampleStageLayout = new QHBoxLayout;
+	sampleStageLayout->addWidget(pseudoMotors);
+	sampleStageLayout->addWidget(realMotors);
+
 	QVBoxLayout *persistentLayout = new QVBoxLayout;
 	persistentLayout->addLayout(shutterLayout);
 	persistentLayout->addLayout(beamSelectionLayout);
 	persistentLayout->addWidget(slitsLabel);
 	persistentLayout->addLayout(slitsLayout);
-	persistentLayout->addWidget(sampleStageLabel);
-	persistentLayout->addWidget(motors);
+	persistentLayout->addLayout(sampleStageLayout);
 	persistentLayout->addWidget(pidView);
 	persistentLayout->addLayout(experimentReadyLayout);
 	persistentLayout->addWidget(endstationShutterLabel);

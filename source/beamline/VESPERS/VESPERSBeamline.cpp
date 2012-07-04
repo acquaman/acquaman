@@ -192,7 +192,7 @@ void VESPERSBeamline::setupSampleStage()
 
 void VESPERSBeamline::setupEndstation()
 {
-	endstation_ = new VESPERSEndstation(this);
+	endstation_ = new VESPERSEndstation(sampleStageNormal_, sampleStageY_, this);
 }
 
 void VESPERSBeamline::setupDetectors()

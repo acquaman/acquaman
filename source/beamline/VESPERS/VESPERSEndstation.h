@@ -30,8 +30,8 @@ class VESPERSEndstation : public QObject
 {
 	Q_OBJECT
 public:
-	/// The constructor.  Builds and encapsulates many of the controls used for the endstation.  Requires the motor that is part of the sample stage for normal movements.
-	explicit VESPERSEndstation(QObject *parent = 0);
+	/// The constructor.  Builds and encapsulates many of the controls used for the endstation.  Requires the motor that is part of the sample stage for normal movements (both real and pseudo motors).
+	explicit VESPERSEndstation(AMControl *pseudoNormal, AMControl *realNormal, QObject *parent = 0);
 
 	/// Returns the state of the endstation XIA shutter.
 	bool shutterState() const { return (int)filterShutterLower_->value() == 1 ? true : false; }

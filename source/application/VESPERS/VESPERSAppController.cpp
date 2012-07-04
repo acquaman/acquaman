@@ -216,7 +216,7 @@ void VESPERSAppController::setupExporterOptions()
 	vespersDefault->setSeparateHigherDimensionalSources(true);
 	vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
 	vespersDefault->storeToDb(AMDatabase::database("user"));
-	qDebug() << "Added the VESPERSDefault to exporter options";
+	qDebug() << "Added the VESPERS2DDefault to exporter options";
 
 	// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
 	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERS2DDefault");

@@ -20,14 +20,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSEndstation.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
-#include "beamline/VESPERS/VESPERSBeamline.h"
 
 #include <QMessageBox>
 #include <QDir>
 #include <QFile>
 #include <QTextStream>
 
-VESPERSEndstation::VESPERSEndstation(QObject *parent)
+VESPERSEndstation::VESPERSEndstation(AMControl *pseudoNormal, AMControl *realNormal, QObject *parent)
 	: QObject(parent)
 {
 	current_ = 0;
@@ -39,8 +38,8 @@ VESPERSEndstation::VESPERSEndstation(QObject *parent)
 	fourElControl_ = new CLSMAXvMotor("4-Element Vortex motor", "SMTR1607-2-B21-27", "4-Element Vortex motor", false, 1.0, 2.0, this);
 	singleElControl_ = new CLSMAXvMotor("1-Element Vortex motor", "SMTR1607-2-B21-15", "1-Element Vortex motor", false, 1.0, 2.0, this);
 
-	focusNormalControl_ = VESPERSBeamline::vespers()->pseudoSampleStage()->norm();
-	focusYControl_ = VESPERSBeamline::vespers()->realSampleStage()->norm();
+	focusNormalControl_ = pseudoNormal;
+	focusYControl_ = realNormal;
 
 	// Microscope light PV.
 	micLightPV_ = new AMProcessVariable("07B2_PLC_Mic_Light_Inten", true, this);
