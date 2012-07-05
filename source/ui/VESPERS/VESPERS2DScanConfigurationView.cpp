@@ -220,7 +220,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	I0GroupBox->setLayout(I0GroupLayout);
 
 	// Motor selection.
-	QGroupBox *motorSetChoiceBox = new QGroupBox("Motors Selection");
+	QGroupBox *motorSetChoiceBox = new QGroupBox("Sample Stage");
 	QVBoxLayout *motorChoiceLayout = new QVBoxLayout;
 	motorChoiceButtonGroup_ = new QButtonGroup;
 
