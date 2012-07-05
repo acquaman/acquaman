@@ -189,7 +189,6 @@ void VESPERSAppController::setupExporterOptions()
 	vespersDefault->setSeparateHigherDimensionalSources(true);
 	vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
 	vespersDefault->storeToDb(AMDatabase::database("user"));
-	qDebug() << "Added the VESPERSDefault to exporter options";
 
 	// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
 	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
@@ -216,7 +215,6 @@ void VESPERSAppController::setupExporterOptions()
 	vespersDefault->setSeparateHigherDimensionalSources(true);
 	vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
 	vespersDefault->storeToDb(AMDatabase::database("user"));
-	qDebug() << "Added the VESPERS2DDefault to exporter options";
 
 	// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
 	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERS2DDefault");
@@ -235,18 +233,18 @@ void VESPERSAppController::setupUserInterface()
 	mw_->insertVerticalWidget(2, assistantView_);
 
 	// Setup the general endstation control view.
-	VESPERSEndstationView *endstationView = new VESPERSEndstationView(VESPERSBeamline::vespers()->endstation());
+	endstationView_ = new VESPERSEndstationView(VESPERSBeamline::vespers()->endstation());
 	// Setup the general status page.
 	VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
 	// Setup page that auto-enables detectors.
-	VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
+	VESPERSExperimentConfigurationView *experimentConfigurationView_ = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
 	// Setup page for the endstation.  Will probably replace experiment configuration eventually.
 	VESPERSEndstationConfigurationView *endstationConfigurationView = new VESPERSEndstationConfigurationView(VESPERSBeamline::vespers()->endstationConfiguration());
 
 	mw_->insertHeading("General", 0);
-	mw_->addPane(endstationView, "General", "Endstation", ":/system-software-update.png");
+	mw_->addPane(endstationView_, "General", "Endstation", ":/system-software-update.png");
 	mw_->addPane(statusPage, "General", "Device Status", ":/system-software-update.png");
-	mw_->addPane(experimentConfigurationView, "General", "Experiment Setup", ":/utilities-system-monitor.png");
+	mw_->addPane(experimentConfigurationView_, "General", "Experiment Setup", ":/utilities-system-monitor.png");
 	mw_->addPane(endstationConfigurationView, "General", "Endstation Setup", ":/utilities-system-monitor.png");
 
 	// Setup the XRF views for the single element vortex and the four element vortex detectors.  Since they have scans that are added to the workflow, it gets the workflow manager view passed into it as well.
@@ -285,11 +283,11 @@ void VESPERSAppController::setupUserInterface()
 //	mw_->addPane(mapScanConfigurationViewHolder3_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
 
 	// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
-	VESPERSPersistentView *persistentView = new VESPERSPersistentView;
-	mw_->addRightWidget(persistentView);
+	persistentView_ = new VESPERSPersistentView;
+	mw_->addRightWidget(persistentView_);
 
 	// Show the endstation control view first.
-	mw_->setCurrentPane(experimentConfigurationView);
+	mw_->setCurrentPane(experimentConfigurationView_);
 }
 
 void VESPERSAppController::makeConnections()
@@ -306,6 +304,8 @@ void VESPERSAppController::makeConnections()
 	connect(this, SIGNAL(stopScanIssued()), this, SLOT(onCancelScanIssued()));
 
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
+
+	connect(VESPERSBeamline::vespers()->experimentConfiguration(), SIGNAL(sampleStageChoiceChanged(bool)), this, SLOT(onSampleStageChoiceChanged(bool)));
 }
 
 void VESPERSAppController::onConfigureDetectorRequested(const QString &detector)
@@ -629,4 +629,10 @@ void VESPERSAppController::setup2DXRFScan(const AMGenericScanEditor *editor)
 	}
 
 	mw_->undock(mapScanConfigurationViewHolder_);
+}
+
+void VESPERSAppController::onSampleStageChoiceChanged(bool change)
+{
+	persistentView_->setSampleStage(change);
+	endstationView_->setUsingNormalMotor(change);
 }

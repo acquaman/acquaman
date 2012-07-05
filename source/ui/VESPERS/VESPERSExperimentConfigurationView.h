@@ -45,6 +45,10 @@ protected slots:
 	void onConfiguraitonChanged(int id);
 	/// Slot that sets the configurations to "custom" if any of the components are changed manually.
 	void onComponentsChanged() { if (configurations_->checkedId() != 0) configurations_->button(0)->setChecked(true); }
+	/// Slot that handles the sample stage choice changes.
+	void onSampleStageChanged(int id);
+	/// Updates the selected button based on changes to the experiment configuration for the sample stage.
+	void onSampleStageUpdated(bool usingPseudoMotors);
 
 protected:
 	/// Pointer to the model that this view is showing.
@@ -56,6 +60,8 @@ protected:
 	QButtonGroup *configurations_;
 	/// The button group for the components that can be enabled.
 	QButtonGroup *components_;
+	/// The button group for the two sample stage choices.
+	QButtonGroup *sampleStage_;
 };
 
 #endif // VESPERSEXPERIMENTCONFIGURATIONVIEW_H

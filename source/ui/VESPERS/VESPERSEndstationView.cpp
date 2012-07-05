@@ -180,6 +180,14 @@ void VESPERSEndstationView::setUsingNormalMotor(bool use)
 	usingNormal_ = use;
 	normalFocusButton_->setVisible(usingNormal_);
 	yFocusButton_->setVisible(!usingNormal_);
+
+	bool isNormalMotor = endstation_->current()->name().contains("normal", Qt::CaseInsensitive);
+
+	if (isNormalMotor && usingNormal_)
+		normalFocusClicked();
+
+	else if (isNormalMotor && !usingNormal_)
+		yFocusClicked();
 }
 
 void VESPERSEndstationView::setWindow(AMControl *control)
@@ -192,7 +200,7 @@ void VESPERSEndstationView::setWindow(AMControl *control)
 
 	if (name.compare("CCD motor") == 0 || name.compare("1-Element Vortex motor") == 0 || name.compare("4-Element Vortex motor") == 0)
 		window_->setControl(control, pair.first, pair.second);
-	else if (name.compare("Normal Sample Stage") == 0)
+	else if (name.compare("Normal Sample Stage") == 0 || name.compare("Y (normal) motor") == 0)
 		window_->setControl(control);
 	else if (name.compare("Microscope motor") == 0)
 		window_->setControl(control, pair.first, pair.second, endstation_->microscopeNames().first, endstation_->microscopeNames().second);

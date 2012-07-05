@@ -134,7 +134,7 @@ AMControl *VESPERSEndstation::control(QString name) const
 
 	return 0;
 }
-
+#include <QDebug>
 void VESPERSEndstation::setCurrent(QString name)
 {
 	if (name.compare("CCD motor") == 0)

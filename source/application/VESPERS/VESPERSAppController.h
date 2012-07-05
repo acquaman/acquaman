@@ -84,6 +84,9 @@ protected slots:
 	/// Slot that handles the failure for moves using the moveImmediatelyAction.
 	void onMoveImmediatelyFailure();
 
+	/// Slot that handles changing the sample stage from pseudo motors to real motors.
+	void onSampleStageChoiceChanged(bool change);
+
 protected:
 	/// Sets up a default XAS scan.  It will setup XANES or EXAFS based on the bool \param setupEXAFS using the information from AMGenericScanEditor \param editor.
 	void setupXASScan(const AMGenericScanEditor *editor, bool setupEXAFS);
@@ -132,6 +135,11 @@ protected:
 
 	/// Pointer to the list action that is used to move the sample stage.
 	AMBeamlineListAction *moveImmediatelyAction_;
+
+	/// Pointer to the persistent view.
+	VESPERSPersistentView *persistentView_;
+	/// Pointer to the endstation view.
+	VESPERSEndstationView *endstationView_;
 };
 
 #endif // VESPERSAPPCONTROLLER_H
