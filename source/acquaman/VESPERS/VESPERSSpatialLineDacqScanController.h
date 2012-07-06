@@ -1,53 +1,29 @@
-/*
-Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+#ifndef VESPERSSPATIALLINEDACQSCANCONTROLLER_H
+#define VESPERSSPATIALLINEDACQSCANCONTROLLER_H
 
-This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
-Acquaman is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Acquaman is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
-#ifndef VESPERS2DDACQSCANCONTROLLER_H
-#define VESPERS2DDACQSCANCONTROLLER_H
-
-#include "acquaman/AM2DDacqScanController.h"
-#include "acquaman/VESPERS/VESPERS2DScanConfiguration.h"
-#include "dataman/AM2DScan.h"
+#include "acquaman/AMDacqScanController.h"
+#include "acquaman/VESPERS/VESPERSSpatialLineScanConfiguration.h"
+#include "dataman/AMScan.h"
 #include "actions/AMBeamlineListAction.h"
 
 #include <QTimer>
 
 /// Some defined error codes to help with controller crashes.
-#define VESPERS2DDACQSCANCONTROLLER_CANT_INTIALIZE 79001
-#define VESPERS2DDACQSCANCONTROLLER_CANT_START_BL_SCANNING 79002
-#define VESPERS2DDACQSCANCONTROLLER_CANT_START_DETECTOR_SOURCE_MISMATCH 79003
-#define VESPERS2DDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE 79004
+#define VESPERSSPATIALLINEDACQSCANCONTROLLER_CANT_INTIALIZE 75001
+#define VESPERSSPATIALLINEDACQSCANCONTROLLER_CANT_START_BL_SCANNING 75002
+#define VESPERSSPATIALLINEDACQSCANCONTROLLER_CANT_START_DETECTOR_SOURCE_MISMATCH 75003
+#define VESPERSSPATIALLINEDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE 75004
 
-/// This class builds a scan controller for doing a 2D map.
-class VESPERS2DDacqScanController : public AM2DDacqScanController
+/// This class builds a scan controller for doing a spatial line scan.
+class VESPERSSpatialLineDacqScanController : public AMDacqScanController
 {
 	Q_OBJECT
 
 public:
-	/// Constructor.  \param cfg is the 2D scan configuration that the controller will run.
-	VESPERS2DDacqScanController(VESPERS2DScanConfiguration *cfg, QObject *parent = 0);
-	/// Destructor.  Makes sure all the memory from the actions that were created is freed.
-	~VESPERS2DDacqScanController() { onInitializationActionFinished(); onCleanupActionFinished(); }
-
-	/// Returns the PV name that will be used for the x-axis.
-	virtual QString xAxisPVName() const { return xAxisPVName_; }
-	/// Returns the PV name that will be used for the y-axis.
-	virtual QString yAxisPVName() const { return yAxisPVName_; }
+	/// Constructor.  \param cfg is the spatial line scan configuration that the controller will be built around.
+	VESPERSSpatialLineDacqScanController(VESPERSSpatialLineScanConfiguration *cfg, QObject *parent);
+	/// Destructor.  Makes sure all the memory fromm the actiosn that were created are cleaned up.
+	~VESPERSSpatialLineDacqScanController() { onInitializationActionFinished(); onCleanupActionFinished(); }
 
 protected slots:
 	/// Slot that handles the successful initialization of the scan.
@@ -90,13 +66,13 @@ protected:
 	/// Returns the home directory for Acquaman.
 	QString getHomeDirectory();
 
-	/// Sets up the 2D scan based on the single element detector being used for XRF.
+	/// Sets up the line scan based on the single element detector being used for XRF.
 	bool setupSingleElementMap();
-	/// Sets up the 2D scan based on the four element detector being used for XRF.
+	/// Sets up the line scan based on the four element detector being used for XRF.
 	bool setupFourElementMap();
 
-	/// Pointer to the VESPERS2DScanConfiguration this scan controls.
-	VESPERS2DScanConfiguration *config_;
+	/// Pointer to the VESPERSSpatialLineScanConfiguration this scan controls.
+	VESPERSSpatialLineScanConfiguration *config_;
 
 	/// Holds the x-axis PV name.
 	QString xAxisPVName_;
@@ -116,4 +92,4 @@ protected:
 	double secondsTotal_;
 };
 
-#endif // VESPERS2DDACQSCANCONTROLLER_H
+#endif // VESPERSSPATIALLINEDACQSCANCONTROLLER_H
