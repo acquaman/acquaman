@@ -21,7 +21,7 @@ class VESPERSSpatialLineDacqScanController : public AMDacqScanController
 
 public:
 	/// Constructor.  \param cfg is the spatial line scan configuration that the controller will be built around.
-	VESPERSSpatialLineDacqScanController(VESPERSSpatialLineScanConfiguration *cfg, QObject *parent);
+	VESPERSSpatialLineDacqScanController(VESPERSSpatialLineScanConfiguration *cfg, QObject *parent = 0);
 	/// Destructor.  Makes sure all the memory fromm the actiosn that were created are cleaned up.
 	~VESPERSSpatialLineDacqScanController() { onInitializationActionFinished(); onCleanupActionFinished(); }
 

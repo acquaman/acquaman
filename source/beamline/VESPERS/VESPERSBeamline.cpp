@@ -155,9 +155,13 @@ void VESPERSBeamline::setupDiagnostics()
 
 void VESPERSBeamline::setupSampleStage()
 {
-	sampleStageHorizontal_ = new AMPVwStatusControl("Horizontal Sample Stage", "TS1607-2-B21-01:H:user:mm:sp", "TS1607-2-B21-01:H:user:mm", "TS1607-2-B21-01:H:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
-	sampleStageVertical_ = new AMPVwStatusControl("Vertical Sample Stage", "TS1607-2-B21-01:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
-	sampleStageNormal_ = new AMPVwStatusControl("Normal Sample Stage", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+//	sampleStageHorizontal_ = new AMPVwStatusControl("Horizontal Sample Stage", "TS1607-2-B21-01:H:user:mm:sp", "TS1607-2-B21-01:H:user:mm", "TS1607-2-B21-01:H:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+//	sampleStageVertical_ = new AMPVwStatusControl("Vertical Sample Stage", "TS1607-2-B21-01:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+//	sampleStageNormal_ = new AMPVwStatusControl("Normal Sample Stage", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+
+	sampleStageHorizontal_ = new CLSMAXvMotor("Horizontal Sample Stage", "TS1607-2-B21-01:H:user", "Horizontal Pseudo Motor", false, 0.01, 10.0, this);
+	sampleStageVertical_ = new CLSMAXvMotor("Vertical Sample Stage", "TS1607-2-B21-01:V:user:", "Vertical Pseudo Motor", false, 0.01, 10.0, this);
+	sampleStageNormal_ = new CLSMAXvMotor("Normal Sample Stage", "TS1607-2-B21-01:N:user", "Horizontal Pseudo Motor", false, 0.01, 10.0, this);
 
 	sampleStageX_ = new CLSMAXvMotor("X motor", "SVM1607-2-B21-02", "X Motor Sample Stage", true, 0.01, 10.0, this);
 	sampleStageY_ = new CLSMAXvMotor("Y (normal) motor", "SVM1607-2-B21-03", "Y Motor Sample Stage", true, 0.01, 10.0, this);

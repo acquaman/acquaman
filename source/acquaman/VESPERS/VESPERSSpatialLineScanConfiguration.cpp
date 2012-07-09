@@ -8,12 +8,12 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(QObject
 {
 	setName("Line Scan");
 	setUserScanName("Line Scan");
-	regions_->setSensibleRange(0, 1, 10);
+	regions_->setSensibleRange(0, 10);
 	regions_->setDefaultUnits(" mm");
 	regions_->setDefaultTimeUnits(" s");
 	I0_ = Imini;
 	fluorescenceDetectorChoice_ = SingleElement;
-	motorsChoice_ = H;
+	motorChoice_ = H;
 	usingCCD_ = false;
 	ccdFileName_ = "";
 	roiInfoList_ = AMROIInfoList();
@@ -28,9 +28,12 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const V
 {
 	setName(original.name());
 	setUserScanName(original.userScanName());
+	regions_->setSensibleRange(original.regions()->sensibleStart(), original.regions()->sensibleEnd());
+	regions_->setDefaultUnits(original.regions()->defaultUnits());
+	regions_->setDefaultTimeUnits(original.regions()->defaultTimeUnits());
 	I0_ = original.incomingChoice();
 	fluorescenceDetectorChoice_ = original.fluorescenceDetectorChoice();
-	motorsChoice_ = original.motorChoice();
+	motorChoice_ = original.motorChoice();
 	usingCCD_ = original.usingCCD();
 	ccdFileName_ = original.ccdFileName();
 	roiInfoList_ = original.roiList();
@@ -106,7 +109,7 @@ QString VESPERSSpatialLineScanConfiguration::headerText() const
 	switch(motorChoice()){
 
 	case H:
-		header.append("Using horizontal (H) pseudo motor\.\n");
+		header.append("Using horizontal (H) pseudo motor.\n");
 		break;
 
 	case X:
@@ -123,13 +126,9 @@ QString VESPERSSpatialLineScanConfiguration::headerText() const
 	}
 
 	header.append("\n");
-	header.append("Map Dimensions\n");
-	header.append("X Axis\n");
-	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(xStart()).arg(xEnd()));
-	header.append(QString("Step Size:\t%1 mm\n").arg(xStep()));
-	header.append("Y Axis\n");
-	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(yStart()).arg(yEnd()));
-	header.append(QString("Step Size:\t%1 mm\n").arg(yStep()));
+	header.append("Line Dimensions\n");
+	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(regions()->start(0)).arg(regions()->end(0)));
+	header.append(QString("Step Size:\t%1 mm\n").arg(regions()->delta(0)));
 
 	if (usingCCD())
 		header.append(QString("\nFilename for XRD images:\t%1\n").arg(ccdFileName()));
@@ -159,13 +158,13 @@ void VESPERSSpatialLineScanConfiguration::setFluorescenceDetectorChoice(Fluoresc
 	}
 }
 
-void VESPERSSpatialLineScanConfiguration::setMotorsChoice(MotorsChoice choice)
+void VESPERSSpatialLineScanConfiguration::setMotorChoice(MotorChoice choice)
 {
-	if (motorsChoice_ != choice) {
+	if (motorChoice_ != choice) {
 
-		motorsChoice_ = choice;
-		emit motorsChoiceChanged(motorsChoice_);
-		emit motorsChoiceChanged(int(motorsChoice_));
+		motorChoice_ = choice;
+		emit motorChoiceChanged(motorChoice_);
+		emit motorChoiceChanged(int(motorChoice_));
 		setModified(true);
 	}
 }
@@ -189,9 +188,9 @@ void VESPERSSpatialLineScanConfiguration::computeTotalTime()
 
 	// Factor in the time per point.  There is an extra 6 seconds for CCD images.
 	if (usingCCD())
-		time *= timeStep() + timeOffset_ + 6.0;
+		time *= regions()->time(0) + timeOffset_ + 6.0;
 	else
-		time *= timeStep() + timeOffset_;
+		time *= regions()->time(0) + timeOffset_;
 
 	totalTime_ = time;
 	emit totalTimeChanged(totalTime_);

@@ -1,6 +1,6 @@
 #include "VESPERSSpatialLineScanConfigurationView.h"
 
-VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView(QWidget *parent) :
-    QWidget(parent)
+VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView(VESPERSSpatialLineScanConfiguration *config, QWidget *parent)
+	: AMScanConfigurationView(parent)
 {
 }

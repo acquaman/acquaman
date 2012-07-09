@@ -93,6 +93,11 @@ public:
 	/// This function does nothing.  It is there to preserve the fact that the database needs to be able to read and write.
 	void setHeaderText(QString) {}
 
+	/// Returns the AMControlInfo for the scanned region control.
+	AMControlInfo regionControlInfo() const { return regions_->defaultControl()->toInfo(); }
+	/// Returns the AMControlInfo for the time control.
+	AMControlInfo timeControlInfo() const { return regions_->defaultTimeControl()->toInfo(); }
+
 	// Database loading and storing
 	///////////////////////
 
@@ -154,7 +159,7 @@ protected:
 	/// Fluorescence detector choice.
 	FluorescenceDetector fluorescenceDetectorChoice_;
 	/// Motor choice for which set of motors will be used.
-	MotorChoice motorsChoice_;
+	MotorChoice motorChoice_;
 	/// Flag holding whether the scan should use the CCD detector or not.
 	bool usingCCD_;
 	/// The file name (minus number, path and extension of the file) for the CCD.

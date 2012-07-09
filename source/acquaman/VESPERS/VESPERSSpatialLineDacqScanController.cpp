@@ -147,7 +147,6 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 		break;
 	}
 
-	scan_->rawData()->addMeasurement(AMMeasurementInfo("H:fbk", "Horizontal Feedback", "mm"));
 	scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 
 	XRFDetector *detector = 0;
@@ -173,6 +172,7 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 	// Add the rest (includes the ion chambers).  This sets I0 as well; it is the only visible raw data source.
 	addExtraDatasources();
 
+	// Analysis blocks.
 }
 
 void VESPERSSpatialLineDacqScanController::addExtraDatasources()
@@ -181,7 +181,7 @@ void VESPERSSpatialLineDacqScanController::addExtraDatasources()
 	scan_->rawData()->addMeasurement(AMMeasurementInfo("RingCurrent", "Ring Current", "mA"));
 	scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 
-	if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement){
+	if (config_->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::SingleElement){
 
 		// Dead time, real time, live time, fast peaks, slow peaks, spectrum index.
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("DeadTime", "Dead Time", "%"));
@@ -196,7 +196,7 @@ void VESPERSSpatialLineDacqScanController::addExtraDatasources()
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 	}
 
-	else if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::FourElement){
+	else if (config_->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::FourElement){
 
 		// Real time (x4), Live time (x4), fast peaks (x4), slow peaks (x4), dead time (x4)
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("RealTime1", "Real Time 1", "s"));
@@ -264,7 +264,7 @@ void VESPERSSpatialLineDacqScanController::addExtraDatasources()
 	}
 
 	// Add the spectra.
-	if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement){
+	if (config_->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::SingleElement){
 
 		temp = AMMeasurementInfo(VESPERSBeamline::vespers()->vortexXRF1E()->toXRFInfo());
 		temp.name = "spectra";
@@ -272,7 +272,7 @@ void VESPERSSpatialLineDacqScanController::addExtraDatasources()
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 	}
 
-	else if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::FourElement){
+	else if (config_->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::FourElement){
 
 		temp = AMMeasurementInfo(VESPERSBeamline::vespers()->vortexXRF4E()->toXRFInfo());
 		temp.name = "corrSum";
@@ -329,7 +329,7 @@ bool VESPERSSpatialLineDacqScanController::initializeImplementation()
 	initializationActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createScansPerBufferAction(1));
 	initializationActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createTotalScansAction(1));
 	initializationActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::SingleShot));
-	initializationActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(config_->timeStep()));
+	initializationActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(config_->regionTime(0)));
 
 	// Integrity check.  Make sure no actions are null.
 	for (int i = 0; i < initializationActionsList->stageCount(); i++){
@@ -404,7 +404,7 @@ void VESPERSSpatialLineDacqScanController::cleanup()
 
 void VESPERSSpatialLineDacqScanController::onCleanupFinished()
 {
-	AM2DDacqScanController::onDacqStop();
+	AMDacqScanController::onDacqStop();
 }
 
 void VESPERSSpatialLineDacqScanController::onScanTimerUpdate()
@@ -429,7 +429,7 @@ void VESPERSSpatialLineDacqScanController::onInitializationActionsFailed(int exp
 {
 	Q_UNUSED(explanation)
 
-	AMErrorMon::alert(this, VESPERSSPATIALLINEDACQSCANCONTROLLER_CANT_INTIALIZE, "2D scan failed to initialize.");
+	AMErrorMon::alert(this, VESPERSSPATIALLINEDACQSCANCONTROLLER_CANT_INTIALIZE, "Line scan failed to initialize.");
 	onInitializationActionFinished();
 	setFailed();
 }
@@ -494,19 +494,19 @@ bool VESPERSSpatialLineDacqScanController::setupSingleElementMap()
 {
 	bool loadSuccess = false;
 
-	if (!config_->usingCCD() && config_->motorsChoice() == VESPERSSpatialLineScanConfiguration::HAndV)
-		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-hv-1Elem.cfg"));
-	else if (config_->usingCCD() && config_->motorsChoice() == VESPERSSpatialLineScanConfiguration::HAndV)
-		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-hv-1Elem-CCD.cfg"));
-	else if (!config_->usingCCD() && config_->motorsChoice() == VESPERSSpatialLineScanConfiguration::XAndZ)
-		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-xz-1Elem.cfg"));
-	else if (config_->usingCCD() && config_->motorsChoice() == VESPERSSpatialLineScanConfiguration::XAndZ)
-		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-xz-1Elem-CCD.cfg"));
+	if (!config_->usingCCD() && (config_->motorChoice() == VESPERSSpatialLineScanConfiguration::H || config_->motorChoice() == VESPERSSpatialLineScanConfiguration::X))
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-hv-1Elem.cfg"));
+	else if (config_->usingCCD() && (config_->motorChoice() == VESPERSSpatialLineScanConfiguration::H || config_->motorChoice() == VESPERSSpatialLineScanConfiguration::X))
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-hv-1Elem-CCD.cfg"));
+	else if (!config_->usingCCD() && (config_->motorChoice() == VESPERSSpatialLineScanConfiguration::V || config_->motorChoice() == VESPERSSpatialLineScanConfiguration::Z))
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-xz-1Elem.cfg"));
+	else if (config_->usingCCD() && (config_->motorChoice() == VESPERSSpatialLineScanConfiguration::V || config_->motorChoice() == VESPERSSpatialLineScanConfiguration::Z))
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-xz-1Elem-CCD.cfg"));
 
 	if(!loadSuccess){
 		AMErrorMon::alert(this,
 				VESPERSSPATIALLINEDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
-				"Error, VESPERS 2D DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers.");
+				"Error, VESPERS Spatial Line DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers.");
 		return false;
 	}
 
@@ -515,8 +515,11 @@ bool VESPERSSpatialLineDacqScanController::setupSingleElementMap()
 	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
 	while (advAcq_->deleteRecord(2)){}
 
-	advAcq_->appendRecord(xAxisPVName()+":fbk", true, false, 0);
-	advAcq_->appendRecord(yAxisPVName()+":fbk", true, false, 0);
+	CLSMAXvMotor *motor = qobject_cast<CLSMAXvMotor *>(config_->regions()->defaultControl());
+	if (!motor)
+		return false;
+
+	advAcq_->appendRecord(motor->writePVName()+":fbk", true, false, 0);
 
 	XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF1E();
 	int roiCount = detector->roiInfoList()->count();
@@ -549,19 +552,19 @@ bool VESPERSSpatialLineDacqScanController::setupFourElementMap()
 {
 	bool loadSuccess = false;
 
-	if (!config_->usingCCD() && config_->motorsChoice() == VESPERSSpatialLineScanConfiguration::HAndV)
-		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-hv-4Elem.cfg"));
-	else if (config_->usingCCD() && config_->motorsChoice() == VESPERSSpatialLineScanConfiguration::HAndV)
-		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-hv-4Elem-CCD.cfg"));
-	else if (!config_->usingCCD() && config_->motorsChoice() == VESPERSSpatialLineScanConfiguration::XAndZ)
-		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-xz-4Elem.cfg"));
-	else if (config_->usingCCD() && config_->motorsChoice() == VESPERSSpatialLineScanConfiguration::XAndZ)
-		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-xz-4Elem-CCD.cfg"));
+	if (!config_->usingCCD() && (config_->motorChoice() == VESPERSSpatialLineScanConfiguration::H || config_->motorChoice() == VESPERSSpatialLineScanConfiguration::X))
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-hv-4Elem.cfg"));
+	else if (config_->usingCCD() && (config_->motorChoice() == VESPERSSpatialLineScanConfiguration::H || config_->motorChoice() == VESPERSSpatialLineScanConfiguration::X))
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-hv-4Elem-CCD.cfg"));
+	else if (!config_->usingCCD() && (config_->motorChoice() == VESPERSSpatialLineScanConfiguration::V || config_->motorChoice() == VESPERSSpatialLineScanConfiguration::Z))
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-xz-4Elem.cfg"));
+	else if (config_->usingCCD() && (config_->motorChoice() == VESPERSSpatialLineScanConfiguration::V || config_->motorChoice() == VESPERSSpatialLineScanConfiguration::Z))
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-xz-4Elem-CCD.cfg"));
 
 	if(!loadSuccess){
 		AMErrorMon::alert(this,
 				VESPERSSPATIALLINEDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
-				"Error, VESPERS 2D DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers.");
+				"Error, VESPERS Spatial Line DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers.");
 		return false;
 	}
 
@@ -570,8 +573,11 @@ bool VESPERSSpatialLineDacqScanController::setupFourElementMap()
 	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
 	while (advAcq_->deleteRecord(2)){}
 
-	advAcq_->appendRecord(xAxisPVName()+":fbk", true, false, 0);
-	advAcq_->appendRecord(yAxisPVName()+":fbk", true, false, 0);
+	CLSMAXvMotor *motor = qobject_cast<CLSMAXvMotor *>(config_->regions()->defaultControl());
+	if (!motor)
+		return false;
+
+	advAcq_->appendRecord(motor->writePVName()+":fbk", true, false, 0);
 
 	XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF4E();
 	int roiCount = detector->roiInfoList()->count();
