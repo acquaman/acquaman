@@ -494,14 +494,22 @@ bool VESPERSSpatialLineDacqScanController::setupSingleElementMap()
 {
 	bool loadSuccess = false;
 
-	if (!config_->usingCCD() && (config_->motorChoice() == VESPERSSpatialLineScanConfiguration::H || config_->motorChoice() == VESPERSSpatialLineScanConfiguration::X))
-		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-hv-1Elem.cfg"));
-	else if (config_->usingCCD() && (config_->motorChoice() == VESPERSSpatialLineScanConfiguration::H || config_->motorChoice() == VESPERSSpatialLineScanConfiguration::X))
-		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-hv-1Elem-CCD.cfg"));
-	else if (!config_->usingCCD() && (config_->motorChoice() == VESPERSSpatialLineScanConfiguration::V || config_->motorChoice() == VESPERSSpatialLineScanConfiguration::Z))
-		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-xz-1Elem.cfg"));
-	else if (config_->usingCCD() && (config_->motorChoice() == VESPERSSpatialLineScanConfiguration::V || config_->motorChoice() == VESPERSSpatialLineScanConfiguration::Z))
-		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-xz-1Elem-CCD.cfg"));
+	if (!config_->usingCCD() && config_->motorChoice() == VESPERSSpatialLineScanConfiguration::H)
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/LineScan-H-1Elem.cfg"));
+	else if (config_->usingCCD() && config_->motorChoice() == VESPERSSpatialLineScanConfiguration::H)
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/LineScan-H-1Elem-CCD.cfg"));
+	else if (!config_->usingCCD() && config_->motorChoice() == VESPERSSpatialLineScanConfiguration::V)
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/LineScan-V-1Elem.cfg"));
+	else if (config_->usingCCD() && config_->motorChoice() == VESPERSSpatialLineScanConfiguration::V)
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/LineScan-V-1Elem-CCD.cfg"));
+	else if (!config_->usingCCD() && config_->motorChoice() == VESPERSSpatialLineScanConfiguration::X)
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/LineScan-X-1Elem.cfg"));
+	else if (config_->usingCCD() && config_->motorChoice() == VESPERSSpatialLineScanConfiguration::X)
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/LineScan-X-1Elem-CCD.cfg"));
+	else if (!config_->usingCCD() && config_->motorChoice() == VESPERSSpatialLineScanConfiguration::Z)
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/LineScan-Z-1Elem.cfg"));
+	else if (config_->usingCCD() && config_->motorChoice() == VESPERSSpatialLineScanConfiguration::Z)
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/LineScan-Z-1Elem-CCD.cfg"));
 
 	if(!loadSuccess){
 		AMErrorMon::alert(this,
@@ -552,14 +560,22 @@ bool VESPERSSpatialLineDacqScanController::setupFourElementMap()
 {
 	bool loadSuccess = false;
 
-	if (!config_->usingCCD() && (config_->motorChoice() == VESPERSSpatialLineScanConfiguration::H || config_->motorChoice() == VESPERSSpatialLineScanConfiguration::X))
-		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-hv-4Elem.cfg"));
-	else if (config_->usingCCD() && (config_->motorChoice() == VESPERSSpatialLineScanConfiguration::H || config_->motorChoice() == VESPERSSpatialLineScanConfiguration::X))
-		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-hv-4Elem-CCD.cfg"));
-	else if (!config_->usingCCD() && (config_->motorChoice() == VESPERSSpatialLineScanConfiguration::V || config_->motorChoice() == VESPERSSpatialLineScanConfiguration::Z))
-		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-xz-4Elem.cfg"));
-	else if (config_->usingCCD() && (config_->motorChoice() == VESPERSSpatialLineScanConfiguration::V || config_->motorChoice() == VESPERSSpatialLineScanConfiguration::Z))
-		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-xz-4Elem-CCD.cfg"));
+	if (!config_->usingCCD() && config_->motorChoice() == VESPERSSpatialLineScanConfiguration::H)
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/LineScan-H-4Elem.cfg"));
+	else if (config_->usingCCD() && config_->motorChoice() == VESPERSSpatialLineScanConfiguration::H)
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/LineScan-H-4Elem-CCD.cfg"));
+	else if (!config_->usingCCD() && config_->motorChoice() == VESPERSSpatialLineScanConfiguration::V)
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/LineScan-V-4Elem.cfg"));
+	else if (config_->usingCCD() && config_->motorChoice() == VESPERSSpatialLineScanConfiguration::V)
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/LineScan-V-4Elem-CCD.cfg"));
+	else if (!config_->usingCCD() && config_->motorChoice() == VESPERSSpatialLineScanConfiguration::X)
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/LineScan-X-4Elem.cfg"));
+	else if (config_->usingCCD() && config_->motorChoice() == VESPERSSpatialLineScanConfiguration::X)
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/LineScan-X-4Elem-CCD.cfg"));
+	else if (!config_->usingCCD() && config_->motorChoice() == VESPERSSpatialLineScanConfiguration::Z)
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/LineScan-Z-4Elem.cfg"));
+	else if (config_->usingCCD() && config_->motorChoice() == VESPERSSpatialLineScanConfiguration::Z)
+		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/LineScan-Z-4Elem-CCD.cfg"));
 
 	if(!loadSuccess){
 		AMErrorMon::alert(this,

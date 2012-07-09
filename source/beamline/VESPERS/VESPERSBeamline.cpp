@@ -160,7 +160,7 @@ void VESPERSBeamline::setupSampleStage()
 //	sampleStageNormal_ = new AMPVwStatusControl("Normal Sample Stage", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
 
 	sampleStageHorizontal_ = new CLSMAXvMotor("Horizontal Sample Stage", "TS1607-2-B21-01:H:user", "Horizontal Pseudo Motor", false, 0.01, 10.0, this);
-	sampleStageVertical_ = new CLSMAXvMotor("Vertical Sample Stage", "TS1607-2-B21-01:V:user:", "Vertical Pseudo Motor", false, 0.01, 10.0, this);
+	sampleStageVertical_ = new CLSMAXvMotor("Vertical Sample Stage", "TS1607-2-B21-01:V:user", "Vertical Pseudo Motor", false, 0.01, 10.0, this);
 	sampleStageNormal_ = new CLSMAXvMotor("Normal Sample Stage", "TS1607-2-B21-01:N:user", "Horizontal Pseudo Motor", false, 0.01, 10.0, this);
 
 	sampleStageX_ = new CLSMAXvMotor("X motor", "SVM1607-2-B21-02", "X Motor Sample Stage", true, 0.01, 10.0, this);
