@@ -19,32 +19,25 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 	scan_->setScanConfiguration(config_);
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setIndexType("fileSystem");
-	scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 
 	switch(config_->motorChoice()){
 
 	case VESPERSSpatialLineScanConfiguration::H:
-		config_->regions()->setDefaultControl(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz());
 		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 		break;
 
 	case VESPERSSpatialLineScanConfiguration::X:
-		config_->regions()->setDefaultControl(VESPERSBeamline::vespers()->realSampleStage()->horiz());
 		scan_->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
 		break;
 
 	case VESPERSSpatialLineScanConfiguration::V:
-		config_->regions()->setDefaultControl(VESPERSBeamline::vespers()->pseudoSampleStage()->vert());
 		scan_->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
 		break;
 
 	case VESPERSSpatialLineScanConfiguration::Z:
-		config_->regions()->setDefaultControl(VESPERSBeamline::vespers()->realSampleStage()->vert());
 		scan_->rawData()->addScanAxis(AMAxisInfo("Z", 0, "Vertical Position", "mm"));
 		break;
 	}
-
-	config_->regions()->setDefaultTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
 
 	initializationActions_ = 0;
 	cleanupActions_ = 0;
@@ -368,6 +361,12 @@ bool VESPERSSpatialLineDacqScanController::startImplementation()
 		return false;
 	}
 
+	advAcq_->setStart(0, config_->start());
+	advAcq_->setDelta(0, config_->step());
+	advAcq_->setEnd(0, config_->end());
+
+	advAcq_->saveConfigFile("/home/hunterd/Desktop/writeTest.cfg");
+//	return false;
 	return AMDacqScanController::startImplementation();
 }
 
@@ -521,7 +520,7 @@ bool VESPERSSpatialLineDacqScanController::setupSingleElementMap()
 	usingSpectraDotDatFile_ = true;
 
 	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
-	while (advAcq_->deleteRecord(2)){}
+	while (advAcq_->deleteRecord(1)){}
 
 	CLSMAXvMotor *motor = qobject_cast<CLSMAXvMotor *>(config_->regions()->defaultControl());
 	if (!motor)
@@ -587,7 +586,7 @@ bool VESPERSSpatialLineDacqScanController::setupFourElementMap()
 	usingSpectraDotDatFile_ = true;
 
 	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
-	while (advAcq_->deleteRecord(2)){}
+	while (advAcq_->deleteRecord(1)){}
 
 	CLSMAXvMotor *motor = qobject_cast<CLSMAXvMotor *>(config_->regions()->defaultControl());
 	if (!motor)

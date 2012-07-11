@@ -26,6 +26,10 @@ class VESPERSSpatialLineScanConfiguration : public AMRegionScanConfiguration
 {
 	Q_OBJECT
 
+	Q_PROPERTY(double start READ start WRITE setStart)
+	Q_PROPERTY(double end READ end WRITE setEnd)
+	Q_PROPERTY(double step READ step WRITE setStep)
+	Q_PROPERTY(double time READ time WRITE setTime)
 	Q_PROPERTY(int incomingChoice READ incomingChoice WRITE setIncomingChoice)
 	Q_PROPERTY(int fluorescenceDetectorChoice READ fluorescenceDetectorChoice WRITE setFluorescenceDetectorChoice)
 	Q_PROPERTY(int motorChoice READ motorChoice WRITE setMotorChoice)
@@ -106,6 +110,18 @@ public:
 	/// Don't need to do anything because dbGetROIList always returns a valid AMDbObject.
 	void dbLoadROIInfoList(AMDbObject *) {}
 
+	// Convience getters.
+	/// Returns the start position for the region.
+	double start() const { return regions_->start(0); }
+	/// Returns the end position for the region.
+	double end() const { return regions_->end(0); }
+	/// Returns the step size for the region.
+	double step() const { return regions_->delta(0); }
+	/// Returns the time for the region.
+	double time() const { return regions_->time(0); }
+	/// Returns whether the region is valid.
+	bool validAxis() const { return regions_->isValid(0); }
+
 signals:
 	/// Notifier that the incoming choice has changed.
 	void incomingChoiceChanged(IonChamber);
@@ -125,6 +141,15 @@ signals:
 	void ccdFileNameChanged(QString);
 	/// Notifier that the total time estimate has changed.
 	void totalTimeChanged(double);
+
+	/// Notifier that the start position has changed.
+	void startChanged(double);
+	/// Notifier that the end position has changed.
+	void endChanged(double);
+	/// Notifier that the step size has changed.
+	void stepChanged(double);
+	/// Notifier that the time has changed.
+	void timeChanged(double);
 
 public slots:
 	/// Sets the choice for I0 ion chamber.
@@ -148,6 +173,16 @@ public slots:
 
 	/// Sets the ROI list.
 	void setRoiInfoList(const AMROIInfoList &list) { roiInfoList_ = list; setModified(true); }
+
+	// Convience setters.
+	/// Sets the start position.
+	void setStart(double position);
+	/// Sets the end position.
+	void setEnd(double position);
+	/// Sets the step size.
+	void setStep(double position);
+	/// Sets the time.
+	void setTime(double position);
 
 protected slots:
 	/// Computes the total time any time the regions list changes.

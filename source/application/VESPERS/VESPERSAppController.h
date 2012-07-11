@@ -35,7 +35,8 @@ class VESPERS2DScanConfigurationView;
 class AM2DScanConfigurationViewHolder;
 class AMBeamlineListAction;
 class AMScanAction;
-
+class VESPERSSpatialLineScanConfiguration;
+class VESPERSSpatialLineScanConfigurationView;
 class AMGenericScanEditor;
 
 class VESPERSWorkflowAssistant;
@@ -124,14 +125,23 @@ protected:
 	/// The (new) holder for the XAS scan configuration.
 	AMScanConfigurationViewHolder3 *exafsConfigViewHolder3_;
 
-	/// Pointer to the 2D XRF scan configuration.
+	/// Pointer to the 2D scan configuration.
 	VESPERS2DScanConfiguration *mapScanConfiguration_;
-	/// The 2D XRF scan configuration view.
+	/// The 2D scan configuration view.
 	VESPERS2DScanConfigurationView *mapScanConfigurationView_;
 	/// The holder for the 2D scan configuration.
 	AM2DScanConfigurationViewHolder *mapScanConfigurationViewHolder_;
 	/// The (new) holder for the 2D scan configuration.
 	AMScanConfigurationViewHolder3 *mapScanConfigurationViewHolder3_;
+
+	/// The line scan configuration.
+	VESPERSSpatialLineScanConfiguration *lineScanConfiguration_;
+	/// The line scan configuration view.
+	VESPERSSpatialLineScanConfigurationView *lineScanConfigurationView_;
+	/// The holder for the scan configuration. It uses the 2D configuration view holder because I want the 2D visualization.
+	AM2DScanConfigurationViewHolder *lineScanConfigurationViewHolder_;
+	/// The (new holder for the line scan configuration.
+	AMScanConfigurationViewHolder3 *lineScanConfigurationViewHolder3_;
 
 	/// Pointer to the list action that is used to move the sample stage.
 	AMBeamlineListAction *moveImmediatelyAction_;

@@ -41,6 +41,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSRoperCCDDetectorView.h"
 #include "ui/VESPERS/VESPERS2DScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSEndstationConfigurationView.h"
+#include "ui/VESPERS/VESPERSSpatialLineScanConfigurationView.h"
 
 #include "dataman/AMScanEditorModelItem.h"
 #include "ui/dataman/AMGenericScanEditor.h"
@@ -276,11 +277,21 @@ void VESPERSAppController::setupUserInterface()
 //	mapScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(mapScanConfigurationView_);
 	connect(mapScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
+	// Setup line scans for the beamline.  Builds the config, view, and view holder.
+	lineScanConfiguration_ = new VESPERSSpatialLineScanConfiguration();
+	lineScanConfiguration_->addRegion(0, 0, 0.005, 1, 1);
+	lineScanConfigurationView_ = new VESPERSSpatialLineScanConfigurationView(lineScanConfiguration_);
+	lineScanConfigurationViewHolder_ = new AM2DScanConfigurationViewHolder(workflowManagerView_, lineScanConfigurationView_);
+//	lineScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(lineScanConfigurationView_);
+	connect(lineScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
+
 	mw_->insertHeading("Scans", 2);
 	mw_->addPane(exafsConfigViewHolder_, "Scans", "XAS", ":/utilities-system-monitor.png");
 	mw_->addPane(mapScanConfigurationViewHolder_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
+	mw_->addPane(lineScanConfigurationViewHolder_, "Scans", "Line Scan", ":/utilities-system-monitor.png");
 //	mw_->addPane(exafsConfigViewHolder3_, "Scans", "XAS", ":/utilities-system-monitor.png");
 //	mw_->addPane(mapScanConfigurationViewHolder3_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
+//	mw_->addPane(lineScanConfigurationViewHolder3_, "Scans", "Line Scan", ":/utilities-system-monitor.png");
 
 	// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
 	persistentView_ = new VESPERSPersistentView;

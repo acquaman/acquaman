@@ -2,12 +2,15 @@
 
 #include "acquaman/VESPERS/VESPERSSpatialLineDacqScanController.h"
 #include "ui/VESPERS/VESPERSSpatialLineScanConfigurationView.h"
+#include "beamline/VESPERS/VESPERSBeamline.h"
 
 VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(QObject *parent)
 	: AMRegionScanConfiguration(parent)
 {
 	setName("Line Scan");
 	setUserScanName("Line Scan");
+	regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz());
+	regions_->setDefaultTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
 	regions_->setSensibleRange(0, 10);
 	regions_->setDefaultUnits(" mm");
 	regions_->setDefaultTimeUnits(" s");
@@ -20,7 +23,11 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(QObject
 	totalTime_ = 0;
 	timeOffset_ = 0.7;
 	connect(this, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(timeStepChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(startChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(stepChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(endChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(timeChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(usingCCDChanged(bool)), this, SLOT(computeTotalTime()));
 }
 
 VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const VESPERSSpatialLineScanConfiguration &original)
@@ -28,6 +35,28 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const V
 {
 	setName(original.name());
 	setUserScanName(original.userScanName());
+
+	switch(original.motorChoice()){
+
+	case VESPERSSpatialLineScanConfiguration::H:
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz());
+		break;
+
+	case VESPERSSpatialLineScanConfiguration::X:
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->realSampleStage()->horiz());
+		break;
+
+	case VESPERSSpatialLineScanConfiguration::V:
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoSampleStage()->vert());
+		break;
+
+	case VESPERSSpatialLineScanConfiguration::Z:
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->realSampleStage()->vert());
+		break;
+	}
+
+	regions_->setDefaultTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
+	regions_->addRegion(0, original.start(), original.step(), original.end(), original.time());
 	regions_->setSensibleRange(original.regions()->sensibleStart(), original.regions()->sensibleEnd());
 	regions_->setDefaultUnits(original.regions()->defaultUnits());
 	regions_->setDefaultTimeUnits(original.regions()->defaultTimeUnits());
@@ -40,7 +69,11 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const V
 	totalTime_ = 0;
 	timeOffset_ = 0.7;
 	connect(this, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(timeStepChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(startChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(stepChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(endChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(timeChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(usingCCDChanged(bool)), this, SLOT(computeTotalTime()));
 }
 
 AMScanConfiguration *VESPERSSpatialLineScanConfiguration::createCopy() const
@@ -127,8 +160,8 @@ QString VESPERSSpatialLineScanConfiguration::headerText() const
 
 	header.append("\n");
 	header.append("Line Dimensions\n");
-	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(regions()->start(0)).arg(regions()->end(0)));
-	header.append(QString("Step Size:\t%1 mm\n").arg(regions()->delta(0)));
+	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(start()).arg(end()));
+	header.append(QString("Step Size:\t%1 mm\n").arg(step()));
 
 	if (usingCCD())
 		header.append(QString("\nFilename for XRD images:\t%1\n").arg(ccdFileName()));
@@ -169,6 +202,47 @@ void VESPERSSpatialLineScanConfiguration::setMotorChoice(MotorChoice choice)
 	}
 }
 
+void VESPERSSpatialLineScanConfiguration::setStart(double position)
+{
+	if (start() != position){
+
+		regions_->setStart(0, position);
+		emit startChanged(position);
+		setModified(true);
+	}
+}
+
+void VESPERSSpatialLineScanConfiguration::setEnd(double position)
+{
+	if (end() != position){
+
+		regions_->setEnd(0, position);
+		emit endChanged(position);
+		setModified(true);
+	}
+}
+
+void VESPERSSpatialLineScanConfiguration::setStep(double position)
+{
+	if (step() != position){
+
+		regions_->setDelta(0, position);
+		emit stepChanged(position);
+		setModified(true);
+	}
+}
+
+void VESPERSSpatialLineScanConfiguration::setTime(double newTime)
+{
+	if (time() != newTime){
+
+		regions_->setTime(0, newTime);
+		emit timeChanged(newTime);
+		setModified(true);
+	}
+}
+
+
 QString VESPERSSpatialLineScanConfiguration::readRoiList() const
 {
 	QString prettyRois = "Regions of Interest\n";
@@ -181,17 +255,17 @@ QString VESPERSSpatialLineScanConfiguration::readRoiList() const
 
 void VESPERSSpatialLineScanConfiguration::computeTotalTime()
 {
-	double time = 0;
+	double totalTime = 0;
 
 	// Get the number of points.  Using 0 for the index because this will only have one region per scan.
-	time = 	fabs((regions_->end(0)-regions_->start(0))/regions_->delta(0)) + 1;
+	totalTime = fabs((end()-start())/step()) + 1;
 
 	// Factor in the time per point.  There is an extra 6 seconds for CCD images.
 	if (usingCCD())
-		time *= regions()->time(0) + timeOffset_ + 6.0;
+		totalTime *= time() + timeOffset_ + 6.0;
 	else
-		time *= regions()->time(0) + timeOffset_;
+		totalTime *= time() + timeOffset_;
 
-	totalTime_ = time;
+	totalTime_ = totalTime;
 	emit totalTimeChanged(totalTime_);
 }
