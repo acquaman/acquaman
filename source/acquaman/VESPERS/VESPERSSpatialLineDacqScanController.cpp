@@ -559,7 +559,7 @@ bool VESPERSSpatialLineDacqScanController::setupSingleElementMap()
 	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
 	while (advAcq_->deleteRecord(1)){}
 
-	CLSMAXvMotor *motor = qobject_cast<CLSMAXvMotor *>(config_->regions()->defaultControl());
+	AMPVwStatusControl *motor = qobject_cast<AMPVwStatusControl *>(config_->regions()->defaultControl());
 	if (!motor)
 		return false;
 
@@ -625,7 +625,7 @@ bool VESPERSSpatialLineDacqScanController::setupFourElementMap()
 	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
 	while (advAcq_->deleteRecord(1)){}
 
-	CLSMAXvMotor *motor = qobject_cast<CLSMAXvMotor *>(config_->regions()->defaultControl());
+	AMPVwStatusControl *motor = qobject_cast<AMPVwStatusControl *>(config_->regions()->defaultControl());
 	if (!motor)
 		return false;
 

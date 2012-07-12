@@ -12,8 +12,6 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(QObject
 	regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz());
 	regions_->setDefaultTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
 	regions_->setSensibleRange(0, 10);
-	regions_->setUnits(0, " mm");
-	regions_->setTimeUnits(0, " s");
 	I0_ = Imini;
 	fluorescenceDetectorChoice_ = SingleElement;
 	motorChoice_ = H;
