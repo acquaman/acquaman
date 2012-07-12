@@ -42,10 +42,10 @@ VESPERSBeamline::VESPERSBeamline()
 void VESPERSBeamline::setupDiagnostics()
 {
 	// The shutters.
-	psh1_ = new CLSBiStateControl("PSH", "First Photon Shutter", "PSH1408-B20-01:state", "PSH1408-B20-01:opr:open", "PSH1408-B20-01:opr:close", new AMControlStatusCheckerDefault(4), this);
-	psh2_ = new CLSBiStateControl("Optic", "Second Photon Shutter", "PSH1408-B20-02:state", "PSH1408-B20-02:opr:open", "PSH1408-B20-02:opr:close", new AMControlStatusCheckerDefault(4), this);
-	ssh1_ = new CLSBiStateControl("SSH", "First Safety Shutter", "SSH1408-B20-01:state", "SSH1408-B20-01:opr:open", "SSH1408-B20-01:opr:close", new AMControlStatusCheckerDefault(4), this);
-	ssh2_ = new CLSBiStateControl("Exp.", "Second Safety Shutter", "SSH1607-1-B21-01:state", "SSH1607-1-B21-01:opr:open", "SSH1607-1-B21-01:opr:close", new AMControlStatusCheckerDefault(4), this);
+	psh1_ = new CLSBiStateControl("PSH", "First Photon Shutter", "PSH1408-B20-01:state", "PSH1408-B20-01:opr:open", "PSH1408-B20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	psh2_ = new CLSBiStateControl("Optic", "Second Photon Shutter", "PSH1408-B20-02:state", "PSH1408-B20-02:opr:open", "PSH1408-B20-02:opr:close", new AMControlStatusCheckerDefault(2), this);
+	ssh1_ = new CLSBiStateControl("SSH", "First Safety Shutter", "SSH1408-B20-01:state", "SSH1408-B20-01:opr:open", "SSH1408-B20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	ssh2_ = new CLSBiStateControl("Exp.", "Second Safety Shutter", "SSH1607-1-B21-01:state", "SSH1607-1-B21-01:opr:open", "SSH1607-1-B21-01:opr:close", new AMControlStatusCheckerDefault(2), this);
 
 	// Pressure controls.
 	ccgFE1_ =  new AMReadOnlyPVwStatusControl("Pressure FE1", "CCG1408-B20-01:vac:p", "CCG1408-B20-01:vac", this, new AMControlStatusCheckerDefault(0));

@@ -5,6 +5,7 @@
 #include "dataman/AMUser.h"
 #include "dataman/AMLineScan.h"
 #include "actions/AMBeamlineParallelActionsList.h"
+#include "analysis/AM1DNormalizationAB.h"
 
 #include <QDir>
 
@@ -165,7 +166,43 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 	// Add the rest (includes the ion chambers).  This sets I0 as well; it is the only visible raw data source.
 	addExtraDatasources();
 
-	// Analysis blocks.
+	// Add analysis blocks.
+	QList<AMDataSource *> i0List(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("Isplit"))
+															<< scan_->dataSourceAt(scan_->indexOfDataSource("Iprekb"))
+															<< scan_->dataSourceAt(scan_->indexOfDataSource("Imini")));
+	AMDataSource *rawDataSource = 0;
+	AM1DNormalizationAB *normROI = 0;
+	QString i0Name("");
+
+	switch (config_->incomingChoice()){
+
+	case VESPERSSpatialLineScanConfiguration::Isplit:
+		i0Name = i0List.at(0)->name();
+		break;
+
+	case VESPERSSpatialLineScanConfiguration::Iprekb:
+		i0Name = i0List.at(1)->name();
+		break;
+
+	case VESPERSSpatialLineScanConfiguration::Imini:
+		i0Name = i0List.at(2)->name();
+		break;
+
+	case VESPERSSpatialLineScanConfiguration::Ipost:
+		i0Name = "";
+		break;
+	}
+
+	for (int i = 0; i < roiCount; i++){
+
+		rawDataSource = scan_->rawDataSources()->at(i+1);
+		normROI = new AM1DNormalizationAB("norm_"+rawDataSource->name());
+		normROI->setDescription("Normalized "+rawDataSource->description());
+		normROI->setDataName(rawDataSource->name());
+		normROI->setNormalizationName(i0Name);
+		normROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource << i0List);
+		scan_->addAnalyzedDataSource(normROI, true, false);
+	}
 }
 
 void VESPERSSpatialLineDacqScanController::addExtraDatasources()

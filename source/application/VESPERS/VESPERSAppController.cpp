@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AM2DScanConfigurationViewHolder.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 
+#include "dataman/AMLineScan.h"
+
 #include "actions3/AMActionRunner3.h"
 #include "actions3/actions/AMScanAction.h"
 
@@ -158,6 +160,8 @@ void VESPERSAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<AMXRFScan>();
 	AMDbObjectSupport::s()->registerClass<VESPERSEXAFSScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<VESPERS2DScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<VESPERSSpatialLineScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<AMLineScan>();
 
 	AMDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
 	AMDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
@@ -281,7 +285,7 @@ void VESPERSAppController::setupUserInterface()
 	lineScanConfiguration_ = new VESPERSSpatialLineScanConfiguration();
 	lineScanConfiguration_->addRegion(0, 0, 0.005, 1, 1);
 	lineScanConfigurationView_ = new VESPERSSpatialLineScanConfigurationView(lineScanConfiguration_);
-	lineScanConfigurationViewHolder_ = new AM2DScanConfigurationViewHolder(workflowManagerView_, lineScanConfigurationView_);
+	lineScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_, lineScanConfigurationView_);
 //	lineScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(lineScanConfigurationView_);
 	connect(lineScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 

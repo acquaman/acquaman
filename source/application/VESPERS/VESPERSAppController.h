@@ -138,8 +138,8 @@ protected:
 	VESPERSSpatialLineScanConfiguration *lineScanConfiguration_;
 	/// The line scan configuration view.
 	VESPERSSpatialLineScanConfigurationView *lineScanConfigurationView_;
-	/// The holder for the scan configuration. It uses the 2D configuration view holder because I want the 2D visualization.
-	AM2DScanConfigurationViewHolder *lineScanConfigurationViewHolder_;
+	/// The holder for the scan configuration.
+	AMScanConfigurationViewHolder *lineScanConfigurationViewHolder_;
 	/// The (new holder for the line scan configuration.
 	AMScanConfigurationViewHolder3 *lineScanConfigurationViewHolder3_;
 
