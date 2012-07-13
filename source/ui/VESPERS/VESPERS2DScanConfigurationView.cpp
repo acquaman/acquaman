@@ -419,7 +419,7 @@ QString VESPERS2DScanConfigurationView::convertTimeToString(double time)
 
 	if (days > 0){
 
-		time -= time/3600/24;
+		time -= days*3600.0*24;
 		timeString += QString::number(days) + "d:";
 	}
 
