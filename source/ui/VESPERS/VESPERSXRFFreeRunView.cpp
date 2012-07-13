@@ -95,6 +95,9 @@ VESPERSXRFFreeRunView::VESPERSXRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowM
 	connect(configureButton, SIGNAL(clicked()), scroll, SLOT(show()));
 	connect(configureButton, SIGNAL(clicked()), scroll, SLOT(raise()));
 
+	QPushButton *copyROIsButton = new QPushButton(QIcon(":/22x22/preferences-desktop-theme.png"), "Copy ROIs");
+	connect(copyROIsButton, SIGNAL(clicked()), this, SLOT(onCopyROIsClicked()));
+
 	// Control options for the detector.
 	start_ = new QToolButton;
 	start_->setIcon(QIcon(":/play_button_green.png"));
@@ -220,6 +223,7 @@ VESPERSXRFFreeRunView::VESPERSXRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowM
 	controlLayout->addWidget(peakingTime_);
 	controlLayout->addWidget(pileUpGroupBox);
 	controlLayout->addStretch();
+	controlLayout->addWidget(copyROIsButton);
 	controlLayout->addWidget(sortButton);
 	controlLayout->addWidget(configureButton);
 
@@ -299,4 +303,12 @@ void VESPERSXRFFreeRunView::getCombinationElement()
 		combinationPileUpChoiceButton_->setText(el->symbol());
 		view_->setSecondaryElement(xrfTable_->elementByAtomicNumber(el->atomicNumber()));
 	}
+}
+
+void VESPERSXRFFreeRunView::onCopyROIsClicked()
+{
+	if (detector_->elements() == 1)
+		VESPERSBeamline::vespers()->vortexXRF4E()->copyFromROIList(detector_->roiInfoList());
+	else if (detector_->elements() == 4)
+		VESPERSBeamline::vespers()->vortexXRF1E()->copyFromROIList(detector_->roiInfoList());
 }
