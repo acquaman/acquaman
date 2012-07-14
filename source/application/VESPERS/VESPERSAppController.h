@@ -28,6 +28,7 @@ class VESPERSXRFFreeRunView;
 class VESPERSRoperCCDDetectorView;
 class VESPERSPersistentView;
 class VESPERSEXAFSScanConfiguration;
+class VESPERSEXAFSScanConfigurationView;
 class AMScanConfigurationViewHolder;
 class AMScanConfigurationViewHolder3;
 class VESPERS2DScanConfiguration;
@@ -120,6 +121,8 @@ protected:
 
 	/// Pointer to the XAS scan configuration.
 	VESPERSEXAFSScanConfiguration *exafsScanConfig_;
+	/// Pointer to the XAS scan configuration view.
+	VESPERSEXAFSScanConfigurationView *exafsConfigView_;
 	/// The holder for the XAS scan configuration.
 	AMScanConfigurationViewHolder *exafsConfigViewHolder_;
 	/// The (new) holder for the XAS scan configuration.

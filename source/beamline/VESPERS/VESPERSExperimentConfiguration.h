@@ -45,6 +45,8 @@ public:
 
 	/// Returns the experiment type.
 	ExperimentType type() const { return type_; }
+	/// Returns which sample stage is currently in use.  True is the pseudo motors and false is the real motors.
+	bool sampleStageChoice() const { return int(sampleStageControl_->value()) == 1 ? true : false; }
 
 signals:
 	/// Notifier that the beamline is ready for to take experiments.

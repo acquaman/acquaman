@@ -295,10 +295,10 @@ void VESPERSAppController::setupUserInterface()
 	// Setup XAS for the beamline.  Builds the config, view, and view holder.
 	exafsScanConfig_ = new VESPERSEXAFSScanConfiguration();
 	exafsScanConfig_->addRegion(0, -30, 0.5, 40, 1);
-	VESPERSEXAFSScanConfigurationView *exafsConfigView = new VESPERSEXAFSScanConfigurationView(exafsScanConfig_);
-	exafsConfigViewHolder_ = new AMScanConfigurationViewHolder( workflowManagerView_, exafsConfigView);
+	exafsConfigView_ = new VESPERSEXAFSScanConfigurationView(exafsScanConfig_);
+	exafsConfigViewHolder_ = new AMScanConfigurationViewHolder( workflowManagerView_, exafsConfigView_);
 //	exafsConfigViewHolder3_ = new AMScanConfigurationViewHolder3(exafsConfigView);
-	connect(exafsConfigView, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
+	connect(exafsConfigView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
 	// Setup 2D maps for the beamline.  Builds the config, view, and view holder.
 	mapScanConfiguration_ = new VESPERS2DScanConfiguration();
@@ -680,4 +680,5 @@ void VESPERSAppController::onSampleStageChoiceChanged(bool change)
 {
 	persistentView_->setSampleStage(change);
 	endstationView_->setUsingNormalMotor(change);
+	exafsConfigView_->setSampleStage(change);
 }

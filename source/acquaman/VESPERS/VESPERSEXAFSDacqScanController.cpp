@@ -407,10 +407,16 @@ bool VESPERSEXAFSDacqScanController::initializeImplementation()
 	// Third stage.
 	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 	setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->mono()->createDelEAction(0));
-	if (config_->goToPosition()){
+	if (config_->goToPosition() && VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
 
 		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(config_->x()));
 		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(config_->y()));
+	}
+
+	else if (config_->goToPosition() && !VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
+
+		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->realSampleStage()->createHorizontalMoveAction(config_->x()));
+		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->realSampleStage()->createVerticalMoveAction(config_->y()));
 	}
 
 	// Fourth stage.
@@ -442,8 +448,16 @@ bool VESPERSEXAFSDacqScanController::startImplementation()
 {
 	currentRegionIndex_ = 0;
 
-	scan_->scanInitialConditions()->append(VESPERSBeamline::vespers()->sampleStageHorizontal()->toInfo());
-	scan_->scanInitialConditions()->append(VESPERSBeamline::vespers()->sampleStageVertical()->toInfo());
+	if (VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
+
+		scan_->scanInitialConditions()->append(VESPERSBeamline::vespers()->sampleStageHorizontal()->toInfo());
+		scan_->scanInitialConditions()->append(VESPERSBeamline::vespers()->sampleStageVertical()->toInfo());
+	}
+	else{
+
+		scan_->scanInitialConditions()->append(VESPERSBeamline::vespers()->sampleStageX()->toInfo());
+		scan_->scanInitialConditions()->append(VESPERSBeamline::vespers()->sampleStageZ()->toInfo());
+	}
 
 	// Setup the real config.
 	switch(config_->fluorescenceDetectorChoice()){
