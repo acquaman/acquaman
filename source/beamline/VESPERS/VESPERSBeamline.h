@@ -450,6 +450,8 @@ public:
 	AMControlSet *sampleStageMotorSet() const { return sampleStageMotorSet_; }
 
 	// This is where the controls and PVs for scanning are.  They are reproduced somewhat because my encapsulation classes don't return AMControls.
+	/// Returns the energy control.
+	AMControl *energy() const { return energy_; }
 	/// Returns the relative energy control.
 	AMControl *energyRelative() const { return energyRelative_; }
 	/// Returns the master dwell time control.
@@ -757,6 +759,7 @@ protected:
 	// End sample stage controls.
 
 	// Scanning settings.
+	AMControl *energy_;
 	AMControl *energyRelative_;
 	AMControl *masterDwellTime_;
 	AMControl *kControl_;
