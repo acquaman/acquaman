@@ -569,7 +569,7 @@ bool VESPERSSpatialLineDacqScanController::setupSingleElementMap()
 	int roiCount = detector->roiInfoList()->count();
 
 	for (int i = 0; i < roiCount; i++)
-		advAcq_->appendRecord("IOC1607-004:mca1.R"+QString::number(i), true, false, 0);
+		advAcq_->appendRecord("IOC1607-004:mca1.R"+QString::number(i), true, false, 1);
 
 	advAcq_->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
 	advAcq_->appendRecord("IOC1607-004:mca1.DTIM", true, false, 0);
@@ -635,7 +635,7 @@ bool VESPERSSpatialLineDacqScanController::setupFourElementMap()
 	int roiCount = detector->roiInfoList()->count();
 
 	for (int i = 0; i < roiCount; i++)
-		advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R"+QString::number(i), true, false, 0);
+		advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R"+QString::number(i), true, false, 1);
 
 	advAcq_->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
 	advAcq_->appendRecord("dxp1607-B21-04:mca1.ERTM", true, false, 0);

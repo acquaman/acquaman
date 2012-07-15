@@ -709,7 +709,7 @@ bool VESPERSEXAFSDacqScanController::setupSingleElementXAS()
 	int roiCount = detector->roiInfoList()->count();
 
 	for (int i = 0; i < roiCount; i++)
-		advAcq_->appendRecord("IOC1607-004:mca1.R"+QString::number(i), true, false, 0);
+		advAcq_->appendRecord("IOC1607-004:mca1.R"+QString::number(i), true, false, 1);
 
 	advAcq_->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
 	advAcq_->appendRecord("07B2_Mono_SineB_K", true, false, 0);
