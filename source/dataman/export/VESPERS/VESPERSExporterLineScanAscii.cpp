@@ -4,6 +4,7 @@
 #include "dataman/AMScan.h"
 #include "util/AMErrorMonitor.h"
 #include "acquaman/VESPERS/VESPERSSpatialLineScanConfiguration.h"
+#include "acquaman/VESPERS/VESPERSEnergyScanConfiguration.h"
 
 #include <QStringBuilder>
 #include <QFile>
@@ -98,13 +99,20 @@ void VESPERSExporterLineScanAscii::writeMainTable()
 	ts << option_->newlineDelimiter() << option_->columnHeaderDelimiter() << option_->newlineDelimiter();
 
 	// 2. rows
+	QString ccdFileName;
 	VESPERSSpatialLineScanConfiguration *config = qobject_cast<VESPERSSpatialLineScanConfiguration *>(const_cast<AMScanConfiguration *>(currentScan_->scanConfiguration()));
-	if (!config)
+	VESPERSEnergyScanConfiguration *energyConfig = qobject_cast<VESPERSEnergyScanConfiguration *>(const_cast<AMScanConfiguration *>(currentScan_->scanConfiguration()));
+
+	if (config)
+		ccdFileName = config->ccdFileName();
+	else if (energyConfig)
+		ccdFileName = energyConfig->ccdFileName();
+	else
 		return;
+
 
 	// This will return -1 if it fails.  This means any checks inside this loop will always fail if the CCD was not included.
 	int indexOfCCDName = currentScan_->indexOfDataSource("CCDFileNumber");
-	QString ccdFileName = config->ccdFileName();
 	int xRange = currentScan_->scanSize(0);
 
 	for (int x = 0; x < xRange; x++){

@@ -38,6 +38,8 @@ class AMBeamlineListAction;
 class AMScanAction;
 class VESPERSSpatialLineScanConfiguration;
 class VESPERSSpatialLineScanConfigurationView;
+class VESPERSEnergyScanConfiguration;
+class VESPERSEnergyScanConfigurationView;
 class AMGenericScanEditor;
 
 class VESPERSWorkflowAssistant;
@@ -145,6 +147,15 @@ protected:
 	AMScanConfigurationViewHolder *lineScanConfigurationViewHolder_;
 	/// The (new holder for the line scan configuration.
 	AMScanConfigurationViewHolder3 *lineScanConfigurationViewHolder3_;
+
+	/// The energy scan configuration.
+	VESPERSEnergyScanConfiguration *energyScanConfiguration_;
+	/// The energy scan configuration view.
+	VESPERSEnergyScanConfigurationView *energyScanConfigurationView_;
+	/// The holder for the scan configuration.
+	AMScanConfigurationViewHolder *energyScanConfigurationViewHolder_;
+	/// The (new holder for the energy scan configuration.
+	AMScanConfigurationViewHolder3 *energyScanConfigurationViewHolder3_;
 
 	/// Pointer to the list action that is used to move the sample stage.
 	AMBeamlineListAction *moveImmediatelyAction_;

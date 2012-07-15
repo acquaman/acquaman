@@ -29,7 +29,7 @@ VESPERSEnergyDacqScanController::VESPERSEnergyDacqScanController(VESPERSEnergySc
 
 	scan_ = new AMXASScan(); 	// MB: Moved from line 363 in startImplementation.
 	scan_->setName(config_->name());
-	scan_->setFileFormat("vespers2011EXAFS");
+	scan_->setFileFormat("vespers2012Energy");
 	scan_->setScanConfiguration(config_);
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setIndexType("fileSystem");
@@ -38,7 +38,27 @@ VESPERSEnergyDacqScanController::VESPERSEnergyDacqScanController(VESPERSEnergySc
 	QString notes;
 
 	if (config_->ccdDetector() == VESPERSEnergyScanConfiguration::Roper)
-		notes.append(QString("\nFluorescence detector distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToRoperCCD(), 0, 'f', 1));
+		notes.append(QString("\nRoper CCD distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToRoperCCD(), 0, 'f', 1));
+
+	switch(VESPERSBeamline::vespers()->currentBeam()){
+
+	case VESPERSBeamline::None:
+	case VESPERSBeamline::Pink:
+		// This should never happen.
+		break;
+
+	case VESPERSBeamline::TenPercent:
+		notes.append(QString("Beam used:\t10% bandpass\n"));
+		break;
+
+	case VESPERSBeamline::OnePointSixPercent:
+		notes.append(QString("Beam used:\t1.6% bandpass\n"));
+		break;
+
+	case VESPERSBeamline::Si:
+		notes.append(QString("Beam used:\tSi (%1E/E = 10^-4)\n").arg(QString::fromUtf8("Δ")));
+		break;
+	}
 
 	notes.append(QString("Filter thickness (aluminum):\t%1 %2m\n").arg(VESPERSBeamline::vespers()->endstation()->filterThickness()).arg(QString::fromUtf8("μ")));
 	notes.append(QString("Horizontal slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapX()));
@@ -64,7 +84,7 @@ VESPERSEnergyDacqScanController::VESPERSEnergyDacqScanController(VESPERSEnergySc
 		temp = AMMeasurementInfo(*(ionChambers->detectorAt(i)->toInfo()));
 		temp.name = ionChambers->detectorAt(i)->detectorName();
 		scan_->rawData()->addMeasurement(temp);
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
 	}
 
 	addExtraDatasources();
@@ -126,15 +146,16 @@ bool VESPERSEnergyDacqScanController::initializeImplementation()
 	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(config_->regionTime(0)));
 
 	// Third stage.
-	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 	if (config_->goToPosition() && VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
 
+		setupXASActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(config_->x()));
 		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(config_->y()));
 	}
 
 	else if (config_->goToPosition() && !VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
 
+		setupXASActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->realSampleStage()->createHorizontalMoveAction(config_->x()));
 		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->realSampleStage()->createVerticalMoveAction(config_->y()));
 	}

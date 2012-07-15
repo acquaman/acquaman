@@ -20,7 +20,7 @@ VESPERSEnergyScanConfiguration::VESPERSEnergyScanConfiguration(QObject *parent)
 	goToPosition_ = false;
 	position_ = qMakePair(0.0, 0.0);
 	totalTime_ = 0;
-	timeOffset_ = 0.7;
+	timeOffset_ = 6;
 	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
 }
 
@@ -35,11 +35,14 @@ VESPERSEnergyScanConfiguration::VESPERSEnergyScanConfiguration(const VESPERSEner
 	regions_->setDefaultUnits(original.regions()->defaultUnits());
 	regions_->setDefaultTimeUnits(original.regions()->defaultTimeUnits());
 
+	for (int i = 0; i < original.regionCount(); i++)
+		regions_->addRegion(i, original.regionStart(i), original.regionDelta(i), original.regionEnd(i), original.regionTime(i));
+
 	ccdDetector_ = original.ccdDetector();
 	ccdFileName_ = original.ccdFileName();
 	goToPosition_ = original.goToPosition();
 	position_ = original.position();
-	timeOffset_ = 0.7;
+	timeOffset_ = 6;
 	totalTime_ = 0;
 	computeTotalTime();
 	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
@@ -69,6 +72,7 @@ QString VESPERSEnergyScanConfiguration::headerText() const
 {
 	QString header("Configuration of the Scan\n\n");
 
+	header.append(QString("CCD detector used: %1\n").arg(ccdDetector() == Roper ? "Roper" : "Mar"));
 	header.append(QString("Automatically moved to a specific location (used when setting up the workflow)?\t%1").arg(goToPosition() ? "Yes\n" : "No\n\n"));
 
 	if (goToPosition()){

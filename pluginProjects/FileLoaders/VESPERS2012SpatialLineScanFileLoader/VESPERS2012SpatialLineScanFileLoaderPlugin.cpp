@@ -15,7 +15,8 @@ bool VESPERS2012SpatialLineScanFileLoaderPlugin::accepts(AMScan *scan)
 	if (scan->fileFormat() == "vespers2012LineScanXRF1El"
 			|| scan->fileFormat() == "vespers2012LineScanXRF1ElXRD"
 			|| scan->fileFormat() == "vespers2012LineScanXRF4El"
-			|| scan->fileFormat() == "vespers2012LineScanXRF4ElXRD")
+			|| scan->fileFormat() == "vespers2012LineScanXRF4ElXRD"
+			|| scan->fileFormat() == "vespers2012Energy")
 		return true;
 
 	return false;
@@ -125,6 +126,8 @@ bool VESPERS2012SpatialLineScanFileLoaderPlugin::load(AMScan *scan, const QStrin
 		scan->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
 	else if (line == "SVM1607-2-B21-01:mm")
 		scan->rawData()->addScanAxis(AMAxisInfo("Z", 0, "Vertical Position", "mm"));
+	else if (line == "07B2_Mono_SineB_Egec:eV")
+		scan->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
 	in.readLine();
 	in.readLine();
@@ -166,6 +169,13 @@ bool VESPERS2012SpatialLineScanFileLoaderPlugin::load(AMScan *scan, const QStrin
 
 		for (int i = scan->rawDataSourceCount()-5; i < scan->rawDataSourceCount(); i++)
 			scan->rawData()->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description(), "eV", axisInfo));
+	}
+
+	else{
+
+		for (int i = 0; i < scan->rawDataSourceCount(); i++)
+			scan->rawData()->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description()));
+
 	}
 
 	int position = 0;
@@ -224,6 +234,13 @@ bool VESPERS2012SpatialLineScanFileLoaderPlugin::load(AMScan *scan, const QStrin
 			scan->rawData()->setValue(axisValueIndex, scan->rawDataSourceCount()-2, raw3.constData(), raw3.size());
 			scan->rawData()->setValue(axisValueIndex, scan->rawDataSourceCount()-1, raw4.constData(), raw4.size());
 		}
+
+		else{
+
+			for (int i = 0; i < scan->rawDataSourceCount(); i++)
+				scan->rawData()->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+2).toDouble());
+		}
+
 		scan->rawData()->endInsertRows();
 
 		// Advance to the next spot.
@@ -241,7 +258,8 @@ bool VESPERS2012SpatialLineScanFileLoaderFactory::accepts(AMScan *scan)
 	if (scan->fileFormat() == "vespers2012LineScanXRF1El"
 			|| scan->fileFormat() == "vespers2012LineScanXRF1ElXRD"
 			|| scan->fileFormat() == "vespers2012LineScanXRF4El"
-			|| scan->fileFormat() == "vespers2012LineScanXRF4ElXRD")
+			|| scan->fileFormat() == "vespers2012LineScanXRF4ElXRD"
+			|| scan->fileFormat() == "vespers2012Energy")
 		return true;
 
 	return false;

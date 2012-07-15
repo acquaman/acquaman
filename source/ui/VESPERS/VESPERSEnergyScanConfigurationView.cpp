@@ -21,7 +21,8 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 
 	// Regions setup
 	regionsView_ = new AMRegionsView(config_->regions());
-	regionsView_->setMinimumWidth(300);
+	regionsView_->setMinimumWidth(400);
+	regionsView_->setMaximumHeight(100);
 
 	// The CCD detector setup.
 	ccdButtonGroup_ = new QButtonGroup;
@@ -140,12 +141,14 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 
 	currentCCDFileName_ = new QLabel;
 	onCCDFileNameChanged(config_->ccdFileName());
+	connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), config_, SLOT(setCCDFileName(QString)));
 	connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), this, SLOT(onCCDFileNameChanged(QString)));
 
 	QPushButton *configureRoperDetectorButton = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure Roper CCD");
-	connect(configureRoperDetectorButton, SIGNAL(clicked()), this, SLOT(onConfigureRoperDetectorClicked()));
+	connect(configureRoperDetectorButton, SIGNAL(clicked()), this, SLOT(onConfigureCCDDetectorClicked()));
 
 	QHBoxLayout *ccdBoxFirstRowLayout = new QHBoxLayout;
+	ccdBoxFirstRowLayout->addWidget(currentCCDFileName_);
 	ccdBoxFirstRowLayout->addWidget(configureRoperDetectorButton);
 
 	// The estimated scan time.
@@ -175,13 +178,29 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	timeOffsetLayout->addWidget(timeOffset_);
 
 	// Setting up the layout.
-	QGridLayout *contentsLayout = new QGridLayout;
-	contentsLayout->addWidget(regionsView_, 1, 1, 2, 2);
-	contentsLayout->addLayout(scanNameLayout, 4, 1);
-	contentsLayout->addLayout(positionLayout, 4, 3, 4, 1);
-	contentsLayout->addWidget(estimatedTime_, 6, 1, 1, 2);
-	contentsLayout->addLayout(ccdBoxFirstRowLayout, 7, 1, 1, 2);
-	contentsLayout->addLayout(timeOffsetLayout, 8, 1, 1, 2);
+	QHBoxLayout *topRowLayout = new QHBoxLayout;
+	topRowLayout->addStretch();
+	topRowLayout->addWidget(regionsView_, 0, Qt::AlignLeft);
+	topRowLayout->addWidget(ccdDetectorGroupBox);
+	topRowLayout->addLayout(positionLayout);
+	topRowLayout->addStretch();
+
+	QHBoxLayout *secondRowLayout = new QHBoxLayout;
+	secondRowLayout->addStretch();
+	secondRowLayout->addLayout(scanNameLayout);
+	secondRowLayout->addLayout(ccdBoxFirstRowLayout);
+	secondRowLayout->addStretch();
+
+	QHBoxLayout *thirdRowLayout = new QHBoxLayout;
+	thirdRowLayout->addStretch();
+	thirdRowLayout->addWidget(estimatedTime_, 0, Qt::AlignLeft);
+	thirdRowLayout->addLayout(timeOffsetLayout);
+	thirdRowLayout->addStretch();
+
+	QVBoxLayout *contentsLayout = new QVBoxLayout;
+	contentsLayout->addLayout(topRowLayout);
+	contentsLayout->addLayout(secondRowLayout);
+	contentsLayout->addLayout(thirdRowLayout);
 
 	QVBoxLayout *configViewLayout = new QVBoxLayout;
 	configViewLayout->addWidget(frame);

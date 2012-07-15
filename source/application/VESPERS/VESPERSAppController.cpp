@@ -44,6 +44,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERS2DScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSEndstationConfigurationView.h"
 #include "ui/VESPERS/VESPERSSpatialLineScanConfigurationView.h"
+#include "ui/VESPERS/VESPERSEnergyScanConfigurationView.h"
 
 #include "dataman/AMScanEditorModelItem.h"
 #include "ui/dataman/AMGenericScanEditor.h"
@@ -162,6 +163,7 @@ void VESPERSAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<VESPERSEXAFSScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<VESPERS2DScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<VESPERSSpatialLineScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<VESPERSEnergyScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<AMLineScan>();
 
 	AMDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
@@ -250,9 +252,35 @@ void VESPERSAppController::setupExporterOptions()
 	vespersDefault->storeToDb(AMDatabase::database("user"));
 
 	// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
-	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERS2DDefault");
+	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSLineScanDefault");
 	if(matchIDs.count() > 0)
 		AMAppControllerSupport::registerClass<VESPERSSpatialLineScanConfiguration, VESPERSExporterLineScanAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
+
+	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSEnergyScanDefault");
+	vespersDefault = new AMExporterOptionGeneralAscii();
+
+	if (matchIDs.count() != 0)
+		vespersDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
+
+	vespersDefault->setName("VESPERSEnergyScanDefault");
+	vespersDefault->setFileName("$name_$fsIndex.dat");
+	vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n");
+	vespersDefault->setHeaderIncluded(true);
+	vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
+	vespersDefault->setColumnHeaderIncluded(true);
+	vespersDefault->setColumnHeaderDelimiter("");
+	vespersDefault->setSectionHeader("");
+	vespersDefault->setSectionHeaderIncluded(true);
+	vespersDefault->setIncludeAllDataSources(true);
+	vespersDefault->setFirstColumnOnly(true);
+	vespersDefault->setSeparateHigherDimensionalSources(true);
+	vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
+	vespersDefault->storeToDb(AMDatabase::database("user"));
+
+	// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
+	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSEnergyScanDefault");
+	if(matchIDs.count() > 0)
+		AMAppControllerSupport::registerClass<VESPERSEnergyScanConfiguration, VESPERSExporterLineScanAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
 }
 
 void VESPERSAppController::setupUserInterface()
@@ -319,13 +347,25 @@ void VESPERSAppController::setupUserInterface()
 //	lineScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(lineScanConfigurationView_);
 	connect(lineScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
+	// Setup energy scans for the beamline.  Builds the config, view, and view holder.
+	energyScanConfiguration_ = new VESPERSEnergyScanConfiguration();
+	energyScanConfiguration_->addRegion(0, 10000, 1000, 20000, 1);
+	energyScanConfiguration_->regions()->setUnits(0, " eV");
+	energyScanConfiguration_->regions()->setTimeUnits(0, " s");
+	energyScanConfigurationView_ = new VESPERSEnergyScanConfigurationView(energyScanConfiguration_);
+	energyScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_, energyScanConfigurationView_);
+//	energyScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(energyScanConfigurationView_);
+	connect(energyScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
+
 	mw_->insertHeading("Scans", 2);
 	mw_->addPane(exafsConfigViewHolder_, "Scans", "XAS", ":/utilities-system-monitor.png");
 	mw_->addPane(mapScanConfigurationViewHolder_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
 	mw_->addPane(lineScanConfigurationViewHolder_, "Scans", "Line Scan", ":/utilities-system-monitor.png");
+	mw_->addPane(energyScanConfigurationViewHolder_, "Scans", "Energy Scan", ":/utilities-system-monitor.png");
 //	mw_->addPane(exafsConfigViewHolder3_, "Scans", "XAS", ":/utilities-system-monitor.png");
 //	mw_->addPane(mapScanConfigurationViewHolder3_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
 //	mw_->addPane(lineScanConfigurationViewHolder3_, "Scans", "Line Scan", ":/utilities-system-monitor.png");
+//	mw_->addPane(energyScanConfigurationViewHolder3_, "Scans", "Energy Scan", ":/utilities-system-monitor.png");
 
 	// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
 	persistentView_ = new VESPERSPersistentView;
