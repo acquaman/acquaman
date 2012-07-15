@@ -106,7 +106,7 @@ bool AMAppController::startupCreateUserInterface() {
 		workflowView_ = new AMWorkflowView3();
 		mw_->addPane(workflowView_, "Experiment Tools", "Workflow", ":/user-away.png");
 		// remove the old one:
-//		mw_->removePane(workflowManagerView_);
+		mw_->removePane(workflowManagerView_);
 		workflowManagerView_->hide();
 
 		AMStartScreen* chooseRunDialog = new AMStartScreen(true, mw_);

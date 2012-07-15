@@ -566,6 +566,7 @@ void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor, co
 	popup.addSeparator();
 	popup.addAction("XANES scan");
 	popup.addAction("EXAFS scan");
+	popup.addAction("Energy scan");
 	popup.addSeparator();
 	popup.addAction("Go to immediately");
 	popup.addSeparator();
@@ -581,6 +582,9 @@ void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor, co
 
 		else if (temp->text() == "EXAFS scan")
 			setupXASScan(editor, true);
+
+		else if (temp->text() == "Energy scan")
+			setupEnergyScan(editor);
 
 		else if (temp->text() == "Go to immediately"){
 
@@ -689,6 +693,20 @@ void VESPERSAppController::setupXASScan(const AMGenericScanEditor *editor, bool 
 	}
 
 	mw_->undock(exafsConfigViewHolder_);
+}
+
+void VESPERSAppController::setupEnergyScan(const AMGenericScanEditor *editor)
+{
+	energyScanConfiguration_->setGoToPosition(true);
+	energyScanConfiguration_->setX(editor->dataPosition().x());
+	energyScanConfiguration_->setY(editor->dataPosition().y());
+
+	// This should always succeed because the only way to get into this function is using the 2D scan view which currently only is accessed by 2D scans.
+	VESPERS2DScanConfiguration *config = qobject_cast<VESPERS2DScanConfiguration *>(editor->currentScan()->scanConfiguration());
+	if (config)
+		energyScanConfiguration_->setName(config->name());
+
+	mw_->undock(energyScanConfigurationViewHolder_);
 }
 
 void VESPERSAppController::setup2DXRFScan(const AMGenericScanEditor *editor)

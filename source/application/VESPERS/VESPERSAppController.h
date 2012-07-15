@@ -94,6 +94,8 @@ protected slots:
 protected:
 	/// Sets up a default XAS scan.  It will setup XANES or EXAFS based on the bool \param setupEXAFS using the information from AMGenericScanEditor \param editor.
 	void setupXASScan(const AMGenericScanEditor *editor, bool setupEXAFS);
+	/// Sets up a default energy scan.  It will setup the scan based on the information provided by AMGenericScanEditor.
+	void setupEnergyScan(const AMGenericScanEditor *editor);
 	/// Sets up a default 2D XRF scan.  It setup the 2D scan as best as it can based on the information provided by AMGenericScanEditor.
 	void setup2DXRFScan(const AMGenericScanEditor *editor);
 	/// Cleans up the moveImmediatelyAction after every move to ensure that the list action is always cleaned and is initialized for another move.
