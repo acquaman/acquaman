@@ -616,6 +616,12 @@ void REIXSXESImageAB::computeCachedAxisValues() const
 	// Any detector tilt offset from nominal: get from position of tilt stage:
 	double tiltOffset = cal.d2r(cal.tiltOffset(tiltStage, beta));
 
+	//printf("beta %f\n", beta);
+	//printf("tiltOffset %f\n", tiltOffset);
+	//printf("cal.tiltOffset(tiltStage, beta) %f\n", cal.tiltOffset(tiltStage, beta));
+	//printf("tiltStage %f\n", beta);
+
+
 	double sinBeta = sin(beta);
 	double cosBeta = cos(beta);
 
@@ -638,6 +644,7 @@ void REIXSXESImageAB::computeCachedAxisValues() const
 		  = sign* sinb*cos( gamma ) - sin( gamma )*cosb	// Note: we'll fill in the sign inside the loop.
 	*/
 
+	/*
 	double singp = cosBeta*cos(gamma) + sinBeta*sin(gamma);
 	double cosgp = sinBeta*cos(gamma) - cosBeta*sin(gamma);
 
@@ -670,9 +677,37 @@ void REIXSXESImageAB::computeCachedAxisValues() const
 		double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
 		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp);
 	}
+*/
+	double singp = cos(beta);
+	double cosgp = sin(beta);
+
+	int centerPixel = size(0)/2;
+	for(int i=0, cc=size(0); i<cc; ++i) {
+
+		// distance away from center; always positive.
+		double dx = (centerPixel-i)*mmPerPixel*singp;
+
+		// db: "delta Beta": the angle difference from the nominal beta.
+
+		double db = atan(dx/(rPrime-(centerPixel-i)*mmPerPixel*cosgp));
+
+
+		//bp ("beta-prime") is the diffraction angle at detector point 'i'; sinbp = sin( beta + db )
+		//																		 = sinb*cos(db) + cosb*sindb
+		//																		 = sinb*sqrt(1-sin^2(db)) + cosb*sindb
+		//double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
+		double sinbp = sin(beta - db);
+
+
+		//solving the grating equation for eV:
+		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp);
+	}
+
+
 
 	axisValuesInvalid_ = false;
 }
+
 
 
 
