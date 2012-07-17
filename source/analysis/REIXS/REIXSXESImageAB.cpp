@@ -567,6 +567,7 @@ QWidget * REIXSXESImageAB::createEditorWidget()
 
 #include "dataman/AMScan.h"
 #include "dataman/REIXS/REIXSXESCalibration2.h"
+#include "dataman/AMScan.h"
 
 void REIXSXESImageAB::computeCachedAxisValues() const
 {
@@ -605,30 +606,39 @@ void REIXSXESImageAB::computeCachedAxisValues() const
 		return;
 	}
 
-	// Variables. From here on, we work in radians, instead of the degree convention used by REIXSXESCalibration.
 
 	double mmPerPixel = cal.detectorWidth() / size(0);
 	double grooveDensity = cal.gratingAt(grating).grooveDensity();
 	double sinAlpha = sin(cal.d2r(cal.gratingAt(grating).alpha()));
 
 	// beta is also the nominal incidence angle onto the detector. Get beta from spectrometer position:
-	double beta = cal.d2r(cal.betaFromPosition(grating, cal.spectrometerAngle(liftHeight), rPrime));
+	double beta = cal.betaFromPosition(grating, cal.spectrometerAngle(liftHeight), rPrime);
 	// Any detector tilt offset from nominal: get from position of tilt stage:
-	double tiltOffset = cal.d2r(cal.tiltOffset(tiltStage, beta));
+	double tiltOffset = cal.tiltOffset(tiltStage, beta);
 
-	//printf("beta %f\n", beta);
-	//printf("tiltOffset %f\n", tiltOffset);
-	//printf("cal.tiltOffset(tiltStage, beta) %f\n", cal.tiltOffset(tiltStage, beta));
-	//printf("tiltStage %f\n", beta);
+	qDebug() << "Scan: " << scan()->fullName();
+	qDebug() << "beta" << beta << "deg";
+	qDebug() << "tiltOffset" << tiltOffset << "deg";
+	qDebug() << "tiltState:" << tiltStage;
 
+	// Variables. From here on, we work in radians, instead of the degree convention used by REIXSXESCalibration.
+	beta = cal.d2r(beta);
+	tiltOffset = cal.d2r(tiltOffset);
 
 	double sinBeta = sin(beta);
 	double cosBeta = cos(beta);
 
-	// Gamma is the actual incidence angle onto the detector, with the tilt offset applied.
-	double gamma = beta - tiltOffset;
+	// Mark's Implementation: This algorithm taken from SXEDAQ and the old ALS BL8 software.
+	//////////////////////////////////////////////////////
 
-	// Gamma' (gp) is the angle between the ray and the detector surface; it is acute for higher-than-center energies, and obtuse for lower-than-center energies.   "sign" will be defined inside the loop to be '1' for higher energies (pixel i > 512), and '-1' for lower energies (pixel i < 512).
+	// Gamma is the tilt offset:
+	double gamma = tiltOffset;
+
+	// Gamma' (gp) is the angle between the central ray and the detector surface; it is acute for higher-than-center energies, and obtuse for lower-than-center energies.
+	// higher-than-center energies: gp = pi/2 - beta + tiltOffset
+	// lower-than-center energies: gp = pi/2 + beta - tiltOffset.
+
+	// "sign" will be defined inside the loop to be '1' for higher energies (pixel i > 512), and '-1' for lower energies (pixel i < 512).
 	// We calculate sin(gp) and cos(gp) just once, recognizing that we'll need to multiply by sign once we get into the pixel-loop.
 
 	/* gamma' (gp) = pi/2 +(gamma-beta)*sign...so...
@@ -643,8 +653,6 @@ void REIXSXESImageAB::computeCachedAxisValues() const
 		  = sign* sin(beta - gamma)
 		  = sign* sinb*cos( gamma ) - sin( gamma )*cosb	// Note: we'll fill in the sign inside the loop.
 	*/
-
-	/*
 	double singp = cosBeta*cos(gamma) + sinBeta*sin(gamma);
 	double cosgp = sinBeta*cos(gamma) - cosBeta*sin(gamma);
 
@@ -677,31 +685,36 @@ void REIXSXESImageAB::computeCachedAxisValues() const
 		double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
 		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp);
 	}
-*/
-	double singp = cos(beta);
-	double cosgp = sin(beta);
-
-	int centerPixel = size(0)/2;
-	for(int i=0, cc=size(0); i<cc; ++i) {
-
-		// distance away from center; always positive.
-		double dx = (centerPixel-i)*mmPerPixel*singp;
-
-		// db: "delta Beta": the angle difference from the nominal beta.
-
-		double db = atan(dx/(rPrime-(centerPixel-i)*mmPerPixel*cosgp));
+	//////////////////////////////////////////////////////
 
 
-		//bp ("beta-prime") is the diffraction angle at detector point 'i'; sinbp = sin( beta + db )
-		//																		 = sinb*cos(db) + cosb*sindb
-		//																		 = sinb*sqrt(1-sin^2(db)) + cosb*sindb
-		//double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
-		double sinbp = sin(beta - db);
+	// David's implementation: (SUSPICIOUS?!?)
+	//////////////////////////////////////////////////////
+//	double singp = cos(beta);
+//	double cosgp = sin(beta);
+
+//	int centerPixel = size(0)/2;
+//	for(int i=0, cc=size(0); i<cc; ++i) {
+
+//		// distance away from center; always positive.
+//		double dx = (centerPixel-i)*mmPerPixel*singp;
+
+//		// db: "delta Beta": the angle difference from the nominal beta.
+
+//		double db = atan(dx/(rPrime-(centerPixel-i)*mmPerPixel*cosgp));
 
 
-		//solving the grating equation for eV:
-		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp);
-	}
+//		//bp ("beta-prime") is the diffraction angle at detector point 'i'; sinbp = sin( beta + db )
+//		//																		 = sinb*cos(db) + cosb*sindb
+//		//																		 = sinb*sqrt(1-sin^2(db)) + cosb*sindb
+//		//double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
+//		double sinbp = sin(beta - db);
+
+
+//		//solving the grating equation for eV:
+//		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp);
+//	}
+	////////////////////////////////////////////////////////
 
 
 
