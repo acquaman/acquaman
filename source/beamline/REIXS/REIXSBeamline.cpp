@@ -285,7 +285,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 														"SMTR1610-4-I21-01:status",
 														"SMTR1610-4-I21-01:stop", this, 0.05);
 	spectrometerRotationDrive_->setDescription("XES Spectrometer Lift");
-	spectrometerRotationDrive_->setSettlingTime(0.1);
+	spectrometerRotationDrive_->setSettlingTime(0.2);
 
 
 
@@ -296,7 +296,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 												  "SMTR1610-4-I21-04:stop", this, 0.05);
 
 	detectorTranslation_->setDescription("XES Detector Translation");
-	detectorTranslation_->setSettlingTime(0.1);
+	detectorTranslation_->setSettlingTime(0.2);
 
 	detectorTiltDrive_ = new AMPVwStatusControl("detectorTiltDrive",
 												"SMTR1610-4-I21-02:mm:sp",
@@ -304,7 +304,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 												"SMTR1610-4-I21-02:status",
 												"SMTR1610-4-I21-02:stop", this, 0.05);
 	detectorTiltDrive_->setDescription("XES Detector Tilt Stage");
-	detectorTiltDrive_->setSettlingTime(0.1);
+	detectorTiltDrive_->setSettlingTime(0.2);
 
 	endstationTranslation_ = new AMPVwStatusControl("endstationTranslation",
 														"SMTR1610-4-I21-05:mm:fbk",
@@ -312,7 +312,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 														"SMTR1610-4-I21-05:status",
 														"SMTR1610-4-I21-05:stop", this, 0.05);  //DAVID ADDED
 	endstationTranslation_->setDescription("Endstation Translation");
-	endstationTranslation_->setSettlingTime(0.1);
+	endstationTranslation_->setSettlingTime(0.2);
 
 	hexapod_ = new REIXSHexapod(this);
 
