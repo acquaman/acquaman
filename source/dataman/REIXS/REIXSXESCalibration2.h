@@ -215,12 +215,14 @@ public:
 		double incidenceAngle = 90. - beta + tiltOffset;
 
 		// using empirical formula from survey data.
-		return 1.1928*incidenceAngle - 19.15;
+		//return 1.1928*incidenceAngle - 19.15; OLD FROM MODEL
+		return 1.1926*incidenceAngle - 19.136; //FROM SURVEY DATA ONLY
 	}
 	/// Returns the tilt offset [degrees] from a given \c tiltStage position [mm], assuming at diffraction angle \c beta [degrees]. Inverse function of tiltStage().
 	double tiltOffset(double tiltStage, double beta) const {
 		// using empirical formula from survey data.
-		double incidenceAngle = (tiltStage + 19.15)/1.1928;
+		//double incidenceAngle = (tiltStage + 19.15)/1.1928;OLD FROM MODEL
+		double incidenceAngle = (tiltStage + 19.136)/1.1926;
 
 		return incidenceAngle + beta - 90.;
 	}
