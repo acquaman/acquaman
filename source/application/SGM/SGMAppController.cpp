@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMXASScanConfigurationView.h"
 #include "ui/SGM/SGMFastScanConfigurationView.h"
 #include "ui/SGM/SGMSidebar.h"
+#include "ui/SGM/SGMAdvancedControlsView.h"
 #include "acquaman/AMScanController.h"
 #include "ui/beamline/AMDetectorView.h"
 #include "ui/beamline/AMSingleControlDetectorView.h"
@@ -1029,6 +1030,9 @@ bool SGMAppController::setupSGMViews(){
 	connect(samplePositionView_, SIGNAL(newSamplePlateSelected(AMSamplePlate*)), SGMBeamline::sgm(), SLOT(setCurrentSamplePlate(AMSamplePlate*)));
 
 	connect(SGMBeamline::sgm(), SIGNAL(currentSamplePlateChanged(AMSamplePlate*)), workflowManagerView_, SLOT(setCurrentSamplePlate(AMSamplePlate*)));
+
+	SGMAdvancedControls_ = new SGMAdvancedControlsView();
+	mw_->addPane(SGMAdvancedControls_, "Beamline Control", "SGM Advanced Controls", ":/system-software-update.png");
 
 	//sampleTransferView_ = new SGMSampleTransferView();
 	//mw_->addPane(sampleTransferView_, "Beamline Control", "SGM Sample Transfer", ":/system-software-update.png");

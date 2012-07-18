@@ -20,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMBeamline.h"
 
+#include <QStringBuilder>
+
 #include "dataman/AMSamplePlate.h"
 #include "dataman/AMUser.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
@@ -91,6 +93,7 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("visibleLightStatus", "BL1611-ID-1:visible:cal");
 	amNames2pvNames_.set("activeEndstation", "BL1611-ID-1:AddOns:endstation:active");
 	amNames2pvNames_.set("ssaIllumination", "ILC1611-4-I10-02");
+	amNames2pvNames_.set("mirrorStripeSelection", "BL1611-ID-1:stripe");
 
 	bool pvNameLookUpFail = false;
 
@@ -369,6 +372,23 @@ void SGMBeamline::usingSGMBeamline(){
 	ssaIllumination_ = new AMPVControl("ssaIllumination", sgmPVName, sgmPVName, "", this, 0.5);
 	ssaIllumination_->setDescription("SSA Illumination");
 
+	sgmPVName = amNames2pvNames_.valueF("mirrorStripeSelection");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	mirrorStripeSelection_ = new AMReadOnlyPVControl("mirrorStripeSelection", sgmPVName%":fbk", this);
+	mirrorStripeSelection_->setDescription("Mirror Stripe");
+
+	mirrorStripeSelectCarbon_ = new AMPVControl("mirrorStripeSelectCarbon", sgmPVName%":c_fanout.PROC", sgmPVName%":c_fanout.PROC", QString(), this, 0.5);
+	mirrorStripeSelectCarbon_->setDescription("Select Carbon Stripe");
+	mirrorStripeSelectSilicon_ = new AMPVControl("mirrorStripeSelectSilicon", sgmPVName%":si_fanout.PROC", sgmPVName%":si_fanout.PROC", QString(), this, 0.5);
+	mirrorStripeSelectSilicon_->setDescription("Select Silicon Stripe");
+
+	sgmPVName = amNames2pvNames_.valueF("undulator");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	undulatorOffset_ = new AMPVControl("undulatorOffset", sgmPVName%":corr_A", sgmPVName%":corr_A", QString(), this, 0.01);
+	undulatorOffset_->setDescription("Undulator Offset");
+
 	scaler_ = new CLSSIS3820Scaler("BL1611-ID-1:mcs", this);
 	scaler_->channelAt(0)->setCustomChannelName("TEY");
 	scaler_->channelAt(1)->setCustomChannelName("I0");
@@ -439,6 +459,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	addChildControl(scalerIntegrationTime_);
 	connect(activeEndstation_, SIGNAL(valueChanged(double)), this, SLOT(onActiveEndstationChanged(double)));
 	addChildControl(ssaIllumination_);
+	connect(mirrorStripeSelection_, SIGNAL(valueChanged(double)), this, SLOT(onMirrorStripeChanged(double)));
 
 	criticalControlsSet_ = new AMControlSet(this);
 	criticalControlsSet_->setName("Critical Beamline Controls");
@@ -799,6 +820,15 @@ QString SGMBeamline::sgmEndstationName(SGMBeamline::sgmEndstation endstation) co
 		return "Scienta";
 	else if(endstation == SGMBeamline::ssa)
 		return "SSA";
+	else
+		return "ERROR";
+}
+
+QString SGMBeamline::sgmMirrorStripeName(SGMBeamline::sgmMirrorStripe mirrorStripe) const{
+	if(mirrorStripe == SGMBeamline::carbonStripe)
+		return "Carbon Stripe";
+	else if(mirrorStripe == SGMBeamline::siliconStripe)
+		return "Silicon Stripe";
 	else
 		return "ERROR";
 }
@@ -1331,6 +1361,14 @@ void SGMBeamline::setCurrentEndstation(SGMBeamline::sgmEndstation endstation){
 	return;
 }
 
+void SGMBeamline::setCurrentMirrorStripe(SGMBeamline::sgmMirrorStripe mirrorStripe){
+	if(mirrorStripe == SGMBeamline::carbonStripe)
+		mirrorStripeSelectCarbon_->move(1);
+	else if(mirrorStripe == SGMBeamline::siliconStripe)
+		mirrorStripeSelectSilicon_->move(1);
+	return;
+}
+
 void SGMBeamline::onBeamlineScanningValueChanged(double value){
 	bool isScanning;
 	if( fabs(value - 1.0) < beamlineScanning_->tolerance() )
@@ -1416,6 +1454,10 @@ void SGMBeamline::onEnergyValueChanged(){
 
 void SGMBeamline::onActiveEndstationChanged(double value){
 	emit currentEndstationChanged((SGMBeamline::sgmEndstation)value);
+}
+
+void SGMBeamline::onMirrorStripeChanged(double value){
+	emit currentMirrorStripeChanged((SGMBeamline::sgmMirrorStripe)value);
 }
 
 void SGMBeamline::recomputeWarnings(){
