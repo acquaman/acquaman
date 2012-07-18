@@ -90,6 +90,12 @@ public:
 	};
 	QString sgmEndstationName(SGMBeamline::sgmEndstation endstation) const;
 
+	enum sgmMirrorStripe{
+		carbonStripe = 0,
+		siliconStripe = 1
+	};
+	QString sgmMirrorStripeName(SGMBeamline::sgmMirrorStripe mirrorStripe) const;
+
 	enum sgmTransferType{
 		loadlockOut = 1,
 		loadlockIn,
@@ -180,6 +186,14 @@ public:
 	AMControl* scalerIntegrationTime() const { return scalerIntegrationTime_;}
 	AMControl* ssaIllumination() const { return ssaIllumination_;}
 	AMControl* tfyHVToggle() const { return tfyHVToggle_;}
+	/// Returns the mirror selection feedback control (C or Si stripe)
+	AMControl *mirrorStripeSelection() const { return mirrorStripeSelection_;}
+	/// Returns the mirror selection control for Carbon
+	AMControl *mirrorStripeSelectCarbon() const { return mirrorStripeSelectCarbon_;}
+	/// Returns the mirror selection control for Silicon
+	AMControl *mirrorStripeSelectSilicon() const { return mirrorStripeSelectSilicon_;}
+	/// Returns the undulator offset control (for detuning)
+	AMControl *undulatorOffset() const { return undulatorOffset_;}
 	CLSCAEN2527HVChannel* hvChannel106() const { return hvChannel106_;}
 	CLSCAEN2527HVChannel* hvChannel109() const { return hvChannel109_;}
 	CLSPGT8000HVChannel* hvChannelPGT() const { return hvChannelPGT_;}
@@ -264,6 +278,7 @@ public slots:
 	void closeVacuum();
 
 	void setCurrentEndstation(SGMBeamline::sgmEndstation endstation);
+	void setCurrentMirrorStripe(SGMBeamline::sgmMirrorStripe mirrorStripe);
 
 signals:
 	void beamlineScanningChanged(bool scanning);
@@ -279,6 +294,7 @@ signals:
 	void currentSamplePlateChanged(AMSamplePlate *newSamplePlate);
 
 	void currentEndstationChanged(SGMBeamline::sgmEndstation);
+	void currentMirrorStripeChanged(SGMBeamline::sgmMirrorStripe);
 
 	void detectorHVChanged();
 	void detectorAvailabilityChanged(AMDetector *detector, bool available);
@@ -293,6 +309,7 @@ protected slots:
 	void onEnergyValueChanged();
 
 	void onActiveEndstationChanged(double value);
+	void onMirrorStripeChanged(double value);
 
 	void recomputeWarnings();
 
@@ -366,6 +383,14 @@ protected:
 	AMControl *activeEndstation_;
 	AMControl *scalerIntegrationTime_;
 	AMControl *ssaIllumination_;
+	/// Control for feedback on the mirror stripe (C or Si)
+	AMControl *mirrorStripeSelection_;
+	/// Control for sending mirror stripe to Carbon
+	AMControl *mirrorStripeSelectCarbon_;
+	/// Control for sending mirror stripe to Silicon
+	AMControl *mirrorStripeSelectSilicon_;
+	/// Control for detuning the undulator
+	AMControl *undulatorOffset_;
 
 	AMDetector *teyScalerDetector_;
 	AMDetector *tfyScalerDetector_;

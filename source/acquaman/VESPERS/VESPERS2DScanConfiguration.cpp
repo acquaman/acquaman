@@ -42,6 +42,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
 	connect(this, SIGNAL(yStepChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(yEndChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(timeStepChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(usingCCDChanged(bool)), this, SLOT(computeTotalTime()));
 }
 
 VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfiguration &original)
@@ -64,6 +65,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfig
 	connect(this, SIGNAL(yStepChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(yEndChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(timeStepChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(usingCCDChanged(bool)), this, SLOT(computeTotalTime()));
 }
 
 AMScanConfiguration *VESPERS2DScanConfiguration::createCopy() const

@@ -316,6 +316,8 @@ CLSSIS3820ScalerChannel::CLSSIS3820ScalerChannel(const QString &baseName, int in
 {
 	QString fullBaseName = QString("%1%2").arg(baseName).arg(index, 2, 10, QChar('0'));
 
+	customChannelName_ = QString();
+
 	index_ = index;
 
 	channelEnable_ = new AMPVControl(QString("Channel%1Enable").arg(index), fullBaseName+":enable", fullBaseName+":enable", QString(), this, 0.1);
@@ -369,6 +371,10 @@ void CLSSIS3820ScalerChannel::setEnabled(bool isEnabled){
 
 	else if(!isEnabled && channelEnable_->withinTolerance(1))
 		channelEnable_->move(0);
+}
+
+void CLSSIS3820ScalerChannel::setCustomChannelName(const QString &customChannelName){
+	customChannelName_ = customChannelName;
 }
 
 void CLSSIS3820ScalerChannel::onChannelEnabledChanged(){

@@ -33,13 +33,14 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 //	scan->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 //	scan->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
 
+
 	QFileInfo sourceFileInfo(scan->filePath());
 	if(sourceFileInfo.isRelative())
 		sourceFileInfo.setFile(userDataFolder + "/" + scan->filePath());
 
 	QFile file(sourceFileInfo.filePath());
 	if(!file.open(QIODevice::ReadOnly)) {
-		AMErrorMon::error(0, -1, "XASFileLoader parse error while loading scan data from file.");
+		AMErrorMon::error(0, -1, "2D Map FileLoader parse error while loading scan data from file.");
 		return false;
 	}
 
@@ -61,9 +62,32 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 	else if (scan->fileFormat() == "vespers2012XRF4ElXRD")
 		usingFourElementAndCCD = true;
 
-	while ((line = in.readLine()).contains("#")){
-		//Do nothing
+
+	in.readLine();
+	in.readLine();
+	in.readLine();
+
+	// Grab the first PV, it tells us what the axis was.
+	line = in.readLine();
+	lineTokenized = line.split(" ");
+	line = lineTokenized.at(2);
+
+	if (line == "TS1607-2-B21-01:H:user:mm"){
+
+		scan->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+		scan->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
 	}
+
+	else if (line == "SVM1607-2-B21-02:mm"){
+
+		scan->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
+		scan->rawData()->addScanAxis(AMAxisInfo("Z", 0, "Vertical Position", "mm"));
+	}
+
+	in.readLine();
+	in.readLine();
+	in.readLine();
+	lineTokenized.clear();
 
 	// Some setup variables.
 	int x = 0;
@@ -74,7 +98,6 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 	// Include all for now.
 	for (int i = 0; i < scan->rawDataSourceCount(); i++)
 		scan->rawData()->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description()));
-
 
 	// added by Mark (May 13, 2012) to determine the number of y lines, since we need to know that before creating the scan axes.
 	/////////////////////
@@ -113,7 +136,6 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 
 //		lineTokenized << line.split(", ");
 		lineTokenized = line.split(", "); // MB: is more efficient
-
 
 		// Used for determining how long the x axis is.
 		if (xLength == 0 && lineTokenized.at(1).toDouble() == double(scan->rawData()->axisValue(0, 0))){

@@ -64,9 +64,14 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	connect(singleElButton_, SIGNAL(clicked()), this, SLOT(singleElClicked()));
 	connect(endstation_, SIGNAL(singleElFbkChanged(double)), this, SLOT(singleElUpdate(double)));
 	// Because the focus is a critical part of the sample stage (pseudo-motor or regular motor) it should be disabled if the entire sample stage is not connected.
-	focusButton_ = new QToolButton;
-	connect(focusButton_, SIGNAL(clicked()), this, SLOT(focusClicked()));
-	connect(endstation_, SIGNAL(focusFbkChanged(double)), this, SLOT(focusUpdate(double)));
+	normalFocusButton_ = new QToolButton;
+	connect(normalFocusButton_, SIGNAL(clicked()), this, SLOT(normalFocusClicked()));
+	connect(endstation_, SIGNAL(focusNormalFbkChanged(double)), this, SLOT(normalFocusUpdate(double)));
+
+	yFocusButton_ = new QToolButton;
+	yFocusButton_->hide();
+	connect(yFocusButton_, SIGNAL(clicked()), this, SLOT(yFocusClicked()));
+	connect(endstation_, SIGNAL(focusYFbkChanged(double)), this, SLOT(yFocusUpdate(double)));
 
 	// Setup the microscope light.  Tracking needs to be off!  Otherwise, the program might get into an infinite signal slot loop.
 	micLight_ = new QSlider(Qt::Vertical, this);
@@ -115,7 +120,8 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	controlGBLayout->addWidget(microscopeButton_, 9, 10, 2, 3);
 	controlGBLayout->addWidget(singleElButton_, 15, 5, 2, 3);
 	controlGBLayout->addWidget(fourElButton_, 16, 11, 2, 3);
-	controlGBLayout->addWidget(focusButton_, 12, 11, 2, 3);
+	controlGBLayout->addWidget(normalFocusButton_, 12, 11, 2, 3);
+	controlGBLayout->addWidget(yFocusButton_, 12, 11, 2, 3);	// This shares the same position as normalFocusButton.
 	controlGBLayout->addWidget(lightBulb_, 7, 5, 2, 2);
 	controlGBLayout->addWidget(micLight_, 2, 0, 8, 1);
 	controlGBLayout->addWidget(configButton, 0, 0, 2, 1);
@@ -169,6 +175,21 @@ VESPERSEndstationView::~VESPERSEndstationView()
 	delete config_;
 }
 
+void VESPERSEndstationView::setUsingNormalMotor(bool use)
+{
+	usingNormal_ = use;
+	normalFocusButton_->setVisible(usingNormal_);
+	yFocusButton_->setVisible(!usingNormal_);
+
+	bool isNormalMotor = endstation_->current()->name().contains("normal", Qt::CaseInsensitive);
+
+	if (isNormalMotor && usingNormal_)
+		normalFocusClicked();
+
+	else if (isNormalMotor && !usingNormal_)
+		yFocusClicked();
+}
+
 void VESPERSEndstationView::setWindow(AMControl *control)
 {
 	if (control == 0)
@@ -179,7 +200,7 @@ void VESPERSEndstationView::setWindow(AMControl *control)
 
 	if (name.compare("CCD motor") == 0 || name.compare("1-Element Vortex motor") == 0 || name.compare("4-Element Vortex motor") == 0)
 		window_->setControl(control, pair.first, pair.second);
-	else if (name.compare("Normal Sample Stage") == 0)
+	else if (name.compare("Normal Sample Stage") == 0 || name.compare("Y (normal) motor") == 0)
 		window_->setControl(control);
 	else if (name.compare("Microscope motor") == 0)
 		window_->setControl(control, pair.first, pair.second, endstation_->microscopeNames().first, endstation_->microscopeNames().second);

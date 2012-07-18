@@ -142,7 +142,7 @@ void VESPERSExporter2DAscii::writeMainTable()
 			setCurrentDataSource(mainTableDataSources_.at(c));
 
 			if(mainTableIncludeX_.at(c))
-				ts << "H" << option_->columnDelimiter() << "V" << option_->columnDelimiter();
+				ts << currentScan_->rawData()->scanAxisAt(0).name << option_->columnDelimiter() << currentScan_->rawData()->scanAxisAt(1).name << option_->columnDelimiter();
 
 			ts << parseKeywordString(option_->columnHeader()) << option_->columnDelimiter();
 		}

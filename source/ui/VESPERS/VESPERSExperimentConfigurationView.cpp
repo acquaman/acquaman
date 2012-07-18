@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QRadioButton>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QMessageBox>
 
 VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(VESPERSExperimentConfiguration *experimentConfiguration, QWidget *parent)
 	: QWidget(parent)
@@ -131,6 +132,22 @@ VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(VESPERSEx
 
 	QString message("Use the lists below to select what kind of experiment you are going to perform.  \nThis will automatically set some of the important beamline parameters for you.  \nYou should return to this screen every time you decide to change experiments.");
 
+	sampleStage_ = new QButtonGroup;
+	QHBoxLayout *sampleStageLayout = new QHBoxLayout;
+
+	QRadioButton *stage = new QRadioButton("X && Z");
+	sampleStage_->addButton(stage, 0);
+	sampleStageLayout->addWidget(stage);
+
+	stage = new QRadioButton("H && V");
+	sampleStage_->addButton(stage, 1);
+	sampleStageLayout->addWidget(stage);
+	connect(sampleStage_, SIGNAL(buttonClicked(int)), this, SLOT(onSampleStageChanged(int)));
+	connect(experimentConfiguration_, SIGNAL(sampleStageChoiceChanged(bool)), this, SLOT(onSampleStageUpdated(bool)));
+
+	QGroupBox *sampleStageBox = new QGroupBox("Sample Stage");
+	sampleStageBox->setLayout(sampleStageLayout);
+
 	QHBoxLayout *experimentConfigurationLayout = new QHBoxLayout;
 	experimentConfigurationLayout->addStretch();
 	experimentConfigurationLayout->addWidget(configBox);
@@ -139,6 +156,7 @@ VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(VESPERSEx
 
 	QVBoxLayout *experimentLayout = new QVBoxLayout;
 	experimentLayout->addStretch();
+	experimentLayout->addWidget(sampleStageBox, 0, Qt::AlignCenter);
 	experimentLayout->addWidget(new QLabel(message), 0, Qt::AlignCenter);
 	experimentLayout->addLayout(experimentConfigurationLayout);
 	experimentLayout->addStretch();
@@ -191,4 +209,22 @@ void VESPERSExperimentConfigurationView::onConfiguraitonChanged(int id)
 	default:
 		break;
 	}
+}
+
+void VESPERSExperimentConfigurationView::onSampleStageChanged(int id)
+{
+	if (id == 0)
+		experimentConfiguration_->usePseudoMotors(false);
+	else{
+
+		experimentConfiguration_->usePseudoMotors(true);
+		QMessageBox::information(this,
+								 "Switching Sample Stages",
+								 "If you are actually switching to using the H & V sample stage after using the X & Z sample stage you must reset the pseudo motors from the endstation screen.");
+	}
+}
+
+void VESPERSExperimentConfigurationView::onSampleStageUpdated(bool usingPseudoMotors)
+{
+	sampleStage_->button(usingPseudoMotors ? 1 : 0)->setChecked(true);
 }

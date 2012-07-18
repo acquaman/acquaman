@@ -30,8 +30,8 @@ class VESPERSEndstation : public QObject
 {
 	Q_OBJECT
 public:
-	/// The constructor.  Builds and encapsulates many of the controls used for the endstation.  Requires the motor that is part of the sample stage for normal movements.
-	explicit VESPERSEndstation(AMControl *normal, QObject *parent = 0);
+	/// The constructor.  Builds and encapsulates many of the controls used for the endstation.  Requires the motor that is part of the sample stage for normal movements (both real and pseudo motors).
+	explicit VESPERSEndstation(AMControl *pseudoNormal, AMControl *realNormal, QObject *parent = 0);
 
 	/// Returns the state of the endstation XIA shutter.
 	bool shutterState() const { return (int)filterShutterLower_->value() == 1 ? true : false; }
@@ -78,8 +78,10 @@ signals:
 	void currentControlChanged(AMControl *);
 	/// The CCD feedback motor position changed notification.
 	void ccdFbkChanged(double);
-	/// The focus feeback motor position changed notification.
-	void focusFbkChanged(double);
+	/// The focus normal feeback motor position changed notification.
+	void focusNormalFbkChanged(double);
+	/// The focus y feedback motor position changed notification.
+	void focusYFbkChanged(double);
 	/// The microscope feedback motor position changed notification.
 	void microscopeFbkChanged(double);
 	/// The single element motor position changed notification.
@@ -140,7 +142,8 @@ protected:
 	AMControl *microscopeControl_;
 	AMControl *fourElControl_;
 	AMControl *singleElControl_;
-	AMControl *focusControl_;
+	AMControl *focusNormalControl_;
+	AMControl *focusYControl_;
 
 	// Microscope light PV.
 	AMProcessVariable *micLightPV_;

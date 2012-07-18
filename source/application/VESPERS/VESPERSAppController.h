@@ -28,6 +28,7 @@ class VESPERSXRFFreeRunView;
 class VESPERSRoperCCDDetectorView;
 class VESPERSPersistentView;
 class VESPERSEXAFSScanConfiguration;
+class VESPERSEXAFSScanConfigurationView;
 class AMScanConfigurationViewHolder;
 class AMScanConfigurationViewHolder3;
 class VESPERS2DScanConfiguration;
@@ -35,7 +36,10 @@ class VESPERS2DScanConfigurationView;
 class AM2DScanConfigurationViewHolder;
 class AMBeamlineListAction;
 class AMScanAction;
-
+class VESPERSSpatialLineScanConfiguration;
+class VESPERSSpatialLineScanConfigurationView;
+class VESPERSEnergyScanConfiguration;
+class VESPERSEnergyScanConfigurationView;
 class AMGenericScanEditor;
 
 class VESPERSWorkflowAssistant;
@@ -84,9 +88,14 @@ protected slots:
 	/// Slot that handles the failure for moves using the moveImmediatelyAction.
 	void onMoveImmediatelyFailure();
 
+	/// Slot that handles changing the sample stage from pseudo motors to real motors.
+	void onSampleStageChoiceChanged(bool change);
+
 protected:
 	/// Sets up a default XAS scan.  It will setup XANES or EXAFS based on the bool \param setupEXAFS using the information from AMGenericScanEditor \param editor.
 	void setupXASScan(const AMGenericScanEditor *editor, bool setupEXAFS);
+	/// Sets up a default energy scan.  It will setup the scan based on the information provided by AMGenericScanEditor.
+	void setupEnergyScan(const AMGenericScanEditor *editor);
 	/// Sets up a default 2D XRF scan.  It setup the 2D scan as best as it can based on the information provided by AMGenericScanEditor.
 	void setup2DXRFScan(const AMGenericScanEditor *editor);
 	/// Cleans up the moveImmediatelyAction after every move to ensure that the list action is always cleaned and is initialized for another move.
@@ -116,22 +125,47 @@ protected:
 
 	/// Pointer to the XAS scan configuration.
 	VESPERSEXAFSScanConfiguration *exafsScanConfig_;
+	/// Pointer to the XAS scan configuration view.
+	VESPERSEXAFSScanConfigurationView *exafsConfigView_;
 	/// The holder for the XAS scan configuration.
 	AMScanConfigurationViewHolder *exafsConfigViewHolder_;
 	/// The (new) holder for the XAS scan configuration.
 	AMScanConfigurationViewHolder3 *exafsConfigViewHolder3_;
 
-	/// Pointer to the 2D XRF scan configuration.
+	/// Pointer to the 2D scan configuration.
 	VESPERS2DScanConfiguration *mapScanConfiguration_;
-	/// The 2D XRF scan configuration view.
+	/// The 2D scan configuration view.
 	VESPERS2DScanConfigurationView *mapScanConfigurationView_;
 	/// The holder for the 2D scan configuration.
 	AM2DScanConfigurationViewHolder *mapScanConfigurationViewHolder_;
 	/// The (new) holder for the 2D scan configuration.
 	AMScanConfigurationViewHolder3 *mapScanConfigurationViewHolder3_;
 
+	/// The line scan configuration.
+	VESPERSSpatialLineScanConfiguration *lineScanConfiguration_;
+	/// The line scan configuration view.
+	VESPERSSpatialLineScanConfigurationView *lineScanConfigurationView_;
+	/// The holder for the scan configuration.
+	AMScanConfigurationViewHolder *lineScanConfigurationViewHolder_;
+	/// The (new holder for the line scan configuration.
+	AMScanConfigurationViewHolder3 *lineScanConfigurationViewHolder3_;
+
+	/// The energy scan configuration.
+	VESPERSEnergyScanConfiguration *energyScanConfiguration_;
+	/// The energy scan configuration view.
+	VESPERSEnergyScanConfigurationView *energyScanConfigurationView_;
+	/// The holder for the scan configuration.
+	AMScanConfigurationViewHolder *energyScanConfigurationViewHolder_;
+	/// The (new holder for the energy scan configuration.
+	AMScanConfigurationViewHolder3 *energyScanConfigurationViewHolder3_;
+
 	/// Pointer to the list action that is used to move the sample stage.
 	AMBeamlineListAction *moveImmediatelyAction_;
+
+	/// Pointer to the persistent view.
+	VESPERSPersistentView *persistentView_;
+	/// Pointer to the endstation view.
+	VESPERSEndstationView *endstationView_;
 };
 
 #endif // VESPERSAPPCONTROLLER_H
