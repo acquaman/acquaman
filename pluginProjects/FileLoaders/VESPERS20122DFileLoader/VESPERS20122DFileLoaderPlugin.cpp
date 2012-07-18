@@ -134,7 +134,7 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 		lineTokenized.clear();
 	}
 
-	// Pad the rest of the line with zeroes for proper visualization.
+	// Pad the rest of the line with -1 for proper visualization.
 	if (x != 0 && xLength != 0){
 
 		for ( ; x < xLength; x++){
@@ -147,7 +147,7 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 			scan->rawData()->setAxisValue(1, axisValueIndex.j(), scan->rawData()->axisValue(1, axisValueIndex.j()-1));
 
 			for (int i = 0; i < scan->rawDataSourceCount(); i++)
-				scan->rawData()->setValue(axisValueIndex, i, AMnDIndex(), 0);
+				scan->rawData()->setValue(axisValueIndex, i, AMnDIndex(), -1);
 
 			scan->rawData()->endInsertRows();
 		}
