@@ -37,6 +37,7 @@ class AMDetector;
 class AMScanAction;
 class CLSProcServManager;
 class CLSProcServManagerView;
+class SGMAdvancedControlsView;
 
 #define SGMAPPCONTROLLER_COULD_NOT_RESET_FINISHED_SIGNAL 290301
 
@@ -133,6 +134,8 @@ protected:
 	AMScanConfigurationViewHolder3 *fastScanConfigurationHolder3_;
 	/// Persistent sidebar for beamline control
 	SGMSidebar *sgmSidebar_;
+	/// Pane for SGM's advanced controls
+	SGMAdvancedControlsView *SGMAdvancedControls_;
 
 	/// Persistent view for SGMSettings
 	SGMSettingsMasterView *sgmSettingsMasterView_;
