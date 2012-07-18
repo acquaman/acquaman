@@ -100,7 +100,7 @@ bool AMAppController::startupCreateUserInterface() {
 		// a heading for the workflow manager...
 		workflowManagerView_ = new AMWorkflowManagerView();
 		mw_->insertHeading("Experiment Tools", 1);
-		mw_->addPane(workflowManagerView_, "Experiment Tools", "Workflow", ":/user-away.png");
+		mw_->addPane(workflowManagerView_, "Experiment Tools", "WorkflowOld", ":/user-away.png");
 
 		// add the workflow control UI
 		workflowView_ = new AMWorkflowView3();

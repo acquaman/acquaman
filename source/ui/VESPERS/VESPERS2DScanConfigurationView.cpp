@@ -161,6 +161,8 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	currentCCDFileName_ = new QLabel;
 	onCCDFileNameChanged(config_->ccdFileName());
 	currentCCDFileName_->setVisible(config_->usingCCD());
+	connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), this, SLOT(onCCDFileNameChanged(QString)));
+
 
 	QPushButton *configureRoperDetectorButton = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure Roper CCD");
 	configureRoperDetectorButton->setEnabled(config_->usingCCD());
@@ -220,7 +222,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	I0GroupBox->setLayout(I0GroupLayout);
 
 	// Motor selection.
-	QGroupBox *motorSetChoiceBox = new QGroupBox("Motors Selection");
+	QGroupBox *motorSetChoiceBox = new QGroupBox("Sample Stage");
 	QVBoxLayout *motorChoiceLayout = new QVBoxLayout;
 	motorChoiceButtonGroup_ = new QButtonGroup;
 
@@ -419,7 +421,7 @@ QString VESPERS2DScanConfigurationView::convertTimeToString(double time)
 
 	if (days > 0){
 
-		time -= time/3600/24;
+		time -= days*3600.0*24;
 		timeString += QString::number(days) + "d:";
 	}
 

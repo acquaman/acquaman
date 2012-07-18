@@ -34,8 +34,6 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 	shouldStartFromCurrentPosition_ = false;
 	doNotClearExistingCounts_ = false;
 
-	// temporary, for comissioning
-	detectorHeightError_ = 0;	//mm
 
 	maximumTotalCounts_ = 1000000;
 	maximumDurationSeconds_ = 300;
@@ -55,7 +53,7 @@ AMScanController* REIXSXESScanConfiguration::createController() {
 
 QString REIXSXESScanConfiguration::description() const
 {
-	QString rv = QString("XES Scan at %1 eV").arg(centerEV());
+	QString rv = QString("XES Scan at %1 eV  (%2 seconds or %3 counts)").arg(centerEV()).arg(maximumDurationSeconds()).arg(maximumTotalCounts(), 0, 'g', 0);
 	if(defocusDistanceMm() != 0)
 		rv.append(QString(", Defocussed %1 mm").arg(defocusDistanceMm()));
 	if(detectorTiltOffset() != 0)

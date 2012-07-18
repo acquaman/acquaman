@@ -273,6 +273,8 @@ public slots:
 	void clearRegionsOfInterest();
 	/// Sorts the list of ROIs.
 	void sortRegionsOfInterest();
+	/// Takes an AMROIInfoList and copies its contents to this detector.
+	void copyFromROIList(AMROIInfoList *list);
 
 	/// Sets the extra notes for the detector.
 	void setNotes(const QString &notes) { notes_ = notes; }
@@ -307,6 +309,8 @@ signals:
 	void externalRegionsOfInterestChanged();
 	/// Passes on the signal that an ROI has been updated.
 	void roiUpdate(AMROI *);
+	/// Notifier that all of the ROIs have been removed.
+	void allRegionsOfInterestRemoved();
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.

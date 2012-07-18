@@ -42,10 +42,10 @@ VESPERSBeamline::VESPERSBeamline()
 void VESPERSBeamline::setupDiagnostics()
 {
 	// The shutters.
-	psh1_ = new CLSBiStateControl("PSH", "First Photon Shutter", "PSH1408-B20-01:state", "PSH1408-B20-01:opr:open", "PSH1408-B20-01:opr:close", new AMControlStatusCheckerDefault(4), this);
-	psh2_ = new CLSBiStateControl("Optic", "Second Photon Shutter", "PSH1408-B20-02:state", "PSH1408-B20-02:opr:open", "PSH1408-B20-02:opr:close", new AMControlStatusCheckerDefault(4), this);
-	ssh1_ = new CLSBiStateControl("SSH", "First Safety Shutter", "SSH1408-B20-01:state", "SSH1408-B20-01:opr:open", "SSH1408-B20-01:opr:close", new AMControlStatusCheckerDefault(4), this);
-	ssh2_ = new CLSBiStateControl("Exp.", "Second Safety Shutter", "SSH1607-1-B21-01:state", "SSH1607-1-B21-01:opr:open", "SSH1607-1-B21-01:opr:close", new AMControlStatusCheckerDefault(4), this);
+	psh1_ = new CLSBiStateControl("PSH", "First Photon Shutter", "PSH1408-B20-01:state", "PSH1408-B20-01:opr:open", "PSH1408-B20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	psh2_ = new CLSBiStateControl("Optic", "Second Photon Shutter", "PSH1408-B20-02:state", "PSH1408-B20-02:opr:open", "PSH1408-B20-02:opr:close", new AMControlStatusCheckerDefault(2), this);
+	ssh1_ = new CLSBiStateControl("SSH", "First Safety Shutter", "SSH1408-B20-01:state", "SSH1408-B20-01:opr:open", "SSH1408-B20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	ssh2_ = new CLSBiStateControl("Exp.", "Second Safety Shutter", "SSH1607-1-B21-01:state", "SSH1607-1-B21-01:opr:open", "SSH1607-1-B21-01:opr:close", new AMControlStatusCheckerDefault(2), this);
 
 	// Pressure controls.
 	ccgFE1_ =  new AMReadOnlyPVwStatusControl("Pressure FE1", "CCG1408-B20-01:vac:p", "CCG1408-B20-01:vac", this, new AMControlStatusCheckerDefault(0));
@@ -159,16 +159,20 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStageVertical_ = new AMPVwStatusControl("Vertical Sample Stage", "TS1607-2-B21-01:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
 	sampleStageNormal_ = new AMPVwStatusControl("Normal Sample Stage", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
 
-	sampleStageX_ = new CLSMAXvMotor("xMotorSampleStage", "SVM1607-2-B21-02", "X Motor Sample Stage", true, 0.01, 10.0, this);
-	sampleStageY_ = new CLSMAXvMotor("yMotorSampleStage", "SVM1607-2-B21-03", "Y Motor Sample Stage", true, 0.01, 10.0, this);
-	sampleStageZ_ = new CLSMAXvMotor("zMotorSampleStage", "SVM1607-2-B21-01", "Z Motor Sample Stage", true, 0.01, 10.0, this);
+//	sampleStageHorizontal_ = new CLSMAXvMotor("Horizontal Sample Stage", "TS1607-2-B21-01:H:user", "Horizontal Pseudo Motor", false, 0.01, 10.0, this);
+//	sampleStageVertical_ = new CLSMAXvMotor("Vertical Sample Stage", "TS1607-2-B21-01:V:user", "Vertical Pseudo Motor", false, 0.01, 10.0, this);
+//	sampleStageNormal_ = new CLSMAXvMotor("Normal Sample Stage", "TS1607-2-B21-01:N:user", "Horizontal Pseudo Motor", false, 0.01, 10.0, this);
+
+	sampleStageX_ = new CLSMAXvMotor("X motor", "SVM1607-2-B21-02", "X Motor Sample Stage", true, 0.01, 10.0, this);
+	sampleStageY_ = new CLSMAXvMotor("Y (normal) motor", "SVM1607-2-B21-03", "Y Motor Sample Stage", true, 0.01, 10.0, this);
+	sampleStageZ_ = new CLSMAXvMotor("Z motor", "SVM1607-2-B21-01", "Z Motor Sample Stage", true, 0.01, 10.0, this);
 
 	pseudoSampleStage_ = new VESPERSSampleStageControl(sampleStageHorizontal_, sampleStageVertical_, sampleStageNormal_, this);
 	pseudoSampleStage_->setXRange(-700000, 700000);
 	pseudoSampleStage_->setYRange(-200000, 200000);
 	pseudoSampleStage_->setZRange(-200000, 200000);
 
-	realSampleStage_ = new VESPERSSampleStageControl(sampleStageX_, sampleStageY_, sampleStageZ_, this);
+	realSampleStage_ = new VESPERSSampleStageControl(sampleStageX_, sampleStageZ_, sampleStageY_, this);
 	realSampleStage_->setXRange(-700000, 700000);
 	realSampleStage_->setYRange(-200000, 200000);
 	realSampleStage_->setZRange(-200000, 200000);
@@ -192,7 +196,7 @@ void VESPERSBeamline::setupSampleStage()
 
 void VESPERSBeamline::setupEndstation()
 {
-	endstation_ = new VESPERSEndstation(pseudoSampleStage_->norm(), this);
+	endstation_ = new VESPERSEndstation(sampleStageNormal_, sampleStageY_, this);
 }
 
 void VESPERSBeamline::setupDetectors()
@@ -358,6 +362,7 @@ void VESPERSBeamline::setupControlSets()
 
 void VESPERSBeamline::setupMono()
 {
+	energy_ = new AMPVwStatusControl("Energy", "07B2_Mono_SineB_Egec:eV", "07B2_Mono_SineB_Ea", "SMTR1607-1-B20-20:status", "SMTR1607-1-B20-20:stop", this, 20, 2.0, new AMControlStatusCheckerDefault(0), 1);
 	energyRelative_ = new AMPVwStatusControl("Relative Energy Movement", "07B2_Mono_SineB_delE", "07B2_Mono_SineB_delE", "SMTR1607-1-B20-20:status", "SMTR1607-1-B20-20:stop", this, 0.1, 2.0, new AMControlStatusCheckerDefault(0), 1);
 	masterDwellTime_ = new AMSinglePVControl("Master Dwell Time", "BL1607-B2-1:dwell:setTime", this, 0.1);
 	kControl_ = new AMPVwStatusControl("K-space", "07B2_Mono_SineB_K:fbk", "07B2_Mono_SineB_K", "SMTR1607-1-B20-20:status", QString(), this, 0.01);

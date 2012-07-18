@@ -86,6 +86,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions2/actions/AMScanControllerActionInfo.h"
 #include "dataman/AM2DScan.h"
 #include "analysis/AM2DNormalizationAB.h"
+#include "analysis/AM1DNormalizationAB.h"
 
 #include "actions3/AMLoopActionInfo3.h"
 #include "actions3/actions/AMNumberChangeAction.h"
@@ -122,6 +123,9 @@ bool AMDatamanAppController::startup() {
 
 	AM::registerTypes();
 
+	if(!startupBeforeAnything())
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_BEFORE_ANYTHING, "Problem with Acquaman startup: before any other startup routines.");
+
 	splashScreen_ = new AMDatamanStartupSplashScreen();
 	splashScreen_->show();
 
@@ -129,9 +133,6 @@ bool AMDatamanAppController::startup() {
 	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_FINISHED, splashScreen_, "onErrorMonStartupFinished");
 	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_SUBTEXT, splashScreen_, "onErrorMonDebug");
 	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_MODECHANGE, splashScreen_, "onErrorMonChangeMode");
-
-	if(!startupBeforeAnything())
-		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_BEFORE_ANYTHING, "Problem with Acquaman startup: before any other startup routines.");
 
 	if(!startupLoadSettings())
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_LOADING_SETTING, "Problem with Acquaman startup: loading settings.");
@@ -179,7 +180,7 @@ bool AMDatamanAppController::startup() {
 	if(!startupAfterEverything())
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_AFTER_EVERYTHING, "Problem with Acquaman startup: after all other startup routines.");
 
-	emit datamanStartupFinished();	
+	emit datamanStartupFinished();
 
 	isStarting_ = false;
 	return true;
@@ -484,6 +485,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AM1DSummingAB>();
 	AMDbObjectSupport::s()->registerClass<AMDeadTimeAB>();
 	AMDbObjectSupport::s()->registerClass<AM2DNormalizationAB>();
+	AMDbObjectSupport::s()->registerClass<AM1DNormalizationAB>();
 
 	AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
 	AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
@@ -1251,3 +1253,43 @@ void AMDatamanAppController::onActionExportGraphics()
 	}
 }
 
+
+void AMDatamanAppController::getUserDataFolderFromDialog(bool presentAsParentFolder)
+{
+	// Get the current userData folder.
+	AMUserSettings::load();
+	QString initialFolder = AMUserSettings::userDataFolder;
+	initialFolder = QDir::fromNativeSeparators(initialFolder);
+
+	// If the user is supposed to choose the parent folder instead of the actual user data folder:
+	if(presentAsParentFolder) {
+		while(initialFolder.endsWith("/"))
+			initialFolder.chop(1);
+
+		if(initialFolder.endsWith("/userData"))
+			initialFolder.chop(9);
+	}
+
+	QString newFolder = QFileDialog::getExistingDirectory(0, "Choose the folder for your Acquaman data...", initialFolder, QFileDialog::ShowDirsOnly);
+
+	if(newFolder.isEmpty())
+		return;	// user cancelled; do nothing.
+
+	newFolder = QDir::fromNativeSeparators(newFolder);
+	newFolder.append("/");
+
+	// If the user is supposed to choose the parent folder instead of the actual user data folder:
+	if(presentAsParentFolder) {
+		if (!newFolder.endsWith("/userData")){
+			QDir makeNewDir(newFolder);
+			makeNewDir.mkdir("userData");
+			makeNewDir.cd("userData");
+			newFolder = makeNewDir.absolutePath() + "/";
+		}
+	}
+
+	if (newFolder != AMUserSettings::userDataFolder){
+		AMUserSettings::userDataFolder = newFolder;
+		AMUserSettings::save();
+	}
+}

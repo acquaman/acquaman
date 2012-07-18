@@ -19,6 +19,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "REIXSBeamline.h"
 #include "util/AMErrorMonitor.h"
+#include "dataman/AMSamplePlate.h"
+
+#include "actions2/actions/AMWaitAction.h"
 
 REIXSBeamline::REIXSBeamline() :
 	AMBeamline("REIXSBeamline")
@@ -88,10 +91,79 @@ REIXSBeamline::REIXSBeamline() :
 	allControlsSet_->addControl(sampleChamber()->r());
 	allControlsSet_->addControl(spectrometer()->endstationTranslation());  //DAVID ADDED
 
+
+	samplePlate_ = new AMSamplePlate();
 }
 
 
 REIXSBeamline::~REIXSBeamline() {
+}
+
+
+REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
+	AMCompositeControl("photonSource", "", parent, "EPU and Monochromator")
+{
+	AMPVwStatusControl* energy = new AMPVwStatusControl("beamlineEV", "REIXS:MONO1610-I20-01:energy:fbk", "REIXS:energy", "REIXS:status", "REIXS:energy:stop", 0, 0.01);
+	energy_ = new REIXSBrokenMonoControl(energy, 1.05, 3, 0.3, 0.3, 100, 1, 0.1, this);
+	energy_->setDescription("Beamline Energy");
+
+	monoSlit_ = new AMPVwStatusAndUnitConversionControl("monoSlit", "SMTR1610-I20-10:mm:fbk", "SMTR1610-I20-10:mm", "SMTR1610-I20-10:status", "SMTR1610-I20-10:stop", new AMScaleAndOffsetUnitConverter("um", 1000), 0, this, 0.1);
+	monoSlit_->setDescription("Mono Slit Width");
+
+	monoGratingTranslation_ = new AMPVwStatusControl("monoGratingTranslation", "MONO1610-I20-01:grating:trans:mm:fbk", "MONO1610-I20-01:grating:trans:mm", "MONO1610-I20-01:grating:trans:status", "SMTR1610-I20-04:stop", this, 0.05);
+	monoGratingTranslation_->setDescription("Mono Grating Translation");
+	monoGratingSelector_ = new AMPVwStatusControl("monoGratingSelector", "MONO1610-I20-01:grating:select:fbk", "MONO1610-I20-01:grating:select", "MONO1610-I20-01:grating:trans:status", "SMTR1610-I20-04:stop", this, 1);
+	monoGratingSelector_->setDescription("Mono Grating");
+
+	monoMirrorTranslation_ = new AMPVwStatusControl("monoMirrorTranslation", "MONO1610-I20-01:mirror:trans:mm:fbk", "MONO1610-I20-01:mirror:trans:mm", "MONO1610-I20-01:mirror:trans:status", "SMTR1610-I20-02:stop", this, 0.05);
+	monoMirrorTranslation_->setDescription("Mono Mirror Translation");
+	monoMirrorSelector_ = new AMPVwStatusControl("monoMirrorSelector", "MONO1610-I20-01:mirror:select:fbk", "MONO1610-I20-01:mirror:select", "MONO1610-I20-01:mirror:trans:status", "SMTR1610-I20-02:stop", this, 1);
+	monoMirrorSelector_->setDescription("Mono Mirror");
+}
+
+REIXSValvesAndShutters::REIXSValvesAndShutters(QObject *parent) : AMCompositeControl("valvesAndShutters", "", parent)
+{
+	beamIsOn_ = false;
+
+	ssh1_ = new CLSBiStateControl("safetyShutter1", "Safety Shutter 1", "SSH1410-I00-01:state", "SSH1410-I00-01:opr:open", "SSH1410-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	psh2_ = new CLSBiStateControl("photonShutter2", "Photon Shutter 2", "PSH1410-I00-02:state", "PSH1410-I00-02:opr:open", "PSH1410-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this);
+
+	psh4_ = new CLSBiStateControl("photonShutter4", "Photon Shutter 4", "PSH1610-I20-01:state", "PSH1610-I20-01:opr:open", "PSH1610-I20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+
+	endstationValve_ = new CLSBiStateControl("XESendstationValve", "XES Endstation Valve", "VVR1610-4-I21-01:state", "VVR1610-4-I21-01:opr:open", "VVR1610-4-I21-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+
+	addChildControl(ssh1_);
+	addChildControl(psh2_);
+	addChildControl(psh4_);
+	addChildControl(endstationValve_);
+
+
+	// connect to monitor full beam status:
+	/////////////////////
+	connect(ssh1_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
+	connect(psh2_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
+	connect(psh4_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
+	connect(ssh1_, SIGNAL(stateChanged(int)), this, SLOT(reviewIsBeamOn()));
+	connect(psh2_, SIGNAL(stateChanged(int)), this, SLOT(reviewIsBeamOn()));
+	connect(psh4_, SIGNAL(stateChanged(int)), this, SLOT(reviewIsBeamOn()));
+
+	reviewIsBeamOn();
+}
+
+
+void REIXSValvesAndShutters::reviewIsBeamOn()
+{
+	bool beamWasOn = beamIsOn_;
+
+	beamIsOn_ = ssh1_->isConnected() &&
+			psh2_->isConnected() &&
+			psh4_->isConnected() &&
+			ssh1_->state() == 1 &&
+			psh2_->state() == 1 &&
+			psh4_->state() == 1;
+
+	if(beamIsOn_ != beamWasOn)
+		emit beamOnChanged(beamIsOn_);
 }
 
 
@@ -110,23 +182,27 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 	// [Guessing] The load lock Z stage looks like it has the same 2.5mm/lead screw rev. However, it also has a 90-degree gear from the motor to the lead screw with 20 teeth, or 1 lead screw rev/20 motor revs.   ie: (2.5mm/screwRev)*(1screwRev/20rev) = 0.125mm/rev.
 
 	//								name	  PV base name        units unitsPerRev offset microsteps descript. tolerance startTimeoutSecs, parent
-	x_ = new CLSMDriveMotorControl("sampleX", "SMTR1610-4-I21-08", "mm", 2.116, 0, 256, "Sample Chamber X", 0.5, 1.0, this);
-	x_->setSettlingTime(0.1);
+	x_ = new CLSMDriveMotorControl("sampleX", "SMTR1610-4-I21-08", "mm", 2.116, 0, 256, "Sample Chamber X", 0.5, 2.0, this);
+	x_->setSettlingTime(0.2);
+	x_->setContextKnownDescription("X");
 
-	y_ = new CLSMDriveMotorControl("sampleY", "SMTR1610-4-I21-10", "mm", 2.116, 0, 256, "Sample Chamber Y", 0.5, 1.0, this);
-	y_->setSettlingTime(0.1);
+	y_ = new CLSMDriveMotorControl("sampleY", "SMTR1610-4-I21-10", "mm", 2.116, 0, 256, "Sample Chamber Y", 0.5, 2.0, this);
+	y_->setSettlingTime(0.2);
+	y_->setContextKnownDescription("Y");
 
-	z_ = new CLSMDriveMotorControl("sampleZ", "SMTR1610-4-I21-07", "mm", 0.25, 0, 256, "Sample Chamber Z", 0.5, 1.0, this);
-	z_->setSettlingTime(0.1);
+	z_ = new CLSMDriveMotorControl("sampleZ", "SMTR1610-4-I21-07", "mm", 0.25, 0, 256, "Sample Chamber Z", 0.5, 2.0, this);
+	z_->setSettlingTime(0.2);
+	z_->setContextKnownDescription("Z");
 
-	r_ = new CLSMDriveMotorControl("sampleTheta", "SMTR1610-4-I21-11", "deg", 3.6, 0, 256, "Sample Chamber Theta", 0.5, 1.0, this);
-	r_->setSettlingTime(0.1);
+	r_ = new CLSMDriveMotorControl("sampleTheta", "SMTR1610-4-I21-11", "deg", 3.6, 0, 256, "Sample Chamber Theta", 0.5, 2.0, this);
+	r_->setSettlingTime(0.2);
+	r_->setContextKnownDescription("Theta");
 
-	loadLockZ_ = new CLSMDriveMotorControl("loadLockZ", "SMTR1610-4-I21-09", "mm", 0.125, 0, 256, "Load Lock Z", 0.5, 1.0, this);
-	loadLockZ_->setSettlingTime(0.1);
+	loadLockZ_ = new CLSMDriveMotorControl("loadLockZ", "SMTR1610-4-I21-09", "mm", 0.125, 0, 256, "Load Lock Z", 0.5, 2.0, this);
+	loadLockZ_->setSettlingTime(0.2);
 
-	loadLockR_ = new CLSMDriveMotorControl("loadLockTheta", "SMTR1610-4-I21-12", "deg", 3.6, 0, 256, "Load Lock Theta", 0.5, 1.0, this);
-	loadLockR_->setSettlingTime(0.1);
+	loadLockR_ = new CLSMDriveMotorControl("loadLockTheta", "SMTR1610-4-I21-12", "deg", 3.6, 0, 256, "Load Lock Theta", 0.5, 2.0, this);
+	loadLockR_->setSettlingTime(0.2);
 
 	addChildControl(x_);
 	addChildControl(y_);
@@ -455,7 +531,7 @@ void REIXSSpectrometer::onMoveActionStateChanged(int state, int previousState)
 		moveAction_ = 0;
 		if(state == AMAction::Succeeded) {
 			emit moveSucceeded();
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Information, 0, QString("Spectrometer move to %1 finished.").arg(value())));
+//			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Information, 0, QString("Spectrometer move to %1 finished.").arg(value())));
 		}
 		else if(state == AMAction::Failed) {
 			emit moveFailed(AMControl::OtherFailure);
@@ -465,72 +541,141 @@ void REIXSSpectrometer::onMoveActionStateChanged(int state, int previousState)
 	}
 }
 
-REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
-	AMCompositeControl("photonSource", "", parent, "EPU and Monochromator")
+
+
+REIXSBrokenMonoControl::REIXSBrokenMonoControl(AMPVwStatusControl *underlyingControl, double repeatMoveThreshold, int repeatMoveAttempts, double repeatMoveSettlingTime, double singleMoveSettlingTime, double lowEnergyThreshold, double lowEnergyStepSize, double actualTolerance, QObject *parent) : AMControl("beamlineEV", "eV", parent, "Beamline Energy")
 {
-	energy_ = new AMPVwStatusControl("beamlineEV", "REIXS:MONO1610-I20-01:energy:fbk", "REIXS:energy", "REIXS:status", "REIXS:energy:stop", this, 0.01);
-	energy_->setDescription("Beamline Energy");
+	control_ = underlyingControl;
+	repeatMoveThreshold_ = repeatMoveThreshold;
+	repeatMoveAttempts_ = repeatMoveAttempts;
+	repeatMoveSettlingTime_ = repeatMoveSettlingTime;
+	singleMoveSettlingTime_ = singleMoveSettlingTime;
+	lowEnergyThreshold_ = lowEnergyThreshold;
+	lowEnergyStepSize_ = lowEnergyStepSize;
 
-	monoSlit_ = new AMPVwStatusAndUnitConversionControl("monoSlit", "SMTR1610-I20-10:mm:fbk", "SMTR1610-I20-10:mm", "SMTR1610-I20-10:status", "SMTR1610-I20-10:stop", new AMScaleAndOffsetUnitConverter("um", 1000), 0, this, 0.1);
-	monoSlit_->setDescription("Mono Slit Width");
+	stopInProgress_ = false;
 
-	monoGratingTranslation_ = new AMPVwStatusControl("monoGratingTranslation", "MONO1610-I20-01:grating:trans:mm:fbk", "MONO1610-I20-01:grating:trans:mm", "MONO1610-I20-01:grating:trans:status", "SMTR1610-I20-04:stop", this, 0.05);
-	monoGratingTranslation_->setDescription("Mono Grating Translation");
-	monoGratingSelector_ = new AMPVwStatusControl("monoGratingSelector", "MONO1610-I20-01:grating:select:fbk", "MONO1610-I20-01:grating:select", "MONO1610-I20-01:grating:trans:status", "SMTR1610-I20-04:stop", this, 1);
-	monoGratingSelector_->setDescription("Mono Grating");
+	// Set a (very) wide tolerance on the control_ so that all of its moves succeed, even if it doesn't make it to where it's supposed to go. That's what we're here for.
+	control_->setTolerance(1000);
+	// But we can have a tighter tolerance
+	setTolerance(actualTolerance);
 
-	monoMirrorTranslation_ = new AMPVwStatusControl("monoMirrorTranslation", "MONO1610-I20-01:mirror:trans:mm:fbk", "MONO1610-I20-01:mirror:trans:mm", "MONO1610-I20-01:mirror:trans:status", "SMTR1610-I20-02:stop", this, 0.05);
-	monoMirrorTranslation_->setDescription("Mono Mirror Translation");
-	monoMirrorSelector_ = new AMPVwStatusControl("monoMirrorSelector", "MONO1610-I20-01:mirror:select:fbk", "MONO1610-I20-01:mirror:select", "MONO1610-I20-01:mirror:trans:status", "SMTR1610-I20-02:stop", this, 1);
-	monoMirrorSelector_->setDescription("Mono Mirror");
+	setDisplayPrecision(3);
+
+	moveAction_ = 0;
+
+	// connect signals from control_ so we can emit correctly. Direct forwards:
+	connect(control_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
+	connect(control_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
+	connect(control_, SIGNAL(alarmChanged(int,int)), this, SIGNAL(alarmChanged(int,int)));
+
+	// require some parsing on our part:
+	connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onControlMovingChanged(bool)));
+
 }
 
-REIXSValvesAndShutters::REIXSValvesAndShutters(QObject *parent) : AMCompositeControl("valvesAndShutters", "", parent)
+void REIXSBrokenMonoControl::onControlMovingChanged(bool)
 {
-	beamIsOn_ = false;
+	bool nowMoving = isMoving();
+	if(nowMoving != wasMoving_)
+		emit movingChanged(wasMoving_ = nowMoving);
+}
 
-	ssh1_ = new CLSBiStateControl("safetyShutter1", "Safety Shutter 1", "SSH1410-I00-01:state", "SSH1410-I00-01:opr:open", "SSH1410-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-	psh2_ = new CLSBiStateControl("photonShutter2", "Photon Shutter 2", "PSH1410-I00-02:state", "PSH1410-I00-02:opr:open", "PSH1410-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this);
+AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
+{
+	if(moveAction_) {
+		return AMControl::AlreadyMovingFailure;
+	}
 
-	psh4_ = new CLSBiStateControl("photonShutter4", "Photon Shutter 4", "PSH1610-I20-01:state", "PSH1610-I20-01:opr:open", "PSH1610-I20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	if(!isConnected())
+		return AMControl::NotConnectedFailure;
 
-	endstationValve_ = new CLSBiStateControl("XESendstationValve", "XES Endstation Valve", "VVR1610-4-I21-01:state", "VVR1610-4-I21-01:opr:open", "VVR1610-4-I21-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-
-	addChildControl(ssh1_);
-	addChildControl(psh2_);
-	addChildControl(psh4_);
-	addChildControl(endstationValve_);
+	setpoint_ = setpoint;
+	stopInProgress_ = false;
+	moveAction_ = new AMListAction(new AMActionInfo("REIXS mono move"));
 
 
-	// connect to monitor full beam status:
-	/////////////////////
-	connect(ssh1_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
-	connect(psh2_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
-	connect(psh4_, SIGNAL(connected(bool)), this, SLOT(reviewIsBeamOn()));
-	connect(ssh1_, SIGNAL(stateChanged(int)), this, SLOT(reviewIsBeamOn()));
-	connect(psh2_, SIGNAL(stateChanged(int)), this, SLOT(reviewIsBeamOn()));
-	connect(psh4_, SIGNAL(stateChanged(int)), this, SLOT(reviewIsBeamOn()));
 
-	reviewIsBeamOn();
+	// n-step sub moves
+	if(fabs(value() - setpoint_) > repeatMoveThreshold_) {
+		control_->setSettlingTime(repeatMoveSettlingTime_);	// ensures we wait for this long before finishing each sub-move.
+		for(int i=0; i<repeatMoveAttempts_; ++i) {
+			moveAction_->addSubAction(new AMInternalControlMoveAction(control_, setpoint_));
+		}
+	}
+	else {
+		control_->setSettlingTime(singleMoveSettlingTime_);
+		moveAction_->addSubAction(new AMInternalControlMoveAction(control_, setpoint_));
+	}
+
+	/// \todo Low-energy moves
+	/// \todo Single-move settling time?
+
+	connect(moveAction_, SIGNAL(failed()), this, SLOT(onMoveActionFailed()));
+	connect(moveAction_, SIGNAL(cancelled()), this, SLOT(onMoveActionFailed()));
+	connect(moveAction_, SIGNAL(succeeded()), this, SLOT(onMoveActionSucceeded()));
+
+	moveAction_->start();
+
+	return AMControl::NoFailure;
+}
+
+bool REIXSBrokenMonoControl::stop()
+{
+	bool success = control_->stop();
+
+	if(moveAction_) {
+		moveAction_->cancel();
+		stopInProgress_ = true;
+	}
+
+	return success;
+}
+
+void REIXSBrokenMonoControl::onMoveActionFailed()
+{
+	disconnect(moveAction_, 0, this, 0);
+	moveAction_->deleteLater();
+	moveAction_ = 0;
+
+	bool nowMoving = isMoving();
+	if(nowMoving != wasMoving_)
+		emit movingChanged(wasMoving_ = nowMoving);
+
+	// was cancelled or failed.  If we were supposed to be stopping:
+	if(stopInProgress_) {
+		emit moveFailed(AMControl::WasStoppedFailure);
+	}
+	else {
+		emit moveFailed(AMControl::OtherFailure);
+	}
+
+	stopInProgress_ = false;
+}
+
+void REIXSBrokenMonoControl::onMoveActionSucceeded()
+{
+	disconnect(moveAction_, 0, this, 0);
+	moveAction_->deleteLater();
+	moveAction_ = 0;
+
+	bool nowMoving = isMoving();
+	if(nowMoving != wasMoving_)
+		emit movingChanged(wasMoving_ = nowMoving);
+
+	// check tolerance:
+	if(inPosition()) {
+		emit moveSucceeded();
+	}
+	else {
+		emit moveFailed(AMControl::ToleranceFailure);
+	}
 }
 
 
-void REIXSValvesAndShutters::reviewIsBeamOn()
-{
-	bool beamWasOn = beamIsOn_;
 
-	beamIsOn_ = ssh1_->isConnected() &&
-			psh2_->isConnected() &&
-			psh4_->isConnected() &&
-			ssh1_->state() == 1 &&
-			psh2_->state() == 1 &&
-			psh4_->state() == 1;
-
-	if(beamIsOn_ != beamWasOn)
-		emit beamOnChanged(beamIsOn_);
+REIXSBrokenMonoControl::~REIXSBrokenMonoControl() {
+	delete control_;
+	control_ = 0;
 }
-
-
-
-
 

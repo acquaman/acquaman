@@ -224,7 +224,6 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	xPosition_->setRange(-100, 100);
 	xPosition_->setValue(config_->goToPosition() ? config_->x() : 0);
 	xPosition_->setSuffix(" mm");
-	connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
 	connect(xPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
 	connect(config_, SIGNAL(xPositionChanged(double)), xPosition_, SLOT(setValue(double)));
 
@@ -238,9 +237,10 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	yPosition_->setRange(-100, 100);
 	yPosition_->setValue(config_->goToPosition() ? config_->y() : 0);
 	yPosition_->setSuffix(" mm");
-	connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
 	connect(yPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
 	connect(config_, SIGNAL(yPositionChanged(double)), yPosition_, SLOT(setValue(double)));
+
+	setSampleStage(VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice());
 
 	QHBoxLayout *yLayout = new QHBoxLayout;
 	yLayout->addWidget(yPosition_);
@@ -531,7 +531,7 @@ QString VESPERSEXAFSScanConfigurationView::convertTimeToString(double time)
 
 	if (days > 0){
 
-		time -= time/3600/24;
+		time -= days*3600*24;
 		timeString += QString::number(days) + "d:";
 	}
 
@@ -620,5 +620,27 @@ void VESPERSEXAFSScanConfigurationView::onCustomContextMenuRequested(QPoint pos)
 
 		timeOffsetLabel_->setVisible(!timeOffsetLabel_->isVisible());
 		timeOffset_->setVisible(!timeOffset_->isVisible());
+	}
+}
+
+void VESPERSEXAFSScanConfigurationView::setSampleStage(bool sampleStage)
+{
+	if (sampleStage){
+
+		disconnect(VESPERSBeamline::vespers()->realSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
+		disconnect(VESPERSBeamline::vespers()->realSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
+		connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
+		connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
+		xPosition_->setValue(VESPERSBeamline::vespers()->pseudoSampleStage()->horizontalPosition());
+		yPosition_->setValue(VESPERSBeamline::vespers()->pseudoSampleStage()->verticalPosition());
+	}
+	else{
+
+		disconnect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
+		disconnect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
+		connect(VESPERSBeamline::vespers()->realSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
+		connect(VESPERSBeamline::vespers()->realSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
+		xPosition_->setValue(VESPERSBeamline::vespers()->realSampleStage()->horizontalPosition());
+		yPosition_->setValue(VESPERSBeamline::vespers()->realSampleStage()->verticalPosition());
 	}
 }
