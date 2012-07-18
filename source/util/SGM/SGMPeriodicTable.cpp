@@ -33,7 +33,7 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 		SGMElementInfo *elementInfo;
 
 		QStringList elementsToLoad;
-		elementsToLoad << "Carbon" << "Nitrogen" << "Oxygen" << "Calcium" << "Titanium" << "Chromium" << "Iron" << "Nickel"
+		elementsToLoad << "Carbon" << "Nitrogen" << "Oxygen" << "Calcium" << "Titanium" << "Chromium" << "Iron" << "Cobalt" << "Nickel"
 			       << "Copper" <<  "Zinc" << "Sodium" << "Magnesium" << "Aluminum" << "Silicon";
 
 		foreach(QString elementName, elementsToLoad){

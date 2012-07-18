@@ -370,6 +370,16 @@ void SGMBeamline::usingSGMBeamline(){
 	ssaIllumination_->setDescription("SSA Illumination");
 
 	scaler_ = new CLSSIS3820Scaler("BL1611-ID-1:mcs", this);
+	scaler_->channelAt(0)->setCustomChannelName("TEY");
+	scaler_->channelAt(1)->setCustomChannelName("I0");
+	scaler_->channelAt(2)->setCustomChannelName("FPD ");
+	scaler_->channelAt(3)->setCustomChannelName("PD");
+	scaler_->channelAt(4)->setCustomChannelName("UP");
+	scaler_->channelAt(5)->setCustomChannelName("DOWN");
+	scaler_->channelAt(6)->setCustomChannelName("FPD1");
+	scaler_->channelAt(7)->setCustomChannelName("FPD2");
+	scaler_->channelAt(8)->setCustomChannelName("FPD3");
+	scaler_->channelAt(9)->setCustomChannelName("FPD4");
 
 	if(pvNameLookUpFail)
 		AMErrorMon::alert(this, SGMBEAMLINE_PV_NAME_LOOKUPS_FAILED, "PV Name lookups in the SGM Beamline failed");
