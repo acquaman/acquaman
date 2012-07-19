@@ -30,6 +30,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMDeferredFunctionCall.h"
 #include "beamline/CLS/CLSBiStateControl.h"
 
+
+class AMSADetector;
+
 class AMSamplePlate;
 
 class AMAction;
@@ -393,6 +396,9 @@ public:
 	/// All the controls we want to expose to users for available motions in REIXSControlMoveAction.
 	AMControlSet* allControlsSet() { return allControlsSet_; }
 
+	/// Returns the list of AMSADetectors used in XAS scans: TEY, TFY, I0
+	QList<AMSADetector*> xasDetectors() { return xasDetectors_; }
+
 signals:
 
 public slots:
@@ -424,6 +430,9 @@ protected:
 
 	/// This is the active sample plate object, ie:the one that is currently loaded. When a user uses the UI to switch sample plates, we simple re-load this one from the database to become a different sample plate.
 	AMSamplePlate* samplePlate_;
+
+	/// List of detectors used in XAS scans
+	QList<AMSADetector*> xasDetectors_;
 
 
 };

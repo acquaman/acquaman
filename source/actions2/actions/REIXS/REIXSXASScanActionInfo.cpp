@@ -17,21 +17,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "REIXSXESScanActionInfo.h"
+#include "REIXSXASScanActionInfo.h"
 
-REIXSXESScanActionInfo::REIXSXESScanActionInfo(REIXSXESScanConfiguration *scanConfig, QObject *parent) : AMScanControllerActionInfo(scanConfig, parent)
+REIXSXASScanActionInfo::REIXSXASScanActionInfo(REIXSXASScanConfiguration *scanConfig, QObject *parent) : AMScanControllerActionInfo(scanConfig, parent)
 {
 	connect(scanConfig, SIGNAL(configurationChanged()), this, SLOT(onConfigurationChanged()));
 }
 
-REIXSXESScanActionInfo::REIXSXESScanActionInfo(const REIXSXESScanActionInfo &other) : AMScanControllerActionInfo(other)
+REIXSXASScanActionInfo::REIXSXASScanActionInfo(const REIXSXASScanActionInfo &other) : AMScanControllerActionInfo(other)
 {
-	connect(xesConfig(), SIGNAL(configurationChanged()), this, SLOT(onConfigurationChanged()));
+	connect(XASConfig(), SIGNAL(configurationChanged()), this, SLOT(onConfigurationChanged()));
 }
 
-// This will never be called, because we will always have a valid REIXSXESScanConfiguration returned by dbReadScanConfig().
-void REIXSXESScanActionInfo::dbLoadScanConfig(AMDbObject */*newObject*/) {
-//	REIXSXESScanConfiguration* newScanConfig = qobject_cast<REIXSXESScanConfiguration*>(newObject);
+// This will never be called, because we will always have a valid REIXSXASScanConfiguration returned by dbReadScanConfig().
+void REIXSXASScanActionInfo::dbLoadScanConfig(AMDbObject */*newObject*/) {
+//	REIXSXASScanConfiguration* newScanConfig = qobject_cast<REIXSXASScanConfiguration*>(newObject);
 //	if(!newScanConfig) {
 //		delete newObject;
 //		return;
@@ -42,15 +42,15 @@ void REIXSXESScanActionInfo::dbLoadScanConfig(AMDbObject */*newObject*/) {
 //	connect(newScanConfig, SIGNAL(configurationChanged()), this, SLOT(onConfigurationChanged()));
 }
 
-AMDbObject * REIXSXESScanActionInfo::dbReadScanConfig()
+AMDbObject * REIXSXASScanActionInfo::dbReadScanConfig()
 {
 	return scanConfig_;
 }
 
 
-void REIXSXESScanActionInfo::onConfigurationChanged()
+void REIXSXASScanActionInfo::onConfigurationChanged()
 {
-	QString description = xesConfig()->description();
+	QString description = XASConfig()->description();
 	setShortDescription(description);
 	setLongDescription(description);
 }

@@ -23,6 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "actions2/actions/AMWaitAction.h"
 
+#include "acquaman/CLS/CLSSIS3820ScalerSADetector.h"
+
 REIXSBeamline::REIXSBeamline() :
 	AMBeamline("REIXSBeamline")
 {
@@ -93,6 +95,11 @@ REIXSBeamline::REIXSBeamline() :
 
 
 	samplePlate_ = new AMSamplePlate();
+
+	xasDetectors_ << new CLSSIS3820ScalerSADetector("TEY", "Electron Yield", "BL1610-ID-2:mcs", 18, true, this);
+	xasDetectors_ << new CLSSIS3820ScalerSADetector("TFY", "Fluorescence Yield", "BL1610-ID-2:mcs", 19, false, this);
+	xasDetectors_ << new CLSSIS3820ScalerSADetector("I0", "I0", "BL1610-ID-2:mcs", 16, false, this);
+	/// \todo XES detector PFY. Requires building a new AMSADetector subclass.
 }
 
 
