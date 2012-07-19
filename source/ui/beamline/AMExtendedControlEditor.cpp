@@ -40,6 +40,8 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 {
 	setObjectName("AMControlEdit");
 
+	moveCounter_ = 0;
+
 	control_ = control;
 	readOnly_ = readOnly;
 	configureOnly_ = configureOnly;
@@ -113,6 +115,7 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 		connect(control_, SIGNAL(connected(bool)), this, SLOT(setHappy(bool)));
 		connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onMotion(bool)));
 		connect(control_, SIGNAL(enumChanged()), this, SLOT(onControlEnumChanged()));
+		connect(control_, SIGNAL(moveStarted()), this, SLOT(onControlMoveStarted()));
 		// If the control is connected already, update our state right now. (We won't get the connected() signal later.)
 		if(control_->isConnected()) {
 			setHappy(true);
@@ -422,4 +425,27 @@ void AMExtendedControlEditorStyledInputDialog::showEvent ( QShowEvent * event ) 
 void AMExtendedControlEditor::onControlEnumChanged()
 {
 	dialog_->setEnumNames(control_->enumNames());
+}
+
+void AMExtendedControlEditor::onControlMoveStarted(){
+	/*
+	moveCounter_++;
+	moveCounter_ = moveCounter_%4;
+	switch(moveCounter_){
+	case 0:
+		valueLabel_->setStyleSheet("color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);");
+		break;
+	case 1:
+		valueLabel_->setStyleSheet("color: rgb(0, 0, 0); background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #0198E1, stop: 0.25 #0198E1, stop: 0.26 #FFFFFF, stop: 1.0 #FFFFFF);");
+		break;
+	case 2:
+		valueLabel_->setStyleSheet("color: rgb(0, 0, 0); background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #0198E1, stop: 0.5 #0198E1, stop: 0.51 #FFFFFF, stop: 1.0 #FFFFFF);");
+		break;
+	case 3:
+		valueLabel_->setStyleSheet("color: rgb(0, 0, 0); background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #0198E1, stop: 0.75 #0198E1, stop: 0.76 #FFFFFF, stop: 1.0 #FFFFFF);");
+		break;
+	}
+	if(moveCounter_ != 0)
+		QTimer::singleShot(500, this, SLOT(onControlMoveStarted()));
+	*/
 }

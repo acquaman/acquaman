@@ -64,6 +64,7 @@ SGMAdvancedControlsView::SGMAdvancedControlsView(QWidget *parent) :
 	connect(SGMBeamline::sgm(), SIGNAL(currentEndstationChanged(SGMBeamline::sgmEndstation)), this, SLOT(onCurrentEndstationChanged(SGMBeamline::sgmEndstation)));
 	connect(endstationsAvailable_, SIGNAL(buttonClicked(int)), this, SLOT(onEndstationButtonsClicked(int)));
 
+	/*
 	mainVL_ = new QVBoxLayout();
 	QHBoxLayout *tmpHL = new QHBoxLayout();
 	tmpHL->addWidget(undulatorOffsetEditor_);
@@ -84,6 +85,20 @@ SGMAdvancedControlsView::SGMAdvancedControlsView(QWidget *parent) :
 	mainVL_->addStretch(10);
 
 	setLayout(mainVL_);
+	*/
+
+	mainVL_ = new QVBoxLayout();
+	mainVL_->addWidget(undulatorOffsetEditor_);
+	mainVL_->addWidget(masterMirrorStripBox);
+	mainVL_->addWidget(entranceSlitEditor_);
+	mainVL_->addWidget(endstationsBox);
+	mainVL_->addStretch(10);
+
+	QHBoxLayout *outerHL = new QHBoxLayout();
+	outerHL->addLayout(mainVL_);
+	outerHL->addStretch(10);
+
+	setLayout(outerHL);
 
 	if(SGMBeamline::sgm()->isConnected())
 		onCurrentMirrorStripeChanged((SGMBeamline::sgmMirrorStripe)SGMBeamline::sgm()->mirrorStripeSelection()->value());
