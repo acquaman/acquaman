@@ -13,6 +13,9 @@ public:
     explicit REIXSXASScanConfiguration(QObject *parent = 0);
 	virtual ~REIXSXASScanConfiguration();
 
+	/// Copy constructor
+	REIXSXASScanConfiguration(const REIXSXASScanConfiguration& other);
+
 	/// Creates a fresh copy of this scan configuration.
 	virtual AMScanConfiguration* createCopy() const;
 

@@ -26,6 +26,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/REIXS/REIXSXESScanConfigurationDetailedView.h"
 #include "ui/REIXS/REIXSScanConfigurationViewHolder.h"
+#include "ui/dataman/AMRegionScanConfigurationView.h"
+#include "acquaman/REIXS/REIXSXASScanConfiguration.h"
 
 #include "ui/AMMainWindow.h"
 
@@ -179,10 +181,10 @@ bool REIXSAppController::startupCreateUserInterface() {
 	connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 
 
-//	AMXASScanConfigurationView* xasScanConfigurationView_ = new AMXASScanConfigurationView();
-//	scanConfigurationHolder = new REIXSScanConfigurationViewHolder(xasScanConfigurationView_);
-//	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
-//	connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+	AMRegionScanConfigurationView* xasConfigView = new AMRegionScanConfigurationView(new REIXSXASScanConfiguration(this));
+	scanConfigurationHolder = new REIXSScanConfigurationViewHolder(xasConfigView);
+	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
+	connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 
 
 	REIXSSampleChamberButtonPanel* buttonPanel = new REIXSSampleChamberButtonPanel();
