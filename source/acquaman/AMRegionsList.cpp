@@ -145,17 +145,24 @@ bool AMRegionsList::isValid() const
 	return true;
 }
 
+#include <QDebug>
 bool AMRegionsList::addRegion(int index, double start, double delta, double end, double time)
 {
-	if(!defaultControl_ || !defaultTimeControl_)
-		return false;
+//	if(!defaultControl_ || !defaultTimeControl_)
+//		return false;
+
+	qDebug() << "Inserting rows";
 
 	bool retVal;
 
 	if(!regions_->insertRows(index, 1))
 		return false;
 
+	qDebug() << "   InsertRows: succeeded.";
+
 	retVal = setStart(index, start) && setDelta(index, delta) && setEnd(index, end) && setTime(index, time) && setUnits(index, defaultUnits_) && setTimeUnits(index, defaultTimeUnits_);
+
+	qDebug() << "   retval:" << retVal;
 
 	if(retVal){
 
