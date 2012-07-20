@@ -35,3 +35,9 @@ AMScanController * REIXSXASScanConfiguration::createController()
 {
 	return new REIXSXASScanController(this);
 }
+
+#include "ui/dataman/AMRegionScanConfigurationView.h"
+AMScanConfigurationView * REIXSXASScanConfiguration::createView()
+{
+	return new AMRegionScanConfigurationView(this);
+}

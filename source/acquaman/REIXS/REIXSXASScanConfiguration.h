@@ -10,7 +10,7 @@ class REIXSXASScanConfiguration : public AMXASScanConfiguration
 	Q_CLASSINFO("AMDbObject_Attributes", "description=REIXS XAS Scan Configuration")
 
 public:
-    explicit REIXSXASScanConfiguration(QObject *parent = 0);
+	Q_INVOKABLE explicit REIXSXASScanConfiguration(QObject *parent = 0);
 	virtual ~REIXSXASScanConfiguration();
 
 	/// Copy constructor
@@ -21,6 +21,8 @@ public:
 
 	/// Creates a scan controller capable of running this configuration
 	virtual AMScanController* createController();
+	/// Creates a view to edit the scan configuration
+	virtual AMScanConfigurationView* createView();
 
 
 	/// Unused, but required by AMRegionScanConfiguration

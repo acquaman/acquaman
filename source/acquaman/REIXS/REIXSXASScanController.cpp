@@ -4,7 +4,7 @@
 #include "beamline/REIXS/REIXSBeamline.h"
 
 REIXSXASScanController::REIXSXASScanController(REIXSXASScanConfiguration* configuration, QObject *parent) :
-	AMSA1DScanController(REIXSBeamline::bl()->photonSource()->energy(), REIXSBeamline::bl()->xasDetectors(), configuration, parent)
+	AMSA1DScanController(REIXSBeamline::bl()->photonSource()->energy(), REIXSBeamline::bl()->xasDetectors()->saDetectors(), configuration, parent)
 {
 
 }

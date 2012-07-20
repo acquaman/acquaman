@@ -57,6 +57,11 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 	connect(ui->beamOnButton, SIGNAL(clicked()), this, SLOT(onBeamOnButtonClicked()));
 	connect(ui->beamOffButton, SIGNAL(clicked()), this, SLOT(onBeamOffButtonClicked()));
 
+
+	connect(REIXSBeamline::bl()->xasDetectors()->TEYFeedback(), SIGNAL(valueChanged(double)), this, SLOT(onTEYCountsChanged(double)));
+	connect(REIXSBeamline::bl()->xasDetectors()->TFYFeedback(), SIGNAL(valueChanged(double)), this, SLOT(onTFYCountsChanged(double)));
+	connect(REIXSBeamline::bl()->xasDetectors()->I0Feedback(), SIGNAL(valueChanged(double)), this, SLOT(onI0CountsChanged(double)));
+
 	// Get initial status:
 	//////////////////////////
 
@@ -115,4 +120,22 @@ void REIXSSidebar::onBeamOnChanged(bool isOn)
 		ui->beamlineStatusLED->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
 		ui->beamOffButton->setChecked(true);
 	}
+}
+
+void REIXSSidebar::onTEYCountsChanged(double counts)
+{
+	ui->signalTEYBar->setValue(counts*600./1.e6);
+	ui->signalTEYValue->setText(QString::number(counts, 'e', 2));
+}
+
+void REIXSSidebar::onTFYCountsChanged(double counts)
+{
+	ui->signalTFYBar->setValue(counts*600./1.e6);
+	ui->signalTFYValue->setText(QString::number(counts, 'e', 2));
+}
+
+void REIXSSidebar::onI0CountsChanged(double counts)
+{
+	ui->signalI0Bar->setValue(counts*600./1.e6);
+	ui->signalI0Value->setText(QString::number(counts, 'e', 2));
 }

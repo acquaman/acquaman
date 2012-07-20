@@ -96,10 +96,7 @@ REIXSBeamline::REIXSBeamline() :
 
 	samplePlate_ = new AMSamplePlate();
 
-	xasDetectors_ << new CLSSIS3820ScalerSADetector("TEY", "Electron Yield", "BL1610-ID-2:mcs", 18, true, this);
-	xasDetectors_ << new CLSSIS3820ScalerSADetector("TFY", "Fluorescence Yield", "BL1610-ID-2:mcs", 19, false, this);
-	xasDetectors_ << new CLSSIS3820ScalerSADetector("I0", "I0", "BL1610-ID-2:mcs", 16, false, this);
-	/// \todo XES detector PFY. Requires building a new AMSADetector subclass.
+	xasDetectors_ = new REIXSXASDetectors(this);
 }
 
 
@@ -687,5 +684,21 @@ void REIXSBrokenMonoControl::onMoveActionSucceeded()
 REIXSBrokenMonoControl::~REIXSBrokenMonoControl() {
 	delete control_;
 	control_ = 0;
+}
+
+REIXSXASDetectors::REIXSXASDetectors(QObject *parent) : AMCompositeControl("xasDetectors", "", parent, "XAS Detectors")
+{
+	TEY_ = new AMReadOnlyPVControl("TEY", "BL1610-ID-2:mcs18:fbk", this, "TEY");
+	TFY_ = new AMReadOnlyPVControl("TFY", "BL1610-ID-2:mcs19:fbk", this, "TFY");
+	I0_ = new AMReadOnlyPVControl("I0", "BL1610-ID-2:mcs16:fbk", this, "I0");
+
+	addChildControl(TEY_);
+	addChildControl(TFY_);
+	addChildControl(I0_);
+
+	saDetectors_ << new CLSSIS3820ScalerSADetector("TEY", "Electron Yield", "BL1610-ID-2:mcs", 18, true, this);
+	saDetectors_ << new CLSSIS3820ScalerSADetector("TFY", "Fluorescence Yield", "BL1610-ID-2:mcs", 19, false, this);
+	saDetectors_ << new CLSSIS3820ScalerSADetector("I0", "I0", "BL1610-ID-2:mcs", 16, false, this);
+	/// \todo XES detector PFY. Requires building a new AMSADetector subclass.
 }
 

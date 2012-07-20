@@ -95,6 +95,28 @@ protected:
 
 };
 
+
+/// Organizes the group of XAS detectors
+class REIXSXASDetectors : public AMCompositeControl {
+	Q_OBJECT
+public:
+	REIXSXASDetectors(QObject* parent = 0);
+
+	/// Feedback for I0
+	AMReadOnlyPVControl* I0Feedback() { return I0_; }
+	/// Feedback for TEY
+	AMReadOnlyPVControl* TEYFeedback() { return TEY_; }
+	/// Feedback for TFY
+	AMReadOnlyPVControl* TFYFeedback() { return TFY_; }
+
+	/// A list of AMSADetectors used by the XAS scan controller: TEY, TFY, I0.
+	QList<AMSADetector*> saDetectors() { return saDetectors_; }
+
+protected:
+	AMReadOnlyPVControl* I0_, * TEY_, *TFY_;
+	QList<AMSADetector*> saDetectors_;
+};
+
 /// The REIXSHexapod control is just a container for the set of coupled controls which make up the hexapod:
 /*!
 - x(), y(), z(): Stage position in mm
@@ -412,8 +434,7 @@ public:
 	/// All the controls we want to expose to users for available motions in REIXSControlMoveAction.
 	AMControlSet* allControlsSet() { return allControlsSet_; }
 
-	/// Returns the list of AMSADetectors used in XAS scans: TEY, TFY, I0
-	QList<AMSADetector*> xasDetectors() { return xasDetectors_; }
+	REIXSXASDetectors* xasDetectors() { return xasDetectors_; }
 
 signals:
 
@@ -448,7 +469,7 @@ protected:
 	AMSamplePlate* samplePlate_;
 
 	/// List of detectors used in XAS scans
-	QList<AMSADetector*> xasDetectors_;
+	REIXSXASDetectors* xasDetectors_;
 
 
 };
