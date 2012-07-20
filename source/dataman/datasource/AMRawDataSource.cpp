@@ -146,6 +146,8 @@ void AMRawDataSource::onScanAxisSizeChanged() {
 //		emitSizeChanged(axisId);
 //	}
 
+	if(scanAxesCount_)
+		axes_[0].size = dataStore_->scanSize(0);
 	emitSizeChanged(0);
 }
 
