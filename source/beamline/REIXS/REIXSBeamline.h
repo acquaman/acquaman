@@ -37,13 +37,16 @@ class AMSamplePlate;
 
 class AMAction;
 
+class REIXSBrokenMonoControl;
+
 /// The REIXSPhotonSource control is a container for the set of controls that make up the mono and EPU
 class REIXSPhotonSource : public AMCompositeControl {
 	Q_OBJECT
 public:
 	REIXSPhotonSource(QObject* parent = 0);
 
-	AMControl* energy() { return energy_; }
+	REIXSBrokenMonoControl* energy() { return energy_; }
+	AMControl* directEnergy() { return directEnergy_; }
 	AMControl* monoSlit() { return monoSlit_; }
 	AMControl* monoGratingTranslation() { return monoGratingTranslation_; }
 	AMControl* monoGratingSelector() { return monoGratingSelector_; }
@@ -53,7 +56,8 @@ public:
 
 
 protected:
-	AMControl *energy_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_;
+	AMControl* directEnergy_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_;
+	REIXSBrokenMonoControl* energy_;
 
 };
 
@@ -320,6 +324,12 @@ public:
 	virtual int alarmSeverity() const { return control_->alarmSeverity(); }
 	virtual int alarmStatus() const { return control_->alarmStatus(); }
 
+
+	/// Returns the settling time for repeated (multi-step) moves. This much time is allowed before checking the feedback value for tolerance.
+	double repeatMoveSettlingTime() const { return repeatMoveSettlingTime_; }
+	/// Returns the settling time for single-step moves. This much time is allowed before checking the feedback value for tolerance.
+	double singleMoveSettlingTime() const { return singleMoveSettlingTime_; }
+
 public slots:
 
 	/// Used to start a move to \c setpoint. Returns NoFailure if the move command was sent successfully. Our re-implementation creates and populates the moveAction_.
@@ -327,6 +337,12 @@ public slots:
 
 	/// Request to stop a move in progress.
 	virtual bool stop();
+
+
+	/// Set the settling time for repeated (multi-step) moves. This much time is allowed before checking the feedback value for tolerance. Set to 0 to disable.
+	void setRepeatMoveSettlingTime(double seconds) { repeatMoveSettlingTime_ = seconds; }
+	/// Set the settling time for single-step moves. This much time is allowed before checking the feedback value for tolerance. Set to 0 to disable.
+	void setSingleMoveSettlingTime(double seconds) { singleMoveSettlingTime_ = seconds; }
 
 
 protected slots:

@@ -31,3 +31,39 @@ void REIXSXASScanController::createAnalysisBlocks()
 	ab->setExpression("TFY/I0");
 	scan_->addAnalyzedDataSource(ab);
 }
+
+AMControl * REIXSXASScanController::control()
+{
+	if((currentRegion_ == -1 && currentStepInRegion_ == -1) || (currentRegion_ == 0 && currentStepInRegion_ == 0))
+		return REIXSBeamline::bl()->photonSource()->energy();	// use for first move
+	else
+		return REIXSBeamline::bl()->photonSource()->directEnergy();	// use for "little" moves.
+}
+
+// Was thinking about disabling the settling time, and then restoring it after. Problem with this approach: we need the three-step move for the initial (possibly long-distance) move.  Instead, return a different control depending on the situation.
+//bool REIXSXASScanController::customInitializeImplementation()
+//{
+//	REIXSBrokenMonoControl* energy = REIXSBeamline::bl()->photonSource()->energy();
+//	singleMoveSettlingTime_ = energy->singleMoveSettlingTime();
+//	repeatMoveSettlingTime_ = energy->repeatMoveSettlingTime();
+//	tolerance_ = energy->tolerance();
+
+//	energy->setSingleMoveSettlingTime(0);
+//	energy->setRepeatMoveSettlingTime(0);
+//	energy->setTolerance(1e10);	// that better be enough, pos.
+
+//	qDebug() << "Disabled settling times and tolerance.";
+//	setCustomInitializationFinished(true);
+//	return true;
+//}
+
+//void REIXSXASScanController::customCleanupImplementation()
+//{
+//	REIXSBrokenMonoControl* energy = REIXSBeamline::bl()->photonSource()->energy();
+//	energy->setSingleMoveSettlingTime(singleMoveSettlingTime_);
+//	energy->setRepeatMoveSettlingTime(repeatMoveSettlingTime_);
+//	energy->setTolerance(tolerance_);
+
+//	qDebug() << "Re-enabled settling times and tolerance.";
+//	setCustomCleanupFinished();
+//}
