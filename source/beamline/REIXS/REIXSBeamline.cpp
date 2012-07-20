@@ -111,7 +111,7 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	AMCompositeControl("photonSource", "", parent, "EPU and Monochromator")
 {
 	AMPVwStatusControl* energy = new AMPVwStatusControl("beamlineEV", "REIXS:MONO1610-I20-01:energy:fbk", "REIXS:energy", "REIXS:status", "REIXS:energy:stop", 0, 0.01);
-	energy_ = new REIXSBrokenMonoControl(energy, 1.05, 3, 0.3, 0.3, 100, 1, 0.1, this);
+	energy_ = new REIXSBrokenMonoControl(energy, 1.05, 3, 0.5, 0.5, 100, 1, 0.1, this);
 	energy_->setDescription("Beamline Energy");
 
 	monoSlit_ = new AMPVwStatusAndUnitConversionControl("monoSlit", "SMTR1610-I20-10:mm:fbk", "SMTR1610-I20-10:mm", "SMTR1610-I20-10:status", "SMTR1610-I20-10:stop", new AMScaleAndOffsetUnitConverter("um", 1000), 0, this, 0.1);
