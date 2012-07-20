@@ -73,13 +73,13 @@ bool AMSA1DScanController::setDetectors(const QList<AMSADetector *> &detectors)
 
 bool AMSA1DScanController::initializeImplementation()
 {
-	if(!control_ || !control_->canMove()) {
+	if(!control() || !control()->canMove()) {
 		AMErrorMon::alert(this, -11, "Could not start the scan because the control to move was not valid or connected. Please report this bug to your beamline's software developers.");
 		return false;
 	}
 
 	// Create scan axis
-	scan_->rawData()->addScanAxis(AMAxisInfo(control_->name(), 0, control_->description(), control_->units()));
+	scan_->rawData()->addScanAxis(AMAxisInfo(control()->name(), 0, control()->description(), control()->units()));
 
 	// Create measurements in the data store for each detector.
 	foreach(AMSADetector* detector, detectors_) {
@@ -88,8 +88,12 @@ bool AMSA1DScanController::initializeImplementation()
 			return false;
 		}
 	}
+	if(!scan_->rawData()->addMeasurement(AMMeasurementInfo(control()->name() % "_fbk", control()->description() % " feedback", control()->units()))) {
+		AMErrorMon::alert(this, -10, QString("Could not create a measurement in the data store for the control feedback '%1', possibly because another with that name already exists. Please report this bug to your beamline's software developers.").arg(control()->name() % "_fbk"));
+		return false;
+	}
 
-	// Create raw data sources (by default, one for each detector)
+	// Create raw data sources (by default, one for each detector, and for the control feedback)
 	createRawDataSources();
 	// create analysis blocks as defined here:
 	createAnalysisBlocks();
@@ -153,10 +157,10 @@ void AMSA1DScanController::doNextPosition()
 			detector->setAcquisitionTime(regionScanConfig_->regionTime(currentRegion_));
 	}
 
-	qDebug() << "    AMSA: Moving to position:" << currentPosition();
+//	qDebug() << "    AMSA: Moving to position:" << currentPosition();
 
 	// move to the position.
-	moveAction_ = new AMInternalControlMoveAction(control_, currentPosition());
+	moveAction_ = new AMInternalControlMoveAction(control(), currentPosition());
 	connect(moveAction_, SIGNAL(succeeded()), this, SLOT(onMoveActionSucceeded()));
 	connect(moveAction_, SIGNAL(failed()), this, SLOT(onMoveActionFailed()));
 	moveAction_->start();
@@ -182,13 +186,13 @@ void AMSA1DScanController::onMoveActionFailed()
 	moveAction_->deleteLater();
 	moveAction_ = 0;
 
-	AMErrorMon::alert(this, -14, QString("The scan failed because the control (%1)failed to move properly to %2 %3.").arg(control_->description()).arg(currentPosition()).arg(control_->units()));
+	AMErrorMon::alert(this, -14, QString("The scan failed because the control (%1)failed to move properly to %2 %3.").arg(control()->description()).arg(currentPosition()).arg(control()->units()));
 	setFailed();
 }
 
 void AMSA1DScanController::doNextAcquisition()
 {
-	qDebug() << "    AMSA: Starting acquisition at" << currentPosition();
+//	qDebug() << "    AMSA: Starting acquisition at" << currentPosition();
 
 	// trigger all the detectors
 	detectorAcquisitionFailed_ = false;
@@ -224,7 +228,7 @@ void AMSA1DScanController::onDetectorAcquisitionFinished(bool succeeded)
 
 void AMSA1DScanController::onAllAcquisitionFinished()
 {
-	qDebug() << "    AMSA: Acquisition finished at" << currentPosition();
+//	qDebug() << "    AMSA: Acquisition finished at" << currentPosition();
 
 	// Disconnect signals from all detectors
 	foreach(AMSADetector* detector, detectors_)
@@ -253,8 +257,11 @@ void AMSA1DScanController::onAllAcquisitionFinished()
 				AMErrorMon::alert(this, -15, QString("Could not store data from detector '%1': it did not return valid data. Please report this bug to your beamline's software developers."));
 		}
 	}
-
+	// add control feedback:
+	scan_->rawData()->setValue(scanIndex, detectors_.count(), AMnDIndex(), control()->value());
+	// and the axis value: the current target position
 	scan_->rawData()->setAxisValue(0, scanIndex.i(), currentPosition());	// taking the axis value from the control feedback.
+
 
 	scan_->rawData()->endInsertRows();
 

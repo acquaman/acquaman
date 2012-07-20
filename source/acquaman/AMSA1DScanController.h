@@ -77,6 +77,9 @@ protected:
 	/// IMPORTANT: If you re-implement customCleanupImplementation(), call after any custom cleanup is complete.
 	void setCustomCleanupFinished();
 
+	/// Subclasses can optionally provide a different control to use (for example, at each step or region). The default implementation simply always uses the one that was provided in the constructor.
+	virtual AMControl* control() { return control_; }
+
 
 private:
 	/// Implements initialization of detectors after customInitializeImplementation() has run.
