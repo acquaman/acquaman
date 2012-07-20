@@ -110,6 +110,10 @@ QString AMRegionScanConfiguration::dbReadRegions() const{
 
 void AMRegionScanConfiguration::dbLoadRegions(const QString &regionsString)
 {
+	// delete existing regions, if any.
+	while(regions_->count())
+		regions_->deleteRegion(regions_->count()-1);
+
 	if(regionsString.isEmpty())
 		return;
 	QStringList allRegions = regionsString.split("\n", QString::SkipEmptyParts);
