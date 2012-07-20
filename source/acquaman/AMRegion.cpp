@@ -84,8 +84,8 @@ bool AMRegion::setTime(double time)
 
 bool AMRegion::setUnits(const QString &units)
 {
-	if (units.isNull())
-		return false;
+//	if (units.isNull())
+//		return false;
 
 	units_ = units;
 	return true;
@@ -93,8 +93,8 @@ bool AMRegion::setUnits(const QString &units)
 
 bool AMRegion::setTimeUnits(const QString &units)
 {
-	if (units.isNull())
-		return false;
+//	if (units.isNull())
+//		return false;
 
 	timeUnits_ = units;
 	return true;
