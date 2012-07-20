@@ -423,6 +423,7 @@ bool AM1DExpressionAB::setExpression(const QString& newExpression) {
 	// anything that could trigger a change in the output validity must call this
 	reviewState();
 	emitValuesChanged();
+	setModified(true);
 
 	return expressionValid_;
 }
@@ -481,6 +482,7 @@ bool AM1DExpressionAB::setXExpression(const QString& xExpressionIn) {
 	// anything that could trigger a change in the output validity must call this
 	reviewState();
 	emitValuesChanged();	/// \todo: actually, we mean that the axis values changed. How to signal that?
+	setModified(true);
 
 	return xExpressionValid_;
 }

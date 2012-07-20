@@ -121,6 +121,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	connect(detector_, SIGNAL(removedRegionOfInterest(AMROIInfo)), this, SLOT(removeRegionOfInterestMarker(AMROIInfo)));
 	connect(detector_, SIGNAL(externalRegionsOfInterestChanged()), this, SLOT(onExternalRegionsOfInterestChanged()));
 	connect(detector_, SIGNAL(roiUpdate(AMROI*)), this, SLOT(roiWidthUpdate(AMROI*)));
+	connect(detector_, SIGNAL(allRegionsOfInterestRemoved()), this, SLOT(removeAllRegionsOfInterestMarkers()));
 
 	status_ = new QLabel;
 	status_->setPixmap(QIcon(":/OFF.png").pixmap(20));

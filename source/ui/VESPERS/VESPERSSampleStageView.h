@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define VESPERSSAMPLESTAGEVIEW_H
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
+#include "beamline/VESPERS/VESPERSSampleStageControl.h"
 
 #include <QWidget>
 #include <QDoubleSpinBox>
@@ -38,11 +39,24 @@ class VESPERSSampleStageView : public QWidget
 	Q_OBJECT
 public:
 	/// Default constructor.
-	explicit VESPERSSampleStageView(QWidget *parent = 0);
+	explicit VESPERSSampleStageView(VESPERSSampleStageControl *sampleStage, QWidget *parent = 0);
+
+	/// Returns the title of the sample stage view.
+	QString title() const { return title_; }
+	/// Returns the horizontal title of the sample stage view.
+	QString horizontalTitle() const { return horizontalTitle_; }
+	/// Returns the vertical title of the sample stage view.
+	QString verticalTitle() const { return verticalTitle_; }
 
 signals:
 
 public slots:
+	/// Sets the title of the sample stage view.
+	void setTitle(const QString &title);
+	/// Sets the horizontal title of the sample stage view.
+	void setHorizontalTitle(const QString &title);
+	/// Sets the vertical title of the sample stage view.
+	void setVerticalTitle(const QString &title);
 
 protected slots:
 	/// Slot that handles going up.
@@ -70,6 +84,18 @@ protected slots:
 	void onNormalMoveError(bool direction);
 
 protected:
+	/// Holds the title of this sample stage.
+	QString title_;
+	/// Holds the horizontal title.
+	QString horizontalTitle_;
+	/// Holds the vertical title.
+	QString verticalTitle_;
+	/// Holds the title label.
+	QLabel *titleLabel_;
+	/// Holds the horizontal title label.
+	QLabel *horizontalLabel_;
+	/// Holds the vertical title label.
+	QLabel *verticalLabel_;
 	/// Holds the jog value.  All movements are relative to this number.
 	QDoubleSpinBox *jog_;
 	/// This button group holds the four directional buttons.

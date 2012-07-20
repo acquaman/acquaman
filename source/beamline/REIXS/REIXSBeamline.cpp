@@ -23,6 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "actions2/actions/AMWaitAction.h"
 
+#include "acquaman/CLS/CLSSIS3820ScalerSADetector.h"
+
 REIXSBeamline::REIXSBeamline() :
 	AMBeamline("REIXSBeamline")
 {
@@ -93,6 +95,8 @@ REIXSBeamline::REIXSBeamline() :
 
 
 	samplePlate_ = new AMSamplePlate();
+
+	xasDetectors_ = new REIXSXASDetectors(this);
 }
 
 
@@ -103,8 +107,11 @@ REIXSBeamline::~REIXSBeamline() {
 REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	AMCompositeControl("photonSource", "", parent, "EPU and Monochromator")
 {
-	AMPVwStatusControl* energy = new AMPVwStatusControl("beamlineEV", "REIXS:MONO1610-I20-01:energy:fbk", "REIXS:energy", "REIXS:status", "REIXS:energy:stop", 0, 0.01);
-	energy_ = new REIXSBrokenMonoControl(energy, 1.05, 3, 0.3, 0.3, 100, 1, 0.1, this);
+	AMPVwStatusControl* directEnergy = new AMPVwStatusControl("beamlineEV", "REIXS:MONO1610-I20-01:energy:fbk", "REIXS:energy", "REIXS:status", "REIXS:energy:stop", 0, 1000);
+	directEnergy_ = directEnergy;
+	directEnergy_->setDescription("Beamline Energy");
+
+	energy_ = new REIXSBrokenMonoControl(directEnergy, 1.05, 3, 0.5, 0.5, 100, 1, 0.1, this);
 	energy_->setDescription("Beamline Energy");
 
 	monoSlit_ = new AMPVwStatusAndUnitConversionControl("monoSlit", "SMTR1610-I20-10:mm:fbk", "SMTR1610-I20-10:mm", "SMTR1610-I20-10:status", "SMTR1610-I20-10:stop", new AMScaleAndOffsetUnitConverter("um", 1000), 0, this, 0.1);
@@ -677,5 +684,21 @@ void REIXSBrokenMonoControl::onMoveActionSucceeded()
 REIXSBrokenMonoControl::~REIXSBrokenMonoControl() {
 	delete control_;
 	control_ = 0;
+}
+
+REIXSXASDetectors::REIXSXASDetectors(QObject *parent) : AMCompositeControl("xasDetectors", "", parent, "XAS Detectors")
+{
+	TEY_ = new AMReadOnlyPVControl("TEY", "BL1610-ID-2:mcs18:fbk", this, "TEY");
+	TFY_ = new AMReadOnlyPVControl("TFY", "BL1610-ID-2:mcs19:fbk", this, "TFY");
+	I0_ = new AMReadOnlyPVControl("I0", "BL1610-ID-2:mcs16:fbk", this, "I0");
+
+	addChildControl(TEY_);
+	addChildControl(TFY_);
+	addChildControl(I0_);
+
+	saDetectors_ << new CLSSIS3820ScalerSADetector("TEY", "Electron Yield", "BL1610-ID-2:mcs", 18, true, this);
+	saDetectors_ << new CLSSIS3820ScalerSADetector("TFY", "Fluorescence Yield", "BL1610-ID-2:mcs", 19, false, this);
+	saDetectors_ << new CLSSIS3820ScalerSADetector("I0", "I0", "BL1610-ID-2:mcs", 16, false, this);
+	/// \todo XES detector PFY. Requires building a new AMSADetector subclass.
 }
 

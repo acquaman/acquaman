@@ -86,6 +86,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions2/actions/AMScanControllerActionInfo.h"
 #include "dataman/AM2DScan.h"
 #include "analysis/AM2DNormalizationAB.h"
+#include "analysis/AM1DNormalizationAB.h"
 
 #include "actions3/AMLoopActionInfo3.h"
 #include "actions3/actions/AMNumberChangeAction.h"
@@ -179,7 +180,7 @@ bool AMDatamanAppController::startup() {
 	if(!startupAfterEverything())
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_AFTER_EVERYTHING, "Problem with Acquaman startup: after all other startup routines.");
 
-	emit datamanStartupFinished();	
+	emit datamanStartupFinished();
 
 	isStarting_ = false;
 	return true;
@@ -484,6 +485,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AM1DSummingAB>();
 	AMDbObjectSupport::s()->registerClass<AMDeadTimeAB>();
 	AMDbObjectSupport::s()->registerClass<AM2DNormalizationAB>();
+	AMDbObjectSupport::s()->registerClass<AM1DNormalizationAB>();
 
 	AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
 	AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();

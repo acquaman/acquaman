@@ -49,6 +49,10 @@ public:
 	/// Getter for the configuration.
 	const AMScanConfiguration* configuration() const { return config_; }
 
+public slots:
+	/// Slot that switches which sample stage is viewed inside the persitent view.  True is pseudo motors, false is real motors.
+	void setSampleStage(bool sampleStage);
+
 signals:
 	/// Sends out a request that the current detector (based on FluorescenceDetectorChoice) to be configured.  Asks the app controller to change to the detector view.  String will be either "Single Element" or "Four Element".
 	void configureDetector(const QString &);

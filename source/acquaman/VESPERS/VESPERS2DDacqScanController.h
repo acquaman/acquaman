@@ -33,7 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define VESPERS2DDACQSCANCONTROLLER_CANT_START_DETECTOR_SOURCE_MISMATCH 79003
 #define VESPERS2DDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE 79004
 
-/// This class builds a scan controller for doing a 2D map.  It current assumes only the pseudo motors will be used.
+/// This class builds a scan controller for doing a 2D map.
 class VESPERS2DDacqScanController : public AM2DDacqScanController
 {
 	Q_OBJECT

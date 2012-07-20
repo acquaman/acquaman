@@ -315,6 +315,19 @@ void XRFDetector::onUpdateTimer()
 	}
 }
 
+void XRFDetector::copyFromROIList(AMROIInfoList *list)
+{
+	clearRegionsOfInterest();
+
+	for (int i = 0; i < list->count(); i++){
+
+		roiList_.at(i)->setRegion(list->at(i));
+		emit addedRegionOfInterest(list->at(i));
+	}
+
+	setROIList(*list);
+}
+
 bool XRFDetector::addRegionOfInterest(XRFElement *el, QString line)
 {
 	// No more ROIs.
@@ -416,6 +429,7 @@ void XRFDetector::clearRegionsOfInterest()
 
 	roiInfoList()->clear();
 	setROIList(*roiInfoList());
+	emit allRegionsOfInterestRemoved();
 }
 
 void XRFDetector::enableElement(int id)

@@ -147,8 +147,8 @@ bool AMRegionsList::isValid() const
 
 bool AMRegionsList::addRegion(int index, double start, double delta, double end, double time)
 {
-	if(!defaultControl_ || !defaultTimeControl_)
-		return false;
+//	if(!defaultControl_ || !defaultTimeControl_)
+//		return false;
 
 	bool retVal;
 

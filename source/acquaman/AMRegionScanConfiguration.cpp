@@ -108,8 +108,13 @@ QString AMRegionScanConfiguration::dbReadRegions() const{
 	return rv.join("\n");
 }
 
+#include <QDebug>
 void AMRegionScanConfiguration::dbLoadRegions(const QString &regionsString)
 {
+	// delete existing regions, if any.
+	while(regions_->count())
+		regions_->deleteRegion(regions_->count()-1);
+
 	if(regionsString.isEmpty())
 		return;
 	QStringList allRegions = regionsString.split("\n", QString::SkipEmptyParts);
@@ -117,7 +122,8 @@ void AMRegionScanConfiguration::dbLoadRegions(const QString &regionsString)
 	bool addRegionSuccess = false;
 
 	for(int x = 0; x < allRegions.count(); x++){
-		oneRegion = allRegions.at(x).split(",", QString::SkipEmptyParts);
+		qDebug() << "Region string:" << allRegions.at(x);
+		oneRegion = allRegions.at(x).split(",", QString::KeepEmptyParts);
 
 		// Legacy Acquaman XAS settings (version 1.0)
 		if (oneRegion.count() == 3)
@@ -132,11 +138,12 @@ void AMRegionScanConfiguration::dbLoadRegions(const QString &regionsString)
 		// Beginning of a more succinct usage of AMRegions.  Version 1.0
 		else if (oneRegion.at(0) == "regionsVersion1.0"){
 
-			addRegionSuccess = addRegion(x, oneRegion.at(1).toDouble(), oneRegion.at(2).toDouble(), oneRegion.at(3).toDouble(), oneRegion.at(6).toDouble());
-			addRegionSuccess &= setRegionElasticStart(x, oneRegion.at(4).toInt() == 1 ? true : false);
-			addRegionSuccess &= setRegionElasticEnd(x, oneRegion.at(5).toInt() == 1 ? true : false);
-			addRegionSuccess &= setRegionUnits(x, oneRegion.at(7));
-			addRegionSuccess &= setRegionTimeUnits(x, oneRegion.at(8));
+			qDebug() << "Region string list:" << oneRegion;
+			qDebug() << (addRegionSuccess = addRegion(x, oneRegion.at(1).toDouble(), oneRegion.at(2).toDouble(), oneRegion.at(3).toDouble(), oneRegion.at(6).toDouble()));
+			qDebug() << (addRegionSuccess &= setRegionElasticStart(x, oneRegion.at(4).toInt() == 1 ? true : false));
+			qDebug() << (addRegionSuccess &= setRegionElasticEnd(x, oneRegion.at(5).toInt() == 1 ? true : false));
+			qDebug() << (addRegionSuccess &= setRegionUnits(x, oneRegion.at(7)));
+			qDebug() << (addRegionSuccess &= setRegionTimeUnits(x, oneRegion.at(8)));
 		}
 
 		if (!addRegionSuccess)

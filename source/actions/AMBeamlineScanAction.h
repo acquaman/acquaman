@@ -145,8 +145,8 @@ protected slots:
 	void onScanPaused();
 	/// Slot that handles propogating the resumed signal from the controller.
 	void onScanResumed();
-	void onScanFinished();
-	void onScanFailed(int explanation);
+	virtual void onScanFinished();
+	virtual void onScanFailed(int explanation);
 	void onStopCancelButtonClicked();
 	void onPlayPauseButtonClicked();
 	void onPreviousNextChanged();

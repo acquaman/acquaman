@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMXASScanConfigurationView.h"
 #include "ui/SGM/SGMFastScanConfigurationView.h"
 #include "ui/SGM/SGMSidebar.h"
+#include "ui/SGM/SGMAdvancedControlsView.h"
 #include "acquaman/AMScanController.h"
 #include "ui/beamline/AMDetectorView.h"
 #include "ui/beamline/AMSingleControlDetectorView.h"
@@ -742,6 +743,40 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= elementInfo->storeToDb(dbSGM);
 	}
 
+	// COBALT SETTINGS
+	elementSymbol = "Co";
+	elementName = "Cobalt";
+	elementEdge = "L";
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
+	if(matchIDs.count() == 0){
+		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 750.0, -271410, -34592, 77.70, 1);
+		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 780.0, -260974, -28793, 91.09, 1);
+		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 820.0, -248243, -21152, 116.99, 1);
+		success &= epStart.storeToDb(dbSGM);
+		success &= epMiddle.storeToDb(dbSGM);
+		success &= epEnd.storeToDb(dbSGM);
+
+		QPair<QString, QString> edgeEnergyPair = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->L3Edge();
+		SGMScanInfo scanInfo(elementName%" "%elementEdge, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), epStart, epMiddle, epEnd);
+		success &= scanInfo.storeToDb(dbSGM);
+
+		//SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 8500, 5.0, 200, 1800);
+		//success &= fs5Settings.storeToDb(dbSGM);
+		//SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
+		//success &= fsp5->storeToDb(dbSGM);
+
+		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 2000, 20.0, 800, 700);
+		success &= fs20Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp20 = new SGMFastScanParameters(elementName%elementEdge%"20s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs20Settings);
+		success &= fsp20->storeToDb(dbSGM);
+
+		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
+		elementInfo->addEdgeInfo(scanInfo);
+		//elementInfo->addFastScanParameters(fsp5);
+		elementInfo->addFastScanParameters(fsp20);
+		success &= elementInfo->storeToDb(dbSGM);
+	}
+
 	// NICKEL SETTINGS
 	elementSymbol = "Ni";
 	elementName = "Nickel";
@@ -995,6 +1030,9 @@ bool SGMAppController::setupSGMViews(){
 	connect(samplePositionView_, SIGNAL(newSamplePlateSelected(AMSamplePlate*)), SGMBeamline::sgm(), SLOT(setCurrentSamplePlate(AMSamplePlate*)));
 
 	connect(SGMBeamline::sgm(), SIGNAL(currentSamplePlateChanged(AMSamplePlate*)), workflowManagerView_, SLOT(setCurrentSamplePlate(AMSamplePlate*)));
+
+	SGMAdvancedControls_ = new SGMAdvancedControlsView();
+	mw_->addPane(SGMAdvancedControls_, "Beamline Control", "SGM Advanced Controls", ":/system-software-update.png");
 
 	//sampleTransferView_ = new SGMSampleTransferView();
 	//mw_->addPane(sampleTransferView_, "Beamline Control", "SGM Sample Transfer", ":/system-software-update.png");

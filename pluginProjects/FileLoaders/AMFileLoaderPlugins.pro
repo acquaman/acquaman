@@ -9,4 +9,5 @@ SUBDIRS += \
 	VESPERS2011XRFFileLoader \
 	REIXSXESRawFileLoader \
 	ALSBL8XASFileLoader \
-	VESPERS20122DFileLoader
+	VESPERS20122DFileLoader \
+	VESPERS2012SpatialLineScanFileLoader

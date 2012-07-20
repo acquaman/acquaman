@@ -45,6 +45,8 @@ public:
 
 	/// Returns the experiment type.
 	ExperimentType type() const { return type_; }
+	/// Returns which sample stage is currently in use.  True is the pseudo motors and false is the real motors.
+	bool sampleStageChoice() const { return int(sampleStageControl_->value()) == 1 ? true : false; }
 
 signals:
 	/// Notifier that the beamline is ready for to take experiments.
@@ -65,6 +67,8 @@ signals:
 	void singleElementVortexStatusChanged(bool);
 	/// Notifier that the four element vortex status has changed.  Passes the new state.
 	void fourElementVortexStatusChanged(bool);
+	/// Notifier that the sample stage choice has changed (true = pseudo motors and false = real motors).
+	void sampleStageChoiceChanged(bool);
 
 public slots:
 	/// Sets the experiment type to \param type.
@@ -84,6 +88,8 @@ public slots:
 	void useSingleElementVortex(bool use);
 	/// Enables/Disables the four element vortex detector from the experiment ready status.
 	void useFourElementVortex(bool use);
+	/// Sets whether the the sample stage being used is the pseudo motors or the real motors.  True is pseudo motors.
+	void usePseudoMotors(bool use);
 
 protected slots:
 	/// Determines whether the state of the experiment ready status.
@@ -94,6 +100,8 @@ protected slots:
 	void onSynchronizedDwellTimeStartup(bool connected);
 	/// Determines whether the beam has dumped or not.
 	void onPOEStatusChanged(double state);
+	/// Handles checking the state of the sample stage choice PV on startup.
+	void onSampleStageChoiceConnected(bool connected);
 
 protected:
 	/// The pointer to the dwell time.
@@ -130,6 +138,11 @@ protected:
 	bool useSingleEl_;
 	/// Flag to keep track of whether or not the 4-element vortex is enabled.
 	bool useFourEl_;
+	/// Flag to keep track of whether the real sample stage is in use or the pseudo sample stage.
+	bool usePseudoMotors_;
+
+	/// The control that handles changing the PV that stores whether the pseudo motors are being used or the real motors.
+	AMControl *sampleStageControl_;
 };
 
 #endif // VESPERSEXPERIMENTCONFIGURATION_H

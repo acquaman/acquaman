@@ -30,16 +30,16 @@ REIXSXESScanActionInfo::REIXSXESScanActionInfo(const REIXSXESScanActionInfo &oth
 }
 
 // This will never be called, because we will always have a valid REIXSXESScanConfiguration returned by dbReadScanConfig().
-void REIXSXESScanActionInfo::dbLoadScanConfig(AMDbObject *newObject) {
-	REIXSXESScanConfiguration* newScanConfig = qobject_cast<REIXSXESScanConfiguration*>(newObject);
-	if(!newScanConfig) {
-		delete newObject;
-		return;
-	}
+void REIXSXESScanActionInfo::dbLoadScanConfig(AMDbObject */*newObject*/) {
+//	REIXSXESScanConfiguration* newScanConfig = qobject_cast<REIXSXESScanConfiguration*>(newObject);
+//	if(!newScanConfig) {
+//		delete newObject;
+//		return;
+//	}
 
-	delete scanConfig_;
-	scanConfig_ = newScanConfig;
-	connect(newScanConfig, SIGNAL(configurationChanged()), this, SLOT(onConfigurationChanged()));
+//	delete scanConfig_;
+//	scanConfig_ = newScanConfig;
+//	connect(newScanConfig, SIGNAL(configurationChanged()), this, SLOT(onConfigurationChanged()));
 }
 
 AMDbObject * REIXSXESScanActionInfo::dbReadScanConfig()
