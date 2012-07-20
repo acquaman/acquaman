@@ -20,11 +20,14 @@ void REIXSXASScanController::createAnalysisBlocks()
 		rawDataSources << scan_->rawDataSources()->at(i);
 
 	AM1DExpressionAB* ab = new AM1DExpressionAB("TEYNorm");
+	ab->setDescription("Normalized TEY");
 	ab->setInputDataSources(rawDataSources);
 	ab->setExpression("TEY/I0");
 	scan_->addAnalyzedDataSource(ab);
 
 	ab = new AM1DExpressionAB("TFYNorm");
+	ab->setDescription("Normalized TFY");
 	ab->setInputDataSources(rawDataSources);
+	ab->setExpression("TFY/I0");
 	scan_->addAnalyzedDataSource(ab);
 }

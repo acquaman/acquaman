@@ -22,8 +22,6 @@ REIXSXASScanConfiguration::REIXSXASScanConfiguration(const REIXSXASScanConfigura
 	for(int x = 0; x < other.regionCount(); x++)
 		regions_->addRegion(x, other.regionStart(x), other.regionDelta(x), other.regionEnd(x));
 	////////////////////////
-
-
 }
 
 AMScanConfiguration * REIXSXASScanConfiguration::createCopy() const

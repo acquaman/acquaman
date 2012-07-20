@@ -94,21 +94,8 @@ bool AMSA1DScanController::initializeImplementation()
 	// create analysis blocks as defined here:
 	createAnalysisBlocks();
 
-
-	// initialize detectors:
-	detectorInitializationFailed_ = false;
-	initializingDetectors_ = true;
-	foreach(AMSADetector* detector, detectors_) {
-		connect(detector, SIGNAL(initialized(bool)), this, SLOT(onDetectorInitialized(bool)));
-		if(!detector->init()) {
-			AMErrorMon::alert(this, -12, QString("Could not start the scan because the detector '%1' could not be initialized. Please report this bug to your beamline's software developers.").arg(detector->description()));
-			return false;
-		}
-	}
-	initializingDetectors_ = false;
-	onDetectorInitialized();
-
-	return true;
+	// give subclasses a chance to do any other initialization here:
+	return customInitializeImplementation();
 }
 
 void AMSA1DScanController::onDetectorInitialized(bool succeeded)
@@ -120,9 +107,9 @@ void AMSA1DScanController::onDetectorInitialized(bool succeeded)
 	if(initializingDetectors_)
 		return;
 
-	// Find out if all are initialized:
+	// Find out if all are finished:
 	foreach(AMSADetector* detector, detectors_) {
-		if(!detector->isInitialized())
+		if(!detector->initializationFinished())
 			return;
 	}
 	// OK, everyone's ready to go.
@@ -166,6 +153,8 @@ void AMSA1DScanController::doNextPosition()
 			detector->setAcquisitionTime(regionScanConfig_->regionTime(currentRegion_));
 	}
 
+	qDebug() << "    AMSA: Moving to position:" << currentPosition();
+
 	// move to the position.
 	moveAction_ = new AMInternalControlMoveAction(control_, currentPosition());
 	connect(moveAction_, SIGNAL(succeeded()), this, SLOT(onMoveActionSucceeded()));
@@ -199,6 +188,8 @@ void AMSA1DScanController::onMoveActionFailed()
 
 void AMSA1DScanController::doNextAcquisition()
 {
+	qDebug() << "    AMSA: Starting acquisition at" << currentPosition();
+
 	// trigger all the detectors
 	detectorAcquisitionFailed_ = false;
 	triggeringDetectors_ = true;
@@ -223,7 +214,7 @@ void AMSA1DScanController::onDetectorAcquisitionFinished(bool succeeded)
 
 	// Find out if all triggered detectors are done acquiring:
 	foreach(AMSADetector* detector, detectors_) {
-		if(detector->type() == AMSADetector::Triggered && !detector->isAcquisitionFinished())
+		if(detector->type() == AMSADetector::Triggered && !detector->lastAcquisitionFinished())
 			return;
 	}
 	// OK, everyone's ready to go.
@@ -233,6 +224,8 @@ void AMSA1DScanController::onDetectorAcquisitionFinished(bool succeeded)
 
 void AMSA1DScanController::onAllAcquisitionFinished()
 {
+	qDebug() << "    AMSA: Acquisition finished at" << currentPosition();
+
 	// Disconnect signals from all detectors
 	foreach(AMSADetector* detector, detectors_)
 		disconnect(detector, SIGNAL(acquisitionFinished(bool)), this, SLOT(onDetectorAcquisitionFinished(bool)));
@@ -261,7 +254,7 @@ void AMSA1DScanController::onAllAcquisitionFinished()
 		}
 	}
 
-	scan_->rawData()->setAxisValue(0, scanIndex.i(), control_->value());	// taking the axis value from the control feedback.
+	scan_->rawData()->setAxisValue(0, scanIndex.i(), currentPosition());	// taking the axis value from the control feedback.
 
 	scan_->rawData()->endInsertRows();
 
@@ -284,7 +277,7 @@ void AMSA1DScanController::cancelImplementation()
 		moveAction_->cancel();
 	}
 	else {
-		setCancelled();	// we can be done right now.
+		customCleanupImplementation();
 	}
 }
 
@@ -295,7 +288,45 @@ void AMSA1DScanController::onMoveActionStateChangedWhileCancelling()
 		moveAction_->deleteLater();
 		moveAction_ = 0;
 
+		customCleanupImplementation();
+	}
+}
+
+void AMSA1DScanController::setCustomInitializationFinished(bool succeeded)
+{
+	if(state() != Initializing)
+		return;
+
+	if(succeeded)
+		internalInitializeImplementation();
+	else
+		setFailed();
+}
+
+void AMSA1DScanController::internalInitializeImplementation()
+{
+	// initialize detectors:
+	detectorInitializationFailed_ = false;
+	initializingDetectors_ = true;
+	foreach(AMSADetector* detector, detectors_) {
+		connect(detector, SIGNAL(initialized(bool)), this, SLOT(onDetectorInitialized(bool)));
+		if(!detector->init()) {
+			AMErrorMon::alert(this, -12, QString("Could not start the scan because the detector '%1' could not be initialized. Please report this bug to your beamline's software developers.").arg(detector->description()));
+			setFailed();
+			return;
+		}
+	}
+	initializingDetectors_ = false;
+	onDetectorInitialized();
+}
+
+void AMSA1DScanController::setCustomCleanupFinished()
+{
+	if(state() == Cancelling) {
 		setCancelled();
+	}
+	else if(state() == Running) {
+		setFinished();
 	}
 }
 

@@ -60,6 +60,29 @@ protected:
 	/// Returns the control position for the currentRegion_ and currentStepInRegion_
 	double currentPosition() const;
 
+
+
+
+	// Hooks to let subclasses add their own initialization and cleanup.
+	/////////////////////////////
+
+	/// Re-implement to start any custom initialization required. (This is run before initializing the detectors).
+	virtual bool customInitializeImplementation() { setCustomInitializationFinished(true); return true; }
+	/// IMPORTANT: If you re-implement customInitializeImplementation(), call after any custom initialization is complete.
+	void setCustomInitializationFinished(bool succeeded);
+
+
+	/// Re-implement to start any custom cleanup required. (Will run after the scan is done, or after it is cancelled.)
+	virtual void customCleanupImplementation() { setCustomCleanupFinished(); }
+	/// IMPORTANT: If you re-implement customCleanupImplementation(), call after any custom cleanup is complete.
+	void setCustomCleanupFinished();
+
+
+private:
+	/// Implements initialization of detectors after customInitializeImplementation() has run.
+	void internalInitializeImplementation();
+
+
 protected slots:
 	void onMoveActionSucceeded();
 	void onMoveActionFailed();

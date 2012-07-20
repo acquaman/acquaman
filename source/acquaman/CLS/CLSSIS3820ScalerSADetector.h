@@ -34,9 +34,14 @@ public:
 	virtual bool setAcquisitionTime(double seconds);
 
 	virtual bool isConnected() const;
-	virtual bool isInitialized() const { return isInitialized_; }
-	virtual bool isAcquisitionFinished() const { return isAcquisitionFinished_; }
+
+	virtual bool initializationFinished() const { return initializationFinished_; }
+	virtual bool initializationSucceeded() const { return initializationSucceeded_; }
+
 	virtual bool isAcquiring() const { return isAcquiring_; }
+
+	virtual bool lastAcquisitionFinished() const { return lastAcquisitionFinished_; }
+	virtual bool lastAcquisitionSucceeded() const { return lastAcquisitionSucceeded_; }
 
 	virtual bool acquireNow();
 	virtual void cancelAcquisition();
@@ -68,8 +73,12 @@ protected slots:
 
 protected:
 	bool isAcquiring_;
-	bool isAcquisitionFinished_;
-	bool isInitialized_;
+
+	bool initializationFinished_;
+	bool initializationSucceeded_;
+
+	bool lastAcquisitionFinished_;
+	bool lastAcquisitionSucceeded_;
 
 	bool sendTrigger_;
 

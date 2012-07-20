@@ -3,14 +3,20 @@
 #include "beamline/AMPVControl.h"
 #include <QStringBuilder>
 
+#include <QDebug>
+
 CLSSIS3820ScalerSADetector::CLSSIS3820ScalerSADetector(const QString &name, const QString &description, const QString &pvBaseName, int channelNumber, bool sendTrigger, QObject* parent, double initializeTimeoutSeconds)
 	: AMSADetector(name, description, parent)
 {
 	measurementInfo_.units = "counts";
 
-	isAcquiring_ = 0;
-	isAcquisitionFinished_ = 0;
-	isInitialized_ = 0;
+	initializationFinished_ = false;
+	initializationSucceeded_ = false;
+
+	isAcquiring_ = false;
+
+	lastAcquisitionFinished_ = false;
+	lastAcquisitionSucceeded_ = false;
 
 	sendTrigger_ = sendTrigger;
 	channelNumber_ = channelNumber;
@@ -20,7 +26,7 @@ CLSSIS3820ScalerSADetector::CLSSIS3820ScalerSADetector(const QString &name, cons
 
 	QString channelString = QString("%1").arg(channelNumber_, 2, 10, QChar('0'));
 
-	delayPV_ = new AMSinglePVControl(name % "_delay", pvBaseName % ":enable", this);
+	delayPV_ = new AMSinglePVControl(name % "_delay", pvBaseName % ":delay", this);
 	startPV_ = new AMSinglePVControl(name % "_startScan", pvBaseName % ":startScan", this);
 	continuousPV_ = new AMSinglePVControl(name % "_continuous", pvBaseName % ":continuous", this);
 	enablePV_ = new AMSinglePVControl(name % "_enable", pvBaseName % channelString % ":enable", this);
@@ -35,7 +41,10 @@ CLSSIS3820ScalerSADetector::~CLSSIS3820ScalerSADetector() {
 
 bool CLSSIS3820ScalerSADetector::init()
 {
-	isInitialized_ = false;
+	qDebug() << "    CSDA: Init" << name();
+
+	initializationFinished_ = false;
+	initializationSucceeded_ = false;
 
 	connect(delayPV_, SIGNAL(connected(bool)), this, SLOT(reviewConnected()));
 	connect(startPV_, SIGNAL(connected(bool)), this, SLOT(reviewConnected()));
@@ -43,6 +52,7 @@ bool CLSSIS3820ScalerSADetector::init()
 	connect(enablePV_, SIGNAL(connected(bool)), this, SLOT(reviewConnected()));
 	connect(feedbackPV_, SIGNAL(connected(bool)), this, SLOT(reviewConnected()));
 
+	/// \todo Move initialization timeout to scan controller? Make sure this cannot get called multiple times over top of itself? What about cancelling?
 	QTimer::singleShot(initializeTimeoutSeconds_*1000, this, SLOT(onInitializationTimeout()));
 
 	reviewConnected();
@@ -75,20 +85,25 @@ void CLSSIS3820ScalerSADetector::reviewInitialized()
 		disconnect(enablePV_, SIGNAL(valueChanged(double)), this, SLOT(reviewInitialized()));
 		disconnect(continuousPV_, SIGNAL(valueChanged(double)), this, SLOT(reviewInitialized()));
 
-		isInitialized_ = true;
+		initializationFinished_ = true;
+		initializationSucceeded_ = true;
 		emit initialized(true);
 	}
 }
 
 void CLSSIS3820ScalerSADetector::onInitializationTimeout()
 {
-	if(!isInitialized_) {
+	if(!initializationFinished_ && !initializationSucceeded_) {
 		disconnect(delayPV_, 0, this, 0);
 		disconnect(startPV_, 0, this, 0);
 		disconnect(continuousPV_, 0, this, 0);
 		disconnect(enablePV_, 0, this, 0);
 		disconnect(feedbackPV_, 0, this, 0);
 
+		qDebug() << "    CSDA: Initialization timed out for " << name();
+
+		initializationFinished_ = true;
+		initializationSucceeded_ = false;
 		emit initialized(false);
 	}
 }
@@ -116,11 +131,12 @@ bool CLSSIS3820ScalerSADetector::isConnected() const
 
 bool CLSSIS3820ScalerSADetector::acquireNow()
 {
-	if(!isInitialized_ || isAcquiring_)
+	if(!initializationSucceeded_ || isAcquiring_)
 		return false;
 
 	isAcquiring_ = true;
-	isAcquisitionFinished_ = false;
+	lastAcquisitionFinished_ = false;
+	lastAcquisitionSucceeded_ = false;
 
 	if(sendTrigger_)
 		return startPV_->move(1) == AMControl::NoFailure;
@@ -147,7 +163,9 @@ void CLSSIS3820ScalerSADetector::onFeedbackValueChanged(double newValue)
 		return;
 
 	isAcquiring_ = false;
-	isAcquisitionFinished_ = true;
+
+	lastAcquisitionFinished_ = true;
+	lastAcquisitionSucceeded_ = true;
 	data_ = newValue;
 
 	emit acquisitionFinished(true);
@@ -162,5 +180,7 @@ void CLSSIS3820ScalerSADetector::cancelAcquisition()
 		startPV_->move(0);
 
 	isAcquiring_ = false;
+	lastAcquisitionFinished_ = true;
+	lastAcquisitionSucceeded_ = false;
 }
 

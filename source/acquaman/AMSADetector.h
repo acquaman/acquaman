@@ -35,8 +35,13 @@ public:
 	virtual bool setAcquisitionTime(double seconds) = 0;
 
 	virtual bool isConnected() const = 0;
-	virtual bool isInitialized() const = 0;
-	virtual bool isAcquisitionFinished() const = 0;
+
+	virtual bool initializationFinished() const = 0;
+	virtual bool initializationSucceeded() const = 0;
+
+	virtual bool lastAcquisitionFinished() const = 0;
+	virtual bool lastAcquisitionSucceeded() const = 0;
+
 	virtual bool isAcquiring() const = 0;
 
 	virtual bool acquireNow() = 0;
