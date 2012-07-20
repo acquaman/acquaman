@@ -108,6 +108,7 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	AMCompositeControl("photonSource", "", parent, "EPU and Monochromator")
 {
 	AMPVwStatusControl* directEnergy = new AMPVwStatusControl("beamlineEV", "REIXS:MONO1610-I20-01:energy:fbk", "REIXS:energy", "REIXS:status", "REIXS:energy:stop", 0, 1000);
+	directEnergy->setSettlingTime(0);
 	directEnergy_ = directEnergy;
 	directEnergy_->setDescription("Beamline Energy");
 
@@ -697,6 +698,7 @@ REIXSXASDetectors::REIXSXASDetectors(QObject *parent) : AMCompositeControl("xasD
 	TEY_ = new AMReadOnlyPVControl("TEY", "BL1610-ID-2:mcs18:fbk", this, "TEY");
 	TFY_ = new AMReadOnlyPVControl("TFY", "BL1610-ID-2:mcs19:fbk", this, "TFY");
 	I0_ = new AMReadOnlyPVControl("I0", "BL1610-ID-2:mcs16:fbk", this, "I0");
+	scalerContinuousMode_ = new AMSinglePVControl("scalerContinuous", "BL1610-ID-2:mcs:continuous", this, 0.1);
 
 	addChildControl(TEY_);
 	addChildControl(TFY_);

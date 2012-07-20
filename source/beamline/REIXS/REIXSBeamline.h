@@ -109,12 +109,17 @@ public:
 	/// Feedback for TFY
 	AMReadOnlyPVControl* TFYFeedback() { return TFY_; }
 
+	/// Control for continuous mode
+	AMSinglePVControl* scalerContinuousMode() { return scalerContinuousMode_; }
+
 	/// A list of AMSADetectors used by the XAS scan controller: TEY, TFY, I0.
 	QList<AMSADetector*> saDetectors() { return saDetectors_; }
 
 protected:
 	AMReadOnlyPVControl* I0_, * TEY_, *TFY_;
+	AMSinglePVControl* scalerContinuousMode_;
 	QList<AMSADetector*> saDetectors_;
+
 };
 
 /// The REIXSHexapod control is just a container for the set of coupled controls which make up the hexapod:

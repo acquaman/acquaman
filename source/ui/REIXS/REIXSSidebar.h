@@ -50,6 +50,8 @@ protected slots:
 	void onBeamOnButtonClicked();
 	void onBeamOffButtonClicked();
 
+	void onScalerContinuousButtonToggled(bool on);
+
 	// Responding to beamline events:
 	///////////////////////////////////
 
@@ -61,6 +63,9 @@ protected slots:
 
 	/// Monitors REIXSBeamline::bl()->valvesAndShutters()::beamOnChanged() to light up the "beam on" summary LED.
 	void onBeamOnChanged(bool isOn);
+
+	/// When the scaler's continuous mode is changed
+	void onScalerContinuousModeChanged(double on);
 };
 
 #endif // REIXSSIDEBAR_H
