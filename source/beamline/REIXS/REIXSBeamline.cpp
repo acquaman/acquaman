@@ -231,31 +231,37 @@ REIXSHexapod::REIXSHexapod(QObject* parent)
 	x_->setDescription("Hexapod X");
 	x_->setAllowsMovesWhileMoving(true);
 	x_->setSettlingTime(0.1);
+	x_->setMoveStartTolerance(1e-4);
 
 	y_ = new AMPVwStatusControl("hexapodY", baseName+"Y:sp", baseName+"Y", baseName+"moving", QString(), this, 0.01);
 	y_->setDescription("Hexapod Y");
 	y_->setAllowsMovesWhileMoving(true);
 	y_->setSettlingTime(0.1);
+	y_->setMoveStartTolerance(1e-4);
 
 	z_ = new AMPVwStatusControl("hexapodZ", baseName+"Z:sp", baseName+"Z", baseName+"moving", QString(), this, 0.01);
 	z_->setDescription("Hexapod Z");
 	z_->setAllowsMovesWhileMoving(true);
 	z_->setSettlingTime(0.1);
+	z_->setMoveStartTolerance(1e-4);
 
 	u_ = new AMPVwStatusControl("hexapodU", baseName+"U:sp", baseName+"U", baseName+"moving", QString(), this, 0.05);
 	u_->setDescription("Hexapod U");
 	u_->setAllowsMovesWhileMoving(true);
 	u_->setSettlingTime(0.1);
+	u_->setMoveStartTolerance(1e-4);
 
 	v_ = new AMPVwStatusControl("hexapodV", baseName+"V:sp", baseName+"V", baseName+"moving", QString(), this, 0.05);
 	v_->setDescription("Hexapod V");
 	v_->setAllowsMovesWhileMoving(true);
 	v_->setSettlingTime(0.1);
+	v_->setMoveStartTolerance(1e-4);
 
 	w_ = new AMPVwStatusControl("hexapodW", baseName+"W:sp", baseName+"W", baseName+"moving", QString(), this, 0.05);
 	w_->setDescription("Hexapod W");
 	w_->setAllowsMovesWhileMoving(true);
 	w_->setSettlingTime(0.1);
+	w_->setMoveStartTolerance(1e-4);
 
 	r_ = new AMPVControl("hexapodR", baseName+"R:sp", baseName+"R", QString(), this, 0.001);
 	r_->setDescription("Hexapod R");
