@@ -7,6 +7,7 @@ class AMControl;
 class AMSADetector;
 class AMRegionScanConfiguration;
 class AMInternalControlMoveAction;
+class AMCDFDataStore;
 
 class AMSA1DScanController : public AMScanController
 {
@@ -44,23 +45,31 @@ protected:
 	virtual void cancelImplementation();
 
 
-	// New functions:
+	// Helper functions:
 	////////////////////////////
-
-	/// The scan controller creates measurements for each detector in the data store. Re-implement this if you want to control which raw data sources are added to the scan. The base class creates one raw data source for each detector.
-	virtual void createRawDataSources();
-	/// Re-implement this if you want to add analysis blocks to the scan after it's created. The base class does not create any.
-	virtual void createAnalysisBlocks() {}
-
 
 	/// Start moving to the next measurement position
 	void doNextPosition();
 	/// Once in position, trigger the next acquisition (from each detector).
 	void doNextAcquisition();
-	/// Returns the control position for the currentRegion_ and currentStepInRegion_
-	double currentPosition() const;
+
+	/// Ensure the data file is fully stored to disk
+	void flushRawData();
+
+	/// Calculates the progress and estimated time remaining; emits progress() and timeRemaining().
+	void emitProgressUpdate();
+
+	/// Calculates the total number of steps through all regions, and stores in totalSteps_. Used for prediction of estimated time remaining.
+	void computeTotalSteps();
 
 
+	// Hooks to let subclasses determine which raw data sources and analysis blocks are created:
+	/////////////////////////////
+
+	/// The scan controller creates measurements for each detector in the data store. Re-implement this if you want to control which raw data sources are added to the scan. The base class creates one raw data source for each detector.
+	virtual void createRawDataSources();
+	/// Re-implement this if you want to add analysis blocks to the scan after it's created. The base class does not create any.
+	virtual void createAnalysisBlocks() {}
 
 
 	// Hooks to let subclasses add their own initialization and cleanup.
@@ -77,8 +86,17 @@ protected:
 	/// IMPORTANT: If you re-implement customCleanupImplementation(), call after any custom cleanup is complete.
 	void setCustomCleanupFinished();
 
+	// Hooks to let subclasses modify the stepping behaviour
+	/////////////////////////////
+
 	/// Subclasses can optionally provide a different control to use (for example, at each step or region). The default implementation simply always uses the one that was provided in the constructor.
 	virtual AMControl* control() { return control_; }
+
+	/// Returns the control position for the currentRegion_ and currentStepInRegion_. The default implementation returns AMRegionScanConfiguration::regionStart(currentRegion_) + AMRegionScanConfiguration::regionDelta(currentRegion_)*currentStepInRegion_.
+	virtual double currentPosition() const;
+
+	/// Returns the acquisition time (dwell time) for the currentRegion_ and currentStepInRegion_. The default implementation returns AMRegionScanConfiguration::regionTime(currentRegion_).
+	virtual double currentAcquisitionTime() const;
 
 
 private:
@@ -101,6 +119,11 @@ protected:
 	QList<AMSADetector*> detectors_;
 	AMRegionScanConfiguration* regionScanConfig_;
 
+	AMCDFDataStore* dataStore_;
+
+	QDateTime timeStarted_;
+	int totalSteps_;
+	int stepsCompleted_;
 
 	AMInternalControlMoveAction* moveAction_;
 

@@ -20,6 +20,8 @@ AMSA1DScanController::AMSA1DScanController(AMControl *control, QList<AMSADetecto
 	currentRegion_ = -1;
 	currentStepInRegion_ = -1;
 
+	stepsCompleted_ = -1;
+
 	initializingDetectors_ = false;
 	triggeringDetectors_ = false;
 
@@ -34,7 +36,7 @@ AMSA1DScanController::AMSA1DScanController(AMControl *control, QList<AMSADetecto
 
 	scan_->setFilePath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime())+".cdf");
 	scan_->setFileFormat("amCDFv1");
-	scan_->replaceRawDataStore(new AMCDFDataStore(AMUserSettings::userDataFolder % "/" % scan_->filePath(), false));
+	scan_->replaceRawDataStore((dataStore_ = new AMCDFDataStore(AMUserSettings::userDataFolder % "/" % scan_->filePath(), false)));
 	scan_->setRunId(AMUser::user()->currentRunId());
 
 	// set the scan configuration within the scan:
@@ -131,6 +133,8 @@ void AMSA1DScanController::onDetectorInitialized(bool succeeded)
 
 bool AMSA1DScanController::startImplementation()
 {
+	computeTotalSteps();
+
 	setStarted();
 
 	doNextPosition();
@@ -141,21 +145,26 @@ bool AMSA1DScanController::startImplementation()
 void AMSA1DScanController::doNextPosition()
 {
 	currentStepInRegion_++;
+	stepsCompleted_++;
 
 	if(currentRegion_<0 || currentPosition() > regionScanConfig_->regionEnd(currentRegion_)) { // Entering new region.
 		currentRegion_++;
 		currentStepInRegion_ = 0;
 
 		if(currentRegion_ == regionScanConfig_->regionCount()) { // all done!
-			// set progress, save file?
-			setFinished();
+			flushRawData();
+			emit progress(totalSteps_, totalSteps_);
+			customCleanupImplementation();
 			return;
 		}
 
 		// set acquisition time for this region.
+		double acquisitionTime = currentAcquisitionTime();
 		foreach(AMSADetector* detector, detectors_)
-			detector->setAcquisitionTime(regionScanConfig_->regionTime(currentRegion_));
+			detector->setAcquisitionTime(acquisitionTime);
 	}
+
+	emitProgressUpdate();
 
 //	qDebug() << "    AMSA: Moving to position:" << currentPosition();
 
@@ -277,6 +286,7 @@ void AMSA1DScanController::cancelImplementation()
 	}
 
 	scan_->rawData()->endInsertRows();	// harmless if not inserting.
+	flushRawData();
 
 	// currently moving?
 	if(moveAction_) {
@@ -335,6 +345,54 @@ void AMSA1DScanController::setCustomCleanupFinished()
 	else if(state() == Running) {
 		setFinished();
 	}
+}
+
+void AMSA1DScanController::flushRawData()
+{
+	if(!dataStore_->flushToDisk())
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 38, "Error saving the currently-running scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to your beamline's software developers."));
+}
+
+void AMSA1DScanController::emitProgressUpdate()
+{
+	emit progress(stepsCompleted_, totalSteps_);
+
+	double secondsElapsed = timeStarted_.msecsTo(QDateTime::currentDateTime()) / 1000.0;
+	double estimatedTotalSeconds = secondsElapsed / (double(stepsCompleted_)/totalSteps_);
+
+	emit timeRemaining(estimatedTotalSeconds - secondsElapsed);
+}
+
+void AMSA1DScanController::computeTotalSteps()
+{
+	// We'll need to modify currentRegion_ and currentStepInRegion_ before calling currentPosition(). Remember old values to avoid side-effects for this function.
+	int restoreCurrentRegion = currentRegion_;
+	int restoreCurrentStep = currentStepInRegion_;
+
+	currentRegion_ = 0;
+	currentStepInRegion_ = 0;
+	totalSteps_ = 0;
+
+	while(currentRegion_ < regionScanConfig_->regionCount()) {
+		currentStepInRegion_++;
+		totalSteps_++;
+
+		if(currentPosition() > regionScanConfig_->regionEnd(currentRegion_)) { // Entering new region.
+			currentRegion_++;
+			currentStepInRegion_ = 0;
+		}
+	}
+
+	// totalSteps_ is now ready.
+
+	// Restore to avoid side effects:
+	currentRegion_ = restoreCurrentRegion;
+	currentStepInRegion_ = restoreCurrentStep;
+}
+
+double AMSA1DScanController::currentAcquisitionTime() const
+{
+	return regionScanConfig_->regionTime(currentRegion_);
 }
 
 
