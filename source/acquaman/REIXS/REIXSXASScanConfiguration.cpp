@@ -20,7 +20,7 @@ REIXSXASScanConfiguration::REIXSXASScanConfiguration(const REIXSXASScanConfigura
 	regions_->setDefaultUnits(other.regions()->defaultUnits());
 	regions_->setDefaultTimeUnits(other.regions()->defaultTimeUnits());
 	for(int x = 0; x < other.regionCount(); x++)
-		regions_->addRegion(x, other.regionStart(x), other.regionDelta(x), other.regionEnd(x));
+		regions_->addRegion(x, other.regionStart(x), other.regionDelta(x), other.regionEnd(x), other.regionTime(x));
 	////////////////////////
 }
 
