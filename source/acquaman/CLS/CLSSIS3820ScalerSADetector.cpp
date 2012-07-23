@@ -3,7 +3,6 @@
 #include "beamline/AMPVControl.h"
 #include <QStringBuilder>
 
-#include <QDebug>
 
 CLSSIS3820ScalerSADetector::CLSSIS3820ScalerSADetector(const QString &name, const QString &description, const QString &pvBaseName, int channelNumber, bool sendTrigger, QObject* parent, double initializeTimeoutSeconds)
 	: AMSADetector(name, description, parent)
@@ -41,8 +40,6 @@ CLSSIS3820ScalerSADetector::~CLSSIS3820ScalerSADetector() {
 
 bool CLSSIS3820ScalerSADetector::init()
 {
-	qDebug() << "    CSDA: Init" << name();
-
 	initializationFinished_ = false;
 	initializationSucceeded_ = false;
 
@@ -99,8 +96,6 @@ void CLSSIS3820ScalerSADetector::onInitializationTimeout()
 		disconnect(continuousPV_, 0, this, 0);
 		disconnect(enablePV_, 0, this, 0);
 		disconnect(feedbackPV_, 0, this, 0);
-
-		qDebug() << "    CSDA: Initialization timed out for " << name();
 
 		initializationFinished_ = true;
 		initializationSucceeded_ = false;
