@@ -27,13 +27,17 @@ REIXSXESCalibration2::REIXSXESCalibration2(QObject *parent) :
 	// create all default gratings
 
 	// LEG:
-	gratings_ << REIXSXESGratingInfo("LEG", 593.02, 5025.6, 86, 350, QVector3D(20.529, -25.865, 12.892), QVector3D(0,0,0), QVector3D(-0.175, -0.175, -0.41), 3.973429915, 0.731106463, -0.15, 80, 292);//4.05666014, 0.349
+	gratings_ << REIXSXESGratingInfo("LEG", 593.02, 5025.6, 86, 350, QVector3D(20.529, -25.865, 12.892), QVector3D(0,0,0), QVector3D(-0.160, -0.22, -0.41), 4.0130868, 0.664364, -0.15, 80, 292);//3.973429915, 0.731106463 for u=-0.175, v=-0.175
+
 	// IMP:
-	gratings_ << REIXSXESGratingInfo("Impurity", 892.86, 6699.8, 87, 350, QVector3D(-14.970, -25.723, 13.507), QVector3D(0,0,0), QVector3D(0.1, -0.261, -0.41), 3.02695496, 0.64573899, -0.15, 83, 784); //2.947598786, 1.608997311
+	gratings_ << REIXSXESGratingInfo("Impurity", 892.86, 6699.8, 87, 350, QVector3D(-14.970, -25.723, 13.507), QVector3D(0,0,0), QVector3D(0.068, -0.22, -0.41), 2.946376, 1.094057, -0.15, 83, 784); //(3.02695496, 0.64573899 for U=0.1, v=0.261)
+
 	// MEG:
-	gratings_ << REIXSXESGratingInfo("MEG", 1187.819, 10018, 88, 350, QVector3D(20.374, 2.697, -18.923), QVector3D(0,-0.014,-1), QVector3D(0.225, -0.1, -0.41), 1.835492434, -0.444231574, -0.15, 82, 2000);//1.813308264, -0.019207904
+	gratings_ << REIXSXESGratingInfo("MEG", 1187.819, 10018, 88, 350, QVector3D(20.374, 2.697, -18.923), QVector3D(0,-0.014,-1), QVector3D(0.2, -0.1, -0.41), 1.737218, 0.632947, -0.15, 82, 2000);//(1.835492434, -0.444231574 for U=0.225)
+
 	// HEG*(HRHEG)
 	gratings_ << REIXSXESGratingInfo("HEG*(HRHEG)", 2600, 11461, 88.25, 350, QVector3D(20.278, 26.808, 16.465), QVector3D(0,-0.014,1), QVector3D(0.26,-0.08,-0.41), 1.84104, -1.007515, -0.15, 50, 1000); /// \todo angleCorrection, heightCorrection
+
 	// HRMEG
 	gratings_ << REIXSXESGratingInfo("HRMEG", 5400, 10029, 88, 350, QVector3D(-15.220, 26.535, 16.709), QVector3D(0,0,0), QVector3D(0.12,-0.261,-0.41), 1.521048, -0.453829, -0.15, 50, 10000);
 
