@@ -100,6 +100,8 @@ bool AMSA1DScanController::initializeImplementation()
 	// create analysis blocks as defined here:
 	createAnalysisBlocks();
 
+	timeStarted_ = QDateTime::currentDateTime();
+
 	// give subclasses a chance to do any other initialization here:
 	return customInitializeImplementation();
 }
