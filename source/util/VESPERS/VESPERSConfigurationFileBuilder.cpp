@@ -45,14 +45,14 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 
 	if (pvNameAxis1_.contains("Mono")){
 
-		delay = 0.05;
+		delay = 0.1;
 		status1  = "SMTR1607-`-B20-20:status";
 		status2 = "";
 	}
 
 	else{
 
-		delay = 0.03;
+		delay = 0.1;
 		status1.replace(":mm", ":status");
 		status2.replace(":mm", ":status");
 	}
@@ -121,7 +121,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 		contents.append("# Action Dwell SetPV \"BL1607-B2-1:dwell:startScan\" \"1\"\n");
 		contents.append("# Action Dwell Delay 0.01\n");
 		contents.append("# Action Dwell WaitPV \"BL1607-B2-1:dwell:startScan\" \"Stopped\"\n");
-		contents.append("# Action Dwell Delay 0.01\n");
+		contents.append("# Action Dwell Delay 0.05\n");
 
 		if (singleElement_){
 
@@ -134,7 +134,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 		if (roperCCD_){
 
 			contents.append("# Action Dwell SetPV \"DIO1607-01:CCD:ExtSync\" \"0\"\n");
-			contents.append("# Action Dwell Delay 0.01\n");
+			contents.append("# Action Dwell Delay 0.05\n");
 		}
 	}
 
@@ -177,9 +177,9 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 
 		contents.append(QString("# Action Dwell Delay %1\n").arg(delay));
 		contents.append("# Action Dwell SetPV \"BL1607-B2-1:dwell:startScan\" \"1\"\n");
-		contents.append("# Action Dwell Delay 0.01\n");
+		contents.append("# Action Dwell Delay 0.05\n");
 		contents.append("# Action Dwell WaitPV \"BL1607-B2-1:dwell:startScan\" \"Stopped\"\n");
-		contents.append("# Action Dwell Delay 0.01\n");
+		contents.append("# Action Dwell Delay 0.05\n");
 
 		if (singleElement_){
 
@@ -192,7 +192,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 		if (roperCCD_){
 
 			contents.append("# Action Dwell SetPV \"DIO1607-01:CCD:ExtSync\" \"0\"\n");
-			contents.append("# Action Dwell Delay 0.01\n");
+			contents.append("# Action Dwell Delay 0.05\n");
 		}
 	}
 
