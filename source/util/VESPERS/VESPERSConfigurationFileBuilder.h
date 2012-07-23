@@ -23,7 +23,7 @@ public:
 	explicit VESPERSConfigurationFileBuilder(QObject *parent = 0);
 
 	/// Based on the flags set, builds a configuration file.  The result is saved in the provided directory as template.cfg.
-	void buildConfigurationFile(const QString &path);
+	bool buildConfigurationFile();
 
 	/// Sets the number of dimensions.
 	void setDimensions(int dim) { dimensions_ = dim; }
