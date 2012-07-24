@@ -180,8 +180,6 @@ bool SGMAppController::startupRegisterDatabases(){
 	// Register the detectors to their views
 	success &= AMDetectorViewSupport::registerClass<AMSingleControlBriefDetectorView, AMSingleControlDetector>();
 	success &= AMDetectorViewSupport::registerClass<AMSingleReadOnlyControlBriefDetectorView, AMSingleReadOnlyControlDetector>();
-	success &= AMDetectorViewSupport::registerClass<SGMMCPBriefDetectorView, SGMMCPDetector>();
-	success &= AMDetectorViewSupport::registerClass<SGMMCPDetailedDetectorView, SGMMCPDetector>();
 	success &= AMDetectorViewSupport::registerClass<CLSPGTBriefDetectorView, CLSPGTDetector>();
 	success &= AMDetectorViewSupport::registerClass<CLSPGTDetailedDetectorView, CLSPGTDetector>();
 	success &= AMDetectorViewSupport::registerClass<CLSOceanOptics65000BriefDetectorView, CLSOceanOptics65000Detector>();
