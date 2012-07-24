@@ -111,6 +111,8 @@ protected slots:
 	void onStatusValueChanged(double newVal);
 	void onControlEnumChanged();
 
+	void onControlMoveStarted();
+
 protected:
 	void mouseReleaseEvent ( QMouseEvent * event );
 
@@ -128,6 +130,8 @@ protected:
 	QLabel* unitsLabel_;
 	QLabel* statusLabel_;
 	AMExtendedControlEditorStyledInputDialog* dialog_;
+
+	int moveCounter_;
 };
 
 #endif // AMEXTENDEDCONTROLEDITOR_H

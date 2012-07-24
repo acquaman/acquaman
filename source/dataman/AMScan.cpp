@@ -556,7 +556,8 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 		if (scanRank() == 2){
 
 			MPlotImageBasicwDefault* image = new MPlotImageBasicwDefault();
-			image->setModel(new AMDataSourceImageDatawDefault(dataSource, 0), true);
+			image->setDefaultValue(-1);
+			image->setModel(new AMDataSourceImageDatawDefault(dataSource, -1), true);
 			plot->addItem(image);
 			plot->doDelayedAutoScale();
 		}
