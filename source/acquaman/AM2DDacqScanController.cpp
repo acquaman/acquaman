@@ -257,26 +257,27 @@ void AM2DDacqScanController::prefillScanPoints()
 		case AM2DScanConfiguration::X: {
 
 			AMnDIndex insertIndex;
-			int xCount = 0;
-			int yCount = 0;
 			double xStart = internal2DConfig_->xStart();
 			double xStep = internal2DConfig_->xStep();
 			double xEnd = internal2DConfig_->xEnd();
 			double yStart = internal2DConfig_->yStart();
 			double yStep = internal2DConfig_->yStep();
 			double yEnd = internal2DConfig_->yEnd();
-			double floatNumX = (xEnd-xStart)/xStep;
-			double floatNumY = (yEnd-yStart)/yStep;
+			int xCount = int((xEnd-xStart)/xStep);
+			int yCount = int((yEnd-yStart)/yStep);
 
-			if (fabs((floatNumX-int(floatNumX))) < 0.1*xStep)
-				xCount = int(floatNumX) + 1;
+			if ((xEnd-xStart-(xCount+0.01)*xStep) < 0)
+				xCount += 1;
 			else
-				xCount = int(floatNumX) + 2;
+				xCount += 2;
 
-			if (fabs((floatNumY-int(floatNumY))) < 0.1*yStep)
-				yCount = int(floatNumY) + 1;
+			if ((yEnd-yStart-(yCount+0.01)*yStep) < 0)
+				yCount += 1;
 			else
-				yCount = int(floatNumY) + 2;
+				yCount += 2;
+
+			if (scan_->rawData()->scanSize(0) == 0)
+				scan_->rawData()->beginInsertRows(xCount, -1);
 
 			for (int j = 0; j < yCount; j++){
 
@@ -285,18 +286,18 @@ void AM2DDacqScanController::prefillScanPoints()
 					insertIndex = AMnDIndex(i, j);
 					// MB: Modified May 13 2012 for changes to AMDataStore. Assumes data store already has sufficient space for scan axes beyond the first axis.
 //					scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
-					if(insertIndex.i() >= scan_->rawData()->scanSize(0))
-						scan_->rawData()->beginInsertRows(insertIndex.i()-scan_->rawData()->scanSize(0)+1, -1);
+//					if(insertIndex.i() >= scan_->rawData()->scanSize(0))
+//						scan_->rawData()->beginInsertRows(insertIndex.i()-scan_->rawData()->scanSize(0)+1, -1);
 					////////////////
 					scan_->rawData()->setAxisValue(0, insertIndex.i(), xStart + i*xStep);
 					scan_->rawData()->setAxisValue(1, insertIndex.j(), yStart + j*yStep);
 
 					for (int di = 0; di < scan_->dataSourceCount(); di++)
 						scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), -1);
-
-					scan_->rawData()->endInsertRows();
 				}
 			}
+
+			scan_->rawData()->endInsertRows();
 
 			break;
 		}
@@ -304,26 +305,27 @@ void AM2DDacqScanController::prefillScanPoints()
 		case AM2DScanConfiguration::Y: {
 
 			AMnDIndex insertIndex;
-			int xCount = 0;
-			int yCount = 0;
 			double xStart = internal2DConfig_->xStart();
 			double xStep = internal2DConfig_->xStep();
 			double xEnd = internal2DConfig_->xEnd();
 			double yStart = internal2DConfig_->yStart();
 			double yStep = internal2DConfig_->yStep();
 			double yEnd = internal2DConfig_->yEnd();
-			double floatNumX = (xEnd-xStart)/xStep;
-			double floatNumY = (yEnd-yStart)/yStep;
+			int xCount = int((xEnd-xStart)/xStep);
+			int yCount = int((yEnd-yStart)/yStep);
 
-			if ((floatNumX-int(floatNumX)) == 0)
-				xCount = int(floatNumX) + 1;
+			if ((xEnd-xStart-(xCount+0.01)*xStep) < 0)
+				xCount += 1;
 			else
-				xCount = int(floatNumX) + 2;
+				xCount += 2;
 
-			if ((floatNumY-int(floatNumY)) == 0)
-				yCount = int(floatNumY) + 1;
+			if ((yEnd-yStart-(yCount+0.01)*yStep) < 0)
+				yCount += 1;
 			else
-				yCount = int(floatNumY) + 2;
+				yCount += 2;
+
+			if (scan_->rawData()->scanSize(0) == 0)
+				scan_->rawData()->beginInsertRows(xCount, -1);
 
 			for (int i = 0; i < yCount; i++){
 
@@ -332,18 +334,18 @@ void AM2DDacqScanController::prefillScanPoints()
 					insertIndex = AMnDIndex(i, j);
 					// MB: Modified May 13 2012 for changes to AMDataStore. Assumes data store already has sufficient space for scan axes beyond the first axis.
 //					scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
-					if(insertIndex.i() >= scan_->rawData()->scanSize(0))
-						scan_->rawData()->beginInsertRows(insertIndex.i()-scan_->rawData()->scanSize(0)+1, -1);
+//					if(insertIndex.i() >= scan_->rawData()->scanSize(0))
+//						scan_->rawData()->beginInsertRows(insertIndex.i()-scan_->rawData()->scanSize(0)+1, -1);
 					////////////////
 					scan_->rawData()->setAxisValue(0, insertIndex.i(), xStart + i*xStep);
 					scan_->rawData()->setAxisValue(1, insertIndex.j(), yStart + j*yStep);
 
 					for (int di = 0; di < scan_->dataSourceCount(); di++)
 						scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), 0);
-
-					scan_->rawData()->endInsertRows();
 				}
 			}
+
+			scan_->rawData()->endInsertRows();
 
 			break;
 		}

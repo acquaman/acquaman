@@ -587,7 +587,7 @@ bool AMCDFDataStore::beginInsertRowsImplementation(long numRows, long atRowIndex
 		long varNum = measurementVarNums_.at(measurementId);
 		s = CDFsetzVarAllocBlockRecords(cdfId_, varNum, beginningOfNewRecords, beginningOfNewRecords+numberOfNewRecords-1L);
 		if(s != CDF_OK)
-			AMErrorMon::debug(0, -110, QString("AMCDFDataStore: Could not allocate records for beginInsertRows. CDF error was: %2.").arg(s));
+			AMErrorMon::debug(0, -110, QString("AMCDFDataStore: Warning while allocating records for beginInsertRows. CDF error or information was: %1. Beginning of new records = %2. Number of records = %3").arg(s).arg(beginningOfNewRecords).arg(numberOfNewRecords));
 
 		// if not appending:
 		if(insertRecordNumber != beginningOfNewRecords) {
