@@ -130,7 +130,11 @@ bool AMAppController::startupCreateUserInterface() {
 
 
 void AMAppController::goToWorkflow() {
-	mw_->setCurrentPane(workflowManagerView_);
+	// This check can be removed when all the old workflow stuff is finally removed
+	if(mw_->windowPaneModel()->allPanes().contains(workflowManagerView_))
+		mw_->setCurrentPane(workflowManagerView_);
+	else
+		mw_->setCurrentPane(workflowView_);
 }
 
 #include "dataman/AMScan.h"

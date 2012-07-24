@@ -33,7 +33,7 @@ AMRegionScanConfiguration::AMRegionScanConfiguration(QObject *parent, bool setup
 }
 
 AMRegionScanConfiguration::AMRegionScanConfiguration(const AMRegionScanConfiguration &original, bool setup)
-	: AMScanConfiguration(original.parent())
+	: AMScanConfiguration()
 {
 	if (setup){
 		setUserScanName(original.userScanName());
