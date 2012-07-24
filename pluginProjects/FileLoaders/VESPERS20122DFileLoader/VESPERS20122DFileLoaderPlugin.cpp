@@ -72,18 +72,6 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 	lineTokenized = line.split(" ");
 	line = lineTokenized.at(2);
 
-	if (line == "TS1607-2-B21-01:H:user:mm"){
-
-		scan->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
-		scan->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
-	}
-
-	else if (line == "SVM1607-2-B21-02:mm"){
-
-		scan->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
-		scan->rawData()->addScanAxis(AMAxisInfo("Z", 0, "Vertical Position", "mm"));
-	}
-
 	in.readLine();
 	in.readLine();
 	in.readLine();
@@ -102,12 +90,12 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 	// added by Mark (May 13, 2012) to determine the number of y lines, since we need to know that before creating the scan axes.
 	/////////////////////
 	QStringList fileLines;
-	fileLines << line;	// we have the first valid line already.
+//	fileLines << line;	// we have the first valid line already.
 	while(!in.atEnd())
 		fileLines << in.readLine();
 
-	foreach(QString line, fileLines) {
-		QStringList lineTokenized = line.split(", ");
+	foreach(QString currentLine, fileLines) {
+		QStringList lineTokenized = currentLine.split(", ");
 		double startingXValue;
 		// Used for determining how long the x axis is.
 		if(x == 0 && xLength == 0)
@@ -119,13 +107,35 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 			x = 0;
 			y++;
 		}
-	}
-	yLength = y+1; // y is the largest y-index.
 
-	scan->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
-	scan->rawData()->addScanAxis(AMAxisInfo("V", yLength, "Vertical Position", "mm"));
+		x++;
+
+		if (xLength != 0 && x == xLength){
+
+			x = 0;
+			y++;
+		}
+	}
+
+	yLength = y; // y is the largest y-index.
+
+	if (line == "TS1607-2-B21-01:H:user:mm"){
+
+		scan->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+		scan->rawData()->addScanAxis(AMAxisInfo("V", yLength, "Vertical Position", "mm"));
+	}
+
+	else if (line == "SVM1607-2-B21-02:mm"){
+
+		scan->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
+		scan->rawData()->addScanAxis(AMAxisInfo("Z", yLength, "Vertical Position", "mm"));
+	}
+
 	scan->rawData()->beginInsertRows(xLength, -1);
 	///////////////////
+
+	x = 0;
+	y = 0;
 
 	foreach(QString line, fileLines) {
 
@@ -138,12 +148,12 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 		lineTokenized = line.split(", "); // MB: is more efficient
 
 		// Used for determining how long the x axis is.
-		if (xLength == 0 && lineTokenized.at(1).toDouble() == double(scan->rawData()->axisValue(0, 0))){
+//		if (xLength == 0 && lineTokenized.at(1).toDouble() == double(scan->rawData()->axisValue(0, 0))){
 
-			xLength = x;
-			x = 0;
-			y++;
-		}
+//			xLength = x;
+//			x = 0;
+//			y++;
+//		}
 
 		// Add in the data at the right spot.
 		AMnDIndex axisValueIndex(x, y);
@@ -160,7 +170,7 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 		// Advance to the next spot.
 		x++;
 
-		if (xLength != 0 && x == xLength){
+		if (x == xLength){
 
 			x = 0;
 			y++;
