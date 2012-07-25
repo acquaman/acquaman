@@ -230,6 +230,34 @@ AMNumber AM2DNormalizationAB::value(const AMnDIndex &indexes) const
 	return double(data_->value(indexes))/double(normalizer_->value(indexes));
 }
 
+bool AM2DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+{
+	if (indexStart.rank() != 2 || indexEnd.rank() != 2)
+		return false;
+
+	if(!isValid())
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i()
+			|| (unsigned)indexEnd.j() >= (unsigned)axes_.at(1).size || (unsigned)indexStart.j() > (unsigned)indexEnd.j())
+		return false;
+#endif
+
+	int totalSize = indexStart.totalPointsTo(indexEnd);
+
+	QVector<double> data = QVector<double>(totalSize);
+	QVector<double> normalizer = QVector<double>(totalSize);
+
+	data_->values(indexStart, indexEnd, data.data());
+	normalizer_->values(indexStart, indexEnd, normalizer.data());
+
+	for (int i = 0; i < totalSize; i++)
+		outputValues[i] = (normalizer.at(i) != 0) ? data.at(i)/normalizer.at(i) : 0;
+
+	return true;
+}
+
 AMNumber AM2DNormalizationAB::axisValue(int axisNumber, int index) const
 {
 	if (!isValid())

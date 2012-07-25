@@ -5,6 +5,7 @@
 #include "util/AMErrorMonitor.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "dataman/AMScan.h"
+#include "dataman/datastore/AMCDFDataStore.h"
 
 #include <QFile>
 #include <QFileInfo>
@@ -27,11 +28,11 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 	if (!scan)
 		return false;
 
-	// Clear the old scan axes to ensure we don't have any extras.
-	scan->clearRawDataCompletely();
+	AMCDFDataStore *cdfData = new AMCDFDataStore;
+
 	// Moved down below, once we know how long the axes are: (Mark, May 13 2012)
-//	scan->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
-//	scan->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
+//	cdfData->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+//	cdfData->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
 
 
 	QFileInfo sourceFileInfo(scan->filePath());
@@ -85,7 +86,7 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 
 	// Include all for now.
 	for (int i = 0; i < scan->rawDataSourceCount(); i++)
-		scan->rawData()->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description()));
+		cdfData->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description()));
 
 	// added by Mark (May 13, 2012) to determine the number of y lines, since we need to know that before creating the scan axes.
 	/////////////////////
@@ -121,17 +122,17 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 
 	if (line == "TS1607-2-B21-01:H:user:mm"){
 
-		scan->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
-		scan->rawData()->addScanAxis(AMAxisInfo("V", yLength, "Vertical Position", "mm"));
+		cdfData->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+		cdfData->addScanAxis(AMAxisInfo("V", yLength, "Vertical Position", "mm"));
 	}
 
 	else if (line == "SVM1607-2-B21-02:mm"){
 
-		scan->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
-		scan->rawData()->addScanAxis(AMAxisInfo("Z", yLength, "Vertical Position", "mm"));
+		cdfData->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
+		cdfData->addScanAxis(AMAxisInfo("Z", yLength, "Vertical Position", "mm"));
 	}
 
-	scan->rawData()->beginInsertRows(xLength, -1);
+	cdfData->beginInsertRows(xLength, -1);
 	///////////////////
 
 	x = 0;
@@ -148,7 +149,7 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 		lineTokenized = line.split(", "); // MB: is more efficient
 
 		// Used for determining how long the x axis is.
-//		if (xLength == 0 && lineTokenized.at(1).toDouble() == double(scan->rawData()->axisValue(0, 0))){
+//		if (xLength == 0 && lineTokenized.at(1).toDouble() == double(cdfData->axisValue(0, 0))){
 
 //			xLength = x;
 //			x = 0;
@@ -157,15 +158,15 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 
 		// Add in the data at the right spot.
 		AMnDIndex axisValueIndex(x, y);
-		// MB: not needed: all rows added already: scan->rawData()->beginInsertRowsAsNecessaryForScanPoint(axisValueIndex);
+		// MB: not needed: all rows added already: cdfData->beginInsertRowsAsNecessaryForScanPoint(axisValueIndex);
 
-		scan->rawData()->setAxisValue(0, axisValueIndex.i(), lineTokenized.at(1).toDouble());
-		scan->rawData()->setAxisValue(1, axisValueIndex.j(), lineTokenized.at(2).toDouble());
+		cdfData->setAxisValue(0, axisValueIndex.i(), lineTokenized.at(1).toDouble());
+		cdfData->setAxisValue(1, axisValueIndex.j(), lineTokenized.at(2).toDouble());
 
 		for (int i = 0; i < scan->rawDataSourceCount(); i++)
-			scan->rawData()->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+3).toDouble());
+			cdfData->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+3).toDouble());
 
-		// MB: moving down to where we're all done filling everything: scan->rawData()->endInsertRows();
+		// MB: moving down to where we're all done filling everything: cdfData->endInsertRows();
 
 		// Advance to the next spot.
 		x++;
@@ -186,23 +187,23 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 
 			// Add in the data at the right spot.
 			AMnDIndex axisValueIndex(x, y);
-//MB: 		scan->rawData()->beginInsertRowsAsNecessaryForScanPoint(axisValueIndex);
+//MB: 		cdfData->beginInsertRowsAsNecessaryForScanPoint(axisValueIndex);
 
-			scan->rawData()->setAxisValue(0, axisValueIndex.i(), scan->rawData()->axisValue(0, axisValueIndex.i()));
-			scan->rawData()->setAxisValue(1, axisValueIndex.j(), scan->rawData()->axisValue(1, axisValueIndex.j()-1));
+			cdfData->setAxisValue(0, axisValueIndex.i(), cdfData->axisValue(0, axisValueIndex.i()));
+			cdfData->setAxisValue(1, axisValueIndex.j(), cdfData->axisValue(1, axisValueIndex.j()-1));
 
 			for (int i = 0; i < scan->rawDataSourceCount(); i++)
-				scan->rawData()->setValue(axisValueIndex, i, AMnDIndex(), -1);
+				cdfData->setValue(axisValueIndex, i, AMnDIndex(), -1);
 
-//MB:		scan->rawData()->endInsertRows();
+//MB:		cdfData->endInsertRows();
 		}
 	}
 
-	scan->rawData()->endInsertRows();
+	cdfData->endInsertRows();
 
 	file.close();
 
-	return true;
+	return scan->replaceRawDataStore(cdfData);
 }
 
 bool VESPERS20122DFileLoaderFactory::accepts(AMScan *scan)

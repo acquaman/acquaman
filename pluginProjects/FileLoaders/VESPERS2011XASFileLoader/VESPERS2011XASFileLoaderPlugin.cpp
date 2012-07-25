@@ -5,6 +5,7 @@
 #include "util/AMErrorMonitor.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "dataman/AMScan.h"
+#include "dataman/datastore/AMCDFDataStore.h"
 
 #include <QFile>
 #include <QFileInfo>
@@ -24,9 +25,8 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 	if (!scan)
 		return false;
 
-	// Clear the old scan axes to ensure we don't have any extras.
-	scan->clearRawDataCompletely();
-	scan->rawData()->addScanAxis( AMAxisInfo("eV", 0, "Incident Energy", "eV") );
+	AMCDFDataStore *cdfData = new AMCDFDataStore;
+	cdfData->addScanAxis( AMAxisInfo("eV", 0, "Incident Energy", "eV") );
 
 	QFileInfo sourceFileInfo(scan->filePath());
 	if(sourceFileInfo.isRelative())
@@ -141,7 +141,7 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 
 		// The last raw data source is a spectrum.
 		for (int i = 0; i < scan->rawDataSourceCount()-1; i++)
-			scan->rawData()->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description()));
+			cdfData->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description()));
 
 		// Note!  Not general!
 		QList<AMAxisInfo> axisInfo;
@@ -151,14 +151,14 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 		ai.isUniform = true;
 		axisInfo << ai;
 
-		scan->rawData()->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(scan->rawDataSourceCount()-1)->name(), scan->rawDataSources()->at(scan->rawDataSourceCount()-1)->description(), "eV", axisInfo));
+		cdfData->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(scan->rawDataSourceCount()-1)->name(), scan->rawDataSources()->at(scan->rawDataSourceCount()-1)->description(), "eV", axisInfo));
 	}
 
 	else if (usingFourElement){
 
 		// The last 5 raw data sources are spectra.
 		for (int i = 0; i < scan->rawDataSourceCount()-5; i++)
-			scan->rawData()->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description()));
+			cdfData->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description()));
 
 		// Note!  Not general!
 		QList<AMAxisInfo> axisInfo;
@@ -169,12 +169,12 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 		axisInfo << ai;
 
 		for (int i = scan->rawDataSourceCount()-5; i < scan->rawDataSourceCount(); i++)
-			scan->rawData()->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description(), "eV", axisInfo));
+			cdfData->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description(), "eV", axisInfo));
 	}
 	else{
 
 		for (int i = 0; i < scan->rawDataSourceCount(); i++)
-			scan->rawData()->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description()));
+			cdfData->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description()));
 
 	}
 	while (!in.atEnd()){
@@ -184,16 +184,16 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 
 		lineTokenized << line.split(", ");
 
-		scan->rawData()->beginInsertRows(1, -1);
+		cdfData->beginInsertRows(1, -1);
 
-		scan->rawData()->setAxisValue(0, axisValueIndex, lineTokenized.at(1).toDouble());
+		cdfData->setAxisValue(0, axisValueIndex, lineTokenized.at(1).toDouble());
 
 		// This isn't the most efficient way of putting the spectra data in, but it will do for the time being.
 		if (usingSingleElement){
 
 			// Only going to rawDataSourceCount-1 because the last raw data source is the 2D spectra scan and requires its own method of entering the data.
 			for (int i = 0; i < scan->rawDataSourceCount()-1; i++)
-				scan->rawData()->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+2).toDouble());
+				cdfData->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+2).toDouble());
 
 			spectraTokenized.clear();
 			spectraLine = spectraStream.readLine();
@@ -202,14 +202,14 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 			for (int j = 0; j < 2048; j++)
 				data[j] = spectraTokenized.at(j).toInt();
 
-			scan->rawData()->setValue(axisValueIndex, scan->rawDataSourceCount()-1, data.constData());
+			cdfData->setValue(axisValueIndex, scan->rawDataSourceCount()-1, data.constData());
 		}
 
 		else if (usingFourElement){
 
 			// Only going to rawDataSourceCount-5 because the last 5 raw data sources are the 2D spectra scan and requires its own method of entering the data.
 			for (int i = 0; i < scan->rawDataSourceCount()-5; i++)
-				scan->rawData()->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+2).toDouble());
+				cdfData->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+2).toDouble());
 
 			spectraTokenized.clear();
 			spectraLine = spectraStream.readLine();
@@ -224,21 +224,21 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 				raw4[j] = spectraTokenized.at(j+8192).toInt();
 			}
 
-			scan->rawData()->setValue(axisValueIndex, scan->rawDataSourceCount()-5, data.constData());
-			scan->rawData()->setValue(axisValueIndex, scan->rawDataSourceCount()-4, raw1.constData());
-			scan->rawData()->setValue(axisValueIndex, scan->rawDataSourceCount()-3, raw2.constData());
-			scan->rawData()->setValue(axisValueIndex, scan->rawDataSourceCount()-2, raw3.constData());
-			scan->rawData()->setValue(axisValueIndex, scan->rawDataSourceCount()-1, raw4.constData());
+			cdfData->setValue(axisValueIndex, scan->rawDataSourceCount()-5, data.constData());
+			cdfData->setValue(axisValueIndex, scan->rawDataSourceCount()-4, raw1.constData());
+			cdfData->setValue(axisValueIndex, scan->rawDataSourceCount()-3, raw2.constData());
+			cdfData->setValue(axisValueIndex, scan->rawDataSourceCount()-2, raw3.constData());
+			cdfData->setValue(axisValueIndex, scan->rawDataSourceCount()-1, raw4.constData());
 		}
 
 		else{
 
 			// In transmission, there is no 2D spectra.  Go through all the data sources.
 			for (int i = 0; i < scan->rawDataSourceCount(); i++)
-				scan->rawData()->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+2).toDouble());
+				cdfData->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+2).toDouble());
 		}
 
-		scan->rawData()->endInsertRows();
+		cdfData->endInsertRows();
 
 		axisValueIndex++;
 		lineTokenized.clear();
@@ -249,7 +249,7 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 	if (usingSingleElement || usingFourElement)
 		spectra.close();
 
-	return true;
+	return scan->replaceRawDataStore(cdfData);
 }
 
 bool VESPERS2011XASFileLoaderFactory::accepts(AMScan *scan)

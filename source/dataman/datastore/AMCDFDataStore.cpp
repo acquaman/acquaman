@@ -277,7 +277,6 @@ AMNumber AMCDFDataStore::value(const AMnDIndex &scanIndex, int measurementId, co
 
 bool AMCDFDataStore::values(const AMnDIndex &scanIndexStart, const AMnDIndex &scanIndexEnd, int measurementId, const AMnDIndex &measurementIndexStart, const AMnDIndex &measurementIndexEnd, double *outputValues) const
 {
-
 	if(scanIndexStart.rank() != axes_.count() || scanIndexEnd.rank() != axes_.count())
 		return false;
 	if(measurementId >= measurements_.count())
