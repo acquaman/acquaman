@@ -274,6 +274,84 @@ AMNumber AM1DExpressionAB::value(const AMnDIndex& indexes) const {
 	}
 }
 
+bool AM1DExpressionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+{
+	if(!isValid())	// will catch most invalid situations: non matching sizes, invalid inputs, invalid expressions.
+		return false;
+
+	if(indexStart.rank() != 1 || indexEnd.rank() != 1)
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if((unsigned)indexEnd.i() >= (unsigned)size_ || indexStart.i() > indexEnd.i())
+			return false;
+#endif
+
+	int totalSize = indexEnd.i() - indexStart.i() + 1;
+	int offset = indexStart.i();
+
+	// can we get it directly? Single-value expressions don't require the parser.
+	if(direct_) {
+		// info on which variable to use is contained in directVar_.
+		if(directVar_.useAxisValue) {
+			for(int i=0; i<totalSize; i++)
+				outputValues[i] = sources_.at(directVar_.sourceIndex)->axisValue(0, i+offset);	/// \todo Create a AMDataSource::axisValues().
+			return true;
+		}
+		else {
+			return sources_.at(directVar_.sourceIndex)->values(indexStart, indexEnd, outputValues);
+		}
+	}
+
+	// otherwise we need the parser
+	else {
+		// block-copy all of the input data sources (that are actually used in the expression) into allVarData.
+		QList<QVector<double> > allVarData;
+		for(int v=0; v<usedVariables_.count(); ++v) {
+			QVector<double> varData(totalSize);
+
+			AMParserVariable* usedVar = usedVariables_.at(v);
+			if(usedVar->useAxisValue) {
+				for(int i=0; i<totalSize; i++)
+					varData[i] = sources_.at(usedVar->sourceIndex)->axisValue(0, i+offset);
+			}
+			else {
+				bool success = sources_.at(usedVar->sourceIndex)->values(indexStart, indexEnd, varData.data());
+				if(!success)
+					return false;
+			}
+			allVarData << varData;
+		}
+
+		// loop through and parse all values
+		for(int i=0; i<totalSize; ++i) {	// loop through points
+
+			for(int v=0,cc=usedVariables_.count(); v<cc; ++v) {
+				usedVariables_.at(v)->value = allVarData.at(v).at(i);
+			}
+
+			// evaluate using the parser:
+			double rv;
+			try {
+				rv = parser_.Eval();
+			}
+			catch(mu::Parser::exception_type& e) {
+				QString explanation = QString("AM1DExpressionAB Analysis Block: error evaluating value: %1: '%2'.  We found '%3' at position %4.").arg(QString::fromStdString(e.GetMsg()), QString::fromStdString(e.GetExpr()), QString::fromStdString(e.GetToken())).arg(e.GetPos());
+				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, e.GetCode(), explanation));
+				return false;
+			}
+
+			if (rv == std::numeric_limits<qreal>::infinity() || rv == -std::numeric_limits<qreal>::infinity() || rv == std::numeric_limits<qreal>::quiet_NaN())
+				rv = 0;
+
+			outputValues[i] = rv;
+		}
+
+		return true;
+	}
+}
+
+
 // When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 AMNumber AM1DExpressionAB::axisValue(int axisNumber, int index) const  {
 	if(!isValid())	// will catch most invalid situations: non matching sizes, invalid inputs, invalid expressions.
