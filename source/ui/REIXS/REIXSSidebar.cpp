@@ -47,6 +47,11 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 	mirrorSelector_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoMirrorSelector());
 	ui->beamlineFormLayout->setWidget(3, QFormLayout::FieldRole, mirrorSelector_);
 
+	epuPolarizationEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->epuPolarization());
+	ui->beamlineFormLayout->setWidget(5, QFormLayout::FieldRole, epuPolarizationEditor_);
+	epuPolarizationAngleEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->epuPolarizationAngle());
+	ui->beamlineFormLayout->setWidget(6, QFormLayout::FieldRole, epuPolarizationAngleEditor_);
+
 
 	// Make connections
 	//////////////////////

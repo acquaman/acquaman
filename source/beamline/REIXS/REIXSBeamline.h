@@ -52,11 +52,11 @@ public:
 	AMControl* monoGratingSelector() { return monoGratingSelector_; }
 	AMControl* monoMirrorTranslation() { return monoMirrorTranslation_; }
 	AMControl* monoMirrorSelector() { return monoMirrorSelector_; }
-
-
+	AMControl* epuPolarization() { return epuPolarization_; }
+	AMControl* epuPolarizationAngle() { return epuPolarizationAngle_; }
 
 protected:
-	AMControl* directEnergy_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_;
+	AMControl* directEnergy_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_, *epuPolarization_, *epuPolarizationAngle_;
 	REIXSBrokenMonoControl* energy_;
 
 };
