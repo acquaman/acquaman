@@ -51,6 +51,7 @@ public:
 	virtual const double* data() const = 0;
 
 signals:
+	void connected(bool isConnected);
 	void initialized(bool succeeded);
 	void acquisitionFinished(bool succeeded);
 

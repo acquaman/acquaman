@@ -9,14 +9,31 @@ class AMRegionScanConfiguration;
 class AMInternalControlMoveAction;
 class AMCDFDataStore;
 
+/// Prototype of a 1-dimensional scan controller that steps through the regions defined in AMRegionScanConfiguration, using an AMControl for motion and an arbitrary set of detectors. Detectors need to implement the AMSADetector interface.
+/*! This can be subclassed by re-implementing
+- customInitializeImplementation(),
+- customCleanupImplementation()
+to do beamline-specific work prior to, and after, the scan runs.
+
+-control(),
+-currentPosition(), and
+-currentAcquisitionTime()
+
+can also be re-implemented; this might be sufficient to build an EXAFS scan controller with variable step sizes and acquisition (dwell) times.
+
+This uses the CDF data store and file loader (AMCDFDataStore, AMCDFv1FileLoader), so you don't need to write a custom file loader plugin.
+*/
 class AMSA1DScanController : public AMScanController
 {
     Q_OBJECT
 public:
+	/// Build a scan controller to move through the regions of \c scanConfig, using \c control to cause the motion, and a set of \c detectors to acquire the values at each step.
 	AMSA1DScanController(AMControl* control, QList<AMSADetector*> detectors, AMRegionScanConfiguration* scanConfig, QObject* parent = 0);
 	virtual ~AMSA1DScanController();
 
+	/// When using the base implementation, you can use this to set the control that is used to move through the scan. Only works (and returns true) before the scan is initialized or run.
 	bool setControl(AMControl* control);
+	/// Set the detectors that are used to measure values at each step of the scan. Only works (and returns true) before the scan is initialized or run.
 	bool setDetectors(const QList<AMSADetector*>& detectors);
 
 
@@ -29,9 +46,14 @@ protected:
 	// Re-implemented functions
 	/////////////////////////////
 
-	/// Implement to initialize the beamline and prepare the scan to run.  (ie: transition from Constructed to Initialized). Returns whether or not initialization can occur, not if it is initialized. If you return true, scan object should be a valid object at this point.  After initialization is complete, call setInitialized().
+	/// Implement to initialize the beamline and prepare the scan to run.  (ie: transition from Constructed to Initialized). Returns whether or not initialization can occur.
+	/*! AMSA1DScanController has three (asynchronous) stages to initialization:
+	  - Wait for the control and all the detectors to be connected. (Ends after successful reviewConnected()).
+	  - Run any sub-class specific initialization (customInitializeImplementation(); ends after setCustomInitializationFinished().)
+	  - Initialize all the detectors, using AMSADetector::init(), and wait for them to be initialized. (internalInitializeImplementation(), ends after successful onDetectorInitialized()).
+	  */
 	virtual bool initializeImplementation();
-	/// Implement to start a scan (ie: transition from Initialized to Running).  Returns whether or not the scan can be started, not that the scan has started. After the scan is running, call setStarted().
+	/// Implement to start a scan (ie: transition from Initialized to Running).
 	virtual bool startImplementation();
 
 //	/// Implement to define whether or not your scan controller is capable of pausing (defaults to not able to pause). If you canPause (return true), then you need to implement a pauseImplementation and a resumeImplementation.
@@ -105,6 +127,11 @@ private:
 
 
 protected slots:
+	/// Called while waiting for the detectors and control to connect, when any changes.
+	void reviewConnected();
+	/// Called while waiting for connection: if the control and all the detectors is not connected by connectionTimeoutSeconds_
+	void onConnectionTimeout();
+
 	void onMoveActionSucceeded();
 	void onMoveActionFailed();
 	void onMoveActionStateChangedWhileCancelling();
@@ -135,6 +162,8 @@ protected:
 
 	bool detectorInitializationFailed_;
 	bool detectorAcquisitionFailed_;
+
+	double connectionTimeoutSeconds_;
 
 };
 

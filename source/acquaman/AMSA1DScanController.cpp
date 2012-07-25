@@ -17,6 +17,8 @@ AMSA1DScanController::AMSA1DScanController(AMControl *control, QList<AMSADetecto
 	detectors_ = detectors;
 	regionScanConfig_ = scanConfig;
 
+	connectionTimeoutSeconds_ = 3;
+
 	currentRegion_ = -1;
 	currentStepInRegion_ = -1;
 
@@ -75,8 +77,8 @@ bool AMSA1DScanController::setDetectors(const QList<AMSADetector *> &detectors)
 
 bool AMSA1DScanController::initializeImplementation()
 {
-	if(!control() || !control()->canMove()) {
-		AMErrorMon::alert(this, -11, "Could not start the scan because the control to move was not valid or connected. Please report this bug to your beamline's software developers.");
+	if(!control()) {
+		AMErrorMon::alert(this, -11, "Could not start the scan because the control to move was not valid. Please report this bug to your beamline's software developers.");
 		return false;
 	}
 
@@ -100,10 +102,14 @@ bool AMSA1DScanController::initializeImplementation()
 	// create analysis blocks as defined here:
 	createAnalysisBlocks();
 
-	timeStarted_ = QDateTime::currentDateTime();
+	// Wait (if necessary) for all detectors and the control to be connected. For long-lived controls and detectors, this will usually be instant.
+	connect(control(), SIGNAL(connected(bool)), this, SLOT(reviewConnected()));
+	foreach(AMSADetector* detector, detectors_)
+		connect(detector, SIGNAL(connected(bool)), this, SLOT(reviewConnected()));
+	QTimer::singleShot(connectionTimeoutSeconds_*1000, this, SLOT(onConnectionTimeout()));
+	reviewConnected();
 
-	// give subclasses a chance to do any other initialization here:
-	return customInitializeImplementation();
+	return true;
 }
 
 void AMSA1DScanController::onDetectorInitialized(bool succeeded)
@@ -137,6 +143,7 @@ bool AMSA1DScanController::startImplementation()
 {
 	computeTotalSteps();
 
+	timeStarted_ = QDateTime::currentDateTime();
 	setStarted();
 
 	doNextPosition();
@@ -395,6 +402,45 @@ void AMSA1DScanController::computeTotalSteps()
 double AMSA1DScanController::currentAcquisitionTime() const
 {
 	return regionScanConfig_->regionTime(currentRegion_);
+}
+
+void AMSA1DScanController::reviewConnected()
+{
+	// Are they all connected?
+	if(!control()->canMove())
+		return;
+	foreach(AMSADetector* detector, detectors_)
+		if(!detector->isConnected())
+			return;
+
+	// OK, everyone's ready.
+	disconnect(control(), SIGNAL(connected(bool)), this, SLOT(reviewConnected()));
+	foreach(AMSADetector* detector, detectors_)
+		disconnect(detector, SIGNAL(connected(bool)), this, SLOT(reviewConnected()));
+
+	// At this point, give custom subclasses a chance to do their own initialization.
+	if(!customInitializeImplementation()) {
+		setFailed();
+	}
+}
+
+void AMSA1DScanController::onConnectionTimeout()
+{
+	if(state() != Initializing)
+		return;
+
+	disconnect(control(), SIGNAL(connected(bool)), this, SLOT(reviewConnected()));
+	foreach(AMSADetector* detector, detectors_)
+		disconnect(detector, SIGNAL(connected(bool)), this, SLOT(reviewConnected()));
+
+	bool allConnected = control()->canMove();
+	foreach(AMSADetector* detector, detectors_)
+		allConnected &= detector->isConnected();
+
+	if(!allConnected) {
+		AMErrorMon::alert(this, -111, QString("Could not start the scan because either the control or the detectors were not connected after %1 seconds. Please report this problem to your beamline's software developers.").arg(connectionTimeoutSeconds_));
+		setFailed();
+	}
 }
 
 

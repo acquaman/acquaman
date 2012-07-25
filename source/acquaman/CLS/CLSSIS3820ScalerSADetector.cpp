@@ -12,6 +12,8 @@ CLSSIS3820ScalerSADetector::CLSSIS3820ScalerSADetector(const QString &name, cons
 	initializationFinished_ = false;
 	initializationSucceeded_ = false;
 
+	wasConnected_ = false;
+
 	isAcquiring_ = false;
 
 	lastAcquisitionFinished_ = false;
@@ -31,6 +33,13 @@ CLSSIS3820ScalerSADetector::CLSSIS3820ScalerSADetector(const QString &name, cons
 	enablePV_ = new AMSinglePVControl(name % "_enable", pvBaseName % channelString % ":enable", this);
 	feedbackPV_ = new AMSinglePVControl(name % "_feedback", pvBaseName % channelString % ":fbk", this);
 
+	// monitor connection status; emit connected().
+	connect(delayPV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected()));
+	connect(startPV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected()));
+	connect(continuousPV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected()));
+	connect(enablePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected()));
+	connect(feedbackPV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected()));
+
 	connect(feedbackPV_, SIGNAL(valueChanged(double)), this, SLOT(onFeedbackValueChanged(double)));
 }
 
@@ -43,38 +52,23 @@ bool CLSSIS3820ScalerSADetector::init()
 	initializationFinished_ = false;
 	initializationSucceeded_ = false;
 
-	connect(delayPV_, SIGNAL(connected(bool)), this, SLOT(reviewConnected()));
-	connect(startPV_, SIGNAL(connected(bool)), this, SLOT(reviewConnected()));
-	connect(continuousPV_, SIGNAL(connected(bool)), this, SLOT(reviewConnected()));
-	connect(enablePV_, SIGNAL(connected(bool)), this, SLOT(reviewConnected()));
-	connect(feedbackPV_, SIGNAL(connected(bool)), this, SLOT(reviewConnected()));
+	if(!isConnected()) {
+		initializationFinished_ = true;
+		return false;
+	}
+
+	connect(enablePV_, SIGNAL(valueChanged(double)), this, SLOT(reviewInitialized()));
+	connect(continuousPV_, SIGNAL(valueChanged(double)), this, SLOT(reviewInitialized()));
+	continuousPV_->move(0);
+	enablePV_->move(1);
 
 	/// \todo Move initialization timeout to scan controller? Make sure this cannot get called multiple times over top of itself? What about cancelling?
 	QTimer::singleShot(initializeTimeoutSeconds_*1000, this, SLOT(onInitializationTimeout()));
 
-	reviewConnected();
+	reviewInitialized();
 
 	return true;
 }
-
-void CLSSIS3820ScalerSADetector::reviewConnected()
-{
-	if(isConnected()) {
-		disconnect(delayPV_, SIGNAL(connected(bool)), this, SLOT(reviewConnected()));
-		disconnect(startPV_, SIGNAL(connected(bool)), this, SLOT(reviewConnected()));
-		disconnect(continuousPV_, SIGNAL(connected(bool)), this, SLOT(reviewConnected()));
-		disconnect(enablePV_, SIGNAL(connected(bool)), this, SLOT(reviewConnected()));
-		disconnect(feedbackPV_, SIGNAL(connected(bool)), this, SLOT(reviewConnected()));
-
-		connect(enablePV_, SIGNAL(valueChanged(double)), this, SLOT(reviewInitialized()));
-		connect(continuousPV_, SIGNAL(valueChanged(double)), this, SLOT(reviewInitialized()));
-		continuousPV_->move(0);
-		enablePV_->move(1);
-
-		reviewInitialized();
-	}
-}
-
 
 void CLSSIS3820ScalerSADetector::reviewInitialized()
 {
@@ -91,11 +85,8 @@ void CLSSIS3820ScalerSADetector::reviewInitialized()
 void CLSSIS3820ScalerSADetector::onInitializationTimeout()
 {
 	if(!initializationFinished_ && !initializationSucceeded_) {
-		disconnect(delayPV_, 0, this, 0);
-		disconnect(startPV_, 0, this, 0);
-		disconnect(continuousPV_, 0, this, 0);
-		disconnect(enablePV_, 0, this, 0);
-		disconnect(feedbackPV_, 0, this, 0);
+		disconnect(enablePV_, SIGNAL(valueChanged(double)), this, SLOT(reviewInitialized()));
+		disconnect(continuousPV_, SIGNAL(valueChanged(double)), this, SLOT(reviewInitialized()));
 
 		initializationFinished_ = true;
 		initializationSucceeded_ = false;
@@ -177,5 +168,12 @@ void CLSSIS3820ScalerSADetector::cancelAcquisition()
 	isAcquiring_ = false;
 	lastAcquisitionFinished_ = true;
 	lastAcquisitionSucceeded_ = false;
+}
+
+void CLSSIS3820ScalerSADetector::onPVConnected()
+{
+	bool nowConnected = isConnected();
+	if(wasConnected_ != nowConnected)
+		emit connected(wasConnected_ = nowConnected);
 }
 

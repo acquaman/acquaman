@@ -62,13 +62,15 @@ protected slots:
 	/// Whenever the feedback value changes. The scaler IOC software guarantees it will change whenever the acquisition is finished (even if the old valud is the same as the new one). We use this to detect acquistion complete + new value received.
 	void onFeedbackValueChanged(double newValue);
 
-	/// Called during initialization whenever the connection state of anything changes.
-	void reviewConnected();
 	/// Called during initialization whenever enablePV_ and continuousPV_ change.
 	void reviewInitialized();
 
 	/// Called when the initialization times out (failed to connect, or enable and set mode by this timeout).
 	void onInitializationTimeout();
+
+
+	/// Called whenever the connection state of any of the controls changes.
+	void onPVConnected();
 
 
 protected:
@@ -87,6 +89,8 @@ protected:
 	double data_;
 
 	double initializeTimeoutSeconds_;
+
+	bool wasConnected_;
 
 	AMPVControl* delayPV_, *startPV_, *enablePV_, *continuousPV_, *feedbackPV_;
 };
