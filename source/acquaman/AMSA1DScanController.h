@@ -97,6 +97,9 @@ protected:
 	// Hooks to let subclasses add their own initialization and cleanup.
 	/////////////////////////////
 
+	/// Re-implement to set the scan's meta-data (name(), number(), sampleId(), runId(), etc.) differently than the base class.
+	virtual void initializeScanMetaData();
+
 	/// Re-implement to start any custom initialization required. (This is run before initializing the detectors).
 	virtual bool customInitializeImplementation() { setCustomInitializationFinished(true); return true; }
 	/// IMPORTANT: If you re-implement customInitializeImplementation(), call after any custom initialization is complete.

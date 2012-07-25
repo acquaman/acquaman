@@ -31,6 +31,11 @@ protected:
 //	double repeatMoveSettlingTime_, singleMoveSettlingTime_, tolerance_;
 
 
+	/// Fills the scan meta-data (scan name, number, sampleId) either automatically, or from the pre-set configuration values.
+	void initializeScanMetaData();
+
+protected:
+	REIXSXASScanConfiguration* config_;
 
 };
 

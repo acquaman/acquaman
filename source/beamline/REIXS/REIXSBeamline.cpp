@@ -28,6 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 REIXSBeamline::REIXSBeamline() :
 	AMBeamline("REIXSBeamline")
 {
+	currentSampleId_ = -1;
+
 	// Upstream controls
 	photonSource_ = new REIXSPhotonSource(this);
 	addChildControl(photonSource_);

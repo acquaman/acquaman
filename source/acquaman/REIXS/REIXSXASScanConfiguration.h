@@ -7,6 +7,13 @@
 class REIXSXASScanConfiguration : public AMXASScanConfiguration
 {
     Q_OBJECT
+
+	// The following properties should be moved upwards if we can figure out how to work on this together, and determine what should be stored at the AMScanConfiguration level.
+	Q_PROPERTY(QString userScanName READ userScanName WRITE setUserScanName)
+	Q_PROPERTY(int scanNumber READ scanNumber WRITE setScanNumber)
+	Q_PROPERTY(int sampleId READ sampleId WRITE setSampleId)
+	Q_PROPERTY(bool namedAutomatically READ namedAutomatically WRITE setNamedAutomatically)
+
 	Q_CLASSINFO("AMDbObject_Attributes", "description=REIXS XAS Scan Configuration")
 
 public:
@@ -15,7 +22,6 @@ public:
 
 	/// Copy constructor
 	REIXSXASScanConfiguration(const REIXSXASScanConfiguration& other);
-
 	/// Creates a fresh copy of this scan configuration.
 	virtual AMScanConfiguration* createCopy() const;
 
@@ -23,6 +29,16 @@ public:
 	virtual AMScanController* createController();
 	/// Creates a view to edit the scan configuration
 	virtual AMScanConfigurationView* createView();
+
+
+
+	/// Meta-data information to pre-set in the scan.
+	int scanNumber() const { return scanNumber_; }
+	/// Meta-data information to pre-set in the scan.
+	int sampleId() const { return sampleId_; }
+	/// True if we should generate the scan name, number, and sampleId automatically (as best we can; we'll do this based on the last sample move)
+	bool namedAutomatically() const { return namedAutomatically_; }
+
 
 
 	/// Unused, but required by AMRegionScanConfiguration
@@ -34,9 +50,15 @@ signals:
 
 public slots:
 
+	void setScanNumber(int number) { scanNumber_ = number; setModified(true); }
+	void setSampleId(int sampleId) { sampleId_ = sampleId; setModified(true); }
+	void setNamedAutomatically(bool autoOn) { namedAutomatically_ = autoOn; setModified(true); }
+
 protected:
 
-
+	int scanNumber_;
+	int sampleId_;
+	bool namedAutomatically_;
 
 };
 

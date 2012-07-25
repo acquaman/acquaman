@@ -2,11 +2,12 @@
 
 #include "analysis/AM1DExpressionAB.h"
 #include "beamline/REIXS/REIXSBeamline.h"
+#include "dataman/AMUser.h"
 
 REIXSXASScanController::REIXSXASScanController(REIXSXASScanConfiguration* configuration, QObject *parent) :
 	AMSA1DScanController(REIXSBeamline::bl()->photonSource()->energy(), REIXSBeamline::bl()->xasDetectors()->saDetectors(), configuration, parent)
 {
-
+	config_ = configuration;
 }
 
 REIXSXASScanController::~REIXSXASScanController() {
@@ -38,6 +39,36 @@ AMControl * REIXSXASScanController::control()
 		return REIXSBeamline::bl()->photonSource()->energy();	// use for first move
 	else
 		return REIXSBeamline::bl()->photonSource()->directEnergy();	// use for "little" moves.
+}
+
+void REIXSXASScanController::initializeScanMetaData()
+{
+	QString rangeString;
+	if(config_->regionCount())
+		rangeString = QString("%1-%2 eV").arg(config_->regionStart(0)).arg(config_->regionEnd(config_->regionCount()-1));
+
+	if(config_->namedAutomatically()) {
+		int sampleId = REIXSBeamline::bl()->currentSampleId();
+		if(sampleId >= 1) {
+			scan_->setSampleId(sampleId);
+			scan_->setName(QString("%1 %2 %3").arg(scan_->sampleName()).arg(config_->autoScanName()).arg(rangeString));
+			scan_->setNumber(scan_->largestNumberInScansWhere(AMDatabase::database("user"), QString("sampleId = %1").arg(sampleId))+1);
+		}
+		else {
+			scan_->setName(QString("%1 %2").arg(config_->autoScanName()).arg(rangeString));
+			scan_->setNumber(0);
+			scan_->setSampleId(-1);
+		}
+	}
+	else {
+		scan_->setName(config_->userScanName());
+		if(scan_->name().isEmpty())
+			scan_->setName(QString("%1 %2").arg(config_->autoScanName()).arg(rangeString));
+		scan_->setNumber(config_->scanNumber());
+		scan_->setSampleId(config_->sampleId());
+	}
+
+	scan_->setRunId(AMUser::user()->currentRunId());
 }
 
 // Was thinking about disabling the settling time, and then restoring it after. Problem with this approach: we need the three-step move for the initial (possibly long-distance) move.  Instead, return a different control depending on the situation.

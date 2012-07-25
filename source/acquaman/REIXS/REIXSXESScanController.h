@@ -48,6 +48,10 @@ protected:
 	virtual bool initializeImplementation();
 
 
+	/// Fills the scan meta-data (scan name, number, sampleId) either automatically, or from the pre-set configuration values.
+	void initializeScanMetaData();
+
+
 protected slots:
 	/// Called when the move to the starting position succeeds
 	void onInitialSetupMoveSucceeded();

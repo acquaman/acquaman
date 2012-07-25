@@ -25,11 +25,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/REIXS/REIXSXESScanConfiguration.h"
 #include "dataman/REIXS/REIXSXESCalibration2.h"
 
-#include <QComboBox>
-#include <QDoubleSpinBox>
-#include <QTimeEdit>
-#include <QRadioButton>
-#include <QCheckBox>
+class QComboBox;
+class QDoubleSpinBox;
+class QTimeEdit;
+class QRadioButton;
+class QCheckBox;
+class AMSampleSelector;
+class QLineEdit;
+class QSpinBox;
 
 
 class REIXSXESScanConfigurationView : public AMScanConfigurationView
@@ -59,6 +62,9 @@ protected slots:
 	/// Forwards the signal when you adjust the time edit to control the maximum duration of the scan
 	void onMaximumTimeEditChanged(const QTime& time);
 
+	/// Disables the meta-data controls when the 'set automatically" checkbox is activated.
+	void onAutoNamingCheckboxClicked(bool autoOn);
+
 
 protected:
 	/// The internal configuration that we modify.
@@ -82,11 +88,19 @@ protected:
 
 	QComboBox* calibrationSelector_;
 
+	QLineEdit* nameEdit_;
+	QSpinBox* numberEdit_;
+	AMSampleSelector* sampleSelector_;
+	QCheckBox* autoNamingCheckBox_;
+
+
 	/// A spectrometer calibration object to work with. Used to determine the options for other parameters.
 	REIXSXESCalibration2 calibration_;
 
 	/// The current calibrationId that we're working with (initially -1)
 	int currentCalibrationId_;
+
+
 
 
 };

@@ -40,11 +40,19 @@ class REIXSXESScanConfiguration : public AMScanConfiguration
 	Q_PROPERTY(bool doNotClearExistingCounts READ doNotClearExistingCounts WRITE setDoNotClearExistingCounts)
 	Q_PROPERTY(AMDbObject* mcpDetectorInfo READ dbGetMcpDetectorInfo WRITE dbLoadMcpDetectorInfo)
 
+	// The following properties should be moved upwards if we can figure out how to work on this together, and determine what should be stored at the AMScanConfiguration level.
+	Q_PROPERTY(QString userScanName READ userScanName WRITE setUserScanName)
+	Q_PROPERTY(int scanNumber READ scanNumber WRITE setScanNumber)
+	Q_PROPERTY(int sampleId READ sampleId WRITE setSampleId)
+	Q_PROPERTY(bool namedAutomatically READ namedAutomatically WRITE setNamedAutomatically)
+
 public:
 	/// Default Constructor
 	Q_INVOKABLE explicit REIXSXESScanConfiguration(QObject *parent = 0);
 
 	virtual QString description() const;
+
+	virtual QString autoScanName() const { return "XES"; }
 
 	/// The number of the grating to use for this scan
 	int gratingNumber() const { return gratingNumber_; }
@@ -67,12 +75,16 @@ public:
 	/// A flag indicating that we should start the scan without clearing the existing counts on the detector.
 	bool doNotClearExistingCounts() const { return doNotClearExistingCounts_; }
 
-
 	/// Configuration information for the MCP detector itself
 	const REIXSXESMCPDetectorInfo* mcpDetectorInfo() const { return &mcpDetectorInfo_; }
 	REIXSXESMCPDetectorInfo* mcpDetectorInfo() { return &mcpDetectorInfo_; }
 
-
+	/// Meta-data information to pre-set in the scan.
+	int scanNumber() const { return scanNumber_; }
+	/// Meta-data information to pre-set in the scan.
+	int sampleId() const { return sampleId_; }
+	/// True if we should generate the scan name, number, and sampleId automatically (as best we can; we'll do this based on the last sample move)
+	bool namedAutomatically() const { return namedAutomatically_; }
 
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
@@ -88,6 +100,9 @@ public:
 	AMDbObject* dbGetMcpDetectorInfo() { return &mcpDetectorInfo_; }
 	/// used to load the MCP detector information from the database
 	void dbLoadMcpDetectorInfo(AMDbObject* newObject) { REIXSXESMCPDetectorInfo* d; if((d = qobject_cast<REIXSXESMCPDetectorInfo*>(newObject))) mcpDetectorInfo_ = *d; setModified(true); }
+
+
+
 
 
 signals:
@@ -116,6 +131,11 @@ public slots:
 	void setDoNotClearExistingCounts(bool doNotClear) { if(doNotClearExistingCounts_ == doNotClear) return; doNotClearExistingCounts_ = doNotClear; setModified(true); emit configurationChanged(); }
 
 
+	void setScanNumber(int number) { scanNumber_ = number; setModified(true); }
+	void setSampleId(int sampleId) { sampleId_ = sampleId; setModified(true); }
+	void setNamedAutomatically(bool autoOn) { namedAutomatically_ = autoOn; setModified(true); }
+
+
 protected:
 
 	/// The number of the grating to use for this scan
@@ -138,6 +158,10 @@ protected:
 	bool shouldStartFromCurrentPosition_;
 	/// A flag indicating that we should start the scan without clearing the existing counts on the detector.
 	bool doNotClearExistingCounts_;
+
+	int scanNumber_;
+	int sampleId_;
+	bool namedAutomatically_;
 
 	/// Detector configuration information:
 	REIXSXESMCPDetectorInfo mcpDetectorInfo_;

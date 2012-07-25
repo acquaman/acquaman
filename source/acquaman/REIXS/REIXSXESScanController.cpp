@@ -42,12 +42,15 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 
 	// create our new scan object
 	scan_ = new AMXESScan();
-	scan_->setName("REIXS XES Scan");
+
+	// Automatic or manual setting of meta-data for the scan:
+	///////////////////////////////////
+	initializeScanMetaData();
+	///////////////////////////////////
 
 	scan_->setFilePath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime())+".cdf");
 	scan_->setFileFormat("amCDFv1");
 	scan_->replaceRawDataStore(new AMCDFDataStore(AMUserSettings::userDataFolder % "/" % scan_->filePath(), false));
-	scan_->setRunId(AMUser::user()->currentRunId());
 
 	// set the scan configuration within the scan:
 	scan_->setScanConfiguration(config_);
@@ -58,8 +61,14 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 	/// \todo Check at this point that we have the actual size for the real detector reporting already.
 	// AMMeasurementInfo realDetector = *(REIXSBeamline::bl()->mcpDetector()); // REIXSXESMCPDetector has cast operator to AMDetectorInfo, which has cast operator to AMMeasurementInfo.
 	AMMeasurementInfo configuredDetector = *(config_->mcpDetectorInfo());
-	configuredDetector.axes[0].size = REIXSBeamline::bl()->mcpDetector()->image()->size(0);
-	configuredDetector.axes[1].size = REIXSBeamline::bl()->mcpDetector()->image()->size(1);
+	if(REIXSBeamline::bl()->mcpDetector()->canRead()) {
+		configuredDetector.axes[0].size = REIXSBeamline::bl()->mcpDetector()->image()->size(0);
+		configuredDetector.axes[1].size = REIXSBeamline::bl()->mcpDetector()->image()->size(1);
+	}
+	else {
+		configuredDetector.axes[0].size = 1024;
+		configuredDetector.axes[1].size = 64;
+	}
 	configuredDetector.name = "xesImage";	// necessary for file loader/saver.
 
 	scan_->rawData()->addMeasurement(configuredDetector);
@@ -258,4 +267,28 @@ void REIXSXESScanController::onScanFinished() {
 	setFinished();
 }
 
-/// to disconnect: scan progress check, onNewImageValues... Where else?
+void REIXSXESScanController::initializeScanMetaData()
+{
+	if(config_->namedAutomatically()) {
+		int sampleId = REIXSBeamline::bl()->currentSampleId();
+		if(sampleId >= 1) {
+			scan_->setSampleId(sampleId);
+			scan_->setName(QString("%1 %2 %3 eV").arg(scan_->sampleName()).arg(config_->autoScanName()).arg(config_->centerEV()));
+			scan_->setNumber(scan_->largestNumberInScansWhere(AMDatabase::database("user"), QString("sampleId = %1").arg(sampleId))+1);
+		}
+		else {
+			scan_->setName(QString("%1 %2 eV").arg(config_->autoScanName()).arg(config_->centerEV()));
+			scan_->setNumber(0);
+			scan_->setSampleId(-1);
+		}
+	}
+	else {
+		scan_->setName(config_->userScanName());
+		if(scan_->name().isEmpty())
+			scan_->setName(QString("%1 %2 eV").arg(config_->autoScanName()).arg(config_->centerEV()));
+		scan_->setNumber(config_->scanNumber());
+		scan_->setSampleId(config_->sampleId());
+	}
+
+	scan_->setRunId(AMUser::user()->currentRunId());
+}

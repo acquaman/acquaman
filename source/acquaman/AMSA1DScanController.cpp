@@ -31,15 +31,11 @@ AMSA1DScanController::AMSA1DScanController(AMControl *control, QList<AMSADetecto
 
 	// create our new scan object
 	scan_ = new AMXASScan();
-	QString scanName = regionScanConfig_->userScanName();
-	if(scanName.isEmpty())
-		scanName = regionScanConfig_->autoScanName();
-	scan_->setName(scanName);
+	initializeScanMetaData();
 
 	scan_->setFilePath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime())+".cdf");
 	scan_->setFileFormat("amCDFv1");
 	scan_->replaceRawDataStore((dataStore_ = new AMCDFDataStore(AMUserSettings::userDataFolder % "/" % scan_->filePath(), false)));
-	scan_->setRunId(AMUser::user()->currentRunId());
 
 	// set the scan configuration within the scan:
 	scan_->setScanConfiguration(regionScanConfig_);
@@ -441,6 +437,16 @@ void AMSA1DScanController::onConnectionTimeout()
 		AMErrorMon::alert(this, -111, QString("Could not start the scan because either the control or the detectors were not connected after %1 seconds. Please report this problem to your beamline's software developers.").arg(connectionTimeoutSeconds_));
 		setFailed();
 	}
+}
+
+void AMSA1DScanController::initializeScanMetaData()
+{
+	QString scanName = regionScanConfig_->userScanName();
+	if(scanName.isEmpty())
+		scanName = regionScanConfig_->autoScanName();
+	scan_->setName(scanName);
+	// sample? number?
+	scan_->setRunId(AMUser::user()->currentRunId());
 }
 
 

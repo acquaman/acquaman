@@ -37,6 +37,10 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 
 	maximumTotalCounts_ = 1000000;
 	maximumDurationSeconds_ = 300;
+
+	scanNumber_ = 0;
+	sampleId_ = -1;
+	namedAutomatically_ = true;
 }
 
 // Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)

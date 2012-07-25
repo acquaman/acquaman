@@ -5,6 +5,10 @@ REIXSXASScanConfiguration::REIXSXASScanConfiguration(QObject *parent) :
 	AMXASScanConfiguration(parent)
 {
 	regions()->appendRegion(380, 0.1, 420, 0.5);
+
+	scanNumber_ = 0;
+	sampleId_ = -1;
+	namedAutomatically_ = true;
 }
 
 REIXSXASScanConfiguration::~REIXSXASScanConfiguration() {
@@ -21,6 +25,10 @@ REIXSXASScanConfiguration::REIXSXASScanConfiguration(const REIXSXASScanConfigura
 	regions_->setDefaultTimeUnits(other.regions()->defaultTimeUnits());
 	for(int x = 0; x < other.regionCount(); x++)
 		regions_->addRegion(x, other.regionStart(x), other.regionDelta(x), other.regionEnd(x), other.regionTime(x));
+
+	scanNumber_ = other.scanNumber_;
+	sampleId_ = other.sampleId_;
+	namedAutomatically_ = other.namedAutomatically_;
 	////////////////////////
 }
 
