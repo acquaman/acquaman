@@ -24,7 +24,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions2/actions/REIXS/REIXSSampleMoveActionInfo.h"
 
 /// This action moves the REIXS sample manipulator to a target position (predefined in a REIXSSampleMoveActionInfo.)
-/*! It does the x, y, z, and theta moves in a specific sequence, so that if the sample arm is in a not-crashed position prior to the move, and the target position is also a not-crashed position, no crashes between the slit and sample will happen during the move.  However, there is no internal checking that the target position is safe -- that's up to you.*/
+/*! The old version did the x, y, z, and theta moves in a specific sequence, so that if the sample arm is in a not-crashed position prior to the move, and the target position is also a not-crashed position, no crashes between the slit and sample will happen during the move.
+
+  This has been updated for slitless operation to move all axes simultaneously; there's not much we need to worry about anymore.
+*/
 class REIXSSampleMoveAction : public AMListAction
 {
     Q_OBJECT
