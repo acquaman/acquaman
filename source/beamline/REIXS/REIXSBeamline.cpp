@@ -94,7 +94,7 @@ REIXSBeamline::REIXSBeamline() :
 	allControlsSet_->addControl(spectrometer()->endstationTranslation());  //DAVID ADDED
 
 
-	samplePlate_ = new AMSamplePlate();
+	samplePlate_ = new AMSamplePlate(this);
 
 	xasDetectors_ = new REIXSXASDetectors(this);
 }
@@ -721,8 +721,35 @@ REIXSXASDetectors::REIXSXASDetectors(QObject *parent) : AMCompositeControl("xasD
 	/// \todo XES detector PFY. Requires building a new AMSADetector subclass.
 }
 
-int REIXSBeamline::currentSampleId() const
+// To have a current sample in position, there must be a marked sample on the beamline's current plate, which has four positions set, and the sample manipulator is within tolerance of the X,Y,Z position. (We ignore theta, to allow different incident angles to all count as the same sample. Only works if the sample is at the center of rotation of the plate, unfortunately.)
+int REIXSBeamline::currentSampleId()
 {
+	if(samplePlate_->id() < 1)
+		return -1;
+
+	// loop through all samples on the current plate.
+	for(int i=0; i<samplePlate_->count(); ++i) {
+		const AMSamplePosition& samplePos = samplePlate_->at(i);
+
+		if(samplePos.position().count() != 4)
+			continue;
+
+		if(!sampleChamber()->x()->withinTolerance(samplePos.position().at(0).value()))
+			continue;
+		if(!sampleChamber()->y()->withinTolerance(samplePos.position().at(1).value()))
+			continue;
+		if(!sampleChamber()->z()->withinTolerance(samplePos.position().at(2).value()))
+			continue;
+
+		// it's good!
+		return samplePos.sampleId();
+	}
+
 	return -1;
+}
+
+int REIXSBeamline::currentSamplePlateId() const
+{
+	return samplePlate_->id();
 }
 
