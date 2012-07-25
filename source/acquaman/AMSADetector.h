@@ -6,6 +6,7 @@
 #include "dataman/AMNumber.h"
 #include "dataman/AMMeasurementInfo.h"
 
+/// Prototype of a detector interface used with AMSA1DScanController.
 /*! \todo More types: long-running acquisitions that update during acquisition; continuous acquisition
 	\todo Merge with AMDetector?
   */
