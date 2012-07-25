@@ -811,3 +811,22 @@ AMScan * AMScan::createFromDatabaseUrl(const QUrl &url, bool allowIfScanning, bo
 
 	return scan;
 }
+
+int AMScan::largestNumberInScansWhere(AMDatabase* db, const QString &whereClause)
+{
+	QString tableName = AMDbObjectSupport::s()->tableNameForClass<AMScan>();
+
+	QString query = QString("SELECT MAX(number) FROM %1").arg(tableName);
+	if(!whereClause.isEmpty())
+		query.append(" WHERE ").append(whereClause);
+
+	QSqlQuery q = db->query();
+	q.prepare(query);
+	if(q.exec() && q.first()) {
+		return q.value(0).toInt();
+	}
+	else {
+		qDebug() << "Could not run query...";
+		return -1;
+	}
+}

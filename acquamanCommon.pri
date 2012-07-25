@@ -586,7 +586,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/acquaman/AMSA1DScanController.h \
 	source/acquaman/AMSADetector.h \
 	source/acquaman/CLS/CLSSIS3820ScalerSADetector.h \
-	source/ui/dataman/AMRegionScanConfigurationView.h
+	source/ui/dataman/AMRegionScanConfigurationView.h \
+    source/ui/dataman/AMSampleSelector.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -975,7 +976,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/AMSA1DScanController.cpp \
 	source/acquaman/AMSADetector.cpp \
 	source/acquaman/CLS/CLSSIS3820ScalerSADetector.cpp \
-	source/ui/dataman/AMRegionScanConfigurationView.cpp
+	source/ui/dataman/AMRegionScanConfigurationView.cpp \
+    source/ui/dataman/AMSampleSelector.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -999,6 +1001,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 

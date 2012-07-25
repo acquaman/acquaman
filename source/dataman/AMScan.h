@@ -411,6 +411,12 @@ Returns false and does nothing if the new \c dataStore is incompatible with any 
 
 
 
+	// Miscellaneous
+	/////////////////////////
+
+	/// Returns the largest AMScan::number() of all the scans in the scan table, subject to the provided WHERE clause (ex: "sampleId = 3").
+	static int largestNumberInScansWhere(AMDatabase* db, const QString& whereClause);
+
 public slots:
 
 	// Role 1: Setting Meta-Data
