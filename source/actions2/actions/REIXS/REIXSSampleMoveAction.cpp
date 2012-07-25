@@ -39,8 +39,6 @@ void REIXSSampleMoveAction::startImplementation()
 {
 	double x, y, z, theta;
 
-	int updateCurrentSampleId = 0;
-
 	// Mode 1: moving to sample on sample plate:
 	if(sampleMoveInfo()->samplePlateId() > 0) {
 
@@ -91,8 +89,6 @@ void REIXSSampleMoveAction::startImplementation()
 			notifyFailed();
 			return;
 		}
-
-		updateCurrentSampleId = REIXSBeamline::bl()->samplePlate()->at(sampleIndex).id();
 	}
 	// Mode 2: manual fixed position:
 	else {
@@ -133,10 +129,6 @@ void REIXSSampleMoveAction::startImplementation()
 	}
 	if(x > sampleControls->x()->value()) {
 		addSubAction(new AMInternalControlMoveAction(sampleControls->x(), x));
-	}
-
-	if(updateCurrentSampleId) {
-		REIXSBeamline::bl()->setCurrentSampleId(updateCurrentSampleId);
 	}
 
 	// Now that those sub-actions are setup, just let AMListAction do its job to run them.

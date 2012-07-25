@@ -28,8 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 REIXSBeamline::REIXSBeamline() :
 	AMBeamline("REIXSBeamline")
 {
-	currentSampleId_ = -1;
-
 	// Upstream controls
 	photonSource_ = new REIXSPhotonSource(this);
 	addChildControl(photonSource_);
@@ -721,5 +719,10 @@ REIXSXASDetectors::REIXSXASDetectors(QObject *parent) : AMCompositeControl("xasD
 	saDetectors_ << new CLSSIS3820ScalerSADetector("TFY", "Fluorescence Yield", "BL1610-ID-2:mcs", 19, false, this);
 	saDetectors_ << new CLSSIS3820ScalerSADetector("I0", "I0", "BL1610-ID-2:mcs", 16, false, this);
 	/// \todo XES detector PFY. Requires building a new AMSADetector subclass.
+}
+
+int REIXSBeamline::currentSampleId() const
+{
+	return -1;
 }
 

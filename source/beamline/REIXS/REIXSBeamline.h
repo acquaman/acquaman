@@ -428,8 +428,8 @@ public:
 	REIXSValvesAndShutters* valvesAndShutters() { return valvesAndShutters_; }
 	/// Returns the current (active) sample plate, ie:the one that is currently loaded. When a user uses the UI to switch sample plates, we simple re-load this one from the database to become a different sample plate.
 	AMSamplePlate* samplePlate() { return samplePlate_; }
-	/// Returns the id of the last sample that was moved to using a REIXSSampleMoveAction, or -1 if no sample has been moved to yet. \todo Upgrade to look at current sample manipulator position, and determine within the bounds of a sample
-	int currentSampleId() const { return currentSampleId_; }
+	/// Returns the id of the last sample that was moved to using a REIXSSampleMoveAction, or -1 if no sample has been moved to yet.
+	int currentSampleId() const;
 
 
 	// These Control Sets are logical groups of controls, that are commonly used by different Acquaman components
@@ -443,10 +443,6 @@ public:
 
 	REIXSXASDetectors* xasDetectors() { return xasDetectors_; }
 
-
-
-	/// This should only be used by REIXSSampleMoveAction
-	void setCurrentSampleId(int sampleId) { currentSampleId_ = sampleId; }
 
 signals:
 
@@ -483,9 +479,6 @@ protected:
 
 	/// List of detectors used in XAS scans
 	REIXSXASDetectors* xasDetectors_;
-
-	/// Id of the last sample that was moved to using a REIXSSampleMoveAction
-	int currentSampleId_;
 
 };
 

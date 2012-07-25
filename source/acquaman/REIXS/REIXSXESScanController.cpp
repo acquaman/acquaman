@@ -267,13 +267,15 @@ void REIXSXESScanController::onScanFinished() {
 	setFinished();
 }
 
+#include "dataman/AMSample.h"
 void REIXSXESScanController::initializeScanMetaData()
 {
 	if(config_->namedAutomatically()) {
 		int sampleId = REIXSBeamline::bl()->currentSampleId();
 		if(sampleId >= 1) {
 			scan_->setSampleId(sampleId);
-			scan_->setName(QString("%1 %2 %3 eV").arg(scan_->sampleName()).arg(config_->autoScanName()).arg(config_->centerEV()));
+			QString sampleName = AMSample::sampleNameForId(AMDatabase::database("user"), sampleId); // scan_->sampleName() won't work until the scan is saved to the database.
+			scan_->setName(QString("%1 %2 %3 eV").arg(sampleName).arg(config_->autoScanName()).arg(config_->centerEV()));
 			scan_->setNumber(scan_->largestNumberInScansWhere(AMDatabase::database("user"), QString("sampleId = %1").arg(sampleId))+1);
 		}
 		else {

@@ -41,6 +41,8 @@ AMControl * REIXSXASScanController::control()
 		return REIXSBeamline::bl()->photonSource()->directEnergy();	// use for "little" moves.
 }
 
+#include "dataman/AMSample.h"
+
 void REIXSXASScanController::initializeScanMetaData()
 {
 	QString rangeString;
@@ -51,7 +53,8 @@ void REIXSXASScanController::initializeScanMetaData()
 		int sampleId = REIXSBeamline::bl()->currentSampleId();
 		if(sampleId >= 1) {
 			scan_->setSampleId(sampleId);
-			scan_->setName(QString("%1 %2 %3").arg(scan_->sampleName()).arg(config_->autoScanName()).arg(rangeString));
+			QString sampleName = AMSample::sampleNameForId(AMDatabase::database("user"), sampleId); // scan_->sampleName() won't work until the scan is saved to the database.
+			scan_->setName(QString("%1 %2 %3").arg(sampleName).arg(config_->autoScanName()).arg(rangeString));
 			scan_->setNumber(scan_->largestNumberInScansWhere(AMDatabase::database("user"), QString("sampleId = %1").arg(sampleId))+1);
 		}
 		else {
