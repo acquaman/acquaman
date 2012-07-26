@@ -5,6 +5,7 @@
 #include "acquaman/REIXS/REIXSXASScanConfiguration.h"
 
 class AMSampleSelector;
+class AMTopFrame2;
 
 namespace Ui {
 class REIXSXASScanConfigurationView;
@@ -26,11 +27,15 @@ protected:
 	REIXSXASScanConfiguration* config_;
 
 protected slots:
+	/// Determines whether to enable the polarization angle (only if the polarization is enabled, and set to Linear Inclined).
 	void reviewPolarizationAngleBoxEnabled();
+	/// Computes the expected acquisition time when the regions change.
+	void onRegionsChanged();
 
 private:
 	Ui::REIXSXASScanConfigurationView *ui;
 	AMSampleSelector* sampleSelector_;
+	AMTopFrame2* topFrame_;
 };
 
 #endif // REIXSXASSCANCONFIGURATIONVIEW_H

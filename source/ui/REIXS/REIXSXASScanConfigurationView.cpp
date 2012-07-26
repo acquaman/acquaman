@@ -4,6 +4,8 @@
 #include "ui/AMTopFrame2.h"
 #include "ui/acquaman/AMRegionsView.h"
 #include "ui/dataman/AMSampleSelector.h"
+#include "util/AMDateTimeUtils.h"
+#include <QStringBuilder>
 
 REIXSXASScanConfigurationView::REIXSXASScanConfigurationView(REIXSXASScanConfiguration* config, QWidget *parent) :
 	AMScanConfigurationView(parent),
@@ -18,7 +20,8 @@ REIXSXASScanConfigurationView::REIXSXASScanConfigurationView(REIXSXASScanConfigu
 
 
 	// setup additional UI:
-	ui->outerVLayout->insertWidget(0, new AMTopFrame2("Setup XAS Scan", QIcon(":/utilities-system-monitor.png")));
+	topFrame_ = new AMTopFrame2("Setup XAS Scan", QIcon(":/utilities-system-monitor.png"));
+	ui->outerVLayout->insertWidget(0, topFrame_);
 
 	ui->innerVLayout->insertWidget(0, new AMRegionsView(config_->regions()));
 	ui->innerVLayout->addStretch();
@@ -84,6 +87,9 @@ REIXSXASScanConfigurationView::REIXSXASScanConfigurationView(REIXSXASScanConfigu
 	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), ui->nameEdit, SLOT(setEnabled(bool)));
 	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), ui->numberEdit, SLOT(setEnabled(bool)));
 	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), sampleSelector_, SLOT(setEnabled(bool)));
+
+	connect(config_->regions(), SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
+	onRegionsChanged();
 }
 
 REIXSXASScanConfigurationView::~REIXSXASScanConfigurationView()
@@ -94,4 +100,11 @@ REIXSXASScanConfigurationView::~REIXSXASScanConfigurationView()
 void REIXSXASScanConfigurationView::reviewPolarizationAngleBoxEnabled()
 {
 	ui->polarizationAngleBox->setEnabled(config_->polarization() == 5 && config_->applyPolarization());
+}
+
+void REIXSXASScanConfigurationView::onRegionsChanged()
+{
+	QDateTime t1 = QDateTime::currentDateTime();
+	topFrame_->setLeftSubText("Expected acquisition time: " % AMDateTimeUtils::prettyDuration(t1, t1.addSecs(config_->regions()->totalAcquisitionTime())));
+
 }
