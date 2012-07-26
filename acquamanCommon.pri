@@ -587,7 +587,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/acquaman/AMSADetector.h \
 	source/acquaman/CLS/CLSSIS3820ScalerSADetector.h \
 	source/ui/dataman/AMRegionScanConfigurationView.h \
-    source/ui/dataman/AMSampleSelector.h
+    source/ui/dataman/AMSampleSelector.h \
+    source/ui/AMTopFrame2.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -622,7 +623,8 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/dataman/AMImagePropertyEditor.ui \
 	source/ui/actions2/AMAddActionDialog.ui \
 	source/ui/util/AMJoystickTestView.ui \
-	source/ui/actions3/AMAddActionDialog3.ui
+	source/ui/actions3/AMAddActionDialog3.ui \
+    source/ui/AMTopFrame2.ui
 
 SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/AMAcqScanSpectrumOutput.cpp \
@@ -977,7 +979,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/AMSADetector.cpp \
 	source/acquaman/CLS/CLSSIS3820ScalerSADetector.cpp \
 	source/ui/dataman/AMRegionScanConfigurationView.cpp \
-    source/ui/dataman/AMSampleSelector.cpp
+    source/ui/dataman/AMSampleSelector.cpp \
+    source/ui/AMTopFrame2.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1001,6 +1004,9 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
 
 
 
