@@ -5,7 +5,8 @@ TARGET = REIXSAcquaman
 FORMS += \
     source/ui/REIXS/REIXSXESSpectrometerControlEditor.ui \
 	source/ui/REIXS/REIXSSampleChamberButtonPanel.ui \
-    source/ui/REIXS/REIXSSidebar.ui
+    source/ui/REIXS/REIXSSidebar.ui \
+    source/ui/REIXS/REIXSXASScanConfigurationView.ui
 
 HEADERS +=	source/application/REIXS/REIXSAppController.h \
 	source/acquaman/REIXS/REIXSXESScanConfiguration.h \
@@ -43,7 +44,8 @@ HEADERS +=	source/application/REIXS/REIXSAppController.h \
     source/acquaman/REIXS/REIXSXASScanConfiguration.h \
 	source/acquaman/REIXS/REIXSXASScanController.h \
 	source/actions2/actions/REIXS/REIXSXASScanActionInfo.h \
-	source/actions2/actions/REIXS/REIXSXASScanAction.h
+	source/actions2/actions/REIXS/REIXSXASScanAction.h \
+    source/ui/REIXS/REIXSXASScanConfigurationView.h
 
 
 SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
@@ -80,7 +82,12 @@ SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
     source/actions2/editors/REIXS/REIXSSampleMoveActionEditor.cpp \
     source/acquaman/REIXS/REIXSXASScanConfiguration.cpp \
 	source/acquaman/REIXS/REIXSXASScanController.cpp \
-	source/actions2/actions/REIXS/REIXSXASScanActionInfo.cpp
+	source/actions2/actions/REIXS/REIXSXASScanActionInfo.cpp \
+    source/ui/REIXS/REIXSXASScanConfigurationView.cpp
+
+
+
+
 
 
 

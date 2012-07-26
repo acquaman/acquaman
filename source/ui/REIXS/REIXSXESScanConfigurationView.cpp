@@ -68,6 +68,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 	calibrationSelector_ = new QComboBox();
 
 	numberEdit_ = new QSpinBox();
+	numberEdit_->setRange(0, 10000);
 	nameEdit_ = new QLineEdit();
 	sampleSelector_ = new AMSampleSelector(AMDatabase::database("user"));
 	autoNamingCheckBox_ = new QCheckBox("from last sample move");

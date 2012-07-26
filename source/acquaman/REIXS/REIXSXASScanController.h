@@ -4,6 +4,8 @@
 #include "acquaman/AMSA1DScanController.h"
 #include "acquaman/REIXS/REIXSXASScanConfiguration.h"
 
+class AMListAction;
+
 /// Re-implements AMSA1DScanController to add analysis blocks for normalized TEY and TFY spectra, and disable/re-enable the settling time and tolerance for REIXSBrokenMonoControl.
 class REIXSXASScanController : public AMSA1DScanController
 {
@@ -23,8 +25,8 @@ protected:
 	/// Re-implemented to use the three-step move control for the first move, and then the direct energy PV after that.
 	virtual AMControl* control();
 
-//	/// Re-implemented to disable the settling time and widen the tolerance for REIXSBrokenMonoControl before starting the scan.
-//	virtual bool customInitializeImplementation();
+	/// Re-implemented to ...
+	virtual bool customInitializeImplementation();
 //	/// Re-implemented to restore the settling time and re-set the tolerance for REIXSBrokenMonoControl after the scan is over or cancelled.
 //	virtual void customCleanupImplementation();
 //	/// Used to restore the existing values
@@ -34,8 +36,17 @@ protected:
 	/// Fills the scan meta-data (scan name, number, sampleId) either automatically, or from the pre-set configuration values.
 	void initializeScanMetaData();
 
+protected slots:
+	/// Called when the initialization move (mono, slit, polarization) succeeds.
+	void onInitializationMoveSucceeded();
+	/// Called when the initialization move (mono, slit, polarization) fails.
+	void onInitializationMoveFailed();
+
 protected:
 	REIXSXASScanConfiguration* config_;
+
+	// used to run the custom initialization moves (moving mono grating, mirror, slit width, polarization).
+	AMListAction* initialMoveAction_;
 
 };
 

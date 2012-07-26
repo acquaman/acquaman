@@ -4,11 +4,22 @@
 REIXSXASScanConfiguration::REIXSXASScanConfiguration(QObject *parent) :
 	AMXASScanConfiguration(parent)
 {
-	regions()->appendRegion(380, 0.1, 420, 0.5);
+	regions()->appendRegion(380, 0.1, 420, 1);
+	regions()->setSensibleRange(100, 1000);
 
 	scanNumber_ = 0;
 	sampleId_ = -1;
 	namedAutomatically_ = true;
+
+	slitWidth_ = 50;
+	applySlitWidth_ = false;
+	monoGrating_ = 0;
+	applyMonoGrating_ = false;
+	monoMirror_ = 0;
+	applyMonoMirror_ = false;
+	polarization_ = 3;
+	polarizationAngle_ = -90;
+	applyPolarization_ = false;
 }
 
 REIXSXASScanConfiguration::~REIXSXASScanConfiguration() {
