@@ -31,7 +31,7 @@ Get gsl with
 Get and build CDF library:
 	wget http://cdaweb.gsfc.nasa.gov/pub/cdf/dist/cdf34_1/linux/cdf34_1-dist-cdf.tar.gz
 	tar -zxvf cdf34_1-dist-cdf.tar.gz
-	cd cdf34_1-dist-cdf
+	cd cdf34_1-dist
 	make OS=linux ENV=gnu all
 	make install
 	cd ../
