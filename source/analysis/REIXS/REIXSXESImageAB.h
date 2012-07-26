@@ -102,6 +102,12 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	bool liveCorrelation() const { return liveCorrelation_; }
 
 
+	/// Calibration tweaks: an artificial (user-supplied) offset for the detector energy, in eV
+	double energyCalibrationOffset() const { return energyCalibrationOffset_; }
+	/// Calibration tweaks: an artificial (user-supplied) offset for the detector tilt, in deg.
+	double tiltCalibrationOffset() const { return tiltCalibrationOffset_; }
+
+
 	// Setting parameters
 	///////////////////////////
 
@@ -121,6 +127,12 @@ public slots:
 	void setCorrelationHalfWidth(int width);
 	/// Enable (or disable) automatically running the correlation routine every time the data changes
 	void enableLiveCorrelation(bool enabled);
+
+
+	/// Set an artificial (user-supplied) calibration offset for the detector energy, in eV
+	void setEnergyCalibrationOffset(double energyCalibrationOffset);
+	/// Set an artificial (user-supplied) calibration offset for the detector tilt, in deg.
+	void setTiltCalibrationOffset(double tiltCalibrationOffset);
 
 
 
@@ -176,6 +188,11 @@ protected:
 	bool liveCorrelation_;
 	/// The shift values used to offset each row of the image when summing
 	AMIntList shiftValues_;
+
+	/// Calibration tweaks: an artificial (user-supplied) offset for the detector energy, in eV
+	double energyCalibrationOffset_;
+	/// Calibration tweaks: an artificial (user-supplied) offset for the detector tilt, in deg.
+	double tiltCalibrationOffset_;
 
 
 	/// An AMDeferredFunctionCall to call the correlation function a maximum of once per event loop.

@@ -30,6 +30,9 @@ REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 	correlationCenterPx_ = 512;
 	correlationHalfWidth_ = 40;
 
+	energyCalibrationOffset_ = 0;
+	tiltCalibrationOffset_ = 0;
+
 	// Live correlation turned on by default. Need to make sure that this is OK for performance; it should be now that we're using block access.
 	liveCorrelation_ = true;
 	// shift values can start out empty.
@@ -62,6 +65,8 @@ REIXSXESImageAB::REIXSXESImageAB(AMDatabase *db, int id) :
 	sumRangeMax_ = 58;
 	correlationCenterPx_ = 512;
 	correlationHalfWidth_ = 40;
+	energyCalibrationOffset_ = 0;
+	tiltCalibrationOffset_ = 0;
 	liveCorrelation_ = false;
 	// shift values can start out empty.
 
@@ -623,7 +628,7 @@ void REIXSXESImageAB::computeCachedAxisValues() const
 
 	// Variables. From here on, we work in radians, instead of the degree convention used by REIXSXESCalibration.
 	beta = cal.d2r(beta);
-	tiltOffset = cal.d2r(tiltOffset);
+	tiltOffset = cal.d2r(tiltOffset + tiltCalibrationOffset_);	// NOTE: we're adding in the user-specified correction tilt here.
 
 	double sinBeta = sin(beta);
 	double cosBeta = cos(beta);
@@ -670,11 +675,11 @@ void REIXSXESImageAB::computeCachedAxisValues() const
 		//																		 = sinb*sqrt(1-sin^2(db)) + cosb*sindb
 		double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
 		//solving the grating equation for eV:
-		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp);
+		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp) + energyCalibrationOffset_;	// NOTE: we're adding in the user-specified energy offset here.
 	}
 
 	// midpoint:
-	cachedAxisValues_[centerPixel] = 0.0012398417*grooveDensity / (sinAlpha - sinBeta);
+	cachedAxisValues_[centerPixel] = 0.0012398417*grooveDensity / (sinAlpha - sinBeta) + energyCalibrationOffset_;	// NOTE: we're adding in the user-specified energy offset here.
 
 	// Calculate top half of axis. (high energies). Sign is 1:
 	sign = 1;
@@ -683,7 +688,7 @@ void REIXSXESImageAB::computeCachedAxisValues() const
 		double dx = (i-centerPixel)*mmPerPixel;
 		double sindb = sign*( dx*singp/sqrt(rPrime*rPrime + dx*dx - 2*rPrime*dx*cosgp*sign) );
 		double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
-		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp);
+		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp) + energyCalibrationOffset_;	// NOTE: we're adding in the user-specified energy offset here.
 	}
 	//////////////////////////////////////////////////////
 
@@ -719,6 +724,26 @@ void REIXSXESImageAB::computeCachedAxisValues() const
 
 
 	axisValuesInvalid_ = false;
+}
+
+void REIXSXESImageAB::setEnergyCalibrationOffset(double energyCalibrationOffset)
+{
+	if(energyCalibrationOffset == energyCalibrationOffset_)
+		return;
+
+	energyCalibrationOffset_ = energyCalibrationOffset;
+	axisValueCacheInvalid_ = true;
+	emitValuesChanged();
+}
+
+void REIXSXESImageAB::setTiltCalibrationOffset(double tiltCalibrationOffset)
+{
+	if(tiltCalibrationOffset == tiltCalibrationOffset_)
+		return;
+
+	tiltCalibrationOffset_ = tiltCalibrationOffset;
+	axisValueCacheInvalid_ = true;
+	emitValuesChanged();
 }
 
 
