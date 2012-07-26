@@ -434,7 +434,7 @@ void AMSA1DScanController::onConnectionTimeout()
 		allConnected &= detector->isConnected();
 
 	if(!allConnected) {
-		AMErrorMon::alert(this, -111, QString("Could not start the scan because either the control or the detectors were not connected after %1 seconds. Please report this problem to your beamline's software developers.").arg(connectionTimeoutSeconds_));
+		AMErrorMon::alert(this, -111, QString("Could not start the scan because either the control or the detectors were not connected after %1 seconds. Please report this problem to the beamline staff.").arg(connectionTimeoutSeconds_));
 		setFailed();
 	}
 }
