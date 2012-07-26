@@ -52,8 +52,9 @@ void AMControlMoveAction::startImplementation() {
 		notifyFailed();
 		return;
 	}
+
 	// check that the destination is in range...
-	if(control_->valueOutOfRange(setpoint.value())) {
+	if(control_->valueOutOfRange(controlMoveInfo()->isRelativeMove() ? control_->value()+setpoint.value() : setpoint.value())) {
 		AMErrorMon::report(AMErrorReport(this,
 										 AMErrorReport::Alert,
 										 -3,
