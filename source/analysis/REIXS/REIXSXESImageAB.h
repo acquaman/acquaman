@@ -28,6 +28,102 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_multifit.h>
 
+/// Interface to define categories of curve fitting
+class REIXSFunctionFitter {
+public:
+	/// Function to fit a curve to a set of points, and return new points on the curve.
+	virtual QVector<int> smooth(const QVector<int>& input, const QVector<double>& weights) = 0;
+};
+
+/// Class to implement quadratic curve fitting
+class REIXSQuadraticFitter : public REIXSFunctionFitter {
+public:
+	REIXSQuadraticFitter();
+	~REIXSQuadraticFitter();
+
+	/// Function to fit a quadratic curve to a set of points, and return new points on the curve.
+	virtual QVector<int> smooth(const QVector<int>& input, const QVector<double>& weights);
+
+protected:
+	// Structures used for shift curve fitting:
+	//////////////////////////////
+	double numRows_;
+
+	gsl_multifit_linear_workspace* fitWorkSpace_; ///< Fit: GSL curve fitting context.
+	gsl_matrix* fitXX_;		///< Fit: The matrix of predictor variables XX_ij = x_i^j;  In our case, x is the image row index (y!)
+	gsl_vector* fitY_;		///< Fit: The vector of observations;  In our case, fitY_j is the shift value at j.
+	gsl_vector* fitWeight_;	///< Fit: The weight of the observation; In our case 1 for sumRangeMin_ <= y <= sumRangeMax_; 0 otherwise.
+	gsl_vector* fitC_;		///< Fit: The vector of coefficients; In our case the 3 quadratic fit constants.
+	gsl_matrix* fitCov_;		///< Fit: covariance matrix
+	double fitChisq_;		///< Fit: Chi-squared result
+
+	/// Helper function to allocate the fitting structures for a given input size \c numRows. Used if the request to fit does not match the current allocated size.
+	void allocateFittingStructures(int numRows);
+	/// Helper function to free the fitting structures
+	void releaseFittingStructures();
+};
+
+/// Class to implement cubic curve fitting
+class REIXSCubicFitter : public REIXSFunctionFitter {
+public:
+	REIXSCubicFitter();
+	~REIXSCubicFitter();
+
+	/// Function to fit a Cubic curve to a set of points, and return new points on the curve.
+	virtual QVector<int> smooth(const QVector<int>& input, const QVector<double>& weights);
+
+protected:
+	// Structures used for shift curve fitting:
+	//////////////////////////////
+	double numRows_;
+
+	gsl_multifit_linear_workspace* fitWorkSpace_; ///< Fit: GSL curve fitting context.
+	gsl_matrix* fitXX_;		///< Fit: The matrix of predictor variables XX_ij = x_i^j;
+	gsl_vector* fitY_;		///< Fit: The vector of observations;
+	gsl_vector* fitWeight_;	///< Fit: The weight of the observation;
+	gsl_vector* fitC_;		///< Fit: The vector of coefficients; In our case the 4 Cubic fit constants.
+	gsl_matrix* fitCov_;		///< Fit: covariance matrix
+	double fitChisq_;		///< Fit: Chi-squared result
+
+	/// Helper function to allocate the fitting structures for a given input size \c numRows. Used if the request to fit does not match the current allocated size.
+	void allocateFittingStructures(int numRows);
+	/// Helper function to free the fitting structures
+	void releaseFittingStructures();
+};
+
+/// Class to implement quartic (4th-power) curve fitting
+class REIXSQuarticFitter : public REIXSFunctionFitter {
+public:
+	REIXSQuarticFitter();
+	~REIXSQuarticFitter();
+
+	/// Function to fit a Quartic curve to a set of points, and return new points on the curve.
+	virtual QVector<int> smooth(const QVector<int>& input, const QVector<double>& weights);
+
+protected:
+	// Structures used for shift curve fitting:
+	//////////////////////////////
+	double numRows_;
+
+	gsl_multifit_linear_workspace* fitWorkSpace_; ///< Fit: GSL curve fitting context.
+	gsl_matrix* fitXX_;		///< Fit: The matrix of predictor variables XX_ij = x_i^j;
+	gsl_vector* fitY_;		///< Fit: The vector of observations;
+	gsl_vector* fitWeight_;	///< Fit: The weight of the observation;
+	gsl_vector* fitC_;		///< Fit: The vector of coefficients; In our case the 4 Quartic fit constants.
+	gsl_matrix* fitCov_;		///< Fit: covariance matrix
+	double fitChisq_;		///< Fit: Chi-squared result
+
+	/// Helper function to allocate the fitting structures for a given input size \c numRows. Used if the request to fit does not match the current allocated size.
+	void allocateFittingStructures(int numRows);
+	/// Helper function to free the fitting structures
+	void releaseFittingStructures();
+};
+
+
+
+
+
+
 /// Custom analysis block to shift and sum an XES detector image into a 1D spectrum, taking into account the possible curvature of the image. This version shifts each row by an arbitrary amount when summing columns.  It also has the capability to guess/determine the curvature using a correlation algorithm, where each row is correlated with the center row to determine the optimal shift.
 class REIXSXESImageAB : public AMStandardAnalysisBlock
 {
@@ -37,11 +133,18 @@ class REIXSXESImageAB : public AMStandardAnalysisBlock
 	Q_PROPERTY(AMIntList shiftValues READ shiftValues WRITE setShiftValues)
 	Q_PROPERTY(int correlationCenterPixel READ correlationCenterPixel WRITE setCorrelationCenterPixel)
 	Q_PROPERTY(int correlationHalfWidth READ correlationHalfWidth WRITE setCorrelationHalfWidth)
+	Q_PROPERTY(int correlationSmoothing READ correlationSmoothing WRITE setCorrelationSmoothing)
 	Q_PROPERTY(bool liveCorrelation READ liveCorrelation WRITE enableLiveCorrelation)
+	Q_PROPERTY(double energyCalibrationOffset READ energyCalibrationOffset WRITE setEnergyCalibrationOffset)
+	Q_PROPERTY(double tiltCalibrationOffset READ tiltCalibrationOffset WRITE setTiltCalibrationOffset)
 
-	Q_CLASSINFO("AMDbObject_Attributes", "description=2D Binning Block")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=REIXS XES detector image analysis to 1D spectrum")
+	Q_CLASSINFO("correlationSmoothing", "upgradeDefault=1")
 
 public:
+	/// Enum describing the options for smoothing the auto-correlated shift curve.
+	enum ShiftCurveSmoothing { NoSmoothing, QuadraticSmoothing, CubicSmoothing, QuarticSmoothing };
+
 	/// Constructor. \c outputName is the name() for the output data source.
 	REIXSXESImageAB(const QString& outputName, QObject* parent = 0);
 	/// This constructor is used to reload analysis blocks directly out of the database
@@ -98,6 +201,8 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	int correlationCenterPixel() const { return correlationCenterPx_; }
 	/// The full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.
 	int correlationHalfWidth() const{ return correlationHalfWidth_; }
+	/// The type of smoothing to apply to the shift curve generated using correlation. One of ShiftCurveSmoothing.
+	int correlationSmoothing() const { return correlationSmoothing_; }
 	/// True if the correlation routine should be run every time the data changes.
 	bool liveCorrelation() const { return liveCorrelation_; }
 
@@ -125,6 +230,8 @@ public slots:
 	void setCorrelationCenterPixel(int centerPx);
 	/// Sets the full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.
 	void setCorrelationHalfWidth(int width);
+	/// Sets the smoothing used on the shift curve after correlation. \c type must be one of ShiftCurveSmoothing.
+	void setCorrelationSmoothing(int type);
 	/// Enable (or disable) automatically running the correlation routine every time the data changes
 	void enableLiveCorrelation(bool enabled);
 
@@ -184,6 +291,8 @@ protected:
 	int correlationCenterPx_;
 	/// The full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.
 	int correlationHalfWidth_;
+	/// Describes the smoothing that should be applied to the shift curve resulting from the correlation routine.  One of ShiftCurveSmoothing.
+	int correlationSmoothing_;
 	/// True if the correlation routine should be run every time the data changes.
 	bool liveCorrelation_;
 	/// The shift values used to offset each row of the image when summing
@@ -199,6 +308,9 @@ protected:
 	AMDeferredFunctionCall callCorrelation_;
 
 
+	/// Smoothing object used for the shift curve after correlation
+	REIXSFunctionFitter* curveSmoother_;
+
 	// Helper Functions
 	///////////////////////
 
@@ -209,26 +321,6 @@ protected:
 
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState();
-
-
-
-
-	// Structures used for quadratic curve fitting:
-	//////////////////////////////
-	gsl_multifit_linear_workspace* fitWorkSpace_; ///< Fit: GSL curve fitting context.
-	gsl_matrix* fitXX_;		///< Fit: The matrix of predictor variables XX_ij = x_i^j;  In our case, x is the image row index (y!)
-	gsl_vector* fitY_;		///< Fit: The vector of observations;  In our case, fitY_j is the shift value at j.
-	gsl_vector* fitWeight_;	///< Fit: The weight of the observation; In our case 1 for sumRangeMin_ <= y <= sumRangeMax_; 0 otherwise.
-	gsl_vector* fitC_;		///< Fit: The vector of coefficients; In our case the 3 quadratic fit constants.
-	gsl_matrix* fitCov_;		///< Fit: covariance matrix
-	double fitChisq_;		///< Fit: Chi-squared result
-
-	/// Helper function to allocate the fitting structures for a given image (vertical) size \c numRows.
-	void allocateFittingStructures(int numRows);
-	/// Helper function to free the fitting structures
-	void releaseFittingStructures();
-	/// Helper function to fit a quadratic curve to a set of points, and return new points on the curve.
-	QVector<int> quadraticSmooth(const QVector<int>& input);
 
 };
 

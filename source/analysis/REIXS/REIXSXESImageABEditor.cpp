@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFormLayout>
 #include <QLabel>
 #include <QSlider>
+#include <QComboBox>
 
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlot.h"
@@ -53,6 +54,17 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	analysisBlock_ = analysisBlock;
 
 	// setup GUI elements:
+	energyCalibrationOffsetBox_ = new QDoubleSpinBox();
+	energyCalibrationOffsetBox_->setRange(-100, 100);
+	energyCalibrationOffsetBox_->setDecimals(3);
+	energyCalibrationOffsetBox_->setSingleStep(0.2);
+	energyCalibrationOffsetBox_->setSuffix(" eV");
+	tiltCalibrationOffsetBox_ = new QDoubleSpinBox();
+	tiltCalibrationOffsetBox_->setRange(-10, 10);
+	tiltCalibrationOffsetBox_->setDecimals(3);
+	tiltCalibrationOffsetBox_->setSingleStep(0.1);
+	tiltCalibrationOffsetBox_->setSuffix(" deg");
+
 	rangeMinControl_ = new QSpinBox();
 	rangeMinControl_->setSingleStep(1);
 	rangeMinControl_->setMinimum(0);
@@ -68,8 +80,17 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	correlationPointsBox_->setMaximum(500);
 	correlationPointsBox_->setValue(200);
 
-	liveCorrelationCheckBox_ = new QCheckBox("Real-time correlation");
-	correlateNowButton_ = new QPushButton("Correlate Now");
+	correlationSmoothingBox_ = new QComboBox();
+	correlationSmoothingBox_->addItem("None");
+	correlationSmoothingBox_->addItem("Quadratic");
+	correlationSmoothingBox_->addItem("Cubic");
+	correlationSmoothingBox_->addItem("Quartic");
+
+	liveCorrelationCheckBox_ = new QCheckBox("Real-time");
+	correlateNowButton_ = new QPushButton("Now");
+
+	manualShiftEntryButton_ = new QToolButton();
+	manualShiftEntryButton_->setText("Manual shift...");
 
 	applyToOtherScansButton_ = new QToolButton();
 	applyToOtherScansButton_->setText("Apply to Scans...");
@@ -78,16 +99,20 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	batchApplyCorrelationSettings_ = new QAction("Correlation Settings", this);
 	batchApplyShiftCurve_ = new QAction("Shift Curve", this);
 	batchApplySumRange_ = new QAction("Sum Range min, max", this);
+	batchApplyCalibrationOffsets_ = new QAction("Calib. offsets: energy, tilt", this);
 	batchApplyCorrelationSettings_->setCheckable(true);
 	batchApplyCorrelationSettings_->setChecked(true);
 	batchApplyShiftCurve_->setCheckable(true);
+	batchApplyCalibrationOffsets_->setCheckable(true);
 	batchApplyShiftCurve_->setChecked(false);
 	batchApplySumRange_->setCheckable(true);
 	batchApplySumRange_->setChecked(false);
+	batchApplyCalibrationOffsets_->setChecked(false);
 	QMenu* batchApplyMenu = new QMenu(this);
+	batchApplyMenu->addAction(batchApplySumRange_);
+	batchApplyMenu->addAction(batchApplyCalibrationOffsets_);
 	batchApplyMenu->addAction(batchApplyCorrelationSettings_);
 	batchApplyMenu->addAction(batchApplyShiftCurve_);
-	batchApplyMenu->addAction(batchApplySumRange_);
 	applyToOtherScansButton_->setMenu(batchApplyMenu);
 
 	shiftDisplayOffsetSlider_ = new QSlider(Qt::Horizontal);
@@ -152,6 +177,7 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	plot_->addTool(new MPlotWheelZoomerTool());
 
 
+	// Build Layout:
 
 	QVBoxLayout* vl = new QVBoxLayout();
 	QFormLayout* fl = new QFormLayout();
@@ -160,15 +186,23 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	hl->addWidget(new QLabel("To"));
 	hl->addWidget(rangeMaxControl_);
 	fl->addRow("From:", hl);
+	QHBoxLayout* hl4 = new QHBoxLayout();
+	hl4->addWidget(energyCalibrationOffsetBox_);
+	hl4->addWidget(tiltCalibrationOffsetBox_);
+	fl->addRow("Offset:", hl4);
 	QHBoxLayout* hl2 = new QHBoxLayout();
 	hl2->addWidget(correlationCenterBox_);
 	hl2->addWidget(new QLabel("#"));
 	hl2->addWidget(correlationPointsBox_);
-	fl->addRow("Corr. Center", hl2);
-	fl->addRow(liveCorrelationCheckBox_);
+	fl->addRow("C. center:", hl2);
+	fl->addRow("C. smooth:", correlationSmoothingBox_);
+	QHBoxLayout* hl5 = new QHBoxLayout();
+	hl5->addWidget(liveCorrelationCheckBox_);
+	hl5->addWidget(correlateNowButton_);
+	fl->addRow("Correlate:", hl5);
 	vl->addLayout(fl);
 	QHBoxLayout* hl3 = new QHBoxLayout();
-	hl3->addWidget(correlateNowButton_);
+	hl3->addWidget(manualShiftEntryButton_);
 	hl3->addWidget(applyToOtherScansButton_);
 	vl->addLayout(hl3);
 	vl->addWidget(plotWidget_);
@@ -189,9 +223,14 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 
 	connect(shiftDisplayOffsetSlider_, SIGNAL(valueChanged(int)), shiftData_, SLOT(setDisplayXOffset(int)));
 
+	connect(manualShiftEntryButton_, SIGNAL(clicked()), this, SLOT(onManualShiftEntryButtonClicked()));
+
 	// direct connections:
 	connect(correlateNowButton_, SIGNAL(clicked()), analysisBlock_, SLOT(correlateNow()));
 	connect(liveCorrelationCheckBox_, SIGNAL(toggled(bool)), analysisBlock_, SLOT(enableLiveCorrelation(bool)));
+	connect(energyCalibrationOffsetBox_, SIGNAL(valueChanged(double)), analysisBlock_, SLOT(setEnergyCalibrationOffset(double)));
+	connect(tiltCalibrationOffsetBox_, SIGNAL(valueChanged(double)), analysisBlock_, SLOT(setTiltCalibrationOffset(double)));
+	connect(correlationSmoothingBox_, SIGNAL(currentIndexChanged(int)), analysisBlock_, SLOT(setCorrelationSmoothing(int)));
 
 	connect(applyToOtherScansButton_, SIGNAL(clicked()), this, SLOT(onApplyToOtherScansMenuClicked()));
 }
@@ -269,10 +308,21 @@ void REIXSXESImageABEditor::onAnalysisBlockInputDataSourcesChanged()
 		rangeMaxControl_->setEnabled(true);
 		correlationCenterBox_->setEnabled(true);
 		correlationPointsBox_->setEnabled(true);
+		correlationSmoothingBox_->setEnabled(true);
 		liveCorrelationCheckBox_->setEnabled(true);
 		correlateNowButton_->setEnabled(true);
 		shiftDisplayOffsetSlider_->setEnabled(true);
+		energyCalibrationOffsetBox_->setEnabled(true);
+		tiltCalibrationOffsetBox_->setEnabled(true);
+		manualShiftEntryButton_->setEnabled(true);
 
+		energyCalibrationOffsetBox_->blockSignals(true);
+		energyCalibrationOffsetBox_->setValue(analysisBlock_->energyCalibrationOffset());
+		energyCalibrationOffsetBox_->blockSignals(false);
+
+		tiltCalibrationOffsetBox_->blockSignals(true);
+		tiltCalibrationOffsetBox_->setValue(analysisBlock_->tiltCalibrationOffset());
+		tiltCalibrationOffsetBox_->blockSignals(false);
 
 		rangeMinControl_->blockSignals(true);
 		rangeMinControl_->setMaximum(inputSource->size(1) - 1);
@@ -292,6 +342,10 @@ void REIXSXESImageABEditor::onAnalysisBlockInputDataSourcesChanged()
 		correlationPointsBox_->blockSignals(true);
 		correlationPointsBox_->setValue(analysisBlock_->correlationHalfWidth()*2);
 		correlationPointsBox_->blockSignals(false);
+
+		correlationSmoothingBox_->blockSignals(true);
+		correlationSmoothingBox_->setCurrentIndex(analysisBlock_->correlationSmoothing());
+		correlationSmoothingBox_->blockSignals(false);
 
 		liveCorrelationCheckBox_->blockSignals(true);
 		liveCorrelationCheckBox_->setChecked(analysisBlock_->liveCorrelation());
@@ -317,9 +371,13 @@ void REIXSXESImageABEditor::onAnalysisBlockInputDataSourcesChanged()
 		rangeMaxControl_->setEnabled(false);
 		correlationCenterBox_->setEnabled(false);
 		correlationPointsBox_->setEnabled(false);
+		correlationSmoothingBox_->setEnabled(false);
 		liveCorrelationCheckBox_->setEnabled(false);
 		correlateNowButton_->setEnabled(false);
 		shiftDisplayOffsetSlider_->setEnabled(false);
+		energyCalibrationOffsetBox_->setEnabled(false);
+		tiltCalibrationOffsetBox_->setEnabled(false);
+		manualShiftEntryButton_->setEnabled(false);
 	}
 
 	placeRangeRectangle();
@@ -430,17 +488,20 @@ void REIXSXESImageABEditor::onApplyToOtherScansMenuClicked()
 	if(!chooseScanDialog_) {
 		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose scans...", "Choose the scans you want to apply these analysis parameters to.", true, this);
 		// chooseScanDialog_->dataView_->setOrganizeMode(AMDataViews::OrganizeScanTypes);
-		connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onApplyToOtherScansChosen()));
+		chooseScanDialog_->setAttribute(Qt::WA_DeleteOnClose, false);
 	}
+	connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onApplyToOtherScansChosen()));
 
 	// User feedback on what will happen:
 	QStringList operationsCompleted;
+	if(batchApplySumRange_->isChecked())
+		operationsCompleted << "Sum Range";
+	if(batchApplyCalibrationOffsets_->isChecked())
+		operationsCompleted << "Calibration offsets (energy, tilt)";
 	if(batchApplyCorrelationSettings_->isChecked())
 		operationsCompleted << "Correlation Settings";
 	if(batchApplyShiftCurve_->isChecked())
 		operationsCompleted << "Shift Curve";
-	if(batchApplySumRange_->isChecked())
-		operationsCompleted << "Sum Range";
 
 	chooseScanDialog_->setPrompt(QString("Choose the scans you want to apply these analysis parameters (%1) to.").arg(operationsCompleted.join(", ")));
 	chooseScanDialog_->show();
@@ -451,15 +512,20 @@ void REIXSXESImageABEditor::onApplyToOtherScansMenuClicked()
 #include <QProgressDialog>
 #include <QUrl>
 
+#include <QDebug>
 void REIXSXESImageABEditor::onApplyToOtherScansChosen()
 {
+	disconnect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onApplyToOtherScansChosen()));
+
+	qDebug() << "Calling applyToOtherScansChosen.";
 	QList<QUrl> scans = chooseScanDialog_->getSelectedScans();
-	if(scans.isEmpty())
+	if(scans.isEmpty()) {
+		chooseScanDialog_->close();
 		return;
+	}
 
 	QProgressDialog* progressDialog = new QProgressDialog(QString("Applying analysis parameters to %1 scans...").arg(scans.count()), "Stop", 0, scans.count(), chooseScanDialog_);
 	progressDialog->setMinimumDuration(0);
-	progressDialog->setWindowModality(Qt::WindowModal);
 
 	int scansModified = 0;
 
@@ -484,17 +550,22 @@ void REIXSXESImageABEditor::onApplyToOtherScansChosen()
 			REIXSXESImageAB* xesAB = qobject_cast<REIXSXESImageAB*>(scan->analyzedDataSources()->at(i));
 			if(xesAB) {
 				xesABFound = true;
+				if(batchApplySumRange_->isChecked()) {
+					xesAB->setSumRangeMax(analysisBlock_->sumRangeMax());
+					xesAB->setSumRangeMin(analysisBlock_->sumRangeMin());
+				}
+				if(batchApplyCalibrationOffsets_->isChecked()) {
+					xesAB->setEnergyCalibrationOffset(analysisBlock_->energyCalibrationOffset());
+					xesAB->setTiltCalibrationOffset(analysisBlock_->tiltCalibrationOffset());
+				}
 				if(batchApplyCorrelationSettings_->isChecked()) {
 					xesAB->setCorrelationCenterPixel(analysisBlock_->correlationCenterPixel());
 					xesAB->setCorrelationHalfWidth(analysisBlock_->correlationHalfWidth());
+					xesAB->setCorrelationSmoothing(analysisBlock_->correlationSmoothing());
 					xesAB->enableLiveCorrelation(analysisBlock_->liveCorrelation());
 				}
 				if(batchApplyShiftCurve_->isChecked()) {
 					xesAB->setShiftValues(analysisBlock_->shiftValues());
-				}
-				if(batchApplySumRange_->isChecked()) {
-					xesAB->setSumRangeMax(analysisBlock_->sumRangeMax());
-					xesAB->setSumRangeMin(analysisBlock_->sumRangeMin());
 				}
 			}
 		}
@@ -511,17 +582,54 @@ void REIXSXESImageABEditor::onApplyToOtherScansChosen()
 	}
 
 	progressDialog->setValue(scans.count());
+	delete progressDialog;
 
 	// User feedback on what just happened:
 	QStringList operationsCompleted;
+	if(batchApplySumRange_->isChecked())
+		operationsCompleted << "Sum Range";
+	if(batchApplyCalibrationOffsets_->isChecked())
+		operationsCompleted << "Calibration offsets (energy, tilt)";
 	if(batchApplyCorrelationSettings_->isChecked())
 		operationsCompleted << "Correlation Settings";
 	if(batchApplyShiftCurve_->isChecked())
 		operationsCompleted << "Shift Curve";
-	if(batchApplySumRange_->isChecked())
-		operationsCompleted << "Sum Range";
 
 	AMErrorMon::information(this, 0, QString("Batch shifting: set the analysis parameters (%1) successfully for %2 XES scans.").arg(operationsCompleted.join(", ")).arg(scansModified));
-	chooseScanDialog_->hide();
+	chooseScanDialog_->close();
+}
+
+#include <QInputDialog>
+#include <QRegExp>
+#include <QApplication>
+void REIXSXESImageABEditor::onManualShiftEntryButtonClicked()
+{
+	// Grab the current shift and convert to text.
+	QStringList shifts;
+	foreach(int d, analysisBlock_->shiftValues())
+		shifts << QString::number(d);
+
+	bool ok;
+	QString newShiftString = QInputDialog::getText(this, "Set shift values manually", QString("Please enter the desired shift amounts for each line (%1)").arg(shifts.count()), QLineEdit::Normal, shifts.join(";"), &ok);
+	if(!ok)
+		return;
+
+	QStringList newShifts = newShiftString.split(QRegExp("[,; ]+"), QString::SkipEmptyParts);
+	if(newShifts.count() != shifts.count()) {
+		QApplication::beep();
+		AMErrorMon::alert(this, -370, QString("Could not set the shift values manually: you need to provide %1 shift numbers.").arg(shifts.count()));
+		return;
+	}
+
+	AMIntList newShiftNumbers;
+	foreach(QString s, newShifts) {
+		newShiftNumbers << s.toInt(&ok);
+		if(!ok) {
+			AMErrorMon::alert(this, -370, QString("Could not set the shift values manually: '%1' is not a number.").arg(s));
+			return;
+		}
+	}
+
+	analysisBlock_->setShiftValues(newShiftNumbers);
 }
 

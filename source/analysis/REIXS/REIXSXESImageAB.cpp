@@ -25,10 +25,15 @@ REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 	AMStandardAnalysisBlock(outputName, parent)
 {
 
+	curveSmoother_ = 0;
+
 	sumRangeMin_ = 5;
 	sumRangeMax_ = 58;
 	correlationCenterPx_ = 512;
 	correlationHalfWidth_ = 40;
+	correlationSmoothing_ = -1;
+	liveCorrelation_ = false;
+	setCorrelationSmoothing(CubicSmoothing);
 
 	energyCalibrationOffset_ = 0;
 	tiltCalibrationOffset_ = 0;
@@ -46,14 +51,6 @@ REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
 
-	// Fitting structures (unallocated)
-	fitWorkSpace_ = 0;
-	fitXX_ = 0;
-	fitY_ = 0;
-	fitWeight_ = 0;
-	fitC_ = 0;
-	fitCov_ = 0;
-
 	connect(&callCorrelation_, SIGNAL(executed()), this, SLOT(correlateNow()));
 	setDescription("XES Analyzed Spectrum");
 }
@@ -61,10 +58,13 @@ REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 REIXSXESImageAB::REIXSXESImageAB(AMDatabase *db, int id) :
 	AMStandardAnalysisBlock("tempName", 0)
 {
+	curveSmoother_ = 0;
+
 	sumRangeMin_ = 5;
 	sumRangeMax_ = 58;
 	correlationCenterPx_ = 512;
 	correlationHalfWidth_ = 40;
+	correlationSmoothing_ = -1;
 	energyCalibrationOffset_ = 0;
 	tiltCalibrationOffset_ = 0;
 	liveCorrelation_ = false;
@@ -78,14 +78,6 @@ REIXSXESImageAB::REIXSXESImageAB(AMDatabase *db, int id) :
 
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
 
-	// Fitting structures (unallocated)
-	fitWorkSpace_ = 0;
-	fitXX_ = 0;
-	fitY_ = 0;
-	fitWeight_ = 0;
-	fitC_ = 0;
-	fitCov_ = 0;
-
 	loadFromDb(db, id); // will restore the parameters sumRangeMin_, sumRangeMax_, correlation settings, and shift values. We'll remain invalid until we get connected to a data source.
 	AMDataSource::name_ = AMDbObject::name();	// normally it's not okay to change a dataSource's name. Here we get away with it because we're within the constructor, and nothing's watching us yet.
 
@@ -93,7 +85,6 @@ REIXSXESImageAB::REIXSXESImageAB(AMDatabase *db, int id) :
 }
 
 REIXSXESImageAB::~REIXSXESImageAB() {
-	releaseFittingStructures();
 }
 
 void REIXSXESImageAB::setSumRangeMin(int sumRangeMin)
@@ -473,94 +464,26 @@ void REIXSXESImageAB::correlateNow()
 	}
 
 
-	// Apply quadratic fit to smooth out the noise:
-	shifts = quadraticSmooth(shifts);
+	if(correlationSmoothing_ != NoSmoothing) {
+		// Apply smoothing to reduce the noise:
+		QVector<double> weights(sizeY, 0.0);
+		weights[sumRangeMin_] = 0.5;
+		weights[sumRangeMax_] = 0.5;
+		for(int j=sumRangeMin_+1; j<sumRangeMax_; ++j)
+			weights[j] = 1.0;
 
-	// Ensure the center-row shift is 0. [Not sure why it ends up being non-zero]. Slide everything so it is.
-	int centerShift = shifts[midY];
-	for(int j=0; j<sizeY; ++j)
-		shifts[j] -= centerShift;
+		shifts = curveSmoother_->smooth(shifts, weights);
+
+		// Ensure the center-row shift is 0. [Not sure why it ends up being non-zero]. Slide everything so it is.
+		int centerShift = shifts[midY];
+		for(int j=0; j<sizeY; ++j)
+			shifts[j] -= centerShift;
+	}
 
 	// use the new shift values.
 	setShiftValues(shifts.toList());
 }
 
-void REIXSXESImageAB::allocateFittingStructures(int numRows)
-{
-	if(numRows < 1)
-		return;	// do not allocate if size is 0.
-
-	fitWorkSpace_ = gsl_multifit_linear_alloc(numRows, 3);
-	fitXX_ = gsl_matrix_calloc(numRows, 3);		// The matrix of predictor variables XX_ij = x_i^j;  In our case, x is the image row index (y!)
-	fitY_ = gsl_vector_calloc(numRows);		// The vector of observations;  In our case, fitY_i is the shiftnumber shiftnum_[i]
-	fitWeight_ = gsl_vector_calloc(numRows);	// The weight of the observation; In our case 1 for sourceRangeMin_ <= y <= sourceRangeMax_; 0 otherwise.
-	fitC_ = gsl_vector_calloc(3);		// The vector of coefficients; In our case the 3 quadratic fit constants.
-	fitCov_ = gsl_matrix_calloc(3, 3);
-	// Fill the predictor matrix...
-	for(int j=0; j<numRows; j++) {
-		gsl_matrix_set(fitXX_, j, 0, 1);
-		gsl_matrix_set(fitXX_, j, 1, j);
-		gsl_matrix_set(fitXX_, j, 2, j*j);
-	}
-}
-
-void REIXSXESImageAB::releaseFittingStructures()
-{
-	if(fitWorkSpace_) {
-		gsl_multifit_linear_free( fitWorkSpace_ );
-		gsl_matrix_free( fitXX_ );
-		gsl_vector_free( fitY_ );
-		gsl_vector_free( fitWeight_ );
-		gsl_vector_free( fitC_ );
-		gsl_matrix_free( fitCov_ );
-
-		fitWorkSpace_ = 0;
-		fitXX_ = 0;
-		fitY_ = 0;
-		fitWeight_ = 0;
-		fitC_ = 0;
-		fitCov_ = 0;
-	}
-}
-
-QVector<int> REIXSXESImageAB::quadraticSmooth(const QVector<int> &shifts)
-{
-	int sizeY = inputSource_->size(1);
-	QVector<int> rv(sizeY);	// initialize return value.
-
-	if(shifts.count() != sizeY) {
-		AMErrorMon::alert(this, -33, "Cannot conduct quadratic smoothing of the shift values, because the size of the input does not match the image vertical size. Please report this bug to the REIXS Acquaman developers.");
-		return rv;
-	}
-
-	// Do we need to allocate or re-size the fitting structures?
-	if(!fitWorkSpace_ || fitY_->size != size_t(sizeY)) {
-		releaseFittingStructures();
-		allocateFittingStructures(sizeY);
-	}
-
-	// Copy the shiftnumbers into the 'observation' fitting vector
-	// Set the weights to 0 outside [sumRangeMin_, sumRangeMax_] and 1 inside. (0.5 on the boundary, for non-abruptness?)
-	for(int j=0; j<sizeY; j++) {
-		gsl_vector_set(fitY_, j, shifts.at(j));
-		if(j<sumRangeMin_ || j>sumRangeMax_)
-			gsl_vector_set(fitWeight_, j, 0);
-		else if(j==sumRangeMin_ || j==sumRangeMax_)
-			gsl_vector_set(fitWeight_, j, 0.5);
-		else
-			gsl_vector_set(fitWeight_, j, 1);
-	}
-
-	// Run the fitting procedure
-	if( gsl_multifit_linear (fitXX_, fitY_, fitC_, fitCov_, &fitChisq_, fitWorkSpace_) )
-		AMErrorMon::alert(this, -34, "A mathematical error occurred while fitting the correlated shift values to a quadratic curve. Please report this problem to the REIXS Acquaman developers");
-	else
-		for(int j=0; j<sizeY; j++)
-			// The new quadratic has coefficients in fitC_
-			rv[j] = lround( gsl_vector_get(fitC_, 0) + gsl_vector_get(fitC_, 1)*j + gsl_vector_get(fitC_, 2)*j*j );
-
-	return rv;
-}
 
 
 #include "analysis/REIXS/REIXSXESImageABEditor.h"
@@ -620,11 +543,6 @@ void REIXSXESImageAB::computeCachedAxisValues() const
 	double beta = cal.betaFromPosition(grating, cal.spectrometerAngle(liftHeight), rPrime);
 	// Any detector tilt offset from nominal: get from position of tilt stage:
 	double tiltOffset = cal.tiltOffset(tiltStage, beta);
-
-	qDebug() << "Scan: " << scan()->fullName();
-	qDebug() << "beta" << beta << "deg";
-	qDebug() << "tiltOffset" << tiltOffset << "deg";
-	qDebug() << "tiltState:" << tiltStage;
 
 	// Variables. From here on, we work in radians, instead of the degree convention used by REIXSXESCalibration.
 	beta = cal.d2r(beta);
@@ -734,6 +652,8 @@ void REIXSXESImageAB::setEnergyCalibrationOffset(double energyCalibrationOffset)
 	energyCalibrationOffset_ = energyCalibrationOffset;
 	axisValueCacheInvalid_ = true;
 	emitValuesChanged();
+
+	setModified(true);
 }
 
 void REIXSXESImageAB::setTiltCalibrationOffset(double tiltCalibrationOffset)
@@ -744,9 +664,313 @@ void REIXSXESImageAB::setTiltCalibrationOffset(double tiltCalibrationOffset)
 	tiltCalibrationOffset_ = tiltCalibrationOffset;
 	axisValueCacheInvalid_ = true;
 	emitValuesChanged();
+
+	setModified(true);
+}
+
+
+void REIXSXESImageAB::setCorrelationSmoothing(int type)
+{
+	if(type == correlationSmoothing_)
+		return;
+
+	correlationSmoothing_ = type;
+
+	delete curveSmoother_;
+	switch((ShiftCurveSmoothing)type) {
+	case QuadraticSmoothing:
+		curveSmoother_ = new REIXSQuadraticFitter();
+		break;
+	case CubicSmoothing:
+		curveSmoother_ = new REIXSCubicFitter();
+		break;
+	case QuarticSmoothing:
+		curveSmoother_ = new REIXSQuarticFitter();
+		break;
+	case NoSmoothing:
+	default:
+		curveSmoother_ = 0;
+		break;
+	}
+
+	if(liveCorrelation())
+			callCorrelation_.schedule();
+
+	setModified(true);
 }
 
 
 
 
+
+REIXSQuadraticFitter::REIXSQuadraticFitter()
+{
+	// Fitting structures (unallocated)
+	fitWorkSpace_ = 0;
+	fitXX_ = 0;
+	fitY_ = 0;
+	fitWeight_ = 0;
+	fitC_ = 0;
+	fitCov_ = 0;
+
+	numRows_ = -1;
+}
+
+REIXSQuadraticFitter::~REIXSQuadraticFitter() {
+	releaseFittingStructures();
+}
+
+void REIXSQuadraticFitter::allocateFittingStructures(int numRows)
+{
+	if(numRows < 1)
+		return;	// do not allocate if size is 0.
+
+	numRows_ = numRows;
+
+	fitWorkSpace_ = gsl_multifit_linear_alloc(numRows_, 3);
+	fitXX_ = gsl_matrix_calloc(numRows_, 3);		// The matrix of predictor variables XX_ij = x_i^j;  In our case, x is the image row index (y!)
+	fitY_ = gsl_vector_calloc(numRows_);		// The vector of observations;  In our case, fitY_i is the shiftnumber shiftnum_[i]
+	fitWeight_ = gsl_vector_calloc(numRows_);	// The weight of the observation; In our case 1 for sourceRangeMin_ <= y <= sourceRangeMax_; 0 otherwise.
+	fitC_ = gsl_vector_calloc(3);		// The vector of coefficients; In our case the 3 quadratic fit constants.
+	fitCov_ = gsl_matrix_calloc(3, 3);
+	// Fill the predictor matrix...
+	for(int j=0; j<numRows_; j++) {
+		gsl_matrix_set(fitXX_, j, 0, 1);
+		gsl_matrix_set(fitXX_, j, 1, j);
+		gsl_matrix_set(fitXX_, j, 2, j*j);
+	}
+}
+
+void REIXSQuadraticFitter::releaseFittingStructures()
+{
+	if(fitWorkSpace_) {
+		gsl_multifit_linear_free( fitWorkSpace_ );
+		gsl_matrix_free( fitXX_ );
+		gsl_vector_free( fitY_ );
+		gsl_vector_free( fitWeight_ );
+		gsl_vector_free( fitC_ );
+		gsl_matrix_free( fitCov_ );
+
+		fitWorkSpace_ = 0;
+		fitXX_ = 0;
+		fitY_ = 0;
+		fitWeight_ = 0;
+		fitC_ = 0;
+		fitCov_ = 0;
+	}
+}
+
+QVector<int> REIXSQuadraticFitter::smooth(const QVector<int> &input, const QVector<double>& weights)
+{
+	if(input.isEmpty())
+		return QVector<int>();
+
+	if(input.size() != numRows_) {
+		releaseFittingStructures();
+		allocateFittingStructures(input.size());
+	}
+
+	QVector<int> rv(numRows_);
+
+	// Copy the input into the 'observation' fitting vector
+	// Copy the weights into th weighting vector
+	for(int j=0; j<numRows_; ++j) {
+		gsl_vector_set(fitY_, j, input.at(j));
+		gsl_vector_set(fitWeight_, j, weights.at(j));
+	}
+
+	// Run the fitting procedure
+	if( gsl_multifit_linear (fitXX_, fitY_, fitC_, fitCov_, &fitChisq_, fitWorkSpace_) != GSL_SUCCESS )
+		AMErrorMon::alert(0, -34, "Curve Fitting: A mathematical error occurred while fitting the correlated shift values to a quadratic curve. Please report this problem to the REIXS Acquaman developers");
+	else
+		for(int j=0; j<numRows_; j++)
+			// The new quadratic has coefficients in fitC_
+			rv[j] = lround( gsl_vector_get(fitC_, 0) + gsl_vector_get(fitC_, 1)*j + gsl_vector_get(fitC_, 2)*j*j );
+
+	return rv;
+}
+
+
+REIXSCubicFitter::REIXSCubicFitter()
+{
+	// Fitting structures (unallocated)
+	fitWorkSpace_ = 0;
+	fitXX_ = 0;
+	fitY_ = 0;
+	fitWeight_ = 0;
+	fitC_ = 0;
+	fitCov_ = 0;
+
+	numRows_ = -1;
+}
+
+REIXSCubicFitter::~REIXSCubicFitter() {
+	releaseFittingStructures();
+}
+
+void REIXSCubicFitter::allocateFittingStructures(int numRows)
+{
+	if(numRows < 1)
+		return;	// do not allocate if size is 0.
+
+	numRows_ = numRows;
+
+	fitWorkSpace_ = gsl_multifit_linear_alloc(numRows_, 4);
+	fitXX_ = gsl_matrix_calloc(numRows_, 4);		// The matrix of predictor variables XX_ij = x_i^j;
+	fitY_ = gsl_vector_calloc(numRows_);		// The vector of observations;
+	fitWeight_ = gsl_vector_calloc(numRows_);	// The weight of the observation;
+	fitC_ = gsl_vector_calloc(4);		// The vector of coefficients; In our case the 4 Cubic fit constants.
+	fitCov_ = gsl_matrix_calloc(4, 4);
+	// Fill the predictor matrix...
+	for(int j=0; j<numRows_; j++) {
+		gsl_matrix_set(fitXX_, j, 0, 1);
+		gsl_matrix_set(fitXX_, j, 1, j);
+		gsl_matrix_set(fitXX_, j, 2, j*j);
+		gsl_matrix_set(fitXX_, j, 3, j*j*j);
+	}
+}
+
+void REIXSCubicFitter::releaseFittingStructures()
+{
+	if(fitWorkSpace_) {
+		gsl_multifit_linear_free( fitWorkSpace_ );
+		gsl_matrix_free( fitXX_ );
+		gsl_vector_free( fitY_ );
+		gsl_vector_free( fitWeight_ );
+		gsl_vector_free( fitC_ );
+		gsl_matrix_free( fitCov_ );
+
+		fitWorkSpace_ = 0;
+		fitXX_ = 0;
+		fitY_ = 0;
+		fitWeight_ = 0;
+		fitC_ = 0;
+		fitCov_ = 0;
+	}
+}
+
+QVector<int> REIXSCubicFitter::smooth(const QVector<int> &input, const QVector<double>& weights)
+{
+	if(input.isEmpty())
+		return QVector<int>();
+
+	if(input.size() != numRows_) {
+		releaseFittingStructures();
+		allocateFittingStructures(input.size());
+	}
+
+	QVector<int> rv(numRows_);
+
+	// Copy the input into the 'observation' fitting vector
+	// Copy the weights into th weighting vector
+	for(int j=0; j<numRows_; ++j) {
+		gsl_vector_set(fitY_, j, input.at(j));
+		gsl_vector_set(fitWeight_, j, weights.at(j));
+	}
+
+	// Run the fitting procedure
+	if( gsl_multifit_linear (fitXX_, fitY_, fitC_, fitCov_, &fitChisq_, fitWorkSpace_) != GSL_SUCCESS )
+		AMErrorMon::alert(0, -34, "Curve Fitting: A mathematical error occurred while fitting the correlated shift values to a Cubic curve. Please report this problem to the REIXS Acquaman developers");
+	else
+		for(int j=0; j<numRows_; j++)
+			// The new Cubic has coefficients in fitC_
+			rv[j] = lround( gsl_vector_get(fitC_, 0) + gsl_vector_get(fitC_, 1)*j + gsl_vector_get(fitC_, 2)*j*j + gsl_vector_get(fitC_, 3)*j*j*j );
+
+	return rv;
+}
+
+//
+
+REIXSQuarticFitter::REIXSQuarticFitter()
+{
+	// Fitting structures (unallocated)
+	fitWorkSpace_ = 0;
+	fitXX_ = 0;
+	fitY_ = 0;
+	fitWeight_ = 0;
+	fitC_ = 0;
+	fitCov_ = 0;
+
+	numRows_ = -1;
+}
+
+REIXSQuarticFitter::~REIXSQuarticFitter() {
+	releaseFittingStructures();
+}
+
+void REIXSQuarticFitter::allocateFittingStructures(int numRows)
+{
+	if(numRows < 1)
+		return;	// do not allocate if size is 0.
+
+	numRows_ = numRows;
+
+	fitWorkSpace_ = gsl_multifit_linear_alloc(numRows_, 5);
+	fitXX_ = gsl_matrix_calloc(numRows_, 5);		// The matrix of predictor variables XX_ij = x_i^j;
+	fitY_ = gsl_vector_calloc(numRows_);		// The vector of observations;
+	fitWeight_ = gsl_vector_calloc(numRows_);	// The weight of the observation;
+	fitC_ = gsl_vector_calloc(5);		// The vector of coefficients; In our case the 5 Quartic fit constants.
+	fitCov_ = gsl_matrix_calloc(5, 5);
+	// Fill the predictor matrix...
+	for(int j=0; j<numRows_; j++) {
+		gsl_matrix_set(fitXX_, j, 0, 1);
+		gsl_matrix_set(fitXX_, j, 1, j);
+		gsl_matrix_set(fitXX_, j, 2, j*j);
+		gsl_matrix_set(fitXX_, j, 3, j*j*j);
+		gsl_matrix_set(fitXX_, j, 4, j*j*j*j);
+	}
+}
+
+void REIXSQuarticFitter::releaseFittingStructures()
+{
+	if(fitWorkSpace_) {
+		gsl_multifit_linear_free( fitWorkSpace_ );
+		gsl_matrix_free( fitXX_ );
+		gsl_vector_free( fitY_ );
+		gsl_vector_free( fitWeight_ );
+		gsl_vector_free( fitC_ );
+		gsl_matrix_free( fitCov_ );
+
+		fitWorkSpace_ = 0;
+		fitXX_ = 0;
+		fitY_ = 0;
+		fitWeight_ = 0;
+		fitC_ = 0;
+		fitCov_ = 0;
+	}
+}
+
+QVector<int> REIXSQuarticFitter::smooth(const QVector<int> &input, const QVector<double>& weights)
+{
+	if(input.isEmpty())
+		return QVector<int>();
+
+	if(input.size() != numRows_) {
+		releaseFittingStructures();
+		allocateFittingStructures(input.size());
+	}
+
+	QVector<int> rv(numRows_);
+
+	// Copy the input into the 'observation' fitting vector
+	// Copy the weights into th weighting vector
+	for(int j=0; j<numRows_; ++j) {
+		gsl_vector_set(fitY_, j, input.at(j));
+		gsl_vector_set(fitWeight_, j, weights.at(j));
+	}
+
+	// Run the fitting procedure
+	if( gsl_multifit_linear (fitXX_, fitY_, fitC_, fitCov_, &fitChisq_, fitWorkSpace_) != GSL_SUCCESS )
+		AMErrorMon::alert(0, -34, "Curve Fitting: A mathematical error occurred while fitting the correlated shift values to a Quartic curve. Please report this problem to the REIXS Acquaman developers");
+	else
+		for(int j=0; j<numRows_; j++)
+			// The new Quartic has coefficients in fitC_
+			rv[j] = lround( gsl_vector_get(fitC_, 0)
+							+ gsl_vector_get(fitC_, 1)*j
+							+ gsl_vector_get(fitC_, 2)*j*j
+							+ gsl_vector_get(fitC_, 3)*j*j*j
+							+ gsl_vector_get(fitC_, 4)*j*j*j*j );
+
+	return rv;
+}
 

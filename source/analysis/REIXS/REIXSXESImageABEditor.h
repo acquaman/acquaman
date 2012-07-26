@@ -28,6 +28,8 @@ class QPushButton;
 class QSlider;
 class QAction;
 class QToolButton;
+class QDoubleSpinBox;
+class QComboBox;
 
 
 class MPlotWidget;
@@ -104,6 +106,8 @@ public slots:
 	void onApplyToOtherScansMenuClicked();
 	/// When a user chooses which scans to apply the current shift to.
 	void onApplyToOtherScansChosen();
+	/// When a user pushes the "manual shift entry" button.
+	void onManualShiftEntryButtonClicked();
 
 	/// signals from analysis block: if the block's input data source changes (to either null, or one with a different size.)
 	void onAnalysisBlockInputDataSourcesChanged();
@@ -122,9 +126,15 @@ protected:
 	QSpinBox* rangeMinControl_, *rangeMaxControl_;
 	QSpinBox* correlationCenterBox_, *correlationPointsBox_;
 	QPushButton* correlateNowButton_;
+	QComboBox* correlationSmoothingBox_;
 	QCheckBox* liveCorrelationCheckBox_;
+	QDoubleSpinBox* energyCalibrationOffsetBox_, *tiltCalibrationOffsetBox_;
+
 	QSlider* shiftDisplayOffsetSlider_;
+
 	QToolButton* applyToOtherScansButton_;
+	QToolButton* manualShiftEntryButton_;
+
 
 	// plot widget to show what region is summed
 	MPlotWidget* plotWidget_;
@@ -144,6 +154,8 @@ protected:
 	QAction* batchApplyShiftCurve_;
 	/// A checkable menu action that indicates "batch apply" should apply the sum range (min, max) to all scans.
 	QAction* batchApplySumRange_;
+	/// A checkable menu action that indicates "batch apply" shouuld apply the calibration offsets (energy, tilt) to all scans.
+	QAction* batchApplyCalibrationOffsets_;
 
 
 	/// called to position and show/hide the range rectangle, as appropriate.
