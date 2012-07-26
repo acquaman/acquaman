@@ -54,6 +54,8 @@ public:
 
 	QButtonGroup* modeButtons_;
 
+	QToolButton* showSourcesButton_;
+
 	QCheckBox *logCheckBox_;
 	QCheckBox* normalizationCheckBox_, *waterfallCheckBox_;
 	QDoubleSpinBox* waterfallAmount_;
@@ -125,6 +127,8 @@ protected:
 
 #include <QPropertyAnimation>
 
+#define AM_SCAN_VIEW_HIDE_SCANBARS_AFTER_N_SCANS 7
+
 /// A GUI class that provides a several different ways to view a set of scans.  It is based on the contents of an AMScanSetModel, and a variety of different AMScanViewInternal views can be shown within it.
 class AMScanView : public QWidget
 {
@@ -154,8 +158,14 @@ public slots:
 	/// Export the current view to a PDF file with \c outputFileName. Overwrites \c outputFileName if it already exists.
 	void exportGraphicsFile(const QString& outputFileName);
 
+	/// Set the visibility of the data-source button bars.
+	void setScanBarsVisible(bool areVisible);
+
 protected slots:
 	void resizeViews();
+
+	/// Used to hide the scan bars if more than AM_SCAN_VIEW_HIDE_SCANBARS_AFTER_N_SCANS (7?) scans have been added to the model, otherwise the scan bars start to take up the whole vertical screen.
+	void onRowInserted(const QModelIndex& parent, int start, int end);
 
 protected:
 
