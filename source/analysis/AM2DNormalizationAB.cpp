@@ -227,6 +227,10 @@ AMNumber AM2DNormalizationAB::value(const AMnDIndex &indexes) const
 	if (double(normalizer_->value(indexes)) == 0)
 		return 0;
 
+	// The normalizer must be positive.
+	if (double(normalizer_->value(indexes)) < 0)
+		return -1;
+
 	return double(data_->value(indexes))/double(normalizer_->value(indexes));
 }
 
