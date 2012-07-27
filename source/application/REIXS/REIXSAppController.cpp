@@ -48,31 +48,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
 #include "dataman/AMRun.h"
 
-// old workflow manager view: (to be removed)
-#include "ui/AMWorkflowManagerView.h"
-
-#include "ui/actions2/AMWorkflowView.h"
-#include "actions2/AMActionRunner.h"
 #include "actions2/AMActionRegistry.h"
-#include "actions2/AMLoopAction.h"
-#include "actions2/actions/AMWaitAction.h"
+
 #include "actions2/actions/REIXS/REIXSControlMoveAction.h"
-#include "actions2/actions/AMScanControllerAction.h"
-#include "actions2/actions/AMInternalControlMoveAction.h"
 #include "actions2/actions/REIXS/REIXSXESScanAction.h"
 #include "actions2/actions/REIXS/REIXSSampleMoveAction.h"
 #include "actions2/actions/REIXS/REIXSMoveToSampleTransferPositionAction.h"
 #include "actions2/actions/REIXS/REIXSBeamOnOffAction.h"
-#include "actions2/editors/AMWaitActionEditor.h"
-#include "actions2/editors/AMLoopActionEditor.h"
 #include "actions2/editors/REIXS/REIXSXESScanActionEditor.h"
 #include "actions2/editors/REIXS/REIXSControlMoveActionEditor.h"
 #include "actions2/editors/REIXS/REIXSBeamOnOffActionEditor.h"
-#include "actions2/actions/AMChangeRunAction.h"
-#include "actions2/editors/AMChangeRunActionEditor.h"
 #include "actions2/editors/REIXS/REIXSSampleMoveActionEditor.h"
 #include "actions2/actions/REIXS/REIXSXASScanAction.h"
-
 
 #include "analysis/REIXS/REIXSXESImageAB.h"
 
@@ -85,16 +72,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/util/AMJoystickTestView.h"
 #endif
 
-#include "ui/actions3/AMWorkflowView3.h"
-
 REIXSAppController::REIXSAppController(QObject *parent) :
-    AMAppController(parent)
+	AMAppControllerForActions2(parent)
 {
 }
 
 // Re-implemented to create the REIXSBeamline object
 bool REIXSAppController::startupBeforeAnything() {
-	if(!AMAppController::startupBeforeAnything()) return false;
+	if(!AMAppControllerForActions2::startupBeforeAnything()) return false;
 
 	// If a command-line option has been specified to choose a new userDataFolder:
 	if(qApp->arguments().contains("--ChooseUserDataFolder"))
@@ -108,7 +93,7 @@ bool REIXSAppController::startupBeforeAnything() {
 
 // Re-implemented to register REIXS-specific database classes
 bool REIXSAppController::startupRegisterDatabases() {
-	if(!AMAppController::startupRegisterDatabases()) return false;
+	if(!AMAppControllerForActions2::startupRegisterDatabases()) return false;
 
 	AMDbObjectSupport::s()->registerClass<REIXSXESScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<REIXSXASScanConfiguration>();
@@ -121,29 +106,23 @@ bool REIXSAppController::startupRegisterDatabases() {
 	AMDbObjectSupport::s()->registerClass<REIXSXASScanActionInfo>();
 	AMDbObjectSupport::s()->registerClass<REIXSSampleMoveActionInfo>();
 	AMDbObjectSupport::s()->registerClass<REIXSBeamOnOffActionInfo>();
-	AMDbObjectSupport::s()->registerClass<AMChangeRunActionInfo>();
 
 	// Register Actions:
 	////////////////////////////////
 
 	/// \todo Move common ones to main app controller.
-	AMActionRegistry::s()->registerInfoAndAction<AMWaitActionInfo, AMWaitAction>("Wait", "This action simply waits for a specified amount of time.", ":/user-away.png");
 	AMActionRegistry::s()->registerInfoAndAction<REIXSControlMoveActionInfo, REIXSControlMoveAction>("Move Control", "This action moves any REIXS beamline control to a target position.\n\nYou can specify an absolute or a relative move.", ":/system-run.png");
 	AMActionRegistry::s()->registerInfoAndAction<REIXSXESScanActionInfo, REIXSXESScanAction>("XES Scan", "This action conducts a single XES scan at a given detector energy.", ":/utilities-system-monitor.png");
 	AMActionRegistry::s()->registerInfoAndAction<REIXSXASScanActionInfo, REIXSXASScanAction>("XAS Scan", "This action conducts an XAS scan over an incident energy range.", ":/utilities-system-monitor.png");
-	AMActionRegistry::s()->registerInfoAndAction<AMLoopActionInfo, AMLoopAction>("Loop", "This action repeats a set of sub-actions a specific number of times.\n\nAfter adding it, you can drag-and-drop other actions inside it.", ":/32x32/media-playlist-repeat.png");
 	AMActionRegistry::s()->registerInfoAndAction<REIXSSampleMoveActionInfo, REIXSSampleMoveAction>("Move Sample", "This action moves the REIXS sample manipulator to a defined position, or switches between samples on the current sample plate.", ":/32x32/gnome-display-properties.png");
 	AMActionRegistry::s()->registerInfoAndAction<REIXSMoveToSampleTransferPositionActionInfo, REIXSMoveToSampleTransferPositionAction>("Move to Transfer", "This action moves the REIXS sample manipulator to the sample transfer position.", ":/32x32/media-eject.png");
 	AMActionRegistry::s()->registerInfoAndAction<REIXSBeamOnOffActionInfo, REIXSBeamOnOffAction>("Beam On/Off", "This action turns the beam on or off.");
-	AMActionRegistry::s()->registerInfoAndAction<AMChangeRunActionInfo, AMChangeRunAction>("Change Run", "This action changes the current run, or creates a new one.");
 
-	AMActionRegistry::s()->registerInfoAndEditor<AMWaitActionInfo, AMWaitActionEditor>();
-	AMActionRegistry::s()->registerInfoAndEditor<AMLoopActionInfo, AMLoopActionEditor>();
+
 	AMActionRegistry::s()->registerInfoAndEditor<REIXSXESScanActionInfo, REIXSXESScanActionEditor>();
 	/// \todo Editor for XAS Scan actions...
 	AMActionRegistry::s()->registerInfoAndEditor<REIXSControlMoveActionInfo, REIXSControlMoveActionEditor>();
 	AMActionRegistry::s()->registerInfoAndEditor<REIXSBeamOnOffActionInfo, REIXSBeamOnOffActionEditor>();
-	AMActionRegistry::s()->registerInfoAndEditor<AMChangeRunActionInfo, AMChangeRunActionEditor>();
 	AMActionRegistry::s()->registerInfoAndEditor<REIXSSampleMoveActionInfo, REIXSSampleMoveActionEditor>();
 
 	return true;
@@ -151,24 +130,10 @@ bool REIXSAppController::startupRegisterDatabases() {
 
 // Re-implemented to add REIXS-specific user interfaces
 bool REIXSAppController::startupCreateUserInterface() {
-	if(!AMAppController::startupCreateUserInterface()) return false;
+	if(!AMAppControllerForActions2::startupCreateUserInterface()) return false;
 
 	// Create panes in the main window:
 	////////////////////////////////////
-
-	// This workflow stuff needs to get sorted out at the App controller level.
-	///////////////////////////////////////////////////
-	// remove the Actions3 workflow:
-	mw_->removePane(AMAppController::workflowView_);
-	delete AMAppController::workflowView_;
-
-	// remove the OLD OLD workflow:
-//	mw_->removePane(AMAppController::workflowManagerView_);
-//	AMAppController::workflowManagerView_->hide();
-
-	// add the actual workflow UI (Using version in Actions2)
-	workflowView_ = new AMWorkflowView();
-	mw_->addPane(workflowView_, "Experiment Tools", "Workflow", ":/user-away.png");
 
 
 	mw_->insertHeading("Experiment Setup", 1);
@@ -243,7 +208,7 @@ bool REIXSAppController::startupCreateUserInterface() {
 
 
 bool REIXSAppController::startupAfterEverything() {
-	if(!AMAppController::startupAfterEverything()) return false;
+	if(!AMAppControllerForActions2::startupAfterEverything()) return false;
 
 	// Checking for and making the first run in the database, if there isn't one already.
 	////////////////////////////////////////
@@ -254,11 +219,6 @@ bool REIXSAppController::startupAfterEverything() {
 		firstRun.storeToDb(AMDatabase::database("user"));
 	}
 
-	// Make connections
-	//////////////////////////
-	/// \todo Eventually move into AMAppController
-	connect(AMActionRunner::s(), SIGNAL(currentActionStateChanged(int,int)), this, SLOT(onCurrentActionStateChanged(int,int)));
-
 	return true;
 }
 
@@ -266,32 +226,14 @@ void REIXSAppController::shutdown() {
 
     // Make sure we release/clean-up the beamline interface
     AMBeamline::releaseBl();
-    AMAppController::shutdown();
+	AMAppControllerForActions2::shutdown();
 }
 
-void REIXSAppController::goToWorkflow()
+
+void REIXSAppController::launchScanConfigurationFromDb(const QUrl &url)
 {
-    mw_->setCurrentPane(workflowView_);
 }
 
-#include "acquaman/AMScanController.h"
-
-void REIXSAppController::onCurrentActionStateChanged(int newState, int oldState)
-{
-    Q_UNUSED(oldState)
-
-    if(newState == AMAction::Running) {
-        AMAction* action = AMActionRunner::s()->currentAction();
-
-        AMScanControllerAction* scanAction = qobject_cast<AMScanControllerAction*>(action);
-        if(scanAction) {
-            AMScanController* scanController = scanAction->scanController();
-            if(scanController) {
-                openScanInEditorAndTakeOwnership(scanController->scan());
-            }
-        }
-	}
-}
 
 
 

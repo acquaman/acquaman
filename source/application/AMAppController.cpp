@@ -48,7 +48,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/editors/AMSamplePlateMoveActionEditor.h"
 
 AMAppController::AMAppController(QObject *parent)
-	: AMDatamanAppController(parent)
+	: AMDatamanAppControllerForActions3(parent)
 {
 }
 
@@ -67,7 +67,7 @@ bool AMAppController::startup(){
 	AMNumberChangeActionSupport::appendNumber(1);
 	*/
 
-	if(AMDatamanAppController::startup()){
+	if(AMDatamanAppControllerForActions3::startup()){
 		bool success = true;
 		/* Commented out, put it back in to play with the change number action
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMNumberChangeActionInfo, AMNumberChangeAction>("Number Change", "Changes a number in the list", ":/system-run.png");
@@ -96,7 +96,7 @@ bool AMAppController::startup(){
 
 bool AMAppController::startupCreateUserInterface() {
 
-	if (AMDatamanAppController::startupCreateUserInterface()){
+	if (AMDatamanAppControllerForActions3::startupCreateUserInterface()){
 		// a heading for the workflow manager...
 		workflowManagerView_ = new AMWorkflowManagerView();
 		mw_->insertHeading("Experiment Tools", 1);
@@ -251,33 +251,33 @@ bool AMAppController::eventFilter(QObject* o, QEvent* e)
 }
 
 #include <QMessageBox>
-#include "actions2/AMActionRunner.h"
-#include "actions2/AMAction.h"
+#include "actions3/AMActionRunner3.h"
+#include "actions3/AMAction3.h"
 bool AMAppController::canCloseActionRunner()
 {
-	AMActionRunner::s()->setQueuePaused(true);
+	AMActionRunner3::workflow()->setQueuePaused(true);
 
 	// is there an action running in the primary queue?
-	if(AMActionRunner::s()->actionRunning()) {
+	if(AMActionRunner3::workflow()->actionRunning()) {
 
 		int doCancel = QMessageBox::question(mw_,
 											  "An action is still running. Are you sure you want to quit?",
-											  QString("There is an action (%1) still running.  Do you want to stop it?").arg(AMActionRunner::s()->currentAction()->info()->shortDescription()),
+											  QString("There is an action (%1) still running.  Do you want to stop it?").arg(AMActionRunner3::workflow()->currentAction()->info()->shortDescription()),
 											  QMessageBox::Yes, QMessageBox::No);
 
 		// Careful: it might have finished while the user was answering the question.
-		if(AMActionRunner::s()->actionRunning()) {
+		if(AMActionRunner3::workflow()->actionRunning()) {
 			if(doCancel == QMessageBox::Yes)
-				AMActionRunner::s()->cancelCurrentAction();
+				AMActionRunner3::workflow()->cancelCurrentAction();
 			return false;
 		}
 	}
 
 	// any actions running in the background in immediate mode?
-	if(AMActionRunner::s()->immediateActionsCount()) {
+	if(AMActionRunner3::workflow()->immediateActionsCount()) {
 		QStringList descriptions;
-		for(int i=0, cc=AMActionRunner::s()->immediateActionsCount(); i<cc; i++) {
-			descriptions << AMActionRunner::s()->immediateActionAt(i)->info()->shortDescription();
+		for(int i=0, cc=AMActionRunner3::workflow()->immediateActionsCount(); i<cc; i++) {
+			descriptions << AMActionRunner3::workflow()->immediateActionAt(i)->info()->shortDescription();
 		}
 		int doCancel = QMessageBox::question(mw_,
 											  "Actions are still running in the background. Are you sure you want to quit?",
@@ -285,9 +285,9 @@ bool AMAppController::canCloseActionRunner()
 											  QMessageBox::Yes, QMessageBox::No);
 
 		// careful: they might have finished while the user was answering.
-		if(AMActionRunner::s()->immediateActionsCount()) {
+		if(AMActionRunner3::workflow()->immediateActionsCount()) {
 			if(doCancel == QMessageBox::Yes)
-				AMActionRunner::s()->cancelImmediateActions();
+				AMActionRunner3::workflow()->cancelImmediateActions();
 			return false;
 		}
 	}
@@ -306,7 +306,7 @@ void AMAppController::showChooseRunDialog()
 #include <QMenu>
 bool AMAppController::startupInstallActions()
 {
-	if(AMDatamanAppController::startupInstallActions()) {
+	if(AMDatamanAppControllerForActions3::startupInstallActions()) {
 
 		QAction* changeRunAction = new QAction("Change Run...", mw_);
 		// changeRunAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_B));

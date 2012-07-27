@@ -244,6 +244,7 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/acquaman/dacq3_3/qepicsacqlocal.h \
 	source/acquaman/dacq3_3/qepicsadvacq.h \
 	source/application/AMAppController.h \
+	source/application/AMAppControllerForActions2.h \
 	source/util/AMBiHash.h \
 	source/util/AMErrorMonitor.h \
 	source/util/AMSettings.h \
@@ -588,7 +589,9 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/acquaman/CLS/CLSSIS3820ScalerSADetector.h \
 	source/ui/dataman/AMRegionScanConfigurationView.h \
     source/ui/dataman/AMSampleSelector.h \
-    source/ui/AMTopFrame2.h
+    source/ui/AMTopFrame2.h \
+    source/application/AMDatamanAppControllerForActions2.h \
+    source/application/AMDatamanAppControllerForActions3.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -660,6 +663,7 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/dacq3_3/xmlRead.cpp \
 	source/acquaman/dacq3_3/xmlWrite.cpp \
 	source/application/AMAppController.cpp \
+	source/application/AMAppControllerForActions2.cpp \
 	source/util/AMErrorMonitor.cpp \
 	source/util/AMSettings.cpp \
 	source/beamline/AMBeamline.cpp \
@@ -980,7 +984,9 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/CLS/CLSSIS3820ScalerSADetector.cpp \
 	source/ui/dataman/AMRegionScanConfigurationView.cpp \
     source/ui/dataman/AMSampleSelector.cpp \
-    source/ui/AMTopFrame2.cpp
+    source/ui/AMTopFrame2.cpp \
+    source/application/AMDatamanAppControllerForActions2.cpp \
+    source/application/AMDatamanAppControllerForActions3.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1004,6 +1010,10 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
 
 
 

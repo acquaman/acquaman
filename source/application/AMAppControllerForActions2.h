@@ -23,11 +23,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 
-#include "application/AMDatamanAppControllerForActions3.h"
+#include "application/AMDatamanAppControllerForActions2.h"
 #include <QHash>
 
-class AMWorkflowView3;
-class AMWorkflowManagerView;
+class AMWorkflowView;
 class AMMainWindow;
 class AMScan;
 class AMScanConfiguration;
@@ -35,22 +34,24 @@ class AMExporter;
 class AMExporterOption;
 
 /// This class extends the base dataman app controller class by adding the workflow.  This is the base class for all beamline acquisition app controllers.  The reason for the distinction between this class and the dataman version is a result for the desire to be able to take the dataman version home with the user whereas this version is meant to reside on beamlines that always have access to beamline components and controls.
-class AMAppController : public AMDatamanAppControllerForActions3
+class AMAppControllerForActions2 : public AMDatamanAppControllerForActions2
 {
 Q_OBJECT
 public:
 	/// This constructor is empty. Call AMAppController::startup() to create all of the application windows, widgets, and data objects that are needed on program startup.
-	explicit AMAppController(QObject *parent = 0);
+	explicit AMAppControllerForActions2(QObject *parent = 0);
 	/// The destructor is empty.  Call AMAppController::shutdown() to delete all objects and clean up.
-	virtual ~AMAppController() {}
+	virtual ~AMAppControllerForActions2() {}
 
-	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
-	virtual bool startup();
 
+	/// Re-implemented from AMDatamanAppControllerForActions2 to register editors for common actions
+	virtual bool startupRegisterDatabases();
 	/// Re-implemented from AMDatamanAppController to add the workflow pane, and show the run selection dialog / splash screen.
 	virtual bool startupCreateUserInterface();
 	/// Re-implemented from AMDatamanAppController to provide a menu action for changing the current run.
 	virtual bool startupInstallActions();
+	/// Re-implemented to connect action state changes to our onCurrentActionStateChanged slot.
+	virtual bool startupAfterEverything();
 
 	// Shutdown: nothing special to do except use the base class shutdown().
 //	virtual void shutdown();
@@ -68,8 +69,6 @@ If \c openInExistingEditor is set to true, and if there is an existing editor, t
 	/// Bring the Workflow view to the front.
 	virtual void goToWorkflow();
 
-	///	Opens a single scan configuration from a given database URL.  Reimplemented to put the scan into a config view holder to possibly add it to the workflow.
-	virtual void launchScanConfigurationFromDb(const QUrl &url);
 
 	/// Displays a dialog for changing the current run, if a user wants to do that while the app is still open.
 	void showChooseRunDialog();
@@ -78,14 +77,17 @@ If \c openInExistingEditor is set to true, and if there is an existing editor, t
 
 protected:
 	/// Top-level panes in the main window
-	AMWorkflowManagerView* workflowManagerView_;
-	AMWorkflowView3* workflowView_;
+	AMWorkflowView* workflowView_;
 
 	/// Filters the closeEvent on the main window, in case there's any reason why we can't quit directly. (ie: scans modified and still open, or an action is still running)
 	virtual bool eventFilter(QObject *, QEvent *);
 
 	/// Checks to make sure no actions are currently running in the AMActionRunner. If there are, asks user if they want to cancel them, but still returns false.
 	bool canCloseActionRunner();
+
+protected slots:
+	/// This watches when the state of the current action changes (as notified by AMActionRunner). For now, we notice when an AMScanControllerAction starts, and create an editor for its scan.
+	virtual void onCurrentActionStateChanged(int newState, int oldState);
 };
 
 #endif // AMAPPCONTROLLER_H
