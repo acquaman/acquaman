@@ -250,8 +250,6 @@ AMScanViewScanBarContextMenu::AMScanViewScanBarContextMenu(AMScanSetModel *model
 	: QMenu(parent)
 {
 	model_ = model;
-	scanIndex_ = scanIndex;
-	dataSourceIndex_ = dataSourceIndex;
 	QModelIndex di = model_->indexForDataSource(scanIndex, dataSourceIndex);
 	pi_ = QPersistentModelIndex(di);
 
@@ -283,7 +281,13 @@ AMScanViewScanBarContextMenu::~AMScanViewScanBarContextMenu() {
 
 void AMScanViewScanBarContextMenu::hideAllExceptDataSource()
 {
-	AMScan *scan = model_->scanAt(scanIndex_);
+	if(!pi_.isValid())
+		return;
+
+	int scanIndex = pi_.parent().row();
+	int dataSourceIndex = pi_.row();
+
+	AMScan *scan = model_->scanAt(scanIndex);
 	if (!scan)
 		return;
 
@@ -291,17 +295,23 @@ void AMScanViewScanBarContextMenu::hideAllExceptDataSource()
 
 	for (int i = 0; i < dataSourceCount; i++){
 
-		if (i == dataSourceIndex_)
-			model_->setVisible(scanIndex_, i, true);
+		if (i == dataSourceIndex)
+			model_->setVisible(scanIndex, i, true);
 
 		else
-			model_->setVisible(scanIndex_, i, false);
+			model_->setVisible(scanIndex, i, false);
 	}
 }
 
 void AMScanViewScanBarContextMenu::showAllDataSource()
 {
-	QString nameOfDataSource(model_->dataSourceAt(scanIndex_, dataSourceIndex_)->name());
+	if(!pi_.isValid())
+		return;
+
+	int scanIndex = pi_.parent().row();
+	int dataSourceIndex = pi_.row();
+
+	QString nameOfDataSource(model_->dataSourceAt(scanIndex, dataSourceIndex)->name());
 	int scanCount = model_->scanCount();
 	int dataSourceCount = 0;
 
@@ -322,14 +332,19 @@ void AMScanViewScanBarContextMenu::showAllDataSource()
 
 void AMScanViewScanBarContextMenu::showAll()
 {
-	AMScan *scan = model_->scanAt(scanIndex_);
+	if(!pi_.isValid())
+		return;
+
+	int scanIndex = pi_.parent().row();
+
+	AMScan *scan = model_->scanAt(scanIndex);
 	if (!scan)
 		return;
 
 	int dataSourceCount = scan->dataSourceCount();
 
 	for (int i = 0; i < dataSourceCount; i++)
-		model_->setVisible(scanIndex_, i, true);
+		model_->setVisible(scanIndex, i, true);
 }
 
 #include "ui/dataman/AMScanSetItemPropertyDialog.h"
@@ -340,5 +355,6 @@ void AMScanViewScanBarContextMenu::editColorAndStyle()
 		pd->show();
 	}
 }
+
 
 

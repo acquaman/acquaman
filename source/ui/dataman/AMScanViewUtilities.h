@@ -45,12 +45,8 @@ public:
 protected:
 	/// The model this context menu was created within
 	AMScanSetModel* model_;
-	/// index of the data source this context menu was created for
+	/// index of the data source this context menu was created for. We need to use persistent indexes because the data sources might (very unlikely, but possibly) have been deleted while the right-click menu was open.
 	QPersistentModelIndex pi_;
-	/// Scan index.
-	int scanIndex_;
-	/// Data source index.  Similar to QPersistentModelIndex.
-	int dataSourceIndex_;
 
 
 protected slots:
