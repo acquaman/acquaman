@@ -182,5 +182,9 @@
         <file>16x16/loading2.gif</file>
         <file>16x16/loading3.gif</file>
         <file>16x16/loading4.gif</file>
+        <file>22x22/media-playback-stop.png</file>
+        <file>22x22/media-playback-pause-light.png</file>
+        <file>22x22/media-playback-start-light.png</file>
+        <file>22x22/media-playback-stop-light.png</file>
     </qresource>
 </RCC>
