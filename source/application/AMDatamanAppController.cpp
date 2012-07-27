@@ -79,22 +79,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DSummingAB.h"
 #include "analysis/AMDeadTimeAB.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
-#include "actions2/AMActionInfo.h"
-#include "actions2/AMActionLog.h"
-#include "actions2/actions/AMWaitActionInfo.h"
-#include "actions2/actions/AMControlMoveActionInfo.h"
-#include "actions2/actions/AMScanControllerActionInfo.h"
 #include "dataman/AM2DScan.h"
 #include "analysis/AM2DNormalizationAB.h"
 #include "analysis/AM1DNormalizationAB.h"
-
-#include "actions3/AMLoopActionInfo3.h"
-#include "actions3/actions/AMNumberChangeAction.h"
-#include "actions3/AMActionInfo3.h"
-#include "actions3/AMActionLog3.h"
-#include "actions3/actions/AMControlMoveAction3.h"
-#include "actions3/actions/AMScanAction.h"
-#include "actions3/actions/AMSamplePlateMoveAction.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "ui/dataman/AMDbObjectGeneralView.h"
@@ -318,11 +305,6 @@ bool AMDatamanAppController::startupCreateDatabases()
 	if(!db)
 		return false;
 
-	// Create the Actions database
-	AMDatabase *dbActions = AMDatabase::createDatabase("actions", AMUserSettings::userDataFolder%"/actionsData.db" );
-	if(!dbActions)
-		return false;
-
 	return true;
 }
 
@@ -441,7 +423,6 @@ bool AMDatamanAppController::startupDatabaseUpgrades()
 	return true;
 }
 
-#include "util/SGM/SGMSettings.h"
 bool AMDatamanAppController::startupRegisterDatabases()
 {
 	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: Registering Databases");
@@ -453,16 +434,6 @@ bool AMDatamanAppController::startupRegisterDatabases()
 
 	AMDbObjectSupport::s()->registerDatabase(db);
 
-	// Grab the Action database
-	AMDatabase *dbActions = AMDatabase::database("actions");
-	if(!dbActions)
-		return false;
-
-	// Register the Actions database
-	if(!AMDbObjectSupport::s()->registerDatabase(dbActions)) {
-		//AMErrorMon::alert(this, -702, "Error registering the SGM Database. Please report this problem to the Acquaman developers.");
-		return false;
-	}
 
 	AMDbObjectSupport::s()->registerClass<AMDbObject>();
 	AMDbObjectSupport::s()->registerClass<AMScan>();
@@ -502,22 +473,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 
 	AMDbObjectSupport::s()->registerClass<AMUser>();
 
-	AMDbObjectSupport::s()->registerClass<AMActionInfo>();
-	AMDbObjectSupport::s()->registerClass<AMActionLog>();
-	AMDbObjectSupport::s()->registerClass<AMWaitActionInfo>();
-	AMDbObjectSupport::s()->registerClass<AMControlMoveActionInfo>();
-	AMDbObjectSupport::s()->registerClass<AMScanControllerActionInfo>();
 
-	AMDbObjectSupport::s()->registerClass<AMActionInfo3>();
-	AMDbObjectSupport::s()->registerClass<AMListActionInfo3>();
-	AMDbObjectSupport::s()->registerClass<AMSequentialListActionInfo3>();
-	AMDbObjectSupport::s()->registerClass<AMParallelListActionInfo3>();
-	AMDbObjectSupport::s()->registerClass<AMLoopActionInfo3>();
-	AMDbObjectSupport::s()->registerClass<AMActionLog3>();
-	AMDbObjectSupport::s()->registerClass<AMNumberChangeActionInfo>();
-	AMDbObjectSupport::s()->registerClass<AMControlMoveActionInfo3>();
-	AMDbObjectSupport::s()->registerClass<AMScanActionInfo>();
-	AMDbObjectSupport::s()->registerClass<AMSamplePlateMoveActionInfo>();
 
 	AMDbObjectGeneralViewSupport::registerClass<AMDbObject, AMDbObjectGeneralView>();
 	AMDbObjectGeneralViewSupport::registerClass<AM2DScanConfiguration, AM2DScanConfigurationGeneralView>();

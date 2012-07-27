@@ -73,16 +73,17 @@ public:
 	////////////////////////////
 
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
-	virtual inline AMNumber value(const AMnDIndex& indexes, bool doBoundsChecking = true) const {
+	virtual inline AMNumber value(const AMnDIndex& indexes) const {
 		if(indexes.rank() != 1)
 			return AMNumber(AMNumber::DimensionError);
 
 		if(!isValid())
 			return AMNumber(AMNumber::InvalidError);
 
-		if(doBoundsChecking)
-			if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
-				return AMNumber(AMNumber::OutOfBoundsError);
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
+			return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 		AMNumber rv = cachedValues_.at(indexes.i());
 		// if we haven't calculated this sum yet, the cached value will be invalid. Sum and store.
@@ -90,10 +91,10 @@ public:
 			double newVal = 0.0;	/// \todo preserve int/double nature of values
 			if(sumAxis_ == 0)
 				for(int i=sumRangeMin_; i<=sumRangeMax_; i++)
-					newVal += (double)inputSource_->value(AMnDIndex(i, indexes.i()), false);
+					newVal += (double)inputSource_->value(AMnDIndex(i, indexes.i()));
 			else
 				for(int i=sumRangeMin_; i<=sumRangeMax_; i++)
-					newVal += (double)inputSource_->value(AMnDIndex(indexes.i(), i), false);
+					newVal += (double)inputSource_->value(AMnDIndex(indexes.i(), i));
 
 			cachedValues_[indexes.i()] = newVal;
 			cacheCompletelyInvalid_ = false;
@@ -105,7 +106,7 @@ public:
 	}
 
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-	virtual inline AMNumber axisValue(int axisNumber, int index, bool doBoundsChecking = true) const {
+	virtual inline AMNumber axisValue(int axisNumber, int index) const {
 
 		if(!isValid())
 			return AMNumber(AMNumber::InvalidError);
@@ -115,7 +116,7 @@ public:
 
 		int otherAxis = (sumAxis_ == 0) ? 1 : 0;
 
-		return inputSource_->axisValue(otherAxis, index, doBoundsChecking);
+		return inputSource_->axisValue(otherAxis, index);
 	}
 
 

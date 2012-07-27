@@ -90,7 +90,7 @@ void AM1DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 	emitInfoChanged();
 }
 
-AMNumber AM1DSummingAB::value(const AMnDIndex &indexes, bool doBoundsChecking) const
+AMNumber AM1DSummingAB::value(const AMnDIndex &indexes) const
 {
 	if(indexes.rank() != 1)
 		return AMNumber(AMNumber::DimensionError);
@@ -98,12 +98,11 @@ AMNumber AM1DSummingAB::value(const AMnDIndex &indexes, bool doBoundsChecking) c
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	if (doBoundsChecking){
-
-		for (int i = 0; i < sources_.size(); i++)
-			if (indexes.i() >= sources_.at(i)->size(0))
-				return AMNumber(AMNumber::OutOfBoundsError);
-	}
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	for (int i = 0; i < sources_.size(); i++)
+		if (indexes.i() >= sources_.at(i)->size(0))
+			return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 	double val = 0;
 
@@ -113,7 +112,7 @@ AMNumber AM1DSummingAB::value(const AMnDIndex &indexes, bool doBoundsChecking) c
 	return val;
 }
 
-AMNumber AM1DSummingAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const
+AMNumber AM1DSummingAB::axisValue(int axisNumber, int index) const
 {
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
@@ -121,8 +120,10 @@ AMNumber AM1DSummingAB::axisValue(int axisNumber, int index, bool doBoundsChecki
 	if(axisNumber != 0)
 		return AMNumber(AMNumber::DimensionError);
 
-	if (doBoundsChecking && index >= sources_.first()->size(0))
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if (index >= sources_.first()->size(0))
 		return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 	return sources_.first()->axisValue(0, index);
 }

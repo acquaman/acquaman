@@ -88,37 +88,38 @@ void AM1DRunningAverageFilterAB::setInputDataSourcesImplementation(const QList<A
 	emitInfoChanged();
 }
 
-AMNumber AM1DRunningAverageFilterAB::value(const AMnDIndex& indexes, bool doBoundsChecking) const{
+AMNumber AM1DRunningAverageFilterAB::value(const AMnDIndex& indexes) const{
 	if(indexes.rank() != 1)
 		return AMNumber(AMNumber::DimensionError);
 
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	if(doBoundsChecking)
+#ifdef AM_ENABLE_BOUNDS_CHECKING
 		if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
 			return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 	int index = indexes.i();
 
 
 	double runningAverage = 0;
 	int numAvgPoints = 1;
-	runningAverage += (double)inputSource_->value(index, doBoundsChecking);
+	runningAverage += (double)inputSource_->value(index);
 	for(int x = 1; x <= (filterSize_-1)/2; x++){
 		if( (index-x) >= 0 ){
-			runningAverage += (double)inputSource_->value(index-x, doBoundsChecking);
+			runningAverage += (double)inputSource_->value(index-x);
 			numAvgPoints++;
 		}
 		if( (index+x) < axes_.at(0).size ){
-			runningAverage += (double)inputSource_->value(index+x, doBoundsChecking);
+			runningAverage += (double)inputSource_->value(index+x);
 			numAvgPoints++;
 		}
 	}
 	return runningAverage/((double)numAvgPoints);
 }
 
-AMNumber AM1DRunningAverageFilterAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const{
+AMNumber AM1DRunningAverageFilterAB::axisValue(int axisNumber, int index) const{
 
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
@@ -126,7 +127,7 @@ AMNumber AM1DRunningAverageFilterAB::axisValue(int axisNumber, int index, bool d
 	if(axisNumber != 0)
 		return AMNumber(AMNumber::DimensionError);
 
-	return inputSource_->axisValue(0, index, doBoundsChecking);
+	return inputSource_->axisValue(0, index);
 
 }
 

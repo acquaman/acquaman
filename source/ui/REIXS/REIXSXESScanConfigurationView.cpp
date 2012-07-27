@@ -24,6 +24,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QBoxLayout>
 #include <QGroupBox>
 
+#include <QComboBox>
+#include <QDoubleSpinBox>
+#include <QTimeEdit>
+#include <QRadioButton>
+#include <QCheckBox>
+#include <QLineEdit>
+#include <QSpinBox>
+
+#include "ui/dataman/AMSampleSelector.h"
+
 REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfiguration* config, QWidget *parent) :
 		AMScanConfigurationView(parent)
 {
@@ -37,8 +47,9 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 	}
 
 	QGroupBox* detectorOptions = new QGroupBox("Detector Setup");
-	// detectorOptions->setFlat(true);
 	QGroupBox* stopScanOptions = new QGroupBox("Stop scan when...");
+	QGroupBox* nameOptions = new QGroupBox("Scan meta-data");
+
 	gratingSelector_ = new QComboBox();
 	centerEVBox_ = new QDoubleSpinBox();
 	defocusDistanceMmBox_ = new QDoubleSpinBox();
@@ -55,6 +66,12 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 	maximumTimeEdit_ = new QTimeEdit();
 
 	calibrationSelector_ = new QComboBox();
+
+	numberEdit_ = new QSpinBox();
+	numberEdit_->setRange(0, 10000);
+	nameEdit_ = new QLineEdit();
+	sampleSelector_ = new AMSampleSelector(AMDatabase::database("user"));
+	autoNamingCheckBox_ = new QCheckBox("from last sample move");
 
 	/////////////////////
 
@@ -99,8 +116,18 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 
 	stopScanOptions->setLayout(fl2);
 
+
+	QFormLayout* fl3 = new QFormLayout();
+	fl3->addRow("Scan name", nameEdit_);
+	fl3->addRow("Number", numberEdit_);
+	fl3->addRow("Sample", sampleSelector_);
+	fl3->addRow("Set automatically", autoNamingCheckBox_);
+
+	nameOptions->setLayout(fl3);
+
 	vl->addWidget(detectorOptions);
 	vl->addWidget(stopScanOptions);
+	vl->addWidget(nameOptions);
 
 	setLayout(vl);
 
@@ -118,6 +145,12 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 	maximumTimeEdit_->setTime(QTime().addSecs(int(configuration_->maximumDurationSeconds())));
 	startFromCurrentPositionOption_->setChecked(configuration_->shouldStartFromCurrentPosition());
 	doNotClearExistingCountsOption_->setChecked(configuration_->doNotClearExistingCounts());
+
+	nameEdit_->setText(configuration_->userScanName());
+	numberEdit_->setValue(configuration_->scanNumber());
+	sampleSelector_->setCurrentSample(configuration_->sampleId());
+	autoNamingCheckBox_->setChecked(configuration_->namedAutomatically());
+	onAutoNamingCheckboxClicked(configuration_->namedAutomatically());
 	/////////////////////////
 
 	connect(gratingSelector_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSelectedGratingChanged(int)));
@@ -132,6 +165,13 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 	connect(maximumTimeEdit_, SIGNAL(timeChanged(QTime)), this, SLOT(onMaximumTimeEditChanged(QTime)));
 
 	connect(calibrationSelector_, SIGNAL(currentIndexChanged(int)), this, SLOT(onCalibrationIndexChanged(int)));
+
+	connect(autoNamingCheckBox_, SIGNAL(clicked(bool)), this, SLOT(onAutoNamingCheckboxClicked(bool)));
+
+	connect(nameEdit_, SIGNAL(textEdited(QString)), configuration_, SLOT(setUserScanName(QString)));
+	connect(numberEdit_, SIGNAL(valueChanged(int)), configuration_, SLOT(setScanNumber(int)));
+	connect(sampleSelector_, SIGNAL(currentSampleChanged(int)), configuration_, SLOT(setSampleId(int)));
+	connect(autoNamingCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(setNamedAutomatically(bool)));
 
 	///////////////////////
 }
@@ -230,4 +270,11 @@ void REIXSXESScanConfigurationView::onMaximumTimeEditChanged(const QTime &time) 
 	QTime baseTime(0,0);
 	double totalSeconds = baseTime.secsTo(time);
 	configuration_->setMaximumDurationSeconds(int(totalSeconds));
+}
+
+void REIXSXESScanConfigurationView::onAutoNamingCheckboxClicked(bool autoOn)
+{
+	nameEdit_->setEnabled(!autoOn);
+	numberEdit_->setEnabled(!autoOn);
+	sampleSelector_->setEnabled(!autoOn);
 }

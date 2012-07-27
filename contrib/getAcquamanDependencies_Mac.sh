@@ -50,3 +50,13 @@ sudo make install
 
 # add to project file: QT += mobility
 # MOBILITY += multimedia
+
+# 5: CDF library:
+
+echo "Downloading the CDF (NASA Common Data Format) library"
+
+curl http://cdaweb.gsfc.nasa.gov/pub/cdf/dist/cdf34_0/macosX/cdf34_0-setup_universal_binary.tar.gz > cdf34_0.tar.gz
+tar -zxf cdf34_0.tar.gz
+echo "Please install the CDF library using the installer package."
+open CDF3400ub.pkg
+

@@ -129,22 +129,23 @@ void AM2DDeadTimeAB::setInputDataSourcesImplementation(const QList<AMDataSource 
 	emitInfoChanged();
 }
 
-AMNumber AM2DDeadTimeAB::value(const AMnDIndex& indexes, bool doBoundsChecking) const {
+AMNumber AM2DDeadTimeAB::value(const AMnDIndex& indexes) const {
 	if(indexes.rank() != 2)
 		return AMNumber(AMNumber::DimensionError);
 
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	if(doBoundsChecking)
-		if(((unsigned)indexes.i() >= (unsigned)axes_.at(0).size) || ((unsigned)indexes.j() >= (unsigned)axes_.at(1).size))
-			return AMNumber(AMNumber::OutOfBoundsError);
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if(((unsigned)indexes.i() >= (unsigned)axes_.at(0).size) || ((unsigned)indexes.j() >= (unsigned)axes_.at(1).size))
+		return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 	AMNumber rv = cachedValues_.at(indexes.i()).at(indexes.j());
 	// if we haven't calculated this sum yet, the cached value will be invalid. Correct and store.
 	if(!rv.isValid()) {
 		double newVal = 0.0;	/// \todo preserve int/double nature of values
-		if((int)spectra_->value(indexes, doBoundsChecking) != 0)
+		if((int)spectra_->value(indexes) != 0)
 			newVal = (double(icr_->value(indexes.j())))/(double(ocr_->value(indexes.j())))*((int)spectra_->value(indexes));
 		(cachedValues_[indexes.i()])[indexes.j()] = newVal;
 		cacheCompletelyInvalid_ = false;
@@ -155,7 +156,7 @@ AMNumber AM2DDeadTimeAB::value(const AMnDIndex& indexes, bool doBoundsChecking) 
 		return rv;
 }
 
-AMNumber AM2DDeadTimeAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const {
+AMNumber AM2DDeadTimeAB::axisValue(int axisNumber, int index) const {
 
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
@@ -165,7 +166,7 @@ AMNumber AM2DDeadTimeAB::axisValue(int axisNumber, int index, bool doBoundsCheck
 
 	//int otherAxis = (sumAxis_ == 0) ? 1 : 0;
 
-	return spectra_->axisValue(axisNumber, index, doBoundsChecking);
+	return spectra_->axisValue(axisNumber, index);
 }
 
 bool AM2DDeadTimeAB::loadFromDb(AMDatabase *db, int id){

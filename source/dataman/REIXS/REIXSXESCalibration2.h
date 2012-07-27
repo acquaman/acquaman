@@ -123,6 +123,7 @@ class REIXSXESCalibration2 : public AMDbObject
     Q_OBJECT
 	Q_PROPERTY(AMDbObjectList gratings READ dbReadGratings WRITE dbLoadGratings)
 	Q_PROPERTY(QVector3D hexapodOrigin READ hexapodOrigin WRITE setHexapodOrigin)
+	Q_PROPERTY(double detectorWidth READ detectorWidth WRITE setDetectorWidth)
 
 public:
 	/// Default constructor
@@ -130,12 +131,17 @@ public:
 
 	/// returns the number of gratings defined in this calibration
 	int gratingCount() const { return gratings_.count(); }
-
 	/// Access the details of a grating
 	const REIXSXESGratingInfo& gratingAt(int i) const { return gratings_.at(i); }
-
 	/// Modify the details of a grating
 	REIXSXESGratingInfo& gratingAt(int i) { return gratings_[i]; }
+
+
+	/// Returns the width of the MCP detector (along the energy axis) [mm]
+	double detectorWidth() const { return detectorWidth_; }
+	/// Set the width of the MCP detector along the energy axis [mm]
+	void setDetectorWidth(double widthMm) { detectorWidth_ = widthMm; setModified(true); }
+
 
 	// Positioning results and calculations
 	//////////////////////////////////////////
@@ -204,12 +210,21 @@ public:
 		return (-49.908015462+sqrt(49.908015462*49.908015462+4*0.021995798*(-90.289534099-liftHeight)))/2/-0.021995798;
 	}
 
-	/// Returns the position of the detector tilt stage, to get the right incidence angle when at \c beta [degrees].  Applies an optional tilt \c offset [degrees].
-	double tiltStage(double beta, double offset) const {
-		double incidenceAngle = 90. - beta + offset;
+	/// Returns the position of the detector tilt stage, to get the right incidence angle when at \c beta [degrees].  Applies an optional tilt \c tiltOffset [degrees].
+	double tiltStage(double beta, double tiltOffset) const {
+		double incidenceAngle = 90. - beta + tiltOffset;
 
 		// using empirical formula from survey data.
-		return 1.1928*incidenceAngle - 19.15;
+		//return 1.1928*incidenceAngle - 19.15; OLD FROM MODEL
+		return 1.1926*incidenceAngle - 19.136; //FROM SURVEY DATA ONLY
+	}
+	/// Returns the tilt offset [degrees] from a given \c tiltStage position [mm], assuming at diffraction angle \c beta [degrees]. Inverse function of tiltStage().
+	double tiltOffset(double tiltStage, double beta) const {
+		// using empirical formula from survey data.
+		//double incidenceAngle = (tiltStage + 19.15)/1.1928;OLD FROM MODEL
+		double incidenceAngle = (tiltStage + 19.136)/1.1926;
+
+		return incidenceAngle + beta - 90.;
 	}
 
 
@@ -244,6 +259,7 @@ public slots:
 
 protected:
 	QVector3D hexapodOrigin_;
+	double detectorWidth_;
 	QList<REIXSXESGratingInfo> gratings_;
 
 

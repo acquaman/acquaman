@@ -30,9 +30,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMDeferredFunctionCall.h"
 #include "beamline/CLS/CLSBiStateControl.h"
 
+
+class AMSADetector;
+
 class AMSamplePlate;
 
 class AMAction;
+
+class REIXSBrokenMonoControl;
 
 /// The REIXSPhotonSource control is a container for the set of controls that make up the mono and EPU
 class REIXSPhotonSource : public AMCompositeControl {
@@ -40,17 +45,19 @@ class REIXSPhotonSource : public AMCompositeControl {
 public:
 	REIXSPhotonSource(QObject* parent = 0);
 
-	AMControl* energy() { return energy_; }
+	REIXSBrokenMonoControl* energy() { return energy_; }
+	AMControl* directEnergy() { return directEnergy_; }
 	AMControl* monoSlit() { return monoSlit_; }
 	AMControl* monoGratingTranslation() { return monoGratingTranslation_; }
 	AMControl* monoGratingSelector() { return monoGratingSelector_; }
 	AMControl* monoMirrorTranslation() { return monoMirrorTranslation_; }
 	AMControl* monoMirrorSelector() { return monoMirrorSelector_; }
-
-
+	AMControl* epuPolarization() { return epuPolarization_; }
+	AMControl* epuPolarizationAngle() { return epuPolarizationAngle_; }
 
 protected:
-	AMControl *energy_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_;
+	AMControl* directEnergy_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_, *epuPolarization_, *epuPolarizationAngle_;
+	REIXSBrokenMonoControl* energy_;
 
 };
 
@@ -85,6 +92,33 @@ protected slots:
 protected:
 	CLSBiStateControl* ssh1_, *psh2_, *psh4_, *endstationValve_;
 	bool beamIsOn_;
+
+};
+
+
+/// Organizes the group of XAS detectors
+class REIXSXASDetectors : public AMCompositeControl {
+	Q_OBJECT
+public:
+	REIXSXASDetectors(QObject* parent = 0);
+
+	/// Feedback for I0
+	AMReadOnlyPVControl* I0Feedback() { return I0_; }
+	/// Feedback for TEY
+	AMReadOnlyPVControl* TEYFeedback() { return TEY_; }
+	/// Feedback for TFY
+	AMReadOnlyPVControl* TFYFeedback() { return TFY_; }
+
+	/// Control for continuous mode
+	AMSinglePVControl* scalerContinuousMode() { return scalerContinuousMode_; }
+
+	/// A list of AMSADetectors used by the XAS scan controller: TEY, TFY, I0.
+	QList<AMSADetector*> saDetectors() { return saDetectors_; }
+
+protected:
+	AMReadOnlyPVControl* I0_, * TEY_, *TFY_;
+	AMSinglePVControl* scalerContinuousMode_;
+	QList<AMSADetector*> saDetectors_;
 
 };
 
@@ -317,6 +351,12 @@ public:
 	virtual int alarmSeverity() const { return control_->alarmSeverity(); }
 	virtual int alarmStatus() const { return control_->alarmStatus(); }
 
+
+	/// Returns the settling time for repeated (multi-step) moves. This much time is allowed before checking the feedback value for tolerance.
+	double repeatMoveSettlingTime() const { return repeatMoveSettlingTime_; }
+	/// Returns the settling time for single-step moves. This much time is allowed before checking the feedback value for tolerance.
+	double singleMoveSettlingTime() const { return singleMoveSettlingTime_; }
+
 public slots:
 
 	/// Used to start a move to \c setpoint. Returns NoFailure if the move command was sent successfully. Our re-implementation creates and populates the moveAction_.
@@ -324,6 +364,12 @@ public slots:
 
 	/// Request to stop a move in progress.
 	virtual bool stop();
+
+
+	/// Set the settling time for repeated (multi-step) moves. This much time is allowed before checking the feedback value for tolerance. Set to 0 to disable.
+	void setRepeatMoveSettlingTime(double seconds) { repeatMoveSettlingTime_ = seconds; }
+	/// Set the settling time for single-step moves. This much time is allowed before checking the feedback value for tolerance. Set to 0 to disable.
+	void setSingleMoveSettlingTime(double seconds) { singleMoveSettlingTime_ = seconds; }
 
 
 protected slots:
@@ -382,6 +428,9 @@ public:
 	REIXSValvesAndShutters* valvesAndShutters() { return valvesAndShutters_; }
 	/// Returns the current (active) sample plate, ie:the one that is currently loaded. When a user uses the UI to switch sample plates, we simple re-load this one from the database to become a different sample plate.
 	AMSamplePlate* samplePlate() { return samplePlate_; }
+	int currentSamplePlateId() const;
+	/// Returns the id of the sample on the current plate that is in position.
+	int currentSampleId();
 
 
 	// These Control Sets are logical groups of controls, that are commonly used by different Acquaman components
@@ -393,9 +442,13 @@ public:
 	/// All the controls we want to expose to users for available motions in REIXSControlMoveAction.
 	AMControlSet* allControlsSet() { return allControlsSet_; }
 
+	REIXSXASDetectors* xasDetectors() { return xasDetectors_; }
+
+
 signals:
 
 public slots:
+
 
 protected:
 	/// Constructor. This is a singleton class; access it through REIXSBeamline::bl().
@@ -425,6 +478,8 @@ protected:
 	/// This is the active sample plate object, ie:the one that is currently loaded. When a user uses the UI to switch sample plates, we simple re-load this one from the database to become a different sample plate.
 	AMSamplePlate* samplePlate_;
 
+	/// List of detectors used in XAS scans
+	REIXSXASDetectors* xasDetectors_;
 
 };
 

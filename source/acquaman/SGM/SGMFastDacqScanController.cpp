@@ -303,7 +303,7 @@ bool SGMFastDacqScanController::event(QEvent *e){
 					if( x%6 == 5 ){
 						energyFbk = (1.0e-9*1239.842*sParam)/(2*spacingParam*c1Param*c2Param*(double)encoderReading*cos(thetaParam/2));
 						//if( ( (readings.at(0) > config_->baseLine()) && (scan_->rawData()->scanSize(0) == 0) ) || ( (scan_->rawData()->scanSize(0) > 0) && (fabs(energyFbk - (double)scan_->rawData()->axisValue(0, scan_->rawData()->scanSize(0)-1)) > 0.001) ) ){
-						scan_->rawData()->beginInsertRows(0);
+						scan_->rawData()->beginInsertRows(1, -1);
 						scan_->rawData()->setAxisValue(0, scan_->rawData()->scanSize(0)-1, energyFbk);
 						//scan_->rawData()->setValue(AMnDIndex(scan_->rawData()->scanSize(0)-1), 0, AMnDIndex(), readings.at(0));
 						scan_->rawData()->setValue(AMnDIndex(scan_->rawData()->scanSize(0)-1), 0, AMnDIndex(), max(readings.at(0), 1.0));

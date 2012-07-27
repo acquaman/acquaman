@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 
-#include <application/AMDatamanAppController.h>
+#include "application/AMDatamanAppControllerForActions3.h"
 #include <QHash>
 
 class AMWorkflowView3;
@@ -35,7 +35,7 @@ class AMExporter;
 class AMExporterOption;
 
 /// This class extends the base dataman app controller class by adding the workflow.  This is the base class for all beamline acquisition app controllers.  The reason for the distinction between this class and the dataman version is a result for the desire to be able to take the dataman version home with the user whereas this version is meant to reside on beamlines that always have access to beamline components and controls.
-class AMAppController : public AMDatamanAppController
+class AMAppController : public AMDatamanAppControllerForActions3
 {
 Q_OBJECT
 public:
@@ -52,18 +52,18 @@ public:
 	/// Re-implemented from AMDatamanAppController to provide a menu action for changing the current run.
 	virtual bool startupInstallActions();
 
-	/// Shutdown: nothing special to do except call the base class shutdown().
-	virtual void shutdown() { AMDatamanAppController::shutdown(); }
+	// Shutdown: nothing special to do except use the base class shutdown().
+//	virtual void shutdown();
 
 signals:
 
 public slots:
 
-	/// This function can be used to "hand-off" a scan to the app controller (for example, a new scan from a scan controller). An editor will be opened for the scan, and the editor will take responsibility for deleting the scan in the future (but not without checking first whether it still has a scan controller.)
+	/// This function can be used to "hand-off" a scan to the app controller (for example, a new scan from a scan controller). An editor will be opened for the scan. (Thanks to AMScan's retain()/release() mechanism, the scan will be deleted automatically when all scan controllers and editors are done with it.)
 	/*! By default, the new scan editor will be brought to the front of the main window and presented to the user. You can suppress this by setting \c bringEditorToFront to false.
 
 If \c openInExistingEditor is set to true, and if there is an existing editor, the scan will be appended inside that editor. (If there is more than one open editor, the scan will be added to the most recently-created one.)  By default, a new editor window is created.*/
-	void openScanInEditorAndTakeOwnership(AMScan* scan, bool bringEditorToFront = true, bool openInExistingEditor = false);
+	void openScanInEditor(AMScan* scan, bool bringEditorToFront = true, bool openInExistingEditor = false);
 
 	/// Bring the Workflow view to the front.
 	virtual void goToWorkflow();

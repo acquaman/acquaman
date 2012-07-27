@@ -315,6 +315,7 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 
 	// Initialize:
 	moveStartTolerance_ = 0;
+	moveTimeoutTolerance_ = 0;
 	moveInProgress_ = false;
 	stopInProgress_ = false;
 	startInProgress_ = false;
@@ -367,7 +368,7 @@ void AMPVwStatusControl::onWritePVInitialized() {
 }
 
 // Start a move to the value setpoint:
-AMControl::FailureExplanation AMPVwStatusControl::move(double setpoint) {
+AMControl::FailureExplanation AMPVwStatusControl::move(double Setpoint) {
 
 	if(isMoving()) {
 		if(!allowsMovesWhileMoving()) {
@@ -382,7 +383,7 @@ AMControl::FailureExplanation AMPVwStatusControl::move(double setpoint) {
 		}
 
 		// Otherwise: This control supports mid-move updates, and we're already moving. We just need to update the setpoint and send it.
-		setpoint_ = setpoint;
+		setpoint_ = Setpoint;
 		writePV_->setValue(setpoint_);
 		// since the settling phase is considered part of a move, it's OK to be here while settling... But for Acquaman purposes, this will be considered a single re-targetted move, even though the hardware will see two.  If we're settling, disable the settling timer, because we only want to respond to the end of the second move.
 		if(settlingInProgress_) {
@@ -400,10 +401,10 @@ AMControl::FailureExplanation AMPVwStatusControl::move(double setpoint) {
 		startInProgress_ = true;
 
 		// This is our new target:
-		setpoint_ = setpoint;
+		setpoint_ = Setpoint;
 
 		// Special case: "null move" should complete immediately. Use only if moveStartTolerance() is non-zero, and the move distance is within moveStartTolerance().
-		if(moveStartTolerance() != 0 && fabs(setpoint_-value()) < moveStartTolerance()) {
+		if(moveStartTolerance() != 0 && fabs(setpoint()-value()) < moveStartTolerance()) {
 			startInProgress_ = false;
 			moveInProgress_ = true;
 			emit moveStarted();
@@ -457,8 +458,18 @@ void AMPVwStatusControl::onMoveStartTimeout() {
 	if(startInProgress_) {
 		// give up on this move:
 		startInProgress_ = false;
-		// The move didn't start within our allowed start period. That counts as a move failed.
-		emit moveFailed(AMControl::TimeoutFailure);
+
+		// Special case: only applies if moveTimeoutTolerance_ != 0 AND we've gotten within moveTimeoutTolerance_ of the setpoint.
+		if(moveTimeoutTolerance() != 0.0 && fabs(setpoint() - value()) < moveTimeoutTolerance_) {
+			moveInProgress_ = true;
+			emit moveStarted();
+			moveInProgress_ = false;
+			emit moveSucceeded();
+		}
+		else {
+			// The move didn't start within our allowed start period. That counts as a move failed.
+			emit moveFailed(AMControl::TimeoutFailure);
+		}
 	}
 }
 

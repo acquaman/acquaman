@@ -85,7 +85,7 @@ bool REIXSXESRawFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 													  "counts",
 													  detectorAxes));
 
-	if(!scan->rawData()->setValue(AMnDIndex(), 0, imageArray, pixelsX*pixelsY))
+	if(!scan->rawData()->setValue(AMnDIndex(), 0, imageArray))
 		AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Alert, -39, "Could not set detector image value. Please report this bug to the acquaman developers."));
 
 	delete [] imageArray;

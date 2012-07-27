@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/REIXS/REIXSXESScanConfigurationView.h"
 #include "actions2/actions/REIXS/REIXSXESScanAction.h"
+#include "actions2/actions/REIXS/REIXSXASScanAction.h"
 
 REIXSScanConfigurationViewHolder::REIXSScanConfigurationViewHolder(AMScanConfigurationView *view, QWidget *parent)
 	: AMActionRunnerAddActionBar("Scan", parent)
@@ -36,6 +37,10 @@ AMAction * REIXSScanConfigurationViewHolder::createAction()
 
 	if(xesConfig)
 		return new REIXSXESScanAction(qobject_cast<REIXSXESScanConfiguration*>(xesConfig->createCopy()));
+
+	const REIXSXASScanConfiguration* xasConfig = qobject_cast<const REIXSXASScanConfiguration*>(view_->configuration());
+	if(xasConfig)
+		return new REIXSXASScanAction(qobject_cast<REIXSXASScanConfiguration*>(xasConfig->createCopy()));
 
 	return 0;
 }

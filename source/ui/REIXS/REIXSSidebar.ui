@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>246</width>
-    <height>362</height>
+    <width>263</width>
+    <height>444</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -169,10 +169,24 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="0" colspan="2">
+      <item row="7" column="0" colspan="2">
        <widget class="QPushButton" name="fluxResolutionWizardButton">
         <property name="text">
          <string>Flux/Resolution Wizard</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Polarization</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="label_11">
+        <property name="text">
+         <string>Angle</string>
         </property>
        </widget>
       </item>
@@ -184,7 +198,7 @@
      <property name="title">
       <string>Detector Signals</string>
      </property>
-     <layout class="QGridLayout" name="detectorGridLayout">
+     <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
        <widget class="QLabel" name="label_10">
         <property name="text">
@@ -365,12 +379,30 @@
         </property>
        </widget>
       </item>
+      <item row="4" column="0" colspan="3">
+       <widget class="QCheckBox" name="scalerContinuousButton">
+        <property name="text">
+         <string>Enable realtime readings</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
   </layout>
  </widget>
  <resources>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
   <include location="../../icons/icons.qrc"/>
  </resources>
  <connections/>

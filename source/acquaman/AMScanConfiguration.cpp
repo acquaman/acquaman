@@ -75,6 +75,8 @@ void AMScanConfiguration::setUserScanName(const QString &userScanName){
 	if(userScanName_ != userScanName){
 		userScanName_ = userScanName;
 		emit userScanNameChanged(userScanName_);
+		emit configurationChanged();
+		setModified(true);
 	}
 }
 
@@ -82,6 +84,8 @@ void AMScanConfiguration::setUserExportNmae(const QString &userExportName){
 	if(userExportName_ != userExportName){
 		userExportName_ = userExportName;
 		emit userExportNameChanged(userExportName_);
+		emit configurationChanged();
+		setModified(true);
 	}
 }
 
@@ -89,5 +93,7 @@ void AMScanConfiguration::setAutoExportEnabled(bool autoExportEnabled){
 	if(autoExportEnabled_ != autoExportEnabled){
 		autoExportEnabled_ = autoExportEnabled;
 		emit autoExportEnabledChanged(autoExportEnabled_);
+		emit configurationChanged();
+		setModified(true);
 	}
 }

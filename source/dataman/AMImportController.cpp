@@ -202,9 +202,9 @@ void AMImportController::onFileDialogFinished(int result) {
 	fileDialog_->hide();
 	currentFile_ = 0;
 
-	setupNextFile();
 	w_->show();
 	w_->resize(w_->minimumSizeHint());
+	setupNextFile();
 }
 
 /// Called when the 'next' button is clicked while reviewing
@@ -229,6 +229,12 @@ void AMImportController::setupNextFile() {
 	// short-term hack: identify what looks like a "spectra" file (an auxiliary file for CLS dacq scans), and move on/skip it
 	while(isAuxiliaryFile(filesToImport_.at(currentFile_))) {
 		currentFile_++;
+
+		if(currentFile_ >= filesToImport_.count()) {
+			// all done:
+			onFinished();
+			return;
+		}
 	}
 
 	w_->progressBar->setValue(currentFile_);

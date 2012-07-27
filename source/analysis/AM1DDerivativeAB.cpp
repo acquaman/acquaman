@@ -172,7 +172,7 @@ bool AM1DDerivativeAB::canAnalyze(const QString &name) const
 	return false;
 }
 
-AMNumber AM1DDerivativeAB::value(const AMnDIndex& indexes, bool doBoundsChecking) const{
+AMNumber AM1DDerivativeAB::value(const AMnDIndex& indexes) const{
 	if(indexes.rank() != 1)
 		return AMNumber(AMNumber::DimensionError);
 
@@ -182,48 +182,49 @@ AMNumber AM1DDerivativeAB::value(const AMnDIndex& indexes, bool doBoundsChecking
 	if (!canAnalyze())
 		return AMNumber(AMNumber::InvalidError);
 
-	if(doBoundsChecking)
+#ifdef AM_ENABLE_BOUNDS_CHECKING
 		if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
 			return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 	int index = indexes.i();
 
 	// Forward difference.
 	if(index == 0){
 
-		if ((double)inputSource_->axisValue(0, 1, doBoundsChecking) == (double)inputSource_->axisValue(0, 0, doBoundsChecking))
+		if ((double)inputSource_->axisValue(0, 1) == (double)inputSource_->axisValue(0, 0))
 			return 0;
 
-		return ((double)inputSource_->value(1, doBoundsChecking)-
-				(double)inputSource_->value(0, doBoundsChecking))/
-				((double)inputSource_->axisValue(0, 1, doBoundsChecking)-
-				 (double)inputSource_->axisValue(0, 0, doBoundsChecking));
+		return ((double)inputSource_->value(1)-
+				(double)inputSource_->value(0))/
+				((double)inputSource_->axisValue(0, 1)-
+				 (double)inputSource_->axisValue(0, 0));
 	}
 	// Backward difference.
 	else if(index+1 == axes_.at(0).size){
 
-		if ((double)inputSource_->axisValue(0, index, doBoundsChecking) == (double)inputSource_->axisValue(0, index-1, doBoundsChecking))
+		if ((double)inputSource_->axisValue(0, index) == (double)inputSource_->axisValue(0, index-1))
 				return 0;
 
-		return ((double)inputSource_->value(index, doBoundsChecking)-
-				(double)inputSource_->value(index-1, doBoundsChecking))/
-				((double)inputSource_->axisValue(0, index, doBoundsChecking)-
-				 (double)inputSource_->axisValue(0, index-1, doBoundsChecking));
+		return ((double)inputSource_->value(index)-
+				(double)inputSource_->value(index-1))/
+				((double)inputSource_->axisValue(0, index)-
+				 (double)inputSource_->axisValue(0, index-1));
 	}
 	// Central difference.
 	else {
 
-		if ((double)inputSource_->axisValue(0, index+1, doBoundsChecking) == (double)inputSource_->axisValue(0, index-1, doBoundsChecking))
+		if ((double)inputSource_->axisValue(0, index+1) == (double)inputSource_->axisValue(0, index-1))
 				return 0;
 
-		return ((double)inputSource_->value(index+1, doBoundsChecking)-
-				(double)inputSource_->value(index-1, doBoundsChecking))/
-				(2*((double)inputSource_->axisValue(0, index+1, doBoundsChecking)-
-				 (double)inputSource_->axisValue(0, index-1, doBoundsChecking)));
+		return ((double)inputSource_->value(index+1)-
+				(double)inputSource_->value(index-1))/
+				(2*((double)inputSource_->axisValue(0, index+1)-
+				 (double)inputSource_->axisValue(0, index-1)));
 	}
 }
 
-AMNumber AM1DDerivativeAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const{
+AMNumber AM1DDerivativeAB::axisValue(int axisNumber, int index) const{
 
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
@@ -231,7 +232,7 @@ AMNumber AM1DDerivativeAB::axisValue(int axisNumber, int index, bool doBoundsChe
 	if(axisNumber != 0)
 		return AMNumber(AMNumber::DimensionError);
 
-	return inputSource_->axisValue(0, index, doBoundsChecking);
+	return inputSource_->axisValue(0, index);
 
 }
 

@@ -174,7 +174,7 @@ bool AM1DIntegralAB::canAnalyze(const QString &name) const
 	return false;
 }
 
-AMNumber AM1DIntegralAB::value(const AMnDIndex& indexes, bool doBoundsChecking) const{
+AMNumber AM1DIntegralAB::value(const AMnDIndex& indexes) const{
 	if(indexes.rank() != 1)
 		return AMNumber(AMNumber::DimensionError);
 
@@ -184,9 +184,10 @@ AMNumber AM1DIntegralAB::value(const AMnDIndex& indexes, bool doBoundsChecking) 
 	if (!canAnalyze())
 		return AMNumber(AMNumber::InvalidError);
 
-	if(doBoundsChecking)
+#ifdef AM_ENABLE_BOUNDS_CHECKING
 		if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
 			return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 	AMNumber rv = cachedValues_.at(indexes.i());
 	// if we haven't calculated this sum yet, the cached value will be invalid. Sum and store.
@@ -197,10 +198,10 @@ AMNumber AM1DIntegralAB::value(const AMnDIndex& indexes, bool doBoundsChecking) 
 
 		// Implementing Int[f(x)] ~ 1/2 * SUM {(x[i+1] - x[i])*(f(x[i+1]) + f(x[i])) }
 		if ((unsigned)index == ((unsigned)axes_.at(0).size - 1))
-			newVal = 0.5*(double(inputSource_->axisValue(0, index, doBoundsChecking))-double(inputSource_->axisValue(0, index-1, doBoundsChecking)))*(double(inputSource_->value(index, doBoundsChecking)) + double(inputSource_->value(index-1, doBoundsChecking)));
+			newVal = 0.5*(double(inputSource_->axisValue(0, index))-double(inputSource_->axisValue(0, index-1)))*(double(inputSource_->value(index)) + double(inputSource_->value(index-1)));
 
 		else
-			newVal = 0.5*(double(inputSource_->axisValue(0, index+1, doBoundsChecking))-double(inputSource_->axisValue(0, index, doBoundsChecking)))*(double(inputSource_->value(index+1, doBoundsChecking)) + double(inputSource_->value(index, doBoundsChecking)));
+			newVal = 0.5*(double(inputSource_->axisValue(0, index+1))-double(inputSource_->axisValue(0, index)))*(double(inputSource_->value(index+1)) + double(inputSource_->value(index)));
 
 		if (index != 0)
 			newVal += double(value(AMnDIndex(index-1)));
@@ -215,7 +216,7 @@ AMNumber AM1DIntegralAB::value(const AMnDIndex& indexes, bool doBoundsChecking) 
 		return rv;
 }
 
-AMNumber AM1DIntegralAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const{
+AMNumber AM1DIntegralAB::axisValue(int axisNumber, int index) const{
 
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
@@ -223,7 +224,7 @@ AMNumber AM1DIntegralAB::axisValue(int axisNumber, int index, bool doBoundsCheck
 	if(axisNumber != 0)
 		return AMNumber(AMNumber::DimensionError);
 
-	return inputSource_->axisValue(0, index, doBoundsChecking);
+	return inputSource_->axisValue(0, index);
 
 }
 

@@ -31,7 +31,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 
 #include <QUrl>
-#include <QDebug>
+
+#include "dataman/datastore/AMCDFDataStore.h"
 
 AMScan::AMScan(QObject *parent)
 	: AMDbObject(parent)
@@ -53,8 +54,8 @@ AMScan::AMScan(QObject *parent)
 
 	currentlyScanning_ = false;
 
-	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured in specific subclasses.
-	//data_ = new AMDataTreeDataStore(AMAxisInfo("eV", 0, "Incidence Energy", "eV"));
+	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured by scan controllers or file loader plugins.  The default implementation uses AMInMemoryDataStore(); replace via replaceDataStore() to use one of the disk-based data stores if you have a lot of data.
+//	data_ = new AMCDFDataStore();
 
 	sampleNameLoaded_ = false;
 
@@ -79,7 +80,7 @@ AMScan::AMScan(QObject *parent)
 
 AMScan::~AMScan() {
 
-	AMErrorMon::debug(this, AMSCAN_DEBUG_DELETING_SCAN, QString("Deleting %1").arg(fullName()));
+//	AMErrorMon::debug(this, AMSCAN_DEBUG_DELETING_SCAN, QString("Deleting %1").arg(fullName()));
 
 	if(!owners_.isEmpty()) {
 		AMErrorMon::alert(this, AMSCAN_SCAN_DELETE_DIRECTLY, "The scan was deleted while other objects were still interested in it. You should never delete a scan directly; instead, call AMScan::release().  Those objects might now attempt to access a deleted scan.");
@@ -208,6 +209,7 @@ void AMScan::retrieveSampleName() const {
 	}
 }
 
+
 // Loads a saved scan from the database into self. Returns true on success.
 /*! Re-implemented from AMDbObject::loadFromDb(), this version also loads the scan's raw data if autoLoadData() is set to true, and the stored filePath doesn't match the existing filePath()*/
 bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
@@ -277,7 +279,7 @@ void AMScan::dbLoadRawDataSources(const AMDbObjectList& newRawSources) {
 		if(newRawSource) {
 
 			rawDataSources_.append(newRawSource, newRawSource->name());
-			connect(newRawSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified()));
+			connect(newRawSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified(bool)));
 		}
 		else
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "There was an error reloading one of this scan's raw data sources from the database. Your database might be corrupted. Please report this bug to the Acquaman developers."));
@@ -302,7 +304,8 @@ void AMScan::dbLoadAnalyzedDataSources(const AMDbObjectList& newAnalyzedSources)
 		if(newSource) {
 
 			analyzedDataSources_.append(newSource, newSource->name());
-			connect(newSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified()));
+			newSource->setScan(this);
+			connect(newSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified(bool)));
 		}
 		else
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "There was an error reloading one of this scan's processed data sources from the database. Your database might be corrupted. Please report this bug to the Acquaman developers."));
@@ -356,6 +359,7 @@ void AMScan::dbLoadAnalyzedDataSourcesConnections(const QString& connectionStrin
 								AMErrorReport::Alert,
 								0,
 								QString("There was an error re-connecting the inputs for the analysis component '%1: %2', when reloading this scan from the database. Your database might be corrupted. Please report this bug to the Acquaman developers.").arg(analyzedDataSources_.at(i)->name()).arg(analyzedDataSources_.at(i)->description())));
+
 	}
 }
 
@@ -424,7 +428,7 @@ bool AMScan::addRawDataSource(AMRawDataSource *newRawDataSource)
 {
 	if(newRawDataSource && rawDataSources_.append(newRawDataSource, newRawDataSource->name())) {
 
-		connect(newRawDataSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified()));
+		connect(newRawDataSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified(bool)));
 		return true;
 	}
 
@@ -445,7 +449,8 @@ bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource)
 {
 	if(newAnalyzedDataSource && analyzedDataSources_.append(newAnalyzedDataSource, newAnalyzedDataSource->name())){
 
-		connect(newAnalyzedDataSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified()));
+		newAnalyzedDataSource->setScan(this);
+		connect(newAnalyzedDataSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified(bool)));
 		return true;
 	}
 
@@ -552,7 +557,8 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 		if (scanRank() == 2){
 
 			MPlotImageBasicwDefault* image = new MPlotImageBasicwDefault();
-			image->setModel(new AMDataSourceImageDatawDefault(dataSource, 0), true);
+			image->setDefaultValue(-1);
+			image->setModel(new AMDataSourceImageDatawDefault(dataSource, -1), true);
 			plot->addItem(image);
 			plot->doDelayedAutoScale();
 		}
@@ -716,6 +722,31 @@ void AMScan::release(QObject *pastOwner)
 		delete this;			// commit suicide.
 }
 
+
+bool AMScan::replaceRawDataStore(AMDataStore *dataStore)
+{
+	if(data_ == dataStore)
+		return true;	// nothing to do.
+
+	// check first before we make any chagnes that it's compatible with any existing data sources.
+	for(int i=rawDataSourceCount()-1; i>=0; --i) {
+		if(!rawDataSources_.at(i)->isDataStoreCompatible(dataStore)) {
+			AMErrorMon::debug(this, -982, QString("Could not replace the scan's data store because the new one is not valid for the existing raw data source '%1'.").arg(rawDataSources_.at(i)->name()));
+			return false;
+		}
+	}
+
+	// Given that we checked already, this should always succeed.
+	for(int i=rawDataSourceCount()-1; i>=0; --i) {
+		rawDataSources_[i]->setDataStore(dataStore);
+	}
+
+	delete data_;
+	data_ = dataStore;
+
+	return true;
+}
+
 AMScan * AMScan::createFromDatabaseUrl(const QUrl &url, bool allowIfScanning, bool *wasScanning, QString *scanName)
 {
 	if(wasScanning)
@@ -780,4 +811,28 @@ AMScan * AMScan::createFromDatabaseUrl(const QUrl &url, bool allowIfScanning, bo
 		*scanName = scan->fullName();
 
 	return scan;
+}
+
+int AMScan::largestNumberInScansWhere(AMDatabase* db, const QString &whereClause)
+{
+	QString tableName = AMDbObjectSupport::s()->tableNameForClass<AMScan>();
+
+	QString query = QString("SELECT MAX(number) FROM %1").arg(tableName);
+	if(!whereClause.isEmpty())
+		query.append(" WHERE ").append(whereClause);
+
+	QSqlQuery q = db->query();
+	q.prepare(query);
+	if(q.exec() && q.first()) {
+		return q.value(0).toInt();
+	}
+	else {
+		return -1;
+	}
+}
+
+void AMScan::onDataSourceModified(bool isModified)
+{
+	if(isModified)
+		setModified(true);
 }

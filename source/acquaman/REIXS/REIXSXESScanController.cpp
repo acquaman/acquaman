@@ -28,6 +28,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMSettings.h"
 
 #include "analysis/REIXS/REIXSXESImageAB.h"
+#include "dataman/datastore/AMCDFDataStore.h"
+
+#include <QStringBuilder>
 
 REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* configuration, QObject *parent) :
 	AMScanController(configuration, parent)
@@ -39,11 +42,15 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 
 	// create our new scan object
 	scan_ = new AMXESScan();
-	scan_->setName("REIXS XES Scan");
 
-	scan_->setFilePath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime())+".img");
-	scan_->setFileFormat("reixsXESRaw");
-	scan_->setRunId(AMUser::user()->currentRunId());
+	// Automatic or manual setting of meta-data for the scan:
+	///////////////////////////////////
+	initializeScanMetaData();
+	///////////////////////////////////
+
+	scan_->setFilePath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime())+".cdf");
+	scan_->setFileFormat("amCDFv1");
+	scan_->replaceRawDataStore(new AMCDFDataStore(AMUserSettings::userDataFolder % "/" % scan_->filePath(), false));
 
 	// set the scan configuration within the scan:
 	scan_->setScanConfiguration(config_);
@@ -54,8 +61,14 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 	/// \todo Check at this point that we have the actual size for the real detector reporting already.
 	// AMMeasurementInfo realDetector = *(REIXSBeamline::bl()->mcpDetector()); // REIXSXESMCPDetector has cast operator to AMDetectorInfo, which has cast operator to AMMeasurementInfo.
 	AMMeasurementInfo configuredDetector = *(config_->mcpDetectorInfo());
-	configuredDetector.axes[0].size = REIXSBeamline::bl()->mcpDetector()->image()->size(0);
-	configuredDetector.axes[1].size = REIXSBeamline::bl()->mcpDetector()->image()->size(1);
+	if(REIXSBeamline::bl()->mcpDetector()->canRead()) {
+		configuredDetector.axes[0].size = REIXSBeamline::bl()->mcpDetector()->image()->size(0);
+		configuredDetector.axes[1].size = REIXSBeamline::bl()->mcpDetector()->image()->size(1);
+	}
+	else {
+		configuredDetector.axes[0].size = 1024;
+		configuredDetector.axes[1].size = 64;
+	}
 	configuredDetector.name = "xesImage";	// necessary for file loader/saver.
 
 	scan_->rawData()->addMeasurement(configuredDetector);
@@ -64,7 +77,7 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 
 	scan_->rawData()->addMeasurement(AMMeasurementInfo("totalCounts", "Total Counts", "counts"));
 	AMRawDataSource* totalCountsDataSource = new AMRawDataSource(scan_->rawData(), 1);
-	scan_->addRawDataSource(totalCountsDataSource);
+	scan_->addRawDataSource(totalCountsDataSource, false, false);
 
 	REIXSXESImageAB* xesSpectrum = new REIXSXESImageAB("xesSpectrum");
 	xesSpectrum->setInputDataSources(QList<AMDataSource*>() << imageDataSource);
@@ -144,10 +157,17 @@ void REIXSXESScanController::onInitialSetupMoveFailed() {
 }
 
 void REIXSXESScanController::onInitialSetupMoveSucceeded() {
-	// remember the state of the beamline at the beginning of the scan.
-	scan_->scanInitialConditions()->setValuesFrom(REIXSBeamline::bl()->allControlsSet()->toInfoList());
 
 	disconnect(initialMoveAction_, 0, this, 0);
+
+	// remember the state of the beamline at the beginning of the scan.
+	AMControlInfoList positions(REIXSBeamline::bl()->allControlsSet()->toInfoList());
+	// add the spectrometer grating selection, since it's not a "control" anywhere.
+	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
+	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
+	positions.insert(0, grating);
+
+	scan_->scanInitialConditions()->setValuesFrom(positions);
 
 	// tell the controller API we're now ready to go.
 	setInitialized();
@@ -186,15 +206,13 @@ void REIXSXESScanController::onNewImageValues() {
 
 	QVector<int> imageData = REIXSBeamline::bl()->mcpDetector()->imageData();
 
-	if(!scan_->rawData()->setValue(AMnDIndex(), 0, imageData.constData(), imageData.size()))
+	if(!scan_->rawData()->setValue(AMnDIndex(), 0, imageData.constData()))
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 37, "Error setting the new values from the MCP Detector. The size of the image didn't match what it should be.  This is probably a problem with the network connection to the detector, or a bug in the detector driver."));
 
 	if(!scan_->rawData()->setValue(AMnDIndex(), 1, AMnDIndex(), double(REIXSBeamline::bl()->mcpDetector()->totalCounts())))
 		AMErrorMon::debug(this, 377, "Error setting new values for the MCP Detector total counts. Please report this bug to the REIXS Acquaman developers.");
 
 }
-
-#include "dataman/REIXS/REIXSXESRawFileLoader.h"
 
 void REIXSXESScanController::onScanProgressCheck() {
 
@@ -238,9 +256,9 @@ void REIXSXESScanController::onScanProgressCheck() {
 
 
 void REIXSXESScanController::saveRawData() {
-	REIXSXESRawFileLoader exporter(qobject_cast<AMXESScan*>(scan_));
-	if(!exporter.saveToFile(AMUserSettings::userDataFolder + "/" + scan_->filePath()))
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 38, "Error saving the currently-running XES scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to the Acquaman developers."));
+	AMCDFDataStore* cdfDataStore = static_cast<AMCDFDataStore*>(scan_->rawData());
+	if(!cdfDataStore || !cdfDataStore->flushToDisk())
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 38, "Error saving the currently-running XES scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to the beamline software developers."));
 }
 
 void REIXSXESScanController::onScanFinished() {
@@ -252,4 +270,30 @@ void REIXSXESScanController::onScanFinished() {
 	setFinished();
 }
 
-/// to disconnect: scan progress check, onNewImageValues... Where else?
+#include "dataman/AMSample.h"
+void REIXSXESScanController::initializeScanMetaData()
+{
+	if(config_->namedAutomatically()) {
+		int sampleId = REIXSBeamline::bl()->currentSampleId();
+		if(sampleId >= 1) {
+			scan_->setSampleId(sampleId);
+			QString sampleName = AMSample::sampleNameForId(AMDatabase::database("user"), sampleId); // scan_->sampleName() won't work until the scan is saved to the database.
+			scan_->setName(QString("%1 %2 %3 eV").arg(sampleName).arg(config_->autoScanName()).arg(config_->centerEV()));
+			scan_->setNumber(scan_->largestNumberInScansWhere(AMDatabase::database("user"), QString("sampleId = %1").arg(sampleId))+1);
+		}
+		else {
+			scan_->setName(QString("%1 %2 eV").arg(config_->autoScanName()).arg(config_->centerEV()));
+			scan_->setNumber(0);
+			scan_->setSampleId(-1);
+		}
+	}
+	else {
+		scan_->setName(config_->userScanName());
+		if(scan_->name().isEmpty())
+			scan_->setName(QString("%1 %2 eV").arg(config_->autoScanName()).arg(config_->centerEV()));
+		scan_->setNumber(config_->scanNumber());
+		scan_->setSampleId(config_->sampleId());
+	}
+
+	scan_->setRunId(AMUser::user()->currentRunId());
+}

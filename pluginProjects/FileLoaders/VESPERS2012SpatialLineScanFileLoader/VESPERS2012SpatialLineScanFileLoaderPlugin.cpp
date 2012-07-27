@@ -188,7 +188,7 @@ bool VESPERS2012SpatialLineScanFileLoaderPlugin::load(AMScan *scan, const QStrin
 
 		// Add in the data at the right spot.
 		AMnDIndex axisValueIndex(position);
-		scan->rawData()->beginInsertRowsAsNecessaryForScanPoint(axisValueIndex);
+		scan->rawData()->beginInsertRows(1, -1);
 
 		scan->rawData()->setAxisValue(0, axisValueIndex.i(), lineTokenized.at(1).toDouble());
 
@@ -206,7 +206,7 @@ bool VESPERS2012SpatialLineScanFileLoaderPlugin::load(AMScan *scan, const QStrin
 			for (int j = 0; j < 2048; j++)
 				data[j] = spectraTokenized.at(j).toInt();
 
-			scan->rawData()->setValue(axisValueIndex, scan->rawDataSourceCount()-1, data.constData(), data.size());
+			scan->rawData()->setValue(axisValueIndex, scan->rawDataSourceCount()-1, data.constData());
 		}
 
 		else if (usingFourElement){
@@ -228,11 +228,11 @@ bool VESPERS2012SpatialLineScanFileLoaderPlugin::load(AMScan *scan, const QStrin
 				raw4[j] = spectraTokenized.at(j+8192).toInt();
 			}
 
-			scan->rawData()->setValue(axisValueIndex, scan->rawDataSourceCount()-5, data.constData(), data.size());
-			scan->rawData()->setValue(axisValueIndex, scan->rawDataSourceCount()-4, raw1.constData(), raw1.size());
-			scan->rawData()->setValue(axisValueIndex, scan->rawDataSourceCount()-3, raw2.constData(), raw2.size());
-			scan->rawData()->setValue(axisValueIndex, scan->rawDataSourceCount()-2, raw3.constData(), raw3.size());
-			scan->rawData()->setValue(axisValueIndex, scan->rawDataSourceCount()-1, raw4.constData(), raw4.size());
+			scan->rawData()->setValue(axisValueIndex, scan->rawDataSourceCount()-5, data.constData());
+			scan->rawData()->setValue(axisValueIndex, scan->rawDataSourceCount()-4, raw1.constData());
+			scan->rawData()->setValue(axisValueIndex, scan->rawDataSourceCount()-3, raw2.constData());
+			scan->rawData()->setValue(axisValueIndex, scan->rawDataSourceCount()-2, raw3.constData());
+			scan->rawData()->setValue(axisValueIndex, scan->rawDataSourceCount()-1, raw4.constData());
 		}
 
 		else{

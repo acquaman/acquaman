@@ -1,0 +1,52 @@
+#ifndef AMSAMPLESELECTOR_H
+#define AMSAMPLESELECTOR_H
+
+#include <QComboBox>
+
+class AMDatabase;
+
+/// A combo box to choose an existing sample from the database, or create a new one.
+class AMSampleSelector : public QComboBox
+{
+    Q_OBJECT
+public:
+	explicit AMSampleSelector(AMDatabase* db, QWidget *parent = 0);
+
+	/// Returns the id of the currently-selected sample, or -1 if no samples / none selected.
+	int currentSample() const;
+
+public slots:
+	/// Sets the currently-selected sample, by id. If there is no sample with that id, the currentSample() becomes -1.
+	void setCurrentSample(int id);
+
+	/// Displays the "Add Sample" dialog.
+	void showAddSampleDialog();
+
+
+signals:
+	/// Emitted when the currentSampleId() changes; can be -1 if there are no samples / no sample selected.
+	void currentSampleChanged(int sampleId);
+
+protected slots:
+
+	void onCurrentIndexChanged(int currentIndex);
+	void onActivated(int currentIndex);
+	void populateFromDb();
+
+	void onDatabaseRowUpdated(const QString& tableName, int row);
+	void onDatabaseRowAdded(const QString& tableName, int row);
+	void onDatabaseRowRemoved(const QString& tableName, int row);
+
+	/// Called when someone clicks a 'close button' on a sample to delete it
+	void onSampleDeleteButtonClicked(const QModelIndex& index);
+
+protected:
+
+	AMDatabase* db_;
+	QString tableName_;
+	bool currentlyInsertingSample_;
+
+	int lastIndex_;
+};
+
+#endif // AMSAMPLESELECTOR_H

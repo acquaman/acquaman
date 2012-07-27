@@ -71,7 +71,7 @@ void AMControlMoveAction3::startImplementation()
 		return;
 	}
 	// check that the destination is in range...
-	if(control_->valueOutOfRange(setpoint.value())) {
+	if(control_->valueOutOfRange(controlMoveInfo()->isRelativeMove() ? control_->value()+setpoint.value() : setpoint.value())) {
 		AMErrorMon::alert(this,
 						  -13003,
 						  QString("There was an error moving the control '%1' into position, because the destination %2 %3 was outside its range. Please report this problem to the beamline staff.")

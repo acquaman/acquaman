@@ -16,6 +16,10 @@ macx {
 		# MPlot Source
 		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
 		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
+
+		# CDFlib dependencies
+		CDF_LIB = /Applications/cdf34_0-dist/lib/libcdf.a
+		CDF_INCLUDE_DIR = /Applications/cdf34_0-dist/include
 }
 linux-g++ {
 
@@ -50,6 +54,14 @@ linux-g++-32 {
 		# MPlot Source
 		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
 		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
+
+		# CDFlib dependencies
+		CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
+		CDF_LIB = -L$$CDF_LIB_DIR -lcdf
+		CDF_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/include
+
+		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$CDF_LIB_DIR"
+		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$CDF_LIB_DIR"
 }
 # The following works well for CLS beamline OPI machines, built using VMSL54.cs.clsi.ca
 
@@ -69,6 +81,10 @@ linux-g++-64 {
 		# MPlot Source
 		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
 		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
+
+		# CDFlib dependencies
+		CDF_LIB = -L/home/beamline/tools/cdf/lib -lcdf
+		CDF_INCLUDE_DIR = /home/beamline/tools/cdf/include
 }
 
 # Special build paths and options for running on the Jenkins auto-build server (currently at http://beamteam.usask.ca:8080)
@@ -92,9 +108,11 @@ CONFIG(jenkins_build) {
 
 QT +=		sql
 INCLUDEPATH    += $$AM_INCLUDE_DIR \
-		$$MPLOT_INCLUDE_DIR
+		$$MPLOT_INCLUDE_DIR \
+		$$CDF_INCLUDE_DIR
 
-LIBS += -L$$MPLOT_LIB_DIR -lMPlot
+LIBS +=	$$CDF_LIB \
+		-L$$MPLOT_LIB_DIR -lMPlot
 
 QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$MPLOT_LIB_DIR"
 QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$MPLOT_LIB_DIR"
@@ -117,6 +135,7 @@ HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMRawDataSource.h \
 		$$AM_INCLUDE_DIR/dataman/datastore/AMDataStore.h \
 		$$AM_INCLUDE_DIR/dataman/datastore/AMInMemoryDataStore.h \
+		$$AM_INCLUDE_DIR/dataman/datastore/AMCDFDataStore.h \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceImageData.h \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceSeriesData.h \
 		$$AM_INCLUDE_DIR/dataman/AMAnalysisBlock.h \
@@ -149,6 +168,7 @@ SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMRawDataSource.cpp \
 		$$AM_INCLUDE_DIR/dataman/datastore/AMDataStore.cpp \
 		$$AM_INCLUDE_DIR/dataman/datastore/AMInMemoryDataStore.cpp \
+		$$AM_INCLUDE_DIR/dataman/datastore/AMCDFDataStore.cpp \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceImageData.cpp \
 		$$AM_INCLUDE_DIR/dataman/datasource/AMDataSourceSeriesData.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMAnalysisBlock.cpp \

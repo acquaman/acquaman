@@ -43,6 +43,10 @@ macx {
 		# LibXML Dependencies (required by dacq library)
 		XML_LIB = -lxml2
 		XML_INCLUDE_DIR = /usr/include/libxml2
+
+		# CDFlib dependencies
+		CDF_LIB = /Applications/cdf34_0-dist/lib/libcdf.a
+		CDF_INCLUDE_DIR = /Applications/cdf34_0-dist/include
 }
 linux-g++ {
 
@@ -65,6 +69,10 @@ linux-g++ {
 		# LibXML Dependencies (required by dacq library)
 		XML_LIB = -lxml2
 		XML_INCLUDE_DIR = /usr/include/libxml2
+
+		#CDFLib dependencies
+		CDF_LIB = -lcdf
+		CDF_INCLUDE_DIR = /usr/local/include
 }
 linux-g++-32 {
 
@@ -94,6 +102,14 @@ linux-g++-32 {
 		# LibXML Dependencies (required by dacq library)
 		XML_LIB = -lxml2
 		XML_INCLUDE_DIR = /usr/include/libxml2
+
+		# CDFlib dependencies
+		CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
+		CDF_LIB = -L$$CDF_LIB_DIR -lcdf
+		CDF_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/include
+
+		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$CDF_LIB_DIR"
+		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$CDF_LIB_DIR"
 }
 # The following works well for CLS beamline OPI machines, built using VMSL54.cs.clsi.ca
 
@@ -123,6 +139,15 @@ linux-g++-64 {
 		# LibXML Dependencies (required by dacq library)
 		XML_LIB = -lxml2
 		XML_INCLUDE_DIR = /usr/include/libxml2
+
+		# CDFlib dependencies
+		CDF_LIB_DIR = /home/beamline/tools/cdf/lib
+		CDF_LIB = -L$$CDF_LIB_DIR -lcdf
+		CDF_INCLUDE_DIR = /home/beamline/tools/cdf/include
+
+		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$CDF_LIB_DIR"
+		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$CDF_LIB_DIR"
+
 }
 
 # Special build paths and options for running on the Jenkins auto-build server (currently at http://beamteam.usask.ca:8080)
@@ -141,6 +166,7 @@ CONFIG(jenkins_build) {
 		# MPlot Source
 		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/include"
 		MPLOT_LIB_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/lib"
+
 }
 
 
@@ -159,14 +185,19 @@ INCLUDEPATH += $$EPICS_INCLUDE_DIRS \
 		$$MPLOT_INCLUDE_DIR \
 		$$GSL_INCLUDE_DIR \
 		$$XML_INCLUDE_DIR \
-		$$QWTPLOT3D_INCLUDE_DIR
+		$$QWTPLOT3D_INCLUDE_DIR \
+		$$CDF_INCLUDE_DIR
 
 LIBS += $$GSL_LIB \
 		$$GSL_CBLAS_LIB \
 		-L$$MPLOT_LIB_DIR -lMPlot \
 		$$XML_LIB \
-	#-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
-		-L$$EPICS_LIB_DIR -lca -lCom
+#		-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
+		-L$$EPICS_LIB_DIR -lca -lCom \
+		$$CDF_LIB
+
+DEFINES += AM_ENABLE_BOUNDS_CHECKING
+
 
 # Set standard level of compiler warnings for everyone. (Otherwise the warnings shown will be system-dependent.)
 QMAKE_CXXFLAGS += -Wextra
@@ -213,6 +244,7 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/acquaman/dacq3_3/qepicsacqlocal.h \
 	source/acquaman/dacq3_3/qepicsadvacq.h \
 	source/application/AMAppController.h \
+	source/application/AMAppControllerForActions2.h \
 	source/util/AMBiHash.h \
 	source/util/AMErrorMonitor.h \
 	source/util/AMSettings.h \
@@ -536,6 +568,8 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/analysis/AM1DNormalizationABEditor.h \
 	source/ui/AMAddAnalysisBlockDialog.h \
 	source/ui/acquaman/AMScanConfigurationViewHolder3.h \
+	source/dataman/datastore/AMCDFDataStore.h \
+	source/util/amlikely.h \
 	source/actions2/actions/AMChangeRunAction.h \
 	source/actions2/actions/AMChangeRunActionInfo.h \
 	source/actions2/editors/AMChangeRunActionEditor.h \
@@ -546,11 +580,18 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/qttelnet/qttelnet.h \
 	source/beamline/CLS/CLSProcServManager.h \
 	source/dataman/REIXS/REIXSXESCalibration2.h \
-    source/ui/beamline/AMExtendedControlEditor.h \
-    source/ui/beamline/AMControlButton.h \
-    source/dataman/info/AMControlInfo.h \
-    source/dataman/AMLineScan.h \
-    source/ui/dataman/AMRegionScanConfigurationView.h
+	source/ui/beamline/AMExtendedControlEditor.h \
+	source/ui/beamline/AMControlButton.h \
+	source/dataman/info/AMControlInfo.h \
+	source/dataman/AMLineScan.h \
+	source/acquaman/AMSA1DScanController.h \
+	source/acquaman/AMSADetector.h \
+	source/acquaman/CLS/CLSSIS3820ScalerSADetector.h \
+	source/ui/dataman/AMRegionScanConfigurationView.h \
+    source/ui/dataman/AMSampleSelector.h \
+    source/ui/AMTopFrame2.h \
+    source/application/AMDatamanAppControllerForActions2.h \
+    source/application/AMDatamanAppControllerForActions3.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -585,7 +626,8 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/dataman/AMImagePropertyEditor.ui \
 	source/ui/actions2/AMAddActionDialog.ui \
 	source/ui/util/AMJoystickTestView.ui \
-	source/ui/actions3/AMAddActionDialog3.ui
+	source/ui/actions3/AMAddActionDialog3.ui \
+    source/ui/AMTopFrame2.ui
 
 SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/AMAcqScanSpectrumOutput.cpp \
@@ -621,6 +663,7 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/dacq3_3/xmlRead.cpp \
 	source/acquaman/dacq3_3/xmlWrite.cpp \
 	source/application/AMAppController.cpp \
+	source/application/AMAppControllerForActions2.cpp \
 	source/util/AMErrorMonitor.cpp \
 	source/util/AMSettings.cpp \
 	source/beamline/AMBeamline.cpp \
@@ -921,6 +964,7 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/analysis/AM1DNormalizationABEditor.cpp \
 	source/ui/AMAddAnalysisBlockDialog.cpp \
 	source/ui/acquaman/AMScanConfigurationViewHolder3.cpp \
+	source/dataman/datastore/AMCDFDataStore.cpp \
 	source/actions2/actions/AMChangeRunAction.cpp \
 	source/actions2/actions/AMChangeRunActionInfo.cpp \
 	source/actions2/editors/AMChangeRunActionEditor.cpp \
@@ -931,11 +975,18 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/qttelnet/qttelnet.cpp \
 	source/beamline/CLS/CLSProcServManager.cpp \
 	source/dataman/REIXS/REIXSXESCalibration2.cpp \
-    source/ui/beamline/AMExtendedControlEditor.cpp \
-    source/ui/beamline/AMControlButton.cpp \
-    source/dataman/info/AMControlInfo.cpp \
-    source/dataman/AMLineScan.cpp \
-    source/ui/dataman/AMRegionScanConfigurationView.cpp
+	source/ui/beamline/AMExtendedControlEditor.cpp \
+	source/ui/beamline/AMControlButton.cpp \
+	source/dataman/info/AMControlInfo.cpp \
+	source/dataman/AMLineScan.cpp \
+	source/acquaman/AMSA1DScanController.cpp \
+	source/acquaman/AMSADetector.cpp \
+	source/acquaman/CLS/CLSSIS3820ScalerSADetector.cpp \
+	source/ui/dataman/AMRegionScanConfigurationView.cpp \
+    source/ui/dataman/AMSampleSelector.cpp \
+    source/ui/AMTopFrame2.cpp \
+    source/application/AMDatamanAppControllerForActions2.cpp \
+    source/application/AMDatamanAppControllerForActions3.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -959,6 +1010,16 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
+
+
+
+
 
 
 

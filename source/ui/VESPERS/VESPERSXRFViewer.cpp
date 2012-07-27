@@ -234,7 +234,7 @@ double VESPERSXRFViewer::getMaximumHeight(MPlotItem *data)
 	if (!temp)
 		return max;
 
-	SpectrumData *model = (SpectrumData *)temp->model();
+	VESPERSSpectrumData *model = (VESPERSSpectrumData *)temp->model();
 
 	for (int i = 0; i < model->count(); i++){
 
@@ -387,7 +387,7 @@ void VESPERSXRFViewer::loadSpectrumSnapshotFile(QString filename)
 	file.close();
 
 	// Put the data into MPlot data series.
-	SpectrumData *tempData = new SpectrumData(data);
+	VESPERSSpectrumData *tempData = new VESPERSSpectrumData(data);
 	tempData->setScale(secondNum-firstNum);
 	corrSum_ = new MPlotSeriesBasic;
 	corrSum_->setModel(tempData, true);
@@ -431,7 +431,7 @@ void VESPERSXRFViewer::loadVespersXRFFile(QString filename)
 			rawData << current.split("\t").last().toDouble();
 
 		MPlotSeriesBasic *rawSeries = new MPlotSeriesBasic;
-		rawSeries->setModel(new SpectrumData(rawData), true);
+		rawSeries->setModel(new VESPERSSpectrumData(rawData), true);
 		rawSeries->setMarker(MPlotMarkerShape::None);
 		rawSeries->setDescription(QString("Raw 1"));
 		rawSeries->setLinePen(QPen(getColor(1)));
@@ -461,11 +461,11 @@ void VESPERSXRFViewer::loadVespersXRFFile(QString filename)
 		}
 
 		MPlotSeriesBasic *rawSeries;
-		SpectrumData *tempData;
+		VESPERSSpectrumData *tempData;
 
 		for (int i = 0; i < 4; i++){
 
-			tempData = new SpectrumData(rawData.at(i));
+			tempData = new VESPERSSpectrumData(rawData.at(i));
 			rawSeries = new MPlotSeriesBasic;
 			rawSeries->setModel(tempData, true);
 			rawSeries->setMarker(MPlotMarkerShape::None);
@@ -474,7 +474,7 @@ void VESPERSXRFViewer::loadVespersXRFFile(QString filename)
 			rawDataSeries_ << rawSeries;
 		}
 
-		tempData = new SpectrumData(corrSumData);
+		tempData = new VESPERSSpectrumData(corrSumData);
 		corrSum_ = new MPlotSeriesBasic;
 		corrSum_->setModel(tempData, true);
 		corrSum_->setMarker(MPlotMarkerShape::None);
@@ -568,11 +568,11 @@ void VESPERSXRFViewer::loadAcquamanXRFFile(QString filename)
 
 	MPlotSeriesBasic *rawSeries;
 	MPlotSeriesBasic *corrSeries;
-	SpectrumData *tempData;
+	VESPERSSpectrumData *tempData;
 
 	for (int i = 0; i < elements; i++){
 
-		tempData = new SpectrumData(rawData.at(i));
+		tempData = new VESPERSSpectrumData(rawData.at(i));
 		tempData->setScale(scale);
 		rawSeries = new MPlotSeriesBasic;
 		rawSeries->setModel(tempData, true);
@@ -581,7 +581,7 @@ void VESPERSXRFViewer::loadAcquamanXRFFile(QString filename)
 		rawSeries->setLinePen(QPen(getColor(i+1)));
 		rawDataSeries_ << rawSeries;
 
-		tempData = new SpectrumData(corrData.at(i));
+		tempData = new VESPERSSpectrumData(corrData.at(i));
 		tempData->setScale(scale);
 		corrSeries = new MPlotSeriesBasic;
 		corrSeries->setModel(tempData, true);
@@ -591,7 +591,7 @@ void VESPERSXRFViewer::loadAcquamanXRFFile(QString filename)
 		corrDataSeries_ << corrSeries;
 	}
 
-	tempData = new SpectrumData(corrSumData);
+	tempData = new VESPERSSpectrumData(corrSumData);
 	tempData->setScale(scale);
 	corrSum_ = new MPlotSeriesBasic;
 	corrSum_->setModel(tempData, true);

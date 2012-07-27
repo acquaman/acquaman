@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QUrl>
 #include <QGroupBox>
 
-#include "ui/AMTopFrame.h"
+#include "ui/AMTopFrame2.h"
 
 #include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
 
@@ -39,8 +39,7 @@ AMSampleManagementWidget::AMSampleManagementWidget(QWidget *manipulatorWidget, c
 	Q_UNUSED(sampleCameraDescription);
 #endif
 
-	topFrame_ = new AMTopFrame("Sample Management & Positioning");
-	topFrame_->setIcon(QIcon(":/system-software-update.png"));
+	topFrame_ = new AMTopFrame2("Sample Management & Positioning", QIcon(":/system-software-update.png"));
 
 	plateView_ = new AMSamplePlateView(samplePlate);
 	plateView_->setManipulator(manipulator);
