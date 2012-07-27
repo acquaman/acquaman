@@ -208,6 +208,10 @@ public slots:
 	void setVisible(int scanIndex, int dataSourceIndex, bool isVisible);
 	void setHiddenFromUsers(int scanIndex, int dataSourceIndex, bool isHiddenFromUsers);
 
+
+	/// Normally, the plot visibility is not persisted, so that simply toggling plots on or off does not prompt the user to save the scan.  Call this to transfer the current (temporary) visibility settings for all data sources in the model (isVisible()) to their persistent AMDataSource::visibleInPlots() properties.  The same data sources will then be visible when re-opening the scans out of the database later.
+	void saveVisibility();
+
 signals:
 	void exclusiveDataSourceChanged(QString exclusiveDataSourceName);
 

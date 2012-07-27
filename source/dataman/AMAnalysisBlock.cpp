@@ -77,3 +77,11 @@ QWidget* AMAnalysisBlock::createEditorWidget()
 	return new AMSimpleDataSourceEditor(this);
 }
 
+void AMAnalysisBlock::setVisibleInPlots(bool isVisible){
+
+	if(isVisible == visibleInPlots()) return;
+
+	AMDataSource::setVisibleInPlots(isVisible);
+	setModified(true);
+}
+

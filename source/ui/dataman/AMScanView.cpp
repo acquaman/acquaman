@@ -431,7 +431,7 @@ MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* d
 	MPlotItem* rv = 0;
 
 	if(dataSource == 0) {
-		AMErrorMon::alert(this, AMSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_NULL_DATA_SOURCE, "Asked to create a plot item for a null data source.");
+		AMErrorMon::debug(this, AMSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_NULL_DATA_SOURCE, "Asked to create a plot item for a null data source.");
 		return 0;
 	}
 

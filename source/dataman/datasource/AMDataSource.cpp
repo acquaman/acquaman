@@ -124,3 +124,11 @@ void AMDataSource::valuesImplementationRecursive(const AMnDIndex &indexStart, co
 		}
 	}
 }
+
+void AMDataSource::setVisibleInPlots(bool isVisible)
+{
+	if(isVisible == visibleInPlots_) return;
+
+	visibleInPlots_ = isVisible;
+	emitInfoChanged();
+}

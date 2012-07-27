@@ -128,7 +128,7 @@ public:
 
 	/// Specify that this data source should be visible (in plots and graphical displays).  Users are free to toggle this visibility.
 	/*! Re-implemented from AMDataSource to call setModified().  */
-	virtual void setVisibleInPlots(bool isVisible) { AMDataSource::setVisibleInPlots(isVisible); setModified(true); }
+	virtual void setVisibleInPlots(bool isVisible);
 
 	/// Specify that this data source should be hidden from users by default. (ie: it contains some programming internals). This means that users shouldn't see it, or be able to toggle its visibility.
 	/*! Re-implemented from AMDataSource to call setModified().  */

@@ -271,6 +271,8 @@ AMScanViewScanBarContextMenu::AMScanViewScanBarContextMenu(AMScanSetModel *model
 	connect(addAction("Show all"), SIGNAL(triggered()), this, SLOT(showAll()));
 	addSeparator();
 	connect(addAction("Color and style..."), SIGNAL(triggered()), this, SLOT(editColorAndStyle()));
+	addSeparator();
+	connect(addAction("Remember Visibility"), SIGNAL(triggered()), model_, SLOT(saveVisibility()));
 
 	connect(this, SIGNAL(aboutToHide()), this, SLOT(deleteLater()));
 }
@@ -338,3 +340,5 @@ void AMScanViewScanBarContextMenu::editColorAndStyle()
 		pd->show();
 	}
 }
+
+

@@ -62,6 +62,7 @@ protected slots:
 	void showAll();
 	/// Called when the "edit Color And Style" action is triggered.
 	void editColorAndStyle();
+
 };
 
 /// This GUI class is a helper for AMScanViewSourceSelector.  It diplays the available data sources for a single Scan.
