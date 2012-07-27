@@ -263,10 +263,12 @@ AMScanViewScanBarContextMenu::AMScanViewScanBarContextMenu(AMScanSetModel *model
 	if(dataSourceDescription != dataSourceName)
 		addAction(dataSourceDescription)->setDisabled(true);
 	addSeparator();
-	connect(addAction("Hide all except " % dataSourceName), SIGNAL(triggered()), this, SLOT(hideAllExceptDataSource()));
+	addAction("For this scan:")->setEnabled(false);
+	connect(addAction("   Show all"), SIGNAL(triggered()), this, SLOT(showAll()));
+	connect(addAction("   Hide all except " % dataSourceName), SIGNAL(triggered()), this, SLOT(hideAllExceptDataSource()));
+	addSeparator();
 	if(model_->scanCount() > 1)
-		connect(addAction("Show all " % dataSourceName), SIGNAL(triggered()), this, SLOT(showAllDataSource()));
-	connect(addAction("Show all"), SIGNAL(triggered()), this, SLOT(showAll()));
+		connect(addAction("Show only " % dataSourceName), SIGNAL(triggered()), this, SLOT(showAllDataSource()));
 	addSeparator();
 	connect(addAction("Color and style..."), SIGNAL(triggered()), this, SLOT(editColorAndStyle()));
 	addSeparator();
