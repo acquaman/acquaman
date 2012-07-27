@@ -48,6 +48,9 @@ public:
   */
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
 
+	/// Re-implemented from AMDbObject to set the AMDataSource name once we have an AMDbObject::name()
+	bool loadFromDb(AMDatabase *db, int id);
+
 protected:
 	/// Set the data source inputs.
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
