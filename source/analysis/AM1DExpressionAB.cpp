@@ -27,6 +27,8 @@ AM1DExpressionAB::AM1DExpressionAB(const QString& outputName, QObject* parent)
 	: AMAnalysisBlock(outputName, parent),
 	  axisInfo_(outputName + "_x", 0)
 {
+	currentlySettingInputSources_ = false;
+
 	// We're not using direct evaluation at the start
 	direct_ = xDirect_ = false;
 
@@ -51,6 +53,7 @@ AM1DExpressionAB::AM1DExpressionAB(AMDatabase* db, int id)
 	: AMAnalysisBlock("tempName"),
 	  axisInfo_("tempName_x", 0)
 {
+	currentlySettingInputSources_ = false;
 	// We're not using direct evaluation at the start
 	direct_ = xDirect_ = false;
 
@@ -91,6 +94,8 @@ bool AM1DExpressionAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>&
 // Set the data source inputs.
 /* \note Whenever new input sources are set, if the xExpression() is blank/invalid, it is automatically initialized to the axisValue() of the first input source. Otherwise it, like expression(), is left as it was prior to setting the new inputs. Note that if the names of the new inputs are different, the old expressions will both likely become invalid. */
 void AM1DExpressionAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources) {
+
+	currentlySettingInputSources_ = true;
 
 	QString oldExpression = expression();
 	QString oldXExpression = xExpression();
@@ -161,6 +166,8 @@ void AM1DExpressionAB::setInputDataSourcesImplementation(const QList<AMDataSourc
 	setXExpression(oldXExpression);
 
 	// both the setExpression() and setXExpression() calls will end by calling reviewState(), which will call setState() appropriately, given the status of the inputs, their sizes, and the expression validity.
+
+	currentlySettingInputSources_ = false;
 
 }
 
@@ -501,7 +508,9 @@ bool AM1DExpressionAB::setExpression(const QString& newExpression) {
 	// anything that could trigger a change in the output validity must call this
 	reviewState();
 	emitValuesChanged();
-	setModified(true);
+
+	if(!currentlySettingInputSources_)
+		setModified(true);
 
 	return expressionValid_;
 }
@@ -560,7 +569,9 @@ bool AM1DExpressionAB::setXExpression(const QString& xExpressionIn) {
 	// anything that could trigger a change in the output validity must call this
 	reviewState();
 	emitValuesChanged();	/// \todo: actually, we mean that the axis values changed. How to signal that?
-	setModified(true);
+
+	if(!currentlySettingInputSources_)
+		setModified(true);
 
 	return xExpressionValid_;
 }

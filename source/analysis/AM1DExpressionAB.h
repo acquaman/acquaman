@@ -206,6 +206,8 @@ protected:
 	/// When using direct evaluation, these are the variables to use
 	AMParserVariable directVar_, xDirectVar_;
 
+	/// Used to flag that we are currently setting new input sources, so the setExpression() and setXExpression() calls should not cause setModified(true).
+	bool currentlySettingInputSources_;
 
 	/// Axis meta-information for our single axis.
 	mutable AMAxisInfo axisInfo_;
