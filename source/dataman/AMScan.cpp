@@ -31,7 +31,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 
 #include <QUrl>
-#include <QDebug>
 
 #include "dataman/datastore/AMCDFDataStore.h"
 
@@ -210,6 +209,7 @@ void AMScan::retrieveSampleName() const {
 	}
 }
 
+
 // Loads a saved scan from the database into self. Returns true on success.
 /*! Re-implemented from AMDbObject::loadFromDb(), this version also loads the scan's raw data if autoLoadData() is set to true, and the stored filePath doesn't match the existing filePath()*/
 bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
@@ -279,7 +279,7 @@ void AMScan::dbLoadRawDataSources(const AMDbObjectList& newRawSources) {
 		if(newRawSource) {
 
 			rawDataSources_.append(newRawSource, newRawSource->name());
-			connect(newRawSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified()));
+			connect(newRawSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified(bool)));
 		}
 		else
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "There was an error reloading one of this scan's raw data sources from the database. Your database might be corrupted. Please report this bug to the Acquaman developers."));
@@ -305,7 +305,7 @@ void AMScan::dbLoadAnalyzedDataSources(const AMDbObjectList& newAnalyzedSources)
 
 			analyzedDataSources_.append(newSource, newSource->name());
 			newSource->setScan(this);
-			connect(newSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified()));
+			connect(newSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified(bool)));
 		}
 		else
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "There was an error reloading one of this scan's processed data sources from the database. Your database might be corrupted. Please report this bug to the Acquaman developers."));
@@ -359,6 +359,7 @@ void AMScan::dbLoadAnalyzedDataSourcesConnections(const QString& connectionStrin
 								AMErrorReport::Alert,
 								0,
 								QString("There was an error re-connecting the inputs for the analysis component '%1: %2', when reloading this scan from the database. Your database might be corrupted. Please report this bug to the Acquaman developers.").arg(analyzedDataSources_.at(i)->name()).arg(analyzedDataSources_.at(i)->description())));
+
 	}
 }
 
@@ -427,7 +428,7 @@ bool AMScan::addRawDataSource(AMRawDataSource *newRawDataSource)
 {
 	if(newRawDataSource && rawDataSources_.append(newRawDataSource, newRawDataSource->name())) {
 
-		connect(newRawDataSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified()));
+		connect(newRawDataSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified(bool)));
 		return true;
 	}
 
@@ -449,7 +450,7 @@ bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource)
 	if(newAnalyzedDataSource && analyzedDataSources_.append(newAnalyzedDataSource, newAnalyzedDataSource->name())){
 
 		newAnalyzedDataSource->setScan(this);
-		connect(newAnalyzedDataSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified()));
+		connect(newAnalyzedDataSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified(bool)));
 		return true;
 	}
 
@@ -826,7 +827,12 @@ int AMScan::largestNumberInScansWhere(AMDatabase* db, const QString &whereClause
 		return q.value(0).toInt();
 	}
 	else {
-		qDebug() << "Could not run query...";
 		return -1;
 	}
+}
+
+void AMScan::onDataSourceModified(bool isModified)
+{
+	if(isModified)
+		setModified(true);
 }

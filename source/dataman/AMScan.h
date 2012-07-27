@@ -487,7 +487,7 @@ protected slots:
 	/// Receives itemRemoved() signals from rawDataSources_ and analyzedDataSources_, and emits dataSourceRemoved.
 	void onDataSourceRemoved(int index);
 	/// Receives modified() signals from the rawDataSources_ and analyszedDataSources_ and calls setModified for the scan.
-	void onDataSourceModified() { setModified(true); }
+	void onDataSourceModified(bool modified);
 
 protected:
 
