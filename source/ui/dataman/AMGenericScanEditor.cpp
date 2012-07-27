@@ -420,20 +420,19 @@ void AMGenericScanEditor::onScanModelCloseClicked(const QModelIndex& index) {
 // Remove a scan, but ask the user for confirmation if it's been modified.
 bool AMGenericScanEditor::removeScanWithModifiedCheck(AMScan* scan) {
 
-	// This check is no longer necessary, since the scan editor does not take ownership of the scan; scan objects will live on and can continue acquiring after the editor has been closed.
-//#ifndef ACQUAMAN_NO_ACQUISITION
-//	// Potential problem 1: Is the scan acquiring?
-//	if(scan->scanController()) {	// look for a valid scanController().
-//		if(shouldStopAcquiringScan(scan)) {
-//			// stop the scan. Warning: this won't happen instantly... there's event driven handling in the scan controller. However, since we won't delete the scan (only release our interest), we can remove it.
-//			scan->scanController()->cancel();
-//			removeScan(scan);
-//			return true;
-//		}
-//		else	// Note: it is possible to close the editor and let the scan keep acquiring. Is that something we want to let users do? For now, no.
-//			return false;
-//	}
-//#endif
+#ifndef ACQUAMAN_NO_ACQUISITION
+	// Potential problem 1: Is the scan acquiring?
+	if(scan->scanController()) {	// look for a valid scanController().
+		if(shouldStopAcquiringScan(scan)) {
+			// stop the scan. Warning: this won't happen instantly... there's event driven handling in the scan controller. However, since we won't delete the scan (only release our interest), we can remove it.
+			scan->scanController()->cancel();
+			removeScan(scan);
+			return true;
+		}
+		else	// Note: it is possible to close the editor and let the scan keep acquiring. Is that something we want to let users do? For now, no.
+			return false;
+	}
+#endif
 
 
 	// Potential problem 2: Is the scan modified? Do they want to save their changes?
@@ -598,25 +597,25 @@ void AMGenericScanEditor::closeEvent(QCloseEvent* e)
 
 }
 
-//bool AMGenericScanEditor::shouldStopAcquiringScan(AMScan *scan)
-//{
-//	QMessageBox scanningEnquiry;
-//	scanningEnquiry.setText(QString("The scan '%1' (#%2) is still acquiring.")
-//							.arg(scan->name())
-//							.arg(scan->number()));
-//	scanningEnquiry.setInformativeText("You can't close this scan while it's still acquiring. Do you want to stop it?");
-//	scanningEnquiry.setIcon(QMessageBox::Question);
-//	QPushButton* stopScanButton = scanningEnquiry.addButton("Stop Scan", QMessageBox::AcceptRole);
-//	scanningEnquiry.addButton(QMessageBox::Cancel);
-//	scanningEnquiry.setDefaultButton(QMessageBox::Cancel);
-//	scanningEnquiry.setEscapeButton(QMessageBox::Cancel);
+bool AMGenericScanEditor::shouldStopAcquiringScan(AMScan *scan)
+{
+	QMessageBox scanningEnquiry;
+	scanningEnquiry.setText(QString("The scan '%1' (#%2) is still acquiring.")
+							.arg(scan->name())
+							.arg(scan->number()));
+	scanningEnquiry.setInformativeText("You can't close this scan while it's still acquiring. Do you want to stop it?");
+	scanningEnquiry.setIcon(QMessageBox::Question);
+	QPushButton* stopScanButton = scanningEnquiry.addButton("Stop Scan", QMessageBox::AcceptRole);
+	scanningEnquiry.addButton(QMessageBox::Cancel);
+	scanningEnquiry.setDefaultButton(QMessageBox::Cancel);
+	scanningEnquiry.setEscapeButton(QMessageBox::Cancel);
 
-//	scanningEnquiry.exec();
-//	if(scanningEnquiry.clickedButton() == stopScanButton)
-//		return true;
-//	else
-//		return false;
-//}
+	scanningEnquiry.exec();
+	if(scanningEnquiry.clickedButton() == stopScanButton)
+		return true;
+	else
+		return false;
+}
 
 int AMGenericScanEditor::shouldSaveModifiedScan(AMScan *scan)
 {
@@ -635,23 +634,21 @@ bool AMGenericScanEditor::canCloseEditor()
 {
 	bool canClose = true;
 
-	// This check is no longer necessary, since the scan editor does not take ownership of the scan; scan objects will live on and can continue acquiring after the editor has been closed.
-//#ifndef ACQUAMAN_NO_ACQUISITION
-//	// Check for any acquiring scans
-//	for(int i=0; i<scanCount(); i++) {
-//		AMScan* scan = scanAt(i);
-//		if(scan->scanController()) {
-//			// is still scanning.
-//			if(shouldStopAcquiringScan(scan)) {
-//				scan->scanController()->cancel(); // Since we won't delete the scan ourselves, but we know it's going to stop at some point, we can safely close. Don't set canClose to false.
-//			}
-//			else {
-//				return false;	// they chose to cancel, so don't bother asking about anything else.
-//			}
-//		}
-//	}
-//#endif
-
+#ifndef ACQUAMAN_NO_ACQUISITION
+	// Check for any acquiring scans
+	for(int i=0; i<scanCount(); i++) {
+		AMScan* scan = scanAt(i);
+		if(scan->scanController()) {
+			// is still scanning.
+			if(shouldStopAcquiringScan(scan)) {
+				scan->scanController()->cancel(); // Since we won't delete the scan ourselves, but we know it's going to stop at some point, we can safely close. Don't set canClose to false.
+			}
+			else {
+				return false;	// they chose to cancel, so don't bother asking about anything else.
+			}
+		}
+	}
+#endif
 	// Check for any modified scans?
 	for(int i=0; i<scanCount(); i++) {
 		AMScan* scan = scanAt(i);

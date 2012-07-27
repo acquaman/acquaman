@@ -219,7 +219,8 @@ protected:
 	/// This helper function refreshes the editor widgets with the values from a given scan
 	void updateEditor(AMScan* scan);
 
-
+	/// Helper function to ask if a scan should be aborted when trying to close it. Returns true if the scan should be aborted.
+	bool shouldStopAcquiringScan(AMScan* scan);
 	/// Helper function to ask if a scan should be saved when trying to close it. Returns an integer corresponding to QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel.
 	int shouldSaveModifiedScan(AMScan* scan);
 
