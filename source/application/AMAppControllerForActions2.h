@@ -32,6 +32,7 @@ class AMScan;
 class AMScanConfiguration;
 class AMExporter;
 class AMExporterOption;
+class AMAction;
 
 /// This class extends the base dataman app controller class by adding the workflow.  This is the base class for all beamline acquisition app controllers.  The reason for the distinction between this class and the dataman version is a result for the desire to be able to take the dataman version home with the user whereas this version is meant to reside on beamlines that always have access to beamline components and controls.
 class AMAppControllerForActions2 : public AMDatamanAppControllerForActions2
@@ -85,9 +86,15 @@ protected:
 	/// Checks to make sure no actions are currently running in the AMActionRunner. If there are, asks user if they want to cancel them, but still returns false.
 	bool canCloseActionRunner();
 
+
 protected slots:
 	/// This watches when the state of the current action changes (as notified by AMActionRunner). For now, we notice when an AMScanControllerAction starts, and create an editor for its scan.
 	virtual void onCurrentActionStateChanged(int newState, int oldState);
+
+	/// This updates the progress bar in the bottom bar based on the current action
+	void onCurrentActionProgressChanged(double elapsed, double total);
+	/// This updates the text of the bottom bar with the name of the current action
+	void onCurrentActionChanged(AMAction* action);
 };
 
 #endif // AMAPPCONTROLLER_H

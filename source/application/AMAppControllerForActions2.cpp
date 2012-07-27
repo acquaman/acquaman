@@ -188,32 +188,30 @@ bool AMAppControllerForActions2::startupInstallActions()
 		return false;
 }
 
+#include "ui/AMBottomBar.h"
+
 bool AMAppControllerForActions2::startupAfterEverything()
 {
 	if(!AMDatamanAppControllerForActions2::startupAfterEverything())
 		return false;
 
 	connect(AMActionRunner::s(), SIGNAL(currentActionStateChanged(int,int)), this, SLOT(onCurrentActionStateChanged(int,int)));
+
+	// bottom bar connections: TODO: this should be moved to its own class, or into the bottom bar.
+	connect(AMActionRunner::s(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onCurrentActionProgressChanged(double,double)));
+	connect(AMActionRunner::s(), SIGNAL(currentActionChanged(AMAction*)), this, SLOT(onCurrentActionChanged(AMAction*)));
+
+	// bottom bar setup:
+	bottomBar_->stopScanButton->setEnabled(false);
+	bottomBar_->pauseScanButton->setEnabled(false);
+	bottomBar_->restartScanButton->setVisible(false);	// unused
+	bottomBar_->fullScreenButton->setVisible(false); // unused
+	bottomBar_->adjustScanFinishButton->setVisible(false); // unused
+	connect(bottomBar_, SIGNAL(stopScanIssued()), AMActionRunner::s(), SLOT(cancelCurrentAction()));
+	connect(bottomBar_, SIGNAL(pauseScanIssued()), AMActionRunner::s(), SLOT(pauseCurrentAction()));
+	connect(bottomBar_, SIGNAL(resumeScanIssued()), AMActionRunner::s(), SLOT(resumeCurrentAction()));
+
 	return true;
-}
-
-#include "acquaman/AMScanController.h"
-
-void AMAppControllerForActions2::onCurrentActionStateChanged(int newState, int oldState)
-{
-	Q_UNUSED(oldState)
-
-	if(newState == AMAction::Running) {
-		AMAction* action = AMActionRunner::s()->currentAction();
-
-		AMScanControllerAction* scanAction = qobject_cast<AMScanControllerAction*>(action);
-		if(scanAction) {
-			AMScanController* scanController = scanAction->scanController();
-			if(scanController) {
-				openScanInEditor(scanController->scan());
-			}
-		}
-	}
 }
 
 bool AMAppControllerForActions2::startupRegisterDatabases()
@@ -230,4 +228,60 @@ bool AMAppControllerForActions2::startupRegisterDatabases()
 	AMActionRegistry::s()->registerInfoAndEditor<AMChangeRunActionInfo, AMChangeRunActionEditor>();
 
 	return true;
+}
+
+void AMAppControllerForActions2::onCurrentActionProgressChanged(double elapsed, double total)
+{
+	double elapsedTime = AMActionRunner::s()->currentAction()->runningTime();
+	double totalTime = AMActionRunner::s()->currentAction()->expectedDuration();
+
+	bottomBar_->updateProgress(elapsed, total);
+	bottomBar_->updateTimeElapsed(elapsedTime);
+	bottomBar_->updateTimeRemaining(totalTime - elapsedTime);
+}
+
+void AMAppControllerForActions2::onCurrentActionChanged(AMAction *action)
+{
+	if(action) {
+		bottomBar_->setStatusText(action->info()->shortDescription());
+	}
+	else {
+		bottomBar_->setStatusText(QString());
+		bottomBar_->updateProgress(0, 100);
+	}
+}
+
+#include "acquaman/AMScanController.h"
+
+void AMAppControllerForActions2::onCurrentActionStateChanged(int newState, int oldState)
+{
+	Q_UNUSED(oldState)
+
+	AMAction* action = AMActionRunner::s()->currentAction();
+
+	if(newState == AMAction::Running) {
+
+		AMScanControllerAction* scanAction = qobject_cast<AMScanControllerAction*>(action);
+		if(scanAction) {
+			AMScanController* scanController = scanAction->scanController();
+			if(scanController) {
+				openScanInEditor(scanController->scan());
+			}
+		}
+	}
+
+	// bottom-bar buttons:
+
+	// Disable the stop scan button unless the action is running.
+	bottomBar_->stopScanButton->setDisabled(newState == AMAction::Constructed ||
+			newState == AMAction::Cancelled ||
+			newState == AMAction::Succeeded ||
+			newState == AMAction::Failed);
+
+	bottomBar_->pauseScanButton->setEnabled(newState == AMAction::Running && action && action->canPause());
+	bottomBar_->pauseScanButton->setVisible(newState != AMAction::Paused);
+	bottomBar_->resumeScanButton->setVisible(newState == AMAction::Paused);
+
+	if(newState == AMAction::Paused)
+		bottomBar_->progressBar->setRange(0,0);
 }
