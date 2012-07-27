@@ -60,11 +60,11 @@ signals:
 
 public slots:
 
-	/// This function can be used to "hand-off" a scan to the app controller (for example, a new scan from a scan controller). An editor will be opened for the scan, and the editor will take responsibility for deleting the scan in the future (but not without checking first whether it still has a scan controller.)
+	/// This function can be used to "hand-off" a scan to the app controller (for example, a new scan from a scan controller). An editor will be opened for the scan. (Thanks to AMScan's retain()/release() mechanism, the scan will be deleted automatically when all scan controllers and editors are done with it.)
 	/*! By default, the new scan editor will be brought to the front of the main window and presented to the user. You can suppress this by setting \c bringEditorToFront to false.
 
 If \c openInExistingEditor is set to true, and if there is an existing editor, the scan will be appended inside that editor. (If there is more than one open editor, the scan will be added to the most recently-created one.)  By default, a new editor window is created.*/
-	void openScanInEditorAndTakeOwnership(AMScan* scan, bool bringEditorToFront = true, bool openInExistingEditor = false);
+	void openScanInEditor(AMScan* scan, bool bringEditorToFront = true, bool openInExistingEditor = false);
 
 	/// Bring the Workflow view to the front.
 	virtual void goToWorkflow();

@@ -139,7 +139,7 @@ void AMAppController::goToWorkflow() {
 
 #include "dataman/AMScan.h"
 
-void AMAppController::openScanInEditorAndTakeOwnership(AMScan *scan, bool bringEditorToFront, bool openInExistingEditor)
+void AMAppController::openScanInEditor(AMScan *scan, bool bringEditorToFront, bool openInExistingEditor)
 {
 	AMGenericScanEditor* editor;
 

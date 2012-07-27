@@ -305,7 +305,7 @@ void SGMAppController::onCurrentScanControllerStarted(AMScanAction *action){
 	connect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
 
 	AMScan *scan = action->controller()->scan();
-	openScanInEditorAndTakeOwnership(scan);
+	openScanInEditor(scan);
 
 	SGMXASScanConfiguration *xasConfig = qobject_cast<SGMXASScanConfiguration *>(scan->scanConfiguration());
 	if(xasConfig){

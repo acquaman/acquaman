@@ -77,7 +77,7 @@ void AMAppControllerForActions2::goToWorkflow() {
 
 #include "dataman/AMScan.h"
 
-void AMAppControllerForActions2::openScanInEditorAndTakeOwnership(AMScan *scan, bool bringEditorToFront, bool openInExistingEditor)
+void AMAppControllerForActions2::openScanInEditor(AMScan *scan, bool bringEditorToFront, bool openInExistingEditor)
 {
 	AMGenericScanEditor* editor;
 
@@ -210,7 +210,7 @@ void AMAppControllerForActions2::onCurrentActionStateChanged(int newState, int o
 		if(scanAction) {
 			AMScanController* scanController = scanAction->scanController();
 			if(scanController) {
-				openScanInEditorAndTakeOwnership(scanController->scan());
+				openScanInEditor(scanController->scan());
 			}
 		}
 	}
