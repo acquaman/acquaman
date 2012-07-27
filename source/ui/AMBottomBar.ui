@@ -168,7 +168,11 @@ selection-background-color: darkgray;
 background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:1 rgba(215, 215, 215, 255));
 border-radius: 15px;
 border: 0.5px outset rgb(81, 81, 81);
-}</string>
+}
+QToolButton:pressed {
+background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:1 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:0 rgba(215, 215, 215, 255));
+}
+</string>
         </property>
         <property name="text">
          <string>...</string>
@@ -204,7 +208,11 @@ border: 0.5px outset rgb(81, 81, 81);
 background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:1 rgba(215, 215, 215, 255));
 border-radius: 18px;
 border: 0.5px outset rgb(81, 81, 81);
-}</string>
+}
+QToolButton:pressed {
+background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:1 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:0 rgba(215, 215, 215, 255));
+}
+</string>
         </property>
         <property name="text">
          <string>...</string>
@@ -246,7 +254,11 @@ border: 0.5px outset rgb(81, 81, 81);
 background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:1 rgba(215, 215, 215, 255));
 border-radius: 18px;
 border: 0.5px outset rgb(81, 81, 81);
-}</string>
+}
+QToolButton:pressed {
+background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:1 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:0 rgba(215, 215, 215, 255));
+}
+</string>
         </property>
         <property name="text">
          <string>...</string>
@@ -285,7 +297,11 @@ border: 0.5px outset rgb(81, 81, 81);
 background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:1 rgba(215, 215, 215, 255));
 border-radius: 18px;
 border: 0.5px outset rgb(81, 81, 81);
-}</string>
+}
+QToolButton:pressed {
+background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:1 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:0 rgba(215, 215, 215, 255));
+}
+</string>
         </property>
         <property name="text">
          <string>...</string>
@@ -324,7 +340,11 @@ border: 0.5px outset rgb(81, 81, 81);
 background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:1 rgba(215, 215, 215, 255));
 border-radius: 15px;
 border: 0.5px outset rgb(81, 81, 81);
-}</string>
+}
+QToolButton:pressed {
+background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:1 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:0 rgba(215, 215, 215, 255));
+}
+</string>
         </property>
         <property name="text">
          <string>...</string>
@@ -357,7 +377,11 @@ border: 0.5px outset rgb(81, 81, 81);
 background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:1 rgba(215, 215, 215, 255));
 border-radius: 15px;
 border: 0.5px outset rgb(81, 81, 81);
-}</string>
+}
+QToolButton:pressed {
+background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:1 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:0 rgba(215, 215, 215, 255));
+}
+</string>
         </property>
         <property name="text">
          <string>...</string>
