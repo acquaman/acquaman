@@ -1,6 +1,6 @@
 TEMPLATE = subdirs
 
-SUBDIRS += \
+SUBDIRS += AMCDFv1FileLoader \
 	SGM2011XASFileLoader \
 	SGM2004XASFileLoader \
 	SGM2010FastFileLoader \

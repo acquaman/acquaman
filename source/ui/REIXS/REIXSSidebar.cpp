@@ -47,6 +47,11 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 	mirrorSelector_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoMirrorSelector());
 	ui->beamlineFormLayout->setWidget(3, QFormLayout::FieldRole, mirrorSelector_);
 
+	epuPolarizationEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->epuPolarization());
+	ui->beamlineFormLayout->setWidget(5, QFormLayout::FieldRole, epuPolarizationEditor_);
+	epuPolarizationAngleEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->epuPolarizationAngle());
+	ui->beamlineFormLayout->setWidget(6, QFormLayout::FieldRole, epuPolarizationAngleEditor_);
+
 
 	// Make connections
 	//////////////////////
@@ -56,6 +61,15 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 
 	connect(ui->beamOnButton, SIGNAL(clicked()), this, SLOT(onBeamOnButtonClicked()));
 	connect(ui->beamOffButton, SIGNAL(clicked()), this, SLOT(onBeamOffButtonClicked()));
+
+	connect(ui->scalerContinuousButton, SIGNAL(clicked(bool)), this, SLOT(onScalerContinuousButtonToggled(bool)));
+	connect(REIXSBeamline::bl()->xasDetectors()->scalerContinuousMode(), SIGNAL(valueChanged(double)), this, SLOT(onScalerContinuousModeChanged(double)));
+
+
+
+	connect(REIXSBeamline::bl()->xasDetectors()->TEYFeedback(), SIGNAL(valueChanged(double)), this, SLOT(onTEYCountsChanged(double)));
+	connect(REIXSBeamline::bl()->xasDetectors()->TFYFeedback(), SIGNAL(valueChanged(double)), this, SLOT(onTFYCountsChanged(double)));
+	connect(REIXSBeamline::bl()->xasDetectors()->I0Feedback(), SIGNAL(valueChanged(double)), this, SLOT(onI0CountsChanged(double)));
 
 	// Get initial status:
 	//////////////////////////
@@ -115,4 +129,37 @@ void REIXSSidebar::onBeamOnChanged(bool isOn)
 		ui->beamlineStatusLED->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
 		ui->beamOffButton->setChecked(true);
 	}
+}
+
+void REIXSSidebar::onTEYCountsChanged(double counts)
+{
+	ui->signalTEYBar->setValue(int(counts*600./1.e6));
+	ui->signalTEYValue->setText(QString::number(counts, 'e', 2));
+}
+
+void REIXSSidebar::onTFYCountsChanged(double counts)
+{
+	ui->signalTFYBar->setValue(int(counts*600./1.e6));
+	ui->signalTFYValue->setText(QString::number(counts, 'e', 2));
+}
+
+void REIXSSidebar::onI0CountsChanged(double counts)
+{
+	ui->signalI0Bar->setValue(int(counts*600./1.e6));
+	ui->signalI0Value->setText(QString::number(counts, 'e', 2));
+}
+
+void REIXSSidebar::onScalerContinuousButtonToggled(bool on)
+{
+	if(on) {
+		REIXSBeamline::bl()->xasDetectors()->scalerContinuousMode()->move(1);
+	}
+	else {
+		REIXSBeamline::bl()->xasDetectors()->scalerContinuousMode()->move(0);
+	}
+}
+
+void REIXSSidebar::onScalerContinuousModeChanged(double on)
+{
+	ui->scalerContinuousButton->setChecked(bool(on));
 }

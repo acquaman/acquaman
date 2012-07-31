@@ -57,9 +57,6 @@ protected slots:
 	void onStopMotorsButtonClicked();
 	void onStopMotorsActionFinished();
 
-	void onCurrentEndstationChanged(SGMBeamline::sgmEndstation newEndstation);
-	void onEndstationButtonsClicked(int buttonIndex);
-
 	void onScanningResetButtonClicked();
 
 	void onStripToolTimerTimeout();
@@ -83,13 +80,9 @@ protected:
 	AMControlButton *trackGratingCButton_;
 	AMControlButton *trackExitSlitCButton_;
 	AMExtendedControlEditor *gratingNC_;
-	AMExtendedControlEditor *entranceSlitNC_;
 	AMExtendedControlEditor *exitSlitNC_;
 	AMExtendedControlEditor *scanningLabel_;
 	QToolButton *scanningResetButton_;
-	QButtonGroup *endstationsAvailable_;
-	QRadioButton *scientaButton_;
-	QRadioButton *ssaButton_;
 	QHBoxLayout *warningAndPlotHL_;
 	QLabel *beamlineWarningsLabel_;
 

@@ -24,13 +24,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMSamplePlate.h"
 
 REIXSSampleMoveAction::REIXSSampleMoveAction(REIXSSampleMoveActionInfo *info, QObject *parent) :
-	AMListAction(info, AMListAction::SequentialMode, parent)
+	AMListAction(info, AMListAction::ParallelMode, parent)
 {
 
 }
 
 REIXSSampleMoveAction::REIXSSampleMoveAction(const AMControlInfoList &targetPositions, QObject *parent) :
-	AMListAction(new REIXSSampleMoveActionInfo(targetPositions), AMListAction::SequentialMode, parent)
+	AMListAction(new REIXSSampleMoveActionInfo(targetPositions), AMListAction::ParallelMode, parent)
 {
 
 }
@@ -64,7 +64,7 @@ void REIXSSampleMoveAction::startImplementation()
 			return;
 		}
 
-		const AMControlInfoList& pos = REIXSBeamline::bl()->samplePlate()->at(sampleMoveInfo()->sampleIndex()).position();
+		const AMControlInfoList& pos = REIXSBeamline::bl()->samplePlate()->at(sampleIndex).position();
 		try {
 		int index;
 		if((index = pos.indexOf("sampleX")) != -1)
@@ -108,28 +108,37 @@ void REIXSSampleMoveAction::startImplementation()
 	}
 
 
-	// Add the move actions in order. If we have a negative X move, do that. Then, if there's a negative Y move, do that. This will take us as far as possible away from the slit.  Then do rotation, then Z move. Then do any positive Y move, and finally any positive X move.
+	// This is the old version, that did a complicated sequence of moves to move safely between positions in the vicinity of the entrance slit. Now that we are slitless, we can change this to a Parallel action, and just do the X,Y,Z,Theta moves immediately.
+	////////////////////////////////
 
-	// Move away as far as possible
-	if(x < sampleControls->x()->value()) {
-		addSubAction(new AMInternalControlMoveAction(sampleControls->x(), x));
-	}
-	if(y < sampleControls->y()->value()) {
-		addSubAction(new AMInternalControlMoveAction(sampleControls->y(), y));
-	}
+//	// Add the move actions in order. If we have a negative X move, do that. Then, if there's a negative Y move, do that. This will take us as far as possible away from the slit.  Then do rotation, then Z move. Then do any positive Y move, and finally any positive X move.
 
-	// Now rotation
-	addSubAction(new AMInternalControlMoveAction(sampleControls->r(), theta));
-	// And height change
+//	// Move away as far as possible
+//	if(x < sampleControls->x()->value()) {
+//		addSubAction(new AMInternalControlMoveAction(sampleControls->x(), x));
+//	}
+//	if(y < sampleControls->y()->value()) {
+//		addSubAction(new AMInternalControlMoveAction(sampleControls->y(), y));
+//	}
+
+//	// Now rotation
+//	addSubAction(new AMInternalControlMoveAction(sampleControls->r(), theta));
+//	// And height change
+//	addSubAction(new AMInternalControlMoveAction(sampleControls->z(), z));
+
+//	// Now re-approach
+//	if(y > sampleControls->y()->value()) {
+//		addSubAction(new AMInternalControlMoveAction(sampleControls->y(), y));
+//	}
+//	if(x > sampleControls->x()->value()) {
+//		addSubAction(new AMInternalControlMoveAction(sampleControls->x(), x));
+//	}
+	////////////////////////////
+
+	addSubAction(new AMInternalControlMoveAction(sampleControls->x(), x));
+	addSubAction(new AMInternalControlMoveAction(sampleControls->y(), y));
 	addSubAction(new AMInternalControlMoveAction(sampleControls->z(), z));
-
-	// Now re-approach
-	if(y > sampleControls->y()->value()) {
-		addSubAction(new AMInternalControlMoveAction(sampleControls->y(), y));
-	}
-	if(x > sampleControls->x()->value()) {
-		addSubAction(new AMInternalControlMoveAction(sampleControls->x(), x));
-	}
+	addSubAction(new AMInternalControlMoveAction(sampleControls->r(), theta));
 
 	// Now that those sub-actions are setup, just let AMListAction do its job to run them.
 	AMListAction::startImplementation();

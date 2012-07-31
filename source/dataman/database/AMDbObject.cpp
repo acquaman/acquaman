@@ -187,7 +187,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 
 			AMnDIndex output = property(columnName).value<AMnDIndex>();
 			QStringList resultString;
-			for(int i=0; i<output.size(); i++)
+			for(int i=0; i<output.rank(); i++)
 				resultString << QString("%1").arg(output[i]);
 			values << resultString.join(AMDbObjectSupport::listSeparator());
 

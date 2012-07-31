@@ -98,8 +98,21 @@ cd gsl-1.14
 make
 make install
 
+#5. Get the NASA CDF file library (Not necessary on the CLS beamline machines; already found in /home/beamline/tools/cdf )
 
-#5. Run qmake on your Qt project
+# Use newer version if available:
+wget http://cdaweb.gsfc.nasa.gov/pub/cdf/dist/cdf34_0/linux/cdf34_0-dist-cdf.tar.gz
+
+tar -zxvf cdf34_0-di-cdf.tar.gz
+make OS=linux ENV=gnu all
+make install
+
+# or for a specific install location, 
+make INSTALLDIR=/home/beamline/tools/cdf install
+# or, in system-location:
+sudo make INSTALLDIR=/usr/local install
+
+#6. Run qmake on your Qt project
 
 qmake REIXSAcquaman.pro [or whatever yours is]
 

@@ -147,8 +147,8 @@ bool AMRegionsList::isValid() const
 
 bool AMRegionsList::addRegion(int index, double start, double delta, double end, double time)
 {
-	if(!defaultControl_ || !defaultTimeControl_)
-		return false;
+//	if(!defaultControl_ || !defaultTimeControl_)
+//		return false;
 
 	bool retVal;
 
@@ -464,4 +464,14 @@ bool AMEXAFSRegionsList::deleteRegionSqueeze(int index){
 	}
 
 	return retVal;
+}
+
+double AMRegionsList::totalAcquisitionTime() const
+{
+	double rv = 0;
+	for(int i=0, cc=count(); i<cc; ++i) {
+		AMRegion* r = region(i);
+		rv += (int((r->end() - r->start())/r->delta())+1)*r->time();
+	}
+	return rv;
 }

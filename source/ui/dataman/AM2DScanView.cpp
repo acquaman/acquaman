@@ -415,7 +415,8 @@ MPlotItem* AM2DScanViewInternal::createPlotItemForDataSource(const AMDataSource*
 
 	case 2: {
 		MPlotImageBasicwDefault* image = new MPlotImageBasicwDefault();
-		image->setModel(new AMDataSourceImageDatawDefault(dataSource, 0), true);
+		image->setDefaultValue(-1);
+		image->setModel(new AMDataSourceImageDatawDefault(dataSource, -1), true);
 		image->setColorMap(plotSettings.colorMap);
 		image->setZValue(-1000);
 		rv = image;
@@ -696,7 +697,7 @@ void AM2DScanViewExclusiveView::reviewScan(int scanIndex)
 
 				MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItems_.at(scanIndex));
 				if(plotItemDataSources_.at(scanIndex) != dataSource) {
-					AMDataSourceImageDatawDefault* newData = new AMDataSourceImageDatawDefault(dataSource, 0);
+					AMDataSourceImageDatawDefault* newData = new AMDataSourceImageDatawDefault(dataSource, -1);
 					image->setModel(newData, true);
 					plotItemDataSources_[scanIndex] = dataSource;
 				}

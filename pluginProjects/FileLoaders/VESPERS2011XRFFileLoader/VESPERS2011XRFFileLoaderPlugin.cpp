@@ -76,7 +76,7 @@ bool VESPERS2011XRFFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 			axisInfo << ai;
 
 			scan->rawData()->addMeasurement(AMMeasurementInfo(QString("Element %1").arg(i+1), QString("Element %1").arg(i+1), "eV", axisInfo));
-			scan->rawData()->setValue(AMnDIndex(), i, data.constData(), data.size());
+			scan->rawData()->setValue(AMnDIndex(), i, data.constData());
 		}
 		else{
 

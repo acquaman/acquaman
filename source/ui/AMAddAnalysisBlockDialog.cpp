@@ -18,7 +18,7 @@ AMAddAnalysisBlockDialog::AMAddAnalysisBlockDialog(int rank, QWidget *parent)
 
 	connect(listWidget_, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this, SLOT(onCurrentItemChanged(QListWidgetItem*,QListWidgetItem*)));
 
-	if (rank == 1)
+	if (rank == 0 || rank == 1)
 		populateWith1D();
 	else if (rank == 2)
 		populateWith2D();

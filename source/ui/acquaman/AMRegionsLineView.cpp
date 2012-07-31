@@ -194,8 +194,20 @@ void AMRegionsLineView::redrawRegionsLine(){
 	if(!regions_)
 		return;
 
-	int nlSize = 800;
 	scene->clear();
+
+	if(regions_->count() == 0){
+		QRectF rect(scene->itemsBoundingRect());
+		scene->addRect(rect, QPen(Qt::black), QBrush(Qt::red));
+		QFont font(this->font());
+		font.setBold(true);
+		font.setPointSize(24);
+		QGraphicsTextItem *text = scene->addText("No Regions", font);
+		text->setPos(10, 0);
+		return;
+	}
+
+	int nlSize = 800;
 	double range = regions_->maximumValue() - regions_->minimumValue();
 	double ratio = range/(nlSize-60);
 

@@ -218,12 +218,6 @@ void SGMBeamline::usingSGMBeamline(){
 	exitSlitTracking_->setDescription("Exit Slit Tracking");
 	exitSlitTracking_->setContextKnownDescription("Exit Slit");
 
-	sgmPVName = amNames2pvNames_.valueF("tfyScaler");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	tfyScaler_ = new AMReadOnlyPVControl("tfyScaler", sgmPVName, this);
-	tfyScaler_->setDescription("TFY");
-
 	sgmPVName = amNames2pvNames_.valueF("tfyHV");
 	tfyHV_ = new AMPVControl("tfyHV", sgmPVName+":vmon", sgmPVName+":v0set", QString(), this, 5.0);
 	tfyHV_->setDescription("TFY High Voltage");
@@ -392,7 +386,7 @@ void SGMBeamline::usingSGMBeamline(){
 	scaler_ = new CLSSIS3820Scaler("BL1611-ID-1:mcs", this);
 	scaler_->channelAt(0)->setCustomChannelName("TEY");
 	scaler_->channelAt(1)->setCustomChannelName("I0");
-	scaler_->channelAt(2)->setCustomChannelName("FPD ");
+	scaler_->channelAt(2)->setCustomChannelName("TFY PD ");
 	scaler_->channelAt(3)->setCustomChannelName("PD");
 	scaler_->channelAt(4)->setCustomChannelName("UP");
 	scaler_->channelAt(5)->setCustomChannelName("DOWN");
@@ -429,7 +423,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	addChildControl(undulatorTracking_);
 	addChildControl(monoTracking_);
 	addChildControl(exitSlitTracking_);
-	addChildControl(tfyScaler_);
 	addChildControl(tfyHV_);
 	addChildControl(pgtHV_);
 	addChildControl(ssaManipulatorX_);
@@ -531,17 +524,17 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	rawDetectorsSet_->addDetector(teyScalerDetector_);
 	connect(teyScalerDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
 
-	tfyScalerDetector_ = new SGMMCPDetector("tfyScaler", "BL1611-ID-1:mcs02:fbk", "PS1611401:109", createHV109OnActions(), createHV109OffActions(), AMDetector::WaitRead, this);
-	tfyScalerDetector_->setDescription("TFY");
+
+	tfyScalerDetector_ = new AMSingleReadOnlyControlDetector("tfyScaler", "BL1611-ID-1:mcs02:fbk", AMDetector::WaitRead, this);
+	tfyScalerDetector_->setDescription("TFY Diode");
 	detectorRegistry_.append(tfyScalerDetector_);
 	detectorMap_->insert(tfyScalerDetector_, qMakePair(allDetectors(), false));
-	detectorMap_->insert(tfyScalerDetector_, qMakePair(XASDetectors(), false));
+	detectorMap_->insert(tfyScalerDetector_, qMakePair(XASDetectors(), true));
 	detectorMap_->insert(tfyScalerDetector_, qMakePair(FastDetectors(), true));
 	criticalDetectorsSet_->addDetector(tfyScalerDetector_);
 	rawDetectorsSet_->addDetector(tfyScalerDetector_);
 	connect(tfyScalerDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
-	connect(tfyScalerDetector_->signalSource(), SIGNAL(settingsChanged()), this, SIGNAL(detectorHVChanged()));
-	connect(tfyHVToggle_, SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
+	//connect(tfyHVToggle_, SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
 
 	pgtDetector_ = new CLSPGTDetector("pgt", "MCA1611-01", createHVPGTOnActions(), createHVPGTOffActions(), AMDetector::WaitRead, this);
 	pgtDetector_->setDescription("SDD");

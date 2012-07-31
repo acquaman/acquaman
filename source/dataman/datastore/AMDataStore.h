@@ -26,34 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMMeasurementInfo.h"
 #include <QList>
 
-
-
-class AMDataStore;
-
 #include <QObject>
-/// This class acts as a proxy to emit signals for AMDataStore. You can receive the dataChanged() signal by hooking up to AMDataStore::signalSource().  You should never need to create an instance of this class directly.
-/*! To allow classes that implement AMDataStore to also inherit QObject, AMDataStore does NOT inherit QObject.  However, it still needs a way to emit signals notifying of changes to the data, which is the role of this class.
-  */
-class AMDataStoreSignalSource : public QObject {
-	Q_OBJECT
-public:
-	AMDataStore* dataStore() const { return data_; }
-
-protected slots:
-	void emitDataChanged(const AMnDIndex& scanIndexStart, const AMnDIndex& scanIndexEnd, int measurementId) {
-		emit dataChanged(scanIndexStart, scanIndexEnd, measurementId);
-	}
-	void emitSizeChanged(int axisId) { emit sizeChanged(axisId); }
-
-protected:
-	AMDataStoreSignalSource(AMDataStore* parent);
-	AMDataStore* data_;
-	friend class AMDataStore;
-
-signals:
-	void dataChanged(const AMnDIndex& scanIndexStart, const AMnDIndex& scanIndexEnd, int measurementId);
-	void sizeChanged(int axisId);
-};
 
 /// The AMDataStore defines an interface for various implementations which store multi-dimensional experimental data (either in memory, or to disk).
 /*! <b>Concepts and terminology:<b>
@@ -61,7 +34,7 @@ signals:
   A 'detector' is a device that can record a (possibly multi-dimensional) measurement. [ex: scalar intensity value, 1D spectrum, or 2D image, etc.]
   A 'measurement' is a single instance of a reading by a detector.
 
-  A 'scan' is sequence of measurements, conducted over a (possibly multi-dimensional) space.  For every scan point, a measurement is recorded for each detector. [ex: 1D XAS scan over incident energy, 2D microprobe scan over a sample's surface, 3D scan combining microprobe and XAS, etc.]
+  A 'scan' is sequence of measurements, conducted over a (possibly multi-dimensional) space.  For every scan point, a measurement is recorded for each detector. [ex: 1D XAS scan over incident energy, 2D microprobe scan over a sample's surface, 3D scan combining microprobe with XAS, etc.]
 
   A 'value' is a scalar number, which can be specified completely with:
 	- a detector ID (which detector?)
@@ -74,16 +47,24 @@ signals:
   - The scan space is regular and complete (not sparse). The size of other scan dimensions does not vary as a function of any scan dimension. (If certain points in the scan space are not measured, they should return null values.)
   - Every measurement by the same detector has the same dimensionality.
 
+Two more restrictions were added after commit f846098ca399b:
+  - The length of the first scan axis is originally 0, and can be extended by inserting or appending using beginInsertRows()/endInsertRows(). However, the length of all additional scan axes must be specified at the time they are defined with addScanAxis(), and cannot be changed later.
+- Additionally, you cannot add additional scan axes (using addScanAxis()) after rows and data points have been inserted.
+
+[These restrictions were added to allow good performance and simple implementations for disk-based data stores that employ contiguous multi-dimensional array storage; it is only possible to append to their slowest-changing array dimension. Any other operations require inserting entries between each existing entry, which would require copying all records of a (possibly very large) data set.]
+
 
   <b>API Terminology Clarification</b>
   Within the AMDataStore interface, we avoid talking about detectors (since they have nothing to do with storage). The functions that refer to 'measurements' in the API are actually referring to 'measurement classes' instead of single measurements (effectively, 'detectors' according to the terminology above).  For example, addMeasurement() is used to create space to store an additional measurement <i>for every scan point</i>... To match the terminology above, we should have said 'addDetector()' instead.
   */
 
-class AMDataStore
+class AMDataStore : public QObject
 {
+	Q_OBJECT
+
 public:
 	/// Constructs an empty data store
-	AMDataStore();
+	AMDataStore(QObject* parent = 0);
 	/// Destructor
 	virtual ~AMDataStore();
 
@@ -102,8 +83,10 @@ public:
 
 	// Axes
 	/////////////////////////////
-	/// Create space to support an additional scan axis.  \c axisDetails describes the characteristics of the axis, but the \c size of axisDetails will be ignored.  If this is the first axis to be added, the size will be set to 0; otherwise it will be set to 1.
-	/*! If you want to retrieve axes by name, \c axisDetails must contain a unique \c name.  This function should return false if an axis with that name already exists.
+	/// Create space to support an (additional) scan axis.  \c axisDetails describes the characteristics of the axis, but if this is the first axis to be added, the \c axisDetails.size will be set to 0.  All subsequent axes must specify their final size (>0), and this size cannot be changed later. (ie: Only the first axis can be extended via beginInsertRows()).  Note that it is also impossible to add scan axes after rows have already been added with beginInsertRows(); in that case, this function should return false.
+	/*! These restrictions are in place to simplify behaviour and increase performance for implementations.
+
+If you want to retrieve axes by name, \c axisDetails must contain a unique \c name.  This function should return false if an axis with that name already exists.
 
 	  \note No signalling is provided for alerting observers of new scan axes. It's also prohibited for AMDataSources that expose this data (for ex: AMRawDataSource) to change dimensionality (ie: add another axis). Therefore, it's recommended to only call this function when first setting up a dataStore, before any observers get involved.
 */
@@ -111,7 +94,7 @@ public:
 	/// Retrieve the id of an existing axis, by name.  (Depending on the implementation, this may not be fast. Avoid calling it repeatedly.)  Returns -1 if not found.
 	virtual int idOfScanAxis(const QString& axisName) const = 0;
 	/// Retrieve information about an axis, by id.  \c id must be >= 0 and < scanAxesCount().
-	virtual const AMAxisInfo scanAxisAt(int id) const = 0;
+	virtual AMAxisInfo scanAxisAt(int id) const = 0;
 	/// Return the number of scan axes
 	virtual int scanAxesCount() const = 0;
 	/// Synonym for scanAxisCount()
@@ -119,57 +102,57 @@ public:
 	/// Return the sizes of all the scan axes, in order.
 	virtual AMnDIndex scanSize() const = 0;
 	/// Return the size along a specific axis, by \c id.  (\c id must be >= 0 and < scanAxesCount().)
-	virtual int scanSize(int axisId) const = 0;
+	virtual long scanSize(int axisId) const = 0;
 
-	/// Indicates that the scan space is empty (no scan points yet). This is true when the size of any axis is 0.
-	virtual bool isEmpty() const {
-		int rank = scanAxesCount();
-		for(int mu=0; mu<rank; mu++)
-			if(scanSize(mu) == 0)
-				return true;
-		return false;
+	/// Indicates that the scan space is empty (no scan points yet). This is true when the size of the first axis is 0.
+	bool scanSpaceIsEmpty() const {
+		return (scanRank()==0 || scanSize(0)==0);
 	}
 
 
 	// Setting and getting values
 	////////////////////////////////
 	/// Retrieve a value from a measurement, at a specific scan point.
-	virtual AMNumber value(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex, bool doBoundsChecking = true) const = 0;
+	virtual AMNumber value(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex) const = 0;
 	/// Retrieve the independent variable along an axis \c axisId, at a specific scan point \c axisIndex.  If the axis scale is uniform (see AMAxisInfo::isUniform) this can be calculated from the axis' \c start and \c increment.
-	virtual AMNumber axisValue(int axisId, int axisIndex, bool doBoundsChecking = true) const = 0;
+	virtual AMNumber axisValue(int axisId, long axisIndex) const = 0;
 	/// Set the value of a measurement, at a specific scan point
-	virtual bool setValue(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex, const AMNumber& newValue, bool doBoundsChecking = true) = 0;
-	/// Set the independent variable along an axis \c axisId, at a specific scan point \c axisIndex. This is necessary after adding a "row" with beginInsertRows(), unless the axis scale is uniform. (See AMAxisInfo::isUniform).
-	virtual bool setAxisValue(int axisId, int axisIndex, AMNumber newValue, bool doBoundsChecking = true) = 0;
+	virtual bool setValue(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex, const AMNumber& newValue) = 0;
+	/// Set the independent variable along an axis \c axisId, at a specific scan point \c axisIndex. This is necessary after adding a row with beginInsertRows(), unless the axis scale is uniform. (See AMAxisInfo::isUniform).
+	virtual bool setAxisValue(int axisId, long axisIndex, AMNumber newValue) = 0;
 
 
+	/// Performance optimization of value(): this allows a block of multi-dimensional data to be retrieved in a single call. The data is returned in a flat array, ordered in row-major form with the first scan index varying the slowest, and the measurement index's last axis varying the fastest.   /c scanIndexStart and \c scanIndexEnd specify the (inclusive) range in scan space; you can use the same start and end values to access the measurement values for a single scan point.  Which measurement to access is specified with \c measurementId, and \c measurementIndexStart and \c measurementIndexEnd specify the (inclusive) data block in measurement space.  Returns false if any of the indexes are the wrong dimension or out of range.  It is the responsibility of the caller to make sure that \c outputValues is pre-allocated with enough room for all the data; use valuesSize() to calculate this conveniently.
+	virtual bool values(const AMnDIndex& scanIndexStart, const AMnDIndex& scanIndexEnd, int measurementId, const AMnDIndex& measurementIndexStart, const AMnDIndex& measurementIndexEnd, double* outputValues) const = 0;
+	/// Synonym for values(), but allocates and returns a QVector of doubles. Implemented in the base class by calling values(); implementations do not need to provide this version.
+	QVector<double> values(const AMnDIndex &scanIndexStart, const AMnDIndex &scanIndexEnd, int measurementId, const AMnDIndex &measurementIndexStart, const AMnDIndex &measurementIndexEnd) const;
 
-	/// Performance optimization for setValue(): this allows multi-dimensional measurements to be set in a single setValue call.  \c inputData is interpreted as being in a flat array, ordered where the measurement's first axis varies the slowest, and the measurement's last axis varies the fastest (as you step through the array).  The size of the \c inputData must match the product of the sizes of all dimensions in the measurement.
-	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const int* inputData, int numArrayElements, bool doBoundsChecking = true) = 0;
-	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const double* inputData, int numArrayElements, bool doBoundsChecking = true) = 0;
+	/// Calculates the total size of the array required for values(), ie: spanned by \c scanIndexStart, \c scanIndexEnd, \c measurementIndexStart, and \c measurementIndexEnd. Returns -1 if the dimensionality of the start and end indexes don't agree.
+	/*! \note This does a simple multiplication of the dimension ranges; it does not check that the indexes have the right dimensionality or size for the current data store. */
+	int valuesSize(const AMnDIndex& scanIndexStart, const AMnDIndex& scanIndexEnd, const AMnDIndex& measurementIndexStart, const AMnDIndex& measurementIndexEnd) const;
+
+	/// Performance optimization for setValue(): this allows multi-dimensional measurements to be set in a single setValue call.  \c inputData is interpreted as being in a flat array, ordered in row-major form (where the measurement's first axis varies the slowest, and the measurement's last axis varies the fastest as you step through the array).  The size of the \c inputData must match the product of the sizes of all dimensions in the measurement.
+	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const int* inputData) = 0;
+	/// Performance optimization for setValue(): this allows multi-dimensional measurements to be set in a single setValue call.  \c inputData is interpreted as being in a flat array, ordered in row-major form (where the measurement's first axis varies the slowest, and the measurement's last axis varies the fastest as you step through the array).  The size of the \c inputData must match the product of the sizes of all dimensions in the measurement.
+	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const double* inputData) = 0;
 
 
 	// Adding new data points: increasing the size of the scan space
 	//////////////////////////////////////////////////////
-	/// Call this to increase the size of the dataset along a scan axis \c axisId. "Rows" (or columns, or slices, or whatever they might be depending on the axis in question) are inserted starting \c atRowIndex.  (Use -1 to append to the end.)  Returns true on success.
-	/*! After calling this, you must call setValue and setAxisValue to fill in the data for all the new scan points that were created, and then call endInsertRows().  Nested calls to beginInsertRows()/endInsertRows() to increase the size along multiple dimensions simultaneously are not supported.
+	/// Call this to increase the size of the dataset along the first scan axis.  (The length of all the other scan axes are fixed from the time they are created with addScanAxis().) Rows are inserted starting \c atRowIndex. (Use \c atRowIndex = -1 to append to the end.)  Returns true on success.
+	/*! After calling this, you must call setValue and setAxisValue to fill in the data for all the new scan points that were created, and then call endInsertRows().
 
 	  This function, in addition to creating space for the new data, suppresses the dataChanged() signal until endInsertRows() is called.  This allows you to insert valid data for all detectors and scan points within the new space, and the dataChanged() signal is only emitted once for the whole affected region.
 
-	  If the scan space is currently empty, the size of the first scan axis is 0.  In the future, we will change the behaviour of this function so that inserting rows to any axis automatically ensures the size of each axis is at least 1.
-
 	 Subclasses should re-implement beginInsertRowsImplementation() instead of this function.
 	*/
-	bool beginInsertRows(int axisId, int numRows = 1, int atRowIndex = -1);
+	bool beginInsertRows(long numRows, long atRowIndex);
 
 
 	/// Call this after calling beginInsertRows() and setting all the new measurement values with setValue() and setAxisValue().
 	/*! The base class version will emit the sizeChanged() and dataChanged() signals for the region.  Subclasses that want to know when an insert is complete can re-implement endInsertRowsImplementation().
 		*/
 	void endInsertRows();
-
-	/// This version of beginInsertRows() automatically inserts rows along all axes as required to make sure you can store data at the scan index \c scanIndex.  Call endInsertRows() once after this function, once you are done filling the new space with data using setValue().  Any un-set values will be accessible, but null.
-	bool beginInsertRowsAsNecessaryForScanPoint(const AMnDIndex& scanIndex);
 
 
 	// Removing data points: not supported. It's a storage machine, ok?
@@ -180,7 +163,7 @@ public:
 	/// Clear all the data. This maintains the set of measurements and the scan axes, but deletes every point in the scan space. The size of every scan axis will become 1, except for the first axis, which will have size 0. Implementing subclasses must provide a clearScanDataPointsImplementation().
 	void clearScanDataPoints() {
 		clearScanDataPointsImplementation();
-		emitSizeChanged(-1);
+		emit sizeChanged();
 	}
 	/// Clear the entire data set, and also delete all configured measurements.  This function calls clearScanDataPoints() first.  Implementing subclasses must provide a clearMeasurementsImplementation().
 	void clearAllMeasurements() {
@@ -201,24 +184,29 @@ public:
 		clearScanAxesImplementation();
 	}
 
-	// Signal source
+	// Signals
 	///////////////////////
-	/// Access the signal source, which provides dataChanged() and sizeChanged().
-	const AMDataStoreSignalSource* signalSource() const { return signalSource_; }
+
+signals:
+	/// Emitted whenever the values() change. The changed data comes from \c measurementId, between \c scanIndexStart and \c scanIndexEnd. (If \c scanIndexStart is an invalid AMnDIndex, it means that all the data has changed.)
+	/*! Implementations should not emit this directly, but instead call emitDataChanged(). */
+	void dataChanged(const AMnDIndex& scanIndexStart, const AMnDIndex& scanIndexEnd, int measurementId);
+	/// Emitted whenever the size of the first scan axis changes.
+	/*! This is emitted automatically by the base-class implementation via endInsertRows(); implementations do not need to emit this explicitly. */
+	void sizeChanged();
 
 
 protected:
-	/// Implementing subclasses must provide a beginInsertRowsImplementation() which creates space for the new measurements.  When this function completes, it should be valid to setValue()s within the new scan space. Return false if the request is not possible.
-	virtual bool beginInsertRowsImplementation(int axisId, int numRows = 1, int atRowIndex = -1) = 0;
+	/// Implementing subclasses must provide a beginInsertRowsImplementation() which creates space for the new measurements.  When this function completes, it should be valid to setValue()s within the new scan space. Return false if the request is not possible (ie: out of memory, etc.)  You can assume that the pre-conditions for insert are satisfied: \c atRowIndex is valid (possibly equal to the size of the first scan axis for append, but no larger), and there is at least one scan axis.
+	virtual bool beginInsertRowsImplementation(long numRows, long atRowIndex) = 0;
 
 	/// Implementing subclasses may provide a endInsertRowsImplementation(), which will be called at the beginning of endInsertRows(). You don't need to take care of emitting sizeChanged() and dataChanged().... that's done for you in endInsertRows().  The base class implementation of this does nothing.
-	virtual void endInsertRowsImplementation(int axisId, int numRows, int atRowIndex) {
-		Q_UNUSED(axisId);
+	virtual void endInsertRowsImplementation(long numRows, long atRowIndex) {
 		Q_UNUSED(numRows);
 		Q_UNUSED(atRowIndex);
 	}
 
-	/// Implementing subclasses must provide a clearScanDataPointsImplementation(), which removes all data values and sets the size of each axis to 1... except for the first axis (axisId == 0), which should have a size of 0.  It should leave the set of configured measurements as-is.
+	/// Implementing subclasses must provide a clearScanDataPointsImplementation(), which removes all data values and sets the size of the first scan axis to 0.  It should leave the set of configured measurements as-is.
 	virtual void clearScanDataPointsImplementation() = 0;
 	/// Implementing subclasses must provide a clearMeasurementsImplementation(), which clears the set of configured measurements.  They can assume that the data values have already been cleared with clearScanDataPoints().
 	virtual void clearMeasurementsImplementation() = 0;
@@ -231,23 +219,15 @@ protected:
 		if(isInsertingRows_)
 			return;	/// \todo Check if the scanIndexStart and scanIndexEnd represent a range that extends outside of the inserting region. If they do, emit anyway.
 
-		signalSource_->emitDataChanged(scanIndexStart, scanIndexEnd, measurementId);
+		emit dataChanged(scanIndexStart, scanIndexEnd, measurementId);
 	}
 
-	/// The base class calls this when the size of an axis changes (in endInsertRows()).  An \c axisId of -1 indicates that all the axes have changed size. Subclasses do not need to worry about this, as long as they call the base class's endInsertRows() when re-implementing endInsertRows().
-	void emitSizeChanged(int axisId) {
-		signalSource_->emitSizeChanged(axisId);
-	}
 
 
 private:
 	bool isInsertingRows_;
-	int insertingAxisId_, insertingAtRowIndex_, insertingNumRows_;
+	long insertingAtRowIndex_, insertingNumRows_;
 
-	bool multiAxisInsertInProgress_;
-	AMnDIndex scanSpaceStartIndex_, scanSpaceEndIndex_;
-
-	AMDataStoreSignalSource* signalSource_;
 };
 
 #endif // AMDATASTORE_H

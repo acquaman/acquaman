@@ -64,7 +64,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
     source/dataman/export/VESPERS/VESPERSExporterLineScanAscii.h \
     source/acquaman/VESPERS/VESPERSEnergyDacqScanController.h \
     source/ui/VESPERS/VESPERSEnergyScanConfigurationView.h \
-    source/acquaman/VESPERS/VESPERSEnergyScanConfiguration.h
+    source/acquaman/VESPERS/VESPERSEnergyScanConfiguration.h \
+    source/util/VESPERS/VESPERSConfigurationFileBuilder.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -127,10 +128,13 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
     source/dataman/export/VESPERS/VESPERSExporterLineScanAscii.cpp \
     source/acquaman/VESPERS/VESPERSEnergyDacqScanController.cpp \
     source/ui/VESPERS/VESPERSEnergyScanConfigurationView.cpp \
-    source/acquaman/VESPERS/VESPERSEnergyScanConfiguration.cpp
+    source/acquaman/VESPERS/VESPERSEnergyScanConfiguration.cpp \
+    source/util/VESPERS/VESPERSConfigurationFileBuilder.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
 
 
 

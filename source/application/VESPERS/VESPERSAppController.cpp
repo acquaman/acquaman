@@ -416,7 +416,7 @@ void VESPERSAppController::onCurrentScanControllerStarted()
 
 	AMScan *scan = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan();
 //	AMScan *scan = AMActionRunner3::workflow()->scanController()->scan();
-	openScanInEditorAndTakeOwnership(scan);
+	openScanInEditor(scan);
 
 	AMGenericScanEditor *newEditor = scanEditorAt(scanEditorCount() -1);
 

@@ -154,7 +154,7 @@ void VESPERSXRFScanController::onDetectorAcquisitionFinished()
 	for (int i = 0; i < detector_->elements(); i++){
 
 		QVector<int> currSpectra(detector_->spectraValues(i));
-		scan_->rawData()->setValue(AMnDIndex(), i, currSpectra.constData(), detector_->channels());
+		scan_->rawData()->setValue(AMnDIndex(), i, currSpectra.constData());
 		scan_->rawData()->setValue(AMnDIndex(), i+detector_->elements(), AMnDIndex(), detector_->inputCountRate(i));
 		scan_->rawData()->setValue(AMnDIndex(), i+2*detector_->elements(), AMnDIndex(), detector_->outputCountRate(i));
 	}

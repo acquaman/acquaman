@@ -434,25 +434,25 @@ void SGMSampleManipulatorView::onHVButtonClicked(){
 }
 
 void SGMSampleManipulatorView::onHVStateChanged(){
-	if(SGMBeamline::sgm()->tfyDetector() && ((SGMMCPDetector*)SGMBeamline::sgm()->tfyDetector())->hvCtrl()){
-		double curHVValue = ((SGMMCPDetector*)SGMBeamline::sgm()->tfyDetector())->hvCtrl()->value();
-		switch( (int)(SGMBeamline::sgm()->tfyHVToggle()->value()) ){
-		case 0:
-			hvButton_->setText("HV is OFF");
-			break;
-		case 1:
-			hvButton_->setText("HV is ON");
-			break;
-		case 2:
-			hvButton_->setText(QString("HV is Ramping\nUp (%1)").arg(curHVValue, 0, 'f', 0));
-			break;
-		case 3:
-			hvButton_->setText(QString("HV is Ramping\nDown (%1)").arg(curHVValue, 0, 'f', 0));
-			break;
-		}
-		lastHVValue_ = curHVValue;
-	}
-	else
+//	if(SGMBeamline::sgm()->tfyDetector() && ((SGMMCPDetector*)SGMBeamline::sgm()->tfyDetector())->hvCtrl()){
+//		double curHVValue = ((SGMMCPDetector*)SGMBeamline::sgm()->tfyDetector())->hvCtrl()->value();
+//		switch( (int)(SGMBeamline::sgm()->tfyHVToggle()->value()) ){
+//		case 0:
+//			hvButton_->setText("HV is OFF");
+//			break;
+//		case 1:
+//			hvButton_->setText("HV is ON");
+//			break;
+//		case 2:
+//			hvButton_->setText(QString("HV is Ramping\nUp (%1)").arg(curHVValue, 0, 'f', 0));
+//			break;
+//		case 3:
+//			hvButton_->setText(QString("HV is Ramping\nDown (%1)").arg(curHVValue, 0, 'f', 0));
+//			break;
+//		}
+//		lastHVValue_ = curHVValue;
+//	}
+//	else
 		hvButton_->setText("--Disconnected--");
 }
 

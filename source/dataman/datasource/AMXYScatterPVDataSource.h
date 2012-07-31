@@ -71,19 +71,19 @@ public:
 	////////////////////////////
 
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
-	virtual AMNumber value(const AMnDIndex &indexes, bool doBoundsChecking = true) const
+	virtual AMNumber value(const AMnDIndex &indexes) const
 	{
 		if(!x_->isConnected() || !y_->isConnected())
 			return AMNumber();
 		if(indexes.rank() != 1)
 			return AMNumber(AMNumber::DimensionError);
-		if(doBoundsChecking && (unsigned)indexes.i() != 0)
+		if((unsigned)indexes.i() != 0)
 			return AMNumber(AMNumber::OutOfBoundsError);
 
 		return y_->lastValue(indexes.i());
 	}
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index).
-	virtual AMNumber axisValue(int axisNumber, int index, bool doBoundsChecking = true) const
+	virtual AMNumber axisValue(int axisNumber, int index) const
 	{
 		Q_UNUSED(axisNumber)
 
@@ -91,7 +91,7 @@ public:
 			return AMNumber();
 		if(axisNumber != 0)
 			return AMNumber(AMNumber::DimensionError);
-		if (doBoundsChecking && (unsigned)index != 0)
+		if ((unsigned)index != 0)
 			return AMNumber(AMNumber::OutOfBoundsError);
 
 		return x_->lastValue(index);

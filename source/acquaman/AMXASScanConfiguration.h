@@ -46,7 +46,10 @@ public:
 
 	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by AMBeamlineScanAction to set the title for the action view.
 	virtual QString description() const {
-		return QString("XAS Scan from %1%3 to %2%4").arg(regionStart(0)).arg(regionEnd(regionCount()-1)).arg(regionUnits(0)).arg(regionUnits(regionCount()-1));
+		if(regionCount() != 0)
+			return QString("XAS Scan from %1%3 to %2%4").arg(regionStart(0)).arg(regionEnd(regionCount()-1)).arg(regionUnits(0)).arg(regionUnits(regionCount()-1));
+		else
+			return QString("XAS Scan");
 	}
 
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.

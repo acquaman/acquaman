@@ -350,7 +350,6 @@ protected:
 	AMControl *undulatorTracking_;
 	AMControl *monoTracking_;
 	AMControl *exitSlitTracking_;
-	AMControl *tfyScaler_;
 	AMControl *tfyHV_;
 	AMControl *tfyHVToggle_;
 	CLSCAEN2527HVChannel *hvChannel106_;

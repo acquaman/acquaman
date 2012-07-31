@@ -41,11 +41,20 @@ public:
 
 	/// Return the x-value at \c index. \c index must be greater or equal to 0, and less than count().
 	virtual double x(unsigned index) const {
-		return source_->axisValue(0, index, false);
+		return source_->axisValue(0, index);
+	}
+	/// Copy the x-values from \c indexStart to \c indexEnd (inclusive) into \c outputValues.
+	virtual void xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const {
+		for(unsigned i=indexStart; i<=indexEnd; ++i)
+			*(outputValues++) = source_->axisValue(0, i);
 	}
 	/// Return the y-value at \c index, which must be >= 0 and less than count().
 	virtual double y(unsigned index) const {
-		return source_->value(AMnDIndex(index), false);
+		return source_->value(AMnDIndex(index));
+	}
+	/// Copy the y-values from \c indexStart to \c indexEnd (inclusive) into \c outputValues.
+	virtual void yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const {
+		source_->values(AMnDIndex(indexStart), AMnDIndex(indexEnd), outputValues);
 	}
 
 	/// Return the number of elements

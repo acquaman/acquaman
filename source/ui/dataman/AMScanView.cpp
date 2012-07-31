@@ -131,21 +131,21 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 	QStyle* style = QApplication::style();
 
 	QToolButton* tabButton_ = new QToolButton();
-	// tabButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
 	tabButton_->setIcon(style->standardIcon(QStyle::SP_FileDialogInfoView));
 	tabButton_->setText("1");
+	tabButton_->setToolTip("Show single data source");
 	QToolButton* overplotButton_ = new QToolButton();
 	overplotButton_->setIcon(style->standardIcon(QStyle::SP_FileDialogDetailedView));
 	overplotButton_->setText("OP");
-	//overplotButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
+	overplotButton_->setToolTip("Show all data sources");
 	QToolButton* multiScansButton_ = new QToolButton();
 	multiScansButton_->setIcon(style->standardIcon(QStyle::SP_FileDialogListView));
 	multiScansButton_->setText("M-S");
-	//multiScansButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
+	multiScansButton_->setToolTip("Separate plots per scan");
 	QToolButton* multiSourcesButton = new QToolButton();
 	multiSourcesButton->setIcon(style->standardIcon(QStyle::SP_FileDialogListView));
 	multiSourcesButton->setText("M-C");
-	multiSourcesButton->setAttribute(Qt::WA_MacBrushedMetal, true);
+	multiSourcesButton->setToolTip("Separate plots per data source");
 
 	tabButton_->setCheckable(true);
 	overplotButton_->setCheckable(true);
@@ -167,18 +167,27 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 	hl->addLayout(hl2);
 	hl->addStretch(1);
 
+	showSourcesButton_ = new QToolButton();
+	showSourcesButton_->setIcon(QIcon(":/22x22/view-list-details-symbolic.png"));
+	showSourcesButton_->setToolTip("Show or hide the data source visibility buttons");
+	showSourcesButton_->setCheckable(true);
+	showSourcesButton_->setChecked(true);
+
+	hl->addWidget(showSourcesButton_);
+	hl->addStretch(1);
+
 	logCheckBox_ = new QCheckBox("Log Scale");
 	logCheckBox_->setChecked(false);
 	hl->addWidget(logCheckBox_);
 	normalizationCheckBox_ = new QCheckBox("Show at same scale");
 	normalizationCheckBox_->setChecked(true);
 	hl->addWidget(normalizationCheckBox_);
-	waterfallCheckBox_ = new QCheckBox("Waterfall  Amount");
+	waterfallCheckBox_ = new QCheckBox("Waterfall:");
 	waterfallCheckBox_->setChecked(true);
 	hl->addWidget(waterfallCheckBox_);
 	waterfallAmount_ = new QDoubleSpinBox();
 	waterfallAmount_->setMinimum(0);
-	waterfallAmount_->setMaximum(1e12);
+	waterfallAmount_->setMaximum(1e6);
 	waterfallAmount_->setValue(0.2);
 	waterfallAmount_->setSingleStep(0.1);
 	hl->addWidget(waterfallAmount_);
@@ -212,6 +221,9 @@ AMScanView::AMScanView(AMScanSetModel* model, QWidget *parent) :
 	makeConnections();
 
 	scanBars_->setModel(scansModel_);
+
+	if(scansModel_->scanCount() >= AM_SCAN_VIEW_HIDE_SCANBARS_AFTER_N_SCANS)
+		setScanBarsVisible(false);
 
 	modeAnim_ = new QPropertyAnimation(gview_->graphicsWidget(), "geometry", this);
 	modeAnim_->setDuration(500);
@@ -298,6 +310,11 @@ void AMScanView::makeConnections() {
 
 	// connect resize event from graphicsView to resize the stuff inside the view
 	connect(gview_, SIGNAL(resized(QSizeF)), this, SLOT(resizeViews()), Qt::QueuedConnection);
+
+	// connect the "show scan bars" button to show/hide them
+	connect(modeBar_->showSourcesButton_, SIGNAL(clicked(bool)), scanBars_, SLOT(setVisible(bool)));
+
+	connect(scansModel_, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onRowInserted(QModelIndex,int,int)));
 
 	// connect enabling/disabling normalization and waterfall to each view
 	for(int i=0; i<views_.count(); i++) {
@@ -414,7 +431,7 @@ MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* d
 	MPlotItem* rv = 0;
 
 	if(dataSource == 0) {
-		AMErrorMon::alert(this, AMSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_NULL_DATA_SOURCE, "Asked to create a plot item for a null data source.");
+		AMErrorMon::debug(this, AMSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_NULL_DATA_SOURCE, "Asked to create a plot item for a null data source.");
 		return 0;
 	}
 
@@ -1954,4 +1971,24 @@ QString AMScanViewInternal::rightAxisName(AMScan *scan, AMDataSource *dataSource
 
 	else
 		return QString();
+}
+
+void AMScanView::onRowInserted(const QModelIndex &parent, int start, int end)
+{
+	Q_UNUSED(start)
+	Q_UNUSED(end)
+
+	// inserting scans:
+	if(!parent.isValid()) {
+		if(scansModel_->scanCount() == AM_SCAN_VIEW_HIDE_SCANBARS_AFTER_N_SCANS) {
+			setScanBarsVisible(false);
+			// this will only happen once; the user can re-show them if they want.
+		}
+	}
+}
+
+void AMScanView::setScanBarsVisible(bool areVisible)
+{
+	modeBar_->showSourcesButton_->setChecked(areVisible);
+	scanBars_->setVisible(areVisible);
 }

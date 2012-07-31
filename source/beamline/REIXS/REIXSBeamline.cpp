@@ -23,6 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "actions2/actions/AMWaitAction.h"
 
+#include "acquaman/CLS/CLSSIS3820ScalerSADetector.h"
+
 REIXSBeamline::REIXSBeamline() :
 	AMBeamline("REIXSBeamline")
 {
@@ -92,7 +94,9 @@ REIXSBeamline::REIXSBeamline() :
 	allControlsSet_->addControl(spectrometer()->endstationTranslation());  //DAVID ADDED
 
 
-	samplePlate_ = new AMSamplePlate();
+	samplePlate_ = new AMSamplePlate(this);
+
+	xasDetectors_ = new REIXSXASDetectors(this);
 }
 
 
@@ -103,8 +107,12 @@ REIXSBeamline::~REIXSBeamline() {
 REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	AMCompositeControl("photonSource", "", parent, "EPU and Monochromator")
 {
-	AMPVwStatusControl* energy = new AMPVwStatusControl("beamlineEV", "REIXS:MONO1610-I20-01:energy:fbk", "REIXS:energy", "REIXS:status", "REIXS:energy:stop", 0, 0.01);
-	energy_ = new REIXSBrokenMonoControl(energy, 1.05, 3, 0.3, 0.3, 100, 1, 0.1, this);
+	AMPVwStatusControl* directEnergy = new AMPVwStatusControl("beamlineEV", "REIXS:MONO1610-I20-01:energy:fbk", "REIXS:energy", "REIXS:status", "REIXS:energy:stop", 0, 1000);
+	directEnergy->setSettlingTime(0);
+	directEnergy_ = directEnergy;
+	directEnergy_->setDescription("Beamline Energy");
+
+	energy_ = new REIXSBrokenMonoControl(directEnergy, 1.05, 3, 0.5, 0.5, 100, 1, 0.1, this);
 	energy_->setDescription("Beamline Energy");
 
 	monoSlit_ = new AMPVwStatusAndUnitConversionControl("monoSlit", "SMTR1610-I20-10:mm:fbk", "SMTR1610-I20-10:mm", "SMTR1610-I20-10:status", "SMTR1610-I20-10:stop", new AMScaleAndOffsetUnitConverter("um", 1000), 0, this, 0.1);
@@ -119,6 +127,11 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	monoMirrorTranslation_->setDescription("Mono Mirror Translation");
 	monoMirrorSelector_ = new AMPVwStatusControl("monoMirrorSelector", "MONO1610-I20-01:mirror:select:fbk", "MONO1610-I20-01:mirror:select", "MONO1610-I20-01:mirror:trans:status", "SMTR1610-I20-02:stop", this, 1);
 	monoMirrorSelector_->setDescription("Mono Mirror");
+
+	epuPolarization_ = new AMPVwStatusControl("epuPolarization", "REIXS:UND1410-02:polarization", "REIXS:UND1410-02:polarization", "REIXS:UND1410-02:energy:status", QString(), this, 0.1);
+	epuPolarization_->setDescription("EPU Polarization");
+	epuPolarizationAngle_ = new AMPVwStatusControl("epuPolarization", "REIXS:UND1410-02:polarAngle", "REIXS:UND1410-02:polarAngle", "REIXS:UND1410-02:energy:status", QString(), this, 0.5);
+	epuPolarizationAngle_->setDescription("EPU Polarization Angle");
 }
 
 REIXSValvesAndShutters::REIXSValvesAndShutters(QObject *parent) : AMCompositeControl("valvesAndShutters", "", parent)
@@ -224,31 +237,43 @@ REIXSHexapod::REIXSHexapod(QObject* parent)
 	x_->setDescription("Hexapod X");
 	x_->setAllowsMovesWhileMoving(true);
 	x_->setSettlingTime(0.1);
+	x_->setMoveStartTolerance(1e-4);
+	x_->setMoveTimeoutTolerance(1e-3);
 
 	y_ = new AMPVwStatusControl("hexapodY", baseName+"Y:sp", baseName+"Y", baseName+"moving", QString(), this, 0.01);
 	y_->setDescription("Hexapod Y");
 	y_->setAllowsMovesWhileMoving(true);
 	y_->setSettlingTime(0.1);
+	y_->setMoveStartTolerance(1e-4);
+	y_->setMoveTimeoutTolerance(1e-3);
 
 	z_ = new AMPVwStatusControl("hexapodZ", baseName+"Z:sp", baseName+"Z", baseName+"moving", QString(), this, 0.01);
 	z_->setDescription("Hexapod Z");
 	z_->setAllowsMovesWhileMoving(true);
 	z_->setSettlingTime(0.1);
+	z_->setMoveStartTolerance(1e-4);
+	z_->setMoveTimeoutTolerance(1e-3);
 
 	u_ = new AMPVwStatusControl("hexapodU", baseName+"U:sp", baseName+"U", baseName+"moving", QString(), this, 0.05);
 	u_->setDescription("Hexapod U");
 	u_->setAllowsMovesWhileMoving(true);
 	u_->setSettlingTime(0.1);
+	u_->setMoveStartTolerance(1e-4);
+	u_->setMoveTimeoutTolerance(1e-3);
 
 	v_ = new AMPVwStatusControl("hexapodV", baseName+"V:sp", baseName+"V", baseName+"moving", QString(), this, 0.05);
 	v_->setDescription("Hexapod V");
 	v_->setAllowsMovesWhileMoving(true);
 	v_->setSettlingTime(0.1);
+	v_->setMoveStartTolerance(1e-4);
+	v_->setMoveTimeoutTolerance(1e-3);
 
 	w_ = new AMPVwStatusControl("hexapodW", baseName+"W:sp", baseName+"W", baseName+"moving", QString(), this, 0.05);
 	w_->setDescription("Hexapod W");
 	w_->setAllowsMovesWhileMoving(true);
 	w_->setSettlingTime(0.1);
+	w_->setMoveStartTolerance(1e-4);
+	w_->setMoveTimeoutTolerance(1e-3);
 
 	r_ = new AMPVControl("hexapodR", baseName+"R:sp", baseName+"R", QString(), this, 0.001);
 	r_->setDescription("Hexapod R");
@@ -285,7 +310,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 														"SMTR1610-4-I21-01:status",
 														"SMTR1610-4-I21-01:stop", this, 0.05);
 	spectrometerRotationDrive_->setDescription("XES Spectrometer Lift");
-	spectrometerRotationDrive_->setSettlingTime(0.1);
+	spectrometerRotationDrive_->setSettlingTime(0.2);
 
 
 
@@ -296,7 +321,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 												  "SMTR1610-4-I21-04:stop", this, 0.05);
 
 	detectorTranslation_->setDescription("XES Detector Translation");
-	detectorTranslation_->setSettlingTime(0.1);
+	detectorTranslation_->setSettlingTime(0.2);
 
 	detectorTiltDrive_ = new AMPVwStatusControl("detectorTiltDrive",
 												"SMTR1610-4-I21-02:mm:sp",
@@ -304,7 +329,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 												"SMTR1610-4-I21-02:status",
 												"SMTR1610-4-I21-02:stop", this, 0.05);
 	detectorTiltDrive_->setDescription("XES Detector Tilt Stage");
-	detectorTiltDrive_->setSettlingTime(0.1);
+	detectorTiltDrive_->setSettlingTime(0.2);
 
 	endstationTranslation_ = new AMPVwStatusControl("endstationTranslation",
 														"SMTR1610-4-I21-05:mm:fbk",
@@ -312,7 +337,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 														"SMTR1610-4-I21-05:status",
 														"SMTR1610-4-I21-05:stop", this, 0.05);  //DAVID ADDED
 	endstationTranslation_->setDescription("Endstation Translation");
-	endstationTranslation_->setSettlingTime(0.1);
+	endstationTranslation_->setSettlingTime(0.2);
 
 	hexapod_ = new REIXSHexapod(this);
 
@@ -677,5 +702,54 @@ void REIXSBrokenMonoControl::onMoveActionSucceeded()
 REIXSBrokenMonoControl::~REIXSBrokenMonoControl() {
 	delete control_;
 	control_ = 0;
+}
+
+REIXSXASDetectors::REIXSXASDetectors(QObject *parent) : AMCompositeControl("xasDetectors", "", parent, "XAS Detectors")
+{
+	TEY_ = new AMReadOnlyPVControl("TEY", "BL1610-ID-2:mcs18:fbk", this, "TEY");
+	TFY_ = new AMReadOnlyPVControl("TFY", "BL1610-ID-2:mcs19:fbk", this, "TFY");
+	I0_ = new AMReadOnlyPVControl("I0", "BL1610-ID-2:mcs16:fbk", this, "I0");
+	scalerContinuousMode_ = new AMSinglePVControl("scalerContinuous", "BL1610-ID-2:mcs:continuous", this, 0.1);
+
+	addChildControl(TEY_);
+	addChildControl(TFY_);
+	addChildControl(I0_);
+
+	saDetectors_ << new CLSSIS3820ScalerSADetector("TEY", "Electron Yield", "BL1610-ID-2:mcs", 18, true, this);
+	saDetectors_ << new CLSSIS3820ScalerSADetector("TFY", "Fluorescence Yield", "BL1610-ID-2:mcs", 19, false, this);
+	saDetectors_ << new CLSSIS3820ScalerSADetector("I0", "I0", "BL1610-ID-2:mcs", 16, false, this);
+	/// \todo XES detector PFY. Requires building a new AMSADetector subclass.
+}
+
+// To have a current sample in position, there must be a marked sample on the beamline's current plate, which has four positions set, and the sample manipulator is within tolerance of the X,Y,Z position. (We ignore theta, to allow different incident angles to all count as the same sample. Only works if the sample is at the center of rotation of the plate, unfortunately.)
+int REIXSBeamline::currentSampleId()
+{
+	if(samplePlate_->id() < 1)
+		return -1;
+
+	// loop through all samples on the current plate.
+	for(int i=0; i<samplePlate_->count(); ++i) {
+		const AMSamplePosition& samplePos = samplePlate_->at(i);
+
+		if(samplePos.position().count() != 4)
+			continue;
+
+		if(!sampleChamber()->x()->withinTolerance(samplePos.position().at(0).value()))
+			continue;
+		if(!sampleChamber()->y()->withinTolerance(samplePos.position().at(1).value()))
+			continue;
+		if(!sampleChamber()->z()->withinTolerance(samplePos.position().at(2).value()))
+			continue;
+
+		// it's good!
+		return samplePos.sampleId();
+	}
+
+	return -1;
+}
+
+int REIXSBeamline::currentSamplePlateId() const
+{
+	return samplePlate_->id();
 }
 

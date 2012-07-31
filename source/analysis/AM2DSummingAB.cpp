@@ -56,6 +56,7 @@ AM2DSummingAB::AM2DSummingAB(AMDatabase* db, int id)
 
 	loadFromDb(db, id);
 		// will restore sumAxis, sumRangeMin, and sumRangeMax. We'll remain invalid until we get connected.
+
 	AMDataSource::name_ = AMDbObject::name();	// normally it's not okay to change a dataSource's name. Here we get away with it because we're within the constructor, and nothing's watching us yet.
 }
 
@@ -116,9 +117,10 @@ void AM2DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 		int otherAxis = (sumAxis_ == 0) ? 1 : 0;
 		axes_[0] = inputSource_->axisInfoAt(otherAxis);
 
-		setDescription(QString("%1 Summed (over %2)")
-					   .arg(inputSource_->name())
-					   .arg(inputSource_->axisInfoAt(sumAxis_).name));
+		// Have to call into AMDataStore directly to avoid setModified(true)
+		AMDataSource::setDescription(QString("%1 Summed (over %2)")
+					     .arg(inputSource_->name())
+					     .arg(inputSource_->axisInfoAt(sumAxis_).name));
 
 		connect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
 		connect(inputSource_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
@@ -143,6 +145,8 @@ void AM2DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 
 void AM2DSummingAB::setAnalyzedName(const QString &name)
 {
+	if(analyzedName_ == name)
+		return;
 	analyzedName_ = name;
 	setModified(true);
 	canAnalyze_ = canAnalyze(name);

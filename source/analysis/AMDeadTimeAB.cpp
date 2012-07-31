@@ -107,7 +107,7 @@ void AMDeadTimeAB::setInputDataSourcesImplementation(const QList<AMDataSource*>&
 	emitInfoChanged();
 }
 
-AMNumber AMDeadTimeAB::value(const AMnDIndex &indexes, bool doBoundsChecking) const
+AMNumber AMDeadTimeAB::value(const AMnDIndex &indexes) const
 {
 	if(indexes.rank() != 1)
 		return AMNumber(AMNumber::DimensionError);
@@ -115,8 +115,10 @@ AMNumber AMDeadTimeAB::value(const AMnDIndex &indexes, bool doBoundsChecking) co
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	if (doBoundsChecking && indexes.i() >= spectra_->size(0))
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if (indexes.i() >= spectra_->size(0))
 		return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 	if ((int)spectra_->value(indexes.i()) == 0)
 		return 0;
@@ -124,7 +126,7 @@ AMNumber AMDeadTimeAB::value(const AMnDIndex &indexes, bool doBoundsChecking) co
 		return double(icr_->value(AMnDIndex()))/double(ocr_->value(AMnDIndex()))*(int)spectra_->value(indexes.i());
 }
 
-AMNumber AMDeadTimeAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const
+AMNumber AMDeadTimeAB::axisValue(int axisNumber, int index) const
 {
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
@@ -132,8 +134,10 @@ AMNumber AMDeadTimeAB::axisValue(int axisNumber, int index, bool doBoundsCheckin
 	if(axisNumber != 0)
 		return AMNumber(AMNumber::DimensionError);
 
-	if (doBoundsChecking && index >= spectra_->size(0))
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if (index >= spectra_->size(0))
 		return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 	return spectra_->axisValue(axisNumber, index);
 }

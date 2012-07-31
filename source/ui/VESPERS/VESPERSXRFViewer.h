@@ -118,12 +118,12 @@ protected:
 /*! This waveform series uses multiple inheritance.  It uses MPlotAbstractSeriesData
 	for combining the actual data to an MPlot object.
 */
-class SpectrumData : public MPlotAbstractSeriesData
+class VESPERSSpectrumData : public MPlotAbstractSeriesData
 {
 
 public:
 	/// Constructor for the series.  It requires a QList of data..
-	SpectrumData(const QList<double> &data)
+	VESPERSSpectrumData(const QList<double> &data)
 		: MPlotAbstractSeriesData()
 	{
 		data_ = data;
@@ -132,8 +132,10 @@ public:
 
 	/// Returns the x value for the given index.
 	virtual double x(unsigned index) const { return scale_*index; }
+	virtual void xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const { for(unsigned i=indexStart; i<=indexEnd; ++i) *(outputValues++) = scale_*i; }
 	/// Returns the y value for the given index.
 	virtual double y(unsigned index) const { return data_.at(index); }
+	virtual void yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const { for(unsigned i=indexStart; i<=indexEnd; ++i) *(outputValues++) = data_.at(i); }
 
 	/// Return the number of elements.
 	virtual int count() const { return data_.size(); }

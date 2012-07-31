@@ -180,8 +180,6 @@ bool SGMAppController::startupRegisterDatabases(){
 	// Register the detectors to their views
 	success &= AMDetectorViewSupport::registerClass<AMSingleControlBriefDetectorView, AMSingleControlDetector>();
 	success &= AMDetectorViewSupport::registerClass<AMSingleReadOnlyControlBriefDetectorView, AMSingleReadOnlyControlDetector>();
-	success &= AMDetectorViewSupport::registerClass<SGMMCPBriefDetectorView, SGMMCPDetector>();
-	success &= AMDetectorViewSupport::registerClass<SGMMCPDetailedDetectorView, SGMMCPDetector>();
 	success &= AMDetectorViewSupport::registerClass<CLSPGTBriefDetectorView, CLSPGTDetector>();
 	success &= AMDetectorViewSupport::registerClass<CLSPGTDetailedDetectorView, CLSPGTDetector>();
 	success &= AMDetectorViewSupport::registerClass<CLSOceanOptics65000BriefDetectorView, CLSOceanOptics65000Detector>();
@@ -248,10 +246,12 @@ void SGMAppController::onSGMBeamlineConnected(){
 		sxsc->addRegion(0, goodEnergy, 1, goodEnergy+10, 1);
 		xasScanConfigurationView_ = new SGMXASScanConfigurationView(sxsc);
 		xasScanConfigurationHolder3_->setView(xasScanConfigurationView_);
+		connect(xasScanConfigurationHolder3_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 
 		SGMFastScanConfiguration *sfsc = new SGMFastScanConfiguration(this);
 		fastScanConfigurationView_ = new SGMFastScanConfigurationView(sfsc);
 		fastScanConfigurationHolder3_->setView(fastScanConfigurationView_);
+		connect(fastScanConfigurationHolder3_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 	}
 	else if(!SGMBeamline::sgm()->isConnected() && !xasScanConfigurationView_ && !fastScanConfigurationView_){
 		//do nothing
@@ -303,7 +303,7 @@ void SGMAppController::onCurrentScanControllerStarted(AMScanAction *action){
 	connect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
 
 	AMScan *scan = action->controller()->scan();
-	openScanInEditorAndTakeOwnership(scan);
+	openScanInEditor(scan);
 
 	SGMXASScanConfiguration *xasConfig = qobject_cast<SGMXASScanConfiguration *>(scan->scanConfiguration());
 	if(xasConfig){
