@@ -29,8 +29,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/beamline/AMControlButton.h"
 
-#include "ui/CLS/CLSSynchronizedDwellTimeView.h"
-
 SGMSidebar::SGMSidebar(QWidget *parent) :
 	QWidget(parent)
 {
@@ -193,9 +191,6 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 
 	scanningResetButton_->setContentsMargins(2,2,2,2);
 	onBeamlineWarnings("");
-
-	//CLSSynchronizedDwellTimeView *synchronizedDwellTimeView = new CLSSynchronizedDwellTimeView(SGMBeamline::sgm()->synchronizedDwellTime());
-	//synchronizedDwellTimeView->show();
 }
 
 SGMSidebar::~SGMSidebar() {

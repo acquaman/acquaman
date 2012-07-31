@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMSampleTransferView.h"
 #include "ui/SGM/SGMSampleManipulatorView.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
+#include "ui/CLS/CLSSynchronizedDwellTimeView.h"
 #include "ui/dataman/AMSampleManagementWidget.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
@@ -271,6 +272,15 @@ void SGMAppController::onSGMScalerConnected(bool connected){
 	if(SGMBeamline::sgm()->rawScaler() && SGMBeamline::sgm()->rawScaler()->isConnected() && !sgmScalerView_){
 		sgmScalerView_ = new CLSSIS3820ScalerView(SGMBeamline::sgm()->scaler());
 		mw_->addPane(sgmScalerView_, "Beamline Control", "SGM Scaler", ":/system-software-update.png", true);
+	}
+}
+
+void SGMAppController::onSGMSynchronizedDwellTimeConnected(bool connected){
+	Q_UNUSED(connected)
+	if(SGMBeamline::sgm()->synchronizedDwellTime() && SGMBeamline::sgm()->synchronizedDwellTime()->isConnected() && !sgmSynchronizedDwellTimeView_){
+		sgmSynchronizedDwellTimeView_ = new CLSSynchronizedDwellTimeView(SGMBeamline::sgm()->synchronizedDwellTime());
+		mw_->addPane(sgmSynchronizedDwellTimeView_, "Beamline Control", "SGM Sync Dwell", ":/system-software-update.png", true);
+		sgmSynchronizedDwellTimeView_->setAdvancedViewVisible(true);
 	}
 }
 
@@ -1056,6 +1066,9 @@ bool SGMAppController::setupSGMViews(){
 	sgmScalerView_ = 0;
 	connect(SGMBeamline::sgm()->rawScaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onSGMScalerConnected(bool)));
 	onSGMScalerConnected(false);
+	sgmSynchronizedDwellTimeView_ = 0;
+	connect(SGMBeamline::sgm()->synchronizedDwellTime(), SIGNAL(connected(bool)), this, SLOT(onSGMSynchronizedDwellTimeConnected(bool)));
+	onSGMSynchronizedDwellTimeConnected(false);
 
 	mw_->insertHeading("Beamline Detectors", 1);
 

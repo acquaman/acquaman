@@ -234,6 +234,7 @@ void SGMBeamline::usingSGMBeamline(){
 	synchronizedDwellTime_->addElement(0);
 	synchronizedDwellTime_->addElement(1);
 	synchronizedDwellTime_->addElement(2);
+	synchronizedDwellTime_->addElement(3);
 
 	sgmPVName = amNames2pvNames_.valueF("pgtHV");
 	pgtHV_ = new AMPVControl("pgtHV", sgmPVName+"Actual:fbk", sgmPVName, QString(), this, 0.5);
