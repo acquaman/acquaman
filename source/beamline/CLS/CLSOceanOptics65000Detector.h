@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/info/CLSOceanOptics65000DetectorInfo.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/AMPVControl.h"
+#include "dataman/datasource/AMProcessVariableDataSource.h"
 
 class CLSOceanOptics65000Detector : public CLSOceanOptics65000DetectorInfo, public AMDetector
 {
@@ -69,11 +70,39 @@ public:
 	/// Returns the description
 	QString description() const;
 
+	/// Returns the status as an bool.  true is acquiring, false is done.
+	bool status() const;
+
+	// End of getters that aren't included in the info.
+	/////////////////////////////////////////////////////
+
+	/// Turns the spectra controls into an array of ints and returns the spectra
+	QVector<int> spectraValues();
+
+	/// Returns the total spectra counts using the binned version
+	int spectraTotalCounts();
+
+	// Data sources
+	///////////////////////////////////////
+	/// Returns the raw spectrum data source at \c index.  It is assumed that the data sources will be in order of element.  Must be between 0 and size()-1.
+	AMDataSource* spectrumDataSource() const;
+
 public slots:
 	/// Sets the description for the detector
 	void setDescription(const QString &description);
 	/// Sets the detector contorls to the state passed in
 	bool setControls(CLSOceanOptics65000DetectorInfo *settings);
+
+	/// Erases the current spectrum and starts collecting data.
+	void start();
+
+signals:
+	/// Only emitted as true when all of the controls in the detector are connected. Is emitted false when any of the controls within the detector become unconnected.
+	void connected(bool);
+	/// This signal is emitted when the status changes.  Passes the state as a bool.  True is acquiring, false is done.
+	void statusChanged(bool);
+	/// Notifies that the total counts in the spectrum has changed
+	void totalCountsChanged(double);
 
 protected slots:
 	/// Handles when controls change their connected state
@@ -85,14 +114,24 @@ protected slots:
 	/// Handles when the values for the settings controls change
 	void onSettingsControlValuesChanged();
 
+	/// Emits the statusChanged signal.
+	void onStatusChanged(double status);
+
 protected:
 	/// The actual control for the spectrum waveform
 	AMControl *dataWaveformControl_;
 	/// The control for the integration time
 	AMControl *integrationTimeControl_;
+	/// The control for triggering the detector
+	AMControl *dwellTriggerControl_;
+	/// The control that reports the acquisition state
+	AMControl *dwellStateControl_;
 
 	/// A control set for all the controls (for ease of signalling)
 	AMControlSet *allControls_;
+
+	/// The list of all the raw spectrum data sources.
+	AM1DProcessVariableDataSource *spectrumDataSource_;
 
 	QString baseName_;
 };

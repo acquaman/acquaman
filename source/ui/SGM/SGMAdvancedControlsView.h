@@ -24,6 +24,7 @@ protected slots:
 	void onEndstationButtonsClicked(int buttonIndex);
 
 protected:
+	AMExtendedControlEditor *undulatorHarmonicEditor_;
 	AMExtendedControlEditor *undulatorOffsetEditor_;
 	AMExtendedControlEditor *mirrorStripeFeedbackEditor_;
 	QButtonGroup *mirrorStripeSelectionGroup_;

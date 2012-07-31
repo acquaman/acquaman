@@ -88,10 +88,6 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gratingNC_ = new AMExtendedControlEditor(SGMBeamline::sgm()->grating());
 	gratingNC_->overrideTitle("Grating");
 	gratingNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	entranceSlitNC_ = new AMExtendedControlEditor(SGMBeamline::sgm()->entranceSlitGap());
-	entranceSlitNC_->setControlFormat('f', 1);
-	entranceSlitNC_->overrideTitle("Entrance Slit");
-	entranceSlitNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	exitSlitNC_ = new AMExtendedControlEditor(SGMBeamline::sgm()->exitSlitGap());
 	exitSlitNC_->setControlFormat('f', 1);
 	exitSlitNC_->overrideTitle("Exit Slit");
@@ -110,21 +106,6 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	shl->addWidget(scanningResetButton_);
 	shl->setSpacing(0);
 	shl->setContentsMargins(2, 2, 2, 2);
-
-	endstationsAvailable_ = new QButtonGroup();
-	scientaButton_ = new QRadioButton(SGMBeamline::sgm()->sgmEndstationName(SGMBeamline::scienta));
-	ssaButton_ = new QRadioButton(SGMBeamline::sgm()->sgmEndstationName(SGMBeamline::ssa));
-	endstationsAvailable_->addButton(scientaButton_, 0);
-	endstationsAvailable_->addButton(ssaButton_, 1);
-	QGroupBox *endstationsBox = new QGroupBox("Endstations");
-	QVBoxLayout *sl = new QVBoxLayout();
-	sl->addWidget(scientaButton_);
-	sl->addWidget(ssaButton_);
-	sl->setSpacing(0);
-	sl->setContentsMargins(2, 2, 2, 2);
-	endstationsBox->setLayout(sl);
-	connect(SGMBeamline::sgm(), SIGNAL(currentEndstationChanged(SGMBeamline::sgmEndstation)), this, SLOT(onCurrentEndstationChanged(SGMBeamline::sgmEndstation)));
-	connect(endstationsAvailable_, SIGNAL(buttonClicked(int)), this, SLOT(onEndstationButtonsClicked(int)));
 
 	beamlineWarningsLabel_ = new QLabel(SGMBeamline::sgm()->beamlineWarnings());
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), beamlineWarningsLabel_, SLOT(setText(QString)));
@@ -201,10 +182,8 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gl_->addWidget(trackGratingCButton_,	4, 2, 1, 2, 0);
 	gl_->addWidget(trackExitSlitCButton_,	4, 4, 1, 2, 0);
 	gl_->addWidget(gratingNC_,		5, 0, 1, 6, 0);
-	gl_->addWidget(entranceSlitNC_,		6, 0, 1, 3, 0);
-	gl_->addWidget(exitSlitNC_,		6, 3, 1, 3, 0);
-	gl_->addLayout(shl,			7, 0, 1, 3, 0);
-	gl_->addWidget(endstationsBox,		8, 3, 1, 3, 0);
+	gl_->addWidget(exitSlitNC_,		6, 0, 1, 3, 0);
+	gl_->addLayout(shl,			6, 3, 1, 3, 0);
 	gl_->addLayout(warningAndPlotHL_,	10, 0, 1, 6, 0);
 
 	gl_->setRowStretch(9, 10);
@@ -229,8 +208,7 @@ SGMSidebar::~SGMSidebar() {
 
 
 void SGMSidebar::showEvent(QShowEvent *se){
-	int minWidth = std::max(entranceSlitNC_->size().width()/3, exitSlitNC_->size().width()/3);
-	minWidth = std::max(minWidth, trackUndulatorCButton_->size().width()/2);
+	int minWidth = std::max(exitSlitNC_->size().width()/3, trackUndulatorCButton_->size().width()/2);
 	minWidth = std::max(minWidth, trackGratingCButton_->size().width()/2);
 	minWidth = std::max(minWidth, trackExitSlitCButton_->size().width()/2);
 	gl_->setColumnMinimumWidth(0, minWidth);
@@ -285,17 +263,6 @@ void SGMSidebar::onStopMotorsButtonClicked(){
 void SGMSidebar::onStopMotorsActionFinished(){
 	delete stopMotorsAction_;
 	stopMotorsAction_ = 0;//NULL
-}
-
-void SGMSidebar::onCurrentEndstationChanged(SGMBeamline::sgmEndstation newEndstation){
-	if(newEndstation == SGMBeamline::scienta)
-		scientaButton_->setChecked(true);
-	else if(newEndstation == SGMBeamline::ssa)
-		ssaButton_->setChecked(true);
-}
-
-void SGMSidebar::onEndstationButtonsClicked(int buttonIndex){
-	SGMBeamline::sgm()->setCurrentEndstation((SGMBeamline::sgmEndstation)buttonIndex);
 }
 
 void SGMSidebar::onScanningResetButtonClicked(){

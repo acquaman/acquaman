@@ -11,10 +11,22 @@
 SGMAdvancedControlsView::SGMAdvancedControlsView(QWidget *parent) :
 	QWidget(parent)
 {
+	undulatorHarmonicEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->harmonic());
+	undulatorHarmonicEditor_->overrideTitle("Undulator Harmonic");
+	undulatorHarmonicEditor_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
 	undulatorOffsetEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->undulatorOffset());
 	undulatorOffsetEditor_->setControlFormat('f', 3);
 	undulatorOffsetEditor_->overrideTitle("Undulator Offset");
 	undulatorOffsetEditor_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
+	QGroupBox *undulatorBox = new QGroupBox("Undulator Controls");
+	QVBoxLayout *uvl = new QVBoxLayout();
+	uvl->addWidget(undulatorHarmonicEditor_);
+	uvl->addWidget(undulatorOffsetEditor_);
+	uvl->setSpacing(0);
+	uvl->setContentsMargins(2, 2, 2, 2);
+	undulatorBox->setLayout(uvl);
 
 	mirrorStripeFeedbackEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->mirrorStripeSelection());
 	mirrorStripeFeedbackEditor_->setControlFormat('f', 1);
@@ -26,6 +38,7 @@ SGMAdvancedControlsView::SGMAdvancedControlsView(QWidget *parent) :
 	selectSiliconButton_ = new QRadioButton(SGMBeamline::sgm()->sgmMirrorStripeName(SGMBeamline::siliconStripe));
 	mirrorStripeSelectionGroup_->addButton(selectCarbonButton_, 0);
 	mirrorStripeSelectionGroup_->addButton(selectSiliconButton_, 1);
+
 	QGroupBox *mirrorStripSelectionBox = new QGroupBox("Mirror Stripe Selection");
 	QVBoxLayout *msvl = new QVBoxLayout();
 	msvl->addWidget(selectCarbonButton_);
@@ -64,31 +77,8 @@ SGMAdvancedControlsView::SGMAdvancedControlsView(QWidget *parent) :
 	connect(SGMBeamline::sgm(), SIGNAL(currentEndstationChanged(SGMBeamline::sgmEndstation)), this, SLOT(onCurrentEndstationChanged(SGMBeamline::sgmEndstation)));
 	connect(endstationsAvailable_, SIGNAL(buttonClicked(int)), this, SLOT(onEndstationButtonsClicked(int)));
 
-	/*
 	mainVL_ = new QVBoxLayout();
-	QHBoxLayout *tmpHL = new QHBoxLayout();
-	tmpHL->addWidget(undulatorOffsetEditor_);
-	tmpHL->addStretch(10);
-	mainVL_->addLayout(tmpHL);
-	tmpHL = new QHBoxLayout();
-	tmpHL->addWidget(masterMirrorStripBox);
-	tmpHL->addStretch(10);
-	mainVL_->addLayout(tmpHL);
-	tmpHL = new QHBoxLayout();
-	tmpHL->addWidget(entranceSlitEditor_);
-	tmpHL->addStretch(10);
-	mainVL_->addLayout(tmpHL);
-	tmpHL = new QHBoxLayout();
-	tmpHL->addWidget(endstationsBox);
-	tmpHL->addStretch(10);
-	mainVL_->addLayout(tmpHL);
-	mainVL_->addStretch(10);
-
-	setLayout(mainVL_);
-	*/
-
-	mainVL_ = new QVBoxLayout();
-	mainVL_->addWidget(undulatorOffsetEditor_);
+	mainVL_->addWidget(undulatorBox);
 	mainVL_->addWidget(masterMirrorStripBox);
 	mainVL_->addWidget(entranceSlitEditor_);
 	mainVL_->addWidget(endstationsBox);

@@ -180,8 +180,6 @@ bool SGMAppController::startupRegisterDatabases(){
 	// Register the detectors to their views
 	success &= AMDetectorViewSupport::registerClass<AMSingleControlBriefDetectorView, AMSingleControlDetector>();
 	success &= AMDetectorViewSupport::registerClass<AMSingleReadOnlyControlBriefDetectorView, AMSingleReadOnlyControlDetector>();
-	success &= AMDetectorViewSupport::registerClass<SGMMCPBriefDetectorView, SGMMCPDetector>();
-	success &= AMDetectorViewSupport::registerClass<SGMMCPDetailedDetectorView, SGMMCPDetector>();
 	success &= AMDetectorViewSupport::registerClass<CLSPGTBriefDetectorView, CLSPGTDetector>();
 	success &= AMDetectorViewSupport::registerClass<CLSPGTDetailedDetectorView, CLSPGTDetector>();
 	success &= AMDetectorViewSupport::registerClass<CLSOceanOptics65000BriefDetectorView, CLSOceanOptics65000Detector>();
@@ -276,11 +274,27 @@ void SGMAppController::onSGMScalerConnected(bool connected){
 	}
 }
 
+void SGMAppController::onSGMPGTSDDConnected(bool connected){
+	Q_UNUSED(connected)
+	if(SGMBeamline::sgm()->pgtDetector() && SGMBeamline::sgm()->pgtDetector()->isConnected() && !pgtSDDView_){
+		pgtSDDView_ = AMDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->pgtDetector());
+		mw_->addPane(pgtSDDView_, "Beamline Detectors", "SGM PGT", ":/system-software-update.png");
+	}
+}
+
+void SGMAppController::onSGMOceanOpticsSpectrometerConnected(bool connected){
+	Q_UNUSED(connected)
+	if(SGMBeamline::sgm()->oos65000Detector() && SGMBeamline::sgm()->oos65000Detector()->isConnected() && !oceanOpticsSpectrometerView_){
+		oceanOpticsSpectrometerView_ = AMDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->oos65000Detector());
+		mw_->addPane(oceanOpticsSpectrometerView_, "Beamline Detectors", "SGM QE65000", ":/system-software-update.png");
+	}
+}
+
 void SGMAppController::onSGMAmptekSDD1Connected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->amptekSDD1() && SGMBeamline::sgm()->amptekSDD1()->isConnected() && ! amptekSDD1View_){
 		amptekSDD1View_ = AMDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->amptekSDD1());
-		mw_->addPane(amptekSDD1View_, "Beamline Control", "SGM Amptek1", ":/system-software-update.png");
+		mw_->addPane(amptekSDD1View_, "Beamline Detectors", "SGM Amptek1", ":/system-software-update.png");
 	}
 }
 
@@ -288,7 +302,7 @@ void SGMAppController::onSGMAmptekSDD2Connected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->amptekSDD2() && SGMBeamline::sgm()->amptekSDD2()->isConnected() && ! amptekSDD2View_){
 		amptekSDD2View_ = AMDetectorViewSupport::createDetailedDetectorView(SGMBeamline::sgm()->amptekSDD2());
-		mw_->addPane(amptekSDD2View_, "Beamline Control", "SGM Amptek2", ":/system-software-update.png");
+		mw_->addPane(amptekSDD2View_, "Beamline Detectors", "SGM Amptek2", ":/system-software-update.png");
 	}
 }
 
@@ -1043,6 +1057,14 @@ bool SGMAppController::setupSGMViews(){
 	connect(SGMBeamline::sgm()->rawScaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onSGMScalerConnected(bool)));
 	onSGMScalerConnected(false);
 
+	mw_->insertHeading("Beamline Detectors", 1);
+
+	pgtSDDView_ = 0;
+	connect(SGMBeamline::sgm()->pgtDetector()->signalSource(), SIGNAL(connected(bool)), this, SLOT(onSGMPGTSDDConnected(bool)));
+	onSGMPGTSDDConnected(false);
+	oceanOpticsSpectrometerView_ = 0;
+	connect(SGMBeamline::sgm()->oos65000Detector()->signalSource(), SIGNAL(connected(bool)), this, SLOT(onSGMOceanOpticsSpectrometerConnected(bool)));
+	onSGMOceanOpticsSpectrometerConnected(false);
 	amptekSDD1View_ = 0;
 	connect(SGMBeamline::sgm()->amptekSDD1()->signalSource(), SIGNAL(connected(bool)), this, SLOT(onSGMAmptekSDD1Connected(bool)));
 	onSGMAmptekSDD1Connected(false);
@@ -1050,8 +1072,9 @@ bool SGMAppController::setupSGMViews(){
 	connect(SGMBeamline::sgm()->amptekSDD2()->signalSource(), SIGNAL(connected(bool)), this, SLOT(onSGMAmptekSDD2Connected(bool)));
 	onSGMAmptekSDD2Connected(false);
 
+	mw_->sidebar()->setExpanded(mw_->windowPaneModel()->headingItem("Beamline Detectors")->index(), false);
 
-	mw_->insertHeading("Experiment Setup", 1);
+	mw_->insertHeading("Experiment Setup", 2);
 	xasScanConfigurationView_ = 0; //NULL
 	xasScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3();
 	mw_->addPane(xasScanConfigurationHolder3_, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
