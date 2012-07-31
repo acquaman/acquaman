@@ -862,6 +862,8 @@ public:
 	virtual void setBinParameters(int lowIndex, int highIndex);
 	//@}
 
+public slots:
+	void setAttemptDouble(bool attemptDouble);
 
 protected slots:
 	/// This is called when the read PV has new values
@@ -870,6 +872,8 @@ protected slots:
 protected:
 	int lowIndex_;
 	int highIndex_;
+
+	bool attemptDouble_;
 };
 
 // End of doxygen group: control
