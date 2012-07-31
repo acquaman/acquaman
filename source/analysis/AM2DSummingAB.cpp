@@ -56,13 +56,8 @@ AM2DSummingAB::AM2DSummingAB(AMDatabase* db, int id)
 
 	loadFromDb(db, id);
 		// will restore sumAxis, sumRangeMin, and sumRangeMax. We'll remain invalid until we get connected.
-}
 
-bool AM2DSummingAB::loadFromDb(AMDatabase *db, int id){
-	bool success = AMDbObject::loadFromDb(db, id);
-	if(success)
-		AMDataSource::name_ = AMDbObject::name();	// normally it's not okay to change a dataSource's name. Here we get away with it because we're within the constructor, and nothing's watching us yet.
-	return success;
+	AMDataSource::name_ = AMDbObject::name();	// normally it's not okay to change a dataSource's name. Here we get away with it because we're within the constructor, and nothing's watching us yet.
 }
 
 
