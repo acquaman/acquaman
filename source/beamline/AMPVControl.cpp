@@ -580,17 +580,24 @@ AMReadOnlyWaveformBinningPVControl::AMReadOnlyWaveformBinningPVControl(const QSt
 	AMReadOnlyPVControl(name, readPVname, parent, description)
 {
 	disconnect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
+	attemptDouble_ = false;
 	setBinParameters(lowIndex, highIndex);
 	connect(readPV_, SIGNAL(valueChanged()), this, SLOT(onReadPVValueChanged()));
 }
 
 double AMReadOnlyWaveformBinningPVControl::value() const{
+	if(attemptDouble_)
+		return readPV_->binFloatingPointValues(lowIndex_, highIndex_);
 	return readPV_->binIntegerValues(lowIndex_, highIndex_);
 }
 
 void AMReadOnlyWaveformBinningPVControl::setBinParameters(int lowIndex, int highIndex){
 	lowIndex_ = lowIndex;
 	highIndex_ = highIndex;
+}
+
+void AMReadOnlyWaveformBinningPVControl::setAttemptDouble(bool attemptDouble){
+	attemptDouble_ = attemptDouble;
 }
 
 void AMReadOnlyWaveformBinningPVControl::onReadPVValueChanged(){

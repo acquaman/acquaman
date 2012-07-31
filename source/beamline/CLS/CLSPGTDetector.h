@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/info/CLSPGTDetectorInfo.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/AMPVControl.h"
+#include "dataman/datasource/AMProcessVariableDataSource.h"
 
 class CLSPGTDetector : public CLSPGTDetectorInfo, public AMDetector
 {
@@ -59,6 +60,9 @@ public:
 	bool setFromInfo(const AMDetectorInfo *info);
 	bool setFromInfo(const CLSPGTDetectorInfo &info);
 
+	/// Returns the status as an bool.  true is acquiring, false is done.
+	bool status() const;
+
 	bool isPoweredOn();
 
 	bool activate();
@@ -68,17 +72,35 @@ public:
 	AMControl* hvCtrl() const;
 	AMControl* integrationTimeCtrl() const;
 	AMControl* integrationModeCtrl() const;
+	AMControl* dwellTriggerControl() const;
 
 	bool settingsMatchFbk(CLSPGTDetectorInfo* settings);
 
 	QString description() const;
 
+	/// Turns the spectra controls into an array of ints and returns the spectra
+	QVector<int> spectraValues();
+
+	/// Returns the total spectra counts using the binned version
+	int spectraTotalCounts();
+
+	/// Returns the raw spectrum data source at \c index.  It is assumed that the data sources will be in order of element.  Must be between 0 and size()-1.
+	AMDataSource* spectrumDataSource() const;
+
 public slots:
 	void setDescription(const QString &description);
 	virtual bool setControls(CLSPGTDetectorInfo *pgtSettings);
 
+	/// Erases the current spectrum and starts collecting data.
+	void start();
+
 signals:
+	/// Only emitted as true when all of the controls in the detector are connected. Is emitted false when any of the controls within the detector become unconnected.
+	void connected(bool);
 	void poweredOnChanged(bool poweredOn);
+	void statusChanged(bool);
+	/// Notifies that the total counts in the spectrum has changed
+	void totalCountsChanged(double);
 
 protected slots:
 	void onControlsConnected(bool connected);
@@ -86,6 +108,7 @@ protected slots:
 	void onControlsTimedOut();
 	void onReadingsControlValuesChanged();
 	void onSettingsControlValuesChanged();
+	void onDwellTriggerChanged(double value);
 
 protected:
 	/// The actual control for the spectrum waveform
@@ -96,6 +119,8 @@ protected:
 	AMControl *integrationTimeControl_;
 	/// The control for the integration mode
 	AMControl *integrationModeControl_;
+	/// The control for triggering the detector
+	AMControl *dwellTriggerControl_;
 
 	/// A control set for all the controls (for ease of signalling)
 	AMControlSet *allControls_;
@@ -104,6 +129,9 @@ protected:
 	AMBeamlineActionItem *toggleOnAction_;
 	/// The action for toggling the HV off (right now comes from somewhere else)
 	AMBeamlineActionItem *toggleOffAction_;
+
+	/// The list of all the raw spectrum data sources.
+	AM1DProcessVariableDataSource *spectrumDataSource_;
 
 protected:
 	QString baseName_;
