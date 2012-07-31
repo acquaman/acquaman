@@ -109,6 +109,10 @@ bool AMAppController::startupCreateUserInterface() {
 		mw_->removePane(workflowManagerView_);
 		workflowManagerView_->hide();
 
+		// get the "open scans" section to be under the workflow
+		mw_->windowPaneModel()->removeRow(scanEditorsParentItem_->row());
+		scanEditorsParentItem_ = mw_->windowPaneModel()->headingItem("Open Scans", QModelIndex(), mw_->windowPaneModel()->rowCount()-1);
+
 		AMStartScreen* chooseRunDialog = new AMStartScreen(true, mw_);
 		chooseRunDialog->show();
 		chooseRunDialog->activateWindow();
