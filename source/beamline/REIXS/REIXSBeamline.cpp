@@ -197,25 +197,32 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 	//								name	  PV base name        units unitsPerRev offset microsteps descript. tolerance startTimeoutSecs, parent
 	x_ = new CLSMDriveMotorControl("sampleX", "SMTR1610-4-I21-08", "mm", 2.116, 0, 256, "Sample Chamber X", 0.5, 2.0, this);
 	x_->setSettlingTime(0.2);
+	x_->setMoveStartTolerance(x_->writeUnitConverter()->convertFromRaw(5));
 	x_->setContextKnownDescription("X");
 
 	y_ = new CLSMDriveMotorControl("sampleY", "SMTR1610-4-I21-10", "mm", 2.116, 0, 256, "Sample Chamber Y", 0.5, 2.0, this);
 	y_->setSettlingTime(0.2);
+	y_->setMoveStartTolerance(y_->writeUnitConverter()->convertFromRaw(5));
 	y_->setContextKnownDescription("Y");
 
 	z_ = new CLSMDriveMotorControl("sampleZ", "SMTR1610-4-I21-07", "mm", 0.25, 0, 256, "Sample Chamber Z", 0.5, 2.0, this);
 	z_->setSettlingTime(0.2);
+	z_->setMoveStartTolerance(z_->writeUnitConverter()->convertFromRaw(5));
 	z_->setContextKnownDescription("Z");
 
 	r_ = new CLSMDriveMotorControl("sampleTheta", "SMTR1610-4-I21-11", "deg", 3.6, 0, 256, "Sample Chamber Theta", 0.5, 2.0, this);
 	r_->setSettlingTime(0.2);
+	r_->setMoveStartTolerance(r_->writeUnitConverter()->convertFromRaw(5));
 	r_->setContextKnownDescription("Theta");
 
 	loadLockZ_ = new CLSMDriveMotorControl("loadLockZ", "SMTR1610-4-I21-09", "mm", 0.125, 0, 256, "Load Lock Z", 0.5, 2.0, this);
 	loadLockZ_->setSettlingTime(0.2);
+	loadLockZ_->setMoveStartTolerance(loadLockZ_->writeUnitConverter()->convertFromRaw(5));
 
 	loadLockR_ = new CLSMDriveMotorControl("loadLockTheta", "SMTR1610-4-I21-12", "deg", 3.6, 0, 256, "Load Lock Theta", 0.5, 2.0, this);
 	loadLockR_->setSettlingTime(0.2);
+	loadLockR_->setMoveStartTolerance(loadLockR_->writeUnitConverter()->convertFromRaw(5));
+
 
 	addChildControl(x_);
 	addChildControl(y_);
