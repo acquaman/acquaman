@@ -93,6 +93,8 @@ public:
 	/// Returns a pointer to a newly-created AMScanController that is appropriate for executing this scan configuration.
 	/*! \todo This could be const, but then AMScanConfiguration() constructor would need to accept a const AMScanConfiguration.*/
 	virtual AMScanController* createController();
+	/// Creates a new view (AMScanConfigurationView) showing this configuration. Ownership of the view is the responsibility of the caller.
+	virtual AMScanConfigurationView* createView();
 
 	// Support for database loading and storing operations
 	////////////////
