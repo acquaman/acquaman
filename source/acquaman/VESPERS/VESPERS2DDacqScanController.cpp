@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMUser.h"
 #include "analysis/AM2DNormalizationAB.h"
 #include "actions/AMBeamlineParallelActionsList.h"
+#include "util/VESPERS/VESPERSConfigurationFileBuilder.h"
 
 #include <QDir>
 
@@ -564,8 +565,17 @@ void VESPERS2DDacqScanController::onCleanupActionFinished()
 
 bool VESPERS2DDacqScanController::setupSingleElementMap()
 {
+	VESPERSConfigurationFileBuilder builder;
+	builder.setDimensions(2);
+	builder.setSingleElement(true);
+	builder.setRoperCCD(config_->usingCCD());
+	builder.setPvNameAxis1(xAxisPVName_);	// This is fine because we have already checked what sample stage we're using in the constructor.
+	builder.setPvNameAxis2(yAxisPVName_);	// Ditto.
+	builder.buildConfigurationFile();
+
 	bool loadSuccess = false;
 
+//	setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 	if (!config_->usingCCD() && config_->motorsChoice() == VESPERS2DScanConfiguration::HAndV)
 		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-hv-1Elem.cfg"));
 	else if (config_->usingCCD() && config_->motorsChoice() == VESPERS2DScanConfiguration::HAndV)
@@ -619,8 +629,17 @@ bool VESPERS2DDacqScanController::setupSingleElementMap()
 
 bool VESPERS2DDacqScanController::setupFourElementMap()
 {
+	VESPERSConfigurationFileBuilder builder;
+	builder.setDimensions(2);
+	builder.setFourElement(true);
+	builder.setRoperCCD(config_->usingCCD());
+	builder.setPvNameAxis1(xAxisPVName_);	// This is fine because we have already checked what sample stage we're using in the constructor.
+	builder.setPvNameAxis2(yAxisPVName_);	// Ditto.
+	builder.buildConfigurationFile();
+
 	bool loadSuccess = false;
 
+//	setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 	if (!config_->usingCCD() && config_->motorsChoice() == VESPERS2DScanConfiguration::HAndV)
 		loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/2D-hv-4Elem.cfg"));
 	else if (config_->usingCCD() && config_->motorsChoice() == VESPERS2DScanConfiguration::HAndV)

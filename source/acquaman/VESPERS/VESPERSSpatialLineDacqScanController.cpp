@@ -6,6 +6,7 @@
 #include "dataman/AMLineScan.h"
 #include "actions/AMBeamlineParallelActionsList.h"
 #include "analysis/AM1DNormalizationAB.h"
+#include "util/VESPERS/VESPERSConfigurationFileBuilder.h"
 
 #include <QDir>
 
@@ -21,22 +22,36 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setIndexType("fileSystem");
 
+	AMPVwStatusControl *control = 0;
+
 	switch(config_->motorChoice()){
 
 	case VESPERSSpatialLineScanConfiguration::H:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz());
+		pvName_ = control != 0 ? control->writePVName() : "";
 		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 		break;
 
 	case VESPERSSpatialLineScanConfiguration::X:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->sampleStageX());
+		pvName_ = control != 0 ? control->writePVName() : "";
 		scan_->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
 		break;
 
 	case VESPERSSpatialLineScanConfiguration::V:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->vert());
+		pvName_ = control != 0 ? control->writePVName() : "";
 		scan_->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
 		break;
 
 	case VESPERSSpatialLineScanConfiguration::Z:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->sampleStageZ());
+		pvName_ = control != 0 ? control->writePVName() : "";
 		scan_->rawData()->addScanAxis(AMAxisInfo("Z", 0, "Vertical Position", "mm"));
+		break;
+
+	default:
+		pvName_ = "";
 		break;
 	}
 
@@ -403,7 +418,7 @@ bool VESPERSSpatialLineDacqScanController::startImplementation()
 	advAcq_->setEnd(0, config_->end());
 
 	advAcq_->saveConfigFile("/home/hunterd/Desktop/writeTest.cfg");
-//	return false;
+
 	return AMDacqScanController::startImplementation();
 }
 
@@ -528,8 +543,16 @@ void VESPERSSpatialLineDacqScanController::onCleanupActionFinished()
 
 bool VESPERSSpatialLineDacqScanController::setupSingleElementMap()
 {
+	VESPERSConfigurationFileBuilder builder;
+	builder.setDimensions(1);
+	builder.setSingleElement(true);
+	builder.setRoperCCD(config_->usingCCD());
+	builder.setPvNameAxis1(pvName_);	// This is fine because we have already checked what sample stage we're using in the constructor.
+	builder.buildConfigurationFile();
+
 	bool loadSuccess = false;
 
+//	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 	if (!config_->usingCCD() && config_->motorChoice() == VESPERSSpatialLineScanConfiguration::H)
 		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/LineScan-H-1Elem.cfg"));
 	else if (config_->usingCCD() && config_->motorChoice() == VESPERSSpatialLineScanConfiguration::H)
@@ -594,8 +617,16 @@ bool VESPERSSpatialLineDacqScanController::setupSingleElementMap()
 
 bool VESPERSSpatialLineDacqScanController::setupFourElementMap()
 {
+	VESPERSConfigurationFileBuilder builder;
+	builder.setDimensions(1);
+	builder.setFourElement(true);
+	builder.setRoperCCD(config_->usingCCD());
+	builder.setPvNameAxis1(pvName_);	// This is fine because we have already checked what sample stage we're using in the constructor.
+	builder.buildConfigurationFile();
+
 	bool loadSuccess = false;
 
+//	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 	if (!config_->usingCCD() && config_->motorChoice() == VESPERSSpatialLineScanConfiguration::H)
 		loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/LineScan-H-4Elem.cfg"));
 	else if (config_->usingCCD() && config_->motorChoice() == VESPERSSpatialLineScanConfiguration::H)
