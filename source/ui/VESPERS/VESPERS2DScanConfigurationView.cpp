@@ -561,18 +561,18 @@ void VESPERS2DScanConfigurationView::updateMapInfo()
 {
 	double hSize = fabs(config_->xEnd()-config_->xStart());
 	double vSize = fabs(config_->yEnd()-config_->yStart());
-	int hPoints = int(fabs(hSize/config_->xStep()));
-	int vPoints = int(fabs(vSize/config_->yStep()));
 
-	if (hPoints < 0)
-		hPoints = 0;
+	int hPoints = int((hSize)/config_->yStep());
+	if ((hSize - (hPoints + 0.01)*config_->yStep()) < 0)
+		hPoints += 1;
 	else
-		hPoints++;
+		hPoints += 2;
 
-	if (vPoints < 0)
-		vPoints = 0;
+	int vPoints = int((vSize)/config_->yStep());
+	if ((vSize - (vPoints + 0.01)*config_->yStep()) < 0)
+		vPoints += 1;
 	else
-		vPoints++;
+		vPoints += 2;
 
 	mapInfo_->setText(QString("Map Size: %1 %2 x %3 %2\t Points: %4 x %5")
 					  .arg(QString::number(hSize*1000, 'f', 1))
