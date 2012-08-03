@@ -63,6 +63,13 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 	else if (scan->fileFormat() == "vespers2012XRF4ElXRD")
 		usingFourElementAndCCD = true;
 
+	// Necessary until I do a database upgrade.
+	bool containsSpectraDataSource = false;
+	int count = scan->rawDataSourceCount();
+
+	for (int i = 0; i < count; i++)
+		if (scan->rawDataSources()->at(i)->name().contains(QRegExp("spectra|corrSum|raw1|raw2|raw3|raw4")))
+			containsSpectraDataSource = true;
 
 	in.readLine();
 	in.readLine();
@@ -84,14 +91,9 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 	int xLength = 0;
 	int yLength = 0;
 
-	// Include all for now.
-	for (int i = 0; i < scan->rawDataSourceCount(); i++)
-		cdfData->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description()));
-
-	// added by Mark (May 13, 2012) to determine the number of y lines, since we need to know that before creating the scan axes.
+	// Determine the number of y lines, since we need to know that before creating the scan axes.
 	/////////////////////
 	QStringList fileLines;
-//	fileLines << line;	// we have the first valid line already.
 	while(!in.atEnd())
 		fileLines << in.readLine();
 
@@ -132,41 +134,69 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 		cdfData->addScanAxis(AMAxisInfo("Z", yLength, "Vertical Position", "mm"));
 	}
 
+	// Note!  Not general!
+	QList<AMAxisInfo> axisInfo;
+	AMAxisInfo ai("Energy", 2048, "Energy", "eV");
+	ai.increment = 10;
+	ai.start = AMNumber(0);
+	ai.isUniform = true;
+	axisInfo << ai;
+
+	if ((usingSingleElement || usingSingleElementAndCCD) && containsSpectraDataSource){
+
+		for (int i = 0; i < count-1; i++)
+			cdfData->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description()));
+
+		cdfData->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(count-1)->name(), scan->rawDataSources()->at(count-1)->description(), "eV", axisInfo));
+	}
+
+	else if ((usingFourElement || usingFourElementAndCCD) && containsSpectraDataSource){
+
+		for (int i = 0; i < count-5; i++)
+			cdfData->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description()));
+
+		for (int i = count-5; i < count; i++)
+			cdfData->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description(), "eV", axisInfo));
+	}
+	// Necessary until I do a database upgrade.
+	else{
+
+		for (int i = 0; i < count; i++)
+			cdfData->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description()));
+	}
+
 	cdfData->beginInsertRows(xLength, -1);
-	///////////////////
 
 	x = 0;
 	y = 0;
 
 	foreach(QString line, fileLines) {
 
-		// MB: no longer necessary:
-//		// The first time we enter this loop we'll already have the first line of data.
-//		if (!(x == 0 && y == 0))
-//			line = in.readLine();
-
-//		lineTokenized << line.split(", ");
-		lineTokenized = line.split(", "); // MB: is more efficient
-
-		// Used for determining how long the x axis is.
-//		if (xLength == 0 && lineTokenized.at(1).toDouble() == double(cdfData->axisValue(0, 0))){
-
-//			xLength = x;
-//			x = 0;
-//			y++;
-//		}
+		lineTokenized = line.split(", ");
 
 		// Add in the data at the right spot.
 		AMnDIndex axisValueIndex(x, y);
-		// MB: not needed: all rows added already: cdfData->beginInsertRowsAsNecessaryForScanPoint(axisValueIndex);
 
 		cdfData->setAxisValue(0, axisValueIndex.i(), lineTokenized.at(1).toDouble());
 		cdfData->setAxisValue(1, axisValueIndex.j(), lineTokenized.at(2).toDouble());
 
-		for (int i = 0; i < scan->rawDataSourceCount(); i++)
-			cdfData->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+3).toDouble());
+		if ((usingSingleElement || usingSingleElementAndCCD) && containsSpectraDataSource){
 
-		// MB: moving down to where we're all done filling everything: cdfData->endInsertRows();
+			for (int i = 0; i < count-1; i++)
+				cdfData->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+3).toDouble());
+		}
+
+		else if ((usingFourElement || usingFourElementAndCCD) && containsSpectraDataSource){
+
+			for (int i = 0; i < count-5; i++)
+				cdfData->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+3).toDouble());
+		}
+		// Necessary until I have a database upgrade.
+		else{
+
+			for (int i = 0; i < count; i++)
+				cdfData->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+3).toDouble());
+		}
 
 		// Advance to the next spot.
 		x++;
@@ -176,8 +206,6 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 			x = 0;
 			y++;
 		}
-
-//		lineTokenized.clear();
 	}
 
 	// Pad the rest of the line with -1 for proper visualization.
@@ -187,21 +215,168 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 
 			// Add in the data at the right spot.
 			AMnDIndex axisValueIndex(x, y);
-//MB: 		cdfData->beginInsertRowsAsNecessaryForScanPoint(axisValueIndex);
 
 			cdfData->setAxisValue(0, axisValueIndex.i(), cdfData->axisValue(0, axisValueIndex.i()));
 			cdfData->setAxisValue(1, axisValueIndex.j(), cdfData->axisValue(1, axisValueIndex.j()-1));
 
-			for (int i = 0; i < scan->rawDataSourceCount(); i++)
-				cdfData->setValue(axisValueIndex, i, AMnDIndex(), -1);
+			// Necessary until I have done the database upgrade.
+			if ((usingSingleElement || usingSingleElementAndCCD) && containsSpectraDataSource){
 
-//MB:		cdfData->endInsertRows();
+				for (int i = 0; i < count-1; i++)
+					cdfData->setValue(axisValueIndex, i, AMnDIndex(), -1);
+			}
+
+			else if ((usingFourElement || usingFourElementAndCCD) && containsSpectraDataSource){
+
+				for (int i = 0; i < count-5; i++)
+					cdfData->setValue(axisValueIndex, i, AMnDIndex(), -1);
+			}
+		}
+	}
+
+	file.close();
+
+	// Until I do a database upgrade, I don't want to do anything with the spectra file unless the data sources already exist.
+	if (containsSpectraDataSource){
+
+		// Getting the spectra file setup.
+		if (usingSingleElement || usingSingleElementAndCCD){
+
+			QFile spectra;
+			QVector<int> data(2048);
+
+			foreach(QString additionalFilePath, scan->additionalFilePaths())
+				if(additionalFilePath.contains("_spectra.dat"))
+					spectra.setFileName(additionalFilePath);
+
+			QFileInfo spectraFileInfo(spectra.fileName());
+			if (spectraFileInfo.isRelative())
+				spectra.setFileName(userDataFolder + "/" + spectra.fileName());
+			if(!spectra.open(QIODevice::ReadOnly)) {
+				AMErrorMon::error(0, -1, QString("2DFileLoader parse error while loading scan spectra data from %1.").arg(spectra.fileName()));
+				return false;
+			}
+
+			QTextStream spectraStream(&spectra);
+			QString spectraLine;
+			QStringList spectraTokenized;
+			x = 0;
+			y = 0;
+
+			while(!spectraStream.atEnd()){
+
+				spectraLine = spectraStream.readLine();
+				spectraTokenized = spectraLine.split(",");
+
+				for (int j = 0; j < 2048; j++)
+					data[j] = spectraTokenized.at(j).toInt();
+
+				cdfData->setValue(AMnDIndex(x, y), count-1, data.constData());
+
+				// Advance to the next spot.
+				x++;
+
+				if (x == xLength){
+
+					x = 0;
+					y++;
+				}
+			}
+
+			// Pad the rest of the line with -1 for proper visualization.
+			if (x != 0 && xLength != 0){
+
+				data.fill(0);
+
+				for ( ; x < xLength; x++)
+					cdfData->setValue(AMnDIndex(x, y), count-1, data.constData());
+			}
+
+			spectra.close();
+		}
+		else if (usingFourElement || usingFourElementAndCCD){
+
+			QFile spectra;
+			QVector<int> data(2048);
+			QVector<int> raw1(2048);
+			QVector<int> raw2(2048);
+			QVector<int> raw3(2048);
+			QVector<int> raw4(2048);
+
+			foreach(QString additionalFilePath, scan->additionalFilePaths())
+				if(additionalFilePath.contains("_spectra.dat"))
+					spectra.setFileName(additionalFilePath);
+
+			QFileInfo spectraFileInfo(spectra.fileName());
+			if (spectraFileInfo.isRelative())
+				spectra.setFileName(userDataFolder + "/" + spectra.fileName());
+			if(!spectra.open(QIODevice::ReadOnly)) {
+				AMErrorMon::error(0, -1, QString("2DFileLoader parse error while loading scan spectra data from %1.").arg(spectra.fileName()));
+				return false;
+			}
+
+			QTextStream spectraStream(&spectra);
+			QString spectraLine;
+			QStringList spectraTokenized;
+			x = 0;
+			y = 0;
+
+			while(!spectraStream.atEnd()){
+
+				spectraLine = spectraStream.readLine();
+				spectraTokenized = spectraLine.split(",");
+
+				for (int j = 0; j < 2048; j++){
+
+					data[j] = spectraTokenized.at(j).toInt();
+					raw1[j] = spectraTokenized.at(j+2048).toInt();
+					raw2[j] = spectraTokenized.at(j+4096).toInt();
+					raw3[j] = spectraTokenized.at(j+6144).toInt();
+					raw4[j] = spectraTokenized.at(j+8192).toInt();
+				}
+
+				AMnDIndex axisValueIndex(x, y);
+				cdfData->setValue(axisValueIndex, count-5, data.constData());
+				cdfData->setValue(axisValueIndex, count-4, raw1.constData());
+				cdfData->setValue(axisValueIndex, count-3, raw2.constData());
+				cdfData->setValue(axisValueIndex, count-2, raw3.constData());
+				cdfData->setValue(axisValueIndex, count-1, raw4.constData());
+
+				// Advance to the next spot.
+				x++;
+
+				if (x == xLength){
+
+					x = 0;
+					y++;
+				}
+			}
+
+			// Pad the rest of the line with -1 for proper visualization.
+			if (x != 0 && xLength != 0){
+
+				data.fill(0);
+				raw1.fill(0);
+				raw2.fill(0);
+				raw3.fill(0);
+				raw4.fill(0);
+
+				for ( ; x < xLength; x++){
+
+					AMnDIndex axisValueIndex(x, y);
+					cdfData->setValue(axisValueIndex, count-5, data.constData());
+					cdfData->setValue(axisValueIndex, count-4, raw1.constData());
+					cdfData->setValue(axisValueIndex, count-3, raw2.constData());
+					cdfData->setValue(axisValueIndex, count-2, raw3.constData());
+					cdfData->setValue(axisValueIndex, count-1, raw4.constData());
+				}
+			}
+
+			spectra.close();
 		}
 	}
 
 	cdfData->endInsertRows();
-
-	file.close();
 
 	return scan->replaceRawDataStore(cdfData);
 }

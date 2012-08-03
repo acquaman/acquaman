@@ -333,29 +333,29 @@ void VESPERS2DDacqScanController::addExtraDatasources()
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 	}
 
-//	// Add the spectra.
-//	if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement){
+	// Add the spectra.
+	if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement){
 
-//		temp = AMMeasurementInfo(VESPERSBeamline::vespers()->vortexXRF1E()->toXRFInfo());
-//		temp.name = "spectra";
-//		scan_->rawData()->addMeasurement(temp);
-//		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
-//	}
+		temp = AMMeasurementInfo(VESPERSBeamline::vespers()->vortexXRF1E()->toXRFInfo());
+		temp.name = "spectra";
+		scan_->rawData()->addMeasurement(temp);
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
+	}
 
-//	else if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::FourElement){
+	else if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::FourElement){
 
-//		temp = AMMeasurementInfo(VESPERSBeamline::vespers()->vortexXRF4E()->toXRFInfo());
-//		temp.name = "corrSum";
-//		scan_->rawData()->addMeasurement(temp);
-//		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
+		temp = AMMeasurementInfo(VESPERSBeamline::vespers()->vortexXRF4E()->toXRFInfo());
+		temp.name = "corrSum";
+		scan_->rawData()->addMeasurement(temp);
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 
-//		for (int i = 0; i < VESPERSBeamline::vespers()->vortexXRF4E()->elements(); i++){
+		for (int i = 0; i < VESPERSBeamline::vespers()->vortexXRF4E()->elements(); i++){
 
-//			temp.name = QString("raw%1").arg(i+1);
-//			scan_->rawData()->addMeasurement(temp);
-//			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
-//		}
-//	}
+			temp.name = QString("raw%1").arg(i+1);
+			scan_->rawData()->addMeasurement(temp);
+			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
+		}
+	}
 }
 
 bool VESPERS2DDacqScanController::initializeImplementation()
