@@ -28,6 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QApplication>
 #include <QSqlDriver>
 #include <QTime>
+#include <QFileInfo>
+#include <QDebug>
 
 #include "util/AMErrorMonitor.h"
 
@@ -635,6 +637,9 @@ QSqlDatabase AMDatabase::qdb() const
 //			q.prepare("PRAGMA synchronous=NORMAL;");
 //			execQuery(q, 10);
 //		}
+
+		QFileInfo accessInfo(dbAccessString_);
+		qDebug() << "The db (" << dbAccessString_ << ") is readable " << accessInfo.isReadable() << " is writable " << accessInfo.isWritable();
 
 		threadIDsOfOpenConnections_ << threadId;
 		return db;
