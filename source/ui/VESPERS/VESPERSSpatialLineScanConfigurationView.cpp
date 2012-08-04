@@ -500,17 +500,16 @@ void VESPERSSpatialLineScanConfigurationView::onDwellTimeChanged()
 void VESPERSSpatialLineScanConfigurationView::updateMapInfo()
 {
 	double size = fabs(config_->end()-config_->start());
-	int hPoints = int(fabs(size/config_->step()));
-
-	if (hPoints < 0)
-		hPoints = 0;
+	int points = int(fabs(size/config_->step()));
+	if ((size - (points + 0.01)*config_->step()) < 0)
+		points += 1;
 	else
-		hPoints++;
+		points += 2;
 
 	mapInfo_->setText(QString("Scan Size: %1 %2\t Points: %3")
 					  .arg(QString::number(size*1000, 'f', 1))
 					  .arg(QString::fromUtf8("µm"))
-					  .arg(hPoints)
+					  .arg(points)
 					  );
 }
 

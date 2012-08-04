@@ -248,7 +248,6 @@ void CLSOceanOptics65000DetailedDetectorView::onStatusChanged(bool status){
 }
 
 void CLSOceanOptics65000DetailedDetectorView::onTotalCountsChanged(double totalCounts){
-	qDebug() << "Heard that the QE65000's total counts changed to " << totalCounts;
 	totalCountsDSB_->setValue(totalCounts);
 }
 

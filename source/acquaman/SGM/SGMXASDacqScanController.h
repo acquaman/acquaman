@@ -72,6 +72,9 @@ protected:
 
 	/// Simple scan index returns 1D scan size
 	AMnDIndex toScanIndex(QMap<int, double> aeData);
+
+	/// A counter holding the current region index being scanned.
+	int currentRegionIndex_;
 };
 
 #endif // ACQMAN_SGMXASDACQSCANCONTROLLER_H

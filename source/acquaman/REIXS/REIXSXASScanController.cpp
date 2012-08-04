@@ -91,7 +91,7 @@ bool REIXSXASScanController::customInitializeImplementation()
 			initialMoveAction_->addSubAction(new AMInternalControlMoveAction(REIXSBeamline::bl()->photonSource()->monoGratingSelector(), config_->monoGrating()));
 		if(config_->applyMonoMirror())
 			initialMoveAction_->addSubAction(new AMInternalControlMoveAction(REIXSBeamline::bl()->photonSource()->monoMirrorSelector(), config_->monoMirror()));
-		if(config_->applyPolarization())
+		if(config_->applySlitWidth())
 			initialMoveAction_->addSubAction(new AMInternalControlMoveAction(REIXSBeamline::bl()->photonSource()->monoSlit(), config_->slitWidth()));
 		if(config_->applyPolarization()) {
 			initialMoveAction_->addSubAction(new AMInternalControlMoveAction(REIXSBeamline::bl()->photonSource()->epuPolarization(), config_->polarization()));

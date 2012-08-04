@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class SGMSampleTransferView;
 class AMSampleManagementWidget;
 class CLSSIS3820ScalerView;
+class CLSSynchronizedDwellTimeView;
 class AMDetectorView;
 class AMScanConfigurationViewHolder3;
 class SGMXASScanConfigurationView;
@@ -76,6 +77,8 @@ protected slots:
 	void onSGMBeamlineConnected();
 	/// When the SGM's scaler connects the view is created and added as a pane to the main window.
 	void onSGMScalerConnected(bool connected);
+	/// When the SGM's synchronized dwell time app connects the view is created and added as a pane to the main window
+	void onSGMSynchronizedDwellTimeConnected(bool connected);
 	/// When the SGM's PGT Sahara SDD connects the view is created and added as a pane to the main window.
 	void onSGMPGTSDDConnected(bool connected);
 	/// When the SGM's OceanOptics Optical Spectrometer connects the view is created and added as a pane to the main window
@@ -124,6 +127,8 @@ protected:
 	AMSampleManagementWidget *samplePositionView_;
 	/// View for controlling the SGM scaler
 	CLSSIS3820ScalerView *sgmScalerView_;
+	/// View for controlling the synchronized dwell time application
+	CLSSynchronizedDwellTimeView *sgmSynchronizedDwellTimeView_;
 	/// View for controlling the PGT Sahara SDD
 	AMDetectorView *pgtSDDView_;
 	/// View for controlling the Ocean Optics Optical Spectrometer

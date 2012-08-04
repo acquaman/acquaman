@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMSampleTransferView.h"
 #include "ui/SGM/SGMSampleManipulatorView.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
+#include "ui/CLS/CLSSynchronizedDwellTimeView.h"
 #include "ui/dataman/AMSampleManagementWidget.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
@@ -274,6 +275,15 @@ void SGMAppController::onSGMScalerConnected(bool connected){
 	}
 }
 
+void SGMAppController::onSGMSynchronizedDwellTimeConnected(bool connected){
+	Q_UNUSED(connected)
+	if(SGMBeamline::sgm()->synchronizedDwellTime() && SGMBeamline::sgm()->synchronizedDwellTime()->isConnected() && !sgmSynchronizedDwellTimeView_){
+		sgmSynchronizedDwellTimeView_ = new CLSSynchronizedDwellTimeView(SGMBeamline::sgm()->synchronizedDwellTime());
+		mw_->addPane(sgmSynchronizedDwellTimeView_, "Beamline Control", "SGM Sync Dwell", ":/system-software-update.png", true);
+		sgmSynchronizedDwellTimeView_->setAdvancedViewVisible(true);
+	}
+}
+
 void SGMAppController::onSGMPGTSDDConnected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->pgtDetector() && SGMBeamline::sgm()->pgtDetector()->isConnected() && !pgtSDDView_){
@@ -477,16 +487,16 @@ bool SGMAppController::setupSGMExporterOptions(){
 	sgmDefault->setColumnHeaderDelimiter("==========");
 	sgmDefault->setSectionHeader("");
 	sgmDefault->setSectionHeaderIncluded(true);
-	sgmDefault->setIncludeAllDataSources(false);
+	//sgmDefault->setIncludeAllDataSources(false);
 	if(sgmDefault->dataSources().count() > 0 && sgmDefault->dataSources().at(0) == "EnergyFeedback")
 		sgmDefault->removeDataSourceAt(0);
-	sgmDefault->ensureDataSource("I0", false, AMExporterOptionGeneral::CombineInColumnsMode, true);
+	sgmDefault->ensureDataSource("I0", false, AMExporterOptionGeneral::CombineInColumnsMode, false);
 	sgmDefault->ensureDataSource("EnergyFeedback", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-	sgmDefault->ensureDataSource("Photodiode", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
-	sgmDefault->ensureDataSource("TEY", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
-	sgmDefault->ensureDataSource("TFY", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
-	sgmDefault->ensureDataSource("TEYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
-	sgmDefault->ensureDataSource("TFYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
+	sgmDefault->ensureDataSource("Photodiode", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+	sgmDefault->ensureDataSource("TEY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+	sgmDefault->ensureDataSource("TFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+	sgmDefault->ensureDataSource("TEYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+	sgmDefault->ensureDataSource("TFYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
 	sgmDefault->ensureDataSource("PFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
 	sgmDefault->ensureDataSource("IPFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
 	sgmDefault->ensureDataSource("SDD", false, AMExporterOptionGeneral::SeparateFilesMode, false);
@@ -494,13 +504,16 @@ bool SGMAppController::setupSGMExporterOptions(){
 	sgmDefault->ensureDataSource("PLY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
 	sgmDefault->ensureDataSource("PLYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
 	sgmDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.txt");
+	sgmDefault->setIncludeAllDataSources(true);
+	sgmDefault->setFirstColumnOnly(true);
+	sgmDefault->setSeparateHigherDimensionalSources(true);
 	sgmDefault->storeToDb(dbSGM);
 
 	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "SGMDefault");
 
 	if(matchIDs.count() > 0){
-		success &= AMAppControllerSupport::registerClass<SGMXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
-		success &= AMAppControllerSupport::registerClass<SGMFastScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
+		success &= AMAppControllerSupport::registerClass<SGMXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0), dbSGM->connectionName());
+		success &= AMAppControllerSupport::registerClass<SGMFastScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0), dbSGM->connectionName());
 	}
 	else
 		return false;
@@ -1056,6 +1069,9 @@ bool SGMAppController::setupSGMViews(){
 	sgmScalerView_ = 0;
 	connect(SGMBeamline::sgm()->rawScaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onSGMScalerConnected(bool)));
 	onSGMScalerConnected(false);
+	sgmSynchronizedDwellTimeView_ = 0;
+	connect(SGMBeamline::sgm()->synchronizedDwellTime(), SIGNAL(connected(bool)), this, SLOT(onSGMSynchronizedDwellTimeConnected(bool)));
+	onSGMSynchronizedDwellTimeConnected(false);
 
 	mw_->insertHeading("Beamline Detectors", 1);
 

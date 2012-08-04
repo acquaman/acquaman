@@ -229,9 +229,44 @@ void REIXSAppController::shutdown() {
 	AMAppControllerForActions2::shutdown();
 }
 
-
+#include "dataman/AMScan.h"
 void REIXSAppController::launchScanConfigurationFromDb(const QUrl &url)
 {
+	// turn off automatic raw-day loading for scans... This will make loading the scan to access it's config much faster.
+	bool scanAutoLoadingOn = AMScan::autoLoadData();
+	AMScan::setAutoLoadData(false);
+
+	AMScan* scan = AMScan::createFromDatabaseUrl(url, true);
+
+	// restore AMScan's auto-loading of data to whatever it was before.
+	AMScan::setAutoLoadData(scanAutoLoadingOn);
+
+	if(!scan) {
+		return;
+	}
+
+	// Does the scan have a configuration?
+	AMScanConfiguration* config = scan->scanConfiguration();
+	if(!config) {
+		scan->release();
+		return;
+	}
+	// need to create a copy of the config so we can delete the scan (and hence the config instance owned by the scan). The view will take ownership of the copy.
+	config = config->createCopy();
+	scan->release();
+	if(!config)
+		return;
+
+	AMScanConfigurationView *view = config->createView();
+	if(!view) {
+		delete config;
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -401, "Unable to create view from the scan configuration loaded from the database.  Please report this problem to the beamline's software developers."));
+		return;
+	}
+
+	REIXSScanConfigurationViewHolder* holder = new REIXSScanConfigurationViewHolder(view);
+	holder->setAttribute(Qt::WA_DeleteOnClose, true);
+	holder->show();
 }
 
 

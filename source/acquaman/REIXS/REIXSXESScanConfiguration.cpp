@@ -65,3 +65,9 @@ QString REIXSXESScanConfiguration::description() const
 
 	return rv;
 }
+
+#include "ui/REIXS/REIXSXESScanConfigurationView.h"
+AMScanConfigurationView * REIXSXESScanConfiguration::createView()
+{
+	return new REIXSXESScanConfigurationView(this);
+}

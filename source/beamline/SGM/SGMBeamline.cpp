@@ -94,6 +94,7 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("activeEndstation", "BL1611-ID-1:AddOns:endstation:active");
 	amNames2pvNames_.set("ssaIllumination", "ILC1611-4-I10-02");
 	amNames2pvNames_.set("mirrorStripeSelection", "BL1611-ID-1:stripe");
+	amNames2pvNames_.set("masterDwell", "BL1611-ID-1:dwell:setTime");
 
 	bool pvNameLookUpFail = false;
 
@@ -234,6 +235,7 @@ void SGMBeamline::usingSGMBeamline(){
 	synchronizedDwellTime_->addElement(0);
 	synchronizedDwellTime_->addElement(1);
 	synchronizedDwellTime_->addElement(2);
+	synchronizedDwellTime_->addElement(3);
 
 	sgmPVName = amNames2pvNames_.valueF("pgtHV");
 	pgtHV_ = new AMPVControl("pgtHV", sgmPVName+"Actual:fbk", sgmPVName, QString(), this, 0.5);
@@ -382,6 +384,12 @@ void SGMBeamline::usingSGMBeamline(){
 		pvNameLookUpFail = true;
 	undulatorOffset_ = new AMPVControl("undulatorOffset", sgmPVName%":corr_A", sgmPVName%":corr_A", QString(), this, 0.01);
 	undulatorOffset_->setDescription("Undulator Offset");
+
+	sgmPVName = amNames2pvNames_.valueF("masterDwell");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	masterDwell_ = new AMPVControl("masterDwell", sgmPVName, sgmPVName, QString(), this, 0.01);
+	masterDwell_->setDescription("Master Dwell Time");
 
 	scaler_ = new CLSSIS3820Scaler("BL1611-ID-1:mcs", this);
 	scaler_->channelAt(0)->setCustomChannelName("TEY");
@@ -852,6 +860,15 @@ QString SGMBeamline::currentEndstation() const{
 		return sgmEndstationName(SGMBeamline::ssa);
 	else
 		return sgmEndstationName((SGMBeamline::sgmEndstation)272727);
+}
+
+int SGMBeamline::synchronizedDwellTimeDetectorIndex(AMDetector *detector) const{
+	if(detector == pgtDetector_)
+		return 2;
+	else if(detector == oos65000Detector_)
+		return 3;
+	else
+		return -1;
 }
 
 int SGMBeamline::currentSamplePlateId() const{

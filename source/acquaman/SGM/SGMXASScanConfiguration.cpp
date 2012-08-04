@@ -24,7 +24,8 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 {
 	xasRegions()->setEnergyControl(SGMBeamline::sgm()->energy());
 	//regions_->setDefaultTimeControl(SGMBeamline::sgm()->scalerIntegrationTime());
-	regions_->setDefaultTimeControl(SGMBeamline::sgm()->picoammeterDwellTime());
+	//regions_->setDefaultTimeControl(SGMBeamline::sgm()->picoammeterDwellTime());
+	regions_->setDefaultTimeControl(SGMBeamline::sgm()->masterDwell());
 
 	regions_->setSensibleRange(200, 2000);
 	regions_->setDefaultUnits(" eV");
@@ -64,7 +65,7 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(const SGMXASScanConfiguration &
 	regions_->setDefaultTimeUnits(original.regions()->defaultTimeUnits());
 
 	for(int x = 0; x < original.regionCount(); x++)
-		regions_->addRegion(x, original.regionStart(x), original.regionDelta(x), original.regionEnd(x));
+		regions_->addRegion(x, original.regionStart(x), original.regionDelta(x), original.regionEnd(x), original.regionTime(x));
 
 	fluxResolutionSet_ = SGMBeamline::sgm()->fluxResolutionSet();
 	trackingSet_ = SGMBeamline::sgm()->trackingSet();
