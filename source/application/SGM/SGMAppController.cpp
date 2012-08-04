@@ -474,7 +474,6 @@ bool SGMAppController::setupSGMExporterOptions(){
 	QList<int> matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "SGMDefault");
 
 	if(!dbSGM->isReadOnly()){
-		qDebug() << "Checking on the SGM default exporter option cause I can";
 		AMExporterOptionGeneralAscii *sgmDefault;
 		// Don't have one called "SGMDefault", so make one. If we have one, retreive it and check it.
 		sgmDefault = new AMExporterOptionGeneralAscii();
@@ -511,8 +510,9 @@ bool SGMAppController::setupSGMExporterOptions(){
 		sgmDefault->setSeparateHigherDimensionalSources(true);
 		sgmDefault->storeToDb(dbSGM);
 	}
-	else
-		qDebug() << "Leave the SGM Default exporter option alone, I can't write to that database anyways";
+	else{
+		//Should I do a check of some sort to make sure this is up to date?
+	}
 
 	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "SGMDefault");
 

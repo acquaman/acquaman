@@ -76,30 +76,30 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 		if(specificScan_->rawDataSources()->at(i)->rank() == 1)
 			raw1DDataSources << specificScan_->rawDataSources()->at(i);
 
-	int rawTeyIndex = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->teyDetector()->description());
-	int rawTfyIndex = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->tfyDetector()->description());
-	int rawI0Index = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->i0Detector()->description());
+	int rawTeyIndex = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->teyDetector()->description().remove(" "));
+	int rawTfyIndex = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->tfyDetector()->description().remove(" "));
+	int rawI0Index = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->i0Detector()->description().remove(" "));
 
 	if(rawTeyIndex != -1 && rawI0Index != -1) {
-		AM1DExpressionAB* teyChannel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->teyDetector()->description()));
+		AM1DExpressionAB* teyChannel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->teyDetector()->description().remove(" ")));
 		teyChannel->setDescription("Normalized TEY");
 		teyChannel->setInputDataSources(raw1DDataSources);
-		teyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->teyDetector()->description()).arg(SGMBeamline::sgm()->i0Detector()->description()));
+		teyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->teyDetector()->description().remove(" ")).arg(SGMBeamline::sgm()->i0Detector()->description().remove(" ")));
 
 		specificScan_->addAnalyzedDataSource(teyChannel);
 	}
 
 	if(rawTfyIndex != -1 && rawI0Index != -1) {
-		AM1DExpressionAB* tfyChannel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->tfyDetector()->description()));
+		AM1DExpressionAB* tfyChannel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->tfyDetector()->description().remove(" ")));
 		tfyChannel->setDescription("Normalized TFY");
 		tfyChannel->setInputDataSources(raw1DDataSources);
-		tfyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->tfyDetector()->description()).arg(SGMBeamline::sgm()->i0Detector()->description()));
+		tfyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->tfyDetector()->description().remove(" ")).arg(SGMBeamline::sgm()->i0Detector()->description().remove(" ")));
 
 		specificScan_->addAnalyzedDataSource(tfyChannel);
 	}
 
 	if(SGMBeamline::sgm()->pgtDetector()){
-		int rawSddIndex = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->pgtDetector()->description());
+		int rawSddIndex = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->pgtDetector()->description().remove(" "));
 		if(rawSddIndex != -1) {
 			AMRawDataSource* sddRaw = specificScan_->rawDataSources()->at(rawSddIndex);
 			AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
@@ -116,7 +116,7 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 				ipfySources.append(raw1DDataSources);
 				ipfySources.append(pfy);
 				ipfyChannel->setInputDataSources(ipfySources);
-				ipfyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->i0Detector()->description()).arg("PFY"));
+				ipfyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->i0Detector()->description().remove(" ")).arg("PFY"));
 
 				specificScan_->addAnalyzedDataSource(ipfyChannel);
 			}
@@ -141,7 +141,7 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 				plyNormSources.append(raw1DDataSources);
 				plyNormSources.append(ply);
 				plyNormChannel->setInputDataSources(plyNormSources);
-				plyNormChannel->setExpression(QString("%1/%2").arg("PLY").arg(SGMBeamline::sgm()->i0Detector()->description()));
+				plyNormChannel->setExpression(QString("%1/%2").arg("PLY").arg(SGMBeamline::sgm()->i0Detector()->description().remove(" ")));
 
 				specificScan_->addAnalyzedDataSource(plyNormChannel);
 			}
