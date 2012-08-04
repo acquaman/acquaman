@@ -62,10 +62,12 @@ public slots:
 
 	/// Re-implemented from AMAppController to create and register the SGM database with the database system.
 	virtual bool startupRegisterDatabases();
-	/// Re-implemented  to call the parent and setup the SGM configuration files, plugins, periodic table, and exporter options
+	/// Re-implemented to call the parent and setup the SGM configuration files, plugins, periodic table, and exporter options
 	virtual bool startupPopulateNewDatabase();
-	/// Re-implemented  to call the parent and setup the SGM configuration files, plugins, periodic table, and exporter options
+	/// Re-implemented to call the parent and setup the SGM configuration files, plugins, periodic table, and exporter options
 	virtual bool startupLoadFromExistingDatabase();
+	/// Re-implemented to catch bad database directories and throw out a warning message
+	virtual bool startupAfterEverything();
 
 protected slots:
 	/// This slot catches changes in the current widget of the AMMainWindow. \c pane is the new current widget.  Re-implement to catch any widget-specific responses that you need here.

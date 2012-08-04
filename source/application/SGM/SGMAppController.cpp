@@ -234,6 +234,13 @@ bool SGMAppController::startupLoadFromExistingDatabase(){
 	return success;
 }
 
+bool SGMAppController::startupAfterEverything(){
+	if(isBadDatabaseDirectory_)
+		QMessageBox::warning(0, "Poor Choice of Database Folder", "The folder choosen for the user database is really not a good one.\nAcquaman will work, but some features may experience problems.\nPlease contact Tom or David to fix this.");
+
+	return AMAppController::startupAfterEverything();
+}
+
 void SGMAppController::onCurrentPaneChanged(QWidget *pane) {
 	Q_UNUSED(pane)
 }
