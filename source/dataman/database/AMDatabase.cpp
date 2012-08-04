@@ -29,7 +29,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSqlDriver>
 #include <QTime>
 #include <QFileInfo>
-#include <QDebug>
 
 #include "util/AMErrorMonitor.h"
 
@@ -44,6 +43,8 @@ AMDatabase::AMDatabase(const QString& connectionName, const QString& dbAccessStr
 	dbAccessString_(dbAccessString),
 	qdbMutex_(QMutex::Recursive)
 {
+	QFileInfo accessInfo(dbAccessString_);
+	isReadOnly_ = !accessInfo.isWritable();
 	// Make sure the database is initialized in the creating thread:
 	qdb();
 
@@ -637,9 +638,6 @@ QSqlDatabase AMDatabase::qdb() const
 //			q.prepare("PRAGMA synchronous=NORMAL;");
 //			execQuery(q, 10);
 //		}
-
-		QFileInfo accessInfo(dbAccessString_);
-		qDebug() << "The db (" << dbAccessString_ << ") is readable " << accessInfo.isReadable() << " is writable " << accessInfo.isWritable();
 
 		threadIDsOfOpenConnections_ << threadId;
 		return db;

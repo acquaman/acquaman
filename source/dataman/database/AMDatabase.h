@@ -104,6 +104,11 @@ The parameters by which to access the database are given in \c dbAccessString. (
 		return dbAccessString_;
 	}
 
+	/// This returns whether or not this instance can be written to (all valid connections can be read from)
+	bool isReadOnly() const{
+		return isReadOnly_;
+	}
+
 	/// This returns whether or not the database has any tables (if no tables, then it's empty)
 	bool isEmpty() const{
 		if(qdb().tables().count() == 0)
@@ -214,6 +219,8 @@ private:
 	QString connectionName_;
 	/// This is the string used to specify how to connect to the database.  (For the current SQLITE database, dbAccessString is just the path to the database file.)
 	QString dbAccessString_;
+	/// This holds whether or not the database can to written to as well as read from (all valid connections can be read from)
+	bool isReadOnly_;
 
 	/// For every AMDatabase instance, we can actually have multiple connections to the database: one for each thread. All connections are to the same underlying database. This is a set of the thread IDs for which we've already created connections. (The connection name for those is our connectionName_ with the threadId appended.)
 	mutable QSet<Qt::HANDLE> threadIDsOfOpenConnections_;
