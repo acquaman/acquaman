@@ -215,7 +215,13 @@ bool SGMXASScanController::beamlineInitialize(){
 	}
 
 	tmpBAction = SGMBeamline::sgm()->synchronizedDwellTime()->createMasterTimeAction(config_->regionTime(0));
-	tmpBAction ? initializationActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
+	tmpBAction ? initializationActions_->appendAction(0, tmpBAction) : initializationFailed = true;
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->nextDwellTimeTrigger());
+	tmpAction->setSetpoint(0);
+	tmpAction ? initializationActions_->appendAction(0, tmpAction) : initializationFailed = true;
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->nextDwellTimeConfirmed());
+	tmpAction->setSetpoint(1);
+	tmpAction ? initializationActions_->appendAction(0, tmpAction) : initializationFailed = true;
 
 	tmpBAction = SGMBeamline::sgm()->scaler()->createStartAction(0);
 	tmpBAction ? initializationActions_->appendAction(0, tmpBAction) : initializationFailed = true;
