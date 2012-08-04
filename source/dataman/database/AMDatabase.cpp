@@ -44,7 +44,8 @@ AMDatabase::AMDatabase(const QString& connectionName, const QString& dbAccessStr
 	qdbMutex_(QMutex::Recursive)
 {
 	QFileInfo accessInfo(dbAccessString_);
-	isReadOnly_ = !accessInfo.isWritable();
+	if(accessInfo.exists())
+		isReadOnly_ = !accessInfo.isWritable();
 	// Make sure the database is initialized in the creating thread:
 	qdb();
 
