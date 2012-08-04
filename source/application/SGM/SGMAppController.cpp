@@ -473,41 +473,46 @@ bool SGMAppController::setupSGMExporterOptions(){
 
 	QList<int> matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "SGMDefault");
 
-	AMExporterOptionGeneralAscii *sgmDefault;
-	// Don't have one called "SGMDefault", so make one. If we have one, retreive it and check it.
-	sgmDefault = new AMExporterOptionGeneralAscii();
-	if(matchIDs.count() != 0)
-		sgmDefault->loadFromDb(dbSGM, matchIDs.at(0));
-	sgmDefault->setName("SGMDefault");
-	sgmDefault->setFileName("$name_$fsIndex.txt");
-	sgmDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\nGrating: $scanConfiguration[grating%enumConvert]\nHarmonic: $scanConfiguration[harmonic%enumConvert]\nExit Slit Gap: $scanConfiguration[exitSlitGap%double%2] um");
-	sgmDefault->setHeaderIncluded(true);
-	sgmDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
-	sgmDefault->setColumnHeaderIncluded(true);
-	sgmDefault->setColumnHeaderDelimiter("==========");
-	sgmDefault->setSectionHeader("");
-	sgmDefault->setSectionHeaderIncluded(true);
-	//sgmDefault->setIncludeAllDataSources(false);
-	if(sgmDefault->dataSources().count() > 0 && sgmDefault->dataSources().at(0) == "EnergyFeedback")
-		sgmDefault->removeDataSourceAt(0);
-	sgmDefault->ensureDataSource("I0", false, AMExporterOptionGeneral::CombineInColumnsMode, false);
-	sgmDefault->ensureDataSource("EnergyFeedback", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-	sgmDefault->ensureDataSource("Photodiode", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-	sgmDefault->ensureDataSource("TEY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-	sgmDefault->ensureDataSource("TFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-	sgmDefault->ensureDataSource("TEYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-	sgmDefault->ensureDataSource("TFYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-	sgmDefault->ensureDataSource("PFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-	sgmDefault->ensureDataSource("IPFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-	sgmDefault->ensureDataSource("SDD", false, AMExporterOptionGeneral::SeparateFilesMode, false);
-	sgmDefault->ensureDataSource("OceanOptics65000", false, AMExporterOptionGeneral::SeparateFilesMode, false);
-	sgmDefault->ensureDataSource("PLY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-	sgmDefault->ensureDataSource("PLYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-	sgmDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.txt");
-	sgmDefault->setIncludeAllDataSources(true);
-	sgmDefault->setFirstColumnOnly(true);
-	sgmDefault->setSeparateHigherDimensionalSources(true);
-	sgmDefault->storeToDb(dbSGM);
+	if(!dbSGM->isReadOnly()){
+		qDebug() << "Checking on the SGM default exporter option cause I can";
+		AMExporterOptionGeneralAscii *sgmDefault;
+		// Don't have one called "SGMDefault", so make one. If we have one, retreive it and check it.
+		sgmDefault = new AMExporterOptionGeneralAscii();
+		if(matchIDs.count() != 0)
+			sgmDefault->loadFromDb(dbSGM, matchIDs.at(0));
+		sgmDefault->setName("SGMDefault");
+		sgmDefault->setFileName("$name_$fsIndex.txt");
+		sgmDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\nGrating: $scanConfiguration[grating%enumConvert]\nHarmonic: $scanConfiguration[harmonic%enumConvert]\nExit Slit Gap: $scanConfiguration[exitSlitGap%double%2] um");
+		sgmDefault->setHeaderIncluded(true);
+		sgmDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
+		sgmDefault->setColumnHeaderIncluded(true);
+		sgmDefault->setColumnHeaderDelimiter("==========");
+		sgmDefault->setSectionHeader("");
+		sgmDefault->setSectionHeaderIncluded(true);
+		//sgmDefault->setIncludeAllDataSources(false);
+		if(sgmDefault->dataSources().count() > 0 && sgmDefault->dataSources().at(0) == "EnergyFeedback")
+			sgmDefault->removeDataSourceAt(0);
+		sgmDefault->ensureDataSource("I0", false, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmDefault->ensureDataSource("EnergyFeedback", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmDefault->ensureDataSource("Photodiode", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmDefault->ensureDataSource("TEY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmDefault->ensureDataSource("TFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmDefault->ensureDataSource("TEYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmDefault->ensureDataSource("TFYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmDefault->ensureDataSource("PFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmDefault->ensureDataSource("IPFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmDefault->ensureDataSource("SDD", false, AMExporterOptionGeneral::SeparateFilesMode, false);
+		sgmDefault->ensureDataSource("OceanOptics65000", false, AMExporterOptionGeneral::SeparateFilesMode, false);
+		sgmDefault->ensureDataSource("PLY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmDefault->ensureDataSource("PLYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.txt");
+		sgmDefault->setIncludeAllDataSources(true);
+		sgmDefault->setFirstColumnOnly(true);
+		sgmDefault->setSeparateHigherDimensionalSources(true);
+		sgmDefault->storeToDb(dbSGM);
+	}
+	else
+		qDebug() << "Leave the SGM Default exporter option alone, I can't write to that database anyways";
 
 	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "SGMDefault");
 
