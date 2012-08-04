@@ -26,26 +26,28 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporter.h"
 #include "dataman/export/AMExporterOption.h"
 
-AMScanConfigurationObjectInfo::AMScanConfigurationObjectInfo(AMScanConfiguration *prototypeScanConfiguration, AMExporter *prototypeExporter, AMExporterOption *prototypeExporterOption, int useExporterOptionId){
-	initWithMetaObject(prototypeScanConfiguration->metaObject(), prototypeExporter->metaObject(), prototypeExporterOption->metaObject(), useExporterOptionId);
+AMScanConfigurationObjectInfo::AMScanConfigurationObjectInfo(AMScanConfiguration *prototypeScanConfiguration, AMExporter *prototypeExporter, AMExporterOption *prototypeExporterOption, int useExporterOptionId, QString useDatabaseName){
+	initWithMetaObject(prototypeScanConfiguration->metaObject(), prototypeExporter->metaObject(), prototypeExporterOption->metaObject(), useExporterOptionId, useDatabaseName);
 }
 
-AMScanConfigurationObjectInfo::AMScanConfigurationObjectInfo(const QMetaObject *useScanConfigurationMetaObject, const QMetaObject *useExporterMetaObject, const QMetaObject *useExporterOptionMetaObject, int useExporterOptionId){
+AMScanConfigurationObjectInfo::AMScanConfigurationObjectInfo(const QMetaObject *useScanConfigurationMetaObject, const QMetaObject *useExporterMetaObject, const QMetaObject *useExporterOptionMetaObject, int useExporterOptionId, QString useDatabaseName){
 	if(inheritsScanConfiguration(useScanConfigurationMetaObject) && inheritsExporter(useExporterMetaObject) && inheritsExporterOption(useExporterOptionMetaObject) && (useExporterOptionId >= 1))
-		initWithMetaObject(useScanConfigurationMetaObject, useExporterMetaObject, useExporterOptionMetaObject, useExporterOptionId);
+		initWithMetaObject(useScanConfigurationMetaObject, useExporterMetaObject, useExporterOptionMetaObject, useExporterOptionId, useDatabaseName);
 	else{
 		scanConfigurationMetaObject = 0;
 		exporterMetaObject = 0;
 		exporterOptionMetaObject = 0;
 		exporterOptionId = 0;
+		databaseName = QString();
 	}
 }
 
-void AMScanConfigurationObjectInfo::initWithMetaObject(const QMetaObject *useScanConfigurationMetaObject, const QMetaObject *useExporterMetaObject, const QMetaObject *useExporterOptionMetaObject, int useExporterOptionId){
+void AMScanConfigurationObjectInfo::initWithMetaObject(const QMetaObject *useScanConfigurationMetaObject, const QMetaObject *useExporterMetaObject, const QMetaObject *useExporterOptionMetaObject, int useExporterOptionId, QString useDatabaseName){
 	scanConfigurationMetaObject = useScanConfigurationMetaObject;
 	exporterMetaObject = useExporterMetaObject;
 	exporterOptionMetaObject = useExporterOptionMetaObject;
 	exporterOptionId = useExporterOptionId;
+	databaseName = useDatabaseName;
 	scanConfigurationClassName = useScanConfigurationMetaObject->className();
 	exporterClassName = useExporterMetaObject->className();
 	exporterOptionClassName = useExporterOptionMetaObject->className();
@@ -114,7 +116,10 @@ namespace AMAppControllerSupport{
 		while( i != registeredClasses_.constEnd()){
 			if(i.value().scanConfigurationClassName == scanConfiguration->getMetaObject()->className()){
 				AMExporterOption *exporterOption = qobject_cast<AMExporterOption*>(i.value().exporterOptionMetaObject->newInstance());
-				if(exporterOption && exporterOption->loadFromDb(AMDatabase::database("user"), i.value().exporterOptionId))
+				QString useAsDatabase = QString();
+				if(!i.value().databaseName.isEmpty())
+					useAsDatabase = i.value().databaseName;
+				if(exporterOption && exporterOption->loadFromDb(AMDatabase::database(useAsDatabase), i.value().exporterOptionId))
 					return exporterOption;
 			}
 
