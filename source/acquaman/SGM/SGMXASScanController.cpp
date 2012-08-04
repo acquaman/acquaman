@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMUser.h"
 #include "dataman/AMSamplePlate.h"
 #include "util/AMErrorMonitor.h"
+#include "beamline/CLS/CLSSynchronizedDwellTime.h"
 
 SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	config_ = cfg;
@@ -167,6 +168,14 @@ bool SGMXASScanController::beamlineInitialize(){
 	tmpBAction = SGMBeamline::sgm()->scaler()->createTotalScansAction(SGMBeamline::sgm()->scaler()->isContinuous() ? 1 : SGMBeamline::sgm()->scaler()->totalScans());
 	tmpBAction ? cleanUpActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
 
+	for(int x = 0; x < SGMBeamline::sgm()->synchronizedDwellTime()->elementCount(); x++){
+		tmpBAction = SGMBeamline::sgm()->synchronizedDwellTime()->elementAt(x)->createEnableAction(SGMBeamline::sgm()->synchronizedDwellTime()->enabledAt(x));
+		tmpBAction ? cleanUpActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
+	}
+
+	tmpBAction = SGMBeamline::sgm()->synchronizedDwellTime()->createMasterTimeAction(SGMBeamline::sgm()->synchronizedDwellTime()->time());
+	tmpBAction ? cleanUpActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
+
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->fastShutterVoltage());
 	tmpAction->setSetpoint(SGMBeamline::sgm()->fastShutterVoltage()->value());
 	cleanUpActions_->appendAction(0, tmpAction);
@@ -186,15 +195,27 @@ bool SGMXASScanController::beamlineInitialize(){
 	tmpAction->setSetpoint(config_->fluxResolutionGroup().controlNamed(SGMBeamline::sgm()->exitSlitGap()->name()).value());
 	initializationActions_->appendAction(0, tmpAction);
 
+	bool enableSync = false;
 	for(int x = 0; x < config_->allDetectors()->count(); x++){
 		if(config_->allDetectorConfigurations().isActiveAt(x)){
+			enableSync = true;
 			config_->allDetectors()->detectorAt(x)->activate();
 			if(config_->allDetectors()->detectorAt(x)->turnOnAction()){
 //				qdebug() << "Adding HV turn on to initialization actions";
 				initializationActions_->appendAction(0, config_->allDetectors()->detectorAt(x)->turnOnAction());
 			}
 		}
+		else
+			enableSync = false;
+		int syncIndex = SGMBeamline::sgm()->synchronizedDwellTimeDetectorIndex(config_->allDetectors()->detectorAt(x));
+		if( (syncIndex > 1) && (SGMBeamline::sgm()->synchronizedDwellTime()->enabledAt(syncIndex) != enableSync) ){
+			tmpBAction = SGMBeamline::sgm()->synchronizedDwellTime()->elementAt(syncIndex)->createEnableAction(enableSync);
+			tmpBAction ? initializationActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
+		}
 	}
+
+	tmpBAction = SGMBeamline::sgm()->synchronizedDwellTime()->createMasterTimeAction(config_->regionTime(0));
+	tmpBAction ? initializationActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
 
 	tmpBAction = SGMBeamline::sgm()->scaler()->createStartAction(0);
 	tmpBAction ? initializationActions_->appendAction(0, tmpBAction) : initializationFailed = true;

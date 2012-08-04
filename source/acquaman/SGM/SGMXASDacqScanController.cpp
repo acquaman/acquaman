@@ -47,6 +47,8 @@ void SGMXASDacqScanController::onDacqStop(){
 
 void SGMXASDacqScanController::onDwellTimeTriggerChanged(double newValue){
 	if( fabs(newValue - 1.0) < 0.1 ){
+
+		/*
 		int curDwell = ceil(SGMBeamline::sgm()->synchronizedDwellTime()->time());
 		switch(curDwell){
 		case 1:
@@ -59,7 +61,10 @@ void SGMXASDacqScanController::onDwellTimeTriggerChanged(double newValue){
 			SGMBeamline::sgm()->synchronizedDwellTime()->setTime(1);
 			break;
 		}
+		*/
 
+		SGMBeamline::sgm()->synchronizedDwellTime()->setTime(config_->regionTime(currentRegionIndex_));
+		currentRegionIndex_++;
 		dwellTimeTrigger_->move(0);
 		dwellTimeConfirmed_->move(1);
 	}
@@ -134,20 +139,27 @@ bool SGMXASDacqScanController::startImplementation(){
 				"Error, SGM XAS DACQ Scan Controller failed to start (SGM is already scanning). Please report this bug to the Acquaman developers."));
 		return false;
 	}
+
+	currentRegionIndex_ = 0;
+
 	bool loadSuccess = false;
 
 	QStringList sgmBeginStage, sgmMoveStage, sgmFinishStage;
 	sgmBeginStage << QString("%1||=||%2||=||%3").arg("SetPV").arg("BL1611-ID-1:scanning").arg("1");
+	sgmBeginStage << QString("%1||=||%2||=||%3").arg("SetPV").arg("BL1611-ID-1:Dwell:setMode").arg("1");
 	sgmMoveStage << QString("%1||=||%2||=||%3").arg("WaitPV").arg("BL1611-ID-1:ready").arg("STOPPED");
 	sgmFinishStage << QString("%1||=||%2||=||%3").arg("SetPV").arg("BL1611-ID-1:scanning").arg("0");
 
-	QStringList scalerDwellStage;
-	scalerDwellStage << QString("%1||=||%2||=||%3").arg("SetPV").arg("BL1611-ID-1:mcs:startScan").arg("1");
+	//QStringList scalerDwellStage;
+	//scalerDwellStage << QString("%1||=||%2||=||%3").arg("SetPV").arg("BL1611-ID-1:mcs:startScan").arg("1");
+	QStringList synchronizedDwellStage;
+	synchronizedDwellStage << QString("%1||=||%2||=||%3").arg("SetPV").arg("BL1611-ID-1:dwell:startScan").arg("1");
 
 	QStringList allBeginStage, allMoveStage, allDwellStage, allFinishStage;
 	allBeginStage.append(sgmBeginStage);
 	allMoveStage.append(sgmMoveStage);
-	allDwellStage.append(scalerDwellStage);
+	//allDwellStage.append(scalerDwellStage);
+	allDwellStage.append(synchronizedDwellStage);
 	allFinishStage.append(sgmFinishStage);
 
 	for(int i = 0; i < config_->allDetectorConfigurations().count(); i++){
@@ -205,6 +217,10 @@ bool SGMXASDacqScanController::startImplementation(){
 		dacqConfigFile.append(QString("\"%1\" ").arg(allFinishStage.at(x).section("||=||", 1, 1)));
 		dacqConfigFile.append(QString("\"%1\"\n").arg(allFinishStage.at(x).section("||=||", 2, 2)));
 	}
+	dacqConfigFile.append("# Action StartPass SetPV \"BL1611-ID-1:AddOns:confirmed:dwellTime\" \"0\"\n");
+	dacqConfigFile.append("# Action StartPass SetPV \"BL1611-ID-1:AddOns:trigger:dwellTime\" \"1\"\n");
+	dacqConfigFile.append("# Action StartPass Delay 0.5\n");
+	dacqConfigFile.append("# Action StartPass WaitPV \"BL1611-ID-1:AddOns:confirmed:dwellTime\" \"1\"\n");
 	dacqConfigFile.append("# Event \"read\" 1\n");
 	dacqConfigFile.append("# datastream columns: eventID, absolute/relative time stamps\n");
 	dacqConfigFile.append("# eventID:1 AbsTime:0 Rel0Time:0 relPTime:0\n");

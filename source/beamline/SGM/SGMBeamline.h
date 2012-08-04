@@ -194,10 +194,14 @@ public:
 	AMControl *mirrorStripeSelectSilicon() const { return mirrorStripeSelectSilicon_;}
 	/// Returns the undulator offset control (for detuning)
 	AMControl *undulatorOffset() const { return undulatorOffset_;}
+	/// Returns the master dwell time for the synchronized dwell time application
+	AMControl *masterDwell() const { return masterDwell_;}
 	CLSCAEN2527HVChannel* hvChannel106() const { return hvChannel106_;}
 	CLSCAEN2527HVChannel* hvChannel109() const { return hvChannel109_;}
 	CLSPGT8000HVChannel* hvChannelPGT() const { return hvChannelPGT_;}
+
 	CLSSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_;}
+	int synchronizedDwellTimeDetectorIndex(AMDetector *detector) const;
 
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
@@ -390,6 +394,8 @@ protected:
 	AMControl *mirrorStripeSelectSilicon_;
 	/// Control for detuning the undulator
 	AMControl *undulatorOffset_;
+	/// Control for the synchronized dwell time master dwell value
+	AMControl *masterDwell_;
 
 	AMDetector *teyScalerDetector_;
 	AMDetector *tfyScalerDetector_;

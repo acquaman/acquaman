@@ -76,7 +76,7 @@ QString CLSOceanOptics65000Detector::dacqName() const{
 
 QStringList CLSOceanOptics65000Detector::dacqDwell() const{
 	QStringList retVal;
-	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":Acquire").arg("1");
+//	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":Acquire").arg("1");
 	return retVal;
 }
 
