@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
 #include "actions/AMBeamlineParallelActionsList.h"
+#include "util/VESPERS/VESPERSConfigurationFileBuilder.h"
 
 #include <QDir>
 
@@ -646,8 +647,14 @@ QString VESPERSEXAFSDacqScanController::getHomeDirectory()
 
 bool VESPERSEXAFSDacqScanController::setupTransmissionXAS()
 {
+	VESPERSConfigurationFileBuilder builder;
+	builder.setDimensions(1);
+	builder.setPvNameAxis1("07B2_Mono_SineB_delE");
+	builder.buildConfigurationFile();
+
 	bool loadSuccess = false;
 
+//	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/XANES.cfg"));
 
 	if(!loadSuccess){
@@ -656,6 +663,9 @@ bool VESPERSEXAFSDacqScanController::setupTransmissionXAS()
 				"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers.");
 		return false;
 	}
+
+	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
+	while (advAcq_->deleteRecord(1)){}
 
 	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
@@ -678,8 +688,15 @@ bool VESPERSEXAFSDacqScanController::setupTransmissionXAS()
 
 bool VESPERSEXAFSDacqScanController::setupSingleElementXAS()
 {
+	VESPERSConfigurationFileBuilder builder;
+	builder.setDimensions(1);
+	builder.setPvNameAxis1("07B2_Mono_SineB_delE");
+	builder.setSingleElement(true);
+	builder.buildConfigurationFile();
+
 	bool loadSuccess = false;
 
+//	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/XANES-1Elem.cfg"));
 
 	if(!loadSuccess){
@@ -730,8 +747,15 @@ bool VESPERSEXAFSDacqScanController::setupSingleElementXAS()
 
 bool VESPERSEXAFSDacqScanController::setupFourElementXAS()
 {
+	VESPERSConfigurationFileBuilder builder;
+	builder.setDimensions(1);
+	builder.setPvNameAxis1("07B2_Mono_SineB_delE");
+	builder.setFourElement(true);
+	builder.buildConfigurationFile();
+
 	bool loadSuccess = false;
 
+//	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/XANES-4Elem.cfg"));
 
 	if(!loadSuccess){

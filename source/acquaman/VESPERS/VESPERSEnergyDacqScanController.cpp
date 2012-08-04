@@ -4,6 +4,7 @@
 #include "actions/AMBeamlineActionsList.h"
 #include "dataman/AMUser.h"
 #include "actions/AMBeamlineParallelActionsList.h"
+#include "util/VESPERS/VESPERSConfigurationFileBuilder.h"
 
 #include <QDir>
 
@@ -117,67 +118,69 @@ bool VESPERSEnergyDacqScanController::initializeImplementation()
 		Third: Make sure the relative energy postion is back to zero and move the sample stage to the correct location (if enabled).
 		Fourth: Move the mono to the correct energy.
 	 */
-	AMBeamlineParallelActionsList *setupXASActionsList = new AMBeamlineParallelActionsList;
+//	AMBeamlineParallelActionsList *setupXASActionsList = new AMBeamlineParallelActionsList;
 
-	if (!setupXASAction_)
-		onInitializationActionFinished();
+//	if (!setupXASAction_)
+//		onInitializationActionFinished();
 
-	setupXASAction_ = new AMBeamlineListAction(setupXASActionsList);
+//	setupXASAction_ = new AMBeamlineListAction(setupXASActionsList);
 
-	// First stage.
-	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	// Scalar
-	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(0)->createEnableAction(true));
-	// Single element vortex
-	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(false));
-	// CCD
-	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(true));
-	// Picoammeters
-	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
-	// Four element vortex
-	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
+//	// First stage.
+//	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+//	// Scalar
+//	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(0)->createEnableAction(true));
+//	// Single element vortex
+//	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(false));
+//	// CCD
+//	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(true));
+//	// Picoammeters
+//	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
+//	// Four element vortex
+//	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
 
-	// Second stage.
-	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createStartAction(false));
-	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createScansPerBufferAction(1));
-	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createTotalScansAction(1));
-	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::SingleShot));
-	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(config_->regionTime(0)));
+//	// Second stage.
+//	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+//	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createStartAction(false));
+//	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createScansPerBufferAction(1));
+//	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createTotalScansAction(1));
+//	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::SingleShot));
+//	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(config_->regionTime(0)));
 
-	// Third stage.
-	if (config_->goToPosition() && VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
+//	// Third stage.
+//	if (config_->goToPosition() && VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
 
-		setupXASActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(config_->x()));
-		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(config_->y()));
-	}
+//		setupXASActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+//		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(config_->x()));
+//		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(config_->y()));
+//	}
 
-	else if (config_->goToPosition() && !VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
+//	else if (config_->goToPosition() && !VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
 
-		setupXASActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->realSampleStage()->createHorizontalMoveAction(config_->x()));
-		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->realSampleStage()->createVerticalMoveAction(config_->y()));
-	}
+//		setupXASActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+//		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->realSampleStage()->createHorizontalMoveAction(config_->x()));
+//		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->realSampleStage()->createVerticalMoveAction(config_->y()));
+//	}
 
-	// Integrity check.  Make sure no actions are null.
-	for (int i = 0; i < setupXASActionsList->stageCount(); i++){
+//	// Integrity check.  Make sure no actions are null.
+//	for (int i = 0; i < setupXASActionsList->stageCount(); i++){
 
-		for (int j = 0; j < setupXASActionsList->stage(i)->size(); j++){
+//		for (int j = 0; j < setupXASActionsList->stage(i)->size(); j++){
 
-			if (setupXASActionsList->action(i, j) == 0){
+//			if (setupXASActionsList->action(i, j) == 0){
 
-				onInitializationActionsFailed(0);
-				return false;
-			}
-		}
-	}
+//				onInitializationActionsFailed(0);
+//				return false;
+//			}
+//		}
+//	}
 
-	connect(setupXASAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
-	connect(setupXASAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
-	connect(setupXASAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
-	setupXASAction_->start();
+//	connect(setupXASAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
+//	connect(setupXASAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
+//	connect(setupXASAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
+//	setupXASAction_->start();
 
+//	return true;
+	setInitialized();
 	return true;
 }
 
@@ -252,8 +255,8 @@ bool VESPERSEnergyDacqScanController::startImplementation()
 		}
 	}
 //	advAcq_->saveConfigFile("/home/hunterd/Desktop/writeTest.cfg");
-
-	return AMDacqScanController::startImplementation();
+return false;
+//	return AMDacqScanController::startImplementation();
 }
 
 void VESPERSEnergyDacqScanController::cleanup()
@@ -354,8 +357,15 @@ QString VESPERSEnergyDacqScanController::getHomeDirectory()
 
 bool VESPERSEnergyDacqScanController::setupRoperScan()
 {
+	VESPERSConfigurationFileBuilder builder;
+	builder.setDimensions(1);
+	builder.setRoperCCD(true);
+	builder.setPvNameAxis1("07B2_Mono_SineB_Ea");
+	builder.buildConfigurationFile();
+
 	bool loadSuccess = false;
 
+//	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/EnergyScan-Roper.cfg"));
 
 	if(!loadSuccess){

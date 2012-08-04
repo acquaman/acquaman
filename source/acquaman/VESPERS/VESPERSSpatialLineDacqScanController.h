@@ -74,10 +74,8 @@ protected:
 	/// Pointer to the VESPERSSpatialLineScanConfiguration this scan controls.
 	VESPERSSpatialLineScanConfiguration *config_;
 
-	/// Holds the x-axis PV name.
-	QString xAxisPVName_;
-	/// Holds the y-axis PV name.
-	QString yAxisPVName_;
+	/// Holds the PV name.
+	QString pvName_;
 
 	/// Action that contains all of the initialization actions for the controller.
 	AMBeamlineListAction *initializationActions_;

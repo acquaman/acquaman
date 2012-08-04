@@ -40,6 +40,16 @@ REIXSXASScanConfiguration::REIXSXASScanConfiguration(const REIXSXASScanConfigura
 	scanNumber_ = other.scanNumber_;
 	sampleId_ = other.sampleId_;
 	namedAutomatically_ = other.namedAutomatically_;
+
+	slitWidth_ = other.slitWidth_;
+	applySlitWidth_ = other.applySlitWidth_;
+	monoGrating_ = other.monoGrating_;
+	applyMonoGrating_ = other.applyMonoGrating_;
+	monoMirror_ = other.monoMirror_;
+	applyMonoMirror_ = other.applyMonoMirror_;
+	polarization_ = other.polarization_;
+	polarizationAngle_ = other.polarizationAngle_;
+	applyPolarization_ = other.applyPolarization_;
 	////////////////////////
 }
 
