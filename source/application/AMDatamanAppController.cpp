@@ -96,6 +96,7 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	isStarting_ = true;
 	isShuttingDown_ = false;
 
+	isBadDatabaseDirectory_ = false;
 	finishedSender_ = 0;
 	resetFinishedSignal(this, SIGNAL(datamanStartupFinished()));
 
@@ -180,6 +181,11 @@ bool AMDatamanAppController::startupLoadSettings()
 	// Load settings from disk:
 	AMSettings::s()->load();
 	AMUserSettings::load();
+
+	qDebug() << "Comparing directories " << AMUserSettings::userDataFolder << " versus " << QDir::homePath();
+	if(AMUserSettings::userDataFolder == QDir::homePath())
+		isBadDatabaseDirectory_ = true;
+
 	return true;
 }
 

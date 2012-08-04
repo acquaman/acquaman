@@ -338,6 +338,9 @@ protected:
 	/// Holds a list of additional databases to look in for export options (the "user" database will always be searched")
 	QStringList additionalExporterOptionsDatabases_;
 
+	/// Holds a boolean that may be set to warn about poor choices for database directory
+	bool isBadDatabaseDirectory_;
+
 private:
 	/// Holds the QObject whose signal is currently being used to connect to the onStartupFinished slot
 	QObject *finishedSender_;
