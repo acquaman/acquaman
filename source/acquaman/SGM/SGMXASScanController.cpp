@@ -212,6 +212,7 @@ bool SGMXASScanController::beamlineInitialize(){
 		}
 		else
 			enableSync = false;
+
 		int syncIndex = SGMBeamline::sgm()->synchronizedDwellTimeDetectorIndex(config_->allDetectors()->detectorAt(x));
 		if( (syncIndex > 1) && (SGMBeamline::sgm()->synchronizedDwellTime()->enabledAt(syncIndex) != enableSync) ){
 			tmpBAction = SGMBeamline::sgm()->synchronizedDwellTime()->elementAt(syncIndex)->createEnableAction(enableSync);

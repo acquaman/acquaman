@@ -12,3 +12,5 @@ RESOURCES += \
 
 SOURCES += \
 	source/application/SGM/SGMMain.cpp
+
+

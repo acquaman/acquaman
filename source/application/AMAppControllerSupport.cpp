@@ -47,7 +47,10 @@ void AMScanConfigurationObjectInfo::initWithMetaObject(const QMetaObject *useSca
 	exporterMetaObject = useExporterMetaObject;
 	exporterOptionMetaObject = useExporterOptionMetaObject;
 	exporterOptionId = useExporterOptionId;
-	databaseName = useDatabaseName;
+	if (useDatabaseName.isEmpty())
+		databaseName = "user";
+	else
+		databaseName = useDatabaseName;
 	scanConfigurationClassName = useScanConfigurationMetaObject->className();
 	exporterClassName = useExporterMetaObject->className();
 	exporterOptionClassName = useExporterOptionMetaObject->className();
