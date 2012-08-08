@@ -862,6 +862,38 @@ QString SGMBeamline::currentEndstation() const{
 		return sgmEndstationName((SGMBeamline::sgmEndstation)272727);
 }
 
+bool SGMBeamline::isSDD1Enabled() const{
+	if(amptekSDD1_->isConnected()){
+		CLSAmptekSDD123Detector *sddAsAmptek = (CLSAmptekSDD123Detector*)(amptekSDD1_);
+		return sddAsAmptek->isEnabled();
+	}
+	return false;
+}
+
+AMBeamlineActionItem* SGMBeamline::createSDD1EnableAction(bool setEnabled){
+	if(amptekSDD1_->isConnected()){
+		CLSAmptekSDD123Detector *sddAsAmptek = (CLSAmptekSDD123Detector*)(amptekSDD1_);
+		return sddAsAmptek->createEnableAction(setEnabled);
+	}
+	return 0;
+}
+
+bool SGMBeamline::isSDD2Enabled() const{
+	if(amptekSDD2_->isConnected()){
+		CLSAmptekSDD123Detector *sddAsAmptek = (CLSAmptekSDD123Detector*)(amptekSDD2_);
+		return sddAsAmptek->isEnabled();
+	}
+	return false;
+}
+
+AMBeamlineActionItem* SGMBeamline::createSDD2EnableAction(bool setEnabled){
+	if(amptekSDD2_->isConnected()){
+		CLSAmptekSDD123Detector *sddAsAmptek = (CLSAmptekSDD123Detector*)(amptekSDD2_);
+		return sddAsAmptek->createEnableAction(setEnabled);
+	}
+	return 0;
+}
+
 int SGMBeamline::synchronizedDwellTimeDetectorIndex(AMDetector *detector) const{
 	if(detector == pgtDetector_)
 		return 2;

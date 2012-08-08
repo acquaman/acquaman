@@ -23,6 +23,9 @@ protected slots:
 	/// Handles changes from the all:parameters:PresetTime control
 	void onAmptekAllPresetTimeControlChanged(double presetTime);
 
+	/// Handles any changes to individual spectrum acquistion state controls to coordinate the master control
+	void onAmptekSpectrumStateControlsChanged(double spectrumState);
+
 protected:
 	/// Control for coordinating all of the amptek initializations
 	AMControl *AmptekAllInitializeControl_;
@@ -32,6 +35,9 @@ protected:
 	AMControl *AmptekAllSpectrumClearControl_;
 	/// Control for coordinating all of the amptek preset times
 	AMControl *AmptekAllPresetTimeControl_;
+	/// Control for coordinating all of the amptek spectrum acquisition states
+	AMControl *AmptekAllSpectrumStateControl_;
+
 	/// Read only control for state of amptek sdd1 availability
 	AMControl *AmptekSDD1IsAvailableControl_;
 	/// Read only control for state of amptek sdd2 availability
@@ -40,6 +46,23 @@ protected:
 	AMControl *AmptekSDD3IsAvailableControl_;
 	/// Read only control for state of amptek sdd4 availability
 	AMControl *AmptekSDD4IsAvailableControl_;
+	/// Read only control for the state of amptek sdd1 requested status
+	AMControl *AmptekSDD1IsRequestedControl_;
+	/// Read only control for the state of amptek sdd2 requested status
+	AMControl *AmptekSDD2IsRequestedControl_;
+	/// Read only control for the state of amptek sdd3 requested status
+	AMControl *AmptekSDD3IsRequestedControl_;
+	/// Read only control for the state of amptek sdd4 requested status
+	AMControl *AmptekSDD4IsRequestedControl_;
+	/// Read only control for the spectrum acquisition state of sdd1
+	AMControl *AmptekSDD1SpectrumStateControl_;
+	/// Read only control for the spectrum acquisition state of sdd2
+	AMControl *AmptekSDD2SpectrumStateControl_;
+	/// Read only control for the spectrum acquisition state of sdd3
+	AMControl *AmptekSDD3SpectrumStateControl_;
+	/// Read only control for the spectrum acquisition state of sdd4
+	AMControl *AmptekSDD4SpectrumStateControl_;
+
 	/// Control for initializing amptek sdd1
 	AMControl *AmptekSDD1InitializeControl_;
 	/// Control for initializing amptek sdd2

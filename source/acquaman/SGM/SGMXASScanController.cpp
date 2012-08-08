@@ -173,6 +173,11 @@ bool SGMXASScanController::beamlineInitialize(){
 		tmpBAction ? cleanUpActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
 	}
 
+	tmpBAction = SGMBeamline::sgm()->createSDD1EnableAction(SGMBeamline::sgm()->isSDD1Enabled());
+	tmpBAction ? cleanUpActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
+	tmpBAction = SGMBeamline::sgm()->createSDD2EnableAction(SGMBeamline::sgm()->isSDD2Enabled());
+	tmpBAction ? cleanUpActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
+
 	tmpBAction = SGMBeamline::sgm()->synchronizedDwellTime()->createMasterTimeAction(SGMBeamline::sgm()->synchronizedDwellTime()->time());
 	tmpBAction ? cleanUpActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
 
@@ -213,6 +218,17 @@ bool SGMXASScanController::beamlineInitialize(){
 			tmpBAction ? initializationActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
 		}
 	}
+
+	if(config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->amptekSDD1()->detectorName()))
+		tmpBAction = SGMBeamline::sgm()->createSDD1EnableAction(true);
+	else
+		tmpBAction = SGMBeamline::sgm()->createSDD1EnableAction(false);
+	tmpBAction ? initializationActions_->appendAction(0, tmpBAction) : initializationFailed = true;
+	if(config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->amptekSDD2()->detectorName()))
+		tmpBAction = SGMBeamline::sgm()->createSDD2EnableAction(true);
+	else
+		tmpBAction = SGMBeamline::sgm()->createSDD2EnableAction(false);
+	tmpBAction ? initializationActions_->appendAction(0, tmpBAction) : initializationFailed = true;
 
 	tmpBAction = SGMBeamline::sgm()->synchronizedDwellTime()->createMasterTimeAction(config_->regionTime(0));
 	tmpBAction ? initializationActions_->appendAction(0, tmpBAction) : initializationFailed = true;
