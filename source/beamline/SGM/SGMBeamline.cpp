@@ -236,6 +236,7 @@ void SGMBeamline::usingSGMBeamline(){
 	synchronizedDwellTime_->addElement(1);
 	synchronizedDwellTime_->addElement(2);
 	synchronizedDwellTime_->addElement(3);
+	synchronizedDwellTime_->addElement(4);
 
 	sgmPVName = amNames2pvNames_.valueF("pgtHV");
 	pgtHV_ = new AMPVControl("pgtHV", sgmPVName+"Actual:fbk", sgmPVName, QString(), this, 0.5);
@@ -867,6 +868,8 @@ int SGMBeamline::synchronizedDwellTimeDetectorIndex(AMDetector *detector) const{
 		return 2;
 	else if(detector == oos65000Detector_)
 		return 3;
+	else if((detector == amptekSDD1_) || (detector == amptekSDD2_) )
+		return 4;
 	else
 		return -1;
 }
