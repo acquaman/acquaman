@@ -65,6 +65,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/SGM/SGMDbUpgrade1Pt1.h"
 
+#include "ui/SGM/SGMPeriodicTableView.h"
+
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
 {
@@ -1126,6 +1128,9 @@ bool SGMAppController::setupSGMViews(){
 
 	sgmSidebar_ = new SGMSidebar();
 	mw_->addRightWidget(sgmSidebar_);
+
+	//SGMPeriodicTableView *sgmPeriodicTableView = new SGMPeriodicTableView(SGMPeriodicTable::sgmTable());
+	//sgmPeriodicTableView->show();
 
 	return true;
 }

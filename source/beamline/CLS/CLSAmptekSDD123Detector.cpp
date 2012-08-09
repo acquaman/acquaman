@@ -86,7 +86,7 @@ QStringList CLSAmptekSDD123Detector::dacqMove() const{
 
 QStringList CLSAmptekSDD123Detector::dacqDwell() const{
 	QStringList retVal;
-	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":spectrum:startAcquisition").arg("1");
+	//retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":spectrum:startAcquisition").arg("1");
 	return retVal;
 }
 
