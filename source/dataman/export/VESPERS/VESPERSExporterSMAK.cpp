@@ -291,12 +291,15 @@ bool VESPERSExporterSMAK::writeSeparateFiles(const QString &destinationFolderPat
 
 			++index;
 			in >> currentLine;
-			splitLine = currentLine.split(",");
-			sum << QString("%1\t").arg(index) % QStringList(splitLine.mid(0, 2048)).join("\t") % "\n";
-			raw1 << QString("%1\t").arg(index) % QStringList(splitLine.mid(2048, 2048)).join("\t") % "\n";
-			raw2 << QString("%1\t").arg(index) % QStringList(splitLine.mid(4096, 2048)).join("\t") % "\n";
-			raw3 << QString("%1\t").arg(index) % QStringList(splitLine.mid(6144, 2048)).join("\t") % "\n";
-			raw4 << QString("%1\t").arg(index) % QStringList(splitLine.mid(8192, 2048)).join("\t") % "\n";
+			if (!currentLine.isEmpty()){
+
+				splitLine = currentLine.split(",");
+				sum << QString("%1\t").arg(index) % QStringList(splitLine.mid(0, 2048)).join("\t") % "\n";
+				raw1 << QString("%1\t").arg(index) % QStringList(splitLine.mid(2048, 2048)).join("\t") % "\n";
+				raw2 << QString("%1\t").arg(index) % QStringList(splitLine.mid(4096, 2048)).join("\t") % "\n";
+				raw3 << QString("%1\t").arg(index) % QStringList(splitLine.mid(6144, 2048)).join("\t") % "\n";
+				raw4 << QString("%1\t").arg(index) % QStringList(splitLine.mid(8192, 2048)).join("\t") % "\n";
+			}
 		}
 
 		input.close();
