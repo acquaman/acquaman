@@ -63,6 +63,7 @@ CLSAmptekSDD123Detector::CLSAmptekSDD123Detector(const QString &name, const QStr
 	connect(detectorTemperatureControl_, SIGNAL(valueChanged(double)), this, SLOT(setDetectorTemperature(double)));
 	connect(detectorTemperatureControl_, SIGNAL(valueChanged(double)), this, SIGNAL(detectorTemperatureChanged(double)));
 	connect(binnedSpectrumControl_, SIGNAL(valueChanged(double)), this, SIGNAL(totalCountsChanged(double)));
+	connect(isRequestedControl_, SIGNAL(valueChanged(double)), this, SLOT(onEnabledChanged(double)));
 }
 
 CLSAmptekSDD123Detector::~CLSAmptekSDD123Detector()
@@ -208,4 +209,12 @@ void CLSAmptekSDD123Detector::onStatusChanged(double status){
 		emit statusChanged(true);
 	else
 		emit statusChanged(false);
+}
+
+void CLSAmptekSDD123Detector::onEnabledChanged(double enabled){
+	Q_UNUSED(enabled)
+	if(isRequestedControl_->withinTolerance(1))
+		emit enabledChanged(true);
+	else
+		emit enabledChanged(false);
 }

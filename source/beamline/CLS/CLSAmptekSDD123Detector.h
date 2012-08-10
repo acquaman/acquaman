@@ -128,6 +128,8 @@ signals:
 	void mcaChannelsChanged(double);
 	/// Notifies that the total counts in the spectrum has changed
 	void totalCountsChanged(double);
+	/// Notifies that the enabled state changed
+	void enabledChanged(bool);
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
@@ -136,6 +138,8 @@ protected slots:
 	void onControlsTimedOut();
 	/// Emits the statusChanged signal.
 	void onStatusChanged(double status);
+	/// Emits the enabledChanged signal
+	void onEnabledChanged(double enabled);
 
 protected:
 	/// Bool handling whether the detector was connected.

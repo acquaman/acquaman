@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QDoubleSpinBox>
 #include <QPushButton>
+#include <QCheckBox>
 
 /// This class builds a very brief view for the Amptek SDD 123 detector. Its primary function is to show that the detector is working.
 class CLSAmptekSDD123BriefDetectorView : public AMBriefDetectorView
@@ -108,6 +109,8 @@ protected:
 	QLabel *mcaChannelLabel_;
 	/// The start acquisition button
 	QPushButton *startAcquisitionButton_;
+	/// The enabled indicator
+	QCheckBox *enabledCheckBox_;
 
 	/// This is the plot widget that holds the plot used for viewing the spectra.
 	MPlotWidget *view_;
