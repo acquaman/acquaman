@@ -70,6 +70,11 @@ protected slots:
 	void onFPD3CheckBoxToggled(bool toggled);
 	void onFPD4CheckBoxToggled(bool toggled);
 
+	void onMinSpinBoxEditingFinished();
+	void onMaxSpinBoxEditingFinished();
+	void onAutoScaleCheckBoxToggled(bool toggled);
+	void onLogCheckBoxToggled(bool toggled);
+
 	void onBeamlineWarnings(const QString &newWarnings);
 
 protected:
@@ -96,8 +101,14 @@ protected:
 	QLabel *beamlineWarningsLabel_;
 
 	QCheckBox *i0CheckBox_, *teyCheckBox_, *tfyCheckBox_, *pdCheckBox_, *fpd1CheckBox_, *fpd2CheckBox_, *fpd3CheckBox_, *fpd4CheckBox_;
+	QCheckBox *autoScaleCheckBox_, *logCheckBox_;
+	QLabel *minLabel_, *maxLabel_;
+	QDoubleSpinBox *minSpinBox_, *maxSpinBox_;
 
 	QVBoxLayout *plotLayout_;
+
+	int plotLeftAxisMinimum_;
+	int plotLeftAxisMaximum_;
 
 	/// UI components:
 	MPlotWidget* imageView_;
