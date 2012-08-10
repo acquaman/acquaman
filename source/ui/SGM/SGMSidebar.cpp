@@ -129,20 +129,24 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	checkBoxHL1->addWidget(teyCheckBox_);
 	checkBoxHL1->addWidget(tfyCheckBox_);
 	checkBoxHL1->addWidget(pdCheckBox_);
+	checkBoxHL1->setContentsMargins(0, 0, 0, 0);
 
 	QHBoxLayout *checkBoxHL2 = new QHBoxLayout();
 	checkBoxHL2->addWidget(fpd1CheckBox_);
 	checkBoxHL2->addWidget(fpd2CheckBox_);
 	checkBoxHL2->addWidget(fpd3CheckBox_);
 	checkBoxHL2->addWidget(fpd4CheckBox_);
+	checkBoxHL2->setContentsMargins(0, 0, 0, 0);
 
 	QVBoxLayout *checkBoxVL = new QVBoxLayout();
 	checkBoxVL->addLayout(checkBoxHL1);
 	checkBoxVL->addLayout(checkBoxHL2);
+	checkBoxVL->setContentsMargins(1, 1, 1, 1);
 
 	plotLayout_ = new QVBoxLayout();
 	plotLayout_->addWidget(imageView_);
 	plotLayout_->addLayout(checkBoxVL);
+	plotLayout_->setContentsMargins(1, 1, 1, 1);
 
 	// ATTENTION DAVE: New special axis scale on bottom of strip tool plot:
 	stripToolSpecialAxisScale_ = new MPlotAxisScale(Qt::Horizontal);
