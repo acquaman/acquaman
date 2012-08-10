@@ -202,7 +202,15 @@ bool SGMXASScanController::beamlineInitialize(){
 
 	bool enableSync = false;
 	for(int x = 0; x < config_->allDetectors()->count(); x++){
-		if(config_->allDetectorConfigurations().isActiveAt(x)){
+		if( (config_->allDetectors()->detectorAt(x) == SGMBeamline::sgm()->amptekSDD1()) || (config_->allDetectors()->detectorAt(x) == SGMBeamline::sgm()->amptekSDD2()) ){
+			if(config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->amptekSDD1()->detectorName()) != config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->amptekSDD2()->detectorName()))
+				enableSync = true;
+			else if(config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->amptekSDD1()->detectorName()))
+				enableSync = true;
+			else
+				enableSync = false;
+		}
+		else if(config_->allDetectorConfigurations().isActiveAt(x)){
 			enableSync = true;
 			config_->allDetectors()->detectorAt(x)->activate();
 			if(config_->allDetectors()->detectorAt(x)->turnOnAction()){
@@ -212,7 +220,6 @@ bool SGMXASScanController::beamlineInitialize(){
 		}
 		else
 			enableSync = false;
-
 		int syncIndex = SGMBeamline::sgm()->synchronizedDwellTimeDetectorIndex(config_->allDetectors()->detectorAt(x));
 		if( (syncIndex > 1) && (SGMBeamline::sgm()->synchronizedDwellTime()->enabledAt(syncIndex) != enableSync) ){
 			tmpBAction = SGMBeamline::sgm()->synchronizedDwellTime()->elementAt(syncIndex)->createEnableAction(enableSync);
