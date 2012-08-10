@@ -158,7 +158,11 @@ public:
 	AMDetector* filterPD3ScalarDetector() const { return filterPD3ScalarDetector_;}
 	AMDetector* filterPD4ScalarDetector() const { return filterPD4ScalarDetector_;}
 	AMDetector* amptekSDD1() const { return amptekSDD1_;}
+	bool isSDD1Enabled() const;
+	AMBeamlineActionItem* createSDD1EnableAction(bool setEnabled);
 	AMDetector* amptekSDD2() const { return amptekSDD2_;}
+	bool isSDD2Enabled() const;
+	AMBeamlineActionItem* createSDD2EnableAction(bool setEnabled);
 
 	AMControl* loadlockCCG() const { return loadlockCCG_;}
 	AMControl* loadlockTCG() const { return loadlockTCG_;}

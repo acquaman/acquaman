@@ -64,6 +64,9 @@ public:
 	/// Holds whether the detector was connected previously.  Primarily useful at startup.
 	bool wasConnected() const;
 
+	/// Holds whether the detector is enabled in the array
+	bool isEnabled() const;
+
 	// Getters that aren't included in the info.  These are convenience functions that grab the current value from the control.
 	//////////////////////////////////////////////////
 
@@ -86,10 +89,16 @@ public:
 
 	virtual QDebug qDebugPrint(QDebug &d) const;
 
+	/// Creates an action to enable or disable this amptek for in the array.
+	AMBeamlineActionItem* createEnableAction(bool setEnabled);
+
 public slots:
 
 	/// Erases the current spectrum and starts collecting data.
 	void start();
+
+	/// Sets the enabled state in the overall array
+	void setEnabled(bool isEnabled);
 
 	/*
 	/// Set the accumulation time.
@@ -146,6 +155,8 @@ protected:
 	AMControl *spectrumControl_;
 	/// A binned version of the detector spectrum control
 	AMControl *binnedSpectrumControl_;
+	/// The enable/disable state for this amptek in the array
+	AMControl *isRequestedControl_;
 
 	/// The master set of controls
 	AMControlSet *allControls_;

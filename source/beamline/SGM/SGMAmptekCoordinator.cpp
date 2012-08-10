@@ -11,6 +11,7 @@ SGMAmptekCoordinator::SGMAmptekCoordinator(QObject *parent) :
 	AmptekAllStartAcquisitionControl_ = new AMPVControl("AmptekAllStartAcquisition", "amptek:sdd:all:spectrum:startAcquisition", "amptek:sdd:all:spectrum:startAcquisition", QString(), this, 0.5);
 	AmptekAllSpectrumClearControl_ = new AMPVControl("AmptekAllSpectrumClear", "amptek:sdd:all:spectrum:clear", "amptek:sdd:all:spectrum:clear", QString(), this, 0.5);
 	AmptekAllPresetTimeControl_ = new AMPVControl("AmptekAllPresetTime", "amptek:sdd:all:parameters:PresetTime", "amptek:sdd:all:parameters:PresetTime", QString(), this, 0.1);
+	AmptekAllSpectrumStateControl_ = new AMPVControl("AmptekAllSpectrumState", "amptek:sdd:all:spectrum:state", "amptek:sdd:all:spectrum:state", QString(), this, 0.5);
 
 	AmptekSDD1IsAvailableControl_ = new AMReadOnlyPVControl("AmptekSDD1IsAvailable", "amptek:sdd1:isAvailable", this);
 	AmptekSDD2IsAvailableControl_ = new AMReadOnlyPVControl("AmptekSDD2IsAvailable", "amptek:sdd2:isAvailable", this);
@@ -20,6 +21,22 @@ SGMAmptekCoordinator::SGMAmptekCoordinator(QObject *parent) :
 	AmptekSDD2IsAvailableControl_->setTolerance(0.5);
 	AmptekSDD3IsAvailableControl_->setTolerance(0.5);
 	AmptekSDD4IsAvailableControl_->setTolerance(0.5);
+	AmptekSDD1IsRequestedControl_ = new AMReadOnlyPVControl("AmptekSDD1IsRequested", "amptek:sdd1:isRequested", this);
+	AmptekSDD2IsRequestedControl_ = new AMReadOnlyPVControl("AmptekSDD2IsRequested", "amptek:sdd2:isRequested", this);
+	AmptekSDD3IsRequestedControl_ = new AMReadOnlyPVControl("AmptekSDD3IsRequested", "amptek:sdd3:isRequested", this);
+	AmptekSDD4IsRequestedControl_ = new AMReadOnlyPVControl("AmptekSDD4IsRequested", "amptek:sdd4:isRequested", this);
+	AmptekSDD1IsRequestedControl_->setTolerance(0.5);
+	AmptekSDD2IsRequestedControl_->setTolerance(0.5);
+	AmptekSDD3IsRequestedControl_->setTolerance(0.5);
+	AmptekSDD4IsRequestedControl_->setTolerance(0.5);
+	AmptekSDD1SpectrumStateControl_ = new AMReadOnlyPVControl("AmptekSDD1SpectrumState", "amptek:sdd1:spectrum:state", this);
+	AmptekSDD2SpectrumStateControl_ = new AMReadOnlyPVControl("AmptekSDD2SpectrumState", "amptek:sdd2:spectrum:state", this);
+	AmptekSDD3SpectrumStateControl_ = new AMReadOnlyPVControl("AmptekSDD3SpectrumState", "amptek:sdd3:spectrum:state", this);
+	AmptekSDD4SpectrumStateControl_ = new AMReadOnlyPVControl("AmptekSDD4SpectrumState", "amptek:sdd4:spectrum:state", this);
+	AmptekSDD1SpectrumStateControl_->setTolerance(0.5);
+	AmptekSDD2SpectrumStateControl_->setTolerance(0.5);
+	AmptekSDD3SpectrumStateControl_->setTolerance(0.5);
+	AmptekSDD4SpectrumStateControl_->setTolerance(0.5);
 
 	AmptekSDD1InitializeControl_ = new AMPVControl("AmptekSDD1Initialize", "amptek:sdd1:initialize", "amptek:sdd1:initialize", QString(), this, 0.5);
 	AmptekSDD2InitializeControl_ = new AMPVControl("AmptekSDD2Initialize", "amptek:sdd2:initialize", "amptek:sdd2:initialize", QString(), this, 0.5);
@@ -47,10 +64,19 @@ SGMAmptekCoordinator::SGMAmptekCoordinator(QObject *parent) :
 	allAmptekControls_->addControl(AmptekAllStartAcquisitionControl_);
 	allAmptekControls_->addControl(AmptekAllSpectrumClearControl_);
 	allAmptekControls_->addControl(AmptekAllPresetTimeControl_);
+	allAmptekControls_->addControl(AmptekAllSpectrumStateControl_);
 	allAmptekControls_->addControl(AmptekSDD1IsAvailableControl_);
 	allAmptekControls_->addControl(AmptekSDD2IsAvailableControl_);
 	allAmptekControls_->addControl(AmptekSDD3IsAvailableControl_);
 	allAmptekControls_->addControl(AmptekSDD4IsAvailableControl_);
+	allAmptekControls_->addControl(AmptekSDD1IsRequestedControl_);
+	allAmptekControls_->addControl(AmptekSDD2IsRequestedControl_);
+	allAmptekControls_->addControl(AmptekSDD3IsRequestedControl_);
+	allAmptekControls_->addControl(AmptekSDD4IsRequestedControl_);
+	allAmptekControls_->addControl(AmptekSDD1SpectrumStateControl_);
+	allAmptekControls_->addControl(AmptekSDD2SpectrumStateControl_);
+	allAmptekControls_->addControl(AmptekSDD3SpectrumStateControl_);
+	allAmptekControls_->addControl(AmptekSDD4SpectrumStateControl_);
 	allAmptekControls_->addControl(AmptekSDD1InitializeControl_);
 	allAmptekControls_->addControl(AmptekSDD2InitializeControl_);
 	allAmptekControls_->addControl(AmptekSDD3InitializeControl_);
@@ -72,6 +98,11 @@ SGMAmptekCoordinator::SGMAmptekCoordinator(QObject *parent) :
 	connect(AmptekAllStartAcquisitionControl_, SIGNAL(valueChanged(double)), this, SLOT(onAmptekAllStartAcquisitionControlChanged(double)));
 	connect(AmptekAllSpectrumClearControl_, SIGNAL(valueChanged(double)), this, SLOT(onAmptekAllSpectrumClearControlChanged(double)));
 	connect(AmptekAllPresetTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(onAmptekAllPresetTimeControlChanged(double)));
+
+	connect(AmptekSDD1SpectrumStateControl_, SIGNAL(valueChanged(double)), this, SLOT(onAmptekSpectrumStateControlsChanged(double)));
+	connect(AmptekSDD2SpectrumStateControl_, SIGNAL(valueChanged(double)), this, SLOT(onAmptekSpectrumStateControlsChanged(double)));
+	connect(AmptekSDD3SpectrumStateControl_, SIGNAL(valueChanged(double)), this, SLOT(onAmptekSpectrumStateControlsChanged(double)));
+	connect(AmptekSDD4SpectrumStateControl_, SIGNAL(valueChanged(double)), this, SLOT(onAmptekSpectrumStateControlsChanged(double)));
 
 	connect(allAmptekControls_, SIGNAL(connected(bool)), this, SLOT(onAllAmptekControlsConnected(bool)));
 }
@@ -117,19 +148,19 @@ void SGMAmptekCoordinator::onAmptekAllStartAcquisitionControlChanged(double star
 	if(AmptekAllStartAcquisitionControl_->withinTolerance(0.0))
 		return;
 
-	if(AmptekSDD1IsAvailableControl_->withinTolerance(1)){
+	if(AmptekSDD1IsAvailableControl_->withinTolerance(1) && AmptekSDD1IsRequestedControl_->withinTolerance(1)){
 		qDebug() << "Starting SDD1 acquisition";
 		AmptekSDD1StartAcquisitionControl_->move(1);
 	}
-	if(AmptekSDD2IsAvailableControl_->withinTolerance(1)){
+	if(AmptekSDD2IsAvailableControl_->withinTolerance(1) && AmptekSDD2IsRequestedControl_->withinTolerance(1)){
 		qDebug() << "Starting SDD2 acquisition";
 		AmptekSDD2StartAcquisitionControl_->move(1);
 	}
-	if(AmptekSDD3IsAvailableControl_->withinTolerance(1)){
+	if(AmptekSDD3IsAvailableControl_->withinTolerance(1) && AmptekSDD3IsRequestedControl_->withinTolerance(1)){
 		qDebug() << "Starting SDD3 acquisition";
 		AmptekSDD3StartAcquisitionControl_->move(1);
 	}
-	if(AmptekSDD4IsAvailableControl_->withinTolerance(1)){
+	if(AmptekSDD4IsAvailableControl_->withinTolerance(1) && AmptekSDD4IsRequestedControl_->withinTolerance(1)){
 		qDebug() << "Starting SDD4 acquisition";
 		AmptekSDD4StartAcquisitionControl_->move(1);
 	}
@@ -186,4 +217,29 @@ void SGMAmptekCoordinator::onAmptekAllPresetTimeControlChanged(double presetTime
 		qDebug() << "Changing SDD4 Preset Time to " << presetTime;
 		AmptekSDD4PresetTimeControl_->move(presetTime);
 	}
+}
+
+void SGMAmptekCoordinator::onAmptekSpectrumStateControlsChanged(double spectrumState){
+	Q_UNUSED(spectrumState)
+	if(!amptekConnectedOnce_)
+		return;
+
+	bool isActive = false;
+
+	if(AmptekSDD1SpectrumStateControl_->withinTolerance(1) && AmptekSDD1IsAvailableControl_->withinTolerance(1) && AmptekSDD1IsRequestedControl_->withinTolerance(1))
+		isActive = true;
+
+	if(AmptekSDD2SpectrumStateControl_->withinTolerance(1) && AmptekSDD2IsAvailableControl_->withinTolerance(1) && AmptekSDD2IsRequestedControl_->withinTolerance(1))
+		isActive = true;
+
+	if(AmptekSDD3SpectrumStateControl_->withinTolerance(1) && AmptekSDD3IsAvailableControl_->withinTolerance(1) && AmptekSDD3IsRequestedControl_->withinTolerance(1))
+		isActive = true;
+
+	if(AmptekSDD4SpectrumStateControl_->withinTolerance(1) && AmptekSDD4IsAvailableControl_->withinTolerance(1) && AmptekSDD4IsRequestedControl_->withinTolerance(1))
+		isActive = true;
+
+	if(isActive)
+		AmptekAllSpectrumStateControl_->move(1);
+	else
+		AmptekAllSpectrumStateControl_->move(0);
 }

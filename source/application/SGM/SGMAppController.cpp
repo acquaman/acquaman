@@ -238,7 +238,7 @@ bool SGMAppController::startupLoadFromExistingDatabase(){
 
 bool SGMAppController::startupAfterEverything(){
 	if(isBadDatabaseDirectory_)
-		QMessageBox::warning(0, "Poor Choice of Database Folder", "The folder choosen for the user database is really not a good one.\nAcquaman will work, but some features may experience problems.\nPlease contact Tom or David to fix this.");
+		QMessageBox::warning(0, "Poor Choice of Database Folder", "The folder choosen for the user database is really not a good one.\n\nAcquaman will work, but some features may experience problems.\nThis can be fixed, please contact Tom or David to fix this.");
 
 	return AMAppController::startupAfterEverything();
 }

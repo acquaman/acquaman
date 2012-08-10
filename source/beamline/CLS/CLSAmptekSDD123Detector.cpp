@@ -19,6 +19,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSAmptekSDD123Detector.h"
 
+#include "actions/AMBeamlineControlMoveAction.h"
+
 CLSAmptekSDD123Detector::CLSAmptekSDD123Detector(const QString &name, const QString &baseName, AMDetector::ReadMethod readMethod, QObject *parent) :
 	CLSAmptekSDD123DetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
@@ -37,6 +39,7 @@ CLSAmptekSDD123Detector::CLSAmptekSDD123Detector(const QString &name, const QStr
 	detectorTemperatureControl_ = new AMReadOnlyPVControl(name+"DetectorTemperature", baseName+":parameters:DetectorTemperature", this);
 	spectrumControl_ = new AMReadOnlyPVControl(name+"Spectrum", baseName+":spectrum", this);
 	binnedSpectrumControl_ = new AMReadOnlyWaveformBinningPVControl(name+"BinnedSpectrum", baseName+":spectrum", 0, 1024, this);
+	isRequestedControl_ = new AMPVControl(name+"IsRequested", baseName+":isRequested", baseName+":isRequested", QString(), this, 0.5);
 
 	allControls_->addControl(startAcquisitionControl_);
 	allControls_->addControl(statusControl_);
@@ -45,6 +48,7 @@ CLSAmptekSDD123Detector::CLSAmptekSDD123Detector(const QString &name, const QStr
 	allControls_->addControl(detectorTemperatureControl_);
 	allControls_->addControl(spectrumControl_);
 	allControls_->addControl(binnedSpectrumControl_);
+	allControls_->addControl(isRequestedControl_);
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
 	connect(allControls_, SIGNAL(controlSetTimedOut()), this, SLOT(onControlsTimedOut()));
 
@@ -122,6 +126,13 @@ bool CLSAmptekSDD123Detector::wasConnected() const{
 	return wasConnected_;
 }
 
+bool CLSAmptekSDD123Detector::isEnabled() const{
+	if(!allControls_->isConnected() || isRequestedControl_->withinTolerance(0))
+		return false;
+
+	return true;
+}
+
 bool CLSAmptekSDD123Detector::status() const{
 	if(statusControl_->withinTolerance(1))
 		return true;
@@ -149,8 +160,33 @@ QDebug CLSAmptekSDD123Detector::qDebugPrint(QDebug &d) const{
 	return d;
 }
 
+AMBeamlineActionItem* CLSAmptekSDD123Detector::createEnableAction(bool setEnabled) {
+
+	if(!allControls_->isConnected())
+		return 0; //NULL
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(isRequestedControl_);
+
+	if(!action)
+		return 0; //NULL
+
+	action->setSetpoint(setEnabled == true ? 1 : 0);
+
+	return action;
+}
+
 void CLSAmptekSDD123Detector::start(){
 	startAcquisitionControl_->move(1);
+}
+
+void CLSAmptekSDD123Detector::setEnabled(bool isEnabled){
+	if(!allControls_->isConnected())
+		return;
+
+	if(isEnabled)
+		isRequestedControl_->move(1);
+	else
+		isRequestedControl_->move(0);
 }
 
 void CLSAmptekSDD123Detector::setDescription(const QString &description){
