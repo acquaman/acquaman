@@ -27,6 +27,7 @@ class QGroupBox;
 class QVBoxLayout;
 class QGridLayout;
 class QRadioButton;
+class QCheckBox;
 
 class AMControlButton;
 
@@ -60,6 +61,14 @@ protected slots:
 	void onScanningResetButtonClicked();
 
 	void onStripToolTimerTimeout();
+	void onI0CheckBoxToggled(bool toggled);
+	void onTEYCheckBoxToggled(bool toggled);
+	void onTFYCheckBoxToggled(bool toggled);
+	void onPDCheckBoxToggled(bool toggled);
+	void onFPD1CheckBoxToggled(bool toggled);
+	void onFPD2CheckBoxToggled(bool toggled);
+	void onFPD3CheckBoxToggled(bool toggled);
+	void onFPD4CheckBoxToggled(bool toggled);
 
 	void onBeamlineWarnings(const QString &newWarnings);
 
@@ -86,11 +95,15 @@ protected:
 	QHBoxLayout *warningAndPlotHL_;
 	QLabel *beamlineWarningsLabel_;
 
+	QCheckBox *i0CheckBox_, *teyCheckBox_, *tfyCheckBox_, *pdCheckBox_, *fpd1CheckBox_, *fpd2CheckBox_, *fpd3CheckBox_, *fpd4CheckBox_;
+
+	QVBoxLayout *plotLayout_;
+
 	/// UI components:
 	MPlotWidget* imageView_;
 	MPlot* imagePlot_;
-	MPlotRealtimeModel *i0Model_, *teyModel_, *tfyModel_, *pdModel_;
-	MPlotSeriesBasic *i0Series_, *teySeries_, *tfySeries_, *pdSeries_;
+	MPlotRealtimeModel *i0Model_, *teyModel_, *tfyModel_, *pdModel_, *fpd1Model_, *fpd2Model_, *fpd3Model_, *fpd4Model_;
+	MPlotSeriesBasic *i0Series_, *teySeries_, *tfySeries_, *pdSeries_, *fpd1Series_, *fpd2Series_, *fpd3Series_, *fpd4Series_;
 
 	QTimer *stripToolTimer_;
 	int stripToolCounter_;

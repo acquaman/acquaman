@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGridLayout>
 #include <QRadioButton>
 #include <QButtonGroup>
+#include <QCheckBox>
 
 #include "ui/beamline/AMControlButton.h"
 
@@ -109,10 +110,39 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), beamlineWarningsLabel_, SLOT(setText(QString)));
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), this, SLOT(onBeamlineWarnings(QString)));
 
+	i0CheckBox_ = new QCheckBox("I0");
+	teyCheckBox_ = new QCheckBox("TEY");
+	tfyCheckBox_ = new QCheckBox("TFY");
+	pdCheckBox_ = new QCheckBox("PD");
+	fpd1CheckBox_ = new QCheckBox("FPD1");
+	fpd2CheckBox_ = new QCheckBox("FPD2");
+	fpd3CheckBox_ = new QCheckBox("FPD3");
+	fpd4CheckBox_ = new QCheckBox("FPD4");
+
 	// create UI elements
 	imageView_ = new MPlotWidget();
 	imageView_->setMinimumHeight(200);
 	imagePlot_ = new MPlot();
+
+	QHBoxLayout *checkBoxHL1 = new QHBoxLayout();
+	checkBoxHL1->addWidget(i0CheckBox_);
+	checkBoxHL1->addWidget(teyCheckBox_);
+	checkBoxHL1->addWidget(tfyCheckBox_);
+	checkBoxHL1->addWidget(pdCheckBox_);
+
+	QHBoxLayout *checkBoxHL2 = new QHBoxLayout();
+	checkBoxHL2->addWidget(fpd1CheckBox_);
+	checkBoxHL2->addWidget(fpd2CheckBox_);
+	checkBoxHL2->addWidget(fpd3CheckBox_);
+	checkBoxHL2->addWidget(fpd4CheckBox_);
+
+	QVBoxLayout *checkBoxVL = new QVBoxLayout();
+	checkBoxVL->addLayout(checkBoxHL1);
+	checkBoxVL->addLayout(checkBoxHL2);
+
+	plotLayout_ = new QVBoxLayout();
+	plotLayout_->addWidget(imageView_);
+	plotLayout_->addLayout(checkBoxVL);
 
 	// ATTENTION DAVE: New special axis scale on bottom of strip tool plot:
 	stripToolSpecialAxisScale_ = new MPlotAxisScale(Qt::Horizontal);
@@ -141,6 +171,10 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	teyModel_ = new MPlotRealtimeModel(this);
 	tfyModel_ = new MPlotRealtimeModel(this);
 	pdModel_ = new MPlotRealtimeModel(this);
+	fpd1Model_ = new MPlotRealtimeModel(this);
+	fpd2Model_ = new MPlotRealtimeModel(this);
+	fpd3Model_ = new MPlotRealtimeModel(this);
+	fpd4Model_ = new MPlotRealtimeModel(this);
 
 	i0Series_ = new MPlotSeriesBasic(i0Model_);
 	i0Series_->setDescription("I0");
@@ -159,7 +193,34 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	pdSeries_->setLinePen(QPen(QColor(255, 0, 255)));
 	pdSeries_->setMarker(MPlotMarkerShape::None);
 
+	fpd1Series_ = new MPlotSeriesBasic(fpd1Model_);
+	fpd1Series_->setDescription("FPD1");
+	fpd1Series_->setLinePen(QPen(QColor(255, 255, 0)));
+	fpd1Series_->setMarker(MPlotMarkerShape::None);
+	fpd2Series_ = new MPlotSeriesBasic(fpd2Model_);
+	fpd2Series_->setDescription("FPD2");
+	fpd2Series_->setLinePen(QPen(QColor(0, 255, 255)));
+	fpd2Series_->setMarker(MPlotMarkerShape::None);
+	fpd3Series_ = new MPlotSeriesBasic(fpd3Model_);
+	fpd3Series_->setDescription("FPD3");
+	fpd3Series_->setLinePen(QPen(QColor(255, 127, 127)));
+	fpd3Series_->setMarker(MPlotMarkerShape::None);
+	fpd4Series_ = new MPlotSeriesBasic(fpd4Model_);
+	fpd4Series_->setDescription("FPD4");
+	fpd4Series_->setLinePen(QPen(QColor(127, 255, 127)));
+	fpd4Series_->setMarker(MPlotMarkerShape::None);
+
 	imagePlot_->addItem(i0Series_);
+	i0CheckBox_->setChecked(true);
+
+	connect(i0CheckBox_, SIGNAL(toggled(bool)), this, SLOT(onI0CheckBoxToggled(bool)));
+	connect(teyCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onTEYCheckBoxToggled(bool)));
+	connect(tfyCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onTFYCheckBoxToggled(bool)));
+	connect(pdCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onPDCheckBoxToggled(bool)));
+	connect(fpd1CheckBox_, SIGNAL(toggled(bool)), this, SLOT(onFPD1CheckBoxToggled(bool)));
+	connect(fpd2CheckBox_, SIGNAL(toggled(bool)), this, SLOT(onFPD2CheckBoxToggled(bool)));
+	connect(fpd3CheckBox_, SIGNAL(toggled(bool)), this, SLOT(onFPD3CheckBoxToggled(bool)));
+	connect(fpd4CheckBox_, SIGNAL(toggled(bool)), this, SLOT(onFPD4CheckBoxToggled(bool)));
 
 	stripToolCounter_ = 0;
 	stripToolTimer_ = new QTimer(this);
@@ -298,16 +359,88 @@ void SGMSidebar::onStripToolTimerTimeout(){
 	stripToolCounter_++;
 }
 
+void SGMSidebar::onI0CheckBoxToggled(bool toggled){
+	if(toggled)
+		imagePlot_->addItem(i0Series_);
+	else
+		imagePlot_->removeItem(i0Series_);
+}
+
+void SGMSidebar::onTEYCheckBoxToggled(bool toggled){
+	if(toggled)
+		imagePlot_->addItem(teySeries_);
+	else
+		imagePlot_->removeItem(teySeries_);
+}
+
+void SGMSidebar::onTFYCheckBoxToggled(bool toggled){
+	if(toggled)
+		imagePlot_->addItem(tfySeries_);
+	else
+		imagePlot_->removeItem(tfySeries_);
+}
+
+void SGMSidebar::onPDCheckBoxToggled(bool toggled){
+	if(toggled)
+		imagePlot_->addItem(pdSeries_);
+	else
+		imagePlot_->removeItem(pdSeries_);
+}
+
+void SGMSidebar::onFPD1CheckBoxToggled(bool toggled){
+	if(toggled)
+		imagePlot_->addItem(fpd1Series_);
+	else
+		imagePlot_->removeItem(fpd1Series_);
+}
+
+void SGMSidebar::onFPD2CheckBoxToggled(bool toggled){
+	if(toggled)
+		imagePlot_->addItem(fpd2Series_);
+	else
+		imagePlot_->removeItem(fpd2Series_);
+}
+
+void SGMSidebar::onFPD3CheckBoxToggled(bool toggled){
+	if(toggled)
+		imagePlot_->addItem(fpd3Series_);
+	else
+		imagePlot_->removeItem(fpd3Series_);
+}
+
+void SGMSidebar::onFPD4CheckBoxToggled(bool toggled){
+	if(toggled)
+		imagePlot_->addItem(fpd4Series_);
+	else
+		imagePlot_->removeItem(fpd4Series_);
+}
+
 void SGMSidebar::onBeamlineWarnings(const QString &newWarnings){
 	if(newWarnings.isEmpty() && warningAndPlotHL_->itemAt(0)->widget() == beamlineWarningsLabel_){
 		warningAndPlotHL_->removeWidget(beamlineWarningsLabel_);
 		beamlineWarningsLabel_->hide();
-		warningAndPlotHL_->addWidget(imageView_);
+		warningAndPlotHL_->addLayout(plotLayout_);
 		imageView_->show();
+		i0CheckBox_->show();
+		teyCheckBox_->show();
+		tfyCheckBox_->show();
+		pdCheckBox_->show();
+		fpd1CheckBox_->show();
+		fpd2CheckBox_->show();
+		fpd3CheckBox_->show();
+		fpd4CheckBox_->show();
 	}
-	else if(!newWarnings.isEmpty() && warningAndPlotHL_->itemAt(0)->widget() == imageView_){
-		warningAndPlotHL_->removeWidget(imageView_);
+	else if(!newWarnings.isEmpty() && warningAndPlotHL_->itemAt(0)->layout() == plotLayout_){
+		warningAndPlotHL_->removeItem(plotLayout_);
 		imageView_->hide();
+		i0CheckBox_->hide();
+		teyCheckBox_->hide();
+		tfyCheckBox_->hide();
+		pdCheckBox_->hide();
+		fpd1CheckBox_->hide();
+		fpd2CheckBox_->hide();
+		fpd3CheckBox_->hide();
+		fpd4CheckBox_->hide();
 		warningAndPlotHL_->addWidget(beamlineWarningsLabel_);
 		beamlineWarningsLabel_->show();
 	}
