@@ -221,7 +221,11 @@ bool CLSOceanOptics65000DetailedDetectorView::setDetector(AMDetector *detector, 
 
 	mainHL->addWidget(startAcquisitionButton_);
 	mainHL->addWidget(integrationTimeCE_);
-	mainHL->addWidget(totalCountsDSB_);
+	QVBoxLayout *tempVL = new QVBoxLayout();
+	tempVL->addWidget(new QLabel("Counts"));
+	tempVL->addWidget(totalCountsDSB_);
+	mainHL->addLayout(tempVL);
+	//mainHL->addWidget(totalCountsDSB_);
 	mainHL->addWidget(statusLabel_);
 
 	mainVL->addLayout(mainHL);

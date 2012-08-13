@@ -183,7 +183,10 @@ bool AMDatamanAppController::startupLoadSettings()
 	AMUserSettings::load();
 
 	qDebug() << "Comparing directories " << AMUserSettings::userDataFolder << " versus " << QDir::homePath();
-	if(AMUserSettings::userDataFolder == QDir::homePath())
+	QString userDatabaseFolder = AMUserSettings::userDataFolder;
+	if(userDatabaseFolder.endsWith('/'))
+		userDatabaseFolder.remove(userDatabaseFolder.count()-1, 1);
+	if(userDatabaseFolder == QDir::homePath())
 		isBadDatabaseDirectory_ = true;
 
 	return true;

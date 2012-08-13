@@ -45,7 +45,6 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 			}
 		}
 	}
-
 }
 
 SGMElementInfo* SGMPeriodicTable::elementInfoByName(const QString &elementName) const{

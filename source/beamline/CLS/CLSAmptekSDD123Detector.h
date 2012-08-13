@@ -64,6 +64,9 @@ public:
 	/// Holds whether the detector was connected previously.  Primarily useful at startup.
 	bool wasConnected() const;
 
+	/// Holds whether the detector is enabled in the array
+	bool isEnabled() const;
+
 	// Getters that aren't included in the info.  These are convenience functions that grab the current value from the control.
 	//////////////////////////////////////////////////
 
@@ -86,14 +89,20 @@ public:
 
 	virtual QDebug qDebugPrint(QDebug &d) const;
 
+	/// Creates an action to enable or disable this amptek for in the array.
+	AMBeamlineActionItem* createEnableAction(bool setEnabled);
+
 public slots:
 
 	/// Erases the current spectrum and starts collecting data.
 	void start();
 
-	/*
+	/// Sets the enabled state in the overall array
+	void setEnabled(bool isEnabled);
+
 	/// Set the accumulation time.
 	void setIntegrationTime(double time);
+	/*
 	/// Sets the peaking time of the detector.
 	void setPeakingTimeControl(double time);
 
@@ -119,6 +128,8 @@ signals:
 	void mcaChannelsChanged(double);
 	/// Notifies that the total counts in the spectrum has changed
 	void totalCountsChanged(double);
+	/// Notifies that the enabled state changed
+	void enabledChanged(bool);
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
@@ -127,6 +138,10 @@ protected slots:
 	void onControlsTimedOut();
 	/// Emits the statusChanged signal.
 	void onStatusChanged(double status);
+	/// Emits the enabledChanged signal
+	void onEnabledChanged(double enabled);
+	/// Coordinates the integration time value
+	void onIntegrationTimeControlValueChanged(double integrationTime);
 
 protected:
 	/// Bool handling whether the detector was connected.
@@ -146,6 +161,8 @@ protected:
 	AMControl *spectrumControl_;
 	/// A binned version of the detector spectrum control
 	AMControl *binnedSpectrumControl_;
+	/// The enable/disable state for this amptek in the array
+	AMControl *isRequestedControl_;
 
 	/// The master set of controls
 	AMControlSet *allControls_;
