@@ -292,8 +292,17 @@ void AM2DDacqScanController::prefillScanPoints()
 					scan_->rawData()->setAxisValue(0, insertIndex.i(), xStart + i*xStep);
 					scan_->rawData()->setAxisValue(1, insertIndex.j(), yStart + j*yStep);
 
-					for (int di = 0; di < scan_->dataSourceCount(); di++)
-						scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), -1);
+					for (int di = 0; di < scan_->rawDataSourceCount(); di++){
+
+						if (scan_->rawDataSources()->at(di)->rank() == 0)
+							scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), -1);
+
+						else if (scan_->rawDataSources()->at(di)->rank() == 1){
+
+							QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(0), 0);
+							scan_->rawData()->setValue(insertIndex, di, data.constData());
+						}
+					}
 				}
 			}
 
@@ -340,8 +349,17 @@ void AM2DDacqScanController::prefillScanPoints()
 					scan_->rawData()->setAxisValue(0, insertIndex.i(), xStart + i*xStep);
 					scan_->rawData()->setAxisValue(1, insertIndex.j(), yStart + j*yStep);
 
-					for (int di = 0; di < scan_->dataSourceCount(); di++)
-						scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), 0);
+					for (int di = 0; di < scan_->dataSourceCount(); di++){
+
+						if (scan_->rawDataSources()->at(di)->rank() == 0)
+							scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), -1);
+
+						else if (scan_->rawDataSources()->at(di)->rank() == 1){
+
+							QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(0), 0);
+							scan_->rawData()->setValue(insertIndex, di, data.constData());
+						}
+					}
 				}
 			}
 
