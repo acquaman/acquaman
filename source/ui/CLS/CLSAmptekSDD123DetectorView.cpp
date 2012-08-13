@@ -102,7 +102,6 @@ bool CLSAmptekSDD123DetailedDetectorView::setDetector(AMDetector *detector, bool
 	integrationTimeDSB_ = new QDoubleSpinBox();
 	integrationTimeDSB_->setMinimum(0.1);
 	integrationTimeDSB_->setMaximum(10);
-	//integrationTimeDSB_->setEnabled(false);
 	totalCountsDSB_ = new QDoubleSpinBox();
 	totalCountsDSB_->setMinimum(0);
 	totalCountsDSB_->setMaximum(500000);
@@ -115,7 +114,6 @@ bool CLSAmptekSDD123DetailedDetectorView::setDetector(AMDetector *detector, bool
 
 
 	if(detector_->isConnected()){
-		qDebug() << "Is connected in constructor, therefore set as " << detector_->integrationTime();
 		integrationTimeDSB_->setValue(detector_->integrationTime());
 		detectorTemperatureLabel_->setText(QString("%1").arg(detector_->detectorTemperature()));
 		mcaChannelLabel_->setText(QString("%1").arg(detector_->channels()));
