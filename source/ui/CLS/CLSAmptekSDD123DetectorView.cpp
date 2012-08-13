@@ -102,7 +102,7 @@ bool CLSAmptekSDD123DetailedDetectorView::setDetector(AMDetector *detector, bool
 	integrationTimeDSB_ = new QDoubleSpinBox();
 	integrationTimeDSB_->setMinimum(0.1);
 	integrationTimeDSB_->setMaximum(10);
-	integrationTimeDSB_->setEnabled(false);
+	//integrationTimeDSB_->setEnabled(false);
 	totalCountsDSB_ = new QDoubleSpinBox();
 	totalCountsDSB_->setMinimum(0);
 	totalCountsDSB_->setMaximum(500000);
@@ -111,11 +111,11 @@ bool CLSAmptekSDD123DetailedDetectorView::setDetector(AMDetector *detector, bool
 	mcaChannelLabel_ = new QLabel();
 	startAcquisitionButton_ = new QPushButton("Start");
 	startAcquisitionButton_->setEnabled(false);
-	connect(startAcquisitionButton_, SIGNAL(clicked()), this, SLOT(onStartAcquisitionButtonClicked()));
 	enabledCheckBox_ = new QCheckBox("Enabled");
 
 
 	if(detector_->isConnected()){
+		qDebug() << "Is connected in constructor, therefore set as " << detector_->integrationTime();
 		integrationTimeDSB_->setValue(detector_->integrationTime());
 		detectorTemperatureLabel_->setText(QString("%1").arg(detector_->detectorTemperature()));
 		mcaChannelLabel_->setText(QString("%1").arg(detector_->channels()));
@@ -127,6 +127,9 @@ bool CLSAmptekSDD123DetailedDetectorView::setDetector(AMDetector *detector, bool
 		detectorTemperatureLabel_->setText("?");
 		mcaChannelLabel_->setText("?");
 	}
+
+	connect(startAcquisitionButton_, SIGNAL(clicked()), this, SLOT(onStartAcquisitionButtonClicked()));
+	connect(integrationTimeDSB_, SIGNAL(editingFinished()), this, SLOT(onIntegrationTimeDSBEditingFinished()));
 	connect(enabledCheckBox_, SIGNAL(toggled(bool)), detector_, SLOT(setEnabled(bool)));
 	connect(detector_, SIGNAL(enabledChanged(bool)), enabledCheckBox_, SLOT(setChecked(bool)));
 
@@ -244,4 +247,8 @@ void CLSAmptekSDD123DetailedDetectorView::onTotalCountsChanged(double totalCount
 
 void CLSAmptekSDD123DetailedDetectorView::onStartAcquisitionButtonClicked(){
 	detector_->start();
+}
+
+void CLSAmptekSDD123DetailedDetectorView::onIntegrationTimeDSBEditingFinished(){
+	detector_->setIntegrationTime(integrationTimeDSB_->value());
 }

@@ -86,6 +86,8 @@ protected slots:
 
 	/// Handles button clicks from the start acqusition button
 	void onStartAcquisitionButtonClicked();
+	/// Handles changes to the integration time spin box
+	void onIntegrationTimeDSBEditingFinished();
 
 protected:
 	/*! Sets up the view based with the given detector.

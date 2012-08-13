@@ -100,9 +100,9 @@ public slots:
 	/// Sets the enabled state in the overall array
 	void setEnabled(bool isEnabled);
 
-	/*
 	/// Set the accumulation time.
 	void setIntegrationTime(double time);
+	/*
 	/// Sets the peaking time of the detector.
 	void setPeakingTimeControl(double time);
 
@@ -140,6 +140,8 @@ protected slots:
 	void onStatusChanged(double status);
 	/// Emits the enabledChanged signal
 	void onEnabledChanged(double enabled);
+	/// Coordinates the integration time value
+	void onIntegrationTimeControlValueChanged(double integrationTime);
 
 protected:
 	/// Bool handling whether the detector was connected.

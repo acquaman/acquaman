@@ -35,7 +35,8 @@ CLSAmptekSDD123Detector::CLSAmptekSDD123Detector(const QString &name, const QStr
 	startAcquisitionControl_->setAllowsMovesWhileMoving(true);
 	statusControl_ = new AMReadOnlyPVControl(name+"Status", baseName+":spectrum:state", this);
 	mcaChannelsControl_ = new AMReadOnlyPVControl(name+"MCAChannels", baseName+":parameters:MCAChannels", this);
-	integrationTimeControl_ = new AMReadOnlyPVControl(name+"IntegrationTime", baseName+":parameters:PresetTime", this);
+	//integrationTimeControl_ = new AMReadOnlyPVControl(name+"IntegrationTime", baseName+":parameters:PresetTime", this);
+	integrationTimeControl_ = new AMPVControl(name+"IntegrationTime", baseName+":parameters:PresetTime", baseName+":parameters:PresetTime", QString() , this, 0.05);
 	detectorTemperatureControl_ = new AMReadOnlyPVControl(name+"DetectorTemperature", baseName+":parameters:DetectorTemperature", this);
 	spectrumControl_ = new AMReadOnlyPVControl(name+"Spectrum", baseName+":spectrum", this);
 	binnedSpectrumControl_ = new AMReadOnlyWaveformBinningPVControl(name+"BinnedSpectrum", baseName+":spectrum", 0, 1024, this);
@@ -64,6 +65,7 @@ CLSAmptekSDD123Detector::CLSAmptekSDD123Detector(const QString &name, const QStr
 	connect(detectorTemperatureControl_, SIGNAL(valueChanged(double)), this, SIGNAL(detectorTemperatureChanged(double)));
 	connect(binnedSpectrumControl_, SIGNAL(valueChanged(double)), this, SIGNAL(totalCountsChanged(double)));
 	connect(isRequestedControl_, SIGNAL(valueChanged(double)), this, SLOT(onEnabledChanged(double)));
+	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(onIntegrationTimeControlValueChanged(double)));
 }
 
 CLSAmptekSDD123Detector::~CLSAmptekSDD123Detector()
@@ -190,6 +192,15 @@ void CLSAmptekSDD123Detector::setEnabled(bool isEnabled){
 		isRequestedControl_->move(0);
 }
 
+void CLSAmptekSDD123Detector::setIntegrationTime(double time){
+	if(!allControls_->isConnected())
+		return;
+
+	CLSAmptekSDD123DetectorInfo::setIntegrationTime(time);
+	if(!integrationTimeControl_->withinTolerance(time))
+		integrationTimeControl_->move(time);
+}
+
 void CLSAmptekSDD123Detector::setDescription(const QString &description){
 	CLSAmptekSDD123DetectorInfo::setDescription(description);
 }
@@ -217,4 +228,8 @@ void CLSAmptekSDD123Detector::onEnabledChanged(double enabled){
 		emit enabledChanged(true);
 	else
 		emit enabledChanged(false);
+}
+
+void CLSAmptekSDD123Detector::onIntegrationTimeControlValueChanged(double integrationTime){
+	CLSAmptekSDD123DetectorInfo::setIntegrationTime(integrationTime);
 }
