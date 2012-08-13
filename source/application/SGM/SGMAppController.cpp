@@ -274,6 +274,42 @@ void SGMAppController::onSGMBeamlineConnected(){
 		xasScanConfigurationHolder3_->setEnabled(false);
 		fastScanConfigurationHolder3_->setEnabled(false);
 	}
+
+	QString badStartupSettingsMessage = "The beamline seems to have some odd settings, did a fast scan fail?\n\n";
+
+	if(!SGMBeamline::sgm()->gratingVelocity()->withinTolerance(10000))
+		badStartupSettingsMessage.append(QString("Grating Velocity %1 versus 10000\n").arg(SGMBeamline::sgm()->gratingVelocity()->value()));
+	if(!SGMBeamline::sgm()->gratingBaseVelocity()->withinTolerance(0))
+		badStartupSettingsMessage.append(QString("Grating Base Velocity %2 versus 0\n").arg(SGMBeamline::sgm()->gratingBaseVelocity()->value()));
+	if(!SGMBeamline::sgm()->gratingAcceleration()->withinTolerance(5000))
+		badStartupSettingsMessage.append(QString("Grating Acceleration %3 versus 5000\n").arg(SGMBeamline::sgm()->gratingAcceleration()->value()));
+	qDebug() << "\n\nIs connected " << SGMBeamline::sgm()->rawScaler()->isConnected() << " per buffer " << SGMBeamline::sgm()->rawScaler()->scansPerBuffer();
+	if(!SGMBeamline::sgm()->rawScaler()->isConnected())
+		badStartupSettingsMessage.append("Scaler is not connected\n");
+	else if(SGMBeamline::sgm()->rawScaler()->scansPerBuffer() != 1)
+			badStartupSettingsMessage.append(QString("Scaler time %1\nScaler Scan per buffer %2 versus 1\nScaler Total Scans %3 versus 1").arg(SGMBeamline::sgm()->rawScaler()->dwellTime()).arg(SGMBeamline::sgm()->rawScaler()->scansPerBuffer()).arg(SGMBeamline::sgm()->rawScaler()->totalScans()));
+
+	if(badStartupSettingsMessage != "The beamline seems to have some odd settings, did a fast scan fail?\n\n"){
+		badStartupSettingsMessage.append("\nPress Ok to automatically return to nominal values.");
+		QMessageBox badStartupSettingsChoice;
+		badStartupSettingsChoice.setInformativeText(badStartupSettingsMessage);
+		badStartupSettingsChoice.setText(QString("Questionable Beamline Settings"));
+		badStartupSettingsChoice.setIcon(QMessageBox::Question);
+		badStartupSettingsChoice.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+		badStartupSettingsChoice.setDefaultButton(QMessageBox::Ok);
+		badStartupSettingsChoice.setEscapeButton(QMessageBox::Cancel);
+
+		if(badStartupSettingsChoice.exec() == QMessageBox::Ok){
+			SGMBeamline::sgm()->gratingVelocity()->move(10000);
+			SGMBeamline::sgm()->gratingBaseVelocity()->move(0);
+			SGMBeamline::sgm()->gratingAcceleration()->move(5000);
+			SGMBeamline::sgm()->rawScaler()->setDwellTime(1.0);
+			SGMBeamline::sgm()->rawScaler()->setScansPerBuffer(1);
+			SGMBeamline::sgm()->rawScaler()->setTotalScans(1);
+			SGMBeamline::sgm()->undulatorTracking()->move(1);
+			SGMBeamline::sgm()->exitSlitTracking()->move(1);
+		}
+	}
 }
 
 void SGMAppController::onSGMScalerConnected(bool connected){
