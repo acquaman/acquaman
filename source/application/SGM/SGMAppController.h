@@ -162,6 +162,9 @@ protected:
 
 	/// Updating list of detectors we have been waiting for on startup
 	QString lastWaitingDetectors_;
+
+	/// Tracks whether a check has been done regarding bad startup settings
+	bool checkedBadStartupSettings_;
 };
 
 #endif // SGMAPPCONTROLLER_H
