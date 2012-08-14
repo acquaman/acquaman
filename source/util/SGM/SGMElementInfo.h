@@ -210,6 +210,9 @@ public:
 
 	SGMFastScanSettings& operator =(const SGMFastScanSettings &other);
 
+	bool operator ==(const SGMFastScanSettings &other) const;
+	bool operator !=(const SGMFastScanSettings &other) const;
+
 public slots:
 	void setRunSeconds(double runSeconds);
 	void setMotorSettings(int motorSettings);

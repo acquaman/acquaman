@@ -287,7 +287,6 @@ void SGMAppController::onSGMBeamlineConnected(){
 			badStartupSettingsMessage.append(QString("Grating Base Velocity %2 versus 0\n").arg(SGMBeamline::sgm()->gratingBaseVelocity()->value()));
 		if(!SGMBeamline::sgm()->gratingAcceleration()->withinTolerance(5000))
 			badStartupSettingsMessage.append(QString("Grating Acceleration %3 versus 5000\n").arg(SGMBeamline::sgm()->gratingAcceleration()->value()));
-		qDebug() << "\n\nIs connected " << SGMBeamline::sgm()->rawScaler()->isConnected() << " per buffer " << SGMBeamline::sgm()->rawScaler()->scansPerBuffer();
 		if(!SGMBeamline::sgm()->rawScaler()->isConnected())
 			badStartupSettingsMessage.append("Scaler is not connected\n");
 		else if(SGMBeamline::sgm()->rawScaler()->scansPerBuffer() != 1)
@@ -594,7 +593,9 @@ bool SGMAppController::setupSGMPeriodicTable(){
 	elementName = "Carbon";
 	elementEdge = "K";
 	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
+	qDebug() << "Looking for Carbon";
 	if(matchIDs.count() == 0){
+		qDebug() << "No carbon, so make it";
 		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 270.0, -397720, -149991, 286.63, 0);
 		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 295.0, -377497, -140470, 200.46, 0);
 		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 320.0, -348005, -133061, 100.54, 0);
@@ -1170,8 +1171,8 @@ bool SGMAppController::setupSGMViews(){
 	sgmSidebar_ = new SGMSidebar();
 	mw_->addRightWidget(sgmSidebar_);
 
-	//SGMPeriodicTableView *sgmPeriodicTableView = new SGMPeriodicTableView(SGMPeriodicTable::sgmTable());
-	//sgmPeriodicTableView->show();
+	SGMPeriodicTableView *sgmPeriodicTableView = new SGMPeriodicTableView(SGMPeriodicTable::sgmTable());
+	sgmPeriodicTableView->show();
 
 	return true;
 }

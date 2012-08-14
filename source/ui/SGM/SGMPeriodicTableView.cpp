@@ -5,12 +5,15 @@
 
 #include "ui/dataman/AMDbObjectGeneralView.h"
 #include "ui/dataman/AMDbObjectGeneralViewSupport.h"
+#include "ui/util/SGM/SGMFastScanParametersView.h"
 
 SGMPeriodicTableView::SGMPeriodicTableView(SGMPeriodicTable *sgmPeriodicTable, QWidget *parent) :
 	QWidget(parent)
 {
 	sgmPeriodicTable_ = sgmPeriodicTable;
 	periodicTableView_ = new AMPeriodicTableView(this);
+
+	availableScansMenu_ = 0;
 
 	const AMElement *tempElement;
 	for(int x = 0; x < AMPeriodicTable::table()->elements().count(); x++){
@@ -40,10 +43,10 @@ void SGMPeriodicTableView::onClicked(int atomicNumber){
 	bool foundOne = false;
 	for(int x = 0; x < allFastScans.count(); x++){
 		if(allFastScans.at(x)->element() == elementName){
-			qDebug() << "Found that element " << elementName << " at index " << x;
+			qDebug() << "Found that element " << elementName << " at index " << x << " from " << allFastScans.at(x)->database()->connectionName();
 			foundOne = true;
 
-			tempAction = availableScansMenu_->addAction(allFastScans.at(x)->name());
+			tempAction = availableScansMenu_->addAction(QString("%1 (%2)").arg(allFastScans.at(x)->name()).arg(allFastScans.at(x)->database()->connectionName()));
 			tempAction->setData(x);
 			connect(tempAction, SIGNAL(hovered()), this, SLOT(onHoveredAvailableScansMenu()));
 			connect(tempAction, SIGNAL(triggered()), this, SLOT(onTriggerAvailableScansMenu()));
@@ -67,7 +70,9 @@ void SGMPeriodicTableView::onHoveredAvailableScansMenu(){
 void SGMPeriodicTableView::onTriggerAvailableScansMenu(){
 	SGMFastScanParameters *fastScanToView = SGMPeriodicTable::sgmTable()->fastScanPresets().at(activeMenuData_);
 
-	AMDbObjectGeneralView *generalViewForFastScanParameters;
-	generalViewForFastScanParameters = AMDbObjectGeneralViewSupport::closestMatchingGeneralView(fastScanToView);
-	generalViewForFastScanParameters->show();
+	//AMDbObjectGeneralView *generalViewForFastScanParameters;
+	//generalViewForFastScanParameters = AMDbObjectGeneralViewSupport::closestMatchingGeneralView(fastScanToView);
+	//generalViewForFastScanParameters->show();
+	SGMFastScanParametersView *fastScanParametersView = new SGMFastScanParametersView(fastScanToView);
+	fastScanParametersView->show();
 }

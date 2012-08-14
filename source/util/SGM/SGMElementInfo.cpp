@@ -415,9 +415,24 @@ SGMFastScanSettings& SGMFastScanSettings::operator =(const SGMFastScanSettings &
 	return *this;
 }
 
+bool SGMFastScanSettings::operator ==(const SGMFastScanSettings &other) const{
+	if( fabs(runSeconds() - other.runSeconds()) < 0.01
+			&& motorSettings() == other.motorSettings()
+			&& fabs(scalerTime() - other.scalerTime()) < 0.01
+			&& baseLine() == other.baseLine()
+			&& undulatorVelocity() == other.undulatorVelocity())
+		return true;
+	return false;
+}
+
+bool SGMFastScanSettings::operator !=(const SGMFastScanSettings &other) const{
+	return !(this->operator ==(other));
+}
+
 void SGMFastScanSettings::setRunSeconds(double runSeconds){
 	if(runSeconds_ != runSeconds){
 		runSeconds_ = runSeconds;
+		setModified(true);
 		emit runSecondsChanged(runSeconds_);
 		emit fastScanSettingsChanged();
 	}
@@ -426,6 +441,7 @@ void SGMFastScanSettings::setRunSeconds(double runSeconds){
 void SGMFastScanSettings::setMotorSettings(int motorSettings){
 	if(motorSettings_ != motorSettings){
 		motorSettings_ = motorSettings;
+		setModified(true);
 		emit motorSettingsChanged(motorSettings_);
 		emit fastScanSettingsChanged();
 	}
@@ -434,6 +450,7 @@ void SGMFastScanSettings::setMotorSettings(int motorSettings){
 void SGMFastScanSettings::setScalerTime(double scalerTime){
 	if(scalerTime_ != scalerTime){
 		scalerTime_ = scalerTime;
+		setModified(true);
 		emit scalerTimeChanged(scalerTime_);
 		emit fastScanSettingsChanged();
 	}
@@ -442,6 +459,7 @@ void SGMFastScanSettings::setScalerTime(double scalerTime){
 void SGMFastScanSettings::setBaseLine(int baseLine){
 	if(baseLine_ != baseLine){
 		baseLine_ = baseLine;
+		setModified(true);
 		emit baseLineChanged(baseLine_);
 		emit fastScanSettingsChanged();
 	}
@@ -450,6 +468,7 @@ void SGMFastScanSettings::setBaseLine(int baseLine){
 void SGMFastScanSettings::setUndulatorVelocity(int undulatorVelocity){
 	if(undulatorVelocity_ != undulatorVelocity){
 		undulatorVelocity_ = undulatorVelocity;
+		setModified(true);
 		emit undulatorVelocityChanged(undulatorVelocity_);
 		emit fastScanSettingsChanged();
 	}
@@ -668,6 +687,7 @@ void SGMFastScanParameters::setEndPosition(const SGMEnergyPosition &end){
 void SGMFastScanParameters::setFastScanSettings(const SGMFastScanSettings &fastScanSettings){
 	disconnect(&fastScanSettings_, 0);
 	fastScanSettings_ = fastScanSettings;
+	setModified(true);
 	connect(&fastScanSettings_, SIGNAL(runSecondsChanged(double)), this, SIGNAL(runSecondsChanged(double)));
 	connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(velocityChanged(int)));
 	connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(velocityBaseChanged(int)));
