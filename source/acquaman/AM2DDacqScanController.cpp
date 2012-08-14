@@ -299,7 +299,7 @@ void AM2DDacqScanController::prefillScanPoints()
 
 						else if (scan_->rawDataSources()->at(di)->rank() == 1){
 
-							QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(0), 0);
+							QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(0), -1);
 							scan_->rawData()->setValue(insertIndex, di, data.constData());
 						}
 					}
@@ -356,7 +356,7 @@ void AM2DDacqScanController::prefillScanPoints()
 
 						else if (scan_->rawDataSources()->at(di)->rank() == 1){
 
-							QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(0), 0);
+							QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(0), -1);
 							scan_->rawData()->setValue(insertIndex, di, data.constData());
 						}
 					}

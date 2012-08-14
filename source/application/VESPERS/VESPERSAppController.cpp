@@ -78,7 +78,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 VESPERSAppController::VESPERSAppController(QObject *parent) :
 	AMAppController(parent)
 {
-	// Prepend the SGM upgrade 1.1 to the list for both the user database and the SGM Beamline database
+	// VESPERS user database upgrade that adds 1D raw datasources to all 2D scans.
 	AMDbUpgrade *vespers1Pt1UserDb = new VESPERSDbUpgrade1Pt1("user", this);
 	databaseUpgrades_.append(vespers1Pt1UserDb);
 }
