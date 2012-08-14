@@ -3,6 +3,10 @@
 
 #include "dataman/database/AMDbUpgrade.h"
 
+#define VESPERSDBUPGRADE1PT1_INVALID_SCAN_CONFIGURATION 389000
+#define VESPERSDBUPGRADE1PT1_COULD_NOT_INSERT 389001
+#define VESPERSDBUPGRADE1PT1_INCORRECT_ELEMENT_COUNT 389002
+
 /// This class is used to upgrade databases with 2D scans by adding in the additional spectra data sources.
 class VESPERSDbUpgrade1Pt1 : public AMDbUpgrade
 {

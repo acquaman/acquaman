@@ -57,6 +57,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "application/AMAppControllerSupport.h"
+#include "dataman/VESPERS/VESPERSDbUpgrade1Pt1.h"
 
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
@@ -77,7 +78,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 VESPERSAppController::VESPERSAppController(QObject *parent) :
 	AMAppController(parent)
 {
-
+	// Prepend the SGM upgrade 1.1 to the list for both the user database and the SGM Beamline database
+	AMDbUpgrade *vespers1Pt1UserDb = new VESPERSDbUpgrade1Pt1("user", this);
+	databaseUpgrades_.append(vespers1Pt1UserDb);
 }
 
 bool VESPERSAppController::startup() {
