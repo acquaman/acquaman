@@ -263,8 +263,8 @@ bool AMDatamanAppController::startupOnFirstTime()
 	// Loop over the database upgrades and make sure the upgrade table reflects the current starting state
 	bool success = true;
 	AMDbUpgrade *upgrade;
-	for(int x = 0; x < databaseUpgrades_.count(); x++){
-		upgrade = databaseUpgrades_.at(x);
+	for(int x = 0; x < databaseUpgradeCount(); x++){
+		upgrade = databaseUpgradeAt(x);
 		if(!upgrade->loadDatabaseFromName()){
 			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_LOAD_FAILURE, "Failure to load requested databases for initialization of upgrade table");
 			return false;
@@ -331,10 +331,10 @@ bool AMDatamanAppController::startupDatabaseUpgrades()
 	int lastErrorCode;
 
 	// Loop over the database upgrades and apply them if necessary
-	for(int x = 0; x < databaseUpgrades_.count(); x++){
+	for(int x = 0; x < databaseUpgradeCount(); x++){
 		upgradeIsNecessary = false;
 		databaseIsEmpty = false;
-		upgrade = databaseUpgrades_.at(x);
+		upgrade = databaseUpgradeAt(x);
 		QString pathToDatabase;
 		QString databaseName;
 

@@ -80,7 +80,7 @@ VESPERSAppController::VESPERSAppController(QObject *parent) :
 {
 	// VESPERS user database upgrade that adds 1D raw datasources to all 2D scans.
 	AMDbUpgrade *vespers1Pt1UserDb = new VESPERSDbUpgrade1Pt1("user", this);
-	databaseUpgrades_.append(vespers1Pt1UserDb);
+	appendDatabaseUpgrade(vespers1Pt1UserDb);
 }
 
 bool VESPERSAppController::startup() {
