@@ -596,9 +596,7 @@ bool SGMAppController::setupSGMPeriodicTable(){
 	elementName = "Carbon";
 	elementEdge = "K";
 	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
-	qDebug() << "Looking for Carbon";
 	if(matchIDs.count() == 0){
-		qDebug() << "No carbon, so make it";
 		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 270.0, -397720, -149991, 286.63, 0);
 		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 295.0, -377497, -140470, 200.46, 0);
 		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 320.0, -348005, -133061, 100.54, 0);
