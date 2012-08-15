@@ -399,6 +399,8 @@ protected:
 	QList<AMProcessVariable *> maximumEnergyPV_;
 	/// The integration time.
 	QList<AMProcessVariable *> integrationTimePV_;
+	/// Hack for the preset time for the four element vortex.
+	AMProcessVariable *presetTime4elHack_;
 	/// The live time.
 	QList<AMProcessVariable *> liveTimePV_;
 	/// The elapsed time.
