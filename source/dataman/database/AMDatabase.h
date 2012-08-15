@@ -64,6 +64,8 @@ The parameters by which to access the database are given in \c dbAccessString. (
 	static AMDatabase* database(const QString& connectionName);
 	/// Delete a database instance that is not longer required.
 	static void deleteDatabase(const QString& connectionName);
+	/// Returns a list of all registered databases as given by connectionName
+	static QStringList registeredDatabases();
 
 
 	// Static functions

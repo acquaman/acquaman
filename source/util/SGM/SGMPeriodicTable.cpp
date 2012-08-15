@@ -27,6 +27,7 @@ SGMPeriodicTable* SGMPeriodicTable::instance_ = 0;
 SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 		QObject(parent)
 {
+	qDebug() << "Databases are " << AMDatabase::registeredDatabases();
 	AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
 	if(dbSGM){
 		QList<int> matchIDs;

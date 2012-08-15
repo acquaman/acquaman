@@ -93,6 +93,19 @@ void AMDatabase::deleteDatabase(const QString& connectionName) {
 	}
 }
 
+QStringList AMDatabase::registeredDatabases() {
+	QMutexLocker ml(&databaseLookupMutex_);
+
+	QStringList retVal;
+
+	QHash<QString, AMDatabase*>::const_iterator i = connectionName2Instance_.begin();
+	while(i != connectionName2Instance_.end()){
+		retVal << i.key();
+		i++;
+	}
+
+	return retVal;
+}
 
 
 /// Inserting or updating objects in the database.
