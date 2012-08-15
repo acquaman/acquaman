@@ -161,7 +161,6 @@ bool AMInMemoryDataStore::setValue(const AMnDIndex &scanIndex, int measurementId
 			return false;
 #endif
 		scalarScanPoint_[measurementId][flatMeasurementIndex] = newValue;
-		return true;
 	}
 	else { // higher dimensions:
 		int flatScanIndex = scanIndex.flatIndexInArrayOfSize(scanSize_);
@@ -172,9 +171,7 @@ bool AMInMemoryDataStore::setValue(const AMnDIndex &scanIndex, int measurementId
 			return false;
 #endif
 		scanPoints_[flatScanIndex][measurementId][flatMeasurementIndex] = newValue;
-		return true;
 	}
-
 
 	emitDataChanged(scanIndex, scanIndex, measurementId);
 	return true;
@@ -416,7 +413,6 @@ bool AMInMemoryDataStore::setValue(const AMnDIndex &scanIndex, int measurementId
 		AMIMDSMeasurement& measurement = scalarScanPoint_[measurementId];
 		for(int i=0,cc=measurement.size(); i<cc; ++i)
 			measurement[i] = inputData[i];
-		return true;
 	}
 	// higher dimension scan space
 	else {
@@ -428,7 +424,6 @@ bool AMInMemoryDataStore::setValue(const AMnDIndex &scanIndex, int measurementId
 		AMIMDSMeasurement& measurement = scanPoints_[flatScanIndex][measurementId];
 		for(int i=0,cc=measurement.size(); i<cc; ++i)
 			measurement[i] = inputData[i];
-		return true;
 	}
 
 	emitDataChanged(scanIndex, scanIndex, measurementId);
@@ -448,7 +443,6 @@ bool AMInMemoryDataStore::setValue(const AMnDIndex &scanIndex, int measurementId
 		AMIMDSMeasurement& measurement = scalarScanPoint_[measurementId];
 		for(int i=0,cc=measurement.size(); i<cc; ++i)
 			measurement[i] = inputData[i];
-		return true;
 	}
 	// higher dimension scan space:
 	else {
@@ -460,7 +454,6 @@ bool AMInMemoryDataStore::setValue(const AMnDIndex &scanIndex, int measurementId
 		AMIMDSMeasurement& measurement = scanPoints_[flatScanIndex][measurementId];
 		for(int i=0,cc=measurement.size(); i<cc; ++i)
 			measurement[i] = inputData[i];
-		return true;
 	}
 
 	emitDataChanged(scanIndex, scanIndex, measurementId);

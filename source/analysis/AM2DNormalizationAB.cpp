@@ -208,7 +208,7 @@ bool AM2DNormalizationAB::canAnalyze(const QString &dataName, const QString &nor
 
 	return false;
 }
-
+#include <QDebug>
 AMNumber AM2DNormalizationAB::value(const AMnDIndex &indexes) const
 {
 	if (indexes.rank() != 2)
@@ -256,9 +256,17 @@ bool AM2DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &i
 	data_->values(indexStart, indexEnd, data.data());
 	normalizer_->values(indexStart, indexEnd, normalizer.data());
 
-	for (int i = 0; i < totalSize; i++)
-		outputValues[i] = (normalizer.at(i) != 0) ? data.at(i)/normalizer.at(i) : 0;
+	for (int i = 0; i < totalSize; i++){
 
+		if (normalizer.at(i) == 0)
+			outputValues[i] = 0;
+
+		else if (normalizer.at(i) < 0)
+			outputValues[i] = -1;
+
+		else
+			outputValues[i] = data.at(i)/normalizer.at(i);
+	}
 	return true;
 }
 

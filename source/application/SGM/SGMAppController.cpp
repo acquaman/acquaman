@@ -82,11 +82,14 @@ SGMAppController::SGMAppController(QObject *parent) :
 		sgm1Pt1SGMDb->setIsResponsibleForUpgrade(false);
 
 
-	databaseUpgrades_.prepend(sgm1Pt1SGMDb);
+	prependDatabaseUpgrade(sgm1Pt1SGMDb);
+//	databaseUpgrades_.prepend(sgm1Pt1SGMDb);
 	AMDbUpgrade *sgm1Pt1UserDb = new SGMDbUpgrade1Pt1("user", this);
-	databaseUpgrades_.prepend(sgm1Pt1UserDb);
+	prependDatabaseUpgrade(sgm1Pt1UserDb);
+//	databaseUpgrades_.prepend(sgm1Pt1UserDb);
 	AMDbUpgrade *sgm1Pt1ActionsDb = new SGMDbUpgrade1Pt1("actions", this);
-	databaseUpgrades_.prepend(sgm1Pt1ActionsDb);
+	prependDatabaseUpgrade(sgm1Pt1ActionsDb);
+//	databaseUpgrades_.prepend(sgm1Pt1ActionsDb);
 
 	// Add the SGM Beamline database as a source of exporter options
 	additionalExporterOptionsDatabases_.append("SGMBeamline");

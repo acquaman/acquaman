@@ -34,39 +34,39 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	config_ = cfg;
 	config_->setUserScanName(config_->name());
 
-	scan_ = new AM2DScan(); 	// MB: Moved from line 363 in startImplementation.
-	scan_->setName(config_->name());
-	scan_->setScanConfiguration(config_);
-	scan_->setRunId(AMUser::user()->currentRunId());
-	scan_->setIndexType("fileSystem");
+//	scan_ = new AM2DScan(); 	// MB: Moved from line 363 in startImplementation.
+//	scan_->setName(config_->name());
+//	scan_->setScanConfiguration(config_);
+//	scan_->setRunId(AMUser::user()->currentRunId());
+//	scan_->setIndexType("fileSystem");
 
-	AMPVwStatusControl *control = 0;
+//	AMPVwStatusControl *control = 0;
 
-	switch(config_->motorsChoice()){
+//	switch(config_->motorsChoice()){
 
-	case VESPERS2DScanConfiguration::HAndV:
-		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz());
-		xAxisPVName_ = control != 0 ? control->writePVName() : "";
-		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->vert());
-		yAxisPVName_ = control != 0 ? control->writePVName() : "";
-		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
-		scan_->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
-		break;
+//	case VESPERS2DScanConfiguration::HAndV:
+//		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz());
+//		xAxisPVName_ = control != 0 ? control->writePVName() : "";
+//		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->vert());
+//		yAxisPVName_ = control != 0 ? control->writePVName() : "";
+//		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+//		scan_->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
+//		break;
 
-	case VESPERS2DScanConfiguration::XAndZ:
-		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->sampleStageX());
-		xAxisPVName_ = control != 0 ? control->writePVName() : "";
-		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->sampleStageZ());
-		yAxisPVName_ = control != 0 ? control->writePVName() : "";
-		scan_->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
-		scan_->rawData()->addScanAxis(AMAxisInfo("Z", 0, "Vertical Position", "mm"));
-		break;
+//	case VESPERS2DScanConfiguration::XAndZ:
+//		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->sampleStageX());
+//		xAxisPVName_ = control != 0 ? control->writePVName() : "";
+//		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->sampleStageZ());
+//		yAxisPVName_ = control != 0 ? control->writePVName() : "";
+//		scan_->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
+//		scan_->rawData()->addScanAxis(AMAxisInfo("Z", 0, "Vertical Position", "mm"));
+//		break;
 
-	default:
-		xAxisPVName_ = "";
-		yAxisPVName_ = "";
-		break;
-	}
+//	default:
+//		xAxisPVName_ = "";
+//		yAxisPVName_ = "";
+//		break;
+//	}
 
 	initializationActions_ = 0;
 	cleanupActions_ = 0;
@@ -87,7 +87,7 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	scan_->setScanConfiguration(config_);
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setIndexType("fileSystem");
-	scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+//	scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 	// MB: modified May 13 2012 for changes to AMDataStore:
 //	scan_->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
 	int yPoints = int((config_->yEnd() - config_->yStart())/config_->yStep());
@@ -96,8 +96,35 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	else
 		yPoints += 2;
 
-	scan_->rawData()->addScanAxis(AMAxisInfo("V", yPoints, "Vertical Position", "mm"));
+//	scan_->rawData()->addScanAxis(AMAxisInfo("V", yPoints, "Vertical Position", "mm"));
 
+	AMPVwStatusControl *control = 0;
+
+	switch(config_->motorsChoice()){
+
+	case VESPERS2DScanConfiguration::HAndV:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz());
+		xAxisPVName_ = control != 0 ? control->writePVName() : "";
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->vert());
+		yAxisPVName_ = control != 0 ? control->writePVName() : "";
+		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+		scan_->rawData()->addScanAxis(AMAxisInfo("V", yPoints, "Vertical Position", "mm"));
+		break;
+
+	case VESPERS2DScanConfiguration::XAndZ:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->sampleStageX());
+		xAxisPVName_ = control != 0 ? control->writePVName() : "";
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->sampleStageZ());
+		yAxisPVName_ = control != 0 ? control->writePVName() : "";
+		scan_->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
+		scan_->rawData()->addScanAxis(AMAxisInfo("Z", yPoints, "Vertical Position", "mm"));
+		break;
+
+	default:
+		xAxisPVName_ = "";
+		yAxisPVName_ = "";
+		break;
+	}
 
 	if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement && !config_->usingCCD())
 		scan_->setFileFormat("vespers2012XRF1El");

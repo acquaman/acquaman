@@ -171,6 +171,19 @@ public:
 	/// If a scan with this \c id and \c database are currently open, returns the editor that has it open. Otherwise returns 0.
 	AMGenericScanEditor* isScanOpenForEditing(int id, AMDatabase* db);
 
+	// Convenience functions for database upgrades.
+	/// Returns the number of database upgrades.
+	int databaseUpgradeCount() const { return databaseUpgrades_.count(); }
+	/// Returns the database upgrade at \param index.
+	AMDbUpgrade *databaseUpgradeAt(int index) { return databaseUpgrades_.at(index); }
+	/// Insert a database upgrade anywhere within the list.  If databaseUpgradeCount() is provided for an index then the upgrade is appended to the end of the list.
+	void addDatabaseUpgrade(int index, AMDbUpgrade *upgrade) { databaseUpgrades_.insert(index, upgrade); }
+	/// Append a database upgrade to the end of the list.
+	void appendDatabaseUpgrade(AMDbUpgrade *upgrade) { databaseUpgrades_.insert(databaseUpgradeCount(), upgrade); }
+	/// Prepend a database upgrade to the end of the list.
+	void prependDatabaseUpgrade(AMDbUpgrade *upgrade) { databaseUpgrades_.insert(0, upgrade); }
+	/// Removes a database upgrade from the list at index \param index.  Returns the database upgrade.
+	AMDbUpgrade *removeDatabaseUpgrade(int index) { return databaseUpgrades_.takeAt(index); }
 
 signals:
 	/// Passing on the stop scan signal from the bottom bar.
