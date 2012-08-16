@@ -21,6 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "SGMElementInfo.h"
 #include <cmath>
 
+#include "util/AMPeriodicTable.h"
+
 SGMEnergyPosition::SGMEnergyPosition(const QString &name, double energy, int monoEncoderTarget, int undulatorStepSetpoint, double exitSlitDistance, int sgmGrating)
 {
 	setName(name);
@@ -309,6 +311,13 @@ AMOrderedSet<QString, SGMScanInfo> SGMElementInfo::sgmEdgeInfos() const{
 
 AMOrderedSet<int, SGMFastScanParameters*> SGMElementInfo::availableFastScanParameters() const{
 	return availableFastScanParameters_;
+}
+
+bool SGMElementInfo::loadFromDb(AMDatabase *db, int id){
+	bool retVal = AMDbObject::loadFromDb(db, id);
+	if(retVal && availableFastScanParameters_.count() > 0)
+		element_ = AMPeriodicTable::table()->elementByName(availableFastScanParameters_.at(0)->element());
+	return retVal;
 }
 
 bool SGMElementInfo::addEdgeInfo(const SGMScanInfo &edgeInfo){

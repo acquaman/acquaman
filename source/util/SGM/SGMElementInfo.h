@@ -171,6 +171,8 @@ public:
 	AMOrderedSet<QString, SGMScanInfo> sgmEdgeInfos() const;
 	AMOrderedSet<int, SGMFastScanParameters*> availableFastScanParameters() const;
 
+	bool loadFromDb(AMDatabase *db, int id);
+
 public slots:
 	bool addEdgeInfo(const SGMScanInfo &edgeInfo);
 	bool addFastScanParameters(SGMFastScanParameters *parameters);
