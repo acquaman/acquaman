@@ -177,6 +177,11 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	timeOffsetLayout->addWidget(timeOffsetLabel_);
 	timeOffsetLayout->addWidget(timeOffset_);
 
+	// Label showing where the data will be saved.
+	QString exportString =  AMUserSettings::userDataFolder;
+	exportString.remove("/userData");
+	QLabel *exportPath = new QLabel(QString("Data exported to: %1exportData").arg(exportString));
+
 	// Setting up the layout.
 	QHBoxLayout *topRowLayout = new QHBoxLayout;
 	topRowLayout->addStretch();
@@ -207,6 +212,8 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	configViewLayout->addStretch();
 	configViewLayout->addLayout(contentsLayout);
 	configViewLayout->addStretch();
+	configViewLayout->addWidget(exportPath, 0, Qt::AlignCenter);
+	configViewLayout->addSpacing(30);
 
 	setLayout(configViewLayout);
 }

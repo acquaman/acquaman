@@ -126,8 +126,11 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 //	connect(statusUpdateRatePV_.first(), SIGNAL(valueChanged()), this, SLOT(onStatusUpdateRateInitialized()));
 	connect(peakingTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onPeakingTimeChanged(double)));
 	connect(maximumEnergyPV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onMaximumEnergyChanged(double)));
-//	connect(integrationTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onIntegrationTimeChanged(double)));
-	connect(presetTime4elHack_, SIGNAL(valueChanged(double)), this, SLOT(onIntegrationTimeChanged(double)));
+
+	if (elements == 1)
+		connect(integrationTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onIntegrationTimeChanged(double)));
+	else
+		connect(presetTime4elHack_, SIGNAL(valueChanged(double)), this, SLOT(onIntegrationTimeChanged(double)));
 	connect(elapsedTimePV_.first(), SIGNAL(valueChanged(double)), this, SIGNAL(elapsedTimeChanged(double)));
 	connect(icrPV_.first(), SIGNAL(valueChanged()), this, SIGNAL(deadTimeChanged()));
 	connect(ocrPV_.first(), SIGNAL(valueChanged()), this, SIGNAL(deadTimeChanged()));

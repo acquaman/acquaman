@@ -654,8 +654,7 @@ bool VESPERSEXAFSDacqScanController::setupTransmissionXAS()
 
 	bool loadSuccess = false;
 
-//	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
-	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/XANES.cfg"));
+	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 
 	if(!loadSuccess){
 		AMErrorMon::alert(this,
@@ -696,8 +695,7 @@ bool VESPERSEXAFSDacqScanController::setupSingleElementXAS()
 
 	bool loadSuccess = false;
 
-//	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
-	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/XANES-1Elem.cfg"));
+	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 
 	if(!loadSuccess){
 		AMErrorMon::alert(this,
@@ -755,8 +753,7 @@ bool VESPERSEXAFSDacqScanController::setupFourElementXAS()
 
 	bool loadSuccess = false;
 
-//	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
-	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/XANES-4Elem.cfg"));
+	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 
 	if(!loadSuccess){
 		AMErrorMon::alert(this,

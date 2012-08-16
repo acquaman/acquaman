@@ -288,7 +288,9 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 		roiTextBox_->show();
 
 	// Label showing where the data will be saved.
-	QLabel *exportPath = new QLabel(QString("Data exported to: %1exportData").arg(AMUserSettings::userDataFolder));
+	QString exportString =  AMUserSettings::userDataFolder;
+	exportString.remove("/userData");
+	QLabel *exportPath = new QLabel(QString("Data exported to: %1exportData").arg(exportString));
 
 	// Label with a help message for EXAFS.
 	QLabel *helpMessage = new QLabel("Note when using EXAFS: when using variable integration time, the time column is the maximum time.");
