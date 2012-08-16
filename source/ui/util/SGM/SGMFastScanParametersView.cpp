@@ -1,14 +1,24 @@
 #include "SGMFastScanParametersView.h"
 
 #include <QPushButton>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QLabel>
 #include <QHBoxLayout>
+#include <QStringBuilder>
+#include <QMessageBox>
 
 #include "util/SGM/SGMPeriodicTable.h"
+#include "dataman/database/AMDbObjectSupport.h"
+#include "util/AMErrorMonitor.h"
+#include "util/AMDateTimeUtils.h"
 
-SGMFastScanParametersView::SGMFastScanParametersView(SGMFastScanParameters *fastScanParameters, QWidget *parent) :
+SGMFastScanParametersView::SGMFastScanParametersView(SGMFastScanParameters *fastScanParameters, bool disableCopy, QWidget *parent) :
 	QWidget(parent)
 {
 	fastScanParameters_ = fastScanParameters;
+	disableCopy_ = disableCopy;
+	hasUnsavedChanges_ = false;
 
 	startPositionCopy_ = fastScanParameters_->scanInfo().start();
 	middlePositionCopy_ = fastScanParameters_->scanInfo().middle();
@@ -18,9 +28,9 @@ SGMFastScanParametersView::SGMFastScanParametersView(SGMFastScanParameters *fast
 	//startPositionView_ = new SGMEnergyPositionView(&startPositionCopy_, SGMEnergyPositionView::ViewModeStartOrEnd);
 	//middlePositionView_ = new SGMEnergyPositionView(&middlePositionCopy_, SGMEnergyPositionView::ViewModeMiddle);
 	//endPositionView_ = new SGMEnergyPositionView(&endPositionCopy_, SGMEnergyPositionView::ViewModeStartOrEnd);
-	startPositionView_ = new SGMEnergyPositionWBeamlineView(&startPositionCopy_, SGMEnergyPositionView::ViewModeStartOrEnd);
-	middlePositionView_ = new SGMEnergyPositionWBeamlineView(&middlePositionCopy_, SGMEnergyPositionView::ViewModeMiddle);
-	endPositionView_ = new SGMEnergyPositionWBeamlineView(&endPositionCopy_, SGMEnergyPositionView::ViewModeStartOrEnd);
+	startPositionView_ = new SGMEnergyPositionWBeamlineAndDatabaseView(&startPositionCopy_, SGMEnergyPositionView::ViewModeStartOrEnd);
+	middlePositionView_ = new SGMEnergyPositionWBeamlineAndDatabaseView(&middlePositionCopy_, SGMEnergyPositionView::ViewModeMiddle);
+	endPositionView_ = new SGMEnergyPositionWBeamlineAndDatabaseView(&endPositionCopy_, SGMEnergyPositionView::ViewModeStartOrEnd);
 	fastScanSettingsView_ = new SGMFastScanSettingsView(&fastScanSettingsCopy_);
 
 	copyButton_ = new QPushButton("Copy");
@@ -34,7 +44,7 @@ SGMFastScanParametersView::SGMFastScanParametersView(SGMFastScanParameters *fast
 	endPositionView_->setEnabled(false);
 	fastScanSettingsView_->setEnabled(false);
 
-	if(fastScanParameters_->database()->isReadOnly())
+	if(!disableCopy_  && fastScanParameters_->database() && fastScanParameters_->database()->isReadOnly() )
 		editButton_->setEnabled(false);
 
 	QVBoxLayout *settingsLayout = new QVBoxLayout();
@@ -56,11 +66,13 @@ SGMFastScanParametersView::SGMFastScanParametersView(SGMFastScanParameters *fast
 	buttonsHL1_ = new QHBoxLayout();
 	buttonsHL1_->addStretch(8);
 	buttonsHL1_->addWidget(editButton_);
-	buttonsHL1_->addWidget(copyButton_);
+	if(!disableCopy_)
+		buttonsHL1_->addWidget(copyButton_);
 
 	buttonsHL2_ = new QHBoxLayout();
 	buttonsHL2_->addStretch(8);
-	buttonsHL2_->addWidget(saveButton_);
+	if(!disableCopy_)
+		buttonsHL2_->addWidget(saveButton_);
 	buttonsHL2_->addWidget(cancelButton_);
 
 	masterVL_ = new QVBoxLayout();
@@ -74,10 +86,14 @@ SGMFastScanParametersView::SGMFastScanParametersView(SGMFastScanParameters *fast
 	connect(saveButton_, SIGNAL(clicked()), this, SLOT(onSaveButtonClicked()));
 	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()));
 
-	connect(&startPositionCopy_, SIGNAL(energyPositionChanged()), this, SLOT(onStartPositionCopyChanged()));
-	connect(&middlePositionCopy_, SIGNAL(energyPositionChanged()), this, SLOT(onMiddlePositionCopyChanged()));
-	connect(&endPositionCopy_, SIGNAL(energyPositionChanged()), this, SLOT(onEndPositionCopyChanged()));
-	connect(&fastScanSettingsCopy_, SIGNAL(fastScanSettingsChanged()), this, SLOT(onFastScanSettingsCopyChanged()));
+	connect(&startPositionCopy_, SIGNAL(energyPositionChanged()), this, SLOT(onAnySettingChanged()));
+	connect(&middlePositionCopy_, SIGNAL(energyPositionChanged()), this, SLOT(onAnySettingChanged()));
+	connect(&endPositionCopy_, SIGNAL(energyPositionChanged()), this, SLOT(onAnySettingChanged()));
+	connect(&fastScanSettingsCopy_, SIGNAL(fastScanSettingsChanged()), this, SLOT(onAnySettingChanged()));
+}
+
+bool SGMFastScanParametersView::hasUnsavedChanges() const{
+	return hasUnsavedChanges_;
 }
 
 void SGMFastScanParametersView::onEditButtonClicked(){
@@ -88,39 +104,112 @@ void SGMFastScanParametersView::onEditButtonClicked(){
 
 	masterVL_->removeItem(buttonsHL1_);
 	editButton_->hide();
-	copyButton_->hide();
+	if(!disableCopy_)
+		copyButton_->hide();
 
 	masterVL_->addLayout(buttonsHL2_);
-	saveButton_->show();
-	saveButton_->setEnabled(false);
+	if(!disableCopy_){
+		saveButton_->show();
+		saveButton_->setEnabled(false);
+	}
 	cancelButton_->show();
 }
 
 void SGMFastScanParametersView::onCopyButtonClicked(){
-
+	SGMFastScanParameters *fastScanParametersCopy = new SGMFastScanParameters();
+	fastScanParametersCopy->operator =(*fastScanParameters_);
+	fastScanParametersCopy->dissociateFromDb();
+	SGMFastScanParametersDatabaseSaveView *copyParametersView = new SGMFastScanParametersDatabaseSaveView(fastScanParametersCopy);
+	copyParametersView->show();
 }
 
 void SGMFastScanParametersView::onSaveButtonClicked(){
 	bool isModified = false;
+	QStringList startAlsoList, middleAlsoList, endAlsoList;
+	SGMEnergyPositionWBeamlineAndDatabaseView *dbSaveView;
 	if(fastScanParameters_->scanInfo().start() != startPositionCopy_){
-		fastScanParameters_->setStartPosition(startPositionCopy_);
+//		fastScanParameters_->setStartPosition(startPositionCopy_);
+		dbSaveView = qobject_cast<SGMEnergyPositionWBeamlineAndDatabaseView*>(startPositionView_);
+		if(dbSaveView && dbSaveView->alsoUsedByList().count() > 1){
+			startAlsoList = dbSaveView->alsoUsedByList();
+			startAlsoList.removeAll(fastScanParameters_->name());
+		}
 		isModified = true;
 	}
 	if(fastScanParameters_->scanInfo().middle() != middlePositionCopy_){
-		fastScanParameters_->setMiddlePosition(middlePositionCopy_);
+//		fastScanParameters_->setMiddlePosition(middlePositionCopy_);
+		dbSaveView = qobject_cast<SGMEnergyPositionWBeamlineAndDatabaseView*>(middlePositionView_);
+		if(dbSaveView && dbSaveView->alsoUsedByList().count() > 1){
+			middleAlsoList = dbSaveView->alsoUsedByList();
+			middleAlsoList.removeAll(fastScanParameters_->name());
+		}
 		isModified = true;
 	}
 	if(fastScanParameters_->scanInfo().end() != endPositionCopy_){
-		fastScanParameters_->setEndPosition(endPositionCopy_);
+//		fastScanParameters_->setEndPosition(endPositionCopy_);
+		dbSaveView = qobject_cast<SGMEnergyPositionWBeamlineAndDatabaseView*>(endPositionView_);
+		if(dbSaveView && dbSaveView->alsoUsedByList().count() > 1){
+			endAlsoList = dbSaveView->alsoUsedByList();
+			endAlsoList.removeAll(fastScanParameters_->name());
+		}
 		isModified = true;
 	}
 	if(fastScanParameters_->fastScanSettings() != fastScanSettingsCopy_){
-		fastScanParameters_->setFastScanSettings(fastScanSettingsCopy_);
+//		fastScanParameters_->setFastScanSettings(fastScanSettingsCopy_);
 		isModified = true;
 	}
 
-	if(isModified)
-		fastScanParameters_->storeToDb(fastScanParameters_->database());
+	QStringList allAlsoList;
+	allAlsoList.append(startAlsoList);
+	allAlsoList.append(middleAlsoList);
+	allAlsoList.append(endAlsoList);
+	allAlsoList.removeDuplicates();
+
+	if(isModified){
+
+		bool actuallySave = true;
+		if(allAlsoList.count() > 0){
+			QMessageBox modifyingManyChoice;
+			modifyingManyChoice.setText(QString("These changes will modify other scans."));
+
+			QStringList modifyingPositionsList;
+			if(startAlsoList.count() > 0)
+				modifyingPositionsList << "start";
+			if(middleAlsoList.count() > 0)
+				modifyingPositionsList << "middle";
+			if(endAlsoList.count() > 0)
+				modifyingPositionsList << "end";
+			QString modifyingPositions = AMDateTimeUtils::gramaticallyCorrectList(modifyingPositionsList);
+			if(modifyingPositionsList.count() > 1)
+				modifyingPositions.append(" positions");
+			else
+				modifyingPositions.append(" position");
+
+			modifyingManyChoice.setInformativeText(QString("By modifying the %1 you will also affect the following scans:\n %2\n\nDo you wish to proceed?").arg(modifyingPositions).arg(allAlsoList.join("\n")));
+			modifyingManyChoice.setIcon(QMessageBox::Question);
+			modifyingManyChoice.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+			modifyingManyChoice.setDefaultButton(QMessageBox::Ok);
+			modifyingManyChoice.setEscapeButton(QMessageBox::Cancel);
+
+			if(modifyingManyChoice.exec() != QMessageBox::Ok)
+				actuallySave = false;
+		}
+
+		if(actuallySave){
+			if(fastScanParameters_->scanInfo().start() != startPositionCopy_)
+				fastScanParameters_->setStartPosition(startPositionCopy_);
+			if(fastScanParameters_->scanInfo().middle() != middlePositionCopy_)
+				fastScanParameters_->setMiddlePosition(middlePositionCopy_);
+			if(fastScanParameters_->scanInfo().end() != endPositionCopy_)
+				fastScanParameters_->setEndPosition(endPositionCopy_);
+			if(fastScanParameters_->fastScanSettings() != fastScanSettingsCopy_)
+				fastScanParameters_->setFastScanSettings(fastScanSettingsCopy_);
+
+			fastScanParameters_->storeToDb(fastScanParameters_->database());
+		}
+		else
+			onCancelButtonClicked();
+	}
 }
 
 void SGMFastScanParametersView::onCancelButtonClicked(){
@@ -139,26 +228,154 @@ void SGMFastScanParametersView::onCancelButtonClicked(){
 	fastScanSettingsView_->setEnabled(false);
 
 	masterVL_->removeItem(buttonsHL2_);
-	saveButton_->hide();
+	if(!disableCopy_)
+		saveButton_->hide();
 	cancelButton_->hide();
 
 	masterVL_->addLayout(buttonsHL1_);
 	editButton_->show();
-	copyButton_->show();
+	if(!disableCopy_)
+		copyButton_->show();
+
+	hasUnsavedChanges_ = false;
+	emit unsavedChanges(hasUnsavedChanges_);
 }
 
-void SGMFastScanParametersView::onStartPositionCopyChanged(){
+void SGMFastScanParametersView::onAnySettingChanged(){
 	saveButton_->setEnabled(true);
+	hasUnsavedChanges_ = true;
+	emit unsavedChanges(hasUnsavedChanges_);
 }
 
-void SGMFastScanParametersView::onMiddlePositionCopyChanged(){
-	saveButton_->setEnabled(true);
+SGMFastScanParametersDatabaseSaveView::SGMFastScanParametersDatabaseSaveView(SGMFastScanParameters *fastScanParameters, QWidget *parent) :
+	QWidget(parent)
+{
+	fastScanParameters_ = fastScanParameters;
+	parametersView_ = new SGMFastScanParametersView(fastScanParameters_, true);
+
+	databasesComboBox_ = new QComboBox();
+	QStandardItemModel *databasesComboBoxModel = qobject_cast<QStandardItemModel*>(databasesComboBox_->model());
+	QStringList availableDatabases = AMDatabase::registeredDatabases();
+	availableDatabases.removeAll("actions");
+	AMDatabase *tempDatabase;
+	for(int x = 0; x < availableDatabases.count(); x++){
+		tempDatabase = AMDatabase::database(availableDatabases.at(x));
+		if(tempDatabase){
+			databasesComboBox_->addItem(availableDatabases.at(x), QVariant(availableDatabases.at(x)));
+
+			QVariantList takenNamesInDatabaseAsVariants = tempDatabase->retrieve(AMDbObjectSupport::s()->tableNameForClass<SGMFastScanParameters>(), "name");
+			QStringList takenNamesInDatabaseAsString;
+			for(int x = 0; x < takenNamesInDatabaseAsVariants.count(); x++)
+				takenNamesInDatabaseAsString.append(takenNamesInDatabaseAsVariants.at(x).toString());
+			takenNames_.append(takenNamesInDatabaseAsString);
+
+			if(databasesComboBoxModel && tempDatabase->isReadOnly())
+				databasesComboBoxModel->item(databasesComboBox_->count()-1, 0)->setFlags(databasesComboBoxModel->item(databasesComboBox_->count()-1, 0)->flags() ^ Qt::ItemIsEnabled);
+		}
+	}
+
+	bool foundValidItem = false;
+	for(int x = 0; (x < databasesComboBox_->count()) && (!foundValidItem); x++){
+		if(databasesComboBoxModel->item(x, 0)->flags().testFlag(Qt::ItemIsEnabled)){
+			databasesComboBox_->setCurrentIndex(x);
+			foundValidItem = true;
+		}
+	}
+
+	QLabel *newNameLabel = new QLabel("New Name");
+	newNameLineEdit_ = new QLineEdit();
+
+	QString newNameGuess = fastScanParameters_->name()%"Copy0";
+	bool foundValidCopyIndex = false;
+	for(int x = 1; !foundValidCopyIndex; x++){
+		newNameGuess.remove(newNameGuess.count()-1, 1);
+		newNameGuess.append(QString("%1").arg(x));
+		if(!takenNames_.at(databasesComboBox_->currentIndex()).contains(newNameGuess)){
+			foundValidCopyIndex = true;
+			newNameLineEdit_->setText(newNameGuess);
+		}
+	}
+
+	saveButton_ = new QPushButton("Save");
+	saveButton_->setEnabled(false);
+	cancelButton_ = new QPushButton("Cancel");
+
+	QHBoxLayout *infoHL = new QHBoxLayout();
+	infoHL->addWidget(databasesComboBox_);
+	infoHL->addStretch(8);
+	infoHL->addWidget(newNameLabel);
+	infoHL->addWidget(newNameLineEdit_);
+
+	QHBoxLayout *buttonsHL = new QHBoxLayout();
+	buttonsHL->addStretch(8);
+	buttonsHL->addWidget(saveButton_);
+	buttonsHL->addWidget(cancelButton_);
+
+	QGroupBox *fastScanParametersViewGroupBox = new QGroupBox("New Settings");
+	QHBoxLayout *fastScanParametersHL = new QHBoxLayout();
+	fastScanParametersHL->addWidget(parametersView_);
+	fastScanParametersViewGroupBox->setLayout(fastScanParametersHL);
+
+	QVBoxLayout *mainVL = new QVBoxLayout();
+	mainVL->addLayout(infoHL);
+	mainVL->addWidget(fastScanParametersViewGroupBox);
+	mainVL->addLayout(buttonsHL);
+
+	setLayout(mainVL);
+
+	connect(parametersView_, SIGNAL(unsavedChanges(bool)), this, SLOT(onUnsavedChanges(bool)));
+	connect(databasesComboBox_, SIGNAL(activated(int)), this, SLOT(onDatabasesComboBoxIndexChanged(int)));
+	connect(newNameLineEdit_, SIGNAL(textEdited(QString)), this, SLOT(onNewNameLineEditTextEdited(QString)));
+	connect(saveButton_, SIGNAL(clicked()), this, SLOT(onSaveButtonClicked()));
+
+	checkNewNameIsValid();
 }
 
-void SGMFastScanParametersView::onEndPositionCopyChanged(){
-	saveButton_->setEnabled(true);
+void SGMFastScanParametersDatabaseSaveView::onUnsavedChanges(bool hasUnsavedChanges){
+	saveButton_->setEnabled(hasUnsavedChanges);
 }
 
-void SGMFastScanParametersView::onFastScanSettingsCopyChanged(){
-	saveButton_->setEnabled(true);
+void SGMFastScanParametersDatabaseSaveView::onDatabasesComboBoxIndexChanged(int index){
+	Q_UNUSED(index)
+	checkNewNameIsValid();
+}
+
+void SGMFastScanParametersDatabaseSaveView::onNewNameLineEditTextEdited(const QString &text){
+	Q_UNUSED(text)
+	checkNewNameIsValid();
+}
+
+void SGMFastScanParametersDatabaseSaveView::checkNewNameIsValid(){
+	QPalette editPalette = newNameLineEdit_->palette();
+
+	if(takenNames_.at(databasesComboBox_->currentIndex()).contains(newNameLineEdit_->text())){
+		saveButton_->setEnabled(false);
+		editPalette.setBrush(QPalette::WindowText, QBrush(Qt::red));
+		editPalette.setBrush(QPalette::HighlightedText, QBrush(Qt::red));
+		editPalette.setBrush(QPalette::Text, QBrush(Qt::red));
+	}
+	else{
+		saveButton_->setEnabled(parametersView_->hasUnsavedChanges());
+		editPalette.setBrush(QPalette::WindowText, QBrush(Qt::green));
+		editPalette.setBrush(QPalette::HighlightedText, QBrush(Qt::green));
+		editPalette.setBrush(QPalette::Text, QBrush(Qt::green));
+	}
+	newNameLineEdit_->setPalette(editPalette);
+}
+
+void SGMFastScanParametersDatabaseSaveView::onSaveButtonClicked(){
+	AMDatabase *saveToDatabase = AMDatabase::database(databasesComboBox_->currentText());
+	if(!saveToDatabase){
+		AMErrorMon::alert(this, SGMFASTSCANPARAMETERSVIEW_FAILED_TO_LOAD_SAVE_DATABASE, QString("Failed to open to database named %1 for saving new SGMFastScanParameters.").arg(databasesComboBox_->currentText()));
+		return;
+	}
+
+	if(takenNames_.at(databasesComboBox_->currentIndex()).contains(newNameLineEdit_->text())){
+		AMErrorMon::alert(this, SGMFASTSCANPARAMETERSVIEW_FAILED_NAMING_CHECK, QString("Failed to save new SGMFastScanParameters to because the name %1 is already taken.").arg(newNameLineEdit_->text()));
+		return;
+	}
+	fastScanParameters_->setName(newNameLineEdit_->text());
+
+	if(!fastScanParameters_->storeToDb(saveToDatabase))
+		AMErrorMon::alert(this, SGMFASTSCANPARAMETERSVIEW_FAILED_TO_SAVE_NEW_PARAMETERS, QString("Failed to save new SGMFastScanParameters to database named %1.").arg(saveToDatabase->connectionName()));
 }

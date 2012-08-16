@@ -25,6 +25,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFormLayout>
 #include <QPushButton>
 #include <QLabel>
+#include <QStringBuilder>
+
+#include "dataman/database/AMDbObjectSupport.h"
 
 SGMEnergyPositionView::SGMEnergyPositionView(SGMEnergyPosition *energyPosition, SGMEnergyPositionView::EnergyPositionViewMode alternateViewMode, QWidget *parent) :
 	QGroupBox(parent)
@@ -233,4 +236,38 @@ void SGMEnergyPositionWBeamlineView::onSetFromBeamlineButtonClicked(){
 	energyPosition_->setUndulatorStepSetpoint(SGMBeamline::sgm()->undulatorStep()->value());
 	energyPosition_->setExitSlitDistance(SGMBeamline::sgm()->exitSlit()->value());
 	energyPosition_->setSGMGrating(SGMBeamline::sgm()->grating()->value());
+}
+
+SGMEnergyPositionWBeamlineAndDatabaseView::SGMEnergyPositionWBeamlineAndDatabaseView(SGMEnergyPosition *energyPosition, SGMEnergyPositionView::EnergyPositionViewMode alternateViewMode, QWidget *parent) :
+	SGMEnergyPositionWBeamlineView(energyPosition, alternateViewMode, parent)
+{
+	databaseUsedByLabel_ = new QLabel();
+	QString usedByNames = "Used by:";
+	if( (energyPosition->id() > 0) && (energyPosition->database()) ){
+		QList<int> scanInfoMatchIDs = energyPosition->database()->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMScanInfo>(), "start", QString("SGMEnergyPosition_table;%1").arg(energyPosition->id()));
+		scanInfoMatchIDs.append(energyPosition->database()->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMScanInfo>(), "middle", QString("SGMEnergyPosition_table;%1").arg(energyPosition->id())));
+		scanInfoMatchIDs.append(energyPosition->database()->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMScanInfo>(), "end", QString("SGMEnergyPosition_table;%1").arg(energyPosition->id())));
+
+		qDebug() << "Scan Info Match IDs are " << scanInfoMatchIDs;
+
+		for(int x = 0; x < scanInfoMatchIDs.count(); x++){
+			QList<int> fastScanParametersMatchIDs = energyPosition->database()->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMFastScanParameters>(), "scanInfo", QString("SGMScanInfo_table;%1").arg(scanInfoMatchIDs.at(x)));
+			qDebug() << "Matching Fast Scan Parameters IDs are " << fastScanParametersMatchIDs;
+
+			for(int y = 0; y < fastScanParametersMatchIDs.count(); y++){
+				alsoUsedByList_.append(energyPosition->database()->retrieve(fastScanParametersMatchIDs.at(y), AMDbObjectSupport::s()->tableNameForClass<SGMFastScanParameters>(), "name").toString());
+				usedByNames.append("\n"%alsoUsedByList_.last());
+			}
+		}
+	}
+	else{
+		usedByNames.append("\n???");
+	}
+	databaseUsedByLabel_->setText(usedByNames);
+	//vl2_->insertWidget(1, databaseUsedByLabel_);
+	layout()->addWidget(databaseUsedByLabel_);
+}
+
+QStringList SGMEnergyPositionWBeamlineAndDatabaseView::alsoUsedByList() const{
+	return alsoUsedByList_;
 }

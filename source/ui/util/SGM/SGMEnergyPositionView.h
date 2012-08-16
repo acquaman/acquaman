@@ -89,4 +89,18 @@ protected:
 	QPushButton *setFromBeamlineButton_;
 };
 
+class SGMEnergyPositionWBeamlineAndDatabaseView : public SGMEnergyPositionWBeamlineView
+{
+Q_OBJECT
+public:
+	SGMEnergyPositionWBeamlineAndDatabaseView(SGMEnergyPosition *energyPosition, SGMEnergyPositionView::EnergyPositionViewMode alternateViewMode = SGMEnergyPositionView::ViewModeAll, QWidget *parent = 0);
+
+	QStringList alsoUsedByList() const;
+
+protected:
+	QLabel *databaseUsedByLabel_;
+
+	QStringList alsoUsedByList_;
+};
+
 #endif // SGMENERGYPOSITIONVIEW_H
