@@ -1172,8 +1172,10 @@ bool SGMAppController::setupSGMViews(){
 	sgmSidebar_ = new SGMSidebar();
 	mw_->addRightWidget(sgmSidebar_);
 
-	SGMPeriodicTableView *sgmPeriodicTableView = new SGMPeriodicTableView(SGMPeriodicTable::sgmTable());
-	sgmPeriodicTableView->show();
+//	SGMPeriodicTableView *sgmPeriodicTableView = new SGMPeriodicTableView(SGMPeriodicTable::sgmTable());
+//	sgmPeriodicTableView->show();
+	SGMFastScanParametersModificationWizard *fastScanWizard = new SGMFastScanParametersModificationWizard();
+	fastScanWizard->show();
 
 	return true;
 }

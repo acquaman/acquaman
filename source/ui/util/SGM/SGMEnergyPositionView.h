@@ -29,6 +29,7 @@ class QComboBox;
 class QPushButton;
 class QLabel;
 class QVBoxLayout;
+class QHBoxLayout;
 
 class SGMEnergyPositionView : public QGroupBox
 {
@@ -74,6 +75,7 @@ protected:
 	QPushButton *alternateViewModeButton_;
 
 	QVBoxLayout *vl2_;
+	QHBoxLayout *hl_;
 };
 
 class SGMEnergyPositionWBeamlineView : public SGMEnergyPositionView
@@ -97,8 +99,15 @@ public:
 
 	QStringList alsoUsedByList() const;
 
+protected slots:
+	void onDisassociateButtonClicked();
+
+protected:
+	void setUsedByLabelHelper();
+
 protected:
 	QLabel *databaseUsedByLabel_;
+	QPushButton *disassociateButton_;
 
 	QStringList alsoUsedByList_;
 };

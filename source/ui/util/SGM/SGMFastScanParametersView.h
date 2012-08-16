@@ -79,6 +79,7 @@ protected:
 	SGMFastScanParameters *fastScanParameters_;
 	SGMFastScanParametersView *parametersView_;
 	QComboBox *databasesComboBox_;
+	QComboBox *elementsComboBox_;
 	QLineEdit *newNameLineEdit_;
 
 	QPushButton *saveButton_;

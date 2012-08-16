@@ -118,7 +118,8 @@ void SGMFastScanParametersView::onEditButtonClicked(){
 void SGMFastScanParametersView::onCopyButtonClicked(){
 	SGMFastScanParameters *fastScanParametersCopy = new SGMFastScanParameters();
 	fastScanParametersCopy->operator =(*fastScanParameters_);
-	fastScanParametersCopy->dissociateFromDb();
+	fastScanParametersCopy->dissociateFromDb(false);
+	fastScanParametersCopy->fastScanSettings().dissociateFromDb();
 	SGMFastScanParametersDatabaseSaveView *copyParametersView = new SGMFastScanParametersDatabaseSaveView(fastScanParametersCopy);
 	copyParametersView->show();
 }
@@ -282,6 +283,21 @@ SGMFastScanParametersDatabaseSaveView::SGMFastScanParametersDatabaseSaveView(SGM
 		}
 	}
 
+	elementsComboBox_ = new QComboBox();
+	const AMElement *tempElement;
+	SGMElementInfo *tempElementInfo;
+	for(int x = 0; x < AMPeriodicTable::table()->elements().count(); x++){
+		tempElement = AMPeriodicTable::table()->elements().at(x);
+		if( (tempElement->KEdge().second.toDouble() > 200 && tempElement->KEdge().second.toDouble() < 2000) || (tempElement->L2Edge().second.toDouble() > 200 && tempElement->L2Edge().second.toDouble() < 2000) || (tempElement->M3Edge().second.toDouble() > 200 && tempElement->M3Edge().second.toDouble() < 2000) ){
+			tempElementInfo = SGMPeriodicTable::sgmTable()->elementInfoByName(tempElement->name());
+			if(tempElementInfo)
+				elementsComboBox_->addItem(tempElement->name(), QVariant(tempElement->atomicNumber()));
+			else
+				elementsComboBox_->addItem(tempElement->name()%" (!)", QVariant(tempElement->atomicNumber()));
+		}
+	}
+	elementsComboBox_->setCurrentIndex(elementsComboBox_->findData(AMPeriodicTable::table()->elementByName(fastScanParameters_->element())->atomicNumber()));
+
 	QLabel *newNameLabel = new QLabel("New Name");
 	newNameLineEdit_ = new QLineEdit();
 
@@ -302,6 +318,7 @@ SGMFastScanParametersDatabaseSaveView::SGMFastScanParametersDatabaseSaveView(SGM
 
 	QHBoxLayout *infoHL = new QHBoxLayout();
 	infoHL->addWidget(databasesComboBox_);
+	infoHL->addWidget(elementsComboBox_);
 	infoHL->addStretch(8);
 	infoHL->addWidget(newNameLabel);
 	infoHL->addWidget(newNameLineEdit_);
