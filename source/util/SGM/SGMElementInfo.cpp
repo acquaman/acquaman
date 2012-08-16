@@ -484,6 +484,16 @@ SGMFastScanParameters::SGMFastScanParameters(const QString &name, const QString 
 	setFastScanSettings(fastScanSettings);
 }
 
+SGMFastScanParameters& SGMFastScanParameters::operator =(const SGMFastScanParameters &other){
+	if(this != &other){
+		AMDbObject::operator=(other);
+		setElement(other.element());
+		setScanInfo(other.scanInfo());
+		setFastScanSettings(other.fastScanSettings());
+	}
+	return *this;
+}
+
 bool SGMFastScanParameters::operator ==(const SGMFastScanParameters &other){
 	if( element() == other.element() &&
 		runSeconds() == other.runSeconds() &&
