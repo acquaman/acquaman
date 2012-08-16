@@ -59,6 +59,7 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 		fourElSpectraPV_ = new AMProcessVariable(baseName+QString(":ReadDXPs.SCAN"), true, this);
 		fourElStatusPV_ = new AMProcessVariable(baseName+QString(":StatusAll.SCAN"), true, this);
 		fourElAllPV_ = new AMProcessVariable(baseName+QString(":ReadAll.SCAN"), true, this);
+		presetTime4elHack_ = new AMProcessVariable(baseName+QString(":PresetReal"), true, this);
 
 		connect(fourElSpectraPV_, SIGNAL(valueChanged(int)), this, SLOT(onRefreshRateChanged(int)));
 		connect(fourElStatusPV_, SIGNAL(valueChanged()), this, SLOT(onStatusUpdateRateInitialized()));
@@ -125,7 +126,11 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 //	connect(statusUpdateRatePV_.first(), SIGNAL(valueChanged()), this, SLOT(onStatusUpdateRateInitialized()));
 	connect(peakingTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onPeakingTimeChanged(double)));
 	connect(maximumEnergyPV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onMaximumEnergyChanged(double)));
-	connect(integrationTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onIntegrationTimeChanged(double)));
+
+	if (elements == 1)
+		connect(integrationTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onIntegrationTimeChanged(double)));
+	else
+		connect(presetTime4elHack_, SIGNAL(valueChanged(double)), this, SLOT(onIntegrationTimeChanged(double)));
 	connect(elapsedTimePV_.first(), SIGNAL(valueChanged(double)), this, SIGNAL(elapsedTimeChanged(double)));
 	connect(icrPV_.first(), SIGNAL(valueChanged()), this, SIGNAL(deadTimeChanged()));
 	connect(ocrPV_.first(), SIGNAL(valueChanged()), this, SIGNAL(deadTimeChanged()));
@@ -240,7 +245,7 @@ void XRFDetector::isDetectorConnected()
 //					&& statusUpdateRatePV_.at(i)->writeReady()
 					&& peakingTimePV_.at(i)->writeReady()
 					&& maximumEnergyPV_.at(i)->writeReady()
-					&& integrationTimePV_.at(i)->writeReady()
+//					&& integrationTimePV_.at(i)->writeReady()
 					&& liveTimePV_.at(i)->writeReady()
 					&& elapsedTimePV_.at(i)->readReady()
 					&& icrPV_.at(i)->readReady()
@@ -487,6 +492,9 @@ void XRFDetector::setTime(double time)
 		integrationTimePV_.at(i)->setValue(time);
 		liveTimePV_.at(i)->setValue(0.0);
 	}
+
+	if (elements() == 4)
+		presetTime4elHack_->setValue(time);
 }
 
 void XRFDetector::setMaximumEnergyControl(double energy)

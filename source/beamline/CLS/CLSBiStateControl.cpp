@@ -76,11 +76,10 @@ void CLSBiStateControl::onStateChanged()
 	if(isMoving_ != wasMoving)
 		emit movingChanged(isMoving_);
 }
-#include <QDebug>
+
 AMControl::FailureExplanation CLSBiStateControl::open() {
 	// already transitioning? Cannot send while moving.
 
-	qDebug() << isMoving() << statePV_->getInt();
 	if(isMoving() && !allowsMovesWhileMoving()) {
 		AMErrorMon::alert(this, -1, QString("Cannot open %1: it's currently in the process of opening or closing.").arg(name()));
 		return AlreadyMovingFailure;
