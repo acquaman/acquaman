@@ -409,6 +409,44 @@ QVariantList AMDatabase::retrieve(int id, const QString& table, const QStringLis
 	return values;
 }
 
+/// retrieve a column of information from the database.
+/*! table is the database table name
+ colName is the name of the column you wish to get all the values for
+ values is a list of pointers to QVariants that will be modified with the retrived values.
+ (Note that the const and & arguments are designed to prevent memory copies, so this should be fast.)
+ Return value: returns the list of values
+*/
+QVariantList AMDatabase::retrieve(const QString& table, const QString& colName) const {
+
+	QVariantList values;	// return value
+
+	/// \todo sanitize more than this...
+	if(table.isEmpty()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDATABASE_MISSING_TABLE_NAME_IN_RETRIEVE, "Could not search the database. (Missing the table name.)"));
+		return values;
+	}
+
+	// create a query on our database connection:
+	QSqlQuery q( qdb() );
+
+	// Prepare the query.
+	q.prepare(QString("SELECT %1 FROM %2").arg(colName).arg(table));
+
+	// run query. Did it succeed?
+	if(!execQuery(q)) {
+		q.finish();	// make sure that sqlite lock is released before emitting signals
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDATABASE_RETRIEVE_QUERY_FAILED, QString("database retrieve failed. Could not execute query (%1). The SQL reply was: %2").arg(q.executedQuery()).arg(q.lastError().text())));
+		return values;
+	}
+
+	while(q.next())
+		values << q.value(0);
+
+	q.finish();	// make sure that sqlite lock is released before emitting signals
+	// otherwise: didn't find this column.  That's normal if it's not there; just return empty list
+	return values;
+}
+
 
 QVariant AMDatabase::retrieve(int id, const QString& table, const QString& colName) const {
 
