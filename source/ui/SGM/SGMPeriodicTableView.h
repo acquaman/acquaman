@@ -8,6 +8,10 @@
 #include "ui/util/AMPeriodicTableView.h"
 
 class QLabel;
+class QComboBox;
+class QRadioButton;
+class QHBoxLayout;
+class QLineEdit;
 
 class SGMPeriodicTableView : public QWidget
 {
@@ -68,7 +72,7 @@ public:
 	virtual bool validatePage();
 	virtual bool isComplete();
 	virtual void initializePage();
-	virtual int nextId();
+	virtual int nextId() const;
 
 protected slots:
 	void onEditButtonClicked();
@@ -119,6 +123,139 @@ protected:
 	bool hasUnsavedChanges_;
 };
 
+class SGMFastScanParametersModificationWizardCopyDestinationSelectionPage : public QWizardPage
+{
+Q_OBJECT
+public:
+	SGMFastScanParametersModificationWizardCopyDestinationSelectionPage(QWidget *parent = 0);
+
+	virtual bool validatePage();
+	virtual bool isComplete();
+	virtual void initializePage();
+	virtual int nextId() const;
+
+protected slots:
+	void onDatabaseComboBoxIndexChanged(int index);
+
+protected:
+	void checkValidElementsHelper();
+
+protected:
+	QLabel *sourceDatabaseLabel_;
+	QLabel *sourceElementLabel_;
+	QLabel *sourceNameLabel_;
+
+	QComboBox *databasesComboBox_;
+	QComboBox *elementsComboBox_;
+	QLabel *warningsLabel_;
+
+	SGMFastScanParametersModificationWizard *fastScanWizard_;
+	SGMFastScanParameters *originatingFastScanParameters_;
+};
+
+class SGMFastScanParametersModificationWizardCopyShareEnergyPositionsPage : public QWizardPage
+{
+Q_OBJECT
+public:
+	SGMFastScanParametersModificationWizardCopyShareEnergyPositionsPage(QWidget *parent = 0);
+
+	virtual bool validatePage();
+	virtual bool isComplete() const;
+	virtual void initializePage();
+	virtual int nextId() const;
+
+protected slots:
+	void onButtonClicked(QAbstractButton *button);
+
+protected:
+	SGMFastScanParametersModificationWizard *fastScanWizard_;
+	SGMFastScanParameters *originatingFastScanParameters_;
+	SGMFastScanParameters *newFastScanParameters_;
+
+	SGMEnergyPosition startPositionCopy_;
+	SGMEnergyPosition middlePositionCopy_;
+	SGMEnergyPosition endPositionCopy_;
+
+	QRadioButton *shareEnergyPositionsButton_;
+	QRadioButton *createNewEnergyPositionsButton_;
+	QButtonGroup *shareOrCreateButtonGroup_;
+	QHBoxLayout *masterHL_;
+};
+
+class SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage : public QWizardPage
+{
+Q_OBJECT
+public:
+	SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage(QWidget *parent = 0);
+
+	virtual bool validatePage();
+	virtual bool isComplete() const;
+	virtual void initializePage();
+	virtual int nextId() const;
+
+protected slots:
+	void onNewNameLineEditTextEdited(const QString &text);
+
+protected:
+	SGMFastScanParametersModificationWizard *fastScanWizard_;
+	SGMFastScanParameters *originatingFastScanParameters_;
+	SGMFastScanParameters *newFastScanParameters_;
+
+	QLineEdit *newNameLineEdit_;
+	QStringList takenNames_;
+};
+
+class SGMFastScanParametersModificationWizardCopyEditScanInfoPage : public QWizardPage
+{
+Q_OBJECT
+public:
+	SGMFastScanParametersModificationWizardCopyEditScanInfoPage(QWidget *parent = 0);
+
+	virtual bool validatePage();
+	virtual bool isComplete();
+	virtual void initializePage();
+	virtual int nextId() const;
+
+protected:
+	SGMFastScanParametersModificationWizard *fastScanWizard_;
+	SGMFastScanParameters *originatingFastScanParameters_;
+	SGMFastScanParameters *newFastScanParameters_;
+};
+
+class SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage : public QWizardPage
+{
+Q_OBJECT
+public:
+	SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage(QWidget *parent = 0);
+
+	virtual bool validatePage();
+	virtual bool isComplete();
+	virtual void initializePage();
+	virtual int nextId() const;
+
+protected:
+	SGMFastScanParametersModificationWizard *fastScanWizard_;
+	SGMFastScanParameters *originatingFastScanParameters_;
+	SGMFastScanParameters *newFastScanParameters_;
+};
+
+class SGMFastScanParametersModificationWizardCopyEditFastScanSettingsPage : public QWizardPage
+{
+Q_OBJECT
+public:
+	SGMFastScanParametersModificationWizardCopyEditFastScanSettingsPage(QWidget *parent = 0);
+
+	virtual bool validatePage();
+	virtual bool isComplete();
+	virtual void initializePage();
+	virtual int nextId() const;
+
+protected:
+	SGMFastScanParametersModificationWizard *fastScanWizard_;
+	SGMFastScanParameters *originatingFastScanParameters_;
+	SGMFastScanParameters *newFastScanParameters_;
+};
+
 class SGMFastScanParametersModificationWizard : public QWizard
 {
 Q_OBJECT
@@ -126,19 +263,32 @@ public:
 	enum { PeriodicTablePage = 0,
 		EditOrCopyPage = 1,
 		EditPage = 2,
-		CopyPage = 3
+		CopyDestinationSelectionPage = 3,
+		ShareEnergyPositionsPage = 4,
+		EditScanInfoPage = 5,
+		EditFastScanParametersNamePage = 6,
+		EditEnergyPositionsPage = 7,
+		EditFastScanSettingsPage = 8
 	     };
 
 	SGMFastScanParametersModificationWizard(QWidget *parent = 0);
 
 	SGMFastScanParameters* originatingFastScanParameters();
+	SGMFastScanParameters* newFastScanParameters();
+
+	AMDatabase* newDatabase();
+	const AMElement* newElement();
 
 public slots:
 	void setOriginatingFastScanIndex(int indexOfFastScan);
+	void copyOriginalFastScanParametersToNew(AMDatabase *database, const AMElement *element);
 
 protected:
 	int indexOfOriginatingFastScan_;
 	SGMFastScanParameters *originatingFastScanParameters_;
+	SGMFastScanParameters *newFastScanParameters_;
+	AMDatabase *newDatabase_;
+	const AMElement *newElement_;
 };
 
 #endif // SGMPERIODICTABLEVIEW_H

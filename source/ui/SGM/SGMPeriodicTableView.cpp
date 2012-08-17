@@ -7,6 +7,10 @@
 #include <QTimer>
 #include <QStringBuilder>
 #include <QMessageBox>
+#include <QComboBox>
+#include <QRadioButton>
+#include <QButtonGroup>
+#include <QLineEdit>
 
 #include "ui/dataman/AMDbObjectGeneralView.h"
 #include "ui/dataman/AMDbObjectGeneralViewSupport.h"
@@ -14,6 +18,7 @@
 #include "ui/util/SGM/SGMEnergyPositionView.h"
 #include "ui/util/SGM/SGMFastScanSettingsView.h"
 #include "util/AMDateTimeUtils.h"
+#include "dataman/database/AMDbObjectSupport.h"
 
 SGMPeriodicTableView::SGMPeriodicTableView(SGMPeriodicTable *sgmPeriodicTable, QWidget *parent) :
 	QWidget(parent)
@@ -196,11 +201,11 @@ void SGMFastScanParametersModificationWizardEditOrCopyPage::initializePage(){
 	QTimer::singleShot(0, this, SLOT(checkIsComplete()));
 }
 
-int SGMFastScanParametersModificationWizardEditOrCopyPage::nextId(){
+int SGMFastScanParametersModificationWizardEditOrCopyPage::nextId() const{
 	if(choiceLabel_->text() == "Press Next to Edit")
 		return SGMFastScanParametersModificationWizard::EditPage;
 	else if(choiceLabel_->text() == "Press Next to Copy")
-		return SGMFastScanParametersModificationWizard::CopyPage;
+		return SGMFastScanParametersModificationWizard::CopyDestinationSelectionPage;
 	return 0;
 }
 
@@ -374,6 +379,388 @@ void SGMFastScanParametersModificationWizardEditPage::onAnySettingsChanged(){
 	isComplete();
 }
 
+
+SGMFastScanParametersModificationWizardCopyDestinationSelectionPage::SGMFastScanParametersModificationWizardCopyDestinationSelectionPage(QWidget *parent) :
+	QWizardPage(parent)
+{
+	sourceDatabaseLabel_ = new QLabel();
+	sourceElementLabel_ = new QLabel();
+	sourceNameLabel_ = new QLabel();
+
+	databasesComboBox_ = new QComboBox();
+	elementsComboBox_ = new QComboBox();
+
+	warningsLabel_ = new QLabel();
+
+	QVBoxLayout *sourceVL = new QVBoxLayout();
+	sourceVL->addWidget(sourceDatabaseLabel_);
+	sourceVL->addWidget(sourceElementLabel_);
+	sourceVL->addWidget(sourceNameLabel_);
+
+	QHBoxLayout *tempHL;
+	QVBoxLayout *desintationVL = new QVBoxLayout();
+	tempHL = new QHBoxLayout();
+	tempHL->addWidget(new QLabel("Destination Database:"));
+	tempHL->addWidget(databasesComboBox_);
+	desintationVL->addLayout(tempHL);
+	tempHL = new QHBoxLayout();
+	tempHL->addWidget(new QLabel("Destination Element:"));
+	tempHL->addWidget(elementsComboBox_);
+	desintationVL->addLayout(tempHL);
+
+	QHBoxLayout *hl = new QHBoxLayout();
+	hl->addLayout(sourceVL);
+	hl->addStretch(8);
+	hl->addLayout(desintationVL);
+
+	QVBoxLayout *masterVL = new QVBoxLayout();
+	masterVL->addLayout(hl);
+	masterVL->addWidget(warningsLabel_);
+
+	setLayout(masterVL);
+
+	setTitle("Select the Destination Database and Element of Interest");
+
+	connect(databasesComboBox_, SIGNAL(activated(int)), this, SLOT(onDatabaseComboBoxIndexChanged(int)));
+}
+
+bool SGMFastScanParametersModificationWizardCopyDestinationSelectionPage::validatePage(){
+	qDebug() << "You want to proceed";
+	qDebug() << "Database - From: " << originatingFastScanParameters_->database()->connectionName() << " To: " << databasesComboBox_->currentText();
+	qDebug() << "Element - From: " << originatingFastScanParameters_->element() << " To: " << elementsComboBox_->currentText();
+
+	fastScanWizard_->copyOriginalFastScanParametersToNew(AMDatabase::database(databasesComboBox_->currentText()), AMPeriodicTable::table()->elementByName(elementsComboBox_->currentText()));
+
+	// Except for [Same Db, Same Element] always dissociate scanInfo
+	if( !((originatingFastScanParameters_->database()->connectionName() == databasesComboBox_->currentText()) && (originatingFastScanParameters_->element() == elementsComboBox_->currentText())) )
+		fastScanWizard_->newFastScanParameters()->scanInfo().dissociateFromDb();
+
+	// In the case of [New Db, Same Element] we will silently copy SGMElementInfo and SGMScanInfo into the new database
+	if( (originatingFastScanParameters_->database()->connectionName() != databasesComboBox_->currentText()) && (originatingFastScanParameters_->element() == elementsComboBox_->currentText())){
+
+	}
+
+	return true;
+}
+
+bool SGMFastScanParametersModificationWizardCopyDestinationSelectionPage::isComplete(){
+
+}
+
+void SGMFastScanParametersModificationWizardCopyDestinationSelectionPage::initializePage(){
+	fastScanWizard_ = qobject_cast<SGMFastScanParametersModificationWizard*>(wizard());
+	originatingFastScanParameters_ = fastScanWizard_->originatingFastScanParameters();
+
+	sourceDatabaseLabel_->clear();
+	sourceElementLabel_->clear();
+	sourceNameLabel_->clear();
+
+	databasesComboBox_->clear();
+	elementsComboBox_->clear();
+
+	warningsLabel_->clear();
+
+	sourceDatabaseLabel_->setText(QString("Source Database: %1").arg(originatingFastScanParameters_->database()->connectionName()));
+	sourceElementLabel_->setText(QString("Source Element: %1").arg(originatingFastScanParameters_->element()));
+	sourceNameLabel_->setText(QString("Source Scan: %1").arg(originatingFastScanParameters_->name()));
+
+	QStandardItemModel *databasesComboBoxModel = qobject_cast<QStandardItemModel*>(databasesComboBox_->model());
+	QStringList availableDatabases = AMDatabase::registeredDatabases();
+	availableDatabases.removeAll("actions");
+	AMDatabase *tempDatabase;
+	for(int x = 0; x < availableDatabases.count(); x++){
+		tempDatabase = AMDatabase::database(availableDatabases.at(x));
+		if(tempDatabase){
+			databasesComboBox_->addItem(availableDatabases.at(x), QVariant(availableDatabases.at(x)));
+
+			if(databasesComboBoxModel && tempDatabase->isReadOnly())
+				databasesComboBoxModel->item(databasesComboBox_->count()-1, 0)->setFlags(databasesComboBoxModel->item(databasesComboBox_->count()-1, 0)->flags() ^ Qt::ItemIsEnabled);
+		}
+	}
+
+	bool foundValidItem = false;
+	for(int x = 0; (x < databasesComboBox_->count()) && (!foundValidItem); x++){
+		if(databasesComboBoxModel->item(x, 0)->flags().testFlag(Qt::ItemIsEnabled)){
+			databasesComboBox_->setCurrentIndex(x);
+			foundValidItem = true;
+		}
+	}
+
+	const AMElement *tempElement;
+	for(int x = 0; x < AMPeriodicTable::table()->elements().count(); x++){
+		tempElement = AMPeriodicTable::table()->elements().at(x);
+		if( (tempElement->KEdge().second.toDouble() > 200 && tempElement->KEdge().second.toDouble() < 2000) || (tempElement->L2Edge().second.toDouble() > 200 && tempElement->L2Edge().second.toDouble() < 2000) || (tempElement->M3Edge().second.toDouble() > 200 && tempElement->M3Edge().second.toDouble() < 2000) )
+			elementsComboBox_->addItem(tempElement->name(), QVariant(tempElement->atomicNumber()));
+	}
+	elementsComboBox_->setCurrentIndex(elementsComboBox_->findData(AMPeriodicTable::table()->elementByName(originatingFastScanParameters_->element())->atomicNumber()));
+	checkValidElementsHelper();
+
+	setSubTitle(QString("The scan %1 comes from a database named %2. Use the boxes on the right to select a database to save your copy to as well as the element you intend to scan.\nPlease note that some databases may not be available to write to.\nAs well, some elements in some databases already have information saved. If the element you wish to select is grayed out, go back and select that element from the periodic table.").arg(originatingFastScanParameters_->name()).arg(originatingFastScanParameters_->database()->connectionName()));
+}
+
+int SGMFastScanParametersModificationWizardCopyDestinationSelectionPage::nextId() const{
+	if( (originatingFastScanParameters_->database()->connectionName() == databasesComboBox_->currentText()) && (originatingFastScanParameters_->element() == elementsComboBox_->currentText()) )
+		return SGMFastScanParametersModificationWizard::ShareEnergyPositionsPage;
+	else if(originatingFastScanParameters_->element() == elementsComboBox_->currentText())
+		return SGMFastScanParametersModificationWizard::EditFastScanParametersNamePage;
+	else
+		return SGMFastScanParametersModificationWizard::EditScanInfoPage;
+}
+
+void SGMFastScanParametersModificationWizardCopyDestinationSelectionPage::onDatabaseComboBoxIndexChanged(int index){
+	Q_UNUSED(index)
+	checkValidElementsHelper();
+}
+
+void SGMFastScanParametersModificationWizardCopyDestinationSelectionPage::checkValidElementsHelper(){
+	AMDatabase *destinationDatabase = AMDatabase::database(databasesComboBox_->currentText());
+	QStandardItemModel *elementsComboBoxModel = qobject_cast<QStandardItemModel*>(elementsComboBox_->model());
+
+	for(int x = 0; x < elementsComboBox_->count(); x++)
+		elementsComboBoxModel->item(x, 0)->setFlags(elementsComboBoxModel->item(x, 0)->flags() | Qt::ItemIsEnabled);
+
+	QVariantList allElementInfoNamesAsVariants = destinationDatabase->retrieve(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name");
+	QStringList allElementsInfos;
+	for(int x = 0; x < allElementInfoNamesAsVariants.count(); x++)
+		allElementsInfos << allElementInfoNamesAsVariants.at(x).toString().remove("ElementInfo");
+
+	for(int x = 0; x < elementsComboBox_->count(); x++)
+		if(allElementsInfos.contains(elementsComboBox_->itemText(x)) && (elementsComboBox_->itemText(x) != originatingFastScanParameters_->element()) )
+			elementsComboBoxModel->item(x, 0)->setFlags(elementsComboBoxModel->item(x, 0)->flags() ^ Qt::ItemIsEnabled);
+
+}
+
+/////////////////////////////
+
+SGMFastScanParametersModificationWizardCopyShareEnergyPositionsPage::SGMFastScanParametersModificationWizardCopyShareEnergyPositionsPage(QWidget *parent) :
+	QWizardPage(parent)
+{
+	shareEnergyPositionsButton_ = new QRadioButton("Share Energy Positions");
+	createNewEnergyPositionsButton_ = new QRadioButton("Create Your Own Energy Positions");
+	shareOrCreateButtonGroup_ = new QButtonGroup();
+	shareOrCreateButtonGroup_->addButton(shareEnergyPositionsButton_);
+	shareOrCreateButtonGroup_->addButton(createNewEnergyPositionsButton_);
+
+	QVBoxLayout *vl = new QVBoxLayout();
+	vl->addWidget(shareEnergyPositionsButton_);
+	vl->addWidget(createNewEnergyPositionsButton_);
+	vl->addStretch(8);
+
+	masterHL_ = new QHBoxLayout();
+	masterHL_->addLayout(vl);
+	masterHL_->addStretch(8);
+
+	setLayout(masterHL_);
+
+	setTitle("Element Information is Already Available");
+
+	connect(shareOrCreateButtonGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onButtonClicked(QAbstractButton*)));
+}
+
+bool SGMFastScanParametersModificationWizardCopyShareEnergyPositionsPage::validatePage(){
+	// for now, figure out disassociation later
+	return true;
+}
+
+bool SGMFastScanParametersModificationWizardCopyShareEnergyPositionsPage::isComplete() const{
+	if(!shareOrCreateButtonGroup_->checkedButton())
+		return false;
+	return true;
+}
+
+void SGMFastScanParametersModificationWizardCopyShareEnergyPositionsPage::initializePage(){
+	fastScanWizard_ = qobject_cast<SGMFastScanParametersModificationWizard*>(wizard());
+	originatingFastScanParameters_ = fastScanWizard_->originatingFastScanParameters();
+	newFastScanParameters_ = fastScanWizard_->newFastScanParameters();
+
+	startPositionCopy_ = newFastScanParameters_->scanInfo().start();
+	middlePositionCopy_ = newFastScanParameters_->scanInfo().middle();
+	endPositionCopy_ = newFastScanParameters_->scanInfo().end();
+
+	SGMEnergyPositionWBeamlineAndDatabaseView *startPositionView = new SGMEnergyPositionWBeamlineAndDatabaseView(&startPositionCopy_, SGMEnergyPositionView::ViewModeStartOrEnd);
+	SGMEnergyPositionWBeamlineAndDatabaseView *middlePositionView = new SGMEnergyPositionWBeamlineAndDatabaseView(&middlePositionCopy_, SGMEnergyPositionView::ViewModeMiddle);
+	SGMEnergyPositionWBeamlineAndDatabaseView *endPositionView = new SGMEnergyPositionWBeamlineAndDatabaseView(&endPositionCopy_, SGMEnergyPositionView::ViewModeStartOrEnd);
+
+	startPositionView->setEnabled(false);
+	middlePositionView->setEnabled(false);
+	endPositionView->setEnabled(false);
+
+	QVBoxLayout *positionsLayout = new QVBoxLayout();
+	positionsLayout->addWidget(startPositionView);
+	positionsLayout->addWidget(middlePositionView);
+	positionsLayout->addWidget(endPositionView);
+	positionsLayout->addStretch(8);
+	positionsLayout->setContentsMargins(5, 0, 5, 0);
+
+	masterHL_->addLayout(positionsLayout);
+
+	createNewEnergyPositionsButton_->setEnabled(false);
+
+	setSubTitle(QString("There are already energy position settings in the %1 database for %2.\nYou can see these on the right hand side.\nDo you wish to use the same energy position settings for your scan?").arg(originatingFastScanParameters_->database()->connectionName()).arg(newFastScanParameters_->element()));
+}
+
+int SGMFastScanParametersModificationWizardCopyShareEnergyPositionsPage::nextId() const{
+	return SGMFastScanParametersModificationWizard::EditFastScanParametersNamePage;
+}
+
+void SGMFastScanParametersModificationWizardCopyShareEnergyPositionsPage::onButtonClicked(QAbstractButton *button){
+	emit completeChanged();
+}
+
+/////////////////////////////
+
+SGMFastScanParametersModificationWizardCopyEditScanInfoPage::SGMFastScanParametersModificationWizardCopyEditScanInfoPage(QWidget *parent) :
+	QWizardPage(parent)
+{
+
+}
+
+bool SGMFastScanParametersModificationWizardCopyEditScanInfoPage::validatePage(){
+
+}
+
+bool SGMFastScanParametersModificationWizardCopyEditScanInfoPage::isComplete(){
+
+}
+
+void SGMFastScanParametersModificationWizardCopyEditScanInfoPage::initializePage(){
+	fastScanWizard_ = qobject_cast<SGMFastScanParametersModificationWizard*>(wizard());
+	originatingFastScanParameters_ = fastScanWizard_->originatingFastScanParameters();
+	newFastScanParameters_ = fastScanWizard_->newFastScanParameters();
+}
+
+int SGMFastScanParametersModificationWizardCopyEditScanInfoPage::nextId() const{
+
+}
+
+/////////////////////////////
+
+SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage::SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage(QWidget *parent) :
+	QWizardPage(parent)
+{
+	QLabel *newNameLabel = new QLabel("New Name: ");
+	newNameLineEdit_ = new QLineEdit();
+
+	QHBoxLayout *hl = new QHBoxLayout();
+	hl->addWidget(newNameLabel);
+	hl->addWidget(newNameLineEdit_);
+
+	setLayout(hl);
+
+	setTitle("Choose a Name for your Scan");
+
+	connect(newNameLineEdit_, SIGNAL(textEdited(QString)), this, SLOT(onNewNameLineEditTextEdited(QString)));
+}
+
+bool SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage::validatePage(){
+
+}
+
+bool SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage::isComplete() const{
+	if(!newNameLineEdit_ || takenNames_.contains(newNameLineEdit_->text()) || newNameLineEdit_->text().isEmpty())
+		return false;
+	return true;
+}
+
+void SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage::initializePage(){
+	fastScanWizard_ = qobject_cast<SGMFastScanParametersModificationWizard*>(wizard());
+	originatingFastScanParameters_ = fastScanWizard_->originatingFastScanParameters();
+	newFastScanParameters_ = fastScanWizard_->newFastScanParameters();
+
+	QVariantList takenNamesAsVariants = fastScanWizard_->newDatabase()->retrieve(AMDbObjectSupport::s()->tableNameForClass<SGMFastScanParameters>(), "name");
+	for(int x = 0; x < takenNamesAsVariants.count(); x++)
+		takenNames_ << takenNamesAsVariants.at(x).toString();
+
+	QString newNameGuess = newFastScanParameters_->name();
+	if(takenNames_.contains(newNameGuess)){
+		newNameGuess.append("Copy0");
+		bool foundValidCopyIndex = false;
+		for(int x = 1; !foundValidCopyIndex; x++){
+			newNameGuess.remove(newNameGuess.count()-1, 1);
+			newNameGuess.append(QString("%1").arg(x));
+			if(!takenNames_.contains(newNameGuess))
+				foundValidCopyIndex = true;
+		}
+	}
+	newNameLineEdit_->setText(newNameGuess);
+	onNewNameLineEditTextEdited(newNameLineEdit_->text());
+
+	setSubTitle(QString("You must select a name for your new scan. A default name is suggested below, but is likely not good.\nFor example, if wish to make a 15 second fast scan on the Carbon K edge, use CarbonK15s"));
+}
+
+int SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage::nextId() const{
+
+}
+
+void SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage::onNewNameLineEditTextEdited(const QString &text){
+	QPalette editPalette = newNameLineEdit_->palette();
+
+	if(takenNames_.contains(text)){
+		editPalette.setBrush(QPalette::WindowText, QBrush(Qt::red));
+		editPalette.setBrush(QPalette::HighlightedText, QBrush(Qt::red));
+		editPalette.setBrush(QPalette::Text, QBrush(Qt::red));
+	}
+	else{
+		editPalette.setBrush(QPalette::WindowText, QBrush(Qt::green));
+		editPalette.setBrush(QPalette::HighlightedText, QBrush(Qt::green));
+		editPalette.setBrush(QPalette::Text, QBrush(Qt::green));
+	}
+	newNameLineEdit_->setPalette(editPalette);
+	emit completeChanged();
+}
+
+/////////////////////////////
+
+SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage::SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage(QWidget *parent) :
+	QWizardPage(parent)
+{
+
+}
+
+bool SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage::validatePage(){
+
+}
+
+bool SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage::isComplete(){
+
+}
+
+void SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage::initializePage(){
+	fastScanWizard_ = qobject_cast<SGMFastScanParametersModificationWizard*>(wizard());
+	originatingFastScanParameters_ = fastScanWizard_->originatingFastScanParameters();
+	newFastScanParameters_ = fastScanWizard_->newFastScanParameters();
+}
+
+int SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage::nextId() const{
+
+}
+
+/////////////////////////////
+
+SGMFastScanParametersModificationWizardCopyEditFastScanSettingsPage::SGMFastScanParametersModificationWizardCopyEditFastScanSettingsPage(QWidget *parent) :
+	QWizardPage(parent)
+{
+
+}
+
+bool SGMFastScanParametersModificationWizardCopyEditFastScanSettingsPage::validatePage(){
+
+}
+
+bool SGMFastScanParametersModificationWizardCopyEditFastScanSettingsPage::isComplete(){
+
+}
+
+void SGMFastScanParametersModificationWizardCopyEditFastScanSettingsPage::initializePage(){
+	fastScanWizard_ = qobject_cast<SGMFastScanParametersModificationWizard*>(wizard());
+	originatingFastScanParameters_ = fastScanWizard_->originatingFastScanParameters();
+	newFastScanParameters_ = fastScanWizard_->newFastScanParameters();
+}
+
+int SGMFastScanParametersModificationWizardCopyEditFastScanSettingsPage::nextId() const{
+
+}
+
 /////////////////////////////
 //// ACTUAL WIZARD HERE ////
 ///////////////////////////
@@ -383,16 +770,50 @@ SGMFastScanParametersModificationWizard::SGMFastScanParametersModificationWizard
 {
 	indexOfOriginatingFastScan_ = -1;
 
+	originatingFastScanParameters_ = 0; //NULL
+	newFastScanParameters_ = 0; //NULL
+	newDatabase_ = 0; //NULL
+	newElement_ = 0; //NULL
+
 	setPage(SGMFastScanParametersModificationWizard::PeriodicTablePage, new SGMFastScanParametersModificationWizardPeriodicTablePage);
 	setPage(SGMFastScanParametersModificationWizard::EditOrCopyPage, new SGMFastScanParametersModificationWizardEditOrCopyPage);
 	setPage(SGMFastScanParametersModificationWizard::EditPage, new SGMFastScanParametersModificationWizardEditPage);
+	setPage(SGMFastScanParametersModificationWizard::CopyDestinationSelectionPage, new SGMFastScanParametersModificationWizardCopyDestinationSelectionPage);
+
+	setPage(SGMFastScanParametersModificationWizard::ShareEnergyPositionsPage, new SGMFastScanParametersModificationWizardCopyShareEnergyPositionsPage);
+	setPage(SGMFastScanParametersModificationWizard::EditScanInfoPage, new SGMFastScanParametersModificationWizardCopyEditScanInfoPage);
+	setPage(SGMFastScanParametersModificationWizard::EditFastScanParametersNamePage, new SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage);
+	setPage(SGMFastScanParametersModificationWizard::EditEnergyPositionsPage, new SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage);
+	setPage(SGMFastScanParametersModificationWizard::EditFastScanSettingsPage, new SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage);
 }
 
 SGMFastScanParameters* SGMFastScanParametersModificationWizard::originatingFastScanParameters(){
 	return originatingFastScanParameters_;
 }
 
+SGMFastScanParameters* SGMFastScanParametersModificationWizard::newFastScanParameters(){
+	return newFastScanParameters_;
+}
+
+AMDatabase* SGMFastScanParametersModificationWizard::newDatabase(){
+	return newDatabase_;
+}
+
+const AMElement* SGMFastScanParametersModificationWizard::newElement(){
+	return newElement_;
+}
+
 void SGMFastScanParametersModificationWizard::setOriginatingFastScanIndex(int indexOfFastScan){
 	indexOfOriginatingFastScan_ = indexOfFastScan;
 	originatingFastScanParameters_ = SGMPeriodicTable::sgmTable()->fastScanPresets().at(indexOfOriginatingFastScan_);
+}
+
+void SGMFastScanParametersModificationWizard::copyOriginalFastScanParametersToNew(AMDatabase *database, const AMElement *element){
+	newDatabase_ = database;
+	newElement_ = element;
+
+	newFastScanParameters_ = new SGMFastScanParameters();
+	newFastScanParameters_->operator =(*originatingFastScanParameters_);
+	newFastScanParameters_->dissociateFromDb(false);
+	newFastScanParameters_->fastScanSettings().dissociateFromDb();
 }
