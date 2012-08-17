@@ -25,6 +25,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFormLayout>
 #include <QPushButton>
 #include <QLabel>
+#include <QStringBuilder>
+
+#include "dataman/database/AMDbObjectSupport.h"
 
 SGMEnergyPositionView::SGMEnergyPositionView(SGMEnergyPosition *energyPosition, SGMEnergyPositionView::EnergyPositionViewMode alternateViewMode, QWidget *parent) :
 	QGroupBox(parent)
@@ -92,11 +95,11 @@ SGMEnergyPositionView::SGMEnergyPositionView(SGMEnergyPosition *energyPosition, 
 	vl2_->addStretch(10);
 	vl2_->addWidget(alternateViewModeButton_);
 
-	QHBoxLayout *hl = new QHBoxLayout();
-	hl->addLayout(vl1);
-	hl->addLayout(vl2_);
+	hl_ = new QHBoxLayout();
+	hl_->addLayout(vl1);
+	hl_->addLayout(vl2_);
 
-	setLayout(hl);
+	setLayout(hl_);
 
 	if(alternateViewMode_ == SGMEnergyPositionView::ViewModeAll)
 		alternateViewModeButton_->hide();
@@ -233,4 +236,51 @@ void SGMEnergyPositionWBeamlineView::onSetFromBeamlineButtonClicked(){
 	energyPosition_->setUndulatorStepSetpoint(SGMBeamline::sgm()->undulatorStep()->value());
 	energyPosition_->setExitSlitDistance(SGMBeamline::sgm()->exitSlit()->value());
 	energyPosition_->setSGMGrating(SGMBeamline::sgm()->grating()->value());
+}
+
+SGMEnergyPositionWBeamlineAndDatabaseView::SGMEnergyPositionWBeamlineAndDatabaseView(SGMEnergyPosition *energyPosition, SGMEnergyPositionView::EnergyPositionViewMode alternateViewMode, QWidget *parent) :
+	SGMEnergyPositionWBeamlineView(energyPosition, alternateViewMode, parent)
+{
+	databaseUsedByLabel_ = new QLabel();
+	setUsedByLabelHelper();
+	disassociateButton_ = new QPushButton("Disassociate");
+
+	QVBoxLayout *databaseVL = new QVBoxLayout();
+	databaseVL->addWidget(databaseUsedByLabel_);
+	databaseVL->addWidget(disassociateButton_);
+	hl_->addLayout(databaseVL);
+
+	connect(disassociateButton_, SIGNAL(clicked()), this, SLOT(onDisassociateButtonClicked()));
+}
+
+QStringList SGMEnergyPositionWBeamlineAndDatabaseView::alsoUsedByList() const{
+	return alsoUsedByList_;
+}
+
+void SGMEnergyPositionWBeamlineAndDatabaseView::onDisassociateButtonClicked(){
+	energyPosition_->dissociateFromDb();
+	setUsedByLabelHelper();
+}
+
+void SGMEnergyPositionWBeamlineAndDatabaseView::setUsedByLabelHelper(){
+	databaseUsedByLabel_->clear();
+	QString usedByNames = "Used by:";
+	if( (energyPosition_->id() > 0) && (energyPosition_->database()) ){
+		QList<int> scanInfoMatchIDs = energyPosition_->database()->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMScanInfo>(), "start", QString("SGMEnergyPosition_table;%1").arg(energyPosition_->id()));
+		scanInfoMatchIDs.append(energyPosition_->database()->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMScanInfo>(), "middle", QString("SGMEnergyPosition_table;%1").arg(energyPosition_->id())));
+		scanInfoMatchIDs.append(energyPosition_->database()->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMScanInfo>(), "end", QString("SGMEnergyPosition_table;%1").arg(energyPosition_->id())));
+
+		for(int x = 0; x < scanInfoMatchIDs.count(); x++){
+			QList<int> fastScanParametersMatchIDs = energyPosition_->database()->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMFastScanParameters>(), "scanInfo", QString("SGMScanInfo_table;%1").arg(scanInfoMatchIDs.at(x)));
+
+			for(int y = 0; y < fastScanParametersMatchIDs.count(); y++){
+				alsoUsedByList_.append(energyPosition_->database()->retrieve(fastScanParametersMatchIDs.at(y), AMDbObjectSupport::s()->tableNameForClass<SGMFastScanParameters>(), "name").toString());
+				usedByNames.append("\n"%alsoUsedByList_.last());
+			}
+		}
+	}
+	else{
+		usedByNames.append("\n<None>");
+	}
+	databaseUsedByLabel_->setText(usedByNames);
 }

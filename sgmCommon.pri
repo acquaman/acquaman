@@ -62,7 +62,8 @@ HEADERS += \
 	source/ui/SGM/SGMBeamlineDetectorConnectionView.h \
 	source/beamline/SGM/SGMOptimizationSupport.h \
 	source/ui/SGM/SGMAdvancedControlsView.h \
-	source/ui/SGM/SGMPeriodicTableView.h
+	source/ui/SGM/SGMPeriodicTableView.h \
+    source/ui/util/SGM/SGMFastScanParametersView.h
 
 SOURCES += \
 	source/application/SGM/SGMAppController.cpp \
@@ -96,7 +97,10 @@ SOURCES += \
 	source/ui/SGM/SGMBeamlineDetectorConnectionView.cpp \
 	source/beamline/SGM/SGMOptimizationSupport.cpp \
 	source/ui/SGM/SGMAdvancedControlsView.cpp \
-	source/ui/SGM/SGMPeriodicTableView.cpp
+	source/ui/SGM/SGMPeriodicTableView.cpp \
+    source/ui/util/SGM/SGMFastScanParametersView.cpp
+
+
 
 
 

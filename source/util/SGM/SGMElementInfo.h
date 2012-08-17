@@ -171,6 +171,8 @@ public:
 	AMOrderedSet<QString, SGMScanInfo> sgmEdgeInfos() const;
 	AMOrderedSet<int, SGMFastScanParameters*> availableFastScanParameters() const;
 
+	bool loadFromDb(AMDatabase *db, int id);
+
 public slots:
 	bool addEdgeInfo(const SGMScanInfo &edgeInfo);
 	bool addFastScanParameters(SGMFastScanParameters *parameters);
@@ -210,6 +212,9 @@ public:
 
 	SGMFastScanSettings& operator =(const SGMFastScanSettings &other);
 
+	bool operator ==(const SGMFastScanSettings &other) const;
+	bool operator !=(const SGMFastScanSettings &other) const;
+
 public slots:
 	void setRunSeconds(double runSeconds);
 	void setMotorSettings(int motorSettings);
@@ -246,6 +251,8 @@ Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Fast Scan Parameters")
 
 public:
 	Q_INVOKABLE SGMFastScanParameters(const QString &name = QString(), const QString &element = QString(), const SGMScanInfo &scanInfo = SGMScanInfo(), const SGMFastScanSettings &fastScanSettings = SGMFastScanSettings(), QObject *parent = 0);
+
+	SGMFastScanParameters& operator =(const SGMFastScanParameters &other);
 
 	bool operator==(const SGMFastScanParameters &other);
 	friend QDebug operator<<(QDebug d, const SGMFastScanParameters &fastScanParameters);
