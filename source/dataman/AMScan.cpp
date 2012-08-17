@@ -598,7 +598,11 @@ bool AMScan::loadData()
 	for(int x = 0; x < acceptingFileLoaders.count(); x++) {
 		if((accepts = acceptingFileLoaders.at(x)->accepts(this))){
 			AMFileLoaderInterface* fileLoader = acceptingFileLoaders.at(x)->createFileLoader();
+			QTime timer;
+			timer.start();
 			success = fileLoader->load(this, AMUserSettings::userDataFolder);
+			double time = timer.elapsed();
+			qDebug() << QString("Time to load scan from database: %1").arg(time/1000 < 0 ? QString("%1 %2").arg(time).arg("ms") : QString("%1 %2").arg(time/1000).arg("s"));
 			break;
 		}
 

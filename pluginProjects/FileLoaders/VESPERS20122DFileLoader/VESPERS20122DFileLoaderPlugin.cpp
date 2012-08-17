@@ -27,7 +27,8 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 	// Check for null scan reference.
 	if (!scan)
 		return false;
-
+QTime timer;
+timer.start();
 	AMCDFDataStore *cdfData = new AMCDFDataStore;
 
 	// Moved down below, once we know how long the axes are: (Mark, May 13 2012)
@@ -90,7 +91,8 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 	int y = 0;
 	int xLength = 0;
 	int yLength = 0;
-
+	qDebug() << QString("Front matter: %1 ms").arg(timer.elapsed());
+	timer.restart();
 	// Determine the number of y lines, since we need to know that before creating the scan axes.
 	/////////////////////
 	QStringList fileLines;
@@ -124,8 +126,10 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 
 	if (line == "TS1607-2-B21-01:H:user:mm"){
 
-		cdfData->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
-		cdfData->addScanAxis(AMAxisInfo("V", yLength, "Vertical Position", "mm"));
+//		cdfData->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+//		cdfData->addScanAxis(AMAxisInfo("V", yLength, "Vertical Position", "mm"));
+		cdfData->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
+		cdfData->addScanAxis(AMAxisInfo("H", xLength, "Horizontal Position", "mm"));
 	}
 
 	else if (line == "SVM1607-2-B21-02:mm"){
@@ -133,7 +137,8 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 		cdfData->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
 		cdfData->addScanAxis(AMAxisInfo("Z", yLength, "Vertical Position", "mm"));
 	}
-
+	qDebug() << QString("Adding the scan axes: %1 ms").arg(timer.elapsed());
+	timer.restart();
 	// Note!  Not general!
 	QList<AMAxisInfo> axisInfo;
 	AMAxisInfo ai("Energy", 2048, "Energy", "eV");
@@ -164,8 +169,9 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 		for (int i = 0; i < count; i++)
 			cdfData->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description()));
 	}
-
-	cdfData->beginInsertRows(xLength, -1);
+	qDebug() << QString("Adding measurements: %1 ms").arg(timer.elapsed());
+	timer.restart();
+	cdfData->beginInsertRows(yLength, -1);
 
 	x = 0;
 	y = 0;
@@ -175,10 +181,13 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 		lineTokenized = line.split(", ");
 
 		// Add in the data at the right spot.
-		AMnDIndex axisValueIndex(x, y);
+//		AMnDIndex axisValueIndex(x, y);
+		AMnDIndex axisValueIndex(y, x);
 
-		cdfData->setAxisValue(0, axisValueIndex.i(), lineTokenized.at(1).toDouble());
-		cdfData->setAxisValue(1, axisValueIndex.j(), lineTokenized.at(2).toDouble());
+//		cdfData->setAxisValue(0, axisValueIndex.i(), lineTokenized.at(1).toDouble());
+//		cdfData->setAxisValue(1, axisValueIndex.j(), lineTokenized.at(2).toDouble());
+		cdfData->setAxisValue(0, axisValueIndex.i(), lineTokenized.at(2).toDouble());
+		cdfData->setAxisValue(1, axisValueIndex.j(), lineTokenized.at(1).toDouble());
 
 		if ((usingSingleElement || usingSingleElementAndCCD) && containsSpectraDataSource){
 
@@ -207,15 +216,16 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 			y++;
 		}
 	}
-
+	qDebug() << QString("Adding columsn of data: %1 ms").arg(timer.elapsed());
+	timer.restart();
 	// Pad the rest of the line with -1 for proper visualization.
 	if (x != 0 && xLength != 0){
 
 		for ( ; x < xLength; x++){
 
 			// Add in the data at the right spot.
-			AMnDIndex axisValueIndex(x, y);
-
+//			AMnDIndex axisValueIndex(x, y);
+			AMnDIndex axisValueIndex(y, x);
 			cdfData->setAxisValue(0, axisValueIndex.i(), cdfData->axisValue(0, axisValueIndex.i()));
 			cdfData->setAxisValue(1, axisValueIndex.j(), cdfData->axisValue(1, axisValueIndex.j()-1));
 
@@ -235,7 +245,8 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 	}
 
 	file.close();
-
+	qDebug() << QString("Filling in the extra spots: %1 ms").arg(timer.elapsed());
+	timer.restart();
 	// Until I do a database upgrade, I don't want to do anything with the spectra file unless the data sources already exist.
 	if (containsSpectraDataSource){
 
@@ -263,16 +274,35 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 			x = 0;
 			y = 0;
 
+			QTime time2;
+
 			while(!spectraStream.atEnd()){
+
+				if (x == 0)
+					time2.restart();
 
 				spectraLine = spectraStream.readLine();
 				spectraTokenized = spectraLine.split(",");
 
+				if (x == 0){
+					qDebug() << QString("Reading values from the file: %1 ms").arg(time2.elapsed());
+					time2.restart();
+				}
+
 				for (int j = 0; j < 2048; j++)
 					data[j] = spectraTokenized.at(j).toInt();
 
-				cdfData->setValue(AMnDIndex(x, y), count-1, data.constData());
+				if (x == 0){
+					qDebug() << QString("Setting the values to the vector: %1 ms").arg(time2.elapsed());
+					time2.restart();
+				}
+//				cdfData->setValue(AMnDIndex(x, y), count-1, data.constData());
+				cdfData->setValue(AMnDIndex(y, x), count-1, data.constData());
 
+				if (x == 0){
+					qDebug() << QString("Setting the value to the data store: %1 ms").arg(time2.elapsed());
+					time2.restart();
+				}
 				// Advance to the next spot.
 				x++;
 
@@ -282,17 +312,21 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 					y++;
 				}
 			}
-
+			qDebug() << QString("Adding the spectra: %1 ms").arg(timer.elapsed());
+			timer.restart();
 			// Pad the rest of the line with -1 for proper visualization.
 			if (x != 0 && xLength != 0){
 
-				data.fill(0);
+				data.fill(-1);
 
 				for ( ; x < xLength; x++)
-					cdfData->setValue(AMnDIndex(x, y), count-1, data.constData());
+//					cdfData->setValue(AMnDIndex(x, y), count-1, data.constData());
+					cdfData->setValue(AMnDIndex(y, x), count-1, data.constData());
+
 			}
 
 			spectra.close();
+			qDebug() << QString("Filling in the extra spectra: %1 ms").arg(timer.elapsed());
 		}
 		else if (usingFourElement || usingFourElementAndCCD){
 
@@ -321,10 +355,20 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 			x = 0;
 			y = 0;
 
+			QTime time2;
+
 			while(!spectraStream.atEnd()){
+
+				if (x == 0)
+					time2.restart();
 
 				spectraLine = spectraStream.readLine();
 				spectraTokenized = spectraLine.split(",");
+
+				if (x == 0){
+					qDebug() << QString("Reading values from the file: %1 ms").arg(time2.elapsed());
+					time2.restart();
+				}
 
 				for (int j = 0; j < 2048; j++){
 
@@ -335,12 +379,23 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 					raw4[j] = spectraTokenized.at(j+8192).toInt();
 				}
 
-				AMnDIndex axisValueIndex(x, y);
+				if (x == 0){
+					qDebug() << QString("Setting the values to the vector: %1 ms").arg(time2.elapsed());
+					time2.restart();
+				}
+
+//				AMnDIndex axisValueIndex(x, y);
+				AMnDIndex axisValueIndex(y, x);
 				cdfData->setValue(axisValueIndex, count-5, data.constData());
 				cdfData->setValue(axisValueIndex, count-4, raw1.constData());
 				cdfData->setValue(axisValueIndex, count-3, raw2.constData());
 				cdfData->setValue(axisValueIndex, count-2, raw3.constData());
 				cdfData->setValue(axisValueIndex, count-1, raw4.constData());
+
+				if (x == 0){
+					qDebug() << QString("Setting the value to the data store: %1 ms").arg(time2.elapsed());
+					time2.restart();
+				}
 
 				// Advance to the next spot.
 				x++;
@@ -352,18 +407,21 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 				}
 			}
 
+			qDebug() << QString("Adding the spectra: %1 ms").arg(timer.elapsed());
+			timer.restart();
 			// Pad the rest of the line with -1 for proper visualization.
 			if (x != 0 && xLength != 0){
 
-				data.fill(0);
-				raw1.fill(0);
-				raw2.fill(0);
-				raw3.fill(0);
-				raw4.fill(0);
+				data.fill(-1);
+				raw1.fill(-1);
+				raw2.fill(-1);
+				raw3.fill(-1);
+				raw4.fill(-1);
 
 				for ( ; x < xLength; x++){
 
-					AMnDIndex axisValueIndex(x, y);
+//					AMnDIndex axisValueIndex(x, y);
+					AMnDIndex axisValueIndex(y, x);
 					cdfData->setValue(axisValueIndex, count-5, data.constData());
 					cdfData->setValue(axisValueIndex, count-4, raw1.constData());
 					cdfData->setValue(axisValueIndex, count-3, raw2.constData());
@@ -373,6 +431,7 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 			}
 
 			spectra.close();
+			qDebug() << QString("Filling in the extra spectra: %1 ms").arg(timer.elapsed());
 		}
 	}
 
