@@ -224,6 +224,83 @@ AMNumber AM1DDerivativeAB::value(const AMnDIndex& indexes) const{
 	}
 }
 
+bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+{
+	if(indexStart.rank() != 1 || indexEnd.rank() != 1)
+		return false;
+
+	if(!isValid())
+		return false;
+
+	if (!canAnalyze())
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i())
+		return false;
+#endif
+
+	int totalSize = indexStart.totalPointsTo(indexEnd);
+
+	QVector<double> data = QVector<double>(totalSize);
+	QVector<double> axis = QVector<double>(totalSize);
+
+	AMAxisInfo axisInfo = inputSource_->axisInfoAt(0);
+	inputSource_->values(indexStart, indexEnd, data.data());
+
+	// This is much faster because we can compute all the axis values ourselves rather than ask for them one at a time.
+	if (axisInfo.isUniform){
+
+		double axisStart = double(axisInfo.start);
+		double axisStep = double(axisInfo.increment);
+
+		for (int i = 0; i < totalSize; i++)
+			axis[i] = axisStart + i*axisStep;
+
+		// Because we computed the axis values we are guarenteed that the values won't be bad.
+		outputValues[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
+		outputValues[totalSize-1] = (data.at(totalSize-1)-data.at(totalSize-2))/(axis.at(totalSize-1)-axis.at(totalSize-2));
+
+		for (int i = 1, count = totalSize-1; i < count; i++)
+			outputValues[i] = (data.at(i+1)-data.at(i-1))/(2*(axis.at(i+1)-axis.at(i-1)));
+	}
+
+	else {
+
+		// Fill the axis vector.  Should minimize the overhead of making the same function calls and casting the values multiple times.
+		axis[0] = double(inputSource_->axisValue(0, 0));
+
+		for (int i = 1; i < totalSize; i++)
+			axis[i] = inputSource_->axisValue(0, i);
+
+		// Fill a list of all the indices that will cause division by zero.
+		QList<int> badIndices;
+
+		if (axis.at(0) == axis.at(1))
+			badIndices.append(0);
+
+		for (int i = 1, count = totalSize-1; i < count; i++)
+			if (axis.at(i+1) == axis.at(i-1))
+				badIndices.append(i);
+
+		if (axis.at(totalSize-1) == axis.at(totalSize-2))
+			badIndices.append(totalSize-1);
+
+		// Compute all the values
+		outputValues[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
+		outputValues[totalSize-1] = (data.at(totalSize-1)-data.at(totalSize-2))/(axis.at(totalSize-1)-axis.at(totalSize-2));
+
+		for (int i = 1, count = totalSize-1; i < count; i++)
+			outputValues[i] = (data.at(i+1)-data.at(i-1))/(2*(axis.at(i+1)-axis.at(i-1)));
+
+		// Fix all the values where division by zero would have occured.  Unfortunately, the default value is currently 0, which is generally important when taking the derivative.
+		for (int i = 0, count = badIndices.size(); i < count; i++)
+			outputValues[badIndices.at(i)] = 0;
+	}
+
+	return true;
+}
+
 AMNumber AM1DDerivativeAB::axisValue(int axisNumber, int index) const{
 
 	if(!isValid())

@@ -267,6 +267,7 @@ bool AM2DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &i
 		else
 			outputValues[i] = data.at(i)/normalizer.at(i);
 	}
+
 	return true;
 }
 
