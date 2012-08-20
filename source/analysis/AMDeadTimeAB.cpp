@@ -126,6 +126,45 @@ AMNumber AMDeadTimeAB::value(const AMnDIndex &indexes) const
 		return double(icr_->value(AMnDIndex()))/double(ocr_->value(AMnDIndex()))*(int)spectra_->value(indexes.i());
 }
 
+bool AMDeadTimeAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+{
+	if(indexStart.rank() != 1 || indexEnd.rank() != 1)
+		return false;
+
+	if(!isValid())
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i())
+		return false;
+#endif
+
+	int totalSize = indexStart.totalPointsTo(indexEnd);
+
+	QVector<double> data = QVector<double>(totalSize);
+	spectra_->values(indexStart, indexEnd, data.data());
+
+	double icr = double(icr_->value(AMnDIndex()));
+	double ocr = double(ocr_->value(AMnDIndex()));
+
+	// If ocr is equal to 0 then that will cause division by zero.  Since these are both count rates, they should both be greater than zero.
+	if (icr <= 0 || ocr <= 0){
+
+		for (int i = 0; i < totalSize; i++)
+			outputValues[i] = 0;
+	}
+
+	else {
+
+		double factor = icr/ocr;
+
+		for (int i = 0; i < totalSize; i++)
+			outputValues[i] = data.at(i)*factor;
+	}
+
+	return true;
+}
+
 AMNumber AMDeadTimeAB::axisValue(int axisNumber, int index) const
 {
 	if(!isValid())

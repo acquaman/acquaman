@@ -112,6 +112,44 @@ AMNumber AM1DSummingAB::value(const AMnDIndex &indexes) const
 	return val;
 }
 
+bool AM1DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+{
+	if(indexStart.rank() != 1 || indexEnd.rank() != 1)
+		return false;
+
+	if(!isValid())
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	for (int i = 0; i < sources_.size(); i++)
+		if ((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size)
+			return false;
+
+	if ((unsigned)indexStart.i() > (unsigned)indexEnd.i())
+		return false;
+#endif
+
+	int totalSize = indexStart.totalPointsTo(indexEnd);
+
+	QVector<double> data = QVector<double>(totalSize);
+	sources_.at(0)->values(indexStart, indexEnd, data.data());
+
+	// Do the first data source separately to initialize the values.
+	for (int i = 0; i < totalSize; i++)
+		outputValues[i] = data.at(i);
+
+	// Iterate through the rest of the sources.
+	for (int i = 1, count = sources_.size(); i < count; i++){
+
+		sources_.at(i)->values(indexStart, indexEnd, data.data());
+
+		for (int j = 0; j < totalSize; j++)
+			outputValues[j] += data.at(j);
+	}
+
+	return true;
+}
+
 AMNumber AM1DSummingAB::axisValue(int axisNumber, int index) const
 {
 	if(!isValid())

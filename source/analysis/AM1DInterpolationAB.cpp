@@ -105,6 +105,22 @@ AMNumber AM1DInterpolationAB::value(const AMnDIndex& indexes) const{
 	return inputSource_->value(index);
 }
 
+bool AM1DInterpolationAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+{
+	if(indexStart.rank() != 1 || indexEnd.rank() != 1)
+		return false;
+
+	if(!isValid())
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i())
+		return false;
+#endif
+
+	inputSource_->values(indexStart, indexEnd, outputValues);
+	return true;
+}
 AMNumber AM1DInterpolationAB::axisValue(int axisNumber, int index) const{
 
 	if(!isValid())
