@@ -548,11 +548,34 @@ void VESPERSAppController::onCancelScanIssued()
 
 void VESPERSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
 {
+	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
+
 	if (editor->using2DScanView()){
 
 		connect(editor, SIGNAL(dataPositionChanged(AMGenericScanEditor*,QPoint)), this, SLOT(onDataPositionChanged(AMGenericScanEditor*,QPoint)));
-		editor->setAxisInfoForSpectrumView(VESPERSBeamline::vespers()->vortexAM1E()->toInfo()->axes().first());
-		editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().second.toDouble(), VESPERSBeamline::vespers()->vortexXRF1E()->maximumEnergy()*1000);
+
+		// This is hard coded.  We need a way to store detector settings in a scan.
+		AMAxisInfo ai("Energy", 2048, "Energy", "eV");
+		ai.increment = AMNumber(10);
+		ai.start = AMNumber(0);
+		ai.isUniform = true;
+
+		editor->setAxisInfoForSpectrumView(ai);
+		editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().second.toDouble(), 20480);
+	}
+}
+
+void VESPERSAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan)
+{
+	if (editor->using2DScanView()){
+
+		VESPERS2DScanConfiguration *config = qobject_cast<VESPERS2DScanConfiguration *>(scan->scanConfiguration());
+
+		if (config && config->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement)
+			editor->setSingleSpectrumViewDataSourceName("spectra");
+
+		else if (config && config->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::FourElement)
+			editor->setSingleSpectrumViewDataSourceName("corrSum");
 	}
 }
 

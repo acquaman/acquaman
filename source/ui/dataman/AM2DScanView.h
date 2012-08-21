@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlot.h"
 #include "ui/dataman/AMScanViewUtilities.h"
 #include "dataman/AMAxisInfo.h"
+#include <QCheckBox>
+
 
 class AM2DScanViewInternal;
 class AM2DScanViewExclusiveView;
@@ -54,6 +56,8 @@ public:
 	QPointF dataPosition() const { return position_; }
 	/// Returns the selected rectangle.
 	QRectF selectedRect() const { return rect_; }
+	/// Changes the enabled state of the show spectra check box.  If there is no source to view, then this option should not be available.
+	void setShowSpectraEnabled(bool enable) { showSpectra_->setEnabled(enable); }
 
 signals:
 	/// Notifier that the state of whether or not the scan view should show individual spectra has been toggled.
@@ -84,6 +88,8 @@ protected:
 	QPointF position_;
 	/// The current selected rectangle.
 	QRectF rect_;
+	/// The show spectra check box.
+	QCheckBox *showSpectra_;
 };
 
 /*! This class makes a scan view that is more suitable for 2D scans.  It has been built in the same spirit as AMScanView by having an
@@ -112,6 +118,8 @@ public:
 	void setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange = true);
 	/// Sets the plot range for the spectrum view.
 	void setPlotRange(double low, double high);
+	/// Sets the single spectrum view data source using the name given by \param name.
+	void setSingleSpectrumDataSource(const QString &name);
 
 public slots:
 	/// add a scan to the view:
@@ -311,11 +319,11 @@ protected:
 	MPlotGW* firstPlot_;
 };
 
-#include "util/AMFetchSpectrumThread.h"
 #include "MPlot/MPlotSeriesData.h"
 #include "MPlot/MPlotWidget.h"
 #include "util/AMSelectablePeriodicTable.h"
 #include "ui/util/AMSelectablePeriodicTableView.h"
+#include "dataman/AMnDIndex.h"
 
 
 /// This class holds a plot window and shows individual spectra when the mouse is clicked on image points.
@@ -331,10 +339,12 @@ public:
 	void setAxisInfo(AMAxisInfo info, bool propogateToPlotRange);
 	/// Sets the plot range used for placing markers inside the plot.
 	void setPlotRange(double low, double high);
+	/// Sets the data source that will be used for visualization.
+	void setDataSource(AMDataSource *source) { source_ = source; }
 
 public slots:
-	/// Gives a new coordinate (along with the file name) to grab a new spectrum.
-	void onDataPositionChanged(AMnDIndex index, int rowLength, const QString &filename);
+	/// Gives a new coordinate to grab a new spectrum.
+	void onDataPositionChanged(AMnDIndex index);
 
 protected slots:
 	/// Slot that updates the plot whenever AMFetchSpectrumThread is finished.
@@ -348,14 +358,14 @@ protected:
 	/// Sets up the plot.
 	void setupPlot();
 
-	/// The thread that retrieves the spectrum from a given point.
-	AMFetchSpectrumThread fetcher_;
 	/// The MPlot series that holds the data.
 	MPlotVectorSeriesData *model_;
 	/// The plot widget that holds everything about the plot.
 	MPlotWidget *plot_;
 	/// Holds the x-axis values so that they do not need to be recomputed everytime.
 	QVector<double> x_;
+	/// Holds the data source used for visualization.
+	AMDataSource *source_;
 
 	/// The periodic table model that holds all of the selected elements.
 	AMSelectablePeriodicTable *table_;

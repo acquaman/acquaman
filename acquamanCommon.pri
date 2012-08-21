@@ -527,7 +527,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/dataman/datasource/AMDataSourceImageDatawDefault.h \
 	source/actions/AMBeamline2DScanAction.h \
 	source/ui/acquaman/AM2DScanConfigurationViewHolder.h \
-	source/util/AMFetchSpectrumThread.h \
 	source/util/AMDataSourcePlotSettings.h \
 	source/util/AMSelectablePeriodicTable.h \
 	source/ui/util/AMSelectablePeriodicTableView.h \
@@ -923,7 +922,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/dataman/datasource/AMDataSourceImageDatawDefault.cpp \
 	source/actions/AMBeamline2DScanAction.cpp \
 	source/ui/acquaman/AM2DScanConfigurationViewHolder.cpp \
-	source/util/AMFetchSpectrumThread.cpp \
 	source/util/AMSelectablePeriodicTable.cpp \
 	source/ui/util/AMSelectablePeriodicTableView.cpp \
 	source/ui/dataman/AMDbObjectGeneralView.cpp \
@@ -1008,6 +1006,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 

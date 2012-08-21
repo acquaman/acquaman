@@ -33,7 +33,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QSizePolicy>
 #include <QStringBuilder>
-#include <QCheckBox>
 #include <QFileInfo>
 
 AM2DScanBar::AM2DScanBar(QWidget *parent)
@@ -46,14 +45,14 @@ AM2DScanBar::AM2DScanBar(QWidget *parent)
 	position_ = QPointF();
 	rect_ = QRectF();
 
-	QCheckBox *showSpectra = new QCheckBox("Show Spectra");
-	showSpectra->setChecked(false);
-	connect(showSpectra, SIGNAL(toggled(bool)), this, SIGNAL(showSpectra(bool)));
+	showSpectra_ = new QCheckBox("Show Spectra");
+	showSpectra_->setChecked(false);
+	connect(showSpectra_, SIGNAL(toggled(bool)), this, SIGNAL(showSpectra(bool)));
 
 	QHBoxLayout *layout = new QHBoxLayout;
 	layout->addWidget(dataPosition_);
 	layout->addStretch();
-	layout->addWidget(showSpectra, 0, Qt::AlignRight);
+	layout->addWidget(showSpectra_, 0, Qt::AlignRight);
 
 	QVBoxLayout *barLayout = new QVBoxLayout;
 	barLayout->addLayout(layout);
@@ -239,12 +238,27 @@ void AM2DScanView::onDataPositionChanged(const QPointF &point)
 		if (fabs(point.y() - double(datasource->axisValue(1, i))) < delY)
 			y = i;
 
-	QString filename = currentScan_->additionalFilePaths().first();
-	QFileInfo sourceFileInfo(currentScan_->additionalFilePaths().first());
-	if(sourceFileInfo.isRelative())
-		filename = AMUserSettings::userDataFolder % filename;
+	spectrumView_->onDataPositionChanged(AMnDIndex(x, y));
+}
 
-	spectrumView_->onDataPositionChanged(AMnDIndex(x, y), currentScan_->scanSize(0), filename);
+void AM2DScanView::setSingleSpectrumDataSource(const QString &name)
+{
+	if (currentScan_){
+
+		int index = currentScan_->indexOfDataSource(name);
+
+		if (index != -1 && currentScan_->dataSourceAt(index)->rank() == 3){
+
+			spectrumView_->setDataSource(currentScan_->dataSourceAt(index));
+			exclusive2DScanBar_->setShowSpectraEnabled(true);
+		}
+
+		else
+			exclusive2DScanBar_->setShowSpectraEnabled(false);
+	}
+
+	else
+		exclusive2DScanBar_->setShowSpectraEnabled(false);
 }
 
 void AM2DScanView::setCurrentScan(AMScan *scan)
@@ -1026,10 +1040,8 @@ bool AM2DScanViewMultiSourcesView::reviewDataSources() {
 AM2DScanViewSingleSpectrumView::AM2DScanViewSingleSpectrumView(QWidget *parent)
 	: QWidget(parent)
 {
-	qRegisterMetaType<QVector<double> >("QVector<double>");
-	connect(&fetcher_, SIGNAL(fetchedSpectrum(QVector<double>)), this, SLOT(updatePlot(QVector<double>)));
-
 	x_.resize(0);
+	source_ = 0;
 
 	setupPlot();
 
@@ -1124,10 +1136,14 @@ void AM2DScanViewSingleSpectrumView::setPlotRange(double low, double high)
 		onElementSelected(atomicNumber);
 }
 
-void AM2DScanViewSingleSpectrumView::onDataPositionChanged(AMnDIndex index, int rowLength, const QString &filename)
+void AM2DScanViewSingleSpectrumView::onDataPositionChanged(AMnDIndex index)
 {
-	if (isVisible())
-		fetcher_.fetch(index, rowLength, filename, x_.size());
+	if (isVisible()){
+
+		QVector<double> data = QVector<double>(source_->size(2));
+		source_->values(AMnDIndex(index.i(), index.j(), 0), AMnDIndex(index.i(), index.j(), source_->size(2)-1), data.data());
+		updatePlot(data);
+	}
 }
 
 void AM2DScanViewSingleSpectrumView::setAxisInfo(AMAxisInfo info, bool propogateToPlotRange)

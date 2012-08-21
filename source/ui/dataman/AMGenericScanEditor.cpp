@@ -272,6 +272,12 @@ void AMGenericScanEditor::setPlotRange(double low, double high)
 		scanView2D_->setPlotRange(low, high);
 }
 
+void AMGenericScanEditor::setSingleSpectrumViewDataSourceName(const QString &name)
+{
+	if (scanView2D_)
+		scanView2D_->setSingleSpectrumDataSource(name);
+}
+
 void AMGenericScanEditor::addScan(AMScan* newScan) {
 	scanSetModel_->addScan(newScan);
 	ui_.scanListView->setCurrentIndex(scanSetModel_->indexForScan(scanSetModel_->indexOf(newScan)));
@@ -282,6 +288,7 @@ void AMGenericScanEditor::addScan(AMScan* newScan) {
 			scanSetModel_->setExclusiveDataSourceByName(newScan->dataSourceAt(nonHiddenDataSourceIndexes.first())->name());
 	}
 
+	emit scanAdded(this, newScan);
 	refreshWindowTitle();
 }
 
