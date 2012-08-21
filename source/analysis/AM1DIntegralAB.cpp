@@ -239,6 +239,7 @@ bool AM1DIntegralAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 	QVector<double> axis = QVector<double>(totalSize);
 
 	AMAxisInfo axisInfo = inputSource_->axisInfoAt(0);
+
 	inputSource_->values(indexStart, indexEnd, data.data());
 
 	// This is much faster because we can compute all the axis values ourselves rather than ask for them one at a time.
@@ -254,14 +255,17 @@ bool AM1DIntegralAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 	else {
 
 		// Fill the axis vector.  Should minimize the overhead of making the same function calls and casting the values multiple times.
-		axis[0] = double(inputSource_->axisValue(0, offset));
-
-		for (int i = 1; i < totalSize; i++)
+		for (int i = 0; i < totalSize; i++)
 			axis[i] = inputSource_->axisValue(0, i+offset);
 	}
 
 	// Implementing Int[f(x)] ~ 1/2 * SUM {(x[i+1] - x[i])*(f(x[i+1]) + f(x[i])) }
-	outputValues[0] = 0.5*((axis.at(1)-axis.at(0))*data.at(1)+data.at(0));
+	if (offset == 0)
+		outputValues[0] = 0.5*((axis.at(1)-axis.at(0))*data.at(1)+data.at(0));
+
+	// If we are not at the very start, then we need to call the value(-1) which could be very expensive if the cached value is not valid.
+	else
+		outputValues[0] = 0.5*((axis.at(1)-axis.at(0))*data.at(1)+data.at(0)) + value(AMnDIndex(offset-1));
 
 	for (int i = 1, count = totalSize-1; i < count; i++)
 		outputValues[i] = 0.5*((axis.at(i+1)-axis.at(i))*data.at(i+1)+data.at(i)) + outputValues[i-1];
