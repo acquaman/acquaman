@@ -445,7 +445,7 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 		else {
 
 			// Fill the axis vector.  Should minimize the overhead of making the same function calls and casting the values multiple times.
-			for (int i = 1; i < totalSize; i++)
+			for (int i = 0; i < totalSize; i++)
 				axis[i] = inputSource_->axisValue(0, i+offset);
 
 			// Fill a list of all the indices that will cause division by zero.
