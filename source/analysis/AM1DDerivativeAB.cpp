@@ -370,7 +370,7 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 		QVector<double> axis = QVector<double>(dataSize);
 		AMAxisInfo axisInfo = inputSource_->axisInfoAt(0);
 
-		inputSource_->values(AMnDIndex(indexStart.i()+1), indexEnd, data.data());
+		inputSource_->values(AMnDIndex(indexStart.i()-1), indexEnd, data.data());
 
 		// This is much faster because we can compute all the axis values ourselves rather than ask for them one at a time.
 		if (axisInfo.isUniform){
@@ -425,7 +425,7 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 		QVector<double> axis = QVector<double>(totalSize);
 		AMAxisInfo axisInfo = inputSource_->axisInfoAt(0);
 
-		inputSource_->values(AMnDIndex(indexStart.i()+1), AMnDIndex(indexEnd.i()+1), data.data());
+		inputSource_->values(AMnDIndex(indexStart.i()-1), AMnDIndex(indexEnd.i()+1), data.data());
 
 		// This is much faster because we can compute all the axis values ourselves rather than ask for them one at a time.
 		if (axisInfo.isUniform){
