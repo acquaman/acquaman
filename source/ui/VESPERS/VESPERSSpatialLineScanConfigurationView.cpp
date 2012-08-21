@@ -135,6 +135,9 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	tempButton = new QRadioButton("Four Element Vortex");
 	fluorescenceButtonGroup_->addButton(tempButton, 2);
 	fluorescenceDetectorLayout->addWidget(tempButton);
+	tempButton = new QRadioButton("Single && Four");
+	fluorescenceButtonGroup_->addButton(tempButton, 3);	// 3 is SingleElement | FourElement
+	fluorescenceDetectorLayout->addWidget(tempButton);
 
 	connect(fluorescenceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
 	connect(config_, SIGNAL(fluorescenceDetectorChoiceChanged(int)), this, SLOT(updateFluorescenceDetector(int)));

@@ -43,7 +43,7 @@ class VESPERSSpatialLineScanConfiguration : public AMRegionScanConfiguration
 
 public:
 	/// Enum for making the decision on what fluorescence detector the user wants to use.
-	enum FluorescenceDetector { None = 0, SingleElement, FourElement };
+	enum FluorescenceDetector { None = 0, SingleElement = 1, FourElement = 2 };
 	/// Enum for the ion chambers.  Used when choosing It and I0.
 	enum IonChamber { Isplit = 0, Iprekb, Imini, Ipost };
 	/// Enum for which two motors should be used for scanning the horizontal and vertical directions.  Currently there are only HandV and XandZ, but in the future there will be more (eg: nanoCube, big beam).
