@@ -330,7 +330,7 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 			outputValues[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
 
 			// This is safe because data and axis have an extra point more at the end.
-			for (int i = 1, count = totalSize; i < count; i++)
+			for (int i = 1; i < totalSize; i++)
 				outputValues[i] = (data.at(i+1)-data.at(i-1))/(2*(axis.at(i+1)-axis.at(i-1)));
 		}
 
@@ -392,7 +392,7 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 		else {
 
 			// Fill the axis vector.  Should minimize the overhead of making the same function calls and casting the values multiple times.
-			for (int i = 1; i < dataSize; i++)
+			for (int i = 0; i < dataSize; i++)
 				axis[i] = inputSource_->axisValue(0, i+offset);
 
 			// Fill a list of all the indices that will cause division by zero.
@@ -420,7 +420,7 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 	// If we don't have either then we need to grab an extra point from either side.
 	else{
 
-		int dataSize = totalSize+1;
+		int dataSize = totalSize+2;
 		QVector<double> data = QVector<double>(totalSize);
 		QVector<double> axis = QVector<double>(totalSize);
 		AMAxisInfo axisInfo = inputSource_->axisInfoAt(0);
@@ -445,7 +445,7 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 		else {
 
 			// Fill the axis vector.  Should minimize the overhead of making the same function calls and casting the values multiple times.
-			for (int i = 0; i < totalSize; i++)
+			for (int i = 0; i < dataSize; i++)
 				axis[i] = inputSource_->axisValue(0, i+offset);
 
 			// Fill a list of all the indices that will cause division by zero.
