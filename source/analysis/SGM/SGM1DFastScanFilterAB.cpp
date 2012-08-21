@@ -114,13 +114,13 @@ bool SGM1DFastScanFilterAB::values(const AMnDIndex &indexStart, const AMnDIndex 
 		int offset = indexStart.i();
 
 		for (int i = 0; i < totalSize; i++)
-			offsetValues[i] = double(cachedValues_.at(i+offset));
+			outputValues[i] = double(cachedValues_.at(i+offset));
 	}
 
 	else{
 
 		for (int i = 0; i < totalSize; i++)
-			offsetValues[i] = 27.27;
+			outputValues[i] = 27.27;
 	}
 
 	return true;

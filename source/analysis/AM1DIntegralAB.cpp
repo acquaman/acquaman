@@ -265,7 +265,7 @@ bool AM1DIntegralAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 
 	// If we are not at the very start, then we need to call the value(-1) which could be very expensive if the cached value is not valid.
 	else
-		outputValues[0] = 0.5*((axis.at(1)-axis.at(0))*data.at(1)+data.at(0)) + value(AMnDIndex(offset-1));
+		outputValues[0] = 0.5*((axis.at(1)-axis.at(0))*data.at(1)+data.at(0)) + double(value(AMnDIndex(offset-1)));
 
 	for (int i = 1, count = totalSize-1; i < count; i++)
 		outputValues[i] = 0.5*((axis.at(i+1)-axis.at(i))*data.at(i+1)+data.at(i)) + outputValues[i-1];

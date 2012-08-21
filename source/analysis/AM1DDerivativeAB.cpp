@@ -245,7 +245,7 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 	int offset = indexStart.i();
 	// Bools for knowing whether the indices we were given are at either extreme of the array.
 	bool veryStart = (offset == 0);
-	bool veryEnd = ((unsigned)indexEnd.i() == (unsiged)axes_.at(0).size);
+	bool veryEnd = ((unsigned)indexEnd.i() == (unsigned)axes_.at(0).size);
 
 	// Although substantially more code, I have split up each possibility so that it covers everything properly.  Perhaps later I'll find a code optimization.
 
