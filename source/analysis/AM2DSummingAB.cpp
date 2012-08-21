@@ -241,7 +241,7 @@ AMNumber AM2DSummingAB::value(const AMnDIndex& indexes) const {
 	else
 		return rv;
 }
-
+#include <QDebug>
 bool AM2DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
 	if(indexStart.rank() != 1 || indexEnd.rank() != 1)
@@ -264,7 +264,8 @@ bool AM2DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 
 	QVector<double> data = QVector<double>(imageSize);
 	inputSource_->values(AMnDIndex(0, 0), nDImageSize, data.data());
-
+QTime timer;
+timer.start();
 	if (sumAxis_ == 0){
 
 		double sum = 0;
@@ -292,10 +293,10 @@ bool AM2DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 				sum += data[i+axisLength*j];
 		}
 	}
-
+	qDebug() << QString("Time to compute sum: %1 ms").arg(timer.restart());
 	for (int i = 0; i < totalSize; i++)
 		cachedValues_[i] = AMNumber(outputValues[i]);
-
+	qDebug() << QString("Time to set the cached values: %1").arg(timer.elapsed());
 	cacheCompletelyInvalid_ = false;
 
 	return true;

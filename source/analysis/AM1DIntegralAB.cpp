@@ -233,6 +233,7 @@ bool AM1DIntegralAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 #endif
 
 	int totalSize = indexStart.totalPointsTo(indexEnd);
+	int offset = indexStart.i();
 
 	QVector<double> data = QVector<double>(totalSize);
 	QVector<double> axis = QVector<double>(totalSize);
@@ -247,16 +248,16 @@ bool AM1DIntegralAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 		double axisStep = double(axisInfo.increment);
 
 		for (int i = 0; i < totalSize; i++)
-			axis[i] = axisStart + i*axisStep;
+			axis[i] = axisStart + (i+offset)*axisStep;
 	}
 
 	else {
 
 		// Fill the axis vector.  Should minimize the overhead of making the same function calls and casting the values multiple times.
-		axis[0] = double(inputSource_->axisValue(0, 0));
+		axis[0] = double(inputSource_->axisValue(0, offset));
 
 		for (int i = 1; i < totalSize; i++)
-			axis[i] = inputSource_->axisValue(0, i);
+			axis[i] = inputSource_->axisValue(0, i+offset);
 	}
 
 	// Implementing Int[f(x)] ~ 1/2 * SUM {(x[i+1] - x[i])*(f(x[i+1]) + f(x[i])) }

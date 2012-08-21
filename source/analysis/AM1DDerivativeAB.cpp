@@ -241,6 +241,7 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 #endif
 
 	int totalSize = indexStart.totalPointsTo(indexEnd);
+	int offset = indexStart.i();
 
 	QVector<double> data = QVector<double>(totalSize);
 	QVector<double> axis = QVector<double>(totalSize);
@@ -255,7 +256,7 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 		double axisStep = double(axisInfo.increment);
 
 		for (int i = 0; i < totalSize; i++)
-			axis[i] = axisStart + i*axisStep;
+			axis[i] = axisStart + (i+offset)*axisStep;
 
 		// Because we computed the axis values we are guarenteed that the values won't be bad.
 		outputValues[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
@@ -268,10 +269,10 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 	else {
 
 		// Fill the axis vector.  Should minimize the overhead of making the same function calls and casting the values multiple times.
-		axis[0] = double(inputSource_->axisValue(0, 0));
+		axis[0] = double(inputSource_->axisValue(0, offset));
 
 		for (int i = 1; i < totalSize; i++)
-			axis[i] = inputSource_->axisValue(0, i);
+			axis[i] = inputSource_->axisValue(0, i+offset);
 
 		// Fill a list of all the indices that will cause division by zero.
 		QList<int> badIndices;
