@@ -240,65 +240,230 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 		return false;
 #endif
 
+	// Because the indexStart and indexEnd might not correspond to 0 and size-1, we might need to grab more values from inputSource (from one side or the other).
 	int totalSize = indexStart.totalPointsTo(indexEnd);
 	int offset = indexStart.i();
+	// Bools for knowing whether the indices we were given are at either extreme of the array.
+	bool veryStart = (offset == 0);
+	bool veryEnd = ((unsigned)indexEnd.i() == (unsiged)axes_.at(0).size);
 
-	QVector<double> data = QVector<double>(totalSize);
-	QVector<double> axis = QVector<double>(totalSize);
+	// Although substantially more code, I have split up each possibility so that it covers everything properly.  Perhaps later I'll find a code optimization.
 
-	AMAxisInfo axisInfo = inputSource_->axisInfoAt(0);
-	inputSource_->values(indexStart, indexEnd, data.data());
+	// If we are computing the entire thing then we can get the data without and changes.
+	if (veryStart && veryEnd){
 
-	// Limitation of this method is that if indexStart and indexEnd are not 0 and axis.size respectively then there will be more points with forward/backward difference applied to them than if it was just 0 to size.
+		QVector<double> data = QVector<double>(totalSize);
+		QVector<double> axis = QVector<double>(totalSize);
+		AMAxisInfo axisInfo = inputSource_->axisInfoAt(0);
 
-	// This is much faster because we can compute all the axis values ourselves rather than ask for them one at a time.
-	if (axisInfo.isUniform){
+		inputSource_->values(indexStart, indexEnd, data.data());
 
-		double axisStart = double(axisInfo.start);
-		double axisStep = double(axisInfo.increment);
+		// This is much faster because we can compute all the axis values ourselves rather than ask for them one at a time.
+		if (axisInfo.isUniform){
 
-		for (int i = 0; i < totalSize; i++)
-			axis[i] = axisStart + (i+offset)*axisStep;
+			double axisStart = double(axisInfo.start);
+			double axisStep = double(axisInfo.increment);
 
-		// Because we computed the axis values we are guarenteed that the values won't be bad.
-		outputValues[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
-		outputValues[totalSize-1] = (data.at(totalSize-1)-data.at(totalSize-2))/(axis.at(totalSize-1)-axis.at(totalSize-2));
+			for (int i = 0; i < totalSize; i++)
+				axis[i] = axisStart + (i+offset)*axisStep;
 
-		for (int i = 1, count = totalSize-1; i < count; i++)
-			outputValues[i] = (data.at(i+1)-data.at(i-1))/(2*(axis.at(i+1)-axis.at(i-1)));
+			// Because we computed the axis values we are guarenteed that the values won't be bad.
+			outputValues[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
+			outputValues[totalSize-1] = (data.at(totalSize-1)-data.at(totalSize-2))/(axis.at(totalSize-1)-axis.at(totalSize-2));
+
+			for (int i = 1, count = totalSize-1; i < count; i++)
+				outputValues[i] = (data.at(i+1)-data.at(i-1))/(2*(axis.at(i+1)-axis.at(i-1)));
+		}
+
+		else {
+
+			// Fill the axis vector.  Should minimize the overhead of making the same function calls and casting the values multiple times.
+			for (int i = 0; i < totalSize; i++)
+				axis[i] = double(inputSource_->axisValue(0, i+offset));
+
+			// Fill a list of all the indices that will cause division by zero.
+			QList<int> badIndices;
+
+			if (axis.at(0) == axis.at(1))
+				badIndices.append(0);
+
+			for (int i = 1, count = totalSize-1; i < count; i++)
+				if (axis.at(i+1) == axis.at(i-1))
+					badIndices.append(i);
+
+			if (axis.at(totalSize-1) == axis.at(totalSize-2))
+				badIndices.append(totalSize-1);
+
+			// Compute all the values
+			outputValues[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
+			outputValues[totalSize-1] = (data.at(totalSize-1)-data.at(totalSize-2))/(axis.at(totalSize-1)-axis.at(totalSize-2));
+
+			for (int i = 1, count = totalSize-1; i < count; i++)
+				outputValues[i] = (data.at(i+1)-data.at(i-1))/(2*(axis.at(i+1)-axis.at(i-1)));
+
+			// Fix all the values where division by zero would have occured.  Unfortunately, the default value is currently 0, which is generally important when taking the derivative.
+			for (int i = 0, count = badIndices.size(); i < count; i++)
+				outputValues[badIndices.at(i)] = 0;
+		}
 	}
 
-	else {
+	// If we have the very start and not the very end then we have to get more data from the input source from the end.
+	else if (veryStart){
 
-		// Fill the axis vector.  Should minimize the overhead of making the same function calls and casting the values multiple times.
-		axis[0] = double(inputSource_->axisValue(0, offset));
+		int dataSize = totalSize+1;
+		QVector<double> data = QVector<double>(dataSize);
+		QVector<double> axis = QVector<double>(dataSize);
+		AMAxisInfo axisInfo = inputSource_->axisInfoAt(0);
 
-		for (int i = 1; i < totalSize; i++)
-			axis[i] = inputSource_->axisValue(0, i+offset);
+		inputSource_->values(indexStart, AMnDIndex(indexEnd.i()+1), data.data());
 
-		// Fill a list of all the indices that will cause division by zero.
-		QList<int> badIndices;
+		// This is much faster because we can compute all the axis values ourselves rather than ask for them one at a time.
+		if (axisInfo.isUniform){
 
-		if (axis.at(0) == axis.at(1))
-			badIndices.append(0);
+			double axisStart = double(axisInfo.start);
+			double axisStep = double(axisInfo.increment);
 
-		for (int i = 1, count = totalSize-1; i < count; i++)
-			if (axis.at(i+1) == axis.at(i-1))
-				badIndices.append(i);
+			for (int i = 0; i < dataSize; i++)
+				axis[i] = axisStart + (i+offset)*axisStep;
 
-		if (axis.at(totalSize-1) == axis.at(totalSize-2))
-			badIndices.append(totalSize-1);
+			// Because we computed the axis values we are guarenteed that the values won't be bad.
+			outputValues[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
 
-		// Compute all the values
-		outputValues[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
-		outputValues[totalSize-1] = (data.at(totalSize-1)-data.at(totalSize-2))/(axis.at(totalSize-1)-axis.at(totalSize-2));
+			// This is safe because data and axis have an extra point more at the end.
+			for (int i = 1, count = totalSize; i < count; i++)
+				outputValues[i] = (data.at(i+1)-data.at(i-1))/(2*(axis.at(i+1)-axis.at(i-1)));
+		}
 
-		for (int i = 1, count = totalSize-1; i < count; i++)
-			outputValues[i] = (data.at(i+1)-data.at(i-1))/(2*(axis.at(i+1)-axis.at(i-1)));
+		else {
 
-		// Fix all the values where division by zero would have occured.  Unfortunately, the default value is currently 0, which is generally important when taking the derivative.
-		for (int i = 0, count = badIndices.size(); i < count; i++)
-			outputValues[badIndices.at(i)] = 0;
+			// Fill the axis vector.  Should minimize the overhead of making the same function calls and casting the values multiple times.
+			for (int i = 0; i < dataSize; i++)
+				axis[i] = double(inputSource_->axisValue(0, i+offset));
+
+			// Fill a list of all the indices that will cause division by zero.
+			QList<int> badIndices;
+
+			if (axis.at(0) == axis.at(1))
+				badIndices.append(0);
+
+			for (int i = 1, count = dataSize-1; i < count; i++)
+				if (axis.at(i+1) == axis.at(i-1))
+					badIndices.append(i);
+
+			// Compute all the values
+			outputValues[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
+
+			for (int i = 1; i < totalSize; i++)
+				outputValues[i] = (data.at(i+1)-data.at(i-1))/(2*(axis.at(i+1)-axis.at(i-1)));
+
+			// Fix all the values where division by zero would have occured.  Unfortunately, the default value is currently 0, which is generally important when taking the derivative.
+			for (int i = 0, count = badIndices.size(); i < count; i++)
+				outputValues[badIndices.at(i)] = 0;
+		}
+	}
+
+	// If we have the very end and not the very start then we have get more data from the input source from the front.
+	else if (veryEnd){
+
+		int dataSize = totalSize+1;
+		QVector<double> data = QVector<double>(dataSize);
+		QVector<double> axis = QVector<double>(dataSize);
+		AMAxisInfo axisInfo = inputSource_->axisInfoAt(0);
+
+		inputSource_->values(AMnDIndex(indexStart.i()+1), indexEnd, data.data());
+
+		// This is much faster because we can compute all the axis values ourselves rather than ask for them one at a time.
+		if (axisInfo.isUniform){
+
+			double axisStart = double(axisInfo.start);
+			double axisStep = double(axisInfo.increment);
+
+			for (int i = 0; i < dataSize; i++)
+				axis[i] = axisStart + (i+offset)*axisStep;
+
+			// Because we computed the axis values we are guarenteed that the values won't be bad.
+			// This looks a little weird because data has one extra point at the beginning.
+			for (int i = 0, count = totalSize-1; i < count; i++)
+				outputValues[i] = (data.at(i+2)-data.at(i))/(2*(axis.at(i+2)-axis.at(i)));
+
+			outputValues[totalSize-1] = (data.at(totalSize-1)-data.at(totalSize-2))/(axis.at(totalSize-1)-axis.at(totalSize-2));
+		}
+
+		else {
+
+			// Fill the axis vector.  Should minimize the overhead of making the same function calls and casting the values multiple times.
+			for (int i = 1; i < dataSize; i++)
+				axis[i] = inputSource_->axisValue(0, i+offset);
+
+			// Fill a list of all the indices that will cause division by zero.
+			QList<int> badIndices;
+
+			for (int i = 1, count = dataSize-1; i < count; i++)
+				if (axis.at(i+1) == axis.at(i-1))
+					badIndices.append(i);
+
+			if (axis.at(dataSize-1) == axis.at(dataSize-2))
+				badIndices.append(totalSize-1);
+
+			// Compute all the values
+			for (int i = 0, count = totalSize-1; i < count; i++)
+				outputValues[i] = (data.at(i+2)-data.at(i))/(2*(axis.at(i+2)-axis.at(i)));
+
+			outputValues[totalSize-1] = (data.at(totalSize)-data.at(totalSize-1))/(axis.at(totalSize)-axis.at(totalSize-1));
+
+			// Fix all the values where division by zero would have occured.  Unfortunately, the default value is currently 0, which is generally important when taking the derivative.
+			for (int i = 0, count = badIndices.size(); i < count; i++)
+				outputValues[badIndices.at(i)] = 0;
+		}
+	}
+
+	// If we don't have either then we need to grab an extra point from either side.
+	else{
+
+		int dataSize = totalSize+1;
+		QVector<double> data = QVector<double>(totalSize);
+		QVector<double> axis = QVector<double>(totalSize);
+		AMAxisInfo axisInfo = inputSource_->axisInfoAt(0);
+
+		inputSource_->values(AMnDIndex(indexStart.i()+1), AMnDIndex(indexEnd.i()+1), data.data());
+
+		// This is much faster because we can compute all the axis values ourselves rather than ask for them one at a time.
+		if (axisInfo.isUniform){
+
+			double axisStart = double(axisInfo.start);
+			double axisStep = double(axisInfo.increment);
+
+			for (int i = 0; i < dataSize; i++)
+				axis[i] = axisStart + (i+offset)*axisStep;
+
+			// Because we computed the axis values we are guarenteed that the values won't be bad.
+			// This is okay because we have an extra point on both ends and the arrays don't line up.
+			for (int i = 0; i < totalSize; i++)
+				outputValues[i] = (data.at(i+2)-data.at(i))/(2*(axis.at(i+2)-axis.at(i)));
+		}
+
+		else {
+
+			// Fill the axis vector.  Should minimize the overhead of making the same function calls and casting the values multiple times.
+			for (int i = 1; i < totalSize; i++)
+				axis[i] = inputSource_->axisValue(0, i+offset);
+
+			// Fill a list of all the indices that will cause division by zero.
+			QList<int> badIndices;
+
+			for (int i = 1; i < dataSize; i++)
+				if (axis.at(i+1) == axis.at(i-1))
+					badIndices.append(i);
+
+			// Compute all the values
+			// This is okay because we have an extra point on both ends and the arrays don't line up.
+			for (int i = 0; i < totalSize; i++)
+				outputValues[i] = (data.at(i+2)-data.at(i))/(2*(axis.at(i+2)-axis.at(i)));
+
+			// Fix all the values where division by zero would have occured.  Unfortunately, the default value is currently 0, which is generally important when taking the derivative.
+			for (int i = 0, count = badIndices.size(); i < count; i++)
+				outputValues[badIndices.at(i)] = 0;
+		}
 	}
 
 	return true;
