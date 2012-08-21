@@ -249,6 +249,8 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 	AMAxisInfo axisInfo = inputSource_->axisInfoAt(0);
 	inputSource_->values(indexStart, indexEnd, data.data());
 
+	// Limitation of this method is that if indexStart and indexEnd are not 0 and axis.size respectively then there will be more points with forward/backward difference applied to them than if it was just 0 to size.
+
 	// This is much faster because we can compute all the axis values ourselves rather than ask for them one at a time.
 	if (axisInfo.isUniform){
 

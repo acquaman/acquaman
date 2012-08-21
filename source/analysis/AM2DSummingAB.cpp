@@ -294,8 +294,10 @@ timer.start();
 		}
 	}
 	qDebug() << QString("Time to compute sum: %1 ms").arg(timer.restart());
+	int offset = indexStart.i();
+
 	for (int i = 0; i < totalSize; i++)
-		cachedValues_[i] = AMNumber(outputValues[i]);
+		cachedValues_[i+offset] = AMNumber(outputValues[i]);
 	qDebug() << QString("Time to set the cached values: %1").arg(timer.elapsed());
 	cacheCompletelyInvalid_ = false;
 

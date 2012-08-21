@@ -269,7 +269,7 @@ bool AM1DIntegralAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 	outputValues[totalSize-1] = 0.5*((axis.at(totalSize-1)-axis.at(totalSize-2))*data.at(totalSize-1)+data.at(totalSize-2)) + outputValues[totalSize-2];
 
 	for (int i = 0; i < totalSize; i++)
-		cachedValues_[i] = AMNumber(outputValues[i]);
+		cachedValues_[i+offset] = AMNumber(outputValues[i]);
 
 	cacheCompletelyInvalid_ = false;
 
