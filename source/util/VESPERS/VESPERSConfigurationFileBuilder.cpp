@@ -48,7 +48,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 
 	if (usingMono){
 
-		moveDelay = 0.1;
+		moveDelay = 0.05;
 		status1  = "SMTR1607-1-B20-20:status";
 		status2 = "";
 		energyFeedback = "07B2_Mono_SineB_Egec:eV";
@@ -56,7 +56,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 
 	else{
 
-		moveDelay = 0.1;
+		moveDelay = 0.05;
 		status1.replace(":mm", ":status");
 		status2.replace(":mm", ":status");
 		energyFeedback = "";
@@ -223,7 +223,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 	if (dimensions_ == 2)
 		contents.append(QString("# PV 1: \"%1\" disable:0 format:\"\%.4f\" spectrum:0 ready:0\n").arg(pvNameAxis2_));
 
-	for (int i = 0; i <= 90-dimensions_; i++)
+	for (int i = 0; i <= 120-dimensions_; i++)
 		contents.append(QString("# PV %1: \"Goober\", disable:0 spectrum:0 ready:0\n").arg(i+dimensions_));
 
 	// Event "background"
@@ -246,7 +246,21 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 		contents.append("# PV 3: \"$(EnergyFeedback)\" disable:0 format:\"\%10.6f\" spectrum:0 ready:0\n");
 		contents.append("# PV 4: \"$(acqDwellmSec)\" disable:0 spectrum:0 ready:0\n");
 
-		if (singleElement_){
+		if (singleElement_ && fourElement_){
+
+			contents.append("# PV 5: \"IOC1607-004:mca1.PRTM\" disable:0 spectrum:0 ready:0\n");
+			contents.append("# PV 6: \"IOC1607-003:det1:ActualSeconds\" disable:0 spectrum:0 ready:0\n");
+			contents.append("# PV 7: \"$(DXP_PKTIM)\" disable:0 spectrum:0 ready:0\n");
+			contents.append("# PV 8: \"$(DXP_GAPTIM)\" disable:0 spectrum:0 ready:0\n");
+			contents.append("# PV 9: \"$(DXP_EMAX)\" disable:0 spectrum:0 ready:0\n");
+			contents.append("# PV 10: \"$(4Elem):PresetReal\" disable:0 spectrum:0 ready:0\n");
+			contents.append("# PV 11: \"$(4Elem):EnergyPkTime\" disable:0 format:\"PkTime=\%.2f\" spectrum:0 ready:0\n");
+			contents.append("# PV 12: \"$(4ElemDXP)1.GAPTIM\" disable:0 format:\"GapTime=\%.2f\" spectrum:0 ready:0\n");
+			contents.append("# PV 13: \"$(4Elem):mcaEMax\" disable:0 spectrum:0 ready:0\n");
+			contents.append("# PV 14: \"$(4ElemMCA)Corrected.NUSE\" disable:0 spectrum:0 ready:0\n");
+		}
+
+		else if (singleElement_){
 
 			contents.append("# PV 5: \"IOC1607-004:mca1.PRTM\" disable:0 spectrum:0 ready:0\n");
 			contents.append("# PV 6: \"IOC1607-003:det1:ActualSeconds\" disable:0 spectrum:0 ready:0\n");
