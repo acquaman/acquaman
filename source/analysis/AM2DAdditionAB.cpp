@@ -1,26 +1,6 @@
-/*
-Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+#include "AM2DAdditionAB.h"
 
-This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
-
-Acquaman is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Acquaman is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
-#include "AM1DSummingAB.h"
-
-AM1DSummingAB::AM1DSummingAB(const QString &outputName, QObject *parent)
+AM2DAdditionAB::AM2DAdditionAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
@@ -29,23 +9,23 @@ AM1DSummingAB::AM1DSummingAB(const QString &outputName, QObject *parent)
 
 // Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, our specific requirements are...
 /* - there must be a single input source
-- the rank() of that input source must be 1 (one-dimensional)
+- the rank() of that input source must be 2 (one-dimensional)
 */
-bool AM1DSummingAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const
+bool AM2DAdditionAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const
 {
 	if(dataSources.isEmpty())
 		return true; // always acceptable; the null input.
 
-	// otherwise input sources have rank of 1.
+	// otherwise input sources have rank of 2.
 	for (int i = 0; i < dataSources.count(); i++)
-		if (dataSources.at(i)->rank() != 1)
+		if (dataSources.at(i)->rank() != 2)
 			return false;
 
 	return true;
 }
 
 // Set the data source inputs.
-void AM1DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources)
+void AM2DAdditionAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources)
 {
 	// disconnect connections from old sources, if they exist.
 	if(!sources_.isEmpty()) {
@@ -62,6 +42,8 @@ void AM1DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 
 		sources_.clear();
 		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
+		axes_[1] = AMAxisInfo("invalid", 0, "No input data");
+
 		setDescription("-- No input data --");
 	}
 
@@ -71,8 +53,9 @@ void AM1DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 		sources_ = dataSources;
 
 		axes_[0] = sources_.at(0)->axisInfoAt(0);
+		axes_[1] = sources_.at(1)->axisInfoAt(1);
 
-		setDescription(QString("Sum of %1 spectra").arg(sources_.size()));
+		setDescription(QString("Sum of %1 maps").arg(sources_.size()));
 
 		for (int i = 0; i < sources_.size(); i++){
 
@@ -85,14 +68,16 @@ void AM1DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 	reviewState();
 
 	emitSizeChanged(0);
+	emitSizeChanged(1);
 	emitValuesChanged();
 	emitAxisInfoChanged(0);
+	emitAxisInfoChanged(1);
 	emitInfoChanged();
 }
 
-AMNumber AM1DSummingAB::value(const AMnDIndex &indexes) const
+AMNumber AM2DAdditionAB::value(const AMnDIndex &indexes) const
 {
-	if(indexes.rank() != 1)
+	if(indexes.rank() != 2)
 		return AMNumber(AMNumber::DimensionError);
 
 	if(!isValid())
@@ -100,21 +85,21 @@ AMNumber AM1DSummingAB::value(const AMnDIndex &indexes) const
 
 #ifdef AM_ENABLE_BOUNDS_CHECKING
 	for (int i = 0; i < sources_.size(); i++)
-		if (indexes.i() >= sources_.at(i)->size(0))
+		if (indexes.i() >= sources_.at(i)->size(0) || indexes.j() >= sources_.at(i)->size(1))
 			return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
 	double val = 0;
 
 	for (int i = 0; i < sources_.size(); i++)
-		val += (double)sources_.at(i)->value(indexes.i());
+		val += (double)sources_.at(i)->value(indexes);
 
 	return val;
 }
 
-bool AM1DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+bool AM2DAdditionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
-	if(indexStart.rank() != 1 || indexEnd.rank() != 1)
+	if(indexStart.rank() != 2 || indexEnd.rank() != 2)
 		return false;
 
 	if(!isValid())
@@ -122,10 +107,10 @@ bool AM1DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 
 #ifdef AM_ENABLE_BOUNDS_CHECKING
 	for (int i = 0; i < sources_.size(); i++)
-		if ((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size)
+		if ((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexEnd.j() >= (unsigned)axes_.at(1).size)
 			return false;
 
-	if ((unsigned)indexStart.i() > (unsigned)indexEnd.i())
+	if ((unsigned)indexStart.i() > (unsigned)indexEnd.i() || (unsigned)indexStart.j() > (unsigned)indexEnd.j())
 		return false;
 #endif
 
@@ -150,7 +135,7 @@ bool AM1DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 	return true;
 }
 
-AMNumber AM1DSummingAB::axisValue(int axisNumber, int index) const
+AMNumber AM2DAdditionAB::axisValue(int axisNumber, int index) const
 {
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
@@ -167,21 +152,22 @@ AMNumber AM1DSummingAB::axisValue(int axisNumber, int index) const
 }
 
 // Connected to be called when the values of the input data source change
-void AM1DSummingAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
+void AM2DAdditionAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
 	emitValuesChanged(start, end);
 }
 
 // Connected to be called when the size of the input source changes
-void AM1DSummingAB::onInputSourceSizeChanged()
+void AM2DAdditionAB::onInputSourceSizeChanged()
 {
 	axes_[0] = sources_.at(0)->axisInfoAt(0);
+	axes_[1] = sources_.at(0)->axisInfoAt(1);
 
 	emitSizeChanged();
 }
 
 // Connected to be called when the state() flags of any input source change
-void AM1DSummingAB::onInputSourceStateChanged()
+void AM2DAdditionAB::onInputSourceStateChanged()
 {
 	reviewState();
 
@@ -189,7 +175,7 @@ void AM1DSummingAB::onInputSourceStateChanged()
 	onInputSourceSizeChanged();
 }
 
-void AM1DSummingAB::reviewState()
+void AM2DAdditionAB::reviewState()
 {
 	// Are there data sources?
 	if(sources_.isEmpty()){
@@ -199,11 +185,9 @@ void AM1DSummingAB::reviewState()
 	}
 
 	// Are all the data sources the same size?
+	for (int i = 1; i < sources_.count(); i++){
 
-
-	for (int i = 1; i < axes_.count(); i++){
-
-		if (axes_[0].size != sources_.at(i)->axisInfoAt(0).size){
+		if (axes_.at(0).size != sources_.at(i)->axisInfoAt(0).size || axes_.at(1).size != sources_.at(i)->axisInfoAt(1).size){
 
 			setState(AMDataSource::InvalidFlag);
 			return;
@@ -222,10 +206,11 @@ void AM1DSummingAB::reviewState()
 		setState(AMDataSource::InvalidFlag);
 }
 
-bool AM1DSummingAB::loadFromDb(AMDatabase *db, int id)
+bool AM2DAdditionAB::loadFromDb(AMDatabase *db, int id)
 {
 	bool success = AMDbObject::loadFromDb(db, id);
 	if(success)
 		AMDataSource::name_ = AMDbObject::name(); /// \todo This might change the name of a data-source in mid-life, which is technically not allowed.
 	return success;
 }
+
