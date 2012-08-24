@@ -44,6 +44,7 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 	QVector<int> raw2;
 	QVector<int> raw3;
 	QVector<int> raw4;
+	QVector<int> corrSum;
 
 	QTextStream in(&file);
 	QString line;
@@ -62,7 +63,40 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 	bool usingSingleElement = line.contains("IOC1607-004");
 	bool usingFourElement = line.contains("dxp1607-B21-04");
 
-	if (usingSingleElement){
+	if (usingSingleElement && usingFourElement){
+
+		data.resize(2048);
+		raw1.resize(2048);
+		raw2.resize(2048);
+		raw3.resize(2048);
+		raw4.resize(2048);
+		corrSum.resize(2048);
+
+		foreach(QString additionalFilePath, scan->additionalFilePaths())
+			if(additionalFilePath.contains("_spectra.dat"))
+				spectra.setFileName(additionalFilePath);
+
+		if(spectra.fileName() == ""){
+
+			// Needed until the non-trivial database upgrade happens so I can set all the additional filepaths.
+			QString temp(sourceFileInfo.filePath());
+			temp.chop(4);
+			spectra.setFileName(temp+"_spectra.dat");
+		}
+
+		else {
+
+			QFileInfo spectraFileInfo(spectra.fileName());
+			if (spectraFileInfo.isRelative())
+				spectra.setFileName(userDataFolder + "/" + spectra.fileName());
+			if(!spectra.open(QIODevice::ReadOnly)) {
+				AMErrorMon::error(0, -1, QString("XASFileLoader parse error while loading scan spectra data from %1.").arg(spectra.fileName()));
+				return false;
+			}
+		}
+	}
+
+	else if (usingSingleElement){
 
 		data.resize(2048);
 
@@ -89,6 +123,7 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 			}
 		}
 	}
+
 	else if (usingFourElement){
 
 		data.resize(2048);
@@ -120,6 +155,7 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 			}
 		}
 	}
+
 	else
 		spectra.setFileName("");
 
@@ -137,7 +173,25 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 	// Some setup variables.
 	int axisValueIndex = 0;
 
-	if (usingSingleElement){
+	if (usingSingleElement && usingFourElement){
+
+		// The last 6 raw data sources are spectra.
+		for (int i = 0; i < scan->rawDataSourceCount()-6; i++)
+			cdfData->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description()));
+
+		// Note!  Not general!
+		QList<AMAxisInfo> axisInfo;
+		AMAxisInfo ai("Energy", 2048, "Energy", "eV");
+		ai.increment = 10;
+		ai.start = AMNumber(0);
+		ai.isUniform = true;
+		axisInfo << ai;
+
+		for (int i = scan->rawDataSourceCount()-6; i < scan->rawDataSourceCount(); i++)
+			cdfData->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description(), "eV", axisInfo));
+	}
+
+	else if (usingSingleElement){
 
 		// The last raw data source is a spectrum.
 		for (int i = 0; i < scan->rawDataSourceCount()-1; i++)
@@ -189,7 +243,35 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 		cdfData->setAxisValue(0, axisValueIndex, lineTokenized.at(1).toDouble());
 
 		// This isn't the most efficient way of putting the spectra data in, but it will do for the time being.
-		if (usingSingleElement){
+		if (usingSingleElement && usingFourElement){
+
+			// Only going to rawDataSourceCount-6 because the last 6 raw data sources are the 2D spectra scan and requires its own method of entering the data.
+			for (int i = 0; i < scan->rawDataSourceCount()-6; i++)
+				cdfData->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+2).toDouble());
+
+			spectraTokenized.clear();
+			spectraLine = spectraStream.readLine();
+			spectraTokenized << spectraLine.split(",");
+
+			for (int j = 0; j < 2048; j++){
+
+				data[j] = spectraTokenized.at(j).toInt();
+				corrSum[j] = spectraTokenized.at(j+2048).toInt();
+				raw1[j] = spectraTokenized.at(j+4096).toInt();
+				raw2[j] = spectraTokenized.at(j+6144).toInt();
+				raw3[j] = spectraTokenized.at(j+8192).toInt();
+				raw4[j] = spectraTokenized.at(j+10240).toInt();
+			}
+
+			cdfData->setValue(axisValueIndex, scan->rawDataSourceCount()-6, data.constData());
+			cdfData->setValue(axisValueIndex, scan->rawDataSourceCount()-5, corrSum.constData());
+			cdfData->setValue(axisValueIndex, scan->rawDataSourceCount()-4, raw1.constData());
+			cdfData->setValue(axisValueIndex, scan->rawDataSourceCount()-3, raw2.constData());
+			cdfData->setValue(axisValueIndex, scan->rawDataSourceCount()-2, raw3.constData());
+			cdfData->setValue(axisValueIndex, scan->rawDataSourceCount()-1, raw4.constData());
+		}
+
+		else if (usingSingleElement){
 
 			// Only going to rawDataSourceCount-1 because the last raw data source is the 2D spectra scan and requires its own method of entering the data.
 			for (int i = 0; i < scan->rawDataSourceCount()-1; i++)
