@@ -138,7 +138,7 @@ QString VESPERSEXAFSScanConfiguration::headerText() const
 
 	header.append("Scanned Edge:\t" + edge() + "\n");
 
-	switch(fluorescenceDetectorChoice()){
+	switch((int)fluorescenceDetectorChoice()){
 
 	case None:
 		header.append("Fluorescence Detector:\tNone\n");
@@ -148,6 +148,9 @@ QString VESPERSEXAFSScanConfiguration::headerText() const
 		break;
 	case FourElement:
 		header.append("Fluorescence Detector:\tFour Element Vortex Detector\n");
+		break;
+	case SingleElement | FourElement:
+		header.append("Fluorescence Detector:\tSingle Element Vortex Detector and Four Element Vortex Detector\n");
 		break;
 	}
 
