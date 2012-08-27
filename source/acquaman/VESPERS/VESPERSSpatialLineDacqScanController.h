@@ -70,6 +70,11 @@ protected:
 	bool setupSingleElementMap();
 	/// Sets up the line scan based on the four element detector being used for XRF.
 	bool setupFourElementMap();
+	/// Sets up the line scan based on the single element and four element detectors being used for XRF.
+	bool setupSingleAndFourElementMap();
+
+	/// Helper method that returns a list of QPairs where each pair corresponds to the same ROIs.  Used only when using both vortex detectors together.
+	QList<QPair<int, int> > findRoiPairs() const;
 
 	/// Pointer to the VESPERSSpatialLineScanConfiguration this scan controls.
 	VESPERSSpatialLineScanConfiguration *config_;
