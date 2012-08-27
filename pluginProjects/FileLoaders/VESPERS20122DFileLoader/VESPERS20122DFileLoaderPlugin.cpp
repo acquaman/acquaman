@@ -283,20 +283,20 @@ timer.start();
 		x = 0;
 		y = 0;
 
-		QTime time2;
+//		QTime time2;
 
 		while(!spectraStream.atEnd()){
 
-			if (x == 0)
-				time2.restart();
+//			if (x == 0)
+//				time2.restart();
 
 			spectraLine = spectraStream.readLine();
 			spectraTokenized = spectraLine.split(",");
 
-			if (x == 0){
-				qDebug() << QString("Reading values from the file: %1 ms").arg(time2.elapsed());
-				time2.restart();
-			}
+//			if (x == 0){
+//				qDebug() << QString("Reading values from the file: %1 ms").arg(time2.elapsed());
+//				time2.restart();
+//			}
 
 			for (int j = 0; j < 2048; j++){
 
@@ -308,10 +308,10 @@ timer.start();
 				raw4[j] = spectraTokenized.at(j+10240).toInt();
 			}
 
-			if (x == 0){
-				qDebug() << QString("Setting the values to the vector: %1 ms").arg(time2.elapsed());
-				time2.restart();
-			}
+//			if (x == 0){
+//				qDebug() << QString("Setting the values to the vector: %1 ms").arg(time2.elapsed());
+//				time2.restart();
+//			}
 
 //				AMnDIndex axisValueIndex(x, y);
 			AMnDIndex axisValueIndex(y, x);
@@ -322,10 +322,10 @@ timer.start();
 			cdfData->setValue(axisValueIndex, count-2, raw3.constData());
 			cdfData->setValue(axisValueIndex, count-1, raw4.constData());
 
-			if (x == 0){
-				qDebug() << QString("Setting the value to the data store: %1 ms").arg(time2.elapsed());
-				time2.restart();
-			}
+//			if (x == 0){
+//				qDebug() << QString("Setting the value to the data store: %1 ms").arg(time2.elapsed());
+//				time2.restart();
+//			}
 
 			// Advance to the next spot.
 			x++;

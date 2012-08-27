@@ -34,7 +34,7 @@ class VESPERS2012SpatialLineScanFileLoaderPlugin : public AMFileLoaderInterface
 
 public:
 	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept vespers2012LineScanXRF1El, vespers2012LineScanXRF1ElXRD, vespers2012LineScanXRF4El, and vespers2012LineScanXRF4ElXRD.
-	virtual QStringList acceptedFileFormats() { return QStringList() << "vespers2012LineScanXRF1El" << "vespers2012LineScanXRF1ElXRD" << "vespers2012LineScanXRF4El" << "vespers2012LineScanXRF4ElXRD" << "vespers2012Energy"; }
+	virtual QStringList acceptedFileFormats() { return QStringList() << "vespers2012LineScanXRF1El" << "vespers2012LineScanXRF1ElXRD" << "vespers2012LineScanXRF4El" << "vespers2012LineScanXRF4ElXRD" << "vespers2012LineScan1Eln4El" << "vespers2012LineScan1Eln4ElXRD" << "vespers2012Energy"; }
 	/// Format tag. a unique string identifying this format.
 	virtual bool accepts(AMScan *scan);
 
@@ -49,7 +49,7 @@ class VESPERS2012SpatialLineScanFileLoaderFactory : public QObject, AMFileLoader
 
 public:
 	/// A list of strings matching the "fileFormat()" string in AMScan, which this file loader can handle. We accept vespersXAS and vespers2011XAS
-	virtual QStringList acceptedFileFormats() { return QStringList() << "vespers2012LineScanXRF1El" << "vespers2012LineScanXRF1ElXRD" << "vespers2012LineScanXRF4El" << "vespers2012LineScanXRF4ElXRD" << "vespers2012Energy"; }
+	virtual QStringList acceptedFileFormats() { return QStringList() << "vespers2012LineScanXRF1El" << "vespers2012LineScanXRF1ElXRD" << "vespers2012LineScanXRF4El" << "vespers2012LineScanXRF4ElXRD" << "vespers2012LineScan1Eln4El" << "vespers2012LineScan1Eln4ElXRD" << "vespers2012Energy"; }
 	/// This function allows you to do a more detailed check of an AMScan to see whether you can load data for it.
 	virtual bool accepts(AMScan *scan);
 
