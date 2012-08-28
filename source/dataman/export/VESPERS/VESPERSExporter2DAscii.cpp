@@ -207,7 +207,7 @@ void VESPERSExporter2DAscii::writeSeparateSections()
 {
 	// Castrated function.
 }
-
+#include <QDataStream>
 bool VESPERSExporter2DAscii::writeSeparateFiles(const QString &destinationFolderPath)
 {
 	for (int s = 0, sSize = separateFileDataSources_.size(); s < sSize; s++) {
@@ -224,26 +224,35 @@ bool VESPERSExporter2DAscii::writeSeparateFiles(const QString &destinationFolder
 		}
 
 		int spectraSize = source->size(2);
-		char columnDelimiter = option_->columnDelimiter().toAscii().at(0);
-		char newLineDelimiter = option_->newlineDelimiter().toAscii().at(0);
-
+		QChar *columnDelimiter = option_->columnDelimiter().data();
+		QChar *newLineDelimiter = option_->newlineDelimiter().data();
+		QDataStream out(&output);
+		QTime average;
+		QTime writing;
+		QTime total;
+		QTime value;
+		double averageTime = 0;
+		double writingTime = 0;
+		double valueTime = 0;
+		total.start();
 		for (int y = 0, ySize = source->size(1); y < ySize; y++){
 
 			for (int x = 0, xSize = source->size(0); x < xSize; x++){
-
+average.restart();
+value.restart();
 				QVector<double> data(spectraSize);
 				source->values(AMnDIndex(x, y, 0), AMnDIndex(x, y, spectraSize-1), data.data());
+valueTime += value.elapsed();
+writing.restart();
+				for (int i = 0; i < spectraSize; i++)
+					out << data.at(i) << columnDelimiter;
 
-				for (int i = 0; i < spectraSize; i++){
-
-					output.write(QByteArray::number(data.at(i)));
-					output.putChar(columnDelimiter);
-				}
-
-				output.putChar(newLineDelimiter);
+				out << newLineDelimiter;
+				writingTime += writing.elapsed();
+				averageTime += average.elapsed();
 			}
 		}
-
+		qDebug() << QString("%1 took a total of %2 ms and an average of %3 ms per point. Getting values took %4 ms and writing the row took %5 ms.").arg(source->name()).arg(total.elapsed()).arg(averageTime/(source->size(0)*source->size(1))).arg(valueTime/(source->size(0)*source->size(1))).arg(writingTime/(source->size(0)*source->size(1)));
 		output.close();
 	}
 
