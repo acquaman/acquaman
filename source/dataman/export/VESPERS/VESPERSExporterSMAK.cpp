@@ -219,6 +219,7 @@ bool VESPERSExporterSMAK::writeSeparateFiles(const QString &destinationFolderPat
 			return false;
 		}
 
+		QTextStream out(&output);
 		int spectraSize = source->size(2);
 		QVector<double> data(spectraSize);
 		int index = 0;
@@ -229,15 +230,12 @@ bool VESPERSExporterSMAK::writeSeparateFiles(const QString &destinationFolderPat
 
 				source->values(AMnDIndex(x, y, 0), AMnDIndex(x, y, spectraSize-1), data.data());
 
-				output.write(QByteArray::number(++index));
+				out << ++index;
 
-				for (int i = 0; i < spectraSize; i++){
+				for (int i = 0; i < spectraSize; i++)
+					out << "\t" << data.at(i);
 
-					output.putChar('\t');
-					output.write(QByteArray::number(data.at(i)));
-				}
-
-				output.putChar('\n');
+				out << "\n";
 			}
 		}
 
