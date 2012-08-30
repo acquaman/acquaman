@@ -705,8 +705,9 @@ void VESPERS2DDacqScanController::cleanup()
 {
 	// To cleanup the 2D scan, there are two stages.
 	/*
-		First: Set the dwell time to 1 second.  Disables the variable integration time.  Make sure the CCD is no longer armed if it was used.
-		Second: Set the scan mode to continuous.  This starts the synchronized dwell time.
+		First: Only have the scalar running in the syncrhonized dwell time.
+		Second: Set the dwell time to 1 second.  Disables the variable integration time.  Make sure the CCD is no longer armed if it was used.
+		Third: Set the scan mode to continuous.  This starts the synchronized dwell time.
 	 */
 	AMBeamlineParallelActionsList *cleanupActionsList = new AMBeamlineParallelActionsList;
 
@@ -717,18 +718,31 @@ void VESPERS2DDacqScanController::cleanup()
 
 	// First stage.
 	cleanupActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	// Synchronized dwell time.
-	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(1.0));
-	// Variable integration time.
-	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->variableIntegrationTime()->createModeAction(CLSVariableIntegrationTime::Disabled));
-	// CCD.
-	if (config_->usingCCD())
-		cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->roperCCD()->createStopAction());
+	// Scalar
+	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(0)->createEnableAction(true));
+	// Single element vortex
+	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(false));
+	// CCD
+	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(false));
+	// Picoammeters
+	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
+	// Four element vortex
+	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
 
 	// Second stage.
+	cleanupActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+	// Synchronized dwell time.
+	cleanupActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(1.0));
+	// Variable integration time.
+	cleanupActionsList->appendAction(1, VESPERSBeamline::vespers()->variableIntegrationTime()->createModeAction(CLSVariableIntegrationTime::Disabled));
+	// CCD.
+	if (config_->usingCCD())
+		cleanupActionsList->appendAction(1, VESPERSBeamline::vespers()->roperCCD()->createStopAction());
+
+	// Third stage.
 	cleanupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 	// Start the synchronized dwell time.
-	cleanupActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::Continuous));
+	cleanupActionsList->appendAction(2, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::Continuous));
 
 	connect(cleanupActions_, SIGNAL(succeeded()), this, SLOT(onCleanupFinished()));
 	connect(cleanupActions_, SIGNAL(failed(int)), this, SLOT(onCleanupFinished()));

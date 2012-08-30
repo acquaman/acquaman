@@ -261,8 +261,9 @@ void VESPERSEnergyDacqScanController::cleanup()
 {
 	// To cleanup the XAS scan, there is one stage.
 	/*
-		First: Set the dwell time to 1 second.  Disables the variable integration time.  Set the relative energy PV to 0.
-  Second: Set the scan mode to continuous.  This starts the synchronized dwell time.
+		First: Only have the scalar running in the syncrhonized dwell time.
+		Second: Set the dwell time to 1 second.  Disables the variable integration time.  Set the relative energy PV to 0.
+		Third: Set the scan mode to continuous.  This starts the synchronized dwell time.
 	 */
 	AMBeamlineParallelActionsList *cleanupXASActionsList = new AMBeamlineParallelActionsList;
 
@@ -273,13 +274,26 @@ void VESPERSEnergyDacqScanController::cleanup()
 
 	// First stage.
 	cleanupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	// Synchronized dwell time.
-	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(1.0));
+	// Scalar
+	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(0)->createEnableAction(true));
+	// Single element vortex
+	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(false));
+	// CCD
+	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(false));
+	// Picoammeters
+	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
+	// Four element vortex
+	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
 
 	// Second stage.
+	cleanupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+	// Synchronized dwell time.
+	cleanupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(1.0));
+
+	// Third stage.
 	cleanupXASActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 	// Start the synchronized dwell time.
-	cleanupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::Continuous));
+	cleanupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::Continuous));
 
 	connect(cleanupXASAction_, SIGNAL(succeeded()), this, SLOT(onCleanupFinished()));
 	connect(cleanupXASAction_, SIGNAL(failed(int)), this, SLOT(onCleanupFinished()));
