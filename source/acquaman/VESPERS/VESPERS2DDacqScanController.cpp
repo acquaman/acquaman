@@ -329,8 +329,9 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 
 			roi1 = scan_->rawDataSources()->at(sameRois.at(i).first);
 			roi4 = scan_->rawDataSources()->at(sameRois.at(i).second);
-			roiNames << roi1->name().left(roi1->name().size()-2);
-			sumAB = new AM2DAdditionAB("sum_" % roi1->name());
+			QString name = roi1->name().left(roi1->name().size()-2);
+			roiNames << name;
+			sumAB = new AM2DAdditionAB("sum_" % name);
 			sumAB->setDescription("Summed " % roi1->description());
 			sumAB->setInputDataSources(QList<AMDataSource *>() << roi1 << roi4);
 			scan_->addAnalyzedDataSource(sumAB, false, true);
