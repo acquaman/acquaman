@@ -3,7 +3,7 @@
 AM2DAdditionAB::AM2DAdditionAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {
-	axes_ << AMAxisInfo("invalid", 0, "No input data");
+	axes_ << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 }
 
@@ -53,7 +53,7 @@ void AM2DAdditionAB::setInputDataSourcesImplementation(const QList<AMDataSource*
 		sources_ = dataSources;
 
 		axes_[0] = sources_.at(0)->axisInfoAt(0);
-		axes_[1] = sources_.at(1)->axisInfoAt(1);
+		axes_[1] = sources_.at(0)->axisInfoAt(1);
 
 		setDescription(QString("Sum of %1 maps").arg(sources_.size()));
 
@@ -137,18 +137,16 @@ bool AM2DAdditionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 
 AMNumber AM2DAdditionAB::axisValue(int axisNumber, int index) const
 {
-	if(!isValid())
+	if (!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	if(axisNumber != 0)
+	if (axisNumber != 0 && axisNumber != 1)
 		return AMNumber(AMNumber::DimensionError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
-	if (index >= sources_.first()->size(0))
-		return AMNumber(AMNumber::OutOfBoundsError);
-#endif
+	if (index >= axes_.at(axisNumber).size)
+		return AMNumber(AMNumber::DimensionError);
 
-	return sources_.first()->axisValue(0, index);
+	return sources_.at(0)->axisValue(axisNumber, index);
 }
 
 // Connected to be called when the values of the input data source change
@@ -160,10 +158,17 @@ void AM2DAdditionAB::onInputSourceValuesChanged(const AMnDIndex& start, const AM
 // Connected to be called when the size of the input source changes
 void AM2DAdditionAB::onInputSourceSizeChanged()
 {
-	axes_[0] = sources_.at(0)->axisInfoAt(0);
-	axes_[1] = sources_.at(0)->axisInfoAt(1);
+	if(axes_.at(0).size != sources_.at(0)->size(0)){
 
-	emitSizeChanged();
+		axes_[0].size = sources_.at(0)->size(0);
+		emitSizeChanged(0);
+	}
+
+	if(axes_.at(1).size != sources_.at(0)->size(1)){
+
+		axes_[1].size = sources_.at(0)->size(1);
+		emitSizeChanged(1);
+	}
 }
 
 // Connected to be called when the state() flags of any input source change

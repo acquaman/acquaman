@@ -402,7 +402,7 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 
 			roi1 = scan_->rawDataSources()->at(sameRois.at(i).first);
 			roi4 = scan_->rawDataSources()->at(sameRois.at(i).second);
-			roiNames << roi1->name();
+			roiNames << roi1->name().left(roi1->name().size()-2);
 
 			if (roi1->name().contains(edge.remove(" "))){
 

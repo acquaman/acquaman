@@ -151,7 +151,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 	else if (dimensions_ == 2){
 
 		contents.append(QString("# Action Dwell Delay %1\n").arg(moveDelay));
-		contents.append(QString("# Action Dwell CallScan \"axis1\" 1\n").arg(status2));
+		contents.append(QString("# Action Dwell CallScan \"axis1\" 1\n"));
 	}
 
 	// Finish phase.
