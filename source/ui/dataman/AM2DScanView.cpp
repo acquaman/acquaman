@@ -47,6 +47,7 @@ AM2DScanBar::AM2DScanBar(QWidget *parent)
 
 	showSpectra_ = new QCheckBox("Show Spectra");
 	showSpectra_->setChecked(false);
+	showSpectra_->setEnabled(false);
 	connect(showSpectra_, SIGNAL(toggled(bool)), this, SIGNAL(showSpectra(bool)));
 
 	QHBoxLayout *layout = new QHBoxLayout;
