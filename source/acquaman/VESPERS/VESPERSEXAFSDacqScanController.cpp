@@ -391,6 +391,7 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 		AM1DSummingAB *sumAB = 0;
 		QList<QPair<int, int> > sameRois = findRoiPairs();
 		QStringList roiNames;
+		int singleElRoiCount = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList()->count();
 
 		QString edge = config_->edge();
 
@@ -400,8 +401,8 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 \
 		for (int i = 0, count = sameRois.size(); i < count; i++){
 
-			roi1 = scan_->rawDataSources()->at(sameRois.at(i).first);
-			roi4 = scan_->rawDataSources()->at(sameRois.at(i).second);
+			roi1 = scan_->rawDataSources()->at(sameRois.at(i).first+4);
+			roi4 = scan_->rawDataSources()->at(sameRois.at(i).second+4+singleElRoiCount);
 			QString name = roi1->name().left(roi1->name().size()-2);
 			roiNames << name;
 
@@ -458,7 +459,7 @@ QList<QPair<int, int> > VESPERSEXAFSDacqScanController::findRoiPairs() const
 		if (allLinedUp){
 
 			for (int i = 0, count = el1->count(); i < count; i++)
-				list << qMakePair(2+i, 2+count+i);
+				list << qMakePair(i, i);
 		}
 
 		// Otherwise, we have to check each individually.  Not all may match and only matches will be added to the list.
@@ -467,7 +468,7 @@ QList<QPair<int, int> > VESPERSEXAFSDacqScanController::findRoiPairs() const
 			for (int i = 0, count = el1->count(); i < count; i++)
 				for (int j = 0; j < count; j++)
 					if (el1->at(i).name() == el4->at(j).name())
-						list << qMakePair(2+i, 2+count+j);
+						list << qMakePair(i, j);
 		}
 	}
 
@@ -477,7 +478,7 @@ QList<QPair<int, int> > VESPERSEXAFSDacqScanController::findRoiPairs() const
 		for (int i = 0, count1 = el1->count(); i < count1; i++)
 			for (int j = 0, count4 = el4->count(); j < count4; j++)
 				if (el1->at(i).name() == el4->at(j).name())
-					list << qMakePair(2+i, 2+count1+j);
+					list << qMakePair(i, j);
 	}
 
 	return list;
