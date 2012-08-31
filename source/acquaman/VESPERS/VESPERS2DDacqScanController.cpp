@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM2DAdditionAB.h"
 #include "actions/AMBeamlineParallelActionsList.h"
 #include "util/VESPERS/VESPERSConfigurationFileBuilder.h"
+#include "analysis/AM3DAdditionAB.h"
 
 #include <QDir>
 #include <QStringBuilder>
@@ -351,6 +352,11 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 			normROI->setInputDataSources(QList<AMDataSource *>() << source << i0List);
 			scan_->addAnalyzedDataSource(normROI, true, false);
 		}
+
+		AM3DAdditionAB *spectraSum = new AM3DAdditionAB("sumSpectra");
+		spectraSum->setDescription("Sum of Single and Four Element detectors");
+		spectraSum->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("spectra")) << scan_->dataSourceAt(scan_->indexOfDataSource("corrSum")));
+		scan_->addAnalyzedDataSource(spectraSum, false, true);
 
 		break;
 	}

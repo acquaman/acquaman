@@ -576,6 +576,9 @@ void VESPERSAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMSc
 
 		else if (config && config->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::FourElement)
 			editor->setSingleSpectrumViewDataSourceName("corrSum");
+
+		else if (config && config->fluorescenceDetectorChoice() == (VESPERS2DScanConfiguration::SingleElement | VESPERS2DScanConfiguration::FourElement))
+			editor->setSingleSpectrumViewDataSourceName("sumSpectra");
 	}
 }
 
