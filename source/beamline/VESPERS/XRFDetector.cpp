@@ -38,6 +38,7 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 
 		startPV_ = new AMProcessVariable(baseName+QString(":mca1EraseStart"), true, this);
 		stopPV_ = new AMProcessVariable(baseName+QString(":mca1Stop"), true, this);
+		statusPV_ = new AMProcessVariable(baseName+QString(":mca1.ACQG"), true, this);
 
 		singleElSpectraPV_ = new AMProcessVariable(baseName+QString(":mca1Read.SCAN"), true, this);
 		singleElStatusPV_ = new AMProcessVariable(baseName+QString(":mca1Status.SCAN"), true, this);
@@ -53,6 +54,7 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 
 		startPV_ = new AMProcessVariable(baseName+QString(":EraseStart"), true, this);
 		stopPV_ = new AMProcessVariable(baseName+QString(":StopAll"), true, this);
+		statusPV_ = new AMProcessVariable(baseName+QString(":Acquiring"), true, this);
 
 		singleElSpectraPV_ = 0;
 		singleElStatusPV_ = 0;
@@ -76,7 +78,7 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 
 //		if (i == 0){
 
-			statusPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ACQG", true, this);
+//			statusPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ACQG", true, this);
 //			mcaUpdateRatePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".SCAN", true, this);
 //			statusUpdateRatePV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".SCAN", true, this);
 			peakingTimePV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".PKTIM", true, this);
@@ -101,7 +103,6 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 		ocrPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".OCR", true, this);
 		spectraPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1), true, this);
 
-		connect(statusPV_.at(i), SIGNAL(readReadyChanged(bool)), this, SLOT(isDetectorConnected()));
 //		connect(mcaUpdateRatePV_.at(i), SIGNAL(readReadyChanged(bool)), this, SLOT(isDetectorConnected()));
 //		connect(statusUpdateRatePV_.at(i), SIGNAL(writeReadyChanged(bool)), this, SLOT(isDetectorConnected()));
 		connect(peakingTimePV_.at(i), SIGNAL(writeReadyChanged(bool)), this, SLOT(isDetectorConnected()));
@@ -121,7 +122,8 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 		correctedSpectrumDataSources_ << corrected;
 	}
 
-	connect(statusPV_.first(), SIGNAL(valueChanged()), this, SLOT(onStatusChanged()));
+	connect(statusPV_, SIGNAL(readReadyChanged(bool)), this, SLOT(isDetectorConnected()));
+	connect(statusPV_, SIGNAL(valueChanged()), this, SLOT(onStatusChanged()));
 //	connect(mcaUpdateRatePV_.first(), SIGNAL(valueChanged(int)), this, SLOT(onRefreshRateChanged(int)));
 //	connect(statusUpdateRatePV_.first(), SIGNAL(valueChanged()), this, SLOT(onStatusUpdateRateInitialized()));
 	connect(peakingTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onPeakingTimeChanged(double)));
@@ -236,11 +238,11 @@ void XRFDetector::isDetectorConnected()
 {
 	wasConnected_ = isConnected();
 
-	bool currentlyConnected = startPV_->writeReady() && stopPV_->writeReady();
+	bool currentlyConnected = startPV_->writeReady() && stopPV_->writeReady() && statusPV_->readReady();
 
 	for (int i = 0; i < elements_; i++){
 
-		currentlyConnected = currentlyConnected && statusPV_.at(i)->readReady()
+		currentlyConnected = currentlyConnected
 //					&& mcaUpdateRatePV_.at(i)->readReady()
 //					&& statusUpdateRatePV_.at(i)->writeReady()
 					&& peakingTimePV_.at(i)->writeReady()
