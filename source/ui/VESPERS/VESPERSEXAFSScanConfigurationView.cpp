@@ -372,31 +372,11 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 void VESPERSEXAFSScanConfigurationView::updateFluorescenceChoiceButtons(int detector)
 {
 	fluorescenceButtonGroup_->button(detector)->setChecked(true);
-
-	switch(detector){
-
-	case 0:
-		config_->setRoiInfoList(AMROIInfoList());
-		roiTextBox_->hide();
-		break;
-
-	case 1:
-		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
-		roiTextBox_->show();
-		break;
-
-	case 2:
-		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
-		roiTextBox_->show();
-		break;
-	}
-
-	updateRoiText();
 }
 
 void VESPERSEXAFSScanConfigurationView::onConfigureXRFDetectorClicked()
 {
-	switch(config_->fluorescenceDetectorChoice()){
+	switch((int)config_->fluorescenceDetectorChoice()){
 
 	case VESPERSEXAFSScanConfiguration::None:
 		break;
@@ -407,6 +387,18 @@ void VESPERSEXAFSScanConfigurationView::onConfigureXRFDetectorClicked()
 
 	case VESPERSEXAFSScanConfiguration::FourElement:
 		emit configureDetector("Four Element");
+		break;
+
+	case VESPERSEXAFSScanConfiguration::SingleElement | VESPERSEXAFSScanConfiguration::FourElement:
+
+		QMenu menu(this);
+		menu.addAction("Single Element");
+		menu.addAction("Four Element");
+		QAction *action = menu.exec(QCursor::pos());
+
+		if (action && (action->text() == "Single Element" || action->text() == "Four Element"))
+			emit configureDetector(action->text());
+
 		break;
 	}
 }
@@ -424,33 +416,16 @@ void VESPERSEXAFSScanConfigurationView::updateI0Buttons(int I0)
 void VESPERSEXAFSScanConfigurationView::onFluorescenceChoiceChanged(int id)
 {
 	config_->setFluorescenceDetectorChoice(id);
-
-	switch(id){
-
-	case 0:
-		config_->setRoiInfoList(AMROIInfoList());
-		roiTextBox_->hide();
-		break;
-
-	case 1:
-		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
-		roiTextBox_->show();
-		break;
-
-	case 2:
-		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
-		roiTextBox_->show();
-		break;
-	}
-
+	roiTextBox_->setVisible(id > 0 ? true : false);
 	updateRoiText();
 }
 
 void VESPERSEXAFSScanConfigurationView::updateRoiText()
 {
-	switch(config_->fluorescenceDetectorChoice()){
+	switch((int)config_->fluorescenceDetectorChoice()){
 
 	case VESPERSEXAFSScanConfiguration::None:
+		config_->setRoiInfoList(AMROIInfoList());
 		break;
 
 	case VESPERSEXAFSScanConfiguration::SingleElement:
@@ -460,13 +435,160 @@ void VESPERSEXAFSScanConfigurationView::updateRoiText()
 	case VESPERSEXAFSScanConfiguration::FourElement:
 		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
 		break;
+
+	case VESPERSEXAFSScanConfiguration::SingleElement | VESPERSEXAFSScanConfiguration::FourElement:{
+
+		AMROIInfoList list;
+		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
+		AMROIInfoList fourElList = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
+
+		for (int i = 0, count = singleElList.count(); i < count; i++)
+			list.append(singleElList.at(i));
+
+		for (int i = 0, count = fourElList.count(); i < count; i++)
+			list.append(fourElList.at(i));
+
+		config_->setRoiInfoList(list);
+		break;
+	}
 	}
 
 	roiText_->clear();
-	roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
 
-	for (int i = 0; i < config_->roiList().count(); i++)
-		roiText_->insertPlainText(GeneralUtilities::addGreek(config_->roiList().at(i).name())+"\t" + QString::number(config_->roiList().at(i).low()) + "\t" + QString::number(config_->roiList().at(i).high()) +"\n");
+	if ((int)config_->fluorescenceDetectorChoice() ==  (VESPERSEXAFSScanConfiguration::SingleElement | VESPERSEXAFSScanConfiguration::FourElement)){
+
+		QList<QPair<int, int> > sameList = findRoiPairs();
+
+		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
+		AMROIInfoList fourElList = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
+
+		if (!sameList.isEmpty()){
+
+			QList<int> singleRoiList;
+			QList<int> fourRoiList;
+
+			roiText_->insertPlainText("Same ROI's\n");
+			roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
+
+			for (int i = 0, count = sameList.size(); i < count; i++){
+
+				QPair<int, int> temp = sameList.at(i);
+				singleRoiList << temp.first;
+				fourRoiList << temp.second;
+				AMROIInfo info = singleElList.at(temp.first);
+				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
+			}
+
+			if (singleRoiList.size() < singleElList.count() || fourRoiList.size() < fourElList.count()){
+
+				roiText_->insertPlainText("\nDifferent ROI's\n");
+
+				if (singleRoiList.size() < singleElList.count()){
+
+					roiText_->insertPlainText("Single Element Vortex\n");
+					roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
+
+					for (int i = 0, count = singleElList.count(); i < count; i++){
+
+						if (!singleRoiList.contains(i)){
+
+							AMROIInfo info = singleElList.at(i);
+							roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
+						}
+					}
+
+					roiText_->insertPlainText("\n");
+				}
+
+				if (fourRoiList.size() < fourElList.count()){
+
+					roiText_->insertPlainText("Four Element Vortex\n");
+					roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
+
+					for (int i = 0, count = fourElList.count(); i < count; i++){
+
+						if (!fourRoiList.contains(i)){
+
+							AMROIInfo info = fourElList.at(i);
+							roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
+						}
+					}
+				}
+			}
+		}
+
+		else {
+
+			roiText_->insertPlainText("Different ROI's\n");
+			roiText_->insertPlainText("Single Element Vortex\n");
+
+			for (int i = 0, count = singleElList.count(); i < count; i++){
+
+				AMROIInfo info = singleElList.at(sameList.at(i).first);
+				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
+			}
+
+			roiText_->insertPlainText("\nFour Element Vortex\n");
+
+			for (int i = 0, count = fourElList.count(); i < count; i++){
+
+				AMROIInfo info = fourElList.at(sameList.at(i).first);
+				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
+			}
+		}
+	}
+
+	else {
+
+		roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
+
+		for (int i = 0; i < config_->roiList().count(); i++)
+			roiText_->insertPlainText(GeneralUtilities::addGreek(config_->roiList().at(i).name())+"\t" + QString::number(config_->roiList().at(i).low()) + "\t" + QString::number(config_->roiList().at(i).high()) +"\n");
+	}
+}
+
+QList<QPair<int, int> > VESPERSEXAFSScanConfigurationView::findRoiPairs() const
+{
+	AMROIInfoList *el1 = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
+	AMROIInfoList *el4 = VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
+	QList<QPair<int, int> > list;
+
+	// Do it the easy way first.  Only possible when the sizes are the same.
+	if (el1->count() == el4->count()){
+
+		bool allLinedUp = true;
+
+		for (int i = 0, count = el1->count(); i < count; i++)
+			if (el1->at(i).name() != el4->at(i).name())
+				allLinedUp = false;
+
+		// If true, this is really straight forward.
+		if (allLinedUp){
+
+			for (int i = 0, count = el1->count(); i < count; i++)
+				list << qMakePair(i, i);
+		}
+
+		// Otherwise, we have to check each individually.  Not all may match and only matches will be added to the list.
+		else {
+
+			for (int i = 0, count = el1->count(); i < count; i++)
+				for (int j = 0; j < count; j++)
+					if (el1->at(i).name() == el4->at(j).name())
+						list << qMakePair(i, j);
+		}
+	}
+
+	// This is the same the above double for-loop but with different boundaries.
+	else {
+
+		for (int i = 0, count1 = el1->count(); i < count1; i++)
+			for (int j = 0, count4 = el4->count(); j < count4; j++)
+				if (el1->at(i).name() == el4->at(j).name())
+					list << qMakePair(i, j);
+	}
+
+	return list;
 }
 
 void VESPERSEXAFSScanConfigurationView::onElementChoiceClicked()
