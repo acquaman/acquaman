@@ -12,6 +12,7 @@ class QComboBox;
 class QRadioButton;
 class QHBoxLayout;
 class QLineEdit;
+class QDoubleSpinBox;
 
 class SGMPeriodicTableView : public QWidget
 {
@@ -60,6 +61,8 @@ protected:
 	SGMFastScanParametersModificationWizard *fastScanWizard_;
 	SGMPeriodicTableView *sgmPeriodicTableView_;
 
+	QLabel *selectedScanLabel_;
+
 	int indexOfFastScan_;
 };
 
@@ -70,22 +73,20 @@ public:
 	SGMFastScanParametersModificationWizardEditOrCopyPage(QWidget *parent = 0);
 
 	virtual bool validatePage();
-	virtual bool isComplete();
+	virtual bool isComplete() const;
 	virtual void initializePage();
 	virtual int nextId() const;
 
 protected slots:
-	void onEditButtonClicked();
-	void onCopyButtonClicked();
-
 	void checkIsComplete();
+	void onButtonClicked(QAbstractButton *button);
 
 protected:
 	QLabel *editInformationLabel_;
-	QPushButton *chooseToEditPushButton_;
 	QLabel *copyInformationLabel_;
-	QPushButton *chooseToCopyPushButton_;
-	QLabel *choiceLabel_;
+	QRadioButton *editRadioButton_;
+	QRadioButton *copyRadioButton_;
+	QButtonGroup *editOrCopyButtonGroup_;
 
 	SGMFastScanParametersModificationWizard *fastScanWizard_;
 };
@@ -220,6 +221,11 @@ protected:
 	SGMFastScanParametersModificationWizard *fastScanWizard_;
 	SGMFastScanParameters *originatingFastScanParameters_;
 	SGMFastScanParameters *newFastScanParameters_;
+
+	QLineEdit *scanInfoNameLineEdit_;
+	QLineEdit *scanInfoScanNameLineEdit_;
+	QComboBox *edgeComboBox_;
+	QDoubleSpinBox *edgeEnergySpinBox_;
 };
 
 class SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage : public QWizardPage
@@ -237,6 +243,12 @@ protected:
 	SGMFastScanParametersModificationWizard *fastScanWizard_;
 	SGMFastScanParameters *originatingFastScanParameters_;
 	SGMFastScanParameters *newFastScanParameters_;
+
+	SGMEnergyPosition startPositionCopy_;
+	SGMEnergyPosition middlePositionCopy_;
+	SGMEnergyPosition endPositionCopy_;
+
+	QHBoxLayout *masterHL_;
 };
 
 class SGMFastScanParametersModificationWizardCopyEditFastScanSettingsPage : public QWizardPage
@@ -246,7 +258,31 @@ public:
 	SGMFastScanParametersModificationWizardCopyEditFastScanSettingsPage(QWidget *parent = 0);
 
 	virtual bool validatePage();
-	virtual bool isComplete();
+	virtual bool isComplete() const;
+	virtual void initializePage();
+	virtual int nextId() const;
+
+protected slots:
+	void onAnySettingsChanged();
+
+protected:
+	SGMFastScanParametersModificationWizard *fastScanWizard_;
+	SGMFastScanParameters *originatingFastScanParameters_;
+	SGMFastScanParameters *newFastScanParameters_;
+
+	SGMFastScanSettings fastScanSettingsCopy_;
+	SGMFastScanSettingsView *fastScanSettingsView_;
+	bool hasUnsavedChanges_;
+};
+
+class SGMFastScanParametersModificationWizardCopyConfirmationPage : public QWizardPage
+{
+Q_OBJECT
+public:
+	SGMFastScanParametersModificationWizardCopyConfirmationPage(QWidget *parent = 0);
+
+	virtual bool validatePage();
+	virtual bool isComplete() const;
 	virtual void initializePage();
 	virtual int nextId() const;
 
@@ -268,7 +304,15 @@ public:
 		EditScanInfoPage = 5,
 		EditFastScanParametersNamePage = 6,
 		EditEnergyPositionsPage = 7,
-		EditFastScanSettingsPage = 8
+		EditFastScanSettingsPage = 8,
+		CopyConfirmationPage = 9
+	     };
+
+	enum CopyDestination{ CopySameSame = 0,
+		CopySameNew = 1,
+		CopyNewSame = 2,
+		CopyNewNew = 3,
+		CopyInvalidDestination = 4
 	     };
 
 	SGMFastScanParametersModificationWizard(QWidget *parent = 0);
@@ -278,10 +322,18 @@ public:
 
 	AMDatabase* newDatabase();
 	const AMElement* newElement();
+	SGMElementInfo* newElementInfo();
+	SGMScanInfo* newScanInfo();
+
+	SGMFastScanParametersModificationWizard::CopyDestination copyDestinationSelection();
 
 public slots:
 	void setOriginatingFastScanIndex(int indexOfFastScan);
 	void copyOriginalFastScanParametersToNew(AMDatabase *database, const AMElement *element);
+	void createNewElementInfo();
+	void createNewScanInfo();
+
+	void setCopyDestinationSelection(SGMFastScanParametersModificationWizard::CopyDestination copyDestinationSelection);
 
 protected:
 	int indexOfOriginatingFastScan_;
@@ -289,6 +341,10 @@ protected:
 	SGMFastScanParameters *newFastScanParameters_;
 	AMDatabase *newDatabase_;
 	const AMElement *newElement_;
+	SGMElementInfo *newElementInfo_;
+	SGMScanInfo *newScanInfo_;
+
+	SGMFastScanParametersModificationWizard::CopyDestination copyDestinationSelection_;
 };
 
 #endif // SGMPERIODICTABLEVIEW_H

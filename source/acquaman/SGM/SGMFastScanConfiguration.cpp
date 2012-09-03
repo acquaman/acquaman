@@ -30,7 +30,7 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 	currentSettings_ = 0; //NULL
 	currentEnergyParameters_ = 0; //NULL
 
-	settings_ = SGMPeriodicTable::sgmTable()->fastScanPresets();
+	settings_ = SGMPeriodicTable::sgmTable()->fastScanPresets(SGMPeriodicTable::SGMPeriodicTableAllDatabasesConnectionName());
 
 
 	setParametersFromPreset(0);
@@ -53,7 +53,7 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguratio
 	currentSettings_ = 0; //NULL
 	currentEnergyParameters_ = 0; //NULL
 
-	settings_ = SGMPeriodicTable::sgmTable()->fastScanPresets();
+	settings_ = SGMPeriodicTable::sgmTable()->fastScanPresets(SGMPeriodicTable::SGMPeriodicTableAllDatabasesConnectionName());
 
 	bool foundPreset = false;
 	for(int x = 0; x < settings_.count(); x++){
@@ -198,7 +198,7 @@ int SGMFastScanConfiguration::sgmGrating() const{
 }
 
 QStringList SGMFastScanConfiguration::presets() const{
-	return SGMPeriodicTable::sgmTable()->fastScanPresetsStrings();
+	return SGMPeriodicTable::sgmTable()->fastScanPresetsStrings(SGMPeriodicTable::SGMPeriodicTableAllDatabasesConnectionName());
 }
 
 SGMFastScanParameters* SGMFastScanConfiguration::currentParameters() const{
