@@ -77,11 +77,6 @@ timer.start();
 	in.readLine();
 	lineTokenized.clear();
 
-	// Some setup variables.
-	int x = 0;
-	int y = 0;
-	int xLength = 0;
-	int yLength = 0;
 	qDebug() << QString("Front matter: %1 ms").arg(timer.elapsed());
 	timer.restart();
 	// Determine the number of y lines, since we need to know that before creating the scan axes.
@@ -92,7 +87,16 @@ timer.start();
 
 	file.close();
 
-	foreach(QString currentLine, fileLines) {
+	// Some setup variables.
+	int x = 0;
+	int y = 0;
+	int xLength = 0;
+	int yLength = 0;
+
+	// Only need to find xLength because yLength can be found by filelines.size()/xLength.
+	for (int i = 0, lineCount = fileLines.size(); i < lineCount && xLength == 0; i++){
+
+		QString currentLine = fileLines.at(i);
 		QStringList lineTokenized = currentLine.split(", ");
 		double startingXValue;
 		// Used for determining how long the x axis is.
@@ -107,15 +111,14 @@ timer.start();
 		}
 
 		x++;
-
-		if (xLength != 0 && x == xLength){
-
-			x = 0;
-			y++;
-		}
 	}
 
-	yLength = y; // y is the largest y-index.
+	yLength = fileLines.size()/xLength;
+
+	// If there is a remainder then the last row wasn't completed and we need to add one to the yLength.
+	if (fileLines.size()%xLength){
+		yLength++;qDebug() << "Added an extra line.";
+	}
 
 	if (line == "TS1607-2-B21-01:H:user:mm"){
 
@@ -183,8 +186,11 @@ timer.start();
 
 //		cdfData->setAxisValue(0, axisValueIndex.i(), lineTokenized.at(1).toDouble());
 //		cdfData->setAxisValue(1, axisValueIndex.j(), lineTokenized.at(2).toDouble());
-		cdfData->setAxisValue(0, axisValueIndex.i(), lineTokenized.at(2).toDouble());
-		cdfData->setAxisValue(1, axisValueIndex.j(), lineTokenized.at(1).toDouble());
+		if (axisValueIndex.j() == 0)
+			cdfData->setAxisValue(0, axisValueIndex.i(), lineTokenized.at(2).toDouble());
+
+		if (axisValueIndex.i() == 0)
+			cdfData->setAxisValue(1, axisValueIndex.j(), lineTokenized.at(1).toDouble());
 
 		if (usingSingleElement && usingFourElement){
 
@@ -223,8 +229,6 @@ timer.start();
 			// Add in the data at the right spot.
 //			AMnDIndex axisValueIndex(x, y);
 			AMnDIndex axisValueIndex(y, x);
-			cdfData->setAxisValue(0, axisValueIndex.i(), cdfData->axisValue(0, axisValueIndex.i()));
-			cdfData->setAxisValue(1, axisValueIndex.j(), cdfData->axisValue(1, axisValueIndex.j()-1));
 
 			if (usingSingleElement && usingFourElement){
 
@@ -277,7 +281,7 @@ timer.start();
 
 					QByteArray row = spectra.readLine();
 
-					if (!row.isEmpty()){
+					if (!spectra.atEnd()){
 
 						bool insideWord = false;
 						QString word;
@@ -351,7 +355,7 @@ timer.start();
 					QByteArray row = spectra.readLine();
 
 					// If the row is empty then that will mean that there is no data to be read.
-					if (!row.isEmpty()){
+					if (!spectra.atEnd()){
 
 						bool insideWord = false;
 						QString word;
@@ -388,7 +392,7 @@ timer.start();
 
 					else{
 
-						cdfData->setValue(AMnDIndex(x, y), count-1, fill.constData());
+//						cdfData->setValue(AMnDIndex(x, y), count-1, fill.constData());
 						cdfData->setValue(AMnDIndex(y, x), count-1, fill.constData());
 					}
 				}
@@ -411,7 +415,7 @@ timer.start();
 
 					QByteArray row = spectra.readLine();
 
-					if (!row.isEmpty()){
+					if (!spectra.atEnd()){
 
 						bool insideWord = false;
 						QString word;
