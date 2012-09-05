@@ -80,9 +80,6 @@ protected slots:
 	/// Handles getting the combination element for combination pile up peak calculation.
 	void getCombinationElement();
 
-	/// Handles copying the ROI list to the other vortex detector.
-	void onCopyROIsClicked();
-
 protected:
 
 	/// Pointer to the XRFPeriodicTable inside configuration.

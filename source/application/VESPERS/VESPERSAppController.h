@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class VESPERSEndstationView;
 class VESPERSXRFFreeRunView;
+class XRFFreeRun;
 class VESPERSRoperCCDDetectorView;
 class VESPERSPersistentView;
 class VESPERSEXAFSScanConfiguration;
@@ -118,8 +119,12 @@ protected:
 	/// Temporary workflow assistant view.
 	VESPERSWorkflowAssistantView *assistantView_;
 
+	/// XRF free run model for the single element detector.
+	XRFFreeRun *xrf1ElFreeRun_;
 	/// XRF free run view for the single element detector.
 	VESPERSXRFFreeRunView *xrf1EFreeRunView_;
+	/// XRF free run model for the four element detector.
+	XRFFreeRun *xrf4ElFreeRun_;
 	/// XRF free run view for the four element detector.
 	VESPERSXRFFreeRunView *xrf4EFreeRunView_;
 	/// Roper CCD detector view.

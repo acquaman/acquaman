@@ -273,8 +273,6 @@ public slots:
 	void clearRegionsOfInterest();
 	/// Sorts the list of ROIs.
 	void sortRegionsOfInterest();
-	/// Takes an AMROIInfoList and copies its contents to this detector.
-	void copyFromROIList(AMROIInfoList *list);
 
 	/// Sets the extra notes for the detector.
 	void setNotes(const QString &notes) { notes_ = notes; }

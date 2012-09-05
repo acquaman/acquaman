@@ -301,20 +301,22 @@ void VESPERSAppController::setupUserInterface()
 	// Setup the general status page.
 	VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
 	// Setup page that auto-enables detectors.
-	VESPERSExperimentConfigurationView *experimentConfigurationView_ = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
+	VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView(VESPERSBeamline::vespers()->experimentConfiguration());
 	// Setup page for the endstation.  Will probably replace experiment configuration eventually.
 	VESPERSEndstationConfigurationView *endstationConfigurationView = new VESPERSEndstationConfigurationView(VESPERSBeamline::vespers()->endstationConfiguration());
 
 	mw_->insertHeading("General", 0);
 	mw_->addPane(endstationView_, "General", "Endstation", ":/system-software-update.png");
 	mw_->addPane(statusPage, "General", "Device Status", ":/system-software-update.png");
-	mw_->addPane(experimentConfigurationView_, "General", "Experiment Setup", ":/utilities-system-monitor.png");
+	mw_->addPane(experimentConfigurationView, "General", "Experiment Setup", ":/utilities-system-monitor.png");
 	mw_->addPane(endstationConfigurationView, "General", "Endstation Setup", ":/utilities-system-monitor.png");
 
 	// Setup the XRF views for the single element vortex and the four element vortex detectors.  Since they have scans that are added to the workflow, it gets the workflow manager view passed into it as well.
 	// This means that the FreeRunView kind of doubles as a regular detector view and a configuration view holder.
-	xrf1EFreeRunView_ = new VESPERSXRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF1E()), workflowManagerView_);
-	xrf4EFreeRunView_ = new VESPERSXRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF4E()), workflowManagerView_);
+	xrf1ElFreeRun_ = new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF1E());
+	xrf1EFreeRunView_ = new VESPERSXRFFreeRunView(xrf1ElFreeRun_, workflowManagerView_);
+	xrf4ElFreeRun_ = new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF4E());
+	xrf4EFreeRunView_ = new VESPERSXRFFreeRunView(xrf4ElFreeRun_, workflowManagerView_);
 
 	roperCCDView_ = new VESPERSRoperCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
 
@@ -375,7 +377,7 @@ void VESPERSAppController::setupUserInterface()
 	mw_->addRightWidget(persistentView_);
 
 	// Show the endstation control view first.
-	mw_->setCurrentPane(experimentConfigurationView_);
+	mw_->setCurrentPane(experimentConfigurationView);
 }
 
 void VESPERSAppController::makeConnections()
@@ -392,6 +394,10 @@ void VESPERSAppController::makeConnections()
 	connect(this, SIGNAL(stopScanIssued()), this, SLOT(onCancelScanIssued()));
 
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
+
+	// copy ROIs from one detector to another.
+	connect(xrf1ElFreeRun_, SIGNAL(copyRoisRequested(const XRFFreeRun*)), xrf4ElFreeRun_, SLOT(setFromXRFFreeRun(const XRFFreeRun*)));
+	connect(xrf4ElFreeRun_, SIGNAL(copyRoisRequested(const XRFFreeRun*)), xrf1ElFreeRun_, SLOT(setFromXRFFreeRun(const XRFFreeRun*)));
 
 	connect(VESPERSBeamline::vespers()->experimentConfiguration(), SIGNAL(sampleStageChoiceChanged(bool)), this, SLOT(onSampleStageChoiceChanged(bool)));
 }
