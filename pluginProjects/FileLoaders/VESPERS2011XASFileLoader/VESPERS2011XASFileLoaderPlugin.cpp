@@ -26,8 +26,6 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 		return false;
 	QTime timer;
 	timer.start();
-	AMCDFDataStore *cdfData = new AMCDFDataStore;
-	cdfData->addScanAxis( AMAxisInfo("eV", 0, "Incident Energy", "eV") );
 
 	QFileInfo sourceFileInfo(scan->filePath());
 	if(sourceFileInfo.isRelative())
@@ -38,6 +36,11 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 		AMErrorMon::error(0, -1, "XASFileLoader parse error while loading scan data from file.");
 		return false;
 	}
+
+	QString temp = sourceFileInfo.filePath();
+	temp.replace(".dat", ".cdf");
+	AMCDFDataStore *cdfData = new AMCDFDataStore(temp, false);
+	cdfData->addScanAxis( AMAxisInfo("eV", 0, "Incident Energy", "eV") );
 
 	QTextStream in(&file);
 	QString line;
@@ -325,7 +328,13 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 
 	cdfData->endInsertRows();
 
-	return scan->replaceRawDataStore(cdfData);
+	if (!scan->replaceRawDataStore(cdfData))
+		return false;
+
+	scan->setFileFormat("amCDFv1");
+	scan->setFilePath(temp);
+
+	return scan->storeToDb(scan->database());
 }
 
 bool VESPERS2011XASFileLoaderFactory::accepts(AMScan *scan)

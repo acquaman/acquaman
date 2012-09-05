@@ -32,7 +32,6 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 		return false;
 QTime timer;
 timer.start();
-	AMCDFDataStore *cdfData = new AMCDFDataStore;
 
 	QFileInfo sourceFileInfo(scan->filePath());
 	if(sourceFileInfo.isRelative())
@@ -116,9 +115,12 @@ timer.start();
 	yLength = fileLines.size()/xLength;
 
 	// If there is a remainder then the last row wasn't completed and we need to add one to the yLength.
-	if (fileLines.size()%xLength){
-		yLength++;qDebug() << "Added an extra line.";
-	}
+	if (fileLines.size()%xLength)
+		yLength++;
+
+	QString temp = sourceFileInfo.filePath();
+	temp.replace(".dat", ".cdf");
+	AMCDFDataStore *cdfData = new AMCDFDataStore(temp, false);
 
 	if (line == "TS1607-2-B21-01:H:user:mm"){
 
@@ -135,6 +137,10 @@ timer.start();
 	}
 	qDebug() << QString("Adding the scan axes: %1 ms").arg(timer.elapsed());
 	timer.restart();
+
+	// Clear any old data so we can start fresh.
+	scan->clearRawDataPointsAndMeasurements();
+
 	// Note!  Not general!
 	QList<AMAxisInfo> axisInfo;
 	AMAxisInfo ai("Energy", 2048, "Energy", "eV");
@@ -478,7 +484,13 @@ timer.start();
 
 	cdfData->endInsertRows();
 
-	return scan->replaceRawDataStore(cdfData);
+	if (!scan->replaceRawDataStore(cdfData))
+		return false;
+
+	scan->setFileFormat("amCDFv1");
+	scan->setFilePath(temp);
+
+	return scan->storeToDb(scan->database());
 }
 
 bool VESPERS20122DFileLoaderFactory::accepts(AMScan *scan)

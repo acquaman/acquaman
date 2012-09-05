@@ -67,7 +67,9 @@ bool VESPERS2012SpatialLineScanFileLoaderPlugin::load(AMScan *scan, const QStrin
 	lineTokenized = line.split(" ");
 	line = lineTokenized.at(2);
 
-	AMCDFDataStore *cdfData = new AMCDFDataStore;
+	QString temp = sourceFileInfo.filePath();
+	temp.replace(".dat", ".cdf");
+	AMCDFDataStore *cdfData = new AMCDFDataStore(temp, false);
 
 	if (line == "TS1607-2-B21-01:H:user:mm")
 		cdfData->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
@@ -345,7 +347,13 @@ bool VESPERS2012SpatialLineScanFileLoaderPlugin::load(AMScan *scan, const QStrin
 
 	cdfData->endInsertRows();
 
-	return scan->replaceRawDataStore(cdfData);
+	if (!scan->replaceRawDataStore(cdfData))
+		return false;
+
+	scan->setFileFormat("amCDFv1");
+	scan->setFilePath(temp);
+
+	return scan->storeToDb(scan->database());
 }
 
 bool VESPERS2012SpatialLineScanFileLoaderFactory::accepts(AMScan *scan)
