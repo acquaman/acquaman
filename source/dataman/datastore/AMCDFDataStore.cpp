@@ -1439,6 +1439,10 @@ bool AMCDFDataStore::initializeFromExistingCDF(const QString &filePath, bool cre
 	fileIsTemporary_ = createTemporaryCopy;
 
 	axes_ = newAxes;
+
+	for (int i = 0, numAxes = axes_.size(); i < numAxes; i++)
+		scanSize_.append(axes_.at(i).size);
+
 	axisValueVarNums_ = newAxisValueVarNums;
 	measurements_ = newMeasurements;
 	measurementVarNums_ = newMeasurementVarNums;
