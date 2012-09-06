@@ -277,6 +277,8 @@ timer.start();
 
 			for (int j = sumRangeMin_; j < sumRangeMax_; j++)
 				sum += data[i+axisLength*j];
+
+			outputValues[i] = sum;
 		}
 	}
 
@@ -291,6 +293,8 @@ timer.start();
 
 			for (int i = sumRangeMin_; i < sumRangeMax_; i++)
 				sum += data[i+axisLength*j];
+
+			outputValues[j] = sum;
 		}
 	}
 	qDebug() << QString("Time to compute sum: %1 ms").arg(timer.restart());
