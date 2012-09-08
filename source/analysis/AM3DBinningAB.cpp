@@ -3,7 +3,7 @@
 AM3DBinningAB::AM3DBinningAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {
-	sumAxis_ = 0;
+	sumAxis_ = 2;
 	sumRangeMin_ = 0;
 	sumRangeMax_ = 0;
 	analyzedName_ = "";
@@ -20,7 +20,7 @@ AM3DBinningAB::AM3DBinningAB(const QString &outputName, QObject *parent)
 AM3DBinningAB::AM3DBinningAB(AMDatabase *db, int id)
 	: AMStandardAnalysisBlock("tempName")
 {
-	sumAxis_ = 0;
+	sumAxis_ = 2;
 	sumRangeMin_ = 0;
 	sumRangeMax_ = 0;
 
@@ -130,9 +130,11 @@ void AM3DBinningAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 	invalidateCache();
 	reviewState();
 
-	emitSizeChanged();
+	emitSizeChanged(0);
+	emitSizeChanged(1);
 	emitValuesChanged();
-	emitAxisInfoChanged();
+	emitAxisInfoChanged(0);
+	emitAxisInfoChanged(1);
 	emitInfoChanged();
 }
 
@@ -144,14 +146,6 @@ void AM3DBinningAB::setAnalyzedName(const QString &name)
 	setModified(true);
 	canAnalyze_ = canAnalyze(name);
 	setInputSource();
-
-	invalidateCache();
-	reviewState();
-
-	emitSizeChanged();
-	emitValuesChanged();
-	emitAxisInfoChanged();
-	emitInfoChanged();
 }
 
 void AM3DBinningAB::setInputSource()
@@ -206,6 +200,16 @@ void AM3DBinningAB::setInputSource()
 		axes_[1] = AMAxisInfo("invalid", 0, "No input data");
 		setDescription("Sum");
 	}
+
+	invalidateCache();
+	reviewState();
+
+	emitSizeChanged(0);
+	emitSizeChanged(1);
+	emitValuesChanged();
+	emitAxisInfoChanged(0);
+	emitAxisInfoChanged(1);
+	emitInfoChanged();
 }
 
 bool AM3DBinningAB::canAnalyze(const QString &name) const
@@ -291,11 +295,14 @@ bool AM3DBinningAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 #endif
 
 
-	AMnDIndex nDImageSize = inputSource_->size();
+	AMnDIndex nDImageSize = AMnDIndex(inputSource_->size(0)-1, inputSource_->size(1)-1, inputSource_->size(2)-1);
 	int imageSize = AMnDIndex(0, 0, 0).totalPointsTo(nDImageSize);
 
 	QVector<double> data = QVector<double>(imageSize);
 	inputSource_->values(AMnDIndex(0, 0, 0), nDImageSize, data.data());
+
+	QVector<double> tempOutput;
+	tempOutput.reserve(indexStart.totalPointsTo(indexEnd));
 
 	QTime timer;
 	timer.start();
@@ -313,7 +320,7 @@ bool AM3DBinningAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 				for (int i = sumRangeMin_; i < sumRangeMax_; i++)
 					sum += data[i*axes_.at(0).size + j*axes_.at(1).size + k];
 
-				*(outputValues++) = sum;
+				tempOutput << sum;
 			}
 		}
 
@@ -331,7 +338,7 @@ bool AM3DBinningAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 				for (int j = sumRangeMin_; j < sumRangeMax_; j++)
 					sum += data[i*axes_.at(0).size + j*axes_.at(1).size + k];
 
-				*(outputValues++) = sum;
+				tempOutput << sum;
 			}
 		}
 
@@ -339,7 +346,9 @@ bool AM3DBinningAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 	}
 
 	case 2: {
-
+		qDebug() << indexStart.i() << indexStart.j();
+		qDebug() << indexEnd.i() << indexEnd.j();
+		qDebug() << sumRangeMin_ << sumRangeMax_;
 		for (int i = indexStart.i(), iSize = indexEnd.i(); i < iSize; i++){
 
 			for (int j = indexStart.j(), jSize = indexEnd.j(); j < jSize; j++){
@@ -349,7 +358,7 @@ bool AM3DBinningAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 				for (int k = sumRangeMin_; k < sumRangeMax_; k++)
 					sum += data[i*axes_.at(0).size + j*axes_.at(1).size + k];
 
-				*(outputValues++) = sum;
+				tempOutput << sum;
 			}
 		}
 
@@ -358,12 +367,13 @@ bool AM3DBinningAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 	}
 
 	qDebug() << QString("Time to compute sum: %1 ms").arg(timer.restart());
-	outputValues -= indexStart.totalPointsTo(indexEnd);
+	memcpy(outputValues, tempOutput.constData(), tempOutput.size()*sizeof(double));
 
 	for (int i = 0, offset = indexStart.product(), count = indexStart.totalPointsTo(indexEnd); i < count; i++)
 		cachedValues_[i+offset] = outputValues[i];
 
 	qDebug() << QString("Time to set the cached values: %1").arg(timer.elapsed());
+	qDebug() << tempOutput;
 	cacheCompletelyInvalid_ = false;
 
 	return true;
@@ -374,7 +384,7 @@ AMNumber AM3DBinningAB::axisValue(int axisNumber, int index) const {
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	if(axisNumber != 0 || axisNumber != 1)
+	if(axisNumber != 0 && axisNumber != 1)
 		return AMNumber(AMNumber::DimensionError);
 
 	int actualAxis = -1;
@@ -393,6 +403,9 @@ AMNumber AM3DBinningAB::axisValue(int axisNumber, int index) const {
 		actualAxis = axisNumber == 0 ? 0 : 1;
 		break;
 	}
+
+	if (index >= axes_.at(actualAxis).size)
+		return AMNumber(AMNumber::DimensionError);
 
 	return inputSource_->axisValue(actualAxis, index);
 }
@@ -429,7 +442,8 @@ void AM3DBinningAB::onInputSourceSizeChanged()
 			axes_[0].size = inputSource_->axisInfoAt(1).size;
 			axes_[1].size = inputSource_->axisInfoAt(2).size;
 			cachedValues_.resize(axes_.at(0).size*axes_.at(1).size);
-			emitSizeChanged();
+			emitSizeChanged(0);
+			emitSizeChanged(1);
 		}
 
 		break;
@@ -442,7 +456,8 @@ void AM3DBinningAB::onInputSourceSizeChanged()
 			axes_[0].size = inputSource_->axisInfoAt(0).size;
 			axes_[1].size = inputSource_->axisInfoAt(2).size;
 			cachedValues_.resize(axes_.at(0).size*axes_.at(1).size);
-			emitSizeChanged();
+			emitSizeChanged(0);
+			emitSizeChanged(1);
 		}
 
 		break;
@@ -455,7 +470,8 @@ void AM3DBinningAB::onInputSourceSizeChanged()
 			axes_[0].size = inputSource_->axisInfoAt(0).size;
 			axes_[1].size = inputSource_->axisInfoAt(1).size;
 			cachedValues_.resize(axes_.at(0).size*axes_.at(1).size);
-			emitSizeChanged();
+			emitSizeChanged(0);
+			emitSizeChanged(1);
 		}
 
 		break;

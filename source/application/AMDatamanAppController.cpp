@@ -84,6 +84,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DNormalizationAB.h"
 #include "analysis/AM2DAdditionAB.h"
 #include "analysis/AM3DAdditionAB.h"
+#include "analysis/AM3DBinningAB.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "ui/dataman/AMDbObjectGeneralView.h"
@@ -470,6 +471,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AM1DNormalizationAB>();
 	AMDbObjectSupport::s()->registerClass<AM2DAdditionAB>();
 	AMDbObjectSupport::s()->registerClass<AM3DAdditionAB>();
+	AMDbObjectSupport::s()->registerClass<AM3DBinningAB>();
 
 	AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
 	AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();

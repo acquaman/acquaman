@@ -50,8 +50,6 @@ public:
 	/// Create, connect, and return a widget suitable for displaying/editing the expressions.
 	virtual QWidget* createEditorWidget();
 
-
-
 	// Data value access
 	////////////////////////////
 
@@ -86,11 +84,28 @@ public:
 			return;	// no change
 
 		sumAxis_ = sumAxis;
-		int otherAxis = (sumAxis_ == 0) ? 1 : 0;
 
 		// if we have a data source, set our output axisInfo to match the input source's other axis. This also changes our size.
 		if(inputSource_) {
-			axes_[0] = inputSource_->axisInfoAt(otherAxis);
+
+			switch (sumAxis_){
+
+			case 0:
+				axes_[0] = inputSource_->axisInfoAt(1);
+				axes_[1] = inputSource_->axisInfoAt(2);
+				break;
+
+			case 1:
+				axes_[0] = inputSource_->axisInfoAt(0);
+				axes_[1] = inputSource_->axisInfoAt(2);
+				break;
+
+			case 2:
+				axes_[0] = inputSource_->axisInfoAt(0);
+				axes_[1] = inputSource_->axisInfoAt(1);
+				break;
+			}
+
 			setDescription(QString("%1 summed (over %2)")
 						   .arg(inputSource_->name())
 						   .arg(inputSource_->axisInfoAt(sumAxis_).name));
@@ -133,9 +148,6 @@ public:
 		setModified(true);
 	}
 
-
-
-
 signals:
 
 public slots:
@@ -152,22 +164,6 @@ protected slots:
 protected:
 	/// Helper method that sets the inputSource_ pointer to the correct one based on the current state of analyzedName_.
 	void setInputSource();
-
-	/// Cached previously-summed values.  Either they don't need to be re-calculated, or they're the magic number and do need to be recalculated.
-	mutable QVector<double> cachedValues_;
-	/// Optimization: invalidating the cache with invalid() requires clearing all values in it. If we've just done this, we can avoid re-doing it until there's actually something to clear.
-	mutable bool cacheCompletelyInvalid_;
-
-	AMDataSource* inputSource_;	// our single input source, or 0 if we don't have one.
-
-	int sumAxis_;
-	int sumRangeMin_, sumRangeMax_;
-
-	/// The name of the data source that should be analyzed.
-	QString analyzedName_;
-	/// Flag holding whether or not the data source can be analyzed.
-	bool canAnalyze_;
-
 	/// helper function to clear the cachedValues_
 	void invalidateCache() {
 		if(!cacheCompletelyInvalid_ || cachedValues_.size() != axes_.at(0).size*axes_.at(0).size) {
@@ -175,7 +171,6 @@ protected:
 			cacheCompletelyInvalid_ = true;
 		}
 	}
-
 
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState() {
@@ -195,6 +190,20 @@ protected:
 
 	}
 
+	/// Cached previously-summed values.  Either they don't need to be re-calculated, or they're the magic number and do need to be recalculated.
+	mutable QVector<double> cachedValues_;
+	/// Optimization: invalidating the cache with invalid() requires clearing all values in it. If we've just done this, we can avoid re-doing it until there's actually something to clear.
+	mutable bool cacheCompletelyInvalid_;
+
+	AMDataSource* inputSource_;	// our single input source, or 0 if we don't have one.
+
+	int sumAxis_;
+	int sumRangeMin_, sumRangeMax_;
+
+	/// The name of the data source that should be analyzed.
+	QString analyzedName_;
+	/// Flag holding whether or not the data source can be analyzed.
+	bool canAnalyze_;
 };
 
 #endif // AM3DBINNINGAB_H

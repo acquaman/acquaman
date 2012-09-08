@@ -124,4 +124,8 @@ void AMAddAnalysisBlockDialog::populateWith2D()
 {
 	QListWidgetItem *item = new QListWidgetItem(QIcon(":/22x22/gamma.png"), "Normalization", listWidget_);
 	item->setData(AM::DescriptionRole, "This tool normalizes its input.");
+
+	item = new QListWidgetItem(QIcon(":/spectrum.png"), "3D Binning", listWidget_);
+	item->setData(AM::DescriptionRole, "This tool bins a spectra to generate a 2D map.");
 }
+
