@@ -294,15 +294,9 @@ bool AM3DBinningAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 		return false;
 #endif
 
-
-	AMnDIndex nDImageSize = AMnDIndex(inputSource_->size(0)-1, inputSource_->size(1)-1, inputSource_->size(2)-1);
-	int imageSize = AMnDIndex(0, 0, 0).totalPointsTo(nDImageSize);
-
-	QVector<double> data = QVector<double>(imageSize);
-	inputSource_->values(AMnDIndex(0, 0, 0), nDImageSize, data.data());
-
 	QVector<double> tempOutput;
-	tempOutput.reserve(indexStart.totalPointsTo(indexEnd));
+	int totalPoints = indexStart.totalPointsTo(indexEnd);
+//	tempOutput.reserve(indexStart.totalPointsTo(indexEnd));
 
 	QTime timer;
 	timer.start();
@@ -311,14 +305,18 @@ bool AM3DBinningAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 
 	case 0:{
 
-		for (int j = indexStart.i(), jSize = indexEnd.i(); j < jSize; j++){
+		int sumRange = AMnDIndex(0, 0, sumRangeMin_).totalPointsTo(AMnDIndex(0, 0, sumRangeMax_));
+		QVector<double> data = QVector<double>(sumRange);
 
-			for (int k = indexStart.j(), kSize = indexEnd.j(); k < kSize; k++){
+		for (int i = indexStart.i(), iSize = indexEnd.i(); i <= iSize; i++){
+
+			for (int j = indexStart.j(), jSize = indexEnd.j(); j <= jSize; j++){
 
 				double sum = 0;
+				inputSource_->values(AMnDIndex(sumRangeMin_, i, j), AMnDIndex(sumRangeMax_, i, j), data.data());
 
-				for (int i = sumRangeMin_; i < sumRangeMax_; i++)
-					sum += data[i*axes_.at(0).size + j*axes_.at(1).size + k];
+				for (int k = 0; k < sumRange; k++)
+					sum += data.at(k);
 
 				tempOutput << sum;
 			}
@@ -329,14 +327,18 @@ bool AM3DBinningAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 
 	case 1: {
 
-		for (int i = indexStart.i(), iSize = indexEnd.i(); i < iSize; i++){
+		int sumRange = AMnDIndex(0, 0, sumRangeMin_).totalPointsTo(AMnDIndex(0, 0, sumRangeMax_));
+		QVector<double> data = QVector<double>(sumRange);
 
-			for (int k = indexStart.j(), kSize = indexEnd.j(); k < kSize; k++){
+		for (int i = indexStart.i(), iSize = indexEnd.i(); i <= iSize; i++){
+
+			for (int j = indexStart.j(), jSize = indexEnd.j(); j <= jSize; j++){
 
 				double sum = 0;
+				inputSource_->values(AMnDIndex(i, sumRangeMin_, j), AMnDIndex(i, sumRangeMax_, j), data.data());
 
-				for (int j = sumRangeMin_; j < sumRangeMax_; j++)
-					sum += data[i*axes_.at(0).size + j*axes_.at(1).size + k];
+				for (int k = 0; k < sumRange; k++)
+					sum += data.at(k);
 
 				tempOutput << sum;
 			}
@@ -346,18 +348,21 @@ bool AM3DBinningAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 	}
 
 	case 2: {
-		qDebug() << indexStart.i() << indexStart.j();
-		qDebug() << indexEnd.i() << indexEnd.j();
-		qDebug() << sumRangeMin_ << sumRangeMax_;
-		for (int i = indexStart.i(), iSize = indexEnd.i(); i < iSize; i++){
 
-			for (int j = indexStart.j(), jSize = indexEnd.j(); j < jSize; j++){
+		int sumRange = AMnDIndex(0, 0, sumRangeMin_).totalPointsTo(AMnDIndex(0, 0, sumRangeMax_));
+		QVector<double> data = QVector<double>(sumRange);
+
+		for (int i = indexStart.i(), iSize = indexEnd.i(); i <= iSize; i++){
+
+			for (int j = indexStart.j(), jSize = indexEnd.j(); j <= jSize; j++){
 
 				double sum = 0;
+				inputSource_->values(AMnDIndex(i, j, sumRangeMin_), AMnDIndex(i, j, sumRangeMax_), data.data());
 
-				for (int k = sumRangeMin_; k < sumRangeMax_; k++)
-					sum += data[i*axes_.at(0).size + j*axes_.at(1).size + k];
-
+				for (int k = 0; k < sumRange; k++)
+					sum += data.at(k);
+				if (i == iSize && j == jSize)
+					qDebug() << data;
 				tempOutput << sum;
 			}
 		}
@@ -369,11 +374,10 @@ bool AM3DBinningAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 	qDebug() << QString("Time to compute sum: %1 ms").arg(timer.restart());
 	memcpy(outputValues, tempOutput.constData(), tempOutput.size()*sizeof(double));
 
-	for (int i = 0, offset = indexStart.product(), count = indexStart.totalPointsTo(indexEnd); i < count; i++)
+	for (int i = 0, offset = indexStart.product(); i < totalPoints; i++)
 		cachedValues_[i+offset] = outputValues[i];
 
 	qDebug() << QString("Time to set the cached values: %1").arg(timer.elapsed());
-	qDebug() << tempOutput;
 	cacheCompletelyInvalid_ = false;
 
 	return true;

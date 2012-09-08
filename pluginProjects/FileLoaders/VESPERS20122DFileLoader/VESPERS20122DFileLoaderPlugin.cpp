@@ -227,6 +227,7 @@ timer.start();
 	}
 	qDebug() << QString("Adding columsn of data: %1 ms").arg(timer.elapsed());
 	timer.restart();
+
 	// Pad the rest of the line with -1 for proper visualization.
 	if (x != 0 && xLength != 0){
 
@@ -287,7 +288,7 @@ timer.start();
 
 					QByteArray row = spectra.readLine();
 
-					if (!spectra.atEnd()){
+					if (!row.isEmpty()){
 
 						bool insideWord = false;
 						QString word;
@@ -361,7 +362,7 @@ timer.start();
 					QByteArray row = spectra.readLine();
 
 					// If the row is empty then that will mean that there is no data to be read.
-					if (!spectra.atEnd()){
+					if (!row.isEmpty()){
 
 						bool insideWord = false;
 						QString word;
@@ -421,7 +422,7 @@ timer.start();
 
 					QByteArray row = spectra.readLine();
 
-					if (!spectra.atEnd()){
+					if (!row.isEmpty()){
 
 						bool insideWord = false;
 						QString word;
