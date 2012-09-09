@@ -171,8 +171,9 @@ bool AMDacqScanController::event(QEvent *e){
 				++i;
 			}
 			while(j != aeSpectra.constEnd()){
-				for(int x = 0; x < j.value().count(); x++)
-					scan_->rawData()->setValue(insertIndex, j.key()-1, AMnDIndex(x), j.value().at(x));
+
+				QVector<double> data = j.value().toVector();
+				scan_->rawData()->setValue(insertIndex, j.key()-2, data.data());
 				++j;
 			}
 			scan_->rawData()->endInsertRows();

@@ -18,6 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AM2DDacqScanController.h"
+#include "dataman/datastore/AMCDFDataStore.h"
+#include "dataman/datastore/AMInMemoryDataStore.h"
 
 #include <QDir>
 
@@ -88,14 +90,40 @@ bool AM2DDacqScanController::startImplementation()
 		abop->setProperty( "File Template", file.toStdString());
 		abop->setProperty( "File Path", (AMUserSettings::userDataFolder + "/" + path).toStdString());	// given an absolute path here
 
-		scan_->setFilePath(fullPath.filePath()+".dat");	// relative path and extension (is what the database wants)
-		if(usingSpectraDotDatFile_){
-			// qdebug() << "dacq scan controller: setting additional file paths: " << (QStringList() << fullPath.filePath()+"_spectra.dat");
-			scan_->setAdditionalFilePaths( QStringList() << fullPath.filePath()+"_spectra.dat" );
-			((AMAcqScanSpectrumOutput*)abop)->setExpectsSpectrumFromScanController(true);
+		// If using AMCDFDataStore then this will already have been set properly.
+		if (qobject_cast<AMInMemoryDataStore *>(scan_->rawData())){
+
+			QFileInfo fullPath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()));	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
+
+			QString path = fullPath.path();// just the path, not the file name. Still relative.
+			QString file = fullPath.fileName() + ".dat"; // just the file name, now with an extension
+
+			abop->setProperty( "File Template", file.toStdString());
+			abop->setProperty( "File Path", (AMUserSettings::userDataFolder + "/" + path).toStdString());	// given an absolute path here
+
+			scan_->setFilePath(fullPath.filePath()+".dat");	// relative path and extension (is what the database wants)
+			if(usingSpectraDotDatFile_){
+				// qdebug() << "dacq scan controller: setting additional file paths: " << (QStringList() << fullPath.filePath()+"_spectra.dat");
+				scan_->setAdditionalFilePaths( QStringList() << fullPath.filePath()+"_spectra.dat" );
+				((AMAcqScanSpectrumOutput*)abop)->setExpectsSpectrumFromScanController(true);
+			}
+			else {
+				// qdebug() << "dacq scan controller: not using spectraDotDat file.";
+			}
 		}
-		else {
-			// qdebug() << "dacq scan controller: not using spectraDotDat file.";
+
+		// Synchronizing the .dat and _spectra.dat to match the cdf name.
+		else if (qobject_cast<AMCDFDataStore *>(scan_->rawData())){
+
+			qDebug() << scan_->filePath();
+			QFileInfo fullPath(scan_->filePath());	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
+
+			QString path = fullPath.path();// just the path, not the file name. Still relative.
+			QString file = fullPath.fileName() + ".dat"; // just the file name, now with an extension
+
+			abop->setProperty( "File Template", file.toStdString());
+			abop->setProperty( "File Path", (AMUserSettings::userDataFolder + "/" + path).toStdString());	// given an absolute path here
+			((AMAcqScanSpectrumOutput*)abop)->setExpectsSpectrumFromScanController(true);
 		}
 
 		((AMAcqScanSpectrumOutput*)abop)->setScan(scan_);
@@ -155,9 +183,15 @@ bool AM2DDacqScanController::event(QEvent *e)
 				++i;
 			}
 
+//			while(j != aeSpectra.constEnd()){
+//				for(int x = 0; x < j.value().count(); x++)
+//					scan_->rawData()->setValue(insertIndex, j.key()-2, AMnDIndex(x), j.value().at(x));
+//				++j;
+//			}
 			while(j != aeSpectra.constEnd()){
-				for(int x = 0; x < j.value().count(); x++)
-					scan_->rawData()->setValue(insertIndex, j.key()-1, AMnDIndex(x), j.value().at(x));
+
+				QVector<double> data = j.value().toVector();
+				scan_->rawData()->setValue(insertIndex, j.key()-2, data.data());
 				++j;
 			}
 
