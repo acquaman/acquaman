@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions/AMBeamlineParallelActionsList.h"
 #include "util/VESPERS/VESPERSConfigurationFileBuilder.h"
 #include "analysis/AM3DAdditionAB.h"
+#include "dataman/datastore/AMCDFDataStore.h"
 
 #include <QDir>
 #include <QStringBuilder>
@@ -56,6 +57,9 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	scan_->setScanConfiguration(config_);
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setIndexType("fileSystem");
+	scan_->setFilePath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime())+".cdf");
+	scan_->setFileFormat("amCDFv1");
+	scan_->replaceRawDataStore(new AMCDFDataStore(AMUserSettings::userDataFolder % scan_->filePath(), false));
 
 	int yPoints = int((config_->yEnd() - config_->yStart())/config_->yStep());
 	if ((config_->yEnd() - config_->yStart() - (yPoints + 0.01)*config_->yStep()) < 0)
@@ -91,26 +95,26 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 		break;
 	}
 
-	if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement && !config_->usingCCD())
-		scan_->setFileFormat("vespers2012XRF1El");
+//	if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement && !config_->usingCCD())
+//		scan_->setFileFormat("vespers2012XRF1El");
 
-	else if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement && config_->usingCCD())
-		scan_->setFileFormat("vespers2012XRF1ElXRD");
+//	else if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement && config_->usingCCD())
+//		scan_->setFileFormat("vespers2012XRF1ElXRD");
 
-	else if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::FourElement && !config_->usingCCD())
-		scan_->setFileFormat("vespers2012XRF4El");
+//	else if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::FourElement && !config_->usingCCD())
+//		scan_->setFileFormat("vespers2012XRF4El");
 
-	else if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::FourElement && config_->usingCCD())
-		scan_->setFileFormat("vespers2012XRF4ElXRD");
+//	else if (config_->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::FourElement && config_->usingCCD())
+//		scan_->setFileFormat("vespers2012XRF4ElXRD");
 
-	else if (config_->fluorescenceDetectorChoice() == (VESPERS2DScanConfiguration::SingleElement | VESPERS2DScanConfiguration::FourElement) && !config_->usingCCD())
-		scan_->setFileFormat("vespers2012XRF1Eln4El");
+//	else if (config_->fluorescenceDetectorChoice() == (VESPERS2DScanConfiguration::SingleElement | VESPERS2DScanConfiguration::FourElement) && !config_->usingCCD())
+//		scan_->setFileFormat("vespers2012XRF1Eln4El");
 
-	else if (config_->fluorescenceDetectorChoice() == (VESPERS2DScanConfiguration::SingleElement | VESPERS2DScanConfiguration::FourElement) && config_->usingCCD())
-		scan_->setFileFormat("vespers2012XRF1Eln4ElXRD");
+//	else if (config_->fluorescenceDetectorChoice() == (VESPERS2DScanConfiguration::SingleElement | VESPERS2DScanConfiguration::FourElement) && config_->usingCCD())
+//		scan_->setFileFormat("vespers2012XRF1Eln4ElXRD");
 
-	else
-		AMErrorMon::error(this, VESPERS2DDACQSCANCONTROLLER_CANT_INTIALIZE, "Could not recognize the format type of the scan.");
+//	else
+//		AMErrorMon::error(this, VESPERS2DDACQSCANCONTROLLER_CANT_INTIALIZE, "Could not recognize the format type of the scan.");
 
 	QString notes;
 

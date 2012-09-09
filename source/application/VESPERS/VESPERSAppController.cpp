@@ -462,8 +462,17 @@ void VESPERSAppController::onCurrentScanControllerStarted()
 
 	VESPERS2DScanConfiguration *config2D = qobject_cast<VESPERS2DScanConfiguration *>(scan->scanConfiguration());
 
-	if (config2D)
-		newEditor->setExclusiveDataSourceByName(scan->analyzedDataSources()->at(0)->name());
+	if (config2D){
+
+		bool foundFirstAB = false;
+
+		for (int i = 0, count = scan->analyzedDataSourceCount(); i < count && !foundFirstAB; i++)
+			if (!scan->analyzedDataSources()->at(i)->hiddenFromUsers() && scan->analyzedDataSources()->at(i)->name().contains("norm_")){
+
+				newEditor->setExclusiveDataSourceByName(scan->analyzedDataSources()->at(i)->name());
+				foundFirstAB = true;
+			}
+	}
 }
 
 void VESPERSAppController::onCurrentScanControllerCreated()
