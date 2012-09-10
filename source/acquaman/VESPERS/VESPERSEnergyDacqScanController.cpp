@@ -5,6 +5,7 @@
 #include "dataman/AMUser.h"
 #include "actions/AMBeamlineParallelActionsList.h"
 #include "util/VESPERS/VESPERSConfigurationFileBuilder.h"
+#include "dataman/datastore/AMCDFDataStore.h"
 
 #include <QDir>
 
@@ -30,10 +31,13 @@ VESPERSEnergyDacqScanController::VESPERSEnergyDacqScanController(VESPERSEnergySc
 
 	scan_ = new AMXASScan(); 	// MB: Moved from line 363 in startImplementation.
 	scan_->setName(config_->name());
-	scan_->setFileFormat("vespers2012Energy");
+//	scan_->setFileFormat("vespers2012Energy");
 	scan_->setScanConfiguration(config_);
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setIndexType("fileSystem");
+	scan_->setFilePath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime())+".cdf");
+	scan_->setFileFormat("amCDFv1");
+	scan_->replaceRawDataStore(new AMCDFDataStore(AMUserSettings::userDataFolder % scan_->filePath(), false));
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
 	QString notes;
@@ -134,7 +138,7 @@ bool VESPERSEnergyDacqScanController::initializeImplementation()
 	// CCD
 	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(true));
 	// Picoammeters
-	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
+//	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
 	// Four element vortex
 	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
 
@@ -281,7 +285,7 @@ void VESPERSEnergyDacqScanController::cleanup()
 	// CCD
 	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(false));
 	// Picoammeters
-	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
+//	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
 	// Four element vortex
 	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
 

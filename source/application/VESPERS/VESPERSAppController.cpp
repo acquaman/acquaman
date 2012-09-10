@@ -487,7 +487,7 @@ void VESPERSAppController::onCurrentScanControllerCreated()
 //	connect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
 	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
 
-	if (fileFormat == "vespersXAS" || fileFormat == "vespers2011XAS" || fileFormat == "vespers2011EXAFS"){
+	if (qobject_cast<VESPERSEXAFSScanConfiguration *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->scanConfiguration())){
 
 		connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));
 		assistantView_->show();
@@ -505,7 +505,7 @@ void VESPERSAppController::onCurrentScanControllerFinished()
 	assistantView_->hide();
 
 	if (AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->state() == AMScanController::Cancelled
-			&& (fileFormat == "vespersXAS" || fileFormat == "vespers2011XAS" || fileFormat == "vespers2011EXAFS")){
+			&& (qobject_cast<VESPERSEXAFSScanConfiguration *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->scanConfiguration()))){
 
 		assistant_->onScanCancelled();
 		disconnect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));

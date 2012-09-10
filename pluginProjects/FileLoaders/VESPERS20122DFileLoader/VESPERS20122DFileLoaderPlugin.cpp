@@ -124,10 +124,10 @@ timer.start();
 
 	if (line == "TS1607-2-B21-01:H:user:mm"){
 
-//		cdfData->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
-//		cdfData->addScanAxis(AMAxisInfo("V", yLength, "Vertical Position", "mm"));
-		cdfData->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
-		cdfData->addScanAxis(AMAxisInfo("H", xLength, "Horizontal Position", "mm"));
+		cdfData->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+		cdfData->addScanAxis(AMAxisInfo("V", yLength, "Vertical Position", "mm"));
+//		cdfData->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
+//		cdfData->addScanAxis(AMAxisInfo("H", xLength, "Horizontal Position", "mm"));
 	}
 
 	else if (line == "SVM1607-2-B21-02:mm"){
@@ -177,7 +177,7 @@ timer.start();
 
 	qDebug() << QString("Adding measurements: %1 ms").arg(timer.elapsed());
 	timer.restart();
-	cdfData->beginInsertRows(yLength, -1);
+	cdfData->beginInsertRows(xLength, -1);
 
 	x = 0;
 	y = 0;
@@ -187,16 +187,18 @@ timer.start();
 		lineTokenized = line.split(", ");
 
 		// Add in the data at the right spot.
-//		AMnDIndex axisValueIndex(x, y);
-		AMnDIndex axisValueIndex(y, x);
+		AMnDIndex axisValueIndex(x, y);
+//		AMnDIndex axisValueIndex(y, x);
 
 //		cdfData->setAxisValue(0, axisValueIndex.i(), lineTokenized.at(1).toDouble());
 //		cdfData->setAxisValue(1, axisValueIndex.j(), lineTokenized.at(2).toDouble());
 		if (axisValueIndex.j() == 0)
-			cdfData->setAxisValue(0, axisValueIndex.i(), lineTokenized.at(2).toDouble());
+			cdfData->setAxisValue(0, axisValueIndex.i(), lineTokenized.at(1).toDouble());
+//			cdfData->setAxisValue(0, axisValueIndex.i(), lineTokenized.at(2).toDouble());
 
 		if (axisValueIndex.i() == 0)
-			cdfData->setAxisValue(1, axisValueIndex.j(), lineTokenized.at(1).toDouble());
+			cdfData->setAxisValue(1, axisValueIndex.j(), lineTokenized.at(2).toDouble());
+//			cdfData->setAxisValue(1, axisValueIndex.j(), lineTokenized.at(1).toDouble());
 
 		if (usingSingleElement && usingFourElement){
 
@@ -234,8 +236,8 @@ timer.start();
 		for ( ; x < xLength; x++){
 
 			// Add in the data at the right spot.
-//			AMnDIndex axisValueIndex(x, y);
-			AMnDIndex axisValueIndex(y, x);
+			AMnDIndex axisValueIndex(x, y);
+//			AMnDIndex axisValueIndex(y, x);
 
 			if (usingSingleElement && usingFourElement){
 
@@ -282,9 +284,9 @@ timer.start();
 			QVector<int> data(2048*6);
 			QVector<int> fill(2048, -1);
 
-			for (int y = 0, ySize = cdfData->scanSize(0); y < ySize; y++){
+			for (int y = 0, ySize = cdfData->scanSize(1); y < ySize; y++){
 
-				for (int x = 0, xSize = cdfData->scanSize(1); x < xSize; x++){
+				for (int x = 0, xSize = cdfData->scanSize(0); x < xSize; x++){
 
 					QByteArray row = spectra.readLine();
 
@@ -320,8 +322,8 @@ timer.start();
 							data[dataIndex] = word.toInt();
 
 						const int *tempData = data.constData();
-						//					AMnDIndex axisValueIndex(x, y);
-						AMnDIndex axisValueIndex(y, x);
+						AMnDIndex axisValueIndex(x, y);
+//						AMnDIndex axisValueIndex(y, x);
 						cdfData->setValue(axisValueIndex, count-6, tempData);
 						cdfData->setValue(axisValueIndex, count-5, tempData+2048);
 						cdfData->setValue(axisValueIndex, count-4, tempData+4096);
@@ -332,8 +334,8 @@ timer.start();
 
 					else {
 
-						//					AMnDIndex axisValueIndex(x, y);
-						AMnDIndex axisValueIndex(y, x);
+						AMnDIndex axisValueIndex(x, y);
+//						AMnDIndex axisValueIndex(y, x);
 						cdfData->setValue(axisValueIndex, count-6, fill.constData());
 						cdfData->setValue(axisValueIndex, count-5, fill.constData());
 						cdfData->setValue(axisValueIndex, count-4, fill.constData());
@@ -355,9 +357,9 @@ timer.start();
 			QVector<int> data(2048);
 			QVector<int> fill(2048, -1);
 
-			for (int y = 0, ySize = cdfData->scanSize(0); y < ySize; y++){
+			for (int y = 0, ySize = cdfData->scanSize(1); y < ySize; y++){
 
-				for (int x = 0, xSize = cdfData->scanSize(1); x < xSize; x++){
+				for (int x = 0, xSize = cdfData->scanSize(0); x < xSize; x++){
 
 					QByteArray row = spectra.readLine();
 
@@ -393,14 +395,14 @@ timer.start();
 						if (insideWord)
 							data[dataIndex] = word.toInt();
 
-						//				cdfData->setValue(AMnDIndex(x, y), count-1, data.constData());
-						cdfData->setValue(AMnDIndex(y, x), count-1, data.constData());
+						cdfData->setValue(AMnDIndex(x, y), count-1, data.constData());
+//						cdfData->setValue(AMnDIndex(y, x), count-1, data.constData());
 					}
 
 					else{
 
-//						cdfData->setValue(AMnDIndex(x, y), count-1, fill.constData());
-						cdfData->setValue(AMnDIndex(y, x), count-1, fill.constData());
+						cdfData->setValue(AMnDIndex(x, y), count-1, fill.constData());
+//						cdfData->setValue(AMnDIndex(y, x), count-1, fill.constData());
 					}
 				}
 			}
@@ -416,9 +418,9 @@ timer.start();
 			QVector<int> data(2048*5);
 			QVector<int> fill(2048, -1);
 
-			for (int y = 0, ySize = cdfData->scanSize(0); y < ySize; y++){
+			for (int y = 0, ySize = cdfData->scanSize(1); y < ySize; y++){
 
-				for (int x = 0, xSize = cdfData->scanSize(1); x < xSize; x++){
+				for (int x = 0, xSize = cdfData->scanSize(0); x < xSize; x++){
 
 					QByteArray row = spectra.readLine();
 
@@ -454,8 +456,8 @@ timer.start();
 							data[dataIndex] = word.toInt();
 
 						const int *tempData = data.constData();
-						//					AMnDIndex axisValueIndex(x, y);
-						AMnDIndex axisValueIndex(y, x);
+						AMnDIndex axisValueIndex(x, y);
+//						AMnDIndex axisValueIndex(y, x);
 						cdfData->setValue(axisValueIndex, count-5, tempData);
 						cdfData->setValue(axisValueIndex, count-4, tempData+2048);
 						cdfData->setValue(axisValueIndex, count-3, tempData+4096);
@@ -465,8 +467,8 @@ timer.start();
 
 					else {
 
-						//					AMnDIndex axisValueIndex(x, y);
-						AMnDIndex axisValueIndex(y, x);
+						AMnDIndex axisValueIndex(x, y);
+//						AMnDIndex axisValueIndex(y, x);
 						cdfData->setValue(axisValueIndex, count-5, fill.constData());
 						cdfData->setValue(axisValueIndex, count-4, fill.constData());
 						cdfData->setValue(axisValueIndex, count-3, fill.constData());

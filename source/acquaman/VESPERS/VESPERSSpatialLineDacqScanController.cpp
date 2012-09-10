@@ -10,6 +10,7 @@
 #include "analysis/AM1DSummingAB.h"
 #include "analysis/AM2DSummingAB.h"
 #include "util/VESPERS/VESPERSConfigurationFileBuilder.h"
+#include "dataman/datastore/AMCDFDataStore.h"
 
 #include <QDir>
 #include <QStringBuilder>
@@ -25,6 +26,9 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 	scan_->setScanConfiguration(config_);
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setIndexType("fileSystem");
+	scan_->setFilePath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime())+".cdf");
+	scan_->setFileFormat("amCDFv1");
+	scan_->replaceRawDataStore(new AMCDFDataStore(AMUserSettings::userDataFolder % scan_->filePath(), false));
 
 	AMPVwStatusControl *control = 0;
 
@@ -73,26 +77,26 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 	connect(this, SIGNAL(finished()), &elapsedTime_, SLOT(stop()));
 	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
 
-	if (config_->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::SingleElement && !config_->usingCCD())
-		scan_->setFileFormat("vespers2012LineScanXRF1El");
+//	if (config_->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::SingleElement && !config_->usingCCD())
+//		scan_->setFileFormat("vespers2012LineScanXRF1El");
 
-	else if (config_->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::SingleElement && config_->usingCCD())
-		scan_->setFileFormat("vespers2012LineScanXRF1ElXRD");
+//	else if (config_->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::SingleElement && config_->usingCCD())
+//		scan_->setFileFormat("vespers2012LineScanXRF1ElXRD");
 
-	else if (config_->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::FourElement && !config_->usingCCD())
-		scan_->setFileFormat("vespers2012LineScanXRF4El");
+//	else if (config_->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::FourElement && !config_->usingCCD())
+//		scan_->setFileFormat("vespers2012LineScanXRF4El");
 
-	else if (config_->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::FourElement && config_->usingCCD())
-		scan_->setFileFormat("vespers2012LineScanXRF4ElXRD");
+//	else if (config_->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::FourElement && config_->usingCCD())
+//		scan_->setFileFormat("vespers2012LineScanXRF4ElXRD");
 
-	else if (config_->fluorescenceDetectorChoice() == (VESPERSSpatialLineScanConfiguration::SingleElement | VESPERSSpatialLineScanConfiguration::FourElement) && !config_->usingCCD())
-		scan_->setFileFormat("vespers2012LineScan1Eln4El");
+//	else if (config_->fluorescenceDetectorChoice() == (VESPERSSpatialLineScanConfiguration::SingleElement | VESPERSSpatialLineScanConfiguration::FourElement) && !config_->usingCCD())
+//		scan_->setFileFormat("vespers2012LineScan1Eln4El");
 
-	else if (config_->fluorescenceDetectorChoice() == (VESPERSSpatialLineScanConfiguration::SingleElement | VESPERSSpatialLineScanConfiguration::FourElement) && config_->usingCCD())
-		scan_->setFileFormat("vespers2012LineScan1Eln4ElXRD");
+//	else if (config_->fluorescenceDetectorChoice() == (VESPERSSpatialLineScanConfiguration::SingleElement | VESPERSSpatialLineScanConfiguration::FourElement) && config_->usingCCD())
+//		scan_->setFileFormat("vespers2012LineScan1Eln4ElXRD");
 
-	else
-		AMErrorMon::error(this, VESPERSSPATIALLINEDACQSCANCONTROLLER_CANT_INTIALIZE, "Could not recognize the format type of the scan.");
+//	else
+//		AMErrorMon::error(this, VESPERSSPATIALLINEDACQSCANCONTROLLER_CANT_INTIALIZE, "Could not recognize the format type of the scan.");
 
 	QString notes;
 
@@ -644,7 +648,7 @@ bool VESPERSSpatialLineDacqScanController::initializeImplementation()
 	else
 		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(false));
 	// Picoammeters
-	initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
+//	initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
 	// Four element vortex
 	if ((config_->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::FourElement) || (config_->fluorescenceDetectorChoice() == (VESPERSSpatialLineScanConfiguration::SingleElement | VESPERSSpatialLineScanConfiguration::FourElement)))
 		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(true));
@@ -731,7 +735,7 @@ void VESPERSSpatialLineDacqScanController::cleanup()
 	// CCD
 	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(false));
 	// Picoammeters
-	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
+//	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
 	// Four element vortex
 	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
 

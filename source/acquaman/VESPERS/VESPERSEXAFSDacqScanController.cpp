@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DSummingAB.h"
 #include "actions/AMBeamlineParallelActionsList.h"
 #include "util/VESPERS/VESPERSConfigurationFileBuilder.h"
+#include "dataman/datastore/AMCDFDataStore.h"
 
 #include <QDir>
 #include <QStringBuilder>
@@ -54,10 +55,13 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 
 	scan_ = new AMXASScan(); 	// MB: Moved from line 363 in startImplementation.
 	scan_->setName(config_->name());
-	scan_->setFileFormat("vespers2011EXAFS");
+//	scan_->setFileFormat("vespers2011EXAFS");
 	scan_->setScanConfiguration(config_);
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setIndexType("fileSystem");
+	scan_->setFilePath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime())+".cdf");
+	scan_->setFileFormat("amCDFv1");
+	scan_->replaceRawDataStore(new AMCDFDataStore(AMUserSettings::userDataFolder % scan_->filePath(), false));
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
 	QString notes;
@@ -654,7 +658,7 @@ bool VESPERSEXAFSDacqScanController::initializeImplementation()
 	// CCD
 	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(false));
 	// Picoammeters
-	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
+//	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
 	// Four element vortex
 	if ((config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::FourElement) || (config_->fluorescenceDetectorChoice() == (VESPERSEXAFSScanConfiguration::SingleElement | VESPERSEXAFSScanConfiguration::FourElement)))
 		setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(true));
@@ -852,7 +856,7 @@ void VESPERSEXAFSDacqScanController::cleanup()
 	// CCD
 	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(false));
 	// Picoammeters
-	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
+//	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
 	// Four element vortex
 	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
 
