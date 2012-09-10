@@ -8,6 +8,7 @@
 #include "dataman/datastore/AMCDFDataStore.h"
 
 #include <QDir>
+#include <QStringBuilder>
 
 VESPERSEnergyDacqScanController::VESPERSEnergyDacqScanController(VESPERSEnergyScanConfiguration *cfg, QObject *parent)
 	: AMDacqScanController(cfg, parent)
