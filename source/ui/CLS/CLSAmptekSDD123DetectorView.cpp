@@ -94,6 +94,7 @@ bool CLSAmptekSDD123DetailedDetectorView::setDetector(AMDetector *detector, bool
 	connect(detector_, SIGNAL(integrationTimeChanged(double)), this, SLOT(onIntegrationTimeChanged(double)));
 	connect(detector_, SIGNAL(detectorTemperatureChanged(double)), this, SLOT(onDetectorTemperatureChanged(double)));
 	connect(detector_, SIGNAL(mcaChannelsChanged(double)), this, SLOT(onMCAChannelsChanged(double)));
+	connect(detector_, SIGNAL(totalCountsChanged(double)), this, SLOT(onTotalCountsChanged(double)));
 
 	statusLabel_ = new QLabel();
 	statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(20));
@@ -101,23 +102,34 @@ bool CLSAmptekSDD123DetailedDetectorView::setDetector(AMDetector *detector, bool
 	integrationTimeDSB_ = new QDoubleSpinBox();
 	integrationTimeDSB_->setMinimum(0.1);
 	integrationTimeDSB_->setMaximum(10);
-	integrationTimeDSB_->setEnabled(false);
+	totalCountsDSB_ = new QDoubleSpinBox();
+	totalCountsDSB_->setMinimum(0);
+	totalCountsDSB_->setMaximum(500000);
+	totalCountsDSB_->setEnabled(false);
 	detectorTemperatureLabel_ = new QLabel();
 	mcaChannelLabel_ = new QLabel();
 	startAcquisitionButton_ = new QPushButton("Start");
 	startAcquisitionButton_->setEnabled(false);
-	connect(startAcquisitionButton_, SIGNAL(clicked()), this, SLOT(onStartAcquisitionButtonClicked()));
+	enabledCheckBox_ = new QCheckBox("Enabled");
+
 
 	if(detector_->isConnected()){
 		integrationTimeDSB_->setValue(detector_->integrationTime());
 		detectorTemperatureLabel_->setText(QString("%1").arg(detector_->detectorTemperature()));
 		mcaChannelLabel_->setText(QString("%1").arg(detector_->channels()));
 		startAcquisitionButton_->setEnabled(true);
+		totalCountsDSB_->setValue(detector_->spectraTotalCounts());
+		enabledCheckBox_->setChecked(detector_->isEnabled());
 	}
 	else{
 		detectorTemperatureLabel_->setText("?");
 		mcaChannelLabel_->setText("?");
 	}
+
+	connect(startAcquisitionButton_, SIGNAL(clicked()), this, SLOT(onStartAcquisitionButtonClicked()));
+	connect(integrationTimeDSB_, SIGNAL(editingFinished()), this, SLOT(onIntegrationTimeDSBEditingFinished()));
+	connect(enabledCheckBox_, SIGNAL(toggled(bool)), detector_, SLOT(setEnabled(bool)));
+	connect(detector_, SIGNAL(enabledChanged(bool)), enabledCheckBox_, SLOT(setChecked(bool)));
 
 	// Create the plot window.
 	view_ = new MPlotWidget;
@@ -167,11 +179,27 @@ bool CLSAmptekSDD123DetailedDetectorView::setDetector(AMDetector *detector, bool
 	QVBoxLayout *mainVL = new QVBoxLayout();
 	QHBoxLayout *mainHL = new QHBoxLayout();
 
+	QVBoxLayout *tmpVL;
+
 	mainHL->addWidget(startAcquisitionButton_);
-	mainHL->addWidget(integrationTimeDSB_);
-	mainHL->addWidget(detectorTemperatureLabel_);
-	mainHL->addWidget(mcaChannelLabel_);
+	tmpVL = new QVBoxLayout();
+	tmpVL->addWidget(new QLabel("Dwell"));
+	tmpVL->addWidget(integrationTimeDSB_);
+	mainHL->addLayout(tmpVL);
+	tmpVL = new QVBoxLayout();
+	tmpVL->addWidget(new QLabel("Counts"));
+	tmpVL->addWidget(totalCountsDSB_);
+	mainHL->addLayout(tmpVL);
+	tmpVL = new QVBoxLayout();
+	tmpVL->addWidget(new QLabel("Temp"));
+	tmpVL->addWidget(detectorTemperatureLabel_);
+	mainHL->addLayout(tmpVL);
+	tmpVL = new QVBoxLayout();
+	tmpVL->addWidget(new QLabel("Channels"));
+	tmpVL->addWidget(mcaChannelLabel_);
+	mainHL->addLayout(tmpVL);
 	mainHL->addWidget(statusLabel_);
+	mainHL->addWidget(enabledCheckBox_);
 
 	mainVL->addLayout(mainHL);
 	mainVL->addWidget(view_);
@@ -185,6 +213,7 @@ void CLSAmptekSDD123DetailedDetectorView::onConnectedChanged(bool connected){
 	setEnabled(connected);
 	if(connected){
 		integrationTimeDSB_->setValue(detector_->integrationTime());
+		totalCountsDSB_->setValue(detector_->spectraTotalCounts());
 		detectorTemperatureLabel_->setText(QString("%1").arg(detector_->detectorTemperature()));
 		mcaChannelLabel_->setText(QString("%1").arg(detector_->channels()));
 		startAcquisitionButton_->setEnabled(true);
@@ -210,6 +239,14 @@ void CLSAmptekSDD123DetailedDetectorView::onMCAChannelsChanged(double mcaChannel
 	mcaChannelLabel_->setText(QString("%1").arg(mcaChannels));
 }
 
+void CLSAmptekSDD123DetailedDetectorView::onTotalCountsChanged(double totalCounts){
+	totalCountsDSB_->setValue(totalCounts);
+}
+
 void CLSAmptekSDD123DetailedDetectorView::onStartAcquisitionButtonClicked(){
 	detector_->start();
+}
+
+void CLSAmptekSDD123DetailedDetectorView::onIntegrationTimeDSBEditingFinished(){
+	detector_->setIntegrationTime(integrationTimeDSB_->value());
 }

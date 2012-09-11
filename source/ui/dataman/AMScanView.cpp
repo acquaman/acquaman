@@ -131,21 +131,21 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 	QStyle* style = QApplication::style();
 
 	QToolButton* tabButton_ = new QToolButton();
-	// tabButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
 	tabButton_->setIcon(style->standardIcon(QStyle::SP_FileDialogInfoView));
 	tabButton_->setText("1");
+	tabButton_->setToolTip("Show single data source");
 	QToolButton* overplotButton_ = new QToolButton();
 	overplotButton_->setIcon(style->standardIcon(QStyle::SP_FileDialogDetailedView));
 	overplotButton_->setText("OP");
-	//overplotButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
+	overplotButton_->setToolTip("Show all data sources");
 	QToolButton* multiScansButton_ = new QToolButton();
 	multiScansButton_->setIcon(style->standardIcon(QStyle::SP_FileDialogListView));
 	multiScansButton_->setText("M-S");
-	//multiScansButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
+	multiScansButton_->setToolTip("Separate plots per scan");
 	QToolButton* multiSourcesButton = new QToolButton();
 	multiSourcesButton->setIcon(style->standardIcon(QStyle::SP_FileDialogListView));
 	multiSourcesButton->setText("M-C");
-	multiSourcesButton->setAttribute(Qt::WA_MacBrushedMetal, true);
+	multiSourcesButton->setToolTip("Separate plots per data source");
 
 	tabButton_->setCheckable(true);
 	overplotButton_->setCheckable(true);
@@ -167,18 +167,27 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 	hl->addLayout(hl2);
 	hl->addStretch(1);
 
+	showSourcesButton_ = new QToolButton();
+	showSourcesButton_->setIcon(QIcon(":/22x22/view-list-details-symbolic.png"));
+	showSourcesButton_->setToolTip("Show or hide the data source visibility buttons");
+	showSourcesButton_->setCheckable(true);
+	showSourcesButton_->setChecked(true);
+
+	hl->addWidget(showSourcesButton_);
+	hl->addStretch(1);
+
 	logCheckBox_ = new QCheckBox("Log Scale");
 	logCheckBox_->setChecked(false);
 	hl->addWidget(logCheckBox_);
 	normalizationCheckBox_ = new QCheckBox("Show at same scale");
 	normalizationCheckBox_->setChecked(true);
 	hl->addWidget(normalizationCheckBox_);
-	waterfallCheckBox_ = new QCheckBox("Waterfall  Amount");
+	waterfallCheckBox_ = new QCheckBox("Waterfall:");
 	waterfallCheckBox_->setChecked(true);
 	hl->addWidget(waterfallCheckBox_);
 	waterfallAmount_ = new QDoubleSpinBox();
 	waterfallAmount_->setMinimum(0);
-	waterfallAmount_->setMaximum(1e12);
+	waterfallAmount_->setMaximum(1e6);
 	waterfallAmount_->setValue(0.2);
 	waterfallAmount_->setSingleStep(0.1);
 	hl->addWidget(waterfallAmount_);
@@ -212,6 +221,9 @@ AMScanView::AMScanView(AMScanSetModel* model, QWidget *parent) :
 	makeConnections();
 
 	scanBars_->setModel(scansModel_);
+
+	if(scansModel_->scanCount() >= AM_SCAN_VIEW_HIDE_SCANBARS_AFTER_N_SCANS)
+		setScanBarsVisible(false);
 
 	modeAnim_ = new QPropertyAnimation(gview_->graphicsWidget(), "geometry", this);
 	modeAnim_->setDuration(500);
@@ -298,6 +310,11 @@ void AMScanView::makeConnections() {
 
 	// connect resize event from graphicsView to resize the stuff inside the view
 	connect(gview_, SIGNAL(resized(QSizeF)), this, SLOT(resizeViews()), Qt::QueuedConnection);
+
+	// connect the "show scan bars" button to show/hide them
+	connect(modeBar_->showSourcesButton_, SIGNAL(clicked(bool)), scanBars_, SLOT(setVisible(bool)));
+
+	connect(scansModel_, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onRowInserted(QModelIndex,int,int)));
 
 	// connect enabling/disabling normalization and waterfall to each view
 	for(int i=0; i<views_.count(); i++) {
@@ -414,7 +431,7 @@ MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* d
 	MPlotItem* rv = 0;
 
 	if(dataSource == 0) {
-		AMErrorMon::alert(this, AMSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_NULL_DATA_SOURCE, "Asked to create a plot item for a null data source.");
+		AMErrorMon::debug(this, AMSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_NULL_DATA_SOURCE, "Asked to create a plot item for a null data source.");
 		return 0;
 	}
 
@@ -697,17 +714,9 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 				plot_->plot()->addItem(newItem, (dataSource->rank() == 2? MPlot::Right : MPlot::Left));
 				AMScan *scan = model()->scanAt(scanIndex);
 
-				if (scan->scanRank() == 0)
-					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->measurementAt(0).units.isEmpty() ? scan->rawData()->measurementAt(0).description : scan->rawData()->measurementAt(0).description % ", " % scan->rawData()->measurementAt(0).units);
+				plot_->plot()->axisBottom()->setAxisName(bottomAxisName(scan, dataSource));
+				plot_->plot()->axisRight()->setAxisName(rightAxisName(scan, dataSource));
 
-				if (scan->scanRank() == 1)
-					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
-
-				if (scan->dataSourceAt(dataSourceIndex)->rank() == 2)
-					plot_->plot()->axisRight()->setAxisName(scan->dataSourceAt(dataSourceIndex)->axisInfoAt(1).units.isEmpty() ? scan->dataSourceAt(dataSourceIndex)->axisInfoAt(1).description : scan->dataSourceAt(dataSourceIndex)->axisInfoAt(1).description % ", " % scan->dataSourceAt(dataSourceIndex)->axisInfoAt(1).units);
-
-				else
-					plot_->plot()->axisRight()->setAxisName("");
 			}
 			/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
 			// testing 3D
@@ -858,17 +867,8 @@ void AMScanViewMultiView::addScan(int si) {
 
 				AMScan *scan = model()->scanAt(si);
 
-				if (scan->scanRank() == 0)
-					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->measurementAt(0).units.isEmpty() ? scan->rawData()->measurementAt(0).description : scan->rawData()->measurementAt(0).description % ", " % scan->rawData()->measurementAt(0).units);
-
-				if (scan->scanRank() == 1)
-					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
-
-				if (scan->dataSourceAt(di)->rank() == 2)
-					plot_->plot()->axisRight()->setAxisName(scan->dataSourceAt(di)->axisInfoAt(1).units.isEmpty() ? scan->dataSourceAt(di)->axisInfoAt(1).description : scan->dataSourceAt(di)->axisInfoAt(1).description % ", " % scan->dataSourceAt(di)->axisInfoAt(1).units);
-
-				else
-					plot_->plot()->axisRight()->setAxisName("");
+				plot_->plot()->axisBottom()->setAxisName(bottomAxisName(scan, dataSource));
+				plot_->plot()->axisRight()->setAxisName(rightAxisName(scan, dataSource));
 
 				newItem->setDescription(model()->scanAt(si)->fullName() + ": " + dataSource->name());
 			}
@@ -1173,19 +1173,8 @@ void AMScanViewMultiScansView::addScan(int si) {
 				plots_.at(si)->plot()->addItem(newItem, (dataSource->rank() == 2 ? MPlot::Right : MPlot::Left));
 
 				AMScan *scan = model()->scanAt(si);
-				if (scan->scanRank() == 0)
-					plots_.at(si)->plot()->axisBottom()->setAxisName(scan->rawData()->measurementAt(0).units.isEmpty() ? scan->rawData()->measurementAt(0).description : scan->rawData()->measurementAt(0).description % ", " % scan->rawData()->measurementAt(0).units);
-
-				if (scan->scanRank() == 1)
-					plots_.at(si)->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
-
-				if (scan->dataSourceAt(di)->rank() == 2)
-					plots_.at(si)->plot()->axisRight()->setAxisName(scan->dataSourceAt(di)->axisInfoAt(1).units.isEmpty() ? scan->dataSourceAt(di)->axisInfoAt(1).description : scan->dataSourceAt(di)->axisInfoAt(1).description % ", " % scan->dataSourceAt(di)->axisInfoAt(1).units);
-
-				else
-					plots_.at(si)->plot()->axisRight()->setAxisName("");
-
-				/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
+				plots_.at(si)->plot()->axisBottom()->setAxisName(bottomAxisName(scan, dataSource));
+				plots_.at(si)->plot()->axisRight()->setAxisName(rightAxisName(scan, dataSource));
 			}
 			scanList << newItem;
 
@@ -1791,21 +1780,13 @@ bool AMScanViewMultiSourcesView::reviewDataSources() {
 				if(newItem) {
 					sourcesNeedingAxesReview << sourceName;
 					newItem->setDescription(scan->fullName());
-					dataSource2Plot_[sourceName]->plot()->addItem(newItem, (scan->dataSourceAt(di)->rank() == 2 ? MPlot::Right : MPlot::Left));
+					AMDataSource* dataSource = scan->dataSourceAt(di);
+					dataSource2Plot_[sourceName]->plot()->addItem(newItem, (dataSource->rank() == 2 ? MPlot::Right : MPlot::Left));
 					// zzzzzzzz Always add, even if 0? (requires checking everywhere for null plot items). Or only add if valid? (Going with latter... hope this is okay, in event someone tries at add 0d, 3d or 4d data source.
 					sourceAndScan2PlotItem_[sourceName].insert(scan, newItem);
 
-					if (scan->scanRank() == 0)
-						dataSource2Plot_[sourceName]->plot()->axisBottom()->setAxisName(scan->rawData()->measurementAt(0).units.isEmpty() ? scan->rawData()->measurementAt(0).description : scan->rawData()->measurementAt(0).description % ", " % scan->rawData()->measurementAt(0).units);
-
-					if (scan->scanRank() == 1)
-						dataSource2Plot_[sourceName]->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
-
-					if (scan->dataSourceAt(di)->rank() == 2)
-						dataSource2Plot_[sourceName]->plot()->axisRight()->setAxisName(scan->dataSourceAt(di)->axisInfoAt(1).units.isEmpty() ? scan->dataSourceAt(di)->axisInfoAt(1).description : scan->dataSourceAt(di)->axisInfoAt(1).description % ", " % scan->dataSourceAt(di)->axisInfoAt(1).units);
-
-					else
-						dataSource2Plot_[sourceName]->plot()->axisRight()->setAxisName("");
+					dataSource2Plot_[sourceName]->plot()->axisBottom()->setAxisName(bottomAxisName(scan, dataSource));
+					dataSource2Plot_[sourceName]->plot()->axisRight()->setAxisName(rightAxisName(scan, dataSource));
 				}
 			}
 		}
@@ -1952,4 +1933,62 @@ void AMScanView::exportGraphicsFile(const QString& fileName)
 	gview_->render(&painter);
 
 	painter.end();
+}
+
+QString AMScanViewInternal::bottomAxisName(AMScan *scan, AMDataSource *dataSource)
+{
+	if (scan->scanRank() == 0) {
+		AMAxisInfo ai = dataSource->axisInfoAt(0);
+		QString rv = ai.description;
+		if(!ai.units.isEmpty())
+			rv.append(", " % ai.units);
+		return rv;
+	}
+
+	if (scan->scanRank() == 1 || scan->scanRank() == 2) {
+		AMAxisInfo ai = scan->rawData()->scanAxisAt(0);	// this isn't really cool... Should stick to publicly exposed data from the data source.
+		QString rv = ai.description;
+		if(!ai.units.isEmpty())
+			rv.append(", " % ai.units);
+		return rv;
+	}
+
+	return QString();
+}
+
+QString AMScanViewInternal::rightAxisName(AMScan *scan, AMDataSource *dataSource)
+{
+	Q_UNUSED(scan)
+
+	if (dataSource->rank() == 2) {
+		AMAxisInfo ai = dataSource->axisInfoAt(1);
+		QString rv = ai.description;
+		if(!ai.units.isEmpty()) {
+			rv.append(", " % ai.units);
+		}
+		return rv;
+	}
+
+	else
+		return QString();
+}
+
+void AMScanView::onRowInserted(const QModelIndex &parent, int start, int end)
+{
+	Q_UNUSED(start)
+	Q_UNUSED(end)
+
+	// inserting scans:
+	if(!parent.isValid()) {
+		if(scansModel_->scanCount() == AM_SCAN_VIEW_HIDE_SCANBARS_AFTER_N_SCANS) {
+			setScanBarsVisible(false);
+			// this will only happen once; the user can re-show them if they want.
+		}
+	}
+}
+
+void AMScanView::setScanBarsVisible(bool areVisible)
+{
+	modeBar_->showSourcesButton_->setChecked(areVisible);
+	scanBars_->setVisible(areVisible);
 }

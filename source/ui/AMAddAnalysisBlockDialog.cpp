@@ -18,7 +18,7 @@ AMAddAnalysisBlockDialog::AMAddAnalysisBlockDialog(int rank, QWidget *parent)
 
 	connect(listWidget_, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this, SLOT(onCurrentItemChanged(QListWidgetItem*,QListWidgetItem*)));
 
-	if (rank == 1)
+	if (rank == 0 || rank == 1)
 		populateWith1D();
 	else if (rank == 2)
 		populateWith2D();
@@ -124,4 +124,8 @@ void AMAddAnalysisBlockDialog::populateWith2D()
 {
 	QListWidgetItem *item = new QListWidgetItem(QIcon(":/22x22/gamma.png"), "Normalization", listWidget_);
 	item->setData(AM::DescriptionRole, "This tool normalizes its input.");
+
+	item = new QListWidgetItem(QIcon(":/spectrum.png"), "3D Binning", listWidget_);
+	item->setData(AM::DescriptionRole, "This tool bins a spectra to generate a 2D map.");
 }
+

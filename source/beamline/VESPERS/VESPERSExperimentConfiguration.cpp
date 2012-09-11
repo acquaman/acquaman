@@ -40,6 +40,9 @@ VESPERSExperimentConfiguration::VESPERSExperimentConfiguration(CLSSynchronizedDw
 	useSampleStage_ = false;
 	useSingleEl_ = false;
 	useFourEl_ = false;
+	usePseudoMotors_ = true;
+
+	sampleStageControl_ = new AMSinglePVControl("Sample Stage Choice", "BL1607-B2-1:AddOns:sampleStageChoice", this, 0.1);
 
 	connect(poeBeamStatus_, SIGNAL(valueChanged(double)), this, SLOT(onPOEStatusChanged(double)));
 
@@ -52,6 +55,8 @@ VESPERSExperimentConfiguration::VESPERSExperimentConfiguration(CLSSynchronizedDw
 	connect(pseudoSampleStage_, SIGNAL(connected(bool)), this, SLOT(determineExperimentStatus()));
 	connect(vortex1E_, SIGNAL(connected(bool)), this, SLOT(determineExperimentStatus()));
 	connect(vortex4E_, SIGNAL(connected(bool)), this, SLOT(determineExperimentStatus()));
+
+	connect(sampleStageControl_, SIGNAL(connected(bool)), this, SLOT(onSampleStageChoiceConnected(bool)));
 }
 
 void VESPERSExperimentConfiguration::onPOEStatusChanged(double state)
@@ -237,4 +242,30 @@ void VESPERSExperimentConfiguration::useFourElementVortex(bool use)
 
 	emit fourElementVortexStatusChanged(use);
 	determineExperimentStatus();
+}
+
+void VESPERSExperimentConfiguration::usePseudoMotors(bool use)
+{
+	if (usePseudoMotors_ == use)
+		return;
+
+	usePseudoMotors_ = use;
+
+	if (sampleStageControl_->isConnected())
+		sampleStageControl_->move(usePseudoMotors_ ? 1 : 0);
+
+	emit sampleStageChoiceChanged(usePseudoMotors_);
+}
+
+void VESPERSExperimentConfiguration::onSampleStageChoiceConnected(bool connected)
+{
+	if (connected){
+
+		if (int(sampleStageControl_->value()) == 0)
+			usePseudoMotors_ = false;
+		else
+			usePseudoMotors_ = true;
+
+		emit sampleStageChoiceChanged(usePseudoMotors_);
+	}
 }

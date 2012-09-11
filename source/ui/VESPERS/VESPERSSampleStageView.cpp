@@ -24,11 +24,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGridLayout>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QStringBuilder>
 
-VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
-	QWidget(parent)
+VESPERSSampleStageView::VESPERSSampleStageView(VESPERSSampleStageControl *sampleStage, QWidget *parent)
+	: QWidget(parent)
 {
-	sampleStage_ = VESPERSBeamline::vespers()->pseudoSampleStage();
+	sampleStage_ = sampleStage;
 	connect(sampleStage_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
 	connect(sampleStage_, SIGNAL(movingChanged(bool)), this, SLOT(onMovingChanged(bool)));
 	connect(sampleStage_, SIGNAL(horizontalMoveError(bool)), this, SLOT(onHorizontalMoveError(bool)));
@@ -38,10 +39,16 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	QFont font(this->font());
 	font.setBold(true);
 
-	QLabel *h = new QLabel("H :");
-	h->setFont(font);
-	QLabel *v = new QLabel("V :");
-	v->setFont(font);
+	title_ = "";
+	horizontalTitle_ = "H";
+	verticalTitle_ = "V";
+
+	titleLabel_ = new QLabel("Sample Stage");
+	titleLabel_->setFont(font);
+	horizontalLabel_ = new QLabel("H :");
+	horizontalLabel_->setFont(font);
+	verticalLabel_ = new QLabel("V :");
+	verticalLabel_->setFont(font);
 	QLabel *jog = new QLabel("Jog :");
 	jog->setFont(font);
 
@@ -70,7 +77,7 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	connect(sampleStage_, SIGNAL(horizontalSetpointChanged(double)), horizontal_, SLOT(setValue(double)));
 
 	QHBoxLayout *hLayout = new QHBoxLayout;
-	hLayout->addWidget(h, 0, Qt::AlignRight);
+	hLayout->addWidget(horizontalLabel_, 0, Qt::AlignRight);
 	hLayout->addWidget(horizontal_);
 
 	vertical_ = new QDoubleSpinBox;
@@ -84,7 +91,7 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	connect(sampleStage_, SIGNAL(verticalSetpointChanged(double)), vertical_, SLOT(setValue(double)));
 
 	QHBoxLayout *vLayout = new QHBoxLayout;
-	vLayout->addWidget(v, 0, Qt::AlignRight);
+	vLayout->addWidget(verticalLabel_, 0, Qt::AlignRight);
 	vLayout->addWidget(vertical_);
 
 	status_ = new QLabel;
@@ -133,7 +140,11 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	sampleStageLayout->addLayout(arrowLayout);
 	sampleStageLayout->addLayout(absoluteValueLayout);
 
-	setLayout(sampleStageLayout);
+	QVBoxLayout *fullLayout = new QVBoxLayout;
+	fullLayout->addWidget(titleLabel_);
+	fullLayout->addLayout(sampleStageLayout);
+
+	setLayout(fullLayout);
 }
 
 void VESPERSSampleStageView::onUpClicked()
@@ -217,5 +228,23 @@ void VESPERSSampleStageView::onNormalMoveError(bool direction)
 		goUp_->setEnabled(false);
 		QMessageBox::warning(this, "End of travel!", QString("You have reached the end of travel for the normal motor.  Consider changing the position of your sample on the sample mount."));
 	}
+}
+
+void VESPERSSampleStageView::setTitle(const QString &title)
+{
+	title_ = title;
+	titleLabel_->setText("Sample Stage - " % title_);
+}
+
+void VESPERSSampleStageView::setHorizontalTitle(const QString &title)
+{
+	horizontalTitle_ = title;
+	horizontalLabel_->setText(horizontalTitle_ % " :");
+}
+
+void VESPERSSampleStageView::setVerticalTitle(const QString &title)
+{
+	verticalTitle_ = title;
+	verticalLabel_->setText(verticalTitle_ % " :");
 }
 

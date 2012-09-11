@@ -5,7 +5,8 @@ TARGET = REIXSAcquaman
 FORMS += \
     source/ui/REIXS/REIXSXESSpectrometerControlEditor.ui \
 	source/ui/REIXS/REIXSSampleChamberButtonPanel.ui \
-    source/ui/REIXS/REIXSSidebar.ui
+    source/ui/REIXS/REIXSSidebar.ui \
+    source/ui/REIXS/REIXSXASScanConfigurationView.ui
 
 HEADERS +=	source/application/REIXS/REIXSAppController.h \
 	source/acquaman/REIXS/REIXSXESScanConfiguration.h \
@@ -32,14 +33,19 @@ HEADERS +=	source/application/REIXS/REIXSAppController.h \
     source/beamline/REIXS/REIXSSampleManipulator.h \
     source/ui/REIXS/REIXSSidebar.h \
     source/ui/REIXS/REIXSActionBasedControlEditor.h \
-    source/ui/REIXS/REIXSActionBasedEnumControlEditor.h \
     source/actions2/actions/REIXS/REIXSMoveToSampleTransferPositionAction.h \
     source/actions2/actions/REIXS/REIXSMoveToSampleTransferPositionActionInfo.h \
     source/actions2/actions/REIXS/REIXSBeamOnOffAction.h \
     source/actions2/actions/REIXS/REIXSBeamOnOffActionInfo.h \
     source/actions2/editors/REIXS/REIXSBeamOnOffActionEditor.h \
     source/analysis/REIXS/REIXSXESImageAB.h \
-    source/analysis/REIXS/REIXSXESImageABEditor.h
+    source/analysis/REIXS/REIXSXESImageABEditor.h \
+    source/actions2/editors/REIXS/REIXSSampleMoveActionEditor.h \
+    source/acquaman/REIXS/REIXSXASScanConfiguration.h \
+	source/acquaman/REIXS/REIXSXASScanController.h \
+	source/actions2/actions/REIXS/REIXSXASScanActionInfo.h \
+	source/actions2/actions/REIXS/REIXSXASScanAction.h \
+    source/ui/REIXS/REIXSXASScanConfigurationView.h
 
 
 SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
@@ -66,14 +72,30 @@ SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
     source/beamline/REIXS/REIXSSampleManipulator.cpp \
     source/ui/REIXS/REIXSSidebar.cpp \
     source/ui/REIXS/REIXSActionBasedControlEditor.cpp \
-    source/ui/REIXS/REIXSActionBasedEnumControlEditor.cpp \
     source/actions2/actions/REIXS/REIXSMoveToSampleTransferPositionAction.cpp \
     source/actions2/actions/REIXS/REIXSMoveToSampleTransferPositionActionInfo.cpp \
     source/actions2/actions/REIXS/REIXSBeamOnOffAction.cpp \
     source/actions2/actions/REIXS/REIXSBeamOnOffActionInfo.cpp \
     source/actions2/editors/REIXS/REIXSBeamOnOffActionEditor.cpp \
     source/analysis/REIXS/REIXSXESImageAB.cpp \
-    source/analysis/REIXS/REIXSXESImageABEditor.cpp
+    source/analysis/REIXS/REIXSXESImageABEditor.cpp \
+    source/actions2/editors/REIXS/REIXSSampleMoveActionEditor.cpp \
+    source/acquaman/REIXS/REIXSXASScanConfiguration.cpp \
+	source/acquaman/REIXS/REIXSXASScanController.cpp \
+	source/actions2/actions/REIXS/REIXSXASScanActionInfo.cpp \
+    source/ui/REIXS/REIXSXASScanConfigurationView.cpp
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

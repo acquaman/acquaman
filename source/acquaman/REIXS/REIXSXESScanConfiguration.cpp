@@ -34,11 +34,13 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 	shouldStartFromCurrentPosition_ = false;
 	doNotClearExistingCounts_ = false;
 
-	// temporary, for comissioning
-	detectorHeightError_ = 0;	//mm
 
 	maximumTotalCounts_ = 1000000;
 	maximumDurationSeconds_ = 300;
+
+	scanNumber_ = 0;
+	sampleId_ = -1;
+	namedAutomatically_ = true;
 }
 
 // Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
@@ -55,11 +57,17 @@ AMScanController* REIXSXESScanConfiguration::createController() {
 
 QString REIXSXESScanConfiguration::description() const
 {
-	QString rv = QString("XES Scan at %1 eV").arg(centerEV());
+	QString rv = QString("XES Scan at %1 eV  (%2 seconds or %3 counts)").arg(centerEV()).arg(maximumDurationSeconds()).arg(maximumTotalCounts(), 0, 'g', 0);
 	if(defocusDistanceMm() != 0)
 		rv.append(QString(", Defocussed %1 mm").arg(defocusDistanceMm()));
 	if(detectorTiltOffset() != 0)
 		rv.append(QString(", Tilt offset %1 deg").arg(detectorTiltOffset()));
 
 	return rv;
+}
+
+#include "ui/REIXS/REIXSXESScanConfigurationView.h"
+AMScanConfigurationView * REIXSXESScanConfiguration::createView()
+{
+	return new REIXSXESScanConfigurationView(this);
 }

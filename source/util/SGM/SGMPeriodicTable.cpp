@@ -27,25 +27,26 @@ SGMPeriodicTable* SGMPeriodicTable::instance_ = 0;
 SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 		QObject(parent)
 {
-	AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
-	if(dbSGM){
-		QList<int> matchIDs;
-		SGMElementInfo *elementInfo;
+	// Grab all the databases available but remove the "actions" database ... there shouldn't be anything in there
+	QStringList allDatabases = AMDatabase::registeredDatabases();
+	allDatabases.removeAll("actions");
 
-		QStringList elementsToLoad;
-		elementsToLoad << "Carbon" << "Nitrogen" << "Oxygen" << "Calcium" << "Titanium" << "Chromium" << "Iron" << "Nickel"
-			       << "Copper" <<  "Zinc" << "Sodium" << "Magnesium" << "Aluminum" << "Silicon";
-
-		foreach(QString elementName, elementsToLoad){
-			matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
-			if(matchIDs.count() > 0){
+	// Loop over all databases and load them up, if successful grab the elementInfos and load them
+	AMDatabase *tempDatabase;
+	SGMElementInfo *elementInfo;
+	QList<int> matchIDs;
+	for(int x = 0; x < allDatabases.count(); x++){
+		tempDatabase = AMDatabase::database(allDatabases.at(x));
+		if(tempDatabase){
+			// Grab all the ids in this table (search for AMDbObjectType == SGMElementInfo should return everything)
+			matchIDs = tempDatabase->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "AMDbObjectType", "SGMElementInfo");
+			for(int y = 0; y < matchIDs.count(); y++){
 				elementInfo = new SGMElementInfo();
-				if(elementInfo->loadFromDb(dbSGM, matchIDs.at(0)))
+				if(elementInfo->loadFromDb(tempDatabase, matchIDs.at(y)))
 					sgmPeriodicTableInfo_.append(elementInfo, elementInfo->element());
 			}
 		}
 	}
-
 }
 
 SGMElementInfo* SGMPeriodicTable::elementInfoByName(const QString &elementName) const{

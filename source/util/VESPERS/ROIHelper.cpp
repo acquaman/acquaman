@@ -33,9 +33,7 @@ ROIHelper::ROIHelper(QObject *parent) :
 		raw = new AMProcessVariable("dxp1607-B21-04:mca1.R"+QString::number(i)+"NM", true, this);
 		sum = new AMProcessVariable("dxp1607-B21-04:mcaSum.R"+QString::number(i)+"NM", true, this);
 		corr = new AMProcessVariable("dxp1607-B21-04:mcaCorrected.R"+QString::number(i)+"NM", true, this);
-		raw->disablePutCallbackMode(true);
-		sum->disablePutCallbackMode(true);
-		corr->disablePutCallbackMode(true);
+
 		connect(raw, SIGNAL(valueChanged(QString)), sum, SLOT(setValue(QString)));
 		connect(raw, SIGNAL(valueChanged(QString)), corr, SLOT(setValue(QString)));
 	}
@@ -45,9 +43,7 @@ ROIHelper::ROIHelper(QObject *parent) :
 		raw = new AMProcessVariable("dxp1607-B21-04:mca1.R"+QString::number(i)+"LO", true, this);
 		sum = new AMProcessVariable("dxp1607-B21-04:mcaSum.R"+QString::number(i)+"LO", true, this);
 		corr = new AMProcessVariable("dxp1607-B21-04:mcaCorrected.R"+QString::number(i)+"LO", true, this);
-		raw->disablePutCallbackMode(true);
-		sum->disablePutCallbackMode(true);
-		corr->disablePutCallbackMode(true);
+
 		connect(raw, SIGNAL(valueChanged(int)), sum, SLOT(setValue(int)));
 		connect(raw, SIGNAL(valueChanged(int)), corr, SLOT(setValue(int)));
 	}
@@ -57,9 +53,7 @@ ROIHelper::ROIHelper(QObject *parent) :
 		raw = new AMProcessVariable("dxp1607-B21-04:mca1.R"+QString::number(i)+"HI", true, this);
 		sum = new AMProcessVariable("dxp1607-B21-04:mcaSum.R"+QString::number(i)+"HI", true, this);
 		corr = new AMProcessVariable("dxp1607-B21-04:mcaCorrected.R"+QString::number(i)+"HI", true, this);
-		raw->disablePutCallbackMode(true);
-		sum->disablePutCallbackMode(true);
-		corr->disablePutCallbackMode(true);
+
 		connect(raw, SIGNAL(valueChanged(int)), sum, SLOT(setValue(int)));
 		connect(raw, SIGNAL(valueChanged(int)), corr, SLOT(setValue(int)));
 	}

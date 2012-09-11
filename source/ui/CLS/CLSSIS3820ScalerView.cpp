@@ -246,7 +246,10 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 	connect(channel_, SIGNAL(readingChanged(int)), this, SLOT(onReadingChanged(int)));
 
 	QHBoxLayout *layout = new QHBoxLayout;
-	layout->addWidget(new QLabel(QString("%1)").arg(channel_->index())), 0, Qt::AlignLeft);
+	if(channel_->customChannelName().isEmpty())
+		layout->addWidget(new QLabel(QString("%1)").arg(channel_->index())), 0, Qt::AlignLeft);
+	else
+		layout->addWidget(new QLabel(QString("%1)").arg(channel_->customChannelName())), 0, Qt::AlignLeft);
 	layout->addSpacing((channel_->index() >= 10) ? 0 : 8);
 	layout->addWidget(enableBox, 0, Qt::AlignLeft);
 	layout->addStretch();

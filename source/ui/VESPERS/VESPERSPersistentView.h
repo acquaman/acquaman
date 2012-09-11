@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/VESPERS/VESPERSChangeEnergyToleranceHackView.h"
 
+class VESPERSSampleStageView;
 
 class VESPERSPersistentView : public QWidget
 {
@@ -43,6 +44,8 @@ public:
 signals:
 
 public slots:
+	/// Slot that switches which sample stage is viewed inside the persitent view.  True is pseudo motors, false is real motors.
+	void setSampleStage(bool sampleStage);
 
 protected slots:
 	/// Handles the valves button push.  Opens or closes based the current state of the current state.
@@ -133,9 +136,16 @@ protected:
 	/// Pointer to the slits.
 	VESPERSIntermediateSlits *slits_;
 
+<<<<<<< HEAD
 
 	/// HACK FOR TOLERANCE
 	VESPERSChangeEnergyToleranceHackView *energyTolerance_;
+=======
+	/// Pointer to the pseudo motor sample stage.
+	VESPERSSampleStageView *pseudoMotors_;
+	/// Pointer to the real motor sample stage.
+	VESPERSSampleStageView *realMotors_;
+>>>>>>> master
 };
 
 #endif // VESPERSPERSISTENTVIEW_H

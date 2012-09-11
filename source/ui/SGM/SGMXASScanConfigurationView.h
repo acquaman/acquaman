@@ -105,9 +105,9 @@ protected:
 
 	QPushButton *bestFluxButton_;
 	QPushButton *bestResolutionButton_;
-	AMControlEditor *exitSlitGapCE_;
-	AMControlEditor *gratingCE_;
-	AMControlEditor *harmonicCE_;
+	AMExtendedControlEditor *exitSlitGapCE_;
+	AMExtendedControlEditor *gratingCE_;
+	AMExtendedControlEditor *harmonicCE_;
 	QLabel *warningsLabel_;
 
 	QVBoxLayout *buttonsVL_;

@@ -33,14 +33,30 @@ CLSOceanOptics65000Detector::CLSOceanOptics65000Detector(const QString &name, co
 	integrationTimeControl_->setDescription("OceanOptics 65000 Integration Time");
 	integrationTimeControl_->setContextKnownDescription("Integration Time");
 
+	dwellTriggerControl_ = new AMPVControl(name+"DwellTrigger", baseName+":Acquire", baseName+":Acquire", "", this, 0.1);
+	dwellTriggerControl_->setDescription("OceanOptics 65000 Dwell Trigger");
+	dwellTriggerControl_->setContextKnownDescription("Dwell Trigger");
+	dwellStateControl_ = new AMReadOnlyPVControl(name+"DwellStatus", baseName+":Acquiring", this);
+	dwellStateControl_->setDescription("OceanOptics 65000 Dwell Status");
+	dwellStateControl_->setContextKnownDescription("Dwell Status");
+
 	allControls_->addControl(dataWaveformControl_);
 	allControls_->addControl(integrationTimeControl_);
+	allControls_->addControl(dwellTriggerControl_);
+	allControls_->addControl(dwellStateControl_);
+
+	AMReadOnlyWaveformBinningPVControl *tmpControl = qobject_cast<AMReadOnlyWaveformBinningPVControl*>(dataWaveformControl_);
+	tmpControl->setAttemptDouble(true);
+	spectrumDataSource_ = new AM1DProcessVariableDataSource(tmpControl->readPV(), "Spectrum", this);
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
 	connect(allControls_, SIGNAL(controlSetTimedOut()), this, SLOT(onControlsTimedOut()));
 	connect(signalSource(), SIGNAL(connected(bool)), this, SLOT(onSettingsControlValuesChanged()));
+	connect(signalSource(), SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
 	connect(dataWaveformControl_, SIGNAL(valueChanged(double)), this, SLOT(onReadingsControlValuesChanged()));
 	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(onSettingsControlValuesChanged()));
+	connect(dwellStateControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusChanged(double)));
+	connect(tmpControl, SIGNAL(valueChanged(double)), this, SIGNAL(totalCountsChanged(double)));
 }
 
 CLSOceanOptics65000Detector::~CLSOceanOptics65000Detector(){
@@ -60,7 +76,7 @@ QString CLSOceanOptics65000Detector::dacqName() const{
 
 QStringList CLSOceanOptics65000Detector::dacqDwell() const{
 	QStringList retVal;
-	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":Acquire").arg("1");
+//	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":Acquire").arg("1");
 	return retVal;
 }
 
@@ -120,6 +136,28 @@ QString CLSOceanOptics65000Detector::description() const{
 	return AMDetectorInfo::description().replace(' ', '\n');
 }
 
+bool CLSOceanOptics65000Detector::status() const{
+	if(dwellStateControl_->withinTolerance(1))
+		return true;
+	return false;
+}
+
+QVector<int> CLSOceanOptics65000Detector::spectraValues()
+{
+	AMReadOnlyPVControl *tmpControl = qobject_cast<AMReadOnlyPVControl*>(dataWaveformControl_);
+	return tmpControl->readPV()->lastIntegerValues();
+}
+
+int CLSOceanOptics65000Detector::spectraTotalCounts()
+{
+	AMReadOnlyWaveformBinningPVControl *tmpControl = qobject_cast<AMReadOnlyWaveformBinningPVControl*>(dataWaveformControl_);
+	return tmpControl->value();
+}
+
+AMDataSource* CLSOceanOptics65000Detector::spectrumDataSource() const{
+	return spectrumDataSource_;
+}
+
 void CLSOceanOptics65000Detector::setDescription(const QString &description){
 	AMDetectorInfo::setDescription(description);
 }
@@ -127,6 +165,11 @@ void CLSOceanOptics65000Detector::setDescription(const QString &description){
 bool CLSOceanOptics65000Detector::setControls(CLSOceanOptics65000DetectorInfo *settings){
 	integrationTimeControl()->move( settings->integrationTime() );
 	return true;
+}
+
+void CLSOceanOptics65000Detector::start(){
+	if(isConnected())
+		dwellTriggerControl_->move(1);
 }
 
 void CLSOceanOptics65000Detector::onControlsConnected(bool connected){
@@ -143,6 +186,14 @@ void CLSOceanOptics65000Detector::onSettingsControlValuesChanged(){
 		setIntegrationTime(integrationTimeControl()->value());
 		emitSettingsChanged();
 	}
+}
+
+void CLSOceanOptics65000Detector::onStatusChanged(double status){
+	Q_UNUSED(status)
+	if(dwellStateControl_->withinTolerance(1))
+		emit statusChanged(true);
+	else
+		emit statusChanged(false);
 }
 
 void CLSOceanOptics65000Detector::onReadingsControlValuesChanged(){

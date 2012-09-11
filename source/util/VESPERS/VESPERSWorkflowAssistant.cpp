@@ -64,6 +64,9 @@ void VESPERSWorkflowAssistant::listen()
 
 void VESPERSWorkflowAssistant::setTotalScans(int num)
 {
+	if (!config_)
+		return;
+
 	int difference = num - config_->numberOfScans();
 
 	if (difference == 0)

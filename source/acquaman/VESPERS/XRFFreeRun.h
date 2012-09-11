@@ -43,16 +43,24 @@ public:
 	VESPERSXRFScanConfiguration *configuration() const { return config_; }
 
 signals:
+	/// Notifier that someone has requested to copy the regions of interest from this XRFtable.
+	void copyRoisRequested(const XRFFreeRun *);
 
 public slots:
 	/// Sets the detector.
 	void setDetector(XRFDetector *detector) { detector_ = detector; }
+	/// Helper slot that emits copyRoisRequested.
+	void onCopyRoisRequested() { emit copyRoisRequested(this); }
+	/// Helper slot that takes an XRFFreeRun and copies all of its ROIs.
+	void setFromXRFFreeRun(const XRFFreeRun *freeRun);
 
 protected slots:
 	/// Handles what happens when the detector becomes connected.
 	void onRoisHaveValues();
 	/// Handles when the regions of interest change from an external source.
 	void onExternalRegionsOfInterestChanged();
+	/// Helper slot that sets the new ROIs after a small wait from clearing the detector.
+	void copyRoiHelper();
 
 protected:
 	/// Helper function that takes in a region of interest name and adds it to the XRFPeriodicTable.  Takes in the ROI name, finds the element and line it is associated with and adds it to the XRFPeriodicTable.
@@ -64,6 +72,10 @@ protected:
 	XRFPeriodicTable *xrfTable_;
 	/// The scan configuration.  Contains some configuration details about the scan such as integration time, minimum energy, maximum energy.
 	VESPERSXRFScanConfiguration *config_;
+
+private:
+	/// Variable holding ANOTHER xrf free run model for copying ROIs.
+	const XRFFreeRun *other_;
 };
 
 #endif // XRFFREERUN_H

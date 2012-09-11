@@ -18,6 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AM2DDacqScanController.h"
+#include "dataman/datastore/AMCDFDataStore.h"
+#include "dataman/datastore/AMInMemoryDataStore.h"
 
 #include <QDir>
 
@@ -88,14 +90,40 @@ bool AM2DDacqScanController::startImplementation()
 		abop->setProperty( "File Template", file.toStdString());
 		abop->setProperty( "File Path", (AMUserSettings::userDataFolder + "/" + path).toStdString());	// given an absolute path here
 
-		scan_->setFilePath(fullPath.filePath()+".dat");	// relative path and extension (is what the database wants)
-		if(usingSpectraDotDatFile_){
-			// qdebug() << "dacq scan controller: setting additional file paths: " << (QStringList() << fullPath.filePath()+"_spectra.dat");
-			scan_->setAdditionalFilePaths( QStringList() << fullPath.filePath()+"_spectra.dat" );
-			((AMAcqScanSpectrumOutput*)abop)->setExpectsSpectrumFromScanController(true);
+		// If using AMCDFDataStore then this will already have been set properly.
+		if (qobject_cast<AMInMemoryDataStore *>(scan_->rawData())){
+
+			QFileInfo fullPath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()));	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
+
+			QString path = fullPath.path();// just the path, not the file name. Still relative.
+			QString file = fullPath.fileName() + ".dat"; // just the file name, now with an extension
+
+			abop->setProperty( "File Template", file.toStdString());
+			abop->setProperty( "File Path", (AMUserSettings::userDataFolder + "/" + path).toStdString());	// given an absolute path here
+
+			scan_->setFilePath(fullPath.filePath()+".dat");	// relative path and extension (is what the database wants)
+			if(usingSpectraDotDatFile_){
+				// qdebug() << "dacq scan controller: setting additional file paths: " << (QStringList() << fullPath.filePath()+"_spectra.dat");
+				scan_->setAdditionalFilePaths( QStringList() << fullPath.filePath()+"_spectra.dat" );
+				((AMAcqScanSpectrumOutput*)abop)->setExpectsSpectrumFromScanController(true);
+			}
+			else {
+				// qdebug() << "dacq scan controller: not using spectraDotDat file.";
+			}
 		}
-		else {
-			// qdebug() << "dacq scan controller: not using spectraDotDat file.";
+
+		// Synchronizing the .dat and _spectra.dat to match the cdf name.
+		else if (qobject_cast<AMCDFDataStore *>(scan_->rawData())){
+
+			qDebug() << scan_->filePath();
+			QFileInfo fullPath(scan_->filePath());	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
+
+			QString path = fullPath.path();// just the path, not the file name. Still relative.
+			QString file = fullPath.fileName() + ".dat"; // just the file name, now with an extension
+
+			abop->setProperty( "File Template", file.toStdString());
+			abop->setProperty( "File Path", (AMUserSettings::userDataFolder + "/" + path).toStdString());	// given an absolute path here
+			((AMAcqScanSpectrumOutput*)abop)->setExpectsSpectrumFromScanController(true);
 		}
 
 		((AMAcqScanSpectrumOutput*)abop)->setScan(scan_);
@@ -126,7 +154,11 @@ bool AM2DDacqScanController::event(QEvent *e)
 		if(i.key() == 0 && aeData.count() > 1){
 
 			AMnDIndex insertIndex = toScanIndex(aeData);
-			scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
+			// MB: Modified May 13 2012 for changes to AMDataStore. Assumes data store already has sufficient space for scan axes beyond the first axis.
+//			scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
+			if(insertIndex.i() >= scan_->rawData()->scanSize(0))
+				scan_->rawData()->beginInsertRows(insertIndex.i()-scan_->rawData()->scanSize(0)+1, -1);
+			////////////////
 
 			// Because this is a 2D specific scan controller, I am forcing the format to be a certain way.
 			scan_->rawData()->setAxisValue(0, insertIndex.i(), i.value());
@@ -151,9 +183,15 @@ bool AM2DDacqScanController::event(QEvent *e)
 				++i;
 			}
 
+//			while(j != aeSpectra.constEnd()){
+//				for(int x = 0; x < j.value().count(); x++)
+//					scan_->rawData()->setValue(insertIndex, j.key()-2, AMnDIndex(x), j.value().at(x));
+//				++j;
+//			}
 			while(j != aeSpectra.constEnd()){
-				for(int x = 0; x < j.value().count(); x++)
-					scan_->rawData()->setValue(insertIndex, j.key()-1, AMnDIndex(x), j.value().at(x));
+
+				QVector<double> data = j.value().toVector();
+				scan_->rawData()->setValue(insertIndex, j.key()-2, data.data());
 				++j;
 			}
 
@@ -253,42 +291,56 @@ void AM2DDacqScanController::prefillScanPoints()
 		case AM2DScanConfiguration::X: {
 
 			AMnDIndex insertIndex;
-			int xCount = 0;
-			int yCount = 0;
 			double xStart = internal2DConfig_->xStart();
 			double xStep = internal2DConfig_->xStep();
 			double xEnd = internal2DConfig_->xEnd();
 			double yStart = internal2DConfig_->yStart();
 			double yStep = internal2DConfig_->yStep();
 			double yEnd = internal2DConfig_->yEnd();
-			double floatNumX = (xEnd-xStart)/xStep;
-			double floatNumY = (yEnd-yStart)/yStep;
+			int xCount = int((xEnd-xStart)/xStep);
+			int yCount = int((yEnd-yStart)/yStep);
 
-			if (fabs((floatNumX-int(floatNumX))) < 0.1*xStep)
-				xCount = int(floatNumX) + 1;
+			if ((xEnd-xStart-(xCount+0.01)*xStep) < 0)
+				xCount += 1;
 			else
-				xCount = int(floatNumX) + 2;
+				xCount += 2;
 
-			if (fabs((floatNumY-int(floatNumY))) < 0.1*yStep)
-				yCount = int(floatNumY) + 1;
+			if ((yEnd-yStart-(yCount+0.01)*yStep) < 0)
+				yCount += 1;
 			else
-				yCount = int(floatNumY) + 2;
+				yCount += 2;
+
+			if (scan_->rawData()->scanSize(0) == 0)
+				scan_->rawData()->beginInsertRows(xCount, -1);
 
 			for (int j = 0; j < yCount; j++){
 
 				for (int i = 0; i < xCount; i++){
 
 					insertIndex = AMnDIndex(i, j);
-					scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
+					// MB: Modified May 13 2012 for changes to AMDataStore. Assumes data store already has sufficient space for scan axes beyond the first axis.
+//					scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
+//					if(insertIndex.i() >= scan_->rawData()->scanSize(0))
+//						scan_->rawData()->beginInsertRows(insertIndex.i()-scan_->rawData()->scanSize(0)+1, -1);
+					////////////////
 					scan_->rawData()->setAxisValue(0, insertIndex.i(), xStart + i*xStep);
 					scan_->rawData()->setAxisValue(1, insertIndex.j(), yStart + j*yStep);
 
-					for (int di = 0; di < scan_->dataSourceCount(); di++)
-						scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), 0);
+					for (int di = 0; di < scan_->rawDataSourceCount(); di++){
 
-					scan_->rawData()->endInsertRows();
+						if (scan_->rawDataSources()->at(di)->rank() == 0)
+							scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), -1);
+
+						else if (scan_->rawDataSources()->at(di)->rank() == 1){
+
+							QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(0), -1);
+							scan_->rawData()->setValue(insertIndex, di, data.constData());
+						}
+					}
 				}
 			}
+
+			scan_->rawData()->endInsertRows();
 
 			break;
 		}
@@ -296,42 +348,56 @@ void AM2DDacqScanController::prefillScanPoints()
 		case AM2DScanConfiguration::Y: {
 
 			AMnDIndex insertIndex;
-			int xCount = 0;
-			int yCount = 0;
 			double xStart = internal2DConfig_->xStart();
 			double xStep = internal2DConfig_->xStep();
 			double xEnd = internal2DConfig_->xEnd();
 			double yStart = internal2DConfig_->yStart();
 			double yStep = internal2DConfig_->yStep();
 			double yEnd = internal2DConfig_->yEnd();
-			double floatNumX = (xEnd-xStart)/xStep;
-			double floatNumY = (yEnd-yStart)/yStep;
+			int xCount = int((xEnd-xStart)/xStep);
+			int yCount = int((yEnd-yStart)/yStep);
 
-			if ((floatNumX-int(floatNumX)) == 0)
-				xCount = int(floatNumX) + 1;
+			if ((xEnd-xStart-(xCount+0.01)*xStep) < 0)
+				xCount += 1;
 			else
-				xCount = int(floatNumX) + 2;
+				xCount += 2;
 
-			if ((floatNumY-int(floatNumY)) == 0)
-				yCount = int(floatNumY) + 1;
+			if ((yEnd-yStart-(yCount+0.01)*yStep) < 0)
+				yCount += 1;
 			else
-				yCount = int(floatNumY) + 2;
+				yCount += 2;
+
+			if (scan_->rawData()->scanSize(0) == 0)
+				scan_->rawData()->beginInsertRows(xCount, -1);
 
 			for (int i = 0; i < yCount; i++){
 
 				for (int j = 0; j < xCount; j++){
 
 					insertIndex = AMnDIndex(i, j);
-					scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
+					// MB: Modified May 13 2012 for changes to AMDataStore. Assumes data store already has sufficient space for scan axes beyond the first axis.
+//					scan_->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
+//					if(insertIndex.i() >= scan_->rawData()->scanSize(0))
+//						scan_->rawData()->beginInsertRows(insertIndex.i()-scan_->rawData()->scanSize(0)+1, -1);
+					////////////////
 					scan_->rawData()->setAxisValue(0, insertIndex.i(), xStart + i*xStep);
 					scan_->rawData()->setAxisValue(1, insertIndex.j(), yStart + j*yStep);
 
-					for (int di = 0; di < scan_->dataSourceCount(); di++)
-						scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), 0);
+					for (int di = 0; di < scan_->dataSourceCount(); di++){
 
-					scan_->rawData()->endInsertRows();
+						if (scan_->rawDataSources()->at(di)->rank() == 0)
+							scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), -1);
+
+						else if (scan_->rawDataSources()->at(di)->rank() == 1){
+
+							QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(0), -1);
+							scan_->rawData()->setValue(insertIndex, di, data.constData());
+						}
+					}
 				}
 			}
+
+			scan_->rawData()->endInsertRows();
 
 			break;
 		}

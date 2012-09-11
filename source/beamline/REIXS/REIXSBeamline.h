@@ -23,13 +23,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
 #include "acquaman/REIXS/REIXSXESMCPDetector.h"	///< \todo Move this to beamline, not acquaman.
-#include "dataman/REIXS/REIXSXESCalibration.h"
+#include "dataman/REIXS/REIXSXESCalibration2.h"
 #include "beamline/AMCompositeControl.h"
+#include "beamline/CLS/CLSMDriveMotorControl.h"
 
 #include "util/AMDeferredFunctionCall.h"
 #include "beamline/CLS/CLSBiStateControl.h"
 
+
+class AMSADetector;
+
+class AMSamplePlate;
+
 class AMAction;
+
+class REIXSBrokenMonoControl;
 
 /// The REIXSPhotonSource control is a container for the set of controls that make up the mono and EPU
 class REIXSPhotonSource : public AMCompositeControl {
@@ -37,17 +45,19 @@ class REIXSPhotonSource : public AMCompositeControl {
 public:
 	REIXSPhotonSource(QObject* parent = 0);
 
-	AMControl* energy() { return energy_; }
+	REIXSBrokenMonoControl* energy() { return energy_; }
+	AMControl* directEnergy() { return directEnergy_; }
 	AMControl* monoSlit() { return monoSlit_; }
 	AMControl* monoGratingTranslation() { return monoGratingTranslation_; }
 	AMControl* monoGratingSelector() { return monoGratingSelector_; }
 	AMControl* monoMirrorTranslation() { return monoMirrorTranslation_; }
 	AMControl* monoMirrorSelector() { return monoMirrorSelector_; }
-
-
+	AMControl* epuPolarization() { return epuPolarization_; }
+	AMControl* epuPolarizationAngle() { return epuPolarizationAngle_; }
 
 protected:
-	AMControl *energy_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_;
+	AMControl* directEnergy_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_, *epuPolarization_, *epuPolarizationAngle_;
+	REIXSBrokenMonoControl* energy_;
 
 };
 
@@ -85,6 +95,33 @@ protected:
 
 };
 
+
+/// Organizes the group of XAS detectors
+class REIXSXASDetectors : public AMCompositeControl {
+	Q_OBJECT
+public:
+	REIXSXASDetectors(QObject* parent = 0);
+
+	/// Feedback for I0
+	AMReadOnlyPVControl* I0Feedback() { return I0_; }
+	/// Feedback for TEY
+	AMReadOnlyPVControl* TEYFeedback() { return TEY_; }
+	/// Feedback for TFY
+	AMReadOnlyPVControl* TFYFeedback() { return TFY_; }
+
+	/// Control for continuous mode
+	AMSinglePVControl* scalerContinuousMode() { return scalerContinuousMode_; }
+
+	/// A list of AMSADetectors used by the XAS scan controller: TEY, TFY, I0.
+	QList<AMSADetector*> saDetectors() { return saDetectors_; }
+
+protected:
+	AMReadOnlyPVControl* I0_, * TEY_, *TFY_;
+	AMSinglePVControl* scalerContinuousMode_;
+	QList<AMSADetector*> saDetectors_;
+
+};
+
 /// The REIXSHexapod control is just a container for the set of coupled controls which make up the hexapod:
 /*!
 - x(), y(), z(): Stage position in mm
@@ -111,7 +148,8 @@ public:
 
 protected:
 	/// Controls, connected to the hexapod PVs
-	AMControl *x_, *y_, *z_, *u_, *v_, *w_, *r_, *s_, *t_;
+	AMPVwStatusControl *x_, *y_, *z_, *u_, *v_, *w_;
+	AMPVControl *r_, *s_, *t_;
 
 };
 
@@ -130,9 +168,9 @@ public:
 	REIXSSpectrometer(QObject* parent = 0);
 
 	/// The spectrometer calibration object we are using
-	const REIXSXESCalibration* spectrometerCalibration() const { return &calibration_; }
+	const REIXSXESCalibration2* spectrometerCalibration() const { return &calibration_; }
 	// temporary, for commissioning.
-	REIXSXESCalibration* spectrometerCalibration() { return &calibration_; }
+	REIXSXESCalibration2* spectrometerCalibration() { return &calibration_; }
 
 	int gratingCount() const { return calibration_.gratingCount(); }
 
@@ -181,11 +219,11 @@ public:
 	virtual bool moveInProgress() const { return moveAction_ != 0; }
 
 	/// Returns the minimum and maximum value for the current grating
-	virtual double minimumValue() const { return calibration_.evRangeForGrating(specifiedGrating_).first; }
-	virtual double maximumValue() const { return calibration_.evRangeForGrating(specifiedGrating_).second; }
+	virtual double minimumValue() const { return calibration_.gratingAt(specifiedGrating_).evRangeMin(); }
+	virtual double maximumValue() const { return calibration_.gratingAt(specifiedGrating_).evRangeMax(); }
 
 	/// Move to the given energy, using the specified grating, focusOffset, tiltOffset, and the current calibration. (This will cause spectrometer motion)
-	virtual void move(double setpoint);
+	virtual FailureExplanation move(double setpoint);
 
 	/// Stop the spectrometer if it's currently moving
 	virtual bool stop();
@@ -208,10 +246,10 @@ public slots:
 	void specifyDetectorTiltOffset(double tiltOffsetDeg);
 
 protected:
-	AMControl *spectrometerRotationDrive_, *detectorTranslation_, *detectorTiltDrive_, *endstationTranslation_;  //DAVID ADDED
+	AMPVwStatusControl *spectrometerRotationDrive_, *detectorTranslation_, *detectorTiltDrive_, *endstationTranslation_;  //DAVID ADDED
 	REIXSHexapod* hexapod_;
 
-	REIXSXESCalibration calibration_;
+	REIXSXESCalibration2 calibration_;
 
 	/// Current grating is -1 if a grating hasn't been positioned yet
 	int currentGrating_, specifiedGrating_;
@@ -266,8 +304,100 @@ public:
 	AMControl* loadLockR() { return loadLockR_; }
 
 protected:
-	AMControl* x_, *y_, *z_, *r_, *loadLockZ_, *loadLockR_;
+	CLSMDriveMotorControl* x_, *y_, *z_, *r_, *loadLockZ_, *loadLockR_;
 };
+
+/// This control provides a wrapper around the beamline energy PV control to correct some of its major deficiencies.
+/*!
+- For moves larger than repeatMoveThreshold(), it sends the same move command repeatMoveAttempts() times, pausing for repeatMoveSettlingTime() seconds after each (to wait for the running-average of the encoder signal to catch up).
+- For moves with targets below lowEnergyThreshold() [100eV], it does the sub-100eV part of the move in lowEnergyStepSize() [1eV] increments, to avoid crashing the mirror and grating together when they get out of sync.
+
+None of this would be necessary if the mono motors did not get out of sync with each other, and actually went to where they were instructed to go without losing many many steps. */
+
+class REIXSBrokenMonoControl : public AMControl {
+	Q_OBJECT
+public:
+	/// Construct with the AMPVwStatusControl to wrap \c control, the threshold to trigger multiple sub-moves, the number of sub-move attempts, the move settling time after each sub-move, the low energy threshold, and the low energy step size. We take ownership of the control.
+	REIXSBrokenMonoControl(AMPVwStatusControl* underlyingControl, double repeatMoveThreshold = 1.05, int repeatMoveAttempts = 3, double repeatMoveSettlingTime = 0.3, double singleMoveSettlingTime = 0.05, double lowEnergyThreshold = 100, double lowEnergyStepSize = 1.0, double actualTolerance = 0.1, QObject* parent = 0);
+
+	/// Destructor: deletes the underlying control.
+	virtual ~REIXSBrokenMonoControl();
+
+	/// Returns the feedback from the underlying control
+	virtual double value() const { return control_->value(); }
+	/// Returns the last setpoint requested by move().
+	virtual double setpoint() const { return setpoint_; }
+
+	/// Connected depends on whether the underlying control is connected.
+	virtual bool isConnected() const { return control_->isConnected(); }
+
+	virtual bool canMeasure() const { return control_->canMeasure(); }
+	virtual bool canMove() const { return control_->canMove(); }
+	virtual bool shouldMeasure() const { return control_->shouldMeasure(); }
+	virtual bool shouldMove() const { return control_->shouldMove(); }
+	virtual bool canStop() const { return control_->canStop(); }
+	virtual bool shouldStop() const { return control_->shouldStop(); }
+
+	virtual bool allowsMovesWhileMoving() const { return false; }
+
+	/// We're moving if either: the control is moving (possibly externally), or one of our extended moves is in progress [even though the underlying control might be stopped temporarily]
+	virtual bool isMoving() const { return control_->isMoving() || moveAction_; }
+	/// One of OUR moves is in progress whenever our move action is valid.
+	virtual bool moveInProgress() const { return moveAction_; }
+
+	virtual double minimumValue() const { return control_->minimumValue(); }
+	virtual double maximumValue() const { return control_->maximumValue(); }
+
+	virtual int alarmSeverity() const { return control_->alarmSeverity(); }
+	virtual int alarmStatus() const { return control_->alarmStatus(); }
+
+
+	/// Returns the settling time for repeated (multi-step) moves. This much time is allowed before checking the feedback value for tolerance.
+	double repeatMoveSettlingTime() const { return repeatMoveSettlingTime_; }
+	/// Returns the settling time for single-step moves. This much time is allowed before checking the feedback value for tolerance.
+	double singleMoveSettlingTime() const { return singleMoveSettlingTime_; }
+
+public slots:
+
+	/// Used to start a move to \c setpoint. Returns NoFailure if the move command was sent successfully. Our re-implementation creates and populates the moveAction_.
+	virtual FailureExplanation move(double setpoint);
+
+	/// Request to stop a move in progress.
+	virtual bool stop();
+
+
+	/// Set the settling time for repeated (multi-step) moves. This much time is allowed before checking the feedback value for tolerance. Set to 0 to disable.
+	void setRepeatMoveSettlingTime(double seconds) { repeatMoveSettlingTime_ = seconds; }
+	/// Set the settling time for single-step moves. This much time is allowed before checking the feedback value for tolerance. Set to 0 to disable.
+	void setSingleMoveSettlingTime(double seconds) { singleMoveSettlingTime_ = seconds; }
+
+
+protected slots:
+
+	/// called when the underlying control emits movingChanged(). We should combine with our definition of isMoving().
+	void onControlMovingChanged(bool isMoving);
+
+	/// Called while one of our moves is in progress, and the move action fails or is cancelled.
+	void onMoveActionFailed();
+	/// Called while one of our moves is in progress, and the complete move action succeeded.
+	void onMoveActionSucceeded();
+
+protected:
+	double repeatMoveThreshold_, repeatMoveSettlingTime_, singleMoveSettlingTime_, lowEnergyThreshold_, lowEnergyStepSize_;
+	int repeatMoveAttempts_;
+	AMPVwStatusControl* control_;
+	double setpoint_;
+
+	bool stopInProgress_;
+
+	/// Used to run the steps of a move. 0 if one of our special moves is not in progress.
+	AMListAction* moveAction_;
+
+	/// Used for change detection of isMoving()
+	bool wasMoving_;
+
+};
+
 
 /// This class creates and provides access to the AMControl objects with the power to move the REIXS beamline and spectrometer
 class REIXSBeamline : public AMBeamline
@@ -296,6 +426,12 @@ public:
 	REIXSXESMCPDetector* mcpDetector() { return mcpDetector_; }
 	/// Access the valves and shutters
 	REIXSValvesAndShutters* valvesAndShutters() { return valvesAndShutters_; }
+	/// Returns the current (active) sample plate, ie:the one that is currently loaded. When a user uses the UI to switch sample plates, we simple re-load this one from the database to become a different sample plate.
+	AMSamplePlate* samplePlate() { return samplePlate_; }
+	int currentSamplePlateId() const;
+	/// Returns the id of the sample on the current plate that is in position.
+	int currentSampleId();
+
 
 	// These Control Sets are logical groups of controls, that are commonly used by different Acquaman components
 
@@ -306,9 +442,13 @@ public:
 	/// All the controls we want to expose to users for available motions in REIXSControlMoveAction.
 	AMControlSet* allControlsSet() { return allControlsSet_; }
 
+	REIXSXASDetectors* xasDetectors() { return xasDetectors_; }
+
+
 signals:
 
 public slots:
+
 
 protected:
 	/// Constructor. This is a singleton class; access it through REIXSBeamline::bl().
@@ -334,6 +474,12 @@ protected:
 	/// All the controls we want to expose to users for available motions in REIXSControlMoveAction.
 	AMControlSet* allControlsSet_;
 
+
+	/// This is the active sample plate object, ie:the one that is currently loaded. When a user uses the UI to switch sample plates, we simple re-load this one from the database to become a different sample plate.
+	AMSamplePlate* samplePlate_;
+
+	/// List of detectors used in XAS scans
+	REIXSXASDetectors* xasDetectors_;
 
 };
 

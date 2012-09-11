@@ -59,6 +59,10 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	tempButton = new QRadioButton("Four Element Vortex");
 	fluorescenceButtonGroup_->addButton(tempButton, 2);
 	fluorescenceDetectorLayout->addWidget(tempButton);
+	tempButton = new QRadioButton("Single && Four");
+	fluorescenceButtonGroup_->addButton(tempButton, 3);	// 3 is SingleElement | FourElement
+	fluorescenceDetectorLayout->addWidget(tempButton);
+
 	connect(fluorescenceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
 	connect(config_, SIGNAL(fluorescenceDetectorChoiceChanged(int)), this, SLOT(updateFluorescenceChoiceButtons(int)));
 
@@ -224,7 +228,6 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	xPosition_->setRange(-100, 100);
 	xPosition_->setValue(config_->goToPosition() ? config_->x() : 0);
 	xPosition_->setSuffix(" mm");
-	connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
 	connect(xPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
 	connect(config_, SIGNAL(xPositionChanged(double)), xPosition_, SLOT(setValue(double)));
 
@@ -238,9 +241,10 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	yPosition_->setRange(-100, 100);
 	yPosition_->setValue(config_->goToPosition() ? config_->y() : 0);
 	yPosition_->setSuffix(" mm");
-	connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
 	connect(yPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
 	connect(config_, SIGNAL(yPositionChanged(double)), yPosition_, SLOT(setValue(double)));
+
+	setSampleStage(VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice());
 
 	QHBoxLayout *yLayout = new QHBoxLayout;
 	yLayout->addWidget(yPosition_);
@@ -288,7 +292,9 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 		roiTextBox_->show();
 
 	// Label showing where the data will be saved.
-	QLabel *exportPath = new QLabel(QString("Data exported to: %1exportData").arg(AMUserSettings::userDataFolder));
+	QString exportString =  AMUserSettings::userDataFolder;
+	exportString.remove("/userData");
+	QLabel *exportPath = new QLabel(QString("Data exported to: %1exportData").arg(exportString));
 
 	// Label with a help message for EXAFS.
 	QLabel *helpMessage = new QLabel("Note when using EXAFS: when using variable integration time, the time column is the maximum time.");
@@ -366,31 +372,11 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 void VESPERSEXAFSScanConfigurationView::updateFluorescenceChoiceButtons(int detector)
 {
 	fluorescenceButtonGroup_->button(detector)->setChecked(true);
-
-	switch(detector){
-
-	case 0:
-		config_->setRoiInfoList(AMROIInfoList());
-		roiTextBox_->hide();
-		break;
-
-	case 1:
-		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
-		roiTextBox_->show();
-		break;
-
-	case 2:
-		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
-		roiTextBox_->show();
-		break;
-	}
-
-	updateRoiText();
 }
 
 void VESPERSEXAFSScanConfigurationView::onConfigureXRFDetectorClicked()
 {
-	switch(config_->fluorescenceDetectorChoice()){
+	switch((int)config_->fluorescenceDetectorChoice()){
 
 	case VESPERSEXAFSScanConfiguration::None:
 		break;
@@ -401,6 +387,18 @@ void VESPERSEXAFSScanConfigurationView::onConfigureXRFDetectorClicked()
 
 	case VESPERSEXAFSScanConfiguration::FourElement:
 		emit configureDetector("Four Element");
+		break;
+
+	case VESPERSEXAFSScanConfiguration::SingleElement | VESPERSEXAFSScanConfiguration::FourElement:
+
+		QMenu menu(this);
+		menu.addAction("Single Element");
+		menu.addAction("Four Element");
+		QAction *action = menu.exec(QCursor::pos());
+
+		if (action && (action->text() == "Single Element" || action->text() == "Four Element"))
+			emit configureDetector(action->text());
+
 		break;
 	}
 }
@@ -418,33 +416,16 @@ void VESPERSEXAFSScanConfigurationView::updateI0Buttons(int I0)
 void VESPERSEXAFSScanConfigurationView::onFluorescenceChoiceChanged(int id)
 {
 	config_->setFluorescenceDetectorChoice(id);
-
-	switch(id){
-
-	case 0:
-		config_->setRoiInfoList(AMROIInfoList());
-		roiTextBox_->hide();
-		break;
-
-	case 1:
-		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
-		roiTextBox_->show();
-		break;
-
-	case 2:
-		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
-		roiTextBox_->show();
-		break;
-	}
-
+	roiTextBox_->setVisible(id > 0 ? true : false);
 	updateRoiText();
 }
 
 void VESPERSEXAFSScanConfigurationView::updateRoiText()
 {
-	switch(config_->fluorescenceDetectorChoice()){
+	switch((int)config_->fluorescenceDetectorChoice()){
 
 	case VESPERSEXAFSScanConfiguration::None:
+		config_->setRoiInfoList(AMROIInfoList());
 		break;
 
 	case VESPERSEXAFSScanConfiguration::SingleElement:
@@ -454,13 +435,160 @@ void VESPERSEXAFSScanConfigurationView::updateRoiText()
 	case VESPERSEXAFSScanConfiguration::FourElement:
 		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
 		break;
+
+	case VESPERSEXAFSScanConfiguration::SingleElement | VESPERSEXAFSScanConfiguration::FourElement:{
+
+		AMROIInfoList list;
+		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
+		AMROIInfoList fourElList = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
+
+		for (int i = 0, count = singleElList.count(); i < count; i++)
+			list.append(singleElList.at(i));
+
+		for (int i = 0, count = fourElList.count(); i < count; i++)
+			list.append(fourElList.at(i));
+
+		config_->setRoiInfoList(list);
+		break;
+	}
 	}
 
 	roiText_->clear();
-	roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
 
-	for (int i = 0; i < config_->roiList().count(); i++)
-		roiText_->insertPlainText(GeneralUtilities::addGreek(config_->roiList().at(i).name())+"\t" + QString::number(config_->roiList().at(i).low()) + "\t" + QString::number(config_->roiList().at(i).high()) +"\n");
+	if ((int)config_->fluorescenceDetectorChoice() ==  (VESPERSEXAFSScanConfiguration::SingleElement | VESPERSEXAFSScanConfiguration::FourElement)){
+
+		QList<QPair<int, int> > sameList = findRoiPairs();
+
+		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
+		AMROIInfoList fourElList = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
+
+		if (!sameList.isEmpty()){
+
+			QList<int> singleRoiList;
+			QList<int> fourRoiList;
+
+			roiText_->insertPlainText("Same ROI's\n");
+			roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
+
+			for (int i = 0, count = sameList.size(); i < count; i++){
+
+				QPair<int, int> temp = sameList.at(i);
+				singleRoiList << temp.first;
+				fourRoiList << temp.second;
+				AMROIInfo info = singleElList.at(temp.first);
+				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
+			}
+
+			if (singleRoiList.size() < singleElList.count() || fourRoiList.size() < fourElList.count()){
+
+				roiText_->insertPlainText("\nDifferent ROI's\n");
+
+				if (singleRoiList.size() < singleElList.count()){
+
+					roiText_->insertPlainText("Single Element Vortex\n");
+					roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
+
+					for (int i = 0, count = singleElList.count(); i < count; i++){
+
+						if (!singleRoiList.contains(i)){
+
+							AMROIInfo info = singleElList.at(i);
+							roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
+						}
+					}
+
+					roiText_->insertPlainText("\n");
+				}
+
+				if (fourRoiList.size() < fourElList.count()){
+
+					roiText_->insertPlainText("Four Element Vortex\n");
+					roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
+
+					for (int i = 0, count = fourElList.count(); i < count; i++){
+
+						if (!fourRoiList.contains(i)){
+
+							AMROIInfo info = fourElList.at(i);
+							roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
+						}
+					}
+				}
+			}
+		}
+
+		else {
+
+			roiText_->insertPlainText("Different ROI's\n");
+			roiText_->insertPlainText("Single Element Vortex\n");
+
+			for (int i = 0, count = singleElList.count(); i < count; i++){
+
+				AMROIInfo info = singleElList.at(sameList.at(i).first);
+				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
+			}
+
+			roiText_->insertPlainText("\nFour Element Vortex\n");
+
+			for (int i = 0, count = fourElList.count(); i < count; i++){
+
+				AMROIInfo info = fourElList.at(sameList.at(i).first);
+				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
+			}
+		}
+	}
+
+	else {
+
+		roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
+
+		for (int i = 0; i < config_->roiList().count(); i++)
+			roiText_->insertPlainText(GeneralUtilities::addGreek(config_->roiList().at(i).name())+"\t" + QString::number(config_->roiList().at(i).low()) + "\t" + QString::number(config_->roiList().at(i).high()) +"\n");
+	}
+}
+
+QList<QPair<int, int> > VESPERSEXAFSScanConfigurationView::findRoiPairs() const
+{
+	AMROIInfoList *el1 = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
+	AMROIInfoList *el4 = VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
+	QList<QPair<int, int> > list;
+
+	// Do it the easy way first.  Only possible when the sizes are the same.
+	if (el1->count() == el4->count()){
+
+		bool allLinedUp = true;
+
+		for (int i = 0, count = el1->count(); i < count; i++)
+			if (el1->at(i).name() != el4->at(i).name())
+				allLinedUp = false;
+
+		// If true, this is really straight forward.
+		if (allLinedUp){
+
+			for (int i = 0, count = el1->count(); i < count; i++)
+				list << qMakePair(i, i);
+		}
+
+		// Otherwise, we have to check each individually.  Not all may match and only matches will be added to the list.
+		else {
+
+			for (int i = 0, count = el1->count(); i < count; i++)
+				for (int j = 0; j < count; j++)
+					if (el1->at(i).name() == el4->at(j).name())
+						list << qMakePair(i, j);
+		}
+	}
+
+	// This is the same the above double for-loop but with different boundaries.
+	else {
+
+		for (int i = 0, count1 = el1->count(); i < count1; i++)
+			for (int j = 0, count4 = el4->count(); j < count4; j++)
+				if (el1->at(i).name() == el4->at(j).name())
+					list << qMakePair(i, j);
+	}
+
+	return list;
 }
 
 void VESPERSEXAFSScanConfigurationView::onElementChoiceClicked()
@@ -531,7 +659,7 @@ QString VESPERSEXAFSScanConfigurationView::convertTimeToString(double time)
 
 	if (days > 0){
 
-		time -= time/3600/24;
+		time -= days*3600*24;
 		timeString += QString::number(days) + "d:";
 	}
 
@@ -620,5 +748,27 @@ void VESPERSEXAFSScanConfigurationView::onCustomContextMenuRequested(QPoint pos)
 
 		timeOffsetLabel_->setVisible(!timeOffsetLabel_->isVisible());
 		timeOffset_->setVisible(!timeOffset_->isVisible());
+	}
+}
+
+void VESPERSEXAFSScanConfigurationView::setSampleStage(bool sampleStage)
+{
+	if (sampleStage){
+
+		disconnect(VESPERSBeamline::vespers()->realSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
+		disconnect(VESPERSBeamline::vespers()->realSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
+		connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
+		connect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
+		xPosition_->setValue(VESPERSBeamline::vespers()->pseudoSampleStage()->horizontalPosition());
+		yPosition_->setValue(VESPERSBeamline::vespers()->pseudoSampleStage()->verticalPosition());
+	}
+	else{
+
+		disconnect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
+		disconnect(VESPERSBeamline::vespers()->pseudoSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
+		connect(VESPERSBeamline::vespers()->realSampleStage(), SIGNAL(horizontalSetpointChanged(double)), xPosition_, SLOT(setValue(double)));
+		connect(VESPERSBeamline::vespers()->realSampleStage(), SIGNAL(verticalSetpointChanged(double)), yPosition_, SLOT(setValue(double)));
+		xPosition_->setValue(VESPERSBeamline::vespers()->realSampleStage()->horizontalPosition());
+		yPosition_->setValue(VESPERSBeamline::vespers()->realSampleStage()->verticalPosition());
 	}
 }

@@ -76,6 +76,39 @@ void XRFFreeRun::onRoisHaveValues()
 	}
 }
 
+void XRFFreeRun::setFromXRFFreeRun(const XRFFreeRun *freeRun)
+{
+	xrfTable_->removeAll();
+	other_ = freeRun;
+	QTimer::singleShot(500, this, SLOT(copyRoiHelper()));
+}
+
+void XRFFreeRun::copyRoiHelper()
+{
+	XRFElement *current = xrfTable_->currentElement();
+
+	// Go through all the regions of interest PVs and if there are any regions set already, pass them on to the rest of the program.
+	QString name;
+
+	for (int i = 0; i < other_->detector()->roiList().count(); i++){
+
+		name = other_->detector()->roiList().at(i)->name();
+
+		// If the name is empty then we've reached the end of the road for preset regions of interest.
+		if (name.isEmpty()){
+
+			if (current)
+				xrfTable_->setCurrentElement(current);
+			else
+				xrfTable_->setCurrentElement(xrfTable_->elementBySymbol("Fe"));
+
+			return;
+		}
+
+		addRegionOfInterestToTable(name);
+	}
+}
+
 void XRFFreeRun::onExternalRegionsOfInterestChanged()
 {
 	onRoisHaveValues();

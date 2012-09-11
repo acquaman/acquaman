@@ -27,6 +27,7 @@ AMAnalysisBlock::AMAnalysisBlock(const QString& outputName, QObject* parent)
 {
 	AMDbObject::setName(outputName);
 	state_ = AMDataSource::InvalidFlag;
+	scan_ = 0;
 }
 
 bool AMAnalysisBlock::setInputDataSources(const QList<AMDataSource*>& dataSources) {
@@ -74,5 +75,13 @@ void AMAnalysisBlock::onInputSourceDeleted(void* deletedSource) {
 QWidget* AMAnalysisBlock::createEditorWidget()
 {
 	return new AMSimpleDataSourceEditor(this);
+}
+
+void AMAnalysisBlock::setVisibleInPlots(bool isVisible){
+
+	if(isVisible == visibleInPlots()) return;
+
+	AMDataSource::setVisibleInPlots(isVisible);
+	setModified(true);
 }
 

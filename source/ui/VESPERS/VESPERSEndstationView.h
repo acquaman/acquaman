@@ -92,6 +92,14 @@ public:
 	/// Destructor.
 	~VESPERSEndstationView();
 
+	/// Returns whether or not the view is showing the normal sample stage motor or the y motor.  True is the normal stage and false is the y motor.
+	bool usingNormalMotor() const { return usingNormal_; }
+
+public slots:
+
+	/// Sets whether or not the view is showing the normal sample motor or the y motor.  True is normal stage and false is the y motor.
+	void setUsingNormalMotor(bool use);
+
 protected slots:
 	/// Handles setting the microscope slider without creating a signal/slot loop.
 	void setMicroscopeLight(int val) { micLight_->blockSignals(true); micLight_->setValue(val); micLight_->blockSignals(false); }
@@ -132,8 +140,10 @@ protected slots:
 	void singleElClicked() { endstation_->setCurrent("1-Element Vortex motor"); }
 	/// Handles the 4-el vortex being clicked.
 	void fourElClicked() { endstation_->setCurrent("4-Element Vortex motor"); }
-	/// Handles the focus being clicked.
-	void focusClicked() { endstation_->setCurrent("Normal Sample Stage"); }
+	/// Handles the normal focus being clicked.
+	void normalFocusClicked() { endstation_->setCurrent("Normal Sample Stage"); }
+	/// Handles the y normal focus being clicked.
+	void yFocusClicked() { endstation_->setCurrent("Y (normal) motor"); }
 
 	// Slots handling the feedback updates from the PV.
 	/// Handles the CCD distance update.
@@ -160,8 +170,10 @@ protected slots:
 	void singleElUpdate(double val) { singleElButton_->setText(QString::number(val, 'f', 3) + " mm"); }
 	/// Handles the 4-el vortex distance update.
 	void fourElUpdate(double val) { fourElButton_->setText(QString::number(val, 'f', 3) + " mm"); }
-	/// Handles the focus distance update.
-	void focusUpdate(double val) { focusButton_->setText(QString::number(val, 'f', 3) + " mm"); }
+	/// Handles the normal focus distance update.
+	void normalFocusUpdate(double val) { normalFocusButton_->setText(QString::number(val, 'f', 3) + " mm"); }
+	/// Handles the y focus distance update.
+	void yFocusUpdate(double val) { yFocusButton_->setText(QString::number(val, 'f', 3) + " mm"); }
 
 	/// Starts up a detached process for the microscope screen.  Starts a detached process because the view for the microscope does not depend on the user interface to be active.
 	void startMicroscope() { QProcess::startDetached("/home/vespers/bin/runCameraDisplay"); }
@@ -172,6 +184,9 @@ protected:
 	// Microscope light setup.
 	QSlider *micLight_;
 	QToolButton *lightBulb_;
+
+	// Bool holding whether or not the normal or y motor should be shown.
+	bool usingNormal_;
 
 	// Laser button.
 	QToolButton *laserPowerButton_;
@@ -187,7 +202,8 @@ protected:
 	QToolButton *microscopeButton_;
 	QToolButton *fourElButton_;
 	QToolButton *singleElButton_;
-	QToolButton *focusButton_;
+	QToolButton *normalFocusButton_;
+	QToolButton *yFocusButton_;
 
 	// The endstation model.
 	VESPERSEndstation *endstation_;

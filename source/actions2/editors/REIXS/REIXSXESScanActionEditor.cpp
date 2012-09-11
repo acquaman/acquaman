@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QPushButton>
 #include <QDialog>
+#include <QComboBox>
 
 #include "acquaman/REIXS/REIXSXESScanConfiguration.h"
 #include "ui/REIXS/REIXSXESScanConfigurationView.h"
@@ -38,50 +39,53 @@ REIXSXESScanActionEditor::REIXSXESScanActionEditor(REIXSXESScanActionInfo *info,
 	energy_->setDecimals(3);
 	energy_->setRange(50, 1400);	// todo: restrict to current grating?
 
-	focusOffset_ = new QDoubleSpinBox();
-	focusOffset_->setDecimals(2);
-	focusOffset_->setRange(-1000, 1000);
+//	focusOffset_ = new QDoubleSpinBox();
+//	focusOffset_->setDecimals(2);
+//	focusOffset_->setRange(-1000, 1000);
 
 	tiltOffset_ = new QDoubleSpinBox();
 	tiltOffset_->setDecimals(2);
 	tiltOffset_->setRange(-6, 6);
 	tiltOffset_->setSingleStep(0.1);
 
-	// temp:
-	detectorHeightError_ = new QDoubleSpinBox();
-	detectorHeightError_->setDecimals(2);
-	detectorHeightError_->setSingleStep(0.1);
-	detectorHeightError_->setRange(-20, 20);
-	detectorHeightError_->setValue(info_->xesConfig()->detectorHeightError());
+	grating_ = new QComboBox();
 
 	QPushButton* moreDetailsButton = new QPushButton("More...");
 
 	QHBoxLayout* hl = new QHBoxLayout(this);
 	hl->addWidget(new QLabel("Detector eV"));
 	hl->addWidget(energy_);
-	hl->addWidget(new QLabel("Defocus (mm)"));
-	hl->addWidget(focusOffset_);
+	hl->addWidget(grating_);
 	hl->addWidget(new QLabel("Tilt offset (deg)"));
 	hl->addWidget(tiltOffset_);
-	hl->addWidget(new QLabel("Height error (mm)"));
-	hl->addWidget(detectorHeightError_);
+//	hl->addWidget(new QLabel("Defocus (mm)"));
+//	hl->addWidget(focusOffset_);
 	hl->addStretch();
 	hl->addWidget(moreDetailsButton);
 
 
+	// Initialize from config:
+	// populate the grating drop down.
+	REIXSXESCalibration2 calibration;
+	if(info_->xesConfig()->spectrometerCalibrationId() > 0)
+		calibration.loadFromDb(AMDatabase::database("user"), info_->xesConfig()->spectrometerCalibrationId());
+	for(int i=0; i<calibration.gratingCount(); ++i)
+		grating_->addItem(calibration.gratingAt(i).name());
+
+	grating_->setCurrentIndex(info_->xesConfig()->gratingNumber());
+
 	energy_->setValue(info_->xesConfig()->centerEV());
 	tiltOffset_->setValue(info_->xesConfig()->detectorTiltOffset());
-	focusOffset_->setValue(info_->xesConfig()->defocusDistanceMm());
+//	focusOffset_->setValue(info_->xesConfig()->defocusDistanceMm());
 
 	connect(energy_, SIGNAL(editingFinished()), this, SLOT(onEnergyEditingFinished()));
-	connect(focusOffset_, SIGNAL(editingFinished()), this, SLOT(onFocusOffsetEditingFinished()));
+//	connect(focusOffset_, SIGNAL(editingFinished()), this, SLOT(onFocusOffsetEditingFinished()));
 	connect(tiltOffset_, SIGNAL(editingFinished()), this, SLOT(onTiltOffsetEditingFinished()));
+	connect(grating_, SIGNAL(activated(int)), this, SLOT(onGratingChoiceActivated(int)));
 	connect(moreDetailsButton, SIGNAL(clicked()), this, SLOT(onMoreDetailsButtonClicked()));
 
 	connect(info_->xesConfig(), SIGNAL(configurationChanged()), this, SLOT(onScanConfigurationChanged()));
 
-	// temp:
-	connect(detectorHeightError_, SIGNAL(editingFinished()), this, SLOT(onDetectorHeightErrorEditingFinished()));
 }
 
 void REIXSXESScanActionEditor::onEnergyEditingFinished()
@@ -90,10 +94,10 @@ void REIXSXESScanActionEditor::onEnergyEditingFinished()
 	info_->xesConfig()->setCenterEV(energy_->value());
 }
 
-void REIXSXESScanActionEditor::onFocusOffsetEditingFinished()
-{
-	info_->xesConfig()->setDefocusDistanceMm(focusOffset_->value());
-}
+//void REIXSXESScanActionEditor::onFocusOffsetEditingFinished()
+//{
+//	info_->xesConfig()->setDefocusDistanceMm(focusOffset_->value());
+//}
 
 void REIXSXESScanActionEditor::onTiltOffsetEditingFinished()
 {
@@ -114,7 +118,8 @@ void REIXSXESScanActionEditor::onScanConfigurationChanged()
 {
 	double energy = info_->xesConfig()->centerEV();
 	double tilt = info_->xesConfig()->detectorTiltOffset();
-	double defocus = info_->xesConfig()->defocusDistanceMm();
+//	double defocus = info_->xesConfig()->defocusDistanceMm();
+	int gratingNumber = info_->xesConfig()->gratingNumber();
 
 	if(energy_->value() != energy) {
 		energy_->blockSignals(true);
@@ -126,14 +131,19 @@ void REIXSXESScanActionEditor::onScanConfigurationChanged()
 		tiltOffset_->setValue(tilt);
 		tiltOffset_->blockSignals(false);
 	}
-	if(focusOffset_->value() != defocus) {
-		focusOffset_->blockSignals(true);
-		focusOffset_->setValue(defocus);
-		focusOffset_->blockSignals(false);
+//	if(focusOffset_->value() != defocus) {
+//		focusOffset_->blockSignals(true);
+//		focusOffset_->setValue(defocus);
+//		focusOffset_->blockSignals(false);
+//	}
+	if(grating_->currentIndex() != gratingNumber) {
+		grating_->blockSignals(true);
+		grating_->setCurrentIndex(gratingNumber);
+		grating_->blockSignals(false);
 	}
 }
 
-void REIXSXESScanActionEditor::onDetectorHeightErrorEditingFinished()
+void REIXSXESScanActionEditor::onGratingChoiceActivated(int index)
 {
-	info_->xesConfig()->setDetectorHeightError(detectorHeightError_->value());
+	info_->xesConfig()->setGratingNumber(index);
 }

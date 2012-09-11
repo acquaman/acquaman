@@ -41,19 +41,29 @@ CLSPGTDetector::CLSPGTDetector(const QString &name, const QString &baseName, AMB
 	integrationModeControl_ = new AMPVControl(name+"IntegrationMode", "BL1611-ID-1:AddOns:PGTDwellMode", "BL1611-ID-1:AddOns:PGTDwellMode", "", this, 0.1);
 	integrationModeControl_->setDescription("SDD Integration Mode");
 	integrationModeControl_->setContextKnownDescription("Integration Mode");
+	dwellTriggerControl_ = new AMPVControl(name+"DwellTrigger", "BL1611-ID-1:AddOns:PGTDwellTrigger", "BL1611-ID-1:AddOns:PGTDwellTrigger", "", this, 0.1);
+	dwellTriggerControl_->setDescription("SDD Dwell Trigger");
+	dwellTriggerControl_->setContextKnownDescription("Dwell Trigger");
+
+	AMReadOnlyPVControl *tmpControl = qobject_cast<AMReadOnlyPVControl*>(dataWaveformControl_);
+	spectrumDataSource_ = new AM1DProcessVariableDataSource(tmpControl->readPV(), "Spectrum", this);
 
 	allControls_->addControl(dataWaveformControl_);
 	allControls_->addControl(hvControl_);
 	allControls_->addControl(integrationTimeControl_);
 	allControls_->addControl(integrationModeControl_);
+	allControls_->addControl(dwellTriggerControl_);
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
 	connect(allControls_, SIGNAL(controlSetTimedOut()), this, SLOT(onControlsTimedOut()));
 	connect(signalSource(), SIGNAL(connected(bool)), this, SLOT(onSettingsControlValuesChanged()));
+	connect(signalSource(), SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
 	connect(dataWaveformControl_, SIGNAL(valueChanged(double)), this, SLOT(onReadingsControlValuesChanged()));
+	connect(tmpControl, SIGNAL(valueChanged(double)), this, SIGNAL(totalCountsChanged(double)));
 	connect(hvControl_, SIGNAL(valueChanged(double)), this, SLOT(onSettingsControlValuesChanged()));
 	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(onSettingsControlValuesChanged()));
 	connect(integrationModeControl_, SIGNAL(valueChanged(double)), this, SLOT(onSettingsControlValuesChanged()));
+	connect(dwellTriggerControl_, SIGNAL(valueChanged(double)), this, SLOT(onDwellTriggerChanged(double)));
 
 	if(isConnected()){
 		onReadingsControlValuesChanged();
@@ -95,7 +105,7 @@ QStringList CLSPGTDetector::dacqMove() const{
 
 QStringList CLSPGTDetector::dacqDwell() const{
 	QStringList retVal;
-	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":StartAcquisition.PROC").arg("1");
+//	retVal << QString("%1||=||%2%3||=||%4").arg("SetPV").arg(baseName_).arg(":StartAcquisition.PROC").arg("1");
 	return retVal;
 }
 
@@ -141,6 +151,12 @@ bool CLSPGTDetector::setFromInfo(const CLSPGTDetectorInfo& info){
 	return true;
 }
 
+bool CLSPGTDetector::status() const{
+	if(isConnected() && dwellTriggerControl_->withinTolerance(1))
+		return true;
+	return false;
+}
+
 bool CLSPGTDetector::isPoweredOn(){
 	return poweredOn_;
 }
@@ -182,6 +198,13 @@ AMControl* CLSPGTDetector::integrationModeCtrl() const {
 		return 0;
 }
 
+AMControl* CLSPGTDetector::dwellTriggerControl() const{
+	if(isConnected())
+		return dwellTriggerControl_;
+	else
+		return 0;
+}
+
 
 
 bool CLSPGTDetector::settingsMatchFbk(CLSPGTDetectorInfo *settings){
@@ -202,6 +225,22 @@ QString CLSPGTDetector::description() const{
 	return AMDetectorInfo::description();
 }
 
+QVector<int> CLSPGTDetector::spectraValues()
+{
+	AMReadOnlyPVControl *tmpControl = qobject_cast<AMReadOnlyPVControl*>(dataWaveformControl_);
+	return tmpControl->readPV()->lastIntegerValues();
+}
+
+int CLSPGTDetector::spectraTotalCounts()
+{
+	AMReadOnlyWaveformBinningPVControl *tmpControl = qobject_cast<AMReadOnlyWaveformBinningPVControl*>(dataWaveformControl_);
+	return tmpControl->value();
+}
+
+AMDataSource* CLSPGTDetector::spectrumDataSource() const{
+	return spectrumDataSource_;
+}
+
 void CLSPGTDetector::setDescription(const QString &description){
 	AMDetectorInfo::setDescription(description);
 }
@@ -212,6 +251,11 @@ bool CLSPGTDetector::setControls(CLSPGTDetectorInfo *pgtSettings){
 //	integrationTimeCtrl()->move( pgtSettings->integrationTime() );
 //	integrationModeCtrl()->move( integrationModeCtrl()->enumNames().indexOf(pgtSettings->integrationMode()) );
 	return true;
+}
+
+void CLSPGTDetector::start(){
+	if(isConnected())
+		dwellTriggerControl_->move(1);
 }
 
 void CLSPGTDetector::onControlsConnected(bool connected){
@@ -234,6 +278,17 @@ void CLSPGTDetector::onSettingsControlValuesChanged(){
 			emit poweredOnChanged(poweredOn_);
 		emitSettingsChanged();
 	}
+}
+
+void CLSPGTDetector::onDwellTriggerChanged(double value){
+	Q_UNUSED(value)
+	if(!isConnected())
+		return;
+
+	if(dwellTriggerControl_->withinTolerance(1))
+		emit statusChanged(true);
+	else
+		emit statusChanged(false);
 }
 
 void CLSPGTDetector::onReadingsControlValuesChanged(){

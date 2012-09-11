@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QDoubleSpinBox>
 #include <QPushButton>
+#include <QCheckBox>
 
 /// This class builds a very brief view for the Amptek SDD 123 detector. Its primary function is to show that the detector is working.
 class CLSAmptekSDD123BriefDetectorView : public AMBriefDetectorView
@@ -80,9 +81,13 @@ protected slots:
 	void onDetectorTemperatureChanged(double detectorTemperature);
 	/// Handles changes in the number of MCA Channels
 	void onMCAChannelsChanged(double mcaChannels);
+	/// Handles changes in the spectra's total counts
+	void onTotalCountsChanged(double totalCounts);
 
 	/// Handles button clicks from the start acqusition button
 	void onStartAcquisitionButtonClicked();
+	/// Handles changes to the integration time spin box
+	void onIntegrationTimeDSBEditingFinished();
 
 protected:
 	/*! Sets up the view based with the given detector.
@@ -98,12 +103,16 @@ protected:
 	QLabel *statusLabel_;
 	/// The integration time indicator
 	QDoubleSpinBox *integrationTimeDSB_;
+	/// The total counts in the entire spectra
+	QDoubleSpinBox *totalCountsDSB_;
 	/// The detector temperature indicator
 	QLabel *detectorTemperatureLabel_;
 	/// The MCA Channel indicator
 	QLabel *mcaChannelLabel_;
 	/// The start acquisition button
 	QPushButton *startAcquisitionButton_;
+	/// The enabled indicator
+	QCheckBox *enabledCheckBox_;
 
 	/// This is the plot widget that holds the plot used for viewing the spectra.
 	MPlotWidget *view_;

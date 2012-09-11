@@ -44,8 +44,9 @@ public:
 	void setDefaultValue(double value) { defaultValue_ = value; MPlotAbstractImageData::emitDataChanged(); }
 
 protected:
-	/// Searches for minimum z value
-	virtual qreal minZ() const;
+	/// Searches for minimum and maximum z value; stores in minMaxCache_.  Re-implemented from MPlotAbstractImageData to ignore default values when computing the minimum.
+	virtual void minMaxSearch() const;
+
 
 	/// The default value.
 	qreal defaultValue_;

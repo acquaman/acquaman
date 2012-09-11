@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/REIXS/REIXSXESSpectrometerControlEditor.h"
 #include "beamline/REIXS/REIXSBeamline.h"
 #include "ui/REIXS/REIXSActionBasedControlEditor.h"
-#include "ui/REIXS/REIXSActionBasedEnumControlEditor.h"
 
 
 REIXSSidebar::REIXSSidebar(QWidget *parent) :
@@ -43,10 +42,15 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 	monoSlitEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoSlit());
 	ui->beamlineFormLayout->setWidget(4, QFormLayout::FieldRole, monoSlitEditor_);
 
-	gratingSelector_ = new REIXSActionBasedEnumControlEditor(REIXSBeamline::bl()->photonSource()->monoGratingSelector());
+	gratingSelector_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoGratingSelector());
 	ui->beamlineFormLayout->setWidget(2, QFormLayout::FieldRole, gratingSelector_);
-	mirrorSelector_ = new REIXSActionBasedEnumControlEditor(REIXSBeamline::bl()->photonSource()->monoMirrorSelector());
+	mirrorSelector_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoMirrorSelector());
 	ui->beamlineFormLayout->setWidget(3, QFormLayout::FieldRole, mirrorSelector_);
+
+	epuPolarizationEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->epuPolarization());
+	ui->beamlineFormLayout->setWidget(5, QFormLayout::FieldRole, epuPolarizationEditor_);
+	epuPolarizationAngleEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->epuPolarizationAngle());
+	ui->beamlineFormLayout->setWidget(6, QFormLayout::FieldRole, epuPolarizationAngleEditor_);
 
 
 	// Make connections
@@ -57,6 +61,15 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 
 	connect(ui->beamOnButton, SIGNAL(clicked()), this, SLOT(onBeamOnButtonClicked()));
 	connect(ui->beamOffButton, SIGNAL(clicked()), this, SLOT(onBeamOffButtonClicked()));
+
+	connect(ui->scalerContinuousButton, SIGNAL(clicked(bool)), this, SLOT(onScalerContinuousButtonToggled(bool)));
+	connect(REIXSBeamline::bl()->xasDetectors()->scalerContinuousMode(), SIGNAL(valueChanged(double)), this, SLOT(onScalerContinuousModeChanged(double)));
+
+
+
+	connect(REIXSBeamline::bl()->xasDetectors()->TEYFeedback(), SIGNAL(valueChanged(double)), this, SLOT(onTEYCountsChanged(double)));
+	connect(REIXSBeamline::bl()->xasDetectors()->TFYFeedback(), SIGNAL(valueChanged(double)), this, SLOT(onTFYCountsChanged(double)));
+	connect(REIXSBeamline::bl()->xasDetectors()->I0Feedback(), SIGNAL(valueChanged(double)), this, SLOT(onI0CountsChanged(double)));
 
 	// Get initial status:
 	//////////////////////////
@@ -71,7 +84,7 @@ REIXSSidebar::~REIXSSidebar()
 
 void REIXSSidebar::onMCPCountsPerSecondChanged(double countsPerSecond)
 {
-	ui->signalXESValue->setText(QString("%1").arg(countsPerSecond, 0, 'e', 1));
+	ui->signalXESValue->setText(QString("%1").arg(countsPerSecond, 0, 'f', 0));
 
 	if(countsPerSecond == 0)
 		countsPerSecond = 1;	// log(0) is undefined.
@@ -116,4 +129,37 @@ void REIXSSidebar::onBeamOnChanged(bool isOn)
 		ui->beamlineStatusLED->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
 		ui->beamOffButton->setChecked(true);
 	}
+}
+
+void REIXSSidebar::onTEYCountsChanged(double counts)
+{
+	ui->signalTEYBar->setValue(int(counts*600./1.e6));
+	ui->signalTEYValue->setText(QString::number(counts, 'e', 2));
+}
+
+void REIXSSidebar::onTFYCountsChanged(double counts)
+{
+	ui->signalTFYBar->setValue(int(counts*600./1.e6));
+	ui->signalTFYValue->setText(QString::number(counts, 'e', 2));
+}
+
+void REIXSSidebar::onI0CountsChanged(double counts)
+{
+	ui->signalI0Bar->setValue(int(counts*600./1.e6));
+	ui->signalI0Value->setText(QString::number(counts, 'e', 2));
+}
+
+void REIXSSidebar::onScalerContinuousButtonToggled(bool on)
+{
+	if(on) {
+		REIXSBeamline::bl()->xasDetectors()->scalerContinuousMode()->move(1);
+	}
+	else {
+		REIXSBeamline::bl()->xasDetectors()->scalerContinuousMode()->move(0);
+	}
+}
+
+void REIXSSidebar::onScalerContinuousModeChanged(double on)
+{
+	ui->scalerContinuousButton->setChecked(bool(on));
 }

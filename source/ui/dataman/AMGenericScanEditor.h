@@ -109,12 +109,16 @@ public:
 	void setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange = true);
 	/// Sets the plot range for markers to be displayed on the spectrum view.  Does nothing if not using 2D scan view.
 	void setPlotRange(double low, double high);
+	/// Sets the data source name that should be visualized when using AMSingleSpectrumView inside of AM2DScanView.  Does nothing if not using AM2DScanView.
+	void setSingleSpectrumViewDataSourceName(const QString &name);
 
 signals:
 	/// Internal signal to forward the textChanged() from ui_.notesEdit
 	void notesChanged(const QString&);
 	/// Emits a signal that the data position tool has changed positions.  This is only emitted if AMGenericScanEditor is using AM2DScanView.  Passes a reference to the scan editor and also the position of the mouse.
 	void dataPositionChanged(AMGenericScanEditor *, const QPoint &);
+	/// Notifier that a scan has been added for visualization to the editor.  Passes a reference to the editor for when there are many editors open at a time.
+	void scanAdded(AMGenericScanEditor *, AMScan *);
 
 public slots:
 

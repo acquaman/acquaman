@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMUser.h"
 #include "dataman/AMSamplePlate.h"
 #include "util/AMErrorMonitor.h"
+#include "beamline/CLS/CLSSynchronizedDwellTime.h"
 
 SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	config_ = cfg;
@@ -75,30 +76,30 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 		if(specificScan_->rawDataSources()->at(i)->rank() == 1)
 			raw1DDataSources << specificScan_->rawDataSources()->at(i);
 
-	int rawTeyIndex = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->teyDetector()->description());
-	int rawTfyIndex = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->tfyDetector()->description());
-	int rawI0Index = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->i0Detector()->description());
+	int rawTeyIndex = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->teyDetector()->description().remove(" "));
+	int rawTfyIndex = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->tfyDetector()->description().remove(" "));
+	int rawI0Index = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->i0Detector()->description().remove(" "));
 
 	if(rawTeyIndex != -1 && rawI0Index != -1) {
-		AM1DExpressionAB* teyChannel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->teyDetector()->description()));
+		AM1DExpressionAB* teyChannel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->teyDetector()->description().remove(" ")));
 		teyChannel->setDescription("Normalized TEY");
 		teyChannel->setInputDataSources(raw1DDataSources);
-		teyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->teyDetector()->description()).arg(SGMBeamline::sgm()->i0Detector()->description()));
+		teyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->teyDetector()->description().remove(" ")).arg(SGMBeamline::sgm()->i0Detector()->description().remove(" ")));
 
 		specificScan_->addAnalyzedDataSource(teyChannel);
 	}
 
 	if(rawTfyIndex != -1 && rawI0Index != -1) {
-		AM1DExpressionAB* tfyChannel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->tfyDetector()->description()));
+		AM1DExpressionAB* tfyChannel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->tfyDetector()->description().remove(" ")));
 		tfyChannel->setDescription("Normalized TFY");
 		tfyChannel->setInputDataSources(raw1DDataSources);
-		tfyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->tfyDetector()->description()).arg(SGMBeamline::sgm()->i0Detector()->description()));
+		tfyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->tfyDetector()->description().remove(" ")).arg(SGMBeamline::sgm()->i0Detector()->description().remove(" ")));
 
 		specificScan_->addAnalyzedDataSource(tfyChannel);
 	}
 
 	if(SGMBeamline::sgm()->pgtDetector()){
-		int rawSddIndex = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->pgtDetector()->description());
+		int rawSddIndex = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->pgtDetector()->description().remove(" "));
 		if(rawSddIndex != -1) {
 			AMRawDataSource* sddRaw = specificScan_->rawDataSources()->at(rawSddIndex);
 			AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
@@ -115,7 +116,7 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 				ipfySources.append(raw1DDataSources);
 				ipfySources.append(pfy);
 				ipfyChannel->setInputDataSources(ipfySources);
-				ipfyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->i0Detector()->description()).arg("PFY"));
+				ipfyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->i0Detector()->description().remove(" ")).arg("PFY"));
 
 				specificScan_->addAnalyzedDataSource(ipfyChannel);
 			}
@@ -140,7 +141,7 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 				plyNormSources.append(raw1DDataSources);
 				plyNormSources.append(ply);
 				plyNormChannel->setInputDataSources(plyNormSources);
-				plyNormChannel->setExpression(QString("%1/%2").arg("PLY").arg(SGMBeamline::sgm()->i0Detector()->description()));
+				plyNormChannel->setExpression(QString("%1/%2").arg("PLY").arg(SGMBeamline::sgm()->i0Detector()->description().remove(" ")));
 
 				specificScan_->addAnalyzedDataSource(plyNormChannel);
 			}
@@ -167,6 +168,19 @@ bool SGMXASScanController::beamlineInitialize(){
 	tmpBAction = SGMBeamline::sgm()->scaler()->createTotalScansAction(SGMBeamline::sgm()->scaler()->isContinuous() ? 1 : SGMBeamline::sgm()->scaler()->totalScans());
 	tmpBAction ? cleanUpActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
 
+	for(int x = 0; x < SGMBeamline::sgm()->synchronizedDwellTime()->elementCount(); x++){
+		tmpBAction = SGMBeamline::sgm()->synchronizedDwellTime()->elementAt(x)->createEnableAction(SGMBeamline::sgm()->synchronizedDwellTime()->enabledAt(x));
+		tmpBAction ? cleanUpActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
+	}
+
+	tmpBAction = SGMBeamline::sgm()->createSDD1EnableAction(SGMBeamline::sgm()->isSDD1Enabled());
+	tmpBAction ? cleanUpActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
+	tmpBAction = SGMBeamline::sgm()->createSDD2EnableAction(SGMBeamline::sgm()->isSDD2Enabled());
+	tmpBAction ? cleanUpActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
+
+	tmpBAction = SGMBeamline::sgm()->synchronizedDwellTime()->createMasterTimeAction(SGMBeamline::sgm()->synchronizedDwellTime()->time());
+	tmpBAction ? cleanUpActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
+
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->fastShutterVoltage());
 	tmpAction->setSetpoint(SGMBeamline::sgm()->fastShutterVoltage()->value());
 	cleanUpActions_->appendAction(0, tmpAction);
@@ -178,24 +192,60 @@ bool SGMXASScanController::beamlineInitialize(){
 	initializationActions_ = new AMBeamlineParallelActionsList();
 
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
-	AMBeamlineControlSetMoveAction* tmpSetAction = new AMBeamlineControlSetMoveAction(SGMBeamline::sgm()->fluxResolutionSet());
-	tmpSetAction->setSetpoint((config_->fluxResolutionGroup()));
-	initializationActions_->appendAction(0, tmpSetAction);
 
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->grating());
+	tmpAction->setSetpoint(config_->fluxResolutionGroup().controlNamed(SGMBeamline::sgm()->grating()->name()).value());
+	initializationActions_->appendAction(0, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->exitSlitGap());
+	tmpAction->setSetpoint(config_->fluxResolutionGroup().controlNamed(SGMBeamline::sgm()->exitSlitGap()->name()).value());
+	initializationActions_->appendAction(0, tmpAction);
+
+	bool enableSync = false;
 	for(int x = 0; x < config_->allDetectors()->count(); x++){
-		if(config_->allDetectorConfigurations().isActiveAt(x)){
-			//config_->allDetectors()->detectorAt(x)->setFromInfo(config_->allDetectorConfigurations().detectorInfoAt(x));
+		if( (config_->allDetectors()->detectorAt(x) == SGMBeamline::sgm()->amptekSDD1()) || (config_->allDetectors()->detectorAt(x) == SGMBeamline::sgm()->amptekSDD2()) ){
+			if(config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->amptekSDD1()->detectorName()) != config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->amptekSDD2()->detectorName()))
+				enableSync = true;
+			else if(config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->amptekSDD1()->detectorName()))
+				enableSync = true;
+			else
+				enableSync = false;
+		}
+		else if(config_->allDetectorConfigurations().isActiveAt(x)){
+			enableSync = true;
 			config_->allDetectors()->detectorAt(x)->activate();
 			if(config_->allDetectors()->detectorAt(x)->turnOnAction()){
 //				qdebug() << "Adding HV turn on to initialization actions";
 				initializationActions_->appendAction(0, config_->allDetectors()->detectorAt(x)->turnOnAction());
 			}
 		}
+		else
+			enableSync = false;
+		int syncIndex = SGMBeamline::sgm()->synchronizedDwellTimeDetectorIndex(config_->allDetectors()->detectorAt(x));
+		if( (syncIndex > 1) && (SGMBeamline::sgm()->synchronizedDwellTime()->enabledAt(syncIndex) != enableSync) ){
+			tmpBAction = SGMBeamline::sgm()->synchronizedDwellTime()->elementAt(syncIndex)->createEnableAction(enableSync);
+			tmpBAction ? initializationActions_->appendAction(0, tmpBAction) : cleanupFailed = true;
+		}
 	}
 
-	tmpSetAction = new AMBeamlineControlSetMoveAction(SGMBeamline::sgm()->trackingSet());
-	tmpSetAction->setSetpoint(config_->trackingGroup());
-	initializationActions_->appendAction(0, tmpSetAction);
+	if(config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->amptekSDD1()->detectorName()))
+		tmpBAction = SGMBeamline::sgm()->createSDD1EnableAction(true);
+	else
+		tmpBAction = SGMBeamline::sgm()->createSDD1EnableAction(false);
+	tmpBAction ? initializationActions_->appendAction(0, tmpBAction) : initializationFailed = true;
+	if(config_->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->amptekSDD2()->detectorName()))
+		tmpBAction = SGMBeamline::sgm()->createSDD2EnableAction(true);
+	else
+		tmpBAction = SGMBeamline::sgm()->createSDD2EnableAction(false);
+	tmpBAction ? initializationActions_->appendAction(0, tmpBAction) : initializationFailed = true;
+
+	tmpBAction = SGMBeamline::sgm()->synchronizedDwellTime()->createMasterTimeAction(config_->regionTime(0));
+	tmpBAction ? initializationActions_->appendAction(0, tmpBAction) : initializationFailed = true;
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->nextDwellTimeTrigger());
+	tmpAction->setSetpoint(0);
+	tmpAction ? initializationActions_->appendAction(0, tmpAction) : initializationFailed = true;
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->nextDwellTimeConfirmed());
+	tmpAction->setSetpoint(1);
+	tmpAction ? initializationActions_->appendAction(0, tmpAction) : initializationFailed = true;
 
 	tmpBAction = SGMBeamline::sgm()->scaler()->createStartAction(0);
 	tmpBAction ? initializationActions_->appendAction(0, tmpBAction) : initializationFailed = true;
@@ -208,16 +258,23 @@ bool SGMXASScanController::beamlineInitialize(){
 	tmpBAction = SGMBeamline::sgm()->scaler()->createTotalScansAction(1);
 	tmpBAction ? initializationActions_->appendAction(1, tmpBAction) : initializationFailed = true;
 
-
-
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 
-		tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
-		tmpAction->setSetpoint(config_->startEnergy());
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
+	tmpAction->setSetpoint(config_->startEnergy());
 	initializationActions_->appendAction(2, tmpAction);
 
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
-	initializationActions_->appendAction(3, SGMBeamline::sgm()->createBeamOnActions());
+	AMBeamlineControlSetMoveAction* tmpSetAction = new AMBeamlineControlSetMoveAction(SGMBeamline::sgm()->trackingSet());
+	tmpSetAction->setSetpoint(config_->trackingGroup());
+	initializationActions_->appendAction(3, tmpSetAction);
+
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->harmonic());
+	tmpAction->setSetpoint(config_->fluxResolutionGroup().controlNamed(SGMBeamline::sgm()->harmonic()->name()).value());
+	initializationActions_->appendAction(3, tmpAction);
+
+	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
+	initializationActions_->appendAction(4, SGMBeamline::sgm()->createBeamOnActions());
 
 	beamlineInitialized_ = true;
 	return beamlineInitialized_;

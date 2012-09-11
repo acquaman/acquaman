@@ -63,7 +63,7 @@ class VESPERSEXAFSScanConfiguration : public AMEXAFSScanConfiguration
 
 public:
 	/// Enum for making the decision on what fluorescence detector the user wants to use.
-	enum FluorescenceDetector { None = 0, SingleElement, FourElement };
+	enum FluorescenceDetector { None = 0, SingleElement = 1, FourElement = 2 };
 	/// Enum for the ion chambers.  Used when choosing It and I0.
 	enum IonChamber { Isplit = 0, Iprekb, Imini, Ipost };
 

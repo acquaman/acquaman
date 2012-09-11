@@ -24,7 +24,8 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 {
 	xasRegions()->setEnergyControl(SGMBeamline::sgm()->energy());
 	//regions_->setDefaultTimeControl(SGMBeamline::sgm()->scalerIntegrationTime());
-	regions_->setDefaultTimeControl(SGMBeamline::sgm()->picoammeterDwellTime());
+	//regions_->setDefaultTimeControl(SGMBeamline::sgm()->picoammeterDwellTime());
+	regions_->setDefaultTimeControl(SGMBeamline::sgm()->masterDwell());
 
 	regions_->setSensibleRange(200, 2000);
 	regions_->setDefaultUnits(" eV");
@@ -36,12 +37,13 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	connect(SGMBeamline::sgm(), SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)), this, SLOT(detectorAvailabilityChanged(AMDetector*,bool)));
 
 	allDetectors_ = new AMDetectorSet(this);
+
 	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectors()->count(); x++)
 		allDetectors_->addDetector(SGMBeamline::sgm()->feedbackDetectors()->detectorAt(x), true);
-	for(int x = 0; x < xasDetectors_->count(); x++){
-//		qdebug() << "Adding detector named " << xasDetectors_->detectorAt(x)->detectorName();
+
+	for(int x = 0; x < xasDetectors_->count(); x++)
 		allDetectors_->addDetector(xasDetectors_->detectorAt(x), xasDetectors_->isDefaultAt(x));
-	}
+
 	xasDetectorsCfg_ = xasDetectors_->toInfoSet();
 
 	// default channels removed. Need to come up with new replacement system to create default analysis blocks instead.
@@ -63,7 +65,7 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(const SGMXASScanConfiguration &
 	regions_->setDefaultTimeUnits(original.regions()->defaultTimeUnits());
 
 	for(int x = 0; x < original.regionCount(); x++)
-		regions_->addRegion(x, original.regionStart(x), original.regionDelta(x), original.regionEnd(x));
+		regions_->addRegion(x, original.regionStart(x), original.regionDelta(x), original.regionEnd(x), original.regionTime(x));
 
 	fluxResolutionSet_ = SGMBeamline::sgm()->fluxResolutionSet();
 	trackingSet_ = SGMBeamline::sgm()->trackingSet();
@@ -291,5 +293,4 @@ bool SGMXASScanConfiguration::setDetectorConfigurations(const AMDetectorInfoSet 
 void SGMXASScanConfiguration::detectorAvailabilityChanged(AMDetector *detector, bool isAvailable){
 	Q_UNUSED(detector)
 	Q_UNUSED(isAvailable)
-//	qdebug() << "Detector named " << detector->detectorName() << " is now avaialbe " << isAvailable;
 }

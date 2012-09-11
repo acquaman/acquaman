@@ -90,6 +90,7 @@ public:
 signals:
 
 public slots:
+	void setAdvancedViewVisible(bool advancedViewVisible);
 
 protected slots:
 	/// Sets the time.

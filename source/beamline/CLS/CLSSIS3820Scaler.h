@@ -159,9 +159,15 @@ public:
 	/// Creates an action that will enable/disable the channel based on \param setEnabled.
 	AMBeamlineActionItem* createEnableAction(bool setEnabled);
 
+	/// Returns the custom settable name
+	QString customChannelName() const { return customChannelName_; }
+
 public slots:
 	/// Sets whether the channel is enabled or not.
 	void setEnabled(bool isEnabled);
+
+	/// Sets the custom channel name, default is an empty string
+	void setCustomChannelName(const QString &customChannelName);
 
 signals:
 	/// Notifier that the enabled state of the channel has changed.  Passes the new state.
@@ -187,6 +193,9 @@ protected:
 	AMControl *channelReading_;
 	/// Control set that holds the above two controls.
 	AMControlSet *allControls_;
+
+	/// Holds a custom setable name for the channel
+	QString customChannelName_;
 };
 
 #endif // CLSSIS3820SCALER_H

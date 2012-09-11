@@ -93,6 +93,8 @@ protected slots:
 	void onConfigureRoperDetectorClicked();
 	/// Updates roiText_ based on the current state of the ROI list.
 	void updateRoiText();
+	/// Helper method that returns a list of QPairs where each pair corresponds to the same ROIs.  Used only when using both vortex detectors together.
+	QList<QPair<int, int> > findRoiPairs() const;
 	/// Handles the context menu.
 	void onCustomContextMenuRequested(QPoint pos);
 

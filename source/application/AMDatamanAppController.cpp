@@ -79,21 +79,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DSummingAB.h"
 #include "analysis/AMDeadTimeAB.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
-#include "actions2/AMActionInfo.h"
-#include "actions2/AMActionLog.h"
-#include "actions2/actions/AMWaitActionInfo.h"
-#include "actions2/actions/AMControlMoveActionInfo.h"
-#include "actions2/actions/AMScanControllerActionInfo.h"
 #include "dataman/AM2DScan.h"
 #include "analysis/AM2DNormalizationAB.h"
-
-#include "actions3/AMLoopActionInfo3.h"
-#include "actions3/actions/AMNumberChangeAction.h"
-#include "actions3/AMActionInfo3.h"
-#include "actions3/AMActionLog3.h"
-#include "actions3/actions/AMControlMoveAction3.h"
-#include "actions3/actions/AMScanAction.h"
-#include "actions3/actions/AMSamplePlateMoveAction.h"
+#include "analysis/AM1DNormalizationAB.h"
+#include "analysis/AM2DAdditionAB.h"
+#include "analysis/AM3DAdditionAB.h"
+#include "analysis/AM3DBinningAB.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "ui/dataman/AMDbObjectGeneralView.h"
@@ -108,6 +99,7 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	isStarting_ = true;
 	isShuttingDown_ = false;
 
+	isBadDatabaseDirectory_ = false;
 	finishedSender_ = 0;
 	resetFinishedSignal(this, SIGNAL(datamanStartupFinished()));
 
@@ -122,6 +114,9 @@ bool AMDatamanAppController::startup() {
 
 	AM::registerTypes();
 
+	if(!startupBeforeAnything())
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_BEFORE_ANYTHING, "Problem with Acquaman startup: before any other startup routines.");
+
 	splashScreen_ = new AMDatamanStartupSplashScreen();
 	splashScreen_->show();
 
@@ -129,9 +124,6 @@ bool AMDatamanAppController::startup() {
 	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_FINISHED, splashScreen_, "onErrorMonStartupFinished");
 	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_SUBTEXT, splashScreen_, "onErrorMonDebug");
 	AMErrorMon::subscribeToCode(AMDATAMANAPPCONTROLLER_STARTUP_MODECHANGE, splashScreen_, "onErrorMonChangeMode");
-
-	if(!startupBeforeAnything())
-		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_BEFORE_ANYTHING, "Problem with Acquaman startup: before any other startup routines.");
 
 	if(!startupLoadSettings())
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_LOADING_SETTING, "Problem with Acquaman startup: loading settings.");
@@ -179,7 +171,7 @@ bool AMDatamanAppController::startup() {
 	if(!startupAfterEverything())
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_AFTER_EVERYTHING, "Problem with Acquaman startup: after all other startup routines.");
 
-	emit datamanStartupFinished();	
+	emit datamanStartupFinished();
 
 	isStarting_ = false;
 	return true;
@@ -192,6 +184,14 @@ bool AMDatamanAppController::startupLoadSettings()
 	// Load settings from disk:
 	AMSettings::s()->load();
 	AMUserSettings::load();
+
+	qDebug() << "Comparing directories " << AMUserSettings::userDataFolder << " versus " << QDir::homePath();
+	QString userDatabaseFolder = AMUserSettings::userDataFolder;
+	if(userDatabaseFolder.endsWith('/'))
+		userDatabaseFolder.remove(userDatabaseFolder.count()-1, 1);
+	if(userDatabaseFolder == QDir::homePath())
+		isBadDatabaseDirectory_ = true;
+
 	return true;
 }
 
@@ -266,8 +266,8 @@ bool AMDatamanAppController::startupOnFirstTime()
 	// Loop over the database upgrades and make sure the upgrade table reflects the current starting state
 	bool success = true;
 	AMDbUpgrade *upgrade;
-	for(int x = 0; x < databaseUpgrades_.count(); x++){
-		upgrade = databaseUpgrades_.at(x);
+	for(int x = 0; x < databaseUpgradeCount(); x++){
+		upgrade = databaseUpgradeAt(x);
 		if(!upgrade->loadDatabaseFromName()){
 			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_LOAD_FAILURE, "Failure to load requested databases for initialization of upgrade table");
 			return false;
@@ -317,11 +317,6 @@ bool AMDatamanAppController::startupCreateDatabases()
 	if(!db)
 		return false;
 
-	// Create the Actions database
-	AMDatabase *dbActions = AMDatabase::createDatabase("actions", AMUserSettings::userDataFolder%"/actionsData.db" );
-	if(!dbActions)
-		return false;
-
 	return true;
 }
 
@@ -339,10 +334,10 @@ bool AMDatamanAppController::startupDatabaseUpgrades()
 	int lastErrorCode;
 
 	// Loop over the database upgrades and apply them if necessary
-	for(int x = 0; x < databaseUpgrades_.count(); x++){
+	for(int x = 0; x < databaseUpgradeCount(); x++){
 		upgradeIsNecessary = false;
 		databaseIsEmpty = false;
-		upgrade = databaseUpgrades_.at(x);
+		upgrade = databaseUpgradeAt(x);
 		QString pathToDatabase;
 		QString databaseName;
 
@@ -440,7 +435,6 @@ bool AMDatamanAppController::startupDatabaseUpgrades()
 	return true;
 }
 
-#include "util/SGM/SGMSettings.h"
 bool AMDatamanAppController::startupRegisterDatabases()
 {
 	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: Registering Databases");
@@ -452,16 +446,6 @@ bool AMDatamanAppController::startupRegisterDatabases()
 
 	AMDbObjectSupport::s()->registerDatabase(db);
 
-	// Grab the Action database
-	AMDatabase *dbActions = AMDatabase::database("actions");
-	if(!dbActions)
-		return false;
-
-	// Register the Actions database
-	if(!AMDbObjectSupport::s()->registerDatabase(dbActions)) {
-		//AMErrorMon::alert(this, -702, "Error registering the SGM Database. Please report this problem to the Acquaman developers.");
-		return false;
-	}
 
 	AMDbObjectSupport::s()->registerClass<AMDbObject>();
 	AMDbObjectSupport::s()->registerClass<AMScan>();
@@ -484,6 +468,10 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AM1DSummingAB>();
 	AMDbObjectSupport::s()->registerClass<AMDeadTimeAB>();
 	AMDbObjectSupport::s()->registerClass<AM2DNormalizationAB>();
+	AMDbObjectSupport::s()->registerClass<AM1DNormalizationAB>();
+	AMDbObjectSupport::s()->registerClass<AM2DAdditionAB>();
+	AMDbObjectSupport::s()->registerClass<AM3DAdditionAB>();
+	AMDbObjectSupport::s()->registerClass<AM3DBinningAB>();
 
 	AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
 	AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
@@ -500,22 +488,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 
 	AMDbObjectSupport::s()->registerClass<AMUser>();
 
-	AMDbObjectSupport::s()->registerClass<AMActionInfo>();
-	AMDbObjectSupport::s()->registerClass<AMActionLog>();
-	AMDbObjectSupport::s()->registerClass<AMWaitActionInfo>();
-	AMDbObjectSupport::s()->registerClass<AMControlMoveActionInfo>();
-	AMDbObjectSupport::s()->registerClass<AMScanControllerActionInfo>();
 
-	AMDbObjectSupport::s()->registerClass<AMActionInfo3>();
-	AMDbObjectSupport::s()->registerClass<AMListActionInfo3>();
-	AMDbObjectSupport::s()->registerClass<AMSequentialListActionInfo3>();
-	AMDbObjectSupport::s()->registerClass<AMParallelListActionInfo3>();
-	AMDbObjectSupport::s()->registerClass<AMLoopActionInfo3>();
-	AMDbObjectSupport::s()->registerClass<AMActionLog3>();
-	AMDbObjectSupport::s()->registerClass<AMNumberChangeActionInfo>();
-	AMDbObjectSupport::s()->registerClass<AMControlMoveActionInfo3>();
-	AMDbObjectSupport::s()->registerClass<AMScanActionInfo>();
-	AMDbObjectSupport::s()->registerClass<AMSamplePlateMoveActionInfo>();
 
 	AMDbObjectGeneralViewSupport::registerClass<AMDbObject, AMDbObjectGeneralView>();
 	AMDbObjectGeneralViewSupport::registerClass<AM2DScanConfiguration, AM2DScanConfigurationGeneralView>();
@@ -903,6 +876,12 @@ void AMDatamanAppController::onDataViewItemsExported(const QList<QUrl> &itemUrls
 	// will delete itself when finished
 	AMExportController* exportController = new AMExportController(itemUrls);
 	AMExportWizard* wizard = new AMExportWizard(exportController);
+
+	// Add in any additional databases to look in for exporter options
+	QStringList optionsDatabases = wizard->optionsDatabases();
+	optionsDatabases.append(additionalExporterOptionsDatabases_);
+	wizard->setOptionsDatabases(optionsDatabases);
+
 	wizard->show();
 }
 
@@ -1245,3 +1224,43 @@ void AMDatamanAppController::onActionExportGraphics()
 	}
 }
 
+
+void AMDatamanAppController::getUserDataFolderFromDialog(bool presentAsParentFolder)
+{
+	// Get the current userData folder.
+	AMUserSettings::load();
+	QString initialFolder = AMUserSettings::userDataFolder;
+	initialFolder = QDir::fromNativeSeparators(initialFolder);
+
+	// If the user is supposed to choose the parent folder instead of the actual user data folder:
+	if(presentAsParentFolder) {
+		while(initialFolder.endsWith("/"))
+			initialFolder.chop(1);
+
+		if(initialFolder.endsWith("/userData"))
+			initialFolder.chop(9);
+	}
+
+	QString newFolder = QFileDialog::getExistingDirectory(0, "Choose the folder for your Acquaman data...", initialFolder, QFileDialog::ShowDirsOnly);
+
+	if(newFolder.isEmpty())
+		return;	// user cancelled; do nothing.
+
+	newFolder = QDir::fromNativeSeparators(newFolder);
+	newFolder.append("/");
+
+	// If the user is supposed to choose the parent folder instead of the actual user data folder:
+	if(presentAsParentFolder) {
+		if (!newFolder.endsWith("/userData")){
+			QDir makeNewDir(newFolder);
+			makeNewDir.mkdir("userData");
+			makeNewDir.cd("userData");
+			newFolder = makeNewDir.absolutePath() + "/";
+		}
+	}
+
+	if (newFolder != AMUserSettings::userDataFolder){
+		AMUserSettings::userDataFolder = newFolder;
+		AMUserSettings::save();
+	}
+}

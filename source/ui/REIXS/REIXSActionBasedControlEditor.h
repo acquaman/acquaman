@@ -22,8 +22,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/beamline/AMControlEditor.h"
 
-/// Re-implements AMBasicControlEditor to do its moves inside AMActionRunner with a REIXSControlMoveAction.
-class REIXSActionBasedControlEditor : public AMBasicControlEditor
+/// Re-implements AMControlEditor to do its moves inside AMActionRunner with a REIXSControlMoveAction.
+class REIXSActionBasedControlEditor : public AMControlEditor
 {
     Q_OBJECT
 public:
@@ -32,7 +32,7 @@ public:
 
 
 protected slots:
-	/// Re-implemented from AMBasicControlEditor
+	/// Re-implemented from AMControlEditor
 	virtual void onNewSetpointChosen(double value);
 
 protected:

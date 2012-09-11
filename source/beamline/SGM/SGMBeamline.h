@@ -43,11 +43,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions/AMBeamlineParallelActionsList.h"
 #include "actions/AMBeamlineListAction.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-
 #include "beamline/AMControlSetSampleManipulator.h"
-
 #include "beamline/AMDetectorSet.h"
-
 #include "beamline/AMControlOptimization.h"
 
 #define SGMBEAMLINE_PV_NAME_LOOKUPS_FAILED 312001
@@ -93,6 +90,12 @@ public:
 	};
 	QString sgmEndstationName(SGMBeamline::sgmEndstation endstation) const;
 
+	enum sgmMirrorStripe{
+		carbonStripe = 0,
+		siliconStripe = 1
+	};
+	QString sgmMirrorStripeName(SGMBeamline::sgmMirrorStripe mirrorStripe) const;
+
 	enum sgmTransferType{
 		loadlockOut = 1,
 		loadlockIn,
@@ -104,11 +107,8 @@ public:
 
 	virtual ~SGMBeamline();
 
-	bool isConnected() const {
-		//return criticalControlsSet_->isConnected() && pgtDetector()->isConnected() && oos65000Detector()->isConnected();
-		//return criticalControlsSet_->isConnected() && pgtDetector()->isConnected() && teyScalerDetector_->isConnected();
-		return criticalControlsSet_->isConnected() && criticalDetectorsSet_->isConnected();
-	}
+	bool isConnected() const;
+	bool isReady() const;
 
 	QStringList unconnectedCriticals() const;
 
@@ -141,23 +141,7 @@ public:
 	AMControl* monoTracking() const { return monoTracking_;}
 	AMControl* exitSlitTracking() const { return exitSlitTracking_;}
 
-	QString detectorSignalSource() const {
-		if(detectorSignalSource_->value() == 0)
-			return sgmDetectorSignalSourceName(SGMBeamline::sourcePicoammeters);
-		else if(detectorSignalSource_->value() == 1)
-			return sgmDetectorSignalSourceName(SGMBeamline::sourceScaler);
-		else
-			return sgmDetectorSignalSourceName((SGMBeamline::sgmDetectorSignalSource)272727);
-	}
-
-	QString currentEndstation() const{
-		if(activeEndstation_->value() == 0)
-			return sgmEndstationName(SGMBeamline::scienta);
-		else if(activeEndstation_->value() == 1)
-			return sgmEndstationName(SGMBeamline::ssa);
-		else
-			return sgmEndstationName((SGMBeamline::sgmEndstation)272727);
-	}
+	QString currentEndstation() const;
 
 	AMDetector* teyDetector() const { return teyScalerDetector_;}
 	AMDetector* tfyDetector() const { return tfyScalerDetector_;}
@@ -174,12 +158,11 @@ public:
 	AMDetector* filterPD3ScalarDetector() const { return filterPD3ScalarDetector_;}
 	AMDetector* filterPD4ScalarDetector() const { return filterPD4ScalarDetector_;}
 	AMDetector* amptekSDD1() const { return amptekSDD1_;}
+	bool isSDD1Enabled() const;
+	AMBeamlineActionItem* createSDD1EnableAction(bool setEnabled);
 	AMDetector* amptekSDD2() const { return amptekSDD2_;}
-
-	bool detectorValidForCurrentSignalSource(AMDetector *detector);
-	bool detectorValidForCurrentSignalSource(AMDetectorInfo *detectorInfo);
-	bool usingPicoammeterSource();
-	bool usingScalerSource();
+	bool isSDD2Enabled() const;
+	AMBeamlineActionItem* createSDD2EnableAction(bool setEnabled);
 
 	AMControl* loadlockCCG() const { return loadlockCCG_;}
 	AMControl* loadlockTCG() const { return loadlockTCG_;}
@@ -207,10 +190,22 @@ public:
 	AMControl* scalerIntegrationTime() const { return scalerIntegrationTime_;}
 	AMControl* ssaIllumination() const { return ssaIllumination_;}
 	AMControl* tfyHVToggle() const { return tfyHVToggle_;}
+	/// Returns the mirror selection feedback control (C or Si stripe)
+	AMControl *mirrorStripeSelection() const { return mirrorStripeSelection_;}
+	/// Returns the mirror selection control for Carbon
+	AMControl *mirrorStripeSelectCarbon() const { return mirrorStripeSelectCarbon_;}
+	/// Returns the mirror selection control for Silicon
+	AMControl *mirrorStripeSelectSilicon() const { return mirrorStripeSelectSilicon_;}
+	/// Returns the undulator offset control (for detuning)
+	AMControl *undulatorOffset() const { return undulatorOffset_;}
+	/// Returns the master dwell time for the synchronized dwell time application
+	AMControl *masterDwell() const { return masterDwell_;}
 	CLSCAEN2527HVChannel* hvChannel106() const { return hvChannel106_;}
 	CLSCAEN2527HVChannel* hvChannel109() const { return hvChannel109_;}
 	CLSPGT8000HVChannel* hvChannelPGT() const { return hvChannelPGT_;}
+
 	CLSSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_;}
+	int synchronizedDwellTimeDetectorIndex(AMDetector *detector) const;
 
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
@@ -268,7 +263,7 @@ public:
 	virtual AMControlSet* currentSamplePositioner() { return ssaManipulatorSet(); }
 	virtual QList<AMControlInfoList> currentFiducializations() { return ssaFiducializations(); }
 
-	bool isVisibleLightOn();
+	bool isVisibleLightOn() const;
 
 	bool energyValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double energy);
 	bool energyRangeValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double minEnergy, double maxEnergy);
@@ -290,27 +285,15 @@ public slots:
 
 	void closeVacuum();
 
-	void setDetectorSignalSource(SGMBeamline::sgmDetectorSignalSource detectorSignalSource){
-		if(detectorSignalSource == SGMBeamline::sourcePicoammeters)
-			detectorSignalSource_->move(0);
-		else if(detectorSignalSource == SGMBeamline::sourceScaler)
-			detectorSignalSource_->move(1);
-		return;
-	}
-
-	void setCurrentEndstation(SGMBeamline::sgmEndstation endstation){
-		if(endstation == SGMBeamline::scienta)
-			activeEndstation_->move(0);
-		else if(endstation == SGMBeamline::ssa)
-			activeEndstation_->move(1);
-		return;
-	}
+	void setCurrentEndstation(SGMBeamline::sgmEndstation endstation);
+	void setCurrentMirrorStripe(SGMBeamline::sgmMirrorStripe mirrorStripe);
 
 signals:
 	void beamlineScanningChanged(bool scanning);
 	void controlSetConnectionsChanged();
 	void criticalControlsConnectionsChanged();
 	void criticalConnectionsChanged();
+	void beamlineReadyChanged();
 
 	void visibleLightStatusChanged(const QString& status);
 
@@ -318,8 +301,8 @@ signals:
 
 	void currentSamplePlateChanged(AMSamplePlate *newSamplePlate);
 
-	void detectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource);
 	void currentEndstationChanged(SGMBeamline::sgmEndstation);
+	void currentMirrorStripeChanged(SGMBeamline::sgmMirrorStripe);
 
 	void detectorHVChanged();
 	void detectorAvailabilityChanged(AMDetector *detector, bool available);
@@ -329,12 +312,12 @@ signals:
 protected slots:
 	void onBeamlineScanningValueChanged(double value);
 	void onControlSetConnected(bool csConnected);
-	void onDetectorConnected(bool isConnected);
 	void onCriticalControlsConnectedChanged(bool isConnected, AMControl *controll);
 	void onCriticalsConnectedChanged();
+	void onEnergyValueChanged();
 
-	void onDetectorSignalSourceChanged(double value);
 	void onActiveEndstationChanged(double value);
+	void onMirrorStripeChanged(double value);
 
 	void recomputeWarnings();
 
@@ -375,7 +358,6 @@ protected:
 	AMControl *undulatorTracking_;
 	AMControl *monoTracking_;
 	AMControl *exitSlitTracking_;
-	AMControl *tfyScaler_;
 	AMControl *tfyHV_;
 	AMControl *tfyHVToggle_;
 	CLSCAEN2527HVChannel *hvChannel106_;
@@ -407,8 +389,17 @@ protected:
 	AMControl *visibleLightStatus_;
 	AMControl *activeEndstation_;
 	AMControl *scalerIntegrationTime_;
-	AMControl *detectorSignalSource_;
 	AMControl *ssaIllumination_;
+	/// Control for feedback on the mirror stripe (C or Si)
+	AMControl *mirrorStripeSelection_;
+	/// Control for sending mirror stripe to Carbon
+	AMControl *mirrorStripeSelectCarbon_;
+	/// Control for sending mirror stripe to Silicon
+	AMControl *mirrorStripeSelectSilicon_;
+	/// Control for detuning the undulator
+	AMControl *undulatorOffset_;
+	/// Control for the synchronized dwell time master dwell value
+	AMControl *masterDwell_;
 
 	AMDetector *teyScalerDetector_;
 	AMDetector *tfyScalerDetector_;
@@ -495,40 +486,12 @@ protected:
 
 	AMBiHash<QString, QString> amNames2pvNames_;
 
+	double lastEnergyValue_;
+
 	friend class SGMGratingAction;
 
 private:
 	void usingSGMBeamline();
-};
-
-class SGMFluxOptimization : public AMControlOptimization
-{
-	Q_OBJECT
-public:
-	SGMFluxOptimization(QObject *parent=0);
-
-	virtual QMap<double, double> curve(QList<QVariant> stateParameters, AMRegionsList* contextParameters);
-	QMap< QString, QMap<double, double> > collapse(AMRegionsList *contextParameters);
-
-protected:
-	double collapser(QMap<double, double> optCurve);
-	double maximumEnergy(AMRegionsList* regions);
-	double minimumEnergy(AMRegionsList* regions);
-};
-
-class SGMResolutionOptimization : public AMControlOptimization
-{
-	Q_OBJECT
-public:
-	SGMResolutionOptimization(QObject *parent=0);
-
-	QMap<double, double> curve(QList<QVariant> stateParameters, AMRegionsList* contextParameters);
-	QMap< QString, QMap<double, double> > collapse(AMRegionsList *contextParameters);
-
-protected:
-	double collapser(QMap<double, double> optCurve);
-	double maximumEnergy(AMRegionsList* regions);
-	double minimumEnergy(AMRegionsList* regions);
 };
 
 

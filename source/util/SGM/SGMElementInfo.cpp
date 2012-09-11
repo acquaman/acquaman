@@ -21,6 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "SGMElementInfo.h"
 #include <cmath>
 
+#include "util/AMPeriodicTable.h"
+
 SGMEnergyPosition::SGMEnergyPosition(const QString &name, double energy, int monoEncoderTarget, int undulatorStepSetpoint, double exitSlitDistance, int sgmGrating)
 {
 	setName(name);
@@ -311,6 +313,13 @@ AMOrderedSet<int, SGMFastScanParameters*> SGMElementInfo::availableFastScanParam
 	return availableFastScanParameters_;
 }
 
+bool SGMElementInfo::loadFromDb(AMDatabase *db, int id){
+	bool retVal = AMDbObject::loadFromDb(db, id);
+	if(retVal && availableFastScanParameters_.count() > 0)
+		element_ = AMPeriodicTable::table()->elementByName(availableFastScanParameters_.at(0)->element());
+	return retVal;
+}
+
 bool SGMElementInfo::addEdgeInfo(const SGMScanInfo &edgeInfo){
 	return sgmEdgeInfos_.append(edgeInfo, edgeInfo.edge());
 }
@@ -355,8 +364,6 @@ void SGMElementInfo::dbLoadSGMFastScanParameters(const AMDbObjectList &sgmFastSc
 		SGMFastScanParameters* newFastScanParameter = qobject_cast<SGMFastScanParameters*>(sgmFastScanParameters.at(x));
 		if(newFastScanParameter)
 			availableFastScanParameters_.append(newFastScanParameter, (int)newFastScanParameter->runSeconds());// note: makes a copy of object pointed to by newStandardScanInfo, and stores in our internal list.
-
-		//delete sgmFastScanParameters.at(x); // we're copying these; don't need to keep these ones around. They're our responsibility to delete.
 	}
 }
 
@@ -417,9 +424,24 @@ SGMFastScanSettings& SGMFastScanSettings::operator =(const SGMFastScanSettings &
 	return *this;
 }
 
+bool SGMFastScanSettings::operator ==(const SGMFastScanSettings &other) const{
+	if( fabs(runSeconds() - other.runSeconds()) < 0.01
+			&& motorSettings() == other.motorSettings()
+			&& fabs(scalerTime() - other.scalerTime()) < 0.01
+			&& baseLine() == other.baseLine()
+			&& undulatorVelocity() == other.undulatorVelocity())
+		return true;
+	return false;
+}
+
+bool SGMFastScanSettings::operator !=(const SGMFastScanSettings &other) const{
+	return !(this->operator ==(other));
+}
+
 void SGMFastScanSettings::setRunSeconds(double runSeconds){
 	if(runSeconds_ != runSeconds){
 		runSeconds_ = runSeconds;
+		setModified(true);
 		emit runSecondsChanged(runSeconds_);
 		emit fastScanSettingsChanged();
 	}
@@ -428,6 +450,7 @@ void SGMFastScanSettings::setRunSeconds(double runSeconds){
 void SGMFastScanSettings::setMotorSettings(int motorSettings){
 	if(motorSettings_ != motorSettings){
 		motorSettings_ = motorSettings;
+		setModified(true);
 		emit motorSettingsChanged(motorSettings_);
 		emit fastScanSettingsChanged();
 	}
@@ -436,6 +459,7 @@ void SGMFastScanSettings::setMotorSettings(int motorSettings){
 void SGMFastScanSettings::setScalerTime(double scalerTime){
 	if(scalerTime_ != scalerTime){
 		scalerTime_ = scalerTime;
+		setModified(true);
 		emit scalerTimeChanged(scalerTime_);
 		emit fastScanSettingsChanged();
 	}
@@ -444,6 +468,7 @@ void SGMFastScanSettings::setScalerTime(double scalerTime){
 void SGMFastScanSettings::setBaseLine(int baseLine){
 	if(baseLine_ != baseLine){
 		baseLine_ = baseLine;
+		setModified(true);
 		emit baseLineChanged(baseLine_);
 		emit fastScanSettingsChanged();
 	}
@@ -452,6 +477,7 @@ void SGMFastScanSettings::setBaseLine(int baseLine){
 void SGMFastScanSettings::setUndulatorVelocity(int undulatorVelocity){
 	if(undulatorVelocity_ != undulatorVelocity){
 		undulatorVelocity_ = undulatorVelocity;
+		setModified(true);
 		emit undulatorVelocityChanged(undulatorVelocity_);
 		emit fastScanSettingsChanged();
 	}
@@ -465,6 +491,16 @@ SGMFastScanParameters::SGMFastScanParameters(const QString &name, const QString 
 
 	setScanInfo(scanInfo);
 	setFastScanSettings(fastScanSettings);
+}
+
+SGMFastScanParameters& SGMFastScanParameters::operator =(const SGMFastScanParameters &other){
+	if(this != &other){
+		AMDbObject::operator=(other);
+		setElement(other.element());
+		setScanInfo(other.scanInfo());
+		setFastScanSettings(other.fastScanSettings());
+	}
+	return *this;
 }
 
 bool SGMFastScanParameters::operator ==(const SGMFastScanParameters &other){
@@ -670,6 +706,7 @@ void SGMFastScanParameters::setEndPosition(const SGMEnergyPosition &end){
 void SGMFastScanParameters::setFastScanSettings(const SGMFastScanSettings &fastScanSettings){
 	disconnect(&fastScanSettings_, 0);
 	fastScanSettings_ = fastScanSettings;
+	setModified(true);
 	connect(&fastScanSettings_, SIGNAL(runSecondsChanged(double)), this, SIGNAL(runSecondsChanged(double)));
 	connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(velocityChanged(int)));
 	connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(velocityBaseChanged(int)));

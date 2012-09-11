@@ -63,21 +63,21 @@ REIXSSampleChamberButtonPanel::REIXSSampleChamberButtonPanel(QWidget *parent) :
 	ui->sampleCCW->setStepSizes(QList<double>() << 1 << 5 << 10 << 45 << 90);
 	ui->sampleCCW->setStepSizeIndex(1);
 
-	ui->loadLockCW->setControl(chamber->loadLockR());
-	ui->loadLockCW->setStepSizes(QList<double>() << 1 << 5 << 10 << 45 << 90);
-	ui->loadLockCW->setStepSizeIndex(1);
-	ui->loadLockCCW->setControl(chamber->loadLockR());
-	ui->loadLockCCW->setStepSizes(QList<double>() << 1 << 5 << 10 << 45 << 90);
-	ui->loadLockCCW->setDirectionReversed(true);
-	ui->loadLockCCW->setStepSizeIndex(1);
+//	ui->loadLockCW->setControl(chamber->loadLockR());
+//	ui->loadLockCW->setStepSizes(QList<double>() << 1 << 5 << 10 << 45 << 90);
+//	ui->loadLockCW->setStepSizeIndex(1);
+//	ui->loadLockCCW->setControl(chamber->loadLockR());
+//	ui->loadLockCCW->setStepSizes(QList<double>() << 1 << 5 << 10 << 45 << 90);
+//	ui->loadLockCCW->setDirectionReversed(true);
+//	ui->loadLockCCW->setStepSizeIndex(1);
 
-	ui->loadLockZup->setControl(chamber->loadLockZ());
-	ui->loadLockZup->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
-	ui->loadLockZup->setStepSizeIndex(2);
-	ui->loadLockZdown->setControl(chamber->loadLockZ());
-	ui->loadLockZdown->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
-	ui->loadLockZdown->setDirectionReversed(true);
-	ui->loadLockZdown->setStepSizeIndex(2);
+//	ui->loadLockZup->setControl(chamber->loadLockZ());
+//	ui->loadLockZup->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
+//	ui->loadLockZup->setStepSizeIndex(2);
+//	ui->loadLockZdown->setControl(chamber->loadLockZ());
+//	ui->loadLockZdown->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
+//	ui->loadLockZdown->setDirectionReversed(true);
+//	ui->loadLockZdown->setStepSizeIndex(2);
 
 	connect(ui->stopAll, SIGNAL(clicked()), this, SLOT(onStopButtonClicked()));
 }

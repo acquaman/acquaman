@@ -95,6 +95,9 @@ VESPERSXRFFreeRunView::VESPERSXRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowM
 	connect(configureButton, SIGNAL(clicked()), scroll, SLOT(show()));
 	connect(configureButton, SIGNAL(clicked()), scroll, SLOT(raise()));
 
+	QPushButton *copyROIsButton = new QPushButton(QIcon(":/22x22/preferences-desktop-theme.png"), "Copy ROIs");
+	connect(copyROIsButton, SIGNAL(clicked()), xrfFreeRun_, SLOT(onCopyRoisRequested()));
+
 	// Control options for the detector.
 	start_ = new QToolButton;
 	start_->setIcon(QIcon(":/play_button_green.png"));
@@ -220,6 +223,7 @@ VESPERSXRFFreeRunView::VESPERSXRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowM
 	controlLayout->addWidget(peakingTime_);
 	controlLayout->addWidget(pileUpGroupBox);
 	controlLayout->addStretch();
+	controlLayout->addWidget(copyROIsButton);
 	controlLayout->addWidget(sortButton);
 	controlLayout->addWidget(configureButton);
 

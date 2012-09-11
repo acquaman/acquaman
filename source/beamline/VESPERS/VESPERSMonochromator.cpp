@@ -32,6 +32,10 @@ VESPERSMonochromator::VESPERSMonochromator(QObject *parent) :
 	allowScan_ = new AMSinglePVControl("Scan Allow Control", "07B2_Mono_ScanSineB", this, 0.1);
 	encoder_ = new AMSinglePVControl("Energy Encoder Precision", "07B2_Mono_SineB_Use_eV", this,  0.1);
 
+	((AMPVwStatusControl *)Eo_)->setMoveStartTolerance(20);
+	((AMPVwStatusControl *)energy_)->setMoveStartTolerance(20);
+	((AMPVwStatusControl *)delE_)->setMoveStartTolerance(20);
+
 	connect(Eo_, SIGNAL(setpointChanged(double)), this, SIGNAL(EoChanged(double)));
 	connect(energy_, SIGNAL(setpointChanged(double)), this, SIGNAL(EaChanged(double)));
 	connect(energy_, SIGNAL(valueChanged(double)), this, SIGNAL(energyChanged(double)));

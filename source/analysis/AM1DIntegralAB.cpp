@@ -174,7 +174,7 @@ bool AM1DIntegralAB::canAnalyze(const QString &name) const
 	return false;
 }
 
-AMNumber AM1DIntegralAB::value(const AMnDIndex& indexes, bool doBoundsChecking) const{
+AMNumber AM1DIntegralAB::value(const AMnDIndex& indexes) const{
 	if(indexes.rank() != 1)
 		return AMNumber(AMNumber::DimensionError);
 
@@ -184,9 +184,10 @@ AMNumber AM1DIntegralAB::value(const AMnDIndex& indexes, bool doBoundsChecking) 
 	if (!canAnalyze())
 		return AMNumber(AMNumber::InvalidError);
 
-	if(doBoundsChecking)
+#ifdef AM_ENABLE_BOUNDS_CHECKING
 		if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
 			return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 	AMNumber rv = cachedValues_.at(indexes.i());
 	// if we haven't calculated this sum yet, the cached value will be invalid. Sum and store.
@@ -197,10 +198,10 @@ AMNumber AM1DIntegralAB::value(const AMnDIndex& indexes, bool doBoundsChecking) 
 
 		// Implementing Int[f(x)] ~ 1/2 * SUM {(x[i+1] - x[i])*(f(x[i+1]) + f(x[i])) }
 		if ((unsigned)index == ((unsigned)axes_.at(0).size - 1))
-			newVal = 0.5*(double(inputSource_->axisValue(0, index, doBoundsChecking))-double(inputSource_->axisValue(0, index-1, doBoundsChecking)))*(double(inputSource_->value(index, doBoundsChecking)) + double(inputSource_->value(index-1, doBoundsChecking)));
+			newVal = 0.5*(double(inputSource_->axisValue(0, index))-double(inputSource_->axisValue(0, index-1)))*(double(inputSource_->value(index)) + double(inputSource_->value(index-1)));
 
 		else
-			newVal = 0.5*(double(inputSource_->axisValue(0, index+1, doBoundsChecking))-double(inputSource_->axisValue(0, index, doBoundsChecking)))*(double(inputSource_->value(index+1, doBoundsChecking)) + double(inputSource_->value(index, doBoundsChecking)));
+			newVal = 0.5*(double(inputSource_->axisValue(0, index+1))-double(inputSource_->axisValue(0, index)))*(double(inputSource_->value(index+1)) + double(inputSource_->value(index)));
 
 		if (index != 0)
 			newVal += double(value(AMnDIndex(index-1)));
@@ -215,7 +216,71 @@ AMNumber AM1DIntegralAB::value(const AMnDIndex& indexes, bool doBoundsChecking) 
 		return rv;
 }
 
-AMNumber AM1DIntegralAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const{
+bool AM1DIntegralAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+{
+	if(indexStart.rank() != 1 || indexEnd.rank() != 1)
+		return false;
+
+	if(!isValid())
+		return false;
+
+	if (!canAnalyze())
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i())
+		return false;
+#endif
+
+	int totalSize = indexStart.totalPointsTo(indexEnd);
+	int offset = indexStart.i();
+
+	QVector<double> data = QVector<double>(totalSize);
+	QVector<double> axis = QVector<double>(totalSize);
+
+	AMAxisInfo axisInfo = inputSource_->axisInfoAt(0);
+
+	inputSource_->values(indexStart, indexEnd, data.data());
+
+	// This is much faster because we can compute all the axis values ourselves rather than ask for them one at a time.
+	if (axisInfo.isUniform){
+
+		double axisStart = double(axisInfo.start);
+		double axisStep = double(axisInfo.increment);
+
+		for (int i = 0; i < totalSize; i++)
+			axis[i] = axisStart + (i+offset)*axisStep;
+	}
+
+	else {
+
+		// Fill the axis vector.  Should minimize the overhead of making the same function calls and casting the values multiple times.
+		for (int i = 0; i < totalSize; i++)
+			axis[i] = inputSource_->axisValue(0, i+offset);
+	}
+
+	// Implementing Int[f(x)] ~ 1/2 * SUM {(x[i+1] - x[i])*(f(x[i+1]) + f(x[i])) }
+	if (offset == 0)
+		outputValues[0] = 0.5*((axis.at(1)-axis.at(0))*data.at(1)+data.at(0));
+
+	// If we are not at the very start, then we need to call the value(-1) which could be very expensive if the cached value is not valid.
+	else
+		outputValues[0] = 0.5*((axis.at(1)-axis.at(0))*data.at(1)+data.at(0)) + double(value(AMnDIndex(offset-1)));
+
+	for (int i = 1, count = totalSize-1; i < count; i++)
+		outputValues[i] = 0.5*((axis.at(i+1)-axis.at(i))*data.at(i+1)+data.at(i)) + outputValues[i-1];
+
+	outputValues[totalSize-1] = 0.5*((axis.at(totalSize-1)-axis.at(totalSize-2))*data.at(totalSize-1)+data.at(totalSize-2)) + outputValues[totalSize-2];
+
+	for (int i = 0; i < totalSize; i++)
+		cachedValues_[i+offset] = AMNumber(outputValues[i]);
+
+	cacheCompletelyInvalid_ = false;
+
+	return true;
+}
+
+AMNumber AM1DIntegralAB::axisValue(int axisNumber, int index) const{
 
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
@@ -223,7 +288,7 @@ AMNumber AM1DIntegralAB::axisValue(int axisNumber, int index, bool doBoundsCheck
 	if(axisNumber != 0)
 		return AMNumber(AMNumber::DimensionError);
 
-	return inputSource_->axisValue(0, index, doBoundsChecking);
+	return inputSource_->axisValue(0, index);
 
 }
 

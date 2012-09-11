@@ -77,7 +77,7 @@ public:
 	/// Indicates that this control \em should (assuming it's connected) be able to issue stop() commands while moves are in progress.  Bi-state controls cannot be stopped.
 	virtual bool shouldStop() const { return false; }
 	/// Indicates that this control is currently moving.  For a bi-state control this is defined as the "Between".
-	virtual bool isMoving() const { return (*statusChecker_)(statePV_->getInt()) || moveInProgress_; }
+	virtual bool isMoving() const { return (*statusChecker_)(statePV_->getInt()); }
 
 	/// Indicates that this control is moving (as a result of a move you specifically requested)
 	virtual bool moveInProgress() const { return moveInProgress_; }
@@ -123,47 +123,31 @@ public:
 	/// Returns the PV name of the close PV.
 	QString closePVName() const { return closePV_->pvName(); }
 
+
+	/// Returns the alarm severity for the statePV:
+	virtual int alarmSeverity() const { return statePV_->alarmSeverity(); }
+	/// Returns the alarm status for the statePV:
+	virtual int alarmStatus() const { return statePV_->alarmStatus(); }
+
 signals:
 	/// Notifies that the statePV_ has changed and passes on the state.
 	void stateChanged(int);
 
 public slots:
-	/// This is used to move the control to a setpoint.  Must reimplement for actual controls
-	virtual void move(double setpoint)
+	/// This is used to move the control to a setpoint.
+	virtual FailureExplanation move(double setpoint)
 	{
 		if ((int)setpoint == 1)
-			open();
+			return open();
 		else if ((int)setpoint == 0)
-			close();
+			return close();
 		else
-			emit moveFailed(AMControl::OtherFailure);
+			return OtherFailure;
 	}
 	/// Opens the control.  This activates the control and moves it to the "Open" state.  Synonomous with move(1).
-	void open() {
-		setpoint_ = 1;
-		emit movingChanged(moveInProgress_ = true);
-		emit moveStarted();
-		// in position already?
-		if(inPosition()) {
-			emit movingChanged(moveInProgress_ = false);
-			emit moveSucceeded();
-		}
-
-		openPV_->setValue(1);
-	}
+	FailureExplanation open();
 	/// Closes the control.  This deactivates the control and moves it to the "Closed" state.  Synonomous with move(0).
-	void close() {
-		setpoint_ = 0;
-		emit movingChanged(moveInProgress_ = true);
-		emit moveStarted();
-		// in position already?
-		if(inPosition()) {
-			emit movingChanged(moveInProgress_ = false);
-			emit moveSucceeded();
-		}
-
-		closePV_->setValue(1);
-	}
+	FailureExplanation close();
 
 	// cannot stop() these kinds of controls.
 

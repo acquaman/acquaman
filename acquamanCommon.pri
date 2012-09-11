@@ -22,12 +22,14 @@ macx {
 		DEV_PATH = dev
 
 		# EPICS Dependencies:
-				EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include \
-								$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include/os/Darwin
-				EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/lib/darwin-x86
+		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include \
+				$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include/os/Darwin
+		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/lib/darwin-x86
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
+
 		GSL_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/include
 
 		# GSL Dependencies
@@ -41,6 +43,10 @@ macx {
 		# LibXML Dependencies (required by dacq library)
 		XML_LIB = -lxml2
 		XML_INCLUDE_DIR = /usr/include/libxml2
+
+		# CDFlib dependencies
+		CDF_LIB = /Applications/cdf34_0-dist/lib/libcdf.a
+		CDF_INCLUDE_DIR = /Applications/cdf34_0-dist/include
 }
 linux-g++ {
 
@@ -53,7 +59,8 @@ linux-g++ {
 		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/epics/base/lib/linux-x86
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
 
 		# GSL Dependencies
 		GSL_LIB = -lgsl
@@ -62,6 +69,10 @@ linux-g++ {
 		# LibXML Dependencies (required by dacq library)
 		XML_LIB = -lxml2
 		XML_INCLUDE_DIR = /usr/include/libxml2
+
+		#CDFLib dependencies
+		CDF_LIB = -lcdf
+		CDF_INCLUDE_DIR = /usr/local/include
 }
 linux-g++-32 {
 
@@ -77,7 +88,8 @@ linux-g++-32 {
 		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/epics/base/lib/linux-x86
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
 
 		# GSL Dependencies
 		GSL_LIB = -lgsl
@@ -90,6 +102,14 @@ linux-g++-32 {
 		# LibXML Dependencies (required by dacq library)
 		XML_LIB = -lxml2
 		XML_INCLUDE_DIR = /usr/include/libxml2
+
+		# CDFlib dependencies
+		CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
+		CDF_LIB = -L$$CDF_LIB_DIR -lcdf
+		CDF_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/include
+
+		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$CDF_LIB_DIR"
+		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$CDF_LIB_DIR"
 }
 # The following works well for CLS beamline OPI machines, built using VMSL54.cs.clsi.ca
 
@@ -104,7 +124,8 @@ linux-g++-64 {
 		EPICS_LIB_DIR = /home/epics/src/R3.14.12/base/lib/linux-x86_64
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
 
 		# GSL Dependencies
 		GSL_INCLUDE_DIR = /home/beamline/tools/gsl/gsl-1.14-install/include
@@ -118,6 +139,15 @@ linux-g++-64 {
 		# LibXML Dependencies (required by dacq library)
 		XML_LIB = -lxml2
 		XML_INCLUDE_DIR = /usr/include/libxml2
+
+		# CDFlib dependencies
+		CDF_LIB_DIR = /home/beamline/tools/cdf/lib
+		CDF_LIB = -L$$CDF_LIB_DIR -lcdf
+		CDF_INCLUDE_DIR = /home/beamline/tools/cdf/include
+
+		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$CDF_LIB_DIR"
+		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$CDF_LIB_DIR"
+
 }
 
 # Special build paths and options for running on the Jenkins auto-build server (currently at http://beamteam.usask.ca:8080)
@@ -134,7 +164,9 @@ CONFIG(jenkins_build) {
 		EPICS_LIB_DIR = /home/mark/dev/epics/base/lib/linux-x86
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/src"
+		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/include"
+		MPLOT_LIB_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/lib"
+
 }
 
 
@@ -153,72 +185,38 @@ INCLUDEPATH += $$EPICS_INCLUDE_DIRS \
 		$$MPLOT_INCLUDE_DIR \
 		$$GSL_INCLUDE_DIR \
 		$$XML_INCLUDE_DIR \
-		$$QWTPLOT3D_INCLUDE_DIR
+		$$QWTPLOT3D_INCLUDE_DIR \
+		$$CDF_INCLUDE_DIR
 
 LIBS += $$GSL_LIB \
 		$$GSL_CBLAS_LIB \
+		-L$$MPLOT_LIB_DIR -lMPlot \
 		$$XML_LIB \
-	#-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
-		-L$$EPICS_LIB_DIR -lca -lCom
+#		-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
+		-L$$EPICS_LIB_DIR -lca -lCom \
+		$$CDF_LIB
+
+DEFINES += AM_ENABLE_BOUNDS_CHECKING
+
 
 # Set standard level of compiler warnings for everyone. (Otherwise the warnings shown will be system-dependent.)
 QMAKE_CXXFLAGS += -Wextra
 
-# Specify runtime search locations for libraries (Must change for release bundle, if epics in a different location)
-macx {
-# For Qt 4.7.1 and earlier, need to use
+# Specify RPATH (runtime library search paths) so that libraries can be found without requiring LD_LIBRARY_PATH
+# For Qt 4.7.1 and earlier, need to use this instead:
 								#QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
 								#QMAKE_LFLAGS_RPATH += "$$QWTPLOT3D_LIB_DIR"
-# instead of this:
+QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
+QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 
-		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
-		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
-#		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QWTPLOT3D_LIB_DIR"
-#		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QWTPLOT3D_LIB_DIR"
-}
-
-
-linux-g++ {
-				#QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
-				#QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
-				QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
-				QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
-}
-linux-g++-32 {
-				#QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
-				#QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
-				QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
-				QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
-}
-linux-g++-64 {
-				#QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
-				#QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
-				QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
-				QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
-}
+QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$MPLOT_LIB_DIR"
+QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$MPLOT_LIB_DIR"
 
 
 # Source Files (Acquaman Framework Common)
 #######################
 
-HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAbstractTool.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxis.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxisScale.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorMap.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotImage.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotImageData.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotItem.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotLegend.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarker.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotPoint.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotRectangle.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeries.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeriesData.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotTools.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotWidget.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarkerTransparentVerticalRectangle.h \
-	source/acquaman/AMAcqScanOutput.h \
+HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/acquaman/AMAcqScanSpectrumOutput.h \
 	source/acquaman/AMDacqScanController.h \
 	source/acquaman/AMRegion.h \
@@ -246,6 +244,7 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/acquaman/dacq3_3/qepicsacqlocal.h \
 	source/acquaman/dacq3_3/qepicsadvacq.h \
 	source/application/AMAppController.h \
+	source/application/AMAppControllerForActions2.h \
 	source/util/AMBiHash.h \
 	source/util/AMErrorMonitor.h \
 	source/util/AMSettings.h \
@@ -430,7 +429,6 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/dataman/datasource/AMXYScatterPVDataSource.h \
 	source/beamline/AMCompositeControl.h \
 	source/ui/CLS/CLSSynchronizedDwellTimeView.h \
-	source/analysis/AM2DDeadTimeAB.h \
 	source/dataman/VESPERS/VESPERSXASDataLoader.h \
 	source/dataman/AMFileLoaderInterface.h \
 	source/ui/util/AMSettingsView.h \
@@ -512,7 +510,6 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/util/AMJoystick.h \
 	source/ui/util/AMJoystickTestView.h \
 	source/ui/dataman/AMControlInfoListTableView.h \
-	source/ui/beamline/AMBasicEnumControlEditor.h \
 	source/acquaman/AM2DDacqScanController.h \
 	source/acquaman/AM2DScanConfiguration.h \
 	source/dataman/AM2DScan.h \
@@ -530,7 +527,6 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/dataman/datasource/AMDataSourceImageDatawDefault.h \
 	source/actions/AMBeamline2DScanAction.h \
 	source/ui/acquaman/AM2DScanConfigurationViewHolder.h \
-	source/util/AMFetchSpectrumThread.h \
 	source/util/AMDataSourcePlotSettings.h \
 	source/util/AMSelectablePeriodicTable.h \
 	source/ui/util/AMSelectablePeriodicTableView.h \
@@ -569,8 +565,9 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/analysis/AM1DNormalizationAB.h \
 	source/analysis/AM1DNormalizationABEditor.h \
 	source/ui/AMAddAnalysisBlockDialog.h \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorLegend.h \
 	source/ui/acquaman/AMScanConfigurationViewHolder3.h \
+	source/dataman/datastore/AMCDFDataStore.h \
+	source/util/amlikely.h \
 	source/actions2/actions/AMChangeRunAction.h \
 	source/actions2/actions/AMChangeRunActionInfo.h \
 	source/actions2/editors/AMChangeRunActionEditor.h \
@@ -579,7 +576,24 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/actions3/actions/AMSamplePlateMoveAction.h \
 	source/actions3/editors/AMSamplePlateMoveActionEditor.h \
 	source/qttelnet/qttelnet.h \
-	source/beamline/CLS/CLSProcServManager.h
+	source/beamline/CLS/CLSProcServManager.h \
+	source/dataman/REIXS/REIXSXESCalibration2.h \
+	source/ui/beamline/AMExtendedControlEditor.h \
+	source/ui/beamline/AMControlButton.h \
+	source/dataman/info/AMControlInfo.h \
+	source/dataman/AMLineScan.h \
+	source/acquaman/AMSA1DScanController.h \
+	source/acquaman/AMSADetector.h \
+	source/acquaman/CLS/CLSSIS3820ScalerSADetector.h \
+	source/ui/dataman/AMRegionScanConfigurationView.h \
+    source/ui/dataman/AMSampleSelector.h \
+    source/ui/AMTopFrame2.h \
+    source/application/AMDatamanAppControllerForActions2.h \
+    source/application/AMDatamanAppControllerForActions3.h \
+    source/analysis/AM2DAdditionAB.h \
+    source/analysis/AM3DAdditionAB.h \
+    source/analysis/AM3DBinningAB.h \
+    source/analysis/AM3DBinningABEditor.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -614,26 +628,10 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/dataman/AMImagePropertyEditor.ui \
 	source/ui/actions2/AMAddActionDialog.ui \
 	source/ui/util/AMJoystickTestView.ui \
-	source/ui/actions3/AMAddActionDialog3.ui
+	source/ui/actions3/AMAddActionDialog3.ui \
+    source/ui/AMTopFrame2.ui
 
-SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAbstractTool.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxis.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotAxisScale.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorMap.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotImage.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotImageData.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotItem.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotLegend.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarker.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotPoint.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotRectangle.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeries.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotSeriesData.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotTools.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotWidget.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotMarkerTransparentVerticalRectangle.cpp \
-	source/acquaman/AMAcqScanOutput.cpp \
+SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/AMAcqScanSpectrumOutput.cpp \
 	source/acquaman/AMDacqScanController.cpp \
 	source/acquaman/AMRegion.cpp \
@@ -667,6 +665,7 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/acquaman/dacq3_3/xmlRead.cpp \
 	source/acquaman/dacq3_3/xmlWrite.cpp \
 	source/application/AMAppController.cpp \
+	source/application/AMAppControllerForActions2.cpp \
 	source/util/AMErrorMonitor.cpp \
 	source/util/AMSettings.cpp \
 	source/beamline/AMBeamline.cpp \
@@ -839,7 +838,6 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/dataman/datasource/AMXYScatterPVDataSource.cpp \
 	source/beamline/AMCompositeControl.cpp \
 	source/ui/CLS/CLSSynchronizedDwellTimeView.cpp \
-	source/analysis/AM2DDeadTimeAB.cpp \
 	source/dataman/VESPERS/VESPERSXASDataLoader.cpp \
 	source/ui/util/AMSettingsView.cpp \
 	source/dataman/AMScanDictionary.cpp \
@@ -912,7 +910,6 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/util/AMJoystick.cpp \
 	source/ui/util/AMJoystickTestView.cpp \
 	source/ui/dataman/AMControlInfoListTableView.cpp \
-	source/ui/beamline/AMBasicEnumControlEditor.cpp \
 	source/acquaman/AM2DDacqScanController.cpp \
 	source/acquaman/AM2DScanConfiguration.cpp \
 	source/dataman/AM2DScan.cpp \
@@ -929,7 +926,6 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/dataman/datasource/AMDataSourceImageDatawDefault.cpp \
 	source/actions/AMBeamline2DScanAction.cpp \
 	source/ui/acquaman/AM2DScanConfigurationViewHolder.cpp \
-	source/util/AMFetchSpectrumThread.cpp \
 	source/util/AMSelectablePeriodicTable.cpp \
 	source/ui/util/AMSelectablePeriodicTableView.cpp \
 	source/ui/dataman/AMDbObjectGeneralView.cpp \
@@ -967,8 +963,8 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/analysis/AM1DNormalizationAB.cpp \
 	source/analysis/AM1DNormalizationABEditor.cpp \
 	source/ui/AMAddAnalysisBlockDialog.cpp \
-	$$MPLOT_INCLUDE_DIR/MPlot/MPlotColorLegend.cpp \
 	source/ui/acquaman/AMScanConfigurationViewHolder3.cpp \
+	source/dataman/datastore/AMCDFDataStore.cpp \
 	source/actions2/actions/AMChangeRunAction.cpp \
 	source/actions2/actions/AMChangeRunActionInfo.cpp \
 	source/actions2/editors/AMChangeRunActionEditor.cpp \
@@ -977,7 +973,24 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/actions3/actions/AMSamplePlateMoveAction.cpp \
 	source/actions3/editors/AMSamplePlateMoveActionEditor.cpp \
 	source/qttelnet/qttelnet.cpp \
-	source/beamline/CLS/CLSProcServManager.cpp
+	source/beamline/CLS/CLSProcServManager.cpp \
+	source/dataman/REIXS/REIXSXESCalibration2.cpp \
+	source/ui/beamline/AMExtendedControlEditor.cpp \
+	source/ui/beamline/AMControlButton.cpp \
+	source/dataman/info/AMControlInfo.cpp \
+	source/dataman/AMLineScan.cpp \
+	source/acquaman/AMSA1DScanController.cpp \
+	source/acquaman/AMSADetector.cpp \
+	source/acquaman/CLS/CLSSIS3820ScalerSADetector.cpp \
+	source/ui/dataman/AMRegionScanConfigurationView.cpp \
+    source/ui/dataman/AMSampleSelector.cpp \
+    source/ui/AMTopFrame2.cpp \
+    source/application/AMDatamanAppControllerForActions2.cpp \
+    source/application/AMDatamanAppControllerForActions3.cpp \
+    source/analysis/AM2DAdditionAB.cpp \
+    source/analysis/AM3DAdditionAB.cpp \
+    source/analysis/AM3DBinningAB.cpp \
+    source/analysis/AM3DBinningABEditor.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1001,3 +1014,41 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

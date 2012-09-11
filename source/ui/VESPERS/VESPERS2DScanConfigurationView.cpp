@@ -161,6 +161,8 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	currentCCDFileName_ = new QLabel;
 	onCCDFileNameChanged(config_->ccdFileName());
 	currentCCDFileName_->setVisible(config_->usingCCD());
+	connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), this, SLOT(onCCDFileNameChanged(QString)));
+
 
 	QPushButton *configureRoperDetectorButton = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure Roper CCD");
 	configureRoperDetectorButton->setEnabled(config_->usingCCD());
@@ -187,6 +189,9 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	fluorescenceDetectorLayout->addWidget(tempButton);
 	tempButton = new QRadioButton("Four Element Vortex");
 	fluorescenceButtonGroup_->addButton(tempButton, 2);
+	fluorescenceDetectorLayout->addWidget(tempButton);
+	tempButton = new QRadioButton("Single && Four");
+	fluorescenceButtonGroup_->addButton(tempButton, 3);	// 3 is SingleElement | FourElement
 	fluorescenceDetectorLayout->addWidget(tempButton);
 
 	connect(fluorescenceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
@@ -220,7 +225,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	I0GroupBox->setLayout(I0GroupLayout);
 
 	// Motor selection.
-	QGroupBox *motorSetChoiceBox = new QGroupBox("Motors Selection");
+	QGroupBox *motorSetChoiceBox = new QGroupBox("Sample Stage");
 	QVBoxLayout *motorChoiceLayout = new QVBoxLayout;
 	motorChoiceButtonGroup_ = new QButtonGroup;
 
@@ -267,7 +272,9 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	roiTextBox->setLayout(roiTextLayout);
 
 	// Label showing where the data will be saved.
-	QLabel *exportPath = new QLabel(QString("Data exported to: %1exportData").arg(AMUserSettings::userDataFolder));
+	QString exportString =  AMUserSettings::userDataFolder;
+	exportString.remove("/userData");
+	QLabel *exportPath = new QLabel(QString("Data exported to: %1exportData").arg(exportString));
 
 	// Setting up the steps to show the time offset for scan time estimation.
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
@@ -321,18 +328,6 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 void VESPERS2DScanConfigurationView::onFluorescenceChoiceChanged(int id)
 {
 	config_->setFluorescenceDetectorChoice(id);
-
-	switch(id){
-
-	case 1:
-		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
-		break;
-
-	case 2:
-		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
-		break;
-	}
-
 	updateRoiText();
 }
 
@@ -343,7 +338,7 @@ void VESPERS2DScanConfigurationView::onMotorsChoiceChanged(int id)
 
 void VESPERS2DScanConfigurationView::onConfigureXRFDetectorClicked()
 {
-	switch(config_->fluorescenceDetectorChoice()){
+	switch((int)config_->fluorescenceDetectorChoice()){
 
 	case VESPERS2DScanConfiguration::None:
 		break;
@@ -354,6 +349,18 @@ void VESPERS2DScanConfigurationView::onConfigureXRFDetectorClicked()
 
 	case VESPERS2DScanConfiguration::FourElement:
 		emit configureDetector("Four Element");
+		break;
+
+	case VESPERS2DScanConfiguration::SingleElement | VESPERS2DScanConfiguration::FourElement:
+
+		QMenu menu(this);
+		menu.addAction("Single Element");
+		menu.addAction("Four Element");
+		QAction *action = menu.exec(QCursor::pos());
+
+		if (action && (action->text() == "Single Element" || action->text() == "Four Element"))
+			emit configureDetector(action->text());
+
 		break;
 	}
 }
@@ -385,9 +392,10 @@ void VESPERS2DScanConfigurationView::onUsingCCDChanged(bool useCCD)
 
 void VESPERS2DScanConfigurationView::updateRoiText()
 {
-	switch(config_->fluorescenceDetectorChoice()){
+	switch((int)config_->fluorescenceDetectorChoice()){
 
 	case VESPERS2DScanConfiguration::None:
+		config_->setRoiInfoList(AMROIInfoList());
 		break;
 
 	case VESPERS2DScanConfiguration::SingleElement:
@@ -397,13 +405,160 @@ void VESPERS2DScanConfigurationView::updateRoiText()
 	case VESPERS2DScanConfiguration::FourElement:
 		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
 		break;
+
+	case VESPERS2DScanConfiguration::SingleElement | VESPERS2DScanConfiguration::FourElement:{
+
+		AMROIInfoList list;
+		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
+		AMROIInfoList fourElList = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
+
+		for (int i = 0, count = singleElList.count(); i < count; i++)
+			list.append(singleElList.at(i));
+
+		for (int i = 0, count = fourElList.count(); i < count; i++)
+			list.append(fourElList.at(i));
+
+		config_->setRoiInfoList(list);
+		break;
+	}
 	}
 
 	roiText_->clear();
-	roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
 
-	for (int i = 0; i < config_->roiList().count(); i++)
-		roiText_->insertPlainText(GeneralUtilities::addGreek(config_->roiList().at(i).name())+"\t" + QString::number(config_->roiList().at(i).low()) + "\t" + QString::number(config_->roiList().at(i).high()) +"\n");
+	if ((int)config_->fluorescenceDetectorChoice() ==  (VESPERS2DScanConfiguration::SingleElement | VESPERS2DScanConfiguration::FourElement)){
+
+		QList<QPair<int, int> > sameList = findRoiPairs();
+
+		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
+		AMROIInfoList fourElList = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
+
+		if (!sameList.isEmpty()){
+
+			QList<int> singleRoiList;
+			QList<int> fourRoiList;
+
+			roiText_->insertPlainText("Same ROI's\n");
+			roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
+
+			for (int i = 0, count = sameList.size(); i < count; i++){
+
+				QPair<int, int> temp = sameList.at(i);
+				singleRoiList << temp.first;
+				fourRoiList << temp.second;
+				AMROIInfo info = singleElList.at(temp.first);
+				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
+			}
+
+			if (singleRoiList.size() < singleElList.count() || fourRoiList.size() < fourElList.count()){
+
+				roiText_->insertPlainText("\nDifferent ROI's\n");
+
+				if (singleRoiList.size() < singleElList.count()){
+
+					roiText_->insertPlainText("Single Element Vortex\n");
+					roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
+
+					for (int i = 0, count = singleElList.count(); i < count; i++){
+
+						if (!singleRoiList.contains(i)){
+
+							AMROIInfo info = singleElList.at(i);
+							roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
+						}
+					}
+
+					roiText_->insertPlainText("\n");
+				}
+
+				if (fourRoiList.size() < fourElList.count()){
+
+					roiText_->insertPlainText("Four Element Vortex\n");
+					roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
+
+					for (int i = 0, count = fourElList.count(); i < count; i++){
+
+						if (!fourRoiList.contains(i)){
+
+							AMROIInfo info = fourElList.at(i);
+							roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
+						}
+					}
+				}
+			}
+		}
+
+		else {
+
+			roiText_->insertPlainText("Different ROI's\n");
+			roiText_->insertPlainText("Single Element Vortex\n");
+
+			for (int i = 0, count = singleElList.count(); i < count; i++){
+
+				AMROIInfo info = singleElList.at(sameList.at(i).first);
+				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
+			}
+
+			roiText_->insertPlainText("\nFour Element Vortex\n");
+
+			for (int i = 0, count = fourElList.count(); i < count; i++){
+
+				AMROIInfo info = fourElList.at(sameList.at(i).first);
+				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
+			}
+		}
+	}
+
+	else {
+
+		roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
+
+		for (int i = 0; i < config_->roiList().count(); i++)
+			roiText_->insertPlainText(GeneralUtilities::addGreek(config_->roiList().at(i).name())+"\t" + QString::number(config_->roiList().at(i).low()) + "\t" + QString::number(config_->roiList().at(i).high()) +"\n");
+	}
+}
+
+QList<QPair<int, int> > VESPERS2DScanConfigurationView::findRoiPairs() const
+{
+	AMROIInfoList *el1 = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
+	AMROIInfoList *el4 = VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
+	QList<QPair<int, int> > list;
+
+	// Do it the easy way first.  Only possible when the sizes are the same.
+	if (el1->count() == el4->count()){
+
+		bool allLinedUp = true;
+
+		for (int i = 0, count = el1->count(); i < count; i++)
+			if (el1->at(i).name() != el4->at(i).name())
+				allLinedUp = false;
+
+		// If true, this is really straight forward.
+		if (allLinedUp){
+
+			for (int i = 0, count = el1->count(); i < count; i++)
+				list << qMakePair(i, i);
+		}
+
+		// Otherwise, we have to check each individually.  Not all may match and only matches will be added to the list.
+		else {
+
+			for (int i = 0, count = el1->count(); i < count; i++)
+				for (int j = 0; j < count; j++)
+					if (el1->at(i).name() == el4->at(j).name())
+						list << qMakePair(i, j);
+		}
+	}
+
+	// This is the same the above double for-loop but with different boundaries.
+	else {
+
+		for (int i = 0, count1 = el1->count(); i < count1; i++)
+			for (int j = 0, count4 = el4->count(); j < count4; j++)
+				if (el1->at(i).name() == el4->at(j).name())
+					list << qMakePair(i, j);
+	}
+
+	return list;
 }
 
 void VESPERS2DScanConfigurationView::onEstimatedTimeChanged()
@@ -419,7 +574,7 @@ QString VESPERS2DScanConfigurationView::convertTimeToString(double time)
 
 	if (days > 0){
 
-		time -= time/3600/24;
+		time -= days*3600.0*24;
 		timeString += QString::number(days) + "d:";
 	}
 
@@ -559,18 +714,18 @@ void VESPERS2DScanConfigurationView::updateMapInfo()
 {
 	double hSize = fabs(config_->xEnd()-config_->xStart());
 	double vSize = fabs(config_->yEnd()-config_->yStart());
-	int hPoints = int(fabs(hSize/config_->xStep()));
-	int vPoints = int(fabs(vSize/config_->yStep()));
 
-	if (hPoints < 0)
-		hPoints = 0;
+	int hPoints = int((hSize)/config_->yStep());
+	if ((hSize - (hPoints + 0.01)*config_->yStep()) < 0)
+		hPoints += 1;
 	else
-		hPoints++;
+		hPoints += 2;
 
-	if (vPoints < 0)
-		vPoints = 0;
+	int vPoints = int((vSize)/config_->yStep());
+	if ((vSize - (vPoints + 0.01)*config_->yStep()) < 0)
+		vPoints += 1;
 	else
-		vPoints++;
+		vPoints += 2;
 
 	mapInfo_->setText(QString("Map Size: %1 %2 x %3 %2\t Points: %4 x %5")
 					  .arg(QString::number(hSize*1000, 'f', 1))

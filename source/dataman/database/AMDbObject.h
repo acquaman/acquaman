@@ -380,7 +380,6 @@ protected:
 	void setModified(bool isModified = true) {
 		if(isModified != modified_)
 			emit modifiedChanged(modified_ = isModified);
-		modified_ = isModified;
 	}
 
 

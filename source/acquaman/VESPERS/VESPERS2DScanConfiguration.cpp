@@ -42,6 +42,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
 	connect(this, SIGNAL(yStepChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(yEndChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(timeStepChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(usingCCDChanged(bool)), this, SLOT(computeTotalTime()));
 }
 
 VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfiguration &original)
@@ -64,6 +65,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfig
 	connect(this, SIGNAL(yStepChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(yEndChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(timeStepChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(usingCCDChanged(bool)), this, SLOT(computeTotalTime()));
 }
 
 AMScanConfiguration *VESPERS2DScanConfiguration::createCopy() const
@@ -93,7 +95,7 @@ QString VESPERS2DScanConfiguration::headerText() const
 {
 	QString header("Configuration of the Scan\n\n");
 
-	switch(fluorescenceDetectorChoice()){
+	switch((int)fluorescenceDetectorChoice()){
 
 	case None:
 		header.append("Fluorescence Detector:\tNone\n");
@@ -103,6 +105,9 @@ QString VESPERS2DScanConfiguration::headerText() const
 		break;
 	case FourElement:
 		header.append("Fluorescence Detector:\tFour Element Vortex Detector\n");
+		break;
+	case SingleElement | FourElement:
+		header.append("Fluorescence Detector:\tSingle Element Vortex Detector and Four Element Vortex Detector\n");
 		break;
 	}
 

@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions2/actions/REIXS/REIXSXESScanActionInfo.h"
 
 class QDoubleSpinBox;
+class QComboBox;
 
 class REIXSXESScanActionEditor : public QFrame
 {
@@ -39,23 +40,22 @@ public slots:
 protected slots:
 	/// When the detector energy setpoint spin box is changed
 	void onEnergyEditingFinished();
-	/// When the focus offset spin box is changed
-	void onFocusOffsetEditingFinished();
+//	/// When the focus offset spin box is changed
+//	void onFocusOffsetEditingFinished();
 	/// When the tilt offset spin box is changed
 	void onTiltOffsetEditingFinished();
+	/// Called when the grating combo box is changed; sets the grating in the scan config.
+	void onGratingChoiceActivated(int index);
 	/// When the "More..." button is clicked, opens up a REIXSXESScanConfigurationView in a dialog window.
 	void onMoreDetailsButtonClicked();
 
 	/// Updates the elements when the scan configuration is changed from outside.
 	void onScanConfigurationChanged();
 
-	// temporary:
-	void onDetectorHeightErrorEditingFinished();
 
 protected:
-	QDoubleSpinBox* energy_, *focusOffset_, *tiltOffset_;
-	// temporary:
-	QDoubleSpinBox* detectorHeightError_;
+	QDoubleSpinBox* energy_, /* *focusOffset_,*/ *tiltOffset_;
+	QComboBox* grating_;
 	REIXSXESScanActionInfo* info_;
 
 };

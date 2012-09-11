@@ -77,7 +77,7 @@ public:
 	/// Returns the status as an bool.  true is acquiring, false is done.
 	bool status() const
 	{
-		if (statusPV_.first()->getInt() == 1)
+		if (statusPV_->getInt() == 1)
 			return true;
 
 		return false;
@@ -307,6 +307,8 @@ signals:
 	void externalRegionsOfInterestChanged();
 	/// Passes on the signal that an ROI has been updated.
 	void roiUpdate(AMROI *);
+	/// Notifier that all of the ROIs have been removed.
+	void allRegionsOfInterestRemoved();
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
@@ -384,7 +386,7 @@ protected:
 
 	// The PVs.  They are all lists because the detector could have more than one element.  Start and stop are special because naming conventions didn't allow for the correct behaviour.
 	/// The status of the scan.
-	QList<AMProcessVariable *> statusPV_;
+	AMProcessVariable *statusPV_;
 	/// The spectra refresh rate.
 //	QList<AMProcessVariable *> mcaUpdateRatePV_;
 	/// The status refresh rate.
@@ -395,6 +397,8 @@ protected:
 	QList<AMProcessVariable *> maximumEnergyPV_;
 	/// The integration time.
 	QList<AMProcessVariable *> integrationTimePV_;
+	/// Hack for the preset time for the four element vortex.
+	AMProcessVariable *presetTime4elHack_;
 	/// The live time.
 	QList<AMProcessVariable *> liveTimePV_;
 	/// The elapsed time.

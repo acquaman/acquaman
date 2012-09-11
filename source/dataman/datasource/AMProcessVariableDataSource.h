@@ -76,11 +76,9 @@ public:
 	// Data value access
 	////////////////////////////
 
-	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.  If representing a scalar then provide a null AMnDIndex (ie: AMnDIndex()).
-	virtual AMNumber value(const AMnDIndex &indexes, bool doBoundsChecking = true) const
+	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient, or if the data is not ready.  If representing a scalar then provide a null AMnDIndex (ie: AMnDIndex()).
+	virtual AMNumber value(const AMnDIndex &indexes) const
 	{
-		Q_UNUSED(doBoundsChecking)
-
 		if(!data_->isConnected())
 			return AMNumber();
 		if (indexes.rank() != 0)
@@ -89,11 +87,10 @@ public:
 		return data_->lastValue();
 	}
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index).  Returns 0.
-	virtual AMNumber axisValue(int axisNumber, int index, bool doBoundsChecking = true) const
+	virtual AMNumber axisValue(int axisNumber, int index) const
 	{
 		Q_UNUSED(axisNumber)
 		Q_UNUSED(index)
-		Q_UNUSED(doBoundsChecking)
 
 		return 0;
 	}
@@ -163,19 +160,21 @@ public:
 	////////////////////////////
 
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
-	virtual AMNumber value(const AMnDIndex &indexes, bool doBoundsChecking = true) const
+	virtual AMNumber value(const AMnDIndex &indexes) const
 	{
 		if(!data_->isConnected())
 			return AMNumber();
 		if(indexes.rank() != 1)
 			return AMNumber(AMNumber::DimensionError);
-		if(doBoundsChecking && (unsigned)indexes.i() >= data_->count())
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if((unsigned)indexes.i() >= data_->count())
 			return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 		return data_->lastValue(indexes.i());
 	}
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index).
-	virtual AMNumber axisValue(int axisNumber, int index, bool doBoundsChecking = true) const
+	virtual AMNumber axisValue(int axisNumber, int index) const
 	{
 		Q_UNUSED(axisNumber)
 
@@ -183,8 +182,10 @@ public:
 			return AMNumber();
 		if(axisNumber != 0)
 			return AMNumber(AMNumber::DimensionError);
-		if (doBoundsChecking && (unsigned)index >= data_->count())
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if ((unsigned)index >= data_->count())
 			return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 		return index*scale_;
 	}
@@ -268,19 +269,21 @@ public:
 	////////////////////////////
 
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
-	virtual AMNumber value(const AMnDIndex &indexes, bool doBoundsChecking = true) const
+	virtual AMNumber value(const AMnDIndex &indexes) const
 	{
 		if(!data_->isConnected())
 			return AMNumber();
 		if(indexes.rank() != 2)
 			return AMNumber(AMNumber::DimensionError);
-		if(doBoundsChecking && ((unsigned)indexes.i() >= (unsigned)length_ || (unsigned)indexes.j() >= data_->count()/length_))
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if(((unsigned)indexes.i() >= (unsigned)length_ || (unsigned)indexes.j() >= data_->count()/length_))
 			return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 		return data_->lastValue(indexes.i() + indexes.j()*length_);	/// \todo Acquaman normally uses the opposite convention: the first index varies the slowest while iterating through a flat array.
 	}
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index).  Returns an invalid AMNumber if not a valid selection.
-	virtual AMNumber axisValue(int axisNumber, int index, bool doBoundsChecking = true) const
+	virtual AMNumber axisValue(int axisNumber, int index) const
 	{
 		if(!data_->isConnected())
 			return AMNumber();
@@ -289,13 +292,17 @@ public:
 
 
 		if (axisNumber == 0) {
-			if (doBoundsChecking && (unsigned)index >= (unsigned)length_)
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+			if ((unsigned)index >= (unsigned)length_)
 				return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 			return index*sx_;
 		}
 		else {
-			if (doBoundsChecking && (unsigned)index >= data_->count()/length_)
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+			if ((unsigned)index >= data_->count()/length_)
 				return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 			return index*sy_;
 		}
 	}

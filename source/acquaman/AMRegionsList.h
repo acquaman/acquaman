@@ -76,6 +76,9 @@ public:
 	/// Returns the sensible end position.
 	double sensibleEnd() const { return sensibleEnd_; }
 
+	/// Calculates the total time required to acquire all the regions. The base implementation assumes compatible/identical time units.
+	virtual double totalAcquisitionTime() const;
+
 public slots:
 	/// Sets the start value of the region refered to by index. Returns true if sucessful, returns false if the index is invalid or the energy is out of range.
 	bool setStart(int index, double start) { return regions_->setData(regions_->index(index, 1), start, Qt::EditRole); }

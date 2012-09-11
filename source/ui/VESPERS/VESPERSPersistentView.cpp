@@ -51,11 +51,21 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	connect(ssh2_, SIGNAL(clicked()), this, SLOT(onSSH2Clicked()));
 
 	// Sample stage widget.
-	VESPERSSampleStageView *motors = new VESPERSSampleStageView;
+	pseudoMotors_ = new VESPERSSampleStageView(VESPERSBeamline::vespers()->pseudoSampleStage());
+	pseudoMotors_->setTitle("H & V");
+	pseudoMotors_->setHorizontalTitle("H");
+	pseudoMotors_->setVerticalTitle("V");
+
+	realMotors_ = new VESPERSSampleStageView(VESPERSBeamline::vespers()->realSampleStage());
+	realMotors_->setTitle("X & Z");
+	realMotors_->setHorizontalTitle("X");
+	realMotors_->setVerticalTitle("Z");
+	realMotors_->hide();
 
 	// PID control view widget.
 	VESPERSPIDLoopControlView *pidView = new VESPERSPIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());
-	connect(VESPERSBeamline::vespers()->sampleStagePID(), SIGNAL(stateChanged(bool)), motors, SLOT(setEnabled(bool)));
+	connect(VESPERSBeamline::vespers()->sampleStagePID(), SIGNAL(stateChanged(bool)), pseudoMotors_, SLOT(setEnabled(bool)));
+	connect(VESPERSBeamline::vespers()->sampleStagePID(), SIGNAL(stateChanged(bool)), realMotors_, SLOT(setEnabled(bool)));
 
 	// The temperature control.
 	temperature_ = VESPERSBeamline::vespers()->temperatureSet();
@@ -76,8 +86,6 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QFont font(this->font());
 	font.setBold(true);
 
-	QLabel *sampleStageLabel = new QLabel("Sample Stage Control");
-	sampleStageLabel->setFont(font);
 	QLabel *pshShutterLabel = new QLabel("Front End Shutters");
 	pshShutterLabel->setFont(font);
 	QLabel *sshShutterLabel = new QLabel("Beamline Shutters");
@@ -262,13 +270,16 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	statusLayout->addWidget(valvesButton_, 1, 4, 1, 2);
 	statusLayout->setContentsMargins(15, 7, 11, 7);
 
+	QHBoxLayout *sampleStageLayout = new QHBoxLayout;
+	sampleStageLayout->addWidget(pseudoMotors_);
+	sampleStageLayout->addWidget(realMotors_);
+
 	QVBoxLayout *persistentLayout = new QVBoxLayout;
 	persistentLayout->addLayout(shutterLayout);
 	persistentLayout->addLayout(beamSelectionLayout);
 	persistentLayout->addWidget(slitsLabel);
 	persistentLayout->addLayout(slitsLayout);
-	persistentLayout->addWidget(sampleStageLabel);
-	persistentLayout->addWidget(motors);
+	persistentLayout->addLayout(sampleStageLayout);
 	persistentLayout->addWidget(pidView);
 	persistentLayout->addLayout(experimentReadyLayout);
 	persistentLayout->addWidget(endstationShutterLabel);
@@ -449,4 +460,10 @@ void VESPERSPersistentView::onSSH2Clicked()
 
 	else if (VESPERSBeamline::vespers()->safetyShutter2()->value() == 1)
 		VESPERSBeamline::vespers()->closeSafetyShutter2();
+}
+
+void VESPERSPersistentView::setSampleStage(bool sampleStage)
+{
+	pseudoMotors_->setVisible(sampleStage);
+	realMotors_->setVisible(!sampleStage);
 }

@@ -36,6 +36,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMDATABASE_COMMIT_CONTENTION_FAILED -3104
 #define AMDATABASE_LOCK_FOR_EXECQUERY_CONTENTION_SUCCEEDED -3105
 #define AMDATABASE_LOCK_FOR_EXECQUERY_CONTENTION_FAILED -3106
+#define AMDATABASE_MISSING_TABLE_NAME_IN_RETRIEVE -3107
+#define AMDATABASE_RETRIEVE_QUERY_FAILED -3108
 
 /// This class provides thread-safe, general access to an SQL database.
 /*! Instances of this class are used to query or modify a database; all of the functions are thread-safe and will operate using a per-thread connection to the same underlying database.
@@ -64,6 +66,8 @@ The parameters by which to access the database are given in \c dbAccessString. (
 	static AMDatabase* database(const QString& connectionName);
 	/// Delete a database instance that is not longer required.
 	static void deleteDatabase(const QString& connectionName);
+	/// Returns a list of all registered databases as given by connectionName
+	static QStringList registeredDatabases();
 
 
 	// Static functions
@@ -102,6 +106,11 @@ The parameters by which to access the database are given in \c dbAccessString. (
 	/// This is the full path to the database
 	QString dbAccessString() const{
 		return dbAccessString_;
+	}
+
+	/// This returns whether or not this instance can be written to (all valid connections can be read from)
+	bool isReadOnly() const{
+		return isReadOnly_;
 	}
 
 	/// This returns whether or not the database has any tables (if no tables, then it's empty)
@@ -145,6 +154,16 @@ The parameters by which to access the database are given in \c dbAccessString. (
 		Returns an empty list on failure.
 	*/
 	QVariantList retrieve(int id, const QString& table, const QStringList& colNames) const;
+	/// retrieve a column from the database
+	/*! \c table is the database table name
+		\c colName is the name of the column you wish to get all the values for
+		Returns a list of QVariants that will hold the results. Note that QList uses implicit sharing / copy-on-write, so returning the result is fast -- as long you don't modify the resulting list (ie: call non-const methods on it).
+
+		No id parameter is used, because a value for each id is returned
+		Returns an empty list on failure.
+	*/
+	QVariantList retrieve(const QString& table, const QString& colName) const;
+
 	/// Retrieve a single parameter/value for an object.  This is simpler than retrieve() when all you need is a single value.
 	QVariant retrieve(int id, const QString& table, const QString& colName) const;
 
@@ -214,6 +233,8 @@ private:
 	QString connectionName_;
 	/// This is the string used to specify how to connect to the database.  (For the current SQLITE database, dbAccessString is just the path to the database file.)
 	QString dbAccessString_;
+	/// This holds whether or not the database can to written to as well as read from (all valid connections can be read from)
+	bool isReadOnly_;
 
 	/// For every AMDatabase instance, we can actually have multiple connections to the database: one for each thread. All connections are to the same underlying database. This is a set of the thread IDs for which we've already created connections. (The connection name for those is our connectionName_ with the threadId appended.)
 	mutable QSet<Qt::HANDLE> threadIDsOfOpenConnections_;
