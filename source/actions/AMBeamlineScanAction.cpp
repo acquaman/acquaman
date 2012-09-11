@@ -376,7 +376,28 @@ void AMBeamlineScanAction::onScanCancelled(){
 void AMBeamlineScanAction::onScanSucceeded(){
 	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Completed "+AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())+"]");
 	emit descriptionChanged();
+	autoExportScan();	// Note: this might take a long time.  Maybe try and do it in a worker thread?
 	setSucceeded(true);
+}
+
+void AMBeamlineScanAction::onScanFailed(){
+
+	// Only save scans that already have an id in the database.
+	if (scanID_ != -1){
+
+		if(!ctrl_->scan()->storeToDb(AMDatabase::database("user"))){
+			AMErrorMon::report(AMErrorReport(this,
+											 AMErrorReport::Alert,
+											 AMBEAMLINEACTIONITEM_CANT_SAVE_TO_DB,
+											 "Error, could not save scan to database. Please report this bug to the Acquaman developers."));
+		}
+	}
+
+	setFailed(true);
+}
+
+void AMBeamlineScanAction::autoExportScan()
+{
 	if(ctrl_->scan()->database()){
 		bool saveSucceeded = ctrl_->scan()->storeToDb(ctrl_->scan()->database());
 		if(saveSucceeded && cfg_->autoExportEnabled()){
@@ -425,22 +446,6 @@ void AMBeamlineScanAction::onScanSucceeded(){
 						 AMErrorReport::Alert,
 						 AMBEAMLINEACTIONITEM_NO_DATABASE_FOR_SCAN,
 						 "Error, the scan isn't connected to any database. Please report this bug to the Acquaman developers."));
-}
-
-void AMBeamlineScanAction::onScanFailed(){
-
-	// Only save scans that already have an id in the database.
-	if (scanID_ != -1){
-
-		if(!ctrl_->scan()->storeToDb(AMDatabase::database("user"))){
-			AMErrorMon::report(AMErrorReport(this,
-											 AMErrorReport::Alert,
-											 AMBEAMLINEACTIONITEM_CANT_SAVE_TO_DB,
-											 "Error, could not save scan to database. Please report this bug to the Acquaman developers."));
-		}
-	}
-
-	setFailed(true);
 }
 
 void AMBeamlineScanAction::onBeamlineScanningChanged(bool isScanning){
