@@ -83,8 +83,8 @@ CLSSynchronizedDwellTimeElement::CLSSynchronizedDwellTimeElement(QString baseNam
 {
 	// 65 is 'A' in ascii.  Therefore the index offset will give the appropriate letter for the PV name since they are named 'A', 'B', 'C', etc.
 	name_ = new AMProcessVariable(baseName+":device"+QChar(65+index), true, this);
-	enable_ = new AMSinglePVControl("Dwell Element Enable", baseName+":enable"+QChar(65+index), this, 0.1);
-	time_ = new AMSinglePVControl("Dwell Element Time", baseName+":set"+QChar(65+index), this, 0.1);
+	enable_ = new AMSinglePVControl(QString("Dwell Element Enable %1").arg(index), baseName+":enable"+QChar(65+index), this, 0.1);
+	time_ = new AMSinglePVControl(QString("Dwell Element Time %1").arg(index), baseName+":set"+QChar(65+index), this, 0.1);
 	status_ = new AMProcessVariable(baseName+":status"+QChar(65+index), true, this);
 
 	connect(name_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
