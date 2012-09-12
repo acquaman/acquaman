@@ -30,8 +30,6 @@ bool VESPERS20122DFileLoaderPlugin::load(AMScan *scan, const QString &userDataFo
 	// Check for null scan reference.
 	if (!scan)
 		return false;
-QTime timer;
-timer.start();
 
 	QFileInfo sourceFileInfo(scan->filePath());
 	if(sourceFileInfo.isRelative())
@@ -76,8 +74,6 @@ timer.start();
 	in.readLine();
 	lineTokenized.clear();
 
-	qDebug() << QString("Front matter: %1 ms").arg(timer.elapsed());
-	timer.restart();
 	// Determine the number of y lines, since we need to know that before creating the scan axes.
 	/////////////////////
 	QStringList fileLines;
@@ -126,8 +122,6 @@ timer.start();
 
 		cdfData->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 		cdfData->addScanAxis(AMAxisInfo("V", yLength, "Vertical Position", "mm"));
-//		cdfData->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
-//		cdfData->addScanAxis(AMAxisInfo("H", xLength, "Horizontal Position", "mm"));
 	}
 
 	else if (line == "SVM1607-2-B21-02:mm"){
@@ -135,8 +129,6 @@ timer.start();
 		cdfData->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
 		cdfData->addScanAxis(AMAxisInfo("Z", yLength, "Vertical Position", "mm"));
 	}
-	qDebug() << QString("Adding the scan axes: %1 ms").arg(timer.elapsed());
-	timer.restart();
 
 	// Clear any old data so we can start fresh.
 	scan->clearRawDataPointsAndMeasurements();
@@ -175,8 +167,6 @@ timer.start();
 			cdfData->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description(), "eV", axisInfo));
 	}
 
-	qDebug() << QString("Adding measurements: %1 ms").arg(timer.elapsed());
-	timer.restart();
 	cdfData->beginInsertRows(xLength, -1);
 
 	x = 0;
@@ -188,17 +178,12 @@ timer.start();
 
 		// Add in the data at the right spot.
 		AMnDIndex axisValueIndex(x, y);
-//		AMnDIndex axisValueIndex(y, x);
 
-//		cdfData->setAxisValue(0, axisValueIndex.i(), lineTokenized.at(1).toDouble());
-//		cdfData->setAxisValue(1, axisValueIndex.j(), lineTokenized.at(2).toDouble());
 		if (axisValueIndex.j() == 0)
 			cdfData->setAxisValue(0, axisValueIndex.i(), lineTokenized.at(1).toDouble());
-//			cdfData->setAxisValue(0, axisValueIndex.i(), lineTokenized.at(2).toDouble());
 
 		if (axisValueIndex.i() == 0)
 			cdfData->setAxisValue(1, axisValueIndex.j(), lineTokenized.at(2).toDouble());
-//			cdfData->setAxisValue(1, axisValueIndex.j(), lineTokenized.at(1).toDouble());
 
 		if (usingSingleElement && usingFourElement){
 
@@ -227,8 +212,6 @@ timer.start();
 			y++;
 		}
 	}
-	qDebug() << QString("Adding columsn of data: %1 ms").arg(timer.elapsed());
-	timer.restart();
 
 	// Pad the rest of the line with -1 for proper visualization.
 	if (x != 0 && xLength != 0){
@@ -237,7 +220,6 @@ timer.start();
 
 			// Add in the data at the right spot.
 			AMnDIndex axisValueIndex(x, y);
-//			AMnDIndex axisValueIndex(y, x);
 
 			if (usingSingleElement && usingFourElement){
 
@@ -258,9 +240,6 @@ timer.start();
 			}
 		}
 	}
-
-	qDebug() << QString("Filling in the extra spots: %1 ms").arg(timer.elapsed());
-	timer.restart();
 
 	// Getting the spectra file setup.
 	if (usingSingleElement || usingFourElement){
@@ -323,7 +302,6 @@ timer.start();
 
 						const int *tempData = data.constData();
 						AMnDIndex axisValueIndex(x, y);
-//						AMnDIndex axisValueIndex(y, x);
 						cdfData->setValue(axisValueIndex, count-6, tempData);
 						cdfData->setValue(axisValueIndex, count-5, tempData+2048);
 						cdfData->setValue(axisValueIndex, count-4, tempData+4096);
@@ -335,7 +313,6 @@ timer.start();
 					else {
 
 						AMnDIndex axisValueIndex(x, y);
-//						AMnDIndex axisValueIndex(y, x);
 						cdfData->setValue(axisValueIndex, count-6, fill.constData());
 						cdfData->setValue(axisValueIndex, count-5, fill.constData());
 						cdfData->setValue(axisValueIndex, count-4, fill.constData());
@@ -345,9 +322,6 @@ timer.start();
 					}
 				}
 			}
-
-			qDebug() << QString("Adding the spectra: %1 ms").arg(timer.elapsed());
-			timer.restart();
 
 			spectra.close();
 		}
@@ -396,19 +370,14 @@ timer.start();
 							data[dataIndex] = word.toInt();
 
 						cdfData->setValue(AMnDIndex(x, y), count-1, data.constData());
-//						cdfData->setValue(AMnDIndex(y, x), count-1, data.constData());
 					}
 
 					else{
 
 						cdfData->setValue(AMnDIndex(x, y), count-1, fill.constData());
-//						cdfData->setValue(AMnDIndex(y, x), count-1, fill.constData());
 					}
 				}
 			}
-
-			qDebug() << QString("Adding the spectra: %1 ms").arg(timer.elapsed());
-			timer.restart();
 
 			spectra.close();
 		}
@@ -457,7 +426,6 @@ timer.start();
 
 						const int *tempData = data.constData();
 						AMnDIndex axisValueIndex(x, y);
-//						AMnDIndex axisValueIndex(y, x);
 						cdfData->setValue(axisValueIndex, count-5, tempData);
 						cdfData->setValue(axisValueIndex, count-4, tempData+2048);
 						cdfData->setValue(axisValueIndex, count-3, tempData+4096);
@@ -468,7 +436,6 @@ timer.start();
 					else {
 
 						AMnDIndex axisValueIndex(x, y);
-//						AMnDIndex axisValueIndex(y, x);
 						cdfData->setValue(axisValueIndex, count-5, fill.constData());
 						cdfData->setValue(axisValueIndex, count-4, fill.constData());
 						cdfData->setValue(axisValueIndex, count-3, fill.constData());
@@ -477,9 +444,6 @@ timer.start();
 					}
 				}
 			}
-
-			qDebug() << QString("Adding the spectra: %1 ms").arg(timer.elapsed());
-			timer.restart();
 
 			spectra.close();
 		}

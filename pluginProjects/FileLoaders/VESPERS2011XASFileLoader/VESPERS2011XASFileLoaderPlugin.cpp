@@ -24,8 +24,6 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 	// Check for null scan reference.
 	if (!scan)
 		return false;
-	QTime timer;
-	timer.start();
 
 	QFileInfo sourceFileInfo(scan->filePath());
 	if(sourceFileInfo.isRelative())
@@ -62,8 +60,7 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 	while ((line = in.readLine()).contains("#")){
 		//Do nothing
 	}
-	qDebug() << QString("Front matter: %1 ms").arg(timer.elapsed());
-	timer.restart();
+
 	// Clear any old data so we can start fresh.
 	scan->clearRawDataPointsAndMeasurements();
 
@@ -112,8 +109,7 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 		for (int i = 0; i < count; i++)
 			cdfData->addMeasurement(AMMeasurementInfo(scan->rawDataSources()->at(i)->name(), scan->rawDataSources()->at(i)->description()));
 	}
-	qDebug() << QString("Adding measurements: %1 ms").arg(timer.elapsed());
-	timer.restart();
+
 	QStringList fileLines;
 	fileLines << line;
 
@@ -162,8 +158,8 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 
 		axisValueIndex++;
 	}
-	qDebug() << QString("Adding columsn of data: %1 ms").arg(timer.elapsed());
-	timer.restart();
+
+	// Adding the spectra.
 	if (usingSingleElement || usingFourElement){
 
 		QFile spectra;
@@ -321,8 +317,7 @@ bool VESPERS2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 				cdfData->setValue(x, count-1, tempData+8192);
 			}
 		}
-		qDebug() << QString("Adding the spectra: %1 ms").arg(timer.elapsed());
-		timer.restart();
+
 		spectra.close();
 	}
 

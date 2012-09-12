@@ -276,7 +276,7 @@ AMNumber AM3DBinningAB::value(const AMnDIndex& indexes) const {
 	else
 		return rv;
 }
-#include <QDebug>
+
 bool AM3DBinningAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
 	if(indexStart.rank() != 2 || indexEnd.rank() != 2)
@@ -296,10 +296,6 @@ bool AM3DBinningAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 
 	QVector<double> tempOutput;
 	int totalPoints = indexStart.totalPointsTo(indexEnd);
-//	tempOutput.reserve(indexStart.totalPointsTo(indexEnd));
-
-	QTime timer;
-	timer.start();
 
 	switch (sumAxis_){
 
@@ -361,8 +357,7 @@ bool AM3DBinningAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 
 				for (int k = 0; k < sumRange; k++)
 					sum += data.at(k);
-				if (i == iSize && j == jSize)
-					qDebug() << data;
+
 				tempOutput << sum;
 			}
 		}
@@ -371,13 +366,11 @@ bool AM3DBinningAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 	}
 	}
 
-	qDebug() << QString("Time to compute sum: %1 ms").arg(timer.restart());
 	memcpy(outputValues, tempOutput.constData(), tempOutput.size()*sizeof(double));
 
 	for (int i = 0, offset = indexStart.product(); i < totalPoints; i++)
 		cachedValues_[i+offset] = outputValues[i];
 
-	qDebug() << QString("Time to set the cached values: %1").arg(timer.elapsed());
 	cacheCompletelyInvalid_ = false;
 
 	return true;
