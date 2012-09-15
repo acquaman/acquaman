@@ -38,12 +38,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AM2DScanBar::AM2DScanBar(QWidget *parent)
 	: QWidget(parent)
 {
-	dataPosition_ = new QLabel("Current Position:");
+	dataPosition_ = new QLabel("");
 	selectedRect_ = new QLabel("");
+	valueLabel_ = new QLabel("");
+	dataRange_ = new QLabel("");
 	xUnits_ = "";
 	yUnits_ = "";
 	position_ = QPointF();
 	rect_ = QRectF();
+	value_ = 0;
+	range_ = qMakePair(0.0, 0.0);
 
 	showSpectra_ = new QCheckBox("Show Spectra");
 	showSpectra_->setChecked(false);
@@ -52,7 +56,9 @@ AM2DScanBar::AM2DScanBar(QWidget *parent)
 
 	QHBoxLayout *layout = new QHBoxLayout;
 	layout->addWidget(dataPosition_);
+	layout->addWidget(valueLabel_);
 	layout->addStretch();
+	layout->addWidget(dataRange_);
 	layout->addWidget(showSpectra_, 0, Qt::AlignRight);
 
 	QVBoxLayout *barLayout = new QVBoxLayout;
@@ -108,6 +114,45 @@ void AM2DScanBar::setSelectedRect(const QRectF &rect)
 	}
 }
 
+void AM2DScanBar::setValue(double value)
+{
+	value_ = value;
+	valueLabel_->setText(QString("Value: %1").arg(value, 0, 'g', 3));
+}
+
+void AM2DScanBar::setRange(QPair<double, double> range)
+{
+	range_ = range;
+
+	if (range_.first == range_.second)
+		dataRange_->setText("");
+
+	else
+		dataRange_->setText(QString("Data Range: %1, %2").arg(range_.first, 0, 'g', 3).arg(range_.second, 0, 'g', 3));
+}
+
+void AM2DScanBar::setMinimum(double min)
+{
+	range_.first = min;
+
+	if (range_.first == range_.second)
+		dataRange_->setText("");
+
+	else
+		dataRange_->setText(QString("Data Range: %1, %2").arg(range_.first).arg(range_.second));
+}
+
+void AM2DScanBar::setMaximum(double max)
+{
+	range_.second = max;
+
+	if (range_.first == range_.second)
+		dataRange_->setText("");
+
+	else
+		dataRange_->setText(QString("Data Range: %1, %2").arg(range_.first).arg(range_.second));
+}
+
 // AM2DScanView
 /////////////////////////////////////
 
@@ -125,6 +170,8 @@ AM2DScanView::AM2DScanView(AMScanSetModel* model, QWidget *parent)
 
 	exclusiveScanBars_->setModel(scansModel_);
 	multiScanBars_->setModel(scansModel_);
+
+	currentExclusiveDataSource_ = 0;
 
 	exclusiveModeAnim_ = new QPropertyAnimation(gExclusiveView_->graphicsWidget(), "geometry", this);
 	exclusiveModeAnim_->setDuration(500);
@@ -209,7 +256,7 @@ void AM2DScanView::makeConnections()
 	connect(gExclusiveView_, SIGNAL(resized(QSizeF)), this, SLOT(resizeExclusiveViews()), Qt::QueuedConnection);
 	connect(gMultiView_, SIGNAL(resized(QSizeF)), this, SLOT(resizeMultiViews()), Qt::QueuedConnection);
 
-	connect(exclusiveView_, SIGNAL(dataPositionChanged(QPointF)), exclusive2DScanBar_, SLOT(setDataPosition(QPointF)));
+	connect(scansModel_, SIGNAL(exclusiveDataSourceChanged(QString)), this, SLOT(onExclusiveDataSourceChanged(QString)));
 	connect(exclusiveView_, SIGNAL(selectedRectChanged(QRectF)), exclusive2DScanBar_, SLOT(setSelectedRect(QRectF)));
 	connect(exclusive2DScanBar_, SIGNAL(showSpectra(bool)), this, SLOT(setSpectrumViewVisibility(bool)));
 	connect(exclusiveView_, SIGNAL(dataPositionChanged(QPointF)), this, SLOT(onDataPositionChanged(QPointF)));
@@ -222,6 +269,35 @@ void AM2DScanView::setSpectrumViewVisibility(bool visible)
 }
 
 void AM2DScanView::onDataPositionChanged(const QPointF &point)
+{
+	AMnDIndex index = getIndex(point);
+
+	exclusive2DScanBar_->setDataPosition(point);
+	exclusive2DScanBar_->setValue(double(currentExclusiveDataSource_->value(index)));
+
+	if (exclusive2DScanBar_->showSpectraEnabled())
+		spectrumView_->onDataPositionChanged(index);
+}
+
+void AM2DScanView::onExclusiveDataSourceChanged(const QString &name)
+{
+	if (currentExclusiveDataSource_){
+
+		disconnect(currentExclusiveDataSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onExclusiveDataSourceValueChanged(AMnDIndex,AMnDIndex)));
+		currentExclusiveDataSource_ = 0;
+	}
+
+	currentExclusiveDataSource_ = currentScan_->dataSourceAt(currentScan_->indexOfDataSource(name));
+	exclusive2DScanBar_->setRange(getCurrentExclusiveDataSourceRange());
+	connect(currentExclusiveDataSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onExclusiveDataSourceValueChanged(AMnDIndex,AMnDIndex)));
+}
+
+void AM2DScanView::onExclusiveDataSourceValueChanged(const AMnDIndex &start, const AMnDIndex &end)
+{
+	exclusive2DScanBar_->setRange(getCurrentExclusiveDataSourceRange(start, end));
+}
+
+AMnDIndex AM2DScanView::getIndex(const QPointF &point) const
 {
 	int x = -1;
 	int y = -1;
@@ -239,8 +315,43 @@ void AM2DScanView::onDataPositionChanged(const QPointF &point)
 		if (fabs(point.y() - double(datasource->axisValue(1, i))) < delY)
 			y = i;
 
-	spectrumView_->onDataPositionChanged(AMnDIndex(x, y));
+	return AMnDIndex(x, y);
 }
+
+QPair<double, double> AM2DScanView::getCurrentExclusiveDataSourceRange(const AMnDIndex &start, const AMnDIndex &end) const
+{
+	int totalSize = 0;
+	AMnDIndex startIndex = start;
+	AMnDIndex endIndex = end;
+
+	if (startIndex.rank() == 0 || endIndex.rank() == 0){
+
+		startIndex = AMnDIndex(0, 0);
+		endIndex = AMnDIndex(currentExclusiveDataSource_->size(0)-1, currentExclusiveDataSource_->size(1)-1);
+		totalSize = startIndex.totalPointsTo(endIndex);
+	}
+
+	else
+		totalSize = start.totalPointsTo(end);
+
+	QVector<double> data(totalSize);
+	currentExclusiveDataSource_->values(startIndex, endIndex, data.data());
+
+	double min = data.at(0);
+	double max = data.at(0);
+
+	foreach (double value, data){
+
+		if (min > value)
+			min = value;
+
+		if (max < value)
+			max = value;
+	}
+
+	return qMakePair(min, max);
+}
+
 
 void AM2DScanView::setSingleSpectrumDataSource(const QString &name)
 {

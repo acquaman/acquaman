@@ -216,7 +216,7 @@ void AMScanAction::onControllerSucceeded()
 				}
 
 				exportController->setOption(autoExporterOption);
-				exportController->start();
+				exportController->start(true);
 			}
 		}
 

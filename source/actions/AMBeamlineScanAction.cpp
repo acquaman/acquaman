@@ -374,9 +374,11 @@ void AMBeamlineScanAction::onScanCancelled(){
 }
 
 void AMBeamlineScanAction::onScanSucceeded(){
-	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Completed "+AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())+"]");
+	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Exporting "+AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())+"]");
 	emit descriptionChanged();
 	autoExportScan();	// Note: this might take a long time.  Maybe try and do it in a worker thread?
+	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Completed "+AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())+"]");
+	emit descriptionChanged();
 	setSucceeded(true);
 }
 
@@ -438,7 +440,7 @@ void AMBeamlineScanAction::autoExportScan()
 				return;
 			}
 			exportController->setOption(autoExporterOption);
-			exportController->start();
+			exportController->start(true);
 		}
 	}
 	else

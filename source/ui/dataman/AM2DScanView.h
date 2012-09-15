@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlot.h"
 #include "ui/dataman/AMScanViewUtilities.h"
 #include "dataman/AMAxisInfo.h"
+#include "dataman/AMnDIndex.h"
 #include <QCheckBox>
 
 
@@ -54,10 +55,20 @@ public:
 	QString yUnits() const { return yUnits_; }
 	/// Returns the position.
 	QPointF dataPosition() const { return position_; }
+	/// Returns the value.
+	double value() const { return value_; }
+	/// Returns the minimum value of the range.
+	double mininum() const { return range_.first; }
+	/// Returns the maximum value of the range.
+	double maximum() const { return range_.second; }
+	/// Returns the range.
+	QPair<double, double> range() const { return range_; }
 	/// Returns the selected rectangle.
 	QRectF selectedRect() const { return rect_; }
 	/// Changes the enabled state of the show spectra check box.  If there is no source to view, then this option should not be available.
 	void setShowSpectraEnabled(bool enable) { showSpectra_->setEnabled(enable); }
+	/// Returns whether the spectrum view is enabled.
+	bool showSpectraEnabled() const { return showSpectra_->isEnabled(); }
 
 signals:
 	/// Notifier that the state of whether or not the scan view should show individual spectra has been toggled.
@@ -74,18 +85,34 @@ public slots:
 	void setXAxisUnits(const QString &units) { xUnits_ = units; }
 	/// Sets the y axis units.
 	void setYAxisUnits(const QString &units) { yUnits_ = units; }
+	/// Sets the value of the current position.
+	void setValue(double value);
+	/// Sets the range of data for the current data source.
+	void setRange(QPair<double, double> range);
+	/// Sets the minimum value of the range for the current data source.
+	void setMinimum(double min);
+	/// Sets the maximum value of the range for the current data source.
+	void setMaximum(double max);
 
 protected:
 	/// Label holding the data position coordinates.
 	QLabel *dataPosition_;
 	/// Label holding the selected rectangle coordinates.
 	QLabel *selectedRect_;
+	/// Label holding the value at a given point.
+	QLabel *valueLabel_;
+	/// Label holding the data range of the current data source.
+	QLabel *dataRange_;
 	/// String holding the x axis units.
 	QString xUnits_;
 	/// String holding the y axis units.
 	QString yUnits_;
 	/// The current point.
 	QPointF position_;
+	/// The data value at the current position.
+	double value_;
+	/// The data range for the current data source.
+	QPair<double, double> range_;
 	/// The current selected rectangle.
 	QRectF rect_;
 	/// The show spectra check box.
@@ -146,6 +173,10 @@ protected slots:
 	void setSpectrumViewVisibility(bool visible);
 	/// Helper slot that makes sure all of the information that the spectrum fetcher needs is setup.
 	void onDataPositionChanged(const QPointF &point);
+	/// Helper slot that computes the min and max value of the currently viewed data source.
+	void onExclusiveDataSourceChanged(const QString &name);
+	/// Helper slot that updates the range if the values change for the current exclusive data source.
+	void onExclusiveDataSourceValueChanged(const AMnDIndex& start, const AMnDIndex& end);
 
 protected:
 	/// Reimplements the show event to hide the multi view.
@@ -159,11 +190,17 @@ protected:
 	void setupUI();
 	/// internal helper function to setup all UI event-handling connections
 	void makeConnections();
+	/// Helper method that returns the AMnDIndex for a given QPoint of data coordinates.
+	AMnDIndex getIndex(const QPointF &point) const;
+	/// Helper method that returns the minimum and maximum value for the current data source.  If no start and end values are given then the entire data source will be searched.
+	QPair<double, double> getCurrentExclusiveDataSourceRange(const AMnDIndex &start = AMnDIndex(), const AMnDIndex &end = AMnDIndex()) const;
 
 	/// The scans set model.
 	AMScanSetModel* scansModel_;
 	/// Pointer to the current scan.  Used for ensuring units are correct in the AMScanBar.
 	AMScan *currentScan_;
+	/// Pointer to the current data source in the exclusive mode.
+	AMDataSource *currentExclusiveDataSource_;
 
 	/// The exclusive view
 	AM2DScanViewExclusiveView *exclusiveView_;
