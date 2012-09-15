@@ -438,7 +438,7 @@ void AMBeamlineScanAction::autoExportScan()
 				return;
 			}
 			exportController->setOption(autoExporterOption);
-			exportController->start();
+			exportController->start(true);
 		}
 	}
 	else
