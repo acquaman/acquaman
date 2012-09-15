@@ -92,8 +92,6 @@ signals:
 public slots:
 	/// Sets the current control that should be focused on.  It will find the correct control based on the name.  Control is set to 0 if invalid name is given.
 	void setCurrent(QString name);
-	/// Resets the pseudo-motor positions.
-	void resetPseudoMotors() { resetPseudoMotors_->setValue(1); }
 	/// Toggles the current state of the laser power.
 	void toggleLaserPower() { toggleControl(laserPower_); emit laserPoweredChanged(); }
 	/// Loads the config file and then sets up the soft limits.
@@ -150,9 +148,6 @@ protected:
 
 	// Laser power control.
 	AMPVControl *laserPower_;
-
-	// The pseudo-motor reset PV.
-	AMProcessVariable *resetPseudoMotors_;
 
 	// Filter process variables.
 	AMControl *filter250umA_;

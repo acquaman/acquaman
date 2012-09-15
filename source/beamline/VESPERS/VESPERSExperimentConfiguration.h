@@ -90,6 +90,8 @@ public slots:
 	void useFourElementVortex(bool use);
 	/// Sets whether the the sample stage being used is the pseudo motors or the real motors.  True is pseudo motors.
 	void usePseudoMotors(bool use);
+	/// Resets the pseudo-motor positions.
+	void resetPseudoMotors() { resetPseudoMotors_->setValue(1); }
 
 protected slots:
 	/// Determines whether the state of the experiment ready status.
@@ -122,6 +124,8 @@ protected:
 	AMControl *fastShutterReady_;
 	/// The CCD status control.
 	AMControl *ccdStatus_;
+	/// The pseudo-motor reset PV.
+	AMProcessVariable *resetPseudoMotors_;
 
 	/// The type of the experiment.  Logical OR combination of the different choices.
 	ExperimentType type_;
