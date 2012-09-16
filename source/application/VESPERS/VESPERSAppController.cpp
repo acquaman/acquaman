@@ -569,7 +569,7 @@ void VESPERSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
 
 		connect(editor, SIGNAL(dataPositionChanged(AMGenericScanEditor*,QPoint)), this, SLOT(onDataPositionChanged(AMGenericScanEditor*,QPoint)));
 
-		// This is hard coded.  We need a way to store detector settings in a scan.
+		// This is hard coded. We need a way to store detector settings in a scan.
 		AMAxisInfo ai("Energy", 2048, "Energy", "eV");
 		ai.increment = AMNumber(10);
 		ai.start = AMNumber(0);
@@ -594,6 +594,15 @@ void VESPERSAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMSc
 
 		else if (config && config->fluorescenceDetectorChoice() == (VESPERS2DScanConfiguration::SingleElement | VESPERS2DScanConfiguration::FourElement))
 			editor->setSingleSpectrumViewDataSourceName("sumSpectra");
+
+		// This is hard coded. We need a way to store detector settings in a scan.
+		AMAxisInfo ai("Energy", 2048, "Energy", "eV");
+		ai.increment = AMNumber(10);
+		ai.start = AMNumber(0);
+		ai.isUniform = true;
+
+		editor->setAxisInfoForSpectrumView(ai);
+		editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().second.toDouble(), 20480);
 	}
 }
 

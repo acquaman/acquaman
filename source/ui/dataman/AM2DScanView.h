@@ -23,13 +23,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 #include <QPropertyAnimation>
 #include <QGroupBox>
+#include <QCheckBox>
+#include <QVBoxLayout>
 
 #include "MPlot/MPlot.h"
+#include "MPlot/MPlotSeries.h"
 #include "ui/dataman/AMScanViewUtilities.h"
 #include "dataman/AMAxisInfo.h"
 #include "dataman/AMnDIndex.h"
-#include <QCheckBox>
-
 
 class AM2DScanViewInternal;
 class AM2DScanViewExclusiveView;
@@ -177,6 +178,8 @@ protected slots:
 	void onExclusiveDataSourceChanged(const QString &name);
 	/// Helper slot that updates the range if the values change for the current exclusive data source.
 	void onExclusiveDataSourceValueChanged(const AMnDIndex& start, const AMnDIndex& end);
+	/// Helper slot that helps setup the single spectrum view after a scan has been added.
+	void onScanAdded(AMScan *scan);
 
 protected:
 	/// Reimplements the show event to hide the multi view.
@@ -372,37 +375,51 @@ public:
 	/// Constructor.  Builds a plot.
 	AM2DScanViewSingleSpectrumView(QWidget *parent = 0);
 
-	/// Sets the scale for each point along the x-axis.  This also calls setPlotRange to make the ranges match.  Set \param propogateToPlotRange to false if you don't want the information to propogate.
+	/// Sets the scale for each point along the x-axis. This also calls setPlotRange to make the ranges match. Set \param propogateToPlotRange to false if you don't want the information to propogate.
 	void setAxisInfo(AMAxisInfo info, bool propogateToPlotRange);
+	/// This method looks for a data source named \param name and sets it as the only spectrum currently to be viewed.
+	void setDataSourceByName(const QString &name);
 	/// Sets the plot range used for placing markers inside the plot.
 	void setPlotRange(double low, double high);
-	/// Sets the data source that will be used for visualization.
-	void setDataSource(AMDataSource *source) { source_ = source; }
+	/// Sets the data source list that can be visualized.
+	void setDataSources(QList<AMDataSource *> sources);
 
 public slots:
 	/// Gives a new coordinate to grab a new spectrum.
 	void onDataPositionChanged(AMnDIndex index);
 
 protected slots:
-	/// Slot that updates the plot whenever AMFetchSpectrumThread is finished.
-	void updatePlot(QVector<double> spectrum);
+	/// Slot that updates the plot at index \param index.  Updates the plot with every checked spectrum.  If no parameter is given then it uses the current index.
+	void updatePlot(const AMnDIndex &index = AMnDIndex());
+	/// Overloaded.  Slot that updates the plot with the spectrum from datasource \param id.
+	void updatePlot(int id);
 	/// Helper slot that adds lines to the plot based on elements being selected from the table.
 	void onElementSelected(int atomicNumber);
 	/// Helper slot that removes lines from the plot based on elements being deselected fromm the table.
 	void onElementDeselected(int atomicNumber);
+	/// Slot that helps handling adding and removing of MPlot items as check boxes are checked on and off.
+	void onCheckBoxChanged(int id);
 
 protected:
 	/// Sets up the plot.
 	void setupPlot();
 
-	/// The MPlot series that holds the data.
-	MPlotVectorSeriesData *model_;
+	/// The MPlot series that are visualized in the plot.
+	QList<MPlotSeriesBasic *> series_;
+	/// The list that holds all the MPlot data models.
+	QList<MPlotVectorSeriesData *> models_;
 	/// The plot widget that holds everything about the plot.
 	MPlotWidget *plot_;
 	/// Holds the x-axis values so that they do not need to be recomputed everytime.
 	QVector<double> x_;
-	/// Holds the data source used for visualization.
-	AMDataSource *source_;
+	/// Holds the AMnDIndex of where we will grab the spectrum.
+	AMnDIndex currentIndex_;
+	/// Holds the list of data sources that can be visualized.
+	QList<AMDataSource *> sources_;
+	/// Holds the button group that is associated with the current list of data sources.
+	QButtonGroup *sourceButtons_;
+	/// The layout that holds the buttons associated with sourceButtons_.
+	QVBoxLayout *sourceButtonsLayout_;
 
 	/// The periodic table model that holds all of the selected elements.
 	AMSelectablePeriodicTable *table_;
