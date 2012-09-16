@@ -214,6 +214,10 @@ public slots:
 
 signals:
 	void exclusiveDataSourceChanged(QString exclusiveDataSourceName);
+	/// Notifier that a scan has been added.  Passes a reference to the new scan.
+	void scanAdded(AMScan *);
+	/// Notifier that a scan has been removed.
+	void scanRemoved();
 
 
 protected slots:

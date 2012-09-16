@@ -20,7 +20,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AM2DScanView.h"
 
 #include "MPlot/MPlotImage.h"
-#include "MPlot/MPlotSeries.h"
 #include "MPlot/MPlotTools.h"
 
 #include "dataman/datasource/AMDataSourceSeriesData.h"
@@ -34,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSizePolicy>
 #include <QStringBuilder>
 #include <QFileInfo>
+#include <QMessageBox>
 
 AM2DScanBar::AM2DScanBar(QWidget *parent)
 	: QWidget(parent)
@@ -46,7 +46,7 @@ AM2DScanBar::AM2DScanBar(QWidget *parent)
 	yUnits_ = "";
 	position_ = QPointF();
 	rect_ = QRectF();
-	value_ = 0;
+	value_ = -1;
 	range_ = qMakePair(0.0, 0.0);
 
 	showSpectra_ = new QCheckBox("Show Spectra");
@@ -117,7 +117,7 @@ void AM2DScanBar::setSelectedRect(const QRectF &rect)
 void AM2DScanBar::setValue(double value)
 {
 	value_ = value;
-	valueLabel_->setText(QString("Value: %1").arg(value, 0, 'g', 3));
+	valueLabel_->setText(value_ == -1 ? QString("") : QString("Value: %1").arg(value, 0, 'g', 3));
 }
 
 void AM2DScanBar::setRange(QPair<double, double> range)
@@ -257,6 +257,7 @@ void AM2DScanView::makeConnections()
 	connect(gMultiView_, SIGNAL(resized(QSizeF)), this, SLOT(resizeMultiViews()), Qt::QueuedConnection);
 
 	connect(scansModel_, SIGNAL(exclusiveDataSourceChanged(QString)), this, SLOT(onExclusiveDataSourceChanged(QString)));
+	connect(scansModel_, SIGNAL(scanAdded(AMScan*)), this, SLOT(onScanAdded(AMScan*)));
 	connect(exclusiveView_, SIGNAL(selectedRectChanged(QRectF)), exclusive2DScanBar_, SLOT(setSelectedRect(QRectF)));
 	connect(exclusive2DScanBar_, SIGNAL(showSpectra(bool)), this, SLOT(setSpectrumViewVisibility(bool)));
 	connect(exclusiveView_, SIGNAL(dataPositionChanged(QPointF)), this, SLOT(onDataPositionChanged(QPointF)));
@@ -288,6 +289,7 @@ void AM2DScanView::onExclusiveDataSourceChanged(const QString &name)
 	}
 
 	currentExclusiveDataSource_ = currentScan_->dataSourceAt(currentScan_->indexOfDataSource(name));
+	exclusive2DScanBar_->setValue(double(currentExclusiveDataSource_->value(getIndex(exclusive2DScanBar_->dataPosition()))));
 	exclusive2DScanBar_->setRange(getCurrentExclusiveDataSourceRange());
 	connect(currentExclusiveDataSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onExclusiveDataSourceValueChanged(AMnDIndex,AMnDIndex)));
 }
@@ -355,22 +357,7 @@ QPair<double, double> AM2DScanView::getCurrentExclusiveDataSourceRange(const AMn
 
 void AM2DScanView::setSingleSpectrumDataSource(const QString &name)
 {
-	if (currentScan_){
-
-		int index = currentScan_->indexOfDataSource(name);
-
-		if (index != -1 && currentScan_->dataSourceAt(index)->rank() == 3){
-
-			spectrumView_->setDataSource(currentScan_->dataSourceAt(index));
-			exclusive2DScanBar_->setShowSpectraEnabled(true);
-		}
-
-		else
-			exclusive2DScanBar_->setShowSpectraEnabled(false);
-	}
-
-	else
-		exclusive2DScanBar_->setShowSpectraEnabled(false);
+	spectrumView_->setDataSourceByName(name);
 }
 
 void AM2DScanView::setCurrentScan(AMScan *scan)
@@ -414,9 +401,34 @@ void AM2DScanView::resizeMultiViews()
 	multiViewModeAnim_->start();
 }
 
+void AM2DScanView::onScanAdded(AMScan *scan)
+{
+	QList<AMDataSource *> sources;
+
+	foreach (AMDataSource *source, scan->rawDataSources()->toList())
+		if (source->rank() == 3)
+			sources.append(source);
+
+	foreach (AMDataSource *source, scan->analyzedDataSources()->toList())
+		if (source->rank() == 3)
+			sources.append(source);
+
+	exclusive2DScanBar_->setShowSpectraEnabled(!sources.isEmpty());
+	spectrumView_->setDataSources(sources);
+}
+
+void AM2DScanView::setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange)
+{
+	spectrumView_->setAxisInfo(info, propogateToPlotRange);
+}
+
 void AM2DScanView::addScan(AMScan *newScan)
 {
-	scansModel_->addScan(newScan);
+	if (scansModel_->scanCount() == 0)
+		scansModel_->addScan(newScan);
+
+	else
+		QMessageBox::information(this, "Only one scan in 2D map mode", "Due to the nature of visualizing 2D maps.  You are only allowed to view one 2D scan per editor.");
 }
 
 // remove a scan from the view:
@@ -453,11 +465,6 @@ void AM2DScanView::mousePressEvent(QMouseEvent *e)
 		emit dataPositionChanged(e->globalPos());
 
 	QWidget::mousePressEvent(e);
-}
-
-void AM2DScanView::setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange)
-{
-	spectrumView_->setAxisInfo(info, propogateToPlotRange);
 }
 
 void AM2DScanView::setPlotRange(double low, double high)
@@ -1153,15 +1160,12 @@ AM2DScanViewSingleSpectrumView::AM2DScanViewSingleSpectrumView(QWidget *parent)
 	: QWidget(parent)
 {
 	x_.resize(0);
-	source_ = 0;
+	sourceButtons_ = new QButtonGroup;
+	sourceButtons_->setExclusive(false);
+	connect(sourceButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onCheckBoxChanged(int)));
 
 	setupPlot();
 
-	model_ = new MPlotVectorSeriesData;
-	MPlotSeriesBasic *series = new MPlotSeriesBasic(model_);
-	series->setMarker(MPlotMarkerShape::None);
-	series->setDescription("Spectrum");
-	plot_->plot()->addItem(series);
 	plot_->setMinimumSize(600, 400);
 	plot_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
@@ -1172,10 +1176,17 @@ AM2DScanViewSingleSpectrumView::AM2DScanViewSingleSpectrumView(QWidget *parent)
 
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->addWidget(plot_);
-//	layout->addStretch();
 	layout->addWidget(tableView_, 0, Qt::AlignCenter);
 
-	setLayout(layout);
+	sourceButtonsLayout_ = new QVBoxLayout;
+	sourceButtonsLayout_->addWidget(new QLabel("Available Spectra"), 0, Qt::AlignLeft);
+	sourceButtonsLayout_->addStretch();
+
+	QHBoxLayout *fullLayout = new QHBoxLayout;
+	fullLayout->addLayout(layout);
+	fullLayout->addLayout(sourceButtonsLayout_);
+
+	setLayout(fullLayout);
 }
 
 void AM2DScanViewSingleSpectrumView::setupPlot()
@@ -1250,12 +1261,8 @@ void AM2DScanViewSingleSpectrumView::setPlotRange(double low, double high)
 
 void AM2DScanViewSingleSpectrumView::onDataPositionChanged(AMnDIndex index)
 {
-	if (isVisible()){
-
-		QVector<double> data = QVector<double>(source_->size(2));
-		source_->values(AMnDIndex(index.i(), index.j(), 0), AMnDIndex(index.i(), index.j(), source_->size(2)-1), data.data());
-		updatePlot(data);
-	}
+	if (isVisible())
+		updatePlot(index);
 }
 
 void AM2DScanViewSingleSpectrumView::setAxisInfo(AMAxisInfo info, bool propogateToPlotRange)
@@ -1275,16 +1282,107 @@ void AM2DScanViewSingleSpectrumView::setAxisInfo(AMAxisInfo info, bool propogate
 		setPlotRange(double(info.start), double(info.start) + info.size*double(info.increment));
 }
 
-void AM2DScanViewSingleSpectrumView::updatePlot(QVector<double> spectrum)
+void AM2DScanViewSingleSpectrumView::onCheckBoxChanged(int id)
 {
-	if (x_.size() == 0){
+	if (sourceButtons_->button(id)->isChecked()){
 
-		x_.resize(spectrum.size());
-
-		for (int i = 0; i < x_.size(); i++)
-			x_[i] = i;
+		plot_->plot()->addItem(series_.at(id));
+		updatePlot(id);
 	}
 
-	QVector<double> y = spectrum;
-	model_->setValues(x_, y);
+	else
+		plot_->plot()->removeItem(series_.at(id));
+}
+
+void AM2DScanViewSingleSpectrumView::updatePlot(const AMnDIndex &index)
+{
+	if (index.rank() == 2)
+		currentIndex_ = index;
+
+	for (int i = 0, count = sourceButtons_->buttons().size(); i < count; i++)
+		if (sourceButtons_->button(i)->isChecked())
+			updatePlot(i);
+}
+
+void AM2DScanViewSingleSpectrumView::updatePlot(int id)
+{
+	AMDataSource *source = sources_.at(id);
+	QVector<double> data(source->size(2));
+	source->values(AMnDIndex(currentIndex_.i(), currentIndex_.j(), 0), AMnDIndex(currentIndex_.i(), currentIndex_.j(), source->size(2)-1), data.data());
+	models_.at(id)->setValues(x_, data);
+}
+
+void AM2DScanViewSingleSpectrumView::setDataSourceByName(const QString &name)
+{
+	for (int i = 0, count = sources_.size(); i < count; i++)
+		if (sources_.at(i)->name() == name)
+			sourceButtons_->button(i)->click();
+
+	updatePlot();
+}
+
+void AM2DScanViewSingleSpectrumView::setDataSources(QList<AMDataSource *> sources)
+{
+	// Clean out the old buttons and models.
+	QList<QAbstractButton *> buttons = sourceButtons_->buttons();
+
+	foreach (QAbstractButton *button, buttons){
+
+		sourceButtons_->removeButton(button);
+		sourceButtonsLayout_->removeWidget(button);
+		delete button;
+	}
+
+	buttons.clear();
+
+	foreach (MPlotItem *item, plot_->plot()->plotItems())
+		if (item->type() == MPlotItem::Series){
+
+			plot_->plot()->removeItem(item);
+			delete item;
+		}
+
+	foreach (MPlotVectorSeriesData *model, models_)
+		delete model;
+
+	models_.clear();
+
+	// Fill in the button groups and models.
+	sources_ = sources;
+	QAbstractButton *button = 0;
+	AMDataSource *source = 0;
+	MPlotVectorSeriesData *model = 0;
+	MPlotSeriesBasic *series;
+
+	for (int i = 0, count = sources_.size(); i < count; i++){
+
+		source = sources_.at(i);
+		button = new QCheckBox(source->name());
+		sourceButtons_->addButton(button, i);
+		sourceButtonsLayout_->insertWidget(sourceButtonsLayout_->count()-1, button, 0, Qt::AlignLeft);
+
+		model = new MPlotVectorSeriesData;
+		series = new MPlotSeriesBasic(model);
+		series->setMarker(MPlotMarkerShape::None);
+		series->setDescription(source->description());
+		series->setLinePen(AMDataSourcePlotSettings().linePen);
+		models_.append(model);
+		series_.append(series);
+	}
+
+	// Setup the plot's independant axis.
+//	AMAxisInfo info = sources_.last()->axisInfoAt(2);
+
+//	if (info.units.isEmpty())
+//		plot_->plot()->axisBottom()->setAxisName(info.name);
+
+//	else
+//		plot_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
+
+//	x_.resize(info.size);
+
+//	for (int i = 0; i < info.size; i++)
+//		x_[i] = double(info.start) + i*double(info.increment);
+
+//	setPlotRange(double(info.start), double(info.start) + info.size*double(info.increment));
 }

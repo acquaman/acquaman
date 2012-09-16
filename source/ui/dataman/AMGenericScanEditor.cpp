@@ -162,6 +162,7 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 		scanSetModel_ = scanView2D_->model();
 
 		connect(scanView2D_, SIGNAL(dataPositionChanged(QPoint)), this, SLOT(onDataPositionChanged(QPoint)));
+		ui_.openScanButton->setEnabled(false);
 	}
 
 	else {
@@ -260,6 +261,7 @@ QRectF AMGenericScanEditor::selectedRect() const
 
 	return QRectF();
 }
+
 void AMGenericScanEditor::setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange)
 {
 	if (scanView2D_)
