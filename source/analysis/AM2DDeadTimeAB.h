@@ -1,38 +1,18 @@
-/*
-Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
-
-This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
-
-Acquaman is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Acquaman is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
-#ifndef AMDEADTIMEAB_H
-#define AMDEADTIMEAB_H
+#ifndef AM2DDEADTIMEAB_H
+#define AM2DDEADTIMEAB_H
 
 #include "analysis/AMStandardAnalysisBlock.h"
 
-/// This analysis block accepts one 1D input data source and does a dead time correction to all values using two 0D input data sources, Input Count Rate (ICR) and Output Count Rate (OCR).  The output data source is a 1D data source.
-class AMDeadTimeAB : public AMStandardAnalysisBlock
+/// This analysis block accepts one 2D input data source and does a dead time correction to all values using two 1D input data sources, Input Count Rate (ICR) and Output Count Rate (OCR).  The output data source is a 2D data source.
+class AM2DDeadTimeAB : public AMStandardAnalysisBlock
 {
 	Q_OBJECT
 
-	Q_CLASSINFO("AMDbObject_Attributes", "description=Dead Time Correction Block")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=2D Dead Time Correction Block")
 
 public:
 	/// Constructor.
-	Q_INVOKABLE AMDeadTimeAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
+	Q_INVOKABLE AM2DDeadTimeAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	/// Description.
 	QString infoDescription() const { return QString(); }
@@ -75,12 +55,12 @@ protected:
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState();
 
-	// Holds the 1D spectrum data source.
+	/// Holds the 2D spectrum data source.
 	AMDataSource *spectra_;
-	// Holds the 0D input count rate data source.
+	/// Holds the 1D input count rate data source.
 	AMDataSource *icr_;
-	// Holds the 0D output count rate data source.
+	/// Holds the 1D output count rate data source.
 	AMDataSource *ocr_;
 };
 
-#endif // AMDEADTIMEAB_H
+#endif // AM2DDEADTIMEAB_H
