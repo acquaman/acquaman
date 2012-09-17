@@ -1371,18 +1371,18 @@ void AM2DScanViewSingleSpectrumView::setDataSources(QList<AMDataSource *> source
 	}
 
 	// Setup the plot's independant axis.
-//	AMAxisInfo info = sources_.last()->axisInfoAt(2);
+	AMAxisInfo info = sources_.last()->axisInfoAt(2);
 
-//	if (info.units.isEmpty())
-//		plot_->plot()->axisBottom()->setAxisName(info.name);
+	if (info.units.isEmpty())
+		plot_->plot()->axisBottom()->setAxisName(info.name);
 
-//	else
-//		plot_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
+	else
+		plot_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
 
-//	x_.resize(info.size);
+	x_.resize(info.size);
 
-//	for (int i = 0; i < info.size; i++)
-//		x_[i] = double(info.start) + i*double(info.increment);
+	for (int i = 0; i < info.size; i++)
+		x_[i] = double(info.start) + i*double(info.increment);
 
-//	setPlotRange(double(info.start), double(info.start) + info.size*double(info.increment));
+	setPlotRange(double(info.start), double(info.start) + info.size*double(info.increment));
 }
