@@ -190,6 +190,8 @@ signals:
 	void stopScanIssued();
 	/// Passing on the pause scan signal from the bottom bar.
 	void pauseScanIssued();
+	/// Passing on the resume scan signal from the bottom bar.
+	void resumeScanIssued();
 	/// Passing on the continue scan signal from the bottom bar.
 	void continueScanIssued();
 	/// Notifier that a new generic scan editor has been created. Passes the reference to the new editor.

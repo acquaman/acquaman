@@ -66,6 +66,7 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const V
 	roiInfoList_ = original.roiList();
 	totalTime_ = 0;
 	timeOffset_ = 0.7;
+	computeTotalTime();
 	connect(this, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(startChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(stepChanged(double)), this, SLOT(computeTotalTime()));

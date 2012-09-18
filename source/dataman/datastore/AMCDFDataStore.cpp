@@ -1347,7 +1347,11 @@ bool AMCDFDataStore::initializeFromExistingCDF(const QString &filePath, bool cre
 
 				axes.reserve(rank);
 				for(long i=0; i<rank; ++i) {
-					axes << AMAxisInfo(axisNames.at(i), dims[i], axisDescriptions.at(i), axisUnits.at(i));
+
+					AMAxisInfo axisInfo(axisNames.at(i), dims[i], axisDescriptions.at(i), axisUnits.at(i));
+					axisInfo.start = axisValueStart.at(i);
+					axisInfo.increment = axisValueIncrement.at(i);
+					axes << axisInfo;
 				}
 			}
 

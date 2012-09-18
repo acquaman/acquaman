@@ -55,7 +55,7 @@ void AM2DAdditionAB::setInputDataSourcesImplementation(const QList<AMDataSource*
 		axes_[0] = sources_.at(0)->axisInfoAt(0);
 		axes_[1] = sources_.at(0)->axisInfoAt(1);
 
-		setDescription(QString("Sum of %1 maps").arg(sources_.size()));
+		setDescription(QString("Sum of %1").arg(sources_.at(0)->description()));
 
 		for (int i = 0; i < sources_.size(); i++){
 
@@ -174,10 +174,9 @@ void AM2DAdditionAB::onInputSourceSizeChanged()
 // Connected to be called when the state() flags of any input source change
 void AM2DAdditionAB::onInputSourceStateChanged()
 {
-	reviewState();
-
 	// just in case the size has changed while the input source was invalid, and now it's going valid. Do we need this? probably not, if the input source is well behaved. But it's pretty inexpensive to do it twice... and we know we'll get the size right everytime it goes valid.
 	onInputSourceSizeChanged();
+	reviewState();
 }
 
 void AM2DAdditionAB::reviewState()

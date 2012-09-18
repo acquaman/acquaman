@@ -555,9 +555,14 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	mw_->installEventFilter(this);
 
 	bottomBar_ = new AMBottomBar();
+	// These buttons are never used.  Hiding them.
+	bottomBar_->fullScreenButton->hide();
+	bottomBar_->adjustScanFinishButton->hide();
+	bottomBar_->restartScanButton->hide();
 	mw_->addBottomWidget(bottomBar_);
 	connect(bottomBar_, SIGNAL(addButtonClicked()), this, SLOT(onAddButtonClicked()));
 	connect(bottomBar_, SIGNAL(pauseScanIssued()), this, SIGNAL(pauseScanIssued()));
+	connect(bottomBar_, SIGNAL(resumeScanIssued()), this, SIGNAL(resumeScanIssued()));
 	connect(bottomBar_, SIGNAL(stopScanIssued()), this, SIGNAL(stopScanIssued()));
 
 	// Create panes in the main window:

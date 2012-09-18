@@ -58,6 +58,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfig
 	roiInfoList_ = original.roiList();
 	totalTime_ = 0;
 	timeOffset_ = 0.7;
+	computeTotalTime();
 	connect(this, SIGNAL(xStartChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(xStepChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(xEndChanged(double)), this, SLOT(computeTotalTime()));

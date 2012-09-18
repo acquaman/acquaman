@@ -334,7 +334,7 @@ void REIXSXESImageAB::onInputSourceValuesChanged(const AMnDIndex &start, const A
 {
 	Q_UNUSED(start)
 	Q_UNUSED(end)
-	
+
 	if(liveCorrelation())
 		callCorrelation_.schedule();
 
@@ -369,8 +369,8 @@ void REIXSXESImageAB::onInputSourceSizeChanged()
 
 void REIXSXESImageAB::onInputSourceStateChanged()
 {
-	reviewState();
 	onInputSourceSizeChanged();	// just in case the size has changed, while it was invalid.
+	reviewState();
 }
 
 

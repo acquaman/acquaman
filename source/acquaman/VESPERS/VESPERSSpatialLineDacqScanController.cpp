@@ -9,6 +9,7 @@
 #include "analysis/AM2DAdditionAB.h"
 #include "analysis/AM1DSummingAB.h"
 #include "analysis/AM2DSummingAB.h"
+#include "analysis/AM2DDeadTimeAB.h"
 #include "util/VESPERS/VESPERSConfigurationFileBuilder.h"
 #include "dataman/datastore/AMCDFDataStore.h"
 
@@ -77,27 +78,7 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 	connect(this, SIGNAL(finished()), &elapsedTime_, SLOT(stop()));
 	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
 
-//	if (config_->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::SingleElement && !config_->usingCCD())
-//		scan_->setFileFormat("vespers2012LineScanXRF1El");
-
-//	else if (config_->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::SingleElement && config_->usingCCD())
-//		scan_->setFileFormat("vespers2012LineScanXRF1ElXRD");
-
-//	else if (config_->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::FourElement && !config_->usingCCD())
-//		scan_->setFileFormat("vespers2012LineScanXRF4El");
-
-//	else if (config_->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::FourElement && config_->usingCCD())
-//		scan_->setFileFormat("vespers2012LineScanXRF4ElXRD");
-
-//	else if (config_->fluorescenceDetectorChoice() == (VESPERSSpatialLineScanConfiguration::SingleElement | VESPERSSpatialLineScanConfiguration::FourElement) && !config_->usingCCD())
-//		scan_->setFileFormat("vespers2012LineScan1Eln4El");
-
-//	else if (config_->fluorescenceDetectorChoice() == (VESPERSSpatialLineScanConfiguration::SingleElement | VESPERSSpatialLineScanConfiguration::FourElement) && config_->usingCCD())
-//		scan_->setFileFormat("vespers2012LineScan1Eln4ElXRD");
-
-//	else
-//		AMErrorMon::error(this, VESPERSSPATIALLINEDACQSCANCONTROLLER_CANT_INTIALIZE, "Could not recognize the format type of the scan.");
-
+	// Build the notes for the scan.
 	QString notes;
 
 	switch ((int)config_->fluorescenceDetectorChoice()){
@@ -230,7 +211,7 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 		// This is safe and okay because I always have the regions of interest set taking up 0-X where X is the count-1 of the number of regions of interest.
 		for (int i = 0; i < roiCount; i++){
 
-			scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" ") % QString("-1"), detector->roiInfoList()->at(i).name()));
+			scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" ") % QString("-1el"), detector->roiInfoList()->at(i).name()));
 			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
 		}
 
@@ -245,7 +226,7 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 		// This is safe and okay because I always have the regions of interest set taking up 0-X where X is the count-1 of the number of regions of interest.
 		for (int i = 0; i < roiCount; i++){
 
-			scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" ") % "-4", detector->roiInfoList()->at(i).name()));
+			scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" ") % "-4el", detector->roiInfoList()->at(i).name()));
 			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
 		}
 
@@ -286,7 +267,31 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 	case VESPERSSpatialLineScanConfiguration::None:
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::SingleElement:
+	case VESPERSSpatialLineScanConfiguration::SingleElement:{
+
+		AMDataSource *rawDataSource = 0;
+		AM1DNormalizationAB *normROI = 0;
+		int roiCount = detector->roiInfoList()->count();
+
+		for (int i = 0; i < roiCount; i++){
+
+			rawDataSource = scan_->rawDataSources()->at(i+1);
+			normROI = new AM1DNormalizationAB("norm_"+rawDataSource->name());
+			normROI->setDescription("Normalized "+rawDataSource->description());
+			normROI->setDataName(rawDataSource->name());
+			normROI->setNormalizationName(i0Name);
+			normROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource << i0List);
+			scan_->addAnalyzedDataSource(normROI, true, false);
+		}
+
+		AM2DDeadTimeAB *correctedSpectra1El = new AM2DDeadTimeAB("correctedRawSpectra-1el");
+		correctedSpectra1El->setDescription("Corrected Spectra 1-El");
+		correctedSpectra1El->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("rawSpectra-1el")) << scan_->dataSourceAt(scan_->indexOfDataSource("FastPeaks")) << scan_->dataSourceAt(scan_->indexOfDataSource("SlowPeaks")));
+		scan_->addAnalyzedDataSource(correctedSpectra1El, true, false);
+
+		break;
+	}
+
 	case VESPERSSpatialLineScanConfiguration::FourElement:{
 
 		AMDataSource *rawDataSource = 0;
@@ -309,10 +314,15 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 
 	case VESPERSSpatialLineScanConfiguration::SingleElement | VESPERSSpatialLineScanConfiguration::FourElement:{
 
+		AM2DDeadTimeAB *correctedSpectra1El = new AM2DDeadTimeAB("correctedRawSpectra-1el");
+		correctedSpectra1El->setDescription("Corrected Spectra 1-El");
+		correctedSpectra1El->setInputDataSources(QList<AMDataSource *>() << correctedSpectra1El << scan_->dataSourceAt(scan_->indexOfDataSource("FastPeaks")) << scan_->dataSourceAt(scan_->indexOfDataSource("SlowPeaks")));
+		scan_->addAnalyzedDataSource(correctedSpectra1El, false, true);
+
 		AM2DAdditionAB *spectraSumAB = new AM2DAdditionAB("sumSpectra");
 		spectraSumAB->setDescription("Summed spectra of both detectors.");
-		spectraSumAB->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("spectra")) << scan_->dataSourceAt(scan_->indexOfDataSource("corrSum")));
-		scan_->addAnalyzedDataSource(spectraSumAB, false, true);
+		spectraSumAB->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("spectra")) << scan_->dataSourceAt(scan_->indexOfDataSource("correctedSum-4el")));
+		scan_->addAnalyzedDataSource(spectraSumAB, true, false);
 
 		AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
 		pfy->setDescription("PFY");
@@ -338,7 +348,7 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 
 			roi1 = scan_->rawDataSources()->at(sameRois.at(i).first+1);
 			roi4 = scan_->rawDataSources()->at(sameRois.at(i).second+1+singleElRoiCount);
-			QString name = roi1->name().left(roi1->name().size()-2);
+			QString name = roi1->name().left(roi1->name().size()-4);
 			roiNames << name;
 			sumAB = new AM1DSummingAB("sum_" % name);
 			sumAB->setDescription("Summed " % roi1->description());
@@ -571,9 +581,10 @@ void VESPERSSpatialLineDacqScanController::addExtraDatasources()
 	case VESPERSSpatialLineScanConfiguration::SingleElement:{
 
 		temp = AMMeasurementInfo(VESPERSBeamline::vespers()->vortexXRF1E()->toXRFInfo());
-		temp.name = "spectra";
+		temp.name = "rawSpectra-1el";
+		temp.description = "Raw Spectrum 1-el";
 		scan_->rawData()->addMeasurement(temp);
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, false);
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 
 		break;
 	}
@@ -581,13 +592,15 @@ void VESPERSSpatialLineDacqScanController::addExtraDatasources()
 	case VESPERSSpatialLineScanConfiguration::FourElement:{
 
 		temp = AMMeasurementInfo(VESPERSBeamline::vespers()->vortexXRF4E()->toXRFInfo());
-		temp.name = "corrSum";
+		temp.name = "correctedSum-4el";
+		temp.description = "Corrected Sum 4-el";
 		scan_->rawData()->addMeasurement(temp);
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, false);
 
 		for (int i = 0; i < VESPERSBeamline::vespers()->vortexXRF4E()->elements(); i++){
 
-			temp.name = QString("raw%1").arg(i+1);
+			temp.name = QString("raw%1-4el").arg(i+1);
+			temp.description = QString("Raw Spectrum %1 4-el").arg(i+1);
 			scan_->rawData()->addMeasurement(temp);
 			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
 		}
@@ -598,18 +611,21 @@ void VESPERSSpatialLineDacqScanController::addExtraDatasources()
 	case VESPERSSpatialLineScanConfiguration::SingleElement | VESPERSSpatialLineScanConfiguration::FourElement:{
 
 		temp = AMMeasurementInfo(VESPERSBeamline::vespers()->vortexXRF1E()->toXRFInfo());
-		temp.name = "spectra";
+		temp.name = "rawSpectra-1el";
+		temp.description = "Raw Spectrum 1-el";
 		scan_->rawData()->addMeasurement(temp);
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 
 		temp = AMMeasurementInfo(VESPERSBeamline::vespers()->vortexXRF4E()->toXRFInfo());
-		temp.name = "corrSum";
+		temp.name = "correctedSum-4el";
+		temp.description = "Corrected Sum 4-el";
 		scan_->rawData()->addMeasurement(temp);
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 
 		for (int i = 0; i < VESPERSBeamline::vespers()->vortexXRF4E()->elements(); i++){
 
-			temp.name = QString("raw%1").arg(i+1);
+			temp.name = QString("raw%1-4el").arg(i+1);
+			temp.description = QString("Raw Spectrum %1 4-el").arg(i+1);
 			scan_->rawData()->addMeasurement(temp);
 			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
 		}
