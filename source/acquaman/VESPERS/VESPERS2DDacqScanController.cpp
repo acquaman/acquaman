@@ -224,7 +224,7 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 		// This is safe and okay because I always have the regions of interest set taking up 0-X where X is the count-1 of the number of regions of interest.
 		for (int i = 0; i < roiCount; i++){
 
-			scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" ") % QString("-1"), detector->roiInfoList()->at(i).name()));
+			scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" ") % QString("-1el"), detector->roiInfoList()->at(i).name()));
 			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, false);
 		}
 
@@ -239,7 +239,7 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 		// This is safe and okay because I always have the regions of interest set taking up 0-X where X is the count-1 of the number of regions of interest.
 		for (int i = 0; i < roiCount; i++){
 
-			scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" ") % "-4", detector->roiInfoList()->at(i).name()));
+			scan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" ") % "-4el", detector->roiInfoList()->at(i).name()));
 			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, false);
 		}
 
@@ -316,7 +316,7 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 
 			roi1 = scan_->rawDataSources()->at(sameRois.at(i).first+2);
 			roi4 = scan_->rawDataSources()->at(sameRois.at(i).second+2+singleElRoiCount);
-			QString name = roi1->name().left(roi1->name().size()-2);
+			QString name = roi1->name().left(roi1->name().size()-4);
 			roiNames << name;
 			sumAB = new AM2DAdditionAB("sum_" % name);
 			sumAB->setDescription("Summed " % roi1->description());
