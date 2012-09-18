@@ -9,6 +9,7 @@
 #include "analysis/AM2DAdditionAB.h"
 #include "analysis/AM1DSummingAB.h"
 #include "analysis/AM2DSummingAB.h"
+#include "analysis/AM2DDeadTimeAB.h"
 #include "util/VESPERS/VESPERSConfigurationFileBuilder.h"
 #include "dataman/datastore/AMCDFDataStore.h"
 
@@ -266,7 +267,31 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 	case VESPERSSpatialLineScanConfiguration::None:
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::SingleElement:
+	case VESPERSSpatialLineScanConfiguration::SingleElement:{
+
+		AMDataSource *rawDataSource = 0;
+		AM1DNormalizationAB *normROI = 0;
+		int roiCount = detector->roiInfoList()->count();
+
+		for (int i = 0; i < roiCount; i++){
+
+			rawDataSource = scan_->rawDataSources()->at(i+1);
+			normROI = new AM1DNormalizationAB("norm_"+rawDataSource->name());
+			normROI->setDescription("Normalized "+rawDataSource->description());
+			normROI->setDataName(rawDataSource->name());
+			normROI->setNormalizationName(i0Name);
+			normROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource << i0List);
+			scan_->addAnalyzedDataSource(normROI, true, false);
+		}
+
+		AM2DDeadTimeAB *correctedSpectra1El = new AM2DDeadTimeAB("correctedRawSpectra-1el");
+		correctedSpectra1El->setDescription("Corrected Spectra 1-El");
+		correctedSpectra1El->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("rawSpectra-1el")) << scan_->dataSourceAt(scan_->indexOfDataSource("FastPeaks")) << scan_->dataSourceAt(scan_->indexOfDataSource("SlowPeaks")));
+		scan_->addAnalyzedDataSource(correctedSpectra1El, true, false);
+
+		break;
+	}
+
 	case VESPERSSpatialLineScanConfiguration::FourElement:{
 
 		AMDataSource *rawDataSource = 0;
@@ -289,10 +314,15 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 
 	case VESPERSSpatialLineScanConfiguration::SingleElement | VESPERSSpatialLineScanConfiguration::FourElement:{
 
+		AM2DDeadTimeAB *correctedSpectra1El = new AM2DDeadTimeAB("correctedRawSpectra-1el");
+		correctedSpectra1El->setDescription("Corrected Spectra 1-El");
+		correctedSpectra1El->setInputDataSources(QList<AMDataSource *>() << correctedSpectra1El << scan_->dataSourceAt(scan_->indexOfDataSource("FastPeaks")) << scan_->dataSourceAt(scan_->indexOfDataSource("SlowPeaks")));
+		scan_->addAnalyzedDataSource(correctedSpectra1El, false, true);
+
 		AM2DAdditionAB *spectraSumAB = new AM2DAdditionAB("sumSpectra");
 		spectraSumAB->setDescription("Summed spectra of both detectors.");
-		spectraSumAB->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("spectra")) << scan_->dataSourceAt(scan_->indexOfDataSource("corrSum")));
-		scan_->addAnalyzedDataSource(spectraSumAB, false, true);
+		spectraSumAB->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("spectra")) << scan_->dataSourceAt(scan_->indexOfDataSource("correctedSum-4el")));
+		scan_->addAnalyzedDataSource(spectraSumAB, true, false);
 
 		AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
 		pfy->setDescription("PFY");
@@ -554,7 +584,7 @@ void VESPERSSpatialLineDacqScanController::addExtraDatasources()
 		temp.name = "rawSpectra-1el";
 		temp.description = "Raw Spectrum 1-el";
 		scan_->rawData()->addMeasurement(temp);
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, false);
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 
 		break;
 	}

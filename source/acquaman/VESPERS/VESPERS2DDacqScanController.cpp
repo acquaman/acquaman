@@ -281,7 +281,30 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	case VESPERS2DScanConfiguration::None:
 		break;
 
-	case VESPERS2DScanConfiguration::SingleElement:
+	case VESPERS2DScanConfiguration::SingleElement:{
+
+		AMDataSource *rawDataSource = 0;
+		AM2DNormalizationAB *normROI = 0;
+		int roiCount = detector->roiInfoList()->count();
+
+		for (int i = 0; i < roiCount; i++){
+
+			rawDataSource = scan_->rawDataSources()->at(i+2);
+			normROI = new AM2DNormalizationAB("norm_"+rawDataSource->name());
+			normROI->setDescription("Normalized "+rawDataSource->description());
+			normROI->setDataName(rawDataSource->name());
+			normROI->setNormalizationName(i0Name);
+			normROI->setInputDataSources(QList<AMDataSource *>() << rawDataSource << i0List);
+			scan_->addAnalyzedDataSource(normROI, true, false);
+		}
+
+		AM3DDeadTimeAB *correctedSpectra1El = new AM3DDeadTimeAB("correctedRawSpectra-1el");
+		correctedSpectra1El->setDescription("Corrected Spectra 1-El");
+		correctedSpectra1El->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("rawSpectra-1el")) << scan_->dataSourceAt(scan_->indexOfDataSource("FastPeaks")) << scan_->dataSourceAt(scan_->indexOfDataSource("SlowPeaks")));
+		scan_->addAnalyzedDataSource(correctedSpectra1El, false, true);
+
+		break;
+	}
 	case VESPERS2DScanConfiguration::FourElement:{
 
 		AMDataSource *rawDataSource = 0;
@@ -338,9 +361,14 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 			scan_->addAnalyzedDataSource(normROI, true, false);
 		}
 
-		AM3DAdditionAB *spectraSum = new AM3DAdditionAB("sumSpectra");
+		AM3DDeadTimeAB *correctedSpectra1El = new AM3DDeadTimeAB("correctedRawSpectra-1el");
+		correctedSpectra1El->setDescription("Corrected Spectra 1-El");
+		correctedSpectra1El->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("rawSpectra-1el")) << scan_->dataSourceAt(scan_->indexOfDataSource("FastPeaks")) << scan_->dataSourceAt(scan_->indexOfDataSource("SlowPeaks")));
+		scan_->addAnalyzedDataSource(correctedSpectra1El, false, true);
+
+		AM3DAdditionAB *spectraSum = new AM3DAdditionAB("sumSpectra-1eland4el");
 		spectraSum->setDescription("Sum of Single and Four Element detectors");
-		spectraSum->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("spectra")) << scan_->dataSourceAt(scan_->indexOfDataSource("corrSum")));
+		spectraSum->setInputDataSources(QList<AMDataSource *>() << correctedSpectra1El << scan_->dataSourceAt(scan_->indexOfDataSource("correctedSum-4el")));
 		scan_->addAnalyzedDataSource(spectraSum, false, true);
 
 		break;

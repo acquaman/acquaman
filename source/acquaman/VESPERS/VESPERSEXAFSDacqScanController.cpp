@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM2DAdditionAB.h"
 #include "analysis/AM1DNormalizationAB.h"
 #include "analysis/AM1DSummingAB.h"
+#include "analysis/AM2DDeadTimeAB.h"
 #include "actions/AMBeamlineParallelActionsList.h"
 #include "util/VESPERS/VESPERSConfigurationFileBuilder.h"
 #include "dataman/datastore/AMCDFDataStore.h"
@@ -160,7 +161,7 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 		temp.name = "rawSpectra-1el";
 		temp.description = "Raw Spectrum 1-el";
 		scan_->rawData()->addMeasurement(temp);
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), true, false);
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 
 		break;
 	}
@@ -284,12 +285,18 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 
 		break;
 	}
+
 	case VESPERSEXAFSScanConfiguration::SingleElement:{
+
+		AM2DDeadTimeAB *correctedSpectra1El = new AM2DDeadTimeAB("correctedRawSpectra-1el");
+		correctedSpectra1El->setDescription("Corrected Spectra 1-El");
+		correctedSpectra1El->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("rawSpectra-1el")) << scan_->dataSourceAt(scan_->indexOfDataSource("FastPeaks")) << scan_->dataSourceAt(scan_->indexOfDataSource("SlowPeaks")));
+		scan_->addAnalyzedDataSource(correctedSpectra1El, true, false);
 
 		AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
 		pfy->setDescription("PFY");
 		QList<AMDataSource*> pfySource;
-		pfySource << scan_->rawDataSources()->at(scan_->rawDataSourceCount()-1);
+		pfySource << correctedSpectra1El;
 		pfy->setInputDataSources(pfySource);
 		pfy->setSumAxis(1);
 		pfy->setSumRangeMax(scan_->rawDataSources()->at(scan_->rawDataSourceCount()-1)->size(1)-1);
@@ -378,9 +385,14 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 
 	case VESPERSEXAFSScanConfiguration::SingleElement | VESPERSEXAFSScanConfiguration::FourElement:{
 
+		AM2DDeadTimeAB *correctedSpectra1El = new AM2DDeadTimeAB("correctedRawSpectra-1el");
+		correctedSpectra1El->setDescription("Corrected Spectra 1-El");
+		correctedSpectra1El->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("rawSpectra-1el")) << scan_->dataSourceAt(scan_->indexOfDataSource("FastPeaks")) << scan_->dataSourceAt(scan_->indexOfDataSource("SlowPeaks")));
+		scan_->addAnalyzedDataSource(correctedSpectra1El, false, true);
+
 		AM2DAdditionAB *spectraSumAB = new AM2DAdditionAB("sumSpectra");
 		spectraSumAB->setDescription("Summed spectra of both detectors.");
-		spectraSumAB->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("spectra")) << scan_->dataSourceAt(scan_->indexOfDataSource("corrSum")));
+		spectraSumAB->setInputDataSources(QList<AMDataSource *>() << correctedSpectra1El << scan_->dataSourceAt(scan_->indexOfDataSource("correctedSum-4el")));
 		scan_->addAnalyzedDataSource(spectraSumAB, true, false);
 
 		AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
