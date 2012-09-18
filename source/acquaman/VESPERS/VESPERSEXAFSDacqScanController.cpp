@@ -55,7 +55,6 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 
 	scan_ = new AMXASScan(); 	// MB: Moved from line 363 in startImplementation.
 	scan_->setName(config_->name());
-//	scan_->setFileFormat("vespers2011EXAFS");
 	scan_->setScanConfiguration(config_);
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setIndexType("fileSystem");
@@ -64,6 +63,7 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	scan_->replaceRawDataStore(new AMCDFDataStore(AMUserSettings::userDataFolder % scan_->filePath(), false));
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
+	// Build the notes for the scan.
 	QString notes;
 
 	switch ((int)config_->fluorescenceDetectorChoice()){
@@ -157,7 +157,8 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 		addExtraDatasources();
 
 		temp = AMMeasurementInfo(detector->toXRFInfo());
-		temp.name = "spectra";
+		temp.name = "rawSpectra-1el";
+		temp.description = "Raw Spectrum 1-el";
 		scan_->rawData()->addMeasurement(temp);
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), true, false);
 
@@ -189,14 +190,16 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 		addExtraDatasources();
 
 		temp = AMMeasurementInfo(detector->toXRFInfo());
-		temp.name = "corrSum";
+		temp.name = "correctedSum-4el";
+		temp.description = "Corrected Sum 4-el";
 		scan_->rawData()->addMeasurement(temp);
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), true, false);
 
 		for (int i = 0; i < detector->elements(); i++){
 
 			temp = AMMeasurementInfo(detector->toXRFInfo());
-			temp.name = QString("raw%1").arg(i+1);
+			temp.name = QString("raw%1-4el").arg(i+1);
+			temp.description = QString("Raw Spectrum %1 4-el").arg(i+1);
 			scan_->rawData()->addMeasurement(temp);
 			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
 		}
@@ -243,19 +246,22 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 		addExtraDatasources();
 
 		temp = AMMeasurementInfo(detector->toXRFInfo());
-		temp.name = "spectra";
+		temp.name = "rawSpectra-1el";
+		temp.description = "Raw Spectrum 1-el";
 		scan_->rawData()->addMeasurement(temp);
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 
 		temp = AMMeasurementInfo(detector->toXRFInfo());
-		temp.name = "corrSum";
+		temp.name = "correctedSum-4el";
+		temp.description = "Corrected Sum 4-el";
 		scan_->rawData()->addMeasurement(temp);
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 
 		for (int i = 0; i < detector->elements(); i++){
 
 			temp = AMMeasurementInfo(detector->toXRFInfo());
-			temp.name = QString("raw%1").arg(i+1);
+			temp.name = QString("raw%1-4el").arg(i+1);
+			temp.description = QString("Raw Spectrum %1 4-el").arg(i+1);
 			scan_->rawData()->addMeasurement(temp);
 			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, true);
 		}
