@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/VESPERS/VESPERSEndstationView.h"
 #include "ui/AMMainWindow.h"
+#include "ui/AMBottomBar.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder.h"
 #include "ui/acquaman/AM2DScanConfigurationViewHolder.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
@@ -291,6 +292,7 @@ void VESPERSAppController::setupUserInterface()
 	// Create panes in the main window:
 	////////////////////////////////////
 
+	// Temporary workflow assistant.
 	assistant_ = new VESPERSWorkflowAssistant(workflowManagerView_, this);
 	assistantView_ = new VESPERSWorkflowAssistantView(assistant_);
 	assistantView_->hide();
@@ -391,6 +393,7 @@ void VESPERSAppController::makeConnections()
 
 	// Bottom bar connections.
 	connect(this, SIGNAL(pauseScanIssued()), this, SLOT(onPauseScanIssued()));
+	connect(this, SIGNAL(resumeScanIssued()), this, SLOT(onPauseScanIssued()));
 	connect(this, SIGNAL(stopScanIssued()), this, SLOT(onCancelScanIssued()));
 
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
@@ -533,11 +536,19 @@ void VESPERSAppController::onPauseScanIssued()
 {
 	AMScanController *controller = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
 
-	if (controller && controller->isRunning())
-		controller->pause();
+	if (controller && controller->isRunning()){
 
-	else if (controller && controller->isPaused())
+		controller->pause();
+		bottomBar_->resumeScanButton->setVisible(true);
+		bottomBar_->pauseScanButton->setVisible(false);
+	}
+
+	else if (controller && controller->isPaused()){
+
 		controller->resume();
+		bottomBar_->resumeScanButton->setVisible(false);
+		bottomBar_->pauseScanButton->setVisible(true);
+	}
 
 //	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
 
