@@ -523,8 +523,13 @@ void VESPERSAppController::onBeamDump()
 {
 	AMScanController *controller = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
 
-	if (controller && controller->isRunning())
+	if (controller && controller->isRunning()){
+
 		controller->pause();
+		bottomBar_->resumeScanButton->setStyleSheet("QToolButton {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 0, 255), stop:0.494444 rgba(226, 226, 0, 255), stop:0.5 rgba(220, 220, 0, 255), stop:1 rgba(215, 215, 0, 255));\nborder-radius: 18px;\nborder: 0.5px outset rgb(81, 81, 81);\n}\nQToolButton:pressed {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:1 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:0 rgba(215, 215, 215, 255));\n}\n");
+		bottomBar_->resumeScanButton->setVisible(true);
+		bottomBar_->pauseScanButton->setVisible(false);
+	}
 
 //	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
 
@@ -547,6 +552,7 @@ void VESPERSAppController::onPauseScanIssued()
 
 		controller->resume();
 		bottomBar_->resumeScanButton->setVisible(false);
+		bottomBar_->resumeScanButton->setStyleSheet("QToolButton {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:1 rgba(215, 215, 215, 255));\nborder-radius: 18px;\nborder: 0.5px outset rgb(81, 81, 81);\n}\nQToolButton:pressed {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:1 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:0 rgba(215, 215, 215, 255));\n}\n");
 		bottomBar_->pauseScanButton->setVisible(true);
 	}
 
