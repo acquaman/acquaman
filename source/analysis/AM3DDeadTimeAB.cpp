@@ -141,22 +141,23 @@ bool AM3DDeadTimeAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 	int totalSize = indexStart.totalPointsTo(indexEnd);
 	AMnDIndex start2D = AMnDIndex(indexStart.i(), indexStart.j());
 	AMnDIndex end2D = AMnDIndex(indexEnd.i(), indexEnd.j());
+	int icrOcrTotalSize = start2D.totalPointsTo(end2D);
 
 	QVector<double> data = QVector<double>(totalSize);
-	QVector<double> icr = QVector<double>(start2D.totalPointsTo(end2D));
-	QVector<double> ocr = QVector<double>(start2D.totalPointsTo(end2D));
+	QVector<double> icr = QVector<double>(icrOcrTotalSize);
+	QVector<double> ocr = QVector<double>(icrOcrTotalSize);
 	spectra_->values(indexStart, indexEnd, data.data());
 	icr_->values(start2D, end2D, icr.data());
 	ocr_->values(start2D, end2D, ocr.data());
 
-	for (int i = 0, iSize = spectra_->size(0); i <= iSize; i++){
+	for (int i = 0, iSize = indexEnd.i()-indexStart.i(); i <= iSize; i++){
 
-		for (int j = 0, jSize = spectra_->size(1); j <= jSize; j++){
+		for (int j = 0, jSize = indexEnd.j()-indexStart.j(); j <= jSize; j++){
 
 			// If ocr is equal to 0 then that will cause division by zero.  Since these are both count rates, they should both be greater than zero.
 			if (icr.at(i*jSize+j) <= 0 || ocr.at(i*jSize+j) <= 0){
 
-				for (int k = 0, kSize = spectra_->size(2); k <= kSize; k++)
+				for (int k = 0, kSize = indexEnd.k()-indexStart.k(); k <= kSize; k++)
 					outputValues[i*jSize*kSize+j*kSize+k] = 0;
 			}
 
@@ -164,7 +165,7 @@ bool AM3DDeadTimeAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 
 				double factor = icr.at(i*jSize+j)/ocr.at(i*jSize+j);
 
-				for (int k = 0, kSize = spectra_->size(2); k <= kSize; k++)
+				for (int k = 0, kSize = indexEnd.k()-indexStart.k(); k <= kSize; k++)
 					outputValues[i*jSize*kSize+j*kSize+k] = data.at(i*jSize*kSize+j*kSize+k)*factor;
 			}
 		}

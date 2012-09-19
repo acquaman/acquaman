@@ -141,12 +141,12 @@ bool AM2DDeadTimeAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 	icr_->values(indexStart.i(), indexEnd.i(), icr.data());
 	ocr_->values(indexStart.i(), indexEnd.i(), ocr.data());
 
-	for (int i = 0, iSize = spectra_->size(0); i <= iSize; i++){
+	for (int i = 0, iSize = indexEnd.i()-indexStart.i(); i <= iSize; i++){
 
 		// If ocr is equal to 0 then that will cause division by zero.  Since these are both count rates, they should both be greater than zero.
 		if (icr.at(i) <= 0 || ocr.at(i) <= 0){
 
-			for (int j = 0, jSize = spectra_->size(1); j <= jSize; j++)
+			for (int j = 0, jSize = indexEnd.j()-indexStart.j(); j <= jSize; j++)
 				outputValues[i*jSize+j] = 0;
 		}
 
@@ -154,7 +154,7 @@ bool AM2DDeadTimeAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 
 			double factor = icr.at(i)/ocr.at(i);
 
-			for (int j = 0, jSize = spectra_->size(1); j <= jSize; j++)
+			for (int j = 0, jSize = indexEnd.j()-indexStart.j(); j <= jSize; j++)
 				outputValues[i*jSize+j] = data.at(i*jSize+j)*factor;
 		}
 	}
