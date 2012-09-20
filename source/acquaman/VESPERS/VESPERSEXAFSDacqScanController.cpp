@@ -305,7 +305,7 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 		AM1DExpressionAB *normPFY;
 		normPFY = new AM1DExpressionAB("norm_PFY");
 		normPFY->setDescription("Normalized PFY");
-		normPFY->setInputDataSources(QList<AMDataSource *>() << scan_->rawDataSources()->at(0) << scan_->analyzedDataSources()->at(0));
+		normPFY->setInputDataSources(QList<AMDataSource *>() << pfy << scan_->rawDataSources()->at(0));
 		normPFY->setExpression(QString("%1/%2").arg(scan_->analyzedDataSources()->at(0)->name()).arg(scan_->rawDataSources()->at(0)->name()));
 		scan_->addAnalyzedDataSource(normPFY, true, false);
 
@@ -390,8 +390,8 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 		correctedSpectra1El->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("rawSpectra-1el")) << scan_->dataSourceAt(scan_->indexOfDataSource("FastPeaks")) << scan_->dataSourceAt(scan_->indexOfDataSource("SlowPeaks")));
 		scan_->addAnalyzedDataSource(correctedSpectra1El, false, true);
 
-		AM2DAdditionAB *spectraSumAB = new AM2DAdditionAB("sumSpectra");
-		spectraSumAB->setDescription("Summed spectra of both detectors.");
+		AM2DAdditionAB *spectraSumAB = new AM2DAdditionAB("sumSpectra-1eland4el");
+		spectraSumAB->setDescription("Sum of Single and Four Element detectors");
 		spectraSumAB->setInputDataSources(QList<AMDataSource *>() << correctedSpectra1El << scan_->dataSourceAt(scan_->indexOfDataSource("correctedSum-4el")));
 		scan_->addAnalyzedDataSource(spectraSumAB, true, false);
 
@@ -405,7 +405,9 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 		AM1DNormalizationAB *normPFY;
 		normPFY = new AM1DNormalizationAB("norm_PFY");
 		normPFY->setDescription("Normalized PFY");
-		normPFY->setInputDataSources(QList<AMDataSource *>() << scan_->analyzedDataSources()->at(1) << scan_->rawDataSources()->at(0));
+		normPFY->setDataName(pfy->name());
+		normPFY->setNormalizationName(scan_->rawDataSources()->at(0)->name());
+		normPFY->setInputDataSources(QList<AMDataSource *>() << pfy << scan_->rawDataSources()->at(0));
 		scan_->addAnalyzedDataSource(normPFY, true, false);
 
 		AMDataSource *roi1 = 0;
@@ -433,16 +435,21 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 				sumAB = new AM1DSummingAB("sum_" % name);
 				sumAB->setDescription("Summed " % roi1->description());
 				sumAB->setInputDataSources(QList<AMDataSource *>() << roi1 << roi4);
-				scan_->addAnalyzedDataSource(sumAB, true, false);
+				scan_->addAnalyzedDataSource(sumAB, false, true);
 			}
 		}
+
+		AMDataSource *source = 0;
 
 		for (int i = 0, count = scan_->analyzedDataSourceCount(); i < count; i++){
 
 			if (scan_->analyzedDataSources()->at(i)->name().contains("sum_")){
 
-				normPFY = new AM1DNormalizationAB("norm_"+scan_->analyzedDataSources()->at(i)->name());
-				normPFY->setDescription("Normalized "+scan_->analyzedDataSources()->at(i)->description());
+				source = scan_->analyzedDataSources()->at(i);
+				normPFY = new AM1DNormalizationAB("norm_"+source->name());
+				normPFY->setDescription("Normalized "+source->description());
+				normPFY->setDataName(source->name());
+				normPFY->setNormalizationName(scan_->rawDataSources()->at(0)->name());
 				normPFY->setInputDataSources(QList<AMDataSource *>() << scan_->analyzedDataSources()->at(i) << scan_->rawDataSources()->at(0));
 				scan_->addAnalyzedDataSource(normPFY, true, false);
 			}

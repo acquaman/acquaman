@@ -316,12 +316,12 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 
 		AM2DDeadTimeAB *correctedSpectra1El = new AM2DDeadTimeAB("correctedRawSpectra-1el");
 		correctedSpectra1El->setDescription("Corrected Spectra 1-El");
-		correctedSpectra1El->setInputDataSources(QList<AMDataSource *>() << correctedSpectra1El << scan_->dataSourceAt(scan_->indexOfDataSource("FastPeaks")) << scan_->dataSourceAt(scan_->indexOfDataSource("SlowPeaks")));
+		correctedSpectra1El->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("rawSpectra-1el")) << scan_->dataSourceAt(scan_->indexOfDataSource("FastPeaks")) << scan_->dataSourceAt(scan_->indexOfDataSource("SlowPeaks")));
 		scan_->addAnalyzedDataSource(correctedSpectra1El, false, true);
 
 		AM2DAdditionAB *spectraSumAB = new AM2DAdditionAB("sumSpectra");
 		spectraSumAB->setDescription("Summed spectra of both detectors.");
-		spectraSumAB->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("spectra")) << scan_->dataSourceAt(scan_->indexOfDataSource("correctedSum-4el")));
+		spectraSumAB->setInputDataSources(QList<AMDataSource *>() << correctedSpectra1El << scan_->dataSourceAt(scan_->indexOfDataSource("correctedSum-4el")));
 		scan_->addAnalyzedDataSource(spectraSumAB, true, false);
 
 		AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
@@ -334,7 +334,9 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 		AM1DNormalizationAB *normPFY;
 		normPFY = new AM1DNormalizationAB("norm_PFY");
 		normPFY->setDescription("Normalized PFY");
-		normPFY->setInputDataSources(QList<AMDataSource *>() << scan_->analyzedDataSources()->at(1) << scan_->rawDataSources()->at(0));
+		normPFY->setDataName(pfy->name());
+		normPFY->setNormalizationName(i0Name);
+		normPFY->setInputDataSources(QList<AMDataSource *>() << pfy << i0List);
 		scan_->addAnalyzedDataSource(normPFY, true, false);
 
 		AMDataSource *roi1 = 0;
@@ -353,15 +355,20 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 			sumAB = new AM1DSummingAB("sum_" % name);
 			sumAB->setDescription("Summed " % roi1->description());
 			sumAB->setInputDataSources(QList<AMDataSource *>() << roi1 << roi4);
-			scan_->addAnalyzedDataSource(sumAB, true, false);
+			scan_->addAnalyzedDataSource(sumAB, false, true);
 		}
 
 		for (int i = 0, count = scan_->analyzedDataSourceCount(); i < count; i++){
 
-			normPFY = new AM1DNormalizationAB("norm_"+scan_->analyzedDataSources()->at(i)->name());
-			normPFY->setDescription("Normalized "+scan_->analyzedDataSources()->at(i)->description());
-			normPFY->setInputDataSources(QList<AMDataSource *>() << scan_->analyzedDataSources()->at(i) << scan_->rawDataSources()->at(0));
-			scan_->addAnalyzedDataSource(normPFY, true, false);
+			if (scan_->analyzedDataSources()->at(i)->name().contains("sum_")){
+
+				normPFY = new AM1DNormalizationAB("norm_"+scan_->analyzedDataSources()->at(i)->name());
+				normPFY->setDescription("Normalized "+scan_->analyzedDataSources()->at(i)->description());
+				normPFY->setDataName(scan_->analyzedDataSources()->at(i)->name());
+				normPFY->setNormalizationName(i0Name);
+				normPFY->setInputDataSources(QList<AMDataSource *>() << scan_->analyzedDataSources()->at(i) << i0List);
+				scan_->addAnalyzedDataSource(normPFY, true, false);
+			}
 		}
 
 		break;
