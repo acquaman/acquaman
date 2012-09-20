@@ -322,36 +322,53 @@ AMnDIndex AM2DScanView::getIndex(const QPointF &point) const
 
 QPair<double, double> AM2DScanView::getCurrentExclusiveDataSourceRange(const AMnDIndex &start, const AMnDIndex &end) const
 {
-	int totalSize = 0;
-	AMnDIndex startIndex = start;
-	AMnDIndex endIndex = end;
+	if (start == end){
 
-	if (startIndex.rank() == 0 || endIndex.rank() == 0){
+		QPair<double, double> range = exclusive2DScanBar_->range();
+		double val = double(currentExclusiveDataSource_->value(start));
 
-		startIndex = AMnDIndex(0, 0);
-		endIndex = AMnDIndex(currentExclusiveDataSource_->size(0)-1, currentExclusiveDataSource_->size(1)-1);
-		totalSize = startIndex.totalPointsTo(endIndex);
+		if ((val != -1 && range.first > val) || range.first == -1)
+			range.first = val;
+
+		if (range.second < val)
+			range.second = val;
+
+		return range;
 	}
 
-	else
-		totalSize = start.totalPointsTo(end);
+	else {
 
-	QVector<double> data(totalSize);
-	currentExclusiveDataSource_->values(startIndex, endIndex, data.data());
+		int totalSize = 0;
+		AMnDIndex startIndex = start;
+		AMnDIndex endIndex = end;
 
-	double min = data.at(0);
-	double max = data.at(0);
+		if (startIndex.rank() == 0 || endIndex.rank() == 0){
 
-	foreach (double value, data){
+			startIndex = AMnDIndex(0, 0);
+			endIndex = AMnDIndex(currentExclusiveDataSource_->size(0)-1, currentExclusiveDataSource_->size(1)-1);
+			totalSize = startIndex.totalPointsTo(endIndex);
+		}
 
-		if (min > value)
-			min = value;
+		else
+			totalSize = start.totalPointsTo(end);
 
-		if (max < value)
-			max = value;
+		QVector<double> data(totalSize);
+		currentExclusiveDataSource_->values(startIndex, endIndex, data.data());
+
+		double min = data.at(0);
+		double max = data.at(0);
+
+		foreach (double value, data){
+
+			if ((value != -1 && min > value) || min == -1)
+				min = value;
+
+			if (max < value)
+				max = value;
+		}
+
+		return qMakePair(min, max);
 	}
-
-	return qMakePair(min, max);
 }
 
 

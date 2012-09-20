@@ -430,52 +430,52 @@ void VESPERSAppController::onCurrentScanControllerStarted()
 //	AMScan *scan = AMActionRunner3::workflow()->scanController()->scan();
 	openScanInEditor(scan);
 
-	AMGenericScanEditor *newEditor = scanEditorAt(scanEditorCount() -1);
+//	AMGenericScanEditor *newEditor = scanEditorAt(scanEditorCount() -1);
 
-	VESPERSEXAFSScanConfiguration *config = qobject_cast<VESPERSEXAFSScanConfiguration *>(scan->scanConfiguration());
+//	VESPERSEXAFSScanConfiguration *config = qobject_cast<VESPERSEXAFSScanConfiguration *>(scan->scanConfiguration());
 
-	if (config){
+//	if (config){
 
-		switch(config->fluorescenceDetectorChoice()){
+//		switch(config->fluorescenceDetectorChoice()){
 
-			case VESPERSEXAFSScanConfiguration::None:
+//			case VESPERSEXAFSScanConfiguration::None:
 
-				newEditor->setExclusiveDataSourceByName("trans");
-				break;
+//				newEditor->setExclusiveDataSourceByName("trans");
+//				break;
 
-			case VESPERSEXAFSScanConfiguration::SingleElement:
-			case VESPERSEXAFSScanConfiguration::FourElement:
-			{
-				QStringList dataSources(newEditor->visibleDataSourceNames());
-				int index = 0;
+//			case VESPERSEXAFSScanConfiguration::SingleElement:
+//			case VESPERSEXAFSScanConfiguration::FourElement:
+//			{
+//				QStringList dataSources(newEditor->visibleDataSourceNames());
+//				int index = 0;
 
-				for (int i = 0; i < dataSources.size(); i++){
+//				for (int i = 0; i < dataSources.size(); i++){
 
-					// Grabbing the Ka or La emission line because that will be the one people will want to see.
-					if (dataSources.at(i).contains("norm") && dataSources.at(i).contains(config->edge().remove(" ")+"a"))
-						index = i;
-				}
+//					// Grabbing the Ka or La emission line because that will be the one people will want to see.
+//					if (dataSources.at(i).contains("norm") && dataSources.at(i).contains(config->edge().remove(" ")+"a"))
+//						index = i;
+//				}
 
-				newEditor->setExclusiveDataSourceByName(dataSources.at(index));
+//				newEditor->setExclusiveDataSourceByName(dataSources.at(index));
 
-				break;
-			}
-		}
-	}
+//				break;
+//			}
+//		}
+//	}
 
-	VESPERS2DScanConfiguration *config2D = qobject_cast<VESPERS2DScanConfiguration *>(scan->scanConfiguration());
+//	VESPERS2DScanConfiguration *config2D = qobject_cast<VESPERS2DScanConfiguration *>(scan->scanConfiguration());
 
-	if (config2D){
+//	if (config2D){
 
-		bool foundFirstAB = false;
+//		bool foundFirstAB = false;
 
-		for (int i = 0, count = scan->analyzedDataSourceCount(); i < count && !foundFirstAB; i++)
-			if (!scan->analyzedDataSources()->at(i)->hiddenFromUsers() && scan->analyzedDataSources()->at(i)->name().contains("norm_")){
+//		for (int i = 0, count = scan->analyzedDataSourceCount(); i < count && !foundFirstAB; i++)
+//			if (!scan->analyzedDataSources()->at(i)->hiddenFromUsers() && scan->analyzedDataSources()->at(i)->name().contains("norm_")){
 
-				newEditor->setExclusiveDataSourceByName(scan->analyzedDataSources()->at(i)->name());
-				foundFirstAB = true;
-			}
-	}
+//				newEditor->setExclusiveDataSourceByName(scan->analyzedDataSources()->at(i)->name());
+//				foundFirstAB = true;
+//			}
+//	}
 }
 
 void VESPERSAppController::onCurrentScanControllerCreated()
@@ -523,8 +523,13 @@ void VESPERSAppController::onBeamDump()
 {
 	AMScanController *controller = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
 
-	if (controller && controller->isRunning())
+	if (controller && controller->isRunning()){
+
 		controller->pause();
+		bottomBar_->resumeScanButton->setStyleSheet("QToolButton {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 0, 255), stop:0.494444 rgba(226, 226, 0, 255), stop:0.5 rgba(220, 220, 0, 255), stop:1 rgba(215, 215, 0, 255));\nborder-radius: 18px;\nborder: 0.5px outset rgb(81, 81, 81);\n}\nQToolButton:pressed {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:1 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:0 rgba(215, 215, 215, 255));\n}\n");
+		bottomBar_->resumeScanButton->setVisible(true);
+		bottomBar_->pauseScanButton->setVisible(false);
+	}
 
 //	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
 
@@ -547,6 +552,7 @@ void VESPERSAppController::onPauseScanIssued()
 
 		controller->resume();
 		bottomBar_->resumeScanButton->setVisible(false);
+		bottomBar_->resumeScanButton->setStyleSheet("QToolButton {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:1 rgba(215, 215, 215, 255));\nborder-radius: 18px;\nborder: 0.5px outset rgb(81, 81, 81);\n}\nQToolButton:pressed {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:1 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:0 rgba(215, 215, 215, 255));\n}\n");
 		bottomBar_->pauseScanButton->setVisible(true);
 	}
 
@@ -585,18 +591,26 @@ void VESPERSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
 
 void VESPERSAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan)
 {
+	QString exclusiveName = QString();
+
+	for (int i = 0, count = scan->analyzedDataSourceCount(); i < count && exclusiveName.isNull(); i++)
+		if (scan->analyzedDataSources()->at(i)->name().contains("norm_") && !scan->analyzedDataSources()->at(i)->name().contains("norm_PFY"))
+			exclusiveName = scan->analyzedDataSources()->at(i)->name();
+
+	editor->setExclusiveDataSourceByName(exclusiveName);
+
 	if (editor->using2DScanView()){
 
 		VESPERS2DScanConfiguration *config = qobject_cast<VESPERS2DScanConfiguration *>(scan->scanConfiguration());
 
 		if (config && config->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement)
-			editor->setSingleSpectrumViewDataSourceName("spectra");
+			editor->setSingleSpectrumViewDataSourceName("correctedRawSpectra-1el");
 
 		else if (config && config->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::FourElement)
-			editor->setSingleSpectrumViewDataSourceName("corrSum");
+			editor->setSingleSpectrumViewDataSourceName("correctedSum-4el");
 
 		else if (config && config->fluorescenceDetectorChoice() == (VESPERS2DScanConfiguration::SingleElement | VESPERS2DScanConfiguration::FourElement))
-			editor->setSingleSpectrumViewDataSourceName("sumSpectra");
+			editor->setSingleSpectrumViewDataSourceName("sumSpectra-1eland4el");
 
 		editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().second.toDouble(), 20480);
 	}
