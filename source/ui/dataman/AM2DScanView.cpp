@@ -322,7 +322,7 @@ AMnDIndex AM2DScanView::getIndex(const QPointF &point) const
 
 QPair<double, double> AM2DScanView::getCurrentExclusiveDataSourceRange(const AMnDIndex &start, const AMnDIndex &end) const
 {
-	if (start == end){
+	if (start == end && start.rank() == 2 && end.rank() == 2){
 
 		QPair<double, double> range = exclusive2DScanBar_->range();
 		double val = double(currentExclusiveDataSource_->value(start));

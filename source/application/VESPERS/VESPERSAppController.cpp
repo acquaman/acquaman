@@ -593,11 +593,19 @@ void VESPERSAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMSc
 {
 	QString exclusiveName = QString();
 
-	for (int i = 0, count = scan->analyzedDataSourceCount(); i < count && exclusiveName.isNull(); i++)
-		if (scan->analyzedDataSources()->at(i)->name().contains("norm_") && !scan->analyzedDataSources()->at(i)->name().contains("norm_PFY"))
-			exclusiveName = scan->analyzedDataSources()->at(i)->name();
+	for (int i = 0, count = scan->analyzedDataSourceCount(); i < count && exclusiveName.isNull(); i++){
 
-	editor->setExclusiveDataSourceByName(exclusiveName);
+		AMDataSource *source = scan->analyzedDataSources()->at(i);
+
+		if (source->name().contains("norm_") && !source->name().contains("norm_PFY") && !source->hiddenFromUsers())
+			exclusiveName = source->name();
+	}
+
+	if (!exclusiveName.isNull())
+		editor->setExclusiveDataSourceByName(exclusiveName);
+
+	else
+		editor->setExclusiveDataSourceByName(editor->scanAt(0)->analyzedDataSources()->at(editor->scanAt(0)->analyzedDataSourceCount()-1)->name());
 
 	if (editor->using2DScanView()){
 
