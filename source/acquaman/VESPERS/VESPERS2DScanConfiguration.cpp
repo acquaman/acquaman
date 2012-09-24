@@ -279,10 +279,74 @@ void VESPERS2DScanConfiguration::computeTotalTime()
 	emit totalTimeChanged(totalTime_);
 }
 
+#include "dataman/export/VESPERS/VESPERSExporter2DAscii.h"
+#include "dataman/export/VESPERS/VESPERSExporterSMAK.h"
+#include "application/AMAppControllerSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/export/AMExporterOptionGeneralAscii.h"
+
 void VESPERS2DScanConfiguration::setExportAsAscii(bool exportAsAscii)
 {
 	if (exportAsAscii_ == exportAsAscii)
 		return;
 
 	exportAsAscii_ = exportAsAscii;
+
+	if (exportAsAscii_){
+
+		QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERS2DDefault");
+		AMExporterOptionGeneralAscii *vespersDefault = new AMExporterOptionGeneralAscii();
+
+		if (matchIDs.count() != 0)
+			vespersDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
+
+		vespersDefault->setName("VESPERS2DDefault");
+		vespersDefault->setFileName("$name_$fsIndex.dat");
+		vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n");
+		vespersDefault->setHeaderIncluded(true);
+		vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
+		vespersDefault->setColumnHeaderIncluded(true);
+		vespersDefault->setColumnHeaderDelimiter("");
+		vespersDefault->setSectionHeader("");
+		vespersDefault->setSectionHeaderIncluded(true);
+		vespersDefault->setIncludeAllDataSources(true);
+		vespersDefault->setFirstColumnOnly(true);
+		vespersDefault->setSeparateHigherDimensionalSources(true);
+		vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
+		vespersDefault->storeToDb(AMDatabase::database("user"));
+
+		// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
+		matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERS2DDefault");
+		if(matchIDs.count() > 0)
+			AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporter2DAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
+	}
+
+	else{
+
+		QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERS2DDefault");
+		AMExporterOptionGeneralAscii *vespersDefault = new AMExporterOptionGeneralAscii();
+
+		if (matchIDs.count() != 0)
+			vespersDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
+
+		vespersDefault->setName("VESPERS2DDefault");
+		vespersDefault->setFileName("$name_$fsIndex.dat");
+		vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n");
+		vespersDefault->setHeaderIncluded(true);
+		vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
+		vespersDefault->setColumnHeaderIncluded(true);
+		vespersDefault->setColumnHeaderDelimiter("");
+		vespersDefault->setSectionHeader("");
+		vespersDefault->setSectionHeaderIncluded(true);
+		vespersDefault->setIncludeAllDataSources(true);
+		vespersDefault->setFirstColumnOnly(true);
+		vespersDefault->setSeparateHigherDimensionalSources(true);
+		vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
+		vespersDefault->storeToDb(AMDatabase::database("user"));
+
+		// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
+		matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERS2DDefault");
+		if(matchIDs.count() > 0)
+			AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporterSMAK, AMExporterOptionGeneralAscii>(matchIDs.at(0));
+	}
 }
