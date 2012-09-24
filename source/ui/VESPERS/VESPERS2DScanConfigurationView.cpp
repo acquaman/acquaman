@@ -301,14 +301,16 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	QButtonGroup *autoExportButtonGroup = new QButtonGroup;
 
 	QRadioButton *autoExportButton = new QRadioButton("Ascii");
-	autoExportButtonGroup->addButton(autoExportButton);
+	autoExportButtonGroup->addButton(autoExportButton, 0);
 	autoExportLayout->addWidget(autoExportButton);
-	connect(autoExportButton, SIGNAL(toggled(bool)), this, SLOT(updateAutoExporter(bool)));
-	autoExportButton->setChecked(true);
 
 	autoExportButton = new QRadioButton("SMAK");
-	autoExportButtonGroup->addButton(autoExportButton);
+	autoExportButtonGroup->addButton(autoExportButton, 1);
 	autoExportLayout->addWidget(autoExportButton);
+
+	connect(autoExportButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(updateAutoExporter(int)));
+
+	autoExportButtonGroup->button(config_->exportAsAscii() ? 0 : 1)->click();
 
 	QGroupBox *autoExportGroupBox = new QGroupBox("Auto-export as...");
 	autoExportGroupBox->setLayout(autoExportLayout);

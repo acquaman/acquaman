@@ -110,7 +110,7 @@ protected slots:
 	void updateMotorsChoice(int choice) { motorChoiceButtonGroup_->button(choice)->setChecked(true); }
 
 	/// Helper slot that sets whether we use SMAK or Ascii for the auto exporter.
-	void updateAutoExporter(bool useAscii) { config_->setExportAsAscii(useAscii); }
+	void updateAutoExporter(int useAscii) { config_->setExportAsAscii(useAscii == 0 ? true : false); }
 
 protected:
 	/// Reimplements the show event to update the Regions of Interest text.
