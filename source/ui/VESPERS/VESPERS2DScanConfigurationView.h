@@ -109,6 +109,9 @@ protected slots:
 	/// Slot that updates the motor choice buttons.
 	void updateMotorsChoice(int choice) { motorChoiceButtonGroup_->button(choice)->setChecked(true); }
 
+	/// Helper slot that sets whether we use SMAK or Ascii for the auto exporter.
+	void updateAutoExporter(bool useAscii) { config_->setExportAsAscii(useAscii); }
+
 protected:
 	/// Reimplements the show event to update the Regions of Interest text.
 	virtual void showEvent(QShowEvent *e) { updateRoiText(); AMScanConfigurationView::showEvent(e); }

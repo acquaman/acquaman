@@ -83,6 +83,10 @@ public:
 	/// Returns teh y-axis units.
 	virtual QString yAxisUnits() const;
 
+	// Temporary hack for choosing exporters.
+	/// Returns whether we are using Ascii or SMAK data formats for auto-exporting.
+	bool exportAsAscii() const { return exportAsAscii_; }
+
 	/// Returns the current I0 ion chamber choice.
 	IonChamber incomingChoice() const { return I0_; }
 	/// Returns the current fluorescence detector choice.
@@ -165,6 +169,9 @@ public slots:
 	/// Sets the ROI list.
 	void setRoiInfoList(const AMROIInfoList &list) { roiInfoList_ = list; setModified(true); }
 
+	/// Sets which data file format we use for auto-export.  True = Ascii, false = SMAK.
+	void setExportAsAscii(bool exportAsAscii);
+
 protected slots:
 	/// Computes the total time any time the regions list changes.
 	void computeTotalTime();
@@ -186,6 +193,9 @@ protected:
 	double totalTime_;
 	/// Holds the offset per point of extra time when doing a scan.
 	double timeOffset_;
+
+	/// Flag holding whether we are exporting as Ascii or SMAK.
+	bool exportAsAscii_;
 };
 
 #endif // VESPERS2DSCANCONFIGURATION_H
