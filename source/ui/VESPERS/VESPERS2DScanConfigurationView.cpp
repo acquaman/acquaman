@@ -296,6 +296,23 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	timeOffsetLayout->addWidget(timeOffsetLabel_);
 	timeOffsetLayout->addWidget(timeOffset_);
 
+	// Auto-export option.
+	QVBoxLayout *autoExportLayout = new QVBoxLayout;
+	QButtonGroup *autoExportButtonGroup = new QButtonGroup;
+
+	QRadioButton *autoExportButton = new QRadioButton("Ascii");
+	autoExportButtonGroup->addButton(autoExportButton);
+	autoExportLayout->addWidget(autoExportButton);
+	connect(autoExportButton, SIGNAL(toggled(bool)), this, SLOT(updateAutoExporter(bool)));
+	autoExportButton->setChecked(true);
+
+	autoExportButton = new QRadioButton("SMAK");
+	autoExportButtonGroup->addButton(autoExportButton);
+	autoExportLayout->addWidget(autoExportButton);
+
+	QGroupBox *autoExportGroupBox = new QGroupBox("Auto-export as...");
+	autoExportGroupBox->setLayout(autoExportLayout);
+
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(positionsBox, 0, 0, 1, 3);
@@ -308,6 +325,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	contentsLayout->addWidget(estimatedTime_, 4, 0, 1, 1);
 	contentsLayout->addLayout(timeOffsetLayout, 5, 0, 1, 1);
 	contentsLayout->addWidget(motorSetChoiceBox, 0, 3);
+	contentsLayout->addWidget(autoExportGroupBox, 4, 5, 2, 3);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
