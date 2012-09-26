@@ -110,7 +110,6 @@ bool AMDacqScanController::startImplementation(){
 			// Synchronizing the .dat and _spectra.dat to match the cdf name.
 			else if (qobject_cast<AMCDFDataStore *>(scan_->rawData())){
 
-				qDebug() << scan_->filePath();
 				QFileInfo fullPath(scan_->filePath());	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
 
 				QString path = fullPath.path();// just the path, not the file name. Still relative.
@@ -118,7 +117,7 @@ bool AMDacqScanController::startImplementation(){
 
 				abop->setProperty( "File Template", file.toStdString());
 				abop->setProperty( "File Path", (AMUserSettings::userDataFolder + "/" + path).toStdString());	// given an absolute path here
-				((AMAcqScanSpectrumOutput*)abop)->setExpectsSpectrumFromScanController(true);
+				((AMAcqScanSpectrumOutput*)abop)->setExpectsSpectrumFromScanController(usingSpectraDotDatFile_);
 			}
 
 			((AMAcqScanSpectrumOutput*)abop)->setScan(scan_);
