@@ -110,14 +110,24 @@ bool AMDacqScanController::startImplementation(){
 			// Synchronizing the .dat and _spectra.dat to match the cdf name.
 			else if (qobject_cast<AMCDFDataStore *>(scan_->rawData())){
 
-				QFileInfo fullPath(scan_->filePath());	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
+				QFileInfo fullPath(scan_->filePath());	// ex: 2010/09/Mon_03_12_24_48_0000.cdf   (Relative)
 
 				QString path = fullPath.path();// just the path, not the file name. Still relative.
-				QString file = fullPath.fileName() + ".dat"; // just the file name, now with an extension
+				QString file = fullPath.fileName().remove(".cdf") + ".dat"; // just the file name, now with an extension
 
 				abop->setProperty( "File Template", file.toStdString());
 				abop->setProperty( "File Path", (AMUserSettings::userDataFolder + "/" + path).toStdString());	// given an absolute path here
 				((AMAcqScanSpectrumOutput*)abop)->setExpectsSpectrumFromScanController(usingSpectraDotDatFile_);
+
+				flushToDiskTimer_.setInterval(300000);
+				connect(this, SIGNAL(started()), &flushToDiskTimer_, SLOT(start()));
+				connect(this, SIGNAL(cancelled()), &flushToDiskTimer_, SLOT(stop()));
+				connect(this, SIGNAL(paused()), &flushToDiskTimer_, SLOT(stop()));
+				connect(this, SIGNAL(resumed()), &flushToDiskTimer_, SLOT(start()));
+				connect(this, SIGNAL(failed()), &flushToDiskTimer_, SLOT(stop()));
+				connect(this, SIGNAL(finished()), &flushToDiskTimer_, SLOT(stop()));
+				connect(&flushToDiskTimer_, SIGNAL(timeout()), this, SLOT(flushCDFDataStoreToDisk()));
+				flushToDiskTimer_.start();
 			}
 
 			((AMAcqScanSpectrumOutput*)abop)->setScan(scan_);
@@ -132,6 +142,13 @@ bool AMDacqScanController::startImplementation(){
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDACQSCANCONTROLLER_CANT_CREATE_OUTPUTHANDLER, "AMDacqScanController: could not create output handler."));
 			return false;
 		}
+}
+
+void AMDacqScanController::flushCDFDataStoreToDisk()
+{
+	AMCDFDataStore *dataStore = qobject_cast<AMCDFDataStore *>(scan_->rawData());
+	if(dataStore && !dataStore->flushToDisk())
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 38, "Error saving the currently-running scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to your beamline's software developers."));
 }
 
 bool AMDacqScanController::canPause() const {
@@ -223,6 +240,8 @@ void AMDacqScanController::onDacqStart()
 
 void AMDacqScanController::onDacqStop()
 {
+	flushCDFDataStoreToDisk();
+
 	if(dacqCancelled_)
 		setCancelled();
 	else

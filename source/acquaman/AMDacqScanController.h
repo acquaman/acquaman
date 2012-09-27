@@ -75,6 +75,8 @@ protected slots:
 
 	/// Virtual function to deal with dwell time changes between regions. Can be re-implemented in subclasses for particular behavior.
 	virtual void onDwellTimeTriggerChanged(double newValue);
+	/// Helper slot that tells AMCDFDataStore to flush it's contents to disk.  This prevents it from corrupting itself.
+	void flushCDFDataStoreToDisk();
 
 protected:
 	QEpicsAdvAcq *advAcq_;
@@ -87,6 +89,8 @@ protected:
 	AMControl *dwellTimeTrigger_;
 	AMControl *dwellTimeConfirmed_;
 
+	/// A timer used when using AMCDFDataStore.  After a timeout it flushes the contents to disk.
+	QTimer flushToDiskTimer_;
 };
 
 #endif // ACQMAN_DACQSCANCONTROLLER_H

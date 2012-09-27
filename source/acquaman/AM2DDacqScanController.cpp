@@ -118,11 +118,21 @@ bool AM2DDacqScanController::startImplementation()
 			QFileInfo fullPath(scan_->filePath());	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
 
 			QString path = fullPath.path();// just the path, not the file name. Still relative.
-			QString file = fullPath.fileName() + ".dat"; // just the file name, now with an extension
+			QString file = fullPath.fileName().remove(".cdf") + ".dat"; // just the file name, now with an extension
 
 			abop->setProperty( "File Template", file.toStdString());
 			abop->setProperty( "File Path", (AMUserSettings::userDataFolder + "/" + path).toStdString());	// given an absolute path here
 			((AMAcqScanSpectrumOutput*)abop)->setExpectsSpectrumFromScanController(usingSpectraDotDatFile_);
+
+			flushToDiskTimer_.setInterval(300000);
+			connect(this, SIGNAL(started()), &flushToDiskTimer_, SLOT(start()));
+			connect(this, SIGNAL(cancelled()), &flushToDiskTimer_, SLOT(stop()));
+			connect(this, SIGNAL(paused()), &flushToDiskTimer_, SLOT(stop()));
+			connect(this, SIGNAL(resumed()), &flushToDiskTimer_, SLOT(start()));
+			connect(this, SIGNAL(failed()), &flushToDiskTimer_, SLOT(stop()));
+			connect(this, SIGNAL(finished()), &flushToDiskTimer_, SLOT(stop()));
+			connect(&flushToDiskTimer_, SIGNAL(timeout()), this, SLOT(flushCDFDataStoreToDisk()));
+			flushToDiskTimer_.start();
 		}
 
 		((AMAcqScanSpectrumOutput*)abop)->setScan(scan_);
@@ -165,7 +175,7 @@ bool AM2DDacqScanController::event(QEvent *e)
 			scan_->rawData()->setAxisValue(1, insertIndex.j(), i.value());
 			++i;
 
-			QList<double> temp = aeData.values();
+//			QList<double> temp = aeData.values();
 
 			// This is too sensitive at the moment.
 //			if (temp.size() > 5 && !duplicateColumnsDetected_)
