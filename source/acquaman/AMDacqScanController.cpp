@@ -118,6 +118,16 @@ bool AMDacqScanController::startImplementation(){
 				abop->setProperty( "File Template", file.toStdString());
 				abop->setProperty( "File Path", (AMUserSettings::userDataFolder + "/" + path).toStdString());	// given an absolute path here
 				((AMAcqScanSpectrumOutput*)abop)->setExpectsSpectrumFromScanController(usingSpectraDotDatFile_);
+
+				flushToDiskTimer_.setInterval(300000);
+				connect(this, SIGNAL(started()), &flushToDiskTimer_, SLOT(start()));
+				connect(this, SIGNAL(cancelled()), &flushToDiskTimer_, SLOT(stop()));
+				connect(this, SIGNAL(paused()), &flushToDiskTimer_, SLOT(stop()));
+				connect(this, SIGNAL(resumed()), &flushToDiskTimer_, SLOT(start()));
+				connect(this, SIGNAL(failed()), &flushToDiskTimer_, SLOT(stop()));
+				connect(this, SIGNAL(finished()), &flushToDiskTimer_, SLOT(stop()));
+				connect(&flushToDiskTimer_, SIGNAL(timeout()), this, SLOT(flushCDFDataStoreToDisk()));
+				flushToDiskTimer_.start();
 			}
 
 			((AMAcqScanSpectrumOutput*)abop)->setScan(scan_);
@@ -132,6 +142,13 @@ bool AMDacqScanController::startImplementation(){
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDACQSCANCONTROLLER_CANT_CREATE_OUTPUTHANDLER, "AMDacqScanController: could not create output handler."));
 			return false;
 		}
+}
+
+void AMDacqScanController::flushCDFDataStoreToDisk()
+{
+	AMCDFDataStore *dataStore = qobject_cast<AMCDFDataStore *>(scan_->rawData());
+	if(dataStore && !dataStore->flushToDisk())
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 38, "Error saving the currently-running scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to your beamline's software developers."));
 }
 
 bool AMDacqScanController::canPause() const {
@@ -223,6 +240,8 @@ void AMDacqScanController::onDacqStart()
 
 void AMDacqScanController::onDacqStop()
 {
+	flushCDFDataStoreToDisk();
+
 	if(dacqCancelled_)
 		setCancelled();
 	else

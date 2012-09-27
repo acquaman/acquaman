@@ -123,6 +123,16 @@ bool AM2DDacqScanController::startImplementation()
 			abop->setProperty( "File Template", file.toStdString());
 			abop->setProperty( "File Path", (AMUserSettings::userDataFolder + "/" + path).toStdString());	// given an absolute path here
 			((AMAcqScanSpectrumOutput*)abop)->setExpectsSpectrumFromScanController(usingSpectraDotDatFile_);
+
+			flushToDiskTimer_.setInterval(300000);
+			connect(this, SIGNAL(started()), &flushToDiskTimer_, SLOT(start()));
+			connect(this, SIGNAL(cancelled()), &flushToDiskTimer_, SLOT(stop()));
+			connect(this, SIGNAL(paused()), &flushToDiskTimer_, SLOT(stop()));
+			connect(this, SIGNAL(resumed()), &flushToDiskTimer_, SLOT(start()));
+			connect(this, SIGNAL(failed()), &flushToDiskTimer_, SLOT(stop()));
+			connect(this, SIGNAL(finished()), &flushToDiskTimer_, SLOT(stop()));
+			connect(&flushToDiskTimer_, SIGNAL(timeout()), this, SLOT(flushCDFDataStoreToDisk()));
+			flushToDiskTimer_.start();
 		}
 
 		((AMAcqScanSpectrumOutput*)abop)->setScan(scan_);
@@ -165,7 +175,7 @@ bool AM2DDacqScanController::event(QEvent *e)
 			scan_->rawData()->setAxisValue(1, insertIndex.j(), i.value());
 			++i;
 
-			QList<double> temp = aeData.values();
+//			QList<double> temp = aeData.values();
 
 			// This is too sensitive at the moment.
 //			if (temp.size() > 5 && !duplicateColumnsDetected_)
