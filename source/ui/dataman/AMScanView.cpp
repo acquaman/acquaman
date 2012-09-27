@@ -130,10 +130,10 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 
 	QStyle* style = QApplication::style();
 
-	QToolButton* tabButton_ = new QToolButton();
-	tabButton_->setIcon(style->standardIcon(QStyle::SP_FileDialogInfoView));
-	tabButton_->setText("1");
-	tabButton_->setToolTip("Show single data source");
+	QToolButton* tabButton = new QToolButton();
+	tabButton->setIcon(style->standardIcon(QStyle::SP_FileDialogInfoView));
+	tabButton->setText("1");
+	tabButton->setToolTip("Show single data source");
 	QToolButton* overplotButton_ = new QToolButton();
 	overplotButton_->setIcon(style->standardIcon(QStyle::SP_FileDialogDetailedView));
 	overplotButton_->setText("OP");
@@ -147,19 +147,19 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 	multiSourcesButton->setText("M-C");
 	multiSourcesButton->setToolTip("Separate plots per data source");
 
-	tabButton_->setCheckable(true);
+	tabButton->setCheckable(true);
 	overplotButton_->setCheckable(true);
 	multiScansButton_->setCheckable(true);
 	multiSourcesButton->setCheckable(true);
 
 	modeButtons_ = new QButtonGroup(this);
-	modeButtons_->addButton(tabButton_, AMScanView::Tabs);
+	modeButtons_->addButton(tabButton, AMScanView::Tabs);
 	modeButtons_->addButton(overplotButton_, AMScanView::OverPlot);
 	modeButtons_->addButton(multiScansButton_, AMScanView::MultiScans);
 	modeButtons_->addButton(multiSourcesButton, AMScanView::MultiSources);
-	tabButton_->setChecked(true);
+	tabButton->setChecked(true);
 
-	hl2->addWidget(tabButton_);
+	hl2->addWidget(tabButton);
 	hl2->addWidget(overplotButton_);
 	hl2->addWidget(multiScansButton_);
 	hl2->addWidget(multiSourcesButton);
@@ -225,9 +225,9 @@ AMScanView::AMScanView(AMScanSetModel* model, QWidget *parent) :
 	if(scansModel_->scanCount() >= AM_SCAN_VIEW_HIDE_SCANBARS_AFTER_N_SCANS)
 		setScanBarsVisible(false);
 
-	modeAnim_ = new QPropertyAnimation(gview_->graphicsWidget(), "geometry", this);
-	modeAnim_->setDuration(500);
-	modeAnim_->setEasingCurve(QEasingCurve::InOutCubic);
+//	modeAnim_ = new QPropertyAnimation(gview_->graphicsWidget(), "geometry", this);
+//	modeAnim_->setDuration(500);
+//	modeAnim_->setEasingCurve(QEasingCurve::InOutCubic);
 
 	changeViewMode(Tabs);
 
@@ -294,10 +294,17 @@ void AMScanView::changeViewMode(int newMode) {
 	if(newMode < 0 || newMode >= views_.count())
 		return;
 
+	for (int i = 0, count = views_.size(); i< count; i++)
+//		if (i != mode_)
+			views_.at(i)->hide();
+
+//	int oldMode = mode_;
 	mode_ = (ViewMode)newMode;
 	scanBars_->setExclusiveModeOn( (mode_ == Tabs) );
-
+	views_.at(mode_)->show();
 	resizeViews();
+//	if (oldMode != -1)
+//		views_.at(oldMode)->hide();
 
 	// in case this was called programmatically (instead of by clicking on the button)... the mode button won't be set.  This will re-emit the mode-change signal, but this function will exit immediately on the second time because it's already in the correct mode.
 	modeBar_->modeButtons_->button(mode_)->setChecked(true);
@@ -339,15 +346,14 @@ void AMScanView::resizeViews() {
 	else
 		pos = QPointF(-viewSize.width()*mode_, 0);
 
-	//gview_->graphicsWidget()->setGeometry(QRectF(pos, mainWidgetSize));
+	gview_->graphicsWidget()->setGeometry(QRectF(pos, mainWidgetSize));
 
+//	modeAnim_->stop();
 
-	modeAnim_->stop();
+//	modeAnim_->setStartValue(gview_->graphicsWidget()->geometry());
+//	modeAnim_->setEndValue(QRectF(pos, mainWidgetSize));
 
-	modeAnim_->setStartValue(gview_->graphicsWidget()->geometry());
-	modeAnim_->setEndValue(QRectF(pos, mainWidgetSize));
-
-	modeAnim_->start();
+//	modeAnim_->start();
 }
 
 /// \todo: should scans held in the view be const or non-const?
