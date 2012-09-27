@@ -118,7 +118,7 @@ bool AM2DDacqScanController::startImplementation()
 			QFileInfo fullPath(scan_->filePath());	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
 
 			QString path = fullPath.path();// just the path, not the file name. Still relative.
-			QString file = fullPath.fileName() + ".dat"; // just the file name, now with an extension
+			QString file = fullPath.fileName().remove(".cdf") + ".dat"; // just the file name, now with an extension
 
 			abop->setProperty( "File Template", file.toStdString());
 			abop->setProperty( "File Path", (AMUserSettings::userDataFolder + "/" + path).toStdString());	// given an absolute path here

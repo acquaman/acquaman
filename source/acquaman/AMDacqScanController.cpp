@@ -110,10 +110,10 @@ bool AMDacqScanController::startImplementation(){
 			// Synchronizing the .dat and _spectra.dat to match the cdf name.
 			else if (qobject_cast<AMCDFDataStore *>(scan_->rawData())){
 
-				QFileInfo fullPath(scan_->filePath());	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
+				QFileInfo fullPath(scan_->filePath());	// ex: 2010/09/Mon_03_12_24_48_0000.cdf   (Relative)
 
 				QString path = fullPath.path();// just the path, not the file name. Still relative.
-				QString file = fullPath.fileName() + ".dat"; // just the file name, now with an extension
+				QString file = fullPath.fileName().remove(".cdf") + ".dat"; // just the file name, now with an extension
 
 				abop->setProperty( "File Template", file.toStdString());
 				abop->setProperty( "File Path", (AMUserSettings::userDataFolder + "/" + path).toStdString());	// given an absolute path here
