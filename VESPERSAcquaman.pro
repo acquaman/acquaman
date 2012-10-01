@@ -67,7 +67,10 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/ui/VESPERS/VESPERSEnergyScanConfigurationView.h \
 	source/acquaman/VESPERS/VESPERSEnergyScanConfiguration.h \
 	source/util/VESPERS/VESPERSConfigurationFileBuilder.h \
-	source/dataman/VESPERS/VESPERSDbUpgrade1Pt1.h
+	source/dataman/VESPERS/VESPERSDbUpgrade1Pt1.h \
+    source/dataman/VESPERS/VESPERSMarCCDDetectorInfo.h \
+    source/beamline/VESPERS/VESPERSMarCCDDetector.h \
+    source/ui/VESPERS/VESPERSMarCCDDetectorView.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -133,7 +136,16 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/ui/VESPERS/VESPERSEnergyScanConfigurationView.cpp \
 	source/acquaman/VESPERS/VESPERSEnergyScanConfiguration.cpp \
 	source/util/VESPERS/VESPERSConfigurationFileBuilder.cpp \
-	source/dataman/VESPERS/VESPERSDbUpgrade1Pt1.cpp
+	source/dataman/VESPERS/VESPERSDbUpgrade1Pt1.cpp \
+    source/dataman/VESPERS/VESPERSMarCCDDetectorInfo.cpp \
+    source/beamline/VESPERS/VESPERSMarCCDDetector.cpp \
+    source/ui/VESPERS/VESPERSMarCCDDetectorView.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
+
+
+
+

@@ -42,6 +42,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSEXAFSScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSExperimentConfigurationView.h"
 #include "ui/VESPERS/VESPERSRoperCCDDetectorView.h"
+#include "ui/VESPERS/VESPERSMarCCDDetectorView.h"
 #include "ui/VESPERS/VESPERS2DScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSEndstationConfigurationView.h"
 #include "ui/VESPERS/VESPERSSpatialLineScanConfigurationView.h"
@@ -173,6 +174,7 @@ void VESPERSAppController::registerClasses()
 	AMDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
 	AMDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
 	AMDetectorViewSupport::registerClass<VESPERSRoperCCDDetectorView, VESPERSRoperCCDDetector>();
+	AMDetectorViewSupport::registerClass<VESPERSMarCCDDetectorView, VESPERSMarCCDDetector>();
 
 	AMExportController::registerExporter<VESPERSExporter2DAscii>();
 	AMExportController::registerExporter<VESPERSExporterSMAK>();
@@ -321,11 +323,13 @@ void VESPERSAppController::setupUserInterface()
 	xrf4EFreeRunView_ = new VESPERSXRFFreeRunView(xrf4ElFreeRun_, workflowManagerView_);
 
 	roperCCDView_ = new VESPERSRoperCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
+	marCCDView_ = new VESPERSMarCCDDetectorView(VESPERSBeamline::vespers()->marCCD());
 
 	mw_->insertHeading("Detectors", 1);
 	mw_->addPane(xrf1EFreeRunView_, "Detectors", "Fluorescence - 1-el", ":/system-search.png");
 	mw_->addPane(xrf4EFreeRunView_, "Detectors", "Fluorescence - 4-el", ":/system-search.png");
 	mw_->addPane(roperCCDView_, "Detectors", "CCD - Roper", ":/system-search.png");
+	mw_->addPane(marCCDView_, "Detectors", "CCD - Mar", ":/system-search.png");
 
 	// Setup XAS for the beamline.  Builds the config, view, and view holder.
 	exafsScanConfig_ = new VESPERSEXAFSScanConfiguration();
@@ -413,6 +417,8 @@ void VESPERSAppController::onConfigureDetectorRequested(const QString &detector)
 		mw_->setCurrentPane(xrf4EFreeRunView_);
 	else if (detector == "Roper CCD")
 		mw_->setCurrentPane(roperCCDView_);
+	else if (detector == "Mar CCD")
+		mw_->setCurrentPane(marCCDView_);
 }
 
 void VESPERSAppController::onCurrentScanControllerStarted()
