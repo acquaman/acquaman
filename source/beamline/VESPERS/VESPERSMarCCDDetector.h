@@ -1,36 +1,17 @@
-/*
-Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
-
-This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
-Acquaman is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Acquaman is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
-#ifndef VESPERSROPERCCDDETECTOR_H
-#define VESPERSROPERCCDDETECTOR_H
+#ifndef VESPERSMARCCDDETECTOR_H
+#define VESPERSMARCCDDETECTOR_H
 
 #include "beamline/AMDetector.h"
-#include "dataman/VESPERS/VESPERSRoperCCDDetectorInfo.h"
+#include "dataman/VESPERS/VESPERSMarCCDDetectorInfo.h"
 #include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineActionItem.h"
 
 /*!
-  This class encapsulates the Roper CCD used on VESPERS.  Although currently not available, it will have the current image set available for viewing.
+  This class encapsulates the Mar CCD used on VESPERS.  Although currently not available, it will have the current image set available for viewing.
   What it will offer at the moment is the ability to control the important aspects of the detector, such as the temperature, accumulationn time,
   starting, stopping, etc.
   */
-class VESPERSRoperCCDDetector : public VESPERSRoperCCDDetectorInfo, public AMDetector
+class VESPERSMarCCDDetector : public VESPERSMarCCDDetectorInfo, public AMDetector
 {
 	Q_OBJECT
 
@@ -43,29 +24,28 @@ public:
 	enum State { Idle = 0, Acquire, Readout, Correct, Saving, Aborting, Error, Waiting };
 
 	/// Constructor.
-	VESPERSRoperCCDDetector(const QString &name, const QString &description, QObject *parent = 0);
+	VESPERSMarCCDDetector(const QString &name, const QString &description, QObject *parent = 0);
 
 	/// Return the meta object.
 	const QMetaObject *getMetaObject() { return metaObject(); }
 
-	/// Returns the description for the detector.
-	virtual QString description() const { return VESPERSRoperCCDDetectorInfo::description(); }
+	/// Returns the description of the detector.
+	virtual QString description() const { return VESPERSMarCCDDetectorInfo::description(); }
 	/// Sets the description for the detector.
-	virtual void setDescription(const QString &description) { VESPERSRoperCCDDetectorInfo::setDescription(description); }
+	virtual void setDescription(const QString &description) { VESPERSMarCCDDetectorInfo::setDescription(description); }
 
-	/// Transforms current settings into a detector info.  Returns a new instance -- caller is reponsible for memory.
-	virtual AMDetectorInfo *toInfo() const { return new VESPERSRoperCCDDetectorInfo(*this); }
+	/// Transforms current settings into a detector info.  Returns a new instance -- caller is responsible for memory.
+	virtual AMDetectorInfo *toInfo() const { return new VESPERSMarCCDDetectorInfo(*this); }
 	/// Transforms current settings into a new detector info.
-	VESPERSRoperCCDDetectorInfo toRoperInfo() const { return VESPERSRoperCCDDetectorInfo(*this); }
+	VESPERSMarCCDDetectorInfo toMarInfo() const { return VESPERSMarCCDDetectorInfo(*this); }
 
 	/// Takes a detector info and sets all the settings for the detector.
 	virtual bool setFromInfo(const AMDetectorInfo *info);
 	/// Takes in a detector info and sets all the settings for the detector.
-	void setFromRoperInfo(const VESPERSRoperCCDDetectorInfo &info);
+	void setFromMarInfo(const VESPERSMarCCDDetectorInfo &info);
 
 	// Getters that aren't included in the info.  These are convenience functions that grab the current value from the control.
-	//////////////////////////////////////////////////
-
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// Returns the temperature.  This returns the value from the control.
 	virtual double acquireTime() const { return acquireTimeControl_->value(); }
 	/// Returns the current image mode.
@@ -96,9 +76,9 @@ public:
 	/// Returns a newly created action that sets the acquire time.  Returns 0 if the control is not connected.
 	AMBeamlineActionItem *createAcquireTimeAction(double time);
 	/// Returns a newly created action that sets the image mode.  Returns 0 if the control is not connected.
-	AMBeamlineActionItem *createImageModeAction(VESPERSRoperCCDDetector::ImageMode mode);
+	AMBeamlineActionItem *createImageModeAction(VESPERSMarCCDDetector::ImageMode mode);
 	/// Returns a newly created action that sets the trigger mode.  Returns 0 if the control is not connected.
-	AMBeamlineActionItem *createTriggerModeAction(VESPERSRoperCCDDetector::TriggerMode mode);
+	AMBeamlineActionItem *createTriggerModeAction(VESPERSMarCCDDetector::TriggerMode mode);
 	/// Returns a newly created action that sets the temperature setpoint.  Returns 0 if the control is not connected.
 	AMBeamlineActionItem *createTemperatureAction(double temperature);
 	/// Returns a newly created action that starts the detector.  Returns 0 if the control is not connected.
@@ -120,11 +100,11 @@ signals:
 	/// Notifier that the acquire time has changed.
 	void acquireTimeChanged(double);
 	/// Notifier that the image mode has changed.
-	void imageModeChanged(VESPERSRoperCCDDetector::ImageMode);
+	void imageModeChanged(VESPERSMarCCDDetector::ImageMode);
 	/// Notifier that the trigger mode has changed.
-	void triggerModeChanged(VESPERSRoperCCDDetector::TriggerMode);
+	void triggerModeChanged(VESPERSMarCCDDetector::TriggerMode);
 	/// Notifier that the detector state has changed.
-	void stateChanged(VESPERSRoperCCDDetector::State);
+	void stateChanged(VESPERSMarCCDDetector::State);
 	/// Notifier that the status of the detector has changed.
 	void isAcquiringChanged(bool);
 	/// Notifier that the autosave status of the detector has changed.
@@ -143,14 +123,14 @@ public slots:
 	/// Sets the acquire time for the detector.
 	virtual void setAcquireTime(double time)
 	{
-		VESPERSRoperCCDDetectorInfo::setAcquireTime(time);
+		VESPERSMarCCDDetectorInfo::setAcquireTime(time);
 		acquireTimeControl_->move(time);
 	}
 
 	/// Sets the temperature for the detector.
 	virtual void setTemperature(double temperature)
 	{
-		VESPERSRoperCCDDetectorInfo::setTemperature(temperature);
+		VESPERSMarCCDDetectorInfo::setTemperature(temperature);
 		temperatureControl_->move(temperature);
 	}
 	/// Sets the image mode for the detector.
@@ -187,9 +167,9 @@ protected slots:
 	/// Helper slot that emits the current status of writing a file.
 	void onSaveFileStateChanged() { emit saveFileStateChanged(fileBeingSaved()); }
 	/// Helper slot that emits the acquireTime signal and sets the acquire time in the info.
-	void onAcquireTimeChanged(double time) { VESPERSRoperCCDDetectorInfo::setAcquireTime(time); emit acquireTimeChanged(time); }
+	void onAcquireTimeChanged(double time) { VESPERSMarCCDDetectorInfo::setAcquireTime(time); emit acquireTimeChanged(time); }
 	/// Helper slot that emits the temperature changed signal and sets the temperature in the info.
-	void onTemperatureSetpointChanged(double temperature) { VESPERSRoperCCDDetectorInfo::setTemperature(temperature); emit temperatureSetpointChanged(temperature); }
+	void onTemperatureSetpointChanged(double temperature) { VESPERSMarCCDDetectorInfo::setTemperature(temperature); emit temperatureSetpointChanged(temperature); }
 
 	/// Handles the CCD path update.
 	void onCCDPathChanged() { emit ccdPathChanged(AMPVtoString(ccdPath_)); }
@@ -228,4 +208,4 @@ protected:
 	AMProcessVariable *ccdNumber_;
 };
 
-#endif // VESPERSROPERCCDDETECTOR_H
+#endif // VESPERSMARCCDDETECTOR_H

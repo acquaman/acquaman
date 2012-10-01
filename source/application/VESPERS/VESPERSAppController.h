@@ -27,6 +27,7 @@ class VESPERSEndstationView;
 class VESPERSXRFFreeRunView;
 class XRFFreeRun;
 class VESPERSRoperCCDDetectorView;
+class VESPERSMarCCDDetectorView;
 class VESPERSPersistentView;
 class VESPERSEXAFSScanConfiguration;
 class VESPERSEXAFSScanConfigurationView;
@@ -129,6 +130,8 @@ protected:
 	VESPERSXRFFreeRunView *xrf4EFreeRunView_;
 	/// Roper CCD detector view.
 	VESPERSRoperCCDDetectorView *roperCCDView_;
+	/// Mar CCD detector view.
+	VESPERSMarCCDDetectorView *marCCDView_;
 
 	/// Pointer to the XAS scan configuration.
 	VESPERSEXAFSScanConfiguration *exafsScanConfig_;

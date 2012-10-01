@@ -38,6 +38,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSplitIonChamber.h"
 #include "beamline/CLS/CLSVariableIntegrationTime.h"
 #include "beamline/VESPERS/VESPERSRoperCCDDetector.h"
+#include "beamline/VESPERS/VESPERSMarCCDDetector.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/VESPERS/VESPERSEndstationConfiguration.h"
 
@@ -91,6 +92,10 @@ public:
 	AMDetector *roperCCDDetector() const { return roperCCD_; }
 	/// Returns the specific pointer to the Roper CCD.
 	VESPERSRoperCCDDetector *roperCCD() const { return (VESPERSRoperCCDDetector *)roperCCD_; }
+	/// Returns a general AMDetector pointer of the Mar CCD.
+	AMDetector *marCCDDetector() const { return marCCD_; }
+	/// Returns the specific pointer to the Mar CCD.
+	VESPERSMarCCDDetector *marCCD() const { return (VESPERSMarCCDDetector *)marCCD_; }
 
 	/// Returns a general AMDetector pointer to the split ion chamber.
 	AMDetector *iSplitDetector() const { return iSplit_; }
@@ -560,6 +565,7 @@ protected:
 	AMDetector *vortex1E_;
 	AMDetector *vortex4E_;
 	AMDetector *roperCCD_;
+	AMDetector *marCCD_;
 	AMDetector *iSplit_;
 	AMDetector *iPreKB_;
 	AMDetector *iMini_;

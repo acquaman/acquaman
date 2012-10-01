@@ -222,6 +222,8 @@ void VESPERSEnergyScanConfigurationView::onConfigureCCDDetectorClicked()
 {
 	if (config_->ccdDetector() == VESPERSEnergyScanConfiguration::Roper)
 		emit configureDetector("Roper CCD");
+	else if (config_->ccdDetector() == VESPERSEnergyScanConfiguration::Mar)
+		emit configureDetector("Mar CCD");
 }
 
 void VESPERSEnergyScanConfigurationView::updateCcdDetectorChoiceButtons(int detector)
