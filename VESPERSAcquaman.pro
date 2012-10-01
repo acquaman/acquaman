@@ -58,7 +58,6 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/beamline/VESPERS/VESPERSEndstationConfiguration.h \
 	source/ui/VESPERS/VESPERSEndstationConfigurationView.h \
 	source/dataman/export/VESPERS/VESPERSExporterSMAK.h \
-	source/ui/VESPERS/VESPERSChangeEnergyToleranceHackView.h \
 	source/ui/VESPERS/VESPERSSpatialLineScanConfigurationView.h \
 	source/acquaman/VESPERS/VESPERSSpatialLineScanConfiguration.h \
 	source/acquaman/VESPERS/VESPERSSpatialLineDacqScanController.h \
@@ -127,7 +126,6 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/beamline/VESPERS/VESPERSEndstationConfiguration.cpp \
 	source/ui/VESPERS/VESPERSEndstationConfigurationView.cpp \
 	source/dataman/export/VESPERS/VESPERSExporterSMAK.cpp \
-	source/ui/VESPERS/VESPERSChangeEnergyToleranceHackView.cpp \
 	source/ui/VESPERS/VESPERSSpatialLineScanConfigurationView.cpp \
 	source/acquaman/VESPERS/VESPERSSpatialLineScanConfiguration.cpp \
 	source/acquaman/VESPERS/VESPERSSpatialLineDacqScanController.cpp \
