@@ -42,7 +42,7 @@ VESPERSEnergyScanConfiguration::VESPERSEnergyScanConfiguration(const VESPERSEner
 	ccdFileName_ = original.ccdFileName();
 	goToPosition_ = original.goToPosition();
 	position_ = original.position();
-	timeOffset_ = 6;
+	timeOffset_ = original.timeOffset();
 	totalTime_ = 0;
 	computeTotalTime();
 	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
@@ -126,6 +126,9 @@ void VESPERSEnergyScanConfiguration::setCcdDetector(CCDDetector detector)
 		emit ccdDetectorChanged(ccdDetector_);
 		emit ccdDetectorChanged(int(ccdDetector_));
 		setModified(true);
+
+		setTimeOffset(detector == Roper ? 6 : 3);
+		computeTotalTime();
 	}
 }
 
