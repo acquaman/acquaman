@@ -107,7 +107,7 @@ void VESPERSEnergyDacqScanController::addExtraDatasources()
 	scan_->rawData()->addMeasurement(AMMeasurementInfo("RingCurrent", "Ring Current", "mA"));
 	scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 
-	if (config_->ccdDetector() == VESPERSEnergyScanConfiguration::Roper){
+	if (config_->ccdDetector() == VESPERSEnergyScanConfiguration::Roper || config_->ccdDetector() == VESPERSEnergyScanConfiguration::Mar){
 
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("CCDFileNumber", "CCD file number"));
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
@@ -137,11 +137,19 @@ bool VESPERSEnergyDacqScanController::initializeImplementation()
 	// Single element vortex
 	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(false));
 	// CCD
-	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(true));
+	if (config_->ccdDetector() == VESPERSEnergyScanConfiguration::Roper)
+		setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(true));
+	else
+		setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(false));
 	// Picoammeters
 	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
 	// Four element vortex
 	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
+	// Mar CCD
+	if (config_->ccdDetector() == VESPERSEnergyScanConfiguration::Mar)
+		setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(5)->createEnableAction(true));
+	else
+		setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(5)->createEnableAction(false));
 
 	// Second stage.
 	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
@@ -289,6 +297,8 @@ void VESPERSEnergyDacqScanController::cleanup()
 	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
 	// Four element vortex
 	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
+	// Mar CCD
+	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(5)->createEnableAction(false));
 
 	// Second stage.
 	cleanupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
@@ -406,14 +416,42 @@ bool VESPERSEnergyDacqScanController::setupRoperScan()
 	advAcq_->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
 	advAcq_->appendRecord("IOC1607-003:det1:FileNumber", true, false, 0);
 
-
 	return loadSuccess;
 }
 
 bool VESPERSEnergyDacqScanController::setupMarScan()
 {
-	// Nothing to setup until we have the detector.
-	return false;
+	VESPERSConfigurationFileBuilder builder;
+	builder.setDimensions(1);
+	builder.setMarCCD(true);
+	builder.setPvNameAxis1("07B2_Mono_SineB_Ea");
+	builder.buildConfigurationFile();
+
+	bool loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
+
+	if(!loadSuccess){
+		AMErrorMon::alert(this,
+				VESPERSENERGYDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
+				"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers.");
+		return false;
+	}
+
+	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
+	while (advAcq_->deleteRecord(1)){}
+
+	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+
+	for (int i = 0; i < ionChambers->count(); i++)
+		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
+
+	/// In order to mimic the current configs, I've hardcoded all the names so that the file matches the reference file.  These should and will be migrated to proper maps of detectors and controls names.
+	// These will all likely change and be modified.
+	advAcq_->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
+	advAcq_->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);
+	advAcq_->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
+	advAcq_->appendRecord("ccd1607-002:cam1:FileNumber", true, false, 0);
+
+	return loadSuccess;
 }
 
 void VESPERSEnergyDacqScanController::onInitializationActionFinished()

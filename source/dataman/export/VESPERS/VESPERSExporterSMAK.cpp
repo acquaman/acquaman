@@ -184,7 +184,7 @@ void VESPERSExporterSMAK::writeMainTable()
 				}
 
 				if(doPrint && c == indexOfCCDName)
-					ts << QString("%1_%2.spe").arg(ccdFileName).arg(int(ds->value(AMnDIndex(x, y))));
+					ts << QString("%1_%2.spe").arg(ccdFileName).arg(int(ds->value(AMnDIndex(x, y)))-1);	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
 				else if (doPrint)
 					ts << ds->value(AMnDIndex(x, y)).toString();
 

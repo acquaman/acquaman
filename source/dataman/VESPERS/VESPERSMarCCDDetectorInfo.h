@@ -8,7 +8,6 @@ class VESPERSMarCCDDetectorInfo : public AMDetectorInfo
 	Q_OBJECT
 
 	Q_PROPERTY(double acquireTime READ acquireTime WRITE setAcquireTime)
-	Q_PROPERTY(double temperature READ temperature WRITE setTemperature)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Mar CDD Detector")
 
@@ -26,8 +25,6 @@ public:
 
 	/// Returns the acquire time for the detector.
 	virtual double acquireTime() const { return acquireTime_; }
-	/// Returns the temperature setpoint of the detector.
-	virtual double temperature() const { return temperature_; }
 
 	// Dimensionality and size:
 	////////////////////////////////////
@@ -41,14 +38,10 @@ public:
 public slots:
 	/// Sets the acquire time.
 	virtual void setAcquireTime(double time) { acquireTime_ = time; setModified(true); }
-	/// Sets the temperature setpoint.
-	virtual void setTemperature(double temperature) { temperature_ = temperature; setModified(true); }
 
 protected:
 	/// The time the detector should acquire for.
 	double acquireTime_;
-	/// The temperature that the detector should be set to.
-	double temperature_;
 	/// The axes of the detector.  They are fixed so they may as well be stored statically.
 	QList<AMAxisInfo> axes_;
 };

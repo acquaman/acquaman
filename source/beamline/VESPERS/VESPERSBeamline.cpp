@@ -380,6 +380,7 @@ void VESPERSBeamline::setupComponents()
 	synchronizedDwellTime_->addElement(2);
 	synchronizedDwellTime_->addElement(3);
 	synchronizedDwellTime_->addElement(4);
+	synchronizedDwellTime_->addElement(5);
 
 	// Helper functions for setting the dwell time between regions.
 	dwellTimeTrigger_ = new AMSinglePVControl("Dwell Time Trigger", "BL1607-B2-1:AddOns:dwellTime:trigger", this, 0.1);

@@ -610,7 +610,7 @@ void VESPERSAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMSc
 	if (!exclusiveName.isNull())
 		editor->setExclusiveDataSourceByName(exclusiveName);
 
-	else
+	else if (editor->scanAt(0)->analyzedDataSourceCount())
 		editor->setExclusiveDataSourceByName(editor->scanAt(0)->analyzedDataSources()->at(editor->scanAt(0)->analyzedDataSourceCount()-1)->name());
 
 	if (editor->using2DScanView()){

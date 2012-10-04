@@ -12,6 +12,7 @@ VESPERSConfigurationFileBuilder::VESPERSConfigurationFileBuilder(QObject *parent
 	singleElement_ = false;
 	fourElement_ = false;
 	roperCCD_ = false;
+	marCCD_ = false;
 	pvNameAxis1_ = "";
 	pvNameAxis2_ = "";
 }
@@ -85,6 +86,13 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 		contents.append("# Action Begin SetPV \"IOC1607-003:det1:NumAcquisitions\" \"1\"\n");
 		contents.append("# Action Begin SetPV \"IOC1607-003:det1:TriggerMode\" \"1\"\n");
 		contents.append("# Action Begin SetPV \"DIO1607-01:CCD:ExtSync.HIGH\" \"0.01\"\n");
+	}
+
+	if (marCCD_){
+
+		contents.append("# Action Begin SetPV \"ccd1607-002:cam1:NumImages\" \"1\"\n");
+		contents.append("# Action Begin SetPV \"ccd1607-002:cam1:NumAcquisitions\" \"1\"\n");
+		contents.append("# Action Begin SetPV \"ccd1607-002:cam1:TriggerMode\" \"1\"\n");
 	}
 
 	if (singleElement_){
@@ -268,6 +276,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 			contents.append("# PV 8: \"$(DXP_GAPTIM)\" disable:0 spectrum:0 ready:0\n");
 			contents.append("# PV 9: \"$(DXP_EMAX)\" disable:0 spectrum:0 ready:0\n");
 		}
+
 		else if (fourElement_){
 
 			contents.append("# PV 5: \"$(4Elem):PresetReal\" disable:0 spectrum:0 ready:0\n");

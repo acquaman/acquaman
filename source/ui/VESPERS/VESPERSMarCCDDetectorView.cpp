@@ -65,17 +65,6 @@ bool VESPERSMarCCDDetectorView::setDetector(AMDetector *detector, bool configure
 	connect(detector_, SIGNAL(imageModeChanged(VESPERSMarCCDDetector::ImageMode)), this, SLOT(onImageModeChanged(VESPERSMarCCDDetector::ImageMode)));
 	connect(imageMode_, SIGNAL(currentIndexChanged(int)), this, SLOT(setImageMode(int)));
 
-	temperatureSetpoint_ = new QDoubleSpinBox;
-	temperatureSetpoint_->setRange(-70, 30);
-	temperatureSetpoint_->setValue(20);
-	temperatureSetpoint_->setDecimals(1);
-	temperatureSetpoint_->setSuffix(QString::fromUtf8(" °C"));
-	connect(detector_, SIGNAL(temperatureSetpointChanged(double)), temperatureSetpoint_, SLOT(setValue(double)));
-	connect(temperatureSetpoint_, SIGNAL(editingFinished()), this, SLOT(setTemperature()));
-
-	temperatureFeedback_ = new QLabel("");
-	connect(detector_, SIGNAL(temperatureChanged(double)), this, SLOT(onTemperatureChanged(double)));
-
 	QToolButton *saveButton = new QToolButton;
 	saveButton->setIcon(QIcon(":/save.png"));
 	connect(saveButton, SIGNAL(clicked()), detector_, SLOT(saveFile()));
@@ -112,13 +101,6 @@ bool VESPERSMarCCDDetectorView::setDetector(AMDetector *detector, bool configure
 	modeLayout->addWidget(triggerMode_);
 	modeLayout->addWidget(imageMode_);
 
-	QGroupBox *temperatureGroupBox = new QGroupBox("Temperature Control");
-	QHBoxLayout *temperatureLayout = new QHBoxLayout;
-	temperatureLayout->addWidget(new QLabel("Temperature: "), 0, Qt::AlignCenter);
-	temperatureLayout->addWidget(temperatureSetpoint_, 0, Qt::AlignCenter);
-	temperatureLayout->addWidget(temperatureFeedback_, 0, Qt::AlignCenter);
-	temperatureGroupBox->setLayout(temperatureLayout);
-
 	QVBoxLayout *acquisitionLayout = new QVBoxLayout;
 	acquisitionLayout->addLayout(statusLayout);
 	acquisitionLayout->addLayout(modeLayout);
@@ -143,7 +125,6 @@ bool VESPERSMarCCDDetectorView::setDetector(AMDetector *detector, bool configure
 	QVBoxLayout *detectorLayout = new QVBoxLayout;
 	detectorLayout->addStretch();
 	detectorLayout->addWidget(acquisitionBox);
-	detectorLayout->addWidget(temperatureGroupBox);
 	detectorLayout->addWidget(ccdGB);
 	detectorLayout->addStretch();
 

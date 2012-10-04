@@ -677,6 +677,8 @@ bool VESPERSSpatialLineDacqScanController::initializeImplementation()
 		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(true));
 	else
 		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
+	// Mar CCD
+	initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(5)->createEnableAction(false));
 
 	// Second stage.
 	initializationActionsList->appendStage(new QList<AMBeamlineActionItem*>());
@@ -761,6 +763,8 @@ void VESPERSSpatialLineDacqScanController::cleanup()
 	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
 	// Four element vortex
 	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
+	// Mar CCD
+	cleanupActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(5)->createEnableAction(false));
 
 	// Second stage.
 	cleanupActionsList->appendStage(new QList<AMBeamlineActionItem*>());

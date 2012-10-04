@@ -38,10 +38,6 @@ protected slots:
 	void onImageModeChanged(VESPERSMarCCDDetector::ImageMode mode);
 	/// Slot used to set the image mode on the detector.
 	void setImageMode(int newMode);
-	/// Slot used to set the temperature setpoint.
-	void setTemperature() { if (temperatureSetpoint_->value() != detector_->temperature()) detector_->setTemperature(temperatureSetpoint_->value()); }
-	/// Slot used to set the temperature feedback.
-	void onTemperatureChanged(double temp) { temperatureFeedback_->setText(QString::number(temp, 'g', 3) + QString::fromUtf8(" °C")); }
 	/// Slot used to set the autosave setting on the detector.
 	void setAutoSave(int autoSave);
 	/// Slot used to update the autosave combo box.
@@ -79,10 +75,6 @@ protected:
 	QComboBox *imageMode_;
 	/// Label holding the current state.
 	QLabel *state_;
-	/// Spin box holding the temperature setpoint for the detector.
-	QDoubleSpinBox *temperatureSetpoint_;
-	/// Label holding the feedback value for the temperature.
-	QLabel *temperatureFeedback_;
 	/// Combo box holding the autosave options.
 	QComboBox *autoSaveComboBox_;
 

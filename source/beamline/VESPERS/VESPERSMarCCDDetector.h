@@ -54,8 +54,6 @@ public:
 	TriggerMode triggerMode() const;
 	/// Returns the state of the detector.
 	State state() const;
-	/// Returns the temperature.  Thiss returns the value from the control.
-	virtual double temperature() const { return temperatureControl_->value(); }
 	/// Returns whether the detector is currently acquiring.
 	bool isAcquiring() const { return operationControl_->value() == 1 ? true : false; }
 	/// Returns whether autosave is enabled for the detector.
@@ -79,8 +77,6 @@ public:
 	AMBeamlineActionItem *createImageModeAction(VESPERSMarCCDDetector::ImageMode mode);
 	/// Returns a newly created action that sets the trigger mode.  Returns 0 if the control is not connected.
 	AMBeamlineActionItem *createTriggerModeAction(VESPERSMarCCDDetector::TriggerMode mode);
-	/// Returns a newly created action that sets the temperature setpoint.  Returns 0 if the control is not connected.
-	AMBeamlineActionItem *createTemperatureAction(double temperature);
 	/// Returns a newly created action that starts the detector.  Returns 0 if the control is not connected.
 	AMBeamlineActionItem *createStartAction();
 	/// Returns a newly created action that stops the detector.  Returns 0 if the control is not connected.
@@ -93,10 +89,6 @@ public:
 signals:
 	/// Notifier that the detector is connected.
 	void connected(bool);
-	/// Notifier that the temperature has changed.
-	void temperatureChanged(double);
-	/// Notifier that the temperature setpoint has changed.
-	void temperatureSetpointChanged(double);
 	/// Notifier that the acquire time has changed.
 	void acquireTimeChanged(double);
 	/// Notifier that the image mode has changed.
@@ -127,12 +119,6 @@ public slots:
 		acquireTimeControl_->move(time);
 	}
 
-	/// Sets the temperature for the detector.
-	virtual void setTemperature(double temperature)
-	{
-		VESPERSMarCCDDetectorInfo::setTemperature(temperature);
-		temperatureControl_->move(temperature);
-	}
 	/// Sets the image mode for the detector.
 	void setImageMode(ImageMode mode) { imageModeControl_->move((int)mode); }
 	/// Sets the trigger mode for the detector.
@@ -168,8 +154,6 @@ protected slots:
 	void onSaveFileStateChanged() { emit saveFileStateChanged(fileBeingSaved()); }
 	/// Helper slot that emits the acquireTime signal and sets the acquire time in the info.
 	void onAcquireTimeChanged(double time) { VESPERSMarCCDDetectorInfo::setAcquireTime(time); emit acquireTimeChanged(time); }
-	/// Helper slot that emits the temperature changed signal and sets the temperature in the info.
-	void onTemperatureSetpointChanged(double temperature) { VESPERSMarCCDDetectorInfo::setTemperature(temperature); emit temperatureSetpointChanged(temperature); }
 
 	/// Handles the CCD path update.
 	void onCCDPathChanged() { emit ccdPathChanged(AMPVtoString(ccdPath_)); }
@@ -182,8 +166,6 @@ protected:
 	/// Converts the string to the array of integers it needs to be.
 	void StringtoAMPV(AMProcessVariable *pv, QString toConvert);
 
-	/// Control for the temperature.
-	AMControl *temperatureControl_;
 	/// Control for the image mode.
 	AMControl *imageModeControl_;
 	/// Control for the trigger mode control.
