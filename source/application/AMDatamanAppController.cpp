@@ -608,6 +608,7 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	connect(dataView_, SIGNAL(selectionActivatedSeparateWindows(QList<QUrl>)), this, SLOT(onDataViewItemsActivatedSeparateWindows(QList<QUrl>)));
 	connect(dataView_, SIGNAL(selectionExported(QList<QUrl>)), this, SLOT(onDataViewItemsExported(QList<QUrl>)));
 	connect(dataView_, SIGNAL(launchScanConfigurationsFromDb(QList<QUrl>)), this, SLOT(onLaunchScanConfigurationsFromDb(QList<QUrl>)));
+	connect(dataView_, SIGNAL(fixCDF(QUrl)), this, SLOT(fixCDF(QUrl)));
 
 	// When 'alias' links are clicked in the main window sidebar, we might need to notify some widgets of the details
 	connect(mw_, SIGNAL(aliasItemActivated(QWidget*,QString,QVariant)), this, SLOT(onMainWindowAliasItemActivated(QWidget*,QString,QVariant)));
@@ -827,6 +828,12 @@ void AMDatamanAppController::launchScanConfigurationFromDb(const QUrl &url)
 	view->setEnabled(false);
 	view->setAttribute(Qt::WA_DeleteOnClose, true);
 	view->show();
+}
+
+void AMDatamanAppController::fixCDF(const QUrl &url)
+{
+	Q_UNUSED(url)
+	QMessageBox::information(0, "Unable to fix.", "This particular app controller can not fix CDF files.");
 }
 
 #include "dataman/AMRunExperimentItems.h"
@@ -1160,7 +1167,7 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 	if (overwriteNecessary){
 
 		scan->setScanController(0);
-		scan->storeToDb(AMDatabase::database("user"), true);
+		scan->storeToDb(AMDatabase::database("user"));
 
 		/// \todo DH: I'm sure I should just make a function to do things like this, but for now I'm just duplicating code because it's easy.
 		delete dbo;

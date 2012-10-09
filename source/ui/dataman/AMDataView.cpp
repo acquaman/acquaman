@@ -1654,6 +1654,10 @@ void AMDataView::onCustomContextMenuRequested(QPoint pos)
 		break;
 	}
 
+	temp = popup.addAction("Fix CDF file");
+	if (numSelectedItems != 1)
+		temp->setEnabled(false);
+
 	temp = popup.exec(mapToGlobal(pos));
 
 	// If a valid action was selected.
@@ -1681,6 +1685,16 @@ void AMDataView::onCustomContextMenuRequested(QPoint pos)
 			}
 			else
 				emit launchScanConfigurationsFromDb();
+		}
+
+		else if (temp->text() == "Fix CDF file"){
+
+			QMessageBox::StandardButton button = QMessageBox::question(this, "Fixing CDF files",
+																		"You are about fix your scan that uses CDF files.  This may take a couple minutes.  Do you wish to proceed?",
+																		QMessageBox::Ok | QMessageBox::Cancel,
+																		QMessageBox::Cancel);
+			if (button == QMessageBox::Ok)
+				emit fixCDF();
 		}
 	}
 }

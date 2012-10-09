@@ -95,6 +95,9 @@ protected slots:
 	/// Slot that handles changing the sample stage from pseudo motors to real motors.
 	void onSampleStageChoiceChanged(bool change);
 
+	/// Re-implemented from AMDatamanAppController.  Fixes CDF files that have been corrupted.
+	virtual void fixCDF(const QUrl &url);
+
 protected:
 	/// Sets up a default XAS scan.  It will setup XANES or EXAFS based on the bool \param setupEXAFS using the information from AMGenericScanEditor \param editor.
 	void setupXASScan(const AMGenericScanEditor *editor, bool setupEXAFS);

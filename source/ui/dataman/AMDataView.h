@@ -146,6 +146,8 @@ signals:
 	void compareScansFromDb();
 	/// Emitted when the user wants to export scans.
 	void exportScansFromDb();
+	/// Emitted when the user wants to fix a scan that uses CDF.
+	void fixCDF();
 
 
 public slots:

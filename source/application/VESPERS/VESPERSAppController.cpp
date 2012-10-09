@@ -821,3 +821,109 @@ void VESPERSAppController::onSampleStageChoiceChanged(bool change)
 	endstationView_->setUsingNormalMotor(change);
 	exafsConfigView_->setSampleStage(change);
 }
+
+void VESPERSAppController::fixCDF(const QUrl &url)
+{
+	// turn off automatic raw-day loading for scans... This will make loading the scan to access it's config much faster.
+	bool scanAutoLoadingOn = AMScan::autoLoadData();
+	AMScan::setAutoLoadData(false);
+
+	AMScan* scan = AMScan::createFromDatabaseUrl(url, true);
+
+	// restore AMScan's auto-loading of data to whatever it was before.
+	AMScan::setAutoLoadData(scanAutoLoadingOn);
+
+	if(!scan) {
+		return;
+	}
+
+	// Does the scan have a configuration?
+	AMScanConfiguration* config = scan->scanConfiguration();
+	if(!config) {
+		scan->release();
+		return;
+	}
+
+	// Which scan configuration is it?
+	if (qobject_cast<VESPERSEXAFSScanConfiguration *>(config)){
+
+		QString filename = scan->filePath();
+		filename.replace(".cdf", ".dat");
+		QString additionalFilename = filename;
+		additionalFilename.replace(".dat", "_spectrum.dat");
+		scan->setFileFormat("vespers2011EXAFS");
+		scan->setFilePath(filename);
+		scan->setAdditionalFilePaths(QStringList() << additionalFilename);
+	}
+
+	else if (qobject_cast<VESPERS2DScanConfiguration *>(config)){
+
+		VESPERS2DScanConfiguration *lineConfig = qobject_cast<VESPERS2DScanConfiguration *>(config);
+		bool usingCcd = lineConfig->usingCCD();
+		bool usingSingleElement = (lineConfig->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement) || (lineConfig->fluorescenceDetectorChoice() == (VESPERS2DScanConfiguration::SingleElement | VESPERS2DScanConfiguration::FourElement));
+		bool usingFourElement = (lineConfig->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::FourElement) || (lineConfig->fluorescenceDetectorChoice() == (VESPERS2DScanConfiguration::SingleElement | VESPERS2DScanConfiguration::FourElement));
+
+		QString filename = scan->filePath();
+		filename.replace(".cdf", ".dat");
+		QString additionalFilename = filename;
+		additionalFilename.replace(".dat", "_spectrum.dat");
+
+		if (usingSingleElement && usingFourElement)
+			scan->setFileFormat(QString("vespers2012XRF1Eln4El%1").arg(usingCcd ? "XRD" : ""));
+
+		else if (usingSingleElement)
+			scan->setFileFormat(QString("vespers2012XRF1El%1").arg(usingCcd ? "XRD" : ""));
+
+		else if (usingFourElement)
+			scan->setFileFormat(QString("vespers2012XRF4El%1").arg(usingCcd ? "XRD" : ""));
+
+		scan->setFilePath(filename);
+		scan->setAdditionalFilePaths(QStringList() << additionalFilename);
+	}
+
+	else if (qobject_cast<VESPERSSpatialLineScanConfiguration *>(config)){
+
+		VESPERSSpatialLineScanConfiguration *lineConfig = qobject_cast<VESPERSSpatialLineScanConfiguration *>(config);
+		bool usingCcd = lineConfig->usingCCD();
+		bool usingSingleElement = (lineConfig->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::SingleElement) || (lineConfig->fluorescenceDetectorChoice() == (VESPERSSpatialLineScanConfiguration::SingleElement | VESPERSSpatialLineScanConfiguration::FourElement));
+		bool usingFourElement = (lineConfig->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::FourElement) || (lineConfig->fluorescenceDetectorChoice() == (VESPERSSpatialLineScanConfiguration::SingleElement | VESPERSSpatialLineScanConfiguration::FourElement));
+
+		QString filename = scan->filePath();
+		filename.replace(".cdf", ".dat");
+		QString additionalFilename = filename;
+		additionalFilename.replace(".dat", "_spectrum.dat");
+
+		if (usingSingleElement && usingFourElement)
+			scan->setFileFormat(QString("vespers2012LineScanXRF1Eln4El%1").arg(usingCcd ? "XRD" : ""));
+
+		else if (usingSingleElement)
+			scan->setFileFormat(QString("vespers2012LineScanXRF1El%1").arg(usingCcd ? "XRD" : ""));
+
+		else if (usingFourElement)
+			scan->setFileFormat(QString("vespers2012LineScanXRF4El%1").arg(usingCcd ? "XRD" : ""));
+
+		scan->setFilePath(filename);
+		scan->setAdditionalFilePaths(QStringList() << additionalFilename);
+	}
+
+	else if (qobject_cast<VESPERSEnergyScanConfiguration *>(config)){
+
+		QString filename = scan->filePath();
+		filename.replace(".cdf", ".dat");
+		scan->setFileFormat("vespers2012Energy");
+		scan->setFilePath(filename);
+	}
+
+	else {
+
+		scan->release();
+		return;
+	}
+
+	// Save the changes to db object.
+	scan->storeToDb(AMDatabase::database("user"));
+	// Load it from the database to use the appropriate file loader and build a new CDF file.
+	scan->loadFromDb(AMDatabase::database("user"), scan->id());
+	// Release the object.
+	scan->release();
+}
