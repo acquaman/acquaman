@@ -708,11 +708,37 @@ void AMGenericScanEditor::onOneSecondTimer()
 #include <QFileDialog>
 void AMGenericScanEditor::exportGraphicsToFile()
 {
-	QString fileName = QFileDialog::getSaveFileName(this, "Save Graphics As...", QString(), "PDF Files (*.pdf)", 0, QFileDialog::DontConfirmOverwrite);
+	QString filters = QString("%1;;%2;;%3;;%4;;%5;;%6").arg("PDF Files (*.pdf)")
+			.arg("JPEG Files (*.jpg *.jpeg)")
+			.arg("PNG Files (*.png)")
+			.arg("TIFF Files (*.tiff)")
+			.arg("PPM Files (*.ppm)")
+			.arg("BMP Files (*.bmp)");
+
+	QFileDialog dialog(this, "Save Graphics As...", QString(), filters);
+	dialog.setAcceptMode(QFileDialog::AcceptSave);
+	dialog.exec();
+	QString fileName = dialog.selectedFiles().first();
 
 	if(!fileName.isEmpty()) {
-		if(!fileName.endsWith(".pdf", Qt::CaseInsensitive))
+
+		if(dialog.selectedNameFilter().contains("PDF") && !fileName.endsWith(".pdf", Qt::CaseInsensitive))
 			fileName.append(".pdf");
+
+		else if(dialog.selectedNameFilter().contains("JPEG") && !fileName.endsWith(".jpg", Qt::CaseInsensitive))
+			fileName.append(".jpg");
+
+		else if(dialog.selectedNameFilter().contains("PNG") && !fileName.endsWith(".png", Qt::CaseInsensitive))
+			fileName.append(".png");
+
+		else if(dialog.selectedNameFilter().contains("TIFF") && !fileName.endsWith(".tiff", Qt::CaseInsensitive))
+			fileName.append(".tiff");
+
+		else if(dialog.selectedNameFilter().contains("PPM") && !fileName.endsWith(".ppm", Qt::CaseInsensitive))
+			fileName.append(".ppm");
+
+		else if(dialog.selectedNameFilter().contains("BMP") && !fileName.endsWith(".bmp", Qt::CaseInsensitive))
+			fileName.append(".bmp");
 
 		QFileInfo info(fileName);
 		if (info.exists() && QMessageBox::Cancel == QMessageBox::warning(this,

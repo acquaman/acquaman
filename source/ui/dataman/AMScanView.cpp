@@ -1929,16 +1929,32 @@ void AMScanViewMultiSourcesView::setDataRangeConstraint(int id)
 
 void AMScanView::exportGraphicsFile(const QString& fileName)
 {
-	QPrinter printer(QPrinter::HighResolution);
-	printer.setOutputFileName(fileName);
-	printer.setPageSize(QPrinter::Letter);
-	printer.setOutputFormat(QPrinter::PdfFormat);
-	printer.setOrientation(QPrinter::Landscape);
+	if (fileName.endsWith(".pdf")){
 
-	QPainter painter(&printer);
-	gview_->render(&painter);
+		QPrinter printer(QPrinter::HighResolution);
+		printer.setOutputFileName(fileName);
+		printer.setPageSize(QPrinter::Letter);
+		printer.setOutputFormat(QPrinter::PdfFormat);
+		printer.setOrientation(QPrinter::Landscape);
 
-	painter.end();
+		QPainter painter(&printer);
+		gview_->render(&painter);
+
+		painter.end();
+	}
+
+	else if (fileName.endsWith(".jpg")
+			 || fileName.endsWith(".png")
+			 || fileName.endsWith(".tiff")
+			 || fileName.endsWith(".ppm")
+			 || fileName.endsWith(".bmp")){
+
+		QImage image(gview_->size(), QImage::Format_ARGB32_Premultiplied);
+		QPainter painter(&image);
+		gview_->render(&painter);
+		painter.end();
+		image.save(fileName);
+	}
 }
 
 QString AMScanViewInternal::bottomAxisName(AMScan *scan, AMDataSource *dataSource)

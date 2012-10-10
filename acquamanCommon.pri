@@ -595,8 +595,7 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/analysis/AM3DBinningAB.h \
     source/analysis/AM3DBinningABEditor.h \
     source/analysis/AM2DDeadTimeAB.h \
-    source/analysis/AM3DDeadTimeAB.h \
-    source/ui/util/AMExportGraphicsDialog.h
+    source/analysis/AM3DDeadTimeAB.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -995,8 +994,7 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/analysis/AM3DBinningAB.cpp \
     source/analysis/AM3DBinningABEditor.cpp \
     source/analysis/AM2DDeadTimeAB.cpp \
-    source/analysis/AM3DDeadTimeAB.cpp \
-    source/ui/util/AMExportGraphicsDialog.cpp
+    source/analysis/AM3DDeadTimeAB.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1020,6 +1018,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 

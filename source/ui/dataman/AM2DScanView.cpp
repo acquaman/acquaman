@@ -495,16 +495,32 @@ void AM2DScanView::setPlotRange(double low, double high)
 
 void AM2DScanView::exportGraphicsFile(const QString& fileName)
 {
-	QPrinter printer(QPrinter::HighResolution);
-	printer.setOutputFileName(fileName);
-	printer.setPageSize(QPrinter::Letter);
-	printer.setOutputFormat(QPrinter::PdfFormat);
-	printer.setOrientation(QPrinter::Landscape);
+	if (fileName.endsWith(".pdf")){
 
-	QPainter painter(&printer);
-	gExclusiveView_->render(&painter);
+		QPrinter printer(QPrinter::HighResolution);
+		printer.setOutputFileName(fileName);
+		printer.setPageSize(QPrinter::Letter);
+		printer.setOutputFormat(QPrinter::PdfFormat);
+		printer.setOrientation(QPrinter::Landscape);
 
-	painter.end();
+		QPainter painter(&printer);
+		gExclusiveView_->render(&painter);
+
+		painter.end();
+	}
+
+	else if (fileName.endsWith(".jpg")
+			 || fileName.endsWith(".png")
+			 || fileName.endsWith(".tiff")
+			 || fileName.endsWith(".ppm")
+			 || fileName.endsWith(".bmp")){
+
+		QImage image(gExclusiveView_->size(), QImage::Format_ARGB32_Premultiplied);
+		QPainter painter(&image);
+		gExclusiveView_->render(&painter);
+		painter.end();
+		image.save(fileName);
+	}
 }
 
 // AM2DScanViewInternal
