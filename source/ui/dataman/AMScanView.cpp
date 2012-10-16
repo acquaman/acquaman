@@ -31,7 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 
 #include <QAction>
-
+#include <QGroupBox>
 #include <QStringBuilder>
 
 AMScanViewSourceSelector::AMScanViewSourceSelector(AMScanSetModel* model, QWidget* parent)
@@ -116,7 +116,6 @@ void AMScanViewSourceSelector::setExclusiveModeOn(bool exclusiveModeOn) {
 	}
 }
 
-#include <QCheckBox>
 #include <QDoubleSpinBox>
 #include <QApplication>
 #include <QStyle>
@@ -191,6 +190,11 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 	waterfallAmount_->setValue(0.2);
 	waterfallAmount_->setSingleStep(0.1);
 	hl->addWidget(waterfallAmount_);
+	showSpectra_ = new QCheckBox("Show Spectra");
+	showSpectra_->setChecked(false);
+	showSpectra_->setEnabled(false);
+	showSpectra_->setVisible(false);
+	hl->addWidget(showSpectra_);
 
 	hl->setMargin(6);
 	// hl->setSpacing(24);
@@ -212,6 +216,7 @@ AMScanView::AMScanView(AMScanSetModel* model, QWidget *parent) :
 	QWidget(parent)
 {
 	mode_ = Invalid;
+	spectrumViewIsVisible_ = false;
 
 	scansModel_ = model;
 	if(scansModel_ == 0)
@@ -281,8 +286,43 @@ void AMScanView::setupUI() {
 		glayout_->addItem(v);
 	}
 
+	spectrumView_ = new AMScanViewSingleSpectrumView(this);
+
+	spectrumViewBox_ = new QGroupBox;
+	QHBoxLayout *spectrumViewBoxLayout = new QHBoxLayout;
+	spectrumViewBoxLayout->addWidget(spectrumView_);
+	spectrumViewBox_->setLayout(spectrumViewBoxLayout);
+	spectrumViewBox_->setWindowTitle("View Single Spectrum");
 }
 
+void AMScanView::setSpectrumViewVisibility(bool visible)
+{
+	spectrumViewIsVisible_ = visible;
+	spectrumViewBox_->setVisible(spectrumViewIsVisible_);
+}
+
+void AMScanView::onDataPositionChanged(const QPointF &point)
+{
+	AMnDIndex index = getIndex(point);
+
+	if (modeBar_->showSpectra_)
+		spectrumView_->onDataPositionChanged(index);
+}
+
+void AMScanView::setPlotRange(double low, double high)
+{
+	spectrumView_->setPlotRange(low, high);
+}
+
+void AMScanView::setSingleSpectrumDataSource(const QString &name)
+{
+	spectrumView_->setDataSourceByName(name);
+}
+
+void AMScanView::setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange)
+{
+	spectrumView_->setAxisInfo(info, propogateToPlotRange);
+}
 
 // newMode:
 void AMScanView::changeViewMode(int newMode) {
@@ -320,7 +360,11 @@ void AMScanView::makeConnections() {
 
 	// connect the "show scan bars" button to show/hide them
 	connect(modeBar_->showSourcesButton_, SIGNAL(clicked(bool)), scanBars_, SLOT(setVisible(bool)));
+	connect(modeBar_->showSpectra_, SIGNAL(toggled(bool)), this, SLOT(setSpectrumViewVisibility(bool)));
+	connect((AMScanViewExclusiveView *)views_.first(), SIGNAL(dataPositionChanged(QPointF)), this, SLOT(onDataPositionChanged(QPointF)));
 
+
+	connect(scansModel_, SIGNAL(scanAdded(AMScan*)), this, SLOT(onScanAdded(AMScan*)));
 	connect(scansModel_, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onRowInserted(QModelIndex,int,int)));
 
 	// connect enabling/disabling normalization and waterfall to each view
@@ -363,9 +407,115 @@ void AMScanView::addScan(AMScan *newScan) {
 	// that's it!  handling the rowsAdded, rowsRemoved signals from the model will take care of everything else.
 }
 
+void AMScanView::onScanAdded(AMScan *scan)
+{
+	QList<AMDataSource *> sources;
+
+	int scanRank = scan->scanRank();
+
+	foreach (AMDataSource *source, scan->rawDataSources()->toList())
+		if (source->rank()-scanRank == 1)
+			sources.append(source);
+
+	foreach (AMDataSource *source, scan->analyzedDataSources()->toList())
+		if (source->rank()-scanRank == 1)
+			sources.append(source);
+
+	modeBar_->showSpectra_->setEnabled(!sources.isEmpty());
+	modeBar_->showSpectra_->setVisible(!sources.isEmpty());
+	spectrumView_->setDataSources(sources);
+}
+
+AMnDIndex AMScanView::getIndex(const QPointF &point) const
+{
+	if (scansModel_->scanCount() == 0)
+		return AMnDIndex();
+
+	AMnDIndex index;
+
+	switch(scansModel_->scanAt(0)->scanRank()){
+
+	case 0:
+		index = AMnDIndex();
+		break;
+
+	case 1:{
+
+		AMScan *scan = scansModel_->scanAt(0);
+		AMDataSource *datasource = scan->dataSourceAt(scan->indexOfDataSource(scansModel_->exclusiveDataSourceName()));
+		int x = -1;
+		int size = scan->scanSize(0);
+
+		// First point and last points are special.
+		if (fabs(point.x() - double(datasource->axisValue(0, 0))) < fabs(double(datasource->axisValue(0, 1))-double(datasource->axisValue(0, 0))))
+			x = 0;
+
+		for (int i = 1, count = size-1; i < count; i++)
+			if (fabs(point.x() - double(datasource->axisValue(0, i))) < qMax(fabs(double(datasource->axisValue(0, i+1))-double(datasource->axisValue(0, i))), fabs(double(datasource->axisValue(0, i))-double(datasource->axisValue(0, i-1)))))
+				x = i;
+
+		if (fabs(point.x() - double(datasource->axisValue(0, size-1))) < fabs(double(datasource->axisValue(0, size-1))-double(datasource->axisValue(0, size-2))))
+			x = size-1;
+
+		index = AMnDIndex(x);
+		break;
+	}
+
+	case 2:{
+
+		int x = -1;
+		int y = -1;
+		AMScan *scan = scansModel_->scanAt(0);
+		AMDataSource *datasource = scan->dataSourceAt(scan->indexOfDataSource(scansModel_->exclusiveDataSourceName()));
+
+		// For performance (speed) reasons, I have assumed that the axis values are evenly spaced for 2D maps.  This is unlike the 1D case where different spacings are possible and expected.
+		// This assumes 2D maps where the size is greater than 1x1, 1xN, or Nx1.
+		double delX = (double(datasource->axisValue(0, 1)) - double(datasource->axisValue(0, 0)))/2;
+		double delY = (double(datasource->axisValue(1, 1)) - double(datasource->axisValue(1, 0)))/2;
+
+		for (int i = 0, size = scan->scanSize(0); i < size; i++)
+			if (fabs(point.x() - double(datasource->axisValue(0, i))) < delX)
+				x = i;
+
+		for (int i = 0, size = scan->scanSize(1); i < size; i++)
+			if (fabs(point.y() - double(datasource->axisValue(1, i))) < delY)
+				y = i;
+
+		index = AMnDIndex(x, y);
+		break;
+	}
+	}
+
+	return index;
+}
+
 // remove a scan from the view:
 void AMScanView::removeScan(AMScan* scan) {
 	scansModel_->removeScan(scan);
+}
+
+void AMScanView::showEvent(QShowEvent *e)
+{
+	if (!spectrumViewBox_->isVisible() && spectrumViewIsVisible_)
+		spectrumViewBox_->show();
+
+	QWidget::showEvent(e);
+}
+
+void AMScanView::hideEvent(QHideEvent *e)
+{
+	if (spectrumViewBox_->isVisible())
+		spectrumViewBox_->hide();
+
+	QWidget::hideEvent(e);
+}
+
+void AMScanView::mousePressEvent(QMouseEvent *e)
+{
+	if (e->button() == Qt::RightButton)
+		emit dataPositionChanged(e->globalPos());
+
+	QWidget::mousePressEvent(e);
 }
 
 #include <QSizePolicy>
@@ -518,6 +668,12 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 	// create our main plot:
 	plot_ = createDefaultPlot();
 
+	MPlotDataPositionTool *positionTool = new MPlotDataPositionTool;
+	plot_->plot()->addTool(positionTool);
+	positionTool->addDataPositionIndicator(plot_->plot()->axisScaleBottom(), plot_->plot()->axisScaleLeft());
+
+	connect(plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(uint,QPointF)), this, SLOT(onDataPositionChanged(uint,QPointF)));
+
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
 	gl->setContentsMargins(0,0,0,0);
 	gl->setSpacing(0);
@@ -653,6 +809,13 @@ void AMScanViewExclusiveView::onExclusiveDataSourceChanged(const QString& exclus
 
 	reviewPlotAxesConfiguration(plot_);
 	refreshTitle();
+}
+
+void AMScanViewExclusiveView::onDataPositionChanged(uint index, const QPointF &point)
+{
+	Q_UNUSED(index)
+
+	emit dataPositionChanged(point);
 }
 
 void AMScanViewExclusiveView::refreshTitle() {

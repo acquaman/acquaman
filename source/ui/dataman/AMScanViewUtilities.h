@@ -191,4 +191,78 @@ protected:
 	}
 };
 
+#include "MPlot/MPlotSeriesData.h"
+#include "MPlot/MPlotWidget.h"
+#include "MPlot/MPlotSeries.h"
+
+#include "util/AMSelectablePeriodicTable.h"
+#include "ui/util/AMSelectablePeriodicTableView.h"
+#include "dataman/AMnDIndex.h"
+#include "dataman/AMAxisInfo.h"
+
+/// This class holds a plot window and shows individual spectra when the mouse is clicked on image points.  It assumes that the spectrum is accessed by the last rank (eg: if the data source is rank 3, it assumes that the scan rank is 2).
+class AMScanViewSingleSpectrumView : public QWidget
+{
+	Q_OBJECT
+
+public:
+	/// Constructor.  Builds a plot.
+	AMScanViewSingleSpectrumView(QWidget *parent = 0);
+
+	/// Sets the scale for each point along the x-axis. This also calls setPlotRange to make the ranges match. Set \param propogateToPlotRange to false if you don't want the information to propogate.
+	void setAxisInfo(AMAxisInfo info, bool propogateToPlotRange);
+	/// This method looks for a data source named \param name and sets it as the only spectrum currently to be viewed.
+	void setDataSourceByName(const QString &name);
+	/// Sets the plot range used for placing markers inside the plot.
+	void setPlotRange(double low, double high);
+	/// Sets the data source list that can be visualized.
+	void setDataSources(QList<AMDataSource *> sources);
+
+public slots:
+	/// Gives a new coordinate to grab a new spectrum.
+	void onDataPositionChanged(AMnDIndex index);
+
+protected slots:
+	/// Slot that updates the plot at index \param index.  Updates the plot with every checked spectrum.  If no parameter is given then it uses the current index.
+	void updatePlot(const AMnDIndex &index = AMnDIndex());
+	/// Overloaded.  Slot that updates the plot with the spectrum from datasource \param id.
+	void updatePlot(int id);
+	/// Helper slot that adds lines to the plot based on elements being selected from the table.
+	void onElementSelected(int atomicNumber);
+	/// Helper slot that removes lines from the plot based on elements being deselected fromm the table.
+	void onElementDeselected(int atomicNumber);
+	/// Slot that helps handling adding and removing of MPlot items as check boxes are checked on and off.
+	void onCheckBoxChanged(int id);
+
+protected:
+	/// Sets up the plot.
+	void setupPlot();
+
+	/// The MPlot series that are visualized in the plot.
+	QList<MPlotSeriesBasic *> series_;
+	/// The list that holds all the MPlot data models.
+	QList<MPlotVectorSeriesData *> models_;
+	/// The plot widget that holds everything about the plot.
+	MPlotWidget *plot_;
+	/// Holds the x-axis values so that they do not need to be recomputed everytime.
+	QVector<double> x_;
+	/// Holds the start AMnDIndex of where we will grab the spectrum.
+	AMnDIndex startIndex_;
+	/// Holds the end AMnDIndex of where we will grab the spectrum.
+	AMnDIndex endIndex_;
+	/// Holds the list of data sources that can be visualized.
+	QList<AMDataSource *> sources_;
+	/// Holds the button group that is associated with the current list of data sources.
+	QButtonGroup *sourceButtons_;
+	/// The layout that holds the buttons associated with sourceButtons_.
+	QVBoxLayout *sourceButtonsLayout_;
+
+	/// The periodic table model that holds all of the selected elements.
+	AMSelectablePeriodicTable *table_;
+	/// The view that looks at the selectable periodic table model.
+	AMSelectablePeriodicTableView *tableView_;
+	/// Pair that holds the plot range that should be considered.
+	QPair<double, double> range_;
+};
+
 #endif // AMSCANVIEWUTILITIES_H

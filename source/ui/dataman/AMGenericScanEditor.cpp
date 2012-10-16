@@ -264,19 +264,28 @@ QRectF AMGenericScanEditor::selectedRect() const
 
 void AMGenericScanEditor::setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange)
 {
-	if (scanView2D_)
+	if (scanView_)
+		scanView_->setAxisInfoForSpectrumView(info, propogateToPlotRange);
+
+	else if (scanView2D_)
 		scanView2D_->setAxisInfoForSpectrumView(info, propogateToPlotRange);
 }
 
 void AMGenericScanEditor::setPlotRange(double low, double high)
 {
-	if (scanView2D_)
+	if (scanView_)
+		scanView_->setPlotRange(low, high);
+
+	else if (scanView2D_)
 		scanView2D_->setPlotRange(low, high);
 }
 
 void AMGenericScanEditor::setSingleSpectrumViewDataSourceName(const QString &name)
 {
-	if (scanView2D_)
+	if (scanView_)
+		scanView_->setSingleSpectrumDataSource(name);
+
+	else if (scanView2D_)
 		scanView2D_->setSingleSpectrumDataSource(name);
 }
 

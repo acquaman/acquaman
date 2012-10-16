@@ -47,7 +47,7 @@ bool AMDataSource::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd
 {
 	static bool programmerWarningIssued = false;
 	if(!programmerWarningIssued) {
-		qDebug() << "AMDataSource: Warning: Data source '" << typeDescription() << "' is using the base implementation of AMDataSource::values(), which is very inefficient. Re-implement values() to improve performance.  (This warning will only be given once.)";
+		qDebug() << "AMDataSource: Warning: Data source '" << name() << "' is using the base implementation of AMDataSource::values(), which is very inefficient. Re-implement values() to improve performance.  (This warning will only be given once.)";
 		programmerWarningIssued = true;	// one problem with this warning method: if multiple classes have this problem, it will only be given once, and the subsequent classes will not be named.
 	}
 

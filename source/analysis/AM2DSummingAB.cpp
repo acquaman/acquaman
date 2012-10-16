@@ -259,24 +259,30 @@ bool AM2DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 #endif
 
 	int totalSize = indexStart.totalPointsTo(indexEnd);
-	AMnDIndex nDImageSize = inputSource_->size();
-	int imageSize = AMnDIndex(0, 0).totalPointsTo(nDImageSize);
+//	AMnDIndex nDImageSize = AMnDIndex(indexEnd.i(), sumRangeMax_);
+//	int imageSize = AMnDIndex(indexStart.i(), sumRangeMin_).totalPointsTo(nDImageSize);
 
-	QVector<double> data = QVector<double>(imageSize);
-	inputSource_->values(AMnDIndex(0, 0), nDImageSize, data.data());
-QTime timer;
-timer.start();
+//	QVector<double> data = QVector<double>(imageSize);
+//	inputSource_->values(AMnDIndex(indexStart.i(), 0), AMnDIndex(indexEnd.i(), inputSource_->size(1)-1), data.data());
+
+	int offset = indexStart.i();
+
 	if (sumAxis_ == 0){
 
 		double sum = 0;
-		int axisLength = nDImageSize.i();
+		AMnDIndex start = AMnDIndex(sumRangeMin_, indexStart.i());
+		AMnDIndex end = AMnDIndex(sumRangeMax_, indexEnd.i());
+		int axisLength = start.totalPointsTo(end);
+
+		QVector<double> data = QVector<double>(axisLength);
+		inputSource_->values(start, end, data.data());
 
 		for (int i = 0; i < totalSize; i++){
 
 			sum = 0;
 
-			for (int j = sumRangeMin_; j < sumRangeMax_; j++)
-				sum += data[i+axisLength*j];
+			for (int j = 0; j < axisLength; j++)
+				sum += data[i*axisLength+j];
 
 			outputValues[i] = sum;
 		}
@@ -285,24 +291,26 @@ timer.start();
 	else {
 
 		double sum = 0;
-		int axisLength = nDImageSize.i();
+		AMnDIndex start = AMnDIndex(indexStart.i(), sumRangeMin_);
+		AMnDIndex end = AMnDIndex(indexEnd.i(), sumRangeMax_);
+		QVector<double> data = QVector<double>(start.totalPointsTo(end));
+		inputSource_->values(start, end, data.data());
+		int axisLength = sumRangeMax_-sumRangeMin_+1;
 
-		for (int j = 0; j < totalSize; j++){
+		for (int i = 0; i < totalSize; i++){
 
 			sum = 0;
 
-			for (int i = sumRangeMin_; i < sumRangeMax_; i++)
-				sum += data[i+axisLength*j];
+			for (int j = 0; j < axisLength; j++)
+				sum += data[i*axisLength+j];
 
-			outputValues[j] = sum;
+			outputValues[i] = sum;
 		}
 	}
-	qDebug() << QString("Time to compute sum: %1 ms").arg(timer.restart());
-	int offset = indexStart.i();
 
 	for (int i = 0; i < totalSize; i++)
 		cachedValues_[i+offset] = AMNumber(outputValues[i]);
-	qDebug() << QString("Time to set the cached values: %1").arg(timer.elapsed());
+
 	cacheCompletelyInvalid_ = false;
 
 	return true;

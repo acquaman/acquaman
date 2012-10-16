@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QButtonGroup>
 #include <QStringList>
 #include <QMenu>
+#include <QCheckBox>
 
 #include "MPlot/MPlot.h"
 #include "dataman/AMScanSetModel.h"
@@ -59,6 +60,7 @@ public:
 	QCheckBox *logCheckBox_;
 	QCheckBox* normalizationCheckBox_, *waterfallCheckBox_;
 	QDoubleSpinBox* waterfallAmount_;
+	QCheckBox *showSpectra_;
 
 signals:
 	void logScaleEnabled(bool);
@@ -129,6 +131,8 @@ protected:
 
 #define AM_SCAN_VIEW_HIDE_SCANBARS_AFTER_N_SCANS 7
 
+class QGroupBox;
+
 /// A GUI class that provides a several different ways to view a set of scans.  It is based on the contents of an AMScanSetModel, and a variety of different AMScanViewInternal views can be shown within it.
 class AMScanView : public QWidget
 {
@@ -143,7 +147,16 @@ public:
 	/// returns the AMScanSetModel used internally to hold the scans/data sources.
 	AMScanSetModel* model() const { return scansModel_; }
 
+	/// Sets the default axis information for the spectrum view. Set \param propogateToPlotRange to false if you don't want the information to propogate.
+	void setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange = true);
+	/// Sets the plot range for the spectrum view.
+	void setPlotRange(double low, double high);
+	/// Sets the single spectrum view data source using the name given by \param name.
+	void setSingleSpectrumDataSource(const QString &name);
+
 signals:
+	/// Notifier that the data position tool has changed locations.  Passes the location of the mouse.
+	void dataPositionChanged(const QPoint &);
 
 public slots:
 
@@ -166,8 +179,23 @@ protected slots:
 
 	/// Used to hide the scan bars if more than AM_SCAN_VIEW_HIDE_SCANBARS_AFTER_N_SCANS (7?) scans have been added to the model, otherwise the scan bars start to take up the whole vertical screen.
 	void onRowInserted(const QModelIndex& parent, int start, int end);
+	/// Helper slot that helps setup the single spectrum view after a scan has been added.
+	void onScanAdded(AMScan *scan);
+	/// Helper slot that makes sure all of the information that the spectrum fetcher needs is setup.
+	void onDataPositionChanged(const QPointF &point);
+	/// Slots that handles the visibility of the spectrum view based on the information from the scan bar.
+	void setSpectrumViewVisibility(bool visible);
 
 protected:
+	/// Reimplements the show event to hide the multi view.
+	virtual void showEvent(QShowEvent *e);
+	/// Reimplements the hide event to hide the multi view.
+	virtual void hideEvent(QHideEvent *e);
+	/// Reimplementing the mouse release event so that it will emit a signal on right clicks to notify parent classes that the data position tool has changed.
+	virtual void mousePressEvent(QMouseEvent *e);
+
+	/// Helper method that returns the AMnDIndex for a given QPoint of data coordinates.
+	AMnDIndex getIndex(const QPointF &point) const;
 
 	AMScanSetModel* scansModel_;
 
@@ -185,6 +213,11 @@ protected:
 
 	QPropertyAnimation* modeAnim_;
 
+	AMScanViewSingleSpectrumView *spectrumView_;
+	QGroupBox *spectrumViewBox_;
+	/// Flag used to determine whether the single spectrum view should be visible.
+	bool spectrumViewIsVisible_;
+
 	/// internal helper function to build the UI
 	void setupUI();
 	/// internal helper function to setup all UI event-handling connections
@@ -199,6 +232,10 @@ public:
 	explicit AMScanViewExclusiveView(AMScanView* masterView);
 
 	virtual ~AMScanViewExclusiveView();
+
+signals:
+	/// Notifier that the data position marker has changed.
+	void dataPositionChanged(const QPointF &);
 
 public slots:
 
@@ -220,6 +257,8 @@ protected slots:
 
 	/// when the model's "exclusive data source" changes. This is the one data source that we display for all of our scans (as long as they have it).
 	void onExclusiveDataSourceChanged(const QString& exclusiveDataSource);
+	/// Handles the signals about data position changed from the plot window.
+	void onDataPositionChanged(uint index, const QPointF &point);
 
 protected:
 	/// Helper function to handle adding a scan (at row scanIndex in the model)
