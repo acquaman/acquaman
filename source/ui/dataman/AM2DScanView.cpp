@@ -609,10 +609,10 @@ AM2DScanViewExclusiveView::AM2DScanViewExclusiveView(AM2DScanView* masterView)
 
 	MPlotDataPositionTool *positionTool = new MPlotDataPositionTool;
 	plot_->plot()->addTool(positionTool);
-	positionTool->addDataPositionIndicator(plot_->plot()->axisScaleBottom(), plot_->plot()->axisScaleLeft());
+	positionTool->setDataPositionIndicator(plot_->plot()->axisScaleBottom(), plot_->plot()->axisScaleLeft());
 
-	connect(plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(uint,QPointF)), this, SLOT(onDataPositionChanged(uint,QPointF)));
-	connect(plot_->plot()->signalSource(), SIGNAL(selectedDataRectChanged(uint,QRectF)), this, SLOT(onSelectedRectChanged(uint,QRectF)));
+	connect(plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SIGNAL(dataPositionChanged(QPointF)));
+	connect(plot_->plot()->signalSource(), SIGNAL(selectedDataRectChanged(QRectF)), this, SIGNAL(selectedRectChanged(QRectF)));
 
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
 	gl->setContentsMargins(0,0,0,0);
@@ -748,20 +748,6 @@ void AM2DScanViewExclusiveView::onExclusiveDataSourceChanged(const QString& excl
 		reviewScan(i);
 
 	refreshTitle();
-}
-
-void AM2DScanViewExclusiveView::onDataPositionChanged(uint index, const QPointF &point)
-{
-	Q_UNUSED(index)
-
-	emit dataPositionChanged(point);
-}
-
-void AM2DScanViewExclusiveView::onSelectedRectChanged(uint index, const QRectF &rect)
-{
-	Q_UNUSED(index)
-
-	emit selectedRectChanged(rect);
 }
 
 void AM2DScanViewExclusiveView::refreshTitle() {

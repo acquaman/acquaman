@@ -668,11 +668,11 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 	// create our main plot:
 	plot_ = createDefaultPlot();
 
-	MPlotDataPositionTool *positionTool = new MPlotDataPositionTool;
+	MPlotDataPositionTool *positionTool = new MPlotDataPositionTool(false);
 	plot_->plot()->addTool(positionTool);
-	positionTool->addDataPositionIndicator(plot_->plot()->axisScaleBottom(), plot_->plot()->axisScaleLeft());
+	positionTool->setDataPositionIndicator(plot_->plot()->axisScaleBottom(), plot_->plot()->axisScaleLeft());
 
-	connect(plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(uint,QPointF)), this, SLOT(onDataPositionChanged(uint,QPointF)));
+	connect(plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SIGNAL(dataPositionChanged(QPointF)));
 
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
 	gl->setContentsMargins(0,0,0,0);
@@ -809,13 +809,6 @@ void AMScanViewExclusiveView::onExclusiveDataSourceChanged(const QString& exclus
 
 	reviewPlotAxesConfiguration(plot_);
 	refreshTitle();
-}
-
-void AMScanViewExclusiveView::onDataPositionChanged(uint index, const QPointF &point)
-{
-	Q_UNUSED(index)
-
-	emit dataPositionChanged(point);
 }
 
 void AMScanViewExclusiveView::refreshTitle() {
