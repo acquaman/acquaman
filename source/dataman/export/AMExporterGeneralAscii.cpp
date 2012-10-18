@@ -102,7 +102,7 @@ QString AMExporterGeneralAscii::exportScan(const AMScan *scan, const QString &de
 	writeHeader();
 	writeMainTable();
 	writeSeparateSections();
-	if(!writeSeparateFiles(destinationFolderPath)) {
+	if(option_->includeHigherDimensionSources() && !writeSeparateFiles(destinationFolderPath)) {
 		file_->close();
 		return QString();
 	}
@@ -133,15 +133,19 @@ bool AMExporterGeneralAscii::prepareDataSources() {
 				mainTableIncludeX_ << true;
 				break;
 			default:
-				if (option_->separateHigherDimensionalSources()){
 
-					separateFileDataSources_ << i;
-					separateFileIncludeX_ << false;
-				}
-				else{
+				if (option_->includeHigherDimensionSources()){
 
-					separateSectionDataSources_ << i;
-					separateSectionIncludeX_ << true;
+					if (option_->separateHigherDimensionalSources()){
+
+						separateFileDataSources_ << i;
+						separateFileIncludeX_ << false;
+					}
+					else{
+
+						separateSectionDataSources_ << i;
+						separateSectionIncludeX_ << true;
+					}
 				}
 				break;
 			}
@@ -162,16 +166,21 @@ bool AMExporterGeneralAscii::prepareDataSources() {
 				mainTableIncludeX_ << (i == 0 ? true : false);
 				break;
 			default:
-				if (option_->separateHigherDimensionalSources()){
 
-					separateFileDataSources_ << i;
-					separateFileIncludeX_ << false;
-				}
-				else{
+				if (option_->includeHigherDimensionSources()){
 
-					separateSectionDataSources_ << i;
-					separateSectionIncludeX_ << true;
+					if (option_->separateHigherDimensionalSources()){
+
+						separateFileDataSources_ << i;
+						separateFileIncludeX_ << false;
+					}
+					else{
+
+						separateSectionDataSources_ << i;
+						separateSectionIncludeX_ << true;
+					}
 				}
+
 				break;
 			}
 		}

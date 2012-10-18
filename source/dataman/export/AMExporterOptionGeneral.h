@@ -40,6 +40,7 @@ class AMExporterOptionGeneral : public AMExporterOption
 	Q_PROPERTY(bool sectionHeaderIncluded READ sectionHeaderIncluded WRITE setSectionHeaderIncluded)
 
 	Q_PROPERTY(bool includeAllDataSources READ includeAllDataSources WRITE setIncludeAllDataSources)
+	Q_PROPERTY(bool includeHigherDimensionSources READ includeHigherDimensionSources WRITE setIncludeHigherDimensionSources)
 	Q_PROPERTY(bool firstColumnOnly READ firstColumnOnly WRITE setFirstColumnOnly)
 	Q_PROPERTY(bool separateHigherDimensionalSources READ separateHigherDimensionalSources WRITE setSeparateHigherDimensionalSources)
 	Q_PROPERTY(QStringList dataSources READ dataSources WRITE dbLoadDataSources)
@@ -48,6 +49,8 @@ class AMExporterOptionGeneral : public AMExporterOption
 	Q_PROPERTY(AMIntList dataSourceOmitAxisValueColumns READ dataSourceOmitAxisValueColumns WRITE dbLoadDataSourceOmitAxisValueColumns)
 
 	Q_PROPERTY(QString separateSectionFileName READ separateSectionFileName WRITE setSeparateSectionFileName)
+
+	Q_CLASSINFO("includeHigherDimensionSources", "upgradeDefault=true")
 
 public:
 
@@ -73,6 +76,8 @@ public:
 
 	QStringList dataSources() const { return dataSources_; }
 	bool includeAllDataSources() const { return includeAllDataSources_; }
+	/// This is added as a seperate extra feature when using the exporters through auto-export or just not using the wizard.  Since higher dimension data sources may take a long time to export, there may be situations where you wish to export all data sources, but NOT the higher dimension ones.
+	bool includeHigherDimensionSources() const { return includeHigherDimensionSources_; }
 	bool firstColumnOnly() const { return firstColumnOnly_; }
 	bool separateHigherDimensionalSources() const { return separateHigherDimensionalSources_; }
 	AMIntList dataSourceOrganizeModes() const { return dataSourceOrganizeMode_; }
@@ -96,6 +101,7 @@ public slots:
 	void setSectionHeaderIncluded(bool isIncluded) { sectionHeaderIncluded_ = isIncluded; setModified(true); }
 
 	void setIncludeAllDataSources(bool includeAll) { includeAllDataSources_ = includeAll; setModified(true); }
+	void setIncludeHigherDimensionSources(bool includeHigherSources) { includeHigherDimensionSources_ = includeHigherSources; setModified(true); }
 	void setFirstColumnOnly(bool firstOnly) { firstColumnOnly_ = firstOnly; setModified(true); }
 	void setSeparateHigherDimensionalSources(bool separateHigherDimensions) { separateHigherDimensionalSources_ = separateHigherDimensions; setModified(true); }
 
@@ -171,6 +177,8 @@ protected:
 	QStringList dataSources_;
 	/// If instead you want to include all data sources in the scan (and ignore dataSources_), set this:
 	bool includeAllDataSources_;
+	/// Flag specific to the higher level data sources, whether you ish to include them or not.
+	bool includeHigherDimensionSources_;
 	/// Additional flag for when including all data sources.  If you wish to only have the X-axis printed out for the first data source.
 	bool firstColumnOnly_;
 	/// Additional flag for separating higher dimensional data sources (2D and up) into their own files.

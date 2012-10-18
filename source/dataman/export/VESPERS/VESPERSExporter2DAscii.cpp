@@ -60,7 +60,8 @@ bool VESPERSExporter2DAscii::prepareDataSources()
 				break;
 
 			case 3:
-				separateFileDataSources_ << i;
+				if (option_->includeHigherDimensionSources())
+					separateFileDataSources_ << i;
 				break;
 			}
 		}
@@ -104,7 +105,7 @@ QString VESPERSExporter2DAscii::exportScan(const AMScan *scan, const QString &de
 	writeHeader();
 	writeMainTable();
 	writeSeparateSections();
-	if(!writeSeparateFiles(destinationFolderPath)) {
+	if(option_->includeHigherDimensionSources() && !writeSeparateFiles(destinationFolderPath)) {
 		file_->close();
 		return QString();
 	}

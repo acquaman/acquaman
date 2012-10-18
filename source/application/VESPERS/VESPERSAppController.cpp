@@ -201,6 +201,7 @@ void VESPERSAppController::setupExporterOptions()
 	vespersDefault->setSectionHeaderIncluded(true);
 	vespersDefault->setIncludeAllDataSources(true);
 	vespersDefault->setFirstColumnOnly(true);
+	vespersDefault->setIncludeHigherDimensionSources(true);
 	vespersDefault->setSeparateHigherDimensionalSources(true);
 	vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
 	vespersDefault->storeToDb(AMDatabase::database("user"));
@@ -227,6 +228,7 @@ void VESPERSAppController::setupExporterOptions()
 	vespersDefault->setSectionHeaderIncluded(true);
 	vespersDefault->setIncludeAllDataSources(true);
 	vespersDefault->setFirstColumnOnly(true);
+	vespersDefault->setIncludeHigherDimensionSources(true);
 	vespersDefault->setSeparateHigherDimensionalSources(true);
 	vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
 	vespersDefault->storeToDb(AMDatabase::database("user"));
@@ -253,6 +255,7 @@ void VESPERSAppController::setupExporterOptions()
 	vespersDefault->setSectionHeaderIncluded(true);
 	vespersDefault->setIncludeAllDataSources(true);
 	vespersDefault->setFirstColumnOnly(true);
+	vespersDefault->setIncludeHigherDimensionSources(true);
 	vespersDefault->setSeparateHigherDimensionalSources(true);
 	vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
 	vespersDefault->storeToDb(AMDatabase::database("user"));
@@ -279,6 +282,7 @@ void VESPERSAppController::setupExporterOptions()
 	vespersDefault->setSectionHeaderIncluded(true);
 	vespersDefault->setIncludeAllDataSources(true);
 	vespersDefault->setFirstColumnOnly(true);
+	vespersDefault->setIncludeHigherDimensionSources(true);
 	vespersDefault->setSeparateHigherDimensionalSources(true);
 	vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
 	vespersDefault->storeToDb(AMDatabase::database("user"));

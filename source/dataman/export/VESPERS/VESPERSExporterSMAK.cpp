@@ -60,7 +60,8 @@ bool VESPERSExporterSMAK::prepareDataSources()
 				break;
 
 			case 3:
-				separateFileDataSources_ << i;	// The spectra data sources.
+				if (option_->includeHigherDimensionSources())
+					separateFileDataSources_ << i;	// The spectra data sources.
 				break;
 			}
 		}
@@ -104,7 +105,7 @@ QString VESPERSExporterSMAK::exportScan(const AMScan *scan, const QString &desti
 	writeHeader();
 	writeMainTable();
 	writeSeparateSections();
-	if(!writeSeparateFiles(destinationFolderPath)) {
+	if(option_->includeHigherDimensionSources() && !writeSeparateFiles(destinationFolderPath)) {
 		file_->close();
 		return QString();
 	}
