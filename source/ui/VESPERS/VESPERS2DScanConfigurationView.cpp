@@ -312,7 +312,12 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 
 	autoExportButtonGroup->button(config_->exportAsAscii() ? 0 : 1)->click();
 
-	QGroupBox *autoExportGroupBox = new QGroupBox("Auto-export as...");
+	QCheckBox *autoExportSpectra = new QCheckBox("Export Spectra");
+	autoExportSpectra->setChecked(config_->exportSpectraSources());
+	autoExportLayout->addWidget(autoExportSpectra);
+	connect(autoExportSpectra, SIGNAL(toggled(bool)), config_, SLOT(setExportSpectraSources(bool)));
+
+	QGroupBox *autoExportGroupBox = new QGroupBox("Export Options");
 	autoExportGroupBox->setLayout(autoExportLayout);
 
 	// Setting up the layout.

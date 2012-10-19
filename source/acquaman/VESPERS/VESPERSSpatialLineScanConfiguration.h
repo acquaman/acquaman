@@ -85,6 +85,9 @@ public:
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
+	/// Returns whether we are going to export the spectra data sources or not.
+	bool exportSpectraSources() const { return exportSpectraSources_; }
+
 	/// Returns the current I0 ion chamber choice.
 	IonChamber incomingChoice() const { return I0_; }
 	/// Returns the current fluorescence detector choice.
@@ -203,6 +206,9 @@ public slots:
 	/// Sets the time.
 	void setTime(double position);
 
+	/// Sets whether we export the scan with the spectra included or not.
+	void setExportSpectraSources(bool exportSpectra);
+
 protected slots:
 	/// Computes the total time any time the regions list changes.
 	void computeTotalTime();
@@ -224,6 +230,9 @@ protected:
 	double totalTime_;
 	/// Holds the offset per point of extra time when doing a scan.
 	double timeOffset_;
+
+	/// Flag holding whether we are exporting the spectra data sources or not.
+	bool exportSpectraSources_;
 };
 
 #endif // VESPERSSPATIALLINESCANCONFIGURATION_H

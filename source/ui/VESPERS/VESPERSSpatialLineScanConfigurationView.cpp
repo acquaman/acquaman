@@ -266,6 +266,16 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	timeOffsetLayout->addWidget(timeOffsetLabel_);
 	timeOffsetLayout->addWidget(timeOffset_);
 
+	// Auto-export option.
+	QVBoxLayout *autoExportLayout = new QVBoxLayout;
+	QCheckBox *autoExportSpectra = new QCheckBox("Export spectra");
+	autoExportSpectra->setChecked(config_->exportSpectraSources());
+	autoExportLayout->addWidget(autoExportSpectra);
+	connect(autoExportSpectra, SIGNAL(toggled(bool)), config_, SLOT(setExportSpectraSources(bool)));
+
+	QGroupBox *autoExportGroupBox = new QGroupBox("Export Options");
+	autoExportGroupBox->setLayout(autoExportLayout);
+
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(positionsBox, 0, 0, 1, 3);
@@ -278,6 +288,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	contentsLayout->addWidget(estimatedTime_, 4, 0, 1, 1);
 	contentsLayout->addLayout(timeOffsetLayout, 5, 0, 1, 1);
 	contentsLayout->addWidget(motorSetChoiceBox, 0, 3);
+	contentsLayout->addWidget(autoExportGroupBox, 4, 5, 2, 3);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();

@@ -83,9 +83,10 @@ public:
 	/// Returns teh y-axis units.
 	virtual QString yAxisUnits() const;
 
-	// Temporary hack for choosing exporters.
 	/// Returns whether we are using Ascii or SMAK data formats for auto-exporting.
 	bool exportAsAscii() const { return exportAsAscii_; }
+	/// Returns whether we are going to export the spectra data sources or not.
+	bool exportSpectraSources() const { return exportSpectraSources_; }
 
 	/// Returns the current I0 ion chamber choice.
 	IonChamber incomingChoice() const { return I0_; }
@@ -171,6 +172,8 @@ public slots:
 
 	/// Sets which data file format we use for auto-export.  True = Ascii, false = SMAK.
 	void setExportAsAscii(bool exportAsAscii);
+	/// Sets whether we export the scan with the spectra included or not.
+	void setExportSpectraSources(bool exportSpectra);
 
 protected slots:
 	/// Computes the total time any time the regions list changes.
@@ -196,6 +199,8 @@ protected:
 
 	/// Flag holding whether we are exporting as Ascii or SMAK.
 	bool exportAsAscii_;
+	/// Flag holding whether we are exporting the spectra data sources or not.
+	bool exportSpectraSources_;
 };
 
 #endif // VESPERS2DSCANCONFIGURATION_H

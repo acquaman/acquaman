@@ -31,6 +31,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/VESPERS/VESPERSConfigurationFileBuilder.h"
 #include "dataman/datastore/AMCDFDataStore.h"
 
+#include "dataman/export/AMExporterAthena.h"
+#include "application/AMAppControllerSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/export/AMExporterOptionGeneralAscii.h"
+
 #include <QDir>
 #include <QStringBuilder>
 
@@ -63,6 +68,33 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	scan_->setFileFormat("amCDFv1");
 	scan_->replaceRawDataStore(new AMCDFDataStore(AMUserSettings::userDataFolder % scan_->filePath(), false));
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
+
+	QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
+	AMExporterOptionGeneralAscii *vespersDefault = new AMExporterOptionGeneralAscii();
+
+	if (matchIDs.count() != 0)
+		vespersDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
+
+	vespersDefault->setName("VESPERSDefault");
+	vespersDefault->setFileName("$name_$fsIndex.dat");
+	vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\nActual Vertical Position:\t$controlValue[Vertical Sample Stage] mm\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
+	vespersDefault->setHeaderIncluded(true);
+	vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
+	vespersDefault->setColumnHeaderIncluded(true);
+	vespersDefault->setColumnHeaderDelimiter("");
+	vespersDefault->setSectionHeader("");
+	vespersDefault->setSectionHeaderIncluded(true);
+	vespersDefault->setIncludeAllDataSources(true);
+	vespersDefault->setFirstColumnOnly(true);
+	vespersDefault->setIncludeHigherDimensionSources(config_->exportSpectraSources());
+	vespersDefault->setSeparateHigherDimensionalSources(true);
+	vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
+	vespersDefault->storeToDb(AMDatabase::database("user"));
+
+	// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
+	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
+	if(matchIDs.count() > 0)
+		AMAppControllerSupport::registerClass<VESPERSEXAFSScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(matchIDs.at(0));
 
 	// Build the notes for the scan.
 	QString notes;

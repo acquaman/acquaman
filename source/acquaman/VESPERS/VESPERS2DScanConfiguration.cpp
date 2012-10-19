@@ -36,6 +36,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
 	totalTime_ = 0;
 	timeOffset_ = 0.7;
 	setExportAsAscii(true);
+	setExportSpectraSources(true);
 	connect(this, SIGNAL(xStartChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(xStepChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(xEndChanged(double)), this, SLOT(computeTotalTime()));
@@ -60,6 +61,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfig
 	totalTime_ = 0;
 	timeOffset_ = 0.7;
 	setExportAsAscii(original.exportAsAscii());
+	setExportSpectraSources(original.exportSpectraSources());
 	computeTotalTime();
 	connect(this, SIGNAL(xStartChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(xStepChanged(double)), this, SLOT(computeTotalTime()));
@@ -285,4 +287,12 @@ void VESPERS2DScanConfiguration::setExportAsAscii(bool exportAsAscii)
 		return;
 
 	exportAsAscii_ = exportAsAscii;
+}
+
+void VESPERS2DScanConfiguration::setExportSpectraSources(bool exportSpectra)
+{
+	if (exportSpectraSources_ == exportSpectra)
+		return;
+
+	exportSpectraSources_ = exportSpectra;
 }

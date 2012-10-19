@@ -88,6 +88,7 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 		vespersDefault->setSectionHeaderIncluded(true);
 		vespersDefault->setIncludeAllDataSources(true);
 		vespersDefault->setFirstColumnOnly(true);
+		vespersDefault->setIncludeHigherDimensionSources(config_->exportSpectraSources());
 		vespersDefault->setSeparateHigherDimensionalSources(true);
 		vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
 		vespersDefault->storeToDb(AMDatabase::database("user"));
@@ -117,6 +118,7 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 		vespersDefault->setSectionHeaderIncluded(true);
 		vespersDefault->setIncludeAllDataSources(true);
 		vespersDefault->setFirstColumnOnly(true);
+		vespersDefault->setIncludeHigherDimensionSources(config_->exportSpectraSources());
 		vespersDefault->setSeparateHigherDimensionalSources(true);
 		vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
 		vespersDefault->storeToDb(AMDatabase::database("user"));

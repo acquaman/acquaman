@@ -84,6 +84,9 @@ public:
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
+	/// Returns whether we are going to export the spectra data sources or not.
+	bool exportSpectraSources() const { return exportSpectraSources_; }
+
 	/// Returns the current fluorescence detector choice.
 	FluorescenceDetector fluorescenceDetectorChoice() const { return fluorescenceDetectorChoice_; }
 	/// Returns the current It ion chamber choice.
@@ -213,6 +216,9 @@ public slots:
 	/// Sets the ROI list.
 	void setRoiInfoList(const AMROIInfoList &list);
 
+	/// Sets whether we export the scan with the spectra included or not.
+	void setExportSpectraSources(bool exportSpectra);
+
 protected slots:
 	/// Computes the total time any time the regions list changes.
 	void computeTotalTime();
@@ -250,6 +256,9 @@ protected:
 
 	/// Holds the number of times this scan should be repeated.
 	int numberOfScans_;
+
+	/// Flag holding whether we are exporting the spectra data sources or not.
+	bool exportSpectraSources_;
 };
 
 #endif // VESPERSEXAFSSCANCONFIGURATION_H

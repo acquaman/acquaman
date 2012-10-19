@@ -49,6 +49,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	position_ = qMakePair(0.0, 0.0);
 	totalTime_ = 0;
 	timeOffset_ = 0.7;
+	setExportSpectraSources(true);
 	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
 	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onEXAFSRegionsChanged()));
 	connect(VESPERSBeamline::vespers()->variableIntegrationTime(), SIGNAL(a0Changed(double)), this, SLOT(computeTotalTime()));
@@ -94,6 +95,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(const VESPERSEXAFSS
 
 	timeOffset_ = 0.7;
 	totalTime_ = 0;
+	setExportSpectraSources(original.exportSpectraSources());
 	computeTotalTime();
 	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
 	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onEXAFSRegionsChanged()));
@@ -421,3 +423,10 @@ void VESPERSEXAFSScanConfiguration::setRoiInfoList(const AMROIInfoList &list)
 	setModified(true);
 }
 
+void VESPERSEXAFSScanConfiguration::setExportSpectraSources(bool exportSpectra)
+{
+	if (exportSpectraSources_ == exportSpectra)
+		return;
+
+	exportSpectraSources_ = exportSpectra;
+}

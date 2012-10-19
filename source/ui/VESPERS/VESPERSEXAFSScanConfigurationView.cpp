@@ -333,6 +333,16 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	defaultLayout->addWidget(defaultEXAFSButton);
 	defaultLayout->addStretch();
 
+	// Auto-export option.
+	QVBoxLayout *autoExportLayout = new QVBoxLayout;
+	QCheckBox *autoExportSpectra = new QCheckBox("Export spectra");
+	autoExportSpectra->setChecked(config_->exportSpectraSources());
+	autoExportLayout->addWidget(autoExportSpectra);
+	connect(autoExportSpectra, SIGNAL(toggled(bool)), config_, SLOT(setExportSpectraSources(bool)));
+
+	QGroupBox *autoExportGroupBox = new QGroupBox("Export Options");
+	autoExportGroupBox->setLayout(autoExportLayout);
+
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(regionsView_, 1, 1, 2, 2);
@@ -347,6 +357,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	contentsLayout->addWidget(estimatedSetTime_, 7, 1, 1, 2);
 	contentsLayout->addLayout(numberOfScansLayout, 5, 1);
 	contentsLayout->addLayout(timeOffsetLayout, 8, 1, 1, 2);
+	contentsLayout->addWidget(autoExportGroupBox, 4, 5, 2, 3);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
