@@ -47,6 +47,10 @@ public:
 	QString horizontalTitle() const { return horizontalTitle_; }
 	/// Returns the vertical title of the sample stage view.
 	QString verticalTitle() const { return verticalTitle_; }
+	/// Returns whether the horizontal sample stage direction is being inverted or not.
+	bool invertHorizontalDirection() const { return invertHorizontal_; }
+	/// Returns whether the vertical sample stage direction is being inverted or not.
+	bool invertVerticalDirection() const { return invertVertical_; }
 
 signals:
 
@@ -57,6 +61,10 @@ public slots:
 	void setHorizontalTitle(const QString &title);
 	/// Sets the vertical title of the sample stage view.
 	void setVerticalTitle(const QString &title);
+	/// Sets whether the horizontal jog direction should be inverted or not.
+	void setInvertHorizontalDirection(bool invert) { invertHorizontal_ = invert; }
+	/// Sets whether the vertical jog direction should be inverted or not.
+	void setInvertVerticalDirection(bool invert) { invertVertical_ = invert; }
 
 protected slots:
 	/// Slot that handles going up.
@@ -106,6 +114,11 @@ protected:
 	QDoubleSpinBox *horizontal_;
 	/// Holds the vertical setpoint.
 	QDoubleSpinBox *vertical_;
+
+	/// Flag holding whether the horizontal jog directions should be inverted.
+	bool invertHorizontal_;
+	/// Flag holding whether the vertical jog directions should be inverted.
+	bool invertVertical_;
 
 	// Jog buttons.
 	/// The jog up button.
