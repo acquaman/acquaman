@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define VESPERSAPPCONTROLLER_H
 
 #include "application/AMAppController.h"
+#include "application/VESPERS/VESPERS.h"
 
 class VESPERSEndstationView;
 class VESPERSXRFFreeRunView;

@@ -285,7 +285,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	roiTextBox_ = new QGroupBox("Regions Of Interest");
 	roiTextBox_->setLayout(roiTextLayout);
 
-	if (config_->fluorescenceDetectorChoice() == VESPERSEXAFSScanConfiguration::None)
+	if (config_->fluorescenceDetectorChoice() == VESPERS::NoXRF)
 		roiTextBox_->hide();
 
 	else
@@ -389,18 +389,18 @@ void VESPERSEXAFSScanConfigurationView::onConfigureXRFDetectorClicked()
 {
 	switch((int)config_->fluorescenceDetectorChoice()){
 
-	case VESPERSEXAFSScanConfiguration::None:
+	case VESPERS::NoXRF:
 		break;
 
-	case VESPERSEXAFSScanConfiguration::SingleElement:
+	case VESPERS::SingleElement:
 		emit configureDetector("Single Element");
 		break;
 
-	case VESPERSEXAFSScanConfiguration::FourElement:
+	case VESPERS::FourElement:
 		emit configureDetector("Four Element");
 		break;
 
-	case VESPERSEXAFSScanConfiguration::SingleElement | VESPERSEXAFSScanConfiguration::FourElement:
+	case VESPERS::SingleElement | VESPERS::FourElement:
 
 		QMenu menu(this);
 		menu.addAction("Single Element");
@@ -435,19 +435,19 @@ void VESPERSEXAFSScanConfigurationView::updateRoiText()
 {
 	switch((int)config_->fluorescenceDetectorChoice()){
 
-	case VESPERSEXAFSScanConfiguration::None:
+	case VESPERS::NoXRF:
 		config_->setRoiInfoList(AMROIInfoList());
 		break;
 
-	case VESPERSEXAFSScanConfiguration::SingleElement:
+	case VESPERS::SingleElement:
 		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
 		break;
 
-	case VESPERSEXAFSScanConfiguration::FourElement:
+	case VESPERS::FourElement:
 		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
 		break;
 
-	case VESPERSEXAFSScanConfiguration::SingleElement | VESPERSEXAFSScanConfiguration::FourElement:{
+	case VESPERS::SingleElement | VESPERS::FourElement:{
 
 		AMROIInfoList list;
 		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
@@ -466,7 +466,7 @@ void VESPERSEXAFSScanConfigurationView::updateRoiText()
 
 	roiText_->clear();
 
-	if ((int)config_->fluorescenceDetectorChoice() ==  (VESPERSEXAFSScanConfiguration::SingleElement | VESPERSEXAFSScanConfiguration::FourElement)){
+	if ((int)config_->fluorescenceDetectorChoice() ==  (VESPERS::SingleElement | VESPERS::FourElement)){
 
 		QList<QPair<int, int> > sameList = findRoiPairs();
 

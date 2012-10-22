@@ -17,7 +17,10 @@ namespace VESPERS {
 	 - OnePointSixPercent (1.6%) is a narrow band pass filter.
 	 - Si is the monochromator with 0.01% band pass.
 	  */
-	enum Beam { None = 0, Pink, TenPercent, OnePointSixPercent, Si };
+	enum Beam { NoBeam = 0, Pink, TenPercent, OnePointSixPercent, Si };
+
+	/// Enum for making the decision on what fluorescence detector the user wants to use.
+	enum FluorescenceDetector { NoXRF = 0, SingleElement = 1, FourElement = 2 };
 
 	/// Enum for the ion chambers used in scans.  These are used for the incoming or transmitted total intensity.
 	enum IonChamber { Isplit = 0, Iprekb, Imini, Ipost };

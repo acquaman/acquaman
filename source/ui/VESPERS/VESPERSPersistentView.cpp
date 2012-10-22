@@ -299,7 +299,7 @@ void VESPERSPersistentView::onBeamChanged(VESPERS::Beam beam)
 {
 	switch(beam){
 
-	case VESPERS::None:
+	case VESPERS::NoBeam:
 	case VESPERS::Pink:
 		energySetpoint_->setEnabled(false);
 		break;

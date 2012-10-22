@@ -63,9 +63,6 @@ class VESPERSEXAFSScanConfiguration : public AMEXAFSScanConfiguration
 	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS EXAFS Scan Configuration")
 
 public:
-	/// Enum for making the decision on what fluorescence detector the user wants to use.
-	enum FluorescenceDetector { None = 0, SingleElement = 1, FourElement = 2 };
-
 	/// Constructor.
 	Q_INVOKABLE VESPERSEXAFSScanConfiguration(QObject *parent = 0);
 	/// Copy constructor.
@@ -87,7 +84,7 @@ public:
 	bool exportSpectraSources() const { return exportSpectraSources_; }
 
 	/// Returns the current fluorescence detector choice.
-	FluorescenceDetector fluorescenceDetectorChoice() const { return fluorescenceDetectorChoice_; }
+	VESPERS::FluorescenceDetector fluorescenceDetectorChoice() const { return fluorescenceDetectorChoice_; }
 	/// Returns the current It ion chamber choice.
 	VESPERS::IonChamber transmissionChoice() const { return It_; }
 	/// Returns the current I0 ion chamber choice.
@@ -146,7 +143,7 @@ public:
 
 signals:
 	/// Notifier that the fluorescence choice has changed.
-	void fluorescenceDetectorChoiceChanged(FluorescenceDetector);
+	void fluorescenceDetectorChoiceChanged(VESPERS::FluorescenceDetector);
 	/// Same signal.  Just passing as an int.
 	void fluorescenceDetectorChoiceChanged(int);
 	/// Notifier that the incoming choice has changed.
@@ -177,9 +174,9 @@ signals:
 public slots:
 
 	/// Sets the choice for the fluorescence detector.
-	void setFluorescenceDetectorChoice(FluorescenceDetector detector);
+	void setFluorescenceDetectorChoice(VESPERS::FluorescenceDetector detector);
 	/// Overloaded.  Used for database loading.
-	void setFluorescenceDetectorChoice(int detector) { setFluorescenceDetectorChoice((FluorescenceDetector)detector); }
+	void setFluorescenceDetectorChoice(int detector) { setFluorescenceDetectorChoice((VESPERS::FluorescenceDetector)detector); }
 	/// Sets the choice for It ion chamber.
 	void setTransmissionChoice(VESPERS::IonChamber It);
 	/// Overloaded.  Used for database loading.
@@ -226,7 +223,7 @@ protected slots:
 
 protected:
 	/// Fluorescence detector choice.
-	FluorescenceDetector fluorescenceDetectorChoice_;
+	VESPERS::FluorescenceDetector fluorescenceDetectorChoice_;
 	/// It ion chamber choice.
 	VESPERS::IonChamber It_;
 	/// I0 ion chamber choice.

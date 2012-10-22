@@ -35,7 +35,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	regions_->setDefaultTimeUnits(" s");
 	setName("XAS Scan");
 	setUserScanName("XAS Scan");
-	fluorescenceDetectorChoice_ = None;
+	fluorescenceDetectorChoice_ = VESPERS::NoXRF;
 	It_ = VESPERS::Ipost;
 	I0_ = VESPERS::Imini;
 	edge_ = "";
@@ -142,16 +142,16 @@ QString VESPERSEXAFSScanConfiguration::headerText() const
 
 	switch((int)fluorescenceDetectorChoice()){
 
-	case None:
+	case VESPERS::NoXRF:
 		header.append("Fluorescence Detector:\tNone\n");
 		break;
-	case SingleElement:
+	case VESPERS::SingleElement:
 		header.append("Fluorescence Detector:\tSingle Element Vortex Detector\n");
 		break;
-	case FourElement:
+	case VESPERS::FourElement:
 		header.append("Fluorescence Detector:\tFour Element Vortex Detector\n");
 		break;
-	case SingleElement | FourElement:
+	case VESPERS::SingleElement | VESPERS::FourElement:
 		header.append("Fluorescence Detector:\tSingle Element Vortex Detector and Four Element Vortex Detector\n");
 		break;
 	}
@@ -196,7 +196,7 @@ QString VESPERSEXAFSScanConfiguration::headerText() const
 		header.append(QString("Vertical Position:\t%1 mm\n\n").arg(y()));
 	}
 
-	if (fluorescenceDetectorChoice() != None){
+	if (fluorescenceDetectorChoice() != VESPERS::NoXRF){
 
 		header.append("Regions of Interest\n");
 
@@ -297,7 +297,7 @@ void VESPERSEXAFSScanConfiguration::computeTotalTime()
 	emit totalTimeChanged(totalTime_);
 }
 
-void VESPERSEXAFSScanConfiguration::setFluorescenceDetectorChoice(FluorescenceDetector detector)
+void VESPERSEXAFSScanConfiguration::setFluorescenceDetectorChoice(VESPERS::FluorescenceDetector detector)
 {
 	if (fluorescenceDetectorChoice_ != detector){
 

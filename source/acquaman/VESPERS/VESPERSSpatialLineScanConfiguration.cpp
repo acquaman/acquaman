@@ -32,7 +32,7 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(QObject
 	regions_->setDefaultTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
 	regions_->setSensibleRange(0, 10);
 	I0_ = VESPERS::Imini;
-	fluorescenceDetectorChoice_ = SingleElement;
+	fluorescenceDetectorChoice_ = VESPERS::SingleElement;
 	motorChoice_ = H;
 	usingCCD_ = false;
 	ccdFileName_ = "";
@@ -125,16 +125,16 @@ QString VESPERSSpatialLineScanConfiguration::headerText() const
 
 	switch((int)fluorescenceDetectorChoice()){
 
-	case None:
+	case VESPERS::NoXRF:
 		header.append("Fluorescence Detector:\tNone\n");
 		break;
-	case SingleElement:
+	case VESPERS::SingleElement:
 		header.append("Fluorescence Detector:\tSingle Element Vortex Detector\n");
 		break;
-	case FourElement:
+	case VESPERS::FourElement:
 		header.append("Fluorescence Detector:\tFour Element Vortex Detector\n");
 		break;
-	case SingleElement | FourElement:
+	case VESPERS::SingleElement | VESPERS::FourElement:
 		header.append("Fluorescence Detector:\tSingle Element Vortex Detector and Four Element Vortex Detector\n");
 		break;
 	}
@@ -203,7 +203,7 @@ void VESPERSSpatialLineScanConfiguration::setIncomingChoice(VESPERS::IonChamber 
 	}
 }
 
-void VESPERSSpatialLineScanConfiguration::setFluorescenceDetectorChoice(FluorescenceDetector detector)
+void VESPERSSpatialLineScanConfiguration::setFluorescenceDetectorChoice(VESPERS::FluorescenceDetector detector)
 {
 	if (fluorescenceDetectorChoice_ != detector){
 

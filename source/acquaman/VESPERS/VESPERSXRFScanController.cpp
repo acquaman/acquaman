@@ -60,7 +60,7 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 
 	switch(VESPERSBeamline::vespers()->currentBeam()){
 
-	case VESPERS::None:
+	case VESPERS::NoBeam:
 		// This should never happen.
 		break;
 

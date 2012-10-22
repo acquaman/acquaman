@@ -459,7 +459,7 @@ void VESPERSBeamline::determineBeam()
 	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(VESPERS::Si)))
 		temp = VESPERS::Si;
 	else
-		temp = VESPERS::None;
+		temp = VESPERS::NoBeam;
 
 	if (temp != beam_){
 

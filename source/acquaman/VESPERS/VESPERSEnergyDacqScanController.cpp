@@ -67,7 +67,7 @@ VESPERSEnergyDacqScanController::VESPERSEnergyDacqScanController(VESPERSEnergySc
 
 	switch(VESPERSBeamline::vespers()->currentBeam()){
 
-	case VESPERS::None:
+	case VESPERS::NoBeam:
 	case VESPERS::Pink:
 		// This should never happen.
 		break;

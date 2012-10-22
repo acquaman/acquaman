@@ -139,7 +139,7 @@ void VESPERSBeamSelectorView::onCurrentBeamChanged(VESPERS::Beam beam)
 		currentBeam_ = beams_->button(3);
 		break;
 
-	case VESPERS::None:
+	case VESPERS::NoBeam:
 		currentBeam_ = 0;
 		break;
 	}

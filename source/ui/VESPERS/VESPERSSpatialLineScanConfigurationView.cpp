@@ -321,18 +321,18 @@ void VESPERSSpatialLineScanConfigurationView::onConfigureXRFDetectorClicked()
 {
 	switch((int)config_->fluorescenceDetectorChoice()){
 
-	case VESPERSSpatialLineScanConfiguration::None:
+	case VESPERS::NoXRF:
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::SingleElement:
+	case VESPERS::SingleElement:
 		emit configureDetector("Single Element");
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::FourElement:
+	case VESPERS::FourElement:
 		emit configureDetector("Four Element");
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::SingleElement | VESPERSSpatialLineScanConfiguration::FourElement:
+	case VESPERS::SingleElement | VESPERS::FourElement:
 
 		QMenu menu(this);
 		menu.addAction("Single Element");
@@ -375,19 +375,19 @@ void VESPERSSpatialLineScanConfigurationView::updateRoiText()
 {
 	switch((int)config_->fluorescenceDetectorChoice()){
 
-	case VESPERSSpatialLineScanConfiguration::None:
+	case VESPERS::NoXRF:
 		config_->setRoiInfoList(AMROIInfoList());
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::SingleElement:
+	case VESPERS::SingleElement:
 		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::FourElement:
+	case VESPERS::FourElement:
 		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::SingleElement | VESPERSSpatialLineScanConfiguration::FourElement:{
+	case VESPERS::SingleElement | VESPERS::FourElement:{
 
 		AMROIInfoList list;
 		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
@@ -406,7 +406,7 @@ void VESPERSSpatialLineScanConfigurationView::updateRoiText()
 
 	roiText_->clear();
 
-	if ((int)config_->fluorescenceDetectorChoice() ==  (VESPERSSpatialLineScanConfiguration::SingleElement | VESPERSSpatialLineScanConfiguration::FourElement)){
+	if ((int)config_->fluorescenceDetectorChoice() ==  (VESPERS::SingleElement | VESPERS::FourElement)){
 
 		QList<QPair<int, int> > sameList = findRoiPairs();
 

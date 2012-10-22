@@ -28,7 +28,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
 	setName("2D Map");
 	setUserScanName("2D Map");
 	I0_ = VESPERS::Imini;
-	fluorescenceDetectorChoice_ = SingleElement;
+	fluorescenceDetectorChoice_ = VESPERS::SingleElement;
 	motorsChoice_ = HAndV;
 	usingCCD_ = false;
 	ccdFileName_ = "";
@@ -102,16 +102,16 @@ QString VESPERS2DScanConfiguration::headerText() const
 
 	switch((int)fluorescenceDetectorChoice()){
 
-	case None:
+	case VESPERS::NoXRF:
 		header.append("Fluorescence Detector:\tNone\n");
 		break;
-	case SingleElement:
+	case VESPERS::SingleElement:
 		header.append("Fluorescence Detector:\tSingle Element Vortex Detector\n");
 		break;
-	case FourElement:
+	case VESPERS::FourElement:
 		header.append("Fluorescence Detector:\tFour Element Vortex Detector\n");
 		break;
-	case SingleElement | FourElement:
+	case VESPERS::SingleElement | VESPERS::FourElement:
 		header.append("Fluorescence Detector:\tSingle Element Vortex Detector and Four Element Vortex Detector\n");
 		break;
 	}
@@ -176,7 +176,7 @@ void VESPERS2DScanConfiguration::setIncomingChoice(VESPERS::IonChamber I0)
 	}
 }
 
-void VESPERS2DScanConfiguration::setFluorescenceDetectorChoice(FluorescenceDetector detector)
+void VESPERS2DScanConfiguration::setFluorescenceDetectorChoice(VESPERS::FluorescenceDetector detector)
 {
 	if (fluorescenceDetectorChoice_ != detector){
 

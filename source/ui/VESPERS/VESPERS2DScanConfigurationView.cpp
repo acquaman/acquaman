@@ -365,18 +365,18 @@ void VESPERS2DScanConfigurationView::onConfigureXRFDetectorClicked()
 {
 	switch((int)config_->fluorescenceDetectorChoice()){
 
-	case VESPERS2DScanConfiguration::None:
+	case VESPERS::NoXRF:
 		break;
 
-	case VESPERS2DScanConfiguration::SingleElement:
+	case VESPERS::SingleElement:
 		emit configureDetector("Single Element");
 		break;
 
-	case VESPERS2DScanConfiguration::FourElement:
+	case VESPERS::FourElement:
 		emit configureDetector("Four Element");
 		break;
 
-	case VESPERS2DScanConfiguration::SingleElement | VESPERS2DScanConfiguration::FourElement:
+	case VESPERS::SingleElement | VESPERS::FourElement:
 
 		QMenu menu(this);
 		menu.addAction("Single Element");
@@ -419,19 +419,19 @@ void VESPERS2DScanConfigurationView::updateRoiText()
 {
 	switch((int)config_->fluorescenceDetectorChoice()){
 
-	case VESPERS2DScanConfiguration::None:
+	case VESPERS::NoXRF:
 		config_->setRoiInfoList(AMROIInfoList());
 		break;
 
-	case VESPERS2DScanConfiguration::SingleElement:
+	case VESPERS::SingleElement:
 		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
 		break;
 
-	case VESPERS2DScanConfiguration::FourElement:
+	case VESPERS::FourElement:
 		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
 		break;
 
-	case VESPERS2DScanConfiguration::SingleElement | VESPERS2DScanConfiguration::FourElement:{
+	case VESPERS::SingleElement | VESPERS::FourElement:{
 
 		AMROIInfoList list;
 		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
@@ -450,7 +450,7 @@ void VESPERS2DScanConfigurationView::updateRoiText()
 
 	roiText_->clear();
 
-	if ((int)config_->fluorescenceDetectorChoice() ==  (VESPERS2DScanConfiguration::SingleElement | VESPERS2DScanConfiguration::FourElement)){
+	if ((int)config_->fluorescenceDetectorChoice() ==  (VESPERS::SingleElement | VESPERS::FourElement)){
 
 		QList<QPair<int, int> > sameList = findRoiPairs();
 

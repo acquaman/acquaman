@@ -134,18 +134,18 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 
 	switch ((int)config_->fluorescenceDetectorChoice()){
 
-	case VESPERSSpatialLineScanConfiguration::None:
+	case VESPERS::NoXRF:
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::SingleElement:
+	case VESPERS::SingleElement:
 		notes.append(QString("\nFluorescence detector distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToSingleElementVortex(), 0, 'f', 1));
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::FourElement:
+	case VESPERS::FourElement:
 		notes.append(QString("\nFluorescence detector distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToFourElementVortex(), 0, 'f', 1));
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::SingleElement | VESPERSSpatialLineScanConfiguration::FourElement:
+	case VESPERS::SingleElement | VESPERS::FourElement:
 		notes.append(QString("\nFluorescence detector (1-el Vortex) distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToSingleElementVortex(), 0, 'f', 1));
 		notes.append(QString("\nFluorescence detector (4-el Vortex) distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToFourElementVortex(), 0, 'f', 1));
 		break;
@@ -156,7 +156,7 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 
 	switch(VESPERSBeamline::vespers()->currentBeam()){
 
-	case VESPERS::None:
+	case VESPERS::NoBeam:
 		// This should never happen.
 		break;
 
@@ -222,15 +222,15 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 
 	switch ((int)config_->fluorescenceDetectorChoice()){
 
-	case VESPERSSpatialLineScanConfiguration::None:
+	case VESPERS::NoXRF:
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::SingleElement:
-	case VESPERSSpatialLineScanConfiguration::FourElement:{
+	case VESPERS::SingleElement:
+	case VESPERS::FourElement:{
 
-		if (config_->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::SingleElement)
+		if (config_->fluorescenceDetectorChoice() == VESPERS::SingleElement)
 			detector = VESPERSBeamline::vespers()->vortexXRF1E();
-		else if (config_->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::FourElement)
+		else if (config_->fluorescenceDetectorChoice() == VESPERS::FourElement)
 			detector = VESPERSBeamline::vespers()->vortexXRF4E();
 
 		// This should never happen.
@@ -249,7 +249,7 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 		break;
 	}
 
-	case VESPERSSpatialLineScanConfiguration::SingleElement | VESPERSSpatialLineScanConfiguration::FourElement:{
+	case VESPERS::SingleElement | VESPERS::FourElement:{
 
 		detector = VESPERSBeamline::vespers()->vortexXRF1E();
 
@@ -315,10 +315,10 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 
 	switch ((int)config_->fluorescenceDetectorChoice()){
 
-	case VESPERSSpatialLineScanConfiguration::None:
+	case VESPERS::NoXRF:
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::SingleElement:{
+	case VESPERS::SingleElement:{
 
 		AMDataSource *rawDataSource = 0;
 		AM1DNormalizationAB *normROI = 0;
@@ -343,7 +343,7 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 		break;
 	}
 
-	case VESPERSSpatialLineScanConfiguration::FourElement:{
+	case VESPERS::FourElement:{
 
 		AMDataSource *rawDataSource = 0;
 		AM1DNormalizationAB *normROI = 0;
@@ -363,7 +363,7 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 		break;
 	}
 
-	case VESPERSSpatialLineScanConfiguration::SingleElement | VESPERSSpatialLineScanConfiguration::FourElement:{
+	case VESPERS::SingleElement | VESPERS::FourElement:{
 
 		AM2DDeadTimeAB *correctedSpectra1El = new AM2DDeadTimeAB("correctedRawSpectra-1el");
 		correctedSpectra1El->setDescription("Corrected Spectra 1-El");
@@ -480,10 +480,10 @@ void VESPERSSpatialLineDacqScanController::addExtraDatasources()
 
 	switch((int)config_->fluorescenceDetectorChoice()){
 
-	case VESPERSSpatialLineScanConfiguration::None:
+	case VESPERS::NoXRF:
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::SingleElement:{
+	case VESPERS::SingleElement:{
 
 		// Dead time, real time, live time, fast peaks, slow peaks, spectrum index.
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("DeadTime", "Dead Time", "%"));
@@ -500,7 +500,7 @@ void VESPERSSpatialLineDacqScanController::addExtraDatasources()
 		break;
 	}
 
-	case VESPERSSpatialLineScanConfiguration::FourElement:{
+	case VESPERS::FourElement:{
 
 		// Real time (x4), Live time (x4), fast peaks (x4), slow peaks (x4), dead time (x4)
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("RealTime1", "Real Time 1", "s"));
@@ -547,7 +547,7 @@ void VESPERSSpatialLineDacqScanController::addExtraDatasources()
 		break;
 	}
 
-	case VESPERSSpatialLineScanConfiguration::SingleElement | VESPERSSpatialLineScanConfiguration::FourElement:{
+	case VESPERS::SingleElement | VESPERS::FourElement:{
 
 		// Adding measurments for the single element.
 		// Dead time, real time, live time, fast peaks, slow peaks, spectrum index.
@@ -633,10 +633,10 @@ void VESPERSSpatialLineDacqScanController::addExtraDatasources()
 	// Add the spectra.
 	switch ((int)config_->fluorescenceDetectorChoice()){
 
-	case VESPERSSpatialLineScanConfiguration::None:
+	case VESPERS::NoXRF:
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::SingleElement:{
+	case VESPERS::SingleElement:{
 
 		temp = AMMeasurementInfo(VESPERSBeamline::vespers()->vortexXRF1E()->toXRFInfo());
 		temp.name = "rawSpectra-1el";
@@ -647,7 +647,7 @@ void VESPERSSpatialLineDacqScanController::addExtraDatasources()
 		break;
 	}
 
-	case VESPERSSpatialLineScanConfiguration::FourElement:{
+	case VESPERS::FourElement:{
 
 		temp = AMMeasurementInfo(VESPERSBeamline::vespers()->vortexXRF4E()->toXRFInfo());
 		temp.name = "correctedSum-4el";
@@ -666,7 +666,7 @@ void VESPERSSpatialLineDacqScanController::addExtraDatasources()
 		break;
 	}
 
-	case VESPERSSpatialLineScanConfiguration::SingleElement | VESPERSSpatialLineScanConfiguration::FourElement:{
+	case VESPERS::SingleElement | VESPERS::FourElement:{
 
 		temp = AMMeasurementInfo(VESPERSBeamline::vespers()->vortexXRF1E()->toXRFInfo());
 		temp.name = "rawSpectra-1el";
@@ -712,7 +712,7 @@ bool VESPERSSpatialLineDacqScanController::initializeImplementation()
 	// Scalar
 	initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(0)->createEnableAction(true));
 	// Single element vortex
-	if ((config_->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::SingleElement) || (config_->fluorescenceDetectorChoice() == (VESPERSSpatialLineScanConfiguration::SingleElement | VESPERSSpatialLineScanConfiguration::FourElement)))
+	if ((config_->fluorescenceDetectorChoice() == VESPERS::SingleElement) || (config_->fluorescenceDetectorChoice() == (VESPERS::SingleElement | VESPERS::FourElement)))
 		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(true));
 	else
 		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(false));
@@ -724,7 +724,7 @@ bool VESPERSSpatialLineDacqScanController::initializeImplementation()
 	// Picoammeters
 	initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
 	// Four element vortex
-	if ((config_->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::FourElement) || (config_->fluorescenceDetectorChoice() == (VESPERSSpatialLineScanConfiguration::SingleElement | VESPERSSpatialLineScanConfiguration::FourElement)))
+	if ((config_->fluorescenceDetectorChoice() == VESPERS::FourElement) || (config_->fluorescenceDetectorChoice() == (VESPERS::SingleElement | VESPERS::FourElement)))
 		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(true));
 	else
 		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
@@ -763,13 +763,13 @@ bool VESPERSSpatialLineDacqScanController::startImplementation()
 {
 	bool configSuccess = false;
 
-	if (config_->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::SingleElement)
+	if (config_->fluorescenceDetectorChoice() == VESPERS::SingleElement)
 		configSuccess = setupSingleElementMap();
 
-	else if (config_->fluorescenceDetectorChoice() == VESPERSSpatialLineScanConfiguration::FourElement)
+	else if (config_->fluorescenceDetectorChoice() == VESPERS::FourElement)
 		configSuccess = setupFourElementMap();
 
-	else if (config_->fluorescenceDetectorChoice() == (VESPERSSpatialLineScanConfiguration::SingleElement | VESPERSSpatialLineScanConfiguration::FourElement))
+	else if (config_->fluorescenceDetectorChoice() == (VESPERS::SingleElement | VESPERS::FourElement))
 		configSuccess = setupSingleAndFourElementMap();
 
 	if (!configSuccess){
