@@ -296,19 +296,19 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 
 	switch (config_->incomingChoice()){
 
-	case VESPERSSpatialLineScanConfiguration::Isplit:
+	case VESPERS::Isplit:
 		i0Name = i0List.at(0)->name();
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::Iprekb:
+	case VESPERS::Iprekb:
 		i0Name = i0List.at(1)->name();
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::Imini:
+	case VESPERS::Imini:
 		i0Name = i0List.at(2)->name();
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::Ipost:
+	case VESPERS::Ipost:
 		i0Name = "";
 		break;
 	}

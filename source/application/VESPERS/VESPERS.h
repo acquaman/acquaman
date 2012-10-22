@@ -18,6 +18,9 @@ namespace VESPERS {
 	 - Si is the monochromator with 0.01% band pass.
 	  */
 	enum Beam { None = 0, Pink, TenPercent, OnePointSixPercent, Si };
+
+	/// Enum for the ion chambers used in scans.  These are used for the incoming or transmitted total intensity.
+	enum IonChamber { Isplit = 0, Iprekb, Imini, Ipost };
 }
 
 #endif // VESPERS_H

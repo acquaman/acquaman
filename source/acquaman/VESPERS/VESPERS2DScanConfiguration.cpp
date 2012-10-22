@@ -27,7 +27,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
 {
 	setName("2D Map");
 	setUserScanName("2D Map");
-	I0_ = Imini;
+	I0_ = VESPERS::Imini;
 	fluorescenceDetectorChoice_ = SingleElement;
 	motorsChoice_ = HAndV;
 	usingCCD_ = false;
@@ -118,16 +118,16 @@ QString VESPERS2DScanConfiguration::headerText() const
 
 	switch(incomingChoice()){
 
-	case Isplit:
+	case VESPERS::Isplit:
 		header.append("I0:\tIsplit - The split ion chamber.\n");
 		break;
-	case Iprekb:
+	case VESPERS::Iprekb:
 		header.append("I0:\tIprekb - The ion chamber before the KB mirror box.\n");
 		break;
-	case Imini:
+	case VESPERS::Imini:
 		header.append("I0:\tImini - The small ion chamber immediately after the KB mirror box.\n");
 		break;
-	case Ipost:
+	case VESPERS::Ipost:
 		header.append("I0:\tIpost - The ion chamber at the end of the beamline.\n");
 		break;
 	}
@@ -165,7 +165,7 @@ QString VESPERS2DScanConfiguration::headerText() const
 	return header;
 }
 
-void VESPERS2DScanConfiguration::setIncomingChoice(IonChamber I0)
+void VESPERS2DScanConfiguration::setIncomingChoice(VESPERS::IonChamber I0)
  {
 	if (I0_ != I0){
 

@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/AMEXAFSScanConfiguration.h"
 #include "dataman/info/AMROIInfo.h"
+#include "application/VESPERS/VESPERS.h"
 
 /// This class is the VESPERS specific EXAFS scan configuration.
 /*!
@@ -64,8 +65,6 @@ class VESPERSEXAFSScanConfiguration : public AMEXAFSScanConfiguration
 public:
 	/// Enum for making the decision on what fluorescence detector the user wants to use.
 	enum FluorescenceDetector { None = 0, SingleElement = 1, FourElement = 2 };
-	/// Enum for the ion chambers.  Used when choosing It and I0.
-	enum IonChamber { Isplit = 0, Iprekb, Imini, Ipost };
 
 	/// Constructor.
 	Q_INVOKABLE VESPERSEXAFSScanConfiguration(QObject *parent = 0);
@@ -90,9 +89,9 @@ public:
 	/// Returns the current fluorescence detector choice.
 	FluorescenceDetector fluorescenceDetectorChoice() const { return fluorescenceDetectorChoice_; }
 	/// Returns the current It ion chamber choice.
-	IonChamber transmissionChoice() const { return It_; }
+	VESPERS::IonChamber transmissionChoice() const { return It_; }
 	/// Returns the current I0 ion chamber choice.
-	IonChamber incomingChoice() const { return I0_; }
+	VESPERS::IonChamber incomingChoice() const { return I0_; }
 	/// Returns the name of the current edge.
 	QString edge() const { return edge_; }
 	/// Returns the edge energy for the scan.
@@ -151,11 +150,11 @@ signals:
 	/// Same signal.  Just passing as an int.
 	void fluorescenceDetectorChoiceChanged(int);
 	/// Notifier that the incoming choice has changed.
-	void incomingChoiceChanged(IonChamber);
+	void incomingChoiceChanged(VESPERS::IonChamber);
 	/// Same signal.  Just passing as an int.
 	void incomingChoiceChanged(int);
 	/// Notifier that the transmition choice has changed.
-	void transmissionChoiceChanged(IonChamber);
+	void transmissionChoiceChanged(VESPERS::IonChamber);
 	/// Same signal.  Just passing as an int.
 	void transmissionChoiceChanged(int);
 	/// Notifier that the edge name has changed.
@@ -182,13 +181,13 @@ public slots:
 	/// Overloaded.  Used for database loading.
 	void setFluorescenceDetectorChoice(int detector) { setFluorescenceDetectorChoice((FluorescenceDetector)detector); }
 	/// Sets the choice for It ion chamber.
-	void setTransmissionChoice(IonChamber It);
+	void setTransmissionChoice(VESPERS::IonChamber It);
 	/// Overloaded.  Used for database loading.
-	void setTransmissionChoice(int It) { setTransmissionChoice((IonChamber)It); }
+	void setTransmissionChoice(int It) { setTransmissionChoice((VESPERS::IonChamber)It); }
 	/// Sets the choice for I0 ion chamber.
-	void setIncomingChoice(IonChamber I0);
+	void setIncomingChoice(VESPERS::IonChamber I0);
 	/// Overloaded.  Used for database loading.
-	void setIncomingChoice(int I0) { setIncomingChoice((IonChamber)I0); }
+	void setIncomingChoice(int I0) { setIncomingChoice((VESPERS::IonChamber)I0); }
 	/// Sets the current edge for the scan.
 	void setEdge(QString edgeName);
 	/// Sets the edge energy.
@@ -229,9 +228,9 @@ protected:
 	/// Fluorescence detector choice.
 	FluorescenceDetector fluorescenceDetectorChoice_;
 	/// It ion chamber choice.
-	IonChamber It_;
+	VESPERS::IonChamber It_;
 	/// I0 ion chamber choice.
-	IonChamber I0_;
+	VESPERS::IonChamber I0_;
 
 	/// The edge being scanned.
 	QString edge_;

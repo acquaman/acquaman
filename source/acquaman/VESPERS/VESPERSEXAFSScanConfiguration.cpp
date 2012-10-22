@@ -36,8 +36,8 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	setName("XAS Scan");
 	setUserScanName("XAS Scan");
 	fluorescenceDetectorChoice_ = None;
-	It_ = Ipost;
-	I0_ = Imini;
+	It_ = VESPERS::Ipost;
+	I0_ = VESPERS::Imini;
 	edge_ = "";
 	energy_ = 0.0;
 	useFixedTime_ = false;
@@ -158,32 +158,32 @@ QString VESPERSEXAFSScanConfiguration::headerText() const
 
 	switch(incomingChoice()){
 
-	case Isplit:
+	case VESPERS::Isplit:
 		header.append("I0:\tIsplit - The split ion chamber.\n");
 		break;
-	case Iprekb:
+	case VESPERS::Iprekb:
 		header.append("I0:\tIprekb - The ion chamber before the KB mirror box.\n");
 		break;
-	case Imini:
+	case VESPERS::Imini:
 		header.append("I0:\tImini - The small ion chamber immediately after the KB mirror box.\n");
 		break;
-	case Ipost:
+	case VESPERS::Ipost:
 		header.append("I0:\tIpost - The ion chamber at the end of the beamline.\n");
 		break;
 	}
 
 	switch(transmissionChoice()){
 
-	case Isplit:
+	case VESPERS::Isplit:
 		header.append("It:\tIsplit - The split ion chamber.\n");
 		break;
-	case Iprekb:
+	case VESPERS::Iprekb:
 		header.append("It:\tIprekb - The ion chamber before the KB mirror box.\n");
 		break;
-	case Imini:
+	case VESPERS::Imini:
 		header.append("It:\tImini - The small ion chamber immediately after the KB mirror box.\n");
 		break;
-	case Ipost:
+	case VESPERS::Ipost:
 		header.append("It:\tIpost - The ion chamber at the end of the beamline.\n");
 		break;
 	}
@@ -308,7 +308,7 @@ void VESPERSEXAFSScanConfiguration::setFluorescenceDetectorChoice(FluorescenceDe
 	}
 }
 
-void VESPERSEXAFSScanConfiguration::setTransmissionChoice(IonChamber It)
+void VESPERSEXAFSScanConfiguration::setTransmissionChoice(VESPERS::IonChamber It)
 {
 	if (It_ != It){
 
@@ -319,7 +319,7 @@ void VESPERSEXAFSScanConfiguration::setTransmissionChoice(IonChamber It)
 	}
 }
 
-void VESPERSEXAFSScanConfiguration::setIncomingChoice(IonChamber I0)
+void VESPERSEXAFSScanConfiguration::setIncomingChoice(VESPERS::IonChamber I0)
 {
 	if (I0_ != I0){
 

@@ -31,7 +31,7 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(QObject
 	regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz());
 	regions_->setDefaultTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
 	regions_->setSensibleRange(0, 10);
-	I0_ = Imini;
+	I0_ = VESPERS::Imini;
 	fluorescenceDetectorChoice_ = SingleElement;
 	motorChoice_ = H;
 	usingCCD_ = false;
@@ -141,16 +141,16 @@ QString VESPERSSpatialLineScanConfiguration::headerText() const
 
 	switch(incomingChoice()){
 
-	case Isplit:
+	case VESPERS::Isplit:
 		header.append("I0:\tIsplit - The split ion chamber.\n");
 		break;
-	case Iprekb:
+	case VESPERS::Iprekb:
 		header.append("I0:\tIprekb - The ion chamber before the KB mirror box.\n");
 		break;
-	case Imini:
+	case VESPERS::Imini:
 		header.append("I0:\tImini - The small ion chamber immediately after the KB mirror box.\n");
 		break;
-	case Ipost:
+	case VESPERS::Ipost:
 		header.append("I0:\tIpost - The ion chamber at the end of the beamline.\n");
 		break;
 	}
@@ -192,7 +192,7 @@ QString VESPERSSpatialLineScanConfiguration::headerText() const
 	return header;
 }
 
-void VESPERSSpatialLineScanConfiguration::setIncomingChoice(IonChamber I0)
+void VESPERSSpatialLineScanConfiguration::setIncomingChoice(VESPERS::IonChamber I0)
  {
 	if (I0_ != I0){
 

@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/AM2DScanConfiguration.h"
 #include "dataman/info/AMROIInfo.h"
+#include "application/VESPERS/VESPERS.h"
 
 /// This class is the VESPERS specific 2D map scan configuration.
 /*!
@@ -52,8 +53,6 @@ class VESPERS2DScanConfiguration : public AM2DScanConfiguration
 public:
 	/// Enum for making the decision on what fluorescence detector the user wants to use.
 	enum FluorescenceDetector { None = 0, SingleElement = 1, FourElement = 2 };
-	/// Enum for the ion chambers.  Used when choosing It and I0.
-	enum IonChamber { Isplit = 0, Iprekb, Imini, Ipost };
 	/// Enum for which two motors should be used for scanning the horizontal and vertical directions.  Currently there are only HandV and XandZ, but in the future there will be more (eg: nanoCube, big beam).
 	enum MotorsChoice { HAndV = 0, XAndZ };
 
@@ -89,7 +88,7 @@ public:
 	bool exportSpectraSources() const { return exportSpectraSources_; }
 
 	/// Returns the current I0 ion chamber choice.
-	IonChamber incomingChoice() const { return I0_; }
+	VESPERS::IonChamber incomingChoice() const { return I0_; }
 	/// Returns the current fluorescence detector choice.
 	FluorescenceDetector fluorescenceDetectorChoice() const { return fluorescenceDetectorChoice_; }
 	/// Returns the current motor choice.
@@ -129,7 +128,7 @@ public:
 
 signals:
 	/// Notifier that the incoming choice has changed.
-	void incomingChoiceChanged(IonChamber);
+	void incomingChoiceChanged(VESPERS::IonChamber);
 	/// Same signal.  Just passing as an int.
 	void incomingChoiceChanged(int);
 	/// Notifier that the fluorescence choice has changed.
@@ -149,9 +148,9 @@ signals:
 
 public slots:
 	/// Sets the choice for I0 ion chamber.
-	void setIncomingChoice(IonChamber I0);
+	void setIncomingChoice(VESPERS::IonChamber I0);
 	/// Overloaded.  Used for database loading.
-	void setIncomingChoice(int I0) { setIncomingChoice((IonChamber)I0); }
+	void setIncomingChoice(int I0) { setIncomingChoice((VESPERS::IonChamber)I0); }
 	/// Sets the choice for the fluorescence detector.
 	void setFluorescenceDetectorChoice(FluorescenceDetector detector);
 	/// Overloaded.  Used for database loading.
@@ -181,7 +180,7 @@ protected slots:
 
 protected:
 	/// I0 ion chamber choice.
-	IonChamber I0_;
+	VESPERS::IonChamber I0_;
 	/// Fluorescence detector choice.
 	FluorescenceDetector fluorescenceDetectorChoice_;
 	/// Motor choice for which set of motors will be used.
