@@ -137,7 +137,7 @@ void VESPERSEnergyScanConfiguration::setTimeOffset(double offset)
 	}
 }
 
-void VESPERSEnergyScanConfiguration::setCcdDetector(CCDDetector detector)
+void VESPERSEnergyScanConfiguration::setCCDDetector(CCDDetector detector)
 {
 	if (ccdDetector_ != detector){
 

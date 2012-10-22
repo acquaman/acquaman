@@ -59,7 +59,7 @@ protected slots:
 	void onScanNameEdited() { config_->setName(scanName_->text()); config_->setUserScanName(scanName_->text()); }
 
 	/// Handles changes to the ccd detector choice.
-	void onCcdDetectorChoiceChanged(int id) { config_->setCcdDetector(id); }
+	void onCcdDetectorChoiceChanged(int id) { config_->setCCDDetector(id); }
 	/// Handles propgating changes in the config to the detector buttons.
 	void updateCcdDetectorChoiceButtons(int detector);
 	/// Sets the current horizontal and vertical positions and saves them in the configuration.

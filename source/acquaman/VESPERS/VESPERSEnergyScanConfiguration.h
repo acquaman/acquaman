@@ -38,7 +38,7 @@ class VESPERSEnergyScanConfiguration : public AMXASScanConfiguration
 {
 	Q_OBJECT
 
-	Q_PROPERTY(int ccdDetector READ ccdDetector WRITE setCcdDetector)
+	Q_PROPERTY(int ccdDetector READ ccdDetector WRITE setCCDDetector)
 	Q_PROPERTY(QString ccdFileName READ ccdFileName WRITE setCCDFileName)
 	Q_PROPERTY(bool goToPosition READ goToPosition WRITE setGoToPosition)
 	Q_PROPERTY(double xPosition READ x WRITE setX)
@@ -65,6 +65,8 @@ public:
 	/// Returns a pointer to a newly-created AMScanConfigurationView that is appropriate for viewing and editing this kind of scan configuration. Ownership of the new controller becomes the responsibility of the caller.
 	virtual AMScanConfigurationView* createView();
 
+	/// Returns the technique string.
+	QString technique() const { return "Energy Scan"; }
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
@@ -114,11 +116,11 @@ signals:
 
 public slots:
 	/// Sets the CCD detector choice.
-	void setCcdDetector(CCDDetector detector);
+	void setCCDDetector(CCDDetector detector);
 	/// Sets the file name for the CCD files.
 	void setCCDFileName(const QString &name) { ccdFileName_ = name; emit ccdFileNameChanged(ccdFileName_); setModified(true); }
 	/// Overloaded.  Used for database loading.
-	void setCcdDetector(int detector) { setCcdDetector((CCDDetector)detector); }
+	void setCCDDetector(int detector) { setCCDDetector((CCDDetector)detector); }
 	/// Sets whether the scan should move to a new position before starting.
 	void setGoToPosition(bool state);
 	/// Sets the position the scan should move to before starting.
