@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 VESPERSEndstationConfiguration::VESPERSEndstationConfiguration(QObject *parent)
 	: QObject(parent)
 {
-	current_ = Invalid;
+	current_ = VESPERS::Invalid;
 
 	xAndZ_ = qMakePair(false, false);
 	hAndV_ = qMakePair(false, false);
@@ -36,11 +36,11 @@ VESPERSEndstationConfiguration::VESPERSEndstationConfiguration(QObject *parent)
 	roperCCD_ = qMakePair(false, false);
 }
 
-void VESPERSEndstationConfiguration::setGeometry(Geometry newGeometry)
+void VESPERSEndstationConfiguration::setGeometry(VESPERS::Geometry newGeometry)
 {
 	switch(newGeometry){
 
-	case Invalid:
+	case VESPERS::Invalid:
 		xAndZ_ = qMakePair(false, false);
 		hAndV_ = qMakePair(false, false);
 		bigBeam_ = qMakePair(false, false);
@@ -53,7 +53,7 @@ void VESPERSEndstationConfiguration::setGeometry(Geometry newGeometry)
 		roperCCD_ = qMakePair(false, false);
 		break;
 
-	case StraightOn:
+	case VESPERS::StraightOn:
 		xAndZ_ = qMakePair(true, false);
 		hAndV_ = qMakePair(false, false);
 		bigBeam_ = qMakePair(false, false);
@@ -66,7 +66,7 @@ void VESPERSEndstationConfiguration::setGeometry(Geometry newGeometry)
 		roperCCD_ = qMakePair(false, false);
 		break;
 
-	case Single45Vertical:
+	case VESPERS::Single45Vertical:
 		xAndZ_ = qMakePair(false, false);
 		hAndV_ = qMakePair(true, false);
 		bigBeam_ = qMakePair(false, false);
@@ -79,7 +79,7 @@ void VESPERSEndstationConfiguration::setGeometry(Geometry newGeometry)
 		roperCCD_ = qMakePair(true, false);
 		break;
 
-	case Single45Horizontal:
+	case VESPERS::Single45Horizontal:
 		xAndZ_ = qMakePair(true, false);
 		hAndV_ = qMakePair(false, false);
 		bigBeam_ = qMakePair(false, false);
@@ -92,7 +92,7 @@ void VESPERSEndstationConfiguration::setGeometry(Geometry newGeometry)
 		roperCCD_ = qMakePair(false, false);
 		break;
 
-	case Double45:
+	case VESPERS::Double45:
 		xAndZ_ = qMakePair(false, false);
 		hAndV_ = qMakePair(true, false);
 		bigBeam_ = qMakePair(false, false);
@@ -105,7 +105,7 @@ void VESPERSEndstationConfiguration::setGeometry(Geometry newGeometry)
 		roperCCD_ = qMakePair(true, false);
 		break;
 
-	case BigBeam:
+	case VESPERS::BigBeam:
 		xAndZ_ = qMakePair(false, false);
 		hAndV_ = qMakePair(false, false);
 		bigBeam_ = qMakePair(true, false);
