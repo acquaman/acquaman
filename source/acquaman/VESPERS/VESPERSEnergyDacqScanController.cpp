@@ -67,20 +67,20 @@ VESPERSEnergyDacqScanController::VESPERSEnergyDacqScanController(VESPERSEnergySc
 
 	switch(VESPERSBeamline::vespers()->currentBeam()){
 
-	case VESPERSBeamline::None:
-	case VESPERSBeamline::Pink:
+	case VESPERS::None:
+	case VESPERS::Pink:
 		// This should never happen.
 		break;
 
-	case VESPERSBeamline::TenPercent:
+	case VESPERS::TenPercent:
 		notes.append(QString("Beam used:\t10% bandpass\n"));
 		break;
 
-	case VESPERSBeamline::OnePointSixPercent:
+	case VESPERS::OnePointSixPercent:
 		notes.append(QString("Beam used:\t1.6% bandpass\n"));
 		break;
 
-	case VESPERSBeamline::Si:
+	case VESPERS::Si:
 		notes.append(QString("Beam used:\tSi (%1E/E = 10^-4)\n").arg(QString::fromUtf8("Δ")));
 		break;
 	}

@@ -69,7 +69,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/dataman/VESPERS/VESPERSDbUpgrade1Pt1.h \
 	source/dataman/VESPERS/VESPERSMarCCDDetectorInfo.h \
 	source/beamline/VESPERS/VESPERSMarCCDDetector.h \
-	source/ui/VESPERS/VESPERSMarCCDDetectorView.h
+	source/ui/VESPERS/VESPERSMarCCDDetectorView.h \
+    source/application/VESPERS/VESPERS.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -141,3 +142,4 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
