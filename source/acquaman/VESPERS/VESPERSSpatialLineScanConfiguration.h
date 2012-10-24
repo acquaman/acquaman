@@ -51,7 +51,7 @@ class VESPERSSpatialLineScanConfiguration : public AMRegionScanConfiguration
 	Q_PROPERTY(double step READ step WRITE setStep)
 	Q_PROPERTY(double time READ time WRITE setTime)
 	Q_PROPERTY(int incomingChoice READ incomingChoice WRITE setIncomingChoice)
-	Q_PROPERTY(int fluorescenceDetectorChoice READ fluorescenceDetectorChoice WRITE setFluorescenceDetectorChoice)
+	Q_PROPERTY(int fluorescenceDetector READ fluorescenceDetector WRITE setFluorescenceDetector)
 	Q_PROPERTY(int motorChoice READ motorChoice WRITE setMotorChoice)
 	Q_PROPERTY(bool usingCCD READ usingCCD WRITE setUsingCCD)
 	Q_PROPERTY(QString ccdFileName READ ccdFileName WRITE setCCDFileName)
@@ -88,7 +88,7 @@ public:
 	/// Returns the current I0 ion chamber choice.
 	VESPERS::IonChamber incomingChoice() const { return I0_; }
 	/// Returns the current fluorescence detector choice.
-	VESPERS::FluorescenceDetector fluorescenceDetectorChoice() const { return fluorescenceDetectorChoice_; }
+	VESPERS::FluorescenceDetector fluorescenceDetector() const { return fluorescenceDetector_; }
 	/// Returns the current motor choice.
 	MotorChoice motorChoice() const { return motorChoice_; }
 	/// Returns whether the scan is using the CCD or not.
@@ -147,9 +147,9 @@ signals:
 	/// Same signal.  Just passing as an int.
 	void incomingChoiceChanged(int);
 	/// Notifier that the fluorescence choice has changed.
-	void fluorescenceDetectorChoiceChanged(VESPERS::FluorescenceDetector);
+	void fluorescenceDetectorChanged(VESPERS::FluorescenceDetector);
 	/// Same signal.  Just passing as an int.
-	void fluorescenceDetectorChoiceChanged(int);
+	void fluorescenceDetectorChanged(int);
 	/// Notifier that the motors choice has changed.
 	void motorChoiceChanged(MotorChoice);
 	/// Same signal.  Just passing as an int.
@@ -176,9 +176,9 @@ public slots:
 	/// Overloaded.  Used for database loading.
 	void setIncomingChoice(int I0) { setIncomingChoice((VESPERS::IonChamber)I0); }
 	/// Sets the choice for the fluorescence detector.
-	void setFluorescenceDetectorChoice(VESPERS::FluorescenceDetector detector);
+	void setFluorescenceDetector(VESPERS::FluorescenceDetector detector);
 	/// Overloaded.  Used for database loading.
-	void setFluorescenceDetectorChoice(int detector) { setFluorescenceDetectorChoice((VESPERS::FluorescenceDetector)detector); }
+	void setFluorescenceDetector(int detector) { setFluorescenceDetector((VESPERS::FluorescenceDetector)detector); }
 	/// Sets the choice for the set of motors used for scanning.
 	void setMotorChoice(MotorChoice choice);
 	/// Overloaded.  Used for database loading.
@@ -214,7 +214,7 @@ protected:
 	/// I0 ion chamber choice.
 	VESPERS::IonChamber I0_;
 	/// Fluorescence detector choice.
-	VESPERS::FluorescenceDetector fluorescenceDetectorChoice_;
+	VESPERS::FluorescenceDetector fluorescenceDetector_;
 	/// Motor choice for which set of motors will be used.
 	MotorChoice motorChoice_;
 	/// Flag holding whether the scan should use the CCD detector or not.

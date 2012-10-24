@@ -195,9 +195,9 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	fluorescenceDetectorLayout->addWidget(tempButton);
 
 	connect(fluorescenceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
-	connect(config_, SIGNAL(fluorescenceDetectorChoiceChanged(int)), this, SLOT(updateFluorescenceDetector(int)));
+	connect(config_, SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetector(int)));
 
-	fluorescenceButtonGroup_->button((int)config_->fluorescenceDetectorChoice())->setChecked(true);
+	fluorescenceButtonGroup_->button((int)config_->fluorescenceDetector())->setChecked(true);
 
 	QGroupBox *fluorescenceDetectorGroupBox = new QGroupBox("Fluorescence Detector");
 	fluorescenceDetectorGroupBox->setLayout(fluorescenceDetectorLayout);
@@ -352,7 +352,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 
 void VESPERS2DScanConfigurationView::onFluorescenceChoiceChanged(int id)
 {
-	config_->setFluorescenceDetectorChoice(id);
+	config_->setFluorescenceDetector(id);
 	updateRoiText();
 }
 
@@ -363,7 +363,7 @@ void VESPERS2DScanConfigurationView::onMotorsChoiceChanged(int id)
 
 void VESPERS2DScanConfigurationView::onConfigureXRFDetectorClicked()
 {
-	switch((int)config_->fluorescenceDetectorChoice()){
+	switch((int)config_->fluorescenceDetector()){
 
 	case VESPERS::NoXRF:
 		break;
@@ -417,7 +417,7 @@ void VESPERS2DScanConfigurationView::onUsingCCDChanged(bool useCCD)
 
 void VESPERS2DScanConfigurationView::updateRoiText()
 {
-	switch((int)config_->fluorescenceDetectorChoice()){
+	switch((int)config_->fluorescenceDetector()){
 
 	case VESPERS::NoXRF:
 		config_->setRoiInfoList(AMROIInfoList());
@@ -450,7 +450,7 @@ void VESPERS2DScanConfigurationView::updateRoiText()
 
 	roiText_->clear();
 
-	if ((int)config_->fluorescenceDetectorChoice() ==  (VESPERS::SingleElement | VESPERS::FourElement)){
+	if ((int)config_->fluorescenceDetector() ==  (VESPERS::SingleElement | VESPERS::FourElement)){
 
 		QList<QPair<int, int> > sameList = findRoiPairs();
 

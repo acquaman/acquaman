@@ -64,9 +64,9 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	fluorescenceDetectorLayout->addWidget(tempButton);
 
 	connect(fluorescenceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
-	connect(config_, SIGNAL(fluorescenceDetectorChoiceChanged(int)), this, SLOT(updateFluorescenceChoiceButtons(int)));
+	connect(config_, SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceChoiceButtons(int)));
 
-	fluorescenceButtonGroup_->button((int)config_->fluorescenceDetectorChoice())->setChecked(true);
+	fluorescenceButtonGroup_->button((int)config_->fluorescenceDetector())->setChecked(true);
 
 	QGroupBox *fluorescenceDetectorGroupBox = new QGroupBox("Fluorescence Detector");
 	fluorescenceDetectorGroupBox->setLayout(fluorescenceDetectorLayout);
@@ -285,7 +285,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	roiTextBox_ = new QGroupBox("Regions Of Interest");
 	roiTextBox_->setLayout(roiTextLayout);
 
-	if (config_->fluorescenceDetectorChoice() == VESPERS::NoXRF)
+	if (config_->fluorescenceDetector() == VESPERS::NoXRF)
 		roiTextBox_->hide();
 
 	else
@@ -387,7 +387,7 @@ void VESPERSEXAFSScanConfigurationView::updateFluorescenceChoiceButtons(int dete
 
 void VESPERSEXAFSScanConfigurationView::onConfigureXRFDetectorClicked()
 {
-	switch((int)config_->fluorescenceDetectorChoice()){
+	switch((int)config_->fluorescenceDetector()){
 
 	case VESPERS::NoXRF:
 		break;
@@ -426,14 +426,14 @@ void VESPERSEXAFSScanConfigurationView::updateI0Buttons(int I0)
 
 void VESPERSEXAFSScanConfigurationView::onFluorescenceChoiceChanged(int id)
 {
-	config_->setFluorescenceDetectorChoice(id);
+	config_->setFluorescenceDetector(id);
 	roiTextBox_->setVisible(id > 0 ? true : false);
 	updateRoiText();
 }
 
 void VESPERSEXAFSScanConfigurationView::updateRoiText()
 {
-	switch((int)config_->fluorescenceDetectorChoice()){
+	switch((int)config_->fluorescenceDetector()){
 
 	case VESPERS::NoXRF:
 		config_->setRoiInfoList(AMROIInfoList());
@@ -466,7 +466,7 @@ void VESPERSEXAFSScanConfigurationView::updateRoiText()
 
 	roiText_->clear();
 
-	if ((int)config_->fluorescenceDetectorChoice() ==  (VESPERS::SingleElement | VESPERS::FourElement)){
+	if ((int)config_->fluorescenceDetector() ==  (VESPERS::SingleElement | VESPERS::FourElement)){
 
 		QList<QPair<int, int> > sameList = findRoiPairs();
 
@@ -535,7 +535,7 @@ void VESPERSEXAFSScanConfigurationView::updateRoiText()
 
 			for (int i = 0, count = singleElList.count(); i < count; i++){
 
-				AMROIInfo info = singleElList.at(sameList.at(i).first);
+				AMROIInfo info = singleElList.at(i);
 				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
 			}
 
@@ -543,7 +543,7 @@ void VESPERSEXAFSScanConfigurationView::updateRoiText()
 
 			for (int i = 0, count = fourElList.count(); i < count; i++){
 
-				AMROIInfo info = fourElList.at(sameList.at(i).first);
+				AMROIInfo info = fourElList.at(i);
 				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
 			}
 		}

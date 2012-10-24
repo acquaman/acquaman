@@ -132,7 +132,7 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 	// Build the notes for the scan.
 	QString notes;
 
-	switch ((int)config_->fluorescenceDetectorChoice()){
+	switch ((int)config_->fluorescenceDetector()){
 
 	case VESPERS::NoXRF:
 		break;
@@ -220,7 +220,7 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 
 	XRFDetector *detector = 0;
 
-	switch ((int)config_->fluorescenceDetectorChoice()){
+	switch ((int)config_->fluorescenceDetector()){
 
 	case VESPERS::NoXRF:
 		break;
@@ -228,9 +228,9 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 	case VESPERS::SingleElement:
 	case VESPERS::FourElement:{
 
-		if (config_->fluorescenceDetectorChoice() == VESPERS::SingleElement)
+		if (config_->fluorescenceDetector() == VESPERS::SingleElement)
 			detector = VESPERSBeamline::vespers()->vortexXRF1E();
-		else if (config_->fluorescenceDetectorChoice() == VESPERS::FourElement)
+		else if (config_->fluorescenceDetector() == VESPERS::FourElement)
 			detector = VESPERSBeamline::vespers()->vortexXRF4E();
 
 		// This should never happen.
@@ -313,7 +313,7 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 		break;
 	}
 
-	switch ((int)config_->fluorescenceDetectorChoice()){
+	switch ((int)config_->fluorescenceDetector()){
 
 	case VESPERS::NoXRF:
 		break;
@@ -478,7 +478,7 @@ void VESPERSSpatialLineDacqScanController::addExtraDatasources()
 	scan_->rawData()->addMeasurement(AMMeasurementInfo("RingCurrent", "Ring Current", "mA"));
 	scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 
-	switch((int)config_->fluorescenceDetectorChoice()){
+	switch((int)config_->fluorescenceDetector()){
 
 	case VESPERS::NoXRF:
 		break;
@@ -631,7 +631,7 @@ void VESPERSSpatialLineDacqScanController::addExtraDatasources()
 	}
 
 	// Add the spectra.
-	switch ((int)config_->fluorescenceDetectorChoice()){
+	switch ((int)config_->fluorescenceDetector()){
 
 	case VESPERS::NoXRF:
 		break;
@@ -712,7 +712,7 @@ bool VESPERSSpatialLineDacqScanController::initializeImplementation()
 	// Scalar
 	initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(0)->createEnableAction(true));
 	// Single element vortex
-	if ((config_->fluorescenceDetectorChoice() == VESPERS::SingleElement) || (config_->fluorescenceDetectorChoice() == (VESPERS::SingleElement | VESPERS::FourElement)))
+	if ((config_->fluorescenceDetector() == VESPERS::SingleElement) || (config_->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement)))
 		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(true));
 	else
 		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(false));
@@ -724,7 +724,7 @@ bool VESPERSSpatialLineDacqScanController::initializeImplementation()
 	// Picoammeters
 	initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
 	// Four element vortex
-	if ((config_->fluorescenceDetectorChoice() == VESPERS::FourElement) || (config_->fluorescenceDetectorChoice() == (VESPERS::SingleElement | VESPERS::FourElement)))
+	if ((config_->fluorescenceDetector() == VESPERS::FourElement) || (config_->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement)))
 		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(true));
 	else
 		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
@@ -763,13 +763,13 @@ bool VESPERSSpatialLineDacqScanController::startImplementation()
 {
 	bool configSuccess = false;
 
-	if (config_->fluorescenceDetectorChoice() == VESPERS::SingleElement)
+	if (config_->fluorescenceDetector() == VESPERS::SingleElement)
 		configSuccess = setupSingleElementMap();
 
-	else if (config_->fluorescenceDetectorChoice() == VESPERS::FourElement)
+	else if (config_->fluorescenceDetector() == VESPERS::FourElement)
 		configSuccess = setupFourElementMap();
 
-	else if (config_->fluorescenceDetectorChoice() == (VESPERS::SingleElement | VESPERS::FourElement))
+	else if (config_->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement))
 		configSuccess = setupSingleAndFourElementMap();
 
 	if (!configSuccess){

@@ -32,7 +32,7 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(QObject
 	regions_->setDefaultTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
 	regions_->setSensibleRange(0, 10);
 	I0_ = VESPERS::Imini;
-	fluorescenceDetectorChoice_ = VESPERS::SingleElement;
+	fluorescenceDetector_ = VESPERS::SingleElement;
 	motorChoice_ = H;
 	usingCCD_ = false;
 	ccdFileName_ = "";
@@ -79,7 +79,7 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const V
 	regions_->setUnits(0, original.regions()->units(0));
 	regions_->setTimeUnits(0, original.regions()->timeUnits(0));
 	I0_ = original.incomingChoice();
-	fluorescenceDetectorChoice_ = original.fluorescenceDetectorChoice();
+	fluorescenceDetector_ = original.fluorescenceDetector();
 	motorChoice_ = original.motorChoice();
 	usingCCD_ = original.usingCCD();
 	ccdFileName_ = original.ccdFileName();
@@ -123,7 +123,7 @@ QString VESPERSSpatialLineScanConfiguration::headerText() const
 {
 	QString header("Configuration of the Scan\n\n");
 
-	switch((int)fluorescenceDetectorChoice()){
+	switch((int)fluorescenceDetector()){
 
 	case VESPERS::NoXRF:
 		header.append("Fluorescence Detector:\tNone\n");
@@ -203,13 +203,13 @@ void VESPERSSpatialLineScanConfiguration::setIncomingChoice(VESPERS::IonChamber 
 	}
 }
 
-void VESPERSSpatialLineScanConfiguration::setFluorescenceDetectorChoice(VESPERS::FluorescenceDetector detector)
+void VESPERSSpatialLineScanConfiguration::setFluorescenceDetector(VESPERS::FluorescenceDetector detector)
 {
-	if (fluorescenceDetectorChoice_ != detector){
+	if (fluorescenceDetector_ != detector){
 
-		fluorescenceDetectorChoice_ = detector;
-		emit fluorescenceDetectorChoiceChanged(fluorescenceDetectorChoice_);
-		emit fluorescenceDetectorChoiceChanged(int(fluorescenceDetectorChoice_));
+		fluorescenceDetector_ = detector;
+		emit fluorescenceDetectorChanged(fluorescenceDetector_);
+		emit fluorescenceDetectorChanged(int(fluorescenceDetector_));
 		setModified(true);
 	}
 }

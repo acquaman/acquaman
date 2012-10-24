@@ -35,7 +35,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	regions_->setDefaultTimeUnits(" s");
 	setName("XAS Scan");
 	setUserScanName("XAS Scan");
-	fluorescenceDetectorChoice_ = VESPERS::NoXRF;
+	fluorescenceDetector_ = VESPERS::NoXRF;
 	It_ = VESPERS::Ipost;
 	I0_ = VESPERS::Imini;
 	edge_ = "";
@@ -80,7 +80,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(const VESPERSEXAFSS
 
 	setName(original.name());
 	setUserScanName(original.userScanName());
-	fluorescenceDetectorChoice_ = original.fluorescenceDetectorChoice();
+	fluorescenceDetector_ = original.fluorescenceDetector();
 	It_ = original.transmissionChoice();
 	I0_ = original.incomingChoice();
 	edge_ = original.edge();
@@ -140,7 +140,7 @@ QString VESPERSEXAFSScanConfiguration::headerText() const
 
 	header.append("Scanned Edge:\t" + edge() + "\n");
 
-	switch((int)fluorescenceDetectorChoice()){
+	switch((int)fluorescenceDetector()){
 
 	case VESPERS::NoXRF:
 		header.append("Fluorescence Detector:\tNone\n");
@@ -196,7 +196,7 @@ QString VESPERSEXAFSScanConfiguration::headerText() const
 		header.append(QString("Vertical Position:\t%1 mm\n\n").arg(y()));
 	}
 
-	if (fluorescenceDetectorChoice() != VESPERS::NoXRF){
+	if (fluorescenceDetector() != VESPERS::NoXRF){
 
 		header.append("Regions of Interest\n");
 
@@ -297,13 +297,13 @@ void VESPERSEXAFSScanConfiguration::computeTotalTime()
 	emit totalTimeChanged(totalTime_);
 }
 
-void VESPERSEXAFSScanConfiguration::setFluorescenceDetectorChoice(VESPERS::FluorescenceDetector detector)
+void VESPERSEXAFSScanConfiguration::setFluorescenceDetector(VESPERS::FluorescenceDetector detector)
 {
-	if (fluorescenceDetectorChoice_ != detector){
+	if (fluorescenceDetector_ != detector){
 
-		fluorescenceDetectorChoice_ = detector;
-		emit fluorescenceDetectorChoiceChanged(fluorescenceDetectorChoice_);
-		emit fluorescenceDetectorChoiceChanged(int(fluorescenceDetectorChoice_));
+		fluorescenceDetector_ = detector;
+		emit fluorescenceDetectorChanged(fluorescenceDetector_);
+		emit fluorescenceDetectorChanged(int(fluorescenceDetector_));
 		setModified(true);
 	}
 }

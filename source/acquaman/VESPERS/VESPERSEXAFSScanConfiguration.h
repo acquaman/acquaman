@@ -43,7 +43,7 @@ class VESPERSEXAFSScanConfiguration : public AMEXAFSScanConfiguration
 {
 	Q_OBJECT
 
-	Q_PROPERTY(int fluorescenceDetectorChoice READ fluorescenceDetectorChoice WRITE setFluorescenceDetectorChoice)
+	Q_PROPERTY(int fluorescenceDetector READ fluorescenceDetector WRITE setFluorescenceDetector)
 	Q_PROPERTY(int transmissionChoice READ transmissionChoice WRITE setTransmissionChoice)
 	Q_PROPERTY(int incomingChoice READ incomingChoice WRITE setIncomingChoice)
 	Q_PROPERTY(QString edge READ edge WRITE setEdge)
@@ -84,7 +84,7 @@ public:
 	bool exportSpectraSources() const { return exportSpectraSources_; }
 
 	/// Returns the current fluorescence detector choice.
-	VESPERS::FluorescenceDetector fluorescenceDetectorChoice() const { return fluorescenceDetectorChoice_; }
+	VESPERS::FluorescenceDetector fluorescenceDetector() const { return fluorescenceDetector_; }
 	/// Returns the current It ion chamber choice.
 	VESPERS::IonChamber transmissionChoice() const { return It_; }
 	/// Returns the current I0 ion chamber choice.
@@ -143,9 +143,9 @@ public:
 
 signals:
 	/// Notifier that the fluorescence choice has changed.
-	void fluorescenceDetectorChoiceChanged(VESPERS::FluorescenceDetector);
+	void fluorescenceDetectorChanged(VESPERS::FluorescenceDetector);
 	/// Same signal.  Just passing as an int.
-	void fluorescenceDetectorChoiceChanged(int);
+	void fluorescenceDetectorChanged(int);
 	/// Notifier that the incoming choice has changed.
 	void incomingChoiceChanged(VESPERS::IonChamber);
 	/// Same signal.  Just passing as an int.
@@ -174,9 +174,9 @@ signals:
 public slots:
 
 	/// Sets the choice for the fluorescence detector.
-	void setFluorescenceDetectorChoice(VESPERS::FluorescenceDetector detector);
+	void setFluorescenceDetector(VESPERS::FluorescenceDetector detector);
 	/// Overloaded.  Used for database loading.
-	void setFluorescenceDetectorChoice(int detector) { setFluorescenceDetectorChoice((VESPERS::FluorescenceDetector)detector); }
+	void setFluorescenceDetector(int detector) { setFluorescenceDetector((VESPERS::FluorescenceDetector)detector); }
 	/// Sets the choice for It ion chamber.
 	void setTransmissionChoice(VESPERS::IonChamber It);
 	/// Overloaded.  Used for database loading.
@@ -223,7 +223,7 @@ protected slots:
 
 protected:
 	/// Fluorescence detector choice.
-	VESPERS::FluorescenceDetector fluorescenceDetectorChoice_;
+	VESPERS::FluorescenceDetector fluorescenceDetector_;
 	/// It ion chamber choice.
 	VESPERS::IonChamber It_;
 	/// I0 ion chamber choice.

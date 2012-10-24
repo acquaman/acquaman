@@ -159,9 +159,9 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	fluorescenceDetectorLayout->addWidget(tempButton);
 
 	connect(fluorescenceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
-	connect(config_, SIGNAL(fluorescenceDetectorChoiceChanged(int)), this, SLOT(updateFluorescenceDetector(int)));
+	connect(config_, SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetector(int)));
 
-	fluorescenceButtonGroup_->button((int)config_->fluorescenceDetectorChoice())->setChecked(true);
+	fluorescenceButtonGroup_->button((int)config_->fluorescenceDetector())->setChecked(true);
 
 	QGroupBox *fluorescenceDetectorGroupBox = new QGroupBox("Fluorescence Detector");
 	fluorescenceDetectorGroupBox->setLayout(fluorescenceDetectorLayout);
@@ -308,7 +308,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 
 void VESPERSSpatialLineScanConfigurationView::onFluorescenceChoiceChanged(int id)
 {
-	config_->setFluorescenceDetectorChoice(id);
+	config_->setFluorescenceDetector(id);
 	updateRoiText();
 }
 
@@ -319,7 +319,7 @@ void VESPERSSpatialLineScanConfigurationView::onMotorChoiceChanged(int id)
 
 void VESPERSSpatialLineScanConfigurationView::onConfigureXRFDetectorClicked()
 {
-	switch((int)config_->fluorescenceDetectorChoice()){
+	switch((int)config_->fluorescenceDetector()){
 
 	case VESPERS::NoXRF:
 		break;
@@ -373,7 +373,7 @@ void VESPERSSpatialLineScanConfigurationView::onUsingCCDChanged(bool useCCD)
 
 void VESPERSSpatialLineScanConfigurationView::updateRoiText()
 {
-	switch((int)config_->fluorescenceDetectorChoice()){
+	switch((int)config_->fluorescenceDetector()){
 
 	case VESPERS::NoXRF:
 		config_->setRoiInfoList(AMROIInfoList());
@@ -406,7 +406,7 @@ void VESPERSSpatialLineScanConfigurationView::updateRoiText()
 
 	roiText_->clear();
 
-	if ((int)config_->fluorescenceDetectorChoice() ==  (VESPERS::SingleElement | VESPERS::FourElement)){
+	if ((int)config_->fluorescenceDetector() ==  (VESPERS::SingleElement | VESPERS::FourElement)){
 
 		QList<QPair<int, int> > sameList = findRoiPairs();
 
