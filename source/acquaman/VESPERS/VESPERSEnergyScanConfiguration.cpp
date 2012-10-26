@@ -34,7 +34,7 @@ VESPERSEnergyScanConfiguration::VESPERSEnergyScanConfiguration(QObject *parent)
 	regions_->setDefaultUnits(" eV");
 	regions_->setDefaultTimeUnits(" s");
 
-	ccdDetector_ = Roper;
+	ccdDetector_ = VESPERS::Roper;
 	ccdFileName_ = "";
 	goToPosition_ = false;
 	position_ = qMakePair(0.0, 0.0);
@@ -91,7 +91,7 @@ QString VESPERSEnergyScanConfiguration::headerText() const
 {
 	QString header("Configuration of the Scan\n\n");
 
-	header.append(QString("CCD detector used: %1\n").arg(ccdDetector() == Roper ? "Roper" : "Mar"));
+	header.append(QString("CCD detector used: %1\n").arg(ccdDetector() == VESPERS::Roper ? "Roper" : "Mar"));
 	header.append(QString("Automatically moved to a specific location (used when setting up the workflow)?\t%1").arg(goToPosition() ? "Yes\n" : "No\n\n"));
 
 	if (goToPosition()){
@@ -137,7 +137,7 @@ void VESPERSEnergyScanConfiguration::setTimeOffset(double offset)
 	}
 }
 
-void VESPERSEnergyScanConfiguration::setCCDDetector(CCDDetector detector)
+void VESPERSEnergyScanConfiguration::setCCDDetector(VESPERS::CCDDetector detector)
 {
 	if (ccdDetector_ != detector){
 
@@ -146,7 +146,7 @@ void VESPERSEnergyScanConfiguration::setCCDDetector(CCDDetector detector)
 		emit ccdDetectorChanged(int(ccdDetector_));
 		setModified(true);
 
-		setTimeOffset(detector == Roper ? 6 : 3);
+		setTimeOffset(detector == VESPERS::Roper ? 6 : 3);
 		computeTotalTime();
 	}
 }

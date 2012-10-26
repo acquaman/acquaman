@@ -61,6 +61,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppControllerSupport.h"
 #include "dataman/VESPERS/VESPERSDbUpgrade1Pt1.h"
 #include "dataman/VESPERS/VESPERSDbUpgrade1Pt2.h"
+#include "dataman/VESPERS/VESPERSDbUpgrade1Pt3.h"
 
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
@@ -86,6 +87,8 @@ VESPERSAppController::VESPERSAppController(QObject *parent) :
 	appendDatabaseUpgrade(vespers1Pt1UserDb);
 	AMDbUpgrade *vespers1P2UserDb = new VESPERSDbUpgrade1Pt2("user", this);
 	appendDatabaseUpgrade(vespers1P2UserDb);
+	AMDbUpgrade *vespers1P3UserDb = new VESPERSDbUpgrade1Pt3("user", this);
+	appendDatabaseUpgrade(vespers1P3UserDb);
 }
 
 bool VESPERSAppController::startup() {
@@ -815,7 +818,7 @@ void VESPERSAppController::setup2DXRFScan(const AMGenericScanEditor *editor)
 		mapScanConfiguration_->setStepSize(config->steps());
 		mapScanConfiguration_->setTimeStep(config->timeStep());
 		mapScanConfiguration_->setMotorsChoice(config->motorsChoice());
-		mapScanConfiguration_->setUsingCCD(config->usingCCD());
+		mapScanConfiguration_->setCCDDetector(config->ccdDetector());
 		mapScanConfigurationView_->updateMapInfo();
 	}
 
@@ -870,15 +873,15 @@ void VESPERSAppController::fixCDF(const QUrl &url)
 
 	else if (qobject_cast<VESPERS2DScanConfiguration *>(config)){
 
-		VESPERS2DScanConfiguration *lineConfig = qobject_cast<VESPERS2DScanConfiguration *>(config);
-		bool usingCcd = lineConfig->usingCCD();
-		bool usingSingleElement = (lineConfig->fluorescenceDetector() == VESPERS::SingleElement) || (lineConfig->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement));
-		bool usingFourElement = (lineConfig->fluorescenceDetector() == VESPERS::FourElement) || (lineConfig->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement));
+		VESPERS2DScanConfiguration *mapConfig = qobject_cast<VESPERS2DScanConfiguration *>(config);
+		bool usingCcd = mapConfig->ccdDetector() == VESPERS::Roper ? true : false;
+		bool usingSingleElement = (mapConfig->fluorescenceDetector() == VESPERS::SingleElement) || (mapConfig->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement));
+		bool usingFourElement = (mapConfig->fluorescenceDetector() == VESPERS::FourElement) || (mapConfig->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement));
 
 		QString filename = scan->filePath();
 		filename.replace(".cdf", ".dat");
 		QString additionalFilename = filename;
-		additionalFilename.replace(".dat", "_spectrum.dat");
+		additionalFilename.replace(".dat", "_spectra.dat");
 
 		if (usingSingleElement && usingFourElement)
 			scan->setFileFormat(QString("vespers2012XRF1Eln4El%1").arg(usingCcd ? "XRD" : ""));
@@ -896,14 +899,14 @@ void VESPERSAppController::fixCDF(const QUrl &url)
 	else if (qobject_cast<VESPERSSpatialLineScanConfiguration *>(config)){
 
 		VESPERSSpatialLineScanConfiguration *lineConfig = qobject_cast<VESPERSSpatialLineScanConfiguration *>(config);
-		bool usingCcd = lineConfig->usingCCD();
+		bool usingCcd = lineConfig->ccdDetector() == VESPERS::Roper ? true : false;
 		bool usingSingleElement = (lineConfig->fluorescenceDetector() == VESPERS::SingleElement) || (lineConfig->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement));
 		bool usingFourElement = (lineConfig->fluorescenceDetector() == VESPERS::FourElement) || (lineConfig->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement));
 
 		QString filename = scan->filePath();
 		filename.replace(".cdf", ".dat");
 		QString additionalFilename = filename;
-		additionalFilename.replace(".dat", "_spectrum.dat");
+		additionalFilename.replace(".dat", "_spectra.dat");
 
 		if (usingSingleElement && usingFourElement)
 			scan->setFileFormat(QString("vespers2012LineScanXRF1Eln4El%1").arg(usingCcd ? "XRD" : ""));

@@ -65,8 +65,10 @@ protected slots:
 	/// Helper slot that manages setting the time per point.
 	void onDwellTimeChanged();
 
-	/// Handles passing the name of the CCD file name to the scan configuration when the usingCCD check box is enabled.
-	void onUsingCCDChanged(bool useCCD);
+	/// Helper slot that sets the CCD detector setting in the configuration.
+	void onCCDButtonClicked(bool useCCD) { config_->setCCDDetector(useCCD ? 1 : 0); }
+	/// Handles passing the name of the CCD file name to the scan configuration when the CCD check box is enabled.
+	void onCCDDetectorChanged(int useCCD);
 	/// Handles changes in the name of the CCD file name and sets the label that corresponds to it.
 	void onCCDFileNameChanged(QString name) { currentCCDFileName_->setText(QString("Current CCD file name:\t%1").arg(name)); }
 	/// Handles setting the name of the configuration from the line edit.
@@ -74,7 +76,7 @@ protected slots:
 	/// Passes on the selection for I0 to the configuration.
 	void onI0Clicked(int id) { config_->setIncomingChoice(id); }
 	/// Handles changes to the fluorescence detector choice.
-	void onFluorescenceChoiceChanged(int id);
+	void onFluorescenceDetectorChanged(int id);
 	/// Handles changes in the motor selection choice.
 	void onMotorChoiceChanged(int id);
 	/// Helper slot that handles the setting the estimated time label.
@@ -125,7 +127,7 @@ protected:
 	QLabel *mapInfo_;
 
 	/// Pointer to the check box for doing XRD maps as well.
-	QCheckBox *usingCCDCheckBox_;
+	QCheckBox *ccdCheckBox_;
 	/// Pointer to the label holding the current file name.
 	QLabel *currentCCDFileName_;
 

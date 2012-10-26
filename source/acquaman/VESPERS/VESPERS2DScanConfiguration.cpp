@@ -30,7 +30,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
 	I0_ = VESPERS::Imini;
 	fluorescenceDetector_ = VESPERS::SingleElement;
 	motorsChoice_ = HAndV;
-	usingCCD_ = false;
+	ccdDetector_ = VESPERS::NoCCD;
 	ccdFileName_ = "";
 	roiInfoList_ = AMROIInfoList();
 	totalTime_ = 0;
@@ -44,7 +44,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
 	connect(this, SIGNAL(yStepChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(yEndChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(timeStepChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(usingCCDChanged(bool)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
 }
 
 VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfiguration &original)
@@ -55,7 +55,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfig
 	I0_ = original.incomingChoice();
 	fluorescenceDetector_ = original.fluorescenceDetector();
 	motorsChoice_ = original.motorsChoice();
-	usingCCD_ = original.usingCCD();
+	ccdDetector_ = original.ccdDetector();
 	ccdFileName_ = original.ccdFileName();
 	roiInfoList_ = original.roiList();
 	totalTime_ = 0;
@@ -70,7 +70,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfig
 	connect(this, SIGNAL(yStepChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(yEndChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(timeStepChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(usingCCDChanged(bool)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
 }
 
 AMScanConfiguration *VESPERS2DScanConfiguration::createCopy() const
@@ -90,7 +90,7 @@ AMScanConfigurationView *VESPERS2DScanConfiguration::createView()
 
 QString VESPERS2DScanConfiguration::detailedDescription() const
 {
-	if (usingCCD_)
+	if (ccdDetector_ == VESPERS::Roper || ccdDetector_ == VESPERS::Mar)
 		return "Spatial x-ray fluorescence 2D map using a CCD for x-ray diffraction.";
 
 	return "Spatial x-ray fluorescence 2D map";
@@ -159,7 +159,7 @@ QString VESPERS2DScanConfiguration::headerText() const
 	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(yStart()).arg(yEnd()));
 	header.append(QString("Step Size:\t%1 mm\n").arg(yStep()));
 
-	if (usingCCD())
+	if (ccdDetector_ == VESPERS::Roper || ccdDetector_ == VESPERS::Mar)
 		header.append(QString("\nFilename for XRD images:\t%1\n").arg(ccdFileName()));
 
 	return header;
@@ -194,6 +194,17 @@ void VESPERS2DScanConfiguration::setMotorsChoice(MotorsChoice choice)
 		motorsChoice_ = choice;
 		emit motorsChoiceChanged(motorsChoice_);
 		emit motorsChoiceChanged(int(motorsChoice_));
+		setModified(true);
+	}
+}
+
+void VESPERS2DScanConfiguration::setCCDDetector(VESPERS::CCDDetector ccd)
+{
+	if (ccdDetector_ != ccd){
+
+		ccdDetector_ = ccd;
+		emit ccdDetectorChanged(ccdDetector_);
+		emit ccdDetectorChanged(int(ccdDetector_));
 		setModified(true);
 	}
 }
@@ -272,8 +283,10 @@ void VESPERS2DScanConfiguration::computeTotalTime()
 	time = 	fabs((xEnd()-xStart())/xStep()+1)*fabs((yEnd()-yStart())/yStep()+1);
 
 	// Factor in the time per point.  There is an extra 6 seconds for CCD images.
-	if (usingCCD())
+	if (ccdDetector_ == VESPERS::Roper)
 		time *= timeStep() + timeOffset_ + 6.0;
+	else if (ccdDetector_ == VESPERS::Mar)
+		time *= timeStep() + timeOffset_ + 3.0;
 	else
 		time *= timeStep() + timeOffset_;
 

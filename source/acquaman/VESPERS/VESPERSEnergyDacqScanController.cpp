@@ -62,7 +62,7 @@ VESPERSEnergyDacqScanController::VESPERSEnergyDacqScanController(VESPERSEnergySc
 
 	QString notes;
 
-	if (config_->ccdDetector() == VESPERSEnergyScanConfiguration::Roper)
+	if (config_->ccdDetector() == VESPERS::Roper)
 		notes.append(QString("\nRoper CCD distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToRoperCCD(), 0, 'f', 1));
 
 	switch(VESPERSBeamline::vespers()->currentBeam()){
@@ -126,7 +126,7 @@ void VESPERSEnergyDacqScanController::addExtraDatasources()
 	scan_->rawData()->addMeasurement(AMMeasurementInfo("RingCurrent", "Ring Current", "mA"));
 	scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 
-	if (config_->ccdDetector() == VESPERSEnergyScanConfiguration::Roper || config_->ccdDetector() == VESPERSEnergyScanConfiguration::Mar){
+	if (config_->ccdDetector() == VESPERS::Roper || config_->ccdDetector() == VESPERS::Mar){
 
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("CCDFileNumber", "CCD file number"));
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
@@ -156,7 +156,7 @@ bool VESPERSEnergyDacqScanController::initializeImplementation()
 	// Single element vortex
 	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(false));
 	// CCD
-	if (config_->ccdDetector() == VESPERSEnergyScanConfiguration::Roper)
+	if (config_->ccdDetector() == VESPERS::Roper)
 		setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(true));
 	else
 		setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(false));
@@ -165,7 +165,7 @@ bool VESPERSEnergyDacqScanController::initializeImplementation()
 	// Four element vortex
 	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
 	// Mar CCD
-	if (config_->ccdDetector() == VESPERSEnergyScanConfiguration::Mar)
+	if (config_->ccdDetector() == VESPERS::Mar)
 		setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(5)->createEnableAction(true));
 	else
 		setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(5)->createEnableAction(false));
@@ -232,7 +232,7 @@ bool VESPERSEnergyDacqScanController::startImplementation()
 	// Setup the real config.
 	switch(config_->ccdDetector()){
 
-	case VESPERSEnergyScanConfiguration::Roper:
+	case VESPERS::Roper:
 		if (!setupRoperScan()){
 
 			AMErrorMon::alert(this,
@@ -242,7 +242,7 @@ bool VESPERSEnergyDacqScanController::startImplementation()
 		}
 		break;
 
-	case VESPERSEnergyScanConfiguration::Mar:
+	case VESPERS::Mar:
 		if (!setupMarScan()){
 
 			AMErrorMon::alert(this,

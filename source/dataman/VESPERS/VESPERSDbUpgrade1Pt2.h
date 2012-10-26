@@ -21,7 +21,7 @@ public:
 	/// Constructor.  Need to provide the name of the database to upgrade.
 	VESPERSDbUpgrade1Pt2(const QString &databaseNameToUpgrade, QObject *parent = 0);
 
-	/// Indicates the dependcies of this upgrade.  The dependency is VESPERSUpgrade1.1 because it uses the name "fluorescenceDetectorChoice" explicitly.
+	/// Indicates the dependencies of this upgrade.  The dependency is VESPERSUpgrade1.1 because it uses the name "fluorescenceDetectorChoice" explicitly.
 	virtual QStringList upgradeFromTags() const;
 
 	/// Returns true if the database contains any 2D scan configurations, line scan configurations, or EXAFS scan configurations.
@@ -30,13 +30,13 @@ public:
 	/// Renames the current table, creates a new one with the old name with the modified column name.  Then all of the data is transferred to the new table.  Lastly, the old table is deleted.
 	virtual bool upgradeImplementation();
 
-	/// Creates a new copy of this upgrade (caller is responsidble for memory).
+	/// Creates a new copy of this upgrade (caller is responsible for memory).
 	virtual AMDbUpgrade *createCopy() const;
 
 	/// Upgrade tag for this upgrade is "VESPERSDbUpgrade1.2".
 	virtual QString upgradeToTag() const;
 
-	/// Returns the description of hte upgrade.
+	/// Returns the description of the upgrade.
 	virtual QString description() const;
 };
 

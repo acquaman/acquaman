@@ -34,7 +34,7 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(QObject
 	I0_ = VESPERS::Imini;
 	fluorescenceDetector_ = VESPERS::SingleElement;
 	motorChoice_ = H;
-	usingCCD_ = false;
+	ccdDetector_ = VESPERS::NoCCD;
 	ccdFileName_ = "";
 	roiInfoList_ = AMROIInfoList();
 	totalTime_ = 0;
@@ -45,7 +45,7 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(QObject
 	connect(this, SIGNAL(stepChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(endChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(timeChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(usingCCDChanged(bool)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
 }
 
 VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const VESPERSSpatialLineScanConfiguration &original)
@@ -81,7 +81,7 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const V
 	I0_ = original.incomingChoice();
 	fluorescenceDetector_ = original.fluorescenceDetector();
 	motorChoice_ = original.motorChoice();
-	usingCCD_ = original.usingCCD();
+	ccdDetector_ = original.ccdDetector();
 	ccdFileName_ = original.ccdFileName();
 	roiInfoList_ = original.roiList();
 	totalTime_ = 0;
@@ -93,7 +93,7 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const V
 	connect(this, SIGNAL(stepChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(endChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(timeChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(usingCCDChanged(bool)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
 }
 
 AMScanConfiguration *VESPERSSpatialLineScanConfiguration::createCopy() const
@@ -113,7 +113,7 @@ AMScanConfigurationView *VESPERSSpatialLineScanConfiguration::createView()
 
 QString VESPERSSpatialLineScanConfiguration::detailedDescription() const
 {
-	if (usingCCD_)
+	if (ccdDetector_ == VESPERS::Roper || ccdDetector_ == VESPERS::Mar)
 		return "Spatial x-ray fluorescence line scan using a CCD for x-ray diffraction.";
 
 	return "Spatial x-ray fluorescence line scan";
@@ -186,7 +186,7 @@ QString VESPERSSpatialLineScanConfiguration::headerText() const
 	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(start()).arg(end()));
 	header.append(QString("Step Size:\t%1 mm\n").arg(step()));
 
-	if (usingCCD())
+	if (ccdDetector_ == VESPERS::Roper || ccdDetector_ == VESPERS::Mar)
 		header.append(QString("\nFilename for XRD images:\t%1\n").arg(ccdFileName()));
 
 	return header;
@@ -221,6 +221,17 @@ void VESPERSSpatialLineScanConfiguration::setMotorChoice(MotorChoice choice)
 		motorChoice_ = choice;
 		emit motorChoiceChanged(motorChoice_);
 		emit motorChoiceChanged(int(motorChoice_));
+		setModified(true);
+	}
+}
+
+void VESPERSSpatialLineScanConfiguration::setCCDDetector(VESPERS::CCDDetector ccd)
+{
+	if (ccdDetector_ != ccd){
+
+		ccdDetector_ = ccd;
+		emit ccdDetectorChanged(ccdDetector_);
+		emit ccdDetectorChanged(int(ccdDetector_));
 		setModified(true);
 	}
 }
@@ -284,8 +295,10 @@ void VESPERSSpatialLineScanConfiguration::computeTotalTime()
 	totalTime = fabs((end()-start())/step()) + 1;
 
 	// Factor in the time per point.  There is an extra 6 seconds for CCD images.
-	if (usingCCD())
+	if (ccdDetector_ == VESPERS::Roper)
 		totalTime *= time() + timeOffset_ + 6.0;
+	else if (ccdDetector_ == VESPERS::Mar)
+		totalTime *= time() + timeOffset_ + 3.0;
 	else
 		totalTime *= time() + timeOffset_;
 

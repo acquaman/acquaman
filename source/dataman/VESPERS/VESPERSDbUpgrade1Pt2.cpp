@@ -27,6 +27,7 @@ bool VESPERSDbUpgrade1Pt2::upgradeNecessary() const
 	databaseToUpgrade_->execQuery(query);
 	upgrade &= (query.lastError().type() == QSqlError::NoError);
 
+	// Third:  EXAFS scans.
 	query = databaseToUpgrade_->select("VESPERSEXAFSScanConfiguration_table", "fluorescenceDetectorChoice");
 	databaseToUpgrade_->execQuery(query);
 	upgrade &= (query.lastError().type() == QSqlError::NoError);

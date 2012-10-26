@@ -153,24 +153,24 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	// Using the CCD.
 	QGroupBox *ccdBox = new QGroupBox("XRD maps");
 
-	usingCCDCheckBox_ = new QCheckBox("Do XRD simultaneously");
-	usingCCDCheckBox_->setChecked(config_->usingCCD());
-	connect(config_, SIGNAL(usingCCDChanged(bool)), this, SLOT(onUsingCCDChanged(bool)));
-	connect(usingCCDCheckBox_, SIGNAL(toggled(bool)), config_, SLOT(setUsingCCD(bool)));
+	ccdCheckBox_ = new QCheckBox("Do XRD simultaneously");
+	ccdCheckBox_->setChecked(config_->ccdDetector() == VESPERS::Roper ? true : false);
+	connect(config_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(onCCDDetectorChanged(int)));
+	connect(ccdCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onCCDButtonClicked(bool)));
 
 	currentCCDFileName_ = new QLabel;
 	onCCDFileNameChanged(config_->ccdFileName());
-	currentCCDFileName_->setVisible(config_->usingCCD());
+	currentCCDFileName_->setVisible(config_->ccdDetector() == VESPERS::Roper ? true : false);
 	connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), this, SLOT(onCCDFileNameChanged(QString)));
 
 
 	QPushButton *configureRoperDetectorButton = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure Roper CCD");
-	configureRoperDetectorButton->setEnabled(config_->usingCCD());
+	configureRoperDetectorButton->setEnabled(config_->ccdDetector());
 	connect(configureRoperDetectorButton, SIGNAL(clicked()), this, SLOT(onConfigureRoperDetectorClicked()));
-	connect(usingCCDCheckBox_, SIGNAL(toggled(bool)), configureRoperDetectorButton, SLOT(setEnabled(bool)));
+	connect(ccdCheckBox_, SIGNAL(toggled(bool)), configureRoperDetectorButton, SLOT(setEnabled(bool)));
 
 	QHBoxLayout *ccdBoxFirstRowLayout = new QHBoxLayout;
-	ccdBoxFirstRowLayout->addWidget(usingCCDCheckBox_);
+	ccdBoxFirstRowLayout->addWidget(ccdCheckBox_);
 	ccdBoxFirstRowLayout->addWidget(configureRoperDetectorButton);
 
 	QVBoxLayout *ccdBoxLayout = new QVBoxLayout;
@@ -395,12 +395,11 @@ void VESPERS2DScanConfigurationView::onConfigureRoperDetectorClicked()
 	emit configureDetector("Roper CCD");
 }
 
-void VESPERS2DScanConfigurationView::onUsingCCDChanged(bool useCCD)
+void VESPERS2DScanConfigurationView::onCCDDetectorChanged(int useCCD)
 {
-	usingCCDCheckBox_->setChecked(useCCD);
+	if (useCCD > 0){
 
-	if (useCCD){
-
+		ccdCheckBox_->setChecked(true);
 		connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), config_, SLOT(setCCDFileName(QString)));
 		config_->setCCDFileName(VESPERSBeamline::vespers()->roperCCD()->ccdFileName());
 		onCCDFileNameChanged(VESPERSBeamline::vespers()->roperCCD()->ccdFileName());
@@ -408,6 +407,7 @@ void VESPERS2DScanConfigurationView::onUsingCCDChanged(bool useCCD)
 	}
 	else {
 
+		ccdCheckBox_->setChecked(false);
 		disconnect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), config_, SLOT(setCCDFileName(QString)));
 		config_->setCCDFileName("");
 		onCCDFileNameChanged("");

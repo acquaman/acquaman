@@ -118,23 +118,23 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	// Using the CCD.
 	QGroupBox *ccdBox = new QGroupBox("XRD maps");
 
-	usingCCDCheckBox_ = new QCheckBox("Do XRD simultaneously");
-	usingCCDCheckBox_->setChecked(config_->usingCCD());
-	connect(config_, SIGNAL(usingCCDChanged(bool)), this, SLOT(onUsingCCDChanged(bool)));
-	connect(usingCCDCheckBox_, SIGNAL(toggled(bool)), config_, SLOT(setUsingCCD(bool)));
+	ccdCheckBox_ = new QCheckBox("Do XRD simultaneously");
+	ccdCheckBox_->setChecked(config_->ccdDetector() == VESPERS::Roper ? true : false);
+	connect(config_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(onCCDDetectorChanged(int)));
+	connect(ccdCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onCCDButtonClicked(bool)));
 
 	currentCCDFileName_ = new QLabel;
 	onCCDFileNameChanged(config_->ccdFileName());
-	currentCCDFileName_->setVisible(config_->usingCCD());
+	currentCCDFileName_->setVisible(config_->ccdDetector());
 	connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), this, SLOT(onCCDFileNameChanged(QString)));
 
 	QPushButton *configureRoperDetectorButton = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure Roper CCD");
-	configureRoperDetectorButton->setEnabled(config_->usingCCD());
+	configureRoperDetectorButton->setEnabled(config_->ccdDetector());
 	connect(configureRoperDetectorButton, SIGNAL(clicked()), this, SLOT(onConfigureRoperDetectorClicked()));
-	connect(usingCCDCheckBox_, SIGNAL(toggled(bool)), configureRoperDetectorButton, SLOT(setEnabled(bool)));
+	connect(ccdCheckBox_, SIGNAL(toggled(bool)), configureRoperDetectorButton, SLOT(setEnabled(bool)));
 
 	QHBoxLayout *ccdBoxFirstRowLayout = new QHBoxLayout;
-	ccdBoxFirstRowLayout->addWidget(usingCCDCheckBox_);
+	ccdBoxFirstRowLayout->addWidget(ccdCheckBox_);
 	ccdBoxFirstRowLayout->addWidget(configureRoperDetectorButton);
 
 	QVBoxLayout *ccdBoxLayout = new QVBoxLayout;
@@ -158,7 +158,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	fluorescenceButtonGroup_->addButton(tempButton, 3);	// 3 is SingleElement | FourElement
 	fluorescenceDetectorLayout->addWidget(tempButton);
 
-	connect(fluorescenceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
+	connect(fluorescenceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onFluorescenceDetectorChanged(int)));
 	connect(config_, SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetector(int)));
 
 	fluorescenceButtonGroup_->button((int)config_->fluorescenceDetector())->setChecked(true);
@@ -306,7 +306,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	setLayout(configViewLayout);
 }
 
-void VESPERSSpatialLineScanConfigurationView::onFluorescenceChoiceChanged(int id)
+void VESPERSSpatialLineScanConfigurationView::onFluorescenceDetectorChanged(int id)
 {
 	config_->setFluorescenceDetector(id);
 	updateRoiText();
@@ -351,12 +351,11 @@ void VESPERSSpatialLineScanConfigurationView::onConfigureRoperDetectorClicked()
 	emit configureDetector("Roper CCD");
 }
 
-void VESPERSSpatialLineScanConfigurationView::onUsingCCDChanged(bool useCCD)
+void VESPERSSpatialLineScanConfigurationView::onCCDDetectorChanged(int useCCD)
 {
-	usingCCDCheckBox_->setChecked(useCCD);
+	if (useCCD > 0){
 
-	if (useCCD){
-
+		ccdCheckBox_->setChecked(true);
 		connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), config_, SLOT(setCCDFileName(QString)));
 		config_->setCCDFileName(VESPERSBeamline::vespers()->roperCCD()->ccdFileName());
 		onCCDFileNameChanged(VESPERSBeamline::vespers()->roperCCD()->ccdFileName());
@@ -364,6 +363,7 @@ void VESPERSSpatialLineScanConfigurationView::onUsingCCDChanged(bool useCCD)
 	}
 	else {
 
+		ccdCheckBox_->setChecked(false);
 		disconnect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), config_, SLOT(setCCDFileName(QString)));
 		config_->setCCDFileName("");
 		onCCDFileNameChanged("");
@@ -475,7 +475,7 @@ void VESPERSSpatialLineScanConfigurationView::updateRoiText()
 
 			for (int i = 0, count = singleElList.count(); i < count; i++){
 
-				AMROIInfo info = singleElList.at(sameList.at(i).first);
+				AMROIInfo info = singleElList.at(i);
 				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
 			}
 
@@ -483,7 +483,7 @@ void VESPERSSpatialLineScanConfigurationView::updateRoiText()
 
 			for (int i = 0, count = fourElList.count(); i < count; i++){
 
-				AMROIInfo info = fourElList.at(sameList.at(i).first);
+				AMROIInfo info = fourElList.at(i);
 				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
 			}
 		}

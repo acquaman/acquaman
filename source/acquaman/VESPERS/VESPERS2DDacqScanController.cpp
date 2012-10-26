@@ -185,7 +185,7 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 		break;
 	}
 
-	if (config_->usingCCD())
+	if (config_->ccdDetector() == 1)
 		notes.append(QString("CCD detector distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToRoperCCD(), 0, 'f', 1));
 
 	switch(VESPERSBeamline::vespers()->currentBeam()){
@@ -639,7 +639,7 @@ void VESPERS2DDacqScanController::addExtraDatasources()
 	}
 
 	// If using the CCD for XRD simultaneously.
-	if (config_->usingCCD()){
+	if (config_->ccdDetector() == VESPERS::Roper || config_->ccdDetector() == VESPERS::Mar){
 
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("CCDFileNumber", "CCD file number"));
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
@@ -733,7 +733,7 @@ bool VESPERS2DDacqScanController::initializeImplementation()
 	else
 		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(false));
 	// CCD
-	if (config_->usingCCD())
+	if (config_->ccdDetector() == VESPERS::Roper)
 		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(true));
 	else
 		initializationActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(false));
@@ -834,7 +834,7 @@ void VESPERS2DDacqScanController::cleanup()
 	// Variable integration time.
 	cleanupActionsList->appendAction(1, VESPERSBeamline::vespers()->variableIntegrationTime()->createModeAction(CLSVariableIntegrationTime::Disabled));
 	// CCD.
-	if (config_->usingCCD())
+	if (config_->ccdDetector() == VESPERS::Roper)
 		cleanupActionsList->appendAction(1, VESPERSBeamline::vespers()->roperCCD()->createStopAction());
 
 	// Third stage.
@@ -940,7 +940,7 @@ bool VESPERS2DDacqScanController::setupSingleElementMap()
 	VESPERSConfigurationFileBuilder builder;
 	builder.setDimensions(2);
 	builder.setSingleElement(true);
-	builder.setRoperCCD(config_->usingCCD());
+	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Roper ? true : false);
 	builder.setPvNameAxis1(xAxisPVName_);	// This is fine because we have already checked what sample stage we're using in the constructor.
 	builder.setPvNameAxis2(yAxisPVName_);	// Ditto.
 	builder.buildConfigurationFile();
@@ -981,7 +981,7 @@ bool VESPERS2DDacqScanController::setupSingleElementMap()
 		if (ionChambers->detectorAt(i)->detectorName() != "Ipost")
 			advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
-	if (config_->usingCCD())
+	if (config_->ccdDetector() == VESPERS::Roper)
 		advAcq_->appendRecord("IOC1607-003:det1:FileNumber", true, false, 0);
 
 	advAcq_->appendRecord("IOC1607-004:mca1", true, true, 1);
@@ -994,7 +994,7 @@ bool VESPERS2DDacqScanController::setupFourElementMap()
 	VESPERSConfigurationFileBuilder builder;
 	builder.setDimensions(2);
 	builder.setFourElement(true);
-	builder.setRoperCCD(config_->usingCCD());
+	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Roper ? true : false);
 	builder.setPvNameAxis1(xAxisPVName_);	// This is fine because we have already checked what sample stage we're using in the constructor.
 	builder.setPvNameAxis2(yAxisPVName_);	// Ditto.
 	builder.buildConfigurationFile();
@@ -1050,7 +1050,7 @@ bool VESPERS2DDacqScanController::setupFourElementMap()
 		if (ionChambers->detectorAt(i)->detectorName() != "Ipost")
 			advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
-	if (config_->usingCCD())
+	if (config_->ccdDetector() == VESPERS::Roper)
 		advAcq_->appendRecord("IOC1607-003:det1:FileNumber", true, false, 0);
 
 	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected", true, true, 0);
@@ -1068,7 +1068,7 @@ bool VESPERS2DDacqScanController::setupSingleAndFourElementMap()
 	builder.setDimensions(2);
 	builder.setSingleElement(true);
 	builder.setFourElement(true);
-	builder.setRoperCCD(config_->usingCCD());
+	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Roper ? true : false);
 	builder.setPvNameAxis1(xAxisPVName_);	// This is fine because we have already checked what sample stage we're using in the constructor.
 	builder.setPvNameAxis2(yAxisPVName_);	// Ditto.
 	builder.buildConfigurationFile();
@@ -1142,7 +1142,7 @@ bool VESPERS2DDacqScanController::setupSingleAndFourElementMap()
 			advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
 	// Using the CCD?
-	if (config_->usingCCD())
+	if (config_->ccdDetector() == VESPERS::Roper)
 		advAcq_->appendRecord("IOC1607-003:det1:FileNumber", true, false, 0);
 
 	// The spectra for each detector.

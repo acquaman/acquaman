@@ -22,6 +22,9 @@ namespace VESPERS {
 	/// Enum for making the decision on what fluorescence detector the user wants to use.
 	enum FluorescenceDetector { NoXRF = 0, SingleElement = 1, FourElement = 2 };
 
+	/// Enum for making the decision on what CCD detector the user wants to use.
+	enum CCDDetector { NoCCD = 0, Roper = 1, Mar = 2 };
+
 	/// Enum for the ion chambers used in scans.  These are used for the incoming or transmitted total intensity.
 	enum IonChamber { Isplit = 0, Iprekb, Imini, Ipost };
 

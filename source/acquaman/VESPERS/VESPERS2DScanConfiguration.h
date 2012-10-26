@@ -42,7 +42,7 @@ class VESPERS2DScanConfiguration : public AM2DScanConfiguration
 	Q_PROPERTY(int incomingChoice READ incomingChoice WRITE setIncomingChoice)
 	Q_PROPERTY(int fluorescenceDetector READ fluorescenceDetector WRITE setFluorescenceDetector)
 	Q_PROPERTY(int motorsChoice READ motorsChoice WRITE setMotorsChoice)
-	Q_PROPERTY(bool usingCCD READ usingCCD WRITE setUsingCCD)
+	Q_PROPERTY(int ccdDetector READ ccdDetector WRITE setCCDDetector)
 	Q_PROPERTY(QString ccdFileName READ ccdFileName WRITE setCCDFileName)
 	Q_PROPERTY(AMDbObject* roiInfoList READ dbGetROIInfoList WRITE dbLoadROIInfoList)
 	Q_PROPERTY(QString rois READ readRoiList WRITE writeRoiList)
@@ -91,8 +91,8 @@ public:
 	VESPERS::FluorescenceDetector fluorescenceDetector() const { return fluorescenceDetector_; }
 	/// Returns the current motor choice.
 	MotorsChoice motorsChoice() const { return motorsChoice_; }
-	/// Returns whether the scan is using the CCD or not.
-	bool usingCCD() const { return usingCCD_; }
+	/// Returns what CCD the scan is using, if any.
+	VESPERS::CCDDetector ccdDetector() const { return ccdDetector_; }
 	/// Returns the CCD file name.
 	QString ccdFileName() const { return ccdFileName_; }
 
@@ -138,7 +138,9 @@ signals:
 	/// Same signal.  Just passing as an int.
 	void motorsChoiceChanged(int);
 	/// Notifier that the flag for whether the CCD will be used has changed.
-	void usingCCDChanged(bool);
+	void ccdDetectorChanged(VESPERS::CCDDetector);
+	/// Same signal.  Just passing as an int.
+	void ccdDetectorChanged(int);
 	/// Notifier that the name of the CCD file name has changed.
 	void ccdFileNameChanged(QString);
 	/// Notifier that the total time estimate has changed.
@@ -158,7 +160,9 @@ public slots:
 	/// Overloaded.  Used for database loading.
 	void setMotorsChoice(int choice) { setMotorsChoice((MotorsChoice)choice); }
 	/// Sets whether the scan should be using the CCD or not.
-	void setUsingCCD(bool use) { usingCCD_ = use; emit usingCCDChanged(use); setModified(true); }
+	void setCCDDetector(VESPERS::CCDDetector ccd);
+	/// Overloaded.  Used for database loading.
+	void setCCDDetector(int ccd) { setCCDDetector((VESPERS::CCDDetector)ccd); }
 	/// Sets the file name for the CCD files.
 	void setCCDFileName(const QString &name) { ccdFileName_ = name; emit ccdFileNameChanged(ccdFileName_); setModified(true); }
 	/// Sets the time offset used for estimating the scan time.
@@ -183,8 +187,8 @@ protected:
 	VESPERS::FluorescenceDetector fluorescenceDetector_;
 	/// Motor choice for which set of motors will be used.
 	MotorsChoice motorsChoice_;
-	/// Flag holding whether the scan should use the CCD detector or not.
-	bool usingCCD_;
+	/// CCD choice whether the scan should use a CCD detector or not.
+	VESPERS::CCDDetector ccdDetector_;
 	/// The file name (minus number, path and extension of the file) for the CCD.
 	QString ccdFileName_;
 	/// The list holding all the current ROIs for the detector.

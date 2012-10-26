@@ -49,14 +49,14 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	QVBoxLayout *ccdDetectorLayout = new QVBoxLayout;
 
 	tempButton = new QRadioButton("Roper");
-	ccdButtonGroup_->addButton(tempButton, 0);
-	ccdDetectorLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Mar");
 	ccdButtonGroup_->addButton(tempButton, 1);
 	ccdDetectorLayout->addWidget(tempButton);
+	tempButton = new QRadioButton("Mar");
+	ccdButtonGroup_->addButton(tempButton, 2);
+	ccdDetectorLayout->addWidget(tempButton);
 
-	connect(ccdButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onCcdDetectorChoiceChanged(int)));
-	connect(config_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(updateCcdDetectorChoiceButtons(int)));
+	connect(ccdButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onCCDDetectorChanged(int)));
+	connect(config_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(updateCCDDetectorButtons(int)));
 
 	ccdButtonGroup_->button(int(config_->ccdDetector()))->setChecked(true);
 
@@ -238,18 +238,18 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 
 void VESPERSEnergyScanConfigurationView::onConfigureCCDDetectorClicked()
 {
-	if (config_->ccdDetector() == VESPERSEnergyScanConfiguration::Roper)
+	if (config_->ccdDetector() == VESPERS::Roper)
 		emit configureDetector("Roper CCD");
-	else if (config_->ccdDetector() == VESPERSEnergyScanConfiguration::Mar)
+	else if (config_->ccdDetector() == VESPERS::Mar)
 		emit configureDetector("Mar CCD");
 }
 
-void VESPERSEnergyScanConfigurationView::updateCcdDetectorChoiceButtons(int detector)
+void VESPERSEnergyScanConfigurationView::updateCCDDetectorButtons(int detector)
 {
 	ccdButtonGroup_->button(detector)->setChecked(true);
 
 	// Roper
-	if (detector == 0){
+	if (detector == 1){
 
 		disconnect(VESPERSBeamline::vespers()->marCCD(), SIGNAL(ccdNameChanged(QString)), config_, SLOT(setCCDFileName(QString)));
 		disconnect(VESPERSBeamline::vespers()->marCCD(), SIGNAL(ccdNameChanged(QString)), this, SLOT(onCCDFileNameChanged(QString)));
@@ -260,7 +260,7 @@ void VESPERSEnergyScanConfigurationView::updateCcdDetectorChoiceButtons(int dete
 	}
 
 	// Mar
-	else if (detector == 1){
+	else if (detector == 2){
 
 		disconnect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), config_, SLOT(setCCDFileName(QString)));
 		disconnect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), this, SLOT(onCCDFileNameChanged(QString)));

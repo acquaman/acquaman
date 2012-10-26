@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define VESPERSENERGYSCANCONFIGURATION_H
 
 #include "acquaman/AMXASScanConfiguration.h"
+#include "application/VESPERS/VESPERS.h"
 
 /// This class is a VESPERS specific extension of a basic XAS scan configuration.
 /*!
@@ -48,9 +49,6 @@ class VESPERSEnergyScanConfiguration : public AMXASScanConfiguration
 	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS Energy Scan Configuration")
 
 public:
-	/// Enum.  Choice between the two CCD detectors that will be available.
-	enum CCDDetector { Roper = 0, Mar };
-
 	/// Constructor.
 	Q_INVOKABLE VESPERSEnergyScanConfiguration(QObject *parent = 0);
 	/// Copy constructor.
@@ -71,7 +69,7 @@ public:
 	virtual QString detailedDescription() const;
 
 	/// Returns the current CCD detector choice.
-	CCDDetector ccdDetector() const { return ccdDetector_; }
+	VESPERS::CCDDetector ccdDetector() const { return ccdDetector_; }
 	/// Returns the CCD file name.
 	QString ccdFileName() const { return ccdFileName_; }
 	/// Returns the scan should move to a new position before starting the scan.
@@ -100,7 +98,7 @@ public:
 
 signals:
 	/// Notifier that the CCD detector choice has changed.
-	void ccdDetectorChanged(CCDDetector);
+	void ccdDetectorChanged(VESPERS::CCDDetector);
 	/// Notifier that the name of the CCD file name has changed.
 	void ccdFileNameChanged(QString);
 	/// Same signal.  Just passing as an int.
@@ -116,11 +114,11 @@ signals:
 
 public slots:
 	/// Sets the CCD detector choice.
-	void setCCDDetector(CCDDetector detector);
+	void setCCDDetector(VESPERS::CCDDetector detector);
 	/// Sets the file name for the CCD files.
 	void setCCDFileName(const QString &name) { ccdFileName_ = name; emit ccdFileNameChanged(ccdFileName_); setModified(true); }
 	/// Overloaded.  Used for database loading.
-	void setCCDDetector(int detector) { setCCDDetector((CCDDetector)detector); }
+	void setCCDDetector(int detector) { setCCDDetector((VESPERS::CCDDetector)detector); }
 	/// Sets whether the scan should move to a new position before starting.
 	void setGoToPosition(bool state);
 	/// Sets the position the scan should move to before starting.
@@ -140,7 +138,7 @@ protected slots:
 
 protected:
 	/// CCD detector choice.
-	CCDDetector ccdDetector_;
+	VESPERS::CCDDetector ccdDetector_;
 	/// The file name (minus number, path and extension of the file) for the CCD.
 	QString ccdFileName_;
 
