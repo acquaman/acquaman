@@ -28,6 +28,9 @@ namespace VESPERS {
 	/// Enum for the ion chambers used in scans.  These are used for the incoming or transmitted total intensity.
 	enum IonChamber { Isplit = 0, Iprekb, Imini, Ipost };
 
+	/// Enum for what motor(s) are going to be used.  Currently, there are only the motors and pseudo motors of the primary sample stage.  More will be added as they are added to the beamline.
+	enum Motor { NoMotor = 0, H = 1, V = 2, N = 4, X = 8, Z = 16, Y = 32 };
+
 	/// Enum for choosing the geometry.
 	/*!
 		The following are the available choices for the geometry.  Note that the Big beam option is technically available, but most of the

@@ -85,7 +85,7 @@ protected slots:
 	/// Handles changes to the fluorescence detector choice.
 	void onFluorescenceChoiceChanged(int id);
 	/// Handles changes in the motor selection choice.
-	void onMotorsChoiceChanged(int id);
+	void onMotorChanged(int id);
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();
 
@@ -109,7 +109,7 @@ protected slots:
 	/// Slot that updates the fluorescence detector buttons.
 	void updateFluorescenceDetector(int detector) { fluorescenceButtonGroup_->button(detector)->setChecked(true); }
 	/// Slot that updates the motor choice buttons.
-	void updateMotorsChoice(int choice) { motorChoiceButtonGroup_->button(choice)->setChecked(true); }
+	void updateMotor(int choice) { motorButtonGroup_->button(choice)->setChecked(true); }
 
 	/// Helper slot that sets whether we use SMAK or Ascii for the auto exporter.
 	void updateAutoExporter(int useAscii) { config_->setExportAsAscii(useAscii == 0 ? true : false); }
@@ -158,7 +158,7 @@ protected:
 	/// Button group for the fluorescence detector selection.
 	QButtonGroup *fluorescenceButtonGroup_;
 	/// Button group for the motor choice selection.
-	QButtonGroup *motorChoiceButtonGroup_;
+	QButtonGroup *motorButtonGroup_;
 	/// The text edit that holds all the names of the regions of interest.
 	QTextEdit *roiText_;
 

@@ -227,18 +227,18 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	// Motor selection.
 	QGroupBox *motorSetChoiceBox = new QGroupBox("Sample Stage");
 	QVBoxLayout *motorChoiceLayout = new QVBoxLayout;
-	motorChoiceButtonGroup_ = new QButtonGroup;
+	motorButtonGroup_ = new QButtonGroup;
 
 	tempButton = new QRadioButton("H and V");
-	motorChoiceButtonGroup_->addButton(tempButton, 0);
+	motorButtonGroup_->addButton(tempButton, VESPERS::H | VESPERS::V);
 	motorChoiceLayout->addWidget(tempButton);
 	tempButton = new QRadioButton("X and Z");
-	motorChoiceButtonGroup_->addButton(tempButton, 1);
+	motorButtonGroup_->addButton(tempButton, VESPERS::X | VESPERS::Z);
 	motorChoiceLayout->addWidget(tempButton);
 
-	connect(motorChoiceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onMotorsChoiceChanged(int)));
+	connect(motorButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onMotorChanged(int)));
 
-	motorChoiceButtonGroup_->button(int(config_->motorsChoice()))->click();
+	motorButtonGroup_->button(int(config_->motor()))->click();
 	motorSetChoiceBox->setLayout(motorChoiceLayout);
 
 	// Scan name selection
@@ -356,9 +356,9 @@ void VESPERS2DScanConfigurationView::onFluorescenceChoiceChanged(int id)
 	updateRoiText();
 }
 
-void VESPERS2DScanConfigurationView::onMotorsChoiceChanged(int id)
+void VESPERS2DScanConfigurationView::onMotorChanged(int id)
 {
-	config_->setMotorsChoice(id);
+	config_->setMotor(id);
 }
 
 void VESPERS2DScanConfigurationView::onConfigureXRFDetectorClicked()
@@ -645,12 +645,12 @@ void VESPERS2DScanConfigurationView::onSetStartPosition()
 	double h = 0;
 	double v = 0;
 
-	if (config_->motorsChoice() == VESPERS2DScanConfiguration::HAndV){
+	if (config_->motor() == (VESPERS::H | VESPERS::V)){
 
 		h = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
 		v = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
 	}
-	else if (config_->motorsChoice() == VESPERS2DScanConfiguration::XAndZ){
+	else if (config_->motor() == (VESPERS::X | VESPERS::Z)){
 
 		h = VESPERSBeamline::vespers()->sampleStageX()->value();
 		v = VESPERSBeamline::vespers()->sampleStageZ()->value();
@@ -669,12 +669,12 @@ void VESPERS2DScanConfigurationView::onSetEndPosition()
 	double h = 0;
 	double v = 0;
 
-	if (config_->motorsChoice() == VESPERS2DScanConfiguration::HAndV){
+	if (config_->motor() == (VESPERS::H | VESPERS::V)){
 
 		h = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
 		v = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
 	}
-	else if (config_->motorsChoice() == VESPERS2DScanConfiguration::XAndZ){
+	else if (config_->motor() == (VESPERS::X | VESPERS::Z)){
 
 		h = VESPERSBeamline::vespers()->sampleStageX()->value();
 		v = VESPERSBeamline::vespers()->sampleStageZ()->value();

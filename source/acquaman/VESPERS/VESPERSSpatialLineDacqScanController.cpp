@@ -84,27 +84,27 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 
 	AMPVwStatusControl *control = 0;
 
-	switch(config_->motorChoice()){
+	switch(config_->motor()){
 
-	case VESPERSSpatialLineScanConfiguration::H:
+	case VESPERS::H:
 		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz());
 		pvName_ = control != 0 ? control->writePVName() : "";
 		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::X:
+	case VESPERS::X:
 		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->sampleStageX());
 		pvName_ = control != 0 ? control->writePVName() : "";
 		scan_->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::V:
+	case VESPERS::V:
 		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->vert());
 		pvName_ = control != 0 ? control->writePVName() : "";
 		scan_->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::Z:
+	case VESPERS::Z:
 		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->sampleStageZ());
 		pvName_ = control != 0 ? control->writePVName() : "";
 		scan_->rawData()->addScanAxis(AMAxisInfo("Z", 0, "Vertical Position", "mm"));
@@ -197,21 +197,21 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 	////////////////////////////////////////////////
 
 	// Add the feedback coordinates.
-	switch(config_->motorChoice()){
+	switch(int(config_->motor())){
 
-	case VESPERSSpatialLineScanConfiguration::H:
+	case VESPERS::H:
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("H:fbk", "Horizontal Feedback", "mm"));
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::X:
+	case VESPERS::X:
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("X:fbk", "Horizontal Feedback", "mm"));
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::V:
+	case VESPERS::V:
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("V:fbk", "Vertical Feedback", "mm"));
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::Z:
+	case VESPERS::Z:
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("Z:fbk", "Vertical Feedback", "mm"));
 		break;
 	}

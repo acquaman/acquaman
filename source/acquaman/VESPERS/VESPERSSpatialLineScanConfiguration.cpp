@@ -33,7 +33,7 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(QObject
 	regions_->setSensibleRange(0, 10);
 	I0_ = VESPERS::Imini;
 	fluorescenceDetector_ = VESPERS::SingleElement;
-	motorChoice_ = H;
+	motor_ = VESPERS::H;
 	ccdDetector_ = VESPERS::NoCCD;
 	ccdFileName_ = "";
 	roiInfoList_ = AMROIInfoList();
@@ -54,21 +54,21 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const V
 	setName(original.name());
 	setUserScanName(original.userScanName());
 
-	switch(original.motorChoice()){
+	switch(int(original.motor())){
 
-	case VESPERSSpatialLineScanConfiguration::H:
+	case VESPERS::H:
 		regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz());
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::X:
+	case VESPERS::X:
 		regions_->setDefaultControl(VESPERSBeamline::vespers()->realSampleStage()->horiz());
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::V:
+	case VESPERS::V:
 		regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoSampleStage()->vert());
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::Z:
+	case VESPERS::Z:
 		regions_->setDefaultControl(VESPERSBeamline::vespers()->realSampleStage()->vert());
 		break;
 	}
@@ -80,7 +80,7 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const V
 	regions_->setTimeUnits(0, original.regions()->timeUnits(0));
 	I0_ = original.incomingChoice();
 	fluorescenceDetector_ = original.fluorescenceDetector();
-	motorChoice_ = original.motorChoice();
+	motor_ = original.motor();
 	ccdDetector_ = original.ccdDetector();
 	ccdFileName_ = original.ccdFileName();
 	roiInfoList_ = original.roiList();
@@ -162,21 +162,21 @@ QString VESPERSSpatialLineScanConfiguration::headerText() const
 
 	header.append("\n");
 
-	switch(motorChoice()){
+	switch(int(motor())){
 
-	case H:
+	case VESPERS::H:
 		header.append("Using horizontal (H) pseudo motor.\n");
 		break;
 
-	case X:
+	case VESPERS::X:
 		header.append("Using horizontal (X) real motor.\n");
 		break;
 
-	case V:
+	case VESPERS::V:
 		header.append("Using vertical (V) pseudo motor.\n");
 		break;
 
-	case Z:
+	case VESPERS::Z:
 		header.append("Using vertical (Z) real motor.\n");
 		break;
 	}
@@ -214,13 +214,13 @@ void VESPERSSpatialLineScanConfiguration::setFluorescenceDetector(VESPERS::Fluor
 	}
 }
 
-void VESPERSSpatialLineScanConfiguration::setMotorChoice(MotorChoice choice)
+void VESPERSSpatialLineScanConfiguration::setMotor(VESPERS::Motor choice)
 {
-	if (motorChoice_ != choice) {
+	if (motor_ != choice) {
 
-		motorChoice_ = choice;
-		emit motorChoiceChanged(motorChoice_);
-		emit motorChoiceChanged(int(motorChoice_));
+		motor_ = choice;
+		emit motorChanged(motor_);
+		emit motorChanged(int(motor_));
 		setModified(true);
 	}
 }

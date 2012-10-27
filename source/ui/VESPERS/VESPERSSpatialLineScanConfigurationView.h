@@ -78,7 +78,7 @@ protected slots:
 	/// Handles changes to the fluorescence detector choice.
 	void onFluorescenceDetectorChanged(int id);
 	/// Handles changes in the motor selection choice.
-	void onMotorChoiceChanged(int id);
+	void onMotorChanged(int id);
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();
 
@@ -100,7 +100,7 @@ protected slots:
 	/// Slot that updates the fluorescence detector buttons.
 	void updateFluorescenceDetector(int detector) { fluorescenceButtonGroup_->button(detector)->setChecked(true); }
 	/// Slot that updates the motor choice buttons.
-	void updateMotorChoice(int choice) { motorChoiceButtonGroup_->button(choice)->setChecked(true); }
+	void updateMotor(int choice) { motorChoiceButtonGroup_->button(choice)->setChecked(true); }
 
 protected:
 	/// Reimplements the show event to update the Regions of Interest text.

@@ -41,7 +41,7 @@ class VESPERS2DScanConfiguration : public AM2DScanConfiguration
 
 	Q_PROPERTY(int incomingChoice READ incomingChoice WRITE setIncomingChoice)
 	Q_PROPERTY(int fluorescenceDetector READ fluorescenceDetector WRITE setFluorescenceDetector)
-	Q_PROPERTY(int motorsChoice READ motorsChoice WRITE setMotorsChoice)
+	Q_PROPERTY(int motor READ motor WRITE setMotor)
 	Q_PROPERTY(int ccdDetector READ ccdDetector WRITE setCCDDetector)
 	Q_PROPERTY(QString ccdFileName READ ccdFileName WRITE setCCDFileName)
 	Q_PROPERTY(AMDbObject* roiInfoList READ dbGetROIInfoList WRITE dbLoadROIInfoList)
@@ -51,9 +51,6 @@ class VESPERS2DScanConfiguration : public AM2DScanConfiguration
 	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS 2D Scan Configuration")
 
 public:
-	/// Enum for which two motors should be used for scanning the horizontal and vertical directions.  Currently there are only HandV and XandZ, but in the future there will be more (eg: nanoCube, big beam).
-	enum MotorsChoice { HAndV = 0, XAndZ };
-
 	/// Constructor.
 	Q_INVOKABLE VESPERS2DScanConfiguration(QObject *parent = 0);
 	/// Copy Constructor.
@@ -90,7 +87,7 @@ public:
 	/// Returns the current fluorescence detector choice.
 	VESPERS::FluorescenceDetector fluorescenceDetector() const { return fluorescenceDetector_; }
 	/// Returns the current motor choice.
-	MotorsChoice motorsChoice() const { return motorsChoice_; }
+	VESPERS::Motor motor() const { return motor_; }
 	/// Returns what CCD the scan is using, if any.
 	VESPERS::CCDDetector ccdDetector() const { return ccdDetector_; }
 	/// Returns the CCD file name.
@@ -134,9 +131,9 @@ signals:
 	/// Same signal.  Just passing as an int.
 	void fluorescenceDetectorChanged(int);
 	/// Notifier that the motors choice has changed.
-	void motorsChoiceChanged(MotorsChoice);
+	void motorChanged(VESPERS::Motor);
 	/// Same signal.  Just passing as an int.
-	void motorsChoiceChanged(int);
+	void motorChanged(int);
 	/// Notifier that the flag for whether the CCD will be used has changed.
 	void ccdDetectorChanged(VESPERS::CCDDetector);
 	/// Same signal.  Just passing as an int.
@@ -156,9 +153,9 @@ public slots:
 	/// Overloaded.  Used for database loading.
 	void setFluorescenceDetector(int detector) { setFluorescenceDetector((VESPERS::FluorescenceDetector)detector); }
 	/// Sets the choice for the set of motors used for scanning.
-	void setMotorsChoice(MotorsChoice choice);
+	void setMotor(VESPERS::Motor choice);
 	/// Overloaded.  Used for database loading.
-	void setMotorsChoice(int choice) { setMotorsChoice((MotorsChoice)choice); }
+	void setMotor(int choice) { setMotor((VESPERS::Motor)choice); }
 	/// Sets whether the scan should be using the CCD or not.
 	void setCCDDetector(VESPERS::CCDDetector ccd);
 	/// Overloaded.  Used for database loading.
@@ -186,7 +183,7 @@ protected:
 	/// Fluorescence detector choice.
 	VESPERS::FluorescenceDetector fluorescenceDetector_;
 	/// Motor choice for which set of motors will be used.
-	MotorsChoice motorsChoice_;
+	VESPERS::Motor motor_;
 	/// CCD choice whether the scan should use a CCD detector or not.
 	VESPERS::CCDDetector ccdDetector_;
 	/// The file name (minus number, path and extension of the file) for the CCD.

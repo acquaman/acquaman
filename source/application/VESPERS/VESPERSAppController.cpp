@@ -62,6 +62,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/VESPERS/VESPERSDbUpgrade1Pt1.h"
 #include "dataman/VESPERS/VESPERSDbUpgrade1Pt2.h"
 #include "dataman/VESPERS/VESPERSDbUpgrade1Pt3.h"
+#include "dataman/VESPERS/VESPERSDbUpgrade1Pt4.h"
 
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
@@ -89,6 +90,8 @@ VESPERSAppController::VESPERSAppController(QObject *parent) :
 	appendDatabaseUpgrade(vespers1P2UserDb);
 	AMDbUpgrade *vespers1P3UserDb = new VESPERSDbUpgrade1Pt3("user", this);
 	appendDatabaseUpgrade(vespers1P3UserDb);
+	AMDbUpgrade *vespers1P4UserDb = new VESPERSDbUpgrade1Pt4("user", this);
+	appendDatabaseUpgrade(vespers1P4UserDb);
 }
 
 bool VESPERSAppController::startup() {
@@ -817,7 +820,7 @@ void VESPERSAppController::setup2DXRFScan(const AMGenericScanEditor *editor)
 		mapScanConfiguration_->setYRange(mapRect.bottom(), mapRect.top());
 		mapScanConfiguration_->setStepSize(config->steps());
 		mapScanConfiguration_->setTimeStep(config->timeStep());
-		mapScanConfiguration_->setMotorsChoice(config->motorsChoice());
+		mapScanConfiguration_->setMotor(config->motor());
 		mapScanConfiguration_->setCCDDetector(config->ccdDetector());
 		mapScanConfigurationView_->updateMapInfo();
 	}

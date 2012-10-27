@@ -194,21 +194,21 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	motorChoiceButtonGroup_ = new QButtonGroup;
 
 	tempButton = new QRadioButton("H");
-	motorChoiceButtonGroup_->addButton(tempButton, 0);
+	motorChoiceButtonGroup_->addButton(tempButton, VESPERS::H);
 	motorChoiceLayout->addWidget(tempButton);
 	tempButton = new QRadioButton("X");
-	motorChoiceButtonGroup_->addButton(tempButton, 1);
+	motorChoiceButtonGroup_->addButton(tempButton, VESPERS::X);
 	motorChoiceLayout->addWidget(tempButton);
 	tempButton = new QRadioButton("V");
-	motorChoiceButtonGroup_->addButton(tempButton, 2);
+	motorChoiceButtonGroup_->addButton(tempButton, VESPERS::V);
 	motorChoiceLayout->addWidget(tempButton);
 	tempButton = new QRadioButton("Z");
-	motorChoiceButtonGroup_->addButton(tempButton, 3);
+	motorChoiceButtonGroup_->addButton(tempButton, VESPERS::Z);
 	motorChoiceLayout->addWidget(tempButton);
 
-	connect(motorChoiceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onMotorChoiceChanged(int)));
+	connect(motorChoiceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onMotorChanged(int)));
 
-	motorChoiceButtonGroup_->button(int(config_->motorChoice()))->click();
+	motorChoiceButtonGroup_->button(int(config_->motor()))->click();
 	motorSetChoiceBox->setLayout(motorChoiceLayout);
 
 	// Scan name selection
@@ -312,9 +312,9 @@ void VESPERSSpatialLineScanConfigurationView::onFluorescenceDetectorChanged(int 
 	updateRoiText();
 }
 
-void VESPERSSpatialLineScanConfigurationView::onMotorChoiceChanged(int id)
+void VESPERSSpatialLineScanConfigurationView::onMotorChanged(int id)
 {
-	config_->setMotorChoice(id);
+	config_->setMotor(id);
 }
 
 void VESPERSSpatialLineScanConfigurationView::onConfigureXRFDetectorClicked()
@@ -600,21 +600,21 @@ void VESPERSSpatialLineScanConfigurationView::onSetStartPosition()
 {
 	double position = 0;
 
-	switch(config_->motorChoice()){
+	switch(int(config_->motor())){
 
-	case VESPERSSpatialLineScanConfiguration::H:
+	case VESPERS::H:
 		position = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::X:
+	case VESPERS::X:
 		position = VESPERSBeamline::vespers()->sampleStageX()->value();
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::V:
+	case VESPERS::V:
 		position = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::Z:
+	case VESPERS::Z:
 		position = VESPERSBeamline::vespers()->sampleStageZ()->value();
 		break;
 	}
@@ -629,21 +629,21 @@ void VESPERSSpatialLineScanConfigurationView::onSetEndPosition()
 {
 	double position = 0;
 
-	switch(config_->motorChoice()){
+	switch(int(config_->motor())){
 
-	case VESPERSSpatialLineScanConfiguration::H:
+	case VESPERS::H:
 		position = VESPERSBeamline::vespers()->pseudoSampleStage()->horiz()->value();
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::X:
+	case VESPERS::X:
 		position = VESPERSBeamline::vespers()->sampleStageX()->value();
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::V:
+	case VESPERS::V:
 		position = VESPERSBeamline::vespers()->pseudoSampleStage()->vert()->value();
 		break;
 
-	case VESPERSSpatialLineScanConfiguration::Z:
+	case VESPERS::Z:
 		position = VESPERSBeamline::vespers()->sampleStageZ()->value();
 		break;
 	}

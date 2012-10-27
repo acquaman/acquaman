@@ -137,9 +137,9 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 
 	AMPVwStatusControl *control = 0;
 
-	switch(config_->motorsChoice()){
+	switch(config_->motor()){
 
-	case VESPERS2DScanConfiguration::HAndV:
+	case VESPERS::H | VESPERS::V:
 		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->horiz());
 		xAxisPVName_ = control != 0 ? control->writePVName() : "";
 		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->pseudoSampleStage()->vert());
@@ -148,7 +148,7 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 		scan_->rawData()->addScanAxis(AMAxisInfo("V", yPoints, "Vertical Position", "mm"));
 		break;
 
-	case VESPERS2DScanConfiguration::XAndZ:
+	case VESPERS::X | VESPERS::Z:
 		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->sampleStageX());
 		xAxisPVName_ = control != 0 ? control->writePVName() : "";
 		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->sampleStageZ());
@@ -231,7 +231,7 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 	////////////////////////////////////////////////
 
 	// Add the feedback coordinates.
-	if (config_->motorsChoice() == VESPERS2DScanConfiguration::HAndV){
+	if (config_->motor() == (VESPERS::H | VESPERS::V)){
 
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("H:fbk", "Horizontal Feedback", "mm"));
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
