@@ -70,10 +70,12 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/dataman/VESPERS/VESPERSMarCCDDetectorInfo.h \
 	source/beamline/VESPERS/VESPERSMarCCDDetector.h \
 	source/ui/VESPERS/VESPERSMarCCDDetectorView.h \
-    source/application/VESPERS/VESPERS.h \
-    source/dataman/VESPERS/VESPERSDbUpgrade1Pt2.h \
-    source/dataman/VESPERS/VESPERSDbUpgrade1Pt3.h \
-    source/dataman/VESPERS/VESPERSDbUpgrade1Pt4.h
+	source/application/VESPERS/VESPERS.h \
+	source/dataman/VESPERS/VESPERSDbUpgrade1Pt2.h \
+	source/dataman/VESPERS/VESPERSDbUpgrade1Pt3.h \
+	source/dataman/VESPERS/VESPERSDbUpgrade1Pt4.h \
+	source/acquaman/VESPERS/VESPERSScanConfigurationDbObject.h \
+	source/acquaman/VESPERS/VESPERSScanConfiguration.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -142,12 +144,18 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/dataman/VESPERS/VESPERSMarCCDDetectorInfo.cpp \
 	source/beamline/VESPERS/VESPERSMarCCDDetector.cpp \
 	source/ui/VESPERS/VESPERSMarCCDDetectorView.cpp \
-    source/dataman/VESPERS/VESPERSDbUpgrade1Pt2.cpp \
-    source/dataman/VESPERS/VESPERSDbUpgrade1Pt3.cpp \
-    source/dataman/VESPERS/VESPERSDbUpgrade1Pt4.cpp
+	source/dataman/VESPERS/VESPERSDbUpgrade1Pt2.cpp \
+	source/dataman/VESPERS/VESPERSDbUpgrade1Pt3.cpp \
+	source/dataman/VESPERS/VESPERSDbUpgrade1Pt4.cpp \
+	source/acquaman/VESPERS/VESPERSScanConfigurationDbObject.cpp \
+	source/acquaman/VESPERS/VESPERSScanConfiguration.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
+
+
 
 
 
