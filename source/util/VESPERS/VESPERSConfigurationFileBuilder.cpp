@@ -124,7 +124,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 
 		contents.append("# Action Begin SetPV \"dxp1607-B21-04:StatusAll.SCAN\" \"9\"\n");
 		contents.append("# Action Begin SetPV \"dxp1607-B21-04:ReadAll.SCAN\" \"0\"\n");
-		contents.append("# Action Begin SetPV \"dxp1607-B21-04:ReadDXPs.SCAN\" \"0\"\n");
+		contents.append("# Action Begin SetPV \"dxp1607-B21-04:ReadLLParams.SCAN\" \"0\"\n");
 	}
 
 	contents.append("# Action Begin CallEvent \"background\" 1\n");
@@ -194,7 +194,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 
 		contents.append("# Action Finish SetPV \"dxp1607-B21-04:StatusAll.SCAN\" \"1 second\"\n");
 		contents.append("# Action Finish SetPV \"dxp1607-B21-04:ReadAll.SCAN\" \"1 second\"\n");
-		contents.append("# Action Finish SetPV \"dxp1607-B21-04:ReadDXPs.SCAN\" \"1 second\"\n");
+		contents.append("# Action Finish SetPV \"dxp1607-B21-04:ReadLLParams.SCAN\" \"1 second\"\n");
 	}
 
 	if (usingMono){
