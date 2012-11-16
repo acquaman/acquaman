@@ -139,6 +139,15 @@ namespace AMDbUpgradeSupport{
 		AMDbObjectTypes associated tables with the new name so that the database doesn't try and make columns that already exist.
 	  */
 	bool changeColumnName(AMDatabase *databaseToEdit, const QString &tableName, const QString &oldColumnName, const QString &newColumnName, const QString &newType = QString());
+
+	/// Removes a column given by \param columnName from table \param tableName.
+	/*!
+	  This method is very similar in structure to changeColumnName() because of the severely limited support of ALTER TABLE in SQLite.  It renames the current table, makes a new one
+	  with the old name but WITHOUT the column you wish to remove.  It then copies everything over, minus the deleted column.  Finally, it updates the AMDbObjectTypes associated
+	  tables by removing the old entries.
+	  */
+
+	bool removeColumn(AMDatabase *databaseToEdit, const QString &tableName, const QString &columnName);
 }
 
 #endif // AMDBUPGRADE_H

@@ -128,7 +128,7 @@ The parameters by which to access the database are given in \c dbAccessString. (
 		\c values is a list of QVariants that provide the values to insert.
 		(Note that QList uses copy-on-write / implicit sharing, so you can pass a QList<QVariant> around very fast, as long as it isn't modified.)
 		Return value: (IMPORTANT) returns the id of the row that was inserted into or updated, or 0 on failure.
-		When inserting new objects, make sure to set their id to the return value afterwards, otherwise they will be duplicated on next insert.
+		When inserting new AMDbObjects, make sure to set their id to the return value afterwards, otherwise they will be duplicated on next insert.
 	*/
 	int insertOrUpdate(int id, const QString& table, const QStringList& colNames, const QVariantList& values);
 

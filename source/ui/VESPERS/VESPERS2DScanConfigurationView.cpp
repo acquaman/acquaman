@@ -155,7 +155,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 
 	ccdCheckBox_ = new QCheckBox("Do XRD simultaneously");
 	ccdCheckBox_->setChecked(config_->ccdDetector() == VESPERS::Roper ? true : false);
-	connect(config_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(onCCDDetectorChanged(int)));
+	connect(config_->dbObject(), SIGNAL(ccdDetectorChanged(int)), this, SLOT(onCCDDetectorChanged(int)));
 	connect(ccdCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onCCDButtonClicked(bool)));
 
 	currentCCDFileName_ = new QLabel;
@@ -195,7 +195,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	fluorescenceDetectorLayout->addWidget(tempButton);
 
 	connect(fluorescenceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
-	connect(config_, SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetector(int)));
+	connect(config_->dbObject(), SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetector(int)));
 
 	fluorescenceButtonGroup_->button((int)config_->fluorescenceDetector())->setChecked(true);
 
@@ -218,7 +218,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	I0GroupLayout->addWidget(tempButton);
 
 	connect(I0Group_, SIGNAL(buttonClicked(int)), this, SLOT(onI0Clicked(int)));
-	connect(config_, SIGNAL(incomingChoiceChanged(int)), this, SLOT(updateI0Buttons(int)));
+	connect(config_->dbObject(), SIGNAL(incomingChoiceChanged(int)), this, SLOT(updateI0Buttons(int)));
 
 	I0Group_->button((int)config_->incomingChoice())->click();
 	QGroupBox *I0GroupBox = new QGroupBox("I0");
@@ -290,7 +290,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	timeOffset_->setSuffix(" s");
 	timeOffset_->setAlignment(Qt::AlignCenter);
 	timeOffset_->setValue(config_->timeOffset());
-	connect(timeOffset_, SIGNAL(valueChanged(double)), config_, SLOT(setTimeOffset(double)));
+	connect(timeOffset_, SIGNAL(valueChanged(double)), this, SLOT(setTimeOffset(double)));
 
 	QHBoxLayout *timeOffsetLayout = new QHBoxLayout;
 	timeOffsetLayout->addWidget(timeOffsetLabel_);
@@ -400,7 +400,7 @@ void VESPERS2DScanConfigurationView::onCCDDetectorChanged(int useCCD)
 	if (useCCD > 0){
 
 		ccdCheckBox_->setChecked(true);
-		connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), config_, SLOT(setCCDFileName(QString)));
+		connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), config_->dbObject(), SLOT(setCCDFileName(QString)));
 		config_->setCCDFileName(VESPERSBeamline::vespers()->roperCCD()->ccdFileName());
 		onCCDFileNameChanged(VESPERSBeamline::vespers()->roperCCD()->ccdFileName());
 		currentCCDFileName_->show();
@@ -408,7 +408,7 @@ void VESPERS2DScanConfigurationView::onCCDDetectorChanged(int useCCD)
 	else {
 
 		ccdCheckBox_->setChecked(false);
-		disconnect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), config_, SLOT(setCCDFileName(QString)));
+		disconnect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), config_->dbObject(), SLOT(setCCDFileName(QString)));
 		config_->setCCDFileName("");
 		onCCDFileNameChanged("");
 		currentCCDFileName_->hide();

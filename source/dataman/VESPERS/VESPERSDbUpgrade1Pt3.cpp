@@ -59,14 +59,12 @@ bool VESPERSDbUpgrade1Pt3::upgradeImplementation()
 	// Change the name of the usingCDD column to ccdDetector.
 	if (!AMDbUpgradeSupport::changeColumnName(databaseToUpgrade_, "VESPERS2DScanConfiguration_table", "usingCCD", "ccdDetector", "INTEGER")){
 
-		databaseToUpgrade_->rollbackTransaction();
 		AMErrorMon::alert(this, VESPERSDBUPGRADE1PT3_COULD_NOT_UPDATE_2DCONFIGURATION_COLUMN_NAME, "Could not change the VESPERS2DScanConfiguration table column name.");
 		return false;
 	}
 
 	if (!AMDbUpgradeSupport::changeColumnName(databaseToUpgrade_, "VESPERSSpatialLineScanConfiguration_table", "usingCCD", "ccdDetector", "INTEGER")){
 
-		databaseToUpgrade_->rollbackTransaction();
 		AMErrorMon::alert(this, VESPERSDBUPGRADE1PT3_COULD_NOT_UPDATE_LINECONFIGURATION_COLUMN_NAME, "Could not change the VESPERSSpatialLineScanConfiguration table column name.");
 		return false;
 	}

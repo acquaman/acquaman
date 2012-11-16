@@ -108,6 +108,8 @@ protected slots:
 	}
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();
+	/// Helper slot that sets the time offset for the scan.
+	void setTimeOffset(double time) { config_->setTimeOffset(time); }
 	/// Slot that sets up the regions for standard XANES scans.
 	void onDefaultXANESScanClicked();
 	/// Slot that sets up the regions for standard EXAFS scans.

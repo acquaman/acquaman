@@ -21,8 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define VESPERS2DSCANCONFIGURATION_H
 
 #include "acquaman/AM2DScanConfiguration.h"
-#include "dataman/info/AMROIInfo.h"
 #include "application/VESPERS/VESPERS.h"
+#include "acquaman/VESPERS/VESPERSScanConfiguration.h"
 
 /// This class is the VESPERS specific 2D map scan configuration.
 /*!
@@ -35,17 +35,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 	file with XRD or not.
   */
 
-class VESPERS2DScanConfiguration : public AM2DScanConfiguration
+class VESPERS2DScanConfiguration : public AM2DScanConfiguration, public VESPERSScanConfiguration
 {
 	Q_OBJECT
 
-	Q_PROPERTY(int incomingChoice READ incomingChoice WRITE setIncomingChoice)
-	Q_PROPERTY(int fluorescenceDetector READ fluorescenceDetector WRITE setFluorescenceDetector)
-	Q_PROPERTY(int motor READ motor WRITE setMotor)
-	Q_PROPERTY(int ccdDetector READ ccdDetector WRITE setCCDDetector)
-	Q_PROPERTY(QString ccdFileName READ ccdFileName WRITE setCCDFileName)
-	Q_PROPERTY(AMDbObject* roiInfoList READ dbGetROIInfoList WRITE dbLoadROIInfoList)
-	Q_PROPERTY(QString rois READ readRoiList WRITE writeRoiList)
+	Q_PROPERTY(AMDbObject* configurationDbObject READ dbReadScanConfigurationDbObject WRITE dbWriteScanConfigurationDbObject)
 	Q_PROPERTY(QString header READ headerText WRITE setHeaderText)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS 2D Scan Configuration")
@@ -82,92 +76,14 @@ public:
 	/// Returns whether we are going to export the spectra data sources or not.
 	bool exportSpectraSources() const { return exportSpectraSources_; }
 
-	/// Returns the current I0 ion chamber choice.
-	VESPERS::IonChamber incomingChoice() const { return I0_; }
-	/// Returns the current fluorescence detector choice.
-	VESPERS::FluorescenceDetector fluorescenceDetector() const { return fluorescenceDetector_; }
-	/// Returns the current motor choice.
-	VESPERS::Motor motor() const { return motor_; }
-	/// Returns what CCD the scan is using, if any.
-	VESPERS::CCDDetector ccdDetector() const { return ccdDetector_; }
-	/// Returns the CCD file name.
-	QString ccdFileName() const { return ccdFileName_; }
-
-	/// Returns the current total estimated time for a scan to complete.
-	double totalTime() const { return totalTime_; }
-	/// Overloaded.  Returns the current total estimated time but also specifies whether the time should be recomputed first.
-	double totalTime(bool recompute) { if (recompute) computeTotalTime(); return totalTime_; }
-	/// Returns the time offset.
-	double timeOffset() const { return timeOffset_; }
-
-	/// Returns the ROI list.  The list is empty if not using a fluorescence detector.
-	AMROIInfoList roiList() const { return roiInfoList_; }
-
-	/// Get a pretty looking string of the current regions of interest.  Used primarily for exporting the list into the header of the file.
-	QString readRoiList() const;
-	/// This function does nothing.  It is there to preserve the fact that the database needs to be able to read and write.
-	void writeRoiList(QString) {}
-
 	/// Get a nice looking string that contains all the standard information in an XAS scan.   Used when exporting.
-	QString headerText() const;
-	/// This function does nothing.  It is there to preserve the fact that the database needs to be able to read and write.
-	void setHeaderText(QString) {}
-
-	// Database loading and storing
-	///////////////////////
-
-	/// The database reading member function.
-	AMDbObject *dbGetROIInfoList() { return &roiInfoList_; }
-	/// Don't need to do anything because dbGetROIList always returns a valid AMDbObject.
-	void dbLoadROIInfoList(AMDbObject *) {}
+	virtual QString headerText() const;
 
 signals:
-	/// Notifier that the incoming choice has changed.
-	void incomingChoiceChanged(VESPERS::IonChamber);
-	/// Same signal.  Just passing as an int.
-	void incomingChoiceChanged(int);
-	/// Notifier that the fluorescence choice has changed.
-	void fluorescenceDetectorChanged(VESPERS::FluorescenceDetector);
-	/// Same signal.  Just passing as an int.
-	void fluorescenceDetectorChanged(int);
-	/// Notifier that the motors choice has changed.
-	void motorChanged(VESPERS::Motor);
-	/// Same signal.  Just passing as an int.
-	void motorChanged(int);
-	/// Notifier that the flag for whether the CCD will be used has changed.
-	void ccdDetectorChanged(VESPERS::CCDDetector);
-	/// Same signal.  Just passing as an int.
-	void ccdDetectorChanged(int);
-	/// Notifier that the name of the CCD file name has changed.
-	void ccdFileNameChanged(QString);
 	/// Notifier that the total time estimate has changed.
 	void totalTimeChanged(double);
 
 public slots:
-	/// Sets the choice for I0 ion chamber.
-	void setIncomingChoice(VESPERS::IonChamber I0);
-	/// Overloaded.  Used for database loading.
-	void setIncomingChoice(int I0) { setIncomingChoice((VESPERS::IonChamber)I0); }
-	/// Sets the choice for the fluorescence detector.
-	void setFluorescenceDetector(VESPERS::FluorescenceDetector detector);
-	/// Overloaded.  Used for database loading.
-	void setFluorescenceDetector(int detector) { setFluorescenceDetector((VESPERS::FluorescenceDetector)detector); }
-	/// Sets the choice for the set of motors used for scanning.
-	void setMotor(VESPERS::Motor choice);
-	/// Overloaded.  Used for database loading.
-	void setMotor(int choice) { setMotor((VESPERS::Motor)choice); }
-	/// Sets whether the scan should be using the CCD or not.
-	void setCCDDetector(VESPERS::CCDDetector ccd);
-	/// Overloaded.  Used for database loading.
-	void setCCDDetector(int ccd) { setCCDDetector((VESPERS::CCDDetector)ccd); }
-	/// Sets the file name for the CCD files.
-	void setCCDFileName(const QString &name) { ccdFileName_ = name; emit ccdFileNameChanged(ccdFileName_); setModified(true); }
-	/// Sets the time offset used for estimating the scan time.
-	void setTimeOffset(double offset) { timeOffset_ = offset; computeTotalTime(); }
-
-	/// Sets the ROI list.
-	void setRoiInfoList(const AMROIInfoList &list) { roiInfoList_ = list; setModified(true); }
-
 	/// Sets which data file format we use for auto-export.  True = Ascii, false = SMAK.
 	void setExportAsAscii(bool exportAsAscii);
 	/// Sets whether we export the scan with the spectra included or not.
@@ -175,25 +91,11 @@ public slots:
 
 protected slots:
 	/// Computes the total time any time the regions list changes.
-	void computeTotalTime();
+	void computeTotalTime() { computeTotalTimeImplementation(); }
 
 protected:
-	/// I0 ion chamber choice.
-	VESPERS::IonChamber I0_;
-	/// Fluorescence detector choice.
-	VESPERS::FluorescenceDetector fluorescenceDetector_;
-	/// Motor choice for which set of motors will be used.
-	VESPERS::Motor motor_;
-	/// CCD choice whether the scan should use a CCD detector or not.
-	VESPERS::CCDDetector ccdDetector_;
-	/// The file name (minus number, path and extension of the file) for the CCD.
-	QString ccdFileName_;
-	/// The list holding all the current ROIs for the detector.
-	AMROIInfoList roiInfoList_;
-	/// Holds the total time in seconds that the scan is estimated to take.
-	double totalTime_;
-	/// Holds the offset per point of extra time when doing a scan.
-	double timeOffset_;
+	/// Method that does all the calculations for calculating the estimated scan time.
+	virtual void computeTotalTimeImplementation();
 
 	/// Flag holding whether we are exporting as Ascii or SMAK.
 	bool exportAsAscii_;

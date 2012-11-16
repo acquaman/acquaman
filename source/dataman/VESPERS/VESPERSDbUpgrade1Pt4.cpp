@@ -52,7 +52,6 @@ bool VESPERSDbUpgrade1Pt4::upgradeImplementation()
 	// Change the name of the motorsChoice column to motor.
 	if (!AMDbUpgradeSupport::changeColumnName(databaseToUpgrade_, "VESPERS2DScanConfiguration_table", "motorsChoice", "motor")){
 
-		databaseToUpgrade_->rollbackTransaction();
 		AMErrorMon::alert(this, VESPERSDBUPGRADE1PT4_COULD_NOT_CHANGE_2D_SCAN_COLUMN_NAME, "Could not change the VESPERS2DScanConfiguration table column name.");
 		return false;
 	}
@@ -76,7 +75,6 @@ bool VESPERSDbUpgrade1Pt4::upgradeImplementation()
 	// Change the name of the motorChoice column to motor.
 	if (!AMDbUpgradeSupport::changeColumnName(databaseToUpgrade_, "VESPERSSpatialLineScanConfiguration_table", "motorChoice", "motor")){
 
-		databaseToUpgrade_->rollbackTransaction();
 		AMErrorMon::alert(this, VESPERSDBUPGRADE1PT4_COULD_NOT_CHANGE_LINE_SCAN_COLUMN_NAME, "Could not change the VESPERSSpatialLineScanConfiguration table column name.");
 		return false;
 	}

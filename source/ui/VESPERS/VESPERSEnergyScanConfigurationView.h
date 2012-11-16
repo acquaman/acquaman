@@ -86,6 +86,8 @@ protected slots:
 		palette.setColor(QPalette::Active, QPalette::WindowText, Qt::darkRed);
 		positionsSaved_->setPalette(palette);
 	}
+	/// Helper slot that sets the time offset for the scan.
+	void setTimeOffset(double time) { config_->setTimeOffset(time); }
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();
 

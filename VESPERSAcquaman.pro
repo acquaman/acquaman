@@ -75,7 +75,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/dataman/VESPERS/VESPERSDbUpgrade1Pt3.h \
 	source/dataman/VESPERS/VESPERSDbUpgrade1Pt4.h \
 	source/acquaman/VESPERS/VESPERSScanConfigurationDbObject.h \
-	source/acquaman/VESPERS/VESPERSScanConfiguration.h
+	source/acquaman/VESPERS/VESPERSScanConfiguration.h \
+    source/dataman/VESPERS/VESPERSDbUpgrade1Pt5.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -148,10 +149,13 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/dataman/VESPERS/VESPERSDbUpgrade1Pt3.cpp \
 	source/dataman/VESPERS/VESPERSDbUpgrade1Pt4.cpp \
 	source/acquaman/VESPERS/VESPERSScanConfigurationDbObject.cpp \
-	source/acquaman/VESPERS/VESPERSScanConfiguration.cpp
+	source/acquaman/VESPERS/VESPERSScanConfiguration.cpp \
+    source/dataman/VESPERS/VESPERSDbUpgrade1Pt5.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
 
 
 

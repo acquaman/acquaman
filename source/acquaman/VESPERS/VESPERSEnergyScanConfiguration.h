@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/AMXASScanConfiguration.h"
 #include "application/VESPERS/VESPERS.h"
+#include "acquaman/VESPERS/VESPERSScanConfiguration.h"
 
 /// This class is a VESPERS specific extension of a basic XAS scan configuration.
 /*!
@@ -35,12 +36,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 	Because of this, the fluorescence detectors are not a part of this scan type.
   */
-class VESPERSEnergyScanConfiguration : public AMXASScanConfiguration
+class VESPERSEnergyScanConfiguration : public AMXASScanConfiguration, public VESPERSScanConfiguration
 {
 	Q_OBJECT
 
-	Q_PROPERTY(int ccdDetector READ ccdDetector WRITE setCCDDetector)
-	Q_PROPERTY(QString ccdFileName READ ccdFileName WRITE setCCDFileName)
+	Q_PROPERTY(AMDbObject* configurationDbObject READ dbReadScanConfigurationDbObject WRITE dbWriteScanConfigurationDbObject)
 	Q_PROPERTY(bool goToPosition READ goToPosition WRITE setGoToPosition)
 	Q_PROPERTY(double xPosition READ x WRITE setX)
 	Q_PROPERTY(double yPosition READ y WRITE setY)
@@ -68,10 +68,6 @@ public:
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
-	/// Returns the current CCD detector choice.
-	VESPERS::CCDDetector ccdDetector() const { return ccdDetector_; }
-	/// Returns the CCD file name.
-	QString ccdFileName() const { return ccdFileName_; }
 	/// Returns the scan should move to a new position before starting the scan.
 	bool goToPosition() const { return goToPosition_; }
 	/// Returns the position that the scan should move to.
@@ -81,11 +77,6 @@ public:
 	/// Returns the y coordinate of the scan position.
 	double y() const { return position_.second; }
 
-	/// Returns the current total estimated time for a scan to complete.
-	double totalTime() const { return totalTime_; }
-	/// Returns the time offset.
-	double timeOffset() const { return timeOffset_; }
-
 	/// Returns the AMControlInfo for the scanned region control.
 	AMControlInfo regionControlInfo() const { return regions_->defaultControl()->toInfo(); }
 	/// Returns the AMControlInfo for the time control.
@@ -93,16 +84,8 @@ public:
 
 	/// Get a nice looking string that contains all the standard information in an XAS scan.   Used when exporting.
 	QString headerText() const;
-	/// This function does nothing.  It is there to preserve the fact that the database needs to be able to read and write.
-	void setHeaderText(QString) {}
 
 signals:
-	/// Notifier that the CCD detector choice has changed.
-	void ccdDetectorChanged(VESPERS::CCDDetector);
-	/// Notifier that the name of the CCD file name has changed.
-	void ccdFileNameChanged(QString);
-	/// Same signal.  Just passing as an int.
-	void ccdDetectorChanged(int);
 	/// Notifier about whether the scan will move somewhere specific before scanning.
 	void gotoPositionChanged(bool);
 	/// Notifier that the x coordinate of the position has changed.
@@ -113,12 +96,6 @@ signals:
 	void totalTimeChanged(double);
 
 public slots:
-	/// Sets the CCD detector choice.
-	void setCCDDetector(VESPERS::CCDDetector detector);
-	/// Sets the file name for the CCD files.
-	void setCCDFileName(const QString &name) { ccdFileName_ = name; emit ccdFileNameChanged(ccdFileName_); setModified(true); }
-	/// Overloaded.  Used for database loading.
-	void setCCDDetector(int detector) { setCCDDetector((VESPERS::CCDDetector)detector); }
 	/// Sets whether the scan should move to a new position before starting.
 	void setGoToPosition(bool state);
 	/// Sets the position the scan should move to before starting.
@@ -129,28 +106,19 @@ public slots:
 	void setX(double xPos);
 	/// Sets the y coordinate of the starting position of the scan.
 	void setY(double yPos);
-	/// Sets the time offset used for estimating the scan time.
-	void setTimeOffset(double offset);
 
 protected slots:
 	/// Computes the total time any time the regions list changes.
-	void computeTotalTime();
+	void computeTotalTime() { computeTotalTimeImplementation(); }
 
 protected:
-	/// CCD detector choice.
-	VESPERS::CCDDetector ccdDetector_;
-	/// The file name (minus number, path and extension of the file) for the CCD.
-	QString ccdFileName_;
+	/// Method that does all the calculations for calculating the estimated scan time.
+	virtual void computeTotalTimeImplementation();
 
 	/// Bool used to determine if the scan should go to a new location or stay wherever the current position is.
 	bool goToPosition_;
 	/// The position that the scan should go to when goToPosition_ is true.  \note Implementation detail: this currently assumes we are using the pseudomotor sample stage.
 	QPair<double, double> position_;
-
-	/// Holds the total time in seconds that the scan is estimated to take.
-	double totalTime_;
-	/// Holds the offset per point of extra time when doing a scan.
-	double timeOffset_;
 };
 
 #endif // VESPERSENERGYSCANCONFIGURATION_H

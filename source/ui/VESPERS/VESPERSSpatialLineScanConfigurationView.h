@@ -79,6 +79,8 @@ protected slots:
 	void onFluorescenceDetectorChanged(int id);
 	/// Handles changes in the motor selection choice.
 	void onMotorChanged(int id);
+	/// Helper slot that sets the time offset for the scan.
+	void setTimeOffset(double time) { config_->setTimeOffset(time); }
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();
 

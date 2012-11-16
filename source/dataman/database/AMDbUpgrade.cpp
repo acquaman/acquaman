@@ -454,8 +454,139 @@ bool AMDbUpgradeSupport::changeColumnName(AMDatabase *databaseToEdit, const QStr
 
 		bool success = true;
 		success &= db->update("AMDbObjectTypes_allColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(oldColumnName), "columnName", newColumnName);
-		success &= db->update("AMDbObjectTypes_visibleColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(oldColumnName), "columnName", newColumnName);
-		success &= db->update("AMDbObjectTypes_loadColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(oldColumnName), "columnName", newColumnName);
+
+		// It is possible that the column is not visible.  Check before updating.
+		if (db->objectsWhere("AMDbObjectTypes_visibleColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(oldColumnName)).size() == 1)
+			success &= db->update("AMDbObjectTypes_visibleColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(oldColumnName), "columnName", newColumnName);
+
+		if (db->objectsWhere("AMDbObjectTypes_loadColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(oldColumnName)).size() == 1)
+			success &= db->update("AMDbObjectTypes_loadColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(oldColumnName), "columnName", newColumnName);
+
+		if (!success){
+
+			db->rollbackTransaction();
+			AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_AMDBOBJECTTYPE_TABLES, "Could not update the AMDbObjectTypes associated tables.");
+			return false;
+		}
+	}
+
+	else{
+
+		db->rollbackTransaction();
+		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_DUPLICATE_COLUMNS_IN_AMDBOBJECTTYPE_TABLES, "Somehow there are duplicate columns in the table.");
+		return false;
+	}
+
+	db->commitTransaction();
+
+	return true;
+}
+
+bool AMDbUpgradeSupport::removeColumn(AMDatabase *databaseToEdit, const QString &tableName, const QString &columnName)
+{
+	// This method renames the table, makes a new one with the old name with the column named correctly.  Then it copies all of the data into the new table and deletes the old table.  Finally, the AMDbObjectTypes tables need to be updated.
+	AMDatabase *db = databaseToEdit;
+	db->startTransaction();
+
+	QString tempName = "temp_table";
+	QSqlQuery query = db->query();
+
+	// Change the name of the old table.
+	query.prepare(QString("ALTER TABLE %1 RENAME TO %2;").arg(tableName).arg(tempName));
+	if (!db->execQuery(query)){
+
+		query.finish();
+		db->rollbackTransaction();
+		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_RENAME_TABLE, QString("Could not rename %1.").arg(tableName));
+		return false;
+	}
+
+	query.finish();
+
+	// Get the column names, make the change and create a new table with the original name but with the column removed.
+	query.prepare(QString("PRAGMA table_info(%1);").arg(tempName));
+	db->execQuery(query);
+	QStringList columnNames;
+	QStringList columnTypes;
+	if (query.first()){
+
+		do {
+
+			columnNames << query.value(1).toString();
+			columnTypes << query.value(2).toString();
+		}while(query.next());
+	}
+	query.finish();
+
+	int indexOfColumnName = columnNames.indexOf(columnName);
+	columnNames.removeAt(indexOfColumnName);
+	columnTypes.removeAt(indexOfColumnName);
+
+	QString columnNamesAndTypes;
+
+	for (int i = 0, size = columnNames.size(); i < size; i++)
+		columnNamesAndTypes += QString("%1 %2, ").arg(columnNames.at(i)).arg(columnTypes.at(i));
+
+	columnNamesAndTypes.chop(2);
+
+	query.prepare(QString("CREATE TABLE %1 (%2);").arg(tableName).arg(columnNamesAndTypes));
+	if (!db->execQuery(query)){
+
+		query.finish();
+		db->rollbackTransaction();
+		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_CREATE_NEW_TABLE, QString("Could not create a new table."));
+		return false;
+	}
+
+	query.finish();
+
+	// Move the data from the old table to the new table.
+	query.prepare(QString("INSERT INTO %1 (%2) SELECT %3 FROM %4;").arg(tableName).arg(columnNames.join(", ")).arg(columnNames.join(", ")).arg(tempName));
+
+	if (!db->execQuery(query)){
+
+		query.finish();
+		db->rollbackTransaction();
+		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_COPY_FROM_OLD_TABLE, QString("Could not copy the data from the old table."));
+		return false;
+	}
+
+	query.finish();
+
+	// Delete the old table.
+	query.prepare(QString("DROP TABLE %1;").arg(tempName));
+
+	if (!db->execQuery(query)){
+
+		query.finish();
+		db->rollbackTransaction();
+		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_DELETE_OLD_TABLE, QString("Could not delete the old table."));
+		return false;
+	}
+
+	query.finish();
+
+	// Finally, we need to update the AMDbObjectTypes_* tables (allColumns, visibleColumns, loadColumns).  The still have the old names and will corrupt the database if not updated.
+	QList<int> ids = db->objectsMatching("AMDbObjectTypes_table", "tableName", tableName);
+
+	if (ids.size() == 1){
+
+		bool success = true;
+
+		QList<int> dbObjectIds = db->objectsWhere("AMDbObjectTypes_allColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(columnName));
+		success &= db->deleteRow(dbObjectIds.first(), "AMDbObjectTypes_allColumns");
+
+		// It is possible that the column is not visible.  Check before updating.
+		dbObjectIds = db->objectsWhere("AMDbObjectTypes_visibleColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(columnName));
+
+		if (dbObjectIds.size() == 1)
+			success &= db->deleteRow(dbObjectIds.first(), "AMDbObjectTypes_visibleColumns");
+
+		// It is possible that the column is not loaded.  Check before updating.
+		dbObjectIds = db->objectsWhere("AMDbObjectTypes_loadColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(columnName));
+
+		if (dbObjectIds.size() == 1)
+			success &= db->deleteRow(dbObjectIds.first(), "AMDbObjectTypes_loadColumns");
 
 		if (!success){
 
