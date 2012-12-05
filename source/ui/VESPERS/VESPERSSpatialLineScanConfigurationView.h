@@ -90,8 +90,6 @@ protected slots:
 	void onConfigureRoperDetectorClicked();
 	/// Updates roiText_ based on the current state of the ROI list.
 	void updateRoiText();
-	/// Helper method that returns a list of QPairs where each pair corresponds to the same ROIs.  Used only when using both vortex detectors together.
-	QList<QPair<int, int> > findRoiPairs() const;
 	/// Handles the context menu.
 	void onCustomContextMenuRequested(QPoint pos);
 
@@ -107,8 +105,6 @@ protected slots:
 protected:
 	/// Reimplements the show event to update the Regions of Interest text.
 	virtual void showEvent(QShowEvent *e) { updateRoiText(); AMScanConfigurationView::showEvent(e); }
-	/// Helper method that takes a time in seconds and returns a string of d:h:m:s.
-	QString convertTimeToString(double time);
 	/// Helper method that updates the x and y step spin boxes if the map is not possible to change.
 	void axesAcceptable();
 

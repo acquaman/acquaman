@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERS2DSCANCONFIGURATIONVIEW_H
 #define VESPERS2DSCANCONFIGURATIONVIEW_H
 
-#include "ui/acquaman/AMScanConfigurationView.h"
+#include "ui/VESPERS/VESPERSScanConfigurationView.h"
 #include "acquaman/VESPERS/VESPERS2DDacqScanController.h"
 #include "acquaman/VESPERS/VESPERS2DScanConfiguration.h"
 
@@ -34,7 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 
 /// This class builds the view for configuring a 2D map scan for the VESPERS beamline.
-class VESPERS2DScanConfigurationView : public AMScanConfigurationView
+class VESPERS2DScanConfigurationView : public VESPERSScanConfigurationView
 {
 	Q_OBJECT
 
@@ -97,8 +97,6 @@ protected slots:
 	void onConfigureRoperDetectorClicked();
 	/// Updates roiText_ based on the current state of the ROI list.
 	void updateRoiText();
-	/// Helper method that returns a list of QPairs where each pair corresponds to the same ROIs.  Used only when using both vortex detectors together.
-	QList<QPair<int, int> > findRoiPairs() const;
 	/// Handles the context menu.
 	void onCustomContextMenuRequested(QPoint pos);
 
@@ -119,8 +117,6 @@ protected slots:
 protected:
 	/// Reimplements the show event to update the Regions of Interest text.
 	virtual void showEvent(QShowEvent *e) { updateRoiText(); AMScanConfigurationView::showEvent(e); }
-	/// Helper method that takes a time in seconds and returns a string of d:h:m:s.
-	QString convertTimeToString(double time);
 	/// Helper method that updates the x and y step spin boxes if the map is not possible to change.
 	void axesAcceptable();
 
@@ -140,8 +136,6 @@ protected:
 	/// Pointer to the vertical step size.
 	QDoubleSpinBox *vStep_;
 
-	/// Pointer to the dwell time per point.
-	QDoubleSpinBox *dwellTime_;
 
 	/// Pointer to the label that holds the current map settings.
 	QLabel *mapInfo_;
@@ -151,23 +145,10 @@ protected:
 	/// Pointer to the label holding the current file name.
 	QLabel *currentCCDFileName_;
 
-	/// Line edit for changing the name of the scan.
-	QLineEdit *scanName_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
-	/// Button group for the I0 ion chamber selection.
-	QButtonGroup *I0Group_;
-	/// Button group for the fluorescence detector selection.
-	QButtonGroup *fluorescenceButtonGroup_;
 	/// Button group for the motor choice selection.
 	QButtonGroup *motorButtonGroup_;
-	/// The text edit that holds all the names of the regions of interest.
-	QTextEdit *roiText_;
-
-	/// A label holding text for the the time offset spin box.
-	QLabel *timeOffsetLabel_;
-	/// A spin box holding the time offset.
-	QDoubleSpinBox *timeOffset_;
 };
 
 #endif // VESPERS2DSCANCONFIGURATIONVIEW_H

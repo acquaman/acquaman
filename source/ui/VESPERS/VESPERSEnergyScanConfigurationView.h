@@ -100,9 +100,6 @@ protected slots:
 	void onCustomContextMenuRequested(QPoint pos);
 
 protected:
-	/// Helper method that takes a time in seconds and returns a string of d:h:m:s.
-	QString convertTimeToString(double time);
-
 	/// Pointer to the specific scan config the view is modifying.
 	VESPERSEnergyScanConfiguration *config_;
 

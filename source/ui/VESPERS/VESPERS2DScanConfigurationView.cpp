@@ -33,7 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 
 VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConfiguration *config, QWidget *parent)
-	: AMScanConfigurationView(parent)
+	: VESPERSScanConfigurationView(parent)
 {
 	config_ = config;
 	AMTopFrame *frame = new AMTopFrame("VESPERS 2D Map Configuration");
@@ -137,12 +137,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	positionsBox->setLayout(positionsLayout);
 
 	// Dwell time.
-	dwellTime_ = new QDoubleSpinBox;
-	dwellTime_->setRange(0, 1000000);
-	dwellTime_->setValue(config_->timeStep());
-	dwellTime_->setSuffix(" s");
-	dwellTime_->setAlignment(Qt::AlignCenter);
-	dwellTime_->setDecimals(1);
+	dwellTime_ = addDwellTimeWidget(config_->timeStep());
 	connect(dwellTime_, SIGNAL(editingFinished()), this, SLOT(onDwellTimeChanged()));
 	connect(config_, SIGNAL(timeStepChanged(double)), dwellTime_, SLOT(setValue(double)));
 
@@ -180,51 +175,21 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	ccdBox->setLayout(ccdBoxLayout);
 
 	// The fluorescence detector setup
-	fluorescenceButtonGroup_ = new QButtonGroup;
-	QRadioButton *tempButton;
-	QVBoxLayout *fluorescenceDetectorLayout = new QVBoxLayout;
-
-	tempButton = new QRadioButton("Single Element Vortex");
-	fluorescenceButtonGroup_->addButton(tempButton, 1);
-	fluorescenceDetectorLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Four Element Vortex");
-	fluorescenceButtonGroup_->addButton(tempButton, 2);
-	fluorescenceDetectorLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Single && Four");
-	fluorescenceButtonGroup_->addButton(tempButton, 3);	// 3 is SingleElement | FourElement
-	fluorescenceDetectorLayout->addWidget(tempButton);
-
+	QGroupBox *fluorescenceDetectorGroupBox  = addFluorescenceDetectorSelectionView();
 	connect(fluorescenceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
 	connect(config_->dbObject(), SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetector(int)));
 
 	fluorescenceButtonGroup_->button((int)config_->fluorescenceDetector())->setChecked(true);
 
-	QGroupBox *fluorescenceDetectorGroupBox = new QGroupBox("Fluorescence Detector");
-	fluorescenceDetectorGroupBox->setLayout(fluorescenceDetectorLayout);
-
 	// Ion chamber selection
-	QVBoxLayout *I0GroupLayout = new QVBoxLayout;
-
-	I0Group_ = new QButtonGroup;
-	tempButton = new QRadioButton("Isplit");
-	I0Group_->addButton(tempButton, 0);
-	I0GroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Iprekb");
-	I0Group_->addButton(tempButton, 1);
-	I0GroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Imini");
-	tempButton->setChecked(true);
-	I0Group_->addButton(tempButton, 2);
-	I0GroupLayout->addWidget(tempButton);
-
+	QGroupBox *I0GroupBox = addI0SelectionView();
 	connect(I0Group_, SIGNAL(buttonClicked(int)), this, SLOT(onI0Clicked(int)));
 	connect(config_->dbObject(), SIGNAL(incomingChoiceChanged(int)), this, SLOT(updateI0Buttons(int)));
 
 	I0Group_->button((int)config_->incomingChoice())->click();
-	QGroupBox *I0GroupBox = new QGroupBox("I0");
-	I0GroupBox->setLayout(I0GroupLayout);
 
 	// Motor selection.
+	QRadioButton *tempButton;
 	QGroupBox *motorSetChoiceBox = new QGroupBox("Sample Stage");
 	QVBoxLayout *motorChoiceLayout = new QVBoxLayout;
 	motorButtonGroup_ = new QButtonGroup;
@@ -242,9 +207,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	motorSetChoiceBox->setLayout(motorChoiceLayout);
 
 	// Scan name selection
-	scanName_ = new QLineEdit;
-	scanName_->setText(config_->name());
-	scanName_->setAlignment(Qt::AlignCenter);
+	scanName_ = addScanNameView(config_->name());
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(config_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 	onScanNameEdited();
@@ -272,45 +235,30 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	roiTextBox->setLayout(roiTextLayout);
 
 	// Label showing where the data will be saved.
-	QString exportString =  AMUserSettings::userDataFolder;
-	exportString.remove("/userData");
-	QLabel *exportPath = new QLabel(QString("Data exported to: %1exportData").arg(exportString));
+	QLabel *exportPath = addExportPathLabel();
 
 	// Setting up the steps to show the time offset for scan time estimation.
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
-	timeOffsetLabel_ = new QLabel("Scan time offset:");
-	timeOffsetLabel_->hide();
-	timeOffset_ = new QDoubleSpinBox;
-	timeOffset_->hide();
-	timeOffset_->setRange(0, 100);
-	timeOffset_->setDecimals(2);
-	timeOffset_->setSingleStep(0.1);
-	timeOffset_->setSuffix(" s");
-	timeOffset_->setAlignment(Qt::AlignCenter);
-	timeOffset_->setValue(config_->timeOffset());
+	QGroupBox *timeOffsetBox = addTimeOffsetLabel(config_->timeOffset());
 	connect(timeOffset_, SIGNAL(valueChanged(double)), this, SLOT(setTimeOffset(double)));
-
-	QHBoxLayout *timeOffsetLayout = new QHBoxLayout;
-	timeOffsetLayout->addWidget(timeOffsetLabel_);
-	timeOffsetLayout->addWidget(timeOffset_);
 
 	// Auto-export option.
 	QVBoxLayout *autoExportLayout = new QVBoxLayout;
-	QButtonGroup *autoExportButtonGroup = new QButtonGroup;
+	QButtonGroup *autoExportButtonGroup_ = new QButtonGroup;
 
 	QRadioButton *autoExportButton = new QRadioButton("Ascii");
-	autoExportButtonGroup->addButton(autoExportButton, 0);
+	autoExportButtonGroup_->addButton(autoExportButton, 0);
 	autoExportLayout->addWidget(autoExportButton);
 
 	autoExportButton = new QRadioButton("SMAK");
-	autoExportButtonGroup->addButton(autoExportButton, 1);
+	autoExportButtonGroup_->addButton(autoExportButton, 1);
 	autoExportLayout->addWidget(autoExportButton);
 
-	connect(autoExportButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(updateAutoExporter(int)));
+	connect(autoExportButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(updateAutoExporter(int)));
 
-	autoExportButtonGroup->button(config_->exportAsAscii() ? 0 : 1)->click();
+	autoExportButtonGroup_->button(config_->exportAsAscii() ? 0 : 1)->click();
 
 	QCheckBox *autoExportSpectra = new QCheckBox("Export Spectra");
 	autoExportSpectra->setChecked(config_->exportSpectraSources());
@@ -330,7 +278,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	contentsLayout->addWidget(I0GroupBox, 2, 3, 4, 1);
 	contentsLayout->addWidget(roiTextBox, 0, 5, 3, 3);
 	contentsLayout->addWidget(estimatedTime_, 4, 0, 1, 1);
-	contentsLayout->addLayout(timeOffsetLayout, 5, 0, 1, 1);
+	contentsLayout->addWidget(timeOffsetBox, 5, 0, 1, 1);
 	contentsLayout->addWidget(motorSetChoiceBox, 0, 3);
 	contentsLayout->addWidget(autoExportGroupBox, 4, 5, 2, 3);
 
@@ -448,181 +396,12 @@ void VESPERS2DScanConfigurationView::updateRoiText()
 	}
 	}
 
-	roiText_->clear();
-
-	if ((int)config_->fluorescenceDetector() ==  (VESPERS::SingleElement | VESPERS::FourElement)){
-
-		QList<QPair<int, int> > sameList = findRoiPairs();
-
-		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
-		AMROIInfoList fourElList = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
-
-		if (!sameList.isEmpty()){
-
-			QList<int> singleRoiList;
-			QList<int> fourRoiList;
-
-			roiText_->insertPlainText("Same ROI's\n");
-			roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
-
-			for (int i = 0, count = sameList.size(); i < count; i++){
-
-				QPair<int, int> temp = sameList.at(i);
-				singleRoiList << temp.first;
-				fourRoiList << temp.second;
-				AMROIInfo info = singleElList.at(temp.first);
-				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-			}
-
-			if (singleRoiList.size() < singleElList.count() || fourRoiList.size() < fourElList.count()){
-
-				roiText_->insertPlainText("\nDifferent ROI's\n");
-
-				if (singleRoiList.size() < singleElList.count()){
-
-					roiText_->insertPlainText("Single Element Vortex\n");
-					roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
-
-					for (int i = 0, count = singleElList.count(); i < count; i++){
-
-						if (!singleRoiList.contains(i)){
-
-							AMROIInfo info = singleElList.at(i);
-							roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-						}
-					}
-
-					roiText_->insertPlainText("\n");
-				}
-
-				if (fourRoiList.size() < fourElList.count()){
-
-					roiText_->insertPlainText("Four Element Vortex\n");
-					roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
-
-					for (int i = 0, count = fourElList.count(); i < count; i++){
-
-						if (!fourRoiList.contains(i)){
-
-							AMROIInfo info = fourElList.at(i);
-							roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-						}
-					}
-				}
-			}
-		}
-
-		else {
-
-			roiText_->insertPlainText("Different ROI's\n");
-			roiText_->insertPlainText("Single Element Vortex\n");
-
-			for (int i = 0, count = singleElList.count(); i < count; i++){
-
-				AMROIInfo info = singleElList.at(sameList.at(i).first);
-				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-			}
-
-			roiText_->insertPlainText("\nFour Element Vortex\n");
-
-			for (int i = 0, count = fourElList.count(); i < count; i++){
-
-				AMROIInfo info = fourElList.at(sameList.at(i).first);
-				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-			}
-		}
-	}
-
-	else {
-
-		roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
-
-		for (int i = 0; i < config_->roiList().count(); i++)
-			roiText_->insertPlainText(GeneralUtilities::addGreek(config_->roiList().at(i).name())+"\t" + QString::number(config_->roiList().at(i).low()) + "\t" + QString::number(config_->roiList().at(i).high()) +"\n");
-	}
-}
-
-QList<QPair<int, int> > VESPERS2DScanConfigurationView::findRoiPairs() const
-{
-	AMROIInfoList *el1 = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
-	AMROIInfoList *el4 = VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
-	QList<QPair<int, int> > list;
-
-	// Do it the easy way first.  Only possible when the sizes are the same.
-	if (el1->count() == el4->count()){
-
-		bool allLinedUp = true;
-
-		for (int i = 0, count = el1->count(); i < count; i++)
-			if (el1->at(i).name() != el4->at(i).name())
-				allLinedUp = false;
-
-		// If true, this is really straight forward.
-		if (allLinedUp){
-
-			for (int i = 0, count = el1->count(); i < count; i++)
-				list << qMakePair(i, i);
-		}
-
-		// Otherwise, we have to check each individually.  Not all may match and only matches will be added to the list.
-		else {
-
-			for (int i = 0, count = el1->count(); i < count; i++)
-				for (int j = 0; j < count; j++)
-					if (el1->at(i).name() == el4->at(j).name())
-						list << qMakePair(i, j);
-		}
-	}
-
-	// This is the same the above double for-loop but with different boundaries.
-	else {
-
-		for (int i = 0, count1 = el1->count(); i < count1; i++)
-			for (int j = 0, count4 = el4->count(); j < count4; j++)
-				if (el1->at(i).name() == el4->at(j).name())
-					list << qMakePair(i, j);
-	}
-
-	return list;
+	updateAndSetRoiTextBox(int(config_->fluorescenceDetector()));
 }
 
 void VESPERS2DScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time per scan:\t" + convertTimeToString(config_->totalTime()));
-}
-
-QString VESPERS2DScanConfigurationView::convertTimeToString(double time)
-{
-	QString timeString;
-
-	int days = int(time/3600.0/24.0);
-
-	if (days > 0){
-
-		time -= days*3600.0*24;
-		timeString += QString::number(days) + "d:";
-	}
-
-	int hours = int(time/3600.0);
-
-	if (hours > 0){
-
-		time -= hours*3600;
-		timeString += QString::number(hours) + "h:";
-	}
-
-	int minutes = int(time/60.0);
-
-	if (minutes > 0){
-
-		time -= minutes*60;
-		timeString += QString::number(minutes) + "m:";
-	}
-
-	int seconds = ((int)time)%60;
-	timeString += QString::number(seconds) + "s";
-
-	return timeString;
+	estimatedTime_->setText("Estimated time per scan:\t" + VESPERS::convertTimeToString(config_->totalTime()));
 }
 
 void VESPERS2DScanConfigurationView::onCustomContextMenuRequested(QPoint pos)

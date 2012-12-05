@@ -273,41 +273,7 @@ void VESPERSEnergyScanConfigurationView::updateCCDDetectorButtons(int detector)
 
 void VESPERSEnergyScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time:\t" + convertTimeToString(config_->totalTime()));
-}
-
-QString VESPERSEnergyScanConfigurationView::convertTimeToString(double time)
-{
-	QString timeString;
-
-	int days = int(time/3600.0/24.0);
-
-	if (days > 0){
-
-		time -= days*3600*24;
-		timeString += QString::number(days) + "d:";
-	}
-
-	int hours = int(time/3600.0);
-
-	if (hours > 0){
-
-		time -= hours*3600;
-		timeString += QString::number(hours) + "h:";
-	}
-
-	int minutes = int(time/60.0);
-
-	if (minutes > 0){
-
-		time -= minutes*60;
-		timeString += QString::number(minutes) + "m:";
-	}
-
-	int seconds = ((int)time)%60;
-	timeString += QString::number(seconds) + "s";
-
-	return timeString;
+	estimatedTime_->setText("Estimated time:\t" + VESPERS::convertTimeToString(config_->totalTime()));
 }
 
 void VESPERSEnergyScanConfigurationView::onCustomContextMenuRequested(QPoint pos)

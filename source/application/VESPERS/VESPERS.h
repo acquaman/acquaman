@@ -7,6 +7,10 @@
 	and various classes.
   */
 
+#include <QString>
+#include <QPair>
+
+#include "dataman/info/AMROIInfo.h"
 
 namespace VESPERS {
 
@@ -55,6 +59,84 @@ namespace VESPERS {
 					and the four element vortex detector.
 	  */
 	enum Geometry { Invalid = 0, StraightOn, Single45Vertical, Single45Horizontal, Double45, BigBeam };
+
+	/// Helper method that takes a time in seconds and returns a string of d:h:m:s.
+	inline QString convertTimeToString(double time)
+	{
+		QString timeString;
+
+		int days = int(time/3600.0/24.0);
+
+		if (days > 0){
+
+			time -= days*3600.0*24;
+			timeString += QString::number(days) + "d:";
+		}
+
+		int hours = int(time/3600.0);
+
+		if (hours > 0){
+
+			time -= hours*3600;
+			timeString += QString::number(hours) + "h:";
+		}
+
+		int minutes = int(time/60.0);
+
+		if (minutes > 0){
+
+			time -= minutes*60;
+			timeString += QString::number(minutes) + "m:";
+		}
+
+		int seconds = ((int)time)%60;
+		timeString += QString::number(seconds) + "s";
+
+		return timeString;
+	}
+
+	/// Helper method that returns a list of QPairs where each pair corresponds to the same ROIs.  Used only when using both vortex detectors together.
+	inline QList<QPair<int, int> > findRoiPairs(AMROIInfoList *list1, AMROIInfoList *list2)
+	{
+		QList<QPair<int, int> > list;
+
+		// Do it the easy way first.  Only possible when the sizes are the same.
+		if (list1->count() == list2->count()){
+
+			bool allLinedUp = true;
+
+			for (int i = 0, count = list1->count(); i < count; i++)
+				if (list1->at(i).name() != list2->at(i).name())
+					allLinedUp = false;
+
+			// If true, this is really straight forward.
+			if (allLinedUp){
+
+				for (int i = 0, count = list1->count(); i < count; i++)
+					list << qMakePair(i, i);
+			}
+
+			// Otherwise, we have to check each individually.  Not all may match and only matches will be added to the list.
+			else {
+
+				for (int i = 0, count = list1->count(); i < count; i++)
+					for (int j = 0; j < count; j++)
+						if (list1->at(i).name() == list2->at(j).name())
+							list << qMakePair(i, j);
+			}
+		}
+
+		// This is the same the above double for-loop but with different boundaries.
+		else {
+
+			for (int i = 0, count1 = list1->count(); i < count1; i++)
+				for (int j = 0, count4 = list2->count(); j < count4; j++)
+					if (list1->at(i).name() == list2->at(j).name())
+						list << qMakePair(i, j);
+		}
+
+		return list;
+	}
 }
 
 #endif // VESPERS_H

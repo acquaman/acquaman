@@ -408,10 +408,9 @@ void VESPERSSpatialLineScanConfigurationView::updateRoiText()
 
 	if ((int)config_->fluorescenceDetector() ==  (VESPERS::SingleElement | VESPERS::FourElement)){
 
-		QList<QPair<int, int> > sameList = findRoiPairs();
-
 		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
 		AMROIInfoList fourElList = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
+		QList<QPair<int, int> > sameList = VESPERS::findRoiPairs(&singleElList, &fourElList);
 
 		if (!sameList.isEmpty()){
 
@@ -498,87 +497,9 @@ void VESPERSSpatialLineScanConfigurationView::updateRoiText()
 	}
 }
 
-QList<QPair<int, int> > VESPERSSpatialLineScanConfigurationView::findRoiPairs() const
-{
-	AMROIInfoList *el1 = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
-	AMROIInfoList *el4 = VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
-	QList<QPair<int, int> > list;
-
-	// Do it the easy way first.  Only possible when the sizes are the same.
-	if (el1->count() == el4->count()){
-
-		bool allLinedUp = true;
-
-		for (int i = 0, count = el1->count(); i < count; i++)
-			if (el1->at(i).name() != el4->at(i).name())
-				allLinedUp = false;
-
-		// If true, this is really straight forward.
-		if (allLinedUp){
-
-			for (int i = 0, count = el1->count(); i < count; i++)
-				list << qMakePair(i, i);
-		}
-
-		// Otherwise, we have to check each individually.  Not all may match and only matches will be added to the list.
-		else {
-
-			for (int i = 0, count = el1->count(); i < count; i++)
-				for (int j = 0; j < count; j++)
-					if (el1->at(i).name() == el4->at(j).name())
-						list << qMakePair(i, j);
-		}
-	}
-
-	// This is the same the above double for-loop but with different boundaries.
-	else {
-
-		for (int i = 0, count1 = el1->count(); i < count1; i++)
-			for (int j = 0, count4 = el4->count(); j < count4; j++)
-				if (el1->at(i).name() == el4->at(j).name())
-					list << qMakePair(i, j);
-	}
-
-	return list;
-}
-
 void VESPERSSpatialLineScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time per scan:\t" + convertTimeToString(config_->totalTime()));
-}
-
-QString VESPERSSpatialLineScanConfigurationView::convertTimeToString(double time)
-{
-	QString timeString;
-
-	int days = int(time/3600.0/24.0);
-
-	if (days > 0){
-
-		time -= days*3600*24;
-		timeString += QString::number(days) + "d:";
-	}
-
-	int hours = int(time/3600.0);
-
-	if (hours > 0){
-
-		time -= hours*3600;
-		timeString += QString::number(hours) + "h:";
-	}
-
-	int minutes = int(time/60.0);
-
-	if (minutes > 0){
-
-		time -= minutes*60;
-		timeString += QString::number(minutes) + "m:";
-	}
-
-	int seconds = ((int)time)%60;
-	timeString += QString::number(seconds) + "s";
-
-	return timeString;
+	estimatedTime_->setText("Estimated time per scan:\t" + VESPERS::convertTimeToString(config_->totalTime()));
 }
 
 void VESPERSSpatialLineScanConfigurationView::onCustomContextMenuRequested(QPoint pos)
