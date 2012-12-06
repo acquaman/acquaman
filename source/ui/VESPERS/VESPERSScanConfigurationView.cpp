@@ -23,19 +23,21 @@ void VESPERSScanConfigurationView::onCustomContextMenuRequested(QPoint pos)
 	}
 }
 
-void VESPERSScanConfigurationView::onConfigureXRFDetectorClicked(int id)
+QString VESPERSScanConfigurationView::fluorescenceDetectorIdToString(int id)
 {
+	QString string = QString();
+
 	switch(id){
 
 	case VESPERS::NoXRF:
 		break;
 
 	case VESPERS::SingleElement:
-		emit configureDetector("Single Element");
+		string = "Single Element";
 		break;
 
 	case VESPERS::FourElement:
-		emit configureDetector("Four Element");
+		string = "Four Element";
 		break;
 
 	case VESPERS::SingleElement | VESPERS::FourElement:
@@ -46,10 +48,12 @@ void VESPERSScanConfigurationView::onConfigureXRFDetectorClicked(int id)
 		QAction *action = menu.exec(QCursor::pos());
 
 		if (action && (action->text() == "Single Element" || action->text() == "Four Element"))
-			emit configureDetector(action->text());
+			string = action->text();
 
 		break;
 	}
+
+	return string;
 }
 void VESPERSScanConfigurationView::updateItButtons(int It)
 {
@@ -59,6 +63,16 @@ void VESPERSScanConfigurationView::updateItButtons(int It)
 void VESPERSScanConfigurationView::updateI0Buttons(int I0)
 {
 	I0Group_->button(I0)->setChecked(true);
+}
+
+void VESPERSScanConfigurationView::updateFluorescenceDetector(int detector)
+{
+	fluorescenceButtonGroup_->button(detector)->setChecked(true);
+}
+
+void VESPERSScanConfigurationView::updateMotor(int choice)
+{
+	motorButtonGroup_->button(choice)->setChecked(true);
 }
 
 void VESPERSScanConfigurationView::updateAndSetRoiTextBox(int xrfId)
@@ -133,7 +147,7 @@ void VESPERSScanConfigurationView::updateAndSetRoiTextBox(int xrfId)
 
 			for (int i = 0, count = singleElList.count(); i < count; i++){
 
-				AMROIInfo info = singleElList.at(sameList.at(i).first);
+				AMROIInfo info = singleElList.at(i);
 				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
 			}
 
@@ -141,7 +155,7 @@ void VESPERSScanConfigurationView::updateAndSetRoiTextBox(int xrfId)
 
 			for (int i = 0, count = fourElList.count(); i < count; i++){
 
-				AMROIInfo info = fourElList.at(sameList.at(i).first);
+				AMROIInfo info = fourElList.at(i);
 				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
 			}
 		}
@@ -239,6 +253,26 @@ QGroupBox *VESPERSScanConfigurationView::addItSelectionView()
 	ItGroupBox->setLayout(ItGroupLayout);
 
 	return ItGroupBox;
+}
+
+QGroupBox *VESPERSScanConfigurationView::addMotorSelectionView(QStringList labels, QList<int> ids)
+{
+	QRadioButton *tempButton;
+	QVBoxLayout *motorChoiceLayout = new QVBoxLayout;
+
+	motorButtonGroup_ = new QButtonGroup;
+
+	for (int i = 0, iSize = labels.size(); i < iSize; i++){
+
+		tempButton = new QRadioButton(labels.at(i));
+		motorButtonGroup_->addButton(tempButton, ids.at(i));
+		motorChoiceLayout->addWidget(tempButton);
+	}
+
+	QGroupBox *motorSelectionBox = new QGroupBox("Motors");
+	motorSelectionBox->setLayout(motorChoiceLayout);
+
+	return motorSelectionBox;
 }
 
 QLineEdit *VESPERSScanConfigurationView::addScanNameView(const QString &name)

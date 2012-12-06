@@ -122,7 +122,6 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	currentCCDFileName_->setVisible(config_->ccdDetector() == VESPERS::Roper ? true : false);
 	connect(VESPERSBeamline::vespers()->roperCCD(), SIGNAL(ccdNameChanged(QString)), this, SLOT(onCCDFileNameChanged(QString)));
 
-
 	QPushButton *configureRoperDetectorButton = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure Roper CCD");
 	configureRoperDetectorButton->setEnabled(config_->ccdDetector());
 	connect(configureRoperDetectorButton, SIGNAL(clicked()), this, SLOT(onConfigureRoperDetectorClicked()));
@@ -142,33 +141,18 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	QGroupBox *fluorescenceDetectorGroupBox  = addFluorescenceDetectorSelectionView();
 	connect(fluorescenceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
 	connect(config_->dbObject(), SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetector(int)));
-
 	fluorescenceButtonGroup_->button((int)config_->fluorescenceDetector())->setChecked(true);
 
 	// Ion chamber selection
 	QGroupBox *I0GroupBox = addI0SelectionView();
 	connect(I0Group_, SIGNAL(buttonClicked(int)), this, SLOT(onI0Clicked(int)));
 	connect(config_->dbObject(), SIGNAL(incomingChoiceChanged(int)), this, SLOT(updateI0Buttons(int)));
-
 	I0Group_->button((int)config_->incomingChoice())->click();
 
 	// Motor selection.
-	QRadioButton *tempButton;
-	QGroupBox *motorSetChoiceBox = new QGroupBox("Sample Stage");
-	QVBoxLayout *motorChoiceLayout = new QVBoxLayout;
-	motorButtonGroup_ = new QButtonGroup;
-
-	tempButton = new QRadioButton("H and V");
-	motorButtonGroup_->addButton(tempButton, VESPERS::H | VESPERS::V);
-	motorChoiceLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("X and Z");
-	motorButtonGroup_->addButton(tempButton, VESPERS::X | VESPERS::Z);
-	motorChoiceLayout->addWidget(tempButton);
-
+	QGroupBox *motorSetChoiceBox = addMotorSelectionView(QStringList() << "H and V" << "X and Z", QList<int>() << (VESPERS::H | VESPERS::V) << (VESPERS::X | VESPERS::Z));
 	connect(motorButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onMotorChanged(int)));
-
 	motorButtonGroup_->button(int(config_->motor()))->click();
-	motorSetChoiceBox->setLayout(motorChoiceLayout);
 
 	// Scan name selection
 	scanName_ = addScanNameView(config_->name());
@@ -209,28 +193,9 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	connect(timeOffset_, SIGNAL(valueChanged(double)), this, SLOT(setTimeOffset(double)));
 
 	// Auto-export option.
-	QVBoxLayout *autoExportLayout = new QVBoxLayout;
-	QButtonGroup *autoExportButtonGroup_ = new QButtonGroup;
-
-	QRadioButton *autoExportButton = new QRadioButton("Ascii");
-	autoExportButtonGroup_->addButton(autoExportButton, 0);
-	autoExportLayout->addWidget(autoExportButton);
-
-	autoExportButton = new QRadioButton("SMAK");
-	autoExportButtonGroup_->addButton(autoExportButton, 1);
-	autoExportLayout->addWidget(autoExportButton);
-
+	QGroupBox *autoExportGroupBox = addExporterOptionsView(QStringList() << "Ascii" << "SMAK", config_->exportSpectraSources());
 	connect(autoExportButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(updateAutoExporter(int)));
-
 	autoExportButtonGroup_->button(config_->exportAsAscii() ? 0 : 1)->click();
-
-	QCheckBox *autoExportSpectra = new QCheckBox("Export Spectra");
-	autoExportSpectra->setChecked(config_->exportSpectraSources());
-	autoExportLayout->addWidget(autoExportSpectra);
-	connect(autoExportSpectra, SIGNAL(toggled(bool)), config_, SLOT(setExportSpectraSources(bool)));
-
-	QGroupBox *autoExportGroupBox = new QGroupBox("Export Options");
-	autoExportGroupBox->setLayout(autoExportLayout);
 
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
@@ -271,35 +236,6 @@ void VESPERS2DScanConfigurationView::onFluorescenceChoiceChanged(int id)
 void VESPERS2DScanConfigurationView::onMotorChanged(int id)
 {
 	config_->setMotor(id);
-}
-
-void VESPERS2DScanConfigurationView::onConfigureXRFDetectorClicked()
-{
-	switch((int)config_->fluorescenceDetector()){
-
-	case VESPERS::NoXRF:
-		break;
-
-	case VESPERS::SingleElement:
-		emit configureDetector("Single Element");
-		break;
-
-	case VESPERS::FourElement:
-		emit configureDetector("Four Element");
-		break;
-
-	case VESPERS::SingleElement | VESPERS::FourElement:
-
-		QMenu menu(this);
-		menu.addAction("Single Element");
-		menu.addAction("Four Element");
-		QAction *action = menu.exec(QCursor::pos());
-
-		if (action && (action->text() == "Single Element" || action->text() == "Four Element"))
-			emit configureDetector(action->text());
-
-		break;
-	}
 }
 
 void VESPERS2DScanConfigurationView::onConfigureRoperDetectorClicked()

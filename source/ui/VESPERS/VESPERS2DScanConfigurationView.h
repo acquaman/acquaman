@@ -91,8 +91,8 @@ protected slots:
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();
 
-	/// Emits the configureDetector signal based on the current fluorescence detector choice.
-	void onConfigureXRFDetectorClicked();
+	/// Helper slot that passes the signal on to the base method.
+	void onConfigureXRFDetectorClicked() { emit configureDetector(fluorescenceDetectorIdToString(int(config_->fluorescenceDetector()))); }
 	/// Emits the configureDetector signal based with 'Roper CCD'.
 	void onConfigureRoperDetectorClicked();
 	/// Updates roiText_ based on the current state of the ROI list.
@@ -104,12 +104,6 @@ protected slots:
 	void updateXStep(double val) { hStep_->setValue(val*1000); }
 	/// Slot that updates the vertical step size spin box.
 	void updateYStep(double val) { vStep_->setValue(val*1000); }
-	/// Slot that updates the I0 buttons.
-	void updateI0Buttons(int I0) { I0Group_->button(I0)->setChecked(true); }
-	/// Slot that updates the fluorescence detector buttons.
-	void updateFluorescenceDetector(int detector) { fluorescenceButtonGroup_->button(detector)->setChecked(true); }
-	/// Slot that updates the motor choice buttons.
-	void updateMotor(int choice) { motorButtonGroup_->button(choice)->setChecked(true); }
 
 	/// Helper slot that sets whether we use SMAK or Ascii for the auto exporter.
 	void updateAutoExporter(int useAscii) { config_->setExportAsAscii(useAscii == 0 ? true : false); }
@@ -147,8 +141,6 @@ protected:
 
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
-	/// Button group for the motor choice selection.
-	QButtonGroup *motorButtonGroup_;
 };
 
 #endif // VESPERS2DSCANCONFIGURATIONVIEW_H

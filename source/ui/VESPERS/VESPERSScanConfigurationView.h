@@ -45,11 +45,15 @@ protected slots:
 	void updateItButtons(int It);
 	/// Handles propogating changes in the config to the I0 buttons.
 	void updateI0Buttons(int I0);
+	/// Slot that updates the fluorescence detector buttons.
+	void updateFluorescenceDetector(int detector);
+	/// Slot that updates the motor choice buttons.
+	void updateMotor(int choice);
 
 	/// Handles the context menu.
 	void onCustomContextMenuRequested(QPoint pos);
 	/// Emits the configureDetector signal based on the current fluorescence detector choice given by \param id.
-	void onConfigureXRFDetectorClicked(int id);
+	QString fluorescenceDetectorIdToString(int id);
 
 protected:
 	/// Figure out the current configuration of the regions of interest and write it out in a readable way.
@@ -61,6 +65,8 @@ protected:
 	QGroupBox *addI0SelectionView();
 	/// Add the It selection view.  Returns a pointer to the widget.
 	QGroupBox *addItSelectionView();
+	/// Add the motor group view.  Returns a pointer to the widget.  \note Both lists must be the same size!
+	QGroupBox *addMotorSelectionView(QStringList labels, QList<int> ids);
 	/// Add the scan name view.  Returns the widget.
 	QLineEdit *addScanNameView(const QString &name);
 	/// Add the goToPosition group box.  Returns a pointer to the widget.
@@ -84,6 +90,8 @@ protected:
 	QButtonGroup *I0Group_;
 	/// Button group for the exporter options.
 	QButtonGroup *autoExportButtonGroup_;
+	/// Button group for the motor choice selection.
+	QButtonGroup *motorButtonGroup_;
 
 	/// The spin box that holds the x coordinate for the scan position.
 	QDoubleSpinBox *xPosition_;
