@@ -41,23 +41,11 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	// Setup the group box for setting the start and end points.
 	QGroupBox *positionsBox = new QGroupBox("Positions");
 
-	hStart_ = new QDoubleSpinBox;
-	hStart_->setPrefix("H: ");
-	hStart_->setRange(-1000000, 1000000);
-	hStart_->setSuffix(" mm");
-	hStart_->setValue(config_->xStart());
-	hStart_->setDecimals(3);
-	hStart_->setAlignment(Qt::AlignCenter);
+	hStart_ = buildPositionDoubleSpinBox("H: ", " mm", config_->xStart(), 3);
 	connect(hStart_, SIGNAL(editingFinished()), this, SLOT(onXStartChanged()));
 	connect(config_, SIGNAL(xStartChanged(double)), hStart_, SLOT(setValue(double)));
 
-	vStart_ = new QDoubleSpinBox;
-	vStart_->setPrefix("V: ");
-	vStart_->setRange(-1000000, 1000000);
-	vStart_->setSuffix(" mm");
-	vStart_->setValue(config_->yStart());
-	vStart_->setDecimals(3);
-	vStart_->setAlignment(Qt::AlignCenter);
+	vStart_ = buildPositionDoubleSpinBox("V: ", " mm", config_->yStart(), 3);
 	connect(vStart_, SIGNAL(editingFinished()), this, SLOT(onYStartChanged()));
 	connect(config_, SIGNAL(yStartChanged(double)), vStart_, SLOT(setValue(double)));
 
@@ -70,23 +58,11 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	startPointLayout->addWidget(vStart_);
 	startPointLayout->addWidget(startUseCurrentButton);
 
-	hEnd_ = new QDoubleSpinBox;
-	hEnd_->setPrefix("H: ");
-	hEnd_->setRange(-1000000, 1000000);
-	hEnd_->setSuffix(" mm");
-	hEnd_->setValue(config_->xEnd());
-	hEnd_->setDecimals(3);
-	hEnd_->setAlignment(Qt::AlignCenter);
+	hEnd_ = buildPositionDoubleSpinBox("H: ", " mm", config_->xEnd(), 3);
 	connect(hEnd_, SIGNAL(editingFinished()), this, SLOT(onXEndChanged()));
 	connect(config_, SIGNAL(xEndChanged(double)), hEnd_, SLOT(setValue(double)));
 
-	vEnd_ = new QDoubleSpinBox;
-	vEnd_->setPrefix("V: ");
-	vEnd_->setRange(-1000000, 1000000);
-	vEnd_->setSuffix(" mm");
-	vEnd_->setValue(config_->yEnd());
-	vEnd_->setDecimals(3);
-	vEnd_->setAlignment(Qt::AlignCenter);
+	vEnd_ = buildPositionDoubleSpinBox("V: ", " mm", config_->yEnd(), 3);
 	connect(vEnd_, SIGNAL(editingFinished()), this, SLOT(onYEndChanged()));
 	connect(config_, SIGNAL(yEndChanged(double)), vEnd_, SLOT(setValue(double)));
 
@@ -99,23 +75,11 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	endPointLayout->addWidget(vEnd_);
 	endPointLayout->addWidget(endUseCurrentButton);
 
-	hStep_ = new QDoubleSpinBox;
-	hStep_->setPrefix("H: ");
-	hStep_->setRange(0, 1000000);
-	hStep_->setSuffix(QString(" %1").arg(QString::fromUtf8("µm")));
-	hStep_->setDecimals(1);
-	hStep_->setAlignment(Qt::AlignCenter);
-	hStep_->setValue(config_->xStep()*1000);		// xStep needs to be in mm.
+	hStep_ = buildPositionDoubleSpinBox("H: ", QString(" %1").arg(QString::fromUtf8("µm")), config_->xStep()*1000, 1);	// xStep needs to be in mm.
 	connect(hStep_, SIGNAL(editingFinished()), this, SLOT(onXStepChanged()));
 	connect(config_, SIGNAL(xStepChanged(double)), this, SLOT(updateXStep(double)));
 
-	vStep_ = new QDoubleSpinBox;
-	vStep_->setPrefix("V: ");
-	vStep_->setRange(0, 1000000);
-	vStep_->setSuffix(QString(" %1").arg(QString::fromUtf8("µm")));
-	vStep_->setDecimals(1);
-	vStep_->setAlignment(Qt::AlignCenter);
-	vStep_->setValue(config_->yStep()*1000);		// yStep needs to be in mm.
+	vStep_ = buildPositionDoubleSpinBox("V: ", QString(" %1").arg(QString::fromUtf8("µm")), config_->yStep()*1000, 1);	// yStep needs to be in mm.
 	connect(vStep_, SIGNAL(editingFinished()), this, SLOT(onYStepChanged()));
 	connect(config_, SIGNAL(yStepChanged(double)), this, SLOT(updateYStep(double)));
 

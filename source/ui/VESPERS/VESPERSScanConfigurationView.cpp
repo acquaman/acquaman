@@ -390,3 +390,16 @@ QDoubleSpinBox *VESPERSScanConfigurationView::addDwellTimeWidget(double time)
 
 	return dwellTime;
 }
+
+QDoubleSpinBox *VESPERSScanConfigurationView::buildPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals)
+{
+	QDoubleSpinBox *box = new QDoubleSpinBox;
+	box->setPrefix(prefix);
+	box->setRange(-100000, 100000);
+	box->setSuffix(suffix);
+	box->setValue(value);
+	box->setDecimals(decimals);
+	box->setAlignment(Qt::AlignCenter);
+
+	return box;
+}

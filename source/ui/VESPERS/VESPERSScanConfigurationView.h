@@ -73,6 +73,8 @@ protected:
 	QGroupBox *addExporterOptionsView(QStringList list, bool exportSpectra);
 	/// Add the dwell time box.  Returns a pointer to the widget.
 	QDoubleSpinBox *addDwellTimeWidget(double time);
+	/// Build a position QDoubleSpinBox based on the prefix, suffix and value.  They have the same format, this should cut down on duplicate code.
+	QDoubleSpinBox *buildPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals);
 
 	/// Button group for the fluorescence detector selection.
 	QButtonGroup *fluorescenceButtonGroup_;
