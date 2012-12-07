@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationView.h"
 
 #include "ui/acquaman/AMRegionsView.h"
+#include "ui/VESPERS/VESPERSScanConfigurationView.h"
 #include "acquaman/VESPERS/VESPERSEnergyDacqScanController.h"
 #include "acquaman/VESPERS/VESPERSEnergyScanConfiguration.h"
 
@@ -35,7 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 
 /// This class builds the view for configuring a CCD energy scan for the VESPERS beamline.
-class VESPERSEnergyScanConfigurationView : public AMScanConfigurationView
+class VESPERSEnergyScanConfigurationView : public VESPERSScanConfigurationView
 {
 	Q_OBJECT
 
@@ -49,10 +50,6 @@ public:
 public slots:
 	/// Slot that switches which sample stage is viewed inside the persitent view.  True is pseudo motors, false is real motors.
 	void setSampleStage(bool sampleStage);
-
-signals:
-	/// Sends out a request that the current detector (based on FluorescenceDetectorChoice) to be configured.  Asks the app controller to change to the detector view.  String will be either "Single Element" or "Four Element".
-	void configureDetector(const QString &);
 
 protected slots:
 	/// Handles setting the name of the configuration from the line edit.
@@ -96,9 +93,6 @@ protected slots:
 	/// Emits the configureDetector signal based with 'Roper CCD' or 'Mar CCD.
 	void onConfigureCCDDetectorClicked();
 
-	/// Handles the context menu.
-	void onCustomContextMenuRequested(QPoint pos);
-
 protected:
 	/// Pointer to the specific scan config the view is modifying.
 	VESPERSEnergyScanConfiguration *config_;
@@ -106,32 +100,12 @@ protected:
 	/// This lets you setup regions.
 	AMRegionsView *regionsView_;
 
-	/// Line edit for changing the name of the scan.
-	QLineEdit *scanName_;
 	/// Pointer to the label holding the current file name.
 	QLabel *currentCCDFileName_;
-
-	/// The spin box that holds the x coordinate for the scan position.
-	QDoubleSpinBox *xPosition_;
-	/// The spin box htat holds the y coordinate for the scan position.
-	QDoubleSpinBox *yPosition_;
-	/// Label holding what the currently saved x position is in the scan configuration.
-	QLabel *savedXPosition_;
-	/// Label holding what the currently saved y position is in the scan configuration.
-	QLabel *savedYPosition_;
-	/// Label holding whether or not the x and y positions have been saved yet.
-	QLabel *positionsSaved_;
-
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
-
 	/// Button group for the ccd detector selection.
 	QButtonGroup *ccdButtonGroup_;
-
-	/// A label holding text for the the time offset spin box.
-	QLabel *timeOffsetLabel_;
-	/// A spin box holding the time offset.
-	QDoubleSpinBox *timeOffset_;
 };
 
 #endif // VESPERSENERGYSCANCONFIGURATIONVIEW_H

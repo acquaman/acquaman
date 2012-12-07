@@ -135,6 +135,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), savedXPosition_, SLOT(setEnabled(bool)));
 	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), savedYPosition_, SLOT(setEnabled(bool)));
 	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), positionsSaved_, SLOT(setEnabled(bool)));
+	connect(setCurrentPositionButton_, SIGNAL(clicked()), this, SLOT(setScanPosition()));
 
 	setSampleStage(VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice());
 
