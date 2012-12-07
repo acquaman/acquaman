@@ -192,10 +192,6 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	// Label showing where the data will be saved.
 	QLabel *exportPath = addExportPathLabel();
 
-	// Setting up the steps to show the time offset for scan time estimation.
-	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
-	setContextMenuPolicy(Qt::CustomContextMenu);
-
 	QGroupBox *timeOffsetBox = addTimeOffsetLabel(config_->timeOffset());
 	connect(timeOffset_, SIGNAL(valueChanged(double)), this, SLOT(setTimeOffset(double)));
 

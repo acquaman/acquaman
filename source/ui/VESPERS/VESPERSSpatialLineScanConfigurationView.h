@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define VESPERSSPATIALLINESCANCONFIGURATIONVIEW_H
 
 #include "ui/acquaman/AMScanConfigurationView.h"
+#include "ui/VESPERS/VESPERSScanConfigurationView.h"
 #include "acquaman/VESPERS/VESPERSSpatialLineScanConfiguration.h"
 #include "acquaman/VESPERS/VESPERSSpatialLineDacqScanController.h"
 
@@ -34,7 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 
 /// This class builds the view for configuring a spatial line scan for the VESPERS beamline.
-class VESPERSSpatialLineScanConfigurationView : public AMScanConfigurationView
+class VESPERSSpatialLineScanConfigurationView : public VESPERSScanConfigurationView
 {
 	Q_OBJECT
 public:
@@ -46,10 +47,6 @@ public:
 
 	/// Method that updates the map info label based on the current values of the start, end, and step size.
 	void updateMapInfo();
-
-signals:
-	/// Sends out a request that the current detector (based on FluorescenceDetectorChoice) to be configured.  Asks the app controller to change to the detector view.  String will be either "Single Element" or "Four Element".
-	void configureDetector(const QString &);
 
 protected slots:
 	/// Handles setting the start position when the "Use Current" button is pushed.
@@ -85,22 +82,14 @@ protected slots:
 	void onEstimatedTimeChanged();
 
 	/// Emits the configureDetector signal based on the current fluorescence detector choice.
-	void onConfigureXRFDetectorClicked();
+	void onConfigureXRFDetectorClicked() { emit configureDetector(fluorescenceDetectorIdToString(int(config_->fluorescenceDetector()))); }
 	/// Emits the configureDetector signal based with 'Roper CCD'.
 	void onConfigureRoperDetectorClicked();
 	/// Updates roiText_ based on the current state of the ROI list.
 	void updateRoiText();
-	/// Handles the context menu.
-	void onCustomContextMenuRequested(QPoint pos);
 
 	/// Slot that updates the horizontal step size spin box.
 	void updateStep(double val) { step_->setValue(val*1000); }
-	/// Slot that updates the I0 buttons.
-	void updateI0Buttons(int I0) { I0Group_->button(I0)->setChecked(true); }
-	/// Slot that updates the fluorescence detector buttons.
-	void updateFluorescenceDetector(int detector) { fluorescenceButtonGroup_->button(detector)->setChecked(true); }
-	/// Slot that updates the motor choice buttons.
-	void updateMotor(int choice) { motorChoiceButtonGroup_->button(choice)->setChecked(true); }
 
 protected:
 	/// Reimplements the show event to update the Regions of Interest text.
@@ -118,34 +107,14 @@ protected:
 	/// Pointer to the step size spin box.
 	QDoubleSpinBox *step_;
 
-	/// Pointer to the dwell time per point.
-	QDoubleSpinBox *dwellTime_;
-
 	/// Pointer to the label that holds the current map settings.
 	QLabel *mapInfo_;
-
 	/// Pointer to the check box for doing XRD maps as well.
 	QCheckBox *ccdCheckBox_;
 	/// Pointer to the label holding the current file name.
 	QLabel *currentCCDFileName_;
-
-	/// Line edit for changing the name of the scan.
-	QLineEdit *scanName_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
-	/// Button group for the I0 ion chamber selection.
-	QButtonGroup *I0Group_;
-	/// Button group for the fluorescence detector selection.
-	QButtonGroup *fluorescenceButtonGroup_;
-	/// Button group for the motor choice selection.
-	QButtonGroup *motorChoiceButtonGroup_;
-	/// The text edit that holds all the names of the regions of interest.
-	QTextEdit *roiText_;
-
-	/// A label holding text for the the time offset spin box.
-	QLabel *timeOffsetLabel_;
-	/// A spin box holding the time offset.
-	QDoubleSpinBox *timeOffset_;
 };
 
 #endif // VESPERSSPATIALLINESCANCONFIGURATIONVIEW_H

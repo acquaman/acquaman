@@ -34,7 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 
 VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView(VESPERSSpatialLineScanConfiguration *config, QWidget *parent)
-	: AMScanConfigurationView(parent)
+	: VESPERSScanConfigurationView(parent)
 {
 	config_ = config;
 	AMTopFrame *frame = new AMTopFrame("VESPERS Line Scan Configuration");
@@ -42,12 +42,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	// Setup the group box for setting the start and end points.
 	QGroupBox *positionsBox = new QGroupBox("Positions");
 
-	start_ = new QDoubleSpinBox;
-	start_->setRange(-1000000, 1000000);
-	start_->setSuffix(" mm");
-	start_->setValue(config_->start());
-	start_->setDecimals(3);
-	start_->setAlignment(Qt::AlignCenter);
+	start_ = buildPositionDoubleSpinBox("", " mm", config_->start(), 3);
 	connect(start_, SIGNAL(editingFinished()), this, SLOT(onStartChanged()));
 	connect(config_, SIGNAL(startChanged(double)), start_, SLOT(setValue(double)));
 
@@ -59,12 +54,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	startPointLayout->addWidget(start_);
 	startPointLayout->addWidget(startUseCurrentButton);
 
-	end_ = new QDoubleSpinBox;
-	end_->setRange(-1000000, 1000000);
-	end_->setSuffix(" mm");
-	end_->setValue(config_->end());
-	end_->setDecimals(3);
-	end_->setAlignment(Qt::AlignCenter);
+	end_ = buildPositionDoubleSpinBox("", " mm", config_->end(), 3);
 	connect(end_, SIGNAL(editingFinished()), this, SLOT(onEndChanged()));
 	connect(config_, SIGNAL(endChanged(double)), end_, SLOT(setValue(double)));
 
@@ -76,12 +66,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	endPointLayout->addWidget(end_);
 	endPointLayout->addWidget(endUseCurrentButton);
 
-	step_ = new QDoubleSpinBox;
-	step_->setRange(0, 1000000);
-	step_->setSuffix(QString(" %1").arg(QString::fromUtf8("µm")));
-	step_->setDecimals(1);
-	step_->setAlignment(Qt::AlignCenter);
-	step_->setValue(config_->step()*1000);		// xStep needs to be in mm.
+	step_ = buildPositionDoubleSpinBox("", QString(" %1").arg(QString::fromUtf8("µm")), config_->step()*1000, 1);	// xStep needs to be in mm.
 	connect(step_, SIGNAL(editingFinished()), this, SLOT(onStepChanged()));
 	connect(config_, SIGNAL(stepChanged(double)), this, SLOT(updateStep(double)));
 
@@ -102,18 +87,25 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	positionsBox->setLayout(positionsLayout);
 
 	// Dwell time.
-	dwellTime_ = new QDoubleSpinBox;
-	dwellTime_->setRange(0, 1000000);
-	dwellTime_->setValue(config_->time());
-	dwellTime_->setSuffix(" s");
-	dwellTime_->setAlignment(Qt::AlignCenter);
-	dwellTime_->setDecimals(1);
+	dwellTime_ = addDwellTimeWidget(config_->time());
 	connect(dwellTime_, SIGNAL(editingFinished()), this, SLOT(onDwellTimeChanged()));
 	connect(config_, SIGNAL(timeChanged(double)), dwellTime_, SLOT(setValue(double)));
 
 	QHBoxLayout *timeLayout = new QHBoxLayout;
 	timeLayout->addWidget(new QLabel("Dwell Time:"));
 	timeLayout->addWidget(dwellTime_);
+
+	// The estimated scan time.
+	estimatedTime_ = new QLabel;
+	connect(config_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
+	onEstimatedTimeChanged();
+
+	QVBoxLayout *timeBoxLayout = new QVBoxLayout;
+	timeBoxLayout->addLayout(timeLayout);
+	timeBoxLayout->addWidget(estimatedTime_);
+
+	QGroupBox *timeGroupBox = new QGroupBox("Time");
+	timeGroupBox->setLayout(timeBoxLayout);
 
 	// Using the CCD.
 	QGroupBox *ccdBox = new QGroupBox("XRD maps");
@@ -144,88 +136,30 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	ccdBox->setLayout(ccdBoxLayout);
 
 	// The fluorescence detector setup
-	fluorescenceButtonGroup_ = new QButtonGroup;
-	QRadioButton *tempButton;
-	QVBoxLayout *fluorescenceDetectorLayout = new QVBoxLayout;
-
-	tempButton = new QRadioButton("Single Element Vortex");
-	fluorescenceButtonGroup_->addButton(tempButton, 1);
-	fluorescenceDetectorLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Four Element Vortex");
-	fluorescenceButtonGroup_->addButton(tempButton, 2);
-	fluorescenceDetectorLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Single && Four");
-	fluorescenceButtonGroup_->addButton(tempButton, 3);	// 3 is SingleElement | FourElement
-	fluorescenceDetectorLayout->addWidget(tempButton);
-
+	QGroupBox *fluorescenceDetectorGroupBox  = addFluorescenceDetectorSelectionView();
 	connect(fluorescenceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onFluorescenceDetectorChanged(int)));
 	connect(config_->dbObject(), SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetector(int)));
-
 	fluorescenceButtonGroup_->button((int)config_->fluorescenceDetector())->setChecked(true);
 
-	QGroupBox *fluorescenceDetectorGroupBox = new QGroupBox("Fluorescence Detector");
-	fluorescenceDetectorGroupBox->setLayout(fluorescenceDetectorLayout);
-
 	// Ion chamber selection
-	QVBoxLayout *I0GroupLayout = new QVBoxLayout;
-
-	I0Group_ = new QButtonGroup;
-	tempButton = new QRadioButton("Isplit");
-	I0Group_->addButton(tempButton, 0);
-	I0GroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Iprekb");
-	I0Group_->addButton(tempButton, 1);
-	I0GroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Imini");
-	tempButton->setChecked(true);
-	I0Group_->addButton(tempButton, 2);
-	I0GroupLayout->addWidget(tempButton);
-
+	QGroupBox *I0GroupBox = addI0SelectionView();
 	connect(I0Group_, SIGNAL(buttonClicked(int)), this, SLOT(onI0Clicked(int)));
 	connect(config_->dbObject(), SIGNAL(incomingChoiceChanged(int)), this, SLOT(updateI0Buttons(int)));
-
 	I0Group_->button((int)config_->incomingChoice())->click();
-	QGroupBox *I0GroupBox = new QGroupBox("I0");
-	I0GroupBox->setLayout(I0GroupLayout);
 
 	// Motor selection.
-	QGroupBox *motorSetChoiceBox = new QGroupBox("Motor");
-	QVBoxLayout *motorChoiceLayout = new QVBoxLayout;
-	motorChoiceButtonGroup_ = new QButtonGroup;
-
-	tempButton = new QRadioButton("H");
-	motorChoiceButtonGroup_->addButton(tempButton, VESPERS::H);
-	motorChoiceLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("X");
-	motorChoiceButtonGroup_->addButton(tempButton, VESPERS::X);
-	motorChoiceLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("V");
-	motorChoiceButtonGroup_->addButton(tempButton, VESPERS::V);
-	motorChoiceLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Z");
-	motorChoiceButtonGroup_->addButton(tempButton, VESPERS::Z);
-	motorChoiceLayout->addWidget(tempButton);
-
-	connect(motorChoiceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onMotorChanged(int)));
-
-	motorChoiceButtonGroup_->button(int(config_->motor()))->click();
-	motorSetChoiceBox->setLayout(motorChoiceLayout);
+	QGroupBox *motorSetChoiceBox = addMotorSelectionView(QStringList() << "H" << "X" << "V" << "Z", QList<int>() << VESPERS::H << VESPERS::X << VESPERS::V << VESPERS::Z);
+	connect(motorButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onMotorChanged(int)));
+	motorButtonGroup_->button(int(config_->motor()))->click();
 
 	// Scan name selection
-	scanName_ = new QLineEdit;
-	scanName_->setText(config_->name());
-	scanName_->setAlignment(Qt::AlignCenter);
+	scanName_ = addScanNameView(config_->name());
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(config_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 	onScanNameEdited();
 
 	QFormLayout *scanNameLayout = new QFormLayout;
 	scanNameLayout->addRow("Scan Name:", scanName_);
-
-	// The estimated scan time.
-	estimatedTime_ = new QLabel;
-	connect(config_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
-	onEstimatedTimeChanged();
 
 	// The roi text edit and configuration.
 	roiText_ = new QTextEdit;
@@ -242,53 +176,28 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	roiTextBox->setLayout(roiTextLayout);
 
 	// Label showing where the data will be saved.
-	QString exportString =  AMUserSettings::userDataFolder;
-	exportString.remove("/userData");
-	QLabel *exportPath = new QLabel(QString("Data exported to: %1exportData").arg(exportString));
+	QLabel *exportPath = addExportPathLabel();
 
-	// Setting up the steps to show the time offset for scan time estimation.
-	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
-	setContextMenuPolicy(Qt::CustomContextMenu);
-
-	timeOffsetLabel_ = new QLabel("Scan time offset:");
-	timeOffsetLabel_->hide();
-	timeOffset_ = new QDoubleSpinBox;
-	timeOffset_->hide();
-	timeOffset_->setRange(0, 100);
-	timeOffset_->setDecimals(2);
-	timeOffset_->setSingleStep(0.1);
-	timeOffset_->setSuffix(" s");
-	timeOffset_->setAlignment(Qt::AlignCenter);
-	timeOffset_->setValue(config_->timeOffset());
+	QGroupBox *timeOffsetBox = addTimeOffsetLabel(config_->timeOffset());
 	connect(timeOffset_, SIGNAL(valueChanged(double)), this, SLOT(setTimeOffset(double)));
 
-	QHBoxLayout *timeOffsetLayout = new QHBoxLayout;
-	timeOffsetLayout->addWidget(timeOffsetLabel_);
-	timeOffsetLayout->addWidget(timeOffset_);
-
 	// Auto-export option.
-	QVBoxLayout *autoExportLayout = new QVBoxLayout;
-	QCheckBox *autoExportSpectra = new QCheckBox("Export spectra");
-	autoExportSpectra->setChecked(config_->exportSpectraSources());
-	autoExportLayout->addWidget(autoExportSpectra);
-	connect(autoExportSpectra, SIGNAL(toggled(bool)), config_, SLOT(setExportSpectraSources(bool)));
-
-	QGroupBox *autoExportGroupBox = new QGroupBox("Export Options");
-	autoExportGroupBox->setLayout(autoExportLayout);
+	QGroupBox *autoExportGroupBox = addExporterOptionsView(QStringList(), config_->exportSpectraSources());
+	connect(autoExportSpectra_, SIGNAL(toggled(bool)), config_, SLOT(setExportSpectraSources(bool)));
+	connect(autoExportSpectra_, SIGNAL(toggled(bool)), config_, SLOT(setExportSpectraSources(bool)));
 
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
-	contentsLayout->addWidget(positionsBox, 0, 0, 1, 3);
-	contentsLayout->addLayout(timeLayout, 1, 0, 1, 1);
-	contentsLayout->addWidget(ccdBox, 2, 0, 1, 1);
-	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 1, 3, 1, 1);
-	contentsLayout->addLayout(scanNameLayout, 3, 0, 1, 1);
-	contentsLayout->addWidget(I0GroupBox, 2, 3, 4, 1);
+	contentsLayout->addWidget(positionsBox, 0, 0, 2, 3);
+	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 1);
+	contentsLayout->addWidget(ccdBox, 3, 0, 1, 1);
+	contentsLayout->addLayout(scanNameLayout, 4, 0, 1, 1);
+	contentsLayout->addWidget(timeOffsetBox, 5, 0, 1, 1);
+	contentsLayout->addWidget(motorSetChoiceBox, 0, 3, 1, 1);
+	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 1, 3, 2, 1);
+	contentsLayout->addWidget(I0GroupBox, 3, 3, 2, 1);
 	contentsLayout->addWidget(roiTextBox, 0, 5, 3, 3);
-	contentsLayout->addWidget(estimatedTime_, 4, 0, 1, 1);
-	contentsLayout->addLayout(timeOffsetLayout, 5, 0, 1, 1);
-	contentsLayout->addWidget(motorSetChoiceBox, 0, 3);
-	contentsLayout->addWidget(autoExportGroupBox, 4, 5, 2, 3);
+	contentsLayout->addWidget(autoExportGroupBox, 3, 5, 1, 3);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
@@ -315,35 +224,6 @@ void VESPERSSpatialLineScanConfigurationView::onFluorescenceDetectorChanged(int 
 void VESPERSSpatialLineScanConfigurationView::onMotorChanged(int id)
 {
 	config_->setMotor(id);
-}
-
-void VESPERSSpatialLineScanConfigurationView::onConfigureXRFDetectorClicked()
-{
-	switch((int)config_->fluorescenceDetector()){
-
-	case VESPERS::NoXRF:
-		break;
-
-	case VESPERS::SingleElement:
-		emit configureDetector("Single Element");
-		break;
-
-	case VESPERS::FourElement:
-		emit configureDetector("Four Element");
-		break;
-
-	case VESPERS::SingleElement | VESPERS::FourElement:
-
-		QMenu menu(this);
-		menu.addAction("Single Element");
-		menu.addAction("Four Element");
-		QAction *action = menu.exec(QCursor::pos());
-
-		if (action && (action->text() == "Single Element" || action->text() == "Four Element"))
-			emit configureDetector(action->text());
-
-		break;
-	}
 }
 
 void VESPERSSpatialLineScanConfigurationView::onConfigureRoperDetectorClicked()
@@ -404,117 +284,12 @@ void VESPERSSpatialLineScanConfigurationView::updateRoiText()
 	}
 	}
 
-	roiText_->clear();
-
-	if ((int)config_->fluorescenceDetector() ==  (VESPERS::SingleElement | VESPERS::FourElement)){
-
-		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
-		AMROIInfoList fourElList = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
-		QList<QPair<int, int> > sameList = VESPERS::findRoiPairs(&singleElList, &fourElList);
-
-		if (!sameList.isEmpty()){
-
-			QList<int> singleRoiList;
-			QList<int> fourRoiList;
-
-			roiText_->insertPlainText("Same ROI's\n");
-			roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
-
-			for (int i = 0, count = sameList.size(); i < count; i++){
-
-				QPair<int, int> temp = sameList.at(i);
-				singleRoiList << temp.first;
-				fourRoiList << temp.second;
-				AMROIInfo info = singleElList.at(temp.first);
-				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-			}
-
-			if (singleRoiList.size() < singleElList.count() || fourRoiList.size() < fourElList.count()){
-
-				roiText_->insertPlainText("\nDifferent ROI's\n");
-
-				if (singleRoiList.size() < singleElList.count()){
-
-					roiText_->insertPlainText("Single Element Vortex\n");
-					roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
-
-					for (int i = 0, count = singleElList.count(); i < count; i++){
-
-						if (!singleRoiList.contains(i)){
-
-							AMROIInfo info = singleElList.at(i);
-							roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-						}
-					}
-
-					roiText_->insertPlainText("\n");
-				}
-
-				if (fourRoiList.size() < fourElList.count()){
-
-					roiText_->insertPlainText("Four Element Vortex\n");
-					roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
-
-					for (int i = 0, count = fourElList.count(); i < count; i++){
-
-						if (!fourRoiList.contains(i)){
-
-							AMROIInfo info = fourElList.at(i);
-							roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-						}
-					}
-				}
-			}
-		}
-
-		else {
-
-			roiText_->insertPlainText("Different ROI's\n");
-			roiText_->insertPlainText("Single Element Vortex\n");
-
-			for (int i = 0, count = singleElList.count(); i < count; i++){
-
-				AMROIInfo info = singleElList.at(i);
-				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-			}
-
-			roiText_->insertPlainText("\nFour Element Vortex\n");
-
-			for (int i = 0, count = fourElList.count(); i < count; i++){
-
-				AMROIInfo info = fourElList.at(i);
-				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-			}
-		}
-	}
-
-	else {
-
-		roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
-
-		for (int i = 0; i < config_->roiList().count(); i++)
-			roiText_->insertPlainText(GeneralUtilities::addGreek(config_->roiList().at(i).name())+"\t" + QString::number(config_->roiList().at(i).low()) + "\t" + QString::number(config_->roiList().at(i).high()) +"\n");
-	}
+	updateAndSetRoiTextBox(int(config_->fluorescenceDetector()));
 }
 
 void VESPERSSpatialLineScanConfigurationView::onEstimatedTimeChanged()
 {
 	estimatedTime_->setText("Estimated time per scan:\t" + VESPERS::convertTimeToString(config_->totalTime()));
-}
-
-void VESPERSSpatialLineScanConfigurationView::onCustomContextMenuRequested(QPoint pos)
-{
-	QMenu popup(this);
-
-	QAction *temp = popup.addAction("Set time offset");
-	temp = popup.exec(mapToGlobal(pos));
-
-	// If a valid action was selected.
-	if (temp && (temp->text() == "Set time offset")){
-
-		timeOffsetLabel_->setVisible(!timeOffsetLabel_->isVisible());
-		timeOffset_->setVisible(!timeOffset_->isVisible());
-	}
 }
 
 void VESPERSSpatialLineScanConfigurationView::onSetStartPosition()

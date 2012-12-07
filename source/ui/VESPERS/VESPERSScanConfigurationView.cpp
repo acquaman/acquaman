@@ -6,6 +6,9 @@
 VESPERSScanConfigurationView::VESPERSScanConfigurationView(QWidget *parent)
 	: AMScanConfigurationView(parent)
 {
+	// Setting up the steps to show the time offset for scan time estimation.
+	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
+	setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 void VESPERSScanConfigurationView::onCustomContextMenuRequested(QPoint pos)
