@@ -97,8 +97,6 @@ protected slots:
 	void onConfigureRoperDetectorClicked();
 	/// Updates roiText_ based on the current state of the ROI list.
 	void updateRoiText();
-	/// Handles the context menu.
-	void onCustomContextMenuRequested(QPoint pos);
 
 	/// Slot that updates the horizontal step size spin box.
 	void updateXStep(double val) { hStep_->setValue(val*1000); }

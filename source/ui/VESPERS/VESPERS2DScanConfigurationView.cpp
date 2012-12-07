@@ -109,6 +109,18 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	timeLayout->addWidget(new QLabel("Dwell Time:"));
 	timeLayout->addWidget(dwellTime_);
 
+	// The estimated scan time.
+	estimatedTime_ = new QLabel;
+	connect(config_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
+	onEstimatedTimeChanged();
+
+	QVBoxLayout *timeBoxLayout = new QVBoxLayout;
+	timeBoxLayout->addLayout(timeLayout);
+	timeBoxLayout->addWidget(estimatedTime_);
+
+	QGroupBox *timeGroupBox = new QGroupBox("Time");
+	timeGroupBox->setLayout(timeBoxLayout);
+
 	// Using the CCD.
 	QGroupBox *ccdBox = new QGroupBox("XRD maps");
 
@@ -163,11 +175,6 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	QFormLayout *scanNameLayout = new QFormLayout;
 	scanNameLayout->addRow("Scan Name:", scanName_);
 
-	// The estimated scan time.
-	estimatedTime_ = new QLabel;
-	connect(config_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
-	onEstimatedTimeChanged();
-
 	// The roi text edit and configuration.
 	roiText_ = new QTextEdit;
 	roiText_->setReadOnly(true);
@@ -199,17 +206,18 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
-	contentsLayout->addWidget(positionsBox, 0, 0, 1, 3);
-	contentsLayout->addLayout(timeLayout, 1, 0, 1, 1);
-	contentsLayout->addWidget(ccdBox, 2, 0, 1, 1);
-	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 1, 3, 1, 1);
-	contentsLayout->addLayout(scanNameLayout, 3, 0, 1, 1);
-	contentsLayout->addWidget(I0GroupBox, 2, 3, 4, 1);
-	contentsLayout->addWidget(roiTextBox, 0, 5, 3, 3);
-	contentsLayout->addWidget(estimatedTime_, 4, 0, 1, 1);
+	contentsLayout->addWidget(positionsBox, 0, 0, 2, 3);
+	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 1);
+	contentsLayout->addWidget(ccdBox, 3, 0, 1, 1);
+	contentsLayout->addLayout(scanNameLayout, 4, 0, 1, 1);
 	contentsLayout->addWidget(timeOffsetBox, 5, 0, 1, 1);
-	contentsLayout->addWidget(motorSetChoiceBox, 0, 3);
-	contentsLayout->addWidget(autoExportGroupBox, 4, 5, 2, 3);
+
+	contentsLayout->addWidget(motorSetChoiceBox, 0, 3, 1, 1);
+	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 1, 3, 2, 1);
+	contentsLayout->addWidget(I0GroupBox, 3, 3, 2, 1);
+
+	contentsLayout->addWidget(roiTextBox, 0, 5, 3, 3);
+	contentsLayout->addWidget(autoExportGroupBox, 3, 5, 2, 3);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
@@ -302,21 +310,6 @@ void VESPERS2DScanConfigurationView::updateRoiText()
 void VESPERS2DScanConfigurationView::onEstimatedTimeChanged()
 {
 	estimatedTime_->setText("Estimated time per scan:\t" + VESPERS::convertTimeToString(config_->totalTime()));
-}
-
-void VESPERS2DScanConfigurationView::onCustomContextMenuRequested(QPoint pos)
-{
-	QMenu popup(this);
-
-	QAction *temp = popup.addAction("Set time offset");
-	temp = popup.exec(mapToGlobal(pos));
-
-	// If a valid action was selected.
-	if (temp && (temp->text() == "Set time offset")){
-
-		timeOffsetLabel_->setVisible(!timeOffsetLabel_->isVisible());
-		timeOffset_->setVisible(!timeOffset_->isVisible());
-	}
 }
 
 void VESPERS2DScanConfigurationView::onSetStartPosition()

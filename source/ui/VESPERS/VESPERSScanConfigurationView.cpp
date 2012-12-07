@@ -386,6 +386,7 @@ QGroupBox *VESPERSScanConfigurationView::addTimeOffsetLabel(double time)
 
 	QGroupBox *timeOffsetBox = new QGroupBox;
 	timeOffsetBox->setLayout(timeOffsetLayout);
+	timeOffsetBox->setFlat(true);
 
 	return timeOffsetBox;
 }

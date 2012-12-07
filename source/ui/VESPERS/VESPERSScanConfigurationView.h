@@ -33,9 +33,6 @@ public:
 	/// Constructor.  Passes in the configuraiton that this view will modify.
 	VESPERSScanConfigurationView(QWidget *parent = 0);
 
-	/// Method that updates the map info label based on the current values of the start, end, and step size.
-	void updateScanDimensionInfo();
-
 signals:
 	/// Sends out a request that the current detector based on FluorescenceDetector to be configured.  Asks the app controller to change to the detector view.  String will be either "Single Element" or "Four Element".
 	void configureDetector(const QString &);
