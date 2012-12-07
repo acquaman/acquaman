@@ -90,9 +90,6 @@ protected:
 	/// Sets up the scan to use the Mar CCD.
 	bool setupMarScan();
 
-	/// Returns the home directory for Acquaman.
-	QString getHomeDirectory();
-
 	/// Pointer to the configuration used by this controller.
 	VESPERSEnergyScanConfiguration *config_;
 

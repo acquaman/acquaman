@@ -389,18 +389,6 @@ void VESPERSEnergyDacqScanController::onInitializationActionsProgress(double ela
 	Q_UNUSED(total)
 }
 
-QString VESPERSEnergyDacqScanController::getHomeDirectory()
-{
-	// Find out which path we are using for acquaman (depends on whether you are on Mac or Linux or beamline OPI).
-	QString homeDir = QDir::homePath();
-	if(QDir(homeDir+"/dev").exists())
-		homeDir.append("/dev");
-	else if(QDir(homeDir+"/beamline/programming").exists())
-		homeDir.append("/beamline/programming");
-
-	return homeDir;
-}
-
 bool VESPERSEnergyDacqScanController::setupRoperScan()
 {
 	VESPERSConfigurationFileBuilder builder;
@@ -409,7 +397,7 @@ bool VESPERSEnergyDacqScanController::setupRoperScan()
 	builder.setPvNameAxis1("07B2_Mono_SineB_Ea");
 	builder.buildConfigurationFile();
 
-	bool loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
+	bool loadSuccess = advAcq_->setConfigFile(VESPERS::getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 
 //	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/EnergyScan-Roper.cfg"));
 
@@ -446,7 +434,7 @@ bool VESPERSEnergyDacqScanController::setupMarScan()
 	builder.setPvNameAxis1("07B2_Mono_SineB_Ea");
 	builder.buildConfigurationFile();
 
-	bool loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
+	bool loadSuccess = advAcq_->setConfigFile(VESPERS::getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 
 	if(!loadSuccess){
 		AMErrorMon::alert(this,
