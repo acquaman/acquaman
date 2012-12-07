@@ -71,62 +71,16 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 
 	if (config_->exportAsAscii()){
 
-		QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERS2DDefault");
-		AMExporterOptionGeneralAscii *vespersDefault = new AMExporterOptionGeneralAscii();
-
-		if (matchIDs.count() != 0)
-			vespersDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
-
-		vespersDefault->setName("VESPERS2DDefault");
-		vespersDefault->setFileName("$name_$fsIndex.dat");
-		vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n");
-		vespersDefault->setHeaderIncluded(true);
-		vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
-		vespersDefault->setColumnHeaderIncluded(true);
-		vespersDefault->setColumnHeaderDelimiter("");
-		vespersDefault->setSectionHeader("");
-		vespersDefault->setSectionHeaderIncluded(true);
-		vespersDefault->setIncludeAllDataSources(true);
-		vespersDefault->setFirstColumnOnly(true);
-		vespersDefault->setIncludeHigherDimensionSources(config_->exportSpectraSources());
-		vespersDefault->setSeparateHigherDimensionalSources(true);
-		vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
-		vespersDefault->storeToDb(AMDatabase::database("user"));
-
-		// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
-		matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERS2DDefault");
-		if(matchIDs.count() > 0)
-			AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporter2DAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
+		AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERS2DDefault", config_->exportSpectraSources());
+		if(vespersDefault->id() > 0)
+			AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporter2DAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
 	}
 
 	else{
 
-		QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERS2DDefault");
-		AMExporterOptionGeneralAscii *vespersDefault = new AMExporterOptionGeneralAscii();
-
-		if (matchIDs.count() != 0)
-			vespersDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
-
-		vespersDefault->setName("VESPERS2DDefault");
-		vespersDefault->setFileName("$name_$fsIndex.dat");
-		vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n");
-		vespersDefault->setHeaderIncluded(true);
-		vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
-		vespersDefault->setColumnHeaderIncluded(true);
-		vespersDefault->setColumnHeaderDelimiter("");
-		vespersDefault->setSectionHeader("");
-		vespersDefault->setSectionHeaderIncluded(true);
-		vespersDefault->setIncludeAllDataSources(true);
-		vespersDefault->setFirstColumnOnly(true);
-		vespersDefault->setIncludeHigherDimensionSources(config_->exportSpectraSources());
-		vespersDefault->setSeparateHigherDimensionalSources(true);
-		vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
-		vespersDefault->storeToDb(AMDatabase::database("user"));
-
-		// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
-		matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERS2DDefault");
-		if(matchIDs.count() > 0)
-			AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporterSMAK, AMExporterOptionGeneralAscii>(matchIDs.at(0));
+		AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSDefault", config_->exportSpectraSources());
+		if(vespersDefault->id() > 0)
+			AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporterSMAK, AMExporterOptionGeneralAscii>(vespersDefault->id());
 	}
 
 	int yPoints = int((config_->yEnd() - config_->yStart())/config_->yStep());
@@ -398,7 +352,7 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 		AMDataSource *roi4 = 0;
 		AM2DAdditionAB *sumAB = 0;
 
-		QList<QPair<int, int> > sameRois = findRoiPairs();
+		QList<QPair<int, int> > sameRois = VESPERS::findRoiPairs(VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList(), VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
 		QStringList roiNames;
 		int singleElRoiCount = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList()->count();
 
@@ -441,50 +395,6 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 		break;
 	}
 	}
-}
-
-QList<QPair<int, int> > VESPERS2DDacqScanController::findRoiPairs() const
-{
-	AMROIInfoList *el1 = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
-	AMROIInfoList *el4 = VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
-	QList<QPair<int, int> > list;
-
-	// Do it the easy way first.  Only possible when the sizes are the same.
-	if (el1->count() == el4->count()){
-
-		bool allLinedUp = true;
-
-		for (int i = 0, count = el1->count(); i < count; i++)
-			if (el1->at(i).name() != el4->at(i).name())
-				allLinedUp = false;
-
-		// If true, this is really straight forward.
-		if (allLinedUp){
-
-			for (int i = 0, count = el1->count(); i < count; i++)
-				list << qMakePair(i, i);
-		}
-
-		// Otherwise, we have to check each individually.  Not all may match and only matches will be added to the list.
-		else {
-
-			for (int i = 0, count = el1->count(); i < count; i++)
-				for (int j = 0; j < count; j++)
-					if (el1->at(i).name() == el4->at(j).name())
-						list << qMakePair(i, j);
-		}
-	}
-
-	// This is the same the above double for-loop but with different boundaries.
-	else {
-
-		for (int i = 0, count1 = el1->count(); i < count1; i++)
-			for (int j = 0, count4 = el4->count(); j < count4; j++)
-				if (el1->at(i).name() == el4->at(j).name())
-					list << qMakePair(i, j);
-	}
-
-	return list;
 }
 
 void VESPERS2DDacqScanController::addExtraDatasources()
@@ -885,18 +795,6 @@ void VESPERS2DDacqScanController::onInitializationActionsProgress(double elapsed
 	Q_UNUSED(total)
 }
 
-QString VESPERS2DDacqScanController::getHomeDirectory()
-{
-	// Find out which path we are using for acquaman (depends on whether you are on Mac or Linux or beamline OPI).
-	QString homeDir = QDir::homePath();
-	if(QDir(homeDir+"/dev").exists())
-		homeDir.append("/dev");
-	else if(QDir(homeDir+"/beamline/programming").exists())
-		homeDir.append("/beamline/programming");
-
-	return homeDir;
-}
-
 void VESPERS2DDacqScanController::onInitializationActionFinished()
 {
 	if (initializationActions_ == 0)
@@ -945,7 +843,7 @@ bool VESPERS2DDacqScanController::setupSingleElementMap()
 	builder.setPvNameAxis2(yAxisPVName_);	// Ditto.
 	builder.buildConfigurationFile();
 
-	bool loadSuccess = 	setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
+	bool loadSuccess = 	setConfigFile(VESPERS::getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 
 	if(!loadSuccess){
 		AMErrorMon::alert(this,
@@ -999,7 +897,7 @@ bool VESPERS2DDacqScanController::setupFourElementMap()
 	builder.setPvNameAxis2(yAxisPVName_);	// Ditto.
 	builder.buildConfigurationFile();
 
-	bool loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
+	bool loadSuccess = setConfigFile(VESPERS::getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 
 	if(!loadSuccess){
 		AMErrorMon::alert(this,
@@ -1073,7 +971,7 @@ bool VESPERS2DDacqScanController::setupSingleAndFourElementMap()
 	builder.setPvNameAxis2(yAxisPVName_);	// Ditto.
 	builder.buildConfigurationFile();
 
-	bool loadSuccess = setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
+	bool loadSuccess = setConfigFile(VESPERS::getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 
 	if(!loadSuccess){
 		AMErrorMon::alert(this,

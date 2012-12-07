@@ -95,12 +95,6 @@ protected:
 	/// Sets up the XAS scan based on the single element and four element detector being selected.
 	bool setupSingleAndFourElementXAS();
 
-	/// Helper method that returns a list of QPairs where each pair corresponds to the same ROIs.  Used only when using both vortex detectors together.
-	QList<QPair<int, int> > findRoiPairs() const;
-
-	/// Returns the home directory for Acquaman.
-	QString getHomeDirectory();
-
 	/// Pointer to the configuration used by this controller.
 	VESPERSEXAFSScanConfiguration *config_;
 

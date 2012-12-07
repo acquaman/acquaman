@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/VESPERS/VESPERS2DScanConfiguration.h"
 #include "dataman/AM2DScan.h"
 #include "actions/AMBeamlineListAction.h"
+#include "application/VESPERS/VESPERS.h"
 
 #include <QTimer>
 
@@ -87,18 +88,12 @@ protected:
 	/// Adds all the data sources that are still important but not visualized.
 	void addExtraDatasources();
 
-	/// Returns the home directory for Acquaman.
-	QString getHomeDirectory();
-
 	/// Sets up the 2D scan based on the single element detector being used for XRF.
 	bool setupSingleElementMap();
 	/// Sets up the 2D scan based on the four element detector being used for XRF.
 	bool setupFourElementMap();
 	/// Sets up the 2D scan based on the single element and four element detectors being used for XRF.
 	bool setupSingleAndFourElementMap();
-
-	/// Helper method that returns a list of QPairs where each pair corresponds to the same ROIs.  Used only when using both vortex detectors together.
-	QList<QPair<int, int> > findRoiPairs() const;
 
 	/// Pointer to the VESPERS2DScanConfiguration this scan controls.
 	VESPERS2DScanConfiguration *config_;

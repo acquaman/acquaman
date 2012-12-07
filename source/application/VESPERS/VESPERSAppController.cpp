@@ -197,114 +197,21 @@ void VESPERSAppController::registerClasses()
 
 void VESPERSAppController::setupExporterOptions()
 {
-	QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
+	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSDefault", true);
+	if(vespersDefault->id() > 0)
+		AMAppControllerSupport::registerClass<VESPERSEXAFSScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(vespersDefault->id());
 
-	AMExporterOptionGeneralAscii *vespersDefault = new AMExporterOptionGeneralAscii();
+	vespersDefault = VESPERS::buildStandardExporterOption("VESPERS2DDefault", true);
+	if(vespersDefault->id() > 0)
+		AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporter2DAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
 
-	if (matchIDs.count() != 0)
-		vespersDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
+	vespersDefault = VESPERS::buildStandardExporterOption("VESPERSLineScanDefault", true);
+	if(vespersDefault->id() > 0)
+		AMAppControllerSupport::registerClass<VESPERSSpatialLineScanConfiguration, VESPERSExporterLineScanAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
 
-	vespersDefault->setName("VESPERSDefault");
-	vespersDefault->setFileName("$name_$fsIndex.dat");
-	vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\nActual Vertical Position:\t$controlValue[Vertical Sample Stage] mm\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
-	vespersDefault->setHeaderIncluded(true);
-	vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
-	vespersDefault->setColumnHeaderIncluded(true);
-	vespersDefault->setColumnHeaderDelimiter("");
-	vespersDefault->setSectionHeader("");
-	vespersDefault->setSectionHeaderIncluded(true);
-	vespersDefault->setIncludeAllDataSources(true);
-	vespersDefault->setFirstColumnOnly(true);
-	vespersDefault->setIncludeHigherDimensionSources(true);
-	vespersDefault->setSeparateHigherDimensionalSources(true);
-	vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
-	vespersDefault->storeToDb(AMDatabase::database("user"));
-
-	// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
-	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
-	if(matchIDs.count() > 0)
-		AMAppControllerSupport::registerClass<VESPERSEXAFSScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(matchIDs.at(0));
-
-	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERS2DDefault");
-	vespersDefault = new AMExporterOptionGeneralAscii();
-
-	if (matchIDs.count() != 0)
-		vespersDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
-
-	vespersDefault->setName("VESPERS2DDefault");
-	vespersDefault->setFileName("$name_$fsIndex.dat");
-	vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n");
-	vespersDefault->setHeaderIncluded(true);
-	vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
-	vespersDefault->setColumnHeaderIncluded(true);
-	vespersDefault->setColumnHeaderDelimiter("");
-	vespersDefault->setSectionHeader("");
-	vespersDefault->setSectionHeaderIncluded(true);
-	vespersDefault->setIncludeAllDataSources(true);
-	vespersDefault->setFirstColumnOnly(true);
-	vespersDefault->setIncludeHigherDimensionSources(true);
-	vespersDefault->setSeparateHigherDimensionalSources(true);
-	vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
-	vespersDefault->storeToDb(AMDatabase::database("user"));
-
-	// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
-	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERS2DDefault");
-	if(matchIDs.count() > 0)
-		AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporter2DAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
-
-	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSLineScanDefault");
-	vespersDefault = new AMExporterOptionGeneralAscii();
-
-	if (matchIDs.count() != 0)
-		vespersDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
-
-	vespersDefault->setName("VESPERSLineScanDefault");
-	vespersDefault->setFileName("$name_$fsIndex.dat");
-	vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n");
-	vespersDefault->setHeaderIncluded(true);
-	vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
-	vespersDefault->setColumnHeaderIncluded(true);
-	vespersDefault->setColumnHeaderDelimiter("");
-	vespersDefault->setSectionHeader("");
-	vespersDefault->setSectionHeaderIncluded(true);
-	vespersDefault->setIncludeAllDataSources(true);
-	vespersDefault->setFirstColumnOnly(true);
-	vespersDefault->setIncludeHigherDimensionSources(true);
-	vespersDefault->setSeparateHigherDimensionalSources(true);
-	vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
-	vespersDefault->storeToDb(AMDatabase::database("user"));
-
-	// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
-	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSLineScanDefault");
-	if(matchIDs.count() > 0)
-		AMAppControllerSupport::registerClass<VESPERSSpatialLineScanConfiguration, VESPERSExporterLineScanAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
-
-	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSEnergyScanDefault");
-	vespersDefault = new AMExporterOptionGeneralAscii();
-
-	if (matchIDs.count() != 0)
-		vespersDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
-
-	vespersDefault->setName("VESPERSEnergyScanDefault");
-	vespersDefault->setFileName("$name_$fsIndex.dat");
-	vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n");
-	vespersDefault->setHeaderIncluded(true);
-	vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
-	vespersDefault->setColumnHeaderIncluded(true);
-	vespersDefault->setColumnHeaderDelimiter("");
-	vespersDefault->setSectionHeader("");
-	vespersDefault->setSectionHeaderIncluded(true);
-	vespersDefault->setIncludeAllDataSources(true);
-	vespersDefault->setFirstColumnOnly(true);
-	vespersDefault->setIncludeHigherDimensionSources(true);
-	vespersDefault->setSeparateHigherDimensionalSources(true);
-	vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
-	vespersDefault->storeToDb(AMDatabase::database("user"));
-
-	// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
-	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSEnergyScanDefault");
-	if(matchIDs.count() > 0)
-		AMAppControllerSupport::registerClass<VESPERSEnergyScanConfiguration, VESPERSExporterLineScanAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
+	vespersDefault = VESPERS::buildStandardExporterOption("VESPERSEnergyScanDefault", true);
+	if(vespersDefault->id() > 0)
+		AMAppControllerSupport::registerClass<VESPERSEnergyScanConfiguration, VESPERSExporterLineScanAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
 }
 
 void VESPERSAppController::setupUserInterface()

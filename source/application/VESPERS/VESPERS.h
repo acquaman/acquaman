@@ -9,8 +9,12 @@
 
 #include <QString>
 #include <QPair>
+#include <QDir>
+#include <QList>
 
 #include "dataman/info/AMROIInfo.h"
+#include "dataman/export/AMExporterOptionGeneralAscii.h"
+#include "dataman/database/AMDbObjectSupport.h"
 
 namespace VESPERS {
 
@@ -136,6 +140,48 @@ namespace VESPERS {
 		}
 
 		return list;
+	}
+
+	/// Returns the home directory for Acquaman.
+	inline QString getHomeDirectory()
+	{
+		// Find out which path we are using for acquaman (depends on whether you are on Mac or Linux or beamline OPI).
+		QString homeDir = QDir::homePath();
+		if(QDir(homeDir+"/dev").exists())
+			homeDir.append("/dev");
+		else if(QDir(homeDir+"/beamline/programming").exists())
+			homeDir.append("/beamline/programming");
+
+		return homeDir;
+	}
+
+	/// Builds the standard exporter option used for all exported scans.
+	inline AMExporterOptionGeneralAscii *buildStandardExporterOption(const QString &name, bool includeHigherOrderSources)
+	{
+		QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", name);
+
+		AMExporterOptionGeneralAscii *vespersDefault = new AMExporterOptionGeneralAscii();
+
+		if (matchIDs.count() != 0)
+			vespersDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
+
+		vespersDefault->setName(name);
+		vespersDefault->setFileName("$name_$fsIndex.dat");
+		vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\nActual Vertical Position:\t$controlValue[Vertical Sample Stage] mm\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
+		vespersDefault->setHeaderIncluded(true);
+		vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
+		vespersDefault->setColumnHeaderIncluded(true);
+		vespersDefault->setColumnHeaderDelimiter("");
+		vespersDefault->setSectionHeader("");
+		vespersDefault->setSectionHeaderIncluded(true);
+		vespersDefault->setIncludeAllDataSources(true);
+		vespersDefault->setFirstColumnOnly(true);
+		vespersDefault->setIncludeHigherDimensionSources(includeHigherOrderSources);
+		vespersDefault->setSeparateHigherDimensionalSources(true);
+		vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
+		vespersDefault->storeToDb(AMDatabase::database("user"));
+
+		return vespersDefault;
 	}
 }
 

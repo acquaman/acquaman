@@ -69,32 +69,10 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	scan_->replaceRawDataStore(new AMCDFDataStore(AMUserSettings::userDataFolder % scan_->filePath(), false));
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
-	QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
-	AMExporterOptionGeneralAscii *vespersDefault = new AMExporterOptionGeneralAscii();
 
-	if (matchIDs.count() != 0)
-		vespersDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
-
-	vespersDefault->setName("VESPERSDefault");
-	vespersDefault->setFileName("$name_$fsIndex.dat");
-	vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\nActual Vertical Position:\t$controlValue[Vertical Sample Stage] mm\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
-	vespersDefault->setHeaderIncluded(true);
-	vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
-	vespersDefault->setColumnHeaderIncluded(true);
-	vespersDefault->setColumnHeaderDelimiter("");
-	vespersDefault->setSectionHeader("");
-	vespersDefault->setSectionHeaderIncluded(true);
-	vespersDefault->setIncludeAllDataSources(true);
-	vespersDefault->setFirstColumnOnly(true);
-	vespersDefault->setIncludeHigherDimensionSources(config_->exportSpectraSources());
-	vespersDefault->setSeparateHigherDimensionalSources(true);
-	vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
-	vespersDefault->storeToDb(AMDatabase::database("user"));
-
-	// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
-	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
-	if(matchIDs.count() > 0)
-		AMAppControllerSupport::registerClass<VESPERSEXAFSScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(matchIDs.at(0));
+	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSDefault", config_->exportSpectraSources());
+	if(vespersDefault->id() > 0)
+		AMAppControllerSupport::registerClass<VESPERSEXAFSScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(vespersDefault->id());
 
 	// Build the notes for the scan.
 	QString notes;
@@ -445,7 +423,7 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 		AMDataSource *roi1 = 0;
 		AMDataSource *roi4 = 0;
 		AM1DSummingAB *sumAB = 0;
-		QList<QPair<int, int> > sameRois = findRoiPairs();
+		QList<QPair<int, int> > sameRois = VESPERS::findRoiPairs(VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList(), VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
 		QStringList roiNames;
 		int singleElRoiCount = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList()->count();
 
@@ -499,50 +477,6 @@ VESPERSEXAFSDacqScanController::VESPERSEXAFSDacqScanController(VESPERSEXAFSScanC
 	}
 
 	useDwellTimes(VESPERSBeamline::vespers()->dwellTimeTrigger(), VESPERSBeamline::vespers()->dwellTimeConfirmed());
-}
-
-QList<QPair<int, int> > VESPERSEXAFSDacqScanController::findRoiPairs() const
-{
-	AMROIInfoList *el1 = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
-	AMROIInfoList *el4 = VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
-	QList<QPair<int, int> > list;
-
-	// Do it the easy way first.  Only possible when the sizes are the same.
-	if (el1->count() == el4->count()){
-
-		bool allLinedUp = true;
-
-		for (int i = 0, count = el1->count(); i < count; i++)
-			if (el1->at(i).name() != el4->at(i).name())
-				allLinedUp = false;
-
-		// If true, this is really straight forward.
-		if (allLinedUp){
-
-			for (int i = 0, count = el1->count(); i < count; i++)
-				list << qMakePair(i, i);
-		}
-
-		// Otherwise, we have to check each individually.  Not all may match and only matches will be added to the list.
-		else {
-
-			for (int i = 0, count = el1->count(); i < count; i++)
-				for (int j = 0; j < count; j++)
-					if (el1->at(i).name() == el4->at(j).name())
-						list << qMakePair(i, j);
-		}
-	}
-
-	// This is the same the above double for-loop but with different boundaries.
-	else {
-
-		for (int i = 0, count1 = el1->count(); i < count1; i++)
-			for (int j = 0, count4 = el4->count(); j < count4; j++)
-				if (el1->at(i).name() == el4->at(j).name())
-					list << qMakePair(i, j);
-	}
-
-	return list;
 }
 
 void VESPERSEXAFSDacqScanController::addExtraDatasources()
@@ -998,18 +932,6 @@ void VESPERSEXAFSDacqScanController::onInitializationActionsProgress(double elap
 	Q_UNUSED(total)
 }
 
-QString VESPERSEXAFSDacqScanController::getHomeDirectory()
-{
-	// Find out which path we are using for acquaman (depends on whether you are on Mac or Linux or beamline OPI).
-	QString homeDir = QDir::homePath();
-	if(QDir(homeDir+"/dev").exists())
-		homeDir.append("/dev");
-	else if(QDir(homeDir+"/beamline/programming").exists())
-		homeDir.append("/beamline/programming");
-
-	return homeDir;
-}
-
 bool VESPERSEXAFSDacqScanController::setupTransmissionXAS()
 {
 	VESPERSConfigurationFileBuilder builder;
@@ -1019,7 +941,7 @@ bool VESPERSEXAFSDacqScanController::setupTransmissionXAS()
 
 	bool loadSuccess = false;
 
-	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
+	loadSuccess = advAcq_->setConfigFile(VESPERS::getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 
 	if(!loadSuccess){
 		AMErrorMon::alert(this,
@@ -1060,7 +982,7 @@ bool VESPERSEXAFSDacqScanController::setupSingleElementXAS()
 
 	bool loadSuccess = false;
 
-	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
+	loadSuccess = advAcq_->setConfigFile(VESPERS::getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 
 	if(!loadSuccess){
 		AMErrorMon::alert(this,
@@ -1118,7 +1040,7 @@ bool VESPERSEXAFSDacqScanController::setupFourElementXAS()
 
 	bool loadSuccess = false;
 
-	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
+	loadSuccess = advAcq_->setConfigFile(VESPERS::getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 
 	if(!loadSuccess){
 		AMErrorMon::alert(this,
@@ -1196,7 +1118,7 @@ bool VESPERSEXAFSDacqScanController::setupSingleAndFourElementXAS()
 
 	bool loadSuccess = false;
 
-	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
+	loadSuccess = advAcq_->setConfigFile(VESPERS::getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 
 	if(!loadSuccess){
 		AMErrorMon::alert(this,
