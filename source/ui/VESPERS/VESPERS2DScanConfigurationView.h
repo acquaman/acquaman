@@ -48,10 +48,6 @@ public:
 	/// Method that updates the map info label based on the current values of the start, end, and step size.
 	void updateMapInfo();
 
-signals:
-	/// Sends out a request that the current detector (based on FluorescenceDetectorChoice) to be configured.  Asks the app controller to change to the detector view.  String will be either "Single Element" or "Four Element".
-	void configureDetector(const QString &);
-
 protected slots:
 	/// Handles setting the start position when the "Use Current" button is pushed.
 	void onSetStartPosition();
@@ -128,15 +124,12 @@ protected:
 	/// Pointer to the vertical step size.
 	QDoubleSpinBox *vStep_;
 
-
 	/// Pointer to the label that holds the current map settings.
 	QLabel *mapInfo_;
-
 	/// Pointer to the check box for doing XRD maps as well.
 	QCheckBox *ccdCheckBox_;
 	/// Pointer to the label holding the current file name.
 	QLabel *currentCCDFileName_;
-
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
 };

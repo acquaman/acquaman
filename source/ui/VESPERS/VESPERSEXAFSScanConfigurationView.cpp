@@ -35,7 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSpinBox>
 
 VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAFSScanConfiguration *config, QWidget *parent)
-	: AMScanConfigurationView(parent)
+	: VESPERSScanConfigurationView(parent)
 {
 	config_ = config;
 	AMTopFrame *frame = new AMTopFrame("VESPERS EXAFS Configuration");
@@ -46,87 +46,29 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	regionsLineView_ = new AMEXAFSLineView(config_->exafsRegions());
 
 	// The fluorescence detector setup
-	fluorescenceButtonGroup_ = new QButtonGroup;
-	QRadioButton *tempButton;
-	QVBoxLayout *fluorescenceDetectorLayout = new QVBoxLayout;
-
-	tempButton = new QRadioButton("None");
-	fluorescenceButtonGroup_->addButton(tempButton, 0);
-	fluorescenceDetectorLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Single Element Vortex");
-	fluorescenceButtonGroup_->addButton(tempButton, 1);
-	fluorescenceDetectorLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Four Element Vortex");
-	fluorescenceButtonGroup_->addButton(tempButton, 2);
-	fluorescenceDetectorLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Single && Four");
-	fluorescenceButtonGroup_->addButton(tempButton, 3);	// 3 is SingleElement | FourElement
-	fluorescenceDetectorLayout->addWidget(tempButton);
-
+	QGroupBox *fluorescenceDetectorGroupBox = addFluorescenceDetectorSelectionView();
 	connect(fluorescenceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
-	connect(config_->dbObject(), SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceChoiceButtons(int)));
-
+	connect(config_->dbObject(), SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetector(int)));
 	fluorescenceButtonGroup_->button((int)config_->fluorescenceDetector())->setChecked(true);
 
-	QGroupBox *fluorescenceDetectorGroupBox = new QGroupBox("Fluorescence Detector");
-	fluorescenceDetectorGroupBox->setLayout(fluorescenceDetectorLayout);
-
 	// Ion chamber selection
-	QVBoxLayout *ItGroupLayout = new QVBoxLayout;
-
-	ItGroup_ = new QButtonGroup;
-	tempButton = new QRadioButton("Isplit");
-	tempButton->setEnabled(false);
-	ItGroup_->addButton(tempButton, 0);
-	ItGroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Iprekb");
-	ItGroup_->addButton(tempButton, 1);
-	ItGroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Imini");
-	ItGroup_->addButton(tempButton, 2);
-	ItGroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Ipost");
-	ItGroup_->addButton(tempButton, 3);
-	ItGroupLayout->addWidget(tempButton);
+	QGroupBox *ItGroupBox = addItSelectionView();
 	connect(ItGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onItClicked(int)));
 	connect(config_->dbObject(), SIGNAL(transmissionChoiceChanged(int)), this, SLOT(updateItButtons(int)));
 
-	QVBoxLayout *I0GroupLayout = new QVBoxLayout;
-
-	I0Group_ = new QButtonGroup;
-	tempButton = new QRadioButton("Isplit");
-	I0Group_->addButton(tempButton, 0);
-	I0GroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Iprekb");
-	I0Group_->addButton(tempButton, 1);
-	I0GroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Imini");
-	tempButton->setChecked(true);
-	I0Group_->addButton(tempButton, 2);
-	I0GroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Ipost");
-	I0Group_->addButton(tempButton, 3);
-	I0GroupLayout->addWidget(tempButton);
+	QGroupBox *I0GroupBox = addI0SelectionView();
 	connect(I0Group_, SIGNAL(buttonClicked(int)), this, SLOT(onI0Clicked(int)));
 	connect(config_->dbObject(), SIGNAL(incomingChoiceChanged(int)), this, SLOT(updateI0Buttons(int)));
 
 	I0Group_->button((int)config_->incomingChoice())->click();
 	ItGroup_->button((int)config_->transmissionChoice())->click();
 
-	QGroupBox *I0GroupBox = new QGroupBox("I0");
-	I0GroupBox->setLayout(I0GroupLayout);
-
-	QGroupBox *ItGroupBox = new QGroupBox("It");
-	ItGroupBox->setLayout(ItGroupLayout);
-
 	QHBoxLayout *ionChambersLayout = new QHBoxLayout;
 	ionChambersLayout->addWidget(I0GroupBox);
 	ionChambersLayout->addWidget(ItGroupBox);
 
 	// Scan name selection
-	scanName_ = new QLineEdit;
-	scanName_->setText(config_->name());
-	scanName_->setAlignment(Qt::AlignCenter);
+	scanName_ = addScanNameView(config_->name());
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(config_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 	onScanNameEdited();
@@ -183,87 +125,18 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	energyLayout->addWidget(lineChoice_);
 
 	// Setting the scan position.
-	QCheckBox *goToPosition = new QCheckBox("Choose Position");
-	goToPosition->setChecked(config_->goToPosition());
+	QGroupBox *goToPositionGroupBox = addGoToPositionView(config_->goToPosition(), config_->x(), config_->y());
 
-	QPushButton *setCurrentPosition = new QPushButton(QIcon(":/save.png"), "");
-	setCurrentPosition->setEnabled(goToPosition->isChecked());
-	connect(setCurrentPosition, SIGNAL(clicked()), this, SLOT(setScanPosition()));
-
-	savedXPosition_ = new QLabel(QString::number(config_->goToPosition() ? config_->x() : 0, 'g', 3) + " mm");
-	savedXPosition_->setEnabled(goToPosition->isChecked());
-	savedYPosition_ = new QLabel(QString::number(config_->goToPosition() ? config_->y() : 0, 'g', 3) + " mm");
-	savedYPosition_->setEnabled(goToPosition->isChecked());
-
-	positionsSaved_ = new QLabel;
-	QPalette palette(this->palette());
-	palette.setColor(QPalette::Disabled, QPalette::WindowText, Qt::darkGray);
-
-	// Although not entirely valid, the chances that both x and y being identically 0 for a saved position is incredibly unlikely.
-	if (!config_->goToPosition() || (config_->x() == 0.0 && config_->y() == 0.0)){
-
-		positionsSaved_->setText("Unsaved");
-		palette.setColor(QPalette::Active, QPalette::WindowText, Qt::red);
-	}
-	else{
-
-		positionsSaved_->setText("Saved");
-		palette.setColor(QPalette::Active, QPalette::WindowText, Qt::darkGreen);
-	}
-
-	positionsSaved_->setPalette(palette);
-
-	QFont font(this->font());
-	font.setBold(true);
-	positionsSaved_->setFont(font);
-	positionsSaved_->setEnabled(goToPosition->isChecked());
-
-	QHBoxLayout *saveLayout = new QHBoxLayout;
-	saveLayout->addWidget(setCurrentPosition);
-	saveLayout->addWidget(positionsSaved_);
-
-	xPosition_ = new QDoubleSpinBox;
-	xPosition_->setEnabled(goToPosition->isChecked());
-	xPosition_->setDecimals(3);
-	xPosition_->setRange(-100, 100);
-	xPosition_->setValue(config_->goToPosition() ? config_->x() : 0);
-	xPosition_->setSuffix(" mm");
-	connect(xPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
-	connect(config_, SIGNAL(xPositionChanged(double)), xPosition_, SLOT(setValue(double)));
-
-	QHBoxLayout *xLayout = new QHBoxLayout;
-	xLayout->addWidget(xPosition_);
-	xLayout->addWidget(savedXPosition_);
-
-	yPosition_ = new QDoubleSpinBox;
-	yPosition_->setEnabled(goToPosition->isChecked());
-	yPosition_->setDecimals(3);
-	yPosition_->setRange(-100, 100);
-	yPosition_->setValue(config_->goToPosition() ? config_->y() : 0);
-	yPosition_->setSuffix(" mm");
-	connect(yPosition_, SIGNAL(valueChanged(double)), this, SLOT(onXorYPositionChanged()));
-	connect(config_, SIGNAL(yPositionChanged(double)), yPosition_, SLOT(setValue(double)));
+	connect(config_, SIGNAL(gotoPositionChanged(bool)), goToPositionCheckBox_, SLOT(setChecked(bool)));
+	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), config_, SLOT(setGoToPosition(bool)));
+	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), setCurrentPositionButton_, SLOT(setEnabled(bool)));
+	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), xPosition_, SLOT(setEnabled(bool)));
+	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), yPosition_, SLOT(setEnabled(bool)));
+	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), savedXPosition_, SLOT(setEnabled(bool)));
+	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), savedYPosition_, SLOT(setEnabled(bool)));
+	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), positionsSaved_, SLOT(setEnabled(bool)));
 
 	setSampleStage(VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice());
-
-	QHBoxLayout *yLayout = new QHBoxLayout;
-	yLayout->addWidget(yPosition_);
-	yLayout->addWidget(savedYPosition_);
-
-	connect(config_, SIGNAL(gotoPositionChanged(bool)), goToPosition, SLOT(setChecked(bool)));
-	connect(goToPosition, SIGNAL(toggled(bool)), config_, SLOT(setGoToPosition(bool)));
-	connect(goToPosition, SIGNAL(toggled(bool)), setCurrentPosition, SLOT(setEnabled(bool)));
-	connect(goToPosition, SIGNAL(toggled(bool)), xPosition_, SLOT(setEnabled(bool)));
-	connect(goToPosition, SIGNAL(toggled(bool)), yPosition_, SLOT(setEnabled(bool)));
-	connect(goToPosition, SIGNAL(toggled(bool)), savedXPosition_, SLOT(setEnabled(bool)));
-	connect(goToPosition, SIGNAL(toggled(bool)), savedYPosition_, SLOT(setEnabled(bool)));
-	connect(goToPosition, SIGNAL(toggled(bool)), positionsSaved_, SLOT(setEnabled(bool)));
-
-	QFormLayout *positionLayout = new QFormLayout;
-	positionLayout->addRow(goToPosition);
-	positionLayout->addRow(saveLayout);
-	positionLayout->addRow("x:", xLayout);
-	positionLayout->addRow("y:", yLayout);
 
 	// The estimated scan time.
 	estimatedTime_ = new QLabel;
@@ -284,17 +157,10 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 
 	roiTextBox_ = new QGroupBox("Regions Of Interest");
 	roiTextBox_->setLayout(roiTextLayout);
-
-	if (config_->fluorescenceDetector() == VESPERS::NoXRF)
-		roiTextBox_->hide();
-
-	else
-		roiTextBox_->show();
+	roiTextBox_->setVisible(config_->fluorescenceDetector() == VESPERS::NoXRF ? false : true);
 
 	// Label showing where the data will be saved.
-	QString exportString =  AMUserSettings::userDataFolder;
-	exportString.remove("/userData");
-	QLabel *exportPath = new QLabel(QString("Data exported to: %1exportData").arg(exportString));
+	QLabel *exportPath = addExportPathLabel();
 
 	// Label with a help message for EXAFS.
 	QLabel *helpMessage = new QLabel("Note when using EXAFS: when using variable integration time, the time column is the maximum time.");
@@ -310,22 +176,8 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
-	timeOffsetLabel_ = new QLabel("Scan time offset:");
-	timeOffsetLabel_->hide();
-
-	timeOffset_ = new QDoubleSpinBox;
-	timeOffset_->hide();
-	timeOffset_->setRange(0, 100);
-	timeOffset_->setDecimals(2);
-	timeOffset_->setSingleStep(0.1);
-	timeOffset_->setSuffix(" s");
-	timeOffset_->setAlignment(Qt::AlignCenter);
-	timeOffset_->setValue(config_->timeOffset());
+	QGroupBox *timeOffsetBox = addTimeOffsetLabel(config_->timeOffset());
 	connect(timeOffset_, SIGNAL(valueChanged(double)), this, SLOT(setTimeOffset(double)));
-
-	QHBoxLayout *timeOffsetLayout = new QHBoxLayout;
-	timeOffsetLayout->addWidget(timeOffsetLabel_);
-	timeOffsetLayout->addWidget(timeOffset_);
 
 	QVBoxLayout *defaultLayout = new QVBoxLayout;
 	defaultLayout->addSpacing(35);
@@ -334,14 +186,8 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	defaultLayout->addStretch();
 
 	// Auto-export option.
-	QVBoxLayout *autoExportLayout = new QVBoxLayout;
-	QCheckBox *autoExportSpectra = new QCheckBox("Export spectra");
-	autoExportSpectra->setChecked(config_->exportSpectraSources());
-	autoExportLayout->addWidget(autoExportSpectra);
-	connect(autoExportSpectra, SIGNAL(toggled(bool)), config_, SLOT(setExportSpectraSources(bool)));
-
-	QGroupBox *autoExportGroupBox = new QGroupBox("Export Options");
-	autoExportGroupBox->setLayout(autoExportLayout);
+	QGroupBox *autoExportGroupBox = addExporterOptionsView(QStringList(), config_->exportSpectraSources());
+	connect(autoExportSpectra_, SIGNAL(toggled(bool)), config_, SLOT(setExportSpectraSources(bool)));
 
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
@@ -349,14 +195,14 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 1, 3);
 	contentsLayout->addLayout(scanNameLayout, 4, 1);
 	contentsLayout->addLayout(energyLayout, 0, 1, 1, 3);
-	contentsLayout->addLayout(positionLayout, 4, 3, 4, 1);
+	contentsLayout->addWidget(goToPositionGroupBox, 4, 3, 4, 1);
 	contentsLayout->addLayout(ionChambersLayout, 2, 3, 2, 1);
 	contentsLayout->addWidget(roiTextBox_, 1, 4, 2, 2);
 	contentsLayout->addWidget(useFixedTime, 3, 1);
 	contentsLayout->addWidget(estimatedTime_, 6, 1, 1, 2);
 	contentsLayout->addWidget(estimatedSetTime_, 7, 1, 1, 2);
 	contentsLayout->addLayout(numberOfScansLayout, 5, 1);
-	contentsLayout->addLayout(timeOffsetLayout, 8, 1, 1, 2);
+	contentsLayout->addWidget(timeOffsetBox, 8, 1, 1, 2);
 	contentsLayout->addWidget(autoExportGroupBox, 4, 5, 2, 3);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
@@ -378,50 +224,6 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	configViewLayout->addStretch();
 
 	setLayout(configViewLayout);
-}
-
-void VESPERSEXAFSScanConfigurationView::updateFluorescenceChoiceButtons(int detector)
-{
-	fluorescenceButtonGroup_->button(detector)->setChecked(true);
-}
-
-void VESPERSEXAFSScanConfigurationView::onConfigureXRFDetectorClicked()
-{
-	switch((int)config_->fluorescenceDetector()){
-
-	case VESPERS::NoXRF:
-		break;
-
-	case VESPERS::SingleElement:
-		emit configureDetector("Single Element");
-		break;
-
-	case VESPERS::FourElement:
-		emit configureDetector("Four Element");
-		break;
-
-	case VESPERS::SingleElement | VESPERS::FourElement:
-
-		QMenu menu(this);
-		menu.addAction("Single Element");
-		menu.addAction("Four Element");
-		QAction *action = menu.exec(QCursor::pos());
-
-		if (action && (action->text() == "Single Element" || action->text() == "Four Element"))
-			emit configureDetector(action->text());
-
-		break;
-	}
-}
-
-void VESPERSEXAFSScanConfigurationView::updateItButtons(int It)
-{
-	ItGroup_->button(It)->setChecked(true);
-}
-
-void VESPERSEXAFSScanConfigurationView::updateI0Buttons(int I0)
-{
-	I0Group_->button(I0)->setChecked(true);
 }
 
 void VESPERSEXAFSScanConfigurationView::onFluorescenceChoiceChanged(int id)
@@ -464,97 +266,7 @@ void VESPERSEXAFSScanConfigurationView::updateRoiText()
 	}
 	}
 
-	roiText_->clear();
-
-	if ((int)config_->fluorescenceDetector() ==  (VESPERS::SingleElement | VESPERS::FourElement)){
-
-		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
-		AMROIInfoList fourElList = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
-		QList<QPair<int, int> > sameList = VESPERS::findRoiPairs(&singleElList, &fourElList);
-
-		if (!sameList.isEmpty()){
-
-			QList<int> singleRoiList;
-			QList<int> fourRoiList;
-
-			roiText_->insertPlainText("Same ROI's\n");
-			roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
-
-			for (int i = 0, count = sameList.size(); i < count; i++){
-
-				QPair<int, int> temp = sameList.at(i);
-				singleRoiList << temp.first;
-				fourRoiList << temp.second;
-				AMROIInfo info = singleElList.at(temp.first);
-				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-			}
-
-			if (singleRoiList.size() < singleElList.count() || fourRoiList.size() < fourElList.count()){
-
-				roiText_->insertPlainText("\nDifferent ROI's\n");
-
-				if (singleRoiList.size() < singleElList.count()){
-
-					roiText_->insertPlainText("Single Element Vortex\n");
-					roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
-
-					for (int i = 0, count = singleElList.count(); i < count; i++){
-
-						if (!singleRoiList.contains(i)){
-
-							AMROIInfo info = singleElList.at(i);
-							roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-						}
-					}
-
-					roiText_->insertPlainText("\n");
-				}
-
-				if (fourRoiList.size() < fourElList.count()){
-
-					roiText_->insertPlainText("Four Element Vortex\n");
-					roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
-
-					for (int i = 0, count = fourElList.count(); i < count; i++){
-
-						if (!fourRoiList.contains(i)){
-
-							AMROIInfo info = fourElList.at(i);
-							roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-						}
-					}
-				}
-			}
-		}
-
-		else {
-
-			roiText_->insertPlainText("Different ROI's\n");
-			roiText_->insertPlainText("Single Element Vortex\n");
-
-			for (int i = 0, count = singleElList.count(); i < count; i++){
-
-				AMROIInfo info = singleElList.at(i);
-				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-			}
-
-			roiText_->insertPlainText("\nFour Element Vortex\n");
-
-			for (int i = 0, count = fourElList.count(); i < count; i++){
-
-				AMROIInfo info = fourElList.at(i);
-				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-			}
-		}
-	}
-
-	else {
-
-		roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
-
-		for (int i = 0; i < config_->roiList().count(); i++)
-			roiText_->insertPlainText(GeneralUtilities::addGreek(config_->roiList().at(i).name())+"\t" + QString::number(config_->roiList().at(i).low()) + "\t" + QString::number(config_->roiList().at(i).high()) +"\n");
-	}
+	updateAndSetRoiTextBox(int(config_->fluorescenceDetector()));
 }
 
 void VESPERSEXAFSScanConfigurationView::onElementChoiceClicked()
@@ -666,21 +378,6 @@ void VESPERSEXAFSScanConfigurationView::onDefaultEXAFSScanClicked()
 	config_->regions()->addRegion(2, 40, 0.05, 857.4627, 10); // 857.4627 = 15k
 	config_->exafsRegions()->setType(2, AMEXAFSRegion::kSpace);
 	config_->exafsRegions()->setEndByType(2, 15, AMEXAFSRegion::kSpace);
-}
-
-void VESPERSEXAFSScanConfigurationView::onCustomContextMenuRequested(QPoint pos)
-{
-	QMenu popup(this);
-
-	QAction *temp = popup.addAction("Set time offset");
-	temp = popup.exec(mapToGlobal(pos));
-
-	// If a valid action was selected.
-	if (temp && (temp->text() == "Set time offset")){
-
-		timeOffsetLabel_->setVisible(!timeOffsetLabel_->isVisible());
-		timeOffset_->setVisible(!timeOffset_->isVisible());
-	}
 }
 
 void VESPERSEXAFSScanConfigurationView::setSampleStage(bool sampleStage)

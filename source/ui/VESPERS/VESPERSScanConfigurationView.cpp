@@ -404,9 +404,9 @@ QGroupBox *VESPERSScanConfigurationView::addExporterOptionsView(QStringList list
 		autoExportLayout->addWidget(autoExportButton);
 	}
 
-	QCheckBox *autoExportSpectra = new QCheckBox("Export Spectra");
-	autoExportSpectra->setChecked(exportSpectra);
-	autoExportLayout->addWidget(autoExportSpectra);
+	autoExportSpectra_ = new QCheckBox("Export Spectra");
+	autoExportSpectra_->setChecked(exportSpectra);
+	autoExportLayout->addWidget(autoExportSpectra_);
 
 	QGroupBox *autoExportGroupBox = new QGroupBox("Export Options");
 	autoExportGroupBox->setLayout(autoExportLayout);

@@ -165,23 +165,14 @@ protected:
 	QString edge_;
 	/// The edge energy for the scan.
 	double energy_;
-
 	/// Holds whether the EXAFS scan will use fixed or variable integration time.
 	bool useFixedTime_;
-
 	/// Bool used to determine if the scan should go to a new location or stay wherever the current position is.
 	bool goToPosition_;
 	/// The position that the scan should go to when goToPosition_ is true.  \note Implementation detail: this currently assumes we are using the pseudomotor sample stage.
 	QPair<double, double> position_;
-
-	/// Holds the total time in seconds that the scan is estimated to take.
-	double totalTime_;
-	/// Holds the offset per point of extra time when doing a scan.
-	double timeOffset_;
-
 	/// Holds the number of times this scan should be repeated.
 	int numberOfScans_;
-
 	/// Flag holding whether we are exporting the spectra data sources or not.
 	bool exportSpectraSources_;
 };

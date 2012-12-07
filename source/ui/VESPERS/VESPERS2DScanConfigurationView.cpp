@@ -202,6 +202,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	// Auto-export option.
 	QGroupBox *autoExportGroupBox = addExporterOptionsView(QStringList() << "Ascii" << "SMAK", config_->exportSpectraSources());
 	connect(autoExportButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(updateAutoExporter(int)));
+	connect(autoExportSpectra_, SIGNAL(toggled(bool)), config_, SLOT(setExportSpectraSources(bool)));
 	autoExportButtonGroup_->button(config_->exportAsAscii() ? 0 : 1)->click();
 
 	// Setting up the layout.
@@ -211,11 +212,9 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	contentsLayout->addWidget(ccdBox, 3, 0, 1, 1);
 	contentsLayout->addLayout(scanNameLayout, 4, 0, 1, 1);
 	contentsLayout->addWidget(timeOffsetBox, 5, 0, 1, 1);
-
 	contentsLayout->addWidget(motorSetChoiceBox, 0, 3, 1, 1);
 	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 1, 3, 2, 1);
 	contentsLayout->addWidget(I0GroupBox, 3, 3, 2, 1);
-
 	contentsLayout->addWidget(roiTextBox, 0, 5, 3, 3);
 	contentsLayout->addWidget(autoExportGroupBox, 3, 5, 2, 3);
 

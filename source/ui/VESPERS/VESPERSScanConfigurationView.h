@@ -104,6 +104,8 @@ protected:
 	QCheckBox *goToPositionCheckBox_;
 	/// Button for saving the current coordinates of the motor.
 	QPushButton *setCurrentPositionButton_;
+	/// Check box for enabling/disabling whether or not spectra should be exported or not.
+	QCheckBox *autoExportSpectra_;
 	/// A label holding text for the the time offset spin box.
 	QLabel *timeOffsetLabel_;
 	/// A spin box holding the time offset.
