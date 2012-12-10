@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define VESPERSSPATIALLINEDACQSCANCONTROLLER_H
 
 #include "acquaman/AMDacqScanController.h"
+#include "acquaman/VESPERS/VESPERSScanController.h"
 #include "acquaman/VESPERS/VESPERSSpatialLineScanConfiguration.h"
 #include "dataman/AMScan.h"
 #include "actions/AMBeamlineListAction.h"
@@ -34,7 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define VESPERSSPATIALLINEDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE 75004
 
 /// This class builds a scan controller for doing a spatial line scan.
-class VESPERSSpatialLineDacqScanController : public AMDacqScanController
+class VESPERSSpatialLineDacqScanController : public AMDacqScanController, public VESPERSScanController
 {
 	Q_OBJECT
 
@@ -74,11 +75,6 @@ protected:
 	/// Method that cleans up the beamline after a scan is finished.  Makes a list of clean up actions and executes them.
 	void cleanup();
 
-	/// Helper method that removes and deletes all of the actions from initialization action for proper memory management.
-	void onInitializationActionFinished();
-	/// Helper method that removes and deletes all of the actions from the cleanup action for proper memory management.
-	void onCleanupActionFinished();
-
 	/// Adds all the data sources that are still important but not visualized.
 	void addExtraDatasources();
 
@@ -94,11 +90,6 @@ protected:
 
 	/// Holds the PV name.
 	QString pvName_;
-
-	/// Action that contains all of the initialization actions for the controller.
-	AMBeamlineListAction *initializationActions_;
-	/// Action that contains all of the cleanup actions for the controller.
-	AMBeamlineListAction *cleanupActions_;
 
 	/// Timer used for determining the elapsed time for a scan.
 	QTimer elapsedTime_;

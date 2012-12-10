@@ -3,11 +3,13 @@
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "acquaman/dacq3_3/qepicsadvacq.h"
 
+#include <QStringBuilder>
+
 VESPERSScanController::VESPERSScanController(VESPERSScanConfiguration *config)
 {
 	config_ = config;
 
-	intializationAction_ = 0;
+	initializationAction_ = 0;
 	cleanupAction_ = 0;
 }
 
@@ -20,10 +22,10 @@ void VESPERSScanController::buildBaseInitializationAction(double timeStep)
 	 */
 	AMBeamlineParallelActionsList *setupActionsList = new AMBeamlineParallelActionsList;
 
-	if (!intializationAction_)
+	if (!initializationAction_)
 		onInitializationActionFinished();
 
-	intializationAction_ = new AMBeamlineListAction(setupActionsList);
+	initializationAction_ = new AMBeamlineListAction(setupActionsList);
 
 	// First stage.
 	setupActionsList->appendStage(new QList<AMBeamlineActionItem*>());
@@ -215,6 +217,19 @@ void VESPERSScanController::addSingleElementDeadTimeMeasurements(AMScan *scan)
 	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
 }
 
+void VESPERSScanController::addSingleElementRegionsOfInterestMeasurements(AMScan *scan, AMROIInfoList list, bool addSuffix)
+{
+	for (int i = 0, roiCount = list.count(); i < roiCount; i++){
+
+		if (addSuffix)
+			scan->rawData()->addMeasurement(AMMeasurementInfo(list.at(i).name().remove(" ") % QString("-1el"), list.at(i).name()));
+		else
+			scan->rawData()->addMeasurement(AMMeasurementInfo(list.at(i).name().remove(" "), list.at(i).name()));
+
+		scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount() - 1), false, true);
+	}
+}
+
 void VESPERSScanController::addSingleElementSpectraMeasurments(AMScan *scan, const AMMeasurementInfo &info)
 {
 	AMMeasurementInfo temp = info;
@@ -267,6 +282,19 @@ void VESPERSScanController::addFourElementDeadTimeMeasurements(AMScan *scan)
 	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
 	scan->rawData()->addMeasurement(AMMeasurementInfo("DeadTime4", "Dead Time 4", "%"));
 	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
+}
+
+void VESPERSScanController::addFourElementRegionsOfInterestMeasurements(AMScan *scan, AMROIInfoList list, bool addSuffix)
+{
+	for (int i = 0, roiCount = list.count(); i < roiCount; i++){
+
+		if (addSuffix)
+			scan->rawData()->addMeasurement(AMMeasurementInfo(list.at(i).name().remove(" ") % "-4el", list.at(i).name()));
+		else
+			scan->rawData()->addMeasurement(AMMeasurementInfo(list.at(i).name().remove(" "), list.at(i).name()));
+
+		scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount() - 1), false, false);
+	}
 }
 
 void VESPERSScanController::addFourElementSpectraMeasurments(AMScan *scan, const AMMeasurementInfo &info)
@@ -366,12 +394,12 @@ void VESPERSScanController::addFourElementSpectraPVs(QEpicsAdvAcq *advAcq)
 
 void VESPERSScanController::onInitializationActionFinished()
 {
-	if (intializationAction_ == 0)
+	if (initializationAction_ == 0)
 		return;
 
 	// Disconnect all signals and return all memory.
-	intializationAction_->disconnect();
-	AMBeamlineParallelActionsList *actionList = intializationAction_->list();
+	initializationAction_->disconnect();
+	AMBeamlineParallelActionsList *actionList = initializationAction_->list();
 
 	for (int i = 0; i < actionList->stageCount(); i++){
 
@@ -379,8 +407,8 @@ void VESPERSScanController::onInitializationActionFinished()
 			actionList->stage(i)->takeAt(0)->deleteLater();
 	}
 
-	intializationAction_->deleteLater();
-	intializationAction_ = 0;
+	initializationAction_->deleteLater();
+	initializationAction_ = 0;
 }
 
 void VESPERSScanController::onCleanupActionFinished()

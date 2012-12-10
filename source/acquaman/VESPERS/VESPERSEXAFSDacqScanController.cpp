@@ -433,7 +433,8 @@ void VESPERSEXAFSDacqScanController::addExtraDatasources()
 
 bool VESPERSEXAFSDacqScanController::initializeImplementation()
 {
-	AMBeamlineParallelActionsList *setupActionsList = intializationAction_->list();
+	buildBaseInitializationAction(config_->regionTime(0));
+	AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
 
 	// Add the rest of the stuff needed for XAS.
 	if (config_->exafsRegions()->hasKSpace() && !config_->useFixedTime()){
@@ -468,10 +469,10 @@ bool VESPERSEXAFSDacqScanController::initializeImplementation()
 	setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 	setupActionsList->appendAction(3, VESPERSBeamline::vespers()->mono()->createEoAction(config_->energy()));
 
-	connect(intializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
-	connect(intializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
-	connect(intializationAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
-	intializationAction_->start();
+	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
+	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
+	connect(initializationAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
+	initializationAction_->start();
 
 	return true;
 }
