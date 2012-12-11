@@ -72,6 +72,8 @@ protected slots:
 	void onScanNameEdited() { config_->setName(scanName_->text()); config_->setUserScanName(scanName_->text());}
 	/// Passes on the selection for I0 to the configuration.
 	void onI0Clicked(int id) { config_->setIncomingChoice(id); }
+	/// Handles changing what are acceptable choices for I0 based on It clicks.  Takes in the id of the new It choice.  Passes choice on to the configuration.
+	void onItClicked(int id);
 	/// Handles changes to the fluorescence detector choice.
 	void onFluorescenceDetectorChanged(int id);
 	/// Handles changes in the motor selection choice.

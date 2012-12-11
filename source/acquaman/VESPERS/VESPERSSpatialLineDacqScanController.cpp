@@ -335,13 +335,14 @@ void VESPERSSpatialLineDacqScanController::addExtraDatasources()
 
 	for (int i = 0; i < ionChambers->count(); i++){
 
-		if (ionChambers->detectorAt(i)->detectorName() != "Ipost"){
+		temp = AMMeasurementInfo(*(ionChambers->detectorAt(i)->toInfo()));
+		temp.name = ionChambers->detectorAt(i)->detectorName();
+		scan_->rawData()->addMeasurement(temp);
 
-			temp = AMMeasurementInfo(*(ionChambers->detectorAt(i)->toInfo()));
-			temp.name = ionChambers->detectorAt(i)->detectorName();
-			scan_->rawData()->addMeasurement(temp);
+		if (i == int(config_->incomingChoice()) || i == int(config_->transmissionChoice()))
+			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), true, false);
+		else
 			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount() - 1), false, false);
-		}
 	}
 
 	// If using the CCD for XRD simultaneously.
@@ -499,8 +500,7 @@ bool VESPERSSpatialLineDacqScanController::setupSingleElementMap()
 	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
 	for (int i = 0; i < ionChambers->count(); i++)
-		if (ionChambers->detectorAt(i)->detectorName() != "Ipost")
-			advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
+		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
 	if (config_->ccdDetector() == VESPERS::Roper)
 		advAcq_->appendRecord("IOC1607-003:det1:FileNumber", true, false, 0);
@@ -546,8 +546,7 @@ bool VESPERSSpatialLineDacqScanController::setupFourElementMap()
 	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
 	for (int i = 0; i < ionChambers->count(); i++)
-		if (ionChambers->detectorAt(i)->detectorName() != "Ipost")
-			advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
+		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
 	if (config_->ccdDetector() == VESPERS::Roper)
 		advAcq_->appendRecord("IOC1607-003:det1:FileNumber", true, false, 0);
@@ -598,8 +597,7 @@ bool VESPERSSpatialLineDacqScanController::setupSingleAndFourElementMap()
 	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
 	for (int i = 0; i < ionChambers->count(); i++)
-		if (ionChambers->detectorAt(i)->detectorName() != "Ipost")
-			advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
+		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
 	// Using the CCD?
 	if (config_->ccdDetector() == VESPERS::Roper)

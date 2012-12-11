@@ -142,10 +142,20 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	fluorescenceButtonGroup_->button((int)config_->fluorescenceDetector())->setChecked(true);
 
 	// Ion chamber selection
+	QGroupBox *ItGroupBox = addItSelectionView();
+	connect(ItGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onItClicked(int)));
+	connect(config_->dbObject(), SIGNAL(transmissionChoiceChanged(int)), this, SLOT(updateItButtons(int)));
+
 	QGroupBox *I0GroupBox = addI0SelectionView();
 	connect(I0Group_, SIGNAL(buttonClicked(int)), this, SLOT(onI0Clicked(int)));
 	connect(config_->dbObject(), SIGNAL(incomingChoiceChanged(int)), this, SLOT(updateI0Buttons(int)));
+
 	I0Group_->button((int)config_->incomingChoice())->click();
+	ItGroup_->button((int)config_->transmissionChoice())->click();
+
+	QHBoxLayout *ionChambersLayout = new QHBoxLayout;
+	ionChambersLayout->addWidget(I0GroupBox);
+	ionChambersLayout->addWidget(ItGroupBox);
 
 	// Motor selection.
 	QGroupBox *motorSetChoiceBox = addMotorSelectionView(QStringList() << "H" << "X" << "V" << "Z", QList<int>() << VESPERS::H << VESPERS::X << VESPERS::V << VESPERS::Z);
@@ -195,7 +205,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	contentsLayout->addWidget(timeOffsetBox, 5, 0, 1, 1);
 	contentsLayout->addWidget(motorSetChoiceBox, 0, 3, 1, 1);
 	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 1, 3, 2, 1);
-	contentsLayout->addWidget(I0GroupBox, 3, 3, 2, 1);
+	contentsLayout->addLayout(ionChambersLayout, 3, 3, 2, 1);
 	contentsLayout->addWidget(roiTextBox, 0, 5, 3, 3);
 	contentsLayout->addWidget(autoExportGroupBox, 3, 5, 1, 3);
 
@@ -229,6 +239,21 @@ void VESPERSSpatialLineScanConfigurationView::onMotorChanged(int id)
 void VESPERSSpatialLineScanConfigurationView::onConfigureRoperDetectorClicked()
 {
 	emit configureDetector("Roper CCD");
+}
+
+void VESPERSSpatialLineScanConfigurationView::onItClicked(int id)
+{
+	// If the new It is at or upstream of I0, move I0.  Using id-1 is safe because Isplit can't be chosen for It.
+	if (id <= I0Group_->checkedId())
+		I0Group_->button(id-1)->click();
+
+	for (int i = 0; i < id; i++)
+		I0Group_->button(i)->setEnabled(true);
+
+	for (int i = id; i < 4; i++)
+		I0Group_->button(i)->setEnabled(false);
+
+	config_->setTransmissionChoice(id);
 }
 
 void VESPERSSpatialLineScanConfigurationView::onCCDDetectorChanged(int useCCD)

@@ -4,7 +4,7 @@ VESPERSScanConfigurationDbObject::VESPERSScanConfigurationDbObject(QObject *pare
 	: AMDbObject(parent)
 {
 	I0_ = VESPERS::Imini;
-	It_ = VESPERS::Isplit;
+	It_ = VESPERS::Ipost;
 	fluorescenceDetector_ = VESPERS::NoXRF;
 	ccdDetector_ = VESPERS::NoCCD;
 	motor_ = VESPERS::NoMotor;
