@@ -71,6 +71,22 @@ protected:
 	AMAction3* currentAction_;
 };
 
+#include <QStyledItemDelegate>
+/// This delegate is used by the tree view in AMActionRunnerCurrentView to show custom editor widgets depending on the action. The available editors depend on those that have been registered with AMActionRegistry.  You should never need to use this class directly.
+class AMActionRunnerCurrentItemDelegate3 : public QStyledItemDelegate {
+	Q_OBJECT
+public:
+
+	explicit AMActionRunnerCurrentItemDelegate3(QObject* parent = 0) : QStyledItemDelegate(parent) {}
+
+	virtual QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
+	//    virtual void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
+	virtual bool eventFilter(QObject *object, QEvent *event);
+
+};
+
 // Previously:
 //
 ///// This subclass of QStandardItem is used inside AMActionRunnerCurrentView's QTreeView to display actions.  You should never need to use this class directly.

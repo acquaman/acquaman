@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMActionRunner3.h"
 #include "actions3/AMAction3.h"
 #include "actions3/AMListAction3.h"
+#include "actions3/editors/AMLiveLoopActionEditor3.h"
 
 #include "util/AMFontSizes.h"
 #include "util/AMErrorMonitor.h"
@@ -102,6 +103,7 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 	currentActionView_->setSelectionMode(QAbstractItemView::NoSelection);
 	currentActionView_->setHeaderHidden(true);
 	currentActionView_->setAttribute(Qt::WA_MacShowFocusRect, false);
+	currentActionView_->setItemDelegate(new AMActionRunnerCurrentItemDelegate3(this));
 
 	connect(actionRunner_, SIGNAL(currentActionChanged(AMAction3*)), this, SLOT(onCurrentActionChanged(AMAction3*)));
 	connect(cancelButton_, SIGNAL(clicked()), actionRunner_, SLOT(cancelCurrentAction()));
@@ -142,7 +144,7 @@ void AMActionRunnerCurrentView3::onCurrentActionChanged(AMAction3* nextAction)
 		currentActionView_->setMaximumHeight(48);
 	}
 
-	// Figure out the toop tip.
+	// Figure out the tool tip.
 	if (listAction){
 
 		if (listAction->subActionMode() == AMListAction3::Sequential && listAction->currentSubAction())
@@ -448,3 +450,41 @@ void AMActionRunnerCurrentModel3::onCurrentActionChanged(AMAction3 *newCurrentAc
 	}
 }
 
+QWidget *AMActionRunnerCurrentItemDelegate3::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+	Q_UNUSED(option)
+
+	const AMActionRunnerCurrentModel3* model = qobject_cast<const AMActionRunnerCurrentModel3*>(index.model());
+	if(!model)
+		return 0;
+
+	AMAction3* action = model->actionAtIndex(index);
+	if(!action)
+		return 0;
+
+	QWidget* rv = 0;
+	if (index.row() == 0 && index.column() == 0 && qobject_cast<AMLoopAction3 *>(action)){
+
+		rv = new AMLiveLoopActionEditor3(qobject_cast<AMLoopAction3 *>(action));
+		rv->setParent(parent);
+		rv->setFocusPolicy(Qt::StrongFocus);
+		rv->setBackgroundRole(QPalette::Window);
+		rv->setAutoFillBackground(true);
+	}
+
+	return rv;
+}
+
+#include <QKeyEvent>
+bool AMActionRunnerCurrentItemDelegate3::eventFilter(QObject *object, QEvent *event)
+{
+	QWidget* widget = qobject_cast<QWidget*>(object);
+
+	if(widget && event->type() == QEvent::KeyRelease) {
+		QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+		if(keyEvent->key() == Qt::Key_Escape)
+			emit closeEditor(widget);
+
+	}
+	return QObject::eventFilter(object, event);
+}
