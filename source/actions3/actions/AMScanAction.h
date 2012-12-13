@@ -97,6 +97,8 @@ protected:
 	/*! \note If startImplementation() was never called, you won't receive this when a user tries to cancel(); the base class will handle it for you. */
 	virtual void cancelImplementation();
 
+	/// Exports a the scan with the registered exporter and option when a scan successfully completes.
+	void autoExportScan();
 	/// Method that returns a string with the state of the scan controller.
 	QString controllerStateString() const;
 
