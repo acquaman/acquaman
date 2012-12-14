@@ -53,6 +53,8 @@ public:
 
 	/// Specify that we cannot pause (since AMControl cannot pause).  If we wanted to get fancy, we might check if the control could stop, (and stop it for pause, and then start it again to resume). But this is much simpler for now.
 	virtual bool canPause() const { return false; }
+	/// This action cannot skip.
+	virtual bool canSkip() const { return false; }
 
 	/// Virtual function that denotes that this action has children underneath it or not.
 	virtual bool hasChildren() const { return false; }
@@ -81,6 +83,9 @@ protected:
 	/// All implementations must support cancelling. This function will be called from the Cancelling state. Implementations will probably want to examine the previousState(), which could be any of Starting, Running, Pausing, Paused, or Resuming. Once the action is cancelled and can be deleted, you should call notifyCancelled().
 	/*! \note If startImplementation() was never called, you won't receive this when a user tries to cancel(); the base class will handle it for you. */
 	virtual void cancelImplementation();
+
+	/// Since this action does not support skipping, the method is empty.
+	virtual void skipImplementation(const QString &command) { Q_UNUSED(command); }
 
 protected slots:
 	/// Every second, we emit a progress update with setProgress()

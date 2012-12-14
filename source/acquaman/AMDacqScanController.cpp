@@ -30,6 +30,7 @@ AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *pa
 	useDwellTimes_ = false;
 	dwellTimeTrigger_ = 0; //NULL
 	dwellTimeConfirmed_ = 0; //NULL
+	stopImmediately_ = false;
 
 	dacqCancelled_ = false;
 	QEpicsAcqLocal *lAcq = new QEpicsAcqLocal((QWidget*)parent);
@@ -211,6 +212,13 @@ bool AMDacqScanController::event(QEvent *e){
 				++j;
 			}
 			scan_->rawData()->endInsertRows();
+
+			if (stopImmediately_){
+
+				// Make sure that the AMScanController knows that the scan has NOT been cancelled.
+				dacqCancelled_ = false;
+				advAcq_->Stop();
+			}
 		}
 		e->accept();
 		return true;

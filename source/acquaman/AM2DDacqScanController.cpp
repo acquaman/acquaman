@@ -194,7 +194,14 @@ bool AM2DDacqScanController::event(QEvent *e)
 
 			scan_->rawData()->endInsertRows();
 
-			if (stopAtEndOfLine_ && atEndOfLine(aeData)){
+			if (stopImmediately_){
+
+				// Make sure that the AMScanController knows that the scan has NOT been cancelled.
+				dacqCancelled_ = false;
+				advAcq_->Stop();
+			}
+
+			else if (stopAtEndOfLine_ && atEndOfLine(aeData)){
 
 				// Make sure that the AMScanController knows that the scan has NOT been cancelled.  This way the scan will still be auto-exported.
 				dacqCancelled_ = false;

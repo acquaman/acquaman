@@ -27,6 +27,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporter.h"
 #include "dataman/export/AMExporterOption.h"
 
+// These are here for the time being.  When AMScanController is updated to accommodate skipping in a more general way these need to be added here.
+#include "acquaman/AMDacqScanController.h"
+#include "acquaman/AM2DDacqScanController.h"
+
 #include <QDir>
 #include <QStringBuilder>
 
@@ -77,7 +81,17 @@ void AMScanAction::startImplementation()
 		setFailed();
 		return;
 	}
+
 	hasValidScanController_ = true;
+
+	// Set the skip options if it is one of the dacq controllers.
+	if (qobject_cast<AMDacqScanController *>(controller_)){
+
+		skipOptions_.append("Stop Now");
+
+		if (qobject_cast<AM2DDacqScanController *>(controller_))
+			skipOptions_.append("Stop At The End Of Line");
+	}
 
 	connect(controller_, SIGNAL(initialized()), this, SLOT(onControllerInitialized()));
 	connect(controller_, SIGNAL(started()), this, SLOT(onControllerStarted()));
@@ -117,6 +131,31 @@ void AMScanAction::resumeImplementation()
 void AMScanAction::cancelImplementation()
 {
 	controller_->cancel();
+}
+
+void AMScanAction::skipImplementation(const QString &command)
+{
+	if (command == "Stop Now"){
+
+		AMDacqScanController *controller = qobject_cast<AMDacqScanController *>(controller_);
+		controller->stopImmediately();
+	}
+
+	else if (command == "Stop At The End Of Line"){
+
+		AM2DDacqScanController *controller = qobject_cast<AM2DDacqScanController *>(controller_);
+		controller->stopAtTheEndOfLine();
+	}
+
+}
+
+bool AMScanAction::canSkip() const
+{
+	// We can check against AMDacqScanController only because AM2DDacqScanController inherits from AMDacqScanController.
+	if (qobject_cast<AMDacqScanController *>(controller_))
+		return true;
+
+	return false;
 }
 
 void AMScanAction::onControllerInitialized()
@@ -242,9 +281,7 @@ void AMScanAction::autoExportScan()
 	if (controller_->scan()->database()){
 
 		// Save the finished scan to the database.
-		bool saveSucceeded = controller_->scan()->storeToDb(controller_->scan()->database());
-
-		if (saveSucceeded){
+		if (controller_->scan()->storeToDb(controller_->scan()->database())){
 
 			AMScanConfiguration *config = controller_->scan()->scanConfiguration();
 

@@ -260,8 +260,8 @@ void VESPERSAppController::setupUserInterface()
 	exafsScanConfig_ = new VESPERSEXAFSScanConfiguration();
 	exafsScanConfig_->addRegion(0, -30, 0.5, 40, 1);
 	exafsConfigView_ = new VESPERSEXAFSScanConfigurationView(exafsScanConfig_);
-	exafsConfigViewHolder_ = new AMScanConfigurationViewHolder( workflowManagerView_, exafsConfigView_);
-//	exafsConfigViewHolder3_ = new AMScanConfigurationViewHolder3(exafsConfigView);
+//	exafsConfigViewHolder_ = new AMScanConfigurationViewHolder( workflowManagerView_, exafsConfigView_);
+	exafsConfigViewHolder3_ = new AMScanConfigurationViewHolder3(exafsConfigView_);
 	connect(exafsConfigView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
 	// Setup 2D maps for the beamline.  Builds the config, view, and view holder.
@@ -269,8 +269,8 @@ void VESPERSAppController::setupUserInterface()
 	mapScanConfiguration_->setStepSize(0.005, 0.005);
 	mapScanConfiguration_->setTimeStep(1);
 	mapScanConfigurationView_ = new VESPERS2DScanConfigurationView(mapScanConfiguration_);
-	mapScanConfigurationViewHolder_ = new AM2DScanConfigurationViewHolder(workflowManagerView_, mapScanConfigurationView_);
-//	mapScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(mapScanConfigurationView_);
+//	mapScanConfigurationViewHolder_ = new AM2DScanConfigurationViewHolder(workflowManagerView_, mapScanConfigurationView_);
+	mapScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(mapScanConfigurationView_);
 	connect(mapScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
 	// Setup line scans for the beamline.  Builds the config, view, and view holder.
@@ -279,8 +279,8 @@ void VESPERSAppController::setupUserInterface()
 	lineScanConfiguration_->regions()->setUnits(0, "mm");
 	lineScanConfiguration_->regions()->setTimeUnits(0, "s");
 	lineScanConfigurationView_ = new VESPERSSpatialLineScanConfigurationView(lineScanConfiguration_);
-	lineScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_, lineScanConfigurationView_);
-//	lineScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(lineScanConfigurationView_);
+//	lineScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_, lineScanConfigurationView_);
+	lineScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(lineScanConfigurationView_);
 	connect(lineScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
 	// Setup energy scans for the beamline.  Builds the config, view, and view holder.
@@ -289,19 +289,19 @@ void VESPERSAppController::setupUserInterface()
 	energyScanConfiguration_->regions()->setUnits(0, " eV");
 	energyScanConfiguration_->regions()->setTimeUnits(0, " s");
 	energyScanConfigurationView_ = new VESPERSEnergyScanConfigurationView(energyScanConfiguration_);
-	energyScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_, energyScanConfigurationView_);
-//	energyScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(energyScanConfigurationView_);
+//	energyScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_, energyScanConfigurationView_);
+	energyScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(energyScanConfigurationView_);
 	connect(energyScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
 	mw_->insertHeading("Scans", 2);
-	mw_->addPane(exafsConfigViewHolder_, "Scans", "XAS", ":/utilities-system-monitor.png");
-	mw_->addPane(mapScanConfigurationViewHolder_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
-	mw_->addPane(lineScanConfigurationViewHolder_, "Scans", "Line Scan", ":/utilities-system-monitor.png");
-	mw_->addPane(energyScanConfigurationViewHolder_, "Scans", "Energy Scan", ":/utilities-system-monitor.png");
-//	mw_->addPane(exafsConfigViewHolder3_, "Scans", "XAS", ":/utilities-system-monitor.png");
-//	mw_->addPane(mapScanConfigurationViewHolder3_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
-//	mw_->addPane(lineScanConfigurationViewHolder3_, "Scans", "Line Scan", ":/utilities-system-monitor.png");
-//	mw_->addPane(energyScanConfigurationViewHolder3_, "Scans", "Energy Scan", ":/utilities-system-monitor.png");
+//	mw_->addPane(exafsConfigViewHolder_, "Scans", "XAS", ":/utilities-system-monitor.png");
+//	mw_->addPane(mapScanConfigurationViewHolder_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
+//	mw_->addPane(lineScanConfigurationViewHolder_, "Scans", "Line Scan", ":/utilities-system-monitor.png");
+//	mw_->addPane(energyScanConfigurationViewHolder_, "Scans", "Energy Scan", ":/utilities-system-monitor.png");
+	mw_->addPane(exafsConfigViewHolder3_, "Scans", "XAS", ":/utilities-system-monitor.png");
+	mw_->addPane(mapScanConfigurationViewHolder3_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
+	mw_->addPane(lineScanConfigurationViewHolder3_, "Scans", "Line Scan", ":/utilities-system-monitor.png");
+	mw_->addPane(energyScanConfigurationViewHolder3_, "Scans", "Energy Scan", ":/utilities-system-monitor.png");
 
 	// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
 	persistentView_ = new VESPERSPersistentView;
@@ -313,12 +313,12 @@ void VESPERSAppController::setupUserInterface()
 
 void VESPERSAppController::makeConnections()
 {
-	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
-	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
-	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerFinished()));
+//	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
+//	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
+//	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerFinished()));
 
-	//connect(AMActionRunner3::workflow(), SIGNAL(scanActionStarted(AMScanAction*)), this, SLOT(onCurrentScanControllerStarted(AMScanAction*)));
-	//connect(AMActionRunner3::workflow(), SIGNAL(scanActionFinished(AMScanAction *)), this, SLOT(onCurrentScanControllerFinished(AMScanAction*)));
+	connect(AMActionRunner3::workflow(), SIGNAL(scanActionStarted(AMScanAction*)), this, SLOT(onCurrentScanControllerStarted(AMScanAction*)));
+	connect(AMActionRunner3::workflow(), SIGNAL(scanActionFinished(AMScanAction *)), this, SLOT(onCurrentScanControllerFinished(AMScanAction*)));
 
 	// Bottom bar connections.
 	connect(this, SIGNAL(pauseScanIssued()), this, SLOT(onPauseScanIssued()));
@@ -346,20 +346,21 @@ void VESPERSAppController::onConfigureDetectorRequested(const QString &detector)
 		mw_->setCurrentPane(marCCDView_);
 }
 
-void VESPERSAppController::onCurrentScanControllerStarted()
+void VESPERSAppController::onCurrentScanControllerStarted(AMScanAction *action)
 {
-	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
-//	QString fileFormat(AMActionRunner3::workflow()->scanController()->scan()->fileFormat());
+//	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
+	QString fileFormat(action->controller()->scan()->fileFormat());
 
 	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
 		return;
 
-//	connect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
-//	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
+	connect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
+	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
 
-	AMScan *scan = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan();
-//	AMScan *scan = AMActionRunner3::workflow()->scanController()->scan();
-	openScanInEditor(scan);
+//	AMScan *scan = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan();
+//	AMScan *scan = AMActionRunner3::workflow()->controller()->scan();
+//	openScanInEditor(scan);
+	openScanInEditor(action->controller()->scan());
 
 //	AMGenericScanEditor *newEditor = scanEditorAt(scanEditorCount() -1);
 
@@ -409,44 +410,45 @@ void VESPERSAppController::onCurrentScanControllerStarted()
 //	}
 }
 
-void VESPERSAppController::onCurrentScanControllerCreated()
+void VESPERSAppController::onCurrentScanControllerCreated(AMScanAction *action)
 {
-	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
+	Q_UNUSED(action)
+//	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
 //	QString fileFormat(AMActionRunner3::workflow()->scanController()->scan()->fileFormat());
 
-	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
-		return;
+//	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
+//		return;
 
-	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
+//	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
 //	connect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
-	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
+//	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
 
-	if (qobject_cast<VESPERSEXAFSScanConfiguration *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->scanConfiguration())){
+//	if (qobject_cast<VESPERSEXAFSScanConfiguration *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->scanConfiguration())){
 
-		connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));
-		assistantView_->show();
-	}
+//		connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));
+//		assistantView_->show();
+//	}
 }
 
-void VESPERSAppController::onCurrentScanControllerFinished()
+void VESPERSAppController::onCurrentScanControllerFinished(AMScanAction *action)
 {
-	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
-//	QString fileFormat(AMActionRunner3::workflow()->scanController()->scan()->fileFormat());
+//	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
+	QString fileFormat(action->controller()->scan()->fileFormat());
 
 	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
 		return;
 
 	assistantView_->hide();
 
-	if (AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->state() == AMScanController::Cancelled
-			&& (qobject_cast<VESPERSEXAFSScanConfiguration *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->scanConfiguration()))){
+//	if (AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->state() == AMScanController::Cancelled
+//			&& (qobject_cast<VESPERSEXAFSScanConfiguration *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->scanConfiguration()))){
 
-		assistant_->onScanCancelled();
-		disconnect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));
-	}
+//		assistant_->onScanCancelled();
+//		disconnect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));
+//	}
 
-	disconnect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
-//	disconnect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
+//	disconnect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
+	disconnect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
 	disconnect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
 
 	bottomBar_->resumeScanButton->setStyleSheet("QToolButton {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:1 rgba(215, 215, 215, 255));\nborder-radius: 18px;\nborder: 0.5px outset rgb(81, 81, 81);\n}\nQToolButton:pressed {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:1 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:0 rgba(215, 215, 215, 255));\n}\n");
@@ -454,63 +456,77 @@ void VESPERSAppController::onCurrentScanControllerFinished()
 
 void VESPERSAppController::onBeamDump()
 {
-	AMScanController *controller = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+//	AMScanController *controller = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
 
-	if (controller && controller->isRunning()){
+//	if (controller && controller->isRunning()){
 
-		controller->pause();
+//		controller->pause();
+//		bottomBar_->resumeScanButton->setStyleSheet("QToolButton {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 0, 255), stop:0.494444 rgba(226, 226, 0, 255), stop:0.5 rgba(220, 220, 0, 255), stop:1 rgba(215, 215, 0, 255));\nborder-radius: 18px;\nborder: 0.5px outset rgb(81, 81, 81);\n}\nQToolButton:pressed {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:1 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:0 rgba(215, 215, 215, 255));\n}\n");
+//		bottomBar_->resumeScanButton->setVisible(true);
+//		bottomBar_->pauseScanButton->setVisible(false);
+//	}
+
+	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
+
+	if (action && action->canPause() && action->state() == AMAction3::Running){
+
+		action->pause();
 		bottomBar_->resumeScanButton->setStyleSheet("QToolButton {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 0, 255), stop:0.494444 rgba(226, 226, 0, 255), stop:0.5 rgba(220, 220, 0, 255), stop:1 rgba(215, 215, 0, 255));\nborder-radius: 18px;\nborder: 0.5px outset rgb(81, 81, 81);\n}\nQToolButton:pressed {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:1 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:0 rgba(215, 215, 215, 255));\n}\n");
 		bottomBar_->resumeScanButton->setVisible(true);
 		bottomBar_->pauseScanButton->setVisible(false);
 	}
-
-//	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
-
-//	if (action && action->canPause() && action->state() == AMAction3::Running)
-//		action->pause();
 }
 
 void VESPERSAppController::onPauseScanIssued()
 {
-	AMScanController *controller = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+//	AMScanController *controller = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
 
-	if (controller && controller->isRunning()){
+//	if (controller && controller->isRunning()){
 
-		controller->pause();
+//		controller->pause();
+//		bottomBar_->resumeScanButton->setVisible(true);
+//		bottomBar_->pauseScanButton->setVisible(false);
+//	}
+
+//	else if (controller && controller->isPaused()){
+
+//		controller->resume();
+//		bottomBar_->resumeScanButton->setVisible(false);
+//		bottomBar_->resumeScanButton->setStyleSheet("QToolButton {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:1 rgba(215, 215, 215, 255));\nborder-radius: 18px;\nborder: 0.5px outset rgb(81, 81, 81);\n}\nQToolButton:pressed {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:1 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:0 rgba(215, 215, 215, 255));\n}\n");
+//		bottomBar_->pauseScanButton->setVisible(true);
+//	}
+
+	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
+
+	if (action && action->canPause() && action->state() == AMAction3::Running){
+
+		action->pause();
 		bottomBar_->resumeScanButton->setVisible(true);
 		bottomBar_->pauseScanButton->setVisible(false);
 	}
 
-	else if (controller && controller->isPaused()){
+	else if (action && action->canPause() && action->state() == AMAction3::Paused){
 
-		controller->resume();
+		action->resume();
 		bottomBar_->resumeScanButton->setVisible(false);
 		bottomBar_->resumeScanButton->setStyleSheet("QToolButton {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:1 rgba(215, 215, 215, 255));\nborder-radius: 18px;\nborder: 0.5px outset rgb(81, 81, 81);\n}\nQToolButton:pressed {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:1 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:0 rgba(215, 215, 215, 255));\n}\n");
 		bottomBar_->pauseScanButton->setVisible(true);
 	}
-
-//	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
-
-//	if (action && action->canPause() && action->state() == AMAction3::Running)
-//		action->pause();
-
-//	else if (action && action->canPause() && action->state() == AMAction3::Paused)
-//		action->resume();
 }
 
 void VESPERSAppController::onCancelScanIssued()
 {
-	AMScanController *controller = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+//	AMScanController *controller = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
 
-	if (controller)
-		controller->cancel();
+//	if (controller)
+//		controller->cancel();
+
+	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
+
+	if (action)
+		action->cancel();
 
 	bottomBar_->resumeScanButton->setStyleSheet("QToolButton {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:1 rgba(215, 215, 215, 255));\nborder-radius: 18px;\nborder: 0.5px outset rgb(81, 81, 81);\n}\nQToolButton:pressed {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:1 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:0 rgba(215, 215, 215, 255));\n}\n");
-
-//	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
-
-//	if (action)
-//		action->cancel();
 }
 
 void VESPERSAppController::onScanEditorCreated(AMGenericScanEditor *editor)

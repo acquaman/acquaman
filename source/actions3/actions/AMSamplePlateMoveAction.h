@@ -53,6 +53,8 @@ public:
 
 	/// Specify that we cannot pause (since AMControl cannot pause).  If we wanted to get fancy, we might check if the control could stop, (and stop it for pause, and then start it again to resume). But this is much simpler for now.
 	virtual bool canPause() const { return false; }
+	/// This method does not support the skip ability.
+	virtual bool canSkip() const { return false; }
 
 	/// Virtual function that denotes that this action has children underneath it or not.
 	virtual bool hasChildren() const { return false; }
@@ -83,6 +85,9 @@ protected:
 	/// All implementations must support cancelling. This function will be called from the Cancelling state. Implementations will probably want to examine the previousState(), which could be any of Starting, Running, Pausing, Paused, or Resuming. Once the action is cancelled and can be deleted, you should call notifyCancelled().
 	/*! \note If startImplementation() was never called, you won't receive this when a user tries to cancel(); the base class will handle it for you. */
 	virtual void cancelImplementation();
+
+	/// Since the action does not support skipping, this method is empty.
+	virtual void skipImplementation(const QString &command) { Q_UNUSED(command); }
 
 	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMSamplePlateMoveActionInfo. This makes it easier to access.
 	const AMSamplePlateMoveActionInfo* samplePlateMoveInfo() const { return qobject_cast<const AMSamplePlateMoveActionInfo*>(info()); }
