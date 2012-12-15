@@ -78,6 +78,15 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 	specificScan_->rawData()->addMeasurement(AMMeasurementInfo(* (config_->allDetectors()->detectorNamed("photodiodeScaler")->toInfo()) ));
 	specificScan_->addRawDataSource(new AMRawDataSource(specificScan_->rawData(), 3));
 
+	specificScan_->rawData()->addMeasurement(AMMeasurementInfo(* (config_->allDetectors()->detectorNamed("filterPD1Current")->toInfo()) ));
+	specificScan_->addRawDataSource(new AMRawDataSource(specificScan_->rawData(), 4));
+	specificScan_->rawData()->addMeasurement(AMMeasurementInfo(* (config_->allDetectors()->detectorNamed("filterPD2Current")->toInfo()) ));
+	specificScan_->addRawDataSource(new AMRawDataSource(specificScan_->rawData(), 5));
+	specificScan_->rawData()->addMeasurement(AMMeasurementInfo(* (config_->allDetectors()->detectorNamed("filterPD3Current")->toInfo()) ));
+	specificScan_->addRawDataSource(new AMRawDataSource(specificScan_->rawData(), 6));
+	specificScan_->rawData()->addMeasurement(AMMeasurementInfo(* (config_->allDetectors()->detectorNamed("filterPD4Current")->toInfo()) ));
+	specificScan_->addRawDataSource(new AMRawDataSource(specificScan_->rawData(), 7));
+
 	QList<AMDataSource*> raw1DDataSources;
 	for(int i=0; i<specificScan_->rawDataSources()->count(); i++)
 		if(specificScan_->rawDataSources()->at(i)->rank() == 1)
@@ -86,6 +95,11 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 	int rawTeyIndex = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->teyDetector()->description());
 	int rawTfyIndex = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->tfyDetector()->description());
 	int rawI0Index = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->i0Detector()->description());
+
+	int rawFPD1Index = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->filterPD1ScalarDetector()->description().remove(' '));
+	int rawFPD2Index = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->filterPD2ScalarDetector()->description().remove(' '));
+	int rawFPD3Index = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->filterPD3ScalarDetector()->description().remove(' '));
+	int rawFPD4Index = specificScan_->rawDataSources()->indexOfKey(SGMBeamline::sgm()->filterPD4ScalarDetector()->description().remove(' '));
 
 	if(rawTeyIndex != -1 && rawI0Index != -1) {
 		AM1DExpressionAB* teyChannel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->teyDetector()->description()));
@@ -104,6 +118,42 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 
 		specificScan_->addAnalyzedDataSource(tfyChannel);
 	}
+
+	/*
+	//Adding normalized channels for new diodes
+	if(rawFPD1Index != -1 && rawI0Index != -1) {
+		AM1DExpressionAB* fpd1Channel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->filterPD1ScalarDetector()->description()));
+		fpd1Channel->setDescription("Normalized Aux1");
+		fpd1Channel->setInputDataSources(raw1DDataSources);
+		fpd1Channel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->filterPD1ScalarDetector()->description()).arg(SGMBeamline::sgm()->i0Detector()->description()));
+
+		specificScan_->addAnalyzedDataSource(fpd1Channel);
+	}
+	if(rawFPD2Index != -1 && rawI0Index != -1) {
+		AM1DExpressionAB* fpd2Channel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->filterPD2ScalarDetector()->description()));
+		fpd2Channel->setDescription("Normalized Aux2");
+		fpd2Channel->setInputDataSources(raw1DDataSources);
+		fpd2Channel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->filterPD2ScalarDetector()->description()).arg(SGMBeamline::sgm()->i0Detector()->description()));
+
+		specificScan_->addAnalyzedDataSource(fpd2Channel);
+	}
+	if(rawFPD3Index != -1 && rawI0Index != -1) {
+		AM1DExpressionAB* fpd3Channel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->filterPD3ScalarDetector()->description()));
+		fpd3Channel->setDescription("Normalized Aux3");
+		fpd3Channel->setInputDataSources(raw1DDataSources);
+		fpd3Channel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->filterPD3ScalarDetector()->description()).arg(SGMBeamline::sgm()->i0Detector()->description()));
+
+		specificScan_->addAnalyzedDataSource(fpd3Channel);
+	}
+	if(rawFPD4Index != -1 && rawI0Index != -1) {
+		AM1DExpressionAB* fpd4Channel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->filterPD4ScalarDetector()->description()));
+		fpd4Channel->setDescription("Normalized Aux4");
+		fpd4Channel->setInputDataSources(raw1DDataSources);
+		fpd4Channel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->filterPD4ScalarDetector()->description()).arg(SGMBeamline::sgm()->i0Detector()->description()));
+
+		specificScan_->addAnalyzedDataSource(fpd4Channel);
+	}
+	*/
 }
 
 bool SGMFastScanController::isBeamlineInitialized() {
@@ -244,7 +294,9 @@ bool SGMFastScanController::beamlineInitialize(){
 
 	bool enableIt = false;
 	for(int x = 0; x < 32; x++){
-		(x < 6) ? enableIt = true : enableIt = false;
+		//(x < 6) ? enableIt = true : enableIt = false;
+		// Adding the new diodes
+		(x < 10) ? enableIt = true : enableIt = false;
 		tmpBAction = SGMBeamline::sgm()->scaler()->channelAt(x)->createEnableAction(enableIt);
 		tmpBAction ? initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpBAction) : initializationFailed = true;
 	}
