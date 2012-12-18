@@ -56,7 +56,7 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 	scan_->replaceRawDataStore(new AMCDFDataStore(AMUserSettings::userDataFolder % scan_->filePath(), false));
 
 
-	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSLineScanDefault", config_->exportSpectraSources());
+	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSLineScanDefault", config_->exportSpectraSources(), false, false);
 	if(vespersDefault->id() > 0)
 		AMAppControllerSupport::registerClass<VESPERSSpatialLineScanConfiguration, VESPERSExporterLineScanAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
 
@@ -132,8 +132,6 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 
 	scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 
-	XRFDetector *detector = 0;
-
 	switch ((int)config_->fluorescenceDetector()){
 
 	case VESPERS::NoXRF:
@@ -195,7 +193,7 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 
 		AMDataSource *rawDataSource = 0;
 		AM1DNormalizationAB *normROI = 0;
-		int roiCount = detector->roiInfoList()->count();
+		int roiCount = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList()->count();
 
 		for (int i = 0; i < roiCount; i++){
 
@@ -220,7 +218,7 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 
 		AMDataSource *rawDataSource = 0;
 		AM1DNormalizationAB *normROI = 0;
-		int roiCount = detector->roiInfoList()->count();
+		int roiCount = VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList()->count();
 
 		for (int i = 0; i < roiCount; i++){
 
@@ -394,7 +392,10 @@ bool VESPERSSpatialLineDacqScanController::startImplementation()
 {
 	bool configSuccess = false;
 
-	if (config_->fluorescenceDetector() == VESPERS::SingleElement)
+	if (config_->fluorescenceDetector() == VESPERS::NoXRF)
+		configSuccess = setupIonChamberMap();
+
+	else if (config_->fluorescenceDetector() == VESPERS::SingleElement)
 		configSuccess = setupSingleElementMap();
 
 	else if (config_->fluorescenceDetector() == VESPERS::FourElement)
@@ -462,6 +463,46 @@ void VESPERSSpatialLineDacqScanController::onInitializationActionsProgress(doubl
 {
 	Q_UNUSED(elapsed)
 	Q_UNUSED(total)
+}
+
+bool VESPERSSpatialLineDacqScanController::setupIonChamberMap()
+{
+	VESPERSConfigurationFileBuilder builder;
+	builder.setDimensions(1);
+	builder.setRoperCCD(config_->ccdDetector() == VESPERS::Roper ? true : false);
+	builder.setPvNameAxis1(pvName_);	// This is fine because we have already checked what sample stage we're using in the constructor.
+	builder.buildConfigurationFile();
+
+	bool loadSuccess = advAcq_->setConfigFile(VESPERS::getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
+
+	if(!loadSuccess){
+		AMErrorMon::alert(this,
+				VESPERSSPATIALLINEDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
+				"Error, VESPERS Spatial Line DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers.");
+		return false;
+	}
+
+	usingSpectraDotDatFile_ = false;
+
+	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
+	while (advAcq_->deleteRecord(1)){}
+
+	AMPVwStatusControl *motor = qobject_cast<AMPVwStatusControl *>(config_->regions()->defaultControl());
+	if (!motor)
+		return false;
+
+	advAcq_->appendRecord(motor->writePVName()+":fbk", true, false, 0);
+	addStandardExtraPVs(advAcq_, false, false);
+
+	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+
+	for (int i = 0; i < ionChambers->count(); i++)
+		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
+
+	if (config_->ccdDetector() == VESPERS::Roper)
+			advAcq_->appendRecord("IOC1607-003:det1:FileNumber", true, false, 0);
+
+	return true;
 }
 
 bool VESPERSSpatialLineDacqScanController::setupSingleElementMap()

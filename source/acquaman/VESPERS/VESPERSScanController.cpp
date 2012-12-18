@@ -303,7 +303,10 @@ void VESPERSScanController::addFourElementSpectraMeasurments(AMScan *scan, const
 	temp.name = "correctedSum-4el";
 	temp.description = "Corrected Sum 4-el";
 	scan->rawData()->addMeasurement(temp);
-	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), true, false);
+	if (scan->scanRank() == 2)
+		scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
+	else
+		scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), true, false);
 
 	for (int i = 0; i < 4; i++){
 

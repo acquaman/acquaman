@@ -68,14 +68,14 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 
 	if (config_->exportAsAscii()){
 
-		AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERS2DDefault", config_->exportSpectraSources());
+		AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERS2DDefault", config_->exportSpectraSources(), false, false);
 		if(vespersDefault->id() > 0)
 			AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporter2DAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
 	}
 
 	else{
 
-		AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSDefault", config_->exportSpectraSources());
+		AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERS2DDefault", config_->exportSpectraSources(), false, false);
 		if(vespersDefault->id() > 0)
 			AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporterSMAK, AMExporterOptionGeneralAscii>(vespersDefault->id());
 	}
@@ -136,8 +136,6 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("Z:fbk", "Vertical Feedback", "mm"));
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 	}
-
-	XRFDetector *detector = 0;
 
 	switch ((int)config_->fluorescenceDetector()){
 
@@ -201,7 +199,7 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 
 		AMDataSource *rawDataSource = 0;
 		AM2DNormalizationAB *normROI = 0;
-		int roiCount = detector->roiInfoList()->count();
+		int roiCount = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList()->count();
 
 		for (int i = 0; i < roiCount; i++){
 
@@ -225,7 +223,7 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 
 		AMDataSource *rawDataSource = 0;
 		AM2DNormalizationAB *normROI = 0;
-		int roiCount = detector->roiInfoList()->count();
+		int roiCount = VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList()->count();
 
 		for (int i = 0; i < roiCount; i++){
 

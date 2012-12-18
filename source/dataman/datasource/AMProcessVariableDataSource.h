@@ -193,7 +193,18 @@ public:
 			return false;
 #endif
 
-		memcpy(outputValues, data_->lastFloatingPointValues().constData(), indexStart.totalPointsTo(indexEnd)*sizeof(double));
+		if (data_->dataType() == PVDataType::FloatingPoint)
+			memcpy(outputValues, data_->lastFloatingPointValues().constData(), indexStart.totalPointsTo(indexEnd)*sizeof(double));
+
+		else{
+
+			int totalSize = indexStart.totalPointsTo(indexEnd);
+			QVector<double> val = QVector<double>(totalSize);
+			for (int i = 0; i < totalSize; i++)
+				val[i] = double(data_->lastIntegerValues().at(i));
+
+			memcpy(outputValues, val.constData(), indexStart.totalPointsTo(indexEnd)*sizeof(double));
+		}
 		return true;
 	}
 

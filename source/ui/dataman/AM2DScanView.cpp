@@ -290,7 +290,9 @@ void AM2DScanView::onExclusiveDataSourceChanged(const QString &name)
 
 	currentExclusiveDataSource_ = currentScan_->dataSourceAt(currentScan_->indexOfDataSource(name));
 	exclusive2DScanBar_->setValue(double(currentExclusiveDataSource_->value(getIndex(exclusive2DScanBar_->dataPosition()))));
-	exclusive2DScanBar_->setRange(getCurrentExclusiveDataSourceRange());
+	QPair<double, double> range = getCurrentExclusiveDataSourceRange();
+	if (!(range.first == -1 && range.second == -1))
+		exclusive2DScanBar_->setRange(range);
 	connect(currentExclusiveDataSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onExclusiveDataSourceValueChanged(AMnDIndex,AMnDIndex)));
 }
 
@@ -352,22 +354,28 @@ QPair<double, double> AM2DScanView::getCurrentExclusiveDataSourceRange(const AMn
 		else
 			totalSize = start.totalPointsTo(end);
 
-		QVector<double> data(totalSize);
-		currentExclusiveDataSource_->values(startIndex, endIndex, data.data());
+		if (totalSize > 0){
 
-		double min = data.at(0);
-		double max = data.at(0);
+			QVector<double> data(totalSize);
+			currentExclusiveDataSource_->values(startIndex, endIndex, data.data());
 
-		foreach (double value, data){
+			double min = data.at(0);
+			double max = data.at(0);
 
-			if ((value != -1 && min > value) || min == -1)
-				min = value;
+			foreach (double value, data){
 
-			if (max < value)
-				max = value;
+				if ((value != -1 && min > value) || min == -1)
+					min = value;
+
+				if (max < value)
+					max = value;
+			}
+
+			return qMakePair(min, max);
 		}
 
-		return qMakePair(min, max);
+		else
+			return qMakePair(-1.0, -1.0);
 	}
 }
 

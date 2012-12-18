@@ -369,6 +369,22 @@ bool AMDbUpgradeSupport::changeColumnName(AMDatabase *databaseToEdit, const QStr
 	QString tempName = "temp_table";
 	QSqlQuery query = db->query();
 
+	// Find if the table uses ascending or auto increment for the id.
+	bool reUseIds = true;
+	query.prepare(QString("SELECT sql FROM sqlite_master WHERE type='table' AND name='%1'").arg(tableName));
+	db->execQuery(query);
+
+	if (query.first()){
+
+		QString reuseIdString;
+		do {
+			reuseIdString = query.value(0).toString();
+		}while(query.next());
+
+		reUseIds = reuseIdString.contains("PRIMARY KEY ASC") ? true : false;
+	}
+	query.finish();
+
 	// Change the name of the old table.
 	query.prepare(QString("ALTER TABLE %1 RENAME TO %2;").arg(tableName).arg(tempName));
 	if (!db->execQuery(query)){
@@ -403,23 +419,12 @@ bool AMDbUpgradeSupport::changeColumnName(AMDatabase *databaseToEdit, const QStr
 	if (!newType.isNull())
 		columnTypes.replace(indexOfOldColumnName, newType);
 
-	QString columnNamesAndTypes;
+	if (!db->ensureTable(tableName, newColumnNames.mid(1), columnTypes.mid(1), reUseIds)){
 
-	for (int i = 0, size = newColumnNames.size(); i < size; i++)
-		columnNamesAndTypes += QString("%1 %2, ").arg(newColumnNames.at(i)).arg(columnTypes.at(i));
-
-	columnNamesAndTypes.chop(2);
-
-	query.prepare(QString("CREATE TABLE %1 (%2);").arg(tableName).arg(columnNamesAndTypes));
-	if (!db->execQuery(query)){
-
-		query.finish();
 		db->rollbackTransaction();
 		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_CREATE_NEW_TABLE, QString("Could not create a new table."));
 		return false;
 	}
-
-	query.finish();
 
 	// Move the data from the old table to the new table.
 	query.prepare(QString("INSERT INTO %1 (%2) SELECT %3 FROM %4;").arg(tableName).arg(newColumnNames.join(", ")).arg(oldColumnNames.join(", ")).arg(tempName));
@@ -491,6 +496,21 @@ bool AMDbUpgradeSupport::removeColumn(AMDatabase *databaseToEdit, const QString 
 	QString tempName = "temp_table";
 	QSqlQuery query = db->query();
 
+	// Find if the table uses ascending or auto increment for the id.
+	bool reUseIds = true;
+	query.prepare(QString("SELECT sql FROM sqlite_master WHERE type='table' AND name='%1'").arg(tableName));
+	db->execQuery(query);
+
+	if (query.first()){
+		QString reuseIdString;
+		do {
+			reuseIdString = query.value(0).toString();
+		}while(query.next());
+
+		reUseIds = reuseIdString.contains("PRIMARY KEY ASC") ? true : false;
+	}
+	query.finish();
+
 	// Change the name of the old table.
 	query.prepare(QString("ALTER TABLE %1 RENAME TO %2;").arg(tableName).arg(tempName));
 	if (!db->execQuery(query)){
@@ -522,23 +542,12 @@ bool AMDbUpgradeSupport::removeColumn(AMDatabase *databaseToEdit, const QString 
 	columnNames.removeAt(indexOfColumnName);
 	columnTypes.removeAt(indexOfColumnName);
 
-	QString columnNamesAndTypes;
+	if (!db->ensureTable(tableName, columnNames.mid(1), columnTypes.mid(1), reUseIds)){
 
-	for (int i = 0, size = columnNames.size(); i < size; i++)
-		columnNamesAndTypes += QString("%1 %2, ").arg(columnNames.at(i)).arg(columnTypes.at(i));
-
-	columnNamesAndTypes.chop(2);
-
-	query.prepare(QString("CREATE TABLE %1 (%2);").arg(tableName).arg(columnNamesAndTypes));
-	if (!db->execQuery(query)){
-
-		query.finish();
 		db->rollbackTransaction();
 		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_CREATE_NEW_TABLE, QString("Could not create a new table."));
 		return false;
 	}
-
-	query.finish();
 
 	// Move the data from the old table to the new table.
 	query.prepare(QString("INSERT INTO %1 (%2) SELECT %3 FROM %4;").arg(tableName).arg(columnNames.join(", ")).arg(columnNames.join(", ")).arg(tempName));

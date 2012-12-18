@@ -78,6 +78,8 @@ protected:
 	/// Adds all the data sources that are still important but not visualized.
 	void addExtraDatasources();
 
+	/// Sets up the line scan with no XRF detector.
+	bool setupIonChamberMap();
 	/// Sets up the line scan based on the single element detector being used for XRF.
 	bool setupSingleElementMap();
 	/// Sets up the line scan based on the four element detector being used for XRF.

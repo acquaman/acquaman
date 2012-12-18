@@ -88,14 +88,24 @@ VESPERSAppController::VESPERSAppController(QObject *parent) :
 	// VESPERS user database upgrade that adds 1D raw datasources to all 2D scans.
 	AMDbUpgrade *vespers1Pt1UserDb = new VESPERSDbUpgrade1Pt1("user", this);
 	appendDatabaseUpgrade(vespers1Pt1UserDb);
+	AMDbUpgrade *vespers1Pt1ActionDb = new VESPERSDbUpgrade1Pt1("actions", this);
+	appendDatabaseUpgrade(vespers1Pt1ActionDb);
 	AMDbUpgrade *vespers1P2UserDb = new VESPERSDbUpgrade1Pt2("user", this);
 	appendDatabaseUpgrade(vespers1P2UserDb);
+	AMDbUpgrade *vespers1P2ActionDb = new VESPERSDbUpgrade1Pt2("actions", this);
+	appendDatabaseUpgrade(vespers1P2ActionDb);
 	AMDbUpgrade *vespers1P3UserDb = new VESPERSDbUpgrade1Pt3("user", this);
 	appendDatabaseUpgrade(vespers1P3UserDb);
+	AMDbUpgrade *vespers1P3ActionDb = new VESPERSDbUpgrade1Pt3("actions", this);
+	appendDatabaseUpgrade(vespers1P3ActionDb);
 	AMDbUpgrade *vespers1P4UserDb = new VESPERSDbUpgrade1Pt4("user", this);
 	appendDatabaseUpgrade(vespers1P4UserDb);
+	AMDbUpgrade *vespers1P4ActionDb = new VESPERSDbUpgrade1Pt4("actions", this);
+	appendDatabaseUpgrade(vespers1P4ActionDb);
 	AMDbUpgrade *vespers1P5UserDb = new VESPERSDbUpgrade1Pt5("user", this);
 	appendDatabaseUpgrade(vespers1P5UserDb);
+	AMDbUpgrade *vespers1P5ActionDb = new VESPERSDbUpgrade1Pt5("actions", this);
+	appendDatabaseUpgrade(vespers1P5ActionDb);
 }
 
 bool VESPERSAppController::startup() {
@@ -197,19 +207,19 @@ void VESPERSAppController::registerClasses()
 
 void VESPERSAppController::setupExporterOptions()
 {
-	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSDefault", true);
+	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSDefault", true, true, true);
 	if(vespersDefault->id() > 0)
 		AMAppControllerSupport::registerClass<VESPERSEXAFSScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(vespersDefault->id());
 
-	vespersDefault = VESPERS::buildStandardExporterOption("VESPERS2DDefault", true);
+	vespersDefault = VESPERS::buildStandardExporterOption("VESPERS2DDefault", true, false, false);
 	if(vespersDefault->id() > 0)
 		AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporter2DAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
 
-	vespersDefault = VESPERS::buildStandardExporterOption("VESPERSLineScanDefault", true);
+	vespersDefault = VESPERS::buildStandardExporterOption("VESPERSLineScanDefault", true, false, false);
 	if(vespersDefault->id() > 0)
 		AMAppControllerSupport::registerClass<VESPERSSpatialLineScanConfiguration, VESPERSExporterLineScanAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
 
-	vespersDefault = VESPERS::buildStandardExporterOption("VESPERSEnergyScanDefault", true);
+	vespersDefault = VESPERS::buildStandardExporterOption("VESPERSEnergyScanDefault", true, true, true);
 	if(vespersDefault->id() > 0)
 		AMAppControllerSupport::registerClass<VESPERSEnergyScanConfiguration, VESPERSExporterLineScanAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
 }
@@ -347,6 +357,7 @@ void VESPERSAppController::onConfigureDetectorRequested(const QString &detector)
 }
 
 void VESPERSAppController::onCurrentScanControllerStarted(AMScanAction *action)
+//void VESPERSAppController::onCurrentScanControllerStarted()
 {
 //	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
 	QString fileFormat(action->controller()->scan()->fileFormat());
@@ -358,9 +369,9 @@ void VESPERSAppController::onCurrentScanControllerStarted(AMScanAction *action)
 	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
 
 //	AMScan *scan = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan();
-//	AMScan *scan = AMActionRunner3::workflow()->controller()->scan();
-//	openScanInEditor(scan);
-	openScanInEditor(action->controller()->scan());
+	AMScan *scan = action->controller()->scan();
+	openScanInEditor(scan);
+//	openScanInEditor(action->controller()->scan());
 
 //	AMGenericScanEditor *newEditor = scanEditorAt(scanEditorCount() -1);
 
@@ -411,16 +422,17 @@ void VESPERSAppController::onCurrentScanControllerStarted(AMScanAction *action)
 }
 
 void VESPERSAppController::onCurrentScanControllerCreated(AMScanAction *action)
+//void VESPERSAppController::onCurrentScanControllerCreated()
 {
-	Q_UNUSED(action)
+//	Q_UNUSED(action)
 //	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
-//	QString fileFormat(AMActionRunner3::workflow()->scanController()->scan()->fileFormat());
+	QString fileFormat(action->controller()->scan()->fileFormat());
 
-//	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
-//		return;
+	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
+		return;
 
 //	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
-//	connect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
+	connect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
 //	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
 
 //	if (qobject_cast<VESPERSEXAFSScanConfiguration *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->scanConfiguration())){
@@ -431,6 +443,7 @@ void VESPERSAppController::onCurrentScanControllerCreated(AMScanAction *action)
 }
 
 void VESPERSAppController::onCurrentScanControllerFinished(AMScanAction *action)
+//void VESPERSAppController::onCurrentScanControllerFinished()
 {
 //	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
 	QString fileFormat(action->controller()->scan()->fileFormat());

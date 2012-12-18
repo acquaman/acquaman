@@ -142,7 +142,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 
 	for (int i = 0; i < detector_->elements(); i++){
 
-		temp = new VESPERSDeadTimeButton(30.0, 60.0);
+		temp = new VESPERSDeadTimeButton(30.0, 50.0);
 		temp->setCheckable(true);
 		temp->setFixedSize(20, 20);
 		deadTimeLayout->addWidget(temp);

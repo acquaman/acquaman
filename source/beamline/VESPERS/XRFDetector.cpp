@@ -339,7 +339,8 @@ bool XRFDetector::addRegionOfInterest(XRFElement *el, QString line)
 	if (roiInfoList()->count() == roiList().size())
 		return false;
 
-	AMROIInfo roi(el->lineEnergy(line), 0.04, scale(), el->symbol()+" "+GeneralUtilities::removeGreek(line));
+	double lineEnergy = el->lineEnergy(line);
+	AMROIInfo roi(lineEnergy, 2.75*sqrt(lineEnergy)/lineEnergy, scale(), el->symbol()+" "+GeneralUtilities::removeGreek(line));
 
 	// Appending to the list means that the old size of the Info list is where the new values should be set in the ROI list.
 	roiList_.at(roiInfoList()->count())->setRegion(roi);
