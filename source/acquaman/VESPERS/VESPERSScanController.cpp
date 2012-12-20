@@ -358,14 +358,14 @@ void VESPERSScanController::addSingleElementSpectraPVs(QEpicsAdvAcq *advAcq)
 
 void VESPERSScanController::addFourElementDeadTimePVs(QEpicsAdvAcq *advAcq)
 {
-	advAcq->appendRecord("dxp1607-B21-04:mca1.ERTM", true, false, 0);
-	advAcq->appendRecord("dxp1607-B21-04:mca2.ERTM", true, false, 0);
-	advAcq->appendRecord("dxp1607-B21-04:mca3.ERTM", true, false, 0);
-	advAcq->appendRecord("dxp1607-B21-04:mca4.ERTM", true, false, 0);
-	advAcq->appendRecord("dxp1607-B21-04:mca1.ELTM", true, false, 0);
-	advAcq->appendRecord("dxp1607-B21-04:mca2.ELTM", true, false, 0);
-	advAcq->appendRecord("dxp1607-B21-04:mca3.ELTM", true, false, 0);
-	advAcq->appendRecord("dxp1607-B21-04:mca4.ELTM", true, false, 0);
+	advAcq->appendRecord("dxp1607-B21-04:dxp1:ElapsedRealTime", true, false, 0);
+	advAcq->appendRecord("dxp1607-B21-04:dxp2:ElapsedRealTime", true, false, 0);
+	advAcq->appendRecord("dxp1607-B21-04:dxp3:ElapsedRealTime", true, false, 0);
+	advAcq->appendRecord("dxp1607-B21-04:dxp4:ElapsedRealTime", true, false, 0);
+	advAcq->appendRecord("dxp1607-B21-04:dxp1:ElapsedTriggerLiveTime", true, false, 0);
+	advAcq->appendRecord("dxp1607-B21-04:dxp2:ElapsedTriggerLiveTime", true, false, 0);
+	advAcq->appendRecord("dxp1607-B21-04:dxp3:ElapsedTriggerLiveTime", true, false, 0);
+	advAcq->appendRecord("dxp1607-B21-04:dxp4:ElapsedTriggerLiveTime", true, false, 0);
 	advAcq->appendRecord("dxp1607-B21-04:dxp1:Triggers", true, false, 1);
 	advAcq->appendRecord("dxp1607-B21-04:dxp2:Triggers", true, false, 1);
 	advAcq->appendRecord("dxp1607-B21-04:dxp3:Triggers", true, false, 1);
@@ -374,10 +374,10 @@ void VESPERSScanController::addFourElementDeadTimePVs(QEpicsAdvAcq *advAcq)
 	advAcq->appendRecord("dxp1607-B21-04:dxp2:Events", true, false, 1);
 	advAcq->appendRecord("dxp1607-B21-04:dxp3:Events", true, false, 1);
 	advAcq->appendRecord("dxp1607-B21-04:dxp4:Events", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:mca1.DTIM", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:mca2.DTIM", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:mca3.DTIM", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:mca4.DTIM", true, false, 1);
+	advAcq->appendRecord("dxp1607-B21-04:dxp1:EventDTP", true, false, 1);
+	advAcq->appendRecord("dxp1607-B21-04:dxp2:EventDTP", true, false, 1);
+	advAcq->appendRecord("dxp1607-B21-04:dxp3:EventDTP", true, false, 1);
+	advAcq->appendRecord("dxp1607-B21-04:dxp4:EventDTP", true, false, 1);
 }
 
 void VESPERSScanController::addFourElementRegionsOfInterestPVs(QEpicsAdvAcq *advAcq, int roiCount)
