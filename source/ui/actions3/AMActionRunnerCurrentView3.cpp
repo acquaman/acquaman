@@ -39,6 +39,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 #include <QMessageBox>
 #include <QPixmapCache>
+#include <QMenu>
 
 AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRunner, QWidget *parent) :
 	QWidget(parent)
@@ -84,6 +85,10 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 	pauseButton_ = new QPushButton(QIcon(":/22x22/media-playback-pause.png"), "Pause");
 	pauseButton_->setEnabled(false);
 	hl->addWidget(pauseButton_);
+	skipButton_ = new QPushButton(QIcon(":/media-seek-forward.png"), "Skip");
+	skipButton_->setEnabled(false);
+	skipButton_->setVisible(false);
+	hl->addWidget(skipButton_);
 	cancelButton_ = new QPushButton(QIcon(":/22x22/list-remove-2.png"), "Cancel");
 	cancelButton_->setEnabled(false);
 	hl->addWidget(cancelButton_);
@@ -108,6 +113,7 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 	connect(actionRunner_, SIGNAL(currentActionChanged(AMAction3*)), this, SLOT(onCurrentActionChanged(AMAction3*)));
 	connect(cancelButton_, SIGNAL(clicked()), actionRunner_, SLOT(cancelCurrentAction()));
 	connect(pauseButton_, SIGNAL(clicked()), this, SLOT(onPauseButtonClicked()));
+	connect(skipButton_, SIGNAL(clicked()), this, SLOT(onSkipButtonClicked()));
 
 	connect(actionRunner_, SIGNAL(currentActionStatusTextChanged(QString)), this, SLOT(onStatusTextChanged(QString)));
 	connect(actionRunner_, SIGNAL(currentActionExpectedDurationChanged(double)), this, SLOT(onExpectedDurationChanged(double)));
@@ -122,6 +128,7 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 void AMActionRunnerCurrentView3::onCurrentActionChanged(AMAction3* nextAction)
 {
 	cancelButton_->setDisabled((nextAction == 0));
+
 	if (nextAction)
 		pauseButton_->setEnabled(nextAction->canPause());
 
@@ -132,6 +139,17 @@ void AMActionRunnerCurrentView3::onCurrentActionChanged(AMAction3* nextAction)
 	else {
 		pauseButton_->setIcon(QIcon(":/22x22/media-playback-pause.png"));
 		pauseButton_->setText("Pause");
+	}
+
+	if (nextAction){
+
+		skipButton_->setEnabled(nextAction->canSkip());
+		skipButton_->setVisible(nextAction->canSkip());
+
+		if (nextAction->canSkip() && nextAction->skipOptions().size() == 1)
+			skipButton_->setToolTip(nextAction->skipOptions().first());
+		else
+			skipButton_->setToolTip("Click for options");
 	}
 
 	// model will handle the tree view on its own. But... we want to make some more visible room if it's a list action, to show the sub-actions.
@@ -261,6 +279,33 @@ void AMActionRunnerCurrentView3::onPauseButtonClicked()
 		;	// successfully paused; do nothing.
 	else
 		QMessageBox::warning(this, "This action can't be paused", QString("This '%1' action cannot be paused right now.\n\n(Some actions just can't be paused, and others can't be paused at certain points in time.)").arg(currentAction->info()->typeDescription()), QMessageBox::Ok);
+}
+
+void AMActionRunnerCurrentView3::onSkipButtonClicked()
+{
+	AMAction3 *currentAction = actionRunner_->currentAction();
+
+	if (!currentAction)
+		return;
+
+	if (currentAction->canSkip()){
+
+		if (currentAction->skipOptions().size() == 1)
+			currentAction->skip(currentAction->skipOptions().first());
+
+		else{
+
+			QMenu menu(this);
+
+			for (int i = 0, size = currentAction->skipOptions().size(); i < size; i++)
+				menu.addAction(currentAction->skipOptions().at(i));
+
+			QAction *action = menu.exec(QCursor::pos());
+
+			if (action)
+				currentAction->skip(action->text());
+		}
+	}
 }
 
 void AMActionRunnerCurrentView3::onStateChanged(int state, int previousState)
@@ -449,6 +494,9 @@ void AMActionRunnerCurrentModel3::onCurrentActionChanged(AMAction3 *newCurrentAc
 		endInsertRows();
 	}
 }
+
+// AMActionRunnerCurrentItemDelegate
+////////////////////////////////////////////////////////////////////
 
 QWidget *AMActionRunnerCurrentItemDelegate3::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {

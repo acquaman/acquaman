@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
 #include "ui/AMBottomBar.h"
+#include "ui/AMDatamanAppBottomPanel.h"
 #include "ui/dataman/AMDataViewWithActionButtons.h"
 #include "ui/dataman/AMRunExperimentInsert.h"
 #include "ui/dataman/AMGenericScanEditor.h"
@@ -558,16 +559,18 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	connect(mw_, SIGNAL(itemCloseButtonClicked(QModelIndex)), this, SLOT(onWindowPaneCloseButtonClicked(QModelIndex)));
 	mw_->installEventFilter(this);
 
-	bottomBar_ = new AMBottomBar();
-	// These buttons are never used.  Hiding them.
-	bottomBar_->fullScreenButton->hide();
-	bottomBar_->adjustScanFinishButton->hide();
-	bottomBar_->restartScanButton->hide();
-	mw_->addBottomWidget(bottomBar_);
-	connect(bottomBar_, SIGNAL(addButtonClicked()), this, SLOT(onAddButtonClicked()));
-	connect(bottomBar_, SIGNAL(pauseScanIssued()), this, SIGNAL(pauseScanIssued()));
-	connect(bottomBar_, SIGNAL(resumeScanIssued()), this, SIGNAL(resumeScanIssued()));
-	connect(bottomBar_, SIGNAL(stopScanIssued()), this, SIGNAL(stopScanIssued()));
+//	bottomBar_ = new AMBottomBar();
+//	// These buttons are never used.  Hiding them.
+//	bottomBar_->fullScreenButton->hide();
+//	bottomBar_->adjustScanFinishButton->hide();
+//	bottomBar_->restartScanButton->hide();
+//	mw_->addBottomWidget(bottomBar_);
+//	connect(bottomBar_, SIGNAL(addButtonClicked()), this, SLOT(onAddButtonClicked()));
+//	connect(bottomBar_, SIGNAL(pauseScanIssued()), this, SIGNAL(pauseScanIssued()));
+//	connect(bottomBar_, SIGNAL(resumeScanIssued()), this, SIGNAL(resumeScanIssued()));
+//	connect(bottomBar_, SIGNAL(stopScanIssued()), this, SIGNAL(stopScanIssued()));
+	addBottomPanel();
+	mw_->addBottomWidget(bottomPanel_);
 
 	// Create panes in the main window:
 	////////////////////////////////////
@@ -623,6 +626,13 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	mw_->show();
 
 	return true;
+}
+
+void AMDatamanAppController::addBottomPanel()
+{
+	AMDatamanAppBottomPanel *panel = new AMDatamanAppBottomPanel;
+	connect(panel, SIGNAL(addExperimentButtonClicked()), this, SLOT(onAddButtonClicked()));
+	bottomPanel_ = panel;
 }
 
 bool AMDatamanAppController::startupInstallActions()

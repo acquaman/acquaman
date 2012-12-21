@@ -57,14 +57,14 @@ AMStatusView::AMStatusView(QWidget *parent) : QAbstractButton(parent)
 	iconDebug_->hide();
 	currentIcon_ = iconInfo_;
 
-	setFixedWidth(250);
+	setFixedWidth(350);
 
 	/// last notification text (
 	shortText_ = new QLabel();
 	shortText_->setWordWrap(true);
-	QFont font = shortText_->font();
-	font.setPointSize(font.pointSize()-2);
-	shortText_->setFont(font);
+	QPalette palette = shortText_->palette();
+	palette.setColor(QPalette::ButtonText, Qt::white);
+	shortText_->setPalette(palette);
 	hl_->addWidget(shortText_, 1, Qt::AlignLeft | Qt::AlignVCenter);
 
 	// hl_->addStretch(1);
@@ -77,6 +77,7 @@ AMStatusView::AMStatusView(QWidget *parent) : QAbstractButton(parent)
 	connect(AMErrorMon::mon(), SIGNAL(error(AMErrorReport)), this, SLOT(onAnyError(AMErrorReport)));
 
 	logView_ = new AMStatusLogView(this);
+	logView_->setStyleSheet("QTableView { alternate-background-color: light gray; background-color: white; } QTableView::QHeaderView::section { backround-color: white }");
 
 	setToolTip("Click for details... [Show log]");
 	connect(this, SIGNAL(clicked()), logView_, SLOT(show()));
@@ -124,10 +125,10 @@ void AMStatusView::onAnyError(AMErrorReport e) {
 
 	currentIcon_->show();
 
-	/// Append class name of source, if available:
-	if(e.source) {
-		msg.append(e.source->metaObject()->className()).append(": ");
-	}
+	// Append class name of source, if available:
+//	if(e.source) {
+//		msg.append(e.source->metaObject()->className()).append(": ");
+//	}
 
 	msg.append(QString("%1 (%2).").arg(e.description).arg(e.errorCode));
 
@@ -169,10 +170,15 @@ AMStatusLogView::AMStatusLogView(QWidget *parent)
 	setLayout(vl);
 
 	logModel_->setHeaderData(0, Qt::Horizontal, QString());
+	logModel_->setHeaderData(0, Qt::Horizontal, Qt::lightGray, Qt::BackgroundRole);
 	logModel_->setHeaderData(1, Qt::Horizontal, "Message");
+	logModel_->setHeaderData(1, Qt::Horizontal, Qt::lightGray, Qt::BackgroundRole);
 	logModel_->setHeaderData(2, Qt::Horizontal, "From");
+	logModel_->setHeaderData(2, Qt::Horizontal, Qt::lightGray, Qt::BackgroundRole);
 	logModel_->setHeaderData(3, Qt::Horizontal, "Time");
+	logModel_->setHeaderData(3, Qt::Horizontal, Qt::lightGray, Qt::BackgroundRole);
 	logModel_->setHeaderData(4, Qt::Horizontal, "Code");
+	logModel_->setHeaderData(4, Qt::Horizontal, Qt::lightGray, Qt::BackgroundRole);
 
 	debugIcon_ = QIcon(":/applications-development.png");
 	infoIcon_ = QIcon(":/dialog-information.png");

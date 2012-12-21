@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMMainWindow;
 class AMBottomBar;
+class AMBottomPanel;
 class AMDataViewWithActionButtons;
 class AMRunExperimentInsert;
 class AMGenericScanEditor;
@@ -311,7 +312,8 @@ protected:
 */
 	void getUserDataFolderFromDialog(bool presentAsParentFolder = false);
 
-
+	/// Method that allows the app controller and all subclasses to have their own specific bottom panel.  This method MUST ensure that the bottomPanel_ member is valid.
+	virtual void addBottomPanel();
 
 protected:
 	/// UI structure components
@@ -325,6 +327,7 @@ protected:
 
 	/// Top-level panes in the main window
 	AMBottomBar* bottomBar_;
+	AMBottomPanel *bottomPanel_;
 	AMDataViewWithActionButtons* dataView_;
 	AMRunExperimentInsert* runExperimentInsert_;
 
