@@ -14,6 +14,7 @@ AMActionRunnerBottomBarCurrentView3::AMActionRunnerBottomBarCurrentView3(AMActio
 {
 	actionRunner_ = actionRunner;
 	whatIsRunning_ = "";
+	rootLoopAction_ = 0;
 
 	QHBoxLayout* hl = new QHBoxLayout;
 	hl->setSpacing(0);
@@ -22,7 +23,7 @@ AMActionRunnerBottomBarCurrentView3::AMActionRunnerBottomBarCurrentView3(AMActio
 	descriptionLabel_ = new QLabel;
 	descriptionLabel_->setObjectName("descriptionLabel");
 	descriptionLabel_->setStyleSheet("#descriptionLabel { border: 1px black; border-radius: 10px; background: rgb(219,219,112); }");
-	descriptionLabel_->setText("No actions running.\n3 of 5");
+	descriptionLabel_->setText("No actions running.");
 	descriptionLabel_->setMinimumWidth(200);
 	descriptionLabel_->setAlignment(Qt::AlignCenter);
 	QFont font = descriptionLabel_->font();
@@ -31,25 +32,44 @@ AMActionRunnerBottomBarCurrentView3::AMActionRunnerBottomBarCurrentView3(AMActio
 	descriptionLabel_->setFont(font);
 	hl->addWidget(descriptionLabel_);
 	hl->addSpacing(20);
+
+	increaseIterations_ = new QToolButton;
+	increaseIterations_->setIcon(QIcon(":/22x22/go-up-dark.png"));
+	increaseIterations_->setToolTip("Increase the number of iterations of the loop.");
+	increaseIterations_->setFixedSize(25, 20);
+	increaseIterations_->setEnabled(false);
+	increaseIterations_->setVisible(false);
+	decreaseIterations_ = new QToolButton;
+	decreaseIterations_->setIcon(QIcon(":/22x22/go-down-dark.png"));
+	decreaseIterations_->setToolTip("Decrease the number of iterations of the loop.");
+	decreaseIterations_->setFixedSize(25, 20);
+	decreaseIterations_->setEnabled(false);
+	decreaseIterations_->setVisible(false);
+	QVBoxLayout *iterationLayout = new QVBoxLayout;
+	iterationLayout->addWidget(increaseIterations_);
+	iterationLayout->addWidget(decreaseIterations_);
+	hl->addLayout(iterationLayout);
+	hl->addSpacing(5);
+
 	pauseButton_ = new QToolButton;
 	pauseButton_->setIcon(QIcon(":/22x22/media-playback-pause.png"));
-//	pauseButton_->setEnabled(false);
+	pauseButton_->setEnabled(false);
 	pauseButton_->setToolTip("Pause the current action.");
 	hl->addWidget(pauseButton_);
 	hl->addSpacing(5);
 	skipButton_ = new QToolButton;
 	skipButton_->setIcon(QIcon(":/media-seek-forward.png"));
-//	skipButton_->setEnabled(false);
+	skipButton_->setEnabled(false);
 	hl->addWidget(skipButton_);
 	hl->addSpacing(5);
 	cancelButton_ = new QToolButton;
 	cancelButton_->setIcon(QIcon(":/22x22/list-remove-2.png"));
-//	cancelButton_->setEnabled(false);
+	cancelButton_->setEnabled(false);
 	cancelButton_->setToolTip("Cancel the current action.");
 	hl->addWidget(cancelButton_);
 	hl->addSpacing(10);
 
-	timeElapsedLabel_ = new QLabel("0:00");
+	timeElapsedLabel_ = new QLabel("-:--");
 	timeElapsedLabel_->setStyleSheet("border: 0px; color: white;\nfont: " AM_FONT_REGULAR_ "pt \"Lucida Grande\"");
 	hl->addWidget(timeElapsedLabel_);
 	hl->addSpacing(10);
@@ -59,10 +79,11 @@ AMActionRunnerBottomBarCurrentView3::AMActionRunnerBottomBarCurrentView3(AMActio
 	progressBar_->setAlignment(Qt::AlignCenter);
 	progressBar_->setMinimumWidth(400);
 	progressBar_->setMaximumWidth(600);
-	progressBar_->setValue(70);
+	progressBar_->setRange(0,1);
+	progressBar_->setValue(0);
 	hl->addWidget(progressBar_);
 	hl->addSpacing(10);
-	timeRemainingLabel_ = new QLabel("0:00");
+	timeRemainingLabel_ = new QLabel("-:--");
 	timeRemainingLabel_->setStyleSheet("border: 0px; color: white;\nfont: " AM_FONT_REGULAR_ "pt \"Lucida Grande\"");
 	hl->addWidget(timeRemainingLabel_);
 	hl->addSpacing(20);
@@ -73,6 +94,8 @@ AMActionRunnerBottomBarCurrentView3::AMActionRunnerBottomBarCurrentView3(AMActio
 	connect(cancelButton_, SIGNAL(clicked()), actionRunner_, SLOT(cancelCurrentAction()));
 	connect(pauseButton_, SIGNAL(clicked()), this, SLOT(onPauseButtonClicked()));
 	connect(skipButton_, SIGNAL(clicked()), this, SLOT(onSkipButtonClicked()));
+	connect(increaseIterations_, SIGNAL(clicked()), this, SLOT(onIncreaseLoopIterationsClicked()));
+	connect(decreaseIterations_, SIGNAL(clicked()), this, SLOT(onDecreaseLoopIterationsClicked()));
 
 	connect(actionRunner_, SIGNAL(currentActionStatusTextChanged(QString)), this, SLOT(onStatusTextChanged(QString)));
 	connect(actionRunner_, SIGNAL(currentActionExpectedDurationChanged(double)), this, SLOT(onExpectedDurationChanged(double)));
@@ -110,10 +133,25 @@ void AMActionRunnerBottomBarCurrentView3::onCurrentActionChanged(AMAction3 *acti
 			skipButton_->setToolTip("Finish: Click for options");
 	}
 
+	if (action && !action->parentAction() && qobject_cast<AMLoopAction3 *>(action)){
+
+		rootLoopAction_ = qobject_cast<AMLoopAction3 *>(action);
+		increaseIterations_->setEnabled(true);
+		increaseIterations_->setVisible(true);
+		decreaseIterations_->setEnabled(true);
+		decreaseIterations_->setVisible(true);
+		connect(rootLoopAction_, SIGNAL(currentIterationChanged(int)), this, SLOT(onLoopIterationUpdate(int)));
+	}
+
 	if (action){
 
 		whatIsRunning_ = action->info()->name();
-		descriptionLabel_->setText(QString("%1\n[%2]").arg(whatIsRunning_).arg(action->statusText()));
+
+		if (rootLoopAction_)
+			descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(action->statusText()).arg(rootLoopAction_->currentIteration()).arg(rootLoopAction_->loopCount()));
+		else
+			descriptionLabel_->setText(QString("%1\n[%2]").arg(whatIsRunning_).arg(action->statusText()));
+
 		timeElapsedLabel_->setText("0:00");
 		double expectedDuration = action->expectedDuration();
 		timeRemainingLabel_->setText(expectedDuration > 0 ? formatSeconds(expectedDuration) : "?:??");
@@ -176,7 +214,10 @@ void AMActionRunnerBottomBarCurrentView3::onSkipButtonClicked()
 
 void AMActionRunnerBottomBarCurrentView3::onStatusTextChanged(const QString &newStatus)
 {
-	descriptionLabel_->setText(QString("%1\n[%2]").arg(whatIsRunning_).arg(newStatus));
+	if (rootLoopAction_)
+		descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(newStatus).arg(rootLoopAction_->currentIteration()).arg(rootLoopAction_->loopCount()));
+	else
+		descriptionLabel_->setText(QString("%1\n[%2]").arg(whatIsRunning_).arg(newStatus));
 }
 
 void AMActionRunnerBottomBarCurrentView3::onExpectedDurationChanged(double totalSeconds)
@@ -204,6 +245,12 @@ void AMActionRunnerBottomBarCurrentView3::onStateChanged(int state, int previous
 	if(previousState == AMAction3::Resuming) {
 		pauseButton_->setText("Pause");
 		pauseButton_->setIcon(QIcon(":/22x22/media-playback-pause.png"));
+	}
+
+	if (rootLoopAction_ && rootLoopAction_->inFinalState()){
+
+		disconnect(rootLoopAction_, SIGNAL(currentIterationChanged(int)), this, SLOT(onLoopIterationUpdate(int)));
+		rootLoopAction_ = 0;
 	}
 
 	// Can pause or resume from only these states:
@@ -247,4 +294,30 @@ QString AMActionRunnerBottomBarCurrentView3::formatSeconds(double seconds)
 		rv.append(t.toString("m:ss"));
 
 	return rv;
+}
+
+void AMActionRunnerBottomBarCurrentView3::onLoopIterationUpdate(int iteration)
+{
+	descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(actionRunner_->currentAction()->statusText()).arg(iteration).arg(rootLoopAction_->loopCount()));
+
+	if (rootLoopAction_->currentIteration() == rootLoopAction_->loopCount())
+		decreaseIterations_->setEnabled(false);
+}
+
+void AMActionRunnerBottomBarCurrentView3::onIncreaseLoopIterationsClicked()
+{
+	// No checks are done here because you should only be able to get here if there is already a valid root loop action.
+	rootLoopAction_->setLoopCount(rootLoopAction_->loopCount()+1);
+	descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(actionRunner_->currentAction()->statusText()).arg(rootLoopAction_->currentIteration()).arg(rootLoopAction_->loopCount()));
+}
+
+void AMActionRunnerBottomBarCurrentView3::onDecreaseLoopIterationsClicked()
+{
+	// No checks are done here because you should only be able to get here if there is already a valid root loop action.
+	// Also, you should only be able to get here if decreasing the loop iterations is valid.  So extra checks are not necessary.
+	rootLoopAction_->setLoopCount(rootLoopAction_->loopCount()-1);
+	descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(actionRunner_->currentAction()->statusText()).arg(rootLoopAction_->currentIteration()).arg(rootLoopAction_->loopCount()));
+
+	if (rootLoopAction_->currentIteration() == rootLoopAction_->loopCount())
+		decreaseIterations_->setEnabled(false);
 }

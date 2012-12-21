@@ -9,6 +9,7 @@
 #include <QProgressBar>
 
 #include "actions3/AMActionRunner3.h"
+#include "actions3/AMLoopAction3.h"
 
 /// This class is meant to be identical to the AMActionRunnerCurrentView widget in the workflow, but fit nicely on the bottom bar.
 class AMActionRunnerBottomBarCurrentView3 : public QWidget
@@ -41,6 +42,13 @@ protected slots:
 	/// Called on a one-second timer to update the time elapsed, time remaining.
 	void onTimeUpdateTimer();
 
+	/// Slot that handles updating the view when the iteration of the root loop action updates.
+	void onLoopIterationUpdate(int iteration);
+	/// Slot that handles when the increase iterations button is clicked.
+	void onIncreaseLoopIterationsClicked();
+	/// Slot that handles when the decrease iterations button is clicked.
+	void onDecreaseLoopIterationsClicked();
+
 protected:
 	/// Helper function to format an amount of seconds into an hour-minute-seconds string.
 	QString formatSeconds(double seconds);
@@ -51,6 +59,10 @@ protected:
 	QToolButton *cancelButton_;
 	/// The skip button.
 	QToolButton *skipButton_;
+	/// The button to increase the number of iterations of a master loop action.
+	QToolButton *increaseIterations_;
+	/// The button to decrease the number of iterations of a master loop action.
+	QToolButton *decreaseIterations_;
 	/// The progress bar.
 	QProgressBar *progressBar_;
 	/// The time elapsed label.
@@ -65,6 +77,8 @@ protected:
 
 	/// The action runner model.
 	AMActionRunner3 *actionRunner_;
+	/// Pointer to the root loop action (if it exists).
+	AMLoopAction3 *rootLoopAction_;
 };
 
 #endif // AMACTIONRUNNERBOTOMBARCURRENTVIEW3_H
