@@ -77,6 +77,9 @@ If \c openInExistingEditor is set to true, and if there is an existing editor, t
 	///////////////////////////////////
 
 protected:
+	/// Re-implementing the build bottom bar method to use the bottom bar built for the app controller that includes a mini workflow view.
+	virtual void addBottomPanel();
+
 	/// Top-level panes in the main window
 	AMWorkflowManagerView* workflowManagerView_;
 	AMWorkflowView3* workflowView_;

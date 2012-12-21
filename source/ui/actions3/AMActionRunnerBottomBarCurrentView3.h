@@ -1,5 +1,5 @@
-#ifndef AMACTIONRUNNERBOTOMBARCURRENTVIEW3_H
-#define AMACTIONRUNNERBOTOMBARCURRENTVIEW3_H
+#ifndef AMACTIONRUNNERBOTTOMBARCURRENTVIEW3_H
+#define AMACTIONRUNNERBOTTOMBARCURRENTVIEW3_H
 
 #include <QWidget>
 
@@ -11,13 +11,13 @@
 #include "actions3/AMActionRunner3.h"
 
 /// This class is meant to be identical to the AMActionRunnerCurrentView widget in the workflow, but fit nicely on the bottom bar.
-class AMActionRunnerBotomBarCurrentView3 : public QWidget
+class AMActionRunnerBottomBarCurrentView3 : public QWidget
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.  For now, include AMActionRunner::s() for \c actionRunner.
-	AMActionRunnerBotomBarCurrentView3(AMActionRunner3 *actionRunner, QWidget *parent = 0);
+	AMActionRunnerBottomBarCurrentView3(AMActionRunner3 *actionRunner, QWidget *parent = 0);
 
 protected slots:
 	/// When the current action in the AMActionRunner changes.

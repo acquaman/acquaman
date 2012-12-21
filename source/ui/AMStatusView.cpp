@@ -39,15 +39,19 @@ AMStatusView::AMStatusView(QWidget *parent) : QAbstractButton(parent)
 
 	/// Icons representing the nature of the last notification
 	iconInfo_ = new QLabel("info!");
+	iconInfo_->setStyleSheet("border: 0px;");
 	iconInfo_->setPixmap(QPixmap(":/dialog-information.png"));
 	hl_->addWidget(iconInfo_);
 	iconAlert_ = new QLabel("alert!");
+	iconAlert_->setStyleSheet("border: 0px;");
 	iconAlert_->setPixmap(QPixmap(":/dialog-warning.png"));
 	hl_->addWidget(iconAlert_);
 	iconSerious_ = new QLabel("serious!");
+	iconSerious_->setStyleSheet("border: 0px;");
 	iconSerious_->setPixmap(QPixmap(":/dialog-error.png"));
 	hl_->addWidget(iconSerious_);
 	iconDebug_ = new QLabel("debug!");
+	iconDebug_->setStyleSheet("border: 0px;");
 	iconDebug_->setPixmap(QPixmap(":/applications-development.png"));
 	hl_->addWidget(iconDebug_);
 
@@ -62,6 +66,7 @@ AMStatusView::AMStatusView(QWidget *parent) : QAbstractButton(parent)
 	/// last notification text (
 	shortText_ = new QLabel();
 	shortText_->setWordWrap(true);
+	shortText_->setStyleSheet("border: 0px;");
 	QPalette palette = shortText_->palette();
 	palette.setColor(QPalette::ButtonText, Qt::white);
 	shortText_->setPalette(palette);

@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMStartScreen.h"
 
 #include "ui/actions3/AMWorkflowView3.h"
+#include "ui/AMAppBottomPanel.h"
 #include "actions3/AMActionRunner3.h"
 #include "actions3/AMActionRegistry3.h"
 #include "actions3/AMLoopAction3.h"
@@ -130,8 +131,13 @@ bool AMAppController::startupCreateUserInterface() {
 	return false;
 }
 
-
-
+void AMAppController::addBottomPanel()
+{
+	AMAppBottomPanel *panel = new AMAppBottomPanel(AMActionRunner3::workflow());
+	mw_->addBottomWidget(panel);
+	connect(panel, SIGNAL(addExperimentButtonClicked()), this, SLOT(onAddButtonClicked()));
+	bottomPanel_ = panel;
+}
 
 void AMAppController::goToWorkflow() {
 	// This check can be removed when all the old workflow stuff is finally removed
