@@ -11,13 +11,14 @@ AMLiveLoopActionEditor3::AMLiveLoopActionEditor3(AMLoopAction3 *action, QWidget 
 	setFrameStyle(QFrame::StyledPanel);
 
 	loopCount_ = new QSpinBox();
-	loopCount_->setRange(action_->currentIteration(), 9999);
+	loopCount_->setRange(action_->currentIteration()+1, 9999);
 	loopCount_->setValue(action_->loopCount());
 
-	iteration_ = new QLabel(QString("%1").arg(action_->currentIteration()));
+	iteration_ = new QLabel(QString("%1").arg(action_->currentIteration()+1));
 
 	connect(action_, SIGNAL(currentIterationChanged(int)), this, SLOT(onIterationUpdate(int)));
-	connect(loopCount_, SIGNAL(valueChanged(int)), this, SLOT(onSpinBoxValueChanged(int)));
+	connect(action_->info(), SIGNAL(infoChanged()), this, SLOT(onLoopCountChanged()));
+	connect(loopCount_, SIGNAL(editingFinished()), this, SLOT(setLoopCount()));
 
 	QHBoxLayout *hl = new QHBoxLayout(this);
 	hl->addWidget(new QLabel("Current: "));
@@ -29,11 +30,18 @@ AMLiveLoopActionEditor3::AMLiveLoopActionEditor3(AMLoopAction3 *action, QWidget 
 
 void AMLiveLoopActionEditor3::onIterationUpdate(int val)
 {
-	loopCount_->setMinimum(val);
-	iteration_->setText(QString::number(val));
+	loopCount_->setMinimum(val+1);
+	iteration_->setText(QString::number(val+1));
 }
 
-void AMLiveLoopActionEditor3::onSpinBoxValueChanged(int val)
+void AMLiveLoopActionEditor3::onLoopCountChanged()
 {
-	action_->setLoopCount(val);
+	loopCount_->blockSignals(true);
+	loopCount_->setValue(action_->loopCount());
+	loopCount_->blockSignals(false);
+}
+
+void AMLiveLoopActionEditor3::setLoopCount()
+{
+	action_->setLoopCount(loopCount_->value());
 }

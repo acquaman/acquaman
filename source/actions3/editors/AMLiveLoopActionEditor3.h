@@ -17,8 +17,10 @@ public:
 	AMLiveLoopActionEditor3(AMLoopAction3 *action, QWidget *parent = 0);
 
 protected slots:
-	/// When editing the maximum loop count.  Sets the action.
-	void onSpinBoxValueChanged(int val);
+	/// When the action loop count updates.  Update the spin box accordingly.
+	void onLoopCountChanged();
+	/// Sets the new loop count.
+	void setLoopCount();
 	/// Updates the current iteration label when the iteration changes.
 	void onIterationUpdate(int val);
 

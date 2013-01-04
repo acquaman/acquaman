@@ -31,7 +31,7 @@ protected slots:
 
 	// Signals from the current action, forwarded through the Action Runner.
 	/// When the action's status text changes.
-	void onStatusTextChanged(const QString &newStatus);
+	void onStatusTextChanged();
 	/// When the actions expected duration changes.
 	void onExpectedDurationChanged(double totalSeconds);
 	/// When the action's progress changes.
@@ -42,6 +42,10 @@ protected slots:
 	/// Called on a one-second timer to update the time elapsed, time remaining.
 	void onTimeUpdateTimer();
 
+	/// Slot that handles when the root loop action current sub action changes.  The new index of the sub action is provided.
+	void onRootLoopSubActionChanged(int index);
+	/// Slot that handles updating the description label when the loop count is updated.
+	void onRootLoopActionLoopCountChanged();
 	/// Slot that handles updating the view when the iteration of the root loop action updates.
 	void onLoopIterationUpdate(int iteration);
 	/// Slot that handles when the increase iterations button is clicked.

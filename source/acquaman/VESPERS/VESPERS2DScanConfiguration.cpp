@@ -183,7 +183,8 @@ void VESPERS2DScanConfiguration::computeTotalTimeImplementation()
 	else
 		time *= timeStep() + timeOffset_;
 
-	totalTime_ = time;
+	totalTime_ = time + 9;
+	setExpectedDuration(totalTime_);
 	emit totalTimeChanged(totalTime_);
 }
 

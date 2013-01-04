@@ -186,7 +186,8 @@ void VESPERSSpatialLineScanConfiguration::computeTotalTimeImplementation()
 	else
 		totalTime *= time() + timeOffset_;
 
-	totalTime_ = totalTime;
+	totalTime_ = totalTime + 9;
+	setExpectedDuration(totalTime_);
 	emit totalTimeChanged(totalTime_);
 }
 

@@ -69,15 +69,18 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 	hl->addSpacing(40);
 	hl->addStretch(0);
 
-	timeElapsedLabel_ = new QLabel("0:00");
+	timeElapsedLabel_ = new QLabel("-:--");
 	timeElapsedLabel_->setStyleSheet("color: white;\nfont: " AM_FONT_LARGE_ "pt \"Lucida Grande\"");
 	hl->addWidget(timeElapsedLabel_);
 	hl->addSpacing(10);
 	progressBar_ = new QProgressBar();
+	progressBar_->setObjectName("progressBar");
+	progressBar_->setStyleSheet("#progressBar { border: 1px solid black; color: white; border-radius: 7px; background: gray; } #progressBar::chunk { background: rgb(60,119,197); border-radius: 7px; border: 0px; }");
 	progressBar_->setMaximumWidth(600);
+	progressBar_->setAlignment(Qt::AlignCenter);
 	hl->addWidget(progressBar_, 1);
 	hl->addSpacing(10);
-	timeRemainingLabel_ = new QLabel("0:00");
+	timeRemainingLabel_ = new QLabel("-:--");
 	timeRemainingLabel_->setStyleSheet("color: white;\nfont: " AM_FONT_LARGE_ "pt \"Lucida Grande\"");
 	hl->addWidget(timeRemainingLabel_);
 	hl->addSpacing(20);
@@ -87,7 +90,6 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 	hl->addWidget(pauseButton_);
 	skipButton_ = new QPushButton(QIcon(":/media-seek-forward.png"), "Skip");
 	skipButton_->setEnabled(false);
-	skipButton_->setVisible(false);
 	hl->addWidget(skipButton_);
 	cancelButton_ = new QPushButton(QIcon(":/22x22/list-remove-2.png"), "Cancel");
 	cancelButton_->setEnabled(false);
@@ -128,6 +130,7 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 void AMActionRunnerCurrentView3::onCurrentActionChanged(AMAction3* nextAction)
 {
 	cancelButton_->setDisabled((nextAction == 0));
+	skipButton_->setDisabled(true);
 
 	if (nextAction)
 		pauseButton_->setEnabled(nextAction->canPause());
@@ -144,7 +147,6 @@ void AMActionRunnerCurrentView3::onCurrentActionChanged(AMAction3* nextAction)
 	if (nextAction){
 
 		skipButton_->setEnabled(nextAction->canSkip());
-		skipButton_->setVisible(nextAction->canSkip());
 
 		if (nextAction->canSkip() && nextAction->skipOptions().size() == 1)
 			skipButton_->setToolTip(nextAction->skipOptions().first());
@@ -197,7 +199,7 @@ void AMActionRunnerCurrentView3::onCurrentActionChanged(AMAction3* nextAction)
 		headerSubTitle_->setText(nextAction->statusText());
 		timeElapsedLabel_->setText("0:00");
 		double expectedDuration = nextAction->expectedDuration();
-		timeRemainingLabel_->setText(expectedDuration > 0 ? formatSeconds(expectedDuration) : "?:??");
+		timeRemainingLabel_->setText(expectedDuration > 0 ? formatSeconds(expectedDuration) : "N/A");
 	}
 	else {
 		headerTitle_->setText("Current Action");
@@ -216,11 +218,18 @@ void AMActionRunnerCurrentView3::onStatusTextChanged(const QString &newStatus)
 
 void AMActionRunnerCurrentView3::onExpectedDurationChanged(double totalSeconds)
 {
-	double elapsed = actionRunner_->currentAction()->elapsedTime();
+	AMAction3 *currentAction = actionRunner_->currentAction();
+	double elapsed = 0;
+
+	if (qobject_cast<AMListAction3 *>(currentAction))
+		elapsed = ((AMListAction3 *)currentAction)->currentSubAction()->runningTime();
+	else
+		elapsed = currentAction->runningTime();
+
 	if(totalSeconds > 0)
 		timeRemainingLabel_->setText(formatSeconds(totalSeconds-elapsed));
 	else
-		timeRemainingLabel_->setText("?:??");
+		timeRemainingLabel_->setText("N/A");
 }
 
 void AMActionRunnerCurrentView3::onProgressChanged(double numerator, double denominator)
@@ -233,9 +242,15 @@ void AMActionRunnerCurrentView3::onTimeUpdateTimer()
 {
 	AMAction3* currentAction = actionRunner_->currentAction();
 	if(currentAction) {
-		double elapsed = currentAction->runningTime();
+
+		double elapsed = 0;
+
+		if (qobject_cast<AMListAction3 *>(currentAction))
+			elapsed = ((AMListAction3 *)currentAction)->currentSubAction()->runningTime();
+		else
+			elapsed = currentAction->runningTime();
 		double expectedDuration = currentAction->expectedDuration();
-		timeRemainingLabel_->setText(expectedDuration > 0 ? formatSeconds(expectedDuration-elapsed) : "?:??");
+		timeRemainingLabel_->setText(expectedDuration > 0 ? formatSeconds(expectedDuration-elapsed) : "N/A");
 		timeElapsedLabel_->setText(formatSeconds(elapsed));
 	}
 }
@@ -290,10 +305,10 @@ void AMActionRunnerCurrentView3::onSkipButtonClicked()
 
 	if (currentAction->canSkip()){
 
-		if (currentAction->skipOptions().size() == 1)
+		if (currentAction->skipOptions().size() == 1 && !currentAction->hasChildren())
 			currentAction->skip(currentAction->skipOptions().first());
 
-		else{
+		else if (!currentAction->hasChildren()){
 
 			QMenu menu(this);
 
@@ -304,6 +319,31 @@ void AMActionRunnerCurrentView3::onSkipButtonClicked()
 
 			if (action)
 				currentAction->skip(action->text());
+		}
+
+		else{
+
+			QMenu menu(this);
+
+			for (int i = 0, size = currentAction->skipOptions().size(); i < size; i++)
+				menu.addAction(currentAction->skipOptions().at(i));
+
+			AMListAction3 *listAction = qobject_cast<AMListAction3 *>(currentAction);
+
+			if (listAction && listAction->currentSubAction()->canSkip())
+				for (int i = 0, size = listAction->currentSubAction()->skipOptions().size(); i < size; i++)
+					menu.addAction(listAction->currentSubAction()->skipOptions().at(i));
+
+			QAction *action = menu.exec(QCursor::pos());
+
+			if (action){
+
+				if (currentAction->skipOptions().contains(action->text()))
+					currentAction->skip(action->text());
+
+				else
+					listAction->currentSubAction()->skip(action->text());
+			}
 		}
 	}
 }

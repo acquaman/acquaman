@@ -126,6 +126,7 @@ void VESPERSEnergyScanConfiguration::computeTotalTimeImplementation()
 		time += ((regions_->end(i) - regions_->start(i))/regions_->delta(i))*(regions_->time(i) + timeOffset_ + extraOffset); // Seems to take about 0.7 seconds for extra beamline stuff to happen.
 
 	totalTime_ = time + 9; // There is a 9 second miscellaneous startup delay.
+	setExpectedDuration(totalTime_);
 	emit totalTimeChanged(totalTime_);
 }
 

@@ -24,7 +24,7 @@ AMActionRunnerBottomBarCurrentView3::AMActionRunnerBottomBarCurrentView3(AMActio
 	descriptionLabel_->setObjectName("descriptionLabel");
 	descriptionLabel_->setStyleSheet("#descriptionLabel { border: 1px black; border-radius: 10px; background: rgb(219,219,112); }");
 	descriptionLabel_->setText("No actions running.");
-	descriptionLabel_->setMinimumWidth(200);
+	descriptionLabel_->setMinimumWidth(350);
 	descriptionLabel_->setAlignment(Qt::AlignCenter);
 	QFont font = descriptionLabel_->font();
 	font.setBold(true);
@@ -75,7 +75,7 @@ AMActionRunnerBottomBarCurrentView3::AMActionRunnerBottomBarCurrentView3(AMActio
 	hl->addSpacing(10);
 	progressBar_ = new QProgressBar();
 	progressBar_->setObjectName("progressBar");
-	progressBar_->setStyleSheet("#progressBar { border: 1px solid black; color: white; border-radius: 7px; background: gray; } QProgressBar::chunk { background: rgb(60,119,197); border-radius: 7px; border: 0px; }");
+	progressBar_->setStyleSheet("#progressBar { border: 1px solid black; color: white; border-radius: 7px; background: gray; } #progressBar::chunk { background: rgb(60,119,197); border-radius: 7px; border: 0px; }");
 	progressBar_->setAlignment(Qt::AlignCenter);
 	progressBar_->setMinimumWidth(400);
 	progressBar_->setMaximumWidth(600);
@@ -97,7 +97,7 @@ AMActionRunnerBottomBarCurrentView3::AMActionRunnerBottomBarCurrentView3(AMActio
 	connect(increaseIterations_, SIGNAL(clicked()), this, SLOT(onIncreaseLoopIterationsClicked()));
 	connect(decreaseIterations_, SIGNAL(clicked()), this, SLOT(onDecreaseLoopIterationsClicked()));
 
-	connect(actionRunner_, SIGNAL(currentActionStatusTextChanged(QString)), this, SLOT(onStatusTextChanged(QString)));
+	connect(actionRunner_, SIGNAL(currentActionStatusTextChanged(QString)), this, SLOT(onStatusTextChanged()));
 	connect(actionRunner_, SIGNAL(currentActionExpectedDurationChanged(double)), this, SLOT(onExpectedDurationChanged(double)));
 	connect(actionRunner_, SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressChanged(double,double)));
 	connect(actionRunner_, SIGNAL(currentActionStateChanged(int,int)), this, SLOT(onStateChanged(int,int)));
@@ -141,6 +141,16 @@ void AMActionRunnerBottomBarCurrentView3::onCurrentActionChanged(AMAction3 *acti
 		decreaseIterations_->setEnabled(true);
 		decreaseIterations_->setVisible(true);
 		connect(rootLoopAction_, SIGNAL(currentIterationChanged(int)), this, SLOT(onLoopIterationUpdate(int)));
+		connect(rootLoopAction_, SIGNAL(currentSubActionChanged(int)), this, SLOT(onRootLoopSubActionChanged(int)));
+		connect(rootLoopAction_->info(), SIGNAL(infoChanged()), this, SLOT(onRootLoopActionLoopCountChanged()));
+	}
+
+	else{
+
+		increaseIterations_->setEnabled(false);
+		increaseIterations_->setVisible(false);
+		decreaseIterations_->setEnabled(false);
+		decreaseIterations_->setVisible(false);
 	}
 
 	if (action){
@@ -148,13 +158,13 @@ void AMActionRunnerBottomBarCurrentView3::onCurrentActionChanged(AMAction3 *acti
 		whatIsRunning_ = action->info()->name();
 
 		if (rootLoopAction_)
-			descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(action->statusText()).arg(rootLoopAction_->currentIteration()).arg(rootLoopAction_->loopCount()));
+			descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(action->statusText()).arg(rootLoopAction_->currentIteration()+1).arg(rootLoopAction_->loopCount()));
 		else
 			descriptionLabel_->setText(QString("%1\n[%2]").arg(whatIsRunning_).arg(action->statusText()));
 
 		timeElapsedLabel_->setText("0:00");
 		double expectedDuration = action->expectedDuration();
-		timeRemainingLabel_->setText(expectedDuration > 0 ? formatSeconds(expectedDuration) : "?:??");
+		timeRemainingLabel_->setText(expectedDuration > 0 ? formatSeconds(expectedDuration) : "N/A");
 	}
 
 	else{
@@ -194,10 +204,10 @@ void AMActionRunnerBottomBarCurrentView3::onSkipButtonClicked()
 
 	if (currentAction->canSkip()){
 
-		if (currentAction->skipOptions().size() == 1)
+		if (currentAction->skipOptions().size() == 1 && !currentAction->hasChildren())
 			currentAction->skip(currentAction->skipOptions().first());
 
-		else{
+		else if (!currentAction->hasChildren()){
 
 			QMenu menu(this);
 
@@ -209,24 +219,58 @@ void AMActionRunnerBottomBarCurrentView3::onSkipButtonClicked()
 			if (action)
 				currentAction->skip(action->text());
 		}
+
+		else{
+
+			QMenu menu(this);
+
+			for (int i = 0, size = currentAction->skipOptions().size(); i < size; i++)
+				menu.addAction(currentAction->skipOptions().at(i));
+
+			AMListAction3 *listAction = qobject_cast<AMListAction3 *>(currentAction);
+
+			if (listAction && listAction->currentSubAction()->canSkip())
+				for (int i = 0, size = listAction->currentSubAction()->skipOptions().size(); i < size; i++)
+					menu.addAction(listAction->currentSubAction()->skipOptions().at(i));
+
+			QAction *action = menu.exec(QCursor::pos());
+
+			if (action){
+
+				if (currentAction->skipOptions().contains(action->text()))
+					currentAction->skip(action->text());
+
+				else
+					listAction->currentSubAction()->skip(action->text());
+			}
+		}
 	}
 }
 
-void AMActionRunnerBottomBarCurrentView3::onStatusTextChanged(const QString &newStatus)
+void AMActionRunnerBottomBarCurrentView3::onStatusTextChanged()
 {
+	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
+
 	if (rootLoopAction_)
-		descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(newStatus).arg(rootLoopAction_->currentIteration()).arg(rootLoopAction_->loopCount()));
+		descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(rootLoopAction_->currentSubAction()->stateDescription(action->state())).arg(rootLoopAction_->currentIteration()+1).arg(rootLoopAction_->loopCount()));
 	else
-		descriptionLabel_->setText(QString("%1\n[%2]").arg(whatIsRunning_).arg(newStatus));
+		descriptionLabel_->setText(QString("%1\n[%2]").arg(whatIsRunning_).arg(action->stateDescription(action->state())));
 }
 
 void AMActionRunnerBottomBarCurrentView3::onExpectedDurationChanged(double totalSeconds)
 {
-	double elapsed = actionRunner_->currentAction()->elapsedTime();
+	AMAction3 *currentAction = actionRunner_->currentAction();
+	double elapsed = 0;
+
+	if (qobject_cast<AMListAction3 *>(currentAction))
+		elapsed = ((AMListAction3 *)currentAction)->currentSubAction()->runningTime();
+	else
+		elapsed = currentAction->runningTime();
+
 	if(totalSeconds > 0)
 		timeRemainingLabel_->setText(formatSeconds(totalSeconds-elapsed));
 	else
-		timeRemainingLabel_->setText("?:??");
+		timeRemainingLabel_->setText("N/A");
 }
 
 void AMActionRunnerBottomBarCurrentView3::onProgressChanged(double numerator, double denominator)
@@ -250,6 +294,8 @@ void AMActionRunnerBottomBarCurrentView3::onStateChanged(int state, int previous
 	if (rootLoopAction_ && rootLoopAction_->inFinalState()){
 
 		disconnect(rootLoopAction_, SIGNAL(currentIterationChanged(int)), this, SLOT(onLoopIterationUpdate(int)));
+		disconnect(rootLoopAction_, SIGNAL(currentSubActionChanged(int)), this, SLOT(onRootLoopSubActionChanged(int)));
+		disconnect(rootLoopAction_->info(), SIGNAL(infoChanged()), this, SLOT(onRootLoopActionLoopCountChanged()));
 		rootLoopAction_ = 0;
 	}
 
@@ -265,9 +311,15 @@ void AMActionRunnerBottomBarCurrentView3::onTimeUpdateTimer()
 {
 	AMAction3* currentAction = actionRunner_->currentAction();
 	if(currentAction) {
-		double elapsed = currentAction->runningTime();
+
+		double elapsed = 0;
+
+		if (qobject_cast<AMListAction3 *>(currentAction))
+			elapsed = ((AMListAction3 *)currentAction)->currentSubAction()->runningTime();
+		else
+			elapsed = currentAction->runningTime();
 		double expectedDuration = currentAction->expectedDuration();
-		timeRemainingLabel_->setText(expectedDuration > 0 ? formatSeconds(expectedDuration-elapsed) : "?:??");
+		timeRemainingLabel_->setText(expectedDuration > 0 ? formatSeconds(expectedDuration-elapsed) : "N/A");
 		timeElapsedLabel_->setText(formatSeconds(elapsed));
 	}
 }
@@ -298,9 +350,9 @@ QString AMActionRunnerBottomBarCurrentView3::formatSeconds(double seconds)
 
 void AMActionRunnerBottomBarCurrentView3::onLoopIterationUpdate(int iteration)
 {
-	descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(actionRunner_->currentAction()->statusText()).arg(iteration).arg(rootLoopAction_->loopCount()));
+	descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(actionRunner_->currentAction()->stateDescription(actionRunner_->currentAction()->state())).arg(iteration+1).arg(rootLoopAction_->loopCount()));
 
-	if (rootLoopAction_->currentIteration() == rootLoopAction_->loopCount())
+	if (rootLoopAction_->currentIteration()+1 == rootLoopAction_->loopCount())
 		decreaseIterations_->setEnabled(false);
 }
 
@@ -308,7 +360,8 @@ void AMActionRunnerBottomBarCurrentView3::onIncreaseLoopIterationsClicked()
 {
 	// No checks are done here because you should only be able to get here if there is already a valid root loop action.
 	rootLoopAction_->setLoopCount(rootLoopAction_->loopCount()+1);
-	descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(actionRunner_->currentAction()->statusText()).arg(rootLoopAction_->currentIteration()).arg(rootLoopAction_->loopCount()));
+	descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(rootLoopAction_->currentSubAction()->stateDescription(rootLoopAction_->currentSubAction()->state())).arg(rootLoopAction_->currentIteration()+1).arg(rootLoopAction_->loopCount()));
+	decreaseIterations_->setEnabled(true);
 }
 
 void AMActionRunnerBottomBarCurrentView3::onDecreaseLoopIterationsClicked()
@@ -316,8 +369,25 @@ void AMActionRunnerBottomBarCurrentView3::onDecreaseLoopIterationsClicked()
 	// No checks are done here because you should only be able to get here if there is already a valid root loop action.
 	// Also, you should only be able to get here if decreasing the loop iterations is valid.  So extra checks are not necessary.
 	rootLoopAction_->setLoopCount(rootLoopAction_->loopCount()-1);
-	descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(actionRunner_->currentAction()->statusText()).arg(rootLoopAction_->currentIteration()).arg(rootLoopAction_->loopCount()));
+	descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(rootLoopAction_->currentSubAction()->stateDescription(rootLoopAction_->currentSubAction()->state())).arg(rootLoopAction_->currentIteration()+1).arg(rootLoopAction_->loopCount()));
 
-	if (rootLoopAction_->currentIteration() == rootLoopAction_->loopCount())
+	if (rootLoopAction_->currentIteration()+1 == rootLoopAction_->loopCount())
+		decreaseIterations_->setEnabled(false);
+}
+
+void AMActionRunnerBottomBarCurrentView3::onRootLoopSubActionChanged(int index)
+{
+	if (index < rootLoopAction_->subActionCount()){
+
+		whatIsRunning_ = rootLoopAction_->subActionAt(index)->info()->name();
+		descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(rootLoopAction_->subActionAt(index)->stateDescription(rootLoopAction_->subActionAt(index)->state())).arg(rootLoopAction_->currentIteration()+1).arg(rootLoopAction_->loopCount()));
+	}
+}
+
+void AMActionRunnerBottomBarCurrentView3::onRootLoopActionLoopCountChanged()
+{
+	descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(rootLoopAction_->currentSubAction()->stateDescription(rootLoopAction_->currentSubAction()->state())).arg(rootLoopAction_->currentIteration()+1).arg(rootLoopAction_->loopCount()));
+
+	if (rootLoopAction_->currentIteration()+1 == rootLoopAction_->loopCount())
 		decreaseIterations_->setEnabled(false);
 }

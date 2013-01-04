@@ -222,6 +222,7 @@ void VESPERSEXAFSScanConfiguration::computeTotalTimeImplementation()
 	}
 
 	totalTime_ = time + 9; // There is a 9 second miscellaneous startup delay.
+	setExpectedDuration(totalTime_);
 	emit totalTimeChanged(totalTime_);
 }
 

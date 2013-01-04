@@ -26,6 +26,7 @@ AMScanConfiguration::AMScanConfiguration(QObject *parent) :
 	userScanName_ = "";
 	userExportName_ = "$name.txt";
 	autoExportEnabled_ = true;
+	expectedDuration_ = 0;
 }
 
 const QMetaObject* AMScanConfiguration::getMetaObject(){
@@ -95,5 +96,14 @@ void AMScanConfiguration::setAutoExportEnabled(bool autoExportEnabled){
 		emit autoExportEnabledChanged(autoExportEnabled_);
 		emit configurationChanged();
 		setModified(true);
+	}
+}
+
+void AMScanConfiguration::setExpectedDuration(double duration)
+{
+	if (expectedDuration_ != duration){
+
+		expectedDuration_ = duration;
+		emit expectedDurationChanged(expectedDuration_);
 	}
 }
