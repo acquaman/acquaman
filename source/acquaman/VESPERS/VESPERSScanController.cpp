@@ -374,10 +374,10 @@ void VESPERSScanController::addFourElementDeadTimePVs(QEpicsAdvAcq *advAcq)
 	advAcq->appendRecord("dxp1607-B21-04:dxp2:Events", true, false, 1);
 	advAcq->appendRecord("dxp1607-B21-04:dxp3:Events", true, false, 1);
 	advAcq->appendRecord("dxp1607-B21-04:dxp4:Events", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp1:EventDTP", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp2:EventDTP", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp3:EventDTP", true, false, 1);
-	advAcq->appendRecord("dxp1607-B21-04:dxp4:EventDTP", true, false, 1);
+	advAcq->appendRecord("dxp1607-B21-04:dxp1:NetDTP", true, false, 1);
+	advAcq->appendRecord("dxp1607-B21-04:dxp2:NetDTP", true, false, 1);
+	advAcq->appendRecord("dxp1607-B21-04:dxp3:NetDTP", true, false, 1);
+	advAcq->appendRecord("dxp1607-B21-04:dxp4:NetDTP", true, false, 1);
 }
 
 void VESPERSScanController::addFourElementRegionsOfInterestPVs(QEpicsAdvAcq *advAcq, int roiCount)
