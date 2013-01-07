@@ -99,12 +99,13 @@ bool AMAppController::startupCreateUserInterface() {
 
 	if (AMDatamanAppControllerForActions3::startupCreateUserInterface()){
 		// a heading for the workflow manager...
-		workflowManagerView_ = new AMWorkflowManagerView();
-		mw_->insertHeading("Experiment Tools", 1);
-		mw_->addPane(workflowManagerView_, "Experiment Tools", "WorkflowOld", ":/user-away.png");
+//		workflowManagerView_ = new AMWorkflowManagerView();
+//		mw_->insertHeading("Experiment Tools", 1);
+//		mw_->addPane(workflowManagerView_, "Experiment Tools", "WorkflowOld", ":/user-away.png");
 
 		// add the workflow control UI
 		workflowView_ = new AMWorkflowView3();
+		mw_->insertHeading("Experiment Tools", 1);
 		mw_->addPane(workflowView_, "Experiment Tools", "Workflow", ":/user-away.png");
 		// remove the old one:
 //		mw_->removePane(workflowManagerView_);
