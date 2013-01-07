@@ -219,25 +219,10 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 		return;
 	}
 
-//	AMScanConfigurationViewHolder *viewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, view);
-
 	// This is Actions3 stuff.
-//	AMScanConfigurationViewHolder3 *viewHolder = new AMScanConfigurationViewHolder3(view);
-//	viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
-//	viewHolder->show();
-
-	if (!is2D_){
-
-		AMScanConfigurationViewHolder *viewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, view);
-		viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
-		viewHolder->show();
-	}
-	else {
-
-		AM2DScanConfigurationViewHolder *viewHolder = new AM2DScanConfigurationViewHolder( workflowManagerView_, view);
-		viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
-		viewHolder->show();
-	}
+	AMScanConfigurationViewHolder3 *viewHolder = new AMScanConfigurationViewHolder3(view);
+	viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
+	viewHolder->show();
 }
 
 
