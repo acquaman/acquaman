@@ -240,9 +240,9 @@ void AMActionHistoryView3::onReRunActionButtonClicked()
 		bool doLoad = true;
 		if(model_->logItem(i)->finalState() != 8){
 			int ret = QMessageBox::warning(this, tr("Acquaman - Workflow"),
-						       tr("The action you are copying did not succeed when it ran.\nYou are permitted to copy it, but you may not wish to do so."
+							   tr("The action you are copying did not succeed when it ran.\nYou are permitted to copy it, but you may not wish to do so."
 							  "\nProceed to copy?"),
-						       "Copy", "Cancel", QString(), 0);
+							   "Copy", "Cancel", QString(), 0);
 			if(ret == 1)
 				doLoad = false;
 		}
@@ -436,6 +436,7 @@ bool AMActionHistoryView3::recurseDbLoadIndex(const QModelIndex &index, AMListAc
 		int effectiveNumberOfChildren = model_->rowCount(index);
 		if(loopAction)
 			effectiveNumberOfChildren = effectiveNumberOfChildren/loopAction->loopCount();
+
 		for(int x = 0; x < effectiveNumberOfChildren; x++)
 			childrenSuccess &= recurseDbLoadIndex(index.child(x, 0), listAction);
 	}

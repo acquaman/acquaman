@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef VESPERSMARCCDDETECTORINFO_H
 #define VESPERSMARCCDDETECTORINFO_H
 
@@ -8,7 +27,6 @@ class VESPERSMarCCDDetectorInfo : public AMDetectorInfo
 	Q_OBJECT
 
 	Q_PROPERTY(double acquireTime READ acquireTime WRITE setAcquireTime)
-	Q_PROPERTY(double temperature READ temperature WRITE setTemperature)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Mar CDD Detector")
 
@@ -26,8 +44,6 @@ public:
 
 	/// Returns the acquire time for the detector.
 	virtual double acquireTime() const { return acquireTime_; }
-	/// Returns the temperature setpoint of the detector.
-	virtual double temperature() const { return temperature_; }
 
 	// Dimensionality and size:
 	////////////////////////////////////
@@ -41,14 +57,10 @@ public:
 public slots:
 	/// Sets the acquire time.
 	virtual void setAcquireTime(double time) { acquireTime_ = time; setModified(true); }
-	/// Sets the temperature setpoint.
-	virtual void setTemperature(double temperature) { temperature_ = temperature; setModified(true); }
 
 protected:
 	/// The time the detector should acquire for.
 	double acquireTime_;
-	/// The temperature that the detector should be set to.
-	double temperature_;
 	/// The axes of the detector.  They are fixed so they may as well be stored statically.
 	QList<AMAxisInfo> axes_;
 };

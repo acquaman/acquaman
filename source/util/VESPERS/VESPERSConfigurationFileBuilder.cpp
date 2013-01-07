@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSConfigurationFileBuilder.h"
 
 #include <QFile>
@@ -12,6 +31,7 @@ VESPERSConfigurationFileBuilder::VESPERSConfigurationFileBuilder(QObject *parent
 	singleElement_ = false;
 	fourElement_ = false;
 	roperCCD_ = false;
+	marCCD_ = false;
 	pvNameAxis1_ = "";
 	pvNameAxis2_ = "";
 }
@@ -87,6 +107,13 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 		contents.append("# Action Begin SetPV \"DIO1607-01:CCD:ExtSync.HIGH\" \"0.01\"\n");
 	}
 
+	if (marCCD_){
+
+		contents.append("# Action Begin SetPV \"ccd1607-002:cam1:NumImages\" \"1\"\n");
+		contents.append("# Action Begin SetPV \"ccd1607-002:cam1:NumAcquisitions\" \"1\"\n");
+		contents.append("# Action Begin SetPV \"ccd1607-002:cam1:TriggerMode\" \"1\"\n");
+	}
+
 	if (singleElement_){
 
 		contents.append("# Action Begin SetPV \"IOC1607-004:mca1Status.SCAN\" \".1 second\"\n");
@@ -97,7 +124,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 
 		contents.append("# Action Begin SetPV \"dxp1607-B21-04:StatusAll.SCAN\" \"9\"\n");
 		contents.append("# Action Begin SetPV \"dxp1607-B21-04:ReadAll.SCAN\" \"0\"\n");
-		contents.append("# Action Begin SetPV \"dxp1607-B21-04:ReadDXPs.SCAN\" \"0\"\n");
+		contents.append("# Action Begin SetPV \"dxp1607-B21-04:ReadLLParams.SCAN\" \"0\"\n");
 	}
 
 	contents.append("# Action Begin CallEvent \"background\" 1\n");
@@ -167,7 +194,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 
 		contents.append("# Action Finish SetPV \"dxp1607-B21-04:StatusAll.SCAN\" \"1 second\"\n");
 		contents.append("# Action Finish SetPV \"dxp1607-B21-04:ReadAll.SCAN\" \"1 second\"\n");
-		contents.append("# Action Finish SetPV \"dxp1607-B21-04:ReadDXPs.SCAN\" \"1 second\"\n");
+		contents.append("# Action Finish SetPV \"dxp1607-B21-04:ReadLLParams.SCAN\" \"1 second\"\n");
 	}
 
 	if (usingMono){
@@ -268,6 +295,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 			contents.append("# PV 8: \"$(DXP_GAPTIM)\" disable:0 spectrum:0 ready:0\n");
 			contents.append("# PV 9: \"$(DXP_EMAX)\" disable:0 spectrum:0 ready:0\n");
 		}
+
 		else if (fourElement_){
 
 			contents.append("# PV 5: \"$(4Elem):PresetReal\" disable:0 spectrum:0 ready:0\n");

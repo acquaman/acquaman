@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSMarCCDDetectorView.h"
 
 #include "ui/AMTopFrame.h"
@@ -65,17 +84,6 @@ bool VESPERSMarCCDDetectorView::setDetector(AMDetector *detector, bool configure
 	connect(detector_, SIGNAL(imageModeChanged(VESPERSMarCCDDetector::ImageMode)), this, SLOT(onImageModeChanged(VESPERSMarCCDDetector::ImageMode)));
 	connect(imageMode_, SIGNAL(currentIndexChanged(int)), this, SLOT(setImageMode(int)));
 
-	temperatureSetpoint_ = new QDoubleSpinBox;
-	temperatureSetpoint_->setRange(-70, 30);
-	temperatureSetpoint_->setValue(20);
-	temperatureSetpoint_->setDecimals(1);
-	temperatureSetpoint_->setSuffix(QString::fromUtf8(" °C"));
-	connect(detector_, SIGNAL(temperatureSetpointChanged(double)), temperatureSetpoint_, SLOT(setValue(double)));
-	connect(temperatureSetpoint_, SIGNAL(editingFinished()), this, SLOT(setTemperature()));
-
-	temperatureFeedback_ = new QLabel("");
-	connect(detector_, SIGNAL(temperatureChanged(double)), this, SLOT(onTemperatureChanged(double)));
-
 	QToolButton *saveButton = new QToolButton;
 	saveButton->setIcon(QIcon(":/save.png"));
 	connect(saveButton, SIGNAL(clicked()), detector_, SLOT(saveFile()));
@@ -112,13 +120,6 @@ bool VESPERSMarCCDDetectorView::setDetector(AMDetector *detector, bool configure
 	modeLayout->addWidget(triggerMode_);
 	modeLayout->addWidget(imageMode_);
 
-	QGroupBox *temperatureGroupBox = new QGroupBox("Temperature Control");
-	QHBoxLayout *temperatureLayout = new QHBoxLayout;
-	temperatureLayout->addWidget(new QLabel("Temperature: "), 0, Qt::AlignCenter);
-	temperatureLayout->addWidget(temperatureSetpoint_, 0, Qt::AlignCenter);
-	temperatureLayout->addWidget(temperatureFeedback_, 0, Qt::AlignCenter);
-	temperatureGroupBox->setLayout(temperatureLayout);
-
 	QVBoxLayout *acquisitionLayout = new QVBoxLayout;
 	acquisitionLayout->addLayout(statusLayout);
 	acquisitionLayout->addLayout(modeLayout);
@@ -143,7 +144,6 @@ bool VESPERSMarCCDDetectorView::setDetector(AMDetector *detector, bool configure
 	QVBoxLayout *detectorLayout = new QVBoxLayout;
 	detectorLayout->addStretch();
 	detectorLayout->addWidget(acquisitionBox);
-	detectorLayout->addWidget(temperatureGroupBox);
 	detectorLayout->addWidget(ccdGB);
 	detectorLayout->addStretch();
 

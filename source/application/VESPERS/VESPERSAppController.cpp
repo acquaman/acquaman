@@ -24,9 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSEndstationView.h"
 #include "ui/AMMainWindow.h"
 #include "ui/AMBottomBar.h"
-#include "ui/acquaman/AMScanConfigurationViewHolder.h"
-#include "ui/acquaman/AM2DScanConfigurationViewHolder.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+#include "ui/acquaman/VESPERS/VESPERSScanConfigurationViewHolder3.h"
 
 #include "dataman/AMLineScan.h"
 
@@ -47,19 +46,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSEndstationConfigurationView.h"
 #include "ui/VESPERS/VESPERSSpatialLineScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSEnergyScanConfigurationView.h"
+#include "acquaman/VESPERS/VESPERSScanConfiguration.h"
 
 #include "dataman/AMScanEditorModelItem.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 
 // Helper classes that technically shouldn't need to exist.
 #include "util/VESPERS/ROIHelper.h"
-#include "util/VESPERS/VortexDetectorStatusHelper.h"
-#include "util/VESPERS/VESPERSWorkflowAssistant.h"
-#include "ui/VESPERS/VESPERSWorkflowAssistantView.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "application/AMAppControllerSupport.h"
 #include "dataman/VESPERS/VESPERSDbUpgrade1Pt1.h"
+#include "dataman/VESPERS/VESPERSDbUpgrade1Pt2.h"
+#include "dataman/VESPERS/VESPERSDbUpgrade1Pt3.h"
+#include "dataman/VESPERS/VESPERSDbUpgrade1Pt4.h"
+#include "dataman/VESPERS/VESPERSDbUpgrade1Pt5.h"
 
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
@@ -80,9 +81,28 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 VESPERSAppController::VESPERSAppController(QObject *parent) :
 	AMAppController(parent)
 {
-	// VESPERS user database upgrade that adds 1D raw datasources to all 2D scans.
+	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
+	////////////////////////////////////////////////////////////////////////////////////////
 	AMDbUpgrade *vespers1Pt1UserDb = new VESPERSDbUpgrade1Pt1("user", this);
 	appendDatabaseUpgrade(vespers1Pt1UserDb);
+	AMDbUpgrade *vespers1Pt1ActionDb = new VESPERSDbUpgrade1Pt1("actions", this);
+	appendDatabaseUpgrade(vespers1Pt1ActionDb);
+	AMDbUpgrade *vespers1P2UserDb = new VESPERSDbUpgrade1Pt2("user", this);
+	appendDatabaseUpgrade(vespers1P2UserDb);
+	AMDbUpgrade *vespers1P2ActionDb = new VESPERSDbUpgrade1Pt2("actions", this);
+	appendDatabaseUpgrade(vespers1P2ActionDb);
+	AMDbUpgrade *vespers1P3UserDb = new VESPERSDbUpgrade1Pt3("user", this);
+	appendDatabaseUpgrade(vespers1P3UserDb);
+	AMDbUpgrade *vespers1P3ActionDb = new VESPERSDbUpgrade1Pt3("actions", this);
+	appendDatabaseUpgrade(vespers1P3ActionDb);
+	AMDbUpgrade *vespers1P4UserDb = new VESPERSDbUpgrade1Pt4("user", this);
+	appendDatabaseUpgrade(vespers1P4UserDb);
+	AMDbUpgrade *vespers1P4ActionDb = new VESPERSDbUpgrade1Pt4("actions", this);
+	appendDatabaseUpgrade(vespers1P4ActionDb);
+	AMDbUpgrade *vespers1P5UserDb = new VESPERSDbUpgrade1Pt5("user", this);
+	appendDatabaseUpgrade(vespers1P5UserDb);
+	AMDbUpgrade *vespers1P5ActionDb = new VESPERSDbUpgrade1Pt5("actions", this);
+	appendDatabaseUpgrade(vespers1P5ActionDb);
 }
 
 bool VESPERSAppController::startup() {
@@ -143,9 +163,6 @@ bool VESPERSAppController::startup() {
 		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
 		ROIHelper *roiHelper = new ROIHelper(this);
 		Q_UNUSED(roiHelper)
-		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE MCA AND DXP STATUS UPDATE PVS THAT DON'T SEEM TO FOLLOW THE STANDARD NAMING CONVENTIONS.
-//		VortexDetectorStatusHelper *statusHelper = new VortexDetectorStatusHelper(this);
-//		Q_UNUSED(statusHelper)
 
 		return true;
 	}
@@ -170,6 +187,7 @@ void VESPERSAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<VESPERSSpatialLineScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<VESPERSEnergyScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<AMLineScan>();
+	AMDbObjectSupport::s()->registerClass<VESPERSScanConfigurationDbObject>();
 
 	AMDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
 	AMDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
@@ -183,122 +201,27 @@ void VESPERSAppController::registerClasses()
 
 void VESPERSAppController::setupExporterOptions()
 {
-	QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
+	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSDefault", true, true, true);
+	if(vespersDefault->id() > 0)
+		AMAppControllerSupport::registerClass<VESPERSEXAFSScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(vespersDefault->id());
 
-	AMExporterOptionGeneralAscii *vespersDefault = new AMExporterOptionGeneralAscii();
+	vespersDefault = VESPERS::buildStandardExporterOption("VESPERS2DDefault", true, false, false);
+	if(vespersDefault->id() > 0)
+		AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporter2DAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
 
-	if (matchIDs.count() != 0)
-		vespersDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
+	vespersDefault = VESPERS::buildStandardExporterOption("VESPERSLineScanDefault", true, false, false);
+	if(vespersDefault->id() > 0)
+		AMAppControllerSupport::registerClass<VESPERSSpatialLineScanConfiguration, VESPERSExporterLineScanAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
 
-	vespersDefault->setName("VESPERSDefault");
-	vespersDefault->setFileName("$name_$fsIndex.dat");
-	vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\nActual Vertical Position:\t$controlValue[Vertical Sample Stage] mm\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
-	vespersDefault->setHeaderIncluded(true);
-	vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
-	vespersDefault->setColumnHeaderIncluded(true);
-	vespersDefault->setColumnHeaderDelimiter("");
-	vespersDefault->setSectionHeader("");
-	vespersDefault->setSectionHeaderIncluded(true);
-	vespersDefault->setIncludeAllDataSources(true);
-	vespersDefault->setFirstColumnOnly(true);
-	vespersDefault->setSeparateHigherDimensionalSources(true);
-	vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
-	vespersDefault->storeToDb(AMDatabase::database("user"));
-
-	// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
-	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSDefault");
-	if(matchIDs.count() > 0)
-		AMAppControllerSupport::registerClass<VESPERSEXAFSScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(matchIDs.at(0));
-
-	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERS2DDefault");
-	vespersDefault = new AMExporterOptionGeneralAscii();
-
-	if (matchIDs.count() != 0)
-		vespersDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
-
-	vespersDefault->setName("VESPERS2DDefault");
-	vespersDefault->setFileName("$name_$fsIndex.dat");
-	vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n");
-	vespersDefault->setHeaderIncluded(true);
-	vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
-	vespersDefault->setColumnHeaderIncluded(true);
-	vespersDefault->setColumnHeaderDelimiter("");
-	vespersDefault->setSectionHeader("");
-	vespersDefault->setSectionHeaderIncluded(true);
-	vespersDefault->setIncludeAllDataSources(true);
-	vespersDefault->setFirstColumnOnly(true);
-	vespersDefault->setSeparateHigherDimensionalSources(true);
-	vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
-	vespersDefault->storeToDb(AMDatabase::database("user"));
-
-	// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
-	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERS2DDefault");
-	if(matchIDs.count() > 0)
-		AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporter2DAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
-
-	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSLineScanDefault");
-	vespersDefault = new AMExporterOptionGeneralAscii();
-
-	if (matchIDs.count() != 0)
-		vespersDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
-
-	vespersDefault->setName("VESPERSLineScanDefault");
-	vespersDefault->setFileName("$name_$fsIndex.dat");
-	vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n");
-	vespersDefault->setHeaderIncluded(true);
-	vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
-	vespersDefault->setColumnHeaderIncluded(true);
-	vespersDefault->setColumnHeaderDelimiter("");
-	vespersDefault->setSectionHeader("");
-	vespersDefault->setSectionHeaderIncluded(true);
-	vespersDefault->setIncludeAllDataSources(true);
-	vespersDefault->setFirstColumnOnly(true);
-	vespersDefault->setSeparateHigherDimensionalSources(true);
-	vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
-	vespersDefault->storeToDb(AMDatabase::database("user"));
-
-	// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
-	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSLineScanDefault");
-	if(matchIDs.count() > 0)
-		AMAppControllerSupport::registerClass<VESPERSSpatialLineScanConfiguration, VESPERSExporterLineScanAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
-
-	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSEnergyScanDefault");
-	vespersDefault = new AMExporterOptionGeneralAscii();
-
-	if (matchIDs.count() != 0)
-		vespersDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
-
-	vespersDefault->setName("VESPERSEnergyScanDefault");
-	vespersDefault->setFileName("$name_$fsIndex.dat");
-	vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n");
-	vespersDefault->setHeaderIncluded(true);
-	vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
-	vespersDefault->setColumnHeaderIncluded(true);
-	vespersDefault->setColumnHeaderDelimiter("");
-	vespersDefault->setSectionHeader("");
-	vespersDefault->setSectionHeaderIncluded(true);
-	vespersDefault->setIncludeAllDataSources(true);
-	vespersDefault->setFirstColumnOnly(true);
-	vespersDefault->setSeparateHigherDimensionalSources(true);
-	vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
-	vespersDefault->storeToDb(AMDatabase::database("user"));
-
-	// HEY DARREN, THIS CAN BE OPTIMIZED TO GET RID OF THE SECOND LOOKUP FOR ID
-	matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "VESPERSEnergyScanDefault");
-	if(matchIDs.count() > 0)
-		AMAppControllerSupport::registerClass<VESPERSEnergyScanConfiguration, VESPERSExporterLineScanAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0));
+	vespersDefault = VESPERS::buildStandardExporterOption("VESPERSEnergyScanDefault", true, true, true);
+	if(vespersDefault->id() > 0)
+		AMAppControllerSupport::registerClass<VESPERSEnergyScanConfiguration, VESPERSExporterLineScanAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
 }
 
 void VESPERSAppController::setupUserInterface()
 {
 	// Create panes in the main window:
 	////////////////////////////////////
-
-	// Temporary workflow assistant.
-	assistant_ = new VESPERSWorkflowAssistant(workflowManagerView_, this);
-	assistantView_ = new VESPERSWorkflowAssistantView(assistant_);
-	assistantView_->hide();
-	mw_->insertVerticalWidget(2, assistantView_);
 
 	// Setup the general endstation control view.
 	endstationView_ = new VESPERSEndstationView(VESPERSBeamline::vespers()->endstation());
@@ -335,8 +258,7 @@ void VESPERSAppController::setupUserInterface()
 	exafsScanConfig_ = new VESPERSEXAFSScanConfiguration();
 	exafsScanConfig_->addRegion(0, -30, 0.5, 40, 1);
 	exafsConfigView_ = new VESPERSEXAFSScanConfigurationView(exafsScanConfig_);
-	exafsConfigViewHolder_ = new AMScanConfigurationViewHolder( workflowManagerView_, exafsConfigView_);
-//	exafsConfigViewHolder3_ = new AMScanConfigurationViewHolder3(exafsConfigView);
+	exafsConfigViewHolder3_ = new VESPERSScanConfigurationViewHolder3(exafsConfigView_);
 	connect(exafsConfigView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
 	// Setup 2D maps for the beamline.  Builds the config, view, and view holder.
@@ -344,8 +266,7 @@ void VESPERSAppController::setupUserInterface()
 	mapScanConfiguration_->setStepSize(0.005, 0.005);
 	mapScanConfiguration_->setTimeStep(1);
 	mapScanConfigurationView_ = new VESPERS2DScanConfigurationView(mapScanConfiguration_);
-	mapScanConfigurationViewHolder_ = new AM2DScanConfigurationViewHolder(workflowManagerView_, mapScanConfigurationView_);
-//	mapScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(mapScanConfigurationView_);
+	mapScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(mapScanConfigurationView_);
 	connect(mapScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
 	// Setup line scans for the beamline.  Builds the config, view, and view holder.
@@ -354,8 +275,7 @@ void VESPERSAppController::setupUserInterface()
 	lineScanConfiguration_->regions()->setUnits(0, "mm");
 	lineScanConfiguration_->regions()->setTimeUnits(0, "s");
 	lineScanConfigurationView_ = new VESPERSSpatialLineScanConfigurationView(lineScanConfiguration_);
-	lineScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_, lineScanConfigurationView_);
-//	lineScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(lineScanConfigurationView_);
+	lineScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(lineScanConfigurationView_);
 	connect(lineScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
 	// Setup energy scans for the beamline.  Builds the config, view, and view holder.
@@ -364,19 +284,14 @@ void VESPERSAppController::setupUserInterface()
 	energyScanConfiguration_->regions()->setUnits(0, " eV");
 	energyScanConfiguration_->regions()->setTimeUnits(0, " s");
 	energyScanConfigurationView_ = new VESPERSEnergyScanConfigurationView(energyScanConfiguration_);
-	energyScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_, energyScanConfigurationView_);
-//	energyScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(energyScanConfigurationView_);
+	energyScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(energyScanConfigurationView_);
 	connect(energyScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 
 	mw_->insertHeading("Scans", 2);
-	mw_->addPane(exafsConfigViewHolder_, "Scans", "XAS", ":/utilities-system-monitor.png");
-	mw_->addPane(mapScanConfigurationViewHolder_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
-	mw_->addPane(lineScanConfigurationViewHolder_, "Scans", "Line Scan", ":/utilities-system-monitor.png");
-	mw_->addPane(energyScanConfigurationViewHolder_, "Scans", "Energy Scan", ":/utilities-system-monitor.png");
-//	mw_->addPane(exafsConfigViewHolder3_, "Scans", "XAS", ":/utilities-system-monitor.png");
-//	mw_->addPane(mapScanConfigurationViewHolder3_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
-//	mw_->addPane(lineScanConfigurationViewHolder3_, "Scans", "Line Scan", ":/utilities-system-monitor.png");
-//	mw_->addPane(energyScanConfigurationViewHolder3_, "Scans", "Energy Scan", ":/utilities-system-monitor.png");
+	mw_->addPane(exafsConfigViewHolder3_, "Scans", "XAS", ":/utilities-system-monitor.png");
+	mw_->addPane(mapScanConfigurationViewHolder3_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
+	mw_->addPane(lineScanConfigurationViewHolder3_, "Scans", "Line Scan", ":/utilities-system-monitor.png");
+	mw_->addPane(energyScanConfigurationViewHolder3_, "Scans", "Energy Scan", ":/utilities-system-monitor.png");
 
 	// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
 	persistentView_ = new VESPERSPersistentView;
@@ -388,17 +303,8 @@ void VESPERSAppController::setupUserInterface()
 
 void VESPERSAppController::makeConnections()
 {
-	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
-	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
-	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerFinished()));
-
-	//connect(AMActionRunner3::workflow(), SIGNAL(scanActionStarted(AMScanAction*)), this, SLOT(onCurrentScanControllerStarted(AMScanAction*)));
-	//connect(AMActionRunner3::workflow(), SIGNAL(scanActionFinished(AMScanAction *)), this, SLOT(onCurrentScanControllerFinished(AMScanAction*)));
-
-	// Bottom bar connections.
-	connect(this, SIGNAL(pauseScanIssued()), this, SLOT(onPauseScanIssued()));
-	connect(this, SIGNAL(resumeScanIssued()), this, SLOT(onPauseScanIssued()));
-	connect(this, SIGNAL(stopScanIssued()), this, SLOT(onCancelScanIssued()));
+	connect(AMActionRunner3::workflow(), SIGNAL(scanActionStarted(AMScanAction*)), this, SLOT(onCurrentScanControllerStarted(AMScanAction*)));
+	connect(AMActionRunner3::workflow(), SIGNAL(scanActionFinished(AMScanAction *)), this, SLOT(onCurrentScanControllerFinished(AMScanAction*)));
 
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 
@@ -421,167 +327,54 @@ void VESPERSAppController::onConfigureDetectorRequested(const QString &detector)
 		mw_->setCurrentPane(marCCDView_);
 }
 
-void VESPERSAppController::onCurrentScanControllerStarted()
+void VESPERSAppController::onCurrentScanControllerStarted(AMScanAction *action)
 {
-	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
-//	QString fileFormat(AMActionRunner3::workflow()->scanController()->scan()->fileFormat());
+	QString fileFormat(action->controller()->scan()->fileFormat());
 
 	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
 		return;
 
-//	connect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
-//	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
-
-	AMScan *scan = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan();
-//	AMScan *scan = AMActionRunner3::workflow()->scanController()->scan();
-	openScanInEditor(scan);
-
-//	AMGenericScanEditor *newEditor = scanEditorAt(scanEditorCount() -1);
-
-//	VESPERSEXAFSScanConfiguration *config = qobject_cast<VESPERSEXAFSScanConfiguration *>(scan->scanConfiguration());
-
-//	if (config){
-
-//		switch(config->fluorescenceDetectorChoice()){
-
-//			case VESPERSEXAFSScanConfiguration::None:
-
-//				newEditor->setExclusiveDataSourceByName("trans");
-//				break;
-
-//			case VESPERSEXAFSScanConfiguration::SingleElement:
-//			case VESPERSEXAFSScanConfiguration::FourElement:
-//			{
-//				QStringList dataSources(newEditor->visibleDataSourceNames());
-//				int index = 0;
-
-//				for (int i = 0; i < dataSources.size(); i++){
-
-//					// Grabbing the Ka or La emission line because that will be the one people will want to see.
-//					if (dataSources.at(i).contains("norm") && dataSources.at(i).contains(config->edge().remove(" ")+"a"))
-//						index = i;
-//				}
-
-//				newEditor->setExclusiveDataSourceByName(dataSources.at(index));
-
-//				break;
-//			}
-//		}
-//	}
-
-//	VESPERS2DScanConfiguration *config2D = qobject_cast<VESPERS2DScanConfiguration *>(scan->scanConfiguration());
-
-//	if (config2D){
-
-//		bool foundFirstAB = false;
-
-//		for (int i = 0, count = scan->analyzedDataSourceCount(); i < count && !foundFirstAB; i++)
-//			if (!scan->analyzedDataSources()->at(i)->hiddenFromUsers() && scan->analyzedDataSources()->at(i)->name().contains("norm_")){
-
-//				newEditor->setExclusiveDataSourceByName(scan->analyzedDataSources()->at(i)->name());
-//				foundFirstAB = true;
-//			}
-//	}
-}
-
-void VESPERSAppController::onCurrentScanControllerCreated()
-{
-	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
-//	QString fileFormat(AMActionRunner3::workflow()->scanController()->scan()->fileFormat());
-
-	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
-		return;
-
-	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
-//	connect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
 	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
 
-	if (qobject_cast<VESPERSEXAFSScanConfiguration *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->scanConfiguration())){
-
-		connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));
-		assistantView_->show();
-	}
+	AMScan *scan = action->controller()->scan();
+	openScanInEditor(scan);
 }
 
-void VESPERSAppController::onCurrentScanControllerFinished()
+void VESPERSAppController::onCurrentScanControllerFinished(AMScanAction *action)
 {
-	QString fileFormat(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat());
-//	QString fileFormat(AMActionRunner3::workflow()->scanController()->scan()->fileFormat());
+	QString fileFormat(action->controller()->scan()->fileFormat());
 
 	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
 		return;
 
-	assistantView_->hide();
-
-	if (AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->state() == AMScanController::Cancelled
-			&& (qobject_cast<VESPERSEXAFSScanConfiguration *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->scanConfiguration()))){
-
-		assistant_->onScanCancelled();
-		disconnect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), assistant_, SLOT(onCurrentProgressChanged(double,double)));
-	}
-
-	disconnect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
-//	disconnect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
 	disconnect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
 }
 
 void VESPERSAppController::onBeamDump()
 {
-	AMScanController *controller = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
 
-	if (controller && controller->isRunning()){
-
-		controller->pause();
-		bottomBar_->resumeScanButton->setStyleSheet("QToolButton {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 0, 255), stop:0.494444 rgba(226, 226, 0, 255), stop:0.5 rgba(220, 220, 0, 255), stop:1 rgba(215, 215, 0, 255));\nborder-radius: 18px;\nborder: 0.5px outset rgb(81, 81, 81);\n}\nQToolButton:pressed {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:1 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:0 rgba(215, 215, 215, 255));\n}\n");
-		bottomBar_->resumeScanButton->setVisible(true);
-		bottomBar_->pauseScanButton->setVisible(false);
-	}
-
-//	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
-
-//	if (action && action->canPause() && action->state() == AMAction3::Running)
-//		action->pause();
+	if (action && action->canPause() && action->state() == AMAction3::Running)
+		action->pause();
 }
 
 void VESPERSAppController::onPauseScanIssued()
 {
-	AMScanController *controller = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
 
-	if (controller && controller->isRunning()){
+	if (action && action->canPause() && action->state() == AMAction3::Running)
+		action->pause();
 
-		controller->pause();
-		bottomBar_->resumeScanButton->setVisible(true);
-		bottomBar_->pauseScanButton->setVisible(false);
-	}
-
-	else if (controller && controller->isPaused()){
-
-		controller->resume();
-		bottomBar_->resumeScanButton->setVisible(false);
-		bottomBar_->resumeScanButton->setStyleSheet("QToolButton {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:1 rgba(215, 215, 215, 255));\nborder-radius: 18px;\nborder: 0.5px outset rgb(81, 81, 81);\n}\nQToolButton:pressed {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:1 rgba(233, 233, 233, 255), stop:0.494444 rgba(226, 226, 226, 255), stop:0.5 rgba(220, 220, 220, 255), stop:0 rgba(215, 215, 215, 255));\n}\n");
-		bottomBar_->pauseScanButton->setVisible(true);
-	}
-
-//	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
-
-//	if (action && action->canPause() && action->state() == AMAction3::Running)
-//		action->pause();
-
-//	else if (action && action->canPause() && action->state() == AMAction3::Paused)
-//		action->resume();
+	else if (action && action->canPause() && action->state() == AMAction3::Paused)
+		action->resume();
 }
 
 void VESPERSAppController::onCancelScanIssued()
 {
-	AMScanController *controller = AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
 
-	if (controller)
-		controller->cancel();
-
-//	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
-
-//	if (action)
-//		action->cancel();
+	if (action)
+		action->cancel();
 }
 
 void VESPERSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
@@ -610,20 +403,20 @@ void VESPERSAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMSc
 	if (!exclusiveName.isNull())
 		editor->setExclusiveDataSourceByName(exclusiveName);
 
-	else
+	else if (editor->scanAt(0)->analyzedDataSourceCount())
 		editor->setExclusiveDataSourceByName(editor->scanAt(0)->analyzedDataSources()->at(editor->scanAt(0)->analyzedDataSourceCount()-1)->name());
 
 	if (editor->using2DScanView()){
 
 		VESPERS2DScanConfiguration *config = qobject_cast<VESPERS2DScanConfiguration *>(scan->scanConfiguration());
 
-		if (config && config->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement)
+		if (config && config->fluorescenceDetector() == VESPERS::SingleElement)
 			editor->setSingleSpectrumViewDataSourceName("correctedRawSpectra-1el");
 
-		else if (config && config->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::FourElement)
+		else if (config && config->fluorescenceDetector() == VESPERS::FourElement)
 			editor->setSingleSpectrumViewDataSourceName("correctedSum-4el");
 
-		else if (config && config->fluorescenceDetectorChoice() == (VESPERS2DScanConfiguration::SingleElement | VESPERS2DScanConfiguration::FourElement))
+		else if (config && config->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement))
 			editor->setSingleSpectrumViewDataSourceName("sumSpectra-1eland4el");
 
 		editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().second.toDouble(), 20480);
@@ -737,7 +530,7 @@ void VESPERSAppController::setupXASScan(const AMGenericScanEditor *editor, bool 
 	if (config){
 
 		exafsScanConfig_->setName(config->name());
-		exafsScanConfig_->setFluorescenceDetectorChoice(config->fluorescenceDetectorChoice());
+		exafsScanConfig_->setFluorescenceDetector(config->fluorescenceDetector());
 		exafsScanConfig_->setIncomingChoice(config->incomingChoice());
 	}
 
@@ -769,7 +562,7 @@ void VESPERSAppController::setupXASScan(const AMGenericScanEditor *editor, bool 
 		exafsScanConfig_->exafsRegions()->setType(0, AMEXAFSRegion::Energy);
 	}
 
-	mw_->undock(exafsConfigViewHolder_);
+	mw_->undock(exafsConfigViewHolder3_);
 }
 
 void VESPERSAppController::setupEnergyScan(const AMGenericScanEditor *editor)
@@ -783,7 +576,7 @@ void VESPERSAppController::setupEnergyScan(const AMGenericScanEditor *editor)
 	if (config)
 		energyScanConfiguration_->setName(config->name());
 
-	mw_->undock(energyScanConfigurationViewHolder_);
+	mw_->undock(energyScanConfigurationViewHolder3_);
 }
 
 void VESPERSAppController::setup2DXRFScan(const AMGenericScanEditor *editor)
@@ -796,19 +589,19 @@ void VESPERSAppController::setup2DXRFScan(const AMGenericScanEditor *editor)
 	if (config){
 
 		mapScanConfiguration_->setName(config->name());
-		mapScanConfiguration_->setFluorescenceDetectorChoice(config->fluorescenceDetectorChoice());
+		mapScanConfiguration_->setFluorescenceDetector(config->fluorescenceDetector());
 		mapScanConfiguration_->setIncomingChoice(config->incomingChoice());
 		mapScanConfiguration_->setFastAxis(config->fastAxis());
 		mapScanConfiguration_->setXRange(mapRect.left(), mapRect.right());
 		mapScanConfiguration_->setYRange(mapRect.bottom(), mapRect.top());
 		mapScanConfiguration_->setStepSize(config->steps());
 		mapScanConfiguration_->setTimeStep(config->timeStep());
-		mapScanConfiguration_->setMotorsChoice(config->motorsChoice());
-		mapScanConfiguration_->setUsingCCD(config->usingCCD());
+		mapScanConfiguration_->setMotor(config->motor());
+		mapScanConfiguration_->setCCDDetector(config->ccdDetector());
 		mapScanConfigurationView_->updateMapInfo();
 	}
 
-	mw_->undock(mapScanConfigurationViewHolder_);
+	mw_->undock(mapScanConfigurationViewHolder3_);
 }
 
 void VESPERSAppController::onSampleStageChoiceChanged(bool change)
@@ -816,4 +609,115 @@ void VESPERSAppController::onSampleStageChoiceChanged(bool change)
 	persistentView_->setSampleStage(change);
 	endstationView_->setUsingNormalMotor(change);
 	exafsConfigView_->setSampleStage(change);
+}
+
+void VESPERSAppController::fixCDF(const QUrl &url)
+{
+	// turn off automatic raw-day loading for scans... This will make loading the scan to access it's config much faster.
+	bool scanAutoLoadingOn = AMScan::autoLoadData();
+	AMScan::setAutoLoadData(false);
+
+	AMScan* scan = AMScan::createFromDatabaseUrl(url, true);
+
+	// restore AMScan's auto-loading of data to whatever it was before.
+	AMScan::setAutoLoadData(scanAutoLoadingOn);
+
+	if(!scan) {
+		return;
+	}
+
+	// Does the scan have a configuration?
+	AMScanConfiguration* config = scan->scanConfiguration();
+	if(!config) {
+		scan->release();
+		return;
+	}
+
+	// Which scan configuration is it?
+	if (qobject_cast<VESPERSEXAFSScanConfiguration *>(config)){
+
+		QString filename = scan->filePath();
+		filename.replace(".cdf", ".dat");
+		scan->setFileFormat("vespers2011EXAFS");
+		scan->setFilePath(filename);
+
+		VESPERSEXAFSScanConfiguration *exafsConfig = qobject_cast<VESPERSEXAFSScanConfiguration *>(config);
+		if (exafsConfig->fluorescenceDetector() > 0){
+
+			QString additionalFilename = filename;
+			additionalFilename.replace(".dat", "_spectra.dat");
+			scan->setAdditionalFilePaths(QStringList() << additionalFilename);
+		}
+	}
+
+	else if (qobject_cast<VESPERS2DScanConfiguration *>(config)){
+
+		VESPERS2DScanConfiguration *mapConfig = qobject_cast<VESPERS2DScanConfiguration *>(config);
+		bool usingCcd = mapConfig->ccdDetector() == VESPERS::Roper ? true : false;
+		bool usingSingleElement = (mapConfig->fluorescenceDetector() == VESPERS::SingleElement) || (mapConfig->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement));
+		bool usingFourElement = (mapConfig->fluorescenceDetector() == VESPERS::FourElement) || (mapConfig->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement));
+
+		QString filename = scan->filePath();
+		filename.replace(".cdf", ".dat");
+		QString additionalFilename = filename;
+		additionalFilename.replace(".dat", "_spectra.dat");
+
+		if (usingSingleElement && usingFourElement)
+			scan->setFileFormat(QString("vespers2012XRF1Eln4El%1").arg(usingCcd ? "XRD" : ""));
+
+		else if (usingSingleElement)
+			scan->setFileFormat(QString("vespers2012XRF1El%1").arg(usingCcd ? "XRD" : ""));
+
+		else if (usingFourElement)
+			scan->setFileFormat(QString("vespers2012XRF4El%1").arg(usingCcd ? "XRD" : ""));
+
+		scan->setFilePath(filename);
+		scan->setAdditionalFilePaths(QStringList() << additionalFilename);
+	}
+
+	else if (qobject_cast<VESPERSSpatialLineScanConfiguration *>(config)){
+
+		VESPERSSpatialLineScanConfiguration *lineConfig = qobject_cast<VESPERSSpatialLineScanConfiguration *>(config);
+		bool usingCcd = lineConfig->ccdDetector() == VESPERS::Roper ? true : false;
+		bool usingSingleElement = (lineConfig->fluorescenceDetector() == VESPERS::SingleElement) || (lineConfig->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement));
+		bool usingFourElement = (lineConfig->fluorescenceDetector() == VESPERS::FourElement) || (lineConfig->fluorescenceDetector() == (VESPERS::SingleElement | VESPERS::FourElement));
+
+		QString filename = scan->filePath();
+		filename.replace(".cdf", ".dat");
+		QString additionalFilename = filename;
+		additionalFilename.replace(".dat", "_spectra.dat");
+
+		if (usingSingleElement && usingFourElement)
+			scan->setFileFormat(QString("vespers2012LineScanXRF1Eln4El%1").arg(usingCcd ? "XRD" : ""));
+
+		else if (usingSingleElement)
+			scan->setFileFormat(QString("vespers2012LineScanXRF1El%1").arg(usingCcd ? "XRD" : ""));
+
+		else if (usingFourElement)
+			scan->setFileFormat(QString("vespers2012LineScanXRF4El%1").arg(usingCcd ? "XRD" : ""));
+
+		scan->setFilePath(filename);
+		scan->setAdditionalFilePaths(QStringList() << additionalFilename);
+	}
+
+	else if (qobject_cast<VESPERSEnergyScanConfiguration *>(config)){
+
+		QString filename = scan->filePath();
+		filename.replace(".cdf", ".dat");
+		scan->setFileFormat("vespers2012Energy");
+		scan->setFilePath(filename);
+	}
+
+	else {
+
+		scan->release();
+		return;
+	}
+
+	// Save the changes to db object.
+	scan->storeToDb(AMDatabase::database("user"));
+	// Load it from the database to use the appropriate file loader and build a new CDF file.
+	scan->loadFromDb(AMDatabase::database("user"), scan->id());
+	// Release the object.
+	scan->release();
 }

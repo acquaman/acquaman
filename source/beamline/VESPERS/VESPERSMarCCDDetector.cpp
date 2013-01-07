@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSMarCCDDetector.h"
 
 #include "actions/AMBeamlineControlMoveAction.h"
@@ -5,23 +24,20 @@
 VESPERSMarCCDDetector::VESPERSMarCCDDetector(const QString &name, const QString &description, QObject *parent)
 	: VESPERSMarCCDDetectorInfo(name, description, parent), AMDetector(name)
 {
-	temperatureControl_ = new AMPVControl("Temperature", "ccd1607-002:cam1:Temperature_RBV", "ccd1607-002:det1:Temperature", QString(), this, 1);
-	imageModeControl_ = new AMPVControl("Image Mode", "ccd1607-002:cam1:ImageMode_RBV", "ccd1607-002:det1:ImageMode", QString(), this, 0.1);
-	triggerModeControl_ = new AMPVControl("Trigger Mode", "ccd1607-002:cam1:TriggerMode_RBV", "ccd1607-002:det1:TriggerMode", QString(), this, 0.1);
+	imageModeControl_ = new AMPVControl("Image Mode", "ccd1607-002:cam1:ImageMode_RBV", "ccd1607-002:cam1:ImageMode", QString(), this, 0.1);
+	triggerModeControl_ = new AMPVControl("Trigger Mode", "ccd1607-002:cam1:TriggerMode_RBV", "ccd1607-002:cam1:TriggerMode", QString(), this, 0.1);
 	operationControl_ = new AMSinglePVControl("Operation", "ccd1607-002:cam1:Acquire", this, 0.1);
 	stateControl_ = new AMReadOnlyPVControl("State", "ccd1607-002:cam1:DetectorState_RBV", this);
 	acquireTimeControl_ = new AMSinglePVControl("Acquire Time", "ccd1607-002:cam1:AcquireTime", this, 0.1);
-	autoSaveControl_ = new AMPVControl("AutoSave", "ccd1607-002:cam1:AutoSave_RBV", "ccd1607-002:det1:AutoSave", QString(), this, 0.1);
-	saveFileControl_ = new AMPVwStatusControl("Save File", "ccd1607-002:1:WriteFile", "ccd1607-002:det1:WriteFile", "ccd1607-002:det1:WriteFile_RBV", QString(), this, 0.1);
+	autoSaveControl_ = new AMPVControl("AutoSave", "ccd1607-002:cam1:AutoSave_RBV", "ccd1607-002:cam1:AutoSave", QString(), this, 0.1);
+	saveFileControl_ = new AMPVwStatusControl("Save File", "ccd1607-002:cam1:WriteFile", "ccd1607-002:cam1:WriteFile", "ccd1607-002:cam1:WriteFile_RBV", QString(), this, 0.1);
 
 	// Various CCD file path PVs.
-	ccdPath_ = new AMProcessVariable("ccd1607-002:det1:FilePath", true, this);
-	ccdFile_ = new AMProcessVariable("ccd1607-002:det1:FileName", true, this);
-	ccdNumber_ = new AMProcessVariable("ccd1607-002:det1:FileNumber", true, this);
+	ccdPath_ = new AMProcessVariable("ccd1607-002:cam1:FilePath", true, this);
+	ccdFile_ = new AMProcessVariable("ccd1607-002:cam1:FileName", true, this);
+	ccdNumber_ = new AMProcessVariable("ccd1607-002:cam1:FileNumber", true, this);
 
 	connect(signalSource(), SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
-	connect(temperatureControl_, SIGNAL(valueChanged(double)), this, SIGNAL(temperatureChanged(double)));
-	connect(temperatureControl_, SIGNAL(setpointChanged(double)), this, SLOT(onTemperatureSetpointChanged(double)));
 	connect(imageModeControl_, SIGNAL(valueChanged(double)), this, SLOT(onImageModeChanged()));
 	connect(triggerModeControl_, SIGNAL(valueChanged(double)), this, SLOT(onTriggerModeChanged()));
 	connect(operationControl_, SIGNAL(valueChanged(double)), this, SLOT(onIsAcquiringChanged()));
@@ -133,7 +149,6 @@ bool VESPERSMarCCDDetector::setFromInfo(const AMDetectorInfo *info)
 	if (!detectorInfo)
 		return false;
 
-	setTemperature(detectorInfo->temperature());
 	setAcquireTime(detectorInfo->acquireTime());
 
 	return true;
@@ -141,7 +156,6 @@ bool VESPERSMarCCDDetector::setFromInfo(const AMDetectorInfo *info)
 
 void VESPERSMarCCDDetector::setFromMarInfo(const VESPERSMarCCDDetectorInfo &info)
 {
-	setTemperature(info.temperature());
 	setAcquireTime(info.acquireTime());
 }
 
@@ -207,17 +221,6 @@ AMBeamlineActionItem *VESPERSMarCCDDetector::createTriggerModeAction(VESPERSMarC
 
 	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(triggerModeControl_);
 	action->setSetpoint(int(mode));
-
-	return action;
-}
-
-AMBeamlineActionItem *VESPERSMarCCDDetector::createTemperatureAction(double temperature)
-{
-	if (!temperatureControl_->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(temperatureControl_);
-	action->setSetpoint(temperature);
 
 	return action;
 }

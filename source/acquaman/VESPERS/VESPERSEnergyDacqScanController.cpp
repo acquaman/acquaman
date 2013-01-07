@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSEnergyDacqScanController.h"
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
@@ -11,13 +30,10 @@
 #include <QStringBuilder>
 
 VESPERSEnergyDacqScanController::VESPERSEnergyDacqScanController(VESPERSEnergyScanConfiguration *cfg, QObject *parent)
-	: AMDacqScanController(cfg, parent)
+	: AMDacqScanController(cfg, parent), VESPERSScanController(cfg)
 {
 	config_ = cfg;
 	config_->setUserScanName(config_->name());
-
-	setupXASAction_ = 0;
-	cleanupXASAction_ = 0;
 
 	secondsElapsed_ = 0;
 	secondsTotal_ = config_->totalTime();
@@ -41,46 +57,7 @@ VESPERSEnergyDacqScanController::VESPERSEnergyDacqScanController(VESPERSEnergySc
 	scan_->replaceRawDataStore(new AMCDFDataStore(AMUserSettings::userDataFolder % scan_->filePath(), false));
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
-	QString notes;
-
-	if (config_->ccdDetector() == VESPERSEnergyScanConfiguration::Roper)
-		notes.append(QString("\nRoper CCD distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToRoperCCD(), 0, 'f', 1));
-
-	switch(VESPERSBeamline::vespers()->currentBeam()){
-
-	case VESPERSBeamline::None:
-	case VESPERSBeamline::Pink:
-		// This should never happen.
-		break;
-
-	case VESPERSBeamline::TenPercent:
-		notes.append(QString("Beam used:\t10% bandpass\n"));
-		break;
-
-	case VESPERSBeamline::OnePointSixPercent:
-		notes.append(QString("Beam used:\t1.6% bandpass\n"));
-		break;
-
-	case VESPERSBeamline::Si:
-		notes.append(QString("Beam used:\tSi (%1E/E = 10^-4)\n").arg(QString::fromUtf8("Δ")));
-		break;
-	}
-
-	notes.append(QString("Filter thickness (aluminum):\t%1 %2m\n").arg(VESPERSBeamline::vespers()->endstation()->filterThickness()).arg(QString::fromUtf8("μ")));
-	notes.append(QString("Horizontal slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapX()));
-	notes.append(QString("Vertical slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapZ()));
-	notes.append(QString("Gas used in ion chambers:\tN2\n"));
-	notes.append(QString("\nIon Chamber Gain Settings\n"));
-	CLSSplitIonChamber *split = VESPERSBeamline::vespers()->iSplit();
-	notes.append(QString("%1:\t%2 %3\n").arg(split->name()).arg(split->sensitivityValueA()).arg(split->sensitivityUnitsA()));
-	CLSIonChamber *chamber = VESPERSBeamline::vespers()->iPreKB();
-	notes.append(QString("%1:\t%2 %3\n").arg(chamber->name()).arg(chamber->sensitivityValue()).arg(chamber->sensitivityUnits()));
-	chamber = VESPERSBeamline::vespers()->iMini();
-	notes.append(QString("%1:\t%2 %3\n").arg(chamber->name()).arg(chamber->sensitivityValue()).arg(chamber->sensitivityUnits()));
-	chamber = VESPERSBeamline::vespers()->iPost();
-	notes.append(QString("%1:\t%2 %3\n").arg(chamber->name()).arg(chamber->sensitivityValue()).arg(chamber->sensitivityUnits()));
-
-	scan_->setNotes(notes);
+	scan_->setNotes(buildNotes());
 
 	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 	AMMeasurementInfo temp = AMMeasurementInfo("", "");
@@ -99,15 +76,9 @@ VESPERSEnergyDacqScanController::VESPERSEnergyDacqScanController(VESPERSEnergySc
 
 void VESPERSEnergyDacqScanController::addExtraDatasources()
 {
-	// Common to all three types are Ea, K, dwell time and ring current.
-	scan_->rawData()->addMeasurement(AMMeasurementInfo("Ea", "Energy Setpoint", "eV"));
-	scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
-	scan_->rawData()->addMeasurement(AMMeasurementInfo("DwellTime", "Dwell Time", "s"));
-	scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
-	scan_->rawData()->addMeasurement(AMMeasurementInfo("RingCurrent", "Ring Current", "mA"));
-	scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
+	addStandardMeasurements(scan_, true, false);
 
-	if (config_->ccdDetector() == VESPERSEnergyScanConfiguration::Roper){
+	if (config_->ccdDetector() == VESPERS::Roper || config_->ccdDetector() == VESPERS::Mar){
 
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("CCDFileNumber", "CCD file number"));
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
@@ -116,73 +87,28 @@ void VESPERSEnergyDacqScanController::addExtraDatasources()
 
 bool VESPERSEnergyDacqScanController::initializeImplementation()
 {
-	// To initialize the XAS scan, there are four stages.
-	/*
-		First: Enable/Disable all the pertinent detectors.  The scalar is ALWAYS enabled.
-		Second: Set the mode to single shot,set the time on the synchronized dwell time, and set the variable integration time if an EXAFS scan.
-		Third: Make sure the relative energy postion is back to zero and move the sample stage to the correct location (if enabled).
-		Fourth: Move the mono to the correct energy.
-	 */
-	AMBeamlineParallelActionsList *setupXASActionsList = new AMBeamlineParallelActionsList;
-
-	if (!setupXASAction_)
-		onInitializationActionFinished();
-
-	setupXASAction_ = new AMBeamlineListAction(setupXASActionsList);
-
-	// First stage.
-	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	// Scalar
-	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(0)->createEnableAction(true));
-	// Single element vortex
-	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(false));
-	// CCD
-	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(true));
-	// Picoammeters
-	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
-	// Four element vortex
-	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
-
-	// Second stage.
-	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createStartAction(false));
-	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createScansPerBufferAction(1));
-	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->scaler()->createTotalScansAction(1));
-	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::SingleShot));
-	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(config_->regionTime(0)));
+	buildBaseInitializationAction(config_->regionTime(0));
+	AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
 
 	// Third stage.
 	if (config_->goToPosition() && VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
 
-		setupXASActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(config_->x()));
-		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(config_->y()));
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+		setupActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createHorizontalMoveAction(config_->x()));
+		setupActionsList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStage()->createVerticalMoveAction(config_->y()));
 	}
 
 	else if (config_->goToPosition() && !VESPERSBeamline::vespers()->experimentConfiguration()->sampleStageChoice()){
 
-		setupXASActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->realSampleStage()->createHorizontalMoveAction(config_->x()));
-		setupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->realSampleStage()->createVerticalMoveAction(config_->y()));
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+		setupActionsList->appendAction(2, VESPERSBeamline::vespers()->realSampleStage()->createHorizontalMoveAction(config_->x()));
+		setupActionsList->appendAction(2, VESPERSBeamline::vespers()->realSampleStage()->createVerticalMoveAction(config_->y()));
 	}
 
-	// Integrity check.  Make sure no actions are null.
-	for (int i = 0; i < setupXASActionsList->stageCount(); i++){
-
-		for (int j = 0; j < setupXASActionsList->stage(i)->size(); j++){
-
-			if (setupXASActionsList->action(i, j) == 0){
-
-				onInitializationActionsFailed(0);
-				return false;
-			}
-		}
-	}
-
-	connect(setupXASAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
-	connect(setupXASAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
-	connect(setupXASAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
-	setupXASAction_->start();
+	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
+	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
+	connect(initializationAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
+	initializationAction_->start();
 
 	return true;
 }
@@ -205,7 +131,7 @@ bool VESPERSEnergyDacqScanController::startImplementation()
 	// Setup the real config.
 	switch(config_->ccdDetector()){
 
-	case VESPERSEnergyScanConfiguration::Roper:
+	case VESPERS::Roper:
 		if (!setupRoperScan()){
 
 			AMErrorMon::alert(this,
@@ -215,7 +141,7 @@ bool VESPERSEnergyDacqScanController::startImplementation()
 		}
 		break;
 
-	case VESPERSEnergyScanConfiguration::Mar:
+	case VESPERS::Mar:
 		if (!setupMarScan()){
 
 			AMErrorMon::alert(this,
@@ -264,45 +190,10 @@ bool VESPERSEnergyDacqScanController::startImplementation()
 
 void VESPERSEnergyDacqScanController::cleanup()
 {
-	// To cleanup the XAS scan, there is one stage.
-	/*
-		First: Only have the scalar running in the syncrhonized dwell time.
-		Second: Set the dwell time to 1 second.  Disables the variable integration time.  Set the relative energy PV to 0.
-		Third: Set the scan mode to continuous.  This starts the synchronized dwell time.
-	 */
-	AMBeamlineParallelActionsList *cleanupXASActionsList = new AMBeamlineParallelActionsList;
-
-	if (!cleanupXASAction_)
-		onCleanupActionFinished();
-
-	cleanupXASAction_ = new AMBeamlineListAction(cleanupXASActionsList);
-
-	// First stage.
-	cleanupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	// Scalar
-	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(0)->createEnableAction(true));
-	// Single element vortex
-	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(false));
-	// CCD
-	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(false));
-	// Picoammeters
-	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
-	// Four element vortex
-	cleanupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
-
-	// Second stage.
-	cleanupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	// Synchronized dwell time.
-	cleanupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(1.0));
-
-	// Third stage.
-	cleanupXASActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-	// Start the synchronized dwell time.
-	cleanupXASActionsList->appendAction(2, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::Continuous));
-
-	connect(cleanupXASAction_, SIGNAL(succeeded()), this, SLOT(onCleanupFinished()));
-	connect(cleanupXASAction_, SIGNAL(failed(int)), this, SLOT(onCleanupFinished()));
-	cleanupXASAction_->start();
+	buildCleanupAction(true);
+	connect(cleanupAction_, SIGNAL(succeeded()), this, SLOT(onCleanupFinished()));
+	connect(cleanupAction_, SIGNAL(failed(int)), this, SLOT(onCleanupFinished()));
+	cleanupAction_->start();
 }
 
 void VESPERSEnergyDacqScanController::onCleanupFinished()
@@ -360,18 +251,6 @@ void VESPERSEnergyDacqScanController::onInitializationActionsProgress(double ela
 	Q_UNUSED(total)
 }
 
-QString VESPERSEnergyDacqScanController::getHomeDirectory()
-{
-	// Find out which path we are using for acquaman (depends on whether you are on Mac or Linux or beamline OPI).
-	QString homeDir = QDir::homePath();
-	if(QDir(homeDir+"/dev").exists())
-		homeDir.append("/dev");
-	else if(QDir(homeDir+"/beamline/programming").exists())
-		homeDir.append("/beamline/programming");
-
-	return homeDir;
-}
-
 bool VESPERSEnergyDacqScanController::setupRoperScan()
 {
 	VESPERSConfigurationFileBuilder builder;
@@ -380,7 +259,7 @@ bool VESPERSEnergyDacqScanController::setupRoperScan()
 	builder.setPvNameAxis1("07B2_Mono_SineB_Ea");
 	builder.buildConfigurationFile();
 
-	bool loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
+	bool loadSuccess = advAcq_->setConfigFile(VESPERS::getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 
 //	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/EnergyScan-Roper.cfg"));
 
@@ -399,57 +278,41 @@ bool VESPERSEnergyDacqScanController::setupRoperScan()
 	for (int i = 0; i < ionChambers->count(); i++)
 		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
-	/// In order to mimic the current configs, I've hardcoded all the names so that the file matches the reference file.  These should and will be migrated to proper maps of detectors and controls names.
-	// These will all likely change and be modified.
-	advAcq_->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
-	advAcq_->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);
-	advAcq_->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
-	advAcq_->appendRecord("IOC1607-003:det1:FileNumber", true, false, 0);
+	addStandardExtraPVs(advAcq_, true, false);
 
+	advAcq_->appendRecord("IOC1607-003:det1:FileNumber", true, false, 0);
 
 	return loadSuccess;
 }
 
 bool VESPERSEnergyDacqScanController::setupMarScan()
 {
-	// Nothing to setup until we have the detector.
-	return false;
-}
+	VESPERSConfigurationFileBuilder builder;
+	builder.setDimensions(1);
+	builder.setMarCCD(true);
+	builder.setPvNameAxis1("07B2_Mono_SineB_Ea");
+	builder.buildConfigurationFile();
 
-void VESPERSEnergyDacqScanController::onInitializationActionFinished()
-{
-	if (setupXASAction_ == 0)
-		return;
+	bool loadSuccess = advAcq_->setConfigFile(VESPERS::getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/template.cfg"));
 
-	// Disconnect all signals and return all memory.
-	setupXASAction_->disconnect();
-	AMBeamlineParallelActionsList *actionList = setupXASAction_->list()	;
-
-	for (int i = 0; i < actionList->stageCount(); i++){
-
-		while (actionList->stage(i)->size())
-			actionList->stage(i)->takeAt(0)->deleteLater();
+	if(!loadSuccess){
+		AMErrorMon::alert(this,
+				VESPERSENERGYDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
+				"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers.");
+		return false;
 	}
 
-	setupXASAction_->deleteLater();
-	setupXASAction_ = 0;
-}
+	// Remove all the "goober" records that were added to create enough space for the Dacq.  (Hack the Dacq solution).
+	while (advAcq_->deleteRecord(1)){}
 
-void VESPERSEnergyDacqScanController::onCleanupActionFinished()
-{
-	if (cleanupXASAction_ == 0)
-		return;
+	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
-	// Disconnect all signals and return all memory.
-	cleanupXASAction_->disconnect();
-	AMBeamlineParallelActionsList *actionList = cleanupXASAction_->list()	;
+	for (int i = 0; i < ionChambers->count(); i++)
+		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
-	for (int i = 0; i < actionList->stageCount(); i++){
+	addStandardExtraPVs(advAcq_, true, false);
 
-		while (actionList->stage(i)->size())
-			actionList->stage(i)->takeAt(0)->deleteLater();
-	}
+	advAcq_->appendRecord("ccd1607-002:cam1:FileNumber", true, false, 0);
 
-	cleanupXASAction_->deleteLater();
-	cleanupXASAction_ = 0;
+	return loadSuccess;
 }

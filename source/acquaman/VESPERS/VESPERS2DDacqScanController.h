@@ -21,9 +21,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define VESPERS2DDACQSCANCONTROLLER_H
 
 #include "acquaman/AM2DDacqScanController.h"
+#include "acquaman/VESPERS/VESPERSScanController.h"
 #include "acquaman/VESPERS/VESPERS2DScanConfiguration.h"
 #include "dataman/AM2DScan.h"
 #include "actions/AMBeamlineListAction.h"
+#include "application/VESPERS/VESPERS.h"
 
 #include <QTimer>
 
@@ -34,7 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define VESPERS2DDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE 79004
 
 /// This class builds a scan controller for doing a 2D map.
-class VESPERS2DDacqScanController : public AM2DDacqScanController
+class VESPERS2DDacqScanController : public AM2DDacqScanController, public VESPERSScanController
 {
 	Q_OBJECT
 
@@ -79,16 +81,8 @@ protected:
 	/// Method that cleans up the beamline after a scan is finished.  Makes a list of clean up actions and executes them.
 	void cleanup();
 
-	/// Helper method that removes and deletes all of the actions from initialization action for proper memory management.
-	void onInitializationActionFinished();
-	/// Helper method that removes and deletes all of the actions from the cleanup action for proper memory management.
-	void onCleanupActionFinished();
-
 	/// Adds all the data sources that are still important but not visualized.
 	void addExtraDatasources();
-
-	/// Returns the home directory for Acquaman.
-	QString getHomeDirectory();
 
 	/// Sets up the 2D scan based on the single element detector being used for XRF.
 	bool setupSingleElementMap();
@@ -97,9 +91,6 @@ protected:
 	/// Sets up the 2D scan based on the single element and four element detectors being used for XRF.
 	bool setupSingleAndFourElementMap();
 
-	/// Helper method that returns a list of QPairs where each pair corresponds to the same ROIs.  Used only when using both vortex detectors together.
-	QList<QPair<int, int> > findRoiPairs() const;
-
 	/// Pointer to the VESPERS2DScanConfiguration this scan controls.
 	VESPERS2DScanConfiguration *config_;
 
@@ -107,11 +98,6 @@ protected:
 	QString xAxisPVName_;
 	/// Holds the y-axis PV name.
 	QString yAxisPVName_;
-
-	/// Action that contains all of the initialization actions for the controller.
-	AMBeamlineListAction *initializationActions_;
-	/// Action that contains all of the cleanup actions for the controller.
-	AMBeamlineListAction *cleanupActions_;
 
 	/// Timer used for determining the elapsed time for a scan.
 	QTimer elapsedTime_;

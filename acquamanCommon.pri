@@ -595,7 +595,12 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/analysis/AM3DBinningAB.h \
     source/analysis/AM3DBinningABEditor.h \
     source/analysis/AM2DDeadTimeAB.h \
-    source/analysis/AM3DDeadTimeAB.h
+    source/analysis/AM3DDeadTimeAB.h \
+    source/actions3/editors/AMLiveLoopActionEditor3.h \
+    source/ui/AMBottomPanel.h \
+    source/ui/AMDatamanAppBottomPanel.h \
+    source/ui/AMAppBottomPanel.h \
+    source/ui/actions3/AMActionRunnerBottomBarCurrentView3.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -994,7 +999,12 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/analysis/AM3DBinningAB.cpp \
     source/analysis/AM3DBinningABEditor.cpp \
     source/analysis/AM2DDeadTimeAB.cpp \
-    source/analysis/AM3DDeadTimeAB.cpp
+    source/analysis/AM3DDeadTimeAB.cpp \
+    source/actions3/editors/AMLiveLoopActionEditor3.cpp \
+    source/ui/AMBottomPanel.cpp \
+    source/ui/AMDatamanAppBottomPanel.cpp \
+    source/ui/AMAppBottomPanel.cpp \
+    source/ui/actions3/AMActionRunnerBottomBarCurrentView3.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1018,6 +1028,30 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

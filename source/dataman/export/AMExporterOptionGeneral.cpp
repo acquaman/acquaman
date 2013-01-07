@@ -25,6 +25,7 @@ AMExporterOptionGeneral::AMExporterOptionGeneral(QObject *parent) :
 {
 
 	includeAllDataSources_ = true;
+	includeHigherDimensionSources_ = true;
 	firstColumnOnly_ = false;
 	separateHigherDimensionalSources_ = false;
 

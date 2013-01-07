@@ -175,18 +175,6 @@ bool AM2DDacqScanController::event(QEvent *e)
 			scan_->rawData()->setAxisValue(1, insertIndex.j(), i.value());
 			++i;
 
-//			QList<double> temp = aeData.values();
-
-			// This is too sensitive at the moment.
-//			if (temp.size() > 5 && !duplicateColumnsDetected_)
-//				for (int x = 5; x < temp.size(); x++)
-//					if (temp.at(x) == temp.at(x-1)){
-
-//						duplicateColumnsDetected_ = true;
-//						AMErrorMon::alert(this, AM2DDACQSCANCONTROLLER_DUPLICATE_COLUMNS_DETECTED, QString("Duplicate columns detected at %1 and %2").arg(x).arg(x-1));
-//						QMessageBox::warning(0, "Duplicate Columns Detected", "An error has occurred within the scan engine where data is not being saved correctly.  Please contact Darren at 290-5418.");
-//					}
-
 			while(i != aeData.constEnd()){
 				scan_->rawData()->setValue(insertIndex, i.key()-2, AMnDIndex(), i.value());
 				++i;
@@ -200,13 +188,20 @@ bool AM2DDacqScanController::event(QEvent *e)
 			while(j != aeSpectra.constEnd()){
 
 				QVector<double> data = j.value().toVector();
-				scan_->rawData()->setValue(insertIndex, j.key()-2, data.data());
+				scan_->rawData()->setValue(insertIndex, j.key()-2, data.constData());
 				++j;
 			}
 
 			scan_->rawData()->endInsertRows();
 
-			if (stopAtEndOfLine_ && atEndOfLine(aeData)){
+			if (stopImmediately_){
+
+				// Make sure that the AMScanController knows that the scan has NOT been cancelled.
+				dacqCancelled_ = false;
+				advAcq_->Stop();
+			}
+
+			else if (stopAtEndOfLine_ && atEndOfLine(aeData)){
 
 				// Make sure that the AMScanController knows that the scan has NOT been cancelled.  This way the scan will still be auto-exported.
 				dacqCancelled_ = false;

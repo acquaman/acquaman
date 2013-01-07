@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/AMDacqScanController.h"
 #include "acquaman/VESPERS/VESPERSEXAFSScanConfiguration.h"
+#include "acquaman/VESPERS/VESPERSScanController.h"
 #include "dataman/AMXASScan.h"
 #include "actions/AMBeamlineListAction.h"
 
@@ -33,7 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define VESPERSEXAFSDACQSCANCONTROLLER_CANT_START_DETECTOR_SOURCE_MISMATCH 78003
 #define VESPERSEXAFSDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE 78004
 
-class VESPERSEXAFSDacqScanController : public AMDacqScanController
+class VESPERSEXAFSDacqScanController : public AMDacqScanController, public VESPERSScanController
 {
 	Q_OBJECT
 
@@ -41,8 +42,6 @@ public:
 	/// Constructor.
 	/// \param cfg is the XAS configuration that the controller will run.
 	VESPERSEXAFSDacqScanController(VESPERSEXAFSScanConfiguration *cfg, QObject *parent = 0);
-	/// Destructor.  Makes sure all the memory from the actions that were created is freed.
-	~VESPERSEXAFSDacqScanController() { onInitializationActionFinished(); onCleanupActionFinished(); }
 
 protected slots:
 	/// Slot that handles the successful initialization of the scan.
@@ -76,11 +75,6 @@ protected:
 	/// Method that cleans up the beamline after a scan is finished.  Makes a list of clean up actions and executes them.
 	void cleanup();
 
-	/// Helper method that removes and deletes all of the actions from initialization action for proper memory management.
-	void onInitializationActionFinished();
-	/// Helper method that removes and deletes all of the actions from the cleanup action for proper memory management.
-	void onCleanupActionFinished();
-
 	AMnDIndex toScanIndex(QMap<int, double> aeData);
 
 	/// Adds all the data sources that are still important but not visualized.
@@ -95,22 +89,11 @@ protected:
 	/// Sets up the XAS scan based on the single element and four element detector being selected.
 	bool setupSingleAndFourElementXAS();
 
-	/// Helper method that returns a list of QPairs where each pair corresponds to the same ROIs.  Used only when using both vortex detectors together.
-	QList<QPair<int, int> > findRoiPairs() const;
-
-	/// Returns the home directory for Acquaman.
-	QString getHomeDirectory();
-
 	/// Pointer to the configuration used by this controller.
 	VESPERSEXAFSScanConfiguration *config_;
 
 	/// A counter holding the current region index being scanned.
 	int currentRegionIndex_;
-
-	/// Action that contains all of the initialization actions for the controller.
-	AMBeamlineListAction *setupXASAction_;
-	/// Action that contains all of the cleanup actions for the controller.
-	AMBeamlineListAction *cleanupXASAction_;
 
 	/// Timer used for determining the elapsed time for a scan.
 	QTimer elapsedTime_;

@@ -27,6 +27,8 @@ AMLoopAction3::AMLoopAction3(AMLoopActionInfo3 *info, QObject *parent) : AMListA
 	currentSubActionIndex_ = -1;
 	logSubActionsSeparately_ = true;
 	currentSubAction_ = 0;
+	skipAfterCurrentIteration_ = false;
+	skipOptions_.append("After current iteration");
 }
 
 AMLoopAction3::AMLoopAction3(int iterations, QObject *parent) : AMListAction3(new AMLoopActionInfo3(iterations), AMListAction3::Sequential, parent) {
@@ -34,6 +36,8 @@ AMLoopAction3::AMLoopAction3(int iterations, QObject *parent) : AMListAction3(ne
 	currentSubActionIndex_ = -1;
 	logSubActionsSeparately_ = true;
 	currentSubAction_ = 0;
+	skipAfterCurrentIteration_ = false;
+	skipOptions_.append("After current iteration");
 }
 
 AMLoopAction3::AMLoopAction3(const AMLoopAction3 &other)
@@ -44,6 +48,8 @@ AMLoopAction3::AMLoopAction3(const AMLoopAction3 &other)
 	currentIteration_ = 0;
 	currentSubActionIndex_ = -1;
 	currentSubAction_ = 0;
+	skipAfterCurrentIteration_ = false;
+	skipOptions_.append("After current iteration");
 
 	// AMListAction already handles copying the actions, so we just need to make sure the parents are set properly.
 	foreach(AMAction3* action, subActions_)
@@ -95,6 +101,15 @@ void AMLoopAction3::startImplementation()
 	internalDoNextAction();
 }
 
+void AMLoopAction3::skipImplementation(const QString &command)
+{
+	if (command == "After current action")
+		skipAfterCurrentAction_ = true;
+
+	else if (command == "After current iteration")
+		skipAfterCurrentIteration_ = true;
+}
+
 void AMLoopAction3::internalCleanupAction(AMAction3 *action)
 {
 	AMAction3 *cleanupAction = action ? action : currentSubAction_;
@@ -117,8 +132,12 @@ void AMLoopAction3::internalDoNextAction()
 		currentSubAction_->deleteLater();
 	}
 
+	// Check if we are stopping now.
+	if (skipAfterCurrentAction_)
+		setSkipped();
+
 	// do we have a next action in this loop? [This will also trigger the start of the very first action]
-	if(currentSubActionIndex_ < subActionCount()-1) {
+	else if(currentSubActionIndex_ < subActionCount()-1) {
 		emit currentSubActionChanged(++currentSubActionIndex_);
 
 		currentSubAction_ = subActions_.at(currentSubActionIndex_)->createCopy();
@@ -128,8 +147,13 @@ void AMLoopAction3::internalDoNextAction()
 	else {
 		// done this loop.
 		emit currentIterationChanged(++currentIteration_);
+
+		// Are we stopping now that we are at the end of this iteration?
+		if (skipAfterCurrentIteration_)
+			setSkipped();
+
 		// Is there a next one?
-		if(currentIteration_ < loopCount()) {
+		else if(currentIteration_ < loopCount()) {
 			setStatusText(QString("Loop %1 of %2.").arg(currentIteration_+1).arg(loopCount()));
 			emit currentSubActionChanged(currentSubActionIndex_ = 0);
 

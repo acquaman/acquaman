@@ -1,7 +1,27 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef VESPERSENERGYDACQSCANCONTROLLER_H
 #define VESPERSENERGYDACQSCANCONTROLLER_H
 
 #include "acquaman/AMDacqScanController.h"
+#include "acquaman/VESPERS/VESPERSScanController.h"
 #include "acquaman/VESPERS/VESPERSEnergyScanConfiguration.h"
 #include "dataman/AMXASScan.h"
 #include "actions/AMBeamlineListAction.h"
@@ -14,7 +34,7 @@
 #define VESPERSENERGYDACQSCANCONTROLLER_CANT_START_DETECTOR_SOURCE_MISMATCH 85003
 #define VESPERSENERGYDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE 85004
 
-class VESPERSEnergyDacqScanController : public AMDacqScanController
+class VESPERSEnergyDacqScanController : public AMDacqScanController, public VESPERSScanController
 {
 	Q_OBJECT
 
@@ -56,11 +76,6 @@ protected:
 	/// Method that cleans up the beamline after a scan is finished.  Makes a list of clean up actions and executes them.
 	void cleanup();
 
-	/// Helper method that removes and deletes all of the actions from initialization action for proper memory management.
-	void onInitializationActionFinished();
-	/// Helper method that removes and deletes all of the actions from the cleanup action for proper memory management.
-	void onCleanupActionFinished();
-
 	AMnDIndex toScanIndex(QMap<int, double> aeData);
 
 	/// Adds all the data sources that are still important but not visualized.
@@ -71,19 +86,11 @@ protected:
 	/// Sets up the scan to use the Mar CCD.
 	bool setupMarScan();
 
-	/// Returns the home directory for Acquaman.
-	QString getHomeDirectory();
-
 	/// Pointer to the configuration used by this controller.
 	VESPERSEnergyScanConfiguration *config_;
 
 	/// A counter holding the current region index being scanned.
 	int currentRegionIndex_;
-
-	/// Action that contains all of the initialization actions for the controller.
-	AMBeamlineListAction *setupXASAction_;
-	/// Action that contains all of the cleanup actions for the controller.
-	AMBeamlineListAction *cleanupXASAction_;
 
 	/// Timer used for determining the elapsed time for a scan.
 	QTimer elapsedTime_;

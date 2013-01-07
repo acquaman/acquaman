@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMMainWindow;
 class AMBottomBar;
+class AMBottomPanel;
 class AMDataViewWithActionButtons;
 class AMRunExperimentInsert;
 class AMGenericScanEditor;
@@ -225,6 +226,9 @@ The Drag is accepted when:
 	/// Opens a single scan configuration from a given database URL.
 	virtual void launchScanConfigurationFromDb(const QUrl &url);
 
+	/// Fixes a single scan that uses CDF files.  This version doesn't do anything at present. Until a good general solution can be devised, we'll leave it up to individual app controllers to fix CDF files that pertain to them.
+	virtual void fixCDF(const QUrl &url);
+
 	/// Calling this slot activates the Import Legacy Data wizard.
 	void onActionImportLegacyFiles();
 	/// Calling this slot activates the Import Acquaman Bundle wizard, to import another acquamn database.
@@ -308,7 +312,8 @@ protected:
 */
 	void getUserDataFolderFromDialog(bool presentAsParentFolder = false);
 
-
+	/// Method that allows the app controller and all subclasses to have their own specific bottom panel.  This method MUST ensure that the bottomPanel_ member is valid.
+	virtual void addBottomPanel();
 
 protected:
 	/// UI structure components
@@ -322,6 +327,7 @@ protected:
 
 	/// Top-level panes in the main window
 	AMBottomBar* bottomBar_;
+	AMBottomPanel *bottomPanel_;
 	AMDataViewWithActionButtons* dataView_;
 	AMRunExperimentInsert* runExperimentInsert_;
 

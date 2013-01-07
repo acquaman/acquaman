@@ -37,7 +37,7 @@ public:
 
 	/// Returns true if the upgrade is necessary based on the contents of the database examined. For example, an upgrade can be required (that tag is not found in the upgrade table) but not be necessary because those classes are not in this database.
 	/*! In this case, the database upgrade will be tagged as completed but no changes are made to the database (there is a column for this in the upgrade table).
-	    Each subclass must provide this, likely by interogating the database's AMDbObjectTypes_table.
+		Each subclass must provide this, likely by interogating the database's AMDbObjectTypes_table.
 	  */
 	virtual bool upgradeNecessary() const = 0;
 
@@ -56,6 +56,11 @@ public:
 	virtual QString description() const = 0;
 
 	/// This function calls upgradeImplementation() to do the work of the actual upgrade. Additionally, this call makes sure that the dependencies for the upgrade listed by upgradeFromTags exist in the database requested. If not, this function will fail before calling upgradeImplementation().
+	/*!
+		One important aspect of this method is that upgradeImplementation should be as realistic as possible about the return values.  This is because if upgradeImplementation fails, the entire upgrade is discarded.
+		If this schema is followed, then there is no problem using methods in AMDbUpgradeSupport where they use startTransaction(), rollbackTransaction(), and commitTransaction() to make sure everything is
+		saved and undone properly.  If you do not properly report back the success of those methods, you will have a corrupt database because not all of the changes associated with the upgrade were completed.
+	  */
 	bool upgrade();
 
 	/// This function is called to update the upgrade table once the upgrade() call is successfully completed. It ensures that the new upgrade data and tags are inserted into the database.
@@ -63,7 +68,7 @@ public:
 
 	/// Returns true if the upgrade has not happened yet. That is, false is returned if the tag specified by this upgrade is already in the upgrade table.
 	/*! This should not be confused with upgradeNecessary().
-	    It will also return true if the upgrade table does not exist yet (and it will ensure that the table does exist before the value true is returned).
+		It will also return true if the upgrade table does not exist yet (and it will ensure that the table does exist before the value true is returned).
 	  */
 	bool upgradeRequired() const;
 
@@ -99,6 +104,13 @@ protected:
 	bool isResponsibleForUpgrade_;
 };
 
+#define AMDBUPGRADESUPPORT_COULD_NOT_RENAME_TABLE 450103
+#define AMDBUPGRADESUPPORT_COULD_NOT_CREATE_NEW_TABLE 450104
+#define AMDBUPGRADESUPPORT_COULD_NOT_COPY_FROM_OLD_TABLE 450105
+#define AMDBUPGRADESUPPORT_COULD_NOT_DELETE_OLD_TABLE 450106
+#define AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_AMDBOBJECTTYPE_TABLES 450107
+#define AMDBUPGRADESUPPORT_DUPLICATE_COLUMNS_IN_AMDBOBJECTTYPE_TABLES 450108
+
 namespace AMDbUpgradeSupport{
 	/// Upgrades an AMDbObject class originally called \c originalClassName to \c newClassName. Use this function carefully, incorrect or incomplete parameters can lead to corrupted databases.
 	/*! This takes care of the problem where a class used in the database needs to be renamed. There are several caveats on this one.
@@ -119,6 +131,23 @@ namespace AMDbUpgradeSupport{
 	  */
 	bool dbObjectClassMerge(AMDatabase *databaseToEdit, const QString &mergeToClassName, const QString &mergeFromClassName, QMap<QString, QString> parentTablesToColumnNames, QMap<QString, int> indexTablesToIndexSide);
 
+	/// Changes a column name given by \param oldColumnName and replaces it with \param newColumnName.  It can also change the type.  Make sure that you don't give it a type that isn't compatible.  If you don't provide a type it will assume the type should be the same.
+	/*!
+		This takes care of changing column names after a table has been created.  This would be used if you have changed the name of a Q_PROPERTY of an AMDbObject.  Since
+		acquaman uses SQLite, we can't use the more advanced features of ALTER TABLE.  Therefore, what this method does is change the name of the old table, make a new table
+		with the old name but with the correct column name.  It then copies all of the data from the old table to the new table deletes the old table.  Finally, it updates the
+		AMDbObjectTypes associated tables with the new name so that the database doesn't try and make columns that already exist.
+	  */
+	bool changeColumnName(AMDatabase *databaseToEdit, const QString &tableName, const QString &oldColumnName, const QString &newColumnName, const QString &newType = QString());
+
+	/// Removes a column given by \param columnName from table \param tableName.
+	/*!
+	  This method is very similar in structure to changeColumnName() because of the severely limited support of ALTER TABLE in SQLite.  It renames the current table, makes a new one
+	  with the old name but WITHOUT the column you wish to remove.  It then copies everything over, minus the deleted column.  Finally, it updates the AMDbObjectTypes associated
+	  tables by removing the old entries.
+	  */
+
+	bool removeColumn(AMDatabase *databaseToEdit, const QString &tableName, const QString &columnName);
 }
 
 #endif // AMDBUPGRADE_H

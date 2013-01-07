@@ -32,14 +32,24 @@ AMListAction3::AMListAction3(AMListActionInfo3* info, SubActionMode subActionMod
 	subActionMode_ = subActionMode;
 	logSubActionsSeparately_ = true;
 	logActionId_ = -1;
+	skipAfterCurrentAction_ = false;
+
+	if (subActionMode_ == Sequential)
+		skipOptions_.append("After current action");
 }
 
 // Copy constructor. Takes care of making copies of the sub-actions
-AMListAction3::AMListAction3(const AMListAction3& other) : AMAction3(other) {
+AMListAction3::AMListAction3(const AMListAction3& other)
+	: AMAction3(other)
+{
 	currentSubActionIndex_ = -1; // prior to running an subactions
 	subActionMode_ = other.subActionMode_;
 	logSubActionsSeparately_ = other.shouldLogSubActionsSeparately();
 	logActionId_ = other.logActionId();
+	skipAfterCurrentAction_ = false;
+
+	if (subActionMode_ == Sequential)
+		skipOptions_.append("After current action");
 
 	foreach(AMAction3* action, other.subActions_)
 		subActions_ << action->createCopy();
@@ -141,7 +151,7 @@ bool AMListAction3::canPause() const
 {
 	if(subActionMode() == Sequential) {
 		// if we have no actions or null sub actions at 0 or currentSubAction, then cannot pause; we'll complete instantly.
-		if(subActionCount() == 0 || subActionAt(0) || currentSubAction())
+		if(subActionCount() == 0 || subActionAt(0) == 0 || (currentSubAction() == 0 && currentSubActionIndex_ != -1))
 			return false;
 		// if we just have one sub-action and it cannot pause, then we can't pause.
 		if(subActionCount() == 1)
@@ -274,6 +284,12 @@ void AMListAction3::cancelImplementation()
 	}
 }
 
+void AMListAction3::skipImplementation(const QString &command)
+{
+	// Stop after current action.  We should only get here if we are a sequential list, but check to be safe.
+	if (subActionMode_ == Sequential && command == skipOptions_.first())
+		skipAfterCurrentAction_ = true;
+}
 
 void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 {
@@ -368,6 +384,9 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 			internalCleanupAction();
 			setFailed();
 			return;
+
+		case Skipping:
+			return;
 		}
 	}
 
@@ -419,6 +438,8 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 					setSucceeded();
 			}
 			return;
+		case Skipping:
+			return;
 		}
 	}
 }
@@ -434,8 +455,12 @@ void AMListAction3::internalDoNextAction()
 	if (currentSubActionIndex_ >= 0)
 		internalCleanupAction();
 
+	// Are we being skipped?
+	if (skipAfterCurrentAction_)
+		setSkipped();
+
 	// Are we done the last action? If we are, we're done no matter what [even if supposed to be pausing]
-	if(currentSubActionIndex_ < subActionCount()-1) {
+	else if(currentSubActionIndex_ < subActionCount()-1) {
 
 		emit currentSubActionChanged(++currentSubActionIndex_);
 		internalConnectAction(currentSubAction());

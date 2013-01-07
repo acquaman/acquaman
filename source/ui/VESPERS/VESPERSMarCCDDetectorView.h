@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef VESPERSMARCCDDETECTORVIEW_H
 #define VESPERSMARCCDDETECTORVIEW_H
 
@@ -38,10 +57,6 @@ protected slots:
 	void onImageModeChanged(VESPERSMarCCDDetector::ImageMode mode);
 	/// Slot used to set the image mode on the detector.
 	void setImageMode(int newMode);
-	/// Slot used to set the temperature setpoint.
-	void setTemperature() { if (temperatureSetpoint_->value() != detector_->temperature()) detector_->setTemperature(temperatureSetpoint_->value()); }
-	/// Slot used to set the temperature feedback.
-	void onTemperatureChanged(double temp) { temperatureFeedback_->setText(QString::number(temp, 'g', 3) + QString::fromUtf8(" °C")); }
 	/// Slot used to set the autosave setting on the detector.
 	void setAutoSave(int autoSave);
 	/// Slot used to update the autosave combo box.
@@ -79,10 +94,6 @@ protected:
 	QComboBox *imageMode_;
 	/// Label holding the current state.
 	QLabel *state_;
-	/// Spin box holding the temperature setpoint for the detector.
-	QDoubleSpinBox *temperatureSetpoint_;
-	/// Label holding the feedback value for the temperature.
-	QLabel *temperatureFeedback_;
 	/// Combo box holding the autosave options.
 	QComboBox *autoSaveComboBox_;
 

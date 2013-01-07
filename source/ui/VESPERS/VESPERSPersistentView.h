@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDoubleSpinBox>
 #include <QComboBox>
 
+#include "application/VESPERS/VESPERS.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/CLS/CLSStopLightButton.h"
 
@@ -79,7 +80,7 @@ protected slots:
 	/// Handles changes to the energy feedback.
 	void onEnergyFeedbackChanged(double energy) { energyFeedback_->setText(QString::number(energy, 'f', 2)+" eV"); }
 	/// Handles enabling and disabling the energy setpoint if the beam is either Pink or None.
-	void onBeamChanged(VESPERSBeamline::Beam beam);
+	void onBeamChanged(VESPERS::Beam beam);
 	/// Sets the filter combo box based on original values at start up and if they are changed outside of the program.
 	void onFiltersChanged(int index) { filterComboBox_->blockSignals(true); filterComboBox_->setCurrentIndex(index); filterComboBox_->blockSignals(false); }
 	/// If a new value for the X slit gap, passes it down to the slits model.

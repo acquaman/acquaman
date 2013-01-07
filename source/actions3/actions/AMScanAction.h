@@ -63,6 +63,8 @@ public:
 
 	/// Scan actions have the ability to pause.
 	virtual bool canPause() const { return true; }
+	/// Scan actions MIGHT be able to skip.  It depends on which type of scan controller is being used.  In general, Dacq controllers can skip.
+	virtual bool canSkip() const;
 	/// Scan actions CAN NOT be parallelized.  This is for everyones sake, too many things need to be working syncronously.
 	virtual bool canParallelize() const { return false; }
 
@@ -96,7 +98,11 @@ protected:
 	/// All implementations must support cancelling. This function will be called from the Cancelling state. Implementations will probably want to examine the previousState(), which could be any of Starting, Running, Pausing, Paused, or Resuming. Once the action is cancelled and can be deleted, you should call notifyCancelled().
 	/*! \note If startImplementation() was never called, you won't receive this when a user tries to cancel(); the base class will handle it for you. */
 	virtual void cancelImplementation();
+	/// For the controllers that support skipping, this will do the necessary work.
+	virtual void skipImplementation(const QString &command);
 
+	/// Exports a the scan with the registered exporter and option when a scan successfully completes.
+	void autoExportScan();
 	/// Method that returns a string with the state of the scan controller.
 	QString controllerStateString() const;
 

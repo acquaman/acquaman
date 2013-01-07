@@ -51,6 +51,12 @@ public:
 
 	/// Setup the controls to be used for changing dwell time between regions. Short documentation in the CPP.
 	void useDwellTimes(AMControl *dwellTimeTrigger, AMControl *dwellTimeConfirmed);
+	/// Returns whether the controller is going to stop immediately.
+	bool stoppingImmediately() const { return stopImmediately_; }
+
+public slots:
+	/// Tells the controller to stop.  The controller will finish what it is currently doing and then stop.
+	void stopImmediately() { stopImmediately_ = true; }
 
 protected:
 	bool startImplementation();
@@ -83,6 +89,9 @@ protected:
 	bool usingSpectraDotDatFile_;
 	bool dacqCancelled_;
 	QTime startTime_;
+
+	/// Flag used to determine whether the scan should be stopped.  This is stopping before the end of the scan, but not cancelling the scan.
+	bool stopImmediately_;
 
 	/// Controls for triggering and confirming dwell time changes between regions (as well as bool for backwards compatibility)
 	bool useDwellTimes_;

@@ -380,15 +380,16 @@ void VESPERSBeamline::setupComponents()
 	synchronizedDwellTime_->addElement(2);
 	synchronizedDwellTime_->addElement(3);
 	synchronizedDwellTime_->addElement(4);
+	synchronizedDwellTime_->addElement(5);
 
 	// Helper functions for setting the dwell time between regions.
 	dwellTimeTrigger_ = new AMSinglePVControl("Dwell Time Trigger", "BL1607-B2-1:AddOns:dwellTime:trigger", this, 0.1);
 	dwellTimeConfirmed_ = new AMSinglePVControl("Dwell Time Confirmed", "BL1607-B2-1:AddOns:dwellTime:confirmed", this, 0.1);
 
-	beamPositions_.insert(Pink, 0);
-	beamPositions_.insert(TenPercent, -12.5);
-	beamPositions_.insert(Si, -17.5);
-	beamPositions_.insert(OnePointSixPercent, -22.5);
+	beamPositions_.insert(VESPERS::Pink, 0);
+	beamPositions_.insert(VESPERS::TenPercent, -12.5);
+	beamPositions_.insert(VESPERS::Si, -17.5);
+	beamPositions_.insert(VESPERS::OnePointSixPercent, -22.5);
 
 	beamSelectionMotor_ = new CLSMAXvMotor("MonoBeamSelectionMotor", "SMTR1607-1-B20-21", "Motor that controls which beam makes it down the pipe.", false, 1, 2.0, this);
 	connect(beamSelectionMotor_, SIGNAL(movingChanged(bool)), this, SLOT(determineBeam()));
@@ -413,7 +414,7 @@ void VESPERSBeamline::setupExposedControls()
 	addExposedControl(pseudoSampleStage()->vert());
 }
 
-AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(Beam beam)
+AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(VESPERS::Beam beam)
 {
 	// If we are already at the new beam position and the internal state of the beam is the same, then don't do anything.
 	if (beam_ == beam && beamSelectionMotor_->withinTolerance(beamPositions_.value(beam)))
@@ -436,7 +437,7 @@ AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(Beam beam)
 	moveBeamAction->setSetpoint(beamPositions_.value(beam));
 	changeBeamActionsList->appendAction(1, moveBeamAction);
 
-	if (beam != Pink){
+	if (beam != VESPERS::Pink){
 
 		changeBeamActionsList->appendStage(new QList<AMBeamlineActionItem*>());
 		changeBeamActionsList->appendAction(2, mono()->createAllowScanningAction(true));
@@ -447,18 +448,18 @@ AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(Beam beam)
 
 void VESPERSBeamline::determineBeam()
 {
-	Beam temp;
+	VESPERS::Beam temp;
 
-	if (beamSelectionMotor_->withinTolerance(beamPositions_.value(Pink)))
-		temp = Pink;
-	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(TenPercent)))
-		temp = TenPercent;
-	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(OnePointSixPercent)))
-		temp = OnePointSixPercent;
-	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(Si)))
-		temp = Si;
+	if (beamSelectionMotor_->withinTolerance(beamPositions_.value(VESPERS::Pink)))
+		temp = VESPERS::Pink;
+	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(VESPERS::TenPercent)))
+		temp = VESPERS::TenPercent;
+	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(VESPERS::OnePointSixPercent)))
+		temp = VESPERS::OnePointSixPercent;
+	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(VESPERS::Si)))
+		temp = VESPERS::Si;
 	else
-		temp = None;
+		temp = VESPERS::NoBeam;
 
 	if (temp != beam_){
 

@@ -60,7 +60,8 @@ bool VESPERSExporter2DAscii::prepareDataSources()
 				break;
 
 			case 3:
-				separateFileDataSources_ << i;
+				if (option_->includeHigherDimensionSources())
+					separateFileDataSources_ << i;
 				break;
 			}
 		}
@@ -104,7 +105,7 @@ QString VESPERSExporter2DAscii::exportScan(const AMScan *scan, const QString &de
 	writeHeader();
 	writeMainTable();
 	writeSeparateSections();
-	if(!writeSeparateFiles(destinationFolderPath)) {
+	if(option_->includeHigherDimensionSources() && !writeSeparateFiles(destinationFolderPath)) {
 		file_->close();
 		return QString();
 	}
@@ -189,7 +190,7 @@ void VESPERSExporter2DAscii::writeMainTable()
 				}
 
 				if(doPrint && c == indexOfCCDName)
-					ts << QString("%1_%2.spe").arg(ccdFileName).arg(int(ds->value(AMnDIndex(x, y))));
+					ts << QString("%1_%2.spe").arg(ccdFileName).arg(int(ds->value(AMnDIndex(x, y)))-1);	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
 				else if (doPrint)
 					ts << ds->value(AMnDIndex(x, y)).toString();
 

@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define VESPERSAPPCONTROLLER_H
 
 #include "application/AMAppController.h"
+#include "application/VESPERS/VESPERS.h"
 
 class VESPERSEndstationView;
 class VESPERSXRFFreeRunView;
@@ -31,8 +32,8 @@ class VESPERSMarCCDDetectorView;
 class VESPERSPersistentView;
 class VESPERSEXAFSScanConfiguration;
 class VESPERSEXAFSScanConfigurationView;
-class AMScanConfigurationViewHolder;
 class AMScanConfigurationViewHolder3;
+class VESPERSScanConfigurationViewHolder3;
 class VESPERS2DScanConfiguration;
 class VESPERS2DScanConfigurationView;
 class AM2DScanConfigurationViewHolder;
@@ -43,9 +44,6 @@ class VESPERSSpatialLineScanConfigurationView;
 class VESPERSEnergyScanConfiguration;
 class VESPERSEnergyScanConfigurationView;
 class AMGenericScanEditor;
-
-class VESPERSWorkflowAssistant;
-class VESPERSWorkflowAssistantView;
 
 class VESPERSAppController : public AMAppController {
 	Q_OBJECT
@@ -65,11 +63,9 @@ public:
 
 protected slots:
 	/// Helper slot that builds a generic scan editor for the XAS scan.  \todo this seems like something that should be higher up in the framework.
-	void onCurrentScanControllerStarted();
-	/// Helper slot that handles hooking up the progress bar from the bottom bar to the current scan controller progress.
-	void onCurrentScanControllerCreated();
+	void onCurrentScanControllerStarted(AMScanAction *action);
 	/// Helper slot that handles disconnecting the current scan controller from the progress bar when it's done.
-	void onCurrentScanControllerFinished();
+	void onCurrentScanControllerFinished(AMScanAction *action);
 
 	/// Helper slot that pauses scans after the beam has gone down.
 	void onBeamDump();
@@ -95,6 +91,9 @@ protected slots:
 	/// Slot that handles changing the sample stage from pseudo motors to real motors.
 	void onSampleStageChoiceChanged(bool change);
 
+	/// Re-implemented from AMDatamanAppController.  Fixes CDF files that have been corrupted.
+	virtual void fixCDF(const QUrl &url);
+
 protected:
 	/// Sets up a default XAS scan.  It will setup XANES or EXAFS based on the bool \param setupEXAFS using the information from AMGenericScanEditor \param editor.
 	void setupXASScan(const AMGenericScanEditor *editor, bool setupEXAFS);
@@ -115,11 +114,6 @@ protected:
 	/// Sets up all of the connections.
 	void makeConnections();
 
-	/// Temporary workflow assistant.
-	VESPERSWorkflowAssistant *assistant_;
-	/// Temporary workflow assistant view.
-	VESPERSWorkflowAssistantView *assistantView_;
-
 	/// XRF free run model for the single element detector.
 	XRFFreeRun *xrf1ElFreeRun_;
 	/// XRF free run view for the single element detector.
@@ -137,17 +131,13 @@ protected:
 	VESPERSEXAFSScanConfiguration *exafsScanConfig_;
 	/// Pointer to the XAS scan configuration view.
 	VESPERSEXAFSScanConfigurationView *exafsConfigView_;
-	/// The holder for the XAS scan configuration.
-	AMScanConfigurationViewHolder *exafsConfigViewHolder_;
 	/// The (new) holder for the XAS scan configuration.
-	AMScanConfigurationViewHolder3 *exafsConfigViewHolder3_;
+	VESPERSScanConfigurationViewHolder3 *exafsConfigViewHolder3_;
 
 	/// Pointer to the 2D scan configuration.
 	VESPERS2DScanConfiguration *mapScanConfiguration_;
 	/// The 2D scan configuration view.
 	VESPERS2DScanConfigurationView *mapScanConfigurationView_;
-	/// The holder for the 2D scan configuration.
-	AM2DScanConfigurationViewHolder *mapScanConfigurationViewHolder_;
 	/// The (new) holder for the 2D scan configuration.
 	AMScanConfigurationViewHolder3 *mapScanConfigurationViewHolder3_;
 
@@ -155,8 +145,6 @@ protected:
 	VESPERSSpatialLineScanConfiguration *lineScanConfiguration_;
 	/// The line scan configuration view.
 	VESPERSSpatialLineScanConfigurationView *lineScanConfigurationView_;
-	/// The holder for the scan configuration.
-	AMScanConfigurationViewHolder *lineScanConfigurationViewHolder_;
 	/// The (new holder for the line scan configuration.
 	AMScanConfigurationViewHolder3 *lineScanConfigurationViewHolder3_;
 
@@ -164,8 +152,6 @@ protected:
 	VESPERSEnergyScanConfiguration *energyScanConfiguration_;
 	/// The energy scan configuration view.
 	VESPERSEnergyScanConfigurationView *energyScanConfigurationView_;
-	/// The holder for the scan configuration.
-	AMScanConfigurationViewHolder *energyScanConfigurationViewHolder_;
 	/// The (new holder for the energy scan configuration.
 	AMScanConfigurationViewHolder3 *energyScanConfigurationViewHolder3_;
 
