@@ -19,7 +19,8 @@ bool SGM2010FastFileLoaderPlugin::accepts(AMScan *scan){
 }
 
 bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder){
-	// qdebug() << "\n\nTRYING TO LOAD WITH sgm2010Fast PLUGIN";
+	qDebug() << "\n\nTRYING TO LOAD WITH sgm2010Fast PLUGIN";
+	qDebug() << "Saying ANOTHER THING";
 
 	if(columns2pvNames_.count() == 0) {
 		columns2pvNames_.set("eV", "BL1611-ID-1:Energy");
@@ -172,6 +173,19 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 			QString sfl = sfs.readAll().replace(',', ' ');
 			sfls.setString(&sfl, QIODevice::ReadOnly);
 			sfls >> numScalerReadings;
+
+			if(numScalerReadings == 10000){
+				defaultUserVisibleColumns_ << "Aux1";
+				defaultUserVisibleColumns_ << "Aux2";
+				defaultUserVisibleColumns_ << "Aux3";
+				defaultUserVisibleColumns_ << "Aux4";
+
+				scan->rawData()->addMeasurement(AMMeasurementInfo("Aux1", "Aux1"));
+				scan->rawData()->addMeasurement(AMMeasurementInfo("Aux2", "Aux2"));
+				scan->rawData()->addMeasurement(AMMeasurementInfo("Aux3", "Aux3"));
+				scan->rawData()->addMeasurement(AMMeasurementInfo("Aux4", "Aux4"));
+			}
+
 			if(numScalerReadings == 4000){
 				qDebug() << "Going for fast scan without energy calib";
 				for(int x = 0; x < numScalerReadings; x++){
@@ -261,6 +275,90 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 					}
 				}
 
+			}
+			else if(numScalerReadings == 10000){
+				qDebug() << "Going for fast scan with energy calib and extra diodes";
+				//int encoderStartPoint = 0;
+				int encoderReading = 0;
+				double energyFbk = 0.0;
+
+				double spacingParam;
+				double c1Param;
+				double c2Param;
+				double sParam;
+				double thetaParam;
+				if(scan->scanConfiguration()){
+					spacingParam = scan->scanConfiguration()->property("spacingParameter").toDouble();
+					c1Param = scan->scanConfiguration()->property("c1Parameter").toDouble();
+					c2Param = scan->scanConfiguration()->property("c2Parameter").toDouble();
+					sParam = scan->scanConfiguration()->property("sParameter").toDouble();
+					thetaParam = scan->scanConfiguration()->property("thetaParameter").toDouble();
+				}
+				else{
+					spacingParam = 1.68923e-06;
+					c1Param = 2.45477e-05;
+					c2Param = -1.59392;
+					sParam = 509.468;
+					thetaParam = 3.05575;
+				}
+
+				QList<double> readings;
+
+				if(!hasEncoderInfo){
+					qDebug() << "Need to back calculate encoder startpoint";
+					encoderStartPoint = encoderEndpoint;
+					for(int x = 0; x < numScalerReadings; x++){
+						sfls >> scalerVal;
+						//if( (x%6 == 4) && (scalerVal < 40) )
+						if( x%10 == 4 )
+							encoderStartPoint += scalerVal;
+						//if( (x%6 == 5) && (scalerVal < 40) )
+						if( x%10 == 5 )
+							encoderStartPoint -= scalerVal;
+					}
+				}
+				qDebug() << "Encoder startpoint was " << encoderStartPoint;
+				encoderReading = encoderStartPoint;
+				sfls.setString(&sfl, QIODevice::ReadOnly);
+				sfls >> scalerVal;
+				for(int x = 0; x < numScalerReadings; x++){
+					if(x%10 == 0)
+						readings.clear();
+					sfls >> scalerVal;
+					if( x%10 == 0 || x%10 == 1 || x%10 == 2 || x%10 == 3 || x%10 == 6 || x%10 == 7 || x%10 == 8 || x%10 == 9){
+						//if( x%6 == 0 || x%6 == 1 || x%6 == 4 || x%6 == 5 ){
+						readings.append(scalerVal);
+					}
+					//if( (x%6 == 4) && (scalerVal < 40) )
+					if( x%10 == 4 )
+						encoderReading -= scalerVal;
+					//if( (x%6 == 5) && (scalerVal < 40) )
+					if ( x%10 == 5 )
+						encoderReading += scalerVal;
+					if( x%10 == 9 ){
+						//energyFbk = (1.0e-9*1239.842*511.292)/(2*9.16358e-7*2.46204e-5*-1.59047*(double)encoderReading*cos(3.05478/2));
+						energyFbk = (1.0e-9*1239.842*sParam)/(2*spacingParam*c1Param*c2Param*(double)encoderReading*cos(thetaParam/2));
+						//if( ( (readings.at(0) > 200) && (scan->rawData()->scanSize(0) == 0) ) || ( (scan->rawData()->scanSize(0) > 0) && (fabs(energyFbk - (double)scan->rawData()->axisValue(0, scan->rawData()->scanSize(0)-1)) > 0.001) ) ){
+						scan->rawData()->beginInsertRows(1, -1);
+						scan->rawData()->setAxisValue(0, scan->rawData()->scanSize(0)-1, energyFbk);
+						//scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 0, AMnDIndex(), readings.at(0));
+						scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 0, AMnDIndex(), std::max(readings.at(0), 1.0));
+						scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 1, AMnDIndex(), readings.at(1));
+						scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 2, AMnDIndex(), readings.at(2));
+						scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 3, AMnDIndex(), readings.at(3));
+
+						scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 4, AMnDIndex(), readings.at(4));
+						scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 5, AMnDIndex(), readings.at(5));
+						scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 6, AMnDIndex(), readings.at(6));
+						scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 7, AMnDIndex(), readings.at(7));
+
+						scan->rawData()->endInsertRows();
+						//}
+					}
+				}
+			}
+			else{
+				qDebug() << "Looks like I can't handle " << numScalerReadings << " points in a fast scan";
 			}
 		}
 		else{

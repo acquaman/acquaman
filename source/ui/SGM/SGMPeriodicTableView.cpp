@@ -974,6 +974,8 @@ void SGMFastScanParametersModificationWizardCopyConfirmationPage::initializePage
 	fastScanWizard_ = qobject_cast<SGMFastScanParametersModificationWizard*>(wizard());
 	originatingFastScanParameters_ = fastScanWizard_->originatingFastScanParameters();
 	newFastScanParameters_ = fastScanWizard_->newFastScanParameters();
+
+	qDebug() << "Do I know I'm the final page? " << isFinalPage();
 }
 
 int SGMFastScanParametersModificationWizardCopyConfirmationPage::nextId() const{
@@ -1055,6 +1057,9 @@ void SGMFastScanParametersModificationWizard::copyOriginalFastScanParametersToNe
 	SGMFastScanSettings dissociatedFastScanSettings = newFastScanParameters_->fastScanSettings();
 	dissociatedFastScanSettings.dissociateFromDb();
 	newFastScanParameters_->setFastScanSettings(dissociatedFastScanSettings);
+
+	qDebug() << "Looking into fastScanParameters. " << originatingFastScanParameters_->id() << originatingFastScanParameters_->fastScanSettings().id() << newFastScanParameters_->id() << newFastScanParameters_->fastScanSettings().id();
+	qDebug() << originatingFastScanParameters_->scanInfo().id() << newFastScanParameters_->scanInfo().id();
 }
 
 void SGMFastScanParametersModificationWizard::createNewElementInfo(){
@@ -1065,6 +1070,8 @@ void SGMFastScanParametersModificationWizard::createNewElementInfo(){
 	if(newDatabase_->connectionName() != "SGMBeamline")
 		elementInfoName.prepend(newDatabase_->connectionName());
 	newElementInfo_ = new SGMElementInfo(elementInfoName, newElement_);
+
+	qDebug() << "Just created new elementInfo " << newElementInfo_->id();
 }
 
 void SGMFastScanParametersModificationWizard::createNewScanInfo(){
@@ -1095,6 +1102,8 @@ void SGMFastScanParametersModificationWizard::createNewScanInfo(){
 	SGMEnergyPosition middlePosition = newFastScanParameters_->scanInfo().middle();
 	SGMEnergyPosition endPosition = newFastScanParameters_->scanInfo().end();
 	newScanInfo_ = new SGMScanInfo(newElement_->name()%" "%elementEdge%" "%appendDatabaseName, qMakePair(elementEdge, edgeEnergyPair.second.toDouble()), startPosition, middlePosition, endPosition);
+
+	qDebug() << "Just created new scanInfo";
 }
 
 

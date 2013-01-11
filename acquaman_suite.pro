@@ -20,7 +20,5 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	SGMSSAAcquaman.pro \
 	EnsureLegalHeader \
 	VESPERSBendingMirrors.pro \
-	SGMAmptekCoordinator.pro
-
-
-
+	SGMAmptekCoordinator.pro \
+	SGMLookupTableCoordinator.pro
