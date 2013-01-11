@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
+#include <QPushButton>
 
 VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(VESPERSExperimentConfiguration *experimentConfiguration, QWidget *parent)
 	: QWidget(parent)
@@ -145,6 +146,11 @@ VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(VESPERSEx
 	connect(sampleStage_, SIGNAL(buttonClicked(int)), this, SLOT(onSampleStageChanged(int)));
 	connect(experimentConfiguration_, SIGNAL(sampleStageChoiceChanged(bool)), this, SLOT(onSampleStageUpdated(bool)));
 
+	// The button for the pseudo-motor reset.
+	QPushButton *resetPseudoMotorsButton = new QPushButton(QIcon(":/reset.png"), "Reset Pseudo-Motors");
+	sampleStageLayout->addWidget(resetPseudoMotorsButton);
+	connect(resetPseudoMotorsButton, SIGNAL(clicked()), experimentConfiguration_, SLOT(resetPseudoMotors()));
+
 	QGroupBox *sampleStageBox = new QGroupBox("Sample Stage");
 	sampleStageBox->setLayout(sampleStageLayout);
 
@@ -218,9 +224,15 @@ void VESPERSExperimentConfigurationView::onSampleStageChanged(int id)
 	else{
 
 		experimentConfiguration_->usePseudoMotors(true);
-		QMessageBox::information(this,
-								 "Switching Sample Stages",
-								 "If you are actually switching to using the H & V sample stage after using the X & Z sample stage you must reset the pseudo motors from the endstation screen.");
+		QMessageBox message(QMessageBox::Question, "Switching Sample Stages", "If you are actually switching to using the H & V sample stage after using the X & Z sample stage you must reset the pseudo motors.  Would you like to reset them now?");
+		QPushButton *resetLater = message.addButton("Later", QMessageBox::RejectRole);
+		QPushButton *resetNow = message.addButton("Reset now", QMessageBox::AcceptRole);
+		message.setEscapeButton(resetLater);
+		message.setDefaultButton(resetNow);
+		message.exec();
+
+		if (message.result() == QDialog::Accepted)
+			experimentConfiguration_->resetPseudoMotors();
 	}
 }
 

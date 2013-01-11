@@ -23,15 +23,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 #include <QPropertyAnimation>
 #include <QGroupBox>
+#include <QCheckBox>
+#include <QVBoxLayout>
 
 #include "MPlot/MPlot.h"
+#include "MPlot/MPlotSeries.h"
 #include "ui/dataman/AMScanViewUtilities.h"
 #include "dataman/AMAxisInfo.h"
+#include "dataman/AMnDIndex.h"
 
 class AM2DScanViewInternal;
 class AM2DScanViewExclusiveView;
 class AM2DScanViewMultiSourcesView;
-class AM2DScanViewSingleSpectrumView;
+class AMScanViewSingleSpectrumView;
 //class AM3dDataSourceView;
 
 #define AM2DSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_NULL_DATA_SOURCE 280201
@@ -52,8 +56,20 @@ public:
 	QString yUnits() const { return yUnits_; }
 	/// Returns the position.
 	QPointF dataPosition() const { return position_; }
+	/// Returns the value.
+	double value() const { return value_; }
+	/// Returns the minimum value of the range.
+	double mininum() const { return range_.first; }
+	/// Returns the maximum value of the range.
+	double maximum() const { return range_.second; }
+	/// Returns the range.
+	QPair<double, double> range() const { return range_; }
 	/// Returns the selected rectangle.
 	QRectF selectedRect() const { return rect_; }
+	/// Changes the enabled state of the show spectra check box.  If there is no source to view, then this option should not be available.
+	void setShowSpectraEnabled(bool enable) { showSpectra_->setEnabled(enable); }
+	/// Returns whether the spectrum view is enabled.
+	bool showSpectraEnabled() const { return showSpectra_->isEnabled(); }
 
 signals:
 	/// Notifier that the state of whether or not the scan view should show individual spectra has been toggled.
@@ -70,20 +86,38 @@ public slots:
 	void setXAxisUnits(const QString &units) { xUnits_ = units; }
 	/// Sets the y axis units.
 	void setYAxisUnits(const QString &units) { yUnits_ = units; }
+	/// Sets the value of the current position.
+	void setValue(double value);
+	/// Sets the range of data for the current data source.
+	void setRange(QPair<double, double> range);
+	/// Sets the minimum value of the range for the current data source.
+	void setMinimum(double min);
+	/// Sets the maximum value of the range for the current data source.
+	void setMaximum(double max);
 
 protected:
 	/// Label holding the data position coordinates.
 	QLabel *dataPosition_;
 	/// Label holding the selected rectangle coordinates.
 	QLabel *selectedRect_;
+	/// Label holding the value at a given point.
+	QLabel *valueLabel_;
+	/// Label holding the data range of the current data source.
+	QLabel *dataRange_;
 	/// String holding the x axis units.
 	QString xUnits_;
 	/// String holding the y axis units.
 	QString yUnits_;
 	/// The current point.
 	QPointF position_;
+	/// The data value at the current position.
+	double value_;
+	/// The data range for the current data source.
+	QPair<double, double> range_;
 	/// The current selected rectangle.
 	QRectF rect_;
+	/// The show spectra check box.
+	QCheckBox *showSpectra_;
 };
 
 /*! This class makes a scan view that is more suitable for 2D scans.  It has been built in the same spirit as AMScanView by having an
@@ -112,6 +146,8 @@ public:
 	void setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange = true);
 	/// Sets the plot range for the spectrum view.
 	void setPlotRange(double low, double high);
+	/// Sets the single spectrum view data source using the name given by \param name.
+	void setSingleSpectrumDataSource(const QString &name);
 
 public slots:
 	/// add a scan to the view:
@@ -138,6 +174,12 @@ protected slots:
 	void setSpectrumViewVisibility(bool visible);
 	/// Helper slot that makes sure all of the information that the spectrum fetcher needs is setup.
 	void onDataPositionChanged(const QPointF &point);
+	/// Helper slot that computes the min and max value of the currently viewed data source.
+	void onExclusiveDataSourceChanged(const QString &name);
+	/// Helper slot that updates the range if the values change for the current exclusive data source.
+	void onExclusiveDataSourceValueChanged(const AMnDIndex& start, const AMnDIndex& end);
+	/// Helper slot that helps setup the single spectrum view after a scan has been added.
+	void onScanAdded(AMScan *scan);
 
 protected:
 	/// Reimplements the show event to hide the multi view.
@@ -151,11 +193,17 @@ protected:
 	void setupUI();
 	/// internal helper function to setup all UI event-handling connections
 	void makeConnections();
+	/// Helper method that returns the AMnDIndex for a given QPoint of data coordinates.
+	AMnDIndex getIndex(const QPointF &point) const;
+	/// Helper method that returns the minimum and maximum value for the current data source.  If no start and end values are given then the entire data source will be searched.
+	QPair<double, double> getCurrentExclusiveDataSourceRange(const AMnDIndex &start = AMnDIndex(), const AMnDIndex &end = AMnDIndex()) const;
 
 	/// The scans set model.
 	AMScanSetModel* scansModel_;
 	/// Pointer to the current scan.  Used for ensuring units are correct in the AMScanBar.
 	AMScan *currentScan_;
+	/// Pointer to the current data source in the exclusive mode.
+	AMDataSource *currentExclusiveDataSource_;
 
 	/// The exclusive view
 	AM2DScanViewExclusiveView *exclusiveView_;
@@ -163,7 +211,7 @@ protected:
 	AM2DScanViewMultiSourcesView *multiView_;
 
 	/// The individual spectrum view.
-	AM2DScanViewSingleSpectrumView *spectrumView_;
+	AMScanViewSingleSpectrumView *spectrumView_;
 	/// Flag used to determine whether the single spectrum view should be visible.
 	bool spectrumViewIsVisible_;
 
@@ -243,10 +291,6 @@ protected slots:
 
 	/// when the model's "exclusive data source" changes. This is the one data source that we display for all of our scans (as long as they have it).
 	void onExclusiveDataSourceChanged(const QString& exclusiveDataSource);
-	/// Handles the signals about data position changed from the plot window.
-	void onDataPositionChanged(uint index, const QPointF &point);
-	/// Handles the signals about the selected rectangle change from the plot window.
-	void onSelectedRectChanged(uint index, const QRectF &rect);
 
 protected:
 	/// Helper function to handle adding a scan (at row scanIndex in the model)
@@ -309,60 +353,6 @@ protected:
 	bool firstPlotEmpty_;
 	/// When dataSource2Plot_ is empty, we keep a single plot here, to make sure that there's always at least one shown.
 	MPlotGW* firstPlot_;
-};
-
-#include "util/AMFetchSpectrumThread.h"
-#include "MPlot/MPlotSeriesData.h"
-#include "MPlot/MPlotWidget.h"
-#include "util/AMSelectablePeriodicTable.h"
-#include "ui/util/AMSelectablePeriodicTableView.h"
-
-
-/// This class holds a plot window and shows individual spectra when the mouse is clicked on image points.
-class AM2DScanViewSingleSpectrumView : public QWidget
-{
-	Q_OBJECT
-
-public:
-	/// Constructor.  Builds a plot.
-	AM2DScanViewSingleSpectrumView(QWidget *parent = 0);
-
-	/// Sets the scale for each point along the x-axis.  This also calls setPlotRange to make the ranges match.  Set \param propogateToPlotRange to false if you don't want the information to propogate.
-	void setAxisInfo(AMAxisInfo info, bool propogateToPlotRange);
-	/// Sets the plot range used for placing markers inside the plot.
-	void setPlotRange(double low, double high);
-
-public slots:
-	/// Gives a new coordinate (along with the file name) to grab a new spectrum.
-	void onDataPositionChanged(AMnDIndex index, int rowLength, const QString &filename);
-
-protected slots:
-	/// Slot that updates the plot whenever AMFetchSpectrumThread is finished.
-	void updatePlot(QVector<double> spectrum);
-	/// Helper slot that adds lines to the plot based on elements being selected from the table.
-	void onElementSelected(int atomicNumber);
-	/// Helper slot that removes lines from the plot based on elements being deselected fromm the table.
-	void onElementDeselected(int atomicNumber);
-
-protected:
-	/// Sets up the plot.
-	void setupPlot();
-
-	/// The thread that retrieves the spectrum from a given point.
-	AMFetchSpectrumThread fetcher_;
-	/// The MPlot series that holds the data.
-	MPlotVectorSeriesData *model_;
-	/// The plot widget that holds everything about the plot.
-	MPlotWidget *plot_;
-	/// Holds the x-axis values so that they do not need to be recomputed everytime.
-	QVector<double> x_;
-
-	/// The periodic table model that holds all of the selected elements.
-	AMSelectablePeriodicTable *table_;
-	/// The view that looks at the selectable periodic table model.
-	AMSelectablePeriodicTableView *tableView_;
-	/// Pair that holds the plot range that should be considered.
-	QPair<double, double> range_;
 };
 
 #endif // AM2DSCANVIEW_H

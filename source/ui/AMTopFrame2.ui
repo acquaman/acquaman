@@ -146,7 +146,6 @@ font: bold 10pt &quot;Lucida Grande&quot;</string>
   </layout>
   <zorder>titleFrame</zorder>
   <zorder>statusFrame</zorder>
-  <zorder>horizontalSpacer_2</zorder>
  </widget>
  <resources>
   <include location="../icons/icons.qrc"/>

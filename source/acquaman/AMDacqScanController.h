@@ -51,6 +51,12 @@ public:
 
 	/// Setup the controls to be used for changing dwell time between regions. Short documentation in the CPP.
 	void useDwellTimes(AMControl *dwellTimeTrigger, AMControl *dwellTimeConfirmed);
+	/// Returns whether the controller is going to stop immediately.
+	bool stoppingImmediately() const { return stopImmediately_; }
+
+public slots:
+	/// Tells the controller to stop.  The controller will finish what it is currently doing and then stop.
+	void stopImmediately() { stopImmediately_ = true; }
 
 protected:
 	bool startImplementation();
@@ -75,6 +81,8 @@ protected slots:
 
 	/// Virtual function to deal with dwell time changes between regions. Can be re-implemented in subclasses for particular behavior.
 	virtual void onDwellTimeTriggerChanged(double newValue);
+	/// Helper slot that tells AMCDFDataStore to flush it's contents to disk.  This prevents it from corrupting itself.
+	void flushCDFDataStoreToDisk();
 
 protected:
 	QEpicsAdvAcq *advAcq_;
@@ -82,11 +90,16 @@ protected:
 	bool dacqCancelled_;
 	QTime startTime_;
 
+	/// Flag used to determine whether the scan should be stopped.  This is stopping before the end of the scan, but not cancelling the scan.
+	bool stopImmediately_;
+
 	/// Controls for triggering and confirming dwell time changes between regions (as well as bool for backwards compatibility)
 	bool useDwellTimes_;
 	AMControl *dwellTimeTrigger_;
 	AMControl *dwellTimeConfirmed_;
 
+	/// A timer used when using AMCDFDataStore.  After a timeout it flushes the contents to disk.
+	QTimer flushToDiskTimer_;
 };
 
 #endif // ACQMAN_DACQSCANCONTROLLER_H

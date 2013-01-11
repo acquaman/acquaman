@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "AMCDFDataStore.h"
 
 #include <QTemporaryFile>
@@ -1347,7 +1366,11 @@ bool AMCDFDataStore::initializeFromExistingCDF(const QString &filePath, bool cre
 
 				axes.reserve(rank);
 				for(long i=0; i<rank; ++i) {
-					axes << AMAxisInfo(axisNames.at(i), dims[i], axisDescriptions.at(i), axisUnits.at(i));
+
+					AMAxisInfo axisInfo(axisNames.at(i), dims[i], axisDescriptions.at(i), axisUnits.at(i));
+					axisInfo.start = axisValueStart.at(i);
+					axisInfo.increment = axisValueIncrement.at(i);
+					axes << axisInfo;
 				}
 			}
 
@@ -1439,6 +1462,10 @@ bool AMCDFDataStore::initializeFromExistingCDF(const QString &filePath, bool cre
 	fileIsTemporary_ = createTemporaryCopy;
 
 	axes_ = newAxes;
+
+	for (int i = 0, numAxes = axes_.size(); i < numAxes; i++)
+		scanSize_.append(axes_.at(i).size);
+
 	axisValueVarNums_ = newAxisValueVarNums;
 	measurements_ = newMeasurements;
 	measurementVarNums_ = newMeasurementVarNums;

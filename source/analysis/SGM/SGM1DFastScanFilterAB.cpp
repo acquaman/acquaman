@@ -94,6 +94,38 @@ void SGM1DFastScanFilterAB::setInputDataSourcesImplementation(const QList<AMData
 	emitInfoChanged();
 }
 
+bool SGM1DFastScanFilterAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+{
+	if(indexStart.rank() != 1 || indexEnd.rank() != 1)
+		return false;
+
+	if(!isValid())
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i())
+		return false;
+#endif
+
+	int totalSize = indexStart.totalPointsTo(indexEnd);
+
+	if (!cacheCompletelyInvalid_){
+
+		int offset = indexStart.i();
+
+		for (int i = 0; i < totalSize; i++)
+			outputValues[i] = double(cachedValues_.at(i+offset));
+	}
+
+	else{
+
+		for (int i = 0; i < totalSize; i++)
+			outputValues[i] = 27.27;
+	}
+
+	return true;
+}
+
 AMNumber SGM1DFastScanFilterAB::value(const AMnDIndex& indexes) const{
 	if(indexes.rank() != 1)
 		return AMNumber(AMNumber::DimensionError);
@@ -223,10 +255,9 @@ void SGM1DFastScanFilterAB::onInputSourceSizeChanged() {
 /// Connected to be called when the state() flags of any input source change
 void SGM1DFastScanFilterAB::onInputSourceStateChanged() {
 
-	reviewState();
-
 	// just in case the size has changed while the input source was invalid, and now it's going valid.  Do we need this? probably not, if the input source is well behaved. But it's pretty inexpensive to do it twice... and we know we'll get the size right everytime it goes valid.
 	onInputSourceSizeChanged();
+	reviewState();
 }
 
 void SGM1DFastScanFilterAB::reviewState(){

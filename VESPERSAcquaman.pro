@@ -34,7 +34,6 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/ui/VESPERS/VESPERSEndstationView.h \
 	source/acquaman/VESPERS/XRFFreeRun.h \
 	source/ui/VESPERS/VESPERSXRFFreeRunView.h \
-	source/util/VESPERS/VortexDetectorStatusHelper.h \
 	source/beamline/VESPERS/VESPERSMonochromator.h \
 	source/beamline/VESPERS/VESPERSIntermediateSlits.h \
 	source/ui/VESPERS/VESPERSBeamSelectorView.h \
@@ -46,27 +45,38 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/acquaman/VESPERS/VESPERSEXAFSScanConfiguration.h \
 	source/acquaman/VESPERS/VESPERSEXAFSDacqScanController.h \
 	source/ui/VESPERS/VESPERSEXAFSScanConfigurationView.h \
-    source/beamline/VESPERS/VESPERSRoperCCDDetector.h \
-    source/dataman/VESPERS/VESPERSRoperCCDDetectorInfo.h \
-    source/ui/VESPERS/VESPERSRoperCCDDetectorView.h \
-    source/util/VESPERS/VESPERSWorkflowAssistant.h \
-    source/ui/VESPERS/VESPERSWorkflowAssistantView.h \
-    source/acquaman/VESPERS/VESPERS2DDacqScanController.h \
-    source/acquaman/VESPERS/VESPERS2DScanConfiguration.h \
-    source/ui/VESPERS/VESPERS2DScanConfigurationView.h \
-    source/dataman/export/VESPERS/VESPERSExporter2DAscii.h \
-    source/beamline/VESPERS/VESPERSEndstationConfiguration.h \
-    source/ui/VESPERS/VESPERSEndstationConfigurationView.h \
-    source/dataman/export/VESPERS/VESPERSExporterSMAK.h \
-    source/ui/VESPERS/VESPERSSpatialLineScanConfigurationView.h \
-    source/acquaman/VESPERS/VESPERSSpatialLineScanConfiguration.h \
-    source/acquaman/VESPERS/VESPERSSpatialLineDacqScanController.h \
-    source/dataman/export/VESPERS/VESPERSExporterLineScanAscii.h \
-    source/acquaman/VESPERS/VESPERSEnergyDacqScanController.h \
-    source/ui/VESPERS/VESPERSEnergyScanConfigurationView.h \
-    source/acquaman/VESPERS/VESPERSEnergyScanConfiguration.h \
-    source/util/VESPERS/VESPERSConfigurationFileBuilder.h \
-    source/dataman/VESPERS/VESPERSDbUpgrade1Pt1.h
+	source/beamline/VESPERS/VESPERSRoperCCDDetector.h \
+	source/dataman/VESPERS/VESPERSRoperCCDDetectorInfo.h \
+	source/ui/VESPERS/VESPERSRoperCCDDetectorView.h \
+	source/acquaman/VESPERS/VESPERS2DDacqScanController.h \
+	source/acquaman/VESPERS/VESPERS2DScanConfiguration.h \
+	source/ui/VESPERS/VESPERS2DScanConfigurationView.h \
+	source/dataman/export/VESPERS/VESPERSExporter2DAscii.h \
+	source/beamline/VESPERS/VESPERSEndstationConfiguration.h \
+	source/ui/VESPERS/VESPERSEndstationConfigurationView.h \
+	source/dataman/export/VESPERS/VESPERSExporterSMAK.h \
+	source/ui/VESPERS/VESPERSSpatialLineScanConfigurationView.h \
+	source/acquaman/VESPERS/VESPERSSpatialLineScanConfiguration.h \
+	source/acquaman/VESPERS/VESPERSSpatialLineDacqScanController.h \
+	source/dataman/export/VESPERS/VESPERSExporterLineScanAscii.h \
+	source/acquaman/VESPERS/VESPERSEnergyDacqScanController.h \
+	source/ui/VESPERS/VESPERSEnergyScanConfigurationView.h \
+	source/acquaman/VESPERS/VESPERSEnergyScanConfiguration.h \
+	source/util/VESPERS/VESPERSConfigurationFileBuilder.h \
+	source/dataman/VESPERS/VESPERSDbUpgrade1Pt1.h \
+	source/dataman/VESPERS/VESPERSMarCCDDetectorInfo.h \
+	source/beamline/VESPERS/VESPERSMarCCDDetector.h \
+	source/ui/VESPERS/VESPERSMarCCDDetectorView.h \
+	source/application/VESPERS/VESPERS.h \
+	source/dataman/VESPERS/VESPERSDbUpgrade1Pt2.h \
+	source/dataman/VESPERS/VESPERSDbUpgrade1Pt3.h \
+	source/dataman/VESPERS/VESPERSDbUpgrade1Pt4.h \
+	source/acquaman/VESPERS/VESPERSScanConfigurationDbObject.h \
+	source/acquaman/VESPERS/VESPERSScanConfiguration.h \
+    source/dataman/VESPERS/VESPERSDbUpgrade1Pt5.h \
+    source/ui/VESPERS/VESPERSScanConfigurationView.h \
+    source/acquaman/VESPERS/VESPERSScanController.h \
+    source/ui/acquaman/VESPERS/VESPERSScanConfigurationViewHolder3.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -99,7 +109,6 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/ui/VESPERS/VESPERSEndstationView.cpp \
 	source/acquaman/VESPERS/XRFFreeRun.cpp \
 	source/ui/VESPERS/VESPERSXRFFreeRunView.cpp \
-	source/util/VESPERS/VortexDetectorStatusHelper.cpp \
 	source/beamline/VESPERS/VESPERSMonochromator.cpp \
 	source/beamline/VESPERS/VESPERSIntermediateSlits.cpp \
 	source/ui/VESPERS/VESPERSBeamSelectorView.cpp \
@@ -111,51 +120,40 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/acquaman/VESPERS/VESPERSEXAFSScanConfiguration.cpp \
 	source/acquaman/VESPERS/VESPERSEXAFSDacqScanController.cpp \
 	source/ui/VESPERS/VESPERSEXAFSScanConfigurationView.cpp \
-    source/beamline/VESPERS/VESPERSRoperCCDDetector.cpp \
-    source/dataman/VESPERS/VESPERSRoperCCDDetectorInfo.cpp \
-    source/ui/VESPERS/VESPERSRoperCCDDetectorView.cpp \
-    source/util/VESPERS/VESPERSWorkflowAssistant.cpp \
-    source/ui/VESPERS/VESPERSWorkflowAssistantView.cpp \
-    source/acquaman/VESPERS/VESPERS2DDacqScanController.cpp \
-    source/acquaman/VESPERS/VESPERS2DScanConfiguration.cpp \
-    source/ui/VESPERS/VESPERS2DScanConfigurationView.cpp \
-    source/dataman/export/VESPERS/VESPERSExporter2DAscii.cpp \
-    source/beamline/VESPERS/VESPERSEndstationConfiguration.cpp \
-    source/ui/VESPERS/VESPERSEndstationConfigurationView.cpp \
-    source/dataman/export/VESPERS/VESPERSExporterSMAK.cpp \
-    source/ui/VESPERS/VESPERSSpatialLineScanConfigurationView.cpp \
-    source/acquaman/VESPERS/VESPERSSpatialLineScanConfiguration.cpp \
-    source/acquaman/VESPERS/VESPERSSpatialLineDacqScanController.cpp \
-    source/dataman/export/VESPERS/VESPERSExporterLineScanAscii.cpp \
-    source/acquaman/VESPERS/VESPERSEnergyDacqScanController.cpp \
-    source/ui/VESPERS/VESPERSEnergyScanConfigurationView.cpp \
-    source/acquaman/VESPERS/VESPERSEnergyScanConfiguration.cpp \
-    source/util/VESPERS/VESPERSConfigurationFileBuilder.cpp \
-    source/dataman/VESPERS/VESPERSDbUpgrade1Pt1.cpp
+	source/beamline/VESPERS/VESPERSRoperCCDDetector.cpp \
+	source/dataman/VESPERS/VESPERSRoperCCDDetectorInfo.cpp \
+	source/ui/VESPERS/VESPERSRoperCCDDetectorView.cpp \
+	source/acquaman/VESPERS/VESPERS2DDacqScanController.cpp \
+	source/acquaman/VESPERS/VESPERS2DScanConfiguration.cpp \
+	source/ui/VESPERS/VESPERS2DScanConfigurationView.cpp \
+	source/dataman/export/VESPERS/VESPERSExporter2DAscii.cpp \
+	source/beamline/VESPERS/VESPERSEndstationConfiguration.cpp \
+	source/ui/VESPERS/VESPERSEndstationConfigurationView.cpp \
+	source/dataman/export/VESPERS/VESPERSExporterSMAK.cpp \
+	source/ui/VESPERS/VESPERSSpatialLineScanConfigurationView.cpp \
+	source/acquaman/VESPERS/VESPERSSpatialLineScanConfiguration.cpp \
+	source/acquaman/VESPERS/VESPERSSpatialLineDacqScanController.cpp \
+	source/dataman/export/VESPERS/VESPERSExporterLineScanAscii.cpp \
+	source/acquaman/VESPERS/VESPERSEnergyDacqScanController.cpp \
+	source/ui/VESPERS/VESPERSEnergyScanConfigurationView.cpp \
+	source/acquaman/VESPERS/VESPERSEnergyScanConfiguration.cpp \
+	source/util/VESPERS/VESPERSConfigurationFileBuilder.cpp \
+	source/dataman/VESPERS/VESPERSDbUpgrade1Pt1.cpp \
+	source/dataman/VESPERS/VESPERSMarCCDDetectorInfo.cpp \
+	source/beamline/VESPERS/VESPERSMarCCDDetector.cpp \
+	source/ui/VESPERS/VESPERSMarCCDDetectorView.cpp \
+	source/dataman/VESPERS/VESPERSDbUpgrade1Pt2.cpp \
+	source/dataman/VESPERS/VESPERSDbUpgrade1Pt3.cpp \
+	source/dataman/VESPERS/VESPERSDbUpgrade1Pt4.cpp \
+	source/acquaman/VESPERS/VESPERSScanConfigurationDbObject.cpp \
+	source/acquaman/VESPERS/VESPERSScanConfiguration.cpp \
+    source/dataman/VESPERS/VESPERSDbUpgrade1Pt5.cpp \
+    source/ui/VESPERS/VESPERSScanConfigurationView.cpp \
+    source/acquaman/VESPERS/VESPERSScanController.cpp \
+    source/ui/acquaman/VESPERS/VESPERSScanConfigurationViewHolder3.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

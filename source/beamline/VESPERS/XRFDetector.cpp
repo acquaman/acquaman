@@ -38,6 +38,7 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 
 		startPV_ = new AMProcessVariable(baseName+QString(":mca1EraseStart"), true, this);
 		stopPV_ = new AMProcessVariable(baseName+QString(":mca1Stop"), true, this);
+		statusPV_ = new AMProcessVariable(baseName+QString(":mca1.ACQG"), true, this);
 
 		singleElSpectraPV_ = new AMProcessVariable(baseName+QString(":mca1Read.SCAN"), true, this);
 		singleElStatusPV_ = new AMProcessVariable(baseName+QString(":mca1Status.SCAN"), true, this);
@@ -53,10 +54,11 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 
 		startPV_ = new AMProcessVariable(baseName+QString(":EraseStart"), true, this);
 		stopPV_ = new AMProcessVariable(baseName+QString(":StopAll"), true, this);
+		statusPV_ = new AMProcessVariable(baseName+QString(":Acquiring"), true, this);
 
 		singleElSpectraPV_ = 0;
 		singleElStatusPV_ = 0;
-		fourElSpectraPV_ = new AMProcessVariable(baseName+QString(":ReadDXPs.SCAN"), true, this);
+		fourElSpectraPV_ = new AMProcessVariable(baseName+QString(":ReadLLParams.SCAN"), true, this);
 		fourElStatusPV_ = new AMProcessVariable(baseName+QString(":StatusAll.SCAN"), true, this);
 		fourElAllPV_ = new AMProcessVariable(baseName+QString(":ReadAll.SCAN"), true, this);
 		presetTime4elHack_ = new AMProcessVariable(baseName+QString(":PresetReal"), true, this);
@@ -76,14 +78,26 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 
 //		if (i == 0){
 
-			statusPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ACQG", true, this);
+//			statusPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ACQG", true, this);
 //			mcaUpdateRatePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".SCAN", true, this);
 //			statusUpdateRatePV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".SCAN", true, this);
+		if (elements == 1){
+
 			peakingTimePV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".PKTIM", true, this);
 			maximumEnergyPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".EMAX", true, this);
-			integrationTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PRTM", true, this);
-			liveTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PLTM", true, this);
+			icrPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".ICR", true, this);
+			ocrPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".OCR", true, this);
 			elapsedTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ERTM", true, this);
+		}
+
+		else if (elements == 4){
+
+			peakingTimePV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+":PeakingTime", true, this);
+			maximumEnergyPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+":MaxEnergy", true, this);
+			icrPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+":InputCountRate", true, this);
+			ocrPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+":OutputCountRate", true, this);
+			elapsedTimePV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+":ElapsedRealTime", true, this);
+		}
 //		}
 //		else{
 
@@ -97,11 +111,11 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 //			elapsedTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ERTM", false, this);
 //		}
 
-		icrPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".ICR", true, this);
-		ocrPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".OCR", true, this);
 		spectraPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1), true, this);
+		integrationTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PRTM", true, this);
+		liveTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PLTM", true, this);
+//		elapsedTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ERTM", true, this);
 
-		connect(statusPV_.at(i), SIGNAL(readReadyChanged(bool)), this, SLOT(isDetectorConnected()));
 //		connect(mcaUpdateRatePV_.at(i), SIGNAL(readReadyChanged(bool)), this, SLOT(isDetectorConnected()));
 //		connect(statusUpdateRatePV_.at(i), SIGNAL(writeReadyChanged(bool)), this, SLOT(isDetectorConnected()));
 		connect(peakingTimePV_.at(i), SIGNAL(writeReadyChanged(bool)), this, SLOT(isDetectorConnected()));
@@ -121,7 +135,8 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 		correctedSpectrumDataSources_ << corrected;
 	}
 
-	connect(statusPV_.first(), SIGNAL(valueChanged()), this, SLOT(onStatusChanged()));
+	connect(statusPV_, SIGNAL(readReadyChanged(bool)), this, SLOT(isDetectorConnected()));
+	connect(statusPV_, SIGNAL(valueChanged()), this, SLOT(onStatusChanged()));
 //	connect(mcaUpdateRatePV_.first(), SIGNAL(valueChanged(int)), this, SLOT(onRefreshRateChanged(int)));
 //	connect(statusUpdateRatePV_.first(), SIGNAL(valueChanged()), this, SLOT(onStatusUpdateRateInitialized()));
 	connect(peakingTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onPeakingTimeChanged(double)));
@@ -236,11 +251,11 @@ void XRFDetector::isDetectorConnected()
 {
 	wasConnected_ = isConnected();
 
-	bool currentlyConnected = startPV_->writeReady() && stopPV_->writeReady();
+	bool currentlyConnected = startPV_->writeReady() && stopPV_->writeReady() && statusPV_->readReady();
 
 	for (int i = 0; i < elements_; i++){
 
-		currentlyConnected = currentlyConnected && statusPV_.at(i)->readReady()
+		currentlyConnected = currentlyConnected
 //					&& mcaUpdateRatePV_.at(i)->readReady()
 //					&& statusUpdateRatePV_.at(i)->writeReady()
 					&& peakingTimePV_.at(i)->writeReady()
@@ -320,26 +335,14 @@ void XRFDetector::onUpdateTimer()
 	}
 }
 
-void XRFDetector::copyFromROIList(AMROIInfoList *list)
-{
-	clearRegionsOfInterest();
-
-	for (int i = 0; i < list->count(); i++){
-
-		roiList_.at(i)->setRegion(list->at(i));
-		emit addedRegionOfInterest(list->at(i));
-	}
-
-	setROIList(*list);
-}
-
 bool XRFDetector::addRegionOfInterest(XRFElement *el, QString line)
 {
 	// No more ROIs.
 	if (roiInfoList()->count() == roiList().size())
 		return false;
 
-	AMROIInfo roi(el->lineEnergy(line), 0.04, scale(), el->symbol()+" "+GeneralUtilities::removeGreek(line));
+	double lineEnergy = el->lineEnergy(line);
+	AMROIInfo roi(lineEnergy, 2.75*sqrt(lineEnergy)/lineEnergy, scale(), el->symbol()+" "+GeneralUtilities::removeGreek(line));
 
 	// Appending to the list means that the old size of the Info list is where the new values should be set in the ROI list.
 	roiList_.at(roiInfoList()->count())->setRegion(roi);

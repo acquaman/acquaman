@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
 #include "ui/AMBottomBar.h"
+#include "ui/AMDatamanAppBottomPanel.h"
 #include "ui/dataman/AMDataViewWithActionButtons.h"
 #include "ui/dataman/AMRunExperimentInsert.h"
 #include "ui/dataman/AMGenericScanEditor.h"
@@ -82,6 +83,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AM2DScan.h"
 #include "analysis/AM2DNormalizationAB.h"
 #include "analysis/AM1DNormalizationAB.h"
+#include "analysis/AM2DAdditionAB.h"
+#include "analysis/AM3DAdditionAB.h"
+#include "analysis/AM3DBinningAB.h"
+#include "analysis/AM2DDeadTimeAB.h"
+#include "analysis/AM3DDeadTimeAB.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "ui/dataman/AMDbObjectGeneralView.h"
@@ -466,6 +472,11 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMDeadTimeAB>();
 	AMDbObjectSupport::s()->registerClass<AM2DNormalizationAB>();
 	AMDbObjectSupport::s()->registerClass<AM1DNormalizationAB>();
+	AMDbObjectSupport::s()->registerClass<AM2DAdditionAB>();
+	AMDbObjectSupport::s()->registerClass<AM3DAdditionAB>();
+	AMDbObjectSupport::s()->registerClass<AM3DBinningAB>();
+	AMDbObjectSupport::s()->registerClass<AM2DDeadTimeAB>();
+	AMDbObjectSupport::s()->registerClass<AM3DDeadTimeAB>();
 
 	AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
 	AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
@@ -548,11 +559,18 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	connect(mw_, SIGNAL(itemCloseButtonClicked(QModelIndex)), this, SLOT(onWindowPaneCloseButtonClicked(QModelIndex)));
 	mw_->installEventFilter(this);
 
-	bottomBar_ = new AMBottomBar();
-	mw_->addBottomWidget(bottomBar_);
-	connect(bottomBar_, SIGNAL(addButtonClicked()), this, SLOT(onAddButtonClicked()));
-	connect(bottomBar_, SIGNAL(pauseScanIssued()), this, SIGNAL(pauseScanIssued()));
-	connect(bottomBar_, SIGNAL(stopScanIssued()), this, SIGNAL(stopScanIssued()));
+//	bottomBar_ = new AMBottomBar();
+//	// These buttons are never used.  Hiding them.
+//	bottomBar_->fullScreenButton->hide();
+//	bottomBar_->adjustScanFinishButton->hide();
+//	bottomBar_->restartScanButton->hide();
+//	mw_->addBottomWidget(bottomBar_);
+//	connect(bottomBar_, SIGNAL(addButtonClicked()), this, SLOT(onAddButtonClicked()));
+//	connect(bottomBar_, SIGNAL(pauseScanIssued()), this, SIGNAL(pauseScanIssued()));
+//	connect(bottomBar_, SIGNAL(resumeScanIssued()), this, SIGNAL(resumeScanIssued()));
+//	connect(bottomBar_, SIGNAL(stopScanIssued()), this, SIGNAL(stopScanIssued()));
+	addBottomPanel();
+	mw_->addBottomWidget(bottomPanel_);
 
 	// Create panes in the main window:
 	////////////////////////////////////
@@ -593,6 +611,7 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	connect(dataView_, SIGNAL(selectionActivatedSeparateWindows(QList<QUrl>)), this, SLOT(onDataViewItemsActivatedSeparateWindows(QList<QUrl>)));
 	connect(dataView_, SIGNAL(selectionExported(QList<QUrl>)), this, SLOT(onDataViewItemsExported(QList<QUrl>)));
 	connect(dataView_, SIGNAL(launchScanConfigurationsFromDb(QList<QUrl>)), this, SLOT(onLaunchScanConfigurationsFromDb(QList<QUrl>)));
+	connect(dataView_, SIGNAL(fixCDF(QUrl)), this, SLOT(fixCDF(QUrl)));
 
 	// When 'alias' links are clicked in the main window sidebar, we might need to notify some widgets of the details
 	connect(mw_, SIGNAL(aliasItemActivated(QWidget*,QString,QVariant)), this, SLOT(onMainWindowAliasItemActivated(QWidget*,QString,QVariant)));
@@ -607,6 +626,13 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	mw_->show();
 
 	return true;
+}
+
+void AMDatamanAppController::addBottomPanel()
+{
+	AMDatamanAppBottomPanel *panel = new AMDatamanAppBottomPanel;
+	connect(panel, SIGNAL(addExperimentButtonClicked()), this, SLOT(onAddButtonClicked()));
+	bottomPanel_ = panel;
 }
 
 bool AMDatamanAppController::startupInstallActions()
@@ -812,6 +838,12 @@ void AMDatamanAppController::launchScanConfigurationFromDb(const QUrl &url)
 	view->setEnabled(false);
 	view->setAttribute(Qt::WA_DeleteOnClose, true);
 	view->show();
+}
+
+void AMDatamanAppController::fixCDF(const QUrl &url)
+{
+	Q_UNUSED(url)
+	QMessageBox::information(0, "Unable to fix.", "This particular app controller can not fix CDF files.");
 }
 
 #include "dataman/AMRunExperimentItems.h"
@@ -1145,7 +1177,7 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 	if (overwriteNecessary){
 
 		scan->setScanController(0);
-		scan->storeToDb(AMDatabase::database("user"), true);
+		scan->storeToDb(AMDatabase::database("user"));
 
 		/// \todo DH: I'm sure I should just make a function to do things like this, but for now I'm just duplicating code because it's easy.
 		delete dbo;

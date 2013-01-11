@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSExporterSMAK.h"
 
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
@@ -38,6 +57,12 @@ bool VESPERSExporterSMAK::prepareDataSources()
 			case 2:
 				mainTableDataSources_ << i;
 				mainTableIncludeX_ << (i == 0 ? true : false); // X and Y.
+				break;
+
+			case 3:
+				if (option_->includeHigherDimensionSources())
+					separateFileDataSources_ << i;	// The spectra data sources.
+				break;
 			}
 		}
 	}
@@ -80,7 +105,7 @@ QString VESPERSExporterSMAK::exportScan(const AMScan *scan, const QString &desti
 	writeHeader();
 	writeMainTable();
 	writeSeparateSections();
-	if(!writeSeparateFiles(destinationFolderPath)) {
+	if(option_->includeHigherDimensionSources() && !writeSeparateFiles(destinationFolderPath)) {
 		file_->close();
 		return QString();
 	}
@@ -179,7 +204,7 @@ void VESPERSExporterSMAK::writeMainTable()
 				}
 
 				if(doPrint && c == indexOfCCDName)
-					ts << QString("%1_%2.spe").arg(ccdFileName).arg(int(ds->value(AMnDIndex(x, y))));
+					ts << QString("%1_%2.spe").arg(ccdFileName).arg(int(ds->value(AMnDIndex(x, y)))-1);	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
 				else if (doPrint)
 					ts << ds->value(AMnDIndex(x, y)).toString();
 
@@ -200,111 +225,41 @@ void VESPERSExporterSMAK::writeSeparateSections()
 
 bool VESPERSExporterSMAK::writeSeparateFiles(const QString &destinationFolderPath)
 {
-	// This is cheating for the time being.
-	QFileInfo sourceFileInfo(currentScan_->additionalFilePaths().first());
-	if(sourceFileInfo.isRelative())
-		sourceFileInfo.setFile(AMUserSettings::userDataFolder % "/" % currentScan_->additionalFilePaths().first());
+	for (int s = 0, sSize = separateFileDataSources_.size(); s < sSize; s++) {
 
-	QString originalFileName = sourceFileInfo.absoluteFilePath();
-	QString temp = option_->separateSectionFileName();
-	QString separateFileName = parseKeywordString( destinationFolderPath % "/" % temp.replace("$dataSetName", "spectra") );
-	separateFileName = separateFileName.replace(".dat", ".mca");
+		setCurrentDataSource(separateFileDataSources_.at(s));	// sets currentDataSourceIndex_
+		AMDataSource* source = currentScan_->dataSourceAt(currentDataSourceIndex_);
 
-	VESPERS2DScanConfiguration *config = qobject_cast<VESPERS2DScanConfiguration *>(const_cast<AMScanConfiguration *>(currentScan_->scanConfiguration()));
-	if (!config)
-		return false;
+		QFile output;
+		QString separateFileName = parseKeywordString( destinationFolderPath % "/" % option_->separateSectionFileName() );
+		separateFileName.replace(".dat", ".mca");
 
-	if (config->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::SingleElement){
-
-		QFile input(originalFileName);
-
-		if (!input.open(QIODevice::ReadOnly))
+		if(!openFile(&output, separateFileName)) {
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, "Export failed (partially): You selected to create separate files for certain data sets. Could not open the file '" % separateFileName % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));
 			return false;
-
-		QTextStream in(&input);
-
-		QFile output(separateFileName);
-
-		if (!output.open(QIODevice::WriteOnly))
-			return false;
+		}
 
 		QTextStream out(&output);
-		QString currentLine;
+		int spectraSize = source->size(2);
+		QVector<double> data(spectraSize);
 		int index = 0;
 
-		while (!in.atEnd()){
+		for (int y = 0, ySize = source->size(1); y < ySize; y++){
 
-			in >> currentLine;
-			out << QString("%1\t").arg(++index) % currentLine.replace(",", "\t") % "\n";
+			for (int x = 0, xSize = source->size(0); x < xSize; x++){
+
+				source->values(AMnDIndex(x, y, 0), AMnDIndex(x, y, spectraSize-1), data.data());
+
+				out << ++index;
+
+				for (int i = 0; i < spectraSize; i++)
+					out << "\t" << data.at(i);
+
+				out << "\n";
+			}
 		}
 
-		input.close();
 		output.close();
-	}
-
-	else if (config->fluorescenceDetectorChoice() == VESPERS2DScanConfiguration::FourElement){
-
-		QString temp = separateFileName;
-		QString sumName =  temp.replace("spectra", "corrSum");
-		QString raw1Name = temp.replace("corrSum", "raw1");
-		QString raw2Name = temp.replace("raw1", "raw2");
-		QString raw3Name = temp.replace("raw2", "raw3");
-		QString raw4Name = temp.replace("raw3", "raw4");
-
-		QFile input(originalFileName);
-		QFile outputSum(sumName);
-		QFile outputRaw1(raw1Name);
-		QFile outputRaw2(raw2Name);
-		QFile outputRaw3(raw3Name);
-		QFile outputRaw4(raw4Name);
-
-		if (!input.open(QIODevice::ReadOnly))
-			return false;
-
-		if (!outputSum.open(QIODevice::WriteOnly))
-			return false;
-
-		if (!outputRaw1.open(QIODevice::WriteOnly))
-			return false;
-
-		if (!outputRaw2.open(QIODevice::WriteOnly))
-			return false;
-
-		if (!outputRaw3.open(QIODevice::WriteOnly))
-			return false;
-
-		if (!outputRaw4.open(QIODevice::WriteOnly))
-			return false;
-
-		QTextStream in(&input);
-		QTextStream sum(&outputSum);
-		QTextStream raw1(&outputRaw1);
-		QTextStream raw2(&outputRaw2);
-		QTextStream raw3(&outputRaw3);
-		QTextStream raw4(&outputRaw4);
-
-		QString currentLine;
-		QStringList splitLine;
-		int index = 0;
-
-		while (!in.atEnd()){
-
-			++index;
-			in >> currentLine;
-			splitLine = currentLine.split(",");
-			sum << QString("%1\t").arg(index) % QStringList(splitLine.mid(0, 2048)).join("\t") % "\n";
-			raw1 << QString("%1\t").arg(index) % QStringList(splitLine.mid(2048, 2048)).join("\t") % "\n";
-			raw2 << QString("%1\t").arg(index) % QStringList(splitLine.mid(4096, 2048)).join("\t") % "\n";
-			raw3 << QString("%1\t").arg(index) % QStringList(splitLine.mid(6144, 2048)).join("\t") % "\n";
-			raw4 << QString("%1\t").arg(index) % QStringList(splitLine.mid(8192, 2048)).join("\t") % "\n";
-		}
-
-		input.close();
-		outputSum.close();
-		outputRaw1.close();
-		outputRaw2.close();
-		outputRaw3.close();
-		outputRaw4.close();
 	}
 
 	return true;
@@ -362,7 +317,7 @@ void VESPERSExporterSMAK::writeSMAKFile()
 
 				// print x and y column?
 				if(c == 0) {
-					ts << ds->axisValue(0,x).toString();
+					ts << ds->axisValue(0, x).toString();
 					ts << "\t";
 					ts << ds->axisValue(1, y).toString();
 					ts << "\t";

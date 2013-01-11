@@ -175,11 +175,6 @@ protected slots:
 	/// Handles the y focus distance update.
 	void yFocusUpdate(double val) { yFocusButton_->setText(QString::number(val, 'f', 3) + " mm"); }
 
-	/// Starts up a detached process for the microscope screen.  Starts a detached process because the view for the microscope does not depend on the user interface to be active.
-	void startMicroscope() { QProcess::startDetached("/home/vespers/bin/runCameraDisplay"); }
-	/// Starts the IDA software.  This is temporary until the XAS software is replaced.
-	void startXAS() { QProcess::startDetached("/home/vespers/bin/runIDA"); }
-
 protected:
 	// Microscope light setup.
 	QSlider *micLight_;

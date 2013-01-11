@@ -38,8 +38,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSplitIonChamber.h"
 #include "beamline/CLS/CLSVariableIntegrationTime.h"
 #include "beamline/VESPERS/VESPERSRoperCCDDetector.h"
+#include "beamline/VESPERS/VESPERSMarCCDDetector.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/VESPERS/VESPERSEndstationConfiguration.h"
+#include "application/VESPERS/VESPERS.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -49,15 +51,6 @@ class VESPERSBeamline : public AMBeamline
 {
 	Q_OBJECT
 public:
-
-	/// Enum for the different beams.
-	/*!
-		- Pink is not monochromatized and contains all the energies from the bending magnet.
-		- TenPercent (10%) is a broad band pass filter.
-		- OnePointSixPercent (1.6%) is a narrow band pass filter.
-		- Si is the monochromator with 0.01% band pass.
-	  */
-	enum Beam { None = 0, Pink, TenPercent, OnePointSixPercent, Si };
 
 	/// Returns the instance of the beamline that has been created.
 	static VESPERSBeamline* vespers() {
@@ -70,7 +63,7 @@ public:
 
 	// Beam selection functions.
 	/// Returns the current beam in use by the beamline.
-	Beam currentBeam() const { return beam_; }
+	VESPERS::Beam currentBeam() const { return beam_; }
 
 	// Helper functions.
 	QString pvName(const QString &amName) const { return amNames2pvNames_.valueF(amName); }
@@ -91,6 +84,10 @@ public:
 	AMDetector *roperCCDDetector() const { return roperCCD_; }
 	/// Returns the specific pointer to the Roper CCD.
 	VESPERSRoperCCDDetector *roperCCD() const { return (VESPERSRoperCCDDetector *)roperCCD_; }
+	/// Returns a general AMDetector pointer of the Mar CCD.
+	AMDetector *marCCDDetector() const { return marCCD_; }
+	/// Returns the specific pointer to the Mar CCD.
+	VESPERSMarCCDDetector *marCCD() const { return (VESPERSMarCCDDetector *)marCCD_; }
 
 	/// Returns a general AMDetector pointer to the split ion chamber.
 	AMDetector *iSplitDetector() const { return iSplit_; }
@@ -462,14 +459,14 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////////
 	// Actions
 	/// Creates an action that changes the beam.  Returns 0 if unable to create.
-	AMBeamlineActionItem *createBeamChangeAction(Beam beam);
+	AMBeamlineActionItem *createBeamChangeAction(VESPERS::Beam beam);
 
 	// End of Actions
 	//////////////////////////////////////////////////////////////////////////////////////
 
 signals:
 	/// Notifier that the beam has been changed.
-	void currentBeamChanged(VESPERSBeamline::Beam);
+	void currentBeamChanged(VESPERS::Beam);
 	/// Notifier that passes on that the beam has gone down.
 	void beamDumped();
 	/// Notifier of the current state of the pressures on the beamline.  Passes false if ANY of the pressures falls below its setpoint.
@@ -560,6 +557,7 @@ protected:
 	AMDetector *vortex1E_;
 	AMDetector *vortex4E_;
 	AMDetector *roperCCD_;
+	AMDetector *marCCD_;
 	AMDetector *iSplit_;
 	AMDetector *iPreKB_;
 	AMDetector *iMini_;
@@ -607,11 +605,11 @@ protected:
 
 	// Beam selection members.
 	// The current beam in use by the beamline.
-	Beam beam_;
+	VESPERS::Beam beam_;
 	// Pointer to the motor that controls which beam makes it down the beamline.
 	AMControl *beamSelectionMotor_;
 	// Look up table with the beam and its position.
-	QHash<Beam, double> beamPositions_;
+	QHash<VESPERS::Beam, double> beamPositions_;
 
 	// End of Beam selection members.
 

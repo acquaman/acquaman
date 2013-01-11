@@ -358,5 +358,271 @@ void AMScanViewScanBarContextMenu::editColorAndStyle()
 	}
 }
 
+// AMScanViewSingleSpectrumView
+//////////////////////////////////////////////////
 
+#include "MPlot/MPlotTools.h"
 
+#include <QCheckBox>
+
+AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
+	: QWidget(parent)
+{
+	x_.resize(0);
+	sourceButtons_ = new QButtonGroup;
+	sourceButtons_->setExclusive(false);
+	connect(sourceButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onCheckBoxChanged(int)));
+
+	setupPlot();
+
+	plot_->setMinimumSize(600, 400);
+	plot_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+
+	table_ = new AMSelectablePeriodicTable(this);
+	connect(table_, SIGNAL(elementSelected(int)), this, SLOT(onElementSelected(int)));
+	connect(table_, SIGNAL(elementDeselected(int)), this, SLOT(onElementDeselected(int)));
+	tableView_ = new AMSelectablePeriodicTableView(table_);
+
+	QVBoxLayout *layout = new QVBoxLayout;
+	layout->addWidget(plot_);
+	layout->addWidget(tableView_, 0, Qt::AlignCenter);
+
+	sourceButtonsLayout_ = new QVBoxLayout;
+	sourceButtonsLayout_->addWidget(new QLabel("Available Spectra"), 0, Qt::AlignLeft);
+	sourceButtonsLayout_->addStretch();
+
+	QHBoxLayout *fullLayout = new QHBoxLayout;
+	fullLayout->addLayout(layout);
+	fullLayout->addLayout(sourceButtonsLayout_);
+
+	setLayout(fullLayout);
+}
+
+void AMScanViewSingleSpectrumView::setupPlot()
+{
+	MPlot *plot = new MPlot;
+	plot_ = new MPlotWidget(this);
+	plot_->setPlot(plot);
+
+	plot_->plot()->plotArea()->setBrush(QBrush(Qt::white));
+	plot_->plot()->axisBottom()->setTicks(5);
+	plot_->plot()->axisLeft()->setTicks(5);
+	plot_->plot()->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
+	plot_->plot()->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
+	plot_->plot()->axisBottom()->showAxisName(true);
+	plot_->plot()->axisLeft()->showAxisName(false);
+
+	// Set the margins for the plot.
+	plot_->plot()->setMarginLeft(10);
+	plot_->plot()->setMarginBottom(15);
+	plot_->plot()->setMarginRight(2);
+	plot_->plot()->setMarginTop(2);
+
+	plot_->plot()->addTool(new MPlotDragZoomerTool());
+	plot_->plot()->addTool(new MPlotWheelZoomerTool());
+}
+
+void AMScanViewSingleSpectrumView::onElementSelected(int atomicNumber)
+{
+	QString symbol = table_->elementByAtomicNumber(atomicNumber)->symbol();
+	QList<QPair<QString, QString> > lines = table_->elementByAtomicNumber(atomicNumber)->emissionLines();
+	QColor color = AMDataSourcePlotSettings::nextColor();
+	MPlotPoint *newLine;
+	QPair<QString, QString> line;
+
+	foreach(line, lines){
+
+		if (line.second.toDouble() >= range_.first && line.second.toDouble() <= range_.second
+				&& line.first.contains("1") && line.first.compare("-"))	{
+
+			newLine = new MPlotPoint(QPointF(line.second.toDouble(), 0));
+			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(color), QBrush(color));
+			newLine->setDescription(symbol % " " % line.first);
+			plot_->plot()->addItem(newLine);
+		}
+	}
+}
+
+void AMScanViewSingleSpectrumView::onElementDeselected(int atomicNumber)
+{
+	QString symbol = table_->elementByAtomicNumber(atomicNumber)->symbol();
+	MPlot *plot = plot_->plot();
+
+	foreach(MPlotItem *item, plot->plotItems()){
+
+		if (item->description().contains(symbol))
+			if (plot->removeItem(item))
+				delete item;
+	}
+}
+
+void AMScanViewSingleSpectrumView::setPlotRange(double low, double high)
+{
+	range_ = qMakePair(low, high);
+	tableView_->setRange(low, high);
+
+	foreach(int atomicNumber, table_->selectedElements())
+		onElementDeselected(atomicNumber);
+
+	foreach(int atomicNumber, table_->selectedElements())
+		onElementSelected(atomicNumber);
+}
+
+void AMScanViewSingleSpectrumView::onDataPositionChanged(AMnDIndex index)
+{
+	if (isVisible())
+		updatePlot(index);
+}
+
+void AMScanViewSingleSpectrumView::setAxisInfo(AMAxisInfo info, bool propogateToPlotRange)
+{
+	if (info.units.isEmpty())
+		plot_->plot()->axisBottom()->setAxisName(info.name);
+
+	else
+		plot_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
+
+	x_.resize(info.size);
+
+	for (int i = 0; i < info.size; i++)
+		x_[i] = double(info.start) + i*double(info.increment);
+
+	if (propogateToPlotRange)
+		setPlotRange(double(info.start), double(info.start) + info.size*double(info.increment));
+}
+
+void AMScanViewSingleSpectrumView::onCheckBoxChanged(int id)
+{
+	if (sourceButtons_->button(id)->isChecked()){
+
+		plot_->plot()->addItem(series_.at(id));
+		updatePlot(id);
+	}
+
+	else
+		plot_->plot()->removeItem(series_.at(id));
+}
+
+void AMScanViewSingleSpectrumView::updatePlot(const AMnDIndex &index)
+{
+	if (!sources_.isEmpty() && index.rank() == sources_.first()->rank()-1){
+
+		int size = sources_.first()->size(index.rank())-1;
+
+		switch(sources_.first()->rank()){
+
+		case 0: // 0D data source.  Not possible.
+			break;
+
+		case 1:	// 1D data source.  0D scan rank.
+
+			startIndex_ = AMnDIndex(0);
+			endIndex_ = AMnDIndex(size);
+			break;
+
+		case 2:	// 2D data source.  1D scan rank.
+
+			startIndex_ = AMnDIndex(index.i(), 0);
+			endIndex_ = AMnDIndex(index.i(), size);
+			break;
+
+		case 3:	// 3D data source.  2D scan rank.
+
+			startIndex_ = AMnDIndex(index.i(), index.j(), 0);
+			endIndex_ = AMnDIndex(index.i(), index.j(), size);
+			break;
+		}
+	}
+
+	for (int i = 0, count = sourceButtons_->buttons().size(); i < count; i++)
+		if (sourceButtons_->button(i)->isChecked())
+			updatePlot(i);
+}
+
+void AMScanViewSingleSpectrumView::updatePlot(int id)
+{
+	AMDataSource *source = sources_.at(id);
+	QVector<double> data(source->size(source->rank()-1));
+	source->values(startIndex_, endIndex_, data.data());
+	models_.at(id)->setValues(x_, data);
+}
+
+void AMScanViewSingleSpectrumView::setDataSourceByName(const QString &name)
+{
+	for (int i = 0, count = sources_.size(); i < count; i++)
+		if (sources_.at(i)->name() == name)
+			sourceButtons_->button(i)->click();
+
+	updatePlot();
+}
+
+void AMScanViewSingleSpectrumView::setDataSources(QList<AMDataSource *> sources)
+{
+	// Clean out the old buttons and models.
+	QList<QAbstractButton *> buttons = sourceButtons_->buttons();
+
+	foreach (QAbstractButton *button, buttons){
+
+		sourceButtons_->removeButton(button);
+		sourceButtonsLayout_->removeWidget(button);
+		delete button;
+	}
+
+	buttons.clear();
+
+	foreach (MPlotItem *item, plot_->plot()->plotItems())
+		if (item->type() == MPlotItem::Series)
+			plot_->plot()->removeItem(item);
+
+	foreach (MPlotSeriesBasic *series, series_)
+		delete series;
+
+	series_.clear();
+
+	foreach (MPlotVectorSeriesData *model, models_)
+		delete model;
+
+	models_.clear();
+
+	// Fill in the button groups and models.
+	sources_ = sources;
+	QAbstractButton *button = 0;
+	AMDataSource *source = 0;
+	MPlotVectorSeriesData *model = 0;
+	MPlotSeriesBasic *series;
+
+	for (int i = 0, count = sources_.size(); i < count; i++){
+
+		source = sources_.at(i);
+		button = new QCheckBox(source->name());
+		sourceButtons_->addButton(button, i);
+		sourceButtonsLayout_->insertWidget(sourceButtonsLayout_->count()-1, button, 0, Qt::AlignLeft);
+
+		model = new MPlotVectorSeriesData;
+		series = new MPlotSeriesBasic(model);
+		series->setMarker(MPlotMarkerShape::None);
+		series->setDescription(source->description());
+		series->setLinePen(AMDataSourcePlotSettings().linePen);
+		models_.append(model);
+		series_.append(series);
+	}
+
+	// Setup the plot's independant axis.
+	if (!sources_.isEmpty()){
+
+		AMAxisInfo info = sources_.last()->axisInfoAt(sources_.last()->rank()-1);
+
+		if (info.units.isEmpty())
+			plot_->plot()->axisBottom()->setAxisName(info.name);
+
+		else
+			plot_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
+
+		x_.resize(info.size);
+
+		for (int i = 0; i < info.size; i++)
+			x_[i] = double(info.start) + i*double(info.increment);
+
+		setPlotRange(double(info.start), double(info.start) + info.size*double(info.increment));
+	}
+}

@@ -1,7 +1,27 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef VESPERSSPATIALLINEDACQSCANCONTROLLER_H
 #define VESPERSSPATIALLINEDACQSCANCONTROLLER_H
 
 #include "acquaman/AMDacqScanController.h"
+#include "acquaman/VESPERS/VESPERSScanController.h"
 #include "acquaman/VESPERS/VESPERSSpatialLineScanConfiguration.h"
 #include "dataman/AMScan.h"
 #include "actions/AMBeamlineListAction.h"
@@ -15,7 +35,7 @@
 #define VESPERSSPATIALLINEDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE 75004
 
 /// This class builds a scan controller for doing a spatial line scan.
-class VESPERSSpatialLineDacqScanController : public AMDacqScanController
+class VESPERSSpatialLineDacqScanController : public AMDacqScanController, public VESPERSScanController
 {
 	Q_OBJECT
 
@@ -55,32 +75,23 @@ protected:
 	/// Method that cleans up the beamline after a scan is finished.  Makes a list of clean up actions and executes them.
 	void cleanup();
 
-	/// Helper method that removes and deletes all of the actions from initialization action for proper memory management.
-	void onInitializationActionFinished();
-	/// Helper method that removes and deletes all of the actions from the cleanup action for proper memory management.
-	void onCleanupActionFinished();
-
 	/// Adds all the data sources that are still important but not visualized.
 	void addExtraDatasources();
 
-	/// Returns the home directory for Acquaman.
-	QString getHomeDirectory();
-
+	/// Sets up the line scan with no XRF detector.
+	bool setupIonChamberMap();
 	/// Sets up the line scan based on the single element detector being used for XRF.
 	bool setupSingleElementMap();
 	/// Sets up the line scan based on the four element detector being used for XRF.
 	bool setupFourElementMap();
+	/// Sets up the line scan based on the single element and four element detectors being used for XRF.
+	bool setupSingleAndFourElementMap();
 
 	/// Pointer to the VESPERSSpatialLineScanConfiguration this scan controls.
 	VESPERSSpatialLineScanConfiguration *config_;
 
 	/// Holds the PV name.
 	QString pvName_;
-
-	/// Action that contains all of the initialization actions for the controller.
-	AMBeamlineListAction *initializationActions_;
-	/// Action that contains all of the cleanup actions for the controller.
-	AMBeamlineListAction *cleanupActions_;
 
 	/// Timer used for determining the elapsed time for a scan.
 	QTimer elapsedTime_;

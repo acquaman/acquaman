@@ -77,7 +77,7 @@ public:
 	/// Returns the status as an bool.  true is acquiring, false is done.
 	bool status() const
 	{
-		if (statusPV_.first()->getInt() == 1)
+		if (statusPV_->getInt() == 1)
 			return true;
 
 		return false;
@@ -273,8 +273,6 @@ public slots:
 	void clearRegionsOfInterest();
 	/// Sorts the list of ROIs.
 	void sortRegionsOfInterest();
-	/// Takes an AMROIInfoList and copies its contents to this detector.
-	void copyFromROIList(AMROIInfoList *list);
 
 	/// Sets the extra notes for the detector.
 	void setNotes(const QString &notes) { notes_ = notes; }
@@ -388,7 +386,7 @@ protected:
 
 	// The PVs.  They are all lists because the detector could have more than one element.  Start and stop are special because naming conventions didn't allow for the correct behaviour.
 	/// The status of the scan.
-	QList<AMProcessVariable *> statusPV_;
+	AMProcessVariable *statusPV_;
 	/// The spectra refresh rate.
 //	QList<AMProcessVariable *> mcaUpdateRatePV_;
 	/// The status refresh rate.

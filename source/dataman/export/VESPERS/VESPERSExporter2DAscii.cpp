@@ -57,6 +57,12 @@ bool VESPERSExporter2DAscii::prepareDataSources()
 			case 2:
 				mainTableDataSources_ << i;
 				mainTableIncludeX_ << (i == 0 ? true : false); // X and Y.
+				break;
+
+			case 3:
+				if (option_->includeHigherDimensionSources())
+					separateFileDataSources_ << i;
+				break;
 			}
 		}
 	}
@@ -99,7 +105,7 @@ QString VESPERSExporter2DAscii::exportScan(const AMScan *scan, const QString &de
 	writeHeader();
 	writeMainTable();
 	writeSeparateSections();
-	if(!writeSeparateFiles(destinationFolderPath)) {
+	if(option_->includeHigherDimensionSources() && !writeSeparateFiles(destinationFolderPath)) {
 		file_->close();
 		return QString();
 	}
@@ -175,7 +181,7 @@ void VESPERSExporter2DAscii::writeMainTable()
 				// print x and y column?
 				if(mainTableIncludeX_.at(c)) {
 					if(doPrint)
-						ts << ds->axisValue(0,x).toString();
+						ts << ds->axisValue(0, x).toString();
 					ts << option_->columnDelimiter();
 
 					if (doPrint)
@@ -184,7 +190,7 @@ void VESPERSExporter2DAscii::writeMainTable()
 				}
 
 				if(doPrint && c == indexOfCCDName)
-					ts << QString("%1_%2.spe").arg(ccdFileName).arg(int(ds->value(AMnDIndex(x, y))));
+					ts << QString("%1_%2.spe").arg(ccdFileName).arg(int(ds->value(AMnDIndex(x, y)))-1);	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
 				else if (doPrint)
 					ts << ds->value(AMnDIndex(x, y)).toString();
 
@@ -205,16 +211,40 @@ void VESPERSExporter2DAscii::writeSeparateSections()
 
 bool VESPERSExporter2DAscii::writeSeparateFiles(const QString &destinationFolderPath)
 {
-	// This is cheating for the time being.
-	QFileInfo sourceFileInfo(currentScan_->additionalFilePaths().first());
-	if(sourceFileInfo.isRelative())
-		sourceFileInfo.setFile(AMUserSettings::userDataFolder % "/" % currentScan_->additionalFilePaths().first());
+	for (int s = 0, sSize = separateFileDataSources_.size(); s < sSize; s++) {
 
-	QString originalFileName = sourceFileInfo.absoluteFilePath();
-	QString separateFileName = parseKeywordString( destinationFolderPath % "/" % option_->separateSectionFileName().replace("$dataSetName", "spectra") );
+		setCurrentDataSource(separateFileDataSources_.at(s));	// sets currentDataSourceIndex_
+		AMDataSource* source = currentScan_->dataSourceAt(currentDataSourceIndex_);
 
-	if (QFile::exists(separateFileName))
-		QFile::remove(separateFileName);
+		QFile output;
+		QString separateFileName = parseKeywordString( destinationFolderPath % "/" % option_->separateSectionFileName() );
 
-	return QFile::copy(originalFileName, separateFileName);
+		if(!openFile(&output, separateFileName)) {
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, "Export failed (partially): You selected to create separate files for certain data sets. Could not open the file '" % separateFileName % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));
+			return false;
+		}
+
+		int spectraSize = source->size(2);
+		QString columnDelimiter = option_->columnDelimiter();
+		QString newLineDelimiter = option_->newlineDelimiter();
+		QTextStream out(&output);
+
+		for (int y = 0, ySize = source->size(1); y < ySize; y++){
+
+			for (int x = 0, xSize = source->size(0); x < xSize; x++){
+
+				QVector<double> data(spectraSize);
+				source->values(AMnDIndex(x, y, 0), AMnDIndex(x, y, spectraSize-1), data.data());
+
+				for (int i = 0; i < spectraSize; i++)
+					out << data.at(i) << columnDelimiter;
+
+				out << newLineDelimiter;
+			}
+		}
+
+		output.close();
+	}
+
+	return true;
 }

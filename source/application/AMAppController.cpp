@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMStartScreen.h"
 
 #include "ui/actions3/AMWorkflowView3.h"
+#include "ui/AMAppBottomPanel.h"
 #include "actions3/AMActionRunner3.h"
 #include "actions3/AMActionRegistry3.h"
 #include "actions3/AMLoopAction3.h"
@@ -76,8 +77,8 @@ bool AMAppController::startup(){
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMLoopActionInfo3, AMLoopAction3>("Loop", "This action repeats a set of sub-actions a specific number of times.\n\nAfter adding it, you can drag-and-drop other actions inside it.", ":/32x32/media-playlist-repeat.png");
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMLoopActionInfo3, AMLoopActionEditor3>();
 
-		success &= AMActionRegistry3::s()->registerInfoAndAction<AMSequentialListActionInfo3, AMSequentialListAction3>("Sequential\nList", "This action runs a sequential list of other actions", ":/32x32/media-playlist-repeat.png");
-		success &= AMActionRegistry3::s()->registerInfoAndAction<AMParallelListActionInfo3, AMParallelListAction3>("Parallel\nList", "This action runs a parallel list of other actions.", ":/32x32/media-playlist-repeat.png");
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMSequentialListActionInfo3, AMSequentialListAction3>("Sequential\nList", "This action runs a sequential list of other actions", ":/22x22/viewListInv-22x22.png");
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMParallelListActionInfo3, AMParallelListAction3>("Parallel\nList", "This action runs a parallel list of other actions.", ":/22x22/viewDetaillInv-22x22.png");
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMListActionInfo3, AMListActionEditor3>();
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMControlMoveActionInfo3, AMControlMoveAction3>("Control Move", "Moves a control to an absolute position or a relative position from its current state.", ":system-run.png");
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMControlMoveActionInfo3, AMControlMoveActionEditor3>();
@@ -85,7 +86,7 @@ bool AMAppController::startup(){
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMScanActionInfo, AMScanAction>("Scan Action", "Runs a scan.", ":/spectrum.png", false);
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMScanActionInfo, AMScanActionEditor>();
 
-		success &= AMActionRegistry3::s()->registerInfoAndAction<AMSamplePlateMoveActionInfo, AMSamplePlateMoveAction>("Move Sample Position", "Move to a different marked sample position", ":/32x32/media-playlist-repeat.png");
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMSamplePlateMoveActionInfo, AMSamplePlateMoveAction>("Move Sample Position", "Move to a different marked sample position", ":system-run.png");
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMSamplePlateMoveActionInfo, AMSamplePlateMoveActionEditor>();
 
 		return success;
@@ -98,16 +99,17 @@ bool AMAppController::startupCreateUserInterface() {
 
 	if (AMDatamanAppControllerForActions3::startupCreateUserInterface()){
 		// a heading for the workflow manager...
-		workflowManagerView_ = new AMWorkflowManagerView();
-		mw_->insertHeading("Experiment Tools", 1);
-		mw_->addPane(workflowManagerView_, "Experiment Tools", "WorkflowOld", ":/user-away.png");
+//		workflowManagerView_ = new AMWorkflowManagerView();
+//		mw_->insertHeading("Experiment Tools", 1);
+//		mw_->addPane(workflowManagerView_, "Experiment Tools", "WorkflowOld", ":/user-away.png");
 
 		// add the workflow control UI
 		workflowView_ = new AMWorkflowView3();
+		mw_->insertHeading("Experiment Tools", 1);
 		mw_->addPane(workflowView_, "Experiment Tools", "Workflow", ":/user-away.png");
 		// remove the old one:
-		mw_->removePane(workflowManagerView_);
-		workflowManagerView_->hide();
+//		mw_->removePane(workflowManagerView_);
+//		workflowManagerView_->hide();
 
 		// get the "open scans" section to be under the workflow
 		mw_->windowPaneModel()->removeRow(scanEditorsParentItem_->row());
@@ -130,8 +132,13 @@ bool AMAppController::startupCreateUserInterface() {
 	return false;
 }
 
-
-
+void AMAppController::addBottomPanel()
+{
+	AMAppBottomPanel *panel = new AMAppBottomPanel(AMActionRunner3::workflow());
+	mw_->addBottomWidget(panel);
+	connect(panel, SIGNAL(addExperimentButtonClicked()), this, SLOT(onAddButtonClicked()));
+	bottomPanel_ = panel;
+}
 
 void AMAppController::goToWorkflow() {
 	// This check can be removed when all the old workflow stuff is finally removed
@@ -213,25 +220,10 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 		return;
 	}
 
-//	AMScanConfigurationViewHolder *viewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, view);
-
 	// This is Actions3 stuff.
-//	AMScanConfigurationViewHolder3 *viewHolder = new AMScanConfigurationViewHolder3(view);
-//	viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
-//	viewHolder->show();
-
-	if (!is2D_){
-
-		AMScanConfigurationViewHolder *viewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, view);
-		viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
-		viewHolder->show();
-	}
-	else {
-
-		AM2DScanConfigurationViewHolder *viewHolder = new AM2DScanConfigurationViewHolder( workflowManagerView_, view);
-		viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
-		viewHolder->show();
-	}
+	AMScanConfigurationViewHolder3 *viewHolder = new AMScanConfigurationViewHolder3(view);
+	viewHolder->setAttribute(Qt::WA_DeleteOnClose, true);
+	viewHolder->show();
 }
 
 

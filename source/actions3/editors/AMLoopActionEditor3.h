@@ -40,6 +40,8 @@ public slots:
 protected slots:
 	/// When editing is finished, calls info_->setLoopCount() with the value in the spin box.
 	void onSpinBoxEditingFinished();
+	/// When the info changes, we need to update the view here.
+	void onLoopCountChanged(int val);
 
 protected:
 	QSpinBox* spinBox_;

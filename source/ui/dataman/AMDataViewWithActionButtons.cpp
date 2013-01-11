@@ -53,6 +53,7 @@ AMDataViewWithActionButtons::AMDataViewWithActionButtons(AMDatabase* database, Q
 	connect(dataView_, SIGNAL(compareScansFromDb()), this, SLOT(onCompareScansAction()));
 	connect(dataView_, SIGNAL(exportScansFromDb()), this, SLOT(onExportScansAction()));
 	connect(dataView_, SIGNAL(launchScanConfigurationsFromDb()), this, SLOT(onLaunchScanConfigurationsFromDb()));
+	connect(dataView_, SIGNAL(fixCDF()), this, SLOT(onFixCDF()));
 }
 
 void AMDataViewWithActionButtons::onLaunchScanConfigurationsFromDb()
@@ -61,6 +62,14 @@ void AMDataViewWithActionButtons::onLaunchScanConfigurationsFromDb()
 
 	if(urls.count() > 0)
 		emit launchScanConfigurationsFromDb(urls);
+}
+
+void AMDataViewWithActionButtons::onFixCDF()
+{
+	QList<QUrl> urls = dataView_->selectedItems();
+
+	if (urls.count() == 1)
+		emit fixCDF(urls.at(0));
 }
 
 void AMDataViewWithActionButtons::onDoubleClick()

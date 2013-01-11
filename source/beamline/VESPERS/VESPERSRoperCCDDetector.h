@@ -67,7 +67,7 @@ public:
 	//////////////////////////////////////////////////
 
 	/// Returns the temperature.  This returns the value from the control.
-	virtual double acquireTime() const { return temperatureControl_->value(); }
+	virtual double acquireTime() const { return acquireTimeControl_->value(); }
 	/// Returns the current image mode.
 	ImageMode imageMode() const;
 	/// Returns the trigger mode.

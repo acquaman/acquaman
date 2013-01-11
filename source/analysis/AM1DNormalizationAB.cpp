@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "AM1DNormalizationAB.h"
 
 AM1DNormalizationAB::AM1DNormalizationAB(const QString &outputName, QObject *parent)
@@ -199,7 +218,50 @@ AMNumber AM1DNormalizationAB::value(const AMnDIndex &indexes) const
 	if (double(normalizer_->value(indexes)) == 0)
 		return 0;
 
+	// The normalizer must be positive.
+	if (double(normalizer_->value(indexes)) < 0)
+		return -1;
+
 	return double(data_->value(indexes))/double(normalizer_->value(indexes));
+}
+
+bool AM1DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+{
+	if(indexStart.rank() != 1 || indexEnd.rank() != 1)
+		return false;
+
+	if(!isValid())
+		return false;
+
+	if (!canAnalyze())
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i())
+		return false;
+#endif
+
+	int totalSize = indexStart.totalPointsTo(indexEnd);
+
+	QVector<double> data = QVector<double>(totalSize);
+	QVector<double> normalizer = QVector<double>(totalSize);
+
+	data_->values(indexStart, indexEnd, data.data());
+	normalizer_->values(indexStart, indexEnd, normalizer.data());
+
+	for (int i = 0; i < totalSize; i++){
+
+		if (normalizer.at(i) == 0)
+			outputValues[i] = 0;
+
+		else if (normalizer.at(i) < 0)
+			outputValues[i] = -1;
+
+		else
+			outputValues[i] = data.at(i)/normalizer.at(i);
+	}
+
+	return true;
 }
 
 AMNumber AM1DNormalizationAB::axisValue(int axisNumber, int index) const
@@ -232,10 +294,9 @@ void AM1DNormalizationAB::onInputSourceSizeChanged()
 
 void AM1DNormalizationAB::onInputSourceStateChanged() {
 
-	reviewState();
-
 	// just in case the size has changed while the input source was invalid, and now it's going valid.  Do we need this? probably not, if the input source is well behaved. But it's pretty inexpensive to do it twice... and we know we'll get the size right everytime it goes valid.
 	onInputSourceSizeChanged();
+	reviewState();
 }
 
 void AM1DNormalizationAB::reviewState(){

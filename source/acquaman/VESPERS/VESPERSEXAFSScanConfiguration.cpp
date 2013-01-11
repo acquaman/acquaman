@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSBeamline.h"
 
 VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
-	: AMEXAFSScanConfiguration(parent)
+	: AMEXAFSScanConfiguration(parent), VESPERSScanConfiguration()
 {
 	regions_->setSensibleRange(-30, 40);
 	exafsRegions()->setDefaultEdgeEnergy(0); // Everything for XAS related scans on VESPERS is done using relative energy to the edge on a PV level.
@@ -35,20 +35,18 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	regions_->setDefaultTimeUnits(" s");
 	setName("XAS Scan");
 	setUserScanName("XAS Scan");
-	fluorescenceDetectorChoice_ = None;
-	It_ = Ipost;
-	I0_ = Imini;
+	dbObject_->setParent(this);
+	setFluorescenceDetector(VESPERS::NoXRF);
+	setTransmissionChoice(VESPERS::Ipost);
+	setIncomingChoice(VESPERS::Imini);
 	edge_ = "";
 	energy_ = 0.0;
 	useFixedTime_ = false;
 	numberOfScans_ = 1;
 
-	roiInfoList_ = AMROIInfoList();
-
 	goToPosition_ = false;
 	position_ = qMakePair(0.0, 0.0);
-	totalTime_ = 0;
-	timeOffset_ = 0.7;
+	setExportSpectraSources(true);
 	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
 	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onEXAFSRegionsChanged()));
 	connect(VESPERSBeamline::vespers()->variableIntegrationTime(), SIGNAL(a0Changed(double)), this, SLOT(computeTotalTime()));
@@ -57,7 +55,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 }
 
 VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(const VESPERSEXAFSScanConfiguration &original)
-	: AMEXAFSScanConfiguration(original)
+	: AMEXAFSScanConfiguration(original), VESPERSScanConfiguration(original)
 {
 	regions_->setSensibleStart(original.regions()->sensibleStart());
 	regions_->setSensibleEnd(original.regions()->sensibleEnd());
@@ -79,9 +77,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(const VESPERSEXAFSS
 
 	setName(original.name());
 	setUserScanName(original.userScanName());
-	fluorescenceDetectorChoice_ = original.fluorescenceDetectorChoice();
-	It_ = original.transmissionChoice();
-	I0_ = original.incomingChoice();
+	dbObject_->setParent(this);
 	edge_ = original.edge();
 	energy_ = original.energy();
 	useFixedTime_ = original.useFixedTime();
@@ -89,11 +85,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(const VESPERSEXAFSS
 
 	goToPosition_ = original.goToPosition();
 	position_ = original.position();
-
-	roiInfoList_ = original.roiList();
-
-	timeOffset_ = 0.7;
-	totalTime_ = 0;
+	setExportSpectraSources(original.exportSpectraSources());
 	computeTotalTime();
 	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
 	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onEXAFSRegionsChanged()));
@@ -122,66 +114,14 @@ QString VESPERSEXAFSScanConfiguration::detailedDescription() const
 	return exafsRegions()->hasKSpace() ? QString("VESPERS EXAFS Scan") : QString("VESPERS XANES Scan");
 }
 
-QString VESPERSEXAFSScanConfiguration::readRoiList() const
-{
-	QString prettyRois = "Regions of Interest\n";
-
-	for (int i = 0; i < roiInfoList_.count(); i++)
-		prettyRois.append(roiInfoList_.at(i).name() + "\t" + QString::number(roiInfoList_.at(i).low()) + " eV\t" + QString::number(roiInfoList_.at(i).high()) + " eV\n");
-
-	return prettyRois;
-}
-
 QString VESPERSEXAFSScanConfiguration::headerText() const
 {
 	QString header("Configuration of the Scan\n\n");
 
 	header.append("Scanned Edge:\t" + edge() + "\n");
-
-	switch(fluorescenceDetectorChoice()){
-
-	case None:
-		header.append("Fluorescence Detector:\tNone\n");
-		break;
-	case SingleElement:
-		header.append("Fluorescence Detector:\tSingle Element Vortex Detector\n");
-		break;
-	case FourElement:
-		header.append("Fluorescence Detector:\tFour Element Vortex Detector\n");
-		break;
-	}
-
-	switch(incomingChoice()){
-
-	case Isplit:
-		header.append("I0:\tIsplit - The split ion chamber.\n");
-		break;
-	case Iprekb:
-		header.append("I0:\tIprekb - The ion chamber before the KB mirror box.\n");
-		break;
-	case Imini:
-		header.append("I0:\tImini - The small ion chamber immediately after the KB mirror box.\n");
-		break;
-	case Ipost:
-		header.append("I0:\tIpost - The ion chamber at the end of the beamline.\n");
-		break;
-	}
-
-	switch(transmissionChoice()){
-
-	case Isplit:
-		header.append("It:\tIsplit - The split ion chamber.\n");
-		break;
-	case Iprekb:
-		header.append("It:\tIprekb - The ion chamber before the KB mirror box.\n");
-		break;
-	case Imini:
-		header.append("It:\tImini - The small ion chamber immediately after the KB mirror box.\n");
-		break;
-	case Ipost:
-		header.append("It:\tIpost - The ion chamber at the end of the beamline.\n");
-		break;
-	}
+	header.append(fluorescenceHeaderString(fluorescenceDetector()));
+	header.append(incomingChoiceHeaderString(incomingChoice()));
+	header.append(transmissionChoiceHeaderString(transmissionChoice()));
 
 	header.append(QString("Automatically moved to a specific location (used when setting up the workflow)?\t%1").arg(goToPosition() ? "Yes\n" : "No\n\n"));
 
@@ -191,14 +131,7 @@ QString VESPERSEXAFSScanConfiguration::headerText() const
 		header.append(QString("Vertical Position:\t%1 mm\n\n").arg(y()));
 	}
 
-	if (fluorescenceDetectorChoice() != None){
-
-		header.append("Regions of Interest\n");
-
-		for (int i = 0; i < roiInfoList_.count(); i++)
-			header.append(roiInfoList_.at(i).name() + "\t" + QString::number(roiInfoList_.at(i).low()) + " eV\t" + QString::number(roiInfoList_.at(i).high()) + " eV\n");
-	}
-
+	header.append(regionOfInterestHeaderString(roiList()));
 	header.append("\n");
 	header.append("Regions Scanned\n");
 
@@ -266,7 +199,7 @@ void VESPERSEXAFSScanConfiguration::onEXAFSRegionsChanged()
 	}
 }
 
-void VESPERSEXAFSScanConfiguration::computeTotalTime()
+void VESPERSEXAFSScanConfiguration::computeTotalTimeImplementation()
 {
 	double time = 0;
 
@@ -289,40 +222,8 @@ void VESPERSEXAFSScanConfiguration::computeTotalTime()
 	}
 
 	totalTime_ = time + 9; // There is a 9 second miscellaneous startup delay.
+	setExpectedDuration(totalTime_);
 	emit totalTimeChanged(totalTime_);
-}
-
-void VESPERSEXAFSScanConfiguration::setFluorescenceDetectorChoice(FluorescenceDetector detector)
-{
-	if (fluorescenceDetectorChoice_ != detector){
-
-		fluorescenceDetectorChoice_ = detector;
-		emit fluorescenceDetectorChoiceChanged(fluorescenceDetectorChoice_);
-		emit fluorescenceDetectorChoiceChanged(int(fluorescenceDetectorChoice_));
-		setModified(true);
-	}
-}
-
-void VESPERSEXAFSScanConfiguration::setTransmissionChoice(IonChamber It)
-{
-	if (It_ != It){
-
-		It_ = It;
-		emit transmissionChoiceChanged(It_);
-		emit transmissionChoiceChanged(int(It_));
-		setModified(true);
-	}
-}
-
-void VESPERSEXAFSScanConfiguration::setIncomingChoice(IonChamber I0)
-{
-	if (I0_ != I0){
-
-		I0_ = I0;
-		emit incomingChoiceChanged(I0_);
-		emit incomingChoiceChanged(int(I0_));
-		setModified(true);
-	}
 }
 
 void VESPERSEXAFSScanConfiguration::setEdge(QString edgeName)
@@ -403,18 +304,10 @@ void VESPERSEXAFSScanConfiguration::setNumberOfScans(int num)
 	}
 }
 
-void VESPERSEXAFSScanConfiguration::setTimeOffset(double offset)
+void VESPERSEXAFSScanConfiguration::setExportSpectraSources(bool exportSpectra)
 {
-	if (timeOffset_ != offset){
+	if (exportSpectraSources_ == exportSpectra)
+		return;
 
-		timeOffset_ = offset;
-		computeTotalTime();
-	}
+	exportSpectraSources_ = exportSpectra;
 }
-
-void VESPERSEXAFSScanConfiguration::setRoiInfoList(const AMROIInfoList &list)
-{
-	roiInfoList_ = list;
-	setModified(true);
-}
-

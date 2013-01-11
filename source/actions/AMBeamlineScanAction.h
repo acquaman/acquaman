@@ -110,6 +110,9 @@ protected slots:
 	virtual void onConfigurationDestroyed();
 
 protected:
+	/// Auto export scans.
+	void autoExportScan();
+
 	mutable AMScanConfiguration *cfg_;
 	bool configurationLocked_;
 	AMScanController *ctrl_;

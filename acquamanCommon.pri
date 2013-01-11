@@ -429,7 +429,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/dataman/datasource/AMXYScatterPVDataSource.h \
 	source/beamline/AMCompositeControl.h \
 	source/ui/CLS/CLSSynchronizedDwellTimeView.h \
-	source/analysis/AM2DDeadTimeAB.h \
 	source/dataman/VESPERS/VESPERSXASDataLoader.h \
 	source/dataman/AMFileLoaderInterface.h \
 	source/ui/util/AMSettingsView.h \
@@ -528,7 +527,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/dataman/datasource/AMDataSourceImageDatawDefault.h \
 	source/actions/AMBeamline2DScanAction.h \
 	source/ui/acquaman/AM2DScanConfigurationViewHolder.h \
-	source/util/AMFetchSpectrumThread.h \
 	source/util/AMDataSourcePlotSettings.h \
 	source/util/AMSelectablePeriodicTable.h \
 	source/ui/util/AMSelectablePeriodicTableView.h \
@@ -591,7 +589,18 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/ui/dataman/AMSampleSelector.h \
     source/ui/AMTopFrame2.h \
     source/application/AMDatamanAppControllerForActions2.h \
-    source/application/AMDatamanAppControllerForActions3.h
+    source/application/AMDatamanAppControllerForActions3.h \
+    source/analysis/AM2DAdditionAB.h \
+    source/analysis/AM3DAdditionAB.h \
+    source/analysis/AM3DBinningAB.h \
+    source/analysis/AM3DBinningABEditor.h \
+    source/analysis/AM2DDeadTimeAB.h \
+    source/analysis/AM3DDeadTimeAB.h \
+    source/actions3/editors/AMLiveLoopActionEditor3.h \
+    source/ui/AMBottomPanel.h \
+    source/ui/AMDatamanAppBottomPanel.h \
+    source/ui/AMAppBottomPanel.h \
+    source/ui/actions3/AMActionRunnerBottomBarCurrentView3.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -836,7 +845,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/dataman/datasource/AMXYScatterPVDataSource.cpp \
 	source/beamline/AMCompositeControl.cpp \
 	source/ui/CLS/CLSSynchronizedDwellTimeView.cpp \
-	source/analysis/AM2DDeadTimeAB.cpp \
 	source/dataman/VESPERS/VESPERSXASDataLoader.cpp \
 	source/ui/util/AMSettingsView.cpp \
 	source/dataman/AMScanDictionary.cpp \
@@ -925,7 +933,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/dataman/datasource/AMDataSourceImageDatawDefault.cpp \
 	source/actions/AMBeamline2DScanAction.cpp \
 	source/ui/acquaman/AM2DScanConfigurationViewHolder.cpp \
-	source/util/AMFetchSpectrumThread.cpp \
 	source/util/AMSelectablePeriodicTable.cpp \
 	source/ui/util/AMSelectablePeriodicTableView.cpp \
 	source/ui/dataman/AMDbObjectGeneralView.cpp \
@@ -986,7 +993,18 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/ui/dataman/AMSampleSelector.cpp \
     source/ui/AMTopFrame2.cpp \
     source/application/AMDatamanAppControllerForActions2.cpp \
-    source/application/AMDatamanAppControllerForActions3.cpp
+    source/application/AMDatamanAppControllerForActions3.cpp \
+    source/analysis/AM2DAdditionAB.cpp \
+    source/analysis/AM3DAdditionAB.cpp \
+    source/analysis/AM3DBinningAB.cpp \
+    source/analysis/AM3DBinningABEditor.cpp \
+    source/analysis/AM2DDeadTimeAB.cpp \
+    source/analysis/AM3DDeadTimeAB.cpp \
+    source/actions3/editors/AMLiveLoopActionEditor3.cpp \
+    source/ui/AMBottomPanel.cpp \
+    source/ui/AMDatamanAppBottomPanel.cpp \
+    source/ui/AMAppBottomPanel.cpp \
+    source/ui/actions3/AMActionRunnerBottomBarCurrentView3.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1010,6 +1028,50 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

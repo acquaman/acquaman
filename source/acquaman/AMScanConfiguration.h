@@ -98,6 +98,9 @@ public:
 	/// Returns the useful string version for enum convertable properites. Will return [??] if the property cannot be converted by this scan configuration.
 	virtual QString enumConvert(const QString &enumName, int enumValue) const;
 
+	/// Returns the expected duration of the scan in seconds.
+	double expectedDuration() const { return expectedDuration_; }
+
 	// Virtual functions which must be re-implemented:
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const = 0;
@@ -123,6 +126,9 @@ public slots:
 	/// Sets whether or not this scan configuration expects to be automatically exported
 	void setAutoExportEnabled(bool autoExportEnabled);
 
+	/// Sets the expected duration of the scan.  Input is expected in seconds.
+	void setExpectedDuration(double duration);
+
 signals:
 	/// General signal that something about the configuration has changed
 	void configurationChanged();
@@ -132,6 +138,8 @@ signals:
 	void userExportNameChanged(const QString &userExportName);
 	/// Signal that the autoExport flag has been changed
 	void autoExportEnabledChanged(bool autoExportEnabled);
+	/// Notifier that the expected duration has changed.
+	void expectedDurationChanged(double);
 
 protected:
 	/// A user-defined name for this scan. If left blank an auto-generated name will be used.
@@ -141,6 +149,8 @@ protected:
 
 	/// Defines whether of not this configuration expects to be automatically exported when run (true by default)
 	bool autoExportEnabled_;
+	/// The expected duration.
+	double expectedDuration_;
 };
 
 #endif // ACQMAN_SCANCONFIGURATION_H

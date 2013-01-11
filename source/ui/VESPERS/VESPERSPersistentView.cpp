@@ -56,6 +56,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	realMotors_->setTitle("X & Z");
 	realMotors_->setHorizontalTitle("X");
 	realMotors_->setVerticalTitle("Z");
+	realMotors_->setInvertVerticalDirection(true);
 	realMotors_->hide();
 
 	// PID control view widget.
@@ -110,7 +111,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 
 	// Beam selection and mono energy setting.
 	VESPERSBeamSelectorView *beamSelectorView = new VESPERSBeamSelectorView;
-	connect(VESPERSBeamline::vespers(), SIGNAL(currentBeamChanged(VESPERSBeamline::Beam)), this, SLOT(onBeamChanged(VESPERSBeamline::Beam)));
+	connect(VESPERSBeamline::vespers(), SIGNAL(currentBeamChanged(VESPERS::Beam)), this, SLOT(onBeamChanged(VESPERS::Beam)));
 
 	// Energy (Eo) selection
 	energySetpoint_ = new QDoubleSpinBox;
@@ -294,18 +295,18 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 //    setFixedSize(325, 800);
 }
 
-void VESPERSPersistentView::onBeamChanged(VESPERSBeamline::Beam beam)
+void VESPERSPersistentView::onBeamChanged(VESPERS::Beam beam)
 {
 	switch(beam){
 
-	case VESPERSBeamline::None:
-	case VESPERSBeamline::Pink:
+	case VESPERS::NoBeam:
+	case VESPERS::Pink:
 		energySetpoint_->setEnabled(false);
 		break;
 
-	case VESPERSBeamline::TenPercent:
-	case VESPERSBeamline::OnePointSixPercent:
-	case VESPERSBeamline::Si:
+	case VESPERS::TenPercent:
+	case VESPERS::OnePointSixPercent:
+	case VESPERS::Si:
 		energySetpoint_->setEnabled(true);
 		break;
 	}

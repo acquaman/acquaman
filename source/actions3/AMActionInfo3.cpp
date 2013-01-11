@@ -25,6 +25,7 @@ AMActionInfo3::AMActionInfo3(const QString &shortDescription, const QString & lo
 	  iconFileName_(iconFileName)
 {
 	setName(shortDescription);
+	setShortDescription(shortDescription);
 	expectedDuration_ = -1;
 	canCopy_ = true;
 }
@@ -35,6 +36,7 @@ AMActionInfo3::AMActionInfo3(const AMActionInfo3& other)
 	  iconFileName_(other.iconFileName_)
 {
 	setName(other.name());
+	setShortDescription(other.shortDescription());
 	expectedDuration_ = other.expectedDuration_;
 	canCopy_ = other.canCopy();
 }

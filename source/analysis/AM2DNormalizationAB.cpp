@@ -208,7 +208,7 @@ bool AM2DNormalizationAB::canAnalyze(const QString &dataName, const QString &nor
 
 	return false;
 }
-#include <QDebug>
+
 AMNumber AM2DNormalizationAB::value(const AMnDIndex &indexes) const
 {
 	if (indexes.rank() != 2)
@@ -267,6 +267,7 @@ bool AM2DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &i
 		else
 			outputValues[i] = data.at(i)/normalizer.at(i);
 	}
+
 	return true;
 }
 
@@ -306,10 +307,9 @@ void AM2DNormalizationAB::onInputSourceSizeChanged()
 
 void AM2DNormalizationAB::onInputSourceStateChanged() {
 
-	reviewState();
-
 	// just in case the size has changed while the input source was invalid, and now it's going valid.  Do we need this? probably not, if the input source is well behaved. But it's pretty inexpensive to do it twice... and we know we'll get the size right everytime it goes valid.
 	onInputSourceSizeChanged();
+	reviewState();
 }
 
 void AM2DNormalizationAB::reviewState(){

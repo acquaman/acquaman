@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSConfigurationFileBuilder.h"
 
 #include <QFile>
@@ -12,6 +31,7 @@ VESPERSConfigurationFileBuilder::VESPERSConfigurationFileBuilder(QObject *parent
 	singleElement_ = false;
 	fourElement_ = false;
 	roperCCD_ = false;
+	marCCD_ = false;
 	pvNameAxis1_ = "";
 	pvNameAxis2_ = "";
 }
@@ -48,7 +68,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 
 	if (usingMono){
 
-		moveDelay = 0.1;
+		moveDelay = 0.05;
 		status1  = "SMTR1607-1-B20-20:status";
 		status2 = "";
 		energyFeedback = "07B2_Mono_SineB_Egec:eV";
@@ -56,7 +76,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 
 	else{
 
-		moveDelay = 0.1;
+		moveDelay = 0.05;
 		status1.replace(":mm", ":status");
 		status2.replace(":mm", ":status");
 		energyFeedback = "";
@@ -87,6 +107,13 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 		contents.append("# Action Begin SetPV \"DIO1607-01:CCD:ExtSync.HIGH\" \"0.01\"\n");
 	}
 
+	if (marCCD_){
+
+		contents.append("# Action Begin SetPV \"ccd1607-002:cam1:NumImages\" \"1\"\n");
+		contents.append("# Action Begin SetPV \"ccd1607-002:cam1:NumAcquisitions\" \"1\"\n");
+		contents.append("# Action Begin SetPV \"ccd1607-002:cam1:TriggerMode\" \"1\"\n");
+	}
+
 	if (singleElement_){
 
 		contents.append("# Action Begin SetPV \"IOC1607-004:mca1Status.SCAN\" \".1 second\"\n");
@@ -97,7 +124,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 
 		contents.append("# Action Begin SetPV \"dxp1607-B21-04:StatusAll.SCAN\" \"9\"\n");
 		contents.append("# Action Begin SetPV \"dxp1607-B21-04:ReadAll.SCAN\" \"0\"\n");
-		contents.append("# Action Begin SetPV \"dxp1607-B21-04:ReadDXPs.SCAN\" \"0\"\n");
+		contents.append("# Action Begin SetPV \"dxp1607-B21-04:ReadLLParams.SCAN\" \"0\"\n");
 	}
 
 	contents.append("# Action Begin CallEvent \"background\" 1\n");
@@ -151,7 +178,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 	else if (dimensions_ == 2){
 
 		contents.append(QString("# Action Dwell Delay %1\n").arg(moveDelay));
-		contents.append(QString("# Action Dwell CallScan \"axis1\" 1\n").arg(status2));
+		contents.append(QString("# Action Dwell CallScan \"axis1\" 1\n"));
 	}
 
 	// Finish phase.
@@ -167,7 +194,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 
 		contents.append("# Action Finish SetPV \"dxp1607-B21-04:StatusAll.SCAN\" \"1 second\"\n");
 		contents.append("# Action Finish SetPV \"dxp1607-B21-04:ReadAll.SCAN\" \"1 second\"\n");
-		contents.append("# Action Finish SetPV \"dxp1607-B21-04:ReadDXPs.SCAN\" \"1 second\"\n");
+		contents.append("# Action Finish SetPV \"dxp1607-B21-04:ReadLLParams.SCAN\" \"1 second\"\n");
 	}
 
 	if (usingMono){
@@ -223,7 +250,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 	if (dimensions_ == 2)
 		contents.append(QString("# PV 1: \"%1\" disable:0 format:\"\%.4f\" spectrum:0 ready:0\n").arg(pvNameAxis2_));
 
-	for (int i = 0; i <= 90-dimensions_; i++)
+	for (int i = 0; i <= 120-dimensions_; i++)
 		contents.append(QString("# PV %1: \"Goober\", disable:0 spectrum:0 ready:0\n").arg(i+dimensions_));
 
 	// Event "background"
@@ -246,7 +273,21 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 		contents.append("# PV 3: \"$(EnergyFeedback)\" disable:0 format:\"\%10.6f\" spectrum:0 ready:0\n");
 		contents.append("# PV 4: \"$(acqDwellmSec)\" disable:0 spectrum:0 ready:0\n");
 
-		if (singleElement_){
+		if (singleElement_ && fourElement_){
+
+			contents.append("# PV 5: \"IOC1607-004:mca1.PRTM\" disable:0 spectrum:0 ready:0\n");
+			contents.append("# PV 6: \"IOC1607-003:det1:ActualSeconds\" disable:0 spectrum:0 ready:0\n");
+			contents.append("# PV 7: \"$(DXP_PKTIM)\" disable:0 spectrum:0 ready:0\n");
+			contents.append("# PV 8: \"$(DXP_GAPTIM)\" disable:0 spectrum:0 ready:0\n");
+			contents.append("# PV 9: \"$(DXP_EMAX)\" disable:0 spectrum:0 ready:0\n");
+			contents.append("# PV 10: \"$(4Elem):PresetReal\" disable:0 spectrum:0 ready:0\n");
+			contents.append("# PV 11: \"$(4Elem):EnergyPkTime\" disable:0 format:\"PkTime=\%.2f\" spectrum:0 ready:0\n");
+			contents.append("# PV 12: \"$(4ElemDXP)1.GAPTIM\" disable:0 format:\"GapTime=\%.2f\" spectrum:0 ready:0\n");
+			contents.append("# PV 13: \"$(4Elem):mcaEMax\" disable:0 spectrum:0 ready:0\n");
+			contents.append("# PV 14: \"$(4ElemMCA)Corrected.NUSE\" disable:0 spectrum:0 ready:0\n");
+		}
+
+		else if (singleElement_){
 
 			contents.append("# PV 5: \"IOC1607-004:mca1.PRTM\" disable:0 spectrum:0 ready:0\n");
 			contents.append("# PV 6: \"IOC1607-003:det1:ActualSeconds\" disable:0 spectrum:0 ready:0\n");
@@ -254,6 +295,7 @@ bool VESPERSConfigurationFileBuilder::buildConfigurationFile()
 			contents.append("# PV 8: \"$(DXP_GAPTIM)\" disable:0 spectrum:0 ready:0\n");
 			contents.append("# PV 9: \"$(DXP_EMAX)\" disable:0 spectrum:0 ready:0\n");
 		}
+
 		else if (fourElement_){
 
 			contents.append("# PV 5: \"$(4Elem):PresetReal\" disable:0 spectrum:0 ready:0\n");

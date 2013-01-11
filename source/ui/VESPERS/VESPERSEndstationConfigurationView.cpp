@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSEndstationConfigurationView.h"
 
 #include <QVBoxLayout>
@@ -111,23 +130,23 @@ void VESPERSEndstationConfigurationView::onGeometryClicked(int id)
 	switch(id){
 
 	case 1:	// Straight on.
-		endstation_->setGeometry(VESPERSEndstationConfiguration::StraightOn);
+		endstation_->setGeometry(VESPERS::StraightOn);
 		break;
 
 	case 2:	// Vertical 45.
-		endstation_->setGeometry(VESPERSEndstationConfiguration::Single45Vertical);
+		endstation_->setGeometry(VESPERS::Single45Vertical);
 		break;
 
 	case 3:	// Horizontal 45.
-		endstation_->setGeometry(VESPERSEndstationConfiguration::Single45Horizontal);
+		endstation_->setGeometry(VESPERS::Single45Horizontal);
 		break;
 
 	case 4:	// Double 45.
-		endstation_->setGeometry(VESPERSEndstationConfiguration::Double45);
+		endstation_->setGeometry(VESPERS::Double45);
 		break;
 
 	case 5:	// Big beam.
-		endstation_->setGeometry(VESPERSEndstationConfiguration::BigBeam);
+		endstation_->setGeometry(VESPERS::BigBeam);
 		break;
 	}
 
@@ -201,12 +220,12 @@ void VESPERSEndstationConfigurationView::updatePixmap()
 {
 	switch(endstation_->geometry()){
 
-	case VESPERSEndstationConfiguration::Invalid:
+	case VESPERS::Invalid:
 
 		cartoon_->setPixmap(endstationPixmap("endstation-unselected.png"));
 		break;
 
-	case VESPERSEndstationConfiguration::StraightOn:
+	case VESPERS::StraightOn:
 
 		if (endstation_->usingIonChambers() && endstation_->usingSingleElementVortex())
 			cartoon_->setPixmap(endstationPixmap("endstation-straight-on-ionChambers-vortex1"));
@@ -222,7 +241,7 @@ void VESPERSEndstationConfigurationView::updatePixmap()
 
 		break;
 
-	case VESPERSEndstationConfiguration::Single45Vertical:
+	case VESPERS::Single45Vertical:
 
 		if (endstation_->usingIonChambers() && endstation_->usingSingleElementVortex() && endstation_->usingRoperCCD())
 			cartoon_->setPixmap(endstationPixmap("endstation-vertical45-ionChambers-vortex1-roperCCD"));
@@ -250,7 +269,7 @@ void VESPERSEndstationConfigurationView::updatePixmap()
 
 		break;
 
-	case VESPERSEndstationConfiguration::Single45Horizontal:
+	case VESPERS::Single45Horizontal:
 
 		if (endstation_->usingIonChambers() && endstation_->usingFourElementVortex())
 			cartoon_->setPixmap(endstationPixmap("endstation-horizontal45-ionChambers-vortex4"));
@@ -266,7 +285,7 @@ void VESPERSEndstationConfigurationView::updatePixmap()
 
 		break;
 
-	case VESPERSEndstationConfiguration::Double45:
+	case VESPERS::Double45:
 
 		if (endstation_->usingIonChambers() && endstation_->usingFourElementVortex() && endstation_->usingRoperCCD())
 			cartoon_->setPixmap(endstationPixmap("endstation-double45-ionChambers-vortex4-roperCCD"));
@@ -294,7 +313,7 @@ void VESPERSEndstationConfigurationView::updatePixmap()
 
 		break;
 
-	case VESPERSEndstationConfiguration::BigBeam:
+	case VESPERS::BigBeam:
 
 		if (endstation_->usingIonChambers() && endstation_->usingFourElementVortex())
 			cartoon_->setPixmap(endstationPixmap("endstation-big-beam-ionChambers-vortex4"));

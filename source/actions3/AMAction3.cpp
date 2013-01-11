@@ -126,6 +126,25 @@ bool AMAction3::resume()
 	return false;	// cannot resume from any other states except Pause.
 }
 
+bool AMAction3::skip(const QString &command)
+{
+	if (!canSkip()){
+
+		AMErrorMon::debug(this, AMACTION3_CANNOT_SKIP_NOT_POSSIBLE, "Tried to skip an action that doesn't support skipping.");
+		return false;
+	}
+
+	if (canChangeState(Skipping)){
+
+		setState(Skipping);
+		skipImplementation(command);
+		return true;
+	}
+
+	AMErrorMon::debug(this, AMACTION3_CANNOT_SKIP_NOT_CURRENTLY_RUNNING, "Could not skip this action because it was not running to begin with.");
+	return false;
+}
+
 void AMAction3::setStarted()
 {
 	if (canChangeState(Running)){
@@ -201,6 +220,11 @@ void AMAction3::setCancelled()
 		AMErrorMon::debug(this, AMACTION3_NOTIFIED_CANCELLED_BUT_NOT_YET_POSSIBLE, "An action notified us it was cancelled before we could possibly cancel it.");
 }
 
+void AMAction3::setSkipped()
+{
+	setSucceeded();
+}
+
 #include <QMessageBox>
 #include <QStringBuilder>
 #include <QPushButton>
@@ -228,6 +252,8 @@ QString AMAction3::stateDescription(AMAction3::State state)
 		return "Succeeded";
 	case Failed:
 		return "Failed";
+	case Skipping:
+		return "Skipping";
 	default:
 		return "Invalid State";
 	}
@@ -289,13 +315,18 @@ bool AMAction3::canChangeState(State newState) const
 		break;
 
 	case Succeeded:
-		if (state_ == Running || state_ == Starting)
+		if (state_ == Running || state_ == Starting || state_ == Skipping)
 			canTransition = true;
 		break;
 
 	case Failed:
 		if (state_ == Starting || state_ == Running || state_ == Pausing
-				|| state_ == Paused || state_ == Resuming || state_ == Cancelling)
+				|| state_ == Paused || state_ == Resuming || state_ == Cancelling || Skipping)
+			canTransition = true;
+		break;
+
+	case Skipping:
+		if (canSkip() && state_ == Running)
 			canTransition = true;
 		break;
 	}
