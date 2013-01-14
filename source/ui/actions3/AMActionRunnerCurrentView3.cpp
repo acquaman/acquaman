@@ -78,6 +78,8 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 	progressBar_->setStyleSheet("#progressBar { border: 1px solid black; color: white; border-radius: 7px; background: gray; } #progressBar::chunk { background: rgb(60,119,197); border-radius: 7px; border: 0px; }");
 	progressBar_->setMaximumWidth(600);
 	progressBar_->setAlignment(Qt::AlignCenter);
+	progressBar_->setRange(0,1);
+	progressBar_->setValue(0);
 	hl->addWidget(progressBar_, 1);
 	hl->addSpacing(10);
 	timeRemainingLabel_ = new QLabel("-:--");
