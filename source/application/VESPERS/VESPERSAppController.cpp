@@ -241,9 +241,9 @@ void VESPERSAppController::setupUserInterface()
 	// Setup the XRF views for the single element vortex and the four element vortex detectors.  Since they have scans that are added to the workflow, it gets the workflow manager view passed into it as well.
 	// This means that the FreeRunView kind of doubles as a regular detector view and a configuration view holder.
 	xrf1ElFreeRun_ = new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF1E());
-	xrf1EFreeRunView_ = new VESPERSXRFFreeRunView(xrf1ElFreeRun_, workflowManagerView_);
+	xrf1EFreeRunView_ = new VESPERSXRFFreeRunView(xrf1ElFreeRun_);
 	xrf4ElFreeRun_ = new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF4E());
-	xrf4EFreeRunView_ = new VESPERSXRFFreeRunView(xrf4ElFreeRun_, workflowManagerView_);
+	xrf4EFreeRunView_ = new VESPERSXRFFreeRunView(xrf4ElFreeRun_);
 
 	roperCCDView_ = new VESPERSRoperCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
 	marCCDView_ = new VESPERSMarCCDDetectorView(VESPERSBeamline::vespers()->marCCD());
