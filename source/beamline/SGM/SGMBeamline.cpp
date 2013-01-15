@@ -501,29 +501,29 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	transferLoadLockInControlSet_->addControl(loadlockCCG_);
 	transferLoadLockInControlSet_->addControl(loadlockTCG_);
 
-	detectorMap_ = new QMultiMap<AMDetector*, QPair<AMDetectorSet*, bool> >();
+	detectorMap_ = new QMultiMap<AMOldDetector*, QPair<AMOldDetectorSet*, bool> >();
 
-	criticalDetectorsSet_ = new AMDetectorSet(this);
+	criticalDetectorsSet_ = new AMOldDetectorSet(this);
 	criticalDetectorsSet_->setName("Critical Beamline Detectors");
-	rawDetectorsSet_ = new AMDetectorSet(this);
+	rawDetectorsSet_ = new AMOldDetectorSet(this);
 	rawDetectorsSet_->setName("All possible detectors for SGM Beamline");
 	connect(criticalDetectorsSet_, SIGNAL(connected(bool)), this, SLOT(onCriticalsConnectedChanged()));
 	connect(criticalDetectorsSet_, SIGNAL(detectorAdded(int)), this, SLOT(recomputeWarnings()));
 	connect(criticalDetectorsSet_, SIGNAL(detectorRemoved(int)), this, SLOT(recomputeWarnings()));
 
-	allDetectors_ = new AMDetectorSet(this);
+	allDetectors_ = new AMOldDetectorSet(this);
 	allDetectors_->setName("All Detectors");
 
-	feedbackDetectors_ = new AMDetectorSet(this);
+	feedbackDetectors_ = new AMOldDetectorSet(this);
 	feedbackDetectors_->setName("Feedback Detectors");
 
-	XASDetectors_ = new AMDetectorSet(this);
+	XASDetectors_ = new AMOldDetectorSet(this);
 	XASDetectors_->setName("XAS Detectors");
 
-	FastDetectors_ = new AMDetectorSet(this);
+	FastDetectors_ = new AMOldDetectorSet(this);
 	FastDetectors_->setName("Fast Scan Detectors");
 
-	teyScalerDetector_ = new AMSingleReadOnlyControlDetector("teyScaler", "BL1611-ID-1:mcs00:fbk", AMDetector::WaitRead, this);
+	teyScalerDetector_ = new AMSingleReadOnlyControlDetector("teyScaler", "BL1611-ID-1:mcs00:fbk", AMOldDetector::WaitRead, this);
 	teyScalerDetector_->setDescription("TEY");
 	detectorRegistry_.append(teyScalerDetector_);
 	detectorMap_->insert(teyScalerDetector_, qMakePair(allDetectors(), false));
@@ -531,10 +531,10 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	detectorMap_->insert(teyScalerDetector_, qMakePair(FastDetectors(), true));
 	criticalDetectorsSet_->addDetector(teyScalerDetector_);
 	rawDetectorsSet_->addDetector(teyScalerDetector_);
-	connect(teyScalerDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
+	connect(teyScalerDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
 
-	tfyScalerDetector_ = new AMSingleReadOnlyControlDetector("tfyScaler", "BL1611-ID-1:mcs02:fbk", AMDetector::WaitRead, this);
+	tfyScalerDetector_ = new AMSingleReadOnlyControlDetector("tfyScaler", "BL1611-ID-1:mcs02:fbk", AMOldDetector::WaitRead, this);
 	tfyScalerDetector_->setDescription("TFY Diode");
 	detectorRegistry_.append(tfyScalerDetector_);
 	detectorMap_->insert(tfyScalerDetector_, qMakePair(allDetectors(), false));
@@ -542,120 +542,120 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	detectorMap_->insert(tfyScalerDetector_, qMakePair(FastDetectors(), true));
 	criticalDetectorsSet_->addDetector(tfyScalerDetector_);
 	rawDetectorsSet_->addDetector(tfyScalerDetector_);
-	connect(tfyScalerDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
+	connect(tfyScalerDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 	//connect(tfyHVToggle_, SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
 
-	pgtDetector_ = new CLSPGTDetector("pgt", "MCA1611-01", createHVPGTOnActions(), createHVPGTOffActions(), AMDetector::WaitRead, this);
+	pgtDetector_ = new CLSPGTDetector("pgt", "MCA1611-01", createHVPGTOnActions(), createHVPGTOffActions(), AMOldDetector::WaitRead, this);
 	pgtDetector_->setDescription("SDD");
 	detectorRegistry_.append(pgtDetector_);
-	connect(pgtDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
+	connect(pgtDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 	detectorMap_->insert(pgtDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(pgtDetector_, qMakePair(XASDetectors(), false));
 	criticalDetectorsSet_->addDetector(pgtDetector_);
 	rawDetectorsSet_->addDetector(pgtDetector_);
 
-	oos65000Detector_ = new CLSOceanOptics65000Detector("oos65000", "SA0000-03", AMDetector::WaitRead, this);
+	oos65000Detector_ = new CLSOceanOptics65000Detector("oos65000", "SA0000-03", AMOldDetector::WaitRead, this);
 	oos65000Detector_->setDescription("OceanOptics 65000");
 	detectorRegistry_.append(oos65000Detector_);
-	connect(oos65000Detector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
+	connect(oos65000Detector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 	detectorMap_->insert(oos65000Detector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(oos65000Detector_, qMakePair(XASDetectors(), false));
 	rawDetectorsSet_->addDetector(oos65000Detector_);
 
-	i0ScalerDetector_ = new AMSingleReadOnlyControlDetector("I0Scaler", "BL1611-ID-1:mcs01:fbk", AMDetector::WaitRead, this);
+	i0ScalerDetector_ = new AMSingleReadOnlyControlDetector("I0Scaler", "BL1611-ID-1:mcs01:fbk", AMOldDetector::WaitRead, this);
 	i0ScalerDetector_->setDescription("I0");
 	detectorRegistry_.append(i0ScalerDetector_);
 	detectorMap_->insert(i0ScalerDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(i0ScalerDetector_, qMakePair(feedbackDetectors(), false));
 	criticalDetectorsSet_->addDetector(i0ScalerDetector_);
 	rawDetectorsSet_->addDetector(i0ScalerDetector_);
-	connect(i0ScalerDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
+	connect(i0ScalerDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
-	eVFbkDetector_ = new AMSingleReadOnlyControlDetector("eVFbk", "BL1611-ID-1:Energy:fbk", AMDetector::ImmediateRead, this);
+	eVFbkDetector_ = new AMSingleReadOnlyControlDetector("eVFbk", "BL1611-ID-1:Energy:fbk", AMOldDetector::ImmediateRead, this);
 	eVFbkDetector_->setDescription("Energy Feedback");
 	detectorRegistry_.append(eVFbkDetector_);
 	detectorMap_->insert(eVFbkDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(eVFbkDetector_, qMakePair(feedbackDetectors(), false));
 	criticalDetectorsSet_->addDetector(eVFbkDetector_);
 	rawDetectorsSet_->addDetector(eVFbkDetector_);
-	connect(eVFbkDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
+	connect(eVFbkDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
-	photodiodeScalerDetector_ = new AMSingleReadOnlyControlDetector("photodiodeScaler", "BL1611-ID-1:mcs03:fbk", AMDetector::WaitRead, this);
+	photodiodeScalerDetector_ = new AMSingleReadOnlyControlDetector("photodiodeScaler", "BL1611-ID-1:mcs03:fbk", AMOldDetector::WaitRead, this);
 	photodiodeScalerDetector_->setDescription("Photodiode");
 	detectorRegistry_.append(photodiodeScalerDetector_);
 	detectorMap_->insert(photodiodeScalerDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(photodiodeScalerDetector_, qMakePair(feedbackDetectors(), false));
 	criticalDetectorsSet_->addDetector(photodiodeScalerDetector_);
 	rawDetectorsSet_->addDetector(photodiodeScalerDetector_);
-	connect(photodiodeScalerDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
+	connect(photodiodeScalerDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
-	encoderUpDetector_ = new AMSingleReadOnlyControlDetector("encoderUp", "BL1611-ID-1:mcs04:fbk", AMDetector::WaitRead, this);
+	encoderUpDetector_ = new AMSingleReadOnlyControlDetector("encoderUp", "BL1611-ID-1:mcs04:fbk", AMOldDetector::WaitRead, this);
 	encoderUpDetector_->setDescription("Encoder Up Counts");
 	detectorRegistry_.append(encoderUpDetector_);
 	detectorMap_->insert(encoderUpDetector_, qMakePair(allDetectors(), false));
 	rawDetectorsSet_->addDetector(encoderUpDetector_);
-	connect(encoderUpDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
+	connect(encoderUpDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
-	encoderDownDetector_ = new AMSingleReadOnlyControlDetector("encoderDown", "BL1611-ID-1:mcs04:fbk", AMDetector::WaitRead, this);
+	encoderDownDetector_ = new AMSingleReadOnlyControlDetector("encoderDown", "BL1611-ID-1:mcs04:fbk", AMOldDetector::WaitRead, this);
 	encoderDownDetector_->setDescription("Encoder Down Counts");
 	detectorRegistry_.append(encoderDownDetector_);
 	rawDetectorsSet_->addDetector(encoderDownDetector_);
 	detectorMap_->insert(encoderDownDetector_, qMakePair(allDetectors(), false));
-	connect(encoderDownDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
+	connect(encoderDownDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
-	ringCurrentDetector_ = new AMSingleReadOnlyControlDetector("ringCurrent", "PCT1402-01:mA:fbk", AMDetector::ImmediateRead, this);
+	ringCurrentDetector_ = new AMSingleReadOnlyControlDetector("ringCurrent", "PCT1402-01:mA:fbk", AMOldDetector::ImmediateRead, this);
 	ringCurrentDetector_->setDescription("Ring Current");
 	detectorRegistry_.append(ringCurrentDetector_);
 	rawDetectorsSet_->addDetector(ringCurrentDetector_);
 	detectorMap_->insert(ringCurrentDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(ringCurrentDetector_, qMakePair(feedbackDetectors(), false));
-	connect(ringCurrentDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
+	connect(ringCurrentDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
-	filterPD1ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD1Current", "BL1611-ID-1:mcs06:fbk", AMDetector::ImmediateRead, this);
+	filterPD1ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD1Current", "BL1611-ID-1:mcs06:fbk", AMOldDetector::ImmediateRead, this);
 	filterPD1ScalarDetector_->setDescription("Aux 1 Diode");
 	detectorRegistry_.append(filterPD1ScalarDetector_);
 	rawDetectorsSet_->addDetector(filterPD1ScalarDetector_);
 	detectorMap_->insert(filterPD1ScalarDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(filterPD1ScalarDetector_, qMakePair(XASDetectors(), false));
-	connect(filterPD1ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
+	connect(filterPD1ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
-	filterPD2ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD2Current", "BL1611-ID-1:mcs07:fbk", AMDetector::ImmediateRead, this);
+	filterPD2ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD2Current", "BL1611-ID-1:mcs07:fbk", AMOldDetector::ImmediateRead, this);
 	filterPD2ScalarDetector_->setDescription("Aux 2 Diode");
 	detectorRegistry_.append(filterPD2ScalarDetector_);
 	rawDetectorsSet_->addDetector(filterPD2ScalarDetector_);
 	detectorMap_->insert(filterPD2ScalarDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(filterPD2ScalarDetector_, qMakePair(XASDetectors(), false));
-	connect(filterPD2ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
+	connect(filterPD2ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
-	filterPD3ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD3Current", "BL1611-ID-1:mcs08:fbk", AMDetector::ImmediateRead, this);
+	filterPD3ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD3Current", "BL1611-ID-1:mcs08:fbk", AMOldDetector::ImmediateRead, this);
 	filterPD3ScalarDetector_->setDescription("Aux 3 Diode");
 	detectorRegistry_.append(filterPD3ScalarDetector_);
 	rawDetectorsSet_->addDetector(filterPD3ScalarDetector_);
 	detectorMap_->insert(filterPD3ScalarDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(filterPD3ScalarDetector_, qMakePair(XASDetectors(), false));
-	connect(filterPD3ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
+	connect(filterPD3ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
-	filterPD4ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD4Current", "BL1611-ID-1:mcs09:fbk", AMDetector::ImmediateRead, this);
+	filterPD4ScalarDetector_ = new AMSingleReadOnlyControlDetector("filterPD4Current", "BL1611-ID-1:mcs09:fbk", AMOldDetector::ImmediateRead, this);
 	filterPD4ScalarDetector_->setDescription("Aux 4 Diode");
 	detectorRegistry_.append(filterPD4ScalarDetector_);
 	rawDetectorsSet_->addDetector(filterPD4ScalarDetector_);
 	detectorMap_->insert(filterPD4ScalarDetector_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(filterPD4ScalarDetector_, qMakePair(XASDetectors(), false));
-	connect(filterPD4ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
+	connect(filterPD4ScalarDetector_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
-	amptekSDD1_ = new CLSAmptekSDD123Detector("AmptekSDD1", "amptek:sdd1", AMDetector::WaitRead, this);
+	amptekSDD1_ = new CLSAmptekSDD123Detector("AmptekSDD1", "amptek:sdd1", AMOldDetector::WaitRead, this);
 	detectorRegistry_.append(amptekSDD1_);
 	rawDetectorsSet_->addDetector(amptekSDD1_);
 	detectorMap_->insert(amptekSDD1_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(amptekSDD1_, qMakePair(XASDetectors(), false));
-	connect(amptekSDD1_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
+	connect(amptekSDD1_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
-	amptekSDD2_ = new CLSAmptekSDD123Detector("AmptekSDD2", "amptek:sdd2", AMDetector::WaitRead, this);
+	amptekSDD2_ = new CLSAmptekSDD123Detector("AmptekSDD2", "amptek:sdd2", AMOldDetector::WaitRead, this);
 	detectorRegistry_.append(amptekSDD2_);
 	rawDetectorsSet_->addDetector(amptekSDD2_);
 	detectorMap_->insert(amptekSDD2_, qMakePair(allDetectors(), false));
 	detectorMap_->insert(amptekSDD2_, qMakePair(XASDetectors(), false));
-	connect(amptekSDD2_->signalSource(), SIGNAL(availabilityChagned(AMDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)));
+	connect(amptekSDD2_->signalSource(), SIGNAL(availabilityChagned(AMOldDetector*,bool)), this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
 	unrespondedDetectors_ = detectorRegistry_;
 	QTimer::singleShot(10000, this, SLOT(ensureDetectorTimeout()));
@@ -694,7 +694,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 
 	sampleManipulator_ = new AMControlSetSampleManipulator(ssaManipulatorSet_);
 
-	connect(this, SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)), this, SLOT(onDetectorAvailabilityChanged(AMDetector*,bool)));
+	connect(this, SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)), this, SLOT(onDetectorAvailabilityChanged(AMOldDetector*,bool)));
 
 	currentSamplePlate_ = 0;//NULL
 
@@ -895,7 +895,7 @@ AMBeamlineActionItem* SGMBeamline::createSDD2EnableAction(bool setEnabled){
 	return 0;
 }
 
-int SGMBeamline::synchronizedDwellTimeDetectorIndex(AMDetector *detector) const{
+int SGMBeamline::synchronizedDwellTimeDetectorIndex(AMOldDetector *detector) const{
 	if(detector == pgtDetector_)
 		return 2;
 	else if(detector == oos65000Detector_)
@@ -1361,10 +1361,10 @@ QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> SGMBeamline::forBestRes
 		return QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>(SGMBeamline::highGrating, SGMBeamline::thirdHarmonic);
 }
 
-QList<AMDetector*> SGMBeamline::possibleDetectorsForSet(AMDetectorSet *set){
-	QPair<AMDetectorSet*, bool> tempDetectorSet;
-	QList<AMDetector*> retVal;
-	QMultiMap<AMDetector*, QPair<AMDetectorSet*, bool> >::iterator i = detectorMap_->begin();
+QList<AMOldDetector*> SGMBeamline::possibleDetectorsForSet(AMOldDetectorSet *set){
+	QPair<AMOldDetectorSet*, bool> tempDetectorSet;
+	QList<AMOldDetector*> retVal;
+	QMultiMap<AMOldDetector*, QPair<AMOldDetectorSet*, bool> >::iterator i = detectorMap_->begin();
 	while(i != detectorMap_->end()){
 		tempDetectorSet = i.value();
 		if(tempDetectorSet.first == set)
@@ -1532,8 +1532,8 @@ void SGMBeamline::onVisibleLightChanged(double value){
 		emit visibleLightStatusChanged("Visible Light\n is OFF");
 }
 
-void SGMBeamline::onDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable){
-	QList<QPair<AMDetectorSet*, bool> > detectorSets = detectorMap_->values(detector);
+void SGMBeamline::onDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable){
+	QList<QPair<AMOldDetectorSet*, bool> > detectorSets = detectorMap_->values(detector);
 	if(isAvailable){
 
 		bool hasDetector;

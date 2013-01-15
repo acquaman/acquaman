@@ -31,11 +31,11 @@ CLSAmptekSDD123BriefDetectorView::CLSAmptekSDD123BriefDetectorView(CLSAmptekSDD1
 	setDetector(detector, configureOnly);
 }
 
-AMDetector* CLSAmptekSDD123BriefDetectorView::detector(){
+AMOldDetector* CLSAmptekSDD123BriefDetectorView::detector(){
 	return detector_;
 }
 
-bool CLSAmptekSDD123BriefDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool CLSAmptekSDD123BriefDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	/* NTBA - April 3rd, 2012 (David Chevrier)
 	Need to implement the configureOnly part.
 	*/
@@ -65,11 +65,11 @@ CLSAmptekSDD123DetailedDetectorView::CLSAmptekSDD123DetailedDetectorView(CLSAmpt
 	setDetector(detector, configureOnly);
 }
 
-AMDetector* CLSAmptekSDD123DetailedDetectorView::detector(){
+AMOldDetector* CLSAmptekSDD123DetailedDetectorView::detector(){
 	return detector_;
 }
 
-AMDetectorInfo* CLSAmptekSDD123DetailedDetectorView::configurationSettings() const{
+AMOldDetectorInfo* CLSAmptekSDD123DetailedDetectorView::configurationSettings() const{
 	return configurationSettings_;
 }
 
@@ -77,7 +77,7 @@ MPlot* CLSAmptekSDD123DetailedDetectorView::plot() const{
 	return plot_;
 }
 
-bool CLSAmptekSDD123DetailedDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool CLSAmptekSDD123DetailedDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	/* NTBA - April 3rd, 2012 (David Chevrier)
 	Need to implement the configureOnly part.
 	*/

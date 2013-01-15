@@ -20,9 +20,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERSMARCCDDETECTORINFO_H
 #define VESPERSMARCCDDETECTORINFO_H
 
-#include "dataman/info/AMDetectorInfo.h"
+#include "dataman/info/AMOldDetectorInfo.h"
 
-class VESPERSMarCCDDetectorInfo : public AMDetectorInfo
+class VESPERSMarCCDDetectorInfo : public AMOldDetectorInfo
 {
 	Q_OBJECT
 
@@ -37,7 +37,7 @@ public:
 	VESPERSMarCCDDetectorInfo(const VESPERSMarCCDDetectorInfo &original);
 
 	/// Creates a new info pointer from this one, caller is responsible for memory.
-	virtual AMDetectorInfo *toNewInfo() const { return new AMDetectorInfo(*this); }
+	virtual AMOldDetectorInfo *toNewInfo() const { return new AMOldDetectorInfo(*this); }
 
 	/// = implementation.
 	VESPERSMarCCDDetectorInfo &operator =(const VESPERSMarCCDDetectorInfo &other);

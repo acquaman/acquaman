@@ -37,7 +37,7 @@ Q_OBJECT
 public:
 	Q_INVOKABLE explicit CLSPGTBriefDetectorView(CLSPGTDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
 
-	AMDetector* detector();
+	AMOldDetector* detector();
 
 protected slots:
 	void onPoweredOnChanged(bool poweredOn);
@@ -50,7 +50,7 @@ protected:
 	CLSPGTDetector *detector_;
 
 	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
-	bool setDetector(AMDetector *detector, bool configureOnly = false);
+	bool setDetector(AMOldDetector *detector, bool configureOnly = false);
 };
 
 //class CLSPGTDetailedDetectorView : public AMDetailedDetectorView
@@ -96,9 +96,9 @@ public:
 	Q_INVOKABLE explicit CLSPGTDetailedDetectorView(CLSPGTDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
 
 	/// Returns a pointer to the detector being view
-	AMDetector* detector();
+	AMOldDetector* detector();
 	/// The view is managing this created object, hook up to destroyed() if you need long-term notification
-	AMDetectorInfo* configurationSettings() const;
+	AMOldDetectorInfo* configurationSettings() const;
 	/// Returns a pointer to the plot
 	MPlot* plot() const;
 
@@ -117,7 +117,7 @@ protected slots:
 protected:
 	/*! Sets up the view based with the given detector.
 	 We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type. */
-	bool setDetector(AMDetector *detector, bool configureOnly);
+	bool setDetector(AMOldDetector *detector, bool configureOnly);
 
 protected:
 	/// The pointer to the detector

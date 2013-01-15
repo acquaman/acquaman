@@ -1,138 +1,34 @@
-/*
-Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
-
-This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
-
-Acquaman is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Acquaman is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
 #include "AMDetector.h"
 
-AMDetectorSignalSource::AMDetectorSignalSource(AMDetector *parent)
-	: QObject() {
-	detector_ = parent;
-}
-
-void AMDetectorSignalSource::emitConnected(bool isConnected) {
-	emit connected(isConnected);
-	emit availabilityChagned(detector(), isConnected);
-}
-
-void AMDetectorSignalSource::emitInfoChanged() {
-	emit infoChanged();
-}
-
-void AMDetectorSignalSource::emitReadingsChanged(){
-	emit readingsChanged();
-}
-
-void AMDetectorSignalSource::emitSettingsChanged() {
-	emit settingsChanged();
-}
-
-void AMDetectorSignalSource::emitDeleted() {
-	emit deleted(detector_);
-}
-
-
-
-AMDetector::AMDetector(const QString &name, AMDetector::ReadMethod readMethod)
-	: name_(name)
+AMDetector::AMDetector(const QString &name, const QString &description, QObject *parent) :
+	QObject(parent)
 {
-	readMethod_ = readMethod;
+	setObjectName(name);
+	description_ = description;
+
 	connected_ = false;
-	signalSource_ = new AMDetectorSignalSource(this);
+	readyForAcquisition_ = false;
 }
 
-AMDetector::~AMDetector() {
-	signalSource_->emitDeleted();
-	delete signalSource_;
-	signalSource_ = 0;
-}
-
-AMDetectorSignalSource* AMDetector::signalSource() const {
-	return signalSource_;
-}
-
-bool AMDetector::isConnected() const{
-	return connected_;
-}
-
-const QMetaObject* AMDetector::getMetaObject() {
-	return 0;
-}
-
-AMDetector::ReadMethod AMDetector::readMethod() const{
-	return readMethod_;
-}
-
-QString AMDetector::dacqName() const{
-	return "";
-}
-
-QStringList AMDetector::dacqBegin() const{
-	return QStringList();
-}
-
-QStringList AMDetector::dacqMove() const{
-	return QStringList();
-}
-
-QStringList AMDetector::dacqDwell() const{
-	return QStringList();
-}
-
-QStringList AMDetector::dacqFinish() const{
-	return QStringList();
-}
-
-double AMDetector::reading() const{
-	return -1;
-}
-
-QString AMDetector::detectorName() const {
-	return name_;
+AMDetector::operator AMMeasurementInfo() {
+	// This is code included from the previous AMDetector(Info) system. This may be important for the transition. [DKC January 14th, 2013]
+	//return AMMeasurementInfo(name(), description(), units(), axes());
+	if(!description().isEmpty())
+		return AMMeasurementInfo(description().remove(" "), description(), units(), axes());
+	else
+		return AMMeasurementInfo(name(), name(), units(), axes());
 }
 
 void AMDetector::setConnected(bool isConnected){
-	connected_ = isConnected;
-	emitConnected(isConnected);
+	if(isConnected != connected_){
+		connected_ = isConnected;
+		emit connected(connected_);
+	}
 }
 
-void AMDetector::setTimedOut(){
-	connected_ = false;
-	emitConnected(false);
-}
-
-void AMDetector::setReadMethod(AMDetector::ReadMethod readMethod){
-	readMethod_ = readMethod;
-}
-
-
-void AMDetector::emitConnected(bool isConnected) {
-	signalSource_->emitConnected(isConnected);
-}
-
-void AMDetector::emitInfoChanged() {
-	signalSource_->emitInfoChanged();
-}
-
-void AMDetector::emitReadingsChanged(){
-	signalSource_->emitReadingsChanged();
-}
-
-void AMDetector::emitSettingsChanged() {
-	signalSource_->emitSettingsChanged();
+void AMDetector::setReadyForAcquisition(bool isReadyForAcquisition){
+	if(isReadyForAcquisition != readyForAcquisition_){
+		readyForAcquisition_ = isReadyForAcquisition;
+		emit readyForAcquisition(readyForAcquisition_);
+	}
 }

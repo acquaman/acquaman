@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/beamline/AMDetectorView.h"
 
-AMDetectorViewObjectInfo::AMDetectorViewObjectInfo(AMDetectorView *prototypeView, AMDetector *prototypeDetector){
+AMDetectorViewObjectInfo::AMDetectorViewObjectInfo(AMDetectorView *prototypeView, AMOldDetector *prototypeDetector){
 	initWithMetaObject(prototypeView->metaObject(), prototypeDetector->getMetaObject());
 }
 
@@ -75,11 +75,11 @@ bool AMDetectorViewObjectInfo::inheritsDetailedView(const QMetaObject *metaObjec
 
 
 bool AMDetectorViewObjectInfo::inheritsDetectorInfo(const QMetaObject *metaObject) const{
-	// is this a subclass of AMDetectorInfo? (Or an AMDetectorInfo itself?)
+	// is this a subclass of AMOldDetectorInfo? (Or an AMOldDetectorInfo itself?)
 	const QMetaObject* superClass = metaObject;
 	bool inheritsDetectorInfo;
 	do {
-		inheritsDetectorInfo = (superClass->className() == QString("AMDetectorInfo"));
+		inheritsDetectorInfo = (superClass->className() == QString("AMOldDetectorInfo"));
 	}
 	while( (superClass=superClass->superClass()) && inheritsDetectorInfo == false );
 	return inheritsDetectorInfo;
@@ -92,7 +92,7 @@ namespace AMDetectorViewSupport{
 		return &registeredClasses_;
 	}
 
-	const QList<AMDetectorViewObjectInfo> supportedClasses(AMDetector *detector){
+	const QList<AMDetectorViewObjectInfo> supportedClasses(AMOldDetector *detector){
 		QHash<QString, AMDetectorViewObjectInfo>::const_iterator i = registeredClasses_.constBegin();
 		QList<AMDetectorViewObjectInfo> rv;
 		if(detector){
@@ -105,7 +105,7 @@ namespace AMDetectorViewSupport{
 		return rv;
 	}
 
-	const QList<AMDetectorViewObjectInfo> supportedBriefViews(AMDetector *detector){
+	const QList<AMDetectorViewObjectInfo> supportedBriefViews(AMOldDetector *detector){
 		QHash<QString, AMDetectorViewObjectInfo>::const_iterator i = registeredClasses_.constBegin();
 		QList<AMDetectorViewObjectInfo> rv;
 		if(detector){
@@ -118,7 +118,7 @@ namespace AMDetectorViewSupport{
 		return rv;
 	}
 
-	const QList<AMDetectorViewObjectInfo> supportedDetailedViews(AMDetector *detector){
+	const QList<AMDetectorViewObjectInfo> supportedDetailedViews(AMOldDetector *detector){
 		QHash<QString, AMDetectorViewObjectInfo>::const_iterator i = registeredClasses_.constBegin();
 		QList<AMDetectorViewObjectInfo> rv;
 		if(detector){
@@ -131,7 +131,7 @@ namespace AMDetectorViewSupport{
 		return rv;
 	}
 
-	AMDetectorView* createDetectorView(AMDetector *detector, bool configureOnly){
+	AMDetectorView* createDetectorView(AMOldDetector *detector, bool configureOnly){
 		if(!detector)
 			return 0;
 		//qdebug() << "Trying to create view for detector named " << detector->detectorName();
@@ -144,7 +144,7 @@ namespace AMDetectorViewSupport{
 		return 0;
 	}
 
-	AMDetectorView* createBriefDetectorView(AMDetector *detector, bool configureOnly){
+	AMDetectorView* createBriefDetectorView(AMOldDetector *detector, bool configureOnly){
 		if(!detector)
 			return 0;
 		//qdebug() << "Trying to create view for detector named " << detector->detectorName();
@@ -157,7 +157,7 @@ namespace AMDetectorViewSupport{
 		return 0;
 	}
 
-	AMDetectorView* createDetailedDetectorView(AMDetector *detector, bool configureOnly){
+	AMDetectorView* createDetailedDetectorView(AMOldDetector *detector, bool configureOnly){
 		if(!detector)
 			return 0;
 		//qdebug() << "Trying to create view for detector named " << detector->detectorName();

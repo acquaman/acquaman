@@ -18,20 +18,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMDetectorInfoSet.h"
+#include "AMOldDetectorInfoSet.h"
 
 #include "util/AMErrorMonitor.h"
 
-AMDetectorInfoSet::AMDetectorInfoSet(QObject *parent)
-	: AMDbObject(parent), AMOrderedSet<QString, QPair<AMDetectorInfo*, bool> >()
+AMOldDetectorInfoSet::AMOldDetectorInfoSet(QObject *parent)
+	: AMDbObject(parent), AMOrderedSet<QString, QPair<AMOldDetectorInfo*, bool> >()
 {
 	connect(signalSource(), SIGNAL(itemAdded(int)), this, SLOT(onDetectorAdded(int)));
 	connect(signalSource(), SIGNAL(itemRemoved(int)), this, SLOT(onDetectorRemoved(int)));
 	connect(signalSource(), SIGNAL(itemChanged(int)), this, SLOT(onDetectorValuesChanged(int)));
 }
 
-AMDetectorInfoSet::AMDetectorInfoSet(const AMDetectorInfoSet& other)
-	: AMDbObject(other), AMOrderedSet<QString, QPair<AMDetectorInfo*, bool> >(other)
+AMOldDetectorInfoSet::AMOldDetectorInfoSet(const AMOldDetectorInfoSet& other)
+	: AMDbObject(other), AMOrderedSet<QString, QPair<AMOldDetectorInfo*, bool> >(other)
 {
 	dbLoadWarnings_ = other.dbLoadWarnings();
 	connect(signalSource(), SIGNAL(itemAdded(int)), this, SLOT(onDetectorAdded(int)));
@@ -39,8 +39,8 @@ AMDetectorInfoSet::AMDetectorInfoSet(const AMDetectorInfoSet& other)
 	connect(signalSource(), SIGNAL(itemChanged(int)), this, SLOT(onDetectorValuesChanged(int)));
 }
 
-AMDetectorInfoSet::AMDetectorInfoSet(AMDatabase* db, int id)
-	: AMDbObject(), AMOrderedSet<QString, QPair<AMDetectorInfo*, bool> >() {
+AMOldDetectorInfoSet::AMOldDetectorInfoSet(AMDatabase* db, int id)
+	: AMDbObject(), AMOrderedSet<QString, QPair<AMOldDetectorInfo*, bool> >() {
 
 	connect(signalSource(), SIGNAL(itemAdded(int)), this, SLOT(onDetectorAdded(int)));
 	connect(signalSource(), SIGNAL(itemRemoved(int)), this, SLOT(onDetectorRemoved(int)));
@@ -49,7 +49,7 @@ AMDetectorInfoSet::AMDetectorInfoSet(AMDatabase* db, int id)
 	loadFromDb(db, id);
 }
 
-AMDetectorInfoSet& AMDetectorInfoSet::operator=(const AMDetectorInfoSet& other) {
+AMOldDetectorInfoSet& AMOldDetectorInfoSet::operator=(const AMOldDetectorInfoSet& other) {
 	// always: check for self-assignment
 	if(this != &other) {
 		this->clear();
@@ -68,7 +68,7 @@ AMDetectorInfoSet& AMDetectorInfoSet::operator=(const AMDetectorInfoSet& other) 
 	return *this;
 }
 
-QDebug operator<<(QDebug d, const AMDetectorInfoSet& dis){
+QDebug operator<<(QDebug d, const AMOldDetectorInfoSet& dis){
 	for(int x = 0; x < dis.count(); x++){
 		if(dis.isActiveAt(x))
 			d << "Is Active ";
@@ -79,7 +79,7 @@ QDebug operator<<(QDebug d, const AMDetectorInfoSet& dis){
 	return d;
 }
 
-QString AMDetectorInfoSet::description(){
+QString AMOldDetectorInfoSet::description(){
 	return description_;
 }
 
@@ -87,7 +87,7 @@ QString AMDetectorInfoSet::description(){
    Still not sure about these
 */
 // Returns a list of pointers to the AMDetectorInfo objects we store, for use by the database system in storeToDb() / loadFromDb().
-AMDbObjectList AMDetectorInfoSet::dbReadDetectorInfos() {
+AMDbObjectList AMOldDetectorInfoSet::dbReadDetectorInfos() {
 	AMDbObjectList rv;
 	for(int x = 0; x < count(); x++)
 		rv << at(x).first;
@@ -98,17 +98,17 @@ AMDbObjectList AMDetectorInfoSet::dbReadDetectorInfos() {
    Still not sure about these
 */
 // Called by the database system on loadFromDb() to give us our new set of AMDetectorInfo objects. We copy these ones into our internal list and then delete them.
-void AMDetectorInfoSet::dbLoadDetectorInfos(const AMDbObjectList& newDetectorInfos) {
+void AMOldDetectorInfoSet::dbLoadDetectorInfos(const AMDbObjectList& newDetectorInfos) {
 	clear();	// get rid of our existing
 
 	for(int i=0; i<newDetectorInfos.count(); i++) {
-		AMDetectorInfo* newDetectorInfo = qobject_cast<AMDetectorInfo*>(newDetectorInfos.at(i));
+		AMOldDetectorInfo* newDetectorInfo = qobject_cast<AMOldDetectorInfo*>(newDetectorInfos.at(i));
 		if(newDetectorInfo)
 			addDetectorInfo(newDetectorInfo);
 	}
 }
 
-QString AMDetectorInfoSet::dbReadActiveDetectorInfos() {
+QString AMOldDetectorInfoSet::dbReadActiveDetectorInfos() {
 	QString rv = "activeDetectorInfosVersion1.0";
 	for(int x = 0; x < count(); x++){
 		if(isActiveAt(x))
@@ -119,7 +119,7 @@ QString AMDetectorInfoSet::dbReadActiveDetectorInfos() {
 	return rv;
 }
 
-void AMDetectorInfoSet::dbLoadActiveDetectorInfos(const QString &activeDetectorInfos){
+void AMOldDetectorInfoSet::dbLoadActiveDetectorInfos(const QString &activeDetectorInfos){
 	if(activeDetectorInfos.isEmpty() || !activeDetectorInfos.contains("activeDetectorInfosVersion1.0")){
 		dbLoadWarnings_ = "This scan was run before the detector enable states were saved, if you wish to proceed you may have to edit the configuration and reselect your detectors.";
 		AMErrorMon::alert(this, AMDETECTORSET_NO_ENABLE_INFO_IN_DB, "The detector info active states were not saved for this AMDetectorInfoSet");
@@ -142,68 +142,68 @@ void AMDetectorInfoSet::dbLoadActiveDetectorInfos(const QString &activeDetectorI
 	return;
 }
 
-int AMDetectorInfoSet::indexOf(AMDetectorInfo *detectorInfo) const{
+int AMOldDetectorInfoSet::indexOf(AMOldDetectorInfo *detectorInfo) const{
 	return indexOfValue(detectorInfo);
 }
 
-int AMDetectorInfoSet::indexOf(const QString& detectorName) const{
+int AMOldDetectorInfoSet::indexOf(const QString& detectorName) const{
 	return indexOfKey(detectorName);
 }
 
-AMDetectorInfo* AMDetectorInfoSet::detectorInfoNamed(const QString& detectorName){
+AMOldDetectorInfo* AMOldDetectorInfoSet::detectorInfoNamed(const QString& detectorName){
 	int index = indexOfKey(detectorName);
 	if(index < 0)
 		return 0; // NULL
 	return at(index).first;
 }
 
-const AMDetectorInfo* AMDetectorInfoSet::detectorInfoNamed(const QString &detectorName) const{
+const AMOldDetectorInfo* AMOldDetectorInfoSet::detectorInfoNamed(const QString &detectorName) const{
 	int index = indexOfKey(detectorName);
 	if(index < 0)
 		return 0; // NULL
 	return at(index).first;
 }
 
-AMDetectorInfo* AMDetectorInfoSet::detectorInfoAt(int index){
+AMOldDetectorInfo* AMOldDetectorInfoSet::detectorInfoAt(int index){
 	if(index < 0 || index >= count())
 		return 0; //NULL
 	return at(index).first;
 }
 
-AMDetectorInfo* AMDetectorInfoSet::detectorInfoAt(int index) const{
+AMOldDetectorInfo* AMOldDetectorInfoSet::detectorInfoAt(int index) const{
 	if(index < 0 || index >= count())
 		return 0; //NULL
 	return at(index).first->toNewInfo();
 }
 
-bool AMDetectorInfoSet::isActiveNamed(const QString& detectorName) const{
+bool AMOldDetectorInfoSet::isActiveNamed(const QString& detectorName) const{
 	int index = indexOf(detectorName);
 	if(index > 0)
 		return at(index).second;
 	return false;
 }
 
-bool AMDetectorInfoSet::isActiveDetectorInfo(AMDetectorInfo *detectorInfo) const{
+bool AMOldDetectorInfoSet::isActiveDetectorInfo(AMOldDetectorInfo *detectorInfo) const{
 	int index = indexOf(detectorInfo);
 	if(index > 0)
 		return at(index).second;
 	return false;
 }
 
-bool AMDetectorInfoSet::isActiveAt(int index) const{
+bool AMOldDetectorInfoSet::isActiveAt(int index) const{
 	if(index < 0 || index >= count())
 		return false;
 	return at(index).second;
 }
 
-bool AMDetectorInfoSet::addDetectorInfo(AMDetectorInfo *newDetectorInfo, bool isActive){
+bool AMOldDetectorInfoSet::addDetectorInfo(AMOldDetectorInfo *newDetectorInfo, bool isActive){
 	if(!newDetectorInfo)
 		return false;
 
-	return append(QPair<AMDetectorInfo*, bool>(newDetectorInfo, isActive), newDetectorInfo->name());
+	return append(QPair<AMOldDetectorInfo*, bool>(newDetectorInfo, isActive), newDetectorInfo->name());
 }
 
-bool AMDetectorInfoSet::removeDetector(AMDetectorInfo *detectorInfo){
+bool AMOldDetectorInfoSet::removeDetector(AMOldDetectorInfo *detectorInfo){
 	int index = indexOf(detectorInfo);
 	if(index < 0)
 		return false;
@@ -212,7 +212,7 @@ bool AMDetectorInfoSet::removeDetector(AMDetectorInfo *detectorInfo){
 	return true;
 }
 
-bool AMDetectorInfoSet::setActiveNamed(const QString& detectorName, bool active){
+bool AMOldDetectorInfoSet::setActiveNamed(const QString& detectorName, bool active){
 	int index = indexOf(detectorName);
 	if(index < 0)
 		return false;
@@ -220,7 +220,7 @@ bool AMDetectorInfoSet::setActiveNamed(const QString& detectorName, bool active)
 	return true;
 }
 
-bool AMDetectorInfoSet::setActiveDetectorInfo(AMDetectorInfo *detectorInfo, bool active){
+bool AMOldDetectorInfoSet::setActiveDetectorInfo(AMOldDetectorInfo *detectorInfo, bool active){
 	int index = indexOf(detectorInfo);
 	if(index < 0)
 		return false;
@@ -228,38 +228,38 @@ bool AMDetectorInfoSet::setActiveDetectorInfo(AMDetectorInfo *detectorInfo, bool
 	return true;
 }
 
-bool AMDetectorInfoSet::setActiveAt(int index, bool active){
+bool AMOldDetectorInfoSet::setActiveAt(int index, bool active){
 	if(index < 0 || index > count())
 		return false;
 	((*this)[index]).second = active;
 	return true;
 }
 
-QString AMDetectorInfoSet::dbLoadWarnings() const{
+QString AMOldDetectorInfoSet::dbLoadWarnings() const{
 	return dbLoadWarnings_;
 }
 
-void AMDetectorInfoSet::setDescription(const QString &description){
+void AMOldDetectorInfoSet::setDescription(const QString &description){
 	description_ = description;
 	setModified(true);
 }
 
-void AMDetectorInfoSet::onDetectorValuesChanged(int index) {
+void AMOldDetectorInfoSet::onDetectorValuesChanged(int index) {
 	setModified(true);
 	emit detectorValuesChanged(index);
 }
 
-void AMDetectorInfoSet::onDetectorAdded(int index) {
+void AMOldDetectorInfoSet::onDetectorAdded(int index) {
 	setModified(true);
 	emit detectorAdded(index);
 }
 
-void AMDetectorInfoSet::onDetectorRemoved(int index) {
+void AMOldDetectorInfoSet::onDetectorRemoved(int index) {
 	setModified(true);
 	emit detectorRemoved(index);
 }
 
-int AMDetectorInfoSet::indexOfValue(const AMDetectorInfo *detectorInfo) const{
+int AMOldDetectorInfoSet::indexOfValue(const AMOldDetectorInfo *detectorInfo) const{
 	int count = values_.count();
 	for(int i=0; i<count; i++) {
 		if(values_.at(i).first->name() == detectorInfo->name())

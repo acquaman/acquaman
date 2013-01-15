@@ -21,9 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLSOCEANOPTICS65000DETECTORINFO_H
 #define CLSOCEANOPTICS65000DETECTORINFO_H
 
-#include "AMDetectorInfo.h"
+#include "AMOldDetectorInfo.h"
 
-class CLSOceanOptics65000DetectorInfo : public AMDetectorInfo
+class CLSOceanOptics65000DetectorInfo : public AMOldDetectorInfo
 {
 Q_OBJECT
 
@@ -40,7 +40,7 @@ public:
 	CLSOceanOptics65000DetectorInfo(const CLSOceanOptics65000DetectorInfo &original);
 
 	/// Creates a new info pointer from this one, caller is responsible for memory
-	virtual AMDetectorInfo* toNewInfo() const;
+	virtual AMOldDetectorInfo* toNewInfo() const;
 
 	CLSOceanOptics65000DetectorInfo& operator=(const CLSOceanOptics65000DetectorInfo& other);
 

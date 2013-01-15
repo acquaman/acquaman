@@ -34,7 +34,7 @@ class SGMFastScanConfigurationView;
 class SGMSidebar;
 class SGMSettingsMasterView;
 class AMGithubManager;
-class AMDetector;
+class AMOldDetector;
 class AMScanAction;
 class CLSProcServManager;
 class CLSProcServManagerView;
@@ -105,7 +105,7 @@ protected slots:
 	void onActionProcServManager();
 
 	/// Used during startup to display a list of detectors that the beamline is still looking for
-	void onSGMBeamlineDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
+	void onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable);
 
 protected:
 	/// Installs the menu options for the settings manager and proc serv manager

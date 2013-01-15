@@ -67,7 +67,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <dataman/AMSample.h>
 #include <dataman/AMExperiment.h>
 #include <dataman/info/AMControlInfoList.h>
-#include <dataman/info/AMDetectorInfoSet.h>
+#include <dataman/info/AMOldDetectorInfoSet.h>
 #include <dataman/AMSamplePlate.h>
 #include <dataman/info/AMSpectralOutputDetectorInfo.h>
 #include "dataman/AMUser.h"
@@ -89,6 +89,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM2DDeadTimeAB.h"
 #include "analysis/AM3DDeadTimeAB.h"
 
+#include "dataman/AMDbUpgrade1Pt1.h"
+#include "dataman/AMDbUpgrade1Pt2.h"
+
 #include "dataman/database/AMDbObjectSupport.h"
 #include "ui/dataman/AMDbObjectGeneralView.h"
 #include "ui/dataman/AMDbObjectGeneralViewSupport.h"
@@ -109,6 +112,14 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	// shutdown is called automatically from the destructor if necessary, but Qt recommends that clean-up be handled in the aboutToQuit() signal. MS Windows doesn't always let the main function finish during logouts.
 	// HOWEVER, we're not doing this for now, since this change could cause some existing applications to crash on shutdown, because they're not ready for events to be delivered during their shutdown process.
 	// connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(shutdown()));
+
+	// Prepend the AM upgrade 1.1 to the list for the user database
+	AMDbUpgrade *am1Pt1UserDb = new AMDbUpgrade1Pt1("user", this);
+	prependDatabaseUpgrade(am1Pt1UserDb);
+
+	// Append the AM upgrade 1.2 to the list for the user database
+	AMDbUpgrade *am1Pt2UserDb = new AMDbUpgrade1Pt2("user", this);
+	appendDatabaseUpgrade(am1Pt2UserDb);
 }
 
 bool AMDatamanAppController::startup() {
@@ -478,12 +489,12 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AM2DDeadTimeAB>();
 	AMDbObjectSupport::s()->registerClass<AM3DDeadTimeAB>();
 
-	AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
+	AMDbObjectSupport::s()->registerClass<AMOldDetectorInfo>();
 	AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
 	AMDbObjectSupport::s()->registerClass<AMControlInfo>();
 
 	AMDbObjectSupport::s()->registerClass<AMControlInfoList>();
-	AMDbObjectSupport::s()->registerClass<AMDetectorInfoSet>();
+	AMDbObjectSupport::s()->registerClass<AMOldDetectorInfoSet>();
 	AMDbObjectSupport::s()->registerClass<AMSamplePosition>();
 	AMDbObjectSupport::s()->registerClass<AMSamplePlate>();
 	AMDbObjectSupport::s()->registerClass<AMROIInfo>();

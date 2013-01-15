@@ -21,17 +21,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLSPGTDETECTOR_H
 #define CLSPGTDETECTOR_H
 
-#include "beamline/AMDetector.h"
+#include "beamline/AMOldDetector.h"
 #include "dataman/info/CLSPGTDetectorInfo.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/AMPVControl.h"
 #include "dataman/datasource/AMProcessVariableDataSource.h"
 
-class CLSPGTDetector : public CLSPGTDetectorInfo, public AMDetector
+class CLSPGTDetector : public CLSPGTDetectorInfo, public AMOldDetector
 {
 	Q_OBJECT
 public:
-	CLSPGTDetector(const QString& name, const QString &baseName, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
+	CLSPGTDetector(const QString& name, const QString &baseName, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMOldDetector::ReadMethod readMethod = AMOldDetector::ImmediateRead, QObject *parent = 0);
 	~CLSPGTDetector();
 
 	const QMetaObject* getMetaObject();
@@ -51,13 +51,13 @@ public:
 	virtual double reading() const;
 
 	/// NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.
-	AMDetectorInfo* toInfo() const;
+	AMOldDetectorInfo* toInfo() const;
 	CLSPGTDetectorInfo toPGTInfo() const;
 
 	/* NTBA March 14, 2011 David Chevrier
 	bool setFromInfo(const AMDetectorInfo &info);
 	*/
-	bool setFromInfo(const AMDetectorInfo *info);
+	bool setFromInfo(const AMOldDetectorInfo *info);
 	bool setFromInfo(const CLSPGTDetectorInfo &info);
 
 	/// Returns the status as an bool.  true is acquiring, false is done.

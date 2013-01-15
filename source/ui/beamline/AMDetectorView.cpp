@@ -26,15 +26,15 @@ AMDetectorView::AMDetectorView(bool configureOnly, QWidget *parent) :
 	configureOnly_ = configureOnly;
 }
 
-AMDetector* AMDetectorView::detector(){
+AMOldDetector* AMDetectorView::detector(){
 	return 0;
 }
 
-AMDetectorInfo* AMDetectorView::configurationSettings() const{
+AMOldDetectorInfo* AMDetectorView::configurationSettings() const{
 	return 0;
 }
 
-bool AMDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool AMDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	Q_UNUSED(detector)
 	Q_UNUSED(configureOnly)
 	return false;
@@ -45,7 +45,7 @@ AMBriefDetectorView::AMBriefDetectorView(bool configureOnly, QWidget *parent) :
 {
 }
 
-bool AMBriefDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool AMBriefDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	Q_UNUSED(detector)
 	Q_UNUSED(configureOnly)
 	return false;
@@ -56,7 +56,7 @@ AMDetailedDetectorView::AMDetailedDetectorView(bool configureOnly, QWidget *pare
 {
 }
 
-bool AMDetailedDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool AMDetailedDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	Q_UNUSED(detector)
 	Q_UNUSED(configureOnly)
 	return false;

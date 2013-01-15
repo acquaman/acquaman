@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERSMARCCDDETECTOR_H
 #define VESPERSMARCCDDETECTOR_H
 
-#include "beamline/AMDetector.h"
+#include "beamline/AMOldDetector.h"
 #include "dataman/VESPERS/VESPERSMarCCDDetectorInfo.h"
 #include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineActionItem.h"
@@ -30,7 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
   What it will offer at the moment is the ability to control the important aspects of the detector, such as the temperature, accumulationn time,
   starting, stopping, etc.
   */
-class VESPERSMarCCDDetector : public VESPERSMarCCDDetectorInfo, public AMDetector
+class VESPERSMarCCDDetector : public VESPERSMarCCDDetectorInfo, public AMOldDetector
 {
 	Q_OBJECT
 
@@ -54,12 +54,12 @@ public:
 	virtual void setDescription(const QString &description) { VESPERSMarCCDDetectorInfo::setDescription(description); }
 
 	/// Transforms current settings into a detector info.  Returns a new instance -- caller is responsible for memory.
-	virtual AMDetectorInfo *toInfo() const { return new VESPERSMarCCDDetectorInfo(*this); }
+	virtual AMOldDetectorInfo *toInfo() const { return new VESPERSMarCCDDetectorInfo(*this); }
 	/// Transforms current settings into a new detector info.
 	VESPERSMarCCDDetectorInfo toMarInfo() const { return VESPERSMarCCDDetectorInfo(*this); }
 
 	/// Takes a detector info and sets all the settings for the detector.
-	virtual bool setFromInfo(const AMDetectorInfo *info);
+	virtual bool setFromInfo(const AMOldDetectorInfo *info);
 	/// Takes in a detector info and sets all the settings for the detector.
 	void setFromMarInfo(const VESPERSMarCCDDetectorInfo &info);
 

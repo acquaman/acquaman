@@ -34,18 +34,18 @@ public:
 	   Needs a Destructor
 	   */
 
-	AMDetector* detector();
+	AMOldDetector* detector();
 
-	AMDetectorInfo* configurationSettings() const;
+	AMOldDetectorInfo* configurationSettings() const;
 
 protected:
 	AMExtendedControlEditor *fbk_;
 	QHBoxLayout *hl_;
 	AMSingleControlDetector *detector_;
-	AMDetectorInfo *configurationSettings_;
+	AMOldDetectorInfo *configurationSettings_;
 
 	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
-	bool setDetector(AMDetector *detector, bool configureOnly = false);
+	bool setDetector(AMOldDetector *detector, bool configureOnly = false);
 };
 
 class AMSingleReadOnlyControlBriefDetectorView : public AMBriefDetectorView
@@ -58,18 +58,18 @@ public:
 	   Needs a Destructor
 	   */
 
-	AMDetector* detector();
+	AMOldDetector* detector();
 
-	AMDetectorInfo* configurationSettings() const;
+	AMOldDetectorInfo* configurationSettings() const;
 
 protected:
 	AMExtendedControlEditor *fbk_;
 	QHBoxLayout *hl_;
 	AMSingleReadOnlyControlDetector *detector_;
-	AMDetectorInfo *configurationSettings_;
+	AMOldDetectorInfo *configurationSettings_;
 
 	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
-	bool setDetector(AMDetector *detector, bool configureOnly = false);
+	bool setDetector(AMOldDetector *detector, bool configureOnly = false);
 };
 
 #endif // AMSINGLECONTROLDETECTORVIEW_H

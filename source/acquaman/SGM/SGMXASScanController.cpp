@@ -61,7 +61,7 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 
 	// Create space in raw data store, and create raw data channels, for each detector.
 	for(int i = 0; i < config_->allDetectorConfigurations().count(); i++){
-		AMDetectorInfo* detectorInfo = config_->allDetectorConfigurations().detectorInfoAt(i);
+		AMOldDetectorInfo* detectorInfo = config_->allDetectorConfigurations().detectorInfoAt(i);
 		if(config_->allDetectorConfigurations().isActiveAt(i)){
 
 			if(specificScan_->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo)))

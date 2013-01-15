@@ -29,11 +29,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/actions/AMSamplePlateMoveAction.h"
 
+#include "dataman/AMDbUpgrade1Pt1.h"
+#include "dataman/AMDbUpgrade1Pt2.h"
+
 #include <QStringBuilder>
 
 AMDatamanAppControllerForActions3::AMDatamanAppControllerForActions3(QObject *parent) :
     AMDatamanAppController(parent)
 {
+	// Prepend the AM upgrade 1.1 to the list for the actions database
+	AMDbUpgrade *am1Pt1UserDb = new AMDbUpgrade1Pt1("actions", this);
+	prependDatabaseUpgrade(am1Pt1UserDb);
+
+	// Append the AM upgrade 1.2 to the list for the actions database
+	AMDbUpgrade *am1Pt2UserDb = new AMDbUpgrade1Pt2("actions", this);
+	appendDatabaseUpgrade(am1Pt2UserDb);
 }
 
 bool AMDatamanAppControllerForActions3::startupCreateDatabases()

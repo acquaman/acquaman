@@ -20,12 +20,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMSingleControlDetector.h"
 
-AMSingleControlDetector::AMSingleControlDetector(const QString &name, AMControl *control, AMDetector::ReadMethod readMethod, QObject *parent) :
-		AMDetectorInfo(name, name, parent), AMDetector(name, readMethod)
+AMSingleControlDetector::AMSingleControlDetector(const QString &name, AMControl *control, AMOldDetector::ReadMethod readMethod, QObject *parent) :
+		AMOldDetectorInfo(name, name, parent), AMOldDetector(name, readMethod)
 {
 	control_ = control;
 	connect(control_, SIGNAL(connected(bool)), this, SLOT(onControlConnected(bool)));
-	connect(control_, SIGNAL(valueChanged(double)), AMDetector::signalSource(), SIGNAL(readingsChanged()));
+	connect(control_, SIGNAL(valueChanged(double)), AMOldDetector::signalSource(), SIGNAL(readingsChanged()));
 	onControlConnected(control_->isConnected());
 }
 
@@ -44,11 +44,11 @@ double AMSingleControlDetector::reading() const{
 		return -1;
 }
 
-AMDetectorInfo* AMSingleControlDetector::toInfo() const{
-	return new AMDetectorInfo(*this);
+AMOldDetectorInfo* AMSingleControlDetector::toInfo() const{
+	return new AMOldDetectorInfo(*this);
 }
 
-bool AMSingleControlDetector::setControls(AMDetectorInfo *detectorSettings){
+bool AMSingleControlDetector::setControls(AMOldDetectorInfo *detectorSettings){
 	Q_UNUSED(detectorSettings)
 	return false;
 }
@@ -57,17 +57,17 @@ AMControl* AMSingleControlDetector::control() {
 	return control_;
 }
 
-bool AMSingleControlDetector::setFromInfo(const AMDetectorInfo *info){
+bool AMSingleControlDetector::setFromInfo(const AMOldDetectorInfo *info){
 	Q_UNUSED(info)
 	return false;
 }
 
 QString AMSingleControlDetector::description() const{
-	return AMDetectorInfo::description();
+	return AMOldDetectorInfo::description();
 }
 
 void AMSingleControlDetector::setDescription(const QString &description){
-	AMDetectorInfo::setDescription(description);
+	AMOldDetectorInfo::setDescription(description);
 }
 
 void AMSingleControlDetector::onControlConnected(bool connected){
@@ -76,12 +76,12 @@ void AMSingleControlDetector::onControlConnected(bool connected){
 
 ///////////////////////////////////////////////////
 
-AMSingleReadOnlyControlDetector::AMSingleReadOnlyControlDetector(const QString &name, const QString &baseName, AMDetector::ReadMethod readMethod, QObject *parent) :
-		AMDetectorInfo(name, name, parent), AMDetector(name, readMethod)
+AMSingleReadOnlyControlDetector::AMSingleReadOnlyControlDetector(const QString &name, const QString &baseName, AMOldDetector::ReadMethod readMethod, QObject *parent) :
+		AMOldDetectorInfo(name, name, parent), AMOldDetector(name, readMethod)
 {
 	control_ = new AMReadOnlyPVControl(name, baseName, this);
 	connect(control_, SIGNAL(connected(bool)), this, SLOT(onControlConnected(bool)));
-	connect(control_, SIGNAL(valueChanged(double)), AMDetector::signalSource(), SIGNAL(readingsChanged()));
+	connect(control_, SIGNAL(valueChanged(double)), AMOldDetector::signalSource(), SIGNAL(readingsChanged()));
 }
 
 AMSingleReadOnlyControlDetector::~AMSingleReadOnlyControlDetector(){
@@ -106,11 +106,11 @@ double AMSingleReadOnlyControlDetector::reading() const{
 		return -1;
 }
 
-AMDetectorInfo* AMSingleReadOnlyControlDetector::toInfo() const{
-	return new AMDetectorInfo(*this);
+AMOldDetectorInfo* AMSingleReadOnlyControlDetector::toInfo() const{
+	return new AMOldDetectorInfo(*this);
 }
 
-bool AMSingleReadOnlyControlDetector::setControls(AMDetectorInfo *detectorSettings){
+bool AMSingleReadOnlyControlDetector::setControls(AMOldDetectorInfo *detectorSettings){
 	Q_UNUSED(detectorSettings)
 	return false;
 }
@@ -119,17 +119,17 @@ AMControl* AMSingleReadOnlyControlDetector::control() {
 	return control_;
 }
 
-bool AMSingleReadOnlyControlDetector::setFromInfo(const AMDetectorInfo *info){
+bool AMSingleReadOnlyControlDetector::setFromInfo(const AMOldDetectorInfo *info){
 	Q_UNUSED(info)
 	return false;
 }
 
 QString AMSingleReadOnlyControlDetector::description() const{
-	return AMDetectorInfo::description();
+	return AMOldDetectorInfo::description();
 }
 
 void AMSingleReadOnlyControlDetector::setDescription(const QString &description){
-	AMDetectorInfo::setDescription(description);
+	AMOldDetectorInfo::setDescription(description);
 	control_->setDescription(description);
 }
 

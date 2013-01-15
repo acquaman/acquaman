@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AMDetectorInfo_H
-#define AMDetectorInfo_H
+#ifndef AMOldDetectorInfo_H
+#define AMOldDetectorInfo_H
 
 #include <QMetaProperty>
 #include <QDebug>
@@ -32,7 +32,7 @@ class QStringList;
 
 
 /// This is the base class of all customizeable detectors and detector information objects. It gets associated with AMScans to indicate how their data was collected.  Subclasses should eventually contain the unique configuration and state of a particular physical detector (ex: the integration time and gain of a pico-ammeter, the HV setting for a CMA/channeltron, the bin configuration of a spectral detector like the Silicon Drift Detector.)  This base class is suitable for an un-configurable, single-point-recording generic detector.
-class AMDetectorInfo : public AMDbObject
+class AMOldDetectorInfo : public AMDbObject
 {
 Q_OBJECT
 
@@ -48,21 +48,21 @@ public:
 	// Constructors and destructors
 	/////////////////////////////////////
 	/// Default constructor. \c name is a unique programmer's name to access this detector with. \c description is a human-readable version.
-	Q_INVOKABLE AMDetectorInfo(const QString& name = "unknownDetector", const QString& description = "Generic Detector", QObject *parent = 0);
+	Q_INVOKABLE AMOldDetectorInfo(const QString& name = "unknownDetector", const QString& description = "Generic Detector", QObject *parent = 0);
 
 	/// Copy constructor.  QObject parent/child relationships are NOT copied, but the essential characteristics (id, database, and modified state and Q_PROPERTIES) of the AMDetectorInfo are.  Making a copy will create an independent instance in memory. However, if the original has been previously saved to or loaded from the database, both the original and the copy will store/restore to the same location in the database (ie: they refer to the same persistent object).
 	/*! If the original has never been successfully saved or loaded (ie: id() and database() return 0) then the two instances remain fully independent objects (both in memory, and in the database after calling storeToDb() for the first time.)
 
 	  The parent QObject is not set when using this copy constructor; the copy's parent() will be 0.  If you want the copy to share the same parent(), you must call QObject::setParent() afterward.
 	  */
-	AMDetectorInfo(const AMDetectorInfo& original);
+	AMOldDetectorInfo(const AMOldDetectorInfo& original);
 
-	AMDetectorInfo& operator=(const AMDetectorInfo &other);
+	AMOldDetectorInfo& operator=(const AMOldDetectorInfo &other);
 
-	~AMDetectorInfo() {}
+	~AMOldDetectorInfo() {}
 
 	/// Creates a new info pointer from this one, caller is responsible for memory
-	virtual AMDetectorInfo* toNewInfo() const;
+	virtual AMOldDetectorInfo* toNewInfo() const;
 
 	// Basic meta-data:
 	////////////////////////////////////
@@ -89,7 +89,7 @@ public:
 			return AMMeasurementInfo(name(), name(), units(), axes());
 	}
 
-	friend QDebug operator<<(QDebug d, const AMDetectorInfo& di);
+	friend QDebug operator<<(QDebug d, const AMOldDetectorInfo& di);
 	virtual QDebug qDebugPrint(QDebug &d) const;
 
 	/// I don't know what this is for.

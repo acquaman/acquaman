@@ -21,9 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMSPECTRALOUTPUTDETECTORINFO_H
 #define AMSPECTRALOUTPUTDETECTORINFO_H
 
-#include "AMDetectorInfo.h"
+#include "AMOldDetectorInfo.h"
 
-class AMSpectralOutputDetectorInfo : public AMDetectorInfo
+class AMSpectralOutputDetectorInfo : public AMOldDetectorInfo
 {
 Q_OBJECT
 	Q_PROPERTY(int binCount READ binCount WRITE setBinCount)

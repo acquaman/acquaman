@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERSROPERCCDDETECTOR_H
 #define VESPERSROPERCCDDETECTOR_H
 
-#include "beamline/AMDetector.h"
+#include "beamline/AMOldDetector.h"
 #include "dataman/VESPERS/VESPERSRoperCCDDetectorInfo.h"
 #include "beamline/AMPVControl.h"
 #include "actions/AMBeamlineActionItem.h"
@@ -30,7 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
   What it will offer at the moment is the ability to control the important aspects of the detector, such as the temperature, accumulationn time,
   starting, stopping, etc.
   */
-class VESPERSRoperCCDDetector : public VESPERSRoperCCDDetectorInfo, public AMDetector
+class VESPERSRoperCCDDetector : public VESPERSRoperCCDDetectorInfo, public AMOldDetector
 {
 	Q_OBJECT
 
@@ -54,12 +54,12 @@ public:
 	virtual void setDescription(const QString &description) { VESPERSRoperCCDDetectorInfo::setDescription(description); }
 
 	/// Transforms current settings into a detector info.  Returns a new instance -- caller is reponsible for memory.
-	virtual AMDetectorInfo *toInfo() const { return new VESPERSRoperCCDDetectorInfo(*this); }
+	virtual AMOldDetectorInfo *toInfo() const { return new VESPERSRoperCCDDetectorInfo(*this); }
 	/// Transforms current settings into a new detector info.
 	VESPERSRoperCCDDetectorInfo toRoperInfo() const { return VESPERSRoperCCDDetectorInfo(*this); }
 
 	/// Takes a detector info and sets all the settings for the detector.
-	virtual bool setFromInfo(const AMDetectorInfo *info);
+	virtual bool setFromInfo(const AMOldDetectorInfo *info);
 	/// Takes in a detector info and sets all the settings for the detector.
 	void setFromRoperInfo(const VESPERSRoperCCDDetectorInfo &info);
 

@@ -64,6 +64,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSProcServManager.h"
 
 #include "dataman/SGM/SGMDbUpgrade1Pt1.h"
+#include "dataman/AMDbUpgrade1Pt1.h"
+#include "dataman/AMDbUpgrade1Pt2.h"
 
 #include "ui/SGM/SGMPeriodicTableView.h"
 
@@ -83,13 +85,18 @@ SGMAppController::SGMAppController(QObject *parent) :
 
 
 	prependDatabaseUpgrade(sgm1Pt1SGMDb);
-//	databaseUpgrades_.prepend(sgm1Pt1SGMDb);
 	AMDbUpgrade *sgm1Pt1UserDb = new SGMDbUpgrade1Pt1("user", this);
 	prependDatabaseUpgrade(sgm1Pt1UserDb);
-//	databaseUpgrades_.prepend(sgm1Pt1UserDb);
 	AMDbUpgrade *sgm1Pt1ActionsDb = new SGMDbUpgrade1Pt1("actions", this);
 	prependDatabaseUpgrade(sgm1Pt1ActionsDb);
-//	databaseUpgrades_.prepend(sgm1Pt1ActionsDb);
+
+	// Append the AM upgrade 1.1 to the list for the SGMBeamline database
+	AMDbUpgrade *am1Pt1UserDb = new AMDbUpgrade1Pt1("SGMBeamline", this);
+	appendDatabaseUpgrade(am1Pt1UserDb);
+
+	// Append the AM upgrade 1.2 to the list for the SGMBeamline database
+	AMDbUpgrade *am1Pt2UserDb = new AMDbUpgrade1Pt2("SGMBeamline", this);
+	appendDatabaseUpgrade(am1Pt2UserDb);
 
 	// Add the SGM Beamline database as a source of exporter options
 	additionalExporterOptionsDatabases_.append("SGMBeamline");
@@ -112,7 +119,7 @@ bool SGMAppController::startup() {
 
 	// Creates the SGM Beamline object
 	SGMBeamline::sgm();
-	connect(SGMBeamline::sgm(), SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)), this, SLOT(onSGMBeamlineDetectorAvailabilityChanged(AMDetector*,bool)));
+	connect(SGMBeamline::sgm(), SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)), this, SLOT(onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector*,bool)));
 	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("SGM Startup: Waiting for detectors"));
 	onSGMBeamlineDetectorAvailabilityChanged(0, false);
 
@@ -418,11 +425,11 @@ void SGMAppController::onActionProcServManager(){
 	procServsView_->show();
 }
 
-void SGMAppController::onSGMBeamlineDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable){
+void SGMAppController::onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable){
 	Q_UNUSED(detector)
 	Q_UNUSED(isAvailable)
 	QStringList waitingForDetectorNames;
-	QList<AMDetector*> possibleDetectors = SGMBeamline::sgm()->possibleDetectorsForSet(SGMBeamline::sgm()->allDetectors());
+	QList<AMOldDetector*> possibleDetectors = SGMBeamline::sgm()->possibleDetectorsForSet(SGMBeamline::sgm()->allDetectors());
 	for(int x = 0; x < possibleDetectors.count(); x++)
 		if(!possibleDetectors.at(x)->isConnected())
 			waitingForDetectorNames.append(possibleDetectors.at(x)->toInfo()->description());

@@ -321,7 +321,7 @@ void VESPERS2DDacqScanController::addExtraDatasources()
 
 	// Adding in the extra ion chambers but not Ipost.
 	AMMeasurementInfo temp("", "");
-	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+	AMOldDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
 	for (int i = 0; i < ionChambers->count(); i++){
 
@@ -478,7 +478,7 @@ bool VESPERS2DDacqScanController::setupSingleElementMap()
 	addStandardExtraPVs(advAcq_, false, false);
 	addSingleElementDeadTimePVs(advAcq_);
 
-	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+	AMOldDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
 	for (int i = 0; i < ionChambers->count(); i++)
 		if (ionChambers->detectorAt(i)->detectorName() != "Ipost")
@@ -523,7 +523,7 @@ bool VESPERS2DDacqScanController::setupFourElementMap()
 	addStandardExtraPVs(advAcq_, false, false);
 	addFourElementDeadTimePVs(advAcq_);
 
-	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+	AMOldDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
 	for (int i = 0; i < ionChambers->count(); i++)
 		if (ionChambers->detectorAt(i)->detectorName() != "Ipost")
@@ -573,7 +573,7 @@ bool VESPERS2DDacqScanController::setupSingleAndFourElementMap()
 	addFourElementDeadTimePVs(advAcq_);
 
 	// Ion chambers.
-	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+	AMOldDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
 	for (int i = 0; i < ionChambers->count(); i++)
 		if (ionChambers->detectorAt(i)->detectorName() != "Ipost")

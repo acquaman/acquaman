@@ -34,11 +34,11 @@ CLSOceanOptics65000BriefDetectorView::CLSOceanOptics65000BriefDetectorView(CLSOc
 	setDetector(detector, configureOnly_);
 }
 
-AMDetector* CLSOceanOptics65000BriefDetectorView::detector(){
+AMOldDetector* CLSOceanOptics65000BriefDetectorView::detector(){
 	return detector_;
 }
 
-bool CLSOceanOptics65000BriefDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool CLSOceanOptics65000BriefDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	if(!detector)
 		return false;
 	detector_ = static_cast<CLSOceanOptics65000Detector*>(detector);
@@ -126,11 +126,11 @@ CLSOceanOptics65000DetailedDetectorView::CLSOceanOptics65000DetailedDetectorView
 	setDetector(detector, configureOnly);
 }
 
-AMDetector* CLSOceanOptics65000DetailedDetectorView::detector(){
+AMOldDetector* CLSOceanOptics65000DetailedDetectorView::detector(){
 	return detector_;
 }
 
-AMDetectorInfo* CLSOceanOptics65000DetailedDetectorView::configurationSettings() const{
+AMOldDetectorInfo* CLSOceanOptics65000DetailedDetectorView::configurationSettings() const{
 	return configurationSettings_;
 }
 
@@ -138,7 +138,7 @@ MPlot* CLSOceanOptics65000DetailedDetectorView::plot() const{
 	return plot_;
 }
 
-bool CLSOceanOptics65000DetailedDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool CLSOceanOptics65000DetailedDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	/* NTBA - April 3rd, 2012 (David Chevrier)
 	Need to implement the configureOnly part.
 	*/

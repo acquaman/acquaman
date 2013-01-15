@@ -34,7 +34,7 @@ VESPERSRoperCCDDetectorView::VESPERSRoperCCDDetectorView(VESPERSRoperCCDDetector
 	setDetector(detector, configureOnly);
 }
 
-bool VESPERSRoperCCDDetectorView::setDetector(AMDetector *detector, bool configureOnly)
+bool VESPERSRoperCCDDetectorView::setDetector(AMOldDetector *detector, bool configureOnly)
 {
 	//I don't have a configure only view for these.  It doesn't make quite as much sense for the stand alone spectra to have configure only views.
 	Q_UNUSED(configureOnly)

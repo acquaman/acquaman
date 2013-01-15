@@ -255,13 +255,11 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/beamline/AMPVControl.h \
 	source/beamline/AMControlSet.h \
 	source/beamline/AMControlState.h \
-	source/beamline/AMDetector.h \
 	source/beamline/AMProcessVariable.h \
 	source/beamline/AMProcessVariablePrivate.h \
 	source/beamline/AMPVNames.h \
 	source/dataman/database/AMDatabase.h \
 	source/dataman/database/AMDbObject.h \
-	source/dataman/info/AMDetectorInfo.h \
 	source/dataman/AMExperiment.h \
 	source/dataman/AMImportController.h \
 	source/dataman/AMRun.h \
@@ -358,7 +356,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/util/AMOrderedList.h \
 	source/actions/AMBeamlineParallelActionsList.h \
 	source/beamline/AMControlOptimization.h \
-	source/dataman/info/AMDetectorInfoSet.h \
 	source/ui/beamline/AMControlOptimizationView.h \
 	source/actions/AMBeamlineControlStopAction.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
@@ -379,7 +376,6 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
 	source/ui/SGM/SGMMCPDetectorView.h \
 	source/ui/CLS/CLSPGTDetectorView.h \
 	source/ui/beamline/AMDetectorSetView.h \
-	source/beamline/AMDetectorSet.h \
 	source/dataman/info/AMROIInfo.h \
 	source/beamline/AMROI.h \
 	source/ui/dataman/AMSamplePositionViewActionsWidget.h \
@@ -600,7 +596,14 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/ui/AMBottomPanel.h \
     source/ui/AMDatamanAppBottomPanel.h \
     source/ui/AMAppBottomPanel.h \
-    source/ui/actions3/AMActionRunnerBottomBarCurrentView3.h
+    source/ui/actions3/AMActionRunnerBottomBarCurrentView3.h \
+    source/dataman/info/AMOldDetectorInfo.h \
+    source/beamline/AMOldDetector.h \
+    source/dataman/info/AMOldDetectorInfoSet.h \
+    source/beamline/AMOldDetectorSet.h \
+    source/beamline/AMDetector.h \
+    source/dataman/AMDbUpgrade1Pt1.h \
+    source/dataman/AMDbUpgrade1Pt2.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -676,7 +679,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/util/AMErrorMonitor.cpp \
 	source/util/AMSettings.cpp \
 	source/beamline/AMBeamline.cpp \
-	source/beamline/AMDetector.cpp \
 	source/actions/AMBeamlineActionItem.cpp \
 	source/actions/AMBeamlineControlAction.cpp \
 	source/beamline/AMControl.cpp \
@@ -688,7 +690,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/beamline/AMPVNames.cpp \
 	source/dataman/database/AMDatabase.cpp \
 	source/dataman/database/AMDbObject.cpp \
-	source/dataman/info/AMDetectorInfo.cpp \
 	source/dataman/AMExperiment.cpp \
 	source/dataman/AMImportController.cpp \
 	source/dataman/AMRun.cpp \
@@ -774,7 +775,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/analysis/AM2DSummingABEditor.cpp \
 	source/actions/AMBeamlineParallelActionsList.cpp \
 	source/beamline/AMControlOptimization.cpp \
-	source/dataman/info/AMDetectorInfoSet.cpp \
 	source/ui/beamline/AMControlOptimizationView.cpp \
 	source/actions/AMBeamlineControlStopAction.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
@@ -795,7 +795,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/SGM/SGMMCPDetectorView.cpp \
 	source/ui/CLS/CLSPGTDetectorView.cpp \
 	source/ui/beamline/AMDetectorSetView.cpp \
-	source/beamline/AMDetectorSet.cpp \
 	source/dataman/info/AMROIInfo.cpp \
 	source/beamline/AMROI.cpp \
 	source/ui/dataman/AMSamplePositionViewActionsWidget.cpp \
@@ -1004,7 +1003,14 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/ui/AMBottomPanel.cpp \
     source/ui/AMDatamanAppBottomPanel.cpp \
     source/ui/AMAppBottomPanel.cpp \
-    source/ui/actions3/AMActionRunnerBottomBarCurrentView3.cpp
+    source/ui/actions3/AMActionRunnerBottomBarCurrentView3.cpp \
+    source/dataman/info/AMOldDetectorInfo.cpp \
+    source/beamline/AMOldDetector.cpp \
+    source/dataman/info/AMOldDetectorInfoSet.cpp \
+    source/beamline/AMOldDetectorSet.cpp \
+    source/beamline/AMDetector.cpp \
+    source/dataman/AMDbUpgrade1Pt1.cpp \
+    source/dataman/AMDbUpgrade1Pt2.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1028,6 +1034,28 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

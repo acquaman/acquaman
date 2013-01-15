@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions/AMBeamlineControlMoveAction.h"
 
 VESPERSRoperCCDDetector::VESPERSRoperCCDDetector(const QString &name, const QString &description, QObject *parent)
-	: VESPERSRoperCCDDetectorInfo(name, description, parent), AMDetector(name)
+	: VESPERSRoperCCDDetectorInfo(name, description, parent), AMOldDetector(name)
 {
 	temperatureControl_ = new AMPVControl("Temperature", "IOC1607-003:det1:Temperature_RBV", "IOC1607-003:det1:Temperature", QString(), this, 1);
 	imageModeControl_ = new AMPVControl("Image Mode", "IOC1607-003:det1:ImageMode_RBV", "IOC1607-003:det1:ImageMode", QString(), this, 0.1);
@@ -144,7 +144,7 @@ VESPERSRoperCCDDetector::State VESPERSRoperCCDDetector::state() const
 	return detectorState;
 }
 
-bool VESPERSRoperCCDDetector::setFromInfo(const AMDetectorInfo *info)
+bool VESPERSRoperCCDDetector::setFromInfo(const AMOldDetectorInfo *info)
 {
 	const VESPERSRoperCCDDetectorInfo *detectorInfo = qobject_cast<const VESPERSRoperCCDDetectorInfo *>(info);
 

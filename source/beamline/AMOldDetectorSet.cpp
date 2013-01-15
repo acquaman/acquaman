@@ -18,22 +18,22 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMDetectorSet.h"
+#include "AMOldDetectorSet.h"
 
-AMDetectorSet::AMDetectorSet(QObject *parent) :
-	QObject(parent), AMOrderedSet<QString, QPair<AMDetector*, bool> >(false)
+AMOldDetectorSet::AMOldDetectorSet(QObject *parent) :
+	QObject(parent), AMOrderedSet<QString, QPair<AMOldDetector*, bool> >(false)
 {
-	connect(AMOrderedSet<QString, QPair<AMDetector*, bool> >::signalSource(), SIGNAL(itemAdded(int)), this, SIGNAL(detectorAdded(int)));
-	connect(AMOrderedSet<QString, QPair<AMDetector*, bool> >::signalSource(), SIGNAL(itemRemoved(int)), this, SIGNAL(detectorRemoved(int)));
+	connect(AMOrderedSet<QString, QPair<AMOldDetector*, bool> >::signalSource(), SIGNAL(itemAdded(int)), this, SIGNAL(detectorAdded(int)));
+	connect(AMOrderedSet<QString, QPair<AMOldDetector*, bool> >::signalSource(), SIGNAL(itemRemoved(int)), this, SIGNAL(detectorRemoved(int)));
 	wasConnected_ = false;
 	QTimer::singleShot(AMDETECTORSET_CONTROL_TIMEOUT_MS, this, SLOT(onConnectionsTimedOut()));
 }
 
-QString AMDetectorSet::name() const {
+QString AMOldDetectorSet::name() const {
 	return name_;
 }
 
-bool AMDetectorSet::isConnected() const {
+bool AMOldDetectorSet::isConnected() const {
 	int num = count();
 	for(int x = 0; x < num; x++)
 		if(!at(x).first->isConnected())
@@ -41,7 +41,7 @@ bool AMDetectorSet::isConnected() const {
 	return true;
 }
 
-QStringList AMDetectorSet::unconnected() const {
+QStringList AMOldDetectorSet::unconnected() const {
 	int num = count();
 	QStringList retVal;
 	for(int x = 0; x < num; x++)
@@ -50,29 +50,29 @@ QStringList AMDetectorSet::unconnected() const {
 	return retVal;
 }
 
-AMDetectorInfoSet AMDetectorSet::toInfoSet() const {
-	AMDetectorInfoSet rv;
+AMOldDetectorInfoSet AMOldDetectorSet::toInfoSet() const {
+	AMOldDetectorInfoSet rv;
 
 	int numDetectors = count();
 	for(int i=0; i<numDetectors; i++) {
-		AMDetector *d = at(i).first;
+		AMOldDetector *d = at(i).first;
 		rv.addDetectorInfo( d->toInfo(), isDefaultAt(i) );
 	}
 
 	return rv;
 }
 
-int AMDetectorSet::indexOf(AMDetector* detector) const{
-	int indexWFalse = indexOfValue(QPair<AMDetector*, bool>(detector, false));
-	int indexWTrue = indexOfValue(QPair<AMDetector*, bool>(detector, true));
+int AMOldDetectorSet::indexOf(AMOldDetector* detector) const{
+	int indexWFalse = indexOfValue(QPair<AMOldDetector*, bool>(detector, false));
+	int indexWTrue = indexOfValue(QPair<AMOldDetector*, bool>(detector, true));
 	return std::max(indexWFalse, indexWTrue);
 }
 
-int AMDetectorSet::indexOf(const QString& detectorName) const{
+int AMOldDetectorSet::indexOf(const QString& detectorName) const{
 	return indexOfKey(detectorName);
 }
 
-AMDetector* AMDetectorSet::detectorNamed(const QString& detectorName) {
+AMOldDetector* AMOldDetectorSet::detectorNamed(const QString& detectorName) {
 	int index = indexOfKey(detectorName);
 	if(index < 0)
 		return 0; //NULL
@@ -80,37 +80,37 @@ AMDetector* AMDetectorSet::detectorNamed(const QString& detectorName) {
 	return at(index).first;
 }
 
-AMDetector* AMDetectorSet::detectorAt(int index) {
+AMOldDetector* AMOldDetectorSet::detectorAt(int index) {
 	if(index < 0 || index >= count())
 		return 0; //NULL
 	return at(index).first;
 }
 
-bool AMDetectorSet::isDefaultNamed(const QString &detectorName) const{
+bool AMOldDetectorSet::isDefaultNamed(const QString &detectorName) const{
 	int index = indexOf(detectorName);
 	if(index > 0)
 		return at(index).second;
 	return false;
 }
 
-bool AMDetectorSet::isDefaultDetector(AMDetector *detector) const{
+bool AMOldDetectorSet::isDefaultDetector(AMOldDetector *detector) const{
 	int index = indexOf(detector);
 	if(index > 0)
 		return at(index).second;
 	return false;
 }
 
-bool AMDetectorSet::isDefaultAt(int index) const{
+bool AMOldDetectorSet::isDefaultAt(int index) const{
 	if(index < 0 || index >= count())
 		return false;
 	return at(index).second;
 }
 
-bool AMDetectorSet::addDetector(AMDetector* newDetector, bool isDefault) {
+bool AMOldDetectorSet::addDetector(AMOldDetector* newDetector, bool isDefault) {
 	if(!newDetector)
 		return false;
 
-	if( append(QPair<AMDetector*, bool>(newDetector, isDefault), newDetector->detectorName()) ) {
+	if( append(QPair<AMOldDetector*, bool>(newDetector, isDefault), newDetector->detectorName()) ) {
 		//qdebug() << "Adding detector as " << newDetector->detectorName();
 		connect(newDetector->signalSource(), SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
 		connect(newDetector->signalSource(), SIGNAL(readingsChanged()), this, SIGNAL(detectorSetReadingsChanged()));
@@ -123,7 +123,7 @@ bool AMDetectorSet::addDetector(AMDetector* newDetector, bool isDefault) {
 	return false;
 }
 
-bool AMDetectorSet::removeDetector(AMDetector* detector) {
+bool AMOldDetectorSet::removeDetector(AMOldDetector* detector) {
 	int index = indexOf(detector);
 	if(index < 0)
 		return false;
@@ -138,9 +138,9 @@ bool AMDetectorSet::removeDetector(AMDetector* detector) {
 	return true;
 }
 
-bool AMDetectorSet::validInfoSet(const AMDetectorInfoSet &info){
+bool AMOldDetectorSet::validInfoSet(const AMOldDetectorInfoSet &info){
 	/// \todo alternate orderings or subsets of the entire list
-	AMDetector *tmpDtctr;
+	AMOldDetector *tmpDtctr;
 	for(int x = 0; x < info.count(); x++){
 		tmpDtctr = detectorNamed(info.detectorInfoAt(x)->name());
 		if(!tmpDtctr)
@@ -149,8 +149,8 @@ bool AMDetectorSet::validInfoSet(const AMDetectorInfoSet &info){
 	return true;
 }
 
-void AMDetectorSet::setFromInfoSet(const AMDetectorInfoSet& info){
-	AMDetector *tmpDtctr;
+void AMOldDetectorSet::setFromInfoSet(const AMOldDetectorInfoSet& info){
+	AMOldDetector *tmpDtctr;
 	for(int x = 0; x < info.count(); x++){
 		tmpDtctr = detectorNamed(info.detectorInfoAt(x)->name());
 		if(tmpDtctr)
@@ -159,7 +159,7 @@ void AMDetectorSet::setFromInfoSet(const AMDetectorInfoSet& info){
 	}
 }
 
-void AMDetectorSet::onConnected(bool dtctrConnected){
+void AMOldDetectorSet::onConnected(bool dtctrConnected){
 	/* NTBA March 14, 2011 David Chevrier
 	AMDetector *tmpDtctr = 0; //NULL
 	if(tmpDtctr = qobject_cast<AMDetectorInfo*>(QObject::sender()))
@@ -176,7 +176,7 @@ void AMDetectorSet::onConnected(bool dtctrConnected){
 	}
 }
 
-void AMDetectorSet::onConnectionsTimedOut(){
+void AMOldDetectorSet::onConnectionsTimedOut(){
 	if(!wasConnected_)
 		emit connected(false);
 }

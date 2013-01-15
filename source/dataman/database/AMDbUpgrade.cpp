@@ -206,6 +206,24 @@ bool AMDbUpgradeSupport::dbObjectClassBecomes(AMDatabase *databaseToEdit, const 
 					return false;
 				}
 			}
+
+			// If we're editing the left side (column 1) we need to update the name of the index table as well
+			if(i.value() == 1 && i.key().contains(originalTableName)){
+				// Finally, rename the table from the original index table name to the new index table name
+				QSqlQuery q = userDb->query();
+				QString originalIndexTableName = i.key();
+				QString newIndexTableName = i.key();
+				newIndexTableName.remove(originalTableName);
+				newIndexTableName.prepend(newTableName);
+				q.prepare("ALTER table "%originalIndexTableName%" RENAME to "%newIndexTableName);
+				if(!AMDatabase::execQuery(q)) {
+					q.finish();
+					userDb->rollbackTransaction();
+					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -283, QString("Database support: There was an error while trying to update table %1 to become %2.").arg(originalIndexTableName).arg(newIndexTableName)));
+					return false;
+				}
+			}
+
 			++i;
 		}
 

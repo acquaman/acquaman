@@ -60,13 +60,13 @@ public:
 	const QMetaObject* getMetaObject();
 
 	/// Returns an AMDetectorSet that consists of the detectors a user can choose (or choose not) to use. In this case TEY and TFY
-	AMDetectorSet* detectorChoices() const { return fastDetectors_; }
+	AMOldDetectorSet* detectorChoices() const { return fastDetectors_; }
 	/// Returns an AMDetectorSet that consists of all the detectors this scan can/will use (adds detectors that are always collected to the detectorChoices(), such as I0, photodiode, and energy feedback)
-	AMDetectorSet* allDetectors() const { return allDetectors_; }
+	AMOldDetectorSet* allDetectors() const { return allDetectors_; }
 	/// Returns the current configuration requested for the user selectable detectors
-	AMDetectorInfoSet detectorChoiceConfigurations() const { return fastDetectorsConfigurations_; }
+	AMOldDetectorInfoSet detectorChoiceConfigurations() const { return fastDetectorsConfigurations_; }
 	/// Returns the current configuration requested for all of the detectors
-	AMDetectorInfoSet allDetectorConfigurations() const;
+	AMOldDetectorInfoSet allDetectorConfigurations() const;
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;
@@ -189,7 +189,7 @@ public slots:
 	bool setSGMGrating(int sgmGrating);
 
 	/// Sets the detector configurations from an info set
-	bool setDetectorConfigurations(AMDetectorInfoSet detectorConfigurations);
+	bool setDetectorConfigurations(AMOldDetectorInfoSet detectorConfigurations);
 
 signals:
 	/// Emitted when the element name changes
@@ -259,11 +259,11 @@ protected:
 
 protected:
 	/// Detector set for detectors particular to fast scanning (retrieved from SGM Beamline object)
-	AMDetectorSet *fastDetectors_;
+	AMOldDetectorSet *fastDetectors_;
 	/// All the detectors used for this scan
-	AMDetectorSet *allDetectors_;
+	AMOldDetectorSet *allDetectors_;
 	/// Configuration for the detectors in use
-	AMDetectorInfoSet fastDetectorsConfigurations_;
+	AMOldDetectorInfoSet fastDetectorsConfigurations_;
 
 	/// Holds the list of predefined element and edge fast scans
 	QList<SGMFastScanParameters*> settings_;

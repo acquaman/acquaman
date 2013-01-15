@@ -30,15 +30,15 @@ AMSingleControlBriefDetectorView::AMSingleControlBriefDetectorView(AMSingleContr
 	setDetector(detector);
 }
 
-AMDetector* AMSingleControlBriefDetectorView::detector(){
+AMOldDetector* AMSingleControlBriefDetectorView::detector(){
 	return detector_;
 }
 
-AMDetectorInfo* AMSingleControlBriefDetectorView::configurationSettings() const{
+AMOldDetectorInfo* AMSingleControlBriefDetectorView::configurationSettings() const{
 	return configurationSettings_;
 }
 
-bool AMSingleControlBriefDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool AMSingleControlBriefDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	if(!detector)
 		return false;
 	if(configurationSettings_)
@@ -74,15 +74,15 @@ AMSingleReadOnlyControlBriefDetectorView::AMSingleReadOnlyControlBriefDetectorVi
 	setDetector(detector);
 }
 
-AMDetector* AMSingleReadOnlyControlBriefDetectorView::detector(){
+AMOldDetector* AMSingleReadOnlyControlBriefDetectorView::detector(){
 	return detector_;
 }
 
-AMDetectorInfo* AMSingleReadOnlyControlBriefDetectorView::configurationSettings() const{
+AMOldDetectorInfo* AMSingleReadOnlyControlBriefDetectorView::configurationSettings() const{
 	return configurationSettings_;
 }
 
-bool AMSingleReadOnlyControlBriefDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool AMSingleReadOnlyControlBriefDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	if(!detector)
 		return false;
 	if(configurationSettings_)

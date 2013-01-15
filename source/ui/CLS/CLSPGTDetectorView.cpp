@@ -39,7 +39,7 @@ CLSPGTBriefDetectorView::CLSPGTBriefDetectorView(CLSPGTDetector *detector, bool 
 	setDetector(detector, configureOnly_);
 }
 
-AMDetector* CLSPGTBriefDetectorView::detector(){
+AMOldDetector* CLSPGTBriefDetectorView::detector(){
 	return detector_;
 }
 
@@ -50,7 +50,7 @@ void CLSPGTBriefDetectorView::onPoweredOnChanged(bool poweredOn){
 		powerState_->setIcon(powerOffState_);
 }
 
-bool CLSPGTBriefDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool CLSPGTBriefDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	if(detector_)
 		disconnect(detector_, SIGNAL(poweredOnChanged(bool)), this, SLOT(onPoweredOnChanged(bool)));
 	if(!detector)
@@ -175,11 +175,11 @@ CLSPGTDetailedDetectorView::CLSPGTDetailedDetectorView(CLSPGTDetector *detector,
 	setDetector(detector, configureOnly);
 }
 
-AMDetector* CLSPGTDetailedDetectorView::detector(){
+AMOldDetector* CLSPGTDetailedDetectorView::detector(){
 	return detector_;
 }
 
-AMDetectorInfo* CLSPGTDetailedDetectorView::configurationSettings() const{
+AMOldDetectorInfo* CLSPGTDetailedDetectorView::configurationSettings() const{
 	return configurationSettings_;
 }
 
@@ -187,7 +187,7 @@ MPlot* CLSPGTDetailedDetectorView::plot() const{
 	return plot_;
 }
 
-bool CLSPGTDetailedDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool CLSPGTDetailedDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	/* NTBA - April 3rd, 2012 (David Chevrier)
 	Need to implement the configureOnly part.
 	*/

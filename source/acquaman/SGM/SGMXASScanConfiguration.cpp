@@ -34,9 +34,9 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	trackingSet_ = SGMBeamline::sgm()->trackingSet();
 
 	xasDetectors_ = SGMBeamline::sgm()->XASDetectors();
-	connect(SGMBeamline::sgm(), SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)), this, SLOT(detectorAvailabilityChanged(AMDetector*,bool)));
+	connect(SGMBeamline::sgm(), SIGNAL(detectorAvailabilityChanged(AMOldDetector*,bool)), this, SLOT(detectorAvailabilityChanged(AMOldDetector*,bool)));
 
-	allDetectors_ = new AMDetectorSet(this);
+	allDetectors_ = new AMOldDetectorSet(this);
 
 	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectors()->count(); x++)
 		allDetectors_->addDetector(SGMBeamline::sgm()->feedbackDetectors()->detectorAt(x), true);
@@ -72,7 +72,7 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(const SGMXASScanConfiguration &
 
 	xasDetectors_ = SGMBeamline::sgm()->XASDetectors();
 
-	allDetectors_ = new AMDetectorSet(this);
+	allDetectors_ = new AMOldDetectorSet(this);
 	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectors()->count(); x++)
 		allDetectors_->addDetector(SGMBeamline::sgm()->feedbackDetectors()->detectorAt(x), true);
 	for(int x = 0; x < xasDetectors_->count(); x++)
@@ -87,8 +87,8 @@ const QMetaObject* SGMXASScanConfiguration::getMetaObject(){
 	return metaObject();
 }
 
-AMDetectorInfoSet SGMXASScanConfiguration::allDetectorConfigurations() const{
-	AMDetectorInfoSet allConfigurations;
+AMOldDetectorInfoSet SGMXASScanConfiguration::allDetectorConfigurations() const{
+	AMOldDetectorInfoSet allConfigurations;
 	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectors()->count(); x++)
 		allConfigurations.addDetectorInfo(SGMBeamline::sgm()->feedbackDetectors()->detectorAt(x)->toInfo(), true);
 	for(int x = 0; x < xasDetectorsCfg_.count(); x++)
@@ -284,13 +284,13 @@ bool SGMXASScanConfiguration::setHarmonic(int harmonic) {
 	return setHarmonic( (SGMBeamline::sgmHarmonic)harmonic );
 }
 
-bool SGMXASScanConfiguration::setDetectorConfigurations(const AMDetectorInfoSet &xasDetectorsCfg){
+bool SGMXASScanConfiguration::setDetectorConfigurations(const AMOldDetectorInfoSet &xasDetectorsCfg){
 	xasDetectorsCfg_ = xasDetectorsCfg;
 	setModified(true);
 	return true;
 }
 
-void SGMXASScanConfiguration::detectorAvailabilityChanged(AMDetector *detector, bool isAvailable){
+void SGMXASScanConfiguration::detectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable){
 	Q_UNUSED(detector)
 	Q_UNUSED(isAvailable)
 }

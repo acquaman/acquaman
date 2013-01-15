@@ -18,23 +18,23 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AMDETECTORSET_H
-#define AMDETECTORSET_H
+#ifndef AMOLDDETECTORSET_H
+#define AMOLDDETECTORSET_H
 
-#include "dataman/info/AMDetectorInfoSet.h"
+#include "dataman/info/AMOldDetectorInfoSet.h"
 
-class AMDetectorSet : public QObject, public AMOrderedSet<QString, QPair<AMDetector*, bool> >
+class AMOldDetectorSet : public QObject, public AMOrderedSet<QString, QPair<AMOldDetector*, bool> >
 {
 Q_OBJECT
 public:
 	/// Constructor
-	explicit AMDetectorSet(QObject *parent = 0);
+	explicit AMOldDetectorSet(QObject *parent = 0);
 
 	/// Returns the name defined for the control set.
 	QString name() const;
 
 	/// Converts all the controls to their simplified AMControlInfo form, and returns a list like this
-	AMDetectorInfoSet toInfoSet() const;
+	AMOldDetectorInfoSet toInfoSet() const;
 
 	/// Returns true if ALL the controls in this set are connected.
 	bool isConnected() const;
@@ -43,31 +43,31 @@ public:
 	QStringList unconnected() const;
 
 	/// Return the index of a given \c detector in the set. You can then access the control using at() or operator[].  (Returns -1 if not found in the set.)
-	int indexOf(AMDetector* detector) const;
+	int indexOf(AMOldDetector* detector) const;
 	/// Return the index of the detector named \c detectorName. (Returns -1 if not found in the set.)
 	int indexOf(const QString& detectorName) const;
 	/// Returns the detector named \c detectorName, or 0 if not found in the set.
-	AMDetector* detectorNamed(const QString& detectorName);
+	AMOldDetector* detectorNamed(const QString& detectorName);
 	/// Returns the detector at the index specified
-	AMDetector* detectorAt(int index);
+	AMOldDetector* detectorAt(int index);
 	/// Returns whether or not the detector named \c detectorName has been defined as default for this set (If no detector by that name is in the set then false will be returned)
 	bool isDefaultNamed(const QString& detectorName) const;
 	/// Returns whether or not the AMDetector has been defined as default for this set (If the AMDetector is not in the set then false will be returned)
-	bool isDefaultDetector(AMDetector *detector) const;
+	bool isDefaultDetector(AMOldDetector *detector) const;
 	/// Returns whether or not the detector at the specified index has been defined as default for this set
 	bool isDefaultAt(int index) const;
 
 	/// Adds an AMDetector to the detector set. Returns true if the addition was successful. Failure could result from adding the same AMControl twice.
-	bool addDetector(AMDetector* newDetector, bool isDefault = false);
+	bool addDetector(AMOldDetector* newDetector, bool isDefault = false);
 
 	/// Removes an AMControl \c control from the set. Returns true if the removal was successful. Failure could result from removing an AMControl not in the set.
-	bool removeDetector(AMDetector* detector);
+	bool removeDetector(AMOldDetector* detector);
 
 	/// Checks to see if this detector set can be set from the given AMDetectorInfoSet (they refer to the same detectors)
-	bool validInfoSet(const AMDetectorInfoSet& info);
+	bool validInfoSet(const AMOldDetectorInfoSet& info);
 
 	/// Set the position of all the detectors in the set from the simplified AMDetectorInfoSet \c infoList.  The detectors in \c infoList are matched by name, and for each corresponding name in this set, the real control's value is set.
-	void setFromInfoSet(const AMDetectorInfoSet& info);
+	void setFromInfoSet(const AMOldDetectorInfoSet& info);
 
 
 signals:
@@ -76,7 +76,7 @@ signals:
 
 	/// This signal is emitted whenever isConnected() changes
 	void connected(bool groupConnected);
-	void detectorConnectedChanged(bool isConnected, AMDetector *detector);
+	void detectorConnectedChanged(bool isConnected, AMOldDetector *detector);
 
 	void detectorSetReadingsChanged();
 	/// This signal is emitted whenever one of the controls has new settings

@@ -46,7 +46,7 @@ public:
 	Q_INVOKABLE explicit XRFBriefDetectorView(XRFDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
 
 	/// Returns a pointer to the detector being viewed.
-	AMDetector *detector() { return detector_; }
+	AMOldDetector *detector() { return detector_; }
 
 signals:
 
@@ -63,7 +63,7 @@ protected:
 
 	/*! Sets up the view based with the given detector.
 	 We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type. */
-	bool setDetector(AMDetector *detector, bool configureOnly);
+	bool setDetector(AMOldDetector *detector, bool configureOnly);
 
 	/// The pointer to the detector.
 	XRFDetector *detector_;
@@ -84,7 +84,7 @@ public:
 	Q_INVOKABLE explicit XRFDetailedDetectorView(XRFDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
 
 	/// Returns a pointer to the detector being viewed.
-	AMDetector *detector() { return detector_; }
+	AMOldDetector *detector() { return detector_; }
 	/// Returns a pointer to the plot.
 	MPlot *plot() const { return plot_; }
 
@@ -187,7 +187,7 @@ protected:
 
 	/*! Sets up the view based with the given detector.
 	 We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type. */
-	bool setDetector(AMDetector *detector, bool configureOnly);
+	bool setDetector(AMOldDetector *detector, bool configureOnly);
 
 	/// Sets up the plot.  Can add the plot widget to the layout after calling this function.
 	void setupPlot();

@@ -34,7 +34,7 @@ SGMMCPBriefDetectorView::SGMMCPBriefDetectorView(SGMMCPDetector *detector, bool 
 	setDetector(detector, configureOnly_);
 }
 
-AMDetector* SGMMCPBriefDetectorView::detector(){
+AMOldDetector* SGMMCPBriefDetectorView::detector(){
 	return detector_;
 }
 
@@ -45,7 +45,7 @@ void SGMMCPBriefDetectorView::onPoweredOnChanged(bool poweredOn){
 		powerState_->setIcon(powerOffState_);
 }
 
-bool SGMMCPBriefDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool SGMMCPBriefDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	if(detector_)
 		disconnect(detector_, SIGNAL(poweredOnChanged(bool)), this, SLOT(onPoweredOnChanged(bool)));
 	if(!detector)
@@ -90,11 +90,11 @@ SGMMCPDetailedDetectorView::SGMMCPDetailedDetectorView(SGMMCPDetector *detector,
 	setDetector(detector, configureOnly_);
 }
 
-AMDetector* SGMMCPDetailedDetectorView::detector(){
+AMOldDetector* SGMMCPDetailedDetectorView::detector(){
 	return detector_;
 }
 
-AMDetectorInfo* SGMMCPDetailedDetectorView::configurationSettings() const{
+AMOldDetectorInfo* SGMMCPDetailedDetectorView::configurationSettings() const{
 	return configurationSettings_;
 }
 
@@ -105,7 +105,7 @@ void SGMMCPDetailedDetectorView::onControlSetpointRequested(){
 	}
 }
 
-bool SGMMCPDetailedDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+bool SGMMCPDetailedDetectorView::setDetector(AMOldDetector *detector, bool configureOnly){
 	if(!detector)
 		return false;
 	detector_ = static_cast<SGMMCPDetector*>(detector);

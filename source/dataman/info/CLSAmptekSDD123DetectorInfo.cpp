@@ -31,7 +31,7 @@ CLSAmptekSDD123DetectorInfo::CLSAmptekSDD123DetectorInfo(const CLSAmptekSDD123De
 	this->operator =(original);
 }
 
-AMDetectorInfo* CLSAmptekSDD123DetectorInfo::toNewInfo() const{
+AMOldDetectorInfo* CLSAmptekSDD123DetectorInfo::toNewInfo() const{
 	return new CLSAmptekSDD123DetectorInfo(*this);
 }
 

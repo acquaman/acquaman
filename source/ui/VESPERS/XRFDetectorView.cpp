@@ -46,7 +46,7 @@ XRFBriefDetectorView::XRFBriefDetectorView(XRFDetector *detector, bool configure
 	setDetector(detector, configureOnly);
 }
 
-bool XRFBriefDetectorView::setDetector(AMDetector *detector, bool configureOnly)
+bool XRFBriefDetectorView::setDetector(AMOldDetector *detector, bool configureOnly)
 {
 	//I don't have a configure only view for these.  It doesn't make quite as much sense for the stand alone spectra to have configure only views.
 	Q_UNUSED(configureOnly)
@@ -95,7 +95,7 @@ XRFDetailedDetectorView::XRFDetailedDetectorView(XRFDetector *detector, bool con
 	setDetector(detector, configureOnly);
 }
 
-bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOnly)
+bool XRFDetailedDetectorView::setDetector(AMOldDetector *detector, bool configureOnly)
 {
 	//I don't have a configure only view for these.  It doesn't make quite as much sense for the stand alone spectra to have configure only views.
 	Q_UNUSED(configureOnly)

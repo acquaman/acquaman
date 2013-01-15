@@ -18,25 +18,25 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMDetectorInfo.h"
+#include "AMOldDetectorInfo.h"
 
 #include <QStringList>
 
-AMDetectorInfo::AMDetectorInfo(const QString& name, const QString& description, QObject *parent) :
+AMOldDetectorInfo::AMOldDetectorInfo(const QString& name, const QString& description, QObject *parent) :
 		AMDbObject(parent)
 {
 	setName(name);
 	description_ = description;
 }
 
-AMDetectorInfo::AMDetectorInfo(const AMDetectorInfo &original) :
+AMOldDetectorInfo::AMOldDetectorInfo(const AMOldDetectorInfo &original) :
 		AMDbObject(original)
 {
 	//retreiveAndSetProperties(original);
 	this->operator =(original);
 }
 
-AMDetectorInfo& AMDetectorInfo::operator =(const AMDetectorInfo &other)
+AMOldDetectorInfo& AMOldDetectorInfo::operator =(const AMOldDetectorInfo &other)
 {
 	if(this != &other){
 		AMDbObject::operator =(other);
@@ -46,15 +46,15 @@ AMDetectorInfo& AMDetectorInfo::operator =(const AMDetectorInfo &other)
 	return *this;
 }
 
-AMDetectorInfo* AMDetectorInfo::toNewInfo() const{
-	return new AMDetectorInfo(*this);
+AMOldDetectorInfo* AMOldDetectorInfo::toNewInfo() const{
+	return new AMOldDetectorInfo(*this);
 }
 
-QDebug operator<<(QDebug d, const AMDetectorInfo& di){
+QDebug operator<<(QDebug d, const AMOldDetectorInfo& di){
 	return di.qDebugPrint(d);
 }
 
-QDebug AMDetectorInfo::qDebugPrint(QDebug &d) const{
+QDebug AMOldDetectorInfo::qDebugPrint(QDebug &d) const{
 	d << "AMDetectorInfo " << name();
 	return d;
 }

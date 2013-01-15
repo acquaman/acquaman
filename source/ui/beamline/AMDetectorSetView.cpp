@@ -20,14 +20,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDetectorSetView.h"
 
-AMDetectorSetView::AMDetectorSetView(AMDetectorSet *viewSet, bool configureOnly, QWidget *parent) :
+AMDetectorSetView::AMDetectorSetView(AMOldDetectorSet *viewSet, bool configureOnly, QWidget *parent) :
 	QGroupBox(parent)
 {
 	internalView_ = new AMDetectorSetViewInternal(viewSet, configureOnly);
 	initializeWidget(viewSet);
 }
 
-AMDetectorSetView::AMDetectorSetView(AMDetectorSet *viewSet, const AMDetectorInfoSet &infoSet, QWidget *parent) :
+AMDetectorSetView::AMDetectorSetView(AMOldDetectorSet *viewSet, const AMOldDetectorInfoSet &infoSet, QWidget *parent) :
 	QGroupBox(parent)
 {
 	internalView_ = new AMDetectorSetViewInternal(viewSet, infoSet);
@@ -38,7 +38,7 @@ int AMDetectorSetView::count() const{
 	return internalView_->count();
 }
 
-AMDetectorSet* AMDetectorSetView::detectorSet(){
+AMOldDetectorSet* AMDetectorSetView::detectorSet(){
 	return internalView_->detectorSet();
 }
 
@@ -62,11 +62,11 @@ bool AMDetectorSetView::checkedAt(int row) const{
 	return internalView_->checkedAt(row);
 }
 
-AMDetectorInfoSet AMDetectorSetView::currentValues(){
+AMOldDetectorInfoSet AMDetectorSetView::currentValues(){
 	return internalView_->currentValues();
 }
 
-AMDetectorInfoSet AMDetectorSetView::configValues(){
+AMOldDetectorInfoSet AMDetectorSetView::configValues(){
 	return internalView_->configValues();
 }
 
@@ -75,7 +75,7 @@ QDebug operator<<(QDebug d, const AMDetectorSetView& dsv){
 	return d;
 }
 
-void AMDetectorSetView::initializeWidget(AMDetectorSet *viewSet){
+void AMDetectorSetView::initializeWidget(AMOldDetectorSet *viewSet){
 	setTitle(viewSet->name());
 	scrollArea_ = new QScrollArea();
 	scrollArea_->setWidget(internalView_);
@@ -97,7 +97,7 @@ QSize AMDetectorSetView::sizeHint() const{
 	return internalSize;
 }*/
 
-AMDetectorSetViewInternal::AMDetectorSetViewInternal(AMDetectorSet *viewSet, bool configureOnly, QWidget *parent) :
+AMDetectorSetViewInternal::AMDetectorSetViewInternal(AMOldDetectorSet *viewSet, bool configureOnly, QWidget *parent) :
 	QWidget(parent)
 	//QGroupBox(parent)
 {
@@ -105,7 +105,7 @@ AMDetectorSetViewInternal::AMDetectorSetViewInternal(AMDetectorSet *viewSet, boo
 	configureOnly_ = configureOnly;
 	gl_ = new QGridLayout();
 	AMDetectorView *tmpDV;
-	AMDetector *tmpD;
+	AMOldDetector *tmpD;
 	QLabel *tmpLabel;
 	QPushButton *tmpButton;
 	QCheckBox *tmpCheck;
@@ -152,7 +152,7 @@ AMDetectorSetViewInternal::AMDetectorSetViewInternal(AMDetectorSet *viewSet, boo
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
 }
 
-AMDetectorSetViewInternal::AMDetectorSetViewInternal(AMDetectorSet *viewSet, const AMDetectorInfoSet &infoSet, QWidget *parent) :
+AMDetectorSetViewInternal::AMDetectorSetViewInternal(AMOldDetectorSet *viewSet, const AMOldDetectorInfoSet &infoSet, QWidget *parent) :
 	QWidget(parent)
 //	QGroupBox(parent)
 {
@@ -160,7 +160,7 @@ AMDetectorSetViewInternal::AMDetectorSetViewInternal(AMDetectorSet *viewSet, con
 	configureOnly_ = true;
 	gl_ = new QGridLayout();
 	AMDetectorView *tmpDV;
-	AMDetector *tmpD;
+	AMOldDetector *tmpD;
 	QLabel *tmpLabel;
 	QPushButton *tmpButton;
 	QCheckBox *tmpCheck;
@@ -211,7 +211,7 @@ int AMDetectorSetViewInternal::count() const{
 	return viewSet_->count();
 }
 
-AMDetectorSet* AMDetectorSetViewInternal::detectorSet(){
+AMOldDetectorSet* AMDetectorSetViewInternal::detectorSet(){
 	return viewSet_;
 }
 
@@ -239,12 +239,12 @@ bool AMDetectorSetViewInternal::checkedAt(int row) const{
 	return false;
 }
 
-AMDetectorInfoSet AMDetectorSetViewInternal::currentValues(){
+AMOldDetectorInfoSet AMDetectorSetViewInternal::currentValues(){
 	return viewSet_->toInfoSet();
 }
 
-AMDetectorInfoSet AMDetectorSetViewInternal::configValues(){
-	AMDetectorInfoSet rv;
+AMOldDetectorInfoSet AMDetectorSetViewInternal::configValues(){
+	AMOldDetectorInfoSet rv;
 
 	if(!configureOnly_)
 		return currentValues();
@@ -278,7 +278,7 @@ void AMDetectorSetViewInternal::setDisabled(bool disabled){
 
 void AMDetectorSetViewInternal::onDetectorAddedToSet(int index){
 	AMDetectorView *tmpDV;
-	AMDetector *tmpD;
+	AMOldDetector *tmpD;
 	QLabel *tmpLabel;
 	QPushButton *tmpButton;
 	QCheckBox *tmpCheck;
@@ -339,7 +339,7 @@ void AMDetectorSetViewInternal::onDetectorRemovedFromSet(int index){
 	checkBoxes_.clear();
 	gl_ = new QGridLayout();
 	AMDetectorView *tmpDV;
-	AMDetector *tmpD;
+	AMOldDetector *tmpD;
 	QLabel *tmpLabel;
 	QPushButton *tmpButton;
 	QCheckBox *tmpCheck;

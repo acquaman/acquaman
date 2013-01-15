@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DSummingAB.h"
 
 XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *parent)
-	: XRFDetectorInfo(name, name, parent), AMDetector(name)
+	: XRFDetectorInfo(name, name, parent), AMOldDetector(name)
 {
 	connect(signalSource(), SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
 
@@ -215,7 +215,7 @@ void XRFDetector::setChannelSize()
 	disconnect(spectraPV_.first(), SIGNAL(valueChanged()), this, SLOT(setChannelSize()));
 }
 
-bool XRFDetector::setFromInfo(const AMDetectorInfo *info)
+bool XRFDetector::setFromInfo(const AMOldDetectorInfo *info)
 {
 	const XRFDetectorInfo *detectorInfo = qobject_cast<const XRFDetectorInfo *>(info);
 
@@ -270,7 +270,7 @@ void XRFDetector::isDetectorConnected()
 
 	if (isConnected() != currentlyConnected){
 
-		AMDetector::setConnected(currentlyConnected);
+		AMOldDetector::setConnected(currentlyConnected);
 		emit connected(currentlyConnected);
 	}
 }

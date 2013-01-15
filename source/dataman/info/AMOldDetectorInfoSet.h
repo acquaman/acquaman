@@ -18,11 +18,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AMDETECTORINFOSET_H
-#define AMDETECTORINFOSET_H
+#ifndef AMOLDDETECTORINFOSET_H
+#define AMOLDDETECTORINFOSET_H
 
 #include <QObject>
-#include <beamline/AMDetector.h>
+#include <beamline/AMOldDetector.h>
 #include <util/AMOrderedSet.h>
 
 #define AMDETECTORSET_CONTROL_TIMEOUT_MS 5000
@@ -30,7 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMDETECTORSET_NO_ENABLE_INFO_IN_DB 401001
 #define AMDETECTORSET_ENABLE_INFO_COUNT_MISMATCH 401002
 
-class AMDetectorInfoSet : public AMDbObject, public AMOrderedSet<QString, QPair<AMDetectorInfo*, bool> >
+class AMOldDetectorInfoSet : public AMDbObject, public AMOrderedSet<QString, QPair<AMOldDetectorInfo*, bool> >
 {
 Q_OBJECT
 	Q_PROPERTY(QString description READ description WRITE setDescription)
@@ -38,18 +38,18 @@ Q_OBJECT
 	Q_PROPERTY(QString activeDetectorInfos READ dbReadActiveDetectorInfos WRITE dbLoadActiveDetectorInfos)
 
 public:
-	explicit AMDetectorInfoSet(QObject *parent = 0);
+	explicit AMOldDetectorInfoSet(QObject *parent = 0);
 	/// Loading-from-database constructor
-	Q_INVOKABLE AMDetectorInfoSet(AMDatabase* db, int id);
+	Q_INVOKABLE AMOldDetectorInfoSet(AMDatabase* db, int id);
 	/// Copy constructor
-	AMDetectorInfoSet(const AMDetectorInfoSet& other);
+	AMOldDetectorInfoSet(const AMOldDetectorInfoSet& other);
 	/// Assignment operator
-	AMDetectorInfoSet& operator=(const AMDetectorInfoSet& other);
+	AMOldDetectorInfoSet& operator=(const AMOldDetectorInfoSet& other);
 
 	/// Destructor
-	~AMDetectorInfoSet() {}
+	~AMOldDetectorInfoSet() {}
 
-	friend QDebug operator<<(QDebug d, const AMDetectorInfoSet& dis);
+	friend QDebug operator<<(QDebug d, const AMOldDetectorInfoSet& dis);
 
 	QString description();
 
@@ -64,20 +64,20 @@ public:
 
 
 	/// Return the index of a given \c detectorInfo in the set. The comparison is done on the name() function returned by the detectorInfo passed into the function, not the pointer value. (Returns -1 if not found in the set.)
-	int indexOf(AMDetectorInfo *detectorInfo) const;
+	int indexOf(AMOldDetectorInfo *detectorInfo) const;
 	/// Return the index of the detectorInfo named \c detectorName. (Returns -1 if not found in the set.)
 	int indexOf(const QString& detectorName) const;
 	/// Returns the detectorInfo named \c detectorName. (A NULL pointer is returned if there is nothing by that name in the set.)
-	AMDetectorInfo* detectorInfoNamed(const QString& detectorName);
+	AMOldDetectorInfo* detectorInfoNamed(const QString& detectorName);
 	/* NTBA December 7, 2011 Darren Hunter
 	  Based on research I am taking out the second const.  However, Dave still might want to test this.
 	  const AMDetectorInfo* const detectorInfoNamed(const QString &detectorName) const;
 	  */
-	const AMDetectorInfo* detectorInfoNamed(const QString &detectorName) const;
+	const AMOldDetectorInfo* detectorInfoNamed(const QString &detectorName) const;
 	/// Returns the detectorInfo at the given index. (A NULL pointer is returned if the index is out of bounds.)
-	AMDetectorInfo* detectorInfoAt(int index);
+	AMOldDetectorInfo* detectorInfoAt(int index);
 	// THIS WILL HAVE TO COPY AND CREATE A NEW ONE
-	AMDetectorInfo* detectorInfoAt(int index) const;
+	AMOldDetectorInfo* detectorInfoAt(int index) const;
 	/* NTBA March 14, 2011 David Chevrier
 	   Need to figure out these const conditions for returned pointers
 	const AMDetectorInfo* const detectorInfoAt(int index) const;
@@ -85,20 +85,20 @@ public:
 	/// Returns whether or not the detectorInfo named \c detectorName has been requested for a scan.
 	bool isActiveNamed(const QString& detectorName) const;
 	/// Returns whether or not the \c detectorInfo has been requested for a scan. The comparison is done on the name() function returned by the detectorInfo passed into the function, not the pointer value.
-	bool isActiveDetectorInfo(AMDetectorInfo *detectorInfo) const;
+	bool isActiveDetectorInfo(AMOldDetectorInfo *detectorInfo) const;
 	/// Returns whether or not the detectorInfo at the given index has been requested for a scan.
 	bool isActiveAt(int index) const;
 
 	/// Adds an AMDetectorInfo to the detectorInfo set. Returns true if the addition was successful. Failure could result from adding an AMDetectorInfo when one with the same name is already in the set.
-	bool addDetectorInfo(AMDetectorInfo *newDetectorInfo, bool isActive = false);
+	bool addDetectorInfo(AMOldDetectorInfo *newDetectorInfo, bool isActive = false);
 
 	/// Removes an AMDetectorInfo \c detectorInfo from the set. Returns true if the removal was successful. Failure could result from removing an AMDetectorInfo not in the set.
-	bool removeDetector(AMDetectorInfo *detectorInfo);
+	bool removeDetector(AMOldDetectorInfo *detectorInfo);
 
 	/// Changes whether or not the detectorInfo named \c detectorName has been requested for a scan.
 	bool setActiveNamed(const QString& detectorName, bool active);
 	/// Changes whether or not the \c detectorInfo has been requested for a scan. The comparison is done on the name() function returned by the detectorInfo passed into the function, not the pointer value.
-	bool setActiveDetectorInfo(AMDetectorInfo *detectorInfo, bool active);
+	bool setActiveDetectorInfo(AMOldDetectorInfo *detectorInfo, bool active);
 	/// Changes whether or not the detectorInfo at the given index has been requested for a scan.
 	bool setActiveAt(int index, bool active);
 
@@ -125,7 +125,7 @@ protected slots:
 	void onDetectorRemoved(int index);
 
 protected:
-	int indexOfValue(const AMDetectorInfo *detectorInfo) const;
+	int indexOfValue(const AMOldDetectorInfo *detectorInfo) const;
 
 protected:
 	QString description_;

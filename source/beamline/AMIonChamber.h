@@ -22,12 +22,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMIONCHAMBER_H
 
 #include "dataman/info/AMIonChamberInfo.h"
-#include "beamline/AMDetector.h"
+#include "beamline/AMOldDetector.h"
 
 /*!
   This class is an abstraction for general ion chambers.
   */
-class AMIonChamber : public AMIonChamberInfo, public AMDetector
+class AMIonChamber : public AMIonChamberInfo, public AMOldDetector
 {
 	Q_OBJECT
 public:
@@ -40,7 +40,7 @@ public:
 	virtual bool isConnected() const { return false; }
 
 	/// AMDetector sub classes need to reimplement this to return their own detectorInfo class. NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.
-	virtual AMDetectorInfo* toInfo() const { return new AMIonChamberInfo(*this); }
+	virtual AMOldDetectorInfo* toInfo() const { return new AMIonChamberInfo(*this); }
 	/// Info specific to the ion chamber.
 	AMIonChamberInfo toIonChamberInfo() const { return AMIonChamberInfo(*this); }
 
@@ -50,7 +50,7 @@ public:
 	virtual void setDescription(const QString& description) { AMIonChamberInfo::setDescription(description); }
 
 	/// Sets the current detector from the given detector info.
-	virtual bool setFromInfo(const AMDetectorInfo *info);
+	virtual bool setFromInfo(const AMOldDetectorInfo *info);
 	/// Sets the current detector from the given detector info.
 	bool setFromIonChamberInfo(const AMIonChamberInfo &info);
 

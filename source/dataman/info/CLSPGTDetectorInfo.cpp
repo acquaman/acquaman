@@ -34,7 +34,7 @@ CLSPGTDetectorInfo::CLSPGTDetectorInfo(const CLSPGTDetectorInfo &original) :
 	this->operator =(original);
 }
 
-AMDetectorInfo* CLSPGTDetectorInfo::toNewInfo() const{
+AMOldDetectorInfo* CLSPGTDetectorInfo::toNewInfo() const{
 	return new CLSPGTDetectorInfo(*this);
 }
 

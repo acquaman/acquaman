@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMDETECTORSETVIEW_H
 
 #include "AMDetectorView.h"
-#include "beamline/AMDetectorSet.h"
+#include "beamline/AMOldDetectorSet.h"
 #include <QScrollArea>
 
 class AMDetectorSetViewInternal;
@@ -31,12 +31,12 @@ class AMDetectorSetView : public QGroupBox
 {
 Q_OBJECT
 public:
-	explicit AMDetectorSetView(AMDetectorSet *viewSet, bool configureOnly = false, QWidget *parent = 0);
+	explicit AMDetectorSetView(AMOldDetectorSet *viewSet, bool configureOnly = false, QWidget *parent = 0);
 	// Assumes configureOnly is true and uses infoSet as the starting point
-	explicit AMDetectorSetView(AMDetectorSet *viewSet, const AMDetectorInfoSet &infoSet, QWidget *parent = 0);
+	explicit AMDetectorSetView(AMOldDetectorSet *viewSet, const AMOldDetectorInfoSet &infoSet, QWidget *parent = 0);
 
 	int count() const;
-	AMDetectorSet* detectorSet();
+	AMOldDetectorSet* detectorSet();
 	AMDetectorView* boxByName(const QString &name);
 	// Darren:  I'm changing this from AMDetectorView const * const because it only needs one.  Also, to be consistent with other parts of our code, I'm also changing the ordering to const AMDetectorView *.
 	const AMDetectorView *boxAt(int row) const;
@@ -46,9 +46,9 @@ public:
 	bool checkedAt(int row) const;
 
 	/// Returns the current values of the detector set
-	AMDetectorInfoSet currentValues();
+	AMOldDetectorInfoSet currentValues();
 	/// Returns the desired values if the view is used for configuration only (returns the current values if the view is not for configuration only)
-	AMDetectorInfoSet configValues();
+	AMOldDetectorInfoSet configValues();
 
 	friend QDebug operator<<(QDebug d, const AMDetectorSetView& dsv);
 
@@ -62,7 +62,7 @@ signals:
 
 protected:
 	/// Used for the main bulk of the constructor, as it's the same between both
-	void initializeWidget(AMDetectorSet *viewSet);
+	void initializeWidget(AMOldDetectorSet *viewSet);
 
 protected:
 	AMDetectorSetViewInternal *internalView_;
@@ -78,12 +78,12 @@ public:
 	/*! \param viewSet Pointer to the AMControlSet to view.
 	  \param parent Pointer to QWidget to act as parent.
 	  */
-	explicit AMDetectorSetViewInternal(AMDetectorSet *viewSet, bool configureOnly = false, QWidget *parent = 0);
+	explicit AMDetectorSetViewInternal(AMOldDetectorSet *viewSet, bool configureOnly = false, QWidget *parent = 0);
 	// Assumes configureOnly is true and uses infoSet as the starting point
-	explicit AMDetectorSetViewInternal(AMDetectorSet *viewSet, const AMDetectorInfoSet &infoSet, QWidget *parent = 0);
+	explicit AMDetectorSetViewInternal(AMOldDetectorSet *viewSet, const AMOldDetectorInfoSet &infoSet, QWidget *parent = 0);
 
 	int count() const;
-	AMDetectorSet* detectorSet();
+	AMOldDetectorSet* detectorSet();
 	AMDetectorView* boxByName(const QString &name);
 	// Darren:  I'm changing this from AMDetectorView const * const because it only needs one.  Also, to be consistent with other parts of our code, I'm also changing the ordering to const AMDetectorView *.
 	const AMDetectorView *boxAt(int row) const;
@@ -93,9 +93,9 @@ public:
 	bool checkedAt(int row) const;
 
 	/// Returns the current values of the detector set
-	AMDetectorInfoSet currentValues();
+	AMOldDetectorInfoSet currentValues();
 	/// Returns the desired values if the view is used for configuration only (returns the current values if the view is not for configuration only)
-	AMDetectorInfoSet configValues();
+	AMOldDetectorInfoSet configValues();
 
 	friend QDebug operator<<(QDebug d, const AMDetectorSetView& dsv);
 
@@ -116,7 +116,7 @@ protected slots:
 
 protected:
 	/// Pointer to the AMControlSet which is the subject of this view.
-	AMDetectorSet *viewSet_;
+	AMOldDetectorSet *viewSet_;
 	bool configureOnly_;
 	QList<AMDetectorView*> detectorBoxes_;
 	QList<AMDetectorView*> detectorDetails_;

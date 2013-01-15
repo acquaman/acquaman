@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMDETECTORVIEWSUPPORT_H
 #define AMDETECTORVIEWSUPPORT_H
 
-#include "beamline/AMDetector.h"
+#include "beamline/AMOldDetector.h"
 
 class AMDetectorView;
 
@@ -33,7 +33,7 @@ public:
 	}
 
 	/// fill the className
-	AMDetectorViewObjectInfo(AMDetectorView *prototypeView, AMDetector *prototypeDetector);
+	AMDetectorViewObjectInfo(AMDetectorView *prototypeView, AMOldDetector *prototypeDetector);
 
 	/// fill the className (This version doesn't require an instance. The \c classMetaObject can be retrieved statically with Class::staticMetaObject. )
 	AMDetectorViewObjectInfo(const QMetaObject *classMetaObject, const QMetaObject *supportsMetaObject);
@@ -72,15 +72,15 @@ private:
 	/// checks to make sure a QMetaObject inherits AMDetailedDetectorView
 	bool inheritsDetailedView(const QMetaObject *metaObject) const;
 
-	/// checks to make sure a QMetaObject inherits AMDetectorInfo
+	/// checks to make sure a QMetaObject inherits AMOldDetectorInfo
 	bool inheritsDetectorInfo(const QMetaObject *metaObject) const;
 };
 
 namespace AMDetectorViewSupport{
 	extern QHash<QString, AMDetectorViewObjectInfo> registeredClasses_;
 
-	// Registers the pairing of a view class (AMDetectorView descendant) and a detector class (AMDetectorInfo descendent)
-	// Class T1 needs to inherit AMDetectorView and Class T2 needs to inherit AMDetectorInfo
+	// Registers the pairing of a view class (AMDetectorView descendant) and a detector class (AMOldDetectorInfo descendent)
+	// Class T1 needs to inherit AMDetectorView and Class T2 needs to inherit AMOldDetectorInfo
 	template <class Ta, class Tb>
 			bool registerClass() {
 		// create the meta object for the view
@@ -98,15 +98,15 @@ namespace AMDetectorViewSupport{
 		if(!inheritsDetectorView)
 			return false;	// can't register a non AMDetectorView subclass.
 
-		// is this a subclass of AMDetectorInfo? (Or an AMDetectorInfo itself?)
+		// is this a subclass of AMOldDetectorInfo? (Or an AMOldDetectorInfo itself?)
 		const QMetaObject* detectorSuperClass = detectorMo;
 		bool inheritsDetectorInfo;
 		do {
-			inheritsDetectorInfo = (detectorSuperClass->className() == QString("AMDetectorInfo"));
+			inheritsDetectorInfo = (detectorSuperClass->className() == QString("AMOldDetectorInfo"));
 		}
 		while( (detectorSuperClass=detectorSuperClass->superClass()) && inheritsDetectorInfo == false );
 		if(!inheritsDetectorInfo)
-			return false;	// can't register a non AMDetectorInfo subclass.
+			return false;	// can't register a non AMOldDetectorInfo subclass.
 
 		// is it already registered? return true.
 		QString className(viewMo->className());
@@ -125,19 +125,19 @@ namespace AMDetectorViewSupport{
 	const QHash<QString, AMDetectorViewObjectInfo>* registeredClasses();
 
 	/// returns a const pointer to a list of AMDetectorViewObjectInfo classes supporting the AMDetector
-	const QList<AMDetectorViewObjectInfo> supportedClasses(AMDetector *detector);
+	const QList<AMDetectorViewObjectInfo> supportedClasses(AMOldDetector *detector);
 
-	const QList<AMDetectorViewObjectInfo> supportedBriefViews(AMDetector *detector);
+	const QList<AMDetectorViewObjectInfo> supportedBriefViews(AMOldDetector *detector);
 
-	const QList<AMDetectorViewObjectInfo> supportedDetailedViews(AMDetector *detector);
+	const QList<AMDetectorViewObjectInfo> supportedDetailedViews(AMOldDetector *detector);
 
 	/// Useful for gui generation, this creates the first view available from the supportedClasses for the AMDetector. You can use qobject_cast<>() or type() to find out the detailed type of the new object.  Returns 0 if no object found.
 	/*! Ownership of the newly-created object becomes the responsibility of the caller. */
-	AMDetectorView* createDetectorView(AMDetector *detector, bool configureOnly = false);
+	AMDetectorView* createDetectorView(AMOldDetector *detector, bool configureOnly = false);
 
-	AMDetectorView* createBriefDetectorView(AMDetector *detector, bool configureOnly = false);
+	AMDetectorView* createBriefDetectorView(AMOldDetector *detector, bool configureOnly = false);
 
-	AMDetectorView* createDetailedDetectorView(AMDetector *detector, bool configureOnly = false);
+	AMDetectorView* createDetailedDetectorView(AMOldDetector *detector, bool configureOnly = false);
 }
 
 
