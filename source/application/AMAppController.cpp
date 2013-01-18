@@ -140,12 +140,9 @@ void AMAppController::addBottomPanel()
 	bottomPanel_ = panel;
 }
 
-void AMAppController::goToWorkflow() {
-	// This check can be removed when all the old workflow stuff is finally removed
-	if(mw_->windowPaneModel()->allPanes().contains(workflowManagerView_))
-		mw_->setCurrentPane(workflowManagerView_);
-	else
-		mw_->setCurrentPane(workflowView_);
+void AMAppController::goToWorkflow()
+{
+	mw_->setCurrentPane(workflowView_);
 }
 
 #include "dataman/AMScan.h"

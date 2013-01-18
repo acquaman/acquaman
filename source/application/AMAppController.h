@@ -81,7 +81,6 @@ protected:
 	virtual void addBottomPanel();
 
 	/// Top-level panes in the main window
-	AMWorkflowManagerView* workflowManagerView_;
 	AMWorkflowView3* workflowView_;
 
 	/// Filters the closeEvent on the main window, in case there's any reason why we can't quit directly. (ie: scans modified and still open, or an action is still running)

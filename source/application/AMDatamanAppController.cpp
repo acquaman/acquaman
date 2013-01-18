@@ -559,16 +559,6 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	connect(mw_, SIGNAL(itemCloseButtonClicked(QModelIndex)), this, SLOT(onWindowPaneCloseButtonClicked(QModelIndex)));
 	mw_->installEventFilter(this);
 
-//	bottomBar_ = new AMBottomBar();
-//	// These buttons are never used.  Hiding them.
-//	bottomBar_->fullScreenButton->hide();
-//	bottomBar_->adjustScanFinishButton->hide();
-//	bottomBar_->restartScanButton->hide();
-//	mw_->addBottomWidget(bottomBar_);
-//	connect(bottomBar_, SIGNAL(addButtonClicked()), this, SLOT(onAddButtonClicked()));
-//	connect(bottomBar_, SIGNAL(pauseScanIssued()), this, SIGNAL(pauseScanIssued()));
-//	connect(bottomBar_, SIGNAL(resumeScanIssued()), this, SIGNAL(resumeScanIssued()));
-//	connect(bottomBar_, SIGNAL(stopScanIssued()), this, SIGNAL(stopScanIssued()));
 	addBottomPanel();
 	mw_->addBottomWidget(bottomPanel_);
 
@@ -772,10 +762,6 @@ void AMDatamanAppController::onAddButtonClicked() {
 		lastExperimentName = text;
 		e.storeToDb(AMDatabase::database("user"));
 	}
-}
-
-void AMDatamanAppController::onProgressUpdated(double elapsed, double total){
-	bottomBar_->updateScanProgress(elapsed, total);
 }
 
 #include "dataman/AMScanEditorModelItem.h"

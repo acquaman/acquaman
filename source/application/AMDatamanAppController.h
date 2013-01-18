@@ -187,14 +187,6 @@ public:
 	AMDbUpgrade *removeDatabaseUpgrade(int index) { return databaseUpgrades_.takeAt(index); }
 
 signals:
-	/// Passing on the stop scan signal from the bottom bar.
-	void stopScanIssued();
-	/// Passing on the pause scan signal from the bottom bar.
-	void pauseScanIssued();
-	/// Passing on the resume scan signal from the bottom bar.
-	void resumeScanIssued();
-	/// Passing on the continue scan signal from the bottom bar.
-	void continueScanIssued();
 	/// Notifier that a new generic scan editor has been created. Passes the reference to the new editor.
 	void scanEditorCreated(AMGenericScanEditor *);
 
@@ -245,15 +237,6 @@ The Drag is accepted when:
 
 	/// This slot is called when a menu action requests to export the current Scan Editor's graphics to a file.
 	void onActionExportGraphics();
-
-
-
-
-	/// Calling this updates the master progress bar
-	void onProgressUpdated(double elapsed, double total);
-
-
-
 
 protected slots:
 
@@ -326,7 +309,6 @@ protected:
 	QAction* exportGraphicsAction_;
 
 	/// Top-level panes in the main window
-	AMBottomBar* bottomBar_;
 	AMBottomPanel *bottomPanel_;
 	AMDataViewWithActionButtons* dataView_;
 	AMRunExperimentInsert* runExperimentInsert_;

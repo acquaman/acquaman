@@ -378,7 +378,6 @@ void SGMAppController::onCurrentScanControllerDestroyed(){
 }
 
 void SGMAppController::onCurrentScanControllerStarted(AMScanAction *action){
-	connect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
 
 	AMScan *scan = action->controller()->scan();
 	openScanInEditor(scan);
@@ -403,7 +402,6 @@ void SGMAppController::onCurrentScanControllerStarted(AMScanAction *action){
 
 void SGMAppController::onCurrentScanControllerFinished(AMScanAction *action){
 	Q_UNUSED(action)
-	disconnect(AMActionRunner3::workflow(), SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressUpdated(double,double)));
 }
 
 void SGMAppController::onActionSGMSettings(){
@@ -1115,7 +1113,7 @@ bool SGMAppController::setupSGMViews(){
 	mw_->addPane(samplePositionView_, "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
 	connect(samplePositionView_, SIGNAL(newSamplePlateSelected(AMSamplePlate*)), SGMBeamline::sgm(), SLOT(setCurrentSamplePlate(AMSamplePlate*)));
 
-	connect(SGMBeamline::sgm(), SIGNAL(currentSamplePlateChanged(AMSamplePlate*)), workflowManagerView_, SLOT(setCurrentSamplePlate(AMSamplePlate*)));
+//	connect(SGMBeamline::sgm(), SIGNAL(currentSamplePlateChanged(AMSamplePlate*)), workflowManagerView_, SLOT(setCurrentSamplePlate(AMSamplePlate*)));
 
 	SGMAdvancedControls_ = new SGMAdvancedControlsView();
 	mw_->addPane(SGMAdvancedControls_, "Beamline Control", "SGM Advanced Controls", ":/system-software-update.png");
