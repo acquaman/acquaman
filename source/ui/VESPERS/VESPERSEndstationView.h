@@ -171,9 +171,7 @@ protected slots:
 	/// Handles the 4-el vortex distance update.
 	void fourElUpdate(double val) { fourElButton_->setText(QString::number(val, 'f', 3) + " mm"); }
 	/// Handles the normal focus distance update.
-	void normalFocusUpdate(double val) { normalFocusButton_->setText(QString::number(val, 'f', 3) + " mm"); }
-	/// Handles the y focus distance update.
-	void yFocusUpdate(double val) { yFocusButton_->setText(QString::number(val, 'f', 3) + " mm"); }
+	void normalFocusUpdate(double val) { normalFocusButton_->setText(QString::number(val, 'f', 3) + " mm"); yFocusButton_->setText(QString::number(val, 'f', 3) + " mm"); }
 
 protected:
 	// Microscope light setup.

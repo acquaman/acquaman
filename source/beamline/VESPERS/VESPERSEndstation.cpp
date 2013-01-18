@@ -40,6 +40,7 @@ VESPERSEndstation::VESPERSEndstation(AMControl *pseudoNormal, AMControl *realNor
 
 	focusNormalControl_ = pseudoNormal;
 	focusYControl_ = realNormal;
+	laserPositionControl_ = new AMReadOnlyPVControl("Laser Position", "PSD1607-2-B20-01:OUT1:fbk", this);
 
 	// Microscope light PV.
 	micLightPV_ = new AMProcessVariable("07B2_PLC_Mic_Light_Inten", true, this);
@@ -79,6 +80,7 @@ VESPERSEndstation::VESPERSEndstation(AMControl *pseudoNormal, AMControl *realNor
 	connect(focusYControl_, SIGNAL(valueChanged(double)), this, SIGNAL(focusYFbkChanged(double)));
 	connect(singleElControl_, SIGNAL(valueChanged(double)), this, SIGNAL(singleElFbkChanged(double)));
 	connect(fourElControl_, SIGNAL(valueChanged(double)), this, SIGNAL(fourElFbkChanged(double)));
+	connect(laserPositionControl_, SIGNAL(valueChanged(double)), this, SIGNAL(laserPositionChanged(double)));
 
 	QList<AMControl *> list(filterMap_.values());
 	for (int i = 0; i < list.size(); i++)
