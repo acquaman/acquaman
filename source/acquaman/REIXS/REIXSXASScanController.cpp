@@ -35,6 +35,12 @@ void REIXSXASScanController::createAnalysisBlocks()
 	ab->setInputDataSources(rawDataSources);
 	ab->setExpression("TFY/I0");
 	scan_->addAnalyzedDataSource(ab);
+
+	ab = new AM1DExpressionAB("PFYNorm");
+	ab->setDescription("Normalized PFY");
+	ab->setInputDataSources(rawDataSources);
+	ab->setExpression("PFY/I0");
+	scan_->addAnalyzedDataSource(ab);
 }
 
 AMControl * REIXSXASScanController::control()
