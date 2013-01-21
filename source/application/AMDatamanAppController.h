@@ -46,6 +46,7 @@ class QStandardItem;
 
 class AMDatabase;
 class AMDbUpgrade;
+class AMScan;
 
 #define AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES 42001
 #define AMDATAMANAPPCONTROLLER_STARTUP_FINISHED 42002
@@ -210,8 +211,8 @@ The Drag is accepted when:
 	  - The id of the item can be found in the table
 	  */
 	bool dropScanURLs(const QList<QUrl>& urls, AMGenericScanEditor* editor = 0, bool openInIndividualEditors = false);
-	/// Open a scan specified by a database URL, in the given \c editor. (If \c editor is 0, a new editor will be opened.)  The scans are checked to make sure that they're not already open, and that they're not still scanning somewhere else. Returns true if the scan was opened successfully.
-	bool dropScanURL(const QUrl& url, AMGenericScanEditor* editor = 0);
+	/// Open a scan specified by a database URL and returns the scan. The scans are checked to make sure that they're not already open, and that they're not still scanning somewhere else. Returns 0 if an error occurred.
+	AMScan *dropScanURL(const QUrl& url);
 
 	/// Opens scan configurations by a database URL, based on the view that is stored inside the scan.
 	void onLaunchScanConfigurationsFromDb(const QList<QUrl> &urls);

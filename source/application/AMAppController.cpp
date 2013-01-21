@@ -98,18 +98,11 @@ bool AMAppController::startup(){
 bool AMAppController::startupCreateUserInterface() {
 
 	if (AMDatamanAppControllerForActions3::startupCreateUserInterface()){
-		// a heading for the workflow manager...
-//		workflowManagerView_ = new AMWorkflowManagerView();
-//		mw_->insertHeading("Experiment Tools", 1);
-//		mw_->addPane(workflowManagerView_, "Experiment Tools", "WorkflowOld", ":/user-away.png");
 
 		// add the workflow control UI
 		workflowView_ = new AMWorkflowView3();
 		mw_->insertHeading("Experiment Tools", 1);
 		mw_->addPane(workflowView_, "Experiment Tools", "Workflow", ":/user-away.png");
-		// remove the old one:
-//		mw_->removePane(workflowManagerView_);
-//		workflowManagerView_->hide();
 
 		// get the "open scans" section to be under the workflow
 		mw_->windowPaneModel()->removeRow(scanEditorsParentItem_->row());
@@ -203,12 +196,6 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 	scan->release();
 	if(!config)
 		return;
-
-	// Check if this is a regular scan configuration or a 2D one.
-	bool is2D_ = false;
-
-	if (qobject_cast<AM2DScanConfiguration *>(config))
-		is2D_ = true;
 
 	AMScanConfigurationView *view = config->createView();
 	if(!view) {

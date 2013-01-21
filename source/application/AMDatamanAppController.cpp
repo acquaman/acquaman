@@ -1019,33 +1019,60 @@ bool AMDatamanAppController::dropScanURLs(const QList<QUrl> &urls, AMGenericScan
 		return false;
 
 	bool accepted = false;
-	bool madeNewEditor = false;
 
-	// where are they going?
-	if(openInIndividualEditors) {
-		editor = 0;	// create new one for each
+	AMScan *scan = 0;
+	AMGenericScanEditor *temp2D = 0;
+
+	// Just make a new scan editor as you need it, in the way you need it.
+	if (openInIndividualEditors){
+
+		// loop through all URLs
+		foreach(QUrl url, urls) {
+
+			scan = dropScanURL(url);
+
+			if(scan){
+
+				editor = createNewScanEditor(scan->scanRank() == 2);
+				accepted = true;
+			}
+		}
 	}
+
+	// If the editor wasn't passed in, make one when you need it.  Either way, always make a new one if the editor needs to use the 2D scan view.
 	else {
-		if(!editor) {
-			editor = createNewScanEditor();
-			madeNewEditor = true;
+
+		// loop through all URLs
+		foreach(QUrl url, urls) {
+
+			scan = dropScanURL(url);
+
+			if(scan){
+
+				if (scan->scanRank() == 2){
+
+					temp2D = createNewScanEditor(true);
+					temp2D->addScan(scan);
+				}
+
+				else{
+
+					if (!editor)
+						editor = createNewScanEditor();
+
+					editor->addScan(scan);
+				}
+
+				accepted = true;
+			}
 		}
 	}
 
-	// loop through all URLs
-	foreach(QUrl url, urls) {
-		if(dropScanURL(url, editor))
-			accepted = true;
-	}
+	if (editor)
+		mw_->setCurrentPane(editor);
 
-	if(madeNewEditor) {	// if we made a single new editor for these...
-		if(accepted) {
-			mw_->setCurrentPane(editor);
-		}
-		else {
-			mw_->deletePane(editor);	// no need for this guy; he's empty.
-		}
-	}
+	else if (temp2D)
+		mw_->setCurrentPane(temp2D);
 
 	return accepted;
 }
@@ -1055,32 +1082,32 @@ bool AMDatamanAppController::dropScanURLs(const QList<QUrl> &urls, AMGenericScan
 #include "actions3/AMListAction3.h"
 #include <QListView>
 #include <QStringListModel>
-bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *editor)
+AMScan *AMDatamanAppController::dropScanURL(const QUrl &url)
 {
 	// scheme correct?
 	if(url.scheme() != "amd") {
-		return false;
+		return 0;
 	}
 
 	// Can we connect to the database?
 	AMDatabase* db = AMDatabase::database(url.host());
 	if(!db)
-		return false;
+		return 0;
 	// \bug This does not verify that the incoming scans came from the user database. In fact, it happily accepts scans from other databases. Check if we assume anywhere inside AMGenericScanEditor that we're using the AMDatabase::database("user") database. (If we do, this could cause problems when multiple databases exist.)
 
 	QStringList path = url.path().split('/', QString::SkipEmptyParts);
 	if(path.count() != 2)
-		return false;
+		return 0;
 
 	QString tableName = path.at(0);
 	bool idOkay;
 	int id = path.at(1).toInt(&idOkay);
 	if(!idOkay || id < 1)
-		return false;
+		return 0;
 
 	// Only open scans for now (ie: things in the scans table)
 	if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
-		return false;
+		return 0;
 
 	// Flag used to determine if the scan needs to overwrite the currently scanning status.
 	bool overwriteNecessary = false;
@@ -1088,7 +1115,7 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 	// Check if this scan is scanning... Use the currentlyScanning column stored in the database.
 	QVariant isScanning = db->retrieve(id, tableName, "currentlyScanning");
 	if(!isScanning.isValid())
-		return false;
+		return 0;
 	if(isScanning.toBool()) {
 		QList<QVariant> nameAndNumber = db->retrieve(id, tableName, QStringList() << "name" << "number");
 		QMessageBox stillScanningEnquiry;
@@ -1107,7 +1134,7 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 			if(otherEditor)
 				mw_->setCurrentPane(otherEditor);
 
-			return false;
+			return 0;
 		}
 		// If this option is chosen, it will set currently scanning to false, and then allow regular opening of the scan.
 		else if (stillScanningEnquiry.clickedButton() == overwriteCurrentlyScanningButton){
@@ -1115,7 +1142,7 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 			overwriteNecessary = true;
 		}
 		else
-			return false;
+			return 0;
 	}
 
 	// Check if this scan is already open
@@ -1139,24 +1166,24 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 		}
 		else if(alreadyOpenEnquiry.clickedButton() == showMeNowButton) {
 			mw_->setCurrentPane(otherEditor);
-			return false;
+			return 0;
 		}
 		else {
 			// user chose to cancel.
-			return false;
+			return 0;
 		}
 	}
 
 	// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
 	AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
 	if(!dbo)
-		return false;
+		return 0;
 
 	// Is it a scan?
 	AMScan* scan = qobject_cast<AMScan*>( dbo );
 	if(!scan) {
 		delete dbo;
-		return false;
+		return 0;
 	}
 
 	// Change the scan in the database if necessary and then reload it.
@@ -1170,32 +1197,17 @@ bool AMDatamanAppController::dropScanURL(const QUrl &url, AMGenericScanEditor *e
 
 		dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
 		if(!dbo)
-			return false;
+			return 0;
 
 		// Is it a scan?
 		scan = qobject_cast<AMScan*>( dbo );
 		if(!scan) {
 			delete dbo;
-			return false;
+			return 0;
 		}
 	}
 
-	// success!
-	if (scan->scanRank() == 2){
-
-		if (editor)
-			closeScanEditor(editor);
-
-		editor = createNewScanEditor(true);
-	}
-
-	else if(!editor) {
-		editor = createNewScanEditor();
-	}
-
-	editor->addScan(scan);
-
-	return true;
+	return scan;
 }
 
 #include "dataman/import/AMScanDatabaseImportController.h"
