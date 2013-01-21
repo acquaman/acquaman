@@ -603,7 +603,9 @@ HEADERS += source/acquaman/AMAcqScanOutput.h \
     source/beamline/AMOldDetectorSet.h \
     source/beamline/AMDetector.h \
     source/dataman/AMDbUpgrade1Pt1.h \
-    source/dataman/AMDbUpgrade1Pt2.h
+    source/dataman/AMDbUpgrade1Pt2.h \
+    source/dataman/info/AMDetectorInfo.h \
+    source/beamline/CLS/CLSAmptekSDD123DetectorNew.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1010,7 +1012,9 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/beamline/AMOldDetectorSet.cpp \
     source/beamline/AMDetector.cpp \
     source/dataman/AMDbUpgrade1Pt1.cpp \
-    source/dataman/AMDbUpgrade1Pt2.cpp
+    source/dataman/AMDbUpgrade1Pt2.cpp \
+    source/dataman/info/AMDetectorInfo.cpp \
+    source/beamline/CLS/CLSAmptekSDD123DetectorNew.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1034,6 +1038,10 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
 
 
 
